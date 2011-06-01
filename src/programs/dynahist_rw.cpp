@@ -76,13 +76,15 @@ struct SimData
 	  {
 	    double energy = node.getAttribute("Energy").as<double>();
 	    double Wval = node.getAttribute("OldValue").as<double>();
-	    
-	    //Here, the Wval needs to be multiplied by kT to turn it
-	    //into an Energy, but the Ensemble is not yet initialised,
-	    //we must do this conversion later, when we actually use the W val.
-	    _W[lrint(energy / binWidth)] = Wval;
+	    if (Wval) _W[lrint(energy / binWidth)] = Wval;
 	  }
       }
+
+    std::cout << "W for file " << nfn;
+    for (boost::unordered_map<int, double>::iterator iPtr = _W.begin();
+	 iPtr != _W.end(); ++iPtr)
+      std::cout << "\nE = " << iPtr->first * binWidth << ", W = " << iPtr->second;
+    std::cout << std::endl;
 
     //Now navigate to the histogram and load the data
     std::istringstream HistogramData
@@ -100,7 +102,6 @@ struct SimData
 	
 	data.push_back(tmpData);
       }
-    
   }
   
   bool operator<(const SimData& d2) const
@@ -155,7 +156,7 @@ struct SimData
 		  + SimulationData[j].W(simdat.X[i]) - W(simdat.X[i]);
 	      }
 
-	      //This is Z^{-1} \exp[(\gamma_i- \gamma) \cdot X]
+	      //This is Z^{-1} \exp[(\gamma_i- \gamma) \cdot X + W_i(X) - W(X)]
 	      sum2 += exp(dot - SimulationData[j].logZ);
 	    }
 	  
@@ -198,7 +199,7 @@ struct SimData
     boost::unordered_map<int, double>::const_iterator 
       iPtr = _W.find(lrint(E / binWidth));
     if (iPtr != _W.end())
-      return iPtr->second;
+      return -iPtr->second;
     return 0;
   }
 };
@@ -334,11 +335,11 @@ void calcDensityOfStates()
 	  //Adding in the W factor
 	  if (NGamma != 1) 
 	    M_throw() << "For multiple gamma reweighting, one must be designated as E and used in the W lookup";
+
 	  tmp += dat2.W(dat.first[0]);
 
 	  for (size_t i(0); i < NGamma; ++i)
 	    tmp += dat2.gamma[i] * dat.first[i];
-	  
 
 	  sum += exp(tmp - dat2.logZ);
 	}
@@ -404,7 +405,7 @@ void outputMoments()
 	  for (size_t i(0); i < NGamma; ++i)
 	    tmp += dat.gamma[i] * dat2.first[i];
 
-	  Z += exp (log(dat2.second) + tmp);
+	  Z += std::exp(std::log(dat2.second) + tmp);
 	}
       
       Z = log(Z);
@@ -417,19 +418,20 @@ void outputMoments()
 	  for (size_t i(0); i < NGamma; ++i)
 	    tmp += dat.gamma[i] * dat2.first[i];
 
-	  Norm += exp(log(dat2.second) + tmp - Z);
+	  Norm += std::exp(std::log(dat2.second) + tmp - Z);
 	}
 
       BOOST_FOREACH(const densOStatesPair& dat2, densOStates)
 	{
 	  long double tmp(0);
+
 	  for (size_t i(0); i < NGamma; ++i)
 	    tmp += dat.gamma[i] * dat2.first[i];
 
 	  for (size_t i(0); i < NGamma; ++i)
 	    Eof << dat2.first[i] << " ";
 
-	  Eof << (exp(log(dat2.second) + tmp - Z) / Norm) / SimulationData.front().binWidth << "\n";
+	  Eof << (std::exp(std::log(dat2.second) + tmp - Z) / Norm) / SimulationData.front().binWidth << "\n";
 	}
     }
 
