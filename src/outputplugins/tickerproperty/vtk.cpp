@@ -115,8 +115,6 @@ OPVTK::eventUpdate(const IntEvent& IEvent, const PairEventData& PDat)
 	  
 	  
 	  //////////////////////////HERE BEGINS THE OUTPUT OF THE FIELDS
-	  dynamo::Line_Breaker lb(6);
-	  
 	  ////////////SAMPLE COUNTS
 	  XML << xml::tag("DataArray")
 	      << xml::attr("type") << "Int32"
@@ -125,7 +123,7 @@ OPVTK::eventUpdate(const IntEvent& IEvent, const PairEventData& PDat)
 	      << xml::chardata();
 	  
 	  BOOST_FOREACH(const unsigned long& val, collCounter)
-	    XML << val << lb;
+	    XML << val;
 	  
 	  XML << "\n" << xml::endtag("DataArray");
 	  
@@ -143,9 +141,8 @@ OPVTK::eventUpdate(const IntEvent& IEvent, const PairEventData& PDat)
 	      << xml::attr("format") << "ascii"
 	      << xml::chardata();
 	  
-	  lb.reset();
 	  BOOST_FOREACH(const size_t& val, density)
-	    XML << (val / binVol) << lb;
+	    XML << (val / binVol);
 	  
 	  XML << "\n" << xml::endtag("DataArray");
 
@@ -389,9 +386,6 @@ OPVTK::output(xml::XmlStream& XML)
   XML << xml::tag("PointData");
 
 
-  //////////////////////////HERE BEGINS THE OUTPUT OF THE FIELDS
-  dynamo::Line_Breaker lb(6);
-
   ////////////SAMPLE COUNTS
   XML << xml::tag("DataArray")
       << xml::attr("type") << "Int32"
@@ -400,13 +394,11 @@ OPVTK::output(xml::XmlStream& XML)
       << xml::chardata();
 
   for (size_t id(0); id < SampleCounter.size(); ++id)
-    XML << SampleCounter[id] << lb;
+    XML << SampleCounter[id];
 
   XML << "\n" << xml::endtag("DataArray");
 
   ////////////Momentum field
-  lb.reset();
-
   XML << xml::tag("DataArray")
       << xml::attr("type") << "Float32"
       << xml::attr("Name") << "Avg Particle Momentum"
@@ -420,18 +412,15 @@ OPVTK::output(xml::XmlStream& XML)
 	//Nans are not tolerated by paraview
 	if (SampleCounter[id])	  
 	  XML << Momentum[id][iDim] 
-	    / (SampleCounter[id] * Sim->dynamics.units().unitMomentum()) 
-	      << lb;
+	    / (SampleCounter[id] * Sim->dynamics.units().unitMomentum());
 	else
-	  XML << 0.0 << lb;
+	  XML << 0.0;
     }
 
   XML << "\n" << xml::endtag("DataArray");
   
 
   ////////////Energy
-  lb.reset();
-
   XML << xml::tag("DataArray")
       << xml::attr("type") << "Float32"
       << xml::attr("Name") << "Avg Particle Energy"
@@ -442,9 +431,9 @@ OPVTK::output(xml::XmlStream& XML)
     //Nans are not tolerated by paraview
     if (SampleCounter[id])
       XML << mVsquared[id] * 0.5 
-	/ (SampleCounter[id] * Sim->dynamics.units().unitEnergy()) << lb;
+	/ (SampleCounter[id] * Sim->dynamics.units().unitEnergy());
     else
-      XML << 0.0 << lb;
+      XML << 0.0;
 
   XML << "\n" << xml::endtag("DataArray");
 

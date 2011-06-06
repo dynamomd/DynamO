@@ -44,10 +44,15 @@ namespace magnet {
   //! and surfaces.
   namespace intersection {}
 
-  //! \brief Namespace for the magnet shape-line intersection functions.
+  //! \brief Namespace for the magnet shape-shape overlap functions.
   //!
   //! These functions determine if two objects are currently
   //! overlapping in a 3D space.
   namespace overlap {}
 
+  //! \brief Namespace for io stream classes and functions.
+  namespace stream {}
+
+  //! \brief Namespace for string manipulation functions.
+  namespace string {}
 }

@@ -16,8 +16,7 @@
 */
 
 #pragma once
-
-#include "is_stream_op.hpp"
+#include <iostream>
 #include <magnet/exception.hpp>
 
 
@@ -42,15 +41,15 @@ namespace dynamo
       name(aName),color(aColor) {};
     
     /*! \brief A private stream to format the standard output stream. */
-    Stream_Operator I_cout() const
+    std::ostream& I_cout() const
     {
-      return ((std::cout << Stream_Operator(name,color)) << "\n");
+      return (std::cout << "\n");
     }
 
     /*! \brief A private stream to format the standard error stream. */
-    Stream_Operator I_cerr() const
+    std::ostream& I_cerr() const
     {
-      return ((std::cerr << Stream_Operator(name,IC_red)) << "\n");
+      return (std::cerr << "\n");
     }
     
   protected:
