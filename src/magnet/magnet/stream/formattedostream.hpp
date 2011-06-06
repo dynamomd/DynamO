@@ -25,15 +25,6 @@
 namespace magnet
 {
   namespace stream {
-    /*! \brief A class which is used to mark the end of a block of
-     * formatted text.
-     *
-     * This class is used like a std::endl class, as it causes all
-     * text in the buffer to be formatted and flushed to the
-     * underlying _ostream.
-     */
-    struct EndBlock {};
-
     /*! \brief This class wraps an std::ostream to provide automatic
      * formatting.
      *
@@ -49,7 +40,7 @@ namespace magnet
      * os << "Some long text as part of a block of output, plus a number " << 20 
      *    << "but always finished with a " << stream::EndBlock; \endcode
      */
-    class FormattedOStream
+    class FormattedOStream : public std::ostringstream
     {
     public:
       /*! \brief Constructor.
@@ -61,8 +52,8 @@ namespace magnet
        * \param ostream The underlying output stream or final destination of the formatted output.
        * \param prefix The string to replace all newline characters with.
        */
-      inline FormattedOStream(std::ostream& ostream = std::cout, 
-			      const std::string & prefix = "", 
+      inline FormattedOStream(const std::string & prefix = "",
+			      std::ostream& ostream = std::cout,
 			      const size_t linelength = 80):
 	_ostream(&ostream),
 	_prefix(prefix),
@@ -75,15 +66,21 @@ namespace magnet
     
       /*! \brief The main workhorse for the FormattedOStream operator.
        *
-       * This stores all passed types in the _ostring
+       * This stores all passed types in the inherited
        * std::stringstream object. These strings will be formatted
-       * once a std::endl object is recieved, by the std::endl
-       * specialization.
+       * once a std::endl object is recieved, by the flush() 
+       * function.
        */
       template<class T>
       inline FormattedOStream& operator<<(T m)
       {
-	_ostring << m;
+	static_cast<std::ostringstream&>(*this) << m;
+	return *this;
+      }
+
+      inline FormattedOStream& operator<<(std::ostream& (*pf)(std::ostream&))
+      {
+	pf(*this);
 	return *this;
       }
 
@@ -109,35 +106,10 @@ namespace magnet
         strings to. */
       std::ostream *_ostream;
 
-      /*! \brief The buffer, where all the unformatted strings are
-       *  collected before a std::endl flushes them.
-       */
-      std::ostringstream _ostring;
-
       /*! \brief The maximum length of a formatted line before it is
        *   wrapped.
        */      
       size_t _linelength;
     };
-    
-    /*! \brief The actual output function.
-     *
-     * When a EndBlock is sent to the stream, we actually format and
-     * output the text.
-     */
-    template<>
-    inline FormattedOStream&
-    FormattedOStream::operator<< <EndBlock> (EndBlock)
-    {
-      //Add the initial newline
-      std::string output(std::string("\n") + _ostring.str());
-      //Wrap the text to the correct length
-      output = string::linewrap<true>(output, _linelength);
-      //Add the prefix to every newline
-      output = string::searchReplace(output, "\n", _prefix);
-      //Write the result out
-      *_ostream << output;
-      return *this;
-    }
   }
 }

@@ -12,9 +12,11 @@
 **** DONE The DynamO-Coil integration can be forcibly enabled or disabled at build time.
 **** DONE Initial support for triangular meshes. The current version is not optimized using a neighbor list.
 **** DONE Multicanonical and replica-exchange simulations.
+**** DONE Moved the dynamo code into its own folder in the src directory.
 **** DONE *BUGFIX* Fixed a load error on the MFT if the output configuration is from a simulation with no events.
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
 **** DONE *BUGFIX* Fixed bounded priority queues causing huge slowdowns in small systems.
+**** TODO Move to a new console formatting class.
 **** TODO *Improvement* Rescaling thermostat for shear flows http://arxiv.org/pdf/1103.3704.
 **** TODO *Improvement* Allow adjustable shear rates.
 **** TODO Remove the cached particle data used in the collision detection. Migrate to the magnet libraries collision detection functions.
@@ -26,7 +28,6 @@
 **** TODO Generalized scheduler for multiple neighborlists.
 **** TODO Clean up the overlap tests and make a dynamod --check mode.
 **** TODO Generalize the Morton ordered neighbour list.
-**** TODO Move the dynamo classes into its own folder in the src directory.
 **** TODO Move all the dynamo classes into the dynamo namespace.
 *** DynamO 1.1 							    :ARCHIVE:
 **** DONE *MAJOR* Remove Unit types from the XML file and simulator.
