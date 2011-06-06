@@ -1,1 +1,1 @@
-boost-build boost/tools/build/v2 ;
+boost-build src/boost/tools/build/v2 ;

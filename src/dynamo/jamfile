@@ -1,0 +1,89 @@
+#    DYNAMO:- Event driven molecular dynamics simulator 
+#    http://www.marcusbannerman.co.uk/dynamo
+#    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+#
+#    This program is free software: you can redistribute it and/or
+#    modify it under the terms of the GNU General Public License
+#    version 3 as published by the Free Software Foundation.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import feature ;
+import ../magnet/jam/buildinfo ;
+import ../magnet/jam/tags ;
+
+lib gslcblas ;
+lib gsl : gslcblas : <name>gsl ;
+
+lib rt : : <link>shared ;
+
+exe gsltest : tests/gsltest.cpp gsl ;
+exe zlibtest : tests/zlibtest.cpp ;
+exe bzip2test : tests/bzip2test.cpp ;
+
+exe dynamoDependencies : tests/buildreq.cpp : 
+[ check-target-builds zlibtest "DynamO: zlib " : : <define>BUILDFAIL ]
+[ check-target-builds bzip2test "DynamO: bzip2 " : : <define>BUILDFAIL ]
+: : ;
+
+rule critical_dependencies ( )
+{ return [ check-target-builds dynamoDependencies "DynamO dependencies" :  : <build>no ] ; }
+
+explicit dynamo_visualizer dynamo_core gsltest test zlibtest bzip2test dynamoDependencies ;
+always gsltest zlibtest bzip2test dynamoDependencies ;
+
+lib dynamo_core : [ glob-tree *.cpp : programs tests ]
+      ../magnet//magnet ../boost//iostreams ../boost//filesystem
+      ../boost//program_options rt 
+    : <include>include <include>. [ critical_dependencies ]
+      <variant>debug:<define>DYNAMO_DEBUG <link>static
+     [ check-target-builds gsltest "DynamO: GSL (RadiusGyration)" : <source>gsl <define>DYNAMO_GSL : ]
+      <coil-integration>yes:<source>../coil//coil/<link>static
+      <coil-integration>yes:<define>DYNAMO_visualizer
+    : : <include>include 
+    <variant>debug:<define>DYNAMO_DEBUG <threading>multi <link>static <include>.
+    ;
+
+alias test : ;
+
+explicit dynamo_core visualizer test ;
+
+#This target is a header which holds information about the current
+#build. It's used when the executable wants to know when it was built
+#and from which git commit.
+make buildinfo.hpp : : @buildinfo.gen_buildinfo_data :  ;
+
+#This rule tests for the dynamo dependencies and returns <build>no if
+#they're not satisfied
+rule critical_dependencies ( )
+{ return [ check-target-builds dynamoDependencies "DynamO dependencies" :  : <build>no ] ; }
+
+#dynarun
+obj dynarun_src : programs/dynarun.cpp  : <use>dynamo_core <implicit-dependency>buildinfo.hpp ;
+exe dynarun : dynarun_src dynamo_core : [ critical_dependencies ] <tag>@tags.exe-naming ;
+
+#dynareplex_opt
+obj dynareplex_opt_src : programs/dynareplex_opt.cpp  ../boost//program_options
+    : <implicit-dependency>buildinfo.hpp ;
+exe dynareplex_opt : dynareplex_opt_src ../boost//program_options
+    : [ critical_dependencies ] <tag>@tags.exe-naming ;
+
+#dynahist_rw
+obj dynahist_rw_src : programs/dynahist_rw.cpp
+    : <implicit-dependency>buildinfo.hpp <use>dynamo_core ;
+
+exe dynahist_rw : dynahist_rw_src dynamo_core 
+    : [ critical_dependencies ] <tag>@tags.exe-naming ;
+
+#dynamod
+obj dynamod_src : programs/dynamod.cpp 
+                : <implicit-dependency>buildinfo.hpp <use>dynamo_core ;
+exe dynamod : dynamod_src dynamo_core : [ critical_dependencies ] <tag>@tags.exe-naming ;
+
+explicit buildinfo.hpp dynamod_src dynahist_rw_src dynareplex_opt_src dynarun_src ;

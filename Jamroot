@@ -24,7 +24,7 @@ if ! gcc in [ feature.values <toolset> ]
 
 ##########################################################################
 #Location of the boost build root directory
-path-constant BOOST_ROOT : boost/tools/build/v2 ;
+path-constant BOOST_ROOT : src/boost/tools/build/v2 ;
 
 ##########################################################################
 #If the build-dir doesn't exist at the very start of the build, all
@@ -39,7 +39,7 @@ else
 
 ##########################################################################
 #We bring all the jam projects used in dynamo into scope
-use-project dynamo_core : src/ ;
+use-project dynamo_core : src/dynamo ;
 use-project magnet : src/magnet ;
 use-project coil : src/coil ;
 
@@ -52,8 +52,6 @@ feature.feature color : yes no : propagated ;
 
 ##########################################################################
 #Imports (jam includes)
-import src/magnet/jam/buildinfo ;
-import src/magnet/jam/tags ;
 
 ##########################################################################
 #Additional build variants
@@ -105,38 +103,11 @@ project	: requirements
 ##########################################################################
 #Targets
 #
-#This target is a header which holds information about the current
-#build. It's used when the executable wants to know when it was built
-#and from which git commit.
-make buildinfo.hpp : : @buildinfo.gen_buildinfo_data :  ;
 
 #This rule tests for the dynamo dependencies and returns <build>no if
 #they're not satisfied
 rule critical_dependencies ( )
-{ return [ check-target-builds src//dynamoDependencies "DynamO dependencies" :  : <build>no ] ; }
-
-#dynarun
-obj dynarun_src : src/programs/dynarun.cpp
-                : <use>src//dynamo_core <implicit-dependency>buildinfo.hpp ;
-exe dynarun : dynarun_src src//dynamo_core : [ critical_dependencies ] <tag>@tags.exe-naming ;
-
-#dynareplex_opt
-obj dynareplex_opt_src : src/programs/dynareplex_opt.cpp  boost//program_options
-    : <implicit-dependency>buildinfo.hpp ;
-exe dynareplex_opt : dynareplex_opt_src boost//program_options
-    : [ critical_dependencies ] <tag>@tags.exe-naming ;
-
-#dynahist_rw
-obj dynahist_rw_src : src/programs/dynahist_rw.cpp
-    : <implicit-dependency>buildinfo.hpp <use>src//dynamo_core ;
-exe dynahist_rw : dynahist_rw_src src//dynamo_core 
-    : [ critical_dependencies ] <tag>@tags.exe-naming ;
-
-#dynamod
-obj dynamod_src : src/programs/dynamod.cpp 
-                : <implicit-dependency>buildinfo.hpp <use>src//dynamo_core ;
-exe dynamod : dynamod_src src//dynamo_core : [ critical_dependencies ] <tag>@tags.exe-naming ;
-
+{ return [ check-target-builds src/dynamo//dynamoDependencies "DynamO dependencies" :  : <build>no ] ; }
 
 ##########INSTALL TARGETS
 #Coil
@@ -148,7 +119,7 @@ install install-coil
 
 #dynamo
 install install-bin 
-	: dynarun dynahist_rw dynamod 
+	: src/dynamo//dynarun src/dynamo//dynahist_rw src/dynamo//dynamod 
 	: <location>bin [ critical_dependencies ]
 	;
 
@@ -159,4 +130,4 @@ alias test : src/magnet//test src/coil//test src//test ;
 
 ##################################################################
 #Explicits
-explicit install install-coil coil install-bin test buildinfo.hpp dynamod_src dynahist_rw_src dynareplex_opt_src dynarun_src ;
+explicit install install-coil coil install-bin test  ;
