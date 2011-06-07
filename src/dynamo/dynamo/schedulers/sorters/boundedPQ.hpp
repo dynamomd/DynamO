@@ -96,7 +96,6 @@ public:
   ~CSSBoundedPQ() 
   { 
     dout << "Exception Events = " << exceptionCount << std::endl;
-    std::cout << "\n";
   }
   
   inline size_t size() const { return Min.size() - 1; }
@@ -192,7 +191,8 @@ public:
 		"\nThis means the queue cannot be instrumented properly to"
 		"\ndetermine the optimal settings for the bounded queue, now"
 		"\nusing some (probably inefficient) defaults."
-		"\nIf this is a proper simulation, consider using a different Sorter (e.g., CBT)." << std::endl;
+		"\nIf this is a proper simulation, consider using a different Sorter (e.g., CBT)." 
+		   << std::endl;
 	      scale = 10;
 	      nlists = 1000;
 	    }
@@ -224,7 +224,7 @@ public:
     if (nlists == 0)
       {
 	derr << "nlists = 0!\n"
-		 << "This is a BAD thing, unless NCells = NParticles and "
+	     << "This is a BAD thing, unless NCells = NParticles and "
 	  "they're in a perfect crystal, if it happens again after the "
 	  "preliminary run its certainly a bug" << std::endl;
 	nlists = 1000;
@@ -232,7 +232,9 @@ public:
 
     if (!quiet)
       dout << "Length of linear list = " << nlists
-	       << "Scale factor = " << scale * Sim->dynamics.units().unitTime() << std::endl;
+	   << "Scale factor = " 
+	   << scale * Sim->dynamics.units().unitTime() 
+	   << std::endl;
 
     linearLists.resize(nlists+1, -1); /*+1 for overflow, -1 for
 					marking empty*/ 
@@ -240,7 +242,6 @@ public:
     if (!quiet)
       {
 	dout << "Sorting all events, please wait..." << std::endl;
-	dout << std::flush << std::endl;
       }
 
     //Now insert all of the events!
@@ -251,7 +252,6 @@ public:
     if (!quiet)
       {
 	dout << "Finding first event..." << std::endl;
-	dout << std::flush << std::endl;
       }
     
     //Find the next event and place it first so nextEventID() works

@@ -63,9 +63,10 @@ OPMisc::initialise()
 	     <<  VecEnergy[iDim] << std::endl;
 
   dout << "No. of Species " << Sim->dynamics.getSpecies().size()
-      << "\nSimulation box length <x,y,z> " << std::endl;
+      << "\nSimulation box length <x y z> < ";
   for (size_t iDim = 0; iDim < NDIM; iDim++)
-    std::cout  << Sim->primaryCellSize[iDim]/Sim->dynamics.units().unitLength() << " ";
+    dout  << Sim->primaryCellSize[iDim]/Sim->dynamics.units().unitLength() << " ";
+  dout << ">" << std::endl;
 
   Vector  sumMV (0,0,0);
 
@@ -77,12 +78,10 @@ OPMisc::initialise()
       sumMV += vel * Sim->dynamics.getSpecies(Part).getMass(Part.getID());
     }
 
-  dout << "Total momentum <x,y,z> <" << std::endl;
-
+  dout << "Total momentum <x,y,z> <";
   for (size_t iDim = 0; iDim < NDIM; iDim++)
-    std::cout  << sumMV[iDim] / Sim->dynamics.units().unitMomentum() << " ";
-
-  std::cout << ">";
+    dout  << sumMV[iDim] / Sim->dynamics.units().unitMomentum() << " ";
+  dout << ">" << std::endl;
 
   std::time(&tstartTime);
 
