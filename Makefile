@@ -7,6 +7,9 @@ BJAM="./src/boost/bjam"
 all : build_deps
 	$(BJAM) -j4 install
 
+debug : build_deps
+	$(BJAM) -j4 debug
+
 test : build_deps
 	$(BJAM) -j4 test
 
