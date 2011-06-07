@@ -28,7 +28,7 @@ BCLeesEdwards::BCLeesEdwards(const dynamo::SimData* tmp):
   dxd(0.0) 
 {
   Sim = tmp;
-  I_cout() << " Lee's Edwards BC loaded"; 
+  dout << " Lee's Edwards BC loaded" << std::endl; 
 }
 
 BCLeesEdwards::BCLeesEdwards(const magnet::xml::Node& XML, 
@@ -38,8 +38,8 @@ BCLeesEdwards::BCLeesEdwards(const magnet::xml::Node& XML,
 {
   Sim = tmp;
   operator<<(XML);
-  I_cout() << " Lee's Edwards BC loaded"; 
-  I_cout() << "DXD = " << dxd;
+  dout << " Lee's Edwards BC loaded" << std::endl; 
+  dout << "DXD = " << dxd << std::endl;
 }
 
 void 

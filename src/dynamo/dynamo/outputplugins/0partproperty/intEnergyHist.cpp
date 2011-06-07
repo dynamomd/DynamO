@@ -145,7 +145,7 @@ OPIntEnergyHist::output(xml::XmlStream& XML)
   
   if (Sim->dynamics.liouvilleanTypeTest<LNewtonianMC>())
     {
-      I_cout() << "Detected a Multi-canonical Liouvillean, outputting w parameters";
+      dout << "Detected a Multi-canonical Liouvillean, outputting w parameters" << std::endl;
       const LNewtonianMC& liouvillean(static_cast<const LNewtonianMC&>(Sim->dynamics.getLiouvillean()));
   
 #ifdef DYNAMO_DEBUG      

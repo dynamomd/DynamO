@@ -171,10 +171,9 @@ IRotatedParallelCubes::checkOverlaps(const Particle& part1, const Particle& part
 	      + _diameter->getProperty(part2.getID())) * 0.5;
   
   if ((rij | rij) < d * d)
-    I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
-	     << "Possible overlap occured in diagnostics\n ID1=" << part1.getID() 
-	     << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-	     << (rij | rij) / pow(Sim->dynamics.units().unitLength(), 2)
-	     << "\nd^2=" 
-	     << d * d / pow(Sim->dynamics.units().unitLength(), 2);
+    derr << "Possible overlap occured in diagnostics\n ID1=" << part1.getID() 
+	 << ", ID2=" << part2.getID() << "\nR_ij^2=" 
+	 << (rij | rij) / pow(Sim->dynamics.units().unitLength(), 2)
+	 << "\nd^2=" 
+	 << d * d / pow(Sim->dynamics.units().unitLength(), 2) << std::endl;
 }

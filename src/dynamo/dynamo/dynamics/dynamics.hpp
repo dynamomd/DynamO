@@ -189,7 +189,7 @@ public:
   template<class T> void applyBC()
     {
       if (p_BC.empty())
-	I_cout() << "Warning, resetting the BC's";
+	dout << "Warning, resetting the BC's" << std::endl;
       
       p_BC.set_ptr(new T(Sim));
     }

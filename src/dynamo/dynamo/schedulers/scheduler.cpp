@@ -148,13 +148,13 @@ CScheduler::runNextEvent()
     
     if (sorter->next_dt() == HUGE_VAL)
       {
-	I_cerr() << "Next event time is Inf! (Queue has run out of events!)\n"
+	derr << "Next event time is Inf! (Queue has run out of events!)\n"
 		 << "Shutting simulation down..."
 		 << "\nEvent details, Type = " 
 		 << sorter->next_type()
 		 << "\nOwner Particle = " << sorter->next_ID()
 		 << "\nID2 = " << sorter->next_p2()
-	  ;
+	   << std::endl;
 	Sim->endEventCount = Sim->eventCount;
 	return;
       }
@@ -231,9 +231,9 @@ CScheduler::runNextEvent()
 	      {
 		
 #ifdef DYNAMO_DEBUG
-		I_cerr() << "Interaction event found to occur later than the next "
+		derr << "Interaction event found to occur later than the next "
 		  "FEL event [" << p1.getID() << "," << p2.getID()
-			 << "] (small numerical error), recalculating";
+			 << "] (small numerical error), recalculating" << std::endl;
 #endif		
 		this->fullUpdate(p1, p2);
 		return;
@@ -242,7 +242,7 @@ CScheduler::runNextEvent()
 	  }
 	
 #ifdef DYNAMO_CollDebug
-		if (sorter->next_dt() < 0) I_cerr() << "Negative time " << sorter->next_dt() << "\n";
+		if (sorter->next_dt() < 0) derr << "Negative time " << sorter->next_dt() << "\n" << std::endl;
 #endif
 
 	//Reset the rejection watchdog, we will run an interaction event now
@@ -251,8 +251,8 @@ CScheduler::runNextEvent()
 	if (Event.getType() == NONE)
 	  {
 #ifdef DYNAMO_DEBUG
-	    I_cerr() << "Interaction event found not to occur [" << p1.getID() << "," << p2.getID()
-		     << "] (possible glancing collision canceled due to numerical error)";
+	    derr << "Interaction event found not to occur [" << p1.getID() << "," << p2.getID()
+		     << "] (possible glancing collision canceled due to numerical error)" << std::endl;
 #endif		
 	    this->fullUpdate(p1, p2);
 	    return;
@@ -322,8 +322,8 @@ CScheduler::runNextEvent()
 	if (iEvent.getType() == NONE)
 	  {
 #ifdef DYNAMO_DEBUG
-	    I_cerr() << "Local event found not to occur [" << part.getID()
-		     << "] (possible glancing/tenuous event canceled due to numerical error)";
+	    derr << "Local event found not to occur [" << part.getID()
+		     << "] (possible glancing/tenuous event canceled due to numerical error)" << std::endl;
 #endif		
 	    this->fullUpdate(part);
 	    return;
@@ -334,7 +334,7 @@ CScheduler::runNextEvent()
 	if ((iEvent.getdt() > next_dt) && (++_localRejectionCounter < rejectionLimit))
 	  {
 #ifdef DYNAMO_DEBUG 
-	    I_cerr() << "Recalculated LOCAL event time is greater than the next event time, recalculating";
+	    derr << "Recalculated LOCAL event time is greater than the next event time, recalculating" << std::endl;
 #endif
 	    this->fullUpdate(part);
 	    return;
@@ -378,7 +378,7 @@ CScheduler::runNextEvent()
 	//Just recalc the events for these particles, no free
 	//streaming (PBCSentinel will free stream virtual events but
 	//for a specific reason)
-	//I_cerr() << "VIRTUAL for " << sorter->next_ID();
+	//derr << "VIRTUAL for " << sorter->next_ID() << std::endl;
 
 	this->fullUpdate(Sim->particleList[sorter->next_ID()]);
 	break;

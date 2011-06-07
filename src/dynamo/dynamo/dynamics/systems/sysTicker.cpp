@@ -34,8 +34,8 @@ CSTicker::CSTicker(dynamo::SimData* nSim, double nPeriod, std::string nName):
 
   sysName = nName;
 
-  I_cout() << "System ticker set for a peroid of " 
-	   << nPeriod / Sim->dynamics.units().unitTime();
+  dout << "System ticker set for a peroid of " 
+	   << nPeriod / Sim->dynamics.units().unitTime() << std::endl;
 }
 
 void
@@ -97,8 +97,8 @@ CSTicker::increasedt(double ndt)
 void 
 CSTicker::setTickerPeriod(const double& nP)
 { 
-  I_cout() << "Setting system ticker period to " 
-	   << nP / Sim->dynamics.units().unitTime();
+  dout << "Setting system ticker period to " 
+	   << nP / Sim->dynamics.units().unitTime() << std::endl;
 
   period = nP; 
 

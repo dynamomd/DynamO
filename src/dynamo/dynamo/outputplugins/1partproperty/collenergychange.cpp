@@ -54,7 +54,7 @@ OPCollEnergyChange::operator<<(const magnet::xml::Node& XML)
 void
 OPCollEnergyChange::initialise()
 {
-  I_cout() << "Bin width set to " << binWidth;
+  dout << "Bin width set to " << binWidth << std::endl;
 
   data.resize(Sim->dynamics.getSpecies().size(), 
 	      C1DHistogram(Sim->dynamics.units().unitEnergy() * binWidth));

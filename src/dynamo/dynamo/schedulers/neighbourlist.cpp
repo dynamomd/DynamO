@@ -61,7 +61,7 @@ CSNeighbourList::initialise()
     (*Sim->dynamics.getGlobals()[NBListID].get_ptr())
     .markAsUsedInScheduler();
 
-  I_cout() << "Building all events on collision " << Sim->eventCount;
+  dout << "Building all events on collision " << Sim->eventCount << std::endl;
   std::cout.flush();
 
   sorter->clear();
@@ -120,13 +120,13 @@ CSNeighbourList::CSNeighbourList(const magnet::xml::Node& XML,
 				 dynamo::SimData* const Sim):
   CScheduler(Sim,"NeighbourListScheduler", NULL)
 { 
-  I_cout() << "Neighbour List Scheduler Algorithmn Loaded";
+  dout << "Neighbour List Scheduler Algorithmn Loaded" << std::endl;
   operator<<(XML);
 }
 
 CSNeighbourList::CSNeighbourList(dynamo::SimData* const Sim, CSSorter* ns):
   CScheduler(Sim,"NeighbourListScheduler", ns)
-{ I_cout() << "Neighbour List Scheduler Algorithmn Loaded"; }
+{ dout << "Neighbour List Scheduler Algorithmn Loaded" << std::endl; }
 
 void 
 CSNeighbourList::addEvents(const Particle& part)

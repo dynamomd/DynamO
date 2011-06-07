@@ -58,7 +58,7 @@ OPSelfDiffusionOrientationalGK::initialise()
     listref_perp.resize(CorrelatorLength, 0);
   }
 
-  I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
+  dout << "dt set to " << dt / Sim->dynamics.units().unitTime() << std::endl;
 }
 
 void

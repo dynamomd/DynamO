@@ -212,7 +212,7 @@ OPMutualDiffusionGK::initialise()
   massFracSp1 /= sysMass; 
   massFracSp2 /= sysMass; 
 
-  I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
+  dout << "dt set to " << dt / Sim->dynamics.units().unitTime() << std::endl;
 }
 
 std::list<Vector  > 

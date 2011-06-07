@@ -40,15 +40,15 @@ SThreadedNBList::SThreadedNBList(const magnet::xml::Node& XML,
   //The operator<<(XML) is virtual but the object is of type
   //CSNeighbourList when it is called
   operator<<(XML);
-  I_cout() << "Threaded Variant Loaded with " << _threadPool.getThreadCount()
-	   << " threads in the pool";
+  dout << "Threaded Variant Loaded with " << _threadPool.getThreadCount()
+	   << " threads in the pool" << std::endl;
 }
 
 SThreadedNBList::SThreadedNBList(dynamo::SimData* const Sim, CSSorter* ns, 
 				 size_t threadCount):
   CSNeighbourList(Sim, ns)
 { 
-  I_cout() << "Threaded Variant Loaded"; 
+  dout << "Threaded Variant Loaded" << std::endl; 
   _threadPool.setThreadCount(threadCount);
 }
 

@@ -29,7 +29,7 @@ OutputPlugin::OutputPlugin(const dynamo::SimData* tmp, const char *aName, unsign
   SimBase_const(tmp, aName),
   updateOrder(order)
 {
-  I_cout() << "Loaded";
+  dout << "Loaded" << std::endl;
 }
 
 void

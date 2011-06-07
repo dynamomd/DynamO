@@ -30,14 +30,14 @@ OPOverlapTest::OPOverlapTest(const dynamo::SimData* tmp,
 void 
 OPOverlapTest::initialise()
 {
-  I_cout() << "Testing for overlaps in starting configuration";
+  dout << "Testing for overlaps in starting configuration" << std::endl;
   ticker();
 }
 
 void
 OPOverlapTest::output(xml::XmlStream&)
 {
-  I_cout() << "Testing for overlaps in output configuration";
+  dout << "Testing for overlaps in output configuration" << std::endl;
   ticker();
 }
 

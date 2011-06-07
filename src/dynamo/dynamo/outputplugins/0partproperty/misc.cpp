@@ -49,21 +49,21 @@ OPMisc::initialise()
 
   VecEnergy *= 2.0 / (Sim->N * Sim->dynamics.units().unitEnergy());
 
-  I_cout() << "Particle Count " << Sim->N
+  dout << "Particle Count " << Sim->N
 	   << "\nSim Unit Length " << Sim->dynamics.units().unitLength()
 	   << "\nSim Unit Time " << Sim->dynamics.units().unitTime()
 	   << "\nDensity " << Sim->dynamics.getNumberDensity()
     * Sim->dynamics.units().unitVolume()
 	   << "\nPacking Fraction " << Sim->dynamics.getPackingFraction()
 	   << "\nSim Temperature " << kt
-	   << "\nReduced Temperature " << kt / Sim->dynamics.units().unitEnergy();
+	   << "\nReduced Temperature " << kt / Sim->dynamics.units().unitEnergy() << std::endl;
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
-    I_cout() << "Kinetic Temperature dimension" << iDim << " "
-	     <<  VecEnergy[iDim];
+    dout << "Kinetic Temperature dimension" << iDim << " "
+	     <<  VecEnergy[iDim] << std::endl;
 
-  I_cout() << "No. of Species " << Sim->dynamics.getSpecies().size()
-      << "\nSimulation box length <x,y,z> ";
+  dout << "No. of Species " << Sim->dynamics.getSpecies().size()
+      << "\nSimulation box length <x,y,z> " << std::endl;
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     std::cout  << Sim->primaryCellSize[iDim]/Sim->dynamics.units().unitLength() << " ";
 
@@ -77,7 +77,7 @@ OPMisc::initialise()
       sumMV += vel * Sim->dynamics.getSpecies(Part).getMass(Part.getID());
     }
 
-  I_cout() << "Total momentum <x,y,z> <";
+  dout << "Total momentum <x,y,z> <" << std::endl;
 
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     std::cout  << sumMV[iDim] / Sim->dynamics.units().unitMomentum() << " ";
@@ -91,7 +91,7 @@ OPMisc::initialise()
   std::string sTime(std::ctime(&tstartTime));
   sTime[sTime.size()-1] = ' ';
 
-  I_cout() << "Started on " << sTime;
+  dout << "Started on " << sTime << std::endl;
 }
 
 void
@@ -153,12 +153,12 @@ OPMisc::output(xml::XmlStream &XML)
     / (double(acc_tendTime.tv_sec) + 1e-9 * double(acc_tendTime.tv_nsec)
        - double(acc_tstartTime.tv_sec) - 1e-9 * double(acc_tstartTime.tv_nsec));
 
-  I_cout() << "Ended on " << eTime
+  dout << "Ended on " << eTime
 	   << "\nTotal Collisions Executed " << Sim->eventCount
 	   << "\nAvg Coll/s " << collpersec
 	   << "\nSim time per second "
 	   << Sim->dSysTime / (Sim->dynamics.units().unitTime()
-			       * static_cast<double>(tendTime - tstartTime));
+			       * static_cast<double>(tendTime - tstartTime)) << std::endl;
 
   XML << xml::tag("Misc")
       << xml::tag("Memusage")

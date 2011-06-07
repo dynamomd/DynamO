@@ -28,8 +28,8 @@ CSSchedMaintainer::CSSchedMaintainer(dynamo::SimData* nSim, double ndt, std::str
   dt = ndt * Sim->dynamics.units().unitTime();
   sysName = nName;
 
-  I_cout() << "Periodic scheduler rebuild set for dt=" 
-	   << ndt;
+  dout << "Periodic scheduler rebuild set for dt=" 
+	   << ndt << std::endl;
 }
 
 void 

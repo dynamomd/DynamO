@@ -20,7 +20,7 @@
 
 BCNone::BCNone(const dynamo::SimData* Sim):
   BoundaryCondition(Sim, "NullBC")
-{ I_cout() << "No boundary condition loaded"; }
+{ dout << "No boundary condition loaded" << std::endl; }
 
 BCNone::~BCNone() {}
     

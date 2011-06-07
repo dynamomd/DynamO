@@ -38,12 +38,12 @@ CInputPlugin::CInputPlugin(dynamo::SimData* tmp, const char *aName):
 void 
 CInputPlugin::rescaleVels(double val)
 {
-  I_cout() << "WARNING Rescaling kT to " << val;
+  dout << "WARNING Rescaling kT to " << val << std::endl;
   
   double currentkT(Sim->dynamics.getLiouvillean().getkT()
 		 / Sim->dynamics.units().unitEnergy());
 
-  I_cout() << "Current kT " << currentkT;
+  dout << "Current kT " << currentkT << std::endl;
 
   Vector energy = Sim->dynamics.getLiouvillean().getVectorSystemKineticEnergy();
 
@@ -65,11 +65,11 @@ CInputPlugin::rescaleVels(double val)
 void 
 CInputPlugin::setCOMVelocity(const Vector vel)
 {
-  I_cout() << "Setting COM Velocity";
+  dout << "Setting COM Velocity" << std::endl;
   
   if (Sim->N <= 1)
-    I_cerr() << "Refusing to set momentum for a " 
-	     << Sim->N << " particle system";
+    derr << "Refusing to set momentum for a " 
+	     << Sim->N << " particle system" << std::endl;
   else
     Sim->dynamics.setCOMVelocity(vel);  
 }
@@ -78,11 +78,11 @@ CInputPlugin::setCOMVelocity(const Vector vel)
 void 
 CInputPlugin::zeroMomentum()
 {
-  I_cout() << "Zeroing Momentum";
+  dout << "Zeroing Momentum" << std::endl;
   
   if (Sim->N <= 1)
-    I_cerr() << "Refusing to zero momentum for a " 
-	     << Sim->N << " particle system";
+    derr << "Refusing to zero momentum for a " 
+	     << Sim->N << " particle system" << std::endl;
   else
     Sim->dynamics.setCOMVelocity();
 }
@@ -90,7 +90,7 @@ CInputPlugin::zeroMomentum()
 void 
 CInputPlugin::zeroCentreOfMass()
 {
-  I_cout() << "Zeroing Centre of Mass";
+  dout << "Zeroing Centre of Mass" << std::endl;
   
   Vector com(0,0,0);  
   double totmass = 0.0;
@@ -118,7 +118,7 @@ CInputPlugin::mirrorDirection(unsigned int iDim)
 void 
 CInputPlugin::zeroVelComp(size_t iDim)
 {
-  I_cout() << "Zeroing the " << iDim << " dimension velocities";
+  dout << "Zeroing the " << iDim << " dimension velocities" << std::endl;
   BOOST_FOREACH(Particle& part, Sim->particleList)
     part.getVelocity()[iDim] = 0.0;
 }

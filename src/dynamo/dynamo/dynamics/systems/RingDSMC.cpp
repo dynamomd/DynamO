@@ -270,24 +270,24 @@ CSRingDSMC::initialise(size_t nID)
     }
 
   if (maxprob12 > 0.5)
-    I_cerr() << "MaxProbability12 is " << maxprob12
-	     << "\nNpairs12 per step is " << range1->size() * maxprob12;
+    derr << "MaxProbability12 is " << maxprob12
+	     << "\nNpairs12 per step is " << range1->size() * maxprob12 << std::endl;
   else
-    I_cout() << "MaxProbability12 is " << maxprob12
-	     << "\nNpairs12 per step is " << range1->size() * maxprob12;
+    dout << "MaxProbability12 is " << maxprob12
+	     << "\nNpairs12 per step is " << range1->size() * maxprob12 << std::endl;
 
   if (maxprob13 > 0.5)
-    I_cerr() << "MaxProbability13 is " << maxprob13
-	     << "\nNpairs13 per step is " << range1->size() * maxprob13;
+    derr << "MaxProbability13 is " << maxprob13
+	     << "\nNpairs13 per step is " << range1->size() * maxprob13 << std::endl;
   else
-    I_cout() << "MaxProbability13 is " << maxprob13
-	     << "\nNpairs13 per step is " << range1->size() * maxprob13;
+    dout << "MaxProbability13 is " << maxprob13
+	     << "\nNpairs13 per step is " << range1->size() * maxprob13 << std::endl;
   
   if (range1->size() * maxprob12 < 2.0)
-    I_cerr() << "The 12 probability is low";
+    derr << "The 12 probability is low" << std::endl;
 
   if (range1->size() * maxprob13 < 2.0)
-    I_cerr() << "The 13 probability is low";
+    derr << "The 13 probability is low" << std::endl;
 }
 
 void
@@ -323,9 +323,10 @@ void
 CSRingDSMC::outputXML(xml::XmlStream& XML) const
 {
   if (n12 || n13)
-    I_cout()<< "Number of T(1,2) events " << n12
-	    << "\nNumber of T(1,3) events " << n13
-	    << "\nRatio T(1,2)/total " << ((double) n12) / (((double) n13) + ((double) n12));
+    dout << "Number of T(1,2) events " << n12
+	 << "\nNumber of T(1,3) events " << n13
+	 << "\nRatio T(1,2)/total " << ((double) n12) / (((double) n13) + ((double) n12))
+	 << std::endl;
 
   XML << xml::tag("System")
       << xml::attr("Type") << "RingDSMC"

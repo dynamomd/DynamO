@@ -95,7 +95,7 @@ public:
 
   ~CSSBoundedPQ() 
   { 
-    I_cout() << "Exception Events = " << exceptionCount;
+    dout << "Exception Events = " << exceptionCount << std::endl;
     std::cout << "\n";
   }
   
@@ -187,12 +187,12 @@ public:
 	  if (counter < 10)
 	    {
 	      //Something is peculiar about the system
-	      I_cerr() <<
+	      derr <<
 		"The event queue doesn't have more than 10 VALID events in it"
 		"\nThis means the queue cannot be instrumented properly to"
 		"\ndetermine the optimal settings for the bounded queue, now"
 		"\nusing some (probably inefficient) defaults."
-		"\nIf this is a proper simulation, consider using a different Sorter (e.g., CBT).";
+		"\nIf this is a proper simulation, consider using a different Sorter (e.g., CBT)." << std::endl;
 	      scale = 10;
 	      nlists = 1000;
 	    }
@@ -223,24 +223,24 @@ public:
 
     if (nlists == 0)
       {
-	I_cerr() << "nlists = 0!\n"
+	derr << "nlists = 0!\n"
 		 << "This is a BAD thing, unless NCells = NParticles and "
 	  "they're in a perfect crystal, if it happens again after the "
-	  "preliminary run its certainly a bug";
+	  "preliminary run its certainly a bug" << std::endl;
 	nlists = 1000;
       }
 
     if (!quiet)
-      I_cout() << "Length of linear list = " << nlists
-	       << "Scale factor = " << scale * Sim->dynamics.units().unitTime();
+      dout << "Length of linear list = " << nlists
+	       << "Scale factor = " << scale * Sim->dynamics.units().unitTime() << std::endl;
 
     linearLists.resize(nlists+1, -1); /*+1 for overflow, -1 for
 					marking empty*/ 
 
     if (!quiet)
       {
-	I_cout() << "Sorting all events, please wait...";
-	I_cout() << std::flush;
+	dout << "Sorting all events, please wait..." << std::endl;
+	dout << std::flush << std::endl;
       }
 
     //Now insert all of the events!
@@ -250,14 +250,14 @@ public:
   
     if (!quiet)
       {
-	I_cout() << "Finding first event...";
-	I_cout() << std::flush;
+	dout << "Finding first event..." << std::endl;
+	dout << std::flush << std::endl;
       }
     
     //Find the next event and place it first so nextEventID() works
     orderNextEvent();
     if (!quiet)
-      I_cout() << "Ready for simulation.";
+      dout << "Ready for simulation." << std::endl;
   }
 
   inline void push(const intPart& tmpVal, const size_t& pID)

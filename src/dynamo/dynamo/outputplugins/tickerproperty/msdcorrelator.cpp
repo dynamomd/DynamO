@@ -54,7 +54,7 @@ OPMSDCorrelator::operator<<(const magnet::xml::Node& XML)
 void 
 OPMSDCorrelator::initialise()
 {
-  I_cout() << "The length of the MSD correlator is " << length;
+  dout << "The length of the MSD correlator is " << length << std::endl;
 
   posHistory.resize(Sim->N, boost::circular_buffer<Vector>(length));
 

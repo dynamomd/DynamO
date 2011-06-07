@@ -57,7 +57,7 @@ CGCells::CGCells(dynamo::SimData* nSim, const std::string& name,
   MaxIntDist(0.0)
 {
   globName = name;
-  I_cout() << "Cells Loaded, Overlinking set to " << overlink;
+  dout << "Cells Loaded, Overlinking set to " << overlink << std::endl;
 }
 
 CGCells::CGCells(const magnet::xml::Node &XML, dynamo::SimData* ptrSim):
@@ -72,7 +72,7 @@ CGCells::CGCells(const magnet::xml::Node &XML, dynamo::SimData* ptrSim):
 {
   operator<<(XML);
 
-  I_cout() << "Cells Loaded";
+  dout << "Cells Loaded" << std::endl;
 }
 
 CGCells::CGCells(dynamo::SimData* ptrSim, const char* nom, void*):
@@ -304,14 +304,14 @@ CGCells::initialise(size_t nID)
   reinitialise(getMaxInteractionLength());
 
   if (Sim->dynamics.liouvilleanTypeTest<LNewtonianGravity>())
-    I_cout() << "Warning, in order for cellular NB lists to work in gravity\n"
-	     << "You must add the ParabolaSentinel Global event.";
+    dout << "Warning, in order for cellular NB lists to work in gravity\n"
+	     << "You must add the ParabolaSentinel Global event." << std::endl;
 }
 
 void
 CGCells::reinitialise(const double& maxdiam)
 {
-  I_cout() << "Reinitialising on collision " << Sim->eventCount;
+  dout << "Reinitialising on collision " << Sim->eventCount << std::endl;
 
   //Create the cells
   addCells(_oversizeCells * maxdiam / overlink);
@@ -365,8 +365,8 @@ CGCells::addCells(double maxdiam)
 
 //      if (cellCount[iDim] > 400)
 //	{
-//	  I_cout() << "Cell count was " << cellCount[iDim]
-//		   << "\n Restricting to 400 to stop this sim failing";
+//	  dout << "Cell count was " << cellCount[iDim]
+//		   << "\n Restricting to 400 to stop this sim failing" << std::endl;
 //	  cellCount[iDim] = 400;
 //	}
 
@@ -385,27 +385,27 @@ CGCells::addCells(double maxdiam)
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     cellOffset[iDim] = -(cellLatticeWidth[iDim] - maxdiam) * lambda / 2;
 
-  I_cout() << "Cells <x,y,z>  " << cellCount[0] << ","
-	   << cellCount[1] << "," << cellCount[2];
+  dout << "Cells <x,y,z>  " << cellCount[0] << ","
+	   << cellCount[1] << "," << cellCount[2] << std::endl;
 
-  I_cout() << "Cell Offset <x,y,z>  "
+  dout << "Cell Offset <x,y,z>  "
            << cellOffset[0] / Sim->dynamics.units().unitLength() << ","
 	   << cellOffset[1] / Sim->dynamics.units().unitLength() << ","
-	   << cellOffset[2] / Sim->dynamics.units().unitLength();
+	   << cellOffset[2] / Sim->dynamics.units().unitLength() << std::endl;
 
-  I_cout() << "Cells Dimension <x,y,z>  " 
+  dout << "Cells Dimension <x,y,z>  " 
 	   << cellDimension[0] / Sim->dynamics.units().unitLength()
 	   << ","
 	   << cellDimension[1] / Sim->dynamics.units().unitLength()
 	   << "," 
-	   << cellDimension[2] / Sim->dynamics.units().unitLength();
+	   << cellDimension[2] / Sim->dynamics.units().unitLength() << std::endl;
 
-  I_cout() << "Lattice spacing <x,y,z>  " 
+  dout << "Lattice spacing <x,y,z>  " 
 	   << cellLatticeWidth[0] / Sim->dynamics.units().unitLength()
 	   << ","
 	   << cellLatticeWidth[1] / Sim->dynamics.units().unitLength()
 	   << "," 
-	   << cellLatticeWidth[2] / Sim->dynamics.units().unitLength();
+	   << cellLatticeWidth[2] / Sim->dynamics.units().unitLength() << std::endl;
 
   try {
     cells.resize(NCells); //Empty Cells created!

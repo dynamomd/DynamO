@@ -132,10 +132,10 @@ CLWall::checkOverlaps(const Particle& p1) const
   double r = (pos | vNorm);
   
   if (r < 0)
-    I_cout() << "Possible overlap of " << r / Sim->dynamics.units().unitLength() << " for particle " << p1.getID()
+    dout << "Possible overlap of " << r / Sim->dynamics.units().unitLength() << " for particle " << p1.getID()
 	     << "\nWall Pos is [" 
 	     << vPosition[0] << "," << vPosition[1] << "," << vPosition[2] 
 	     << "] and Normal is [" 
 	     << vNorm[0] << "," << vNorm[1] << "," << vNorm[2] << "]"
-      ;
+       << std::endl;
 }

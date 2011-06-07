@@ -935,9 +935,9 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
   if (fL.F_zeroDeriv() > 0)
     {
 #ifdef DYNAMO_DEBUG
-      I_cerr() << "Particle is penetrating the \"upper\" plate"
+      derr << "Particle is penetrating the \"upper\" plate"
 	       << "\nTo avoid rediscovering the root we're adjusting the relative position vector to just touching."
-	       << "\nThis is fine if it is a rare event.";
+	       << "\nThis is fine if it is a rare event." << std::endl;
 #endif
       fL.fixFZeroSign(false);
 
@@ -972,9 +972,9 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
   if (fL.F_zeroDeriv() < 0)
     {
 #ifdef DYNAMO_DEBUG
-      I_cerr() << "Particle is penetrating the \"lower\" plate"
+      derr << "Particle is penetrating the \"lower\" plate"
 	       << "\nTo avoid rediscovering the root we're adjusting the relative position vector to just touching."
-	       << "\nThis is fine if it is a rare event.";
+	       << "\nThis is fine if it is a rare event." << std::endl;
 #endif
       fL.fixFZeroSign(true);
 
@@ -996,7 +996,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
     {
       //This can be a problem
 #ifdef DYNAMO_DEBUG      
-      I_cerr() << "Particle " << part.getID() 
+      derr << "Particle " << part.getID() 
 	       << " may be outside/heading out of the plates"
 	       << "\nerror = "
 	       << (fabs(surfaceOffset - (nhat | fL.wallPosition())) - Sigma) 
@@ -1004,7 +1004,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 	       << "\n Root1 = " 
 	       << root1.second / Sim->dynamics.units().unitTime()
 	       << "\n Root2 = " 
-	       << root2.second / Sim->dynamics.units().unitTime();
+	       << root2.second / Sim->dynamics.units().unitTime() << std::endl;
 #endif
       
       //If the particle is going out of bounds, collide now
@@ -1028,7 +1028,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 	    ftmp2.stream(t_high - t_low2);
 	    double flt_high2(ftmp2.F_zeroDeriv());
 	    
-	    I_cerr() << "****Forcing collision"
+	    derr << "****Forcing collision"
 		     << "\ndSysTime = " << Sim->dSysTime
 		     << "\nlNColl = " << Sim->eventCount
 		     << "\nlast part = " << (lastpart ? (std::string("True")) : (std::string("False")))
@@ -1061,7 +1061,7 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 		     << t + Sim->dSysTime << "+ x) * "
 		     << Omega << ") - "
 		     << Sigma
-		     << "; set xrange[0:" << t_high << "]; plot f(x)";
+		     << " << std::endl; set xrange[0:" << t_high << "]; plot f(x)";
 	    ;
 	  }
 #endif
@@ -1088,14 +1088,14 @@ LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 	  if (tmpt < currRoot)
 	    {
 #ifdef DYNAMO_DEBUG
-	      I_cout() << "Making a fake collision at " << tmpt << "for particle " << part.getID();
+	      dout << "Making a fake collision at " << tmpt << "for particle " << part.getID() << std::endl;
 #endif
 
 	      return std::pair<bool,double>(true, tmpt);
 	    }
 #ifdef DYNAMO_DEBUG
 	  else
-	    I_cout() << "The current root is lower than the fake one";	    
+	    dout << "The current root is lower than the fake one" << std::endl;	    
 #endif
 	}
     }
@@ -1128,7 +1128,7 @@ LNewtonian::runOscilatingPlate
 
   Vector vwall(fL.wallVelocity());
 
-  //  I_cerr() << "Running event for part " << part.getID() <<
+  //  derr << "Running event for part " << part.getID() <<
   //	   "\ndSysTime = " << Sim->dSysTime << "\nlNColl = " <<
   //	   Sim->lNColl << "\nVel = " << part.getVelocity()[0] <<
   //	   "\nPos = " << part.getPosition()[0] << "\nVwall[0] = " <<
@@ -1140,7 +1140,7 @@ LNewtonian::runOscilatingPlate
   //	   =" << fL.F_firstDeriv() << "\nf''(Max) =" <<
   //	   fL.F_secondDeriv_max(0) << "\nf(x)=" << pos[0] << "+" <<
   //	   part.getVelocity()[0] << " * x - " << delta << " * cos(("
-  //	   << t << "+ x) * " << omega0 << ") - " << sigma;
+  //	   << t << "+ x) * " << omega0 << ") - " << sigma << std::endl;
 
   
   //Check the root is valid
@@ -1150,7 +1150,7 @@ LNewtonian::runOscilatingPlate
 	f2 = fL.F_secondDeriv_max();
       fL.flipSigma();
       
-      I_cerr() <<"Particle " << part.getID()
+      derr <<"Particle " << part.getID()
 	       << ", is pulling on the oscillating plate!"
 	       << "\nRunning event for part " << part.getID()
 	       << "\ndSysTime = " << Sim->dSysTime
@@ -1176,7 +1176,7 @@ LNewtonian::runOscilatingPlate
 	       << " * cos(("
 	       << t + Sim->dSysTime << "+ x) * "
 	       << omega0 << ") - "
-	       << sigma;
+	       << sigma << std::endl;
       
       return retVal;
     }
@@ -1189,9 +1189,9 @@ LNewtonian::runOscilatingPlate
   if (fabs(rvdot / fL.maxWallVel()) < 0.002)
     {
       /*
-	I_cerr() <<"<<!!!>>Particle " << part.getID() 
+	derr <<"<<!!!>>Particle " << part.getID() 
 	<< " gone elastic!\nratio is " << fabs(rvdot / vwall.nrm())
-	<< "\nCount is " << ++elascount;
+	<< "\nCount is " << ++elascount << std::endl;
       */
       inelas = 1.0;
       if (fabs(rvdot / fL.maxWallVel()) < 0.001)
@@ -1554,7 +1554,7 @@ LNewtonian::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, c
   Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
 
   retVal.rvdot = (retVal.rij | retVal.vijold);
-  I_cout()<<"Two sphere collision\n"; 
+  dout << "Two sphere collision\n" << std::endl;
   double KE1before = getParticleKineticEnergy(particle1);
   double KE2before = getParticleKineticEnergy(particle2);
   //We need to figure out which two orientations are colliding
@@ -1567,7 +1567,7 @@ LNewtonian::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, c
 	{
 	  norm = (retVal.rij +  length * 0.5 * pow(-1,i) * orientationData[particle1.getID()].orientation 
 		  -  length * 0.5 * pow(-1,j) * orientationData[particle2.getID()].orientation ).nrm();
-	  I_cout()<<"norm " << norm << " dr " << norm - diameter;
+	  dout << "norm " << norm << " dr " << norm - diameter << std::endl;
 	  if(norm < (diameter - 1e-10))
 	    {
 	      M_throw()<<"`Shit man, we overlap " ;
@@ -1580,7 +1580,7 @@ LNewtonian::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, c
 	    }
 	}
     }
-  I_cout()<<"i " << sign.first << " j " << sign.second; 
+  dout << "i " << sign.first << " j " << sign.second << std::endl; 
   
   //Now the pair sign gives the right two particles
   CDumbbellsFunc fL(retVal.rij, retVal.vijold,
@@ -1638,9 +1638,10 @@ LNewtonian::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, c
   Vector vr = retVal.vijold;
   //  retVal.dP = normal * ((vr | normal) * (1.0 + elasticity))/a;
   retVal.dP = rhat * S;
-  I_cout()<<"Momentum transfer " << S; 
-  I_cout()<<"dv " << vr.nrm(); 
-  I_cout()<<"dv at contact " << velContact.nrm();
+  dout << "Momentum transfer " << S
+       << "\ndv " << vr.nrm()
+       << "\ndv at contact " << velContact.nrm()
+       << std::endl;
  
   const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / (2 * mass);
   const_cast<Particle&>(particle2).getVelocity() += retVal.dP / (2 * mass);
@@ -1657,15 +1658,16 @@ LNewtonian::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, c
   W2.setRow(2,b2);
 
 
-  //I_cout()<<"Orientation1 " << (u1).nrm() << " Orientation2 " << (u2).nrm(); 
-  //I_cout()<<"Orientation1 " << (a1).nrm() << " Orientation2 " << (a2).nrm(); 
-  //I_cout()<<"Orientation1 " << (b1).nrm() << " Orientation2 " << (b2).nrm(); 
+  //dout<<"Orientation1 " << (u1).nrm() << " Orientation2 " << (u2).nrm() << std::endl; 
+  //dout<<"Orientation1 " << (a1).nrm() << " Orientation2 " << (a2).nrm() << std::endl; 
+  //dout<<"Orientation1 " << (b1).nrm() << " Orientation2 " << (b2).nrm() << std::endl; 
 
 
   //Rotational energy before
-  I_cout()<<"Energy before " <<  2 * KE1before +
+  dout << "Energy before " <<  2 * KE1before +
     (I1 * (W1 * orientationData[particle1.getID()].angularVelocity)) *  (W1 * orientationData[particle1.getID()].angularVelocity)/2  + 2 * KE2before +
-    (I2 * (W2 * orientationData[particle2.getID()].angularVelocity)) *  (W2 * orientationData[particle2.getID()].angularVelocity)/2 ;
+    (I2 * (W2 * orientationData[particle2.getID()].angularVelocity)) *  (W2 * orientationData[particle2.getID()].angularVelocity)/2 
+       << std::endl;
   
 
   orientationData[particle1.getID()].angularVelocity 
@@ -1674,9 +1676,10 @@ LNewtonian::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, c
   orientationData[particle2.getID()].angularVelocity 
     += S * ((Inverse(W2) * Inverse(I2) * W2) * n2);
 
-  I_cout()<<"Energy after  " << 2 * getParticleKineticEnergy(particle1) +
+  dout <<"Energy after  " << 2 * getParticleKineticEnergy(particle1) +
     (I1 * (W1 * orientationData[particle1.getID()].angularVelocity)) *  (W1 * orientationData[particle1.getID()].angularVelocity)/2  + 2 * getParticleKineticEnergy(particle2) +
-    (I2 * (W2 * orientationData[particle2.getID()].angularVelocity)) *  (W2 * orientationData[particle2.getID()].angularVelocity)/2 ;
+    (I2 * (W2 * orientationData[particle2.getID()].angularVelocity)) *  (W2 * orientationData[particle2.getID()].angularVelocity)/2 
+       << std::endl;
   Vector velContac1b = particle1.getVelocity() 
     + ((orientationData[particle1.getID()].angularVelocity) ^ (((u1 * length) + (rhat * diameter)) / 2));
   Vector velContac2b = particle2.getVelocity() 
@@ -1684,7 +1687,8 @@ LNewtonian::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, c
   
 
   Vector velContactb = velContac1b - velContac2b;
-  I_cout()<<"Error in contact velocity " << 1 + (velContact | rhat)/(velContactb | rhat);
+  dout <<"Error in contact velocity " << 1 + (velContact | rhat)/(velContactb | rhat)
+       << std::endl;
 
   //Done with the collision; keeping track of energy
   retVal.particle1_.setDeltaKE(getParticleKineticEnergy(particle1) - KE1before);

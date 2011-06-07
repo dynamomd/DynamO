@@ -22,6 +22,6 @@ CGNeighbourList::CGNeighbourList(const CGNeighbourList& nb):
   isUsedInScheduler(false),
   lambda(nb.lambda)
 {
-  I_cout() << "On copy this class erases callbacks";
+  dout << "On copy this class erases callbacks" << std::endl;
 }
 

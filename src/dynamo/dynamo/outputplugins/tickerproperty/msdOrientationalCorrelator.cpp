@@ -52,7 +52,7 @@ OPMSDOrientationalCorrelator::operator<<(const magnet::xml::Node& XML)
 void
 OPMSDOrientationalCorrelator::initialise()
 {
-  I_cout() << "The length of the MSD orientational correlator is " << length;
+  dout << "The length of the MSD orientational correlator is " << length << std::endl;
 
   historicalData.resize(Sim->N, boost::circular_buffer<RUpair>(length));
 

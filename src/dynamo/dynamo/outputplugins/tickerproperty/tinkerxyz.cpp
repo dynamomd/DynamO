@@ -98,12 +98,12 @@ OPTinkerXYZ::initialise()
       fill_header((IMDheader *)&coords[0], IMD_FCOORDS, Sim->N);
 
 
-      I_cout() << "Setting up incoming socket of VMD";
+      dout << "Setting up incoming socket of VMD" << std::endl;
       vmdsock_init();
       sock = vmdsock_create();
       vmdsock_bind(sock, port);
       vmdsock_listen(sock);
-      I_cout() << "Listening for VMD connection on port 3333";
+      dout << "Listening for VMD connection on port 3333" << std::endl;
 
       printLiveImage();
     }
@@ -116,7 +116,7 @@ OPTinkerXYZ::printLiveImage()
     {
       if (blockForVMD) 
 	{
-	  I_cout() << "Blocking simulation till VMD connects";
+	  dout << "Blocking simulation till VMD connects" << std::endl;
 	  std::cout.flush();
 	}
 
@@ -128,13 +128,13 @@ OPTinkerXYZ::printLiveImage()
 	      clientsock = NULL;
 	    else
 	      {
-		I_cout() << "VMD port active, blocking for a handshake";
+		dout << "VMD port active, blocking for a handshake" << std::endl;
 		int bytes_avail = vmdsock_selread(clientsock, -1);
 		if (bytes_avail != 1)
 		  {
 		    clientsock = NULL;
-		    I_cout() << "VMD handshake failed"
-			     << "\nFound " << bytes_avail;
+		    dout << "VMD handshake failed"
+			     << "\nFound " << bytes_avail << std::endl;
 		  }
 		else
 		  {
@@ -142,13 +142,13 @@ OPTinkerXYZ::printLiveImage()
 		    IMDType shakeType = imd_recv_header(clientsock, &length);
 		    if (shakeType != IMD_GO) 
 		      {
-			I_cout() << "VMD handshake failed"
+			dout << "VMD handshake failed"
 				 << "\nRecieved a shake of " << shakeType
 				 << "\nNot an IMD_GO"
-				 << "\nIgnoring, these handshakes seem broken on 32bit";
+				 << "\nIgnoring, these handshakes seem broken on 32bit" << std::endl;
 		      }
 		    else
-		      I_cout() << "Connected to VMD session";
+		      dout << "Connected to VMD session" << std::endl;
 		  }
 	      }
 	    std::cout.flush();
@@ -181,7 +181,7 @@ OPTinkerXYZ::printLiveImage()
       if (imd_writen(clientsock, (const char*) &coords[0], size) != size) 
 	{
 	  clientsock = NULL;
-	  I_cout() << "VMD session disconnected";
+	  dout << "VMD session disconnected" << std::endl;
 	}
     }
 }

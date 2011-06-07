@@ -34,7 +34,7 @@ CGCellsShearing::CGCellsShearing(dynamo::SimData* nSim,
   CGCells(nSim, "ShearingCells", NULL)
 {
   globName = name;
-  I_cout() << "Shearing Cells Loaded";
+  dout << "Shearing Cells Loaded" << std::endl;
 }
 
 CGCellsShearing::CGCellsShearing(const magnet::xml::Node& XML, 
@@ -43,7 +43,7 @@ CGCellsShearing::CGCellsShearing(const magnet::xml::Node& XML,
 {
   operator<<(XML);
 
-  I_cout() << "Cells in shearing Loaded";
+  dout << "Cells in shearing Loaded" << std::endl;
 }
 
 void 
@@ -52,13 +52,13 @@ CGCellsShearing::initialise(size_t nID)
   ID=nID;
   
   if (Sim->dynamics.liouvilleanTypeTest<LNewtonianGravity>())
-    I_cout() << "Warning, in order for cellular NB lists to work in gravity\n"
-	     << "You must add the ParabolaSentinel Global event.";
+    dout << "Warning, in order for cellular NB lists to work in gravity\n"
+	     << "You must add the ParabolaSentinel Global event." << std::endl;
 
  
   if (dynamic_cast<const CLEBC *>(&(Sim->dynamics.BCs())) == NULL)
-    I_cerr() << "You should not use the shearing neighbour list"
-	     << " in a system without Lees Edwards BC's";
+    derr << "You should not use the shearing neighbour list"
+	     << " in a system without Lees Edwards BC's" << std::endl;
 
   if (overlink != 1) M_throw() << "Cannot shear with overlinking yet";
 

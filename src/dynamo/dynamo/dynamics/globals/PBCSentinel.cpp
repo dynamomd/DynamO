@@ -28,7 +28,7 @@ CGPBCSentinel::CGPBCSentinel(dynamo::SimData* nSim, const std::string& name):
   maxintdist(0)
 {
   globName = name;
-  I_cout() << "PBCSentinel Loaded";
+  dout << "PBCSentinel Loaded" << std::endl;
 }
 
 CGPBCSentinel::CGPBCSentinel(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
@@ -37,7 +37,7 @@ CGPBCSentinel::CGPBCSentinel(const magnet::xml::Node& XML, dynamo::SimData* ptrS
 {
   operator<<(XML);
 
-  I_cout() << "PBCSentinel Loaded";
+  dout << "PBCSentinel Loaded" << std::endl;
 }
 
 void 

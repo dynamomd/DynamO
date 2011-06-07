@@ -47,8 +47,8 @@ OPSCParameter::initialise()
   if (boost::math::pow<3>(maxWaveNumber) != Sim->N)
     M_throw() << "Failed, N does not have an integer cube root!";
 
-  I_cout() << "Max wavelength is "
-	   << 1.0 / (maxWaveNumber * Sim->dynamics.units().unitLength());
+  dout << "Max wavelength is "
+	   << 1.0 / (maxWaveNumber * Sim->dynamics.units().unitLength()) << std::endl;
 
   maxWaveNumber *= 2;
 

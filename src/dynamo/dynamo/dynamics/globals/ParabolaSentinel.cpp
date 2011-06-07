@@ -27,7 +27,7 @@ CGParabolaSentinel::CGParabolaSentinel(dynamo::SimData* nSim, const std::string&
   Global(nSim, "ParabolaSentinel")
 {
   globName = name;
-  I_cout() << "ParabolaSentinel Loaded";
+  dout << "ParabolaSentinel Loaded" << std::endl;
 }
 
 CGParabolaSentinel::CGParabolaSentinel(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
@@ -35,7 +35,7 @@ CGParabolaSentinel::CGParabolaSentinel(const magnet::xml::Node& XML, dynamo::Sim
 {
   operator<<(XML);
 
-  I_cout() << "ParabolaSentinel Loaded";
+  dout << "ParabolaSentinel Loaded" << std::endl;
 }
 
 void 

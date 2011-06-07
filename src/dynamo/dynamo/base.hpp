@@ -45,9 +45,20 @@ namespace dynamo
     
   protected:
 
-    /*! \brief A std::ostream compatible stream. */
-    magnet::stream::FormattedOStream dout;
-    magnet::stream::FormattedOStream derr;
+    /*! \brief A std::cout style output stream. 
+     *
+     * This member is meant as a replacement to std::cout, as it
+     * provides automatic formatting of the output.
+     *
+     * \note Before any output will appear on the screen, the stream
+     * must be flushed. The most convenient way of doing this is to
+     * always end your output with a std::endl like so:
+     * \code dout << "An example output" << std::endl; \endcode
+     */
+    mutable magnet::stream::FormattedOStream dout;
+
+    /*! \brief See \ref dout for more information. */
+    mutable magnet::stream::FormattedOStream derr;
 
     //! This constructor is only available for virtual
     //! inheritance. The concrete derived class must call the other

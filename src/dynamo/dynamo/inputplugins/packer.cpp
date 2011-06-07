@@ -184,8 +184,8 @@ CIPPacker::initialise()
 	    CVector<long> cells = getCells();
 	    if ((cells[0] == 1) || (cells[1] == 1) || (cells[2] == 1))
 	      {
-		I_cerr() << "Warning! Now assuming that you're trying to set up a 2D simulation!\n"
-		  "I'm going to temporarily calculate the density by the 2D definition!";
+		derr << "Warning! Now assuming that you're trying to set up a 2D simulation!\n"
+		  "I'm going to temporarily calculate the density by the 2D definition!" << std::endl;
 		
 		size_t dimension;
 		if (cells[0] == 1)
@@ -198,8 +198,8 @@ CIPPacker::initialise()
 		particleDiam = std::sqrt(simVol * vm["density"].as<double>()
 					 / (Sim->primaryCellSize[dimension] * latticeSites.size()));		
 		
-		I_cout() << "I'm changing what looks like the unused box dimension (" 
-			 << dimension << ") to the optimal 2D value (3 particle diameters)";
+		dout << "I'm changing what looks like the unused box dimension (" 
+			 << dimension << ") to the optimal 2D value (3 particle diameters)" << std::endl;
 
 		Sim->primaryCellSize[dimension] = 3.0000001 * particleDiam;
 	      }
@@ -611,7 +611,7 @@ CIPPacker::initialise()
 	double diamScale = pow(vm["density"].as<double>()
 			     / (NUnitSites * NUnit), double(1.0 / 3.0));
 
-	I_cout() << "Lengthscale = " << diamScale;
+	dout << "Lengthscale = " << diamScale << std::endl;
 
 	//Use the mirror unit cell if needed
 	if (vm.count("f1"))
@@ -1131,12 +1131,12 @@ CIPPacker::initialise()
 	else if (vm["density"].as<double>() * 30.0 > vm["NCells"].as<unsigned long>())
 	{
 	  // Choose the dumb scheduler if the system volume is roughly smaller than (3L)^3
-	  I_cout() << "Dumb scheduler selected due to density/particle ratio";
+	  dout << "Dumb scheduler selected due to density/particle ratio" << std::endl;
 	  Sim->ptrScheduler = new CSDumb(Sim, new DefaultSorter(Sim));
 	}
 	else
 	{
-	  I_cout() << "Neighbour List scheduler selected";
+	  dout << "Neighbour List scheduler selected" << std::endl;
 	  Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
 	  Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
 	}
@@ -1939,11 +1939,11 @@ CIPPacker::initialise()
 	    diamvec.push_back(locpair(0.75, 1e300));
 	  }
 	
-	I_cout() << "Building stepped potential";
+	dout << "Building stepped potential" << std::endl;
 	double oldr = HUGE_VAL;
 	BOOST_FOREACH(locpair& p, diamvec)
 	  {
-	    I_cout() << "Step r=" << p.first << ", E=" << p.second;
+	    dout << "Step r=" << p.first << ", E=" << p.second << std::endl;
 	    if (p.first > oldr)
 	      M_throw() << "Steps must be in descending order! r=" << p.first
 			<< " is greater than old r=" << oldr;

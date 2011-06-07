@@ -124,7 +124,7 @@ OPThermalDiffusionE::initialise()
     }
 
   massFracSp1 = speciesMass / sysMass;
-  I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
+  dout << "dt set to " << dt / Sim->dynamics.units().unitTime() << std::endl;
 }
 
 inline void 

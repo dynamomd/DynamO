@@ -79,8 +79,8 @@ Liouvillean::initialise()
 
       sumEnergy *= 0.5 / Sim->dynamics.units().unitEnergy();
   
-      I_cout() << "System Rotational Energy " << sumEnergy
-	       << "\nRotational kT " << sumEnergy / Sim->N;
+      dout << "System Rotational Energy " << sumEnergy
+	       << "\nRotational kT " << sumEnergy / Sim->N << std::endl;
     }
 }
 
@@ -112,8 +112,7 @@ Liouvillean::getPBCSentinelTime(const Particle&, const double&) const
 void 
 Liouvillean::loadParticleXMLData(const magnet::xml::Node& XML)
 {
-  I_cout() << "Loading Particle Data";
-  std::cout.flush();
+  dout << "Loading Particle Data" << std::endl;
 
   bool outofsequence = false;  
   
@@ -130,13 +129,13 @@ Liouvillean::loadParticleXMLData(const magnet::xml::Node& XML)
     }
 
   if (outofsequence)
-    I_cout() << "Particle ID's out of sequence!\n"
+    dout << "Particle ID's out of sequence!\n"
 	     << "This can result in incorrect capture map loads etc.\n"
-	     << "Erase any capture maps in the configuration file so they are regenerated.";
+	     << "Erase any capture maps in the configuration file so they are regenerated." << std::endl;
 
   Sim->N = Sim->particleList.size();
 
-  I_cout() << "Particle count " << Sim->N;
+  dout << "Particle count " << Sim->N << std::endl;
 
   if (XML.getNode("ParticleData").hasAttribute("OrientationData"))
     {
@@ -351,7 +350,7 @@ Liouvillean::initOrientations(double ToI)
 {
   orientationData.resize(Sim->particleList.size());
   
-  I_cout() << "Initialising the line orientations";
+  dout << "Initialising the line orientations" << std::endl;
 
   double factor = ToI * 0.5;
 

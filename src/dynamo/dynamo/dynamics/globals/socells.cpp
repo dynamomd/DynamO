@@ -38,7 +38,7 @@ CGSOCells::CGSOCells(dynamo::SimData* nSim, const std::string& name):
   cuberootN(0)
 {
   globName = name;
-  I_cout() << "Single occupancy cells loaded";
+  dout << "Single occupancy cells loaded" << std::endl;
 }
 
 CGSOCells::CGSOCells(const magnet::xml::Node&XML, dynamo::SimData* ptrSim):
@@ -49,7 +49,7 @@ CGSOCells::CGSOCells(const magnet::xml::Node&XML, dynamo::SimData* ptrSim):
 {
   operator<<(XML);
 
-  I_cout() << "Single occupancy cells loaded";
+  dout << "Single occupancy cells loaded" << std::endl;
 }
 
 void 
@@ -167,8 +167,8 @@ CGSOCells::initialise(size_t nID)
     cellDimension[iDim] = Sim->primaryCellSize[iDim] / cuberootN;
 
   if (Sim->dynamics.liouvilleanTypeTest<LNewtonianGravity>())
-    I_cout() << "Warning, in order for SingleOccupancyCells to work in gravity\n"
-	     << "You must add the ParabolaSentinel Global event.";
+    dout << "Warning, in order for SingleOccupancyCells to work in gravity\n"
+	     << "You must add the ParabolaSentinel Global event." << std::endl;
 
 }
 

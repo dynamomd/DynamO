@@ -41,7 +41,7 @@ CGCellsMorton::CGCellsMorton(dynamo::SimData* nSim, const std::string& name):
   overlink(1)
 {
   globName = name;
-  I_cout() << "Cells Loaded";
+  dout << "Cells Loaded" << std::endl;
 }
 
 CGCellsMorton::CGCellsMorton(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
@@ -54,7 +54,7 @@ CGCellsMorton::CGCellsMorton(const magnet::xml::Node& XML, dynamo::SimData* ptrS
 {
   operator<<(XML);
 
-  I_cout() << "Cells Loaded";
+  dout << "Cells Loaded" << std::endl;
 }
 
 CGCellsMorton::CGCellsMorton(dynamo::SimData* ptrSim, const char* nom, void*):
@@ -272,8 +272,8 @@ CGCellsMorton::initialise(size_t nID)
   ID=nID;
   
   if (Sim->dynamics.liouvilleanTypeTest<LNewtonianGravity>())
-    I_cout() << "Warning, in order for cellular NB lists to work in gravity\n"
-	     << "You must add the ParabolaSentinel Global event.";
+    dout << "Warning, in order for cellular NB lists to work in gravity\n"
+	     << "You must add the ParabolaSentinel Global event." << std::endl;
 
   reinitialise(getMaxInteractionLength());
 }
@@ -281,7 +281,7 @@ CGCellsMorton::initialise(size_t nID)
 void
 CGCellsMorton::reinitialise(const double& maxdiam)
 {
-  I_cout() << "Reinitialising on collision " << Sim->eventCount;
+  dout << "Reinitialising on collision " << Sim->eventCount << std::endl;
 
   //Create the cells
   addCells(_oversizeCells * (maxdiam * (1.0 + 10 * std::numeric_limits<double>::epsilon())) / overlink);
@@ -327,9 +327,9 @@ CGCellsMorton::addCells(double maxdiam)
 
   if (cellCount > std::numeric_limits<unsigned char>::max())
     {
-      I_cout() << "Cell count was " << cellCount
+      dout << "Cell count was " << cellCount
 	       << "\n Restricting to " << std::numeric_limits<unsigned char>::max() 
-	       << " to stop huge amounts of memory being allocated";
+	       << " to stop huge amounts of memory being allocated" << std::endl;
 
       cellCount = std::numeric_limits<unsigned char>::max();
     }
@@ -348,13 +348,13 @@ CGCellsMorton::addCells(double maxdiam)
   cellOffset = -(cellLatticeWidth - maxdiam) * lambda * 0.5;
 
 
-  I_cout() << "Cells <N>  " << NCells;
+  dout << "Cells <N>  " << NCells << std::endl;
 
-  I_cout() << "Cells dimension <x>  " 
-	   << cellDimension / Sim->dynamics.units().unitLength();
+  dout << "Cells dimension <x>  " 
+	   << cellDimension / Sim->dynamics.units().unitLength() << std::endl;
 
-  I_cout() << "Lattice spacing <x,y,z>  " 
-	   << cellLatticeWidth / Sim->dynamics.units().unitLength();
+  dout << "Lattice spacing <x,y,z>  " 
+	   << cellLatticeWidth / Sim->dynamics.units().unitLength() << std::endl;
 
   fflush(stdout);
   
@@ -370,7 +370,7 @@ CGCellsMorton::addCells(double maxdiam)
   cells.resize(sizeReq); //Empty Cells created!
   list.resize(sizeReq); //Empty Cells created!
 
-  I_cout() << "Vector Size <N>  " << sizeReq;
+  dout << "Vector Size <N>  " << sizeReq << std::endl;
   
   for (size_t iDim = 0; iDim < cellCount; ++iDim)
     for (size_t jDim = 0; jDim < cellCount; ++jDim)

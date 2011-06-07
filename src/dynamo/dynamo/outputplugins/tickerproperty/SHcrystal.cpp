@@ -52,8 +52,8 @@ OPSHCrystal::operator<<(const magnet::xml::Node& XML)
   rg *= Sim->dynamics.units().unitLength();
 
 
-  I_cout() << "Cut off radius of " 
-	   << rg / Sim->dynamics.units().unitLength();
+  dout << "Cut off radius of " 
+	   << rg / Sim->dynamics.units().unitLength() << std::endl;
 }
 
 

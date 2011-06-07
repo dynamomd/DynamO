@@ -92,11 +92,12 @@ namespace magnet
 	  //Add the prefix to every newline
 	  ostring = string::searchReplace(ostring, "\n", "\n" + _prefix);
 	  //Readd the final endline
-	  ostring += "\n";
+	  if (endl) ostring += "\n";
 
 	  //Write the result out
 	  _output << _prefix + ostring;
 	  _output.flush();
+	  str("");
 	  return 0;
         }
       };

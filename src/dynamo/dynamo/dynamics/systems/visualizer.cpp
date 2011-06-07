@@ -84,10 +84,10 @@ SVisualizer::SVisualizer(dynamo::SimData* nSim, std::string nName, double tickFr
     _CLWindow.as<CLGLWindow>().setSimStatus2(os.str());
   }
   
-  I_cout() << "Visualizer initialised\nOpenCL Plaftorm:" 
+  dout << "Visualizer initialised\nOpenCL Plaftorm:" 
 	   << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getPlatform().getInfo<CL_PLATFORM_NAME>()
 	   << "\nOpenCL Device:" 
-	   << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getDevice().getInfo<CL_DEVICE_NAME>();
+	   << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getDevice().getInfo<CL_DEVICE_NAME>() << std::endl;
 }
 
 void

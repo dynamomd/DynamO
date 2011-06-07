@@ -113,10 +113,10 @@ IStepped::initialise(size_t nID)
   ID = nID;
   IMultiCapture::initCaptureMap(Sim->particleList);
   
-  I_cout() << "Buckets in captureMap " << captureMap.bucket_count()
+  dout << "Buckets in captureMap " << captureMap.bucket_count()
 	   << "\nMax bucket count " << captureMap.max_bucket_count()
 	   << "\nload Factor " << captureMap.load_factor()
-	   << "\nMax load Factor " << captureMap.max_load_factor();
+	   << "\nMax load Factor " << captureMap.max_load_factor() << std::endl;
 }
 
 int 
@@ -320,9 +320,9 @@ IStepped::checkOverlaps(const Particle& part1, const Particle& part2) const
   const_cmap_it capstat = getCMap_it(part1,part2);
 
   if (captureTest(part1,part2) != capstat->second)
-    I_cerr() << "Particle " << part1.getID() << " and Particle " << part2.getID()
-	     << "\nFailing as captureTest gives " << captureTest(part1,part2)
-	     << "\nAnd recorded value is " << capstat->second;
+    derr << "Particle " << part1.getID() << " and Particle " << part2.getID()
+	 << "\nFailing as captureTest gives " << captureTest(part1,part2)
+	 << "\nAnd recorded value is " << capstat->second << std::endl;
 }
   
 void 

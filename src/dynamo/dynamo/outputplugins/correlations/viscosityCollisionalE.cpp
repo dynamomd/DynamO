@@ -90,7 +90,7 @@ OPViscosityCollisionalE::initialise()
 	dt = 10.0 / (((double) CorrelatorLength) * sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
     }
 
-  I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
+  dout << "dt set to " << dt / Sim->dynamics.units().unitTime() << std::endl;
 }
 
 void 

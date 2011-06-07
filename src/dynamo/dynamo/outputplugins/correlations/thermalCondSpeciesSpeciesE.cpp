@@ -99,7 +99,7 @@ OPThermalConductivitySpeciesSpeciesE::initialise()
 	* Sim->dynamics.getLiouvillean().getParticleKineticEnergy(part);
     }
   
-  I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
+  dout << "dt set to " << dt / Sim->dynamics.units().unitTime() << std::endl;
 }
 
 double 

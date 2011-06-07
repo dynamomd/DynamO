@@ -36,13 +36,13 @@
 CSDumb::CSDumb(const magnet::xml::Node& XML, dynamo::SimData* const Sim):
   CScheduler(Sim,"DumbScheduler", NULL)
 { 
-  I_cout() << "Dumb Scheduler Algorithmn";
+  dout << "Dumb Scheduler Algorithmn" << std::endl;
   operator<<(XML);
 }
 
 CSDumb::CSDumb(dynamo::SimData* const Sim, CSSorter* ns):
   CScheduler(Sim,"DumbScheduler", ns)
-{ I_cout() << "Dumb Scheduler Algorithmn"; }
+{ dout << "Dumb Scheduler Algorithmn" << std::endl; }
 
 void 
 CSDumb::operator<<(const magnet::xml::Node& XML)
@@ -53,7 +53,7 @@ CSDumb::operator<<(const magnet::xml::Node& XML)
 void
 CSDumb::initialise()
 {
-  I_cout() << "Reinitialising on collision " << Sim->eventCount;
+  dout << "Reinitialising on collision " << Sim->eventCount << std::endl;
   
   sorter->clear();
   sorter->resize(Sim->N+1);

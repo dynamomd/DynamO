@@ -201,7 +201,7 @@ OPVTK::initialise()
       for (size_t iDim(0); iDim < NDIM; ++iDim)
 	tmp += boost::lexical_cast<std::string>(nBins[iDim]) + " ";
       
-      I_cout() << "Number of bins " << tmp << ">";
+      dout << "Number of bins " << tmp << ">" << std::endl;
       
       tmp = std::string("< ");
       
@@ -209,7 +209,7 @@ OPVTK::initialise()
 	tmp +=boost::lexical_cast<std::string>
 	  (binWidth[iDim]/Sim->dynamics.units().unitLength()) + " ";
       
-      I_cout() << "Bin width " << tmp << ">";  
+      dout << "Bin width " << tmp << ">" << std::endl;  
     } 
 
   ticker();

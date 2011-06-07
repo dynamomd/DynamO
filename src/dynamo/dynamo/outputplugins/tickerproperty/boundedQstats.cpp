@@ -65,9 +65,9 @@ OPBoundedQStats::output(xml::XmlStream& XML)
 
   if (!Sim->eventCount)
     {
-      I_cerr() << "Cannot print the tree as the queue is\n"
+      derr << "Cannot print the tree as the queue is\n"
 	       << "not initialised until an event is run (i.e. N_event != 0).\n"
-	       << "Continuing without tree output.";
+	       << "Continuing without tree output." << std::endl;
     }
   else
     {

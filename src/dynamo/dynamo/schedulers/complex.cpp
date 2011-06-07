@@ -48,7 +48,7 @@ CSComplex::operator<<(const magnet::xml::Node& XML)
 void
 CSComplex::initialise()
 {
-  I_cout() << "Reinitialising on collision " << Sim->eventCount;
+  dout << "Reinitialising on collision " << Sim->eventCount << std::endl;
   std::cout.flush();
 
   BOOST_FOREACH(magnet::ClonePtr<CSCEntry>& ent, entries)
@@ -123,13 +123,13 @@ CSComplex::outputXML(xml::XmlStream& XML) const
 CSComplex::CSComplex(const magnet::xml::Node& XML, dynamo::SimData* const Sim):
   CScheduler(Sim,"ComplexScheduler", NULL)
 { 
-  I_cout() << "Complex Scheduler Algorithmn Loaded";
+  dout << "Complex Scheduler Algorithmn Loaded" << std::endl;
   operator<<(XML);
 }
 
 CSComplex::CSComplex(dynamo::SimData* const Sim, CSSorter* ns):
   CScheduler(Sim,"ComplexScheduler", ns)
-{ I_cout() << "Complex Scheduler Algorithmn Loaded"; }
+{ dout << "Complex Scheduler Algorithmn Loaded" << std::endl; }
 
 void 
 CSComplex::addEvents(const Particle& part)

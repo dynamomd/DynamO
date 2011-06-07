@@ -64,9 +64,9 @@ namespace dynamo {
     EnsembleVals[1] = Sim->primaryCellSize[0] * Sim->primaryCellSize[1] * Sim->primaryCellSize[2];
     EnsembleVals[2] = Sim->dynamics.calcInternalEnergy() + Sim->dynamics.getLiouvillean().getSystemKineticEnergy();
 
-    I_cout() << "NVE Ensemble initialised\nN=" << EnsembleVals[0]
+    dout << "NVE Ensemble initialised\nN=" << EnsembleVals[0]
 	     << "\nV=" << EnsembleVals[1] / Sim->dynamics.units().unitVolume()
-	     << "\nE=" << EnsembleVals[2] / Sim->dynamics.units().unitEnergy();
+	     << "\nE=" << EnsembleVals[2] / Sim->dynamics.units().unitEnergy() << std::endl;
   }
 
   boost::array<double,3> 
@@ -101,9 +101,9 @@ namespace dynamo {
     
     EnsembleVals[2] = static_cast<const CSysGhost*>(thermostat)->getTemperature();
     
-    I_cout() << "NVT Ensemble initialised\nN=" << EnsembleVals[0]
+    dout << "NVT Ensemble initialised\nN=" << EnsembleVals[0]
 	     << "\nV=" << EnsembleVals[1] / Sim->dynamics.units().unitVolume()
-	     << "\nT=" << EnsembleVals[2] / Sim->dynamics.units().unitEnergy();
+	     << "\nT=" << EnsembleVals[2] / Sim->dynamics.units().unitEnergy() << std::endl;
   }
 
   boost::array<double,3> 
@@ -163,9 +163,9 @@ namespace dynamo {
     EnsembleVals[1] = Sim->primaryCellSize[0] * Sim->primaryCellSize[1] * Sim->primaryCellSize[2];
     EnsembleVals[2] = CLEBC::shearRate();
 
-    I_cout() << "NVShear Ensemble initialised\nN=" << EnsembleVals[0]
+    dout << "NVShear Ensemble initialised\nN=" << EnsembleVals[0]
 	     << "\nV=" << EnsembleVals[1] / Sim->dynamics.units().unitVolume()
-	     << "\nGamma=" << EnsembleVals[2] * Sim->dynamics.units().unitTime();
+	     << "\nGamma=" << EnsembleVals[2] * Sim->dynamics.units().unitTime() << std::endl;
   }
 
   boost::array<double,3> 
@@ -195,9 +195,9 @@ namespace dynamo {
 	M_throw() << "Compression ensemble requires the use of compression liouvillean";
       }
 
-    I_cout() << "NECompression Ensemble initialised\nN=" << EnsembleVals[0]
+    dout << "NECompression Ensemble initialised\nN=" << EnsembleVals[0]
 	     << "\nE=" << EnsembleVals[1] / Sim->dynamics.units().unitEnergy()
-	     << "\nGamma=" << EnsembleVals[2] * Sim->dynamics.units().unitTime();
+	     << "\nGamma=" << EnsembleVals[2] * Sim->dynamics.units().unitTime() << std::endl;
   }
 
   boost::array<double,3> 
@@ -241,9 +241,9 @@ namespace dynamo {
 	M_throw() << "Compression ensemble requires the use of compression liouvillean";
       }
 
-    I_cout() << "NTCompression Ensemble initialised\nN=" << EnsembleVals[0]
+    dout << "NTCompression Ensemble initialised\nN=" << EnsembleVals[0]
 	     << "\nT=" << EnsembleVals[1] / Sim->dynamics.units().unitEnergy()
-	     << "\nGamma=" << EnsembleVals[2] * Sim->dynamics.units().unitTime();
+	     << "\nGamma=" << EnsembleVals[2] * Sim->dynamics.units().unitTime() << std::endl;
   }
 
   boost::array<double,3> 

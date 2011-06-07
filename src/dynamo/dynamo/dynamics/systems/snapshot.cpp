@@ -40,8 +40,8 @@ SSnapshot::SSnapshot(dynamo::SimData* nSim, double nPeriod, std::string nName):
 
   sysName = nName;
 
-  I_cout() << "Snapshot set for a peroid of " 
-	   << _period / Sim->dynamics.units().unitTime();
+  dout << "Snapshot set for a peroid of " 
+	   << _period / Sim->dynamics.units().unitTime() << std::endl;
 }
 
 void
@@ -96,8 +96,8 @@ SSnapshot::increasedt(double ndt)
 void 
 SSnapshot::setTickerPeriod(const double& nP)
 { 
-  I_cout() << "Setting system ticker period to " 
-	   << nP / Sim->dynamics.units().unitTime();
+  dout << "Setting system ticker period to " 
+	   << nP / Sim->dynamics.units().unitTime() << std::endl;
 
   _period = nP; 
 

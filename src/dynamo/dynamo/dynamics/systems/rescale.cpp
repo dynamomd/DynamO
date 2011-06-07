@@ -39,7 +39,7 @@ CSysRescale::CSysRescale(const magnet::xml::Node& XML, dynamo::SimData* tmp):
   operator<<(XML);
   type = RESCALE;
 
-  I_cout() << "Velocity Rescaler Loaded";
+  dout << "Velocity Rescaler Loaded" << std::endl;
 }
 
 CSysRescale::CSysRescale(dynamo::SimData* tmp, size_t frequency, std::string name): 
@@ -52,7 +52,7 @@ CSysRescale::CSysRescale(dynamo::SimData* tmp, size_t frequency, std::string nam
   type = RESCALE;
   sysName = name;
 
-  I_cout() << "Velocity Rescaler Loaded";
+  dout << "Velocity Rescaler Loaded" << std::endl;
 }
 
 void 
@@ -96,12 +96,12 @@ CSysRescale::runEvent() const
   
   
   /////////Now the actual updates
-  I_cout() << "WARNING Rescaling kT to 1";
+  dout << "WARNING Rescaling kT to 1" << std::endl;
   
   double currentkT(Sim->dynamics.getLiouvillean().getkT()
 		 / Sim->dynamics.units().unitEnergy());
 
-  I_cout() << "Current kT " << currentkT;
+  dout << "Current kT " << currentkT << std::endl;
 
   NEventData SDat;
 
@@ -149,7 +149,7 @@ CSysRescale::initialise(size_t nID)
   Sim->registerParticleUpdateFunc
     (magnet::function::MakeDelegate(this, &CSysRescale::checker));
   
-  I_cout() << "Velocity rescaler initialising";
+  dout << "Velocity rescaler initialising" << std::endl;
 }
 
 void 

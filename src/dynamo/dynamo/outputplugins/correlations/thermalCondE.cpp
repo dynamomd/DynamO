@@ -89,7 +89,7 @@ OPThermalConductivityE::initialise()
   BOOST_FOREACH(const Particle& part, Sim->particleList)
     constDelG += part.getVelocity () * Sim->dynamics.getLiouvillean().getParticleKineticEnergy(part);
   
-  I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
+  dout << "dt set to " << dt / Sim->dynamics.units().unitTime() << std::endl;
 }
 
 double 

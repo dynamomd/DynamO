@@ -430,7 +430,7 @@ Dynamics::setCOMVelocity(const Vector COMVelocity)
 void
 Dynamics::operator<<(const magnet::xml::Node& XML)
 {
-  I_cout() << "Loading dynamics from XML";
+  dout << "Loading dynamics from XML" << std::endl;
   
   magnet::xml::Node xDynamics = XML.getNode("Dynamics");
 

@@ -47,7 +47,7 @@ CSNBListCompressionFix::initialise(size_t nID)
 
   dt = (nblist.getMaxSupportedInteractionLength() / nblist.getMaxInteractionLength() - 1.0) / growthRate - Sim->dSysTime;
 
-  I_cout() << "Compression Hack Loaded"
+  dout << "Compression Hack Loaded"
 	   << "\nFor global " << nblist.getName()
 	   << "\nCompression rate = " 
 	   << growthRate / Sim->dynamics.units().unitTime()
@@ -57,7 +57,7 @@ CSNBListCompressionFix::initialise(size_t nID)
 	   << "\nMaximum supported length = "
 	   << nblist.getMaxSupportedInteractionLength() / Sim->dynamics.units().unitLength()
 	   << "\nFirst halt scheduled for " 
-	   << dt / Sim->dynamics.units().unitTime();
+	   << dt / Sim->dynamics.units().unitTime() << std::endl;
 }
 
 void
@@ -82,9 +82,9 @@ CSNBListCompressionFix::runEvent() const
   CGNeighbourList& nblist(dynamic_cast<CGNeighbourList&>
 			  (*Sim->dynamics.getGlobals()[cellID]));
   
-  I_cout() << "Rebuilding the neighbour list named " << nblist.getName()
+  dout << "Rebuilding the neighbour list named " << nblist.getName()
 	   << "\nNColl = " << Sim->eventCount
-	   << "\nSys t = " << Sim->dSysTime / Sim->dynamics.units().unitTime();
+	   << "\nSys t = " << Sim->dSysTime / Sim->dynamics.units().unitTime() << std::endl;
   
   nblist.reinitialise(1.0001 * nblist.getMaxSupportedInteractionLength());
   

@@ -37,13 +37,13 @@ CSSystemOnly::CSSystemOnly(const magnet::xml::Node& XML,
 			   dynamo::SimData* const Sim):
   CScheduler(Sim,"SystemOnlyScheduler", NULL)
 { 
-  I_cout() << "System Events Only Scheduler Algorithmn";
+  dout << "System Events Only Scheduler Algorithmn" << std::endl;
   operator<<(XML);
 }
 
 CSSystemOnly::CSSystemOnly(dynamo::SimData* const Sim, CSSorter* ns):
   CScheduler(Sim,"SystemOnlyScheduler", ns)
-{ I_cout() << "System Events Only Scheduler Algorithmn"; }
+{ dout << "System Events Only Scheduler Algorithmn" << std::endl; }
 
 void 
 CSSystemOnly::operator<<(const magnet::xml::Node& XML)
@@ -54,7 +54,7 @@ CSSystemOnly::operator<<(const magnet::xml::Node& XML)
 void
 CSSystemOnly::initialise()
 {
-  I_cout() << "Reinitialising on collision " << Sim->eventCount;
+  dout << "Reinitialising on collision " << Sim->eventCount << std::endl;
 
   if (Sim->dynamics.getSystemEvents().empty())
     M_throw() << "A SystemOnlyScheduler used when there are no system events?";

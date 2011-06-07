@@ -95,7 +95,7 @@ Simulation::addOutputPlugin(std::string Name)
   if (status >= INITIALISED)
     M_throw() << "Cannot add plugins now";
   
-  I_cout() << "Loading output plugin string " << Name;
+  dout << "Loading output plugin string " << Name << std::endl;
 
   magnet::ClonePtr<OutputPlugin> tempPlug(OutputPlugin::getPlugin(Name, this));
   outputPlugins.push_back(tempPlug);
@@ -108,7 +108,7 @@ Simulation::setRandSeed(unsigned int x)
 void 
 Simulation::setnPrint(unsigned long long newnPrint)
 { 
-  I_cout() << "Periodic output length set to " << newnPrint << " collisions";
+  dout << "Periodic output length set to " << newnPrint << " collisions" << std::endl;
   eventPrintInterval = newnPrint; 
 }
 
@@ -119,14 +119,14 @@ Simulation::simShutdown()
 void 
 Simulation::setTrajectoryLength(unsigned long long newMaxColl)
 { 
-  //I_cout() << "Trajectory length set to " << newMaxColl << " collisions";
+  //dout << "Trajectory length set to " << newMaxColl << " collisions" << std::endl;
   endEventCount = newMaxColl; 
 }
 
 void
 Simulation::initialise()
 {
-  I_cout() << "Sorting the Output Plugins";
+  dout << "Sorting the Output Plugins" << std::endl;
 
   std::sort(outputPlugins.begin(), outputPlugins.end());
   
@@ -145,12 +145,12 @@ Simulation::initialise()
   if (status != CONFIG_LOADED)
     M_throw() << "Sim initialised at wrong time";
 
-  I_cout() << "Initialising Components";  
+  dout << "Initialising Components" << std::endl;  
 
   if (ptrScheduler == NULL)
     M_throw() << "The scheduler has not been set!";      
   
-  I_cout() << "Initialising the dynamics";
+  dout << "Initialising the dynamics" << std::endl;
   dynamics.initialise();
 
   ensemble->initialise();
@@ -159,17 +159,17 @@ Simulation::initialise()
 
   if (endEventCount) //Only initialise the scheduler if we're simulating
     {
-      I_cout() << "Initialising the scheduler";
+      dout << "Initialising the scheduler" << std::endl;
       ptrScheduler->initialise();
     }
   else
-    I_cout() << "Skipping initialisation of the Scheduler";
+    dout << "Skipping initialisation of the Scheduler" << std::endl;
   
-  I_cout() << "Initialising the output plugins";
+  dout << "Initialising the output plugins" << std::endl;
   BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
     Ptr->initialise();
 
-  I_cout() << "System initialised";
+  dout << "System initialised" << std::endl;
 
   status = INITIALISED;
 }
@@ -247,7 +247,7 @@ Simulation::outputData(std::string filename)
   
   XML << xml::endtag("OutputData");
 
-  I_cout() << "Output written to " << filename;
+  dout << "Output written to " << filename << std::endl;
 }
 
 long double 

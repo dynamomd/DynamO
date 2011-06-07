@@ -123,9 +123,9 @@ ISquareWell::captureTest(const Particle& p1, const Particle& p2) const
 #ifdef DYNAMO_DEBUG
   double d2 = d * d;
   if ((rij | rij) < d2)
-    I_cerr() << "Warning! Two particles might be overlapping"
+    derr << "Warning! Two particles might be overlapping"
 	     << "\nrij^2 = " << (rij | rij)
-	     << "\nd^2 = " << d2;
+	     << "\nd^2 = " << d2 << std::endl;
 #endif
 
   return (rij | rij) <= ld2;
@@ -303,38 +303,34 @@ ISquareWell::checkOverlaps(const Particle& part1, const Particle& part2) const
   if (isCaptured(part1, part2))
     {
       if (r2 < d2)
-	I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
-		 << "Possible captured overlap occured in diagnostics\n ID1=" << part1.getID() 
-		 << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-		 << r2 / pow(Sim->dynamics.units().unitLength(),2)
-		 << "\nd^2=" 
-		 << d2 / pow(Sim->dynamics.units().unitLength(),2);
-
+	derr << "Possible captured overlap occured in diagnostics\n ID1=" << part1.getID() 
+	     << ", ID2=" << part2.getID() << "\nR_ij^2=" 
+	     << r2 / pow(Sim->dynamics.units().unitLength(),2)
+	     << "\nd^2=" 
+	     << d2 / pow(Sim->dynamics.units().unitLength(),2) << std::endl;
+      
       if (r2 > ld2)
-	I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
-		 << "Possible escaped captured pair in diagnostics\n ID1=" << part1.getID() 
-		 << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-		 << r2 / pow(Sim->dynamics.units().unitLength(),2)
-		 << "\n(lambda * d)^2=" 
-		 << ld2 / pow(Sim->dynamics.units().unitLength(),2);
+	derr << "Possible escaped captured pair in diagnostics\n ID1=" << part1.getID() 
+	     << ", ID2=" << part2.getID() << "\nR_ij^2=" 
+	     << r2 / pow(Sim->dynamics.units().unitLength(),2)
+	     << "\n(lambda * d)^2=" 
+	     << ld2 / pow(Sim->dynamics.units().unitLength(),2) << std::endl;
     }
   else 
     if (r2 < ld2)
       {
 	if (r2 < d2)
-	  I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
-		   << "Overlap error\n ID1=" << part1.getID() 
-		   << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-		   << r2 / pow(Sim->dynamics.units().unitLength(),2)
-		   << "\n(d)^2=" 
-		   << d2 / pow(Sim->dynamics.units().unitLength(),2);
+	  derr << "Overlap error\n ID1=" << part1.getID() 
+	       << ", ID2=" << part2.getID() << "\nR_ij^2=" 
+	       << r2 / pow(Sim->dynamics.units().unitLength(),2)
+	       << "\n(d)^2=" 
+	       << d2 / pow(Sim->dynamics.units().unitLength(),2) << std::endl;
 	else
-	  I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
-		   << "Possible missed captured pair in diagnostics\n ID1=" << part1.getID() 
-		   << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-		   << r2 / pow(Sim->dynamics.units().unitLength(),2)
-		   << "\n(lambda * d)^2=" 
-		   << ld2 / pow(Sim->dynamics.units().unitLength(),2);
+	  derr << "Possible missed captured pair in diagnostics\n ID1=" << part1.getID() 
+	       << ", ID2=" << part2.getID() << "\nR_ij^2=" 
+	       << r2 / pow(Sim->dynamics.units().unitLength(),2)
+	       << "\n(lambda * d)^2=" 
+	       << ld2 / pow(Sim->dynamics.units().unitLength(),2) << std::endl;
       }
 }
   

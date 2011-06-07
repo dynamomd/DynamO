@@ -208,10 +208,10 @@ ISWSequence::captureTest(const Particle& p1, const Particle& p2) const
   double d2 = d * d;
   if (rij.nrm2() < d2)
     {
-      I_cerr() << "Warning! Two particles are overlapping"
+      derr << "Warning! Two particles are overlapping"
 	       << "\nrij^2 = " << (rij | rij)
 	       << "\nd^2 = " << d2
-	       << "\np1 = " << p1.getID() << " p2 = " << p2.getID();
+	       << "\np1 = " << p1.getID() << " p2 = " << p2.getID() << std::endl;
     }
 #endif
 
@@ -400,40 +400,36 @@ ISWSequence::checkOverlaps(const Particle& part1, const Particle& part2) const
   if (isCaptured(part1, part2))
     {
       if (r2 < d2)
-	I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
-		 << "Possible captured overlap occured in diagnostics\n ID1=" << part1.getID() 
-		 << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-		 << r2 / pow(Sim->dynamics.units().unitLength(),2)
-		 << "\nd^2=" 
-		 << d2 / pow(Sim->dynamics.units().unitLength(),2);
+	derr << "Possible captured overlap occured in diagnostics\n ID1=" << part1.getID() 
+	     << ", ID2=" << part2.getID() << "\nR_ij^2=" 
+	     << r2 / pow(Sim->dynamics.units().unitLength(),2)
+	     << "\nd^2=" 
+	     << d2 / pow(Sim->dynamics.units().unitLength(),2) << std::endl;
 
       if (r2 > ld2)
-	I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
-		 << "Possible escaped captured pair in diagnostics\n ID1=" << part1.getID() 
-		 << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-		 << r2 / pow(Sim->dynamics.units().unitLength(),2)
-		 << "\n(lambda * d)^2=" 
-		 << ld2 / pow(Sim->dynamics.units().unitLength(),2);
+	derr << "Possible escaped captured pair in diagnostics\n ID1=" << part1.getID() 
+	     << ", ID2=" << part2.getID() << "\nR_ij^2=" 
+	     << r2 / pow(Sim->dynamics.units().unitLength(),2)
+	     << "\n(lambda * d)^2=" 
+	     << ld2 / pow(Sim->dynamics.units().unitLength(),2) << std::endl;
     }
   else 
     {
       if (r2 < d2)
-	I_cerr() << "Particles overlapping cores without even being captured."
-		 << "\nProbably a bad initial configuration."
-		 << std::setprecision(std::numeric_limits<float>::digits10)
-		 << "\n ID1=" 
-		 << part1.getID() 
-		 << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-		 << r2 / pow(Sim->dynamics.units().unitLength(),2)
-		 << "\nd^2=" 
-		 << d2 / pow(Sim->dynamics.units().unitLength(),2);
+	derr << "Particles overlapping cores without even being captured."
+	     << "\nProbably a bad initial configuration."
+	     << "\n ID1=" 
+	     << part1.getID() 
+	     << ", ID2=" << part2.getID() << "\nR_ij^2=" 
+	     << r2 / pow(Sim->dynamics.units().unitLength(),2)
+	     << "\nd^2=" 
+	     << d2 / pow(Sim->dynamics.units().unitLength(),2) << std::endl;
       if (r2 < ld2)
-	I_cerr() << std::setprecision(std::numeric_limits<float>::digits10)
-		 << "Possible missed captured pair in diagnostics\n ID1=" 
-		 << part1.getID() 
-		 << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-		 << r2 / pow(Sim->dynamics.units().unitLength(),2)
-		 << "\n(lambda * d)^2=" 
-		 << ld2 / pow(Sim->dynamics.units().unitLength(),2);
+	derr << "Possible missed captured pair in diagnostics\n ID1=" 
+	     << part1.getID() 
+	     << ", ID2=" << part2.getID() << "\nR_ij^2=" 
+	     << r2 / pow(Sim->dynamics.units().unitLength(),2)
+	     << "\n(lambda * d)^2=" 
+	     << ld2 / pow(Sim->dynamics.units().unitLength(),2) << std::endl;
     }
 }

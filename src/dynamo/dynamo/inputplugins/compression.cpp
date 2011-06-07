@@ -38,21 +38,21 @@ CIPCompression::CIPCompression(dynamo::SimData* tmp, double GR):
   CInputPlugin(tmp, "CompressionPlugin"),
   growthRate(GR)
 {
-  I_cout() << "Compression plugin loaded\n"
-	   << "Compaction parameter gamma " << growthRate;
+  dout << "Compression plugin loaded\n"
+	   << "Compaction parameter gamma " << growthRate << std::endl;
 }
 
 void 
 CIPCompression::MakeGrowth()
 {
-  I_cout() << "Backing up old liouvillean";
+  dout << "Backing up old liouvillean" << std::endl;
 
   //Required to reset the dynamics
   Sim->dynamics.getLiouvillean().updateAllParticles();
 
   oldLio = Sim->dynamics.getLiouvillean().Clone();
 
-  I_cout() << "Loading compression liouvillean";
+  dout << "Loading compression liouvillean" << std::endl;
   Sim->dynamics.setLiouvillean(new LCompression(Sim, growthRate 
 						 / (Sim->dynamics.units()
 						    .unitTime())));
@@ -61,7 +61,7 @@ CIPCompression::MakeGrowth()
 void
 CIPCompression::RestoreSystem()
 {
-  I_cout() << "Restoring original liouvillean";
+  dout << "Restoring original liouvillean" << std::endl;
 
   //Required to finish off the compression dynamics
   Sim->dynamics.getLiouvillean().updateAllParticles();
@@ -74,7 +74,7 @@ CIPCompression::RestoreSystem()
 	  dynamic_cast<CGNeighbourList&>(*ptr).setCellOverlap(true);
     }
   else
-    I_cout() << "No cellular device to fix";
+    dout << "No cellular device to fix" << std::endl;
 
   double rescale_factor = 1.0 + Sim->dSysTime * growthRate / Sim->dynamics.units().unitTime();
 
@@ -129,7 +129,7 @@ CIPCompression::CellSchedulerHack()
 void 
 CIPCompression::limitPackingFraction(double targetp)
 {
-  I_cout() << "Limiting maximum packing fraction to " << targetp;
+  dout << "Limiting maximum packing fraction to " << targetp << std::endl;
   
   double packfrac = Sim->dynamics.getPackingFraction();
   
@@ -144,12 +144,12 @@ CIPCompression::limitPackingFraction(double targetp)
 void 
 CIPCompression::limitDensity(double targetrho)
 {
-  I_cout() << "Limiting maximum density to " << targetrho;
+  dout << "Limiting maximum density to " << targetrho << std::endl;
   
   double molVol = (Sim->dynamics.getPackingFraction() * Sim->dynamics.getSimVolume())
     / (Sim->N * Sim->dynamics.units().unitVolume());
 
-  I_cout() << "Corresponding packing fraction for that density is "
-	   << molVol * targetrho;
+  dout << "Corresponding packing fraction for that density is "
+	   << molVol * targetrho << std::endl;
   limitPackingFraction(molVol * targetrho);
 }

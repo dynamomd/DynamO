@@ -34,7 +34,7 @@ GWaker::GWaker(dynamo::SimData* nSim, const std::string& name, CRange* range,
   _nblistName(nblist)
 {
   globName = name;
-  I_cout() << "GWaker Loaded";
+  dout << "GWaker Loaded" << std::endl;
 }
 
 GWaker::GWaker(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
@@ -42,7 +42,7 @@ GWaker::GWaker(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
 {
   operator<<(XML);
 
-  I_cout() << "GWaker Loaded";
+  dout << "GWaker Loaded" << std::endl;
 }
 
 void 

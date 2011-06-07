@@ -98,7 +98,7 @@ OPViscosityE::initialise()
 	  += part.getVelocity()[iDim] * part.getVelocity()[jDim]
 	  * Sim->dynamics.getSpecies(part).getMass(part.getID());
 
-  I_cout() << "dt set to " << dt / Sim->dynamics.units().unitTime();
+  dout << "dt set to " << dt / Sim->dynamics.units().unitTime() << std::endl;
 }
 
 void 

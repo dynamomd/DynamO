@@ -28,8 +28,8 @@ CStHalt::CStHalt(dynamo::SimData* nSim, double ndt, std::string nName):
 
   sysName = nName;
 
-  I_cout() << "System halt set for " 
-	   << ndt;
+  dout << "System halt set for " 
+	   << ndt << std::endl;
 }
 
 void
