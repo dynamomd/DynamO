@@ -16,6 +16,7 @@
 */
 
 #pragma once
+#include <magnet/stream/console_specials.hpp>
 #include <magnet/stream/formattedostream.hpp>
 #include <magnet/exception.hpp>
 #include <iostream>
@@ -38,13 +39,15 @@ namespace dynamo
      * \param aName The name of the class.
      */
     Base(const std::string aName):
-      dout(aName + ": ", std::cout),
-      derr(aName + ": ", std::cerr),
+      dout(colorCode(aName) 
+	   + aName + ": " + magnet::console::reset(), std::cout),
+      derr(magnet::console::bold()
+	   + magnet::console::red_fg() 
+	   + aName + ": " + magnet::console::reset(), std::cerr),
       name(aName)
     {};
     
   protected:
-
     /*! \brief A std::cout style output stream. 
      *
      * This member is meant as a replacement to std::cout, as it
@@ -67,6 +70,36 @@ namespace dynamo
 
     /*! \brief A pointer to a const definition of the class name. */
     std::string name;
+    
+  private:
+    /*! \brief Generate a random console text-color command based off
+     * a string. 
+     *
+     * This function is used to automatically pick a color for the
+     * formatted output of a class, by using a hash of the classes
+     * name.
+     */
+    std::string colorCode(std::string str)
+    {
+      unsigned long hash(0);
+      for (std::string::const_iterator iPtr= str.begin();
+	   iPtr != str.end(); ++iPtr)
+	hash = int(*iPtr) + (hash << 6) + (hash << 16) - hash;
+      
+      switch (hash % 9)
+	{
+	case 0: return magnet::console::cyan_fg();
+	case 1: return magnet::console::purple_fg();
+	case 2: return magnet::console::blue_fg();
+	case 3: return magnet::console::yellow_fg();
+	case 4: return magnet::console::green_fg();
+	case 5: return magnet::console::bold() + magnet::console::green_fg();
+	case 6: return magnet::console::bold() + magnet::console::blue_fg();
+	case 7: return magnet::console::bold() + magnet::console::purple_fg();
+	case 8: return magnet::console::bold() + magnet::console::cyan_fg();
+	}
+      return "";
+    }
   };
 
   /*! \brief A Base class which contains a writable pointer to a
