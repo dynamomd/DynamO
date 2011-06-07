@@ -18,30 +18,88 @@
 #pragma once
 #include <magnet/string/searchreplace.hpp>
 #include <magnet/string/linewrap.hpp>
-#include <magnet/stream/console_specials.hpp>
 #include <iostream>
 #include <sstream>
 
 namespace magnet
 {
   namespace stream {
-    /*! \brief This class wraps an std::ostream to provide automatic
-     * formatting.
+    /*! \brief This class provides an std::ostream which wraps another
+     * ostream but adds automatic formatting.
      *
      * The primary purpose of this class is to provide formatted
      * output for classes. The idea is that the output of each class
      * might be prefixed with some identifying information, and long
      * lines will be automatically wrapped. To acheive this, the end
      * of every chunk of information passed to this class must finish
-     * with a FormattedOStream::EndBlock. e.g.
+     * with a std::endl. e.g.
      *
-     * \code 
-     * stream::FormattedOStream os(...);
+     * \code stream::FormattedOStream os(...);
      * os << "Some long text as part of a block of output, plus a number " << 20 
-     *    << "but always finished with a " << stream::EndBlock; \endcode
+     *    << "but always finished with a endl." << std::endl; \endcode
      */
-    class FormattedOStream : public std::ostringstream
+    class FormattedOStream : public std::ostream
     {
+      
+      /*! \brief A stream buffer which formats strings when flushed.
+       *
+       * This stream buffer overrides std::stringbuf so that when a flush is
+       * called on the stream, the string buffer is formatted before output.
+       */
+      class FormatingStreamBuf: public std::stringbuf
+      {
+
+	/*! \brief The final destination of the formatted output..*/
+        std::ostream&  _output;
+	
+	/*! \brief The maximum length of a formatted line before it is
+	 *   wrapped. */
+	size_t _linelength;
+	
+	/*! \brief Name to insert after newlines.*/
+	std::string _prefix;
+
+      public:
+	FormatingStreamBuf(const std::string & prefix,
+			   std::ostream& ostream,
+			   const size_t linelength):
+	  _output(ostream),
+	  _prefix(prefix),
+	  _linelength(linelength - prefix.size())
+	{ 
+	  //We always start the output with a newline
+	  _prefix = "\n" + _prefix; 
+	}
+	
+	
+	/*! \brief sync function override which actually performs the
+	 *  output formatting before a std::flush().
+	 */
+        virtual int sync()
+        {
+	  //Wrap the text to the correct length
+	  std::string ostring = string::linewrap<true>("\n" + str(), _linelength);
+
+	  //If the string ends with a newline, delete it! This catches
+	  //streams ended with a std::endl and stops spurious endlines
+	  if (*(ostring.end()-1) == '\n')
+	    ostring.erase(ostring.end() -1);
+	  
+	  //Add the prefix to every newline
+	  ostring = string::searchReplace(ostring, "\n", _prefix);
+	  
+	  //Write the result out
+	  _output << ostring;
+	  _output.flush();
+
+	  //Blank the buffer
+	  str("");
+	  return 0;
+        }
+      };
+
+      FormatingStreamBuf _buffer;
+
     public:
       /*! \brief Constructor.
        *
@@ -55,61 +113,10 @@ namespace magnet
       inline FormattedOStream(const std::string & prefix = "",
 			      std::ostream& ostream = std::cout,
 			      const size_t linelength = 80):
-	_ostream(&ostream),
-	_prefix(prefix),
-	_linelength(linelength - prefix.size())
-      {
-	//Add a reset to make sure any prefix formatting is not carried
-	//over into the string
-	_prefix = "\n" + _prefix;
-      }
+	std::ostream(&_buffer),
+	_buffer(prefix, ostream, linelength)
+      {}
     
-      /*! \brief The main workhorse for the FormattedOStream operator.
-       *
-       * This stores all passed types in the inherited
-       * std::stringstream object. These strings will be formatted
-       * once a std::endl object is recieved, by the flush() 
-       * function.
-       */
-      template<class T>
-      inline FormattedOStream& operator<<(T m)
-      {
-	static_cast<std::ostringstream&>(*this) << m;
-	return *this;
-      }
-
-      inline FormattedOStream& operator<<(std::ostream& (*pf)(std::ostream&))
-      {
-	pf(*this);
-	return *this;
-      }
-
-      /*! \brief Associates the Stream_Operator with a stream. 
-       *
-       * This function lets the formatting class be used like a stream
-       * modifier.
-       */
-      inline friend FormattedOStream& operator<<(std::ostream &os, FormattedOStream& SO)
-      {
-	SO._ostream = &os;
-	return SO;
-      }
-
-      /*! \brief Get the underlying std::ostream object. */
-      inline std::ostream& getStream() const { return *_ostream; }
-    
-    protected:
-      /*! \brief Name to insert after newlines.*/
-      std::string _prefix;
-    
-      /*! \brief The underlying std::ostream to send the formatted
-        strings to. */
-      std::ostream *_ostream;
-
-      /*! \brief The maximum length of a formatted line before it is
-       *   wrapped.
-       */      
-      size_t _linelength;
     };
   }
 }
