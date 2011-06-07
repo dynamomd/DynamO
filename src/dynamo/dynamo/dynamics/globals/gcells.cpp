@@ -39,7 +39,7 @@ CGCells::calcPosition(const Vector& primaryCell,
   
   for (size_t i = 0; i < NDIM; ++i)
     imageCell[i] = primaryCell[i] - Sim->primaryCellSize[i]
-      * rintfunc((primaryCell[i] - part.getPosition()[i]) / Sim->primaryCellSize[i]);
+      * lrint((primaryCell[i] - part.getPosition()[i]) / Sim->primaryCellSize[i]);
   
   return imageCell;
 }

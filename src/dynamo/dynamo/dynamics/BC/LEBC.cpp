@@ -18,7 +18,6 @@
 #include "LEBC.hpp"
 #include "../interactions/intEvent.hpp"
 #include "../../base/is_simdata.hpp"
-#include "../../extcode/mathtemplates.hpp"
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cmath>
@@ -75,7 +74,7 @@ BCLeesEdwards::applyBC(Vector  &pos) const
   
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->primaryCellSize[n] *
-      rintfunc (pos[n] / Sim->primaryCellSize[n]);    
+      lrint(pos[n] / Sim->primaryCellSize[n]);    
 }
 
 void 
@@ -90,7 +89,7 @@ BCLeesEdwards::applyBC(Vector  &pos, Vector &vel) const
   
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->primaryCellSize[n] *
-      rintfunc (pos[n] / Sim->primaryCellSize[n]);    
+      lrint(pos[n] / Sim->primaryCellSize[n]);    
 }
 
 void 
@@ -103,7 +102,7 @@ BCLeesEdwards::applyBC(Vector& posVec, const double& dt) const
   
   for (size_t n = 0; n < NDIM; ++n)
     posVec[n] -= Sim->primaryCellSize[n] *
-      rintfunc (posVec[n] / Sim->primaryCellSize[n]);    
+      lrint(posVec[n] / Sim->primaryCellSize[n]);    
 }
 
 void 

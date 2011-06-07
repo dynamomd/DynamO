@@ -18,7 +18,6 @@
 #pragma once
 
 #include "neighbourList.hpp"
-#include "../../extcode/mathtemplates.hpp"
 #include "../../datatypes/vector.hpp"
 #include "../../simulation/particle.hpp"
 #include <vector>

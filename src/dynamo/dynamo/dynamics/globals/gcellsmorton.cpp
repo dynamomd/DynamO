@@ -527,7 +527,7 @@ CGCellsMorton::calcPosition(const magnet::math::DilatedVector& coords, const Par
   
   for (size_t i = 0; i < NDIM; ++i)
     imageCell[i] = primaryCell[i]
-      - Sim->primaryCellSize[i] * rintfunc((primaryCell[i] - part.getPosition()[i]) / Sim->primaryCellSize[i]);
+      - Sim->primaryCellSize[i] * lrint((primaryCell[i] - part.getPosition()[i]) / Sim->primaryCellSize[i]);
 
   return imageCell;
 }

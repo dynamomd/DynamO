@@ -17,7 +17,6 @@
 
 #include "PBC.hpp"
 #include "../../base/is_simdata.hpp"
-#include "../../extcode/mathtemplates.hpp"
 #include <magnet/xmlwriter.hpp>
 
 BCPeriodic::BCPeriodic(const dynamo::SimData* tmp):
@@ -31,7 +30,7 @@ BCPeriodic::applyBC(Vector & pos) const
 { 
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->primaryCellSize[n] *
-      rintfunc (pos[n]/Sim->primaryCellSize[n]);    
+      lrint(pos[n]/Sim->primaryCellSize[n]);    
 }
 
 void 
@@ -39,7 +38,7 @@ BCPeriodic::applyBC(Vector & pos, Vector&) const
 {
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->primaryCellSize[n] *
-      rintfunc (pos[n] / Sim->primaryCellSize[n]);    
+      lrint(pos[n] / Sim->primaryCellSize[n]);    
 }
 
 void 
@@ -47,7 +46,7 @@ BCPeriodic::applyBC(Vector  &pos, const double&) const
 {
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->primaryCellSize[n] *
-      rintfunc (pos[n] / Sim->primaryCellSize[n]);    
+      lrint(pos[n] / Sim->primaryCellSize[n]);    
 }
 
 void 
@@ -90,7 +89,7 @@ BCPeriodicExceptX::applyBC(Vector & pos) const
 
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->primaryCellSize[n] *
-      rintfunc (pos[n] / Sim->primaryCellSize[n]);    
+      lrint(pos[n] / Sim->primaryCellSize[n]);    
 
   pos[0] = x;
 }
@@ -102,7 +101,7 @@ BCPeriodicExceptX::applyBC(Vector & pos, Vector&) const
 
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->primaryCellSize[n] *
-      rintfunc (pos[n]/Sim->primaryCellSize[n]);    
+      lrint(pos[n]/Sim->primaryCellSize[n]);    
 
   pos[0] = x;
 }
@@ -114,7 +113,7 @@ BCPeriodicExceptX::applyBC(Vector  &pos, const double&) const
 
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->primaryCellSize[n] *
-      rintfunc (pos[n] / Sim->primaryCellSize[n]);    
+      lrint(pos[n] / Sim->primaryCellSize[n]);    
   
   applyBC(pos); 
 
@@ -145,7 +144,7 @@ void
 BCPeriodicXOnly::applyBC(Vector & pos) const
 { 
   pos[0] -= Sim->primaryCellSize[0] 
-    * rintfunc (pos[0] / Sim->primaryCellSize[0]);
+    * lrint(pos[0] / Sim->primaryCellSize[0]);
 }
   
 void 

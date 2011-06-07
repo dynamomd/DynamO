@@ -17,7 +17,6 @@
 
 #pragma once
 #include "global.hpp"
-#include "../../extcode/mathtemplates.hpp"
 #include "../../datatypes/vector.hpp"
 #include "../../simulation/particle.hpp"
 #include <vector>
