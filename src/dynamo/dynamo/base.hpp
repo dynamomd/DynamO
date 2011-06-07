@@ -43,18 +43,6 @@ namespace dynamo
       name(aName)
     {};
     
-    /*! \brief A private stream to format the standard output stream. */
-    std::ostream& I_cout() const
-    {
-      return (std::cout << "\n");
-    }
-
-    /*! \brief A private stream to format the standard error stream. */
-    std::ostream& I_cerr() const
-    {
-      return (std::cerr << "\n");
-    }
-    
   protected:
 
     /*! \brief A std::ostream compatible stream. */
