@@ -69,7 +69,7 @@ namespace dynamo
    * SimBase and SimBase_Const which also provide some general
    * std::cout formatting.
    */
-  class SimData
+  class SimData : public dynamo::Base
   {
   protected:
     typedef magnet::function::Delegate1

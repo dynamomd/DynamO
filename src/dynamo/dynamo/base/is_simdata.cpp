@@ -34,6 +34,7 @@ const char configFileVersion[] = "1.4.0";
 namespace dynamo
 {
   SimData::SimData():
+    Base("Simulation"),
     ensemble(NULL),
     dSysTime(0.0),
     freestreamAcc(0.0),
@@ -178,7 +179,7 @@ namespace dynamo
 
     XML << xml::endtag("DynamOconfig");
 
-    std::cout << "\nConfig written to " << fileName;
+    dout << "\nConfig written to " << fileName << std::endl;
 
     //Rescale the properties back to the simulation units
     _properties.rescaleUnit(Property::Units::L, 

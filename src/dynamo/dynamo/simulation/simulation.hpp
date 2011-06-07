@@ -37,13 +37,9 @@ class OutputPlugin;
  *
  *
  */
-class Simulation: public dynamo::Base, public dynamo::SimData
+class Simulation: public dynamo::SimData
 {
  public:
-  /*! \brief Just initialises the Base_Class
-   */
-  Simulation();
-
   /*! \brief Initialise the entire Simulation and the SimData struct.
    *
    * Most classes will have an initialisation function and its up to

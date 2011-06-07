@@ -82,8 +82,6 @@ main(int argc, char *argv[])
 
       coord.outputConfigs();
 
-      std::cout << "\n";
-
       return 0;
     }
   catch (std::exception& cep)

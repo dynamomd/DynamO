@@ -132,8 +132,6 @@ main(int argc, char *argv[])
 	  CIPPacker plug(vm, &sim);
 	  plug.initialise();
 
-	  std::cout << "\nMain: Finialising the packing routines";
-
 	  //We don't zero momentum and rescale for certain packer modes
 	  if ((vm["packer-mode"].as<size_t>() != 23)
 	      && (vm["packer-mode"].as<size_t>() != 25))
@@ -216,10 +214,8 @@ main(int argc, char *argv[])
       for (int i = 0; i< argc; i++)
 	sim.getHistory() << argv[i] << " ";
       sim.getHistory() << "\nGIT hash " << GITHASH;
-      cout << "\nWriting out configuration";
       sim.writeXMLfile(vm["out-config-file"].as<string>(), 
 		       !vm.count("unwrapped"), vm.count("round"));
-      cout << "\n";
     }
   catch (std::exception &cep)
     {

@@ -30,10 +30,6 @@
 #include <boost/foreach.hpp>
 #include <iomanip>
 
-Simulation::Simulation():
-  Base("Simulation")
-{}
-
 void 
 Simulation::setTickerPeriod(double nP)
 {
