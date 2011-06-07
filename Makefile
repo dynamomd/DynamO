@@ -2,14 +2,18 @@
 BOOST_DIR=boost_1_46_1
 BOOST_FILE=$(BOOST_DIR).tar.bz2
 BOOST_DL="http://downloads.sourceforge.net/project/boost/boost/1.46.1/$(BOOST_FILE)"
+BJAM="./src/boost/bjam"
 
 all : build_deps
-	./src/boost/bjam -j4 install
+	$(BJAM) -j4 install
+
+test : build_deps
+	$(BJAM) -j4 test
 
 #Make sure we've downloaded boost and built the bjam executable inside
 build_deps:
 	if [ ! -d ./src/boost ]; then wget $(BOOST_DL) && tar xf $(BOOST_FILE) && rm $(BOOST_FILE) && mv $(BOOST_DIR) src/boost; fi
-	if [ ! -x ./src/boost/bjam ]; then cd src/boost; ./bootstrap.sh; fi
+	if [ ! -x $(BJAM) ]; then cd src/boost; ./bootstrap.sh; fi
 
 install: build_deps all
 	mkdir -p $(DESTDIR)/usr/bin/
@@ -19,4 +23,4 @@ install: build_deps all
 distclean: build_deps
 	rm -Rf build-dir
 
-.PHONY : build_deps all install distclean
+.PHONY : build_deps all install distclean test
