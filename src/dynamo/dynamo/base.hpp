@@ -16,6 +16,7 @@
 */
 
 #pragma once
+#include <magnet/stream/formattedostream.hpp>
 #include <magnet/exception.hpp>
 #include <iostream>
 
@@ -37,7 +38,10 @@ namespace dynamo
      * \param aName The name of the class.
      */
     Base(const std::string aName):
-      name(aName) {};
+      dout(aName + ": ", std::cout),
+      derr(aName + ": ", std::cerr),
+      name(aName)
+    {};
     
     /*! \brief A private stream to format the standard output stream. */
     std::ostream& I_cout() const
@@ -52,6 +56,11 @@ namespace dynamo
     }
     
   protected:
+
+    /*! \brief A std::ostream compatible stream. */
+    magnet::stream::FormattedOStream dout;
+    magnet::stream::FormattedOStream derr;
+
     //! This constructor is only available for virtual
     //! inheritance. The concrete derived class must call the other
     //! constructor.

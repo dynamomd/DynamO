@@ -488,11 +488,9 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = ./src \
-                         ./programs/dynarun.cpp \
-                         ./programs/dynamod.cpp \
-                         ./programs/dynahist_rw.cpp \
-                         ./programs/dynareplex_opt.cpp \
+INPUT                  = ./src/dynamo \
+		         ./src/magnet \
+		         ./src/coil \
                          ./docs/frontpage.doxy
 
 # This tag can be used to specify the character encoding of the source files that 
@@ -527,8 +525,8 @@ RECURSIVE              = YES
 # excluded from the INPUT source files. This way you can easily exclude a 
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
-EXCLUDE                = src/extcode/include/boost/ \
-		       src/extcode/include/FastDelegate \
+EXCLUDE                = src/dynamo/extcode/include/boost/ \
+		       src/dynamo/extcode/include/FastDelegate \
 		       src/magnet/tests \
 		       src/magnet/magnet/detail/rapidXML
 		       src/coil/tests

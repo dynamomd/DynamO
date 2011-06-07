@@ -64,36 +64,39 @@ namespace magnet
 			   std::ostream& ostream,
 			   const size_t linelength):
 	  _output(ostream),
-	  _prefix(prefix),
-	  _linelength(linelength - prefix.size())
-	{ 
-	  //We always start the output with a newline
-	  _prefix = "\n" + _prefix; 
-	}
+	  _linelength(linelength - prefix.size()),
+	  _prefix(prefix)
+	{}
 	
-	
+	/*! \brief Copy constructor. */
+	FormatingStreamBuf(const FormatingStreamBuf& os):
+	  _output(os._output),
+	  _linelength(os._linelength),
+	  _prefix(os._prefix)
+	{}
+
+	std::ostream& getOutputStream() { return _output; }
+
 	/*! \brief sync function override which actually performs the
 	 *  output formatting before a std::flush().
 	 */
         virtual int sync()
         {
 	  //Wrap the text to the correct length
-	  std::string ostring = string::linewrap<true>("\n" + str(), _linelength);
+	  std::string ostring = string::linewrap<true>(str(), _linelength);
 
-	  //If the string ends with a newline, delete it! This catches
-	  //streams ended with a std::endl and stops spurious endlines
-	  if (*(ostring.end()-1) == '\n')
-	    ostring.erase(ostring.end() -1);
+	  bool endl = *(ostring.end()-1) == '\n';
 	  
+	  //We strip the end "\n" for the search replace of the prefix
+	  if (endl) ostring.erase(ostring.end() -1);
 	  //Add the prefix to every newline
-	  ostring = string::searchReplace(ostring, "\n", _prefix);
-	  
-	  //Write the result out
-	  _output << ostring;
-	  _output.flush();
+	  ostring = string::searchReplace(ostring, "\n", "\n" + _prefix);
+	  //Readd the final endline
+	  ostring += "\n";
 
-	  //Blank the buffer
-	  str("");
+	  //Write the result out
+	  _output << _prefix + ostring;
+	  _output.flush();
 	  return 0;
         }
       };
@@ -117,6 +120,16 @@ namespace magnet
 	_buffer(prefix, ostream, linelength)
       {}
     
+      /*! \brief Copy constructor.
+       *
+       * Typically std::ostream classes are not allowed copy
+       * constructors, however as this is a ostream wrapper (and its
+       * needed in DynamO) we allow it here.
+       */
+      FormattedOStream(const FormattedOStream& os):
+	std::ostream(&_buffer),
+	_buffer(os._buffer)
+      {}
     };
   }
 }
