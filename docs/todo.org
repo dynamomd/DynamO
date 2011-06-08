@@ -17,6 +17,7 @@
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
 **** DONE *BUGFIX* Fixed bounded priority queues causing huge slowdowns in small systems.
 **** DONE Moved to a new console output formatting class.
+**** DONE Removed the 3d output for the tinkerXYZ plugin.
 **** TODO *Improvement* Rescaling thermostat for shear flows http://arxiv.org/pdf/1103.3704.
 **** TODO *Improvement* Allow adjustable shear rates.
 **** TODO Remove the cached particle data used in the collision detection. Migrate to the magnet libraries collision detection functions.
