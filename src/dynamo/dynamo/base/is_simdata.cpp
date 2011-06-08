@@ -179,7 +179,7 @@ namespace dynamo
 
     XML << xml::endtag("DynamOconfig");
 
-    dout << "\nConfig written to " << fileName << std::endl;
+    dout << "Config written to " << fileName << std::endl;
 
     //Rescale the properties back to the simulation units
     _properties.rescaleUnit(Property::Units::L, 

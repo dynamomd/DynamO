@@ -190,14 +190,13 @@ Simulation::runSimulation(bool silentMode)
 	    && !silentMode
 	    && outputPlugins.size())
 	  {
-	    std::cout << "\n";
 	    //Print the screen data plugins
 	    BOOST_FOREACH( magnet::ClonePtr<OutputPlugin> & Ptr, 
 			   outputPlugins)
 	      Ptr->periodicOutput();
 
 	    lastprint = eventCount + eventPrintInterval;
-	    std::cout.flush();
+	    std::cout << std::endl;
 	  }
       }
     catch (std::exception &cep)
