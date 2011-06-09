@@ -18,18 +18,16 @@
 #pragma once
 #include "BC.hpp"
 
-class CLEBC 
-{ 
-public: 
-  static inline double shearRate() { return 1; }
-};
-
-/*! \brief A simple rectangular Lees-Edwards simple shear boundary
- * condition.
+/*! \brief A Lees-Edwards simple shear boundary condition.
+ * 
+ * This class implements the sliding brick boundary condtion. In this
+ * the simulation images above and below the primary image are set in
+ * motion. This affects the particle velocities and positions on a
+ * transition of the boundary.
  *
- * See the square version for more details (BCSquareLeesEdwards)
+ * See \ref BoundaryCondition for a general description of the member functions.
  */
-class BCLeesEdwards: virtual public BoundaryCondition, public CLEBC
+class BCLeesEdwards: public BoundaryCondition
 {
  public:
   BCLeesEdwards(const dynamo::SimData*);
@@ -50,7 +48,17 @@ class BCLeesEdwards: virtual public BoundaryCondition, public CLEBC
 
   virtual void update(const double&);
 
+  double getShearRate() const { return _shearRate; }
+
  protected:  
-  /*! \brief The current offset of the simulation boundary conditions.*/
-  double dxd;
+  /*! \brief The amount neighboring periodic images have slid against
+   *   each other.
+   * 
+   * This value must be stored so that when a simulation is saved and
+   * loaded so the sliding PBC images are at the same place.
+   */
+  double _dxd;
+
+  /*! \brief The rate of shear.*/
+  double _shearRate;
 };

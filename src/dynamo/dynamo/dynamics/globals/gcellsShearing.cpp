@@ -56,9 +56,9 @@ CGCellsShearing::initialise(size_t nID)
 	     << "You must add the ParabolaSentinel Global event." << std::endl;
 
  
-  if (dynamic_cast<const CLEBC *>(&(Sim->dynamics.BCs())) == NULL)
+  if (!(Sim->dynamics.BCTypeTest<BCLeesEdwards>()))
     derr << "You should not use the shearing neighbour list"
-	     << " in a system without Lees Edwards BC's" << std::endl;
+	 << " in a system without Lees Edwards BC's" << std::endl;
 
   if (overlink != 1) M_throw() << "Cannot shear with overlinking yet";
 

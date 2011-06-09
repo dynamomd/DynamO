@@ -24,7 +24,8 @@
 
 BCLeesEdwards::BCLeesEdwards(const dynamo::SimData* tmp):
   BoundaryCondition(tmp, "LEBC"),
-  dxd(0.0) 
+  _dxd(0.0) ,
+  _shearRate(1.0)
 {
   Sim = tmp;
   dout << " Lee's Edwards BC loaded" << std::endl; 
@@ -33,19 +34,22 @@ BCLeesEdwards::BCLeesEdwards(const dynamo::SimData* tmp):
 BCLeesEdwards::BCLeesEdwards(const magnet::xml::Node& XML, 
 						   const dynamo::SimData* tmp):
   BoundaryCondition(tmp, "LEBC"),
-  dxd(0.0) 
+  _dxd(0.0) 
 {
   Sim = tmp;
   operator<<(XML);
-  dout << " Lee's Edwards BC loaded" << std::endl; 
-  dout << "DXD = " << dxd << std::endl;
+  dout << "Lee's Edwards BC loaded\n"
+       << "DXD = " << _dxd
+       << "Shear Rate = " 
+       << _shearRate * Sim->dynamics.units().unitTime() << std::endl;
 }
 
 void 
 BCLeesEdwards::outputXML(xml::XmlStream &XML) const
 {
   XML << xml::attr("Type") << "LE"
-      << xml::attr("DXD") << dxd / Sim->dynamics.units().unitLength();
+      << xml::attr("DXD") << _dxd / Sim->dynamics.units().unitLength()
+      << xml::attr("Rate") << _shearRate * Sim->dynamics.units().unitTime();
 }
 
 void 
@@ -54,15 +58,18 @@ BCLeesEdwards::operator<<(const magnet::xml::Node& XML)
   try 
     {
       if (XML.getAttribute("DXD").valid())
-	dxd = XML.getAttribute("DXD").as<double>() * Sim->dynamics.units().unitLength();
+	_dxd = XML.getAttribute("DXD").as<double>();
+      _dxd *= Sim->dynamics.units().unitLength();
+      
+      if (XML.getAttribute("Rate").valid())
+	_shearRate = XML.getAttribute("Rate").as<double>();      
+      _shearRate /= Sim->dynamics.units().unitTime();
     }
   catch (boost::bad_lexical_cast &)
-    {
-      M_throw() << "Failed a lexical cast in LEBC";
-    }
+    { M_throw() << "Failed a lexical cast in LEBC"; }
 }
 
-BoundaryCondition* 
+BoundaryCondition*
 BCLeesEdwards::Clone () const 
 { return new BCLeesEdwards(*this); }
 
@@ -70,7 +77,7 @@ void
 BCLeesEdwards::applyBC(Vector  &pos) const 
 {
   //Shift the x distance due to the Lee's Edwards conditions
-  pos[0] -= rint(pos[1] / Sim->primaryCellSize[1])*dxd;
+  pos[0] -= rint(pos[1] / Sim->primaryCellSize[1])*_dxd;
   
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->primaryCellSize[n] *
@@ -81,11 +88,11 @@ void
 BCLeesEdwards::applyBC(Vector  &pos, Vector &vel) const 
 {
   //Shift the x distance due to the Lee's Edwards conditions
-  pos[0] -= rint(pos[1] / Sim->primaryCellSize[1]) * dxd;
+  pos[0] -= rint(pos[1] / Sim->primaryCellSize[1]) * _dxd;
   
   //Adjust the velocity due to the box shift
   vel[0] -= rint(pos[1] / Sim->primaryCellSize[1]) 
-    * shearRate() * Sim->primaryCellSize[1];
+    * _shearRate * Sim->primaryCellSize[1];
   
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->primaryCellSize[n] *
@@ -95,7 +102,7 @@ BCLeesEdwards::applyBC(Vector  &pos, Vector &vel) const
 void 
 BCLeesEdwards::applyBC(Vector& posVec, const double& dt) const 
 { 
-  double localdxd = dxd + dt * shearRate() * Sim->primaryCellSize[1];
+  double localdxd = _dxd + dt * _shearRate * Sim->primaryCellSize[1];
   
   //Shift the x distance due to the Lee's Edwards conditions
   posVec[0] -= rint(posVec[1] / Sim->primaryCellSize[1]) * localdxd;
@@ -109,8 +116,8 @@ void
 BCLeesEdwards::update(const double& dt) 
 {
   //Shift the boundary of the system v_box = \gamma*L
-  dxd += dt * shearRate() * Sim->primaryCellSize[1];
+  _dxd += dt * _shearRate * Sim->primaryCellSize[1];
   
   //PBC for the shift to keep accuracy?
-  dxd -= floor(dxd/Sim->primaryCellSize[0])*Sim->primaryCellSize[0];
+  _dxd -= floor(_dxd/Sim->primaryCellSize[0])*Sim->primaryCellSize[0];
 }

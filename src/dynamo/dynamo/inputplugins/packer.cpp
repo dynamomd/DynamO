@@ -699,6 +699,7 @@ CIPPacker::initialise()
 	Sim->dynamics.addGlobal(new CGCellsShearing(Sim,"SchedulerNBList"));
 
 	Sim->dynamics.applyBC<BCLeesEdwards>();
+	const double shearRate = 1;
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -721,7 +722,7 @@ CIPPacker::initialise()
 	//Insert a linear profile, zero momentum then add a vel gradient
 	Sim->dynamics.setCOMVelocity();
 	BOOST_FOREACH(Particle& part, Sim->particleList)
-	  part.getVelocity()[0] += part.getPosition()[1] * CLEBC::shearRate();
+	  part.getVelocity()[0] += part.getPosition()[1] * shearRate;
 
 	Sim->ensemble.reset(new dynamo::EnsembleNVShear(Sim));
 	break;
@@ -3572,6 +3573,7 @@ CIPPacker::initialise()
 	Sim->dynamics.addGlobal(new CGCellsShearing(Sim,"SchedulerNBList"));
 
 	Sim->dynamics.applyBC<BCLeesEdwards>();
+	const double shearRate(1);
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -3624,7 +3626,7 @@ CIPPacker::initialise()
 	//Insert a linear profile, zero momentum then add a vel gradient
 	Sim->dynamics.setCOMVelocity();
 	BOOST_FOREACH(Particle& part, Sim->particleList)
-	  part.getVelocity()[0] += part.getPosition()[1] * CLEBC::shearRate();
+	  part.getVelocity()[0] += part.getPosition()[1] * shearRate;
 
 	Sim->ensemble.reset(new dynamo::EnsembleNVShear(Sim));
 	break;
