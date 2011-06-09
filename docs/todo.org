@@ -19,6 +19,7 @@
 **** DONE *BUGFIX* Fixed bounded priority queues causing huge slowdowns in small systems.
 **** DONE Moved to a new console output formatting class.
 **** DONE Removed the 3d output for the tinkerXYZ plugin.
+**** DONE Added dynamod --check mode. Using this you can now check if a configuration file is valid (i.e., no overlaps).
 **** TODO *Improvement* Rescaling thermostat for shear flows http://arxiv.org/pdf/1103.3704.
 **** TODO Remove the cached particle data used in the collision detection. Migrate to the magnet libraries collision detection functions.
 **** TODO Improve the way data is made available to Coil, allowing a paraview-like interface to the data sources.
@@ -27,7 +28,6 @@
      - [X] Implement volume renderer.
      - [X] Make a transfer function interface.
 **** TODO Generalized scheduler for multiple neighborlists.
-**** TODO Clean up the overlap tests and make a dynamod --check mode.
 **** TODO Generalize the Morton ordered neighbour list.
 **** TODO Move all the dynamo classes into the dynamo namespace.
 *** DynamO 1.1 							    :ARCHIVE:

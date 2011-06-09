@@ -157,5 +157,11 @@ class Simulation: public dynamo::SimData
   //! Scales the frequency of the CSTicker event by the passed factor.
   void scaleTickerPeriod(double);
   
+  /*! \brief An expensive sanity check for the system.
+   *
+   * Ensures that the system configuration is valid, and no overlaps
+   * exist.
+   */
+  void checkSystem();
  private:
 };

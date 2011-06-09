@@ -73,6 +73,7 @@ main(int argc, char *argv[])
 	("round", "Output the XML config file with one less digit of accuracy to remove"
 	 "rounding errors (used in the test harness).")
 	("unwrapped", "Don't apply the boundary conditions of the system when writing out the particle positions.")
+	("check", "Runs tests on the configuration to ensure the system is not in an invalid state.")
 	;
 
       loadopts.add_options()
@@ -171,6 +172,9 @@ main(int argc, char *argv[])
       if (vm.count("zero-momentum"))
 	CInputPlugin(&sim, "MomentumZeroer")
 	  .zeroMomentum();	
+
+      if (vm.count("check"))
+	sim.checkSystem();
 
       if (vm.count("zero-com"))
 	CInputPlugin(&sim, "CentreOfMassZeroer")

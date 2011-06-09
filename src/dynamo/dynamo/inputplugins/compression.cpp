@@ -97,14 +97,6 @@ CIPCompression::RestoreSystem()
 }
 
 void
-CIPCompression::checkOverlaps()
-{
-  //Just check the bonds are still valid
-  Sim->dynamics.SystemOverlapTest();
-}
-
-
-void
 CIPCompression::CellSchedulerHack()
 {
   for (size_t i(0); i < Sim->dynamics.getGlobals().size(); ++i)

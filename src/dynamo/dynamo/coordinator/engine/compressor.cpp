@@ -25,8 +25,6 @@ ECompressingSimulation::getOptions(boost::program_options::options_description& 
   ropts.add_options()
     ("growth-rate",boost::program_options::value<double>()->default_value(1.0),
      "Compression rate for the simulation")
-    ("check-system", "Check that the system has not violated any interaction"
-     " information")
     ("target-pack-frac",boost::program_options::value<double>(),
      "Target packing fraction that compression has to attain to exit")
     ("target-density",boost::program_options::value<double>(),
@@ -78,7 +76,4 @@ ECompressingSimulation::setupSim(Simulation& Sim, const std::string filename)
 void ECompressingSimulation::finaliseRun()
 {
   compressPlug->RestoreSystem();
-
-  if (vm.count("check-system"))
-    compressPlug->checkOverlaps();
 }

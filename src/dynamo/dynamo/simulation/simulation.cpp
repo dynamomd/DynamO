@@ -248,3 +248,9 @@ Simulation::outputData(std::string filename)
 long double 
 Simulation::getSysTime()
 { return dSysTime / dynamics.units().unitTime(); }
+
+void
+Simulation::checkSystem()
+{
+  dynamics.SystemOverlapTest();
+}

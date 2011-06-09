@@ -70,13 +70,6 @@ class CIPCompression: public CInputPlugin
    */
   void limitDensity(double mxrho);
 
-  /*! \brief An expensive sanity check for the system.
-   *
-   * Ensures that the compression dynamics haven't corrupted the
-   * system configuration by introducing invalid states.
-   */
-  void checkOverlaps();
-
 private:
   /*! \brief The compression rate of the simulation.
    */
