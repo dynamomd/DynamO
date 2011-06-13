@@ -24,8 +24,8 @@
 
 BCLeesEdwards::BCLeesEdwards(const dynamo::SimData* tmp):
   BoundaryCondition(tmp, "LEBC"),
-  _dxd(0.0) ,
-  _shearRate(1.0)
+  _dxd(0) ,
+  _shearRate(1)
 {
   Sim = tmp;
   dout << " Lee's Edwards BC loaded" << std::endl; 
@@ -34,7 +34,7 @@ BCLeesEdwards::BCLeesEdwards(const dynamo::SimData* tmp):
 BCLeesEdwards::BCLeesEdwards(const magnet::xml::Node& XML, 
 						   const dynamo::SimData* tmp):
   BoundaryCondition(tmp, "LEBC"),
-  _dxd(0.0) 
+  _dxd(0) 
 {
   Sim = tmp;
   operator<<(XML);
@@ -70,14 +70,14 @@ BCLeesEdwards::operator<<(const magnet::xml::Node& XML)
 }
 
 BoundaryCondition*
-BCLeesEdwards::Clone () const 
+BCLeesEdwards::Clone() const 
 { return new BCLeesEdwards(*this); }
 
 void 
-BCLeesEdwards::applyBC(Vector  &pos) const 
+BCLeesEdwards::applyBC(Vector& pos) const
 {
   //Shift the x distance due to the Lee's Edwards conditions
-  pos[0] -= rint(pos[1] / Sim->primaryCellSize[1])*_dxd;
+  pos[0] -= rint(pos[1] / Sim->primaryCellSize[1]) * _dxd;
   
   for (size_t n = 0; n < NDIM; ++n)
     pos[n] -= Sim->primaryCellSize[n] *
@@ -121,3 +121,11 @@ BCLeesEdwards::update(const double& dt)
   //PBC for the shift to keep accuracy?
   _dxd -= floor(_dxd/Sim->primaryCellSize[0])*Sim->primaryCellSize[0];
 }
+
+Vector
+BCLeesEdwards::getStreamVelocity(const Particle& part) const
+{ return Vector(part.getPosition()[1] * _shearRate, 0, 0); }
+
+Vector
+BCLeesEdwards::getPeculiarVelocity(const Particle& part) const
+{ return part.getVelocity() - getStreamVelocity(part); }

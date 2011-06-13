@@ -98,7 +98,7 @@ SysRescale::runEvent() const
     SDat.L1partChanges.push_back(ParticleEventData(Sim->particleList[partID], *species, RESCALE));
 
   Sim->dynamics.getLiouvillean().updateAllParticles();
-  Sim->dynamics.getLiouvillean().rescaleSystemKineticEnergy(1.0/currentkT);
+  Sim->dynamics.getLiouvillean().rescaleSystemKineticEnergy(_kT / currentkT);
 
   RealTime += (Sim->dSysTime - LastTime) / std::exp(0.5 * scaleFactor);
 

@@ -190,8 +190,17 @@ Liouvillean::outputParticleXMLData(xml::XmlStream& XML, bool applyBC) const
 double 
 Liouvillean::getParticleKineticEnergy(const Particle& part) const
 {
-  double energy = part.getVelocity().nrm2()
-    * Sim->dynamics.getSpecies(part).getMass(part.getID());
+  double energy(0);
+  if (Sim->dynamics.BCTypeTest<BCLeesEdwards>())
+    {
+      const BCLeesEdwards& bc = static_cast<const BCLeesEdwards&>(Sim->dynamics.BCs());
+
+      energy += bc.getPeculiarVelocity(part).nrm2()
+	* Sim->dynamics.getSpecies(part).getMass(part.getID());
+    }
+  else
+    energy += part.getVelocity().nrm2()
+      * Sim->dynamics.getSpecies(part).getMass(part.getID());
   
   if (hasOrientationData())
     energy += orientationData[part.getID()].angularVelocity.nrm2()
@@ -218,10 +227,11 @@ Liouvillean::rescaleSystemKineticEnergy(const double& scale)
 
   if (Sim->dynamics.BCTypeTest<BCLeesEdwards>())
     {
-      BOOST_FOREACH(Particle& part, Sim->particleList)
-	part.getVelocity() *= scalefactor;
+      const BCLeesEdwards& bc = static_cast<const BCLeesEdwards&>(Sim->dynamics.BCs());
 
-      M_throw() << "Not implemented yet!";
+      BOOST_FOREACH(Particle& part, Sim->particleList)
+	part.getVelocity() = Vector(bc.getPeculiarVelocity(part) * scalefactor
+				    + bc.getStreamVelocity(part));
     }
   else
     {
