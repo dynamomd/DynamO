@@ -95,6 +95,7 @@ project	: requirements
 	  <toolset>gcc:<cflags>-ffunction-sections
 	  <toolset>gcc:<cflags>-fdata-sections
 	  <toolset>gcc:<linkflags>-Wl,--gc-sections
+	  <variant>release:<define>NDEBUG
 	  [ coil-integration-check ]
 	: default-build release
 	: build-dir $(build-dir)

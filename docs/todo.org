@@ -6,7 +6,8 @@
 * Code improvements
 ** Version Milestones
 *** DynamO 1.3
-**** Optimized triangle meshes by inserting them into the neighbor lists.
+**** TODO Optimized triangle meshes by inserting them into the neighbor lists.
+**** TODO Remove the cached particle data used in the collision detection. Migrate to the magnet libraries collision detection functions.
 *** DynamO 1.2
 **** DONE XML errors are now much more verbose and tell you exactly what went wrong and where.
 **** DONE The DynamO-Coil integration can be forcibly enabled or disabled at build time.
@@ -21,7 +22,6 @@
 **** DONE Removed the raster 3d output for the tinkerXYZ plugin.
 **** DONE Added dynamod --check mode. Using this you can now check if a configuration file is valid (i.e., no overlaps).
 **** TODO *Improvement* Rescaling thermostat for shear flows http://arxiv.org/pdf/1103.3704.
-**** TODO Remove the cached particle data used in the collision detection. Migrate to the magnet libraries collision detection functions.
 **** TODO Improve the way data is made available to Coil, allowing a paraview-like interface to the data sources.
 **** TODO Coil library volume renderer (blocking on above)
      - [X] Move to OpenCL generation of the gradients from live data.
