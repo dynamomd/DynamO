@@ -338,18 +338,24 @@ function HardSphereTest {
 function SquareWellTest {
     > run.log
 
-    $Dynamod -s1 -m 1 &> run.log    
-    $Dynarun -c 500000 config.out.xml.bz2 >> run.log 2>&1
+    $Dynamod -s1 -m 1 -T 1 &> run.log    
+    $Dynarun -c 3000000 config.out.xml.bz2 >> run.log 2>&1
     $Dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
     
+    MFT="0.0356025"
+
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
 	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-	    | gawk '{var=($1-0.0356025)/0.0356025; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
-	    echo "SquareWellTest -: FAILED"
+	    | gawk '{var=($1-'$MFT')/'$MFT'; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
+	    echo "SquareWellTest -: FAILED, Measured MFT =" $(bzcat output.xml.bz2 \
+		| $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val') \
+		", expected MFT =" $MFT
 	    exit 1
 	else
-	    echo "SquareWellTest -: PASSED"
+	    echo "SquareWellTest -: PASSED, Measured MFT =" $(bzcat output.xml.bz2 \
+		| $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val') \
+		", expected MFT =" $MFT
 	fi
     else
 	echo "Error, no output.0.xml.bz2 in Square Well test"

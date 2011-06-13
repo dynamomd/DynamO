@@ -45,9 +45,6 @@ OPMisc::initialise()
 {
   double kt = Sim->dynamics.getLiouvillean().getkT();
 
-  Vector  VecEnergy(Sim->dynamics.getLiouvillean().getVectorSystemKineticEnergy());
-
-  VecEnergy *= 2.0 / (Sim->N * Sim->dynamics.units().unitEnergy());
 
   dout << "Particle Count " << Sim->N
 	   << "\nSim Unit Length " << Sim->dynamics.units().unitLength()
@@ -57,10 +54,6 @@ OPMisc::initialise()
 	   << "\nPacking Fraction " << Sim->dynamics.getPackingFraction()
 	   << "\nSim Temperature " << kt
 	   << "\nReduced Temperature " << kt / Sim->dynamics.units().unitEnergy() << std::endl;
-
-  for (size_t iDim(0); iDim < NDIM; ++iDim)
-    dout << "Kinetic Temperature dimension" << iDim << " "
-	     <<  VecEnergy[iDim] << std::endl;
 
   dout << "No. of Species " << Sim->dynamics.getSpecies().size()
       << "\nSimulation box length <x y z> < ";

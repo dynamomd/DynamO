@@ -71,7 +71,7 @@ System::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
   else if (!strcmp(XML.getAttribute("Type"), "DSMCSpheres"))
     return new CSDSMCSpheres(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"), "Rescale"))
-    return new CSysRescale(XML, Sim);
+    return new SysRescale(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"), "RingDSMC"))
     return new CSRingDSMC(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"), "Umbrella"))

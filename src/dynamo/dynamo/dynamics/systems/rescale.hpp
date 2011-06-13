@@ -23,13 +23,22 @@
 #include <boost/random/uniform_real.hpp>
 #include <magnet/cloneptr.hpp>
 
-class CSysRescale: public System
+/*! \brief A rescaling thermostat.
+ *
+ * This event "attempts" to thermostat the system by simply rescaling
+ * the kinetic energy periodically. It does this by multiplying all
+ * velocities (linear and angular) with a factor calculated like so
+ * \f[ F = \sqrt{\frac{k_b\,T_{desired}}{k_b\,T_{current}}} \f] such
+ * that the velocities after the event are related to the velocities
+ * before by \f[ {\bf v}_{new} = F\, {\bf v}_{old} \f].
+ */
+class SysRescale: public System
 {
 public:
-  CSysRescale(const magnet::xml::Node& XML, dynamo::SimData*);
-  CSysRescale(dynamo::SimData*, size_t frequency, std::string name);
+  SysRescale(const magnet::xml::Node& XML, dynamo::SimData*);
+  SysRescale(dynamo::SimData*, size_t frequency, std::string name, double kT = 1);
 
-  virtual System* Clone() const { return new CSysRescale(*this); }
+  virtual System* Clone() const { return new SysRescale(*this); }
 
   virtual void runEvent() const;
 
@@ -45,6 +54,8 @@ protected:
   virtual void outputXML(xml::XmlStream&) const;
 
   size_t _frequency;
+
+  double _kT, _timestep;
 
   mutable long double scaleFactor;
 

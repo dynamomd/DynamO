@@ -15,23 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../species/inertia.hpp"
-#include "include.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../2particleEventData.hpp"
-#include "../units/units.hpp"
-#include "../../datatypes/vector.xml.hpp"
+#include <dynamo/dynamics/liouvillean/include.hpp>
+#include <dynamo/dynamics/species/inertia.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/2particleEventData.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/datatypes/vector.xml.hpp>
+#include <dynamo/dynamics/BC/LEBC.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
-#include <boost/iostreams/filter/base64.hpp>
-#include <boost/iostreams/device/file.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/chain.hpp>
-#include <boost/iostreams/device/stream_sink.hpp>
-#include <boost/iostreams/device/stream_source.hpp>
-#include <boost/iostreams/filter/base64cleaner.hpp>
-#include <boost/iostreams/filter/linewrapout.hpp>
 
 xml::XmlStream& operator<<(xml::XmlStream& XML, const Liouvillean& g)
 {
@@ -207,18 +200,6 @@ Liouvillean::getParticleKineticEnergy(const Particle& part) const
   return 0.5 * energy;
 }
 
-Vector  
-Liouvillean::getVectorParticleKineticEnergy(const Particle& part) const
-{
-  Vector  tmp(0.5 * part.getVelocity() 
-	      * Sim->dynamics.getSpecies(part).getMass(part.getID()));
-
-  for (size_t i = 0; i < NDIM; ++i)
-    tmp[i] *= part.getVelocity()[i];
-
-  return tmp;
-}
-
 double 
 Liouvillean::getSystemKineticEnergy() const
 {
@@ -230,41 +211,28 @@ Liouvillean::getSystemKineticEnergy() const
   return sumEnergy;
 }
 
-Vector 
-Liouvillean::getVectorSystemKineticEnergy() const
-{
-  Vector  sumEnergy(0,0,0);
-
-  BOOST_FOREACH(const Particle& part, Sim->particleList)
-    sumEnergy += getVectorParticleKineticEnergy(part);
-
-  return sumEnergy;
-}
-
-double 
-Liouvillean::getkT() const
-{
-  return 2.0 * getSystemKineticEnergy() / (Sim->particleList.size() * static_cast<double>(this->getParticleDOF()));
-}
-
 void
 Liouvillean::rescaleSystemKineticEnergy(const double& scale)
 {
   double scalefactor(sqrt(scale));
 
-  BOOST_FOREACH(Particle& part, Sim->particleList)
-    part.getVelocity() *= scalefactor;
+  if (Sim->dynamics.BCTypeTest<BCLeesEdwards>())
+    {
+      BOOST_FOREACH(Particle& part, Sim->particleList)
+	part.getVelocity() *= scalefactor;
+
+      M_throw() << "Not implemented yet!";
+    }
+  else
+    {
+      double scalefactor(sqrt(scale));
+      
+      BOOST_FOREACH(Particle& part, Sim->particleList)
+	part.getVelocity() *= scalefactor;
+    }
 
   BOOST_FOREACH(rotData& rdat, orientationData)
-    rdat.angularVelocity *= scalefactor;
-}
-
-void
-Liouvillean::rescaleSystemKineticEnergy(const Vector& scalefactors)
-{
-  BOOST_FOREACH(Particle& part, Sim->particleList)
-    for (size_t iDim(0); iDim < NDIM; ++iDim)
-      part.getVelocity()[iDim] *= scalefactors[iDim];
+    rdat.angularVelocity *= scalefactor;      
 }
 
 PairEventData 

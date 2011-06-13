@@ -98,36 +98,23 @@ public:
 
   /*! \brief Returns the degrees of freedom per particle.
    */
-  virtual size_t getParticleDOF() const 
-  { return NDIM + 2 * hasOrientationData(); }
+  inline size_t getParticleDOF() const { return NDIM + 2 * hasOrientationData(); }
   
   /*! \brief Calculates the kinetic energy of a single particle
    */
-  virtual double getParticleKineticEnergy(const Particle&) const;
+  double getParticleKineticEnergy(const Particle&) const;
 
   /*! \brief Calculates the kinetic energy of the system
    */
   double getSystemKineticEnergy() const;
 
-  /*! \brief Calculates the thermal unit of the system
+  /*! \brief Calculates the thermal temperature of the system.
    */
-  double getkT() const;
+  inline double getkT() const { return 2.0 * getSystemKineticEnergy() / (Sim->particleList.size() * static_cast<double>(this->getParticleDOF())); }
 
-  /*! \brief Rescales the kinetic energy of the system by a factor
+  /*! \brief Rescales the kinetic energy of the system by a factor.
    */
   virtual void rescaleSystemKineticEnergy(const double&);
-
-  /*! \brief Rescales the translational kinetic energy vector of the system by a vector of factors
-   */
-  void rescaleSystemKineticEnergy(const Vector&);
-
-  /*! \brief Calculates the translational kinetic energy vector of the system
-   */
-  Vector  getVectorParticleKineticEnergy(const Particle&) const;
-
-  /*! \brief Calculates the translational kinetic energy vector of the system
-   */
-  Vector  getVectorSystemKineticEnergy() const;
 
   /*! \brief Performs an elastic multibody collision between to ranges of particles.
    * 
@@ -140,8 +127,8 @@ public:
    * \return The collision data.
    */  
   virtual NEventData multibdyCollision(const CRange& r1, const CRange& r2,
-					   const double& d2,
-					   const EEventType& eType) const = 0;
+				       const double& d2,
+				       const EEventType& eType) const = 0;
 
   virtual NEventData multibdyWellEvent(const CRange&, const CRange&, 
 					   const double&, const double&, 

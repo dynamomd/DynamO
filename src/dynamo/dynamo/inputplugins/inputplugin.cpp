@@ -45,20 +45,6 @@ CInputPlugin::rescaleVels(double val)
 
   dout << "Current kT " << currentkT << std::endl;
 
-  Vector energy = Sim->dynamics.getLiouvillean().getVectorSystemKineticEnergy();
-
-  double avg  = energy[0];
-
-  for (size_t iDim(1); iDim < NDIM; ++iDim)
-    avg += energy[iDim];
-
-  avg /= NDIM;
-
-  for (size_t iDim(0); iDim < NDIM; ++iDim)
-    energy[iDim] = sqrt(avg / energy[iDim]);
-
-  Sim->dynamics.getLiouvillean().rescaleSystemKineticEnergy(energy);
-
   Sim->dynamics.getLiouvillean().rescaleSystemKineticEnergy(val/ currentkT);
 }
 

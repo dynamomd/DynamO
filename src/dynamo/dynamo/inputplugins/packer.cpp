@@ -237,7 +237,7 @@ CIPPacker::initialise()
 	Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	
 	if (vm.count("i2"))
-	  Sim->dynamics.addSystem(new CSysRescale(Sim, vm["i2"].as<size_t>(), "RescalerEvent"));
+	  Sim->dynamics.addSystem(new SysRescale(Sim, vm["i2"].as<size_t>(), "RescalerEvent"));
 
 	break;
       }

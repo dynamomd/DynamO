@@ -30,8 +30,11 @@
 #include <magnet/xmlreader.hpp>
 #include <fstream>
 
-CSysRescale::CSysRescale(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
+SysRescale::SysRescale(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
   System(tmp),
+  _frequency(std::numeric_limits<size_t>::max()),
+  _kT(1),
+  _timestep(HUGE_VAL),
   scaleFactor(1),
   LastTime(0),
   RealTime(0)
@@ -42,9 +45,10 @@ CSysRescale::CSysRescale(const magnet::xml::Node& XML, dynamo::SimData* tmp):
   dout << "Velocity Rescaler Loaded" << std::endl;
 }
 
-CSysRescale::CSysRescale(dynamo::SimData* tmp, size_t frequency, std::string name): 
+SysRescale::SysRescale(dynamo::SimData* tmp, size_t frequency, std::string name, double kT):
   System(tmp),
   _frequency(frequency),
+  _kT(kT),
   scaleFactor(0),
   LastTime(0),
   RealTime(0)
@@ -56,32 +60,17 @@ CSysRescale::CSysRescale(dynamo::SimData* tmp, size_t frequency, std::string nam
 }
 
 void 
-CSysRescale::checker(const NEventData&)
+SysRescale::checker(const NEventData&)
 {
-  if (!(Sim->eventCount % _frequency)) 
+  if (!(Sim->eventCount % _frequency))
     {
       dt = 0;
       Sim->ptrScheduler->rebuildSystemEvents();
     }
-
-
-  if (!(Sim->eventCount % (_frequency / 16)))
-    {
-      std::ofstream logfile("HaffLaw.dat", std::ios_base::app);
-      
-      long double logTemp = scaleFactor 
-	+ std::log((2.0 * Sim->dynamics.getLiouvillean().getSystemKineticEnergy())
-		   / (Sim->N * Sim->dynamics.getLiouvillean().getParticleDOF()));
-      
-      long double Time = RealTime + (Sim->dSysTime - LastTime) / std::exp(0.5 * scaleFactor);
-
-      logfile << Sim->eventCount << " " << Time / Sim->dynamics.units().unitTime() << " "
-	      << logTemp - std::log(Sim->dynamics.units().unitEnergy()) << std::endl;
-    }
 }
 
 void 
-CSysRescale::runEvent() const
+SysRescale::runEvent() const
 {
   double locdt = dt;
 
@@ -94,12 +83,11 @@ CSysRescale::runEvent() const
   
   ++Sim->eventCount;
   
-  
   /////////Now the actual updates
   dout << "WARNING Rescaling kT to 1" << std::endl;
   
   double currentkT(Sim->dynamics.getLiouvillean().getkT()
-		 / Sim->dynamics.units().unitEnergy());
+		   / Sim->dynamics.units().unitEnergy());
 
   dout << "Current kT " << currentkT << std::endl;
 
@@ -134,47 +122,67 @@ CSysRescale::runEvent() const
   BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->temperatureRescale(1.0/currentkT);
 
-  dt = HUGE_VAL;
+  dt = _timestep;
   
   Sim->ptrScheduler->rebuildList();
 }
 
 void 
-CSysRescale::initialise(size_t nID)
+SysRescale::initialise(size_t nID)
 {
   ID = nID;
 
   dt = HUGE_VAL;
 
-  Sim->registerParticleUpdateFunc
-    (magnet::function::MakeDelegate(this, &CSysRescale::checker));
+  if (_frequency != std::numeric_limits<size_t>::max())
+    Sim->registerParticleUpdateFunc
+      (magnet::function::MakeDelegate(this, &SysRescale::checker));
   
   dout << "Velocity rescaler initialising" << std::endl;
 }
 
 void 
-CSysRescale::operator<<(const magnet::xml::Node& XML)
+SysRescale::operator<<(const magnet::xml::Node& XML)
 {
   if (strcmp(XML.getAttribute("Type"),"Rescale"))
     M_throw() << "Attempting to load Rescale from " 
 	      << XML.getAttribute("Type") << " entry"; 
   
   try {
-    _frequency = XML.getAttribute("Freq").as<size_t>();    
+    if (XML.hasAttribute("Freq"))
+      _frequency = XML.getAttribute("Freq").as<size_t>();
+    
+    if (XML.hasAttribute("kT"))
+      _kT = XML.getAttribute("kT").as<double>();
+    
+    _kT *= Sim->dynamics.units().unitEnergy();
+
+    if (XML.hasAttribute("TimeStep"))
+      _timestep = XML.getAttribute("TimeStep").as<double>();
+
+    _timestep *= Sim->dynamics.units().unitTime();
+
     sysName = XML.getAttribute("Name");
   }
   catch (boost::bad_lexical_cast &)
     {
-      M_throw() << "Failed a lexical cast in CSysRescale";
+      M_throw() << "Failed a lexical cast in SysRescale";
     }
 }
 
 void 
-CSysRescale::outputXML(xml::XmlStream& XML) const
+SysRescale::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::tag("System")
       << xml::attr("Type") << "Rescale"
-      << xml::attr("Name") << sysName
-      << xml::attr("Freq") << _frequency
-      << xml::endtag("System");
+      << xml::attr("kT") << _kT / Sim->dynamics.units().unitEnergy()
+      << xml::attr("Name") << sysName;
+  
+  if (_frequency != std::numeric_limits<size_t>::max())
+    XML << xml::attr("Freq") << _frequency;
+
+  if (_timestep != HUGE_VAL)
+    XML << xml::attr("TimeStep") << _timestep / Sim->dynamics.units().unitTime();
+
+  XML<< xml::endtag("System");
 }
