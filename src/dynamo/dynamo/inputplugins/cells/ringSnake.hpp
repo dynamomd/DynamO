@@ -35,7 +35,7 @@ struct CUringSnake: public CUCell
   
   virtual std::vector<Vector  > placeObjects(const Vector & centre)
   {
-    size_t L(size_t(std::sqrt(pairchainlength)));
+    size_t L(size_t(std::sqrt(double(pairchainlength))));
     
     std::vector<Vector  > localsites;
 

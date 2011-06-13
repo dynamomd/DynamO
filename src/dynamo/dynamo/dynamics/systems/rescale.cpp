@@ -82,14 +82,12 @@ SysRescale::runEvent() const
   Sim->dynamics.stream(locdt);
   
   ++Sim->eventCount;
-  
-  /////////Now the actual updates
-  dout << "WARNING Rescaling kT to 1" << std::endl;
-  
+    
   double currentkT(Sim->dynamics.getLiouvillean().getkT()
 		   / Sim->dynamics.units().unitEnergy());
 
-  dout << "Current kT " << currentkT << std::endl;
+  dout << "Rescaling kT " << currentkT 
+       << " To " << _kT / Sim->dynamics.units().unitEnergy() <<  std::endl;
 
   NEventData SDat;
 
@@ -132,7 +130,7 @@ SysRescale::initialise(size_t nID)
 {
   ID = nID;
 
-  dt = HUGE_VAL;
+  dt = _timestep;
 
   if (_frequency != std::numeric_limits<size_t>::max())
     Sim->registerParticleUpdateFunc

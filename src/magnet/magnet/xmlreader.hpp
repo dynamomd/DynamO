@@ -50,10 +50,13 @@ namespace magnet {
 	
 	std::ostringstream os;
 	
+#ifdef __PATHCC__ 
+	os << "NO PATH FOR PATHSCALE COMPILER";
+#else
 	for (std::vector<std::pair<std::string, size_t> >::const_reverse_iterator 
 	       iPtr = pathTree.rbegin(); iPtr != pathTree.rend(); ++iPtr)
 	  os << "/" << iPtr->first << "[" << iPtr->second << "]";
-	
+#endif	
 	return os.str();
       }
     }

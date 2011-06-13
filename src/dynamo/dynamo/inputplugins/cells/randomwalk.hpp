@@ -41,7 +41,7 @@ struct CURandWalk: public CUCell
   Vector getRandVelVec()
   {
     //See http://mathworld.wolfram.com/SpherePointPicking.html
-    boost::normal_distribution<double> normdist(0.0, (1.0 / sqrt(NDIM)));
+    boost::normal_distribution<double> normdist(0.0, (1.0 / sqrt(double(NDIM))));
     
     boost::variate_generator<dynamo::baseRNG&, boost::normal_distribution<double> >
       normal_sampler(ranGenerator, normdist);

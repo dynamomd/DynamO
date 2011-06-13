@@ -17,6 +17,7 @@
 #pragma once
 
 #include <magnet/GL/detail/shader.hpp>
+#include <algorithm>
 
 namespace magnet {
   namespace GL {

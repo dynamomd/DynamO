@@ -237,7 +237,7 @@ namespace magnet {
       double sinsqk = 1.0 - cosk * cosk;
       if (sinsqk < 0) return 1;
 
-      double rt3sink = std::sqrt(3) * std::sqrt(sinsqk);
+      double rt3sink = std::sqrt(3.0) * std::sqrt(sinsqk);
       root2 = s * (-cosk + rt3sink) - p / 3.0;
       root3 = s * (-cosk - rt3sink) - p / 3.0;
 

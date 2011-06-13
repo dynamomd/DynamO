@@ -168,9 +168,6 @@ namespace magnet {
 		    = from_graph_transform(event->x - allocation.get_x(), 
 					   event->y - allocation.get_y());
 
-		  magnet::color::TransferFunction::const_iterator 
-		    iPtr = _transferFunction.begin() + _selectedNode;
-		  
 		  const std::vector<uint8_t>& colmap(_transferFunction.getColorMap());
 		  size_t index = 4 * size_t(255 * newPlace.first);
 		  _transferFunction.addKnot

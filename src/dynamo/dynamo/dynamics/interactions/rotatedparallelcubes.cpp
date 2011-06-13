@@ -69,7 +69,7 @@ IRotatedParallelCubes::operator<<(const magnet::xml::Node& XML)
 
 double 
 IRotatedParallelCubes::maxIntDist() const 
-{ return std::sqrt(NDIM) * _diameter->getMaxValue(); }
+{ return std::sqrt(double(NDIM)) * _diameter->getMaxValue(); }
 
 double 
 IRotatedParallelCubes::getExcludedVolume(size_t ID) const 
