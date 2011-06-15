@@ -74,17 +74,13 @@ namespace magnet {
 	//Skip identity operations
 	if ((_width == width) && (_height == height)) return;
 
+	//We don't use the resize commands, as it causes problems on
+	//AMD hardware (the buffer doesn't actually resize). Instead
+	//we just recreate the render buffers. This is also noted on
+	//the opengl wiki.
+	// http://www.opengl.org/wiki/Renderbuffer_Object
 	deinit();
-
 	init(width, height);
-//
-//	FBO::resize(width, height);
-//	
-//	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _multisampleColorBuffer);
-//	glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT, _samples, GL_RGBA, _width, _height);
-//
-//	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _multisampleDepthBuffer);
-//	glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT, _samples, GL_DEPTH_COMPONENT, _width, _height);
       }
 
       inline ~multisampledFBO()
