@@ -28,14 +28,13 @@ namespace magnet {
       {}
 
       inline 
-      virtual void init(GLsizei width, GLsizei height, GLint internalformat = GL_RGBA, 
-			GLenum format = GL_RGBA, GLenum type = GL_UNSIGNED_BYTE)
+      virtual void init(GLsizei width, GLsizei height, GLint internalformat = GL_RGBA)
       {
 	if (!GLEW_EXT_framebuffer_multisample)
 	  M_throw() << "GLEW_EXT_framebuffer_multisample is not supported, cannot perform anti-aliasing";
 
 	//Setup the RTT FBO
-	FBO::init(width, height, internalformat, format, type);
+	FBO::init(width, height, internalformat);
 
 	//Now create the multisampling color buffer
 	glGenRenderbuffersEXT(1, &_multisampleColorBuffer);

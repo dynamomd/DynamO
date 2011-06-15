@@ -210,7 +210,7 @@ CLGLWindow::initOpenGL()
     {
       _filterTarget1.init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
       _filterTarget2.init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
-      _normalsFBO.init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight(), GL_RGBA, GL_RGBA, GL_FLOAT);
+      _normalsFBO.init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight(), GL_RGBA);
       _shadowFBO.init(1024);
       _shadowShader.build();
       _nrmlShader.build();

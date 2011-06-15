@@ -27,8 +27,7 @@ namespace magnet {
       {}
 
       inline 
-      virtual void init(GLsizei width, GLsizei height, GLint internalformat = GL_RGBA, 
-			GLenum format = GL_RGBA, GLenum type = GL_UNSIGNED_BYTE)
+      virtual void init(GLsizei width, GLsizei height, GLint internalformat = GL_RGBA)
       {
 	if (!GLEW_EXT_framebuffer_object)
 	  M_throw() << "GL_EXT_framebuffer_object extension is not supported! Cannot do offscreen rendering!";
@@ -40,15 +39,13 @@ namespace magnet {
 	  M_throw() << "Cannot initialise an FBO with a width or height == 0!";
 
 	_internalformat = internalformat;
-	_format = format;	
-	_type = type;		
 	_width = width;
 	_height = height;
 
 	//Build depth buffer
 	glGenTextures(1, &_depthTexture);
 	glBindTexture(GL_TEXTURE_2D, _depthTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, _width, _height, 0,
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, _width, _height, 0,
 		     GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
 
 	//Where to put the information
@@ -62,12 +59,11 @@ namespace magnet {
 	//Build color texture
 	glGenTextures(1, &_colorTexture);
 	glBindTexture(GL_TEXTURE_2D, _colorTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, _internalformat, _width, _height, 0, _format, _type, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, _internalformat, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	//Build the FBO
 	glGenFramebuffersEXT(1, &_FBO);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
 
@@ -100,11 +96,11 @@ namespace magnet {
 	_height = height;
 
 	glBindTexture(GL_TEXTURE_2D, _depthTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, _width, _height, 0,
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, _width, _height, 0,
 		     GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
 
 	glBindTexture(GL_TEXTURE_2D, _colorTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, _internalformat, _width, _height, 0, _format, _type, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, _internalformat, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
       }
 
       inline void blitToScreen(GLsizei screenwidth, GLsizei screenheight)
@@ -176,8 +172,6 @@ namespace magnet {
       GLuint _FBO, _colorTexture, _depthTexture;
       GLsizei _width, _height;
       GLint _internalformat;
-      GLenum _format;	
-      GLenum _type;
     };
   }
 }
