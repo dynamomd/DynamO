@@ -8,6 +8,7 @@
 *** DynamO 1.3
 **** TODO Optimized triangle meshes by inserting them into the neighbor lists.
 **** TODO Remove the cached particle data used in the collision detection. Migrate to the magnet libraries collision detection functions.
+**** TODO Auto detect the ensemble, users shouldn't have to specify it.
 *** DynamO 1.2
 **** DONE XML errors are now much more verbose and tell you exactly what went wrong and where.
 **** DONE The DynamO-Coil integration can be forcibly enabled or disabled at build time.
@@ -17,11 +18,11 @@
 **** DONE Allow adjustable shear rates for the Lees-Edwards boundary condition.
 **** DONE *BUGFIX* Fixed a load error on the MFT if the output configuration is from a simulation with no events.
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
-**** DONE *BUGFIX* Fixed bounded priority queues causing huge slowdowns in small systems.
+**** DONE *BUGFIX* Fixed bounded priority queues causing huge slowdowns in very small (N=2) systems.
 **** DONE Moved to a new console output formatting class.
-**** DONE Removed the raster 3d output for the tinkerXYZ plugin.
-**** DONE Added dynamod --check mode. Using this you can now check if a configuration file is valid (i.e., no overlaps).
-**** TODO *Improvement* Rescaling thermostat for shear flows http://arxiv.org/pdf/1103.3704.
+**** DONE Removed the raster 3d output for the tinkerXYZ plugin, no-one used it anyway.
+**** DONE Added dynamod --check mode. Using this you can now check if a configuration file is valid using "dynamod --check config.out.xml.bz2".
+**** DONE Generalized the rescaling thermostat for shear flows http://arxiv.org/pdf/1103.3704.
 **** TODO Improve the way data is made available to Coil, allowing a paraview-like interface to the data sources.
 **** TODO Coil library volume renderer (blocking on above)
      - [X] Move to OpenCL generation of the gradients from live data.
@@ -29,6 +30,7 @@
      - [X] Make a transfer function interface.
 **** TODO Generalized scheduler for multiple neighborlists.
 **** TODO Generalize the Morton ordered neighbour list.
+**** TODO Work on Sebastians project.
 **** TODO Move all the dynamo classes into the dynamo namespace.
 *** DynamO 1.1 							    :ARCHIVE:
 **** DONE *MAJOR* Remove Unit types from the XML file and simulator.
