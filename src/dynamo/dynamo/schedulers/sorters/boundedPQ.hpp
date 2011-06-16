@@ -28,6 +28,10 @@
 #include <cmath>
 #include <iostream>
 
+#ifdef DYNAMO_DEBUG 
+#include <boost/math/special_functions/fpclassify.hpp>
+#endif
+
 template<size_t Size>
 class MinMaxHeapPList;
 

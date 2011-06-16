@@ -30,6 +30,10 @@
 #include <boost/foreach.hpp>
 #include <boost/random/uniform_int.hpp>
 
+#ifdef DYNAMO_DEBUG 
+#include <boost/math/special_functions/fpclassify.hpp>
+#endif
+
 CSRingDSMC::CSRingDSMC(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
   System(tmp),
   uniformRand(Sim->ranGenerator, boost::uniform_real<>(0,1)),

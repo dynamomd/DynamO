@@ -32,6 +32,11 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/random/uniform_int.hpp>
 
+#ifdef DYNAMO_DEBUG 
+#include <boost/math/special_functions/fpclassify.hpp>
+#endif
+
+
 SSleep::SSleep(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
   System(tmp),
   _range(NULL)

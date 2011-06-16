@@ -31,6 +31,11 @@
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
+#ifdef DYNAMO_DEBUG 
+#include <boost/math/special_functions/fpclassify.hpp>
+#endif
+
+
 CSysGhost::CSysGhost(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
   System(tmp),
   meanFreeTime(100000),

@@ -31,6 +31,10 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/random/uniform_int.hpp>
 
+#ifdef DYNAMO_DEBUG 
+#include <boost/math/special_functions/fpclassify.hpp>
+#endif
+
 CSUmbrella::CSUmbrella(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
   System(tmp),
   a(1.0),

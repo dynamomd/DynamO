@@ -30,6 +30,10 @@
 #include <boost/foreach.hpp>
 #include <boost/random/uniform_int.hpp>
 
+#ifdef DYNAMO_DEBUG 
+#include <boost/math/special_functions/fpclassify.hpp>
+#endif
+
 CSDSMCSpheres::CSDSMCSpheres(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
   System(tmp),
   maxprob(0.0),

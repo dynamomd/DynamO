@@ -21,6 +21,10 @@
 #include "../NparticleEventData.hpp"
 #include "../units/units.hpp"
 
+#ifdef DYNAMO_DEBUG 
+#include <boost/math/special_functions/fpclassify.hpp>
+#endif
+
 CSSchedMaintainer::CSSchedMaintainer(dynamo::SimData* nSim, double ndt, std::string nName):
   System(nSim),
   periodt(ndt * nSim->dynamics.units().unitTime())

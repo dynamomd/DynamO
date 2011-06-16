@@ -24,6 +24,10 @@
 #include "../../schedulers/scheduler.hpp"
 #include <magnet/string/searchreplace.hpp>
 
+#ifdef DYNAMO_DEBUG 
+#include <boost/math/special_functions/fpclassify.hpp>
+#endif
+
 SSnapshot::SSnapshot(dynamo::SimData* nSim, double nPeriod, std::string nName):
   System(nSim),
   _applyBC(false),

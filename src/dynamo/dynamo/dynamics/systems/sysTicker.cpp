@@ -23,6 +23,10 @@
 #include "../units/units.hpp"
 #include "../../schedulers/scheduler.hpp"
 
+#ifdef DYNAMO_DEBUG 
+#include <boost/math/special_functions/fpclassify.hpp>
+#endif
+
 CSTicker::CSTicker(dynamo::SimData* nSim, double nPeriod, std::string nName):
   System(nSim)
 {

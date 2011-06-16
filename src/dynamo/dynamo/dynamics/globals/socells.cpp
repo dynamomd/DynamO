@@ -30,6 +30,9 @@
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
+#ifdef DYNAMO_DEBUG 
+#include <boost/math/special_functions/fpclassify.hpp>
+#endif
 
 CGSOCells::CGSOCells(dynamo::SimData* nSim, const std::string& name):
   Global(nSim, "SingleOccupancyCells"),

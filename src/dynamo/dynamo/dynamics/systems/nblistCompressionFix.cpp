@@ -23,6 +23,10 @@
 #include "../NparticleEventData.hpp"
 #include "../../schedulers/scheduler.hpp"
 
+#ifdef DYNAMO_DEBUG 
+#include <boost/math/special_functions/fpclassify.hpp>
+#endif
+
 CSNBListCompressionFix::CSNBListCompressionFix(dynamo::SimData* nSim, double nGR, size_t nblistID):
   System(nSim),
   growthRate(nGR),
