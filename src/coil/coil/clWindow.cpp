@@ -486,10 +486,6 @@ CLGLWindow::initGTK()
 	      ++lastrow;
 	    }
 
-	  row = *(m_refTreeModel->prepend());
-	  row[vals.m_col_id] = 0;
-	  ++lastrow;
-
 	  aliasSelections->pack_start(vals.m_col_id);
 
 	  //Activate a multisample of 2<<(2)=8 by default
