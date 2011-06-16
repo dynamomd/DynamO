@@ -45,7 +45,7 @@ namespace magnet {
 	//Build depth buffer
 	glGenTextures(1, &_depthTexture);
 	glBindTexture(GL_TEXTURE_2D, _depthTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, _width, _height, 0,
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, _width, _height, 0,
 		     GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
 
 	//Where to put the information

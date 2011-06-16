@@ -44,7 +44,7 @@ namespace magnet {
 	// multi sampled depth buffer
 	glGenRenderbuffersEXT(1, &_multisampleDepthBuffer);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _multisampleDepthBuffer);
-	glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT, _samples, GL_DEPTH_COMPONENT, _width, _height);
+	glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT, _samples, GL_DEPTH_COMPONENT24, _width, _height);
 
 	//Now build the multisample FBO
 	glGenFramebuffersEXT(1, &_multisampleFBO);
@@ -105,7 +105,6 @@ namespace magnet {
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, 0);
 
-	//Now blit to the other FBO
 	FBO::detach();
       }
 
