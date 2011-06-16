@@ -19,7 +19,7 @@
 #include "waker.hpp"
 #include "globEvent.hpp"
 #include "../NparticleEventData.hpp"
-#include "../../base/is_simdata.hpp"www.there
+#include "../../base/is_simdata.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../units/units.hpp"
