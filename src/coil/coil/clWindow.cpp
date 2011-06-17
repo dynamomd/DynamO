@@ -1001,10 +1001,7 @@ CLGLWindow::CallBackDisplayFunc()
 	}
       else	
 #endif
-	{
-	  _renderTarget->attach();
-	  drawScene(*_renderTarget);
-	}
+	drawScene(*_renderTarget);
       
       _renderTarget->detach();
 
@@ -1062,6 +1059,7 @@ CLGLWindow::CallBackDisplayFunc()
 		  glActiveTextureARB(GL_TEXTURE0);
 		  //Now copy the texture 
 		  glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _viewPortInfo->getWidth(), _viewPortInfo->getHeight());
+		  lastFBO->detach();
 		}
 	      else
 		{
