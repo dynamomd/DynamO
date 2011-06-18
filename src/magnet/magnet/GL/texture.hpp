@@ -115,6 +115,56 @@ namespace magnet {
     };
 
 
+    class Texture1D: public TextureBasic
+    {
+    public:
+      Texture1D():TextureBasic(GL_TEXTURE_2D) {}
+      
+      inline void init(size_t width, size_t height, GLint internalformat = GL_RGBA8)
+      {
+	_width = width; 
+	_height = height; 
+	_internalFormat = internalformat;
+
+	TextureBasic::init();
+	bind(0);
+	parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, _internalformat, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+	glTexImage2D(_texType, 0, _internalFormat, 
+		     _width, _height,
+		     //Border is off
+		     0,
+		     //The following values are not used as no data is
+		     //passed here, use subImage for that.
+		     GL_RGB, GL_UNSIGNED_BYTE, NULL); 
+      }
+
+      inline void subImage(const std::vector<uint8_t>& data, GLenum pixelformat,
+			   GLint xoffset = 0, GLint width = -1, GLint level = 0)
+      { 
+	//If there are negative values, assume they mean to use the
+	//full space
+	if (width  < 0) width  = _width;
+	if (xoffset < 0) M_throw() << "x offset is negative";
+	if (xoffset + width > _width) M_throw() << "Texture write x overrun";
+
+	bind(0);
+	glTexSubImage1D(_texType, level, xoffset, width,
+			pixelformat, GL_UNSIGNED_BYTE, &data[0]);
+      }
+
+      inline const GLint& getWidth() const { return _width; }
+      inline const GLint& getHeight() const { return _height; }
+    private:
+      
+      GLint _width;
+      GLint _height;
+   };
+
     class Texture3D: public TextureBasic
     {
     public:
