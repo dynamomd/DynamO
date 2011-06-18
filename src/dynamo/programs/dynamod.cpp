@@ -32,18 +32,21 @@ namespace po = boost::program_options;
 #include <dynamo/schedulers/include.hpp>
 #include <dynamo/inputplugins/include.hpp>
 #include <magnet/exception.hpp>
-#include <buildinfo.hpp>
 Simulation sim;
 
 int
 main(int argc, char *argv[])
 {
+  //The following macro converts the GITHASH define to a C style
+  //string, the boost build system won't let us define strings on the
+  //command line.
+#define VALUE_TO_STRING(val) #val
   std::cout << "dynamod  Copyright (C) 2011  Marcus N Campbell Bannerman\n"
 	    << "This program comes with ABSOLUTELY NO WARRANTY.\n"
 	    << "This is free software, and you are welcome to redistribute it\n"
 	    << "under certain conditions. See the licence you obtained with\n"
 	    << "the code\n"
-	       "Git Checkout Hash " << GITHASH << "\n\n";
+	       "Git Checkout Hash " << VALUE_TO_STRING(GITHASH) << "\n\n";
   ////////////////////////PROGRAM OPTIONS!!!!!!!!!!!!!!!!!!!!!!!
   try 
     {
@@ -217,7 +220,7 @@ main(int argc, char *argv[])
       sim.getHistory() << "configmod run as so\n";
       for (int i = 0; i< argc; i++)
 	sim.getHistory() << argv[i] << " ";
-      sim.getHistory() << "\nGIT hash " << GITHASH;
+      sim.getHistory() << "\nGIT hash " << VALUE_TO_STRING(GITHASH);
       sim.writeXMLfile(vm["out-config-file"].as<string>(), 
 		       !vm.count("unwrapped"), vm.count("round"));
     }

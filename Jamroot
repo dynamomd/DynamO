@@ -126,7 +126,7 @@ install install-bin
 
 alias install : install-bin ;
 ##########TEST TARGETS
-alias test : src/magnet//test src/coil//test src//test ;
+alias test : src/magnet//test src/coil//test ;
 
 
 ##################################################################

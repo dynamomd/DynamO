@@ -115,10 +115,10 @@ namespace magnet {
     };
 
 
-    class Texture1D: public TextureBasic
+    class Texture2D: public TextureBasic
     {
     public:
-      Texture1D():TextureBasic(GL_TEXTURE_2D) {}
+      Texture2D():TextureBasic(GL_TEXTURE_2D) {}
       
       inline void init(size_t width, size_t height, GLint internalformat = GL_RGBA8)
       {
@@ -132,7 +132,7 @@ namespace magnet {
 	parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, _internalformat, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, _internalFormat, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
 	glTexImage2D(_texType, 0, _internalFormat, 
 		     _width, _height,
@@ -144,16 +144,19 @@ namespace magnet {
       }
 
       inline void subImage(const std::vector<uint8_t>& data, GLenum pixelformat,
-			   GLint xoffset = 0, GLint width = -1, GLint level = 0)
+			   GLint xoffset = 0, GLint yoffset = 0, GLint width = -1, GLint height = -1, GLint level = 0)
       { 
 	//If there are negative values, assume they mean to use the
 	//full space
 	if (width  < 0) width  = _width;
+	if (height  < 0) height  = _height;
 	if (xoffset < 0) M_throw() << "x offset is negative";
+	if (yoffset < 0) M_throw() << "y offset is negative";
 	if (xoffset + width > _width) M_throw() << "Texture write x overrun";
+	if (yoffset + height > _height) M_throw() << "Texture write y overrun";
 
 	bind(0);
-	glTexSubImage1D(_texType, level, xoffset, width,
+	glTexSubImage2D(_texType, level, xoffset, yoffset, width, height,
 			pixelformat, GL_UNSIGNED_BYTE, &data[0]);
       }
 

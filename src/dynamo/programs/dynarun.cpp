@@ -23,7 +23,6 @@
  */
 
 #include <dynamo/coordinator/coordinator.hpp>
-#include <buildinfo.hpp>
 #include <magnet/arg_share.hpp>
 #include <boost/program_options.hpp>
 #include <iostream>
@@ -42,20 +41,24 @@
 int
 main(int argc, char *argv[])
 {
-  /*! \brief The programs single instantiation of the simulation control class.
-   */
-  Coordinator coord;
-
+  //The following macro converts the GITHASH define to a C style
+  //string, the boost build system won't let us define strings on the
+  //command line.
+#define VALUE_TO_STRING(val) #val
   //Output the program licence
   std::cout << "dynarun  Copyright (C) 2011  Marcus N Campbell Bannerman\n"
 	    << "This program comes with ABSOLUTELY NO WARRANTY.\n"
 	    << "This is free software, and you are welcome to redistribute it\n"
 	    << "under certain conditions. See the licence you obtained with\n"
 	    << "the code\n"
-	       "Git Checkout Hash " << GITHASH << "\n\n";
+	       "Git Checkout Hash " << VALUE_TO_STRING(GITHASH) << "\n\n";
 
   //Reasonable precision for periodic output
   std::cout << std::setprecision(std::numeric_limits<float>::digits10);
+
+  /*! \brief The programs single instantiation of the simulation control class.
+   */
+  Coordinator coord;
 
   //Run the simulation
   try 

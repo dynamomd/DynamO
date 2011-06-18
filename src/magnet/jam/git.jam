@@ -17,27 +17,15 @@
 import stringmanip ;
 
 #This rule exists to set up the CONFIG variable for the associated action
-rule gen_buildinfo_data ( targets * : sources * : properties * )
+rule hash ( )
 {
-  ALWAYS $(<) ;
-  local define ;
-  
-  local hash = [ stringmanip.trim-nl [ SHELL "git rev-parse --verify HEAD" ] ] ; 
-  define += "GITHASH \""$(hash)"\"" ; 
-
-  CONFIG on $(<) = "#define "$(define) ;
-  NL on $(<) = "
-" ;
+  return [ stringmanip.trim-nl [ SHELL "git rev-parse --verify HEAD" ] ] ; 
 }
 
-#This action just makes a file by outputting all the text fields of
-#CONFIG, joined with newlines
-actions gen_buildinfo_data
+rule defines ( )
 {
-  @($(STDOUT):E=
-#pragma once
-$(CONFIG:J=$(NL))
-) > "$(<)"
+  local lochash = [ hash ] ;
+  return <define>GITHASH=$(lochash) ;
 }
 
-IMPORT $(__name__) : gen_buildinfo_data :  : buildinfo.gen_buildinfo_data ;
+IMPORT $(__name__) : defines :  : git.defines ;
