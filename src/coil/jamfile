@@ -36,6 +36,9 @@ exe coilDependencies : tests/buildreq.cpp :
 always cwiidtest OpenCLtest OpenCLpptest ftgltest gluttest gtkmmtest GLEWtest coilDependencies ;
 explicit cwiidtest OpenCLtest OpenCLpptest ftgltest gluttest gtkmmtest GLEWtest coilDependencies ;
 
+rule critical_dependencies ( )
+{ return [ check-target-builds src/coil//coilDependencies "Coil library dependencies" :  : <build>no ] ; }
+
 lib coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests ]
       glut GLU GL Xext X11 rt GLEW ../magnet//magnet
       OpenCL ftgl gtkmm 
@@ -43,10 +46,13 @@ lib coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests ]
       [ check-target-builds cwiidtest "Coil: CWiid (wiimote control)" : <source>cwiid  :  ]
       : : <define>GLVIEWER <include>. ;
 
-alias test : ;
-
 exe gl_test
     : tests/glviewer_test.cpp coil/<link>static
     ;
 
 explicit gl_test test coil ;
+
+install install-coil
+	: coil 
+	: <location>lib [ critical_dependencies ]
+	;	

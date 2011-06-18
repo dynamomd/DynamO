@@ -65,3 +65,9 @@ exe dynamod : programs/dynamod.cpp dynamo_core
 
 explicit dynamod dynahist_rw dynareplex_opt dynarun dynamo_core visualizer test ;
 always   dynamod dynahist_rw dynareplex_opt dynarun ;
+
+
+install install-dynamo
+	: dynarun dynahist_rw dynamod 
+	: <location>bin [ critical_dependencies ]
+	;
