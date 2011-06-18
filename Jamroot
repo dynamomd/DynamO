@@ -13,14 +13,8 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-##########################################################################
-# Compiler configuration. The gcc definition will be used unless you
-# already have defined a toolset in your user-config.jam file or on
-# the command line, e.g., toolset=intel .
 import feature ;
-if ! gcc in [ feature.values <toolset> ]
-{ using gcc ; }
+import src/magnet/jam/builddep ;
 
 ##########################################################################
 #Location of the boost build root directory
@@ -36,11 +30,6 @@ if [ os.name ] = NT
 { SHELL "mkdir "$(build-dir) ; }
 else
 { SHELL "mkdir -p "$(build-dir) ; }
-
-##########################################################################
-#These are the options that can be set when calling bjam
-#If this feature is unset, its value will be determined from configuration tests
-feature.feature coil-integration : no yes : propagated optional ;
 
 ##########################################################################
 #Additional build variants
@@ -60,21 +49,6 @@ variant valgrind : <inlining>off <optimization>speed <debug-symbols>on <profilin
 variant valgrind_in : valgrind : <inlining>on  ;
 
 ##########################################################################
-#Dependency calculations
-#Parses the command line (to see if a property has been set by the user)
-rule cmd-line-feature-value ( feature )
-{ return [ MATCH "^$(feature)=(.*)" :  [ modules.peek : ARGV ] ] ; }
-
-rule coil-integration-check ( )
-{
-  if ! [ cmd-line-feature-value coil-integration ]
-  { 
-    return [ check-target-builds src/coil//coilDependencies "Dynamo-Coil Integration" 
-    	   : "<coil-integration>yes"  : "<coil-integration>no" ] ;
-  }
-}
-
-##########################################################################
 #Main project definition
 project	: requirements
           <threading>multi
@@ -83,7 +57,9 @@ project	: requirements
 	  <toolset>gcc:<cflags>-fdata-sections
 	  <toolset>gcc:<linkflags>-Wl,--gc-sections
 	  <variant>release:<define>NDEBUG
-	  [ coil-integration-check ]
+          #This creates a feature coil-integration, which can be set
+          #on the command line or auto-detected using the passed target
+	  [ builddep.set-feature-on-build coil-integration : src/coil//coilDependencies ]
 	: default-build release
 	: build-dir $(build-dir)
 	;
