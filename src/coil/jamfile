@@ -52,5 +52,5 @@ explicit gl_test test coil ;
 
 install install-coil
 	: coil 
-	: <location>lib [ critical_dependencies ]
+	: <location>../../lib [ critical_dependencies ]
 	;	

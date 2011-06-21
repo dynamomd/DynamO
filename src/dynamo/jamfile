@@ -69,5 +69,5 @@ always   dynamod dynahist_rw dynareplex_opt dynarun ;
 
 install install-dynamo
 	: dynarun dynahist_rw dynamod 
-	: <location>bin [ critical_dependencies ]
+	: <location>../../bin [ critical_dependencies ]
 	;
