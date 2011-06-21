@@ -1,6 +1,4 @@
-import glade ;
-import ttf ;
-import pixbuf ;
+import ../magnet/jam/filetypes ;
 import ../magnet/jam/tags ;
 
 lib glut : : <link>shared ;
