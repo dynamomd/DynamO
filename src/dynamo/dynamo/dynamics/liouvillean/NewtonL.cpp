@@ -245,9 +245,9 @@ LNewtonian::getSphereTriangleEvent(const Particle& part,
   //Now test for intersections with the triangle corners
   double t = magnet::intersection::ray_sphere_bfc(T, D, dist);
   if (t < retval.first) retval = RetType(t, T_A_CORNER);
-  t = magnet::intersection::ray_sphere_bfc(T + E1, D, dist);
+  t = magnet::intersection::ray_sphere_bfc(T - E1, D, dist);
   if (t < retval.first) retval = RetType(t, T_B_CORNER);
-  t = magnet::intersection::ray_sphere_bfc(T + E2, D, dist);
+  t = magnet::intersection::ray_sphere_bfc(T - E2, D, dist);
   if (t < retval.first) retval = RetType(t, T_C_CORNER);
 
   //Now for the edge collision detection
