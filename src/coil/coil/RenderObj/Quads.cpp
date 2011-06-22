@@ -26,55 +26,54 @@ RQuads::glRender()
 {
   if (!_visible) return;
 
-  if (_colBuffSize)
+  if (_colBuff.size())
     {
-      glBindBufferARB(GL_ARRAY_BUFFER, _colBuff);
+      _colBuff.bind(magnet::GL::Buffer::ARRAY);
       glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
       glEnableClientState(GL_COLOR_ARRAY);
     }
 
-  if (_normBuffSize)
+  if (_normBuff.size())
     {
-      glBindBufferARB(GL_ARRAY_BUFFER, _normBuff);
+      _normBuff.bind(magnet::GL::Buffer::ARRAY);
       glNormalPointer(GL_FLOAT, 0, 0);
       glEnableClientState(GL_NORMAL_ARRAY); 
     }
-
-  glBindBufferARB(GL_ARRAY_BUFFER, _posBuff);
+  
+  _posBuff.bind(magnet::GL::Buffer::ARRAY);
   glVertexPointer(3, GL_FLOAT, 0, 0);
-    
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, _elementBuff);
+
+  _elementBuff.bind(magnet::GL::Buffer::ELEMENT_ARRAY);
   
   glEnableClientState(GL_VERTEX_ARRAY);
   
   switch (_RenderMode)
     {
     case TRIANGLES:
-      glDrawElements(GL_QUADS, _elementBuffSize, GL_UNSIGNED_INT, 0);
+      glDrawElements(GL_QUADS, _elementBuff.size(), GL_UNSIGNED_INT, 0);
       break;
     case LINES:
-      glDrawElements(GL_LINES, _elementBuffSize, GL_UNSIGNED_INT, 0);
+      glDrawElements(GL_LINES, _elementBuff.size(), GL_UNSIGNED_INT, 0);
       break;
     case POINTS:
-      glDrawElements(GL_POINTS, _elementBuffSize, GL_UNSIGNED_INT, 0);
+      glDrawElements(GL_POINTS, _elementBuff.size(), GL_UNSIGNED_INT, 0);
       break;
     }
  
-  if (_colBuffSize)
+  if (_colBuff.size())
     glDisableClientState(GL_COLOR_ARRAY);	
-  if (_normBuffSize)
+  if (_normBuff.size())
     glDisableClientState(GL_NORMAL_ARRAY);
+
   glDisableClientState(GL_VERTEX_ARRAY);
 
-  if (_renderNormals && _normBuffSize)
+  if (_renderNormals && _normBuff.size())
     {
-      glBindBuffer(GL_ARRAY_BUFFER, _posBuff);
-      const float* posPointer = (const float*)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
-      glBindBuffer(GL_ARRAY_BUFFER, _normBuff);
-      const float* normPointer = (const float*)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
+      const float* posPointer = _posBuff.map<float>();
+      const float* normPointer = _normBuff.map<float>();
 
       const float scale = 0.005;
-      for (size_t i= 0; i < _posBuffSize; i+= 3)
+      for (size_t i= 0; i < _posBuff.size(); i+= 3)
 	{
 	  Vector point1, point2;
 	  for (size_t iDim = 0; iDim < 3; ++iDim)
@@ -85,10 +84,8 @@ RQuads::glRender()
 	  coil::glprimatives::drawArrow(point1, point2);
 	}
       
-      glBindBuffer(GL_ARRAY_BUFFER, _posBuff);
-      glUnmapBuffer(GL_ARRAY_BUFFER);
-      glBindBuffer(GL_ARRAY_BUFFER, _normBuff);
-      glUnmapBuffer(GL_ARRAY_BUFFER);
+      _posBuff.unmap();
+      _normBuff.unmap();
     }
 
 }
@@ -102,14 +99,5 @@ RQuads::setGLElements(std::vector<int>& Elements)
   if (Elements.size() % 4) 
     throw std::runtime_error("Elements.size() is not a multiple of 4!");
 
-  if (_elementBuffSize)
-    glDeleteBuffers(1, &_elementBuff);
-  
-  _elementBuffSize = Elements.size();
-
-  glGenBuffersARB(1, &_elementBuff);
-
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, _elementBuff);
-  glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER, Elements.size() * sizeof(int), &Elements[0], 
-	       GL_STATIC_DRAW);
+  _elementBuff.init(Elements);
 }

@@ -24,6 +24,8 @@
 #include <GL/glext.h>
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
+
+#include <magnet/GL/buffer.hpp>
 #include <stdexcept>
 
 namespace cl {
@@ -40,8 +42,7 @@ namespace cl {
 
 class GLBuffer : public Buffer
 {
-  ::GLuint _bufobj;
-  ::GLenum _bufType;
+  magnet::GL::Buffer* _bufobj;
 
 public:
   inline static bool& hostTransfers()
@@ -52,22 +53,17 @@ public:
 
   GLBuffer(const Context& context,
 	   cl_mem_flags flags,
-	   ::GLuint bufobj,
-	   ::GLenum bufType,
+	   magnet::GL::Buffer& buff,
 	   cl_int* err = NULL
 	   ):
-    _bufobj(bufobj),
-    _bufType(bufType)
+    _bufobj(&buff)
   {
     if (hostTransfers())
       {
 	if ((flags & CL_MEM_COPY_HOST_PTR) || (flags & CL_MEM_USE_HOST_PTR))
 	  throw std::runtime_error("Cannot use CL_MEM_COPY_HOST_PTR/CL_MEM_USE_HOST_PTR on a host transfer GLBuffer");
-
-	glBindBuffer(_bufType, _bufobj);
-        ::GLint size;
-	glGetBufferParameteriv(_bufType, GL_BUFFER_SIZE, &size);
-
+	
+        ::GLint size = _bufobj->byte_size();
         cl_int error;
         object_ = ::clCreateBuffer(context(), flags, size, NULL, &error);
 
@@ -77,7 +73,7 @@ public:
     else
       {
 	cl_int error;
-	object_ = ::clCreateFromGLBuffer(context(), flags, bufobj, &error);
+	object_ = ::clCreateFromGLBuffer(context(), flags, _bufobj->getGLObject(), &error);
 	
 	detail::errHandler(error, __CREATE_GL_BUFFER_ERR);
 	if (err != NULL) *err = error;
@@ -88,17 +84,15 @@ public:
   {
     if (hostTransfers())
       {
-	glBindBuffer(_bufType, _bufobj);
-	const void* glBufPointer = glMapBuffer(_bufType, GL_READ_ONLY);
+	const void* glBufPointer = _bufobj->map<void>();
 
-	::GLint size;
-	glGetBufferParameteriv(_bufType, GL_BUFFER_SIZE, &size);
-	
+	::GLint size = _bufobj->byte_size();
+
 	void* clBufPointer = cmdq.enqueueMapBuffer(*this, true, CL_MAP_WRITE, 0, size);
 	
 	memcpy(clBufPointer, glBufPointer, size);
 
-	glUnmapBuffer(_bufType);
+	_bufobj->unmap();
 	cmdq.enqueueUnmapMemObject(*this, (void*)clBufPointer);
       }
     else
@@ -122,18 +116,15 @@ public:
   {
     if (hostTransfers())
       {
-	glBindBuffer(_bufType, _bufobj);
-	void* glBufPointer = glMapBuffer(_bufType, GL_WRITE_ONLY);
+	void* glBufPointer = _bufobj->map<void>();
 
-	::GLint size;
-	glGetBufferParameteriv(_bufType, GL_BUFFER_SIZE, &size);
-	
+	::GLint size = _bufobj->byte_size();
+
 	void* clBufPointer = cmdq.enqueueMapBuffer(*this, true, CL_MAP_READ, 0, size);
-
 	
 	memcpy(glBufPointer, clBufPointer, size);
 
-	glUnmapBuffer(_bufType);
+	_bufobj->unmap();
 	cmdq.enqueueUnmapMemObject(*this, (void*)clBufPointer);	
       }
     else
@@ -154,7 +145,7 @@ public:
   }
 
   //! Default constructor; buffer is not valid at this point.
-  GLBuffer() {}
+  GLBuffer(): _bufobj(NULL) {}
 
 };
 };

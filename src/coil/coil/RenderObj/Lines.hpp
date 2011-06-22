@@ -38,22 +38,19 @@ public:
   void initOCLColorBuffer(cl::Context Context);
   void initOCLElementBuffer(cl::Context Context);
 
-  GLuint& getVertexGLData() { return _posBuff; }
-  GLuint& getColorGLData() { return _colBuff; }
+  magnet::GL::Buffer& getVertexGLData() { return _posBuff; }
+  magnet::GL::Buffer& getColorGLData() { return _colBuff; }
 
   virtual void releaseCLGLResources();
 
 protected:
   size_t _N;
-  GLuint _colBuff;
-  size_t _colBuffSize;
+  magnet::GL::Buffer _colBuff;
   cl::GLBuffer _clbuf_Colors;
-
-  GLuint _posBuff;
-  size_t _posBuffSize;
+  
+  magnet::GL::Buffer _posBuff;
   cl::GLBuffer _clbuf_Positions;
   
-  GLuint _elementBuff;
-  size_t _elementBuffSize;
+  magnet::GL::Buffer _elementBuff;
   cl::GLBuffer _clbuf_Elements;
 };

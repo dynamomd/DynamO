@@ -17,6 +17,7 @@
 #pragma once
 #include <gtkmm.h>
 #include "RenderObj.hpp"
+#include <magnet/GL/buffer.hpp>
 #include <vector>
 #include <memory>
 #include <magnet/CL/GLBuffer.hpp>
@@ -45,6 +46,8 @@ public:
 
   virtual void showControls(Gtk::ScrolledWindow* win);
 
+  virtual void setRenderMode(RenderModeType rm);
+
 protected:
   void guiUpdate();
   
@@ -54,19 +57,17 @@ protected:
   std::auto_ptr<Gtk::RadioButton> _gtkTriangleRender;
 
 
-  GLuint _colBuff;
-  size_t _colBuffSize;
+  magnet::GL::Buffer _colBuff;
   cl::GLBuffer _clbuf_Colors;
 
-  GLuint _posBuff;
-  size_t _posBuffSize;
+  magnet::GL::Buffer _posBuff;
   cl::GLBuffer _clbuf_Positions;
   
-  GLuint _normBuff;
-  size_t _normBuffSize;
+  magnet::GL::Buffer _normBuff;
   cl::GLBuffer _clbuf_Normals;
 
-  GLuint _elementBuff;
-  size_t _elementBuffSize;
+  magnet::GL::Buffer _elementBuff;
   cl::GLBuffer _clbuf_Elements;
+
+  magnet::GL::Buffer _specialElementBuff;
 };
