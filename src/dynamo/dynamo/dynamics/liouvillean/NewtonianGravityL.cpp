@@ -29,6 +29,7 @@
 #include <dynamo/datatypes/vector.xml.hpp>
 #include "../units/units.hpp"
 #include <magnet/intersection/parabola_sphere.hpp>
+#include <magnet/intersection/parabola_plane.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
