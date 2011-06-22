@@ -342,7 +342,7 @@ function SquareWellTest {
     $Dynarun -c 3000000 config.out.xml.bz2 >> run.log 2>&1
     $Dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
     
-    MFT="0.0356025"
+    MFT="0.036"
 
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \

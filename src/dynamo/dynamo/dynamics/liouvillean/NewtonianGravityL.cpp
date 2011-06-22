@@ -119,32 +119,12 @@ LNewtonianGravity::getWallCollision(const Particle &part,
 				    const Vector  &wallLoc, 
 				    const Vector  &wallNorm) const
 {
-  Vector  rij = part.getPosition(),
-    vel = part.getVelocity();
+  Vector  rij = part.getPosition() - wallLoc,
+    vij = part.getVelocity();
 
-  Sim->dynamics.BCs().applyBC(rij, vel);
+  Sim->dynamics.BCs().applyBC(rij, vij);
 
-  double adot = (wallNorm | g) * part.testState(Particle::DYNAMIC);
-  double vdot = vel | wallNorm;
-  double rdot = (rij - wallLoc) | wallNorm;
-
-  double arg = vdot * vdot - 2 * rdot * adot;
-  
-  if (arg > 0)
-    {
-      double t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
-      double x1 = t / adot;
-      double x2 = 2 * rdot / t;
-
-      if (adot > 0)
-	//The particle is arcing under the plate
-	return (x1 < x2) ? x1 : x2 ;
-      else
-	//The particle is arcing over the plate
-	return (x1 < x2) ? x2 : x1;
-    }
-
-  return HUGE_VAL;
+  return magnet::intersection::parabola_plane_bfc(rij, vij, g * part.testState(Particle::DYNAMIC), wallNorm);
 }
 
 double
