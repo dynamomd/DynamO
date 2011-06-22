@@ -87,6 +87,11 @@ public:
 			 const Vector & C,
 			 const double dist
 			 ) const;
+
+  virtual ParticleEventData runWallCollision(const Particle&, 
+					     const Vector &,
+					     const double&
+					     ) const;
 protected:
   double elasticV;
   Vector g;

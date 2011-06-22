@@ -540,3 +540,26 @@ LNewtonianGravity::getSphereTriangleEvent(const Particle& part,
 
   return retval;
 }
+
+ParticleEventData 
+LNewtonianGravity::runWallCollision(const Particle &part, 
+				    const Vector  &vNorm,
+				    const double& e
+				    ) const
+{
+  updateParticle(part);
+
+  double e_val = e;
+  if (std::fabs(part.getVelocity() | vNorm) < elasticV) e_val = 1;
+
+  //Now the tc model;
+  if (_tc > 0)
+    {
+      if ((Sim->dSysTime - _tcList[part.getID()] < _tc))
+	e_val = 1;
+      
+      _tcList[part.getID()] = Sim->dSysTime;
+    }
+
+  return LNewtonian::runWallCollision(part, vNorm, e_val);
+}
