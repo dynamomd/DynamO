@@ -20,7 +20,7 @@
 
 namespace magnet {
   namespace overlap {
-    //! A point-triangle overlap test.
+    //! \brief A point-triangle overlap test.
     //!
     //! This function assumes the point passed lies somewhere in the
     //! plane of the triangle and is defined relative to the first

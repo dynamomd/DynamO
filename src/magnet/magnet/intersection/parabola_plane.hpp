@@ -20,7 +20,8 @@
 
 namespace magnet {
   namespace intersection {
-    /*! A ray-plane intersection test which ignores negative time intersections.
+    /*! \brief A parabola-plane intersection test which ignores
+     * negative time intersections.
      *
      * \param T The origin of the ray relative to a point on the plane.
      * \param D The direction/velocity of the ray.

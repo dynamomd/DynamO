@@ -30,6 +30,8 @@
 #include "../units/units.hpp"
 #include <magnet/intersection/parabola_sphere.hpp>
 #include <magnet/intersection/parabola_plane.hpp>
+#include <magnet/intersection/parabola_triangle.hpp>
+#include <magnet/intersection/parabola_cylinder.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>

@@ -20,7 +20,7 @@
 
 namespace magnet {
   namespace overlap {
-    //! A point-sphere overlap test.
+    //! \brief A point-sphere overlap test.
     //!
     //! This function assumes the point location passed is relative to
     //! the sphere's center.
@@ -32,7 +32,7 @@ namespace magnet {
 			     const double d)
     { return P.nrm2() <= d * d; }
 
-    //! A sphere-sphere overlap test.
+    //! \brief A sphere-sphere overlap test.
     //!
     //! This function assumes the sphere location passed is relative to
     //! the other sphere's center.

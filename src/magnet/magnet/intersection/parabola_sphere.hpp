@@ -35,7 +35,7 @@ namespace magnet {
       };
     }
 
-    //! A parabolic(ray)-sphere intersection test with backface culling.
+    //! \brief A parabolic(ray)-sphere intersection test with backface culling.
     //!
     //! \param T The origin of the ray relative to the sphere center.
     //! \param D The direction/velocity of the ray.

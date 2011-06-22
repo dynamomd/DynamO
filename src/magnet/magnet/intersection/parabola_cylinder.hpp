@@ -16,31 +16,29 @@
 */
 
 #pragma once
-#include <magnet/math/vector.hpp>
+#include <magnet/intersection/ray_sphere.hpp>
 
 namespace magnet {
   namespace intersection {
-    //! \brief A ray-plane intersection test.
+    //! \brief A parabola-cylinder intersection test.
     //!
-    //! \tparam BACKFACE_CULLING Ignores ray plane intersections
-    //! where the ray enters the back of the plane.
-    //! \param T The origin of the ray relative to a point on the plane.
+    //! This test ignores the back face of the cylinder, it is used to
+    //! detect when a ray will enter a cylinder.
+    //! 
+    //! \param T The origin of the ray relative to a point on the cylinder axis.
     //! \param D The direction/velocity of the ray.
-    //! \param N The normal of the plane.
+    //! \param Aray The acceleration acting on the ray
+    //! \param A A normalized vector parallel to the axis of the cylinder.
+    //! \param r Radius of the cylinder.
     //! \return The time until the intersection, or HUGE_VAL if no intersection.
-    template<bool BACKFACE_CULLING>
-    inline double ray_plane(const Vector& T,
-			    const Vector& D,
-			    const Vector& N)
+    inline double parabola_cylinder_bfc(Vector T, Vector D, Vector Aray, const Vector& A, const double r)
     {
-      double ND = (D | N);
-      
-      if (BACKFACE_CULLING)
-	{ if (ND >= 0) return HUGE_VAL; }
-      else
-	{ if (ND == 0) return HUGE_VAL; }
+      //Project off the axial component of the position, velocity and acceleration
+      T -= Vector((T | A) * A);
+      D -= Vector((D | A) * A);
+      Aray -= Vector((Aray | A) * A);
 
-      return  -(T | N) / ND;
+      return parabola_sphere_bfc(T, D, Aray, r);
     }
   }
 }
