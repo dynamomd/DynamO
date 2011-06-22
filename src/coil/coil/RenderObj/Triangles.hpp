@@ -15,9 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
+#include <gtkmm.h>
 #include "RenderObj.hpp"
 #include <vector>
-
+#include <memory>
 #include <magnet/CL/GLBuffer.hpp>
 
 class RTriangles : public RenderObj
@@ -40,7 +41,19 @@ public:
 
   virtual void releaseCLGLResources();
 
+  virtual void initGTK();
+
+  virtual void showControls(Gtk::ScrolledWindow* win);
+
 protected:
+  void guiUpdate();
+  
+  std::auto_ptr<Gtk::VBox>        _gtkOptList;
+  std::auto_ptr<Gtk::RadioButton> _gtkLineRender;
+  std::auto_ptr<Gtk::RadioButton> _gtkPointRender;
+  std::auto_ptr<Gtk::RadioButton> _gtkTriangleRender;
+
+
   GLuint _colBuff;
   size_t _colBuffSize;
   cl::GLBuffer _clbuf_Colors;

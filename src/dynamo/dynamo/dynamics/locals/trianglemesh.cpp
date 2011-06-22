@@ -15,6 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef DYNAMO_visualizer
+# include <coil/RenderObj/TriangleMesh.hpp>
+#endif
+
 #include "trianglemesh.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "localEvent.hpp"
@@ -258,7 +262,6 @@ LTriangleMesh::checkOverlaps(const Particle& p1) const
 
 
 #ifdef DYNAMO_visualizer
-# include <coil/RenderObj/TriangleMesh.hpp>
 
 magnet::thread::RefPtr<RenderObj>& 
 LTriangleMesh::getCoilRenderObj() const

@@ -15,6 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef DYNAMO_visualizer
+# include <coil/RenderObj/Function.hpp>
+#endif 
+
 #include "oscillatingplate.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "localEvent.hpp"
@@ -187,7 +191,6 @@ CLOscillatingPlate::getPlateEnergy() const
 }
 
 #ifdef DYNAMO_visualizer
-# include <coil/RenderObj/Function.hpp>
 
 magnet::thread::RefPtr<RenderObj>& 
 CLOscillatingPlate::getCoilRenderObj() const
