@@ -410,21 +410,6 @@ CLGLWindow::initGTK()
       .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
   }
 
-  {///////RenderMode Selection
-    Gtk::RadioButton* radioButton;
-    _refXml->get_widget("renderModeTri", radioButton);
-    radioButton->signal_toggled()
-      .connect(sigc::mem_fun(this, &CLGLWindow::renderModeCallback));
-
-    _refXml->get_widget("renderModeLines", radioButton);
-    radioButton->signal_toggled()
-      .connect(sigc::mem_fun(this, &CLGLWindow::renderModeCallback));
-
-    _refXml->get_widget("renderModePoints", radioButton);
-    radioButton->signal_toggled()
-      .connect(sigc::mem_fun(this, &CLGLWindow::renderModeCallback));
-  }
-
   ///////////////////////Render Pipeline//////////////////////////////////
   if (_shaderPipeline)
     {
@@ -1633,24 +1618,6 @@ CLGLWindow::renderNormalsCallback()
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->setDisplayNormals(showNormals);
-}
-
-void
-CLGLWindow::renderModeCallback()
-{
-  Gtk::RadioButton* radioButton;
-
-  RenderObj::RenderModeType rmode = RenderObj::TRIANGLES;
-
-  _refXml->get_widget("renderModeLines", radioButton);
-  if (radioButton->get_active()) rmode = RenderObj::LINES;
-
-  _refXml->get_widget("renderModePoints", radioButton);
-  if (radioButton->get_active()) rmode = RenderObj::POINTS;
-
-  for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr 
-	 = RenderObjects.begin(); iPtr != RenderObjects.end(); ++iPtr)
-    (*iPtr)->setRenderMode(rmode);
 }
 
 void

@@ -254,12 +254,14 @@ RTriangles::initGTK()
   _gtkTriangleRender.reset(new Gtk::RadioButton("Solid"));
   _gtkLineRender.reset(new Gtk::RadioButton("Wireframe"));
   _gtkPointRender.reset(new Gtk::RadioButton("Vertex Points"));
-
+  
   {
     Gtk::RadioButton::Group group = _gtkTriangleRender->get_group();
     _gtkLineRender->set_group(group);
     _gtkPointRender->set_group(group);
 
+    _gtkTriangleRender->set_active();
+    
     Gtk::HBox* box = manage(new Gtk::HBox);
     box->pack_start(*_gtkTriangleRender, true, true);
     box->pack_start(*_gtkLineRender, true, true);
@@ -271,11 +273,6 @@ RTriangles::initGTK()
     box->show();
       
     _gtkOptList->add(*box);
-      
-    //Horizontal seperator
-    Gtk::HSeparator* line = manage(new Gtk::HSeparator);
-    line->show();
-    _gtkOptList->add(*line);
   }
     
   _gtkOptList->show();
@@ -302,4 +299,9 @@ RTriangles::showControls(Gtk::ScrolledWindow* win)
 void 
 RTriangles::guiUpdate()
 {
+  RenderModeType rmode = RenderObj::TRIANGLES;
+  if (_gtkLineRender->get_active()) rmode = RenderObj::LINES;
+  if (_gtkPointRender->get_active()) rmode = RenderObj::POINTS;
+  
+  setRenderMode(rmode);
 }

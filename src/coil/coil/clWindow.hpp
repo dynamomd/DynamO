@@ -255,7 +255,6 @@ private:
   void FPSLimitCallback();
   void aboutCallback();
   void renderNormalsCallback();
-  void renderModeCallback();
 
   void runCallback(); 
 
