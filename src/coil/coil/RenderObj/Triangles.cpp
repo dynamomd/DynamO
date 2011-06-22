@@ -48,21 +48,22 @@ RTriangles::glRender()
   _posBuff.bind(magnet::GL::Buffer::ARRAY);
 
   glVertexPointer(3, GL_FLOAT, 0, 0);
-    
-  _elementBuff.bind(magnet::GL::Buffer::ELEMENT_ARRAY);
-  
+      
   glEnableClientState(GL_VERTEX_ARRAY);
   
   switch (_RenderMode)
     {
     case TRIANGLES:
+      _elementBuff.bind(magnet::GL::Buffer::ELEMENT_ARRAY);
       glDrawElements(GL_TRIANGLES, _elementBuff.size(), GL_UNSIGNED_INT, 0);
       break;
     case LINES:
-      glDrawElements(GL_LINES, _elementBuff.size(), GL_UNSIGNED_INT, 0);
+      _specialElementBuff.bind(magnet::GL::Buffer::ELEMENT_ARRAY);
+      glDrawElements(GL_LINES, _specialElementBuff.size(), GL_UNSIGNED_INT, 0);
       break;
     case POINTS:
-      glDrawElements(GL_POINTS, _elementBuff.size(), GL_UNSIGNED_INT, 0);
+      _specialElementBuff.bind(magnet::GL::Buffer::ELEMENT_ARRAY);
+      glDrawElements(GL_POINTS, _specialElementBuff.size(), GL_UNSIGNED_INT, 0);
       break;
     }
  
@@ -259,18 +260,56 @@ RTriangles::setRenderMode(RenderModeType rm)
 {
   if (rm != _RenderMode)
     {
+      _specialElementBuff.deinit();
+
       //If we're in one of the special modes, build the special
       //element buffer
       switch (rm)
 	{
 	case LINES:
 	  {
-	    typedef std::pair<int,int> setKey;
-	    std::set<setKey> edges;
+	    //Here, we find all the unique edges and build the
+	    //corresponding element buffer
+	    typedef std::pair<int,int> SetKey;
+	    std::set<SetKey> edges;
+
+	    size_t size = _elementBuff.size();
+
+	    int* elements =  _elementBuff.map<int>();
+
+	    for (size_t t(0); t < size; t += 3)
+	      {
+		edges.insert(SetKey(elements[t+0], elements[t+1]));
+		edges.insert(SetKey(elements[t+1], elements[t+2]));
+		edges.insert(SetKey(elements[t+0], elements[t+2]));
+	      }
+	    
+	    std::vector<int> line_elements;
+	    line_elements.reserve(edges.size() * 2);
+	    
+	    for (std::set<SetKey>::const_iterator iPtr = edges.begin();
+		 iPtr != edges.end(); ++iPtr)
+	      {
+		line_elements.push_back(iPtr->first);
+		line_elements.push_back(iPtr->second);
+	      }
+
+	    _specialElementBuff.init(line_elements);
+
+	    _elementBuff.unmap();
 	    break;
 	  }
 	case POINTS:
-	  break;
+	  {
+	    std::vector<int> point_elements;
+	    point_elements.resize(_posBuff.size() / 3);
+	    
+	    for (size_t i(0); i < point_elements.size(); ++i)
+	      point_elements[i] = i;
+
+	    _specialElementBuff.init(point_elements);
+	    break;
+	  }
 	default:
 	  break;
 	}
