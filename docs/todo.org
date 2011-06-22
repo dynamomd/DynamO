@@ -33,6 +33,7 @@
 **** TODO Generalize the Morton ordered neighbour list.
 **** TODO Work on Sebastians project.
 **** TODO Move all the dynamo classes into the dynamo namespace.
+**** TODO Add a parabola sentinel automatically
 *** DynamO 1.1 							    :ARCHIVE:
 **** DONE *MAJOR* Remove Unit types from the XML file and simulator.
 **** DONE *MAJOR* Remove aspect ratio and instead load the primary image cell size.

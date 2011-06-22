@@ -28,10 +28,11 @@
 #include "shapes/oscillatingplate.hpp"
 #include <dynamo/datatypes/vector.xml.hpp>
 #include "../units/units.hpp"
+#include <magnet/overlap/point_prism.hpp>
 #include <magnet/intersection/parabola_sphere.hpp>
 #include <magnet/intersection/parabola_plane.hpp>
 #include <magnet/intersection/parabola_triangle.hpp>
-#include <magnet/intersection/parabola_cylinder.hpp>
+#include <magnet/intersection/parabola_rod.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
@@ -464,4 +465,78 @@ LNewtonianGravity::enforceParabola(const Particle& part) const
 #endif
 
   const_cast<Particle&>(part).getVelocity()[dim] = 0;
+}
+
+std::pair<double, Liouvillean::TriangleIntersectingPart>
+LNewtonianGravity::getSphereTriangleEvent(const Particle& part, 
+					  const Vector & A, 
+					  const Vector & B, 
+					  const Vector & C,
+					  const double dist
+					  ) const
+{
+  //If the particle doesn't feel gravity, fall back to the standard function
+  if (!part.testState(Particle::DYNAMIC)) 
+    return LNewtonian::getSphereTriangleEvent(part, A, B, C, dist);
+
+  typedef std::pair<double, Liouvillean::TriangleIntersectingPart> RetType;
+  //The Origin, relative to the first vertex
+  Vector T = part.getPosition() - A;
+  //The ray direction
+  Vector D = part.getVelocity();
+  Sim->dynamics.BCs().applyBC(T, D);
+
+  //The edge vectors
+  Vector E1 = B - A;
+  Vector E2 = C - A;
+  
+  Vector N = E1 ^ E2;
+  double nrm2 = N.nrm2();
+#ifdef DYNAMO_DEBUG
+  if (!nrm2) M_throw() << "Degenerate triangle detected!";
+#endif
+  N /= std::sqrt(nrm2);
+  
+  //First test for intersections with the triangle faces.
+  double t1 = magnet::intersection::parabola_triangle_bfc(T - N * dist, D, g, E1, E2);
+    
+  if (t1 < 0)
+    {
+      t1 = HUGE_VAL;
+      if (magnet::overlap::point_prism(T - N * dist, E1, E2, N, dist)) t1 = 0;
+    }
+
+  double t2 = magnet::intersection::parabola_triangle_bfc(T + N * dist, D, g, E2, E1);
+
+  if (t2 < 0)
+    {
+      t2 = HUGE_VAL;
+      if (magnet::overlap::point_prism(T + N * dist, E2, E1, -N, dist)) t2 = 0;
+    }
+  
+  RetType retval(std::min(t1, t2), T_FACE);
+  
+  //Early jump out, to make sure that if we have zero time
+  //interactions for the triangle faces, we take them.
+  if (retval.first == 0) return retval;
+  
+  //Now test for intersections with the triangle corners
+  double t = magnet::intersection::parabola_sphere_bfc(T, D, g, dist);
+  if (t < retval.first) retval = RetType(t, T_A_CORNER);
+  t = magnet::intersection::parabola_sphere_bfc(T - E1, D, g, dist);
+  if (t < retval.first) retval = RetType(t, T_B_CORNER);
+  t = magnet::intersection::parabola_sphere_bfc(T - E2, D, g, dist);
+  if (t < retval.first) retval = RetType(t, T_C_CORNER);
+
+  //Now for the edge collision detection
+  t = magnet::intersection::parabola_rod_bfc(T, D, g, B - A, dist);
+  if (t < retval.first) retval = RetType(t, T_AB_EDGE);
+  t = magnet::intersection::parabola_rod_bfc(T, D, g, C - A, dist);
+  if (t < retval.first) retval = RetType(t, T_AC_EDGE);
+  t = magnet::intersection::parabola_rod_bfc(T - E2, D, g, B - C, dist);
+  if (t < retval.first) retval = RetType(t, T_BC_EDGE);
+
+  if (retval.first < 0) retval.first = 0;
+
+  return retval;
 }

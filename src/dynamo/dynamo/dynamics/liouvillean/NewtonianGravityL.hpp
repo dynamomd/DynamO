@@ -80,6 +80,13 @@ public:
   //Cloning
   virtual Liouvillean* Clone() const { return new LNewtonianGravity(*this); }
 
+  virtual std::pair<double, Liouvillean::TriangleIntersectingPart> 
+  getSphereTriangleEvent(const Particle& part, 
+			 const Vector & A, 
+			 const Vector & B, 
+			 const Vector & C,
+			 const double dist
+			 ) const;
 protected:
   double elasticV;
   Vector g;
