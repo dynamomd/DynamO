@@ -503,7 +503,8 @@ LNewtonianGravity::getSphereTriangleEvent(const Particle& part,
   if (t1 < 0)
     {
       t1 = HUGE_VAL;
-      if (magnet::overlap::point_prism(T - N * dist, E1, E2, N, dist)) t1 = 0;
+      if ((D | N) > 0)
+	if (magnet::overlap::point_prism(T - N * dist, E1, E2, N, dist)) t1 = 0;
     }
 
   double t2 = magnet::intersection::parabola_triangle_bfc(T + N * dist, D, g, E2, E1);
@@ -511,7 +512,8 @@ LNewtonianGravity::getSphereTriangleEvent(const Particle& part,
   if (t2 < 0)
     {
       t2 = HUGE_VAL;
-      if (magnet::overlap::point_prism(T + N * dist, E2, E1, -N, dist)) t2 = 0;
+      if ((D | N) < 0)
+	if (magnet::overlap::point_prism(T + N * dist, E2, E1, -N, dist)) t2 = 0;
     }
   
   RetType retval(std::min(t1, t2), T_FACE);
