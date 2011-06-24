@@ -21,6 +21,7 @@
 
 #include <string>
 #include <magnet/exception.hpp>
+#include <tr1/array>
 
 namespace magnet {
   namespace GL {
@@ -48,16 +49,56 @@ namespace magnet {
 	    if (_uniformHandle == -1) M_throw() << "Uniform " << uniformName << " not found in this shader";
 	  }
 
-	  void operator=(const GLfloat& val) 
+	  inline void operator=(GLfloat val) 
 	  { 
 	    glUseProgramObjectARB(_programHandle);
 	    glUniform1f(_uniformHandle, val);
 	  }
 
-	  void operator=(const GLint val) 
+	  inline void operator=(const GLint& val) 
 	  { 
 	    glUseProgramObjectARB(_programHandle);
 	    glUniform1i(_uniformHandle, val);
+	  }
+
+	  template<class T>
+	  inline void operator=(const std::tr1::array<T, 1>& val)
+	  { operator=(val[0]); }
+
+	  inline void operator=(const std::tr1::array<GLfloat, 2>& val)
+	  { 
+	    glUseProgramObjectARB(_programHandle);
+	    glUniform2fv(_uniformHandle, 2, &(val[0]));
+	  }
+
+	  inline void operator=(const std::tr1::array<GLfloat, 3>& val)
+	  { 
+	    glUseProgramObjectARB(_programHandle);
+	    glUniform2fv(_uniformHandle, 3, &(val[0]));
+	  }
+
+	  inline void operator=(const std::tr1::array<GLfloat, 4>& val)
+	  { 
+	    glUseProgramObjectARB(_programHandle);
+	    glUniform2fv(_uniformHandle, 4, &(val[0]));
+	  }
+
+	  inline void operator=(const std::tr1::array<GLint, 2>& val)
+	  { 
+	    glUseProgramObjectARB(_programHandle);
+	    glUniform2iv(_uniformHandle, 2, &(val[0]));
+	  }
+
+	  inline void operator=(const std::tr1::array<GLint, 3>& val)
+	  { 
+	    glUseProgramObjectARB(_programHandle);
+	    glUniform2iv(_uniformHandle, 3, &(val[0]));
+	  }
+
+	  inline void operator=(const std::tr1::array<GLint, 4>& val)
+	  { 
+	    glUseProgramObjectARB(_programHandle);
+	    glUniform2iv(_uniformHandle, 4, &(val[0]));
 	  }
 	  
 	  private:
@@ -66,11 +107,11 @@ namespace magnet {
 	};
 
       public:
-	Shader():_built(false) {}
+	inline Shader():_built(false) {}
 
-	~Shader() { deinit(); }
+	inline ~Shader() { deinit(); }
 
-	void deinit()
+	inline void deinit()
 	{
 	  if (_built)
 	    {
@@ -82,22 +123,12 @@ namespace magnet {
 	  _built = false;
 	}
 
-	void attach() { glUseProgramObjectARB(_shaderID); }
+	inline void attach() { glUseProgramObjectARB(_shaderID); }
 
-	ShaderUniform operator[](std::string uniformName)
+	inline ShaderUniform operator[](std::string uniformName)
 	{
 	  return ShaderUniform(uniformName, _shaderID);
 	}
-
-      protected:
-	GLhandleARB _vertexShaderHandle;
-	GLhandleARB _fragmentShaderHandle;
-	GLhandleARB _shaderID;
-
-	bool _built;
-
-	virtual std::string vertexShaderSource() = 0;
-	virtual std::string fragmentShaderSource() = 0;
 
 	inline void build()
 	{
@@ -144,8 +175,47 @@ namespace magnet {
 	  //Done, now the inheriting shader should grab the locations of its uniforms
 	  _built = true;
 	}
-	
 
+	void drawScreenQuad()
+	{
+	  //Save the matrix state
+	  glMatrixMode(GL_PROJECTION);
+	  glPushMatrix();
+	  glLoadIdentity();
+	  
+	  glMatrixMode(GL_MODELVIEW);
+	  glPushMatrix();
+	  glLoadIdentity();
+	  
+	  glBegin(GL_QUADS);
+	  glTexCoord2f(0.0f, 0.0f);
+	  glVertex2d(-1, -1);
+	  glTexCoord2f(1.0f, 0.0f);
+	  glVertex2d(1, -1);
+	  glTexCoord2f( 1.0f, 1.0f);
+	  glVertex2d(1, 1);
+	  glTexCoord2f(0.0f, 1.0f);
+	  glVertex2d(-1, 1);
+	  glEnd();
+	  
+	  //Restore the matrix state
+	  glMatrixMode(GL_PROJECTION);
+	  glPopMatrix();
+	  
+	  glMatrixMode(GL_MODELVIEW);
+	  glPopMatrix();
+	}
+
+      protected:
+	GLhandleARB _vertexShaderHandle;
+	GLhandleARB _fragmentShaderHandle;
+	GLhandleARB _shaderID;
+
+	bool _built;
+
+	virtual std::string vertexShaderSource() = 0;
+	virtual std::string fragmentShaderSource() = 0;
+	
 	inline std::string getShaderBuildlog(GLhandleARB shaderHandle)
 	{
 	  std::string retVal;

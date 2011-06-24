@@ -79,11 +79,18 @@ namespace coil
     _zdiff = _zdiffSlider.get_value();
   }
 
-  void BilateralBlurWrapper::invoke(GLuint colorTextureUnit, 
+  void BilateralBlurWrapper::invoke(GLint colorTextureUnit, 
 				    size_t width, size_t height,
 				    const magnet::GL::viewPort& vp) 
   {
-    _filter.invoke(colorTextureUnit, 2, width, height, _radius, _zdiff, 
-		   vp.getZNear(), vp.getZFar()); 
+    std::tr1::array<GLfloat, 2> val = {{_radius / width, _radius / height}};
+    _filter["scale"] = val;
+    _filter["totStrength"] = _zdiff;
+    _filter["nearDist"] = vp.getZNear();
+    _filter["farDist"] = vp.getZFar();
+    _filter["u_Texture0"] = colorTextureUnit;
+    _filter["u_Texture2"] = 2;
+
+    _filter.invoke();
   }
 }

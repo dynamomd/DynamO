@@ -114,16 +114,23 @@ namespace coil
     glDeleteTextures(1, &_randomTexture);
   }
 
-  void SSAOWrapper::invoke(GLuint colorTextureUnit, 
+  void SSAOWrapper::invoke(GLint colorTextureUnit, 
 			   size_t width, size_t height,
 			   const magnet::GL::viewPort& vp)
   {
     glActiveTextureARB(GL_TEXTURE7);
     glBindTexture(GL_TEXTURE_2D, _randomTexture);
 
-    _filter.invoke(colorTextureUnit, 1, 2, 7, width, height, 
-		   _radius, _totStrength, _dropoff, _randomTextureSize,
-		   vp.getZNear(), vp.getZFar()); 
+    _filter["radius"] = _radius;
+    _filter["totStrength"] = _totStrength;
+    _filter["depthDropoff"] = _dropoff;
+    _filter["offset"] = GLfloat(std::max(width, height)) / _randomTextureSize;
+    _filter["nearDist"] = vp.getZNear();
+    _filter["farDist"] = vp.getZFar();
+    _filter["u_Texture1"] = 1;
+    _filter["u_Texture2"] = 2;
+    _filter["rnm"] = 7;
+    _filter.invoke();
   }
 }
 

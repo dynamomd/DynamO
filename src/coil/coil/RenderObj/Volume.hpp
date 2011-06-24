@@ -34,6 +34,9 @@ namespace coil {
     virtual void initOpenGL();
     virtual void initOpenCL();
     virtual void initGTK();
+
+    virtual void glRender() { RQuads::glRender(); }
+
     virtual void glRender(magnet::GL::FBO& fbo);
 
     virtual void resize(size_t width, size_t height);

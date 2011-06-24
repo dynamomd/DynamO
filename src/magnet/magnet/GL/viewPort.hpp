@@ -223,8 +223,9 @@ namespace magnet {
 	glLoadMatrixf(_viewMatrix);
       }
 
-      inline const GLdouble& getZNear() const { return _zNearDist; }
-      inline const GLdouble& getZFar() const { return _zFarDist; }
+      inline const GLfloat& getZNear() const { return _zNearDist; }
+      inline const GLfloat& getZFar() const { return _zFarDist; }
+
       inline const float& getPan() const { return _panrotation; }
       inline const float& getTilt() const { return _tiltrotation; }
       inline const Vector& getViewPlanePosition() const { return _position; } 
@@ -243,8 +244,8 @@ namespace magnet {
       inline void setHeightWidth(size_t height, size_t width)
       { _height = height; _width = width; }
 
-      inline GLdouble getAspectRatio() const 
-      { return ((GLdouble)_width) / _height; }
+      inline GLfloat getAspectRatio() const 
+      { return ((GLfloat)_width) / _height; }
 
       inline const Vector& getCameraUp() const { return _cameraUp; } 
       inline const Vector& getCameraDirection() const { return _cameraDirection; }
@@ -258,8 +259,8 @@ namespace magnet {
       float _tiltrotation;
       Vector _position;
       
-      GLdouble _zNearDist;
-      GLdouble _zFarDist;
+      GLfloat _zNearDist;
+      GLfloat _zFarDist;
       Vector _headLocation;
       Vector _cameraDirection, _cameraUp;
       

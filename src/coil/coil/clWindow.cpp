@@ -955,10 +955,12 @@ CLGLWindow::CallBackDisplayFunc()
 
       _viewPortInfo->loadMatrices();
 
-      _shadowShader.attach(_shadowFBO.getDepthTexture(), _shadowFBO.getWidth(),
-			   7, _shadowMapping, _shadowIntensity, 
-			   _viewPortInfo->getWidth(), _viewPortInfo->getHeight());
-
+      _shadowShader["ShadowMap"] = 7;
+      _shadowShader["ShadowIntensity"] = _shadowIntensity;
+      _shadowShader["xPixelOffset"] = 1.0f / _viewPortInfo->getWidth();
+      _shadowShader["yPixelOffset"] = 1.0f / _viewPortInfo->getHeight();
+      _shadowShader["ShadowMapping"] = _shadowMapping;
+      _shadowShader.attach();
 
 #ifdef COIL_wiimote
       if (keyStates['b'])

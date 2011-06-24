@@ -56,6 +56,9 @@ project	: requirements
 	  <toolset>gcc:<cflags>-ffunction-sections
 	  <toolset>gcc:<cflags>-fdata-sections
 	  <toolset>gcc:<linkflags>-Wl,--gc-sections
+          <toolset>clang:<cflags>-Wno-parentheses
+          <toolset>clang:<cflags>-Wno-mismatched-tags
+          <toolset>clang:<cflags>-Wno-ambiguous-member-template
 	  <variant>release:<define>NDEBUG
           #This creates a feature coil-integration, which can be set
           #on the command line or auto-detected using the passed target

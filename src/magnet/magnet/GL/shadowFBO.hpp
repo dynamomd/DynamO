@@ -22,7 +22,7 @@ namespace magnet {
     class shadowFBO : public FBO
     {
     public:
-      virtual void init(GLsizei, GLsizei, GLint, GLenum, GLenum)
+      virtual void init(GLsizei, GLsizei, GLint internalformat = GL_RGBA)
       { M_throw() << "Cannot use this initializer"; }
 
       virtual void init(GLsizei length)
