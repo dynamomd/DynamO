@@ -48,6 +48,10 @@ public:
 
   virtual void setRenderMode(RenderModeType rm);
 
+  virtual void initPicking(cl_uint& offset);
+  virtual void pickingRender();
+  virtual void finishPicking(cl_uint& offset, const cl_uint val);
+
 protected:
   void guiUpdate();
   
@@ -55,7 +59,6 @@ protected:
   std::auto_ptr<Gtk::RadioButton> _gtkLineRender;
   std::auto_ptr<Gtk::RadioButton> _gtkPointRender;
   std::auto_ptr<Gtk::RadioButton> _gtkTriangleRender;
-
 
   magnet::GL::Buffer _colBuff;
   cl::GLBuffer _clbuf_Colors;
@@ -70,4 +73,8 @@ protected:
   cl::GLBuffer _clbuf_Elements;
 
   magnet::GL::Buffer _specialElementBuff;
+
+  bool _pickingRenderMode;
+  magnet::GL::Buffer _pickingColorBuff;
+
 };

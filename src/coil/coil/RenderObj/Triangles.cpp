@@ -15,12 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Triangles.hpp"
+#include <coil/RenderObj/console.hpp>
 #include <coil/glprimatives/arrow.hpp>
 #include <iostream>
 #include <set>
 
 RTriangles::RTriangles(std::string name):
-  RenderObj(name)
+  RenderObj(name),
+  _pickingRenderMode(false)
 {}
 
 RTriangles::~RTriangles()
@@ -31,7 +33,14 @@ RTriangles::glRender()
 {
   if (!_visible) return;
 
-  if (_colBuff.size())
+  if (_pickingRenderMode)
+    {
+      _pickingColorBuff.bind(magnet::GL::Buffer::ARRAY);
+      glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
+      glEnableClientState(GL_COLOR_ARRAY);
+    }
+
+  if (_colBuff.size() && !_pickingRenderMode)
     {
       _colBuff.bind(magnet::GL::Buffer::ARRAY);
       glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
@@ -103,9 +112,6 @@ RTriangles::setGLColors(std::vector<cl_uchar4>& VertexColor)
 {
   if (!VertexColor.size())
     throw std::runtime_error("VertexColor.size() == 0!");
-
-//  if (VertexColor.size() % 4)
-//    throw std::runtime_error("VertexColor.size() is not a multiple of 4!");
 
   if (_posBuff.size())
     if ((VertexColor.size()) != (_posBuff.size() / 3))
@@ -316,4 +322,42 @@ RTriangles::setRenderMode(RenderModeType rm)
     }
 
   RenderObj::setRenderMode(rm);
+}
+
+void 
+RTriangles::initPicking(cl_uint& offset)
+{
+  size_t N = (_posBuff.size() / 3);
+
+  if(_pickingColorBuff.size() !=  N)
+    {
+      std::vector<cl_uint> vertexColors;
+      vertexColors.reserve(N);
+      
+      for (size_t i(0); i < N; ++i)
+	vertexColors.push_back(offset + i);
+      
+      _pickingColorBuff.init(vertexColors, magnet::GL::Buffer::STREAM_DRAW);
+    }
+
+  offset += N;
+}
+
+void 
+RTriangles::pickingRender()
+{
+  _pickingRenderMode = true;
+  RTriangles::glRender();
+  _pickingRenderMode = false;
+}
+
+void 
+RTriangles::finishPicking(cl_uint& offset, const cl_uint val)
+{
+  size_t N = (_posBuff.size() / 3);
+
+  if (val - offset < N)
+    (_console.as<coil::Console>()) << "You clicked near triangle vertex " << val - offset
+				   << coil::Console::end();
+  offset += N;
 }
