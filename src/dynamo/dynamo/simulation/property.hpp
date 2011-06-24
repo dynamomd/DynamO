@@ -186,7 +186,9 @@ public:
   { XML << xml::attr(_name) << getProperty(pID); }
   
   
-private:
+protected:
+  //! \brief Output an XML representation of the Property to the
+  //! passed XmlStream.
   virtual void outputXML(xml::XmlStream& XML) const 
   { 
     XML << xml::tag("Property") 
@@ -272,19 +274,6 @@ public:
     return retval;
   }
 
-  inline magnet::thread::RefPtr<Property> push(Property* newProp)
-  {
-    if (dynamic_cast<NumericProperty*>(newProp))
-      {
-	_numericProperties.push_back(newProp);
-	return _numericProperties.back();
-      }    
-    
-    _namedProperties.push_back(newProp);
-    return _namedProperties.back();
-
-  }
-
   //! \brief Method which loads the properties from the XML configuration file. 
   //! \param node A xml Node at the root dynamoconfig Node of the config file.
   inline PropertyStore& operator<<(const magnet::xml::Node& node)
@@ -341,7 +330,26 @@ public:
       (*iPtr)->outputParticleXMLData(XML, pID);
   }
 
-private:
+  /*! \brief Method for pushing constructed properties into the
+   * PropertyStore.
+   *
+   * This method should only be used when dynamod is building a
+   * simulation, as the typical method for adding a Property to the
+   * PropertyStore is using the \ref getProperty methods.
+   */
+  inline magnet::thread::RefPtr<Property> push(Property* newProp)
+  {
+    if (dynamic_cast<NumericProperty*>(newProp))
+      {
+	_numericProperties.push_back(newProp);
+	return _numericProperties.back();
+      }    
+    
+    _namedProperties.push_back(newProp);
+    return _namedProperties.back();
+  }
+
+protected:
 
   inline magnet::thread::RefPtr<Property> getPropertyBase(const std::string name,
 							  const Property::Units& units)

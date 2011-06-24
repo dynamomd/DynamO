@@ -38,14 +38,22 @@ IStepped::IStepped(dynamo::SimData* tmp,
 		   const std::vector<steppair>& vec, C2Range* nR):
   Interaction(tmp,nR),
   _unitLength(Sim->_properties.getProperty
-	      (1.0, Property::Units::Length())),
+	      (Sim->dynamics.units().unitLength(), 
+	       Property::Units::Length())),
   _unitEnergy(Sim->_properties.getProperty
-	      (1.0, Property::Units::Energy())),
+	      (Sim->dynamics.units().unitEnergy(), 
+	       Property::Units::Energy())),
   steps(vec)
 {}
 
 IStepped::IStepped(const magnet::xml::Node& XML, dynamo::SimData* tmp):
-  Interaction(tmp, NULL) //A temporary value!
+  Interaction(tmp, NULL), //A temporary value!
+  _unitLength(Sim->_properties.getProperty
+	      (Sim->dynamics.units().unitLength(), 
+	       Property::Units::Length())),
+  _unitEnergy(Sim->_properties.getProperty
+	      (Sim->dynamics.units().unitEnergy(), 
+	       Property::Units::Energy()))
 {
   operator<<(XML);
 }
@@ -77,6 +85,10 @@ IStepped::operator<<(const magnet::xml::Node& XML)
     {
       M_throw() << "Failed a lexical cast in CIStepped";
     }
+
+  if (steps.empty())
+    M_throw() << "No steps defined in SteppedPotential Interaction with name " 
+	      << getName();
 }
 
 Interaction* 

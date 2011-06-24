@@ -145,7 +145,7 @@ namespace dynamo
       //This has a minus one due to the digit in front of the decimal
       //An extra one is added if we're rounding
 	<< std::setprecision(std::numeric_limits<double>::digits10 - 1 - round)
-	<< xml::prolog() << xml::tag("DynamOconfig") 
+	<< xml::prolog() << xml::tag("DynamOconfig")
 	<< xml::attr("version") << configFileVersion
 	<< xml::tag("Simulation")
 	<< xml::tag("Trajectory")

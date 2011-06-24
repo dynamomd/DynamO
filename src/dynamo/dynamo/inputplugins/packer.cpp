@@ -1949,8 +1949,6 @@ CIPPacker::initialise()
 	      M_throw() << "Steps must be in descending order! r=" << p.first
 			<< " is greater than old r=" << oldr;
 	    oldr = p.first;
-	    p.first *= Sim->dynamics.units().unitLength();
-	    p.second *= Sim->dynamics.units().unitEnergy();
 	  }
 
 	Sim->dynamics.addInteraction(new IStepped(Sim,
