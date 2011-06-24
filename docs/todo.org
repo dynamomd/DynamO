@@ -20,6 +20,7 @@
 **** DONE Removed the raster 3d output for the tinkerXYZ plugin, no-one used it anyway.
 **** DONE Added dynamod --check mode. Using this you can now check if a configuration file is valid using "dynamod --check config.out.xml.bz2".
 **** DONE Generalized the rescaling thermostat for shear flows http://arxiv.org/pdf/1103.3704.
+**** DONE Coil visualizer now outputs at least 2 updates a second when attached to a slow DynamO simulation.
 **** DONE *BUGFIX* Fixed a load error on the MFT if the output configuration is from a simulation with no events.
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
 **** DONE *BUGFIX* Fixed bounded priority queues causing huge slowdowns in very small (N=2) systems.
