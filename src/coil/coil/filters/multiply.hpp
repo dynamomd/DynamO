@@ -30,7 +30,11 @@ namespace coil
     inline virtual bool isEditable() { return false; }
     inline virtual void invoke(GLint colorTextureUnit, size_t width, size_t height,
 			       const magnet::GL::viewPort& vp)
-    { _filter.invoke(colorTextureUnit, 0, width, height); }
+    { 
+      _filter["u_Texture0"] = colorTextureUnit;
+      _filter["u_Texture1"] = 0;
+      _filter.invoke(); 
+    }
 
     inline virtual bool needsNormalDepth()  { return false; }
   protected:

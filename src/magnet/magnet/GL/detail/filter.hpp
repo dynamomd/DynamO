@@ -45,51 +45,12 @@ namespace magnet {
 	}
 
       public:
-	void invoke(GLint TextureID, GLuint _width, GLuint _height, GLuint radius)
+	void invoke()
 	{
-	  
 	  //Setup the shader arguments
-	  glUseProgram(_shaderID);
-	  //Horizontal application
-	  glUniform2fARB(_scaleUniform, GLfloat(radius) / _width, GLfloat(radius) / _height);
-	  glUniform1iARB(_textureUniform, TextureID);
-	  
+	  glUseProgram(_shaderID);	  
 	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	  //Set the viewport
-	  glPushAttrib(GL_VIEWPORT_BIT);
-	  glViewport(0, 0, _width, _height);
-
-	  //Save the matrix state
-	  glMatrixMode(GL_PROJECTION);
-	  glPushMatrix();
-	  glLoadIdentity();
-	  
-	  glMatrixMode(GL_MODELVIEW);
-	  glPushMatrix();
-	  glLoadIdentity();
-	  	  
-	  glBegin(GL_QUADS);
-	  glTexCoord2f(0.0f, 0.0f);
-	  glVertex2d(-1, -1);
-	  glTexCoord2f(1.0f, 0.0f);
-	  glVertex2d(1, -1);
-	  glTexCoord2f( 1.0f, 1.0f);
-	  glVertex2d(1, 1);
-	  glTexCoord2f(0.0f, 1.0f);
-	  glVertex2d(-1, 1);
-	  glEnd();
-	
-	  //Restore the matrix state
-	  glMatrixMode(GL_PROJECTION);
-	  glPopMatrix();
-
-	  glMatrixMode(GL_MODELVIEW);
-	  glPopMatrix();
-
-	  //Restore the viewport
-	  glPopAttrib();
-
+	  drawScreenQuad();
 	  //Restore the fixed pipeline
 	  glUseProgramObjectARB(0);
 	}

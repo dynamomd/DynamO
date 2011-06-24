@@ -49,13 +49,13 @@ namespace magnet {
 	    if (_uniformHandle == -1) M_throw() << "Uniform " << uniformName << " not found in this shader";
 	  }
 
-	  inline void operator=(GLfloat val) 
+	  inline void operator=(GLfloat val)
 	  { 
 	    glUseProgramObjectARB(_programHandle);
 	    glUniform1f(_uniformHandle, val);
 	  }
 
-	  inline void operator=(const GLint& val) 
+	  inline void operator=(const GLint& val)
 	  { 
 	    glUseProgramObjectARB(_programHandle);
 	    glUniform1i(_uniformHandle, val);
@@ -68,37 +68,37 @@ namespace magnet {
 	  inline void operator=(const std::tr1::array<GLfloat, 2>& val)
 	  { 
 	    glUseProgramObjectARB(_programHandle);
-	    glUniform2fv(_uniformHandle, 2, &(val[0]));
+	    glUniform2fv(_uniformHandle, 1, &(val[0]));
 	  }
 
 	  inline void operator=(const std::tr1::array<GLfloat, 3>& val)
 	  { 
 	    glUseProgramObjectARB(_programHandle);
-	    glUniform2fv(_uniformHandle, 3, &(val[0]));
+	    glUniform3fv(_uniformHandle, 1, &(val[0]));
 	  }
 
 	  inline void operator=(const std::tr1::array<GLfloat, 4>& val)
 	  { 
 	    glUseProgramObjectARB(_programHandle);
-	    glUniform2fv(_uniformHandle, 4, &(val[0]));
+	    glUniform4fv(_uniformHandle, 1, &(val[0]));
 	  }
 
 	  inline void operator=(const std::tr1::array<GLint, 2>& val)
 	  { 
 	    glUseProgramObjectARB(_programHandle);
-	    glUniform2iv(_uniformHandle, 2, &(val[0]));
+	    glUniform2iv(_uniformHandle, 1, &(val[0]));
 	  }
 
 	  inline void operator=(const std::tr1::array<GLint, 3>& val)
 	  { 
 	    glUseProgramObjectARB(_programHandle);
-	    glUniform2iv(_uniformHandle, 3, &(val[0]));
+	    glUniform3iv(_uniformHandle, 1, &(val[0]));
 	  }
 
 	  inline void operator=(const std::tr1::array<GLint, 4>& val)
 	  { 
 	    glUseProgramObjectARB(_programHandle);
-	    glUniform2iv(_uniformHandle, 4, &(val[0]));
+	    glUniform4iv(_uniformHandle, 1, &(val[0]));
 	  }
 	  
 	  private:

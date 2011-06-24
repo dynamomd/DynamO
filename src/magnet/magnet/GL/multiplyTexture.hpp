@@ -24,71 +24,20 @@ namespace magnet {
     class MultiplyTexture : public detail::Shader
     {
     public:
-      void build()
-      {
-	Shader::build();
-
-	glUseProgram(_shaderID);
-
-	_Input1Uniform = glGetUniformLocationARB(_shaderID,"u_Texture0");
-	_Input2Uniform = glGetUniformLocationARB(_shaderID,"u_Texture1");
-
-	glUseProgramObjectARB(0);
-      }
-
-      void invoke(GLint inputTex1, GLint inputTex2, GLuint _width, GLuint _height)
+      void invoke()
       {
 	//Setup the shader arguments
 	glUseProgram(_shaderID);
-	//Horizontal application
-	glUniform1iARB(_Input1Uniform, inputTex1);
-	glUniform1iARB(_Input2Uniform, inputTex2);
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//Set the viewport
-	glPushAttrib(GL_VIEWPORT_BIT);
-	glViewport(0, 0, _width, _height);
-
-	//Save the matrix state
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	  
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-	  	  
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f, 0.0f);
-	glVertex2d(-1, -1);
-	glTexCoord2f(1.0f, 0.0f);
-	glVertex2d(1, -1);
-	glTexCoord2f( 1.0f, 1.0f);
-	glVertex2d(1, 1);
-	glTexCoord2f(0.0f, 1.0f);
-	glVertex2d(-1, 1);
-	glEnd();
+	drawScreenQuad();
 	
-	//Restore the matrix state
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-
-	//Restore the viewport
-	glPopAttrib();
-
 	//Restore the fixed pipeline
 	glUseProgramObjectARB(0);
       }
 
       virtual std::string vertexShaderSource();
       virtual std::string fragmentShaderSource();
-
-    protected:
-      GLint _Input1Uniform, _Input2Uniform;
     };
   }
 }

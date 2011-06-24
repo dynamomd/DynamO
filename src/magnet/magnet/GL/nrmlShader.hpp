@@ -24,8 +24,6 @@ namespace magnet {
     class NormalShader : public detail::Shader
     {
     public:
-      inline void build() { Shader::build(); }
-
       inline void attach()
       {
 	//Setup the shader arguments
@@ -35,8 +33,6 @@ namespace magnet {
 
       virtual std::string vertexShaderSource();
       virtual std::string fragmentShaderSource();
-
-    protected:
     };
   }
 }

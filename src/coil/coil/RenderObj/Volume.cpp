@@ -220,15 +220,26 @@ namespace coil {
     //Now we can render
     GLhandleARB oldshader = glGetHandleARB(GL_PROGRAM_OBJECT_ARB);
 
-    GLfloat FocalLength = 1.0f / std::tan(_viewPort->getFOVY() * (M_PI / 360.0f));
-
-    _shader.attach(FocalLength, _viewPort->getWidth(), 
-		   _viewPort->getHeight(), _viewPort->getEyeLocation(),
-		   0, 1, 2, _viewPort->getZNear(), _viewPort->getZFar(),
-		   _stepSizeVal, _diffusiveLighting->get_value(),
-		   _specularLighting->get_value(),
-		   _ditherRay->get_value()
-		   );
+    _shader["FocalLength"] = GLfloat(1.0f / std::tan(_viewPort->getFOVY() * (M_PI / 360.0f)));
+    { 
+      std::tr1::array<GLfloat,2> winsize = {{_viewPort->getWidth(), _viewPort->getHeight()}};
+      _shader["WindowSize"] = winsize;
+    }
+    { 
+      Vector eyeOrigin = _viewPort->getEyeLocation();
+      std::tr1::array<GLfloat,3> origin = {{eyeOrigin[0], eyeOrigin[1], eyeOrigin[2]}};
+      _shader["RayOrigin"] = origin;
+    }
+    _shader["DepthTexture"] = 0;
+    _shader["NearDist"] = _viewPort->getZNear();
+    _shader["FarDist"] = _viewPort->getZFar();
+    _shader["DataTexture"] = 1;
+    _shader["StepSize"] = _stepSizeVal;
+    _shader["DiffusiveLighting"] = GLfloat(_diffusiveLighting->get_value());
+    _shader["SpecularLighting"] = GLfloat(_specularLighting->get_value());
+    _shader["DitherRay"] = GLfloat(_ditherRay->get_value());
+    _shader["TransferTexture"] = 2;
+    _shader.attach();
     
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
