@@ -21,23 +21,22 @@
 namespace magnet {
   namespace GL {
     
-    class BilateralBlur : public detail::shader<BilateralBlur>
+    class BilateralBlur : public detail::Shader
     {
     public:
       void build()
       {
-	detail::shader<BilateralBlur>::build();
+	detail::Shader::build();
 
-	glUseProgram(detail::shader<BilateralBlur>::_shaderID);
+	glUseProgram(_shaderID);
+	_scaleUniform = glGetUniformLocationARB(_shaderID,"scale");
+	_totstrengthUniform = glGetUniformLocationARB(_shaderID,"totStrength");
 
-	_scaleUniform = glGetUniformLocationARB(detail::shader<BilateralBlur>::_shaderID,"scale");
-	_totstrengthUniform = glGetUniformLocationARB(detail::shader<BilateralBlur>::_shaderID,"totStrength");
+	_nearDistUniform = glGetUniformLocationARB(_shaderID,"nearDist");
+	_farDistUniform = glGetUniformLocationARB(_shaderID,"farDist");
 
-	_nearDistUniform = glGetUniformLocationARB(detail::shader<BilateralBlur>::_shaderID,"nearDist");
-	_farDistUniform = glGetUniformLocationARB(detail::shader<BilateralBlur>::_shaderID,"farDist");
-
-	_SSAOTextureUniform = glGetUniformLocationARB(detail::shader<BilateralBlur>::_shaderID,"u_Texture0");
-	_depthTextureUniform = glGetUniformLocationARB(detail::shader<BilateralBlur>::_shaderID,"u_Texture2");
+	_SSAOTextureUniform = glGetUniformLocationARB(_shaderID,"u_Texture0");
+	_depthTextureUniform = glGetUniformLocationARB(_shaderID,"u_Texture2");
 
 	glUseProgramObjectARB(0);
       }
@@ -46,7 +45,7 @@ namespace magnet {
 		  GLfloat pixelSkip, GLfloat totStrength, GLfloat neardist, GLfloat fardist)
       {
 	//Setup the shader arguments
-	glUseProgram(detail::shader<BilateralBlur>::_shaderID);
+	glUseProgram(_shaderID);
 	//Horizontal application
 	glUniform1iARB(_SSAOTextureUniform, SSAOTextureID);
 	glUniform1iARB(_depthTextureUniform, depthTextureID);
@@ -97,8 +96,8 @@ namespace magnet {
 	glUseProgramObjectARB(0);
       }
 
-      static inline std::string vertexShaderSource();
-      static inline std::string fragmentShaderSource();
+      virtual std::string vertexShaderSource();
+      virtual std::string fragmentShaderSource();
 
     protected:
       GLint _SSAOTextureUniform, _depthTextureUniform;

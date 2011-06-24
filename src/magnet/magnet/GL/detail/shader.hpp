@@ -26,19 +26,49 @@ namespace magnet {
   namespace GL {
     namespace detail {
       
-      /* This is a CRTP base class that builds shaders.
-       *
-       * It requires that the type that inherits it, specifies its own
-       * type in the template parameter (T) and defines static member
-       * functions called  T::vertexShaderSource() and T::fragmentShaderSource().
+      /*! \brief A OpenGL shader object.
+       *!
+       *! 
        */
-      template<class T>
-      class shader 
+      class Shader 
       {
       public:
-	shader():_built(false) {}
 
-	~shader() { deinit(); }
+      protected:
+	/*! \brief This class is returned from \ref Shader::operator[]
+	 *! calls to handle type based assignments of the shader
+	 */
+	class ShaderUniform
+	{
+	public:
+	  inline ShaderUniform(std::string uniformName, GLhandleARB programHandle):
+	    _programHandle(programHandle)
+	  {
+	    _uniformHandle = glGetUniformLocationARB(_programHandle, uniformName.c_str());
+	    if (_uniformHandle == -1) M_throw() << "Uniform " << uniformName << " not found in this shader";
+	  }
+
+	  void operator=(const GLfloat& val) 
+	  { 
+	    glUseProgramObjectARB(_programHandle);
+	    glUniform1f(_uniformHandle, val);
+	  }
+
+	  void operator=(const GLint val) 
+	  { 
+	    glUseProgramObjectARB(_programHandle);
+	    glUniform1i(_uniformHandle, val);
+	  }
+	  
+	  private:
+	  GLint _uniformHandle;
+	  GLhandleARB _programHandle;
+	};
+
+      public:
+	Shader():_built(false) {}
+
+	~Shader() { deinit(); }
 
 	void deinit()
 	{
@@ -52,12 +82,22 @@ namespace magnet {
 	  _built = false;
 	}
 
+	void attach() { glUseProgramObjectARB(_shaderID); }
+
+	ShaderUniform operator[](std::string uniformName)
+	{
+	  return ShaderUniform(uniformName, _shaderID);
+	}
+
       protected:
 	GLhandleARB _vertexShaderHandle;
 	GLhandleARB _fragmentShaderHandle;
 	GLhandleARB _shaderID;
 
 	bool _built;
+
+	virtual std::string vertexShaderSource() = 0;
+	virtual std::string fragmentShaderSource() = 0;
 
 	inline void build()
 	{
@@ -66,8 +106,8 @@ namespace magnet {
 	      || !GLEW_ARB_fragment_shader || !GLEW_ARB_vertex_shader)
 	    M_throw() << "This OpenGL context/driver does not support GLSL (programmable shaders)";
 
-	  std::string vertexShaderSrc = format_code(T::vertexShaderSource());
-	  std::string fragmentShaderSrc = format_code(T::fragmentShaderSource());
+	  std::string vertexShaderSrc = format_code(vertexShaderSource());
+	  std::string fragmentShaderSrc = format_code(fragmentShaderSource());
 	  
 	  if (!(_vertexShaderHandle = glCreateShaderObjectARB(GL_VERTEX_SHADER)))
 	    M_throw() << "Failed to create vertex shader handle";

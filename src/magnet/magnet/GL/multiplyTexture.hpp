@@ -21,17 +21,17 @@
 namespace magnet {
   namespace GL {
     
-    class MultiplyTexture : public detail::shader<MultiplyTexture>
+    class MultiplyTexture : public detail::Shader
     {
     public:
       void build()
       {
-	detail::shader<MultiplyTexture>::build();
+	Shader::build();
 
-	glUseProgram(detail::shader<MultiplyTexture>::_shaderID);
+	glUseProgram(_shaderID);
 
-	_Input1Uniform = glGetUniformLocationARB(detail::shader<MultiplyTexture>::_shaderID,"u_Texture0");
-	_Input2Uniform = glGetUniformLocationARB(detail::shader<MultiplyTexture>::_shaderID,"u_Texture1");
+	_Input1Uniform = glGetUniformLocationARB(_shaderID,"u_Texture0");
+	_Input2Uniform = glGetUniformLocationARB(_shaderID,"u_Texture1");
 
 	glUseProgramObjectARB(0);
       }
@@ -39,7 +39,7 @@ namespace magnet {
       void invoke(GLint inputTex1, GLint inputTex2, GLuint _width, GLuint _height)
       {
 	//Setup the shader arguments
-	glUseProgram(detail::shader<MultiplyTexture>::_shaderID);
+	glUseProgram(_shaderID);
 	//Horizontal application
 	glUniform1iARB(_Input1Uniform, inputTex1);
 	glUniform1iARB(_Input2Uniform, inputTex2);
@@ -84,8 +84,8 @@ namespace magnet {
 	glUseProgramObjectARB(0);
       }
 
-      static inline std::string vertexShaderSource();
-      static inline std::string fragmentShaderSource();
+      virtual std::string vertexShaderSource();
+      virtual std::string fragmentShaderSource();
 
     protected:
       GLint _Input1Uniform, _Input2Uniform;

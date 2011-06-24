@@ -21,10 +21,12 @@
 namespace magnet {
   namespace GL {
 
-    class blurFilter : public detail::filter<blurFilter, 5>
+    class blurFilter : public detail::SSFilter
     {
     public:
-      inline static const GLfloat* weights()
+      void build() { SSFilter::build(5); }
+
+      virtual const GLfloat* weights()
       {
 	static const GLfloat weights[5][5] = 
 	  {
@@ -40,10 +42,12 @@ namespace magnet {
 	
     };
 
-    class boxFilter : public detail::filter<boxFilter, 5>
+    class boxFilter : public detail::SSFilter
     {
     public:
-      inline static const GLfloat* weights()
+      void build() { SSFilter::build(5); }
+      
+      virtual const GLfloat* weights()
       {
 	static const GLfloat weights[5][5] = 
 	  {

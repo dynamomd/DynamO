@@ -21,24 +21,24 @@
 namespace magnet {
   namespace GL {
     
-    class DOF : public detail::shader<DOF>
+    class DOF : public detail::Shader
     {
     public:
       void build()
       {
-	detail::shader<DOF>::build();
+	Shader::build();
 
-	glUseProgram(detail::shader<DOF>::_shaderID);
+	glUseProgram(_shaderID);
 
-	_Input1Uniform = glGetUniformLocationARB(detail::shader<DOF>::_shaderID,"u_Texture0");
-	_Input2Uniform = glGetUniformLocationARB(detail::shader<DOF>::_shaderID,"u_Texture1");
-	_Input3Uniform = glGetUniformLocationARB(detail::shader<DOF>::_shaderID,"u_Texture2");
+	_Input1Uniform = glGetUniformLocationARB(_shaderID,"u_Texture0");
+	_Input2Uniform = glGetUniformLocationARB(_shaderID,"u_Texture1");
+	_Input3Uniform = glGetUniformLocationARB(_shaderID,"u_Texture2");
 
-	_nearDistUniform = glGetUniformLocationARB(detail::shader<DOF>::_shaderID,"nearDist");
-	_farDistUniform = glGetUniformLocationARB(detail::shader<DOF>::_shaderID,"farDist");
+	_nearDistUniform = glGetUniformLocationARB(_shaderID,"nearDist");
+	_farDistUniform = glGetUniformLocationARB(_shaderID,"farDist");
 
-	_focalDistUniform = glGetUniformLocationARB(detail::shader<DOF>::_shaderID,"focalDistance");
-	_focalRangeUniform = glGetUniformLocationARB(detail::shader<DOF>::_shaderID,"focalRange");
+	_focalDistUniform = glGetUniformLocationARB(_shaderID,"focalDistance");
+	_focalRangeUniform = glGetUniformLocationARB(_shaderID,"focalRange");
 
 	glUseProgramObjectARB(0);
       }
@@ -48,7 +48,7 @@ namespace magnet {
 		  GLfloat neardist, GLfloat fardist)
       {
 	//Setup the shader arguments
-	glUseProgram(detail::shader<DOF>::_shaderID);
+	glUseProgram(_shaderID);
 	//Horizontal application
 	glUniform1iARB(_Input1Uniform, inputTex1);
 	glUniform1iARB(_Input2Uniform, originalTex2);
@@ -99,13 +99,12 @@ namespace magnet {
 	glUseProgramObjectARB(0);
       }
 
-      static inline std::string vertexShaderSource();
-      static inline std::string fragmentShaderSource();
+      virtual std::string vertexShaderSource();
+      virtual std::string fragmentShaderSource();
 
     protected:
       GLint _Input1Uniform, _Input2Uniform, _Input3Uniform,
 	_focalRangeUniform,_focalDistUniform;
-
       GLint _nearDistUniform, _farDistUniform;
     };
   }

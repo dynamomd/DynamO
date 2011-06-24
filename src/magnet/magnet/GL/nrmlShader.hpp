@@ -21,20 +21,20 @@
 namespace magnet {
   namespace GL {
     
-    class NormalShader : public detail::shader<NormalShader>
+    class NormalShader : public detail::Shader
     {
     public:
-      inline void build() { detail::shader<NormalShader>::build(); }
+      inline void build() { Shader::build(); }
 
       inline void attach()
       {
 	//Setup the shader arguments
-	glUseProgram(detail::shader<NormalShader>::_shaderID);
+	glUseProgram(_shaderID);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       }
 
-      static inline std::string vertexShaderSource();
-      static inline std::string fragmentShaderSource();
+      virtual std::string vertexShaderSource();
+      virtual std::string fragmentShaderSource();
 
     protected:
     };

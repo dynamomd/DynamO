@@ -23,12 +23,11 @@
 namespace magnet {
   namespace GL {
     namespace detail {
-      template<class T, int stencilwidth>
       inline std::string 
-      filter<T,stencilwidth>::vertexShaderSource()
+      SSFilter::vertexShaderSource()
       {
 	std::ostringstream data;
-	data << stencilwidth; 
+	data << _stencilwidth; 
 
 	return std::string("#define stencilwidth ") + data.str() + "\n"
 STRINGIFY( 
@@ -44,13 +43,12 @@ void main()
 );
       }
 
-      template<class T, int stencilwidth>
       inline std::string 
-      filter<T,stencilwidth>::fragmentShaderSource()
+      SSFilter::fragmentShaderSource()
       {
 	//Simple writethrough fragment shader
 	std::ostringstream data;
-	data << stencilwidth; 
+	data << _stencilwidth; 
 	  
 	return std::string("#define stencilwidth ") + data.str() + "\n"
 STRINGIFY(

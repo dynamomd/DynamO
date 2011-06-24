@@ -22,27 +22,27 @@
 namespace magnet {
   namespace GL {
     
-    class SSAO : public detail::shader<SSAO>
+    class SSAO : public detail::Shader
     {
     public:
       void build()
       {
-	detail::shader<SSAO>::build();
+	detail::Shader::build();
 
-	glUseProgram(detail::shader<SSAO>::_shaderID);
+	glUseProgram(_shaderID);
 
-	_radiusUniform      = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"radius");
-	_totstrengthUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"totStrength");
-	_depthDropoffUniform    = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"depthDropoff");
-	_offsetUniform      = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"offset");
+	_radiusUniform      = glGetUniformLocationARB(_shaderID,"radius");
+	_totstrengthUniform = glGetUniformLocationARB(_shaderID,"totStrength");
+	_depthDropoffUniform    = glGetUniformLocationARB(_shaderID,"depthDropoff");
+	_offsetUniform      = glGetUniformLocationARB(_shaderID,"offset");
 
-	_nearDistUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"nearDist");
-	_farDistUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"farDist");
+	_nearDistUniform = glGetUniformLocationARB(_shaderID,"nearDist");
+	_farDistUniform = glGetUniformLocationARB(_shaderID,"farDist");
 
-	_colorTextureUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"u_Texture0");
-	_normalTextureUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"u_Texture1");
-	_depthTextureUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID,"u_Texture2");
-	_rnmTextureUniform = glGetUniformLocationARB(detail::shader<SSAO>::_shaderID, "rnm");
+	_colorTextureUniform = glGetUniformLocationARB(_shaderID,"u_Texture0");
+	_normalTextureUniform = glGetUniformLocationARB(_shaderID,"u_Texture1");
+	_depthTextureUniform = glGetUniformLocationARB(_shaderID,"u_Texture2");
+	_rnmTextureUniform = glGetUniformLocationARB(_shaderID, "rnm");
 
 	glUseProgramObjectARB(0);
       }
@@ -54,7 +54,7 @@ namespace magnet {
 		  size_t randomTexSize, GLfloat neardist, GLfloat fardist)
       {
 	//Setup the shader arguments
-	glUseProgram(detail::shader<SSAO>::_shaderID);
+	glUseProgram(_shaderID);
 	//Horizontal application
 	glUniform1iARB(_colorTextureUniform, colorTextureID);
 	glUniform1iARB(_normalTextureUniform, normalTextureID);
@@ -112,8 +112,8 @@ namespace magnet {
 	glUseProgramObjectARB(0);
       }
 
-      static inline std::string vertexShaderSource();
-      static inline std::string fragmentShaderSource();
+      virtual std::string vertexShaderSource();
+      virtual std::string fragmentShaderSource();
 
     protected:
       GLint _colorTextureUniform, _normalTextureUniform, _depthTextureUniform, _rnmTextureUniform;

@@ -20,14 +20,13 @@
 
 namespace magnet {
   namespace GL {
-
-    class shadowShader: public detail::shader<shadowShader>
+    class shadowShader: public detail::Shader
     {
     public:      
       inline void build()
       {
 	//First, call the build function in the shader
-	detail::shader<shadowShader>::build();
+	Shader::build();
 	
 	//Now we fetch the uniforms out of the shader
 	_shadowMapUniform 
@@ -53,8 +52,8 @@ namespace magnet {
 	glUniform1iARB(_shadowMapEnable, shadowMapping);	
       }
 
-      static inline std::string vertexShaderSource();
-      static inline std::string fragmentShaderSource();
+      virtual std::string vertexShaderSource();
+      virtual std::string fragmentShaderSource();
       
     protected:
       GLuint _shadowMapUniform;

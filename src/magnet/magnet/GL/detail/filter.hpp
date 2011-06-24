@@ -23,41 +23,33 @@ namespace magnet {
   namespace GL {
     namespace detail {
       
-      /* This is a CRTP base class that builds filters (convolution
-       * kernels for textures).
-       *
-       * It requires that the type that inherits it, specifies the
-       * width of the seperable filter (stencilwidth) as a template
-       * and a suitable row (2*stencilwidth) of floats of the filter
-       * block in a static const GLfloat ::weights member variable.
-       */
-      template<class T, int stencilwidth>
-      class filter : public shader<filter<T,stencilwidth> >
+      class SSFilter : public Shader
       {
-      public:
-
-	void build()
+      protected:
+	void build(int stencilwidth)
 	{
-	  shader<filter<T, stencilwidth> >::build();
+	  _stencilwidth = stencilwidth;
 
+	  Shader::build();
 	  //Get the shader args
-	  glUseProgram(shader<filter<T, stencilwidth> >::_shaderID);
-	  _scaleUniform = glGetUniformLocationARB(shader<filter<T, stencilwidth> >::_shaderID,"u_Scale");	  
-	  _textureUniform = glGetUniformLocationARB(shader<filter<T, stencilwidth> >::_shaderID,"u_Texture0");	  
+	  glUseProgram(_shaderID);
+	  _scaleUniform = glGetUniformLocationARB(_shaderID,"u_Scale");	  
+	  _textureUniform = glGetUniformLocationARB(_shaderID,"u_Texture0");	  
 
 	  //Set the weights now
-	  GLint weightsUniform = glGetUniformLocationARB(shader<filter<T, stencilwidth> >::_shaderID, "weights");
-	  glUniform1fvARB(weightsUniform, stencilwidth * stencilwidth, T::weights());
+	  GLint weightsUniform = glGetUniformLocationARB(_shaderID, "weights");
+	  glUniform1fvARB(weightsUniform, stencilwidth * stencilwidth, weights());
 
 	  //Restore the fixed pipeline
 	  glUseProgramObjectARB(0);
 	}
 
+      public:
 	void invoke(GLint TextureID, GLuint _width, GLuint _height, GLuint radius)
 	{
 	  
 	  //Setup the shader arguments
-	  glUseProgram(shader<filter<T, stencilwidth> >::_shaderID);
+	  glUseProgram(_shaderID);
 	  //Horizontal application
 	  glUniform2fARB(_scaleUniform, GLfloat(radius) / _width, GLfloat(radius) / _height);
 	  glUniform1iARB(_textureUniform, TextureID);
@@ -102,11 +94,14 @@ namespace magnet {
 	  glUseProgramObjectARB(0);
 	}
 	
-	static inline std::string vertexShaderSource();
-	static inline std::string fragmentShaderSource();
+	virtual std::string vertexShaderSource();
+	virtual std::string fragmentShaderSource();
 
       protected:
+	virtual const GLfloat* weights() = 0;
+
 	GLint _scaleUniform, _textureUniform;
+	int _stencilwidth;
       };
     }
   }

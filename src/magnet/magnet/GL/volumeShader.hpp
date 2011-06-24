@@ -22,13 +22,13 @@
 namespace magnet {
   namespace GL {
 
-    class volumeRenderer: public detail::shader<volumeRenderer>
+    class volumeRenderer: public detail::Shader
     {
     public:      
       inline void build()
       {
 	//First, call the build function in the shader
-	detail::shader<volumeRenderer>::build();
+	Shader::build();
 
 	_FocalLengthUniform = glGetUniformLocationARB(_shaderID,"FocalLength");
 	_WindowSizeUniform = glGetUniformLocationARB(_shaderID,"WindowSize");
@@ -65,8 +65,8 @@ namespace magnet {
 	glUniform1iARB(_transferTexUniform, transferTex);
       }
 
-      static inline std::string vertexShaderSource();
-      static inline std::string fragmentShaderSource();
+      virtual std::string vertexShaderSource();
+      virtual std::string fragmentShaderSource();
       
     protected:
       GLuint _FocalLengthUniform;
