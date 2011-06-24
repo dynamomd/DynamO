@@ -15,19 +15,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "PBCSentinel.hpp"
-#include "globEvent.hpp"
-#include "../NparticleEventData.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../liouvillean/liouvillean.hpp"
-#include "../../schedulers/scheduler.hpp"
+#include <dynamo/dynamics/globals/PBCSentinel.hpp>
+#include <dynamo/dynamics/globals/globEvent.hpp>
+#include <dynamo/dynamics/NparticleEventData.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
 #include <magnet/xmlreader.hpp>
 
 #ifdef DYNAMO_DEBUG 
 #include <boost/math/special_functions/fpclassify.hpp>
 #endif
 
-CGPBCSentinel::CGPBCSentinel(dynamo::SimData* nSim, const std::string& name):
+GPBCSentinel::GPBCSentinel(dynamo::SimData* nSim, const std::string& name):
   Global(nSim, "PBCSentinel"),
   maxintdist(0)
 {
@@ -35,7 +35,7 @@ CGPBCSentinel::CGPBCSentinel(dynamo::SimData* nSim, const std::string& name):
   dout << "PBCSentinel Loaded" << std::endl;
 }
 
-CGPBCSentinel::CGPBCSentinel(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
+GPBCSentinel::GPBCSentinel(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
   Global(ptrSim, "PBCSentinel"),
   maxintdist(0)
 {
@@ -45,64 +45,30 @@ CGPBCSentinel::CGPBCSentinel(const magnet::xml::Node& XML, dynamo::SimData* ptrS
 }
 
 void 
-CGPBCSentinel::initialise(size_t nID)
+GPBCSentinel::initialise(size_t nID)
 {
   ID=nID;
   
   maxintdist = Sim->dynamics.getLongestInteraction();
-  
-  cachedTimes.resize(Sim->N);
-  
-  BOOST_FOREACH(const Particle& part, Sim->particleList)
-    {
-      Sim->dynamics.getLiouvillean().updateParticle(part);
-
-      cachedTimes[part.getID()]
-	= Sim->dSysTime + Sim->dynamics.getLiouvillean().getPBCSentinelTime(part, maxintdist);
-    }
-
-  Sim->registerParticleUpdateFunc
-    (magnet::function::MakeDelegate(this, &CGPBCSentinel::particlesUpdated));
-
 }
 
 void 
-CGPBCSentinel::particlesUpdated(const NEventData& PDat)
-{
-  BOOST_FOREACH(const ParticleEventData& pdat, PDat.L1partChanges)
-    {
-      cachedTimes[pdat.getParticle().getID()] 
-	= Sim->dSysTime + Sim->dynamics.getLiouvillean().getPBCSentinelTime(pdat.getParticle(), maxintdist);
-    }
-  
-  BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
-    {
-      cachedTimes[pdat.particle1_.getParticle().getID()]
-	= Sim->dSysTime 
-	+ Sim->dynamics.getLiouvillean().getPBCSentinelTime(pdat.particle1_.getParticle(), maxintdist);
-
-      cachedTimes[pdat.particle2_.getParticle().getID()]
-	= Sim->dSysTime
-	+ Sim->dynamics.getLiouvillean().getPBCSentinelTime(pdat.particle2_.getParticle(), maxintdist);
-    }
-}
-
-void 
-CGPBCSentinel::operator<<(const magnet::xml::Node& XML)
+GPBCSentinel::operator<<(const magnet::xml::Node& XML)
 {
   globName = XML.getAttribute("Name");	
 }
 
 GlobalEvent 
-CGPBCSentinel::getEvent(const Particle& part) const
+GPBCSentinel::getEvent(const Particle& part) const
 {
-  return GlobalEvent(part, cachedTimes[part.getID()] - Sim->dSysTime, VIRTUAL, *this);
+  return GlobalEvent(part, Sim->dynamics.getLiouvillean().getPBCSentinelTime(part, maxintdist), 
+		     VIRTUAL, *this);
 }
 
 void 
-CGPBCSentinel::runEvent(const Particle& part, const double) const
+GPBCSentinel::runEvent(const Particle& part, const double dt) const
 {
-  GlobalEvent iEvent(getEvent(part));
+  GlobalEvent iEvent(part, dt, VIRTUAL, *this);
 
 #ifdef DYNAMO_DEBUG 
   if (boost::math::isnan(iEvent.getdt()))
@@ -121,8 +87,6 @@ CGPBCSentinel::runEvent(const Particle& part, const double) const
   Sim->dynamics.stream(iEvent.getdt());
 
   Sim->dynamics.getLiouvillean().updateParticle(part);
-  cachedTimes[part.getID()] 
-    = Sim->dSysTime + Sim->dynamics.getLiouvillean().getPBCSentinelTime(part, maxintdist);
 
 #ifdef DYNAMO_DEBUG
   iEvent.addTime(Sim->freestreamAcc);
@@ -143,7 +107,7 @@ CGPBCSentinel::runEvent(const Particle& part, const double) const
 }
 
 void 
-CGPBCSentinel::outputXML(xml::XmlStream& XML) const
+GPBCSentinel::outputXML(xml::XmlStream& XML) const
 {
   XML << xml::attr("Type") << "PBCSentinel"
       << xml::attr("Name") << globName;

@@ -209,7 +209,7 @@ CIPPacker::initialise()
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
 
 	if (vm.count("b1"))
-	  Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
+	  Sim->dynamics.addGlobal(new GPBCSentinel(Sim, "PBCSentinel"));
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -864,7 +864,7 @@ CIPPacker::initialise()
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
 
 	if (vm.count("b1"))
-	  Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
+	  Sim->dynamics.addGlobal(new GPBCSentinel(Sim, "PBCSentinel"));
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 	
@@ -1144,7 +1144,7 @@ CIPPacker::initialise()
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
-	Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
+	Sim->dynamics.addGlobal(new GPBCSentinel(Sim, "PBCSentinel"));
 
 	double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0;
 
@@ -2271,7 +2271,7 @@ CIPPacker::initialise()
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
 
 	//The sentinel is needed because of the high speeds of the particles!
-	Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
+	Sim->dynamics.addGlobal(new GPBCSentinel(Sim, "PBCSentinel"));
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -2387,7 +2387,7 @@ CIPPacker::initialise()
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
 
 	if (vm.count("b1"))
-	  Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
+	  Sim->dynamics.addGlobal(new GPBCSentinel(Sim, "PBCSentinel"));
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -2478,7 +2478,7 @@ CIPPacker::initialise()
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
 
 	if (vm.count("b1"))
-	  Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
+	  Sim->dynamics.addGlobal(new GPBCSentinel(Sim, "PBCSentinel"));
 
 	Sim->dynamics.addLocal(new CLCylinder(Sim, 1.0, Vector(1,0,0), 
 					      Vector(0,0,0), cylRad , "Cylinder", 
@@ -2686,7 +2686,7 @@ CIPPacker::initialise()
 					      1.0, "Bulk", 0, "Bulk")));
 
 	Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim,"ParabolaSentinel"));
-	Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
+	Sim->dynamics.addGlobal(new GPBCSentinel(Sim, "PBCSentinel"));
 
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(funnelSites.size() + dynamicSites.size());
@@ -3480,7 +3480,7 @@ CIPPacker::initialise()
 					      1.0, "Bulk", 0, "Bulk")));
 
 	Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim,"ParabolaSentinel"));
-	Sim->dynamics.addGlobal(new CGPBCSentinel(Sim, "PBCSentinel"));
+	Sim->dynamics.addGlobal(new GPBCSentinel(Sim, "PBCSentinel"));
 
 	if (vm.count("f3"))
 	  {

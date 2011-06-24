@@ -16,19 +16,32 @@
 */
 
 #pragma once
-#include "global.hpp"
+#include <dynamo/dynamics/globals/global.hpp>
 #include <vector>
 
-class CGPBCSentinel: public Global
+/*! \brief A Global event which helps prevent wrap around problems
+ * with neighbor lists in periodic systems.
+ *
+ * If a particle has a clear path from one end of the simulation to
+ * the other and PBC are applied, the cellular neighbor lists can
+ * enter an infinite loop. The particle keeps travelling around and
+ * around the simulation, without actually moving forward in time
+ * because it doesn't actually hit anything.
+ *
+ * This Global attempts to break this infinite loop by making
+ * particles have a virtual event when they travel half a simulation
+ * box length.
+ */
+class GPBCSentinel: public Global
 {
 public:
-  CGPBCSentinel(const magnet::xml::Node&, dynamo::SimData*);
+  GPBCSentinel(const magnet::xml::Node&, dynamo::SimData*);
 
-  CGPBCSentinel(dynamo::SimData*, const std::string&);
+  GPBCSentinel(dynamo::SimData*, const std::string&);
   
-  virtual ~CGPBCSentinel() {}
+  virtual ~GPBCSentinel() {}
 
-  virtual Global* Clone() const { return new CGPBCSentinel(*this); };
+  virtual Global* Clone() const { return new GPBCSentinel(*this); };
 
   virtual GlobalEvent getEvent(const Particle &) const;
 
@@ -39,11 +52,7 @@ public:
   virtual void operator<<(const magnet::xml::Node&);
 
 protected:
-  void particlesUpdated(const NEventData&);
-
   virtual void outputXML(xml::XmlStream&) const;
 
   double maxintdist;
-
-  mutable std::vector<double> cachedTimes;
 };

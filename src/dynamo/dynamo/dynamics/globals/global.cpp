@@ -55,7 +55,7 @@ Global::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
   else if (!strcmp(XML.getAttribute("Type"),"ShearingCells"))
     return new CGCellsShearing(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"PBCSentinel"))
-    return new CGPBCSentinel(XML, Sim);
+    return new GPBCSentinel(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"ParabolaSentinel"))
     return new CGParabolaSentinel(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"CellsMorton"))
