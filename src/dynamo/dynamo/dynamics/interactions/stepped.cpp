@@ -222,12 +222,12 @@ IStepped::getEvent(const Particle &p1,
 #ifdef DYNAMO_OverlapTesting
 	      //Check that there is no overlap 
 	      if (Sim->dynamics.getLiouvillean().sphereOverlap
-		  (colldat, runstepdata[capstat->second].first * l2scale))
+		  (colldat, d2))
 		M_throw() << "Overlapping particles found" 
 			  << ", particle1 " << p1.getID() 
 			  << ", particle2 " 
 			  << p2.getID() << "\nOverlap = " 
-			  << (sqrt(colldat.r2) - steps[capstat->second].first)
+			  << (sqrt(colldat.r2) - d)
 		  /Sim->dynamics.units().unitLength();
 #endif
 	      
