@@ -133,7 +133,7 @@ ISquareWell::captureTest(const Particle& p1, const Particle& p2) const
 
 IntEvent
 ISquareWell::getEvent(const Particle &p1, 
-		       const Particle &p2) const 
+		      const Particle &p2) const 
 {
   
 #ifdef DYNAMO_DEBUG
@@ -146,6 +146,11 @@ ISquareWell::getEvent(const Particle &p1,
   if (p1 == p2)
     M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
+
+  if ((Sim->eventCount == 122580) &&
+      (((p1.getID() == 1617) && (p2.getID() == 1635))
+       || ((p2.getID() == 1617) && (p1.getID() == 1635))))
+    dout << "Testing the Event now " << Sim->eventCount << std::endl;
 
   CPDData colldat(*Sim, p1, p2);
   double d = (_diameter->getProperty(p1.getID())
@@ -163,7 +168,8 @@ ISquareWell::getEvent(const Particle &p1,
     {
       if (Sim->dynamics.getLiouvillean()
 	  .SphereSphereInRoot(colldat, d2,
-			      p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC))) 
+			      p1.testState(Particle::DYNAMIC), 
+			      p2.testState(Particle::DYNAMIC))) 
 	{
 #ifdef DYNAMO_OverlapTesting
 	  //Check that there is no overlap 
@@ -179,13 +185,15 @@ ISquareWell::getEvent(const Particle &p1,
 
       if (Sim->dynamics.getLiouvillean()
 	  .SphereSphereOutRoot(colldat, ld2,
-			       p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
+			       p1.testState(Particle::DYNAMIC), 
+			       p2.testState(Particle::DYNAMIC)))
 	if (retval.getdt() > colldat.dt)
 	  retval = IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
   else if (Sim->dynamics.getLiouvillean()
 	   .SphereSphereInRoot(colldat, ld2, 
-			       p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC))) 
+			       p1.testState(Particle::DYNAMIC), 
+			       p2.testState(Particle::DYNAMIC))) 
     {
 #ifdef DYNAMO_OverlapTesting
       if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat,ld2))

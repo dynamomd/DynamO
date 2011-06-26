@@ -114,6 +114,9 @@ void
 CScheduler::runNextEvent()
 {
   sorter->sort();
+
+  if (Sim->eventCount == 122581)
+    derr << "Running the bad event";
   
 #ifdef DYNAMO_DEBUG
   if (sorter->nextPELEmpty())

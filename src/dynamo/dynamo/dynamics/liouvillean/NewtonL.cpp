@@ -113,16 +113,24 @@ LNewtonian::SphereSphereInRoot(CPDData& dat, const double& d2, bool, bool) const
 bool 
 LNewtonian::SphereSphereOutRoot(CPDData& dat, const double& d2, bool, bool) const
 {
-  dat.dt = (sqrt(dat.rvdot * dat.rvdot 
-		 - dat.v2 * (dat.r2 - d2)) - dat.rvdot) / dat.v2;
+  //If the particles are not moving apart, there is no collision
+  if (dat.v2 == 0) { dat.dt = HUGE_VAL; return false; }
 
-  if (boost::math::isnan(dat.dt))
-    {//The nan occurs if the spheres aren't moving apart
-      dat.dt = HUGE_VAL;
-      return false;
+  double arg = dat.rvdot * dat.rvdot - dat.v2 * (dat.r2 - d2);
+
+  if (arg < 0)
+    { 
+      //The particles never intersect! Set an event to occur when the
+      //particles are as close as possible.
+      //
+      //The root of the first derivative of the quadratic is the
+      //minimum
+      dat.dt = dat.rvdot / dat.v2;
     }
   else
-    return true;
+    dat.dt = (std::sqrt(arg) - dat.rvdot) / dat.v2;
+  
+  return true;
 }
 
 bool 
