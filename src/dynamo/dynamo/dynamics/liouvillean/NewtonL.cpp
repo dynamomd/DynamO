@@ -87,27 +87,26 @@ LNewtonian::cubeOverlap(const CPDData& dat, const double& d) const
 bool 
 LNewtonian::SphereSphereInRoot(CPDData& dat, const double& d2, bool, bool) const
 {
-  if (dat.rvdot < 0)
-    {
-      double arg = dat.rvdot * dat.rvdot - dat.v2 * (dat.r2 - d2);
+  if (dat.rvdot >= 0) return false;
 
-      if (arg > 0)
-	{
-	  //This is the more numerically stable form of the quadratic
-	  //formula
-	  dat.dt = (d2 - dat.r2) / (dat.rvdot-sqrt(arg));
+  double c = dat.r2 - d2;
+  
+  if (c <= 0) {dat.dt = 0; return true; }
 
+  double arg = dat.rvdot * dat.rvdot - dat.v2 * c;
+  
+  if (arg < 0) return false;
+  
+  //This is the more numerically stable form of the quadratic
+  //formula
+  dat.dt = std::max(0.0, (d2 - dat.r2) / (dat.rvdot-sqrt(arg)));
+  
 #ifdef DYNAMO_DEBUG
-	  if (boost::math::isnan(dat.dt))
-	    M_throw() << "dat.dt is nan";
+  if (boost::math::isnan(dat.dt))
+    M_throw() << "dat.dt is nan";
 #endif
-	  return true;
-	}
-      else 
-	return false;
-    }
-  else
-    return false;
+
+  return true;
 }
   
 bool 
@@ -130,6 +129,8 @@ LNewtonian::SphereSphereOutRoot(CPDData& dat, const double& d2, bool, bool) cons
   else
     dat.dt = (std::sqrt(arg) - dat.rvdot) / dat.v2;
   
+  dat.dt = std::max(dat.dt, 0.0);
+
   return true;
 }
 
