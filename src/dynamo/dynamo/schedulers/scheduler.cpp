@@ -115,9 +115,6 @@ CScheduler::runNextEvent()
 {
   sorter->sort();
 
-  if (Sim->eventCount == 122581)
-    derr << "Running the bad event";
-  
 #ifdef DYNAMO_DEBUG
   if (sorter->nextPELEmpty())
     M_throw() << "Next particle list is empty but top of list!";

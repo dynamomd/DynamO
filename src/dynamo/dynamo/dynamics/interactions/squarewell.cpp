@@ -147,11 +147,6 @@ ISquareWell::getEvent(const Particle &p1,
     M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
 
-  if ((Sim->eventCount == 122580) &&
-      (((p1.getID() == 1617) && (p2.getID() == 1635))
-       || ((p2.getID() == 1617) && (p1.getID() == 1635))))
-    dout << "Testing the Event now " << Sim->eventCount << std::endl;
-
   CPDData colldat(*Sim, p1, p2);
   double d = (_diameter->getProperty(p1.getID())
 	      + _diameter->getProperty(p2.getID())) * 0.5;
