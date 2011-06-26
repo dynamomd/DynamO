@@ -458,6 +458,13 @@ CScheduler::fullUpdate(const Particle& p1, const Particle& p2)
   //interleaved the following updates, we only want one valid event
   //for the (p1,p2) interaction. So we still split the p1 and p2
   //interactions.
+  //
+  // We want only one valid p1,p2 interaction to help prevent loops in
+  // the event recalculation code. So if we try to exectue one p1,p2
+  // interaction, but find the p2,p1 interaction is sooner by a
+  // numerically insignificant amount caused by being pushed into the
+  // sorter, we will enter a loop which has to be broken by the
+  // _interactionRejectionCounter logic.
   fullUpdate(p1);
   fullUpdate(p2);
 }
