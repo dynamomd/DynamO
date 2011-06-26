@@ -158,7 +158,7 @@ CScheduler::runNextEvent()
 	Sim->endEventCount = Sim->eventCount;
 	return;
       }
-  //#ifdef DYNAMO_DEBUG
+
   ////////////////////////////////////////////////////////////////////
   // We can't perform such strict testing as commented out
   // below. Sometimes negative event times occur, usually at the start
@@ -166,9 +166,9 @@ CScheduler::runNextEvent()
   // of a cell, or if we have a system event which is "triggered" and
   // sets its own event time to 0. These must be tolerated and we must
   // trust in the determinism of the dynamics and the precision of the
-  // calculations to minimise any effects. So far no system has
-  // crashed because of negative event times that were not caused by a
-  // physically incorrect initial configuration
+  // calculations to minimise any effects. Generally, systems
+  // shouldn't crash because of negative event times that were not
+  // caused by a physically incorrect initial configuration
   ////////////////////////////////////////////////////////////////////
   //  if (sorter->next_dt() < 0)
   //    M_throw() << "Next event time is less than 0"
@@ -178,7 +178,6 @@ CScheduler::runNextEvent()
   //	      << sorter->next_type()
   //      	      << "\nOwner Particle = " << sorter->next_ID()
   //	      << "\nID2 = " << sorter->next_p2();
-  //#endif  
   
   /*! This is our dimensionless parameter which we need to correct a
   edge case for the collision testing. If an event is scheduled to
@@ -199,8 +198,6 @@ CScheduler::runNextEvent()
   */
   const size_t rejectionLimit = 10;
 
-
-
   switch (sorter->next_type())
     {
     case INTERACTION:
@@ -213,51 +210,54 @@ CScheduler::runNextEvent()
 	sorter->update(sorter->next_ID());
 	sorter->sort();
 	
+	//This is the lazy deletion scheme for interaction events. Any event
+	//whose event counter mismatches the particles current event counter
+	//is out of date and should be deleted
+	while ((sorter->next_type() == INTERACTION)
+	       && (sorter->next_collCounter2()
+		   != eventCount[sorter->next_p2()]))
+	  {
+	    //Not valid, update the list
+	    sorter->popNextEvent();
+	    sorter->update(sorter->next_ID());
+	    sorter->sort();
+	    
+#ifdef DYNAMO_DEBUG
+	    if (sorter->nextPELEmpty())
+	      M_throw() << "Next particle list is empty but top of list!";
+#endif
+	  }
+
 	//Now recalculate the FEL event
 	Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);       
 	IntEvent Event(Sim->dynamics.getEvent(p1, p2));
 	
-	if ((Event.getdt() > sorter->next_dt()) && (++_interactionRejectionCounter < rejectionLimit))
-	  {
-	    //The next FEL event is earlier than the recalculated event
-	    //Grab the next event ID's
-	    const unsigned long np1 = sorter->next_ID(),
-	      np2 = sorter->next_p2();
-	    
-	    //Check if the next event is just another copy of this event with possibly reversed ID's
-	    if ((sorter->next_type() != INTERACTION)
-		|| ((p1.getID() != np1) && (p1.getID() != np2))
-		|| ((p2.getID() != np1) && (p2.getID() != np2)))
-	      {
-		
 #ifdef DYNAMO_DEBUG
-		derr << "Interaction event found to occur later than the next "
-		  "FEL event [" << p1.getID() << "," << p2.getID()
-			 << "] (small numerical error), recalculating" << std::endl;
-#endif		
-		this->fullUpdate(p1, p2);
-		return;
-	      }
-	    //It's just another version of this event so we can execute it
-	  }
-	
-#ifdef DYNAMO_CollDebug
-		if (sorter->next_dt() < 0) derr << "Negative time " << sorter->next_dt() << "\n" << std::endl;
+	if (sorter->nextPELEmpty())
+	  M_throw() << "The next PEL is empty, cannot perform the comparison to see if this event is out of sequence";
 #endif
 
-	//Reset the rejection watchdog, we will run an interaction event now
-	_interactionRejectionCounter = 0;
-	
-	if (Event.getType() == NONE)
+	if ((Event.getType() == NONE)
+	    || ((Event.getdt() > sorter->next_dt()) 
+		&& (++_interactionRejectionCounter < rejectionLimit)))
 	  {
 #ifdef DYNAMO_DEBUG
-	    derr << "Interaction event found not to occur [" << p1.getID() << "," << p2.getID()
-		     << "] (possible glancing collision canceled due to numerical error)" << std::endl;
+	    derr << "Event " << Sim->eventCount << ": Interaction event found to occur later than the next "
+	      "FEL event [" << p1.getID() << "," << p2.getID()
+		 << "] (numerical error?), recalculating" << std::endl;
 #endif		
 	    this->fullUpdate(p1, p2);
 	    return;
 	  }
 	
+#ifdef DYNAMO_DEBUG
+	if (Event.getdt() < 0)
+	  derr << "Negative time " << Event.getdt() << "\n" << std::endl;
+#endif
+
+	//Reset the rejection watchdog, we will run an interaction event now
+	_interactionRejectionCounter = 0;
+		
 #ifdef DYNAMO_DEBUG
 
 	if (boost::math::isnan(Event.getdt()))
@@ -454,14 +454,12 @@ CScheduler::addLocalEvent(const Particle& part,
 void 
 CScheduler::fullUpdate(const Particle& p1, const Particle& p2)
 {
-  //Both must be invalidated at once to reduce the number of invalid
-  //events in the queue
-  invalidateEvents(p1);
-  invalidateEvents(p2);
-  addEvents(p1);
-  addEvents(p2);
-  sort(p1);
-  sort(p2);
+  //Even though we would have less invalid events in the queue if we
+  //interleaved the following updates, we only want one valid event
+  //for the (p1,p2) interaction. So we still split the p1 and p2
+  //interactions.
+  fullUpdate(p1);
+  fullUpdate(p2);
 }
 
 void 

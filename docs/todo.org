@@ -26,6 +26,8 @@
 **** DONE *BUGFIX* Fixed bounded priority queues causing huge slowdowns in very small (N=2) systems.
 **** DONE *BUGFIX* Coil visualizer: Fixed resizing of anti-aliased windows not working on AMD hardware.
 **** DONE *BUGFIX* Fixed stepped potentials broken in 1.1.
+**** DONE *BUGFIX* Fixed rare error caused by duplicate events in the queue, followed by a recalculation which indicates the event has numerically been cancelled, and the recalculated event is in the future.
+**** TODO Improve the runEvent loop, its a mess right now.
 **** TODO Improve the way data is made available to Coil, allowing a paraview-like interface to the data sources.
 **** TODO Coil library volume renderer (blocking on above)
      - [X] Move to OpenCL generation of the gradients from live data.
