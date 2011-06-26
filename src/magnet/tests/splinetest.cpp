@@ -103,17 +103,20 @@ int main(int argc, char *argv[])
       of << x << " " << spline(x) << "\n";
   }
 
-  {
-    magnet::color::TransferFunction tf;
-    tf.addKnot(0,        0.91, 0.7, 0.61, 0.0);
-    tf.addKnot(40.0/255, 0.91, 0.7, 0.61, 0.0);
-    tf.addKnot(60.0/255, 0.91, 0.7, 0.61, 0.2);
-    tf.addKnot(63.0/255, 0.91, 0.7, 0.61, 0.05);
-    tf.addKnot(80.0/255, 0.91, 0.7, 0.61, 0.0);
-    tf.addKnot(82.0/255, 1.0,  1.0, 0.85, 0.9);
-    tf.addKnot(1.0,      1.0,  1.0, 0.85, 1.0);
-    
-    //tf.getColorMap();
-  }
+
+  // The following class uses splines to interpolate between color
+  // values to make a "transfer function".
+//  {
+//    magnet::color::TransferFunction tf;
+//    tf.addKnot(0,        0.91, 0.7, 0.61, 0.0);
+//    tf.addKnot(40.0/255, 0.91, 0.7, 0.61, 0.0);
+//    tf.addKnot(60.0/255, 0.91, 0.7, 0.61, 0.2);
+//    tf.addKnot(63.0/255, 0.91, 0.7, 0.61, 0.05);
+//    tf.addKnot(80.0/255, 0.91, 0.7, 0.61, 0.0);
+//    tf.addKnot(82.0/255, 1.0,  1.0, 0.85, 0.9);
+//    tf.addKnot(1.0,      1.0,  1.0, 0.85, 1.0);
+//    
+//    //tf.getColorMap();
+//  }
 
 }
