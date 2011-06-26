@@ -242,9 +242,9 @@ CScheduler::runNextEvent()
 		&& (++_interactionRejectionCounter < rejectionLimit)))
 	  {
 #ifdef DYNAMO_DEBUG
-	    derr << "Event " << Sim->eventCount << ": Interaction event found to occur later than the next "
-	      "FEL event [" << p1.getID() << "," << p2.getID()
-		 << "] (numerical error?), recalculating" << std::endl;
+	    derr << "Event " << Sim->eventCount << ":" << Event.getType()
+		 << ",dt=" << Event.getdt() << ">nextdt=" << sorter->next_dt()
+		 << ",p1=" << p1.getID() << ",p2=" << p2.getID() << std::endl;
 #endif		
 	    this->fullUpdate(p1, p2);
 	    return;
@@ -252,7 +252,7 @@ CScheduler::runNextEvent()
 	
 #ifdef DYNAMO_DEBUG
 	if (Event.getdt() < 0)
-	  derr << "Negative time " << Event.getdt() << "\n" << std::endl;
+	  derr << "Negative time " << Event.getdt() << std::endl;
 #endif
 
 	//Reset the rejection watchdog, we will run an interaction event now
