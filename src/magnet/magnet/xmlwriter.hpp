@@ -22,13 +22,16 @@
 #include <sstream>
 
 namespace xml {
+  /*! \brief A class which behaves like an output stream for XML output.
+   */
   class XmlStream {
   public:
-    // XML version constants
+    //! \brief Major XML version constant.
     static const int versionMajor = 1;
+    //! \brief Minor XML version constant.
     static const int versionMinor = 0;
     
-    // Internal helper class
+    //! \brief Internal type used to modify the state of the XML stream.
     struct Controller {
       typedef enum {
 	Prolog, 
@@ -47,13 +50,15 @@ namespace xml {
 	_type(type), str(_str) {}
     };
     
-    // XmlStream refers std::ostream object to perform actual output operations
+    //! \brief Constructs an XmlStream from a std::ostream object.
     inline XmlStream(std::ostream& _s):
       state(stateNone), s(_s), prologWritten(false), FormatXML(false) {}
     
+    //! \brief Copy constructor.
     inline XmlStream(const XmlStream &XML):
       state(XML.state), s(XML.s), prologWritten(XML.prologWritten), FormatXML(XML.FormatXML) {}
     
+    //! \brief Destructor.
     inline ~XmlStream()
     {
       if (stateTagName == state) {
@@ -65,7 +70,9 @@ namespace xml {
     }
 
     
-    // this is the main working horse
+    /*! \brief Main insertion operator which changes the state of the
+     * XmlStream.
+     */
     inline XmlStream& operator<<(const Controller& controller)
     {
       switch (controller._type) {
@@ -74,32 +81,21 @@ namespace xml {
 	  s << "<?xml version=\"" << versionMajor << '.' << versionMinor << "\"?>\n";
 	  prologWritten = true;
 	}
-	break;	//	Controller::whatProlog
-	
+	break;
       case Controller::Tag:
 	closeTagStart();
-	s << '<';
-	if (controller.str.empty()) {
-	  clearTagName();
-	  state = stateTagName;
-	}
-	else {
-	  s << controller.str;
-	  tags.push(controller.str);
-	  state = stateTag;
-	}
-	break;	//	Controller::whatTag
-      
+	s << '<' << controller.str;
+	tags.push(controller.str);
+	state = stateTag;
+	break;
       case Controller::TagEnd:
 	endTag(controller.str);
-	break;	//	Controller::whatTagEnd
-      
+	break;
       case Controller::Attribute:
 	switch (state) {
 	case stateTagName:
 	  tags.push(tagName.str());
 	  break;
-	
 	case stateAttribute:
 	  s << '\"';
 	default:
@@ -119,7 +115,9 @@ namespace xml {
       return	*this;
     }
 
-    // default behaviour - delegate object output to std::stream
+    /*! \brief Default insertion operator, just delegates the passed
+     * object to the underlying std::stream.
+     */
     template<class t>
     XmlStream& operator<<(const t& value) {
       if (stateTagName == state)
@@ -128,12 +126,16 @@ namespace xml {
       return *this;
     }
 
+    //! \brief Returns the underlying output stream.
     inline std::ostream& getUnderlyingStream() { return s; }
 
+    /*! \brief Enables or disables automatic formatting of the
+     * outputted XML.
+     */
     inline void setFormatXML(const bool& tf) { FormatXML = tf; }
     
   private:
-    // state of the stream 
+    //! \brief Enum types used to track the current state of the XmlStream.
     typedef enum 
       {
 	stateNone, 
@@ -143,7 +145,7 @@ namespace xml {
 	stateCharData
       }	state_type;
     
-    // tag name stack
+    //! \brief Stack of parent XML nodes above the current node.
     typedef std::stack<std::string>	tag_stack_type;
     
     tag_stack_type	tags;
@@ -153,11 +155,7 @@ namespace xml {
     std::ostringstream	tagName;
     bool        FormatXML;
     
-    inline void clearTagName() {
-      tagName.str(std::string());
-    }
-    
-    // Close current tag
+    //! \brief Closes the current tag.
     inline void closeTagStart(bool self_closed = false)
     {
       if (stateTagName == state)
@@ -177,7 +175,7 @@ namespace xml {
       }
     }
 
-    // Close tag (may be with closing all of its children)
+    //! \brief Closes the named tag and may close all of its children.
     inline void endTag(const std::string& tag)
     {
       bool brk = false;
@@ -193,35 +191,45 @@ namespace xml {
 	tags.pop();
       }
     }    
-  };	//	class XmlStream
+  };
   
-  // Helper functions, they may be simply overwritten
-  // E.g. you may use std::string instead of const char*
+  /*! \brief Stream manipulator causing the XmlStream to output the
+   * XML prolog.
+   */
+  inline const XmlStream::Controller prolog() { return
+  XmlStream::Controller(XmlStream::Controller::Prolog); }
   
-  inline const XmlStream::Controller prolog() {
-    return XmlStream::Controller(XmlStream::Controller::Prolog);
-  }
-  
-  inline const XmlStream::Controller tag() {
-    return XmlStream::Controller(XmlStream::Controller::Tag);
-  }
-  
+  /*! \brief Stream manipulator to add an XML tag to the XmlStream.
+   */
   inline const XmlStream::Controller tag(const std::string& tag_name) {
     return XmlStream::Controller(XmlStream::Controller::Tag, tag_name);
   }
   
-  inline const XmlStream::Controller endtag() {
-    return XmlStream::Controller(XmlStream::Controller::TagEnd);
-  }
-  
+  /*! \brief Stream manipulator to close an XML tag in the XmlStream.
+   *
+   * This will close all XML tags until it closes one tag with the
+   * passed name.
+   */
   inline const XmlStream::Controller endtag(const std::string& tag_name) {
     return XmlStream::Controller(XmlStream::Controller::TagEnd, tag_name);
   }
   
+  /*! \brief Stream manipulator to add an attribute with the passed
+   * name to the XmlStream.
+   *
+   * This manipulates the stream state such that the next passed value
+   * is used as the value of the attribute.
+   */
   inline const XmlStream::Controller attr(const std::string& attr_name) {
     return XmlStream::Controller(XmlStream::Controller::Attribute, attr_name);
   }
   
+  /*! \brief Stream manipulator to switch the stream state to output
+   * all further inserted values to the contents of the current XML
+   * tag.
+   *
+   * This mode is ended by the next \ref endtag stream modifier.
+   */
   inline const XmlStream::Controller chardata() {
     return XmlStream::Controller(XmlStream::Controller::CharData);
   }
