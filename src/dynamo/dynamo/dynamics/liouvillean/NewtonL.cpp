@@ -124,7 +124,7 @@ LNewtonian::SphereSphereOutRoot(CPDData& dat, const double& d2, bool, bool) cons
       //
       //The root of the first derivative of the quadratic is the
       //minimum
-      dat.dt = dat.rvdot / dat.v2;
+      dat.dt = - dat.rvdot / dat.v2;
     }
   else
     dat.dt = (std::sqrt(arg) - dat.rvdot) / dat.v2;
