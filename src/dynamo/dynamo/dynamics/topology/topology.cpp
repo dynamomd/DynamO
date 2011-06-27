@@ -30,7 +30,7 @@ Topology::Topology(dynamo::SimData* tmp, size_t nID):
   ID(nID)
 { }
 
-xml::XmlStream& operator<<(xml::XmlStream& XML, const Topology& g)
+magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Topology& g)
 {
   g.outputXML(XML);
   return XML;
@@ -50,13 +50,13 @@ Topology::operator<<(const magnet::xml::Node& XML)
 }
 
 void
-Topology::outputXML(xml::XmlStream& XML) const
+Topology::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Name") << spName;
+  XML << magnet::xml::attr("Name") << spName;
   
   BOOST_FOREACH(const magnet::ClonePtr<CRange>& plugPtr, ranges)
-    XML << xml::tag("Molecule") << plugPtr
-	<< xml::endtag("Molecule");
+    XML << magnet::xml::tag("Molecule") << plugPtr
+	<< magnet::xml::endtag("Molecule");
 }
 
 

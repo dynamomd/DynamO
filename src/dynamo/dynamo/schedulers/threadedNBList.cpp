@@ -60,13 +60,13 @@ SThreadedNBList::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-SThreadedNBList::outputXML(xml::XmlStream& XML) const
+SThreadedNBList::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "ThreadedNeighbourList"
-      << xml::attr("ThreadCount") << _threadPool.getThreadCount()
-      << xml::tag("Sorter")
+  XML << magnet::xml::attr("Type") << "ThreadedNeighbourList"
+      << magnet::xml::attr("ThreadCount") << _threadPool.getThreadCount()
+      << magnet::xml::tag("Sorter")
       << sorter
-      << xml::endtag("Sorter");
+      << magnet::xml::endtag("Sorter");
 }
 
 void 

@@ -39,7 +39,7 @@ public:
   void particlesUpdated(const NEventData&);
 
 protected:
-  virtual void outputXML(xml::XmlStream&) const {}
+  virtual void outputXML(magnet::xml::XmlStream&) const {}
 
   mutable double _updateTime;
   mutable magnet::thread::RefPtr<CoilWindow> _CLWindow;

@@ -163,13 +163,13 @@ IRoughHardSphere::runEvent(const Particle& p1,
 }
    
 void 
-IRoughHardSphere::outputXML(xml::XmlStream& XML) const
+IRoughHardSphere::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "HardSphere"
-      << xml::attr("Diameter") << _diameter->getName()
-      << xml::attr("Elasticity") << _e->getName()
-      << xml::attr("TangentialElasticity") << _et->getName()
-      << xml::attr("Name") << intName
+  XML << magnet::xml::attr("Type") << "HardSphere"
+      << magnet::xml::attr("Diameter") << _diameter->getName()
+      << magnet::xml::attr("Elasticity") << _e->getName()
+      << magnet::xml::attr("TangentialElasticity") << _et->getName()
+      << magnet::xml::attr("Name") << intName
       << range;
 }
 

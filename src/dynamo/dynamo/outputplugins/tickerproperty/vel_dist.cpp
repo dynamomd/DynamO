@@ -68,29 +68,29 @@ OPVelDist::ticker()
 }
 
 void
-OPVelDist::output(xml::XmlStream& XML)
+OPVelDist::output(magnet::xml::XmlStream& XML)
 {
-  XML << xml::tag("VelDist");
+  XML << magnet::xml::tag("VelDist");
   
   for (size_t id = 0; id < Sim->dynamics.getSpecies().size(); ++id)
     {
-      XML << xml::tag("Species")
-	  << xml::attr("Name")
+      XML << magnet::xml::tag("Species")
+	  << magnet::xml::attr("Name")
 	  << Sim->dynamics.getSpecies()[id]->getName();
      
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	{
-	  XML << xml::tag("Dimension")
-	      << xml::attr("val")
+	  XML << magnet::xml::tag("Dimension")
+	      << magnet::xml::attr("val")
 	      << iDim;
 	  
 	  data[iDim][id].outputHistogram(XML, 1.0);
 	  
-	  XML << xml::endtag("Dimension");
+	  XML << magnet::xml::endtag("Dimension");
 	}
       
-      XML << xml::endtag("Species");
+      XML << magnet::xml::endtag("Species");
     }
   
-  XML << xml::endtag("VelDist");
+  XML << magnet::xml::endtag("VelDist");
 }

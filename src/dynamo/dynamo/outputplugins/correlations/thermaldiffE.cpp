@@ -128,17 +128,17 @@ OPThermalDiffusionE::initialise()
 }
 
 inline void 
-OPThermalDiffusionE::output(xml::XmlStream &XML)
+OPThermalDiffusionE::output(magnet::xml::XmlStream &XML)
 {
-  XML << xml::tag("EinsteinCorrelator")
-      << xml::attr("name") << name
-      << xml::attr("size") << accG2.size()
-      << xml::attr("dt") << dt/Sim->dynamics.units().unitTime()
-      << xml::attr("LengthInMFT") 
+  XML << magnet::xml::tag("EinsteinCorrelator")
+      << magnet::xml::attr("name") << name
+      << magnet::xml::attr("size") << accG2.size()
+      << magnet::xml::attr("dt") << dt/Sim->dynamics.units().unitTime()
+      << magnet::xml::attr("LengthInMFT") 
       << dt * accG2.size() / Sim->getOutputPlugin<OPMisc>()->getMFT()
-      << xml::attr("simFactor") << rescaleFactor()
-      << xml::attr("SampleCount") << count
-      << xml::chardata();
+      << magnet::xml::attr("simFactor") << rescaleFactor()
+      << magnet::xml::attr("SampleCount") << count
+      << magnet::xml::chardata();
   
   double factor = rescaleFactor();
   
@@ -154,7 +154,7 @@ OPThermalDiffusionE::output(xml::XmlStream &XML)
       XML << "\n";
     }
   
-  XML << xml::endtag("EinsteinCorrelator");
+  XML << magnet::xml::endtag("EinsteinCorrelator");
 }
 
 double 

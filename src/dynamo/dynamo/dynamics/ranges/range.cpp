@@ -37,13 +37,13 @@ CRange::getClass(const magnet::xml::Node& XML, const dynamo::SimData * Sim)
 	      << ", Unknown type of Range encountered";
 }
 
-xml::XmlStream& operator<<(xml::XmlStream& XML, const CRange&g)
+magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const CRange&g)
 {
   g.outputXML(XML);
   return XML;
 }
 
-xml::XmlStream& operator<<(xml::XmlStream& XML, 
+magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
 			    const C2Range& g)
 {
   g.outputXML(XML);

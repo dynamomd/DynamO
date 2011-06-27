@@ -115,15 +115,15 @@ CLSphere::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-CLSphere::outputXML(xml::XmlStream& XML) const
+CLSphere::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "SphereWall" 
-      << xml::attr("Name") << localName
-      << xml::attr("Elasticity") << e
-      << xml::attr("Radius") << radius / Sim->dynamics.units().unitLength()
-      << xml::attr("Render") << render
+  XML << magnet::xml::attr("Type") << "SphereWall" 
+      << magnet::xml::attr("Name") << localName
+      << magnet::xml::attr("Elasticity") << e
+      << magnet::xml::attr("Radius") << radius / Sim->dynamics.units().unitLength()
+      << magnet::xml::attr("Render") << render
       << range
-      << xml::tag("Origin")
+      << magnet::xml::tag("Origin")
       << vPosition / Sim->dynamics.units().unitLength()
-      << xml::endtag("Origin");
+      << magnet::xml::endtag("Origin");
 }

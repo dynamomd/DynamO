@@ -19,8 +19,7 @@
 
 #include <magnet/math/vector.hpp>
 
-namespace magnet { namespace xml { class Node; } }
-namespace xml { class XmlStream; }
+namespace magnet { namespace xml { class Node; class XmlStream; } }
 
 //! \brief The fundamental data structure for a Particle.
 //!
@@ -32,7 +31,7 @@ class Particle
 {
 public:
   //! \brief Operator to write out an XML representation of a Particle.
-  friend xml::XmlStream& operator<<(xml::XmlStream&, const Particle&);
+  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Particle&);
   
   //! \brief Constructor to build a particle from passed values.
   inline Particle (const Vector  &position, 

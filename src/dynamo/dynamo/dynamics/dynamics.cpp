@@ -75,7 +75,7 @@ Dynamics::getSpecies(const Particle& p1) const
 }
 
 
-xml::XmlStream& operator<<(xml::XmlStream& XML, 
+magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
 			    const Dynamics& g)
 {
   g.outputXML(XML);
@@ -503,65 +503,65 @@ Dynamics::operator<<(const magnet::xml::Node& XML)
 }
 
 void
-Dynamics::outputXML(xml::XmlStream &XML) const
+Dynamics::outputXML(magnet::xml::XmlStream &XML) const
 {
-  XML << xml::tag("Dynamics")
-      << xml::tag("SimulationSize")
+  XML << magnet::xml::tag("Dynamics")
+      << magnet::xml::tag("SimulationSize")
       << Sim->primaryCellSize / Sim->dynamics.units().unitLength()
-      << xml::endtag("SimulationSize")
-      << xml::tag("BC")
+      << magnet::xml::endtag("SimulationSize")
+      << magnet::xml::tag("BC")
       << p_BC
-      << xml::endtag("BC")
-      << xml::tag("Genus");
+      << magnet::xml::endtag("BC")
+      << magnet::xml::tag("Genus");
   
   BOOST_FOREACH(const magnet::ClonePtr<Species>& ptr, species)
-    XML << xml::tag("Species")
+    XML << magnet::xml::tag("Species")
 	<< ptr
-	<< xml::endtag("Species");
+	<< magnet::xml::endtag("Species");
   
-  XML << xml::endtag("Genus")
-      << xml::tag("Topology");
+  XML << magnet::xml::endtag("Genus")
+      << magnet::xml::tag("Topology");
   
   BOOST_FOREACH(const magnet::ClonePtr<Topology>& ptr, topology)
-    XML << xml::tag("Structure")
+    XML << magnet::xml::tag("Structure")
 	<< ptr
-	<< xml::endtag("Structure");
+	<< magnet::xml::endtag("Structure");
   
-  XML << xml::endtag("Topology")
-      << xml::tag("SystemEvents");
+  XML << magnet::xml::endtag("Topology")
+      << magnet::xml::tag("SystemEvents");
   
   BOOST_FOREACH(const magnet::ClonePtr<System>& ptr, systems)
     XML << ptr;
   
-  XML << xml::endtag("SystemEvents")
-      << xml::tag("Globals");
+  XML << magnet::xml::endtag("SystemEvents")
+      << magnet::xml::tag("Globals");
   
   BOOST_FOREACH(const magnet::ClonePtr<Global>& ptr, globals)
-    XML << xml::tag("Global")
+    XML << magnet::xml::tag("Global")
 	<< ptr
-	<< xml::endtag("Global");
+	<< magnet::xml::endtag("Global");
   
-  XML << xml::endtag("Globals")
-      << xml::tag("Locals");
+  XML << magnet::xml::endtag("Globals")
+      << magnet::xml::tag("Locals");
   
   BOOST_FOREACH(const magnet::ClonePtr<Local>& ptr, locals)
-    XML << xml::tag("Local")
+    XML << magnet::xml::tag("Local")
 	<< ptr
-	<< xml::endtag("Local");
+	<< magnet::xml::endtag("Local");
   
-  XML << xml::endtag("Locals")
-      << xml::tag("Interactions");
+  XML << magnet::xml::endtag("Locals")
+      << magnet::xml::tag("Interactions");
   
   BOOST_FOREACH(const magnet::ClonePtr<Interaction>& ptr, interactions)
-    XML << xml::tag("Interaction")
+    XML << magnet::xml::tag("Interaction")
 	<< ptr
-	<< xml::endtag("Interaction");
+	<< magnet::xml::endtag("Interaction");
   
-  XML << xml::endtag("Interactions")
-      << xml::tag("Liouvillean")
+  XML << magnet::xml::endtag("Interactions")
+      << magnet::xml::tag("Liouvillean")
       << p_liouvillean
-      << xml::endtag("Liouvillean")
-      << xml::endtag("Dynamics");
+      << magnet::xml::endtag("Liouvillean")
+      << magnet::xml::endtag("Dynamics");
 }
 
 double 

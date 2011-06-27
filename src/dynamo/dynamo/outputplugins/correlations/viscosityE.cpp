@@ -217,7 +217,7 @@ OPViscosityE::impulseDelG(const NEventData& ndat)
 }
 
 inline void 
-OPViscosityE::output(xml::XmlStream &XML)
+OPViscosityE::output(magnet::xml::XmlStream &XML)
 {
   double rescaleFactor = 1.0
     / (Sim->dynamics.units().unitTime() 
@@ -227,14 +227,14 @@ OPViscosityE::output(xml::XmlStream &XML)
        //Count has been taken out due to the extra averaging of the constant piece 
        * Sim->dynamics.getSimVolume());
   
-  XML << xml::tag("EinsteinCorrelator")
-      << xml::attr("name") << name
-      << xml::attr("size") << accG2.size()
-      << xml::attr("dt") << dt / Sim->dynamics.units().unitTime()
-      << xml::attr("LengthInMFT") << dt * accG2.size() / (Sim->getOutputPlugin<OPMisc>())->getMFT()
-      << xml::attr("simFactor") << rescaleFactor
-      << xml::attr("SampleCount") << count
-      << xml::attr("columns")
+  XML << magnet::xml::tag("EinsteinCorrelator")
+      << magnet::xml::attr("name") << name
+      << magnet::xml::attr("size") << accG2.size()
+      << magnet::xml::attr("dt") << dt / Sim->dynamics.units().unitTime()
+      << magnet::xml::attr("LengthInMFT") << dt * accG2.size() / (Sim->getOutputPlugin<OPMisc>())->getMFT()
+      << magnet::xml::attr("simFactor") << rescaleFactor
+      << magnet::xml::attr("SampleCount") << count
+      << magnet::xml::attr("columns")
       << "t ";
   
   char name[3] = "xx";
@@ -257,36 +257,36 @@ OPViscosityE::output(xml::XmlStream &XML)
 	P[iDim][jDim] = traceAverage[iDim][jDim] / (dt * Sim->dynamics.getSimVolume());
       }
   
-  XML << xml::tag("Pressure");
+  XML << magnet::xml::tag("Pressure");
  
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     {
       std::string name = std::string("d") + boost::lexical_cast<std::string>(iDim);
       
-      XML << xml::tag(name.c_str());
+      XML << magnet::xml::tag(name.c_str());
 
       for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	{
 	  std::string name = std::string("d") + boost::lexical_cast<std::string>(jDim);	  
-	  XML << xml::attr(name.c_str())
+	  XML << magnet::xml::attr(name.c_str())
 	      << P[iDim][jDim] / Sim->dynamics.units().unitPressure();
 	}
       
-      XML << xml::endtag(name.c_str());
+      XML << magnet::xml::endtag(name.c_str());
     }
   
-  XML << xml::endtag("Pressure");
+  XML << magnet::xml::endtag("Pressure");
   
   double AvgPressure = 0.0;
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     AvgPressure += P[iDim][iDim];
   
-  XML << xml::tag("PressureVals")
-      << xml::attr("AvgPressure")
+  XML << magnet::xml::tag("PressureVals")
+      << magnet::xml::attr("AvgPressure")
       << AvgPressure / (NDIM * Sim->dynamics.units().unitPressure())
-      << xml::endtag("PressureVals");
+      << magnet::xml::endtag("PressureVals");
   
-  XML << xml::chardata();
+  XML << magnet::xml::chardata();
   
   for (unsigned int i = 0; i < accG2.size(); i++)
     {
@@ -298,7 +298,7 @@ OPViscosityE::output(xml::XmlStream &XML)
       XML << "\n";
     }
   
-  XML << xml::endtag("EinsteinCorrelator");
+  XML << magnet::xml::endtag("EinsteinCorrelator");
 }
 
 void 

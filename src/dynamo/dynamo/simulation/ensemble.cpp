@@ -48,12 +48,12 @@ namespace dynamo {
   Ensemble::exchangeProbability(const Ensemble&) const
   { M_throw() << "Exchange move not written for this Ensemble"; }
 
-  xml::XmlStream& operator<<(xml::XmlStream& XML, 
+  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
 			      const Ensemble& g)
   {
-    XML << xml::tag("Ensemble")
-	<< xml::attr("Type") << g.getName()
-	<< xml::endtag("Ensemble");
+    XML << magnet::xml::tag("Ensemble")
+	<< magnet::xml::attr("Type") << g.getName()
+	<< magnet::xml::endtag("Ensemble");
     return XML;
   }
 

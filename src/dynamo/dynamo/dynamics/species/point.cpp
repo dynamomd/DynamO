@@ -50,13 +50,13 @@ SpPoint::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-SpPoint::outputXML(xml::XmlStream& XML) const
+SpPoint::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Mass") 
+  XML << magnet::xml::attr("Mass") 
       << _mass->getName()
-      << xml::attr("Name") << spName
-      << xml::attr("IntName") << intName
-      << xml::attr("Type") << "Point"
+      << magnet::xml::attr("Name") << spName
+      << magnet::xml::attr("IntName") << intName
+      << magnet::xml::attr("Type") << "Point"
       << range;
 }
 

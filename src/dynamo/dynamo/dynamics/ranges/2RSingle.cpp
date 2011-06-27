@@ -41,11 +41,11 @@ C2RSingle::operator<<(const magnet::xml::Node&)
 }
 
 void 
-C2RSingle::outputXML(xml::XmlStream& XML) const
+C2RSingle::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Range") << "2Single" 
-      << xml::tag("SingleRange")
+  XML << magnet::xml::attr("Range") << "2Single" 
+      << magnet::xml::tag("SingleRange")
       << range
-      << xml::endtag("SingleRange");
+      << magnet::xml::endtag("SingleRange");
 }
 

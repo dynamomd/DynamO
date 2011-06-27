@@ -338,17 +338,17 @@ IStepped::checkOverlaps(const Particle& part1, const Particle& part2) const
 }
   
 void 
-IStepped::outputXML(xml::XmlStream& XML) const
+IStepped::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "Stepped"
-      << xml::attr("Name") << intName
+  XML << magnet::xml::attr("Type") << "Stepped"
+      << magnet::xml::attr("Name") << intName
       << range;
 
   BOOST_FOREACH(const steppair& s, steps)
-    XML << xml::tag("Step")
-	<< xml::attr("R") << s.first 
-	<< xml::attr("E") << s.second
-	<< xml::endtag("Step");
+    XML << magnet::xml::tag("Step")
+	<< magnet::xml::attr("R") << s.first 
+	<< magnet::xml::attr("E") << s.second
+	<< magnet::xml::endtag("Step");
   
   IMultiCapture::outputCaptureMap(XML);  
 }

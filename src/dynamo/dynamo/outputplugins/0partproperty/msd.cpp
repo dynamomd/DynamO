@@ -40,45 +40,45 @@ OPMSD::initialise()
 }
 
 void
-OPMSD::output(xml::XmlStream &XML)
+OPMSD::output(magnet::xml::XmlStream &XML)
 {
   //Required to get the correct results
   Sim->dynamics.getLiouvillean().updateAllParticles();
   
-  XML << xml::tag("MSD");
+  XML << magnet::xml::tag("MSD");
   
   BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     {
       double MSD(calcMSD(*(sp->getRange())));
       
-      XML << xml::tag("Species")
-	  << xml::attr("Name") << sp->getName()
-	  << xml::attr("val") << MSD
-	  << xml::attr("diffusionCoeff") 
+      XML << magnet::xml::tag("Species")
+	  << magnet::xml::attr("Name") << sp->getName()
+	  << magnet::xml::attr("val") << MSD
+	  << magnet::xml::attr("diffusionCoeff") 
 	  << MSD * Sim->dynamics.units().unitTime() / Sim->dSysTime
-	  << xml::endtag("Species");
+	  << magnet::xml::endtag("Species");
     }
 
   if (!Sim->dynamics.getTopology().empty())
     {
-      XML << xml::tag("Structures");
+      XML << magnet::xml::tag("Structures");
 
       BOOST_FOREACH(const magnet::ClonePtr<Topology>& topo, Sim->dynamics.getTopology())
 	{
 	  double MSD(calcStructMSD(*topo));
 
-	  XML << xml::tag("Structure")
-	      << xml::attr("Name") << topo->getName()
-	      << xml::attr("val") << MSD
-	      << xml::attr("diffusionCoeff") 
+	  XML << magnet::xml::tag("Structure")
+	      << magnet::xml::attr("Name") << topo->getName()
+	      << magnet::xml::attr("val") << MSD
+	      << magnet::xml::attr("diffusionCoeff") 
 	      << MSD * Sim->dynamics.units().unitTime() / Sim->dSysTime
-	      << xml::endtag("Structure");
+	      << magnet::xml::endtag("Structure");
 	}
 
-      XML << xml::endtag("Structures");
+      XML << magnet::xml::endtag("Structures");
     }
 
-  XML << xml::endtag("MSD");
+  XML << magnet::xml::endtag("MSD");
 }
 
 double

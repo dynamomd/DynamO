@@ -92,7 +92,7 @@ protected:
 
   //! Function to write out the capture map. Should be called by the
   //! derived classes Interaction::outputXML() function.
-  void outputCaptureMap(xml::XmlStream&) const;
+  void outputCaptureMap(magnet::xml::XmlStream&) const;
 
   //! Add a pair of particles to the capture map.
   void addToCaptureMap(const Particle&, const Particle&) const;
@@ -157,7 +157,7 @@ protected:
 
   void loadCaptureMap(const magnet::xml::Node&);
 
-  void outputCaptureMap(xml::XmlStream&) const;
+  void outputCaptureMap(magnet::xml::XmlStream&) const;
 
   inline cmap_it getCMap_it(const Particle& p1, const Particle& p2) const
   {

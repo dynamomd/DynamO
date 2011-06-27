@@ -36,7 +36,7 @@ class OPIntEnergyHist: public OPCollTicker
 
   virtual void ticker();
 
-  virtual void output(xml::XmlStream&);
+  virtual void output(magnet::xml::XmlStream&);
 
   virtual void changeSystem(OutputPlugin*);
   

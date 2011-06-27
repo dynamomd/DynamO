@@ -35,7 +35,7 @@ public:
 
 protected:
 
-  inline virtual void outputXML(xml::XmlStream& XML) const 
+  inline virtual void outputXML(magnet::xml::XmlStream& XML) const 
   { SpSphericalTop::outputXML(XML, "Dumbbells"); }
 };
 

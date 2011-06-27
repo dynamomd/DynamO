@@ -33,7 +33,7 @@ CSCEntry::getClass(const magnet::xml::Node& XML, dynamo::SimData* const Sim)
 	      << XML.getAttribute("Type") << "`encountered";
 }
 
-xml::XmlStream& operator<<(xml::XmlStream& XML, const CSCEntry& g)
+magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const CSCEntry& g)
 {
   g.outputXML(XML);
   return XML;

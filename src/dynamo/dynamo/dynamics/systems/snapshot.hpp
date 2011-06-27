@@ -40,7 +40,7 @@ public:
 
   const double& getPeriod() const { return _period; }
 protected:
-  virtual void outputXML(xml::XmlStream&) const {}
+  virtual void outputXML(magnet::xml::XmlStream&) const {}
 
   double _period;
   bool _applyBC;

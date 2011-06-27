@@ -169,18 +169,18 @@ SysRescale::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-SysRescale::outputXML(xml::XmlStream& XML) const
+SysRescale::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::tag("System")
-      << xml::attr("Type") << "Rescale"
-      << xml::attr("kT") << _kT / Sim->dynamics.units().unitEnergy()
-      << xml::attr("Name") << sysName;
+  XML << magnet::xml::tag("System")
+      << magnet::xml::attr("Type") << "Rescale"
+      << magnet::xml::attr("kT") << _kT / Sim->dynamics.units().unitEnergy()
+      << magnet::xml::attr("Name") << sysName;
   
   if (_frequency != std::numeric_limits<size_t>::max())
-    XML << xml::attr("Freq") << _frequency;
+    XML << magnet::xml::attr("Freq") << _frequency;
 
   if (_timestep != HUGE_VAL)
-    XML << xml::attr("TimeStep") << _timestep / Sim->dynamics.units().unitTime();
+    XML << magnet::xml::attr("TimeStep") << _timestep / Sim->dynamics.units().unitTime();
 
-  XML<< xml::endtag("System");
+  XML<< magnet::xml::endtag("System");
 }

@@ -49,7 +49,7 @@ public:
   
   virtual OutputPlugin *Clone() const = 0;
   
-  virtual void output(xml::XmlStream&);
+  virtual void output(magnet::xml::XmlStream&);
   
   virtual void periodicOutput();
   

@@ -179,12 +179,12 @@ ILines::runEvent(const Particle& p1,
 }
    
 void 
-ILines::outputXML(xml::XmlStream& XML) const
+ILines::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "Lines"
-      << xml::attr("Length") << _length->getName()
-      << xml::attr("Elasticity") << _e->getName()
-      << xml::attr("Name") << intName
+  XML << magnet::xml::attr("Type") << "Lines"
+      << magnet::xml::attr("Length") << _length->getName()
+      << magnet::xml::attr("Elasticity") << _e->getName()
+      << magnet::xml::attr("Name") << intName
       << range;
 
   ISingleCapture::outputCaptureMap(XML);

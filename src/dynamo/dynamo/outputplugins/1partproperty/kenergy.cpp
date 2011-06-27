@@ -94,26 +94,26 @@ OPKEnergy::stream(const double& dt)
 }
 
 void
-OPKEnergy::output(xml::XmlStream &XML)
+OPKEnergy::output(magnet::xml::XmlStream &XML)
 {
   double powerloss = (InitialKE - KECurrent) * Sim->dynamics.units().unitLength()
     * pow(Sim->dynamics.units().unitTime(),3)
     / (Sim->dynamics.units().unitMass() * Sim->dSysTime * Sim->dynamics.getSimVolume());
 
-  XML << xml::tag("KEnergy")
-      << xml::tag("T") << xml::attr("val") << getAvgTheta()
-      << xml::attr("current")
+  XML << magnet::xml::tag("KEnergy")
+      << magnet::xml::tag("T") << magnet::xml::attr("val") << getAvgTheta()
+      << magnet::xml::attr("current")
       << (2.0 * Sim->dynamics.getLiouvillean().getSystemKineticEnergy()
 	  / (Sim->dynamics.getLiouvillean().getParticleDOF() * Sim->N * Sim->dynamics.units().unitEnergy()))
-      << xml::endtag("T")
-      << xml::tag("T2") << xml::attr("val") << getAvgSqTheta()
-      << xml::endtag("T2")
+      << magnet::xml::endtag("T")
+      << magnet::xml::tag("T2") << magnet::xml::attr("val") << getAvgSqTheta()
+      << magnet::xml::endtag("T2")
 
-      << xml::tag("PowerLoss")
-      << xml::attr("val") << powerloss
-      << xml::endtag("PowerLoss")
+      << magnet::xml::tag("PowerLoss")
+      << magnet::xml::attr("val") << powerloss
+      << magnet::xml::endtag("PowerLoss")
 
-      << xml::endtag("KEnergy");
+      << magnet::xml::endtag("KEnergy");
 }
 
 void

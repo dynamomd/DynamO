@@ -39,7 +39,7 @@ class OPCContactMap: public OPTicker
 
   virtual void changeSystem(OutputPlugin*);
 
-  virtual void output(xml::XmlStream&);
+  virtual void output(magnet::xml::XmlStream&);
   
  protected:
 

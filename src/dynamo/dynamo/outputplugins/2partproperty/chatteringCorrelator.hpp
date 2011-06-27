@@ -31,7 +31,7 @@ public:
   virtual OutputPlugin* Clone() const
   { return new OPChatteringCorrelator(*this); }
 
-  void output(xml::XmlStream &XML);
+  void output(magnet::xml::XmlStream &XML);
 
 private:
 

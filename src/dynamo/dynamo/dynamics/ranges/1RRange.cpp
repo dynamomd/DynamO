@@ -38,9 +38,9 @@ CRRange::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-CRRange::outputXML(xml::XmlStream& XML) const
+CRRange::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Range") << "Ranged"
-      << xml::attr("Start") << startID
-      << xml::attr("End") << endID;
+  XML << magnet::xml::attr("Range") << "Ranged"
+      << magnet::xml::attr("Start") << startID
+      << magnet::xml::attr("End") << endID;
 }

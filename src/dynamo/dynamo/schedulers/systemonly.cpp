@@ -86,12 +86,12 @@ CSSystemOnly::rebuildList()
 }
 
 void 
-CSSystemOnly::outputXML(xml::XmlStream& XML) const
+CSSystemOnly::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "SystemOnly"
-      << xml::tag("Sorter")
+  XML << magnet::xml::attr("Type") << "SystemOnly"
+      << magnet::xml::tag("Sorter")
       << sorter
-      << xml::endtag("Sorter");
+      << magnet::xml::endtag("Sorter");
 }
 
 void 

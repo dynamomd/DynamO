@@ -88,12 +88,12 @@ C2RList::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-C2RList::outputXML(xml::XmlStream& XML) const
+C2RList::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Range") << "List";
+  XML << magnet::xml::attr("Range") << "List";
   typedef const std::pair<const unsigned long, std::list<unsigned long> >& thepair;
   BOOST_FOREACH(thepair mypair, pairmap)
     BOOST_FOREACH(unsigned long val, mypair.second)
-    XML << xml::tag("RangePair") << xml::attr("ID1") << mypair.first
-	<< xml::attr("ID2") << val << xml::endtag("RangePair");
+    XML << magnet::xml::tag("RangePair") << magnet::xml::attr("ID1") << mypair.first
+	<< magnet::xml::attr("ID2") << val << magnet::xml::endtag("RangePair");
 }

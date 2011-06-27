@@ -90,12 +90,12 @@ CSDumb::rebuildList()
 
 
 void 
-CSDumb::outputXML(xml::XmlStream& XML) const
+CSDumb::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "Dumb"
-      << xml::tag("Sorter")
+  XML << magnet::xml::attr("Type") << "Dumb"
+      << magnet::xml::tag("Sorter")
       << sorter
-      << xml::endtag("Sorter");
+      << magnet::xml::endtag("Sorter");
 }
 
 void 

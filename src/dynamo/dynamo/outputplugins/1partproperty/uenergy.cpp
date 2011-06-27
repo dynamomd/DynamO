@@ -78,16 +78,16 @@ OPUEnergy::stream(const double& dt)
 }
 
 void
-OPUEnergy::output(xml::XmlStream &XML)
+OPUEnergy::output(magnet::xml::XmlStream &XML)
 {
-  XML << xml::tag("CEnergy")
-      << xml::tag("InternalEnergy")
-      << xml::attr("Avg") << getAvgU()
-      << xml::attr("SquareAvg") << getAvgSqU()
-      << xml::attr("Current") << intECurrent
+  XML << magnet::xml::tag("CEnergy")
+      << magnet::xml::tag("InternalEnergy")
+      << magnet::xml::attr("Avg") << getAvgU()
+      << magnet::xml::attr("SquareAvg") << getAvgSqU()
+      << magnet::xml::attr("Current") << intECurrent
     / Sim->dynamics.units().unitEnergy()
-      << xml::endtag("InternalEnergy")
-      << xml::endtag("CEnergy");
+      << magnet::xml::endtag("InternalEnergy")
+      << magnet::xml::endtag("CEnergy");
 }
 
 void

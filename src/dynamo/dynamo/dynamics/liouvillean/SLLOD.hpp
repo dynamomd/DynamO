@@ -79,5 +79,5 @@ public:
   virtual Liouvillean* Clone() const { return new LSLLOD(*this); }
 
 protected:
-  virtual void outputXML(xml::XmlStream& ) const;
+  virtual void outputXML(magnet::xml::XmlStream& ) const;
 };

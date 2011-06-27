@@ -44,11 +44,11 @@ SpFixedCollider::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-SpFixedCollider::outputXML(xml::XmlStream& XML) const
+SpFixedCollider::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Name") << spName
-      << xml::attr("IntName") << intName
-      << xml::attr("Type") << "FixedCollider";
+  XML << magnet::xml::attr("Name") << spName
+      << magnet::xml::attr("IntName") << intName
+      << magnet::xml::attr("Type") << "FixedCollider";
   
   XML << range;
 }

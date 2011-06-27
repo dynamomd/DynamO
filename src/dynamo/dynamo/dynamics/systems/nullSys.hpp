@@ -45,5 +45,5 @@ public:
   virtual bool operator<(const System&) const { return false; }
 
 protected:
-  virtual void outputXML(xml::XmlStream&) const {}
+  virtual void outputXML(magnet::xml::XmlStream&) const {}
 };

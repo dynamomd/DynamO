@@ -33,7 +33,7 @@ public:
 
   virtual void applyBC(Vector &, const double&) const;
 
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
   virtual void operator<<(const magnet::xml::Node&);
   virtual BoundaryCondition* Clone () const;
 };
@@ -55,7 +55,7 @@ public:
   
   virtual void applyBC(Vector& pos, const double&) const;
 
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
   virtual void operator<<(const magnet::xml::Node&);
   virtual BoundaryCondition* Clone () const;
 };
@@ -78,7 +78,7 @@ public:
   
   virtual void applyBC(Vector& pos, const double&) const;
 
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
   virtual void operator<<(const magnet::xml::Node&);
   virtual BoundaryCondition* Clone () const;
 };

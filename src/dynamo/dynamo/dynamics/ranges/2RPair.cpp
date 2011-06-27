@@ -46,14 +46,14 @@ C2RPair::operator<<(const magnet::xml::Node&)
 }
 
 void 
-C2RPair::outputXML(xml::XmlStream& XML) const
+C2RPair::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Range") << "Pair" 
-      << xml::tag("Range1")
+  XML << magnet::xml::attr("Range") << "Pair" 
+      << magnet::xml::tag("Range1")
       << range1
-      << xml::endtag("Range1")
-      << xml::tag("Range2")
+      << magnet::xml::endtag("Range1")
+      << magnet::xml::tag("Range2")
       << range2
-      << xml::endtag("Range2");
+      << magnet::xml::endtag("Range2");
 }
 

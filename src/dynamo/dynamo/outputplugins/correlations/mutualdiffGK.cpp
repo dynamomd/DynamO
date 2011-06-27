@@ -137,7 +137,7 @@ OPMutualDiffusionGK::rescaleFactor()
 }
 
 void 
-OPMutualDiffusionGK::output(xml::XmlStream& XML)
+OPMutualDiffusionGK::output(magnet::xml::XmlStream& XML)
 {
   double factor = rescaleFactor();
   
@@ -148,17 +148,17 @@ OPMutualDiffusionGK::output(xml::XmlStream& XML)
 
   acc *= factor * dt / Sim->dynamics.units().unitTime();
 
-  XML << xml::tag("Correlator")
-      << xml::attr("name") << name
-      << xml::attr("size") << accG.size()
-      << xml::attr("dt") << dt / Sim->dynamics.units().unitTime()
-      << xml::attr("LengthInMFT") << dt * accG.size() 
+  XML << magnet::xml::tag("Correlator")
+      << magnet::xml::attr("name") << name
+      << magnet::xml::attr("size") << accG.size()
+      << magnet::xml::attr("dt") << dt / Sim->dynamics.units().unitTime()
+      << magnet::xml::attr("LengthInMFT") << dt * accG.size() 
     / Sim->getOutputPlugin<OPMisc>()->getMFT()
-      << xml::attr("simFactor") << factor
-      << xml::attr("SampleCount") << count
-      << xml::tag("Integral") << acc
-      << xml::endtag("Integral")
-      << xml::chardata();
+      << magnet::xml::attr("simFactor") << factor
+      << magnet::xml::attr("SampleCount") << count
+      << magnet::xml::tag("Integral") << acc
+      << magnet::xml::endtag("Integral")
+      << magnet::xml::chardata();
     
   //GK correlators start at 0
   for (size_t i = 0; i < accG.size(); i++)
@@ -170,7 +170,7 @@ OPMutualDiffusionGK::output(xml::XmlStream& XML)
     }
   
   
-  XML << xml::endtag("Correlator"); 
+  XML << magnet::xml::endtag("Correlator"); 
 }
 
 void 

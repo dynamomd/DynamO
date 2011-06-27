@@ -107,8 +107,8 @@ GPBCSentinel::runEvent(const Particle& part, const double dt) const
 }
 
 void 
-GPBCSentinel::outputXML(xml::XmlStream& XML) const
+GPBCSentinel::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "PBCSentinel"
-      << xml::attr("Name") << globName;
+  XML << magnet::xml::attr("Type") << "PBCSentinel"
+      << magnet::xml::attr("Name") << globName;
 }

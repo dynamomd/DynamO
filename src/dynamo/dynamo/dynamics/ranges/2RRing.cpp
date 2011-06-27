@@ -74,12 +74,12 @@ C2RRing::operator<<(const magnet::xml::Node&)
 }
 
 void 
-C2RRing::outputXML(xml::XmlStream& XML) const
+C2RRing::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Range") << "Ring" 
-      << xml::attr("Start")
+  XML << magnet::xml::attr("Range") << "Ring" 
+      << magnet::xml::attr("Start")
       << range1
-      << xml::attr("End")
+      << magnet::xml::attr("End")
       << range2;
 }
 

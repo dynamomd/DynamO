@@ -22,8 +22,7 @@
 #include <dynamo/base.hpp>
 #include <magnet/math/vector.hpp>
 
-namespace xml { class XmlStream; }
-namespace magnet { namespace xml { class Node; } }
+namespace magnet { namespace xml { class Node; class XmlStream; } }
 
 class IntEvent;
 namespace dynamo
@@ -102,12 +101,12 @@ class BoundaryCondition: public dynamo::SimBase_const
   virtual BoundaryCondition* Clone () const = 0;
 
   /*! \brief A helper for writing BoundaryCondition's to an XmlStream. */
-  friend xml::XmlStream& operator<<(xml::XmlStream&, const BoundaryCondition&);
+  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const BoundaryCondition&);
 
   /*! \brief The class loader for boundary conditions. */
   static BoundaryCondition* getClass(const magnet::xml::Node&, dynamo::SimData*);
 
  protected:
   /*! \brief The XML output for a BoundaryCondition class*/
-  virtual void outputXML(xml::XmlStream &XML) const = 0;
+  virtual void outputXML(magnet::xml::XmlStream &XML) const = 0;
 };

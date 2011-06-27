@@ -23,8 +23,7 @@
 #include <boost/array.hpp>
 #include <string>
 
-namespace xml { class XmlStream; }
-namespace magnet { namespace xml { class Node; } }
+namespace magnet { namespace xml { class Node; class XmlStream; } }
 
 class System;
 
@@ -53,7 +52,7 @@ namespace dynamo {
 
     //! Helper function which generates an Ensemble XML tag.
     //! \sa getName
-    friend xml::XmlStream& operator<<(xml::XmlStream&, const Ensemble&);
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Ensemble&);
     
     //! This function returns a string corresponding to the type of
     //! Ensemble. This name is used to load the Ensemble again from

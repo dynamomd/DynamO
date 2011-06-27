@@ -40,7 +40,7 @@ public:
 
   virtual double rescaleFactor();
 
-  virtual void output(xml::XmlStream&);
+  virtual void output(magnet::xml::XmlStream&);
 
   virtual void initialise();
  

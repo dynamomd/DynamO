@@ -20,8 +20,7 @@
 #include "../eventtypes.hpp"
 #include <string>
 
-namespace magnet { namespace xml { class Node; } }
-namespace xml { class XmlStream; }
+namespace magnet { namespace xml { class Node; class XmlStream; } }
 class IntEvent;
 class GlobalEvent;
 class NEventData;
@@ -51,7 +50,7 @@ public:
   
   double getdt() const { return dt; }
   
-  friend xml::XmlStream& operator<<(xml::XmlStream&, const System&);
+  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const System&);
   
   static System* getClass(const magnet::xml::Node&, dynamo::SimData*);
   
@@ -66,7 +65,7 @@ public:
   inline const size_t& getID() const { return ID; }
 
 protected:
-  virtual void outputXML(xml::XmlStream&) const = 0;
+  virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
   std::string sysName;  
   mutable double dt;

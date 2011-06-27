@@ -27,12 +27,9 @@ class IntEvent;
 class Species;
 class CRange;
 
-namespace magnet { namespace xml { class Node; } }
-namespace xml { class XmlStream; }
-
-
-//! This class is the base interface for Interation classes.
-
+namespace magnet { namespace xml { class Node; class XmlStream; } }
+//! \brief This class is the base interface for Interation classes.
+//!
 //! Interaction's are events that describe the Interaction between two
 //! particles. These classes are responsible for: 
 //! - Storing the values used in calculating the interactions (e.g., the interaction diameter).
@@ -73,7 +70,7 @@ public:
   virtual void operator<<(const magnet::xml::Node&) = 0;
   
   //! A helper function that calls Interaction::outputXML to write out the parameters of this interaction to a config file.
-  friend xml::XmlStream& operator<<(xml::XmlStream&, const Interaction&);
+  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Interaction&);
  
   //! This static function will instantiate a new interaction of the correct type specified by the xml node passed. 
   //!
@@ -118,7 +115,7 @@ protected:
   Interaction() { M_throw() << "Default constructor called!"; }
 
   //! Write out an XML tag that describes this Interaction and stores its Property -s.
-  virtual void outputXML(xml::XmlStream&) const = 0;
+  virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
   magnet::ClonePtr<C2Range> range;
 

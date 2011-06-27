@@ -56,7 +56,7 @@ public:
   void addEvents2(const Particle& part, const size_t& id) const;
 
 protected:
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
 
   void addEventsInit(const Particle&);
 

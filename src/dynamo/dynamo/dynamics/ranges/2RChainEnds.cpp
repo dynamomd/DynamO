@@ -73,13 +73,13 @@ C2RChainEnds::operator<<(const magnet::xml::Node&)
 }
 
 void 
-C2RChainEnds::outputXML(xml::XmlStream& XML) const
+C2RChainEnds::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Range") << "ChainEnds" 
-      << xml::attr("Start")
+  XML << magnet::xml::attr("Range") << "ChainEnds" 
+      << magnet::xml::attr("Start")
       << rangeStart
-      << xml::attr("End")
+      << magnet::xml::attr("End")
       << rangeEnd
-      << xml::attr("Interval")
+      << magnet::xml::attr("Interval")
       << interval;
 }

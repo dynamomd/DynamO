@@ -228,21 +228,21 @@ CSDSMCSpheres::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-CSDSMCSpheres::outputXML(xml::XmlStream& XML) const
+CSDSMCSpheres::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::tag("System")
-      << xml::attr("Type") << "DSMCSpheres"
-      << xml::attr("tStep") << tstep / Sim->dynamics.units().unitTime()
-      << xml::attr("Chi") << chi
-      << xml::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
-      << xml::attr("Inelasticity") << e
-      << xml::attr("Name") << sysName
-      << xml::attr("MaxProbability") << maxprob
-      << xml::tag("Range1")
+  XML << magnet::xml::tag("System")
+      << magnet::xml::attr("Type") << "DSMCSpheres"
+      << magnet::xml::attr("tStep") << tstep / Sim->dynamics.units().unitTime()
+      << magnet::xml::attr("Chi") << chi
+      << magnet::xml::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
+      << magnet::xml::attr("Inelasticity") << e
+      << magnet::xml::attr("Name") << sysName
+      << magnet::xml::attr("MaxProbability") << maxprob
+      << magnet::xml::tag("Range1")
       << range1
-      << xml::endtag("Range1")
-      << xml::tag("Range2")
+      << magnet::xml::endtag("Range1")
+      << magnet::xml::tag("Range2")
       << range2
-      << xml::endtag("Range2")
-      << xml::endtag("System");
+      << magnet::xml::endtag("Range2")
+      << magnet::xml::endtag("System");
 }

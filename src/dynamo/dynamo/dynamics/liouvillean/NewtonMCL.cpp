@@ -71,7 +71,7 @@ LNewtonianMC::LNewtonianMC(dynamo::SimData* tmp, const magnet::xml::Node& XML):
 }
 
 void 
-LNewtonianMC::outputXML(xml::XmlStream& XML) const
+LNewtonianMC::outputXML(magnet::xml::XmlStream& XML) const
 {
   double step = EnergyPotentialStep;
   boost::unordered_map<int, double> wout = _W;
@@ -82,10 +82,10 @@ LNewtonianMC::outputXML(xml::XmlStream& XML) const
   } catch (std::exception&)
     {}
 
-  XML << xml::attr("Type")
+  XML << magnet::xml::attr("Type")
       << "NewtonianMC"
-      << xml::tag("PotentialDeformation")
-      << xml::attr("EnergyStep")
+      << magnet::xml::tag("PotentialDeformation")
+      << magnet::xml::attr("EnergyStep")
       << step * Sim->dynamics.units().unitEnergy();
 
   typedef std::pair<const double,double> locpair;
@@ -95,14 +95,14 @@ LNewtonianMC::outputXML(xml::XmlStream& XML) const
       double key = val.first * EnergyPotentialStep 
 	* Sim->dynamics.units().unitEnergy();
       
-      XML << xml::tag("W")
-	  << xml::attr("Energy") << key
-	  << xml::attr("Value") << val.second
-	  << xml::attr("OldValue") << W(key)
-	  << xml::endtag("W");
+      XML << magnet::xml::tag("W")
+	  << magnet::xml::attr("Energy") << key
+	  << magnet::xml::attr("Value") << val.second
+	  << magnet::xml::attr("OldValue") << W(key)
+	  << magnet::xml::endtag("W");
     }
     
-  XML << xml::endtag("PotentialDeformation");
+  XML << magnet::xml::endtag("PotentialDeformation");
 }
 
 

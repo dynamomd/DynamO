@@ -98,7 +98,7 @@ public:
   inline EEventType getType() const
   { return CType; }
   
-  friend xml::XmlStream& operator<<(xml::XmlStream&, const IntEvent&);
+  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const IntEvent&);
 
   std::string stringData(const dynamo::SimData*) const;
   

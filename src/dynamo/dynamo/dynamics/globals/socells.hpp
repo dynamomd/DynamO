@@ -43,7 +43,7 @@ public:
 
   virtual void operator<<(const magnet::xml::Node&);
 
-  virtual void outputXML(xml::XmlStream& XML) const;
+  virtual void outputXML(magnet::xml::XmlStream& XML) const;
 
 protected:
 

@@ -104,20 +104,20 @@ CSComplex::rebuildList()
 
 
 void 
-CSComplex::outputXML(xml::XmlStream& XML) const
+CSComplex::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "Complex"
-      << xml::tag("Sorter")
+  XML << magnet::xml::attr("Type") << "Complex"
+      << magnet::xml::tag("Sorter")
       << sorter
-      << xml::endtag("Sorter")
-      << xml::tag("Entries");
+      << magnet::xml::endtag("Sorter")
+      << magnet::xml::tag("Entries");
   
   BOOST_FOREACH(const magnet::ClonePtr<CSCEntry>& ent,  entries)
-    XML << xml::tag("Entry")
+    XML << magnet::xml::tag("Entry")
 	<< ent
-	<< xml::endtag("Entry");
+	<< magnet::xml::endtag("Entry");
 
-  XML << xml::endtag("Entries");
+  XML << magnet::xml::endtag("Entries");
 }
 
 CSComplex::CSComplex(const magnet::xml::Node& XML, dynamo::SimData* const Sim):

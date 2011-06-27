@@ -176,8 +176,8 @@ CGSOCells::initialise(size_t nID)
 }
 
 void
-CGSOCells::outputXML(xml::XmlStream& XML) const
+CGSOCells::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "SOCells"
-      << xml::attr("Name") << globName;
+  XML << magnet::xml::attr("Type") << "SOCells"
+      << magnet::xml::attr("Name") << globName;
 }

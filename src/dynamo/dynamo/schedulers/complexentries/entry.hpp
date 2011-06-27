@@ -35,7 +35,7 @@ public:
 
   virtual void initialise() {};
   
-  friend xml::XmlStream& operator<<(xml::XmlStream&, const CSCEntry&);
+  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const CSCEntry&);
 
   static CSCEntry* getClass(const magnet::xml::Node&, dynamo::SimData* const);
  
@@ -55,7 +55,7 @@ public:
 
 protected:
 
-  virtual void outputXML(xml::XmlStream&) const = 0;
+  virtual void outputXML(magnet::xml::XmlStream&) const = 0;
   
   magnet::ClonePtr<CRange> range;
 };

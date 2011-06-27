@@ -78,53 +78,53 @@ OPVTK::eventUpdate(const IntEvent& IEvent, const PairEventData& PDat)
 	  
 	  free(fileName);
 
-	  xml::XmlStream XML(of);
+	  magnet::xml::XmlStream XML(of);
 	  
 	  
-	  XML << xml::tag("VTKFile")
-	      << xml::attr("type") << "ImageData"
-	      << xml::attr("version") << "0.1"
-	      << xml::attr("byte_order") << "LittleEndian"
-	      << xml::attr("compressor") << "vtkZLibDataCompressor"
-	      << xml::tag("ImageData")
-	      << xml::attr("WholeExtent");
+	  XML << magnet::xml::tag("VTKFile")
+	      << magnet::xml::attr("type") << "ImageData"
+	      << magnet::xml::attr("version") << "0.1"
+	      << magnet::xml::attr("byte_order") << "LittleEndian"
+	      << magnet::xml::attr("compressor") << "vtkZLibDataCompressor"
+	      << magnet::xml::tag("ImageData")
+	      << magnet::xml::attr("WholeExtent");
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    XML << " " << "0 " << nBins[iDim] - 1;
 	  
-	  XML << xml::attr("Origin");
+	  XML << magnet::xml::attr("Origin");
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    XML << (Sim->primaryCellSize[iDim] * (-0.5))
 	      / Sim->dynamics.units().unitLength()
 		<< " ";
 	  
-	  XML << xml::attr("Spacing");
+	  XML << magnet::xml::attr("Spacing");
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    XML << binWidth[iDim] / Sim->dynamics.units().unitLength() << " ";
 	  
-	  XML << xml::tag("Piece")
-	      << xml::attr("Extent");
+	  XML << magnet::xml::tag("Piece")
+	      << magnet::xml::attr("Extent");
 	  
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    XML << " " << "0 " << nBins[iDim] - 1;
 	  
-	  XML << xml::tag("PointData");
+	  XML << magnet::xml::tag("PointData");
 	  
 	  
 	  //////////////////////////HERE BEGINS THE OUTPUT OF THE FIELDS
 	  ////////////SAMPLE COUNTS
-	  XML << xml::tag("DataArray")
-	      << xml::attr("type") << "Int32"
-	      << xml::attr("Name") << "Collisions Per Snapshot"
-	      << xml::attr("format") << "ascii"
-	      << xml::chardata();
+	  XML << magnet::xml::tag("DataArray")
+	      << magnet::xml::attr("type") << "Int32"
+	      << magnet::xml::attr("Name") << "Collisions Per Snapshot"
+	      << magnet::xml::attr("format") << "ascii"
+	      << magnet::xml::chardata();
 	  
 	  BOOST_FOREACH(const unsigned long& val, collCounter)
 	    XML << val;
 	  
-	  XML << "\n" << xml::endtag("DataArray");
+	  XML << "\n" << magnet::xml::endtag("DataArray");
 	  
 	  BOOST_FOREACH(unsigned long& val, collCounter)
 	    val = 0;
@@ -134,24 +134,24 @@ OPVTK::eventUpdate(const IntEvent& IEvent, const PairEventData& PDat)
 	  BOOST_FOREACH(const Particle& part, Sim->particleList)
 	    ++density[getCellID(part.getPosition())];
 	  
-	  XML << xml::tag("DataArray")
-	      << xml::attr("type") << "Float32"
-	      << xml::attr("Name") << "Density"
-	      << xml::attr("format") << "ascii"
-	      << xml::chardata();
+	  XML << magnet::xml::tag("DataArray")
+	      << magnet::xml::attr("type") << "Float32"
+	      << magnet::xml::attr("Name") << "Density"
+	      << magnet::xml::attr("format") << "ascii"
+	      << magnet::xml::chardata();
 	  
 	  BOOST_FOREACH(const size_t& val, density)
 	    XML << (val / binVol);
 	  
-	  XML << "\n" << xml::endtag("DataArray");
+	  XML << "\n" << magnet::xml::endtag("DataArray");
 
 	  ////////////Postamble
-	  XML << xml::endtag("PointData")
-	      << xml::tag("CellData")
-	      << xml::endtag("CellData")
-	      << xml::endtag("Piece")
-	      << xml::endtag("ImageData")
-	      << xml::endtag("VTKFile");
+	  XML << magnet::xml::endtag("PointData")
+	      << magnet::xml::tag("CellData")
+	      << magnet::xml::endtag("CellData")
+	      << magnet::xml::endtag("Piece")
+	      << magnet::xml::endtag("ImageData")
+	      << magnet::xml::endtag("VTKFile");
 	}
     }
 }
@@ -273,137 +273,137 @@ OPVTK::ticker()
       
       free(fileName);
 
-      xml::XmlStream XML(of);
+      magnet::xml::XmlStream XML(of);
       
       XML //<< std::scientific
 	//This has a minus one due to the digit in front of the decimal
 	//An extra one is added if we're rounding
 	<< std::setprecision(std::numeric_limits<double>::digits10 - 1)
-	<< xml::prolog() << xml::tag("VTKFile")
-	<< xml::attr("type") << "UnstructuredGrid"
-	<< xml::attr("version") << "0.1"
-	<< xml::attr("byte_order") << "LittleEndian"
-	<< xml::tag("UnstructuredGrid")
-	<< xml::tag("Piece") 
-	<< xml::attr("NumberOfPoints") << Sim->N
-	<< xml::attr("NumberOfCells") << 0
-	<< xml::tag("Points")
-	<< xml::tag("DataArray")
-	<< xml::attr("type") << "Float32"
-      	<< xml::attr("format") << "ascii"
-      	<< xml::attr("NumberOfComponents") << "3"
-	<< xml::chardata();
+	<< magnet::xml::prolog() << magnet::xml::tag("VTKFile")
+	<< magnet::xml::attr("type") << "UnstructuredGrid"
+	<< magnet::xml::attr("version") << "0.1"
+	<< magnet::xml::attr("byte_order") << "LittleEndian"
+	<< magnet::xml::tag("UnstructuredGrid")
+	<< magnet::xml::tag("Piece") 
+	<< magnet::xml::attr("NumberOfPoints") << Sim->N
+	<< magnet::xml::attr("NumberOfCells") << 0
+	<< magnet::xml::tag("Points")
+	<< magnet::xml::tag("DataArray")
+	<< magnet::xml::attr("type") << "Float32"
+      	<< magnet::xml::attr("format") << "ascii"
+      	<< magnet::xml::attr("NumberOfComponents") << "3"
+	<< magnet::xml::chardata();
       
       BOOST_FOREACH(const Particle& part, Sim->particleList)
 	XML << part.getPosition()[0] / Sim->dynamics.units().unitLength() << " "
 	    << part.getPosition()[1] / Sim->dynamics.units().unitLength() << " "
 	    << part.getPosition()[2] / Sim->dynamics.units().unitLength() << "\n";
       
-      XML << xml::endtag("DataArray")
-	  << xml::endtag("Points")
-	  << xml::tag("Cells") 
+      XML << magnet::xml::endtag("DataArray")
+	  << magnet::xml::endtag("Points")
+	  << magnet::xml::tag("Cells") 
 
-	  << xml::tag("DataArray")
-	  << xml::attr("type") << "Int32" 
-	  << xml::attr("Name") << "connectivity" 
-	  << xml::attr("format") << "ascii" 
-	  << xml::endtag("DataArray") 
+	  << magnet::xml::tag("DataArray")
+	  << magnet::xml::attr("type") << "Int32" 
+	  << magnet::xml::attr("Name") << "connectivity" 
+	  << magnet::xml::attr("format") << "ascii" 
+	  << magnet::xml::endtag("DataArray") 
 
-	  << xml::tag("DataArray") 
-	  << xml::attr("type") << "Int32" 
-	  << xml::attr("Name") << "offsets" 
-	  << xml::attr("format") << "ascii" 
-	  << xml::endtag("DataArray") 
+	  << magnet::xml::tag("DataArray") 
+	  << magnet::xml::attr("type") << "Int32" 
+	  << magnet::xml::attr("Name") << "offsets" 
+	  << magnet::xml::attr("format") << "ascii" 
+	  << magnet::xml::endtag("DataArray") 
 
-	  << xml::tag("DataArray") 
-	  << xml::attr("type") << "UInt8" 
-	  << xml::attr("Name") << "types" 
-	  << xml::attr("format") << "ascii" 
-	  << xml::endtag("DataArray") 
+	  << magnet::xml::tag("DataArray") 
+	  << magnet::xml::attr("type") << "UInt8" 
+	  << magnet::xml::attr("Name") << "types" 
+	  << magnet::xml::attr("format") << "ascii" 
+	  << magnet::xml::endtag("DataArray") 
 
-	  << xml::endtag("Cells")
-	  << xml::tag("CellData") << xml::endtag("CellData")
-	  << xml::tag("PointData"); 
+	  << magnet::xml::endtag("Cells")
+	  << magnet::xml::tag("CellData") << magnet::xml::endtag("CellData")
+	  << magnet::xml::tag("PointData"); 
 
       //Velocity data    
-      XML << xml::tag("DataArray")
-	  << xml::attr("type") << "Float32"
-	  << xml::attr("Name") << "Velocities"
-	  << xml::attr("NumberOfComponents") << "3"
-	  << xml::attr("format") << "ascii"
-	  << xml::chardata();
+      XML << magnet::xml::tag("DataArray")
+	  << magnet::xml::attr("type") << "Float32"
+	  << magnet::xml::attr("Name") << "Velocities"
+	  << magnet::xml::attr("NumberOfComponents") << "3"
+	  << magnet::xml::attr("format") << "ascii"
+	  << magnet::xml::chardata();
     
       BOOST_FOREACH(const Particle& part, Sim->particleList)
 	XML << part.getVelocity()[0] / Sim->dynamics.units().unitVelocity() << " "
 	    << part.getVelocity()[1] / Sim->dynamics.units().unitVelocity() << " "
 	    << part.getVelocity()[2] / Sim->dynamics.units().unitVelocity() << "\n";
     
-      XML << xml::endtag("DataArray");
+      XML << magnet::xml::endtag("DataArray");
 
-      XML << xml::endtag("PointData")
-	  << xml::endtag("Piece")
-	  << xml::endtag("UnstructuredGrid")
-	  << xml::endtag("VTKFile")
+      XML << magnet::xml::endtag("PointData")
+	  << magnet::xml::endtag("Piece")
+	  << magnet::xml::endtag("UnstructuredGrid")
+	  << magnet::xml::endtag("VTKFile")
 	;
     }
 }
 
 void 
-OPVTK::output(xml::XmlStream& XML)
+OPVTK::output(magnet::xml::XmlStream& XML)
 {
-  XML << xml::tag("VTK")
-      << xml::attr("ImagesTaken") << imageCounter
-      << xml::tag("VTKFile")
-      << xml::attr("type") << "ImageData"
-      << xml::attr("version") << "0.1"
-      << xml::attr("byte_order") << "LittleEndian"
-      << xml::attr("compressor") << "vtkZLibDataCompressor"
-      << xml::tag("ImageData")
-      << xml::attr("WholeExtent");
+  XML << magnet::xml::tag("VTK")
+      << magnet::xml::attr("ImagesTaken") << imageCounter
+      << magnet::xml::tag("VTKFile")
+      << magnet::xml::attr("type") << "ImageData"
+      << magnet::xml::attr("version") << "0.1"
+      << magnet::xml::attr("byte_order") << "LittleEndian"
+      << magnet::xml::attr("compressor") << "vtkZLibDataCompressor"
+      << magnet::xml::tag("ImageData")
+      << magnet::xml::attr("WholeExtent");
   
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     XML << " " << "0 " << nBins[iDim] - 1;
    
-  XML << xml::attr("Origin");
+  XML << magnet::xml::attr("Origin");
 
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     XML << (Sim->primaryCellSize[iDim] * (-0.5))
       / Sim->dynamics.units().unitLength()
 	<< " ";
   
-  XML << xml::attr("Spacing");
+  XML << magnet::xml::attr("Spacing");
   
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     XML << binWidth[iDim] / Sim->dynamics.units().unitLength() << " ";
   
-  XML << xml::tag("Piece")
-      << xml::attr("Extent");
+  XML << magnet::xml::tag("Piece")
+      << magnet::xml::attr("Extent");
   
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     XML << " " << "0 " << nBins[iDim] - 1;
 
-  XML << xml::tag("PointData");
+  XML << magnet::xml::tag("PointData");
 
 
   ////////////SAMPLE COUNTS
-  XML << xml::tag("DataArray")
-      << xml::attr("type") << "Int32"
-      << xml::attr("Name") << "Samples per cell"
-      << xml::attr("format") << "ascii"
-      << xml::chardata();
+  XML << magnet::xml::tag("DataArray")
+      << magnet::xml::attr("type") << "Int32"
+      << magnet::xml::attr("Name") << "Samples per cell"
+      << magnet::xml::attr("format") << "ascii"
+      << magnet::xml::chardata();
 
   for (size_t id(0); id < SampleCounter.size(); ++id)
     XML << SampleCounter[id];
 
-  XML << "\n" << xml::endtag("DataArray");
+  XML << "\n" << magnet::xml::endtag("DataArray");
 
   ////////////Momentum field
-  XML << xml::tag("DataArray")
-      << xml::attr("type") << "Float32"
-      << xml::attr("Name") << "Avg Particle Momentum"
-      << xml::attr("NumberOfComponents") << NDIM   
-      << xml::attr("format") << "ascii"
-      << xml::chardata();
+  XML << magnet::xml::tag("DataArray")
+      << magnet::xml::attr("type") << "Float32"
+      << magnet::xml::attr("Name") << "Avg Particle Momentum"
+      << magnet::xml::attr("NumberOfComponents") << NDIM   
+      << magnet::xml::attr("format") << "ascii"
+      << magnet::xml::chardata();
 
   for (size_t id(0); id < Momentum.size(); ++id)
     {
@@ -416,15 +416,15 @@ OPVTK::output(xml::XmlStream& XML)
 	  XML << 0.0;
     }
 
-  XML << "\n" << xml::endtag("DataArray");
+  XML << "\n" << magnet::xml::endtag("DataArray");
   
 
   ////////////Energy
-  XML << xml::tag("DataArray")
-      << xml::attr("type") << "Float32"
-      << xml::attr("Name") << "Avg Particle Energy"
-      << xml::attr("format") << "ascii"
-      << xml::chardata();
+  XML << magnet::xml::tag("DataArray")
+      << magnet::xml::attr("type") << "Float32"
+      << magnet::xml::attr("Name") << "Avg Particle Energy"
+      << magnet::xml::attr("format") << "ascii"
+      << magnet::xml::chardata();
 
   for (size_t id(0); id < SampleCounter.size(); ++id)
     //Nans are not tolerated by paraview
@@ -434,14 +434,14 @@ OPVTK::output(xml::XmlStream& XML)
     else
       XML << 0.0;
 
-  XML << "\n" << xml::endtag("DataArray");
+  XML << "\n" << magnet::xml::endtag("DataArray");
 
   ////////////Postamble
-  XML << xml::endtag("PointData")
-      << xml::tag("CellData")
-      << xml::endtag("CellData")
-      << xml::endtag("Piece")
-      << xml::endtag("ImageData")
-      << xml::endtag("VTKFile")
-      << xml::endtag("VTK");
+  XML << magnet::xml::endtag("PointData")
+      << magnet::xml::tag("CellData")
+      << magnet::xml::endtag("CellData")
+      << magnet::xml::endtag("Piece")
+      << magnet::xml::endtag("ImageData")
+      << magnet::xml::endtag("VTKFile")
+      << magnet::xml::endtag("VTK");
 }

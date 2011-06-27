@@ -66,10 +66,10 @@ OPVelProfile::ticker()
 }
 
 void 
-OPVelProfile::output(xml::XmlStream& XML)
+OPVelProfile::output(magnet::xml::XmlStream& XML)
 {
-  XML << xml::tag("VelProfile")
-      << xml::chardata();
+  XML << magnet::xml::tag("VelProfile")
+      << magnet::xml::chardata();
   
   size_t nybins = static_cast<size_t>(Sim->primaryCellSize[1]/binWidth)+1;
   size_t nzbins = static_cast<size_t>(Sim->primaryCellSize[2]/binWidth)+1;
@@ -87,5 +87,5 @@ OPVelProfile::output(xml::XmlStream& XML)
       XML << "\n";
     }
       
-  XML << xml::endtag("VelProfile");
+  XML << magnet::xml::endtag("VelProfile");
 }

@@ -34,7 +34,7 @@ public:
   virtual void operator<<(const magnet::xml::Node&);
 
 protected:
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
 
   void addEventsInit(const Particle&);
   

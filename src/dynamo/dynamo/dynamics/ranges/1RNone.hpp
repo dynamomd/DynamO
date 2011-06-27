@@ -55,5 +55,5 @@ protected:
   virtual const unsigned long& getIteratorID(const unsigned long &i) const 
   { M_throw() << "Nothing here!"; }
 
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
 };

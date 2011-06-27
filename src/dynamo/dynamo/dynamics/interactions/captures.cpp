@@ -59,19 +59,19 @@ ISingleCapture::loadCaptureMap(const magnet::xml::Node& XML)
 }
 
 void 
-ISingleCapture::outputCaptureMap(xml::XmlStream& XML) const 
+ISingleCapture::outputCaptureMap(magnet::xml::XmlStream& XML) const 
 {
-  XML << xml::tag("CaptureMap");
+  XML << magnet::xml::tag("CaptureMap");
 
   typedef std::pair<size_t, size_t> locpair;
 
   BOOST_FOREACH(const locpair& IDs, captureMap)
-    XML << xml::tag("Pair")
-	<< xml::attr("ID1") << IDs.first
-	<< xml::attr("ID2") << IDs.second
-	<< xml::endtag("Pair");
+    XML << magnet::xml::tag("Pair")
+	<< magnet::xml::attr("ID1") << IDs.first
+	<< magnet::xml::attr("ID2") << IDs.second
+	<< magnet::xml::endtag("Pair");
   
-  XML << xml::endtag("CaptureMap");
+  XML << magnet::xml::endtag("CaptureMap");
 }
 
 void
@@ -163,20 +163,20 @@ IMultiCapture::loadCaptureMap(const magnet::xml::Node& XML)
 }
 
 void 
-IMultiCapture::outputCaptureMap(xml::XmlStream& XML) const 
+IMultiCapture::outputCaptureMap(magnet::xml::XmlStream& XML) const 
 {
-  XML << xml::tag("CaptureMap");
+  XML << magnet::xml::tag("CaptureMap");
 
   typedef std::pair<const cMapKey, int> locpair;
 
   BOOST_FOREACH(const locpair& IDs, captureMap)
-    XML << xml::tag("Pair")
-	<< xml::attr("ID1") << IDs.first.first
-	<< xml::attr("ID2") << IDs.first.second
-	<< xml::attr("val") << IDs.second
-	<< xml::endtag("Pair");
+    XML << magnet::xml::tag("Pair")
+	<< magnet::xml::attr("ID1") << IDs.first.first
+	<< magnet::xml::attr("ID2") << IDs.first.second
+	<< magnet::xml::attr("val") << IDs.second
+	<< magnet::xml::endtag("Pair");
   
-  XML << xml::endtag("CaptureMap");
+  XML << magnet::xml::endtag("CaptureMap");
 }
 
 

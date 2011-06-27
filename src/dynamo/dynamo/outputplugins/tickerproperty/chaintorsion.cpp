@@ -184,30 +184,30 @@ OPCTorsion::ticker()
 }
 
 void 
-OPCTorsion::output(xml::XmlStream& XML)
+OPCTorsion::output(magnet::xml::XmlStream& XML)
 {
-  XML << xml::tag("ChainTorsion");
+  XML << magnet::xml::tag("ChainTorsion");
   
   BOOST_FOREACH(CTCdata& dat, chains)
     {
-      XML << xml::tag(dat.chainPtr->getName().c_str())
-	  << xml::tag("MolecularHistogram");
+      XML << magnet::xml::tag(dat.chainPtr->getName().c_str())
+	  << magnet::xml::tag("MolecularHistogram");
       
       dat.gammaMol.outputHistogram(XML, 1.0);
       
-      XML << xml::endtag("MolecularHistogram")
-	  << xml::tag("SystemHistogram");
+      XML << magnet::xml::endtag("MolecularHistogram")
+	  << magnet::xml::tag("SystemHistogram");
       
       dat.gammaSys.outputHistogram(XML, 1.0);
       
-      XML << xml::endtag("SystemHistogram")
-	  << xml::tag("FHistogram");
+      XML << magnet::xml::endtag("SystemHistogram")
+	  << magnet::xml::tag("FHistogram");
       
       dat.f.outputHistogram(XML, 1.0);
       
-      XML << xml::endtag("FHistogram")
-	  << xml::endtag(dat.chainPtr->getName().c_str());
+      XML << magnet::xml::endtag("FHistogram")
+	  << magnet::xml::endtag(dat.chainPtr->getName().c_str());
     }
 
-  XML << xml::endtag("ChainTorsion");
+  XML << magnet::xml::endtag("ChainTorsion");
 }

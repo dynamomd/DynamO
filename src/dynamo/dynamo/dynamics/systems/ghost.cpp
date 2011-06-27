@@ -158,23 +158,23 @@ CSysGhost::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-CSysGhost::outputXML(xml::XmlStream& XML) const
+CSysGhost::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::tag("System")
-      << xml::attr("Type") << "Andersen"
-      << xml::attr("Name") << sysName
-      << xml::attr("MFT") << meanFreeTime
+  XML << magnet::xml::tag("System")
+      << magnet::xml::attr("Type") << "Andersen"
+      << magnet::xml::attr("Name") << sysName
+      << magnet::xml::attr("MFT") << meanFreeTime
     * Sim->N
     / Sim->dynamics.units().unitTime()
-      << xml::attr("Temperature") << Temp 
+      << magnet::xml::attr("Temperature") << Temp 
     / Sim->dynamics.units().unitEnergy();
   
   if (tune)
-    XML << xml::attr("SetPoint") << setPoint
-	<< xml::attr("SetFrequency") << setFrequency;
+    XML << magnet::xml::attr("SetPoint") << setPoint
+	<< magnet::xml::attr("SetFrequency") << setFrequency;
   
   XML << range
-      << xml::endtag("System");
+      << magnet::xml::endtag("System");
 }
 
 double 

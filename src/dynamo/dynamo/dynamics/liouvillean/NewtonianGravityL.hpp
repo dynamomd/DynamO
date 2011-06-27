@@ -99,5 +99,5 @@ protected:
   mutable std::vector<long double> _tcList;
   double _tc;
 
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
 };

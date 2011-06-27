@@ -32,20 +32,20 @@ Particle::Particle(const magnet::xml::Node& XML, unsigned long nID):
   _vel << XML.getNode("V");
 }
 
-xml::XmlStream& operator<<(xml::XmlStream& XML, 
+magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
 			    const Particle& particle)
 {
-  XML << xml::attr("ID") << particle._ID;
+  XML << magnet::xml::attr("ID") << particle._ID;
 
   if (!particle.testState(Particle::DYNAMIC))
-    XML << xml::attr("Static") <<  "Static";
+    XML << magnet::xml::attr("Static") <<  "Static";
 
-  XML << xml::tag("P")
+  XML << magnet::xml::tag("P")
       << (particle._pos)
-      << xml::endtag("P")
-      << xml::tag("V")
+      << magnet::xml::endtag("P")
+      << magnet::xml::tag("V")
       << (particle._vel)
-      << xml::endtag("V");
+      << magnet::xml::endtag("V");
   
 
   return XML;

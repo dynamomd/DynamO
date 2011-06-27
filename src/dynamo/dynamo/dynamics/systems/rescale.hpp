@@ -51,7 +51,7 @@ public:
   inline const long double& getScaleFactor() const {return scaleFactor; }
 
 protected:
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
 
   size_t _frequency;
 

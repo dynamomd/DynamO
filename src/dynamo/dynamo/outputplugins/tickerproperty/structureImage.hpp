@@ -36,7 +36,7 @@ class OPStructureImaging: public OPTicker
 
   virtual void operator<<(const magnet::xml::Node&);
 
-  virtual void output(xml::XmlStream&);
+  virtual void output(magnet::xml::XmlStream&);
   
  protected:
 

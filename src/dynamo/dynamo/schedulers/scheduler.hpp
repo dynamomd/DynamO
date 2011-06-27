@@ -55,7 +55,7 @@ public:
 
   virtual void rebuildList() = 0;
 
-  friend xml::XmlStream& operator<<(xml::XmlStream&, const CScheduler&);
+  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const CScheduler&);
 
   static CScheduler* getClass(const magnet::xml::Node&, dynamo::SimData* const);
 
@@ -80,5 +80,5 @@ protected:
   size_t _interactionRejectionCounter;
   size_t _localRejectionCounter;
 
-  virtual void outputXML(xml::XmlStream&) const = 0;
+  virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 };

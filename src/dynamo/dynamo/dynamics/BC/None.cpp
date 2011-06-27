@@ -41,9 +41,9 @@ BCNone::update(const double &)
 {}
 
 void 
-BCNone::outputXML(xml::XmlStream &XML) const
+BCNone::outputXML(magnet::xml::XmlStream &XML) const
 {
-  XML << xml::attr("Type") << "None";
+  XML << magnet::xml::attr("Type") << "None";
 }
 
 void 

@@ -46,7 +46,7 @@ public:
 
   virtual void initialise(size_t) = 0;
 
-  friend xml::XmlStream& operator<<(xml::XmlStream&, const Global&);
+  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Global&);
 
   static Global* getClass(const magnet::xml::Node&, dynamo::SimData*);
 
@@ -59,7 +59,7 @@ public:
   inline const size_t& getID() const { return ID; }
   
 protected:
-  virtual void outputXML(xml::XmlStream&) const = 0;
+  virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
   magnet::ClonePtr<CRange> range;  
   std::string globName;

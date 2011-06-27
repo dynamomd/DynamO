@@ -36,7 +36,7 @@ class BCLeesEdwards: public BoundaryCondition
 
   BCLeesEdwards(const magnet::xml::Node&, const dynamo::SimData*);
 
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
 
   virtual void operator<<(const magnet::xml::Node&);
 

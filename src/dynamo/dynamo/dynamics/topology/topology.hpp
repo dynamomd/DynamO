@@ -40,7 +40,7 @@ public:
 
   virtual void initialise() {}
 
-  friend xml::XmlStream& operator<<(xml::XmlStream&, const Topology&);
+  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Topology&);
   
   const std::string& getName() const
   { return spName; }
@@ -60,7 +60,7 @@ public:
 protected:
   Topology(dynamo::SimData*, size_t ID);
 
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
   
   std::list<magnet::ClonePtr<CRange> > ranges;
   

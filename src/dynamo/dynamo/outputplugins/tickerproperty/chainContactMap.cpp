@@ -96,9 +96,9 @@ OPCContactMap::ticker()
 }
 
 void 
-OPCContactMap::output(xml::XmlStream& XML)
+OPCContactMap::output(magnet::xml::XmlStream& XML)
 {
-  XML << xml::tag("ContactMap");
+  XML << magnet::xml::tag("ContactMap");
   
   BOOST_FOREACH(Cdata& dat, chains)
     {
@@ -110,8 +110,8 @@ OPCContactMap::output(xml::XmlStream& XML)
 	    dat.array[j * dat.chainlength + i] = dat.array[i * dat.chainlength + j];
 	}
 
-      XML << xml::tag(dat.chainPtr->getName().c_str())
-	  << xml::chardata();
+      XML << magnet::xml::tag(dat.chainPtr->getName().c_str())
+	  << magnet::xml::chardata();
 
       //Have to draw the boxes so it renders correctly, hence the doubling up      
       for (unsigned long i = 0; i < dat.chainlength; i++)
@@ -129,8 +129,8 @@ OPCContactMap::output(xml::XmlStream& XML)
 	}
       
             
-      XML << xml::endtag(dat.chainPtr->getName().c_str());
+      XML << magnet::xml::endtag(dat.chainPtr->getName().c_str());
     }
 
-  XML << xml::endtag("ContactMap");
+  XML << magnet::xml::endtag("ContactMap");
 }

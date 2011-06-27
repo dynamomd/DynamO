@@ -62,7 +62,7 @@ public:
   
   virtual void runEvent(const Particle&, const Particle&, const IntEvent&) const;
   
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
 
   virtual double getInternalEnergy() const;
 

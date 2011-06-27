@@ -30,9 +30,9 @@ CRNone::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-CRNone::outputXML(xml::XmlStream& XML) const
+CRNone::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Range") << "All";
+  XML << magnet::xml::attr("Range") << "All";
 }
 
 

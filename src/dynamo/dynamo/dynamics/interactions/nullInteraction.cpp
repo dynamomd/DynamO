@@ -69,9 +69,9 @@ INull::runEvent(const Particle&, const Particle&, const IntEvent&) const
 }
    
 void 
-INull::outputXML(xml::XmlStream& XML) const
+INull::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "Null"
-      << xml::attr("Name") << intName
+  XML << magnet::xml::attr("Type") << "Null"
+      << magnet::xml::attr("Name") << intName
       << range;
 }

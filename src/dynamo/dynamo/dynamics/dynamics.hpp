@@ -162,7 +162,7 @@ public:
 
   void addSystemTicker();
   
-  friend xml::XmlStream& operator<<(xml::XmlStream&, const Dynamics&);
+  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Dynamics&);
 
   inline const Units& units() const { return _units; }
 
@@ -201,7 +201,7 @@ public:
   double getPackingFraction() const;
 
  protected:
-  void outputXML(xml::XmlStream &) const;
+  void outputXML(magnet::xml::XmlStream &) const;
 
   std::vector<magnet::ClonePtr<Interaction> > interactions;
   std::vector<magnet::ClonePtr<Global> > globals;

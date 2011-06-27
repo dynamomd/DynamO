@@ -114,18 +114,18 @@ CLCylinder::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-CLCylinder::outputXML(xml::XmlStream& XML) const
+CLCylinder::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "CylinderWall" 
-      << xml::attr("Name") << localName
-      << xml::attr("Elasticity") << e
-      << xml::attr("Radius") << radius / Sim->dynamics.units().unitLength()
-      << xml::attr("Render") << render
+  XML << magnet::xml::attr("Type") << "CylinderWall" 
+      << magnet::xml::attr("Name") << localName
+      << magnet::xml::attr("Elasticity") << e
+      << magnet::xml::attr("Radius") << radius / Sim->dynamics.units().unitLength()
+      << magnet::xml::attr("Render") << render
       << range
-      << xml::tag("Norm")
+      << magnet::xml::tag("Norm")
       << vNorm
-      << xml::endtag("Norm")
-      << xml::tag("Origin")
+      << magnet::xml::endtag("Norm")
+      << magnet::xml::tag("Origin")
       << vPosition / Sim->dynamics.units().unitLength()
-      << xml::endtag("Origin");
+      << magnet::xml::endtag("Origin");
 }

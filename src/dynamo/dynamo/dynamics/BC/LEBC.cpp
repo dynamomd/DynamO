@@ -45,11 +45,11 @@ BCLeesEdwards::BCLeesEdwards(const magnet::xml::Node& XML,
 }
 
 void 
-BCLeesEdwards::outputXML(xml::XmlStream &XML) const
+BCLeesEdwards::outputXML(magnet::xml::XmlStream &XML) const
 {
-  XML << xml::attr("Type") << "LE"
-      << xml::attr("DXD") << _dxd / Sim->dynamics.units().unitLength()
-      << xml::attr("Rate") << _shearRate * Sim->dynamics.units().unitTime();
+  XML << magnet::xml::attr("Type") << "LE"
+      << magnet::xml::attr("DXD") << _dxd / Sim->dynamics.units().unitLength()
+      << magnet::xml::attr("Rate") << _shearRate * Sim->dynamics.units().unitTime();
 }
 
 void 

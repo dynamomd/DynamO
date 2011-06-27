@@ -152,16 +152,16 @@ CLDblWall::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-CLDblWall::outputXML(xml::XmlStream& XML) const
+CLDblWall::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "DoubleWall" 
-      << xml::attr("Name") << localName
-      << xml::attr("Elasticity") << e
+  XML << magnet::xml::attr("Type") << "DoubleWall" 
+      << magnet::xml::attr("Name") << localName
+      << magnet::xml::attr("Elasticity") << e
       << range
-      << xml::tag("Norm")
+      << magnet::xml::tag("Norm")
       << vNorm
-      << xml::endtag("Norm")
-      << xml::tag("Origin")
+      << magnet::xml::endtag("Norm")
+      << magnet::xml::tag("Origin")
       << vPosition / Sim->dynamics.units().unitLength()
-      << xml::endtag("Origin");
+      << magnet::xml::endtag("Origin");
 }

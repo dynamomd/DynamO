@@ -240,9 +240,9 @@ LCompression::SphereWellEvent(const IntEvent& event, const double& deltaKE, cons
 }
 
 void 
-LCompression::outputXML(xml::XmlStream& XML) const
+LCompression::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") 
+  XML << magnet::xml::attr("Type") 
       << "Compression";
 }
 

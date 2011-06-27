@@ -40,7 +40,7 @@ public:
   const std::list<magnet::ClonePtr<C2Range> >& getRanges() const;
   
 protected:
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
 
   std::list<magnet::ClonePtr<C2Range> > ranges;
 };

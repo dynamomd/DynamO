@@ -126,7 +126,7 @@ namespace dynamo
   
     coutputFile.push(io::file_sink(fileName));
   
-    xml::XmlStream XML(coutputFile);
+    magnet::xml::XmlStream XML(coutputFile);
     XML.setFormatXML(true);
 
     dynamics.getLiouvillean().updateAllParticles();
@@ -145,39 +145,39 @@ namespace dynamo
       //This has a minus one due to the digit in front of the decimal
       //An extra one is added if we're rounding
 	<< std::setprecision(std::numeric_limits<double>::digits10 - 1 - round)
-	<< xml::prolog() << xml::tag("DynamOconfig")
-	<< xml::attr("version") << configFileVersion
-	<< xml::tag("Simulation")
-	<< xml::tag("Trajectory")
-	<< xml::attr("Coll") << endEventCount
-	<< xml::attr("nCollPrint") << eventPrintInterval;
+	<< magnet::xml::prolog() << magnet::xml::tag("DynamOconfig")
+	<< magnet::xml::attr("version") << configFileVersion
+	<< magnet::xml::tag("Simulation")
+	<< magnet::xml::tag("Trajectory")
+	<< magnet::xml::attr("Coll") << endEventCount
+	<< magnet::xml::attr("nCollPrint") << eventPrintInterval;
 
     //Allow this block to fail if need be
     try {
       double mft = getOutputPlugin<OPMisc>()->getMFT();
       if (!std::isinf(mft))
-	XML << xml::attr("lastMFT")
+	XML << magnet::xml::attr("lastMFT")
 	    << mft;
     }
     catch (std::exception&)
       {}
 
-    XML << xml::endtag("Trajectory")
+    XML << magnet::xml::endtag("Trajectory")
 	<< *ensemble
-	<< xml::tag("Scheduler")
+	<< magnet::xml::tag("Scheduler")
 	<< *ptrScheduler
-	<< xml::endtag("Scheduler")
-	<< xml::tag("History") 
-	<< xml::chardata()
+	<< magnet::xml::endtag("Scheduler")
+	<< magnet::xml::tag("History") 
+	<< magnet::xml::chardata()
 	<< ssHistory.str()
 	<< "\nRun for " << eventCount << " collisions"
-	<< xml::endtag("History") << xml::endtag("Simulation")
+	<< magnet::xml::endtag("History") << magnet::xml::endtag("Simulation")
 	<< dynamics
 	<< _properties;
 
     dynamics.getLiouvillean().outputParticleXMLData(XML, applyBC);
 
-    XML << xml::endtag("DynamOconfig");
+    XML << magnet::xml::endtag("DynamOconfig");
 
     dout << "Config written to " << fileName << std::endl;
 

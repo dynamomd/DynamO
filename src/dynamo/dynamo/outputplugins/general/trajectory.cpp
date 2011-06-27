@@ -207,5 +207,5 @@ OPTrajectory::eventUpdate(const System& sys, const NEventData& SDat,
 }
 
 void 
-OPTrajectory::output(xml::XmlStream& XML)
+OPTrajectory::output(magnet::xml::XmlStream& XML)
 {}

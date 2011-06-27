@@ -95,51 +95,51 @@ OPRijVij::eventUpdate(const System& sysEvent, const NEventData& SDat, const doub
 }
 
 void
-OPRijVij::output(xml::XmlStream &XML)
+OPRijVij::output(magnet::xml::XmlStream &XML)
 {
-  XML << xml::tag("RijVijComponents");
+  XML << magnet::xml::tag("RijVijComponents");
   
   typedef std::pair<const mapKey, mapdata> mappair;
 
   BOOST_FOREACH(const mappair& pair1, rvdotacc)
     {
-      XML << xml::tag("Element")
-	  << xml::attr("Type") 
+      XML << magnet::xml::tag("Element")
+	  << magnet::xml::attr("Type") 
 	  << pair1.first.first
-	  << xml::attr("EventName") 
+	  << magnet::xml::attr("EventName") 
 	  << getName(pair1.first.second, Sim);
 
       
       for (size_t iDim(0); iDim < NDIM; ++iDim)
 	{
-	  XML << xml::tag("Rij")
-	      << xml::attr("dimension")
+	  XML << magnet::xml::tag("Rij")
+	      << magnet::xml::attr("dimension")
 	      << iDim
-	      << xml::chardata();
+	      << magnet::xml::chardata();
 
 	  pair1.second.rij[iDim].outputHistogram(XML, 1.0);
 
-	  XML << xml::endtag("Rij");
+	  XML << magnet::xml::endtag("Rij");
 	}
 
       for (size_t iDim(0); iDim < NDIM; ++iDim)
 	{
-	  XML << xml::tag("Vij")
-	      << xml::attr("dimension")
+	  XML << magnet::xml::tag("Vij")
+	      << magnet::xml::attr("dimension")
 	      << iDim
-	      << xml::chardata();
+	      << magnet::xml::chardata();
 
 	  pair1.second.vij[iDim].outputHistogram(XML, 1.0);
 
-	  XML << xml::endtag("Vij");
+	  XML << magnet::xml::endtag("Vij");
 	}
 
       for (size_t iDim(0); iDim < NDIM; ++iDim)
 	{
-	  XML << xml::tag("RijVijvsRij")
-	      << xml::attr("dimension")
+	  XML << magnet::xml::tag("RijVijvsRij")
+	      << magnet::xml::attr("dimension")
 	      << iDim
-	      << xml::chardata();
+	      << magnet::xml::chardata();
 
 	  for (size_t i(0); i < 2000; ++i)
 	    XML << ((i - 1000.0) / 1000.0) << " "
@@ -147,15 +147,15 @@ OPRijVij::output(xml::XmlStream &XML)
 	      / pair1.second.rijcostheta[iDim][i].first
 		<< "\n";
 
-	  XML << xml::endtag("RijVijvsRij");
+	  XML << magnet::xml::endtag("RijVijvsRij");
 	}
 
       for (size_t iDim(0); iDim < NDIM; ++iDim)
 	{
-	  XML << xml::tag("RijvsRijVij")
-	      << xml::attr("dimension")
+	  XML << magnet::xml::tag("RijvsRijVij")
+	      << magnet::xml::attr("dimension")
 	      << iDim
-	      << xml::chardata();
+	      << magnet::xml::chardata();
 
 	  for (size_t i(0); i < 1000; ++i)
 	    XML << ( static_cast<double>(i) / -1000.0) << " "
@@ -163,15 +163,15 @@ OPRijVij::output(xml::XmlStream &XML)
 	      / pair1.second.costhetarij[iDim][i].first
 		<< "\n";
 
-	  XML << xml::endtag("RijvsRijVij");
+	  XML << magnet::xml::endtag("RijvsRijVij");
 	}
 
       for (size_t iDim(0); iDim < NDIM; ++iDim)
 	{
-	  XML << xml::tag("XijRvdot")
-	      << xml::attr("dimension")
+	  XML << magnet::xml::tag("XijRvdot")
+	      << magnet::xml::attr("dimension")
 	      << iDim
-	      << xml::chardata();
+	      << magnet::xml::chardata();
 
 	  for (size_t i1(0); i1 < 200; ++i1)
 	    {	      
@@ -186,12 +186,12 @@ OPRijVij::output(xml::XmlStream &XML)
 	    }
 	  
 
-	  XML << xml::endtag("XijRvdot");
+	  XML << magnet::xml::endtag("XijRvdot");
 	}
       
-      XML << xml::endtag("Element");
+      XML << magnet::xml::endtag("Element");
     }
   
   
-    XML << xml::endtag("RijVijComponents");
+    XML << magnet::xml::endtag("RijVijComponents");
 }

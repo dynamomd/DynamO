@@ -33,8 +33,8 @@ C2RAll::operator<<(const magnet::xml::Node&)
 }
 
 void 
-C2RAll::outputXML(xml::XmlStream& XML) const
+C2RAll::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Range") << "2All"; 
+  XML << magnet::xml::attr("Range") << "2All"; 
 }
 

@@ -64,7 +64,7 @@ CScheduler::getClass(const magnet::xml::Node& XML, dynamo::SimData* const Sim)
 	      << ", Unknown type of Scheduler encountered";
 }
 
-xml::XmlStream& operator<<(xml::XmlStream& XML, 
+magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
 			   const CScheduler& g)
 {
   g.outputXML(XML);

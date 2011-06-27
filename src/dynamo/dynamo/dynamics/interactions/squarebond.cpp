@@ -221,12 +221,12 @@ ISquareBond::runEvent(const Particle& p1, const Particle& p2,
 }
     
 void 
-ISquareBond::outputXML(xml::XmlStream& XML) const
+ISquareBond::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "SquareBond"
-      << xml::attr("Diameter") << _diameter->getName()
-      << xml::attr("Lambda") << _lambda->getName()
-      << xml::attr("Name") << intName
-      << xml::attr("Elasticity") << _e->getName()
+  XML << magnet::xml::attr("Type") << "SquareBond"
+      << magnet::xml::attr("Diameter") << _diameter->getName()
+      << magnet::xml::attr("Lambda") << _lambda->getName()
+      << magnet::xml::attr("Name") << intName
+      << magnet::xml::attr("Elasticity") << _e->getName()
       << range;
 }

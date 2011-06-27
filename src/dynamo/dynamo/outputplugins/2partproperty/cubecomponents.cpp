@@ -108,25 +108,25 @@ OPCubeComp::eventUpdate(const System& sysEvent, const NEventData& SDat, const do
 }
 
 void
-OPCubeComp::output(xml::XmlStream &XML)
+OPCubeComp::output(magnet::xml::XmlStream &XML)
 {
-  XML << xml::tag("CubeComponents");
+  XML << magnet::xml::tag("CubeComponents");
   
   typedef std::pair<const mapKey, mapdata> mappair;
 
   BOOST_FOREACH(const mappair& pair1, angles)
     {
-      XML << xml::tag("Element")
-	  << xml::attr("Type") 
+      XML << magnet::xml::tag("Element")
+	  << magnet::xml::attr("Type") 
 	  << pair1.first.first
-	  << xml::attr("EventName") 
+	  << magnet::xml::attr("EventName") 
 	  << getName(pair1.first.second, Sim);
       
       for (size_t i(0); i < NDIM; ++i)
 	pair1.second.angles[i].outputHistogram(XML, 1.0);
       
-      XML << xml::endtag("Element");
+      XML << magnet::xml::endtag("Element");
     }
 
-    XML << xml::endtag("CubeComponents");
+    XML << magnet::xml::endtag("CubeComponents");
 }

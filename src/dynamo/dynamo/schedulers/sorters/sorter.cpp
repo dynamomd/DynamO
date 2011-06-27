@@ -51,7 +51,7 @@ CSSorter::getClass(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
     M_throw() << "Unknown type of Sorter encountered";
 }
 
-xml::XmlStream& operator<<(xml::XmlStream& XML, const CSSorter& srtr)
+magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const CSSorter& srtr)
 {
   srtr.outputXML(XML);
   return XML;

@@ -98,41 +98,41 @@ OPCollEnergyChange::A2ParticleChange(const PairEventData& PDat)
 }
 
 void
-OPCollEnergyChange::output(xml::XmlStream &XML)
+OPCollEnergyChange::output(magnet::xml::XmlStream &XML)
 {
-  XML << xml::tag("CollEnergyChange")
-      << xml::tag("PairCalc");
+  XML << magnet::xml::tag("CollEnergyChange")
+      << magnet::xml::tag("PairCalc");
 
   specialhist.outputHistogram(XML, 1.0 / Sim->dynamics.units().unitEnergy());
 
-  XML << xml::endtag("PairCalc");
+  XML << magnet::xml::endtag("PairCalc");
 
   for (size_t id = 0; id < data.size(); ++id)
     {
-      XML << xml::tag("Species")
-	  << xml::attr("Name")
+      XML << magnet::xml::tag("Species")
+	  << magnet::xml::attr("Name")
 	  << Sim->dynamics.getSpecies()[id]->getName();
 
       data[id].outputHistogram(XML, 1.0 / Sim->dynamics.units().unitEnergy());
 
-      XML << xml::endtag("Species");
+      XML << magnet::xml::endtag("Species");
     }
 
   typedef std::pair<const mapkey, histogram> locpair;
   BOOST_FOREACH(const locpair& pdat, collisionKE)
     {
-      XML << xml::tag("Energy_On_Collision")
-	  << xml::attr("Species") << Sim->dynamics.getSpecies()[pdat.first.get<0>()]->getName()
-	  << xml::attr("EventPartnerSpecies")
+      XML << magnet::xml::tag("Energy_On_Collision")
+	  << magnet::xml::attr("Species") << Sim->dynamics.getSpecies()[pdat.first.get<0>()]->getName()
+	  << magnet::xml::attr("EventPartnerSpecies")
 	  << Sim->dynamics.getSpecies()[pdat.first.get<1>()]->getName()
-	  << xml::attr("EventType") 
+	  << magnet::xml::attr("EventType") 
 	  << pdat.first.get<2>();
       
       pdat.second.outputHistogram(XML, 1.0 / Sim->dynamics.units().unitEnergy());      
 
-      XML << xml::endtag("Energy_On_Collision");
+      XML << magnet::xml::endtag("Energy_On_Collision");
     }
 
-  XML << xml::endtag("CollEnergyChange");
+  XML << magnet::xml::endtag("CollEnergyChange");
 }
 

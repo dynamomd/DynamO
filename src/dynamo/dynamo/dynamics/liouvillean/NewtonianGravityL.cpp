@@ -286,18 +286,18 @@ LNewtonianGravity::getSquareCellCollision3(const Particle& part,
 }
 
 void 
-LNewtonianGravity::outputXML(xml::XmlStream& XML) const
+LNewtonianGravity::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") 
+  XML << magnet::xml::attr("Type") 
       << "NewtonianGravity";
 
   if (elasticV)
-    XML << xml::attr("ElasticV") << elasticV / Sim->dynamics.units().unitVelocity();
+    XML << magnet::xml::attr("ElasticV") << elasticV / Sim->dynamics.units().unitVelocity();
 
   if (_tc > 0)
-    XML << xml::attr("tc") << _tc / Sim->dynamics.units().unitTime();
+    XML << magnet::xml::attr("tc") << _tc / Sim->dynamics.units().unitTime();
 
-  XML << xml::tag("g") << g / Sim->dynamics.units().unitAcceleration() << xml::endtag("g");
+  XML << magnet::xml::tag("g") << g / Sim->dynamics.units().unitAcceleration() << magnet::xml::endtag("g");
 }
 
 double 

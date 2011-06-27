@@ -37,7 +37,7 @@ class OPKEnergyTicker: public OPTicker
 
   virtual void ticker();
   
-  virtual void output(xml::XmlStream&);
+  virtual void output(magnet::xml::XmlStream&);
 
   void operator<<(const magnet::xml::Node&);
 
