@@ -17,7 +17,7 @@
 
 #pragma once
 #include "filter.hpp"
-#include <magnet/GL/multiplyTexture.hpp>
+#include <magnet/GL/shader/multiplyTexture.hpp>
 
 namespace coil 
 {
@@ -38,6 +38,6 @@ namespace coil
 
     inline virtual bool needsNormalDepth()  { return false; }
   protected:
-    magnet::GL::MultiplyTexture _filter;
+    magnet::GL::shader::MultiplyTexture _filter;
   };
 }

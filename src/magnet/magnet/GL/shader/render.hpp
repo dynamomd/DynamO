@@ -15,17 +15,18 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <magnet/GL/detail/shader.hpp>
+#include <magnet/GL/shader/detail/shader.hpp>
 #define STRINGIFY(A) #A
 
 namespace magnet {
   namespace GL {
-    class shadowShader: public detail::Shader
-    {
-    public:      
-      virtual std::string vertexShaderSource()
+    namespace shader {
+      class RenderShader: public detail::Shader
       {
-	return STRINGIFY( 
+      public:      
+	virtual std::string vertexShaderSource()
+	{
+	  return STRINGIFY( 
 varying vec4 ShadowCoord; // Used for shadow lookup
 varying vec3 lightDir; //Direction of the light
 varying vec3 normal; //The surface normal
@@ -56,11 +57,11 @@ void main()
   //Standard vertex transformation
   gl_Position = ftransform();
 });
-      }
-
-      virtual std::string fragmentShaderSource()
-      {
-	return STRINGIFY(
+	}
+	
+	virtual std::string fragmentShaderSource()
+	{
+	  return STRINGIFY(
 uniform sampler2DShadow ShadowMap; //The sampler for the shadow map
 varying vec4 ShadowCoord; // Texture coordinate used for shadow lookup
 uniform int ShadowMapping; //If shadow mapping is enabled or not
@@ -161,8 +162,9 @@ void main()
 
   gl_FragColor = color;
 });
-      }
-    };
+	}
+      };
+    }
   }
 }
 

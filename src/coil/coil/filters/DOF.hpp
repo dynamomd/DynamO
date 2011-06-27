@@ -17,7 +17,7 @@
 
 #pragma once
 #include "filter.hpp"
-#include <magnet/GL/DOF.hpp>
+#include <magnet/GL/shader/DOF.hpp>
 
 namespace coil 
 {
@@ -88,7 +88,7 @@ namespace coil
       start->show();
     }
   protected:
-    magnet::GL::DOF _filter;
+    magnet::GL::shader::DOF _filter;
 
     Gtk::HScale _focalLengthSlider;
     Gtk::HScale _focalWidthSlider;

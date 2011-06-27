@@ -27,6 +27,4 @@ public:
   virtual void releaseCLGLResources() { RTriangles::releaseCLGLResources(); }
 
   void setGLElements(std::vector<int>& Elements);
-
-protected:
 };

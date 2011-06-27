@@ -20,7 +20,7 @@
 
 #include "Quads.hpp"
 #include <magnet/GL/texture.hpp>
-#include <magnet/GL/volumeShader.hpp>
+#include <magnet/GL/shader/volume.hpp>
 #include <magnet/gtk/transferFunction.hpp>
 #include <memory>
 
@@ -56,7 +56,7 @@ namespace coil {
 
     void transferFunctionUpdated();
 
-    magnet::GL::volumeRenderer _shader;
+    magnet::GL::shader::VolumeShader _shader;
     std::auto_ptr<magnet::GL::FBO> _fbo;
 
     magnet::GL::Texture3D _data;

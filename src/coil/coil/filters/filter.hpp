@@ -20,8 +20,8 @@
 #include <gtkmm.h>
 
 #include <magnet/GL/viewPort.hpp>
-#include <magnet/GL/laplacianFilter.hpp>
-#include <magnet/GL/blur.hpp>
+#include <magnet/GL/shader/laplacianFilter.hpp>
+#include <magnet/GL/shader/blur.hpp>
 
 namespace coil 
 { 
@@ -33,12 +33,12 @@ namespace coil
   class FlushToOriginal;
 }
 
-typedef coil::magnetFilterWrapper<magnet::GL::laplacianFilter5,false> lap5x5;
-typedef coil::magnetFilterWrapper<magnet::GL::laplacianFilter3A,false> lap3x3A;
-typedef coil::magnetFilterWrapper<magnet::GL::laplacianFilter3B,false> lap3x3B;
-typedef coil::magnetFilterWrapper<magnet::GL::LoGFilter,false> lapgauss9x9;
-typedef coil::magnetFilterWrapper<magnet::GL::blurFilter,false> gauss5x5;
-typedef coil::magnetFilterWrapper<magnet::GL::boxFilter,false> box5x5;
+typedef coil::magnetFilterWrapper<magnet::GL::shader::laplacianFilter5,false> lap5x5;
+typedef coil::magnetFilterWrapper<magnet::GL::shader::laplacianFilter3A,false> lap3x3A;
+typedef coil::magnetFilterWrapper<magnet::GL::shader::laplacianFilter3B,false> lap3x3B;
+typedef coil::magnetFilterWrapper<magnet::GL::shader::LoGFilter,false> lapgauss9x9;
+typedef coil::magnetFilterWrapper<magnet::GL::shader::blurFilter,false> gauss5x5;
+typedef coil::magnetFilterWrapper<magnet::GL::shader::boxFilter,false> box5x5;
 
 //Format is F(enumeration,stringname,type)
 #define FILTER_FACTORY(F)						\

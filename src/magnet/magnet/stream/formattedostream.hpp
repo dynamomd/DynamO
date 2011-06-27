@@ -90,7 +90,7 @@ namespace magnet
 	  //We strip the end "\n" for the search replace of the prefix
 	  if (endl) ostring.erase(ostring.end() -1);
 	  //Add the prefix to every newline
-	  ostring = string::searchReplace(ostring, "\n", "\n" + _prefix);
+	  ostring = string::search_replace(ostring, "\n", "\n" + _prefix);
 	  //Readd the final endline
 	  if (endl) ostring += "\n";
 

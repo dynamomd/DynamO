@@ -15,37 +15,26 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <magnet/GL/detail/shader.hpp>
+#include <magnet/GL/shader/detail/shader.hpp>
 #define STRINGIFY(A) #A
 
 namespace magnet {
   namespace GL {
-    
-    class BilateralBlur : public detail::Shader
-    {
-    public:
-      void invoke()
+    namespace shader {
+      class BilateralBlur : public detail::Shader
       {
-	attach();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	drawScreenQuad();
-	glUseProgramObjectARB(0);	
-      }
-
-      virtual std::string vertexShaderSource()
-      {
-	return STRINGIFY( 
-void main(void)
-{
-  gl_Position = ftransform();
-  gl_TexCoord[0] = gl_MultiTexCoord0;
-}
-);
-      }
-
-      virtual std::string fragmentShaderSource()
-      { 
-	return STRINGIFY(
+      public:
+	void invoke()
+	{
+	  attach();
+	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	  drawScreenQuad();
+	  glUseProgramObjectARB(0);	
+	}
+	
+	virtual std::string fragmentShaderSource()
+	{ 
+	  return STRINGIFY(
 uniform sampler2D u_Texture0; //input
 uniform sampler2D u_Texture2; //Depth buffer
 uniform vec2 scale;
@@ -83,10 +72,10 @@ void main(void)
       }
   
   gl_FragColor = vec4(accum / totalWeight, 1);
-}
-);
-      }
-    };
+});
+	}
+      };
+    }
   }
 }
 

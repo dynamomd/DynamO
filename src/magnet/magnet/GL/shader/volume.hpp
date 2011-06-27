@@ -15,31 +15,20 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <magnet/GL/detail/shader.hpp>
-#include <magnet/math/vector.hpp>
+#include <magnet/GL/shader/detail/shader.hpp>
 
 //Simple macro to convert a token to a string
 #define STRINGIFY(A) #A
 
 namespace magnet {
   namespace GL {
-
-    class volumeRenderer: public detail::Shader
-    {
-    public:      
-      virtual std::string vertexShaderSource()
+    namespace shader {
+      class VolumeShader: public detail::Shader
       {
-	return STRINGIFY( 
-void main()
-{
-  gl_Position = ftransform();
-}
-);
-      }
-
-      virtual std::string fragmentShaderSource()
-      {
-	return STRINGIFY( 
+      public:      
+	virtual std::string fragmentShaderSource()
+	{
+	  return STRINGIFY( 
 uniform float FocalLength;
 uniform vec2 WindowSize;
 uniform vec3 RayOrigin;
@@ -202,10 +191,10 @@ void main()
   */
   color.rgb /= (color.a == 0.0) +  color.a;
   gl_FragColor = color;
-}
-);
-}
-    };
+});
+	}
+      };
+    }
   }
 }
 

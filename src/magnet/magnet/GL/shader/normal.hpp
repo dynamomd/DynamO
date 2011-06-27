@@ -15,51 +15,45 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <magnet/GL/detail/shader.hpp>
+#include <magnet/GL/shader/detail/shader.hpp>
 #define STRINGIFY(A) #A
 
 namespace magnet {
   namespace GL {
-    
-    class MultiplyTexture : public detail::Shader
-    {
-    public:
-      void invoke()
+    namespace shader {
+      class NormalShader : public detail::Shader
       {
-	//Setup the shader arguments
-	glUseProgram(_shaderID);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      public:
+	inline void attach()
+	{
+	  //Setup the shader arguments
+	  glUseProgram(_shaderID);
+	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
 
-	drawScreenQuad();
-	
-	//Restore the fixed pipeline
-	glUseProgramObjectARB(0);
-      }
-
-      virtual std::string vertexShaderSource()
-      {
-	return STRINGIFY( 
-void main(void)
+	virtual std::string vertexShaderSource()
+	{
+	  return STRINGIFY(
+varying vec3 Normal;
+void main()
 {
+  vec4 viewPos = gl_ModelViewMatrix * gl_Vertex;
   gl_Position = ftransform();
-  gl_TexCoord[0] = gl_MultiTexCoord0;
-}
-);
-      }
-
-      virtual std::string fragmentShaderSource()
-      {
-	return STRINGIFY(
-uniform sampler2D u_Texture0; //input
-uniform sampler2D u_Texture1; //Depth buffer
-
-void main(void)
+  Normal = normalize((gl_ModelViewMatrix * vec4(gl_Normal.xyz,0.0)).xyz);
+});
+	}
+	
+	virtual std::string fragmentShaderSource()
+	{
+	  return STRINGIFY(
+varying vec3 Normal;
+void main( void )
 {
-  gl_FragColor = texture2D(u_Texture0, gl_TexCoord[0].st) * texture2D(u_Texture1, gl_TexCoord[0].st);
-}
-);
-      }
-    };
+  gl_FragColor = vec4(0.5 * normalize(Normal) + 0.5, 1.0);
+});
+	}
+      };
+    }
   }
 }
 

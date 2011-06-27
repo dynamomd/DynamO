@@ -16,7 +16,7 @@
 */
 
 #pragma once
-#include <magnet/GL/SSAO.hpp>
+#include <magnet/GL/shader/SSAO.hpp>
 #include "filter.hpp"
 
 namespace coil 
@@ -37,7 +37,7 @@ namespace coil
     virtual void showControls(Gtk::ScrolledWindow*);
 
   protected:
-    magnet::GL::SSAO _filter;
+    magnet::GL::shader::SSAO _filter;
     Glib::RefPtr<Gtk::Builder> _refXml;
     GLfloat _radius;
     GLfloat _totStrength;

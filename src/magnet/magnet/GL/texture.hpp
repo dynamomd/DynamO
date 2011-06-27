@@ -16,10 +16,9 @@
  */
 #pragma once
 
-#include <magnet/GL/detail/filter.hpp>
+#define GL_GLEXT_PROTOTYPES
+#include <GL/glew.h>
 #include <magnet/exception.hpp>
-#include <fstream>
-#include <algorithm>
 
 namespace magnet {
   namespace GL {

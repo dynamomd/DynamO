@@ -18,7 +18,7 @@
 #pragma once
 
 #include <gtkmm.h>
-#include <magnet/GL/BilateralBlur.hpp>
+#include <magnet/GL/shader/bilateralblur.hpp>
 #include "filter.hpp"
 
 namespace coil 
@@ -37,7 +37,7 @@ namespace coil
     virtual void showControls(Gtk::ScrolledWindow*);
 
   protected:
-    magnet::GL::BilateralBlur _filter;
+    magnet::GL::shader::BilateralBlur _filter;
     GLuint _radius;
     GLfloat _zdiff;
 

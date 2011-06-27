@@ -15,52 +15,52 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <magnet/GL/detail/shader.hpp>
+#include <magnet/GL/shader/detail/shader.hpp>
 #include <sstream>
 #define STRINGIFY(A) #A
 
 namespace magnet {
   namespace GL {
-    namespace detail {
-      
-      class SSFilter : public Shader
-      {
-      protected:
-	void build(int stencilwidth)
+    namespace shader {
+      namespace detail {
+	class SSFilter : public Shader
 	{
-	  _stencilwidth = stencilwidth;
+	protected:
+	  void build(int stencilwidth)
+	  {
+	    _stencilwidth = stencilwidth;
 
-	  Shader::build();
-	  //Get the shader args
-	  glUseProgram(_shaderID);
-	  _scaleUniform = glGetUniformLocationARB(_shaderID,"u_Scale");	  
-	  _textureUniform = glGetUniformLocationARB(_shaderID,"u_Texture0");	  
+	    Shader::build();
+	    //Get the shader args
+	    glUseProgram(_shaderID);
+	    _scaleUniform = glGetUniformLocationARB(_shaderID,"u_Scale");	  
+	    _textureUniform = glGetUniformLocationARB(_shaderID,"u_Texture0");	  
 
-	  //Set the weights now
-	  GLint weightsUniform = glGetUniformLocationARB(_shaderID, "weights");
-	  glUniform1fvARB(weightsUniform, stencilwidth * stencilwidth, weights());
+	    //Set the weights now
+	    GLint weightsUniform = glGetUniformLocationARB(_shaderID, "weights");
+	    glUniform1fvARB(weightsUniform, stencilwidth * stencilwidth, weights());
 
-	  //Restore the fixed pipeline
-	  glUseProgramObjectARB(0);
-	}
+	    //Restore the fixed pipeline
+	    glUseProgramObjectARB(0);
+	  }
 
-      public:
-	void invoke()
-	{
-	  //Setup the shader arguments
-	  glUseProgram(_shaderID);	  
-	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	  drawScreenQuad();
-	  //Restore the fixed pipeline
-	  glUseProgramObjectARB(0);
-	}
+	public:
+	  void invoke()
+	  {
+	    //Setup the shader arguments
+	    glUseProgram(_shaderID);	  
+	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	    drawScreenQuad();
+	    //Restore the fixed pipeline
+	    glUseProgramObjectARB(0);
+	  }
 	
-	virtual std::string vertexShaderSource()
-	{
-	  std::ostringstream data;
-	  data << _stencilwidth; 
+	  virtual std::string vertexShaderSource()
+	  {
+	    std::ostringstream data;
+	    data << _stencilwidth; 
 	  
-	  return std::string("#define stencilwidth ") + data.str() + "\n"
+	    return std::string("#define stencilwidth ") + data.str() + "\n"
 STRINGIFY(
 uniform vec2 u_Scale;
 uniform float weights[stencilwidth * stencilwidth];
@@ -71,15 +71,15 @@ void main()
   gl_Position = ftransform();
   gl_TexCoord[0] = gl_MultiTexCoord0;
 });
-	}
-
-	virtual std::string fragmentShaderSource()
-	{
-	  //Simple writethrough fragment shader
-	  std::ostringstream data;
-	  data << _stencilwidth; 
+	  }
 	  
-	  return std::string("#define stencilwidth ") + data.str() + "\n"
+	  virtual std::string fragmentShaderSource()
+	  {
+	    //Simple writethrough fragment shader
+	    std::ostringstream data;
+	    data << _stencilwidth; 
+	  
+	    return std::string("#define stencilwidth ") + data.str() + "\n"
 STRINGIFY(
 uniform vec2 u_Scale;
 uniform float weights[stencilwidth * stencilwidth];
@@ -99,14 +99,15 @@ void main()
 
   gl_FragColor =  color;
 });
-	}
+	  }
 
-      protected:
-	virtual const GLfloat* weights() = 0;
-
-	GLint _scaleUniform, _textureUniform;
-	int _stencilwidth;
-      };
+	protected:
+	  virtual const GLfloat* weights() = 0;
+	  
+	  GLint _scaleUniform, _textureUniform;
+	  int _stencilwidth;
+	};
+      }
     }
   }
 }
