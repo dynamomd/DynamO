@@ -31,7 +31,7 @@ namespace magnet {
 	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	virtual std::string vertexShaderSource()
+	virtual std::string initVertexShaderSource()
 	{
 	  return STRINGIFY(
 varying vec3 Normal;
@@ -43,7 +43,7 @@ void main()
 });
 	}
 	
-	virtual std::string fragmentShaderSource()
+	virtual std::string initFragmentShaderSource()
 	{
 	  return STRINGIFY(
 varying vec3 Normal;

@@ -32,7 +32,7 @@ namespace magnet {
 	  glUseProgramObjectARB(0);	
 	}
 	
-	virtual std::string fragmentShaderSource()
+	virtual std::string initFragmentShaderSource()
 	{ 
 	  return STRINGIFY(
 uniform sampler2D u_Texture0; //input

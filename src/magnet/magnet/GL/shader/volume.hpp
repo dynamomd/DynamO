@@ -26,7 +26,7 @@ namespace magnet {
       class VolumeShader: public detail::Shader
       {
       public:      
-	virtual std::string fragmentShaderSource()
+	virtual std::string initFragmentShaderSource()
 	{
 	  return STRINGIFY( 
 uniform float FocalLength;

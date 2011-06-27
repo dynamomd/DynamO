@@ -55,7 +55,7 @@ namespace magnet {
 	    glUseProgramObjectARB(0);
 	  }
 	
-	  virtual std::string vertexShaderSource()
+	  virtual std::string initVertexShaderSource()
 	  {
 	    std::ostringstream data;
 	    data << _stencilwidth; 
@@ -73,7 +73,7 @@ void main()
 });
 	  }
 	  
-	  virtual std::string fragmentShaderSource()
+	  virtual std::string initFragmentShaderSource()
 	  {
 	    //Simple writethrough fragment shader
 	    std::ostringstream data;

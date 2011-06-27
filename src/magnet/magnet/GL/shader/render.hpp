@@ -24,7 +24,7 @@ namespace magnet {
       class RenderShader: public detail::Shader
       {
       public:      
-	virtual std::string vertexShaderSource()
+	virtual std::string initVertexShaderSource()
 	{
 	  return STRINGIFY( 
 varying vec4 ShadowCoord; // Used for shadow lookup
@@ -59,7 +59,7 @@ void main()
 });
 	}
 	
-	virtual std::string fragmentShaderSource()
+	virtual std::string initFragmentShaderSource()
 	{
 	  return STRINGIFY(
 uniform sampler2DShadow ShadowMap; //The sampler for the shadow map
