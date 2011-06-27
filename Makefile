@@ -22,9 +22,8 @@ build_deps:
 	if [ ! -x $(BJAM) ]; then cd src/boost; ./bootstrap.sh; fi
 
 install: build_deps all
-	mkdir -p $(DESTDIR)/usr/bin/
-	cp bin/* $(DESTDIR)/usr/bin/
-	cp lib/* $(DESTDIR)/usr/lib/
+	if [ -d ./bin ]; then mkdir -p $(DESTDIR)/usr/bin/; cp bin/* $(DESTDIR)/usr/bin/; fi
+	if [ -d ./lib ]; then mkdir -p $(DESTDIR)/usr/lib/; cp lib/* $(DESTDIR)/usr/lib/; fi
 
 distclean: build_deps
 	rm -Rf build-dir
