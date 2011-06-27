@@ -15,8 +15,8 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-
 #include <magnet/GL/detail/shader.hpp>
+#define STRINGIFY(A) #A
 
 namespace magnet {
   namespace GL {
@@ -31,10 +31,29 @@ namespace magnet {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       }
 
-      virtual std::string vertexShaderSource();
-      virtual std::string fragmentShaderSource();
+      virtual std::string vertexShaderSource()
+      {
+	return STRINGIFY(
+varying vec3 Normal;
+void main()
+{
+  vec4 viewPos = gl_ModelViewMatrix * gl_Vertex;
+  gl_Position = ftransform();
+  Normal = normalize((gl_ModelViewMatrix * vec4(gl_Normal.xyz,0.0)).xyz);
+});
+      }
+
+      virtual std::string fragmentShaderSource()
+      {
+      return STRINGIFY(
+varying vec3 Normal;
+void main( void )
+{
+  gl_FragColor = vec4(0.5 * normalize(Normal) + 0.5, 1.0);
+});
+      }
     };
   }
 }
 
-#include <magnet/GL/detail/shaders/nrmlShader.glh>
+#undef STRINGIFY

@@ -15,9 +15,9 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-
-#include <string>
 #include <magnet/GL/detail/shader.hpp>
+#include <sstream>
+#define STRINGIFY(A) #A
 
 namespace magnet {
   namespace GL {
@@ -55,8 +55,51 @@ namespace magnet {
 	  glUseProgramObjectARB(0);
 	}
 	
-	virtual std::string vertexShaderSource();
-	virtual std::string fragmentShaderSource();
+	virtual std::string vertexShaderSource()
+	{
+	  std::ostringstream data;
+	  data << _stencilwidth; 
+	  
+	  return std::string("#define stencilwidth ") + data.str() + "\n"
+STRINGIFY(
+uniform vec2 u_Scale;
+uniform float weights[stencilwidth * stencilwidth];
+uniform sampler2D u_Texture0;
+
+void main()
+{
+  gl_Position = ftransform();
+  gl_TexCoord[0] = gl_MultiTexCoord0;
+});
+	}
+
+	virtual std::string fragmentShaderSource()
+	{
+	  //Simple writethrough fragment shader
+	  std::ostringstream data;
+	  data << _stencilwidth; 
+	  
+	  return std::string("#define stencilwidth ") + data.str() + "\n"
+STRINGIFY(
+uniform vec2 u_Scale;
+uniform float weights[stencilwidth * stencilwidth];
+uniform sampler2D u_Texture0;
+
+void main()
+{
+  vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
+
+  for(int x = 0; x < stencilwidth; ++x)
+    for(int y = 0; y < stencilwidth; ++y)
+      color += weights[y * stencilwidth + x]
+      	* texture2D(u_Texture0, gl_TexCoord[0].st 
+		    + vec2((x - stencilwidth / 2) * u_Scale.x, (y - stencilwidth / 2) * u_Scale.y));
+  
+  color.a = 1;
+
+  gl_FragColor =  color;
+});
+	}
 
       protected:
 	virtual const GLfloat* weights() = 0;
@@ -68,4 +111,4 @@ namespace magnet {
   }
 }
 
-#include <magnet/GL/detail/shaders/filter.glh>
+#undef STRINGIFY

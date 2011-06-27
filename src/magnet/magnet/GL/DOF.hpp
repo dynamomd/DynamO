@@ -15,8 +15,8 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-
 #include <magnet/GL/detail/shader.hpp>
+#define STRINGIFY(A) #A
 
 namespace magnet {
   namespace GL {
@@ -34,10 +34,52 @@ namespace magnet {
 	glUseProgramObjectARB(0);
       }
 
-      virtual std::string vertexShaderSource();
-      virtual std::string fragmentShaderSource();
+      virtual std::string vertexShaderSource()
+      {
+	return STRINGIFY( 
+void main(void)
+{
+  gl_Position = ftransform();
+  gl_TexCoord[0] = gl_MultiTexCoord0;
+}
+);
+      }
+
+      virtual std::string fragmentShaderSource()
+      {
+	return STRINGIFY(
+uniform sampler2D u_Texture0; //Blurred image
+uniform sampler2D u_Texture1; //Original
+uniform sampler2D u_Texture2; //Depth buffer
+uniform float focalDistance;
+uniform float focalRange;
+uniform float nearDist;
+uniform float farDist;
+
+float LinearizeDepth(float zoverw)
+{
+  return(2.0 * nearDist) / (farDist + nearDist - zoverw * (farDist - nearDist));
+}
+
+void main(void)
+{
+  float fcldist = focalDistance;
+  if (fcldist == 0) //Automatic mode
+    fcldist = LinearizeDepth(texture2D(u_Texture2, vec2(0.5,0.5)).r);
+
+  vec4 original = texture2D(u_Texture1, gl_TexCoord[0].st);
+  vec4 blurred = texture2D(u_Texture0, gl_TexCoord[0].st);
+
+  float depth = LinearizeDepth(texture2D(u_Texture2, gl_TexCoord[0].st).r);
+  float blur = clamp(abs(depth - fcldist) / focalRange, 0.0, 1.0);
+
+  //gl_FragColor =  vec4(blur,0,0,0);
+  gl_FragColor = original + blur * (blurred - original);
+}
+);
+      }
     };
   }
 }
 
-#include <magnet/GL/detail/shaders/DOF.glh>
+#undef STRINGIFY

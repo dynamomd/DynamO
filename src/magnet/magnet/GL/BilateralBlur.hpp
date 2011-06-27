@@ -15,8 +15,8 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-
 #include <magnet/GL/detail/shader.hpp>
+#define STRINGIFY(A) #A
 
 namespace magnet {
   namespace GL {
@@ -32,12 +32,62 @@ namespace magnet {
 	glUseProgramObjectARB(0);	
       }
 
-      virtual std::string vertexShaderSource();
-      virtual std::string fragmentShaderSource();
+      virtual std::string vertexShaderSource()
+      {
+	return STRINGIFY( 
+void main(void)
+{
+  gl_Position = ftransform();
+  gl_TexCoord[0] = gl_MultiTexCoord0;
+}
+);
+      }
 
-    protected:
+      virtual std::string fragmentShaderSource()
+      { 
+	return STRINGIFY(
+uniform sampler2D u_Texture0; //input
+uniform sampler2D u_Texture2; //Depth buffer
+uniform vec2 scale;
+uniform float totStrength;
+uniform float nearDist;
+uniform float farDist;
+const float invSamples = 1.0 / 10.0;
+
+const float weight[5] = float[5](0.05496597,0.24581,0.4076311347,0.24581,0.05496597);
+
+float sampleWeight(int i, int j) { return weight[i] * weight[j]; }
+
+float LinearizeDepth(float zoverw)
+{
+  return(2.0 * nearDist) / (farDist + nearDist - zoverw * (farDist - nearDist));
+}
+
+void main(void)
+{
+  float currentPixelDepth = LinearizeDepth(texture2D(u_Texture2, gl_TexCoord[0].st).r);
+  
+  vec3 accum = vec3(0, 0, 0);
+  float totalWeight = 0.0;
+  
+  for (int x = 0; x < 5; ++x)
+    for (int y = 0; y < 5; ++y)
+      {
+	vec2 sampleLoc = gl_TexCoord[0].st + vec2((x - 2) * scale.x, (y - 2) * scale.y);
+	float sampleDepth = LinearizeDepth(texture2D(u_Texture2, sampleLoc).r);
+	
+	float Zdifference = abs(currentPixelDepth - sampleDepth);
+	float sampleweight = (1.0 - step(totStrength, Zdifference)) * sampleWeight(x,y);
+	accum += sampleweight * texture2D(u_Texture0, sampleLoc).rgb;
+	totalWeight += sampleweight;
+      }
+  
+  gl_FragColor = vec4(accum / totalWeight, 1);
+}
+);
+      }
     };
   }
 }
 
-#include <magnet/GL/detail/shaders/BilateralBlur.glh>
+#undef STRINGIFY
