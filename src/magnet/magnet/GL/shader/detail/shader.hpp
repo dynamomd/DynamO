@@ -121,12 +121,7 @@ namespace magnet {
 
 	public:
 	  //! \brief Default constructor.
-	  inline Shader():
-	    _built(false),
-	    _vertexShaderCode(magnet::string::format_code(initVertexShaderSource())),
-	    _fragmentShaderCode(magnet::string::format_code(initFragmentShaderSource())),
-	    _geometryShaderCode(magnet::string::format_code(initGeometryShaderSource()))
-	  {}
+	  inline Shader(): _built(false) {}
 
 	  //! \brief Destructor
 	  inline ~Shader() { deinit(); }
@@ -170,18 +165,22 @@ namespace magnet {
 	    return ShaderUniform(uniformName, _shaderID);
 	  }
 
-	  /*! \brief Builds the shader and allocates the associated OpenGL objects.
+	  /*! \brief Builds the shader and allocates the associated
+              OpenGL objects.
 	   *
 	   * This function will throw an exception if compilation
 	   * fails.
 	   */
 	  inline void build()
 	  {
+	    if (_vertexShaderCode.empty()) _vertexShaderCode = magnet::string::format_code(initVertexShaderSource());
+	    if (_fragmentShaderCode.empty()) _fragmentShaderCode = magnet::string::format_code(initFragmentShaderSource());
+	    if (_geometryShaderCode.empty()) _geometryShaderCode = magnet::string::format_code(initGeometryShaderSource());
+
 	    //Check for the ability to use fragment and vertex shaders
 	    if (!GLEW_ARB_fragment_program || !GLEW_ARB_vertex_program
 		|| !GLEW_ARB_fragment_shader || !GLEW_ARB_vertex_shader)
 	      M_throw() << "This OpenGL context/driver does not support GLSL (programmable shaders)";
-	  
 	  
 	    GLint result;
 
