@@ -19,6 +19,7 @@
 #include <magnet/exception.hpp>
 
 namespace magnet {
+  //! \brief Namespace for all magnet OpenGL classes and functions.
   namespace GL {
     /*! \brief An OpenGL buffer object.
      *
@@ -37,8 +38,9 @@ namespace magnet {
 	  PIXEL_UNPACK_BUFFER = GL_PIXEL_UNPACK_BUFFER
 	};
 
-      //! \brief The possible host access patterns, if the host
-      //! accesses the data.
+      /*! \brief The possible host access patterns, if the host
+       * accesses the data.
+       */
       enum BufferUsage
 	{ 
 	  STREAM_DRAW = GL_STREAM_DRAW, 
@@ -120,17 +122,17 @@ namespace magnet {
       }
 
       /*!\brief Returns the size of the allocated buffer, or 0 if not
-       *! allocated.  
-       *!
-       *! This is the number of elements stored in the buffer, NOT the
-       *! byte size of the buffer. As type information is lost across
-       *! the GL interface, we must request the size in bytes using
-       *! \ref size_byte().
+       * allocated.  
+       *
+       * This is the number of elements stored in the buffer, NOT the
+       * byte size of the buffer. As type information is lost across
+       * the GL interface, we must request the size in bytes using
+       * \ref size_byte().
        */
       inline size_t size() const { return _size; }
 
       /*!\brief Returns the size in bytes of the allocated buffer, or
-       *! 0 if not allocated.
+       * 0 if not allocated.
        */
       inline size_t byte_size() const 
       { 
@@ -145,6 +147,8 @@ namespace magnet {
 	  return 0;
       }
 
+      /*! \brief Returns the underlying OpenGL handle for the
+       * buffer */
       GLuint getGLObject() { return _buffer; }
 
     protected:

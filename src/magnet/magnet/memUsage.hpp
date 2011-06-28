@@ -22,9 +22,11 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
-//! Attempts to read the system-dependent data for a process' resident
-//! set size (actual used memory), and return the results in KB.
 namespace magnet {
+  /*! \brief Attempts to read the system-dependent data for a process'
+   * resident set size (actual used memory), and return the results in
+   * KB.
+   */
   inline double process_mem_usage()
   {
     double resident_set(0);

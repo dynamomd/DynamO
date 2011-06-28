@@ -32,6 +32,16 @@
 
 namespace magnet {
 
+  /*! \brief This function will attempt to generate a string
+   * representation of the stack at runtime.
+   *
+   * This functionality is only supported in the gcc compiler, if this
+   * feature is unavailable an empty string is returned.
+   *
+   * \param skip The number of top stack levels to skip in the
+   * trace. A skip of 1 will prevent the \ref stacktrace function from
+   * appearing in the returned stack.
+   */
 #ifdef MAGNET_DEBUG
 # ifdef __GNUC__
   inline std::string stacktrace(int skip = 1)
