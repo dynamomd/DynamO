@@ -43,12 +43,13 @@ int main(int argc, char* argv[])
   //string, the boost build system won't let us define strings on the
   //command line.
 #define VALUE_TO_STRING(val) #val
+#define STR(val) VALUE_TO_STRING(val)
   std::cout << "dynareplex_opt Copyright (C) 2011  Marcus N Campbell Bannerman\n"
             << "This program comes with ABSOLUTELY NO WARRANTY.\n"
             << "This is free software, and you are welcome to redistribute it\n"
             << "under certain conditions. See the licence you obtained with\n"
             << "the code\n"
-               "Git Checkout Hash " << VALUE_TO_STRING(GITHASH) << "\n\n";
+               "Git Checkout Hash " << STR(GITHASH) << "\n\n";
   //This is so the program crashes out when floating point errors occur
   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);
 
