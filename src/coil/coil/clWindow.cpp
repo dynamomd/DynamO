@@ -946,7 +946,7 @@ CLGLWindow::CallBackDisplayFunc()
 	  
 	  glMatrixMode(GL_MODELVIEW);	  
 
-	  glBindTexture(GL_TEXTURE_2D, _shadowFBO.getDepthTexture());
+	  _shadowFBO.getDepthTexture().bind(7);
 	}
       
       //Bind to the multisample buffer
@@ -1021,16 +1021,13 @@ CLGLWindow::CallBackDisplayFunc()
 	    }
 
 	  //Bind the original image to texture (unit 0)
-	  glActiveTextureARB(GL_TEXTURE0);
-	  glBindTexture(GL_TEXTURE_2D, _renderTarget->getColorTexture());
+	  _renderTarget->getColorTexture().bind(0);
 	  
 	  //Now bind the texture which has the normals and depths (unit 1)
-	  glActiveTextureARB(GL_TEXTURE1);
-	  glBindTexture(GL_TEXTURE_2D, _normalsFBO.getColorTexture());
+	  _normalsFBO.getColorTexture().bind(1);
 
 	  //High quality depth information is attached to (unit 2)
-	  glActiveTextureARB(GL_TEXTURE2);
-	  glBindTexture(GL_TEXTURE_2D, _renderTarget->getDepthTexture());
+	  _renderTarget->getDepthTexture().bind(2);
 
 	  for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
 	       iPtr != _filterStore->children().end(); ++iPtr)
@@ -1051,8 +1048,7 @@ CLGLWindow::CallBackDisplayFunc()
 	      else
 		{
 		  //The last output goes into texture 3
-		  glActiveTextureARB(GL_TEXTURE3);
-		  glBindTexture(GL_TEXTURE_2D, lastFBO->getColorTexture());
+		  lastFBO->getColorTexture().bind(3);
 		  
 		  if (FBOalternate)
 		    _filterTarget1.attach();

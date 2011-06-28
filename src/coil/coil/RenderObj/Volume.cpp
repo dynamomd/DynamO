@@ -211,9 +211,7 @@ namespace coil {
     fbo.attach();
 
     //Now bind this copied depth texture to texture unit 0
-    glActiveTextureARB(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, _fbo->getDepthTexture());
-
+    _fbo->getDepthTexture().bind(0);
     _data.bind(1);
     _transferFuncTexture.bind(2);
 

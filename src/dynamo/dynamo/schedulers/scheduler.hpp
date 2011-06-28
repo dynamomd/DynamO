@@ -74,6 +74,15 @@ public:
   void addLocalEvent(const Particle&, const size_t&) const;
   
 protected:
+  /*! \brief Performs the lazy deletion algorithm to find the next
+   * valid event in the queue.
+   *
+   * This is the lazy deletion scheme for interaction events. Any
+   * event whose event counter mismatches the particles current event
+   * counter is out of date and should be deleted.
+   */
+  void lazyDeletionCleanup();
+
   mutable magnet::ClonePtr<CSSorter> sorter;
   mutable std::vector<unsigned long> eventCount;
   

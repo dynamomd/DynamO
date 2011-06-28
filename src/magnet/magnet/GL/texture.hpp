@@ -62,7 +62,26 @@ namespace magnet {
 
       inline bool isValid() const { return _valid; }
 
+      inline GLuint getGLHandle() { return _handle; }
+
     protected:
+      
+      GLenum safeFormat(GLint internalformat)
+      {
+	GLenum format = GL_RGB;
+	switch (internalformat)
+	  {
+	  case GL_DEPTH_COMPONENT:
+	  case GL_DEPTH_COMPONENT16:
+	  case GL_DEPTH_COMPONENT24:
+	  case GL_DEPTH_COMPONENT32:
+	    format = GL_DEPTH_COMPONENT;
+	  default:
+	    break;
+	  }
+
+	return format;
+      }
       
       GLuint _handle;
       bool _valid;
@@ -90,7 +109,7 @@ namespace magnet {
 		     0,
 		     //The following values are not used as no data is
 		     //passed here, use subImage for that.
-		     GL_RGB, GL_UNSIGNED_BYTE, NULL); 
+		     safeFormat(_internalFormat), GL_UNSIGNED_BYTE, NULL); 
       }
 
       inline void subImage(const std::vector<uint8_t>& data, GLenum pixelformat,
@@ -127,23 +146,17 @@ namespace magnet {
 
 	TextureBasic::init();
 	bind(0);
-	parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, _internalFormat, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
-	glTexImage2D(_texType, 0, _internalFormat, 
-		     _width, _height,
-		     //Border is off
-		     0,
+	
+	glTexImage2D(_texType, 0, _internalFormat, _width, _height,
+		     0, //Border is off
 		     //The following values are not used as no data is
 		     //passed here, use subImage for that.
-		     GL_RGB, GL_UNSIGNED_BYTE, NULL); 
+		     safeFormat(_internalFormat), GL_UNSIGNED_BYTE, NULL); 
       }
 
       inline void subImage(const std::vector<uint8_t>& data, GLenum pixelformat,
-			   GLint xoffset = 0, GLint yoffset = 0, GLint width = -1, GLint height = -1, GLint level = 0)
+			   GLint xoffset = 0, GLint yoffset = 0, GLint width = -1, 
+			   GLint height = -1, GLint level = 0)
       { 
 	//If there are negative values, assume they mean to use the
 	//full space
@@ -192,7 +205,7 @@ namespace magnet {
 		     0,
 		     //The following values are not used as no data is
 		     //passed here, use subImage for that.
-		     GL_RGB, GL_UNSIGNED_BYTE, NULL); 
+		     safeFormat(_internalFormat), GL_UNSIGNED_BYTE, NULL); 
       }
 
       inline void subImage(const std::vector<GLubyte>& data, GLenum pixelformat,

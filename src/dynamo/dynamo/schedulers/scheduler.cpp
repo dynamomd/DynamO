@@ -118,46 +118,31 @@ CScheduler::runNextEvent()
 #ifdef DYNAMO_DEBUG
   if (sorter->nextPELEmpty())
     M_throw() << "Next particle list is empty but top of list!";
-#endif  
-  //This is the lazy deletion scheme for interaction events. Any event
-  //whose event counter mismatches the particles current event counter
-  //is out of date and should be deleted
-  while ((sorter->next_type() == INTERACTION)
-	 && (sorter->next_collCounter2()
-	     != eventCount[sorter->next_p2()]))
-    {
-      //Not valid, update the list
-      sorter->popNextEvent();
-      sorter->update(sorter->next_ID());
-      sorter->sort();
-      
-#ifdef DYNAMO_DEBUG
-      if (sorter->nextPELEmpty())
-	M_throw() << "Next particle list is empty but top of list!";
 #endif
-    }
-  
-    if (boost::math::isnan(sorter->next_dt()))
-      M_throw() << "Next event time is NaN"
-		<< "\nTime to event "
-		<< sorter->next_dt()
-		<< "\nEvent Type = " 
-		<< sorter->next_type()
-		<< "\nOwner Particle = " << sorter->next_ID()
-		<< "\nID2 = " << sorter->next_p2();
+
+  lazyDeletionCleanup();
+
+  if (boost::math::isnan(sorter->next_dt()))
+    M_throw() << "Next event time is NaN"
+	      << "\nTime to event "
+	      << sorter->next_dt()
+	      << "\nEvent Type = " 
+	      << sorter->next_type()
+	      << "\nOwner Particle = " << sorter->next_ID()
+	      << "\nID2 = " << sorter->next_p2();
     
-    if (sorter->next_dt() == HUGE_VAL)
-      {
-	derr << "Next event time is Inf! (Queue has run out of events!)\n"
-		 << "Shutting simulation down..."
-		 << "\nEvent details, Type = " 
-		 << sorter->next_type()
-		 << "\nOwner Particle = " << sorter->next_ID()
-		 << "\nID2 = " << sorter->next_p2()
+  if (sorter->next_dt() == HUGE_VAL)
+    {
+      derr << "Next event time is Inf! (Queue has run out of events!)\n"
+	   << "Shutting simulation down..."
+	   << "\nEvent details, Type = " 
+	   << sorter->next_type()
+	   << "\nOwner Particle = " << sorter->next_ID()
+	   << "\nID2 = " << sorter->next_p2()
 	   << std::endl;
-	Sim->endEventCount = Sim->eventCount;
-	return;
-      }
+      Sim->endEventCount = Sim->eventCount;
+      return;
+    }
 
   ////////////////////////////////////////////////////////////////////
   // We can't perform such strict testing as commented out
@@ -208,25 +193,8 @@ CScheduler::runNextEvent()
 	//Ready the next event in the FEL
 	sorter->popNextEvent();
 	sorter->update(sorter->next_ID());
-	sorter->sort();
-	
-	//This is the lazy deletion scheme for interaction events. Any event
-	//whose event counter mismatches the particles current event counter
-	//is out of date and should be deleted
-	while ((sorter->next_type() == INTERACTION)
-	       && (sorter->next_collCounter2()
-		   != eventCount[sorter->next_p2()]))
-	  {
-	    //Not valid, update the list
-	    sorter->popNextEvent();
-	    sorter->update(sorter->next_ID());
-	    sorter->sort();
-	    
-#ifdef DYNAMO_DEBUG
-	    if (sorter->nextPELEmpty())
-	      M_throw() << "Next particle list is empty but top of list!";
-#endif
-	  }
+	sorter->sort();	
+	lazyDeletionCleanup();
 
 	//Now recalculate the FEL event
 	Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);       
@@ -315,7 +283,8 @@ CScheduler::runNextEvent()
 	sorter->popNextEvent();
 	sorter->update(sorter->next_ID());
 	sorter->sort();
-	
+	lazyDeletionCleanup();
+
 	Sim->dynamics.getLiouvillean().updateParticle(part);
 	LocalEvent iEvent(Sim->dynamics.getLocals()[localID]->getEvent(part));
 
@@ -475,4 +444,23 @@ CScheduler::fullUpdate(const Particle& part)
   invalidateEvents(part);
   addEvents(part);
   sort(part);
+}
+
+void 
+CScheduler::lazyDeletionCleanup()
+{
+  while ((sorter->next_type() == INTERACTION)
+	 && (sorter->next_collCounter2()
+	     != eventCount[sorter->next_p2()]))
+    {
+      //Not valid, update the list
+      sorter->popNextEvent();
+      sorter->update(sorter->next_ID());
+      sorter->sort();
+      
+#ifdef DYNAMO_DEBUG
+      if (sorter->nextPELEmpty())
+	M_throw() << "Next particle list is empty but top of list!";
+#endif
+    }
 }
