@@ -21,6 +21,7 @@
 //#include <magnet/memory/pool.hpp>
 
 namespace magnet {
+  //! \brief Namespace for functors and delegates
   namespace function {
     namespace detail { template<class T> struct typeWrapper { typedef T Type; }; }
 
@@ -28,6 +29,7 @@ namespace magnet {
     template<class T1, class T2> class Task1;
     template<class T1, class T2, class T3> class Task2;
     template<class T1, class T2, class T3, class T4> class Task3;
+    
     
     class Task //: public magnet::memory::PoolAllocated
     {
