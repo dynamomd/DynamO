@@ -104,7 +104,6 @@ F(EXDEV, "Cross-device link.")
   case (F): return #F ": " G;
 
 namespace magnet {
-  //! \brief Implementation details for global magnet namespace functions.
   namespace detail {
     /*! \brief Helper function to convert standard error codes in
      *  errno.h and specified in IEEE Std 1003.1-2001, to string

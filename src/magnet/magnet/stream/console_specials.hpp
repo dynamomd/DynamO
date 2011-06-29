@@ -20,13 +20,6 @@
 
 namespace magnet
 {
-  /*! \brief Contains a definition of the special control commands for
-   *   the console.
-   * 
-   * The commands in this namespace allow formatting of VT100
-   * compatible terminals. This works for most linux terminals with
-   * only a few exceptions.
-   */
   namespace console {
     //! \brief All text after this command are bold.
     inline std::string bold  () { return "\033[1m";}

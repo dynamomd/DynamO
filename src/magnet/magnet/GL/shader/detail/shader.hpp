@@ -27,9 +27,7 @@
 
 namespace magnet {
   namespace GL {
-    //! \brief Contains OpenGL Shader objects.
     namespace shader {
-      //! \brief Implementation details for the OpenGL shaders
       namespace detail {
 	/*! \brief A OpenGL shader object.
 	 *

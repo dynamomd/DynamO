@@ -19,7 +19,6 @@
 #include <magnet/exception.hpp>
 
 namespace magnet {
-  //! \brief Namespace for all magnet OpenGL classes and functions.
   namespace GL {
     /*! \brief An OpenGL buffer object.
      *

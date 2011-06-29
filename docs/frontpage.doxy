@@ -37,6 +37,9 @@ namespace dynamo {}
 //!  functions which have a wider range of application than just Event
 //!  Driven Simulation (DynamO). 
 namespace magnet {
+
+  //! \brief Implementation details for global magnet namespace functions.
+  namespace detail {}
   
   //! \brief Namespace for the magnet shape-line intersection functions.
   //!
@@ -55,4 +58,41 @@ namespace magnet {
 
   //! \brief Namespace for string manipulation functions.
   namespace string {}
+
+  //! \brief Namespace for threading functions and classes.
+  namespace thread {}
+
+  /*! \brief Namespace for magnet math functions and classes. */
+  namespace math {}
+
+  //! \brief Namespace for all magnet OpenGL classes and functions.
+  namespace GL {
+    
+    //! \brief Implementation details for OpenGL classes and functions.
+    namespace detail {}
+    
+    //! \brief Contains OpenGL Shader objects.
+    namespace shader {
+      
+      //! \brief Implementation details for the OpenGL shaders
+      namespace detail {}
+    }
+  }
+
+  /*! \brief Namespace for memory management classes.*/
+  namespace memory {
+    /*! \brief Namespace for memory management implementation
+     * details.
+     */
+    namespace detail {}
+  }
+
+  /*! \brief Contains a definition of the special control commands for
+   *   the console.
+   * 
+   * The commands in this namespace allow formatting of VT100
+   * compatible terminals. This works for most linux terminals with
+   * only a few exceptions.
+   */
+  namespace console {}
 }
