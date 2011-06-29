@@ -102,7 +102,11 @@ namespace magnet {
 	_width = width;
 	_height = height;
 
+
+	_depthTexture.deinit();
 	_depthTexture.init(_width, _height, GL_DEPTH_COMPONENT24);
+
+	_colorTexture.deinit();
 	_colorTexture.init(_width, _height, _internalformat);
       }
 
