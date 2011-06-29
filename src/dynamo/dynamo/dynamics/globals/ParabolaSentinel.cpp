@@ -35,24 +35,10 @@ CGParabolaSentinel::CGParabolaSentinel(dynamo::SimData* nSim, const std::string&
   dout << "ParabolaSentinel Loaded" << std::endl;
 }
 
-CGParabolaSentinel::CGParabolaSentinel(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
-  Global(ptrSim, "ParabolaSentinel")
-{
-  operator<<(XML);
-
-  dout << "ParabolaSentinel Loaded" << std::endl;
-}
-
 void 
 CGParabolaSentinel::initialise(size_t nID)
 {
   ID=nID;
-}
-
-void 
-CGParabolaSentinel::operator<<(const magnet::xml::Node& XML)
-{
-  globName = XML.getAttribute("Name");	
 }
 
 GlobalEvent 
@@ -110,11 +96,4 @@ CGParabolaSentinel::runEvent(const Particle& part, const double) const
 #endif
 
   Sim->ptrScheduler->fullUpdate(part);
-}
-
-void 
-CGParabolaSentinel::outputXML(magnet::xml::XmlStream& XML) const
-{
-  XML << magnet::xml::attr("Type") << "ParabolaSentinel"
-      << magnet::xml::attr("Name") << globName;
 }

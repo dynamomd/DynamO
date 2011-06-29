@@ -537,9 +537,7 @@ Dynamics::outputXML(magnet::xml::XmlStream &XML) const
       << magnet::xml::tag("Globals");
   
   BOOST_FOREACH(const magnet::ClonePtr<Global>& ptr, globals)
-    XML << magnet::xml::tag("Global")
-	<< ptr
-	<< magnet::xml::endtag("Global");
+    XML << ptr;
   
   XML << magnet::xml::endtag("Globals")
       << magnet::xml::tag("Locals");

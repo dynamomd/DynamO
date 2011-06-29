@@ -270,11 +270,6 @@ void
 CGCellsMorton::initialise(size_t nID)
 {
   ID=nID;
-  
-  if (Sim->dynamics.liouvilleanTypeTest<LNewtonianGravity>())
-    dout << "Warning, in order for cellular NB lists to work in gravity\n"
-	     << "You must add the ParabolaSentinel Global event." << std::endl;
-
   reinitialise(getMaxInteractionLength());
 }
 
@@ -299,12 +294,14 @@ void
 CGCellsMorton::outputXML(magnet::xml::XmlStream& XML) const
 {
   //If you add anything here it also needs to go in gListAndCells.cpp too
-  XML << magnet::xml::attr("Type") << "CellsMorton"
+  XML << magnet::xml::tag("Global")
+      << magnet::xml::attr("Type") << "CellsMorton"
       << magnet::xml::attr("Name") << globName;
 
   if (overlink > 1)   XML << magnet::xml::attr("OverLink") << overlink;
   if (_oversizeCells != 1.0) XML << magnet::xml::attr("Oversize") << _oversizeCells;
-
+  
+  XML << magnet::xml::endtag("Global");
 }
 
 void

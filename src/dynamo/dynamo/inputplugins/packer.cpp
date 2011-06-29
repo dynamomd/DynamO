@@ -2564,8 +2564,6 @@ CIPPacker::initialise()
 					  Vector(0, - 0.9995 * 0.5 * Sim->primaryCellSize[1], 0),
 					  "GroundPlate", new CRAll(Sim), false));
 	
-	Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim,"ParabolaSentinel"));
-
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(latticeSites.size());
 	BOOST_FOREACH(const Vector & position, latticeSites)
@@ -2685,7 +2683,6 @@ CIPPacker::initialise()
 							       funnelSites.size() + dynamicSites.size() - 1), 
 					      1.0, "Bulk", 0, "Bulk")));
 
-	Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim,"ParabolaSentinel"));
 	Sim->dynamics.addGlobal(new GPBCSentinel(Sim, "PBCSentinel"));
 
 	unsigned long nParticles = 0;
@@ -3479,7 +3476,6 @@ CIPPacker::initialise()
 							       funnelSites.size() + dynamicSites.size() - 1), 
 					      1.0, "Bulk", 0, "Bulk")));
 
-	Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim,"ParabolaSentinel"));
 	Sim->dynamics.addGlobal(new GPBCSentinel(Sim, "PBCSentinel"));
 
 	if (vm.count("f3"))

@@ -302,10 +302,6 @@ CGCells::initialise(size_t nID)
   ID=nID;
   
   reinitialise(getMaxInteractionLength());
-
-  if (Sim->dynamics.liouvilleanTypeTest<LNewtonianGravity>())
-    dout << "Warning, in order for cellular NB lists to work in gravity\n"
-	     << "You must add the ParabolaSentinel Global event." << std::endl;
 }
 
 void
@@ -335,7 +331,8 @@ void
 CGCells::outputXML(magnet::xml::XmlStream& XML, const std::string& name) const
 {
   //If you add anything here it also needs to go in gListAndCells.cpp too
-  XML << magnet::xml::attr("Type") << name
+  XML << magnet::xml::tag("Global")
+      << magnet::xml::attr("Type") << name
       << magnet::xml::attr("Name") << globName;
 
   if (MaxIntDist != 0.0)
@@ -345,6 +342,8 @@ CGCells::outputXML(magnet::xml::XmlStream& XML, const std::string& name) const
       
   if (overlink > 1)   XML << magnet::xml::attr("OverLink") << overlink;
   if (_oversizeCells != 1.0) XML << magnet::xml::attr("Oversize") << _oversizeCells;
+
+  XML << magnet::xml::endtag("Global");
 }
 
 void

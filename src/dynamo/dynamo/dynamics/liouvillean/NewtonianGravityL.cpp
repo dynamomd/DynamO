@@ -27,7 +27,9 @@
 #include "shapes/frenkelroot.hpp"
 #include "shapes/oscillatingplate.hpp"
 #include <dynamo/datatypes/vector.xml.hpp>
-#include "../units/units.hpp"
+#include <dynamo/dynamics/globals/neighbourList.hpp>
+#include <dynamo/dynamics/globals/ParabolaSentinel.hpp>
+#include <dynamo/dynamics/units/units.hpp>
 #include <magnet/overlap/point_prism.hpp>
 #include <magnet/intersection/parabola_sphere.hpp>
 #include <magnet/intersection/parabola_plane.hpp>
@@ -37,6 +39,8 @@
 #include <magnet/xmlreader.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <algorithm>
+
+
 
 LNewtonianGravity::LNewtonianGravity(dynamo::SimData* tmp, const magnet::xml::Node& XML):
   LNewtonian(tmp),
@@ -358,6 +362,16 @@ LNewtonianGravity::initialise()
 {
   if (_tc > 0) _tcList.resize(Sim->N, -HUGE_VAL);
   LNewtonian::initialise();
+
+  //Now add the parabola sentinel if there are cell neighbor lists in
+  //use.
+  bool hasNBlist = false;
+  BOOST_FOREACH(magnet::ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
+    if (glob.typeTest<CGNeighbourList>())
+      { hasNBlist = true; break; }
+  
+  if (hasNBlist)
+    Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim, "NBListParabolaSentinel"));
 }
 
 PairEventData 
