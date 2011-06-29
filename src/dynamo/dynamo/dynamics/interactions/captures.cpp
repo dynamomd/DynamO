@@ -53,8 +53,8 @@ ISingleCapture::loadCaptureMap(const magnet::xml::Node& XML)
 
       for (magnet::xml::Node node = XML.getNode("CaptureMap").fastGetNode("Pair");
 	   node.valid(); ++node)
-	captureMap.insert(std::pair<size_t, size_t>(node.getAttribute("ID1").as<size_t>(),
-						    node.getAttribute("ID2").as<size_t>()));
+	captureMap.insert(cMapKey(node.getAttribute("ID1").as<size_t>(),
+				  node.getAttribute("ID2").as<size_t>()));
     }
 }
 
@@ -63,62 +63,13 @@ ISingleCapture::outputCaptureMap(magnet::xml::XmlStream& XML) const
 {
   XML << magnet::xml::tag("CaptureMap");
 
-  typedef std::pair<size_t, size_t> locpair;
-
-  BOOST_FOREACH(const locpair& IDs, captureMap)
+  BOOST_FOREACH(const cMapKey& IDs, captureMap)
     XML << magnet::xml::tag("Pair")
 	<< magnet::xml::attr("ID1") << IDs.first
 	<< magnet::xml::attr("ID2") << IDs.second
 	<< magnet::xml::endtag("Pair");
   
   XML << magnet::xml::endtag("CaptureMap");
-}
-
-void
-ISingleCapture::addToCaptureMap(const Particle& p1, const Particle& p2) const
-{
-#ifdef DYNAMO_DEBUG
-  if (p1.getID() == p2.getID())
-    M_throw() << "Particle captured itself";
-
-  if (p1.getID() < p2.getID())
-    {
-      if  (captureMap.count(std::pair<size_t, size_t>(p1.getID(), p2.getID())))
-	M_throw() << "Insert found " << p1.getID()
-		  << " and " << p2.getID() << " in the capture map";
-    }      
-  else
-    if  (captureMap.count(std::pair<size_t, size_t>(p2.getID(), p1.getID())))
-      M_throw() << "Insert found " << p2.getID() 
-		<< " and " << p1.getID() << " in the capture map";
-#endif 
-  
-  (p1.getID() < p2.getID())
-    ? captureMap.insert(std::pair<size_t, size_t>(p1.getID(), p2.getID()))
-    : captureMap.insert(std::pair<size_t, size_t>(p2.getID(), p1.getID()));
-}
-
-void 
-ISingleCapture::removeFromCaptureMap(const Particle& p1, const Particle& p2) const
-{
-#ifdef DYNAMO_DEBUG
-  if (p1.getID() == p2.getID())
-    M_throw() << "Particle disassociated itself";
-
-  if  (!((p1.getID() < p2.getID())
-	 ? captureMap.erase(std::pair<size_t, size_t>(p1.getID(), p2.getID()))
-	 : captureMap.erase(std::pair<size_t, size_t>(p2.getID(), p1.getID()))
-	 ))
-    M_throw() << "Erase did not find " << p2.getID() 
-	      << " and " << p1.getID() << " in the capture map";    
-
-#else
-
-  (p1.getID() < p2.getID())
-    ? captureMap.erase(std::pair<size_t, size_t>(p1.getID(), p2.getID()))
-    : captureMap.erase(std::pair<size_t, size_t>(p2.getID(), p1.getID()));
-  
-#endif
 }
 
 //////////////////////////////////////////////////////
@@ -177,16 +128,4 @@ IMultiCapture::outputCaptureMap(magnet::xml::XmlStream& XML) const
 	<< magnet::xml::endtag("Pair");
   
   XML << magnet::xml::endtag("CaptureMap");
-}
-
-
-bool 
-IMultiCapture::isCaptured(const Particle& p1, const Particle& p2) const
-{
-#ifdef DYNAMO_DEBUG
-  if (p1.getID() == p2.getID())
-    M_throw() << "Particle is testing if it captured itself";
-#endif 
-
-  return captureMap.count(cMapKey(p1.getID(), p2.getID()));
 }
