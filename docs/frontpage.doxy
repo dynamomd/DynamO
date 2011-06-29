@@ -2,16 +2,16 @@
  *
  * The C++ code consists of several programs which share a common code base. This code base is in the src/ directory. The main programs are:
  * 
- * - dynarun (src/programs/dynarun.cpp) - The main simulation program. dynarun takes configuration files as input and runs them in a simulation. OutputPlugin(s) can be used to collect data on the simulation as it runs (e.g., viscosity).
+ * - dynarun (dynarun.cpp) - The main simulation program. dynarun takes configuration files as input and runs them in a simulation. OutputPlugin(s) can be used to collect data on the simulation as it runs (e.g., viscosity).
  * 
- * - dynamod (src/programs/dynamod.cpp) - The configuration
+ * - dynamod (dynamod.cpp) - The configuration
  * editor/generator. Its primary purpose is to generate starting configurations for dynarun or configurations to be used as a basis for your Simulation. However, dynamod can also edit/modify existing configuration files (e.g., rescale the temperature, zero the total momentum, add a thermostat).
  *
- * - dynahist_rw (src/programs/dynahist_rw.cpp) - Used to perform histogram
+ * - dynahist_rw (dynahist_rw.cpp) - Used to perform histogram
  * reweighting on the output from a replica exchange/ parallel tempering
  * Simulation (see the simulation engine EReplicaExchangeSimulation).
  *
- * - dynareplex_opt (programs/dynareplex_opt.cpp) - This is an
+ * - dynareplex_opt (dynareplex_opt.cpp) - This is an
  * implementation of the replica exchange optimisation described by
  * Katzgraber et
  * al. (http://dx.doi.org/10.1088/1742-5468/2006/03/P03018).
