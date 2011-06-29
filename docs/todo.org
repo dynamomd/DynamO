@@ -13,6 +13,7 @@
 **** DONE *BUGFIX* Fixed rare error caused by duplicate events in the queue, followed by a recalculation which indicates the event has numerically been cancelled, and the recalculated event is in the future.
 **** DONE *BUGFIX* Made the "well exit test" significantly more stable, allowing correct simulation of large inelastic flexible bodies.
 **** DONE XML errors are now much more verbose and tell you exactly what went wrong and where.
+**** DONE More Doxygen comments to help people understand the source code.
 **** DONE The DynamO-Coil integration can be forcibly enabled or disabled at build time.
 **** DONE Initial support for triangular meshes. The current version is not optimized using a neighbor list.
 **** DONE Implemented multicanonical simulations!
