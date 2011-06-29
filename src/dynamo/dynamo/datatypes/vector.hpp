@@ -14,9 +14,6 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-/*! \file vector.hpp
- * Contains the non XML functions and definitions of the CVector class.
- */
 #pragma once
 
 #include <magnet/math/vector.hpp>

@@ -23,10 +23,6 @@
 #include <boost/tr1/unordered_map.hpp>
 #include <vector>
 
-namespace std {
-  using namespace tr1;
-}
-
 /*! \brief A general interface for \ref Interaction classes with
  *  states for the particle pairs.
  *
@@ -34,8 +30,7 @@ namespace std {
  * particles to "capture" each other and store some state. The state
  * might be the internal energy between particle pairs (e.g.,
  * \ref ISquareWell), or it might be used to track if the particles are
- * within each others bounding sphere (e.g., \ref ILines).
- */
+ * within each others bounding sphere (e.g., \ref ILines). */
 class ICapture
 {
 public:
@@ -53,7 +48,7 @@ protected:
    *
    * This key sorts the particle ID's into ascending order. This way
    * the keys can be compared and symmetric keys will compare equal.
-   * \code assert(cMapKey(a,b) == cMapKey(b,a));\endcode
+   * \code assert(cMapKey(a,b) == cMapKey(b,a)); \endcode
    */
   struct cMapKey: public std::pair<size_t,size_t>
   {
@@ -68,7 +63,6 @@ protected:
 #endif
     }
   };
-
 };
 
 /*! \brief This base class is for Interaction classes which only
@@ -90,7 +84,7 @@ public:
 
 protected:
 
-  mutable std::unordered_set<cMapKey > captureMap;
+  mutable std::tr1::unordered_set<cMapKey > captureMap;
 
   /*! \brief Test if two particles should be "captured".
    *
@@ -111,7 +105,7 @@ protected:
    */
   void loadCaptureMap(const magnet::xml::Node&);
 
-  /*! Function to write out the capture map. 
+  /*! \brief Function to write out the capture map. 
    *
    * Should be called by the derived classes Interaction::outputXML()
    * function.
@@ -158,7 +152,7 @@ public:
 
 protected:
   
-  typedef std::unordered_map<cMapKey, int, boost::hash<cMapKey> > captureMapType;
+  typedef std::tr1::unordered_map<cMapKey, int, boost::hash<cMapKey> > captureMapType;
   typedef captureMapType::iterator cmap_it;
   typedef captureMapType::const_iterator const_cmap_it;
 
