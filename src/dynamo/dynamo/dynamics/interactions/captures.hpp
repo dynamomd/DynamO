@@ -58,8 +58,7 @@ protected:
       std::pair<size_t,size_t>(std::min(a, b), std::max(a, b))
     {
 #ifdef DYNAMO_DEBUG
-      if (p1.getID() == p2.getID())
-	M_throw() << "Particle ID's should not be equal!";
+      if (a == b) M_throw() << "Particle ID's should not be equal!";
 #endif
     }
   };
