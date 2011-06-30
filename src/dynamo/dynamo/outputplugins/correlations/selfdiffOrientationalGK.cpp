@@ -67,10 +67,10 @@ OPSelfDiffusionOrientationalGK::operator<<(const magnet::xml::Node& XML)
   try
   {
     CorrelatorLength = XML.getAttribute("Length").as<size_t>(100);
-    if (XML.getAttribute("dt").valid())
+    if (XML.hasAttribute("dt"))
       dt = XML.getAttribute("dt").as<double>() * Sim->dynamics.units().unitTime();
 
-    if (XML.getAttribute("t").valid())
+    if (XML.hasAttribute("t"))
       dt = XML.getAttribute("t").as<double>() * Sim->dynamics.units().unitTime() 
 	/ CorrelatorLength;
   }

@@ -77,7 +77,7 @@ C2RList::operator<<(const magnet::xml::Node& XML)
   
   try 
     {
-      for (magnet::xml::Node node = XML.getNode("RangePair"); node.valid(); ++node)
+      for (magnet::xml::Node node = XML.fastGetNode("RangePair"); node.valid(); ++node)
 	addPair(node.getAttribute("ID1").as<unsigned long>(), 
 		node.getAttribute("ID2").as<unsigned long>());
     }

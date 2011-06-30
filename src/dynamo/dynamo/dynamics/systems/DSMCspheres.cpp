@@ -218,7 +218,7 @@ CSDSMCSpheres::operator<<(const magnet::xml::Node& XML)
     d2 = diameter * diameter;
     range1.set_ptr(CRange::getClass(XML.getNode("Range1"), Sim));
     range2.set_ptr(CRange::getClass(XML.getNode("Range2"), Sim));
-    if (XML.getAttribute("MaxProbability").valid())
+    if (XML.hasAttribute("MaxProbability"))
       maxprob = XML.getAttribute("MaxProbability").as<double>();
   }
   catch (boost::bad_lexical_cast &)

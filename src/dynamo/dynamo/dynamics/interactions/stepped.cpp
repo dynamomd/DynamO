@@ -69,11 +69,11 @@ IStepped::operator<<(const magnet::xml::Node& XML)
   try {
     intName = XML.getAttribute("Name");
 
-    if (!XML.getNode("Step").valid())
+    if (!XML.hasNode("Step"))
       M_throw() << "No steppings defined for stepped potential " 
 		<< intName;
 
-    for (magnet::xml::Node node = XML.getNode("Step"); node.valid(); ++node)
+    for (magnet::xml::Node node = XML.fastGetNode("Step"); node.valid(); ++node)
       steps.push_back(steppair(node.getAttribute("R").as<double>(),
 			       node.getAttribute("E").as<double>()));
     

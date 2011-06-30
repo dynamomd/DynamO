@@ -88,7 +88,7 @@ ISWSequence::operator<<(const magnet::xml::Node& XML)
     _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
 					   Property::Units::Dimensionless());
 
-    if (XML.getAttribute("Elasticity").valid())
+    if (XML.hasAttribute("Elasticity"))
       _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
 					   Property::Units::Dimensionless());
     else
@@ -101,7 +101,7 @@ ISWSequence::operator<<(const magnet::xml::Node& XML)
     sequence.clear();
     std::set<size_t> letters;
     
-    for (magnet::xml::Node node = XML.getNode("Sequence").getNode("Element");
+    for (magnet::xml::Node node = XML.getNode("Sequence").fastGetNode("Element");
 	 node.valid(); ++node)
       {
 	if (node.getAttribute("seqID").as<size_t>() != sequence.size())
@@ -118,7 +118,7 @@ ISWSequence::operator<<(const magnet::xml::Node& XML)
     BOOST_FOREACH(std::vector<double>& vec, alphabet)
       vec.resize(letters.size(), 0.0);
 
-    for (magnet::xml::Node node = XML.getNode("Alphabet").getNode("Word");
+    for (magnet::xml::Node node = XML.getNode("Alphabet").fastGetNode("Word");
 	 node.valid(); ++node)
       {
 	alphabet

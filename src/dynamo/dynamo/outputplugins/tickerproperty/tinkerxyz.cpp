@@ -71,11 +71,11 @@ OPTinkerXYZ::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
-      if (XML.getAttribute("LiveVMD").valid()) liveOutput = true;
-      if (XML.getAttribute("File").valid()) fileOutput = true;
-      if (XML.getAttribute("NoFile").valid()) fileOutput = false;
-      if (XML.getAttribute("NoBlock").valid()) blockForVMD = false;
-      if (XML.getAttribute("P1Track").valid()) P1track = true;
+      if (XML.hasAttribute("LiveVMD")) liveOutput = true;
+      if (XML.hasAttribute("File")) fileOutput = true;
+      if (XML.hasAttribute("NoFile")) fileOutput = false;
+      if (XML.hasAttribute("NoBlock")) blockForVMD = false;
+      if (XML.hasAttribute("P1Track")) P1track = true;
       
       port = XML.getAttribute("Port").as<int>(3333);
       max_frame_count = XML.getAttribute("MaxFrames").as<size_t>(1000);

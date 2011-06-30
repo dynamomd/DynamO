@@ -40,7 +40,7 @@ CSComplex::operator<<(const magnet::xml::Node& XML)
 {
   sorter.set_ptr(CSSorter::getClass(XML.getNode("Sorter"), Sim));
 
-  for (magnet::xml::Node node = XML.getNode("Entries").getNode("Entry"); 
+  for (magnet::xml::Node node = XML.getNode("Entries").fastGetNode("Entry"); 
        node.valid(); ++node)
     entries.push_back(magnet::ClonePtr<CSCEntry>(CSCEntry::getClass(node, Sim)));
 }

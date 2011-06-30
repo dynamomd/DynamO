@@ -47,11 +47,11 @@ OPMutualDiffusionGK::operator<<(const magnet::xml::Node& XML)
     {
       CorrelatorLength = XML.getAttribute("Length").as<size_t>(100);
       
-      if (XML.getAttribute("dt").valid())
+      if (XML.hasAttribute("dt"))
 	dt = Sim->dynamics.units().unitTime() * 
 	  XML.getAttribute("dt").as<double>();
       
-      if (XML.getAttribute("t").valid())
+      if (XML.hasAttribute("t"))
 	dt = Sim->dynamics.units().unitTime() * 
 	  XML.getAttribute("t").as<double>() / CorrelatorLength;
     }

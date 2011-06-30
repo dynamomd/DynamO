@@ -52,7 +52,7 @@ ISquareBond::operator<<(const magnet::xml::Node& XML)
     _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
 					   Property::Units::Dimensionless());
 
-    if (XML.getAttribute("Elasticity").valid())
+    if (XML.hasAttribute("Elasticity"))
       _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
 					   Property::Units::Dimensionless());
     else

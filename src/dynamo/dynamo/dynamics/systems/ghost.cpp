@@ -142,7 +142,7 @@ CSysGhost::operator<<(const magnet::xml::Node& XML)
     Temp = XML.getAttribute("Temperature").as<double>() * Sim->dynamics.units().unitEnergy();
     sysName = XML.getAttribute("Name");
 
-    if (XML.getAttribute("SetFrequency").valid() && XML.getAttribute("SetPoint").valid())
+    if (XML.hasAttribute("SetFrequency") && XML.hasAttribute("SetPoint"))
       {
 	tune = true;
 	setFrequency = XML.getAttribute("SetFrequency").as<unsigned long long>();

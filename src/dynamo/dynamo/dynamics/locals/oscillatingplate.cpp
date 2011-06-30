@@ -127,7 +127,7 @@ CLOscillatingPlate::operator<<(const magnet::xml::Node& XML)
     rw0 << XML.getNode("Origin");
     rw0 *= Sim->dynamics.units().unitLength();
 
-    if (XML.getAttribute("StrongPlate").valid())
+    if (XML.hasAttribute("StrongPlate"))
       strongPlate = XML.getAttribute("StrongPlate").as<double>();
 
     omega0 = XML.getAttribute("Omega0").as<double>() / Sim->dynamics.units().unitTime();

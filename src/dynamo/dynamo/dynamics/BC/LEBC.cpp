@@ -57,11 +57,11 @@ BCLeesEdwards::operator<<(const magnet::xml::Node& XML)
 { 
   try 
     {
-      if (XML.getAttribute("DXD").valid())
+      if (XML.hasAttribute("DXD"))
 	_dxd = XML.getAttribute("DXD").as<double>();
       _dxd *= Sim->dynamics.units().unitLength();
       
-      if (XML.getAttribute("Rate").valid())
+      if (XML.hasAttribute("Rate"))
 	_shearRate = XML.getAttribute("Rate").as<double>();      
       _shearRate /= Sim->dynamics.units().unitTime();
     }

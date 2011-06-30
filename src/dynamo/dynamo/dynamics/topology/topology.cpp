@@ -45,7 +45,7 @@ Topology::operator<<(const magnet::xml::Node& XML)
 	M_throw() << "Failed a lexical cast in CTopology";
       }
     
-    for (magnet::xml::Node node = XML.getNode("Molecule"); node.valid(); ++node)
+    for (magnet::xml::Node node = XML.fastGetNode("Molecule"); node.valid(); ++node)
       ranges.push_back(magnet::ClonePtr<CRange>(CRange::getClass(node, Sim)));
 }
 

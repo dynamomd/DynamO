@@ -44,7 +44,7 @@ LNewtonianMC::LNewtonianMC(dynamo::SimData* tmp, const magnet::xml::Node& XML):
   try 
     {     
       if (XML.hasNode("PotentialDeformation"))
-	if (XML.getNode("PotentialDeformation").getAttribute("EnergyStep").valid())
+	if (XML.getNode("PotentialDeformation").hasAttribute("EnergyStep"))
 	  EnergyPotentialStep 
 	    = XML.getNode("PotentialDeformation").getAttribute("EnergyStep").as<double>();
       

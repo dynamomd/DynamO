@@ -48,9 +48,9 @@ OPVTK::operator<<(const magnet::xml::Node& XML)
 	     XML.getAttribute("binwidth").as<double>(1),
 	     XML.getAttribute("binwidth").as<double>(1));
     
-    if (XML.getAttribute("Snapshots").valid()) snapshots = true;
-    if (XML.getAttribute("Fields").valid()) fields = true;
-    if (XML.getAttribute("CollisionStats").valid()) CollisionStats = true;
+    if (XML.hasAttribute("Snapshots")) snapshots = true;
+    if (XML.hasAttribute("Fields")) fields = true;
+    if (XML.hasAttribute("CollisionStats")) CollisionStats = true;
     
   }
   catch (std::exception& excep)

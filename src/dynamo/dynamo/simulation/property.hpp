@@ -142,7 +142,7 @@ public:
   {
     //Move up to the particles nodes, and start loading the property values
     for (magnet::xml::Node pNode = node.getParent().getParent()
-	   .getNode("ParticleData").getNode("Pt");
+	   .getNode("ParticleData").fastGetNode("Pt");
 	 pNode.valid(); ++pNode)
       _values.push_back(pNode.getAttribute(_name).as<double>());
   }

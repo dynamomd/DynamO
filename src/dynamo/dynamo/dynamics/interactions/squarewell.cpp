@@ -55,7 +55,7 @@ ISquareWell::operator<<(const magnet::xml::Node& XML)
     _wellDepth = Sim->_properties.getProperty(XML.getAttribute("WellDepth"),
 					      Property::Units::Energy());
 
-    if (XML.getAttribute("Elasticity").valid())
+    if (XML.hasAttribute("Elasticity"))
       _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
 					   Property::Units::Dimensionless());
     else

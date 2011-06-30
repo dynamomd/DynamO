@@ -42,7 +42,7 @@ OPRadialDistribution::operator<<(const magnet::xml::Node& XML)
     binWidth = XML.getAttribute("binWidth").as<double>(0.1)
       * Sim->dynamics.units().unitLength();
     
-    if (XML.getAttribute("length").valid())
+    if (XML.hasAttribute("length"))
       length = XML.getAttribute("length").as<size_t>();
     else
       {

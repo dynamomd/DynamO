@@ -43,7 +43,7 @@ C2RRangeList::operator<<(const magnet::xml::Node& XML)
   
   try 
     {
-      for (magnet::xml::Node node = XML.getNode("RangeListItem"); node.valid(); ++node)
+      for (magnet::xml::Node node = XML.fastGetNode("RangeListItem"); node.valid(); ++node)
 	ranges.push_back(magnet::ClonePtr<C2Range>(C2Range::getClass(node, Sim)));
     }
   catch (boost::bad_lexical_cast &)

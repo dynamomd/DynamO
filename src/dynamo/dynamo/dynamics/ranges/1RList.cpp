@@ -41,7 +41,7 @@ CRList::operator<<(const magnet::xml::Node& XML)
     M_throw() << "Attempting to load CRList from non list";
   try {
     
-    for (magnet::xml::Node node = XML.getNode("ID"); node.valid(); ++node)
+    for (magnet::xml::Node node = XML.fastGetNode("ID"); node.valid(); ++node)
       IDs.push_back(node.getAttribute("val").as<unsigned long>());
   }
   catch (boost::bad_lexical_cast &)

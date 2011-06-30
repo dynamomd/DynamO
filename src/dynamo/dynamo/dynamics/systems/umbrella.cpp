@@ -281,7 +281,7 @@ CSUmbrella::operator<<(const magnet::xml::Node& XML)
     range1.set_ptr(CRange::getClass(XML.getNode("Range1"), Sim));
     range2.set_ptr(CRange::getClass(XML.getNode("Range2"), Sim));
     
-    if (XML.getAttribute("currentulevel").valid())
+    if (XML.hasAttribute("currentulevel"))
       {
 	ulevel = XML.getAttribute("currentulevel").as<size_t>();
 	ulevelset = true;

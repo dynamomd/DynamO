@@ -311,10 +311,10 @@ CSRingDSMC::operator<<(const magnet::xml::Node& XML)
     d2 = diameter * diameter;
     range1.set_ptr(CRange::getClass(XML.getNode("Range1"), Sim));
 
-    if (XML.getAttribute("MaxProbability12").valid())
+    if (XML.hasAttribute("MaxProbability12"))
       maxprob12 = XML.getAttribute("MaxProbability12").as<double>();
 	
-    if (XML.getAttribute("MaxProbability13").valid())
+    if (XML.hasAttribute("MaxProbability13"))
       maxprob13 = XML.getAttribute("MaxProbability13").as<double>();
   }
   catch (boost::bad_lexical_cast &)
