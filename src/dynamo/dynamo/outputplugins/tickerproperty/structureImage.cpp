@@ -44,10 +44,13 @@ OPStructureImaging::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
-      if (!XML.getAttribute("Structure").valid())
+      if (!XML.hasAttribute("Structure"))
 	M_throw() << "You must specify the name of the structure to monitor for StructureImaging";
       
       structureName = XML.getAttribute("Structure");
+
+      if (XML.hasAttribute("MaxImages"))
+	imageCount = XML.getAttribute("MaxImages").as<size_t>();
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -59,6 +62,10 @@ OPStructureImaging::operator<<(const magnet::xml::Node& XML)
 void 
 OPStructureImaging::initialise()
 {
+  dout << "Initialising Structure imaging with a max of " << imageCount
+       << " snapshots"<< std::endl;
+
+
   id = Sim->dynamics.getTopology().size();
   
   BOOST_FOREACH(const magnet::ClonePtr<Topology>& ptr, Sim->dynamics.getTopology())
