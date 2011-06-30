@@ -30,6 +30,7 @@
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
 **** DONE *BUGFIX* Fixed bounded priority queues causing huge slowdowns in very small (N=2) systems.
 **** DONE *BUGFIX* Coil visualizer: Fixed resizing of anti-aliased windows not working on AMD hardware.
+**** DONE *BUGFIX* Fixed the improper use of the XML test functions, causing errors instead of warnings.
 **** TODO Improve the runEvent loop, its a mess right now.
 **** TODO Improve the way data is made available to Coil, allowing a paraview-like interface to the data sources.
 **** TODO Coil library volume renderer (blocking on above)
