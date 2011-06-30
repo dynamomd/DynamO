@@ -26,6 +26,9 @@ namespace magnet {
       class VolumeShader: public detail::Shader
       {
       public:      
+	virtual std::string initVertexShaderSource()
+	{ return STRINGIFY(void main() { gl_Position = ftransform(); }); }
+
 	virtual std::string initFragmentShaderSource()
 	{
 	  return STRINGIFY( 

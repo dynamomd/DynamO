@@ -172,9 +172,12 @@ namespace magnet {
 	   */
 	  inline void build()
 	  {
-	    if (_vertexShaderCode.empty()) _vertexShaderCode = magnet::string::format_code(initVertexShaderSource());
-	    if (_fragmentShaderCode.empty()) _fragmentShaderCode = magnet::string::format_code(initFragmentShaderSource());
-	    if (_geometryShaderCode.empty()) _geometryShaderCode = magnet::string::format_code(initGeometryShaderSource());
+	    if (_vertexShaderCode.empty()) 
+	      _vertexShaderCode = magnet::string::format_code(initVertexShaderSource());
+	    if (_fragmentShaderCode.empty()) 
+	      _fragmentShaderCode = magnet::string::format_code(initFragmentShaderSource());
+	    if (_geometryShaderCode.empty()) 
+	      _geometryShaderCode = magnet::string::format_code(initGeometryShaderSource());
 
 	    //Check for the ability to use fragment and vertex shaders
 	    if (!GLEW_ARB_fragment_program || !GLEW_ARB_vertex_program
@@ -184,33 +187,48 @@ namespace magnet {
 	    GLint result;
 
 	    //Vertex shader
-	    if (!(_vertexShaderHandle = glCreateShaderObjectARB(GL_VERTEX_SHADER)))
-	      M_throw() << "Failed to create vertex shader handle";
-	    const GLcharARB* src = _vertexShaderCode.c_str();
-	    glShaderSourceARB(_vertexShaderHandle, 1, &src, NULL);	 
-	    glCompileShaderARB(_vertexShaderHandle);	  
-	    glGetObjectParameterivARB(_vertexShaderHandle, GL_OBJECT_COMPILE_STATUS_ARB, &result);
-	    if (!result)
-	      M_throw() << "Vertex shader compilation failed, build log follows\n"
-			<< getShaderBuildlog(_vertexShaderHandle);
+	    if (!_vertexShaderCode.empty())
+	      {
+		if (!GLEW_ARB_vertex_shader)
+		  M_throw() << "Vertex shaders are not supported by your OpenGL driver.";
+
+		if (!(_vertexShaderHandle = glCreateShaderObjectARB(GL_VERTEX_SHADER)))
+		  M_throw() << "Failed to create vertex shader handle";
+		const GLcharARB* src = _vertexShaderCode.c_str();
+		glShaderSourceARB(_vertexShaderHandle, 1, &src, NULL);	 
+		glCompileShaderARB(_vertexShaderHandle);	  
+		glGetObjectParameterivARB(_vertexShaderHandle, GL_OBJECT_COMPILE_STATUS_ARB, &result);
+		if (!result)
+		  M_throw() << "Vertex shader compilation failed, build log follows\n"
+			    << getShaderBuildlog(_vertexShaderHandle);
+	      }
 
 	    //Fragment shader
-	    if (!(_fragmentShaderHandle = glCreateShaderObjectARB(GL_FRAGMENT_SHADER)))
-	      M_throw() << "Failed to create fragment shader handle";
-	    src = _fragmentShaderCode.c_str();
-	    glShaderSourceARB(_fragmentShaderHandle, 1, &src, NULL);
-	    glCompileShaderARB(_fragmentShaderHandle);	  
-	    glGetObjectParameterivARB(_fragmentShaderHandle, GL_OBJECT_COMPILE_STATUS_ARB, &result);
-	    if (!result)
-	      M_throw() << "Fragment shader compilation failed, build log follows\n"
-			<< getShaderBuildlog(_fragmentShaderHandle);
+	    if (!_fragmentShaderCode.empty())
+	      {
+		if (!GLEW_ARB_fragment_shader)
+		  M_throw() << "Fragment shaders are not supported by your OpenGL driver.";
+
+		if (!(_fragmentShaderHandle = glCreateShaderObjectARB(GL_FRAGMENT_SHADER)))
+		  M_throw() << "Failed to create fragment shader handle";
+		const GLcharARB* src = _fragmentShaderCode.c_str();
+		glShaderSourceARB(_fragmentShaderHandle, 1, &src, NULL);
+		glCompileShaderARB(_fragmentShaderHandle);	  
+		glGetObjectParameterivARB(_fragmentShaderHandle, GL_OBJECT_COMPILE_STATUS_ARB, &result);
+		if (!result)
+		  M_throw() << "Fragment shader compilation failed, build log follows\n"
+			    << getShaderBuildlog(_fragmentShaderHandle);
+	      }
 
 	    //Geometry shader
 	    if (!(_geometryShaderCode.empty()))
 	      {
+		if (!GL_EXT_geometry_shader4)
+		  M_throw() << "Geometry shaders are not supported by your OpenGL driver.";
+
 		if (!(_geometryShaderHandle = glCreateShaderObjectARB(GL_GEOMETRY_SHADER_EXT)))
 		  M_throw() << "Failed to create geometry shader handle";
-		src = _fragmentShaderCode.c_str();
+		const GLcharARB* src = _fragmentShaderCode.c_str();
 		glShaderSourceARB(_geometryShaderHandle, 1, &src, NULL);
 		glCompileShaderARB(_geometryShaderHandle);
 		glGetObjectParameterivARB(_fragmentShaderHandle, GL_OBJECT_COMPILE_STATUS_ARB, &result);
@@ -221,12 +239,16 @@ namespace magnet {
 
 	    //Now we've build both shaders, combine them into a program
 	    _shaderID = glCreateProgramObjectARB();
-	    glAttachObjectARB(_shaderID,_vertexShaderHandle);
-	    glAttachObjectARB(_shaderID,_fragmentShaderHandle);
+
+	    if (!(_vertexShaderCode.empty()))
+	      glAttachObjectARB(_shaderID,_vertexShaderHandle);
+
+	    if (!(_fragmentShaderCode.empty()))
+	      glAttachObjectARB(_shaderID,_fragmentShaderHandle);
+
 	    if (!(_geometryShaderCode.empty()))
-	      {
-		glAttachObjectARB(_shaderID,_geometryShaderHandle);
-	      }
+	      glAttachObjectARB(_shaderID,_geometryShaderHandle);
+
 	    glLinkProgramARB(_shaderID);
 
 	    //Done, now the inheriting shader should grab the locations of its uniforms
@@ -327,15 +349,7 @@ namespace magnet {
 	   * Derived \ref Shader classes only need to override this if
 	   * they want a non-trivial vertex shader.
 	   */
-	  virtual std::string initVertexShaderSource()
-	  {
-	    return STRINGIFY( 
-void main()
-{
-  gl_Position = ftransform();
-  gl_TexCoord[0] = gl_MultiTexCoord0;
-});
-	  }
+	  virtual std::string initVertexShaderSource() { return ""; }
 
 	  /*! \brief Specifies the initial source of the fragment
 	   * shader.
@@ -343,7 +357,7 @@ void main()
 	   * Every derived \ref Shader class needs to override this
 	   * and specify the fragment shader.
 	   */
-	  virtual std::string initFragmentShaderSource() = 0;
+	  virtual std::string initFragmentShaderSource() { return ""; }
 	
 	  /*! \brief Fetches the build log for the passed shader
 	   * handle.

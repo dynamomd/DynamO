@@ -61,16 +61,7 @@ namespace magnet {
 	    data << _stencilwidth; 
 	  
 	    return std::string("#define stencilwidth ") + data.str() + "\n"
-STRINGIFY(
-uniform vec2 u_Scale;
-uniform float weights[stencilwidth * stencilwidth];
-uniform sampler2D u_Texture0;
-
-void main()
-{
-  gl_Position = ftransform();
-  gl_TexCoord[0] = gl_MultiTexCoord0;
-});
+	      STRINGIFY(void main() { gl_Position = ftransform(); gl_TexCoord[0] = gl_MultiTexCoord0; });
 	  }
 	  
 	  virtual std::string initFragmentShaderSource()

@@ -33,6 +33,11 @@ namespace magnet {
 	  glUseProgramObjectARB(0);
 	}
 
+	virtual std::string initVertexShaderSource()
+	{
+	  return STRINGIFY(void main(void) { gl_Position = ftransform(); gl_TexCoord[0] = gl_MultiTexCoord0; });
+	}
+
 	virtual std::string initFragmentShaderSource()
 	{
 	  return STRINGIFY(
