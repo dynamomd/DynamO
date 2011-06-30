@@ -51,9 +51,9 @@ CRList::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-CRList::outputXML(xml::XmlStream& XML) const
+CRList::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Range") << "List";
+  XML << magnet::xml::attr("Range") << "List";
   BOOST_FOREACH(unsigned long ID, IDs)
-    XML << xml::tag("ID") << xml::attr("val") << ID << xml::endtag("ID");
+    XML << magnet::xml::tag("ID") << magnet::xml::attr("val") << ID << magnet::xml::endtag("ID");
 }

@@ -108,19 +108,19 @@ CLWall::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-CLWall::outputXML(xml::XmlStream& XML) const
+CLWall::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "Wall" 
-      << xml::attr("Name") << localName
-      << xml::attr("Elasticity") << e
-      << xml::attr("Render") << render
+  XML << magnet::xml::attr("Type") << "Wall" 
+      << magnet::xml::attr("Name") << localName
+      << magnet::xml::attr("Elasticity") << e
+      << magnet::xml::attr("Render") << render
       << range
-      << xml::tag("Norm")
+      << magnet::xml::tag("Norm")
       << vNorm
-      << xml::endtag("Norm")
-      << xml::tag("Origin")
+      << magnet::xml::endtag("Norm")
+      << magnet::xml::tag("Origin")
       << vPosition / Sim->dynamics.units().unitLength()
-      << xml::endtag("Origin");
+      << magnet::xml::endtag("Origin");
 }
 
 void 

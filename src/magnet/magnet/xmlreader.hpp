@@ -25,7 +25,6 @@
 #include <boost/iostreams/chain.hpp>
 #include <boost/iostreams/device/back_inserter.hpp>
 #include <boost/iostreams/copy.hpp>
-
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -33,6 +32,7 @@ namespace magnet {
   //!Namespace enclosing the XML tools included in magnet.
   namespace xml {
     namespace detail {
+      //! \brief Generates a string representation of the passed XML rapidxml node.
       inline std::string getPath(rapidxml::xml_node<> *_node)
       {
 	std::vector<std::pair<std::string, size_t> > pathTree;
@@ -61,10 +61,10 @@ namespace magnet {
       }
     }
 
-    //! Represents an Attribute of an XML Document.
+    //! \brief Represents an Attribute of an XML Document.
     class Attribute {
     public:
-      //! Converts the attributes value to a type.
+      //! \brief Converts the attributes value to a type.
       template<class T> inline T as() const 
       { 
 	if (!valid()) 
@@ -78,18 +78,20 @@ namespace magnet {
 	  }
       }
 
-      //! Converts the attributes value to a type.  This version of
-      //! as() will return the passed value if the Attribute is
-      //! invalid. 
-      //! \param defaultval The default value to be returned if the Attribute is invalid.
-      //! \sa as()
+      /*! \brief Converts the attributes value to a type.  
+       *
+       * This version of as() will return the passed value if the
+       * Attribute is invalid.
+       * \param defaultval The default value to be returned if the Attribute is invalid.
+       * \sa as()
+       */
       template<class T> inline T as(T defaultval) const 
       { 
 	if (!valid()) return defaultval;
 	return boost::lexical_cast<T>(_attr->value()); 
       }
 
-      //! Conversion operator returning the value of the attribute.
+      //! \brief Conversion operator returning the value of the attribute.
       inline operator const char*() const 
       { 
 	if (!valid()) 
@@ -98,11 +100,15 @@ namespace magnet {
 	return _attr->value(); 
       }
 
+      //! \brief Returns the value of the attribute.
       const char* getValue() const { return _attr->value(); }
 
-      //! Test if this Attribute is valid and has a value.
+      //! \brief Test if this Attribute is valid and has a value.
       inline bool valid() const { return _attr != NULL; }
 
+      /*! \brief Returns a string representation of this attributes
+       * XML location.
+       */
       inline std::string getPath() const
       {	
 	if (!valid()) 
@@ -113,7 +119,11 @@ namespace magnet {
 
     private:
       friend class Node;
+
+      //! \brief Hidden default constructor to stop its use.
       Attribute();
+
+      //! \brief True Attribute constructor, used by the Node class.
       inline Attribute(rapidxml::xml_attribute<>* attr,
 		       rapidxml::xml_node<>* parent):_attr(attr), _parent(parent) {}
       
@@ -121,12 +131,14 @@ namespace magnet {
       rapidxml::xml_node<> *_parent;
     };
 
-    //! Represents a Node of an XML Document.
+    //! \brief Represents a Node of an XML Document.
     class Node {
     public:
-      //! Fetches the first Attribute with a given name. Test if the
-      //! Attribute is Attribute::valid() before using it.
-      //! \param name The name of the attribute to return.
+      /*! \brief Fetches the first Attribute with a given name. 
+       *
+       * Test if the Attribute is Attribute::valid() before using it.
+       * \param name The name of the attribute to return.
+       */
       template<class T> inline Attribute getAttribute(T name) const 
       { 
 	if (!valid()) 
@@ -142,8 +154,10 @@ namespace magnet {
 	return attr; 
       }
 
-      //! Fetches the first Node with a given name.
-      //! \param name The name of the Node to return.
+      /*! \brief Fetches the first Node with a given name.
+       *
+       * \param name The name of the Node to return.
+       */
       template<class T> inline Node getNode(T name) const 
       { 
 	Node child(fastGetNode(name));
@@ -154,9 +168,11 @@ namespace magnet {
 	return child;
       }
 
-      //! Fetches the first Node with a given name without testing if
-      //! its a valid node.
-      //!\param name The name of the Node to return.
+      /*! \brief Fetches the first Node with a given name without
+       * testing if its a valid node.
+       *
+       * \param name The name of the Node to return.
+       */
       template<class T> inline Node fastGetNode(T name) const 
       { 
 	if (!valid())
@@ -165,8 +181,10 @@ namespace magnet {
 	return Node(_node->first_node(name), _node);
       }
 
-      //! Tests if the Node has a named child Node.
-      //!\param name The name of the child Node to test for.
+      /*! \brief Tests if the Node has a named child Node.
+       *
+       * \param name The name of the child Node to test for.
+       */
       template<class T> inline bool hasNode(T name) const 
       { 
 	if (!valid()) 
@@ -176,8 +194,10 @@ namespace magnet {
 	return _node->first_node(name);
       }
 
-      //! Tests if the Node has a named child Node.
-      //!\param name The name of the child Node to test for.
+      /*! \brief Tests if the Node has a named child Node.
+       *
+       * \param name The name of the child Node to test for.
+       */
       template<class T> inline bool hasAttribute(T name) const 
       { 
 	if (!valid()) 
@@ -186,9 +206,10 @@ namespace magnet {
 	return _node->first_attribute(name);
       }
 
-      //! Returns the value of the Node.
+      //! \brief Returns the value of the Node.
       inline operator const char*() const { return getValue(); }
 
+      //! \brief Returns the value of the Node.
       const char* getValue() const
       { 
 	if (!valid()) 
@@ -197,10 +218,12 @@ namespace magnet {
 	return _node->value(); 
       }
 
-      //! Test if the Node is valid.
+      //! \brief Test if the Node is valid.
       inline bool valid() const { return _node != NULL; }
 
-      //! Replace this Node with the next Node in the parent Node with the same name.
+      /*! \brief Replace this Node with the next Node in the parent
+       * Node with the same name.
+       */
       inline void operator++()
       { 
 	if (!valid()) 
@@ -208,7 +231,10 @@ namespace magnet {
 			+ detail::getPath(_parent) + "/INVALID");
 	_node = _node->next_sibling(_node->name()); 
       }
-      //! Replace this Node with the previous Node in the parent Node with the same name.
+
+      /*! \brief Replace this Node with the previous Node in the
+       * parent Node with the same name.
+       */
       inline void operator--() 
       { 
 	if (!valid()) 
@@ -217,6 +243,7 @@ namespace magnet {
 	_node = _node->previous_sibling(_node->name()); 
       }
 
+      //! \brief Fetch the parent Node of this Node.
       inline Node getParent() const
       {
 	if (_parent)
@@ -225,10 +252,13 @@ namespace magnet {
 	  M_throw() << "No parent node for node " << detail::getPath(_node);
       }
 
-      //! Constructor to build a Node from rapidxml::xml_node data.
+      //! \brief Constructor to build a Node from rapidxml::xml_node data.
       inline Node(rapidxml::xml_node<>* node,
 		  rapidxml::xml_node<>* parent):_node(node), _parent(parent) {}
 
+      /*! \brief Returns a string representation of the Node's
+       * location in the XML document.
+       */
       inline std::string getPath() const 
       { 
 	if (!valid()) 
@@ -261,18 +291,21 @@ namespace magnet {
     }
 
 
-    //! \brief A class which represents a whole XML Document, including
-    //! storage. 
-    //!
-    //! This class thinly wraps the rapidXML parser, providing a
-    //! simple type-casting interface and automatic error handling,
-    //! similar to Boost's property_tree. Unlike property_tree this
-    //! class is space-efficient and does not copy the XML data.  This
-    //! class must outlive any Node or Attribute generated from it.
+    /*! \brief A class which represents a whole XML Document, including
+     * storage. 
+     *
+     * This class thinly wraps the rapidXML parser, providing a simple
+     * type-casting interface and automatic error handling, similar to
+     * Boost's property_tree. Unlike property_tree this class is
+     * space-efficient and does not copy the XML data.  This class
+     * must outlive any Node or Attribute generated from it.
+     */
     class Document {
     public:
-      //! Construct an XML Document from a file.
-      //! \param fileName Path to the file to load.
+      /*! \brief Construct an XML Document from a file.
+       *
+       * \param fileName Path to the file to load.
+       */
       inline Document(std::string fileName)
       {
 	namespace io = boost::iostreams;
@@ -304,9 +337,12 @@ namespace magnet {
 	_doc.parse<rapidxml::parse_trim_whitespace>(&_data[0]);
       }
       
-      //! Return the first Node with a certain name in the
-      //! Document. Test if the Node is Node::valid before using it.
-      //!\param name Name of the node to return.
+      /*! \brief Return the first Node with a certain name in the
+       * Document.
+       * 
+       * Test if the Node is Node::valid before using it.
+       * \param name Name of the node to return.
+       */
       template<class T>
       inline Node getNode(T name) { return Node(_doc.first_node(name), &_doc); }
 

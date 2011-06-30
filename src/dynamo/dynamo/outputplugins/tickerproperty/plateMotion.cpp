@@ -179,9 +179,9 @@ OPPlateMotion::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-OPPlateMotion::output(xml::XmlStream& XML)
+OPPlateMotion::output(magnet::xml::XmlStream& XML)
 {
-  XML << xml::tag("PlateMotion");
+  XML << magnet::xml::tag("PlateMotion");
  
   for (size_t ID(0); ID < localEnergyLoss.size(); ++ID)
     {
@@ -201,12 +201,12 @@ OPPlateMotion::output(xml::XmlStream& XML)
 	       << "\n";
 	  }
 
-	XML << xml::tag("Plate")
-	    << xml::attr("ID") << ID
-	    << xml::attr("PowerLossRate") 
+	XML << magnet::xml::tag("Plate")
+	    << magnet::xml::attr("ID") << ID
+	    << magnet::xml::attr("PowerLossRate") 
 	    << (sum * Sim->dynamics.units().unitTime() 
 		/ (Sim->dSysTime * Sim->dynamics.units().unitEnergy()))
-	    << xml::endtag("Plate");
+	    << magnet::xml::endtag("Plate");
       }
       {
 	std::fstream of((Sim->dynamics.getLocals()[ID]->getName() 
@@ -220,5 +220,5 @@ OPPlateMotion::output(xml::XmlStream& XML)
 	  of << deltat * (step++) << " " << val / (deltat * Sim->dynamics.units().unitEnergy()) << "\n";
       }
     }
-  XML << xml::endtag("PlateMotion");
+  XML << magnet::xml::endtag("PlateMotion");
 }

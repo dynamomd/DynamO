@@ -20,7 +20,7 @@
 
 namespace magnet {
   namespace intersection {
-    //! A ray-plane intersection test.
+    //! \brief A ray-plane intersection test.
     //!
     //! \tparam BACKFACE_CULLING Ignores ray plane intersections
     //! where the ray enters the back of the plane.

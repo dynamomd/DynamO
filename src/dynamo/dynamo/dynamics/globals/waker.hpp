@@ -49,7 +49,7 @@ protected:
 
   mutable size_t _neighbors;
 
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
   double _wakeTime;
   double _wakeVelocity;
 

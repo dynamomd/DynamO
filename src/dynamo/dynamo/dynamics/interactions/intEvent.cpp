@@ -22,16 +22,16 @@
 #include <magnet/xmlwriter.hpp>
 #include <cmath>
 
-xml::XmlStream& operator<<(xml::XmlStream &XML, 
+magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream &XML, 
 			    const IntEvent &coll)
 {
-  XML << xml::tag("Collision")
-      << xml::attr("p1ID") << coll.getParticle1ID()
+  XML << magnet::xml::tag("Collision")
+      << magnet::xml::attr("p1ID") << coll.getParticle1ID()
       << coll.particle1
-      << xml::attr("p2ID") << coll.getParticle1ID()
+      << magnet::xml::attr("p2ID") << coll.getParticle1ID()
       << coll.particle2
-      << xml::attr("dt")   << coll.dt
-      << xml::endtag("Collision");
+      << magnet::xml::attr("dt")   << coll.dt
+      << magnet::xml::endtag("Collision");
   
   return XML;
 }

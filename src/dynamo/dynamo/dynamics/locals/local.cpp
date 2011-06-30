@@ -39,7 +39,7 @@ Local::isInteraction(const Particle &p1) const
   return range->isInRange(p1);
 }
 
-xml::XmlStream& operator<<(xml::XmlStream& XML, 
+magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
 			    const Local& g)
 {
   g.outputXML(XML);

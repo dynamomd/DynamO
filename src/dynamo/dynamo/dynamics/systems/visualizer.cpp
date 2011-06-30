@@ -17,23 +17,23 @@
 
 #ifdef DYNAMO_visualizer
 
-#include "visualizer.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../NparticleEventData.hpp"
-#include "../liouvillean/liouvillean.hpp"
-#include "../../outputplugins/tickerproperty/ticker.hpp"
-#include "../units/units.hpp"
-#include "../../schedulers/scheduler.hpp"
-#include <boost/foreach.hpp>
-#include <algorithm>
-#include "../../dynamics/include.hpp"
+#include <dynamo/dynamics/systems/visualizer.hpp>
+#include <dynamo/dynamics/liouvillean/CompressionL.hpp>
+#include <dynamo/dynamics/coilRenderObj.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/NparticleEventData.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/dynamics/include.hpp>
 #include <coil/clWindow.hpp>
 #include <coil/RenderObj/Function.hpp>
 #include <coil/RenderObj/Spheres.hpp>
 #include <coil/RenderObj/Lines.hpp>
 #include <magnet/CL/CLGL.hpp>
-#include "../liouvillean/CompressionL.hpp"
-#include "../coilRenderObj.hpp"
+#include <boost/foreach.hpp>
+#include <algorithm>
 
 SVisualizer::SVisualizer(dynamo::SimData* nSim, std::string nName, double tickFreq):
   System(nSim)
@@ -84,10 +84,12 @@ SVisualizer::SVisualizer(dynamo::SimData* nSim, std::string nName, double tickFr
     _CLWindow.as<CLGLWindow>().setSimStatus2(os.str());
   }
   
+  _lastUpdate = boost::posix_time::microsec_clock::local_time();
+
   dout << "Visualizer initialised\nOpenCL Plaftorm:" 
-	   << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getPlatform().getInfo<CL_PLATFORM_NAME>()
-	   << "\nOpenCL Device:" 
-	   << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getDevice().getInfo<CL_DEVICE_NAME>() << std::endl;
+       << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getPlatform().getInfo<CL_PLATFORM_NAME>()
+       << "\nOpenCL Device:" 
+       << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getDevice().getInfo<CL_DEVICE_NAME>() << std::endl;
 }
 
 void
@@ -131,7 +133,7 @@ SVisualizer::runEvent() const
 	  }
 
 	_CLWindow.as<CLGLWindow>().flagNewData();
-      }	
+      }
       std::ostringstream os;
       os << "t:" << Sim->dSysTime;
       
@@ -140,10 +142,28 @@ SVisualizer::runEvent() const
       os << "Events:" << Sim->eventCount;
       _CLWindow.as<CLGLWindow>().setSimStatus2(os.str());
     }
+
+  _lastUpdate = boost::posix_time::microsec_clock::local_time();
 }
 
 void 
 SVisualizer::initialise(size_t nID)
-{ ID = nID; }
+{ 
+  ID = nID; 
+
+  Sim->registerParticleUpdateFunc
+    (magnet::function::MakeDelegate(this, &SVisualizer::particlesUpdated));
+}
+
+void 
+SVisualizer::particlesUpdated(const NEventData&)
+{
+  if ((boost::posix_time::microsec_clock::local_time() - _lastUpdate) 
+      > boost::posix_time::milliseconds(500))
+    {
+      dt = -HUGE_VAL;
+      Sim->ptrScheduler->rebuildSystemEvents();
+    }
+}
 
 #endif

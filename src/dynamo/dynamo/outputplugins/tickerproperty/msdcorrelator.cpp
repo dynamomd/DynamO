@@ -128,10 +128,10 @@ OPMSDCorrelator::accPass()
 }
 
 void
-OPMSDCorrelator::output(xml::XmlStream &XML)
+OPMSDCorrelator::output(magnet::xml::XmlStream &XML)
 {
-  XML << xml::tag("MSDCorrelator")
-      << xml::tag("Particles");
+  XML << magnet::xml::tag("MSDCorrelator")
+      << magnet::xml::tag("Particles");
   
   double dt = dynamic_cast<const CSTicker&>
     (*Sim->dynamics.getSystem("SystemTicker")).getPeriod()
@@ -139,10 +139,10 @@ OPMSDCorrelator::output(xml::XmlStream &XML)
   
   BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     {
-      XML << xml::tag("Species")
-	  << xml::attr("Name")
+      XML << magnet::xml::tag("Species")
+	  << magnet::xml::attr("Name")
 	  << sp->getName()
-	  << xml::chardata();
+	  << magnet::xml::chardata();
       
       for (size_t step(0); step < length; ++step)
 	XML << dt * step << " "
@@ -152,19 +152,19 @@ OPMSDCorrelator::output(xml::XmlStream &XML)
 	     * Sim->dynamics.units().unitArea())
 	    << "\n";
       
-      XML << xml::endtag("Species");
+      XML << magnet::xml::endtag("Species");
     }
   
-  XML << xml::endtag("Particles")
-      << xml::tag("Topology");
+  XML << magnet::xml::endtag("Particles")
+      << magnet::xml::tag("Topology");
   
   BOOST_FOREACH(const magnet::ClonePtr<Topology>& topo, 
 		Sim->dynamics.getTopology())
     {
-      XML << xml::tag("Structure")
-	  << xml::attr("Name")
+      XML << magnet::xml::tag("Structure")
+	  << magnet::xml::attr("Name")
 	  << topo->getName()
-	  << xml::chardata();
+	  << magnet::xml::chardata();
       
       for (size_t step(0); step < length; ++step)
 	XML << dt * step << " "
@@ -174,9 +174,9 @@ OPMSDCorrelator::output(xml::XmlStream &XML)
 	     * Sim->dynamics.units().unitArea())
 	    << "\n";
 	
-      XML << xml::endtag("Structure");
+      XML << magnet::xml::endtag("Structure");
     }
   
-  XML << xml::endtag("Topology")
-      << xml::endtag("MSDCorrelator");
+  XML << magnet::xml::endtag("Topology")
+      << magnet::xml::endtag("MSDCorrelator");
 }

@@ -27,11 +27,11 @@
 
 #include <magnet/GL/light.hpp>
 #include <magnet/CL/GLBuffer.hpp>
-#include <magnet/GL/shadowShader.hpp>
+#include <magnet/GL/shader/render.hpp>
 #include <magnet/GL/shadowFBO.hpp>
 #include <magnet/GL/viewPort.hpp>
 #include <magnet/GL/multisampledFBO.hpp>
-#include <magnet/GL/nrmlShader.hpp>
+#include <magnet/GL/shader/normal.hpp>
 #include <magnet/thread/refPtr.hpp>
 
 #include <coil/filters/filter.hpp>
@@ -85,7 +85,7 @@ public:
 protected:
   void setLabelText(Gtk::Label*, std::string);
 
-  magnet::GL::shadowShader _shadowShader;
+  magnet::GL::shader::RenderShader _shadowShader;
   magnet::GL::shadowFBO _shadowFBO;
 
   //Primary render target
@@ -95,7 +95,7 @@ protected:
   magnet::GL::FBO _filterTarget1;
   magnet::GL::FBO _filterTarget2;
 
-  magnet::GL::NormalShader _nrmlShader;
+  magnet::GL::shader::NormalShader _nrmlShader;
   magnet::GL::FBO _normalsFBO;
 
 #ifdef COIL_wiimote
@@ -255,7 +255,6 @@ private:
   void FPSLimitCallback();
   void aboutCallback();
   void renderNormalsCallback();
-  void renderModeCallback();
 
   void runCallback(); 
 

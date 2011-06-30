@@ -410,21 +410,6 @@ CLGLWindow::initGTK()
       .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
   }
 
-  {///////RenderMode Selection
-    Gtk::RadioButton* radioButton;
-    _refXml->get_widget("renderModeTri", radioButton);
-    radioButton->signal_toggled()
-      .connect(sigc::mem_fun(this, &CLGLWindow::renderModeCallback));
-
-    _refXml->get_widget("renderModeLines", radioButton);
-    radioButton->signal_toggled()
-      .connect(sigc::mem_fun(this, &CLGLWindow::renderModeCallback));
-
-    _refXml->get_widget("renderModePoints", radioButton);
-    radioButton->signal_toggled()
-      .connect(sigc::mem_fun(this, &CLGLWindow::renderModeCallback));
-  }
-
   ///////////////////////Render Pipeline//////////////////////////////////
   if (_shaderPipeline)
     {
@@ -961,7 +946,7 @@ CLGLWindow::CallBackDisplayFunc()
 	  
 	  glMatrixMode(GL_MODELVIEW);	  
 
-	  glBindTexture(GL_TEXTURE_2D, _shadowFBO.getDepthTexture());
+	  _shadowFBO.getDepthTexture().bind(7);
 	}
       
       //Bind to the multisample buffer
@@ -970,10 +955,12 @@ CLGLWindow::CallBackDisplayFunc()
 
       _viewPortInfo->loadMatrices();
 
-      _shadowShader.attach(_shadowFBO.getDepthTexture(), _shadowFBO.getWidth(),
-			   7, _shadowMapping, _shadowIntensity, 
-			   _viewPortInfo->getWidth(), _viewPortInfo->getHeight());
-
+      _shadowShader["ShadowMap"] = 7;
+      _shadowShader["ShadowIntensity"] = _shadowIntensity;
+      _shadowShader["xPixelOffset"] = 1.0f / _viewPortInfo->getWidth();
+      _shadowShader["yPixelOffset"] = 1.0f / _viewPortInfo->getHeight();
+      _shadowShader["ShadowMapping"] = _shadowMapping;
+      _shadowShader.attach();
 
 #ifdef COIL_wiimote
       if (keyStates['b'])
@@ -1001,10 +988,7 @@ CLGLWindow::CallBackDisplayFunc()
 	}
       else	
 #endif
-	{
-	  _renderTarget->attach();
-	  drawScene(*_renderTarget);
-	}
+	drawScene(*_renderTarget);
       
       _renderTarget->detach();
 
@@ -1037,16 +1021,13 @@ CLGLWindow::CallBackDisplayFunc()
 	    }
 
 	  //Bind the original image to texture (unit 0)
-	  glActiveTextureARB(GL_TEXTURE0);
-	  glBindTexture(GL_TEXTURE_2D, _renderTarget->getColorTexture());
+	  _renderTarget->getColorTexture().bind(0);
 	  
 	  //Now bind the texture which has the normals and depths (unit 1)
-	  glActiveTextureARB(GL_TEXTURE1);
-	  glBindTexture(GL_TEXTURE_2D, _normalsFBO.getColorTexture());
+	  _normalsFBO.getColorTexture().bind(1);
 
 	  //High quality depth information is attached to (unit 2)
-	  glActiveTextureARB(GL_TEXTURE2);
-	  glBindTexture(GL_TEXTURE_2D, _renderTarget->getDepthTexture());
+	  _renderTarget->getDepthTexture().bind(2);
 
 	  for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
 	       iPtr != _filterStore->children().end(); ++iPtr)
@@ -1062,12 +1043,12 @@ CLGLWindow::CallBackDisplayFunc()
 		  glActiveTextureARB(GL_TEXTURE0);
 		  //Now copy the texture 
 		  glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _viewPortInfo->getWidth(), _viewPortInfo->getHeight());
+		  lastFBO->detach();
 		}
 	      else
 		{
 		  //The last output goes into texture 3
-		  glActiveTextureARB(GL_TEXTURE3);
-		  glBindTexture(GL_TEXTURE_2D, lastFBO->getColorTexture());
+		  lastFBO->getColorTexture().bind(3);
 		  
 		  if (FBOalternate)
 		    _filterTarget1.attach();
@@ -1635,24 +1616,6 @@ CLGLWindow::renderNormalsCallback()
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->setDisplayNormals(showNormals);
-}
-
-void
-CLGLWindow::renderModeCallback()
-{
-  Gtk::RadioButton* radioButton;
-
-  RenderObj::RenderModeType rmode = RenderObj::TRIANGLES;
-
-  _refXml->get_widget("renderModeLines", radioButton);
-  if (radioButton->get_active()) rmode = RenderObj::LINES;
-
-  _refXml->get_widget("renderModePoints", radioButton);
-  if (radioButton->get_active()) rmode = RenderObj::POINTS;
-
-  for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr 
-	 = RenderObjects.begin(); iPtr != RenderObjects.end(); ++iPtr)
-    (*iPtr)->setRenderMode(rmode);
 }
 
 void

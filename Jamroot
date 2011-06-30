@@ -13,14 +13,8 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-##########################################################################
-# Compiler configuration. The gcc definition will be used unless you
-# already have defined a toolset in your user-config.jam file or on
-# the command line, e.g., toolset=intel .
 import feature ;
-if ! gcc in [ feature.values <toolset> ]
-{ using gcc ; }
+import src/magnet/jam/builddep ;
 
 ##########################################################################
 #Location of the boost build root directory
@@ -38,97 +32,48 @@ else
 { SHELL "mkdir -p "$(build-dir) ; }
 
 ##########################################################################
-#We bring all the jam projects used in dynamo into scope
-use-project dynamo_core : src/dynamo ;
-use-project magnet : src/magnet ;
-use-project coil : src/coil ;
-
-##########################################################################
-#These are the options that can be set when calling bjam
-#If this feature is unset, its value will be determined from configuration tests
-feature.feature coil-integration : no yes : propagated optional ;
-#This feature controls if the console output is colored or not
-feature.feature color : yes no : propagated ; 
-
-##########################################################################
-#Imports (jam includes)
-
-##########################################################################
 #Additional build variants
 #
-#The fulldebug variant uses compiler and library features to aid in debugging
-#We might consider adding <cxxflags>ansi <cxxflags>pedantic
+# The fulldebug variant uses compiler and library features to aid in debugging
+# We might consider adding <cxxflags>ansi <cxxflags>pedantic
 #<cxxflags>Weffc++ <define>_GLIBXX_DEBUG_PEDANTIC
 #<define>_GLIBCXX_DEBUG_PEDANTIC <define>_GLIBCXX_CONCEPT_CHECKS
 #<define>_GLIBCPP_DEBUG_PEDANTIC <define>_GLIBCPP_DEBUG
 #<define>_GLIBCPP_CONCEPT_CHECKS
 variant fulldebug : debug : <define>_GLIBCXX_DEBUG  <define>DYNAMO_DEBUG  <define>DYNAMO_CollDebug <define>DYNAMO_WallCollDebug <cxxflags>-fstack-protector-all <define>DYNAMO_OverlapTesting ;
 
-#The valgrind variant is useful for code analysis in tools like
-#valgrind. It merely turns debug symbols on and turns inlining off
+# The valgrind variant is useful for code analysis in tools like
+# valgrind. It merely turns debug symbols on and turns inlining off
 variant valgrind : <inlining>off <optimization>speed <debug-symbols>on <profiling>off ;
-#The same as valgrind but with inlining on
+# The same as valgrind but with inlining on
 variant valgrind_in : valgrind : <inlining>on  ;
-
-##########################################################################
-#Dependency calculations
-#Parses the command line (to see if a property has been set by the user)
-rule cmd-line-feature-value ( feature )
-{ return [ MATCH "^$(feature)=(.*)" :  [ modules.peek : ARGV ] ] ; }
-
-rule coil-integration-check ( )
-{
-  if ! [ cmd-line-feature-value coil-integration ]
-  { 
-  
-    return [ check-target-builds src/coil//coilDependencies "Dynamo-Coil Integration" 
-    	   : "<coil-integration>yes"  : "<coil-integration>no" ] ;
-  }
-}
 
 ##########################################################################
 #Main project definition
 project	: requirements
           <threading>multi
 	  ##Allow garbage collection of unused linked symbols
-	  <color>yes:<define>DYNAMO_Colour
 	  <toolset>gcc:<cflags>-ffunction-sections
 	  <toolset>gcc:<cflags>-fdata-sections
 	  <toolset>gcc:<linkflags>-Wl,--gc-sections
+          <toolset>clang:<cflags>-Wno-parentheses
+          <toolset>clang:<cflags>-Wno-mismatched-tags
+          <toolset>clang:<cflags>-Wno-ambiguous-member-template
 	  <variant>release:<define>NDEBUG
-	  [ coil-integration-check ]
+          #This creates a feature coil-integration, which can be set
+          #on the command line or auto-detected using the passed target
+	  [ builddep.set-feature-on-build coil-integration 
+            : src/coil//coilDependencies
+            : "Dynamo-Coil Integration" ]
 	: default-build release
 	: build-dir $(build-dir)
 	;
 
 ##########################################################################
 #Targets
-#
 
-#This rule tests for the dynamo dependencies and returns <build>no if
-#they're not satisfied
-rule critical_dependencies ( )
-{ return [ check-target-builds src/dynamo//dynamoDependencies "DynamO dependencies" :  : <build>no ] ; }
+alias install : src/dynamo//install-dynamo ;
+alias install-coil : src/coil//install-coil ;
+alias test : src/magnet//test ;
 
-##########INSTALL TARGETS
-#Coil
-alias coil : src/coil//coil ;
-install install-coil
-	: coil 
-	: <location>lib [ check-target-builds src/coil//coilDependencies "Coil library dependencies" :  : <build>no ]
-	;	
-
-#dynamo
-install install-bin 
-	: src/dynamo//dynarun src/dynamo//dynahist_rw src/dynamo//dynamod 
-	: <location>bin [ critical_dependencies ]
-	;
-
-alias install : install-bin install-coil ;
-##########TEST TARGETS
-alias test : src/magnet//test src/coil//test src//test ;
-
-
-##################################################################
-#Explicits
-explicit install install-coil coil install-bin test  ;
+explicit install install-coil test  ;

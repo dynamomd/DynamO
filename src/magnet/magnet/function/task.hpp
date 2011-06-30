@@ -21,6 +21,7 @@
 //#include <magnet/memory/pool.hpp>
 
 namespace magnet {
+  //! \brief Namespace for functors and delegates
   namespace function {
     namespace detail { template<class T> struct typeWrapper { typedef T Type; }; }
 
@@ -29,35 +30,71 @@ namespace magnet {
     template<class T1, class T2, class T3> class Task2;
     template<class T1, class T2, class T3, class T4> class Task3;
     
+    /*! \brief This interface class is used to extend Delegate's to
+     * have bindable arguments.
+     *
+     * A Task is a functor which calls a stored Delegate with some stored
+     * arguments.
+     */
     class Task //: public magnet::memory::PoolAllocated
     {
     public:
-      virtual void operator()() = 0;
+      /*! \brief This function is overridden to call the stored
+	Delegate with the stored arguments. */
+      virtual void operator()() =0; 
+
+      /*! \brief Used to allow type-safe copying of derived classes
+       * from a Task pointer.
+       */
       virtual Task* Clone() = 0;
 
+      /*! \brief Helper function to make a task from a global function
+       * with 0 arguments.
+       * \param funcPtr A pointer to the function to alias.
+       */
       template<typename retT>
       inline static Task* makeTask(retT (*funcPtr)()) 
       { 
 	return new Task0<retT>(funcPtr); 
       }
       
+      /*! \brief Helper function to make a task from a member function
+       * with 0 arguments.
+       * \param funcPtr A pointer to the member function to alias.
+       * \param classPtr A pointer to the class to call the member function on.
+       */
       template<typename retT, typename classT>
       inline static Task* makeTask(retT (classT::*funcPtr)(), classT* classPtr)
       { 
 	return new Task0<retT>(magnet::function::MakeDelegate(classPtr, funcPtr)); 
       }
       
+      /*! \brief Helper function to make a task from a const member function
+       * with 0 arguments.
+       * \param funcPtr A pointer to the member function to alias.
+       * \param classPtr A pointer to the class to call the member function on.
+       */
       template<typename retT, typename classT>
       inline static Task* makeTask(retT (classT::*funcPtr)() const, const classT* classPtr)
       { 
 	return new Task0<retT>(magnet::function::MakeDelegate(classPtr, funcPtr)); 
       }
       
-      //1 Argument
+      /*! \brief Helper function to make a task from a global function
+       * with 1 arguments.
+       * \param funcPtr A pointer to the function to alias.
+       * \param arg1 First argument.
+       */
       template<typename retT, typename arg1T>
       inline static Task* makeTask(retT (*funcPtr)(arg1T), typename detail::typeWrapper<arg1T>::Type arg1)
       { return new Task1<retT,arg1T>(funcPtr, arg1); }
       
+      /*! \brief Helper function to make a task from a member function
+       * with 1 arguments.
+       * \param funcPtr A pointer to the member function to alias.
+       * \param classPtr A pointer to the class to call the member function on.
+       * \param arg1 First argument.
+       */
       template<typename retT, typename classT, typename arg1T>
       inline static Task* makeTask(retT (classT::*funcPtr)(arg1T), classT* classPtr, 
 			    typename detail::typeWrapper<arg1T>::Type arg1)
@@ -65,6 +102,12 @@ namespace magnet {
 	return new Task1<retT, arg1T>(magnet::function::MakeDelegate(classPtr, funcPtr), arg1); 
       }
       
+      /*! \brief Helper function to make a task from a const member function
+       * with 1 arguments.
+       * \param funcPtr A pointer to the member function to alias.
+       * \param classPtr A pointer to the class to call the member function on.
+       * \param arg1 First argument.
+       */
       template<typename retT, typename classT, typename arg1T>
       inline static Task* makeTask(retT (classT::*funcPtr)(arg1T) const, const classT* classPtr, 
 			    typename detail::typeWrapper<arg1T>::Type arg1)
@@ -72,7 +115,12 @@ namespace magnet {
 	return new Task1<retT, arg1T>(magnet::function::MakeDelegate(classPtr, funcPtr), arg1); 
       }
       
-      //2 Argument
+      /*! \brief Helper function to make a task from a global function
+       * with 2 arguments.
+       * \param funcPtr A pointer to the function to alias.
+       * \param arg1 First argument. 
+       * \param arg2 Second argument.
+      */
       template<typename retT, typename arg1T, typename arg2T>
       inline static Task*
       makeTask(retT (*funcPtr)(arg1T, arg2T), 
@@ -81,6 +129,13 @@ namespace magnet {
 	return new Task2<retT, arg1T, arg2T>(funcPtr, arg1, arg2); 
       }
       
+      /*! \brief Helper function to make a task from a member function
+       * with 2 arguments.
+       * \param funcPtr A pointer to the member function to alias.
+       * \param classPtr A pointer to the class to call the member function on.
+       * \param arg1 First argument.
+       * \param arg2 Second argument.
+       */
       template<typename retT, typename classT, typename arg1T, typename arg2T>
       inline static Task*
       makeTask(retT (classT::*funcPtr)(arg1T, arg2T), classT* classPtr, 
@@ -89,6 +144,12 @@ namespace magnet {
 	return new Task2<retT, arg1T, arg2T>(magnet::function::MakeDelegate(classPtr, funcPtr), arg1, arg2); 
       }
       
+      /*! \brief Helper function to make a task from a const member function
+       * with 2 arguments.
+       * \param funcPtr A pointer to the member function to alias.
+       * \param classPtr A pointer to the class to call the member function on.
+       * \param arg1 First argument.
+       */
       template<typename retT, typename classT, typename arg1T, typename arg2T>
       inline static Task*
       makeTask(retT (classT::*funcPtr)(arg1T, arg2T) const, const classT* classPtr, 
@@ -97,17 +158,29 @@ namespace magnet {
 	return new Task2<retT, arg1T, arg2T>(magnet::function::MakeDelegate(classPtr, funcPtr), arg1, arg2); 
       }
       
-      //3 Argument
+      /*! \brief Helper function to make a task from a global function
+       * with 3 arguments.
+       * \param funcPtr A pointer to the function to alias.
+       * \param arg1 First argument. 
+       * \param arg2 Second argument.
+       * \param arg3 Third argument.
+       */
       template<typename retT, typename arg1T, typename arg2T, typename arg3T>
       inline static Task*
       makeTask(retT (*funcPtr)(arg1T, arg2T, arg3T), 
 	       typename detail::typeWrapper<arg1T>::Type arg1, 
 	       typename detail::typeWrapper<arg2T>::Type arg2,
 	       typename detail::typeWrapper<arg3T>::Type arg3)
-      { 
-	return new Task3<retT, arg1T, arg2T, arg3T>(funcPtr, arg1, arg2, arg3); 
-      }
+      { return new Task3<retT, arg1T, arg2T, arg3T>(funcPtr, arg1, arg2, arg3); }
       
+      /*! \brief Helper function to make a task from a member function
+       * with 3 arguments.
+       * \param funcPtr A pointer to the member function to alias.
+       * \param classPtr A pointer to the class to call the member function on.
+       * \param arg1 First argument.
+       * \param arg2 Second argument.
+       * \param arg3 Third argument.
+       */
       template<typename retT, typename classT, typename arg1T, typename arg2T, typename arg3T>
       inline static Task*
       makeTask(retT (classT::*funcPtr)(arg1T, arg2T, arg3T), classT* classPtr, 
@@ -119,6 +192,14 @@ namespace magnet {
 						    arg1, arg2, arg3); 
       }
       
+      /*! \brief Helper function to make a task from a const member function
+       * with 3 arguments.
+       * \param funcPtr A pointer to the member function to alias.
+       * \param classPtr A pointer to the class to call the member function on.
+       * \param arg1 First argument.
+       * \param arg2 Second argument.
+       * \param arg3 Third argument.
+       */
       template<typename retT, typename classT, typename arg1T, typename arg2T, typename arg3T>
       inline static Task*
       makeTask(retT (classT::*funcPtr)(arg1T, arg2T, arg3T) const, const classT* classPtr, 
@@ -132,6 +213,8 @@ namespace magnet {
 
     };
     
+    /*! \brief Implementation of a Task with 0 bound arguments.
+     */
     template<class T>
     class Task0 : public Task
     {
@@ -148,6 +231,8 @@ namespace magnet {
       function _delegate;
     };
     
+    /*! \brief Implementation of a Task with 1 bound arguments.
+     */
     template<class T, class T1>
     class Task1 : public Task
     {
@@ -167,6 +252,8 @@ namespace magnet {
       T1 _arg1;
     };
     
+    /*! \brief Implementation of a Task with 2 bound arguments.
+     */
     template<class T, class T1, class T2>
     class Task2 : public Task
     {
@@ -188,6 +275,8 @@ namespace magnet {
       T2 _arg2;
     };
     
+    /*! \brief Implementation of a Task with 3 bound arguments.
+     */
     template<class T, class T1, class T2, class T3>
     class Task3 : public Task
     {

@@ -122,16 +122,16 @@ OPMSDOrientationalCorrelator::accPass()
 }
 
 void
-OPMSDOrientationalCorrelator::output(xml::XmlStream &XML)
+OPMSDOrientationalCorrelator::output(magnet::xml::XmlStream &XML)
 {
   // Begin XML output
-  XML << xml::tag("MSDOrientationalCorrelator");
+  XML << magnet::xml::tag("MSDOrientationalCorrelator");
 
   double dt = dynamic_cast<const CSTicker&> (*Sim->dynamics.getSystem("SystemTicker")).getPeriod() / Sim->dynamics.units().unitTime();
 
-  XML << xml::tag("Component")
-      << xml::attr("Type") << "Parallel"
-      << xml::chardata();
+  XML << magnet::xml::tag("Component")
+      << magnet::xml::attr("Type") << "Parallel"
+      << magnet::xml::chardata();
 
   for (size_t step(0); step < length; ++step)
   {
@@ -140,11 +140,11 @@ OPMSDOrientationalCorrelator::output(xml::XmlStream &XML)
 	<< "\n";
   }
 
-  XML << xml::endtag("Component");
+  XML << magnet::xml::endtag("Component");
 
-  XML << xml::tag("Component")
-      << xml::attr("Type") << "Perpendicular"
-      << xml::chardata();
+  XML << magnet::xml::tag("Component")
+      << magnet::xml::attr("Type") << "Perpendicular"
+      << magnet::xml::chardata();
 
   for (size_t step(0); step < length; ++step)
   {
@@ -153,14 +153,14 @@ OPMSDOrientationalCorrelator::output(xml::XmlStream &XML)
 	<< "\n";
   }
 
-  XML << xml::endtag("Component");
+  XML << magnet::xml::endtag("Component");
 
-  XML << xml::tag("Component")
-      << xml::attr("Type") << "Rotational";
+  XML << magnet::xml::tag("Component")
+      << magnet::xml::attr("Type") << "Rotational";
 
-  XML << xml::tag("Method")
-      << xml::attr("Name") << "LegendrePolynomial1"
-      << xml::chardata();
+  XML << magnet::xml::tag("Method")
+      << magnet::xml::attr("Name") << "LegendrePolynomial1"
+      << magnet::xml::chardata();
 
   for (size_t step(0); step < length; ++step)
   {
@@ -169,11 +169,11 @@ OPMSDOrientationalCorrelator::output(xml::XmlStream &XML)
 	<< "\n";
   }
 
-  XML << xml::endtag("Method");
+  XML << magnet::xml::endtag("Method");
 
-  XML << xml::tag("Method")
-      << xml::attr("Name") << "LegendrePolynomial2"
-      << xml::chardata();
+  XML << magnet::xml::tag("Method")
+      << magnet::xml::attr("Name") << "LegendrePolynomial2"
+      << magnet::xml::chardata();
 
   for (size_t step(0); step < length; ++step)
   {
@@ -182,9 +182,9 @@ OPMSDOrientationalCorrelator::output(xml::XmlStream &XML)
 	<< "\n";
   }
 
-  XML << xml::endtag("Method");
+  XML << magnet::xml::endtag("Method");
 
-  XML << xml::endtag("Component");
+  XML << magnet::xml::endtag("Component");
 
-  XML << xml::endtag("MSDOrientationalCorrelator");
+  XML << magnet::xml::endtag("MSDOrientationalCorrelator");
 }

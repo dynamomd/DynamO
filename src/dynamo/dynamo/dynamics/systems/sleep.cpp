@@ -93,14 +93,14 @@ SSleep::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-SSleep::outputXML(xml::XmlStream& XML) const
+SSleep::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::tag("System")
-      << xml::attr("Type") << "Sleep"
-      << xml::attr("Name") << sysName
-      << xml::attr("SleepV") << _sleepVelocity / Sim->dynamics.units().unitVelocity()
+  XML << magnet::xml::tag("System")
+      << magnet::xml::attr("Type") << "Sleep"
+      << magnet::xml::attr("Name") << sysName
+      << magnet::xml::attr("SleepV") << _sleepVelocity / Sim->dynamics.units().unitVelocity()
       << _range
-      << xml::endtag("System");
+      << magnet::xml::endtag("System");
 }
 
 

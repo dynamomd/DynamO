@@ -29,7 +29,6 @@
 #include <cmath>
 #include <iomanip>
 #include <iosfwd>
-#include <buildinfo.hpp>
 
 using namespace std;
 using namespace boost;
@@ -522,12 +521,17 @@ long double stepsize = (SimulationData.front().gamma[0] - SimulationData.back().
 int
 main(int argc, char *argv[])
 {
+  //The following macro converts the GITHASH define to a C style
+  //string, the boost build system won't let us define strings on the
+  //command line.
+#define VALUE_TO_STRING(val) #val
+#define STR(val) VALUE_TO_STRING(val)
   std::cout << "dynahist_rw  Copyright (C) 2011  Marcus N Campbell Bannerman\n"
 	    << "This program comes with ABSOLUTELY NO WARRANTY.\n"
 	    << "This is free software, and you are welcome to redistribute it\n"
 	    << "under certain conditions. See the licence you obtained with\n"
 	    << "the code\n"
-	       "Git Checkout Hash " << GITHASH << "\n\n";;
+	       "Git Checkout Hash " << STR(GITHASH) << "\n\n";;
 
   //This is so the program crashes out when floating point errors occur
   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);

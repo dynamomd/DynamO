@@ -234,12 +234,12 @@ ISoftCore::checkOverlaps(const Particle& part1, const Particle& part2) const
 }
   
 void 
-ISoftCore::outputXML(xml::XmlStream& XML) const
+ISoftCore::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "SoftCore"
-      << xml::attr("Diameter") << _diameter->getName()
-      << xml::attr("WellDepth") << _wellDepth->getName()
-      << xml::attr("Name") << intName
+  XML << magnet::xml::attr("Type") << "SoftCore"
+      << magnet::xml::attr("Diameter") << _diameter->getName()
+      << magnet::xml::attr("WellDepth") << _wellDepth->getName()
+      << magnet::xml::attr("Name") << intName
       << range;
   
   ISingleCapture::outputCaptureMap(XML);  

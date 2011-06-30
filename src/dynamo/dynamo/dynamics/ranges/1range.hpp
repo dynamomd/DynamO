@@ -21,8 +21,7 @@
 #include <iterator>
 
 class Particle;
-namespace magnet { namespace xml { class Node; } }
-namespace xml { class XmlStream; }
+namespace magnet { namespace xml { class Node; class XmlStream; } }
 namespace dynamo { class SimData; }
 namespace { class RangeIterator; }
 
@@ -48,7 +47,7 @@ public:
 
   static CRange* getClass(const magnet::xml::Node&, const dynamo::SimData * Sim);
 
-  friend xml::XmlStream& operator<<(xml::XmlStream&, const CRange&);
+  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const CRange&);
 
   virtual iterator begin() const = 0;
 
@@ -58,7 +57,7 @@ public:
 
 protected:
 
-  virtual void outputXML(xml::XmlStream& ) const = 0;    
+  virtual void outputXML(magnet::xml::XmlStream& ) const = 0;    
 };
 
 namespace {

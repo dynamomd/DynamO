@@ -30,7 +30,7 @@ class OPMFT: public OP1PP
 
   void stream(const double&) {}
 
-  void output(xml::XmlStream &); 
+  void output(magnet::xml::XmlStream &); 
 
   void periodicOutput() {}
 

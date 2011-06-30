@@ -52,7 +52,7 @@ public:
 
   virtual void initialise() = 0;
 
-  friend xml::XmlStream& operator<<(xml::XmlStream&, const Species&);
+  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Species&);
   
   virtual Species* Clone() const = 0;
 
@@ -72,7 +72,7 @@ protected:
     ID(nID)
   {}
 
-  virtual void outputXML(xml::XmlStream&) const = 0;
+  virtual void outputXML(magnet::xml::XmlStream&) const = 0;
   
   magnet::thread::RefPtr<Property> _mass;
   magnet::ClonePtr<CRange> range;
@@ -82,7 +82,7 @@ protected:
   unsigned int ID;
 };
 
-inline xml::XmlStream& operator<<(xml::XmlStream& XML, const Species& g)
+inline magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Species& g)
 {
   g.outputXML(XML);
   return XML;

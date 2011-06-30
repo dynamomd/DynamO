@@ -34,7 +34,7 @@ class OPMSDOrientational: public OutputPlugin
   virtual void eventUpdate(const LocalEvent&, const NEventData&) {}
   virtual void eventUpdate(const System&, const NEventData&, const double&) {}
 
-  void output(xml::XmlStream &);
+  void output(magnet::xml::XmlStream &);
 
   virtual OutputPlugin *Clone() const { return new OPMSDOrientational(*this); };
 

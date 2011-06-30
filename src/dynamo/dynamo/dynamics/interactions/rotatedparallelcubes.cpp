@@ -149,16 +149,16 @@ IRotatedParallelCubes::runEvent(const Particle& p1,
 }
    
 void 
-IRotatedParallelCubes::outputXML(xml::XmlStream& XML) const
+IRotatedParallelCubes::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "RotatedParallelCubes"
-      << xml::attr("Diameter") << _diameter->getName()
-      << xml::attr("Elasticity") << _e->getName()
-      << xml::attr("Name") << intName
+  XML << magnet::xml::attr("Type") << "RotatedParallelCubes"
+      << magnet::xml::attr("Diameter") << _diameter->getName()
+      << magnet::xml::attr("Elasticity") << _e->getName()
+      << magnet::xml::attr("Name") << intName
       << range
-      << xml::tag("Rotation")
+      << magnet::xml::tag("Rotation")
       << Rotation
-      << xml::endtag("Rotation");
+      << magnet::xml::endtag("Rotation");
 }
 
 void

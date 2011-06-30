@@ -55,7 +55,7 @@ public:
 
   virtual void rebuildList() = 0;
 
-  friend xml::XmlStream& operator<<(xml::XmlStream&, const CScheduler&);
+  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const CScheduler&);
 
   static CScheduler* getClass(const magnet::xml::Node&, dynamo::SimData* const);
 
@@ -74,11 +74,20 @@ public:
   void addLocalEvent(const Particle&, const size_t&) const;
   
 protected:
+  /*! \brief Performs the lazy deletion algorithm to find the next
+   * valid event in the queue.
+   *
+   * This is the lazy deletion scheme for interaction events. Any
+   * event whose event counter mismatches the particles current event
+   * counter is out of date and should be deleted.
+   */
+  void lazyDeletionCleanup();
+
   mutable magnet::ClonePtr<CSSorter> sorter;
   mutable std::vector<unsigned long> eventCount;
   
   size_t _interactionRejectionCounter;
   size_t _localRejectionCounter;
 
-  virtual void outputXML(xml::XmlStream&) const = 0;
+  virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 };

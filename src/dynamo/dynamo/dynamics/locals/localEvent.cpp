@@ -33,13 +33,13 @@ LocalEvent::LocalEvent(const Particle& part1, const double &delt,
 {}
   
 
-xml::XmlStream& operator<<(xml::XmlStream &XML, 
+magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream &XML, 
 			    const LocalEvent &coll)
 {
-  XML << xml::tag("Collision")
-      << xml::attr("p1ID") << coll.getParticle().getID()
-      << xml::attr("dt")   << coll.dt
-      << xml::endtag("Collision");
+  XML << magnet::xml::tag("Collision")
+      << magnet::xml::attr("p1ID") << coll.getParticle().getID()
+      << magnet::xml::attr("dt")   << coll.dt
+      << magnet::xml::endtag("Collision");
   
   return XML;
 }

@@ -38,7 +38,7 @@ public:
 
   virtual void initialise() { addPoint(); }
 
-  virtual void output(xml::XmlStream&);
+  virtual void output(magnet::xml::XmlStream&);
 
   virtual void changeSystem(OutputPlugin*); 
 

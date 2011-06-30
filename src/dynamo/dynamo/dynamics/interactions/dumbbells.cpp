@@ -230,13 +230,13 @@ IDumbbells::runEvent(const Particle& p1,
 }
    
 void 
-IDumbbells::outputXML(xml::XmlStream& XML) const
+IDumbbells::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "Dumbbells"
-      << xml::attr("Length") << _length->getName()
-      << xml::attr("Elasticity") << _e->getName()
-      << xml::attr("Diameter") <<  _diameter->getName()
-      << xml::attr("Name") << intName
+  XML << magnet::xml::attr("Type") << "Dumbbells"
+      << magnet::xml::attr("Length") << _length->getName()
+      << magnet::xml::attr("Elasticity") << _e->getName()
+      << magnet::xml::attr("Diameter") <<  _diameter->getName()
+      << magnet::xml::attr("Name") << intName
       << range;
 
   ISingleCapture::outputCaptureMap(XML);

@@ -18,10 +18,7 @@
 #pragma once
 #include "fuzzy_array.hpp"
 
-namespace xml
-{
-  class XmlStream;
-}
+namespace magnet { namespace xml { class XmlStream; } }
 
 class C1DHistogram
 {
@@ -43,7 +40,7 @@ class C1DHistogram
   
   typedef std::pair<const long, unsigned long> lv1pair;
   
-  void outputHistogram(xml::XmlStream&, double) const;
+  void outputHistogram(magnet::xml::XmlStream&, double) const;
   
   CFuzzyArray<unsigned long> data;
   
@@ -75,8 +72,8 @@ class C1DWeightHistogram
 
   typedef std::pair<const long, double> lv1pair;
   
-  void outputHistogram(xml::XmlStream&, double) const;
-  void outputClearHistogram(xml::XmlStream&, double) const;
+  void outputHistogram(magnet::xml::XmlStream&, double) const;
+  void outputClearHistogram(magnet::xml::XmlStream&, double) const;
   
   CFuzzyArray<double> data;
   

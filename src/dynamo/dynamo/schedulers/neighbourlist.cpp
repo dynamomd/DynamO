@@ -108,12 +108,12 @@ CSNeighbourList::rebuildList()
 }
 
 void 
-CSNeighbourList::outputXML(xml::XmlStream& XML) const
+CSNeighbourList::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "NeighbourList"
-      << xml::tag("Sorter")
+  XML << magnet::xml::attr("Type") << "NeighbourList"
+      << magnet::xml::tag("Sorter")
       << sorter
-      << xml::endtag("Sorter");
+      << magnet::xml::endtag("Sorter");
 }
 
 CSNeighbourList::CSNeighbourList(const magnet::xml::Node& XML, 

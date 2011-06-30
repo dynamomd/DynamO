@@ -37,14 +37,14 @@ SpSphericalTop::SpSphericalTop(const magnet::xml::Node& XML, dynamo::SimData* Si
 
 
 void 
-SpSphericalTop::outputXML(xml::XmlStream& XML, std::string type) const
+SpSphericalTop::outputXML(magnet::xml::XmlStream& XML, std::string type) const
 {
-  XML << xml::attr("InertiaConstant") 
+  XML << magnet::xml::attr("InertiaConstant") 
       << inertiaConstant / Sim->dynamics.units().unitArea()
-      << xml::attr("Mass") << _mass->getName()
-      << xml::attr("Name") << spName
-      << xml::attr("IntName") << intName
-      << xml::attr("Type") << type
+      << magnet::xml::attr("Mass") << _mass->getName()
+      << magnet::xml::attr("Name") << spName
+      << magnet::xml::attr("IntName") << intName
+      << magnet::xml::attr("Type") << type
       << range;
 }
 

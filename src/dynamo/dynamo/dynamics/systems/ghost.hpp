@@ -41,7 +41,7 @@ public:
   void setReducedTemperature(double nT);
   
 protected:
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
   mutable double meanFreeTime;
   double Temp, sqrtTemp;
   bool tune;

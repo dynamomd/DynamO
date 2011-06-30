@@ -106,30 +106,30 @@ OPChainBondAngles::ticker()
 }
 
 void 
-OPChainBondAngles::output(xml::XmlStream& XML)
+OPChainBondAngles::output(magnet::xml::XmlStream& XML)
 {
-  XML << xml::tag("BondAngleCorrelators");
+  XML << magnet::xml::tag("BondAngleCorrelators");
   
   BOOST_FOREACH(Cdata& dat, chains)
     {
-      XML << xml::tag("Chain")
-	  << xml::attr("Name") << Sim->dynamics.getTopology()[dat.chainID]->getName();
+      XML << magnet::xml::tag("Chain")
+	  << magnet::xml::attr("Name") << Sim->dynamics.getTopology()[dat.chainID]->getName();
             
       size_t Nc = Sim->dynamics.getTopology()[dat.chainID]
 	->getMolecules().front()->size() - 2;
       
       for (size_t i = 0; i < Nc; ++i)
 	{
-	  XML << xml::tag("Hist") << xml::attr("Avg") 
+	  XML << magnet::xml::tag("Hist") << magnet::xml::attr("Avg") 
 	      << (dat.BondCorrelationsAvg[i] / dat.BondCorrelationsSamples[i]);
 
 	  dat.BondCorrelations[i].outputHistogram(XML, 1.0);
 
-	  XML << xml::endtag("Hist");
+	  XML << magnet::xml::endtag("Hist");
 	}
       
-      XML << xml::endtag("Chain");
+      XML << magnet::xml::endtag("Chain");
     }
 
-  XML << xml::endtag("BondAngleCorrelators");
+  XML << magnet::xml::endtag("BondAngleCorrelators");
 }

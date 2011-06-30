@@ -56,10 +56,10 @@ public:
 
   virtual double getMaxInteractionLength() const;
 
-  virtual void outputXML(xml::XmlStream& XML) const;
+  virtual void outputXML(magnet::xml::XmlStream& XML) const;
 
 protected:
-  void outputXML(xml::XmlStream&, const std::string&) const;
+  void outputXML(magnet::xml::XmlStream&, const std::string&) const;
 
   CGCells(dynamo::SimData*, const char*, void*);
 

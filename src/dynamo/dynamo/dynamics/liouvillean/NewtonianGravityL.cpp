@@ -27,12 +27,20 @@
 #include "shapes/frenkelroot.hpp"
 #include "shapes/oscillatingplate.hpp"
 #include <dynamo/datatypes/vector.xml.hpp>
-#include "../units/units.hpp"
+#include <dynamo/dynamics/globals/neighbourList.hpp>
+#include <dynamo/dynamics/globals/ParabolaSentinel.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <magnet/overlap/point_prism.hpp>
 #include <magnet/intersection/parabola_sphere.hpp>
+#include <magnet/intersection/parabola_plane.hpp>
+#include <magnet/intersection/parabola_triangle.hpp>
+#include <magnet/intersection/parabola_rod.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <algorithm>
+
+
 
 LNewtonianGravity::LNewtonianGravity(dynamo::SimData* tmp, const magnet::xml::Node& XML):
   LNewtonian(tmp),
@@ -118,32 +126,12 @@ LNewtonianGravity::getWallCollision(const Particle &part,
 				    const Vector  &wallLoc, 
 				    const Vector  &wallNorm) const
 {
-  Vector  rij = part.getPosition(),
-    vel = part.getVelocity();
+  Vector  rij = part.getPosition() - wallLoc,
+    vij = part.getVelocity();
 
-  Sim->dynamics.BCs().applyBC(rij, vel);
+  Sim->dynamics.BCs().applyBC(rij, vij);
 
-  double adot = (wallNorm | g) * part.testState(Particle::DYNAMIC);
-  double vdot = vel | wallNorm;
-  double rdot = (rij - wallLoc) | wallNorm;
-
-  double arg = vdot * vdot - 2 * rdot * adot;
-  
-  if (arg > 0)
-    {
-      double t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
-      double x1 = t / adot;
-      double x2 = 2 * rdot / t;
-
-      if (adot > 0)
-	//The particle is arcing under the plate
-	return (x1 < x2) ? x1 : x2 ;
-      else
-	//The particle is arcing over the plate
-	return (x1 < x2) ? x2 : x1;
-    }
-
-  return HUGE_VAL;
+  return magnet::intersection::parabola_plane_bfc(rij, vij, g * part.testState(Particle::DYNAMIC), wallNorm);
 }
 
 double
@@ -302,18 +290,18 @@ LNewtonianGravity::getSquareCellCollision3(const Particle& part,
 }
 
 void 
-LNewtonianGravity::outputXML(xml::XmlStream& XML) const
+LNewtonianGravity::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") 
+  XML << magnet::xml::attr("Type") 
       << "NewtonianGravity";
 
   if (elasticV)
-    XML << xml::attr("ElasticV") << elasticV / Sim->dynamics.units().unitVelocity();
+    XML << magnet::xml::attr("ElasticV") << elasticV / Sim->dynamics.units().unitVelocity();
 
   if (_tc > 0)
-    XML << xml::attr("tc") << _tc / Sim->dynamics.units().unitTime();
+    XML << magnet::xml::attr("tc") << _tc / Sim->dynamics.units().unitTime();
 
-  XML << xml::tag("g") << g / Sim->dynamics.units().unitAcceleration() << xml::endtag("g");
+  XML << magnet::xml::tag("g") << g / Sim->dynamics.units().unitAcceleration() << magnet::xml::endtag("g");
 }
 
 double 
@@ -374,6 +362,16 @@ LNewtonianGravity::initialise()
 {
   if (_tc > 0) _tcList.resize(Sim->N, -HUGE_VAL);
   LNewtonian::initialise();
+
+  //Now add the parabola sentinel if there are cell neighbor lists in
+  //use.
+  bool hasNBlist = false;
+  BOOST_FOREACH(magnet::ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
+    if (glob.typeTest<CGNeighbourList>())
+      { hasNBlist = true; break; }
+  
+  if (hasNBlist)
+    Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim, "NBListParabolaSentinel"));
 }
 
 PairEventData 
@@ -481,4 +479,103 @@ LNewtonianGravity::enforceParabola(const Particle& part) const
 #endif
 
   const_cast<Particle&>(part).getVelocity()[dim] = 0;
+}
+
+std::pair<double, Liouvillean::TriangleIntersectingPart>
+LNewtonianGravity::getSphereTriangleEvent(const Particle& part, 
+					  const Vector & A, 
+					  const Vector & B, 
+					  const Vector & C,
+					  const double dist
+					  ) const
+{
+  //If the particle doesn't feel gravity, fall back to the standard function
+  if (!part.testState(Particle::DYNAMIC)) 
+    return LNewtonian::getSphereTriangleEvent(part, A, B, C, dist);
+
+  typedef std::pair<double, Liouvillean::TriangleIntersectingPart> RetType;
+  //The Origin, relative to the first vertex
+  Vector T = part.getPosition() - A;
+  //The ray direction
+  Vector D = part.getVelocity();
+  Sim->dynamics.BCs().applyBC(T, D);
+
+  //The edge vectors
+  Vector E1 = B - A;
+  Vector E2 = C - A;
+  
+  Vector N = E1 ^ E2;
+  double nrm2 = N.nrm2();
+#ifdef DYNAMO_DEBUG
+  if (!nrm2) M_throw() << "Degenerate triangle detected!";
+#endif
+  N /= std::sqrt(nrm2);
+  
+  //First test for intersections with the triangle faces.
+  double t1 = magnet::intersection::parabola_triangle_bfc(T - N * dist, D, g, E1, E2);
+    
+  if (t1 < 0)
+    {
+      t1 = HUGE_VAL;
+      if ((D | N) > 0)
+	if (magnet::overlap::point_prism(T - N * dist, E1, E2, N, dist)) t1 = 0;
+    }
+
+  double t2 = magnet::intersection::parabola_triangle_bfc(T + N * dist, D, g, E2, E1);
+
+  if (t2 < 0)
+    {
+      t2 = HUGE_VAL;
+      if ((D | N) < 0)
+	if (magnet::overlap::point_prism(T + N * dist, E2, E1, -N, dist)) t2 = 0;
+    }
+  
+  RetType retval(std::min(t1, t2), T_FACE);
+  
+  //Early jump out, to make sure that if we have zero time
+  //interactions for the triangle faces, we take them.
+  if (retval.first == 0) return retval;
+  
+  //Now test for intersections with the triangle corners
+  double t = magnet::intersection::parabola_sphere_bfc(T, D, g, dist);
+  if (t < retval.first) retval = RetType(t, T_A_CORNER);
+  t = magnet::intersection::parabola_sphere_bfc(T - E1, D, g, dist);
+  if (t < retval.first) retval = RetType(t, T_B_CORNER);
+  t = magnet::intersection::parabola_sphere_bfc(T - E2, D, g, dist);
+  if (t < retval.first) retval = RetType(t, T_C_CORNER);
+
+  //Now for the edge collision detection
+  t = magnet::intersection::parabola_rod_bfc(T, D, g, B - A, dist);
+  if (t < retval.first) retval = RetType(t, T_AB_EDGE);
+  t = magnet::intersection::parabola_rod_bfc(T, D, g, C - A, dist);
+  if (t < retval.first) retval = RetType(t, T_AC_EDGE);
+  t = magnet::intersection::parabola_rod_bfc(T - E2, D, g, B - C, dist);
+  if (t < retval.first) retval = RetType(t, T_BC_EDGE);
+
+  if (retval.first < 0) retval.first = 0;
+
+  return retval;
+}
+
+ParticleEventData 
+LNewtonianGravity::runWallCollision(const Particle &part, 
+				    const Vector  &vNorm,
+				    const double& e
+				    ) const
+{
+  updateParticle(part);
+
+  double e_val = e;
+  if (std::fabs(part.getVelocity() | vNorm) < elasticV) e_val = 1;
+
+  //Now the tc model;
+  if (_tc > 0)
+    {
+      if ((Sim->dSysTime - _tcList[part.getID()] < _tc))
+	e_val = 1;
+      
+      _tcList[part.getID()] = Sim->dSysTime;
+    }
+
+  return LNewtonian::runWallCollision(part, vNorm, e_val);
 }

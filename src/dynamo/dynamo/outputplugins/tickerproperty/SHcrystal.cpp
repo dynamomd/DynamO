@@ -108,25 +108,25 @@ OPSHCrystal::ticker()
 }
 
 void 
-OPSHCrystal::output(xml::XmlStream& XML)
+OPSHCrystal::output(magnet::xml::XmlStream& XML)
 {
-  XML << xml::tag("SHCrystal");
+  XML << magnet::xml::tag("SHCrystal");
   
   for (int l(0); l < static_cast<int>(maxl); ++l)
     {
-      XML << xml::tag("Q")
-	  << xml::attr("l") << l;
+      XML << magnet::xml::tag("Q")
+	  << magnet::xml::attr("l") << l;
       
       double Qsum(0);
       for (int m(-l); m <= l; ++m)
 	Qsum += std::norm(globalcoeff[l][m+l] / std::complex<double>(count, 0));
       
-      XML << xml::attr("val")
+      XML << magnet::xml::attr("val")
 	  << std::sqrt(Qsum * 4.0 * M_PI / (2.0 * l + 1.0))
-	  << xml::endtag("Q");
+	  << magnet::xml::endtag("Q");
       
-      XML << xml::tag("W")
-	  << xml::attr("l") << l;
+      XML << magnet::xml::tag("W")
+	  << magnet::xml::attr("l") << l;
 
       std::complex<double> Wsum(0, 0);
       for (int m1(-l); m1 <= l; ++m1)
@@ -142,12 +142,12 @@ OPSHCrystal::output(xml::XmlStream& XML)
 		;
 	  }
       
-      XML << xml::attr("val")
+      XML << magnet::xml::attr("val")
 	  << Wsum * std::pow(Qsum, -1.5)
-	  << xml::endtag("W");
+	  << magnet::xml::endtag("W");
     }
 
-  XML << xml::endtag("SHCrystal");
+  XML << magnet::xml::endtag("SHCrystal");
 }
 
 OPSHCrystal::sphericalsum::sphericalsum

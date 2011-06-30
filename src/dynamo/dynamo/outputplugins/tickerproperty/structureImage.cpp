@@ -44,10 +44,13 @@ OPStructureImaging::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
-      if (!XML.getAttribute("Structure").valid())
+      if (!XML.hasAttribute("Structure"))
 	M_throw() << "You must specify the name of the structure to monitor for StructureImaging";
       
       structureName = XML.getAttribute("Structure");
+
+      if (XML.hasAttribute("MaxImages"))
+	imageCount = XML.getAttribute("MaxImages").as<size_t>();
     }
   catch (boost::bad_lexical_cast &)
     {
@@ -59,6 +62,10 @@ OPStructureImaging::operator<<(const magnet::xml::Node& XML)
 void 
 OPStructureImaging::initialise()
 {
+  dout << "Initialising Structure imaging with a max of " << imageCount
+       << " snapshots"<< std::endl;
+
+
   id = Sim->dynamics.getTopology().size();
   
   BOOST_FOREACH(const magnet::ClonePtr<Topology>& ptr, Sim->dynamics.getTopology())
@@ -132,28 +139,28 @@ OPStructureImaging::printImage()
 }
 
 void 
-OPStructureImaging::output(xml::XmlStream& XML)
+OPStructureImaging::output(magnet::xml::XmlStream& XML)
 {
-  XML << xml::tag("StructureImages")
-      << xml::attr("version") << 2;
+  XML << magnet::xml::tag("StructureImages")
+      << magnet::xml::attr("version") << 2;
   
   BOOST_FOREACH(const std::vector<Vector  >& vec, imagelist)
     {
-      XML << xml::tag("Image");
+      XML << magnet::xml::tag("Image");
 
       size_t id(0);
 
       BOOST_FOREACH(const Vector & vec2, vec)
 	{
-	  XML << xml::tag("Atom")
-	      << xml::attr("ID")
+	  XML << magnet::xml::tag("Atom")
+	      << magnet::xml::attr("ID")
 	      << id++
 	      << (vec2 / Sim->dynamics.units().unitLength())
-	      << xml::endtag("Atom");
+	      << magnet::xml::endtag("Atom");
 	}
 	  
-      XML << xml::endtag("Image");
+      XML << magnet::xml::endtag("Image");
     }
     
-  XML << xml::endtag("StructureImages");
+  XML << magnet::xml::endtag("StructureImages");
 }

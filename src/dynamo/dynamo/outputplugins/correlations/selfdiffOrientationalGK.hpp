@@ -43,7 +43,7 @@ class OPSelfDiffusionOrientationalGK: public OutputPlugin
 
   virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
-  virtual void output(xml::XmlStream&);
+  virtual void output(magnet::xml::XmlStream&);
 
   virtual void initialise();
 

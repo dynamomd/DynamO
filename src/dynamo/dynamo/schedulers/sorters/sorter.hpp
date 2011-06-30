@@ -62,9 +62,9 @@ public:
 
   static CSSorter* getClass(const magnet::xml::Node&, const dynamo::SimData*);
 
-  friend xml::XmlStream& operator<<(xml::XmlStream&, const CSSorter&);
+  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const CSSorter&);
 
 private:
-  virtual void outputXML(xml::XmlStream&) const = 0;
+  virtual void outputXML(magnet::xml::XmlStream&) const = 0;
   
 };

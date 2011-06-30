@@ -22,27 +22,27 @@ namespace magnet {
     class shadowFBO : public FBO
     {
     public:
-      virtual void init(GLsizei, GLsizei, GLint, GLenum, GLenum)
+      virtual void init(GLsizei, GLsizei, GLint internalformat = GL_RGBA)
       { M_throw() << "Cannot use this initializer"; }
 
       virtual void init(GLsizei length)
       {
 	FBO::init(length, length);
-	glBindTexture(GL_TEXTURE_2D, _depthTexture);
 
+	_depthTexture.bind(0);
 	GLfloat l_ClampColor[] = {0.0, 0.0, 0.0, 0.0};
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, l_ClampColor);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	_depthTexture.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	_depthTexture.parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	_depthTexture.parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	_depthTexture.parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
 	//Enable shadow comparison
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+	_depthTexture.parameter(GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
 	//Shadow comparison should be true (ie not in shadow) if r<=texture
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+	_depthTexture.parameter(GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 	//Shadow comparison should generate an INTENSITY result
-	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
+	_depthTexture.parameter(GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
 	
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
 	glDrawBuffer(GL_NONE);

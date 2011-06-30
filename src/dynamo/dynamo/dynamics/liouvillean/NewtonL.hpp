@@ -170,7 +170,7 @@ public:
 								   const double& diameter) const;
 
 protected:
-  virtual void outputXML(xml::XmlStream& ) const;
+  virtual void outputXML(magnet::xml::XmlStream& ) const;
 
   mutable long double lastAbsoluteClock;
   mutable unsigned int lastCollParticle1;

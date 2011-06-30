@@ -230,17 +230,17 @@ Simulation::outputData(std::string filename)
   
   coutputFile.push(io::file_sink(filename));
   
-  xml::XmlStream XML(coutputFile);
+  magnet::xml::XmlStream XML(coutputFile);
   XML.setFormatXML(true);
   
   XML << std::setprecision(std::numeric_limits<double>::digits10)
-      << xml::prolog() << xml::tag("OutputData");
+      << magnet::xml::prolog() << magnet::xml::tag("OutputData");
   
   //Output the data and delete the outputplugins
   BOOST_FOREACH( magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
     Ptr->output(XML);
   
-  XML << xml::endtag("OutputData");
+  XML << magnet::xml::endtag("OutputData");
 
   dout << "Output written to " << filename << std::endl;
 }

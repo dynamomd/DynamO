@@ -18,9 +18,9 @@
 #pragma once
 #include <magnet/exception.hpp>
 
-namespace xml { class XmlStream; }
-
 namespace magnet {
+  namespace xml { class XmlStream; }
+
   /*! \brief A smart pointer with the ability to copy the polymorphic class it 
    * owns.
    *
@@ -45,8 +45,8 @@ namespace magnet {
      * 
      * \return The xmlw::XmlStream so further writing can take place.
      */
-    friend inline ::xml::XmlStream& operator<<(::xml::XmlStream& XML, 
-					       const ClonePtr<T>& plugptr)
+    friend inline xml::XmlStream& operator<<(xml::XmlStream& XML, 
+					     const ClonePtr<T>& plugptr)
     { return XML << *(plugptr._obj); };
   
 
@@ -233,6 +233,40 @@ namespace magnet {
     /*! \brief Returns true if no object is stored by the smrtPlugPtr.
      */
     inline bool empty() const { return _obj == NULL; }
+
+    /*! \brief Returns true if the object may be dynamically cast to
+     * the specified type.
+     * 
+     * \tparam Tcast Type to test for.
+     */
+    template<class Tcast>
+    inline bool typeTest() const { return dynamic_cast<const Tcast*>(_obj); }
+
+    /*! \brief Returns a reference to a cast type of the stored object.
+     *
+     * \tparam Tcast The type to cast the stored object to before dereferencing
+     */
+    template<class Tcast>
+    inline const Tcast& as() const 
+    {
+#ifdef MAGNET_DEBUG
+      if (!typeTest<Tcast>()) M_throw() << "Invalid as<>() cast on clone pointer";
+#endif
+      return *static_cast<const Tcast*>(_obj);
+    }
+
+    /*! \brief Returns a reference to a cast type of the stored object.
+     *
+     * \tparam Tcast The type to cast the stored object to before dereferencing
+     */
+    template<class Tcast>
+    inline Tcast& as()
+    {
+#ifdef MAGNET_DEBUG
+      if (!typeTest<Tcast>()) M_throw() << "Invalid as<>() cast on clone pointer";
+#endif
+      return *static_cast<Tcast*>(_obj);
+    }
 
   private:
   

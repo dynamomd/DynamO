@@ -15,6 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef DYNAMO_visualizer
+# include <coil/RenderObj/TriangleMesh.hpp>
+#endif
+
 #include "trianglemesh.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "localEvent.hpp"
@@ -229,27 +233,27 @@ LTriangleMesh::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-LTriangleMesh::outputXML(xml::XmlStream& XML) const
+LTriangleMesh::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "TriangleMesh" 
-      << xml::attr("Name") << localName
-      << xml::attr("Elasticity") << _e->getName()
-      << xml::attr("Diameter") << _diameter->getName()
+  XML << magnet::xml::attr("Type") << "TriangleMesh" 
+      << magnet::xml::attr("Name") << localName
+      << magnet::xml::attr("Elasticity") << _e->getName()
+      << magnet::xml::attr("Diameter") << _diameter->getName()
       << range;
 
-  XML << xml::tag("Vertices") << xml::chardata();
+  XML << magnet::xml::tag("Vertices") << magnet::xml::chardata();
   BOOST_FOREACH(Vector vert, _vertices)
     XML << vert[0] / Sim->dynamics.units().unitLength() << " " 
 	<< vert[1] / Sim->dynamics.units().unitLength() << " "
 	<< vert[2] / Sim->dynamics.units().unitLength() << "\n";
-  XML << xml::endtag("Vertices");
+  XML << magnet::xml::endtag("Vertices");
 
-  XML << xml::tag("Elements") << xml::chardata();
+  XML << magnet::xml::tag("Elements") << magnet::xml::chardata();
   BOOST_FOREACH(TriangleElements elements, _elements)
     XML << elements.get<0>() << " " 
 	<< elements.get<1>() << " "
 	<< elements.get<2>() << "\n";
-  XML << xml::endtag("Elements");
+  XML << magnet::xml::endtag("Elements");
 }
 
 void 
@@ -258,7 +262,6 @@ LTriangleMesh::checkOverlaps(const Particle& p1) const
 
 
 #ifdef DYNAMO_visualizer
-# include <coil/RenderObj/TriangleMesh.hpp>
 
 magnet::thread::RefPtr<RenderObj>& 
 LTriangleMesh::getCoilRenderObj() const

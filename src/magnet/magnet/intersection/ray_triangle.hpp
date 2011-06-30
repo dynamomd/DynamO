@@ -20,7 +20,7 @@
 
 namespace magnet {
   namespace intersection {
-    //! A ray-triangle intersection test.
+    //! \brief A ray-triangle intersection test.
     //!
     //! The method used is described in "Fast, minimum storage
     //! ray-triangle intersection", by Tomas Möller and Ben Trumbore.

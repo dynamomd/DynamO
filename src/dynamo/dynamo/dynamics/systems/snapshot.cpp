@@ -77,7 +77,7 @@ SSnapshot::runEvent() const
   BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, NEventData(), locdt);
   
-  std::string filename = magnet::string::searchReplace("Snapshot.%i.xml.bz2", "%i", boost::lexical_cast<std::string>(_saveCounter++));
+  std::string filename = magnet::string::search_replace("Snapshot.%i.xml.bz2", "%i", boost::lexical_cast<std::string>(_saveCounter++));
   Sim->writeXMLfile(filename, _applyBC);
 }
 

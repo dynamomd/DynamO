@@ -39,7 +39,7 @@ class BCNone: virtual public BoundaryCondition
 
   virtual void update(const double&);
 
-  virtual void outputXML(xml::XmlStream &XML) const;
+  virtual void outputXML(magnet::xml::XmlStream &XML) const;
 
   virtual void operator<<(const magnet::xml::Node&);
 

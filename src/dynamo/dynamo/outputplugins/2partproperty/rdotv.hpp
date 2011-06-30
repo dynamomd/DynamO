@@ -42,7 +42,7 @@ class OPRdotV: public OutputPlugin
 
   virtual void periodicOutput();
 
-  void output(xml::XmlStream &);
+  void output(magnet::xml::XmlStream &);
 
   virtual void changeSystem(OutputPlugin* plug) { std::swap(Sim, static_cast<OPRdotV*>(plug)->Sim); }
   

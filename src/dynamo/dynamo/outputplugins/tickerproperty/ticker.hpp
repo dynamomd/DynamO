@@ -36,7 +36,7 @@ public:
   void eventUpdate(const LocalEvent&, const NEventData&) {}
   void eventUpdate(const System&, const NEventData&, const double&) {}
 
-  virtual void output(xml::XmlStream&) {}
+  virtual void output(magnet::xml::XmlStream&) {}
 
   virtual void ticker() = 0;
   

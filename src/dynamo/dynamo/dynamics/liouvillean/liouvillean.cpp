@@ -26,7 +26,7 @@
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 
-xml::XmlStream& operator<<(xml::XmlStream& XML, const Liouvillean& g)
+magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Liouvillean& g)
 {
   g.outputXML(XML);
   return XML;
@@ -153,12 +153,12 @@ Liouvillean::loadParticleXMLData(const magnet::xml::Node& XML)
 }
 
 void 
-Liouvillean::outputParticleXMLData(xml::XmlStream& XML, bool applyBC) const
+Liouvillean::outputParticleXMLData(magnet::xml::XmlStream& XML, bool applyBC) const
 {
-  XML << xml::tag("ParticleData");
+  XML << magnet::xml::tag("ParticleData");
   
   if (hasOrientationData())
-    XML << xml::attr("OrientationData") << "Y";
+    XML << magnet::xml::attr("OrientationData") << "Y";
 
   for (size_t i = 0; i < Sim->N; ++i)
     {
@@ -169,22 +169,22 @@ Liouvillean::outputParticleXMLData(xml::XmlStream& XML, bool applyBC) const
       tmp.getVelocity() *= (1.0 / Sim->dynamics.units().unitVelocity());
       tmp.getPosition() *= (1.0 / Sim->dynamics.units().unitLength());
       
-      XML << xml::tag("Pt");
+      XML << magnet::xml::tag("Pt");
       Sim->_properties.outputParticleXMLData(XML, i);
       XML << tmp;
 
       if (hasOrientationData())
-	XML << xml::tag("O")
+	XML << magnet::xml::tag("O")
 	    << orientationData[i].angularVelocity
-	    << xml::endtag("O")
-	    << xml::tag("U")
+	    << magnet::xml::endtag("O")
+	    << magnet::xml::tag("U")
 	    << orientationData[i].orientation
-	    << xml::endtag("U") ;
+	    << magnet::xml::endtag("U") ;
 
-      XML << xml::endtag("Pt");
+      XML << magnet::xml::endtag("Pt");
     }
   
-  XML << xml::endtag("ParticleData");
+  XML << magnet::xml::endtag("ParticleData");
 }
 
 double 

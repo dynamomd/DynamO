@@ -31,7 +31,7 @@ public:
   virtual OutputPlugin* Clone() const 
   { return new OPCollisionCorrelator(*this); }
 
-  void output(xml::XmlStream &XML);
+  void output(magnet::xml::XmlStream &XML);
 
   void operator<<(const magnet::xml::Node&);
 

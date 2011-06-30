@@ -37,7 +37,7 @@ public:
 
 protected:
 
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
   
   std::string name;
   size_t nblistID;

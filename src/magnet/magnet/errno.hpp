@@ -105,6 +105,15 @@ F(EXDEV, "Cross-device link.")
 
 namespace magnet {
   namespace detail {
+    /*! \brief Helper function to convert standard error codes in
+     *  errno.h and specified in IEEE Std 1003.1-2001, to string
+     *  representations.
+     *
+     * This is a C++ reentrant and thread safe function of the
+     * standard strerror function.
+     *
+     * \param errnum The error number to convert to a string representation
+     */
     inline const char* strerror_enum(int errnum)
     {
       switch (errnum)
@@ -119,20 +128,11 @@ namespace magnet {
     }
   }
 
-  //!A reentrant, and C++ form of the strerror C function
+  /*! \brief A reentrant, and C++ form of the strerror C function.
+   * \sa detail::strerror_enum()
+   */
   inline std::string strerror(int errnum)
   {
-//    const size_t bufSize(1024);
-//    char buf[bufSize]; //Our buffer of 1024 characters
-//    char* bufptr = buf;
-//
-//#if (_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && ! _GNU_SOURCE
-//    if (strerror_r(errnum, buf, bufSize) != 0) /* The XSI-compliant version */
-//      M_throw() << "Could not extract error number, errno is " << errno;
-//#else
-//    bufptr = strerror_r(errnum, buf, bufSize);
-//#endif
-
     return detail::strerror_enum(errnum);
   }
 }

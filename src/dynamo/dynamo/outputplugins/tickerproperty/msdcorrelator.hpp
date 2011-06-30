@@ -28,7 +28,7 @@ class OPMSDCorrelator: public OPTicker
 
   virtual void initialise();
 
-  void output(xml::XmlStream &); 
+  void output(magnet::xml::XmlStream &); 
 
   virtual OutputPlugin *Clone() const 
   { return new OPMSDCorrelator(*this); };

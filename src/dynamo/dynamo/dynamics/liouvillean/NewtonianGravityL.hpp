@@ -80,6 +80,18 @@ public:
   //Cloning
   virtual Liouvillean* Clone() const { return new LNewtonianGravity(*this); }
 
+  virtual std::pair<double, Liouvillean::TriangleIntersectingPart> 
+  getSphereTriangleEvent(const Particle& part, 
+			 const Vector & A, 
+			 const Vector & B, 
+			 const Vector & C,
+			 const double dist
+			 ) const;
+
+  virtual ParticleEventData runWallCollision(const Particle&, 
+					     const Vector &,
+					     const double&
+					     ) const;
 protected:
   double elasticV;
   Vector g;
@@ -87,5 +99,5 @@ protected:
   mutable std::vector<long double> _tcList;
   double _tc;
 
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
 };

@@ -33,8 +33,8 @@ C2RNone::operator<<(const magnet::xml::Node&)
 }
 
 void 
-C2RNone::outputXML(xml::XmlStream& XML) const
+C2RNone::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Range") << "2None"; 
+  XML << magnet::xml::attr("Range") << "2None"; 
 }
 

@@ -50,9 +50,9 @@ BCPeriodic::applyBC(Vector  &pos, const double&) const
 }
 
 void 
-BCPeriodic::outputXML(xml::XmlStream &XML) const
+BCPeriodic::outputXML(magnet::xml::XmlStream &XML) const
 {
-  XML << xml::attr("Type") << "PBC";
+  XML << magnet::xml::attr("Type") << "PBC";
 }
 
 void 
@@ -69,9 +69,9 @@ BCPeriodicExceptX::BCPeriodicExceptX(const dynamo::SimData* tmp):
 { Sim = tmp; }
 
 void 
-BCPeriodicExceptX::outputXML(xml::XmlStream &XML) const
+BCPeriodicExceptX::outputXML(magnet::xml::XmlStream &XML) const
 {
-  XML << xml::attr("Type") << "NoXPBC";
+  XML << magnet::xml::attr("Type") << "NoXPBC";
 }
 
 void 
@@ -127,9 +127,9 @@ BCPeriodicXOnly::BCPeriodicXOnly(const dynamo::SimData* tmp):
 }
 
 void 
-BCPeriodicXOnly::outputXML(xml::XmlStream &XML) const
+BCPeriodicXOnly::outputXML(magnet::xml::XmlStream &XML) const
 {
-  XML << xml::attr("Type") << "OnlyXPBC";
+  XML << magnet::xml::attr("Type") << "OnlyXPBC";
 }
 
 void 

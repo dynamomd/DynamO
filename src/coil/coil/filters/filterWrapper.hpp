@@ -36,7 +36,7 @@ namespace coil
 	_optlist.add(*Label1); Label1->show();
       }
 
-      _radiusSlider.set_range(1,20);
+      _radiusSlider.set_range(1, 20);
       _radiusSlider.set_increments(1,1);
       _radiusSlider.set_digits(0);
       _radiusSlider.set_value(_radius);
@@ -50,10 +50,17 @@ namespace coil
     inline virtual size_t type_id() { return detail::filterEnum<magnetFilterWrapper<T,reqNormalDepth> >::val; }    
 
 
-    inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height, const magnet::GL::viewPort&) 
-    { _filter.invoke(colorTextureUnit, width, height, _radius); }
+    inline virtual void invoke(GLint colorTextureUnit, size_t width, size_t height, const magnet::GL::viewPort&) 
+    { 
+      _filter["u_Texture0"] = colorTextureUnit;
 
-    inline virtual bool needsNormalDepth()  { return reqNormalDepth; }
+      std::tr1::array<GLfloat, 2> arg = {{GLfloat(_radius) / width, GLfloat(_radius) / height}};
+      _filter["u_Scale"] = arg;
+
+      _filter.invoke(); 
+    }
+
+    inline virtual bool needsNormalDepth() { return reqNormalDepth; }
 
     virtual void showControls(Gtk::ScrolledWindow* start)
     {
@@ -61,7 +68,6 @@ namespace coil
       start->add(_optlist);
       start->show();
     }
-
     
   protected:
     T _filter;

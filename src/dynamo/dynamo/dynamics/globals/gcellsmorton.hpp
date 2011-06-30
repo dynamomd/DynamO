@@ -69,7 +69,7 @@ protected:
     int cell;
   };
 
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
  
   magnet::math::DilatedVector getCellID(Vector) const;
   magnet::math::DilatedVector getCellID(const CVector<int>&) const;

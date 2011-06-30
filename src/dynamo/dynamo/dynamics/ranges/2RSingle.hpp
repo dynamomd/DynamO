@@ -37,7 +37,7 @@ public:
   const magnet::ClonePtr<CRange>& getRange() const { return range; }
 
 protected:
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
 
   magnet::ClonePtr<CRange> range;
 };

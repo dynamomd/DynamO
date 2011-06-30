@@ -78,30 +78,30 @@ OPMFT::A1ParticleChange(const ParticleEventData& PDat)
 }
 
 void
-OPMFT::output(xml::XmlStream &XML)
+OPMFT::output(magnet::xml::XmlStream &XML)
 {
-  XML << xml::tag("MFT");
+  XML << magnet::xml::tag("MFT");
   
   for (size_t id = 0; id < data.size(); ++id)
     {
-      XML << xml::tag("Species")
-	  << xml::attr("Name")
+      XML << magnet::xml::tag("Species")
+	  << magnet::xml::attr("Name")
 	  << Sim->dynamics.getSpecies()[id]->getName();
       
       for (size_t collN = 0; collN < collisionHistoryLength; ++collN)
 	{
-	  XML << xml::tag("Collisions")
-	      << xml::attr("val") << collN + 1;
+	  XML << magnet::xml::tag("Collisions")
+	      << magnet::xml::attr("val") << collN + 1;
 	  
 	  data[id][collN].outputHistogram
 	    (XML, 1.0 / Sim->dynamics.units().unitTime());
 	  
-	  XML << xml::endtag("Collisions");
+	  XML << magnet::xml::endtag("Collisions");
 	}
 	
-      XML << xml::endtag("Species");
+      XML << magnet::xml::endtag("Species");
     }
   
-  XML << xml::endtag("MFT");
+  XML << magnet::xml::endtag("MFT");
 }
 

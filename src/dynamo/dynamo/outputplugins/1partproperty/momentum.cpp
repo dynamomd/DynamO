@@ -57,17 +57,17 @@ OPMomentum::stream(const double& dt)
 }
 
 void
-OPMomentum::output(xml::XmlStream &XML)
+OPMomentum::output(magnet::xml::XmlStream &XML)
 {
-  XML << xml::tag("Momentum")
-      << xml::tag("Current")
+  XML << magnet::xml::tag("Momentum")
+      << magnet::xml::tag("Current")
       << sysMom / Sim->dynamics.units().unitMomentum()
-      << xml::endtag("Current")
-      << xml::tag("Avg") 
+      << magnet::xml::endtag("Current")
+      << magnet::xml::tag("Avg") 
       << accMom / (Sim->dSysTime * Sim->dynamics.units().unitMomentum())
-      << xml::endtag("Avg")    
-      << xml::tag("SqAvg") 
+      << magnet::xml::endtag("Avg")    
+      << magnet::xml::tag("SqAvg") 
       << accMomsq / (Sim->dSysTime * Sim->dynamics.units().unitMomentum() * Sim->dynamics.units().unitMomentum())
-      << xml::endtag("SqAvg")
-      << xml::endtag("Momentum");
+      << magnet::xml::endtag("SqAvg")
+      << magnet::xml::endtag("Momentum");
 }

@@ -82,15 +82,15 @@ OPSCParameter::ticker()
 }
 
 void 
-OPSCParameter::output(xml::XmlStream& XML)
+OPSCParameter::output(magnet::xml::XmlStream& XML)
 {
-  XML << xml::tag("SCParameter")
-      << xml::attr("SCWaveNumber") 
+  XML << magnet::xml::tag("SCParameter")
+      << magnet::xml::attr("SCWaveNumber") 
       << lrint(std::pow(Sim->N, 1.0/3.0))
-      << xml::attr("SCWaveNumberVal") 
+      << magnet::xml::attr("SCWaveNumberVal") 
       << runningsum[lrint(std::pow(Sim->N, 1.0/3.0))] 
     / (static_cast<double>(count) * Sim->N) 
-      << xml::chardata();
+      << magnet::xml::chardata();
   
   for (size_t k(0); k <= maxWaveNumber; ++k)
     {
@@ -99,7 +99,7 @@ OPSCParameter::output(xml::XmlStream& XML)
 	  << "\n";
     }
 
-  XML << xml::endtag("SCParameter");
+  XML << magnet::xml::endtag("SCParameter");
 }
 
 void 

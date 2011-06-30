@@ -103,10 +103,10 @@ OPRadialDistribution::ticker()
 }
 
 void
-OPRadialDistribution::output(xml::XmlStream& XML)
+OPRadialDistribution::output(magnet::xml::XmlStream& XML)
 {
-  XML << xml::tag("RadialDistribution")
-      << xml::attr("SampleCount")
+  XML << magnet::xml::tag("RadialDistribution")
+      << magnet::xml::attr("SampleCount")
       << sampleCount;
 
   
@@ -117,12 +117,12 @@ OPRadialDistribution::output(xml::XmlStream& XML)
 
       unsigned long originsTaken = sampleCount * sp1->getCount();
 
-      XML << xml::tag("Species")
-	  << xml::attr("Name1")
+      XML << magnet::xml::tag("Species")
+	  << magnet::xml::attr("Name1")
 	  << sp1->getName()
-      	  << xml::attr("Name2")
+      	  << magnet::xml::attr("Name2")
 	  << sp2->getName()
-	  << xml::chardata();
+	  << magnet::xml::chardata();
       
 
       //Skip zero as it is wrong due to particle self-self correaltions
@@ -140,10 +140,10 @@ OPRadialDistribution::output(xml::XmlStream& XML)
 	}
 
 
-      XML << xml::endtag("Species");
+      XML << magnet::xml::endtag("Species");
     }
   
-  XML << xml::endtag("RadialDistribution");
+  XML << magnet::xml::endtag("RadialDistribution");
 
   dout << "Be warned, if a bin spans a hard core "
     "\n(E.g a bin width of 0.1 will span an interaction diameter of 1 at bin"

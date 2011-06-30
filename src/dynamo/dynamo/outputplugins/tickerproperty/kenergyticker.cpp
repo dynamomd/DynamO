@@ -63,40 +63,40 @@ OPKEnergyTicker::ticker()
 }
 
 void
-OPKEnergyTicker::output(xml::XmlStream& XML)
+OPKEnergyTicker::output(magnet::xml::XmlStream& XML)
 {
   double sumComp(0);
   
   for (size_t iDim(0); iDim < NDIM; ++iDim)
     sumComp += sum[iDim][iDim];
 
-  XML << xml::tag("KEnergyTicker")
-      << xml::attr("T")
+  XML << magnet::xml::tag("KEnergyTicker")
+      << magnet::xml::attr("T")
       << sumComp / (((double) count) * ((double)NDIM) * Sim->N * Sim->dynamics.units().unitEnergy());
   
 
-  XML << xml::tag("KineticTensor");
+  XML << magnet::xml::tag("KineticTensor");
  
   for (size_t iDim = 0; iDim < NDIM; ++iDim)
     {
       std::string name = std::string("d") + boost::lexical_cast<std::string>(iDim);
       
-      XML << xml::tag(name.c_str());
+      XML << magnet::xml::tag(name.c_str());
 
       for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	{
 	  std::string name = std::string("d") + boost::lexical_cast<std::string>(jDim);	  
-	  XML << xml::attr(name.c_str())
+	  XML << magnet::xml::attr(name.c_str())
 	      << sum[iDim][jDim] / (((double) count) * Sim->N 				    
 				    * Sim->dynamics.units().unitEnergy());;
 	}
       
-      XML << xml::endtag(name.c_str());
+      XML << magnet::xml::endtag(name.c_str());
     }
   
-  XML << xml::endtag("KineticTensor");
+  XML << magnet::xml::endtag("KineticTensor");
 
-  XML << xml::endtag("KEnergyTicker");
+  XML << magnet::xml::endtag("KEnergyTicker");
 }
 
 void

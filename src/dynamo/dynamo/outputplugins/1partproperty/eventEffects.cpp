@@ -119,26 +119,26 @@ OPEventEffects::newEvent(const EEventType& eType, const classKey& ck,
 }
 
 void
-OPEventEffects::output(xml::XmlStream &XML)
+OPEventEffects::output(magnet::xml::XmlStream &XML)
 {
-  XML << xml::tag("EventEffects");
+  XML << magnet::xml::tag("EventEffects");
 
   typedef std::pair<const eventKey, counterData> locPair;  
   
   BOOST_FOREACH(const locPair& ele, counters)
     {
-      XML << xml::tag("Count")
-	  << xml::attr("Name") << getName(ele.first.first, Sim)
-	  << xml::attr("Event") << ele.first.second
-	  << xml::attr("EnergyLossRate") 
+      XML << magnet::xml::tag("Count")
+	  << magnet::xml::attr("Name") << getName(ele.first.first, Sim)
+	  << magnet::xml::attr("Event") << ele.first.second
+	  << magnet::xml::attr("EnergyLossRate") 
 	  << ele.second.energyLoss * Sim->dynamics.units().unitTime()
 	/ (Sim->dSysTime * Sim->dynamics.units().unitEnergy())
-	  << xml::tag("MomentumChangeRate") 
+	  << magnet::xml::tag("MomentumChangeRate") 
 	  << ele.second.momentumChange * Sim->dynamics.units().unitTime()
 	/ (Sim->dSysTime * Sim->dynamics.units().unitMomentum())
-	  << xml::endtag("MomentumChangeRate") 
-	  << xml::endtag("Count");
+	  << magnet::xml::endtag("MomentumChangeRate") 
+	  << magnet::xml::endtag("Count");
     }
   
-  XML << xml::endtag("EventEffects");
+  XML << magnet::xml::endtag("EventEffects");
 }

@@ -293,21 +293,21 @@ CSUmbrella::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-CSUmbrella::outputXML(xml::XmlStream& XML) const
+CSUmbrella::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::tag("System")
-      << xml::attr("Type") << "Umbrella"
-      << xml::attr("a") << a * Sim->dynamics.units().unitArea() 
+  XML << magnet::xml::tag("System")
+      << magnet::xml::attr("Type") << "Umbrella"
+      << magnet::xml::attr("a") << a * Sim->dynamics.units().unitArea() 
     / Sim->dynamics.units().unitEnergy()
-      << xml::attr("b") << b / Sim->dynamics.units().unitLength()
-      << xml::attr("delU") << delU / Sim->dynamics.units().unitEnergy()
-      << xml::attr("currentulevel") << ulevel
-      << xml::attr("Name") << sysName
-      << xml::tag("Range1")
+      << magnet::xml::attr("b") << b / Sim->dynamics.units().unitLength()
+      << magnet::xml::attr("delU") << delU / Sim->dynamics.units().unitEnergy()
+      << magnet::xml::attr("currentulevel") << ulevel
+      << magnet::xml::attr("Name") << sysName
+      << magnet::xml::tag("Range1")
       << range1
-      << xml::endtag("Range1")
-      << xml::tag("Range2")
+      << magnet::xml::endtag("Range1")
+      << magnet::xml::tag("Range2")
       << range2
-      << xml::endtag("Range2")
-      << xml::endtag("System");
+      << magnet::xml::endtag("Range2")
+      << magnet::xml::endtag("System");
 }

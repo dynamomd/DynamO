@@ -109,27 +109,27 @@ OPCollDistCheck::eventUpdate(const System& sysEvent,
 }
 
 void 
-OPCollDistCheck::output(xml::XmlStream& XML)
+OPCollDistCheck::output(magnet::xml::XmlStream& XML)
 {
-  XML << xml::tag("CollDistCheck");
+  XML << magnet::xml::tag("CollDistCheck");
   
   typedef std::pair<eventKey, C1DHistogram>
     localPair;
   
   BOOST_FOREACH(const localPair& p, distList)
     {
-      XML << xml::tag("Distance") << xml::attr("Name") 
+      XML << magnet::xml::tag("Distance") << magnet::xml::attr("Name") 
 	  << getName(p.first.first, Sim)
-	  << xml::attr("Type") 
+	  << magnet::xml::attr("Type") 
 	  << p.first.first.second
-	  << xml::attr("EventType") 
+	  << magnet::xml::attr("EventType") 
 	  << p.first.second;
 
       p.second.outputHistogram(XML, 1.0 / Sim->dynamics.units().unitLength());
       
-      XML << xml::endtag("Distance");
+      XML << magnet::xml::endtag("Distance");
     }
   
-  XML << xml::endtag("CollDistCheck");
+  XML << magnet::xml::endtag("CollDistCheck");
 
 }

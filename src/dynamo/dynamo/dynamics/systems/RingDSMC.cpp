@@ -324,7 +324,7 @@ CSRingDSMC::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-CSRingDSMC::outputXML(xml::XmlStream& XML) const
+CSRingDSMC::outputXML(magnet::xml::XmlStream& XML) const
 {
   if (n12 || n13)
     dout << "Number of T(1,2) events " << n12
@@ -332,18 +332,18 @@ CSRingDSMC::outputXML(xml::XmlStream& XML) const
 	 << "\nRatio T(1,2)/total " << ((double) n12) / (((double) n13) + ((double) n12))
 	 << std::endl;
 
-  XML << xml::tag("System")
-      << xml::attr("Type") << "RingDSMC"
-      << xml::attr("tStep") << tstep / Sim->dynamics.units().unitTime()
-      << xml::attr("Chi12") << chi12
-      << xml::attr("Chi13") << chi13
-      << xml::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
-      << xml::attr("Inelasticity") << e
-      << xml::attr("Name") << sysName
-      << xml::attr("MaxProbability12") << maxprob12
-      << xml::attr("MaxProbability13") << maxprob13
-      << xml::tag("Range1")
+  XML << magnet::xml::tag("System")
+      << magnet::xml::attr("Type") << "RingDSMC"
+      << magnet::xml::attr("tStep") << tstep / Sim->dynamics.units().unitTime()
+      << magnet::xml::attr("Chi12") << chi12
+      << magnet::xml::attr("Chi13") << chi13
+      << magnet::xml::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
+      << magnet::xml::attr("Inelasticity") << e
+      << magnet::xml::attr("Name") << sysName
+      << magnet::xml::attr("MaxProbability12") << maxprob12
+      << magnet::xml::attr("MaxProbability13") << maxprob13
+      << magnet::xml::tag("Range1")
       << range1
-      << xml::endtag("Range1")
-      << xml::endtag("System");
+      << magnet::xml::endtag("Range1")
+      << magnet::xml::endtag("System");
 }

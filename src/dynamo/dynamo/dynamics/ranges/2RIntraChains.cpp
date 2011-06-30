@@ -65,14 +65,14 @@ C2RIntraChains::operator<<(const magnet::xml::Node&)
 }
 
 void 
-C2RIntraChains::outputXML(xml::XmlStream& XML) const
+C2RIntraChains::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Range") << "IntraChains" 
-      << xml::attr("Start")
+  XML << magnet::xml::attr("Range") << "IntraChains" 
+      << magnet::xml::attr("Start")
       << range1
-      << xml::attr("End")
+      << magnet::xml::attr("End")
       << range2
-      << xml::attr("Interval")
+      << magnet::xml::attr("Interval")
       << interval;
 }
 

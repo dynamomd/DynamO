@@ -20,7 +20,7 @@
 
 namespace magnet {
   namespace intersection {
-    //! A ray-sphere intersection test with backface culling.
+    //! \brief A ray-sphere intersection test with backface culling.
     //!
     //! \param T The origin of the ray relative to the sphere center.
     //! \param D The direction/velocity of the ray.
@@ -42,7 +42,7 @@ namespace magnet {
       return  - c / (TD - std::sqrt(arg));
     }
 
-    //! A ray-inverse_sphere intersection test with backface culling.
+    //! \brief A ray-inverse_sphere intersection test with backface culling.
     //!
     //! An inverse sphere means an "enclosing" sphere.
     //!

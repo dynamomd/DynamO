@@ -18,8 +18,7 @@
 #pragma once
 
 class Particle;
-namespace magnet { namespace xml { class Node; } }
-namespace xml { class XmlStream; }
+namespace magnet { namespace xml { class Node; class XmlStream; } }
 namespace dynamo { class SimData; }
 
 class C2Range
@@ -34,8 +33,8 @@ public:
 
   static C2Range* getClass(const magnet::xml::Node&, const dynamo::SimData*);
 
-  friend xml::XmlStream& operator<<(xml::XmlStream&, const C2Range&);
+  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const C2Range&);
 
 protected:
-  virtual void outputXML(xml::XmlStream& XML) const = 0;
+  virtual void outputXML(magnet::xml::XmlStream& XML) const = 0;
 };

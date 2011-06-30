@@ -56,7 +56,7 @@ System::System(dynamo::SimData* tmp):
   type = NONE;
 }
 
-xml::XmlStream& operator<<(xml::XmlStream& XML, 
+magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
 			    const System& g)
 {
   g.outputXML(XML);

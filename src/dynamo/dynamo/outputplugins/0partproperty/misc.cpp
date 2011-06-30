@@ -125,7 +125,7 @@ OPMisc::getMFT() const
 
 
 void
-OPMisc::output(xml::XmlStream &XML)
+OPMisc::output(magnet::xml::XmlStream &XML)
 {
   std::time_t tendTime;
   time(&tendTime);
@@ -152,86 +152,86 @@ OPMisc::output(xml::XmlStream &XML)
 	   << Sim->dSysTime / (Sim->dynamics.units().unitTime()
 			       * static_cast<double>(tendTime - tstartTime)) << std::endl;
 
-  XML << xml::tag("Misc")
-      << xml::tag("Memusage")
-      << xml::attr("MaxKiloBytes") << magnet::process_mem_usage()
-      << xml::endtag("Memusage")
-      << xml::tag("Density")
-      << xml::attr("val") << Sim->dynamics.getNumberDensity() * Sim->dynamics.units().unitVolume()
-      << xml::endtag("Density")
+  XML << magnet::xml::tag("Misc")
+      << magnet::xml::tag("Memusage")
+      << magnet::xml::attr("MaxKiloBytes") << magnet::process_mem_usage()
+      << magnet::xml::endtag("Memusage")
+      << magnet::xml::tag("Density")
+      << magnet::xml::attr("val") << Sim->dynamics.getNumberDensity() * Sim->dynamics.units().unitVolume()
+      << magnet::xml::endtag("Density")
 
-      << xml::tag("PackingFraction")
-      << xml::attr("val") << Sim->dynamics.getPackingFraction()
-      << xml::endtag("PackingFraction")
+      << magnet::xml::tag("PackingFraction")
+      << magnet::xml::attr("val") << Sim->dynamics.getPackingFraction()
+      << magnet::xml::endtag("PackingFraction")
 
-      << xml::tag("SpeciesCount")
-      << xml::attr("val") << Sim->dynamics.getSpecies().size()
-      << xml::endtag("SpeciesCount")
+      << magnet::xml::tag("SpeciesCount")
+      << magnet::xml::attr("val") << Sim->dynamics.getSpecies().size()
+      << magnet::xml::endtag("SpeciesCount")
 
-      << xml::tag("ParticleCount")
-      << xml::attr("val") << Sim->N
-      << xml::endtag("ParticleCount")
+      << magnet::xml::tag("ParticleCount")
+      << magnet::xml::attr("val") << Sim->N
+      << magnet::xml::endtag("ParticleCount")
 
-      << xml::tag("SimLength")
-      << xml::attr("Collisions") << Sim->eventCount
-      << xml::attr("OneParticleEvents") << singleEvents
-      << xml::attr("TwoParticleEvents") << dualEvents
-      << xml::attr("Time") << Sim->dSysTime / Sim->dynamics.units().unitTime()
-      << xml::endtag("SimLength")
+      << magnet::xml::tag("SimLength")
+      << magnet::xml::attr("Collisions") << Sim->eventCount
+      << magnet::xml::attr("OneParticleEvents") << singleEvents
+      << magnet::xml::attr("TwoParticleEvents") << dualEvents
+      << magnet::xml::attr("Time") << Sim->dSysTime / Sim->dynamics.units().unitTime()
+      << magnet::xml::endtag("SimLength")
 
-      << xml::tag("Timing")
+      << magnet::xml::tag("Timing")
 
-      << xml::tag("Start")
-      << xml::attr("val") << sTime
-      << xml::endtag("Start")
+      << magnet::xml::tag("Start")
+      << magnet::xml::attr("val") << sTime
+      << magnet::xml::endtag("Start")
 
-      << xml::tag("End")
-      << xml::attr("val") << eTime
-      << xml::endtag("End")
+      << magnet::xml::tag("End")
+      << magnet::xml::attr("val") << eTime
+      << magnet::xml::endtag("End")
 
-      << xml::tag("Duration")
-      << xml::attr("val")
+      << magnet::xml::tag("Duration")
+      << magnet::xml::attr("val")
       << tendTime - tstartTime
-      << xml::endtag("Duration")
+      << magnet::xml::endtag("Duration")
 
-      << xml::tag("CollPerSec")
-      << xml::attr("val") << collpersec
-      << xml::attr("CondorWarning") << std::string("true")
-      << xml::endtag("CollPerSec")
+      << magnet::xml::tag("CollPerSec")
+      << magnet::xml::attr("val") << collpersec
+      << magnet::xml::attr("CondorWarning") << std::string("true")
+      << magnet::xml::endtag("CollPerSec")
 
-      << xml::endtag("Timing")
-      << xml::tag("SystemBoxLength")
-      << xml::attr("val")
+      << magnet::xml::endtag("Timing")
+      << magnet::xml::tag("SystemBoxLength")
+      << magnet::xml::attr("val")
       << 1.0/Sim->dynamics.units().unitLength();
 
   char name[2] = "x";
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     {
       name[0] = 'x' + iDim;
-      XML << xml::tag(name) << xml::attr("val")
+      XML << magnet::xml::tag(name) << magnet::xml::attr("val")
 	  << Sim->primaryCellSize[iDim]/Sim->dynamics.units().unitLength()
-	  << xml::endtag(name);
+	  << magnet::xml::endtag(name);
     }
 
-  XML << xml::endtag("SystemBoxLength");
+  XML << magnet::xml::endtag("SystemBoxLength");
 
   Vector sumMV(0, 0, 0);
   //Determine the discrepancy VECTOR
   BOOST_FOREACH( const Particle & Part, Sim->particleList)
     sumMV += Part.getVelocity() * Sim->dynamics.getSpecies(Part).getMass(Part.getID());
 
-  XML << xml::tag("Total_momentum")
+  XML << magnet::xml::tag("Total_momentum")
       << sumMV / Sim->dynamics.units().unitMomentum()
-      << xml::endtag("Total_momentum")
-      << xml::tag("totMeanFreeTime")
-      << xml::attr("val")
+      << magnet::xml::endtag("Total_momentum")
+      << magnet::xml::tag("totMeanFreeTime")
+      << magnet::xml::attr("val")
       << getMFT()
-      << xml::endtag("totMeanFreeTime");
+      << magnet::xml::endtag("totMeanFreeTime");
 
-  XML << xml::tag("MemoryUsage")
-      << xml::attr("ResidentSet") << magnet::process_mem_usage()
-      << xml::endtag("MemoryUsage")
-      << xml::endtag("Misc");
+  XML << magnet::xml::tag("MemoryUsage")
+      << magnet::xml::attr("ResidentSet") << magnet::process_mem_usage()
+      << magnet::xml::endtag("MemoryUsage")
+      << magnet::xml::endtag("Misc");
 }
 
 void

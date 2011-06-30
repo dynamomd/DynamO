@@ -53,10 +53,10 @@ C2RRangeList::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-C2RRangeList::outputXML(xml::XmlStream& XML) const
+C2RRangeList::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Range") << "RangeList";
+  XML << magnet::xml::attr("Range") << "RangeList";
 
   BOOST_FOREACH(const magnet::ClonePtr<C2Range>& rPtr, ranges)
-    XML << xml::tag("RangeListItem") << rPtr << xml::endtag("RangeListItem");
+    XML << magnet::xml::tag("RangeListItem") << rPtr << magnet::xml::endtag("RangeListItem");
 }

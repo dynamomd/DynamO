@@ -16,7 +16,7 @@
 */
 
 #pragma once
-#include <magnet/GL/SSAO.hpp>
+#include <magnet/GL/shader/SSAO.hpp>
 #include "filter.hpp"
 
 namespace coil 
@@ -29,7 +29,7 @@ namespace coil
 
     inline virtual size_t type_id() { return detail::filterEnum<SSAOWrapper>::val; }    
 
-    inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height,
+    inline virtual void invoke(GLint colorTextureUnit, size_t width, size_t height,
 			       const magnet::GL::viewPort& vp);
 
     inline virtual bool needsNormalDepth()  { return true; }
@@ -37,7 +37,7 @@ namespace coil
     virtual void showControls(Gtk::ScrolledWindow*);
 
   protected:
-    magnet::GL::SSAO _filter;
+    magnet::GL::shader::SSAO _filter;
     Glib::RefPtr<Gtk::Builder> _refXml;
     GLfloat _radius;
     GLfloat _totStrength;

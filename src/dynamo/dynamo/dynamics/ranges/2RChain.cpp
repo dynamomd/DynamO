@@ -55,12 +55,12 @@ C2RChain::operator<<(const magnet::xml::Node&)
 }
 
 void 
-C2RChain::outputXML(xml::XmlStream& XML) const
+C2RChain::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Range") << "Chain" 
-      << xml::attr("Start")
+  XML << magnet::xml::attr("Range") << "Chain" 
+      << magnet::xml::attr("Start")
       << range1
-      << xml::attr("End")
+      << magnet::xml::attr("End")
       << range2;
 }
 

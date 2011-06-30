@@ -22,8 +22,6 @@
 class CGParabolaSentinel: public Global
 {
 public:
-  CGParabolaSentinel(const magnet::xml::Node&, dynamo::SimData*);
-
   CGParabolaSentinel(dynamo::SimData*, const std::string&);
   
   virtual ~CGParabolaSentinel() {}
@@ -36,8 +34,8 @@ public:
 
   virtual void initialise(size_t);
 
-  virtual void operator<<(const magnet::xml::Node&);
+  virtual void operator<<(const magnet::xml::Node&) {}
 
 protected:
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const {}
 };

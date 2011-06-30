@@ -105,6 +105,10 @@ EReplicaExchangeSimulation::initialisation()
   
   //Set up the replex organisation
   temperatureList.clear();
+
+  for (unsigned int i = 1; i < nSims; i++)
+    if (Simulations[0].N != Simulations[i].N)
+      M_throw() << "Every replica configuration file must have the same number of particles!";
   
   for (unsigned int i = 0; i < nSims; i++)
     {
@@ -187,7 +191,7 @@ EReplicaExchangeSimulation::outputData()
   
   BOOST_FOREACH(replexPair p1, temperatureList)
     Simulations[p1.second.simID].outputData
-    ((magnet::string::searchReplace(outputFormat, "%ID", boost::lexical_cast<std::string>(i++))).c_str());
+    ((magnet::string::search_replace(outputFormat, "%ID", boost::lexical_cast<std::string>(i++))).c_str());
 }
 
 void
@@ -443,7 +447,7 @@ void EReplicaExchangeSimulation::runSimulation()
 	  BOOST_FOREACH(replexPair p1, temperatureList)
 	    {
 	      Simulations[p1.second.simID].setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
-	      Simulations[p1.second.simID].outputData((magnet::string::searchReplace(std::string("peek.data.%ID.xml.bz2"), 
+	      Simulations[p1.second.simID].outputData((magnet::string::search_replace(std::string("peek.data.%ID.xml.bz2"), 
 										     "%ID", boost::lexical_cast<std::string>(i++))));
 	    }
 		  
@@ -532,7 +536,7 @@ EReplicaExchangeSimulation::outputConfigs()
     {
       TtoID << p1.second.realTemperature << " " << i << "\n";
       Simulations[p1.second.simID].setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
-      Simulations[p1.second.simID].writeXMLfile(magnet::string::searchReplace(configFormat, "%ID", boost::lexical_cast<std::string>(i++)), 
+      Simulations[p1.second.simID].writeXMLfile(magnet::string::search_replace(configFormat, "%ID", boost::lexical_cast<std::string>(i++)), 
 						!vm.count("unwrapped"));
     }
 }

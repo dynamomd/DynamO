@@ -38,14 +38,22 @@ IStepped::IStepped(dynamo::SimData* tmp,
 		   const std::vector<steppair>& vec, C2Range* nR):
   Interaction(tmp,nR),
   _unitLength(Sim->_properties.getProperty
-	      (1.0, Property::Units::Length())),
+	      (Sim->dynamics.units().unitLength(), 
+	       Property::Units::Length())),
   _unitEnergy(Sim->_properties.getProperty
-	      (1.0, Property::Units::Energy())),
+	      (Sim->dynamics.units().unitEnergy(), 
+	       Property::Units::Energy())),
   steps(vec)
 {}
 
 IStepped::IStepped(const magnet::xml::Node& XML, dynamo::SimData* tmp):
-  Interaction(tmp, NULL) //A temporary value!
+  Interaction(tmp, NULL), //A temporary value!
+  _unitLength(Sim->_properties.getProperty
+	      (Sim->dynamics.units().unitLength(), 
+	       Property::Units::Length())),
+  _unitEnergy(Sim->_properties.getProperty
+	      (Sim->dynamics.units().unitEnergy(), 
+	       Property::Units::Energy()))
 {
   operator<<(XML);
 }
@@ -77,6 +85,10 @@ IStepped::operator<<(const magnet::xml::Node& XML)
     {
       M_throw() << "Failed a lexical cast in CIStepped";
     }
+
+  if (steps.empty())
+    M_throw() << "No steps defined in SteppedPotential Interaction with name " 
+	      << getName();
 }
 
 Interaction* 
@@ -210,12 +222,12 @@ IStepped::getEvent(const Particle &p1,
 #ifdef DYNAMO_OverlapTesting
 	      //Check that there is no overlap 
 	      if (Sim->dynamics.getLiouvillean().sphereOverlap
-		  (colldat, runstepdata[capstat->second].first * l2scale))
+		  (colldat, d2))
 		M_throw() << "Overlapping particles found" 
 			  << ", particle1 " << p1.getID() 
 			  << ", particle2 " 
 			  << p2.getID() << "\nOverlap = " 
-			  << (sqrt(colldat.r2) - steps[capstat->second].first)
+			  << (sqrt(colldat.r2) - d)
 		  /Sim->dynamics.units().unitLength();
 #endif
 	      
@@ -326,17 +338,17 @@ IStepped::checkOverlaps(const Particle& part1, const Particle& part2) const
 }
   
 void 
-IStepped::outputXML(xml::XmlStream& XML) const
+IStepped::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "Stepped"
-      << xml::attr("Name") << intName
+  XML << magnet::xml::attr("Type") << "Stepped"
+      << magnet::xml::attr("Name") << intName
       << range;
 
   BOOST_FOREACH(const steppair& s, steps)
-    XML << xml::tag("Step")
-	<< xml::attr("R") << s.first 
-	<< xml::attr("E") << s.second
-	<< xml::endtag("Step");
+    XML << magnet::xml::tag("Step")
+	<< magnet::xml::attr("R") << s.first 
+	<< magnet::xml::attr("E") << s.second
+	<< magnet::xml::endtag("Step");
   
   IMultiCapture::outputCaptureMap(XML);  
 }

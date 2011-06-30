@@ -46,8 +46,8 @@ CRSingle::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-CRSingle::outputXML(xml::XmlStream& XML) const
+CRSingle::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Range") << "Single"
-      << xml::attr("ID") << ID;
+  XML << magnet::xml::attr("Range") << "Single"
+      << magnet::xml::attr("ID") << ID;
 }

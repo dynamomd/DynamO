@@ -20,7 +20,7 @@
 
 namespace magnet {
   namespace overlap {
-    //! A point-prism (extruded triangle) overlap test.
+    //! \brief A point-prism (extruded triangle) overlap test.
     //!
     //! \param P The point's position, relative to V0.
     //! \param E1 The first edge vector of the prism face triangle (V1-V0).

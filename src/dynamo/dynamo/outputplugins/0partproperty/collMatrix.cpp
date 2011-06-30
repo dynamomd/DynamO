@@ -119,11 +119,11 @@ OPCollMatrix::newEvent(const size_t& part, const EEventType& etype, const classK
 }
 
 void
-OPCollMatrix::output(xml::XmlStream &XML)
+OPCollMatrix::output(magnet::xml::XmlStream &XML)
 {
   
-  XML << xml::tag("CollCounters") 
-      << xml::tag("TransitionMatrix");
+  XML << magnet::xml::tag("CollCounters") 
+      << magnet::xml::tag("TransitionMatrix");
   
   std::map<eventKey, std::pair<unsigned long long, double> > totmap;
   
@@ -138,16 +138,16 @@ OPCollMatrix::output(xml::XmlStream &XML)
   
   BOOST_FOREACH(const locPair& ele, counters)
     {
-      XML << xml::tag("Count")
-	  << xml::attr("Event") << ele.first.first.second
-	  << xml::attr("Name") << getName(ele.first.first.first, Sim)
-	  << xml::attr("lastEvent") << ele.first.second.second
-	  << xml::attr("lastName") << getName(ele.first.second.first, Sim)
-	  << xml::attr("Percent") << 100.0 * ((double) ele.second.count) 
+      XML << magnet::xml::tag("Count")
+	  << magnet::xml::attr("Event") << ele.first.first.second
+	  << magnet::xml::attr("Name") << getName(ele.first.first.first, Sim)
+	  << magnet::xml::attr("lastEvent") << ele.first.second.second
+	  << magnet::xml::attr("lastName") << getName(ele.first.second.first, Sim)
+	  << magnet::xml::attr("Percent") << 100.0 * ((double) ele.second.count) 
 	/ ((double) totalCount)
-	  << xml::attr("mft") << ele.second.totalTime
+	  << magnet::xml::attr("mft") << ele.second.totalTime
 	/ (Sim->dynamics.units().unitTime() * ((double) ele.second.count))
-	  << xml::endtag("Count");
+	  << magnet::xml::endtag("Count");
       
       //Add the total count
       totmap[ele.first.first].first += ele.second.count;
@@ -157,25 +157,25 @@ OPCollMatrix::output(xml::XmlStream &XML)
 	/ ele.second.totalTime;
     }
   
-  XML << xml::endtag("TransitionMatrix")
-      << xml::tag("Totals");
+  XML << magnet::xml::endtag("TransitionMatrix")
+      << magnet::xml::tag("Totals");
   
   typedef std::pair<eventKey, std::pair<unsigned long long, double> > mappair;
   
   BOOST_FOREACH(const mappair& mp1, totmap)
-    XML << xml::tag("TotCount")
-	<< xml::attr("Name") << getName(mp1.first.first, Sim)
-	<< xml::attr("Event") << mp1.first.second
-	<< xml::attr("Percent") 
+    XML << magnet::xml::tag("TotCount")
+	<< magnet::xml::attr("Name") << getName(mp1.first.first, Sim)
+	<< magnet::xml::attr("Event") << mp1.first.second
+	<< magnet::xml::attr("Percent") 
 	<< 100.0 * (((double) mp1.second.first)
 		    +((double) initialCounter[mp1.first]))
     / (((double) totalCount) + ((double) initialsum))
-	<< xml::attr("Count") << mp1.second.first + initialCounter[mp1.first]
-	<< xml::attr("EventMeanFreeTime")
+	<< magnet::xml::attr("Count") << mp1.second.first + initialCounter[mp1.first]
+	<< magnet::xml::attr("EventMeanFreeTime")
 	<< Sim->dSysTime / ((mp1.second.first + initialCounter[mp1.first])
 			    * Sim->dynamics.units().unitTime())
-	<< xml::endtag("TotCount");
+	<< magnet::xml::endtag("TotCount");
   
-  XML << xml::endtag("Totals")
-      << xml::endtag("CollCounters");
+  XML << magnet::xml::endtag("Totals")
+      << magnet::xml::endtag("CollCounters");
 }

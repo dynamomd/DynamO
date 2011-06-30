@@ -117,17 +117,17 @@ CLAndersenWall::operator<<(const magnet::xml::Node& XML)
 }
 
 void
-CLAndersenWall::outputXML(xml::XmlStream& XML) const
+CLAndersenWall::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "AndersenWall"
-      << xml::attr("Name") << localName
-      << xml::attr("Temperature") << sqrtT * sqrtT 
+  XML << magnet::xml::attr("Type") << "AndersenWall"
+      << magnet::xml::attr("Name") << localName
+      << magnet::xml::attr("Temperature") << sqrtT * sqrtT 
     / Sim->dynamics.units().unitEnergy()
       << range
-      << xml::tag("Norm")
+      << magnet::xml::tag("Norm")
       << vNorm
-      << xml::endtag("Norm")
-      << xml::tag("Origin")
+      << magnet::xml::endtag("Norm")
+      << magnet::xml::tag("Origin")
       << vPosition / Sim->dynamics.units().unitLength()
-      << xml::endtag("Origin");
+      << magnet::xml::endtag("Origin");
 }

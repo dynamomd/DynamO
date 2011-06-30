@@ -36,9 +36,9 @@ public:
 
 protected:
 
-  virtual void outputXML(xml::XmlStream& XML) const { outputXML(XML, "SphericalTop"); }
+  virtual void outputXML(magnet::xml::XmlStream& XML) const { outputXML(XML, "SphericalTop"); }
 
-  void outputXML(xml::XmlStream& XML, std::string type) const;
+  void outputXML(magnet::xml::XmlStream& XML, std::string type) const;
   
   double inertiaConstant;
 };

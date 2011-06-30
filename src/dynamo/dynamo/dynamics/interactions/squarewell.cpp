@@ -133,7 +133,7 @@ ISquareWell::captureTest(const Particle& p1, const Particle& p2) const
 
 IntEvent
 ISquareWell::getEvent(const Particle &p1, 
-		       const Particle &p2) const 
+		      const Particle &p2) const 
 {
   
 #ifdef DYNAMO_DEBUG
@@ -163,7 +163,8 @@ ISquareWell::getEvent(const Particle &p1,
     {
       if (Sim->dynamics.getLiouvillean()
 	  .SphereSphereInRoot(colldat, d2,
-			      p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC))) 
+			      p1.testState(Particle::DYNAMIC), 
+			      p2.testState(Particle::DYNAMIC))) 
 	{
 #ifdef DYNAMO_OverlapTesting
 	  //Check that there is no overlap 
@@ -179,13 +180,15 @@ ISquareWell::getEvent(const Particle &p1,
 
       if (Sim->dynamics.getLiouvillean()
 	  .SphereSphereOutRoot(colldat, ld2,
-			       p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
+			       p1.testState(Particle::DYNAMIC), 
+			       p2.testState(Particle::DYNAMIC)))
 	if (retval.getdt() > colldat.dt)
 	  retval = IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
     }
   else if (Sim->dynamics.getLiouvillean()
 	   .SphereSphereInRoot(colldat, ld2, 
-			       p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC))) 
+			       p1.testState(Particle::DYNAMIC), 
+			       p2.testState(Particle::DYNAMIC))) 
     {
 #ifdef DYNAMO_OverlapTesting
       if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat,ld2))
@@ -335,14 +338,14 @@ ISquareWell::checkOverlaps(const Particle& part1, const Particle& part2) const
 }
   
 void 
-ISquareWell::outputXML(xml::XmlStream& XML) const
+ISquareWell::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "SquareWell"
-      << xml::attr("Diameter") << _diameter->getName()
-      << xml::attr("Elasticity") << _e->getName()
-      << xml::attr("Lambda") << _lambda->getName()
-      << xml::attr("WellDepth") << _wellDepth->getName()
-      << xml::attr("Name") << intName
+  XML << magnet::xml::attr("Type") << "SquareWell"
+      << magnet::xml::attr("Diameter") << _diameter->getName()
+      << magnet::xml::attr("Elasticity") << _e->getName()
+      << magnet::xml::attr("Lambda") << _lambda->getName()
+      << magnet::xml::attr("WellDepth") << _wellDepth->getName()
+      << magnet::xml::attr("Name") << intName
       << range;
   
   ISingleCapture::outputCaptureMap(XML);  

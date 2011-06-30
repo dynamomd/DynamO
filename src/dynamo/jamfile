@@ -15,12 +15,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import feature ;
-import ../magnet/jam/buildinfo ;
+import ../magnet/jam/git ;
 import ../magnet/jam/tags ;
 
 lib gslcblas ;
 lib gsl : gslcblas : <name>gsl ;
-
 lib rt : : <link>shared ;
 
 exe gsltest : tests/gsltest.cpp gsl ;
@@ -35,7 +34,7 @@ exe dynamoDependencies : tests/buildreq.cpp :
 rule critical_dependencies ( )
 { return [ check-target-builds dynamoDependencies "DynamO dependencies" :  : <build>no ] ; }
 
-explicit dynamo_visualizer dynamo_core gsltest test zlibtest bzip2test dynamoDependencies ;
+explicit dynamo_core gsltest test zlibtest bzip2test dynamoDependencies ;
 always gsltest zlibtest bzip2test dynamoDependencies ;
 
 lib dynamo_core : [ glob-tree *.cpp : programs tests ]
@@ -50,40 +49,25 @@ lib dynamo_core : [ glob-tree *.cpp : programs tests ]
     <variant>debug:<define>DYNAMO_DEBUG <threading>multi <link>static <include>.
     ;
 
-alias test : ;
-
-explicit dynamo_core visualizer test ;
-
-#This target is a header which holds information about the current
-#build. It's used when the executable wants to know when it was built
-#and from which git commit.
-make buildinfo.hpp : : @buildinfo.gen_buildinfo_data :  ;
-
 #This rule tests for the dynamo dependencies and returns <build>no if
 #they're not satisfied
 rule critical_dependencies ( )
 { return [ check-target-builds dynamoDependencies "DynamO dependencies" :  : <build>no ] ; }
 
-#dynarun
-obj dynarun_src : programs/dynarun.cpp  : <use>dynamo_core <implicit-dependency>buildinfo.hpp ;
-exe dynarun : dynarun_src dynamo_core : [ critical_dependencies ] <tag>@tags.exe-naming ;
+exe dynarun : programs/dynarun.cpp dynamo_core 
+    : [ git.defines ] [ critical_dependencies ] <tag>@tags.exe-naming ;
+exe dynareplex_opt : programs/dynareplex_opt.cpp ../boost//program_options
+    : [ git.defines ] [ critical_dependencies ] <tag>@tags.exe-naming ;
+exe dynahist_rw : programs/dynahist_rw.cpp dynamo_core 
+    : [ git.defines ] [ critical_dependencies ] <tag>@tags.exe-naming ;
+exe dynamod : programs/dynamod.cpp dynamo_core 
+    : [ git.defines ] [ critical_dependencies ] <tag>@tags.exe-naming ;
 
-#dynareplex_opt
-obj dynareplex_opt_src : programs/dynareplex_opt.cpp  ../boost//program_options
-    : <implicit-dependency>buildinfo.hpp ;
-exe dynareplex_opt : dynareplex_opt_src ../boost//program_options
-    : [ critical_dependencies ] <tag>@tags.exe-naming ;
+explicit dynamod dynahist_rw dynareplex_opt dynarun dynamo_core visualizer test ;
+always   dynamod dynahist_rw dynareplex_opt dynarun ;
 
-#dynahist_rw
-obj dynahist_rw_src : programs/dynahist_rw.cpp
-    : <implicit-dependency>buildinfo.hpp <use>dynamo_core ;
 
-exe dynahist_rw : dynahist_rw_src dynamo_core 
-    : [ critical_dependencies ] <tag>@tags.exe-naming ;
-
-#dynamod
-obj dynamod_src : programs/dynamod.cpp 
-                : <implicit-dependency>buildinfo.hpp <use>dynamo_core ;
-exe dynamod : dynamod_src dynamo_core : [ critical_dependencies ] <tag>@tags.exe-naming ;
-
-explicit buildinfo.hpp dynamod_src dynahist_rw_src dynareplex_opt_src dynarun_src ;
+install install-dynamo
+	: dynarun dynahist_rw dynamod 
+	: <location>../../bin [ critical_dependencies ]
+	;

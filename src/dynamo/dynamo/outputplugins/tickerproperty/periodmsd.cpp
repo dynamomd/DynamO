@@ -62,38 +62,38 @@ OPPeriodicMSD::ticker()
 }
 
 void
-OPPeriodicMSD::output(xml::XmlStream &XML)
+OPPeriodicMSD::output(magnet::xml::XmlStream &XML)
 {
-  XML << xml::tag("PeriodicMSD");
+  XML << magnet::xml::tag("PeriodicMSD");
   
   BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
     {
-      XML << xml::tag("Species") 
-	  << xml::attr("Name") << sp->getName()
-	  << xml::chardata();
+      XML << magnet::xml::tag("Species") 
+	  << magnet::xml::attr("Name") << sp->getName()
+	  << magnet::xml::chardata();
       
       BOOST_FOREACH(const localpair& dat, speciesData[sp->getID()])
 	XML << dat.first / Sim->dynamics.units().unitTime() << " " 
 	    << dat.second * 6 << "\n";
 
-      XML << xml::tag("Species");
+      XML << magnet::xml::tag("Species");
     }
   
   if (!structResults.empty())
     {
       BOOST_FOREACH(localpair2& dat, structResults)
 	{
-	  XML << xml::tag("Structure")	  
-	      << xml::attr("Name") <<  dat.first->getName()
-	      << xml::chardata();
+	  XML << magnet::xml::tag("Structure")	  
+	      << magnet::xml::attr("Name") <<  dat.first->getName()
+	      << magnet::xml::chardata();
 	  
 	  BOOST_FOREACH(const localpair& myp, dat.second)
 	    XML << myp.first << " " << myp.second << "\n";
 	  
-	  XML << xml::endtag("Structure");	
+	  XML << magnet::xml::endtag("Structure");	
 	}
     }
  
   
-  XML << xml::endtag("PeriodicMSD");
+  XML << magnet::xml::endtag("PeriodicMSD");
 }

@@ -23,127 +23,135 @@
 #include <boost/tr1/unordered_map.hpp>
 #include <vector>
 
-//Expose the boost TR1
-namespace std {
-  using namespace tr1;
-}
-
-//! This class is a general interface to Interaction classes that
-//! allow particles to capture each other and store internal energy.
+/*! \brief A general interface for \ref Interaction classes with
+ *  states for the particle pairs.
+ *
+ * This class is a general interface to Interaction classes that allow
+ * particles to "capture" each other and store some state. The state
+ * might be the internal energy between particle pairs (e.g.,
+ * \ref ISquareWell), or it might be used to track if the particles are
+ * within each others bounding sphere (e.g., \ref ILines). */
 class ICapture
 {
 public:
-  //! Returns the number of particles that are captured in some way
+  //! \brief Returns the number of particles that are captured in some way
   virtual size_t getTotalCaptureCount() const = 0;
   
-  //! A test if two particles are captured
+  //! \brief A test if two particles are captured
   virtual bool isCaptured(const Particle&, const Particle&) const = 0;
 
-  //! Returns the total internal energy stored in this Interaction.
+  //! \brief Returns the total internal energy stored in this Interaction.
   virtual double getInternalEnergy() const = 0;
-  
-protected:
 
+protected:
+  /*! \brief A key used to represent two particles.
+   *
+   * This key sorts the particle ID's into ascending order. This way
+   * the keys can be compared and symmetric keys will compare equal.
+   * \code assert(cMapKey(a,b) == cMapKey(b,a)); \endcode
+   */
+  struct cMapKey: public std::pair<size_t,size_t>
+  {
+    inline cMapKey() {}
+    
+    inline cMapKey(const size_t& a, const size_t& b):
+      std::pair<size_t,size_t>(std::min(a, b), std::max(a, b))
+    {
+#ifdef DYNAMO_DEBUG
+      if (a == b) M_throw() << "Particle ID's should not be equal!";
+#endif
+    }
+  };
 };
 
-//! This base class is for Interaction classes which only capture in
-//! one state. 
-//!
-//! There is only one state a pair of particles can be in, either
-//! captured or not.  This can be contrasted with IMultiCapture where
-//! a pair of particles may be in a range of captured states.
+/*! \brief This base class is for Interaction classes which only
+ * "capture" particle pairs in one state.
+ *
+ * There is only one state a pair of particles can be in, either
+ * captured or not.  This can be contrasted with IMultiCapture where
+ * a pair of particles may be in a range of captured states.
+ */
 class ISingleCapture: public ICapture
 {
 public:
   ISingleCapture():noXmlLoad(true) {}
 
-  //! \sa ICapture::getTotalCaptureCount()
   size_t getTotalCaptureCount() const { return captureMap.size(); }
   
-  //! \sa ICapture::isCaptured()
   virtual bool isCaptured(const Particle& p1, const Particle& p2) const
-  {
-#ifdef DYNAMO_DEBUG
-    if (p1.getID() == p2.getID())
-      M_throw() << "Particle is testing if it captured itself";
-#endif 
-    
-    return (p1.getID() < p2.getID())
-      ? captureMap.count(std::pair<size_t, size_t>(p1.getID(), p2.getID()))
-      : captureMap.count(std::pair<size_t, size_t>(p2.getID(), p1.getID()));
-  }
+  { return captureMap.count(cMapKey(p1.getID(), p2.getID())); }
 
 protected:
 
-  mutable std::unordered_set<std::pair<size_t, size_t> > captureMap;
+  mutable std::tr1::unordered_set<cMapKey > captureMap;
 
-  //! This function should provide a test of the particles current
-  //! position and velocity to determine if they're captured. Used in
-  //! rebuilding the captureMap.
+  /*! \brief Test if two particles should be "captured".
+   *
+   * This function should provide a test of the particles current
+   * position and velocity to determine if they're captured. Used in
+   * rebuilding the captureMap.
+   */
   virtual bool captureTest(const Particle&, const Particle&) const = 0;
 
   bool noXmlLoad;
 
   void initCaptureMap(const std::vector<Particle>& particleList);
 
-  //! Function to load the capture map. Should be called by the
-  //! derived classes Interaction::operator<<(const magnet::xml::Node&) function.
+  /*! \brief Function to load the capture map. 
+   *
+   * Should be called by the derived classes
+   * Interaction::operator<<(const magnet::xml::Node&) function.
+   */
   void loadCaptureMap(const magnet::xml::Node&);
 
-  //! Function to write out the capture map. Should be called by the
-  //! derived classes Interaction::outputXML() function.
-  void outputCaptureMap(xml::XmlStream&) const;
+  /*! \brief Function to write out the capture map. 
+   *
+   * Should be called by the derived classes Interaction::outputXML()
+   * function.
+   */
+  void outputCaptureMap(magnet::xml::XmlStream&) const;
 
-  //! Add a pair of particles to the capture map.
-  void addToCaptureMap(const Particle&, const Particle&) const;
+  //! \brief Add a pair of particles to the capture map.
+  void addToCaptureMap(const Particle& p1, const Particle& p2) const
+  {
+#ifdef DYNAMO_DEBUG
+    if  (captureMap.count(cMapKey(p1.getID(), p2.getID())))
+      M_throw() << "Insert found " << std::min(p1.getID(), p2.getID())
+		<< " and " << std::max(p1.getID(), p2.getID()) << " in the capture map";
+#endif
+    
+    captureMap.insert(cMapKey(p1.getID(), p2.getID()));
+  }
   
-  //! Remove a pair of particles to the capture map.
-  void removeFromCaptureMap(const Particle&, const Particle&) const;
-  
+  //! \brief Remove a pair of particles to the capture map.
+  void removeFromCaptureMap(const Particle& p1, const Particle& p2) const
+  {
+#ifdef DYNAMO_DEBUG
+    if (captureMap.find(cMapKey(p1.getID(), p2.getID())) == captureMap.end())
+      M_throw() << "Deleting a particle while its already gone!";
+#endif
+
+    captureMap.erase(cMapKey(p1.getID(), p2.getID()));
+  } 
+
 };
 
-//! This base class is for Interaction classes which only capture in
-//! one state. 
-//!
-//! There is only one state a pair of particles can be in, either
-//! captured or not.  This can be contrasted with IMultiCapture where
-//! a pair of particles may be in a range of captured states.
-//!
+/*! \brief This base class is for Interaction classes which "capture"
+ * particle pairs in multiple states.
+ */
 class IMultiCapture: public ICapture
 {
 public:
-  IMultiCapture():noXmlLoad(true) {}
+  IMultiCapture(): noXmlLoad(true) {}
 
   size_t getTotalCaptureCount() const { return captureMap.size(); }
   
-  virtual bool isCaptured(const Particle&, const Particle&) const;
+  virtual bool isCaptured(const Particle& p1, const Particle& p2) const
+  { return captureMap.count(cMapKey(p1.getID(), p2.getID())); }
 
 protected:
-
-  struct cMapKey: public std::pair<size_t,size_t>
-  {
-    inline cMapKey(const size_t&a, const size_t&b):
-      std::pair<size_t,size_t>(std::min(a,b), std::max(a,b))
-    {
-      //size_t t1(a),t2(b), t3(a);
-      //asm ("PMINUW %1,%0" : "=i" (t1) : "i" (t2));
-      //asm ("PMAXUW %1,%0" : "=i" (t2) : "i" (t3));
-      //first = t1;
-      //second = t2;
-    }
-  };
   
-  struct keyHash
-  {
-    inline size_t operator()(const cMapKey& key) const
-    {
-      //return key.first * key.second + (key.first ^ key.second);
-      //return (key.first > key.second) ?  ((key.first << 16) ^ key.second) : ((key.second << 16) ^ key.first);
-      return (key.first << (sizeof(size_t) * 4)) ^ key.second;
-    }
-  };
-
-  typedef std::unordered_map<cMapKey, int, keyHash> captureMapType;
+  typedef std::tr1::unordered_map<cMapKey, int, boost::hash<cMapKey> > captureMapType;
   typedef captureMapType::iterator cmap_it;
   typedef captureMapType::const_iterator const_cmap_it;
 
@@ -157,12 +165,10 @@ protected:
 
   void loadCaptureMap(const magnet::xml::Node&);
 
-  void outputCaptureMap(xml::XmlStream&) const;
+  void outputCaptureMap(magnet::xml::XmlStream&) const;
 
   inline cmap_it getCMap_it(const Particle& p1, const Particle& p2) const
-  {
-    return captureMap.find(cMapKey(p1.getID(), p2.getID()));
-  }
+  { return captureMap.find(cMapKey(p1.getID(), p2.getID())); }
 
   inline void addToCaptureMap(const Particle& p1, const Particle& p2) const
   {

@@ -31,7 +31,7 @@ public:
 
   virtual void eventUpdate(const System&, const NEventData&, const double&);
 
-  virtual void output(xml::XmlStream&) {}
+  virtual void output(magnet::xml::XmlStream&) {}
 
 private:
   virtual void stream(double) = 0;  

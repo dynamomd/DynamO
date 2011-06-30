@@ -1,6 +1,6 @@
-/*    DYNAMO:- Event driven molecular dynamics simulator 
+/*    dynamo:- Event driven molecular dynamics simulator 
  *    http://www.marcusbannerman.co.uk/dynamo
- *    Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+ *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
  *
  *    This program is free software: you can redistribute it and/or
  *    modify it under the terms of the GNU General Public License
@@ -13,34 +13,33 @@
  *
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-//Simple macro to convert a token to a string
+ */
+#pragma once
+#include <magnet/GL/shader/detail/shader.hpp>
 #define STRINGIFY(A) #A
-
-#include <sstream>
-#include <magnet/GL/BilateralBlur.hpp>
 
 namespace magnet {
   namespace GL {
-    inline std::string 
-    BilateralBlur::vertexShaderSource()
-    {
-      return 
-STRINGIFY( 
-void main(void)
-{
-  gl_Position = ftransform();
-  gl_TexCoord[0] = gl_MultiTexCoord0;
-}
-);
-    }
-    
-    inline std::string 
-    BilateralBlur::fragmentShaderSource()
-    {
-      return 
-STRINGIFY(
+    namespace shader {
+      class BilateralBlur : public detail::Shader
+      {
+      public:
+	void invoke()
+	{
+	  attach();
+	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	  drawScreenQuad();
+	  glUseProgramObjectARB(0);	
+	}
+
+	virtual std::string initVertexShaderSource()
+	{
+	  return STRINGIFY(void main(void) { gl_Position = ftransform(); gl_TexCoord[0] = gl_MultiTexCoord0; });
+	}
+	
+	virtual std::string initFragmentShaderSource()
+	{ 
+	  return STRINGIFY(
 uniform sampler2D u_Texture0; //input
 uniform sampler2D u_Texture2; //Depth buffer
 uniform vec2 scale;
@@ -61,25 +60,28 @@ float LinearizeDepth(float zoverw)
 void main(void)
 {
   float currentPixelDepth = LinearizeDepth(texture2D(u_Texture2, gl_TexCoord[0].st).r);
-
+  
   vec3 accum = vec3(0, 0, 0);
   float totalWeight = 0.0;
-
+  
   for (int x = 0; x < 5; ++x)
     for (int y = 0; y < 5; ++y)
       {
 	vec2 sampleLoc = gl_TexCoord[0].st + vec2((x - 2) * scale.x, (y - 2) * scale.y);
 	float sampleDepth = LinearizeDepth(texture2D(u_Texture2, sampleLoc).r);
-
+	
 	float Zdifference = abs(currentPixelDepth - sampleDepth);
 	float sampleweight = (1.0 - step(totStrength, Zdifference)) * sampleWeight(x,y);
 	accum += sampleweight * texture2D(u_Texture0, sampleLoc).rgb;
 	totalWeight += sampleweight;
       }
-
+  
   gl_FragColor = vec4(accum / totalWeight, 1);
-}
-);
+});
+	}
+      };
     }
   }
 }
+
+#undef STRINGIFY

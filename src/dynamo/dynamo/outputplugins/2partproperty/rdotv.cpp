@@ -137,32 +137,32 @@ OPRdotV::periodicOutput()
 }
 
 void
-OPRdotV::output(xml::XmlStream &XML)
+OPRdotV::output(magnet::xml::XmlStream &XML)
 {
-  XML << xml::tag("RdotV");
+  XML << magnet::xml::tag("RdotV");
   
   typedef std::pair<const mapKey, mapdata> mappair;
 
   BOOST_FOREACH(const mappair& pair1, rvdotacc)
     {
-      XML << xml::tag("Element")
-	  << xml::attr("Type") 
+      XML << magnet::xml::tag("Element")
+	  << magnet::xml::attr("Type") 
 	  << pair1.first.get<0>()
-	  << xml::attr("EventName") 
+	  << magnet::xml::attr("EventName") 
 	  << getName(pair1.first.get<1>(), Sim)
-	  << xml::attr("Species1")
+	  << magnet::xml::attr("Species1")
 	  << Sim->dynamics.getSpecies()[pair1.first.get<2>()]->getName()
-	  << xml::attr("Species2")
+	  << magnet::xml::attr("Species2")
 	  << Sim->dynamics.getSpecies()[pair1.first.get<3>()]->getName()
-	  << xml::attr("RijdotDeltaMomentum") << pair1.second.getAvg()
+	  << magnet::xml::attr("RijdotDeltaMomentum") << pair1.second.getAvg()
 	/ (Sim->dynamics.units().unitVelocity() 
 	   * Sim->dynamics.units().unitLength()
 	   * Sim->dynamics.units().unitMass());
       
       pair1.second.costheta.outputHistogram(XML, 1.0);
       
-      XML << xml::endtag("Element");
+      XML << magnet::xml::endtag("Element");
     }
 
-    XML << xml::endtag("RdotV");
+    XML << magnet::xml::endtag("RdotV");
 }

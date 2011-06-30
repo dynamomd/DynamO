@@ -10,7 +10,12 @@
 **** TODO Remove the cached particle data used in the collision detection. Migrate to the magnet libraries collision detection functions.
 **** TODO Auto detect the ensemble, users shouldn't have to specify it.
 *** DynamO 1.2
+**** DONE *BUGFIX* Fixed rare error caused by duplicate events in the queue, followed by a recalculation which indicates the event has numerically been cancelled, and the recalculated event is in the future.
+**** DONE *BUGFIX* Made the "well exit test" significantly more stable, allowing correct simulation of large inelastic flexible bodies.
+**** DONE *BUGFIX* Fixed stepped and sequenced potentials broken in 1.1.
 **** DONE XML errors are now much more verbose and tell you exactly what went wrong and where.
+**** DONE More Doxygen comments to help people understand the source code.
+**** DONE The ParabolaSentinel global is now added automatically to simulations, it needs to be deleted from existing configurations.
 **** DONE The DynamO-Coil integration can be forcibly enabled or disabled at build time.
 **** DONE Initial support for triangular meshes. The current version is not optimized using a neighbor list.
 **** DONE Implemented multicanonical simulations!
@@ -20,10 +25,12 @@
 **** DONE Removed the raster 3d output for the tinkerXYZ plugin, no-one used it anyway.
 **** DONE Added dynamod --check mode. Using this you can now check if a configuration file is valid using "dynamod --check config.out.xml.bz2".
 **** DONE Generalized the rescaling thermostat for shear flows http://arxiv.org/pdf/1103.3704.
+**** DONE Coil visualizer now outputs at least 2 updates a second when attached to a slow DynamO simulation.
 **** DONE *BUGFIX* Fixed a load error on the MFT if the output configuration is from a simulation with no events.
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
 **** DONE *BUGFIX* Fixed bounded priority queues causing huge slowdowns in very small (N=2) systems.
 **** DONE *BUGFIX* Coil visualizer: Fixed resizing of anti-aliased windows not working on AMD hardware.
+**** TODO Improve the runEvent loop, its a mess right now.
 **** TODO Improve the way data is made available to Coil, allowing a paraview-like interface to the data sources.
 **** TODO Coil library volume renderer (blocking on above)
      - [X] Move to OpenCL generation of the gradients from live data.

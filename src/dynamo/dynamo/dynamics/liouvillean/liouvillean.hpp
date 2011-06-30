@@ -94,7 +94,7 @@ public:
    * \param XML The XMLStream to write the configuration data to.
    * \param applyBC Wether to apply the boundary conditions to the final particle positions before writing them out.
    */
-  void outputParticleXMLData(xml::XmlStream& XML, bool applyBC) const;
+  void outputParticleXMLData(magnet::xml::XmlStream& XML, bool applyBC) const;
 
   /*! \brief Returns the degrees of freedom per particle.
    */
@@ -588,7 +588,7 @@ public:
   /*! \brief An XML output operator for the class. Calls the virtual
    * OutputXML member function.
    */
-  friend xml::XmlStream& operator<<(xml::XmlStream&, const Liouvillean&);
+  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Liouvillean&);
 
   /*! \brief This is called by each particle to request any extra data
    *   the liouvillean is holding and wants to store in the particles XML.
@@ -742,7 +742,7 @@ protected:
   size_t streamFreq;
   
   /*! \brief Writes out the liouvilleans data to XML. */
-  virtual void outputXML(xml::XmlStream&) const = 0;
+  virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
   /*! \brief Moves the particles data along in time. */
   virtual void streamParticle(Particle& part, const double& dt) const = 0;

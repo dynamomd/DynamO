@@ -14,21 +14,13 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-/*! \file vector.hpp
- * Contains the non XML functions and definitions of the CVector class.
- */
 #pragma once
 
 #include <magnet/math/vector.hpp>
 #include <magnet/exception.hpp>
 #include <cmath> //for length
 
-namespace magnet { namespace xml { class Node; } }
-
-namespace xml 
-{
-  class XmlStream;
-}
+namespace magnet { namespace xml { class Node; class XmlStream; } }
 
 /*! \brief The simple NDIM vector class.
  *
@@ -236,13 +228,13 @@ class CVector
   
   /*! \brief A helper function to write out a CVector to an XMLStream*/
   template<class S>
-  friend xml::XmlStream& 
-  operator<<(xml::XmlStream&, const CVector<S>&);
+  friend magnet::xml::XmlStream& 
+  operator<<(magnet::xml::XmlStream&, const CVector<S>&);
   
   /*! \brief A helper function to write out a CVector matrix to an XMLStream*/
   template<class S>
-  friend xml::XmlStream& 
-  operator<<(xml::XmlStream&, const CVector<CVector<S> >&);
+  friend magnet::xml::XmlStream& 
+  operator<<(magnet::xml::XmlStream&, const CVector<CVector<S> >&);
 
   /*! \brief A helper function to change the stored type of a vector. */
   template<class A>

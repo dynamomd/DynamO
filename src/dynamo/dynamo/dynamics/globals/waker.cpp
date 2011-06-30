@@ -19,7 +19,7 @@
 #include "waker.hpp"
 #include "globEvent.hpp"
 #include "../NparticleEventData.hpp"
-#include "../../base/is_simdata.hpp"www.there
+#include "../../base/is_simdata.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "../../schedulers/scheduler.hpp"
 #include "../units/units.hpp"
@@ -167,14 +167,16 @@ GWaker::runEvent(const Particle& part, const double dt) const
 }
 
 void 
-GWaker::outputXML(xml::XmlStream& XML) const
+GWaker::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "Waker"
-      << xml::attr("Name") << globName
-      << xml::attr("WakeVelocity") << _wakeVelocity / Sim->dynamics.units().unitVelocity()
-      << xml::attr("WakeTime") << _wakeTime / Sim->dynamics.units().unitTime()
-      << xml::attr("NBList") << _nblistName
-      << range;
+  XML << magnet::xml::tag("Global")
+      << magnet::xml::attr("Type") << "Waker"
+      << magnet::xml::attr("Name") << globName
+      << magnet::xml::attr("WakeVelocity") << _wakeVelocity / Sim->dynamics.units().unitVelocity()
+      << magnet::xml::attr("WakeTime") << _wakeTime / Sim->dynamics.units().unitTime()
+      << magnet::xml::attr("NBList") << _nblistName
+      << range
+      << magnet::xml::endtag("Global");
 }
 
 void 

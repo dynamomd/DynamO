@@ -1,4 +1,4 @@
-/*    DYNAMO:- Event driven molecular dynamics simulator 
+/*    dynamo:- Event driven molecular dynamics simulator 
  *    http://www.marcusbannerman.co.uk/dynamo
  *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
  *
@@ -13,34 +13,34 @@
  *
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-//Simple macro to convert a token to a string
+ */
+#pragma once
+#include <magnet/GL/shader/detail/shader.hpp>
 #define STRINGIFY(A) #A
-
-#include <sstream>
 
 namespace magnet {
   namespace GL {
-    inline std::string 
-    SSAO::vertexShaderSource()
-    {
-      return 
-STRINGIFY( 
-void main(void)
-{
-  gl_Position = ftransform();
-  gl_TexCoord[0] = gl_MultiTexCoord0;
-}
-);
-    }
-    
-    inline std::string 
-    SSAO::fragmentShaderSource()
-    {
-      return 
-STRINGIFY(
-uniform sampler2D u_Texture0;
+    namespace shader {
+      class SSAO : public detail::Shader
+      {
+      public:
+	void invoke()
+	{
+	  attach();
+	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	  drawScreenQuad();
+	  //Restore the fixed pipeline
+	  glUseProgramObjectARB(0);
+	}
+
+	virtual std::string initVertexShaderSource()
+	{
+	  return STRINGIFY(void main(void) { gl_Position = ftransform(); gl_TexCoord[0] = gl_MultiTexCoord0; });
+	}
+
+	virtual std::string initFragmentShaderSource()
+	{
+	  return STRINGIFY(
 uniform sampler2D u_Texture1;
 uniform sampler2D u_Texture2;
 uniform sampler2D rnm;
@@ -58,9 +58,6 @@ float LinearizeDepth(float zoverw)
   return(2.0 * nearDist) / (farDist + nearDist - zoverw * (farDist - nearDist));
 }
 
-//uniform sampler2D rnm;
-//varying vec2 uv;
-
 void main(void)
 {
   // these are the random vectors inside a unit sphere
@@ -74,23 +71,6 @@ void main(void)
 			      vec3(0.019100213, 0.29652783, 0.066237666),
 			      vec3(0.8765323, 0.011236004, 0.28265962),
 			      vec3(0.29264435, -0.40794238, 0.15964167));
-
-//  vec3 pSphere[16] = vec3[16](vec3(0.53812504, 0.18565957, -0.43192),
-//			      vec3(0.13790712, 0.24864247, 0.44301823),
-//			      vec3(0.33715037, 0.56794053, -0.005789503),
-//			      vec3(-0.6999805, -0.04511441, -0.0019965635),
-//			      vec3(0.06896307, -0.15983082, -0.85477847),
-//			      vec3(0.056099437, 0.006954967, -0.1843352),
-//			      vec3(-0.014653638, 0.14027752, 0.0762037),
-//			      vec3(0.010019933, -0.1924225, -0.034443386),
-//			      vec3(-0.35775623, -0.5301969, -0.43581226),
-//			      vec3(-0.3169221, 0.106360726, 0.015860917),
-//			      vec3(0.010350345, -0.58698344, 0.0046293875),
-//			      vec3(-0.08972908, -0.49408212, 0.3287904),
-//			      vec3(0.7119986, -0.0154690035, -0.09183723),
-//			      vec3(-0.053382345, 0.059675813, -0.5411899),
-//			      vec3(0.035267662, -0.063188605, 0.54602677),
-//			      vec3(-0.47761092, 0.2847911, -0.0271716));
 
   // grab a normal for reflecting the sample rays later on
   vec3 fres = normalize(2.0 * texture2D(rnm, gl_TexCoord[0].st * offset).xyz - vec3(1.0));
@@ -130,8 +110,11 @@ void main(void)
   float val = clamp(1.0 - totStrength * bl * invSamples, 0, 1);
 
   gl_FragColor = vec4(val, val, val, 1.0);
-}
-);
+});
+	}
+      };
     }
   }
 }
+
+#undef STRINGIFY

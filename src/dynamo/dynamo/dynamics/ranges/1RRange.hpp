@@ -59,7 +59,7 @@ public:
   }
 
 protected:
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
 
   virtual const unsigned long& getIteratorID(const unsigned long &i) const { return i; }
 

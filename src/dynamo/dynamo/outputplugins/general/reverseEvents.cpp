@@ -63,12 +63,12 @@ OPReverseEventsCheck::eventUpdate(const System&, const NEventData&,
 }
 
 void 
-OPReverseEventsCheck::output(xml::XmlStream& XML)
+OPReverseEventsCheck::output(magnet::xml::XmlStream& XML)
 {
   dout << "Reverse Event Count " << lReverseEvents << std::endl;
 
-  XML << xml::tag("ReverseEvents")
-      << xml::attr("Count") << lReverseEvents
-      << xml::endtag("ReverseEvents");
+  XML << magnet::xml::tag("ReverseEvents")
+      << magnet::xml::attr("Count") << lReverseEvents
+      << magnet::xml::endtag("ReverseEvents");
 
 }

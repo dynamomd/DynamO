@@ -67,13 +67,13 @@ C2RChainGroups::operator<<(const magnet::xml::Node&)
 }
 
 void 
-C2RChainGroups::outputXML(xml::XmlStream& XML) const
+C2RChainGroups::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Range") << "ChainGroups" 
-      << xml::attr("Start1")
+  XML << magnet::xml::attr("Range") << "ChainGroups" 
+      << magnet::xml::attr("Start1")
       << range1
-      << xml::attr("Start2")
+      << magnet::xml::attr("Start2")
       << range2
-      << xml::attr("Length")
+      << magnet::xml::attr("Length")
       << length;
 }

@@ -42,7 +42,7 @@ public:
   virtual bool isInCell(const Vector &, const Vector &) const;
 
 protected:
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
 
   Vector  vNorm;
   Vector  vPosition;

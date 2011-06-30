@@ -130,13 +130,13 @@ class Units
    */
   inline void rescaleTime(double r) { _unitTime *= r; }
 
-  inline friend xml::XmlStream& operator<<(xml::XmlStream& XML, const Units& u)
+  inline friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Units& u)
   { u.outputXML(XML); return XML; }
   
   inline void operator<<(const magnet::xml::Node&) {}
   
  protected:
-  inline void outputXML(xml::XmlStream &) const {}
+  inline void outputXML(magnet::xml::XmlStream &) const {}
   double _unitLength;
   double _unitTime;
 };

@@ -17,7 +17,7 @@
 
 #pragma once
 #include "filter.hpp"
-#include <magnet/GL/DOF.hpp>
+#include <magnet/GL/shader/DOF.hpp>
 
 namespace coil 
 {
@@ -65,10 +65,19 @@ namespace coil
     }
 
     inline virtual size_t type_id() { return detail::filterEnum<DOFFilter>::val; }
-    inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height,
+
+    inline virtual void invoke(GLint colorTextureUnit, size_t width, size_t height,
 			       const magnet::GL::viewPort& vp)
-    { _filter.invoke(colorTextureUnit, 0, 2, _focalLength, _focalWidth, width, 
-		     height, vp.getZNear(), vp.getZFar()); }
+    { 
+      _filter["u_Texture0"] = colorTextureUnit;
+      _filter["u_Texture1"] = 0;
+      _filter["u_Texture2"] = 2;
+      _filter["nearDist"] = vp.getZNear();
+      _filter["farDist"] = vp.getZFar();
+      _filter["focalDistance"] = _focalLength;
+      _filter["focalRange"] = _focalWidth;
+      _filter.invoke();
+    }
 
     inline virtual bool needsNormalDepth()  { return false; }
 
@@ -79,7 +88,7 @@ namespace coil
       start->show();
     }
   protected:
-    magnet::GL::DOF _filter;
+    magnet::GL::shader::DOF _filter;
 
     Gtk::HScale _focalLengthSlider;
     Gtk::HScale _focalWidthSlider;

@@ -113,21 +113,21 @@ LRoughWall::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-LRoughWall::outputXML(xml::XmlStream& XML) const
+LRoughWall::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "RoughWall" 
-      << xml::attr("Name") << localName
-      << xml::attr("Elasticity") << e
-      << xml::attr("TangentialElasticity") << et
-      << xml::attr("Radius") << r / Sim->dynamics.units().unitLength()
-      << xml::attr("Render") << render
+  XML << magnet::xml::attr("Type") << "RoughWall" 
+      << magnet::xml::attr("Name") << localName
+      << magnet::xml::attr("Elasticity") << e
+      << magnet::xml::attr("TangentialElasticity") << et
+      << magnet::xml::attr("Radius") << r / Sim->dynamics.units().unitLength()
+      << magnet::xml::attr("Render") << render
       << range
-      << xml::tag("Norm")
+      << magnet::xml::tag("Norm")
       << vNorm
-      << xml::endtag("Norm")
-      << xml::tag("Origin")
+      << magnet::xml::endtag("Norm")
+      << magnet::xml::tag("Origin")
       << vPosition / Sim->dynamics.units().unitLength()
-      << xml::endtag("Origin");
+      << magnet::xml::endtag("Origin");
 }
 
 void 

@@ -50,12 +50,7 @@ void
 CGCellsShearing::initialise(size_t nID)
 {
   ID=nID;
-  
-  if (Sim->dynamics.liouvilleanTypeTest<LNewtonianGravity>())
-    dout << "Warning, in order for cellular NB lists to work in gravity\n"
-	     << "You must add the ParabolaSentinel Global event." << std::endl;
-
- 
+   
   if (!(Sim->dynamics.BCTypeTest<BCLeesEdwards>()))
     derr << "You should not use the shearing neighbour list"
 	 << " in a system without Lees Edwards BC's" << std::endl;
@@ -66,7 +61,7 @@ CGCellsShearing::initialise(size_t nID)
 }
 
 void
-CGCellsShearing::outputXML(xml::XmlStream& XML) const
+CGCellsShearing::outputXML(magnet::xml::XmlStream& XML) const
 {
   CGCells::outputXML(XML, std::string("ShearingCells"));
 }

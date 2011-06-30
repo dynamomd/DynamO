@@ -26,7 +26,7 @@ namespace magnet {
      * \param to A string with the replacement text sequence.
      * \returns The string "in" with all occurences of "from" replaced with "to".
      */
-    inline std::string searchReplace(std::string in, const std::string& from, const std::string& to)
+    inline std::string search_replace(std::string in, const std::string& from, const std::string& to)
     {
       if (!in.empty())
 	{

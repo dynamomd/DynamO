@@ -15,9 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
+#include <gtkmm.h>
 #include "RenderObj.hpp"
+#include <magnet/GL/buffer.hpp>
 #include <vector>
-
+#include <memory>
 #include <magnet/CL/GLBuffer.hpp>
 
 class RTriangles : public RenderObj
@@ -40,20 +42,39 @@ public:
 
   virtual void releaseCLGLResources();
 
+  virtual void initGTK();
+
+  virtual void showControls(Gtk::ScrolledWindow* win);
+
+  virtual void setRenderMode(RenderModeType rm);
+
+  virtual void initPicking(cl_uint& offset);
+  virtual void pickingRender();
+  virtual void finishPicking(cl_uint& offset, const cl_uint val);
+
 protected:
-  GLuint _colBuff;
-  size_t _colBuffSize;
+  void guiUpdate();
+  
+  std::auto_ptr<Gtk::VBox>        _gtkOptList;
+  std::auto_ptr<Gtk::RadioButton> _gtkLineRender;
+  std::auto_ptr<Gtk::RadioButton> _gtkPointRender;
+  std::auto_ptr<Gtk::RadioButton> _gtkTriangleRender;
+
+  magnet::GL::Buffer _colBuff;
   cl::GLBuffer _clbuf_Colors;
 
-  GLuint _posBuff;
-  size_t _posBuffSize;
+  magnet::GL::Buffer _posBuff;
   cl::GLBuffer _clbuf_Positions;
   
-  GLuint _normBuff;
-  size_t _normBuffSize;
+  magnet::GL::Buffer _normBuff;
   cl::GLBuffer _clbuf_Normals;
 
-  GLuint _elementBuff;
-  size_t _elementBuffSize;
+  magnet::GL::Buffer _elementBuff;
   cl::GLBuffer _clbuf_Elements;
+
+  magnet::GL::Buffer _specialElementBuff;
+
+  bool _pickingRenderMode;
+  magnet::GL::Buffer _pickingColorBuff;
+
 };

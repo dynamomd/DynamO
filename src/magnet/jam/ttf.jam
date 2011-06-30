@@ -14,30 +14,23 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import stringmanip ;
+######This bit registers a convertor for gladexml files
+import type ;
+type.register TTF : ttf ;
 
-#This rule exists to set up the CONFIG variable for the associated action
-rule gen_buildinfo_data ( targets * : sources * : properties * )
+import generators ;
+generators.register-standard ttf.objectify-ttf : TTF : OBJ ;
+
+actions objectify-ttf
 {
-  ALWAYS $(<) ;
-  local define ;
-  
-  local hash = [ stringmanip.trim-nl [ SHELL "git rev-parse --verify HEAD" ] ] ; 
-  define += "GITHASH \""$(hash)"\"" ; 
+  #Copy the file to a local location, so the symbol name is short
+  "cp" $(>) $(>:B)$(>:S)
 
-  CONFIG on $(<) = "#define "$(define) ;
-  NL on $(<) = "
-" ;
+  #Now link the file into a binary with a fixed symbol name
+  "ld" -r -b binary -o $(<) $(>:B)$(>:S)
+
+  rm $(>:B)$(>:S)
+
+  #Finally, change the symbol properties
+  "objcopy" --rename-section .data=.rodata,alloc,load,readonly,data,contents  $(<) $(<) 
 }
-
-#This action just makes a file by outputting all the text fields of
-#CONFIG, joined with newlines
-actions gen_buildinfo_data
-{
-  @($(STDOUT):E=
-#pragma once
-$(CONFIG:J=$(NL))
-) > "$(<)"
-}
-
-IMPORT $(__name__) : gen_buildinfo_data :  : buildinfo.gen_buildinfo_data ;

@@ -78,7 +78,7 @@ public:
       TRIANGLES
     };
 
-  void setRenderMode(RenderModeType rm) { _RenderMode = rm; } 
+  virtual void setRenderMode(RenderModeType rm) { _RenderMode = rm; } 
   
   inline void setDisplayNormals(bool val) { _renderNormals = val; }
   inline void setVisible(bool val) { _visible = val; }

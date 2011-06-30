@@ -42,7 +42,7 @@ public:
 
   virtual void initialise();
 
-  virtual void output(xml::XmlStream&);
+  virtual void output(magnet::xml::XmlStream&);
 
 private:
 

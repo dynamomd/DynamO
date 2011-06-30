@@ -63,7 +63,7 @@ protected:
   mutable magnet::thread::RefPtr<RenderObj> _renderObj;
 #endif
 
-  virtual void outputXML(xml::XmlStream&) const;
+  virtual void outputXML(magnet::xml::XmlStream&) const;
 
   std::vector<Vector> _vertices;
 

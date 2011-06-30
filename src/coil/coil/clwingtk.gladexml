@@ -18,6 +18,7 @@
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <child>
           <object class="GtkMenuBar" id="menubar1">
             <property name="visible">True</property>
@@ -56,6 +57,7 @@
             <child>
               <object class="GtkVBox" id="vbox2">
                 <property name="visible">True</property>
+                <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkToggleButton" id="SimRunButton">
                     <property name="visible">True</property>
@@ -127,6 +129,7 @@
                         <child>
                           <object class="GtkVBox" id="vbox5">
                             <property name="visible">True</property>
+                            <property name="orientation">vertical</property>
                             <child>
                               <object class="GtkRadioButton" id="snapshotBMP">
                                 <property name="label" translatable="yes">Bitmap</property>
@@ -291,6 +294,7 @@
                     <child>
                       <object class="GtkVBox" id="vbox10">
                         <property name="visible">True</property>
+                        <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkHBox" id="hbox8">
                             <property name="visible">True</property>
@@ -410,6 +414,7 @@
             <child>
               <object class="GtkVBox" id="vbox8">
                 <property name="visible">True</property>
+                <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkHBox" id="hbox13">
                     <property name="visible">True</property>
@@ -425,6 +430,7 @@
                     <child>
                       <object class="GtkVBox" id="vbox9">
                         <property name="visible">True</property>
+                        <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkButton" id="robjDelete">
                             <property name="visible">True</property>
@@ -572,27 +578,29 @@
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="vbox3">
+              <object class="GtkFrame" id="RenderPipelineFrame">
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="label_xalign">0</property>
+                <property name="shadow_type">in</property>
                 <child>
-                  <object class="GtkFrame" id="frame1">
+                  <object class="GtkAlignment" id="alignment1">
                     <property name="visible">True</property>
-                    <property name="label_xalign">0</property>
-                    <property name="shadow_type">none</property>
+                    <property name="left_padding">20</property>
                     <child>
-                      <object class="GtkAlignment" id="alignment2">
+                      <object class="GtkVBox" id="shaderPipelineOptions">
                         <property name="visible">True</property>
-                        <property name="left_padding">12</property>
+                        <property name="orientation">vertical</property>
                         <child>
-                          <object class="GtkHBox" id="hbox12">
+                          <object class="GtkHBox" id="multisampleBox">
                             <property name="visible">True</property>
+                            <property name="sensitive">False</property>
                             <child>
-                              <object class="GtkRadioButton" id="renderModeTri">
-                                <property name="label" translatable="yes">Triangles</property>
+                              <object class="GtkCheckButton" id="multisampleEnable">
+                                <property name="label" translatable="yes">Enable Antialiasing</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
-                                <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
                               </object>
                               <packing>
@@ -600,89 +608,114 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkRadioButton" id="renderModeLines">
-                                <property name="label" translatable="yes">Lines</property>
+                              <object class="GtkComboBox" id="multisampleLevels">
                                 <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">False</property>
-                                <property name="active">True</property>
-                                <property name="draw_indicator">True</property>
-                                <property name="group">renderModeTri</property>
                               </object>
                               <packing>
                                 <property name="position">1</property>
                               </packing>
                             </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkHBox" id="hbox4">
+                            <property name="visible">True</property>
                             <child>
-                              <object class="GtkRadioButton" id="renderModePoints">
-                                <property name="label" translatable="yes">Points</property>
+                              <object class="GtkCheckButton" id="shadowmapEnable">
+                                <property name="label" translatable="yes">Enable Shadows</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
+                                <property name="relief">half</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
-                                <property name="group">renderModeTri</property>
                               </object>
                               <packing>
+                                <property name="expand">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkVolumeButton" id="shadowIntensity">
+                                <property name="label" translatable="yes">Intensity</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="relief">half</property>
+                                <property name="focus_on_click">False</property>
+                                <property name="orientation">vertical</property>
+                                <property name="size">large-toolbar</property>
+                                <property name="adjustment">shadowIntensityAdjustment</property>
+                                <property name="icons">Information</property>
+                              </object>
+                              <packing>
+                                <property name="fill">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkHBox" id="hbox5">
+                                <property name="visible">True</property>
+                                <child>
+                                  <object class="GtkLabel" id="label3">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">0.94999998807907104</property>
+                                    <property name="label" translatable="yes">Shadow Map Size</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="padding">10</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkSpinButton" id="shadowmapSize">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="invisible_char">&#x25CF;</property>
+                                    <property name="adjustment">ShadowMapSizeAdjustment</property>
+                                    <property name="climb_rate">1</property>
+                                    <property name="snap_to_ticks">True</property>
+                                    <property name="numeric">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
                                 <property name="position">2</property>
                               </packing>
                             </child>
                           </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">1</property>
+                          </packing>
                         </child>
-                      </object>
-                    </child>
-                    <child type="label">
-                      <object class="GtkLabel" id="label5">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">Render Mode</property>
-                        <property name="use_markup">True</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkFrame" id="RenderPipelineFrame">
-                    <property name="visible">True</property>
-                    <property name="sensitive">False</property>
-                    <property name="label_xalign">0</property>
-                    <property name="shadow_type">in</property>
-                    <child>
-                      <object class="GtkAlignment" id="alignment1">
-                        <property name="visible">True</property>
-                        <property name="left_padding">20</property>
                         <child>
-                          <object class="GtkVBox" id="shaderPipelineOptions">
+                          <object class="GtkVBox" id="vbox4">
                             <property name="visible">True</property>
+                            <property name="orientation">vertical</property>
                             <child>
-                              <object class="GtkHBox" id="multisampleBox">
+                              <object class="GtkCheckButton" id="filterEnable">
+                                <property name="label" translatable="yes">Enable Filters</property>
                                 <property name="visible">True</property>
-                                <property name="sensitive">False</property>
-                                <child>
-                                  <object class="GtkCheckButton" id="multisampleEnable">
-                                    <property name="label" translatable="yes">Enable Antialiasing</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="draw_indicator">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkComboBox" id="multisampleLevels">
-                                    <property name="visible">True</property>
-                                    <property name="tooltip_text" translatable="yes">Number of sub-pixel samples used for anti-aliasing</property>
-                                  </object>
-                                  <packing>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
+                                <property name="active">True</property>
+                                <property name="draw_indicator">True</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -691,330 +724,218 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkHBox" id="hbox4">
+                              <object class="GtkHBox" id="hbox1">
                                 <property name="visible">True</property>
                                 <child>
-                                  <object class="GtkCheckButton" id="shadowmapEnable">
-                                    <property name="label" translatable="yes">Enable Shadows</property>
+                                  <object class="GtkScrolledWindow" id="scrolledwindow1">
+                                    <property name="height_request">180</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="relief">half</property>
-                                    <property name="active">True</property>
-                                    <property name="draw_indicator">True</property>
+                                    <property name="hscrollbar_policy">never</property>
+                                    <property name="vscrollbar_policy">automatic</property>
+                                    <property name="shadow_type">etched-out</property>
+                                    <child>
+                                      <object class="GtkTreeView" id="filterView">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="enable_grid_lines">horizontal</property>
+                                      </object>
+                                    </child>
                                   </object>
                                   <packing>
-                                    <property name="expand">False</property>
                                     <property name="position">0</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkVolumeButton" id="shadowIntensity">
-                                    <property name="label" translatable="yes">Intensity</property>
+                                  <object class="GtkVBox" id="vbox6">
+                                    <property name="width_request">30</property>
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">True</property>
-                                    <property name="tooltip_text" translatable="yes">Shadow intensity</property>
-                                    <property name="relief">half</property>
-                                    <property name="focus_on_click">False</property>
                                     <property name="orientation">vertical</property>
-                                    <property name="size">large-toolbar</property>
-                                    <property name="adjustment">shadowIntensityAdjustment</property>
-                                    <property name="icons">Information</property>
-                                  </object>
-                                  <packing>
-                                    <property name="fill">False</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkHBox" id="hbox5">
-                                    <property name="visible">True</property>
                                     <child>
-                                      <object class="GtkLabel" id="label3">
+                                      <object class="GtkButton" id="filterUp">
                                         <property name="visible">True</property>
-                                        <property name="xalign">0.94999998807907104</property>
-                                        <property name="label" translatable="yes">Shadow Map Size</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="padding">10</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkSpinButton" id="shadowmapSize">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="tooltip_text" translatable="yes">The number of pixels used in the shadow map. Shadow map is X by X pixels where X is the value here</property>
-                                        <property name="invisible_char">&#x25CF;</property>
-                                        <property name="adjustment">ShadowMapSizeAdjustment</property>
-                                        <property name="climb_rate">1</property>
-                                        <property name="snap_to_ticks">True</property>
-                                        <property name="numeric">True</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">2</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkVBox" id="vbox4">
-                                <property name="visible">True</property>
-                                <child>
-                                  <object class="GtkCheckButton" id="filterEnable">
-                                    <property name="label" translatable="yes">Enable Filters</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="active">True</property>
-                                    <property name="draw_indicator">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkHBox" id="hbox1">
-                                    <property name="visible">True</property>
-                                    <child>
-                                      <object class="GtkScrolledWindow" id="scrolledwindow1">
-                                        <property name="height_request">180</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="hscrollbar_policy">never</property>
-                                        <property name="vscrollbar_policy">automatic</property>
-                                        <property name="shadow_type">etched-out</property>
-                                        <child>
-                                          <object class="GtkTreeView" id="filterView">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="enable_grid_lines">horizontal</property>
-                                          </object>
-                                        </child>
-                                      </object>
-                                      <packing>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkVBox" id="vbox6">
-                                        <property name="width_request">30</property>
-                                        <property name="visible">True</property>
-                                        <child>
-                                          <object class="GtkButton" id="filterUp">
-                                            <property name="visible">True</property>
-                                            <property name="sensitive">False</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">True</property>
-                                            <property name="tooltip_text" translatable="yes">Move selected filter up the chain</property>
-                                            <child>
-                                              <object class="GtkImage" id="filterUpImage">
-                                                <property name="visible">True</property>
-                                                <property name="stock">gtk-go-up</property>
-                                                <property name="icon-size">3</property>
-                                              </object>
-                                            </child>
-                                          </object>
-                                          <packing>
-                                            <property name="position">0</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkButton" id="filterDelete">
-                                            <property name="visible">True</property>
-                                            <property name="sensitive">False</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">True</property>
-                                            <property name="tooltip_text" translatable="yes">Delete the selected filter</property>
-                                            <child>
-                                              <object class="GtkImage" id="filterDeleteImage">
-                                                <property name="visible">True</property>
-                                                <property name="stock">gtk-delete</property>
-                                                <property name="icon-size">3</property>
-                                              </object>
-                                            </child>
-                                          </object>
-                                          <packing>
-                                            <property name="position">1</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkButton" id="filterDown">
-                                            <property name="visible">True</property>
-                                            <property name="sensitive">False</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">True</property>
-                                            <property name="tooltip_text" translatable="yes">Move selected filter down the chain</property>
-                                            <child>
-                                              <object class="GtkImage" id="filterDownImage">
-                                                <property name="visible">True</property>
-                                                <property name="stock">gtk-go-down</property>
-                                                <property name="icon-size">3</property>
-                                              </object>
-                                            </child>
-                                          </object>
-                                          <packing>
-                                            <property name="position">2</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkButton" id="filterClear">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">True</property>
-                                            <property name="tooltip_text" translatable="yes">Remove all filters</property>
-                                            <child>
-                                              <object class="GtkImage" id="filterClearImage">
-                                                <property name="visible">True</property>
-                                                <property name="stock">gtk-clear</property>
-                                                <property name="icon-size">3</property>
-                                              </object>
-                                            </child>
-                                          </object>
-                                          <packing>
-                                            <property name="position">3</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkToggleButton" id="filterActive">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">True</property>
-                                            <property name="tooltip_text" translatable="yes">Enable/Disable the selected filter</property>
-                                            <child>
-                                              <object class="GtkImage" id="filterActiveImage">
-                                                <property name="visible">True</property>
-                                                <property name="stock">gtk-yes</property>
-                                              </object>
-                                            </child>
-                                          </object>
-                                          <packing>
-                                            <property name="position">4</property>
-                                          </packing>
-                                        </child>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkHBox" id="hbox3">
-                                    <property name="visible">True</property>
-                                    <child>
-                                      <object class="GtkComboBox" id="filterSelectBox">
-                                        <property name="visible">True</property>
-                                      </object>
-                                      <packing>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkButton" id="filterAdd">
-                                        <property name="visible">True</property>
+                                        <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="tooltip_text" translatable="yes">Add a new filter</property>
                                         <child>
-                                          <object class="GtkImage" id="filterAddImage">
+                                          <object class="GtkImage" id="filterUpImage">
                                             <property name="visible">True</property>
-                                            <property name="xpad">10</property>
-                                            <property name="stock">gtk-add</property>
+                                            <property name="stock">gtk-go-up</property>
                                             <property name="icon-size">3</property>
                                           </object>
                                         </child>
                                       </object>
                                       <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkButton" id="filterDelete">
+                                        <property name="visible">True</property>
+                                        <property name="sensitive">False</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <child>
+                                          <object class="GtkImage" id="filterDeleteImage">
+                                            <property name="visible">True</property>
+                                            <property name="stock">gtk-delete</property>
+                                            <property name="icon-size">3</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
                                         <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkButton" id="filterDown">
+                                        <property name="visible">True</property>
+                                        <property name="sensitive">False</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <child>
+                                          <object class="GtkImage" id="filterDownImage">
+                                            <property name="visible">True</property>
+                                            <property name="stock">gtk-go-down</property>
+                                            <property name="icon-size">3</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="position">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkButton" id="filterClear">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <child>
+                                          <object class="GtkImage" id="filterClearImage">
+                                            <property name="visible">True</property>
+                                            <property name="stock">gtk-clear</property>
+                                            <property name="icon-size">3</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="position">3</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkToggleButton" id="filterActive">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <child>
+                                          <object class="GtkImage" id="filterActiveImage">
+                                            <property name="visible">True</property>
+                                            <property name="stock">gtk-yes</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="position">4</property>
                                       </packing>
                                     </child>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">2</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkFrame" id="FilterOptionsFrame">
-                                    <property name="visible">True</property>
-                                    <property name="label_xalign">0</property>
-                                    <property name="shadow_type">in</property>
-                                    <child>
-                                      <object class="GtkScrolledWindow" id="FilterOptions">
-                                        <property name="height_request">100</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="hscrollbar_policy">automatic</property>
-                                        <property name="vscrollbar_policy">automatic</property>
-                                        <child>
-                                          <placeholder/>
-                                        </child>
-                                      </object>
-                                    </child>
-                                    <child type="label">
-                                      <object class="GtkLabel" id="label4">
-                                        <property name="visible">True</property>
-                                        <property name="label" translatable="yes">&lt;b&gt;Selected Filter Options&lt;/b&gt;</property>
-                                        <property name="use_markup">True</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="position">3</property>
+                                    <property name="position">1</property>
                                   </packing>
                                 </child>
                               </object>
                               <packing>
-                                <property name="padding">10</property>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkHBox" id="hbox3">
+                                <property name="visible">True</property>
+                                <child>
+                                  <object class="GtkComboBox" id="filterSelectBox">
+                                    <property name="visible">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="filterAdd">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <child>
+                                      <object class="GtkImage" id="filterAddImage">
+                                        <property name="visible">True</property>
+                                        <property name="xpad">10</property>
+                                        <property name="stock">gtk-add</property>
+                                        <property name="icon-size">3</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
                                 <property name="position">2</property>
                               </packing>
                             </child>
+                            <child>
+                              <object class="GtkFrame" id="FilterOptionsFrame">
+                                <property name="visible">True</property>
+                                <property name="label_xalign">0</property>
+                                <property name="shadow_type">in</property>
+                                <child>
+                                  <object class="GtkScrolledWindow" id="FilterOptions">
+                                    <property name="height_request">100</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="hscrollbar_policy">automatic</property>
+                                    <property name="vscrollbar_policy">automatic</property>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child type="label">
+                                  <object class="GtkLabel" id="label4">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;Selected Filter Options&lt;/b&gt;</property>
+                                    <property name="use_markup">True</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="position">3</property>
+                              </packing>
+                            </child>
                           </object>
+                          <packing>
+                            <property name="padding">10</property>
+                            <property name="position">2</property>
+                          </packing>
                         </child>
                       </object>
                     </child>
-                    <child type="label">
-                      <object class="GtkCheckButton" id="ShaderPipelineEnable">
-                        <property name="label" translatable="yes">Enable Shader Pipeline</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="draw_indicator">True</property>
-                      </object>
-                    </child>
                   </object>
-                  <packing>
-                    <property name="position">1</property>
-                  </packing>
+                </child>
+                <child type="label">
+                  <object class="GtkCheckButton" id="ShaderPipelineEnable">
+                    <property name="label" translatable="yes">Enable Shader Pipeline</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
                 </child>
               </object>
               <packing>
@@ -1036,6 +957,7 @@
                 <child>
                   <object class="GtkVBox" id="vbox7">
                     <property name="visible">True</property>
+                    <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkCheckButton" id="forceParticleSync">
                         <property name="label" translatable="yes">Force particle sync on draw</property>

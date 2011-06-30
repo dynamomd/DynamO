@@ -35,7 +35,7 @@ OPOverlapTest::initialise()
 }
 
 void
-OPOverlapTest::output(xml::XmlStream&)
+OPOverlapTest::output(magnet::xml::XmlStream&)
 {
   dout << "Testing for overlaps in output configuration" << std::endl;
   ticker();

@@ -34,39 +34,41 @@
 #include <iomanip>
 
 ISWSequence::ISWSequence(const magnet::xml::Node& XML, dynamo::SimData* tmp):
-  Interaction(tmp, NULL) //A temporary value!
+  Interaction(tmp, NULL), //A temporary value!
+  _unitEnergy(Sim->_properties.getProperty
+	      (1.0, Property::Units::Energy()))
 { operator<<(XML); }
 
 void 
-ISWSequence::outputXML(xml::XmlStream& XML) const
+ISWSequence::outputXML(magnet::xml::XmlStream& XML) const
 {
-  XML << xml::attr("Type") << "SquareWellSeq"
-      << xml::attr("Diameter") << _diameter->getName()
-      << xml::attr("Elasticity") << _e->getName()
-      << xml::attr("Lambda") << _lambda->getName()
-      << xml::attr("Name") << intName
+  XML << magnet::xml::attr("Type") << "SquareWellSeq"
+      << magnet::xml::attr("Diameter") << _diameter->getName()
+      << magnet::xml::attr("Elasticity") << _e->getName()
+      << magnet::xml::attr("Lambda") << _lambda->getName()
+      << magnet::xml::attr("Name") << intName
       << range;
 
-  XML << xml::tag("Sequence");
+  XML << magnet::xml::tag("Sequence");
   
   for (size_t i = 0; i < sequence.size(); ++i)
-    XML << xml::tag("Element")
-	<< xml::attr("seqID") << i
-	<< xml::attr("Letter") << sequence[i]
-	<< xml::endtag("Element");
+    XML << magnet::xml::tag("Element")
+	<< magnet::xml::attr("seqID") << i
+	<< magnet::xml::attr("Letter") << sequence[i]
+	<< magnet::xml::endtag("Element");
 
-  XML << xml::endtag("Sequence")
-      << xml::tag("Alphabet");
+  XML << magnet::xml::endtag("Sequence")
+      << magnet::xml::tag("Alphabet");
 
   for (size_t i = 0; i < alphabet.size(); ++i)
     for (size_t j = i; j < alphabet[i].size(); ++j)
-      XML << xml::tag("Word")
-	  << xml::attr("Letter1") << i
-	  << xml::attr("Letter2") << j
-	  << xml::attr("Depth") << alphabet[i][j] * _unitEnergy->getMaxValue()
-	  << xml::endtag("Word");
+      XML << magnet::xml::tag("Word")
+	  << magnet::xml::attr("Letter1") << i
+	  << magnet::xml::attr("Letter2") << j
+	  << magnet::xml::attr("Depth") << alphabet[i][j] * _unitEnergy->getMaxValue()
+	  << magnet::xml::endtag("Word");
 
-  XML << xml::endtag("Alphabet");
+  XML << magnet::xml::endtag("Alphabet");
 
   
   ISingleCapture::outputCaptureMap(XML);  

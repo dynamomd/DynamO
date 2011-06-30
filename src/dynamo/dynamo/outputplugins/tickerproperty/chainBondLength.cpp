@@ -68,14 +68,14 @@ OPChainBondLength::ticker()
 }
 
 void 
-OPChainBondLength::output(xml::XmlStream& XML)
+OPChainBondLength::output(magnet::xml::XmlStream& XML)
 {
-  XML << xml::tag("BondAngleLength");
+  XML << magnet::xml::tag("BondAngleLength");
   
   BOOST_FOREACH(Cdata& dat, chains)
     {
-      XML << xml::tag("Chain")
-	  << xml::attr("Name") 
+      XML << magnet::xml::tag("Chain")
+	  << magnet::xml::attr("Name") 
 	  << Sim->dynamics.getTopology()[dat.chainID]->getName();
             
       size_t Nc = Sim->dynamics.getTopology()[dat.chainID]
@@ -84,8 +84,8 @@ OPChainBondLength::output(xml::XmlStream& XML)
       for (size_t i = 0; i < Nc; ++i)
 	dat.BondLengths[i].outputHistogram(XML, 1.0/Sim->dynamics.units().unitLength());
       
-      XML << xml::endtag("Chain");
+      XML << magnet::xml::endtag("Chain");
     }
   
-  XML << xml::endtag("BondAngleLength");
+  XML << magnet::xml::endtag("BondAngleLength");
 }

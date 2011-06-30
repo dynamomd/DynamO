@@ -67,18 +67,18 @@ public:
   inline const Units& getUnits() const { return _units; }
 
   //! Helper to write out derived classes
-  friend xml::XmlStream operator<<(xml::XmlStream& XML, const Property& prop)
+  friend magnet::xml::XmlStream operator<<(magnet::xml::XmlStream& XML, const Property& prop)
   { prop.outputXML(XML); return XML; }
 
   //! Write any XML attributes that store this Property's data on a
   //! single particle.
   //! \param pID The ID number of the particle being written out.
   //! \param rescale Amount to scale the Property values by.
-  inline virtual void outputParticleXMLData(xml::XmlStream& XML, 
+  inline virtual void outputParticleXMLData(magnet::xml::XmlStream& XML, 
 					    const size_t pID) const {}
 
 protected:
-  virtual void outputXML(xml::XmlStream& XML) const 
+  virtual void outputXML(magnet::xml::XmlStream& XML) const 
   { M_throw() << "Unimplemented"; }
 
   //! The Units of the property.
@@ -115,7 +115,7 @@ private:
   //! The name of this class is its value. So when other classes
   //! output the name of the property, this counts as outputing the
   //! XML for it. So no extra XML tag is needed.
-  virtual void outputXML(xml::XmlStream& XML) const {}
+  virtual void outputXML(magnet::xml::XmlStream& XML) const {}
 
   //! \brief The single value stored in the property
   double _val;
@@ -182,18 +182,20 @@ public:
 	*it *= factor;  
   }
 
-  inline void outputParticleXMLData(xml::XmlStream& XML, const size_t pID) const
-  { XML << xml::attr(_name) << getProperty(pID); }
+  inline void outputParticleXMLData(magnet::xml::XmlStream& XML, const size_t pID) const
+  { XML << magnet::xml::attr(_name) << getProperty(pID); }
   
   
-private:
-  virtual void outputXML(xml::XmlStream& XML) const 
+protected:
+  //! \brief Output an XML representation of the Property to the
+  //! passed XmlStream.
+  virtual void outputXML(magnet::xml::XmlStream& XML) const 
   { 
-    XML << xml::tag("Property") 
-	<< xml::attr("Type") << "PerParticle"
-	<< xml::attr("Name") << _name
-	<< xml::attr("Units") << std::string(_units)
-	<< xml::endtag("Property");
+    XML << magnet::xml::tag("Property") 
+	<< magnet::xml::attr("Type") << "PerParticle"
+	<< magnet::xml::attr("Name") << _name
+	<< magnet::xml::attr("Units") << std::string(_units)
+	<< magnet::xml::endtag("Property");
   }
   
   std::string _name;
@@ -272,19 +274,6 @@ public:
     return retval;
   }
 
-  inline magnet::thread::RefPtr<Property> push(Property* newProp)
-  {
-    if (dynamic_cast<NumericProperty*>(newProp))
-      {
-	_numericProperties.push_back(newProp);
-	return _numericProperties.back();
-      }    
-    
-    _namedProperties.push_back(newProp);
-    return _namedProperties.back();
-
-  }
-
   //! \brief Method which loads the properties from the XML configuration file. 
   //! \param node A xml Node at the root dynamoconfig Node of the config file.
   inline PropertyStore& operator<<(const magnet::xml::Node& node)
@@ -300,15 +289,15 @@ public:
     return *this;
   }
 
-  inline friend xml::XmlStream& operator<<(xml::XmlStream& XML, const PropertyStore& propStore)
+  inline friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const PropertyStore& propStore)
   {
-    XML << xml::tag("Properties");
+    XML << magnet::xml::tag("Properties");
 
     for (const_iterator iPtr = propStore._namedProperties.begin(); 
 	 iPtr != propStore._namedProperties.end(); ++iPtr)
       XML << (*(*iPtr));
 
-    XML << xml::endtag("Properties");
+    XML << magnet::xml::endtag("Properties");
 
     return XML;
   }
@@ -334,14 +323,33 @@ public:
   //!
   //! \param pID The ID number of the particle whose data is to be
   //! written out.
-  inline void outputParticleXMLData(xml::XmlStream& XML, size_t pID) const 
+  inline void outputParticleXMLData(magnet::xml::XmlStream& XML, size_t pID) const 
   {
     for (const_iterator iPtr = _namedProperties.begin(); 
 	 iPtr != _namedProperties.end(); ++iPtr)
       (*iPtr)->outputParticleXMLData(XML, pID);
   }
 
-private:
+  /*! \brief Method for pushing constructed properties into the
+   * PropertyStore.
+   *
+   * This method should only be used when dynamod is building a
+   * simulation, as the typical method for adding a Property to the
+   * PropertyStore is using the \ref getProperty methods.
+   */
+  inline magnet::thread::RefPtr<Property> push(Property* newProp)
+  {
+    if (dynamic_cast<NumericProperty*>(newProp))
+      {
+	_numericProperties.push_back(newProp);
+	return _numericProperties.back();
+      }    
+    
+    _namedProperties.push_back(newProp);
+    return _namedProperties.back();
+  }
+
+protected:
 
   inline magnet::thread::RefPtr<Property> getPropertyBase(const std::string name,
 							  const Property::Units& units)

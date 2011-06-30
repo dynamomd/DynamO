@@ -17,7 +17,7 @@
 
 #pragma once
 #include "filter.hpp"
-#include <magnet/GL/multiplyTexture.hpp>
+#include <magnet/GL/shader/multiplyTexture.hpp>
 
 namespace coil 
 {
@@ -28,12 +28,16 @@ namespace coil
 
     inline virtual size_t type_id() { return detail::filterEnum<MultiplyFilter>::val; }
     inline virtual bool isEditable() { return false; }
-    inline virtual void invoke(GLuint colorTextureUnit, size_t width, size_t height,
+    inline virtual void invoke(GLint colorTextureUnit, size_t width, size_t height,
 			       const magnet::GL::viewPort& vp)
-    { _filter.invoke(colorTextureUnit, 0, width, height); }
+    { 
+      _filter["u_Texture0"] = colorTextureUnit;
+      _filter["u_Texture1"] = 0;
+      _filter.invoke(); 
+    }
 
     inline virtual bool needsNormalDepth()  { return false; }
   protected:
-    magnet::GL::MultiplyTexture _filter;
+    magnet::GL::shader::MultiplyTexture _filter;
   };
 }

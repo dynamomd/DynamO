@@ -102,7 +102,7 @@ public:
   virtual void swapSystem(Liouvillean& oLiouvillean);
 
 protected:
-  virtual void outputXML(xml::XmlStream& ) const;
+  virtual void outputXML(magnet::xml::XmlStream& ) const;
 
   boost::unordered_map<int, double> _W; 
 

@@ -40,7 +40,7 @@ Global::isInteraction(const Particle &p1) const
   return range->isInRange(p1);
 }
 
-xml::XmlStream& operator<<(xml::XmlStream& XML, const Global& g)
+magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Global& g)
 {
   g.outputXML(XML);
   return XML;
@@ -55,9 +55,7 @@ Global::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
   else if (!strcmp(XML.getAttribute("Type"),"ShearingCells"))
     return new CGCellsShearing(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"PBCSentinel"))
-    return new CGPBCSentinel(XML, Sim);
-  else if (!strcmp(XML.getAttribute("Type"),"ParabolaSentinel"))
-    return new CGParabolaSentinel(XML, Sim);
+    return new GPBCSentinel(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"CellsMorton"))
     return new CGCellsMorton(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"SOCells"))

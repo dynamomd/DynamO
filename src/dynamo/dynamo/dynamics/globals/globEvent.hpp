@@ -69,7 +69,7 @@ public:
 
   inline void setType(EEventType t) { CType = t; }
   
-  friend xml::XmlStream& operator<<(xml::XmlStream&, const GlobalEvent&);
+  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const GlobalEvent&);
 
   std::string stringData(const dynamo::SimData*) const;
 

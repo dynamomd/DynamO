@@ -20,7 +20,7 @@
 
 namespace magnet {
   namespace intersection {
-    //! A ray-rod intersection test.
+    //! \brief A ray-rod intersection test.
     //!
     //! A rod is a cylinder which is not infinite, but of limited
     //! length. The cylinder is defined using a single base vertex at
@@ -48,7 +48,7 @@ namespace magnet {
       return t;
     }
 
-    //! A ray-inverse_rod intersection test.
+    //! \brief A ray-inverse_rod intersection test.
     //!
     //! A rod is a cylinder which is not infinite, but of limited
     //! length. An inverse rod is used to test when a ray will exit a

@@ -33,7 +33,7 @@ OutputPlugin::OutputPlugin(const dynamo::SimData* tmp, const char *aName, unsign
 }
 
 void
-OutputPlugin::output(xml::XmlStream&)
+OutputPlugin::output(magnet::xml::XmlStream&)
 {}
 
 void

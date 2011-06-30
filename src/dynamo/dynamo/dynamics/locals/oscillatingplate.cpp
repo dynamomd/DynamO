@@ -15,6 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef DYNAMO_visualizer
+# include <coil/RenderObj/Function.hpp>
+#endif 
+
 #include "oscillatingplate.hpp"
 #include "../liouvillean/liouvillean.hpp"
 #include "localEvent.hpp"
@@ -141,28 +145,28 @@ CLOscillatingPlate::operator<<(const magnet::xml::Node& XML)
 }
 
 void 
-CLOscillatingPlate::outputXML(xml::XmlStream& XML) const
+CLOscillatingPlate::outputXML(magnet::xml::XmlStream& XML) const
 {
   double tmp = Sim->dSysTime + timeshift;
 
   tmp -= 2.0 * M_PI * int(tmp * omega0 / (2.0 * M_PI) ) / omega0;
 
-  XML << xml::attr("Type") << "OscillatingPlate" 
-      << xml::attr("Name") << localName
-      << xml::attr("Elasticity") << e
-      << xml::attr("Omega0") << omega0 * Sim->dynamics.units().unitTime()
-      << xml::attr("Sigma") << sigma / Sim->dynamics.units().unitLength()
-      << xml::attr("Delta") << delta / Sim->dynamics.units().unitLength()
-      << xml::attr("Mass") << mass / Sim->dynamics.units().unitMass()
-      << xml::attr("TimeShift") << tmp / Sim->dynamics.units().unitTime()
-      << xml::attr("StrongPlate") << strongPlate
+  XML << magnet::xml::attr("Type") << "OscillatingPlate" 
+      << magnet::xml::attr("Name") << localName
+      << magnet::xml::attr("Elasticity") << e
+      << magnet::xml::attr("Omega0") << omega0 * Sim->dynamics.units().unitTime()
+      << magnet::xml::attr("Sigma") << sigma / Sim->dynamics.units().unitLength()
+      << magnet::xml::attr("Delta") << delta / Sim->dynamics.units().unitLength()
+      << magnet::xml::attr("Mass") << mass / Sim->dynamics.units().unitMass()
+      << magnet::xml::attr("TimeShift") << tmp / Sim->dynamics.units().unitTime()
+      << magnet::xml::attr("StrongPlate") << strongPlate
       << range
-      << xml::tag("Norm")
+      << magnet::xml::tag("Norm")
       << nhat
-      << xml::endtag("Norm")
-      << xml::tag("Origin")
+      << magnet::xml::endtag("Norm")
+      << magnet::xml::tag("Origin")
       << rw0 / Sim->dynamics.units().unitLength()
-      << xml::endtag("Origin");
+      << magnet::xml::endtag("Origin");
 
 }
 
@@ -187,7 +191,6 @@ CLOscillatingPlate::getPlateEnergy() const
 }
 
 #ifdef DYNAMO_visualizer
-# include <coil/RenderObj/Function.hpp>
 
 magnet::thread::RefPtr<RenderObj>& 
 CLOscillatingPlate::getCoilRenderObj() const

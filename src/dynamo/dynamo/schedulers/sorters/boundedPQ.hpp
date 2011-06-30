@@ -517,7 +517,7 @@ private:
     --NP;
   }
   
-  virtual void outputXML(xml::XmlStream& XML) const
-  { XML << xml::attr("Type") << CSSBoundedPQName<T>::name(); }
+  virtual void outputXML(magnet::xml::XmlStream& XML) const
+  { XML << magnet::xml::attr("Type") << CSSBoundedPQName<T>::name(); }
 
 };

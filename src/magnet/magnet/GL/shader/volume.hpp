@@ -1,4 +1,4 @@
-/*    DYNAMO:- Event driven molecular dynamics simulator 
+/*    dynamo:- Event driven molecular dynamics simulator 
  *    http://www.marcusbannerman.co.uk/dynamo
  *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
  *
@@ -14,29 +14,24 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
+#include <magnet/GL/shader/detail/shader.hpp>
 
 //Simple macro to convert a token to a string
 #define STRINGIFY(A) #A
 
 namespace magnet {
   namespace GL {
-    inline std::string 
-    volumeRenderer::vertexShaderSource()
-    {
-      return
-STRINGIFY( 
-void main()
-{
-  gl_Position = ftransform();
-}
-);
-    }
+    namespace shader {
+      class VolumeShader: public detail::Shader
+      {
+      public:      
+	virtual std::string initVertexShaderSource()
+	{ return STRINGIFY(void main() { gl_Position = ftransform(); }); }
 
-    inline std::string 
-    volumeRenderer::fragmentShaderSource()
-    {
-      return
-STRINGIFY( 
+	virtual std::string initFragmentShaderSource()
+	{
+	  return STRINGIFY( 
 uniform float FocalLength;
 uniform vec2 WindowSize;
 uniform vec3 RayOrigin;
@@ -199,8 +194,11 @@ void main()
   */
   color.rgb /= (color.a == 0.0) +  color.a;
   gl_FragColor = color;
-}
-);
+});
+	}
+      };
     }
   }
 }
+
+#undef STRINGIFY

@@ -16,10 +16,9 @@
  */
 #pragma once
 
-#include <magnet/GL/detail/filter.hpp>
+#define GL_GLEXT_PROTOTYPES
+#include <GL/glew.h>
 #include <magnet/exception.hpp>
-#include <fstream>
-#include <algorithm>
 
 namespace magnet {
   namespace GL {
@@ -63,7 +62,26 @@ namespace magnet {
 
       inline bool isValid() const { return _valid; }
 
+      inline GLuint getGLHandle() { return _handle; }
+
     protected:
+      
+      GLenum safeFormat(GLint internalformat)
+      {
+	GLenum format = GL_RGB;
+	switch (internalformat)
+	  {
+	  case GL_DEPTH_COMPONENT:
+	  case GL_DEPTH_COMPONENT16:
+	  case GL_DEPTH_COMPONENT24:
+	  case GL_DEPTH_COMPONENT32:
+	    format = GL_DEPTH_COMPONENT;
+	  default:
+	    break;
+	  }
+
+	return format;
+      }
       
       GLuint _handle;
       bool _valid;
@@ -91,7 +109,7 @@ namespace magnet {
 		     0,
 		     //The following values are not used as no data is
 		     //passed here, use subImage for that.
-		     GL_RGB, GL_UNSIGNED_BYTE, NULL); 
+		     safeFormat(_internalFormat), GL_UNSIGNED_BYTE, NULL); 
       }
 
       inline void subImage(const std::vector<uint8_t>& data, GLenum pixelformat,
@@ -114,6 +132,53 @@ namespace magnet {
       GLint _width;
     };
 
+
+    class Texture2D: public TextureBasic
+    {
+    public:
+      Texture2D():TextureBasic(GL_TEXTURE_2D) {}
+      
+      inline void init(size_t width, size_t height, GLint internalformat = GL_RGBA8)
+      {
+	_width = width; 
+	_height = height; 
+	_internalFormat = internalformat;
+
+	TextureBasic::init();
+	bind(0);
+	
+	glTexImage2D(_texType, 0, _internalFormat, _width, _height,
+		     0, //Border is off
+		     //The following values are not used as no data is
+		     //passed here, use subImage for that.
+		     safeFormat(_internalFormat), GL_UNSIGNED_BYTE, NULL); 
+      }
+
+      inline void subImage(const std::vector<uint8_t>& data, GLenum pixelformat,
+			   GLint xoffset = 0, GLint yoffset = 0, GLint width = -1, 
+			   GLint height = -1, GLint level = 0)
+      { 
+	//If there are negative values, assume they mean to use the
+	//full space
+	if (width  < 0) width  = _width;
+	if (height  < 0) height  = _height;
+	if (xoffset < 0) M_throw() << "x offset is negative";
+	if (yoffset < 0) M_throw() << "y offset is negative";
+	if (xoffset + width > _width) M_throw() << "Texture write x overrun";
+	if (yoffset + height > _height) M_throw() << "Texture write y overrun";
+
+	bind(0);
+	glTexSubImage2D(_texType, level, xoffset, yoffset, width, height,
+			pixelformat, GL_UNSIGNED_BYTE, &data[0]);
+      }
+
+      inline const GLint& getWidth() const { return _width; }
+      inline const GLint& getHeight() const { return _height; }
+    private:
+      
+      GLint _width;
+      GLint _height;
+   };
 
     class Texture3D: public TextureBasic
     {
@@ -140,7 +205,7 @@ namespace magnet {
 		     0,
 		     //The following values are not used as no data is
 		     //passed here, use subImage for that.
-		     GL_RGB, GL_UNSIGNED_BYTE, NULL); 
+		     safeFormat(_internalFormat), GL_UNSIGNED_BYTE, NULL); 
       }
 
       inline void subImage(const std::vector<GLubyte>& data, GLenum pixelformat,

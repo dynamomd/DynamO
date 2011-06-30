@@ -1,4 +1,4 @@
-/*    DYNAMO:- Event driven molecular dynamics simulator 
+/*    dynamo:- Event driven molecular dynamics simulator 
  *    http://www.marcusbannerman.co.uk/dynamo
  *    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
  *
@@ -13,18 +13,20 @@
  *
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-//Simple macro to convert a token to a string
+ */
+#pragma once
+#include <magnet/GL/shader/detail/shader.hpp>
 #define STRINGIFY(A) #A
 
 namespace magnet {
   namespace GL {
-    inline std::string 
-    shadowShader::vertexShaderSource()
-    {
-      return
-STRINGIFY( 
+    namespace shader {
+      class RenderShader: public detail::Shader
+      {
+      public:      
+	virtual std::string initVertexShaderSource()
+	{
+	  return STRINGIFY( 
 varying vec4 ShadowCoord; // Used for shadow lookup
 varying vec3 lightDir; //Direction of the light
 varying vec3 normal; //The surface normal
@@ -54,19 +56,16 @@ void main()
   
   //Standard vertex transformation
   gl_Position = ftransform();
-}
-);
-    }
-
-    inline std::string 
-    shadowShader::fragmentShaderSource()
-    {
-      return
-STRINGIFY( 
+});
+	}
+	
+	virtual std::string initFragmentShaderSource()
+	{
+	  return STRINGIFY(
 uniform sampler2DShadow ShadowMap; //The sampler for the shadow map
 varying vec4 ShadowCoord; // Texture coordinate used for shadow lookup
-uniform int shadowMapping; //If shadow mapping is enabled or not
-uniform float shadowIntensity; //How dark the shadow is
+uniform int ShadowMapping; //If shadow mapping is enabled or not
+uniform float ShadowIntensity; //How dark the shadow is
 uniform float xPixelOffset;
 uniform float yPixelOffset;
 
@@ -95,7 +94,7 @@ void main()
   //Now get the diffuse term to smooth shadow acne on back faces
   float lightNormDot = dot(renormal, renormLightDir);
 
-  if (shadowMapping == 1)
+  if (ShadowMapping == 1)
     {
       if (ShadowCoord.w > 0.0)
 	for (int x = 0; x < steps; ++x)
@@ -137,7 +136,7 @@ void main()
 			     gl_LightSource[0].quadraticAttenuation * lightDist * lightDist);
  
   //Shadow intensity
-  float scaledShadow = (1.0 + shadowIntensity * (shadow - 1.0));
+  float scaledShadow = (1.0 + ShadowIntensity * (shadow - 1.0));
 
   //Specular and ambient light calculation
   if (lightNormDot > 0.0)
@@ -162,8 +161,11 @@ void main()
   color.a = diffuse.a;
 
   gl_FragColor = color;
-}
-);
+});
+	}
+      };
     }
   }
 }
+
+#undef STRINGIFY

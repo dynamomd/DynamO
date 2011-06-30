@@ -43,7 +43,7 @@ public:
 
   virtual void eventUpdate(const System&, const NEventData&, const double&);
 
-  void output(xml::XmlStream &);
+  void output(magnet::xml::XmlStream &);
 
   virtual OutputPlugin *Clone() const { return new OPEventEffects(*this); };
 

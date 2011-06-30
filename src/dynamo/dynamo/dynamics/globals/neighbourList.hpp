@@ -175,7 +175,7 @@ public:
   }
   
 protected:
-  virtual void outputXML(xml::XmlStream&) const = 0;
+  virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
   
   //Signals

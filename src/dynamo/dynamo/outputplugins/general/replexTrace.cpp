@@ -62,17 +62,17 @@ OPReplexTrace::addPoint()
 }
 
 void 
-OPReplexTrace::output(xml::XmlStream& XML)
+OPReplexTrace::output(magnet::xml::XmlStream& XML)
 {
   addPoint();
 
-  XML << xml::tag("ReplexTrace")
-      << xml::chardata();
+  XML << magnet::xml::tag("ReplexTrace")
+      << magnet::xml::chardata();
   
   BOOST_FOREACH(const std::string& str, entries)
     XML << str;
 
-  XML << xml::endtag("ReplexTrace");
+  XML << magnet::xml::endtag("ReplexTrace");
 
   entries.pop_back();
 }

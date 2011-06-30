@@ -37,7 +37,7 @@ public:
   void increasedt(double);
 
 protected:
-  virtual void outputXML(xml::XmlStream&) const {}
+  virtual void outputXML(magnet::xml::XmlStream&) const {}
 
   double periodt;
 };

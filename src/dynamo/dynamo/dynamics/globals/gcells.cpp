@@ -302,10 +302,6 @@ CGCells::initialise(size_t nID)
   ID=nID;
   
   reinitialise(getMaxInteractionLength());
-
-  if (Sim->dynamics.liouvilleanTypeTest<LNewtonianGravity>())
-    dout << "Warning, in order for cellular NB lists to work in gravity\n"
-	     << "You must add the ParabolaSentinel Global event." << std::endl;
 }
 
 void
@@ -326,25 +322,28 @@ CGCells::reinitialise(const double& maxdiam)
 }
 
 void 
-CGCells::outputXML(xml::XmlStream& XML) const
+CGCells::outputXML(magnet::xml::XmlStream& XML) const
 {
   outputXML(XML, "Cells");
 }
 
 void
-CGCells::outputXML(xml::XmlStream& XML, const std::string& name) const
+CGCells::outputXML(magnet::xml::XmlStream& XML, const std::string& name) const
 {
   //If you add anything here it also needs to go in gListAndCells.cpp too
-  XML << xml::attr("Type") << name
-      << xml::attr("Name") << globName;
+  XML << magnet::xml::tag("Global")
+      << magnet::xml::attr("Type") << name
+      << magnet::xml::attr("Name") << globName;
 
   if (MaxIntDist != 0.0)
-    XML << xml::attr("CellWidth") << MaxIntDist / Sim->dynamics.units().unitLength();
+    XML << magnet::xml::attr("CellWidth") << MaxIntDist / Sim->dynamics.units().unitLength();
   else if (!interaction.empty())
-    XML << xml::attr("Interaction") << interaction;
+    XML << magnet::xml::attr("Interaction") << interaction;
       
-  if (overlink > 1)   XML << xml::attr("OverLink") << overlink;
-  if (_oversizeCells != 1.0) XML << xml::attr("Oversize") << _oversizeCells;
+  if (overlink > 1)   XML << magnet::xml::attr("OverLink") << overlink;
+  if (_oversizeCells != 1.0) XML << magnet::xml::attr("Oversize") << _oversizeCells;
+
+  XML << magnet::xml::endtag("Global");
 }
 
 void

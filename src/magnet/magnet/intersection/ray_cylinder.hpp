@@ -20,7 +20,7 @@
 
 namespace magnet {
   namespace intersection {
-    //! A ray-inverse_cylinder intersection test.
+    //! \brief A ray-inverse_cylinder intersection test.
     //!
     //! This test ignores the back face of the cylinder, it is used to
     //! detect when a ray inside a cylinder will escape.
@@ -43,7 +43,7 @@ namespace magnet {
     }
 
 
-    //! A ray-inverse_cylinder intersection test.
+    //! \brief A ray-cylinder intersection test.
     //!
     //! This test ignores the back face of the cylinder, it is used to
     //! detect when a ray will enter a cylinder.

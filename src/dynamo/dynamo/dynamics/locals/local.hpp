@@ -59,7 +59,7 @@ public:
 
   virtual void initialise(size_t) = 0;
 
-  friend xml::XmlStream& operator<<(xml::XmlStream&, const Local&);
+  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Local&);
 
   static Local* getClass(const magnet::xml::Node&, dynamo::SimData*);
 
@@ -74,7 +74,7 @@ public:
   virtual void checkOverlaps(const Particle&) const  {}
 
 protected:
-  virtual void outputXML(xml::XmlStream&) const = 0;
+  virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
   magnet::ClonePtr<CRange> range;  
   std::string localName;

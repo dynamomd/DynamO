@@ -20,7 +20,7 @@
 
 namespace magnet {
   namespace intersection {
-    //! A ray-quadrangle intersection test.
+    //! \brief A ray-quadrangle intersection test.
     //!
     //! The method used here is described in "An Efficient
     //! Ray-Quadrilateral Intersection Test", by Ares Lagae and Philip

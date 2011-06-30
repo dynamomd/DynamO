@@ -132,13 +132,13 @@ OPIntEnergyHist::getImprovedW() const
 
 
 void 
-OPIntEnergyHist::output(xml::XmlStream& XML)
+OPIntEnergyHist::output(magnet::xml::XmlStream& XML)
 {
-  XML << xml::tag("EnergyHist")
-      << xml::attr("BinWidth") << binwidth;
+  XML << magnet::xml::tag("EnergyHist")
+      << magnet::xml::attr("BinWidth") << binwidth;
 
   if (dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()) != NULL)
-    XML << xml::attr("T") 
+    XML << magnet::xml::attr("T") 
 	<< static_cast<const dynamo::EnsembleNVT&>(*(Sim->ensemble)).getReducedEnsembleVals()[2];
   
   intEnergyHist.outputClearHistogram(XML, Sim->dynamics.units().unitEnergy());
@@ -153,8 +153,8 @@ OPIntEnergyHist::output(xml::XmlStream& XML)
 	M_throw() << "Multi-canonical simulations require an NVT ensemble";
 #endif
       
-      XML << xml::tag("PotentialDeformation")
-	  << xml::attr("EnergyStep") << intEnergyHist.data.binWidth * Sim->dynamics.units().unitEnergy();
+      XML << magnet::xml::tag("PotentialDeformation")
+	  << magnet::xml::attr("EnergyStep") << intEnergyHist.data.binWidth * Sim->dynamics.units().unitEnergy();
       
       typedef std::pair<const long, double> lv1pair;
       BOOST_FOREACH(const lv1pair &p1, intEnergyHist.data.data)
@@ -168,16 +168,16 @@ OPIntEnergyHist::output(xml::XmlStream& XML)
 	    / (intEnergyHist.data.binWidth * intEnergyHist.sampleCount 
 	       * Sim->dynamics.units().unitEnergy());
 	  
-	  XML << xml::tag("W")
-	      << xml::attr("Energy") << E * Sim->dynamics.units().unitEnergy()
-	      << xml::attr("Value") << W + std::log(Pc)
-	      << xml::attr("OldValue") << W
-	      << xml::endtag("W");
+	  XML << magnet::xml::tag("W")
+	      << magnet::xml::attr("Energy") << E * Sim->dynamics.units().unitEnergy()
+	      << magnet::xml::attr("Value") << W + std::log(Pc)
+	      << magnet::xml::attr("OldValue") << W
+	      << magnet::xml::endtag("W");
 	}
       
-      XML << xml::endtag("PotentialDeformation");
+      XML << magnet::xml::endtag("PotentialDeformation");
       
     }
-  XML << xml::endtag("EnergyHist");
+  XML << magnet::xml::endtag("EnergyHist");
 
 }
