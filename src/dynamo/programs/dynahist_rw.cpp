@@ -436,7 +436,8 @@ void outputMoments()
 
   size_t steps = 100 * (SimulationData.size()-1) + 1;
 
-  long double stepsize = (SimulationData.front().gamma[0] - SimulationData.back().gamma[0]) / 1000;
+  //long double stepsize = (SimulationData.front().gamma[0] - SimulationData.back().gamma[0]) / 1000;
+long double stepsize = (SimulationData.front().gamma[0] - SimulationData.back().gamma[0]) / steps;
 
   std::vector<std::pair<double,double> > Cv;
   {
