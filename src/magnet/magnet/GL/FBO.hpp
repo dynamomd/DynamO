@@ -99,15 +99,8 @@ namespace magnet {
 	//Skip identity operations
 	if ((_width == width) && (_height == height)) return;
 
-	_width = width;
-	_height = height;
-
-
-	_depthTexture.deinit();
-	_depthTexture.init(_width, _height, GL_DEPTH_COMPONENT24);
-
-	_colorTexture.deinit();
-	_colorTexture.init(_width, _height, _internalformat);
+	deinit();
+	init(width, height, _internalformat);
       }
 
       inline void blitToScreen(GLsizei screenwidth, GLsizei screenheight)
