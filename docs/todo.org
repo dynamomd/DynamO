@@ -14,6 +14,7 @@
 **** DONE *BUGFIX* Made the "well exit test" significantly more stable, allowing correct simulation of large inelastic flexible bodies.
 **** DONE *BUGFIX* Fixed stepped and sequenced potentials broken in 1.1.
 **** DONE XML errors are now much more verbose and tell you exactly what went wrong and where.
+**** DONE *BUGFIX* Fixed the widespread improper use of the XML test functions, causing errors instead of warnings.
 **** DONE More Doxygen comments to help people understand the source code.
 **** DONE The ParabolaSentinel global is now added automatically to simulations, it needs to be deleted from existing configurations.
 **** DONE The DynamO-Coil integration can be forcibly enabled or disabled at build time.
@@ -30,7 +31,6 @@
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
 **** DONE *BUGFIX* Fixed bounded priority queues causing huge slowdowns in very small (N=2) systems.
 **** DONE *BUGFIX* Coil visualizer: Fixed resizing of anti-aliased windows not working on AMD hardware.
-**** DONE *BUGFIX* Fixed the improper use of the XML test functions, causing errors instead of warnings.
 **** TODO Improve the runEvent loop, its a mess right now.
 **** TODO Improve the way data is made available to Coil, allowing a paraview-like interface to the data sources.
 **** TODO Coil library volume renderer (blocking on above)
