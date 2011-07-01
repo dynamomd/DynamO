@@ -53,7 +53,7 @@ struct CUFile: public CUCell
 	M_throw() << "This packer only works on XML config files without binary data,"
 		  << " please convert to plain xml using \"dynamod --text\"";
       
-      for (magnet::xml::Node node = xSubNode.fastgetNode("Pt");
+      for (magnet::xml::Node node = xSubNode.fastGetNode("Pt");
 	   node.valid(); ++node)
 	{
 	  Vector  posVector;
