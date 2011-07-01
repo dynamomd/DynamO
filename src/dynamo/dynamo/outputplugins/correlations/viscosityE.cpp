@@ -58,15 +58,21 @@ OPViscosityE::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
+      //The length of the correlation function in timesteps
       CorrelatorLength = XML.getAttribute("Length").as<size_t>(100);
 
+      //The time step between sampling the correlation function
       if (XML.hasAttribute("dt"))
 	dt = Sim->dynamics.units().unitTime() * 
 	  XML.getAttribute("dt").as<double>();
 
+      //This is used to set the timestep as a function of the previous
+      //simulation runs mean free time.
       if (XML.hasAttribute("dtfactor"))
 	dtfactor = XML.getAttribute("dtfactor").as<double>();
       
+      //This sets the total correlation time, and the time step is
+      //worked out as \f$ dt = t / CorrelatorLength \f$.
       if (XML.hasAttribute("t"))
 	dt = Sim->dynamics.units().unitTime() * 
 	  XML.getAttribute("t").as<double>() / CorrelatorLength;

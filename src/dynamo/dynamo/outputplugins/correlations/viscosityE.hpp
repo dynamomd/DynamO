@@ -66,9 +66,22 @@ protected:
   size_t currlen;
   bool notReady;
 
+  /*! \brief This is the length of the correlation function, in
+   * timesteps */
   size_t CorrelatorLength;
 
+  /*! \brief These values are the past values of the correlation
+   * function.
+   *
+   * There are \ref CorrelatorLength stored values. 
+   */
   boost::circular_buffer<matrix> G;
+
+  /*! \brief This is the actual correlation function.
+   *
+   * It is updated every time a new value of the correlator is stored
+   * into \ref G.
+   */
   std::vector<matrix> accG2;
   double dtfactor;
 };
