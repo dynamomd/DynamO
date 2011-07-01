@@ -34,7 +34,8 @@ void
 OPVelDist::operator<<(const magnet::xml::Node& XML)
 {
   try {
-    binWidth = XML.getAttribute("binWidth").as<double>(0.01);
+    if (XML.hasAttribute("binWidth"))
+      binWidth = XML.getAttribute("binWidth").as<double>();
   }
   catch (std::exception& excep)
     {

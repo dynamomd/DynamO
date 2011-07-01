@@ -77,8 +77,11 @@ OPTinkerXYZ::operator<<(const magnet::xml::Node& XML)
       if (XML.hasAttribute("NoBlock")) blockForVMD = false;
       if (XML.hasAttribute("P1Track")) P1track = true;
       
-      port = XML.getAttribute("Port").as<int>(3333);
-      max_frame_count = XML.getAttribute("MaxFrames").as<size_t>(1000);
+      if (XML.hasAttribute("Port"))
+	port = XML.getAttribute("Port").as<int>();
+
+      if (XML.hasAttribute("MaxFrames"))
+	max_frame_count = XML.getAttribute("MaxFrames").as<size_t>();
     }
   catch (std::exception& excep)
     {

@@ -78,19 +78,6 @@ namespace magnet {
 	  }
       }
 
-      /*! \brief Converts the attributes value to a type.  
-       *
-       * This version of as() will return the passed value if the
-       * Attribute is invalid.
-       * \param defaultval The default value to be returned if the Attribute is invalid.
-       * \sa as()
-       */
-      template<class T> inline T as(T defaultval) const 
-      { 
-	if (!valid()) return defaultval;
-	return boost::lexical_cast<T>(_attr->value()); 
-      }
-
       //! \brief Conversion operator returning the value of the attribute.
       inline operator const char*() const 
       { 

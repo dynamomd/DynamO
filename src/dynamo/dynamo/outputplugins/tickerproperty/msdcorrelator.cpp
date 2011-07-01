@@ -41,7 +41,8 @@ OPMSDCorrelator::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
-      length = XML.getAttribute("Length").as<size_t>(20);
+      if (XML.hasAttribute("Length"))
+	length = XML.getAttribute("Length").as<size_t>();
     }
   catch (boost::bad_lexical_cast &)
     {

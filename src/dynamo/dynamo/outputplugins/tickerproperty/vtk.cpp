@@ -43,10 +43,11 @@ void
 OPVTK::operator<<(const magnet::xml::Node& XML)
 {
   try {
-    binWidth = 
-      Vector(XML.getAttribute("binwidth").as<double>(1),
-	     XML.getAttribute("binwidth").as<double>(1),
-	     XML.getAttribute("binwidth").as<double>(1));
+    float bw = 1;
+    if (XML.hasAttribute("binwidth"))
+      bw = XML.getAttribute("binwidth").as<double>();
+
+    binWidth = Vector(bw, bw, bw);
     
     if (XML.hasAttribute("Snapshots")) snapshots = true;
     if (XML.hasAttribute("Fields")) fields = true;

@@ -49,7 +49,8 @@ OPChainBondAngles::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
-      binwidth = XML.getAttribute("binwidth").as<double>(0.0001);
+      if (XML.hasAttribute("binwidth"))
+	binwidth = XML.getAttribute("binwidth").as<double>();
     }
   catch (boost::bad_lexical_cast &)
     {

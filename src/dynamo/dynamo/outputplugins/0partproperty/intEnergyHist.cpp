@@ -40,7 +40,8 @@ OPIntEnergyHist::operator<<(const magnet::xml::Node& XML)
 {  
   try 
     {
-      binwidth = XML.getAttribute("BinWidth").as<double>(1.0);
+      if (XML.hasAttribute("BinWidth"))
+	binwidth = XML.getAttribute("BinWidth").as<double>();
     }
   catch (boost::bad_lexical_cast &)
     {

@@ -25,7 +25,7 @@
 OPRadialDistribution::OPRadialDistribution(const dynamo::SimData* tmp, 
 					   const magnet::xml::Node& XML):
   OPTicker(tmp,"RadialDistribution"),
-  binWidth(1.0),
+  binWidth(0.1),
   length(100),
   sampleCount(0)
 { 
@@ -39,8 +39,10 @@ void
 OPRadialDistribution::operator<<(const magnet::xml::Node& XML)
 {
   try {
-    binWidth = XML.getAttribute("binWidth").as<double>(0.1)
-      * Sim->dynamics.units().unitLength();
+    if (XML.hasAttribute("binWidth"))
+      binWidth = XML.getAttribute("binWidth").as<double>();
+
+    binWidth *= Sim->dynamics.units().unitLength();
     
     if (XML.hasAttribute("length"))
       length = XML.getAttribute("length").as<size_t>();
@@ -58,7 +60,7 @@ OPRadialDistribution::operator<<(const magnet::xml::Node& XML)
       }
 
     dout << "Binwidth = " << binWidth / Sim->dynamics.units().unitLength()
-	     << "\nLength = " << length << std::endl;
+	 << "\nLength = " << length << std::endl;
   }
   catch (std::exception& excep)
     {

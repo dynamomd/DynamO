@@ -58,7 +58,8 @@ OPThermalDiffusionE::operator<<(const magnet::xml::Node& XML)
 		    << nex.what();
 	}
 
-      CorrelatorLength = XML.getAttribute("Length").as<size_t>(100);
+      if (XML.hasAttribute("Length"))
+	CorrelatorLength = XML.getAttribute("Length").as<size_t>();
       
       if (XML.hasAttribute("dt"))
 	dt = Sim->dynamics.units().unitTime() * 

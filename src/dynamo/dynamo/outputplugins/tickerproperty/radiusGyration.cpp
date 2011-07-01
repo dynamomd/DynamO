@@ -47,14 +47,17 @@ OPRGyration::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
-      binwidth1 = XML.getAttribute("binwidth1").as<double>(0.01);
-      binwidth2 = XML.getAttribute("binwidth2").as<double>(0.001);
-      binwidth3 = XML.getAttribute("binwidth3").as<double>(0.01);
+      if (XML.hasAttribute("binwidth1"))
+	binwidth1 = XML.getAttribute("binwidth1").as<double>();
+
+      if (XML.hasAttribute("binwidth2"))
+	binwidth2 = XML.getAttribute("binwidth2").as<double>();
+
+      if (XML.hasAttribute("binwidth3"))
+	binwidth3 = XML.getAttribute("binwidth3").as<double>();
     }
   catch (boost::bad_lexical_cast &)
-    {
-      M_throw() << "Failed a lexical cast in OPRGyration";
-    }
+    { M_throw() << "Failed a lexical cast in OPRGyration"; }
   
 }
 

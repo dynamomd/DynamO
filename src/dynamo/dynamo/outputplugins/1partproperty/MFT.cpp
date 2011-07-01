@@ -38,8 +38,11 @@ OPMFT::operator<<(const magnet::xml::Node& XML)
 {
   try 
     {
-      binwidth = XML.getAttribute("binwidth").as<double>(0.01);
-      collisionHistoryLength = XML.getAttribute("length").as<size_t>(10);
+      if (XML.hasAttribute("binwidth"))
+	binwidth = XML.getAttribute("binwidth").as<double>();
+
+      if (XML.hasAttribute("length"))
+	collisionHistoryLength = XML.getAttribute("length").as<size_t>();
     }
   catch (boost::bad_lexical_cast&)
     {

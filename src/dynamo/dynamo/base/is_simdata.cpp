@@ -83,8 +83,12 @@ namespace dynamo
 
     Node subNode= mainNode.getNode("Simulation");
   
-    if (subNode.getNode("Trajectory").hasAttribute("lastMFT"))
-      lastRunMFT = subNode.getNode("Trajectory").getAttribute("lastMFT").as<double>();
+    //Don't fail if the MFT is not valid
+    try {
+      if (subNode.getNode("Trajectory").hasAttribute("lastMFT"))
+	lastRunMFT = subNode.getNode("Trajectory").getAttribute("lastMFT").as<double>();
+    } catch (std::exception&)
+      {}
 
     ssHistory << subNode.getNode("History");
 

@@ -59,7 +59,8 @@ OPViscosityE::operator<<(const magnet::xml::Node& XML)
   try 
     {
       //The length of the correlation function in timesteps
-      CorrelatorLength = XML.getAttribute("Length").as<size_t>(100);
+      if (XML.hasAttribute("Length"))
+	CorrelatorLength = XML.getAttribute("Length").as<size_t>();
 
       //The time step between sampling the correlation function
       if (XML.hasAttribute("dt"))

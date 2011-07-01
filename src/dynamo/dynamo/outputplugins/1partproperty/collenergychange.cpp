@@ -40,8 +40,11 @@ void
 OPCollEnergyChange::operator<<(const magnet::xml::Node& XML)
 {
   try {
-    binWidth = XML.getAttribute("binWidth").as<double>(0.001);
-    KEBinWidth = XML.getAttribute("KEBinWidth").as<double>(0.1);
+    if (XML.hasAttribute("binWidth"))
+      binWidth = XML.getAttribute("binWidth").as<double>();
+
+    if (XML.hasAttribute("KEBinWidth"))
+      KEBinWidth = XML.getAttribute("KEBinWidth").as<double>();
     KEBinWidth *= Sim->dynamics.units().unitEnergy();
   }
   catch (std::exception& excep)

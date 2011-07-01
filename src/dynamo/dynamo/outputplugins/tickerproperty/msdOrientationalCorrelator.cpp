@@ -40,7 +40,8 @@ void
 OPMSDOrientationalCorrelator::operator<<(const magnet::xml::Node& XML)
 {
   try {
-    length = XML.getAttribute("Length").as<size_t>(50);
+    if (XML.hasAttribute("Length"))
+      length = XML.getAttribute("Length").as<size_t>();
   }
   catch (boost::bad_lexical_cast &)
   {

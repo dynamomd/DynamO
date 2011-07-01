@@ -41,8 +41,11 @@ OPSHCrystal::operator<<(const magnet::xml::Node& XML)
 {
   try
     {
-      rg = XML.getAttribute("CutOffR").as<double>(1.2);
-      maxl = XML.getAttribute("MaxL").as<size_t>(7);
+      if (XML.hasAttribute("CutOffR"))
+	rg = XML.getAttribute("CutOffR").as<double>();
+
+      if (XML.hasAttribute("MaxL"))
+	maxl = XML.getAttribute("MaxL").as<size_t>();
     }
   catch (boost::bad_lexical_cast &)
     {
