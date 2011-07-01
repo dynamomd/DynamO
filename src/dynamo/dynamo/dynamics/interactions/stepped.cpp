@@ -163,6 +163,19 @@ IStepped::getInternalEnergy() const
   return Energy; 
 }
 
+double 
+IStepped::getInternalEnergy(const Particle& p1, const Particle& p2) const
+{
+  const_cmap_it capstat = getCMap_it(p1,p2);
+  if (capstat == captureMap.end())
+    return 0;
+  else
+    return steps[capstat->second - 1].second
+      * 0.5 * (_unitEnergy->getProperty(p1.getID())
+	       + _unitEnergy->getProperty(p2.getID()))
+      * isCaptured(p1, p2);
+}
+
 IntEvent
 IStepped::getEvent(const Particle &p1, 
 		    const Particle &p2) const

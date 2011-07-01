@@ -69,6 +69,8 @@ public:
 
   virtual double getInternalEnergy() const;
 
+  virtual double getInternalEnergy(const Particle&, const Particle&) const;
+
   virtual void checkOverlaps(const Particle&, const Particle&) const;
 
   virtual bool captureTest(const Particle&, const Particle&) const;

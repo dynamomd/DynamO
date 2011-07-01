@@ -61,6 +61,8 @@ public:
 
   virtual double getInternalEnergy() const;
 
+  virtual double getInternalEnergy(const Particle&, const Particle&) const;
+
 protected:
   magnet::thread::RefPtr<Property> _diameter;
   magnet::thread::RefPtr<Property> _wellDepth;

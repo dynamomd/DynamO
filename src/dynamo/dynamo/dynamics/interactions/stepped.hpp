@@ -59,6 +59,8 @@ public:
 
   virtual double getInternalEnergy() const;
 
+  virtual double getInternalEnergy(const Particle&, const Particle&) const;
+
 protected:
   //!This class is used to track how the length scale changes in the system
   magnet::thread::RefPtr<Property> _unitLength;

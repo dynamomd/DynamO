@@ -172,6 +172,16 @@ ISWSequence::getInternalEnergy() const
 }
 
 double 
+ISWSequence::getInternalEnergy(const Particle& p1, const Particle& p2) const
+{
+  return -alphabet[sequence[p1.getID() % sequence.size()]][sequence[p2.getID() % sequence.size()]]
+    * 0.5 * (_unitEnergy->getProperty(p1.getID())
+	     +_unitEnergy->getProperty(p2.getID()))
+    * isCaptured(p1, p2);
+}
+
+
+double 
 ISWSequence::getExcludedVolume(size_t ID) const 
 { 
   double diam = _diameter->getProperty(ID);

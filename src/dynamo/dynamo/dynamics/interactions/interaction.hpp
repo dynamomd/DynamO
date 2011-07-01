@@ -60,6 +60,10 @@ public:
   //! Returns the internal energy "stored" in this interaction.
   virtual double getInternalEnergy() const = 0; 
 
+  //! Returns the internal energy "stored" in this interaction by the
+  //! two passed particles.
+  virtual double getInternalEnergy(const Particle&, const Particle&) const { return 0; } 
+
   //! Returns the excluded volume of a certain particle.
   virtual double getExcludedVolume(size_t) const = 0;
 

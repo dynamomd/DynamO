@@ -364,3 +364,11 @@ ISquareWell::getInternalEnergy() const
   
   return -Energy; 
 }
+
+double 
+ISquareWell::getInternalEnergy(const Particle& p1, const Particle& p2) const
+{
+  return - 0.5 * (_wellDepth->getProperty(p1.getID())
+		  +_wellDepth->getProperty(p2.getID()))
+    * isCaptured(p1, p2);
+}
