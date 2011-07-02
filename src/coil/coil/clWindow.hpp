@@ -153,7 +153,7 @@ private:
 
   sigc::connection _renderTimeout;
 
-  magnet::thread::RefPtr<magnet::GL::viewPort> _viewPortInfo;
+  magnet::thread::RefPtr<magnet::GL::ViewPort> _viewPortInfo;
     
   bool keyStates[256];
 
@@ -179,7 +179,7 @@ private:
 
   size_t _snapshot_counter;
 
-  std::auto_ptr<magnet::GL::lightInfo> _light0;
+  std::auto_ptr<magnet::GL::LightInfo> _light0;
 
   /////////GTK members
   virtual void initGTK();

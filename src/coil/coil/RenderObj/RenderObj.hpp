@@ -27,7 +27,7 @@ namespace Gtk {
 
 namespace magnet {
   namespace GL {
-    class viewPort;
+    class ViewPort;
   }
 }
 
@@ -46,7 +46,7 @@ public:
   void accessoryData(const magnet::thread::RefPtr<RenderObj>& console, 
 		     const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue,
 		     const magnet::thread::RefPtr<magnet::CL::CLGLState>& CLState,
-		     const magnet::thread::RefPtr<magnet::GL::viewPort>& viewPort)
+		     const magnet::thread::RefPtr<magnet::GL::ViewPort>& viewPort)
   {
     _console = console;
     _systemQueue = systemQueue;
@@ -99,5 +99,5 @@ protected:
   magnet::thread::RefPtr<RenderObj> _console;
   magnet::thread::RefPtr<magnet::thread::TaskQueue> _systemQueue;
   magnet::thread::RefPtr<magnet::CL::CLGLState> _CLState;
-  magnet::thread::RefPtr<magnet::GL::viewPort> _viewPort;
+  magnet::thread::RefPtr<magnet::GL::ViewPort> _viewPort;
 };

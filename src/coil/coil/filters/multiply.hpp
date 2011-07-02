@@ -29,7 +29,7 @@ namespace coil
     inline virtual size_t type_id() { return detail::filterEnum<MultiplyFilter>::val; }
     inline virtual bool isEditable() { return false; }
     inline virtual void invoke(GLint colorTextureUnit, size_t width, size_t height,
-			       const magnet::GL::viewPort& vp)
+			       const magnet::GL::ViewPort& vp)
     { 
       _filter["u_Texture0"] = colorTextureUnit;
       _filter["u_Texture1"] = 0;

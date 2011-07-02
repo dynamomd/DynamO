@@ -21,7 +21,7 @@
 
 namespace magnet {
   namespace GL {
-    /*! \brief A specialization of the \ref viewPort, to ease creating
+    /*! \brief A specialization of the \ref ViewPort, to ease creating
      * shadow mapping light sources
      *
      * A shadow mapping light source is an OpenGL light source which
@@ -31,16 +31,16 @@ namespace magnet {
      * This type of light is directional as it has a direction it is
      * looking at, just like the camera.
      */
-    class lightInfo: public viewPort
+    class LightInfo: public ViewPort
     {
     public:
       /*! \brief Default constructor
        *
-       * We need a default constructor as viewPorts may be
+       * We need a default constructor as ViewPort classes may be
        * created without GL being initialized.
        */
-      inline lightInfo():
-	viewPort(1,1) {}
+      inline LightInfo():
+	ViewPort(1,1) {}
 
       /*! \brief Constructor
        *
@@ -53,13 +53,13 @@ namespace magnet {
        * \param zFarDist The distance to the far clipping plane.
        * \param up A vector describing the up direction of the camera.
        */
-      inline lightInfo(Vector position, 
+      inline LightInfo(Vector position, 
 		       Vector lookAtPoint,
 		       GLenum lightHandle = GL_LIGHT0,
 		       GLfloat fovY = 45.0f,
 		       GLfloat zNearDist = 0.05f, GLfloat zFarDist = 10.0f,
 		       Vector up = Vector(0,1,0)):
-	viewPort(1,1,position, lookAtPoint, fovY, zNearDist, zFarDist, up, 1.0),
+	ViewPort(1,1,position, lookAtPoint, fovY, zNearDist, zFarDist, up),
 	_lightHandle(lightHandle)
       {
 	const GLfloat white[] = {1.0f, 1.0f, 1.0f, 1.0f};
@@ -110,19 +110,19 @@ namespace magnet {
 	glPopMatrix();
       }
 
-      /*! \brief Allow copying the lights location from a \ref viewPort.
+      /*! \brief Allow copying the lights location from a \ref ViewPort.
        * 
-       * This operation does not copy all details of the viewPort. For
+       * This operation does not copy all details of the \ref ViewPort. For
        * example, the field of view and aspect ratio of the light is
        * maintained.
        */
-      lightInfo& operator=(const viewPort& vp)
+      LightInfo& operator=(const ViewPort& vp)
       {
 	//The FOV and the aspect ratio of the light must be maintained
 	size_t width = _width;
 	size_t height = _height;
 	double fovY = getFOVY();
-	viewPort::operator=(vp);
+	ViewPort::operator=(vp);
 	setFOVY(fovY);
 	_width = width;
 	_height = height;
@@ -137,7 +137,7 @@ namespace magnet {
        * This function only makes sense if the selected matrix is the
        * texture matrix corresponding to the light's depth map.
        */
-      inline void loadShadowTextureMatrix(const viewPort& vp)
+      inline void loadShadowTextureMatrix(const ViewPort& vp)
       {
 	//Build the texture matrix
 	glLoadIdentity();

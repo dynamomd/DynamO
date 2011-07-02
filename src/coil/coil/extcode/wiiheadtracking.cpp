@@ -158,7 +158,7 @@ void TrackWiimote::updateHeadPos()
   eye_pos[1] = eye_pos[2] * std::sin(Yangle) + ((_wiimoteAboveScreen) ? 0.5f : -0.5f) * ScreenYlength;
 }
 
-void TrackWiimote::glPerspective(const magnet::GL::viewPort& vp, const Vector offset)
+void TrackWiimote::glPerspective(const magnet::GL::ViewPort& vp, const Vector offset)
 {
   //Build a matrix to rotate from camera to world
   Matrix Transformation 

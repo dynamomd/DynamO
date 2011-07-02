@@ -34,7 +34,7 @@ namespace magnet {
      * camera. There is also support for head tracking calculations
      * using the \ref _headLocation \ref Vector.
      */
-    class viewPort
+    class ViewPort
     {
     public:
       //! \brief The mode of the mouse movement
@@ -57,7 +57,7 @@ namespace magnet {
        * \param up A vector describing the up direction of the camera.
        */
       //We need a default constructor as viewPorts may be created without GL being initialized
-      inline viewPort(size_t height = 600, 
+      inline ViewPort(size_t height = 600, 
 		      size_t width = 800,
 		      Vector position = Vector(1,1,1), 
 		      Vector lookAtPoint = Vector(0,0,0),

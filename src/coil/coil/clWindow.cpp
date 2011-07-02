@@ -174,7 +174,7 @@ CLGLWindow::initOpenGL()
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
 
   //Light0 parameters
-  _light0.reset(new magnet::GL::lightInfo(Vector(0.8f,  1.5f, 0.8f),//Position
+  _light0.reset(new magnet::GL::LightInfo(Vector(0.8f,  1.5f, 0.8f),//Position
 					  Vector(0.0f, 0.0f, 0.0f),//Lookat
 					  GL_LIGHT0,
 					  75.0f//Beam angle
@@ -765,7 +765,7 @@ CLGLWindow::init()
 
   _CLState = new magnet::CL::CLGLState;
   _viewPortInfo 
-    = magnet::thread::RefPtr<magnet::GL::viewPort>(new magnet::GL::viewPort);
+    = magnet::thread::RefPtr<magnet::GL::ViewPort>(new magnet::GL::ViewPort);
 
   //Inform objects about the accessory objects, like the console or the pointer
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
