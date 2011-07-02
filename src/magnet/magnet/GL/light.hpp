@@ -20,14 +20,39 @@
 #include <magnet/GL/viewPort.hpp>
 
 namespace magnet {
-  namespace GL {        
+  namespace GL {
+    /*! \brief A specialization of the \ref viewPort, to ease creating
+     * shadow mapping light sources
+     *
+     * A shadow mapping light source is an OpenGL light source which
+     * also requires the depth map of the scene, rendered from its
+     * location, to perform shadow casting.
+     *
+     * This type of light is directional as it has a direction it is
+     * looking at, just like the camera.
+     */
     class lightInfo: public viewPort
     {
     public:
-      //We need a default constructor as viewPorts may be created without GL being initialized
+      /*! \brief Default constructor
+       *
+       * We need a default constructor as viewPorts may be
+       * created without GL being initialized.
+       */
       inline lightInfo():
 	viewPort(1,1) {}
 
+      /*! \brief Constructor
+       *
+       * This constructor also associates an OpenGL lightsource with this class.
+       * \param lightHandle The enum of the OpenGL light source associated with this class.
+       * \param position The position of the screen (effectively the camera), in simulation coordinates.
+       * \param lookAtPoint The location the camera is initially focussed on.
+       * \param fovY The field of vision of the camera.
+       * \param zNearDist The distance to the near clipping plane.
+       * \param zFarDist The distance to the far clipping plane.
+       * \param up A vector describing the up direction of the camera.
+       */
       inline lightInfo(Vector position, 
 		       Vector lookAtPoint,
 		       GLenum lightHandle = GL_LIGHT0,
@@ -43,6 +68,8 @@ namespace magnet {
 	glLightfv(lightHandle, GL_SPECULAR, white);
       }
 
+      /*! \brief Updates the associated OpenGL light with the current light location.
+       */
       inline void glUpdateLight()
       {
 	Vector cameraLocation(getEyeLocation());
@@ -51,6 +78,8 @@ namespace magnet {
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
       }
 
+      /*! \brief Renders the light source as a cone in the OpenGL scene
+       */
       inline void drawLight()
       {
 	glColor3f(1.0f, 1.0f, 1.0f);
@@ -81,6 +110,12 @@ namespace magnet {
 	glPopMatrix();
       }
 
+      /*! \brief Allow copying the lights location from a \ref viewPort.
+       * 
+       * This operation does not copy all details of the viewPort. For
+       * example, the field of view and aspect ratio of the light is
+       * maintained.
+       */
       lightInfo& operator=(const viewPort& vp)
       {
 	//The FOV and the aspect ratio of the light must be maintained
@@ -96,6 +131,12 @@ namespace magnet {
 	return *this; 
       }
 
+      /*! \brief Load the current OpenGL matrix with the projection
+       * required for shadow mapping.
+       * 
+       * This function only makes sense if the selected matrix is the
+       * texture matrix corresponding to the light's depth map.
+       */
       inline void loadShadowTextureMatrix(const viewPort& vp)
       {
 	//Build the texture matrix
@@ -113,7 +154,9 @@ namespace magnet {
 	glMultMatrixf(vp_viewMatrix);
       }
 
-      inline void invert(GLfloat* mat4x4)
+      /*! \brief Function to in-place invert an 4x4 OpenGL matrix.
+       */
+      static void invert(GLfloat* mat4x4)
       {
 	GLfloat result[4*4];
 

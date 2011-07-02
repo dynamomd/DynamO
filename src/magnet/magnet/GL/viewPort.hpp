@@ -27,9 +27,17 @@
 
 namespace magnet {
   namespace GL {
+    /*! \brief An object to track the viewport (aka camera) state.
+     *
+     * This class can perform all the calculations required for
+     * setting up the projection and modelview matricies of the
+     * camera. There is also support for head tracking calculations
+     * using the \ref _headLocation \ref Vector.
+     */
     class viewPort
     {
     public:
+      //! \brief The mode of the mouse movement
       enum Camera_Mode
 	{
 	  ROTATE_VIEWPLANE,
@@ -37,6 +45,17 @@ namespace magnet {
 	  ROTATE_WORLD
 	};
 
+      /*! \brief The constructor
+       * 
+       * \param height The height of the viewport, in pixels.
+       * \param width The width of the viewport, in pixels.
+       * \param position The position of the screen (effectively the camera), in simulation coordinates.
+       * \param lookAtPoint The location the camera is initially focussed on.
+       * \param fovY The field of vision of the camera.
+       * \param zNearDist The distance to the near clipping plane.
+       * \param zFarDist The distance to the far clipping plane.
+       * \param up A vector describing the up direction of the camera.
+       */
       //We need a default constructor as viewPorts may be created without GL being initialized
       inline viewPort(size_t height = 600, 
 		      size_t width = 800,
@@ -44,8 +63,7 @@ namespace magnet {
 		      Vector lookAtPoint = Vector(0,0,0),
 		      GLfloat fovY = 60.0f,
 		      GLfloat zNearDist = 0.01f, GLfloat zFarDist = 20.0f,
-		      Vector up = Vector(0,1,0),
-		      GLfloat primaryCellSize = 1
+		      Vector up = Vector(0,1,0)
 		      ):
 	_height(height),
 	_width(width),
@@ -84,6 +102,8 @@ namespace magnet {
 	setFOVY(fovY);
       }
 
+      /*! \brief Change the field of vision of the viewport/camera.
+       */
       inline void setFOVY(double fovY) 
       {
 	//When the FOV is adjusted, we move the head position away
@@ -101,9 +121,16 @@ namespace magnet {
 	_headLocation += headLocationChange;
       }
       
+      /*! \brief Returns the current field of vision of the viewport/camera */
       inline double getFOVY() const
       { return 2 * std::atan2(0.5f * _screenWidth,  _headLocation[2]) * (180.0f / M_PI); }
 
+      /*! \brief Converts the motion of the mouse into a motion of the
+       * viewport/camera.
+       *
+       * \param diffX The amount the mouse has moved in the x direction, in pixels.
+       * \param diffY The amount the mouse has moved in the y direction, in pixels.
+       */
       inline void mouseMovement(float diffX, float diffY)
       {
 	switch (_camMode)
@@ -134,6 +161,13 @@ namespace magnet {
 	  }
       }
 
+      /*! \brief Converts a forward/sideways/vertical motion (e.g.,
+       * obtained from keypresses) into a motion of the
+       * viewport/camera.
+       *
+       * \param diffX The amount the mouse has moved in the x direction, in pixels.
+       * \param diffY The amount the mouse has moved in the y direction, in pixels.
+       */
       inline void CameraUpdate(float forward = 0, float sideways = 0, float vertical = 0)
       {
 	//Build a matrix to rotate from camera to world
@@ -149,6 +183,9 @@ namespace magnet {
 	buildMatrices();
       }
       
+      /*! \brief Constructs the OpenGL modelview and projection
+       * matricies from the stored state of the viewport/camera.
+       */
       inline void buildMatrices()
       {  
 	//We'll build the matricies on the modelview stack
@@ -208,12 +245,23 @@ namespace magnet {
 
       }
 
+      /*! \brief Saves the OpenGL modelview and projection matrices
+       * into an internal storage.
+       *
+       * \note This does not convert the matricies into the internal
+       * representation of this class! This is not a true save, it's
+       * more like a glPushMatrix() call, which does not use the
+       * matrix stack.
+       */
       inline void saveMatrices()
       {
 	glGetFloatv(GL_PROJECTION_MATRIX, _projectionMatrix);
 	glGetFloatv(GL_MODELVIEW_MATRIX, _viewMatrix);
       }
 
+      /*! \brief Restore the OpenGL matrices saved from a previous
+       * call to \ref saveMatrices().
+       */
       inline void loadMatrices()
       {
 	glMatrixMode(GL_PROJECTION);
@@ -223,14 +271,36 @@ namespace magnet {
 	glLoadMatrixf(_viewMatrix);
       }
 
+      //! \brief Get the distance to the near clipping plane
       inline const GLfloat& getZNear() const { return _zNearDist; }
+      //! \brief Get the distance to the far clipping plane
       inline const GLfloat& getZFar() const { return _zFarDist; }
 
+      //! \brief Get the pan angle of the camera in degrees
       inline const float& getPan() const { return _panrotation; }
+
+      //! \brief Get the tilt angle of the camera in degrees
       inline const float& getTilt() const { return _tiltrotation; }
+
+      //! \brief Get the position of the viewing plane (effectively the camera position)
       inline const Vector& getViewPlanePosition() const { return _position; } 
+
+      /*! \brief Get the stored modelview matrix.
+       *
+       * \note This only returns the modelview matrix saved from a
+       * call to \ref saveMatrices()! This may be different to the
+       * matrix generated by \ref buildMatrices().
+       */
       inline const GLfloat* getViewMatrix() const { return _viewMatrix; }
 
+      /*! \brief Fetch the location of the users eyes, in simulation
+       * coordinates.
+       * 
+       * Useful for head tracking applications. This returns the
+       * position of the eyes in simulation space by adding the head
+       * location (relative to the viewing plane/screen) onto the
+       * current position.
+       */
       inline const Vector 
       getEyeLocation() const 
       { 
@@ -241,16 +311,24 @@ namespace magnet {
 	return (viewTransformation * _headLocation) + _position;
       }
 
+      //! \brief Set the height and width of the screen in pixels.
       inline void setHeightWidth(size_t height, size_t width)
       { _height = height; _width = width; }
 
+      //! \brief Get the aspect ratio of the screen
       inline GLfloat getAspectRatio() const 
       { return ((GLfloat)_width) / _height; }
 
+      //! \brief Get the up direction of the camera/viewport
       inline const Vector& getCameraUp() const { return _cameraUp; } 
+
+      //! \brief Get the direction the camera is pointing in
       inline const Vector& getCameraDirection() const { return _cameraDirection; }
 
+      //! \brief Get the height of the screen, in pixels.
       inline const size_t& getHeight() const { return _height; }
+
+      //! \brief Get the width of the screen, in pixels.
       inline const size_t& getWidth() const { return _width; }
 
     protected:
