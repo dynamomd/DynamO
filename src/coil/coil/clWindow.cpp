@@ -430,10 +430,9 @@ CLGLWindow::initGTK()
       }
 
       ///////////////////////Multisampling (anti-aliasing)//////////////////////////////////
-      GLint maxSamples;
-      glGetIntegerv(GL_MAX_SAMPLES, &maxSamples);
+      GLint maxSamples = magnet::GL::multisampledFBO::getSupportedSamples();
 
-      if (GLEW_EXT_framebuffer_multisample && (maxSamples > 1))
+      if (maxSamples > 1)
 	{//Offer anti aliasing
 	  {//Turn on the antialiasing box
 	    Gtk::HBox* multisampleBox;

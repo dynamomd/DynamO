@@ -19,10 +19,23 @@
 #include <magnet/GL/FBO.hpp>
 
 namespace magnet {
-  namespace GL {    
+  namespace GL {
+    /*! \brief A multisampled (anti-aliased) Frame Buffer Object.
+     *
+     * Multisampled FBO's use sub-pixels to render a scene at a higher
+     * accuracy than is required. These sub-pixels are then averaged
+     * to "smooth" the final image and remove jagged edges.
+     *
+     * \sa FBO
+     */
     class multisampledFBO: public FBO
     {
     public:
+      /*! \brief Constructor which sets the number of subpixels per
+       * pixel.
+       *
+       * \param samples The number of subsamples per pixel.
+       */
       inline multisampledFBO(GLsizei samples):
 	_samples(samples)
       {}
@@ -135,6 +148,19 @@ namespace magnet {
 	FBO::deinit();
       }
       
+      /*! \brief Returns the number of sub-samples supported by the OpenGL implementation.
+       *
+       * This function returns 1, if multisampling is not supported.
+       */
+      static GLint getSupportedSamples()
+      {
+	if (GLEW_EXT_framebuffer_multisample) return 1;
+
+	GLint maxSamples;
+	glGetIntegerv(GL_MAX_SAMPLES, &maxSamples);
+	return maxSamples;
+      }
+
     private:
       GLuint _multisampleFBO;
       GLuint _multisampleColorBuffer;

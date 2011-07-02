@@ -18,15 +18,31 @@
 #include <magnet/GL/texture.hpp>
 
 namespace magnet {
-  namespace GL {    
+  namespace GL {   
+    /*! \brief A Frame Buffer Object.
+     *
+     * Frame buffer objects are "virtual screens" which can be drawn
+     * to, but the output is captured by bound textures instead of the
+     * real user screen.
+     *
+     * \sa multisampledFBO
+     */
     class FBO
     {
     public:
-      inline FBO():
-	_width(0),
-	_height(0)
-      {}
+      /*! \brief Default constructor.
+       * 
+       * The FBO is unusable at this point and must be first \ref
+       * init() ialized.
+       */
+      inline FBO(): _width(0), _height(0) {}
 
+      /*! \brief Initializes the FBO
+       * 
+       * \param width The width of the FBO in pixels.
+       * \param height The height of the FBO in pixels.
+       * \param internalformat The pixel type stored by the FBO.
+       */
       inline 
       virtual void init(GLsizei width, GLsizei height, GLint internalformat = GL_RGBA)
       {
@@ -90,6 +106,16 @@ namespace magnet {
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
       }
       
+      /*! \brief Resizes the FBO
+       * 
+       * If the FBO has been initialized, this will resize the FBO by
+       * first deinit()ializing the FBO and re-init()ializing with the
+       * correct size. Just resizing the textures does not play well
+       * with all GPU's.
+       *
+       * \param width The new width of the FBO in pixels.
+       * \param height The new height of the FBO in pixels.
+       */
       inline 
       virtual void resize(GLsizei width, GLsizei height)
       {
@@ -103,6 +129,11 @@ namespace magnet {
 	init(width, height, _internalformat);
       }
 
+      /*! \brief Renders the contents of the FBO to the real screen FBO.
+       * 
+       * \param screenwidth The width of the screen in pixels.
+       * \param screenheight The height of the screen in pixels.
+       */
       inline void blitToScreen(GLsizei screenwidth, GLsizei screenheight)
       {
 	if (!GLEW_EXT_framebuffer_blit)
@@ -114,10 +145,9 @@ namespace magnet {
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
       }
 
-      inline 
-      virtual ~FBO()
-      { deinit(); }
+      inline virtual ~FBO() { deinit(); }
 
+      /*! \brief Releases the OpenGL resources of this FBO. */
       inline 
       virtual void deinit()
       {
@@ -131,6 +161,7 @@ namespace magnet {
 	_height = 0;
       }
 
+      /*! \brief Attaches this FBO as the current render target. */
       inline 
       virtual void attach()
       {
@@ -139,6 +170,7 @@ namespace magnet {
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
       }
 
+      /*! \brief Restores the screen FBO as the current render target. */
       inline 
       virtual void detach()
       {
@@ -146,6 +178,11 @@ namespace magnet {
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
       }
 
+      /*! \brief Copies the contents of this FBO to another.
+       *
+       * \param other The FBO to copy this FBO's contents to.
+       * \param opts Bit flags marking the channels of the FBO to copy.
+       */
       inline 
       virtual void copyto(FBO& other, GLbitfield opts = GL_COLOR_BUFFER_BIT 
 			  | GL_DEPTH_BUFFER_BIT)
@@ -154,21 +191,26 @@ namespace magnet {
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, _FBO);
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, other._FBO);
 	glBlitFramebufferEXT(0, 0, _width, _height, 0, 0, 
-			     _width, _height, opts, GL_NEAREST);
+			     other._width, other._height, opts, GL_NEAREST);
 	
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, 0);
       }
 
       
+      /*! \brief Fetch the underlying OpenGL handle. */
       inline GLuint getFBO() { return _FBO; }
 
+      /*! \brief Fetch the texture bound to the color buffer. */
       inline Texture2D& getColorTexture() { return _colorTexture; }
 
+      /*! \brief Fetch the texture bound to the depth buffer. */
       inline Texture2D& getDepthTexture() { return _depthTexture; }
 
+      /*! \brief Fetch the width of the FBO in pixels. */
       inline GLsizei getWidth() { return _width; }
 
+      /*! \brief Fetch the height of the FBO in pixels. */
       inline GLsizei getHeight() { return _height; }
 
     protected:

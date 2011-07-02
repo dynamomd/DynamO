@@ -19,12 +19,20 @@
 
 namespace magnet {
   namespace GL {    
+    /*! \brief A Frame Buffer Object with appropriate depth texture
+     * settings for a shadow mapping buffer.
+     *
+     */
     class shadowFBO : public FBO
     {
     public:
       virtual void init(GLsizei, GLsizei, GLint internalformat = GL_RGBA)
       { M_throw() << "Cannot use this initializer"; }
 
+      /*! \brief Initializes the shadow FBO
+       * 
+       * \param length The side length of the FBO in pixels.
+       */
       virtual void init(GLsizei length)
       {
 	FBO::init(length, length);
@@ -50,19 +58,10 @@ namespace magnet {
 	// switch back to window-system-provided framebuffer
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
       }
-      
-      inline 
-      virtual void resize(GLsizei width, GLsizei height)
-      {
-	if (width  != height) 
-	  M_throw() << "Shadow maps should be square!";
 
-	//Skip identity operations
-	if (width  == _width) return;
-
-	FBO::resize(width, height);
-      }
-
+      /*! \brief Sets up the FBO ready for the light perspective
+       * render pass.
+       */
       inline void setup()
       {
 	//Use the fixed pipeline 
@@ -86,6 +85,7 @@ namespace magnet {
 	glColorMask(0, 0, 0, 0);
       }
 
+      /*! \brief Restores the original screen FBO. */
       inline void restore()
       {
 	//Restore the draw mode
