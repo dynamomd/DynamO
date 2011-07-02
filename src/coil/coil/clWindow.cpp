@@ -23,8 +23,8 @@
 #include <sstream>
 #include <iomanip>
 
-#include <magnet/PNG.hpp>
-#include <magnet/bitmap.hpp>
+#include <magnet/image/PNG.hpp>
+#include <magnet/image/bitmap.hpp>
 #include <magnet/function/task.hpp>
 #include <gtkmm/volumebutton.h>
 #include <coil/RenderObj/Function.hpp>
@@ -1101,10 +1101,11 @@ CLGLWindow::CallBackDisplayFunc()
     {
       _newData = false;
 
-      std::vector<png::Pixel<png::RGBA> > pixels;
+      std::vector<magnet::image::Pixel<magnet::image::RGB> > pixels;
       pixels.resize(_viewPortInfo->getWidth() * _viewPortInfo->getHeight());
       //Read the pixels into our container
-      glReadPixels(0,0, _viewPortInfo->getWidth(), _viewPortInfo->getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
+      glReadPixels(0,0, _viewPortInfo->getWidth(), _viewPortInfo->getHeight(), GL_RGB, 
+		   GL_UNSIGNED_BYTE, &pixels[0]);
       
       std::string path;
       {
@@ -1118,9 +1119,11 @@ CLGLWindow::CallBackDisplayFunc()
 	  _snapshot = false;
 
 	  if (_PNGFileFormat)
-	    png::Image::writeFile(path + "/snapshot.png", pixels, _viewPortInfo->getWidth(), _viewPortInfo->getHeight(), 9, false, true);
+	    magnet::image::writePNGFile(path + "/snapshot.png", pixels, _viewPortInfo->getWidth(), 
+					_viewPortInfo->getHeight(), 9, false, true);
 	  else
-	    magnet::image::writeBMPFile(path + "/snapshot.bmp", pixels, _viewPortInfo->getWidth(), _viewPortInfo->getHeight());
+	    magnet::image::writeBMPFile(path + "/snapshot.bmp", pixels, _viewPortInfo->getWidth(), 
+					_viewPortInfo->getHeight());
 	}
 
       if (_record)
@@ -1129,9 +1132,11 @@ CLGLWindow::CallBackDisplayFunc()
 	  filename << std::setw(6) <<  std::setfill('0') << std::right << std::dec << _snapshot_counter++;
 	  
 	  if (_PNGFileFormat)
-	    png::Image::writeFile(path + "/" + filename.str() +".png", pixels, _viewPortInfo->getWidth(), _viewPortInfo->getHeight(), 1, true, true);
+	    magnet::image::writePNGFile(path + "/" + filename.str() +".png", pixels, 
+					_viewPortInfo->getWidth(), _viewPortInfo->getHeight(), 1, true, true);
 	  else
-	    magnet::image::writeBMPFile(path + "/" + filename.str() +".bmp", pixels, _viewPortInfo->getWidth(), _viewPortInfo->getHeight());
+	    magnet::image::writeBMPFile(path + "/" + filename.str() +".bmp", pixels, 
+					_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
 	}
     }
 

@@ -95,4 +95,12 @@ namespace magnet {
    * only a few exceptions.
    */
   namespace console {}
+
+
+  /*! \brief Namespace for image output functions.*/
+  namespace image {
+    
+    /*! \brief Implementation details for image functions.*/
+    namespace detail {}
+  }
 }

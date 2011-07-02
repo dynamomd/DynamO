@@ -19,188 +19,45 @@
 #pragma once
 // C++
 #include <fstream>
-#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <sstream>
 #include <vector>
 
-// C
-#include <inttypes.h>
-
 // PNG
 #define PNG_SKIP_SETJMP_CHECK
 #include <png.h>
 
-namespace png {
-  class StreamUtils {
-  public:
-    static void read(png_structp png, png_bytep data, png_size_t length) {
-      static_cast<std::istream*>(png_get_io_ptr(png))->read(
-							    reinterpret_cast<char*>(data), length);
+#include <magnet/image/pixel.hpp>
+
+namespace magnet {
+  namespace image {
+    namespace detail {
+      //! \brief Stream read function to pass as parameter to the PNG library
+      inline void read(png_structp png, png_bytep data, png_size_t length) 
+      { static_cast<std::istream*>(png_get_io_ptr(png))->read(reinterpret_cast<char*>(data), length); }
+
+      //! \brief Stream write function to pass as parameter to the PNG library
+      inline void write(png_structp png, png_bytep data, png_size_t length) 
+      { static_cast<std::ostream*>(png_get_io_ptr(png))->write(reinterpret_cast<char*>(data), length); }
+
+      //! \brief Stream flush function to pass as parameter to the PNG library
+      inline void flush(png_structp png)
+      { static_cast<std::ostream*>(png_get_io_ptr(png))->flush(); }
     }
 
-    static void write(png_structp png, png_bytep data, png_size_t length) {
-      static_cast<std::ostream*>(png_get_io_ptr(png))->write(
-							     reinterpret_cast<char*>(data), length);
-    }
-
-    static void flush(png_structp png) {
-      static_cast<std::ostream*>(png_get_io_ptr(png))->flush();
-    }
-  };
-
-  enum ColorType { RGB = PNG_COLOR_TYPE_RGB, RGBA = PNG_COLOR_TYPE_RGBA };
-
-  template<ColorType = RGB>
-  class Pixel;
-
-  template<>
-  class Pixel<RGB> {
-  public:
-    Pixel() : r_(0), g_(0), b_(0) {
-    }
-
-    Pixel(uint8_t r, uint8_t g, uint8_t b) : r_(r), g_(g), b_(b) {
-    }
-
-    uint8_t red() const {
-      return r_;
-    }
-
-    uint8_t& red() {
-      return r_;
-    }
-
-    void red(const uint8_t r) {
-      r_ = r;
-    }
-
-    uint8_t green() const {
-      return g_;
-    }
-
-    uint8_t& green() {
-      return g_;
-    }
-
-    void green(const uint8_t g) {
-      g_ = g;
-    }
-
-    uint8_t blue() const {
-      return b_;
-    }
-
-    uint8_t& blue() {
-      return b_;
-    }
-
-    void blue(const uint8_t b) {
-      b_ = b;
-    }
-
-    void convert(const png_bytep pngPixel) {
-      r_ = pngPixel[0];
-      g_ = pngPixel[1];
-      b_ = pngPixel[2];
-    }
-
-  private:
-    uint8_t r_, g_, b_;
-  };
-
-  template<>
-  class Pixel<RGBA> {
-  public:
-    Pixel() : r_(0), g_(0), b_(0), a_(0) {
-    }
-
-    Pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : r_(r), g_(g),
-							b_(b), a_(a) {
-    }
-
-    uint8_t red() const {
-      return r_;
-    }
-
-    uint8_t& red() {
-      return r_;
-    }
-
-    void red(const uint8_t r) {
-      r_ = r;
-    }
-
-    uint8_t green() const {
-      return g_;
-    }
-
-    uint8_t& green() {
-      return g_;
-    }
-
-    void green(const uint8_t g) {
-      g_ = g;
-    }
-
-    uint8_t blue() const {
-      return b_;
-    }
-
-    uint8_t& blue() {
-      return b_;
-    }
-
-    void blue(const uint8_t b) {
-      b_ = b;
-    }
-
-    uint8_t alpha() const {
-      return a_;
-    }
-
-    uint8_t& alpha() {
-      return a_;
-    }
-
-    void alpha(const uint8_t a) {
-      a_ = a;
-    }
-
-    void convert(const png_bytep pngPixel) {
-      r_ = pngPixel[0];
-      g_ = pngPixel[1];
-      b_ = pngPixel[2];
-      a_ = pngPixel[3];
-    }
-
-  private:
-    uint8_t r_, g_, b_, a_;
-  };
-
-  inline std::ostream& operator<<(std::ostream& os, const png::Pixel<png::RGB>&
-				  pixel) {
-    os << "[" << size_t(pixel.red()) << ", " << size_t(pixel.green()) <<
-      ", " << size_t(pixel.blue()) << "]";
-
-    return os;
-  }
-
-  inline std::ostream& operator<<(std::ostream& os, const png::Pixel<png::RGBA>&
-				  pixel) {
-    os << "[" << size_t(pixel.red()) << ", " << size_t(pixel.green()) <<
-      ", " << size_t(pixel.blue()) << ", " << size_t(pixel.alpha()) << "]";
-
-    return os;
-  }
-
-  class Image {
-  public:
-    template<png::ColorType CT>
-    static void readFile(const std::string& filename,
-			 std::vector<png::Pixel<CT> >& image, size_t& width,
-			 size_t& height) {
+    /*! \brief Reads a PNG file and places the pixel data in the
+     * passed array.
+     *
+     * \param filename The name of the file to read.
+     * \param image The array of \ref Pixel data to read the image into.
+     * \param width Variable used to return the width of the image.
+     * \param height Variable used to return the height of the image.
+     */
+    template<ColorType CT>
+    inline void readPNGFile(const std::string& filename,
+			    std::vector<Pixel<CT> >& image, size_t& width,
+			    size_t& height) {
 
       std::ifstream pngFile(filename.c_str(), std::fstream::binary);
 
@@ -250,7 +107,7 @@ namespace png {
       }
 
       png_set_read_fn(png, static_cast<void*>(&pngFile),
-		      png::StreamUtils::read);
+		      detail::read);
 
       png_set_sig_bytes(png, pngHeaderSize);
 
@@ -278,7 +135,7 @@ namespace png {
 	std::stringstream strm;
 	strm << "failed to read file '" << filename << "': " <<
 	  "images uses alpha channel, parameter 'image' has to be " <<
-	  " of type std::vector<png::Pixel<png::RGBA> >";
+	  " of type std::vector<magnet::image::Pixel<magnet::image::RGBA> >";
 	throw std::runtime_error(strm.str().c_str());
       }
 
@@ -345,7 +202,7 @@ namespace png {
       if(needCopy) {
 	for(size_t y = 0; y < height; ++y) {
 	  for(size_t x = 0; x < width; ++x) {
-	    png::Pixel<CT> value;
+	    Pixel<CT> value;
 
 	    value.convert(pngData + bytesPerRow * y + x * channels);
 
@@ -360,15 +217,26 @@ namespace png {
       delete[] pngRows;
     }
 
-    template<png::ColorType CT>
-    static void writeFile(const std::string& filename,
-			  std::vector<png::Pixel<CT> >& image, size_t width, size_t height,
-			  int compressionLevel = PNG_COMPRESSION_TYPE_DEFAULT,
-			  bool disableFiltering = false, bool flip = false) {
+    /*! \brief Writes a PNG file using the pixel data in the passed
+     * array.
+     *
+     * \param filename The name of the file to create/overwrite.
+     * \param image The array of \ref Pixel data to write out.
+     * \param width The width of the image.
+     * \param height The height of the image.
+     * \param compressionLevel The level of compression requested from the PNG library.
+     * \param disableFiltering Prevent the PNG library from filtering the output.
+     * \param flip Flips the vertical ordering of the image (to allow easy saving of OpenGL renderings).
+     */
+    template<ColorType CT>
+    inline void writePNGFile(const std::string& filename,
+			     std::vector<Pixel<CT> >& image, size_t width, size_t height,
+			     int compressionLevel = PNG_COMPRESSION_TYPE_DEFAULT,
+			     bool disableFiltering = false, bool flip = false) {
 
       if(image.size() != width * height) {
 	std::stringstream strm;
-	strm << "invalid input to png::Image::writeFile(): " <<
+	strm << "invalid input to writePNGFile(): " <<
 	  "size mismatch of input vector (is " << image.size() <<
 	  ", should be " << width << "x" << height << " = " <<
 	  width * height;
@@ -377,7 +245,7 @@ namespace png {
 
       if(compressionLevel < 0 || compressionLevel > 9) {
 	std::stringstream strm;
-	strm << "invalid input to png::Image::writeFile(): " <<
+	strm << "invalid input to writePNGFile(): " <<
 	  "valid compression levels range from 0 to 9 (default: " <<
 	  PNG_COMPRESSION_TYPE_DEFAULT << ")";
 	throw std::runtime_error(strm.str().c_str());
@@ -413,7 +281,7 @@ namespace png {
       }
 
       png_set_write_fn(png, static_cast<void*>(&pngFile),
-		       png::StreamUtils::write, png::StreamUtils::flush);
+		       detail::write, detail::flush);
 
       png_set_IHDR(png, pngInfo, width, height, 8, CT,
 		   PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
@@ -430,13 +298,12 @@ namespace png {
       size_t bytesPerRow = png_get_rowbytes(png, pngInfo);
       png_bytep* pngRows = new png_bytep[height];
 
-      if(image.size() * sizeof(png::Pixel<CT>) != (height *
-						   bytesPerRow)) {
-
-	std::stringstream strm;
-	strm << "png::Image::writeFile(): invalid size of input data";
-	throw std::runtime_error(strm.str().c_str());
-      }
+      if(image.size() * sizeof(Pixel<CT>) != (height * bytesPerRow)) 
+	{
+	  std::stringstream strm;
+	  strm << "writePNGFile(): invalid size of input data";
+	  throw std::runtime_error(strm.str().c_str());
+	}
 
       size_t offset = 0;
       png_bytep basePointer = reinterpret_cast<png_bytep>(&image[0]);
@@ -468,6 +335,5 @@ namespace png {
       png_destroy_write_struct(&png, &pngInfo);
       delete[] pngRows;
     }
-  };
-
-} // namespace png
+  }
+}

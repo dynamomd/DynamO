@@ -15,6 +15,7 @@
 **** DONE *BUGFIX* Fixed stepped and sequenced potentials broken in 1.1.
 **** DONE XML errors are now much more verbose and tell you exactly what went wrong and where.
 **** DONE *BUGFIX* Fixed the widespread improper use of the XML test functions, causing errors instead of warnings.
+**** DONE Sped up PNG output in coil by 33 percent.
 **** DONE More Doxygen comments to help people understand the source code.
 **** DONE The ParabolaSentinel global is now added automatically to simulations, it needs to be deleted from existing configurations.
 **** DONE The DynamO-Coil integration can be forcibly enabled or disabled at build time.

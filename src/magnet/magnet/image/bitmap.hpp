@@ -16,16 +16,21 @@
 */
 
 #pragma once
-
-#include <magnet/PNG.hpp>
+#include <magnet/image/pixel.hpp>
 
 namespace magnet {
   namespace image {
     namespace detail {
+      /*! \brief Function to write the passed variable in binary to
+       * the passed output stream.
+       */
       template<class T>     
-      inline void w(std::ostream& os, const T& obj)
+      inline void write(std::ostream& os, const T& obj)
       { os.write((const char*)&obj, sizeof(T)); }
 
+      /*! \brief This class outputs the binary magic header for bitmap
+       * files.
+       */
       class bitmap_information_header
       {
       public:
@@ -40,23 +45,22 @@ namespace magnet {
 	inline friend std::ostream& operator<<(std::ostream& os, 
 					       const bitmap_information_header& b)
 	{
-	  w(os, b._type);
-	  w(os, b._fileSize);
-	  w(os, b._reserved1);
-	  w(os, b._reserved2);
-	  w(os, b._offset_bits);
-
-	  w(os, b._headerSize);
-	  w(os, b._width);
-	  w(os, b._height);
-	  w(os, b._planes); 
-	  w(os, b._bitdepth);
-	  w(os, b._compression); 
-	  w(os, b._compressed_file_size);
-	  w(os, b._xres);
-	  w(os, b._yres);
-	  w(os, b._palleteSize);
-	  w(os, b._importantColors);
+	  write(os, b._type);
+	  write(os, b._fileSize);
+	  write(os, b._reserved1);
+	  write(os, b._reserved2);
+	  write(os, b._offset_bits);
+	  write(os, b._headerSize);
+	  write(os, b._width);
+	  write(os, b._height);
+	  write(os, b._planes); 
+	  write(os, b._bitdepth);
+	  write(os, b._compression); 
+	  write(os, b._compressed_file_size);
+	  write(os, b._xres);
+	  write(os, b._yres);
+	  write(os, b._palleteSize);
+	  write(os, b._importantColors);
 
 	  return os;
 	}
@@ -84,9 +88,11 @@ namespace magnet {
       };
     }
     
-    template<png::ColorType color>
+    /*! \brief Helper function to write out a collection of pixels as a bmp file.
+     */
+    template<ColorType color>
     inline void writeBMPFile(const std::string& filename,
-			     const std::vector<png::Pixel<color> >& image, 
+			     const std::vector<Pixel<color> >& image, 
 			     size_t width, size_t height)
     {
       std::ofstream bmpFile(filename.c_str(), std::fstream::binary);
@@ -97,13 +103,13 @@ namespace magnet {
 	{
 	  for (size_t x(0); x < width; ++x)
 	    {
-	      detail::w(bmpFile, image[y * width + x].blue());
-	      detail::w(bmpFile, image[y * width + x].green());
-	      detail::w(bmpFile, image[y * width + x].red());
+	      detail::write(bmpFile, image[y * width + x].blue());
+	      detail::write(bmpFile, image[y * width + x].green());
+	      detail::write(bmpFile, image[y * width + x].red());
 	    }
 	  
 	  for (size_t xpad(0); xpad < rowpadding; ++xpad)
-	    detail::w(bmpFile,int8_t(0));
+	    detail::write(bmpFile,int8_t(0));
 	}
     }
   }

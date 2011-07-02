@@ -19,9 +19,9 @@
 #include <coil/glprimatives/arrow.hpp>
 #include <coil/RenderObj/console.hpp>
 #include <magnet/gtk/numericEntry.hpp>
-#include <magnet/PNG.hpp>
 #include <magnet/clamp.hpp>
 #include <boost/lexical_cast.hpp>
+#include <fstream>
 
 namespace coil {
   RVolume::RVolume(std::string name):
