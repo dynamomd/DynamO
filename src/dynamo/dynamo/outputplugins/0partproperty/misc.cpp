@@ -61,7 +61,7 @@ OPMisc::initialise()
     dout  << Sim->primaryCellSize[iDim]/Sim->dynamics.units().unitLength() << " ";
   dout << ">" << std::endl;
 
-  Vector  sumMV (0,0,0);
+  Vector sumMV (0,0,0);
 
   //Determine the discrepancy VECTOR
   BOOST_FOREACH( const Particle & Part, Sim->particleList)
@@ -141,23 +141,26 @@ OPMisc::output(magnet::xml::XmlStream &XML)
   timespec acc_tendTime;
   clock_gettime(CLOCK_MONOTONIC, &acc_tendTime);
 
-  double collpersec = static_cast<double>(Sim->eventCount)
-    / (double(acc_tendTime.tv_sec) + 1e-9 * double(acc_tendTime.tv_nsec)
-       - double(acc_tstartTime.tv_sec) - 1e-9 * double(acc_tstartTime.tv_nsec));
+  double duration = double(acc_tendTime.tv_sec) - double(acc_tstartTime.tv_sec)
+    + 1e-9 * (double(acc_tendTime.tv_nsec) - double(acc_tstartTime.tv_nsec));
+
+  double collpersec = static_cast<double>(Sim->eventCount) / duration;
 
   dout << "Ended on " << eTime
-	   << "\nTotal Collisions Executed " << Sim->eventCount
-	   << "\nAvg Coll/s " << collpersec
-	   << "\nSim time per second "
-	   << Sim->dSysTime / (Sim->dynamics.units().unitTime()
-			       * static_cast<double>(tendTime - tstartTime)) << std::endl;
+       << "\nTotal Collisions Executed " << Sim->eventCount
+       << "\nAvg Coll/s " << collpersec
+       << "\nSim time per second "
+       << Sim->dSysTime 
+    / (Sim->dynamics.units().unitTime() * duration) 
+       << std::endl;
 
   XML << magnet::xml::tag("Misc")
       << magnet::xml::tag("Memusage")
       << magnet::xml::attr("MaxKiloBytes") << magnet::process_mem_usage()
       << magnet::xml::endtag("Memusage")
       << magnet::xml::tag("Density")
-      << magnet::xml::attr("val") << Sim->dynamics.getNumberDensity() * Sim->dynamics.units().unitVolume()
+      << magnet::xml::attr("val") 
+      << Sim->dynamics.getNumberDensity() * Sim->dynamics.units().unitVolume()
       << magnet::xml::endtag("Density")
 
       << magnet::xml::tag("PackingFraction")
@@ -191,7 +194,7 @@ OPMisc::output(magnet::xml::XmlStream &XML)
 
       << magnet::xml::tag("Duration")
       << magnet::xml::attr("val")
-      << tendTime - tstartTime
+      << duration
       << magnet::xml::endtag("Duration")
 
       << magnet::xml::tag("CollPerSec")
