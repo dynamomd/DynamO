@@ -20,10 +20,12 @@
 namespace magnet {
   namespace GL {
     namespace shader {
-      class blurFilter : public detail::SSFilter
+      /*! \brief Implements a 5x5 Gaussian Blur Shader.
+       */
+      class Gaussian5x5Blur : public detail::SSKernelShader
       {
       public:
-	void build() { SSFilter::build(5); }
+	void build() { SSKernelShader::build(5); }
 
 	virtual const GLfloat* weights()
 	{
@@ -41,20 +43,21 @@ namespace magnet {
 	
       };
 
-      class boxFilter : public detail::SSFilter
+      /*! \brief Implements a 5x5 Box Blur Shader. */
+      class Box5x5Blur : public detail::SSKernelShader
       {
       public:
-	void build() { SSFilter::build(5); }
+	void build() { SSKernelShader::build(5); }
       
 	virtual const GLfloat* weights()
 	{
 	  static const GLfloat weights[5][5] = 
 	    {
-	      {1.0/331.0, 4/331.0, 7/331.0, 4/331.0, 1/331.0},
-	      {4/331.0, 20/331.0, 33/331.0, 20/331.0, 4/331.0},
-	      {7/331.0, 33/331.0, 55/331.0, 33/331.0, 7/331.0},
-	      {4/331.0, 20/331.0, 33/331.0, 20/331.0, 4/331.0},
-	      {1/331.0, 4/331.0, 7/331.0, 4/331.0, 1/331.0}
+	      {1/25.0, 1/25.0, 1/25.0, 1/25.0, 1/25.0},
+	      {1/25.0, 1/25.0, 1/25.0, 1/25.0, 1/25.0},
+	      {1/25.0, 1/25.0, 1/25.0, 1/25.0, 1/25.0},
+	      {1/25.0, 1/25.0, 1/25.0, 1/25.0, 1/25.0},
+	      {1/25.0, 1/25.0, 1/25.0, 1/25.0, 1/25.0}
 	    };
 	
 	  return (const GLfloat*)weights;

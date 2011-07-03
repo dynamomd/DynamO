@@ -33,12 +33,12 @@ namespace coil
   class FlushToOriginal;
 }
 
-typedef coil::magnetFilterWrapper<magnet::GL::shader::laplacianFilter5,false> lap5x5;
-typedef coil::magnetFilterWrapper<magnet::GL::shader::laplacianFilter3A,false> lap3x3A;
-typedef coil::magnetFilterWrapper<magnet::GL::shader::laplacianFilter3B,false> lap3x3B;
-typedef coil::magnetFilterWrapper<magnet::GL::shader::LoGFilter,false> lapgauss9x9;
-typedef coil::magnetFilterWrapper<magnet::GL::shader::blurFilter,false> gauss5x5;
-typedef coil::magnetFilterWrapper<magnet::GL::shader::boxFilter,false> box5x5;
+typedef coil::magnetFilterWrapper<magnet::GL::shader::Laplacian5x5,false> lap5x5;
+typedef coil::magnetFilterWrapper<magnet::GL::shader::Laplacian3x3A,false> lap3x3A;
+typedef coil::magnetFilterWrapper<magnet::GL::shader::Laplacian3x3B,false> lap3x3B;
+typedef coil::magnetFilterWrapper<magnet::GL::shader::LoG9x9,false> lapgauss9x9;
+typedef coil::magnetFilterWrapper<magnet::GL::shader::Gaussian5x5Blur,false> gauss5x5;
+typedef coil::magnetFilterWrapper<magnet::GL::shader::Box5x5Blur,false> box5x5;
 
 //Format is F(enumeration,stringname,type)
 #define FILTER_FACTORY(F)						\

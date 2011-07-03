@@ -15,28 +15,23 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <magnet/GL/shader/detail/shader.hpp>
+#include <magnet/GL/shader/detail/ssshader.hpp>
 #define STRINGIFY(A) #A
 
 namespace magnet {
   namespace GL {
     namespace shader {
-      class BilateralBlur : public detail::Shader
+      /*! \brief Implements a Bilateral 5x5 Gaussian Blur Shader.
+       *
+       * A Bilateral blur is one that takes depth information into
+       * account and will not blur across sharp changes in the depth.
+       *
+       * This is useful when trying to blur the surface of an object,
+       * but to avoid blurring its edge.
+       */
+      class BilateralBlur : public detail::SSShader
       {
       public:
-	void invoke()
-	{
-	  attach();
-	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	  drawScreenQuad();
-	  glUseProgramObjectARB(0);	
-	}
-
-	virtual std::string initVertexShaderSource()
-	{
-	  return STRINGIFY(void main(void) { gl_Position = ftransform(); gl_TexCoord[0] = gl_MultiTexCoord0; });
-	}
-	
 	virtual std::string initFragmentShaderSource()
 	{ 
 	  return STRINGIFY(

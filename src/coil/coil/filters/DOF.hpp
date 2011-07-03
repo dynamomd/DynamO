@@ -88,7 +88,7 @@ namespace coil
       start->show();
     }
   protected:
-    magnet::GL::shader::DOF _filter;
+    magnet::GL::shader::DOFShader _filter;
 
     Gtk::HScale _focalLengthSlider;
     Gtk::HScale _focalWidthSlider;

@@ -15,30 +15,33 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <magnet/GL/shader/detail/shader.hpp>
+#include <magnet/GL/shader/detail/ssshader.hpp>
 #define STRINGIFY(A) #A
 
 namespace magnet {
   namespace GL {
     namespace shader {
-      class DOF : public detail::Shader
+      /*! \brief A Depth Of Field Shader.
+       *
+       * This shader will give a depth of field effect, by blending
+       * two textures together according to the pixel depth.
+       *
+       * The u_Texture0 uniform should contain a very "blurred" image.
+       *
+       * The u_Texture1 uniform should contain a "sharp" image.
+       *
+       * The u_Texture2 uniform should contain the depth information of the scene.
+       *
+       * For each pixel, the depth is looked up in u_Texture2. If this
+       * pixel is in focus (set by the focalDistance uniform) then it
+       * will be sampled from u_Texture1. If the pixel is out of focus
+       * it is sampled from u_Texture0. The two textures are smoothly
+       * blended together over a range set by the focalRange uniform.
+       */
+      class DOFShader : public detail::SSShader
       {
       public:
-	void invoke()
-	{
-	  //Setup the shader arguments
-	  glUseProgram(_shaderID);
-	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	  drawScreenQuad();
-	  //Restore the fixed pipeline
-	  glUseProgramObjectARB(0);
-	}
-
-	virtual std::string initVertexShaderSource()
-	{
-	  return STRINGIFY(void main(void) { gl_Position = ftransform(); gl_TexCoord[0] = gl_MultiTexCoord0; });
-	}
-	
+	/*! \brief The actual DOF filter. */
 	virtual std::string initFragmentShaderSource()
 	{
 	  return STRINGIFY(

@@ -15,29 +15,23 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <magnet/GL/shader/detail/shader.hpp>
+#include <magnet/GL/shader/detail/ssshader.hpp>
 #define STRINGIFY(A) #A
 
 namespace magnet {
   namespace GL {
     namespace shader {
-      class SSAO : public detail::Shader
+      /*! \brief A Screen Space Ambient Occlusion Shader.
+       *
+       * This effect is used to fake the ambient light effects caused
+       * by indirect lighting. There are no good tutorials on this
+       * method, but here are some links to some more information.
+       *
+       * http://www.gamerendering.com/category/lighting/ssao-lighting/
+       */
+      class SSAOShader : public detail::SSShader
       {
       public:
-	void invoke()
-	{
-	  attach();
-	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	  drawScreenQuad();
-	  //Restore the fixed pipeline
-	  glUseProgramObjectARB(0);
-	}
-
-	virtual std::string initVertexShaderSource()
-	{
-	  return STRINGIFY(void main(void) { gl_Position = ftransform(); gl_TexCoord[0] = gl_MultiTexCoord0; });
-	}
-
 	virtual std::string initFragmentShaderSource()
 	{
 	  return STRINGIFY(

@@ -20,10 +20,11 @@
 namespace magnet {
   namespace GL {
     namespace shader {
-      class laplacianFilter5 : public detail::SSFilter
+      /*! \brief Implements a 5x5 Laplacian filter Shader. */
+      class Laplacian5x5 : public detail::SSKernelShader
       {
       public:
-	void build() { SSFilter::build(5); }
+	void build() { SSKernelShader::build(5); }
 
 	virtual const GLfloat* weights()
 	{
@@ -41,10 +42,11 @@ namespace magnet {
 	
       };
 
-      class laplacianFilter3A : public detail::SSFilter
+      /*! \brief Implements variant A of the 3x3 Laplacian filter Shader. */
+      class Laplacian3x3A : public detail::SSKernelShader
       {
       public:
-	void build() { SSFilter::build(3); }
+	void build() { SSKernelShader::build(3); }
 
 	virtual const GLfloat* weights()
 	{
@@ -60,10 +62,11 @@ namespace magnet {
 	
       };
 
-      class laplacianFilter3B : public detail::SSFilter
+      /*! \brief Implements variant B of the 3x3 Laplacian filter Shader. */
+      class Laplacian3x3B : public detail::SSKernelShader
       {
       public:
-	void build() { SSFilter::build(3); }
+	void build() { SSKernelShader::build(3); }
 
 	virtual const GLfloat* weights()
 	{
@@ -79,11 +82,11 @@ namespace magnet {
 	
       };
 
-      //Laplacian of Gaussian
-      class LoGFilter : public detail::SSFilter
+      /*! \brief Implements a 9x9 Laplacian of Gaussian Blurred Shader. */
+      class LoG9x9 : public detail::SSKernelShader
       {
       public:
-	void build() { SSFilter::build(9); }
+	void build() { SSKernelShader::build(9); }
 
 	virtual const GLfloat* weights()
 	{

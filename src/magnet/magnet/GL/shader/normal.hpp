@@ -21,6 +21,8 @@
 namespace magnet {
   namespace GL {
     namespace shader {
+      /*! \brief A simple \ref Shader to save the normal for each rendered pixel.
+       */
       class NormalShader : public detail::Shader
       {
       public:

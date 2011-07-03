@@ -23,6 +23,12 @@
 namespace magnet {
   namespace GL {
     namespace shader {
+      /*! \brief A shader for ray-tracing cubic volumes.
+       *
+       * This shader will render a volume data set in one pass. For
+       * more information on the method please see
+       * https://www.marcusbannerman.co.uk/index.php/home/42-articles/97-vol-render-optimizations.html
+       */
       class VolumeShader: public detail::Shader
       {
       public:      

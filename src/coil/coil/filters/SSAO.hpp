@@ -37,7 +37,7 @@ namespace coil
     virtual void showControls(Gtk::ScrolledWindow*);
 
   protected:
-    magnet::GL::shader::SSAO _filter;
+    magnet::GL::shader::SSAOShader _filter;
     Glib::RefPtr<Gtk::Builder> _refXml;
     GLfloat _radius;
     GLfloat _totStrength;
