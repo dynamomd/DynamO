@@ -25,7 +25,7 @@ namespace magnet {
      * to, but the output is captured by bound textures instead of the
      * real user screen.
      *
-     * \sa multisampledFBO
+     * \sa MultisampledFBO
      */
     class FBO
     {

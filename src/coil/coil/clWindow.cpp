@@ -430,7 +430,7 @@ CLGLWindow::initGTK()
       }
 
       ///////////////////////Multisampling (anti-aliasing)//////////////////////////////////
-      GLint maxSamples = magnet::GL::multisampledFBO::getSupportedSamples();
+      GLint maxSamples = magnet::GL::MultisampledFBO::getSupportedSamples();
 
       if (maxSamples > 1)
 	{//Offer anti aliasing
@@ -477,7 +477,7 @@ CLGLWindow::initGTK()
 
 	  multisampleEnable->set_active(true);
 	  
-	  _renderTarget.reset(new magnet::GL::multisampledFBO
+	  _renderTarget.reset(new magnet::GL::MultisampledFBO
 			      (2 << aliasSelections->get_active_row_number()));
 	  
 	  _renderTarget->init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
@@ -705,7 +705,7 @@ CLGLWindow::multisampleEnableCallback()
       Gtk::ComboBox* aliasSelections;
       _refXml->get_widget("multisampleLevels", aliasSelections);
 
-      _renderTarget.reset(new magnet::GL::multisampledFBO(2 << aliasSelections->get_active_row_number()));
+      _renderTarget.reset(new magnet::GL::MultisampledFBO(2 << aliasSelections->get_active_row_number()));
       _renderTarget->init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
     }
   else

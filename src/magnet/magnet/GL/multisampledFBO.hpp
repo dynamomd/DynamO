@@ -28,7 +28,7 @@ namespace magnet {
      *
      * \sa FBO
      */
-    class multisampledFBO: public FBO
+    class MultisampledFBO: public FBO
     {
     public:
       /*! \brief Constructor which sets the number of subpixels per
@@ -36,7 +36,7 @@ namespace magnet {
        *
        * \param samples The number of subsamples per pixel.
        */
-      inline multisampledFBO(GLsizei samples):
+      inline MultisampledFBO(GLsizei samples):
 	_samples(samples)
       {}
 
@@ -95,7 +95,7 @@ namespace magnet {
 	init(width, height);
       }
 
-      inline ~multisampledFBO()
+      inline ~MultisampledFBO()
       { deinit(); }
 
       inline 
