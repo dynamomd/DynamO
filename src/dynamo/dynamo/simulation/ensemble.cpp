@@ -130,7 +130,6 @@ namespace dynamo {
 #endif
 
     //Must use static cast to allow access to protected members
-    //This is -\Delta in the Sugita_Okamoto paper
     
     const EnsembleNVT& ensemble2(static_cast<const EnsembleNVT&>(oE));
 
@@ -139,18 +138,19 @@ namespace dynamo {
     double beta2 = 1 / ensemble2.getEnsembleVals()[2];
     double E2 = ensemble2.Sim->getOutputPlugin<OPUEnergy>()->getSimU();
     
+    //This is -\Delta in the Sugita_Okamoto paper
     double factor = (E1 - E2) * (beta1 - beta2);
     
     if (Sim->dynamics.liouvilleanTypeTest<LNewtonianMC>())
       {
-	factor -= static_cast<const LNewtonianMC&>(Sim->dynamics.getLiouvillean()).W(E1);
-	factor += static_cast<const LNewtonianMC&>(Sim->dynamics.getLiouvillean()).W(E2);
+	factor += static_cast<const LNewtonianMC&>(Sim->dynamics.getLiouvillean()).W(E1);
+	factor -= static_cast<const LNewtonianMC&>(Sim->dynamics.getLiouvillean()).W(E2);
       }
 
     if (ensemble2.Sim->dynamics.liouvilleanTypeTest<LNewtonianMC>())
       {
-	factor -= static_cast<const LNewtonianMC&>(ensemble2.Sim->dynamics.getLiouvillean()).W(E2);
-	factor += static_cast<const LNewtonianMC&>(ensemble2.Sim->dynamics.getLiouvillean()).W(E1);
+	factor += static_cast<const LNewtonianMC&>(ensemble2.Sim->dynamics.getLiouvillean()).W(E2);
+	factor -= static_cast<const LNewtonianMC&>(ensemble2.Sim->dynamics.getLiouvillean()).W(E1);
       }
 
     return std::exp(factor);
