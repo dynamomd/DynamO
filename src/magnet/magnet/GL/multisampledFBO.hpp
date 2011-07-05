@@ -154,7 +154,7 @@ namespace magnet {
        */
       static GLint getSupportedSamples()
       {
-	if (GLEW_EXT_framebuffer_multisample) return 1;
+	if (!GLEW_EXT_framebuffer_multisample) return 1;
 
 	GLint maxSamples;
 	glGetIntegerv(GL_MAX_SAMPLES, &maxSamples);

@@ -112,7 +112,8 @@ Liouvillean::loadParticleXMLData(const magnet::xml::Node& XML)
   for (magnet::xml::Node node = XML.getNode("ParticleData").fastGetNode("Pt"); 
        node.valid(); ++node)
     {
-      if (node.getAttribute("ID").as<size_t>() != Sim->particleList.size())
+      if (!node.hasAttribute("ID")
+	  || node.getAttribute("ID").as<size_t>() != Sim->particleList.size())
 	outofsequence = true;
       
       Particle part(node, Sim->particleList.size());
