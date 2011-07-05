@@ -49,7 +49,7 @@ TrackWiimote::TrackWiimote(bool wiimoteAboveScreen):
   _wiimoteAboveScreen(wiimoteAboveScreen)
 {
   eye_pos[0] = eye_pos[1] = 0;
-  eye_pos[2] = 10;
+  eye_pos[2] = 40;
   for (size_t i(0); i < 4; ++i)
     for (size_t j(0); j < 2; ++j)
       ir_positions[i][j] = 0;
