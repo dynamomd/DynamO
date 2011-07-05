@@ -74,7 +74,7 @@ OPCollisionCorrelator::output(magnet::xml::XmlStream &XML)
 {
   for (size_t ID1(0); ID1 < Sim->N; ++ID1)
     for (size_t ID2(ID1+1); ID2 < Sim->N; ++ID2)
-      if (lastColl[ID1][ID2] > 100* freetimehist.data.binWidth) freetimehist.addVal(-1.0);
+      if (lastColl[ID1][ID2] > 100* freetimehist.getBinWidth()) freetimehist.addVal(-1.0);
 
   XML << magnet::xml::tag("CollisionCorrelator");
   

@@ -98,9 +98,9 @@ OPIntEnergyHist::getImprovedW() const
   bool isMC(Sim->dynamics.liouvilleanTypeTest<LNewtonianMC>());
 
   typedef std::pair<const long, double> lv1pair;
-  BOOST_FOREACH(const lv1pair &p1, intEnergyHist.data.data)
+  BOOST_FOREACH(const lv1pair &p1, intEnergyHist)
     {
-      double E = p1.first * intEnergyHist.data.binWidth;
+      double E = p1.first * intEnergyHist.getBinWidth();
       
       //Fetch the current W value
       double W = 0;
@@ -108,13 +108,13 @@ OPIntEnergyHist::getImprovedW() const
       if (isMC) W += static_cast<const LNewtonianMC&>(Sim->dynamics.getLiouvillean()).W(E);
       
       double Pc = static_cast<double>(p1.second)
-	/ (intEnergyHist.data.binWidth * intEnergyHist.sampleCount 
+	/ (intEnergyHist.getBinWidth() * intEnergyHist.getSampleCount()
 	   * Sim->dynamics.units().unitEnergy());
 
       //We only try to optimize parts of the histogram with greater
       //than 1% probability
       if (Pc > 0.01)
-	retval[lrint(E / intEnergyHist.data.binWidth)] = W + std::log(Pc);
+	retval[lrint(E / intEnergyHist.getBinWidth())] = W + std::log(Pc);
     }
   
   //Now center the energy warps about 0 to not cause funny changes in the tails.
@@ -155,18 +155,18 @@ OPIntEnergyHist::output(magnet::xml::XmlStream& XML)
 #endif
       
       XML << magnet::xml::tag("PotentialDeformation")
-	  << magnet::xml::attr("EnergyStep") << intEnergyHist.data.binWidth * Sim->dynamics.units().unitEnergy();
+	  << magnet::xml::attr("EnergyStep") << intEnergyHist.getBinWidth() * Sim->dynamics.units().unitEnergy();
       
       typedef std::pair<const long, double> lv1pair;
-      BOOST_FOREACH(const lv1pair &p1, intEnergyHist.data.data)
+      BOOST_FOREACH(const lv1pair &p1, intEnergyHist)
 	{
-	  double E = p1.first * intEnergyHist.data.binWidth;
+	  double E = p1.first * intEnergyHist.getBinWidth();
 	  
 	  //Fetch the current W value
 	  double W = liouvillean.W(E);
 	  
 	  double Pc = static_cast<double>(p1.second)
-	    / (intEnergyHist.data.binWidth * intEnergyHist.sampleCount 
+	    / (intEnergyHist.getBinWidth() * intEnergyHist.getSampleCount()
 	       * Sim->dynamics.units().unitEnergy());
 	  
 	  XML << magnet::xml::tag("W")

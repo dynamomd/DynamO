@@ -27,14 +27,14 @@ C1DHistogram::outputHistogram(magnet::xml::XmlStream& XML, double scalex) const
       << magnet::xml::attr("SampleCount")
       << sampleCount
       << magnet::xml::attr("Dimension") << 1
-      << magnet::xml::attr("BinWidth") << data.binWidth * scalex;
+      << magnet::xml::attr("BinWidth") << getBinWidth() * scalex;
   
   double avgSum = 0.0;
-  BOOST_FOREACH(const lv1pair &p1, data.data)
+  BOOST_FOREACH(const Container::value_type &p1, *this)
     avgSum += (static_cast<double>(p1.first) + 0.5) * p1.second;
   
   XML << magnet::xml::attr("AverageVal")
-      << (avgSum * data.binWidth * scalex / sampleCount)
+      << (avgSum * getBinWidth() * scalex / sampleCount)
       << magnet::xml::chardata();
   
 ///////Pretty histogram output method
@@ -63,10 +63,10 @@ C1DHistogram::outputHistogram(magnet::xml::XmlStream& XML, double scalex) const
 //      XML << (lastx + 1) * data.binWidth * scalex
 //	  << " " << 0 << "\n";
 
-  BOOST_FOREACH(const lv1pair &p1, data.data)
-    XML << p1.first * data.binWidth * scalex << " " 
+  BOOST_FOREACH(const Container::value_type &p1, *this)
+    XML << p1.first * getBinWidth() * scalex << " " 
 	<< static_cast<double>(p1.second)
-    /(data.binWidth * sampleCount * scalex) << "\n";
+    /(getBinWidth() * sampleCount * scalex) << "\n";
   
   XML << magnet::xml::endtag("Histogram");
 }
@@ -78,14 +78,14 @@ C1DWeightHistogram::outputHistogram(magnet::xml::XmlStream & XML, double scalex)
       << magnet::xml::attr("TotalWeight")
       << sampleCount
       << magnet::xml::attr("Dimension") << 1
-      << magnet::xml::attr("BinWidth") << data.binWidth * scalex;
+      << magnet::xml::attr("BinWidth") << getBinWidth() * scalex;
   
   double avgSum = 0.0;
-  BOOST_FOREACH(const lv1pair &p1, data.data)
+  BOOST_FOREACH(const Container::value_type &p1, *this)
     avgSum += static_cast<double>(p1.first) * p1.second;
   
   XML << magnet::xml::attr("AverageVal")
-      << avgSum * data.binWidth * scalex / sampleCount
+      << avgSum * getBinWidth() * scalex / sampleCount
       << magnet::xml::chardata();
   
 
@@ -117,10 +117,10 @@ C1DWeightHistogram::outputHistogram(magnet::xml::XmlStream & XML, double scalex)
       //
 
       //This gives mathmatically correct but not really pretty
-  BOOST_FOREACH(const lv1pair &p1, data.data)
-    XML << p1.first * data.binWidth * scalex << " "
+  BOOST_FOREACH(const Container::value_type &p1, *this)
+    XML << p1.first * getBinWidth() * scalex << " "
 	<< static_cast<double>(p1.second)
-    / (data.binWidth * sampleCount * scalex) << "\n";
+    / (getBinWidth() * sampleCount * scalex) << "\n";
   
   XML << magnet::xml::endtag("WeightHistogram");
 }
@@ -132,21 +132,21 @@ C1DWeightHistogram::outputClearHistogram(magnet::xml::XmlStream & XML, double sc
       << magnet::xml::attr("TotalWeight")
       << sampleCount
       << magnet::xml::attr("Dimension") << 1
-      << magnet::xml::attr("BinWidth") << data.binWidth * scalex;
+      << magnet::xml::attr("BinWidth") << getBinWidth() * scalex;
   
   double avgSum = 0.0;
-  BOOST_FOREACH(const lv1pair &p1, data.data)
+  BOOST_FOREACH(const Container::value_type &p1, *this)
     avgSum += static_cast<double>(p1.first)* p1.second;
   
   XML << magnet::xml::attr("AverageVal")
-      << (avgSum * data.binWidth / sampleCount)
+      << (avgSum * getBinWidth() / sampleCount)
       << magnet::xml::chardata();
     
   //This one gives histograms usable by the reweight program
-  BOOST_FOREACH(const lv1pair &p1, data.data)
-    XML << p1.first * data.binWidth * scalex << " " 
+  BOOST_FOREACH(const Container::value_type &p1, *this)
+    XML << p1.first * getBinWidth() * scalex << " " 
 	<< static_cast<double>(p1.second)
-    / (data.binWidth * sampleCount * scalex) << "\n";
+    / (getBinWidth() * sampleCount * scalex) << "\n";
   
   XML << magnet::xml::endtag("WeightHistogram");
 }

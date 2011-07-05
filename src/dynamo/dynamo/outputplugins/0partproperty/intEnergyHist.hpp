@@ -43,7 +43,7 @@ class OPIntEnergyHist: public OPCollTicker
   void operator<<(const magnet::xml::Node&);
 
   boost::unordered_map<int, double> getImprovedW() const;
-  inline double getBinWidth() const { return intEnergyHist.data.binWidth; }
+  inline double getBinWidth() const { return intEnergyHist.getBinWidth(); }
  protected:
 
   C1DWeightHistogram intEnergyHist;

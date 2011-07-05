@@ -16,66 +16,61 @@
 */
 
 #pragma once
-#include "fuzzy_array.hpp"
+#include <magnet/containers/fuzzy_array.hpp>
 
 namespace magnet { namespace xml { class XmlStream; } }
 
-class C1DHistogram
+class C1DHistogram : public magnet::containers::FuzzyArray<unsigned long>
 {
- public:
+  typedef magnet::containers::FuzzyArray<unsigned long> Container;
+
+public:
   C1DHistogram(double binwidth):
-    data(binwidth),
+    Container(binwidth),
     sampleCount(0)
-    {};
+    {}
   
   C1DHistogram():
     sampleCount(0)
-    {};
+    {}
   
   void addVal(const double& val)
     {
-      ++data[val + 0.5 * data.binWidth];
+      ++operator[](val);
       ++sampleCount;
     }
   
-  typedef std::pair<const long, unsigned long> lv1pair;
-  
   void outputHistogram(magnet::xml::XmlStream&, double) const;
-  
-  CFuzzyArray<unsigned long> data;
-  
+
+  inline unsigned long getSampleCount() const { return sampleCount; }
+
+protected:
   unsigned long sampleCount;
 };
 
-class C1DWeightHistogram
+class C1DWeightHistogram: public magnet::containers::FuzzyArray<double>
 {
- public:
+  typedef magnet::containers::FuzzyArray<double> Container;
+public:
   C1DWeightHistogram(double binwidth):
-    data(binwidth),
-    sampleCount(0.0)
-    {};
+    Container(binwidth),
+    sampleCount(0)
+    {}
   
   C1DWeightHistogram():
-    sampleCount(0.0)
-    {};
+    sampleCount(0)
+    {}
   
   void addVal(double val, double weight)
     {
-      data[val + 0.5 * data.binWidth] += weight;
+      Container::operator[](val) += weight;
       sampleCount += weight;
     }
-  
-  void resetBinWidth(double val)
-  {
-    data = CFuzzyArray<double>(val);
-  }
-
-  typedef std::pair<const long, double> lv1pair;
-  
+    
   void outputHistogram(magnet::xml::XmlStream&, double) const;
   void outputClearHistogram(magnet::xml::XmlStream&, double) const;
   
-  CFuzzyArray<double> data;
-  
+  inline double getSampleCount() const { return sampleCount; }
+protected:
   double sampleCount;
 };
