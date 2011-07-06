@@ -31,8 +31,8 @@ RSphericalParticles::RSphericalParticles(size_t N, std::string name, size_t sphe
     _colorFixed.s[i] = 255;
 
   _colorFixed.s[0] = 255;
-  _colorFixed.s[1] = 0;
-  _colorFixed.s[2] = 0;
+  _colorFixed.s[1] = 255;
+  _colorFixed.s[2] = 255;
   _colorFixed.s[3] = 255;
 }
 

@@ -57,6 +57,7 @@ CLGLWindow::CLGLWindow(std::string title,
   _fpsLimit(true),
   _fpsLimitValue(35),
   _filterEnable(true),
+  _analygraphMode(false),
   _snapshot_counter(0),
   _dynamo(dynamo)
 {
@@ -570,6 +571,15 @@ CLGLWindow::initGTK()
 	  coil::filter::populateComboBox(filterSelectBox);
 	}
       }
+
+//      {/////////////////////3D effects
+//	{
+//	  Gtk::CheckButton* analygraphEnable;
+//	  _refXml->get_widget("analygraphMode", analygraphEnable);
+//	  analygraphEnable->signal_toggled()
+//	    .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
+//	}
+//      }
     }
 
   {///////////////////////Render Objects//////////////////////////////////
@@ -1808,6 +1818,13 @@ CLGLWindow::guiUpdateCallback()
     
     _updateIntervalValue = updateButton->get_value();
   }
+
+//  {//Filter enable/disable
+//    Gtk::CheckButton* btn;
+//    _refXml->get_widget("analygraphMode", btn);    
+//    _analygraphMode = btn->get_active();
+//  }
+  
 }
 
 
