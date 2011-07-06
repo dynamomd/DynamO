@@ -945,15 +945,6 @@ CLGLWindow::CallBackDisplayFunc()
 	  glDisable(GL_POLYGON_OFFSET_FILL);
 #endif
 	  _shadowFBO.restore();
-
-	  //In both cases we use the texture matrix, instead of the EYE_PLANE
-	  //We bind to the 7th texture unit
-	  glActiveTextureARB(GL_TEXTURE7);
-	  glMatrixMode(GL_TEXTURE);
-	  
-	  _light0->loadShadowTextureMatrix(*_viewPortInfo);
-	  
-	  glMatrixMode(GL_MODELVIEW);	  
 	  _shadowFBO.getDepthTexture().bind(7);
 	}
       
@@ -975,12 +966,16 @@ CLGLWindow::CallBackDisplayFunc()
 	  
 	  _viewPortInfo->buildMatrices(-eyeDisplacement);
 	  _viewPortInfo->loadMatrices();
+	  if (_shadowMapping)
+	    _light0->loadShadowTextureMatrix(7);
 
 	  glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
 	  drawScene(*_renderTarget);
 	  
 	  _viewPortInfo->buildMatrices(eyeDisplacement);
 	  _viewPortInfo->loadMatrices();
+	  if (_shadowMapping)
+	    _light0->loadShadowTextureMatrix(7);
 	  
 	  glClear(GL_DEPTH_BUFFER_BIT);
 	  glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
@@ -991,6 +986,8 @@ CLGLWindow::CallBackDisplayFunc()
 	{
 	  _viewPortInfo->buildMatrices();
 	  _viewPortInfo->loadMatrices();
+	  if (_shadowMapping)
+	    _light0->loadShadowTextureMatrix(7);
 	  drawScene(*_renderTarget);
 	}
       

@@ -131,14 +131,19 @@ namespace magnet {
 	return *this; 
       }
 
-      /*! \brief Load the current OpenGL matrix with the projection
-       * required for shadow mapping.
+      /*! \brief Load the specified OpenGL texture matrix with the
+       * projection required for shadow mapping.
        * 
-       * This function only makes sense if the selected matrix is the
-       * texture matrix corresponding to the light's depth map.
+       * \note The current OpenGL model view matrix must be the matrix
+       * used for rendering.
+       *
+       * \param textureUnit The texture unit whose matrix is to be
+       * setup for shadowmapping.
        */
-      inline void loadShadowTextureMatrix(const ViewPort& vp)
+      inline void loadShadowTextureMatrix(int textureUnit)
       {
+	glActiveTextureARB(GL_TEXTURE0 + textureUnit);
+	glMatrixMode(GL_TEXTURE);
 	//Build the texture matrix
 	glLoadIdentity();
 	glTranslatef(0.5f, 0.5f, 0.5f);
@@ -147,11 +152,11 @@ namespace magnet {
 	glMultMatrixf(_viewMatrix);
 
 	GLfloat vp_viewMatrix[4*4];
-	for (size_t i(0); i < 4*4; ++i)
-	  vp_viewMatrix[i] = vp.getViewMatrix()[i]; 
+	glGetFloatv(GL_MODELVIEW_MATRIX , vp_viewMatrix);
 
 	invert(vp_viewMatrix);
 	glMultMatrixf(vp_viewMatrix);
+	glMatrixMode(GL_MODELVIEW);	  
       }
 
       /*! \brief Function to in-place invert an 4x4 OpenGL matrix.
