@@ -53,12 +53,6 @@ TrackWiimote::TrackWiimote(bool wiimoteAboveScreen):
 
   eye_pos[0] = eye_pos[1] = 0;
   eye_pos[2] = 40;
-  for (size_t i(0); i < 4; ++i)
-    for (size_t j(0); j < 2; ++j)
-      ir_positions[i][j] = 0;
-
-  for (size_t i(0); i < 4; ++i)
-    ir_sizes[i]= 4;
 }
 
 bool TrackWiimote::updateState()
@@ -99,17 +93,9 @@ size_t TrackWiimote::updateIRPositions()
   _valid_ir_points = 0;
 
   for (size_t i(0); i < 4; ++i)
-    if (m_state.ir_src[i].valid)
-      {
-	ir_positions[i][0] = m_state.ir_src[i].pos[CWIID_X];
-	ir_positions[i][1] = m_state.ir_src[i].pos[CWIID_Y];
-	
-	if (m_state.ir_src[i].size != -1)
-	  ir_sizes[i] = m_state.ir_src[i].size + 1;
-	
-	++_valid_ir_points;
-      }
-  
+    if (getIRState(i).valid)
+      ++_valid_ir_points;
+
   if (_valid_ir_points == 2)
     updateHeadPos();
   
@@ -119,6 +105,25 @@ size_t TrackWiimote::updateIRPositions()
 /* update the camera position using ir points camerapt_1 and camerapt_2 */
 void TrackWiimote::updateHeadPos()
 {
+  if (_valid_ir_points != 2)
+    M_throw() << "Need two IR points to perform the head position calculations.";
+
+  //We have to find the first two valid IR positions and store them here
+  uint16_t ir_positions[2][2];
+  {
+    size_t done(0);
+    for (size_t i(0); (i < 4) && (done < 2); ++i)
+      if (getIRState(i).valid)
+	{
+	  ir_positions[done][0] = getIRState(i).pos[CWIID_X];
+	  ir_positions[done][1] = getIRState(i).pos[CWIID_Y];
+	  ++done;
+	}
+
+    if (done != 2)
+      M_throw() << "_valid_ir_points does not match valid number of points!";
+  }
+
   //The positions of the IR points, in angles from the centre of the
   //wiimote's view
   double x1 = (ir_positions[0][0] - CWIID_IR_X_MAX / 2) * anglePerPixel;

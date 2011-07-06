@@ -241,7 +241,7 @@ private:
 
   //Wii Remote callbacks
   void wiiMoteConnect();
-
+  bool wiiMoteIRExposeEvent(GdkEventExpose*);
 
   //Other callbacks
   void multisampleEnableCallback();

@@ -587,7 +587,15 @@ CLGLWindow::initGTK()
 	  btn->signal_clicked()
 	    .connect(sigc::mem_fun(this, &CLGLWindow::wiiMoteConnect));
 	  btn->set_sensitive(true);
-	}	
+	}
+	
+	{
+	  Gtk::DrawingArea *ir;
+	  _refXml->get_widget("wiiIRImage", ir);
+	  ir->signal_expose_event()
+	    .connect(sigc::mem_fun(this, &CLGLWindow::wiiMoteIRExposeEvent));	  
+	}
+	
 #endif
       }
     }
@@ -912,6 +920,18 @@ CLGLWindow::CallBackDisplayFunc()
   if (_wiiMoteTracker.connected())
     {
       _wiiMoteTracker.updateState();
+      
+      Gtk::DrawingArea *ir;
+      _refXml->get_widget("wiiIRImage", ir);
+      Gtk::Allocation allocation = ir->get_allocation();
+      Glib::RefPtr<Gdk::Window> win = ir->get_window();
+      if (win)
+	{
+	  Gdk::Rectangle r(0, 0, allocation.get_width(),
+			   allocation.get_height());
+	  win->invalidate_rect(r, false);
+	}
+
       //_wiiMoteTracker.glPerspective(*_viewPortInfo);
       //Now tell the viewport to save the modified matricies
       _viewPortInfo->saveMatrices();
@@ -1878,4 +1898,32 @@ CLGLWindow::wiiMoteConnect()
   if (_wiiMoteTracker.connect())
     guiUpdateCallback();
 #endif
+}
+
+bool 
+CLGLWindow::wiiMoteIRExposeEvent(GdkEventExpose*)
+{
+#ifdef COIL_wiimote
+  Gtk::DrawingArea *ir;
+  _refXml->get_widget("wiiIRImage", ir);
+
+  Glib::RefPtr<Gdk::Window> window = ir->get_window();
+  Gtk::Allocation allocation = ir->get_allocation();
+  const int width = allocation.get_width();
+  const int height = allocation.get_height();
+
+  Cairo::RefPtr<Cairo::Context> cr = window->create_cairo_context();
+
+  for (int i=0; i < CWIID_IR_SRC_COUNT; i++)
+    if (_wiiMoteTracker.getIRState(i).valid)
+      {
+	int size = (_wiiMoteTracker.getIRState(i).size == -1) ? 3 : _wiiMoteTracker.getIRState(i).size + 1;
+	
+	cr->move_to(_wiiMoteTracker.getIRState(i).pos[CWIID_X] * width / CWIID_IR_X_MAX,
+		    height - _wiiMoteTracker.getIRState(i).pos[CWIID_Y] * height / CWIID_IR_Y_MAX);
+	cr->arc(0, 0, size, 0, 2*M_PI);
+      }
+#endif
+
+  return true;
 }

@@ -22,6 +22,7 @@
 #pragma once
 
 #ifdef COIL_wiimote
+#include <magnet/exception.hpp>
 #include <cwiid.h> /* cwiid wii remote library */
 
 /*! \brief A class to facilitate head tracking using the cwiid
@@ -44,6 +45,13 @@ public:
 
   inline double getBatteryLevel() const { return double(m_state.battery) / CWIID_BATTERY_MAX; }
 
+  const cwiid_ir_src& getIRState(size_t IRDotID) const 
+  { 
+    if (IRDotID >= CWIID_IR_SRC_COUNT)
+      M_throw() << "Out of bounds access on wii IR data.";
+    return m_state.ir_src[IRDotID]; 
+  }
+
 private:
   size_t updateIRPositions();
 
@@ -55,14 +63,8 @@ private:
 
   // calculated viewing position
   double eye_pos[3]; 
-
-  uint16_t ir_zero_pos[2];
-
-  uint16_t ir_positions[4][2];
-  int8_t ir_sizes[4];
   double v_angle;
-  bool _wiimoteAboveScreen;
-  
+  bool _wiimoteAboveScreen;  
   size_t _valid_ir_points;
 };
 #endif
