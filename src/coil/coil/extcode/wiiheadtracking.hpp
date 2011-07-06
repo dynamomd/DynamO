@@ -22,12 +22,12 @@
 #pragma once
 
 #ifdef COIL_wiimote
-#include <magnet/GL/viewPort.hpp>
 #include <cwiid.h> /* cwiid wii remote library */
 
-
-// TrackWiimote
-// ==================================================================================
+/*! \brief A class to facilitate head tracking using the cwiid
+ * library.
+ *
+ */
 class TrackWiimote {
 public:
   TrackWiimote(bool wiimoteAboveScreen = true);
@@ -36,36 +36,33 @@ public:
 
   bool connect(bdaddr_t* bt_address = BDADDR_ANY);
 
-  inline void requestCalibration() { calibrate_request = true; }
+  void calibrate();
 
   inline const double& getHeadPosition(const size_t dim) const { return eye_pos[dim]; }
 
   inline bool connected() const { return m_wiimote; }
+
+  inline double getBatteryLevel() const { return double(m_state.battery) / CWIID_BATTERY_MAX; }
 
 private:
   size_t updateIRPositions();
 
   void updateHeadPos();
 
-  void calibrate();
-
   cwiid_wiimote_t* m_wiimote; /* wiimote connection through cwiid library */
 
   struct cwiid_state m_state; /* wiimote state (updated every frame) using cwiid library */
-
-  bool calibrate_request;
 
   // calculated viewing position
   double eye_pos[3]; 
 
   uint16_t ir_zero_pos[2];
 
-  //Raw IR positions
   uint16_t ir_positions[4][2];
   int8_t ir_sizes[4];
-
   double v_angle;
-
   bool _wiimoteAboveScreen;
+  
+  size_t _valid_ir_points;
 };
 #endif

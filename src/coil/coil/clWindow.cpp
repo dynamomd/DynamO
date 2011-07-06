@@ -579,6 +579,16 @@ CLGLWindow::initGTK()
 	  analygraphEnable->signal_toggled()
 	    .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
 	}
+	
+#ifdef COIL_wiimote
+	{//Here all the wii stuff should go in
+	  Gtk::Button* btn;
+	  _refXml->get_widget("wiiConnectBtn", btn);
+	  btn->signal_clicked()
+	    .connect(sigc::mem_fun(this, &CLGLWindow::wiiMoteConnect));
+	  btn->set_sensitive(true);
+	}	
+#endif
       }
     }
 
@@ -897,18 +907,7 @@ CLGLWindow::CallBackDisplayFunc()
   _viewPortInfo->CameraUpdate(forward, sideways, vertical);
 
 #ifdef COIL_wiimote
-
-  if (keyStates['l'])
-    {
-      coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[_consoleID]);
-      _console << "Connecting to the wii remote" << coil::Console::end();  
-      if (!_wiiMoteTracker.connect())
-	_console << "Could not connect to the Wii remote!" << coil::Console::end();  
-      else
-	_console << "Wiimote connected" << coil::Console::end();  
-    }
-
-  if (keyStates['c']) _wiiMoteTracker.requestCalibration(); 
+  if (keyStates['c']) _wiiMoteTracker.calibrate(); 
       
   if (_wiiMoteTracker.connected())
     {
@@ -1811,12 +1810,26 @@ CLGLWindow::guiUpdateCallback()
     _updateIntervalValue = updateButton->get_value();
   }
 
-  {//Filter enable/disable
+  {//Analygraph work
     Gtk::CheckButton* btn;
     _refXml->get_widget("analygraphMode", btn);    
     _analygraphMode = btn->get_active();
   }
-  
+
+#ifdef COIL_wiimote
+  {//Update the wii mote's information
+    Gtk::Label* label;
+    _refXml->get_widget("wiiStatus", label);
+    label->set_text(_wiiMoteTracker.connected() ? "WiiMote Connected" : "WiiMote Not Found");
+  }
+
+  {//Update the wii mote's information
+    Gtk::ProgressBar* batteryBar;
+    _refXml->get_widget("wiiBattery", batteryBar);
+    batteryBar->set_fraction(_wiiMoteTracker.getBatteryLevel());
+    std::cerr << "\nBattery level is " << _wiiMoteTracker.getBatteryLevel() << "\n";
+  }
+#endif  
 }
 
 
@@ -1844,4 +1857,25 @@ void
 CLGLWindow::setLabelText(Gtk::Label* label, std::string text)
 {
   label->set_text(text);
+}
+
+void 
+CLGLWindow::wiiMoteConnect()
+{
+#ifdef COIL_wiimote
+  if (_wiiMoteTracker.connected())
+    {
+      guiUpdateCallback();
+      return;
+    }
+
+  Gtk::Window* window;
+  _refXml->get_widget("controlWindow", window);
+  Gtk::MessageDialog confirmation(*window, "Place the WiiMote in discovery mode (hit the <b>1</b> &amp; <b>2</b> buttons together)\nThen hit Ok.",
+				  true, Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK, true);
+
+  confirmation.run();
+  if (_wiiMoteTracker.connect())
+    guiUpdateCallback();
+#endif
 }

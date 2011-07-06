@@ -22,7 +22,9 @@
 #ifdef COIL_wiimote
 #include "wiiheadtracking.hpp"
 #include <cmath>
+#include <iostream>
 #include <stdexcept>
+#include <stdlib.h>
 
 //Hidden namespace for constants
 namespace {
@@ -44,10 +46,11 @@ namespace {
 
 TrackWiimote::TrackWiimote(bool wiimoteAboveScreen):
   m_wiimote(NULL),
-  calibrate_request(false),
   v_angle(0),
   _wiimoteAboveScreen(wiimoteAboveScreen)
 {
+  m_state.battery = 0;
+
   eye_pos[0] = eye_pos[1] = 0;
   eye_pos[2] = 40;
   for (size_t i(0); i < 4; ++i)
@@ -62,6 +65,8 @@ bool TrackWiimote::updateState()
 {
   if (!m_wiimote) return false;
 
+  cwiid_request_status(m_wiimote);
+
   if (cwiid_get_state(m_wiimote, &m_state))
     return false; //Failed to obtain data from the remote
 
@@ -72,26 +77,26 @@ bool TrackWiimote::connect(bdaddr_t* bt_address)
 {
   if (m_wiimote) return true;
 
-  m_wiimote = cwiid_open(bt_address, CWIID_FLAG_CONTINUOUS|CWIID_FLAG_NONBLOCK);
+  m_wiimote = cwiid_open(bt_address, CWIID_FLAG_CONTINUOUS | CWIID_FLAG_NONBLOCK);
   
   if (!m_wiimote) return false;//Couldn't connect
 
-  if (cwiid_command(m_wiimote, CWIID_CMD_RPT_MODE, 
-		    CWIID_RPT_IR | CWIID_RPT_ACC | CWIID_RPT_BTN
-		    ) != 0)
+  if (cwiid_set_rpt_mode(m_wiimote, CWIID_RPT_IR | CWIID_RPT_ACC | CWIID_RPT_BTN | CWIID_RPT_STATUS) != 0)
     throw std::runtime_error("Failed to enable Wii functions.");
 
   if (cwiid_command(m_wiimote, CWIID_CMD_LED,
 		    CWIID_LED1_ON) != 0)
     throw std::runtime_error("Failed to enable Wii functions.");
-
+  
+  cwiid_request_status(m_wiimote);
+  
   return true;
 }
 
 //! Downloads the ir positions and returns how many were recorded
 size_t TrackWiimote::updateIRPositions()
 {
-  size_t points = 0;
+  _valid_ir_points = 0;
 
   for (size_t i(0); i < 4; ++i)
     if (m_state.ir_src[i].valid)
@@ -102,21 +107,13 @@ size_t TrackWiimote::updateIRPositions()
 	if (m_state.ir_src[i].size != -1)
 	  ir_sizes[i] = m_state.ir_src[i].size + 1;
 	
-	++points;
+	++_valid_ir_points;
       }
   
-  if (points == 2) 
-    {
-      if (calibrate_request)
-	{       
-	  calibrate();
-	  calibrate_request = false;
-	}
-      
-      updateHeadPos();
-    }
+  if (_valid_ir_points == 2)
+    updateHeadPos();
   
-  return points;
+  return _valid_ir_points;
 }
 
 /* update the camera position using ir points camerapt_1 and camerapt_2 */
@@ -160,6 +157,8 @@ void TrackWiimote::updateHeadPos()
 
 void TrackWiimote::calibrate()
 {
+  if (_valid_ir_points != 2) return;
+
   //The person is in the center of the screen, so we can determine the
   //tilt of the camera
   v_angle = std::acos(0.5 *  ScreenYlength / eye_pos[2]) - M_PI / 2;

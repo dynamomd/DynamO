@@ -239,6 +239,9 @@ private:
   void addRObjCallback();
   void selectRObjCallback();
 
+  //Wii Remote callbacks
+  void wiiMoteConnect();
+
 
   //Other callbacks
   void multisampleEnableCallback();
