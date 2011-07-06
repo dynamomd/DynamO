@@ -158,50 +158,6 @@ void TrackWiimote::updateHeadPos()
   eye_pos[1] = eye_pos[2] * std::sin(Yangle) + ((_wiimoteAboveScreen) ? 0.5f : -0.5f) * ScreenYlength;
 }
 
-void TrackWiimote::glPerspective(const magnet::GL::ViewPort& vp, const Vector offset)
-{
-  //Build a matrix to rotate from camera to world
-  Matrix Transformation 
-    = Rodrigues(Vector(0, -vp.getPan() * M_PI/180, 0))
-    * Rodrigues(Vector(-vp.getTilt() * M_PI / 180.0, 0, 0));
-  
-  Vector movement = Transformation * (Vector(eye_pos[0], eye_pos[1], eye_pos[2]) + offset ) ;
-
-  glMatrixMode(GL_MODELVIEW);
-  glTranslatef(-movement[0] / simlength,
-	       -movement[1] / simlength,
-	       -movement[2] / simlength);
-  
-  //We have moved the camera to the location of the head in sim
-  //space. Now we must create a viewing frustrum which, in real
-  //space, cuts through the image on the screen. The trick is to
-  //take the real world relative coordinates of the screen and
-  //head transform them to simulation units.
-  //
-  //This allows us to calculate the left, right, bottom and top of
-  //the frustrum as if the near plane of the frustrum was at the
-  //screens location.
-  //
-  //Finally, all length scales are multiplied by
-  //(vp._zNearDist/eye_pos[2]).
-  //
-  //This is to allow the frustrum's near plane to be placed
-  //somewhere other than the screen (this factor places it at
-  //_zNearDist)!
-  //
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glFrustum((-0.5f * ScreenXlength - eye_pos[0]) * vp.getZNear() / eye_pos[2],// left
-	    (+0.5f * ScreenXlength - eye_pos[0]) * vp.getZNear() / eye_pos[2],// right
-	    (-0.5f * ScreenYlength - eye_pos[1]) * vp.getZNear() / eye_pos[2],// bottom 
-	    (+0.5f * ScreenYlength - eye_pos[1]) * vp.getZNear() / eye_pos[2],// top
-	    vp.getZNear(),//Near distance
-	    vp.getZFar()//Far distance
-	    );
-  
-  glMatrixMode(GL_MODELVIEW);
-}
-
 void TrackWiimote::calibrate()
 {
   //The person is in the center of the screen, so we can determine the

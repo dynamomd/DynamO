@@ -970,10 +970,19 @@
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkHSeparator" id="hseparator1">
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkHBox" id="hbox6">
                     <property name="visible">True</property>
                     <child>
-                      <object class="GtkToggleButton" id="WiiConnect">
+                      <object class="GtkButton" id="wiiConnectBtn">
                         <property name="label" translatable="yes">Connect Wii Mote</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
@@ -986,13 +995,48 @@
                       </packing>
                     </child>
                     <child>
-                      <placeholder/>
+                      <object class="GtkLabel" id="wiiStatus">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">WiiMote Unconnected</property>
+                      </object>
+                      <packing>
+                        <property name="fill">False</property>
+                        <property name="position">1</property>
+                      </packing>
                     </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">1</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkHBox" id="hbox10">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkLabel" id="label13">
+                        <property name="visible">True</property>
+                        <property name="xalign">0.94999998807907104</property>
+                        <property name="label" translatable="yes">Battery</property>
+                      </object>
+                      <packing>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkProgressBar" id="wiiBattery">
+                        <property name="visible">True</property>
+                      </object>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
               </object>

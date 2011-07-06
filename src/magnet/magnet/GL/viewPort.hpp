@@ -185,8 +185,13 @@ namespace magnet {
       
       /*! \brief Constructs the OpenGL modelview and projection
        * matricies from the stored state of the viewport/camera.
+       *
+       * \param offset This is an offset in camera coordinates to
+       * apply to the head location. It's primary use is to calculate
+       * the perspective shift for the left and right eye in
+       * Analygraph rendering.
        */
-      inline void buildMatrices()
+      inline void buildMatrices(Vector offset = Vector(0,0,0))
       {  
 	//We'll build the matricies on the modelview stack
 	glMatrixMode(GL_MODELVIEW);
@@ -233,7 +238,7 @@ namespace magnet {
 	  = Rodrigues(Vector(0, -_panrotation * M_PI/180, 0))
 	  * Rodrigues(Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
 
-	Vector cameraLocation((viewTransformation * _headLocation) + _position);
+	Vector cameraLocation((viewTransformation * (_headLocation + offset / _simLength)) + _position);
 
 	glTranslatef(-cameraLocation[0], -cameraLocation[1], -cameraLocation[2]);
 
@@ -242,7 +247,6 @@ namespace magnet {
 	
 	_cameraDirection = viewTransformation * Vector(0,0,-1);
 	_cameraUp = viewTransformation * Vector(0,1,0);
-
       }
 
       /*! \brief Saves the OpenGL modelview and projection matrices

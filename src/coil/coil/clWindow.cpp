@@ -897,7 +897,7 @@ CLGLWindow::CallBackDisplayFunc()
   _viewPortInfo->CameraUpdate(forward, sideways, vertical);
 
 #ifdef COIL_wiimote
-  _viewPortInfo->loadMatrices();
+
   if (keyStates['l'])
     {
       coil::Console& _console = static_cast<coil::Console&>(*RenderObjects[_consoleID]);
@@ -913,7 +913,7 @@ CLGLWindow::CallBackDisplayFunc()
   if (_wiiMoteTracker.connected())
     {
       _wiiMoteTracker.updateState();
-      _wiiMoteTracker.glPerspective(*_viewPortInfo);
+      //_wiiMoteTracker.glPerspective(*_viewPortInfo);
       //Now tell the viewport to save the modified matricies
       _viewPortInfo->saveMatrices();
     }
@@ -954,15 +954,12 @@ CLGLWindow::CallBackDisplayFunc()
 	  _light0->loadShadowTextureMatrix(*_viewPortInfo);
 	  
 	  glMatrixMode(GL_MODELVIEW);	  
-
 	  _shadowFBO.getDepthTexture().bind(7);
 	}
       
       //Bind to the multisample buffer
       _renderTarget->attach();
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
-
-      _viewPortInfo->loadMatrices();
 
       _shadowShader["ShadowMap"] = 7;
       _shadowShader["ShadowIntensity"] = _shadowIntensity;
@@ -971,34 +968,31 @@ CLGLWindow::CallBackDisplayFunc()
       _shadowShader["ShadowMapping"] = _shadowMapping;
       _shadowShader.attach();
 
-#ifdef COIL_wiimote
       if (_analygraphMode)
 	{
-	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	  const double eyedist = 8.5;
 	  Vector eyeDisplacement(0.5 * eyedist, 0, 0);
 	  
-	  _viewPortInfo->buildMatrices();
+	  _viewPortInfo->buildMatrices(-eyeDisplacement);
 	  _viewPortInfo->loadMatrices();
-	  _wiiMoteTracker.glPerspective(*_viewPortInfo, -eyeDisplacement);
 
 	  glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
 	  drawScene(*_renderTarget);
 	  
-	  _viewPortInfo->buildMatrices();
+	  _viewPortInfo->buildMatrices(eyeDisplacement);
 	  _viewPortInfo->loadMatrices();
-	  _viewPortInfo->loadMatrices();
-	  _wiiMoteTracker.glPerspective(*_viewPortInfo, eyeDisplacement);
 	  
 	  glClear(GL_DEPTH_BUFFER_BIT);
 	  glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
 	  drawScene(*_renderTarget);
 	  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	}
-      else	
-#endif
-	drawScene(*_renderTarget);
+      else
+	{
+	  _viewPortInfo->buildMatrices();
+	  _viewPortInfo->loadMatrices();
+	  drawScene(*_renderTarget);
+	}
       
       _renderTarget->detach();
 
