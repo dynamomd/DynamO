@@ -572,14 +572,14 @@ CLGLWindow::initGTK()
 	}
       }
 
-//      {/////////////////////3D effects
-//	{
-//	  Gtk::CheckButton* analygraphEnable;
-//	  _refXml->get_widget("analygraphMode", analygraphEnable);
-//	  analygraphEnable->signal_toggled()
-//	    .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
-//	}
-//      }
+      {/////////////////////3D effects
+	{
+	  Gtk::CheckButton* analygraphEnable;
+	  _refXml->get_widget("analygraphMode", analygraphEnable);
+	  analygraphEnable->signal_toggled()
+	    .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
+	}
+      }
     }
 
   {///////////////////////Render Objects//////////////////////////////////
@@ -972,21 +972,22 @@ CLGLWindow::CallBackDisplayFunc()
       _shadowShader.attach();
 
 #ifdef COIL_wiimote
-      if (keyStates['b'])
+      if (_analygraphMode)
 	{
-	  glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	  _viewPortInfo->buildMatrices();
-	  _viewPortInfo->loadMatrices();
 
 	  const double eyedist = 8.5;
 	  Vector eyeDisplacement(0.5 * eyedist, 0, 0);
 	  
-	  glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
+	  _viewPortInfo->buildMatrices();
+	  _viewPortInfo->loadMatrices();
 	  _wiiMoteTracker.glPerspective(*_viewPortInfo, -eyeDisplacement);
 
+	  glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
 	  drawScene(*_renderTarget);
 	  
+	  _viewPortInfo->buildMatrices();
+	  _viewPortInfo->loadMatrices();
 	  _viewPortInfo->loadMatrices();
 	  _wiiMoteTracker.glPerspective(*_viewPortInfo, eyeDisplacement);
 	  
@@ -1819,11 +1820,11 @@ CLGLWindow::guiUpdateCallback()
     _updateIntervalValue = updateButton->get_value();
   }
 
-//  {//Filter enable/disable
-//    Gtk::CheckButton* btn;
-//    _refXml->get_widget("analygraphMode", btn);    
-//    _analygraphMode = btn->get_active();
-//  }
+  {//Filter enable/disable
+    Gtk::CheckButton* btn;
+    _refXml->get_widget("analygraphMode", btn);    
+    _analygraphMode = btn->get_active();
+  }
   
 }
 

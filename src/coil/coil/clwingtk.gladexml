@@ -18,6 +18,7 @@
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <child>
           <object class="GtkMenuBar" id="menubar1">
             <property name="visible">True</property>
@@ -56,6 +57,7 @@
             <child>
               <object class="GtkVBox" id="vbox2">
                 <property name="visible">True</property>
+                <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkToggleButton" id="SimRunButton">
                     <property name="visible">True</property>
@@ -291,6 +293,7 @@
                     <child>
                       <object class="GtkVBox" id="vbox10">
                         <property name="visible">True</property>
+                        <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkHBox" id="hbox8">
                             <property name="visible">True</property>
@@ -410,6 +413,7 @@
             <child>
               <object class="GtkVBox" id="vbox8">
                 <property name="visible">True</property>
+                <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkHBox" id="hbox13">
                     <property name="visible">True</property>
@@ -425,6 +429,7 @@
                     <child>
                       <object class="GtkVBox" id="vbox9">
                         <property name="visible">True</property>
+                        <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkButton" id="robjDelete">
                             <property name="visible">True</property>
@@ -584,6 +589,7 @@
                     <child>
                       <object class="GtkVBox" id="shaderPipelineOptions">
                         <property name="visible">True</property>
+                        <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkHBox" id="multisampleBox">
                             <property name="visible">True</property>
@@ -700,6 +706,7 @@
                         <child>
                           <object class="GtkVBox" id="vbox4">
                             <property name="visible">True</property>
+                            <property name="orientation">vertical</property>
                             <child>
                               <object class="GtkCheckButton" id="filterEnable">
                                 <property name="label" translatable="yes">Enable Filters</property>
@@ -742,6 +749,7 @@
                                   <object class="GtkVBox" id="vbox6">
                                     <property name="width_request">30</property>
                                     <property name="visible">True</property>
+                                    <property name="orientation">vertical</property>
                                     <child>
                                       <object class="GtkButton" id="filterUp">
                                         <property name="visible">True</property>
@@ -946,6 +954,21 @@
             <child>
               <object class="GtkVBox" id="vbox3">
                 <property name="visible">True</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkCheckButton" id="analygraphMode">
+                    <property name="label" translatable="yes">Analygraph Mode</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
                 <child>
                   <object class="GtkHBox" id="hbox6">
                     <property name="visible">True</property>
@@ -969,11 +992,8 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">0</property>
+                    <property name="position">1</property>
                   </packing>
-                </child>
-                <child>
-                  <placeholder/>
                 </child>
               </object>
               <packing>
@@ -983,7 +1003,7 @@
             <child type="tab">
               <object class="GtkLabel" id="label5">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">HeadTracking</property>
+                <property name="label" translatable="yes">3D Rendering</property>
               </object>
               <packing>
                 <property name="position">4</property>
@@ -995,6 +1015,7 @@
                 <child>
                   <object class="GtkVBox" id="vbox7">
                     <property name="visible">True</property>
+                    <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkCheckButton" id="forceParticleSync">
                         <property name="label" translatable="yes">Force particle sync on draw</property>
