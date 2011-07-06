@@ -964,24 +964,24 @@ CLGLWindow::CallBackDisplayFunc()
 #ifdef COIL_wiimote
       if (keyStates['b'])
 	{
-	  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	  glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	  _viewPortInfo->buildMatrices();
 	  _viewPortInfo->loadMatrices();
 
 	  const double eyedist = 8.5;
-	  Vector eyeDisplacement(0.5 *eyedist, 0, 0);
+	  Vector eyeDisplacement(0.5 * eyedist, 0, 0);
 	  
+	  glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
 	  _wiiMoteTracker.glPerspective(*_viewPortInfo, -eyeDisplacement);
 
-	  glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
 	  drawScene(*_renderTarget);
 	  
 	  _viewPortInfo->loadMatrices();
 	  _wiiMoteTracker.glPerspective(*_viewPortInfo, eyeDisplacement);
 	  
 	  glClear(GL_DEPTH_BUFFER_BIT);
-	  glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_FALSE);
+	  glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
 	  drawScene(*_renderTarget);
 	  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	}
