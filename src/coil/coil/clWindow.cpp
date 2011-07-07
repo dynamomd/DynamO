@@ -1018,7 +1018,7 @@ CLGLWindow::CallBackDisplayFunc()
 
       if (_analygraphMode)
 	{
-	  const double eyedist = 8.5;
+	  const double eyedist = 6.5; //
 	  Vector eyeDisplacement(0.5 * eyedist, 0, 0);
 	  
 	  _viewPortInfo->buildMatrices(-eyeDisplacement);
@@ -1195,7 +1195,7 @@ CLGLWindow::CallBackDisplayFunc()
 	  else
 	    magnet::image::writeBMPFile(path + "/" + filename.str() +".bmp", pixels, 
 					_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
-	}
+	}                         
     }
 
   ++_frameCounter; 
@@ -1214,6 +1214,31 @@ CLGLWindow::drawScene(magnet::GL::FBO& fbo)
     (*iPtr)->glRender(fbo);
   
   if (_showLight) _light0->drawLight();
+
+  //Draw a frustrum cage around the display
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  _viewPortInfo->applyInverseModelview();
+
+  double boxdepth = 2;
+  int numGridlines = 10;
+
+  //The grid is centered and is +-0.5f big, scale it to the box length wide and the screen high
+  glScalef(_viewPortInfo->getScreenPlaneWidth(), _viewPortInfo->getScreenPlaneHeight(), 1);
+  glTranslatef(0,0,-boxdepth);
+  glColor4f(1, 1, 1, 1);
+  glBegin(GL_LINES);
+  for (int i = 0; i <= numGridlines; ++i)
+    {
+      glVertex3f(-0.5f + i / float(numGridlines), -0.5f, 0);
+      glVertex3f(-0.5f + i / float(numGridlines),  0.5f, 0);
+
+      glVertex3f(-0.5f, -0.5f + i / float(numGridlines), 0);
+      glVertex3f( 0.5f, -0.5f + i / float(numGridlines), 0);
+    }
+  glEnd();
+
+  glPopMatrix();
 }
 
 void CLGLWindow::CallBackReshapeFunc(int w, int h)

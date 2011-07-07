@@ -36,7 +36,7 @@ namespace {
   //The angle corresponding to a pixel (the camera only "sees" angles, not distances)
   const double anglePerPixel =  WiiFOVX / double(CWIID_IR_X_MAX);  
   //Distance between the two IR sources being tracked (in cm)
-  const double IRPointSeparation = 15.5;
+  const double IRPointSeparation = 15.3;
 
   void cwiid_err_hidden(struct wiimote*, const char*, va_list) {}
 }

@@ -73,7 +73,7 @@ namespace magnet {
 	_zNearDist(zNearDist),
 	_zFarDist(zFarDist),
 	_headLocation(0, 0, 1),
-	_simLength(50),
+	_simLength(25),
 	_pixelPitch(0.025), //Measured from my screen
 	_camMode(ROTATE_CAMERA)
       {
@@ -233,10 +233,10 @@ namespace magnet {
 	//somewhere other than the screen (this factor places it at
 	//_zNearDist)!
 	//
-	glFrustum((-0.5f * _pixelPitch * _width / _simLength  - _headLocation[0]) * _zNearDist / _headLocation[2],// left
-		  (+0.5f * _pixelPitch * _width / _simLength  - _headLocation[0]) * _zNearDist / _headLocation[2],// right
-		  (-0.5f * _pixelPitch * _height / _simLength - _headLocation[1]) * _zNearDist / _headLocation[2],// bottom 
-		  (+0.5f * _pixelPitch * _height / _simLength - _headLocation[1]) * _zNearDist / _headLocation[2],// top
+	glFrustum((-0.5f * getScreenPlaneWidth()  - _headLocation[0]) * _zNearDist / _headLocation[2],// left
+		  (+0.5f * getScreenPlaneWidth()  - _headLocation[0]) * _zNearDist / _headLocation[2],// right
+		  (-0.5f * getScreenPlaneHeight() - _headLocation[1]) * _zNearDist / _headLocation[2],// bottom 
+		  (+0.5f * getScreenPlaneHeight() - _headLocation[1]) * _zNearDist / _headLocation[2],// top
 		  _zNearDist,//Near distance
 		  _zFarDist//Far distance
 		  );
@@ -264,6 +264,31 @@ namespace magnet {
 	_cameraDirection = viewTransformation * Vector(0,0,-1);
 	_cameraUp = viewTransformation * Vector(0,1,0);
       }
+      
+      /*! \brief multiplies an inverse transformation of the
+       * viewPort's modelview matrix with the current OpenGL matrix.
+       *
+       * This function simplifies drawing objects fixed in the camera
+       * space (i.e. drawing a viewing frustrum for a given
+       * viewport).
+       *
+       * \note This does not include any head tracking movement! (This is deliberate)
+       */
+      inline void applyInverseModelview() const
+      {
+	glTranslatef(_position[0], _position[1], _position[2]);
+	glRotatef(-_panrotation, 0.0, 1.0, 0.0);
+	glRotatef(-_tiltrotation, 1.0, 0.0, 0.0);
+      }
+      
+      //! \brief Returns the screen's width (in simulation units).
+      double getScreenPlaneWidth() const
+      { return _pixelPitch * _width / _simLength; }
+
+      //! \brief Returns the screen's height (in simulation units).
+      double getScreenPlaneHeight() const
+      { return _pixelPitch * _height / _simLength; }
+
 
       /*! \brief Saves the OpenGL modelview and projection matrices
        * into an internal storage.
