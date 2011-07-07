@@ -966,7 +966,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">0</property>
+                    <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
@@ -975,99 +975,113 @@
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkHBox" id="hbox6">
-                    <property name="visible">True</property>
-                    <child>
-                      <object class="GtkButton" id="wiiConnectBtn">
-                        <property name="label" translatable="yes">Connect WiiMote</property>
-                        <property name="visible">True</property>
-                        <property name="sensitive">False</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="wiiStatus">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">WiiMote Unconnected</property>
-                      </object>
-                      <packing>
-                        <property name="fill">False</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
                     <property name="position">2</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox12">
+                  <object class="GtkHBox" id="hbox17">
                     <property name="visible">True</property>
                     <child>
-                      <object class="GtkButton" id="wiiCalibrate">
-                        <property name="label" translatable="yes">Calibrate WiiMote Vertical Angle</property>
+                      <object class="GtkVBox" id="vbox11">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkHBox" id="hbox18">
+                            <property name="visible">True</property>
+                            <child>
+                              <object class="GtkButton" id="wiiConnectBtn">
+                                <property name="label" translatable="yes">Connect WiiMote</property>
+                                <property name="visible">True</property>
+                                <property name="sensitive">False</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="wiiStatus">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">WiiMote Unconnected</property>
+                              </object>
+                              <packing>
+                                <property name="fill">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkHBox" id="hbox19">
+                            <property name="visible">True</property>
+                            <child>
+                              <object class="GtkButton" id="wiiCalibrate">
+                                <property name="label" translatable="yes">Calibrate WiiMote</property>
+                                <property name="visible">True</property>
+                                <property name="sensitive">False</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label6">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Vertical Angle:</property>
+                              </object>
+                              <packing>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="wiiAngleStatus">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">N/A</property>
+                              </object>
+                              <packing>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="wiiAngleStatus">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">Angle: N/A</property>
-                      </object>
-                      <packing>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkHBox" id="hbox16">
-                    <property name="visible">True</property>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
                       <object class="GtkFrame" id="IRSignalFrame">
-                        <property name="width_request">128</property>
-                        <property name="height_request">96</property>
                         <property name="visible">True</property>
                         <property name="border_width">4</property>
                         <property name="label_xalign">0</property>
                         <property name="shadow_type">in</property>
                         <child>
                           <object class="GtkDrawingArea" id="wiiIRImage">
+                            <property name="width_request">128</property>
+                            <property name="height_request">96</property>
                             <property name="visible">True</property>
                           </object>
                         </child>
                         <child type="label">
                           <object class="GtkLabel" id="lblIR">
                             <property name="visible">True</property>
-                            <property name="sensitive">False</property>
                             <property name="label" translatable="yes">IR Image</property>
                             <property name="use_markup">True</property>
                           </object>
@@ -1076,14 +1090,14 @@
                       <packing>
                         <property name="fill">False</property>
                         <property name="pack_type">end</property>
-                        <property name="position">0</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">5</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
                 <child>
@@ -1113,7 +1127,7 @@
                     <property name="expand">False</property>
                     <property name="fill">False</property>
                     <property name="pack_type">end</property>
-                    <property name="position">3</property>
+                    <property name="position">0</property>
                   </packing>
                 </child>
               </object>
@@ -1122,9 +1136,9 @@
               </packing>
             </child>
             <child type="tab">
-              <object class="GtkLabel" id="label5">
+              <object class="GtkLabel" id="simOptionsLabel">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">3D Rendering</property>
+                <property name="label" translatable="yes">DynamO</property>
               </object>
               <packing>
                 <property name="position">4</property>
@@ -1175,9 +1189,9 @@
               </packing>
             </child>
             <child type="tab">
-              <object class="GtkLabel" id="simOptionsLabel">
+              <object class="GtkLabel" id="label5">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">DynamO</property>
+                <property name="label" translatable="yes">3D Rendering</property>
               </object>
               <packing>
                 <property name="position">4</property>

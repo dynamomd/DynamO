@@ -920,17 +920,9 @@ CLGLWindow::CallBackDisplayFunc()
   if (_wiiMoteTracker.connected())
     {
       _wiiMoteTracker.updateState();
-      
-      Gtk::DrawingArea *ir;
-      _refXml->get_widget("wiiIRImage", ir);
-      Gtk::Allocation allocation = ir->get_allocation();
-      Glib::RefPtr<Gdk::Window> win = ir->get_window();
-      if (win)
-	{
-	  Gdk::Rectangle r(0, 0, allocation.get_width(),
-			   allocation.get_height());
-	  win->invalidate_rect(r, false);
-	}
+
+      //We need to redraw the IR sources info (among other things)
+      guiUpdateCallback();
 
       //_wiiMoteTracker.glPerspective(*_viewPortInfo);
       //Now tell the viewport to save the modified matricies
@@ -1837,17 +1829,46 @@ CLGLWindow::guiUpdateCallback()
   }
 
 #ifdef COIL_wiimote
-  {//Update the wii mote's information
-    Gtk::Label* label;
-    _refXml->get_widget("wiiStatus", label);
-    label->set_text(_wiiMoteTracker.connected() ? "WiiMote Connected" : "WiiMote Not Found");
-  }
-
-  {//Update the wii mote's information
+  {  
+    Gtk::Label* statuslabel;
+    Gtk::Label* anglelabel;
     Gtk::ProgressBar* batteryBar;
+    Gtk::Button* wiiCalibrate;
+    Gtk::DrawingArea *ir;
+    _refXml->get_widget("wiiStatus", statuslabel);
     _refXml->get_widget("wiiBattery", batteryBar);
-    batteryBar->set_fraction(_wiiMoteTracker.getBatteryLevel());
-    std::cerr << "\nBattery level is " << _wiiMoteTracker.getBatteryLevel() << "\n";
+    _refXml->get_widget("wiiCalibrate", wiiCalibrate);
+    _refXml->get_widget("wiiIRImage", ir);
+    _refXml->get_widget("wiiAngleStatus", anglelabel);
+    if (_wiiMoteTracker.connected())
+      {
+	statuslabel->set_text("WiiMote Connected");
+
+	std::ostringstream os;
+	os << _wiiMoteTracker.getCalibrationAngle();
+	anglelabel->set_text(os.str());
+
+	batteryBar->set_fraction(_wiiMoteTracker.getBatteryLevel());
+
+	wiiCalibrate->set_sensitive(true);
+
+	{
+	  Glib::RefPtr<Gdk::Window> win = ir->get_window();
+	  if (win)
+	    {
+	      Gdk::Rectangle r(0, 0, ir->get_allocation().get_width(),
+			       ir->get_allocation().get_height());
+	      win->invalidate_rect(r, false);
+	    }
+	}
+      }
+    else
+      {
+	statuslabel->set_text("WiiMote Disconnected");
+	anglelabel->set_text("N/A");
+	batteryBar->set_fraction(0);
+	wiiCalibrate->set_sensitive(false);
+      }
   }
 #endif  
 }
@@ -1895,35 +1916,58 @@ CLGLWindow::wiiMoteConnect()
 				  true, Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK, true);
 
   confirmation.run();
-  if (_wiiMoteTracker.connect())
-    guiUpdateCallback();
+  _wiiMoteTracker.connect();
 #endif
 }
 
 bool 
-CLGLWindow::wiiMoteIRExposeEvent(GdkEventExpose*)
+CLGLWindow::wiiMoteIRExposeEvent(GdkEventExpose* event)
 {
 #ifdef COIL_wiimote
   Gtk::DrawingArea *ir;
   _refXml->get_widget("wiiIRImage", ir);
 
   Glib::RefPtr<Gdk::Window> window = ir->get_window();
-  Gtk::Allocation allocation = ir->get_allocation();
-  const int width = allocation.get_width();
-  const int height = allocation.get_height();
+  if (window)
+    {
+      Cairo::RefPtr<Cairo::Context> cr = window->create_cairo_context();
 
-  Cairo::RefPtr<Cairo::Context> cr = window->create_cairo_context();
+      if(event)
+	{
+	  // clip to the area indicated by the expose event so that we only
+	  // redraw the portion of the window that needs to be redrawn
+	  cr->rectangle(event->area.x, event->area.y,
+			event->area.width, event->area.height);
+	  cr->clip();
+	}
+      
+      cr->set_source_rgb(0, 0, 0);
+      cr->set_line_width(1);
 
-  for (int i=0; i < CWIID_IR_SRC_COUNT; i++)
-    if (_wiiMoteTracker.getIRState(i).valid)
-      {
-	int size = (_wiiMoteTracker.getIRState(i).size == -1) ? 3 : _wiiMoteTracker.getIRState(i).size + 1;
-	
-	cr->move_to(_wiiMoteTracker.getIRState(i).pos[CWIID_X] * width / CWIID_IR_X_MAX,
-		    height - _wiiMoteTracker.getIRState(i).pos[CWIID_Y] * height / CWIID_IR_Y_MAX);
-	cr->arc(0, 0, size, 0, 2*M_PI);
-      }
+      //Draw the tracked sources with a red dot, but only if there are just two sources!
+      int trackeddrawn = (_wiiMoteTracker.getValidIRSources() == 2) ? 2 : 0;
+
+      for (int i=0; i < CWIID_IR_SRC_COUNT; i++)
+	if (_wiiMoteTracker.getIRState(i).valid)
+	  {
+	    int size = (_wiiMoteTracker.getIRState(i).size == -1) ? 3 : _wiiMoteTracker.getIRState(i).size + 1;
+	    
+	    float x = ir->get_allocation().get_width()
+	      * (1 - float(_wiiMoteTracker.getIRState(i).pos[CWIID_X]) / CWIID_IR_X_MAX);
+
+	    float y = ir->get_allocation().get_height()
+	      * (1 - float(_wiiMoteTracker.getIRState(i).pos[CWIID_Y]) / CWIID_IR_Y_MAX) ;
+
+	    cr->save();
+	    if (trackeddrawn-- > 0)
+	      cr->set_source_rgb(1, 0, 0);
+
+	    cr->translate(x, y);
+	    cr->arc(0, 0, size, 0, 2 * M_PI);
+	    cr->fill();	    
+	    cr->restore();
+	  }
+    }
 #endif
-
   return true;
 }

@@ -52,6 +52,10 @@ public:
     return m_state.ir_src[IRDotID]; 
   }
 
+  inline size_t getValidIRSources() const { return _valid_ir_points; }
+
+  inline double getCalibrationAngle() const { return v_angle; }
+
 private:
   size_t updateIRPositions();
 
