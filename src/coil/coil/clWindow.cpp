@@ -1838,15 +1838,27 @@ CLGLWindow::guiUpdateCallback()
 #ifdef COIL_wiimote
   {  
     Gtk::Label* statuslabel;
-    Gtk::Label* anglelabel;
-    Gtk::ProgressBar* batteryBar;
-    Gtk::Button* wiiCalibrate;
-    Gtk::DrawingArea *ir;
     _refXml->get_widget("wiiStatus", statuslabel);
-    _refXml->get_widget("wiiBattery", batteryBar);
-    _refXml->get_widget("wiiCalibrate", wiiCalibrate);
-    _refXml->get_widget("wiiIRImage", ir);
+
+    Gtk::Label* anglelabel;
     _refXml->get_widget("wiiAngleStatus", anglelabel);
+
+    Gtk::ProgressBar* batteryBar;
+    _refXml->get_widget("wiiBattery", batteryBar);
+
+    Gtk::Button* wiiCalibrate;
+    _refXml->get_widget("wiiCalibrate", wiiCalibrate);
+
+    Gtk::DrawingArea *ir;
+    _refXml->get_widget("wiiIRImage", ir);
+
+    Gtk::Label* wiiXHead;
+    _refXml->get_widget("wiiXHead", wiiXHead);
+    Gtk::Label* wiiYHead;
+    _refXml->get_widget("wiiYHead", wiiYHead);
+    Gtk::Label* wiiZHead;
+    _refXml->get_widget("wiiZHead", wiiZHead);
+
     if (_wiiMoteTracker.connected())
       {
 	statuslabel->set_text("WiiMote Connected");
@@ -1854,6 +1866,18 @@ CLGLWindow::guiUpdateCallback()
 	std::ostringstream os;
 	os << _wiiMoteTracker.getCalibrationAngle();
 	anglelabel->set_text(os.str());
+
+	Vector headPos = _wiiMoteTracker.getHeadPosition();
+
+	os.str("");
+	os << headPos[0] << "cm";
+	wiiXHead->set_text(os.str());
+	os.str("");
+	os << headPos[1] << "cm";
+	wiiYHead->set_text(os.str());
+	os.str("");
+	os << headPos[2] << "cm";
+	wiiZHead->set_text(os.str());
 
 	batteryBar->set_fraction(_wiiMoteTracker.getBatteryLevel());
 
@@ -1873,6 +1897,9 @@ CLGLWindow::guiUpdateCallback()
       {
 	statuslabel->set_text("WiiMote Disconnected");
 	anglelabel->set_text("N/A");
+	wiiXHead->set_text("-");
+	wiiYHead->set_text("-");
+	wiiZHead->set_text("-");
 	batteryBar->set_fraction(0);
 	wiiCalibrate->set_sensitive(false);
       }

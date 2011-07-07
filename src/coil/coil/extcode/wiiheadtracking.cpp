@@ -46,13 +46,11 @@ namespace {
 
 TrackWiimote::TrackWiimote(bool wiimoteAboveScreen):
   m_wiimote(NULL),
+  eye_pos(0,0,40),
   v_angle(0),
   _wiimoteAboveScreen(wiimoteAboveScreen)
 {
   m_state.battery = 0;
-
-  eye_pos[0] = eye_pos[1] = 0;
-  eye_pos[2] = 40;
 }
 
 bool TrackWiimote::updateState()

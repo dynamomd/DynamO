@@ -23,6 +23,7 @@
 
 #ifdef COIL_wiimote
 #include <magnet/exception.hpp>
+#include <magnet/math/vector.hpp>
 #include <cwiid.h> /* cwiid wii remote library */
 
 /*! \brief A class to facilitate head tracking using the cwiid
@@ -39,7 +40,7 @@ public:
 
   void calibrate();
 
-  inline const double& getHeadPosition(const size_t dim) const { return eye_pos[dim]; }
+  inline const Vector& getHeadPosition() const { return eye_pos; }
 
   inline bool connected() const { return m_wiimote; }
 
@@ -66,7 +67,7 @@ private:
   struct cwiid_state m_state; /* wiimote state (updated every frame) using cwiid library */
 
   // calculated viewing position
-  double eye_pos[3]; 
+  Vector eye_pos; 
   double v_angle;
   bool _wiimoteAboveScreen;  
   size_t _valid_ir_points;

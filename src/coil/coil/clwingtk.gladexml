@@ -966,6 +966,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
+                    <property name="padding">5</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
@@ -975,6 +976,7 @@
                   </object>
                   <packing>
                     <property name="expand">False</property>
+                    <property name="padding">5</property>
                     <property name="position">2</property>
                   </packing>
                 </child>
@@ -999,6 +1001,7 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
+                                <property name="padding">5</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
@@ -1033,6 +1036,7 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
+                                <property name="padding">5</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
@@ -1059,6 +1063,65 @@
                             <property name="expand">False</property>
                             <property name="fill">False</property>
                             <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkFrame" id="frame1">
+                            <property name="visible">True</property>
+                            <property name="label_xalign">0</property>
+                            <property name="shadow_type">in</property>
+                            <child>
+                              <object class="GtkAlignment" id="alignment2">
+                                <property name="visible">True</property>
+                                <property name="left_padding">12</property>
+                                <child>
+                                  <object class="GtkHBox" id="hbox6">
+                                    <property name="visible">True</property>
+                                    <child>
+                                      <object class="GtkLabel" id="wiiXHead">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">-</property>
+                                      </object>
+                                      <packing>
+                                        <property name="fill">False</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="wiiYHead">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">-</property>
+                                      </object>
+                                      <packing>
+                                        <property name="fill">False</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="wiiZHead">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">-</property>
+                                      </object>
+                                      <packing>
+                                        <property name="fill">False</property>
+                                        <property name="position">2</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child type="label">
+                              <object class="GtkLabel" id="label14">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Calculated Head Position</property>
+                                <property name="use_markup">True</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="padding">5</property>
+                            <property name="position">2</property>
                           </packing>
                         </child>
                       </object>
@@ -1089,6 +1152,7 @@
                       </object>
                       <packing>
                         <property name="fill">False</property>
+                        <property name="padding">5</property>
                         <property name="pack_type">end</property>
                         <property name="position">1</property>
                       </packing>
