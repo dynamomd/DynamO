@@ -83,7 +83,7 @@ void
 RSphericalParticles::initGTK()
 {
   _optList.reset(new Gtk::VBox);//The Vbox of options
-  _colorMap.reset(new magnet::Gtk::ColorMapSelector);
+  _colorMap.reset(new magnet::gtk::ColorMapSelector);
 
   _singleColorMode.reset(new Gtk::RadioButton("Single Color"));
   _colorByIDMode.reset(new Gtk::RadioButton("Color by ID"));

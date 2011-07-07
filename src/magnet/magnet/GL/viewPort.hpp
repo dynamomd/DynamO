@@ -334,6 +334,10 @@ namespace magnet {
 
       //! \brief Get the width of the screen, in pixels.
       inline const size_t& getWidth() const { return _width; }
+      
+      inline const double& getSimUnitLength() const { return _simLength; }
+
+      inline void setSimUnitLength(double val)  { _simLength = val; }
 
     protected:
       size_t _height, _width;

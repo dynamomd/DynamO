@@ -38,6 +38,9 @@ namespace dynamo {}
 //!  Driven Simulation (DynamO). 
 namespace magnet {
 
+  //! \brief Namespace for Gtkmm classes and functions.
+  namespace gtk {}
+
   //! \brief Implementation details for global magnet namespace functions.
   namespace detail {}
   

@@ -325,7 +325,7 @@ namespace coil {
     _optList->show();
     //Callbacks
     _stepSize->signal_changed()
-      .connect(sigc::bind<Gtk::Entry&>(&magnet::Gtk::forceNumericEntry, *_stepSize));
+      .connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_stepSize));
     _stepSize->signal_activate().connect(sigc::mem_fun(*this, &RVolume::guiUpdate));
 
     guiUpdate();

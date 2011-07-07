@@ -22,7 +22,7 @@
 #include <magnet/color/HSV.hpp>
 
 namespace magnet {
-  namespace Gtk {
+  namespace gtk {
     class ColorMapSelector: public ::Gtk::ComboBox
     {
     public:

@@ -19,9 +19,9 @@
 #include <gtkmm.h>
 
 #include "Quads.hpp"
+#include <magnet/gtk/transferFunction.hpp>
 #include <magnet/GL/texture.hpp>
 #include <magnet/GL/shader/volume.hpp>
-#include <magnet/gtk/transferFunction.hpp>
 #include <memory>
 
 namespace coil {

@@ -64,7 +64,7 @@ protected:
   void guiUpdate();
 
   std::auto_ptr<Gtk::VBox> _optList;
-  std::auto_ptr<magnet::Gtk::ColorMapSelector> _colorMap;
+  std::auto_ptr<magnet::gtk::ColorMapSelector> _colorMap;
   std::auto_ptr<Gtk::RadioButton> _singleColorMode;
   std::auto_ptr<Gtk::RadioButton> _colorByIDMode;
   std::auto_ptr<Gtk::SpinButton> _RFixed;

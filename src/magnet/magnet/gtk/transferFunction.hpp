@@ -25,7 +25,7 @@
 
 namespace magnet {
   namespace gtk {
-    class TransferFunction : public Gtk::DrawingArea
+    class TransferFunction : public ::Gtk::DrawingArea
     {
       typedef magnet::color::TransferFunction::Knot Knot;
 
@@ -49,9 +49,9 @@ namespace magnet {
 	_updatedCallback(updated),
 	_grid_line_width(1), _selectedNode(-1), _dragMode(false)
       {
-	set_events(Gdk::KEY_PRESS_MASK | Gdk::EXPOSURE_MASK | Gdk::BUTTON_PRESS_MASK
-		   | Gdk::BUTTON_RELEASE_MASK | Gdk::POINTER_MOTION_MASK);
-	set_flags(Gtk::CAN_FOCUS);
+	set_events(::Gdk::KEY_PRESS_MASK | ::Gdk::EXPOSURE_MASK | ::Gdk::BUTTON_PRESS_MASK
+		   | ::Gdk::BUTTON_RELEASE_MASK | ::Gdk::POINTER_MOTION_MASK);
+	set_flags(::Gtk::CAN_FOCUS);
 
 	//Male head transfer function
 //	_transferFunction.addKnot(0,        0.91, 0.7, 0.61, 0.0);
@@ -98,7 +98,7 @@ namespace magnet {
 
       std::pair<float,float> getGraphPosition(GdkEventButton* event)
       {
-	const Gtk::Allocation& allocation = get_allocation();
+	const ::Gtk::Allocation& allocation = get_allocation();
 	//Calculate the mouse coordinates relative to the top left of the screen
 	float x = event->x - allocation.get_x();
 	float y = event->y - allocation.get_y();
@@ -143,7 +143,7 @@ namespace magnet {
 	    forceRedraw();
 	    _updatedCallback();
 	  }
-	return Gtk::DrawingArea::on_key_press_event(event);
+	return ::Gtk::DrawingArea::on_key_press_event(event);
       }
 
       virtual bool on_button_press_event(GdkEventButton* event) 
@@ -163,7 +163,7 @@ namespace magnet {
 	    case GDK_2BUTTON_PRESS: //Double click
 	      if ((_selectedNode = getClickedKnot(event)) == -1)
 		{//Add a new node!
-		  const Gtk::Allocation& allocation = get_allocation();
+		  const ::Gtk::Allocation& allocation = get_allocation();
 		  std::pair<double, double> newPlace 
 		    = from_graph_transform(event->x - allocation.get_x(), 
 					   event->y - allocation.get_y());
@@ -182,7 +182,7 @@ namespace magnet {
 	      else
 		{//Color an existing node!
 		  _dragMode = false;
-		  Gtk::ColorSelectionDialog select("Node Color Selection");
+		  ::Gtk::ColorSelectionDialog select("Node Color Selection");
 
 		  typedef magnet::color::TransferFunction::Knot Knot;
 
@@ -197,7 +197,7 @@ namespace magnet {
 		    
 		  switch(select.run())
 		    {
-		    case Gtk::RESPONSE_OK:
+		    case ::Gtk::RESPONSE_OK:
 		      {
 			_transferFunction
 			  .setKnot(iPtr, ConvertGdkToKnot(select.get_color_selection()->get_current_color(), 
@@ -207,7 +207,7 @@ namespace magnet {
 			forceRedraw();
 		      }
 		      break;
-		    case Gtk::RESPONSE_CANCEL:
+		    case ::Gtk::RESPONSE_CANCEL:
 		      break;
 		    default:
 		      M_throw() << "Unexpected return value!";
@@ -217,7 +217,7 @@ namespace magnet {
 	      break;
 	    }
 
-	return Gtk::DrawingArea::on_button_press_event(event);
+	return ::Gtk::DrawingArea::on_button_press_event(event);
       }
   
       virtual bool on_button_release_event(GdkEventButton* event) 
@@ -226,12 +226,12 @@ namespace magnet {
 	    && (event->type == GDK_BUTTON_RELEASE))
 	  _dragMode = false;
 
-	return Gtk::DrawingArea::on_button_release_event(event); 
+	return ::Gtk::DrawingArea::on_button_release_event(event); 
       }
   
       virtual bool on_motion_notify_event(GdkEventMotion* event)
       { 
-	const Gtk::Allocation& allocation = get_allocation();
+	const ::Gtk::Allocation& allocation = get_allocation();
 	if (_dragMode && (_selectedNode >= 0))
 	  {
 	    std::pair<double, double> newPlace 
@@ -249,7 +249,7 @@ namespace magnet {
 	    _updatedCallback();
 	  }
 
-	return Gtk::DrawingArea::on_motion_notify_event(event); 
+	return ::Gtk::DrawingArea::on_motion_notify_event(event); 
       }
 
       inline double getPointSize() const
@@ -257,7 +257,7 @@ namespace magnet {
 
       std::pair<double, double> to_graph_transform(double x, double y)
       {
-	const Gtk::Allocation& allocation = get_allocation();
+	const ::Gtk::Allocation& allocation = get_allocation();
 	return std::pair<double, double>(x * (allocation.get_width() - getPointSize()) 
 					 + 0.5 * getPointSize(), 
 					 (1 - y) * (allocation.get_height() - getPointSize())
@@ -266,7 +266,7 @@ namespace magnet {
 
       std::pair<double, double> from_graph_transform(double x, double y)
       {
-	const Gtk::Allocation& allocation = get_allocation();
+	const ::Gtk::Allocation& allocation = get_allocation();
 
 	double xdraw((x - 0.5 * getPointSize()) / (allocation.get_width() - getPointSize()));
 	double ydraw(1 - (y - 0.5 * getPointSize()) / (allocation.get_height() - getPointSize()));
@@ -288,7 +288,7 @@ namespace magnet {
       void graph_rectangle(Cairo::RefPtr<Cairo::Context>& cr, double x, double y,
 			   double width, double height)
       {
-	const Gtk::Allocation& allocation = get_allocation();
+	const ::Gtk::Allocation& allocation = get_allocation();
 	const std::pair<double, double>& pos(to_graph_transform(x, y));
 	cr->rectangle(pos.first, pos.second, 
 		      width * (allocation.get_width() - getPointSize()), 
@@ -303,7 +303,7 @@ namespace magnet {
 	  {
 	    Cairo::RefPtr<Cairo::Context> cr = window->create_cairo_context();
 
-	    const Gtk::Allocation& allocation = get_allocation();
+	    const ::Gtk::Allocation& allocation = get_allocation();
 	
 	    //Scale so that x is in the range [0,1] and that y goes from 0 (bottom) to 1 (top)	
 	    if(event)

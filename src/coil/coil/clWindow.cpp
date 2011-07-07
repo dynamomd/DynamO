@@ -26,11 +26,13 @@
 #include <magnet/image/PNG.hpp>
 #include <magnet/image/bitmap.hpp>
 #include <magnet/function/task.hpp>
+#include <magnet/gtk/numericEntry.hpp>
 #include <gtkmm/volumebutton.h>
 #include <coil/RenderObj/Function.hpp>
 #include <coil/RenderObj/console.hpp>
 #include <coil/RenderObj/axis.hpp>
 #include <coil/RenderObj/Volume.hpp>
+#include <boost/lexical_cast.hpp>
 
 CLGLWindow::CLGLWindow(std::string title,
 		       double updateIntervalValue,
@@ -579,7 +581,22 @@ CLGLWindow::initGTK()
 	  analygraphEnable->signal_toggled()
 	    .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
 	}
+
+	{
+	  Gtk::Entry* simunits;
+	  _refXml->get_widget("SimLengthUnits", simunits);
+
+	  std::ostringstream os;
+	  os << _viewPortInfo->getSimUnitLength();
+	  simunits->set_text(os.str());
+
+	  simunits->signal_changed()
+	    .connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *simunits));
+	  simunits->signal_activate()
+	    .connect(sigc::mem_fun(*this, &CLGLWindow::guiUpdateCallback));
+	}
 	
+
 #ifdef COIL_wiimote
 	{//Here all the wii stuff should go in
 	  Gtk::Button* btn;
@@ -596,7 +613,6 @@ CLGLWindow::initGTK()
 	    .connect(sigc::mem_fun(this, &CLGLWindow::wiiMoteIRExposeEvent));	  
 	}
 	
-
 	{//Here all the wii stuff should go in
 	  Gtk::Button* btn;
 	  _refXml->get_widget("wiiCalibrate", btn);
@@ -1833,6 +1849,16 @@ CLGLWindow::guiUpdateCallback()
     Gtk::CheckButton* btn;
     _refXml->get_widget("analygraphMode", btn);    
     _analygraphMode = btn->get_active();
+  }
+
+  {
+    Gtk::Entry* simunits;
+    _refXml->get_widget("SimLengthUnits", simunits);
+
+    std::string val = simunits->get_text();
+    if (val.empty()) {val = "50"; simunits->set_text("50"); }
+    
+    _viewPortInfo->setSimUnitLength(boost::lexical_cast<double>(val));
   }
 
 #ifdef COIL_wiimote

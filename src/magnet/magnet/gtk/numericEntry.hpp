@@ -20,7 +20,7 @@
 #include <locale>
 
 namespace magnet {
-  namespace Gtk {
+  namespace gtk {
     //!This function is designed to be used in a Gtk::Entry's signal_changed() callback.
     // It enforces that the text is formatted in the style of a numeric value
     // E.g.  entry.signal_changed().connect(sigc::bind<Gtk::Entry&>(&magnet::Gtk::forceNumericEntry, entry));
