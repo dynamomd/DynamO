@@ -596,6 +596,13 @@ CLGLWindow::initGTK()
 	    .connect(sigc::mem_fun(this, &CLGLWindow::wiiMoteIRExposeEvent));	  
 	}
 	
+
+	{//Here all the wii stuff should go in
+	  Gtk::Button* btn;
+	  _refXml->get_widget("wiiCalibrate", btn);
+	  btn->signal_clicked()
+	    .connect(sigc::mem_fun(&_wiiMoteTracker, &TrackWiimote::calibrate));
+	}
 #endif
       }
     }
