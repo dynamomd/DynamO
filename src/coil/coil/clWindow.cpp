@@ -34,6 +34,10 @@
 #include <coil/RenderObj/Volume.hpp>
 #include <boost/lexical_cast.hpp>
 
+#ifdef COIL_wiimote
+# include <coil/extcode/wiiheadtracking.hpp>
+#endif 
+
 CLGLWindow::CLGLWindow(std::string title,
 		       double updateIntervalValue,
 		       bool dynamo
@@ -630,7 +634,14 @@ CLGLWindow::initGTK()
 	  Gtk::Button* btn;
 	  _refXml->get_widget("wiiCalibrate", btn);
 	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(&_wiiMoteTracker, &TrackWiimote::calibrate));
+	    .connect(sigc::mem_fun(&(TrackWiimote::getInstance()), &TrackWiimote::calibrate));
+	}
+
+	{
+	  Gtk::Button* btn;
+	  _refXml->get_widget("wiiHeadTrackReset", btn);
+	  btn->signal_clicked()
+	    .connect(sigc::mem_fun(this, &CLGLWindow::wiiMoteHeadReset));
 	}
 #endif
       }
@@ -951,18 +962,18 @@ CLGLWindow::CallBackDisplayFunc()
   _viewPortInfo->CameraUpdate(forward, sideways, vertical);
 
 #ifdef COIL_wiimote
-  if (keyStates['c']) _wiiMoteTracker.calibrate(); 
-      
-  if (_wiiMoteTracker.connected())
+  //Run an update if the wiiMote was connected
+  if ((TrackWiimote::getInstance()).connected())
     {
-      _wiiMoteTracker.updateState();
-
       //We need to redraw the IR sources info (among other things)
       guiUpdateCallback();
-
-      //_wiiMoteTracker.glPerspective(*_viewPortInfo);
-      //Now tell the viewport to save the modified matricies
-      _viewPortInfo->saveMatrices();
+      
+      {
+	Gtk::CheckButton* wiiHeadTrack;
+	_refXml->get_widget("wiiHeadTracking", wiiHeadTrack);
+	if (wiiHeadTrack->get_active())
+	  _viewPortInfo->setHeadLocation((TrackWiimote::getInstance()).getHeadPosition());
+      }
     }
 #endif
 
@@ -1904,15 +1915,21 @@ CLGLWindow::guiUpdateCallback()
     Gtk::Label* wiiZHead;
     _refXml->get_widget("wiiZHead", wiiZHead);
 
-    if (_wiiMoteTracker.connected())
+    Gtk::CheckButton* wiiHeadTrack;
+    _refXml->get_widget("wiiHeadTracking", wiiHeadTrack);
+
+    Gtk::Button* wiiHeadReset;
+    _refXml->get_widget("wiiHeadTrackReset", wiiHeadReset);
+
+    if ((TrackWiimote::getInstance()).connected())
       {
 	statuslabel->set_text("WiiMote Connected");
 
 	std::ostringstream os;
-	os << _wiiMoteTracker.getCalibrationAngle();
+	os << (TrackWiimote::getInstance()).getCalibrationAngle();
 	anglelabel->set_text(os.str());
 
-	Vector headPos = _wiiMoteTracker.getHeadPosition();
+	Vector headPos = (TrackWiimote::getInstance()).getHeadPosition();
 
 	os.str("");
 	os << headPos[0] << "cm";
@@ -1924,10 +1941,11 @@ CLGLWindow::guiUpdateCallback()
 	os << headPos[2] << "cm";
 	wiiZHead->set_text(os.str());
 
-	batteryBar->set_fraction(_wiiMoteTracker.getBatteryLevel());
+	batteryBar->set_fraction((TrackWiimote::getInstance()).getBatteryLevel());
 
 	wiiCalibrate->set_sensitive(true);
-
+	wiiHeadTrack->set_sensitive(true);
+	wiiHeadReset->set_sensitive(true);
 	{
 	  Glib::RefPtr<Gdk::Window> win = ir->get_window();
 	  if (win)
@@ -1947,6 +1965,8 @@ CLGLWindow::guiUpdateCallback()
 	wiiZHead->set_text("-");
 	batteryBar->set_fraction(0);
 	wiiCalibrate->set_sensitive(false);
+	wiiHeadTrack->set_sensitive(false);
+	wiiHeadReset->set_sensitive(false);
       }
   }
 #endif  
@@ -1983,7 +2003,7 @@ void
 CLGLWindow::wiiMoteConnect()
 {
 #ifdef COIL_wiimote
-  if (_wiiMoteTracker.connected())
+  if ((TrackWiimote::getInstance()).connected())
     {
       guiUpdateCallback();
       return;
@@ -1995,7 +2015,7 @@ CLGLWindow::wiiMoteConnect()
 				  true, Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK, true);
 
   confirmation.run();
-  _wiiMoteTracker.connect();
+  (TrackWiimote::getInstance()).connect();
 #endif
 }
 
@@ -2024,18 +2044,19 @@ CLGLWindow::wiiMoteIRExposeEvent(GdkEventExpose* event)
       cr->set_line_width(1);
 
       //Draw the tracked sources with a red dot, but only if there are just two sources!
-      int trackeddrawn = (_wiiMoteTracker.getValidIRSources() == 2) ? 2 : 0;
+      int trackeddrawn = ((TrackWiimote::getInstance()).getValidIRSources() == 2) ? 2 : 0;
 
       for (int i=0; i < CWIID_IR_SRC_COUNT; i++)
-	if (_wiiMoteTracker.getIRState(i).valid)
+	if ((TrackWiimote::getInstance()).getIRState(i).valid)
 	  {
-	    int size = (_wiiMoteTracker.getIRState(i).size == -1) ? 3 : _wiiMoteTracker.getIRState(i).size + 1;
+	    int size = ((TrackWiimote::getInstance()).getIRState(i).size == -1) ? 
+	      3 : (TrackWiimote::getInstance()).getIRState(i).size + 1;
 	    
 	    float x = ir->get_allocation().get_width()
-	      * (1 - float(_wiiMoteTracker.getIRState(i).pos[CWIID_X]) / CWIID_IR_X_MAX);
+	      * (1 - float((TrackWiimote::getInstance()).getIRState(i).pos[CWIID_X]) / CWIID_IR_X_MAX);
 
 	    float y = ir->get_allocation().get_height()
-	      * (1 - float(_wiiMoteTracker.getIRState(i).pos[CWIID_Y]) / CWIID_IR_Y_MAX) ;
+	      * (1 - float((TrackWiimote::getInstance()).getIRState(i).pos[CWIID_Y]) / CWIID_IR_Y_MAX) ;
 
 	    cr->save();
 	    if (trackeddrawn-- > 0)
@@ -2049,4 +2070,10 @@ CLGLWindow::wiiMoteIRExposeEvent(GdkEventExpose* event)
     }
 #endif
   return true;
+}
+
+void 
+CLGLWindow::wiiMoteHeadReset()
+{
+  _viewPortInfo->setHeadLocation(Vector(0, 0, 50));
 }

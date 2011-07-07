@@ -19,7 +19,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef COIL_wiimote
 #include "wiiheadtracking.hpp"
 #include <cmath>
 #include <iostream>
@@ -37,43 +36,48 @@ namespace {
   //The angle corresponding to a pixel (the camera only "sees" angles, not distances)
   const double anglePerPixel =  WiiFOVX / double(CWIID_IR_X_MAX);  
   //Distance between the two IR sources being tracked (in cm)
-  const double IRPointSeparation = 16.5;
-  const double simlength = 50; //The length of a simulation unit length in cm (the zoom factor)
-  //The screen dimensions in cm
-  const double ScreenXlength = 41.1;
-  const double ScreenYlength = 30.9;
+  const double IRPointSeparation = 15.5;
+
+  void cwiid_err_hidden(struct wiimote*, const char*, va_list) {}
 }
 
-TrackWiimote::TrackWiimote(bool wiimoteAboveScreen):
+TrackWiimote::TrackWiimote():
   m_wiimote(NULL),
-  eye_pos(0,0,40),
+  eye_pos(0, 0, 50),
   v_angle(0),
-  _wiimoteAboveScreen(wiimoteAboveScreen)
+  _batteryLevel(0)
 {
-  m_state.battery = 0;
+  for (size_t i(0); i < CWIID_IR_SRC_COUNT; ++i)
+    _ir_data.src[i].valid = false;
+
+#ifndef MAGNET_DEBUG
+  cwiid_set_err(&cwiid_err_hidden);
+#endif
 }
 
-bool TrackWiimote::updateState()
+TrackWiimote::~TrackWiimote()
 {
-  if (!m_wiimote) return false;
-
-  cwiid_request_status(m_wiimote);
-
-  if (cwiid_get_state(m_wiimote, &m_state))
-    return false; //Failed to obtain data from the remote
-
-  return updateIRPositions() == 2;//Return success if we have two IR sources
+  if (m_wiimote) 
+    cwiid_close(m_wiimote);
 }
 
 bool TrackWiimote::connect(bdaddr_t* bt_address)
 {
   if (m_wiimote) return true;
 
-  m_wiimote = cwiid_open(bt_address, CWIID_FLAG_CONTINUOUS | CWIID_FLAG_NONBLOCK);
+  m_wiimote = cwiid_open(bt_address, CWIID_FLAG_MESG_IFC);
   
   if (!m_wiimote) return false;//Couldn't connect
 
-  if (cwiid_set_rpt_mode(m_wiimote, CWIID_RPT_IR | CWIID_RPT_ACC | CWIID_RPT_BTN | CWIID_RPT_STATUS) != 0)
+  if (cwiid_set_mesg_callback(m_wiimote, &TrackWiimote::cwiid_callback)) 
+    {
+      if (cwiid_close(m_wiimote))
+	M_throw() << "Failed to close the Wiimote, after failing to set the callback.";
+
+      M_throw() << "Failed to set the Wiimote callback.";
+    }
+
+  if (cwiid_set_rpt_mode(m_wiimote, CWIID_RPT_IR | CWIID_RPT_BTN | CWIID_RPT_STATUS) != 0)
     throw std::runtime_error("Failed to enable Wii functions.");
 
   if (cwiid_command(m_wiimote, CWIID_CMD_LED,
@@ -155,7 +159,7 @@ void TrackWiimote::updateHeadPos()
   //We try to correct for the remote being off the center of the
   //screen. We simply add the vector to the camera from the screen
   //(only the y component is done here).
-  eye_pos[1] = eye_pos[2] * std::sin(Yangle) + ((_wiimoteAboveScreen) ? 0.5f : -0.5f) * ScreenYlength;
+  eye_pos[1] = eye_pos[2] * std::sin(Yangle);
 }
 
 void TrackWiimote::calibrate()
@@ -164,8 +168,29 @@ void TrackWiimote::calibrate()
 
   //The person is in the center of the screen, so we can determine the
   //tilt of the camera
-  v_angle = std::acos(0.5 *  ScreenYlength / eye_pos[2]) - M_PI / 2;
-  if (!_wiimoteAboveScreen)
-    v_angle = -v_angle;
+  //v_angle = std::acos(0.5 *  ScreenYlength / eye_pos[2]) + M_PI / 2;
 }
-#endif
+
+void 
+TrackWiimote::cwiid_callback(cwiid_wiimote_t *wiimote, int mesg_count,
+			     union cwiid_mesg mesg_array[], struct timespec *timestamp)
+{
+  for (int i(0); i < mesg_count; ++i) 
+    switch (mesg_array[i].type) {
+    case CWIID_MESG_STATUS:
+      TrackWiimote::getInstance()._batteryLevel =  float(mesg_array[i].status_mesg.battery) / CWIID_BATTERY_MAX;
+      break;
+    case CWIID_MESG_IR:
+      TrackWiimote::getInstance()._ir_data = mesg_array[i].ir_mesg;
+      TrackWiimote::getInstance().updateIRPositions();
+      break;
+    case CWIID_MESG_ERROR:
+      if (cwiid_close(wiimote))
+	M_throw() << "Error closing the wiimote after Error from the wiimote";
+
+      TrackWiimote::getInstance().m_wiimote = NULL;
+      break;
+    default:
+      break;
+    }
+}

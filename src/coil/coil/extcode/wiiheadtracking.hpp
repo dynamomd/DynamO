@@ -32,9 +32,11 @@
  */
 class TrackWiimote {
 public:
-  TrackWiimote(bool wiimoteAboveScreen = true);
-
-  bool updateState();
+  static TrackWiimote& getInstance()
+  {
+    static TrackWiimote _singleton;
+    return _singleton;
+  }
 
   bool connect(bdaddr_t* bt_address = BDADDR_ANY);
 
@@ -44,13 +46,13 @@ public:
 
   inline bool connected() const { return m_wiimote; }
 
-  inline double getBatteryLevel() const { return double(m_state.battery) / CWIID_BATTERY_MAX; }
+  inline float getBatteryLevel() const { return _batteryLevel; }
 
   const cwiid_ir_src& getIRState(size_t IRDotID) const 
   { 
     if (IRDotID >= CWIID_IR_SRC_COUNT)
       M_throw() << "Out of bounds access on wii IR data.";
-    return m_state.ir_src[IRDotID]; 
+    return _ir_data.src[IRDotID]; 
   }
 
   inline size_t getValidIRSources() const { return _valid_ir_points; }
@@ -58,18 +60,23 @@ public:
   inline double getCalibrationAngle() const { return v_angle; }
 
 private:
+  static void cwiid_callback(cwiid_wiimote_t *wiimote, int mesg_count,
+			     union cwiid_mesg mesg_array[], struct timespec *timestamp);
+
+  TrackWiimote();
+  ~TrackWiimote();
+
   size_t updateIRPositions();
 
   void updateHeadPos();
 
-  cwiid_wiimote_t* m_wiimote; /* wiimote connection through cwiid library */
-
-  struct cwiid_state m_state; /* wiimote state (updated every frame) using cwiid library */
-
-  // calculated viewing position
-  Vector eye_pos; 
+  cwiid_wiimote_t* m_wiimote; 
+  Vector eye_pos;
   double v_angle;
-  bool _wiimoteAboveScreen;  
   size_t _valid_ir_points;
+
+  float _batteryLevel;
+  struct cwiid_ir_mesg _ir_data;
+
 };
 #endif

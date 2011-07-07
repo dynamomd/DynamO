@@ -38,10 +38,6 @@
 #include <coil/RenderObj/RenderObj.hpp>
 #include <memory>
 
-#ifdef COIL_wiimote
-# include <coil/extcode/wiiheadtracking.hpp>
-#endif 
-
 class CLGLWindow : public CoilWindow
 {
 public:
@@ -97,10 +93,6 @@ protected:
 
   magnet::GL::shader::NormalShader _nrmlShader;
   magnet::GL::FBO _normalsFBO;
-
-#ifdef COIL_wiimote
-  TrackWiimote _wiiMoteTracker;
-#endif
 
   std::vector<magnet::thread::RefPtr<RenderObj> > RenderObjects;
 
@@ -240,7 +232,8 @@ private:
   void selectRObjCallback();
 
   //Wii Remote callbacks
-  void wiiMoteConnect();
+  void wiiMoteConnect(); 
+  void wiiMoteHeadReset();
   bool wiiMoteIRExposeEvent(GdkEventExpose*);
 
   //Other callbacks

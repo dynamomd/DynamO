@@ -124,10 +124,18 @@ namespace magnet {
       /*! \brief Sets the OpenGL head location.
        *
        * \param head The position of the viewers head, relative to the
-       * center of the viewing plane (in cm).
+       * center of the near viewing plane (in cm).
        */
       inline void setHeadLocation(Vector head)
-      {_headLocation = head / _simLength; }
+      { _headLocation = head / _simLength; }
+
+      /*! \brief Gets the OpenGL head location (in cm).
+       *
+       * The position of the viewers head is relative to the center of
+       * the near viewing plane (in cm).
+       */
+      inline const Vector& getHeadLocation() const
+      { return _headLocation; }
 
       /*! \brief Returns the current field of vision of the viewport/camera */
       inline double getFOVY() const
@@ -157,10 +165,10 @@ namespace magnet {
 	      //Calculate the current camera position
 	      Vector cameraLocationOld(getEyeLocation());	      
 	      _panrotation += diffX;
-	      _tiltrotation = magnet::clamp(diffY + _tiltrotation, -90.0f, 90.0f);	      
+	      _tiltrotation = magnet::clamp(diffY + _tiltrotation, -90.0f, 90.0f);
 	      Vector cameraLocationNew(getEyeLocation());
 
-	      _position -= cameraLocationNew - cameraLocationOld;	      
+	      _position -= cameraLocationNew - cameraLocationOld;
 	      break;
 	    }
 	  case ROTATE_WORLD:
