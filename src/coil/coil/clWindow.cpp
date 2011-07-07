@@ -596,6 +596,19 @@ CLGLWindow::initGTK()
 	    .connect(sigc::mem_fun(*this, &CLGLWindow::guiUpdateCallback));
 	}
 	
+	{
+	  Gtk::Entry* pixelPitch;
+	  _refXml->get_widget("pixelPitch", pixelPitch);
+
+	  std::ostringstream os;
+	  os << _viewPortInfo->getPixelPitch() * 10;
+	  pixelPitch->set_text(os.str());
+
+	  pixelPitch->signal_changed()
+	    .connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *pixelPitch));
+	  pixelPitch->signal_activate()
+	    .connect(sigc::mem_fun(*this, &CLGLWindow::guiUpdateCallback));
+	}
 
 #ifdef COIL_wiimote
 	{//Here all the wii stuff should go in
@@ -1854,11 +1867,17 @@ CLGLWindow::guiUpdateCallback()
   {
     Gtk::Entry* simunits;
     _refXml->get_widget("SimLengthUnits", simunits);
-
     std::string val = simunits->get_text();
     if (val.empty()) {val = "50"; simunits->set_text("50"); }
-    
     _viewPortInfo->setSimUnitLength(boost::lexical_cast<double>(val));
+  }
+
+  {
+    Gtk::Entry* pixelPitch;
+    _refXml->get_widget("pixelPitch", pixelPitch);
+    std::string val = pixelPitch->get_text();
+    if (val.empty()) {val = "0.25"; pixelPitch->set_text("0.25"); }
+    _viewPortInfo->setPixelPitch(boost::lexical_cast<double>(val) / 10);
   }
 
 #ifdef COIL_wiimote

@@ -74,7 +74,7 @@ namespace magnet {
 	_zFarDist(zFarDist),
 	_headLocation(0, 0, 1),
 	_simLength(50),
-	_screenWidth(41.1f / _simLength),
+	_pixelPitch(0.025), //Measured from my screen
 	_camMode(ROTATE_CAMERA)
       {
 	if (_zNearDist > _zFarDist) 
@@ -109,7 +109,7 @@ namespace magnet {
 	//When the FOV is adjusted, we move the head position away
 	//from the view plane, but we adjust the viewplane position to
 	//compensate this motion
-	Vector headLocationChange = Vector(0, 0, 0.5f * _screenWidth 
+	Vector headLocationChange = Vector(0, 0, 0.5f * (_pixelPitch * _width / _simLength) 
 					   / std::tan((fovY / 180.0f) * M_PI / 2) 
 					   - _headLocation[2]);
 
@@ -121,9 +121,17 @@ namespace magnet {
 	_headLocation += headLocationChange;
       }
       
+      /*! \brief Sets the OpenGL head location.
+       *
+       * \param head The position of the viewers head, relative to the
+       * center of the viewing plane (in cm).
+       */
+      inline void setHeadLocation(Vector head)
+      {_headLocation = head / _simLength; }
+
       /*! \brief Returns the current field of vision of the viewport/camera */
       inline double getFOVY() const
-      { return 2 * std::atan2(0.5f * _screenWidth,  _headLocation[2]) * (180.0f / M_PI); }
+      { return 2 * std::atan2(0.5f * (_pixelPitch * _width / _simLength),  _headLocation[2]) * (180.0f / M_PI); }
 
       /*! \brief Converts the motion of the mouse into a motion of the
        * viewport/camera.
@@ -217,10 +225,10 @@ namespace magnet {
 	//somewhere other than the screen (this factor places it at
 	//_zNearDist)!
 	//
-	glFrustum((-0.5f * _screenWidth                - _headLocation[0]) * _zNearDist / _headLocation[2],// left
-		  (+0.5f * _screenWidth                - _headLocation[0]) * _zNearDist / _headLocation[2],// right
-		  (-0.5f * _screenWidth / getAspectRatio() - _headLocation[1]) * _zNearDist / _headLocation[2],// bottom 
-		  (+0.5f * _screenWidth / getAspectRatio() - _headLocation[1]) * _zNearDist / _headLocation[2],// top
+	glFrustum((-0.5f * _pixelPitch * _width / _simLength  - _headLocation[0]) * _zNearDist / _headLocation[2],// left
+		  (+0.5f * _pixelPitch * _width / _simLength  - _headLocation[0]) * _zNearDist / _headLocation[2],// right
+		  (-0.5f * _pixelPitch * _height / _simLength - _headLocation[1]) * _zNearDist / _headLocation[2],// bottom 
+		  (+0.5f * _pixelPitch * _height / _simLength - _headLocation[1]) * _zNearDist / _headLocation[2],// top
 		  _zNearDist,//Near distance
 		  _zFarDist//Far distance
 		  );
@@ -335,9 +343,15 @@ namespace magnet {
       //! \brief Get the width of the screen, in pixels.
       inline const size_t& getWidth() const { return _width; }
       
+      /*! \brief Gets the simulation unit length (in cm). */
       inline const double& getSimUnitLength() const { return _simLength; }
-
+      /*! \brief Sets the simulation unit length (in cm). */
       inline void setSimUnitLength(double val)  { _simLength = val; }
+
+      /*! \brief Gets the pixel "diameter" in cm. */
+      inline const double& getPixelPitch() const { return _pixelPitch; }
+      /*! \brief Sets the pixel "diameter" in cm. */
+      inline void setPixelPitch(double val)  { _pixelPitch = val; }
 
     protected:
       size_t _height, _width;
@@ -353,10 +367,11 @@ namespace magnet {
       GLfloat _projectionMatrix[4*4];
       GLfloat _viewMatrix[4*4];
 
-      //!One simulation length in cm (real units)
+      //! \brief One simulation length in cm (real units)
       double _simLength;
-      //!The width of the screen in simulation units
-      double _screenWidth;
+
+      //! \brief The diameter of a pixel, in cm
+      double _pixelPitch;
 
       Camera_Mode _camMode;
     };
