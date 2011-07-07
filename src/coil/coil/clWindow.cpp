@@ -961,13 +961,12 @@ CLGLWindow::CallBackDisplayFunc()
 			       - keyStates[static_cast<size_t>('z')]);
   _viewPortInfo->CameraUpdate(forward, sideways, vertical);
 
+  guiUpdateCallback(); //We frequently ping the gui update     
+
 #ifdef COIL_wiimote
   //Run an update if the wiiMote was connected
   if ((TrackWiimote::getInstance()).connected())
     {
-      //We need to redraw the IR sources info (among other things)
-      guiUpdateCallback();
-      
       {
 	Gtk::CheckButton* wiiHeadTrack;
 	_refXml->get_widget("wiiHeadTracking", wiiHeadTrack);
