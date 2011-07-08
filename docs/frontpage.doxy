@@ -70,13 +70,15 @@ namespace magnet {
 
   //! \brief Namespace for all magnet OpenGL classes and functions.
   namespace GL {
+
+    //! \brief Classes representing renderable objects.
+    namespace objects {}
     
     //! \brief Implementation details for OpenGL classes and functions.
     namespace detail {}
     
     //! \brief Contains OpenGL Shader objects.
     namespace shader {
-      
       //! \brief Implementation details for the OpenGL shaders
       namespace detail {}
     }

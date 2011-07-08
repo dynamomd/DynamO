@@ -18,8 +18,9 @@
 #pragma once
 
 #include <coil/RenderObj/RenderObj.hpp>
-#include <memory>
 #include <FTGL/ftgl.h>
+#include <tr1/array>
+#include <memory>
 #include <sstream>
 #include <list>
 
@@ -29,8 +30,11 @@ namespace coil {
   public:
     struct end {};
 
-    Console(float r = 0.5, float g = 0.5, float b = 0.5);
-
+    Console(std::tr1::array<GLfloat, 3> color):
+      RenderObj("Console"),
+      _consoleTextColor(color)
+    {}
+    
     template<class T>
     Console& operator<<(const T& value) 
     {
@@ -58,7 +62,7 @@ namespace coil {
     
     int _glutLastTime;
 
-    float _color[3];
+    std::tr1::array<GLfloat, 3> _consoleTextColor;
   };
 
   template<>

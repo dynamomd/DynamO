@@ -18,6 +18,7 @@
 #include <coil/RenderObj/console.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/clamp.hpp>
+#include <coil/glprimatives/arrow.hpp>
 
 #define GL_GLEXT_PROTOTYPES
 #include <GL/glew.h>
@@ -31,15 +32,6 @@ extern const unsigned char _binary_coilfont_ttf_start[];
 extern const unsigned char _binary_coilfont_ttf_end[];
 
 namespace coil {
-  Console::Console(float r, float g, float b):
-    RenderObj("Console")
-  {
-    _visible = false;
-    _color[0] = r;
-    _color[1] = g;
-    _color[2] = b;
-  }
-
   void 
   Console::initOpenGL() 
   {
@@ -96,7 +88,9 @@ namespace coil {
     int tdelta = glutGet(GLUT_ELAPSED_TIME) - _glutLastTime;
     _glutLastTime = glutGet(GLUT_ELAPSED_TIME);
 
-    glColor4f(_color[0], _color[1], _color[2], 1);
+    glColor3f(_consoleTextColor[0], _consoleTextColor[1], 
+	      _consoleTextColor[2]);
+
     glRasterPos3f(-1.0, consoleHeight, 0);
     _consoleLayout->Render(_consoleEntries.front().second.c_str());
     consoleHeight -= lineHeight;
@@ -105,7 +99,8 @@ namespace coil {
 	 iPtr != _consoleEntries.end();)
       {
 	//Fade the color based on it's time in the queue
-	glColor4f(_color[0], _color[1], _color[2],  1.0f - iPtr->first / 1000.0f);
+	glColor4f(_consoleTextColor[0], _consoleTextColor[1], 
+		  _consoleTextColor[2], 1.0f - iPtr->first / 1000.0f);
 	glRasterPos3f(-1, consoleHeight, 0);
 	_consoleLayout->Render(iPtr->second.c_str());
 	iPtr->first += tdelta;
@@ -116,12 +111,71 @@ namespace coil {
 	if (prev->first > 1000) _consoleEntries.erase(prev);
       }
 
+    /////////////////RENDER THE AXIS//////////////////////////////////////////////
+
+    GLdouble nearPlane = 0.1,
+      axisScale = 0.07;
+   
+    //The axis is in a little 100x100 pixel area in the lower left
+    GLint viewportDim[4];
+    glGetIntegerv(GL_VIEWPORT, viewportDim);
+    glViewport(0,0,100,100);
+    
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45.0f, 1, nearPlane, 1000.0f);
+    
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    
+    //near plane is at 0.1, the axis are axisScale long so
+    glTranslatef (0, 0, -(nearPlane + axisScale));
+    
+    glColor4f (4.0/256,104.0/256.0,202.0/256.0, 0.5); // Color the axis box a transparent blue
+    glBegin(GL_QUADS);		
+    glVertex3f(-1,-1, 0);
+    glVertex3f( 1,-1, 0);
+    glVertex3f( 1, 1, 0);
+    glVertex3f(-1, 1, 0);
+    glEnd();
+    
+    glRotatef(_viewPort->getTilt(), 1.0, 0.0, 0.0);
+    glRotatef(_viewPort->getPan(), 0.0, 1.0, 0.0);
+    glScalef (axisScale, axisScale, axisScale);
+    
+    glLineWidth(2.0f);
+    
+    glColor3f(1,0,0); // X axis is red.
+    coil::glprimatives::drawArrow(Vector(-0.5,-0.5,-0.5),
+				  Vector( 0.5,-0.5,-0.5));
+    
+    glColor3f(0,1,0); // Y axis is green.
+    coil::glprimatives::drawArrow(Vector(-0.5,-0.5,-0.5), 
+				  Vector(-0.5, 0.5,-0.5));
+    
+    glColor3f(0,0,1); // Z axis is blue.
+    coil::glprimatives::drawArrow(Vector(-0.5,-0.5,-0.5),
+				  Vector(-0.5,-0.5, 0.5));
+    
+    //Do the axis labels
+    glColor3f(1,1,1);
+    glRasterPos3f( 0.5,-0.5,-0.5);
+    _consoleFont->Render("X");
+    glRasterPos3f(-0.5, 0.5,-0.5);
+    _consoleFont->Render("Y");
+    glRasterPos3f(-0.5,-0.5, 0.5);
+    _consoleFont->Render("Z");
+    
+    glViewport(viewportDim[0], viewportDim[1], viewportDim[2], viewportDim[3]);
+
+    //Restore GL state
     glEnable(GL_LIGHTING);
     glEnable(GL_DEPTH_TEST);
     glMatrixMode(GL_PROJECTION);
     glPopMatrix ();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix ();
+
   }
   
 }

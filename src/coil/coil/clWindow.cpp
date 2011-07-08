@@ -15,24 +15,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "clWindow.hpp"
+#include <coil/clWindow.hpp>
+#include <coil/RenderObj/Function.hpp>
+#include <coil/RenderObj/console.hpp>
+#include <coil/RenderObj/Volume.hpp>
+#include <magnet/image/PNG.hpp>
+#include <magnet/image/bitmap.hpp>
+#include <magnet/function/task.hpp>
+#include <magnet/gtk/numericEntry.hpp>
+#include <gtkmm/volumebutton.h>
+#include <boost/lexical_cast.hpp>
 #include <locale>
 #include <cmath>
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-
-#include <magnet/image/PNG.hpp>
-#include <magnet/image/bitmap.hpp>
-#include <magnet/function/task.hpp>
-#include <magnet/gtk/numericEntry.hpp>
-#include <gtkmm/volumebutton.h>
-#include <coil/RenderObj/Function.hpp>
-#include <coil/RenderObj/console.hpp>
-#include <coil/RenderObj/axis.hpp>
-#include <coil/RenderObj/Volume.hpp>
-#include <boost/lexical_cast.hpp>
 
 #ifdef COIL_wiimote
 # include <coil/extcode/wiiheadtracking.hpp>
@@ -832,8 +830,8 @@ CLGLWindow::init()
 
   //Second render object is the console
   _consoleID = RenderObjects.size();
-  RenderObjects.push_back(new coil::Console());
-  RenderObjects.push_back(new coil::Axis());
+  std::tr1::array<GLfloat, 3> textcolor  = {{0.5, 0.5, 0.5}};
+  RenderObjects.push_back(new coil::Console(textcolor));
 
 //  //Test volume render object
 //  RenderObjects.push_back(new coil::RVolume("Test Volume"));
