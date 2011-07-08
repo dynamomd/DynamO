@@ -2082,5 +2082,5 @@ CLGLWindow::wiiMoteIRExposeEvent(GdkEventExpose* event)
 void 
 CLGLWindow::HeadReset()
 {
-  _viewPortInfo->setHeadLocation(Vector(0, 0, 50));
+  _viewPortInfo->setFOVY(60.f);
 }

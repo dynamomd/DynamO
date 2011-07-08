@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include <gtkmm.h>
 #include <coil/RenderObj/RenderObj.hpp>
 #include <magnet/GL/objects/axis.hpp>
 #include <magnet/GL/objects/grid.hpp>
@@ -49,13 +50,16 @@ namespace coil {
     virtual void interfaceRender();
 
     virtual void initOpenGL();
+    virtual void initGTK();
+    virtual void showControls(Gtk::ScrolledWindow* win);
 
     virtual void releaseCLGLResources() { _consoleFont.reset(); _consoleLayout.reset(); _axis.deinit();}
 
     virtual void glRender();
     
   private:
-    
+    void guiUpdate();
+
     std::ostringstream os;
     std::auto_ptr<FTGLPixmapFont> _consoleFont;
     std::auto_ptr<FTSimpleLayout> _consoleLayout;
@@ -66,6 +70,11 @@ namespace coil {
 
     magnet::GL::objects::Axis _axis;
     magnet::GL::objects::Grid _grid;
+
+    std::auto_ptr<Gtk::VBox> _optList; 
+    std::auto_ptr<Gtk::CheckButton> _showGrid;
+    std::auto_ptr<Gtk::CheckButton> _showConsole;
+    std::auto_ptr<Gtk::CheckButton> _showAxis;
   };
 
   template<>
