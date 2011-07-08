@@ -48,7 +48,6 @@ namespace magnet {
 	 */
 	inline void init(size_t xlines, size_t ylines)
 	{
-	  _color = color;
 	  _xGridLines = xlines;
 	  _yGridLines = ylines;
 
@@ -64,14 +63,14 @@ namespace magnet {
 	      data[(i * 2 + 1) * 3 + 2] = 0;
 	    }
     
-	  for (size_t i(_xGridLines); i < _xGridLines + _yGridLines; ++i)
+	  for (size_t i(0); i < _yGridLines; ++i)
 	    {
-	      data[(i * 2 + 0) * 3 + 0] = -0.5f;
-	      data[(i * 2 + 0) * 3 + 1] = -0.5f + i / float(_yGridLines);
-	      data[(i * 2 + 0) * 3 + 2] = 0;
-	      data[(i * 2 + 1) * 3 + 0] = 0.5f;
-	      data[(i * 2 + 1) * 3 + 1] = -0.5f + i / float(_yGridLines);
-	      data[(i * 2 + 1) * 3 + 2] = 0;
+	      data[((i + _xGridLines) * 2 + 0) * 3 + 0] = -0.5f;
+	      data[((i + _xGridLines) * 2 + 0) * 3 + 1] = -0.5f + i / float(_yGridLines - 1);
+	      data[((i + _xGridLines) * 2 + 0) * 3 + 2] = 0;
+	      data[((i + _xGridLines) * 2 + 1) * 3 + 0] = 0.5f;
+	      data[((i + _xGridLines) * 2 + 1) * 3 + 1] = -0.5f + i / float(_yGridLines - 1);
+	      data[((i + _xGridLines) * 2 + 1) * 3 + 2] = 0;
 	    }
 
 	  _vertexData.init(data);

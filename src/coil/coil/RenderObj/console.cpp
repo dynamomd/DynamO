@@ -46,8 +46,8 @@ namespace coil {
     
     _consoleFont->FaceSize(16);
 
-    _consoleLayout->SetFont(&(*_consoleFont));
-    
+    _consoleLayout->SetFont(&(*_consoleFont));    
+
     if (_consoleLayout->Error()) 
       M_throw() << "Could set the font of the layout " 
 		<< _consoleLayout->Error();
@@ -55,6 +55,9 @@ namespace coil {
     _glutLastTime = glutGet(GLUT_ELAPSED_TIME);
 
     resize(_viewPort->getWidth(), _viewPort->getHeight());
+
+    _axis.init();
+    _grid.init(10,10);
   }
 
   void 
@@ -113,9 +116,9 @@ namespace coil {
 
     /////////////////RENDER THE AXIS//////////////////////////////////////////////
 
-    GLdouble nearPlane = 0.1,
+    const GLdouble nearPlane = 0.1,
       axisScale = 0.07;
-   
+    
     //The axis is in a little 100x100 pixel area in the lower left
     GLint viewportDim[4];
     glGetIntegerv(GL_VIEWPORT, viewportDim);
@@ -131,7 +134,7 @@ namespace coil {
     //near plane is at 0.1, the axis are axisScale long so
     glTranslatef (0, 0, -(nearPlane + axisScale));
     
-    glColor4f (4.0/256,104.0/256.0,202.0/256.0, 0.5); // Color the axis box a transparent blue
+    glColor4f (0.5f,0.5f,0.5f,0.8f); // Color the axis box a transparent white
     glBegin(GL_QUADS);		
     glVertex3f(-1,-1, 0);
     glVertex3f( 1,-1, 0);
@@ -144,18 +147,8 @@ namespace coil {
     glScalef (axisScale, axisScale, axisScale);
     
     glLineWidth(2.0f);
-    
-    glColor3f(1,0,0); // X axis is red.
-    coil::glprimatives::drawArrow(Vector(-0.5,-0.5,-0.5),
-				  Vector( 0.5,-0.5,-0.5));
-    
-    glColor3f(0,1,0); // Y axis is green.
-    coil::glprimatives::drawArrow(Vector(-0.5,-0.5,-0.5), 
-				  Vector(-0.5, 0.5,-0.5));
-    
-    glColor3f(0,0,1); // Z axis is blue.
-    coil::glprimatives::drawArrow(Vector(-0.5,-0.5,-0.5),
-				  Vector(-0.5,-0.5, 0.5));
+
+    _axis.glRender();
     
     //Do the axis labels
     glColor3f(1,1,1);
@@ -175,7 +168,53 @@ namespace coil {
     glPopMatrix ();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix ();
-
   }
-  
+
+  void Console::glRender()
+  {
+    //Draw a frustrum cage around the display
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    _viewPort->applyInverseModelview();
+
+    GLfloat modelview[16];
+    glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
+
+    double boxdepth = 2;
+    glColor4f(1, 1, 1, 1);
+
+    //Back face
+    glLoadIdentity();
+    glMultMatrixf(modelview);
+    glScalef(_viewPort->getScreenPlaneWidth(), _viewPort->getScreenPlaneHeight(), 1);
+    glTranslatef(0, 0, -1.0f);
+    _grid.glRender();
+
+    //Sides
+    glLoadIdentity();
+    glMultMatrixf(modelview);
+    glScalef(_viewPort->getScreenPlaneWidth(), _viewPort->getScreenPlaneHeight(), 1);
+    glRotatef(90, 0, 1, 0);
+    //left
+    glTranslatef(0.5f, 0, -0.5f);
+    _grid.glRender();
+    //right
+    glTranslatef(0, 0, 1);
+    _grid.glRender();
+
+    //Top and bottom
+    glLoadIdentity();
+    glMultMatrixf(modelview);
+    glScalef(_viewPort->getScreenPlaneWidth(), _viewPort->getScreenPlaneWidth(), 1);
+    glRotatef(90, 1, 0, 0);
+    //top
+    glTranslatef(0, -0.5f, -0.5f *  _viewPort->getScreenPlaneHeight() / _viewPort->getScreenPlaneWidth());
+    _grid.glRender();
+    //bottom
+    glTranslatef(0, 0, _viewPort->getScreenPlaneHeight() / _viewPort->getScreenPlaneWidth());
+    _grid.glRender();
+
+    
+    glPopMatrix();
+  }
 }

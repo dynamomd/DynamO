@@ -134,8 +134,8 @@ namespace magnet {
        * The position of the viewers head is relative to the center of
        * the near viewing plane (in cm).
        */
-      inline const Vector& getHeadLocation() const
-      { return _headLocation; }
+      inline const Vector getHeadLocation() const
+      { return _headLocation * _simLength; }
 
       /*! \brief Returns the current field of vision of the viewport/camera */
       inline double getFOVY() const
@@ -216,6 +216,9 @@ namespace magnet {
 	//Build the projection matrix
 	glLoadIdentity();
 
+	//Local head location
+	Vector headLoc = _headLocation + offset / _simLength;
+
 	//We will move the camera to the location of the head in sim
 	//space. So we must create a viewing frustrum which, in real
 	//space, cuts through the image on the screen. The trick is to
@@ -233,10 +236,10 @@ namespace magnet {
 	//somewhere other than the screen (this factor places it at
 	//_zNearDist)!
 	//
-	glFrustum((-0.5f * getScreenPlaneWidth()  - _headLocation[0]) * _zNearDist / _headLocation[2],// left
-		  (+0.5f * getScreenPlaneWidth()  - _headLocation[0]) * _zNearDist / _headLocation[2],// right
-		  (-0.5f * getScreenPlaneHeight() - _headLocation[1]) * _zNearDist / _headLocation[2],// bottom 
-		  (+0.5f * getScreenPlaneHeight() - _headLocation[1]) * _zNearDist / _headLocation[2],// top
+	glFrustum((-0.5f * getScreenPlaneWidth()  - headLoc[0]) * _zNearDist / headLoc[2],// left
+		  (+0.5f * getScreenPlaneWidth()  - headLoc[0]) * _zNearDist / headLoc[2],// right
+		  (-0.5f * getScreenPlaneHeight() - headLoc[1]) * _zNearDist / headLoc[2],// bottom 
+		  (+0.5f * getScreenPlaneHeight() - headLoc[1]) * _zNearDist / headLoc[2],// top
 		  _zNearDist,//Near distance
 		  _zFarDist//Far distance
 		  );
@@ -254,7 +257,7 @@ namespace magnet {
 	  = Rodrigues(Vector(0, -_panrotation * M_PI/180, 0))
 	  * Rodrigues(Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
 
-	Vector cameraLocation((viewTransformation * (_headLocation + offset / _simLength)) + _position);
+	Vector cameraLocation((viewTransformation * headLoc) + _position);
 
 	glTranslatef(-cameraLocation[0], -cameraLocation[1], -cameraLocation[2]);
 

@@ -130,6 +130,9 @@ namespace magnet {
        */
       inline size_t size() const { return _size; }
 
+      //! \brief Test if the buffer has been allocated.
+      inline bool empty() const { return !_size; }
+
       /*!\brief Returns the size in bytes of the allocated buffer, or
        * 0 if not allocated.
        */

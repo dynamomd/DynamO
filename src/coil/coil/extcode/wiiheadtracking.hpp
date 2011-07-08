@@ -21,10 +21,11 @@
 
 #pragma once
 
-#ifdef COIL_wiimote
 #include <magnet/exception.hpp>
+#include <magnet/thread/mutex.hpp>
 #include <magnet/math/vector.hpp>
 #include <cwiid.h> /* cwiid wii remote library */
+#include <vector>
 
 /*! \brief A class to facilitate head tracking using the cwiid
  * library.
@@ -42,20 +43,27 @@ public:
 
   void calibrate();
 
-  inline const Vector& getHeadPosition() const { return eye_pos; }
+  inline Vector getHeadPosition()
+  { 
+    magnet::thread::ScopedLock lock(_irdatalock);
+    return eye_pos;
+  }
 
   inline bool connected() const { return m_wiimote; }
 
-  inline float getBatteryLevel() const { return _batteryLevel; }
+  inline volatile const float& getBatteryLevel() const { return _batteryLevel; }
 
-  const cwiid_ir_src& getIRState(size_t IRDotID) const 
+  struct IRData {
+    IRData(int8_t _size, uint16_t _x, uint16_t _y): size(_size), x(_x), y(_y) {}
+    bool operator>(const IRData& o) const { return size > o.size; }
+    int8_t size; uint16_t x; uint16_t y; 
+  };
+
+  inline std::vector<IRData> getSortedIRData()
   { 
-    if (IRDotID >= CWIID_IR_SRC_COUNT)
-      M_throw() << "Out of bounds access on wii IR data.";
-    return _ir_data.src[IRDotID]; 
+    magnet::thread::ScopedLock lock(_irdatalock);
+    return _irdata;
   }
-
-  inline size_t getValidIRSources() const { return _valid_ir_points; }
 
   inline double getCalibrationAngle() const { return v_angle; }
 
@@ -67,16 +75,14 @@ private:
   ~TrackWiimote();
 
   size_t updateIRPositions();
-
   void updateHeadPos();
 
   cwiid_wiimote_t* m_wiimote; 
   Vector eye_pos;
-  double v_angle;
-  size_t _valid_ir_points;
+  volatile double v_angle;
+  volatile float _batteryLevel;
 
-  float _batteryLevel;
-  struct cwiid_ir_mesg _ir_data;
+  std::vector<IRData> _irdata;
 
+  magnet::thread::Mutex _irdatalock;
 };
-#endif

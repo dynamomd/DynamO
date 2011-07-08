@@ -21,9 +21,10 @@
 
 #include "wiiheadtracking.hpp"
 #include <cmath>
-#include <iostream>
 #include <stdexcept>
 #include <stdlib.h>
+#include <algorithm>
+#include <functional>
 
 //Hidden namespace for constants
 namespace {
@@ -47,9 +48,6 @@ TrackWiimote::TrackWiimote():
   v_angle(0),
   _batteryLevel(0)
 {
-  for (size_t i(0); i < CWIID_IR_SRC_COUNT; ++i)
-    _ir_data.src[i].valid = false;
-
 #ifndef MAGNET_DEBUG
   cwiid_set_err(&cwiid_err_hidden);
 #endif
@@ -59,6 +57,8 @@ TrackWiimote::~TrackWiimote()
 {
   if (m_wiimote) 
     cwiid_close(m_wiimote);
+
+  m_wiimote= NULL;
 }
 
 bool TrackWiimote::connect(bdaddr_t* bt_address)
@@ -89,49 +89,17 @@ bool TrackWiimote::connect(bdaddr_t* bt_address)
   return true;
 }
 
-//! Downloads the ir positions and returns how many were recorded
-size_t TrackWiimote::updateIRPositions()
-{
-  _valid_ir_points = 0;
-
-  for (size_t i(0); i < 4; ++i)
-    if (getIRState(i).valid)
-      ++_valid_ir_points;
-
-  if (_valid_ir_points == 2)
-    updateHeadPos();
-  
-  return _valid_ir_points;
-}
-
 /* update the camera position using ir points camerapt_1 and camerapt_2 */
 void TrackWiimote::updateHeadPos()
 {
-  if (_valid_ir_points != 2)
-    M_throw() << "Need two IR points to perform the head position calculations.";
-
-  //We have to find the first two valid IR positions and store them here
-  uint16_t ir_positions[2][2];
-  {
-    size_t done(0);
-    for (size_t i(0); (i < 4) && (done < 2); ++i)
-      if (getIRState(i).valid)
-	{
-	  ir_positions[done][0] = getIRState(i).pos[CWIID_X];
-	  ir_positions[done][1] = getIRState(i).pos[CWIID_Y];
-	  ++done;
-	}
-
-    if (done != 2)
-      M_throw() << "_valid_ir_points does not match valid number of points!";
-  }
-
+  if (_irdata.size() < 2) return;
+  
   //The positions of the IR points, in angles from the centre of the
   //wiimote's view
-  double x1 = (ir_positions[0][0] - CWIID_IR_X_MAX / 2) * anglePerPixel;
-  double y1 = (ir_positions[0][1] - CWIID_IR_Y_MAX / 2) * anglePerPixel;
-  double x2 = (ir_positions[1][0] - CWIID_IR_X_MAX / 2) * anglePerPixel;
-  double y2 = (ir_positions[1][1] - CWIID_IR_Y_MAX / 2) * anglePerPixel;
+  double x1 = (_irdata[0].x - CWIID_IR_X_MAX / 2) * anglePerPixel;
+  double y1 = (_irdata[0].y - CWIID_IR_Y_MAX / 2) * anglePerPixel;
+  double x2 = (_irdata[1].x - CWIID_IR_X_MAX / 2) * anglePerPixel;
+  double y2 = (_irdata[1].y - CWIID_IR_Y_MAX / 2) * anglePerPixel;
 
   //The seperation angles of the two IR points
   double dx = x1 - x2;
@@ -164,7 +132,7 @@ void TrackWiimote::updateHeadPos()
 
 void TrackWiimote::calibrate()
 {
-  if (_valid_ir_points != 2) return;
+  if (_irdata.size() < 2) return;
 
   //The person is in the center of the screen, so we can determine the
   //tilt of the camera
@@ -181,8 +149,21 @@ TrackWiimote::cwiid_callback(cwiid_wiimote_t *wiimote, int mesg_count,
       TrackWiimote::getInstance()._batteryLevel =  float(mesg_array[i].status_mesg.battery) / CWIID_BATTERY_MAX;
       break;
     case CWIID_MESG_IR:
-      TrackWiimote::getInstance()._ir_data = mesg_array[i].ir_mesg;
-      TrackWiimote::getInstance().updateIRPositions();
+      {
+	magnet::thread::ScopedLock lock(TrackWiimote::getInstance()._irdatalock);
+
+	std::vector<IRData>& ir_positions = TrackWiimote::getInstance()._irdata;
+	ir_positions.clear();
+
+	for (size_t j(0); j < CWIID_IR_SRC_COUNT; ++j)
+	  if (mesg_array[i].ir_mesg.src[j].valid)
+	    ir_positions.push_back(IRData(mesg_array[i].ir_mesg.src[j].size, 
+					  mesg_array[i].ir_mesg.src[j].pos[CWIID_X], 
+					  mesg_array[i].ir_mesg.src[j].pos[CWIID_Y]));
+	
+	std::stable_sort(ir_positions.begin(), ir_positions.end(), std::greater<IRData>());
+	TrackWiimote::getInstance().updateHeadPos();
+      }
       break;
     case CWIID_MESG_ERROR:
       if (cwiid_close(wiimote))

@@ -612,6 +612,13 @@ CLGLWindow::initGTK()
 	    .connect(sigc::mem_fun(*this, &CLGLWindow::guiUpdateCallback));
 	}
 
+	{
+	  Gtk::Button* btn;
+	  _refXml->get_widget("HeadTrackReset", btn);
+	  btn->signal_clicked()
+	    .connect(sigc::mem_fun(this, &CLGLWindow::HeadReset));
+	}
+
 #ifdef COIL_wiimote
 	{//Here all the wii stuff should go in
 	  Gtk::Button* btn;
@@ -633,13 +640,6 @@ CLGLWindow::initGTK()
 	  _refXml->get_widget("wiiCalibrate", btn);
 	  btn->signal_clicked()
 	    .connect(sigc::mem_fun(&(TrackWiimote::getInstance()), &TrackWiimote::calibrate));
-	}
-
-	{
-	  Gtk::Button* btn;
-	  _refXml->get_widget("wiiHeadTrackReset", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::wiiMoteHeadReset));
 	}
 #endif
       }
@@ -1212,31 +1212,6 @@ CLGLWindow::drawScene(magnet::GL::FBO& fbo)
     (*iPtr)->glRender(fbo);
   
   if (_showLight) _light0->drawLight();
-
-  //Draw a frustrum cage around the display
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  _viewPortInfo->applyInverseModelview();
-
-  double boxdepth = 2;
-  int numGridlines = 10;
-
-  //The grid is centered and is +-0.5f big, scale it to the box length wide and the screen high
-  glScalef(_viewPortInfo->getScreenPlaneWidth(), _viewPortInfo->getScreenPlaneHeight(), 1);
-  glTranslatef(0,0,-boxdepth);
-  glColor4f(1, 1, 1, 1);
-  glBegin(GL_LINES);
-  for (int i = 0; i <= numGridlines; ++i)
-    {
-      glVertex3f(-0.5f + i / float(numGridlines), -0.5f, 0);
-      glVertex3f(-0.5f + i / float(numGridlines),  0.5f, 0);
-
-      glVertex3f(-0.5f, -0.5f + i / float(numGridlines), 0);
-      glVertex3f( 0.5f, -0.5f + i / float(numGridlines), 0);
-    }
-  glEnd();
-
-  glPopMatrix();
 }
 
 void CLGLWindow::CallBackReshapeFunc(int w, int h)
@@ -1913,6 +1888,24 @@ CLGLWindow::guiUpdateCallback()
     _viewPortInfo->setPixelPitch(boost::lexical_cast<double>(val) / 10);
   }
 
+  {
+    Gtk::Label* XHead;
+    _refXml->get_widget("XHead", XHead);
+    Gtk::Label* YHead;
+    _refXml->get_widget("YHead", YHead);
+    Gtk::Label* ZHead;
+    _refXml->get_widget("ZHead", ZHead);
+    std::ostringstream os;
+    os << _viewPortInfo->getHeadLocation()[0] << "cm";
+    XHead->set_text(os.str());
+    os.str("");
+    os << _viewPortInfo->getHeadLocation()[1] << "cm";
+    YHead->set_text(os.str());
+    os.str("");
+    os << _viewPortInfo->getHeadLocation()[2] << "cm";
+    ZHead->set_text(os.str());
+  }
+
 #ifdef COIL_wiimote
   {  
     Gtk::Label* statuslabel;
@@ -1940,9 +1933,6 @@ CLGLWindow::guiUpdateCallback()
     Gtk::CheckButton* wiiHeadTrack;
     _refXml->get_widget("wiiHeadTracking", wiiHeadTrack);
 
-    Gtk::Button* wiiHeadReset;
-    _refXml->get_widget("wiiHeadTrackReset", wiiHeadReset);
-
     if ((TrackWiimote::getInstance()).connected())
       {
 	statuslabel->set_text("WiiMote Connected");
@@ -1967,7 +1957,6 @@ CLGLWindow::guiUpdateCallback()
 
 	wiiCalibrate->set_sensitive(true);
 	wiiHeadTrack->set_sensitive(true);
-	wiiHeadReset->set_sensitive(true);
 	{
 	  Glib::RefPtr<Gdk::Window> win = ir->get_window();
 	  if (win)
@@ -1988,7 +1977,6 @@ CLGLWindow::guiUpdateCallback()
 	batteryBar->set_fraction(0);
 	wiiCalibrate->set_sensitive(false);
 	wiiHeadTrack->set_sensitive(false);
-	wiiHeadReset->set_sensitive(false);
       }
   }
 #endif  
@@ -2066,26 +2054,23 @@ CLGLWindow::wiiMoteIRExposeEvent(GdkEventExpose* event)
       cr->set_line_width(1);
 
       //Draw the tracked sources with a red dot, but only if there are just two sources!
-      int trackeddrawn = ((TrackWiimote::getInstance()).getValidIRSources() == 2) ? 2 : 0;
-
-      for (int i=0; i < CWIID_IR_SRC_COUNT; i++)
-	if ((TrackWiimote::getInstance()).getIRState(i).valid)
+      
+      const std::vector<TrackWiimote::IRData>& irdata 
+	= TrackWiimote::getInstance().getSortedIRData();
+      
+      size_t trackeddrawn = 2;
+      for (std::vector<TrackWiimote::IRData>::const_iterator iPtr = irdata.begin();
+	   iPtr != irdata.end(); ++iPtr)
 	  {
-	    int size = ((TrackWiimote::getInstance()).getIRState(i).size == -1) ? 
-	      3 : (TrackWiimote::getInstance()).getIRState(i).size + 1;
-	    
-	    float x = ir->get_allocation().get_width()
-	      * (1 - float((TrackWiimote::getInstance()).getIRState(i).pos[CWIID_X]) / CWIID_IR_X_MAX);
-
-	    float y = ir->get_allocation().get_height()
-	      * (1 - float((TrackWiimote::getInstance()).getIRState(i).pos[CWIID_Y]) / CWIID_IR_Y_MAX) ;
-
 	    cr->save();
 	    if (trackeddrawn-- > 0)
 	      cr->set_source_rgb(1, 0, 0);
 
+	    float x = ir->get_allocation().get_width() * (1 - float(iPtr->x) / CWIID_IR_X_MAX);
+	    float y = ir->get_allocation().get_height() * (1 - float(iPtr->y) / CWIID_IR_Y_MAX) ;
+
 	    cr->translate(x, y);
-	    cr->arc(0, 0, size, 0, 2 * M_PI);
+	    cr->arc(0, 0, iPtr->size + 1, 0, 2 * M_PI);
 	    cr->fill();	    
 	    cr->restore();
 	  }
@@ -2095,7 +2080,7 @@ CLGLWindow::wiiMoteIRExposeEvent(GdkEventExpose* event)
 }
 
 void 
-CLGLWindow::wiiMoteHeadReset()
+CLGLWindow::HeadReset()
 {
   _viewPortInfo->setHeadLocation(Vector(0, 0, 50));
 }

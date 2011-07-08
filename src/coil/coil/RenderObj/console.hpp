@@ -18,6 +18,8 @@
 #pragma once
 
 #include <coil/RenderObj/RenderObj.hpp>
+#include <magnet/GL/objects/axis.hpp>
+#include <magnet/GL/objects/grid.hpp>
 #include <FTGL/ftgl.h>
 #include <tr1/array>
 #include <memory>
@@ -42,15 +44,15 @@ namespace coil {
       return *this;
     }
 
-    inline FTGLPixmapFont& getFont() { return *_consoleFont; }
-    
     void resize(size_t width, size_t height);
 
     virtual void interfaceRender();
 
     virtual void initOpenGL();
 
-    virtual void releaseCLGLResources() { _consoleFont.reset(); _consoleLayout.reset(); }
+    virtual void releaseCLGLResources() { _consoleFont.reset(); _consoleLayout.reset(); _axis.deinit();}
+
+    virtual void glRender();
     
   private:
     
@@ -58,11 +60,12 @@ namespace coil {
     std::auto_ptr<FTGLPixmapFont> _consoleFont;
     std::auto_ptr<FTSimpleLayout> _consoleLayout;
     typedef std::pair<float, std::string> consoleEntry;
-    std::list<consoleEntry> _consoleEntries;
-    
+    std::list<consoleEntry> _consoleEntries;    
     int _glutLastTime;
-
     std::tr1::array<GLfloat, 3> _consoleTextColor;
+
+    magnet::GL::objects::Axis _axis;
+    magnet::GL::objects::Grid _grid;
   };
 
   template<>

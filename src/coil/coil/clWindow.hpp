@@ -233,8 +233,9 @@ private:
 
   //Wii Remote callbacks
   void wiiMoteConnect(); 
-  void wiiMoteHeadReset();
   bool wiiMoteIRExposeEvent(GdkEventExpose*);
+
+  void HeadReset();
 
   //Other callbacks
   void multisampleEnableCallback();
