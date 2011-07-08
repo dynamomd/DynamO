@@ -33,7 +33,7 @@
 #include <iomanip>
 
 #ifdef COIL_wiimote
-# include <coil/extcode/wiiheadtracking.hpp>
+# include <magnet/wiiheadtracking.hpp>
 #endif 
 
 CLGLWindow::CLGLWindow(std::string title,
@@ -639,7 +639,8 @@ CLGLWindow::initGTK()
 	  Gtk::Button* btn;
 	  _refXml->get_widget("wiiCalibrate", btn);
 	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(&(TrackWiimote::getInstance()), &TrackWiimote::calibrate));
+	    .connect(sigc::mem_fun(&(magnet::TrackWiimote::getInstance()), 
+				   &magnet::TrackWiimote::calibrate));
 	}
 #endif
       }
@@ -963,13 +964,13 @@ CLGLWindow::CallBackDisplayFunc()
 
 #ifdef COIL_wiimote
   //Run an update if the wiiMote was connected
-  if ((TrackWiimote::getInstance()).connected())
+  if ((magnet::TrackWiimote::getInstance()).connected())
     {
       {
 	Gtk::CheckButton* wiiHeadTrack;
 	_refXml->get_widget("wiiHeadTracking", wiiHeadTrack);
 	if (wiiHeadTrack->get_active())
-	  _viewPortInfo->setHeadLocation((TrackWiimote::getInstance()).getHeadPosition());
+	  _viewPortInfo->setHeadLocation((magnet::TrackWiimote::getInstance()).getHeadPosition());
       }
     }
 #endif
@@ -1933,15 +1934,15 @@ CLGLWindow::guiUpdateCallback()
     Gtk::CheckButton* wiiHeadTrack;
     _refXml->get_widget("wiiHeadTracking", wiiHeadTrack);
 
-    if ((TrackWiimote::getInstance()).connected())
+    if ((magnet::TrackWiimote::getInstance()).connected())
       {
 	statuslabel->set_text("WiiMote Connected");
 
 	std::ostringstream os;
-	os << (TrackWiimote::getInstance()).getCalibrationAngle();
+	os << (magnet::TrackWiimote::getInstance()).getCalibrationAngle();
 	anglelabel->set_text(os.str());
 
-	Vector headPos = (TrackWiimote::getInstance()).getHeadPosition();
+	Vector headPos = (magnet::TrackWiimote::getInstance()).getHeadPosition();
 
 	os.str("");
 	os << headPos[0] << "cm";
@@ -1953,7 +1954,7 @@ CLGLWindow::guiUpdateCallback()
 	os << headPos[2] << "cm";
 	wiiZHead->set_text(os.str());
 
-	batteryBar->set_fraction((TrackWiimote::getInstance()).getBatteryLevel());
+	batteryBar->set_fraction((magnet::TrackWiimote::getInstance()).getBatteryLevel());
 
 	wiiCalibrate->set_sensitive(true);
 	wiiHeadTrack->set_sensitive(true);
@@ -2013,7 +2014,7 @@ void
 CLGLWindow::wiiMoteConnect()
 {
 #ifdef COIL_wiimote
-  if ((TrackWiimote::getInstance()).connected())
+  if ((magnet::TrackWiimote::getInstance()).connected())
     {
       guiUpdateCallback();
       return;
@@ -2025,7 +2026,7 @@ CLGLWindow::wiiMoteConnect()
 				  true, Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK, true);
 
   confirmation.run();
-  (TrackWiimote::getInstance()).connect();
+  (magnet::TrackWiimote::getInstance()).connect();
 #endif
 }
 
@@ -2055,11 +2056,11 @@ CLGLWindow::wiiMoteIRExposeEvent(GdkEventExpose* event)
 
       //Draw the tracked sources with a red dot, but only if there are just two sources!
       
-      const std::vector<TrackWiimote::IRData>& irdata 
-	= TrackWiimote::getInstance().getSortedIRData();
+      const std::vector<magnet::TrackWiimote::IRData>& irdata 
+	= magnet::TrackWiimote::getInstance().getSortedIRData();
       
       size_t trackeddrawn = 2;
-      for (std::vector<TrackWiimote::IRData>::const_iterator iPtr = irdata.begin();
+      for (std::vector<magnet::TrackWiimote::IRData>::const_iterator iPtr = irdata.begin();
 	   iPtr != irdata.end(); ++iPtr)
 	  {
 	    cr->save();
