@@ -61,7 +61,8 @@ namespace magnet {
 
 	//Build depth buffer
 	_depthTexture.init(_width, _height, GL_DEPTH_COMPONENT24);
-	//Where to put the information
+	//You must select GL_NEAREST for depth data, as GL_LINEAR
+	//converts the value to 8bit for interpolation (on NVidia).
 	_depthTexture.parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_depthTexture.parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	_depthTexture.parameter(GL_TEXTURE_WRAP_S, GL_CLAMP);
