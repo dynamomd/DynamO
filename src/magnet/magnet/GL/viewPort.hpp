@@ -103,8 +103,12 @@ namespace magnet {
       }
 
       /*! \brief Change the field of vision of the viewport/camera.
+       *
+       * \param fovY The field of vision in degrees.
+       * \param compensate Counter the movement of the head position
+       * by moving the viewing plane position.
        */
-      inline void setFOVY(double fovY) 
+      inline void setFOVY(double fovY, bool compensate = true) 
       {
 	//When the FOV is adjusted, we move the head position away
 	//from the view plane, but we adjust the viewplane position to
@@ -113,11 +117,15 @@ namespace magnet {
 					   / std::tan((fovY / 180.0f) * M_PI / 2) 
 					   - _headLocation[2]);
 
-	Matrix viewTransformation 
-	  = Rodrigues(Vector(0, -_panrotation * M_PI/180, 0))
-	  * Rodrigues(Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
+	if (compensate)
+	  {
+	    Matrix viewTransformation 
+	      = Rodrigues(Vector(0, -_panrotation * M_PI/180, 0))
+	      * Rodrigues(Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
+	    
+	    _position -= viewTransformation * headLocationChange;	
+	  }
 
-	_position -= viewTransformation * headLocationChange;	
 	_headLocation += headLocationChange;
       }
       
