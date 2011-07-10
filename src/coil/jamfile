@@ -1,5 +1,19 @@
 import ../magnet/jam/filetypes ;
 import ../magnet/jam/tags ;
+import ../magnet/jam/builddep ;
+
+lib cwiid : : <link>shared : : <define>COIL_wiimote ;
+exe cwiidtest : tests/wiimote.cpp cwiid ;
+
+project	: requirements
+          #This creates a feature coil-integration, which can be set
+          #on the command line or auto-detected using the passed target
+	  [ builddep.set-feature-on-build coil-cwiid 
+            : cwiidtest
+            : "Coil Wii (libCwiid) Integration" ]
+	: default-build release
+	: build-dir ../../build-dir/
+	;
 
 lib glut : : <link>shared ;
 lib GLU  : : <link>shared ;
@@ -10,11 +24,9 @@ lib rt   : : <link>shared ;
 lib GLEW : : <link>shared ;
 lib ftgl : : <link>shared : : <linkflags>"`pkg-config ftgl --libs`" <cflags>"`pkg-config ftgl --cflags`" ;
 lib OpenCL : : <link>shared ;
-lib cwiid : : <link>shared : : <define>COIL_wiimote ;
 alias gtkmm : : : : <linkflags>"`pkg-config gtkmm-2.4 --libs`" <cflags>"`pkg-config gtkmm-2.4 --cflags`" ;
 
 #Test executables for determining what is available in the build environment
-exe cwiidtest : tests/wiimote.cpp cwiid ;
 exe OpenCLtest : tests/opencl.cpp OpenCL ;
 exe OpenCLpptest : tests/openclpp.cpp OpenCL ;
 exe ftgltest : tests/ftgl.cpp ftgl ;
@@ -41,7 +53,7 @@ lib coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests ]
       glut GLU GL Xext X11 rt GLEW ../magnet//magnet
       OpenCL ftgl gtkmm 
       : <include>. <include>../boost <tag>@tags.lib-naming 
-      [ check-target-builds cwiidtest "Coil: CWiid (wiimote control)" : <source>cwiid  :  ]
+       <coil-cwiid>yes:<source>cwiid
       : : <define>GLVIEWER <include>. ;
 
 exe gl_test
