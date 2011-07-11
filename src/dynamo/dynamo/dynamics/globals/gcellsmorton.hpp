@@ -52,7 +52,7 @@ public:
   
   virtual void operator<<(const magnet::xml::Node&);
 
-  double  getCellDimensions() const 
+  Vector getCellDimensions() const 
   { return cellDimension; }
 
   virtual double getMaxSupportedInteractionLength() const;
@@ -84,11 +84,12 @@ protected:
   void addLocalEvents();
 
   //Variables
-  unsigned int cellCount;
-  magnet::math::DilatedInteger dilatedCellMax;
-  double  cellDimension;
-  double  cellLatticeWidth;
-  double cellOffset;
+  CVector<size_t> cellCount;
+  magnet::math::DilatedInteger dilatedCellMax[3];
+  Vector cellDimension;
+  Vector cellLatticeWidth;
+  Vector cellOffset;
+
   double _oversizeCells;
   size_t NCells;
   size_t overlink;
