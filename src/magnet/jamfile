@@ -60,6 +60,8 @@ unit-test vector-test : tests/vector_test.cpp magnet ;
 
 alias spline-test : tests/splinetest.cpp magnet ;
 
+alias morton-test : tests/morton_test.cpp ;
+
 alias math-test : quartic-test cubic-test vector-test spline-test ;
 
 ##################################################

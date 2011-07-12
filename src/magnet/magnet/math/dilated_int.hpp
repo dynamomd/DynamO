@@ -22,225 +22,231 @@
 
 namespace magnet {
   namespace math {
-    namespace detail {
-      /*! \brief A class which provides all the implementation details
-       * needed for dilated integers.
-       *
-       * This class also contains all of the template metaprograms for
-       * calculating the constants needed in dilating and undilating
-       * these integers.
+    namespace dilatedinteger {
+      /*! \brief Number of bits in the size_t type.
        */
-      template<size_t _d>
-      struct DilatedConstants
-      {
-	/*! \brief Number of bits in the size_t type.
-	 */
-	static const size_t uint_bits = sizeof(size_t) * 8;
-
-	/*! \brief Minimum number of usable bits in the dilated integer (\f$s\$).
-	 *
-	 * This is a minimum, as there may be 1 extra bit available for
-	 * some values of the dilation. E.g., with a 32bit size_t, and a
-	 * dilation of 3, you may interleave two 11-bit values and one
-	 * 10-bit value to make a 32bit 3D Morton number.
-	 *
-	 * However, here we assume it is the maximum value!
-	 */
-	static const size_t _s = uint_bits / _d;
+      static const size_t uint_bits = sizeof(size_t) * 8;
       
-	/*! \brief A mask for the digit bits in the undilated integer.
-	 */
-	static const size_t undilatedMask = ctime_safe_rshift<size_t,
-							       (size_t(0) - size_t(1)), 
-							       (uint_bits - _s)>::result;
+      /*! \brief The number of usable bits in the dilated integer
+       * (\f$s\$).
+       *
+       * This is technically a minimum value, as there may be 1 extra
+       * bit available for some values of the dilation. E.g., with a
+       * 32bit size_t, and a dilation of 3, you may interleave two
+       * 11-bit values and one 10-bit value to make a 32bit 3D Morton
+       * number.
+       *
+       * But please, don't try to use that extra bit, just use a 64
+       * bit computer instead.
+       */
+      template <size_t d>
+      struct s
+      { static const size_t result = uint_bits / d; };
+      
+      /*! \brief The number of rounds in a dilation.
+       *
+       * A compile time calculation of \f${\textrm ceil}(\log_{d-1}(s))\f$
+       */
+      template <size_t d>
+      struct dilation_rounds
+      { static const size_t result  = ctime_ceil_log<s<d>::result, d - 1>::result; };
 
-	/*! \brief The number of rounds in a undilation.
-	 *
-	 * A compile time calculation of \f${\textrm ceil}(\log_{d}(s))\f$
-	 */
-	static const size_t undilation_rounds = ctime_ceil_log<_s, _d>::result; 
+      /*! \brief The number of rounds in a undilation.
+       *
+       * A compile time calculation of \f${\textrm ceil}(\log_{d}(s))\f$
+       */
+      template <size_t d>
+      struct undilation_rounds
+      { static const size_t result  = ctime_ceil_log<s<d>::result, d>::result; };
 
-	/*! \brief The number of rounds in a dilation.
-	 *
-	 * A compile time calculation of \f${\textrm ceil}(\log_{d-1}(s))\f$
-	 */
-	static const size_t dilation_rounds = ctime_ceil_log<_s, _d - 1>::result;
-
-	template <size_t p, size_t q>
+      //! \brief The calculator for the \f$x_{p,q}\f$ constant.
+      template <size_t p, size_t q>
+      struct x
+      {
+	template <size_t l, size_t dummy>
 	struct xworker
-	{
-	  static const size_t result = xworker<p-1, q>::result + ctime_safe_lshift<size_t, 1, p * q>::result;
-	};
+	{ static const size_t result = xworker<l - 1, dummy>::result + ctime_safe_lshift<size_t, 1, l * q>::result; };
 
-	template <size_t q>
-	struct xworker<0,q>
-	{
-	  static const size_t result = 1;
-	};
+	template <size_t dummy>
+	struct xworker<0, dummy>
+	{ static const size_t result = 1; };
+	
+	static const size_t result = xworker<p - 1, 0>::result;
+      };
 
-	//! \brief The calculator for the \f$x_{p,q}\f$ constant.
-	template <size_t p, size_t q>
-	struct x
-	{
-	  static const size_t result = xworker<p - 1, q>::result;
-	};
+      //! \brief The calculator for the \f$c_{d,i}\f$ constant.
+      template <size_t i_plus_1, size_t d>
+      struct c
+      { static const size_t result = x<d, (d - 1) * ctime_pow<d, i_plus_1 - 1>::result>::result; };
 
-	//! \brief The calculator for the \f$c_{d,i}\f$ constant.
-	template <size_t i_plus_1>
-	struct c
-	{
-	  static const size_t result = x<_d, (_d - 1) * ctime_pow<_d, i_plus_1 - 1>::result>::result;
-	};
+      //! \brief The calculator for the \f$b_{d,i}\f$ constant.
+      template <size_t i, size_t d>
+      struct b
+      { static const size_t result = x<d, ctime_pow<d - 1, dilation_rounds<d>::result - i + 1>::result>::result; };
+      
+      //! \brief Produces a \ref result with the lowest \ref n bits set.
+      template <size_t n>
+      struct getnbits
+      { static const size_t result = (ctime_safe_lshift<size_t,1, n>::result - 1); };
+      
+      //! \brief Calculator for the \f$z_{d,i}\f$ constant.
+      template <size_t i, size_t d>
+      struct z
+      {
+	static const size_t _di = ctime_pow<d, i>::result;
+	static const size_t _bitcount = (_di < s<d>::result) ? _di : s<d>::result;
 
-	//! \brief The calculator for the \f$b_{d,i}\f$ constant.
-	template <size_t i>
-	struct b
-	{
-	  static const size_t result = x<_d, ctime_pow<_d - 1, dilation_rounds - i + 1>::result>::result;
-	};
-
-	//! \brief Produces a \ref result with the lowest \ref n bits set.
-	template <size_t n>
-	struct getnbits
-	{	  
-	  static const size_t result = (ctime_safe_lshift<size_t,1, n>::result - 1);
-	};
-
-	template <size_t i, size_t counter>
+	template <size_t counter, size_t dummy>
 	struct zworker
 	{
-	  static const size_t _di = ctime_pow<_d, i>::result;
-	  static const size_t result = zworker<i, counter - 1>::result
-	    | ctime_safe_rshift<size_t, zworker<i, 0>::result, ((_di * _d) * counter)>::result;
+	  static const size_t result = zworker<counter - 1, dummy>::result
+	    | ctime_safe_rshift<size_t, zworker<0, dummy>::result, ((_di * d) * counter)>::result;
 	};
-
-	template <size_t i>
-	struct zworker<i, 0>
+	
+	template <size_t dummy>
+	struct zworker<0, dummy>
 	{
-	  static const size_t _di = ctime_pow<_d, i>::result;
-	  static const size_t _bitcount = (_di < _s) ? _di : _s;
 	  static const size_t result = 
 	    ctime_safe_lshift<size_t,
-			      getnbits<_bitcount>::result & getnbits<_s>::result,
-			      _d * (_s - 1) + 1 - _bitcount>::result;
+			      getnbits<_bitcount>::result & getnbits<s<d>::result>::result,
+			      d * (s<d>::result - 1) + 1 - _bitcount>::result;
 	};
+	
+	static const size_t result = zworker<s<d>::result / ctime_pow<d, i>::result, 0>::result;
+      };
+      
+      //! \brief Calculator for the \f$z_{d,i}\f$ constant.
+      template <size_t i, size_t d>
+      struct y
+      {
+	static const size_t _bitcount = ctime_pow<d - 1, dilation_rounds<d>::result - i>::result;
+	static const size_t _bitseperation = ctime_pow<d - 1, dilation_rounds<d>::result - i + 1>::result 
+	  + _bitcount;
 
-	//! \brief Calculator for the \f$z_{d,i}\f$ constant.
-	template <size_t i>
-	struct z
-	{
-	  static const size_t result = zworker<i, _s / ctime_pow<_d, i>::result>::result;
-	};
-
-
-	template <size_t i, size_t counter>
+	template <size_t counter, size_t dummy>
 	struct yworker
 	{
-	  static const size_t _bitcount = ctime_pow<_d -1, dilation_rounds - i>::result;
-	  static const size_t _bitseperation = ctime_pow<_d-1, dilation_rounds -i + 1>::result + _bitcount;
-	  static const size_t result = yworker<i, counter - 1>::result 
+	  static const size_t result = yworker<counter - 1, dummy>::result 
 	    | ctime_safe_lshift<size_t, getnbits<_bitcount>::result, _bitseperation * counter>::result;
 	};
-
-	template <size_t i>
-	struct yworker<i, 0>
+	
+	template <size_t dummy>
+	struct yworker<0, dummy>
 	{
-	  static const size_t _bitcount = ctime_pow<_d -1, dilation_rounds - i>::result;
 	  static const size_t result = getnbits<_bitcount>::result;
 	};
+	
+	static const size_t result = yworker<s<d>::result / _bitcount, 0>::result;
+      };
 
-	//! \brief Calculator for the \f$z_{d,i}\f$ constant.
-	template <size_t i>
-	struct y
-	{
-	  static const size_t _bitcount = ctime_pow<_d - 1, dilation_rounds - i>::result;
-	  static const size_t result = yworker<i, _s / _bitcount>::result;
-	};
-
-
-	static const size_t undilate_shift = (_d * (_s - 1) + 1 - _s); 
-	template <size_t i, int FakeParam>
-	struct undilateWorker
+      //! \brief The undilation function.
+      template<size_t d> 
+      struct undilate
+      {
+	template <size_t i, size_t dummy>
+	  struct undilateWorker
 	{
 	  static inline size_t eval(size_t val)
 	  {
-	    return (undilateWorker<i - 1, FakeParam>::eval(val) * c<i>::result) & z<i>::result;
-	  }
-	};
-
-	template <int FakeParam>
-	struct undilateWorker<1, FakeParam>
-	{
-	  static inline size_t eval(size_t val)
-	  {
-	    return (val * c<1>::result) & z<1>::result;
+	    return (undilateWorker<i - 1, dummy>::eval(val) * c<i, d>::result) & z<i, d>::result;
 	  }
 	};
 	
-	//! \brief The undilation function.
-	static inline size_t undilate(size_t val)
+	template <size_t dummy>
+	struct undilateWorker<1, dummy>
 	{
-	  return undilateWorker<undilation_rounds, 0>::eval(val) >> undilate_shift;
+	  static inline size_t eval(size_t val)
+	  {
+	    return (val * c<1, d>::result) & z<1, d>::result;
+	  }
 	};
 
-	template <size_t i, int FakeParam>
+	static inline size_t eval(size_t val)
+	{
+	  static const size_t undilate_shift = (d * (s<d>::result - 1) + 1 - s<d>::result); 
+	  return undilateWorker<undilation_rounds<d>::result, 0>::eval(val) >> undilate_shift;
+	};
+      };
+
+      //! \brief The dilation function.
+      template<size_t d> 
+      struct dilate
+      {
+	template <size_t i, size_t dummy>
 	struct dilateWorker
 	{
 	  static inline size_t eval(size_t val)
-	  {
-	    return (dilateWorker<i - 1, FakeParam>::eval(val) * b<i>::result) & y<i>::result;
-	  }
-	};
-
-	template <int FakeParam>
-	struct dilateWorker<1, FakeParam>
-	{
-	  static inline size_t eval(size_t val)
-	  {
-	    return (val * b<1>::result) & y<1>::result;
-	  }
+	  { return (dilateWorker<i - 1, d>::eval(val) *  b<i,d>::result) & y<i,d>::result; }
 	};
 	
-	//! \brief The dilation function.
-	static inline size_t dilate(size_t val)
+	template <size_t dummy>
+	struct dilateWorker<1, dummy>
 	{
-	  return dilateWorker<dilation_rounds, 0>::eval(val);
+	  static inline size_t eval(size_t val)
+	  { return (val * b<1, d>::result) & y<1, d>::result; }
+	};
+
+	static inline size_t eval(size_t val)
+	{
+	  return dilateWorker<dilation_rounds<d>::result, 0>::eval(val);
+	};
+      };
+
+      //We have to use a specialization of dilate for a dilation of 2,
+      //as the method used to calculate the multiplication constants
+      //is not valid for d == 2.
+      template<>
+      struct dilate<2>
+      {
+	static inline size_t eval(size_t val)
+	{
+	  return 0;
 	};
       };
     }
-
-
-    template<size_t _d>
-    class DilatedInteger;
-
-    template<>
-    class DilatedInteger<1>; // 1-dilated objects are not dilated integers!
     
-    /*! \brief A generic class for dilated integers.
+    /*! \brief A function to dilate an integer value.
      *
-     * This class uses compile time integer mathematics to calculate
-     * the constants for the dilation and undilation of the integers.
+     * Dilation is the act of spreading the bits of an integer out
+     * over a wider range by introducing \ref d zero bits in between
+     * every bit of the original integer. This amount of spread is
+     * known as the dilation.
      *
-     * All math symbols are taken from the excellent paper "Converting
-     * to and from Dilated Integers", by R. Ramen and D. S. Wise
-     * (doi:10.1109/TC.2007.70814). The mathematics on dilated
-     * integers is explained by "Fast Additions on Masked
-     * Integers"(10.1145/1149982.1149987).
+     * This function accepts and returns size_t values as it is likely
+     * you will use the dilated integer for memory access (Dilated
+     * integers are required for the calculation of Morton numbers, a
+     * nice way to increase cache efficiency).
+     *
+     * A design choice was made to dilated the integers using
+     * mathematical/bitwise operations instead of using look-up
+     * tables. This is because calculation is relatively cheap in
+     * modern CPU's. Also, if you are using dilated integers to
+     * optimize your memory access patterns, then we don't want to
+     * fill the cache up with even more data.
+     *
+     * Please see the original paper "Converting to and from Dilated
+     * Integers"(doi:10.1109/TC.2007.70814) for the details on the
+     * underlying math. The rest is template metaprogramming.
+     *
+     * \tparam d The requested dilation of the passed integer.
      */
-    template<size_t _d>
-    class DilatedInteger
+    template<size_t d>
+    inline size_t dilate(size_t val)
     {
-    public:
-      // Constructors
-      inline DilatedInteger(): value(0) {}
+      return dilatedinteger::dilate<d>::eval(val);
+    };
 
-      inline DilatedInteger(const size_t val):
-	value(val) {}
-      
-      inline const size_t& getDilatedVal() const { return value; }
-      
-    private:
-      size_t value; // stored as normalized integer at mask’s 1 bits.
-    };   
+    /*! \brief A function to dilate an integer value.
+     *
+     * \note Please see \ref dilate for more information on what dilation is!
+     * \sa dilate
+     * \tparam d The dilation of the passed integer.
+     */
+    template<size_t d>
+    inline size_t undilate(size_t val)
+    {
+      return dilatedinteger::undilate<d>::eval(val);
+    };
+
   }
 }
