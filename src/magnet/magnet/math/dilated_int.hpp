@@ -29,8 +29,12 @@
 namespace magnet {
   namespace math {
     namespace detail {
-      /*! \brief A class which provides all the constants needed for
-       * dilated integers.
+      /*! \brief A class which provides all the implementation details
+       * needed for dilated integers.
+       *
+       * This class also contains all of the template metaprograms for
+       * calculating the constants needed in dilating and undilating
+       * these integers.
        */
       template<uint32_t _d>
       struct DilatedConstants
@@ -56,42 +60,52 @@ namespace magnet {
 							       (uint32_t(0) - uint32_t(1)), 
 							       (uint_bits - _s)>::result;
 
-	/*! \brief A compile time calculation of \f${\textrm floor}(\log_{d-1}(s))\f$.
+	/*! \brief The number of rounds in a undilation.
+	 *
+	 * A compile time calculation of \f${\textrm ceil}(\log_{d}(s))\f$
 	 */
-	static const uint32_t _t = ctime_ceil_log<_s, _d - 1>::result;
+	static const uint32_t undilation_rounds = ctime_ceil_log<_s, _d>::result; 
 
-	//! \brief The calculator for the DilatedInteger x function.
+	/*! \brief The number of rounds in a dilation.
+	 *
+	 * A compile time calculation of \f${\textrm ceil}(\log_{d-1}(s))\f$
+	 */
+	static const uint32_t dilation_rounds = ctime_ceil_log<_s, _d - 1>::result;
+
 	template <uint32_t p, uint32_t q>
 	struct xworker
 	{
 	  static const uint32_t result = xworker<p-1, q>::result + ctime_safe_lshift<uint32_t, 1, p * q>::result;
 	};
 
-	//! \brief The calculator for the DilatedInteger x function.
 	template <uint32_t q>
 	struct xworker<0,q>
 	{
 	  static const uint32_t result = 1;
 	};
 
+	//! \brief The calculator for the \f$x_{p,q}\f$ constant.
 	template <uint32_t p, uint32_t q>
 	struct x
 	{
-	  static const uint32_t result = xworker<p-1, q>::result;
+	  static const uint32_t result = xworker<p - 1, q>::result;
 	};
 
+	//! \brief The calculator for the \f$c_{d,i}\f$ constant.
 	template <uint32_t i_plus_1>
 	struct c
 	{
-	  static const uint32_t result = x<_d, (_d-1) * ctime_pow<_d, i_plus_1 -1>::result>::result;
+	  static const uint32_t result = x<_d, (_d - 1) * ctime_pow<_d, i_plus_1 - 1>::result>::result;
 	};
 
+	//! \brief The calculator for the \f$b_{d,i}\f$ constant.
 	template <uint32_t i>
 	struct b
 	{
-	  static const uint32_t result = x<_d, ctime_pow<_d-1, _t - i + 1>::result>::result;
+	  static const uint32_t result = x<_d, ctime_pow<_d - 1, dilation_rounds - i + 1>::result>::result;
 	};
 
+	//! \brief Produces a \ref result with the lowest \ref n bits set.
 	template <uint32_t n>
 	struct getnbits
 	{	  
@@ -117,15 +131,40 @@ namespace magnet {
 			      _d * (_s - 1) + 1 - _bitcount>::result;
 	};
 
+	//! \brief Calculator for the \f$z_{d,i}\f$ constant.
 	template <uint32_t i>
 	struct z
 	{
 	  static const uint32_t result = zworker<i, _s / ctime_pow<_d, i>::result>::result;
 	};
 
-	static const uint32_t undilate_rounds = ctime_ceil_log<_s, _d>::result; 
-	static const uint32_t undilate_shift = (_d * (_s - 1) + 1 - _s); 
 
+	template <uint32_t i, uint32_t counter>
+	struct yworker
+	{
+	  static const uint32_t _bitcount = ctime_pow<_d -1, dilation_rounds - i>::result;
+	  static const uint32_t _bitseperation = ctime_pow<_d-1, dilation_rounds -i + 1>::result + _bitcount;
+	  static const uint32_t result = yworker<i, counter - 1>::result 
+	    | ctime_safe_lshift<uint32_t, getnbits<_bitcount>::result, _bitseperation * counter>::result;
+	};
+
+	template <uint32_t i>
+	struct yworker<i, 0>
+	{
+	  static const uint32_t _bitcount = ctime_pow<_d -1, dilation_rounds - i>::result;
+	  static const uint32_t result = getnbits<_bitcount>::result;
+	};
+
+	//! \brief Calculator for the \f$z_{d,i}\f$ constant.
+	template <uint32_t i>
+	struct y
+	{
+	  static const uint32_t _bitcount = ctime_pow<_d - 1, dilation_rounds - i>::result;
+	  static const uint32_t result = yworker<i, _s / _bitcount>::result;
+	};
+
+
+	static const uint32_t undilate_shift = (_d * (_s - 1) + 1 - _s); 
 	template <uint32_t i, int FakeParam>
 	struct undilateWorker
 	{
@@ -144,13 +183,35 @@ namespace magnet {
 	  }
 	};
 	
+	//! \brief The undilation function.
 	static inline uint32_t undilate(uint32_t val)
 	{
-	  return ctime_safe_rshift<uint32_t,
-				   undilateWorker<undilate_rounds, 0>::eval(val),
-				   undilate_shift>::result;
+	  return undilateWorker<undilation_rounds, 0>::eval(val) >> undilate_shift;
 	};
 
+	template <uint32_t i, int FakeParam>
+	struct dilateWorker
+	{
+	  static inline uint32_t eval(uint32_t val)
+	  {
+	    return (dilateWorker<i - 1, FakeParam>::eval(val) * b<i>::result) & y<i>::result;
+	  }
+	};
+
+	template <int FakeParam>
+	struct dilateWorker<1, FakeParam>
+	{
+	  static inline uint32_t eval(uint32_t val)
+	  {
+	    return (val * b<1>::result) & y<1>::result;
+	  }
+	};
+	
+	//! \brief The dilation function.
+	static inline uint32_t dilate(uint32_t val)
+	{
+	  return dilateWorker<dilation_rounds, 0>::eval(val);
+	};
       };
     }
 
