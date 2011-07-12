@@ -37,12 +37,11 @@ std::string dilate_text()
 template<size_t i>
 std::string dilate_text_2()
 {
-  typedef magnet::math::dilatedinteger::dilate<2> dilate;
- 
-  static size_t shiftval = dilate::shiftval<i>::result;
+  static size_t shiftval = magnet::math::dilatedinteger::dilate<2>::shiftval<i>::result;
 
   std::ostringstream os;
-  os << "Dilate<2> round " << i << " ( val | (val <<  " << shiftval << ")) & " << hexout(dilate::y<i>::result)
+  os << "Dilate<2> round " << i << " ( val | (val <<  " << shiftval << ")) & " 
+     << hexout(magnet::math::dilatedinteger::y<i,2>::result)
      << "\n";
   return os.str();
 }

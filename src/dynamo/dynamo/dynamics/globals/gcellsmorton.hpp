@@ -71,21 +71,21 @@ protected:
 
   virtual void outputXML(magnet::xml::XmlStream&) const;
  
-  magnet::math::DilatedVector getCellID(Vector) const;
-  magnet::math::DilatedVector getCellID(const CVector<int>&) const;
+  magnet::math::DilatedVector<3> getCellID(Vector) const;
+  magnet::math::DilatedVector<3> getCellID(const CVector<int>&) const;
 
   void addCells(double);
 
-  inline Vector calcPosition(const magnet::math::DilatedVector& coords,
+  inline Vector calcPosition(const magnet::math::DilatedVector<3>& coords,
 			     const Particle& part) const;
 
-  inline Vector calcPosition(const magnet::math::DilatedVector& coords) const;
+  inline Vector calcPosition(const magnet::math::DilatedVector<3>& coords) const;
 
   void addLocalEvents();
 
   //Variables
   CVector<size_t> cellCount;
-  magnet::math::DilatedInteger dilatedCellMax[3];
+  magnet::math::DilatedInteger<3> dilatedCellMax[3];
   Vector cellDimension;
   Vector cellLatticeWidth;
   Vector cellOffset;
@@ -93,7 +93,7 @@ protected:
   double _oversizeCells;
   size_t NCells;
   size_t overlink;
-  magnet::math::DilatedInteger dilatedOverlink;
+  magnet::math::DilatedInteger<3> dilatedOverlink;
 
   mutable std::vector<int>list;
 

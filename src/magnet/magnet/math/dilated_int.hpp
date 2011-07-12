@@ -23,6 +23,7 @@
 
 namespace magnet {
   namespace math {
+    //! \brief Implementation details  for the \ref dilate and \ref undilate functions.
     namespace dilatedinteger {
       /*! \brief Number of bits in the size_t type.
        */
@@ -94,7 +95,7 @@ namespace magnet {
       struct getnbits
       { static const size_t result = (ctime_safe_lshift<size_t,1, n>::result - 1); };
       
-      //! \brief Returns the maximum value that can be dilated
+      //! \brief Returns the maximum value that can be dilated.
       template <size_t d>
       struct maxDilatableValue
       { static const size_t result = getnbits<s<d>::result>::result; };
@@ -125,7 +126,11 @@ namespace magnet {
 	static const size_t result = zworker<s<d>::result / ctime_pow<d, i>::result, 0>::result;
       };
       
-      //! \brief Calculator for the \f$z_{d,i}\f$ constant.
+      /*! \brief Calculator for the \f$y_{d,i}\f$ constant.
+       *
+       * The \f$y_{d,i}\f$ constant is the bit mask used after each
+       * round of the dilation algorithm.
+       */
       template <size_t i, size_t d>
       struct y
       {
@@ -148,6 +153,40 @@ namespace magnet {
 	
 	static const size_t result = yworker<s<d>::result / _bitcount, 0>::result;
       };
+
+      /*! \brief Calculator for the \f$y_{d,i}\f$ constant when \f$d==2\f$.
+       */
+      template <size_t i>
+      struct y<i, 2>
+      {
+	static const size_t _bitcount = s<2>::result / ( 1 << i);
+	static const size_t _bitseperation = 2 * _bitcount;
+	
+	template <size_t counter, size_t dummy>
+	struct yworker
+	{
+	  static const size_t result = yworker<counter - 1, dummy>::result 
+	    | ctime_safe_lshift<size_t, getnbits<_bitcount>::result, _bitseperation * counter>::result;
+	};
+	
+	template <size_t dummy>
+	struct yworker<0, dummy>
+	{
+	  static const size_t result = getnbits<_bitcount>::result;
+	};
+	
+	static const size_t result = yworker<s<2>::result / _bitcount, 0>::result;
+      };
+
+      /*! \brief Returns the maximum value in its dilated form.
+       *
+       * This value is simply the bit mask from the final round of the
+       * dilation algorithm.
+       */
+      template <size_t d>
+      struct maxDilatedValue
+      { static const size_t result = y<dilation_rounds<d>::result, d>::result; };
+
 
       //! \brief The undilation function.
       template<size_t d> 
@@ -178,7 +217,7 @@ namespace magnet {
 	};
       };
 
-      //! \brief The dilation function.
+      //! \brief The actual dilation function.
       template<size_t d> 
       struct dilate
       {
@@ -213,29 +252,6 @@ namespace magnet {
       struct dilate<2>
       {
 	template <size_t i>
-	struct y
-	{
-	  static const size_t _bitcount = s<2>::result / ( 1 << i);
-	  static const size_t _bitseperation = 2 * _bitcount;
-	  
-	  template <size_t counter, size_t dummy>
-	  struct yworker
-	  {
-	    static const size_t result = yworker<counter - 1, dummy>::result 
-	      | ctime_safe_lshift<size_t, getnbits<_bitcount>::result, _bitseperation * counter>::result;
-	  };
-	  
-	  template <size_t dummy>
-	  struct yworker<0, dummy>
-	  {
-	    static const size_t result = getnbits<_bitcount>::result;
-	  };
-	  
-	  static const size_t result = yworker<s<2>::result / _bitcount, 0>::result;
-	};
-
-	
-	template <size_t i>
 	struct shiftval
 	{ static const size_t result = ctime_safe_lshift<size_t, 1, dilation_rounds<2>::result - i>::result; };
 
@@ -245,7 +261,7 @@ namespace magnet {
 	  static inline size_t eval(size_t val)
 	  { 
 	    const size_t val2 = dilateWorker<i - 1, 2>::eval(val);
-	    return (val2 | (val2 << shiftval<i>::result)) & y<i>::result;
+	    return (val2 | (val2 << shiftval<i>::result)) & y<i, 2>::result;
 	  }
 	};
 
@@ -254,7 +270,7 @@ namespace magnet {
 	{
 	  static inline size_t eval(size_t val)
 	  {
-	    return (val | (val << shiftval<1>::result)) & y<1>::result;
+	    return (val | (val << shiftval<1>::result)) & y<1, 2>::result;
 	  }
 	};
 
