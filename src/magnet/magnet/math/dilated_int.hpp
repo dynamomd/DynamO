@@ -202,9 +202,13 @@ namespace magnet {
 	};
       };
 
-      //We have to use a specialization of dilate for a dilation of 2,
-      //as the method used to calculate the multiplication constants
-      //is not valid for d == 2.
+      /*! \brief A specialization of dilate for d=2.
+       *
+       * We have to use a specialization of dilate for a dilation
+       * width of \f$d==2\f$, as the multiplication method is not
+       * valid here.  Instead, we use the so-called Shift-Or
+       * algorithm.
+       */
       template<>
       struct dilate<2>
       {
