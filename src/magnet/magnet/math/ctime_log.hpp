@@ -21,7 +21,6 @@
 namespace magnet {
   namespace math {
     namespace detail {
-      //! \brief A worker for the \ref ctime_log class.
       template <size_t val, size_t base>
       struct ctime_floor_log_worker
       {
@@ -59,8 +58,8 @@ namespace magnet {
       };
     }
 
-    /*! \brief A compile time function to calculate the log of an
-     * size_teger.
+    /*! \brief A template metafunction to calculate the log of an
+     * size_t integer.
      *
      * This function actually returns \f${\textrm
      * ceil}\left(\log_base(val)\right)\f$.
@@ -71,10 +70,15 @@ namespace magnet {
       static const size_t result = detail::ctime_floor_log_worker<val / base, base>::result;
     };
     
-    /*! \brief A specialization to produce an error for the log of zero.
-     */
+    // A specialization to produce an error for the log of zero.
     template <size_t base> struct ctime_floor_log<0, base> {};
     
+    /*! \brief A template metafunction to calculate the log of an
+     * size_t integer.
+     *
+     * This function actually returns \f${\textrm
+     * floor}\left(\log_base(val)\right)\f$.
+     */
     template <size_t val, size_t base>
     struct ctime_ceil_log
     {
@@ -88,8 +92,7 @@ namespace magnet {
       static const size_t result = 0;
     };
 
-    /*! \brief A specialization to produce an error for the log of zero.
-     */
+    // A specialization to produce an error for the log of zero.
     template <size_t base> struct ctime_ceil_log<0, base> {};
   }
 }

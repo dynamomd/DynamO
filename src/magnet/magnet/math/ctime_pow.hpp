@@ -19,6 +19,7 @@
 
 namespace magnet {
   namespace math {
+    //!\brief A template metafunction for calculating the power of an integer
     template<int X, int Y>
     struct ctime_pow {
       static const int result = X * ctime_pow<X, Y-1>::result;
