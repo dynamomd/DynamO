@@ -311,10 +311,6 @@ CGCellsMorton::addCells(double maxdiam)
   NCells = 1;
   cellCount = CVector<size_t>(0);
 
-  if ((Sim->primaryCellSize[0] != Sim->primaryCellSize[1]) 
-      || (Sim->primaryCellSize[0] != Sim->primaryCellSize[2])) 
-    M_throw() << "This cellular neighbor list does not work unless the primary cell is square";
-
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     {
       cellCount[iDim] = int(Sim->primaryCellSize[iDim] / (maxdiam * (1.0 + 10 * std::numeric_limits<double>::epsilon())));

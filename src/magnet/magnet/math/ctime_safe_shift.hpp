@@ -16,6 +16,10 @@
 */
 
 #pragma once
+//GCC fasely detects out of bounds shifts, even though they're
+//protected behind the trinary condition! This just disables warnings
+//for this small segment of code.
+#pragma GCC system_header
 
 namespace magnet {
   namespace math {
