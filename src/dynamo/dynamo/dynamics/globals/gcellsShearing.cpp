@@ -31,7 +31,7 @@
 
 CGCellsShearing::CGCellsShearing(dynamo::SimData* nSim, 
 				 const std::string& name):
-  CGCells(nSim, "ShearingCells", NULL)
+  CGCellsMorton(nSim, "ShearingCells", NULL)
 {
   globName = name;
   dout << "Shearing Cells Loaded" << std::endl;
@@ -39,7 +39,7 @@ CGCellsShearing::CGCellsShearing(dynamo::SimData* nSim,
 
 CGCellsShearing::CGCellsShearing(const magnet::xml::Node& XML, 
 				 dynamo::SimData* ptrSim):
-  CGCells(ptrSim, "ShearingCells")
+  CGCellsMorton(ptrSim, "ShearingCells")
 {
   operator<<(XML);
 
@@ -52,18 +52,17 @@ CGCellsShearing::initialise(size_t nID)
   ID=nID;
    
   if (!(Sim->dynamics.BCTypeTest<BCLeesEdwards>()))
-    derr << "You should not use the shearing neighbour list"
-	 << " in a system without Lees Edwards BC's" << std::endl;
-
+    M_throw() << "You cannot use the shearing neighbour list in a system without Lees Edwards BC's";
+  
   if (overlink != 1) M_throw() << "Cannot shear with overlinking yet";
-
+  
   reinitialise(Sim->dynamics.getLongestInteraction());
 }
 
 void
 CGCellsShearing::outputXML(magnet::xml::XmlStream& XML) const
 {
-  CGCells::outputXML(XML, std::string("ShearingCells"));
+  CGCellsMorton::outputXML(XML, std::string("ShearingCells"));
 }
 
 GlobalEvent 
@@ -79,7 +78,8 @@ CGCellsShearing::getEvent(const Particle& part) const
   return GlobalEvent(part,
 		     Sim->dynamics.getLiouvillean().
 		     getSquareCellCollision2
-		     (part, cells[partCellData[part.getID()].cell].origin, 
+		     (part, 
+		      calcPosition(partCellData[part.getID()].cell, part),
 		      cellDimension)
 		     -Sim->dynamics.getLiouvillean().getParticleDelay(part)
 		     ,
@@ -92,25 +92,25 @@ CGCellsShearing::runEvent(const Particle& part, const double) const
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
   size_t oldCell(partCellData[part.getID()].cell);
+   oldCellCoords;
+  Vector oldCellOrigin = calcPosition(oldCell, part);
 
   //Determine the cell transition direction, its saved
   int cellDirectionInt(Sim->dynamics.getLiouvillean().
 		       getSquareCellCollision3
-		       (part, cells[oldCell].origin, 
+		       (part, oldCellOrigin,
 			cellDimension));
   
+
+  Vector pos(part.getPosition() - oldCellOrigin), vel(part.getVelocity());
+  Sim->dynamics.BCs().applyBC(pos, vel);
+
   size_t cellDirection = abs(cellDirectionInt) - 1;
 
   int endCell(-1); //The ID of the cell the particle enters
 
-  Vector  pos(part.getPosition() - cells[oldCell].origin), 
-    vel(part.getVelocity());
-
-  Sim->dynamics.BCs().applyBC(pos, vel);
-
   if ((cellDirection == 1) &&
-      (cells[oldCell].coords[1] 
-       == ((cellDirectionInt < 0) ? 0 : (cellCount[1] - 1))))
+      (cells[oldCell].coords[1] == ((cellDirectionInt < 0) ? 0 : (cellCount[1] - 1))))
     {
       //We're wrapping in the y direction, we have to compute
       //which cell its entering
@@ -118,7 +118,7 @@ CGCellsShearing::runEvent(const Particle& part, const double) const
       //Calculate the final x value
       //Time till transition, assumes the particle is up to date
       double dt = Sim->dynamics.getLiouvillean().getSquareCellCollision2
-	(part, cells[partCellData[part.getID()].cell].origin, 
+	(part, oldCellOrigin, 
 	 cellDimension);
      
       //Remove the old x contribution

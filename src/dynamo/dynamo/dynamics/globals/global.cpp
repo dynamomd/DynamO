@@ -50,14 +50,13 @@ Global*
 Global::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"Cells2")
-      || !strcmp(XML.getAttribute("Type"),"Cells"))
-    return new CGCells(XML, Sim);
+      || !strcmp(XML.getAttribute("Type"),"Cells")
+      || !strcmp(XML.getAttribute("Type"),"CellsMorton"))
+    return new CGCellsMorton(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"ShearingCells"))
     return new CGCellsShearing(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"PBCSentinel"))
     return new GPBCSentinel(XML, Sim);
-  else if (!strcmp(XML.getAttribute("Type"),"CellsMorton"))
-    return new CGCellsMorton(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"SOCells"))
     return new CGSOCells(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"Waker"))

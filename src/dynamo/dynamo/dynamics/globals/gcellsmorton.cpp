@@ -70,7 +70,6 @@ void
 CGCellsMorton::operator<<(const magnet::xml::Node& XML)
 {
   try {
-    //If you add anything here then it needs to go in gListAndCells.cpp too
     if (XML.hasAttribute("OverLink"))
       overlink = XML.getAttribute("OverLink").as<size_t>();
 
@@ -102,13 +101,13 @@ CGCellsMorton::getEvent(const Particle& part) const
   //Sim->dynamics.getLiouvillean().getParticleDelay(part)
   
   return GlobalEvent(part,
-		    Sim->dynamics.getLiouvillean().
-		    getSquareCellCollision2
+		     Sim->dynamics.getLiouvillean().
+		     getSquareCellCollision2
 		     (part, calcPosition(partCellData[part.getID()].cell,
 					 part), cellDimension)
-		    -Sim->dynamics.getLiouvillean().getParticleDelay(part)
-		    ,
-		    CELL, *this);
+		     -Sim->dynamics.getLiouvillean().getParticleDelay(part)
+		     ,
+		     CELL, *this);
 }
 
 void
@@ -289,17 +288,23 @@ CGCellsMorton::reinitialise(const double& maxdiam)
 }
 
 void
-CGCellsMorton::outputXML(magnet::xml::XmlStream& XML) const
+CGCellsMorton::outputXML(magnet::xml::XmlStream& XML, const std::string& type) const
 {
   //If you add anything here it also needs to go in gListAndCells.cpp too
   XML << magnet::xml::tag("Global")
-      << magnet::xml::attr("Type") << "CellsMorton"
+      << magnet::xml::attr("Type") << type
       << magnet::xml::attr("Name") << globName;
 
   if (overlink > 1)   XML << magnet::xml::attr("OverLink") << overlink;
   if (_oversizeCells != 1.0) XML << magnet::xml::attr("Oversize") << _oversizeCells;
   
   XML << magnet::xml::endtag("Global");
+}
+
+void
+CGCellsMorton::outputXML(magnet::xml::XmlStream& XML) const
+{
+  outputXml(XML, "Cells");
 }
 
 void
@@ -352,13 +357,9 @@ CGCellsMorton::addCells(double maxdiam)
 	   << cellLatticeWidth[2] / Sim->dynamics.units().unitLength() << std::endl;
 
   //Find the required size of the morton array
-  size_t sizeReq(1);
+  magnet::math::DilatedVector<3> coords(cellCount[0], cellCount[1], cellCount[2]);
+  size_t sizeReq = coords.getMortonNum();
 
-  for (int i(0); i < magnet::math::ctime_pow<2,magnet::math::DilatedInteger<3>::binarydigits>::result; ++i)
-    {
-      sizeReq *= 2*2*2;
-      if (sizeReq >= NCells) break;
-    }
 
   cells.resize(sizeReq); //Empty Cells created!
   list.resize(sizeReq); //Empty Cells created!
@@ -371,6 +372,12 @@ CGCellsMorton::addCells(double maxdiam)
 	{
 	  magnet::math::DilatedVector<3> coords(iDim, jDim, kDim);
 	  size_t id = coords.getMortonNum();
+	  if (id > list.size())
+	    M_throw() << "list is " << list.size() << " big and accessing " << id << " coords are "
+		      << " x = " << iDim
+		      << " y = " << jDim
+		      << " z = " << kDim
+	      ;
 	  list[id] = -1;
 	}
 

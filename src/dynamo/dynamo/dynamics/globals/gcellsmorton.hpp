@@ -70,7 +70,8 @@ protected:
   };
 
   virtual void outputXML(magnet::xml::XmlStream&) const;
- 
+  void outputXML(magnet::xml::XmlStream&, const std::string&) const;
+
   magnet::math::DilatedVector<3> getCellID(Vector) const;
   magnet::math::DilatedVector<3> getCellID(const CVector<int>&) const;
 
