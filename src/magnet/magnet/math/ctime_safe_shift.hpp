@@ -19,19 +19,14 @@
 
 namespace magnet {
   namespace math {
-    template<int X, int Y>
-    struct ctime_pow {
-      static const int result = X * ctime_pow<X, Y-1>::result;
-    };
-    
-    template<int X>
-    struct ctime_pow<X,1> {
-      static const int result = X;
+    template<class T, T val, uint32_t shift>
+    struct ctime_safe_lshift {
+      static const int result = (shift >= sizeof(T) * 8) ?  0 : (val << shift);
     };
 
-    template<int X>
-    struct ctime_pow<X,0> {
-      static const int result = 1;
+    template<class T, T val, uint32_t shift>
+    struct ctime_safe_rshift {
+      static const int result = (shift >= sizeof(T) * 8) ?  0 : (val >> shift);
     };
   }
 }

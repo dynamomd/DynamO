@@ -15,38 +15,81 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#pragma once
+#include <cstddef>
+
 namespace magnet {
   namespace math {
     namespace detail {
       //! \brief A worker for the \ref ctime_log class.
-      template <int val, int base>
-      struct ctime_log_worker
+      template <size_t val, size_t base>
+      struct ctime_floor_log_worker
       {
-	static const int value = ctime_log_worker<val / base, base>::value + 1;
+	static const size_t result = ctime_floor_log_worker<val / base, base>::result + 1;
       };
       
-      template <int base>
-      struct ctime_log_worker<0, base>
+      template <size_t base>
+      struct ctime_floor_log_worker<0, base>
       {
-	static const int value = 0;
+	static const size_t result = 0;
+      };
+
+      template <size_t val, size_t base, size_t remainder>
+      struct ctime_ceil_log_tester
+      {
+	static const size_t result = 1;
+      };
+
+      template <size_t base>
+      struct ctime_ceil_log_tester<1,base,0>
+      {
+	static const size_t result = 0;
+      };
+
+      template <size_t base>
+      struct ctime_ceil_log_tester<0,base,0>
+      {
+	static const size_t result = 0;
+      };
+
+      template <size_t val, size_t base>
+      struct ctime_ceil_log_tester<val, base,0>
+      {
+	static const size_t result = ctime_ceil_log_tester<val / base, base, val % base>::result;
       };
     }
 
     /*! \brief A compile time function to calculate the log of an
-     * integer.
+     * size_teger.
      *
      * This function actually returns \f${\textrm
-     * floor}\left(\log_base(val)\right)\f$ as only integer
-     * mathematics can be performed using templates.
+     * ceil}\left(\log_base(val)\right)\f$.
      */
-    template <int val, int base>
-    struct ctime_log
+    template <size_t val, size_t base>
+    struct ctime_floor_log
     {
-      static const int value = detail::ctime_log_worker<val / base, base>::value;
+      static const size_t result = detail::ctime_floor_log_worker<val / base, base>::result;
     };
     
     /*! \brief A specialization to produce an error for the log of zero.
      */
-    template <int base> struct ctime_log<0, base> {};
+    template <size_t base> struct ctime_floor_log<0, base> {};
+    
+    template <size_t val, size_t base>
+    struct ctime_ceil_log
+    {
+      static const size_t result = ctime_floor_log<val,base>::result 
+	+ detail::ctime_ceil_log_tester<val / base, base, val % base>::result;
+    };
+
+    template <size_t base>
+    struct ctime_ceil_log<1, base>
+    {
+      static const size_t result = 0;
+    };
+
+    /*! \brief A specialization to produce an error for the log of zero.
+     */
+    template <size_t base> struct ctime_ceil_log<0, base> {};
   }
 }
