@@ -72,6 +72,12 @@ namespace magnet {
     
     // A specialization to produce an error for the log of zero.
     template <size_t base> struct ctime_floor_log<0, base> {};
+
+    // A specialization to produce an error for the base 1 log.
+    template <size_t val> struct ctime_floor_log<val, 1> {};
+
+    // A specialization to produce an error for the base 0 log.
+    template <size_t val> struct ctime_floor_log<val, 0> {};
     
     /*! \brief A template metafunction to calculate the log of an
      * size_t integer.
@@ -94,5 +100,11 @@ namespace magnet {
 
     // A specialization to produce an error for the log of zero.
     template <size_t base> struct ctime_ceil_log<0, base> {};
+
+    // A specialization to produce an error for the base 1 log.
+    template <size_t val> struct ctime_ceil_log<val, 1> {};
+
+    // A specialization to produce an error for the base 0 log.
+    template <size_t val> struct ctime_ceil_log<val, 0> {};
   }
 }

@@ -19,6 +19,7 @@
 #include <magnet/math/ctime_log.hpp>
 #include <magnet/math/ctime_pow.hpp>
 #include <magnet/math/ctime_safe_shift.hpp>
+#include <stdexcept>
 
 namespace magnet {
   namespace math {
@@ -50,6 +51,10 @@ namespace magnet {
       template <size_t d>
       struct dilation_rounds
       { static const size_t result  = ctime_ceil_log<s<d>::result, d - 1>::result; };
+
+      template <>
+      struct dilation_rounds<2>
+      { static const size_t result  = ctime_ceil_log<s<2>::result, 2>::result; };
 
       /*! \brief The number of rounds in a undilation.
        *
@@ -89,6 +94,11 @@ namespace magnet {
       struct getnbits
       { static const size_t result = (ctime_safe_lshift<size_t,1, n>::result - 1); };
       
+      //! \brief Returns the maximum value that can be dilated
+      template <size_t d>
+      struct maxDilatableValue
+      { static const size_t result = getnbits<s<d>::result>::result; };
+
       //! \brief Calculator for the \f$z_{d,i}\f$ constant.
       template <size_t i, size_t d>
       struct z
@@ -198,9 +208,55 @@ namespace magnet {
       template<>
       struct dilate<2>
       {
+	template <size_t i>
+	struct y
+	{
+	  static const size_t _bitcount = s<2>::result / ( 1 << i);
+	  static const size_t _bitseperation = 2 * _bitcount;
+	  
+	  template <size_t counter, size_t dummy>
+	  struct yworker
+	  {
+	    static const size_t result = yworker<counter - 1, dummy>::result 
+	      | ctime_safe_lshift<size_t, getnbits<_bitcount>::result, _bitseperation * counter>::result;
+	  };
+	  
+	  template <size_t dummy>
+	  struct yworker<0, dummy>
+	  {
+	    static const size_t result = getnbits<_bitcount>::result;
+	  };
+	  
+	  static const size_t result = yworker<s<2>::result / _bitcount, 0>::result;
+	};
+
+	
+	template <size_t i>
+	struct shiftval
+	{ static const size_t result = ctime_safe_lshift<size_t, 1, dilation_rounds<2>::result - i>::result; };
+
+	template <size_t i, size_t dummy>
+	struct dilateWorker
+	{
+	  static inline size_t eval(size_t val)
+	  { 
+	    const size_t val2 = dilateWorker<i - 1, 2>::eval(val);
+	    return (val2 | (val2 << shiftval<i>::result)) & y<i>::result;
+	  }
+	};
+
+	template <size_t dummy>
+	struct dilateWorker<1, dummy>
+	{
+	  static inline size_t eval(size_t val)
+	  {
+	    return (val | (val << shiftval<1>::result)) & y<1>::result;
+	  }
+	};
+
 	static inline size_t eval(size_t val)
 	{
-	  return 0;
+	  return dilateWorker<dilation_rounds<2>::result, 0>::eval(val);
 	};
       };
     }
@@ -233,6 +289,10 @@ namespace magnet {
     template<size_t d>
     inline size_t dilate(size_t val)
     {
+#ifdef MAGNET_DYNAMO
+      if (val > dilatedinteger::maxDilatableValue<d>::result)
+	throw << std::out_of_range("Cannot dilate value");
+#endif
       return dilatedinteger::dilate<d>::eval(val);
     };
 
@@ -247,6 +307,5 @@ namespace magnet {
     {
       return dilatedinteger::undilate<d>::eval(val);
     };
-
   }
 }
