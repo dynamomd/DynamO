@@ -220,8 +220,6 @@ CGCellsMorton::runEvent(const Particle& part, const double) const
   BOOST_FOREACH(const nbHoodSlot& nbs, sigCellChangeNotify)
     nbs.second(part, oldCell);
   
-  //This doesn't stream the system as its a virtual event
-
   //Debug section
 #ifdef DYNAMO_WallCollDebug
   {
@@ -400,8 +398,6 @@ void
 CGCellsMorton::getParticleNeighbourhood(const Particle& part,
 					const nbHoodFunc& func) const
 {
-  BOOST_STATIC_ASSERT(NDIM==3);
-
   const magnet::math::MortonNumber<3> particle_cell_coords(partCellData[part.getID()].cell);
 
   magnet::math::MortonNumber<3> zero_coords;
@@ -462,9 +458,7 @@ CGCellsMorton::getMaxSupportedInteractionLength() const
 
 double 
 CGCellsMorton::getMaxInteractionLength() const
-{
-  return Sim->dynamics.getLongestInteraction();
-}
+{ return Sim->dynamics.getLongestInteraction(); }
 
 Vector 
 CGCellsMorton::calcPosition(const magnet::math::MortonNumber<3>& coords, const Particle& part) const
@@ -490,7 +484,6 @@ CGCellsMorton::calcPosition(const magnet::math::MortonNumber<3>& coords, const P
 Vector 
 CGCellsMorton::calcPosition(const magnet::math::MortonNumber<3>& coords) const
 {
-  //We always return the cell that is periodically nearest to the particle
   Vector primaryCell;
   
   for (size_t i(0); i < NDIM; ++i)
