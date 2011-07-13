@@ -20,6 +20,7 @@
 #include <magnet/math/ctime_pow.hpp>
 #include <magnet/math/ctime_safe_shift.hpp>
 #include <stdexcept>
+#include <limits>
 
 /*! \file dilated_int.hpp
  *
@@ -43,7 +44,7 @@
  * This means that if you have a 32/64bit architecture, then you will
  * generate 32/64bit dilated integers.
  *
- * Finally, there is a helper class (\ref DilatedInteger), which
+ * Finally, there is a helper class (\ref magnet::math::DilatedInteger), which
  * represents a DilatedInteger to help you make type-safe code. It
  * also supports some simple math operations directly on the dilated
  * integer.
@@ -63,7 +64,7 @@ namespace magnet {
       static const size_t uint_bits = sizeof(size_t) * 8;
       
       /*! \brief The number of usable bits in the dilated integer
-       * (\f$s\$).
+       * (\f$s\f$).
        *
        * This is technically a minimum value, as there may be 1 extra
        * bit available for some values of the dilation. E.g., with a
@@ -123,7 +124,10 @@ namespace magnet {
       struct b
       { static const size_t result = x<d, ctime_pow<d - 1, dilation_rounds<d>::result - i + 1>::result>::result; };
       
-      //! \brief Produces a \ref result with the lowest \ref n bits set.
+      /*! \brief Produces a result with the lowest n bits set.
+       *
+       * \tparam n The number of set bits to generate.
+       */
       template <size_t n>
       struct getnbits
       { static const size_t result = (ctime_safe_lshift<size_t,1, n>::result - 1); };
@@ -342,9 +346,9 @@ namespace magnet {
     template<size_t d>
     inline size_t dilate(size_t val)
     {
-#ifdef MAGNET_DYNAMO
+#ifdef MAGNET_DEBUG
       if (val > dilatedinteger::maxDilatableValue<d>::result)
-	throw << std::out_of_range("Cannot dilate value");
+	throw std::out_of_range("Cannot dilate such a large value");
 #endif
       return dilatedinteger::dilate<d>::eval(val);
     };
@@ -358,6 +362,10 @@ namespace magnet {
     template<size_t d>
     inline size_t undilate(size_t val)
     {
+#ifdef MAGNET_DEBUG
+      if (val > dilatedinteger::maxDilatedValue<d>::result)
+	throw std::out_of_range("Cannot undilate such a large value");
+#endif
       return dilatedinteger::undilate<d>::eval(val);
     };
 
@@ -400,19 +408,23 @@ namespace magnet {
       /*! \brief Assignment operator. */
       inline void operator=(const DilatedInteger& i) { _value = i._value; }
       
-      ///@{
+      //! \brief Subtraction operator.
       inline DilatedInteger operator-(const DilatedInteger& o) const
       { return DilatedInteger((_value - o._value) & dilatedMask, 0); }
       
+      //! \brief Addition operator.
       inline DilatedInteger operator+(const DilatedInteger& o) const
       { return DilatedInteger((_value + (~dilatedMask) + o._value) & dilatedMask, 0); }
       
+      //! \brief Increment operator.
       inline DilatedInteger& operator++() 
       { _value = (_value - dilatedMask) & dilatedMask; return *this; }
       
+      //! \brief Decrement operator.
       inline DilatedInteger& operator--() 
       { _value = (_value - 1) & dilatedMask; return *this; }
 
+      //! \brief Inplace subtraction operator.
       inline DilatedInteger& operator-=(const DilatedInteger& o)
       { 
 	_value -= o._value; 
@@ -420,6 +432,7 @@ namespace magnet {
 	return *this;
       }
 
+      //! \brief Inplace addition operator.
       inline DilatedInteger& operator+=(const DilatedInteger& o)
       { 
 	_value += (~dilatedMask) + o._value;
@@ -427,24 +440,48 @@ namespace magnet {
 	return *this;
       }
       
+      //! \brief Comparison operator.
       inline bool operator==(const DilatedInteger& o) const
       { return _value == o._value; }
       
+      //! \brief Inequality operator.
       inline bool operator!=(const DilatedInteger& o) const
       { return _value != o._value; }
       
+      //! \brief Less-than operator.
       inline bool operator<(const DilatedInteger& o) const
       { return _value < o._value; }
       
+      //! \brief Greater-than operator.
       inline bool operator>(const DilatedInteger& o) const
       { return _value > o._value; }
       
+      //! \brief Less-than-or-equal operator.
       inline bool operator<=(const DilatedInteger& o) const
       { return _value <= o._value; }
       
+      //! \brief Greater-than-or-equal operator.
       inline bool operator>=(const DilatedInteger& o) const
       { return _value >= o._value; }
-      ///@}
+
+      /*! \brief Modulus operator (expensive).
+       *
+       * A complication with the modulus operation is that the real
+       * value actually has less bits than the type. This means that
+       * large overflows are not wrapped correctly.
+       *
+       * To fix this we simply mask off the unused bits of the real
+       * value.
+       */
+      inline DilatedInteger operator%(const size_t& mod) const
+      { return DilatedInteger(getRealValue() % mod); }
+
+      //! \brief Inplace modulus operator (expensive).
+      inline DilatedInteger& operator%=(size_t mod)
+      {
+	operator=(getRealValue() % mod);
+	return *this;
+      }
       
     private:
       template<class T> friend struct std::numeric_limits; 
@@ -471,8 +508,8 @@ namespace magnet {
 
 
 namespace std {
-  /*! \brief A specialization of numeric_limits for \ref
-   * DilatedInteger classes.
+  /*! \brief A specialization of numeric_limits for
+   * \ref magnet::math::DilatedInteger classes.
    */
   template <size_t d>
   struct numeric_limits<magnet::math::DilatedInteger<d> > 

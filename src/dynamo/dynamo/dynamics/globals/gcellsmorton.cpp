@@ -128,83 +128,64 @@ CGCellsMorton::runEvent(const Particle& part, const double) const
   
   size_t cellDirection = abs(cellDirectionInt) - 1;
 
-  magnet::math::MortonNumber<3> inCell(oldCell);
+  //The coordinates of the new center cell in the neighbourhood of the
+  //particle
+  magnet::math::MortonNumber<3> newNBCell(oldCell);
 
   {
-    magnet::math::MortonNumber<3> dendCell(inCell);
+    //The position of the cell the particle will end up in
+    magnet::math::MortonNumber<3> dendCell(newNBCell);
     
     if (cellDirectionInt > 0)
       {
 	++dendCell[cellDirection];
-	inCell[cellDirection] = dendCell[cellDirection] + dilatedOverlink;	
-
-	if (dendCell[cellDirection] > dilatedCellMax[cellDirection])
-	    dendCell[cellDirection] = --dendCell[cellDirection]
-	      - dilatedCellMax[cellDirection];
-
-	if (inCell[cellDirection] > dilatedCellMax[cellDirection])
-	  inCell[cellDirection] = --inCell[cellDirection]
-	    - dilatedCellMax[cellDirection];
+	newNBCell[cellDirection] = dendCell[cellDirection] + dilatedOverlink;
       }
     else
       {
-	--dendCell[cellDirection];
-	inCell[cellDirection] = dendCell[cellDirection] - dilatedOverlink;
-
-	if (dendCell[cellDirection] > dilatedCellMax[cellDirection])
-	  dendCell[cellDirection] = dendCell[cellDirection]
-	    - (std::numeric_limits<magnet::math::DilatedInteger<3> >::max() - dilatedCellMax[cellDirection]);
-
-	if (inCell[cellDirection] > dilatedCellMax[cellDirection])
-	  inCell[cellDirection] = inCell[cellDirection]
-	    - (std::numeric_limits<magnet::math::DilatedInteger<3> >::max() - dilatedCellMax[cellDirection]);
+	//We add on the dilatedCellMax, to prevent underflow errors with the subtraction
+	dendCell[cellDirection] += dilatedCellMax[cellDirection] - 1;
+	newNBCell[cellDirection] = dendCell[cellDirection] + dilatedCellMax[cellDirection] - dilatedOverlink;
       }
 
+    dendCell[cellDirection] %= cellCount[cellDirection];
+    newNBCell[cellDirection] %= cellCount[cellDirection];
     endCell = dendCell.getMortonNum();
   }
     
   removeFromCell(part.getID());
   addToCell(part.getID(), endCell);
 
-  //Get rid of the virtual event that is next, update is delayed till
-  //after all events are added
+  //Get rid of the virtual event we're running, an updated event is
+  //pushed after all other events are added
   Sim->ptrScheduler->popNextEvent();
+
 
   //Particle has just arrived into a new cell warn the scheduler about
   //its new neighbours so it can add them to the heap
   //Holds the displacement in each dimension, the unit is cells!
-  BOOST_STATIC_ASSERT(NDIM==3);
 
   //These are the two dimensions to walk in
-  size_t dim1 = cellDirection + 1 - 3 * (cellDirection > 1),
-    dim2 = cellDirection + 2 - 3 * (cellDirection > 0);
+  size_t dim1 = (cellDirection + 1) % 3,
+    dim2 = (cellDirection + 2) % 3;
 
-  inCell[dim1] = inCell[dim1] - dilatedOverlink;
-  inCell[dim2] = inCell[dim2] - dilatedOverlink;
+  newNBCell[dim1] += dilatedCellMax[dim1] - dilatedOverlink;
+  newNBCell[dim2] += dilatedCellMax[dim2] - dilatedOverlink;
   
-  //Test if the data has looped around
-  if (inCell[dim1] > dilatedCellMax[dim1])
-    inCell[dim1] = inCell[dim1] - (std::numeric_limits<magnet::math::DilatedInteger<3> >::max() - dilatedCellMax[dim1]);
+  size_t walkLength = 2 * overlink + 1;
 
-  if (inCell[dim2] > dilatedCellMax[dim2]) 
-    inCell[dim2] = inCell[dim2] - (std::numeric_limits<magnet::math::DilatedInteger<3> >::max() - dilatedCellMax[dim2]);
-
-  int walkLength = 2 * overlink + 1;
-
-  const magnet::math::DilatedInteger<3> saved_coord(inCell[dim1]);
+  const magnet::math::DilatedInteger<3> saved_coord(newNBCell[dim1]);
 
   //We now have the lowest cell coord, or corner of the cells to update
-  for (int iDim(0); iDim < walkLength; ++iDim)
+  for (size_t iDim(0); iDim < walkLength; ++iDim)
     {
-      if (inCell[dim2] > dilatedCellMax[dim2])
-	inCell[dim2] = 0;
+      newNBCell[dim2] %= cellCount[dim2];
 
-      for (int jDim(0); jDim < walkLength; ++jDim)
+      for (size_t jDim(0); jDim < walkLength; ++jDim)
 	{
-	  if (inCell[dim1] > dilatedCellMax[dim1])
-	    inCell[dim1] = 0;
+	  newNBCell[dim1] %= cellCount[dim1];
   
-	  for (int next = list[inCell.getMortonNum()]; next >= 0; 
+	  for (int next = list[newNBCell.getMortonNum()]; next >= 0; 
 	       next = partCellData[next].next)
 	    {
 	      if (isUsedInScheduler)
@@ -214,13 +195,11 @@ CGCellsMorton::runEvent(const Particle& part, const double) const
 		nbs.second(part, next);
 	    }
 	  
-	  
-	  ++inCell[dim1];
+	  ++newNBCell[dim1];
 	}
 
-      inCell[dim1] = saved_coord;
-      
-      ++inCell[dim2];
+      newNBCell[dim1] = saved_coord; 
+      ++newNBCell[dim2];
     }
 
   //Tell about the new locals
@@ -246,7 +225,7 @@ CGCellsMorton::runEvent(const Particle& part, const double) const
   //Debug section
 #ifdef DYNAMO_WallCollDebug
   {
-    magnet::math::MortonNumber<3> inCellv(oldCell);
+    magnet::math::MortonNumber<3> newNBCellv(oldCell);
     magnet::math::MortonNumber<3> endCellv(endCell);
     
     std::cerr << "\nCGWall sysdt " 
@@ -254,8 +233,8 @@ CGCellsMorton::runEvent(const Particle& part, const double) const
 	      << "  WALL ID "
 	      << part.getID()
 	      << "  from <" 
-	      << inCellv.data[0].getRealVal() << "," << inCellv.data[1].getRealVal() 
-	      << "," << inCellv.data[2].getRealVal()
+	      << newNBCellv.data[0].getRealVal() << "," << newNBCellv.data[1].getRealVal() 
+	      << "," << newNBCellv.data[2].getRealVal()
 	      << "> to <" 
 	      << endCellv.data[0].getRealVal() << "," << endCellv.data[1].getRealVal() 
 	      << "," << endCellv.data[2].getRealVal();

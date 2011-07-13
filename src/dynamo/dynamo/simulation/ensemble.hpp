@@ -14,9 +14,6 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-/*! \file is_ensemble.hpp
- * \brief Contains the definition of the Ensemble class.
- */
 #pragma once
 
 #include <dynamo/base.hpp>
