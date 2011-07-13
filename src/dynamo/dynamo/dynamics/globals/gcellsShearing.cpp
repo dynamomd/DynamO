@@ -31,7 +31,7 @@
 
 CGCellsShearing::CGCellsShearing(dynamo::SimData* nSim, 
 				 const std::string& name):
-  CGCells(nSim, "ShearingCells", NULL)
+  CGCellsMorton(nSim, "ShearingCells", NULL)
 {
   globName = name;
   dout << "Shearing Cells Loaded" << std::endl;
@@ -39,7 +39,7 @@ CGCellsShearing::CGCellsShearing(dynamo::SimData* nSim,
 
 CGCellsShearing::CGCellsShearing(const magnet::xml::Node& XML, 
 				 dynamo::SimData* ptrSim):
-  CGCells(ptrSim, "ShearingCells")
+  CGCellsMorton(ptrSim, "ShearingCells")
 {
   operator<<(XML);
 
@@ -62,9 +62,7 @@ CGCellsShearing::initialise(size_t nID)
 
 void
 CGCellsShearing::outputXML(magnet::xml::XmlStream& XML) const
-{
-  CGCells::outputXML(XML, std::string("ShearingCells"));
-}
+{ CGCellsMorton::outputXML(XML, "ShearingCells"); }
 
 GlobalEvent 
 CGCellsShearing::getEvent(const Particle& part) const
@@ -79,10 +77,9 @@ CGCellsShearing::getEvent(const Particle& part) const
   return GlobalEvent(part,
 		     Sim->dynamics.getLiouvillean().
 		     getSquareCellCollision2
-		     (part, cells[partCellData[part.getID()].cell].origin, 
+		     (part, calcPosition(partCellData[part.getID()].cell), 
 		      cellDimension)
-		     -Sim->dynamics.getLiouvillean().getParticleDelay(part)
-		     ,
+		     - Sim->dynamics.getLiouvillean().getParticleDelay(part),
 		     CELL, *this);
 }
 
@@ -92,65 +89,49 @@ CGCellsShearing::runEvent(const Particle& part, const double) const
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
   size_t oldCell(partCellData[part.getID()].cell);
+  magnet::math::MortonNumber<3> oldCellCoords(oldCell);
+  Vector oldCellPosition(calcPosition(oldCellCoords));
 
   //Determine the cell transition direction, its saved
   int cellDirectionInt(Sim->dynamics.getLiouvillean().
-		       getSquareCellCollision3
-		       (part, cells[oldCell].origin, 
-			cellDimension));
+		       getSquareCellCollision3(part, oldCellPosition, cellDimension));
   
   size_t cellDirection = abs(cellDirectionInt) - 1;
 
-  int endCell(-1); //The ID of the cell the particle enters
-
-  Vector  pos(part.getPosition() - cells[oldCell].origin), 
-    vel(part.getVelocity());
-
-  Sim->dynamics.BCs().applyBC(pos, vel);
+  magnet::math::MortonNumber<3> endCell; //The ID of the cell the particle enters
 
   if ((cellDirection == 1) &&
-      (cells[oldCell].coords[1] 
-       == ((cellDirectionInt < 0) ? 0 : (cellCount[1] - 1))))
+      (oldCellCoords[1] == ((cellDirectionInt < 0) ? 0 : (cellCount[1] - 1))))
     {
       //We're wrapping in the y direction, we have to compute
       //which cell its entering
-      
+      endCell = oldCellCoords;
+      endCell[1] = (endCell[1].getRealValue() + cellCount[1] 
+		    + ((cellDirectionInt < 0) ?  -1 : 1)) % cellCount[1];
+
+      //Remove the old x contribution
       //Calculate the final x value
       //Time till transition, assumes the particle is up to date
-      double dt = Sim->dynamics.getLiouvillean().getSquareCellCollision2
-	(part, cells[partCellData[part.getID()].cell].origin, 
-	 cellDimension);
+      double dt = Sim->dynamics.getLiouvillean().getSquareCellCollision2(part, oldCellPosition, cellDimension);
      
-      //Remove the old x contribution
-      endCell = oldCell - cells[oldCell].coords[0];
-      
-      //Update the y dimension
-      if (cellDirectionInt < 0)
-	endCell += cellCount[0] * (cellCount[1]-1);
-      else
-	endCell -= cellCount[0] * (cellCount[1]-1);
-
       //Predict the position of the particle in the x dimension
       Sim->dynamics.getLiouvillean().advanceUpdateParticle(part, dt);
-      Vector  tmpPos = part.getPosition();
-
-      //This just ensures we wrap the image
-      if (cellDirectionInt < 0)
-	tmpPos[1] -= 0.5 * cellDimension[1];
-      else
-	tmpPos[1] += 0.5 * cellDimension[1];
-
+      Vector tmpPos = part.getPosition();
       //This rewinds the particle again
       Sim->dynamics.getLiouvillean().updateParticle(part);
+
+      //Adding this extra half cell ensures we get into the next
+      //simulation image, to calculate the position of the new cell
+      tmpPos[1] += ((cellDirectionInt < 0) ? -0.5 : 0.5) * cellDimension[1];
 
       //Determine the x position (in cell coords) of the particle and
       //add it to the endCellID
       Sim->dynamics.BCs().applyBC(tmpPos, dt);
-      endCell += int((tmpPos[0] + 0.5 * Sim->primaryCellSize[0]) 
-		     / cellLatticeWidth[0]);
+      
+      endCell[0] = getCellID(tmpPos)[0];
 
       removeFromCell(part.getID());
-      addToCell(part.getID(), endCell);
+      addToCell(part.getID(), endCell.getMortonNum());
       
       //Get rid of the virtual event that is next, update is delayed till
       //after all events are added
@@ -161,22 +142,25 @@ CGCellsShearing::runEvent(const Particle& part, const double) const
       //of code
       if (isUsedInScheduler)
 	getParticleNeighbourhood(part, magnet::function::MakeDelegate(Sim->ptrScheduler, 
-								  &CScheduler::addInteractionEvent));
+								      &CScheduler::addInteractionEvent));
       
       BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
 	getParticleNeighbourhood(part, nbs.second);
-      
-
     }
-  else if ((cellDirection == 1) && 
-	   (cells[oldCell].coords[1] == ((cellDirectionInt < 0) ? 1 : (cellCount[1] - 2))))
+  else if ((cellDirection == 1) &&
+	   (oldCellCoords[1] == ((cellDirectionInt < 0) ? 1 : (cellCount[1] - 2))))
     {
       //We're entering the boundary of the y direction
       //Calculate the end cell, no boundary wrap check required
-      endCell = oldCell + cellCount[0] * ((cellDirectionInt < 0) ? -1 : 1);
-      
+      endCell = oldCellCoords;
+      if (cellDirectionInt > 0)
+	endCell[cellDirection] = (endCell[cellDirection].getRealValue() + 1) % cellCount[cellDirection];
+      else
+	endCell[cellDirection] = (endCell[cellDirection].getRealValue() 
+				  + cellCount[cellDirection] - 1) % cellCount[cellDirection];
+
       removeFromCell(part.getID());
-      addToCell(part.getID(), endCell);
+      addToCell(part.getID(), endCell.getMortonNum());
       
       //Get rid of the virtual event that is next, update is delayed till
       //after all events are added
@@ -185,7 +169,7 @@ CGCellsShearing::runEvent(const Particle& part, const double) const
       //Check the extra LE neighbourhood strip
       if (isUsedInScheduler)
 	getExtraLEParticleNeighbourhood(part, magnet::function::MakeDelegate(Sim->ptrScheduler,
-									 &CScheduler::addInteractionEvent));
+									     &CScheduler::addInteractionEvent));
       
       BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
 	getExtraLEParticleNeighbourhood(part, nbs.second);
@@ -193,87 +177,79 @@ CGCellsShearing::runEvent(const Particle& part, const double) const
   else
     {
       //Here we follow the same procedure (except one more if statement) as the original cell list for new neighbours
-      size_t cellpow(1);
-      
-      for (size_t iDim(0); iDim < cellDirection; ++iDim)
-	cellpow *= cellCount[iDim];
-      
-      int velsign = 2 * (cellDirectionInt > 0) - 1;
-      int offset = (cellDirectionInt > 0) * (cellCount[cellDirection] - 1);
-      
-      endCell = oldCell + cellpow * velsign;
-      int inCell = oldCell + 2 * cellpow * velsign;
+      //The coordinates of the new center cell in the neighbourhood of the
+      //particle
+      magnet::math::MortonNumber<3> newNBCell(oldCell);
       
       {
-	int tmpint = velsign * cellpow * cellCount[cellDirection];
-	if (cells[oldCell].coords[cellDirection] == offset)
+	//The position of the cell the particle will end up in
+	magnet::math::MortonNumber<3> dendCell(newNBCell);
+	
+	if (cellDirectionInt > 0)
 	  {
-	    endCell -= tmpint;
-	    inCell -= tmpint;
+	    dendCell[cellDirection] = (dendCell[cellDirection].getRealValue() + 1) % cellCount[cellDirection];
+	    newNBCell[cellDirection] = (dendCell[cellDirection].getRealValue() + overlink) % cellCount[cellDirection];
 	  }
-	else if (cells[oldCell].coords[cellDirection] == offset - velsign)
-	  inCell -= tmpint;
+	else
+	  {
+	    //We use the trick of adding cellCount to convert the
+	    //subtraction to an addition, to prevent errors in the modulus
+	    //of underflowing unsigned integers.
+	    dendCell[cellDirection] = (dendCell[cellDirection].getRealValue() 
+				       + cellCount[cellDirection] - 1) % cellCount[cellDirection];
+	    newNBCell[cellDirection] = (dendCell[cellDirection].getRealValue() 
+					+ cellCount[cellDirection] - overlink) % cellCount[cellDirection];
+	  }
+	endCell = dendCell;
       }
-      
+    
       removeFromCell(part.getID());
-      addToCell(part.getID(), endCell);
+      addToCell(part.getID(), endCell.getMortonNum());
 
-      //Get rid of the virtual event that is next, update is delayed till
-      //after all events are added
+      //Get rid of the virtual event we're running, an updated event is
+      //pushed after all other events are added
       Sim->ptrScheduler->popNextEvent();
-      
-      if ((cellDirection == 2) 
-	  && ((cells[oldCell].coords[1] == 0) 
-	      || (cells[oldCell].coords[1] == cellCount[1] - 1)))
+
+
+      if ((cellDirection == 2) &&
+	  ((oldCellCoords[1] == 0) || (oldCellCoords[1] == cellCount[1] -1)))
 	//We're at the boundary moving in the z direction, we must
 	//add the new LE strips as neighbours	
 	//We just check the entire Extra LE neighbourhood
 	{
 	  if (isUsedInScheduler)
 	    getExtraLEParticleNeighbourhood(part, magnet::function::MakeDelegate(Sim->ptrScheduler,
-									     &CScheduler::addInteractionEvent));
-
+										 &CScheduler::addInteractionEvent));
+	  
 	  BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
 	    getExtraLEParticleNeighbourhood(part, nbs.second);
 	}
 
-      CVector<int> coords(cells[inCell].coords);
-      
       //Particle has just arrived into a new cell warn the scheduler about
       //its new neighbours so it can add them to the heap
       //Holds the displacement in each dimension, the unit is cells!
-      BOOST_STATIC_ASSERT(NDIM==3);
-      
+
       //These are the two dimensions to walk in
-      size_t dim1 = cellDirection + 1 - 3 * (cellDirection > 1),
-	dim2 = cellDirection + 2 - 3 * (cellDirection > 0);
-      
-      size_t dim1pow(1), dim2pow(1);
-      
-      for (size_t iDim(0); iDim < dim1; ++iDim)
-	dim1pow *= cellCount[iDim];
-      
-      for (size_t iDim(0); iDim < dim2; ++iDim)
-	dim2pow *= cellCount[iDim];
-      
-      if (--coords[dim1] < 0) coords[dim1] = cellCount[dim1] - 1;
-      if (--coords[dim2] < 0) coords[dim2] = cellCount[dim2] - 1;
-      
-      int nb(getCellIDprebounded(coords));
-      
-      //We now have the lowest cell coord, or corner of the cells to
-      //check the contents of
-      for (int iDim(0); iDim < 3; ++iDim)
+      size_t dim1 = (cellDirection + 1) % 3,
+	dim2 = (cellDirection + 2) % 3;
+
+      newNBCell[dim1] += cellCount[dim1] - overlink;
+      newNBCell[dim2] += cellCount[dim1] - overlink;
+  
+      size_t walkLength = 2 * overlink + 1;
+
+      const magnet::math::DilatedInteger<3> saved_coord(newNBCell[dim1]);
+
+      //We now have the lowest cell coord, or corner of the cells to update
+      for (size_t iDim(0); iDim < walkLength; ++iDim)
 	{
-	  if (coords[dim2] + iDim == cellCount[dim2]) 
-	    nb -= dim2pow * cellCount[dim2];
-	  
-	  for (int jDim(0); jDim < 3; ++jDim)
-	    {	  
-	      if (coords[dim1] + jDim == cellCount[dim1]) 
-		nb -= dim1pow * cellCount[dim1];
-	      
-	      for (int next = cells[nb].list; next >= 0; 
+	  newNBCell[dim2] %= cellCount[dim2];
+
+	  for (size_t jDim(0); jDim < walkLength; ++jDim)
+	    {
+	      newNBCell[dim1] %= cellCount[dim1];
+  
+	      for (int next = list[newNBCell.getMortonNum()]; next >= 0; 
 		   next = partCellData[next].next)
 		{
 		  if (isUsedInScheduler)
@@ -282,27 +258,24 @@ CGCellsShearing::runEvent(const Particle& part, const double) const
 		  BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
 		    nbs.second(part, next);
 		}
-	      
-	      nb += dim1pow;
+	  
+	      ++newNBCell[dim1];
 	    }
-	  
-	  if (coords[dim1] + 2 >= cellCount[dim1]) nb += dim1pow * cellCount[dim1];
-	  
-	  nb += dim2pow - 3 * dim1pow;
+
+	  newNBCell[dim1] = saved_coord; 
+	  ++newNBCell[dim2];
 	}
-      
     }
-   
-  //Tell about the new locals
-  BOOST_FOREACH(const size_t& lID, cells[endCell].locals)
+	   
+  BOOST_FOREACH(const size_t& lID, cells[endCell.getMortonNum()])
     {
       if (isUsedInScheduler)
 	Sim->ptrScheduler->addLocalEvent(part, lID);
-
+      
       BOOST_FOREACH(const nbHoodSlot& nbs, sigNewLocalNotify)
 	nbs.second(part, lID);
     }
-      
+  
   //Push the next virtual event, this is the reason the scheduler
   //doesn't need a second callback
   Sim->ptrScheduler->pushEvent(part, getEvent(part));
@@ -334,76 +307,51 @@ CGCellsShearing::runEvent(const Particle& part, const double) const
 
 void 
 CGCellsShearing::getParticleNeighbourhood(const Particle& part,
-				   const nbHoodFunc& func) const
+					  const nbHoodFunc& func) const
 {
-  CGCells::getParticleNeighbourhood(part, func);
+  CGCellsMorton::getParticleNeighbourhood(part, func);
   
-  CVector<int> coords(cells[partCellData[part.getID()].cell].coords);
-  if ((coords[1] == 0) || (coords[1] == cellCount[1] - 1))
-    getExtraLEParticleNeighbourhood(part, func);
+  size_t cell(partCellData[part.getID()].cell);
+  magnet::math::MortonNumber<3> cellCoords(cell);
 
+  if ((cellCoords[1] == 0) || (cellCoords[1] == dilatedCellMax[1]))
+    getExtraLEParticleNeighbourhood(part, func);
 }
 
 void 
 CGCellsShearing::getExtraLEParticleNeighbourhood(const Particle& part,
 						 const nbHoodFunc& func) const
 {
-  size_t cellID = partCellData[part.getID()].cell;
-  CVector<int> coords(cells[cellID].coords);
+  size_t cell(partCellData[part.getID()].cell);
+  magnet::math::MortonNumber<3> cellCoords(cell);
   
 #ifdef DYNAMO_DEBUG
-  if ((coords[1] != 0) && (coords[1] != cellCount[1] - 1))
+  if ((cellCoords[1] != 0) && (cellCoords[1] != dilatedCellMax[1]))
     M_throw() << "Shouldn't call this function unless the particle is at a border in the y dimension";
 #endif 
 
   //Move to the bottom of x
-  cellID -= coords[0];	
-  coords[0] = 0;
-  
-  //Get the y plane to test in
-  if (coords[1])
-    {
-      //At the top, assuming the above debug statement won't trigger
-      coords[1] = 0;
-      cellID -= cellCount[0] * (cellCount[1] - 1);
-    }
-  else
-    {
-      //At the bottom
-      coords[1] = cellCount[1] - 1;
-      cellID += cellCount[0] * (cellCount[1] - 1);
-    }
-  
+  cellCoords[0] = 0;
+  //Get the correct y-side (its the opposite to the particles current side)
+  cellCoords[1] = (cellCoords[1] > 0) ? 0 : dilatedCellMax[1];  
   ////Move a single cell down in Z
-  if (coords[2])
-    {
-      //Got room to move down
-      --coords[2];
-      cellID -= cellCount[0] * cellCount[1];
-    }
-  else
-    {
-      //Already at the bottom of the Z component, need to wrap
-      coords[2] = cellCount[2] - 1;
-      cellID += cellCount[0] * cellCount[1] * (cellCount[2] - 1);
-    }
-  
-  
-  for (int i(0); i < 3; ++i)
-    {
-      if (coords[2] + i == cellCount[2]) cellID -= cellCount[0] * cellCount[1] * cellCount[2];
+  cellCoords[2] = (cellCoords[2].getRealValue() + cellCount[2] - 1) % cellCount[2];
 
-      for (int j(0); j < cellCount[0]; ++j)
+  for (size_t i(0); i < 3; ++i)
+    {
+      cellCoords[2] %= cellCount[2];
+
+      for (size_t j(0); j < cellCount[0]; ++j)
 	{
-	  for (int next(cells[cellID].list);
-	       next >= 0; next = partCellData[next].next)
-	    if (next != int(part.getID()))
-	      func(part, next);
+	  for (int next = list[cellCoords.getMortonNum()]; next >= 0; 
+	       next = partCellData[next].next)
+	    func(part, next);
 
-	  ++cellID;
+	  ++cellCoords[0];
 	}
-    
-      cellID += cellCount[0] * (cellCount[1] - 1);
+      ++cellCoords[2];
+      cellCoords[0] = 0;
     }
 }
 
+  

@@ -159,12 +159,12 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
-	    Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	    Sim->dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
 	  }
 	else
 	  {
 	    if (vm.count("b2"))
-	      Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	      Sim->dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
 	    else
 	      Sim->dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
 	  }
@@ -283,7 +283,7 @@ CIPPacker::initialise()
 
 	//New scheduler and global
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
-	Sim->dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
+	Sim->dynamics.addGlobal(new CGCellsMorton(Sim, "SchedulerNBList"));
 
 	Sim->dynamics.units().setUnitLength(particleDiam);
 	//Set the unit energy to 1 (assuming the unit of mass is 1);
@@ -479,7 +479,7 @@ CIPPacker::initialise()
 	    Sim->ptrScheduler 
 	      = new CSNeighbourList(Sim, new DefaultSorter(Sim));
 
-	    Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	    Sim->dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
 	  }
 	else
 	  {
@@ -629,7 +629,7 @@ CIPPacker::initialise()
 
 	//New scheduler and global
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
-	Sim->dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
+	Sim->dynamics.addGlobal(new CGCellsMorton(Sim, "SchedulerNBList"));
 
 	Sim->dynamics.applyBC<BCPeriodic>();
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
@@ -848,7 +848,7 @@ CIPPacker::initialise()
 	Sim->primaryCellSize = getNormalisedCellDimensions();
 	//Cut off the x periodic boundaries
 	Sim->dynamics.applyBC<BCPeriodicExceptX>();
-	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	Sim->dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
 
 	double simVol = 1.0;
 
@@ -947,7 +947,7 @@ CIPPacker::initialise()
 	//Set up the system now
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
 
-	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	Sim->dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
 
 	Sim->dynamics.applyBC<BCPeriodic>();
 
@@ -1052,7 +1052,7 @@ CIPPacker::initialise()
 
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
 
-	Sim->dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
+	Sim->dynamics.addGlobal(new CGCellsMorton(Sim, "SchedulerNBList"));
 
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
@@ -1139,7 +1139,7 @@ CIPPacker::initialise()
 	{
 	  dout << "Neighbour List scheduler selected" << std::endl;
 	  Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
-	  Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	  Sim->dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
 	}
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
@@ -1662,7 +1662,7 @@ CIPPacker::initialise()
 
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
 
-	Sim->dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList"));
+	Sim->dynamics.addGlobal(new CGCellsMorton(Sim, "SchedulerNBList"));
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -1759,7 +1759,7 @@ CIPPacker::initialise()
 
 	//Set up a standard simulation
 	Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
-	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	Sim->dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
 
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
@@ -1886,8 +1886,8 @@ CIPPacker::initialise()
 	  if (vm.count("i2"))
 	    overlink = vm["i2"].as<size_t>();
 
-	  Sim->dynamics.addGlobal(new CGCells(Sim, "SchedulerNBList",
-					      overlink));
+	  Sim->dynamics.addGlobal(new CGCellsMorton(Sim, "SchedulerNBList",
+						    overlink));
 	}
 
 	Sim->dynamics.units().setUnitLength(particleDiam);
@@ -2258,7 +2258,7 @@ CIPPacker::initialise()
 	  latticeSites(packptr->placeObjects(particleCOM));
 
 	Sim->dynamics.applyBC<BCNone>();
-	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	Sim->dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
 
 	double simVol = 1.0;
 
@@ -2352,10 +2352,10 @@ CIPPacker::initialise()
 	if (vm.count("rectangular-box"))
 	  {
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
-	    Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	    Sim->dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
 	  }
 	else
-	  Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	  Sim->dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
 
 	Sim->dynamics.applyBC<BCPeriodic>();
 
@@ -2468,7 +2468,7 @@ CIPPacker::initialise()
 	boxlimit *= 0.9;
 
 	Sim->dynamics.applyBC<BCPeriodicXOnly>();
-	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	Sim->dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
 
 	double particleDiam 
 	  = pow(vm["density"].as<double>() / latticeSites.size(), double(1.0 / 3.0))
@@ -2526,7 +2526,7 @@ CIPPacker::initialise()
 
 	Sim->primaryCellSize = getNormalisedCellDimensions();
 	Sim->dynamics.applyBC<BCNone>();
-	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	Sim->dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
 
 	double simVol = 1.0;
 
@@ -2615,7 +2615,7 @@ CIPPacker::initialise()
 
 	Sim->dynamics.units().setUnitLength(particleDiam);
 	Sim->dynamics.applyBC<BCPeriodic>();
-	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	Sim->dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
 	
 
 	//Set up a standard simulation
@@ -2757,7 +2757,7 @@ CIPPacker::initialise()
 	    Sim->ptrScheduler 
 	      = new CSNeighbourList(Sim, new DefaultSorter(Sim));
 
-	    Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	    Sim->dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
 	  }
 	else
 	  {
@@ -3316,7 +3316,7 @@ CIPPacker::initialise()
 
 	Sim->dynamics.units().setUnitLength(particleDiam);
 	Sim->dynamics.applyBC<BCPeriodic>();
-	Sim->dynamics.addGlobal(new CGCells(Sim,"SchedulerNBList"));
+	Sim->dynamics.addGlobal(new CGCellsMorton(Sim,"SchedulerNBList"));
 	
 
 	//Set up a standard simulation

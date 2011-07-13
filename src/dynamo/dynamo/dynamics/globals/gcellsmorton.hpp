@@ -26,8 +26,7 @@ class CGCellsMorton: public CGNeighbourList
 {
 public:
   CGCellsMorton(const magnet::xml::Node&, dynamo::SimData*);
-
-  CGCellsMorton(dynamo::SimData*, const std::string&);
+  CGCellsMorton(dynamo::SimData*, const std::string&, size_t overlink = 1);
 
   virtual ~CGCellsMorton() {}
 
@@ -57,7 +56,6 @@ public:
   virtual double getMaxInteractionLength() const;
 
 protected:
-  CGCellsMorton(dynamo::SimData*, const char*, void*);
 
   struct partCEntry
   {
@@ -77,7 +75,7 @@ protected:
   inline Vector calcPosition(const magnet::math::MortonNumber<3>& coords,
 			     const Particle& part) const;
 
-  inline Vector calcPosition(const magnet::math::MortonNumber<3>& coords) const;
+  Vector calcPosition(const magnet::math::MortonNumber<3>& coords) const;
 
   void addLocalEvents();
 

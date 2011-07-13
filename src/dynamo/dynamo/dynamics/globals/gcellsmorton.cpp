@@ -31,13 +31,13 @@
 #include <cstdio>
 
 
-CGCellsMorton::CGCellsMorton(dynamo::SimData* nSim, const std::string& name):
+CGCellsMorton::CGCellsMorton(dynamo::SimData* nSim, const std::string& name, size_t overlink):
   CGNeighbourList(nSim, "MortonCellNeighbourList"),
   cellCount(0),
   cellDimension(1,1,1),
   _oversizeCells(1.0),
   NCells(0),
-  overlink(1)
+  overlink(overlink)
 {
   globName = name;
   dout << "Cells Loaded" << std::endl;
@@ -55,15 +55,6 @@ CGCellsMorton::CGCellsMorton(const magnet::xml::Node& XML, dynamo::SimData* ptrS
 
   dout << "Cells Loaded" << std::endl;
 }
-
-CGCellsMorton::CGCellsMorton(dynamo::SimData* ptrSim, const char* nom, void*):
-  CGNeighbourList(ptrSim, nom),
-  cellCount(0),
-  cellDimension(1,1,1),
-  _oversizeCells(1.0),
-  NCells(0),
-  overlink(1)
-{}
 
 void 
 CGCellsMorton::operator<<(const magnet::xml::Node& XML)
