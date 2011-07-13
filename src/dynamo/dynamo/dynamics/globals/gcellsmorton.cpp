@@ -138,18 +138,19 @@ CGCellsMorton::runEvent(const Particle& part, const double) const
     
     if (cellDirectionInt > 0)
       {
-	++dendCell[cellDirection];
-	newNBCell[cellDirection] = dendCell[cellDirection] + dilatedOverlink;
+	dendCell[cellDirection] = (dendCell[cellDirection].getRealValue() + 1) % cellCount[cellDirection];
+	newNBCell[cellDirection] = (dendCell[cellDirection].getRealValue() + overlink) % cellCount[cellDirection];
       }
     else
       {
-	//We add on the dilatedCellMax, to prevent underflow errors with the subtraction
-	dendCell[cellDirection] += dilatedCellMax[cellDirection] - 1;
-	newNBCell[cellDirection] = dendCell[cellDirection] + dilatedCellMax[cellDirection] - dilatedOverlink;
+	//We use the trick of adding cellCount to convert the
+	//subtraction to an addition, to prevent errors in the modulus
+	//of underflowing unsigned integers.
+	dendCell[cellDirection] = (dendCell[cellDirection].getRealValue() 
+				   + cellCount[cellDirection] - 1) % cellCount[cellDirection];
+	newNBCell[cellDirection] = (dendCell[cellDirection].getRealValue() 
+				    + cellCount[cellDirection] - overlink) % cellCount[cellDirection];
       }
-
-    dendCell[cellDirection] %= cellCount[cellDirection];
-    newNBCell[cellDirection] %= cellCount[cellDirection];
     endCell = dendCell.getMortonNum();
   }
     
@@ -169,8 +170,8 @@ CGCellsMorton::runEvent(const Particle& part, const double) const
   size_t dim1 = (cellDirection + 1) % 3,
     dim2 = (cellDirection + 2) % 3;
 
-  newNBCell[dim1] += dilatedCellMax[dim1] - dilatedOverlink;
-  newNBCell[dim2] += dilatedCellMax[dim2] - dilatedOverlink;
+  newNBCell[dim1] += cellCount[dim1] - overlink;
+  newNBCell[dim2] += cellCount[dim1] - overlink;
   
   size_t walkLength = 2 * overlink + 1;
 
