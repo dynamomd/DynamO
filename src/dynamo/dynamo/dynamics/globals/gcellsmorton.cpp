@@ -28,7 +28,6 @@
 #include <magnet/math/ctime_pow.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/static_assert.hpp>
 #include <cstdio>
 
 
@@ -270,7 +269,6 @@ CGCellsMorton::reinitialise(const double& maxdiam)
 void
 CGCellsMorton::outputXML(magnet::xml::XmlStream& XML, const std::string& type) const
 {
-  //If you add anything here it also needs to go in gListAndCells.cpp too
   XML << magnet::xml::tag("Global")
       << magnet::xml::attr("Type") << type
       << magnet::xml::attr("Name") << globName;
@@ -283,9 +281,7 @@ CGCellsMorton::outputXML(magnet::xml::XmlStream& XML, const std::string& type) c
 
 void
 CGCellsMorton::outputXML(magnet::xml::XmlStream& XML) const
-{
-  outputXML(XML, "Cells");
-}
+{ outputXML(XML, "Cells"); }
 
 void
 CGCellsMorton::addCells(double maxdiam)
@@ -298,7 +294,8 @@ CGCellsMorton::addCells(double maxdiam)
 
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     {
-      cellCount[iDim] = int(Sim->primaryCellSize[iDim] / (maxdiam * (1.0 + 10 * std::numeric_limits<double>::epsilon())));
+      cellCount[iDim] = int(Sim->primaryCellSize[iDim] 
+			    / (maxdiam * (1.0 + 10 * std::numeric_limits<double>::epsilon())));
       
       if (cellCount[iDim] < 3)
 	M_throw() << "Not enough cells in " << char('x'+iDim) << " dimension, need 3+";
@@ -349,22 +346,12 @@ CGCellsMorton::addCells(double maxdiam)
   for (size_t iDim = 0; iDim < cellCount[0]; ++iDim)
     for (size_t jDim = 0; jDim < cellCount[1]; ++jDim)
       for (size_t kDim = 0; kDim < cellCount[2]; ++kDim)
-	{
-	  magnet::math::MortonNumber<3> coords(iDim, jDim, kDim);
-	  size_t id = coords.getMortonNum();
-	  if (id > list.size())
-	    M_throw() << "list is " << list.size() << " big and accessing " << id << " coords are "
-		      << " x = " << iDim
-		      << " y = " << jDim
-		      << " z = " << kDim
-	      ;
-	  list[id] = -1;
-	}
+	list[magnet::math::MortonNumber<3>(iDim, jDim, kDim).getMortonNum()] = -1;
 
   //Add the particles section
   //Required so particles find the right owning cell
   Sim->dynamics.getLiouvillean().updateAllParticles(); 
-
+  
   ////initialise the data structures
   BOOST_FOREACH(const Particle& part, Sim->particleList)
     addToCell(part.getID(), getCellID(part.getPosition()).getMortonNum());
@@ -388,14 +375,6 @@ CGCellsMorton::addLocalEvents()
 	      cells[id].push_back(local->getID());
 	}
 }
-
-//magnet::math::MortonNumber<3>
-//CGCellsMorton::getCellID(const CVector<int>& coordsold) const
-//{
-//  //PBC for vectors
-//  CVector<int> coords(coordsold);
-//
-//}
 
 magnet::math::MortonNumber<3>
 CGCellsMorton::getCellID(Vector pos) const
@@ -423,35 +402,24 @@ CGCellsMorton::getParticleNeighbourhood(const Particle& part,
 {
   BOOST_STATIC_ASSERT(NDIM==3);
 
-  const magnet::math::MortonNumber<3> center_coords(partCellData[part.getID()].cell);
-  magnet::math::MortonNumber<3> coords(center_coords);
+  const magnet::math::MortonNumber<3> particle_cell_coords(partCellData[part.getID()].cell);
 
+  magnet::math::MortonNumber<3> zero_coords;
   for (size_t iDim(0); iDim < NDIM; ++iDim)
-    {
-      coords[iDim] -= dilatedOverlink;
-      if (coords[iDim] > dilatedCellMax[iDim])
-	coords[iDim] -= std::numeric_limits<magnet::math::DilatedInteger<3> >::max() - dilatedCellMax[iDim];
-    }
+    zero_coords[iDim] = (particle_cell_coords[iDim].getRealValue() + cellCount[iDim] - overlink)
+      % cellCount[iDim];
 
-  const magnet::math::MortonNumber<3> zero_coords(coords);
-
-  coords = center_coords;
+  magnet::math::MortonNumber<3> max_coords;
   for (size_t iDim(0); iDim < NDIM; ++iDim)
-    {
-      coords[iDim] += dilatedOverlink + 1;
-      if (coords[iDim] > dilatedCellMax[iDim])
-	coords[iDim] -= dilatedCellMax[iDim] + 1;
-    }
+    max_coords[iDim] = (particle_cell_coords[iDim].getRealValue() + overlink + 1)
+      % cellCount[iDim];
 
-  const magnet::math::MortonNumber<3> max_coords(coords);
-
-  coords = zero_coords;
+  magnet::math::MortonNumber<3> coords(zero_coords);
   while (coords[2] != max_coords[2])
     {
       for (int next(list[coords.getMortonNum()]);
 	   next >= 0; next = partCellData[next].next)
-	if (next != int(part.getID()))
-	  func(part, next);
+	func(part, next);
       
       ++coords[0];
       if (coords[0] > dilatedCellMax[0]) coords[0] = 0;
@@ -472,8 +440,7 @@ void
 CGCellsMorton::getParticleLocalNeighbourhood(const Particle& part, 
 				       const nbHoodFunc& func) const
 {
-  BOOST_FOREACH(const size_t& id, 
-		cells[partCellData[part.getID()].cell])
+  BOOST_FOREACH(const size_t& id, cells[partCellData[part.getID()].cell])
     func(part, id);
 }
 

@@ -166,6 +166,7 @@ void
 OPSHCrystal::sphericalsum::operator()
   (const Particle& part, const size_t& ID) const
 {
+  if (part.getID() == ID) return;
   Vector rij = part.getPosition() - Sim->particleList[ID].getPosition();
   Sim->dynamics.BCs().applyBC(rij);
   

@@ -158,8 +158,6 @@ SThreadedNBList::fullUpdate(const Particle& p1, const Particle& p2)
   nblist.getParticleNeighbourhood(p2, magnet::function::MakeDelegate(&nbIDs2, &NBlistData::AddNBIDs));
   
   //Stream all of the particles up to date
-  Sim->dynamics.getLiouvillean().updateParticle(p1);
-  Sim->dynamics.getLiouvillean().updateParticle(p2);
   BOOST_FOREACH(const size_t& ID, nbIDs1.nbIDs) Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[ID]);
   BOOST_FOREACH(const size_t& ID, nbIDs2.nbIDs) Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[ID]);
 
@@ -285,6 +283,8 @@ void
 SThreadedNBList::addEvents2(const Particle& part, 
 			    const size_t& id) const
 {
+  if (part.getID() == id) return;
+
   const IntEvent& eevent(Sim->dynamics.getEvent(part, Sim->particleList[id]));
   
   if (eevent.getType() != NONE)

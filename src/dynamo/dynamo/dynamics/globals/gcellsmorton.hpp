@@ -31,10 +31,7 @@ public:
 
   virtual ~CGCellsMorton() {}
 
-  virtual Global* Clone() const 
-  { 
-    return new CGCellsMorton(*this); 
-  }
+  virtual Global* Clone() const { return new CGCellsMorton(*this); }
 
   virtual GlobalEvent getEvent(const Particle &) const;
 

@@ -367,8 +367,9 @@ CScheduler::runNextEvent()
 
 void 
 CScheduler::addInteractionEvent(const Particle& part, 
-				     const size_t& id) const
+				const size_t& id) const
 {
+  if (part.getID() == id) return;
   const Particle& part2(Sim->particleList[id]);
 
   Sim->dynamics.getLiouvillean().updateParticle(part2);
@@ -381,8 +382,10 @@ CScheduler::addInteractionEvent(const Particle& part,
 
 void 
 CScheduler::addInteractionEventInit(const Particle& part, 
-					 const size_t& id) const
+				    const size_t& id) const
 {
+  if (part.getID() == id) return;
+
   //We'll be smart about memory and try to add events evenly on
   //initialisation to all particles
   //
