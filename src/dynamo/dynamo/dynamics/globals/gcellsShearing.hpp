@@ -16,10 +16,10 @@
 */
 
 #pragma once
-#include "gcellsmorton.hpp"
+#include "gcells.hpp"
 #include "../ranges/1range.hpp"
 
-class CGCellsShearing: public CGCellsMorton
+class CGCellsShearing: public CGCells
 {
 public:
   CGCellsShearing(const magnet::xml::Node&, dynamo::SimData*);

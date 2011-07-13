@@ -21,6 +21,39 @@
 #include <magnet/math/ctime_safe_shift.hpp>
 #include <stdexcept>
 
+/*! \file dilated_int.hpp
+ *
+ * \brief An implementation of functions for arbitrary dilation of size_t
+ * types.
+ *
+ * This file contains two functions for dilating and undilating size_t
+ * integers. they are used like so
+ * \code //Performing a 3-dilation of an integer
+ * size_t val = 10;
+ * dilatedval = magnet::math::dilate<3>(val);
+ * undilatedval = magnet::math::undilate<3>(val);
+ * assert(undilatedval == val);
+ * \endcode
+ *
+ * The code for dilating the size_t type is generated at compile time,
+ * depending on the dilation you use. The dilated/undilated values are
+ * passed/returned as size_t types, as this is the type used for
+ * addressing memory. 
+ 
+ * This means that if you have a 32/64bit architecture, then you will
+ * generate 32/64bit dilated integers.
+ *
+ * Finally, there is a helper class (\ref DilatedInteger), which
+ * represents a DilatedInteger to help you make type-safe code. It
+ * also supports some simple math operations directly on the dilated
+ * integer.
+ *
+ * All of the implementation details of the dilation constants are at
+ * the top of this file. This is implemented using template
+ * meta-programming and is a little abstract. So I recommend that if
+ * you want to learn how this code works, I suggest you read the
+ * document backwards (bottom to top)! 
+ */
 namespace magnet {
   namespace math {
     //! \brief Implementation details  for the \ref dilate and \ref undilate functions.
@@ -327,5 +360,167 @@ namespace magnet {
     {
       return dilatedinteger::undilate<d>::eval(val);
     };
+
+
+    /*! \brief A helper class which allows mathematics to be performed
+     * directly on a dilated integer.
+     *
+     * This class is based on the paper "Fast additions on masked
+     * integers" by M. D. Adams and D. S. Wise
+     * (doi:10.1145/1149982.1149987).
+     *
+     */
+    template<size_t d>
+    class DilatedInteger
+    {
+    public:      
+      /*! \brief Default constructor.
+       */
+      inline DilatedInteger() {}
+
+      /*! \brief Construct a DilatedInteger from a undilated integer.
+       */
+      inline DilatedInteger(const size_t val):
+	_value(dilate<d>(val)) {}
+      
+      /*! \brief Copy constructor.
+       */      
+      inline DilatedInteger(const DilatedInteger<d>& o):
+	_value(o._value) {}
+      
+      /*! \brief Returns the dilated integer. */      
+      inline const size_t& getDilatedValue() const { return _value; }
+      /*! \brief Returns the undilated integer. */      
+      inline size_t getRealValue() const { return undilate<d>(_value); }
+      /*! \brief Sets this DilatedInteger to the passed dilated integer. */
+      inline void setDilatedValue(const size_t& i) { _value = i & dilatedMask; }
+      
+      /*! \brief Assignment operator for undilated values. */
+      inline void operator=(const size_t& i) { _value = dilate<d>(i); }
+      /*! \brief Assignment operator. */
+      inline void operator=(const DilatedInteger& i) { _value = i._value; }
+      
+      ///@{
+      inline DilatedInteger operator-(const DilatedInteger& o) const
+      { return DilatedInteger((_value - o._value) & dilatedMask, 0); }
+      
+      inline DilatedInteger operator+(const DilatedInteger& o) const
+      { return DilatedInteger((_value + (~dilatedMask) + o._value) & dilatedMask, 0); }
+      
+      inline DilatedInteger& operator++() 
+      { _value = (_value - dilatedMask) & dilatedMask; return *this; }
+      
+      inline DilatedInteger& operator--() 
+      { _value = (_value - 1) & dilatedMask; return *this; }
+
+      inline DilatedInteger& operator-=(const DilatedInteger& o)
+      { 
+	_value -= o._value; 
+	_value &= dilatedMask; 
+	return *this;
+      }
+
+      inline DilatedInteger& operator+=(const DilatedInteger& o)
+      { 
+	_value += (~dilatedMask) + o._value;
+	_value &= dilatedMask;
+	return *this;
+      }
+      
+      inline bool operator==(const DilatedInteger& o) const
+      { return _value == o._value; }
+      
+      inline bool operator!=(const DilatedInteger& o) const
+      { return _value != o._value; }
+      
+      inline bool operator<(const DilatedInteger& o) const
+      { return _value < o._value; }
+      
+      inline bool operator>(const DilatedInteger& o) const
+      { return _value > o._value; }
+      
+      inline bool operator<=(const DilatedInteger& o) const
+      { return _value <= o._value; }
+      
+      inline bool operator>=(const DilatedInteger& o) const
+      { return _value >= o._value; }
+      ///@}
+      
+    private:
+      template<class T> friend struct std::numeric_limits; 
+
+      /*! \brief A mask for the settable bits of the dilated integer.
+       */
+      static const size_t dilatedMask = dilatedinteger::maxDilatedValue<d>::result;
+
+      /*! \brief Hidden constructor constructing from pre-dilated
+       * integer values.
+       *
+       * This constructor is used by the numeric limits class
+       */
+      inline DilatedInteger(const size_t val, void*):
+	_value(val) {}
+
+      /*! \brief The dilated integer, stored as normalized integer at
+       * mask’s 1 bits.
+       */
+      size_t _value; 
+    };
   }
+}
+
+
+namespace std {
+  /*! \brief A specialization of numeric_limits for \ref
+   * DilatedInteger classes.
+   */
+  template <size_t d>
+  struct numeric_limits<magnet::math::DilatedInteger<d> > 
+  {
+  public:
+    static const bool is_specialized = true;
+    
+    inline static magnet::math::DilatedInteger<d> min() throw() 
+    { return magnet::math::DilatedInteger<d>(0,0); }
+    
+    inline static magnet::math::DilatedInteger<d> max() throw()
+    { return magnet::math::DilatedInteger<d>(magnet::math::dilatedinteger::maxDilatedValue<d>::result,0); }
+
+    static const int  digits = magnet::math::dilatedinteger::s<d>::result;
+    static const int  digits10 = (size_t(1) << digits) / 10;
+    static const bool is_signed = false;
+    static const bool is_integer = true;
+    static const bool is_exact = true;
+    static const int radix = 2;
+    inline static magnet::math::DilatedInteger<d> epsilon() throw() 
+    { return magnet::math::DilatedInteger<d>(1, 0); }
+    
+    static magnet::math::DilatedInteger<d> round_error() throw();
+    
+    static const int  min_exponent = 0;
+    static const int  min_exponent10 = 0;
+    static const int  max_exponent = 0;
+    static const int  max_exponent10 = 0;
+    
+    static const bool has_infinity = false;
+    static const bool has_quiet_NaN = false;
+    static const bool has_signaling_NaN = false;
+    
+    //static const float_denorm_style has_denorm = denorm absent;
+
+    static const bool has_denorm_loss = false;
+    
+    static magnet::math::DilatedInteger<d> infinity() throw();
+    static magnet::math::DilatedInteger<d> quiet_NaN() throw();
+    static magnet::math::DilatedInteger<d> signaling_NaN() throw();
+    static magnet::math::DilatedInteger<d> denorm_min() throw();
+    
+    static const bool is_iec559 = false;
+    static const bool is_bounded = true;
+    static const bool is_modulo = true;
+    
+    static const bool traps = false;
+    static const bool tinyness_before = false;
+    static const float_round_style round_style = round_toward_zero;
+  };
 }

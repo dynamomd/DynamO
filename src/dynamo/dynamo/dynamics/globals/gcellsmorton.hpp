@@ -19,7 +19,7 @@
 #include "neighbourList.hpp"
 #include "../../datatypes/vector.hpp"
 #include "../../simulation/particle.hpp"
-#include <magnet/math/dilatedint.hpp>
+#include <magnet/math/morton_number.hpp>
 #include <vector>
 
 class CGCellsMorton: public CGNeighbourList
@@ -72,15 +72,15 @@ protected:
   virtual void outputXML(magnet::xml::XmlStream&) const;
   void outputXML(magnet::xml::XmlStream&, const std::string&) const;
 
-  magnet::math::DilatedVector<3> getCellID(Vector) const;
-  magnet::math::DilatedVector<3> getCellID(const CVector<int>&) const;
+  magnet::math::MortonNumber<3> getCellID(Vector) const;
+  //magnet::math::MortonNumber<3> getCellID(const CVector<int>&) const;
 
   void addCells(double);
 
-  inline Vector calcPosition(const magnet::math::DilatedVector<3>& coords,
+  inline Vector calcPosition(const magnet::math::MortonNumber<3>& coords,
 			     const Particle& part) const;
 
-  inline Vector calcPosition(const magnet::math::DilatedVector<3>& coords) const;
+  inline Vector calcPosition(const magnet::math::MortonNumber<3>& coords) const;
 
   void addLocalEvents();
 
