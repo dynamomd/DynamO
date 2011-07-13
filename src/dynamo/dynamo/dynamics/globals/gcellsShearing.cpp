@@ -30,18 +30,19 @@
 #include <magnet/xmlwriter.hpp>
 
 CGCellsShearing::CGCellsShearing(dynamo::SimData* nSim, 
-				 const std::string& name):
-  CGCellsMorton(nSim, "ShearingCells", NULL)
+				 const std::string& globalname):
+  CGCellsMorton(nSim, globalname)
 {
-  globName = name;
+  name = "ShearingCells";
   dout << "Shearing Cells Loaded" << std::endl;
 }
 
 CGCellsShearing::CGCellsShearing(const magnet::xml::Node& XML, 
 				 dynamo::SimData* ptrSim):
-  CGCellsMorton(ptrSim, "ShearingCells")
+  CGCellsMorton(ptrSim, "Unknown")
 {
   operator<<(XML);
+  name = "ShearingCells";
 
   dout << "Cells in shearing Loaded" << std::endl;
 }
