@@ -52,12 +52,12 @@ CSNeighbourList::initialise()
 		<< cxp.what();
     }
   
-  if (dynamic_cast<const CGNeighbourList*>
+  if (dynamic_cast<const GNeighbourList*>
       (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)
     M_throw() << "The Global named SchedulerNBList is not a neighbour list!";
 
-  static_cast<CGNeighbourList&>
+  static_cast<GNeighbourList&>
     (*Sim->dynamics.getGlobals()[NBListID].get_ptr())
     .markAsUsedInScheduler();
 
@@ -139,14 +139,14 @@ CSNeighbourList::addEvents(const Particle& part)
       sorter->push(glob->getEvent(part), part.getID());
   
 #ifdef DYNAMO_DEBUG
-  if (dynamic_cast<const CGNeighbourList*>
+  if (dynamic_cast<const GNeighbourList*>
       (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)
-    M_throw() << "Not a CGNeighbourList!";
+    M_throw() << "Not a GNeighbourList!";
 #endif
 
   //Grab a reference to the neighbour list
-  const CGNeighbourList& nblist(*static_cast<const CGNeighbourList*>
+  const GNeighbourList& nblist(*static_cast<const GNeighbourList*>
 				(Sim->dynamics.getGlobals()[NBListID]
 				 .get_ptr()));
   
@@ -170,14 +170,14 @@ CSNeighbourList::addEventsInit(const Particle& part)
       sorter->push(glob->getEvent(part), part.getID());
   
 #ifdef DYNAMO_DEBUG
-  if (dynamic_cast<const CGNeighbourList*>
+  if (dynamic_cast<const GNeighbourList*>
       (Sim->dynamics.getGlobals()[NBListID].get_ptr())
       == NULL)
-    M_throw() << "Not a CGNeighbourList!";
+    M_throw() << "Not a GNeighbourList!";
 #endif
 
   //Grab a reference to the neighbour list
-  const CGNeighbourList& nblist(*static_cast<const CGNeighbourList*>
+  const GNeighbourList& nblist(*static_cast<const GNeighbourList*>
 				(Sim->dynamics.getGlobals()[NBListID]
 				 .get_ptr()));
   

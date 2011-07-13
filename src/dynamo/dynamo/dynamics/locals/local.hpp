@@ -36,7 +36,7 @@ class LocalEvent;
  * neighbor list for efficiency.
  *
  * To do this, the Local class provides the isInCell method, used by a
- * CGNeighbourList to check if this Local is in a certain cell.
+ * GNeighbourList to check if this Local is in a certain cell.
  */
 class Local: public dynamo::SimBase
 {

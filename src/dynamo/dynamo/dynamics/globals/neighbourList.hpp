@@ -21,7 +21,7 @@
 #include <magnet/function/delegate.hpp>
 #include <vector>
 
-class CGNeighbourList: public Global
+class GNeighbourList: public Global
 {
 public:
   typedef magnet::function::Delegate2
@@ -60,13 +60,13 @@ protected:
   };
 
 public:
-  CGNeighbourList(dynamo::SimData* a, 
+  GNeighbourList(dynamo::SimData* a, 
 		  const char *b): 
     Global(a,b),
     lambda(0.9)
   {}
 
-  CGNeighbourList(const CGNeighbourList&);
+  GNeighbourList(const GNeighbourList&);
 
   virtual void getParticleNeighbourhood(const Particle&, 
 					const nbHoodFunc&) const = 0;

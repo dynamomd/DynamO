@@ -34,7 +34,7 @@
 #include <boost/math/special_functions/fpclassify.hpp>
 #endif
 
-CGSOCells::CGSOCells(dynamo::SimData* nSim, const std::string& name):
+GSOCells::GSOCells(dynamo::SimData* nSim, const std::string& name):
   Global(nSim, "SingleOccupancyCells"),
   cellCount(0),
   cellDimension(1,1,1),
@@ -44,7 +44,7 @@ CGSOCells::CGSOCells(dynamo::SimData* nSim, const std::string& name):
   dout << "Single occupancy cells loaded" << std::endl;
 }
 
-CGSOCells::CGSOCells(const magnet::xml::Node&XML, dynamo::SimData* ptrSim):
+GSOCells::GSOCells(const magnet::xml::Node&XML, dynamo::SimData* ptrSim):
   Global(ptrSim, "SingleOccupancyCells"),
   cellCount(0),
   cellDimension(1,1,1),
@@ -56,13 +56,13 @@ CGSOCells::CGSOCells(const magnet::xml::Node&XML, dynamo::SimData* ptrSim):
 }
 
 void 
-CGSOCells::operator<<(const magnet::xml::Node& XML)
+GSOCells::operator<<(const magnet::xml::Node& XML)
 {
   globName = XML.getAttribute("Name");	
 }
 
 GlobalEvent 
-CGSOCells::getEvent(const Particle& part) const
+GSOCells::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
@@ -93,7 +93,7 @@ CGSOCells::getEvent(const Particle& part) const
 }
 
 void
-CGSOCells::runEvent(const Particle& part, const double) const
+GSOCells::runEvent(const Particle& part, const double) const
 {
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
@@ -155,7 +155,7 @@ CGSOCells::runEvent(const Particle& part, const double) const
 }
 
 void 
-CGSOCells::initialise(size_t nID)
+GSOCells::initialise(size_t nID)
 {
   ID=nID;
   
@@ -176,7 +176,7 @@ CGSOCells::initialise(size_t nID)
 }
 
 void
-CGSOCells::outputXML(magnet::xml::XmlStream& XML) const
+GSOCells::outputXML(magnet::xml::XmlStream& XML) const
 {
   XML << magnet::xml::tag("Global")
       << magnet::xml::attr("Type") << "SOCells"

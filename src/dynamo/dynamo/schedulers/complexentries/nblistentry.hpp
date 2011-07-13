@@ -28,10 +28,10 @@ public:
   virtual void operator<<(const magnet::xml::Node&);
 
   virtual void getParticleNeighbourhood(const Particle&, 
-					const CGNeighbourList::nbHoodFunc&) const;
+					const GNeighbourList::nbHoodFunc&) const;
 
   virtual void getParticleLocalNeighbourhood(const Particle&, 
-					     const CGNeighbourList::nbHoodFunc&) const;
+					     const GNeighbourList::nbHoodFunc&) const;
 
   virtual CSCEntry* Clone() const { return new CSCENBList(*this); }
 

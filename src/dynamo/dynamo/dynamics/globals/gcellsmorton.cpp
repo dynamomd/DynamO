@@ -31,8 +31,8 @@
 #include <cstdio>
 
 
-CGCellsMorton::CGCellsMorton(dynamo::SimData* nSim, const std::string& name, size_t overlink):
-  CGNeighbourList(nSim, "MortonCellNeighbourList"),
+GCells::GCells(dynamo::SimData* nSim, const std::string& name, size_t overlink):
+  GNeighbourList(nSim, "MortonCellNeighbourList"),
   cellCount(0),
   cellDimension(1,1,1),
   _oversizeCells(1.0),
@@ -43,8 +43,8 @@ CGCellsMorton::CGCellsMorton(dynamo::SimData* nSim, const std::string& name, siz
   dout << "Cells Loaded" << std::endl;
 }
 
-CGCellsMorton::CGCellsMorton(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
-  CGNeighbourList(ptrSim, "MortonCellNeighbourList"),
+GCells::GCells(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
+  GNeighbourList(ptrSim, "MortonCellNeighbourList"),
   cellCount(0),
   cellDimension(1,1,1),
   _oversizeCells(1.0),
@@ -57,7 +57,7 @@ CGCellsMorton::CGCellsMorton(const magnet::xml::Node& XML, dynamo::SimData* ptrS
 }
 
 void 
-CGCellsMorton::operator<<(const magnet::xml::Node& XML)
+GCells::operator<<(const magnet::xml::Node& XML)
 {
   try {
     if (XML.hasAttribute("OverLink"))
@@ -73,12 +73,12 @@ CGCellsMorton::operator<<(const magnet::xml::Node& XML)
   }
   catch(...)
     {
-      M_throw() << "Error loading CGCellsMorton";
+      M_throw() << "Error loading GCells";
     }
 }
 
 GlobalEvent 
-CGCellsMorton::getEvent(const Particle& part) const
+GCells::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
@@ -101,7 +101,7 @@ CGCellsMorton::getEvent(const Particle& part) const
 }
 
 void
-CGCellsMorton::runEvent(const Particle& part, const double) const
+GCells::runEvent(const Particle& part, const double) const
 {
   //Despite the system not being streamed this must be done.  This is
   //because the scheduler and all interactions, locals and systems
@@ -232,14 +232,14 @@ CGCellsMorton::runEvent(const Particle& part, const double) const
 }
 
 void 
-CGCellsMorton::initialise(size_t nID)
+GCells::initialise(size_t nID)
 {
   ID=nID;
   reinitialise(getMaxInteractionLength());
 }
 
 void
-CGCellsMorton::reinitialise(const double& maxdiam)
+GCells::reinitialise(const double& maxdiam)
 {
   dout << "Reinitialising on collision " << Sim->eventCount << std::endl;
 
@@ -256,7 +256,7 @@ CGCellsMorton::reinitialise(const double& maxdiam)
 }
 
 void
-CGCellsMorton::outputXML(magnet::xml::XmlStream& XML, const std::string& type) const
+GCells::outputXML(magnet::xml::XmlStream& XML, const std::string& type) const
 {
   XML << magnet::xml::tag("Global")
       << magnet::xml::attr("Type") << type
@@ -269,11 +269,11 @@ CGCellsMorton::outputXML(magnet::xml::XmlStream& XML, const std::string& type) c
 }
 
 void
-CGCellsMorton::outputXML(magnet::xml::XmlStream& XML) const
+GCells::outputXML(magnet::xml::XmlStream& XML) const
 { outputXML(XML, "Cells"); }
 
 void
-CGCellsMorton::addCells(double maxdiam)
+GCells::addCells(double maxdiam)
 {
   cells.clear();
   partCellData.resize(Sim->N); //Location data for particles
@@ -345,7 +345,7 @@ CGCellsMorton::addCells(double maxdiam)
 }
 
 void 
-CGCellsMorton::addLocalEvents()
+GCells::addLocalEvents()
 {
   for (size_t iDim = 0; iDim < cellCount[0]; ++iDim)
     for (size_t jDim = 0; jDim < cellCount[1]; ++jDim)
@@ -364,7 +364,7 @@ CGCellsMorton::addLocalEvents()
 }
 
 magnet::math::MortonNumber<3>
-CGCellsMorton::getCellID(Vector pos) const
+GCells::getCellID(Vector pos) const
 {
   Sim->dynamics.BCs().applyBC(pos);
 
@@ -383,7 +383,7 @@ CGCellsMorton::getCellID(Vector pos) const
 }
 
 void 
-CGCellsMorton::getParticleNeighbourhood(const Particle& part,
+GCells::getParticleNeighbourhood(const Particle& part,
 					const nbHoodFunc& func) const
 {
   const magnet::math::MortonNumber<3> particle_cell_coords(partCellData[part.getID()].cell);
@@ -421,7 +421,7 @@ CGCellsMorton::getParticleNeighbourhood(const Particle& part,
 }
 
 void 
-CGCellsMorton::getParticleLocalNeighbourhood(const Particle& part, 
+GCells::getParticleLocalNeighbourhood(const Particle& part, 
 				       const nbHoodFunc& func) const
 {
   BOOST_FOREACH(const size_t& id, cells[partCellData[part.getID()].cell])
@@ -429,7 +429,7 @@ CGCellsMorton::getParticleLocalNeighbourhood(const Particle& part,
 }
 
 double 
-CGCellsMorton::getMaxSupportedInteractionLength() const
+GCells::getMaxSupportedInteractionLength() const
 {
   size_t minDiam = 0;
 
@@ -445,11 +445,11 @@ CGCellsMorton::getMaxSupportedInteractionLength() const
 }
 
 double 
-CGCellsMorton::getMaxInteractionLength() const
+GCells::getMaxInteractionLength() const
 { return Sim->dynamics.getLongestInteraction(); }
 
 Vector 
-CGCellsMorton::calcPosition(const magnet::math::MortonNumber<3>& coords, const Particle& part) const
+GCells::calcPosition(const magnet::math::MortonNumber<3>& coords, const Particle& part) const
 {
   //We always return the cell that is periodically nearest to the particle
   Vector primaryCell;
@@ -470,7 +470,7 @@ CGCellsMorton::calcPosition(const magnet::math::MortonNumber<3>& coords, const P
 }
 
 Vector 
-CGCellsMorton::calcPosition(const magnet::math::MortonNumber<3>& coords) const
+GCells::calcPosition(const magnet::math::MortonNumber<3>& coords) const
 {
   Vector primaryCell;
   

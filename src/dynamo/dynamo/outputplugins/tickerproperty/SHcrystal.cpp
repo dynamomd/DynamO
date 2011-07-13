@@ -65,9 +65,9 @@ OPSHCrystal::initialise()
 { 
   double smallestlength = HUGE_VAL;
   BOOST_FOREACH(const magnet::ClonePtr<Global>& pGlob, Sim->dynamics.getGlobals())
-    if (dynamic_cast<const CGNeighbourList*>(pGlob.get_ptr()) != NULL)
+    if (dynamic_cast<const GNeighbourList*>(pGlob.get_ptr()) != NULL)
       {
-	const double l(static_cast<const CGNeighbourList*>(pGlob.get_ptr())
+	const double l(static_cast<const GNeighbourList*>(pGlob.get_ptr())
 		     ->getMaxSupportedInteractionLength());
 	if ((l >= rg) && (l < smallestlength))
 	  {
@@ -95,7 +95,7 @@ OPSHCrystal::ticker()
   
   BOOST_FOREACH(const Particle& part, Sim->particleList)
     {
-      static_cast<const CGNeighbourList*>
+      static_cast<const GNeighbourList*>
 	(Sim->dynamics.getGlobals()[nblistID].get_ptr())
 	->getParticleNeighbourhood
 	(part, magnet::function::MakeDelegate(&ssum, &sphericalsum::operator()));

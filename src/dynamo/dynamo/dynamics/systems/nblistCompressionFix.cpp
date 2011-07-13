@@ -35,8 +35,8 @@ CSNBListCompressionFix::CSNBListCompressionFix(dynamo::SimData* nSim, double nGR
   sysName = "GlobalCellsCompressionHack";
   type = NON_EVENT;
 
-  if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[cellID].get_ptr()) == NULL)
-    M_throw() << "The ID passed to CSNBListCompressionFix isn't a CGNeighbourList";
+  if (dynamic_cast<const GNeighbourList*>(Sim->dynamics.getGlobals()[cellID].get_ptr()) == NULL)
+    M_throw() << "The ID passed to CSNBListCompressionFix isn't a GNeighbourList";
 }
 
 void
@@ -44,10 +44,10 @@ CSNBListCompressionFix::initialise(size_t nID)
 {
   ID = nID;
 
-  if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[cellID].get_ptr()) == NULL)
-    M_throw() << "Have the globals been shuffled? The cellID is no longer a CGNeighbourList.";
+  if (dynamic_cast<const GNeighbourList*>(Sim->dynamics.getGlobals()[cellID].get_ptr()) == NULL)
+    M_throw() << "Have the globals been shuffled? The cellID is no longer a GNeighbourList.";
   
-  CGNeighbourList& nblist(dynamic_cast<CGNeighbourList&>(*Sim->dynamics.getGlobals()[cellID]));
+  GNeighbourList& nblist(dynamic_cast<GNeighbourList&>(*Sim->dynamics.getGlobals()[cellID]));
 
   dt = (nblist.getMaxSupportedInteractionLength() / nblist.getMaxInteractionLength() - 1.0) / growthRate - Sim->dSysTime;
 
@@ -83,7 +83,7 @@ CSNBListCompressionFix::runEvent() const
 
   Sim->freestreamAcc += locdt;
 
-  CGNeighbourList& nblist(dynamic_cast<CGNeighbourList&>
+  GNeighbourList& nblist(dynamic_cast<GNeighbourList&>
 			  (*Sim->dynamics.getGlobals()[cellID]));
   
   dout << "Rebuilding the neighbour list named " << nblist.getName()

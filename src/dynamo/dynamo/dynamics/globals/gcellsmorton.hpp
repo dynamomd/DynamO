@@ -22,15 +22,15 @@
 #include <magnet/math/morton_number.hpp>
 #include <vector>
 
-class CGCellsMorton: public CGNeighbourList
+class GCells: public GNeighbourList
 {
 public:
-  CGCellsMorton(const magnet::xml::Node&, dynamo::SimData*);
-  CGCellsMorton(dynamo::SimData*, const std::string&, size_t overlink = 1);
+  GCells(const magnet::xml::Node&, dynamo::SimData*);
+  GCells(dynamo::SimData*, const std::string&, size_t overlink = 1);
 
-  virtual ~CGCellsMorton() {}
+  virtual ~GCells() {}
 
-  virtual Global* Clone() const { return new CGCellsMorton(*this); }
+  virtual Global* Clone() const { return new GCells(*this); }
 
   virtual GlobalEvent getEvent(const Particle &) const;
 

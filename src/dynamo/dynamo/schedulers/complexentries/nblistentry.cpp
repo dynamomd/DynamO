@@ -60,16 +60,16 @@ CSCENBList::initialise()
 		<< "\n" << cep.what();
     }
 
-  if (dynamic_cast<CGNeighbourList*>(Sim->dynamics.getGlobals()[nblistID].get_ptr()) == NULL)
-    M_throw() << "Global named " << name << " is not a CGNeighbourList";
+  if (dynamic_cast<GNeighbourList*>(Sim->dynamics.getGlobals()[nblistID].get_ptr()) == NULL)
+    M_throw() << "Global named " << name << " is not a GNeighbourList";
   
-  static_cast<CGNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID])
+  static_cast<GNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID])
     .markAsUsedInScheduler();				 
 }
 
 void 
 CSCENBList::getParticleNeighbourhood(const Particle& part, 
-				     const CGNeighbourList::nbHoodFunc& func) const
+				     const GNeighbourList::nbHoodFunc& func) const
 {
 #ifdef DYNAMO_DEBUG
   if (!isApplicable(part))
@@ -78,13 +78,13 @@ CSCENBList::getParticleNeighbourhood(const Particle& part,
 	      << part.getID() << ") yet it is being used anyway!";
 #endif
 
-  static_cast<const CGNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID])
+  static_cast<const GNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID])
     .getParticleNeighbourhood(part, func);
 }
 
 void 
 CSCENBList::getParticleLocalNeighbourhood(const Particle& part, 
-					  const CGNeighbourList::nbHoodFunc& func) const
+					  const GNeighbourList::nbHoodFunc& func) const
 {
 #ifdef DYNAMO_DEBUG
   if (!isApplicable(part))
@@ -93,7 +93,7 @@ CSCENBList::getParticleLocalNeighbourhood(const Particle& part,
 	      << part.getID() << ") yet it is being used anyway!";
 #endif
 
-  static_cast<const CGNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID])
+  static_cast<const GNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID])
     .getParticleLocalNeighbourhood(part, func);
 }
 

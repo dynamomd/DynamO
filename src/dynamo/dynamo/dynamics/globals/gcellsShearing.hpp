@@ -19,19 +19,19 @@
 #include "gcellsmorton.hpp"
 #include "../ranges/1range.hpp"
 
-class CGCellsShearing: public CGCellsMorton
+class GCellsShearing: public GCells
 {
 public:
-  CGCellsShearing(const magnet::xml::Node&, dynamo::SimData*);
+  GCellsShearing(const magnet::xml::Node&, dynamo::SimData*);
   
-  CGCellsShearing(dynamo::SimData*, const std::string&);
+  GCellsShearing(dynamo::SimData*, const std::string&);
   
-  virtual ~CGCellsShearing() {}
+  virtual ~GCellsShearing() {}
 
   virtual void initialise(size_t);
   
   virtual Global* Clone() const 
-  { return new CGCellsShearing(*this); }
+  { return new GCellsShearing(*this); }
   
   virtual GlobalEvent getEvent(const Particle &) const;
 

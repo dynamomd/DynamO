@@ -367,7 +367,7 @@ LNewtonianGravity::initialise()
   //use.
   bool hasNBlist = false;
   BOOST_FOREACH(magnet::ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
-    if (glob.typeTest<CGNeighbourList>())
+    if (glob.typeTest<GNeighbourList>())
       { hasNBlist = true; break; }
   
   if (hasNBlist)

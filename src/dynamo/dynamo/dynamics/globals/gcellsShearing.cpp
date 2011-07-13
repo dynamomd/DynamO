@@ -29,17 +29,17 @@
 #include "../liouvillean/NewtonianGravityL.hpp"
 #include <magnet/xmlwriter.hpp>
 
-CGCellsShearing::CGCellsShearing(dynamo::SimData* nSim, 
+GCellsShearing::GCellsShearing(dynamo::SimData* nSim, 
 				 const std::string& globalname):
-  CGCellsMorton(nSim, globalname)
+  GCells(nSim, globalname)
 {
   name = "ShearingCells";
   dout << "Shearing Cells Loaded" << std::endl;
 }
 
-CGCellsShearing::CGCellsShearing(const magnet::xml::Node& XML, 
+GCellsShearing::GCellsShearing(const magnet::xml::Node& XML, 
 				 dynamo::SimData* ptrSim):
-  CGCellsMorton(ptrSim, "Unknown")
+  GCells(ptrSim, "Unknown")
 {
   operator<<(XML);
   name = "ShearingCells";
@@ -48,7 +48,7 @@ CGCellsShearing::CGCellsShearing(const magnet::xml::Node& XML,
 }
 
 void 
-CGCellsShearing::initialise(size_t nID)
+GCellsShearing::initialise(size_t nID)
 {
   ID=nID;
    
@@ -62,11 +62,11 @@ CGCellsShearing::initialise(size_t nID)
 }
 
 void
-CGCellsShearing::outputXML(magnet::xml::XmlStream& XML) const
-{ CGCellsMorton::outputXML(XML, "ShearingCells"); }
+GCellsShearing::outputXML(magnet::xml::XmlStream& XML) const
+{ GCells::outputXML(XML, "ShearingCells"); }
 
 GlobalEvent 
-CGCellsShearing::getEvent(const Particle& part) const
+GCellsShearing::getEvent(const Particle& part) const
 {
 #ifdef ISSS_DEBUG
   if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
@@ -85,7 +85,7 @@ CGCellsShearing::getEvent(const Particle& part) const
 }
 
 void 
-CGCellsShearing::runEvent(const Particle& part, const double) const
+GCellsShearing::runEvent(const Particle& part, const double) const
 {
   Sim->dynamics.getLiouvillean().updateParticle(part);
 
@@ -307,10 +307,10 @@ CGCellsShearing::runEvent(const Particle& part, const double) const
 }
 
 void 
-CGCellsShearing::getParticleNeighbourhood(const Particle& part,
+GCellsShearing::getParticleNeighbourhood(const Particle& part,
 					  const nbHoodFunc& func) const
 {
-  CGCellsMorton::getParticleNeighbourhood(part, func);
+  GCells::getParticleNeighbourhood(part, func);
   
   size_t cell(partCellData[part.getID()].cell);
   magnet::math::MortonNumber<3> cellCoords(cell);
@@ -320,7 +320,7 @@ CGCellsShearing::getParticleNeighbourhood(const Particle& part,
 }
 
 void 
-CGCellsShearing::getExtraLEParticleNeighbourhood(const Particle& part,
+GCellsShearing::getExtraLEParticleNeighbourhood(const Particle& part,
 						 const nbHoodFunc& func) const
 {
   size_t cell(partCellData[part.getID()].cell);

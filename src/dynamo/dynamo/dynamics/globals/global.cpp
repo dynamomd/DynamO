@@ -15,23 +15,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "include.hpp"
-#include "global.hpp"
-#include "../../simulation/particle.hpp"
-#include "globEvent.hpp"
-#include "../ranges/1RAll.hpp"
+#include <dynamo/dynamics/globals/include.hpp>
+#include <dynamo/dynamics/globals/global.hpp>
+#include <dynamo/simulation/particle.hpp>
+#include <dynamo/dynamics/globals/globEvent.hpp>
+#include <dynamo/dynamics/ranges/1RAll.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-
-Global::Global(dynamo::SimData* tmp, const char *name):
+Global::Global(dynamo::SimData* tmp, std::string name, CRange* nR):
   SimBase(tmp, name),
-  range(new CRAll(tmp))
-{}
-
-Global::Global(CRange* nR, dynamo::SimData* tmp, const char *name):
-  SimBase(tmp, name),
-  range(nR)
+  range(nR ? nR : new CRAll(tmp))
 {}
 
 bool 
@@ -52,13 +46,13 @@ Global::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
   if (!strcmp(XML.getAttribute("Type"),"Cells2")
       || !strcmp(XML.getAttribute("Type"),"Cells")
       || !strcmp(XML.getAttribute("Type"),"CellsMorton"))
-    return new CGCellsMorton(XML, Sim);
+    return new GCells(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"ShearingCells"))
-    return new CGCellsShearing(XML, Sim);
+    return new GCellsShearing(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"PBCSentinel"))
     return new GPBCSentinel(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"SOCells"))
-    return new CGSOCells(XML, Sim);
+    return new GSOCells(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"Waker"))
     return new GWaker(XML, Sim);
   else 

@@ -716,11 +716,11 @@ public:
   void initOrientations(double ToI);
 
 protected:
-  friend class CGCellsShearing;
+  friend class GCellsShearing;
 
   /*! \brief A dangerous function to predictivly move a particle forward.
    *
-   * See CGCellsShearing, this just over advances the particle to find
+   * See GCellsShearing, this just over advances the particle to find
    * its future position in boundary changes.
    */
   inline void advanceUpdateParticle(const Particle& part, const double& dt) const

@@ -17,7 +17,7 @@
 
 #include "neighbourList.hpp"
 
-CGNeighbourList::CGNeighbourList(const CGNeighbourList& nb):
+GNeighbourList::GNeighbourList(const GNeighbourList& nb):
   Global(nb),
   isUsedInScheduler(false),
   lambda(nb.lambda)

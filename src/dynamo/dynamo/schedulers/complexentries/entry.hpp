@@ -44,10 +44,10 @@ public:
   bool isApplicable(const Particle& part) const;
   
   virtual void getParticleNeighbourhood(const Particle&, 
-					const CGNeighbourList::nbHoodFunc&) const {}
+					const GNeighbourList::nbHoodFunc&) const {}
 
   virtual void getParticleLocalNeighbourhood(const Particle&, 
-					     const CGNeighbourList::nbHoodFunc&
+					     const GNeighbourList::nbHoodFunc&
 					     ) const 
   {}
 

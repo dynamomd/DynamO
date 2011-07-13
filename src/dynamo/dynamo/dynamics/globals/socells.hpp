@@ -21,18 +21,18 @@
 #include "../../simulation/particle.hpp"
 #include <vector>
 
-class CGSOCells: public Global
+class GSOCells: public Global
 {
 public:
-  CGSOCells(const magnet::xml::Node&, dynamo::SimData*);
+  GSOCells(const magnet::xml::Node&, dynamo::SimData*);
 
-  CGSOCells(dynamo::SimData*, const std::string&);
+  GSOCells(dynamo::SimData*, const std::string&);
 
-  virtual ~CGSOCells() {}
+  virtual ~GSOCells() {}
 
   virtual Global* Clone() const 
   { 
-    return new CGSOCells(*this); 
+    return new GSOCells(*this); 
   }
 
   virtual GlobalEvent getEvent(const Particle &) const;

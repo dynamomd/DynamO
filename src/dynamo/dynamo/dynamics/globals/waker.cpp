@@ -33,7 +33,7 @@
 
 GWaker::GWaker(dynamo::SimData* nSim, const std::string& name, CRange* range, 
 	       const double wt,const double wv, std::string nblist):
-  Global(range, nSim, "GWaker"),
+  Global(nSim, "GWaker", range),
   _wakeTime(wt),
   _wakeVelocity(wv),
   _nblistName(nblist)
@@ -43,7 +43,7 @@ GWaker::GWaker(dynamo::SimData* nSim, const std::string& name, CRange* range,
 }
 
 GWaker::GWaker(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
-  Global(NULL, ptrSim, "GWaker")
+  Global(ptrSim, "GWaker")
 {
   operator<<(XML);
 
@@ -65,7 +65,7 @@ GWaker::initialise(size_t nID)
 		<< cxp.what();
     }
   
-  if (dynamic_cast<const CGNeighbourList*>
+  if (dynamic_cast<const GNeighbourList*>
       (Sim->dynamics.getGlobals()[_NBListID].get_ptr())
       == NULL)
     M_throw() << "The Global named SchedulerNBList is not a neighbour list!";
@@ -132,7 +132,7 @@ GWaker::runEvent(const Particle& part, const double dt) const
   
   _neighbors = 0;
     //Grab a reference to the neighbour list
-  const CGNeighbourList& nblist(*static_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[_NBListID]
+  const GNeighbourList& nblist(*static_cast<const GNeighbourList*>(Sim->dynamics.getGlobals()[_NBListID]
 								     .get_ptr()));
   //Add the interaction events
   nblist.getParticleNeighbourhood(part, magnet::function::MakeDelegate(this, &GWaker::nblistCallback));  

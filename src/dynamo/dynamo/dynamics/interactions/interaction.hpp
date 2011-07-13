@@ -54,7 +54,7 @@ public:
 
   //! Return the maximum distance at which two particles may interact using this Interaction.
   //!
-  //! This value is used in CGNeighbourList's to make sure a certain CGNeighbourList is suitable for detecting possible Interaction partner particles.
+  //! This value is used in GNeighbourList's to make sure a certain GNeighbourList is suitable for detecting possible Interaction partner particles.
   virtual double maxIntDist() const = 0;  
 
   //! Returns the internal energy "stored" in this interaction.

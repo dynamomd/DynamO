@@ -69,9 +69,9 @@ CIPCompression::RestoreSystem()
   if (dynamic_cast<CSNeighbourList*>(Sim->ptrScheduler) != NULL)
     {
       BOOST_FOREACH(magnet::ClonePtr<Global>& ptr, Sim->dynamics.getGlobals())
-	if (dynamic_cast<const CGNeighbourList*>(ptr.get_ptr()) != NULL)      
+	if (dynamic_cast<const GNeighbourList*>(ptr.get_ptr()) != NULL)      
 	  //Rebulid the collision scheduler without the overlapping cells!
-	  dynamic_cast<CGNeighbourList&>(*ptr).setCellOverlap(true);
+	  dynamic_cast<GNeighbourList&>(*ptr).setCellOverlap(true);
     }
   else
     dout << "No cellular device to fix" << std::endl;
@@ -101,13 +101,13 @@ CIPCompression::CellSchedulerHack()
 {
   for (size_t i(0); i < Sim->dynamics.getGlobals().size(); ++i)
     {      
-      if (dynamic_cast<const CGNeighbourList*>(Sim->dynamics.getGlobals()[i].get_ptr()) != NULL)
+      if (dynamic_cast<const GNeighbourList*>(Sim->dynamics.getGlobals()[i].get_ptr()) != NULL)
 	{
 	  //Rebulid the collision scheduler without the overlapping
 	  //cells, otherwise cells are always rebuilt as they overlap
 	  //such that the maximum supported interaction distance is
 	  //equal to the current maximum interaction distance.
-	  static_cast<CGNeighbourList&>(*Sim->dynamics.getGlobals()[i]).setCellOverlap(false);
+	  static_cast<GNeighbourList&>(*Sim->dynamics.getGlobals()[i]).setCellOverlap(false);
 	  
 	  //Add the system watcher
 	  Sim->dynamics.addSystem
