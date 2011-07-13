@@ -91,12 +91,14 @@ protected:
   double _oversizeCells;
   size_t NCells;
   size_t overlink;
-  magnet::math::DilatedInteger<3> dilatedOverlink;
 
-  mutable std::vector<int>list;
+  //! \brief The start of the list of particles in each cell.
+  mutable std::vector<int> list;
 
+  //! \brief The local events in each cell.
   mutable std::vector<std::vector<size_t> > cells;
 
+  //! \brief The linked list of the particles in each cell.
   mutable std::vector<partCEntry> partCellData;
 
   inline void addToCell(const int& ID, const int& cellID) const

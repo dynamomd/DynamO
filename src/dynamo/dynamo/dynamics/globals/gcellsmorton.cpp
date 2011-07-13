@@ -307,8 +307,6 @@ CGCellsMorton::addCells(double maxdiam)
       cellOffset[iDim] = -(cellLatticeWidth[iDim] - maxdiam) * lambda * 0.5;
     }
 
-  dilatedOverlink = overlink;
-  
   dout << "Cells <x,y,z>  " << cellCount[0] << ","
 	   << cellCount[1] << "," << cellCount[2] << std::endl;
 
@@ -392,7 +390,6 @@ CGCellsMorton::getCellID(Vector pos) const
 
   return retval;
 }
-
 
 void 
 CGCellsMorton::getParticleNeighbourhood(const Particle& part,
