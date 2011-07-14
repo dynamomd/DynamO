@@ -22,8 +22,8 @@ class RTriangleMesh : public RTriangles
 {
 public:
   RTriangleMesh(std::string name, 
-		std::vector<float>& vertices,
-		std::vector<int>& elements):
+		std::vector<GLfloat>& vertices,
+		std::vector<GLuint>& elements):
     RTriangles(name),
     _vertices(vertices),
     _elements(elements)
@@ -32,6 +32,6 @@ public:
   void initOpenCL();
 
 protected:
-  std::vector<float> _vertices;
-  std::vector<int> _elements;
+  std::vector<GLfloat> _vertices;
+  std::vector<GLuint> _elements;
 };

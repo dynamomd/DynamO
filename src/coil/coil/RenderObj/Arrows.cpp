@@ -134,7 +134,7 @@ RArrows::initOpenGL()
 
   {//Setup initial element data
     //3 line segments, 2 vertices each
-    std::vector<int> ElementData(6 * _N, 0);
+    std::vector<GLuint> ElementData(6 * _N, 0);
 
     for (size_t i(0); i < _N; ++i)
       {

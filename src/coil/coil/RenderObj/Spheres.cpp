@@ -187,7 +187,7 @@ RTSpheres::initOpenCL()
 	 iPtr != _renderDetailLevels.end(); ++iPtr)
       nElements += 3 * iPtr->_type.getFaceCount() * iPtr->_nSpheres;
 
-    std::vector<int> ElementData(nElements, 0.0);
+    std::vector<GLuint> ElementData(nElements, 0.0);
 
     nElements = 0;
     size_t nSphereVertices = 0;

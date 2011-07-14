@@ -59,7 +59,7 @@ RLines::initOpenGL()
   }
    
   {//Setup initial element data
-    std::vector<int> ElementData(2 * _N, 0);
+    std::vector<GLuint> ElementData(2 * _N, 0);
 
     for (size_t i(0); i < _N; ++i)
       {
@@ -82,13 +82,13 @@ RLines::glRender()
 {
   if (!_visible) return;
   
-  _colBuff.bind(magnet::GL::Buffer::ARRAY);
+  _colBuff.bind(magnet::GL::ARRAY);
   glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
   
-  _posBuff.bind(magnet::GL::Buffer::ARRAY);
+  _posBuff.bind(magnet::GL::ARRAY);
   glVertexPointer(3, GL_FLOAT, 0, 0);
   
-  _elementBuff.bind(magnet::GL::Buffer::ELEMENT_ARRAY);
+  _elementBuff.bind(magnet::GL::ELEMENT_ARRAY);
   
   glEnableClientState(GL_COLOR_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -114,11 +114,11 @@ RLines::setGLColors(std::vector<cl_uchar4>& VertexColor)
   if (!VertexColor.size())
     throw std::runtime_error("VertexColor.size() == 0!");
 
-  if (_posBuff.size())
+  if (!_posBuff.empty())
     if ((VertexColor.size()) != (_posBuff.size() / 3))
       throw std::runtime_error("VertexColor.size() != posBuffSize/3");
 
-  _colBuff.init(VertexColor, magnet::GL::Buffer::STREAM_DRAW);
+  _colBuff.init(VertexColor, magnet::GL::STREAM_DRAW);
 }
 
 void 
@@ -130,33 +130,33 @@ RLines::setGLPositions(std::vector<float>& VertexPos)
   if (VertexPos.size() % 3)
     throw std::runtime_error("VertexPos.size() is not a multiple of 3!");
 
-  if (_colBuff.size())
+  if (!_colBuff.empty())
     if ((_colBuff.size()) != (VertexPos.size() / 3))
       throw std::runtime_error("VertexPos.size()/3 != colBuffSize/4 ");
   
-  _posBuff.init(VertexPos, magnet::GL::Buffer::STREAM_DRAW);
+  _posBuff.init(VertexPos, magnet::GL::STREAM_DRAW);
 }
 
 void 
 RLines::initOCLVertexBuffer(cl::Context Context)
 {
-  _clbuf_Positions = cl::GLBuffer(Context, CL_MEM_READ_WRITE, _posBuff);
+  _clbuf_Positions = cl::GLBuffer<GLfloat>(Context, CL_MEM_READ_WRITE, _posBuff);
 }
 
 void 
 RLines::initOCLColorBuffer(cl::Context Context)
 {
-  _clbuf_Colors = cl::GLBuffer(Context, CL_MEM_READ_WRITE, _colBuff);
+  _clbuf_Colors = cl::GLBuffer<cl_uchar4>(Context, CL_MEM_READ_WRITE, _colBuff);
 }
 
 void 
 RLines::initOCLElementBuffer(cl::Context Context)
 {
-  _clbuf_Elements = cl::GLBuffer(Context, CL_MEM_READ_WRITE, _elementBuff);
+  _clbuf_Elements = cl::GLBuffer<GLuint>(Context, CL_MEM_READ_WRITE, _elementBuff);
 }
 
 void 
-RLines::setGLElements(std::vector<int>& Elements)
+RLines::setGLElements(std::vector<GLuint>& Elements)
 {
   if (!Elements.size())
     throw std::runtime_error("Elements.size() == 0!");

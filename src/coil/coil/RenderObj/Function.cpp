@@ -120,7 +120,7 @@ RFunction::initOpenCL()
   }
    
   {//Setup initial element data
-    std::vector<int> ElementData(3*2*(_N-1)*(_N-1), 0.0);
+    std::vector<GLuint> ElementData(3*2*(_N-1)*(_N-1), 0.0);
     for  (size_t i = 0; i < _N - 1; i++)
       {
 	for (size_t j = 0; j < _N - 1; j++)

@@ -264,7 +264,7 @@ CLGLWindow::initOpenCL()
 {
   _CLState->init();
   
-  if (cl::GLBuffer::hostTransfers()) 
+  if (cl::hostTransfers()) 
     std::cout << "\n!!!!!!!Host transfers have been enabled!!!!!!, slow performance is expected\n";
 
   //Now init the render objects  

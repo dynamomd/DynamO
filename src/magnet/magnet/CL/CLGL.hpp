@@ -97,7 +97,7 @@ namespace magnet {
 		
 		//Success! now set the platform+device and return!
 		_platform = *iPtr;
-		cl::GLBuffer::hostTransfers() = false;
+		cl::hostTransfers() = false;
 		_device = *devPtr;
 		return;
 	      }
@@ -120,7 +120,7 @@ namespace magnet {
 		
 		//Success! now set the platform+device and return!
 		_platform = *iPtr;
-		cl::GLBuffer::hostTransfers() = false;
+		cl::hostTransfers() = false;
 		_device = *devPtr;
 		return;
 	      }
@@ -129,7 +129,7 @@ namespace magnet {
 	//No CLGL platform was found so just give the first platform
 	_platform = platforms.front();
 	//Make sure to set host transfers on!
-       cl::GLBuffer::hostTransfers() = true;
+       cl::hostTransfers() = true;
 	
 	cl_context_properties cpsFallBack[] = {CL_CONTEXT_PLATFORM, 
 					       (cl_context_properties)_platform(),

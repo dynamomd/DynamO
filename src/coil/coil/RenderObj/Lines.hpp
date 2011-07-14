@@ -31,26 +31,26 @@ public:
   virtual void initOpenCL();
 
   void setGLColors(std::vector<cl_uchar4>& VertexColor);
-  void setGLPositions(std::vector<float>& VertexPos);
-  void setGLElements(std::vector<int>& Elements);
+  void setGLPositions(std::vector<GLfloat>& VertexPos);
+  void setGLElements(std::vector<GLuint>& Elements);
 
   void initOCLVertexBuffer(cl::Context Context);
   void initOCLColorBuffer(cl::Context Context);
   void initOCLElementBuffer(cl::Context Context);
 
-  magnet::GL::Buffer& getVertexGLData() { return _posBuff; }
-  magnet::GL::Buffer& getColorGLData() { return _colBuff; }
+  magnet::GL::Buffer<GLfloat>& getVertexGLData() { return _posBuff; }
+  magnet::GL::Buffer<cl_uchar4>& getColorGLData() { return _colBuff; }
 
   virtual void releaseCLGLResources();
 
 protected:
   size_t _N;
-  magnet::GL::Buffer _colBuff;
-  cl::GLBuffer _clbuf_Colors;
+  magnet::GL::Buffer<cl_uchar4> _colBuff;
+  cl::GLBuffer<cl_uchar4> _clbuf_Colors;
   
-  magnet::GL::Buffer _posBuff;
-  cl::GLBuffer _clbuf_Positions;
+  magnet::GL::Buffer<GLfloat> _posBuff;
+  cl::GLBuffer<GLfloat> _clbuf_Positions;
   
-  magnet::GL::Buffer _elementBuff;
-  cl::GLBuffer _clbuf_Elements;
+  magnet::GL::Buffer<GLuint> _elementBuff;
+  cl::GLBuffer<GLuint> _clbuf_Elements;
 };

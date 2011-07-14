@@ -278,7 +278,7 @@ LTriangleMesh::getCoilRenderObj() const
 	  verts.push_back(v[2] * lengthRescale);
 	}
 
-      std::vector<int> elems;
+      std::vector<GLuint> elems;
       elems.reserve(3 * _elements.size());
       BOOST_FOREACH(const TriangleElements& e, _elements)
 	{

@@ -193,7 +193,7 @@ namespace coil {
     
     {
       int elements[] = {3,2,1,0, 6,7,1,2, 5,4,7,6, 3,0,4,5, 6,2,3,5, 7,4,0,1 };
-      std::vector<int> ElementData(elements, elements + sizeof(elements) / sizeof(int));
+      std::vector<GLuint> ElementData(elements, elements + sizeof(elements) / sizeof(int));
       setGLElements(ElementData);
     }
 

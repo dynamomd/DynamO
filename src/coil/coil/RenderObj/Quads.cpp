@@ -26,24 +26,24 @@ RQuads::glRender()
 {
   if (!_visible) return;
 
-  if (_colBuff.size())
+  if (!_colBuff.empty())
     {
-      _colBuff.bind(magnet::GL::Buffer::ARRAY);
+      _colBuff.bind(magnet::GL::ARRAY);
       glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
       glEnableClientState(GL_COLOR_ARRAY);
     }
 
-  if (_normBuff.size())
+  if (!_normBuff.empty())
     {
-      _normBuff.bind(magnet::GL::Buffer::ARRAY);
+      _normBuff.bind(magnet::GL::ARRAY);
       glNormalPointer(GL_FLOAT, 0, 0);
       glEnableClientState(GL_NORMAL_ARRAY); 
     }
   
-  _posBuff.bind(magnet::GL::Buffer::ARRAY);
+  _posBuff.bind(magnet::GL::ARRAY);
   glVertexPointer(3, GL_FLOAT, 0, 0);
 
-  _elementBuff.bind(magnet::GL::Buffer::ELEMENT_ARRAY);
+  _elementBuff.bind(magnet::GL::ELEMENT_ARRAY);
   
   glEnableClientState(GL_VERTEX_ARRAY);
   
@@ -69,8 +69,8 @@ RQuads::glRender()
 
   if (_renderNormals && _normBuff.size())
     {
-      const float* posPointer = _posBuff.map<float>();
-      const float* normPointer = _normBuff.map<float>();
+      const GLfloat* posPointer = _posBuff.map();
+      const GLfloat* normPointer = _normBuff.map();
 
       const float scale = 0.005;
       for (size_t i= 0; i < _posBuff.size(); i+= 3)
@@ -91,7 +91,7 @@ RQuads::glRender()
 }
 
 void 
-RQuads::setGLElements(std::vector<int>& Elements)
+RQuads::setGLElements(std::vector<GLuint>& Elements)
 {
   if (!Elements.size())
     throw std::runtime_error("Elements.size() == 0!");

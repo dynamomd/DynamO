@@ -33,7 +33,7 @@ public:
   void setGLColors(std::vector<cl_uchar4>& VertexColor);
   void setGLPositions(std::vector<float>& VertexPos);
   void setGLNormals(std::vector<float>& VertexNormals);
-  void setGLElements(std::vector<int>& Elements);
+  void setGLElements(std::vector<GLuint>& Elements);
 
   void initOCLVertexBuffer(cl::Context Context);
   void initOCLColorBuffer(cl::Context Context);
@@ -60,21 +60,21 @@ protected:
   std::auto_ptr<Gtk::RadioButton> _gtkPointRender;
   std::auto_ptr<Gtk::RadioButton> _gtkTriangleRender;
 
-  magnet::GL::Buffer _colBuff;
-  cl::GLBuffer _clbuf_Colors;
+  magnet::GL::Buffer<cl_uchar4> _colBuff;
+  cl::GLBuffer<cl_uchar4> _clbuf_Colors;
 
-  magnet::GL::Buffer _posBuff;
-  cl::GLBuffer _clbuf_Positions;
+  magnet::GL::Buffer<GLfloat> _posBuff;
+  cl::GLBuffer<GLfloat> _clbuf_Positions;
   
-  magnet::GL::Buffer _normBuff;
-  cl::GLBuffer _clbuf_Normals;
+  magnet::GL::Buffer<GLfloat> _normBuff;
+  cl::GLBuffer<GLfloat> _clbuf_Normals;
 
-  magnet::GL::Buffer _elementBuff;
-  cl::GLBuffer _clbuf_Elements;
+  magnet::GL::Buffer<GLuint> _elementBuff;
+  cl::GLBuffer<GLuint> _clbuf_Elements;
 
-  magnet::GL::Buffer _specialElementBuff;
+  magnet::GL::Buffer<GLuint> _specialElementBuff;
 
   bool _pickingRenderMode;
-  magnet::GL::Buffer _pickingColorBuff;
+  magnet::GL::Buffer<cl_uchar4> _pickingColorBuff;
 
 };

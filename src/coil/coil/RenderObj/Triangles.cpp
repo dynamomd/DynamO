@@ -35,26 +35,26 @@ RTriangles::glRender()
 
   if (_pickingRenderMode)
     {
-      _pickingColorBuff.bind(magnet::GL::Buffer::ARRAY);
+      _pickingColorBuff.bind(magnet::GL::ARRAY);
       glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
       glEnableClientState(GL_COLOR_ARRAY);
     }
 
   if (_colBuff.size() && !_pickingRenderMode)
     {
-      _colBuff.bind(magnet::GL::Buffer::ARRAY);
+      _colBuff.bind(magnet::GL::ARRAY);
       glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
       glEnableClientState(GL_COLOR_ARRAY);
     }
 
   if (_normBuff.size())
     {
-      _normBuff.bind(magnet::GL::Buffer::ARRAY);
+      _normBuff.bind(magnet::GL::ARRAY);
       glNormalPointer(GL_FLOAT, 0, 0);
       glEnableClientState(GL_NORMAL_ARRAY); 
     }
 
-  _posBuff.bind(magnet::GL::Buffer::ARRAY);
+  _posBuff.bind(magnet::GL::ARRAY);
 
   glVertexPointer(3, GL_FLOAT, 0, 0);
       
@@ -63,15 +63,15 @@ RTriangles::glRender()
   switch (_RenderMode)
     {
     case TRIANGLES:
-      _elementBuff.bind(magnet::GL::Buffer::ELEMENT_ARRAY);
+      _elementBuff.bind(magnet::GL::ELEMENT_ARRAY);
       glDrawElements(GL_TRIANGLES, _elementBuff.size(), GL_UNSIGNED_INT, 0);
       break;
     case LINES:
-      _specialElementBuff.bind(magnet::GL::Buffer::ELEMENT_ARRAY);
+      _specialElementBuff.bind(magnet::GL::ELEMENT_ARRAY);
       glDrawElements(GL_LINES, _specialElementBuff.size(), GL_UNSIGNED_INT, 0);
       break;
     case POINTS:
-      _specialElementBuff.bind(magnet::GL::Buffer::ELEMENT_ARRAY);
+      _specialElementBuff.bind(magnet::GL::ELEMENT_ARRAY);
       glDrawElements(GL_POINTS, _specialElementBuff.size(), GL_UNSIGNED_INT, 0);
       break;
     }
@@ -86,8 +86,8 @@ RTriangles::glRender()
 
   if (_renderNormals && _normBuff.size())
     {
-      const float* posPointer = _posBuff.map<float>();
-      const float* normPointer = _normBuff.map<float>();
+      const GLfloat* posPointer = _posBuff.map();
+      const GLfloat* normPointer = _normBuff.map();
 
       const float scale = 0.005;
       for (size_t i= 0; i < _posBuff.size(); i+= 3)
@@ -117,7 +117,7 @@ RTriangles::setGLColors(std::vector<cl_uchar4>& VertexColor)
     if ((VertexColor.size()) != (_posBuff.size() / 3))
       throw std::runtime_error("VertexColor.size() != posBuffSize/3");
 
-  _colBuff.init(VertexColor, magnet::GL::Buffer::STREAM_DRAW);
+  _colBuff.init(VertexColor, magnet::GL::STREAM_DRAW);
 }
 
 void 
@@ -137,29 +137,29 @@ RTriangles::setGLPositions(std::vector<float>& VertexPos)
     if (_normBuff.size() != VertexPos.size())
       throw std::runtime_error("VertexPos.size() != normBuffSize!");
 
-  _posBuff.init(VertexPos, magnet::GL::Buffer::STREAM_DRAW);
+  _posBuff.init(VertexPos, magnet::GL::STREAM_DRAW);
 }
 
 void 
 RTriangles::initOCLVertexBuffer(cl::Context Context)
 {
-  _clbuf_Positions = cl::GLBuffer(Context, CL_MEM_READ_WRITE, _posBuff);
+  _clbuf_Positions = cl::GLBuffer<GLfloat>(Context, CL_MEM_READ_WRITE, _posBuff);
 }
 
 void 
 RTriangles::initOCLColorBuffer(cl::Context Context)
 {
-  _clbuf_Colors = cl::GLBuffer(Context, CL_MEM_READ_WRITE, _colBuff);
+  _clbuf_Colors = cl::GLBuffer<cl_uchar4>(Context, CL_MEM_READ_WRITE, _colBuff);
 }
 void 
 RTriangles::initOCLNormBuffer(cl::Context Context)
 {
-  _clbuf_Normals = cl::GLBuffer(Context, CL_MEM_READ_WRITE, _normBuff);
+  _clbuf_Normals = cl::GLBuffer<GLfloat>(Context, CL_MEM_READ_WRITE, _normBuff);
 }
 void 
 RTriangles::initOCLElementBuffer(cl::Context Context)
 {
-  _clbuf_Elements = cl::GLBuffer(Context, CL_MEM_READ_WRITE, _elementBuff);
+  _clbuf_Elements = cl::GLBuffer<GLuint>(Context, CL_MEM_READ_WRITE, _elementBuff);
 }
 
 
@@ -180,7 +180,7 @@ RTriangles::setGLNormals(std::vector<float>& VertexNormals)
 }
 
 void 
-RTriangles::setGLElements(std::vector<int>& Elements)
+RTriangles::setGLElements(std::vector<GLuint>& Elements)
 {
   if (!Elements.size())
     throw std::runtime_error("Elements.size() == 0!");
@@ -281,7 +281,7 @@ RTriangles::setRenderMode(RenderModeType rm)
 
 	    size_t size = _elementBuff.size();
 
-	    int* elements =  _elementBuff.map<int>();
+	    GLuint* elements =  _elementBuff.map();
 
 	    for (size_t t(0); t < size; t += 3)
 	      {
@@ -290,7 +290,7 @@ RTriangles::setRenderMode(RenderModeType rm)
 		edges.insert(SetKey(elements[t+0], elements[t+2]));
 	      }
 	    
-	    std::vector<int> line_elements;
+	    std::vector<GLuint> line_elements;
 	    line_elements.reserve(edges.size() * 2);
 	    
 	    for (std::set<SetKey>::const_iterator iPtr = edges.begin();
@@ -307,7 +307,7 @@ RTriangles::setRenderMode(RenderModeType rm)
 	  }
 	case POINTS:
 	  {
-	    std::vector<int> point_elements;
+	    std::vector<GLuint> point_elements;
 	    point_elements.resize(_posBuff.size() / 3);
 	    
 	    for (size_t i(0); i < point_elements.size(); ++i)
@@ -331,13 +331,13 @@ RTriangles::initPicking(cl_uint& offset)
 
   if(_pickingColorBuff.size() !=  N)
     {
-      std::vector<cl_uint> vertexColors;
+      std::vector<cl_uchar4> vertexColors;
       vertexColors.reserve(N);
       
-      for (size_t i(0); i < N; ++i)
-	vertexColors.push_back(offset + i);
+      for (cl_uint i(offset); i < N + offset; ++i)
+	vertexColors.push_back(*reinterpret_cast<cl_uchar4*>(&i));
       
-      _pickingColorBuff.init(vertexColors, magnet::GL::Buffer::STREAM_DRAW);
+      _pickingColorBuff.init(vertexColors, magnet::GL::STREAM_DRAW);
     }
 
   offset += N;
