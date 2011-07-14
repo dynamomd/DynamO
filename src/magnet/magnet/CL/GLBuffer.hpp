@@ -29,16 +29,11 @@
 #include <stdexcept>
 
 namespace cl {
-/*! \class Buffer
- * \brief Memory buffer interface.
- */
-
 #if defined(__CL_ENABLE_EXCEPTIONS)
 #define __ERR_STR(x) #x
 #else
 #define __ERR_STR(x) NULL
 #endif // __CL_ENABLE_EXCEPTIONS
-
 
 class GLBuffer : public Buffer
 {
