@@ -15,24 +15,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "compression.hpp"
+#include <dynamo/inputplugins/compression.hpp>
+#include <dynamo/simulation/particle.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/dynamics/interactions/squarebond.hpp>
+#include <dynamo/dynamics/interactions/squarewell.hpp>
+#include <dynamo/dynamics/interactions/hardsphere.hpp>
+#include <dynamo/dynamics/ranges/include.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/liouvillean/CompressionL.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/schedulers/neighbourlist.hpp>
+#include <dynamo/dynamics/systems/nblistCompressionFix.hpp>
+#include <dynamo/dynamics/systems/tHalt.hpp>
+#include <dynamo/dynamics/species/species.hpp>
+#include <dynamo/dynamics/globals/neighbourList.hpp>
 #include <boost/foreach.hpp>
-#include "../simulation/particle.hpp"
-#include "../dynamics/dynamics.hpp"
-#include "../dynamics/interactions/squarebond.hpp"
-#include "../dynamics/interactions/squarewell.hpp"
-#include "../dynamics/interactions/hardsphere.hpp"
-#include "../dynamics/ranges/include.hpp"
-#include "../dynamics/liouvillean/liouvillean.hpp"
-#include "../dynamics/liouvillean/CompressionL.hpp"
-#include "../dynamics/units/units.hpp"
-#include "../datatypes/vector.hpp"
-#include "../base/is_simdata.hpp"
-#include "../schedulers/neighbourlist.hpp"
-#include "../dynamics/systems/nblistCompressionFix.hpp"
-#include "../dynamics/systems/tHalt.hpp"
-#include "../dynamics/species/species.hpp"
-#include "../dynamics/globals/neighbourList.hpp"
 
 CIPCompression::CIPCompression(dynamo::SimData* tmp, double GR): 
   CInputPlugin(tmp, "CompressionPlugin"),

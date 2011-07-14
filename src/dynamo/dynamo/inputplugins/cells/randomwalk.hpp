@@ -16,8 +16,7 @@
 */
 
 #pragma once
-#include "cell.hpp"
-#include "../../datatypes/vector.hpp"
+#include <dynamo/inputplugins/cells/cell.hpp>
 #include <include/boost/random/normal_distribution.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/mersenne_twister.hpp>

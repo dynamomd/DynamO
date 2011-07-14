@@ -20,7 +20,6 @@
 #include <dynamo/base/is_simdata.hpp>
 #include <dynamo/dynamics/2particleEventData.hpp>
 #include <dynamo/dynamics/units/units.hpp>
-#include <dynamo/datatypes/vector.xml.hpp>
 #include <dynamo/dynamics/BC/LEBC.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>

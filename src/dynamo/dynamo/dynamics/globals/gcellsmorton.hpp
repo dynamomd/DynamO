@@ -16,9 +16,8 @@
 */
 
 #pragma once
-#include "neighbourList.hpp"
-#include "../../datatypes/vector.hpp"
-#include "../../simulation/particle.hpp"
+#include <dynamo/dynamics/globals/neighbourList.hpp>
+#include <dynamo/simulation/particle.hpp>
 #include <magnet/math/morton_number.hpp>
 #include <vector>
 
@@ -68,7 +67,6 @@ protected:
   void outputXML(magnet::xml::XmlStream&, const std::string&) const;
 
   magnet::math::MortonNumber<3> getCellID(Vector) const;
-  //magnet::math::MortonNumber<3> getCellID(const CVector<int>&) const;
 
   void addCells(double);
 
@@ -80,7 +78,7 @@ protected:
   void addLocalEvents();
 
   //Variables
-  CVector<size_t> cellCount;
+  size_t cellCount[3];
   magnet::math::DilatedInteger<3> dilatedCellMax[3];
   Vector cellDimension;
   Vector cellLatticeWidth;

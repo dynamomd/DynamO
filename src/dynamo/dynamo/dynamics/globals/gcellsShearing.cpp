@@ -15,18 +15,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "gcellsShearing.hpp"
-#include "globEvent.hpp"
-#include "../NparticleEventData.hpp"
-#include "../liouvillean/liouvillean.hpp"
-#include "../units/units.hpp"
-#include "../ranges/1RAll.hpp"
-#include "../ranges/1RNone.hpp"
-#include "../ranges/2RSingle.hpp"
-#include "../../schedulers/scheduler.hpp"
-#include "../locals/local.hpp"
-#include "../BC/LEBC.hpp"
-#include "../liouvillean/NewtonianGravityL.hpp"
+#include <dynamo/dynamics/globals/gcellsShearing.hpp>
+#include <dynamo/dynamics/globals/globEvent.hpp>
+#include <dynamo/dynamics/NparticleEventData.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/dynamics/ranges/1RAll.hpp>
+#include <dynamo/dynamics/ranges/1RNone.hpp>
+#include <dynamo/dynamics/ranges/2RSingle.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/dynamics/locals/local.hpp>
+#include <dynamo/dynamics/BC/LEBC.hpp>
+#include <dynamo/dynamics/liouvillean/NewtonianGravityL.hpp>
 #include <magnet/xmlwriter.hpp>
 
 GCellsShearing::GCellsShearing(dynamo::SimData* nSim, 
@@ -276,25 +276,23 @@ GCellsShearing::runEvent(const Particle& part, const double) const
   BOOST_FOREACH(const nbHoodSlot& nbs, sigCellChangeNotify)
     nbs.second(part, oldCell);
   
-  //This doesn't stream the system as its a virtual event
-
-  //Debug section
 #ifdef DYNAMO_WallCollDebug
-  {      
-    CVector<int> tmp = cells[oldCell].coords;
-    CVector<int> tmp2 = cells[endCell].coords;
+  {
+    magnet::math::MortonNumber<3> newNBCellv(oldCell);
+    magnet::math::MortonNumber<3> endCellv(endCell);
     
     std::cerr << "\nCGWall sysdt " 
 	      << Sim->dSysTime / Sim->dynamics.units().unitTime()
 	      << "  WALL ID "
 	      << part.getID()
 	      << "  from <" 
-	      << tmp[0] << "," << tmp[1] << "," << tmp[2]
+	      << newNBCellv.data[0].getRealVal() << "," << newNBCellv.data[1].getRealVal() 
+	      << "," << newNBCellv.data[2].getRealVal()
 	      << "> to <" 
-	      << tmp2[0] << "," << tmp2[1] << "," << tmp2[2] << ">";
+	      << endCellv.data[0].getRealVal() << "," << endCellv.data[1].getRealVal() 
+	      << "," << endCellv.data[2].getRealVal();
   }
 #endif
-
 }
 
 void 

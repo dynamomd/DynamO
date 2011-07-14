@@ -15,12 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "msdcorrelator.hpp"
-#include "../../dynamics/include.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../../dynamics/liouvillean/liouvillean.hpp"
-#include "../0partproperty/msd.hpp"
-#include "../../dynamics/systems/sysTicker.hpp"
+#include <dynamo/outputplugins/tickerproperty/msdcorrelator.hpp>
+#include <dynamo/dynamics/include.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/outputplugins/0partproperty/msd.hpp>
+#include <dynamo/dynamics/systems/sysTicker.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>

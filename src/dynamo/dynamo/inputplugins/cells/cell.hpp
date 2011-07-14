@@ -17,7 +17,6 @@
 
 #pragma once
 #include <vector>
-#include "../../datatypes/vector.hpp"
 #include <boost/scoped_ptr.hpp>
 
 class CUCell

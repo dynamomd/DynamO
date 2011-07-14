@@ -19,14 +19,13 @@
 # include <coil/RenderObj/Function.hpp>
 #endif 
 
-#include "oscillatingplate.hpp"
-#include "../liouvillean/liouvillean.hpp"
-#include "localEvent.hpp"
-#include "../NparticleEventData.hpp"
-#include "../overlapFunc/CubePlane.hpp"
-#include "../units/units.hpp"
-#include "../../datatypes/vector.xml.hpp"
-#include "../../schedulers/scheduler.hpp"
+#include <dynamo/dynamics/locals/oscillatingplate.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/locals/localEvent.hpp>
+#include <dynamo/dynamics/NparticleEventData.hpp>
+#include <dynamo/dynamics/overlapFunc/CubePlane.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
 
 
 CLOscillatingPlate::CLOscillatingPlate(dynamo::SimData* nSim,
@@ -96,7 +95,7 @@ CLOscillatingPlate::runEvent(const Particle& part, const LocalEvent& iEvent) con
   //if (strongPlate) 
   //  Sim->ptrScheduler->fullUpdate(part);
   //else
-    Sim->ptrScheduler->rebuildList();
+  Sim->ptrScheduler->rebuildList();
 
   BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(iEvent, EDat);

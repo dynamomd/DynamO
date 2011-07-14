@@ -17,7 +17,6 @@
 
 #pragma once
 #include "1partproperty.hpp"
-#include "../../datatypes/vector.hpp"
 
 class OPUEnergy: public OP1PP
 {

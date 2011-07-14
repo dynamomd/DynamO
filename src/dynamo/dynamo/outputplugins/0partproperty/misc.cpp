@@ -15,16 +15,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../../dynamics/species/inertia.hpp"
-#include "misc.hpp"
-#include "../../dynamics/include.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../../datatypes/vector.xml.hpp"
-#include <boost/foreach.hpp>
+#include <dynamo/outputplugins/0partproperty/misc.hpp>
+#include <dynamo/dynamics/species/inertia.hpp>
+#include <dynamo/dynamics/include.hpp>
+#include <dynamo/base/is_simdata.hpp>
 #include <magnet/memUsage.hpp>
 #include <magnet/xmlwriter.hpp>
-#include <ctime>
+#include <boost/foreach.hpp>
 #include <sys/time.h>
+#include <ctime>
 
 OPMisc::OPMisc(const dynamo::SimData* tmp, const magnet::xml::Node&):
   OutputPlugin(tmp,"Misc",0),

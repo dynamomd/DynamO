@@ -16,10 +16,9 @@
 */
 
 #pragma once
-#include "../../datatypes/vector.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../dynamics.hpp"
-#include "../BC/BC.hpp"
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/dynamics/BC/BC.hpp>
 
 //Pair dynamics data, can be allocated in compile time saving new() calls
 struct CPDData

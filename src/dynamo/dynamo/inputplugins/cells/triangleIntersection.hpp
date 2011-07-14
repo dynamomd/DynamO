@@ -16,13 +16,12 @@
 */
 
 #pragma once
-#include "cell.hpp"
-#include "../../datatypes/vector.hpp"
-#include <string>
-#include <fstream>
+#include <dynamo/inputplugins/cells/cell.hpp>
 #include <boost/array.hpp>
 #include <boost/foreach.hpp>
 #include <boost/progress.hpp>
+#include <string>
+#include <fstream>
 
 struct CUTriangleIntersect: public CUCell
 {

@@ -47,9 +47,14 @@ class OPCubeComp: public OutputPlugin
  protected:
   struct mapdata
   {
-    mapdata(): angles(C1DHistogram(0.01)) {}
+    mapdata() 
+    {
+      angles[0] = C1DHistogram(0.01);
+      angles[1] = C1DHistogram(0.01);
+      angles[2] = C1DHistogram(0.01);
+    }
     
-    CVector<C1DHistogram> angles;
+    C1DHistogram angles[3];
   };
   
   typedef std::pair<EEventType, classKey> mapKey;

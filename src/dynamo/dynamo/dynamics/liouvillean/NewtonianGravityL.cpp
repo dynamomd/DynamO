@@ -15,18 +15,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "NewtonianGravityL.hpp"
-#include "../interactions/intEvent.hpp"
-#include "../2particleEventData.hpp"
-#include "../NparticleEventData.hpp"
-#include "../dynamics.hpp"
-#include "../BC/BC.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../species/species.hpp"
-#include "../../schedulers/sorters/datastruct.hpp"
-#include "shapes/frenkelroot.hpp"
-#include "shapes/oscillatingplate.hpp"
-#include <dynamo/datatypes/vector.xml.hpp>
+#include <dynamo/dynamics/liouvillean/NewtonianGravityL.hpp>
+#include <dynamo/dynamics/interactions/intEvent.hpp>
+#include <dynamo/dynamics/2particleEventData.hpp>
+#include <dynamo/dynamics/NparticleEventData.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/dynamics/BC/BC.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/species/species.hpp>
+#include <dynamo/schedulers/sorters/datastruct.hpp>
+#include <dynamo/dynamics/liouvillean/shapes/frenkelroot.hpp>
+#include <dynamo/dynamics/liouvillean/shapes/oscillatingplate.hpp>
 #include <dynamo/dynamics/globals/neighbourList.hpp>
 #include <dynamo/dynamics/globals/ParabolaSentinel.hpp>
 #include <dynamo/dynamics/units/units.hpp>
@@ -39,8 +38,6 @@
 #include <magnet/xmlreader.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <algorithm>
-
-
 
 LNewtonianGravity::LNewtonianGravity(dynamo::SimData* tmp, const magnet::xml::Node& XML):
   LNewtonian(tmp),

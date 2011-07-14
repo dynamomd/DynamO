@@ -16,8 +16,8 @@
 */
 
 #pragma once
-#include "cell.hpp"
-#include "../../base/is_simdata.hpp"
+#include <dynamo/inputplugins/cells/cell.hpp>
+#include <dynamo/base/is_simdata.hpp>
 
 struct CURandom: public CUCell
 {

@@ -15,11 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "mutualdiffE.hpp"
-#include "../../dynamics/include.hpp"
-#include "../1partproperty/kenergy.hpp"
-#include "../0partproperty/misc.hpp"
-#include "../../datatypes/vector.xml.hpp"
+#include <dynamo/outputplugins/correlations/mutualdiffE.hpp>
+#include <dynamo/dynamics/include.hpp>
+#include <dynamo/outputplugins/1partproperty/kenergy.hpp>
+#include <dynamo/outputplugins/0partproperty/misc.hpp>
 
 OPMutualDiffusionE::OPMutualDiffusionE(const dynamo::SimData* tmp, 
 				       const magnet::xml::Node& XML):

@@ -31,7 +31,23 @@ class Particle
 {
 public:
   //! \brief Operator to write out an XML representation of a Particle.
-  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Particle&);
+  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Particle& particle)
+  {
+    XML << magnet::xml::attr("ID") << particle._ID;
+
+    if (!particle.testState(Particle::DYNAMIC))
+      XML << magnet::xml::attr("Static") <<  "Static";
+
+    XML << magnet::xml::tag("P")
+	<< (particle._pos)
+	<< magnet::xml::endtag("P")
+	<< magnet::xml::tag("V")
+	<< (particle._vel)
+	<< magnet::xml::endtag("V");
+  
+
+    return XML;
+  }
   
   //! \brief Constructor to build a particle from passed values.
   inline Particle (const Vector  &position, 
@@ -43,7 +59,16 @@ public:
   {}
   
   //! \brief Constructor to build a particle from an XML node.
-  Particle(const magnet::xml::Node&, unsigned long);
+  Particle(const magnet::xml::Node& XML, unsigned long nID):
+    _ID(nID),
+    _peculiarTime(0.0),
+    _state(DEFAULT)
+  {
+    if (XML.hasAttribute("Static")) clearState(DYNAMIC);
+    
+    _pos << XML.getNode("P");
+    _vel << XML.getNode("V");
+  }
 
   //! \brief Equal to comparison operator.
   //! This comparison operator only compares the ID's of the Particle

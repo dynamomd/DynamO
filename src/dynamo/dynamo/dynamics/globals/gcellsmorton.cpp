@@ -15,17 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "gcellsmorton.hpp"
-#include "globEvent.hpp"
-#include "../NparticleEventData.hpp"
-#include "../liouvillean/liouvillean.hpp"
-#include "../units/units.hpp"
-#include "../ranges/1RAll.hpp"
-#include "../../schedulers/scheduler.hpp"
-#include "../locals/local.hpp"
-#include "../BC/LEBC.hpp"
-#include "../liouvillean/NewtonianGravityL.hpp"
-#include <magnet/math/ctime_pow.hpp>
+#include <dynamo/dynamics/globals/gcellsmorton.hpp>
+#include <dynamo/dynamics/globals/globEvent.hpp>
+#include <dynamo/dynamics/NparticleEventData.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/dynamics/ranges/1RAll.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/dynamics/locals/local.hpp>
+#include <dynamo/dynamics/BC/LEBC.hpp>
+#include <dynamo/dynamics/liouvillean/NewtonianGravityL.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cstdio>
@@ -33,7 +32,6 @@
 
 GCells::GCells(dynamo::SimData* nSim, const std::string& name, size_t overlink):
   GNeighbourList(nSim, "MortonCellNeighbourList"),
-  cellCount(0),
   cellDimension(1,1,1),
   _oversizeCells(1.0),
   NCells(0),
@@ -45,7 +43,6 @@ GCells::GCells(dynamo::SimData* nSim, const std::string& name, size_t overlink):
 
 GCells::GCells(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
   GNeighbourList(ptrSim, "MortonCellNeighbourList"),
-  cellCount(0),
   cellDimension(1,1,1),
   _oversizeCells(1.0),
   NCells(0),
@@ -279,7 +276,6 @@ GCells::addCells(double maxdiam)
   partCellData.resize(Sim->N); //Location data for particles
 
   NCells = 1;
-  cellCount = CVector<size_t>(0);
 
   for (size_t iDim = 0; iDim < NDIM; iDim++)
     {

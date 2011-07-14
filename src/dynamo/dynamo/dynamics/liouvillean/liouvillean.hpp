@@ -30,9 +30,6 @@ class ParticleEventData;
 class IntEvent;
 class intPart;
 
-template <class T>
-class CVector;
-
 /*! \brief Implements the time operators for the system.
  *
  * This class provides the fundamentals of classes like Interaction,

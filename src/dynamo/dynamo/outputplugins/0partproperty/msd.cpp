@@ -15,10 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "msd.hpp"
-#include "../../dynamics/include.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../../dynamics/liouvillean/liouvillean.hpp"
+#include <dynamo/outputplugins/0partproperty/msd.hpp>
+#include <dynamo/dynamics/include.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 

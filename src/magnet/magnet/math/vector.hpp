@@ -20,6 +20,8 @@
 #include <cmath>
 #include <algorithm>
 #include <stddef.h>
+#include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
 const size_t NDIM(3);
 
@@ -472,6 +474,41 @@ operator*(const VectorExpression<A,B,C> & a, const VectorExpression<D,E,F> & b)
     + a.template eval<2>()*b.template eval<2>();
 }
 
-//#undef VECNRM
-//#undef VECNRM2
-//#undef VECPARENTHESIS
+// vectors
+template<class A, int B, class C>
+inline magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
+				    const VectorExpression<A,B,C> & t )
+{
+  char name[2] = "x";
+  
+  for (size_t iDim = 0; iDim < NDIM; iDim++)
+    {
+      name[0]= 'x'+iDim; //Write the dimension
+      XML << magnet::xml::attr(name) << t(iDim);
+    }
+  
+  return XML;
+}
+
+inline
+VectorExpression<>& 
+operator<<(VectorExpression<>& data, const magnet::xml::Node& XML)
+{
+  for (size_t iDim = 0; iDim < NDIM; iDim++) 
+    {
+      char name[2] = "x";
+      name[0] = 'x' + iDim; //Write the name
+      if (!XML.getAttribute(name))
+	name[0] = '0'+iDim;
+      
+      try {
+	data[iDim] = XML.getAttribute(name).as<double>();
+      }
+      catch (boost::bad_lexical_cast &)
+	{
+	  M_throw() << "Failed a lexical cast in CVector";
+	}
+    }
+
+  return data;
+}

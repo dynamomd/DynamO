@@ -15,13 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "chainContactMap.hpp"
-#include "../../dynamics/include.hpp"
-#include "../../dynamics/ranges/1range.hpp"
-#include "../../datatypes/vector.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../../dynamics/topology/include.hpp"
-#include "../../dynamics/interactions/captures.hpp"
+#include <dynamo/outputplugins/tickerproperty/chainContactMap.hpp>
+#include <dynamo/dynamics/include.hpp>
+#include <dynamo/dynamics/ranges/1range.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/topology/include.hpp>
+#include <dynamo/dynamics/interactions/captures.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <vector>

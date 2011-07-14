@@ -15,22 +15,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "AndersenWall.hpp"
-#include "../overlapFunc/CubePlane.hpp"
-#include "localEvent.hpp"
-#include "../NparticleEventData.hpp"
-#include "../../datatypes/vector.xml.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../../simulation/particle.hpp"
-#include "../liouvillean/liouvillean.hpp"
-#include "../units/units.hpp"
-#include "../../schedulers/scheduler.hpp"
+#include <dynamo/dynamics/locals/AndersenWall.hpp>
+#include <dynamo/dynamics/overlapFunc/CubePlane.hpp>
+#include <dynamo/dynamics/locals/localEvent.hpp>
+#include <dynamo/dynamics/NparticleEventData.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/simulation/particle.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
+#include <magnet/xmlwriter.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_real.hpp>
-#include <magnet/xmlwriter.hpp>
 #include <cmath>
 
 CLAndersenWall::CLAndersenWall(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):

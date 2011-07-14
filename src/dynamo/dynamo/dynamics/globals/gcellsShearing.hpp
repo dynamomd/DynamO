@@ -16,8 +16,8 @@
 */
 
 #pragma once
-#include "gcellsmorton.hpp"
-#include "../ranges/1range.hpp"
+#include <dynamo/dynamics/globals/gcellsmorton.hpp>
+#include <dynamo/dynamics/ranges/1range.hpp>
 
 class GCellsShearing: public GCells
 {

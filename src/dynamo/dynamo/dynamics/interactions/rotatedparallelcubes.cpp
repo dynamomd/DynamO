@@ -15,17 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "rotatedparallelcubes.hpp"
-#include "../../dynamics/interactions/intEvent.hpp"
-#include "../liouvillean/liouvillean.hpp"
-#include "../units/units.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../2particleEventData.hpp"
-#include "../BC/BC.hpp"
-#include "../ranges/1range.hpp"
-#include "../../schedulers/scheduler.hpp"
-#include "../NparticleEventData.hpp"
-#include "../../datatypes/vector.xml.hpp"
+#include <dynamo/dynamics/interactions/rotatedparallelcubes.hpp>
+#include <dynamo/dynamics/interactions/intEvent.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/2particleEventData.hpp>
+#include <dynamo/dynamics/BC/BC.hpp>
+#include <dynamo/dynamics/ranges/1range.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/dynamics/NparticleEventData.hpp>
 #include <boost/lexical_cast.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <sstream>

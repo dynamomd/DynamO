@@ -18,7 +18,6 @@
 #pragma once
 
 #include <dynamo/dynamics/dynamics.hpp>
-#include <dynamo/datatypes/vector.hpp>
 #include <dynamo/simulation/particle.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/simulation/ensemble.hpp>

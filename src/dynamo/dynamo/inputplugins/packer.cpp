@@ -15,30 +15,29 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "packer.hpp"
-#include "../datatypes/vector.hpp"
-#include "../simulation/particle.hpp"
-#include "../base/is_simdata.hpp"
-#include "cells/include.hpp"
-#include "../simulation/particle.hpp"
-#include "../schedulers/include.hpp"
-#include "../schedulers/sorters/include.hpp"
-#include "../dynamics/dynamics.hpp"
-#include "../dynamics/species/include.hpp"
-#include "../dynamics/globals/include.hpp"
-#include "../dynamics/interactions/include.hpp"
-#include "../dynamics/ranges/include.hpp"
-#include "../dynamics/BC/include.hpp"
-#include "../dynamics/liouvillean/include.hpp"
-#include "../dynamics/systems/ghost.hpp"
-#include "../base/is_simdata.hpp"
-#include "../dynamics/topology/include.hpp"
-#include "../simulation/ensemble.hpp"
-#include "../dynamics/locals/include.hpp"
-#include "../dynamics/systems/DSMCspheres.hpp"
-#include "../dynamics/systems/RingDSMC.hpp"
-#include "../dynamics/systems/rescale.hpp"
-#include "../dynamics/systems/sleep.hpp"
+#include <dynamo/inputplugins/packer.hpp>
+#include <dynamo/simulation/particle.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/inputplugins/cells/include.hpp>
+#include <dynamo/simulation/particle.hpp>
+#include <dynamo/schedulers/include.hpp>
+#include <dynamo/schedulers/sorters/include.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/dynamics/species/include.hpp>
+#include <dynamo/dynamics/globals/include.hpp>
+#include <dynamo/dynamics/interactions/include.hpp>
+#include <dynamo/dynamics/ranges/include.hpp>
+#include <dynamo/dynamics/BC/include.hpp>
+#include <dynamo/dynamics/liouvillean/include.hpp>
+#include <dynamo/dynamics/systems/ghost.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/topology/include.hpp>
+#include <dynamo/simulation/ensemble.hpp>
+#include <dynamo/dynamics/locals/include.hpp>
+#include <dynamo/dynamics/systems/DSMCspheres.hpp>
+#include <dynamo/dynamics/systems/RingDSMC.hpp>
+#include <dynamo/dynamics/systems/rescale.hpp>
+#include <dynamo/dynamics/systems/sleep.hpp>
 #include <magnet/math/matrix.hpp>
 #include <magnet/exception.hpp>
 #include <boost/random/lognormal_distribution.hpp>
@@ -181,7 +180,7 @@ CIPPacker::initialise()
 
 	if (vm.count("rectangular-box") && (vm.count("i1") && vm["i1"].as<size_t>() == 2))
 	  {
-	    CVector<long> cells = getCells();
+	    std::tr1::array<long, 3> cells = getCells();
 	    if ((cells[0] == 1) || (cells[1] == 1) || (cells[2] == 1))
 	      {
 		derr << "Warning! Now assuming that you're trying to set up a 2D simulation!\n"
@@ -1806,7 +1805,7 @@ CIPPacker::initialise()
 	  boost::variate_generator<dynamo::baseRNG&, boost::uniform_real<double> >
 	    unisampler(Sim->ranGenerator, normdist);
 
-	  CVector<long> tmp = getCells();
+	  std::tr1::array<long, 3> tmp = getCells();
 
 	  Vector wobblespacing;
 
@@ -3635,7 +3634,7 @@ CIPPacker::initialise()
 Vector
 CIPPacker::getNormalisedCellDimensions()
 {
-  CVector<long> cells = getCells();
+  std::tr1::array<long, 3> cells = getCells();
   size_t maxdim = 0;
 
   //Determine the biggest dimension
@@ -3692,10 +3691,11 @@ CIPPacker::standardPackingHelper(CUCell* tmpPtr, bool forceRectangular)
   return sysPack;;
 }
 
-CVector<long>
+std::tr1::array<long, 3>
 CIPPacker::getCells()
 {
-  CVector<long> cells(vm["NCells"].as<unsigned long>());
+  long NCells = vm["NCells"].as<unsigned long>();
+  std::tr1::array<long, 3> cells = {{NCells, NCells, NCells}};
 
   if (vm.count("xcell"))
     cells[0] = vm["xcell"].as<unsigned long>();

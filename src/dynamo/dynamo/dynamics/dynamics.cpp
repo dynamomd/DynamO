@@ -15,15 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "dynamics.hpp"
-#include "include.hpp"
-#include "../datatypes/vector.hpp"
-#include "../datatypes/vector.xml.hpp"
-#include "../base/is_simdata.hpp"
-#include "NparticleEventData.hpp"
-#include "systems/sysTicker.hpp"
-#include "../schedulers/scheduler.hpp"
-
+#include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/dynamics/include.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/NparticleEventData.hpp>
+#include <dynamo/dynamics/systems/sysTicker.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
 #include <magnet/xmlreader.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>

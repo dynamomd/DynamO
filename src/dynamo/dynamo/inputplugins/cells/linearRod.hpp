@@ -16,8 +16,7 @@
 */
 
 #pragma once
-#include "cell.hpp"
-#include "../../datatypes/vector.hpp"
+#include <dynamo/inputplugins/cells/cell.hpp>
 #include <cmath>
 
 struct CUlinearRod: public CUCell

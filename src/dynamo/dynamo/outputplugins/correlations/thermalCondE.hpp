@@ -16,8 +16,7 @@
 */
 
 #pragma once
-#include "../outputplugin.hpp"
-#include "../../datatypes/vector.hpp"
+#include <dynamo/outputplugins/outputplugin.hpp>
 #include <boost/circular_buffer.hpp>
 
 class OPThermalConductivityE: public OutputPlugin

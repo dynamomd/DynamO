@@ -20,25 +20,25 @@
 
 struct CUBCC: public CUCell
 {
-  CUBCC(CVector<long> ncells, Vector  ndimensions, CUCell* nextCell):
+  CUBCC(std::tr1::array<long, 3> ncells, Vector  ndimensions, CUCell* nextCell):
     CUCell(nextCell),
     cells(ncells),
     dimensions(ndimensions)
   {}
 
-  CVector<long> cells;
+  std::tr1::array<long, 3> cells;
   Vector  dimensions;
 
-  virtual std::vector<Vector  > placeObjects(const Vector & centre)
+  virtual std::vector<Vector> placeObjects(const Vector & centre)
   {
-    std::vector<Vector  > retval;
+    std::vector<Vector> retval;
 
     Vector  cellWidth;
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       cellWidth[iDim] = dimensions[iDim] / cells[iDim];
     
     Vector  position;
-    CVector<long> iterVec(0);
+    std::tr1::array<long, 3> iterVec = {{0,0,0}};
     
     while (iterVec[NDIM - 1] != cells[NDIM-1])
       {      

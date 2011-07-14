@@ -17,10 +17,10 @@
 
 #pragma once
 #include <dynamo/base.hpp>
-#include "../datatypes/vector.hpp"
 #include <magnet/math/vector.hpp>
 #include <boost/program_options.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/tr1/array.hpp>
 
 using namespace std;
 using namespace boost;
@@ -38,7 +38,7 @@ class CIPPacker: public dynamo::SimBase
   static po::options_description getOptions();
 
  protected:
-  CVector<long> getCells();
+  std::tr1::array<long, 3> getCells();
   Vector  getNormalisedCellDimensions();
   Vector  getRandVelVec();
   CUCell* standardPackingHelper(CUCell*, bool forceRectangular = false);

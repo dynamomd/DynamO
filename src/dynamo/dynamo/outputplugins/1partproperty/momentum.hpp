@@ -16,8 +16,7 @@
 */
 
 #pragma once
-#include "1partproperty.hpp"
-#include "../../datatypes/vector.hpp"
+#include <dynamo/outputplugins/1partproperty/1partproperty.hpp>
 
 class OPMomentum: public OP1PP
 {

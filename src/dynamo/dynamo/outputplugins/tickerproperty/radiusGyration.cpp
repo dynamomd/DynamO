@@ -16,13 +16,12 @@
 */
 
 #ifdef DYNAMO_GSL
-#include "radiusGyration.hpp"
-#include "../../dynamics/include.hpp"
-#include "../../dynamics/ranges/1range.hpp"
-#include "../../datatypes/vector.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../../dynamics/topology/include.hpp"
-#include "../../dynamics/liouvillean/liouvillean.hpp"
+#include <dynamo/outputplugins/tickerproperty/radiusGyration.hpp>
+#include <dynamo/dynamics/include.hpp>
+#include <dynamo/dynamics/ranges/1range.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/topology/include.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_eigen.h>

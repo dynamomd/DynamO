@@ -16,9 +16,8 @@
 */
 
 #pragma once
-#include "../datatypes/vector.hpp"
-#include "species/species.hpp"
-#include "../simulation/particle.hpp"
+#include <dynamo/dynamics/species/species.hpp>
+#include <dynamo/simulation/particle.hpp>
 
 class ParticleEventData
 {

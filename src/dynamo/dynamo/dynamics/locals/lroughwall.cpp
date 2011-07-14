@@ -15,14 +15,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "lroughwall.hpp"
-#include "../liouvillean/liouvillean.hpp"
-#include "localEvent.hpp"
-#include "../NparticleEventData.hpp"
-#include "../overlapFunc/CubePlane.hpp"
-#include "../units/units.hpp"
-#include "../../datatypes/vector.xml.hpp"
-#include "../../schedulers/scheduler.hpp"
+#include <dynamo/dynamics/locals/lroughwall.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/locals/localEvent.hpp>
+#include <dynamo/dynamics/NparticleEventData.hpp>
+#include <dynamo/dynamics/overlapFunc/CubePlane.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
 
 
 LRoughWall::LRoughWall(dynamo::SimData* nSim, double ne, double net, double nr, Vector  nnorm, 

@@ -16,9 +16,7 @@
 */
 
 #pragma once
-#include "cell.hpp"
-#include "../../datatypes/vector.xml.hpp"
-
+#include <dynamo/inputplugins/cells/cell.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/filtering_stream.hpp>

@@ -40,7 +40,7 @@ class OPVTK: public OPTicker
  protected:
   unsigned long frameCount;
 
-  CVector<size_t> nBins;
+  size_t nBins[3];
   Vector  binWidth;
   Vector  invBinWidth;
   double binVol;

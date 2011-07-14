@@ -1,5 +1,4 @@
 #include "CubePlane.hpp"
-#include "../../datatypes/vector.hpp"
 #include <boost/foreach.hpp>
 
 
@@ -12,7 +11,7 @@ dynamo::OverlapFunctions::CubePlane(const Vector& CubeOrigin,
 {
   Vector  relpos(CubeOrigin - PlaneOrigin);
   
-  CVector<size_t> counter(0);
+  size_t counter[3] = {0, 0, 0};
   
   while (counter[NDIM-1] < 2)
     {

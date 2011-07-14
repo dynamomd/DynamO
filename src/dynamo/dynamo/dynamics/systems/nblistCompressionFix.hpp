@@ -16,8 +16,7 @@
 */
 
 #pragma once
-#include "system.hpp"
-#include "../../datatypes/vector.hpp"
+#include <dynamo/dynamics/systems/system.hpp>
 
 class CSNBListCompressionFix: public System
 {

@@ -16,8 +16,7 @@
 */
 
 #pragma once
-#include "ticker.hpp"
-#include "../../datatypes/vector.hpp"
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <boost/circular_buffer.hpp>
 
 class OPMSDOrientationalCorrelator: public OPTicker

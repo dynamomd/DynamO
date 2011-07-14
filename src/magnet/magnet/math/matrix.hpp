@@ -16,8 +16,6 @@
 */
 
 #pragma once
-
-#define MATRIX_HEADER
 #include <magnet/math/vector.hpp>
 
 // define default MatrixExpression, which is the Matrix type
@@ -1030,3 +1028,55 @@ Dyadic (const VectorExpression<A,B,C> & a,
 #undef MATROW
 #undef MATCOLUMN
 
+// vectors
+template<class A, int B, class C>
+inline magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
+				   const MatrixExpression<A,B,C> & t )
+{
+  char name[2] = "x";
+
+  for (size_t iDim = 0; iDim < NDIM; ++iDim)
+    {
+      name[0] = 'x'+iDim;
+      XML << magnet::xml::tag(name);
+      
+      for (size_t jDim = 0; jDim < NDIM; ++jDim)
+	{
+	  char name2[2] = "x";
+	  name2[0] = 'x'+jDim;
+	  XML << magnet::xml::attr(name2) << t(iDim,jDim);
+	}
+
+      XML << magnet::xml::endtag(name);
+    }
+  
+  return XML;
+}
+
+inline
+MatrixExpression<>& 
+operator<<(MatrixExpression<>& data, const magnet::xml::Node& XML)
+{
+  char name[2] = "x";
+  
+  for (size_t iDim = 0; iDim < NDIM; ++iDim)
+    {
+      name[0] = 'x'+iDim;
+
+      for (size_t jDim = 0; jDim < NDIM; ++jDim)
+	{
+	  char name2[2] = "x";
+	  name2[0] = 'x'+jDim;
+
+	  try {
+	    data(iDim,jDim) = XML.getNode(name).getAttribute(name2).as<double>();
+	  }
+	  catch (boost::bad_lexical_cast &)
+	    {
+	      M_throw() << "Failed a lexical cast";
+	    }
+	}
+    }
+
+  return data;
+}

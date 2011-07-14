@@ -15,14 +15,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "momentum.hpp"
+#include <dynamo/outputplugins/1partproperty/momentum.hpp>
+#include <dynamo/dynamics/interactions/captures.hpp>
+#include <dynamo/dynamics/include.hpp>
+#include <dynamo/dynamics/interactions/intEvent.hpp>
+#include <dynamo/base/is_simdata.hpp>
 #include <boost/foreach.hpp>
 #include <cmath>
-#include "../../dynamics/interactions/captures.hpp"
-#include "../../dynamics/include.hpp"
-#include "../../dynamics/interactions/intEvent.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../../datatypes/vector.xml.hpp"
 
 OPMomentum::OPMomentum(const dynamo::SimData* tmp, const magnet::xml::Node&):
   OP1PP(tmp,"Momentum", 250),

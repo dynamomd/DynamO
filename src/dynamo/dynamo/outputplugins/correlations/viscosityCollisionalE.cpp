@@ -19,7 +19,6 @@
 #include "../../dynamics/include.hpp"
 #include "../0partproperty/misc.hpp"
 #include "../1partproperty/kenergy.hpp"
-#include "../../datatypes/vector.xml.hpp"
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 

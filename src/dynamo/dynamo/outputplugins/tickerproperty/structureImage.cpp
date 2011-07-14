@@ -15,15 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "structureImage.hpp"
-#include "../../dynamics/include.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../../dynamics/liouvillean/liouvillean.hpp"
-#include "../../dynamics/interactions/squarebond.hpp"
-#include "../../dynamics/ranges/2RList.hpp"
-#include "radiusGyration.hpp"
-#include "../../dynamics/topology/chain.hpp"
-#include "../../datatypes/vector.xml.hpp"
+#include <dynamo/outputplugins/tickerproperty/structureImage.hpp>
+#include <dynamo/outputplugins/tickerproperty/radiusGyration.hpp>
+#include <dynamo/dynamics/include.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/interactions/squarebond.hpp>
+#include <dynamo/dynamics/ranges/2RList.hpp>
+#include <dynamo/dynamics/topology/chain.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/algorithm/string.hpp>

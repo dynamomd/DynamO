@@ -20,7 +20,7 @@
 
 struct CUFCC: public CUCell
 {
-  CUFCC(CVector<long> ncells, Vector  ndimensions, CUCell* nextCell):
+  CUFCC(std::tr1::array<long, 3> ncells, Vector  ndimensions, CUCell* nextCell):
     CUCell(nextCell),
     cells(ncells),
     dimensions(ndimensions)
@@ -28,7 +28,7 @@ struct CUFCC: public CUCell
     if (NDIM != 3) M_throw() << "FCC in other than 3 dims not allowed";
   }
 
-  CVector<long> cells;
+  std::tr1::array<long, 3> cells;
   Vector  dimensions;
 
   virtual std::vector<Vector  > placeObjects(const Vector & centre)
@@ -64,7 +64,7 @@ struct CUFCC: public CUCell
     rcoord[3][2] = cellWidth[2] * 0.75;
     
     Vector  position;
-    CVector<int> iterVec;
+    std::tr1::array<int, 3> iterVec;
     
     for (iterVec[2] = 0; iterVec[2] < cells[2]; iterVec[2]++)
       for (iterVec[1] = 0; iterVec[1] < cells[1]; iterVec[1]++)

@@ -16,12 +16,11 @@
 */
 
 #pragma once
-#include "../outputplugin.hpp"
-#include "../../dynamics/include.hpp"
-#include "../../datatypes/vector.xml.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../0partproperty/misc.hpp"
-#include "../1partproperty/kenergy.hpp"
+#include <dynamo/outputplugins/outputplugin.hpp>
+#include <dynamo/dynamics/include.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/outputplugins/0partproperty/misc.hpp>
+#include <dynamo/outputplugins/1partproperty/kenergy.hpp>
 #include <boost/circular_buffer.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>

@@ -16,9 +16,8 @@
 */
 
 #pragma once
-#include "../outputplugin.hpp"
-#include "../../datatypes/vector.hpp"
-#include "../0partproperty/misc.hpp"
+#include <dynamo/outputplugins/outputplugin.hpp>
+#include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <boost/circular_buffer.hpp>
 
 class OPThermalDiffusionE: public OutputPlugin

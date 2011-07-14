@@ -17,9 +17,8 @@
 
 #pragma once
 
-#include "1particleEventData.hpp"
-#include "../datatypes/vector.hpp"
-#include "../simulation/particle.hpp"
+#include <dynamo/dynamics/1particleEventData.hpp>
+#include <dynamo/simulation/particle.hpp>
 
 class PairEventData
 {

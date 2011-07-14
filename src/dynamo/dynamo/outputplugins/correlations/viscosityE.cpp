@@ -15,12 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "viscosityE.hpp"
+#include <dynamo/outputplugins/correlations/viscosityE.hpp>
+#include <dynamo/dynamics/include.hpp>
+#include <dynamo/outputplugins/0partproperty/misc.hpp>
+#include <dynamo/outputplugins/1partproperty/kenergy.hpp>
 #include <boost/foreach.hpp>
-#include "../../dynamics/include.hpp"
-#include "../0partproperty/misc.hpp"
-#include "../1partproperty/kenergy.hpp"
-#include "../../datatypes/vector.xml.hpp"
 
 OPViscosityE::OPViscosityE(const dynamo::SimData* tmp, 
 			   const magnet::xml::Node& XML):
