@@ -21,15 +21,30 @@
 #include <magnet/function/delegate.hpp>
 #include <vector>
 
+/*! \brief A base class for Global events which implement a neighbour list.
+ * 
+ * This is the interface for neighbour lists, which are used to
+ * optimise the look up of \ref Local events and other particles in
+ * the neighbourhood of a given \ref Particle.
+ *
+ * This class also defines callback's that can be registered so that
+ * other parts of DynamO can be updated when a particle changes
+ * neighbours.
+ */
 class GNeighbourList: public Global
 {
 public:
+  /*! \brief The type of function that can be registered for callbacks
+   * when new neighbours of a particle have appeared. 
+   */
   typedef magnet::function::Delegate2
   <const Particle&, const size_t&, void> nbHoodFunc;
 
+  
+  /*! \brief The type of function that can be registered for callbacks
+   * when the neighbourlist is reinitialized.
+   */
   typedef magnet::function::Delegate0<void> initFunc;  
-
-
 protected:
   typedef std::pair<size_t, nbHoodFunc> nbHoodSlot;
 
@@ -60,8 +75,7 @@ protected:
   };
 
 public:
-  GNeighbourList(dynamo::SimData* a, 
-		  const char *b): 
+  GNeighbourList(dynamo::SimData* a, const char *b): 
     Global(a,b),
     lambda(0.9)
   {}

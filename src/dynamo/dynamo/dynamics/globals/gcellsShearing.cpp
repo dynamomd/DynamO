@@ -99,14 +99,13 @@ GCellsShearing::runEvent(const Particle& part, const double) const
   
   size_t cellDirection = abs(cellDirectionInt) - 1;
 
-  magnet::math::MortonNumber<3> endCell; //The ID of the cell the particle enters
+  magnet::math::MortonNumber<3> endCell = oldCellCoords; //The ID of the cell the particle enters
 
   if ((cellDirection == 1) &&
       (oldCellCoords[1] == ((cellDirectionInt < 0) ? 0 : (cellCount[1] - 1))))
     {
       //We're wrapping in the y direction, we have to compute
       //which cell its entering
-      endCell = oldCellCoords;
       endCell[1] = (endCell[1].getRealValue() + cellCount[1] 
 		    + ((cellDirectionInt < 0) ?  -1 : 1)) % cellCount[1];
 
@@ -153,7 +152,6 @@ GCellsShearing::runEvent(const Particle& part, const double) const
     {
       //We're entering the boundary of the y direction
       //Calculate the end cell, no boundary wrap check required
-      endCell = oldCellCoords;
       if (cellDirectionInt > 0)
 	endCell[cellDirection] = (endCell[cellDirection].getRealValue() + 1) % cellCount[cellDirection];
       else
@@ -181,28 +179,21 @@ GCellsShearing::runEvent(const Particle& part, const double) const
       //The coordinates of the new center cell in the neighbourhood of the
       //particle
       magnet::math::MortonNumber<3> newNBCell(oldCell);
-      
-      {
-	//The position of the cell the particle will end up in
-	magnet::math::MortonNumber<3> dendCell(newNBCell);
-	
-	if (cellDirectionInt > 0)
-	  {
-	    dendCell[cellDirection] = (dendCell[cellDirection].getRealValue() + 1) % cellCount[cellDirection];
-	    newNBCell[cellDirection] = (dendCell[cellDirection].getRealValue() + overlink) % cellCount[cellDirection];
-	  }
-	else
-	  {
-	    //We use the trick of adding cellCount to convert the
-	    //subtraction to an addition, to prevent errors in the modulus
-	    //of underflowing unsigned integers.
-	    dendCell[cellDirection] = (dendCell[cellDirection].getRealValue() 
-				       + cellCount[cellDirection] - 1) % cellCount[cellDirection];
-	    newNBCell[cellDirection] = (dendCell[cellDirection].getRealValue() 
-					+ cellCount[cellDirection] - overlink) % cellCount[cellDirection];
-	  }
-	endCell = dendCell;
-      }
+      if (cellDirectionInt > 0)
+	{
+	  endCell[cellDirection] = (endCell[cellDirection].getRealValue() + 1) % cellCount[cellDirection];
+	  newNBCell[cellDirection] = (endCell[cellDirection].getRealValue() + overlink) % cellCount[cellDirection];
+	}
+      else
+	{
+	  //We use the trick of adding cellCount to convert the
+	  //subtraction to an addition, to prevent errors in the modulus
+	  //of underflowing unsigned integers.
+	  endCell[cellDirection] = (endCell[cellDirection].getRealValue() 
+				    + cellCount[cellDirection] - 1) % cellCount[cellDirection];
+	  newNBCell[cellDirection] = (endCell[cellDirection].getRealValue() 
+				      + cellCount[cellDirection] - overlink) % cellCount[cellDirection];
+	}
     
       removeFromCell(part.getID());
       addToCell(part.getID(), endCell.getMortonNum());

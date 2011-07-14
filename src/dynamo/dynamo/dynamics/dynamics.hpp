@@ -33,7 +33,6 @@ class LocalEvent;
 class System;
 class Topology;
 class Particle;
-template<class T> class CVector;
 class Liouvillean;
 class NEventData;
 class PairEventData;

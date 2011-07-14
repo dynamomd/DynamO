@@ -16,10 +16,8 @@
 */
 
 #pragma once
-#include "global.hpp"
-#include "../../datatypes/vector.hpp"
-#include "../../simulation/particle.hpp"
-#include <vector>
+#include <dynamo/dynamics/globals/global.hpp>
+#include <magnet/math/vector.hpp>
 
 class GSOCells: public Global
 {
@@ -30,10 +28,7 @@ public:
 
   virtual ~GSOCells() {}
 
-  virtual Global* Clone() const 
-  { 
-    return new GSOCells(*this); 
-  }
+  virtual Global* Clone() const { return new GSOCells(*this); }
 
   virtual GlobalEvent getEvent(const Particle &) const;
 
@@ -46,8 +41,6 @@ public:
   virtual void outputXML(magnet::xml::XmlStream& XML) const;
 
 protected:
-
-  CVector<int> cellCount;
   Vector  cellDimension;
   size_t cuberootN;
 };
