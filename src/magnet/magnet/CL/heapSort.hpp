@@ -15,32 +15,32 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-
 #include <magnet/CL/detail/common.hpp>
+
+#define STRINGIFY(A) #A
 
 namespace magnet {
   namespace CL {
     template<class T>
-    class heapSort : public detail::functor<heapSort<T> >
+    class heapSort : public detail::Functor
     {
       cl::Kernel _sortKernel, _dataSortKernel;
     
     public:
       void build(cl::CommandQueue queue, cl::Context context)
       {
-	detail::functor<heapSort<T> >::build(queue, context, "");
+	Functor::build(queue, context, "");
 
 	// set up kernel
-	_sortKernel = cl::Kernel(detail::functor<heapSort<T> >::_program, "heapSort");
-
-	_dataSortKernel = cl::Kernel(detail::functor<heapSort<T> >::_program, "heapSortData");	
+	_sortKernel = cl::Kernel(_program, "heapSort");
+	_dataSortKernel = cl::Kernel(_program, "heapSortData");	
       }
 
       void operator()(cl::Buffer input, cl_uint ascending = true)
       {
 	const cl_uint size = input.getInfo<CL_MEM_SIZE>() / sizeof(T);
 
-	cl::KernelFunctor clsort = _sortKernel.bind(detail::functor<heapSort<T> >::_queue, cl::NDRange(1), 
+	cl::KernelFunctor clsort = _sortKernel.bind(_queue, cl::NDRange(1), 
 						     cl::NDRange(1));      
 	clsort(input, size);
       }
@@ -52,13 +52,111 @@ namespace magnet {
 	  M_throw() << "Data-key buffer size mismatch";
 	
 
-	cl::KernelFunctor clsort = _dataSortKernel.bind(detail::functor<heapSort<T> >::_queue, cl::NDRange(1), 
+	cl::KernelFunctor clsort = _dataSortKernel.bind(_queue, cl::NDRange(1), 
 							cl::NDRange(1));      
 	clsort(keyInput, dataInput, size);
 
       }
-      static inline std::string kernelSource();
+
+      virtual std::string initKernelSrc()
+      {
+	return std::string("#define keyType ") + detail::traits<T>::kernel_type() + "\n"
+	  STRINGIFY(
+void siftDown(__global keyType* numbers, int root, int bottom)
+{
+  int done = 0;
+ 
+  done = 0;
+  while ((root*2 <= bottom) && (!done))
+    {
+      int maxChild = root * 2 + 1;
+
+      if (root*2 == bottom)
+	maxChild = root * 2;
+      else if (numbers[root * 2] > numbers[root * 2 + 1])
+	maxChild = root * 2;
+    
+      if (numbers[root] < numbers[maxChild])
+	{
+	  keyType temp = numbers[root];
+	  numbers[root] = numbers[maxChild];
+	  numbers[maxChild] = temp;
+	  root = maxChild;
+	}
+      else
+	done = 1;
+    }
+}
+
+__kernel void heapSort(__global keyType* numbers, uint array_size)
+{
+  int i;
+ 
+  for (i = (array_size / 2) - 1; i >= 0; i--)
+    siftDown(numbers, i, array_size - 1);
+ 
+  for (i = array_size-1; i >= 1; i--)
+    {
+      keyType temp = numbers[0];
+      numbers[0] = numbers[i];
+      numbers[i] = temp;
+      siftDown(numbers, 0, i-1);
+    }
+}
+
+void siftDownData(__global keyType* numbers, __global uint* data,  int root, int bottom)
+{
+  int done = 0;
+ 
+  done = 0;
+  while ((root*2 <= bottom) && (!done))
+    {
+      int maxChild = root * 2 + 1;
+
+      if (root*2 == bottom)
+	maxChild = root * 2;
+      else if (numbers[root * 2] > numbers[root * 2 + 1])
+	maxChild = root * 2;
+    
+      if (numbers[root] < numbers[maxChild])
+	{
+	  keyType temp = numbers[root];
+	  numbers[root] = numbers[maxChild];
+	  numbers[maxChild] = temp;
+	
+	  uint temp2 = data[root];
+	  data[root] = data[maxChild];
+	  data[maxChild] = temp2;
+	
+	  root = maxChild;
+	}
+      else
+	done = 1;
+    }
+}
+
+__kernel void heapSortData(__global keyType* numbers,  __global uint* data, uint array_size)
+{
+  int i;
+ 
+  for (i = (array_size / 2) - 1; i >= 0; i--)
+    siftDownData(numbers, data, i, array_size - 1);
+ 
+  for (i = array_size-1; i >= 1; i--)
+    {
+      keyType temp = numbers[0];
+      numbers[0] = numbers[i];
+      numbers[i] = temp;
+
+      uint temp2 = data[0];
+      data[0] = data[i];
+      data[i] = temp2;
+
+      siftDownData(numbers, data, 0, i-1);
+    }
+});
+      }
     };
   }
 }
-#include <magnet/CL/detail/kernels/heapSort.clh>
+#undef STRINGIFY

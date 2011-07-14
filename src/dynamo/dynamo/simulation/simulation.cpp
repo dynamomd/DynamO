@@ -30,6 +30,14 @@
 #include <boost/foreach.hpp>
 #include <iomanip>
 
+#include <boost/iostreams/device/file.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/bzip2.hpp>
+#include <boost/iostreams/chain.hpp>
+#include <boost/iostreams/device/back_inserter.hpp>
+#include <boost/iostreams/copy.hpp>
+#include <boost/filesystem.hpp>
+
 void 
 Simulation::setTickerPeriod(double nP)
 {
@@ -151,7 +159,7 @@ Simulation::initialise()
 
   ensemble->initialise();
     
-  fflush(stdout);
+  std::cout.flush();
 
   if (endEventCount) //Only initialise the scheduler if we're simulating
     {

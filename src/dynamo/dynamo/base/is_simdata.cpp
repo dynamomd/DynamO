@@ -15,17 +15,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "is_simdata.hpp"
-#include "../schedulers/scheduler.hpp"
-#include "../dynamics/liouvillean/liouvillean.hpp"
-#include "../schedulers/scheduler.hpp"
-#include "../dynamics/systems/system.hpp"
-#include "../outputplugins/0partproperty/misc.hpp"
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/dynamics/systems/system.hpp>
+#include <dynamo/outputplugins/0partproperty/misc.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/bzip2.hpp>
 #include <boost/iostreams/chain.hpp>
-#include <boost/filesystem.hpp>
+#include <boost/iostreams/device/back_inserter.hpp>
+#include <boost/iostreams/copy.hpp>
 #include <iomanip>
 
 //! The configuration file version, a version mismatch prevents an XML file load.
@@ -64,12 +66,39 @@ namespace dynamo
   void
   SimData::loadXMLfile(std::string fileName)
   {
-    //Handled by an input plugin
     if (status != START)
       M_throw() << "Loading config at wrong time, status = " << status;
-  
+
     using namespace magnet::xml;
-    Document doc(fileName.c_str());
+    Document doc;
+    
+    namespace io = boost::iostreams;
+    
+    if (!boost::filesystem::exists(fileName))
+      M_throw() << "Could not find the XML file named " << fileName
+		<< "\nPlease check the file exists.";
+    { //This scopes out the file objects
+      
+      //We use the boost iostreams library to load the file into a
+      //string which may be compressed.
+      
+      //We make our filtering iostream
+      io::filtering_istream inputFile;
+      
+      //Now check if we should add a decompressor filter
+      if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
+	inputFile.push(io::bzip2_decompressor());
+      else if (!(std::string(fileName.end()-4, fileName.end()) == ".xml"))
+	M_throw() << "Unrecognized extension for xml file";
+
+      //Finally, add the file as a source
+      inputFile.push(io::file_source(fileName));
+	  
+      io::copy(inputFile, io::back_inserter(doc.getStoredXMLData()));
+    }
+
+    doc.parseData();
+
     Node mainNode = doc.getNode("DynamOconfig");
 
     {

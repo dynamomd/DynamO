@@ -14,12 +14,22 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#include <magnet/xmlreader.hpp>
+#include <magnet/exception.hpp>
+
 #include <boost/unordered_map.hpp>
 #include <boost/program_options.hpp>
 #include <boost/foreach.hpp>
 #include <boost/array.hpp>
-#include <magnet/xmlreader.hpp>
-#include <magnet/exception.hpp>
+#include <boost/iostreams/device/file.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/bzip2.hpp>
+#include <boost/iostreams/chain.hpp>
+#include <boost/iostreams/device/back_inserter.hpp>
+#include <boost/iostreams/copy.hpp>
+#include <boost/filesystem.hpp>
+
 #include <fenv.h>
 #include <iostream>
 #include <vector>
@@ -50,7 +60,37 @@ struct SimData
   SimData(std::string nfn):fileName(nfn), logZ(0.0), new_logZ(0.0), refZ(false)
   {
     using namespace magnet::xml;
-    Document doc(fileName);  
+
+    Document doc;
+
+    namespace io = boost::iostreams;
+    
+    if (!boost::filesystem::exists(fileName))
+      M_throw() << "Could not find the XML file named " << fileName
+		<< "\nPlease check the file exists.";
+    { //This scopes out the file objects
+      
+      //We use the boost iostreams library to load the file into a
+      //string which may be compressed.
+      
+      //We make our filtering iostream
+      io::filtering_istream inputFile;
+      
+      //Now check if we should add a decompressor filter
+      if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
+	inputFile.push(io::bzip2_decompressor());
+      else if (!(std::string(fileName.end()-4, fileName.end()) == ".xml"))
+	M_throw() << "Unrecognized extension for xml file";
+
+      //Finally, add the file as a source
+      inputFile.push(io::file_source(fileName));
+	  
+      //Force the copy to occur
+      io::copy(inputFile, io::back_inserter(doc.getStoredXMLData()));
+    }
+
+    doc.parseData();
+
     Node mainNode = doc.getNode("OutputData");
 
     //Find the bin width

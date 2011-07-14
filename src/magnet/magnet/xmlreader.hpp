@@ -19,14 +19,8 @@
 
 #include <magnet/detail/rapidXML/rapidxml.hpp>
 #include <magnet/exception.hpp>
-#include <boost/iostreams/device/file.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/filter/bzip2.hpp>
-#include <boost/iostreams/chain.hpp>
-#include <boost/iostreams/device/back_inserter.hpp>
-#include <boost/iostreams/copy.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
+#include <vector>
 
 namespace magnet {
   //!Namespace enclosing the XML tools included in magnet.
@@ -286,43 +280,17 @@ namespace magnet {
      * Boost's property_tree. Unlike property_tree this class is
      * space-efficient and does not copy the XML data.  This class
      * must outlive any Node or Attribute generated from it.
+     *
+     * To parse a document, you must first load the document text into
+     * this class's _data parameter using \ref
+     * getStoredXMLData(). Then you call \ref parseData().
      */
     class Document {
     public:
-      /*! \brief Construct an XML Document from a file.
-       *
-       * \param fileName Path to the file to load.
+      /*! \brief Parse the stored XML data.
        */
-      inline Document(std::string fileName)
-      {
-	namespace io = boost::iostreams;
-
-	if (!boost::filesystem::exists(fileName))
-	  M_throw() << "Could not find the XML file named " << fileName
-		    << "\nPlease check the file exists.";
-	{ //This scopes out the file objects
-	  
-	  //We use the boost iostreams library to load the file into a
-	  //string which may be compressed.
-	  
-	  //We make our filtering iostream
-	  io::filtering_istream inputFile;
-	  
-	  //Now check if we should add a decompressor filter
-	  if (std::string(fileName.end()-8, fileName.end()) == ".xml.bz2")
-	      inputFile.push(io::bzip2_decompressor());
-	  else if (!(std::string(fileName.end()-4, fileName.end()) == ".xml"))
-	    M_throw() << "Unrecognized extension for xml file";
-
-	  //Finally, add the file as a source
-	  inputFile.push(io::file_source(fileName));
-	  
-	  //Force the copy to occur
-	  io::copy(inputFile, io::back_inserter(_data));
-	}
-
-	_doc.parse<rapidxml::parse_trim_whitespace>(&_data[0]);
-      }
+      inline void parseData()
+      { _doc.parse<rapidxml::parse_trim_whitespace>(&_data[0]); }
       
       /*! \brief Return the first Node with a certain name in the
        * Document.
@@ -332,6 +300,8 @@ namespace magnet {
        */
       template<class T>
       inline Node getNode(T name) { return Node(_doc.first_node(name), &_doc); }
+
+      std::string& getStoredXMLData() { return _data; }
 
     protected:
       std::string _data;

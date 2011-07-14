@@ -19,6 +19,7 @@
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
+#include <cstring>
 
 magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
 			   const BoundaryCondition& g)

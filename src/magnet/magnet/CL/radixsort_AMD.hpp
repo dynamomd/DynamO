@@ -18,14 +18,15 @@
 
 #include <magnet/CL/detail/common.hpp>
 #include <magnet/CL/scan.hpp>
-
 #include <sstream>
 #include <fstream>
+
+#define STRINGIFY(A) #A
 
 namespace magnet {
   namespace CL {
     template<class T>
-    class radixSortAMD : public detail::functor<radixSortAMD<T> >
+    class radixSortAMD : public detail::Functor
     {
       cl::Kernel _histogramKernel, 
 	_permuteKernel,
@@ -49,14 +50,14 @@ namespace magnet {
 	_scanFunctor.build(queue, context);
 
 	//And build this functor
-	detail::functor<radixSortAMD<T> >::build(queue, context, "");
+	Functor::build(queue, context, "");
 
 	_histogramKernel 
-	  = cl::Kernel(detail::functor<radixSortAMD<T> >::_program, "histogram");
+	  = cl::Kernel(_program, "histogram");
 	_permuteKernel 
-	  = cl::Kernel(detail::functor<radixSortAMD<T> >::_program, "permute");
+	  = cl::Kernel(_program, "permute");
 	_dataPermuteKernel 
-	  = cl::Kernel(detail::functor<radixSortAMD<T> >::_program, "datapermute");
+	  = cl::Kernel(_program, "datapermute");
       }
 
       void operator()(cl::Buffer keyInput, cl::Buffer keyOutput, cl_uint bits_to_sort = 0)
@@ -81,23 +82,23 @@ namespace magnet {
 	//Create the buffer holding the bit block offsets
 	if (_lastSize != size)
 	  {
-	    _buckets =  cl::Buffer(detail::functor<radixSortAMD<T> >::_context, 
+	    _buckets =  cl::Buffer(_context, 
 				   CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * groupSize * maxRadixDigit);
 	    
-	    _doubleBuffer = cl::Buffer(detail::functor<radixSortAMD<T> >::_context, 
+	    _doubleBuffer = cl::Buffer(_context, 
 				       CL_MEM_READ_WRITE, sizeof(T) * size);
 	  }
 
 	cl::KernelFunctor _histogramFunc
-	  = _histogramKernel.bind(detail::functor<radixSortAMD<T> >::_queue, 
+	  = _histogramKernel.bind(_queue, 
 				  cl::NDRange(nWorkGroups * groupSize), cl::NDRange(groupSize));
       
 	cl::KernelFunctor _permuteFunc
-	  = _permuteKernel.bind(detail::functor<radixSortAMD<T> >::_queue, 
+	  = _permuteKernel.bind(_queue, 
 				cl::NDRange(nWorkGroups * groupSize), cl::NDRange(groupSize));
        
 	try {
-	  detail::functor<radixSortAMD<T> >::_queue.enqueueCopyBuffer(keyInput, keyOutput, 0, 0, 
+	  _queue.enqueueCopyBuffer(keyInput, keyOutput, 0, 0, 
 									 sizeof(T) * size);
 	} catch (cl::Error& err)
 	  {
@@ -125,7 +126,7 @@ namespace magnet {
 			 size, keysPerWorkitem, bitsPerPass
 			 );
 	    
-	    detail::functor<radixSortAMD<T> >::_queue.enqueueCopyBuffer(_doubleBuffer, keyOutput, 0, 0, 
+	    _queue.enqueueCopyBuffer(_doubleBuffer, keyOutput, 0, 0, 
 									   sizeof(T) * size);
 	  }
 
@@ -156,29 +157,29 @@ namespace magnet {
 	//Create the buffer holding the bit block offsets
 	if (_lastSize != size)
 	  {
-	    _buckets =  cl::Buffer(detail::functor<radixSortAMD<T> >::_context, 
+	    _buckets =  cl::Buffer(_context, 
 				   CL_MEM_READ_WRITE, sizeof(cl_uint) * nWorkGroups * groupSize * maxRadixDigit);
 	    
-	    _doubleBuffer = cl::Buffer(detail::functor<radixSortAMD<T> >::_context, 
+	    _doubleBuffer = cl::Buffer(_context, 
 				       CL_MEM_READ_WRITE, sizeof(T) * size);
 	  }
 
 	if (_lastDataSize != size)
 	  {
-	    _dataDoubleBuffer = cl::Buffer(detail::functor<radixSortAMD<T> >::_context, 
+	    _dataDoubleBuffer = cl::Buffer(_context, 
 					   CL_MEM_READ_WRITE, sizeof(cl_uint) * size);
 	  }
 
 	cl::KernelFunctor _histogramFunc
-	  = _histogramKernel.bind(detail::functor<radixSortAMD<T> >::_queue, 
+	  = _histogramKernel.bind(_queue, 
 				  cl::NDRange(nWorkGroups * groupSize), cl::NDRange(groupSize));
       
 	cl::KernelFunctor _dataPermuteFunc
-	  = _dataPermuteKernel.bind(detail::functor<radixSortAMD<T> >::_queue, 
+	  = _dataPermuteKernel.bind(_queue, 
 				    cl::NDRange(nWorkGroups * groupSize), cl::NDRange(groupSize));
        
 	try {
-	  detail::functor<radixSortAMD<T> >::_queue.enqueueCopyBuffer(keyInput, keyOutput, 0, 0, 
+	  _queue.enqueueCopyBuffer(keyInput, keyOutput, 0, 0, 
 									 sizeof(T) * size);
 	} catch (cl::Error& err)
 	  {
@@ -186,7 +187,7 @@ namespace magnet {
 	  }
 
 	try {
-	  detail::functor<radixSortAMD<T> >::_queue.enqueueCopyBuffer(dataInput, dataOutput, 0, 0, 
+	  _queue.enqueueCopyBuffer(dataInput, dataOutput, 0, 0, 
 									 sizeof(cl_uint) * size);
 	} catch (cl::Error& err)
 	  {
@@ -212,18 +213,169 @@ namespace magnet {
 			     size, keysPerWorkitem, bitsPerPass
 			     );
 	    
-	    detail::functor<radixSortAMD<T> >::_queue.enqueueCopyBuffer(_doubleBuffer, keyOutput, 0, 0, 
+	    _queue.enqueueCopyBuffer(_doubleBuffer, keyOutput, 0, 0, 
 									   sizeof(T) * size);
-	    detail::functor<radixSortAMD<T> >::_queue.enqueueCopyBuffer(_dataDoubleBuffer, dataOutput, 0, 0, 
+	    _queue.enqueueCopyBuffer(_dataDoubleBuffer, dataOutput, 0, 0, 
 									   sizeof(cl_uint) * size);
 	  }
 
 	_lastDataSize = _lastSize = size;
       }
 
-      static inline std::string kernelSource();
+      virtual std::string initKernelSrc()
+      {
+	return
+	  "\n#define keyType " 
+	  + detail::traits<typename detail::traits<T>::bitshiftable_type>::kernel_type()
+	  + "\n#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable\n"
+	  STRINGIFY(
+/**
+ * @brief   Calculates block-histogram bin whose bin size is 256
+ * @param   unsortedData    array of unsorted elements
+ * @param   buckets         histogram buckets    
+ * @param   shiftCount      shift count
+ * @param   sharedArray     shared array for thread-histogram bins
+  */
+__kernel
+void histogram(__global const uint* unsortedData,
+               __global uint* buckets,
+               uint shiftCount,
+               __local ushort* sharedArray,
+	       uint N,
+	       const uint itemsPerThread, const uint radix)
+{
+//  const uint itemsPerThread = 256;
+//  const uint radix = 8;
+  const uint radices = 1 << radix;
+  const uint mask = radices - 1;
+
+  for (uint blockOffset = get_group_id(0) * get_local_size(0);
+       blockOffset * itemsPerThread < N;
+       blockOffset += get_global_size(0))
+    {
+      uint globalID = blockOffset + get_local_id(0);
+      uint globalSize = N / itemsPerThread;
+
+      /* Initialize shared array to zero */
+      for(int i = 0; i < radices; ++i)
+	sharedArray[get_local_id(0) * radices + i] = 0;
+      
+      barrier(CLK_LOCAL_MEM_FENCE);
+      
+      /* Calculate thread-histograms */
+      for(int i = 0; i < itemsPerThread; ++i)
+	{
+	  uint value = unsortedData[globalID * itemsPerThread + i] >> shiftCount;
+	  value &= mask;
+	  sharedArray[get_local_id(0) * radices + value]++;
+	}
+      
+      barrier(CLK_LOCAL_MEM_FENCE);
+      
+      /* Copy calculated histogram bin to global memory */
+      for(int i = 0; i < radices; ++i)
+	{
+	  uint bucketPos = i * globalSize + globalID;
+	  buckets[bucketPos] = sharedArray[get_local_id(0) * radices + i];
+	}
+    }
+}
+
+/**
+ * @brief   Permutes the element to appropriate places based on
+ *          prescaned buckets values
+ * @param   unsortedData        array of unsorted elments
+ * @param   scanedBuckets       prescaned buckets for permuations
+ * @param   shiftCount          shift count
+ * @param   sharedBuckets       shared array for scaned buckets
+ * @param   sortedData          array for sorted elements
+ */
+__kernel
+void permute(__global const uint* unsortedKeys,
+             __global const uint* scanedBuckets,
+             uint shiftCount,
+             __local uint* sharedBuckets,
+             __global uint* sortedKeys,
+	     uint N,
+	     const uint itemsPerThread, const uint radix)
+{
+  const uint radices = 1 << radix;
+  const uint mask = radices - 1;
+  
+  for (uint blockOffset = get_group_id(0) * get_local_size(0);
+       blockOffset * itemsPerThread < N;
+       blockOffset += get_global_size(0))
+    {
+      uint globalID = blockOffset + get_local_id(0);
+      uint globalSize = N / itemsPerThread;
+      
+      /* Copy prescaned thread histograms to corresponding thread shared block */
+      for(int i = 0; i < radices; ++i)
+	{
+	  uint bucketPos = i * globalSize + globalID;
+	  sharedBuckets[get_local_id(0) * radices + i] = scanedBuckets[bucketPos];
+	}
+
+      barrier(CLK_LOCAL_MEM_FENCE);
+      
+      /* Premute elements to appropriate location */
+      for(int i = 0; i < itemsPerThread; ++i)
+	{
+	  uint value = unsortedKeys[globalID * itemsPerThread + i];
+	  value = (value >> shiftCount) & mask;
+	  uint index = sharedBuckets[get_local_id(0) * radices + value];
+	  sortedKeys[index] = unsortedKeys[globalID * itemsPerThread + i];
+	  sharedBuckets[get_local_id(0) * radices + value] = index + 1;
+	  barrier(CLK_LOCAL_MEM_FENCE);
+	}
+    }
+}
+
+__kernel
+void datapermute(__global const uint* unsortedKeys,
+		 __global const uint* scanedBuckets,
+		 __global const uint* unsortedData,
+		 uint shiftCount,
+		 __local uint* sharedBuckets,
+		 __global uint* sortedKeys,
+		 __global uint* sortedData,
+		 uint N,
+		 const uint itemsPerThread, const uint radix)
+{
+  const uint radices = 1 << radix;
+  const uint mask = radices - 1;
+
+  for (uint blockOffset = get_group_id(0) * get_local_size(0);
+       blockOffset * itemsPerThread < N;
+       blockOffset += get_global_size(0))
+    {
+      uint globalID = blockOffset + get_local_id(0);
+      uint globalSize = N / itemsPerThread;
+
+      /* Copy prescaned thread histograms to corresponding thread shared block */
+      for(int i = 0; i < radices; ++i)
+	{
+	  uint bucketPos = i * globalSize + globalID;
+	  sharedBuckets[get_local_id(0) * radices + i] = scanedBuckets[bucketPos];
+	}
+
+      barrier(CLK_LOCAL_MEM_FENCE);
+      
+      /* Premute elements to appropriate location */
+      for(int i = 0; i < itemsPerThread; ++i)
+	{
+	  uint value = unsortedKeys[globalID * itemsPerThread + i];
+	  value = (value >> shiftCount) & mask;
+	  uint index = sharedBuckets[get_local_id(0) * radices + value];
+	  sortedKeys[index] = unsortedKeys[globalID * itemsPerThread + i];
+	  sortedData[index] = unsortedData[globalID * itemsPerThread + i];
+	  sharedBuckets[get_local_id(0) * radices + value] = index + 1;
+	  barrier(CLK_LOCAL_MEM_FENCE);
+	}
+    }
+});	
+      }
     };
   }
 }
-
-#include "magnet/CL/detail/kernels/radixsort_AMD.clh"
+#undef STRINGIFY

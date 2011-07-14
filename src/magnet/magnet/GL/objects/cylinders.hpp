@@ -100,8 +100,8 @@ namespace magnet {
 	}
 
       protected:
-	magnet::GL::Buffer _vertexData;
-	magnet::GL::Buffer _indexData;
+	magnet::GL::Buffer<GLfloat> _vertexData;
+	magnet::GL::Buffer<GLuint> _indexData;
 	size_t _LOD;
 	size_t _cylinders;
       };
