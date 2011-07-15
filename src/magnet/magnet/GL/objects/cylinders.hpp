@@ -16,7 +16,7 @@
 */
 #pragma once
 #include <magnet/GL/buffer.hpp>
-#include <tr1/array>
+#include <magnet/GL/objects/instanced.hpp>
 
 namespace magnet {
   namespace GL {
@@ -24,80 +24,67 @@ namespace magnet {
       /*! \brief A collection of cylinders.
        *
        */
-      class Cylinders
-      {
+      class Cylinders : public Instanced
+      {	
       public:
-	//! \brief Destructor
-	inline ~Cylinders() { deinit(); }
-
-	//! \brief Release any associated OpenGL resources.
-	inline void deinit() { _vertexData.deinit(); _indexData.deinit(); _cylinders = _LOD = 0; }
-
-	/*! \brief Sets up the vertex buffer objects for the regular
-	 * grid.
-	 *
-	 * \param LOD The number of vertices on the edge of the
-	 * cylinder (Level of Detail).
-	 *
-	 * \param cylinders The number of cylinders represented by this object
-	 */
-	inline void init(size_t cylinders, size_t LOD = 6)
+	inline void init(size_t N, size_t LOD = 6)
 	{
-	  deinit();
 	  _LOD = LOD;
-	  _cylinders = cylinders;
+	  Instanced::init(N);
+	}
+	
+	virtual std::vector<GLfloat> getPrimitiveVertices()
+	{
+	  std::vector<GLfloat> vertices(2 * _LOD * 3);
 
-	  //Every cylinder is made of 2 * LOD vertices, which loop back
-	  //on itself (+2) and have a degenerate index before and
-	  //after (+2)
-
-	  {
-	    std::vector<GLuint> indices((2 * LOD + 4) * _cylinders);
-	    
-	    for (size_t cyl(0); cyl < _cylinders; ++cyl)
-	      {
-		//Degenerate "begin" vertex
-		indices[(2 * LOD + 4) * cyl + 0] =  (2 * LOD) * _cylinders + 0;
-		
-		//Main vertices
-		for (size_t vert = 0; vert < 2 * LOD; ++vert)
-		  indices[(2 * LOD + 4) * cyl + 1 + vert] =  (2 * LOD) * _cylinders + vert;
-		
-		//Rejoin the end vertex
-		indices[(2 * LOD + 4) * cyl + 2 * LOD + 1] =  (2 * LOD) * _cylinders + 0;
-		indices[(2 * LOD + 4) * cyl + 2 * LOD + 2] =  (2 * LOD) * _cylinders + 1;
-		
-		//Degenerate "end" vertex
-		indices[(2 * LOD + 4) * cyl + 2 * LOD + 3] =  (2 * LOD) * _cylinders + 1;
-	      }
-	    
-	    _indexData.init(indices, GL_STATIC_DRAW);
-	  }
-	  
-	  //Reserve the vertex data buffer
-	  _vertexData.init(2 * LOD * _cylinders * 3 * sizeof(GLfloat));
+	  for (size_t vert = 0; vert < 2 * _LOD; ++vert)
+	    {
+	      vertices[3 * vert + 0] = 0.5f * std::sin((vert / 2) * 2.0f * M_PI / _LOD);
+	      vertices[3 * vert + 1] = 0.5f * std::cos((vert / 2) * 2.0f * M_PI / _LOD);
+	      vertices[3 * vert + 2] = vert % 2;
+	    }
+	  return vertices;
 	}
 
-	/*! \brief Attaches the vertex buffer and renders the regular grid.
-	 *
-	 * The color of the grid should be set before calling this
-	 * function with glColor.
-	 */
-	inline void glRender()
+	virtual std::vector<GLfloat> getPrimitiveNormals()
 	{
-	  if (!_cylinders)
-	    M_throw() << "Trying to render an empty set of cylinders";
+	  std::vector<GLfloat> normals(2 * _LOD * 3);
 
-	  _vertexData.attachToVertex(3);
-	  _elementBuff.drawElements(magnet::GL::element_type::TRIANGLE_STRIP)
-	  glDisableClientState(GL_VERTEX_ARRAY);
+	  for (size_t vert = 0; vert < 2 * _LOD; ++vert)
+	    {
+	      GLfloat x = 0.5f * std::sin((vert / 2) * 2.0f * M_PI / _LOD);
+	      GLfloat y = 0.5f * std::cos((vert / 2) * 2.0f * M_PI / _LOD);
+	      GLfloat scale = 1.0f / std::sqrt(x * x + y * y);
+	      normals[3 * vert + 0] = x * scale;
+	      normals[3 * vert + 1] = y * scale;
+	      normals[3 * vert + 2] = 0;
+	    }
+	  return normals;
+	}
+
+	virtual std::vector<GLuint>  getPrimitiveIndicies()
+	{
+	  std::vector<GLuint> indices(2 * _LOD + 4);
+	  
+	  //Degenerate "begin" vertex
+	  indices[0] = 0;
+	  
+	  //Main vertices
+	  for (size_t vert = 0; vert < 2 * _LOD; ++vert)
+	    indices[1 + vert] = vert;
+	  
+	  //Rejoin the end vertex
+	  indices[2 * _LOD + 1] =  0;
+	  indices[2 * _LOD + 2] =  1;
+	  
+	  //Degenerate "end" vertex
+	  indices[2 * _LOD + 3] =  1;
+
+	  return indices;
 	}
 
       protected:
-	magnet::GL::Buffer<GLfloat> _vertexData;
-	magnet::GL::Buffer<GLuint> _indexData;
 	size_t _LOD;
-	size_t _cylinders;
       };
     }
   }

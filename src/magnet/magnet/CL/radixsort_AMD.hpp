@@ -26,7 +26,7 @@
 namespace magnet {
   namespace CL {
     template<class T>
-    class radixSortAMD : public detail::Functor
+    class radixSortAMD : public detail::Program
     {
       cl::Kernel _histogramKernel, 
 	_permuteKernel,
@@ -50,7 +50,7 @@ namespace magnet {
 	_scanFunctor.build(queue, context);
 
 	//And build this functor
-	Functor::build(queue, context, "");
+	Program::build(queue, context, "");
 
 	_histogramKernel 
 	  = cl::Kernel(_program, "histogram");

@@ -159,8 +159,18 @@ namespace magnet {
 	glDrawElements(type, size(), detail::c_type_to_gl_enum<T>::val, 0);
       }
 
-      /*! \brief Forwards to the call to the Buffer's GL context \ref
-       * Context::drawElements function.
+      /*! \brief Draw all the elements in the current buffer multiple
+       * times using instancing.
+       */
+      inline void drawInstancedElements(element_type::Enum type, size_t instances)
+      { 
+	initTest();
+	bind(buffer_targets::ELEMENT_ARRAY);
+	glDrawElementsInstanced(type, size(), detail::c_type_to_gl_enum<T>::val, 0, instances);
+      }
+
+      /*! \brief Draw all vertices in this array, without using
+       * indexing.
        */
       inline void drawArray(size_t vertex_size, element_type::Enum type)
       { 
@@ -204,6 +214,19 @@ namespace magnet {
 	bind(buffer_targets::ARRAY);	
 	glNormalPointer(detail::c_type_to_gl_enum<T>::val, 0, 0);
 	glEnableClientState(GL_NORMAL_ARRAY); 
+      }
+
+      /*! \brief Attaches the buffer to a vertex attribute pointer
+       * state.
+       */
+      inline void attachToAttribute(size_t attrnum, size_t components, size_t divisor = 0, bool normalise = false)
+      {
+	initTest();
+	bind(buffer_targets::ARRAY);	
+	glVertexAttribPointer(attrnum, components, detail::c_type_to_gl_enum<T>::val, 
+			      (normalise ? GL_TRUE : GL_FALSE), 0, 0);
+	glEnableVertexAttribArray(attrnum);
+	glVertexAttribDivisor(attrnum, divisor);
       }
 
       /*! \brief Returns an OpenCL representation of this GL buffer.

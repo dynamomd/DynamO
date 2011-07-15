@@ -22,14 +22,14 @@
 namespace magnet {
   namespace CL {
     template<class T>
-    class heapSort : public detail::Functor
+    class heapSort : public detail::Program
     {
       cl::Kernel _sortKernel, _dataSortKernel;
     
     public:
       void build(cl::CommandQueue queue, cl::Context context)
       {
-	Functor::build(queue, context, "");
+	Program::build(queue, context);
 
 	// set up kernel
 	_sortKernel = cl::Kernel(_program, "heapSort");

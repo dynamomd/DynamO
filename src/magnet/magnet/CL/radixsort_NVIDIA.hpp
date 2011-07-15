@@ -24,7 +24,7 @@
 namespace magnet {
   namespace CL {
     template<class T>
-    class radixSortNVIDIA : public detail::Functor
+    class radixSortNVIDIA : public detail::Program
     {
       cl::Kernel _radixSortKernel, 
 	_findRadixOffsetsKernel, 
@@ -52,18 +52,13 @@ namespace magnet {
 	_scanFunctor.build(queue, context);
 
 	//And build this functor
-	Functor::build(queue, context, "");
+	Program::build(queue, context, "");
 
-	_radixSortKernel 
-	  = cl::Kernel(_program, "radixBlockSortKernel");
-	_findRadixOffsetsKernel 
-	  = cl::Kernel(_program, "findRadixOffsetsKernel");
-	_reorderKeysKernel 
-	  = cl::Kernel(_program, "reorderKeys");
-	_radixSortDataKernel 
-	  = cl::Kernel(_program, "radixBlockSortDataKernel");
-	_reorderKeysDataKernel 
-	  = cl::Kernel(_program, "reorderKeysData");
+	_radixSortKernel        = operator[]("radixBlockSortKernel");
+	_findRadixOffsetsKernel = operator[]("findRadixOffsetsKernel");
+	_reorderKeysKernel      = operator[]("reorderKeys");
+	_radixSortDataKernel    = operator[]("radixBlockSortDataKernel");
+	_reorderKeysDataKernel  = operator[]("reorderKeysData");
       }
 
       void operator()(cl::Buffer keyInput, cl::Buffer keyOutput, cl_uint bits_to_sort = 0, cl_uint bitsPerPass = 4)

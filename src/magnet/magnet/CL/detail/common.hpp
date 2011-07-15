@@ -20,4 +20,4 @@
 #include <CL/cl.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/CL/detail/traits.hpp>
-#include <magnet/CL/detail/functors.hpp>
+#include <magnet/CL/detail/program.hpp>

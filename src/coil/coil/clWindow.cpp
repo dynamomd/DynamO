@@ -19,6 +19,7 @@
 #include <coil/RenderObj/Function.hpp>
 #include <coil/RenderObj/console.hpp>
 #include <coil/RenderObj/Volume.hpp>
+#include <coil/RenderObj/Cylinders.hpp>
 
 #include <magnet/GL/context.hpp>
 
@@ -840,6 +841,9 @@ CLGLWindow::init()
 
 //  //Test volume render object
 //  RenderObjects.push_back(new coil::RVolume("Test Volume"));
+
+  //Test cylinder render object
+  RenderObjects.push_back(new coil::RCylinders(100, "Cylinder Test Objects"));
 
   _viewPortInfo 
     = magnet::thread::RefPtr<magnet::GL::ViewPort>(new magnet::GL::ViewPort);

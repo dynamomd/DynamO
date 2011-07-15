@@ -23,7 +23,7 @@
 namespace magnet {
   namespace CL {
     template<class T>
-    class scan : public detail::Functor
+    class scan : public detail::Program
     {
       cl::Kernel _prescanKernel, _uniformAddKernel;
       std::vector<cl::Buffer> _partialSumBufferStack;
@@ -34,7 +34,7 @@ namespace magnet {
 
       void build(::cl::CommandQueue queue,cl::Context context)
       {
-	Functor::build(queue, context, "");
+	Program::build(queue, context, "");
 	
 	_prescanKernel = cl::Kernel(_program, "prescan");
 	_uniformAddKernel = cl::Kernel(_program, "uniformAdd");
