@@ -19,7 +19,7 @@
 
 #include <magnet/arg_share.hpp>
 #include <coil/coilMaster.hpp>
-#include <magnet/CL/CLGL.hpp>
+#include <magnet/GL/context.hpp>
 #include <coil/coilWindow.hpp>
 #include <GL/freeglut_ext.h>
 #include <stdexcept>

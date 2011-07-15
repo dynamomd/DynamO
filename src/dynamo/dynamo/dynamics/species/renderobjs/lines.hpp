@@ -33,12 +33,12 @@ public:
   
   std::vector<cl_float> _particleData;
 
-  void sendRenderData(magnet::CL::CLGLState& CLState)
+  void sendRenderData(magnet::GL::Context& context)
   {
-    CLState.getCommandQueue().enqueueWriteBuffer
+    context.getCLCommandQueue().enqueueWriteBuffer
       (getPointData(), false, 0, 3 * _N * sizeof(cl_float), &_particleData[0]);
     
-    CLState.getCommandQueue().enqueueWriteBuffer
+    context.getCLCommandQueue().enqueueWriteBuffer
       (getDirectionData(), false, 0, 3 * _N * sizeof(cl_float), &_particleData[3 * _N]);
   }
 

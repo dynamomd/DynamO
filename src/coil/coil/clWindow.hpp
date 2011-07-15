@@ -59,8 +59,6 @@ public:
 
   inline volatile const int& getLastFrameTime() const { return _lastFrameTime; }
 
-  magnet::CL::CLGLState& getCLState() { return *_CLState; }
-
   void init();
   void deinit();
 
@@ -78,6 +76,14 @@ public:
   void setSimStatus2(std::string);
 
   magnet::thread::RefPtr<magnet::thread::TaskQueue>& getQueue() { return  _systemQueue; }
+
+  magnet::GL::Context& getGLContext()
+  {
+    if (_glContext == NULL)
+      M_throw() << "GL context not yet set!";
+    return *_glContext;
+  }
+
 protected:
   void setLabelText(Gtk::Label*, std::string);
 
@@ -112,13 +118,12 @@ private:
   double _updateIntervalValue;
   size_t _consoleID;
 
+  magnet::GL::Context* _glContext;
+
   magnet::thread::Mutex _destroyLock;
 
   void CameraSetup();
 
-  magnet::thread::RefPtr<magnet::CL::CLGLState> _CLState;
-
-  
   virtual void initOpenGL();
   virtual void initOpenCL();
 

@@ -19,6 +19,9 @@
 #include <coil/RenderObj/Function.hpp>
 #include <coil/RenderObj/console.hpp>
 #include <coil/RenderObj/Volume.hpp>
+
+#include <magnet/GL/context.hpp>
+
 #include <magnet/image/PNG.hpp>
 #include <magnet/image/bitmap.hpp>
 #include <magnet/function/task.hpp>
@@ -42,6 +45,7 @@ CLGLWindow::CLGLWindow(std::string title,
 		       ):
   _systemQueue(new magnet::thread::TaskQueue),
   _updateIntervalValue(updateIntervalValue),
+  _glContext(NULL),
   keyState(DEFAULT),
   windowTitle(title),
   _frameCounter(0),
@@ -80,7 +84,9 @@ CLGLWindow::initOpenGL()
 
   CoilRegister::getCoilInstance().CallGlutCreateWindow(windowTitle.c_str(), this);
 
-  glViewport(0, 0, 800, 600);   // This may have to be moved to after the next line on some platforms
+  _glContext = &magnet::GL::Context::getContext();
+
+  glViewport(0, 0, 800, 600);
 
   if (glewInit() != GLEW_OK)
     std::runtime_error("Failed initialising GLEW (GL Extension Wrangler)");
@@ -262,7 +268,8 @@ CLGLWindow::CallBackIdleFunc()
 void 
 CLGLWindow::initOpenCL()
 {
-  _CLState->init();
+  //Force the OpenCL platform to be constructed
+  getGLContext().getCLPlatform();
   
   if (cl::hostTransfers()) 
     std::cout << "\n!!!!!!!Host transfers have been enabled!!!!!!, slow performance is expected\n";
@@ -837,7 +844,6 @@ CLGLWindow::init()
 //  //Test volume render object
 //  RenderObjects.push_back(new coil::RVolume("Test Volume"));
 
-  _CLState = new magnet::CL::CLGLState;
   _viewPortInfo 
     = magnet::thread::RefPtr<magnet::GL::ViewPort>(new magnet::GL::ViewPort);
 
@@ -845,7 +851,7 @@ CLGLWindow::init()
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     //This is the console and the simulation/system task queue
-    (*iPtr)->accessoryData(RenderObjects[_consoleID], _systemQueue, _CLState, _viewPortInfo); 
+    (*iPtr)->accessoryData(RenderObjects[_consoleID], _systemQueue, _viewPortInfo); 
   
   initOpenGL();
   initOpenCL();
@@ -905,9 +911,7 @@ CLGLWindow::deinit()
 
   /////////////////OpenCL
 
-  _CLState->getCommandQueue().finish();
-
-  _CLState.release();
+  getGLContext().getCLCommandQueue().finish();
 
   ///////////////////OpenGL
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
@@ -976,7 +980,7 @@ CLGLWindow::CallBackDisplayFunc()
 #endif
 
   //Flush the OpenCL queue, so GL can use the buffers
-  _CLState->getCommandQueue().finish();
+  getGLContext().getCLCommandQueue().finish();
   
   //Prepare for the GL render
   if (_shaderPipeline)

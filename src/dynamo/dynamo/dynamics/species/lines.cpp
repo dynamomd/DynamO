@@ -16,7 +16,7 @@ SpLines::getCoilRenderObj() const
 }
 
 void
-SpLines::updateRenderData(magnet::CL::CLGLState& CLState) const
+SpLines::updateRenderData(magnet::GL::Context& context) const
 {
   if (!_renderObj.isValid())
     M_throw() << "Updating before the render object has been fetched";
@@ -51,7 +51,7 @@ SpLines::updateRenderData(magnet::CL::CLGLState& CLState) const
     }
 
   _coil->getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask(&LineParticleRenderer::sendRenderData, 
-										 &(_renderObj.as<LineParticleRenderer>()), CLState));
+										 &(_renderObj.as<LineParticleRenderer>()), context));
 }
 
 #endif

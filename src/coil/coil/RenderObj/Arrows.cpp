@@ -162,10 +162,12 @@ RArrows::initOpenCL()
   RLines::initOpenCL();
   
   //Build buffer for line data
-  _pointData = cl::Buffer(_CLState->getContext(), CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY,
+  _pointData = cl::Buffer(magnet::GL::Context::getContext().getCLContext(), 
+			  CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY,
 			  sizeof(cl_float) *  _N * 3);
 
-  _directionData = cl::Buffer(_CLState->getContext(), CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY,
+  _directionData = cl::Buffer(magnet::GL::Context::getContext().getCLContext(), 
+			      CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY,
 			      sizeof(cl_float) *  _N * 3);
 
   //Build render kernel
@@ -181,18 +183,18 @@ RArrows::initOpenCL()
   kernelSource.push_back(std::pair<const char*, ::size_t>
 			 (finalSource.c_str(), finalSource.size()));
 
-  _program = cl::Program(_CLState->getContext(), kernelSource);
+  _program = cl::Program(magnet::GL::Context::getContext().getCLContext(), kernelSource);
 
+  const cl::Device& dev = magnet::GL::Context::getContext().getCLDevice();
   try {
-    _program.build(std::vector<cl::Device>(1, _CLState->getDevice()));
+    _program.build(std::vector<cl::Device>(1, dev));
   } catch(cl::Error& err) {
     
-    std::string msg = _program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(_CLState->getDevice());
+    std::string msg = _program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(dev);
     
     std::cout << "Compilation failed for device " <<
-      _CLState->getDevice().getInfo<CL_DEVICE_NAME>()
+      dev.getInfo<CL_DEVICE_NAME>()
 	      << "\nBuild Log:" << msg;
-    
     throw;
   }
   
@@ -200,7 +202,8 @@ RArrows::initOpenCL()
 
   cl_uint paddedN = ((_N + 255) / 256) * 256;
 
-  _kernelFunc = _kernel.bind(_CLState->getCommandQueue(), cl::NDRange(paddedN), cl::NDRange(256));
+  _kernelFunc = _kernel.bind(magnet::GL::Context::getContext().getCLCommandQueue(), 
+			     cl::NDRange(paddedN), cl::NDRange(256));
 }
 
 
@@ -210,7 +213,7 @@ RArrows::clTick()
   cl_float4 campos = getclVec(_viewPort->getEyeLocation());
 
   //Aqquire GL buffer objects
-  _clbuf_Positions.acquire(_CLState->getCommandQueue());
+  _clbuf_Positions.acquire(magnet::GL::Context::getContext().getCLCommandQueue());
   
   cl_uint NArrows = _N;
 
@@ -219,5 +222,5 @@ RArrows::clTick()
 	      campos, NArrows);
   
   //Release resources
-  _clbuf_Positions.release(_CLState->getCommandQueue());
+  _clbuf_Positions.release(magnet::GL::Context::getContext().getCLCommandQueue());
 }

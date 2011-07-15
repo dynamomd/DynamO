@@ -31,7 +31,6 @@
 #include <coil/RenderObj/Function.hpp>
 #include <coil/RenderObj/Spheres.hpp>
 #include <coil/RenderObj/Lines.hpp>
-#include <magnet/CL/CLGL.hpp>
 #include <boost/foreach.hpp>
 #include <algorithm>
 
@@ -67,13 +66,13 @@ SVisualizer::SVisualizer(dynamo::SimData* nSim, std::string nName, double tickFr
     if (!_CLWindow->isReady()) return;
     
     BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-      spec->updateRenderData(static_cast<CLGLWindow&>(*_CLWindow).getCLState());
+      spec->updateRenderData(static_cast<CLGLWindow&>(*_CLWindow).getGLContext());
     
     BOOST_FOREACH(magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
       {
 	CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*local));
 	
-	if (obj != NULL) obj->updateRenderData(static_cast<CLGLWindow&>(*_CLWindow).getCLState());
+	if (obj != NULL) obj->updateRenderData(static_cast<CLGLWindow&>(*_CLWindow).getGLContext());
       }
     
     std::ostringstream os;
@@ -87,9 +86,9 @@ SVisualizer::SVisualizer(dynamo::SimData* nSim, std::string nName, double tickFr
   _lastUpdate = boost::posix_time::microsec_clock::local_time();
 
   dout << "Visualizer initialised\nOpenCL Plaftorm:" 
-       << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getPlatform().getInfo<CL_PLATFORM_NAME>()
+       << static_cast<CLGLWindow&>(*_CLWindow).getGLContext().getCLPlatform().getInfo<CL_PLATFORM_NAME>()
        << "\nOpenCL Device:" 
-       << static_cast<CLGLWindow&>(*_CLWindow).getCLState().getDevice().getInfo<CL_DEVICE_NAME>() << std::endl;
+       << static_cast<CLGLWindow&>(*_CLWindow).getGLContext().getCLDevice().getInfo<CL_DEVICE_NAME>() << std::endl;
 }
 
 void
@@ -123,13 +122,13 @@ SVisualizer::runEvent() const
 	if (!_CLWindow.as<CLGLWindow>().isReady()) return;
 	
 	BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-	  spec->updateRenderData(_CLWindow.as<CLGLWindow>().getCLState());
+	  spec->updateRenderData(_CLWindow.as<CLGLWindow>().getGLContext());
 	
 	BOOST_FOREACH(magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
 	  {
 	    CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*local));
 	    
-	    if (obj != NULL) obj->updateRenderData(static_cast<CLGLWindow&>(*_CLWindow).getCLState());
+	    if (obj != NULL) obj->updateRenderData(static_cast<CLGLWindow&>(*_CLWindow).getGLContext());
 	  }
 
 	_CLWindow.as<CLGLWindow>().flagNewData();

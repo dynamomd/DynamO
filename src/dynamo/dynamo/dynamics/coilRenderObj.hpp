@@ -26,6 +26,6 @@ struct CoilRenderObj
 {
 #ifdef DYNAMO_visualizer
   virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const = 0;
-  virtual void updateRenderData(magnet::CL::CLGLState&) const = 0;
+  virtual void updateRenderData(magnet::GL::Context&) const = 0;
 #endif
 };

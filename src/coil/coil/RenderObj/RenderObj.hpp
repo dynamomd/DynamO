@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#include <magnet/CL/CLGL.hpp>
+#include <magnet/GL/context.hpp>
 #include <magnet/thread/refPtr.hpp>
 #include <magnet/thread/taskQueue.hpp>
 #include <magnet/GL/viewPort.hpp>
@@ -45,12 +45,10 @@ public:
   
   void accessoryData(const magnet::thread::RefPtr<RenderObj>& console, 
 		     const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue,
-		     const magnet::thread::RefPtr<magnet::CL::CLGLState>& CLState,
 		     const magnet::thread::RefPtr<magnet::GL::ViewPort>& viewPort)
   {
     _console = console;
     _systemQueue = systemQueue;
-    _CLState = CLState;
     _viewPort = viewPort;
   }
 
@@ -98,6 +96,5 @@ protected:
   bool _visible;
   magnet::thread::RefPtr<RenderObj> _console;
   magnet::thread::RefPtr<magnet::thread::TaskQueue> _systemQueue;
-  magnet::thread::RefPtr<magnet::CL::CLGLState> _CLState;
   magnet::thread::RefPtr<magnet::GL::ViewPort> _viewPort;
 };

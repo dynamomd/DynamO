@@ -294,6 +294,6 @@ LTriangleMesh::getCoilRenderObj() const
 }
 
 void 
-LTriangleMesh::updateRenderData(magnet::CL::CLGLState&) const
+LTriangleMesh::updateRenderData(magnet::GL::Context&) const
 {}
 #endif

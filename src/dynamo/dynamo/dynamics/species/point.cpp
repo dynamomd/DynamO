@@ -90,7 +90,7 @@ SpPoint::getCoilRenderObj() const
 }
 
 void
-SpPoint::updateRenderData(magnet::CL::CLGLState& CLState) const
+SpPoint::updateRenderData(magnet::GL::Context& context) const
 {
   if (!_renderObj.isValid())
     M_throw() << "Updating before the render object has been fetched";
@@ -127,11 +127,11 @@ SpPoint::updateRenderData(magnet::CL::CLGLState& CLState) const
       ++sphID;
     }
 
-  _renderObj.as<RSphericalParticles>().recolor(CLState);
+  _renderObj.as<RSphericalParticles>().recolor(context);
   
   _coil->getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask
 						(&RSphericalParticles::sendRenderData,
 						 &(_renderObj.as<RSphericalParticles>()), 
-						 CLState));
+						 context));
 }
 #endif

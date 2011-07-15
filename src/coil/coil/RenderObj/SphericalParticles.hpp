@@ -45,7 +45,7 @@ public:
 
   inline volatile const DrawMode& getDrawMode() { return _mode; }
 
-  inline void recolor(magnet::CL::CLGLState& CLState) 
+  inline void recolor(magnet::GL::Context& CLState) 
   { if (_recolorOnUpdate) updateColorData(CLState); }
 
   inline void map(cl_uchar4 &color, float val) { _colorMap->map(color, val); }
@@ -53,10 +53,9 @@ public:
   std::vector<cl_float4> _particleData;
   std::vector<cl_uchar4> _particleColorData;
 
-  void sendRenderData(magnet::CL::CLGLState& CLState);
-  void sendColorData(magnet::CL::CLGLState& CLState);
-
-  void updateColorData(magnet::CL::CLGLState& CLState);
+  void sendRenderData(magnet::GL::Context& CLState);
+  void sendColorData(magnet::GL::Context& CLState);
+  void updateColorData(magnet::GL::Context& CLState);
 
 protected:
   size_t _spheresPerObject;

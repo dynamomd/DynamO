@@ -37,23 +37,23 @@ RSphericalParticles::RSphericalParticles(size_t N, std::string name, size_t sphe
 }
 
 void 
-RSphericalParticles::sendRenderData(magnet::CL::CLGLState& CLState)
+RSphericalParticles::sendRenderData(magnet::GL::Context& context)
 {
-  CLState.getCommandQueue().enqueueWriteBuffer
+  context.getCLCommandQueue().enqueueWriteBuffer
     (getSphereDataBuffer(), false, 0, _N * sizeof(cl_float4), &_particleData[0]);
 }
 
 void 
-RSphericalParticles::sendColorData(magnet::CL::CLGLState& CLState)
+RSphericalParticles::sendColorData(magnet::GL::Context& context)
 {
   const size_t segmentSize = _N / _spheresPerObject;
   for (size_t i(0); i < _spheresPerObject; ++i)
-    CLState.getCommandQueue().enqueueWriteBuffer
+    context.getCLCommandQueue().enqueueWriteBuffer
       (getColorDataBuffer(), false, i * segmentSize * sizeof(cl_uchar4), segmentSize * sizeof(cl_uchar4), &_particleColorData[0]);
 }
 
 void 
-RSphericalParticles::updateColorData(magnet::CL::CLGLState& CLState)
+RSphericalParticles::updateColorData(magnet::GL::Context& context)
 {
   switch (getDrawMode())
     {
@@ -76,7 +76,7 @@ RSphericalParticles::updateColorData(magnet::CL::CLGLState& CLState)
 
   CoilRegister::getCoilInstance().getTaskQueue()
     .queueTask(magnet::function::Task::makeTask(&RSphericalParticles::sendColorData, 
-						this, CLState));
+						this, context));
 }
 
 void 
@@ -197,5 +197,5 @@ RSphericalParticles::guiUpdate()
 
   //! Get the 
   _systemQueue->queueTask(magnet::function::Task::makeTask
-			  (&RSphericalParticles::updateColorData, this, *_CLState));
+			  (&RSphericalParticles::updateColorData, this, magnet::GL::Context::getContext()));
 }

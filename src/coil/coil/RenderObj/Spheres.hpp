@@ -34,9 +34,9 @@ public:
     magnet::GL::primatives::Sphere _type;
     cl_uint _nSpheres;
 
-    void setupCLBuffers(magnet::CL::CLGLState& CLState)
+    void setupCLBuffers(magnet::GL::Context& context)
     {
-      _primativeVertices = cl::Buffer(CLState.getContext(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+      _primativeVertices = cl::Buffer(context.getCLContext(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
 				      sizeof(cl_float) * 3 * _type.getVertexCount(),
 				      _type.getVertices());
     }

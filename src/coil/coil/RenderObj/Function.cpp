@@ -142,16 +142,17 @@ RFunction::initOpenCL()
 
   kernelSource.push_back(std::pair<const char*, ::size_t>(_kernelsrc.c_str(), _kernelsrc.size()));
   
-  _program = cl::Program(_CLState->getContext(), kernelSource);
+  _program = cl::Program(magnet::GL::Context::getContext().getCLContext(), kernelSource);
 
   try
-    { _program.build(std::vector<cl::Device>(1, _CLState->getDevice())); }
+    { _program.build(std::vector<cl::Device>(1, magnet::GL::Context::getContext().getCLDevice())); }
   catch(cl::Error& err) 
     {    
-      std::string msg = _program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(_CLState->getDevice());
+      std::string msg 
+	= _program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(magnet::GL::Context::getContext().getCLDevice());
       
       std::cout << "Compilation failed for device " <<
-	_CLState->getDevice().getInfo<CL_DEVICE_NAME>()
+	magnet::GL::Context::getContext().getCLDevice().getInfo<CL_DEVICE_NAME>()
 		<< "\nBuild Log:" << msg;
       throw;
     }
@@ -160,19 +161,20 @@ RFunction::initOpenCL()
   _pickKernel = cl::Kernel(_program, "FunctionPickKernel");
   const size_t workgroupSize = 256;
   
+  magnet::GL::Context& context = magnet::GL::Context::getContext();
   //N is a multiple of 16, so a workgroup size of 256 is always good
-  _kernelFunc = _kernel.bind(_CLState->getCommandQueue(), cl::NDRange(_N * _N), 
+  _kernelFunc = _kernel.bind(context.getCLCommandQueue(), cl::NDRange(_N * _N), 
 			     cl::NDRange(workgroupSize));
 
-  _pickFunc = _pickKernel.bind(_CLState->getCommandQueue(), cl::NDRange(_N * _N), 
+  _pickFunc = _pickKernel.bind(context.getCLCommandQueue(), cl::NDRange(_N * _N), 
 			       cl::NDRange(workgroupSize));
   
   clock_gettime(CLOCK_MONOTONIC, &startTime);
   glFinish();
   
-  initOCLVertexBuffer(_CLState->getContext());
-  initOCLNormBuffer(_CLState->getContext());
-  initOCLColorBuffer(_CLState->getContext());
+  initOCLVertexBuffer(context.getCLContext());
+  initOCLNormBuffer(context.getCLContext());
+  initOCLColorBuffer(context.getCLContext());
   
   //Now do the first clTick if the shape is static!
   if (_staticShape)
@@ -195,10 +197,11 @@ RFunction::clTick()
   tempo = float(currTime.tv_sec) - float(startTime.tv_sec)
     + 1e-9 * (float(currTime.tv_nsec) - float(startTime.tv_nsec));
 
+  const cl::CommandQueue& clcontext = magnet::GL::Context::getContext().getCLCommandQueue();
   //Aqquire buffer objects
-  _clbuf_Colors.acquire(_CLState->getCommandQueue());
-  _clbuf_Positions.acquire(_CLState->getCommandQueue());
-  _clbuf_Normals.acquire(_CLState->getCommandQueue());
+  _clbuf_Colors.acquire(clcontext);
+  _clbuf_Positions.acquire(clcontext);
+  _clbuf_Normals.acquire(clcontext);
       
   //Run Kernel
   _kernelFunc((cl::Buffer)_clbuf_Positions, 
@@ -214,9 +217,9 @@ RFunction::clTick()
 	      _N, _A);
   
   //Release resources
-  _clbuf_Normals.release(_CLState->getCommandQueue());
-  _clbuf_Colors.release(_CLState->getCommandQueue());
-  _clbuf_Positions.release(_CLState->getCommandQueue());
+  _clbuf_Normals.release(clcontext);
+  _clbuf_Colors.release(clcontext);
+  _clbuf_Positions.release(clcontext);
 }
 
 void 
@@ -301,12 +304,13 @@ FunctionPickKernel(__global uint * colors, uint offset)
 void 
 RFunction::initPicking(cl_uint& offset)
 {
+  const cl::CommandQueue& clcontext = magnet::GL::Context::getContext().getCLCommandQueue();
   //Aqquire buffer objects
-  _clbuf_Colors.acquire(_CLState->getCommandQueue());
+  _clbuf_Colors.acquire(clcontext);
   //Run Kernel
   _pickFunc((cl::Buffer)_clbuf_Colors, offset);
   //Release resources
-  _clbuf_Colors.release(_CLState->getCommandQueue());
+  _clbuf_Colors.release(clcontext);
 
   offset += _N * _N;
 }
@@ -328,9 +332,11 @@ RFunction::finishPicking(cl_uint& offset, const cl_uint val)
 				   << coil::Console::end();
 
   //Aqquire buffer objects
-  _clbuf_Colors.acquire(_CLState->getCommandQueue());
-  _clbuf_Positions.acquire(_CLState->getCommandQueue());
-  _clbuf_Normals.acquire(_CLState->getCommandQueue());
+  const cl::CommandQueue& clcontext = magnet::GL::Context::getContext().getCLCommandQueue();
+
+  _clbuf_Colors.acquire(clcontext);
+  _clbuf_Positions.acquire(clcontext);
+  _clbuf_Normals.acquire(clcontext);
       
   //Run Kernel
   _kernelFunc((cl::Buffer)_clbuf_Positions, 
@@ -346,9 +352,9 @@ RFunction::finishPicking(cl_uint& offset, const cl_uint val)
 	      _N);
   
   //Release resources
-  _clbuf_Normals.release(_CLState->getCommandQueue());
-  _clbuf_Colors.release(_CLState->getCommandQueue());
-  _clbuf_Positions.release(_CLState->getCommandQueue());
+  _clbuf_Normals.release(clcontext);
+  _clbuf_Colors.release(clcontext);
+  _clbuf_Positions.release(clcontext);
 
   offset += _N * _N;
 }

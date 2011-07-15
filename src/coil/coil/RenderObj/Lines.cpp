@@ -74,7 +74,7 @@ RLines::initOpenGL()
 void 
 RLines::initOpenCL()
 {
-  initOCLVertexBuffer(_CLState->getContext());
+  initOCLVertexBuffer(magnet::GL::Context::getContext().getCLContext());
 }
 
 void 
