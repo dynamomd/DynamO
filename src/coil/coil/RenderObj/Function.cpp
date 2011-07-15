@@ -105,15 +105,15 @@ RFunction::initOpenCL()
   }
 
   {//Setup initial Colors
-    std::vector<cl_uchar4> VertexColor(_N * _N);
+    std::vector<GLubyte> VertexColor(_N * _N * 4);
     for (size_t i = 0; i < _N; i++)
       {       
 	for (size_t j = 0; j < _N; j++)
 	  {
-	    VertexColor[(i + _N * j)].s[0] = 255;
-	    VertexColor[(i + _N * j)].s[1] = 255;
-	    VertexColor[(i + _N * j)].s[2] = 255;
-	    VertexColor[(i + _N * j)].s[3] = 255;
+	    VertexColor[(i + _N * j) * 4 + 0] = 255;
+	    VertexColor[(i + _N * j) * 4 + 1] = 255;
+	    VertexColor[(i + _N * j) * 4 + 2] = 255;
+	    VertexColor[(i + _N * j) * 4 + 3] = 255;
 	  }       
       }
     setGLColors(VertexColor);

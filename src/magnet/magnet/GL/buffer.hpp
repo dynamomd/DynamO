@@ -146,12 +146,65 @@ namespace magnet {
        * buffer */
       inline GLuint getGLObject() const { initTest(); return _buffer; }
 
-
       /*! \brief Returns the OpenGL context this buffer lives in.
        */
       inline Context& getContext() const { initTest(); return *_context; }
 
-      inline void drawElements(element_type::Enum type) { getContext().drawElements(*this, type); }
+      /*! \brief Draw all the elements in the current buffer.
+       */
+      inline void drawElements(element_type::Enum type)
+      { 
+	initTest();
+	bind(buffer_targets::ELEMENT_ARRAY);
+	glDrawElements(type, size(), detail::c_type_to_gl_enum<T>::val, 0);
+      }
+
+      /*! \brief Forwards to the call to the Buffer's GL context \ref
+       * Context::drawElements function.
+       */
+      inline void drawArray(size_t vertex_size, element_type::Enum type)
+      { 
+	attachToVertex(vertex_size);
+	glDrawArrays(type, 0, size() / vertex_size);
+      }
+
+      /*! \brief Attaches the buffer to the vertex pointer of the GL
+       * state.
+       *
+       * \param vertex_size The number of buffer elements per vertex.
+       */
+      inline void attachToVertex(size_t vertex_size) 
+      { 
+	initTest();
+	bind(buffer_targets::ARRAY);
+	glVertexPointer(vertex_size, detail::c_type_to_gl_enum<T>::val, 0, 0);
+	glEnableClientState(GL_VERTEX_ARRAY);
+      }
+
+      /*! \brief Attaches the buffer to the color pointer of the GL
+       * state.
+       *
+       * \param color_size The number of buffer elements (colors) per
+       * vertex.
+       */
+      inline void attachToColor(size_t color_size) 
+      {
+	initTest();
+	bind(buffer_targets::ARRAY);
+	glColorPointer(color_size, detail::c_type_to_gl_enum<T>::val, 0, 0);
+	glEnableClientState(GL_COLOR_ARRAY);
+      }
+
+      /*! \brief Attaches the buffer to the normal pointer of the GL
+       * state.
+       */
+      inline void attachToNormal()
+      {
+	initTest();
+	bind(buffer_targets::ARRAY);	
+	glNormalPointer(detail::c_type_to_gl_enum<T>::val, 0, 0);
+	glEnableClientState(GL_NORMAL_ARRAY); 
+      }
 
       /*! \brief Returns an OpenCL representation of this GL buffer.
        *

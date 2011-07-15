@@ -46,14 +46,14 @@ RLines::initOpenGL()
   }
   
   {
-    std::vector<cl_uchar4> VertexColor(_N * 2);
+    std::vector<GLubyte> VertexColor(_N * 2 * 4);
     
     for (size_t icol = 0; icol < _N * 2; ++icol)
       {
-	VertexColor[icol].s[0] = 255;
-	VertexColor[icol].s[1] = 255;
-	VertexColor[icol].s[2] = 255;
-	VertexColor[icol].s[3] = 255;
+	VertexColor[4 * icol + 0] = 255;
+	VertexColor[4 * icol + 1] = 255;
+	VertexColor[4 * icol + 2] = 255;
+	VertexColor[4 * icol + 3] = 255;
       }
 
     setGLColors(VertexColor);
@@ -77,15 +77,8 @@ RLines::glRender()
 {
   if (!_visible) return;
   
-  _colBuff.bind(magnet::GL::buffer_targets::ARRAY);
-  glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
-  
-  _posBuff.bind(magnet::GL::buffer_targets::ARRAY);
-  glVertexPointer(3, GL_FLOAT, 0, 0);
-  
-  
-  glEnableClientState(GL_COLOR_ARRAY);
-  glEnableClientState(GL_VERTEX_ARRAY);
+  _colBuff.attachToColor(4);
+  _posBuff.attachToVertex(3);
   
   switch (_RenderMode)
     {
@@ -103,14 +96,14 @@ RLines::glRender()
 }
 
 void 
-RLines::setGLColors(std::vector<cl_uchar4>& VertexColor)
+RLines::setGLColors(std::vector<GLubyte>& VertexColor)
 {
   if (!VertexColor.size())
     throw std::runtime_error("VertexColor.size() == 0!");
 
   if (!_posBuff.empty())
-    if ((VertexColor.size()) != (_posBuff.size() / 3))
-      throw std::runtime_error("VertexColor.size() != posBuffSize/3");
+    if ((VertexColor.size() / 4) != (_posBuff.size() / 3))
+      throw std::runtime_error("VertexColor.size() / 4 != posBuffSize/3");
 
   _colBuff.init(VertexColor, magnet::GL::buffer_usage::STREAM_DRAW);
 }

@@ -29,18 +29,18 @@ public:
   virtual void glRender();
   virtual void initOpenGL();
 
-  void setGLColors(std::vector<cl_uchar4>& VertexColor);
+  void setGLColors(std::vector<GLubyte>& VertexColor);
   void setGLPositions(std::vector<GLfloat>& VertexPos);
   void setGLElements(std::vector<GLuint>& Elements);
 
   magnet::GL::Buffer<GLfloat>& getVertexGLData() { return _posBuff; }
-  magnet::GL::Buffer<cl_uchar4>& getColorGLData() { return _colBuff; }
+  magnet::GL::Buffer<GLubyte>& getColorGLData() { return _colBuff; }
 
   virtual void releaseCLGLResources();
 
 protected:
   size_t _N;
-  magnet::GL::Buffer<cl_uchar4> _colBuff;
+  magnet::GL::Buffer<GLubyte> _colBuff;
   magnet::GL::Buffer<GLfloat> _posBuff;  
   magnet::GL::Buffer<GLuint> _elementBuff;
 };

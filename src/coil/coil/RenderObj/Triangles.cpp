@@ -34,31 +34,15 @@ RTriangles::glRender()
   if (!_visible) return;
 
   if (_pickingRenderMode)
-    {
-      _pickingColorBuff.bind(magnet::GL::buffer_targets::ARRAY);
-      glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
-      glEnableClientState(GL_COLOR_ARRAY);
-    }
+    _pickingColorBuff.attachToColor(4);
 
   if (_colBuff.size() && !_pickingRenderMode)
-    {
-      _colBuff.bind(magnet::GL::buffer_targets::ARRAY);
-      glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
-      glEnableClientState(GL_COLOR_ARRAY);
-    }
+    _colBuff.attachToColor(4);
 
   if (_normBuff.size())
-    {
-      _normBuff.bind(magnet::GL::buffer_targets::ARRAY);
-      glNormalPointer(GL_FLOAT, 0, 0);
-      glEnableClientState(GL_NORMAL_ARRAY); 
-    }
-
-  _posBuff.bind(magnet::GL::buffer_targets::ARRAY);
-
-  glVertexPointer(3, GL_FLOAT, 0, 0);
-      
-  glEnableClientState(GL_VERTEX_ARRAY);
+    _normBuff.attachToNormal();
+  
+  _posBuff.attachToVertex(3);
   
   switch (_RenderMode)
     {
@@ -73,12 +57,8 @@ RTriangles::glRender()
       break;
     }
  
-  if (_colBuff.size())
-    glDisableClientState(GL_COLOR_ARRAY);
-
-  if (_normBuff.size())
-    glDisableClientState(GL_NORMAL_ARRAY);
-
+  glDisableClientState(GL_COLOR_ARRAY);
+  glDisableClientState(GL_NORMAL_ARRAY);
   glDisableClientState(GL_VERTEX_ARRAY);
 
   if (_renderNormals && _normBuff.size())
@@ -101,18 +81,17 @@ RTriangles::glRender()
       _posBuff.unmap();
       _normBuff.unmap();
     }
-
 }
 
 void 
-RTriangles::setGLColors(std::vector<cl_uchar4>& VertexColor)
+RTriangles::setGLColors(std::vector<GLubyte>& VertexColor)
 {
   if (!VertexColor.size())
     throw std::runtime_error("VertexColor.size() == 0!");
 
   if (_posBuff.size())
-    if ((VertexColor.size()) != (_posBuff.size() / 3))
-      throw std::runtime_error("VertexColor.size() != posBuffSize/3");
+    if ((VertexColor.size() / 4) != (_posBuff.size() / 3))
+      throw std::runtime_error("VertexColor.size() / 4 != posBuffSize/3");
 
   _colBuff.init(VertexColor, magnet::GL::buffer_usage::STREAM_DRAW);
 }
@@ -303,13 +282,18 @@ RTriangles::initPicking(cl_uint& offset)
 {
   size_t N = (_posBuff.size() / 3);
 
-  if(_pickingColorBuff.size() !=  N)
+  if(_pickingColorBuff.size() !=  N * 4)
     {
-      std::vector<cl_uchar4> vertexColors;
-      vertexColors.reserve(N);
+      std::vector<GLubyte> vertexColors;
+      vertexColors.reserve(N * 4);
       
       for (cl_uint i(offset); i < N + offset; ++i)
-	vertexColors.push_back(*reinterpret_cast<cl_uchar4*>(&i));
+	{
+	  vertexColors.push_back((i >>  0) & 0xFF);
+	  vertexColors.push_back((i >>  8) & 0xFF);
+	  vertexColors.push_back((i >> 16) & 0xFF);
+	  vertexColors.push_back((i >> 24) & 0xFF);
+	}
       
       _pickingColorBuff.init(vertexColors, magnet::GL::buffer_usage::STREAM_DRAW);
     }

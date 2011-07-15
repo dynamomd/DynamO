@@ -27,21 +27,12 @@ RQuads::glRender()
   if (!_visible) return;
 
   if (!_colBuff.empty())
-    {
-      _colBuff.bind(magnet::GL::buffer_targets::ARRAY);
-      glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
-      glEnableClientState(GL_COLOR_ARRAY);
-    }
+    _colBuff.attachToColor(4);
 
-  if (!_normBuff.empty())
-    {
-      _normBuff.bind(magnet::GL::buffer_targets::ARRAY);
-      glNormalPointer(GL_FLOAT, 0, 0);
-      glEnableClientState(GL_NORMAL_ARRAY); 
-    }
+  if (_normBuff.size())
+    _normBuff.attachToNormal();
   
-  _posBuff.bind(magnet::GL::buffer_targets::ARRAY);
-  glVertexPointer(3, GL_FLOAT, 0, 0);
+  _posBuff.attachToVertex(3);
   
   glEnableClientState(GL_VERTEX_ARRAY);
   
@@ -58,11 +49,8 @@ RQuads::glRender()
       break;
     }
  
-  if (_colBuff.size())
-    glDisableClientState(GL_COLOR_ARRAY);	
-  if (_normBuff.size())
-    glDisableClientState(GL_NORMAL_ARRAY);
-
+  glDisableClientState(GL_COLOR_ARRAY);	
+  glDisableClientState(GL_NORMAL_ARRAY);
   glDisableClientState(GL_VERTEX_ARRAY);
 
   if (_renderNormals && _normBuff.size())

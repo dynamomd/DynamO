@@ -67,19 +67,6 @@ namespace magnet {
 	return contexts[key];
       }
 
-      /** @name The OpenGL state functions. */
-      /**@{*/
-      /*! \brief Draw the elements described in the passed buffer
-       *
-       */
-      template<class T>
-      inline void drawElements(Buffer<T>& elementBuffer, element_type::Enum etype)
-      {
-	elementBuffer.bind(buffer_targets::ELEMENT_ARRAY);
-	glDrawElements(etype, elementBuffer.size(), detail::c_type_to_gl_enum<T>::val, 0);
-      }
-      /**@}*/
-
       /** @name The OpenCL-OpenGL interface. */
       /**@{*/
       //! \brief Fetch the OpenCL platform for this OpenGL context.

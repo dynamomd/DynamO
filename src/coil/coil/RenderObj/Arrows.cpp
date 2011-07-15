@@ -122,11 +122,11 @@ RArrows::initOpenGL()
   }
   
   {//4 vertexes per line
-    std::vector<cl_uchar4> VertexColor(4 * _N);
+    std::vector<GLubyte> VertexColor(4 * _N * 4);
     
     for (size_t icol = 0; icol < _N; ++icol)
       for (size_t jcol = 0; jcol < 4; ++jcol)
-	magnet::color::HSVtoRGB(VertexColor[4*icol+jcol],
+	magnet::color::HSVtoRGB(*reinterpret_cast<cl_uchar4*>(&VertexColor[(4*icol+jcol) * 4]),
 				float(icol)/ _N);
 
     setGLColors(VertexColor);

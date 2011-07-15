@@ -83,16 +83,16 @@ namespace magnet {
 
 	  _vertexData.init(vertexdata);
 	  ///////////////////Color Data
-	  std::vector<cl_uchar4> colordata(18);
+	  std::vector<GLubyte> colordata(18 * 4);
 	  
 	  //First arrow is red, second green and last blue
 	  for (size_t arrow(0); arrow < 3; ++arrow)
 	    for (size_t vertex(0); vertex < 6; ++vertex)
 	      {
-		colordata[(arrow * 6 + vertex)].s[arrow] = 255;
-		colordata[(arrow * 6 + vertex)].s[(arrow + 1) % 3] = 0;
-		colordata[(arrow * 6 + vertex)].s[(arrow + 2) % 3] = 0;
-		colordata[(arrow * 6 + vertex)].s[3] = 255; //Alpha channel
+		colordata[(arrow * 6 + vertex)* 4 + arrow] = 255;
+		colordata[(arrow * 6 + vertex)* 4 + ((arrow + 1) % 3)] = 0;
+		colordata[(arrow * 6 + vertex)* 4 + ((arrow + 2) % 3)] = 0;
+		colordata[(arrow * 6 + vertex)* 4 + 3] = 255; //Alpha channel
 	      }
 
 	  _colorData.init(colordata);
@@ -105,18 +105,8 @@ namespace magnet {
 	 */
 	inline void glRender()
 	{
-	  if (_vertexData.empty())
-	    M_throw() << "The axis has not been initialized.";
-
-	  _vertexData.bind(magnet::GL::buffer_targets::ARRAY);
-	  glVertexPointer(3, GL_FLOAT, 0, 0);
-	  glEnableClientState(GL_VERTEX_ARRAY);
-
-	  _colorData.bind(magnet::GL::buffer_targets::ARRAY);
-	  glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
-	  glEnableClientState(GL_COLOR_ARRAY);
-	  glColor4f(1,1,1,1);
-	  glDrawArrays(GL_LINES, 0, 18 * 3);
+	  _colorData.attachToColor(4);
+	  _vertexData.drawArray(3, magnet::GL::element_type::LINES);
 
 	  glDisableClientState(GL_COLOR_ARRAY);
 	  glDisableClientState(GL_VERTEX_ARRAY);
@@ -124,7 +114,7 @@ namespace magnet {
 
       protected:
 	magnet::GL::Buffer<GLfloat> _vertexData;
-	magnet::GL::Buffer<cl_uchar4> _colorData;
+	magnet::GL::Buffer<GLubyte> _colorData;
       };
     }
   }

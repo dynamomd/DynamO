@@ -29,7 +29,7 @@ public:
 
   virtual void glRender();
 
-  void setGLColors(std::vector<cl_uchar4>& VertexColor);
+  void setGLColors(std::vector<GLubyte>& VertexColor);
   void setGLPositions(std::vector<float>& VertexPos);
   void setGLNormals(std::vector<float>& VertexNormals);
   void setGLElements(std::vector<GLuint>& Elements);
@@ -54,13 +54,13 @@ protected:
   std::auto_ptr<Gtk::RadioButton> _gtkPointRender;
   std::auto_ptr<Gtk::RadioButton> _gtkTriangleRender;
 
-  magnet::GL::Buffer<cl_uchar4> _colBuff;
+  magnet::GL::Buffer<GLubyte> _colBuff;
   magnet::GL::Buffer<GLfloat> _posBuff;
   magnet::GL::Buffer<GLfloat> _normBuff;
   magnet::GL::Buffer<GLuint> _elementBuff;
   magnet::GL::Buffer<GLuint> _specialElementBuff;
 
   bool _pickingRenderMode;
-  magnet::GL::Buffer<cl_uchar4> _pickingColorBuff;
+  magnet::GL::Buffer<GLubyte> _pickingColorBuff;
 
 };

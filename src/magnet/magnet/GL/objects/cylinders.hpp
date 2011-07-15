@@ -88,12 +88,8 @@ namespace magnet {
 	  if (!_cylinders)
 	    M_throw() << "Trying to render an empty set of cylinders";
 
-	  _vertexData.bind(magnet::GL::Buffer::ARRAY);
-	  glVertexPointer(3, GL_FLOAT, 0, 0);
-	  glEnableClientState(GL_VERTEX_ARRAY);
-
+	  _vertexData.attachToVertex(3);
 	  _elementBuff.drawElements(magnet::GL::element_type::TRIANGLE_STRIP)
-
 	  glDisableClientState(GL_VERTEX_ARRAY);
 	}
 
