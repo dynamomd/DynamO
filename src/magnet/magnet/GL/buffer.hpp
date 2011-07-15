@@ -15,7 +15,7 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <magnet/exception.hpp>
+#include <magnet/GL/context.hpp>
 
 namespace magnet {
   namespace GL {
@@ -64,10 +64,10 @@ namespace magnet {
     class Buffer
     {
     public:
-      inline Buffer(): _size(0) {}
+      inline Buffer(): _size(0), _context(NULL) {}
       inline ~Buffer() { deinit(); }
 
-      /*! \brief Initialises the Buffer object with some data.
+      /*! \brief Initialises the Buffer object with the passed data
        *
        *  This will create the underlying OpenGL buffer, and load it
        *  with the contents of data.
@@ -79,29 +79,32 @@ namespace magnet {
        * optimise performance.
        */
       inline void init(const std::vector<T>& data, BufferUsage usage = STATIC_DRAW)
-      {
-	if (data.empty())
-	  M_throw() << "Cannot initialise GL::Buffer with no data!";
+      { init(data.size(), usage, &data[0]); }
 
-	deinit();
-	_size = data.size();
-
-	glGenBuffersARB(1, &_buffer);	
-	bind(ARRAY);
-	glBufferData(ARRAY, _size * sizeof(T), &data[0], usage);
-      }
-
-      inline void init(size_t size, BufferUsage usage = STATIC_DRAW)
+      /*! \brief Initialises the Buffer object.
+       *
+       *  This will create the underlying OpenGL buffer, and load it
+       *  with the contents of data passed.
+       *
+       * \param size The number of elements in the buffer.
+       *
+       * \param usage The expected host memory access pattern, used to
+       * optimise performance.
+       *
+       * \param ptr A pointer to data to fill the buffer with. If it
+       * is set to NULL, no data is loaded.
+       */
+      inline void init(size_t size, BufferUsage usage = STATIC_DRAW, const T* ptr = NULL)
       {
 	if (_size == 0)
 	  M_throw() << "Cannot initialise GL::Buffer with 0 size!";
 
 	deinit();
 	_size = size;
-
+	_context = &Context::getContext();
 	glGenBuffersARB(1, &_buffer);	
 	bind(ARRAY);
-	glBufferData(ARRAY, _size * sizeof(T), NULL, usage);
+	glBufferData(ARRAY, _size * sizeof(T), ptr, usage);
       }
       
       //! \brief Attach the Buffer to a OpenGL target
@@ -137,7 +140,7 @@ namespace magnet {
       {
 	if (_size)
 	  glDeleteBuffersARB(1, &_buffer);
-
+	_context = NULL;
 	_size = 0;
       }
 
@@ -153,11 +156,18 @@ namespace magnet {
 
       /*! \brief Returns the underlying OpenGL handle for the
        * buffer */
-      GLuint getGLObject() { return _buffer; }
+      inline GLuint getGLObject() const { initTest(); return _buffer; }
+
+      inline Context& getContext() const { initTest(); return *_context; }
 
     protected:
+      /*! \brief Guard function to test if the buffer is initialised.
+       */
+      inline void initTest() const { if (empty()) M_throw() << "Buffer is not initialized!"; }
+      
       size_t _size;
       GLuint _buffer;
+      Context* _context;
     };
   }
 }
