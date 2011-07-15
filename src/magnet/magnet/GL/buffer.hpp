@@ -19,33 +19,6 @@
 
 namespace magnet {
   namespace GL {
-
-    //! \brief The available GL targets to which this Buffer may be
-    //! bound.
-    enum BufferBindTargets
-      { ARRAY = GL_ARRAY_BUFFER,
-	ELEMENT_ARRAY = GL_ELEMENT_ARRAY_BUFFER, 
-	PIXEL_PACK_BUFFER = GL_PIXEL_PACK_BUFFER,
-	PIXEL_UNPACK_BUFFER = GL_PIXEL_UNPACK_BUFFER
-      };
-
-    /*! \brief The possible host access patterns, if the host
-     * accesses the data.
-     */
-    enum BufferUsage
-      {
-	STREAM_DRAW = GL_STREAM_DRAW, 
-	STREAM_READ = GL_STREAM_READ, 
-	STREAM_COPY = GL_STREAM_COPY, 
-	STATIC_DRAW = GL_STATIC_DRAW, 
-	STATIC_READ = GL_STATIC_READ, 
-	STATIC_COPY = GL_STATIC_COPY, 
-	DYNAMIC_DRAW = GL_DYNAMIC_DRAW, 
-	DYNAMIC_READ = GL_DYNAMIC_READ, 
-	DYNAMIC_COPY = GL_DYNAMIC_COPY
-      };
-
-    
     /*! \brief An OpenGL buffer object.
      *
      * This class is used to represent vertex/element/normal buffer
@@ -84,7 +57,7 @@ namespace magnet {
        * \param usage The expected host memory access pattern, used to
        * optimise performance.
        */
-      inline void init(const std::vector<T>& data, BufferUsage usage = STATIC_DRAW)
+      inline void init(const std::vector<T>& data, buffer_usage::Enum usage = buffer_usage::STATIC_DRAW)
       { init(data.size(), usage, &data[0]); }
 
       /*! \brief Initialises the Buffer object.
@@ -100,7 +73,7 @@ namespace magnet {
        * \param ptr A pointer to data to fill the buffer with. If it
        * is set to NULL, no data is loaded.
        */
-      inline void init(size_t size, BufferUsage usage = STATIC_DRAW, const T* ptr = NULL)
+      inline void init(size_t size, buffer_usage::Enum usage = buffer_usage::STATIC_DRAW, const T* ptr = NULL)
       {
 	if (size == 0)
 	  M_throw() << "Cannot initialise GL::Buffer with 0 size!";
@@ -109,12 +82,12 @@ namespace magnet {
 	_size = size;
 	_context = &Context::getContext();
 	glGenBuffersARB(1, &_buffer);	
-	bind(ARRAY);
-	glBufferData(ARRAY, _size * sizeof(T), ptr, usage);
+	bind(buffer_targets::ARRAY);
+	glBufferData(buffer_targets::ARRAY, _size * sizeof(T), ptr, usage);
       }
       
       //! \brief Attach the Buffer to a OpenGL target
-      inline void bind(BufferBindTargets target) const 
+      inline void bind(buffer_targets::Enum target) const 
       {
 	glBindBufferARB(target, _buffer);	
       }
@@ -122,22 +95,22 @@ namespace magnet {
       //! \brief Map a buffer onto the host device memory space;
       inline T* map()
       {
-	bind(ARRAY);
-	return static_cast<T*>(glMapBuffer(GL_ARRAY_BUFFER, GL_READ_WRITE));
+	bind(buffer_targets::ARRAY);
+	return static_cast<T*>(glMapBuffer(buffer_targets::ARRAY, GL_READ_WRITE));
       }
 
       //! \brief Map a buffer onto the host device memory space
       inline const T* map() const
       {
-	bind(ARRAY);
-	return static_cast<const T*>(glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY));
+	bind(buffer_targets::ARRAY);
+	return static_cast<const T*>(glMapBuffer(buffer_targets::ARRAY, GL_READ_ONLY));
       }
 
       //! \brief Releases a previous \ref map() call.
       inline void unmap() const
       {
-	bind(ARRAY);
-	glUnmapBuffer(GL_ARRAY_BUFFER);
+	bind(buffer_targets::ARRAY);
+	glUnmapBuffer(buffer_targets::ARRAY);
       }
 
       /*! \brief Destroys any OpenGL resources associated with this

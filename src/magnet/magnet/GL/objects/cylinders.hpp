@@ -23,7 +23,6 @@ namespace magnet {
     namespace objects {
       /*! \brief A collection of cylinders.
        *
-       *
        */
       class Cylinders
       {

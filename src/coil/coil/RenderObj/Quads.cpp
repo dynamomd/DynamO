@@ -28,22 +28,22 @@ RQuads::glRender()
 
   if (!_colBuff.empty())
     {
-      _colBuff.bind(magnet::GL::ARRAY);
+      _colBuff.bind(magnet::GL::buffer_targets::ARRAY);
       glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
       glEnableClientState(GL_COLOR_ARRAY);
     }
 
   if (!_normBuff.empty())
     {
-      _normBuff.bind(magnet::GL::ARRAY);
+      _normBuff.bind(magnet::GL::buffer_targets::ARRAY);
       glNormalPointer(GL_FLOAT, 0, 0);
       glEnableClientState(GL_NORMAL_ARRAY); 
     }
   
-  _posBuff.bind(magnet::GL::ARRAY);
+  _posBuff.bind(magnet::GL::buffer_targets::ARRAY);
   glVertexPointer(3, GL_FLOAT, 0, 0);
 
-  _elementBuff.bind(magnet::GL::ELEMENT_ARRAY);
+  _elementBuff.bind(magnet::GL::buffer_targets::ELEMENT_ARRAY);
   
   glEnableClientState(GL_VERTEX_ARRAY);
   

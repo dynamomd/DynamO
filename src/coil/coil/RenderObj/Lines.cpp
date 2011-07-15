@@ -77,13 +77,13 @@ RLines::glRender()
 {
   if (!_visible) return;
   
-  _colBuff.bind(magnet::GL::ARRAY);
+  _colBuff.bind(magnet::GL::buffer_targets::ARRAY);
   glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
   
-  _posBuff.bind(magnet::GL::ARRAY);
+  _posBuff.bind(magnet::GL::buffer_targets::ARRAY);
   glVertexPointer(3, GL_FLOAT, 0, 0);
   
-  _elementBuff.bind(magnet::GL::ELEMENT_ARRAY);
+  _elementBuff.bind(magnet::GL::buffer_targets::ELEMENT_ARRAY);
   
   glEnableClientState(GL_COLOR_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -113,7 +113,7 @@ RLines::setGLColors(std::vector<cl_uchar4>& VertexColor)
     if ((VertexColor.size()) != (_posBuff.size() / 3))
       throw std::runtime_error("VertexColor.size() != posBuffSize/3");
 
-  _colBuff.init(VertexColor, magnet::GL::STREAM_DRAW);
+  _colBuff.init(VertexColor, magnet::GL::buffer_usage::STREAM_DRAW);
 }
 
 void 
@@ -129,7 +129,7 @@ RLines::setGLPositions(std::vector<float>& VertexPos)
     if ((_colBuff.size()) != (VertexPos.size() / 3))
       throw std::runtime_error("VertexPos.size()/3 != colBuffSize/4 ");
   
-  _posBuff.init(VertexPos, magnet::GL::STREAM_DRAW);
+  _posBuff.init(VertexPos, magnet::GL::buffer_usage::STREAM_DRAW);
 }
 
 void 

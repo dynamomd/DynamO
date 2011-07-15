@@ -108,11 +108,11 @@ namespace magnet {
 	  if (_vertexData.empty())
 	    M_throw() << "The axis has not been initialized.";
 
-	  _vertexData.bind(magnet::GL::ARRAY);
+	  _vertexData.bind(magnet::GL::buffer_targets::ARRAY);
 	  glVertexPointer(3, GL_FLOAT, 0, 0);
 	  glEnableClientState(GL_VERTEX_ARRAY);
 
-	  _colorData.bind(magnet::GL::ARRAY);
+	  _colorData.bind(magnet::GL::buffer_targets::ARRAY);
 	  glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
 	  glEnableClientState(GL_COLOR_ARRAY);
 	  glColor4f(1,1,1,1);
