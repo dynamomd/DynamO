@@ -16,7 +16,6 @@
 */
 #pragma once
 #include <magnet/GL/buffer.hpp>
-#include <magnet/CL/instancer.hpp>
 
 namespace magnet {
   namespace GL {
@@ -68,6 +67,9 @@ namespace magnet {
 	    
 	    _positionData.init(vertices);
 	  }
+
+	  if (!GLEW_VERSION_3_1)
+	    M_throw() << "Cannot use instanced objects as your OpenGL version is < 3.1";
 	}
 	
 	/*! \brief Renders the instanced object.

@@ -226,7 +226,7 @@ namespace magnet {
 	glVertexAttribPointer(attrnum, components, detail::c_type_to_gl_enum<T>::val, 
 			      (normalise ? GL_TRUE : GL_FALSE), 0, 0);
 	glEnableVertexAttribArray(attrnum);
-	glVertexAttribDivisor(attrnum, divisor);
+	glVertexAttribDivisorARB(attrnum, divisor);
       }
 
       /*! \brief Returns an OpenCL representation of this GL buffer.
