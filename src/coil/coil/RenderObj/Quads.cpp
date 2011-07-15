@@ -42,21 +42,19 @@ RQuads::glRender()
   
   _posBuff.bind(magnet::GL::buffer_targets::ARRAY);
   glVertexPointer(3, GL_FLOAT, 0, 0);
-
-  _elementBuff.bind(magnet::GL::buffer_targets::ELEMENT_ARRAY);
   
   glEnableClientState(GL_VERTEX_ARRAY);
   
   switch (_RenderMode)
     {
     case TRIANGLES:
-      glDrawElements(GL_QUADS, _elementBuff.size(), GL_UNSIGNED_INT, 0);
+      _elementBuff.drawElements(magnet::GL::element_type::QUADS);
       break;
     case LINES:
-      glDrawElements(GL_LINES, _elementBuff.size(), GL_UNSIGNED_INT, 0);
+      _elementBuff.drawElements(magnet::GL::element_type::LINES);
       break;
     case POINTS:
-      glDrawElements(GL_POINTS, _elementBuff.size(), GL_UNSIGNED_INT, 0);
+      _elementBuff.drawElements(magnet::GL::element_type::POINTS);
       break;
     }
  

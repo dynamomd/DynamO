@@ -83,7 +83,6 @@ RLines::glRender()
   _posBuff.bind(magnet::GL::buffer_targets::ARRAY);
   glVertexPointer(3, GL_FLOAT, 0, 0);
   
-  _elementBuff.bind(magnet::GL::buffer_targets::ELEMENT_ARRAY);
   
   glEnableClientState(GL_COLOR_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -92,10 +91,10 @@ RLines::glRender()
     {
     case TRIANGLES:
     case LINES:
-      glDrawElements(GL_LINES, _elementBuff.size(), GL_UNSIGNED_INT, 0);
+      _elementBuff.drawElements(magnet::GL::element_type::LINES);
       break;
     case POINTS:
-      glDrawElements(GL_POINTS, _elementBuff.size(), GL_UNSIGNED_INT, 0);
+      _elementBuff.drawElements(magnet::GL::element_type::POINTS);
       break;
     }
  

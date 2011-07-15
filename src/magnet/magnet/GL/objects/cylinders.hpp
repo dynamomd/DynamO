@@ -92,8 +92,7 @@ namespace magnet {
 	  glVertexPointer(3, GL_FLOAT, 0, 0);
 	  glEnableClientState(GL_VERTEX_ARRAY);
 
-	  _elementBuff.bind(magnet::GL::Buffer::ELEMENT_ARRAY);
-	  glDrawElements(GL_TRIANGLE_STRIP, (2 * LOD + 4) * _cylinders, GL_UNSIGNED_INT, 0);
+	  _elementBuff.drawElements(magnet::GL::element_type::TRIANGLE_STRIP)
 
 	  glDisableClientState(GL_VERTEX_ARRAY);
 	}

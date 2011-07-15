@@ -32,10 +32,10 @@ namespace magnet {
     namespace detail {
       /*! \brief Type trait to convert GL type enums into actual GL C types.
        */
-      template <GLenum T> class gl_enum_to_c_type {};
+      template <GLenum T> struct gl_enum_to_c_type {};
 
 #define GL_ENUM_TO_C_TYPE(GL_ENUM_VAL, C_TYPE)				\
-      template <> class gl_enum_to_c_type<GL_ENUM_VAL> { typedef C_TYPE Type; };
+      template <> struct gl_enum_to_c_type<GL_ENUM_VAL> { typedef C_TYPE Type; };
 
       BASE_GL_TYPE_FACTORY(GL_ENUM_TO_C_TYPE)
 #undef GL_ENUM_TO_C_TYPE
@@ -43,10 +43,10 @@ namespace magnet {
 
       /*! \brief Type trait to convert GL C types into GL enum values.
        */
-      template <class T> class c_type_to_gl_enum {};
+      template <class T> struct c_type_to_gl_enum {};
 
 #define C_TYPE_TO_GL_ENUM(GL_ENUM_VAL, C_TYPE)				\
-      template <> class c_type_to_gl_enum<C_TYPE> { static const GLenum val = GL_ENUM_VAL; };
+      template <> struct c_type_to_gl_enum<C_TYPE> { static const GLenum val = GL_ENUM_VAL; };
 
       BASE_GL_TYPE_FACTORY(C_TYPE_TO_GL_ENUM)
 #undef C_TYPE_TO_GL_ENUM

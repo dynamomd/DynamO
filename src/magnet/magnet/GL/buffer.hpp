@@ -151,6 +151,8 @@ namespace magnet {
        */
       inline Context& getContext() const { initTest(); return *_context; }
 
+      inline void drawElements(element_type::Enum type) { getContext().drawElements(*this, type); }
+
       /*! \brief Returns an OpenCL representation of this GL buffer.
        *
        * This increments an internal counter, and every \ref

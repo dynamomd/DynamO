@@ -63,16 +63,13 @@ RTriangles::glRender()
   switch (_RenderMode)
     {
     case TRIANGLES:
-      _elementBuff.bind(magnet::GL::buffer_targets::ELEMENT_ARRAY);
-      glDrawElements(GL_TRIANGLES, _elementBuff.size(), GL_UNSIGNED_INT, 0);
+      _elementBuff.drawElements(magnet::GL::element_type::TRIANGLES);
       break;
     case LINES:
-      _specialElementBuff.bind(magnet::GL::buffer_targets::ELEMENT_ARRAY);
-      glDrawElements(GL_LINES, _specialElementBuff.size(), GL_UNSIGNED_INT, 0);
+      _specialElementBuff.drawElements(magnet::GL::element_type::LINES);
       break;
     case POINTS:
-      _specialElementBuff.bind(magnet::GL::buffer_targets::ELEMENT_ARRAY);
-      glDrawElements(GL_POINTS, _specialElementBuff.size(), GL_UNSIGNED_INT, 0);
+      _specialElementBuff.drawElements(magnet::GL::element_type::POINTS);
       break;
     }
  
