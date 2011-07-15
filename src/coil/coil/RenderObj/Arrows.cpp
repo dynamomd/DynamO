@@ -211,16 +211,11 @@ void
 RArrows::clTick()
 {
   cl_float4 campos = getclVec(_viewPort->getEyeLocation());
-
-  //Aqquire GL buffer objects
-  _clbuf_Positions.acquire(magnet::GL::Context::getContext().getCLCommandQueue());
-  
   cl_uint NArrows = _N;
-
   //Generate the sort data
-  _kernelFunc(_pointData, _directionData, (cl::Buffer)_clbuf_Positions, 
+  _kernelFunc(_pointData, _directionData, (cl::Buffer)_posBuff.acquireCLObject(),
 	      campos, NArrows);
   
   //Release resources
-  _clbuf_Positions.release(magnet::GL::Context::getContext().getCLCommandQueue());
+  _posBuff.releaseCLObject();
 }

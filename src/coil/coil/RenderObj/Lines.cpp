@@ -16,6 +16,7 @@
 */
 #include "Lines.hpp"
 #include <iostream>
+#include <stdexcept>
 #include <coil/glprimatives/arrow.hpp>
 
 RLines::RLines(size_t N, std::string name):
@@ -69,12 +70,6 @@ RLines::initOpenGL()
     
     setGLElements(ElementData);
   }
-}
-
-void 
-RLines::initOpenCL()
-{
-  initOCLVertexBuffer(magnet::GL::Context::getContext().getCLContext());
 }
 
 void 
@@ -135,24 +130,6 @@ RLines::setGLPositions(std::vector<float>& VertexPos)
       throw std::runtime_error("VertexPos.size()/3 != colBuffSize/4 ");
   
   _posBuff.init(VertexPos, magnet::GL::STREAM_DRAW);
-}
-
-void 
-RLines::initOCLVertexBuffer(cl::Context Context)
-{
-  _clbuf_Positions = cl::GLBuffer<GLfloat>(Context, CL_MEM_READ_WRITE, _posBuff);
-}
-
-void 
-RLines::initOCLColorBuffer(cl::Context Context)
-{
-  _clbuf_Colors = cl::GLBuffer<cl_uchar4>(Context, CL_MEM_READ_WRITE, _colBuff);
-}
-
-void 
-RLines::initOCLElementBuffer(cl::Context Context)
-{
-  _clbuf_Elements = cl::GLBuffer<GLuint>(Context, CL_MEM_READ_WRITE, _elementBuff);
 }
 
 void 

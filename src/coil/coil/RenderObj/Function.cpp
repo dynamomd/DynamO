@@ -172,10 +172,6 @@ RFunction::initOpenCL()
   clock_gettime(CLOCK_MONOTONIC, &startTime);
   glFinish();
   
-  initOCLVertexBuffer(context.getCLContext());
-  initOCLNormBuffer(context.getCLContext());
-  initOCLColorBuffer(context.getCLContext());
-  
   //Now do the first clTick if the shape is static!
   if (_staticShape)
     {
@@ -197,16 +193,10 @@ RFunction::clTick()
   tempo = float(currTime.tv_sec) - float(startTime.tv_sec)
     + 1e-9 * (float(currTime.tv_nsec) - float(startTime.tv_nsec));
 
-  const cl::CommandQueue& clcontext = magnet::GL::Context::getContext().getCLCommandQueue();
-  //Aqquire buffer objects
-  _clbuf_Colors.acquire(clcontext);
-  _clbuf_Positions.acquire(clcontext);
-  _clbuf_Normals.acquire(clcontext);
-      
   //Run Kernel
-  _kernelFunc((cl::Buffer)_clbuf_Positions, 
-	      (cl::Buffer)_clbuf_Colors, 
-	      (cl::Buffer)_clbuf_Normals, 
+  _kernelFunc((cl::Buffer)_posBuff.acquireCLObject(), 
+	      (cl::Buffer)_colBuff.acquireCLObject(), 
+	      (cl::Buffer)_normBuff.acquireCLObject(), 
 	      tempo,
 	      _functionOrigin,
 	      _functionRange,
@@ -217,9 +207,9 @@ RFunction::clTick()
 	      _N, _A);
   
   //Release resources
-  _clbuf_Normals.release(clcontext);
-  _clbuf_Colors.release(clcontext);
-  _clbuf_Positions.release(clcontext);
+  _posBuff.releaseCLObject();
+  _colBuff.releaseCLObject();
+  _normBuff.releaseCLObject();
 }
 
 void 
@@ -304,13 +294,10 @@ FunctionPickKernel(__global uint * colors, uint offset)
 void 
 RFunction::initPicking(cl_uint& offset)
 {
-  const cl::CommandQueue& clcontext = magnet::GL::Context::getContext().getCLCommandQueue();
-  //Aqquire buffer objects
-  _clbuf_Colors.acquire(clcontext);
   //Run Kernel
-  _pickFunc((cl::Buffer)_clbuf_Colors, offset);
+  _pickFunc((cl::Buffer)_colBuff.acquireCLObject(), offset);
   //Release resources
-  _clbuf_Colors.release(clcontext);
+  _colBuff.releaseCLObject();
 
   offset += _N * _N;
 }
@@ -331,17 +318,10 @@ RFunction::finishPicking(cl_uint& offset, const cl_uint val)
 				   << (val - offset) / _N 
 				   << coil::Console::end();
 
-  //Aqquire buffer objects
-  const cl::CommandQueue& clcontext = magnet::GL::Context::getContext().getCLCommandQueue();
-
-  _clbuf_Colors.acquire(clcontext);
-  _clbuf_Positions.acquire(clcontext);
-  _clbuf_Normals.acquire(clcontext);
-      
   //Run Kernel
-  _kernelFunc((cl::Buffer)_clbuf_Positions, 
-	      (cl::Buffer)_clbuf_Colors, 
-	      (cl::Buffer)_clbuf_Normals, 
+  _kernelFunc((cl::Buffer)_posBuff.acquireCLObject(),
+	      (cl::Buffer)_colBuff.acquireCLObject(),
+	      (cl::Buffer)_normBuff.acquireCLObject(),
 	      tempo,
 	      _functionOrigin,
 	      _functionRange,
@@ -352,9 +332,9 @@ RFunction::finishPicking(cl_uint& offset, const cl_uint val)
 	      _N);
   
   //Release resources
-  _clbuf_Normals.release(clcontext);
-  _clbuf_Colors.release(clcontext);
-  _clbuf_Positions.release(clcontext);
+  _posBuff.releaseCLObject();
+  _colBuff.releaseCLObject();
+  _normBuff.releaseCLObject();
 
   offset += _N * _N;
 }

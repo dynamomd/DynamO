@@ -26,7 +26,6 @@
 #include <magnet/static_assert.hpp>
 
 #include <magnet/GL/light.hpp>
-#include <magnet/CL/GLBuffer.hpp>
 #include <magnet/GL/shader/render.hpp>
 #include <magnet/GL/shadowFBO.hpp>
 #include <magnet/GL/viewPort.hpp>

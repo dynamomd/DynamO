@@ -20,7 +20,6 @@
 #include <magnet/GL/buffer.hpp>
 #include <vector>
 #include <memory>
-#include <magnet/CL/GLBuffer.hpp>
 
 class RTriangles : public RenderObj
 {
@@ -34,11 +33,6 @@ public:
   void setGLPositions(std::vector<float>& VertexPos);
   void setGLNormals(std::vector<float>& VertexNormals);
   void setGLElements(std::vector<GLuint>& Elements);
-
-  void initOCLVertexBuffer(cl::Context Context);
-  void initOCLColorBuffer(cl::Context Context);
-  void initOCLNormBuffer(cl::Context Context);
-  void initOCLElementBuffer(cl::Context Context);
 
   virtual void releaseCLGLResources();
 
@@ -61,17 +55,9 @@ protected:
   std::auto_ptr<Gtk::RadioButton> _gtkTriangleRender;
 
   magnet::GL::Buffer<cl_uchar4> _colBuff;
-  cl::GLBuffer<cl_uchar4> _clbuf_Colors;
-
   magnet::GL::Buffer<GLfloat> _posBuff;
-  cl::GLBuffer<GLfloat> _clbuf_Positions;
-  
   magnet::GL::Buffer<GLfloat> _normBuff;
-  cl::GLBuffer<GLfloat> _clbuf_Normals;
-
   magnet::GL::Buffer<GLuint> _elementBuff;
-  cl::GLBuffer<GLuint> _clbuf_Elements;
-
   magnet::GL::Buffer<GLuint> _specialElementBuff;
 
   bool _pickingRenderMode;

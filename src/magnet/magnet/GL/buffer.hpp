@@ -64,7 +64,13 @@ namespace magnet {
     class Buffer
     {
     public:
-      inline Buffer(): _size(0), _context(NULL) {}
+      inline Buffer(): 
+	_size(0), 
+	_context(NULL), 
+	_cl_handle_init(false), 
+	_cl_buffer_acquired(0) 
+      {}
+
       inline ~Buffer() { deinit(); }
 
       /*! \brief Initialises the Buffer object with the passed data
@@ -96,7 +102,7 @@ namespace magnet {
        */
       inline void init(size_t size, BufferUsage usage = STATIC_DRAW, const T* ptr = NULL)
       {
-	if (_size == 0)
+	if (size == 0)
 	  M_throw() << "Cannot initialise GL::Buffer with 0 size!";
 
 	deinit();
@@ -120,13 +126,14 @@ namespace magnet {
 	return static_cast<T*>(glMapBuffer(GL_ARRAY_BUFFER, GL_READ_WRITE));
       }
 
-      //! \brief Map a buffer onto the host device memory space;
+      //! \brief Map a buffer onto the host device memory space
       inline const T* map() const
       {
 	bind(ARRAY);
 	return static_cast<const T*>(glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY));
       }
 
+      //! \brief Releases a previous \ref map() call.
       inline void unmap() const
       {
 	bind(ARRAY);
@@ -138,12 +145,18 @@ namespace magnet {
        */
       inline void deinit() 
       {
+#ifdef MAGNET_DEBUG
+	if (_cl_buffer_acquired)
+	  M_throw() << "Deinitialising a buffer which is acquired by the OpenCL system!";
+#endif
+	_cl_handle = ::cl::BufferGL();
+	_cl_handle_init = false;
 	if (_size)
 	  glDeleteBuffersARB(1, &_buffer);
 	_context = NULL;
 	_size = 0;
       }
-
+      
       //! \brief Test if the buffer has been allocated.
       inline bool empty() const { return !_size; }
 
@@ -152,22 +165,81 @@ namespace magnet {
        */
       inline size_t byte_size() const { return _size * sizeof(T); }
 
+      /*! \brief Returns the number of elements in the buffer.
+       */
       inline size_t size() const { return _size; }
 
       /*! \brief Returns the underlying OpenGL handle for the
        * buffer */
       inline GLuint getGLObject() const { initTest(); return _buffer; }
 
+
+      /*! \brief Returns the OpenGL context this buffer lives in.
+       */
       inline Context& getContext() const { initTest(); return *_context; }
+
+      /*! \brief Returns an OpenCL representation of this GL buffer.
+       *
+       * This increments an internal counter, and every \ref
+       * acquireCLObject() must be matched by a call to \ref
+       * releaseCLObject()! before the next GL render using this
+       * buffer!
+       */
+      inline const ::cl::BufferGL& acquireCLObject()
+      { 
+	initTest();
+	if (!_cl_handle_init)
+	  {
+	    _cl_handle_init = true;
+	    _cl_handle = ::cl::BufferGL(_context->getCLContext(), 
+					CL_MEM_READ_WRITE, 
+					getGLObject());
+	  }
+
+	if ((_cl_buffer_acquired++) == 0)
+	  {
+	    std::vector<cl::Memory> buffers;
+	    buffers.push_back(_cl_handle);
+	    _context->getCLCommandQueue().enqueueAcquireGLObjects(&buffers);
+	  }
+
+	return _cl_handle; 
+      }
+
+      /*! \brief Releases the OpenCL representation of this GL buffer.
+       *
+       * This only releases the OpenCL representation if the \ref
+       * releaseCLObject() calls match the number of \ref
+       * acquireCLObject() calls.
+       */
+      inline void releaseCLObject()
+      { 
+	initTest(); 
+#ifdef MAGNET_DEBUG
+	if (!_cl_handle_init)
+	  M_throw() << "Cannot release CL Object, its not initialised!";
+	if (_cl_buffer_acquired == 0)
+	  M_throw() << "Trying to release an already released object!";
+#endif
+	if (--_cl_buffer_acquired == 0)
+	  {
+	    std::vector<cl::Memory> buffers;
+	    buffers.push_back(_cl_handle);
+	    _context->getCLCommandQueue().enqueueReleaseGLObjects(&buffers);
+	  }
+      }
 
     protected:
       /*! \brief Guard function to test if the buffer is initialised.
        */
       inline void initTest() const { if (empty()) M_throw() << "Buffer is not initialized!"; }
-      
+
       size_t _size;
       GLuint _buffer;
       Context* _context;
+      ::cl::BufferGL _cl_handle;
+      bool _cl_handle_init;
+      size_t _cl_buffer_acquired;
     };
   }
 }

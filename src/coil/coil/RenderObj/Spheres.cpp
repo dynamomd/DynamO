@@ -135,7 +135,6 @@ RTSpheres::initOpenCL()
 
     std::vector<float> VertexPos(3 * nVertice, 0.0);
     setGLPositions(VertexPos);
-    initOCLVertexBuffer(context.getCLContext());
   }
   
   {//Setup inital normal vectors
@@ -178,7 +177,6 @@ RTSpheres::initOpenCL()
       }
 
     setGLColors(VertexColor);
-    initOCLColorBuffer(context.getCLContext());
   }
    
  
@@ -295,13 +293,14 @@ RTSpheres::recolor()
 {
   magnet::GL::Context& context = magnet::GL::Context::getContext();  
   //Aqquire GL buffer objects
-  _clbuf_Colors.acquire(context.getCLCommandQueue());
-
+ 
   //Run color kernels
   _colorKernelFunc = _colorKernel.bind(context.getCLCommandQueue(), 
 				       cl::NDRange(_globalsize), 
 				       cl::NDRange(_workgroupsize));
   
+  cl::Buffer clbuff = _colBuff.acquireCLObject();
+
   cl_uint renderedSpheres = 0;
   cl_uint renderedVertexData = 0;
   for (std::vector<SphereDetails>::iterator iPtr = _renderDetailLevels.begin();
@@ -309,7 +308,7 @@ RTSpheres::recolor()
     {
       cl_int vertexOffset = renderedVertexData - renderedSpheres * iPtr->_type.getVertexCount();
 
-      _colorKernelFunc((cl::Buffer)_clbuf_Colors, _sphereColors, iPtr->_type.getVertexCount(), 
+      _colorKernelFunc(clbuff, _sphereColors, iPtr->_type.getVertexCount(), 
 		       renderedSpheres, renderedSpheres + iPtr->_nSpheres, 
 		       vertexOffset, _sortData, _N);
 
@@ -318,7 +317,7 @@ RTSpheres::recolor()
     }
 
   //Release resources
-  _clbuf_Colors.release(context.getCLCommandQueue());
+  _colBuff.releaseCLObject();
 }
 
 void 
@@ -328,20 +327,19 @@ RTSpheres::clTick()
 
   if (!(++_frameCount % _sortFrequency)) sortTick();
   
-  magnet::GL::Context& context = magnet::GL::Context::getContext();  
-
   //Aqquire GL buffer objects
-  _clbuf_Positions.acquire(context.getCLCommandQueue());
-
   //Finally, run render kernels
   cl_uint renderedSpheres = 0;
   cl_uint renderedVertexData = 0;
+
+  cl::Buffer clposbuf = _posBuff.acquireCLObject();
+
   for (std::vector<SphereDetails>::iterator iPtr = _renderDetailLevels.begin();
        iPtr != _renderDetailLevels.end(); ++iPtr)
     {
       cl_int vertexOffset = renderedVertexData - 3 * renderedSpheres * iPtr->_type.getVertexCount();
 
-      _renderKernelFunc(_spherePositions, (cl::Buffer)_clbuf_Positions, iPtr->_primativeVertices, 
+      _renderKernelFunc(_spherePositions, clposbuf, iPtr->_primativeVertices, 
 		       iPtr->_type.getVertexCount(), renderedSpheres, renderedSpheres + iPtr->_nSpheres, 
 		       vertexOffset, _sortData);
 
@@ -350,36 +348,34 @@ RTSpheres::clTick()
     }
 
   //Release resources
-  _clbuf_Positions.release(context.getCLCommandQueue());
+  _posBuff.releaseCLObject();
 }
 
 
 void 
 RTSpheres::initPicking(cl_uint& offset)
 {
-  magnet::GL::Context& context = magnet::GL::Context::getContext();  
-
-  //Aqquire GL buffer objects
-  _clbuf_Colors.acquire(context.getCLCommandQueue());
-  
   //Run color kernels  
   cl_uint renderedSpheres = 0;
   cl_uint renderedVertexData = 0;
+  
+  cl::Buffer clcolbuf = _colBuff.acquireCLObject();
+  
   for (std::vector<SphereDetails>::iterator iPtr = _renderDetailLevels.begin();
        iPtr != _renderDetailLevels.end(); ++iPtr)
     {
       cl_int vertexOffset = renderedVertexData - renderedSpheres * iPtr->_type.getVertexCount();
       
-      _pickingKernelFunc((cl::Buffer)_clbuf_Colors, iPtr->_type.getVertexCount(), 
-			renderedSpheres, renderedSpheres + iPtr->_nSpheres, 
-			vertexOffset, _sortData, offset, _N);
+      _pickingKernelFunc(clcolbuf, iPtr->_type.getVertexCount(), 
+			 renderedSpheres, renderedSpheres + iPtr->_nSpheres, 
+			 vertexOffset, _sortData, offset, _N);
       
       renderedSpheres += iPtr->_nSpheres;
       renderedVertexData += iPtr->_nSpheres * iPtr->_type.getVertexCount();
     }
-
+  
   //Release resources
-  _clbuf_Colors.release(context.getCLCommandQueue());
+  _colBuff.releaseCLObject();
 
   offset += _N;
 }

@@ -271,9 +271,6 @@ CLGLWindow::initOpenCL()
   //Force the OpenCL platform to be constructed
   getGLContext().getCLPlatform();
   
-  if (cl::hostTransfers()) 
-    std::cout << "\n!!!!!!!Host transfers have been enabled!!!!!!, slow performance is expected\n";
-
   //Now init the render objects  
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
