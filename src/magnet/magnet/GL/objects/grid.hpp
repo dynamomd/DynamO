@@ -79,7 +79,7 @@ namespace magnet {
 	/*! \brief Attaches the vertex buffer and renders the regular grid.
 	 *
 	 * The color of the grid should be set before calling this
-	 * function with glColor.
+	 * function.
 	 */
 	inline void glRender()
 	{

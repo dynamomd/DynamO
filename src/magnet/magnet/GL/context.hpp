@@ -81,8 +81,10 @@ namespace magnet {
       }
 
       /*! \brief Disable all active vertex attribute arrays. */
-      inline void disableAttributeArrays()
+      inline void cleanupAttributeArrays()
       {
+	resetInstanceTransform();
+
 	for (GLuint i(0); i < _vertexAttributeState.size(); ++i)
 	  if (_vertexAttributeState[i].active) 
 	    { glDisableVertexAttribArray(i); _vertexAttributeState[i].active = false;}
@@ -302,6 +304,7 @@ namespace magnet {
 	  M_throw() << "Failed to initialise GLEW!";
 
 	_vertexAttributeState.resize(detail::glGet<GL_MAX_VERTEX_ATTRIBS>());
+
 	for (GLuint i(0); i < _vertexAttributeState.size(); ++i)
 	  glVertexAttrib4f(i, 0,0,0,1);
 

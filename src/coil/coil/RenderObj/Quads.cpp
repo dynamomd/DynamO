@@ -32,9 +32,8 @@ RQuads::glRender()
   if (_normBuff.size())
     _normBuff.attachToNormal();
   
+  _posBuff.getContext().cleanupAttributeArrays();
   _posBuff.attachToVertex(3);
-  
-  glEnableClientState(GL_VERTEX_ARRAY);
   
   switch (_RenderMode)
     {
@@ -48,11 +47,6 @@ RQuads::glRender()
       _elementBuff.drawElements(magnet::GL::element_type::POINTS);
       break;
     }
- 
-  glDisableClientState(GL_COLOR_ARRAY);	
-  glDisableClientState(GL_NORMAL_ARRAY);
-  glDisableClientState(GL_VERTEX_ARRAY);
-
   if (_renderNormals && _normBuff.size())
     {
       const GLfloat* posPointer = _posBuff.map();

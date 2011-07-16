@@ -33,20 +33,14 @@ namespace magnet {
 	inline virtual void attach() 
 	{
 	  std::cout << "\nShader Locations"
-		    << "\n primitiveVertex  = " << glGetAttribLocation(_shaderID, "primitiveVertex" )
-		    << "\n primitiveColor   = " << glGetAttribLocation(_shaderID, "primitiveColor"  )
-		    << "\n primitiveNormal  = " << glGetAttribLocation(_shaderID, "primitiveNormal" )
-		    << "\n instancePosition = " << glGetAttribLocation(_shaderID, "instancePosition")
-		    << "\n instanceRotation = " << glGetAttribLocation(_shaderID, "instanceRotation")
-		    << "\n instanceScaling  = " << glGetAttribLocation(_shaderID, "instanceScaling" )
+		    << "\n vPosition  = " << glGetAttribLocation(_shaderID, "vPosition" )
+		    << "\n vColor   = " << glGetAttribLocation(_shaderID, "vColor"  )
+		    << "\n vNormal  = " << glGetAttribLocation(_shaderID, "vNormal" )
+		    << "\n iOrigin = " << glGetAttribLocation(_shaderID, "iOrigin")
+		    << "\n iOrientation = " << glGetAttribLocation(_shaderID, "iOrientation")
+		    << "\n iScale  = " << glGetAttribLocation(_shaderID, "iScale" )
 		    << std::endl;
 	  
-//	  glVertexAttrib4f(0,  0,0,0,1); //default position
-	  glVertexAttrib4f(1,  1,1,1,1); //default color
-//	  glVertexAttrib4f(2,  0,1,0,0); //default normal
-//	  glVertexAttrib4f(3,  1,1,1,0); //Perform no per-instance translation
-//	  glVertexAttrib4f(4,  1,0,0,0); //Perform no per-instance rotation
-//	  glVertexAttrib4f(5,  1,1,1,0); //Perform no per-instance scaling	  
 	  Shader::attach();
 	}
 	
@@ -78,16 +72,17 @@ vec3 qrot(vec4 q, vec3 v)
 
 void main()
 {
-  //vec4 rot = instanceRotation;
-  //vec3 pos = instancePosition.xyz;
-  //vec3 scale = instanceScaling;
-  //vec4 vertex_position = vec4(qrot(rot, primitiveVertex.xyz) + pos, primitiveVertex.w);
-  //normal = normalize(gl_NormalMatrix * qrot(rot, primitiveNormal.xyz));
-  vec4 vertex_position = vPosition;
-  normal = normalize(gl_NormalMatrix * vNormal.xyz);
+  //Rotate the vertex according to the instance transformation, and
+  //then move it to the instance origin.
+  vec4 vVertex = gl_ModelViewMatrix * vec4(qrot(iOrientation, vPosition.xyz) + iOrigin.xyz, vPosition.w);
+
+  //Standard vertex transformation
+  gl_Position = gl_ProjectionMatrix * vVertex;
+  
+  //Rotate the normal the same way the instance is rotated
+  normal = normalize(gl_NormalMatrix * qrot(iOrientation, vNormal.xyz));
   
   //Shadow coordinate calculations
-  vec4 vVertex = gl_ModelViewMatrix * vertex_position;
   ShadowCoord = gl_TextureMatrix[7] * vVertex;
 
   //light position calculations
@@ -97,9 +92,6 @@ void main()
   //Lighting calculations
   diffuse = vColor * gl_LightSource[0].diffuse;
   ambient = vColor * gl_LightSource[0].ambient;
-  
-  //Standard vertex transformation
-  gl_Position = gl_ProjectionMatrix * vVertex;
 });
 	}
 	

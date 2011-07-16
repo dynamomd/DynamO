@@ -239,13 +239,13 @@ namespace coil {
 
     {
       _showConsole.reset(new Gtk::CheckButton("Show console"));
-      _showConsole->set_active(true);
+      _showConsole->set_active(false);
       _optList->add(*_showConsole); _showConsole->show();
     }
 
     {
       _showAxis.reset(new Gtk::CheckButton("Show axis"));
-      _showAxis->set_active(true);
+      _showAxis->set_active(false);
       _optList->add(*_showAxis); _showAxis->show();
     }
 

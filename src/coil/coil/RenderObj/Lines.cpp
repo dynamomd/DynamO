@@ -77,6 +77,7 @@ RLines::glRender()
 {
   if (!_visible) return;
   
+  _posBuff.getContext().cleanupAttributeArrays();
   _colBuff.attachToColor(4);
   _posBuff.attachToVertex(3);
   
@@ -90,9 +91,6 @@ RLines::glRender()
       _elementBuff.drawElements(magnet::GL::element_type::POINTS);
       break;
     }
- 
-  glDisableClientState(GL_COLOR_ARRAY);	
-  glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 void 

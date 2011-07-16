@@ -18,6 +18,7 @@
 
 #include <limits>
 #include <magnet/GL/viewPort.hpp>
+#include <magnet/GL/context.hpp>
 
 namespace magnet {
   namespace GL {
@@ -82,7 +83,7 @@ namespace magnet {
        */
       inline void drawLight()
       {
-	glColor3f(1.0f, 1.0f, 1.0f);
+	Context::getContext().color(1.0f, 1.0f, 1.0f);
 	
 	GLfloat rotationAngle 
 	  = (180.0 / M_PI) * std::acos(Vector(0,0,-1) | _cameraDirection);

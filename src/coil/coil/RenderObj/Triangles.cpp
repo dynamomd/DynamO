@@ -33,6 +33,8 @@ RTriangles::glRender()
 {
   if (!_visible) return;
 
+  _posBuff.getContext().cleanupAttributeArrays();
+
   if (_pickingRenderMode)
     _pickingColorBuff.attachToColor(4);
 
@@ -56,10 +58,6 @@ RTriangles::glRender()
       _specialElementBuff.drawElements(magnet::GL::element_type::POINTS);
       break;
     }
- 
-  glDisableClientState(GL_COLOR_ARRAY);
-  glDisableClientState(GL_NORMAL_ARRAY);
-  glDisableClientState(GL_VERTEX_ARRAY);
 
   if (_renderNormals && _normBuff.size())
     {

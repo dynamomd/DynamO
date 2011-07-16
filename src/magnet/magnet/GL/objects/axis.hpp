@@ -37,8 +37,7 @@ namespace magnet {
 	//! \brief Release any associated OpenGL resources.
 	inline void deinit() { _vertexData.deinit(); _colorData.deinit(); }
 
-	/*! \brief Sets up the vertex buffer objects for the regular
-	 * axis.
+	/*! \brief Sets up the vertex buffer objects for the axis.
 	 */
 	inline void init()
 	{
@@ -98,18 +97,13 @@ namespace magnet {
 	  _colorData.init(colordata);
 	}
 
-	/*! \brief Attaches the vertex buffer and renders the regular grid.
-	 *
-	 * The color of the grid should be set before calling this
-	 * function with glColor.
+	/*! \brief Attaches the vertex buffer and renders the axis.
 	 */
 	inline void glRender()
-	{
+	{	
+	  _colorData.getContext().cleanupAttributeArrays();
 	  _colorData.attachToColor(4);
 	  _vertexData.drawArray(3, magnet::GL::element_type::LINES);
-
-	  glDisableClientState(GL_COLOR_ARRAY);
-	  glDisableClientState(GL_VERTEX_ARRAY);
 	}
 
       protected:
