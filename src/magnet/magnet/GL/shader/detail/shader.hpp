@@ -143,7 +143,7 @@ namespace magnet {
 
 	  //! \brief Attach the shader, so it is used for the next
 	  //! rendering of OpenGL objects.
-	  inline void attach() { glUseProgramObjectARB(_shaderID); }
+	  inline virtual void attach() { glUseProgramObjectARB(_shaderID); }
 
 	  /*! \brief Used to set values of \ref Shader uniforms (AKA
            *   arguments).

@@ -26,7 +26,17 @@ namespace magnet {
        */
       class RenderShader: public detail::Shader
       {
-      public:      
+      public:
+	//! \brief Attach the shader, so it is used for the next
+	//! rendering of OpenGL objects.
+	inline virtual void attach() 
+	{ 
+	  glVertexAttrib4f(1,  0,0,0,0); //Perform no per-instance translation
+	  glVertexAttrib4f(2,  1,0,0,0); //Perform no per-instance rotation
+	  Shader::attach();
+	}
+	
+
 	virtual std::string initVertexShaderSource()
 	{
 	  return STRINGIFY( 
@@ -34,18 +44,30 @@ varying vec4 ShadowCoord; // Used for shadow lookup
 varying vec3 lightDir; //Direction of the light
 varying vec3 normal; //The surface normal
 varying vec4 diffuse; //Lighting terms
-varying vec4 ambientGlobal; //Lighting terms
 varying vec4 ambient; //Lighting terms
-
 varying vec3 eyeVector;
+
+attribute vec4 vertexPos;
+attribute vec4 instancePosition;
+attribute vec4 instanceRotation;
+
+
+////Quaternion mathmatics
+//https://mollyrocket.com/forums/viewtopic.php?p=6154
+vec3 qrot(vec4 q, vec3 v)       
+{
+  return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
 
 void main()
 {
-  //Normal calculations
-  normal = normalize(gl_NormalMatrix * gl_Normal);
+  vec4 rot = instanceRotation;
+  vec3 pos = instancePosition;
+  vec4 vertex_position = vec4(qrot(rot, gl_Vertex.xyz) + pos, gl_Vertex.w);
+  normal = normalize(gl_NormalMatrix * qrot(rot, gl_Normal.xyz));
   
   //Shadow coordinate calculations
-  vec4 vVertex = gl_ModelViewMatrix * gl_Vertex;
+  vec4 vVertex = gl_ModelViewMatrix * vertex_position;
   ShadowCoord = gl_TextureMatrix[7] * vVertex;
 
   //light position calculations
@@ -55,10 +77,9 @@ void main()
   //Lighting calculations
   diffuse = gl_Color * gl_LightSource[0].diffuse;
   ambient = gl_Color * gl_LightSource[0].ambient;
-  ambientGlobal = gl_LightModel.ambient * gl_Color;
   
   //Standard vertex transformation
-  gl_Position = ftransform();
+  gl_Position = gl_ProjectionMatrix * vVertex;
 });
 	}
 	
@@ -129,7 +150,7 @@ void main()
     shadow = 1.0;
 
   //Start the color calculation with the global ambient
-  vec4 color = ambientGlobal;
+  vec4 color = vec4(0,0,0,0);
 
   float lightDist = length(lightDir);
 

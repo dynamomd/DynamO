@@ -33,6 +33,8 @@ namespace magnet {
 	  Instanced::init(N);
 	}
 	
+	virtual element_type::Enum  getElementType() { return element_type::TRIANGLE_STRIP; }
+	
 	virtual std::vector<GLfloat> getPrimitiveVertices()
 	{
 	  std::vector<GLfloat> vertices(2 * _LOD * 3);
@@ -64,22 +66,16 @@ namespace magnet {
 
 	virtual std::vector<GLuint>  getPrimitiveIndicies()
 	{
-	  std::vector<GLuint> indices(2 * _LOD + 4);
-	  
-	  //Degenerate "begin" vertex
-	  indices[0] = 0;
+	  std::vector<GLuint> indices(2 * _LOD + 2);
 	  
 	  //Main vertices
 	  for (size_t vert = 0; vert < 2 * _LOD; ++vert)
-	    indices[1 + vert] = vert;
+	    indices[vert] = vert;
 	  
 	  //Rejoin the end vertex
-	  indices[2 * _LOD + 1] =  0;
-	  indices[2 * _LOD + 2] =  1;
+	  indices[2 * _LOD + 0] =  0;
+	  indices[2 * _LOD + 1] =  1;
 	  
-	  //Degenerate "end" vertex
-	  indices[2 * _LOD + 3] =  1;
-
 	  return indices;
 	}
 

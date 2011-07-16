@@ -75,17 +75,24 @@ namespace magnet {
 	{
 	  _primitiveVertices.attachToVertex(3);
 	  _primitiveNormals.attachToNormal();
+
+	  _positionData.attachToAttribute(1, 3, 1);
+	  //_orientationData.attachToAttribute(2, 4, 1);
+
 	  glColor4f(0,1,1,1);
-	  _primitiveIndices.drawInstancedElements(element_type::TRIANGLE_STRIP, _N);
+	  _primitiveIndices.drawInstancedElements(getElementType(), _N);
 
 	  glDisableVertexAttribArray(0);
 	  glDisableClientState(GL_NORMAL_ARRAY);
 	  glDisableClientState(GL_VERTEX_ARRAY);
+	  glDisableVertexAttribArray(1);
+
 	}
 
 	virtual std::vector<GLfloat> getPrimitiveVertices() = 0;
 	virtual std::vector<GLfloat> getPrimitiveNormals()  = 0;
 	virtual std::vector<GLuint>  getPrimitiveIndicies() = 0;
+	virtual element_type::Enum   getElementType() = 0;
 
       protected:
 	size_t _N;
