@@ -166,7 +166,12 @@ namespace magnet {
       { 
 	initTest();
 	bind(buffer_targets::ELEMENT_ARRAY);
-	glDrawElementsInstanced(type, size(), detail::c_type_to_gl_enum<T>::val, 0, instances);
+	if (GLEW_EXT_draw_instanced)
+	  glDrawElementsInstancedEXT(type, size(), detail::c_type_to_gl_enum<T>::val, 0, instances);
+	else if (GLEW_ARB_draw_instanced)
+	  glDrawElementsInstancedEXT(type, size(), detail::c_type_to_gl_enum<T>::val, 0, instances);
+	else
+	  M_throw() << "Cannot perform instanced drawing, GL_ARB_draw_instanced/GL_EXT_draw_instanced extensions are missing.";
       }
 
       /*! \brief Draw all vertices in this array, without using
@@ -226,6 +231,8 @@ namespace magnet {
 	glVertexAttribPointer(attrnum, components, detail::c_type_to_gl_enum<T>::val, 
 			      (normalise ? GL_TRUE : GL_FALSE), 0, 0);
 	glEnableVertexAttribArray(attrnum);
+	if (divisor && !GL_ARB_instanced_arrays)
+	  M_throw() << "Cannot perform instanced vertex attributes, GL_ARB_instanced_arrays is not supported";
 	glVertexAttribDivisorARB(attrnum, divisor);
       }
 
