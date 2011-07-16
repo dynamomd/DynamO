@@ -15,11 +15,10 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-
-#define GL_GLEXT_PROTOTYPES
-#include <GL/glew.h>
+#include <magnet/GL/context.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/string/formatcode.hpp>
+
 #include <tr1/array>
 #include <string>
 
@@ -38,7 +37,21 @@ namespace magnet {
 	 * release the associated GL resources.
 	 *
 	 * The shader source can be changed at any point, and if the
-	 * shader is already built, it will be recompiled
+	 * shader is already built, it will be recompiled.
+	 *
+	 *
+	 * There are several default bindings for attributes in the
+	 * shader. These default bindings (indices from 0 to 6) may be
+	 * used by your shader, but be warned that they are used by
+	 * the GL Context as aliases for some common state variables.
+	 *
+	 * The table of indices is as follows:
+	 * \li "vPosition" = \ref Context::vertexPositionAttrIndex
+	 * \li "vColor" = \ref Context::vertexColorAttrIndex
+	 * \li "vNormal" = \ref Context::vertexNormalAttrIndex
+	 * \li "iOrigin" = \ref Context::instanceOriginAttrIndex
+	 * \li "iOrientation" = \ref Context::instanceOrientationAttrIndex
+	 * \li "iScale" = \ref Context::instanceScaleAttrIndex
 	 */
 	class Shader 
 	{
@@ -48,7 +61,7 @@ namespace magnet {
 	  /*! \brief Type handling for \ref Shader uniform (AKA
            *  argument) assignment.
 	   * 
-	   * This class is returned from \ref Shader::operator[] calls
+	   * This class is returned from \ref Shader::operator[]() calls
 	   * to handle type based assignments of the shader.
 	   */
 	  class ShaderUniform
@@ -249,13 +262,14 @@ namespace magnet {
 	    if (!(_geometryShaderCode.empty()))
 	      glAttachObjectARB(_shaderID,_geometryShaderHandle);
 	    
-	    glBindAttribLocation(_shaderID, 0, "primitiveVertex");
-	    glBindAttribLocation(_shaderID, 1, "primitiveNormal");
-	    glBindAttribLocation(_shaderID, 3, "primitiveColor");
-	    //glBindAttribLocation(_shaderID, 4, "instancePosition");
-	    //glBindAttribLocation(_shaderID, 5, "instanceRotation");
-	    //glBindAttribLocation(_shaderID, 6, "instanceScaling");
-
+	    //Bind the default shader variables to the indices
+	    //specified in the \ref Context class.
+	    glBindAttribLocation(_shaderID, Context::vertexPositionAttrIndex, "vPosition");
+	    glBindAttribLocation(_shaderID, Context::vertexColorAttrIndex, "vColor");
+	    glBindAttribLocation(_shaderID, Context::vertexNormalAttrIndex, "vNormal");
+	    glBindAttribLocation(_shaderID, Context::instanceOriginAttrIndex, "iOrigin");
+	    glBindAttribLocation(_shaderID, Context::instanceOrientationAttrIndex, "iOrientation");
+	    glBindAttribLocation(_shaderID, Context::instanceScaleAttrIndex, "iScale");
 
 	    glLinkProgramARB(_shaderID);
 

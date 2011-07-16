@@ -89,9 +89,6 @@ CLGLWindow::initOpenGL()
 
   glViewport(0, 0, 800, 600);
 
-  if (glewInit() != GLEW_OK)
-    std::runtime_error("Failed initialising GLEW (GL Extension Wrangler)");
-
   if (!GLEW_VERSION_2_0)
     std::runtime_error("OpenGL 2.0 is not supported, coil is not supported in this mode");
 

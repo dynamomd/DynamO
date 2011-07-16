@@ -77,14 +77,12 @@ namespace magnet {
 	  //_positionData.attachToAttribute(1, 3, 1);
 	  //_orientationData.attachToAttribute(2, 4, 1);
 
-	  _primitiveVertices.getContext().cleanup();
 	  _primitiveVertices.attachToVertex(3);
 	  _primitiveNormals.attachToNormal();
 
 	  glColor4f(0,1,1,1);
 	  _primitiveIndices.drawInstancedElements(getElementType(), _N);
-
-	  _positionData.getContext().cleanup();
+	  _primitiveVertices.getContext().disableAttributeArrays();
 	}
 
 	virtual std::vector<GLfloat> getPrimitiveVertices() = 0;

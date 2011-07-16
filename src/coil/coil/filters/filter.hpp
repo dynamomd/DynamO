@@ -17,11 +17,10 @@
 
 #pragma once
 
-#include <gtkmm.h>
-
 #include <magnet/GL/viewPort.hpp>
 #include <magnet/GL/shader/laplacianFilter.hpp>
 #include <magnet/GL/shader/blur.hpp>
+#include <gtkmm.h>
 
 namespace coil 
 { 

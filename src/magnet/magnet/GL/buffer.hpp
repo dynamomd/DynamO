@@ -191,7 +191,7 @@ namespace magnet {
        */
       inline void attachToVertex(size_t vertex_size) 
       { 
-	attachToAttribute(0, vertex_size);
+	attachToAttribute(Context::vertexPositionAttrIndex, vertex_size);
       }
 
       /*! \brief Attaches the buffer to the color pointer of the GL
@@ -202,9 +202,7 @@ namespace magnet {
        */
       inline void attachToColor(size_t color_size) 
       {
-	bind(buffer_targets::ARRAY);
-	glColorPointer(color_size, detail::c_type_to_gl_enum<T>::val, 0, 0);
-	glEnableClientState(GL_COLOR_ARRAY);
+	attachToAttribute(Context::vertexColorAttrIndex, color_size, 0, true);
       }
 
       /*! \brief Attaches the buffer to the normal pointer of the GL
@@ -212,7 +210,7 @@ namespace magnet {
        */
       inline void attachToNormal()
       {
-	attachToAttribute(1, 3);
+	attachToAttribute(Context::vertexNormalAttrIndex, 3);
       }
 
       /*! \brief Attaches the buffer to a vertex attribute pointer
@@ -223,11 +221,12 @@ namespace magnet {
 	initTest();
 	bind(buffer_targets::ARRAY);	
 	glVertexAttribPointer(attrnum, components, detail::c_type_to_gl_enum<T>::val,
-			      GL_FALSE, components * sizeof(T), 0);
-//	if (divisor && !GL_ARB_instanced_arrays)
-//	  M_throw() << "Cannot perform instanced vertex attributes, GL_ARB_instanced_arrays is not supported";
-//	glVertexAttribDivisorARB(attrnum, divisor);
-	glEnableVertexAttribArray(attrnum);
+			      (normalise ? GL_TRUE : GL_FALSE), components * sizeof(T), 0);
+	if (divisor && !GL_ARB_instanced_arrays)
+	  M_throw() << "Cannot perform instanced vertex attributes, GL_ARB_instanced_arrays is not supported";
+
+	glVertexAttribDivisorARB(attrnum, divisor);
+	_context->enableAttributeArray(attrnum);
       }
 
       /*! \brief Returns an OpenCL representation of this GL buffer.

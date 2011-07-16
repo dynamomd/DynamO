@@ -61,12 +61,12 @@ varying vec4 diffuse; //Lighting terms
 varying vec4 ambient; //Lighting terms
 varying vec3 eyeVector;
 
-attribute vec4 primitiveVertex;
-attribute vec4 primitiveNormal;
-attribute vec4 primitiveColor;
-attribute vec4 instancePosition;
-attribute vec4 instanceRotation;
-attribute vec4 instanceScaling;
+attribute vec4 vPosition;
+attribute vec4 vColor;
+attribute vec4 vNormal;
+attribute vec4 iOrigin;
+attribute vec4 iOrientation;
+attribute vec4 iScale;
 
 
 ////Quaternion mathmatics
@@ -83,8 +83,8 @@ void main()
   //vec3 scale = instanceScaling;
   //vec4 vertex_position = vec4(qrot(rot, primitiveVertex.xyz) + pos, primitiveVertex.w);
   //normal = normalize(gl_NormalMatrix * qrot(rot, primitiveNormal.xyz));
-  vec4 vertex_position = primitiveVertex;
-  normal = normalize(gl_NormalMatrix * primitiveNormal.xyz);
+  vec4 vertex_position = vPosition;
+  normal = normalize(gl_NormalMatrix * vNormal.xyz);
   
   //Shadow coordinate calculations
   vec4 vVertex = gl_ModelViewMatrix * vertex_position;
@@ -95,8 +95,8 @@ void main()
   eyeVector = -vVertex.xyz;
 
   //Lighting calculations
-  diffuse = primitiveColor * gl_LightSource[0].diffuse;
-  ambient = primitiveColor * gl_LightSource[0].ambient;
+  diffuse = vColor * gl_LightSource[0].diffuse;
+  ambient = vColor * gl_LightSource[0].ambient;
   
   //Standard vertex transformation
   gl_Position = gl_ProjectionMatrix * vVertex;

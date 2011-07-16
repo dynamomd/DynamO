@@ -68,6 +68,102 @@ namespace magnet {
 	  
 	return contexts[key];
       }
+      
+      /** @name Vertex attribute array interface. */
+      /**@{*/
+      /*! \brief Enables a vertex attribute array index. */
+      inline void enableAttributeArray(GLuint attrnum)
+      {
+	if (attrnum > _vertexAttributeState.size())
+	  M_throw() << "Attribute index out of range";
+	glEnableVertexAttribArray(attrnum);
+	_vertexAttributeState[attrnum].active = true;
+      }
+
+      /*! \brief Disable all active vertex attribute arrays. */
+      inline void disableAttributeArrays()
+      {
+	for (GLuint i(0); i < _vertexAttributeState.size(); ++i)
+	  if (_vertexAttributeState[i].active) 
+	    { glDisableVertexAttribArray(i); _vertexAttributeState[i].active = false;}
+      }
+
+      /*! \brief Sets the value of a vertex attribute, if no attribute
+       * array is bound.
+       *
+       * This function only sets the state if it has been updated.
+       */
+      inline void setAttribute(GLuint idx, GLfloat x = 0, GLfloat y = 0, GLfloat z = 0, GLfloat w = 0)
+      {
+	if (idx > _vertexAttributeState.size())
+	  M_throw() << "Attribute index out of range";
+
+	std::tr1::array<GLfloat, 4> newval = {{x,y,z,w}};
+	if (newval == _vertexAttributeState[idx].defaultval) return;
+	_vertexAttributeState[idx].defaultval = newval;
+
+	glVertexAttrib4f(idx, newval[0], newval[1], newval[2], newval[3]);
+      }
+      
+      /*! \brief The index of the automatically-indexed position
+       * vertex attribute.  
+       *
+       * This index for the vertex position is used in the OpenGL
+       * standard.
+       * \sa detail::Shader::build()
+       */
+      static const GLuint vertexPositionAttrIndex = 0;
+
+      /*! \brief The index of the automatically-indexed position
+       * color attribute.  
+       * \sa detail::Shader::build()
+       */
+      static const GLuint vertexColorAttrIndex = 1;
+
+      /*! \brief The index of the automatically-indexed normal vertex
+       * attribute.  
+       * \sa detail::Shader::build()
+       */
+      static const GLuint vertexNormalAttrIndex = 2;
+
+      /*! \brief The index of the automatically-indexed instance origin
+       * vertex attribute.  
+       * \sa detail::Shader::build()
+       */
+      static const GLuint instanceOriginAttrIndex = 3;
+
+      /*! \brief The index of the automatically-indexed instance
+       * orientation vertex attribute.
+       * \sa detail::Shader::build()
+       */
+      static const GLuint instanceOrientationAttrIndex = 4;
+
+      /*! \brief The index of the automatically-indexed instance
+       * scale vertex attribute.
+       * \sa detail::Shader::build()
+       */
+      static const GLuint instanceScaleAttrIndex = 5;
+
+      /*! \brief Convenience function to set the vertex attribute
+       * representing the color in a shader.
+       *
+       * This uses the \ref vertexColorAttrIndex value for the index
+       * of the color attribute.
+       */
+      inline void color(GLfloat r = 0, GLfloat g = 0, GLfloat b = 0, GLfloat a = 0) 
+      { setAttribute(vertexColorAttrIndex, r, g, b, a); }
+
+      /*! \brief Resets the vertex attributes used in instancing to
+       * avoid unintended transformations of the instanced object.
+       */
+      inline void resetInstanceTransform()
+      {
+	setAttribute(instanceOriginAttrIndex, 0, 0, 0, 0);
+	setAttribute(instanceOrientationAttrIndex, 1, 0, 0, 0);
+	setAttribute(instanceScaleAttrIndex, 1, 1, 1, 0);
+      }
+      
+      /**@}*/
 
       /** @name The OpenCL-OpenGL interface. */
       /**@{*/
@@ -86,12 +182,7 @@ namespace magnet {
       //! \brief Fetch the OpenCL command queue for this OpenGL context.
       inline const cl::CommandQueue& getCLCommandQueue() 
       { initCL(); return _clcommandQ; }
-
-      void cleanup()
-      {
-	for (GLint i(0); i < detail::glGet<GL_MAX_VERTEX_ATTRIBS>(); ++i)
-	  glDisableVertexAttribArray(i);
-      }
+      /**@}*/
 
     protected:
       //! \brief The OpenCL platform for this GL context.
@@ -201,14 +292,20 @@ namespace magnet {
 	return true;
       }
 
-      /**@}*/
-
       /*! \brief Initializes the OpenGL context and state tracking.
        */
       inline void init()
       {
 	_context = getCurrentContextKey();
-	_activeVertexAttributeArrays.resize(detail::glGet<GL_MAX_VERTEX_ATTRIBS>(), false);
+
+	if (glewInit() != GLEW_OK)
+	  M_throw() << "Failed to initialise GLEW!";
+
+	_vertexAttributeState.resize(detail::glGet<GL_MAX_VERTEX_ATTRIBS>());
+	for (GLuint i(0); i < _vertexAttributeState.size(); ++i)
+	  glVertexAttrib4f(i, 0,0,0,1);
+
+	resetInstanceTransform();
       }
 
       typedef GLXContext ContextKey;
@@ -230,7 +327,24 @@ namespace magnet {
       //! \brief Friend statement needed for \ref getContext().
       friend class std::map<ContextKey, Context>;
 
-      std::vector<bool> _activeVertexAttributeArrays;
+      /*! \brief Class used to track the state of a vertex attribute
+       * array.
+       */
+      struct VertexAttrState 
+      {
+	VertexAttrState(): 
+	  active(false)
+	{
+	  defaultval[0] = defaultval[1] = defaultval[2] = 0; 
+	  defaultval[3] = 1; 
+	}
+
+	bool active;
+	std::tr1::array<GLfloat, 4> defaultval;
+      };
+
+      /*! \brief The state of the vertex attributes */
+      std::vector<VertexAttrState> _vertexAttributeState;
     };
   }
 }

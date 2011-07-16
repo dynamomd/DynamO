@@ -16,8 +16,8 @@
 */
 
 #pragma once
-#include <magnet/GL/shader/SSAO.hpp>
 #include "filter.hpp"
+#include <magnet/GL/shader/SSAO.hpp>
 
 namespace coil 
 {
