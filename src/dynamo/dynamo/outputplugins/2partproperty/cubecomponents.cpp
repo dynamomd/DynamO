@@ -21,7 +21,6 @@
 #include "../../base/is_simdata.hpp"
 #include "../0partproperty/collMatrix.hpp"
 #include <boost/foreach.hpp>
-#include <boost/array.hpp>
 #include <magnet/xmlwriter.hpp>
 
 OPCubeComp::OPCubeComp(const dynamo::SimData* tmp, const magnet::xml::Node&):

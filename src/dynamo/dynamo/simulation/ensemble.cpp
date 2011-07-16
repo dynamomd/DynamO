@@ -69,10 +69,10 @@ namespace dynamo {
 	     << "\nE=" << EnsembleVals[2] / Sim->dynamics.units().unitEnergy() << std::endl;
   }
 
-  boost::array<double,3> 
+  std::tr1::array<double,3> 
   EnsembleNVE::getReducedEnsembleVals() const
   {
-    boost::array<double,3> retval;
+    std::tr1::array<double,3> retval;
     retval[0] = EnsembleVals[0];
     retval[1] = EnsembleVals[1] / Sim->dynamics.units().unitVolume();
     retval[2] = EnsembleVals[2] / Sim->dynamics.units().unitEnergy();
@@ -106,10 +106,10 @@ namespace dynamo {
 	     << "\nT=" << EnsembleVals[2] / Sim->dynamics.units().unitEnergy() << std::endl;
   }
 
-  boost::array<double,3> 
+  std::tr1::array<double,3> 
   EnsembleNVT::getReducedEnsembleVals() const
   {
-    boost::array<double,3> retval;
+    std::tr1::array<double,3> retval;
     retval[0] = EnsembleVals[0];
     retval[1] = EnsembleVals[1] / Sim->dynamics.units().unitVolume();
     retval[2] = EnsembleVals[2] / Sim->dynamics.units().unitEnergy();
@@ -171,10 +171,10 @@ namespace dynamo {
 	     << "\nGamma=" << EnsembleVals[2] * Sim->dynamics.units().unitTime() << std::endl;
   }
 
-  boost::array<double,3> 
+  std::tr1::array<double,3> 
   EnsembleNVShear::getReducedEnsembleVals() const
   {
-    boost::array<double,3> retval;
+    std::tr1::array<double,3> retval;
     retval[0] = EnsembleVals[0];
     retval[1] = EnsembleVals[1] / Sim->dynamics.units().unitVolume();
     retval[2] = EnsembleVals[2] * Sim->dynamics.units().unitTime();
@@ -203,10 +203,10 @@ namespace dynamo {
 	     << "\nGamma=" << EnsembleVals[2] * Sim->dynamics.units().unitTime() << std::endl;
   }
 
-  boost::array<double,3> 
+  std::tr1::array<double,3> 
   EnsembleNECompression::getReducedEnsembleVals() const
   {
-    boost::array<double,3> retval;
+    std::tr1::array<double,3> retval;
     retval[0] = EnsembleVals[0];
     retval[1] = EnsembleVals[1] / Sim->dynamics.units().unitEnergy();
     retval[2] = EnsembleVals[2] * Sim->dynamics.units().unitTime();
@@ -249,10 +249,10 @@ namespace dynamo {
 	     << "\nGamma=" << EnsembleVals[2] * Sim->dynamics.units().unitTime() << std::endl;
   }
 
-  boost::array<double,3> 
+  std::tr1::array<double,3> 
   EnsembleNTCompression::getReducedEnsembleVals() const
   {
-    boost::array<double,3> retval;
+    std::tr1::array<double,3> retval;
     retval[0] = EnsembleVals[0];
     retval[1] = EnsembleVals[1] / Sim->dynamics.units().unitEnergy();
     retval[2] = EnsembleVals[2] * Sim->dynamics.units().unitTime();

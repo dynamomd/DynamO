@@ -20,7 +20,7 @@
 #include <magnet/math/vector.hpp>
 #include <boost/program_options.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/tr1/array.hpp>
+#include <tr1/array>
 
 using namespace std;
 using namespace boost;

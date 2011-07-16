@@ -17,9 +17,9 @@
 
 #pragma once
 #include <dynamo/inputplugins/cells/cell.hpp>
-#include <boost/array.hpp>
 #include <boost/foreach.hpp>
 #include <boost/progress.hpp>
+#include <tr1/array>
 #include <string>
 #include <fstream>
 
@@ -27,7 +27,7 @@ struct CUTriangleIntersect: public CUCell
 {
   double _diameter, _diametersq;
   std::string _fileName;
-  typedef boost::array<Vector, NDIM+1> triangle_type;
+  typedef std::tr1::array<Vector, NDIM+1> triangle_type;
   std::vector<triangle_type> _triangles;
 
   CUTriangleIntersect(CUCell* nextCell, double diameter, std::string fileName):

@@ -18,11 +18,12 @@
 #pragma once
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <boost/circular_buffer.hpp>
+#include <tr1/array>
 
 class OPViscosityE: public OutputPlugin
 {
-  typedef boost::array<double, NDIM> col;
-  typedef boost::array<col, NDIM> matrix;
+  typedef std::tr1::array<double, NDIM> col;
+  typedef std::tr1::array<col, NDIM> matrix;
   
 public:
   OPViscosityE(const dynamo::SimData*, const magnet::xml::Node& XML);

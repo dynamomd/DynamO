@@ -17,7 +17,7 @@
 #pragma once
 
 #include <dynamo/base.hpp>
-#include <boost/array.hpp>
+#include <tr1/array>
 #include <string>
 
 namespace magnet { namespace xml { class Node; class XmlStream; } }
@@ -62,7 +62,7 @@ namespace dynamo {
     //! Returns an array containing the control values of the Ensemble
     //! (e.g., NVE) in the units of the output.
     //! \sa getEnsembleVals
-    virtual boost::array<double,3> getReducedEnsembleVals() const = 0;
+    virtual std::tr1::array<double,3> getReducedEnsembleVals() const = 0;
     
     //! Swaps the underlying ensemble control values.
     //! \sa EReplicaExchangeSimulation
@@ -74,10 +74,10 @@ namespace dynamo {
     
     //! Returns an array containing the ensemble values in simulation units.
     //! \sa getReducedEnsembleVals
-    const boost::array<double,3>& getEnsembleVals() const { return EnsembleVals; }
+    const std::tr1::array<double,3>& getEnsembleVals() const { return EnsembleVals; }
 
   protected:
-    boost::array<double,3> EnsembleVals;
+    std::tr1::array<double,3> EnsembleVals;
   };
 
   //! \brief An Ensemble where N (no. of particles), V (simulation volume),
@@ -90,7 +90,7 @@ namespace dynamo {
 
     virtual void initialise();
 
-    virtual boost::array<double,3> getReducedEnsembleVals() const;
+    virtual std::tr1::array<double,3> getReducedEnsembleVals() const;
 
     virtual std::string getName() const
     { return std::string("NVE"); }
@@ -109,7 +109,7 @@ namespace dynamo {
 
     virtual void initialise();
 
-    virtual boost::array<double,3> getReducedEnsembleVals() const;
+    virtual std::tr1::array<double,3> getReducedEnsembleVals() const;
 
     virtual std::string getName() const
     { return std::string("NVT"); }
@@ -130,7 +130,7 @@ namespace dynamo {
 
     virtual void initialise();
 
-    virtual boost::array<double,3> getReducedEnsembleVals() const;
+    virtual std::tr1::array<double,3> getReducedEnsembleVals() const;
 
     virtual std::string getName() const
     { return std::string("NVShear"); }
@@ -146,7 +146,7 @@ namespace dynamo {
 
     virtual void initialise();
 
-    virtual boost::array<double,3> getReducedEnsembleVals() const;
+    virtual std::tr1::array<double,3> getReducedEnsembleVals() const;
 
     virtual std::string getName() const
     { return std::string("NECompression"); }
@@ -165,7 +165,7 @@ namespace dynamo {
 
     virtual void initialise();
 
-    virtual boost::array<double,3> getReducedEnsembleVals() const;
+    virtual std::tr1::array<double,3> getReducedEnsembleVals() const;
 
     virtual std::string getName() const
     { return std::string("NTCompression"); }

@@ -18,14 +18,14 @@
 #pragma once
 
 #include <cmath>
-#include <boost/array.hpp>
+#include <tr1/array>
 
 namespace magnet {
   namespace math {
     inline double quarticError(const double& a, const double& b, const double& c, const double& d,
 			       const double roots[4], const size_t rootCount)
     {
-      boost::array<double, 4> errors;
+      std::tr1::array<double, 4> errors;
 
       for (size_t root = 0; root < rootCount; ++ root)
 	{

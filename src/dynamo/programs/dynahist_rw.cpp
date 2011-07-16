@@ -21,7 +21,6 @@
 #include <boost/unordered_map.hpp>
 #include <boost/program_options.hpp>
 #include <boost/foreach.hpp>
-#include <boost/array.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/bzip2.hpp>
@@ -39,6 +38,7 @@
 #include <cmath>
 #include <iomanip>
 #include <iosfwd>
+#include <tr1/array>
 
 using namespace std;
 using namespace boost;
@@ -160,7 +160,7 @@ struct SimData
   //second axis is value of X with the final entry being the probability
   struct histogramEntry
   {
-    typedef boost::array<long double, NGamma> Xtype;
+    typedef std::tr1::array<long double, NGamma> Xtype;
     Xtype X;
     long double Probability;
   };

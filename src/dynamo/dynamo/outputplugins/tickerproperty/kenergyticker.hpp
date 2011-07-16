@@ -19,14 +19,15 @@
 
 #include "ticker.hpp"
 #include "../../datatypes/histogram.hpp"
+#include <tr1/array>
 
 class OPKEnergyTicker: public OPTicker
 {
  public:
   OPKEnergyTicker(const dynamo::SimData*, const magnet::xml::Node&);
 
-  typedef boost::array<double, NDIM> col;
-  typedef boost::array<col, NDIM> matrix;
+  typedef std::tr1::array<double, NDIM> col;
+  typedef std::tr1::array<col, NDIM> matrix;
 
   virtual OutputPlugin *Clone() const
   { return new OPKEnergyTicker(*this); }

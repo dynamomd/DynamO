@@ -19,8 +19,6 @@
 
 #include "datastruct.hpp"
 #include <magnet/xmlwriter.hpp>
-
-#include <boost/array.hpp>
 #include <magnet/containers/MinMaxHeap.hpp>
 
 //! There is a trick used here to speed up comparisons between

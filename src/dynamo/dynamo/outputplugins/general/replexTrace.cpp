@@ -20,6 +20,7 @@
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <sstream>
+#include <tr1/array>
 
 OPReplexTrace::OPReplexTrace(const dynamo::SimData* t1, const magnet::xml::Node&):
   OutputPlugin(t1,"ReplexTrace")
@@ -47,7 +48,7 @@ OPReplexTrace::changeSystem(OutputPlugin* OPP)
 void 
 OPReplexTrace::addPoint()
 {
-  const boost::array<double,3>& 
+  const std::tr1::array<double,3>& 
     ensembleVals(Sim->ensemble->getReducedEnsembleVals());
 
   std::ostringstream op;
