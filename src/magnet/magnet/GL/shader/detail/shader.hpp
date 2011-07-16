@@ -248,6 +248,14 @@ namespace magnet {
 
 	    if (!(_geometryShaderCode.empty()))
 	      glAttachObjectARB(_shaderID,_geometryShaderHandle);
+	    
+	    glBindAttribLocation(_shaderID, 0, "primitiveVertex");
+	    glBindAttribLocation(_shaderID, 1, "primitiveNormal");
+	    glBindAttribLocation(_shaderID, 3, "primitiveColor");
+	    //glBindAttribLocation(_shaderID, 4, "instancePosition");
+	    //glBindAttribLocation(_shaderID, 5, "instanceRotation");
+	    //glBindAttribLocation(_shaderID, 6, "instanceScaling");
+
 
 	    glLinkProgramARB(_shaderID);
 

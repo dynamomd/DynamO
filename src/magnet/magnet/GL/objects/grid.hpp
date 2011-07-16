@@ -86,13 +86,7 @@ namespace magnet {
 	  if (!(_xGridLines + _yGridLines))
 	    M_throw() << "Cannot render uninitialized Grid object.";
 
-	  _vertexData.bind(magnet::GL::buffer_targets::ARRAY);
-	  glVertexPointer(3, GL_FLOAT, 0, 0);
-	  glEnableClientState(GL_VERTEX_ARRAY);
-
-	  glDrawArrays(GL_LINES, 0, 6 * (_xGridLines + _xGridLines));
-
-	  glDisableClientState(GL_VERTEX_ARRAY);
+	  _vertexData.drawArray(3, magnet::GL::element_type::LINES);
 	}
 
       protected:

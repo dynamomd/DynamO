@@ -181,6 +181,7 @@ namespace magnet {
       { 
 	attachToVertex(vertex_size);
 	glDrawArrays(type, 0, size() / vertex_size);
+	glDisableClientState(GL_VERTEX_ARRAY);
       }
 
       /*! \brief Attaches the buffer to the vertex pointer of the GL
@@ -190,10 +191,7 @@ namespace magnet {
        */
       inline void attachToVertex(size_t vertex_size) 
       { 
-	initTest();
-	bind(buffer_targets::ARRAY);
-	glVertexPointer(vertex_size, detail::c_type_to_gl_enum<T>::val, 0, 0);
-	glEnableClientState(GL_VERTEX_ARRAY);
+	attachToAttribute(0, vertex_size);
       }
 
       /*! \brief Attaches the buffer to the color pointer of the GL
@@ -204,7 +202,6 @@ namespace magnet {
        */
       inline void attachToColor(size_t color_size) 
       {
-	initTest();
 	bind(buffer_targets::ARRAY);
 	glColorPointer(color_size, detail::c_type_to_gl_enum<T>::val, 0, 0);
 	glEnableClientState(GL_COLOR_ARRAY);
@@ -215,10 +212,7 @@ namespace magnet {
        */
       inline void attachToNormal()
       {
-	initTest();
-	bind(buffer_targets::ARRAY);	
-	glNormalPointer(detail::c_type_to_gl_enum<T>::val, 0, 0);
-	glEnableClientState(GL_NORMAL_ARRAY); 
+	attachToAttribute(1, 3);
       }
 
       /*! \brief Attaches the buffer to a vertex attribute pointer
@@ -228,12 +222,12 @@ namespace magnet {
       {
 	initTest();
 	bind(buffer_targets::ARRAY);	
-	glVertexAttribPointer(attrnum, components, detail::c_type_to_gl_enum<T>::val, 
-			      (normalise ? GL_TRUE : GL_FALSE), 0, 0);
+	glVertexAttribPointer(attrnum, components, detail::c_type_to_gl_enum<T>::val,
+			      GL_FALSE, components * sizeof(T), 0);
+//	if (divisor && !GL_ARB_instanced_arrays)
+//	  M_throw() << "Cannot perform instanced vertex attributes, GL_ARB_instanced_arrays is not supported";
+//	glVertexAttribDivisorARB(attrnum, divisor);
 	glEnableVertexAttribArray(attrnum);
-	if (divisor && !GL_ARB_instanced_arrays)
-	  M_throw() << "Cannot perform instanced vertex attributes, GL_ARB_instanced_arrays is not supported";
-	glVertexAttribDivisorARB(attrnum, divisor);
       }
 
       /*! \brief Returns an OpenCL representation of this GL buffer.

@@ -16,6 +16,7 @@
  */
 #pragma once
 #include <magnet/GL/shader/detail/shader.hpp>
+#include <iostream>
 #define STRINGIFY(A) #A
 
 namespace magnet {
@@ -30,9 +31,22 @@ namespace magnet {
 	//! \brief Attach the shader, so it is used for the next
 	//! rendering of OpenGL objects.
 	inline virtual void attach() 
-	{ 
-	  glVertexAttrib4f(1,  0,0,0,0); //Perform no per-instance translation
-	  glVertexAttrib4f(2,  1,0,0,0); //Perform no per-instance rotation
+	{
+	  std::cout << "\nShader Locations"
+		    << "\n primitiveVertex  = " << glGetAttribLocation(_shaderID, "primitiveVertex" )
+		    << "\n primitiveColor   = " << glGetAttribLocation(_shaderID, "primitiveColor"  )
+		    << "\n primitiveNormal  = " << glGetAttribLocation(_shaderID, "primitiveNormal" )
+		    << "\n instancePosition = " << glGetAttribLocation(_shaderID, "instancePosition")
+		    << "\n instanceRotation = " << glGetAttribLocation(_shaderID, "instanceRotation")
+		    << "\n instanceScaling  = " << glGetAttribLocation(_shaderID, "instanceScaling" )
+		    << std::endl;
+	  
+//	  glVertexAttrib4f(0,  0,0,0,1); //default position
+	  glVertexAttrib4f(1,  1,1,1,1); //default color
+//	  glVertexAttrib4f(2,  0,1,0,0); //default normal
+//	  glVertexAttrib4f(3,  1,1,1,0); //Perform no per-instance translation
+//	  glVertexAttrib4f(4,  1,0,0,0); //Perform no per-instance rotation
+//	  glVertexAttrib4f(5,  1,1,1,0); //Perform no per-instance scaling	  
 	  Shader::attach();
 	}
 	
@@ -47,24 +61,30 @@ varying vec4 diffuse; //Lighting terms
 varying vec4 ambient; //Lighting terms
 varying vec3 eyeVector;
 
-attribute vec4 vertexPos;
+attribute vec4 primitiveVertex;
+attribute vec4 primitiveNormal;
+attribute vec4 primitiveColor;
 attribute vec4 instancePosition;
 attribute vec4 instanceRotation;
+attribute vec4 instanceScaling;
 
 
 ////Quaternion mathmatics
 //https://mollyrocket.com/forums/viewtopic.php?p=6154
-vec3 qrot(vec4 q, vec3 v)       
+vec3 qrot(vec4 q, vec3 v)
 {
   return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
 }
 
 void main()
 {
-  vec4 rot = instanceRotation;
-  vec3 pos = instancePosition;
-  vec4 vertex_position = vec4(qrot(rot, gl_Vertex.xyz) + pos, gl_Vertex.w);
-  normal = normalize(gl_NormalMatrix * qrot(rot, gl_Normal.xyz));
+  //vec4 rot = instanceRotation;
+  //vec3 pos = instancePosition.xyz;
+  //vec3 scale = instanceScaling;
+  //vec4 vertex_position = vec4(qrot(rot, primitiveVertex.xyz) + pos, primitiveVertex.w);
+  //normal = normalize(gl_NormalMatrix * qrot(rot, primitiveNormal.xyz));
+  vec4 vertex_position = primitiveVertex;
+  normal = normalize(gl_NormalMatrix * primitiveNormal.xyz);
   
   //Shadow coordinate calculations
   vec4 vVertex = gl_ModelViewMatrix * vertex_position;
@@ -75,8 +95,8 @@ void main()
   eyeVector = -vVertex.xyz;
 
   //Lighting calculations
-  diffuse = gl_Color * gl_LightSource[0].diffuse;
-  ambient = gl_Color * gl_LightSource[0].ambient;
+  diffuse = primitiveColor * gl_LightSource[0].diffuse;
+  ambient = primitiveColor * gl_LightSource[0].ambient;
   
   //Standard vertex transformation
   gl_Position = gl_ProjectionMatrix * vVertex;

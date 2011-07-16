@@ -28,6 +28,7 @@
 
 #include <magnet/GL/detail/traits.hpp>
 #include <magnet/GL/detail/enums.hpp>
+#include <magnet/GL/detail/typesafe_get.hpp>
 #include <magnet/exception.hpp>
 #include <map>
 
@@ -49,6 +50,7 @@ namespace magnet {
     class Context
     {
     public:
+
       /*! \brief Method to fetch the current OpenGL context.
        *
        * This function is used to make sure that whenever the context
@@ -62,7 +64,7 @@ namespace magnet {
 
 	std::map<ContextKey, Context>::iterator ctxPtr = contexts.find(key);
 	if (ctxPtr == contexts.end())
-	  contexts[key]._context = getCurrentContextKey();
+	  contexts[key].init();
 	  
 	return contexts[key];
       }
@@ -84,6 +86,12 @@ namespace magnet {
       //! \brief Fetch the OpenCL command queue for this OpenGL context.
       inline const cl::CommandQueue& getCLCommandQueue() 
       { initCL(); return _clcommandQ; }
+
+      void cleanup()
+      {
+	for (GLint i(0); i < detail::glGet<GL_MAX_VERTEX_ATTRIBS>(); ++i)
+	  glDisableVertexAttribArray(i);
+      }
 
     protected:
       //! \brief The OpenCL platform for this GL context.
@@ -195,6 +203,14 @@ namespace magnet {
 
       /**@}*/
 
+      /*! \brief Initializes the OpenGL context and state tracking.
+       */
+      inline void init()
+      {
+	_context = getCurrentContextKey();
+	_activeVertexAttributeArrays.resize(detail::glGet<GL_MAX_VERTEX_ATTRIBS>(), false);
+      }
+
       typedef GLXContext ContextKey;
 
       inline static ContextKey getCurrentContextKey()
@@ -213,6 +229,8 @@ namespace magnet {
 
       //! \brief Friend statement needed for \ref getContext().
       friend class std::map<ContextKey, Context>;
+
+      std::vector<bool> _activeVertexAttributeArrays;
     };
   }
 }
