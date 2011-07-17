@@ -28,23 +28,6 @@ namespace magnet {
       class RenderShader: public detail::Shader
       {
       public:
-	//! \brief Attach the shader, so it is used for the next
-	//! rendering of OpenGL objects.
-	inline virtual void attach() 
-	{
-	  std::cout << "\nShader Locations"
-		    << "\n vPosition  = " << glGetAttribLocation(_shaderID, "vPosition" )
-		    << "\n vColor   = " << glGetAttribLocation(_shaderID, "vColor"  )
-		    << "\n vNormal  = " << glGetAttribLocation(_shaderID, "vNormal" )
-		    << "\n iOrigin = " << glGetAttribLocation(_shaderID, "iOrigin")
-		    << "\n iOrientation = " << glGetAttribLocation(_shaderID, "iOrientation")
-		    << "\n iScale  = " << glGetAttribLocation(_shaderID, "iScale" )
-		    << std::endl;
-	  
-	  Shader::attach();
-	}
-	
-
 	virtual std::string initVertexShaderSource()
 	{
 	  return STRINGIFY( 

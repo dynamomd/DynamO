@@ -36,15 +36,15 @@ RTriangles::glRender()
   _posBuff.getContext().cleanupAttributeArrays();
 
   if (_pickingRenderMode)
-    _pickingColorBuff.attachToColor(4);
+    _pickingColorBuff.attachToColor();
 
   if (_colBuff.size() && !_pickingRenderMode)
-    _colBuff.attachToColor(4);
+    _colBuff.attachToColor();
 
   if (_normBuff.size())
     _normBuff.attachToNormal();
   
-  _posBuff.attachToVertex(3);
+  _posBuff.attachToVertex();
   
   switch (_RenderMode)
     {

@@ -74,10 +74,21 @@ namespace magnet {
 	inline void glRender()
 	{
 	  _primitiveVertices.getContext().cleanupAttributeArrays();
-	  _primitiveVertices.attachToVertex(3);
+
+	  _primitiveVertices.attachToVertex();
 	  _primitiveNormals.attachToNormal();
 
 	  _primitiveVertices.getContext().color(0, 1, 1, 1);
+
+	  if (!_positionData.empty())
+	    _positionData.attachToInstanceOrigin();
+
+	  if (!_orientationData.empty())
+	    _orientationData.attachToInstanceOrientation();
+
+	  if (!_colorData.empty())
+	    _orientationData.attachToColor();
+
 	  _primitiveIndices.drawInstancedElements(getElementType(), _N);
 	}
 

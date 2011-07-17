@@ -27,13 +27,13 @@ RQuads::glRender()
   if (!_visible) return;
 
   if (!_colBuff.empty())
-    _colBuff.attachToColor(4);
+    _colBuff.attachToColor();
 
   if (_normBuff.size())
     _normBuff.attachToNormal();
   
   _posBuff.getContext().cleanupAttributeArrays();
-  _posBuff.attachToVertex(3);
+  _posBuff.attachToVertex();
   
   switch (_RenderMode)
     {

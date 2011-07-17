@@ -78,8 +78,8 @@ RLines::glRender()
   if (!_visible) return;
   
   _posBuff.getContext().cleanupAttributeArrays();
-  _colBuff.attachToColor(4);
-  _posBuff.attachToVertex(3);
+  _colBuff.attachToColor();
+  _posBuff.attachToVertex();
   
   switch (_RenderMode)
     {

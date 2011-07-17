@@ -102,8 +102,8 @@ namespace magnet {
 	inline void glRender()
 	{	
 	  _colorData.getContext().cleanupAttributeArrays();
-	  _colorData.attachToColor(4);
-	  _vertexData.drawArray(3, magnet::GL::element_type::LINES);
+	  _colorData.attachToColor();
+	  _vertexData.drawArray(magnet::GL::element_type::LINES);
 	}
 
       protected:
