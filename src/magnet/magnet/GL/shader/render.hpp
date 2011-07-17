@@ -57,15 +57,14 @@ void main()
 {
   //Rotate the vertex according to the instance transformation, and
   //then move it to the instance origin.
-  vec4 orientation = vec4(1.0,0.0,0.0,0.0);
-  vec4 vVertex = gl_ModelViewMatrix * vec4(qrot(orientation, vPosition.xyz * iScale.xyz)
+  vec4 vVertex = gl_ModelViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz)
 					   + iOrigin.xyz, 1.0);
 
   //Standard vertex transformation
   gl_Position = gl_ProjectionMatrix * vVertex;
   
   //Rotate the normal the same way the instance is rotated
-  normal = normalize(gl_NormalMatrix * qrot(orientation, vNormal.xyz));
+  normal = normalize(gl_NormalMatrix * qrot(iOrientation, vNormal.xyz));
   
   //Shadow coordinate calculations
   ShadowCoord = gl_TextureMatrix[7] * vVertex;

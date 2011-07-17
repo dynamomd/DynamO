@@ -35,6 +35,7 @@ namespace magnet {
 	  _N = 0;
 	  _positionData.deinit();
 	  _orientationData.deinit();
+	  _scalingData.deinit();
 	  _colorData.deinit();
 	  _primitiveVertices.deinit();
 	  _primitiveNormals.deinit();
@@ -67,6 +68,33 @@ namespace magnet {
 	    
 	    _positionData.init(vertices);
 	  }
+
+	  {//Test scaling!
+	    std::vector<GLfloat> scaling(3 * _N);
+	    
+	    for (size_t i = 0; i < _N; ++i)
+	      {
+		scaling[3 * i + 0] = 1.0f / (i+1);
+		scaling[3 * i + 1] = 1.0f / (i+1);
+		scaling[3 * i + 2] = 1.0f;
+	      }
+	    
+	    _scalingData.init(scaling);
+	  }
+
+	  {//Test orientation!
+	    std::vector<GLfloat> orientation(4 * _N);
+	    
+	    for (size_t i = 0; i < _N; ++i)
+	      {
+		orientation[4 * i + 0] = 0;
+		orientation[4 * i + 1] = std::sin(M_PI * i / 23.0f);
+		orientation[4 * i + 2] = 0;
+		orientation[4 * i + 3] = std::cos(M_PI * i / 23.0f);
+	      }
+	    
+	    _orientationData.init(orientation);
+	  }
 	}
 	
 	/*! \brief Renders the instanced object.
@@ -86,8 +114,11 @@ namespace magnet {
 	  if (!_orientationData.empty())
 	    _orientationData.attachToInstanceOrientation();
 
+	  if (!_scalingData.empty())
+	    _scalingData.attachToInstanceScale();
+
 	  if (!_colorData.empty())
-	    _orientationData.attachToColor();
+	    _colorData.attachToColor();
 
 	  _primitiveIndices.drawInstancedElements(getElementType(), _N);
 	}
@@ -101,6 +132,7 @@ namespace magnet {
 	size_t _N;
 	magnet::GL::Buffer<GLfloat> _positionData;
 	magnet::GL::Buffer<GLfloat> _orientationData;
+	magnet::GL::Buffer<GLfloat> _scalingData;
 	magnet::GL::Buffer<GLubyte> _colorData;
 	magnet::GL::Buffer<GLfloat> _primitiveVertices;
 	magnet::GL::Buffer<GLfloat> _primitiveNormals;

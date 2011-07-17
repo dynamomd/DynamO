@@ -188,7 +188,7 @@ namespace magnet {
       inline void resetInstanceTransform()
       {
 	setAttribute(instanceOriginAttrIndex, 0, 0, 0, 0);
-	setAttribute(instanceOrientationAttrIndex, 1, 0, 0, 0);
+	setAttribute(instanceOrientationAttrIndex, 0, 0, 0, 1);
 	setAttribute(instanceScaleAttrIndex, 1, 1, 1, 0);
       }
       
