@@ -1696,7 +1696,6 @@ CLGLWindow::performPicking(int x, int y)
     (*iPtr)->initPicking(startVal);
 
   //Now render the scene
-  glPushAttrib(GL_ALL_ATTRIB_BITS);
   glDisable(GL_BLEND); 
   glDisable(GL_DITHER); 
   glDisable(GL_FOG); 
@@ -1717,7 +1716,15 @@ CLGLWindow::performPicking(int x, int y)
   glGetIntegerv(GL_VIEWPORT, viewport);
   
   glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
-  glPopAttrib();
+
+  glEnable(GL_BLEND); 
+  glEnable(GL_DITHER); 
+  glEnable(GL_FOG); 
+  glEnable(GL_LIGHTING); 
+  glEnable(GL_TEXTURE_1D); 
+  glEnable(GL_TEXTURE_2D); 
+  glEnable(GL_TEXTURE_3D); 
+  glShadeModel(GL_SMOOTH);
 
   //Now let the objects know what was picked
   const cl_uint objID = pixel[0] + 256 * (pixel[1] + 256 * (pixel[2] + 256 * pixel[3]));

@@ -74,7 +74,7 @@ namespace magnet {
       /*! \brief Enables a vertex attribute array index. */
       inline void enableAttributeArray(GLuint attrnum)
       {
-	if (attrnum > _vertexAttributeState.size())
+	if (attrnum >= _vertexAttributeState.size())
 	  M_throw() << "Attribute index out of range";
 	glEnableVertexAttribArray(attrnum);
 	_vertexAttributeState[attrnum].active = true;
@@ -97,12 +97,20 @@ namespace magnet {
        */
       inline void setAttribute(GLuint idx, GLfloat x = 0, GLfloat y = 0, GLfloat z = 0, GLfloat w = 0)
       {
-	if (idx > _vertexAttributeState.size())
+	if (idx >= _vertexAttributeState.size())
 	  M_throw() << "Attribute index out of range";
 
 	std::tr1::array<GLfloat, 4> newval = {{x,y,z,w}};
-	if (newval == _vertexAttributeState[idx].defaultval) return;
-	_vertexAttributeState[idx].defaultval = newval;
+
+#ifdef MAGNET_DEBUG
+	std::tr1::array<GLfloat, 4> oldval;
+	glGetVertexAttribfv(idx, GL_CURRENT_VERTEX_ATTRIB, &oldval[0]);
+	if (oldval != _vertexAttributeState[idx].current_value)
+	  M_throw() << "Vertex attribute state changed without using the GL context!";
+#endif
+
+	if (newval == _vertexAttributeState[idx].current_value) return;
+	_vertexAttributeState[idx].current_value = newval;
 
 	glVertexAttrib4f(idx, newval[0], newval[1], newval[2], newval[3]);
       }
@@ -152,7 +160,7 @@ namespace magnet {
        * This uses the \ref vertexColorAttrIndex value for the index
        * of the color attribute.
        */
-      inline void color(GLfloat r = 0, GLfloat g = 0, GLfloat b = 0, GLfloat a = 0) 
+      inline void color(GLfloat r = 0, GLfloat g = 0, GLfloat b = 0, GLfloat a = 1) 
       { setAttribute(vertexColorAttrIndex, r, g, b, a); }
 
       /*! \brief Resets the vertex attributes used in instancing to
@@ -338,12 +346,12 @@ namespace magnet {
 	VertexAttrState(): 
 	  active(false)
 	{
-	  defaultval[0] = defaultval[1] = defaultval[2] = 0; 
-	  defaultval[3] = 1; 
+	  current_value[0] = current_value[1] = current_value[2] = 0; 
+	  current_value[3] = 1; 
 	}
 
 	bool active;
-	std::tr1::array<GLfloat, 4> defaultval;
+	std::tr1::array<GLfloat, 4> current_value;
       };
 
       /*! \brief The state of the vertex attributes */

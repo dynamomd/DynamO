@@ -101,7 +101,6 @@ namespace magnet {
       inline 
       virtual void attach()
       {
-	glPushAttrib(GL_VIEWPORT_BIT);
 	glViewport(0, 0, _width, _height);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _multisampleFBO);
       }

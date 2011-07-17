@@ -44,6 +44,10 @@
 **** TODO Work on Sebastians project.
 **** TODO Check you haven't broken any histogramming code with the new fuzzy array class.
 **** TODO Move all the dynamo classes into the dynamo namespace.
+**** TODO Magnetise the wii mote class.
+**** TODO Remove all glPushAttrib calls, they will not work with the GL state tracking I've implemented.
+**** TODO Replace the fixed function pipeline with a trivial GL shader
+**** TODO Replace the matrix stack.
 *** DynamO 1.1 							    :ARCHIVE:
 **** DONE *MAJOR* Remove Unit types from the XML file and simulator.
 **** DONE *MAJOR* Remove aspect ratio and instead load the primary image cell size.

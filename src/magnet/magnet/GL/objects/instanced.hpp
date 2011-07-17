@@ -77,7 +77,7 @@ namespace magnet {
 	  _primitiveVertices.attachToVertex(3);
 	  _primitiveNormals.attachToNormal();
 
-	  _primitiveVertices.getContext().color(0,1,1,1);
+	  _primitiveVertices.getContext().color(0, 1, 1, 1);
 	  _primitiveIndices.drawInstancedElements(getElementType(), _N);
 	}
 
