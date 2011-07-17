@@ -50,21 +50,22 @@ attribute vec4 iScale;
 //https://mollyrocket.com/forums/viewtopic.php?p=6154
 vec3 qrot(vec4 q, vec3 v)
 {
-  return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+  return v + 2.0 * cross(cross(v,q.xyz) + q.w * v, q.xyz);
 }
 
 void main()
 {
   //Rotate the vertex according to the instance transformation, and
   //then move it to the instance origin.
-  vec4 q = vec4(0,0,0,0);
-  vec4 vVertex = gl_ModelViewMatrix * vec4(qrot(q, vPosition.xyz) + iOrigin.xyz, vPosition.w);
+  vec4 orientation = vec4(1.0,0.0,0.0,0.0);
+  vec4 vVertex = gl_ModelViewMatrix * vec4(qrot(orientation, vPosition.xyz * iScale.xyz)
+					   + iOrigin.xyz, 1.0);
 
   //Standard vertex transformation
   gl_Position = gl_ProjectionMatrix * vVertex;
   
   //Rotate the normal the same way the instance is rotated
-  normal = normalize(gl_NormalMatrix * qrot(q, vNormal.xyz));
+  normal = normalize(gl_NormalMatrix * qrot(orientation, vNormal.xyz));
   
   //Shadow coordinate calculations
   ShadowCoord = gl_TextureMatrix[7] * vVertex;
