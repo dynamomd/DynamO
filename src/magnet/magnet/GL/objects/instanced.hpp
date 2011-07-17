@@ -61,9 +61,9 @@ namespace magnet {
 	    
 	    for (size_t i = 0; i < _N; ++i)
 	      {
-		vertices[3 * i + 0] = i * 2;
-		vertices[3 * i + 1] = 0;
-		vertices[3 * i + 2] = 0;
+		vertices[3 * i + 0] = -0.5 + float(rand()) / RAND_MAX;
+		vertices[3 * i + 1] = -0.5 + float(rand()) / RAND_MAX;
+		vertices[3 * i + 2] = -0.5 + float(rand()) / RAND_MAX;
 	      }
 	    
 	    _positionData.init(vertices);
@@ -74,9 +74,9 @@ namespace magnet {
 	    
 	    for (size_t i = 0; i < _N; ++i)
 	      {
-		scaling[3 * i + 0] = 1.0f / (i+1);
-		scaling[3 * i + 1] = 1.0f / (i+1);
-		scaling[3 * i + 2] = 1.0f;
+		scaling[3 * i + 0] = 0.01;// * float(rand()) / RAND_MAX;
+		scaling[3 * i + 1] = 0.01;// * float(rand()) / RAND_MAX;
+		scaling[3 * i + 2] = 0.01;// * float(rand()) / RAND_MAX;
 	      }
 	    
 	    _scalingData.init(scaling);
@@ -87,10 +87,20 @@ namespace magnet {
 	    
 	    for (size_t i = 0; i < _N; ++i)
 	      {
-		orientation[4 * i + 0] = 0;
-		orientation[4 * i + 1] = std::sin(M_PI * i / 23.0f);
-		orientation[4 * i + 2] = 0;
-		orientation[4 * i + 3] = std::cos(M_PI * i / 23.0f);
+		orientation[4 * i + 0] = -0.5f + float(rand()) / RAND_MAX;
+		orientation[4 * i + 1] = -0.5f + float(rand()) / RAND_MAX;
+		orientation[4 * i + 2] = -0.5f + float(rand()) / RAND_MAX;
+		orientation[4 * i + 3] = -0.5f + float(rand()) / RAND_MAX;
+
+		float norm = std::sqrt(orientation[4 * i + 0] * orientation[4 * i + 0]
+				       + orientation[4 * i + 1] * orientation[4 * i + 1]
+				       + orientation[4 * i + 2] * orientation[4 * i + 2]
+				       + orientation[4 * i + 3] * orientation[4 * i + 3]);
+
+		orientation[4 * i + 0] /= norm;
+		orientation[4 * i + 1] /= norm;
+		orientation[4 * i + 2] /= norm;
+		orientation[4 * i + 3] /= norm;
 	      }
 	    
 	    _orientationData.init(orientation);

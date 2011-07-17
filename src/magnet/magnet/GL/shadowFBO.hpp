@@ -64,18 +64,12 @@ namespace magnet {
        */
       inline void setup()
       {
-	//Use the fixed pipeline 
-	glUseProgramObjectARB(0);
 	//Render to the shadow maps FBO
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,_FBO);
 	//Clear the depth buffer
 	glClear(GL_DEPTH_BUFFER_BIT);
 	//The viewport should change to the shadow maps size
 	glViewport(0, 0, _width, _width);
-      	//Draw back faces into the shadow map
-	//glCullFace(GL_FRONT);	
-	//Use flat shading for speed
-	glShadeModel(GL_FLAT);
 	//Mask color writes
 	glColorMask(0, 0, 0, 0);
       }
@@ -85,7 +79,6 @@ namespace magnet {
       {
 	//Restore the default FB
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
-	glShadeModel(GL_SMOOTH);
 	glColorMask(1, 1, 1, 1);
       }
     };

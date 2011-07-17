@@ -840,7 +840,7 @@ CLGLWindow::init()
 //  RenderObjects.push_back(new coil::RVolume("Test Volume"));
 
   //Test cylinder render object
-  RenderObjects.push_back(new coil::RCylinders(100, "Cylinder Test Objects"));
+  RenderObjects.push_back(new coil::RCylinders(100000, "Cylinder Test Objects"));
 
   _viewPortInfo 
     = magnet::thread::RefPtr<magnet::GL::ViewPort>(new magnet::GL::ViewPort);
@@ -985,6 +985,13 @@ CLGLWindow::CallBackDisplayFunc()
     {
       if (_shadowMapping)
 	{
+	  _shadowShader["ShadowMap"] = 7;
+	  _shadowShader["ShadowIntensity"] = _shadowIntensity;
+	  _shadowShader["xPixelOffset"] = 1.0f / _viewPortInfo->getWidth();
+	  _shadowShader["yPixelOffset"] = 1.0f / _viewPortInfo->getHeight();
+	  _shadowShader["ShadowMapping"] = false;
+	  _shadowShader.attach();
+
 	  //////////////////Pass 1//////////////////
 	  ///Here we draw from the lights perspective
 	  _light0->loadMatrices();
