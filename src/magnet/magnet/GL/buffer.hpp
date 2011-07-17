@@ -222,10 +222,8 @@ namespace magnet {
 	bind(buffer_targets::ARRAY);	
 	glVertexAttribPointer(attrnum, components, detail::c_type_to_gl_enum<T>::val,
 			      (normalise ? GL_TRUE : GL_FALSE), components * sizeof(T), 0);
-	if (divisor && !GL_ARB_instanced_arrays)
-	  M_throw() << "Cannot perform instanced vertex attributes, GL_ARB_instanced_arrays is not supported";
 
-	glVertexAttribDivisorARB(attrnum, divisor);
+	_context->setAttributeDivisor(attrnum, divisor);
 	_context->enableAttributeArray(attrnum);
       }
 

@@ -115,6 +115,25 @@ namespace magnet {
 	glVertexAttrib4f(idx, newval[0], newval[1], newval[2], newval[3]);
       }
       
+      /*! \brief Sets the divisor of a vertex attribute.
+       *
+       * The divisor is used in instancing to set the rate at which
+       * vertex attributes are incremented.
+       */
+      inline void setAttributeDivisor(GLuint idx, GLuint divisor)
+      {
+	if (idx >= _vertexAttributeState.size())
+	  M_throw() << "Attribute index out of range";
+
+	if (divisor && !GL_ARB_instanced_arrays)
+	  M_throw() << "Cannot perform instanced vertex attributes, GL_ARB_instanced_arrays is not supported";
+
+	if (divisor == _vertexAttributeState[idx].divisor) return;
+	_vertexAttributeState[idx].divisor = divisor;
+	glVertexAttribDivisorARB(idx, divisor);
+      }
+
+
       /*! \brief The index of the automatically-indexed position
        * vertex attribute.  
        *
@@ -344,7 +363,8 @@ namespace magnet {
       struct VertexAttrState 
       {
 	VertexAttrState(): 
-	  active(false)
+	  active(false),
+	  divisor(0)
 	{
 	  current_value[0] = current_value[1] = current_value[2] = 0; 
 	  current_value[3] = 1; 
@@ -352,6 +372,7 @@ namespace magnet {
 
 	bool active;
 	std::tr1::array<GLfloat, 4> current_value;
+	GLuint divisor;
       };
 
       /*! \brief The state of the vertex attributes */
