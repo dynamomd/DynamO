@@ -55,81 +55,25 @@ namespace magnet {
 	  _primitiveVertices.init(getPrimitiveVertices(), buffer_usage::STATIC_DRAW);
 	  _primitiveNormals.init(getPrimitiveNormals(), buffer_usage::STATIC_DRAW);
 	  _primitiveIndices.init(getPrimitiveIndicies(), buffer_usage::STATIC_DRAW);
-
-	  {//Test positions!
-	    std::vector<GLfloat> vertices(3 * _N);
-	    
-	    for (size_t i = 0; i < _N; ++i)
-	      {
-		vertices[3 * i + 0] = -0.5 + float(rand()) / RAND_MAX;
-		vertices[3 * i + 1] = -0.5 + float(rand()) / RAND_MAX;
-		vertices[3 * i + 2] = -0.5 + float(rand()) / RAND_MAX;
-	      }
-	    
-	    _positionData.init(vertices);
-	  }
-
-	  {//Test scaling!
-	    std::vector<GLfloat> scaling(3 * _N);
-	    
-	    for (size_t i = 0; i < _N; ++i)
-	      {
-		scaling[3 * i + 0] = 0.01;// * float(rand()) / RAND_MAX;
-		scaling[3 * i + 1] = 0.01;// * float(rand()) / RAND_MAX;
-		scaling[3 * i + 2] = 0.01;// * float(rand()) / RAND_MAX;
-	      }
-	    
-	    _scalingData.init(scaling);
-	  }
-
-	  {//Test orientation!
-	    std::vector<GLfloat> orientation(4 * _N);
-	    
-	    for (size_t i = 0; i < _N; ++i)
-	      {
-		orientation[4 * i + 0] = -0.5f + float(rand()) / RAND_MAX;
-		orientation[4 * i + 1] = -0.5f + float(rand()) / RAND_MAX;
-		orientation[4 * i + 2] = -0.5f + float(rand()) / RAND_MAX;
-		orientation[4 * i + 3] = -0.5f + float(rand()) / RAND_MAX;
-
-		float norm = std::sqrt(orientation[4 * i + 0] * orientation[4 * i + 0]
-				       + orientation[4 * i + 1] * orientation[4 * i + 1]
-				       + orientation[4 * i + 2] * orientation[4 * i + 2]
-				       + orientation[4 * i + 3] * orientation[4 * i + 3]);
-
-		orientation[4 * i + 0] /= norm;
-		orientation[4 * i + 1] /= norm;
-		orientation[4 * i + 2] /= norm;
-		orientation[4 * i + 3] /= norm;
-	      }
-	    
-	    _orientationData.init(orientation);
-	  }
 	}
 	
 	/*! \brief Renders the instanced object.
 	 */
 	inline void glRender()
 	{
-	  _primitiveVertices.getContext().cleanupAttributeArrays();
+	  if (_positionData.empty()) return;
 
-	  _primitiveVertices.attachToVertex();
-	  _primitiveNormals.attachToNormal();
-
-	  _primitiveVertices.getContext().color(0, 1, 1, 1);
-
-	  if (!_positionData.empty())
-	    _positionData.attachToInstanceOrigin();
-
+	  _positionData.getContext().cleanupAttributeArrays();
+	  _positionData.attachToInstanceOrigin();
 	  if (!_orientationData.empty())
 	    _orientationData.attachToInstanceOrientation();
-
 	  if (!_scalingData.empty())
 	    _scalingData.attachToInstanceScale();
-
 	  if (!_colorData.empty())
 	    _colorData.attachToColor();
 
+	  _primitiveVertices.attachToVertex();
+	  _primitiveNormals.attachToNormal();
 	  _primitiveIndices.drawInstancedElements(getElementType(), _N);
 	}
 

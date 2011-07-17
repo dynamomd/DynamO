@@ -118,7 +118,7 @@ SVisualizer::runEvent() const
 	Ptr->eventUpdate(*this, NEventData(), locdt);
       
       {
-	const magnet::thread::ScopedLock lock(static_cast<CLGLWindow&>(*_CLWindow).getDestroyLock());
+	const magnet::thread::ScopedLock lock(_CLWindow.as<CLGLWindow>().getDestroyLock());
 	if (!_CLWindow.as<CLGLWindow>().isReady()) return;
 	
 	BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())

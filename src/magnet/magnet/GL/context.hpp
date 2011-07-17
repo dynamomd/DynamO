@@ -334,7 +334,8 @@ namespace magnet {
 
 	for (GLuint i(0); i < _vertexAttributeState.size(); ++i)
 	  glVertexAttrib4f(i, 0,0,0,1);
-
+	
+	color(0,1,1,1);
 	resetInstanceTransform();
       }
 

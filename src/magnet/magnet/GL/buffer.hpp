@@ -57,7 +57,7 @@ namespace magnet {
        * \param usage The expected host memory access pattern, used to
        * optimise performance.
        */
-      inline void init(const std::vector<T>& data, buffer_usage::Enum usage = buffer_usage::STATIC_DRAW)
+      inline void init(const std::vector<T>& data, buffer_usage::Enum usage = buffer_usage::DYNAMIC_DRAW)
       { init(data.size(), usage, &data[0]); }
 
       /*! \brief Initialises the Buffer object.
@@ -73,19 +73,33 @@ namespace magnet {
        * \param ptr A pointer to data to fill the buffer with. If it
        * is set to NULL, no data is loaded.
        */
-      inline void init(size_t size, buffer_usage::Enum usage = buffer_usage::STATIC_DRAW, const T* ptr = NULL)
+      inline void init(size_t size, buffer_usage::Enum usage = buffer_usage::DYNAMIC_DRAW, const T* ptr = NULL)
       {
 	if (size == 0)
-	  M_throw() << "Cannot initialise GL::Buffer with 0 size!";
+	  M_throw() << "Cannot initialise GL::Buffer with 0 data!";
 
-	deinit();
+	//On the first initialisation
+	if (empty())
+	  {
+	    _context = &Context::getContext();
+	    glGenBuffersARB(1, &_buffer);	
+	  }
+
 	_size = size;
-	_context = &Context::getContext();
-	glGenBuffersARB(1, &_buffer);	
 	bind(buffer_targets::ARRAY);
 	glBufferData(buffer_targets::ARRAY, _size * sizeof(T), ptr, usage);
       }
-      
+
+      /*! \brief Helper function to re-initialize the buffer with data
+       * from a std::vector.
+       */
+      inline Buffer<T>& operator=(const std::vector<T>& data) 
+      { 
+	init(data);
+	return *this; 
+      }
+
+
       //! \brief Attach the Buffer to a OpenGL target
       inline void bind(buffer_targets::Enum target) const 
       {
@@ -290,20 +304,6 @@ namespace magnet {
 	  }
       }
       
-      
-      inline Buffer<T>& operator=(const std::vector<T>& data)
-      {
-	if (_size == 0)
-	  M_throw() << "Cannot assign without having first init() the buffer";
-
-	if (data.size() == 0) M_throw() << "Cannot copy 0 data into a GL buffer!";
-
-	bind(buffer_targets::ELEMENT_ARRAY);
-	glBufferData(buffer_targets::ELEMENT_ARRAY, data.size() * sizeof(T), &data[0], GL_DYNAMIC_DRAW);
-	_size = data.size();
-	return *this;
-      }
-
     protected:
       /*! \brief Guard function to test if the buffer is initialised.
        */
