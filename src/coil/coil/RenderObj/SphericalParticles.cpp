@@ -37,23 +37,23 @@ RSphericalParticles::RSphericalParticles(size_t N, std::string name, size_t sphe
 }
 
 void 
-RSphericalParticles::sendRenderData(magnet::GL::Context& context)
+RSphericalParticles::sendRenderDataWorker()
 {
-  context.getCLCommandQueue().enqueueWriteBuffer
+  _posBuff.getContext().getCLCommandQueue().enqueueWriteBuffer
     (getSphereDataBuffer(), false, 0, _N * sizeof(cl_float4), &_particleData[0]);
 }
 
 void 
-RSphericalParticles::sendColorData(magnet::GL::Context& context)
+RSphericalParticles::sendColorDataWorker()
 {
   const size_t segmentSize = _N / _spheresPerObject;
   for (size_t i(0); i < _spheresPerObject; ++i)
-    context.getCLCommandQueue().enqueueWriteBuffer
+    _posBuff.getContext().getCLCommandQueue().enqueueWriteBuffer
       (getColorDataBuffer(), false, i * segmentSize * sizeof(cl_uchar4), segmentSize * sizeof(cl_uchar4), &_particleColorData[0]);
 }
 
 void 
-RSphericalParticles::updateColorData(magnet::GL::Context& context)
+RSphericalParticles::notifyNewColorData()
 {
   switch (getDrawMode())
     {
@@ -75,8 +75,14 @@ RSphericalParticles::updateColorData(magnet::GL::Context& context)
     }
 
   CoilRegister::getCoilInstance().getTaskQueue()
-    .queueTask(magnet::function::Task::makeTask(&RSphericalParticles::sendColorData, 
-						this, context));
+    .queueTask(magnet::function::Task::makeTask(&RSphericalParticles::sendColorDataWorker,this));
+}
+
+void 
+RSphericalParticles::notifyNewParticleData()
+{
+  CoilRegister::getCoilInstance().getTaskQueue()
+    .queueTask(magnet::function::Task::makeTask(&RSphericalParticles::sendRenderDataWorker,this));
 }
 
 void 
@@ -194,8 +200,6 @@ RSphericalParticles::guiUpdate()
   _colorFixed.s[1] = _GFixed->get_value();
   _colorFixed.s[2] = _BFixed->get_value();
   _colorFixed.s[3] = _AFixed->get_value();
-
-  //! Get the 
-  _systemQueue->queueTask(magnet::function::Task::makeTask
-			  (&RSphericalParticles::updateColorData, this, magnet::GL::Context::getContext()));
+  
+  _systemQueue->queueTask(magnet::function::Task::makeTask(&RSphericalParticles::notifyNewColorData, this));
 }

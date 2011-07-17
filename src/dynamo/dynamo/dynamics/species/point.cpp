@@ -127,11 +127,7 @@ SpPoint::updateRenderData(magnet::GL::Context& context) const
       ++sphID;
     }
 
-  _renderObj.as<RSphericalParticles>().recolor(context);
-  
-  _coil->getInstance().getTaskQueue().queueTask(magnet::function::Task::makeTask
-						(&RSphericalParticles::sendRenderData,
-						 &(_renderObj.as<RSphericalParticles>()), 
-						 context));
+  _renderObj.as<RSphericalParticles>().recolor();
+  _renderObj.as<RSphericalParticles>().notifyNewParticleData();
 }
 #endif
