@@ -22,7 +22,7 @@
 namespace magnet {
   namespace GL {
     namespace shader {
-      /*! \brief A shadow mapping/diffuse/ambient and specular shader
+      /*! \brief An instancing shadow mapping/diffuse/ambient and specular shader
        * with per-pixel lighting for rendering scenes.
        */
       class RenderShader: public detail::Shader

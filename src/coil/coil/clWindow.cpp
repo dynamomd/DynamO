@@ -221,7 +221,8 @@ CLGLWindow::initOpenGL()
       _filterTarget2.init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
       _normalsFBO.init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight(), GL_RGBA);
       _shadowFBO.init(1024);
-      _shadowShader.build();
+      _renderShader.build();
+      _depthRenderShader.build();
       _nrmlShader.build();
     }
 
@@ -923,7 +924,8 @@ CLGLWindow::deinit()
   _filterTarget2.deinit();
   _normalsFBO.deinit();
   _shadowFBO.deinit();
-  _shadowShader.deinit();
+  _renderShader.deinit();
+  _depthRenderShader.deinit();
   _nrmlShader.deinit();
 
   ///////////////////Finally, unregister with COIL
@@ -985,13 +987,7 @@ CLGLWindow::CallBackDisplayFunc()
     {
       if (_shadowMapping)
 	{
-	  _shadowShader["ShadowMap"] = 7;
-	  _shadowShader["ShadowIntensity"] = _shadowIntensity;
-	  _shadowShader["xPixelOffset"] = 1.0f / _viewPortInfo->getWidth();
-	  _shadowShader["yPixelOffset"] = 1.0f / _viewPortInfo->getHeight();
-	  _shadowShader["ShadowMapping"] = false;
-	  _shadowShader.attach();
-
+	  _depthRenderShader.attach();
 	  //////////////////Pass 1//////////////////
 	  ///Here we draw from the lights perspective
 	  _light0->loadMatrices();
@@ -1017,12 +1013,12 @@ CLGLWindow::CallBackDisplayFunc()
       _renderTarget->attach();
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-      _shadowShader["ShadowMap"] = 7;
-      _shadowShader["ShadowIntensity"] = _shadowIntensity;
-      _shadowShader["xPixelOffset"] = 1.0f / _viewPortInfo->getWidth();
-      _shadowShader["yPixelOffset"] = 1.0f / _viewPortInfo->getHeight();
-      _shadowShader["ShadowMapping"] = _shadowMapping;
-      _shadowShader.attach();
+      _renderShader["ShadowMap"] = 7;
+      _renderShader["ShadowIntensity"] = _shadowIntensity;
+      _renderShader["xPixelOffset"] = 1.0f / _viewPortInfo->getWidth();
+      _renderShader["yPixelOffset"] = 1.0f / _viewPortInfo->getHeight();
+      _renderShader["ShadowMapping"] = _shadowMapping;
+      _renderShader.attach();
 
       if (_analygraphMode)
 	{

@@ -31,6 +31,7 @@
 #include <magnet/GL/viewPort.hpp>
 #include <magnet/GL/multisampledFBO.hpp>
 #include <magnet/GL/shader/normal.hpp>
+#include <magnet/GL/shader/depth_render.hpp>
 #include <magnet/thread/refPtr.hpp>
 
 #include <coil/filters/filter.hpp>
@@ -86,7 +87,8 @@ public:
 protected:
   void setLabelText(Gtk::Label*, std::string);
 
-  magnet::GL::shader::RenderShader _shadowShader;
+  magnet::GL::shader::RenderShader _renderShader;
+  magnet::GL::shader::DepthRenderShader _depthRenderShader;
   magnet::GL::shadowFBO _shadowFBO;
 
   //Primary render target
