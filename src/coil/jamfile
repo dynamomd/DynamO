@@ -47,7 +47,7 @@ always cwiidtest OpenCLtest OpenCLpptest ftgltest gluttest gtkmmtest GLEWtest co
 explicit cwiidtest OpenCLtest OpenCLpptest ftgltest gluttest gtkmmtest GLEWtest coilDependencies ;
 
 rule critical_dependencies ( )
-{ return [ check-target-builds src/coil//coilDependencies "Coil library dependencies" :  : <build>no ] ; }
+{ return [ check-target-builds coilDependencies "Coil library dependencies" :  : <build>no ] ; }
 
 lib coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests ]
       glut GLU GL Xext X11 rt GLEW ../magnet//magnet

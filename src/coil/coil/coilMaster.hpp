@@ -121,6 +121,7 @@ private:
   bool taskTimeout();
 };
 
+namespace coil { class RCylinders; }
 
 //!This class is like a connection register for the CoilMaster singleton.
 class CoilRegister
@@ -140,6 +141,8 @@ private:
   friend class CoilMaster;
   friend class CLGLWindow;
   friend class RSphericalParticles;
+  friend class coil::RCylinders;
+  
   //! This instance is only for the CoilMaster and window classes to
   //! use, Everything else should use an instance of the register class
   //! to access coil!

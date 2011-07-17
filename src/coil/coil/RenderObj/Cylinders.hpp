@@ -30,7 +30,19 @@ namespace coil {
     virtual void initOpenGL();
 
     virtual void releaseCLGLResources();
-  protected:
+
+    std::vector<GLfloat>& getOriginData() { return _origin; }
+    std::vector<GLfloat>& getOrientationData() { return _orientation; }
+    std::vector<GLfloat>& getScaleData() { return _scale; }
+    
+    void notifyDataUpdate();
+
+  protected:    
+    void dataUpdateWorker();
+
     size_t _N;
+    std::vector<GLfloat> _origin;
+    std::vector<GLfloat> _orientation;
+    std::vector<GLfloat> _scale;
   };
 }

@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <coil/coilMaster.hpp>
 #include "Cylinders.hpp"
 
 namespace coil {
@@ -31,6 +32,9 @@ namespace coil {
   RCylinders::initOpenGL()
   {
     Cylinders::init(_N);
+    _origin.resize(3 * _N);
+    _orientation.resize(4 * _N);
+    _scale.resize(3 * _N);
   }
 
   void 
@@ -43,5 +47,20 @@ namespace coil {
   RCylinders::releaseCLGLResources()
   {
     Cylinders::deinit();
+  }
+
+  void 
+  RCylinders::notifyDataUpdate()
+  {
+    CoilRegister::getCoilInstance().getTaskQueue()
+      .queueTask(magnet::function::Task::makeTask(&RCylinders::dataUpdateWorker,this));
+  }
+
+  void 
+  RCylinders::dataUpdateWorker()
+  {
+    _positionData = _origin;
+    _orientationData = _orientation;
+    _scalingData = _scale;
   }
 }

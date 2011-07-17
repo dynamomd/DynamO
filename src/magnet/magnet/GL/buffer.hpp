@@ -289,6 +289,20 @@ namespace magnet {
 	    _context->getCLCommandQueue().enqueueReleaseGLObjects(&buffers);
 	  }
       }
+      
+      
+      inline Buffer<T>& operator=(const std::vector<T>& data)
+      {
+	if (_size == 0)
+	  M_throw() << "Cannot assign without having first init() the buffer";
+
+	if (data.size() == 0) M_throw() << "Cannot copy 0 data into a GL buffer!";
+
+	bind(buffer_targets::ELEMENT_ARRAY);
+	glBufferData(buffer_targets::ELEMENT_ARRAY, data.size() * sizeof(T), &data[0], GL_DYNAMIC_DRAW);
+	_size = data.size();
+	return *this;
+      }
 
     protected:
       /*! \brief Guard function to test if the buffer is initialised.
