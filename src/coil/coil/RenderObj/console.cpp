@@ -165,22 +165,6 @@ namespace coil {
 	  * GLMatrix::rotate(-_viewPort->getPan(), Vector(0, 1, 0))
 	  * GLMatrix::rotate(-_viewPort->getTilt(), Vector(1, 0, 0));
 
-//      /*! \brief multiplies an inverse transformation of the
-//       * viewPort's modelview matrix with the current OpenGL matrix.
-//       *
-//       * This function simplifies drawing objects fixed in the camera
-//       * space (i.e. drawing a viewing frustrum for a given
-//       * viewport).
-//       *
-//       * \note This does not include any head tracking movement! (This is deliberate)
-//       */
-//      inline void applyInverseModelview() const
-//      {
-//	glTranslatef(_position[0], _position[1], _position[2]);
-//	glRotatef(-_panrotation, 0.0, 1.0, 0.0);
-//	glRotatef(-_tiltrotation, 1.0, 0.0, 0.0);
-//      }
-
 	context.color(1,1,1,1);
 	//Back face
 	context.setViewMatrix(model_view 

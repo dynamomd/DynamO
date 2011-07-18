@@ -83,7 +83,8 @@ namespace magnet {
        */
       inline void drawLight()
       {
-	Context::getContext().color(1.0f, 1.0f, 1.0f);
+	Context& context = Context::getContext();
+	context.color(1, 1, 1);
 	
 	GLfloat rotationAngle 
 	  = (180.0 / M_PI) * std::acos(Vector(0,0,-1) | getCameraDirection());
@@ -96,19 +97,20 @@ namespace magnet {
 
 	Vector cameraLocation(getEyeLocation());
 	
-	glPushMatrix();
-	glTranslatef(cameraLocation[0], cameraLocation[1], cameraLocation[2]);
-	glRotatef(rotationAngle, RotationAxis.x, RotationAxis.y, RotationAxis.z);
-	
+	GLMatrix oldviewMatrix = context.getViewMatrix();
+
+	context.setViewMatrix(oldviewMatrix 
+			      * GLMatrix::translate(cameraLocation[0], cameraLocation[1], cameraLocation[2])
+			      * GLMatrix::rotate(rotationAngle, RotationAxis)
+			      * GLMatrix::translate(0,0,0.0025));
+
 	GLfloat r = 0.05f;
-	
-	glTranslatef(0.0f,0.0f,0.0025f);
-	
 	double fovY = getFOVY();
 	glutSolidCone(r * std::sin(fovY * M_PI / 360.0f), 
 		      r * std::cos(fovY * M_PI / 360.0f), 
 		      15, 15);
-	glPopMatrix();
+
+	context.setViewMatrix(oldviewMatrix);
       }
 
       /*! \brief Allow copying the lights location from a \ref ViewPort.
