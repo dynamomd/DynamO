@@ -56,18 +56,11 @@ namespace magnet {
        */
       inline LightInfo(Vector position, 
 		       Vector lookAtPoint,
-		       GLenum lightHandle = GL_LIGHT0,
 		       GLfloat fovY = 45.0f,
 		       GLfloat zNearDist = 0.05f, GLfloat zFarDist = 10.0f,
 		       Vector up = Vector(0,1,0)):
-	ViewPort(1,1,position, lookAtPoint, fovY, zNearDist, zFarDist, up),
-	_lightHandle(lightHandle)
-      {
-	const GLfloat white[] = {1.0f, 1.0f, 1.0f, 1.0f};
-	//Setup a bright light
-	glLightfv(lightHandle, GL_DIFFUSE, white);
-	glLightfv(lightHandle, GL_SPECULAR, white);
-      }
+	ViewPort(1,1,position, lookAtPoint, fovY, zNearDist, zFarDist, up)
+      {}
 
       /*! \brief Updates the associated OpenGL light with the current light location.
        */
@@ -142,19 +135,14 @@ namespace magnet {
        * \param textureUnit The texture unit whose matrix is to be
        * setup for shadowmapping.
        */
-      inline void loadShadowTextureMatrix(GLuint textureUnit)
+      inline GLMatrix getShadowTextureMatrix()
       {
-	Context::getContext().setTextureMatrix
-	  (textureUnit,
-	   GLMatrix::translate(Vector(0.5, 0.5, 0.5))
-	   * GLMatrix::scale(Vector(0.5, 0.5, 0.5))
-	   * getProjectionMatrix()
-	   * getViewMatrix()
-	   * Context::getContext().getViewMatrix().inverse()
-	   );
+	return GLMatrix::translate(Vector(0.5, 0.5, 0.5))
+	  * GLMatrix::scale(Vector(0.5, 0.5, 0.5))
+	  * getProjectionMatrix()
+	  * getViewMatrix()
+	  * Context::getContext().getViewMatrix().inverse();
       }
-
-      GLenum _lightHandle;
     };
   }
 }

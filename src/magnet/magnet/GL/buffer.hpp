@@ -195,7 +195,6 @@ namespace magnet {
       { 
 	attachToVertex();
 	glDrawArrays(type, 0, size() / 3);
-	glDisableClientState(GL_VERTEX_ARRAY);
       }
 
       /*! \brief Attaches the buffer to the vertex pointer of the GL

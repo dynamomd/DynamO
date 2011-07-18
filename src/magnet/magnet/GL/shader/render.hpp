@@ -30,7 +30,10 @@ namespace magnet {
       public:
 	virtual std::string initVertexShaderSource()
 	{
-	  return STRINGIFY( 
+	  return STRINGIFY(
+uniform mat4 ShadowMatrix;
+uniform vec3 lightPosition;
+
 varying vec4 ShadowCoord; // Used for shadow lookup
 varying vec3 lightDir; //Direction of the light
 varying vec3 normal; //The surface normal
@@ -67,7 +70,7 @@ void main()
   normal = normalize(gl_NormalMatrix * qrot(iOrientation, vNormal.xyz));
   
   //Shadow coordinate calculations
-  ShadowCoord = gl_TextureMatrix[7] * vVertex;
+  ShadowCoord = ShadowMatrix * vVertex;
 
   //light position calculations
   lightDir = gl_LightSource[0].position.xyz - vVertex.xyz;
@@ -83,12 +86,12 @@ void main()
 	{
 	  return STRINGIFY(
 uniform sampler2DShadow ShadowMap; //The sampler for the shadow map
-varying vec4 ShadowCoord; // Texture coordinate used for shadow lookup
 uniform int ShadowMapping; //If shadow mapping is enabled or not
 uniform float ShadowIntensity; //How dark the shadow is
 uniform float xPixelOffset;
 uniform float yPixelOffset;
 
+varying vec4 ShadowCoord; // Texture coordinate used for shadow lookup
 varying vec3 lightDir; //Direction of the light
 varying vec3 normal; //The surface normal
 varying vec4 diffuse; //Lighting terms

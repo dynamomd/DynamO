@@ -147,8 +147,6 @@ namespace coil {
 
     //Restore GL state
     glEnable(GL_DEPTH_TEST);
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix ();
   }
 
   void Console::glRender()

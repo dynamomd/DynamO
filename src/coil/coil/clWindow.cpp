@@ -117,9 +117,6 @@ CLGLWindow::initOpenGL()
   //Blend colors using the alpha channel
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
-  //Make OpenGL renormalize lighting vectors for us (incase we use glScale)
-  glEnable(GL_NORMALIZE);
-
   //Switch on line aliasing
   glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
@@ -127,21 +124,11 @@ CLGLWindow::initOpenGL()
   //glCullFace(GL_BACK);
   //glFrontFace(GL_CCW); //The default
 
-  //Both the front and back materials track the current color
-  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-  glEnable(GL_COLOR_MATERIAL); //and enable it
-  
-  glShadeModel(GL_SMOOTH);
-
   //Setup the viewport
   CallBackReshapeFunc(800, 600);
 
   glReadBuffer(GL_BACK);
   glPixelStorei(GL_PACK_ALIGNMENT, 4);
-
-  //Light our scene!
-  glEnable(GL_LIGHTING);
-  glEnable(GL_LIGHT0);
 
   //Light number one
   //Position is set in the CameraSetup!
@@ -152,7 +139,6 @@ CLGLWindow::initOpenGL()
   //Light0 parameters
   _light0.reset(new magnet::GL::LightInfo(Vector(0.8f,  1.5f, 0.8f),//Position
 					  Vector(0.0f, 0.0f, 0.0f),//Lookat
-					  GL_LIGHT0,
 					  75.0f//Beam angle
 					  ));
   
@@ -944,6 +930,7 @@ CLGLWindow::CallBackDisplayFunc()
   _renderShader["xPixelOffset"] = 1.0f / _viewPortInfo->getWidth();
   _renderShader["yPixelOffset"] = 1.0f / _viewPortInfo->getHeight();
   _renderShader["ShadowMapping"] = _shadowMapping;
+  //_renderShader["lightPosition"] = _light0->getEyeLocation();
   _renderShader.attach();
 
   if (_analygraphMode)
@@ -955,15 +942,16 @@ CLGLWindow::CallBackDisplayFunc()
       getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix(-eyeDisplacement));
 
       if (_shadowMapping)
-	_light0->loadShadowTextureMatrix(7);
+	_renderShader["ShadowMatrix"] = _light0->getShadowTextureMatrix();
 
       glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
       drawScene(*_renderTarget);
 	  
       getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix(eyeDisplacement));
       getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix(eyeDisplacement));
+
       if (_shadowMapping)
-	_light0->loadShadowTextureMatrix(7);
+	_renderShader["ShadowMatrix"] = _light0->getShadowTextureMatrix();
 	  
       glClear(GL_DEPTH_BUFFER_BIT);
       glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
@@ -975,7 +963,7 @@ CLGLWindow::CallBackDisplayFunc()
       getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix());
       getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix());
       if (_shadowMapping)
-	_light0->loadShadowTextureMatrix(7);
+	_renderShader["ShadowMatrix"] = _light0->getShadowTextureMatrix();
       drawScene(*_renderTarget);
     }
       
@@ -1125,8 +1113,6 @@ CLGLWindow::CallBackDisplayFunc()
 void 
 CLGLWindow::drawScene(magnet::GL::FBO& fbo)
 {
-  _light0->glUpdateLight();
-  
   //Enter the render ticks for all objects
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)

@@ -125,6 +125,18 @@ namespace magnet {
 	      glUseProgramObjectARB(_programHandle);
 	      glUniform4iv(_uniformHandle, 1, &(val[0]));
 	    }
+
+	    inline void operator=(const std::tr1::array<GLfloat, 16>& val)
+	    { 
+	      glUseProgramObjectARB(_programHandle);
+	      glUniformMatrix4fv(_uniformHandle, 1, GL_FALSE, &(val[0]));
+	    }
+
+	    inline void operator=(const Vector& vec)
+	    { 
+	      std::tr1::array<GLfloat, 3> val = {{vec[0], vec[1], vec[2]}};
+	      operator=(val);
+	    }
 	  
 	  private:
 	    GLint _uniformHandle;
