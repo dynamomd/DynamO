@@ -22,20 +22,17 @@ lib Xext : : <link>shared ;
 lib X11  : : <link>shared ;
 lib rt   : : <link>shared ;
 lib GLEW : : <link>shared ;
-lib ftgl : : <link>shared : : <linkflags>"`pkg-config ftgl --libs`" <cflags>"`pkg-config ftgl --cflags`" ;
 lib OpenCL : : <link>shared ;
 alias gtkmm : : : : <linkflags>"`pkg-config gtkmm-2.4 --libs`" <cflags>"`pkg-config gtkmm-2.4 --cflags`" ;
 
 #Test executables for determining what is available in the build environment
 exe OpenCLtest : tests/opencl.cpp OpenCL ;
 exe OpenCLpptest : tests/openclpp.cpp OpenCL ;
-exe ftgltest : tests/ftgl.cpp ftgl ;
 exe gluttest : tests/gluttest.cpp glut ;
 exe gtkmmtest : tests/gtkmmtest.cpp gtkmm ;
 exe GLEWtest : tests/glewtest.cpp ;
 
 exe coilDependencies : tests/buildreq.cpp : 
-[ check-target-builds ftgltest "Coil: FTGL" : : <define>BUILDFAIL ]
 [ check-target-builds OpenCLpptest "Coil: OpenCL C++ header" : : <define>BUILDFAIL ]
 [ check-target-builds OpenCLtest "Coil: OpenCL" : : <define>BUILDFAIL ]
 [ check-target-builds gluttest "Coil: FreeGlut" : : <define>BUILDFAIL ]
@@ -43,15 +40,15 @@ exe coilDependencies : tests/buildreq.cpp :
 [ check-target-builds GLEWtest "Coil: GLEW" : : <define>BUILDFAIL ]
 : : ;
 
-always cwiidtest OpenCLtest OpenCLpptest ftgltest gluttest gtkmmtest GLEWtest coilDependencies ;
-explicit cwiidtest OpenCLtest OpenCLpptest ftgltest gluttest gtkmmtest GLEWtest coilDependencies ;
+always cwiidtest OpenCLtest OpenCLpptest gluttest gtkmmtest GLEWtest coilDependencies ;
+explicit cwiidtest OpenCLtest OpenCLpptest gluttest gtkmmtest GLEWtest coilDependencies ;
 
 rule critical_dependencies ( )
 { return [ check-target-builds coilDependencies "Coil library dependencies" :  : <build>no ] ; }
 
 lib coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests ]
       glut GLU GL Xext X11 rt GLEW ../magnet//magnet
-      OpenCL ftgl gtkmm 
+      OpenCL gtkmm 
       : <include>. <include>../boost <tag>@tags.lib-naming 
        <coil-cwiid>yes:<source>cwiid
       : : <define>GLVIEWER <include>. ;
