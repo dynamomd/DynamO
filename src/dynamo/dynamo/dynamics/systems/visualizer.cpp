@@ -49,7 +49,8 @@ SVisualizer::SVisualizer(dynamo::SimData* nSim, std::string nName, double tickFr
 			     true);
   
   BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-    static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(spec->getCoilRenderObj());
+    if (spec.typeTest<CoilRenderObj>())
+      static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(dynamic_cast<const CoilRenderObj&>(*spec).getCoilRenderObj());
 
   BOOST_FOREACH(magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
     {
@@ -66,7 +67,7 @@ SVisualizer::SVisualizer(dynamo::SimData* nSim, std::string nName, double tickFr
     if (!_CLWindow->isReady()) return;
     
     BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-      spec->updateRenderData(static_cast<CLGLWindow&>(*_CLWindow).getGLContext());
+      dynamic_cast<const CoilRenderObj&>(*spec).updateRenderData(static_cast<CLGLWindow&>(*_CLWindow).getGLContext());
     
     BOOST_FOREACH(magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
       {
@@ -122,7 +123,7 @@ SVisualizer::runEvent() const
 	if (!_CLWindow.as<CLGLWindow>().isReady()) return;
 	
 	BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-	  spec->updateRenderData(_CLWindow.as<CLGLWindow>().getGLContext());
+	  dynamic_cast<const CoilRenderObj&>(*spec).updateRenderData(_CLWindow.as<CLGLWindow>().getGLContext());
 	
 	BOOST_FOREACH(magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
 	  {

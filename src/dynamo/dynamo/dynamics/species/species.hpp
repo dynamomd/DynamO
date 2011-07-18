@@ -19,7 +19,6 @@
 
 #include <dynamo/base.hpp>
 #include "../ranges/1range.hpp"
-#include "../coilRenderObj.hpp"
 #include "../../base/is_simdata.hpp"
 #include <magnet/cloneptr.hpp>
 #include <string>
@@ -31,7 +30,7 @@ class Interaction;
 class RenderObj;
 namespace magnet { namespace GL { class CLGLState; } }
 
-class Species:public dynamo::SimBase, public CoilRenderObj
+class Species: public dynamo::SimBase
 {
 public:
   virtual ~Species() {}

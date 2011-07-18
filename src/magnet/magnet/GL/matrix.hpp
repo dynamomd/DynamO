@@ -56,12 +56,6 @@ namespace magnet {
 	operator=(val);
       }
 
-      operator const GLfloat* () const
-      { return &operator[](0); }
-
-      operator GLfloat* ()
-      { return &operator[](0); }
-
       /*! \brief Return an identity matrix.
        */
       inline static GLMatrix identity()

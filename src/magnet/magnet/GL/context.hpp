@@ -126,9 +126,6 @@ namespace magnet {
 	if (idx >= _vertexAttributeState.size())
 	  M_throw() << "Attribute index out of range";
 
-	if (divisor && !GL_ARB_instanced_arrays)
-	  M_throw() << "Cannot perform instanced vertex attributes, GL_ARB_instanced_arrays is not supported";
-
 	if (divisor == _vertexAttributeState[idx].divisor) return;
 	_vertexAttributeState[idx].divisor = divisor;
 	glVertexAttribDivisorARB(idx, divisor);
@@ -200,14 +197,14 @@ namespace magnet {
       { 
 	_projectionMatrix = mat;
 	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(_projectionMatrix);
+	glLoadMatrixf(&_projectionMatrix[0]);
       }
 
       void setViewMatrix(const GLMatrix& mat)
       { 
 	_viewMatrix = mat;
 	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(_viewMatrix);
+	glLoadMatrixf(&_viewMatrix[0]);
       }
 
       const GLMatrix& getViewMatrix() { return _viewMatrix; }
@@ -218,7 +215,7 @@ namespace magnet {
 	glActiveTextureARB(GL_TEXTURE0 + textureUnit);
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
-	glMultMatrixf(mat);
+	glMultMatrixf(&mat[0]);
       }
       /**@}*/
 
@@ -379,10 +376,7 @@ namespace magnet {
 	//////////Capability testing /////////////////////////////
 	if (glewInit() != GLEW_OK)
 	  M_throw() << "Failed to initialise GLEW!";
-	
-	if (!GLEW_VERSION_2_0)
-	  M_throw() << "Critical OpenGL dependency: OpenGL 2.0 is not supported";
-	
+		
 	if (!GLEW_EXT_framebuffer_object)
 	  M_throw() << "Critical OpenGL dependency: Frame buffers are not supported";
     
@@ -395,6 +389,9 @@ namespace magnet {
 
 	if (!GLEW_ARB_depth_texture || !GLEW_ARB_shadow)
 	  M_throw() << "Critical OpenGL dependency: GL_ARB_depth_texture or GL_ARB_shadow not supported";
+
+	if (!GLEW_ARB_instanced_arrays)
+	  M_throw() << "Critical OpenGL dependency: GL_ARB_instanced_arrays not supported";
 
 	///////Variable initialisation ///////////////////////////
 	_viewMatrix = GLMatrix::identity();

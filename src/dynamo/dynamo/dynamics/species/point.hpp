@@ -24,13 +24,14 @@
 #include "species.hpp"
 #include <magnet/xmlwriter.hpp>
 #include <memory>
+#include "../coilRenderObj.hpp"
 
 namespace Gtk {
   class VBox;
   class RadioButton;
 }
 
-class SpPoint: public Species
+class SpPoint: public Species, public CoilRenderObj
 {
 public:
   template<class T1>
