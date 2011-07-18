@@ -150,7 +150,7 @@ namespace magnet {
 	glTranslatef(0.5f, 0.5f, 0.5f);
 	glScalef(0.5f, 0.5f, 0.5f);
 	glMultMatrixf(_projectionMatrix);
-	glMultMatrixf(_viewMatrix);
+	glMultMatrixf(&_viewMatrix[0]);
 
 	GLfloat vp_viewMatrix[4*4];
 	glGetFloatv(GL_MODELVIEW_MATRIX , vp_viewMatrix);
