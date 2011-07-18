@@ -35,23 +35,6 @@ namespace coil {
   void 
   Console::initOpenGL() 
   {
-    _consoleFont.reset(new FTGLPixmapFont(_binary_coilfont_ttf_start,
-					  _binary_coilfont_ttf_end
-					  -_binary_coilfont_ttf_start));
-    _consoleLayout.reset(new FTSimpleLayout());
-
-    if (_consoleFont->Error()) 
-      M_throw() << "Could not load coil's embedded font! Errno " 
-		<< _consoleFont->Error();
-    
-    _consoleFont->FaceSize(16);
-
-    _consoleLayout->SetFont(&(*_consoleFont));    
-
-    if (_consoleLayout->Error()) 
-      M_throw() << "Could set the font of the layout " 
-		<< _consoleLayout->Error();
-
     _glutLastTime = glutGet(GLUT_ELAPSED_TIME);
 
     resize(_viewPort->getWidth(), _viewPort->getHeight());
@@ -63,7 +46,7 @@ namespace coil {
   void 
   Console::resize(size_t width, size_t height)
   {
-    _consoleLayout->SetLineLength(width);
+    //_consoleLayout->SetLineLength(width);
   }
 
   void 
@@ -75,63 +58,62 @@ namespace coil {
     //Disable anything that might affect the rastering 
     glDisable(GL_DEPTH_TEST);
 
+    using namespace magnet::GL;
+    Context& context = Context::getContext();
     //Draw the console in orthograpic projection
-    magnet::GL::Context::getContext().setViewMatrix(magnet::GL::GLMatrix::identity());
-    magnet::GL::Context::getContext().setProjectionMatrix(magnet::GL::GLMatrix::identity());
+    context.setViewMatrix(GLMatrix::identity());
+    context.setProjectionMatrix(GLMatrix::identity());
+    context.cleanupAttributeArrays();
 
-    if (_showConsole->get_active())
-      {
-	float lineHeight = _consoleFont->FaceSize() / (0.5f * _viewPort->getHeight());
-	float consoleHeight = 1.0f - lineHeight;
-	
-	//Calculate how long since the last redraw
-	int tdelta = glutGet(GLUT_ELAPSED_TIME) - _glutLastTime;
-	_glutLastTime = glutGet(GLUT_ELAPSED_TIME);
-	
-	glColor3f(_consoleTextColor[0], _consoleTextColor[1], 
-		  _consoleTextColor[2]);
-	
-	glRasterPos3f(-1.0, consoleHeight, 0);
-	_consoleLayout->Render(_consoleEntries.front().second.c_str());
-	consoleHeight -= lineHeight;
-	
-	for (std::list<consoleEntry>::iterator iPtr = ++_consoleEntries.begin();
-	     iPtr != _consoleEntries.end();)
-	  {
-	    //Fade the color based on it's time in the queue
-	    glColor4f(_consoleTextColor[0], _consoleTextColor[1], 
-		      _consoleTextColor[2], 1.0f - iPtr->first / 1000.0f);
-	    glRasterPos3f(-1, consoleHeight, 0);
-	    _consoleLayout->Render(iPtr->second.c_str());
-	    iPtr->first += tdelta;
-	    consoleHeight -= lineHeight;
-	    
-	    std::list<consoleEntry>::iterator prev = iPtr++;
-	    //If this element is invisible, erase it
-	    if (prev->first > 1000) _consoleEntries.erase(prev);
-	  }
-      }
+//    if (_showConsole->get_active())
+//      {
+//	float lineHeight = _consoleFont->FaceSize() / (0.5f * _viewPort->getHeight());
+//	float consoleHeight = 1.0f - lineHeight;
+//	
+//	//Calculate how long since the last redraw
+//	int tdelta = glutGet(GLUT_ELAPSED_TIME) - _glutLastTime;
+//	_glutLastTime = glutGet(GLUT_ELAPSED_TIME);
+//	
+//	glColor3f(_consoleTextColor[0], _consoleTextColor[1], 
+//		  _consoleTextColor[2]);
+//	
+//	glRasterPos3f(-1.0, consoleHeight, 0);
+//	_consoleLayout->Render(_consoleEntries.front().second.c_str());
+//	consoleHeight -= lineHeight;
+//	
+//	for (std::list<consoleEntry>::iterator iPtr = ++_consoleEntries.begin();
+//	     iPtr != _consoleEntries.end();)
+//	  {
+//	    //Fade the color based on it's time in the queue
+//	    glColor4f(_consoleTextColor[0], _consoleTextColor[1], 
+//		      _consoleTextColor[2], 1.0f - iPtr->first / 1000.0f);
+//	    glRasterPos3f(-1, consoleHeight, 0);
+//	    _consoleLayout->Render(iPtr->second.c_str());
+//	    iPtr->first += tdelta;
+//	    consoleHeight -= lineHeight;
+//	    
+//	    std::list<consoleEntry>::iterator prev = iPtr++;
+//	    //If this element is invisible, erase it
+//	    if (prev->first > 1000) _consoleEntries.erase(prev);
+//	  }
+//      }
 
     if (_showAxis->get_active())
       {
 	/////////////////RENDER THE AXIS//////////////////////////////////////////////
 
 	const GLdouble nearPlane = 0.1,
-	  axisScale = 0.07;
+	  axisScale = 0.09;
     
-	magnet::GL::Context::getContext().cleanupAttributeArrays();
 	//The axis is in a little 100x100 pixel area in the lower left
 	GLint viewportDim[4];
 	glGetIntegerv(GL_VIEWPORT, viewportDim);
 	glViewport(0,0,100,100);
     
-	magnet::GL::Context::getContext().setProjectionMatrix
-	  (magnet::GL::GLMatrix::perspective(45, 1, nearPlane, 1000));
+	context.setProjectionMatrix(GLMatrix::identity());
+	context.setViewMatrix(GLMatrix::identity());
+	context.color(0.5f,0.5f,0.5f,0.8f);
 
-	magnet::GL::Context::getContext().setViewMatrix
-	  (magnet::GL::GLMatrix::translate(Vector(0, 0, -(nearPlane + axisScale))));    
-    
-	magnet::GL::Context::getContext().color(0.5f,0.5f,0.5f,0.8f);
 	glBegin(GL_QUADS);
 	glVertex3f(-1,-1, 0);
 	glVertex3f( 1,-1, 0);
@@ -139,16 +121,17 @@ namespace coil {
 	glVertex3f(-1, 1, 0);
 	glEnd();
     
+	context.setProjectionMatrix
+	  (GLMatrix::perspective(45, 1, nearPlane, 1000));
 
-	magnet::GL::Context::getContext().setViewMatrix
-	  (magnet::GL::GLMatrix::translate(Vector(0, 0, -(nearPlane + axisScale)))
-	   * magnet::GL::GLMatrix::rotate(_viewPort->getTilt(), Vector(1, 0, 0))
-	   * magnet::GL::GLMatrix::rotate(_viewPort->getPan(), Vector(0, 1, 0))
-	   * magnet::GL::GLMatrix::scale(Vector(axisScale, axisScale, axisScale))
+	context.setViewMatrix
+	  (GLMatrix::translate(0, 0, -(nearPlane + axisScale))
+	   * GLMatrix::rotate(_viewPort->getTilt(), Vector(1, 0, 0))
+	   * GLMatrix::rotate(_viewPort->getPan(), Vector(0, 1, 0))
+	   * GLMatrix::scale(axisScale, axisScale, axisScale)
 	   );
     
 	glLineWidth(2.0f);
-
 	_axis.glRender();
     
 	//Do the axis labels
@@ -172,49 +155,68 @@ namespace coil {
   {
     if (_showGrid->get_active())
       {
-	//Draw a frustrum cage around the display
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	_viewPort->applyInverseModelview();
+	using namespace magnet::GL;
+	Context& context = Context::getContext();
 
-	GLfloat modelview[16];
-	glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
+	GLMatrix old_model_view = context.getViewMatrix();
+	GLMatrix model_view 
+	  = old_model_view 
+	  * GLMatrix::translate(_viewPort->getViewPlanePosition())
+	  * GLMatrix::rotate(-_viewPort->getPan(), Vector(0, 1, 0))
+	  * GLMatrix::rotate(-_viewPort->getTilt(), Vector(1, 0, 0));
 
-	glColor4f(1, 1, 1, 1);
+//      /*! \brief multiplies an inverse transformation of the
+//       * viewPort's modelview matrix with the current OpenGL matrix.
+//       *
+//       * This function simplifies drawing objects fixed in the camera
+//       * space (i.e. drawing a viewing frustrum for a given
+//       * viewport).
+//       *
+//       * \note This does not include any head tracking movement! (This is deliberate)
+//       */
+//      inline void applyInverseModelview() const
+//      {
+//	glTranslatef(_position[0], _position[1], _position[2]);
+//	glRotatef(-_panrotation, 0.0, 1.0, 0.0);
+//	glRotatef(-_tiltrotation, 1.0, 0.0, 0.0);
+//      }
 
+	context.color(1,1,1,1);
 	//Back face
-	glLoadIdentity();
-	glMultMatrixf(modelview);
-	glScalef(_viewPort->getScreenPlaneWidth(), _viewPort->getScreenPlaneHeight(), 1);
-	glTranslatef(0, 0, -1.0f);
+	context.setViewMatrix(model_view 
+			      * GLMatrix::scale(_viewPort->getScreenPlaneWidth(), 
+						_viewPort->getScreenPlaneHeight(), 
+						1)
+			      * GLMatrix::translate(0,0,-1));
 	_grid.glRender();
 
 	//Sides
-	glLoadIdentity();
-	glMultMatrixf(modelview);
-	glScalef(_viewPort->getScreenPlaneWidth(), _viewPort->getScreenPlaneHeight(), 1);
-	glRotatef(90, 0, 1, 0);
-	//left
-	glTranslatef(0.5f, 0, -0.5f);
+	context.setViewMatrix(model_view 
+			      * GLMatrix::scale(_viewPort->getScreenPlaneWidth(), 
+						_viewPort->getScreenPlaneHeight(), 
+						1)
+			      * GLMatrix::rotate(90, Vector(0,1,0))
+			      * GLMatrix::translate(0.5,0,-0.5));
 	_grid.glRender();
 	//right
-	glTranslatef(0, 0, 1);
+	context.setViewMatrix(context.getViewMatrix() * 
+			      GLMatrix::translate(0,0,1));
 	_grid.glRender();
+
 
 	//Top and bottom
-	glLoadIdentity();
-	glMultMatrixf(modelview);
-	glScalef(_viewPort->getScreenPlaneWidth(), _viewPort->getScreenPlaneWidth(), 1);
-	glRotatef(90, 1, 0, 0);
-	//top
-	glTranslatef(0, -0.5f, -0.5f *  _viewPort->getScreenPlaneHeight() / _viewPort->getScreenPlaneWidth());
+	context.setViewMatrix(model_view
+			      * GLMatrix::scale(_viewPort->getScreenPlaneWidth(), 
+						_viewPort->getScreenPlaneHeight(),
+						1)
+			      * GLMatrix::rotate(90, Vector(1,0,0))
+			      * GLMatrix::translate(0, -0.5, -0.5));
 	_grid.glRender();
 	//bottom
-	glTranslatef(0, 0, _viewPort->getScreenPlaneHeight() / _viewPort->getScreenPlaneWidth());
+	context.setViewMatrix(context.getViewMatrix() * 
+			      GLMatrix::translate(0,0,1));
 	_grid.glRender();
-
-    
-	glPopMatrix();
+	context.setViewMatrix(old_model_view);
       }
   }
 
@@ -233,12 +235,13 @@ namespace coil {
     {
       _showConsole.reset(new Gtk::CheckButton("Show console"));
       _showConsole->set_active(false);
+      _showConsole->set_sensitive(false);
       _optList->add(*_showConsole); _showConsole->show();
     }
 
     {
       _showAxis.reset(new Gtk::CheckButton("Show axis"));
-      _showAxis->set_active(false);
+      _showAxis->set_active(true);
       _optList->add(*_showAxis); _showAxis->show();
     }
 

@@ -201,20 +201,17 @@ namespace magnet {
 	Vector movement(sideways,0,-forward); //Strafe direction (left-right)
 	
 	_position += Transformation * movement + Vector(0,vertical,0);
-
-	buildMatrices();
       }
       
-      /*! \brief Constructs the OpenGL modelview and projection
-       * matricies from the stored state of the viewport/camera.
+      /*! \brief Get the modelview matrix.
        *
        * \param offset This is an offset in camera coordinates to
        * apply to the head location. It's primary use is to calculate
        * the perspective shift for the left and right eye in
        * Analygraph rendering.
        */
-      inline void buildMatrices(Vector offset = Vector(0,0,0))
-      {  
+      inline const GLMatrix getViewMatrix(Vector offset = Vector(0,0,0)) const 
+      { 
 	//Local head location
 	Vector headLoc = _headLocation + offset / _simLength;
 
@@ -225,8 +222,24 @@ namespace magnet {
 	    * Rodrigues(Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
 	
 	Vector cameraLocation((viewTransformation * headLoc) + _position);
-	_cameraDirection = viewTransformation * Vector(0,0,-1);
-	_cameraUp = viewTransformation * Vector(0,1,0);
+
+	//Setup the view matrix
+	return GLMatrix::rotate(_tiltrotation, Vector(1,0,0))
+	  * GLMatrix::rotate(_panrotation, Vector(0,1,0))
+	  * GLMatrix::translate(-cameraLocation);
+      }
+
+      /*! \brief Get the projection matrix.
+       *
+       * \param offset This is an offset in camera coordinates to
+       * apply to the head location. It's primary use is to calculate
+       * the perspective shift for the left and right eye in
+       * Analygraph rendering.
+       */
+      inline const GLMatrix getProjectionMatrix(Vector offset = Vector(0,0,0)) const 
+      { 
+	//Local head location
+	Vector headLoc = _headLocation + offset / _simLength;
 
 	//We will move the camera to the location of the head in sim
 	//space. So we must create a viewing frustrum which, in real
@@ -245,38 +258,15 @@ namespace magnet {
 	//somewhere other than the screen (this factor places it at
 	//_zNearDist)!
 	//
-	_projectionMatrix 
-	  = GLMatrix::frustrum((-0.5f * getScreenPlaneWidth()  - headLoc[0]) * _zNearDist / headLoc[2],// left
-			       (+0.5f * getScreenPlaneWidth()  - headLoc[0]) * _zNearDist / headLoc[2],// right
-			       (-0.5f * getScreenPlaneHeight() - headLoc[1]) * _zNearDist / headLoc[2],// bottom 
-			       (+0.5f * getScreenPlaneHeight() - headLoc[1]) * _zNearDist / headLoc[2],// top
-			       _zNearDist,//Near distance
-			       _zFarDist//Far distance)
-			       );
+	return GLMatrix::frustrum((-0.5f * getScreenPlaneWidth()  - headLoc[0]) * _zNearDist / headLoc[2],// left
+				  (+0.5f * getScreenPlaneWidth()  - headLoc[0]) * _zNearDist / headLoc[2],// right
+				  (-0.5f * getScreenPlaneHeight() - headLoc[1]) * _zNearDist / headLoc[2],// bottom 
+				  (+0.5f * getScreenPlaneHeight() - headLoc[1]) * _zNearDist / headLoc[2],// top
+				  _zNearDist,//Near distance
+				  _zFarDist//Far distance)
+				  );
+      }
 
-	//setup the view matrix
-	_viewMatrix
-	  = GLMatrix::rotate(_tiltrotation, Vector(1,0,0))
-	  * GLMatrix::rotate(_panrotation, Vector(0,1,0))
-	  * GLMatrix::translate(-cameraLocation);
-      }
-      
-      /*! \brief multiplies an inverse transformation of the
-       * viewPort's modelview matrix with the current OpenGL matrix.
-       *
-       * This function simplifies drawing objects fixed in the camera
-       * space (i.e. drawing a viewing frustrum for a given
-       * viewport).
-       *
-       * \note This does not include any head tracking movement! (This is deliberate)
-       */
-      inline void applyInverseModelview() const
-      {
-	glTranslatef(_position[0], _position[1], _position[2]);
-	glRotatef(-_panrotation, 0.0, 1.0, 0.0);
-	glRotatef(-_tiltrotation, 1.0, 0.0, 0.0);
-      }
-      
       //! \brief Returns the screen's width (in simulation units).
       double getScreenPlaneWidth() const
       { return _pixelPitch * _width / _simLength; }
@@ -298,14 +288,6 @@ namespace magnet {
 
       //! \brief Get the position of the viewing plane (effectively the camera position)
       inline const Vector& getViewPlanePosition() const { return _position; } 
-
-      /*! \brief Get the modelview matrix.
-       */
-      inline const GLMatrix getViewMatrix() const { return _viewMatrix; }
-
-      /*! \brief Get the projection matrix.
-       */
-      inline const GLMatrix getProjectionMatrix() const { return _projectionMatrix; }
 
       /*! \brief Fetch the location of the users eyes, in simulation
        * coordinates.
@@ -334,10 +316,22 @@ namespace magnet {
       { return ((GLfloat)_width) / _height; }
 
       //! \brief Get the up direction of the camera/viewport
-      inline const Vector& getCameraUp() const { return _cameraUp; } 
+      inline Vector getCameraUp() const 
+      { 
+	::Matrix viewTransformation 
+	  = Rodrigues(Vector(0, -_panrotation * M_PI/180, 0))
+	  * Rodrigues(Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
+	return viewTransformation * Vector(0,1,0);
+      } 
 
       //! \brief Get the direction the camera is pointing in
-      inline const Vector& getCameraDirection() const { return _cameraDirection; }
+      inline Vector getCameraDirection() const
+      { 
+	::Matrix viewTransformation 
+	  = Rodrigues(Vector(0, -_panrotation * M_PI/180, 0))
+	  * Rodrigues(Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
+	return viewTransformation * Vector(0,0,-1);
+      } 
 
       //! \brief Get the height of the screen, in pixels.
       inline const size_t& getHeight() const { return _height; }
@@ -364,11 +358,7 @@ namespace magnet {
       GLfloat _zNearDist;
       GLfloat _zFarDist;
       Vector _headLocation;
-      Vector _cameraDirection, _cameraUp;
       
-      GLMatrix _projectionMatrix;
-      GLMatrix _viewMatrix;
-
       //! \brief One simulation length in cm (real units)
       double _simLength;
 

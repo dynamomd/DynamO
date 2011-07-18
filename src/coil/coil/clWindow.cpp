@@ -133,8 +133,6 @@ CLGLWindow::initOpenGL()
   if (!_pickingEnabled)
     std::cout << "\nPicking won't work! Your screen color depth is too low! We need/want 32bits (24bit color plus 8bit alpha)";
 
-  _viewPortInfo->buildMatrices();
-
   glDrawBuffer(GL_BACK);
 
   glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -188,8 +186,6 @@ CLGLWindow::initOpenGL()
 					  75.0f//Beam angle
 					  ));
   
-  _light0->buildMatrices();
-
   glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f);
   glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.0f);
   glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.1f);
@@ -200,7 +196,6 @@ CLGLWindow::initOpenGL()
   GLfloat specReflection[] = { 1.0f, 1.0f, 1.0f, 1.0f };
   glMaterialfv(GL_FRONT, GL_SPECULAR, specReflection);
   glMateriali(GL_FRONT, GL_SHININESS, 25);
-
 
   //GLfloat specular[] = {1.0, 0.0, 0.0, 1.0};
   //glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
@@ -1024,9 +1019,8 @@ CLGLWindow::CallBackDisplayFunc()
 	  const double eyedist = 6.5; //
 	  Vector eyeDisplacement(0.5 * eyedist, 0, 0);
 	  
-	  _viewPortInfo->buildMatrices(-eyeDisplacement);
-	  getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix());
-	  getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix());
+	  getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix(-eyeDisplacement));
+	  getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix(-eyeDisplacement));
 
 	  if (_shadowMapping)
 	    _light0->loadShadowTextureMatrix(7);
@@ -1034,9 +1028,8 @@ CLGLWindow::CallBackDisplayFunc()
 	  glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
 	  drawScene(*_renderTarget);
 	  
-	  _viewPortInfo->buildMatrices(eyeDisplacement);
-	  getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix());
-	  getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix());
+	  getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix(eyeDisplacement));
+	  getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix(eyeDisplacement));
 	  if (_shadowMapping)
 	    _light0->loadShadowTextureMatrix(7);
 	  
@@ -1047,7 +1040,6 @@ CLGLWindow::CallBackDisplayFunc()
 	}
       else
 	{
-	  _viewPortInfo->buildMatrices();
 	  getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix());
 	  getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix());
 	  if (_shadowMapping)
@@ -1231,7 +1223,6 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
   glViewport(0, 0, w, h); 
 
   //Update the viewport
-  _viewPortInfo->buildMatrices();
   _renderTarget->resize(w, h);
   
   if (_shaderPipeline)
@@ -1837,7 +1828,6 @@ CLGLWindow::guiUpdateCallback()
     Gtk::HScale* FOVscale;
     _refXml->get_widget("lightFOVScale", FOVscale);
     _light0->setFOVY(FOVscale->get_value());
-    _light0->buildMatrices();
   }
 
   {//Dynamo particle sync checkbox

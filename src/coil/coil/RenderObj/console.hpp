@@ -21,7 +21,6 @@
 #include <coil/RenderObj/RenderObj.hpp>
 #include <magnet/GL/objects/axis.hpp>
 #include <magnet/GL/objects/grid.hpp>
-#include <FTGL/ftgl.h>
 #include <tr1/array>
 #include <memory>
 #include <sstream>
@@ -53,7 +52,7 @@ namespace coil {
     virtual void initGTK();
     virtual void showControls(Gtk::ScrolledWindow* win);
 
-    virtual void releaseCLGLResources() { _consoleFont.reset(); _consoleLayout.reset(); _axis.deinit();}
+    virtual void releaseCLGLResources() { _axis.deinit();}
 
     virtual void glRender();
     
@@ -61,8 +60,6 @@ namespace coil {
     void guiUpdate();
 
     std::ostringstream os;
-    std::auto_ptr<FTGLPixmapFont> _consoleFont;
-    std::auto_ptr<FTSimpleLayout> _consoleLayout;
     typedef std::pair<float, std::string> consoleEntry;
     std::list<consoleEntry> _consoleEntries;    
     int _glutLastTime;

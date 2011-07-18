@@ -86,9 +86,9 @@ namespace magnet {
 	Context::getContext().color(1.0f, 1.0f, 1.0f);
 	
 	GLfloat rotationAngle 
-	  = (180.0 / M_PI) * std::acos(Vector(0,0,-1) | _cameraDirection);
+	  = (180.0 / M_PI) * std::acos(Vector(0,0,-1) | getCameraDirection());
 	
-	Vector RotationAxis = Vector(0,0,-1) ^ _cameraDirection;
+	Vector RotationAxis = Vector(0,0,-1) ^ getCameraDirection();
 	float norm = RotationAxis.nrm();
 	RotationAxis /= norm;
 	if (norm < std::numeric_limits<double>::epsilon())
@@ -128,7 +128,6 @@ namespace magnet {
 	_width = width;
 	_height = height;
 	
-	buildMatrices();
 	return *this; 
       }
 
@@ -147,9 +146,9 @@ namespace magnet {
 	  (textureUnit,
 	   GLMatrix::translate(Vector(0.5, 0.5, 0.5))
 	   * GLMatrix::scale(Vector(0.5, 0.5, 0.5))
-	   * _projectionMatrix
-	   * _viewMatrix
-	   * Context::getContext().getModelViewMatrix().inverse()
+	   * getProjectionMatrix()
+	   * getViewMatrix()
+	   * Context::getContext().getViewMatrix().inverse()
 	   );
       }
 

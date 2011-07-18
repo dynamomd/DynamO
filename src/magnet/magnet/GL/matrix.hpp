@@ -78,11 +78,18 @@ namespace magnet {
        * This command emulates the glTranslate command.
        */
       inline static GLMatrix translate(const Vector& vec)
+      { return translate(vec[0], vec[1], vec[2]); }
+
+      /*! \brief Return a matrix corresponding to a translation.
+       *
+       * This command emulates the glTranslate command.
+       */
+      inline static GLMatrix translate(GLfloat x, GLfloat y, GLfloat z)
       { 
 	Base retval = {{1,0,0,0, 
 			0,1,0,0,
 			0,0,1,0,
-			vec[0],vec[1],vec[2],1}};
+			x,y,z,1}};
 	return retval;
       }
 
@@ -91,10 +98,17 @@ namespace magnet {
        * This command emulates the glScale command.
        */
       inline static GLMatrix scale(const Vector& vec)
+      { return scale(vec[0], vec[1], vec[2]); }
+
+      /*! \brief Return a matrix corresponding to a scaling.
+       *
+       * This command emulates the glScale command.
+       */
+      inline static GLMatrix scale(GLfloat x, GLfloat y, GLfloat z)
       {
-	Base retval = {{vec[0],0,0,0, 
-			0,vec[1],0,0,
-			0,0,vec[2],0,
+	Base retval = {{x,0,0,0, 
+			0,y,0,0,
+			0,0,z,0,
 			0,0,0,1}};
 	return retval;
       }

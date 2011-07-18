@@ -205,12 +205,12 @@ namespace magnet {
 
       void setViewMatrix(const GLMatrix& mat)
       { 
-	_modelViewMatrix = mat;
+	_viewMatrix = mat;
 	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(_modelViewMatrix);
+	glLoadMatrixf(_viewMatrix);
       }
 
-      const GLMatrix& getModelViewMatrix() { return _modelViewMatrix; }
+      const GLMatrix& getViewMatrix() { return _viewMatrix; }
       const GLMatrix& getProjectionMatrix() { return _projectionMatrix; }
 
       void setTextureMatrix(GLuint textureUnit, const GLMatrix& mat)
@@ -375,7 +375,7 @@ namespace magnet {
       inline void init()
       {
 	_context = getCurrentContextKey();
-	_modelViewMatrix = GLMatrix::identity();
+	_viewMatrix = GLMatrix::identity();
 	_projectionMatrix = GLMatrix::identity();
 
 	if (glewInit() != GLEW_OK)
@@ -430,7 +430,7 @@ namespace magnet {
       /*! \brief The state of the vertex attributes */
       std::vector<VertexAttrState> _vertexAttributeState;
 
-      GLMatrix _modelViewMatrix;
+      GLMatrix _viewMatrix;
       GLMatrix _projectionMatrix;
     };
   }
