@@ -24,23 +24,58 @@ namespace magnet {
     /*! \brief A 4x4 matrix class for projection/model view matrix
      * math.
      */
-    class Matrix : public std::tr1::array<GLfloat, 4 * 4>
+    class GLMatrix : public std::tr1::array<GLfloat, 4 * 4>
     {
       typedef std::tr1::array<GLfloat, 4 * 4> Base;
     public:
-      Matrix() {}
+      /*! \brief Default constructor.
+       */
+      GLMatrix() {}
 
-      Matrix(const Base& o):
+      /*! \brief Copy constructor.
+       */
+      GLMatrix(const Base& o):
 	Base(o)
       {}
 
-      Matrix(const Matrix& o):
-	Base(o)
-      {}
+      /*! \brief Cssignment operator.
+       */
+      GLMatrix& operator=(const Base& o)
+      { Base::operator=(o); return *this; }
+
+      /*! \brief Constructs the matrix from a 3x3 rotation
+       * matrix.
+       */       
+      GLMatrix(const ::Matrix& m)
+      {
+	Base val =
+	  {{m(0,0),m(1,0),m(2,0),0,
+	    m(0,1),m(1,1),m(2,1),0,
+	    m(0,2),m(1,2),m(2,2),0,
+	    0,0,0,1}};
+	operator=(val);
+      }
+
+      /*! \brief Constructs the matrix from a translation vector.
+       */       
+      GLMatrix(const ::Vector& vec)
+      {
+	Base val = {{1,0,0,0, 
+		     0,1,0,0,
+		     0,0,1,0,
+		     vec[0],vec[1],vec[2],1}};
+	operator=(val);
+      }
+
+      operator const GLfloat* () const
+      { return &operator[](0); }
+
+      operator GLfloat* ()
+      { return &operator[](0); }
 
       /*! \brief Return an identity matrix.
        */
-      inline static Matrix identity()
+      inline static GLMatrix identity()
       {
 	Base retval = {{1,0,0,0, 
 			0,1,0,0,
@@ -50,42 +85,53 @@ namespace magnet {
       }
       
       /*! \brief Return a matrix corresponding to a translation.
+       *
+       * This command emulates the glTranslate command.
        */
-      inline static Matrix translate(const Vector& vec)
-      {
-	Base retval = {{1,0,0,0, 
-			0,1,0,0,
-			0,0,1,0,
-			vec[0],vec[1],vec[2],1}};
-	return retval;
-      }
+      inline static GLMatrix translate(const Vector& vec)
+      { return vec; }
 
       /*! \brief Return a matrix corresponding to a rotation.
+       *
+       * This command emulates the glRotate command.
+       *
        * \param angle The angle of rotation (in degrees).
        * \param axis The axis of rotation.
        */
-      inline static Matrix rotate(const GLfloat& angle, const Vector& axis)
-      {
-	::Matrix m = Rodrigues((angle * M_PI / 180.0f) * axis);
+      inline static GLMatrix rotate(const GLfloat& angle, const Vector& axis)
+      { return GLMatrix(Rodrigues((angle * M_PI / 180.0f) * axis)); }
 
-	Base retval =
-	  {{m(0,0),m(1,0),m(2,0),0,
-	    m(0,1),m(1,1),m(2,1),0,
-	    m(0,2),m(1,2),m(2,2),0,
-	    0,0,0,1}};
-	
-	return retval;	
+      /*! \brief Return a matrix corresponding to a rotation.
+       *
+       * This command emulates the glRotate command.
+       *
+       * \param angle The angle of rotation (in degrees).
+       * \param axis The axis of rotation.
+       */
+      inline static GLMatrix frustrum(const GLfloat left, const GLfloat right, 
+				    const GLfloat bottom, const GLfloat top, 
+				    const GLfloat nearVal, const GLfloat farVal)
+      { 
+	Base retval = {{2 * nearVal / (right - left), 0, (right + left)/(right - left), 0,
+			0, 2 * nearVal / (top - bottom), (top + bottom) / (top - bottom), 0,
+			0, 0, -(farVal + nearVal) / (farVal - nearVal), -2 * farVal * nearVal / (farVal -nearVal),
+			0,0,-1,0}};
+	return retval;
       }
 
-      inline Matrix operator*=(const Matrix& om)
+      /*! \brief In-place matrix multiplication.
+       */       
+      inline GLMatrix operator*=(const GLMatrix& om)
       {
 	(*this) = (*this) * om; 
 	return *this;
       }
 
-      inline Matrix operator*(const Matrix& om) const
+      /*! \brief Matrix multiplication operator.
+       */       
+      inline GLMatrix operator*(const GLMatrix& om) const
       {
-	Matrix retval;
+	GLMatrix retval;
 	for (size_t i(0); i < 4; ++i)
 	  for (size_t j(0); j < 4; ++j)
 	    {
@@ -97,6 +143,8 @@ namespace magnet {
 	return retval;
       }
       
+      /*! \brief Transpose the matrix.
+       */       
       inline void transpose()
       {
 	for (size_t i(0); i < 4; ++i)
@@ -105,9 +153,11 @@ namespace magnet {
       }
 
 
-      Matrix inverse() const
+      /*! \brief Calculate the inverse of the matrix.
+       */       
+      GLMatrix inverse() const
       {
-	Matrix result;
+	GLMatrix result;
 
 	GLfloat tmp[12];											//temporary pair storage
 

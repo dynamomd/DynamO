@@ -150,7 +150,7 @@ namespace magnet {
 	glTranslatef(0.5f, 0.5f, 0.5f);
 	glScalef(0.5f, 0.5f, 0.5f);
 	glMultMatrixf(_projectionMatrix);
-	glMultMatrixf(&_viewMatrix[0]);
+	glMultMatrixf(_viewMatrix);
 
 	GLfloat vp_viewMatrix[4*4];
 	glGetFloatv(GL_MODELVIEW_MATRIX , vp_viewMatrix);
@@ -166,7 +166,7 @@ namespace magnet {
       {
 	GLfloat result[4*4];
 
-	GLfloat tmp[12];											//temporary pair storage
+	GLfloat tmp[12];//temporary pair storage
 
 	//calculate pairs for first 8 elements (cofactors)
 	tmp[0] = mat4x4[10] * mat4x4[15];
