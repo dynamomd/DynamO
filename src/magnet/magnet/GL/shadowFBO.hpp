@@ -26,16 +26,14 @@ namespace magnet {
     class shadowFBO : public FBO
     {
     public:
-      virtual void init(GLsizei, GLsizei, GLint internalformat = GL_RGBA)
-      { M_throw() << "Cannot use this initializer"; }
 
       /*! \brief Initializes the shadow FBO
        * 
-       * \param length The side length of the FBO in pixels.
+       * \param width The side length of the FBO in pixels.
        */
-      virtual void init(GLsizei length)
+      virtual void init(GLsizei width, GLsizei unused1=0, GLint unused2=0)
       {
-	FBO::init(length, length);
+	FBO::init(width, width);
 
 	_depthTexture.bind(0);
 	GLfloat l_ClampColor[] = {0.0, 0.0, 0.0, 0.0};
