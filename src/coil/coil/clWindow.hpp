@@ -163,7 +163,6 @@ private:
   int _oldMouseX, _oldMouseY;
   int _specialKeys;
 
-  bool _shaderPipeline;
   bool _shadowMapping;
   GLfloat _shadowIntensity;
   volatile bool _simrun;
@@ -218,9 +217,6 @@ private:
 
   Gtk::TreeView* _filterView;
   Gtk::TreeView* _renderObjView;
-
-  //Callback for enabling/disabling the shader pipeline
-  void pipelineEnableCallback();
 
   //Filter control callbacks
   void filterUpCallback();

@@ -53,7 +53,6 @@ CLGLWindow::CLGLWindow(std::string title,
   _mouseSensitivity(0.3),
   _moveSensitivity(0.001),
   _specialKeys(0),
-  _shaderPipeline(false),
   _shadowMapping(true),
   _shadowIntensity(0.8),
   _simrun(false),
@@ -88,35 +87,6 @@ CLGLWindow::initOpenGL()
 
   glViewport(0, 0, 800, 600);
 
-  if (!GLEW_VERSION_2_0)
-    std::runtime_error("OpenGL 2.0 is not supported, coil is not supported in this mode");
-
-  if (!GLEW_EXT_framebuffer_object)
-    std::runtime_error("Frame buffers are not supported, coil is not supported without them");
-
-  if (!GLEW_ARB_vertex_buffer_object)
-    std::runtime_error("Vertex Buffer Objects are not supported by your GPU/Driver, this is critical for Coil."); 
-
-  //Check for all of the shader pipeline support
-  _shaderPipeline = true;
-  if (!GLEW_ARB_depth_texture || !GLEW_ARB_shadow)
-    {
-      std::cout << "GL_ARB_depth_texture or GL_ARB_shadow not supported.\n";
-      _shaderPipeline = false;
-    }
-
-  else if (!GLEW_ARB_fragment_program || !GLEW_ARB_vertex_program
-	   || !GLEW_ARB_fragment_shader || !GLEW_ARB_vertex_shader)
-    {
-      std::cout << "OpenGL driver doesn't support programmable shaders.\n";
-      _shaderPipeline = false;
-    }
-  
-  if (!_shaderPipeline)
-    std::cout << "Shader pipeline disabled.\n"
-	      << "This also disables all nice effects and alot of speed.\n";
-
-  
   _pickingEnabled = true;
   {
     GLint bits;
@@ -209,17 +179,14 @@ CLGLWindow::initOpenGL()
   _renderTarget.reset(new magnet::GL::FBO());
   _renderTarget->init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
 
-  if (_shaderPipeline)
-    {
-      _filterTarget1.init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
-      _filterTarget2.init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
-      _normalsFBO.init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight(), GL_RGBA);
-      _shadowFBO.init(1024);
-      _renderShader.build();
-      _depthRenderShader.build();
-      _simpleRenderShader.build();
-      _nrmlShader.build();
-    }
+  _filterTarget1.init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
+  _filterTarget2.init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
+  _normalsFBO.init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight(), GL_RGBA);
+  _shadowFBO.init(1024);
+  _renderShader.build();
+  _depthRenderShader.build();
+  _simpleRenderShader.build();
+  _nrmlShader.build();
 
   //Now init the render objects  
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
@@ -414,235 +381,218 @@ CLGLWindow::initGTK()
   }
 
   ///////////////////////Render Pipeline//////////////////////////////////
-  if (_shaderPipeline)
+  {
+    ///////////////////////Multisampling (anti-aliasing)//////////////////////////////////
+    GLint maxSamples = magnet::GL::MultisampledFBO::getSupportedSamples();
+    
+    if (maxSamples > 1)
+      {//Offer anti aliasing
+	{//Turn on the antialiasing box
+	  Gtk::HBox* multisampleBox;
+	  _refXml->get_widget("multisampleBox", multisampleBox);
+	  multisampleBox->set_sensitive(true);
+	}
+	
+	//Connect the anti aliasing checkbox
+	Gtk::CheckButton* multisampleEnable;
+	_refXml->get_widget("multisampleEnable", multisampleEnable);
+	multisampleEnable->signal_toggled()
+	  .connect(sigc::mem_fun(*this, &CLGLWindow::multisampleEnableCallback));
+	  
+	
+	Gtk::ComboBox* aliasSelections;
+	_refXml->get_widget("multisampleLevels", aliasSelections);
+	
+	struct aliasColumns : public Gtk::TreeModel::ColumnRecord
+	{
+	  aliasColumns() { add(m_col_id); }
+	  Gtk::TreeModelColumn<int> m_col_id;
+	};
+	
+	aliasColumns vals;
+	Glib::RefPtr<Gtk::ListStore> m_refTreeModel = Gtk::ListStore::create(vals);
+	aliasSelections->set_model(m_refTreeModel);
+	
+	Gtk::TreeModel::Row row;
+	int lastrow = -1;
+	GLint currentSamples = maxSamples;
+	for ( ; currentSamples > 1; currentSamples >>= 1)
+	  {
+	    row = *(m_refTreeModel->prepend());
+	    row[vals.m_col_id] = currentSamples;
+	    ++lastrow;
+	  }
+	
+	aliasSelections->pack_start(vals.m_col_id);
+	
+	//Activate a multisample of 2<<(2)=8 by default
+	aliasSelections->set_active(std::min(lastrow, 2));
+	
+	multisampleEnable->set_active(true);
+	
+	_renderTarget.reset(new magnet::GL::MultisampledFBO
+			    (2 << aliasSelections->get_active_row_number()));
+	
+	_renderTarget->init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
+	
+	aliasSelections->signal_changed()
+	  .connect(sigc::mem_fun(*this, &CLGLWindow::multisampleEnableCallback));
+      }
+    
+    ///////////////////////Shadow Mapping//////////////////////////////////
     {
-
-      {//Enable the whole shader frame
-	Gtk::Frame* shaderFrame;
-	_refXml->get_widget("RenderPipelineFrame", shaderFrame);
-	shaderFrame->set_sensitive(true);
+      Gtk::CheckButton* shadowmapEnable;
+      _refXml->get_widget("shadowmapEnable", shadowmapEnable);
+      shadowmapEnable->signal_toggled()
+	.connect(sigc::mem_fun(this, &CLGLWindow::shadowEnableCallback));
+    }
+    
+    {
+      Gtk::SpinButton* shadowmapSize;
+      _refXml->get_widget("shadowmapSize", shadowmapSize);
+      shadowmapSize->set_value(1024);
+      shadowmapSize->signal_value_changed()
+	.connect(sigc::mem_fun(this, &CLGLWindow::shadowEnableCallback));
+    }
+    
+    {//Setup the shadow intensity
+      Gtk::VolumeButton* shadowButton;
+      _refXml->get_widget("shadowIntensity", shadowButton);
+      shadowButton->set_value(_shadowIntensity);
+      
+      shadowButton->signal_value_changed()
+	.connect(sigc::mem_fun(this, &CLGLWindow::shadowIntensityCallback));
+    }
+    
+    {///////////////////////Filters//////////////////////////////////
+      ///Tree view must be built
+      
+      //Build the store
+      _filterStore = Gtk::ListStore::create(*_filterModelColumns);
+      
+      //Setup the filter store
+      _refXml->get_widget("filterView", _filterView);
+      _filterView->set_model(_filterStore);
+      _filterView->append_column("Active", _filterModelColumns->m_active);
+      _filterView->append_column("Filter Name", _filterModelColumns->m_name);
+      
+      //////Connect the filterView select callback
+      {
+	Glib::RefPtr<Gtk::TreeSelection> treeSelection
+	  = _filterView->get_selection();
+	
+	treeSelection->signal_changed()
+	  .connect(sigc::mem_fun(this, &CLGLWindow::filterSelectCallback));
       }
       
-      {//Setup the shader enable
-	Gtk::CheckButton* shaderEnable;
-	_refXml->get_widget("ShaderPipelineEnable", shaderEnable);
-	
-	shaderEnable->set_active(true);
-
-	shaderEnable->signal_toggled().connect(sigc::mem_fun(this, &CLGLWindow::pipelineEnableCallback));
-      }
-
-      ///////////////////////Multisampling (anti-aliasing)//////////////////////////////////
-      GLint maxSamples = magnet::GL::MultisampledFBO::getSupportedSamples();
-
-      if (maxSamples > 1)
-	{//Offer anti aliasing
-	  {//Turn on the antialiasing box
-	    Gtk::HBox* multisampleBox;
-	    _refXml->get_widget("multisampleBox", multisampleBox);
-	    multisampleBox->set_sensitive(true);
-	  }
-
-	  //Connect the anti aliasing checkbox
-	  Gtk::CheckButton* multisampleEnable;
-	  _refXml->get_widget("multisampleEnable", multisampleEnable);
-	  multisampleEnable->signal_toggled()
-	    .connect(sigc::mem_fun(*this, &CLGLWindow::multisampleEnableCallback));
-	  
-	  
-	  Gtk::ComboBox* aliasSelections;
-	  _refXml->get_widget("multisampleLevels", aliasSelections);
-
-	  struct aliasColumns : public Gtk::TreeModel::ColumnRecord
-	  {
-	    aliasColumns() { add(m_col_id); }
-	    Gtk::TreeModelColumn<int> m_col_id;
-	  };
-
-	  aliasColumns vals;
-	  Glib::RefPtr<Gtk::ListStore> m_refTreeModel = Gtk::ListStore::create(vals);
-	  aliasSelections->set_model(m_refTreeModel);
-
-	  Gtk::TreeModel::Row row;
-	  int lastrow = -1;
-	  GLint currentSamples = maxSamples;
-	  for ( ; currentSamples > 1; currentSamples >>= 1)
-	    {
-	      row = *(m_refTreeModel->prepend());
-	      row[vals.m_col_id] = currentSamples;
-	      ++lastrow;
-	    }
-
-	  aliasSelections->pack_start(vals.m_col_id);
-
-	  //Activate a multisample of 2<<(2)=8 by default
-	  aliasSelections->set_active(std::min(lastrow, 2));
-
-	  multisampleEnable->set_active(true);
-	  
-	  _renderTarget.reset(new magnet::GL::MultisampledFBO
-			      (2 << aliasSelections->get_active_row_number()));
-	  
-	  _renderTarget->init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
-
-	  aliasSelections->signal_changed()
-	    .connect(sigc::mem_fun(*this, &CLGLWindow::multisampleEnableCallback));
-	}
-
-      ///////////////////////Shadow Mapping//////////////////////////////////
-      {
-	Gtk::CheckButton* shadowmapEnable;
-	_refXml->get_widget("shadowmapEnable", shadowmapEnable);
-	shadowmapEnable->signal_toggled()
-	  .connect(sigc::mem_fun(this, &CLGLWindow::shadowEnableCallback));
-      }
-
-      {
-	Gtk::SpinButton* shadowmapSize;
-	_refXml->get_widget("shadowmapSize", shadowmapSize);
-	shadowmapSize->set_value(1024);
-	shadowmapSize->signal_value_changed()
-	  .connect(sigc::mem_fun(this, &CLGLWindow::shadowEnableCallback));
-      }
-
-      {//Setup the shadow intensity
-	Gtk::VolumeButton* shadowButton;
-	_refXml->get_widget("shadowIntensity", shadowButton);
-	shadowButton->set_value(_shadowIntensity);
-
-	shadowButton->signal_value_changed()
-	  .connect(sigc::mem_fun(this, &CLGLWindow::shadowIntensityCallback));
-      }
-
-      {///////////////////////Filters//////////////////////////////////
-	///Tree view must be built
-	
-	//Build the store
-	_filterStore = Gtk::ListStore::create(*_filterModelColumns);
-
-	//Setup the filter store
-	_refXml->get_widget("filterView", _filterView);
-	_filterView->set_model(_filterStore);
-	_filterView->append_column("Active", _filterModelColumns->m_active);
-	_filterView->append_column("Filter Name", _filterModelColumns->m_name);
-
-	//////Connect the filterView select callback
+      {///Connect the control buttons
+	Gtk::Button* btn;
+	_refXml->get_widget("filterUp", btn);
+	btn->signal_clicked()
+	  .connect(sigc::mem_fun(this, &CLGLWindow::filterUpCallback));
+	_refXml->get_widget("filterDown", btn);
+	btn->signal_clicked()
+	  .connect(sigc::mem_fun(this, &CLGLWindow::filterDownCallback));
+	_refXml->get_widget("filterDelete", btn);
+	btn->signal_clicked()
+	  .connect(sigc::mem_fun(this, &CLGLWindow::filterDeleteCallback));
+	_refXml->get_widget("filterAdd", btn);
+	btn->signal_clicked()
+	  .connect(sigc::mem_fun(this, &CLGLWindow::filterAddCallback));
+	_refXml->get_widget("filterClear", btn);
+	btn->signal_clicked()
+	  .connect(sigc::mem_fun(this, &CLGLWindow::filterClearCallback));
 	{
-	  Glib::RefPtr<Gtk::TreeSelection> treeSelection
-	    = _filterView->get_selection();
-	  
-	  treeSelection->signal_changed()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::filterSelectCallback));
-	}
-
-	{///Connect the control buttons
-	  Gtk::Button* btn;
-	  _refXml->get_widget("filterUp", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::filterUpCallback));
-	  _refXml->get_widget("filterDown", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::filterDownCallback));
-	  _refXml->get_widget("filterDelete", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::filterDeleteCallback));
-	  _refXml->get_widget("filterAdd", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::filterAddCallback));
-	  _refXml->get_widget("filterClear", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::filterClearCallback));
-	  {
-	    Gtk::ToggleButton* btn;
-	    _refXml->get_widget("filterActive", btn);
-	    btn->signal_toggled()
-	      .connect(sigc::mem_fun(this, &CLGLWindow::filterActiveCallback));
-	  }    
-	}
-
-	{
-	  Gtk::CheckButton* btn;
-	  _refXml->get_widget("filterEnable", btn);
+	  Gtk::ToggleButton* btn;
+	  _refXml->get_widget("filterActive", btn);
 	  btn->signal_toggled()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
-	}
-
-	{//Fill the selector widgit with the available filters
-	  Gtk::ComboBox* filterSelectBox;
-	  _refXml->get_widget("filterSelectBox", filterSelectBox);
-	  coil::filter::populateComboBox(filterSelectBox);
-	}
+	    .connect(sigc::mem_fun(this, &CLGLWindow::filterActiveCallback));
+	}    
       }
-
-      {/////////////////////3D effects
-	{
-	  Gtk::CheckButton* analygraphEnable;
-	  _refXml->get_widget("analygraphMode", analygraphEnable);
-	  analygraphEnable->signal_toggled()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
-	}
-
-	{
-	  Gtk::Entry* simunits;
-	  _refXml->get_widget("SimLengthUnits", simunits);
-
-	  std::ostringstream os;
-	  os << _viewPortInfo->getSimUnitLength();
-	  simunits->set_text(os.str());
-
-	  simunits->signal_changed()
-	    .connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *simunits));
-	  simunits->signal_activate()
-	    .connect(sigc::mem_fun(*this, &CLGLWindow::guiUpdateCallback));
-	}
-	
-	{
-	  Gtk::Entry* pixelPitch;
-	  _refXml->get_widget("pixelPitch", pixelPitch);
-
-	  std::ostringstream os;
-	  os << _viewPortInfo->getPixelPitch() * 10;
-	  pixelPitch->set_text(os.str());
-
-	  pixelPitch->signal_changed()
-	    .connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *pixelPitch));
-	  pixelPitch->signal_activate()
-	    .connect(sigc::mem_fun(*this, &CLGLWindow::guiUpdateCallback));
-	}
-
-	{
-	  Gtk::Button* btn;
-	  _refXml->get_widget("HeadTrackReset", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::HeadReset));
-	}
-
-#ifdef COIL_wiimote
-	{//Here all the wii stuff should go in
-	  Gtk::Button* btn;
-	  _refXml->get_widget("wiiConnectBtn", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::wiiMoteConnect));
-	  btn->set_sensitive(true);
-	}
-	
-	{
-	  Gtk::DrawingArea *ir;
-	  _refXml->get_widget("wiiIRImage", ir);
-	  ir->signal_expose_event()
-	    .connect(sigc::mem_fun(this, &CLGLWindow::wiiMoteIRExposeEvent));	  
-	}
-	
-	{//Here all the wii stuff should go in
-	  Gtk::Button* btn;
-	  _refXml->get_widget("wiiCalibrate", btn);
-	  btn->signal_clicked()
-	    .connect(sigc::mem_fun(&(magnet::TrackWiimote::getInstance()), 
-				   &magnet::TrackWiimote::calibrate));
-	}
-#endif
+      
+      {
+	Gtk::CheckButton* btn;
+	_refXml->get_widget("filterEnable", btn);
+	btn->signal_toggled()
+	  .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
+      }
+      
+      {//Fill the selector widgit with the available filters
+	Gtk::ComboBox* filterSelectBox;
+	_refXml->get_widget("filterSelectBox", filterSelectBox);
+	coil::filter::populateComboBox(filterSelectBox);
       }
     }
+    
+    {/////////////////////3D effects
+      {
+	Gtk::CheckButton* analygraphEnable;
+	_refXml->get_widget("analygraphMode", analygraphEnable);
+	analygraphEnable->signal_toggled()
+	  .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
+      }
+      
+      {
+	Gtk::Entry* simunits;
+	_refXml->get_widget("SimLengthUnits", simunits);
+
+	std::ostringstream os;
+	os << _viewPortInfo->getSimUnitLength();
+	simunits->set_text(os.str());
+
+	simunits->signal_changed()
+	  .connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *simunits));
+	simunits->signal_activate()
+	  .connect(sigc::mem_fun(*this, &CLGLWindow::guiUpdateCallback));
+      }
+	
+      {
+	Gtk::Entry* pixelPitch;
+	_refXml->get_widget("pixelPitch", pixelPitch);
+
+	std::ostringstream os;
+	os << _viewPortInfo->getPixelPitch() * 10;
+	pixelPitch->set_text(os.str());
+
+	pixelPitch->signal_changed()
+	  .connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *pixelPitch));
+	pixelPitch->signal_activate()
+	  .connect(sigc::mem_fun(*this, &CLGLWindow::guiUpdateCallback));
+      }
+
+      {
+	Gtk::Button* btn;
+	_refXml->get_widget("HeadTrackReset", btn);
+	btn->signal_clicked()
+	  .connect(sigc::mem_fun(this, &CLGLWindow::HeadReset));
+      }
+
+#ifdef COIL_wiimote
+      {//Here all the wii stuff should go in
+	Gtk::Button* btn;
+	_refXml->get_widget("wiiConnectBtn", btn);
+	btn->signal_clicked()
+	  .connect(sigc::mem_fun(this, &CLGLWindow::wiiMoteConnect));
+	btn->set_sensitive(true);
+      }
+	
+      {
+	Gtk::DrawingArea *ir;
+	_refXml->get_widget("wiiIRImage", ir);
+	ir->signal_expose_event()
+	  .connect(sigc::mem_fun(this, &CLGLWindow::wiiMoteIRExposeEvent));	  
+      }
+	
+      {//Here all the wii stuff should go in
+	Gtk::Button* btn;
+	_refXml->get_widget("wiiCalibrate", btn);
+	btn->signal_clicked()
+	  .connect(sigc::mem_fun(&(magnet::TrackWiimote::getInstance()), 
+				 &magnet::TrackWiimote::calibrate));
+      }
+#endif
+    }
+  }
 
   {///////////////////////Render Objects//////////////////////////////////
     ///Tree view must be built
@@ -749,22 +699,6 @@ CLGLWindow::GTKTick()
   _FPStime = currFrameTime;
 
   return true;
-}
-
-void 
-CLGLWindow::pipelineEnableCallback()
-{
-  {
-    Gtk::CheckButton* shaderEnable;
-    _refXml->get_widget("ShaderPipelineEnable", shaderEnable);  
-    _shaderPipeline = shaderEnable->get_active();
-  }
-
-  {
-    Gtk::VBox* shaderPipelineOptions;
-    _refXml->get_widget("shaderPipelineOptions", shaderPipelineOptions);
-    shaderPipelineOptions ->set_sensitive(_shaderPipeline); 
-  }
 }
 
 void 
@@ -976,168 +910,155 @@ CLGLWindow::CallBackDisplayFunc()
   getGLContext().getCLCommandQueue().finish();
   
   //Prepare for the GL render
-  if (_shaderPipeline)
+  if (_shadowMapping)
     {
-      if (_shadowMapping)
-	{
-	  _depthRenderShader.attach();
-	  //////////////////Pass 1//////////////////
-	  ///Here we draw from the lights perspective
-	  getGLContext().setViewMatrix(_light0->getViewMatrix());
-	  getGLContext().setProjectionMatrix(_light0->getProjectionMatrix());
+      _depthRenderShader.attach();
+      //////////////////Pass 1//////////////////
+      ///Here we draw from the lights perspective
+      getGLContext().setViewMatrix(_light0->getViewMatrix());
+      getGLContext().setProjectionMatrix(_light0->getProjectionMatrix());
 	  
-	  //Setup the FBO for shadow maps
-	  _shadowFBO.setup();
+      //Setup the FBO for shadow maps
+      _shadowFBO.setup();
 	  
 #ifdef GL_VERSION_1_1
-	  glEnable(GL_POLYGON_OFFSET_FILL);
-	  glPolygonOffset(5.0f, 10.0f);
+      glEnable(GL_POLYGON_OFFSET_FILL);
+      glPolygonOffset(5.0f, 10.0f);
 #endif 
 
-	  drawScene(_shadowFBO);
+      drawScene(_shadowFBO);
 
 #ifdef GL_VERSION_1_1
-	  glDisable(GL_POLYGON_OFFSET_FILL);
+      glDisable(GL_POLYGON_OFFSET_FILL);
 #endif
-	  _shadowFBO.restore();
-	  _shadowFBO.getDepthTexture().bind(7);
-	}
-      
-      //Bind to the multisample buffer
-      _renderTarget->attach();
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
-
-      _renderShader["ShadowMap"] = 7;
-      _renderShader["ShadowIntensity"] = _shadowIntensity;
-      _renderShader["xPixelOffset"] = 1.0f / _viewPortInfo->getWidth();
-      _renderShader["yPixelOffset"] = 1.0f / _viewPortInfo->getHeight();
-      _renderShader["ShadowMapping"] = _shadowMapping;
-      _renderShader.attach();
-
-      if (_analygraphMode)
-	{
-	  const double eyedist = 6.5; //
-	  Vector eyeDisplacement(0.5 * eyedist, 0, 0);
-	  
-	  getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix(-eyeDisplacement));
-	  getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix(-eyeDisplacement));
-
-	  if (_shadowMapping)
-	    _light0->loadShadowTextureMatrix(7);
-
-	  glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
-	  drawScene(*_renderTarget);
-	  
-	  getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix(eyeDisplacement));
-	  getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix(eyeDisplacement));
-	  if (_shadowMapping)
-	    _light0->loadShadowTextureMatrix(7);
-	  
-	  glClear(GL_DEPTH_BUFFER_BIT);
-	  glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
-	  drawScene(*_renderTarget);
-	  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	}
-      else
-	{
-	  getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix());
-	  getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix());
-	  if (_shadowMapping)
-	    _light0->loadShadowTextureMatrix(7);
-	  drawScene(*_renderTarget);
-	}
-      
-      _renderTarget->detach();
-
-      //////////////FILTERING////////////
-      //Store what the last FBO was for later blitting to the screen
-      magnet::GL::FBO* lastFBO = &(*_renderTarget);
-      
-      bool FBOalternate = false;
-
-      if (_filterEnable)
-	{
-	  //Check if we need an extra pass where we calculate normals and depth values
-	  bool renderNormsAndDepth = false;
-	  
-	  for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
-	       iPtr != _filterStore->children().end(); ++iPtr)
-	    {
-	      void* filter_ptr = (*iPtr)[_filterModelColumns->m_filter_ptr];
-
-	      if (static_cast<coil::filter*>(filter_ptr)->needsNormalDepth())
-		{ renderNormsAndDepth = true; break; }
-	    }
-
-	  if (renderNormsAndDepth)
-	    {
-	      _normalsFBO.attach();
-	      _nrmlShader.attach();
-	      drawScene(_normalsFBO);
-	      _normalsFBO.detach();
-	    }
-
-	  //Bind the original image to texture (unit 0)
-	  _renderTarget->getColorTexture().bind(0);
-	  
-	  //Now bind the texture which has the normals and depths (unit 1)
-	  _normalsFBO.getColorTexture().bind(1);
-
-	  //High quality depth information is attached to (unit 2)
-	  _renderTarget->getDepthTexture().bind(2);
-
-	  for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
-	       iPtr != _filterStore->children().end(); ++iPtr)
-	    {
-	      void* filter_ptr = (*iPtr)[_filterModelColumns->m_filter_ptr];
-	      coil::filter& filter = *static_cast<coil::filter*>(filter_ptr);
-
-	      if (!((*iPtr)[_filterModelColumns->m_active])) continue; //Only run active filters, skip to the next filter
-
-	      if (filter.type_id() == coil::detail::filterEnum<coil::FlushToOriginal>::val)
-		{//Check if we're trying to flush the drawing
-		  lastFBO->attach();
-		  glActiveTextureARB(GL_TEXTURE0);
-		  //Now copy the texture 
-		  glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _viewPortInfo->getWidth(), _viewPortInfo->getHeight());
-		  lastFBO->detach();
-		}
-	      else
-		{
-		  //The last output goes into texture 3
-		  lastFBO->getColorTexture().bind(3);
-		  
-		  if (FBOalternate)
-		    _filterTarget1.attach();
-		  else
-		    _filterTarget2.attach();
-		  
-		  filter.invoke(3, _viewPortInfo->getWidth(), _viewPortInfo->getHeight(), *_viewPortInfo);
-		  
-		  if (FBOalternate)
-		    _filterTarget1.detach();
-		  else
-		    _filterTarget2.detach();
-		  
-		  lastFBO = FBOalternate ? &_filterTarget1 : &_filterTarget2;
-		  
-		  FBOalternate = !FBOalternate;
-		}
-	    }
-	}
-      //Now blit the stored scene to the screen
-      lastFBO->blitToScreen(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
+      _shadowFBO.restore();
+      _shadowFBO.getDepthTexture().bind(7);
     }
-  else    
+      
+  //Bind to the multisample buffer
+  _renderTarget->attach();
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+
+  _renderShader["ShadowMap"] = 7;
+  _renderShader["ShadowIntensity"] = _shadowIntensity;
+  _renderShader["xPixelOffset"] = 1.0f / _viewPortInfo->getWidth();
+  _renderShader["yPixelOffset"] = 1.0f / _viewPortInfo->getHeight();
+  _renderShader["ShadowMapping"] = _shadowMapping;
+  _renderShader.attach();
+
+  if (_analygraphMode)
     {
-      _renderTarget->attach();
+      const double eyedist = 6.5; //
+      Vector eyeDisplacement(0.5 * eyedist, 0, 0);
+	  
+      getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix(-eyeDisplacement));
+      getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix(-eyeDisplacement));
+
+      if (_shadowMapping)
+	_light0->loadShadowTextureMatrix(7);
+
+      glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
+      drawScene(*_renderTarget);
+	  
+      getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix(eyeDisplacement));
+      getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix(eyeDisplacement));
+      if (_shadowMapping)
+	_light0->loadShadowTextureMatrix(7);
+	  
+      glClear(GL_DEPTH_BUFFER_BIT);
+      glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
+      drawScene(*_renderTarget);
+      glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    }
+  else
+    {
       getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix());
       getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix());
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      if (_shadowMapping)
+	_light0->loadShadowTextureMatrix(7);
       drawScene(*_renderTarget);
-      _renderTarget->detach();
-      _renderTarget->blitToScreen(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
     }
+      
+  _renderTarget->detach();
+
+  //////////////FILTERING////////////
+  //Store what the last FBO was for later blitting to the screen
+  magnet::GL::FBO* lastFBO = &(*_renderTarget);
+      
+  bool FBOalternate = false;
+
+  if (_filterEnable)
+    {
+      //Check if we need an extra pass where we calculate normals and depth values
+      bool renderNormsAndDepth = false;
+	  
+      for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
+	   iPtr != _filterStore->children().end(); ++iPtr)
+	{
+	  void* filter_ptr = (*iPtr)[_filterModelColumns->m_filter_ptr];
+
+	  if (static_cast<coil::filter*>(filter_ptr)->needsNormalDepth())
+	    { renderNormsAndDepth = true; break; }
+	}
+
+      if (renderNormsAndDepth)
+	{
+	  _normalsFBO.attach();
+	  _nrmlShader.attach();
+	  drawScene(_normalsFBO);
+	  _normalsFBO.detach();
+	}
+
+      //Bind the original image to texture (unit 0)
+      _renderTarget->getColorTexture().bind(0);
+	  
+      //Now bind the texture which has the normals and depths (unit 1)
+      _normalsFBO.getColorTexture().bind(1);
+
+      //High quality depth information is attached to (unit 2)
+      _renderTarget->getDepthTexture().bind(2);
+
+      for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
+	   iPtr != _filterStore->children().end(); ++iPtr)
+	{
+	  void* filter_ptr = (*iPtr)[_filterModelColumns->m_filter_ptr];
+	  coil::filter& filter = *static_cast<coil::filter*>(filter_ptr);
+
+	  if (!((*iPtr)[_filterModelColumns->m_active])) continue; //Only run active filters, skip to the next filter
+
+	  if (filter.type_id() == coil::detail::filterEnum<coil::FlushToOriginal>::val)
+	    {//Check if we're trying to flush the drawing
+	      lastFBO->attach();
+	      glActiveTextureARB(GL_TEXTURE0);
+	      //Now copy the texture 
+	      glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _viewPortInfo->getWidth(), _viewPortInfo->getHeight());
+	      lastFBO->detach();
+	    }
+	  else
+	    {
+	      //The last output goes into texture 3
+	      lastFBO->getColorTexture().bind(3);
+		  
+	      if (FBOalternate)
+		_filterTarget1.attach();
+	      else
+		_filterTarget2.attach();
+		  
+	      filter.invoke(3, _viewPortInfo->getWidth(), _viewPortInfo->getHeight(), *_viewPortInfo);
+		  
+	      if (FBOalternate)
+		_filterTarget1.detach();
+	      else
+		_filterTarget2.detach();
+		  
+	      lastFBO = FBOalternate ? &_filterTarget1 : &_filterTarget2;
+		  
+	      FBOalternate = !FBOalternate;
+	    }
+	}
+    }
+  //Now blit the stored scene to the screen
+  lastFBO->blitToScreen(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
   
   //We clear the depth as merely disabling gives artifacts
   glClear(GL_DEPTH_BUFFER_BIT); 
@@ -1225,13 +1146,10 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
   //Update the viewport
   _renderTarget->resize(w, h);
   
-  if (_shaderPipeline)
-    {
-      _filterTarget1.resize(w, h);
-      _filterTarget2.resize(w, h);
-      _normalsFBO.resize(w, h);
-    }
-
+  _filterTarget1.resize(w, h);
+  _filterTarget2.resize(w, h);
+  _normalsFBO.resize(w, h);
+  
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->resize(w, h);

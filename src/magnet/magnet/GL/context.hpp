@@ -375,11 +375,30 @@ namespace magnet {
       inline void init()
       {
 	_context = getCurrentContextKey();
-	_viewMatrix = GLMatrix::identity();
-	_projectionMatrix = GLMatrix::identity();
-
+	
+	//////////Capability testing /////////////////////////////
 	if (glewInit() != GLEW_OK)
 	  M_throw() << "Failed to initialise GLEW!";
+	
+	if (!GLEW_VERSION_2_0)
+	  M_throw() << "Critical OpenGL dependency: OpenGL 2.0 is not supported";
+	
+	if (!GLEW_EXT_framebuffer_object)
+	  M_throw() << "Critical OpenGL dependency: Frame buffers are not supported";
+    
+	if (!GLEW_ARB_vertex_buffer_object)
+	  M_throw() << "Critical OpenGL dependency: Vertex buffer objects are not supported";
+    
+	if (!GLEW_ARB_fragment_program || !GLEW_ARB_vertex_program
+	    || !GLEW_ARB_fragment_shader || !GLEW_ARB_vertex_shader)
+	  M_throw() << "Critical OpenGL dependency: Fragment/Vertex shaders are not supported";
+
+	if (!GLEW_ARB_depth_texture || !GLEW_ARB_shadow)
+	  M_throw() << "Critical OpenGL dependency: GL_ARB_depth_texture or GL_ARB_shadow not supported";
+
+	///////Variable initialisation ///////////////////////////
+	_viewMatrix = GLMatrix::identity();
+	_projectionMatrix = GLMatrix::identity();
 
 	_vertexAttributeState.resize(detail::glGet<GL_MAX_VERTEX_ATTRIBS>());
 
