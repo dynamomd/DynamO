@@ -77,12 +77,8 @@ namespace coil {
     glDisable(GL_DEPTH_TEST);
 
     //Draw the console in orthograpic projection
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
+    magnet::GL::Context::getContext().setViewMatrix(magnet::GL::GLMatrix::identity());
+    magnet::GL::Context::getContext().setProjectionMatrix(magnet::GL::GLMatrix::identity());
 
     if (_showConsole->get_active())
       {
@@ -129,17 +125,17 @@ namespace coil {
 	glGetIntegerv(GL_VIEWPORT, viewportDim);
 	glViewport(0,0,100,100);
     
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(45.0f, 1, nearPlane, 1000.0f);
-    
+	magnet::GL::Context::getContext().setProjectionMatrix
+	  (magnet::GL::GLMatrix::perspective(45, 1, nearPlane, 1000));
+
+	magnet::GL::Context::getContext().setViewMatrix(magnet::GL::GLMatrix::identity());    
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
     
 	//near plane is at 0.1, the axis are axisScale long so
 	glTranslatef (0, 0, -(nearPlane + axisScale));
     
-	glColor4f (0.5f,0.5f,0.5f,0.8f); // Color the axis box a transparent white
+	magnet::GL::Context::getContext().color(0.5f,0.5f,0.5f,0.8f); // Color the axis box a transparent white
 	glBegin(GL_QUADS);		
 	glVertex3f(-1,-1, 0);
 	glVertex3f( 1,-1, 0);
@@ -156,14 +152,14 @@ namespace coil {
 	_axis.glRender();
     
 	//Do the axis labels
-	glColor3f(1,1,1);
-	glRasterPos3f( 0.5,-0.5,-0.5);
-	_consoleFont->Render("X");
-	glRasterPos3f(-0.5, 0.5,-0.5);
-	_consoleFont->Render("Y");
-	glRasterPos3f(-0.5,-0.5, 0.5);
-	_consoleFont->Render("Z");
-	glViewport(viewportDim[0], viewportDim[1], viewportDim[2], viewportDim[3]);
+	//glColor3f(1,1,1);
+	//glRasterPos3f( 0.5,-0.5,-0.5);
+	//_consoleFont->Render("X");
+	//glRasterPos3f(-0.5, 0.5,-0.5);
+	//_consoleFont->Render("Y");
+	//glRasterPos3f(-0.5,-0.5, 0.5);
+	//_consoleFont->Render("Z");
+	//glViewport(viewportDim[0], viewportDim[1], viewportDim[2], viewportDim[3]);
       }    
 
     //Restore GL state

@@ -222,6 +222,7 @@ CLGLWindow::initOpenGL()
       _shadowFBO.init(1024);
       _renderShader.build();
       _depthRenderShader.build();
+      _simpleRenderShader.build();
       _nrmlShader.build();
     }
 
@@ -922,6 +923,7 @@ CLGLWindow::deinit()
   _shadowFBO.deinit();
   _renderShader.deinit();
   _depthRenderShader.deinit();
+  _simpleRenderShader.build();
   _nrmlShader.deinit();
 
   ///////////////////Finally, unregister with COIL
@@ -1131,10 +1133,6 @@ CLGLWindow::CallBackDisplayFunc()
 		}
 	    }
 	}
-
-      //Restore the fixed pipeline
-      //And turn off the shadow texture
-      glUseProgramObjectARB(0);
       //Now blit the stored scene to the screen
       lastFBO->blitToScreen(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
     }
@@ -1151,6 +1149,8 @@ CLGLWindow::CallBackDisplayFunc()
   
   //We clear the depth as merely disabling gives artifacts
   glClear(GL_DEPTH_BUFFER_BIT); 
+
+  _simpleRenderShader.attach();
 
   //Enter the interface draw for all objects
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
@@ -1690,7 +1690,7 @@ CLGLWindow::renderNormalsCallback()
 void
 CLGLWindow::performPicking(int x, int y)
 {
-  glUseProgramObjectARB(0);
+  _simpleRenderShader.attach();
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
   getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix());
   getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix());
@@ -1702,15 +1702,6 @@ CLGLWindow::performPicking(int x, int y)
     (*iPtr)->initPicking(startVal);
 
   //Now render the scene
-  glDisable(GL_BLEND); 
-  glDisable(GL_DITHER); 
-  glDisable(GL_FOG); 
-  glDisable(GL_LIGHTING); 
-  glDisable(GL_TEXTURE_1D); 
-  glDisable(GL_TEXTURE_2D); 
-  glDisable(GL_TEXTURE_3D); 
-  glShadeModel (GL_FLAT);
-
   //Enter the render ticks for all objects
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
@@ -1722,15 +1713,6 @@ CLGLWindow::performPicking(int x, int y)
   glGetIntegerv(GL_VIEWPORT, viewport);
   
   glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
-
-  glEnable(GL_BLEND); 
-  glEnable(GL_DITHER); 
-  glEnable(GL_FOG); 
-  glEnable(GL_LIGHTING); 
-  glEnable(GL_TEXTURE_1D); 
-  glEnable(GL_TEXTURE_2D); 
-  glEnable(GL_TEXTURE_3D); 
-  glShadeModel(GL_SMOOTH);
 
   //Now let the objects know what was picked
   const cl_uint objID = pixel[0] + 256 * (pixel[1] + 256 * (pixel[2] + 256 * pixel[3]));

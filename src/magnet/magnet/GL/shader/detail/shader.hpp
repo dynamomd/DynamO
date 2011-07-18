@@ -276,40 +276,7 @@ namespace magnet {
 	    //Done, now the inheriting shader should grab the locations of its uniforms
 	    _built = true;
 	  }
-	  
-	  /*! \brief Draws a fullscreen quad, with texture coordinates
-	   * set from the bottom left (0,0) to the top right (1,1).
-	   */
-	  void drawScreenQuad()
-	  {
-	    //Save the matrix state
-	    glMatrixMode(GL_PROJECTION);
-	    glPushMatrix();
-	    glLoadIdentity();
-	  
-	    glMatrixMode(GL_MODELVIEW);
-	    glPushMatrix();
-	    glLoadIdentity();
-	  
-	    glBegin(GL_QUADS);
-	    glTexCoord2f(0.0f, 0.0f);
-	    glVertex2d(-1, -1);
-	    glTexCoord2f(1.0f, 0.0f);
-	    glVertex2d(1, -1);
-	    glTexCoord2f( 1.0f, 1.0f);
-	    glVertex2d(1, 1);
-	    glTexCoord2f(0.0f, 1.0f);
-	    glVertex2d(-1, 1);
-	    glEnd();
-	  
-	    //Restore the matrix state
-	    glMatrixMode(GL_PROJECTION);
-	    glPopMatrix();
-	  
-	    glMatrixMode(GL_MODELVIEW);
-	    glPopMatrix();
-	  }
-	  
+	  	  
 	  //! \brief Fetch the vertex shader source code.
 	  const std::string getVertexShaderSource() const 
 	  { return _vertexShaderCode; }

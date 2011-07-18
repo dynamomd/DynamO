@@ -24,16 +24,19 @@ namespace magnet {
     namespace shader {
       /*! \brief An instancing depth only shader for generating shadow maps.
        */
-      class DepthRenderShader: public detail::Shader
+      class SimpleRenderShader: public detail::Shader
       {
       public:
 	virtual std::string initVertexShaderSource()
 	{
 	  return STRINGIFY( 
 attribute vec4 vPosition;
+attribute vec4 vColor;
 attribute vec4 iOrigin;
 attribute vec4 iOrientation;
 attribute vec4 iScale;
+
+varying vec4 color;
 
 ////Quaternion mathmatics
 //https://mollyrocket.com/forums/viewtopic.php?p=6154
@@ -49,11 +52,12 @@ void main()
   vec4 vVertex = gl_ModelViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz)
 					   + iOrigin.xyz, 1.0);
   gl_Position = gl_ProjectionMatrix * vVertex;
+  color = vColor;
 });
 	}
 	
 	virtual std::string initFragmentShaderSource()
-	{ return STRINGIFY(void main() {}); }
+	{ return STRINGIFY(varying vec4 color; void main() { gl_Color = color; }); }
       };
     }
   }

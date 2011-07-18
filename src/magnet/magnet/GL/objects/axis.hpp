@@ -100,7 +100,7 @@ namespace magnet {
 	/*! \brief Attaches the vertex buffer and renders the axis.
 	 */
 	inline void glRender()
-	{	
+	{
 	  _colorData.getContext().cleanupAttributeArrays();
 	  _colorData.attachToColor();
 	  _vertexData.drawArray(magnet::GL::element_type::LINES);

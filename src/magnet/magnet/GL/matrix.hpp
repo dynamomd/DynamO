@@ -109,12 +109,9 @@ namespace magnet {
       inline static GLMatrix rotate(const GLfloat& angle, const Vector& axis)
       { return GLMatrix(Rodrigues((angle * M_PI / 180.0f) * axis)); }
 
-      /*! \brief Return a matrix corresponding to a rotation.
+      /*! \brief Return a matrix corresponding to a frustrum projection.
        *
-       * This command emulates the glRotate command.
-       *
-       * \param angle The angle of rotation (in degrees).
-       * \param axis The axis of rotation.
+       * This command emulates the glFrustrum command.
        */
       inline static GLMatrix frustrum(const GLfloat left, const GLfloat right, 
 				      const GLfloat bottom, const GLfloat top, 
@@ -129,6 +126,21 @@ namespace magnet {
 			0, 2 * nearVal / (top - bottom), 0, 0,
 			A, B, C, -1,
 			0, 0, D, 0}};
+	return retval;
+      }
+
+      /*! \brief Return a matrix corresponding to a perspective projection.
+       *
+       * This command emulates the gluPerspective command.
+       */
+      inline static GLMatrix perspective(const GLfloat fovy, const GLfloat aspect, 
+					 const GLfloat zNear, const GLfloat zFar)
+      { 
+	GLfloat f = 1 / std::tan(fovy * 0.5f);
+	Base retval = {{f / aspect, 0, 0, 0,
+			0, f, 0, 0,
+			0, 0, (zFar + zNear) / (zNear - zFar), -1,
+			0, 0, 2 * zFar * zNear / (zNear - zFar), 0}};
 	return retval;
       }
 
