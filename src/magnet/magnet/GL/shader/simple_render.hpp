@@ -57,7 +57,7 @@ void main()
 	}
 	
 	virtual std::string initFragmentShaderSource()
-	{ return STRINGIFY(varying vec4 color; void main() { gl_Color = color; }); }
+	{ return STRINGIFY(varying vec4 color; void main() { gl_FragColor = color; }); }
       };
     }
   }

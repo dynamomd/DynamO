@@ -73,7 +73,6 @@ namespace coil {
     if (_consoleEntries.empty() || !_visible) return;
 
     //Disable anything that might affect the rastering 
-    glDisable(GL_LIGHTING);
     glDisable(GL_DEPTH_TEST);
 
     //Draw the console in orthograpic projection
@@ -120,6 +119,7 @@ namespace coil {
 	const GLdouble nearPlane = 0.1,
 	  axisScale = 0.07;
     
+	magnet::GL::Context::getContext().cleanupAttributeArrays();
 	//The axis is in a little 100x100 pixel area in the lower left
 	GLint viewportDim[4];
 	glGetIntegerv(GL_VIEWPORT, viewportDim);
@@ -128,24 +128,24 @@ namespace coil {
 	magnet::GL::Context::getContext().setProjectionMatrix
 	  (magnet::GL::GLMatrix::perspective(45, 1, nearPlane, 1000));
 
-	magnet::GL::Context::getContext().setViewMatrix(magnet::GL::GLMatrix::identity());    
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	magnet::GL::Context::getContext().setViewMatrix
+	  (magnet::GL::GLMatrix::translate(Vector(0, 0, -(nearPlane + axisScale))));    
     
-	//near plane is at 0.1, the axis are axisScale long so
-	glTranslatef (0, 0, -(nearPlane + axisScale));
-    
-	magnet::GL::Context::getContext().color(0.5f,0.5f,0.5f,0.8f); // Color the axis box a transparent white
-	glBegin(GL_QUADS);		
+	magnet::GL::Context::getContext().color(0.5f,0.5f,0.5f,0.8f);
+	glBegin(GL_QUADS);
 	glVertex3f(-1,-1, 0);
 	glVertex3f( 1,-1, 0);
 	glVertex3f( 1, 1, 0);
 	glVertex3f(-1, 1, 0);
 	glEnd();
     
-	glRotatef(_viewPort->getTilt(), 1.0, 0.0, 0.0);
-	glRotatef(_viewPort->getPan(), 0.0, 1.0, 0.0);
-	glScalef (axisScale, axisScale, axisScale);
+
+	magnet::GL::Context::getContext().setViewMatrix
+	  (magnet::GL::GLMatrix::translate(Vector(0, 0, -(nearPlane + axisScale)))
+	   * magnet::GL::GLMatrix::rotate(_viewPort->getTilt(), Vector(1, 0, 0))
+	   * magnet::GL::GLMatrix::rotate(_viewPort->getPan(), Vector(0, 1, 0))
+	   * magnet::GL::GLMatrix::scale(Vector(axisScale, axisScale, axisScale))
+	   );
     
 	glLineWidth(2.0f);
 
@@ -163,10 +163,7 @@ namespace coil {
       }    
 
     //Restore GL state
-    glEnable(GL_LIGHTING);
     glEnable(GL_DEPTH_TEST);
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix ();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix ();
   }

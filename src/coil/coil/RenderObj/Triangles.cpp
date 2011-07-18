@@ -15,7 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Triangles.hpp"
-#include <coil/RenderObj/console.hpp>
 #include <coil/glprimatives/arrow.hpp>
 #include <iostream>
 #include <set>
@@ -313,7 +312,7 @@ RTriangles::finishPicking(cl_uint& offset, const cl_uint val)
   size_t N = (_posBuff.size() / 3);
 
   if (val - offset < N)
-    (_console.as<coil::Console>()) << "You clicked near triangle vertex " << val - offset
-				   << coil::Console::end();
+    std::cout  << "You clicked near triangle vertex " << val - offset
+	       << std::endl;
   offset += N;
 }
