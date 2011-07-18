@@ -30,6 +30,7 @@
 #include <magnet/GL/detail/enums.hpp>
 #include <magnet/GL/detail/typesafe_get.hpp>
 #include <magnet/exception.hpp>
+#include <magnet/GL/matrix.hpp>
 #include <map>
 
 namespace magnet {
@@ -191,7 +192,34 @@ namespace magnet {
 	setAttribute(instanceOrientationAttrIndex, 0, 0, 0, 1);
 	setAttribute(instanceScaleAttrIndex, 1, 1, 1, 0);
       }
-      
+      /**@}*/
+
+      /** @name The OpenGL matrix interface. */
+      /**@{*/
+      void setProjectionMatrix(const GLMatrix& mat)
+      { 
+	_projectionMatrix = mat;
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(_projectionMatrix);
+      }
+
+      void setViewMatrix(const GLMatrix& mat)
+      { 
+	_modelViewMatrix = mat;
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixf(_modelViewMatrix);
+      }
+
+      const GLMatrix& getModelViewMatrix() { return _modelViewMatrix; }
+      const GLMatrix& getProjectionMatrix() { return _projectionMatrix; }
+
+      void setTextureMatrix(GLuint textureUnit, const GLMatrix& mat)
+      { 
+	glActiveTextureARB(GL_TEXTURE0 + textureUnit);
+	glMatrixMode(GL_TEXTURE);
+	glLoadIdentity();
+	glMultMatrixf(mat);
+      }
       /**@}*/
 
       /** @name The OpenCL-OpenGL interface. */
@@ -326,6 +354,8 @@ namespace magnet {
       inline void init()
       {
 	_context = getCurrentContextKey();
+	_modelViewMatrix = GLMatrix::identity();
+	_projectionMatrix = GLMatrix::identity();
 
 	if (glewInit() != GLEW_OK)
 	  M_throw() << "Failed to initialise GLEW!";
@@ -378,6 +408,9 @@ namespace magnet {
 
       /*! \brief The state of the vertex attributes */
       std::vector<VertexAttrState> _vertexAttributeState;
+
+      GLMatrix _modelViewMatrix;
+      GLMatrix _projectionMatrix;
     };
   }
 }

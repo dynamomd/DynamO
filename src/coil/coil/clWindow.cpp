@@ -986,7 +986,8 @@ CLGLWindow::CallBackDisplayFunc()
 	  _depthRenderShader.attach();
 	  //////////////////Pass 1//////////////////
 	  ///Here we draw from the lights perspective
-	  _light0->loadMatrices();
+	  getGLContext().setViewMatrix(_light0->getViewMatrix());
+	  getGLContext().setProjectionMatrix(_light0->getProjectionMatrix());
 	  
 	  //Setup the FBO for shadow maps
 	  _shadowFBO.setup();
@@ -1022,7 +1023,9 @@ CLGLWindow::CallBackDisplayFunc()
 	  Vector eyeDisplacement(0.5 * eyedist, 0, 0);
 	  
 	  _viewPortInfo->buildMatrices(-eyeDisplacement);
-	  _viewPortInfo->loadMatrices();
+	  getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix());
+	  getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix());
+
 	  if (_shadowMapping)
 	    _light0->loadShadowTextureMatrix(7);
 
@@ -1030,7 +1033,8 @@ CLGLWindow::CallBackDisplayFunc()
 	  drawScene(*_renderTarget);
 	  
 	  _viewPortInfo->buildMatrices(eyeDisplacement);
-	  _viewPortInfo->loadMatrices();
+	  getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix());
+	  getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix());
 	  if (_shadowMapping)
 	    _light0->loadShadowTextureMatrix(7);
 	  
@@ -1042,7 +1046,8 @@ CLGLWindow::CallBackDisplayFunc()
       else
 	{
 	  _viewPortInfo->buildMatrices();
-	  _viewPortInfo->loadMatrices();
+	  getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix());
+	  getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix());
 	  if (_shadowMapping)
 	    _light0->loadShadowTextureMatrix(7);
 	  drawScene(*_renderTarget);
@@ -1136,7 +1141,8 @@ CLGLWindow::CallBackDisplayFunc()
   else    
     {
       _renderTarget->attach();
-      _viewPortInfo->loadMatrices();
+      getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix());
+      getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix());
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       drawScene(*_renderTarget);
       _renderTarget->detach();
@@ -1686,7 +1692,8 @@ CLGLWindow::performPicking(int x, int y)
 {
   glUseProgramObjectARB(0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
-  _viewPortInfo->loadMatrices();
+  getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix());
+  getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix());
   //Perform unique coloring of screen objects
 
   cl_uint startVal = 0;
