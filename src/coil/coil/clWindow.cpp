@@ -130,32 +130,11 @@ CLGLWindow::initOpenGL()
   glReadBuffer(GL_BACK);
   glPixelStorei(GL_PACK_ALIGNMENT, 4);
 
-  //Light number one
-  //Position is set in the CameraSetup!
-  //Ambient lighting
-  GLfloat ambient_light[] = {0.0f, 0.0f, 0.0f, 1.0f}; 
-  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
-
-  //Light0 parameters
   _light0.reset(new magnet::GL::LightInfo(Vector(0.8f,  1.5f, 0.8f),//Position
 					  Vector(0.0f, 0.0f, 0.0f),//Lookat
 					  75.0f//Beam angle
 					  ));
   
-  glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f);
-  glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.0f);
-  glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.1f);
-  GLfloat ambientLight0[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-  glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight0);
-
-  //Default material parameters
-  GLfloat specReflection[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-  glMaterialfv(GL_FRONT, GL_SPECULAR, specReflection);
-  glMateriali(GL_FRONT, GL_SHININESS, 25);
-
-  //GLfloat specular[] = {1.0, 0.0, 0.0, 1.0};
-  //glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
-
   //Setup the keyboard controls
   glutIgnoreKeyRepeat(1);
 
@@ -930,7 +909,7 @@ CLGLWindow::CallBackDisplayFunc()
   _renderShader["xPixelOffset"] = 1.0f / _viewPortInfo->getWidth();
   _renderShader["yPixelOffset"] = 1.0f / _viewPortInfo->getHeight();
   _renderShader["ShadowMapping"] = _shadowMapping;
-  //_renderShader["lightPosition"] = _light0->getEyeLocation();
+  _renderShader["lightPosition"] = _light0->getEyeLocation();
   _renderShader.attach();
 
   if (_analygraphMode)

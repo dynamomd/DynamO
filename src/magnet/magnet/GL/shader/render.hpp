@@ -37,8 +37,7 @@ uniform vec3 lightPosition;
 varying vec4 ShadowCoord; // Used for shadow lookup
 varying vec3 lightDir; //Direction of the light
 varying vec3 normal; //The surface normal
-varying vec4 diffuse; //Lighting terms
-varying vec4 ambient; //Lighting terms
+varying vec4 color;
 varying vec3 eyeVector;
 
 attribute vec4 vPosition;
@@ -60,8 +59,14 @@ void main()
 {
   //Rotate the vertex according to the instance transformation, and
   //then move it to the instance origin.
-  vec4 vVertex = gl_ModelViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz)
-					   + iOrigin.xyz, 1.0);
+  vec4 vVertex = vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz)
+		      + iOrigin.xyz, 1.0);
+
+  //light position calculations
+  lightDir = gl_NormalMatrix * vec4(lightPosition - vVertex.xyz, 1).xyz;
+  eyeVector = gl_NormalMatrix * vec4(-vVertex.xyz,1).xyz;
+
+  vVertex = gl_ModelViewMatrix * vVertex;
 
   //Standard vertex transformation
   gl_Position = gl_ProjectionMatrix * vVertex;
@@ -72,13 +77,8 @@ void main()
   //Shadow coordinate calculations
   ShadowCoord = ShadowMatrix * vVertex;
 
-  //light position calculations
-  lightDir = gl_LightSource[0].position.xyz - vVertex.xyz;
-  eyeVector = -vVertex.xyz;
-
   //Lighting calculations
-  diffuse = vColor * gl_LightSource[0].diffuse;
-  ambient = vColor * gl_LightSource[0].ambient;
+  color = vColor;
 });
 	}
 	
@@ -94,9 +94,7 @@ uniform float yPixelOffset;
 varying vec4 ShadowCoord; // Texture coordinate used for shadow lookup
 varying vec3 lightDir; //Direction of the light
 varying vec3 normal; //The surface normal
-varying vec4 diffuse; //Lighting terms
-varying vec4 ambientGlobal;
-varying vec4 ambient;
+varying vec4 color;
 varying vec3 eyeVector;
 
 
@@ -149,19 +147,17 @@ void main()
     shadow = 1.0;
 
   //Start the color calculation with the global ambient
-  vec4 color = vec4(0,0,0,0);
+  vec4 fragcolor = vec4(0,0,0,0);
 
   float lightDist = length(lightDir);
 
   //This is the attenuation of the light source with distance
-  float attenuation = 1.0 / (gl_LightSource[0].constantAttenuation +
-			     gl_LightSource[0].linearAttenuation * lightDist +
-			     gl_LightSource[0].quadraticAttenuation * lightDist * lightDist);
+  float attenuation = 1.0 / (1.0 + lightDist * (0.0 + 0.2 * lightDist));
  
   //Shadow intensity
   float scaledShadow = (1.0 + ShadowIntensity * (shadow - 1.0));
 
-  //Specular and ambient light calculation
+//  //Specular and ambient light calculation
   if (lightNormDot > 0.0)
     {
       //We use a shadow map instead of a spotlight calculation
@@ -169,21 +165,20 @@ void main()
       vec3 ReflectedRay = reflect(-renormLightDir, renormal);
 
       //gl_LightSource[0].specular       
-      vec4 Specular = gl_FrontMaterial.specular * gl_LightSource[0].specular
-	* pow(max(dot(ReflectedRay, Eye), 0.0), gl_FrontMaterial.shininess);
+      vec4 Specular = vec4(1.0,1.0,1.0,1.0) * pow(max(dot(ReflectedRay, Eye), 0.0), 25);
       //We multiply by shadow to stop the specular highlight appearing in the shadow
-      color += shadow * attenuation * Specular;
+      fragcolor += shadow * attenuation * Specular;
     }
 
-  color += attenuation * ambient;
+  fragcolor += attenuation * vec4(0.2);
 
   //The diffusive term
   float rescaledDot = 0.5 * lightNormDot + 0.5;
-  color += attenuation * scaledShadow * rescaledDot * rescaledDot * diffuse;
+  fragcolor += attenuation * scaledShadow * rescaledDot * rescaledDot * color;
 
-  color.a = diffuse.a;
+  fragcolor.a = color.a;
 
-  gl_FragColor = color;
+  gl_FragColor = fragcolor;
 });
 	}
       };

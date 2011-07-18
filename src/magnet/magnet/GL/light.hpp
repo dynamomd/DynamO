@@ -62,16 +62,6 @@ namespace magnet {
 	ViewPort(1,1,position, lookAtPoint, fovY, zNearDist, zFarDist, up)
       {}
 
-      /*! \brief Updates the associated OpenGL light with the current light location.
-       */
-      inline void glUpdateLight()
-      {
-	Vector cameraLocation(getEyeLocation());
-	
-	GLfloat light_position[4] = {cameraLocation[0], cameraLocation[1], cameraLocation[2], 1.0f};
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-      }
-
       /*! \brief Renders the light source as a cone in the OpenGL scene
        */
       inline void drawLight()
