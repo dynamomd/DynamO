@@ -38,7 +38,7 @@ namespace magnet {
 	Base(o)
       {}
 
-      /*! \brief Cssignment operator.
+      /*! \brief Assignment operator.
        */
       GLMatrix& operator=(const Base& o)
       { Base::operator=(o); return *this; }
@@ -53,17 +53,6 @@ namespace magnet {
 	    m(0,1),m(1,1),m(2,1),0,
 	    m(0,2),m(1,2),m(2,2),0,
 	    0,0,0,1}};
-	operator=(val);
-      }
-
-      /*! \brief Constructs the matrix from a translation vector.
-       */       
-      GLMatrix(const ::Vector& vec)
-      {
-	Base val = {{1,0,0,0, 
-		     0,1,0,0,
-		     0,0,1,0,
-		     vec[0],vec[1],vec[2],1}};
 	operator=(val);
       }
 
@@ -89,7 +78,26 @@ namespace magnet {
        * This command emulates the glTranslate command.
        */
       inline static GLMatrix translate(const Vector& vec)
-      { return vec; }
+      { 
+	Base retval = {{1,0,0,0, 
+			0,1,0,0,
+			0,0,1,0,
+			vec[0],vec[1],vec[2],1}};
+	return retval;
+      }
+
+      /*! \brief Return a matrix corresponding to a scaling.
+       *
+       * This command emulates the glScale command.
+       */
+      inline static GLMatrix scale(const Vector& vec)
+      {
+	Base retval = {{vec[0],0,0,0, 
+			0,vec[1],0,0,
+			0,0,vec[2],0,
+			0,0,0,1}};
+	return retval;
+      }
 
       /*! \brief Return a matrix corresponding to a rotation.
        *
@@ -109,13 +117,18 @@ namespace magnet {
        * \param axis The axis of rotation.
        */
       inline static GLMatrix frustrum(const GLfloat left, const GLfloat right, 
-				    const GLfloat bottom, const GLfloat top, 
-				    const GLfloat nearVal, const GLfloat farVal)
+				      const GLfloat bottom, const GLfloat top, 
+				      const GLfloat nearVal, const GLfloat farVal)
       { 
-	Base retval = {{2 * nearVal / (right - left), 0, (right + left)/(right - left), 0,
-			0, 2 * nearVal / (top - bottom), (top + bottom) / (top - bottom), 0,
-			0, 0, -(farVal + nearVal) / (farVal - nearVal), -2 * farVal * nearVal / (farVal -nearVal),
-			0,0,-1,0}};
+	GLfloat A = (right + left) / (right - left);
+	GLfloat B = (top + bottom) / (top - bottom);
+	GLfloat C = -(farVal + nearVal) / (farVal - nearVal);
+	GLfloat D = -2 * farVal * nearVal / (farVal - nearVal);
+	
+	Base retval = {{2 * nearVal / (right - left), 0, 0, 0,
+			0, 2 * nearVal / (top - bottom), 0, 0,
+			A, B, C, -1,
+			0, 0, D, 0}};
 	return retval;
       }
 
