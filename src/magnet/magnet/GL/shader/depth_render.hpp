@@ -27,9 +27,14 @@ namespace magnet {
       class DepthRenderShader: public detail::Shader
       {
       public:
+	DepthRenderShader(): Shader(true, true) {}
+
 	virtual std::string initVertexShaderSource()
 	{
-	  return STRINGIFY( 
+	  return STRINGIFY(
+uniform mat4 ProjectionMatrix;
+uniform mat4 ViewMatrix;
+
 attribute vec4 vPosition;
 attribute vec4 iOrigin;
 attribute vec4 iOrientation;
@@ -46,9 +51,9 @@ void main()
 {
   //Rotate the vertex according to the instance transformation, and
   //then move it to the instance origin.
-  vec4 vVertex = gl_ModelViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz)
-					   + iOrigin.xyz, 1.0);
-  gl_Position = gl_ProjectionMatrix * vVertex;
+  vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz)
+				   + iOrigin.xyz, 1.0);
+  gl_Position = ProjectionMatrix * vVertex;
 });
 	}
 	

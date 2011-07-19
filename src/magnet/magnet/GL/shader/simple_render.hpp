@@ -27,9 +27,14 @@ namespace magnet {
       class SimpleRenderShader: public detail::Shader
       {
       public:
+	SimpleRenderShader(): Shader(true, true) {}
+
 	virtual std::string initVertexShaderSource()
 	{
 	  return STRINGIFY( 
+uniform mat4 ProjectionMatrix;
+uniform mat4 ViewMatrix;
+
 attribute vec4 vPosition;
 attribute vec4 vColor;
 attribute vec4 iOrigin;
@@ -49,9 +54,9 @@ void main()
 {
   //Rotate the vertex according to the instance transformation, and
   //then move it to the instance origin.
-  vec4 vVertex = gl_ModelViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz)
+  vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz)
 					   + iOrigin.xyz, 1.0);
-  gl_Position = gl_ProjectionMatrix * vVertex;
+  gl_Position = ProjectionMatrix * vVertex;
   color = vColor;
 });
 	}
