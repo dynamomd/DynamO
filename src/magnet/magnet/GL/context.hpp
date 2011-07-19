@@ -199,9 +199,6 @@ namespace magnet {
 	if (_projectionMatrix == mat) return;
 	_projectionMatrix = mat;
 	_projectionMatrixCallback(mat);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(&_projectionMatrix[0]);
       }
 
       void setViewMatrix(const GLMatrix& mat)
@@ -209,9 +206,6 @@ namespace magnet {
 	if (_viewMatrix == mat) return;
 	_viewMatrix = mat;
 	_viewMatrixCallback(mat);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(&_viewMatrix[0]);
       }
 
       void registerViewMatrixCallback(function::Delegate1<const GLMatrix&> cb)
@@ -234,14 +228,6 @@ namespace magnet {
 
       const GLMatrix& getViewMatrix() const { return _viewMatrix; }
       const GLMatrix& getProjectionMatrix() const { return _projectionMatrix; }
-
-      void setTextureMatrix(GLuint textureUnit, const GLMatrix& mat)
-      { 
-	glActiveTextureARB(GL_TEXTURE0 + textureUnit);
-	glMatrixMode(GL_TEXTURE);
-	glLoadIdentity();
-	glMultMatrixf(&mat[0]);
-      }
       /**@}*/
 
       /** @name The OpenCL-OpenGL interface. */
