@@ -20,6 +20,29 @@
 
 namespace magnet {
   namespace string {
+    namespace detail {
+      /*! \brief Class to track the indentation of a line.
+       */
+      class Indentor
+      {
+      public:
+	Indentor(size_t factor = 2):_indentation(0), _factor(factor) {}
+
+	Indentor& operator++() { ++_indentation; return *this; }
+	Indentor& operator--() { --_indentation; return *this; }
+
+	friend std::ostream& operator<<(std::ostream& os, const Indentor& id)
+	{ 
+	  for (size_t i(0); i < id._indentation * id._factor; ++i) 
+	    os << ' '; 
+	  return os;
+	}
+
+      protected:
+	size_t _indentation;
+	size_t _factor;
+      };
+    }
     /*! \brief Formats C code by adding whitespace.
      * \param in The string containing the C source code.
      * \returns A formatted version of the C code.
@@ -27,7 +50,25 @@ namespace magnet {
     inline std::string 
     format_code(std::string in)
     { 
-      return search_replace(in,";",";\n"); 
+      std::ostringstream os;
+      detail::Indentor indent;
+
+      bool disable_linebreaks = false;
+
+      for (std::string::const_iterator cPtr = in.begin();
+	   cPtr != in.end(); ++cPtr)
+	{
+	  os << *cPtr;
+	  switch (*cPtr) {
+	  case '(': disable_linebreaks = true; break;
+	  case ')': disable_linebreaks = false; break;
+	  case ';': if (!disable_linebreaks) os << '\n' << indent; break;
+	  case '{': os << '\n' << ++indent; break;
+	  case '}': os << '\n' << --indent; break;
+	  }
+	}
+
+      return os.str(); 
     }
   }
 }

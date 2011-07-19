@@ -906,8 +906,8 @@ CLGLWindow::CallBackDisplayFunc()
 
   _renderShader["ShadowMap"] = 7;
   _renderShader["ShadowIntensity"] = _shadowIntensity;
-  _renderShader["xPixelOffset"] = 1.0f / _viewPortInfo->getWidth();
-  _renderShader["yPixelOffset"] = 1.0f / _viewPortInfo->getHeight();
+  //_renderShader["xPixelOffset"] = 1.0f / _viewPortInfo->getWidth();
+  //_renderShader["yPixelOffset"] = 1.0f / _viewPortInfo->getHeight();
   _renderShader["ShadowMapping"] = _shadowMapping;
   _renderShader["lightPosition"] = _light0->getEyeLocation();
   _renderShader.attach();

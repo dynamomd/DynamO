@@ -86,36 +86,34 @@ varying vec3 eyeVector;
 void main()
 {
   ///Shadow map calculations and PCF.
-  const int steps = 3;
-  const float stepsf = 3.0;
+  const int steps = 1;
+  const float stepsf = float(steps);
   const float stepoffset = (stepsf - 1.0) * 0.5;
   
-  vec3 renormLightDir = normalize(lightDir);
-
   //Flip the normal for 2 sided rendering and renormalize the normals again
   vec3 renormal = normalize(normal);  
   if (!gl_FrontFacing) renormal = -renormal;
   
   //Now get the diffuse term to smooth shadow acne on back faces
+  vec3 renormLightDir = normalize(lightDir);
   float lightNormDot = dot(renormal, renormLightDir);
 
   //Shadow factor (0 = in shadow, 1 = unshadowed)
-  float shadow = 1.0 - ShadowMapping;
-  if (ShadowMapping //Perform shadow mapping if enabled
+  //If shadow mapping is off, we want everything to be unshadowed
+  float shadow = 1.0 - float(ShadowMapping);
+  if (bool(ShadowMapping) //Perform shadow mapping if enabled
       && (ShadowCoord.w > 0.0) //Only check surfaces in front of the light
       )
     {
+      vec4 ShadowCoordWdiv = ShadowCoord / ShadowCoord.w;
       for (int x = 0; x < steps; ++x)
 	for (int y = 0; y < steps; ++y)
 	  {
-	    vec4 sampleCoords = ShadowCoord;
-	    sampleCoords.x 
-	      += (float(x) - stepoffset) * xPixelOffset * ShadowCoord.w;
-	    sampleCoords.y 
-	      += (float(y) - stepoffset) * yPixelOffset * ShadowCoord.w;
+	    vec4 sampleCoords = ShadowCoordWdiv;
+	    sampleCoords.x += (float(x) - stepoffset) * xPixelOffset;
+	    sampleCoords.y += (float(y) - stepoffset) * yPixelOffset;
 
-	    vec2 circle = (sampleCoords.xy) / sampleCoords.w
-	      - vec2(0.5, 0.5);
+	    vec2 circle = (sampleCoords.xy) - vec2(0.5, 0.5);
 	    
 	    //Makes the light source a spotlight (and fixes a wierd
 	    //line perpendicular to the light beam).
@@ -123,13 +121,13 @@ void main()
 	      shadow += shadow2DProj(ShadowMap, sampleCoords).r;
 	  }
       shadow /= stepsf * stepsf;
-    }    
+    }
 
   vec3 Eye = normalize(eyeVector);
   vec3 ReflectedRay = reflect(-renormLightDir, renormal);
 
   //Specular light
-  float intensity = (lightNormDot > 0.0) * shadow * pow(max(dot(ReflectedRay, Eye), 0.0), 25.0);
+  float intensity = float(lightNormDot > 0.0) * shadow * pow(max(dot(ReflectedRay, Eye), 0.0), 25.0);
 
   //Ambient light
   intensity += 0.2;
