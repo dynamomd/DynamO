@@ -131,22 +131,23 @@ void main()
   else
     shadow = 1.0;
 
-  float lightDist = length(lightDir);
-  float attenuation = 1.0 / (1.0 + lightDist * (0.0 + 0.2 * lightDist));
-  float scaledShadow = (1.0 + ShadowIntensity * (shadow - 1.0));
   vec3 Eye = normalize(eyeVector);
   vec3 ReflectedRay = reflect(-renormLightDir, renormal);
 
-  //Ambient light
-  float intensity = 0.2;
-  //Specular lighting
-  intensity += (lightNormDot > 0.0) * shadow * pow(max(dot(ReflectedRay, Eye), 0.0), 25.0);
+  //Specular light
+  float intensity = (lightNormDot > 0.0) * shadow * pow(max(dot(ReflectedRay, Eye), 0.0), 25.0);
 
+  //Ambient light
+  intensity += 0.2;
+
+  //Diffuse light
+  float scaledShadow = (1.0 + ShadowIntensity * (shadow - 1.0));
   float rescaledDot = 0.5 * lightNormDot + 0.5;
-  //Diffuse
   intensity += scaledShadow * rescaledDot * rescaledDot;
 
   //Light attenuation
+  float lightDist = length(lightDir);
+  float attenuation = 1.0 / (1.0 + lightDist * (0.0 + 0.2 * lightDist));
   intensity *= attenuation;
 
   gl_FragColor = vec4(intensity * color.rgb, color.a);
