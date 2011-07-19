@@ -244,27 +244,6 @@ namespace magnet {
       }
       /**@}*/
 
-      /*! \brief Draws a fullscreen quad, with texture coordinates
-       * set from the bottom left (0,0) to the top right (1,1).
-       */
-      void drawScreenQuad()
-      {
-	setViewMatrix(GLMatrix::identity());
-	setProjectionMatrix(GLMatrix::identity());
-	
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f, 0.0f);
-	glVertex2d(-1, -1);
-	glTexCoord2f(1.0f, 0.0f);
-	glVertex2d(1, -1);
-	glTexCoord2f( 1.0f, 1.0f);
-	glVertex2d(1, 1);
-	glTexCoord2f(0.0f, 1.0f);
-	glVertex2d(-1, 1);
-	glEnd();
-      }
-
-
       /** @name The OpenCL-OpenGL interface. */
       /**@{*/
       //! \brief Fetch the OpenCL platform for this OpenGL context.

@@ -26,6 +26,8 @@ namespace magnet {
       class NormalShader : public detail::Shader
       {
       public:
+	NormalShader(): Shader(true,true,true) {}
+
 	inline void attach()
 	{
 	  //Setup the shader arguments
@@ -36,23 +38,34 @@ namespace magnet {
 	virtual std::string initVertexShaderSource()
 	{
 	  return STRINGIFY(
-varying vec3 Normal;
+attribute vec4 vPosition;
+attribute vec4 vNormal;
+attribute vec4 iOrigin;
+attribute vec4 iOrientation;
+attribute vec4 iScale;
+
+uniform mat4 ProjectionMatrix;
+uniform mat4 ViewMatrix;
+uniform mat3 NormalMatrix;
+
+vec3 qrot(vec4 q, vec3 v)
+{ return v + 2.0 * cross(cross(v,q.xyz) + q.w * v, q.xyz); }
+
+varying vec3 normal;
 void main()
 {
-  vec4 viewPos = gl_ModelViewMatrix * gl_Vertex;
-  gl_Position = ftransform();
-  Normal = normalize((gl_ModelViewMatrix * vec4(gl_Normal.xyz,0.0)).xyz);
+  normal = normalize(NormalMatrix * qrot(iOrientation, vNormal.xyz));  
+  vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz) + iOrigin.xyz, 1.0);
+  gl_Position = ProjectionMatrix * vVertex;
 });
 	}
 	
 	virtual std::string initFragmentShaderSource()
 	{
 	  return STRINGIFY(
-varying vec3 Normal;
+varying vec3 normal;
 void main( void )
-{
-  gl_FragColor = vec4(0.5 * normalize(Normal) + 0.5, 1.0);
-});
+{ gl_FragColor = vec4(0.5 * normalize(normal) + 0.5, 1.0); });
 	}
       };
     }

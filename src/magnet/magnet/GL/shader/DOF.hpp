@@ -53,6 +53,8 @@ uniform float focalRange;
 uniform float nearDist;
 uniform float farDist;
 
+varying vec2 screenCoord;
+
 float LinearizeDepth(float zoverw)
 {
   return(2.0 * nearDist) / (farDist + nearDist - zoverw * (farDist - nearDist));
@@ -64,10 +66,10 @@ void main(void)
   if (fcldist == 0) //Automatic mode
     fcldist = LinearizeDepth(texture2D(u_Texture2, vec2(0.5,0.5)).r);
   
-  vec4 original = texture2D(u_Texture1, gl_TexCoord[0].st);
-  vec4 blurred = texture2D(u_Texture0, gl_TexCoord[0].st);
+  vec4 original = texture2D(u_Texture1, screenCoord);
+  vec4 blurred = texture2D(u_Texture0, screenCoord);
   
-  float depth = LinearizeDepth(texture2D(u_Texture2, gl_TexCoord[0].st).r);
+  float depth = LinearizeDepth(texture2D(u_Texture2, screenCoord).r);
   float blur = clamp(abs(depth - fcldist) / focalRange, 0.0, 1.0);
   
   //gl_FragColor =  vec4(blur,0,0,0);

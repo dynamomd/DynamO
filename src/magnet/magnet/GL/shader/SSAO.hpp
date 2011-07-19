@@ -47,6 +47,8 @@ uniform float farDist;
 
 const float invSamples = 1.0 / 10.0;
 
+varying vec2 screenCoord;
+
 float LinearizeDepth(float zoverw)
 {
   return(2.0 * nearDist) / (farDist + nearDist - zoverw * (farDist - nearDist));
@@ -67,14 +69,14 @@ void main(void)
 			      vec3(0.29264435, -0.40794238, 0.15964167));
 
   // grab a normal for reflecting the sample rays later on
-  vec3 fres = normalize(2.0 * texture2D(rnm, gl_TexCoord[0].st * offset).xyz - vec3(1.0));
+  vec3 fres = normalize(2.0 * texture2D(rnm, screenCoord * offset).xyz - vec3(1.0));
     
-  float currentPixelDepth = LinearizeDepth(texture2D(u_Texture2, gl_TexCoord[0].st).r);
+  float currentPixelDepth = LinearizeDepth(texture2D(u_Texture2, screenCoord).r);
   
   // current fragment coords in screen space
-  vec3 ep = vec3(gl_TexCoord[0].st, currentPixelDepth);
+  vec3 ep = vec3(screenCoord, currentPixelDepth);
   // get the normal of current fragment
-  vec3 norm = normalize(2.0 * texture2D(u_Texture1, gl_TexCoord[0].st).xyz - 1.0);
+  vec3 norm = normalize(2.0 * texture2D(u_Texture1, screenCoord).xyz - 1.0);
   
   float bl = 0.0;
   float radD = radius / currentPixelDepth;
@@ -98,10 +100,10 @@ void main(void)
       vec3 occluderNorm = normalize(occluderFragment.xyz * 2.0 - 1.0);
       float occluderDot = dot(occluderNorm, norm);
       
-      bl += max(0, 0.9 - occluderDot) * step(0, d) * step(0, depthDropoff - d);
+      bl += max(0.0, 0.9 - occluderDot) * step(0.0, d) * step(0.0, depthDropoff - d);
     }
 
-  float val = clamp(1.0 - totStrength * bl * invSamples, 0, 1);
+  float val = clamp(1.0 - totStrength * bl * invSamples, 0.0, 1.0);
 
   gl_FragColor = vec4(val, val, val, 1.0);
 });

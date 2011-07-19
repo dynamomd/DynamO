@@ -63,9 +63,6 @@ namespace magnet {
 	    //Set the weights now
 	    GLint weightsUniform = glGetUniformLocationARB(_shaderID, "weights");
 	    glUniform1fvARB(weightsUniform, stencilwidth * stencilwidth, weights());
-
-	    //Restore the fixed pipeline
-	    glUseProgramObjectARB(0);
 	  }
 
 	public:
@@ -84,17 +81,18 @@ uniform vec2 u_Scale;
 uniform float weights[stencilwidth * stencilwidth];
 uniform sampler2D u_Texture0;
 
+varying vec2 screenCoord;
+
 void main()
 {
-  vec3 color = vec3(0.0, 0.0, 0.0);
-
+  vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
   for(int x = 0; x < stencilwidth; ++x)
     for(int y = 0; y < stencilwidth; ++y)
-      color += weights[y * stencilwidth + x]
-      	* texture2D(u_Texture0, gl_TexCoord[0].st 
-		    + vec2((x - stencilwidth / 2) * u_Scale.x, (y - stencilwidth / 2) * u_Scale.y)).rgb;
+      color += weights[y * stencilwidth + x] * texture2D(u_Texture0, screenCoord
+							 + vec2((x - stencilwidth / 2) * u_Scale.x, 
+								(y - stencilwidth / 2) * u_Scale.y));
   
-  gl_FragColor = vec4(color, 1.0);
+  gl_FragColor = vec4(color.rgb, 1.0);
 });
 	  }
 
@@ -110,7 +108,7 @@ void main()
 
 	  int _stencilwidth; 
 	}; 
-      } 
+      }
     } 
   } 
 }

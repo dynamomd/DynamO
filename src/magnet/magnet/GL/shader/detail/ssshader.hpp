@@ -44,14 +44,26 @@ namespace magnet {
 	    //Setup the shader arguments
 	    glUseProgram(_shaderID);
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	    Context::getContext().drawScreenQuad();
-	    //Restore the fixed pipeline
-	    glUseProgramObjectARB(0);
+
+	    glBegin(GL_QUADS);
+	    glVertex2d(-1, -1);
+	    glVertex2d(1, -1);
+	    glVertex2d(1, 1);
+	    glVertex2d(-1, 1);
+	    glEnd();
 	  }
 	
 	  /*! \brief A trivial passthrough vertex shader. */
 	  virtual std::string initVertexShaderSource()
-	  { return STRINGIFY(void main() { gl_Position = ftransform(); gl_TexCoord[0] = gl_MultiTexCoord0; }); }
+	  { return STRINGIFY(
+const vec2 madd=vec2(0.5, 0.5);
+attribute vec4 vPosition;
+varying vec2 screenCoord;
+void main() 
+{
+  screenCoord = vPosition.xy * madd + madd;
+  gl_Position = vec4(vPosition.xy, 0.0, 1.0); 
+}); }
 	};
       }
     }

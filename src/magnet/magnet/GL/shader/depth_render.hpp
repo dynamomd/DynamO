@@ -40,12 +40,8 @@ attribute vec4 iOrigin;
 attribute vec4 iOrientation;
 attribute vec4 iScale;
 
-////Quaternion mathmatics
-//https://mollyrocket.com/forums/viewtopic.php?p=6154
 vec3 qrot(vec4 q, vec3 v)
-{
-  return v + 2.0 * cross(cross(v,q.xyz) + q.w * v, q.xyz);
-}
+{ return v + 2.0 * cross(cross(v,q.xyz) + q.w * v, q.xyz); }
 
 void main()
 {

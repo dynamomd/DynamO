@@ -33,8 +33,6 @@ namespace magnet {
 	virtual std::string initVertexShaderSource()
 	{
 	  return STRINGIFY(
-////Quaternion mathmatics
-//https://mollyrocket.com/forums/viewtopic.php?p=6154
 uniform mat4 ShadowMatrix;
 uniform vec3 lightPosition;
 

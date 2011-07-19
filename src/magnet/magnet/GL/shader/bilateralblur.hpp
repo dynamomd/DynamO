@@ -41,6 +41,9 @@ uniform vec2 scale;
 uniform float totStrength;
 uniform float nearDist;
 uniform float farDist;
+
+varying vec2 screenCoord;
+
 const float invSamples = 1.0 / 10.0;
 
 const float weight[5] = float[5](0.05496597,0.24581,0.4076311347,0.24581,0.05496597);
@@ -54,7 +57,7 @@ float LinearizeDepth(float zoverw)
 
 void main(void)
 {
-  float currentPixelDepth = LinearizeDepth(texture2D(u_Texture2, gl_TexCoord[0].st).r);
+  float currentPixelDepth = LinearizeDepth(texture2D(u_Texture2, screenCoord).r);
   
   vec3 accum = vec3(0, 0, 0);
   float totalWeight = 0.0;
@@ -62,7 +65,7 @@ void main(void)
   for (int x = 0; x < 5; ++x)
     for (int y = 0; y < 5; ++y)
       {
-	vec2 sampleLoc = gl_TexCoord[0].st + vec2((x - 2) * scale.x, (y - 2) * scale.y);
+	vec2 sampleLoc = screenCoord + vec2((x - 2) * scale.x, (y - 2) * scale.y);
 	float sampleDepth = LinearizeDepth(texture2D(u_Texture2, sampleLoc).r);
 	
 	float Zdifference = abs(currentPixelDepth - sampleDepth);
