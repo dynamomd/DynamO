@@ -95,6 +95,9 @@ class MatrixExpression<>
   inline double& operator()(int i, int j) { return *(&xx+3*i+j); }
   inline const double& operator() (int i, int j) const { return *(&xx+3*i+j); }  
 
+  inline double& operator() (int i) { return *(&xx+i); }  
+  inline const double& operator() (int i) const { return *(&xx+i); }  
+
   inline VectorExpression<MatrixExpression<>,ops::RowOp,Base> row(int i);// return i-th row   
   
   inline VectorExpression<MatrixExpression<>,ops::ColumnOp,Base> column(int j); // return j-th column

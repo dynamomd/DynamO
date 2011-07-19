@@ -43,6 +43,15 @@ namespace magnet {
       GLMatrix& operator=(const Base& o)
       { Base::operator=(o); return *this; }
 
+      operator Matrix() const
+      {
+	Matrix retval;
+	for (size_t i(0); i < 3; ++i)
+	  for (size_t j(0); j < 3; ++j)
+	    retval(i, j) = (*this)[4 * j + i];
+	return retval;
+      }
+
       /*! \brief Constructs the matrix from a 3x3 rotation
        * matrix.
        */       

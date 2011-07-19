@@ -28,7 +28,7 @@ namespace magnet {
       class RenderShader: public detail::Shader
       {
       public:
-	RenderShader(): Shader(false, false) {}
+	RenderShader(): Shader(true, true, true) {}
 	
 	virtual std::string initVertexShaderSource()
 	{
@@ -38,8 +38,9 @@ namespace magnet {
 uniform mat4 ShadowMatrix;
 uniform vec3 lightPosition;
 
-//uniform mat4 ProjectionMatrix;
-//uniform mat4 ViewMatrix;
+uniform mat4 ProjectionMatrix;
+uniform mat4 ViewMatrix;
+uniform mat3 NormalMatrix;
 
 attribute vec4 vPosition;
 attribute vec4 vColor;
@@ -54,20 +55,19 @@ varying vec3 normal;
 varying vec4 color;
 varying vec3 eyeVector;
 
-
-vec3 qrot(vec4 q, vec3 v) 
+vec3 qrot(vec4 q, vec3 v)
 { return v + 2.0 * cross(cross(v,q.xyz) + q.w * v, q.xyz); } 
 
 void main()
 {
   color = vColor;
-  normal = normalize(gl_NormalMatrix * qrot(iOrientation, vNormal.xyz));
+  normal = normalize(NormalMatrix * qrot(iOrientation, vNormal.xyz));
   
-  vec4 vVertex = gl_ModelViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz) + iOrigin.xyz, 1.0);
-  gl_Position = gl_ProjectionMatrix * vVertex;
+  vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz) + iOrigin.xyz, 1.0);
+  gl_Position = ProjectionMatrix * vVertex;
   
   ShadowCoord = ShadowMatrix * vVertex;
-  lightDir =  (gl_ModelViewMatrix * vec4(lightPosition,1)).xyz - vVertex.xyz;
+  lightDir =  (ViewMatrix * vec4(lightPosition,1)).xyz - vVertex.xyz;
   eyeVector = -vVertex.xyz;
 });
 	}

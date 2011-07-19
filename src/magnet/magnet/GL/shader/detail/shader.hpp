@@ -97,6 +97,12 @@ namespace magnet {
 	    glUniform4iv(_uniformHandle, 1, &(val[0]));
 	  }
 
+	  inline void operator=(const std::tr1::array<GLfloat, 9>& val)
+	  { 
+	    glUseProgramObjectARB(_programHandle);
+	    glUniformMatrix3fv(_uniformHandle, 1, GL_FALSE, &(val[0]));
+	  }
+
 	  inline void operator=(const std::tr1::array<GLfloat, 16>& val)
 	  { 
 	    glUseProgramObjectARB(_programHandle);
@@ -106,6 +112,14 @@ namespace magnet {
 	  inline void operator=(const Vector& vec)
 	  { 
 	    std::tr1::array<GLfloat, 3> val = {{vec[0], vec[1], vec[2]}};
+	    operator=(val);
+	  }
+
+	  inline void operator=(const Matrix& mat)
+	  { 
+	    std::tr1::array<GLfloat, 9> val;
+	    for (size_t i(0); i < 3 * 3; ++i)
+	      val[i] = mat(i);
 	    operator=(val);
 	  }
 	  
@@ -167,12 +181,22 @@ namespace magnet {
 	   * needs to track the view matrix. This will be made
 	   * available in the "mat4 ViewMatrix" uniform, which
 	   * must be defined and used at least once in the shader.
+	   *
+	   * \param needsNormalMatrix If true, the derived shader
+	   * needs to track the normal matrix. This will be made
+	   * available in the "mat3 NormalMatrix" uniform, which must
+	   * be defined and used at least once in the shader. This is
+	   * calculated as the inverse transpose of the upper left 3x3
+	   * submatrix of the ModelView matrix. It is recalculated
+	   * whenever the modelview matrix is updated.
 	   */
 	  Shader(bool needsProjectionMatrix = false,
-		 bool needsViewMatrix = false):
+		 bool needsViewMatrix = false,
+		 bool needsNormalMatrix = false):
 	    _built(false),
 	    _needsProjectionMatrix(needsProjectionMatrix),
-	    _needsViewMatrix(needsViewMatrix)
+	    _needsViewMatrix(needsViewMatrix),
+	    _needsNormalMatrix(needsNormalMatrix)
 	  {}
 
 	  /*! \brief Callback function for when the projection matrix
@@ -185,7 +209,13 @@ namespace magnet {
 	   * updated.
 	   */
 	  void viewMatrixUpdate(const GLMatrix& mat)
-	  { operator[]("ViewMatrix") = mat; }
+	  { 
+	    if (_needsViewMatrix)
+	      operator[]("ViewMatrix") = mat;
+
+	    if (_needsNormalMatrix)
+	      operator[]("NormalMatrix") = Matrix(Inverse(Matrix(mat)));
+	  }
 
 	  //! \brief Destructor
 	  inline ~Shader() { deinit(); }
@@ -196,13 +226,24 @@ namespace magnet {
 	    if (_built)
 	      {
 		glDeleteProgram(_shaderID);
-		glDeleteShader(_vertexShaderHandle);
-		glDeleteShader(_fragmentShaderHandle);
+		if (!(_vertexShaderCode.empty()))
+		  glDeleteShader(_vertexShaderHandle);
+		if (!(_fragmentShaderCode.empty()))
+		  glDeleteShader(_fragmentShaderHandle);
 
 		if (!(_geometryShaderCode.empty()))
 		  glDeleteShader(_geometryShaderHandle);
+		
+		_context->unregisterProjectionMatrixCallback
+		  (magnet::function::MakeDelegate(this, &Shader::projectionMatrixUpdate));
+	    
+		_context->unregisterViewMatrixCallback
+		  (magnet::function::MakeDelegate(this, &Shader::viewMatrixUpdate));
 	      }
 
+	    _vertexShaderCode.clear();
+	    _fragmentShaderCode.clear();
+	    _geometryShaderCode.clear();
 	    _built = false;
 	  }
 
@@ -221,7 +262,7 @@ namespace magnet {
 	      _context->registerProjectionMatrixCallback
 		(magnet::function::MakeDelegate(this, &Shader::projectionMatrixUpdate));
 	    
-	    if (_needsViewMatrix)
+	    if (_needsViewMatrix || _needsNormalMatrix)
 	      _context->registerViewMatrixCallback
 		(magnet::function::MakeDelegate(this, &Shader::viewMatrixUpdate));
 
@@ -390,6 +431,7 @@ namespace magnet {
 	  bool _built;
 	  bool _needsProjectionMatrix;
 	  bool _needsViewMatrix;
+	  bool _needsNormalMatrix;
 	  Context* _context;
 
 	  std::string _vertexShaderCode;

@@ -220,11 +220,17 @@ namespace magnet {
 	_viewMatrixCallback(_viewMatrix);
       }
 
+      void unregisterViewMatrixCallback(function::Delegate1<const GLMatrix&> cb)
+      { if (_viewMatrixCallback == cb) _viewMatrixCallback = &nullMatrixCallback; }
+
       void registerProjectionMatrixCallback(function::Delegate1<const GLMatrix&> cb)
       { 
 	_projectionMatrixCallback = cb;
 	_projectionMatrixCallback(_projectionMatrix);
       }
+
+      void unregisterProjectionMatrixCallback(function::Delegate1<const GLMatrix&> cb)
+      { if (_projectionMatrixCallback == cb) _projectionMatrixCallback = &nullMatrixCallback; }
 
       const GLMatrix& getViewMatrix() const { return _viewMatrix; }
       const GLMatrix& getProjectionMatrix() const { return _projectionMatrix; }
