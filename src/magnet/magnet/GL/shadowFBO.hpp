@@ -68,8 +68,6 @@ namespace magnet {
 	glClear(GL_DEPTH_BUFFER_BIT);
 	//The viewport should change to the shadow maps size
 	glViewport(0, 0, _width, _width);
-	//Mask color writes
-	glColorMask(0, 0, 0, 0);
       }
 
       /*! \brief Restores the original screen FBO. */
@@ -77,7 +75,6 @@ namespace magnet {
       {
 	//Restore the default FB
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
-	glColorMask(1, 1, 1, 1);
       }
     };
   }

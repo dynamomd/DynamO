@@ -131,7 +131,6 @@ namespace coil {
 	   * GLMatrix::scale(axisScale, axisScale, axisScale)
 	   );
     
-	glLineWidth(2.0f);
 	_axis.glRender();
     
 	//Do the axis labels
