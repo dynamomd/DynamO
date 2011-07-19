@@ -28,13 +28,6 @@ namespace magnet {
       public:
 	NormalShader(): Shader(true,true,true) {}
 
-	inline void attach()
-	{
-	  //Setup the shader arguments
-	  glUseProgram(_shaderID);
-	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}
-
 	virtual std::string initVertexShaderSource()
 	{
 	  return STRINGIFY(
