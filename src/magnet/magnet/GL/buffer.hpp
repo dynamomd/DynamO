@@ -191,10 +191,10 @@ namespace magnet {
       /*! \brief Draw all vertices in this array, without using
        * indexing.
        */
-      inline void drawArray(element_type::Enum type)
+      inline void drawArray(element_type::Enum type, GLuint vertex_size = 3)
       { 
-	attachToVertex();
-	glDrawArrays(type, 0, size() / 3);
+	attachToVertex(vertex_size);
+	glDrawArrays(type, 0, size() / vertex_size);
       }
 
       /*! \brief Attaches the buffer to the vertex pointer of the GL
@@ -202,8 +202,8 @@ namespace magnet {
        *
        * \param vertex_size The number of buffer elements per vertex.
        */
-      inline void attachToVertex() 
-      { attachToAttribute(Context::vertexPositionAttrIndex, 3); }
+      inline void attachToVertex(GLuint vertex_size = 3) 
+      { attachToAttribute(Context::vertexPositionAttrIndex, vertex_size); }
 
       /*! \brief Attaches the buffer to the color pointer of the GL
        * state.
@@ -211,8 +211,8 @@ namespace magnet {
        * \param color_size The number of buffer elements (colors) per
        * vertex.
        */
-      inline void attachToColor() 
-      { attachToAttribute(Context::vertexColorAttrIndex, 4, 0, true); }
+      inline void attachToColor(GLuint color_size = 4) 
+      { attachToAttribute(Context::vertexColorAttrIndex, color_size, 0, true); }
 
       /*! \brief Attaches the buffer to the normal pointer of the GL
        * state.

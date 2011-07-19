@@ -41,6 +41,7 @@ namespace coil {
 
     _axis.init();
     _grid.init(10,10);
+    _quad.init();
   }
 
   void 
@@ -114,12 +115,7 @@ namespace coil {
 	context.setViewMatrix(GLMatrix::identity());
 	context.color(0.5f,0.5f,0.5f,0.8f);
 
-	glBegin(GL_QUADS);
-	glVertex3f(-1,-1, 0);
-	glVertex3f( 1,-1, 0);
-	glVertex3f( 1, 1, 0);
-	glVertex3f(-1, 1, 0);
-	glEnd();
+	_quad.glRender();
     
 	context.setProjectionMatrix
 	  (GLMatrix::perspective(45, 1, nearPlane, 1000));

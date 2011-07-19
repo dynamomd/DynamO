@@ -87,8 +87,6 @@ CLGLWindow::initOpenGL()
 
   glViewport(0, 0, 800, 600);
 
-  glDrawBuffer(GL_BACK);
-
   glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
   glDepthFunc(GL_LEQUAL);
   glEnable(GL_DEPTH_TEST);
@@ -106,9 +104,6 @@ CLGLWindow::initOpenGL()
 
   //Setup the viewport
   CallBackReshapeFunc(800, 600);
-
-  glReadBuffer(GL_BACK);
-  glPixelStorei(GL_PACK_ALIGNMENT, 4);
 
   _light0.reset(new magnet::GL::LightInfo(Vector(0.8f,  1.5f, 0.8f),//Position
 					  Vector(0.0f, 0.0f, 0.0f),//Lookat

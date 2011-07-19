@@ -16,6 +16,7 @@
  */
 #pragma once
 #include <magnet/GL/shader/detail/shader.hpp>
+#include <magnet/GL/objects/fullscreen_quad.hpp>
 #include <sstream>
 #define STRINGIFY(A) #A
 
@@ -33,6 +34,16 @@ namespace magnet {
 	class SSShader : public Shader
 	{
 	public:
+	  ~SSShader() { deinit(); }
+
+	  inline void deinit()
+	  { _quad.deinit(); Shader::deinit(); }
+
+	  inline void build()
+	  {
+	    _quad.init();
+	    Shader::build();
+	  }
 	  /*! \brief Actually calls the shader function.
 	   *
 	   * Attaches the filter shader, renders a full screen quad
@@ -44,26 +55,24 @@ namespace magnet {
 	    //Setup the shader arguments
 	    glUseProgram(_shaderID);
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	    glBegin(GL_QUADS);
-	    glVertex2d(-1, -1);
-	    glVertex2d(1, -1);
-	    glVertex2d(1, 1);
-	    glVertex2d(-1, 1);
-	    glEnd();
+	    _quad.glRender();
 	  }
 	
 	  /*! \brief A trivial passthrough vertex shader. */
 	  virtual std::string initVertexShaderSource()
 	  { return STRINGIFY(
-const vec2 madd=vec2(0.5, 0.5);
-attribute vec4 vPosition;
-varying vec2 screenCoord;
-void main() 
-{
-  screenCoord = vPosition.xy * madd + madd;
-  gl_Position = vec4(vPosition.xy, 0.0, 1.0); 
-}); }
+			     const vec2 madd=vec2(0.5, 0.5);
+			     attribute vec4 vPosition;
+			     varying vec2 screenCoord;
+			     void main() 
+			     {
+			       screenCoord = vPosition.xy * madd + madd;
+			       gl_Position = vec4(vPosition.xy, 0.0, 1.0); 
+			     }); 
+	  }
+	protected:
+
+	  objects::FullScreenQuad _quad;
 	};
       }
     }

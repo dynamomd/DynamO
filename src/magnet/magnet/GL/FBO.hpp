@@ -65,8 +65,8 @@ namespace magnet {
 	//converts the value to 8bit for interpolation (on NVidia).
 	_depthTexture.parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_depthTexture.parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	_depthTexture.parameter(GL_TEXTURE_WRAP_S, GL_CLAMP);
-	_depthTexture.parameter(GL_TEXTURE_WRAP_T, GL_CLAMP);
+	_depthTexture.parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	_depthTexture.parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	_depthTexture.parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
 	//////////////////////////////////////////////////////////////////////////
 

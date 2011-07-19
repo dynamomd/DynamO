@@ -21,6 +21,7 @@
 #include <coil/RenderObj/RenderObj.hpp>
 #include <magnet/GL/objects/axis.hpp>
 #include <magnet/GL/objects/grid.hpp>
+#include <magnet/GL/objects/fullscreen_quad.hpp>
 #include <tr1/array>
 #include <memory>
 #include <sstream>
@@ -52,7 +53,7 @@ namespace coil {
     virtual void initGTK();
     virtual void showControls(Gtk::ScrolledWindow* win);
 
-    virtual void releaseCLGLResources() { _axis.deinit();}
+    virtual void releaseCLGLResources() { _axis.deinit(); _grid.deinit(); _quad.deinit(); }
 
     virtual void glRender();
     
@@ -67,6 +68,7 @@ namespace coil {
 
     magnet::GL::objects::Axis _axis;
     magnet::GL::objects::Grid _grid;
+    magnet::GL::objects::FullScreenQuad _quad;
 
     std::auto_ptr<Gtk::VBox> _optList; 
     std::auto_ptr<Gtk::CheckButton> _showGrid;
