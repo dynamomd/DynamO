@@ -47,6 +47,7 @@
 **** TODO Magnetise the wii mote class.
 **** TODO Replace the fixed function pipeline with a trivial GL shader
 **** TODO Replace the matrix stack.
+**** TODO Move to deferred lighting
 *** DynamO 1.1 							    :ARCHIVE:
 **** DONE *MAJOR* Remove Unit types from the XML file and simulator.
 **** DONE *MAJOR* Remove aspect ratio and instead load the primary image cell size.

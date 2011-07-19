@@ -123,23 +123,31 @@ void main()
       shadow /= stepsf * stepsf;
     }
 
+  //This term accounts for self shadowing, to help remove shadow acne
+  //on the sides of objects
+  shadow = min(shadow, smoothstep(-0.1, 1.0, lightNormDot));
+
+  /////////////////////Ambient light
+  float intensity = 0.2;
+
+  /////////////////////Specular light
+  //This is calculated before scaling the shadow, as specular lighting
+  //should never appear in the shadow.
   vec3 Eye = normalize(eyeVector);
   vec3 ReflectedRay = reflect(-renormLightDir, renormal);
+  intensity += float(lightNormDot > 0.0) * shadow * pow(max(dot(ReflectedRay, Eye), 0.0), 96.0);
+  
+  //Scale the shadow by the shadow intensity
+  shadow = 1.0 - ShadowIntensity * (1.0 - shadow);
 
-  //Specular light
-  float intensity = float(lightNormDot > 0.0) * shadow * pow(max(dot(ReflectedRay, Eye), 0.0), 25.0);
-
-  //Ambient light
-  intensity += 0.2;
-
-  //Diffuse light
-  float scaledShadow = (1.0 + ShadowIntensity * (shadow - 1.0));
-  float rescaledDot = 0.5 * lightNormDot + 0.5;
-  intensity += scaledShadow * rescaledDot * rescaledDot;
+  /////////////////////Diffuse light "shadowing"
+  //The diffuse light is calculated as a "shadow", 
+  float diffuseFactor = 0.5 + 0.5 * lightNormDot;
+  intensity += shadow * diffuseFactor * 0.8;
 
   //Light attenuation
   float lightDist = length(lightDir);
-  float attenuation = 1.0 / (1.0 + lightDist * (0.0 + 0.2 * lightDist));
+  float attenuation = min(1.0, 1.0 / (0.2 + lightDist * (0.1 + 0.01 * lightDist)));
   intensity *= attenuation;
 
   gl_FragColor = vec4(intensity * color.rgb, color.a);
