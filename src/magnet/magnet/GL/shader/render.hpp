@@ -131,39 +131,25 @@ void main()
   else
     shadow = 1.0;
 
-  //Start the color calculation with the global ambient
-  vec4 fragcolor = vec4(0,0,0,0);
-
   float lightDist = length(lightDir);
-
-  //This is the attenuation of the light source with distance
   float attenuation = 1.0 / (1.0 + lightDist * (0.0 + 0.2 * lightDist));
- 
-  //Shadow intensity
   float scaledShadow = (1.0 + ShadowIntensity * (shadow - 1.0));
+  vec3 Eye = normalize(eyeVector);
+  vec3 ReflectedRay = reflect(-renormLightDir, renormal);
 
-//  //Specular and ambient light calculation
-  if (lightNormDot > 0.0)
-    {
-      //We use a shadow map instead of a spotlight calculation
-      vec3 Eye = normalize(eyeVector);
-      vec3 ReflectedRay = reflect(-renormLightDir, renormal);
+  //Ambient light
+  float intensity = 0.2;
+  //Specular lighting
+  intensity += (lightNormDot > 0.0) * shadow * pow(max(dot(ReflectedRay, Eye), 0.0), 25.0);
 
-      //gl_LightSource[0].specular       
-      vec4 Specular = vec4(1.0,1.0,1.0,1.0) * pow(max(dot(ReflectedRay, Eye), 0.0), 25);
-      //We multiply by shadow to stop the specular highlight appearing in the shadow
-      fragcolor += shadow * attenuation * Specular;
-    }
-
-  fragcolor += attenuation * vec4(0.2);
-
-  //The diffusive term
   float rescaledDot = 0.5 * lightNormDot + 0.5;
-  fragcolor += attenuation * scaledShadow * rescaledDot * rescaledDot * color;
+  //Diffuse
+  intensity += scaledShadow * rescaledDot * rescaledDot;
 
-  fragcolor.a = color.a;
+  //Light attenuation
+  intensity *= attenuation;
 
-  gl_FragColor = fragcolor;
+  gl_FragColor = vec4(intensity * color.rgb, color.a);
 });
 	}
       };
