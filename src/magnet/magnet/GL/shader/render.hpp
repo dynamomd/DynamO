@@ -31,14 +31,10 @@ namespace magnet {
 	virtual std::string initVertexShaderSource()
 	{
 	  return STRINGIFY(
+////Quaternion mathmatics
+//https://mollyrocket.com/forums/viewtopic.php?p=6154
 uniform mat4 ShadowMatrix;
 uniform vec3 lightPosition;
-
-varying vec4 ShadowCoord; // Used for shadow lookup
-varying vec3 lightDir; //Direction of the light
-varying vec3 normal; //The surface normal
-varying vec4 color;
-varying vec3 eyeVector;
 
 attribute vec4 vPosition;
 attribute vec4 vColor;
@@ -47,38 +43,27 @@ attribute vec4 iOrigin;
 attribute vec4 iOrientation;
 attribute vec4 iScale;
 
+varying vec4 ShadowCoord;
+varying vec3 lightDir;
+varying vec3 normal;
+varying vec4 color;
+varying vec3 eyeVector;
 
-////Quaternion mathmatics
-//https://mollyrocket.com/forums/viewtopic.php?p=6154
-vec3 qrot(vec4 q, vec3 v)
-{
-  return v + 2.0 * cross(cross(v,q.xyz) + q.w * v, q.xyz);
-}
+
+vec3 qrot(vec4 q, vec3 v) 
+{ return v + 2.0 * cross(cross(v,q.xyz) + q.w * v, q.xyz); } 
 
 void main()
 {
-  //Rotate the vertex according to the instance transformation, and
-  //then move it to the instance origin.
-  vec4 vVertex = vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz)
-		      + iOrigin.xyz, 1.0);
-
-  //light position calculations
-  lightDir = gl_NormalMatrix * vec4(lightPosition - vVertex.xyz, 1).xyz;
-  eyeVector = gl_NormalMatrix * vec4(-vVertex.xyz,1).xyz;
-
-  vVertex = gl_ModelViewMatrix * vVertex;
-
-  //Standard vertex transformation
-  gl_Position = gl_ProjectionMatrix * vVertex;
-  
-  //Rotate the normal the same way the instance is rotated
+  color = vColor;
   normal = normalize(gl_NormalMatrix * qrot(iOrientation, vNormal.xyz));
   
-  //Shadow coordinate calculations
+  vec4 vVertex = gl_ModelViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz) + iOrigin.xyz, 1.0);
+  gl_Position = gl_ProjectionMatrix * vVertex;
+  
   ShadowCoord = ShadowMatrix * vVertex;
-
-  //Lighting calculations
-  color = vColor;
+  lightDir =  (gl_ModelViewMatrix * vec4(lightPosition,1)).xyz - vVertex.xyz;
+  eyeVector = -vVertex.xyz;
 });
 	}
 	
