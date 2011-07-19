@@ -28,6 +28,8 @@ namespace magnet {
       class RenderShader: public detail::Shader
       {
       public:
+	RenderShader(): Shader(false, false) {}
+	
 	virtual std::string initVertexShaderSource()
 	{
 	  return STRINGIFY(
@@ -35,6 +37,9 @@ namespace magnet {
 //https://mollyrocket.com/forums/viewtopic.php?p=6154
 uniform mat4 ShadowMatrix;
 uniform vec3 lightPosition;
+
+//uniform mat4 ProjectionMatrix;
+//uniform mat4 ViewMatrix;
 
 attribute vec4 vPosition;
 attribute vec4 vColor;

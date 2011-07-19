@@ -87,31 +87,11 @@ CLGLWindow::initOpenGL()
 
   glViewport(0, 0, 800, 600);
 
-  _pickingEnabled = true;
-  {
-    GLint bits;
-    glGetIntegerv(GL_ALPHA_BITS, &bits);
-    if (bits < 8) _pickingEnabled = false;
-    glGetIntegerv(GL_RED_BITS, &bits);
-    if (bits < 8) _pickingEnabled = false;
-    glGetIntegerv(GL_GREEN_BITS, &bits);
-    if (bits < 8) _pickingEnabled = false;
-    glGetIntegerv(GL_BLUE_BITS, &bits);
-    if (bits < 8) _pickingEnabled = false;
-  }
-
-  if (!_pickingEnabled)
-    std::cout << "\nPicking won't work! Your screen color depth is too low! We need/want 32bits (24bit color plus 8bit alpha)";
-
   glDrawBuffer(GL_BACK);
 
   glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-
-  glClearDepth(1.0f);
   glDepthFunc(GL_LEQUAL);
   glEnable(GL_DEPTH_TEST);
-
-  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
   glEnable(GL_BLEND);
   //Blend colors using the alpha channel
@@ -1146,7 +1126,7 @@ CLGLWindow::CallBackMouseFunc(int button, int state, int x, int y)
 	  keyState |= RIGHTMOUSE;
 
 	  //Now perform a picking selection
-	  if (_pickingEnabled) performPicking(x,y);
+	  performPicking(x,y);
 	}
       else
 	keyState &= ~RIGHTMOUSE;

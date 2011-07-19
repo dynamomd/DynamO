@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
-#include <dynamo/dynamics/species/inertia.hpp>
 #include <dynamo/dynamics/include.hpp>
 #include <dynamo/base/is_simdata.hpp>
 #include <magnet/memUsage.hpp>

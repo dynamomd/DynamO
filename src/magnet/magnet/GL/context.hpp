@@ -31,6 +31,7 @@
 #include <magnet/GL/detail/typesafe_get.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/GL/matrix.hpp>
+#include <magnet/function/delegate.hpp>
 #include <map>
 
 namespace magnet {
@@ -194,21 +195,39 @@ namespace magnet {
       /** @name The OpenGL matrix interface. */
       /**@{*/
       void setProjectionMatrix(const GLMatrix& mat)
-      { 
+      {
+	if (_projectionMatrix == mat) return;
 	_projectionMatrix = mat;
+	_projectionMatrixCallback(mat);
+
 	glMatrixMode(GL_PROJECTION);
 	glLoadMatrixf(&_projectionMatrix[0]);
       }
 
       void setViewMatrix(const GLMatrix& mat)
       { 
+	if (_viewMatrix == mat) return;
 	_viewMatrix = mat;
+	_viewMatrixCallback(mat);
+
 	glMatrixMode(GL_MODELVIEW);
 	glLoadMatrixf(&_viewMatrix[0]);
       }
 
-      const GLMatrix& getViewMatrix() { return _viewMatrix; }
-      const GLMatrix& getProjectionMatrix() { return _projectionMatrix; }
+      void registerViewMatrixCallback(function::Delegate1<const GLMatrix&> cb)
+      { 
+	_viewMatrixCallback = cb; 
+	_viewMatrixCallback(_viewMatrix);
+      }
+
+      void registerProjectionMatrixCallback(function::Delegate1<const GLMatrix&> cb)
+      { 
+	_projectionMatrixCallback = cb;
+	_projectionMatrixCallback(_projectionMatrix);
+      }
+
+      const GLMatrix& getViewMatrix() const { return _viewMatrix; }
+      const GLMatrix& getProjectionMatrix() const { return _projectionMatrix; }
 
       void setTextureMatrix(GLuint textureUnit, const GLMatrix& mat)
       { 
@@ -396,6 +415,8 @@ namespace magnet {
 	///////Variable initialisation ///////////////////////////
 	_viewMatrix = GLMatrix::identity();
 	_projectionMatrix = GLMatrix::identity();
+	_viewMatrixCallback = &nullMatrixCallback;
+	_projectionMatrixCallback = &nullMatrixCallback;
 
 	_vertexAttributeState.resize(detail::glGet<GL_MAX_VERTEX_ATTRIBS>());
 
@@ -448,6 +469,10 @@ namespace magnet {
 
       GLMatrix _viewMatrix;
       GLMatrix _projectionMatrix;
+
+      static void nullMatrixCallback(const GLMatrix&) {}
+      function::Delegate1<const GLMatrix&> _viewMatrixCallback;
+      function::Delegate1<const GLMatrix&> _projectionMatrixCallback;
     };
   }
 }

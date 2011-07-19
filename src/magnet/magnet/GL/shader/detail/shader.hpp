@@ -28,6 +28,93 @@ namespace magnet {
   namespace GL {
     namespace shader {
       namespace detail {
+
+	/*! \brief Type handling for \ref Shader uniform (AKA
+	 *  argument) assignment.
+	 * 
+	 * This class is returned from \ref Shader::operator[]() calls
+	 * to handle type based assignments of the shader.
+	 */
+	class ShaderUniform
+	{
+	public:
+	  inline ShaderUniform(std::string uniformName, GLhandleARB programHandle):
+	    _programHandle(programHandle)
+	  {
+	    _uniformHandle = glGetUniformLocationARB(_programHandle, uniformName.c_str());
+	    if (_uniformHandle == -1) M_throw() << "Uniform " << uniformName << " not found in this shader";
+	  }
+
+	  inline void operator=(GLfloat val)
+	  { 
+	    glUseProgramObjectARB(_programHandle);
+	    glUniform1f(_uniformHandle, val);
+	  }
+
+	  inline void operator=(const GLint& val)
+	  { 
+	    glUseProgramObjectARB(_programHandle);
+	    glUniform1i(_uniformHandle, val);
+	  }
+
+	  template<class T>
+	  inline void operator=(const std::tr1::array<T, 1>& val)
+	  { operator=(val[0]); }
+
+	  inline void operator=(const std::tr1::array<GLfloat, 2>& val)
+	  { 
+	    glUseProgramObjectARB(_programHandle);
+	    glUniform2fv(_uniformHandle, 1, &(val[0]));
+	  }
+
+	  inline void operator=(const std::tr1::array<GLfloat, 3>& val)
+	  { 
+	    glUseProgramObjectARB(_programHandle);
+	    glUniform3fv(_uniformHandle, 1, &(val[0]));
+	  }
+
+	  inline void operator=(const std::tr1::array<GLfloat, 4>& val)
+	  { 
+	    glUseProgramObjectARB(_programHandle);
+	    glUniform4fv(_uniformHandle, 1, &(val[0]));
+	  }
+
+	  inline void operator=(const std::tr1::array<GLint, 2>& val)
+	  { 
+	    glUseProgramObjectARB(_programHandle);
+	    glUniform2iv(_uniformHandle, 1, &(val[0]));
+	  }
+
+	  inline void operator=(const std::tr1::array<GLint, 3>& val)
+	  { 
+	    glUseProgramObjectARB(_programHandle);
+	    glUniform3iv(_uniformHandle, 1, &(val[0]));
+	  }
+
+	  inline void operator=(const std::tr1::array<GLint, 4>& val)
+	  { 
+	    glUseProgramObjectARB(_programHandle);
+	    glUniform4iv(_uniformHandle, 1, &(val[0]));
+	  }
+
+	  inline void operator=(const std::tr1::array<GLfloat, 16>& val)
+	  { 
+	    glUseProgramObjectARB(_programHandle);
+	    glUniformMatrix4fv(_uniformHandle, 1, GL_FALSE, &(val[0]));
+	  }
+
+	  inline void operator=(const Vector& vec)
+	  { 
+	    std::tr1::array<GLfloat, 3> val = {{vec[0], vec[1], vec[2]}};
+	    operator=(val);
+	  }
+	  
+	private:
+	  GLint _uniformHandle;
+	  GLhandleARB _programHandle;
+	};
+
+
 	/*! \brief A OpenGL shader object.
 	 *
 	 * This class maintains the GL objects associated to a
@@ -52,100 +139,53 @@ namespace magnet {
 	 * \li "iOrigin" = \ref Context::instanceOriginAttrIndex
 	 * \li "iOrientation" = \ref Context::instanceOrientationAttrIndex
 	 * \li "iScale" = \ref Context::instanceScaleAttrIndex
+	 *
+	 * If the shader requires access to the current projection
+	 * and/or view matrix, this must be registered using the
+	 * Shader constructor. Please see the constructor for more
+	 * information.
 	 */
 	class Shader 
 	{
 	public:
-
-	protected:
-	  /*! \brief Type handling for \ref Shader uniform (AKA
-           *  argument) assignment.
+	  /*! \brief Constructor for Shader objects.
 	   * 
-	   * This class is returned from \ref Shader::operator[]() calls
-	   * to handle type based assignments of the shader.
+	   * If the derived shader needs access to the view matrix or
+	   * the projection matrix, it should indicate this to the
+	   * Shader constructor.
+	   *
+	   * When the \ref attach() method is called, if either matrix
+	   * is required, the shader will register itself with the GL
+	   * context and track any changes to these matricies.
+	   *
+	   * \param needsProjectionMatrix If true, the derived shader
+	   * needs to track the projection matrix. This will be made
+	   * available in the "mat4 ProjectionMatrix" uniform, which
+	   * must be defined and used at least once in the shader.
+
+	   * \param needsViewMatrix If true, the derived shader
+	   * needs to track the view matrix. This will be made
+	   * available in the "mat4 ViewMatrix" uniform, which
+	   * must be defined and used at least once in the shader.
 	   */
-	  class ShaderUniform
-	  {
-	  public:
-	    inline ShaderUniform(std::string uniformName, GLhandleARB programHandle):
-	      _programHandle(programHandle)
-	    {
-	      _uniformHandle = glGetUniformLocationARB(_programHandle, uniformName.c_str());
-	      if (_uniformHandle == -1) M_throw() << "Uniform " << uniformName << " not found in this shader";
-	    }
+	  Shader(bool needsProjectionMatrix = false,
+		 bool needsViewMatrix = false):
+	    _built(false),
+	    _needsProjectionMatrix(needsProjectionMatrix),
+	    _needsViewMatrix(needsViewMatrix)
+	  {}
 
-	    inline void operator=(GLfloat val)
-	    { 
-	      glUseProgramObjectARB(_programHandle);
-	      glUniform1f(_uniformHandle, val);
-	    }
+	  /*! \brief Callback function for when the projection matrix
+	   * is updated.
+	   */
+	  void projectionMatrixUpdate(const GLMatrix& mat)
+	  { operator[]("ProjectionMatrix") = mat; }
 
-	    inline void operator=(const GLint& val)
-	    { 
-	      glUseProgramObjectARB(_programHandle);
-	      glUniform1i(_uniformHandle, val);
-	    }
-
-	    template<class T>
-	    inline void operator=(const std::tr1::array<T, 1>& val)
-	    { operator=(val[0]); }
-
-	    inline void operator=(const std::tr1::array<GLfloat, 2>& val)
-	    { 
-	      glUseProgramObjectARB(_programHandle);
-	      glUniform2fv(_uniformHandle, 1, &(val[0]));
-	    }
-
-	    inline void operator=(const std::tr1::array<GLfloat, 3>& val)
-	    { 
-	      glUseProgramObjectARB(_programHandle);
-	      glUniform3fv(_uniformHandle, 1, &(val[0]));
-	    }
-
-	    inline void operator=(const std::tr1::array<GLfloat, 4>& val)
-	    { 
-	      glUseProgramObjectARB(_programHandle);
-	      glUniform4fv(_uniformHandle, 1, &(val[0]));
-	    }
-
-	    inline void operator=(const std::tr1::array<GLint, 2>& val)
-	    { 
-	      glUseProgramObjectARB(_programHandle);
-	      glUniform2iv(_uniformHandle, 1, &(val[0]));
-	    }
-
-	    inline void operator=(const std::tr1::array<GLint, 3>& val)
-	    { 
-	      glUseProgramObjectARB(_programHandle);
-	      glUniform3iv(_uniformHandle, 1, &(val[0]));
-	    }
-
-	    inline void operator=(const std::tr1::array<GLint, 4>& val)
-	    { 
-	      glUseProgramObjectARB(_programHandle);
-	      glUniform4iv(_uniformHandle, 1, &(val[0]));
-	    }
-
-	    inline void operator=(const std::tr1::array<GLfloat, 16>& val)
-	    { 
-	      glUseProgramObjectARB(_programHandle);
-	      glUniformMatrix4fv(_uniformHandle, 1, GL_FALSE, &(val[0]));
-	    }
-
-	    inline void operator=(const Vector& vec)
-	    { 
-	      std::tr1::array<GLfloat, 3> val = {{vec[0], vec[1], vec[2]}};
-	      operator=(val);
-	    }
-	  
-	  private:
-	    GLint _uniformHandle;
-	    GLhandleARB _programHandle;
-	  };
-
-	public:
-	  //! \brief Default constructor.
-	  inline Shader(): _built(false) {}
+	  /*! \brief Callback function for when the view matrix is
+	   * updated.
+	   */
+	  void viewMatrixUpdate(const GLMatrix& mat)
+	  { operator[]("ViewMatrix") = mat; }
 
 	  //! \brief Destructor
 	  inline ~Shader() { deinit(); }
@@ -166,9 +206,27 @@ namespace magnet {
 	    _built = false;
 	  }
 
-	  //! \brief Attach the shader, so it is used for the next
-	  //! rendering of OpenGL objects.
-	  inline virtual void attach() { glUseProgramObjectARB(_shaderID); }
+	  /*! \brief Attach the shader, so it is used for the next
+	   *rendering of OpenGL objects.
+	   *
+	   * This function also registers the matrix callbacks if
+	   * either the view or projection matricies are used inside
+	   * the shader.
+	   */
+	  inline virtual void attach() 
+	  {
+	    if (!_built) M_throw() << "Cannot attach a Shader which has not been built()";
+	    
+	    if (_needsProjectionMatrix)
+	      _context->registerProjectionMatrixCallback
+		(magnet::function::MakeDelegate(this, &Shader::projectionMatrixUpdate));
+	    
+	    if (_needsViewMatrix)
+	      _context->registerViewMatrixCallback
+		(magnet::function::MakeDelegate(this, &Shader::viewMatrixUpdate));
+
+	    glUseProgramObjectARB(_shaderID); 
+	  }
 
 	  /*! \brief Used to set values of \ref Shader uniforms (AKA
            *   arguments).
@@ -186,28 +244,27 @@ namespace magnet {
 	   */
 	  inline ShaderUniform operator[](std::string uniformName)
 	  {
+	    if (!_built) M_throw() << "Cannot set the uniforms of a shader which has not been built()";
+
 	    return ShaderUniform(uniformName, _shaderID);
 	  }
 
 	  /*! \brief Builds the shader and allocates the associated
-              OpenGL objects.
-	   *
-	   * This function will throw an exception if compilation
-	   * fails.
-	   */
+	    OpenGL objects.
+	    *
+	    * This function will throw an exception if compilation
+	    * fails.
+	    */
 	  inline void build()
 	  {
+	    _context = &(Context::getContext());
+
 	    if (_vertexShaderCode.empty()) 
 	      _vertexShaderCode = magnet::string::format_code(initVertexShaderSource());
 	    if (_fragmentShaderCode.empty()) 
 	      _fragmentShaderCode = magnet::string::format_code(initFragmentShaderSource());
 	    if (_geometryShaderCode.empty()) 
 	      _geometryShaderCode = magnet::string::format_code(initGeometryShaderSource());
-
-	    //Check for the ability to use fragment and vertex shaders
-	    if (!GLEW_ARB_fragment_program || !GLEW_ARB_vertex_program
-		|| !GLEW_ARB_fragment_shader || !GLEW_ARB_vertex_shader)
-	      M_throw() << "This OpenGL context/driver does not support GLSL (programmable shaders)";
 	  
 	    GLint result;
 
@@ -331,6 +388,9 @@ namespace magnet {
 	  GLhandleARB _geometryShaderHandle;
 	  GLhandleARB _shaderID;
 	  bool _built;
+	  bool _needsProjectionMatrix;
+	  bool _needsViewMatrix;
+	  Context* _context;
 
 	  std::string _vertexShaderCode;
 	  std::string _fragmentShaderCode;
@@ -375,7 +435,8 @@ namespace magnet {
 	
 	    return retVal;
 	  }
-	};
+
+       	};
       }
     }
   }

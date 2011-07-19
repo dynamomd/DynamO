@@ -174,7 +174,6 @@ private:
   bool _fpsLimit;
   int  _fpsLimitValue;
   bool _filterEnable;
-  bool _pickingEnabled;
   bool _analygraphMode;
 
   size_t _snapshot_counter;
