@@ -884,18 +884,8 @@ CLGLWindow::CallBackDisplayFunc()
       getGLContext().setProjectionMatrix(_light0->getProjectionMatrix());
 	  
       //Setup the FBO for shadow maps
-      _shadowFBO.setup();
-	  
-#ifdef GL_VERSION_1_1
-      glEnable(GL_POLYGON_OFFSET_FILL);
-      glPolygonOffset(5.0f, 10.0f);
-#endif 
-
+      _shadowFBO.setup();	  
       drawScene(_shadowFBO);
-
-#ifdef GL_VERSION_1_1
-      glDisable(GL_POLYGON_OFFSET_FILL);
-#endif
       _shadowFBO.restore();
       _shadowFBO.getDepthTexture().bind(7);
     }
@@ -906,8 +896,7 @@ CLGLWindow::CallBackDisplayFunc()
 
   _renderShader["ShadowMap"] = 7;
   _renderShader["ShadowIntensity"] = _shadowIntensity;
-  //_renderShader["xPixelOffset"] = 1.0f / _viewPortInfo->getWidth();
-  //_renderShader["yPixelOffset"] = 1.0f / _viewPortInfo->getHeight();
+  _renderShader["ShadowTexelWidth"] = 1.0f / _shadowFBO.getWidth();
   _renderShader["ShadowMapping"] = _shadowMapping;
   _renderShader["lightPosition"] = _light0->getEyeLocation();
   _renderShader.attach();

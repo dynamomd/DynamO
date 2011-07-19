@@ -73,8 +73,7 @@ void main()
 uniform sampler2DShadow ShadowMap; //The sampler for the shadow map
 uniform int ShadowMapping; //If shadow mapping is enabled or not
 uniform float ShadowIntensity; //How dark the shadow is
-uniform float xPixelOffset;
-uniform float yPixelOffset;
+uniform float ShadowTexelWidth; //The normalised width of one shadowmap texel
 
 varying vec4 ShadowCoord; // Texture coordinate used for shadow lookup
 varying vec3 lightDir; //Direction of the light
@@ -86,7 +85,7 @@ varying vec3 eyeVector;
 void main()
 {
   ///Shadow map calculations and PCF.
-  const int steps = 1;
+  const int steps = 3;
   const float stepsf = float(steps);
   const float stepoffset = (stepsf - 1.0) * 0.5;
   
@@ -106,12 +105,14 @@ void main()
       )
     {
       vec4 ShadowCoordWdiv = ShadowCoord / ShadowCoord.w;
+      ShadowCoordWdiv.z -= 0.0001;
+
       for (int x = 0; x < steps; ++x)
 	for (int y = 0; y < steps; ++y)
 	  {
 	    vec4 sampleCoords = ShadowCoordWdiv;
-	    sampleCoords.x += (float(x) - stepoffset) * xPixelOffset;
-	    sampleCoords.y += (float(y) - stepoffset) * yPixelOffset;
+	    sampleCoords.x += (float(x) - stepoffset) * ShadowTexelWidth;
+	    sampleCoords.y += (float(y) - stepoffset) * ShadowTexelWidth;
 
 	    vec2 circle = (sampleCoords.xy) - vec2(0.5, 0.5);
 	    
