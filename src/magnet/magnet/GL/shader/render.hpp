@@ -86,7 +86,6 @@ varying vec3 eyeVector;
 void main()
 {
   ///Shadow map calculations and PCF.
-  float shadow = 0.0 ;
   const int steps = 3;
   const float stepsf = 3.0;
   const float stepoffset = (stepsf - 1.0) * 0.5;
@@ -100,36 +99,31 @@ void main()
   //Now get the diffuse term to smooth shadow acne on back faces
   float lightNormDot = dot(renormal, renormLightDir);
 
-  if (ShadowMapping == 1)
+  //Shadow factor (0 = in shadow, 1 = unshadowed)
+  float shadow = 1.0 - ShadowMapping;
+  if (ShadowMapping //Perform shadow mapping if enabled
+      && (ShadowCoord.w > 0.0) //Only check surfaces in front of the light
+      )
     {
-      if (ShadowCoord.w > 0.0)
-	for (int x = 0; x < steps; ++x)
-	  for (int y = 0; y < steps; ++y)
-	    {
-	      vec4 sampleCoords = ShadowCoord;
-	      sampleCoords.x 
-		+= (float(x) - stepoffset) * xPixelOffset * ShadowCoord.w;
-	      sampleCoords.y 
-		+= (float(y) - stepoffset) * yPixelOffset * ShadowCoord.w;
-	      vec2 circle = (sampleCoords.xy) / sampleCoords.w
-		- vec2(0.5, 0.5);
-	      
-	      //Makes the light source a spotlight (and fixes a wierd
-	      //line perpendicular to the light beam).
-	      if (dot(circle, circle) < 0.25) 
-		shadow += shadow2DProj(ShadowMap, sampleCoords).r;
-	    }
-	      
-      shadow /= stepsf * stepsf;
+      for (int x = 0; x < steps; ++x)
+	for (int y = 0; y < steps; ++y)
+	  {
+	    vec4 sampleCoords = ShadowCoord;
+	    sampleCoords.x 
+	      += (float(x) - stepoffset) * xPixelOffset * ShadowCoord.w;
+	    sampleCoords.y 
+	      += (float(y) - stepoffset) * yPixelOffset * ShadowCoord.w;
 
-      float shadeFactor = max(0.0, min(1.0, 1.0 + 2.0 * lightNormDot));
-      
-      //Now set a minimum on the shadow term depending on if the
-      //surface is pointing away from the light source
-      shadow = min(shadow, shadeFactor);
-    }
-  else
-    shadow = 1.0;
+	    vec2 circle = (sampleCoords.xy) / sampleCoords.w
+	      - vec2(0.5, 0.5);
+	    
+	    //Makes the light source a spotlight (and fixes a wierd
+	    //line perpendicular to the light beam).
+	    if (dot(circle, circle) < 0.25)
+	      shadow += shadow2DProj(ShadowMap, sampleCoords).r;
+	  }
+      shadow /= stepsf * stepsf;
+    }    
 
   vec3 Eye = normalize(eyeVector);
   vec3 ReflectedRay = reflect(-renormLightDir, renormal);
