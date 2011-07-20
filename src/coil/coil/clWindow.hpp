@@ -178,7 +178,7 @@ private:
 
   size_t _snapshot_counter;
 
-  std::auto_ptr<magnet::GL::Light> _light0;
+  magnet::GL::Light _light0;
 
   /////////GTK members
   virtual void initGTK();

@@ -96,17 +96,13 @@ CLGLWindow::initOpenGL()
   //Switch on line aliasing
   glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
-  //glEnable(GL_CULL_FACE);
-  //glCullFace(GL_BACK);
-  //glFrontFace(GL_CCW); //The default
-
   //Setup the viewport
   CallBackReshapeFunc(800, 600);
 
-  _light0.reset(new magnet::GL::Light(Vector(0.8f,  1.5f, 0.8f),//Position
-				      Vector(0.0f, 0.0f, 0.0f),//Lookat
-				      75.0f//Beam angle
-				      ));
+  _light0 = magnet::GL::Light(Vector(0.8f,  1.5f, 0.8f),//Position
+			      Vector(0.0f, 0.0f, 0.0f),//Lookat
+			      75.0f//Beam angle
+			      );
   
   //Setup the keyboard controls
   glutIgnoreKeyRepeat(1);
@@ -313,7 +309,7 @@ CLGLWindow::initGTK()
   {///////Light FOV setting
     Gtk::HScale* FOVscale;
     _refXml->get_widget("lightFOVScale", FOVscale);
-    FOVscale->set_value(_light0->getFOVY());
+    FOVscale->set_value(_light0.getFOVY());
     FOVscale->signal_value_changed()
       .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
   }
@@ -853,8 +849,8 @@ CLGLWindow::CallBackDisplayFunc()
       _depthRenderShader.attach();
       //////////////////Pass 1//////////////////
       ///Here we draw from the lights perspective
-      getGLContext().setViewMatrix(_light0->getViewMatrix());
-      getGLContext().setProjectionMatrix(_light0->getProjectionMatrix());
+      getGLContext().setViewMatrix(_light0.getViewMatrix());
+      getGLContext().setProjectionMatrix(_light0.getProjectionMatrix());
 	  
       //Setup the FBO for shadow maps
       _shadowFBO.attach();
@@ -872,7 +868,7 @@ CLGLWindow::CallBackDisplayFunc()
   _renderShader["ShadowIntensity"] = _shadowIntensity;
   _renderShader["ShadowTexelWidth"] = 1.0f / _shadowFBO.getWidth();
   _renderShader["ShadowMapping"] = _shadowMapping;
-  _renderShader["lightPosition"] = _light0->getEyeLocation();
+  _renderShader["lightPosition"] = _light0.getEyeLocation();
   _renderShader.attach();
 
   if (_analygraphMode)
@@ -884,7 +880,7 @@ CLGLWindow::CallBackDisplayFunc()
       getGLContext().setProjectionMatrix(_camera->getProjectionMatrix(-eyeDisplacement));
 
       if (_shadowMapping)
-	_renderShader["ShadowMatrix"] = _light0->getShadowTextureMatrix();
+	_renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix();
 
       glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
       drawScene(*_renderTarget);
@@ -893,7 +889,7 @@ CLGLWindow::CallBackDisplayFunc()
       getGLContext().setProjectionMatrix(_camera->getProjectionMatrix(eyeDisplacement));
 
       if (_shadowMapping)
-	_renderShader["ShadowMatrix"] = _light0->getShadowTextureMatrix();
+	_renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix();
 	  
       glClear(GL_DEPTH_BUFFER_BIT);
       glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
@@ -905,7 +901,7 @@ CLGLWindow::CallBackDisplayFunc()
       getGLContext().setViewMatrix(_camera->getViewMatrix());
       getGLContext().setProjectionMatrix(_camera->getProjectionMatrix());
       if (_shadowMapping)
-	_renderShader["ShadowMatrix"] = _light0->getShadowTextureMatrix();
+	_renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix();
       drawScene(*_renderTarget);
     }
       
@@ -1061,7 +1057,7 @@ CLGLWindow::drawScene(magnet::GL::FBO& fbo)
        iPtr != RenderObjects.end(); ++iPtr)
     (*iPtr)->glRender(fbo);
   
-  if (_showLight) _light0->drawLight();
+  if (_showLight) _light0.drawLight();
 }
 
 void CLGLWindow::CallBackReshapeFunc(int w, int h)
@@ -1272,7 +1268,7 @@ CLGLWindow::lightShowCallback()
 void 
 CLGLWindow::lightPlaceCallback()
 {
-  *_light0 = *_camera;
+  _light0 = *_camera;
 }
 
 void 
@@ -1670,7 +1666,7 @@ CLGLWindow::guiUpdateCallback()
   {///////light FOV setting
     Gtk::HScale* FOVscale;
     _refXml->get_widget("lightFOVScale", FOVscale);
-    _light0->setFOVY(FOVscale->get_value());
+    _light0.setFOVY(FOVscale->get_value());
   }
 
   {//Dynamo particle sync checkbox
