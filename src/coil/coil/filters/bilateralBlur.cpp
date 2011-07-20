@@ -81,7 +81,7 @@ namespace coil
 
   void BilateralBlurWrapper::invoke(GLint colorTextureUnit, 
 				    size_t width, size_t height,
-				    const magnet::GL::ViewPort& vp) 
+				    const magnet::GL::Camera& vp) 
   {
     std::tr1::array<GLfloat, 2> val = {{_radius / width, _radius / height}};
     _filter["scale"] = val;

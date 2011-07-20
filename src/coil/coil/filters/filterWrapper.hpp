@@ -50,7 +50,7 @@ namespace coil
     inline virtual size_t type_id() { return detail::filterEnum<magnetFilterWrapper<T,reqNormalDepth> >::val; }    
 
 
-    inline virtual void invoke(GLint colorTextureUnit, size_t width, size_t height, const magnet::GL::ViewPort&)
+    inline virtual void invoke(GLint colorTextureUnit, size_t width, size_t height, const magnet::GL::Camera&)
     { 
       _filter["u_Texture0"] = colorTextureUnit;
 

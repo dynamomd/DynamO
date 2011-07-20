@@ -18,7 +18,7 @@
 #include <magnet/GL/context.hpp>
 #include <magnet/thread/refPtr.hpp>
 #include <magnet/thread/taskQueue.hpp>
-#include <magnet/GL/viewPort.hpp>
+#include <magnet/GL/camera.hpp>
 #include <magnet/GL/FBO.hpp>
 
 namespace Gtk {
@@ -27,7 +27,7 @@ namespace Gtk {
 
 namespace magnet {
   namespace GL {
-    class ViewPort;
+    class Camera;
   }
 }
 
@@ -45,11 +45,11 @@ public:
   
   void accessoryData(const magnet::thread::RefPtr<RenderObj>& console, 
 		     const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue,
-		     const magnet::thread::RefPtr<magnet::GL::ViewPort>& viewPort)
+		     const magnet::thread::RefPtr<magnet::GL::Camera>& camera)
   {
     _console = console;
     _systemQueue = systemQueue;
-    _viewPort = viewPort;
+    _camera = camera;
   }
 
   virtual void initGTK() {}
@@ -96,5 +96,5 @@ protected:
   bool _visible;
   magnet::thread::RefPtr<RenderObj> _console;
   magnet::thread::RefPtr<magnet::thread::TaskQueue> _systemQueue;
-  magnet::thread::RefPtr<magnet::GL::ViewPort> _viewPort;
+  magnet::thread::RefPtr<magnet::GL::Camera> _camera;
 };

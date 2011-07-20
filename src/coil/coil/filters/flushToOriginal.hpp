@@ -27,7 +27,7 @@ namespace coil
 
     inline virtual size_t type_id() { return detail::filterEnum<FlushToOriginal>::val; }    
     inline virtual void invoke(GLint colorTextureUnit, size_t width, size_t height,
-			       const magnet::GL::ViewPort& vp)
+			       const magnet::GL::Camera& vp)
     {}
 
   protected:

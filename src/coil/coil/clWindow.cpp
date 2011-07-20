@@ -103,10 +103,10 @@ CLGLWindow::initOpenGL()
   //Setup the viewport
   CallBackReshapeFunc(800, 600);
 
-  _light0.reset(new magnet::GL::LightInfo(Vector(0.8f,  1.5f, 0.8f),//Position
-					  Vector(0.0f, 0.0f, 0.0f),//Lookat
-					  75.0f//Beam angle
-					  ));
+  _light0.reset(new magnet::GL::Light(Vector(0.8f,  1.5f, 0.8f),//Position
+				      Vector(0.0f, 0.0f, 0.0f),//Lookat
+				      75.0f//Beam angle
+				      ));
   
   //Setup the keyboard controls
   glutIgnoreKeyRepeat(1);
@@ -115,11 +115,11 @@ CLGLWindow::initOpenGL()
   _frameRenderTime = 0;
   //Build the offscreen rendering FBO's
   _renderTarget.reset(new magnet::GL::FBO());
-  _renderTarget->init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
+  _renderTarget->init(_camera->getWidth(), _camera->getHeight());
 
-  _filterTarget1.init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
-  _filterTarget2.init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
-  _normalsFBO.init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight(), GL_RGBA);
+  _filterTarget1.init(_camera->getWidth(), _camera->getHeight());
+  _filterTarget2.init(_camera->getWidth(), _camera->getHeight());
+  _normalsFBO.init(_camera->getWidth(), _camera->getHeight(), GL_RGBA);
   _shadowFBO.init(1024);
   _renderShader.build();
   _depthRenderShader.build();
@@ -371,7 +371,7 @@ CLGLWindow::initGTK()
 	_renderTarget.reset(new magnet::GL::MultisampledFBO
 			    (2 << aliasSelections->get_active_row_number()));
 	
-	_renderTarget->init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
+	_renderTarget->init(_camera->getWidth(), _camera->getHeight());
 	
 	aliasSelections->signal_changed()
 	  .connect(sigc::mem_fun(*this, &CLGLWindow::multisampleEnableCallback));
@@ -475,7 +475,7 @@ CLGLWindow::initGTK()
 	_refXml->get_widget("SimLengthUnits", simunits);
 
 	std::ostringstream os;
-	os << _viewPortInfo->getSimUnitLength();
+	os << _camera->getSimUnitLength();
 	simunits->set_text(os.str());
 
 	simunits->signal_changed()
@@ -489,7 +489,7 @@ CLGLWindow::initGTK()
 	_refXml->get_widget("pixelPitch", pixelPitch);
 
 	std::ostringstream os;
-	os << _viewPortInfo->getPixelPitch() * 10;
+	os << _camera->getPixelPitch() * 10;
 	pixelPitch->set_text(os.str());
 
 	pixelPitch->signal_changed()
@@ -650,12 +650,12 @@ CLGLWindow::multisampleEnableCallback()
       _refXml->get_widget("multisampleLevels", aliasSelections);
 
       _renderTarget.reset(new magnet::GL::MultisampledFBO(2 << aliasSelections->get_active_row_number()));
-      _renderTarget->init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
+      _renderTarget->init(_camera->getWidth(), _camera->getHeight());
     }
   else
     {
       _renderTarget.reset(new magnet::GL::FBO());
-      _renderTarget->init(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
+      _renderTarget->init(_camera->getWidth(), _camera->getHeight());
     }
 }
 
@@ -707,14 +707,14 @@ CLGLWindow::init()
 //  //Test volume render object
 //  RenderObjects.push_back(new coil::RVolume("Test Volume"));
 
-  _viewPortInfo 
-    = magnet::thread::RefPtr<magnet::GL::ViewPort>(new magnet::GL::ViewPort);
+  _camera 
+    = magnet::thread::RefPtr<magnet::GL::Camera>(new magnet::GL::Camera);
 
   //Inform objects about the accessory objects, like the console or the pointer
   for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
        iPtr != RenderObjects.end(); ++iPtr)
     //This is the console and the simulation/system task queue
-    (*iPtr)->accessoryData(RenderObjects[_consoleID], _systemQueue, _viewPortInfo); 
+    (*iPtr)->accessoryData(RenderObjects[_consoleID], _systemQueue, _camera); 
   
   initOpenGL();
   initOpenCL();
@@ -827,7 +827,7 @@ CLGLWindow::CallBackDisplayFunc()
 			       - keyStates[static_cast<size_t>('a')]);
   float vertical = moveAmp * ( keyStates[static_cast<size_t>('q')] 
 			       - keyStates[static_cast<size_t>('z')]);
-  _viewPortInfo->CameraUpdate(forward, sideways, vertical);
+  _camera->CameraUpdate(forward, sideways, vertical);
 
   guiUpdateCallback(); //We frequently ping the gui update     
 
@@ -839,7 +839,7 @@ CLGLWindow::CallBackDisplayFunc()
 	Gtk::CheckButton* wiiHeadTrack;
 	_refXml->get_widget("wiiHeadTracking", wiiHeadTrack);
 	if (wiiHeadTrack->get_active())
-	  _viewPortInfo->setHeadLocation((magnet::TrackWiimote::getInstance()).getHeadPosition());
+	  _camera->setHeadLocation((magnet::TrackWiimote::getInstance()).getHeadPosition());
       }
     }
 #endif
@@ -880,8 +880,8 @@ CLGLWindow::CallBackDisplayFunc()
       const double eyedist = 6.5; //
       Vector eyeDisplacement(0.5 * eyedist, 0, 0);
 	  
-      getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix(-eyeDisplacement));
-      getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix(-eyeDisplacement));
+      getGLContext().setViewMatrix(_camera->getViewMatrix(-eyeDisplacement));
+      getGLContext().setProjectionMatrix(_camera->getProjectionMatrix(-eyeDisplacement));
 
       if (_shadowMapping)
 	_renderShader["ShadowMatrix"] = _light0->getShadowTextureMatrix();
@@ -889,8 +889,8 @@ CLGLWindow::CallBackDisplayFunc()
       glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
       drawScene(*_renderTarget);
 	  
-      getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix(eyeDisplacement));
-      getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix(eyeDisplacement));
+      getGLContext().setViewMatrix(_camera->getViewMatrix(eyeDisplacement));
+      getGLContext().setProjectionMatrix(_camera->getProjectionMatrix(eyeDisplacement));
 
       if (_shadowMapping)
 	_renderShader["ShadowMatrix"] = _light0->getShadowTextureMatrix();
@@ -902,8 +902,8 @@ CLGLWindow::CallBackDisplayFunc()
     }
   else
     {
-      getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix());
-      getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix());
+      getGLContext().setViewMatrix(_camera->getViewMatrix());
+      getGLContext().setProjectionMatrix(_camera->getProjectionMatrix());
       if (_shadowMapping)
 	_renderShader["ShadowMatrix"] = _light0->getShadowTextureMatrix();
       drawScene(*_renderTarget);
@@ -962,7 +962,7 @@ CLGLWindow::CallBackDisplayFunc()
 	      lastFBO->attach();
 	      glActiveTextureARB(GL_TEXTURE0);
 	      //Now copy the texture 
-	      glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _viewPortInfo->getWidth(), _viewPortInfo->getHeight());
+	      glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _camera->getWidth(), _camera->getHeight());
 	      lastFBO->detach();
 	    }
 	  else
@@ -975,7 +975,7 @@ CLGLWindow::CallBackDisplayFunc()
 	      else
 		_filterTarget2.attach();
 		  
-	      filter.invoke(3, _viewPortInfo->getWidth(), _viewPortInfo->getHeight(), *_viewPortInfo);
+	      filter.invoke(3, _camera->getWidth(), _camera->getHeight(), *_camera);
 		  
 	      if (FBOalternate)
 		_filterTarget1.detach();
@@ -989,7 +989,7 @@ CLGLWindow::CallBackDisplayFunc()
 	}
     }
   //Now blit the stored scene to the screen
-  lastFBO->blitToScreen(_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
+  lastFBO->blitToScreen(_camera->getWidth(), _camera->getHeight());
   
   //We clear the depth as merely disabling gives artifacts
   glClear(GL_DEPTH_BUFFER_BIT); 
@@ -1010,9 +1010,9 @@ CLGLWindow::CallBackDisplayFunc()
       _newData = false;
 
       std::vector<magnet::image::Pixel<magnet::image::RGB> > pixels;
-      pixels.resize(_viewPortInfo->getWidth() * _viewPortInfo->getHeight());
+      pixels.resize(_camera->getWidth() * _camera->getHeight());
       //Read the pixels into our container
-      glReadPixels(0,0, _viewPortInfo->getWidth(), _viewPortInfo->getHeight(), GL_RGB, 
+      glReadPixels(0,0, _camera->getWidth(), _camera->getHeight(), GL_RGB, 
 		   GL_UNSIGNED_BYTE, &pixels[0]);
       
       std::string path;
@@ -1027,11 +1027,11 @@ CLGLWindow::CallBackDisplayFunc()
 	  _snapshot = false;
 
 	  if (_PNGFileFormat)
-	    magnet::image::writePNGFile(path + "/snapshot.png", pixels, _viewPortInfo->getWidth(), 
-					_viewPortInfo->getHeight(), 9, false, true);
+	    magnet::image::writePNGFile(path + "/snapshot.png", pixels, _camera->getWidth(), 
+					_camera->getHeight(), 9, false, true);
 	  else
-	    magnet::image::writeBMPFile(path + "/snapshot.bmp", pixels, _viewPortInfo->getWidth(), 
-					_viewPortInfo->getHeight());
+	    magnet::image::writeBMPFile(path + "/snapshot.bmp", pixels, _camera->getWidth(), 
+					_camera->getHeight());
 	}
 
       if (_record)
@@ -1041,10 +1041,10 @@ CLGLWindow::CallBackDisplayFunc()
 	  
 	  if (_PNGFileFormat)
 	    magnet::image::writePNGFile(path + "/" + filename.str() +".png", pixels, 
-					_viewPortInfo->getWidth(), _viewPortInfo->getHeight(), 1, true, true);
+					_camera->getWidth(), _camera->getHeight(), 1, true, true);
 	  else
 	    magnet::image::writeBMPFile(path + "/" + filename.str() +".bmp", pixels, 
-					_viewPortInfo->getWidth(), _viewPortInfo->getHeight());
+					_camera->getWidth(), _camera->getHeight());
 	}                         
     }
 
@@ -1068,7 +1068,7 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
 {
   if (!CoilRegister::getCoilInstance().isRunning() || !_readyFlag) return;
 
-  _viewPortInfo->setHeightWidth(h,w);
+  _camera->setHeightWidth(h,w);
   //Update the viewport
   _renderTarget->resize(w, h);  
   _filterTarget1.resize(w, h);
@@ -1162,7 +1162,7 @@ CLGLWindow::CallBackMotionFunc(int x, int y)
   switch (keyState)
     {
     case LEFTMOUSE:
-      _viewPortInfo->mouseMovement(diffX, diffY);
+      _camera->mouseMovement(diffX, diffY);
     case RIGHTMOUSE:
     case MIDDLEMOUSE:
     default:
@@ -1272,7 +1272,7 @@ CLGLWindow::lightShowCallback()
 void 
 CLGLWindow::lightPlaceCallback()
 {
-  *_light0 = *_viewPortInfo;
+  *_light0 = *_camera;
 }
 
 void 
@@ -1526,8 +1526,8 @@ CLGLWindow::performPicking(int x, int y)
 {
   _simpleRenderShader.attach();
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
-  getGLContext().setViewMatrix(_viewPortInfo->getViewMatrix());
-  getGLContext().setProjectionMatrix(_viewPortInfo->getProjectionMatrix());
+  getGLContext().setViewMatrix(_camera->getViewMatrix());
+  getGLContext().setProjectionMatrix(_camera->getProjectionMatrix());
   //Perform unique coloring of screen objects
 
   cl_uint startVal = 0;
@@ -1708,7 +1708,7 @@ CLGLWindow::guiUpdateCallback()
     _refXml->get_widget("SimLengthUnits", simunits);
     std::string val = simunits->get_text();
     if (val.empty()) {val = "50"; simunits->set_text("50"); }
-    _viewPortInfo->setSimUnitLength(boost::lexical_cast<double>(val));
+    _camera->setSimUnitLength(boost::lexical_cast<double>(val));
   }
 
   {
@@ -1716,7 +1716,7 @@ CLGLWindow::guiUpdateCallback()
     _refXml->get_widget("pixelPitch", pixelPitch);
     std::string val = pixelPitch->get_text();
     if (val.empty()) {val = "0.25"; pixelPitch->set_text("0.25"); }
-    _viewPortInfo->setPixelPitch(boost::lexical_cast<double>(val) / 10);
+    _camera->setPixelPitch(boost::lexical_cast<double>(val) / 10);
   }
 
   {
@@ -1727,13 +1727,13 @@ CLGLWindow::guiUpdateCallback()
     Gtk::Label* ZHead;
     _refXml->get_widget("ZHead", ZHead);
     std::ostringstream os;
-    os << _viewPortInfo->getHeadLocation()[0] << "cm";
+    os << _camera->getHeadLocation()[0] << "cm";
     XHead->set_text(os.str());
     os.str("");
-    os << _viewPortInfo->getHeadLocation()[1] << "cm";
+    os << _camera->getHeadLocation()[1] << "cm";
     YHead->set_text(os.str());
     os.str("");
-    os << _viewPortInfo->getHeadLocation()[2] << "cm";
+    os << _camera->getHeadLocation()[2] << "cm";
     ZHead->set_text(os.str());
   }
 
@@ -1913,6 +1913,6 @@ CLGLWindow::wiiMoteIRExposeEvent(GdkEventExpose* event)
 void 
 CLGLWindow::HeadReset()
 {
-  _viewPortInfo->setHeadLocation(Vector(0,0,_viewPortInfo->getHeadLocation()[2]));
-  _viewPortInfo->setFOVY(60.f, false);
+  _camera->setHeadLocation(Vector(0,0,_camera->getHeadLocation()[2]));
+  _camera->setFOVY(60.f, false);
 }

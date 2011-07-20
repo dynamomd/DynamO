@@ -25,14 +25,14 @@
 
 namespace magnet {
   namespace GL {
-    /*! \brief An object to track the viewport (aka camera) state.
+    /*! \brief An object to track the camera state.
      *
      * This class can perform all the calculations required for
      * setting up the projection and modelview matricies of the
      * camera. There is also support for head tracking calculations
      * using the \ref _headLocation \ref Vector.
      */
-    class ViewPort
+    class Camera
     {
     public:
       //! \brief The mode of the mouse movement
@@ -43,7 +43,7 @@ namespace magnet {
 	  ROTATE_WORLD
 	};
 
-      /*! \brief The constructor
+      /*! \brief The constructor.
        * 
        * \param height The height of the viewport, in pixels.
        * \param width The width of the viewport, in pixels.
@@ -55,14 +55,14 @@ namespace magnet {
        * \param up A vector describing the up direction of the camera.
        */
       //We need a default constructor as viewPorts may be created without GL being initialized
-      inline ViewPort(size_t height = 600, 
-		      size_t width = 800,
-		      Vector position = Vector(1,1,1), 
-		      Vector lookAtPoint = Vector(0,0,0),
-		      GLfloat fovY = 60.0f,
-		      GLfloat zNearDist = 0.01f, GLfloat zFarDist = 20.0f,
-		      Vector up = Vector(0,1,0)
-		      ):
+      inline Camera(size_t height = 600, 
+		    size_t width = 800,
+		    Vector position = Vector(1,1,1), 
+		    Vector lookAtPoint = Vector(0,0,0),
+		    GLfloat fovY = 60.0f,
+		    GLfloat zNearDist = 0.01f, GLfloat zFarDist = 20.0f,
+		    Vector up = Vector(0,1,0)
+		    ):
 	_height(height),
 	_width(width),
 	_panrotation(180),
@@ -100,7 +100,7 @@ namespace magnet {
 	setFOVY(fovY);
       }
 
-      /*! \brief Change the field of vision of the viewport/camera.
+      /*! \brief Change the field of vision of the camera.
        *
        * \param fovY The field of vision in degrees.
        * \param compensate Counter the movement of the head position
@@ -143,12 +143,12 @@ namespace magnet {
       inline const Vector getHeadLocation() const
       { return _headLocation * _simLength; }
 
-      /*! \brief Returns the current field of vision of the viewport/camera */
+      /*! \brief Returns the current field of vision of the camera */
       inline double getFOVY() const
       { return 2 * std::atan2(0.5f * (_pixelPitch * _width / _simLength),  _headLocation[2]) * (180.0f / M_PI); }
 
       /*! \brief Converts the motion of the mouse into a motion of the
-       * viewport/camera.
+       * camera.
        *
        * \param diffX The amount the mouse has moved in the x direction, in pixels.
        * \param diffY The amount the mouse has moved in the y direction, in pixels.
@@ -185,7 +185,7 @@ namespace magnet {
 
       /*! \brief Converts a forward/sideways/vertical motion (e.g.,
        * obtained from keypresses) into a motion of the
-       * viewport/camera.
+       * camera.
        *
        * \param diffX The amount the mouse has moved in the x direction, in pixels.
        * \param diffY The amount the mouse has moved in the y direction, in pixels.
@@ -315,7 +315,7 @@ namespace magnet {
       inline GLfloat getAspectRatio() const 
       { return ((GLfloat)_width) / _height; }
 
-      //! \brief Get the up direction of the camera/viewport
+      //! \brief Get the up direction of the camera.
       inline Vector getCameraUp() const 
       { 
 	::Matrix viewTransformation 

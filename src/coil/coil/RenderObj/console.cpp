@@ -37,7 +37,7 @@ namespace coil {
   {
     _glutLastTime = glutGet(GLUT_ELAPSED_TIME);
 
-    resize(_viewPort->getWidth(), _viewPort->getHeight());
+    resize(_camera->getWidth(), _camera->getHeight());
 
     _axis.init();
     _grid.init(10,10);
@@ -121,8 +121,8 @@ namespace coil {
 
 	context.setViewMatrix
 	  (GLMatrix::translate(0, 0, -(nearPlane + axisScale))
-	   * GLMatrix::rotate(_viewPort->getTilt(), Vector(1, 0, 0))
-	   * GLMatrix::rotate(_viewPort->getPan(), Vector(0, 1, 0))
+	   * GLMatrix::rotate(_camera->getTilt(), Vector(1, 0, 0))
+	   * GLMatrix::rotate(_camera->getPan(), Vector(0, 1, 0))
 	   * GLMatrix::scale(axisScale, axisScale, axisScale)
 	   );
     
@@ -144,23 +144,23 @@ namespace coil {
 	GLMatrix old_model_view = context.getViewMatrix();
 	GLMatrix model_view 
 	  = old_model_view 
-	  * GLMatrix::translate(_viewPort->getViewPlanePosition())
-	  * GLMatrix::rotate(-_viewPort->getPan(), Vector(0, 1, 0))
-	  * GLMatrix::rotate(-_viewPort->getTilt(), Vector(1, 0, 0));
+	  * GLMatrix::translate(_camera->getViewPlanePosition())
+	  * GLMatrix::rotate(-_camera->getPan(), Vector(0, 1, 0))
+	  * GLMatrix::rotate(-_camera->getTilt(), Vector(1, 0, 0));
 
 	context.color(1,1,1,1);
 	//Back face
 	context.setViewMatrix(model_view 
-			      * GLMatrix::scale(_viewPort->getScreenPlaneWidth(), 
-						_viewPort->getScreenPlaneHeight(), 
+			      * GLMatrix::scale(_camera->getScreenPlaneWidth(), 
+						_camera->getScreenPlaneHeight(), 
 						1)
 			      * GLMatrix::translate(0,0,-1));
 	_grid.glRender();
 
 	//Sides
 	context.setViewMatrix(model_view 
-			      * GLMatrix::scale(_viewPort->getScreenPlaneWidth(), 
-						_viewPort->getScreenPlaneHeight(), 
+			      * GLMatrix::scale(_camera->getScreenPlaneWidth(), 
+						_camera->getScreenPlaneHeight(), 
 						1)
 			      * GLMatrix::rotate(90, Vector(0,1,0))
 			      * GLMatrix::translate(0.5,0,-0.5));
@@ -173,8 +173,8 @@ namespace coil {
 
 	//Top and bottom
 	context.setViewMatrix(model_view
-			      * GLMatrix::scale(_viewPort->getScreenPlaneWidth(), 
-						_viewPort->getScreenPlaneHeight(),
+			      * GLMatrix::scale(_camera->getScreenPlaneWidth(), 
+						_camera->getScreenPlaneHeight(),
 						1)
 			      * GLMatrix::rotate(90, Vector(1,0,0))
 			      * GLMatrix::translate(0, -0.5, -0.5));

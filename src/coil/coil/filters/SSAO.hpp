@@ -30,7 +30,7 @@ namespace coil
     inline virtual size_t type_id() { return detail::filterEnum<SSAOWrapper>::val; }    
 
     inline virtual void invoke(GLint colorTextureUnit, size_t width, size_t height,
-			       const magnet::GL::ViewPort& vp);
+			       const magnet::GL::Camera& vp);
 
     inline virtual bool needsNormalDepth()  { return true; }
 

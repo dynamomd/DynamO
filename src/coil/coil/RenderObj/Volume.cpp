@@ -48,7 +48,7 @@ namespace coil {
   {
     _shader.build();
     _fbo.reset(new magnet::GL::FBO);
-    _fbo->init(_viewPort->getWidth(), _viewPort->getHeight());
+    _fbo->init(_camera->getWidth(), _camera->getHeight());
     
     //Default transfer function
     _transferFuncTexture.init(256);
@@ -218,19 +218,19 @@ namespace coil {
     //Now we can render
     GLhandleARB oldshader = glGetHandleARB(GL_PROGRAM_OBJECT_ARB);
 
-    _shader["FocalLength"] = GLfloat(1.0f / std::tan(_viewPort->getFOVY() * (M_PI / 360.0f)));
+    _shader["FocalLength"] = GLfloat(1.0f / std::tan(_camera->getFOVY() * (M_PI / 360.0f)));
     { 
-      std::tr1::array<GLfloat,2> winsize = {{_viewPort->getWidth(), _viewPort->getHeight()}};
+      std::tr1::array<GLfloat,2> winsize = {{_camera->getWidth(), _camera->getHeight()}};
       _shader["WindowSize"] = winsize;
     }
     { 
-      Vector eyeOrigin = _viewPort->getEyeLocation();
+      Vector eyeOrigin = _camera->getEyeLocation();
       std::tr1::array<GLfloat,3> origin = {{eyeOrigin[0], eyeOrigin[1], eyeOrigin[2]}};
       _shader["RayOrigin"] = origin;
     }
     _shader["DepthTexture"] = 0;
-    _shader["NearDist"] = _viewPort->getZNear();
-    _shader["FarDist"] = _viewPort->getZFar();
+    _shader["NearDist"] = _camera->getZNear();
+    _shader["FarDist"] = _camera->getZFar();
     _shader["DataTexture"] = 1;
     _shader["StepSize"] = _stepSizeVal;
     _shader["DiffusiveLighting"] = GLfloat(_diffusiveLighting->get_value());

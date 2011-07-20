@@ -269,16 +269,16 @@ RTSpheres::initOpenCL()
 void 
 RTSpheres::sortTick()
 {
-  cl_float4 campos = getclVec(_viewPort->getEyeLocation());
-  cl_float4 camdir = getclVec(_viewPort->getCameraDirection());
-  cl_float4 camup = getclVec(_viewPort->getCameraUp());
+  cl_float4 campos = getclVec(_camera->getEyeLocation());
+  cl_float4 camdir = getclVec(_camera->getCameraDirection());
+  cl_float4 camup = getclVec(_camera->getCameraUp());
   
   //Generate the sort data
   _sortDataKernelFunc(_spherePositions, _sortKeys, _sortData,
 		      campos, camdir, camup,
-		      (cl_float)_viewPort->getAspectRatio(),
-		      (cl_float)_viewPort->getZNear(),
-		      (cl_float)_viewPort->getFOVY(),
+		      (cl_float)_camera->getAspectRatio(),
+		      (cl_float)_camera->getZNear(),
+		      (cl_float)_camera->getFOVY(),
 		      _N);
   
   if ((_renderDetailLevels.size() > 2) 

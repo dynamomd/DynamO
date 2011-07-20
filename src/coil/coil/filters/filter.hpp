@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <magnet/GL/viewPort.hpp>
+#include <magnet/GL/camera.hpp>
 #include <magnet/GL/shader/laplacianFilter.hpp>
 #include <magnet/GL/shader/blur.hpp>
 #include <gtkmm.h>
@@ -102,7 +102,7 @@ namespace coil
     //////////////Virtual members
     virtual size_t type_id() = 0;
     virtual void showControls(Gtk::ScrolledWindow*) {}
-    virtual void invoke(GLint colorTextureUnit, size_t width, size_t height, const magnet::GL::ViewPort& vp) = 0;
+    virtual void invoke(GLint colorTextureUnit, size_t width, size_t height, const magnet::GL::Camera& vp) = 0;
     
     inline bool getActive() const { return _active; }
     inline void setActive(bool nv) { _active = nv; }

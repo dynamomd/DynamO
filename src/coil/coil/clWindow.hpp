@@ -28,7 +28,7 @@
 #include <magnet/GL/light.hpp>
 #include <magnet/GL/shader/render.hpp>
 #include <magnet/GL/shadowFBO.hpp>
-#include <magnet/GL/viewPort.hpp>
+#include <magnet/GL/camera.hpp>
 #include <magnet/GL/multisampledFBO.hpp>
 #include <magnet/GL/shader/normal.hpp>
 #include <magnet/GL/shader/depth_render.hpp>
@@ -153,7 +153,7 @@ private:
 
   sigc::connection _renderTimeout;
 
-  magnet::thread::RefPtr<magnet::GL::ViewPort> _viewPortInfo;
+  magnet::thread::RefPtr<magnet::GL::Camera> _camera;
     
   bool keyStates[256];
 
@@ -178,7 +178,7 @@ private:
 
   size_t _snapshot_counter;
 
-  std::auto_ptr<magnet::GL::LightInfo> _light0;
+  std::auto_ptr<magnet::GL::Light> _light0;
 
   /////////GTK members
   virtual void initGTK();

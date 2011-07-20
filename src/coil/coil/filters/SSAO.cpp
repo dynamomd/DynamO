@@ -117,7 +117,7 @@ namespace coil
 
   void SSAOWrapper::invoke(GLint colorTextureUnit, 
 			   size_t width, size_t height,
-			   const magnet::GL::ViewPort& vp)
+			   const magnet::GL::Camera& vp)
   {
     glActiveTextureARB(GL_TEXTURE7);
     glBindTexture(GL_TEXTURE_2D, _randomTexture);
