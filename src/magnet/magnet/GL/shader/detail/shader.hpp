@@ -18,8 +18,8 @@
 #include <magnet/GL/context.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/string/formatcode.hpp>
-
 #include <tr1/array>
+#include <tr1/unordered_map>
 #include <string>
 
 #define STRINGIFY(A) #A
@@ -38,12 +38,10 @@ namespace magnet {
 	class ShaderUniform
 	{
 	public:
-	  inline ShaderUniform(std::string uniformName, GLhandleARB programHandle):
+	  inline ShaderUniform(GLint uniformHandle, GLhandleARB programHandle):
+	    _uniformHandle(uniformHandle),
 	    _programHandle(programHandle)
-	  {
-	    _uniformHandle = glGetUniformLocationARB(_programHandle, uniformName.c_str());
-	    if (_uniformHandle == -1) M_throw() << "Uniform " << uniformName << " not found in this shader";
-	  }
+	  {}
 
 	  inline void operator=(GLfloat val)
 	  { 
@@ -139,6 +137,11 @@ namespace magnet {
 	 *
 	 * The shader source can be changed at any point, and if the
 	 * shader is already built, it will be recompiled.
+	 *
+	 * The shader performs some cacheing of the uniform locations
+	 * and the uniform values, so you may redundantly assign
+	 * values to the shader uniforms without an additional OpenGL
+	 * library call cost.
 	 *
 	 *
 	 * There are several default bindings for attributes in the
@@ -287,7 +290,14 @@ namespace magnet {
 	  {
 	    if (!_built) M_throw() << "Cannot set the uniforms of a shader which has not been built()";
 
-	    return ShaderUniform(uniformName, _shaderID);
+	    std::tr1::unordered_map<std::string, GLuint>::const_iterator it = _uniformAddressCache.find(uniformName);	    
+	    if (it != _uniformAddressCache.end()) return ShaderUniform(it->second, _shaderID);
+
+	    GLint uniformHandle = glGetUniformLocationARB(_shaderID, uniformName.c_str());
+	    if (uniformHandle == -1) 
+	      M_throw() << "Uniform " << uniformName << " not found in this shader";	    
+	    _uniformAddressCache[uniformName] = uniformHandle;
+	    return ShaderUniform(uniformHandle, _shaderID);
 	  }
 
 	  /*! \brief Builds the shader and allocates the associated
@@ -437,6 +447,8 @@ namespace magnet {
 	  std::string _vertexShaderCode;
 	  std::string _fragmentShaderCode;
 	  std::string _geometryShaderCode;
+
+	  std::tr1::unordered_map<std::string, GLuint> _uniformAddressCache;
 
 	  /*! \brief Specifies the initial source of the geometry
 	   * shader.
