@@ -33,22 +33,33 @@ namespace magnet {
       {
 	class CairoShader: public GL::shader::detail::Shader
 	{
+	  bool _alpha_testing;
 	public:
-	  CairoShader(): Shader(true, true) {}
+	  CairoShader(): Shader(true, true), _alpha_testing(false) {}
+
+	  void build(bool alpha_testing)
+	  {
+	    _alpha_testing = alpha_testing;
+	    Shader::build();
+	  }
 
 #define STRINGIFY(A) #A
 	  virtual std::string initVertexShaderSource()
 	  {
-	    return STRINGIFY(
+	    std::ostringstream os;
+	    os << "const bool ALPHA_TESTING = " << _alpha_testing << ";"
+	       << STRINGIFY(
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
 
 attribute vec4 vPosition;
+attribute vec4 vColor;
 attribute vec4 iOrigin;
 attribute vec4 iOrientation;
 attribute vec4 iScale;
 
 varying vec2 texCoord;
+varying vec4 color;
 
 vec3 qrot(vec4 q, vec3 v)
 { return v + 2.0 * cross(cross(v,q.xyz) + q.w * v, q.xyz); }
@@ -61,14 +72,27 @@ void main()
 				   + iOrigin.xyz, 1.0);
   gl_Position = ProjectionMatrix * vVertex;
   texCoord = 0.5 + 0.5 * vPosition.xy;
+  if (ALPHA_TESTING)
+    color = vColor;
 });
+	    return os.str();
 	  }
 	
 	  virtual std::string initFragmentShaderSource()
-	  { return STRINGIFY(
+	  {
+	    std::ostringstream os;
+	    os << "const bool ALPHA_TESTING = " << _alpha_testing << ";"
+	       << STRINGIFY(
 uniform sampler2D cairoTexture;
 varying vec2 texCoord;
-void main() { gl_FragColor = texture2D(cairoTexture, texCoord); }); 
+void main() 
+{ 
+  if (ALPHA_TESTING)
+    gl_FragColor = (texture2D(cairoTexture, texCoord).r < 0.5) * color; 
+  else
+    gl_FragColor = texture2D(cairoTexture, texCoord); 
+}); 
+	    return os.str();
 	  }
 	};
 
@@ -90,14 +114,12 @@ void main() { gl_FragColor = texture2D(cairoTexture, texCoord); });
 
 	/*! \brief Sets up the vertex buffer objects for the quad.
 	 */
-	inline void init(size_t width, size_t height)
+	inline void init(size_t width, size_t height, size_t alpha_testing = 0)
 	{
+	  _alpha_testing = alpha_testing;
+
 	  _width = width;
 	  _height = height;
-
-	  _cairoSurface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, _width, _height);
-	  _cairoContext = Cairo::Context::create(_cairoSurface);
-	  _surface.init(_width, _height);
 
 	  { ///////////////////Vertex Data
 	    // Single quad, in pre-transformed screen coordinates
@@ -112,19 +134,26 @@ void main() { gl_FragColor = texture2D(cairoTexture, texCoord); });
 	    magnet::GL::Buffer<GLfloat> _vertexData;
 	  }
 
-	  _shader.build();
+	  _shader.build(_alpha_testing);
+	  _surface.init(_width, _height);
+	  
+	  
+	  _cairoSurface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, 
+						      (alpha_testing + !alpha_testing) * _width, 
+						      (alpha_testing + !alpha_testing) * _height);
+	  _cairoContext = Cairo::Context::create(_cairoSurface);
 	}
 	
 	void redraw()
 	{
 	  //Clear the surface
+	  _cairoContext->save();
 	  _cairoContext->set_operator(Cairo::OPERATOR_OVER);
 	  _cairoContext->set_source_rgba(0, 0, 0, 0);
 	  _cairoContext->paint();
 	  _cairoContext->set_source_rgba(0, 0, 0, 1);
-	  _cairoContext->move_to(300,300);
-	  _cairoContext->show_text("Hello!");
 	  drawCommands();
+	  _cairoContext->restore();
 	  //Send the cairo surface to the GL texture
 	  _surface.subImage(reinterpret_cast<const uint8_t*>(_cairoSurface->get_data()),
 			    GL_RGBA, _width, _height);
@@ -145,11 +174,16 @@ void main() { gl_FragColor = texture2D(cairoTexture, texCoord); });
 	}
 
       protected:
-	virtual void drawCommands() {}
+	virtual void drawCommands() 
+	{
+	  _cairoContext->move_to(300,300);
+	  _cairoContext->show_text("Hello!");
+	}
 
 	Texture2D _surface;
 	size_t _width;
 	size_t _height;
+	size_t _alpha_testing;
 	Cairo::RefPtr<Cairo::ImageSurface> _cairoSurface;
 	Cairo::RefPtr<Cairo::Context> _cairoContext;
 	magnet::GL::Buffer<GLfloat> _vertexData;
