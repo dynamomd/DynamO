@@ -67,3 +67,8 @@ alias math-test : dilate-test quartic-test cubic-test vector-test spline-test ;
 ##################################################
 alias test : opencl-test thread-test math-test ;
 ##################################################
+
+alias freetype2 : : : : <linkflags>"`pkg-config freetype2 --libs`" <cflags>"`pkg-config freetype2 --cflags`" ;
+
+exe TexturedFontCreator
+   : tools/TexturedFontCreator.cpp freetype2  ../boost//program_options ;

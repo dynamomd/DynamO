@@ -39,9 +39,7 @@
 **** TODO Improve the runEvent loop, its a mess right now.
 **** TODO Improve the way data is made available to Coil, allowing a paraview-like interface to the data sources.
 **** TODO Coil library volume renderer (blocking on above)
-     - [X] Move to OpenCL generation of the gradients from live data.
-     - [X] Implement volume renderer.
-     - [X] Make a transfer function interface.
+**** TODO Fix the light position calculation in the Volume renderer
 **** TODO Generalized scheduler for multiple neighborlists.
 **** TODO Work on Sebastians project.
 **** TODO Check you haven't broken any histogramming code with the new fuzzy array class.
