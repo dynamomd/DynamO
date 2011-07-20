@@ -57,7 +57,7 @@ namespace magnet {
 	  {
 	    _stencilwidth = stencilwidth;
 
-	    Shader::build();
+	    SSShader::build();
 	    //Get the shader args
 	    glUseProgram(_shaderID);
 	    //Set the weights now

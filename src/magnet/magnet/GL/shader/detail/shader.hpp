@@ -221,7 +221,7 @@ namespace magnet {
 	  inline ~Shader() { deinit(); }
 
 	  //! \brief Cause the shader to release its OpenGL resources.
-	  inline void deinit()
+	  inline  virtual void deinit()
 	  {
 	    if (_built)
 	      {
@@ -296,7 +296,7 @@ namespace magnet {
 	    * This function will throw an exception if compilation
 	    * fails.
 	    */
-	  inline void build()
+	  inline virtual void build()
 	  {
 	    _context = &(Context::getContext());
 
