@@ -79,7 +79,8 @@ int main(int argc, char *argv[])
 
     std::string input("String to render!");
 
-    size_t lineheight = face->height;
+    size_t lines = 1;
+    size_t lineheight = bbox.y + (lines - 1) * face->height;
     size_t max_charwidth = face->max_advance_width;
     size_t linewidth = max_charwidth * input.size();
 
@@ -89,6 +90,7 @@ int main(int argc, char *argv[])
     size_t pen_x(0);
     size_t pen_y(0);
 
+    FTuint
     for (std::string::const_iterator cPtr = input.begin(); 
 	 cPtr != input.end(); ++cPtr)
       {
