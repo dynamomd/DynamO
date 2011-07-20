@@ -249,6 +249,54 @@ namespace magnet {
       { initCL(); return _clcommandQ; }
       /**@}*/
 
+      /*! \brief Set the currently attached shader program.
+       *
+       * This function uses state caching to remove redundant calls to
+       * glUseProgramObjectARB.
+       */
+      inline void setShader(GLhandleARB newShader)
+      {
+	if (_currentShader == newShader) return;
+	_currentShader = newShader;
+	glUseProgramObjectARB(_currentShader);
+      }
+      
+      /*! \brief Returns the currently attached shader program..
+       */
+      inline GLhandleARB getShader() const
+      { return _currentShader; }
+
+      /*! \brief Sets the current viewport.
+       *
+       * \param x The coordinate of the leftmost pixel in the viewport.
+       * \param y The coordinate of the lowest pixel in the viewport. 
+       * \param width The width of the viewport in pixels. 
+       * \param height The height of the viewport in pixels. 
+       */
+      inline void setViewport(GLint x, GLint y, GLsizei width, GLsizei height)
+      {
+	std::tr1::array<GLint, 4> val = {{x, y, width, height}};
+	setViewport(val);
+      }
+
+      /*! \brief Sets the viewport using the passed viewport state.
+       */
+      inline void setViewport(const std::tr1::array<GLint, 4>& val)
+      {
+	if (val == _viewPortState) return;
+
+	_viewPortState = val;
+	glViewport(_viewPortState[0], _viewPortState[1], _viewPortState[2], _viewPortState[3]);
+      }
+      
+      /*! \brief Returns the current viewport state.
+       *
+       * The returned array contains, in order, the leftmost pixel,
+       * the lowest pixel, the width and the height of the viewport.
+       */
+      inline const std::tr1::array<GLint, 4>& getViewport() const
+      { return _viewPortState; }
+
     protected:
       //! \brief The OpenCL platform for this GL context.
       cl::Platform _clplatform;
@@ -258,9 +306,10 @@ namespace magnet {
       cl::Device _cldevice;
       //! \brief The OpenCL command queue for this GL context.
       cl::CommandQueue _clcommandQ;
-
       //! \brief Flag set if the OpenCL state has been initialised.
       bool _clInitialised;
+      GLhandleARB _currentShader;
+      std::tr1::array<GLint, 4> _viewPortState;
 
       /*! \brief If a matching OpenCL context does not exist, it will
        * create one from the current OpenGL context.
@@ -388,6 +437,8 @@ namespace magnet {
 	_projectionMatrix = GLMatrix::identity();
 	_viewMatrixCallback = &nullMatrixCallback;
 	_projectionMatrixCallback = &nullMatrixCallback;
+	_currentShader = 0;
+	_viewPortState = detail::glGet<GL_VIEWPORT>();
 
 	_vertexAttributeState.resize(detail::glGet<GL_MAX_VERTEX_ATTRIBS>());
 

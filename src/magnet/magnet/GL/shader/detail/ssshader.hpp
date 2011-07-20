@@ -55,7 +55,7 @@ namespace magnet {
 	    if (!_built)
 	      M_throw() << "Cannot invoke a SS filter without it being built first";
 	    //Setup the shader arguments
-	    glUseProgram(_shaderID);
+	    _context->setShader(_programHandle);
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	    _quad.glRender();
 	  }

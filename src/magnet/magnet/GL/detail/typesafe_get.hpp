@@ -21,30 +21,7 @@ namespace magnet {
   namespace GL {
     namespace detail {
 #define GL_GET_ENUM_TYPE_TRAIT_FACTORY(F)		\
-      F(GL_ACCUM_ALPHA_BITS, GLint, 1)			\
-      F(GL_ACCUM_BLUE_BITS, GLint, 1)			\
-      F(GL_ACCUM_GREEN_BITS, GLint, 1)			\
-      F(GL_ACCUM_CLEAR_VALUE, GLfloat, 4)		\
-      F(GL_ACCUM_RED_BITS, GLint, 1)			\
-      F(GL_ACTIVE_TEXTURE, GLint, 1)			\
-      F(GL_ALIASED_POINT_SIZE_RANGE, GLint, 2)		\
-      F(GL_ALIASED_LINE_WIDTH_RANGE, GLint, 2)		\
-      F(GL_ALPHA_BIAS, GLfloat, 1)			\
-      F(GL_ALPHA_BITS, GLint, 1)			\
-      F(GL_ALPHA_SCALE, GLfloat, 1)			\
-      F(GL_ALPHA_TEST, GLboolean, 1)			\
-      F(GL_ALPHA_TEST_FUNC, GLenum, 1)			\
-      F(GL_ALPHA_TEST_REF, GLfloat, 1)			\
-      F(GL_ARRAY_BUFFER_BINDING, GLint, 1)		\
-      F(GL_ATTRIB_STACK_DEPTH, GLint, 1)		\
-      F(GL_AUTO_NORMAL, GLboolean, 1)			\
-      F(GL_AUX_BUFFERS, GLint, 1)			\
-      F(GL_BLEND, GLboolean, 1)				\
-      F(GL_BLEND_COLOR, GLfloat, 4)			\
-      F(GL_BLEND_DST_ALPHA, GLint, 1)			\
-      F(GL_BLEND_DST_RGB, GLint, 1)			\
-      							\
-      							\
+      F(GL_VIEWPORT, GLint, 4)				\
       F(GL_MAX_VERTEX_ATTRIBS, GLint, 1)
 
       template<size_t width, class T> struct return_type { typedef std::tr1::array<T, width> Type; };

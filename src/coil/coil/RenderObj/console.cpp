@@ -107,9 +107,8 @@ namespace coil {
 	  axisScale = 0.09;
     
 	//The axis is in a little 100x100 pixel area in the lower left
-	GLint viewportDim[4];
-	glGetIntegerv(GL_VIEWPORT, viewportDim);
-	glViewport(0,0,100,100);
+	std::tr1::array<GLint, 4> oldviewport = context.getViewport();
+	context.setViewport(0,0,100,100);
     
 	context.setProjectionMatrix(GLMatrix::identity());
 	context.setViewMatrix(GLMatrix::identity());
@@ -128,16 +127,7 @@ namespace coil {
 	   );
     
 	_axis.glRender();
-    
-	//Do the axis labels
-	//glColor3f(1,1,1);
-	//glRasterPos3f( 0.5,-0.5,-0.5);
-	//_consoleFont->Render("X");
-	//glRasterPos3f(-0.5, 0.5,-0.5);
-	//_consoleFont->Render("Y");
-	//glRasterPos3f(-0.5,-0.5, 0.5);
-	//_consoleFont->Render("Z");
-	//glViewport(viewportDim[0], viewportDim[1], viewportDim[2], viewportDim[3]);
+	context.setViewport(oldviewport);
       }    
 
     //Restore GL state

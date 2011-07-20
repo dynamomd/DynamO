@@ -18,6 +18,7 @@
 
 #define GL_GLEXT_PROTOTYPES
 #include <GL/glew.h>
+#include <magnet/GL/context.hpp>
 #include <magnet/exception.hpp>
 
 namespace magnet {

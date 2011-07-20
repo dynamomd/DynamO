@@ -35,7 +35,7 @@ namespace magnet {
        * The FBO is unusable at this point and must be first \ref
        * init() ialized.
        */
-      inline FBO(): _width(0), _height(0) {}
+      inline FBO():_context(NULL), _width(0), _height(0) {}
 
       /*! \brief Initializes the FBO
        * 
@@ -54,6 +54,8 @@ namespace magnet {
 
 	if (!width || !height)
 	  M_throw() << "Cannot initialise an FBO with a width or height == 0!";
+
+	_context = &Context::getContext();
 
 	_internalformat = internalformat;
 	_width = width;
@@ -160,14 +162,17 @@ namespace magnet {
 
 	_width = 0;
 	_height = 0;
+	_context = NULL;
       }
 
       /*! \brief Attaches this FBO as the current render target. */
       inline 
       virtual void attach()
       {
-	glViewport(0, 0, _width, _height);
+	if (!_width)
+	  M_throw() << "Cannot attach() an uninitialised FBO";
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
+	_context->setViewport(0, 0, _width, _height);
       }
 
       /*! \brief Restores the screen FBO as the current render target. */
@@ -213,6 +218,7 @@ namespace magnet {
       inline GLsizei getHeight() { return _height; }
 
     protected:
+      Context* _context;
       Texture2D _colorTexture;
       Texture2D _depthTexture;
       GLuint _FBO;

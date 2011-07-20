@@ -85,8 +85,6 @@ CLGLWindow::initOpenGL()
 
   _glContext = &magnet::GL::Context::getContext();
 
-  glViewport(0, 0, 800, 600);
-
   glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
   glDepthFunc(GL_LEQUAL);
   glEnable(GL_DEPTH_TEST);
@@ -859,9 +857,10 @@ CLGLWindow::CallBackDisplayFunc()
       getGLContext().setProjectionMatrix(_light0->getProjectionMatrix());
 	  
       //Setup the FBO for shadow maps
-      _shadowFBO.setup();	  
+      _shadowFBO.attach();
+      glClear(GL_DEPTH_BUFFER_BIT);
       drawScene(_shadowFBO);
-      _shadowFBO.restore();
+      _shadowFBO.detach();
       _shadowFBO.getDepthTexture().bind(7);
     }
       
@@ -1070,12 +1069,8 @@ void CLGLWindow::CallBackReshapeFunc(int w, int h)
   if (!CoilRegister::getCoilInstance().isRunning() || !_readyFlag) return;
 
   _viewPortInfo->setHeightWidth(h,w);
-  //Setup the viewport
-  glViewport(0, 0, w, h); 
-
   //Update the viewport
-  _renderTarget->resize(w, h);
-  
+  _renderTarget->resize(w, h);  
   _filterTarget1.resize(w, h);
   _filterTarget2.resize(w, h);
   _normalsFBO.resize(w, h);

@@ -27,6 +27,7 @@
 namespace magnet {
   namespace GL {
     namespace shader {
+      class Shader;
       namespace detail {
 
 	/*! \brief Type handling for \ref Shader uniform (AKA
@@ -34,78 +35,55 @@ namespace magnet {
 	 * 
 	 * This class is returned from \ref Shader::operator[]() calls
 	 * to handle type based assignments of the shader.
+	 *
+	 * Please do not copy, reference or store this class in any
+	 * way, it does not track the currently bound program object
+	 * and so it should only be returned as a temporary from the
+	 * \ref Shader::operator[]() calls.
 	 */
 	class ShaderUniform
 	{
-	public:
-	  inline ShaderUniform(GLint uniformHandle, GLhandleARB programHandle):
-	    _uniformHandle(uniformHandle),
-	    _programHandle(programHandle)
+	  friend class Shader;
+	  /*! \brief Constructor.
+	   */
+	  inline ShaderUniform(GLint uniformHandle):
+	    _uniformHandle(uniformHandle)
 	  {}
 
+	public:
 	  inline void operator=(GLfloat val)
-	  { 
-	    glUseProgramObjectARB(_programHandle);
-	    glUniform1f(_uniformHandle, val);
-	  }
+	  { glUniform1f(_uniformHandle, val); }
 
 	  inline void operator=(const GLint& val)
-	  { 
-	    glUseProgramObjectARB(_programHandle);
-	    glUniform1i(_uniformHandle, val);
-	  }
+	  { glUniform1i(_uniformHandle, val); }
 
 	  template<class T>
 	  inline void operator=(const std::tr1::array<T, 1>& val)
 	  { operator=(val[0]); }
 
 	  inline void operator=(const std::tr1::array<GLfloat, 2>& val)
-	  { 
-	    glUseProgramObjectARB(_programHandle);
-	    glUniform2fv(_uniformHandle, 1, &(val[0]));
-	  }
+	  { glUniform2fv(_uniformHandle, 1, &(val[0])); }
 
 	  inline void operator=(const std::tr1::array<GLfloat, 3>& val)
-	  { 
-	    glUseProgramObjectARB(_programHandle);
-	    glUniform3fv(_uniformHandle, 1, &(val[0]));
-	  }
+	  { glUniform3fv(_uniformHandle, 1, &(val[0])); }
 
 	  inline void operator=(const std::tr1::array<GLfloat, 4>& val)
-	  { 
-	    glUseProgramObjectARB(_programHandle);
-	    glUniform4fv(_uniformHandle, 1, &(val[0]));
-	  }
+	  { glUniform4fv(_uniformHandle, 1, &(val[0])); }
 
 	  inline void operator=(const std::tr1::array<GLint, 2>& val)
-	  { 
-	    glUseProgramObjectARB(_programHandle);
-	    glUniform2iv(_uniformHandle, 1, &(val[0]));
-	  }
+	  { glUniform2iv(_uniformHandle, 1, &(val[0])); }
 
 	  inline void operator=(const std::tr1::array<GLint, 3>& val)
-	  { 
-	    glUseProgramObjectARB(_programHandle);
-	    glUniform3iv(_uniformHandle, 1, &(val[0]));
-	  }
+	  { glUniform3iv(_uniformHandle, 1, &(val[0])); }
 
 	  inline void operator=(const std::tr1::array<GLint, 4>& val)
-	  { 
-	    glUseProgramObjectARB(_programHandle);
-	    glUniform4iv(_uniformHandle, 1, &(val[0]));
-	  }
+	  { glUniform4iv(_uniformHandle, 1, &(val[0])); }
 
 	  inline void operator=(const std::tr1::array<GLfloat, 9>& val)
-	  { 
-	    glUseProgramObjectARB(_programHandle);
-	    glUniformMatrix3fv(_uniformHandle, 1, GL_FALSE, &(val[0]));
-	  }
+	  { glUniformMatrix3fv(_uniformHandle, 1, GL_FALSE, &(val[0])); }
 
 	  inline void operator=(const std::tr1::array<GLfloat, 16>& val)
-	  { 
-	    glUseProgramObjectARB(_programHandle);
-	    glUniformMatrix4fv(_uniformHandle, 1, GL_FALSE, &(val[0]));
-	  }
+	  { glUniformMatrix4fv(_uniformHandle, 1, GL_FALSE, &(val[0])); }
 
 	  inline void operator=(const Vector& vec)
 	  { 
@@ -123,7 +101,6 @@ namespace magnet {
 	  
 	private:
 	  GLint _uniformHandle;
-	  GLhandleARB _programHandle;
 	};
 
 
@@ -228,7 +205,7 @@ namespace magnet {
 	  {
 	    if (_built)
 	      {
-		glDeleteProgram(_shaderID);
+		glDeleteProgram(_programHandle);
 		if (!(_vertexShaderCode.empty()))
 		  glDeleteShader(_vertexShaderHandle);
 		if (!(_fragmentShaderCode.empty()))
@@ -269,7 +246,7 @@ namespace magnet {
 	      _context->registerViewMatrixCallback
 		(magnet::function::MakeDelegate(this, &Shader::viewMatrixUpdate));
 
-	    glUseProgramObjectARB(_shaderID); 
+	    _context->setShader(_programHandle);
 	  }
 
 	  /*! \brief Used to set values of \ref Shader uniforms (AKA
@@ -290,14 +267,16 @@ namespace magnet {
 	  {
 	    if (!_built) M_throw() << "Cannot set the uniforms of a shader which has not been built()";
 
-	    std::tr1::unordered_map<std::string, GLuint>::const_iterator it = _uniformAddressCache.find(uniformName);	    
-	    if (it != _uniformAddressCache.end()) return ShaderUniform(it->second, _shaderID);
+	    _context->setShader(_programHandle);
 
-	    GLint uniformHandle = glGetUniformLocationARB(_shaderID, uniformName.c_str());
-	    if (uniformHandle == -1) 
+	    std::tr1::unordered_map<std::string, GLuint>::const_iterator it = _uniformAddressCache.find(uniformName);	    
+	    if (it != _uniformAddressCache.end()) return ShaderUniform(it->second);
+
+	    GLint uniformHandle = glGetUniformLocationARB(_programHandle, uniformName.c_str());
+	    if (uniformHandle == -1)
 	      M_throw() << "Uniform " << uniformName << " not found in this shader";	    
 	    _uniformAddressCache[uniformName] = uniformHandle;
-	    return ShaderUniform(uniformHandle, _shaderID);
+	    return ShaderUniform(uniformHandle);
 	  }
 
 	  /*! \brief Builds the shader and allocates the associated
@@ -371,27 +350,27 @@ namespace magnet {
 	      }
 
 	    //Now we've build both shaders, combine them into a program
-	    _shaderID = glCreateProgramObjectARB();
+	    _programHandle = glCreateProgramObjectARB();
 
 	    if (!(_vertexShaderCode.empty()))
-	      glAttachObjectARB(_shaderID,_vertexShaderHandle);
+	      glAttachObjectARB(_programHandle,_vertexShaderHandle);
 
 	    if (!(_fragmentShaderCode.empty()))
-	      glAttachObjectARB(_shaderID,_fragmentShaderHandle);
+	      glAttachObjectARB(_programHandle,_fragmentShaderHandle);
 
 	    if (!(_geometryShaderCode.empty()))
-	      glAttachObjectARB(_shaderID,_geometryShaderHandle);
+	      glAttachObjectARB(_programHandle,_geometryShaderHandle);
 	    
 	    //Bind the default shader variables to the indices
 	    //specified in the \ref Context class.
-	    glBindAttribLocation(_shaderID, Context::vertexPositionAttrIndex, "vPosition");
-	    glBindAttribLocation(_shaderID, Context::vertexColorAttrIndex, "vColor");
-	    glBindAttribLocation(_shaderID, Context::vertexNormalAttrIndex, "vNormal");
-	    glBindAttribLocation(_shaderID, Context::instanceOriginAttrIndex, "iOrigin");
-	    glBindAttribLocation(_shaderID, Context::instanceOrientationAttrIndex, "iOrientation");
-	    glBindAttribLocation(_shaderID, Context::instanceScaleAttrIndex, "iScale");
+	    glBindAttribLocation(_programHandle, Context::vertexPositionAttrIndex, "vPosition");
+	    glBindAttribLocation(_programHandle, Context::vertexColorAttrIndex, "vColor");
+	    glBindAttribLocation(_programHandle, Context::vertexNormalAttrIndex, "vNormal");
+	    glBindAttribLocation(_programHandle, Context::instanceOriginAttrIndex, "iOrigin");
+	    glBindAttribLocation(_programHandle, Context::instanceOrientationAttrIndex, "iOrientation");
+	    glBindAttribLocation(_programHandle, Context::instanceScaleAttrIndex, "iScale");
 
-	    glLinkProgramARB(_shaderID);
+	    glLinkProgramARB(_programHandle);
 
 	    //Done, now the inheriting shader should grab the locations of its uniforms
 	    _built = true;
@@ -437,7 +416,7 @@ namespace magnet {
 	  GLhandleARB _vertexShaderHandle;
 	  GLhandleARB _fragmentShaderHandle;
 	  GLhandleARB _geometryShaderHandle;
-	  GLhandleARB _shaderID;
+	  GLhandleARB _programHandle;
 	  bool _built;
 	  bool _needsProjectionMatrix;
 	  bool _needsViewMatrix;

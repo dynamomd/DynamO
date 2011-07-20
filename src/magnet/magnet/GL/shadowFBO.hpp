@@ -56,26 +56,6 @@ namespace magnet {
 	// switch back to window-system-provided framebuffer
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
       }
-
-      /*! \brief Sets up the FBO ready for the light perspective
-       * render pass.
-       */
-      inline void setup()
-      {
-	//Render to the shadow maps FBO
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,_FBO);
-	//Clear the depth buffer
-	glClear(GL_DEPTH_BUFFER_BIT);
-	//The viewport should change to the shadow maps size
-	glViewport(0, 0, _width, _width);
-      }
-
-      /*! \brief Restores the original screen FBO. */
-      inline void restore()
-      {
-	//Restore the default FB
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
-      }
     };
   }
 }

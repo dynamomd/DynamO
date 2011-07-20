@@ -101,8 +101,10 @@ namespace magnet {
       inline 
       virtual void attach()
       {
-	glViewport(0, 0, _width, _height);
+	if (!_width)
+	  M_throw() << "Cannot attach() an uninitialised multisampledFBO";
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _multisampleFBO);
+	_context->setViewport(0, 0, _width, _height);
       }
 
       inline 
