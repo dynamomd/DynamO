@@ -119,24 +119,27 @@ void main() { gl_FragColor = texture2D(cairoTexture, texCoord); });
 	{
 	  //Clear the surface
 	  _cairoContext->set_operator(Cairo::OPERATOR_OVER);
-	  _cairoContext->set_source_rgba(1, 0, 0, 0.8);
+	  _cairoContext->set_source_rgba(0, 0, 0, 0);
 	  _cairoContext->paint();
-	  _cairoContext->set_source_rgba(0, 0, 0, 1.0);
+	  _cairoContext->set_source_rgba(0, 0, 0, 1);
 	  _cairoContext->move_to(300,300);
 	  _cairoContext->show_text("Hello!");
 	  drawCommands();
 	  //Send the cairo surface to the GL texture
 	  _surface.subImage(reinterpret_cast<const uint8_t*>(_cairoSurface->get_data()),
 			    GL_RGBA, _width, _height);
+	  _surface.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	  _surface.parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	  _surface.parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	  _surface.parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
 	
 	/*! \brief Attaches the vertex buffer and renders the quad.
 	 */
 	inline void glRender()
 	{
-	  _vertexData.getContext().cleanupAttributeArrays();
-	  _surface.bind(0);
-	  _shader["cairoTexture"] = 0;
+	  _surface.bind(6);
+	  _shader["cairoTexture"] = 6;
 	  _shader.attach();
 	  _vertexData.drawArray(magnet::GL::element_type::QUADS, 2); 
 	}

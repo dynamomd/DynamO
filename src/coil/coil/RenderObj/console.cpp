@@ -57,6 +57,9 @@ namespace coil {
     //Only draw if the console has something in it or if it's visible
     if (_consoleEntries.empty() || !_visible) return;
 
+    _cairoOverlay.redraw();
+    _cairoOverlay.glRender();
+
     //Disable anything that might affect the rastering 
     glDisable(GL_DEPTH_TEST);
 
@@ -131,8 +134,6 @@ namespace coil {
 	context.setViewport(oldviewport);
       }    
 
-    _cairoOverlay.redraw();
-    _cairoOverlay.glRender();
     //Restore GL state
     glEnable(GL_DEPTH_TEST);
   }
