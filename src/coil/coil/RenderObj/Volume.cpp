@@ -24,33 +24,22 @@
 #include <fstream>
 
 namespace coil {
-  RVolume::RVolume(std::string name):
-    RQuads(name),
-    _stepSizeVal(0.01)
-  {}
-
-  RVolume::~RVolume()
-  {}
-
   void 
   RVolume::releaseCLGLResources()
   {
-    if (_fbo.get() != NULL) _fbo->deinit();
-    _fbo.release();
+    _currentDepthFBO.deinit();
     _data.deinit();
     _transferFuncTexture.deinit();
     _shader.deinit();
-    RQuads::releaseCLGLResources();
+    _cube.deinit();
   }
 
   void 
   RVolume::initOpenGL() 
   {
     _shader.build();
-    _fbo.reset(new magnet::GL::FBO);
-    _fbo->init(_camera->getWidth(), _camera->getHeight());
-    
-    //Default transfer function
+    _cube.init();
+    _currentDepthFBO.init(_camera->getWidth(), _camera->getHeight());
     _transferFuncTexture.init(256);
   }
 
@@ -175,31 +164,9 @@ namespace coil {
   void 
   RVolume::resize(size_t width, size_t height)
   {
-    if (_fbo.get() != NULL) 
-      _fbo->resize(width, height);
+    _currentDepthFBO.resize(width, height);
   }
 
-  void 
-  RVolume::initOpenCL() 
-  {
-    {
-      float vertices[] = {-1,-1,-1,  1,-1,-1,  1, 1,-1, -1, 1,-1,
-			  -1,-1, 1, -1, 1, 1,  1, 1, 1,  1,-1, 1};
-      
-      std::vector<float> VertexPos(vertices, vertices 
-				   + sizeof(vertices) / sizeof(float));
-      setGLPositions(VertexPos);
-    }
-    
-    {
-      int elements[] = {3,2,1,0, 6,7,1,2, 5,4,7,6, 3,0,4,5, 6,2,3,5, 7,4,0,1 };
-      std::vector<GLuint> ElementData(elements, elements + sizeof(elements) / sizeof(int));
-      setGLElements(ElementData);
-    }
-
-    
-  }  
-  
   void 
   RVolume::glRender(magnet::GL::FBO& fbo)
   {
@@ -207,27 +174,28 @@ namespace coil {
 
     //Before we render, we need the current depth buffer for depth testing.
     fbo.detach();   
-    fbo.copyto(*_fbo, GL_DEPTH_BUFFER_BIT);
+    fbo.copyto(_currentDepthFBO, GL_DEPTH_BUFFER_BIT);
     fbo.attach();
 
     //Now bind this copied depth texture to texture unit 0
-    _fbo->getDepthTexture().bind(0);
+    _currentDepthFBO.getDepthTexture().bind(0);
     _data.bind(1);
     _transferFuncTexture.bind(2);
 
-    //Now we can render
+    //You must save the current shader before binding the volume
+    //shader
     GLhandleARB oldshader = glGetHandleARB(GL_PROGRAM_OBJECT_ARB);
+
+
+    _shader["ProjectionMatrix"] = _currentDepthFBO.getContext().getProjectionMatrix();
+    _shader["ViewMatrix"] = _currentDepthFBO.getContext().getViewMatrix();
 
     _shader["FocalLength"] = GLfloat(1.0f / std::tan(_camera->getFOVY() * (M_PI / 360.0f)));
     { 
       std::tr1::array<GLfloat,2> winsize = {{_camera->getWidth(), _camera->getHeight()}};
       _shader["WindowSize"] = winsize;
     }
-    { 
-      Vector eyeOrigin = _camera->getEyeLocation();
-      std::tr1::array<GLfloat,3> origin = {{eyeOrigin[0], eyeOrigin[1], eyeOrigin[2]}};
-      _shader["RayOrigin"] = origin;
-    }
+    _shader["RayOrigin"] = _camera->getEyeLocation();
     _shader["DepthTexture"] = 0;
     _shader["NearDist"] = _camera->getZNear();
     _shader["FarDist"] = _camera->getZFar();
@@ -237,13 +205,17 @@ namespace coil {
     _shader["SpecularLighting"] = GLfloat(_specularLighting->get_value());
     _shader["DitherRay"] = GLfloat(_ditherRay->get_value());
     _shader["TransferTexture"] = 2;
+    _shader["LightPosition"] = Vector(-2,-2,-2);
     _shader.attach();
     
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
     glDepthMask(GL_FALSE);
     glDisable(GL_DEPTH_TEST);
-    RQuads::glRender();
+
+    _currentDepthFBO.getContext().color(1,1,0,1);
+    _cube.glRender();
+
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
     glDisable(GL_CULL_FACE);

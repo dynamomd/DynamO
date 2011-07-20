@@ -22,22 +22,23 @@
 #include <magnet/gtk/transferFunction.hpp>
 #include <magnet/GL/texture.hpp>
 #include <magnet/GL/shader/volume.hpp>
+#include <magnet/GL/objects/cube.hpp>
 #include <memory>
 
 namespace coil {
-  class RVolume : public RQuads
+  class RVolume : public RenderObj
   {
   public:
-    RVolume(std::string name);
+    RVolume(std::string name): RenderObj(name), _stepSizeVal(0.01) {}
+    
     ~RVolume();
   
     virtual void initOpenGL();
-    virtual void initOpenCL();
+    virtual void initOpenCL() {}
     virtual void initGTK();
 
-    virtual void glRender() { RQuads::glRender(); }
-
     virtual void glRender(magnet::GL::FBO& fbo);
+    virtual void glRender() { M_throw() << "Need the current FBO for rendering"; }
 
     virtual void resize(size_t width, size_t height);
 
@@ -57,7 +58,8 @@ namespace coil {
     void transferFunctionUpdated();
 
     magnet::GL::shader::VolumeShader _shader;
-    std::auto_ptr<magnet::GL::FBO> _fbo;
+    magnet::GL::objects::Cube _cube;
+    magnet::GL::FBO _currentDepthFBO;
 
     magnet::GL::Texture3D _data;
     magnet::GL::Texture1D _transferFuncTexture;

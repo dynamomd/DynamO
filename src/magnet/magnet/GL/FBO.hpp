@@ -217,6 +217,13 @@ namespace magnet {
       /*! \brief Fetch the height of the FBO in pixels. */
       inline GLsizei getHeight() { return _height; }
 
+      Context& getContext()
+      { 
+	if (!_width) 
+	  M_throw() << "Cannot get an FBO's context if it is uninitialized";
+	return *_context;
+      }
+
     protected:
       Context* _context;
       Texture2D _colorTexture;

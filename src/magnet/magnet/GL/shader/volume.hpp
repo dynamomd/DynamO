@@ -33,14 +33,26 @@ namespace magnet {
       {
       public:      
 	virtual std::string initVertexShaderSource()
-	{ return STRINGIFY(void main() { gl_Position = ftransform(); }); }
+	{ return STRINGIFY(
+uniform mat4 ProjectionMatrix;
+uniform mat4 ViewMatrix;
+
+attribute vec4 vPosition;
+void main()
+{
+  gl_Position = ProjectionMatrix * (ViewMatrix * vPosition);
+}); 
+	}
 
 	virtual std::string initFragmentShaderSource()
 	{
 	  return STRINGIFY( 
+uniform mat4 ViewMatrix;
 uniform float FocalLength;
 uniform vec2 WindowSize;
 uniform vec3 RayOrigin;
+//The light's position in model space (untransformed)
+uniform vec3 LightPosition;
 uniform sampler1D TransferTexture;
 uniform sampler2D DepthTexture;
 uniform sampler3D DataTexture;
@@ -66,7 +78,7 @@ void main()
   rayDirection.y = 2.0 * gl_FragCoord.y / WindowSize.y - 1.0;
   rayDirection.y *= WindowSize.y / WindowSize.x;
   rayDirection.z = -FocalLength;
-  rayDirection = (vec4(rayDirection, 0.0) * gl_ModelViewMatrix).xyz;
+  rayDirection = (vec4(rayDirection, 0.0) * ViewMatrix).xyz;
   rayDirection = normalize(rayDirection);
 
   //Cube ray intersection test
@@ -109,12 +121,6 @@ void main()
   //The color accumulation variable
   vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
   
-  //Some lighting information, we perform all the calculations in
-  //model space, so we have to undo the modelview matrix
-  //multiplication
-  vec3 lightPos = (gl_ModelViewMatrixInverse * gl_LightSource[0].position).xyz;
-  vec3 Specular = (gl_FrontMaterial.specular * gl_LightSource[0].specular).xyz;
-
   //We store the last valid normal, incase we hit a homogeneous region
   //and need to reuse it, but at the start we have no normal
   vec3 lastnorm = vec3(0,0,0); 
@@ -140,7 +146,9 @@ void main()
       src.a = 1.0 - pow((1.0 - src.a), StepSize / baseStepSize);
 
       ////////////Lighting calculations
-      vec3 lightDir = normalize(lightPos - rayPos);
+      //We perform all the calculations in the model (untransformed)
+      //space.
+      vec3 lightDir = normalize(LightPosition - rayPos);
       float lightNormDot = dot(normalize(norm), lightDir);
       
       ////////////Normal viewer
@@ -157,7 +165,8 @@ void main()
       //We either use diffusive lighting plus an ambient, or if its
       //disabled (DiffusiveLighting = 0), we just use the original
       //color.
-      src.rgb *= DiffusiveLighting * (diffTerm + gl_LightModel.ambient) + (1.0 - DiffusiveLighting);
+      vec3 ambient = vec3(0.1,0.1,0.1);
+      src.rgb *= DiffusiveLighting * (diffTerm + ambient) + (1.0 - DiffusiveLighting);
       
       //Specular lighting term
       //This is enabled if (SpecularLighting == 1)
@@ -165,8 +174,7 @@ void main()
       src.rgb += SpecularLighting
 	* (lightNormDot > 0) //Test to ensure that specular is only
 	//applied to front facing voxels
-	* Specular * pow(max(dot(ReflectedRay, rayDirection), 0.0), 
-			 gl_FrontMaterial.shininess);
+	* vec3(1.0,1.0,1.0) * pow(max(dot(ReflectedRay, rayDirection), 0.0), 96.0);
       
       ///////////Front to back blending
       src.rgb *= src.a;
