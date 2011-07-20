@@ -42,6 +42,7 @@ namespace coil {
     _axis.init();
     _grid.init(10,10);
     _quad.init();
+    _cairoOverlay.init(800,600);
   }
 
   void 
@@ -130,6 +131,8 @@ namespace coil {
 	context.setViewport(oldviewport);
       }    
 
+    _cairoOverlay.redraw();
+    _cairoOverlay.glRender();
     //Restore GL state
     glEnable(GL_DEPTH_TEST);
   }

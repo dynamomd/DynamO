@@ -133,6 +133,7 @@ namespace magnet {
 	 * \li "iOrigin" = \ref Context::instanceOriginAttrIndex
 	 * \li "iOrientation" = \ref Context::instanceOrientationAttrIndex
 	 * \li "iScale" = \ref Context::instanceScaleAttrIndex
+	 * \li "vTexCoord" = \ref Context::vertexTexCoordAttrIndex
 	 *
 	 * If the shader requires access to the current projection
 	 * and/or view matrix, this must be registered using the
@@ -366,6 +367,7 @@ namespace magnet {
 	    glBindAttribLocation(_programHandle, Context::vertexPositionAttrIndex, "vPosition");
 	    glBindAttribLocation(_programHandle, Context::vertexColorAttrIndex, "vColor");
 	    glBindAttribLocation(_programHandle, Context::vertexNormalAttrIndex, "vNormal");
+	    glBindAttribLocation(_programHandle, Context::vertexTexCoordAttrIndex, "vTexCoord");
 	    glBindAttribLocation(_programHandle, Context::instanceOriginAttrIndex, "iOrigin");
 	    glBindAttribLocation(_programHandle, Context::instanceOrientationAttrIndex, "iOrientation");
 	    glBindAttribLocation(_programHandle, Context::instanceScaleAttrIndex, "iScale");

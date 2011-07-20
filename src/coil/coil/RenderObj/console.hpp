@@ -22,6 +22,7 @@
 #include <magnet/GL/objects/axis.hpp>
 #include <magnet/GL/objects/grid.hpp>
 #include <magnet/GL/objects/fullscreen_quad.hpp>
+#include <magnet/GL/objects/cairo.hpp>
 #include <tr1/array>
 #include <memory>
 #include <sstream>
@@ -69,6 +70,7 @@ namespace coil {
     magnet::GL::objects::Axis _axis;
     magnet::GL::objects::Grid _grid;
     magnet::GL::objects::FullScreenQuad _quad;
+    magnet::GL::objects::CairoSurface _cairoOverlay;
 
     std::auto_ptr<Gtk::VBox> _optList; 
     std::auto_ptr<Gtk::CheckButton> _showGrid;

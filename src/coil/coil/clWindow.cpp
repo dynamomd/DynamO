@@ -701,7 +701,7 @@ CLGLWindow::init()
   RenderObjects.push_back(new coil::Console(textcolor));
 
 //  //Test volume render object
-  RenderObjects.push_back(new coil::RVolume("Test Volume"));
+//  RenderObjects.push_back(new coil::RVolume("Test Volume"));
 
   _camera 
     = magnet::thread::RefPtr<magnet::GL::Camera>(new magnet::GL::Camera);
@@ -720,9 +720,9 @@ CLGLWindow::init()
 //  RenderObjects.back().as<coil::RVolume>()
 //    .loadRawFile("/home/mjki2mb2/Desktop/Output.raw", 300, 300, 300, 1);
 //  
-  //bonsai plant test
-  RenderObjects.back().as<coil::RVolume>()
-    .loadRawFile("bonsai.raw", 256, 256, 256, 1);
+//  //bonsai plant test
+//  RenderObjects.back().as<coil::RVolume>()
+//    .loadRawFile("bonsai.raw", 256, 256, 256, 1);
 //
 //  //Cadaver
 //  RenderObjects.back().as<coil::RVolume>()

@@ -172,6 +172,12 @@ namespace magnet {
        */
       static const GLuint instanceScaleAttrIndex = 5;
 
+      /*! \brief The index of the automatically-indexed 
+       * texture coordinate vertex attribute.
+       * \sa detail::Shader::build()
+       */
+      static const GLuint vertexTexCoordAttrIndex = 6;
+
       /*! \brief Convenience function to set the vertex attribute
        * representing the color in a shader.
        *

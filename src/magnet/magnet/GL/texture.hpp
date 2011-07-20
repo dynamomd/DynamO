@@ -123,7 +123,7 @@ namespace magnet {
     class Texture1D: public detail::TextureBasic
     {
     public:
-      Texture1D():detail::TextureBasic(GL_TEXTURE_1D) {}
+      Texture1D(): TextureBasic(GL_TEXTURE_1D) {}
       
       /*! \brief Initializes a 1D texture.
        *
@@ -133,7 +133,7 @@ namespace magnet {
       inline void init(size_t width, GLint internalformat = GL_RGBA8)
       {
 	_width = width; _internalFormat = internalformat;
-	detail::TextureBasic::init();
+	TextureBasic::init();
 	bind(0);
 	parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -182,7 +182,7 @@ namespace magnet {
     class Texture2D: public detail::TextureBasic
     {
     public:
-      Texture2D():detail::TextureBasic(GL_TEXTURE_2D) {}
+      Texture2D(): TextureBasic(GL_TEXTURE_2D) {}
       
       /*! \brief Initializes a 2D texture.
        *
@@ -196,7 +196,7 @@ namespace magnet {
 	_height = height; 
 	_internalFormat = internalformat;
 
-	detail::TextureBasic::init();
+	TextureBasic::init();
 	bind(0);
 	
 	glTexImage2D(_texType, 0, _internalFormat, _width, _height,
@@ -234,6 +234,21 @@ namespace magnet {
 			pixelformat, GL_UNSIGNED_BYTE, &data[0]);
       }
 
+      inline void subImage(const uint8_t* data, GLenum pixelformat, GLint width, 
+			   GLint height, GLint xoffset = 0, GLint yoffset = 0, GLint level = 0)
+      { 
+	//If there are negative values, assume they mean to use the
+	//full space
+	if (xoffset < 0) M_throw() << "x offset is negative";
+	if (yoffset < 0) M_throw() << "y offset is negative";
+	if (xoffset + width > _width) M_throw() << "Texture write x overrun";
+	if (yoffset + height > _height) M_throw() << "Texture write y overrun";
+
+	bind(0);
+	glTexSubImage2D(_texType, level, xoffset, yoffset, width, height,
+			pixelformat, GL_UNSIGNED_BYTE, data);
+      }
+
       inline const GLint& getWidth() const { return _width; }
       inline const GLint& getHeight() const { return _height; }
     private:
@@ -247,7 +262,7 @@ namespace magnet {
     class Texture3D: public detail::TextureBasic
     {
     public:
-      Texture3D():detail::TextureBasic(GL_TEXTURE_3D) {}
+      Texture3D(): TextureBasic(GL_TEXTURE_3D) {}
       
       /*! \brief Initializes a 3D texture.
        *
@@ -261,7 +276,7 @@ namespace magnet {
       {
 	_width = width; _height = height; _depth = depth;
 	_internalFormat = internalformat;
-	detail::TextureBasic::init();
+	TextureBasic::init();
 	bind(0);
 
 	parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);

@@ -238,6 +238,12 @@ namespace magnet {
       inline void attachToInstanceScale()
       { attachToAttribute(Context::instanceScaleAttrIndex, 3, 1); }
 
+      /*! \brief Attaches the buffer to the texture coordinate pointer
+       * of the GL state.
+       */
+      inline void attachToTexCoords()
+      { attachToAttribute(Context::vertexTexCoordAttrIndex, 2, 0); }
+
       /*! \brief Attaches the buffer to a vertex attribute pointer
        * state.
        */
