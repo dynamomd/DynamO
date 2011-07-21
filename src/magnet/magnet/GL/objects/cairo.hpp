@@ -35,7 +35,7 @@ namespace magnet {
 	{
 	  bool _alpha_testing;
 	public:
-	  CairoShader(): Shader(true, true), _alpha_testing(false) {}
+	  CairoShader(): Shader(false, false), _alpha_testing(false) {}
 
 	  void build(bool alpha_testing)
 	  {
@@ -68,9 +68,10 @@ void main()
 {
   //Rotate the vertex according to the instance transformation, and
   //then move it to the instance origin.
-  vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz)
-				   + iOrigin.xyz, 1.0);
-  gl_Position = ProjectionMatrix * vVertex;
+//  vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz)
+//				   + iOrigin.xyz, 1.0);
+//  gl_Position = ProjectionMatrix * vVertex;
+  gl_Position = vPosition;
   texCoord = 0.5 + 0.5 * vPosition.xy;
   if (ALPHA_TESTING)
     color = vColor;
@@ -90,8 +91,11 @@ void main()
 { 
   if (ALPHA_TESTING)
     {
-      if (texture2D(cairoTexture, texCoord).r > 0.5) discard;
-      gl_FragColor = color; 
+      //if (texture2D(cairoTexture, texCoord).r < 0.5) discard;
+      if (texture2D(cairoTexture, texCoord).r >= 0.5)
+	gl_FragColor = vec4(0,0,0,1);
+      else
+	gl_FragColor = vec4(1,1,1,1);
     }
   else
     gl_FragColor = texture2D(cairoTexture, texCoord); 
@@ -151,10 +155,12 @@ void main()
 	  //Clear the surface
 	  _cairoContext->save();
 	  _cairoContext->set_operator(Cairo::OPERATOR_SOURCE);
+	  //The clear alpha must be 0 for the alpha masking effect
 	  _cairoContext->set_source_rgba(0, 0, 0, 0);
 	  _cairoContext->paint();
+	  //The draw alpha must be >0 for the alpha masking effect
 	  _cairoContext->set_operator(Cairo::OPERATOR_OVER);
-	  _cairoContext->set_source_rgba(1, 0, 0, 1);
+	  _cairoContext->set_source_rgba(0, 0, 0, 1);
 	  
 	  drawCommands();
 	  _cairoContext->restore();
@@ -188,7 +194,7 @@ void main()
 	{
 	  _cairoContext->scale(_width,_height);
 	  _cairoContext->move_to(0.5,0.5);
-	  _cairoContext->set_font_size(0.1);
+	  _cairoContext->set_font_size(0.2);
 	  _cairoContext->show_text("Hello!");
 	}
 
@@ -224,7 +230,7 @@ void main()
 	  std::vector<double> d; d.resize(_width * _height, floatInf);
 
 	  //Iterate over the image's non-border pixels, finding color
-	  //edge pixels.
+	  //edge pixels. 
 	  for (size_t y(1); y < _height - 1; ++y)
 	    for (size_t x(1); x < _width - 1; ++x)
 	      if ((   I[iPos(x-1, y  )] != I[iPos(x, y)])
@@ -232,7 +238,7 @@ void main()
 		  || (I[iPos(x  , y-1)] != I[iPos(x, y)])
 		  || (I[iPos(x  , y+1)] != I[iPos(x, y)]))
 		{
-		  d[iPos(x,y)] = 0;
+		  d[iPos(x,y)] = 1;
 		  p[iPos(x,y)][0] = x;
 		  p[iPos(x,y)][1] = y;
 		}
