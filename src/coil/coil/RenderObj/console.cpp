@@ -43,6 +43,7 @@ namespace coil {
     _grid.init(10,10);
     _quad.init();
     _cairoOverlay.init(800,600);
+    _cairoOverlay.redraw();
   }
 
   void 
@@ -57,11 +58,10 @@ namespace coil {
     //Only draw if the console has something in it or if it's visible
     if (_consoleEntries.empty() || !_visible) return;
 
-    _cairoOverlay.redraw();
-    _cairoOverlay.glRender();
-
     //Disable anything that might affect the rastering 
     glDisable(GL_DEPTH_TEST);
+
+    _cairoOverlay.glRender();
 
     using namespace magnet::GL;
     Context& context = Context::getContext();
