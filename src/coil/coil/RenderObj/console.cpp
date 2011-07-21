@@ -42,7 +42,7 @@ namespace coil {
     _axis.init();
     _grid.init(10,10);
     _quad.init();
-    _cairoOverlay.init(128,128);
+    _cairoOverlay.init(256,256);
     _cairoOverlay.redraw();
   }
 

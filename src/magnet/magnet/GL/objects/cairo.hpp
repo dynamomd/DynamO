@@ -35,7 +35,7 @@ namespace magnet {
 	{
 	  bool _alpha_testing;
 	public:
-	  CairoShader(): Shader(false, false), _alpha_testing(false) {}
+	  CairoShader(): Shader(true, true), _alpha_testing(false) {}
 
 	  void build(bool alpha_testing)
 	  {
@@ -68,10 +68,9 @@ void main()
 {
   //Rotate the vertex according to the instance transformation, and
   //then move it to the instance origin.
-//  vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz)
-//				   + iOrigin.xyz, 1.0);
-//  gl_Position = ProjectionMatrix * vVertex;
-  gl_Position = vPosition;
+  vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz)
+				   + iOrigin.xyz, 1.0);
+  gl_Position = ProjectionMatrix * vVertex;
   texCoord = 0.5 + 0.5 * vPosition.xy;
   if (ALPHA_TESTING)
     color = vColor;
@@ -91,11 +90,8 @@ void main()
 { 
   if (ALPHA_TESTING)
     {
-      //if (texture2D(cairoTexture, texCoord).r < 0.5) discard;
-      if (texture2D(cairoTexture, texCoord).r >= 0.5)
-	gl_FragColor = vec4(0,0,0,1);
-      else
-	gl_FragColor = vec4(1,1,1,1);
+      if (texture2D(cairoTexture, texCoord).r < 0.5) discard;
+      gl_FragColor = color;
     }
   else
     gl_FragColor = texture2D(cairoTexture, texCoord); 
@@ -122,12 +118,12 @@ void main()
 
 	/*! \brief Sets up the vertex buffer objects for the quad.
 	 */
-	inline void init(size_t width, size_t height, bool alpha_testing = true)
+	inline void init(size_t width, size_t height, size_t alpha_testing = 0)
 	{
 	  _alpha_testing = alpha_testing;
 
-	  _width = width;
-	  _height = height;
+	  _width = width * (alpha_testing + !alpha_testing);
+	  _height = height * (alpha_testing + !alpha_testing);
 
 	  { ///////////////////Vertex Data
 	    // Single quad, in pre-transformed screen coordinates
@@ -143,7 +139,12 @@ void main()
 	  }
 
 	  _shader.build(_alpha_testing);
-	  _surface.init(_width, _height);
+	  _surface.init(_width / (_alpha_testing + !_alpha_testing), 
+			_height / (_alpha_testing + !_alpha_testing));
+	  _surface.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	  _surface.parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	  _surface.parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	  _surface.parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	  
 	  _cairoSurface = Cairo::ImageSurface::create(_alpha_testing ? Cairo::FORMAT_A8 : Cairo::FORMAT_ARGB32, 
 						      _width, _height);
@@ -165,15 +166,27 @@ void main()
 	  drawCommands();
 	  _cairoContext->restore();
 	  
-	  if (_alpha_testing)
-	    signedDistanceTransform(_cairoSurface->get_data());
-
 	  //Send the cairo surface to the GL texture
-	  _surface.subImage(_cairoSurface->get_data(), _alpha_testing ? GL_RED : GL_BGRA, _width, _height);
-	  _surface.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	  _surface.parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	  _surface.parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	  _surface.parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	  if (_alpha_testing)
+	    {
+	      //Calculate the distance texture
+	      signedDistanceTransform(_cairoSurface->get_data());
+	      //Downsample to the actual size
+	      
+	      size_t texXSize = _width / _alpha_testing;
+	      size_t texYSize = _height / _alpha_testing;
+	      std::vector<unsigned char> downsampled;
+	      downsampled.resize(texXSize * texYSize);
+	      for (size_t y(0); y < texYSize; ++y)
+		for (size_t x(0); x < texXSize; ++x)
+		  downsampled[y * texXSize + x] 
+		    = _cairoSurface->get_data()[y * _alpha_testing * _width + x * _alpha_testing];
+
+	      _surface.subImage(downsampled, GL_RED);
+	    }
+	  else
+	    _surface.subImage(_cairoSurface->get_data(), GL_BGRA, _width, _height);
+
 	}
 	
 	/*! \brief Attaches the vertex buffer and renders the quad.
@@ -216,6 +229,24 @@ void main()
 	    }
 	}
 
+	std::vector<P> p;
+	std::vector<double> d;
+	
+	void interpolateDistance(size_t x1, size_t y1, size_t x2, size_t y2, const unsigned char* I)
+	{
+	  int i1 = iPos(x1, y1);
+	  const char& Icurr = I[i1];
+	  double& dcurr = d[i1];
+
+	  if ((I[iPos(x2, y2)] / 128) != (Icurr / 128))
+	    {
+	      //double interpDist = 1; //std::abs((128.0 - Icurr) / (double(I[iPos(x2, y2)]) - Icurr));
+	      dcurr = 1;//std::min(dcurr, interpDist);
+	      p[i1][0] = x2;
+	      p[i1][1] = y2;
+	    }
+	}
+
 	void signedDistanceTransform(unsigned char* I)
 	{
 	  //The border of the image must be 0
@@ -226,22 +257,19 @@ void main()
 	  
 	  double floatInf = std::numeric_limits<float>::max() / 2;
 
-	  std::vector<P> p; p.resize(_width * _height);
-	  std::vector<double> d; d.resize(_width * _height, floatInf);
-
+	  p.resize(_width * _height);
+	   d.resize(_width * _height, floatInf);
+	  
 	  //Iterate over the image's non-border pixels, finding color
 	  //edge pixels. 
 	  for (size_t y(1); y < _height - 1; ++y)
 	    for (size_t x(1); x < _width - 1; ++x)
-	      if ((   I[iPos(x-1, y  )] != I[iPos(x, y)])
-		  || (I[iPos(x+1, y  )] != I[iPos(x, y)])
-		  || (I[iPos(x  , y-1)] != I[iPos(x, y)])
-		  || (I[iPos(x  , y+1)] != I[iPos(x, y)]))
-		{
-		  d[iPos(x,y)] = 1;
-		  p[iPos(x,y)][0] = x;
-		  p[iPos(x,y)][1] = y;
-		}
+	      {
+		interpolateDistance(x, y, x - 1, y, I);
+		interpolateDistance(x, y, x + 1, y, I);
+		interpolateDistance(x, y, x, y - 1, I);
+		interpolateDistance(x, y, x, y + 1, I);
+	      }
 
 #define _check(X,Y,Delta)				      \
 	  { int i1 = iPos((X),(Y));			      \
@@ -281,15 +309,16 @@ void main()
 	    for (size_t y(0); y < _height; ++y)
 	      {
 		size_t i = iPos(x,y);
-		double locd = I[i] ?  d[i] : -d[i];
-		I[i] = std::min(255.0, std::max(0.0, 128 + locd * 4));
+		double locd = (I[i] > 127) ?  d[i] : -d[i];
+		I[i] = std::min(255.0, std::max(0.0, 128 + locd * std::max(size_t(1), 
+									   256 / _alpha_testing)));
 	      }
 	}
 
 	Texture2D _surface;
 	size_t _width;
 	size_t _height;
-	bool _alpha_testing;
+	size_t _alpha_testing;
 	Cairo::RefPtr<Cairo::ImageSurface> _cairoSurface;
 	Cairo::RefPtr<Cairo::Context> _cairoContext;
 	magnet::GL::Buffer<GLfloat> _vertexData;
