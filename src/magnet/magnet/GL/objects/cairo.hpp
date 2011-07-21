@@ -17,6 +17,7 @@
 #pragma once
 #include <magnet/GL/texture.hpp>
 #include <magnet/GL/shader/detail/shader.hpp>
+#include <magnet/image/signed_distance.hpp>
 #include <cairommconfig.h>
 #include <cairomm/context.h>
 #include <cairomm/surface.h>
@@ -24,20 +25,41 @@
 namespace magnet {
   namespace GL {
     namespace objects {
-      /*! \brief A textured quad generated from cairo drawing commands.
+      /*! \brief A quad textured with a 2D image generated from cairo
+       * drawing commands.
        *
        * This class is used to form a base class for rendering cairo
        * surfaces into an OpenGL scene.
+       *
+       * It also provides an alpha-tested magnification routine and
+       * corresponding shader to help fake "vectorised" bitmap
+       * graphics. The technique is briefly described in the paper
+       * "Improved Alpha-Tested Magnification for Vector Textures and
+       * Special Effects," by Chris Green from Valve.
        */
       class CairoSurface
       {
+	/*! \brief An alpha-testing shader for painting Cario
+	 * generated textures.
+	 */
 	class CairoShader: public GL::shader::detail::Shader
 	{
-	  bool _alpha_testing;
+	  size_t _alpha_testing;
 	public:
-	  CairoShader(): Shader(true, true), _alpha_testing(false) {}
+	  CairoShader(): Shader(true, true), _alpha_testing(0) {}
 
-	  void build(bool alpha_testing)
+	  /*! \brief Builds the shader and sets the draw mode.
+	   *
+	   * \param alpha_testing Controls the mode of the shader,
+	   * current supported modes are:
+	   *
+	   * \li 0 : Standard texturing of the quad with the passed texture.
+	   *
+	   * \li 1 : Use the red channel of the texture to perform
+	   * alpha testing for a value of r 0.5. The color of the
+	   * object is taken from the GL state.
+	   */
+	  void build(size_t alpha_testing)
 	  {
 	    _alpha_testing = alpha_testing;
 	    Shader::build();
@@ -47,7 +69,7 @@ namespace magnet {
 	  virtual std::string initVertexShaderSource()
 	  {
 	    std::ostringstream os;
-	    os << "const bool ALPHA_TESTING = " << _alpha_testing << ";"
+	    os << "const int ALPHA_TESTING = " << _alpha_testing << ";"
 	       << STRINGIFY(
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
@@ -66,8 +88,6 @@ vec3 qrot(vec4 q, vec3 v)
 
 void main()
 {
-  //Rotate the vertex according to the instance transformation, and
-  //then move it to the instance origin.
   vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz)
 				   + iOrigin.xyz, 1.0);
   gl_Position = ProjectionMatrix * vVertex;
@@ -80,7 +100,7 @@ void main()
 	  virtual std::string initFragmentShaderSource()
 	  {
 	    std::ostringstream os;
-	    os << "const bool ALPHA_TESTING = " << _alpha_testing << ";"
+	    os << "const int ALPHA_TESTING = " << _alpha_testing << ";"
 	       << STRINGIFY(
 uniform sampler2D cairoTexture;
 varying vec2 texCoord;
@@ -115,7 +135,19 @@ void main()
 	  _width = _height = 0;
 	}
 
-	/*! \brief Sets up the vertex buffer objects for the quad.
+	/*! \brief Sets up the vertex buffer objects for the quad and
+	 * the Cairo backend for rendering the texture.
+	 *
+	 * \param width The width of the final texture.
+	 *
+	 * \param height The height of the final texture.
+	 *
+	 * \param alpha_testing If alpha_testing > 0, this enables the alpha-tested
+	 * texture generation and sets the relative pixel size of the
+	 * Cario scene. For a value of 0, this class simply renders a
+	 * cairo scene and pastes it into an OpenGL texture. See the class
+	 * description for more general information.
+	 *
 	 */
 	inline void init(size_t width, size_t height, size_t alpha_testing = 0)
 	{
@@ -150,6 +182,9 @@ void main()
 	  _cairoContext = Cairo::Context::create(_cairoSurface);
 	}
 	
+	/*! \brief Forces the underlying Cairo scene to be rerendered
+	 * and the texture to be updated.
+	 */
 	void redraw()
 	{
 	  //Clear the surface
@@ -169,9 +204,9 @@ void main()
 	  if (_alpha_testing)
 	    {
 	      //Calculate the distance texture
-	      signedDistanceTransform(_cairoSurface->get_data());
-	      //Downsample to the actual size
-	      
+	      image::SignedDistanceTransform(_cairoSurface->get_data(), _width, _height);
+
+	      //Downsample to the actual size	      
 	      size_t texXSize = _width / _alpha_testing;
 	      size_t texYSize = _height / _alpha_testing;
 	      std::vector<unsigned char> downsampled;
@@ -181,6 +216,7 @@ void main()
 		  downsampled[y * texXSize + x] 
 		    = _cairoSurface->get_data()[y * _alpha_testing * _width + x * _alpha_testing];
 	      
+	      //Send the data to the texture
 	      _surface.subImage(downsampled, GL_RED);
 	    }
 	  else
@@ -188,7 +224,11 @@ void main()
 	  
 	}
 	
-	/*! \brief Attaches the vertex buffer and renders the quad.
+	/*! \brief Renders the Cairo scene.
+	 *
+	 * The position, orientation and size of the scene can be
+	 * controlled through the \ref Shader instance attributes.  Or
+	 * alternately through the modelview matrix.
 	 */
 	inline void glRender()
 	{
@@ -199,102 +239,17 @@ void main()
 	}
 
       protected:
+	/*! \brief Draw specific commands.
+	 *
+	 * This function is to be overridden in the derived classes to
+	 * actually draw the cairo scene.
+	 */
 	virtual void drawCommands() 
 	{
 	  _cairoContext->scale(_width,_height);
 	  _cairoContext->move_to(0.1,0.5);
 	  _cairoContext->set_font_size(0.3);
 	  _cairoContext->show_text("Hello!");
-	  //_cairoContext->arc(0, 0, 0.1,0, 2 * M_PI);
-	  //_cairoContext->fill();
-	}
-
-	struct P: public std::tr1::array<int,2> 
-	{ P() { (*this)[0] = (*this)[1] = -1; } };
-
-	inline size_t iPos(size_t x, size_t y) { return y * _width + x; }
-
-	inline void check(int x, int y, double delta, size_t i2)
-	{
-	  int i1 = iPos(x,y);
-	  if (d[i1] + delta < d[i2]) 
-	    {						      
-	      p[i2] = p[i1];			              
-	      const double deltaX = (p[i1][0] - x);
-	      const double deltaY = (p[i1][1] - y);
-	      d[i2] = std::sqrt(deltaX*deltaX + deltaY*deltaY);
-	    }
-	}
-
-	std::vector<P> p;
-	std::vector<double> d;
-	
-	void interpolateDistance(size_t x1, size_t y1, size_t x2, size_t y2, const unsigned char* I)
-	{
-	  int i1 = iPos(x1, y1);
-	  if ((I[iPos(x2, y2)] > 127) != (I[i1] > 127))
-	    {
-	      //double interpDist = std::abs((128.0 - I[i1]) / (double(I[iPos(x2, y2)]) - I[i1]));
-	      d[i1] = 1;//std::min(d[i1], interpDist);
-	      p[i1][0] = x2;
-	      p[i1][1] = y2;
-	    }
-	}
-
-	void signedDistanceTransform(unsigned char* I)
-	{
-	  //The border of the image must be 0
-	  for (size_t x(0); x < _width; ++x)
-	    { I[iPos(x, 0)] = 0; I[iPos(x, _height - 1)] = 0; }
-	  for (size_t y(0); y < _height; ++y)
-	    { I[iPos(0, y)] = 0; I[iPos(_width - 1, y)] = 0; }
-	  
-	  double floatInf = std::numeric_limits<float>::max() / 2;
-
-	  p.resize(_width * _height);
-	  d.resize(_width * _height, floatInf);
-	  
-	  //Iterate over the image's non-border pixels, finding color
-	  //edge pixels. 
-	  for (size_t y(1); y < _height - 1; ++y)
-	    for (size_t x(1); x < _width - 1; ++x)
-	      {
-		interpolateDistance(x, y, x - 1, y, I);
-		interpolateDistance(x, y, x + 1, y, I);
-		interpolateDistance(x, y, x, y - 1, I);
-		interpolateDistance(x, y, x, y + 1, I);
-	      }
-
-	  //First "forward" pass
-	  for (int y(1); y < int(_height) - 1; ++y)
-	    for (int x(1); x < int(_width) - 1; ++x)
-	      {
-		int i2 = iPos(x,y);
-		check(x-1,y-1,std::sqrt(2), i2);
-		check(x,y-1,1, i2);
-		check(x+1,y-1,std::sqrt(2), i2);
-		check(x-1,y,1, i2);
-	      }
-
-	  //Second "reverse" pass
-	  for (int y(_height - 2); y > 0; --y)
-	    for (int x(_width - 2); x > 0; --x)
-	      {
-		size_t i2 = iPos(x,y);
-		check(x+1,y,1, i2);
-		check(x-1,y+1,std::sqrt(2), i2);
-		check(x,y+1,1, i2);
-		check(x+1,y+1,std::sqrt(2), i2);
-	      }
-
-	  //Transform the output to a scaled range
-	  for (size_t x(0); x < _width; ++x)
-	    for (size_t y(0); y < _height; ++y)
-	      {
-		size_t i = iPos(x,y);
-		double locd = (I[i] > 127) ?  d[i] : -d[i];
-		I[i] = std::min(255.0, std::max(0.0, 128 + locd));
-	      }
 	}
 
 	Texture2D _surface;
