@@ -44,7 +44,9 @@
 **** TODO Work on Sebastians project.
 **** TODO Check you haven't broken any histogramming code with the new fuzzy array class.
 **** TODO Move all the dynamo classes into the dynamo namespace.
-**** TODO Magnetise the wii mote class.
+**** TODO Magnetise the wii mote class and write it up on the site.
+**** TODO Write the morton class up.
+**** TODO Write up the image distance class.
 *** DynamO 1.1 							    :ARCHIVE:
 **** DONE *MAJOR* Remove Unit types from the XML file and simulator.
 **** DONE *MAJOR* Remove aspect ratio and instead load the primary image cell size.

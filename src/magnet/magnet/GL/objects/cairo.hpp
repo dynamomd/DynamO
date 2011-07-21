@@ -117,7 +117,7 @@ void main()
 
 	/*! \brief Sets up the vertex buffer objects for the quad.
 	 */
-	inline void init(size_t width, size_t height, size_t alpha_testing = 8)
+	inline void init(size_t width, size_t height, size_t alpha_testing = 0)
 	{
 	  _alpha_testing = alpha_testing;
 
@@ -205,8 +205,8 @@ void main()
 	  _cairoContext->move_to(0.1,0.5);
 	  _cairoContext->set_font_size(0.3);
 	  _cairoContext->show_text("Hello!");
-	  _cairoContext->arc(0, 0, 0.1,0, 2 * M_PI);
-	  _cairoContext->fill();
+	  //_cairoContext->arc(0, 0, 0.1,0, 2 * M_PI);
+	  //_cairoContext->fill();
 	}
 
 	struct P: public std::tr1::array<int,2> 
@@ -214,8 +214,7 @@ void main()
 
 	inline size_t iPos(size_t x, size_t y) { return y * _width + x; }
 
-	inline void check(int x, int y, double delta, 
-			  std::vector<P>& p, std::vector<double>& d, size_t i2)
+	inline void check(int x, int y, double delta, size_t i2)
 	{
 	  int i1 = iPos(x,y);
 	  if (d[i1] + delta < d[i2]) 
@@ -235,8 +234,8 @@ void main()
 	  int i1 = iPos(x1, y1);
 	  if ((I[iPos(x2, y2)] > 127) != (I[i1] > 127))
 	    {
-	      //double interpDist = 1; //std::abs((128.0 - Icurr) / (double(I[iPos(x2, y2)]) - Icurr));
-	      d[i1] = 1;//std::min(dcurr, interpDist);
+	      //double interpDist = std::abs((128.0 - I[i1]) / (double(I[iPos(x2, y2)]) - I[i1]));
+	      d[i1] = 1;//std::min(d[i1], interpDist);
 	      p[i1][0] = x2;
 	      p[i1][1] = y2;
 	    }
@@ -266,38 +265,27 @@ void main()
 		interpolateDistance(x, y, x, y + 1, I);
 	      }
 
-#define _check(X,Y,Delta)				      \
-	  { int i1 = iPos((X),(Y));			      \
-	  if (d[i1]+(Delta) < d[i2]) {			      \
-	    p[i2] = p[i1];			              \
-	    const double deltaX = (p[i1][0] - x);	      \
-	    const double deltaY = (p[i1][1] - y);	      \
-	    d[i2] = std::sqrt(deltaX*deltaX + deltaY*deltaY); \
-	  }}
-
-	  //First pass
+	  //First "forward" pass
 	  for (int y(1); y < int(_height) - 1; ++y)
 	    for (int x(1); x < int(_width) - 1; ++x)
 	      {
 		int i2 = iPos(x,y);
-		_check( x-1, y-1, std::sqrt(2));
-		_check( x,   y-1, 1);
-		_check( x+1, y-1, std::sqrt(2));
-		_check( x-1, y,   1);
+		check(x-1,y-1,std::sqrt(2), i2);
+		check(x,y-1,1, i2);
+		check(x+1,y-1,std::sqrt(2), i2);
+		check(x-1,y,1, i2);
 	      }
 
-	  //Second pass
+	  //Second "reverse" pass
 	  for (int y(_height - 2); y > 0; --y)
 	    for (int x(_width - 2); x > 0; --x)
 	      {
 		size_t i2 = iPos(x,y);
-                _check(x + 1, y    ,            1);
-                _check(x - 1, y + 1, std::sqrt(2));
-                _check(x    , y + 1,            1);
-                _check(x + 1, y + 1, std::sqrt(2));
+		check(x+1,y,1, i2);
+		check(x-1,y+1,std::sqrt(2), i2);
+		check(x,y+1,1, i2);
+		check(x+1,y+1,std::sqrt(2), i2);
 	      }
-
-#undef _check
 
 	  //Transform the output to a scaled range
 	  for (size_t x(0); x < _width; ++x)
