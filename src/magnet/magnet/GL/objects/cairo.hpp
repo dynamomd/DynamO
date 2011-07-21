@@ -35,7 +35,7 @@ namespace magnet {
 	{
 	  bool _alpha_testing;
 	public:
-	  CairoShader(): Shader(false, false), _alpha_testing(false) {}
+	  CairoShader(): Shader(true, true), _alpha_testing(false) {}
 
 	  void build(bool alpha_testing)
 	  {
@@ -66,13 +66,12 @@ vec3 qrot(vec4 q, vec3 v)
 
 void main()
 {
-//  //Rotate the vertex according to the instance transformation, and
-//  //then move it to the instance origin.
-//  vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz)
-//				   + iOrigin.xyz, 1.0);
-//  gl_Position = ProjectionMatrix * vVertex;
-  gl_Position = vPosition;
-  texCoord = 0.5 + 0.5 * vPosition.xy;
+  //Rotate the vertex according to the instance transformation, and
+  //then move it to the instance origin.
+  vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz)
+				   + iOrigin.xyz, 1.0);
+  gl_Position = ProjectionMatrix * vVertex;
+  texCoord = 0.5 + 0.5 * vPosition.xy * vec2(1.0, -1.0);
   if (ALPHA_TESTING) color = vColor;
 });
 	    return os.str();
@@ -91,11 +90,10 @@ void main()
   if (ALPHA_TESTING)
     {
       if (texture2D(cairoTexture, texCoord).r <= 0.5) discard;
-      gl_FragColor = vec4(vec3(0),1);
+      gl_FragColor = color;
     }
   else
-    gl_FragColor = texture2D(cairoTexture, texCoord); 
-//  gl_FragColor = vec4(vec3(texture2D(cairoTexture, texCoord).r),1);
+    gl_FragColor = texture2D(cairoTexture, texCoord);
 }); 
 	    return os.str();
 	  }
@@ -119,7 +117,7 @@ void main()
 
 	/*! \brief Sets up the vertex buffer objects for the quad.
 	 */
-	inline void init(size_t width, size_t height, size_t alpha_testing = 0)
+	inline void init(size_t width, size_t height, size_t alpha_testing = 8)
 	{
 	  _alpha_testing = alpha_testing;
 
@@ -182,24 +180,21 @@ void main()
 		for (size_t x(0); x < texXSize; ++x)
 		  downsampled[y * texXSize + x] 
 		    = _cairoSurface->get_data()[y * _alpha_testing * _width + x * _alpha_testing];
-
+	      
 	      _surface.subImage(downsampled, GL_RED);
 	    }
 	  else
 	    _surface.subImage(_cairoSurface->get_data(), GL_BGRA, _width, _height);
-
+	  
 	}
 	
 	/*! \brief Attaches the vertex buffer and renders the quad.
 	 */
 	inline void glRender()
 	{
-	  _vertexData.getContext().cleanupAttributeArrays();
 	  _surface.bind(6);
 	  _shader["cairoTexture"] = 6;
-	  _shader.attach();
-	  
-	  _vertexData.getContext().color(0,0,0,1);
+	  _shader.attach();	  
 	  _vertexData.drawArray(magnet::GL::element_type::QUADS, 2); 
 	}
 
