@@ -35,7 +35,7 @@ namespace magnet {
 	{
 	  bool _alpha_testing;
 	public:
-	  CairoShader(): Shader(true, true), _alpha_testing(false) {}
+	  CairoShader(): Shader(false, false), _alpha_testing(false) {}
 
 	  void build(bool alpha_testing)
 	  {
@@ -66,14 +66,14 @@ vec3 qrot(vec4 q, vec3 v)
 
 void main()
 {
-  //Rotate the vertex according to the instance transformation, and
-  //then move it to the instance origin.
-  vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz)
-				   + iOrigin.xyz, 1.0);
-  gl_Position = ProjectionMatrix * vVertex;
+//  //Rotate the vertex according to the instance transformation, and
+//  //then move it to the instance origin.
+//  vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz)
+//				   + iOrigin.xyz, 1.0);
+//  gl_Position = ProjectionMatrix * vVertex;
+  gl_Position = vPosition;
   texCoord = 0.5 + 0.5 * vPosition.xy;
-  if (ALPHA_TESTING)
-    color = vColor;
+  if (ALPHA_TESTING) color = vColor;
 });
 	    return os.str();
 	  }
@@ -90,11 +90,12 @@ void main()
 { 
   if (ALPHA_TESTING)
     {
-      if (texture2D(cairoTexture, texCoord).r < 0.5) discard;
-      gl_FragColor = color;
+      if (texture2D(cairoTexture, texCoord).r <= 0.5) discard;
+      gl_FragColor = vec4(vec3(0),1);
     }
   else
     gl_FragColor = texture2D(cairoTexture, texCoord); 
+//  gl_FragColor = vec4(vec3(texture2D(cairoTexture, texCoord).r),1);
 }); 
 	    return os.str();
 	  }
@@ -206,9 +207,11 @@ void main()
 	virtual void drawCommands() 
 	{
 	  _cairoContext->scale(_width,_height);
-	  _cairoContext->move_to(0.5,0.5);
-	  _cairoContext->set_font_size(0.2);
+	  _cairoContext->move_to(0.1,0.5);
+	  _cairoContext->set_font_size(0.3);
 	  _cairoContext->show_text("Hello!");
+	  _cairoContext->arc(0, 0, 0.1,0, 2 * M_PI);
+	  _cairoContext->fill();
 	}
 
 	struct P: public std::tr1::array<int,2> 
@@ -235,13 +238,10 @@ void main()
 	void interpolateDistance(size_t x1, size_t y1, size_t x2, size_t y2, const unsigned char* I)
 	{
 	  int i1 = iPos(x1, y1);
-	  const char& Icurr = I[i1];
-	  double& dcurr = d[i1];
-
-	  if ((I[iPos(x2, y2)] / 128) != (Icurr / 128))
+	  if ((I[iPos(x2, y2)] > 127) != (I[i1] > 127))
 	    {
 	      //double interpDist = 1; //std::abs((128.0 - Icurr) / (double(I[iPos(x2, y2)]) - Icurr));
-	      dcurr = 1;//std::min(dcurr, interpDist);
+	      d[i1] = 1;//std::min(dcurr, interpDist);
 	      p[i1][0] = x2;
 	      p[i1][1] = y2;
 	    }
@@ -258,7 +258,7 @@ void main()
 	  double floatInf = std::numeric_limits<float>::max() / 2;
 
 	  p.resize(_width * _height);
-	   d.resize(_width * _height, floatInf);
+	  d.resize(_width * _height, floatInf);
 	  
 	  //Iterate over the image's non-border pixels, finding color
 	  //edge pixels. 
@@ -310,8 +310,7 @@ void main()
 	      {
 		size_t i = iPos(x,y);
 		double locd = (I[i] > 127) ?  d[i] : -d[i];
-		I[i] = std::min(255.0, std::max(0.0, 128 + locd * std::max(size_t(1), 
-									   256 / _alpha_testing)));
+		I[i] = std::min(255.0, std::max(0.0, 128 + locd));
 	      }
 	}
 
