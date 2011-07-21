@@ -275,8 +275,8 @@ void main()
 	    for (size_t y(0); y < _height; ++y)
 	      {
 		size_t i = iPos(x,y);
-		double locd = I[i] ? -d[i] : d[i];
-		I[i] = std::min(255.0, std::max(0.0, 128 + locd));
+		double locd = I[i] ?  d[i] : -d[i];
+		I[i] = std::min(255.0, std::max(0.0, 128 + locd * 4));
 	      }
 	}
 
