@@ -18,9 +18,11 @@
 #include <magnet/GL/context.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/string/formatcode.hpp>
+#include <boost/any.hpp>
 #include <tr1/array>
 #include <tr1/unordered_map>
 #include <string>
+#include <cstring>
 
 #define STRINGIFY(A) #A
 
@@ -41,51 +43,54 @@ namespace magnet {
 	 * and so it should only be returned as a temporary from the
 	 * \ref Shader::operator[]() calls.
 	 */
-	class ShaderUniform
+
+	/*! \brief This class is used to store the assigned value of a
+	 * shader uniform.
+	 *
+	 * The stored value is used to optimise redundant assignments
+	 * of shader uniforms and to allow fast, type-safe access to
+	 * the currently assigned uniform value.
+	 *
+	 * As shader uniforms may have several types, we must store
+	 * the type information ourselves. All standard uniform types
+	 * passed to a shader can be reduced into either an array of
+	 * GLfloat's or GLint's. This class reduces the data to a
+	 * std::tr1::array of floats or ints and places the data in a
+	 * boost::any containter.
+	 */
+	class ShaderUniformValue
 	{
 	public:
-	  inline ShaderUniform(GLint uniformHandle):
-	    _uniformHandle(uniformHandle)
-	  {}
-
-	  inline void operator=(GLfloat val)
-	  { glUniform1f(_uniformHandle, val); }
-
-	  inline void operator=(const GLint& val)
-	  { glUniform1i(_uniformHandle, val); }
-
+	  inline ShaderUniformValue(): _uniformHandle(-1) {}
+	  
+	  inline void setHandle(GLint uniformHandle) { _uniformHandle = uniformHandle; }
+	  inline GLint getHandle() const { return _uniformHandle; }
+	  
 	  template<class T>
-	  inline void operator=(const std::tr1::array<T, 1>& val)
-	  { operator=(val[0]); }
+	  bool operator==(const T& val) const
+	  {
+	    return ((!_data.empty())
+		    && (typeid(T) == _data.type())
+		    && (boost::any_cast<T>(_data) == val));
+	  }
 
-	  inline void operator=(const std::tr1::array<GLfloat, 2>& val)
-	  { glUniform2fv(_uniformHandle, 1, &(val[0])); }
+	  template<class T> const T& as()
+	  {
+	    if (_data.empty()) M_throw() << "Uniform hasn't been assigned yet! Cannot retrieve its value";
+	    if (typeid(T) != _data.type()) M_throw() << "Invalid as() cast for uniform value";
+	    return boost::any_cast<T>(_data);
+	  }
 
-	  inline void operator=(const std::tr1::array<GLfloat, 3>& val)
-	  { glUniform3fv(_uniformHandle, 1, &(val[0])); }
-
-	  inline void operator=(const std::tr1::array<GLfloat, 4>& val)
-	  { glUniform4fv(_uniformHandle, 1, &(val[0])); }
-
-	  inline void operator=(const std::tr1::array<GLint, 2>& val)
-	  { glUniform2iv(_uniformHandle, 1, &(val[0])); }
-
-	  inline void operator=(const std::tr1::array<GLint, 3>& val)
-	  { glUniform3iv(_uniformHandle, 1, &(val[0])); }
-
-	  inline void operator=(const std::tr1::array<GLint, 4>& val)
-	  { glUniform4iv(_uniformHandle, 1, &(val[0])); }
-
-	  inline void operator=(const std::tr1::array<GLfloat, 9>& val)
-	  { glUniformMatrix3fv(_uniformHandle, 1, GL_FALSE, &(val[0])); }
-
-	  inline void operator=(const std::tr1::array<GLfloat, 16>& val)
-	  { glUniformMatrix4fv(_uniformHandle, 1, GL_FALSE, &(val[0])); }
+	  inline void operator=(const GLfloat& val)
+	  { std::tr1::array<GLfloat,1> val2 = {{val}}; operator=(val2); }
+	  
+	  inline void operator=(const GLint& val)
+	  { std::tr1::array<GLint,1> val2 = {{val}}; operator=(val2); }
 
 	  inline void operator=(const Vector& vec)
 	  { 
-	    std::tr1::array<GLfloat, 3> val = {{vec[0], vec[1], vec[2]}};
-	    operator=(val);
+	    std::tr1::array<GLfloat, 3> val = {{vec[0], vec[1], vec[2]}}; 
+	    operator=(val); 
 	  }
 
 	  inline void operator=(const Matrix& mat)
@@ -96,10 +101,48 @@ namespace magnet {
 	    operator=(val);
 	  }
 	  
-	private:
-	  GLint _uniformHandle;
-	};
+	  inline void operator=(const std::tr1::array<GLfloat, 1>& val)
+	  { if (test_assign(val)) glUniform1f(_uniformHandle, val[0]); }
 
+	  inline void operator=(const std::tr1::array<GLfloat, 2>& val)
+	  { if (test_assign(val)) glUniform2fv(_uniformHandle, 1, &(val[0])); }
+
+	  inline void operator=(const std::tr1::array<GLfloat, 3>& val)
+	  { if (test_assign(val)) glUniform3fv(_uniformHandle, 1, &(val[0])); }
+
+	  inline void operator=(const std::tr1::array<GLfloat, 4>& val)
+	  { if (test_assign(val)) glUniform4fv(_uniformHandle, 1, &(val[0])); }
+
+	  inline void operator=(const std::tr1::array<GLint,   1>& val)
+	  { if (test_assign(val)) glUniform1i(_uniformHandle, val[0]); }
+
+	  inline void operator=(const std::tr1::array<GLint,   2>& val)
+	  { if (test_assign(val)) glUniform2iv(_uniformHandle, 1, &(val[0])); }
+
+	  inline void operator=(const std::tr1::array<GLint,   3>& val)
+	  { if (test_assign(val)) glUniform3iv(_uniformHandle, 1, &(val[0])); }
+
+	  inline void operator=(const std::tr1::array<GLint,   4>& val)
+	  { if (test_assign(val)) glUniform4iv(_uniformHandle, 1, &(val[0])); }
+
+	  inline void operator=(const std::tr1::array<GLfloat, 9>& val)
+	  { if (test_assign(val)) glUniformMatrix3fv(_uniformHandle, 1, GL_FALSE, &(val[0])); }
+
+	  inline void operator=(const std::tr1::array<GLfloat, 16>& val)
+	  { if (test_assign(val)) glUniformMatrix4fv(_uniformHandle, 1, GL_FALSE, &(val[0])); }
+
+	private:
+	  template<class T> 
+	  bool test_assign(const T& val)
+	  {
+	    if (*this == val) return false;
+	    _data = boost::any(val);
+	    return true;
+	  }
+
+	  GLint _uniformHandle;
+	  boost::any _data;
+	};
 
 	/*! \brief A OpenGL shader object.
 	 *
@@ -177,34 +220,44 @@ namespace magnet {
 	    _context->setShader(_programHandle);
 	  }
 
-	  /*! \brief Used to set values of \ref Shader uniforms (AKA
-           *   arguments).
+	  /*! \brief Used to set and retrieve values of \ref Shader
+           *   uniforms (AKA shader arguments).
 	   *
-	   * This function lets you assign values to uniforms quite
-	   * easily:
+	   * This function lets you assign values to uniforms easily:
 	   * \code Shader A;
 	   * A.build();
 	   * A["ShaderVariable"] = 1.0; \endcode
 	   *
+	   * You may also retrieve the value of uniforms
+	   *
+	   * \code 
+	   * std::tr1::array<GLfloat, 1> value = A["ShaderVariable"].as<std::tr1::array<GLfloat, 1> >(); 
+	   * std::tr1::array<GLfloat, 3> value = A["vec3ShaderVariable"].as<std::tr1::array<GLfloat, 3> >(); 
+	   * \endcode
+	   *
 	   * \param uniformName The name of the uniform to assign a
 	   * value to.
 	   *
-	   * \return A ShaderUniform object representing a uniform.
+	   * \return A ShaderUniformValue object representing a
+	   * uniform.
 	   */
-	  inline ShaderUniform operator[](std::string uniformName)
+	  inline ShaderUniformValue& operator[](const std::string& uniformName)
 	  {
 	    if (!_built) M_throw() << "Cannot set the uniforms of a shader which has not been built()";
 
 	    _context->setShader(_programHandle);
 
-	    std::tr1::unordered_map<std::string, GLuint>::const_iterator it = _uniformAddressCache.find(uniformName);	    
-	    if (it != _uniformAddressCache.end()) return ShaderUniform(it->second);
+	    std::tr1::unordered_map<std::string, ShaderUniformValue>::iterator it 
+	      = _uniformCache.find(uniformName);
+
+	    if (it != _uniformCache.end()) return it->second;
 
 	    GLint uniformHandle = glGetUniformLocationARB(_programHandle, uniformName.c_str());
 	    if (uniformHandle == -1)
-	      M_throw() << "Uniform " << uniformName << " not found in this shader";	    
-	    _uniformAddressCache[uniformName] = uniformHandle;
-	    return ShaderUniform(uniformHandle);
+	      M_throw() << "Uniform " << uniformName << " not found in this shader";
+	    _uniformCache[uniformName].setHandle(uniformHandle);
+
+	    return _uniformCache[uniformName];
 	  }
 
 	  /*! \brief Builds the shader and allocates the associated
@@ -353,7 +406,7 @@ namespace magnet {
 	  std::string _fragmentShaderCode;
 	  std::string _geometryShaderCode;
 
-	  std::tr1::unordered_map<std::string, GLuint> _uniformAddressCache;
+	  std::tr1::unordered_map<std::string, ShaderUniformValue> _uniformCache;
 
 	  /*! \brief Specifies the initial source of the geometry
 	   * shader.
