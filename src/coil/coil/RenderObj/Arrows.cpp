@@ -22,200 +22,201 @@
 
 #define STRINGIFY(A) #A
 
-static cl_float4 getclVec(Vector vec)
-{ 
-  cl_float4 clvec;
-  clvec.x = vec[0];
-  clvec.y = vec[1];
-  clvec.z = vec[2];
-  clvec.w = 0;
-  return clvec;
-}
+namespace coil {
+  static cl_float4 getclVec(Vector vec)
+  { 
+    cl_float4 clvec;
+    clvec.x = vec[0];
+    clvec.y = vec[1];
+    clvec.z = vec[2];
+    clvec.w = 0;
+    return clvec;
+  }
 
-static const std::string lineKernelSource = STRINGIFY(
-__kernel void
-LineRenderKernel(const __global float* pointData,
-		 const __global float* directionData,
-		 __global float * vertexBuffer,
-		 float4 camPos, uint Nlines)
-{
-  //Position data
-  if (get_global_id(0) >= Nlines) return;
+  static const std::string lineKernelSource = STRINGIFY(
+							__kernel void
+							LineRenderKernel(const __global float* pointData,
+									 const __global float* directionData,
+									 __global float * vertexBuffer,
+									 float4 camPos, uint Nlines)
+							{
+							  //Position data
+							  if (get_global_id(0) >= Nlines) return;
   
-  pointData += get_global_id(0) * 3;
-  directionData += get_global_id(0) * 3;
+							  pointData += get_global_id(0) * 3;
+							  directionData += get_global_id(0) * 3;
   
-  vertexBuffer += 4 * 3 * get_global_id(0); 
+							  vertexBuffer += 4 * 3 * get_global_id(0); 
   
-  float4 pos ;
-  pos.x = pointData[0];
-  pos.y = pointData[1];
-  pos.z = pointData[2];
-  pos.w = 0;
+							  float4 pos ;
+							  pos.x = pointData[0];
+							  pos.y = pointData[1];
+							  pos.z = pointData[2];
+							  pos.w = 0;
   
-  float4 dir ;
-  dir.x = directionData[0];
-  dir.y = directionData[1];
-  dir.z = directionData[2];
-  dir.w = 0;
+							  float4 dir ;
+							  dir.x = directionData[0];
+							  dir.y = directionData[1];
+							  dir.z = directionData[2];
+							  dir.w = 0;
 
-  float4 point = pos - 0.5f * dir;
+							  float4 point = pos - 0.5f * dir;
   
-  //Arrow Bottom
-  vertexBuffer[0] = point.x;
-  vertexBuffer[1] = point.y;
-  vertexBuffer[2] = point.z;
+							  //Arrow Bottom
+							  vertexBuffer[0] = point.x;
+							  vertexBuffer[1] = point.y;
+							  vertexBuffer[2] = point.z;
   
-  //Arrow Head
-  point = pos + 0.5f * dir;
-  vertexBuffer[3] = point.x;
-  vertexBuffer[4] = point.y;
-  vertexBuffer[5] = point.z;
+							  //Arrow Head
+							  point = pos + 0.5f * dir;
+							  vertexBuffer[3] = point.x;
+							  vertexBuffer[4] = point.y;
+							  vertexBuffer[5] = point.z;
 
-  float4 pointToView = point - camPos;
-  float4 sidesVec = normalize(cross(pointToView, dir));
+							  float4 pointToView = point - camPos;
+							  float4 sidesVec = normalize(cross(pointToView, dir));
   
-  //Arrow verts
-  point = pos + 0.3f * dir + 0.1 * length(dir) * sidesVec;
-  vertexBuffer[6] = point.x;
-  vertexBuffer[7] = point.y;
-  vertexBuffer[8] = point.z;
+							  //Arrow verts
+							  point = pos + 0.3f * dir + 0.1 * length(dir) * sidesVec;
+							  vertexBuffer[6] = point.x;
+							  vertexBuffer[7] = point.y;
+							  vertexBuffer[8] = point.z;
 
-  point = pos + 0.3f * dir - 0.1 * length(dir) * sidesVec;
-  vertexBuffer[9] = point.x;
-  vertexBuffer[10] = point.y;
-  vertexBuffer[11] = point.z;
-}
-						      );
-RArrows::RArrows(size_t N, std::string name):
-  RLines(N, name)
-{}
+							  point = pos + 0.3f * dir - 0.1 * length(dir) * sidesVec;
+							  vertexBuffer[9] = point.x;
+							  vertexBuffer[10] = point.y;
+							  vertexBuffer[11] = point.z;
+							}
+							);
+  RArrows::RArrows(size_t N, std::string name):
+    RLines(N, name)
+  {}
 
-void 
-RArrows::initOpenGL()
-{
-  {//Setup initial vertex positions, arrows have 4 verts
-    std::vector<float> VertexPos(3 * _N * 4, 0.0);
-    for (size_t i(0); i < _N; ++i)
-      { 
-	//Base
-	VertexPos[12*i+0] = i * 1.0f / _N;
-	VertexPos[12*i+1] = i * 1.0f / _N;
-	VertexPos[12*i+2] = i * 1.0f / _N;
+  void 
+  RArrows::initOpenGL()
+  {
+    {//Setup initial vertex positions, arrows have 4 verts
+      std::vector<float> VertexPos(3 * _N * 4, 0.0);
+      for (size_t i(0); i < _N; ++i)
+	{ 
+	  //Base
+	  VertexPos[12*i+0] = i * 1.0f / _N;
+	  VertexPos[12*i+1] = i * 1.0f / _N;
+	  VertexPos[12*i+2] = i * 1.0f / _N;
 
-	//Head
-	VertexPos[12*i+3] = i * 1.0f / _N;
-	VertexPos[12*i+4] = (i + 0.5f) * 1.0f / _N;
-	VertexPos[12*i+5] = i * 1.0f / _N;
+	  //Head
+	  VertexPos[12*i+3] = i * 1.0f / _N;
+	  VertexPos[12*i+4] = (i + 0.5f) * 1.0f / _N;
+	  VertexPos[12*i+5] = i * 1.0f / _N;
 
-	//Side 1
-	VertexPos[12*i+6] = (i + 0.10f) * 1.0f / _N;
-	VertexPos[12*i+7] = (i + 0.35f) * 1.0f / _N;
-	VertexPos[12*i+8] = i * 1.0f / _N;
+	  //Side 1
+	  VertexPos[12*i+6] = (i + 0.10f) * 1.0f / _N;
+	  VertexPos[12*i+7] = (i + 0.35f) * 1.0f / _N;
+	  VertexPos[12*i+8] = i * 1.0f / _N;
 	
-	//Side 2
-	VertexPos[12*i+ 9] = (i - 0.10f) * 1.0f / _N;
-	VertexPos[12*i+10] = (i + 0.35f) * 1.0f / _N;
-	VertexPos[12*i+11] = i * 1.0f / _N;
-      }
-    setGLPositions(VertexPos);
-  }
+	  //Side 2
+	  VertexPos[12*i+ 9] = (i - 0.10f) * 1.0f / _N;
+	  VertexPos[12*i+10] = (i + 0.35f) * 1.0f / _N;
+	  VertexPos[12*i+11] = i * 1.0f / _N;
+	}
+      setGLPositions(VertexPos);
+    }
   
-  {//4 vertexes per line
-    std::vector<GLubyte> VertexColor(4 * _N * 4);
+    {//4 vertexes per line
+      std::vector<GLubyte> VertexColor(4 * _N * 4);
     
-    for (size_t icol = 0; icol < _N; ++icol)
-      for (size_t jcol = 0; jcol < 4; ++jcol)
-	magnet::color::HSVtoRGB(*reinterpret_cast<cl_uchar4*>(&VertexColor[(4*icol+jcol) * 4]),
-				float(icol)/ _N);
+      for (size_t icol = 0; icol < _N; ++icol)
+	for (size_t jcol = 0; jcol < 4; ++jcol)
+	  magnet::color::HSVtoRGB(*reinterpret_cast<cl_uchar4*>(&VertexColor[(4*icol+jcol) * 4]),
+				  float(icol)/ _N);
 
-    setGLColors(VertexColor);
+      setGLColors(VertexColor);
+    }
+
+    {//Setup initial element data
+      //3 line segments, 2 vertices each
+      std::vector<GLuint> ElementData(6 * _N, 0);
+
+      for (size_t i(0); i < _N; ++i)
+	{
+	  //Base-head
+	  ElementData[6 * i + 0] = 4 * i + 0;
+	  ElementData[6 * i + 1] = 4 * i + 1;
+
+	  //head-side1
+	  ElementData[6 * i + 2] = 4 * i + 1;
+	  ElementData[6 * i + 3] = 4 * i + 2;
+
+	  //head-side2
+	  ElementData[6 * i + 4] = 4 * i + 1;
+	  ElementData[6 * i + 5] = 4 * i + 3;
+	}
+    
+      setGLElements(ElementData);
+    }
+  
   }
 
-  {//Setup initial element data
-    //3 line segments, 2 vertices each
-    std::vector<GLuint> ElementData(6 * _N, 0);
+  void 
+  RArrows::initOpenCL()
+  {
+    RLines::initOpenCL();
+  
+    //Build buffer for line data
+    _pointData = cl::Buffer(magnet::GL::Context::getContext().getCLContext(), 
+			    CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY,
+			    sizeof(cl_float) *  _N * 3);
 
-    for (size_t i(0); i < _N; ++i)
-      {
-	//Base-head
-	ElementData[6 * i + 0] = 4 * i + 0;
-	ElementData[6 * i + 1] = 4 * i + 1;
+    _directionData = cl::Buffer(magnet::GL::Context::getContext().getCLContext(), 
+				CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY,
+				sizeof(cl_float) *  _N * 3);
 
-	//head-side1
-	ElementData[6 * i + 2] = 4 * i + 1;
-	ElementData[6 * i + 3] = 4 * i + 2;
+    //Build render kernel
+    std::stringstream fullSource;
 
-	//head-side2
-	ElementData[6 * i + 4] = 4 * i + 1;
-	ElementData[6 * i + 5] = 4 * i + 3;
-      }
+    fullSource << magnet::color::getOpenCLHSV();
+    fullSource << lineKernelSource;
+  
+    //Need to make the c_str() point to a valid data area, so copy the string
+    std::string finalSource = fullSource.str();
+
+    cl::Program::Sources kernelSource;
+    kernelSource.push_back(std::pair<const char*, ::size_t>
+			   (finalSource.c_str(), finalSource.size()));
+
+    _program = cl::Program(magnet::GL::Context::getContext().getCLContext(), kernelSource);
+
+    const cl::Device& dev = magnet::GL::Context::getContext().getCLDevice();
+    try {
+      _program.build(std::vector<cl::Device>(1, dev));
+    } catch(cl::Error& err) {
     
-    setGLElements(ElementData);
+      std::string msg = _program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(dev);
+    
+      std::cout << "Compilation failed for device " <<
+	dev.getInfo<CL_DEVICE_NAME>()
+		<< "\nBuild Log:" << msg;
+      throw;
+    }
+  
+    _kernel = cl::Kernel(_program, "LineRenderKernel");
+
+    cl_uint paddedN = ((_N + 255) / 256) * 256;
+
+    _kernelFunc = _kernel.bind(magnet::GL::Context::getContext().getCLCommandQueue(), 
+			       cl::NDRange(paddedN), cl::NDRange(256));
   }
+
+  void 
+  RArrows::clTick()
+  {
+    cl_float4 campos = getclVec(_camera->getEyeLocation());
+    cl_uint NArrows = _N;
+    //Generate the sort data
+    _kernelFunc(_pointData, _directionData, (cl::Buffer)_posBuff.acquireCLObject(),
+		campos, NArrows);
   
-}
-
-void 
-RArrows::initOpenCL()
-{
-  RLines::initOpenCL();
-  
-  //Build buffer for line data
-  _pointData = cl::Buffer(magnet::GL::Context::getContext().getCLContext(), 
-			  CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY,
-			  sizeof(cl_float) *  _N * 3);
-
-  _directionData = cl::Buffer(magnet::GL::Context::getContext().getCLContext(), 
-			      CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY,
-			      sizeof(cl_float) *  _N * 3);
-
-  //Build render kernel
-  std::stringstream fullSource;
-
-  fullSource << magnet::color::getOpenCLHSV();
-  fullSource << lineKernelSource;
-  
-  //Need to make the c_str() point to a valid data area, so copy the string
-  std::string finalSource = fullSource.str();
-
-  cl::Program::Sources kernelSource;
-  kernelSource.push_back(std::pair<const char*, ::size_t>
-			 (finalSource.c_str(), finalSource.size()));
-
-  _program = cl::Program(magnet::GL::Context::getContext().getCLContext(), kernelSource);
-
-  const cl::Device& dev = magnet::GL::Context::getContext().getCLDevice();
-  try {
-    _program.build(std::vector<cl::Device>(1, dev));
-  } catch(cl::Error& err) {
-    
-    std::string msg = _program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(dev);
-    
-    std::cout << "Compilation failed for device " <<
-      dev.getInfo<CL_DEVICE_NAME>()
-	      << "\nBuild Log:" << msg;
-    throw;
+    //Release resources
+    _posBuff.releaseCLObject();
   }
-  
-  _kernel = cl::Kernel(_program, "LineRenderKernel");
-
-  cl_uint paddedN = ((_N + 255) / 256) * 256;
-
-  _kernelFunc = _kernel.bind(magnet::GL::Context::getContext().getCLCommandQueue(), 
-			     cl::NDRange(paddedN), cl::NDRange(256));
-}
-
-
-void 
-RArrows::clTick()
-{
-  cl_float4 campos = getclVec(_camera->getEyeLocation());
-  cl_uint NArrows = _N;
-  //Generate the sort data
-  _kernelFunc(_pointData, _directionData, (cl::Buffer)_posBuff.acquireCLObject(),
-	      campos, NArrows);
-  
-  //Release resources
-  _posBuff.releaseCLObject();
 }

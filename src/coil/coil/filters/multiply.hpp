@@ -21,7 +21,7 @@
 
 namespace coil 
 {
-  class MultiplyFilter: public filter
+  class MultiplyFilter: public Filter
   {
   public:
     MultiplyFilter() { _filter.build(); }

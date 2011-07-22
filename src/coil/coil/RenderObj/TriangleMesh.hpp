@@ -18,20 +18,23 @@
 
 #include "Triangles.hpp"
 
-class RTriangleMesh : public RTriangles
-{
-public:
-  RTriangleMesh(std::string name, 
-		std::vector<GLfloat>& vertices,
-		std::vector<GLuint>& elements):
-    RTriangles(name),
-    _vertices(vertices),
-    _elements(elements)
-  {}
+namespace coil {
+  class RTriangleMesh : public RTriangles
+  {
+  public:
+    RTriangleMesh(std::string name, 
+		  std::vector<GLfloat>& vertices,
+		  std::vector<GLuint>& elements):
+      RTriangles(name),
+      _vertices(vertices),
+      _elements(elements)
+    {}
 
-  void initOpenCL();
+    void initOpenCL();
 
-protected:
-  std::vector<GLfloat> _vertices;
-  std::vector<GLuint> _elements;
-};
+  protected:
+    std::vector<GLfloat> _vertices;
+    std::vector<GLuint> _elements;
+  };
+}
+

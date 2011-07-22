@@ -132,7 +132,6 @@ namespace magnet {
 	glVertexAttribDivisorARB(idx, divisor);
       }
 
-
       /*! \brief The index of the automatically-indexed position
        * vertex attribute.  
        *

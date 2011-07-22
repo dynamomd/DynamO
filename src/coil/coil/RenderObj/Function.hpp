@@ -20,72 +20,74 @@
 #include <time.h>
 #include <magnet/math/vector.hpp>
 
-class RFunction : public RTriangles
-{
-public:
-  RFunction(size_t N, Vector origin, Vector axis1,
-	    Vector axis2, Vector axis3,
-	    cl_float functionOriginX, 
-	    cl_float functionOriginY,
-	    cl_float functionRangeX,
-	    cl_float functionRangeY,
-	    bool drawAxis,
-	    bool staticShape,
-	    std::string name,
-	    std::string function = "f = pos.x * pos.y * native_sin(t);\n",
-	    std::string normalCalc = "normal = normalize((float4)(pos.y * native_sin(t), pos.x * native_sin(t),1,0));\n",
-	    std::string colorCalc = "\n");
+namespace coil {
+  class RFunction : public RTriangles
+  {
+  public:
+    RFunction(size_t N, Vector origin, Vector axis1,
+	      Vector axis2, Vector axis3,
+	      cl_float functionOriginX, 
+	      cl_float functionOriginY,
+	      cl_float functionRangeX,
+	      cl_float functionRangeY,
+	      bool drawAxis,
+	      bool staticShape,
+	      std::string name,
+	      std::string function = "f = pos.x * pos.y * native_sin(t);\n",
+	      std::string normalCalc = "normal = normalize((float4)(pos.y * native_sin(t), pos.x * native_sin(t),1,0));\n",
+	      std::string colorCalc = "\n");
 
-  virtual void clTick();
+    virtual void clTick();
 
-  void initOpenGL();
-  void initOpenCL();
+    void initOpenGL();
+    void initOpenCL();
 
-  virtual void glRender();
+    virtual void glRender();
 
-  inline void setDrawAxis(bool val) { _drawAxis = val; }
-  inline void setStaticShape(bool val) { _staticShape = val; }
+    inline void setDrawAxis(bool val) { _drawAxis = val; }
+    inline void setStaticShape(bool val) { _staticShape = val; }
 
-  virtual void initPicking(cl_uint& offset);
-  virtual void pickingRender();
-  virtual void finishPicking(cl_uint& offset, const cl_uint val);
+    virtual void initPicking(cl_uint& offset);
+    virtual void pickingRender();
+    virtual void finishPicking(cl_uint& offset, const cl_uint val);
 
-  void setConstantA(cl_float val) { _A = val; }
+    void setConstantA(cl_float val) { _A = val; }
 
-protected:
-  std::string genKernelSrc();
+  protected:
+    std::string genKernelSrc();
 
-  cl::Kernel _kernel;
-  cl::Kernel _pickKernel;
-  cl::KernelFunctor _kernelFunc;
-  cl::KernelFunctor _pickFunc;
-  std::string _kernelsrc;
+    cl::Kernel _kernel;
+    cl::Kernel _pickKernel;
+    cl::KernelFunctor _kernelFunc;
+    cl::KernelFunctor _pickFunc;
+    std::string _kernelsrc;
 
-  cl::Program _program;
-  timespec startTime;
+    cl::Program _program;
+    timespec startTime;
 
-  cl_uint _N;
-  cl_float tempo;
+    cl_uint _N;
+    cl_float tempo;
 
-  Vector _origin;
-  Vector _axis1;
-  Vector _axis2;     
-  Vector _axis3;
+    Vector _origin;
+    Vector _axis1;
+    Vector _axis2;     
+    Vector _axis3;
 
-  cl_float4 _cl_origin;
-  cl_float4 _cl_axis1;
-  cl_float4 _cl_axis2;
-  cl_float4 _cl_axis3;
+    cl_float4 _cl_origin;
+    cl_float4 _cl_axis1;
+    cl_float4 _cl_axis2;
+    cl_float4 _cl_axis3;
 
-  cl_float2 _functionOrigin;
-  cl_float2 _functionRange;
+    cl_float2 _functionOrigin;
+    cl_float2 _functionRange;
 
-  bool _drawAxis;
-  bool _staticShape;
+    bool _drawAxis;
+    bool _staticShape;
   
-  std::string _function;
-  std::string _normalCalc;
-  std::string _colorCalc;
+    std::string _function;
+    std::string _normalCalc;
+    std::string _colorCalc;
 
-  volatile cl_float _A;
-};
+    volatile cl_float _A;
+  };
+}

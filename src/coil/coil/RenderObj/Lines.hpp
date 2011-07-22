@@ -19,28 +19,29 @@
 #include <magnet/GL/buffer.hpp>
 #include <vector>
 
+namespace coil {
+  class RLines : public RenderObj
+  {
+  public:
+    RLines(size_t N, std::string name);
+    ~RLines();
 
-class RLines : public RenderObj
-{
-public:
-  RLines(size_t N, std::string name);
-  ~RLines();
+    virtual void glRender();
+    virtual void initOpenGL();
 
-  virtual void glRender();
-  virtual void initOpenGL();
+    void setGLColors(std::vector<GLubyte>& VertexColor);
+    void setGLPositions(std::vector<GLfloat>& VertexPos);
+    void setGLElements(std::vector<GLuint>& Elements);
 
-  void setGLColors(std::vector<GLubyte>& VertexColor);
-  void setGLPositions(std::vector<GLfloat>& VertexPos);
-  void setGLElements(std::vector<GLuint>& Elements);
+    magnet::GL::Buffer<GLfloat>& getVertexGLData() { return _posBuff; }
+    magnet::GL::Buffer<GLubyte>& getColorGLData() { return _colBuff; }
 
-  magnet::GL::Buffer<GLfloat>& getVertexGLData() { return _posBuff; }
-  magnet::GL::Buffer<GLubyte>& getColorGLData() { return _colBuff; }
+    virtual void releaseCLGLResources();
 
-  virtual void releaseCLGLResources();
-
-protected:
-  size_t _N;
-  magnet::GL::Buffer<GLubyte> _colBuff;
-  magnet::GL::Buffer<GLfloat> _posBuff;  
-  magnet::GL::Buffer<GLuint> _elementBuff;
-};
+  protected:
+    size_t _N;
+    magnet::GL::Buffer<GLubyte> _colBuff;
+    magnet::GL::Buffer<GLfloat> _posBuff;  
+    magnet::GL::Buffer<GLuint> _elementBuff;
+  };
+}

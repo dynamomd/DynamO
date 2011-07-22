@@ -54,15 +54,15 @@ public:
   { M_throw() << "Species has no intertia"; }
 
 #ifdef DYNAMO_visualizer
-  virtual magnet::thread::RefPtr<RenderObj>& getCoilRenderObj() const;
+  virtual magnet::thread::RefPtr<coil::RenderObj>& getCoilRenderObj() const;
   virtual void updateRenderData(magnet::GL::Context&) const;
 #endif
 
 protected:
 
 #ifdef DYNAMO_visualizer
-  mutable magnet::thread::RefPtr<RenderObj> _renderObj;
-  mutable magnet::thread::RefPtr<CoilRegister> _coil;
+  mutable magnet::thread::RefPtr<coil::RenderObj> _renderObj;
+  mutable magnet::thread::RefPtr<coil::CoilRegister> _coil;
 #endif
 
 protected:

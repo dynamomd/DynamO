@@ -42,8 +42,8 @@ protected:
   virtual void outputXML(magnet::xml::XmlStream&) const {}
 
   mutable double _updateTime;
-  mutable magnet::thread::RefPtr<CoilWindow> _CLWindow;
-  CoilRegister _coil;
+  mutable magnet::thread::RefPtr<coil::CoilWindow> _CLWindow;
+  coil::CoilRegister _coil;
 
   mutable boost::posix_time::ptime _lastUpdate;
 };

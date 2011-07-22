@@ -191,7 +191,7 @@ CLOscillatingPlate::getPlateEnergy() const
 
 #ifdef DYNAMO_visualizer
 
-magnet::thread::RefPtr<RenderObj>& 
+magnet::thread::RefPtr<coil::RenderObj>& 
 CLOscillatingPlate::getCoilRenderObj() const
 {
   const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
@@ -220,14 +220,14 @@ CLOscillatingPlate::getCoilRenderObj() const
       axis1 *= Sim->primaryCellSize[1] * lengthRescale / axis1.nrm();
       axis2 *= Sim->primaryCellSize[2] * lengthRescale / axis2.nrm();
 
-      _renderObj = new RFunction(10, 
-				 rw0 - 0.5 * (axis1 + axis2), 
-				 axis1, axis2, axis3,
-				 0, 0, 1, 1, true, false,
-				 "Oscillating wall",
-				 "f = A;",
-				 "normal = -(float4)(" + os.str() + ");"
-				 );
+      _renderObj = new coil::RFunction(10, 
+				       rw0 - 0.5 * (axis1 + axis2), 
+				       axis1, axis2, axis3,
+				       0, 0, 1, 1, true, false,
+				       "Oscillating wall",
+				       "f = A;",
+				       "normal = -(float4)(" + os.str() + ");"
+				       );
     }
   
   return _renderObj;
@@ -239,7 +239,7 @@ CLOscillatingPlate::updateRenderData(magnet::GL::Context&) const
   const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
 
   if (_renderObj.isValid())
-    static_cast<RFunction&>(*_renderObj)
+    _renderObj.as<coil::RFunction>()
       .setConstantA((delta * std::cos(omega0 * (Sim->dSysTime + timeshift)) 
 		     - (sigma + 0.5 * Sim->dynamics.units().unitLength())) *  lengthRescale);
 }

@@ -22,57 +22,59 @@
 #include <magnet/gtk/colorMapSelector.hpp>
 #include <memory>
 
-class RSphericalParticles: public RTSpheres
-{
-public:
-  //! \param spheresPerObject Used when one simulation object is
-  //! represented by many spheres. If r_{i,a} is the a'th sphere of
-  //! object i, then _particleData should contain coordinates like
-  //! (r_(0,0),r_(1,0),r_(2,0)....r_(0,1),r_(1,1)...). But only
-  //! N/_spheresPerObject colors should be placed in
-  //! _particleColorData and the data is duplicated out automatically
-  //! to all spheres in a single object.
-  RSphericalParticles(size_t N, std::string name, size_t spheresPerObject = 1);
+namespace coil {
+  class RSphericalParticles: public RTSpheres
+  {
+  public:
+    //! \param spheresPerObject Used when one simulation object is
+    //! represented by many spheres. If r_{i,a} is the a'th sphere of
+    //! object i, then _particleData should contain coordinates like
+    //! (r_(0,0),r_(1,0),r_(2,0)....r_(0,1),r_(1,1)...). But only
+    //! N/_spheresPerObject colors should be placed in
+    //! _particleColorData and the data is duplicated out automatically
+    //! to all spheres in a single object.
+    RSphericalParticles(size_t N, std::string name, size_t spheresPerObject = 1);
   
-  virtual void initGTK();
+    virtual void initGTK();
 
-  virtual void showControls(Gtk::ScrolledWindow* win);
+    virtual void showControls(Gtk::ScrolledWindow* win);
     
-  typedef enum {
-    SINGLE_COLOR = 1,
-    COLOR_BY_ID = 2
-  } DrawMode;
+    typedef enum {
+      SINGLE_COLOR = 1,
+      COLOR_BY_ID = 2
+    } DrawMode;
 
-  inline volatile const DrawMode& getDrawMode() { return _mode; }
+    inline volatile const DrawMode& getDrawMode() { return _mode; }
 
-  inline void recolor() { if (_recolorOnUpdate) notifyNewColorData(); }
+    inline void recolor() { if (_recolorOnUpdate) notifyNewColorData(); }
 
-  inline void map(cl_uchar4 &color, float val) { _colorMap->map(color, val); }
+    inline void map(cl_uchar4 &color, float val) { _colorMap->map(color, val); }
 
-  std::vector<cl_float4> _particleData;
-  std::vector<cl_uchar4> _particleColorData;
+    std::vector<cl_float4> _particleData;
+    std::vector<cl_uchar4> _particleColorData;
 
-  void notifyNewColorData();
-  void notifyNewParticleData();
+    void notifyNewColorData();
+    void notifyNewParticleData();
 
-protected:
-  size_t _spheresPerObject;
+  protected:
+    size_t _spheresPerObject;
 
-  void sendRenderDataWorker();
-  void sendColorDataWorker();
+    void sendRenderDataWorker();
+    void sendColorDataWorker();
 
-  void guiUpdate();
+    void guiUpdate();
 
-  std::auto_ptr<Gtk::VBox> _optList;
-  std::auto_ptr<magnet::gtk::ColorMapSelector> _colorMap;
-  std::auto_ptr<Gtk::RadioButton> _singleColorMode;
-  std::auto_ptr<Gtk::RadioButton> _colorByIDMode;
-  std::auto_ptr<Gtk::SpinButton> _RFixed;
-  std::auto_ptr<Gtk::SpinButton> _GFixed;
-  std::auto_ptr<Gtk::SpinButton> _BFixed;
-  std::auto_ptr<Gtk::SpinButton> _AFixed;
+    std::auto_ptr<Gtk::VBox> _optList;
+    std::auto_ptr<magnet::gtk::ColorMapSelector> _colorMap;
+    std::auto_ptr<Gtk::RadioButton> _singleColorMode;
+    std::auto_ptr<Gtk::RadioButton> _colorByIDMode;
+    std::auto_ptr<Gtk::SpinButton> _RFixed;
+    std::auto_ptr<Gtk::SpinButton> _GFixed;
+    std::auto_ptr<Gtk::SpinButton> _BFixed;
+    std::auto_ptr<Gtk::SpinButton> _AFixed;
     
-  volatile cl_uchar4 _colorFixed;
-  volatile DrawMode _mode;
-  volatile bool _recolorOnUpdate;
-};
+    volatile cl_uchar4 _colorFixed;
+    volatile DrawMode _mode;
+    volatile bool _recolorOnUpdate;
+  };
+}

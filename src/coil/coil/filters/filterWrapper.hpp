@@ -23,7 +23,7 @@
 namespace coil 
 {
   template <class T, bool reqNormalDepth>
-  class magnetFilterWrapper: public filter
+  class magnetFilterWrapper: public Filter
   {
   public:
     magnetFilterWrapper():

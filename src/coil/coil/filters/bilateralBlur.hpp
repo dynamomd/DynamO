@@ -23,7 +23,7 @@
 
 namespace coil 
 {
-  class BilateralBlurWrapper: public filter
+  class BilateralBlurWrapper: public Filter
   {
   public:
     BilateralBlurWrapper();

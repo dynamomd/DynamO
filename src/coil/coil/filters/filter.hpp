@@ -69,29 +69,29 @@ namespace coil
 #undef ENUM_GEN_FUNC
   }
 
-  class filter
+  class Filter
   {
   public:
-    inline filter ():_active(true) {}
-    virtual inline ~filter() {}
+    inline Filter ():_active(true) {}
+    virtual inline ~Filter() {}
 
     //////////////Static members
     static void populateComboBox(Gtk::ComboBox*);
     
-    static filter* createFromID(size_t type_id);
+    static Filter* createFromID(size_t type_id);
 
     static std::string getName(size_t type_id);
 
-    struct filterSelectColumns : public Gtk::TreeModel::ColumnRecord
+    struct FilterSelectColumns : public Gtk::TreeModel::ColumnRecord
     {
-      filterSelectColumns() { add(m_col_name); add(m_col_id); }
+      FilterSelectColumns() { add(m_col_name); add(m_col_id); }
       Gtk::TreeModelColumn<int> m_col_id;
       Gtk::TreeModelColumn<Glib::ustring> m_col_name;
     };
 
-    inline static filterSelectColumns& getSelectColumnsInstance()
+    inline static FilterSelectColumns& getSelectColumnsInstance()
     {
-      static filterSelectColumns vals;
+      static FilterSelectColumns vals;
       return vals;
     }
     

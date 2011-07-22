@@ -39,236 +39,238 @@
 #include <coil/RenderObj/RenderObj.hpp>
 #include <memory>
 
-class CLGLWindow : public CoilWindow
-{
-public:
-  CLGLWindow(std::string title, double updateIntervalValue,
-	     bool dynamo = false);
-
-  ~CLGLWindow();
-  
-  virtual void CallBackDisplayFunc();
-  virtual bool CallBackIdleFunc();
-
-  void CallBackReshapeFunc(int w, int h);    
-
-  const std::string& getWindowTitle() const { return windowTitle; }
-  void setWindowtitle(const std::string& newtitle);
-  
-  void addRenderObj(const magnet::thread::RefPtr<RenderObj>& nObj)
-  { RenderObjects.push_back(nObj); }
-
-  inline volatile const int& getLastFrameTime() const { return _lastFrameTime; }
-
-  void init();
-  void deinit();
-
-  magnet::thread::Mutex& getDestroyLock() { return _destroyLock; }
-
-  bool simupdateTick();
-  
-  const double& getUpdateInterval() {return _updateIntervalValue; }
-
-  void flagNewData() { _newData = true; }
-
-  void setUpdateRateUnitToSteps(size_t defaultsteps = 100);
-
-  void setSimStatus1(std::string);
-  void setSimStatus2(std::string);
-
-  magnet::thread::RefPtr<magnet::thread::TaskQueue>& getQueue() { return  _systemQueue; }
-
-  magnet::GL::Context& getGLContext()
+namespace coil {
+  class CLGLWindow : public CoilWindow
   {
-    if (_glContext == NULL)
-      M_throw() << "GL context not yet set!";
-    return *_glContext;
-  }
+  public:
+    CLGLWindow(std::string title, double updateIntervalValue,
+	       bool dynamo = false);
 
-protected:
-  void setLabelText(Gtk::Label*, std::string);
+    ~CLGLWindow();
+  
+    virtual void CallBackDisplayFunc();
+    virtual bool CallBackIdleFunc();
 
-  magnet::GL::shader::RenderShader _renderShader;
-  magnet::GL::shader::DepthRenderShader _depthRenderShader;
-  magnet::GL::shader::SimpleRenderShader _simpleRenderShader;
-  magnet::GL::shadowFBO _shadowFBO;
+    void CallBackReshapeFunc(int w, int h);    
 
-  //Primary render target
-  std::auto_ptr<magnet::GL::FBO> _renderTarget;
+    const std::string& getWindowTitle() const { return windowTitle; }
+    void setWindowtitle(const std::string& newtitle);
+  
+    void addRenderObj(const magnet::thread::RefPtr<RenderObj>& nObj)
+    { RenderObjects.push_back(nObj); }
 
-  //Frame buffers to flip flop filters between
-  magnet::GL::FBO _filterTarget1;
-  magnet::GL::FBO _filterTarget2;
+    inline volatile const int& getLastFrameTime() const { return _lastFrameTime; }
 
-  magnet::GL::shader::NormalShader _nrmlShader;
-  magnet::GL::FBO _normalsFBO;
+    void init();
+    void deinit();
 
-  std::vector<magnet::thread::RefPtr<RenderObj> > RenderObjects;
+    magnet::thread::Mutex& getDestroyLock() { return _destroyLock; }
 
-  void CallBackSpecialUpFunc(int key, int x, int y) {}
-  void CallBackSpecialFunc(int key, int x, int y) {} 
-  void CallBackKeyboardFunc(unsigned char key, int x, int y);
-  void CallBackKeyboardUpFunc(unsigned char key, int x, int y);
-  void CallBackMouseWheelFunc(int button, int dir, int x, int y);
-  void CallBackMouseFunc(int button, int state, int x, int y);
-  void CallBackMotionFunc(int x, int y);
+    bool simupdateTick();
+  
+    const double& getUpdateInterval() {return _updateIntervalValue; }
 
-  void performPicking(int x, int y);
+    void flagNewData() { _newData = true; }
 
-private:
-  //Task queue for the simulation thread
-  magnet::thread::RefPtr<magnet::thread::TaskQueue> _systemQueue;
-  double _updateIntervalValue;
-  size_t _consoleID;
+    void setUpdateRateUnitToSteps(size_t defaultsteps = 100);
 
-  magnet::GL::Context* _glContext;
+    void setSimStatus1(std::string);
+    void setSimStatus2(std::string);
 
-  magnet::thread::Mutex _destroyLock;
+    magnet::thread::RefPtr<magnet::thread::TaskQueue>& getQueue() { return  _systemQueue; }
 
-  void CameraSetup();
-
-  virtual void initOpenGL();
-  virtual void initOpenCL();
-
-  void drawScene(magnet::GL::FBO&);
-
-  enum KeyStateType
+    magnet::GL::Context& getGLContext()
     {
-      DEFAULT = 0,
-      LEFTMOUSE = 1,
-      RIGHTMOUSE = 2,
-      MIDDLEMOUSE = 4
+      if (_glContext == NULL)
+	M_throw() << "GL context not yet set!";
+      return *_glContext;
+    }
+
+  protected:
+    void setLabelText(Gtk::Label*, std::string);
+
+    magnet::GL::shader::RenderShader _renderShader;
+    magnet::GL::shader::DepthRenderShader _depthRenderShader;
+    magnet::GL::shader::SimpleRenderShader _simpleRenderShader;
+    magnet::GL::shadowFBO _shadowFBO;
+
+    //Primary render target
+    std::auto_ptr<magnet::GL::FBO> _renderTarget;
+
+    //Frame buffers to flip flop filters between
+    magnet::GL::FBO _filterTarget1;
+    magnet::GL::FBO _filterTarget2;
+
+    magnet::GL::shader::NormalShader _nrmlShader;
+    magnet::GL::FBO _normalsFBO;
+
+    std::vector<magnet::thread::RefPtr<RenderObj> > RenderObjects;
+
+    void CallBackSpecialUpFunc(int key, int x, int y) {}
+    void CallBackSpecialFunc(int key, int x, int y) {} 
+    void CallBackKeyboardFunc(unsigned char key, int x, int y);
+    void CallBackKeyboardUpFunc(unsigned char key, int x, int y);
+    void CallBackMouseWheelFunc(int button, int dir, int x, int y);
+    void CallBackMouseFunc(int button, int state, int x, int y);
+    void CallBackMotionFunc(int x, int y);
+
+    void performPicking(int x, int y);
+
+  private:
+    //Task queue for the simulation thread
+    magnet::thread::RefPtr<magnet::thread::TaskQueue> _systemQueue;
+    double _updateIntervalValue;
+    size_t _consoleID;
+
+    magnet::GL::Context* _glContext;
+
+    magnet::thread::Mutex _destroyLock;
+
+    void CameraSetup();
+
+    virtual void initOpenGL();
+    virtual void initOpenCL();
+
+    void drawScene(magnet::GL::FBO&);
+
+    enum KeyStateType
+      {
+	DEFAULT = 0,
+	LEFTMOUSE = 1,
+	RIGHTMOUSE = 2,
+	MIDDLEMOUSE = 4
+      };
+
+    int keyState;
+  
+    std::string windowTitle;
+    bool FPSmode;
+    size_t _frameCounter, _updateCounter;
+
+    volatile int _lastFrameTime;
+    int _FPStime; 
+    int _lastUpdateTime;
+    int _frameRenderTime;
+
+    sigc::connection _renderTimeout;
+
+    magnet::thread::RefPtr<magnet::GL::Camera> _camera;
+    
+    bool keyStates[256];
+
+    float _mouseSensitivity; 
+    float _moveSensitivity;
+ 
+    int _oldMouseX, _oldMouseY;
+    int _specialKeys;
+
+    bool _shadowMapping;
+    GLfloat _shadowIntensity;
+    volatile bool _simrun;
+    volatile bool _simframelock;
+    bool _snapshot;
+    bool _record;
+    bool _showLight; 
+    bool _PNGFileFormat;
+    bool _fpsLimit;
+    int  _fpsLimitValue;
+    bool _filterEnable;
+    bool _analygraphMode;
+
+    size_t _snapshot_counter;
+
+    magnet::GL::Light _light0;
+
+    /////////GTK members
+    virtual void initGTK();
+
+    bool GTKTick();
+    Glib::RefPtr<Gtk::Builder> _refXml;
+    Gtk::Window* controlwindow;
+    sigc::connection _timeout_connection;
+
+    struct FilterModelColumnsType : Gtk::TreeModelColumnRecord
+    {
+      FilterModelColumnsType()
+      { add(m_active); add(m_name); add(m_filter_ptr);}
+    
+      Gtk::TreeModelColumn<bool> m_active;
+      Gtk::TreeModelColumn<Glib::ustring> m_name;
+      Gtk::TreeModelColumn<void*> m_filter_ptr;
     };
 
-  int keyState;
+    struct RenderObjModelColumnsType : Gtk::TreeModelColumnRecord
+    {
+      RenderObjModelColumnsType()
+      { add(m_name); add(m_visible); add(m_id);}
+    
+      Gtk::TreeModelColumn<Glib::ustring> m_name;
+      Gtk::TreeModelColumn<bool> m_visible;
+      Gtk::TreeModelColumn<size_t> m_id;
+    };
+
+    std::auto_ptr<FilterModelColumnsType> _filterModelColumns;
+    std::auto_ptr<RenderObjModelColumnsType> _renderObjModelColumns;
+
+    Glib::RefPtr<Gtk::ListStore> _filterStore;
+    Glib::RefPtr<Gtk::ListStore> _renderObjStore;
+
+    Gtk::TreeView* _filterView;
+    Gtk::TreeView* _renderObjView;
+
+    //Filter control callbacks
+    void filterUpCallback();
+    void filterDownCallback();
+    void filterDeleteCallback();
+    void filterAddCallback();
+    void filterSelectCallback();
+    void filterClearCallback();
+    void filterActiveCallback();
   
-  std::string windowTitle;
-  bool FPSmode;
-  size_t _frameCounter, _updateCounter;
+    //Render Object Contol Callbacks
+    void rebuildRenderView();
+    void visibleRObjCallback();
+    void editRObjCallback();
+    void deleteRObjCallback();
+    void addRObjCallback();
+    void selectRObjCallback();
 
-  volatile int _lastFrameTime;
-  int _FPStime; 
-  int _lastUpdateTime;
-  int _frameRenderTime;
+    //Wii Remote callbacks
+    void wiiMoteConnect(); 
+    bool wiiMoteIRExposeEvent(GdkEventExpose*);
 
-  sigc::connection _renderTimeout;
+    void HeadReset();
 
-  magnet::thread::RefPtr<magnet::GL::Camera> _camera;
-    
-  bool keyStates[256];
+    //Other callbacks
+    void multisampleEnableCallback();
+    void shadowEnableCallback();
 
-  float _mouseSensitivity; 
-  float _moveSensitivity;
- 
-  int _oldMouseX, _oldMouseY;
-  int _specialKeys;
+    void simRunControlCallback();
+    void simFramelockControlCallback();
+    void snapshotCallback();
+    void recordCallback();
+    void axisShowCallback();
+    void lightShowCallback();
+    void lightPlaceCallback();
+    void shadowIntensityCallback(double);
+    void snapshotFileFormatCallback();
+    void FPSLimitCallback();
+    void aboutCallback();
+    void renderNormalsCallback();
 
-  bool _shadowMapping;
-  GLfloat _shadowIntensity;
-  volatile bool _simrun;
-  volatile bool _simframelock;
-  bool _snapshot;
-  bool _record;
-  bool _showLight; 
-  bool _PNGFileFormat;
-  bool _fpsLimit;
-  int  _fpsLimitValue;
-  bool _filterEnable;
-  bool _analygraphMode;
+    void runCallback(); 
 
-  size_t _snapshot_counter;
+    //Generic Value update callback
+    void guiUpdateCallback();
 
-  magnet::GL::Light _light0;
+    //Dynamo specifc stuff
+  public:
+    inline bool dynamoParticleSync() const { return _particleSync; }
 
-  /////////GTK members
-  virtual void initGTK();
+  private:
+    bool _dynamo;
+    bool _particleSync;
+    volatile bool _newData;
 
-  bool GTKTick();
-  Glib::RefPtr<Gtk::Builder> _refXml;
-  Gtk::Window* controlwindow;
-  sigc::connection _timeout_connection;
-
-  struct FilterModelColumnsType : Gtk::TreeModelColumnRecord
-  {
-    FilterModelColumnsType()
-    { add(m_active); add(m_name); add(m_filter_ptr);}
-    
-    Gtk::TreeModelColumn<bool> m_active;
-    Gtk::TreeModelColumn<Glib::ustring> m_name;
-    Gtk::TreeModelColumn<void*> m_filter_ptr;
   };
-
-  struct RenderObjModelColumnsType : Gtk::TreeModelColumnRecord
-  {
-    RenderObjModelColumnsType()
-    { add(m_name); add(m_visible); add(m_id);}
-    
-    Gtk::TreeModelColumn<Glib::ustring> m_name;
-    Gtk::TreeModelColumn<bool> m_visible;
-    Gtk::TreeModelColumn<size_t> m_id;
-  };
-
-  std::auto_ptr<FilterModelColumnsType> _filterModelColumns;
-  std::auto_ptr<RenderObjModelColumnsType> _renderObjModelColumns;
-
-  Glib::RefPtr<Gtk::ListStore> _filterStore;
-  Glib::RefPtr<Gtk::ListStore> _renderObjStore;
-
-  Gtk::TreeView* _filterView;
-  Gtk::TreeView* _renderObjView;
-
-  //Filter control callbacks
-  void filterUpCallback();
-  void filterDownCallback();
-  void filterDeleteCallback();
-  void filterAddCallback();
-  void filterSelectCallback();
-  void filterClearCallback();
-  void filterActiveCallback();
-  
-  //Render Object Contol Callbacks
-  void rebuildRenderView();
-  void visibleRObjCallback();
-  void editRObjCallback();
-  void deleteRObjCallback();
-  void addRObjCallback();
-  void selectRObjCallback();
-
-  //Wii Remote callbacks
-  void wiiMoteConnect(); 
-  bool wiiMoteIRExposeEvent(GdkEventExpose*);
-
-  void HeadReset();
-
-  //Other callbacks
-  void multisampleEnableCallback();
-  void shadowEnableCallback();
-
-  void simRunControlCallback();
-  void simFramelockControlCallback();
-  void snapshotCallback();
-  void recordCallback();
-  void axisShowCallback();
-  void lightShowCallback();
-  void lightPlaceCallback();
-  void shadowIntensityCallback(double);
-  void snapshotFileFormatCallback();
-  void FPSLimitCallback();
-  void aboutCallback();
-  void renderNormalsCallback();
-
-  void runCallback(); 
-
-  //Generic Value update callback
-  void guiUpdateCallback();
-
-  //Dynamo specifc stuff
-public:
-  inline bool dynamoParticleSync() const { return _particleSync; }
-
-private:
-  bool _dynamo;
-  bool _particleSync;
-  volatile bool _newData;
-
-};
+}

@@ -31,70 +31,72 @@ namespace magnet {
   }
 }
 
-class RenderObj
-{
-public:
-  RenderObj(std::string name):
-    _name(name),
-    _RenderMode(TRIANGLES),
-    _renderNormals(false),
-    _visible(true)
-  {}
-  
-  ~RenderObj() {}
-  
-  void accessoryData(const magnet::thread::RefPtr<RenderObj>& console, 
-		     const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue,
-		     const magnet::thread::RefPtr<magnet::GL::Camera>& camera)
+namespace coil {
+  class RenderObj
   {
-    _console = console;
-    _systemQueue = systemQueue;
-    _camera = camera;
-  }
-
-  virtual void initGTK() {}
-  virtual void initOpenGL() {}
-  virtual void initOpenCL() {}
+  public:
+    RenderObj(std::string name):
+      _name(name),
+      _RenderMode(TRIANGLES),
+      _renderNormals(false),
+      _visible(true)
+    {}
   
-  virtual void clTick() {}
-  virtual void glRender(magnet::GL::FBO& fbo) { glRender(); }
-  virtual void glRender() {}
-  virtual void interfaceRender() {}
-
-  virtual void initPicking(cl_uint& offset) {}
-  virtual void pickingRender() {}
-  virtual void finishPicking(cl_uint& offset, const cl_uint val) {}
-
-  virtual void resize(size_t width, size_t height) {}
-
-  virtual void showControls(Gtk::ScrolledWindow* win) {}
-
-  enum RenderModeType 
+    ~RenderObj() {}
+  
+    void accessoryData(const magnet::thread::RefPtr<RenderObj>& console, 
+		       const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue,
+		       const magnet::thread::RefPtr<magnet::GL::Camera>& camera)
     {
-      POINTS,
-      LINES,
-      TRIANGLES
-    };
+      _console = console;
+      _systemQueue = systemQueue;
+      _camera = camera;
+    }
 
-  virtual void setRenderMode(RenderModeType rm) { _RenderMode = rm; } 
+    virtual void initGTK() {}
+    virtual void initOpenGL() {}
+    virtual void initOpenCL() {}
   
-  inline void setDisplayNormals(bool val) { _renderNormals = val; }
-  inline void setVisible(bool val) { _visible = val; }
-  inline bool isVisible() const { return _visible; }
+    virtual void clTick() {}
+    virtual void glRender(magnet::GL::FBO& fbo) { glRender(); }
+    virtual void glRender() {}
+    virtual void interfaceRender() {}
 
-  inline const std::string& getName() const { return _name; }
+    virtual void initPicking(cl_uint& offset) {}
+    virtual void pickingRender() {}
+    virtual void finishPicking(cl_uint& offset, const cl_uint val) {}
 
-  magnet::thread::RefPtr<magnet::thread::TaskQueue> getQueue() { return _systemQueue; }
+    virtual void resize(size_t width, size_t height) {}
 
-  virtual void releaseCLGLResources() {}
+    virtual void showControls(Gtk::ScrolledWindow* win) {}
 
-protected:
-  std::string _name;
+    enum RenderModeType 
+      {
+	POINTS,
+	LINES,
+	TRIANGLES
+      };
 
-  RenderModeType _RenderMode;
-  bool _renderNormals;
-  bool _visible;
-  magnet::thread::RefPtr<RenderObj> _console;
-  magnet::thread::RefPtr<magnet::thread::TaskQueue> _systemQueue;
-  magnet::thread::RefPtr<magnet::GL::Camera> _camera;
-};
+    virtual void setRenderMode(RenderModeType rm) { _RenderMode = rm; } 
+  
+    inline void setDisplayNormals(bool val) { _renderNormals = val; }
+    inline void setVisible(bool val) { _visible = val; }
+    inline bool isVisible() const { return _visible; }
+
+    inline const std::string& getName() const { return _name; }
+
+    magnet::thread::RefPtr<magnet::thread::TaskQueue> getQueue() { return _systemQueue; }
+
+    virtual void releaseCLGLResources() {}
+
+  protected:
+    std::string _name;
+
+    RenderModeType _RenderMode;
+    bool _renderNormals;
+    bool _visible;
+    magnet::thread::RefPtr<RenderObj> _console;
+    magnet::thread::RefPtr<magnet::thread::TaskQueue> _systemQueue;
+    magnet::thread::RefPtr<magnet::GL::Camera> _camera;
+  };
+}

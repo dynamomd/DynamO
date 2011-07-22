@@ -17,14 +17,17 @@
 #pragma once
 #include "Triangles.hpp"
 
-class RQuads : public RTriangles
-{
-public:
-  RQuads(std::string name);
+namespace coil {
+  class RQuads : public RTriangles
+  {
+  public:
+    RQuads(std::string name);
 
-  virtual void glRender();
+    virtual void glRender();
 
-  virtual void releaseCLGLResources() { RTriangles::releaseCLGLResources(); }
+    virtual void releaseCLGLResources() { RTriangles::releaseCLGLResources(); }
 
-  void setGLElements(std::vector<GLuint>& Elements);
-};
+    void setGLElements(std::vector<GLuint>& Elements);
+  };
+}
+

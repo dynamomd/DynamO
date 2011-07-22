@@ -18,66 +18,68 @@
 #include <iostream>
 #include <coil/glprimatives/arrow.hpp>
 
-RQuads::RQuads(std::string name):
-  RTriangles(name) {}
+namespace coil {
+  RQuads::RQuads(std::string name):
+    RTriangles(name) {}
 
-void 
-RQuads::glRender()
-{
-  if (!_visible) return;
+  void 
+  RQuads::glRender()
+  {
+    if (!_visible) return;
 
-  if (!_colBuff.empty())
-    _colBuff.attachToColor();
+    if (!_colBuff.empty())
+      _colBuff.attachToColor();
 
-  if (_normBuff.size())
-    _normBuff.attachToNormal();
+    if (_normBuff.size())
+      _normBuff.attachToNormal();
   
-  _posBuff.getContext().cleanupAttributeArrays();
-  _posBuff.attachToVertex();
+    _posBuff.getContext().cleanupAttributeArrays();
+    _posBuff.attachToVertex();
   
-  switch (_RenderMode)
-    {
-    case TRIANGLES:
-      _elementBuff.drawElements(magnet::GL::element_type::QUADS);
-      break;
-    case LINES:
-      _elementBuff.drawElements(magnet::GL::element_type::LINES);
-      break;
-    case POINTS:
-      _elementBuff.drawElements(magnet::GL::element_type::POINTS);
-      break;
-    }
-  if (_renderNormals && _normBuff.size())
-    {
-      const GLfloat* posPointer = _posBuff.map();
-      const GLfloat* normPointer = _normBuff.map();
+    switch (_RenderMode)
+      {
+      case TRIANGLES:
+	_elementBuff.drawElements(magnet::GL::element_type::QUADS);
+	break;
+      case LINES:
+	_elementBuff.drawElements(magnet::GL::element_type::LINES);
+	break;
+      case POINTS:
+	_elementBuff.drawElements(magnet::GL::element_type::POINTS);
+	break;
+      }
+    if (_renderNormals && _normBuff.size())
+      {
+	const GLfloat* posPointer = _posBuff.map();
+	const GLfloat* normPointer = _normBuff.map();
 
-      const float scale = 0.005;
-      for (size_t i= 0; i < _posBuff.size(); i+= 3)
-	{
-	  Vector point1, point2;
-	  for (size_t iDim = 0; iDim < 3; ++iDim)
-	    {
-	      point1[iDim] = posPointer[i + iDim];
-	      point2[iDim] = point1[iDim] + scale * normPointer[i + iDim];
-	    }
-	  coil::glprimatives::drawArrow(point1, point2);
-	}
+	const float scale = 0.005;
+	for (size_t i= 0; i < _posBuff.size(); i+= 3)
+	  {
+	    Vector point1, point2;
+	    for (size_t iDim = 0; iDim < 3; ++iDim)
+	      {
+		point1[iDim] = posPointer[i + iDim];
+		point2[iDim] = point1[iDim] + scale * normPointer[i + iDim];
+	      }
+	    coil::glprimatives::drawArrow(point1, point2);
+	  }
       
-      _posBuff.unmap();
-      _normBuff.unmap();
-    }
+	_posBuff.unmap();
+	_normBuff.unmap();
+      }
 
-}
+  }
 
-void 
-RQuads::setGLElements(std::vector<GLuint>& Elements)
-{
-  if (!Elements.size())
-    throw std::runtime_error("Elements.size() == 0!");
+  void 
+  RQuads::setGLElements(std::vector<GLuint>& Elements)
+  {
+    if (!Elements.size())
+      throw std::runtime_error("Elements.size() == 0!");
 
-  if (Elements.size() % 4) 
-    throw std::runtime_error("Elements.size() is not a multiple of 4!");
+    if (Elements.size() % 4) 
+      throw std::runtime_error("Elements.size() is not a multiple of 4!");
 
-  _elementBuff.init(Elements);
+    _elementBuff.init(Elements);
+  }
 }

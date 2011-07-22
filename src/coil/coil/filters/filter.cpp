@@ -28,7 +28,7 @@
 namespace coil 
 {
   void 
-  filter::populateComboBox(Gtk::ComboBox* filterSelectBox)
+  Filter::populateComboBox(Gtk::ComboBox* filterSelectBox)
   { 
     Glib::RefPtr<Gtk::ListStore> m_refTreeModel = Gtk::ListStore::create(getSelectColumnsInstance());
     filterSelectBox->set_model(m_refTreeModel);
@@ -47,8 +47,8 @@ namespace coil
     filterSelectBox->pack_start(getSelectColumnsInstance().m_col_name);
   }
   
-  filter* 
-  filter::createFromID(size_t type_id)
+  Filter* 
+  Filter::createFromID(size_t type_id)
   {
 
 #define CREATE_GEN_FUNC(enumeration,stringname,type)\
@@ -65,7 +65,7 @@ namespace coil
   }
 
   std::string 
-  filter::getName(size_t type_id)
+  Filter::getName(size_t type_id)
   {
 
 #define NAME_GEN_FUNC(enumeration,stringname,type)\

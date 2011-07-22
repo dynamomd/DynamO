@@ -70,7 +70,7 @@ SpPoint::initialise()
 
 #ifdef DYNAMO_visualizer
 
-magnet::thread::RefPtr<RenderObj>& 
+magnet::thread::RefPtr<coil::RenderObj>& 
 SpPoint::getCoilRenderObj() const
 {
   if (!_renderObj.isValid())
@@ -82,8 +82,8 @@ SpPoint::getCoilRenderObj() const
 
       size_t nsph = dynamic_cast<const SphericalRepresentation&>(*getIntPtr()).spheresPerParticle();
 
-      _renderObj = new RSphericalParticles(nsph * range->size(), "Species: " + spName);
-      _coil = new CoilRegister;
+      _renderObj = new coil::RSphericalParticles(nsph * range->size(), "Species: " + spName);
+      _coil = new coil::CoilRegister;
     }
 
   return _renderObj;
@@ -96,7 +96,7 @@ SpPoint::updateRenderData(magnet::GL::Context& context) const
     M_throw() << "Updating before the render object has been fetched";
   
   std::vector<cl_float4>& particleData 
-    = _renderObj.as<RSphericalParticles>()._particleData;
+    = _renderObj.as<coil::RSphericalParticles>()._particleData;
 
   ///////////////////////POSITION DATA UPDATE
   //Divide by the maximum box length, to have a natural scale for the visualizer
@@ -127,7 +127,7 @@ SpPoint::updateRenderData(magnet::GL::Context& context) const
       ++sphID;
     }
 
-  _renderObj.as<RSphericalParticles>().recolor();
-  _renderObj.as<RSphericalParticles>().notifyNewParticleData();
+  _renderObj.as<coil::RSphericalParticles>().recolor();
+  _renderObj.as<coil::RSphericalParticles>().notifyNewParticleData();
 }
 #endif

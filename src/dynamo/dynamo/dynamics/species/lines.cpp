@@ -6,7 +6,7 @@
 # include <magnet/thread/mutex.hpp>
 # include "renderobjs/lines.hpp"
 
-magnet::thread::RefPtr<RenderObj>& 
+magnet::thread::RefPtr<coil::RenderObj>& 
 SpLines::getCoilRenderObj() const
 {
   if (!_renderObj.isValid())

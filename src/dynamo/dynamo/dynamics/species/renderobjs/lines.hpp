@@ -22,7 +22,7 @@
 # include <memory>
 # include <magnet/gtk/colorMapSelector.hpp>
 
-class LineParticleRenderer: public RArrows
+class LineParticleRenderer: public coil::RArrows
 {
 public:
   LineParticleRenderer(size_t N, std::string name):

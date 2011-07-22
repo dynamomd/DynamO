@@ -17,44 +17,47 @@
 
 #pragma once
 
-class CoilWindow
-{
-protected:
-  int          windowID;
-public:
+namespace coil {
+  class CoilWindow
+  {
+  protected:
+    int          windowID;
+  public:
   
-  CoilWindow();//Defined in coilMaster.cpp for the VTable
-  ~CoilWindow() {}
+    CoilWindow();//Defined in coilMaster.cpp for the VTable
+    ~CoilWindow() {}
   
-  virtual void CallBackDisplayFunc() {}
-  virtual bool CallBackIdleFunc() { return false; }
-  virtual void CallBackKeyboardFunc(unsigned char key, int x, int y) {}
-  virtual void CallBackKeyboardUpFunc(unsigned char key, int x, int y) {}
-  virtual void CallBackMotionFunc(int x, int y) {}
-  virtual void CallBackMouseFunc(int button, int state, int x, int y) {}
-  virtual void CallBackMouseWheelFunc(int button, int dir, int x, int y) {}
-  virtual void CallBackPassiveMotionFunc(int x, int y) {}
-  virtual void CallBackReshapeFunc(int w, int h) {}
-  virtual void CallBackSpecialFunc(int key, int x, int y) {}
-  virtual void CallBackSpecialUpFunc(int key, int x, int y) {}
-  virtual void CallBackVisibilityFunc(int visible) {}
+    virtual void CallBackDisplayFunc() {}
+    virtual bool CallBackIdleFunc() { return false; }
+    virtual void CallBackKeyboardFunc(unsigned char key, int x, int y) {}
+    virtual void CallBackKeyboardUpFunc(unsigned char key, int x, int y) {}
+    virtual void CallBackMotionFunc(int x, int y) {}
+    virtual void CallBackMouseFunc(int button, int state, int x, int y) {}
+    virtual void CallBackMouseWheelFunc(int button, int dir, int x, int y) {}
+    virtual void CallBackPassiveMotionFunc(int x, int y) {}
+    virtual void CallBackReshapeFunc(int w, int h) {}
+    virtual void CallBackSpecialFunc(int key, int x, int y) {}
+    virtual void CallBackSpecialUpFunc(int key, int x, int y) {}
+    virtual void CallBackVisibilityFunc(int visible) {}
   
-  void    SetWindowID(const int newWindowID) { windowID = newWindowID; }
-  int     GetWindowID() { return windowID; }
+    void    SetWindowID(const int newWindowID) { windowID = newWindowID; }
+    int     GetWindowID() { return windowID; }
   
-  virtual void init() = 0;
+    virtual void init() = 0;
 
-  //If glut is closing the window through its window controls you
-  //should not glutDestroyWindow, it will be called automatically.
-  //Otherwise you should call it with deinit(true);
-  virtual void deinit() = 0;
+    //If glut is closing the window through its window controls you
+    //should not glutDestroyWindow, it will be called automatically.
+    //Otherwise you should call it with deinit(true);
+    virtual void deinit() = 0;
 
-  inline bool isReady() const { return _readyFlag; }
+    inline bool isReady() const { return _readyFlag; }
   
-protected:
-  volatile bool _readyFlag;
+  protected:
+    volatile bool _readyFlag;
 
-  virtual void initOpenGL() = 0;  
-  virtual void initOpenCL() = 0;
-  virtual void initGTK() = 0;
-};
+    virtual void initOpenGL() = 0;  
+    virtual void initOpenCL() = 0;
+    virtual void initGTK() = 0;
+  };
+}
+

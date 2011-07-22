@@ -21,7 +21,7 @@
 
 namespace coil 
 {
-  class DOFFilter: public filter
+  class DOFFilter: public Filter
   {
   public:
     DOFFilter():

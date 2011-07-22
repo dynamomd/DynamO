@@ -262,7 +262,7 @@ LTriangleMesh::checkOverlaps(const Particle& p1) const
 
 #ifdef DYNAMO_visualizer
 
-magnet::thread::RefPtr<RenderObj>& 
+magnet::thread::RefPtr<coil::RenderObj>& 
 LTriangleMesh::getCoilRenderObj() const
 {
   const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
@@ -287,7 +287,7 @@ LTriangleMesh::getCoilRenderObj() const
 	  elems.push_back(e.get<2>());
 	}
       
-      _renderObj = new RTriangleMesh(getName(), verts, elems);
+      _renderObj = new coil::RTriangleMesh(getName(), verts, elems);
     }
   
   return _renderObj;

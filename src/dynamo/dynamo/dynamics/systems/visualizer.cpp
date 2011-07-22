@@ -44,65 +44,65 @@ SVisualizer::SVisualizer(dynamo::SimData* nSim, std::string nName, double tickFr
   sysName = "Visualizer";
 
   //Build a window, ready to display it
-  _CLWindow = new CLGLWindow("Visualizer : " + nName,
-			     tickFreq,
-			     true);
+  _CLWindow = new coil::CLGLWindow("Visualizer : " + nName,
+				   tickFreq,
+				   true);
   
   BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
     if (spec.typeTest<CoilRenderObj>())
-      static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(dynamic_cast<const CoilRenderObj&>(*spec).getCoilRenderObj());
+      _CLWindow.as<coil::CLGLWindow>().addRenderObj(dynamic_cast<const CoilRenderObj&>(*spec).getCoilRenderObj());
 
   BOOST_FOREACH(magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
     {
       CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*local));
 
       if (obj != NULL)
-	static_cast<CLGLWindow&>(*_CLWindow).addRenderObj(obj->getCoilRenderObj());
+	_CLWindow.as<coil::CLGLWindow>().addRenderObj(obj->getCoilRenderObj());
     }
 
   _coil.getInstance().addWindow(_CLWindow);
 
   {
-    const magnet::thread::ScopedLock lock(static_cast<CLGLWindow&>(*_CLWindow).getDestroyLock());
+    const magnet::thread::ScopedLock lock(_CLWindow.as<coil::CLGLWindow>().getDestroyLock());
     if (!_CLWindow->isReady()) return;
     
     BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-      dynamic_cast<const CoilRenderObj&>(*spec).updateRenderData(static_cast<CLGLWindow&>(*_CLWindow).getGLContext());
+      dynamic_cast<const CoilRenderObj&>(*spec).updateRenderData(_CLWindow.as<coil::CLGLWindow>().getGLContext());
     
     BOOST_FOREACH(magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
       {
 	CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*local));
 	
-	if (obj != NULL) obj->updateRenderData(static_cast<CLGLWindow&>(*_CLWindow).getGLContext());
+	if (obj != NULL) obj->updateRenderData(_CLWindow.as<coil::CLGLWindow>().getGLContext());
       }
     
     std::ostringstream os;
     os << "t:" << Sim->dSysTime;
-    _CLWindow.as<CLGLWindow>().setSimStatus1(os.str());
+    _CLWindow.as<coil::CLGLWindow>().setSimStatus1(os.str());
     os.str("");
     os << "Events:" << Sim->eventCount;
-    _CLWindow.as<CLGLWindow>().setSimStatus2(os.str());
+    _CLWindow.as<coil::CLGLWindow>().setSimStatus2(os.str());
   }
   
   _lastUpdate = boost::posix_time::microsec_clock::local_time();
 
   dout << "Visualizer initialised\nOpenCL Plaftorm:" 
-       << static_cast<CLGLWindow&>(*_CLWindow).getGLContext().getCLPlatform().getInfo<CL_PLATFORM_NAME>()
+       << _CLWindow.as<coil::CLGLWindow>().getGLContext().getCLPlatform().getInfo<CL_PLATFORM_NAME>()
        << "\nOpenCL Device:" 
-       << static_cast<CLGLWindow&>(*_CLWindow).getGLContext().getCLDevice().getInfo<CL_DEVICE_NAME>() << std::endl;
+       << _CLWindow.as<coil::CLGLWindow>().getGLContext().getCLDevice().getInfo<CL_DEVICE_NAME>() << std::endl;
 }
 
 void
 SVisualizer::runEvent() const
 {
-  _updateTime = _CLWindow.as<CLGLWindow>().getUpdateInterval();
+  _updateTime = _CLWindow.as<coil::CLGLWindow>().getUpdateInterval();
   if (dt == -HUGE_VAL) dt = 0;
   
   double locdt = dt;
   dt += _updateTime;
   
   //Update test
-  if (_CLWindow.as<CLGLWindow>().simupdateTick())
+  if (_CLWindow.as<coil::CLGLWindow>().simupdateTick())
     {
       //Actually move forward the system time
       Sim->dSysTime += locdt;
@@ -112,35 +112,35 @@ SVisualizer::runEvent() const
       locdt += Sim->freestreamAcc;
       Sim->freestreamAcc = 0;
       
-      if (_CLWindow.as<CLGLWindow>().dynamoParticleSync())
+      if (_CLWindow.as<coil::CLGLWindow>().dynamoParticleSync())
 	Sim->dynamics.getLiouvillean().updateAllParticles();
       
       BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
 	Ptr->eventUpdate(*this, NEventData(), locdt);
       
       {
-	const magnet::thread::ScopedLock lock(_CLWindow.as<CLGLWindow>().getDestroyLock());
-	if (!_CLWindow.as<CLGLWindow>().isReady()) return;
+	const magnet::thread::ScopedLock lock(_CLWindow.as<coil::CLGLWindow>().getDestroyLock());
+	if (!_CLWindow.as<coil::CLGLWindow>().isReady()) return;
 	
 	BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-	  dynamic_cast<const CoilRenderObj&>(*spec).updateRenderData(_CLWindow.as<CLGLWindow>().getGLContext());
+	  dynamic_cast<const CoilRenderObj&>(*spec).updateRenderData(_CLWindow.as<coil::CLGLWindow>().getGLContext());
 	
 	BOOST_FOREACH(magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
 	  {
 	    CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*local));
 	    
-	    if (obj != NULL) obj->updateRenderData(static_cast<CLGLWindow&>(*_CLWindow).getGLContext());
+	    if (obj != NULL) obj->updateRenderData(_CLWindow.as<coil::CLGLWindow>().getGLContext());
 	  }
 
-	_CLWindow.as<CLGLWindow>().flagNewData();
+	_CLWindow.as<coil::CLGLWindow>().flagNewData();
       }
       std::ostringstream os;
       os << "t:" << Sim->dSysTime;
       
-      _CLWindow.as<CLGLWindow>().setSimStatus1(os.str());
+      _CLWindow.as<coil::CLGLWindow>().setSimStatus1(os.str());
       os.str("");
       os << "Events:" << Sim->eventCount;
-      _CLWindow.as<CLGLWindow>().setSimStatus2(os.str());
+      _CLWindow.as<coil::CLGLWindow>().setSimStatus2(os.str());
     }
 
   _lastUpdate = boost::posix_time::microsec_clock::local_time();

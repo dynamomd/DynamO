@@ -29,146 +29,148 @@
 #include <map>
 #include <memory>
 
-class CoilMaster {
-public:
-  //Only for window objects to call
-  void  CallGlutCreateWindow(const char*, CoilWindow*);
-  void  unregisterWindow(CoilWindow*);
+namespace coil {
+  class CoilMaster {
+  public:
+    //Only for window objects to call
+    void  CallGlutCreateWindow(const char*, CoilWindow*);
+    void  unregisterWindow(CoilWindow*);
 
-  inline bool isRunning() { return _runFlag; }
+    inline bool isRunning() { return _runFlag; }
 
-  void addWindow(magnet::thread::RefPtr<CoilWindow>& window)
-  {
-    if (!isRunning()) M_throw() << "Coil is not running, cannot add a window";
+    void addWindow(magnet::thread::RefPtr<CoilWindow>& window)
+    {
+      if (!isRunning()) M_throw() << "Coil is not running, cannot add a window";
 
-    _coilQueue.queueTask(magnet::function::Task::makeTask(&CoilMaster::addWindowFunc, this, window));
+      _coilQueue.queueTask(magnet::function::Task::makeTask(&CoilMaster::addWindowFunc, this, window));
 
-    //Spinlock waiting for the window to initialize
-    while (!window->isReady()) { smallSleep(); }
-  }
+      //Spinlock waiting for the window to initialize
+      while (!window->isReady()) { smallSleep(); }
+    }
 
-  magnet::thread::TaskQueue& getTaskQueue() { return _coilQueue; }
+    magnet::thread::TaskQueue& getTaskQueue() { return _coilQueue; }
 
-  //This mutex exists to stop coil killing itself while the main
-  //program is accessing it. It is locked while windows are added or
-  //destroyed and before shutting down.  It should be locked by the
-  //main program while doing anything that requires a window to stay
-  //alive. You should lock, then check isRunning() and abort the
-  //action if it's not.
-  magnet::thread::Mutex _coilLock;
+    //This mutex exists to stop coil killing itself while the main
+    //program is accessing it. It is locked while windows are added or
+    //destroyed and before shutting down.  It should be locked by the
+    //main program while doing anything that requires a window to stay
+    //alive. You should lock, then check isRunning() and abort the
+    //action if it's not.
+    magnet::thread::Mutex _coilLock;
 
-private:
-  friend class CoilRegister;
+  private:
+    friend class CoilRegister;
 
-  inline void 
-  shutdownCoil() 
-  { 
-    magnet::thread::ScopedLock lock(_coilLock);
-    _runFlag = false; 
-    _coilReadyFlag = false;
-  }
+    inline void 
+    shutdownCoil() 
+    { 
+      magnet::thread::ScopedLock lock(_coilLock);
+      _runFlag = false; 
+      _coilReadyFlag = false;
+    }
 
-  void waitForShutdown();
-  void bootRenderThread();
+    void waitForShutdown();
+    void bootRenderThread();
 
-  CoilMaster();
-  ~CoilMaster();
+    CoilMaster();
+    ~CoilMaster();
   
-  void coilThreadEntryPoint();
+    void coilThreadEntryPoint();
 
-  void smallSleep();
+    void smallSleep();
 
-  volatile bool _runFlag; 
-  volatile bool _coilReadyFlag;
+    volatile bool _runFlag; 
+    volatile bool _coilReadyFlag;
 
-  magnet::thread::Thread _coilThread;
-  magnet::thread::TaskQueue _coilQueue;
+    magnet::thread::Thread _coilThread;
+    magnet::thread::TaskQueue _coilQueue;
 
-  ///////////////////////////Glut GL render layer//////////////////////////
+    ///////////////////////////Glut GL render layer//////////////////////////
 
-  std::map<int, magnet::thread::RefPtr<CoilWindow> > _viewPorts;
+    std::map<int, magnet::thread::RefPtr<CoilWindow> > _viewPorts;
 
-  static void CallBackDisplayFunc(); 
-  static void CallBackCloseWindow();
-  static void CallBackKeyboardFunc(unsigned char key, int x, int y);
-  static void CallBackKeyboardUpFunc(unsigned char key, int x, int y);
-  static void CallBackMotionFunc(int x, int y);
-  static void CallBackMouseFunc(int button, int state, int x, int y);
-  static void CallBackMouseWheelFunc(int button, int dir, int x, int y);
-  static void CallBackPassiveMotionFunc(int x, int y);
-  static void CallBackReshapeFunc(int w, int h); 
-  static void CallBackSpecialFunc(int key, int x, int y);   
-  static void CallBackSpecialUpFunc(int key, int x, int y);   
-  static void CallBackVisibilityFunc(int visible);
+    static void CallBackDisplayFunc(); 
+    static void CallBackCloseWindow();
+    static void CallBackKeyboardFunc(unsigned char key, int x, int y);
+    static void CallBackKeyboardUpFunc(unsigned char key, int x, int y);
+    static void CallBackMotionFunc(int x, int y);
+    static void CallBackMouseFunc(int button, int state, int x, int y);
+    static void CallBackMouseWheelFunc(int button, int dir, int x, int y);
+    static void CallBackPassiveMotionFunc(int x, int y);
+    static void CallBackReshapeFunc(int w, int h); 
+    static void CallBackSpecialFunc(int key, int x, int y);   
+    static void CallBackSpecialUpFunc(int key, int x, int y);   
+    static void CallBackVisibilityFunc(int visible);
     
-  ///////////////////////////GTK window layer/////////////////////////////
-  inline void addWindowFunc(magnet::thread::RefPtr<CoilWindow>& window)
+    ///////////////////////////GTK window layer/////////////////////////////
+    inline void addWindowFunc(magnet::thread::RefPtr<CoilWindow>& window)
+    {
+      magnet::thread::ScopedLock lock(_coilLock);
+      window->init();
+      _viewPorts[window->GetWindowID()] = window;
+    }
+
+
+
+    std::auto_ptr<Gtk::Main> _GTKit;
+
+    bool glutIdleTimeout();
+
+    //This is a GTK timeout function to make sure any tasks for the coil
+    //thread are performed. This is performed in a timer as it's too
+    //expensive to do all the time (due to the lock)
+    bool taskTimeout();
+  };
+
+  namespace coil { class RCylinders; }
+
+  //!This class is like a connection register for the CoilMaster singleton.
+  class CoilRegister
   {
-    magnet::thread::ScopedLock lock(_coilLock);
-    window->init();
-    _viewPorts[window->GetWindowID()] = window;
-  }
+  public:
+    inline CoilRegister() { increment(); }
 
+    inline CoilRegister(const CoilRegister&) { increment(); }
 
-
-  std::auto_ptr<Gtk::Main> _GTKit;
-
-  bool glutIdleTimeout();
-
-  //This is a GTK timeout function to make sure any tasks for the coil
-  //thread are performed. This is performed in a timer as it's too
-  //expensive to do all the time (due to the lock)
-  bool taskTimeout();
-};
-
-namespace coil { class RCylinders; }
-
-//!This class is like a connection register for the CoilMaster singleton.
-class CoilRegister
-{
-public:
-  inline CoilRegister() { increment(); }
-
-  inline CoilRegister(const CoilRegister&) { increment(); }
-
-  inline CoilRegister& operator=(const CoilRegister&) { return *this; }
+    inline CoilRegister& operator=(const CoilRegister&) { return *this; }
   
-  inline ~CoilRegister() { decrement(); }
+    inline ~CoilRegister() { decrement(); }
 
-  inline CoilMaster& getInstance() { return *_instance; }
+    inline CoilMaster& getInstance() { return *_instance; }
 
-private:
-  friend class CoilMaster;
-  friend class CLGLWindow;
-  friend class RSphericalParticles;
-  friend class coil::RCylinders;
+  private:
+    friend class CoilMaster;
+    friend class CLGLWindow;
+    friend class RSphericalParticles;
+    friend class RCylinders;
   
-  //! This instance is only for the CoilMaster and window classes to
-  //! use, Everything else should use an instance of the register class
-  //! to access coil!
-  inline static 
-  CoilMaster& getCoilInstance() { return *_instance; }
+    //! This instance is only for the CoilMaster and window classes to
+    //! use, Everything else should use an instance of the register class
+    //! to access coil!
+    inline static 
+    CoilMaster& getCoilInstance() { return *_instance; }
   
-  inline void increment()
-  {
-    _mutex.lock();
-    if (++_counter == 1)
-      _instance = new CoilMaster;
+    inline void increment()
+    {
+      _mutex.lock();
+      if (++_counter == 1)
+	_instance = new CoilMaster;
     
-    _mutex.unlock();
-  }
+      _mutex.unlock();
+    }
 
-  inline void decrement()
-  {
-    _mutex.lock();
+    inline void decrement()
+    {
+      _mutex.lock();
 
-    if (--_counter == 0)
-      { delete _instance; _instance = NULL; }
+      if (--_counter == 0)
+	{ delete _instance; _instance = NULL; }
     
-    _mutex.unlock();
-  }
+      _mutex.unlock();
+    }
 
-  static CoilMaster* _instance;
-  static magnet::thread::Mutex _mutex;
-  static size_t _counter;
-};
+    static CoilMaster* _instance;
+    static magnet::thread::Mutex _mutex;
+    static size_t _counter;
+  };
+}

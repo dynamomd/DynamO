@@ -21,71 +21,73 @@
 #include <magnet/thread/mutex.hpp>
 #include <magnet/CL/sort.hpp>
 
-class RTSpheres : public RTriangles
-{
-public:
-  struct SphereDetails
+namespace coil {
+  class RTSpheres : public RTriangles
   {
-    inline SphereDetails(magnet::GL::primatives::Sphere::SphereType type, size_t order, size_t n):
-      _type(type, order),
-      _nSpheres(n)
-    {}
-
-    magnet::GL::primatives::Sphere _type;
-    cl_uint _nSpheres;
-
-    void setupCLBuffers(magnet::GL::Context& context)
+  public:
+    struct SphereDetails
     {
-      _primativeVertices = cl::Buffer(context.getCLContext(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-				      sizeof(cl_float) * 3 * _type.getVertexCount(),
-				      _type.getVertices());
-    }
+      inline SphereDetails(magnet::GL::primatives::Sphere::SphereType type, size_t order, size_t n):
+	_type(type, order),
+	_nSpheres(n)
+      {}
 
-    cl::Buffer _primativeVertices;
-  };
+      magnet::GL::primatives::Sphere _type;
+      cl_uint _nSpheres;
 
-  RTSpheres(size_t N, std::string name);
+      void setupCLBuffers(magnet::GL::Context& context)
+      {
+	_primativeVertices = cl::Buffer(context.getCLContext(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+					sizeof(cl_float) * 3 * _type.getVertexCount(),
+					_type.getVertices());
+      }
 
-  virtual void clTick();
-  void sortTick();
+      cl::Buffer _primativeVertices;
+    };
 
-  virtual void initOpenGL() {}
-  virtual void initOpenCL();
+    RTSpheres(size_t N, std::string name);
 
-  cl::Buffer& getSphereDataBuffer() { return _spherePositions; }
-  cl::Buffer& getColorDataBuffer() { return _sphereColors; }
+    virtual void clTick();
+    void sortTick();
 
-  virtual void initPicking(cl_uint& offset);
-  virtual void pickingRender();
-  virtual void finishPicking(cl_uint& offset, const cl_uint val);
+    virtual void initOpenGL() {}
+    virtual void initOpenCL();
+
+    cl::Buffer& getSphereDataBuffer() { return _spherePositions; }
+    cl::Buffer& getColorDataBuffer() { return _sphereColors; }
+
+    virtual void initPicking(cl_uint& offset);
+    virtual void pickingRender();
+    virtual void finishPicking(cl_uint& offset, const cl_uint val);
   
-protected:
-  cl::Program _program;
-  cl::Kernel _renderKernel;
-  cl::Kernel _sortDataKernel;
-  cl::Kernel _colorKernel;
-  cl::Kernel _pickingKernel;
+  protected:
+    cl::Program _program;
+    cl::Kernel _renderKernel;
+    cl::Kernel _sortDataKernel;
+    cl::Kernel _colorKernel;
+    cl::Kernel _pickingKernel;
 
-  cl::KernelFunctor _sortDataKernelFunc;
-  cl::KernelFunctor _renderKernelFunc;
-  cl::KernelFunctor _colorKernelFunc;
-  cl::KernelFunctor _pickingKernelFunc;
+    cl::KernelFunctor _sortDataKernelFunc;
+    cl::KernelFunctor _renderKernelFunc;
+    cl::KernelFunctor _colorKernelFunc;
+    cl::KernelFunctor _pickingKernelFunc;
 
-  cl_uint _N;
-  static const std::string kernelsrc;
+    cl_uint _N;
+    static const std::string kernelsrc;
 
-  std::vector<SphereDetails> _renderDetailLevels;
+    std::vector<SphereDetails> _renderDetailLevels;
 
-  cl::Buffer _spherePositions; 
-  cl::Buffer _sphereColors;
-  cl::Buffer _sortKeys, _sortData;
+    cl::Buffer _spherePositions; 
+    cl::Buffer _sphereColors;
+    cl::Buffer _sortKeys, _sortData;
 
-  size_t _frameCount;
-  size_t _sortFrequency;
-  size_t _workgroupsize;
-  size_t _globalsize;
+    size_t _frameCount;
+    size_t _sortFrequency;
+    size_t _workgroupsize;
+    size_t _globalsize;
 
-  magnet::CL::sort<cl_uint> sortFunctor;
+    magnet::CL::sort<cl_uint> sortFunctor;
 
-  void recolor();
-};
+    void recolor();
+  };
+}

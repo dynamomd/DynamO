@@ -21,46 +21,49 @@
 #include <vector>
 #include <memory>
 
-class RTriangles : public RenderObj
-{
-public:
-  RTriangles(std::string name);
-  ~RTriangles();
+namespace coil {
+  class RTriangles : public RenderObj
+  {
+  public:
+    RTriangles(std::string name);
+    ~RTriangles();
 
-  virtual void glRender();
+    virtual void glRender();
 
-  void setGLColors(std::vector<GLubyte>& VertexColor);
-  void setGLPositions(std::vector<float>& VertexPos);
-  void setGLNormals(std::vector<float>& VertexNormals);
-  void setGLElements(std::vector<GLuint>& Elements);
+    void setGLColors(std::vector<GLubyte>& VertexColor);
+    void setGLPositions(std::vector<float>& VertexPos);
+    void setGLNormals(std::vector<float>& VertexNormals);
+    void setGLElements(std::vector<GLuint>& Elements);
 
-  virtual void releaseCLGLResources();
+    virtual void releaseCLGLResources();
 
-  virtual void initGTK();
+    virtual void initGTK();
 
-  virtual void showControls(Gtk::ScrolledWindow* win);
+    virtual void showControls(Gtk::ScrolledWindow* win);
 
-  virtual void setRenderMode(RenderModeType rm);
+    virtual void setRenderMode(RenderModeType rm);
 
-  virtual void initPicking(cl_uint& offset);
-  virtual void pickingRender();
-  virtual void finishPicking(cl_uint& offset, const cl_uint val);
+    virtual void initPicking(cl_uint& offset);
+    virtual void pickingRender();
+    virtual void finishPicking(cl_uint& offset, const cl_uint val);
 
-protected:
-  void guiUpdate();
+  protected:
+    void guiUpdate();
   
-  std::auto_ptr<Gtk::VBox>        _gtkOptList;
-  std::auto_ptr<Gtk::RadioButton> _gtkLineRender;
-  std::auto_ptr<Gtk::RadioButton> _gtkPointRender;
-  std::auto_ptr<Gtk::RadioButton> _gtkTriangleRender;
+    std::auto_ptr<Gtk::VBox>        _gtkOptList;
+    std::auto_ptr<Gtk::RadioButton> _gtkLineRender;
+    std::auto_ptr<Gtk::RadioButton> _gtkPointRender;
+    std::auto_ptr<Gtk::RadioButton> _gtkTriangleRender;
 
-  magnet::GL::Buffer<GLubyte> _colBuff;
-  magnet::GL::Buffer<GLfloat> _posBuff;
-  magnet::GL::Buffer<GLfloat> _normBuff;
-  magnet::GL::Buffer<GLuint> _elementBuff;
-  magnet::GL::Buffer<GLuint> _specialElementBuff;
+    magnet::GL::Buffer<GLubyte> _colBuff;
+    magnet::GL::Buffer<GLfloat> _posBuff;
+    magnet::GL::Buffer<GLfloat> _normBuff;
+    magnet::GL::Buffer<GLuint> _elementBuff;
+    magnet::GL::Buffer<GLuint> _specialElementBuff;
 
-  bool _pickingRenderMode;
-  magnet::GL::Buffer<GLubyte> _pickingColorBuff;
+    bool _pickingRenderMode;
+    magnet::GL::Buffer<GLubyte> _pickingColorBuff;
 
-};
+  };
+}
+

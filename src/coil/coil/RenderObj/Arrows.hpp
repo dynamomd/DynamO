@@ -19,22 +19,24 @@
 #include <coil/RenderObj/Lines.hpp>
 #include <magnet/thread/mutex.hpp>
 
-class RArrows : public RLines
-{
-public:
-  RArrows(size_t N, std::string name);
+namespace coil {
+  class RArrows : public RLines
+  {
+  public:
+    RArrows(size_t N, std::string name);
 
-  virtual void initOpenCL();
-  virtual void initOpenGL();
-  virtual void clTick();
+    virtual void initOpenCL();
+    virtual void initOpenGL();
+    virtual void clTick();
 
-  cl::Buffer& getPointData() { return _pointData; }
-  cl::Buffer& getDirectionData() { return _directionData; }
+    cl::Buffer& getPointData() { return _pointData; }
+    cl::Buffer& getDirectionData() { return _directionData; }
 
-protected:
-  cl::Buffer _pointData;
-  cl::Buffer _directionData;
-  cl::Program _program;
-  cl::Kernel _kernel;
-  cl::KernelFunctor _kernelFunc;
-};
+  protected:
+    cl::Buffer _pointData;
+    cl::Buffer _directionData;
+    cl::Program _program;
+    cl::Kernel _kernel;
+    cl::KernelFunctor _kernelFunc;
+  };
+}

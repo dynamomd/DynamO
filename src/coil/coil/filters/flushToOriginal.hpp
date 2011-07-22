@@ -20,7 +20,7 @@
 
 namespace coil 
 {
-  class FlushToOriginal: public filter
+  class FlushToOriginal: public Filter
   {
   public:
     FlushToOriginal() {}

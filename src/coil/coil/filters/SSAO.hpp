@@ -21,7 +21,7 @@
 
 namespace coil 
 {
-  class SSAOWrapper: public filter
+  class SSAOWrapper: public Filter
   {
   public:
     SSAOWrapper();
