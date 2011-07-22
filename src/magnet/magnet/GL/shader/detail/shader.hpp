@@ -29,23 +29,10 @@
 namespace magnet {
   namespace GL {
     namespace shader {
-      class Shader;
       namespace detail {
-
-	/*! \brief Type handling for \ref Shader uniform (AKA
-	 *  argument) assignment.
-	 * 
-	 * This class is returned from \ref Shader::operator[]() calls
-	 * to handle type based assignments of the shader.
-	 *
-	 * Please do not copy, reference or store this class in any
-	 * way, it does not track the currently bound program object
-	 * and so it should only be returned as a temporary from the
-	 * \ref Shader::operator[]() calls.
-	 */
-
+	class Shader;
 	/*! \brief This class is used to store the assigned value of a
-	 * shader uniform.
+	 * shader uniform and facilitate updating or retrieving shader uniform values.
 	 *
 	 * The stored value is used to optimise redundant assignments
 	 * of shader uniforms and to allow fast, type-safe access to
@@ -57,15 +44,27 @@ namespace magnet {
 	 * GLfloat's or GLint's. This class reduces the data to a
 	 * std::tr1::array of floats or ints and places the data in a
 	 * boost::any containter.
+	 *
+	 * This class is returned from \ref Shader::operator[]() calls
+	 * to handle type based assignments of the shader.
+	 *
+	 * Please do not copy, reference or store this class in any
+	 * way, it does not track the currently bound program object
+	 * and so it should only be returned as a temporary from the
+	 * \ref Shader::operator[]() calls.
 	 */
 	class ShaderUniformValue
 	{
-	public:
-	  inline ShaderUniformValue(): _uniformHandle(-1) {}
-	  
+	  friend class Shader;
+	  /*! \brief Set the uniform handle corresponding to this class.
+	   *
+	   * Only the Shader is allowed to update this value.
+	   */
 	  inline void setHandle(GLint uniformHandle) { _uniformHandle = uniformHandle; }
-	  inline GLint getHandle() const { return _uniformHandle; }
-	  
+	public:	 
+	  inline ShaderUniformValue(): _uniformHandle(-1) {}
+
+	  /*! \brief Test the current value of the uniform.*/
 	  template<class T>
 	  bool operator==(const T& val) const
 	  {
@@ -74,6 +73,15 @@ namespace magnet {
 		    && (boost::any_cast<T>(_data) == val));
 	  }
 
+	  /*! \brief Retrieve the current value of the uniform.
+	   *
+	   * This function can only return std::tr1::array types! All
+	   * values passed to the shader are converted to either
+	   * std::tr1::array<GLfloat,X> or std::tr1::array<GLint,X>
+	   * (where X is the number of elements) before being passed
+	   * to this class. So you must fetch them back in exactly this
+	   * form.
+	   */
 	  template<class T> const T& as()
 	  {
 	    if (_data.empty()) M_throw() << "Uniform hasn't been assigned yet! Cannot retrieve its value";
@@ -81,6 +89,8 @@ namespace magnet {
 	    return boost::any_cast<T>(_data);
 	  }
 
+	  /** @name Assignment operators for the Uniform's value. */
+	  /**@{*/
 	  inline void operator=(const GLfloat& val)
 	  { std::tr1::array<GLfloat,1> val2 = {{val}}; operator=(val2); }
 	  
@@ -131,7 +141,16 @@ namespace magnet {
 	  inline void operator=(const std::tr1::array<GLfloat, 16>& val)
 	  { if (test_assign(val)) glUniformMatrix4fv(_uniformHandle, 1, GL_FALSE, &(val[0])); }
 
+	  /**@}*/
+
 	private:
+	  /*! \brief Returns true if (val != current value), and
+	   * updates the cached value of the uniform.
+	   *
+	   * This function is used to test if an update of the uniform
+	   * is actually required, and if it is it updates the cached
+	   * value before returning true.
+	   */
 	  template<class T> 
 	  bool test_assign(const T& val)
 	  {
@@ -226,14 +245,21 @@ namespace magnet {
 	   * This function lets you assign values to uniforms easily:
 	   * \code Shader A;
 	   * A.build();
-	   * A["ShaderVariable"] = 1.0; \endcode
+	   * //Assign a single integer uniform value
+	   * A["intShaderVariable"] = 1;
+	   * //Assign a vec3 uniform
+	   * std::tr1::array<GLfloat,3> vec3val
+	   * A["vec3ShaderVariable"] = vec3val; 
+	   * \endcode
 	   *
-	   * You may also retrieve the value of uniforms
-	   *
-	   * \code 
-	   * std::tr1::array<GLfloat, 1> value = A["ShaderVariable"].as<std::tr1::array<GLfloat, 1> >(); 
+	   * You may also retrieve the value of uniforms:
+	   * \code
+	   * std::tr1::array<GLint, 1> value = A["ShaderVariable"].as<std::tr1::array<GLint, 1> >();
 	   * std::tr1::array<GLfloat, 3> value = A["vec3ShaderVariable"].as<std::tr1::array<GLfloat, 3> >(); 
 	   * \endcode
+	   *
+	   * Due to the way the cached value is stored, ALL variable types
+	   * must be returned using the above format (wrapped in a std::tr1::array).
 	   *
 	   * \param uniformName The name of the uniform to assign a
 	   * value to.
