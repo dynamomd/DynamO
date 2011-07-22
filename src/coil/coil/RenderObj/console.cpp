@@ -96,7 +96,11 @@ namespace coil {
 
 	const GLdouble nearPlane = 0.1,
 	  axisScale = 0.09;
-        
+    
+	//The axis is in a little 100x100 pixel area in the lower left
+	std::tr1::array<GLint, 4> oldviewport = context.getViewport();
+	context.setViewport(0,0,100,100);
+    
 	std::tr1::array<GLfloat, 16> oldproj 
 	  = context.getAttachedShader()["ProjectionMatrix"].as<std::tr1::array<GLfloat, 16> >();
 	std::tr1::array<GLfloat, 16> oldview 
@@ -108,8 +112,12 @@ namespace coil {
 	  * GLMatrix::rotate(camera.getPan(), Vector(0, 1, 0))
 	  * GLMatrix::scale(axisScale, axisScale, axisScale);
 
-	context.getAttachedShader()["ProjectionMatrix"] = GLMatrix::perspective(45, 1, 0.1, 1000);
+	context.getAttachedShader()["ProjectionMatrix"] = GLMatrix::perspective(45, 1, nearPlane, 1000);
+
+	context.color(0.5f,0.5f,0.5f,0.8f);
 	_axis.glRender();
+
+	context.setViewport(oldviewport);
 	context.getAttachedShader()["ProjectionMatrix"] = oldproj;
 	context.getAttachedShader()["ViewMatrix"] = oldview;
       }    
