@@ -113,7 +113,11 @@ void main()
       gl_FragColor = color;
     }
   else
-    gl_FragColor = texture2D(cairoTexture, texCoord);
+    {
+      vec4 sample = texture2D(cairoTexture, texCoord);
+      if (sample.a == 0) discard;
+      gl_FragColor = sample;
+    }
 }); 
 	    return os.str();
 	  }

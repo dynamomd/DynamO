@@ -82,7 +82,7 @@ namespace magnet {
 	   * to this class. So you must fetch them back in exactly this
 	   * form.
 	   */
-	  template<class T> const T& as()
+	  template<class T> const T as()
 	  {
 	    if (_data.empty()) M_throw() << "Uniform hasn't been assigned yet! Cannot retrieve its value";
 	    if (typeid(T) != _data.type()) M_throw() << "Invalid as() cast for uniform value";

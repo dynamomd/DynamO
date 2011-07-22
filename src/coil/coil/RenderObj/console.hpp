@@ -21,7 +21,6 @@
 #include <coil/RenderObj/RenderObj.hpp>
 #include <magnet/GL/objects/axis.hpp>
 #include <magnet/GL/objects/grid.hpp>
-#include <magnet/GL/objects/fullscreen_quad.hpp>
 #include <magnet/GL/objects/cairo.hpp>
 #include <tr1/array>
 #include <memory>
@@ -48,7 +47,7 @@ namespace coil {
     void initOpenGL();
     void initGTK();
     void showControls(Gtk::ScrolledWindow* win);
-    void releaseCLGLResources() { _axis.deinit(); _grid.deinit(); _quad.deinit(); }
+    void releaseCLGLResources() { _axis.deinit(); _grid.deinit(); }
     void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
     
   private:
@@ -62,7 +61,6 @@ namespace coil {
 
     magnet::GL::objects::Axis _axis;
     magnet::GL::objects::Grid _grid;
-    magnet::GL::objects::FullScreenQuad _quad;
     magnet::GL::objects::CairoSurface _cairoOverlay;
 
     std::auto_ptr<Gtk::VBox> _optList; 

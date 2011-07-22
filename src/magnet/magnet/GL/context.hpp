@@ -225,7 +225,7 @@ namespace magnet {
        */
       inline shader::detail::Shader& getAttachedShader()
       {
-	if (!_shaderStack.empty())
+	if (_shaderStack.empty())
 	  M_throw() << "No shader attached to the GL context!";
 
 	return *_shaderStack.back();

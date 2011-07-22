@@ -39,8 +39,7 @@ namespace coil {
 
     _axis.init();
     _grid.init(10,10);
-    _quad.init();
-    _cairoOverlay.init(64, 64);
+    _cairoOverlay.init(64, 64, 0);
     _cairoOverlay.redraw();
   }
 
@@ -52,8 +51,6 @@ namespace coil {
 
     //Disable anything that might affect the rastering 
     glDisable(GL_DEPTH_TEST);
-
-    _cairoOverlay.glRender(camera);
 
     using namespace magnet::GL;
     Context& context = Context::getContext();
@@ -93,71 +90,83 @@ namespace coil {
 //	  }
 //      }
 
-//    if (_showAxis->get_active())
-//      {
-//	/////////////////RENDER THE AXIS//////////////////////////////////////////////
-//
-//	const GLdouble nearPlane = 0.1,
-//	  axisScale = 0.09;
-//    
-//	//The axis is in a little 100x100 pixel area in the lower left
-//	std::tr1::array<GLint, 4> oldviewport = context.getViewport();
-//	context.setViewport(0,0,100,100);
-//    
-//	context.setProjectionMatrix(GLMatrix::identity());
-//	context.setViewMatrix(GLMatrix::identity());
-//	context.color(0.5f,0.5f,0.5f,0.8f);
-//
-//	_quad.glRender();
-//    
-//	context.setProjectionMatrix
-//	  (GLMatrix::perspective(45, 1, nearPlane, 1000));
-//
-//	context.setViewMatrix
-//	  (GLMatrix::translate(0, 0, -(nearPlane + axisScale))
-//	   * GLMatrix::rotate(camera.getTilt(), Vector(1, 0, 0))
-//	   * GLMatrix::rotate(camera.getPan(), Vector(0, 1, 0))
-//	   * GLMatrix::scale(axisScale, axisScale, axisScale)
-//	   );
-//    
-//	_axis.glRender();
-//	context.setViewport(oldviewport);
-//      }    
-//
+    if (_showAxis->get_active())
+      {
+	/////////////////RENDER THE AXIS//////////////////////////////////////////////
+
+	const GLdouble nearPlane = 0.1,
+	  axisScale = 0.09;
+    
+	//The axis is in a little 100x100 pixel area in the lower left
+	std::tr1::array<GLint, 4> oldviewport = context.getViewport();
+	context.setViewport(0,0,100,100);
+    
+	std::tr1::array<GLfloat, 16> oldproj 
+	  = context.getAttachedShader()["ProjectionMatrix"].as<std::tr1::array<GLfloat, 16> >();
+	std::tr1::array<GLfloat, 16> oldview 
+	  = context.getAttachedShader()["ViewMatrix"].as<std::tr1::array<GLfloat, 16> >();
+	
+	context.getAttachedShader()["ViewMatrix"] 
+	  = GLMatrix::translate(0, 0, -(nearPlane + axisScale))
+	  * GLMatrix::rotate(camera.getTilt(), Vector(1, 0, 0))
+	  * GLMatrix::rotate(camera.getPan(), Vector(0, 1, 0))
+	  * GLMatrix::scale(axisScale, axisScale, axisScale);
+
+	context.getAttachedShader()["ProjectionMatrix"] = GLMatrix::perspective(45, 1, nearPlane, 1000);
+
+	context.color(0.5f,0.5f,0.5f,0.8f);
+	_axis.glRender();
+
+	context.setViewport(oldviewport);
+	context.getAttachedShader()["ProjectionMatrix"] = oldproj;
+	context.getAttachedShader()["ViewMatrix"] = oldview;
+      }    
+
     //Restore GL state
     glEnable(GL_DEPTH_TEST);
   }
 
   void Console::glRender(magnet::GL::FBO&, const magnet::GL::Camera& camera)
   {
-//    if (_showGrid->get_active())
-//      {
-//	using namespace magnet::GL;
-//	Context& context = Context::getContext();
+    _cairoOverlay.glRender(camera);
+
+    if (_showGrid->get_active())
+      {
+	using namespace magnet::GL;
+	Context& context = Context::getContext();
+
+	GLMatrix old_model_view
+	  = context.getAttachedShader()["ViewMatrix"].as<std::tr1::array<GLfloat, 16> >();
+
+//	context.color(1,1,1,1);
+//	context.setAttribute(Context::instanceOriginAttrIndex, 0,0,0,0);
+//	context.setAttribute(Context::instanceScaleAttrIndex, 1,1,1);
 //
-//	GLMatrix old_model_view = context.getViewMatrix();
 //	GLMatrix model_view 
-//	  = old_model_view 
+//	  = old_model_view
 //	  * GLMatrix::translate(camera.getViewPlanePosition())
 //	  * GLMatrix::rotate(-camera.getPan(), Vector(0, 1, 0))
 //	  * GLMatrix::rotate(-camera.getTilt(), Vector(1, 0, 0));
 //
-//	context.color(1,1,1,1);
 //	//Back face
-//	context.setViewMatrix(model_view 
-//			      * GLMatrix::scale(camera.getScreenPlaneWidth(), 
-//						camera.getScreenPlaneHeight(), 
-//						1)
-//			      * GLMatrix::translate(0,0,-1));
+//	context.getAttachedShader()["ViewMatrix"] 
+//	  = model_view 
+//	  * GLMatrix::scale(camera.getScreenPlaneWidth(), 
+//			    camera.getScreenPlaneHeight(), 
+//			    1)
+//	  * GLMatrix::translate(0,0,-1);
+//
 //	_grid.glRender();
 //
 //	//Sides
-//	context.setViewMatrix(model_view 
-//			      * GLMatrix::scale(camera.getScreenPlaneWidth(), 
-//						camera.getScreenPlaneHeight(), 
-//						1)
-//			      * GLMatrix::rotate(90, Vector(0,1,0))
-//			      * GLMatrix::translate(0.5,0,-0.5));
+//	context.getAttachedShader()["ViewMatrix"] 
+//	  = model_view 
+//	  * GLMatrix::scale(camera.getScreenPlaneWidth(), 
+//			    camera.getScreenPlaneHeight(), 
+//			    1)
+//	  * GLMatrix::rotate(90, Vector(0,1,0))
+//	  * GLMatrix::translate(0.5,0,-0.5);
+//
 //	_grid.glRender();
 //	//right
 //	context.setViewMatrix(context.getViewMatrix() * 
@@ -178,7 +187,7 @@ namespace coil {
 //			      GLMatrix::translate(0,0,1));
 //	_grid.glRender();
 //	context.setViewMatrix(old_model_view);
-//      }
+      }
   }
 
 
