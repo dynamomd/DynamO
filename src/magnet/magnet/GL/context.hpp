@@ -187,6 +187,21 @@ namespace magnet {
       inline void color(GLfloat r = 0, GLfloat g = 0, GLfloat b = 0, GLfloat a = 1) 
       { setAttribute(vertexColorAttrIndex, r, g, b, a); }
 
+      /*! \brief Convenience function to set the instance rotation.
+       *
+       * This uses the \ref vertexColorAttrIndex value for the index
+       * of the color attribute.
+       *
+       * \param angle The rotation angle in radians.
+       * \param axis The rotation axis.
+       */
+      inline void rotation(GLfloat angle, Vector axis) 
+      {
+	GLfloat s = std::sin(angle / 2);
+	GLfloat c = std::cos(angle / 2);
+	setAttribute(instanceOrientationAttrIndex, axis[0] * s, axis[1] * s, axis[2] * s, c); 
+      }
+
       /*! \brief Resets the vertex attributes used in instancing to
        * avoid unintended transformations of the instanced object.
        */
