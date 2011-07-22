@@ -33,7 +33,7 @@ extern const unsigned char _binary_coilfont_ttf_end[];
 
 namespace coil {
   void 
-  Console::initOpenGL() 
+  Console::initOpenGL()
   {
     _glutLastTime = glutGet(GLUT_ELAPSED_TIME);
 

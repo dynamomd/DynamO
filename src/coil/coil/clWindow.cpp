@@ -859,18 +859,18 @@ namespace coil {
 	drawScene(_shadowFBO, _light0);
 	_shadowFBO.detach();
 	_shadowFBO.getDepthTexture().bind(7);
+	_depthRenderShader.detach();
       }
       
     //Bind to the multisample buffer
     _renderTarget->attach();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
-
+    _renderShader.attach();
     _renderShader["ShadowMap"] = 7;
     _renderShader["ShadowIntensity"] = _shadowIntensity;
     _renderShader["ShadowTexelWidth"] = 1.0f / _shadowFBO.getWidth();
     _renderShader["ShadowMapping"] = _shadowMapping;
     _renderShader["lightPosition"] = _light0.getEyeLocation();
-    _renderShader.attach();
 
     if (_analygraphMode)
       {
@@ -906,7 +906,7 @@ namespace coil {
 	  _renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix(_camera);
 	drawScene(*_renderTarget, _camera);
       }
-      
+    _renderShader.detach();      
     _renderTarget->detach();
 
     //////////////FILTERING////////////
@@ -938,6 +938,7 @@ namespace coil {
 	    _nrmlShader["ViewMatrix"] = _camera.getViewMatrix();
 	    _nrmlShader["NormalMatrix"] = _camera.getNormalMatrix();
 	    drawScene(_normalsFBO, _camera);
+	    _nrmlShader.detach();
 	    _normalsFBO.detach();
 	  }
 
@@ -1003,6 +1004,8 @@ namespace coil {
     for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	 iPtr != RenderObjects.end(); ++iPtr)
       (*iPtr)->interfaceRender(_camera);
+
+    _simpleRenderShader.detach();
 
     glutSwapBuffers();
 

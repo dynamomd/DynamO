@@ -59,10 +59,11 @@ namespace magnet {
 
 	    SSShader::build();
 	    //Get the shader args
-	    _context->setShader(_programHandle);
+	    attach();
 	    //Set the weights now
 	    GLint weightsUniform = glGetUniformLocationARB(_programHandle, "weights");
 	    glUniform1fvARB(weightsUniform, stencilwidth * stencilwidth, weights());
+	    detach();
 	  }
 
 	public:

@@ -36,8 +36,7 @@ namespace magnet {
 	public:
 	  ~SSShader() { deinit(); }
 
-	  inline void deinit()
-	  { _quad.deinit(); Shader::deinit(); }
+	  inline void deinit() { _quad.deinit(); Shader::deinit(); }
 
 	  inline void build()
 	  {
@@ -48,16 +47,17 @@ namespace magnet {
 	   *
 	   * Attaches the filter shader, renders a full screen quad
 	   * to generate a fragment shader for each output pixel and
-	   * then restores the fixed pipeline.
+	   * then detaches the shader..
 	   */
 	  void invoke()
 	  {
 	    if (!_built)
 	      M_throw() << "Cannot invoke a SS filter without it being built first";
 	    //Setup the shader arguments
-	    _context->setShader(_programHandle);
+	    attach();
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	    _quad.glRender();
+	    detach();
 	  }
 	
 	  /*! \brief A trivial passthrough vertex shader. */

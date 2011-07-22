@@ -36,6 +36,7 @@
 
 namespace magnet {
   namespace GL {
+    namespace shader { namespace detail { class Shader; } }
     template<class T> class Buffer;
 
     /*! \brief Class representing an OpenGL context (and its
@@ -216,23 +217,20 @@ namespace magnet {
       { initCL(); return _clcommandQ; }
       /**@}*/
 
-      /*! \brief Set the currently attached shader program.
+      /*! \brief Returns the currently attached shader program.
        *
-       * This function uses state caching to remove redundant calls to
-       * glUseProgramObjectARB.
+       * The currently attached shader program is managed by the \ref
+       * Shader classes \ref Shader::attach() and \ref
+       * Shader::detach() functions.
        */
-      inline void setShader(GLhandleARB newShader)
+      inline shader::detail::Shader& getAttachedShader()
       {
-	if (_currentShader == newShader) return;
-	_currentShader = newShader;
-	glUseProgramObjectARB(_currentShader);
+	if (!_shaderStack.empty())
+	  M_throw() << "No shader attached to the GL context!";
+
+	return *_shaderStack.back();
       }
       
-      /*! \brief Returns the currently attached shader program..
-       */
-      inline GLhandleARB getShader() const
-      { return _currentShader; }
-
       /*! \brief Sets the current viewport.
        *
        * \param x The coordinate of the leftmost pixel in the viewport.
@@ -275,7 +273,10 @@ namespace magnet {
       cl::CommandQueue _clcommandQ;
       //! \brief Flag set if the OpenCL state has been initialised.
       bool _clInitialised;
-      GLhandleARB _currentShader;
+
+      friend class shader::detail::Shader;
+      std::vector<shader::detail::Shader*> _shaderStack;
+
       std::tr1::array<GLint, 4> _viewPortState;
 
       /*! \brief If a matching OpenCL context does not exist, it will
@@ -404,7 +405,6 @@ namespace magnet {
 	_projectionMatrix = GLMatrix::identity();
 	_viewMatrixCallback = &nullMatrixCallback;
 	_projectionMatrixCallback = &nullMatrixCallback;
-	_currentShader = 0;
 	_viewPortState = detail::glGet<GL_VIEWPORT>();
 
 	_vertexAttributeState.resize(detail::glGet<GL_MAX_VERTEX_ATTRIBS>());

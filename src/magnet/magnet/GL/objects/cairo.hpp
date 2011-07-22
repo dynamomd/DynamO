@@ -232,13 +232,13 @@ void main()
 	 */
 	inline void glRender(const Camera& camera)
 	{
+	  _shader.attach();
 	  _surface.bind(6);
 	  _shader["cairoTexture"] = 6;
 	  _shader["ProjectionMatrix"] = camera.getProjectionMatrix();
 	  _shader["ViewMatrix"] = camera.getViewMatrix();
-
-	  _shader.attach();
 	  _vertexData.drawArray(magnet::GL::element_type::QUADS, 2); 
+	  _shader.detach();
 	}
 
       protected:

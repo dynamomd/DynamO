@@ -197,6 +197,9 @@ namespace magnet {
 	 */
 	class Shader 
 	{
+	private:
+	  Shader(const Shader& );
+	  void operator=(const Shader& );
 	public:
 	  /*! \brief Constructor for Shader objects.
 	   */
@@ -227,16 +230,34 @@ namespace magnet {
 	  }
 
 	  /*! \brief Attach the shader, so it is used for the next
-	   *rendering of OpenGL objects.
+	   * rendering of OpenGL objects.
 	   *
-	   * This function also registers the matrix callbacks if
-	   * either the view or projection matricies are used inside
-	   * the shader.
+	   * This function optimises away redundant attach() calls,
+	   * and updates the GL Context to mark the shader as attached.
 	   */
 	  inline void attach() 
 	  {
 	    if (!_built) M_throw() << "Cannot attach a Shader which has not been built()";
-	    _context->setShader(_programHandle);
+	    if (!(_context->_shaderStack.empty())
+		&& (_context->_shaderStack.back() == this)) return;
+	    _context->_shaderStack.push_back(this);
+	    glUseProgramObjectARB(_programHandle);
+	  }
+
+	  inline void detach()
+	  {
+	    //This is to help catch assymetric attach/detach calls or
+	    //other objects messing with the shader stack
+	    if (_context->_shaderStack.empty())
+	      M_throw() << "Detaching a shader from an empty shader stack!";
+
+	    if (_context->_shaderStack.back() != this)
+	      M_throw() << "Error, detaching a shader which is not the current shader!";
+	    _context->_shaderStack.pop_back();
+	    if (_context->_shaderStack.empty())
+	      glUseProgramObjectARB(0);
+	    else
+	      glUseProgramObjectARB(_context->_shaderStack.back()->_programHandle);
 	  }
 
 	  /*! \brief Used to set and retrieve values of \ref Shader
@@ -271,7 +292,8 @@ namespace magnet {
 	  {
 	    if (!_built) M_throw() << "Cannot set the uniforms of a shader which has not been built()";
 
-	    _context->setShader(_programHandle);
+	    if (_context->_shaderStack.back() != this)
+	      M_throw() << "You must attach() a shader before you can change/read its uniform's values";
 
 	    std::tr1::unordered_map<std::string, ShaderUniformValue>::iterator it 
 	      = _uniformCache.find(uniformName);
