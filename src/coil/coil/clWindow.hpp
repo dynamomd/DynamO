@@ -131,7 +131,7 @@ namespace coil {
     virtual void initOpenGL();
     virtual void initOpenCL();
 
-    void drawScene(magnet::GL::FBO&);
+    void drawScene(magnet::GL::FBO&, magnet::GL::Camera&);
 
     enum KeyStateType
       {
@@ -154,7 +154,7 @@ namespace coil {
 
     sigc::connection _renderTimeout;
 
-    magnet::thread::RefPtr<magnet::GL::Camera> _camera;
+    magnet::GL::Camera _camera;
     
     bool keyStates[256];
 

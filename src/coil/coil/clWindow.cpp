@@ -122,11 +122,11 @@ namespace coil {
     _frameRenderTime = 0;
     //Build the offscreen rendering FBO's
     _renderTarget.reset(new magnet::GL::FBO());
-    _renderTarget->init(_camera->getWidth(), _camera->getHeight());
+    _renderTarget->init(_camera.getWidth(), _camera.getHeight());
 
-    _filterTarget1.init(_camera->getWidth(), _camera->getHeight());
-    _filterTarget2.init(_camera->getWidth(), _camera->getHeight());
-    _normalsFBO.init(_camera->getWidth(), _camera->getHeight(), GL_RGBA);
+    _filterTarget1.init(_camera.getWidth(), _camera.getHeight());
+    _filterTarget2.init(_camera.getWidth(), _camera.getHeight());
+    _normalsFBO.init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
     _shadowFBO.init(1024);
     _renderShader.build();
     _depthRenderShader.build();
@@ -372,7 +372,7 @@ namespace coil {
 	  _renderTarget.reset(new magnet::GL::MultisampledFBO
 			      (2 << aliasSelections->get_active_row_number()));
 	
-	  _renderTarget->init(_camera->getWidth(), _camera->getHeight());
+	  _renderTarget->init(_camera.getWidth(), _camera.getHeight());
 	
 	  aliasSelections->signal_changed()
 	    .connect(sigc::mem_fun(*this, &CLGLWindow::multisampleEnableCallback));
@@ -476,7 +476,7 @@ namespace coil {
 	  _refXml->get_widget("SimLengthUnits", simunits);
 
 	  std::ostringstream os;
-	  os << _camera->getSimUnitLength();
+	  os << _camera.getSimUnitLength();
 	  simunits->set_text(os.str());
 
 	  simunits->signal_changed()
@@ -490,7 +490,7 @@ namespace coil {
 	  _refXml->get_widget("pixelPitch", pixelPitch);
 
 	  std::ostringstream os;
-	  os << _camera->getPixelPitch() * 10;
+	  os << _camera.getPixelPitch() * 10;
 	  pixelPitch->set_text(os.str());
 
 	  pixelPitch->signal_changed()
@@ -651,12 +651,12 @@ namespace coil {
 	_refXml->get_widget("multisampleLevels", aliasSelections);
 
 	_renderTarget.reset(new magnet::GL::MultisampledFBO(2 << aliasSelections->get_active_row_number()));
-	_renderTarget->init(_camera->getWidth(), _camera->getHeight());
+	_renderTarget->init(_camera.getWidth(), _camera.getHeight());
       }
     else
       {
 	_renderTarget.reset(new magnet::GL::FBO());
-	_renderTarget->init(_camera->getWidth(), _camera->getHeight());
+	_renderTarget->init(_camera.getWidth(), _camera.getHeight());
       }
   }
 
@@ -708,14 +708,11 @@ namespace coil {
     //  //Test volume render object
     //  RenderObjects.push_back(new coil::RVolume("Test Volume"));
 
-    _camera 
-      = magnet::thread::RefPtr<magnet::GL::Camera>(new magnet::GL::Camera);
-
     //Inform objects about the accessory objects, like the console or the pointer
     for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	 iPtr != RenderObjects.end(); ++iPtr)
       //This is the console and the simulation/system task queue
-      (*iPtr)->accessoryData(RenderObjects[_consoleID], _systemQueue, _camera); 
+      (*iPtr)->accessoryData(RenderObjects[_consoleID], _systemQueue); 
   
     initOpenGL();
     initOpenCL();
@@ -817,7 +814,7 @@ namespace coil {
     //Run every objects OpenCL stage
     for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	 iPtr != RenderObjects.end(); ++iPtr)
-      (*iPtr)->clTick();
+      (*iPtr)->clTick(_camera);
 
     //Camera Positioning
 
@@ -828,7 +825,7 @@ namespace coil {
 				 - keyStates[static_cast<size_t>('a')]);
     float vertical = moveAmp * ( keyStates[static_cast<size_t>('q')] 
 				 - keyStates[static_cast<size_t>('z')]);
-    _camera->CameraUpdate(forward, sideways, vertical);
+    _camera.CameraUpdate(forward, sideways, vertical);
 
     guiUpdateCallback(); //We frequently ping the gui update     
 
@@ -840,7 +837,7 @@ namespace coil {
 	  Gtk::CheckButton* wiiHeadTrack;
 	  _refXml->get_widget("wiiHeadTracking", wiiHeadTrack);
 	  if (wiiHeadTrack->get_active())
-	    _camera->setHeadLocation((magnet::TrackWiimote::getInstance()).getHeadPosition());
+	    _camera.setHeadLocation((magnet::TrackWiimote::getInstance()).getHeadPosition());
 	}
       }
 #endif
@@ -860,7 +857,7 @@ namespace coil {
 	//Setup the FBO for shadow maps
 	_shadowFBO.attach();
 	glClear(GL_DEPTH_BUFFER_BIT);
-	drawScene(_shadowFBO);
+	drawScene(_shadowFBO, _light0);
 	_shadowFBO.detach();
 	_shadowFBO.getDepthTexture().bind(7);
       }
@@ -881,33 +878,33 @@ namespace coil {
 	const double eyedist = 6.5; //
 	Vector eyeDisplacement(0.5 * eyedist, 0, 0);
 	  
-	getGLContext().setViewMatrix(_camera->getViewMatrix(-eyeDisplacement));
-	getGLContext().setProjectionMatrix(_camera->getProjectionMatrix(-eyeDisplacement));
+	getGLContext().setViewMatrix(_camera.getViewMatrix(-eyeDisplacement));
+	getGLContext().setProjectionMatrix(_camera.getProjectionMatrix(-eyeDisplacement));
 
 	if (_shadowMapping)
 	  _renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix();
 
 	glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
-	drawScene(*_renderTarget);
+	drawScene(*_renderTarget, _camera);
 	  
-	getGLContext().setViewMatrix(_camera->getViewMatrix(eyeDisplacement));
-	getGLContext().setProjectionMatrix(_camera->getProjectionMatrix(eyeDisplacement));
+	getGLContext().setViewMatrix(_camera.getViewMatrix(eyeDisplacement));
+	getGLContext().setProjectionMatrix(_camera.getProjectionMatrix(eyeDisplacement));
 
 	if (_shadowMapping)
 	  _renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix();
 	  
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
-	drawScene(*_renderTarget);
+	drawScene(*_renderTarget, _camera);
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
       }
     else
       {
-	getGLContext().setViewMatrix(_camera->getViewMatrix());
-	getGLContext().setProjectionMatrix(_camera->getProjectionMatrix());
+	getGLContext().setViewMatrix(_camera.getViewMatrix());
+	getGLContext().setProjectionMatrix(_camera.getProjectionMatrix());
 	if (_shadowMapping)
 	  _renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix();
-	drawScene(*_renderTarget);
+	drawScene(*_renderTarget, _camera);
       }
       
     _renderTarget->detach();
@@ -937,7 +934,7 @@ namespace coil {
 	    _normalsFBO.attach();
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	    _nrmlShader.attach();
-	    drawScene(_normalsFBO);
+	    drawScene(_normalsFBO, _camera);
 	    _normalsFBO.detach();
 	  }
 
@@ -963,7 +960,7 @@ namespace coil {
 		lastFBO->attach();
 		glActiveTextureARB(GL_TEXTURE0);
 		//Now copy the texture 
-		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _camera->getWidth(), _camera->getHeight());
+		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _camera.getWidth(), _camera.getHeight());
 		lastFBO->detach();
 	      }
 	    else
@@ -976,7 +973,7 @@ namespace coil {
 		else
 		  _filterTarget2.attach();
 		  
-		filter.invoke(3, _camera->getWidth(), _camera->getHeight(), *_camera);
+		filter.invoke(3, _camera.getWidth(), _camera.getHeight(), _camera);
 		  
 		if (FBOalternate)
 		  _filterTarget1.detach();
@@ -990,7 +987,7 @@ namespace coil {
 	  }
       }
     //Now blit the stored scene to the screen
-    lastFBO->blitToScreen(_camera->getWidth(), _camera->getHeight());
+    lastFBO->blitToScreen(_camera.getWidth(), _camera.getHeight());
   
     //We clear the depth as merely disabling gives artifacts
     glClear(GL_DEPTH_BUFFER_BIT); 
@@ -1000,7 +997,7 @@ namespace coil {
     //Enter the interface draw for all objects
     for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	 iPtr != RenderObjects.end(); ++iPtr)
-      (*iPtr)->interfaceRender();
+      (*iPtr)->interfaceRender(_camera);
 
     glutSwapBuffers();
 
@@ -1011,9 +1008,9 @@ namespace coil {
 	_newData = false;
 
 	std::vector<magnet::image::Pixel<magnet::image::RGB> > pixels;
-	pixels.resize(_camera->getWidth() * _camera->getHeight());
+	pixels.resize(_camera.getWidth() * _camera.getHeight());
 	//Read the pixels into our container
-	glReadPixels(0,0, _camera->getWidth(), _camera->getHeight(), GL_RGB, 
+	glReadPixels(0,0, _camera.getWidth(), _camera.getHeight(), GL_RGB, 
 		     GL_UNSIGNED_BYTE, &pixels[0]);
       
 	std::string path;
@@ -1028,11 +1025,11 @@ namespace coil {
 	    _snapshot = false;
 
 	    if (_PNGFileFormat)
-	      magnet::image::writePNGFile(path + "/snapshot.png", pixels, _camera->getWidth(), 
-					  _camera->getHeight(), 9, false, true);
+	      magnet::image::writePNGFile(path + "/snapshot.png", pixels, _camera.getWidth(), 
+					  _camera.getHeight(), 9, false, true);
 	    else
-	      magnet::image::writeBMPFile(path + "/snapshot.bmp", pixels, _camera->getWidth(), 
-					  _camera->getHeight());
+	      magnet::image::writeBMPFile(path + "/snapshot.bmp", pixels, _camera.getWidth(), 
+					  _camera.getHeight());
 	  }
 
 	if (_record)
@@ -1042,10 +1039,10 @@ namespace coil {
 	  
 	    if (_PNGFileFormat)
 	      magnet::image::writePNGFile(path + "/" + filename.str() +".png", pixels, 
-					  _camera->getWidth(), _camera->getHeight(), 1, true, true);
+					  _camera.getWidth(), _camera.getHeight(), 1, true, true);
 	    else
 	      magnet::image::writeBMPFile(path + "/" + filename.str() +".bmp", pixels, 
-					  _camera->getWidth(), _camera->getHeight());
+					  _camera.getWidth(), _camera.getHeight());
 	  }                         
       }
 
@@ -1055,12 +1052,12 @@ namespace coil {
   }
 
   void 
-  CLGLWindow::drawScene(magnet::GL::FBO& fbo)
+  CLGLWindow::drawScene(magnet::GL::FBO& fbo, magnet::GL::Camera& camera)
   {
     //Enter the render ticks for all objects
     for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	 iPtr != RenderObjects.end(); ++iPtr)
-      (*iPtr)->glRender(fbo);
+      (*iPtr)->glRender(fbo, camera);
   
     if (_showLight) _light0.drawLight();
   }
@@ -1069,17 +1066,12 @@ namespace coil {
   {
     if (!CoilRegister::getCoilInstance().isRunning() || !_readyFlag) return;
 
-    _camera->setHeightWidth(h,w);
+    _camera.setHeightWidth(h,w);
     //Update the viewport
     _renderTarget->resize(w, h);  
     _filterTarget1.resize(w, h);
     _filterTarget2.resize(w, h);
     _normalsFBO.resize(w, h);
-  
-    for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
-	 iPtr != RenderObjects.end(); ++iPtr)
-      (*iPtr)->resize(w, h);
-  
     std::ostringstream os;
     os << "Coil visualizer (" << w << "," << h << ")";
     setWindowtitle(os.str());
@@ -1163,7 +1155,7 @@ namespace coil {
     switch (keyState)
       {
       case LEFTMOUSE:
-	_camera->mouseMovement(diffX, diffY);
+	_camera.mouseMovement(diffX, diffY);
       case RIGHTMOUSE:
       case MIDDLEMOUSE:
       default:
@@ -1273,7 +1265,7 @@ namespace coil {
   void 
   CLGLWindow::lightPlaceCallback()
   {
-    _light0 = *_camera;
+    _light0 = _camera;
   }
 
   void 
@@ -1523,9 +1515,11 @@ namespace coil {
   CLGLWindow::performPicking(int x, int y)
   {
     _simpleRenderShader.attach();
+    //We need a non-multisampled FBO, just use one of the filter FBO's
+    _filterTarget1.attach();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
-    getGLContext().setViewMatrix(_camera->getViewMatrix());
-    getGLContext().setProjectionMatrix(_camera->getProjectionMatrix());
+    getGLContext().setViewMatrix(_camera.getViewMatrix());
+    getGLContext().setProjectionMatrix(_camera.getProjectionMatrix());
     //Perform unique coloring of screen objects
 
     cl_uint startVal = 0;
@@ -1537,14 +1531,14 @@ namespace coil {
     //Enter the render ticks for all objects
     for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	 iPtr != RenderObjects.end(); ++iPtr)
-      (*iPtr)->pickingRender();
+      (*iPtr)->pickingRender(_filterTarget1, _camera);
 
-    unsigned char pixel[4];
-  
+    unsigned char pixel[4];  
     GLint viewport[4];
-    glGetIntegerv(GL_VIEWPORT, viewport);
-  
+    glGetIntegerv(GL_VIEWPORT, viewport);  
     glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+
+    _filterTarget1.detach();
 
     //Now let the objects know what was picked
     const cl_uint objID = pixel[0] + 256 * (pixel[1] + 256 * (pixel[2] + 256 * pixel[3]));
@@ -1706,7 +1700,7 @@ namespace coil {
       _refXml->get_widget("SimLengthUnits", simunits);
       std::string val = simunits->get_text();
       if (val.empty()) {val = "50"; simunits->set_text("50"); }
-      _camera->setSimUnitLength(boost::lexical_cast<double>(val));
+      _camera.setSimUnitLength(boost::lexical_cast<double>(val));
     }
 
     {
@@ -1714,7 +1708,7 @@ namespace coil {
       _refXml->get_widget("pixelPitch", pixelPitch);
       std::string val = pixelPitch->get_text();
       if (val.empty()) {val = "0.25"; pixelPitch->set_text("0.25"); }
-      _camera->setPixelPitch(boost::lexical_cast<double>(val) / 10);
+      _camera.setPixelPitch(boost::lexical_cast<double>(val) / 10);
     }
 
     {
@@ -1725,13 +1719,13 @@ namespace coil {
       Gtk::Label* ZHead;
       _refXml->get_widget("ZHead", ZHead);
       std::ostringstream os;
-      os << _camera->getHeadLocation()[0] << "cm";
+      os << _camera.getHeadLocation()[0] << "cm";
       XHead->set_text(os.str());
       os.str("");
-      os << _camera->getHeadLocation()[1] << "cm";
+      os << _camera.getHeadLocation()[1] << "cm";
       YHead->set_text(os.str());
       os.str("");
-      os << _camera->getHeadLocation()[2] << "cm";
+      os << _camera.getHeadLocation()[2] << "cm";
       ZHead->set_text(os.str());
     }
 
@@ -1911,7 +1905,7 @@ namespace coil {
   void 
   CLGLWindow::HeadReset()
   {
-    _camera->setHeadLocation(Vector(0,0,_camera->getHeadLocation()[2]));
-    _camera->setFOVY(60.f, false);
+    _camera.setHeadLocation(Vector(0,0,_camera.getHeadLocation()[2]));
+    _camera.setFOVY(60.f, false);
   }
 }

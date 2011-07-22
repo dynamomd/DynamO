@@ -38,7 +38,7 @@ namespace coil {
   }
 
   void 
-  RCylinders::glRender()
+  RCylinders::glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam)
   {
     Cylinders::glRender();
   }

@@ -23,7 +23,7 @@ namespace coil {
   public:
     RQuads(std::string name);
 
-    virtual void glRender();
+    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
 
     virtual void releaseCLGLResources() { RTriangles::releaseCLGLResources(); }
 

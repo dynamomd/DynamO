@@ -37,10 +37,7 @@ namespace coil {
     virtual void initOpenCL() {}
     virtual void initGTK();
 
-    virtual void glRender(magnet::GL::FBO& fbo);
-    virtual void glRender() { M_throw() << "Need the current FBO for rendering"; }
-
-    virtual void resize(size_t width, size_t height);
+    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
 
     virtual void releaseCLGLResources();
 

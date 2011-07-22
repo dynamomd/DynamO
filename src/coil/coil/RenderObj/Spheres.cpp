@@ -267,18 +267,18 @@ namespace coil {
   }
 
   void 
-  RTSpheres::sortTick()
+  RTSpheres::sortTick(const magnet::GL::Camera& camera)
   {
-    cl_float4 campos = getclVec(_camera->getEyeLocation());
-    cl_float4 camdir = getclVec(_camera->getCameraDirection());
-    cl_float4 camup = getclVec(_camera->getCameraUp());
+    cl_float4 campos = getclVec(camera.getEyeLocation());
+    cl_float4 camdir = getclVec(camera.getCameraDirection());
+    cl_float4 camup = getclVec(camera.getCameraUp());
   
     //Generate the sort data
     _sortDataKernelFunc(_spherePositions, _sortKeys, _sortData,
 			campos, camdir, camup,
-			(cl_float)_camera->getAspectRatio(),
-			(cl_float)_camera->getZNear(),
-			(cl_float)_camera->getFOVY(),
+			(cl_float)camera.getAspectRatio(),
+			(cl_float)camera.getZNear(),
+			(cl_float)camera.getFOVY(),
 			_N);
   
     if ((_renderDetailLevels.size() > 2) 
@@ -321,11 +321,11 @@ namespace coil {
   }
 
   void 
-  RTSpheres::clTick()
+  RTSpheres::clTick(const magnet::GL::Camera& camera)
   {
     if (!_visible) return;
 
-    if (!(++_frameCount % _sortFrequency)) sortTick();
+    if (!(++_frameCount % _sortFrequency)) sortTick(camera);
   
     //Aqquire GL buffer objects
     //Finally, run render kernels
@@ -381,9 +381,9 @@ namespace coil {
   }
 
   void 
-  RTSpheres::pickingRender()
+  RTSpheres::pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam)
   {
-    glRender();
+    glRender(fbo, cam);
   }
 
   void 

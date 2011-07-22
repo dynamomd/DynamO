@@ -45,28 +45,23 @@ namespace coil {
     ~RenderObj() {}
   
     void accessoryData(const magnet::thread::RefPtr<RenderObj>& console, 
-		       const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue,
-		       const magnet::thread::RefPtr<magnet::GL::Camera>& camera)
+		       const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue)
     {
       _console = console;
       _systemQueue = systemQueue;
-      _camera = camera;
     }
 
     virtual void initGTK() {}
     virtual void initOpenGL() {}
     virtual void initOpenCL() {}
   
-    virtual void clTick() {}
-    virtual void glRender(magnet::GL::FBO& fbo) { glRender(); }
-    virtual void glRender() {}
-    virtual void interfaceRender() {}
+    virtual void clTick(const magnet::GL::Camera& cam) = 0;
+    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam) = 0;
+    virtual void interfaceRender(const magnet::GL::Camera& camera) {}
 
     virtual void initPicking(cl_uint& offset) {}
-    virtual void pickingRender() {}
+    virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam) {}
     virtual void finishPicking(cl_uint& offset, const cl_uint val) {}
-
-    virtual void resize(size_t width, size_t height) {}
 
     virtual void showControls(Gtk::ScrolledWindow* win) {}
 
@@ -97,6 +92,5 @@ namespace coil {
     bool _visible;
     magnet::thread::RefPtr<RenderObj> _console;
     magnet::thread::RefPtr<magnet::thread::TaskQueue> _systemQueue;
-    magnet::thread::RefPtr<magnet::GL::Camera> _camera;
   };
 }

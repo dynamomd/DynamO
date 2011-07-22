@@ -46,6 +46,7 @@ namespace magnet {
       inline 
       virtual void init(GLsizei width, GLsizei height, GLint internalformat = GL_RGBA)
       {
+	deinit();
 	if (!GLEW_EXT_framebuffer_object)
 	  M_throw() << "GL_EXT_framebuffer_object extension is not supported! Cannot do offscreen rendering!";
 
@@ -122,8 +123,8 @@ namespace magnet {
       inline 
       virtual void resize(GLsizei width, GLsizei height)
       {
-	//If we've not been initialised, then just return
-	if (!_width) return;
+	if (!_width)
+	  M_throw() << "Cannot resize an uninitialized FBO";
 	
 	//Skip identity operations
 	if ((_width == width) && (_height == height)) return;

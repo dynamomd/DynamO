@@ -39,7 +39,6 @@ namespace coil {
   {
     _shader.build();
     _cube.init();
-    _currentDepthFBO.init(_camera->getWidth(), _camera->getHeight());
     _transferFuncTexture.init(256);
   }
 
@@ -162,18 +161,14 @@ namespace coil {
   }
   
   void 
-  RVolume::resize(size_t width, size_t height)
-  {
-    _currentDepthFBO.resize(width, height);
-  }
-
-  void 
-  RVolume::glRender(magnet::GL::FBO& fbo)
+  RVolume::glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& camera)
   {
     if (!_visible || !_data.isValid()) return;
 
+    //Resize the copy FBO
+    _currentDepthFBO.init(fbo.getWidth(), fbo.getHeight());
     //Before we render, we need the current depth buffer for depth testing.
-    fbo.detach();   
+    fbo.detach();
     fbo.copyto(_currentDepthFBO, GL_DEPTH_BUFFER_BIT);
     fbo.attach();
 
@@ -190,15 +185,15 @@ namespace coil {
     _shader["ProjectionMatrix"] = _currentDepthFBO.getContext().getProjectionMatrix();
     _shader["ViewMatrix"] = _currentDepthFBO.getContext().getViewMatrix();
 
-    _shader["FocalLength"] = GLfloat(1.0f / std::tan(_camera->getFOVY() * (M_PI / 360.0f)));
+    _shader["FocalLength"] = GLfloat(1.0f / std::tan(camera.getFOVY() * (M_PI / 360.0f)));
     { 
-      std::tr1::array<GLfloat,2> winsize = {{_camera->getWidth(), _camera->getHeight()}};
+      std::tr1::array<GLfloat,2> winsize = {{camera.getWidth(), camera.getHeight()}};
       _shader["WindowSize"] = winsize;
     }
-    _shader["RayOrigin"] = _camera->getEyeLocation();
+    _shader["RayOrigin"] = camera.getEyeLocation();
     _shader["DepthTexture"] = 0;
-    _shader["NearDist"] = _camera->getZNear();
-    _shader["FarDist"] = _camera->getZFar();
+    _shader["NearDist"] = camera.getZNear();
+    _shader["FarDist"] = camera.getZFar();
     _shader["DataTexture"] = 1;
     _shader["StepSize"] = _stepSizeVal;
     _shader["DiffusiveLighting"] = GLfloat(_diffusiveLighting->get_value());

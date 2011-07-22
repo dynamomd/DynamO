@@ -29,7 +29,7 @@ namespace coil {
   { releaseCLGLResources(); }
 
   void 
-  RTriangles::glRender()
+  RTriangles::glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam)
   {
     if (!_visible) return;
 
@@ -300,10 +300,10 @@ namespace coil {
   }
 
   void 
-  RTriangles::pickingRender()
+  RTriangles::pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam)
   {
     _pickingRenderMode = true;
-    RTriangles::glRender();
+    RTriangles::glRender(fbo, cam);
     _pickingRenderMode = false;
   }
 

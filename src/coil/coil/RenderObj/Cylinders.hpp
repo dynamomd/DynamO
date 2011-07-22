@@ -26,7 +26,7 @@ namespace coil {
     RCylinders(size_t N, std::string name);
     ~RCylinders();
 
-    virtual void glRender();
+    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
     virtual void initOpenGL();
 
     virtual void releaseCLGLResources();

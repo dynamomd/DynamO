@@ -37,8 +37,6 @@ namespace coil {
   {
     _glutLastTime = glutGet(GLUT_ELAPSED_TIME);
 
-    resize(_camera->getWidth(), _camera->getHeight());
-
     _axis.init();
     _grid.init(10,10);
     _quad.init();
@@ -47,13 +45,7 @@ namespace coil {
   }
 
   void 
-  Console::resize(size_t width, size_t height)
-  {
-    //_consoleLayout->SetLineLength(width);
-  }
-
-  void 
-  Console::interfaceRender()
+  Console::interfaceRender(const magnet::GL::Camera& camera)
   {
     //Only draw if the console has something in it or if it's visible
     if (_consoleEntries.empty() || !_visible) return;
@@ -125,8 +117,8 @@ namespace coil {
 
 	context.setViewMatrix
 	  (GLMatrix::translate(0, 0, -(nearPlane + axisScale))
-	   * GLMatrix::rotate(_camera->getTilt(), Vector(1, 0, 0))
-	   * GLMatrix::rotate(_camera->getPan(), Vector(0, 1, 0))
+	   * GLMatrix::rotate(camera.getTilt(), Vector(1, 0, 0))
+	   * GLMatrix::rotate(camera.getPan(), Vector(0, 1, 0))
 	   * GLMatrix::scale(axisScale, axisScale, axisScale)
 	   );
     
@@ -138,7 +130,7 @@ namespace coil {
     glEnable(GL_DEPTH_TEST);
   }
 
-  void Console::glRender()
+  void Console::glRender(magnet::GL::FBO&, const magnet::GL::Camera& camera)
   {
     if (_showGrid->get_active())
       {
@@ -148,23 +140,23 @@ namespace coil {
 	GLMatrix old_model_view = context.getViewMatrix();
 	GLMatrix model_view 
 	  = old_model_view 
-	  * GLMatrix::translate(_camera->getViewPlanePosition())
-	  * GLMatrix::rotate(-_camera->getPan(), Vector(0, 1, 0))
-	  * GLMatrix::rotate(-_camera->getTilt(), Vector(1, 0, 0));
+	  * GLMatrix::translate(camera.getViewPlanePosition())
+	  * GLMatrix::rotate(-camera.getPan(), Vector(0, 1, 0))
+	  * GLMatrix::rotate(-camera.getTilt(), Vector(1, 0, 0));
 
 	context.color(1,1,1,1);
 	//Back face
 	context.setViewMatrix(model_view 
-			      * GLMatrix::scale(_camera->getScreenPlaneWidth(), 
-						_camera->getScreenPlaneHeight(), 
+			      * GLMatrix::scale(camera.getScreenPlaneWidth(), 
+						camera.getScreenPlaneHeight(), 
 						1)
 			      * GLMatrix::translate(0,0,-1));
 	_grid.glRender();
 
 	//Sides
 	context.setViewMatrix(model_view 
-			      * GLMatrix::scale(_camera->getScreenPlaneWidth(), 
-						_camera->getScreenPlaneHeight(), 
+			      * GLMatrix::scale(camera.getScreenPlaneWidth(), 
+						camera.getScreenPlaneHeight(), 
 						1)
 			      * GLMatrix::rotate(90, Vector(0,1,0))
 			      * GLMatrix::translate(0.5,0,-0.5));
@@ -177,8 +169,8 @@ namespace coil {
 
 	//Top and bottom
 	context.setViewMatrix(model_view
-			      * GLMatrix::scale(_camera->getScreenPlaneWidth(), 
-						_camera->getScreenPlaneHeight(),
+			      * GLMatrix::scale(camera.getScreenPlaneWidth(), 
+						camera.getScreenPlaneHeight(),
 						1)
 			      * GLMatrix::rotate(90, Vector(1,0,0))
 			      * GLMatrix::translate(0, -0.5, -0.5));

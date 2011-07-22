@@ -47,8 +47,8 @@ namespace coil {
 
     RTSpheres(size_t N, std::string name);
 
-    virtual void clTick();
-    void sortTick();
+    virtual void clTick(const magnet::GL::Camera& cam);
+    void sortTick(const magnet::GL::Camera& cam);
 
     virtual void initOpenGL() {}
     virtual void initOpenCL();
@@ -57,7 +57,7 @@ namespace coil {
     cl::Buffer& getColorDataBuffer() { return _sphereColors; }
 
     virtual void initPicking(cl_uint& offset);
-    virtual void pickingRender();
+    virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
     virtual void finishPicking(cl_uint& offset, const cl_uint val);
   
   protected:

@@ -28,7 +28,8 @@ namespace coil {
     RTriangles(std::string name);
     ~RTriangles();
 
-    virtual void glRender();
+    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
+    virtual void clTick(const magnet::GL::Camera& cam) {}
 
     void setGLColors(std::vector<GLubyte>& VertexColor);
     void setGLPositions(std::vector<float>& VertexPos);
@@ -44,7 +45,7 @@ namespace coil {
     virtual void setRenderMode(RenderModeType rm);
 
     virtual void initPicking(cl_uint& offset);
-    virtual void pickingRender();
+    virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
     virtual void finishPicking(cl_uint& offset, const cl_uint val);
 
   protected:

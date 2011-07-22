@@ -23,7 +23,7 @@ namespace coil {
     RTriangles(name) {}
 
   void 
-  RQuads::glRender()
+  RQuads::glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam)
   {
     if (!_visible) return;
 

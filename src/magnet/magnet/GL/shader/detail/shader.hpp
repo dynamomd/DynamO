@@ -43,14 +43,11 @@ namespace magnet {
 	 */
 	class ShaderUniform
 	{
-	  friend class Shader;
-	  /*! \brief Constructor.
-	   */
+	public:
 	  inline ShaderUniform(GLint uniformHandle):
 	    _uniformHandle(uniformHandle)
 	  {}
 
-	public:
 	  inline void operator=(GLfloat val)
 	  { glUniform1f(_uniformHandle, val); }
 
@@ -202,7 +199,7 @@ namespace magnet {
 	  inline ~Shader() { deinit(); }
 
 	  //! \brief Cause the shader to release its OpenGL resources.
-	  inline  virtual void deinit()
+	  inline void deinit()
 	  {
 	    if (_built)
 	      {
@@ -235,7 +232,7 @@ namespace magnet {
 	   * either the view or projection matricies are used inside
 	   * the shader.
 	   */
-	  inline virtual void attach() 
+	  inline void attach() 
 	  {
 	    if (!_built) M_throw() << "Cannot attach a Shader which has not been built()";
 	    
@@ -286,7 +283,7 @@ namespace magnet {
 	    * This function will throw an exception if compilation
 	    * fails.
 	    */
-	  inline virtual void build()
+	  inline void build()
 	  {
 	    _context = &(Context::getContext());
 

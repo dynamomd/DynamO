@@ -34,29 +34,22 @@ namespace coil {
   public:
     struct end {};
 
-    Console(std::tr1::array<GLfloat, 3> color):
+    inline Console(std::tr1::array<GLfloat, 3> color):
       RenderObj("Console"),
       _consoleTextColor(color)
     {}
     
     template<class T>
     Console& operator<<(const T& value) 
-    {
-      os << value;
-      return *this;
-    }
+    { os << value; return *this; }
 
-    void resize(size_t width, size_t height);
-
-    virtual void interfaceRender();
-
-    virtual void initOpenGL();
-    virtual void initGTK();
-    virtual void showControls(Gtk::ScrolledWindow* win);
-
-    virtual void releaseCLGLResources() { _axis.deinit(); _grid.deinit(); _quad.deinit(); }
-
-    virtual void glRender();
+    void interfaceRender(const magnet::GL::Camera& cam);
+    void clTick(const magnet::GL::Camera& cam) {}
+    void initOpenGL();
+    void initGTK();
+    void showControls(Gtk::ScrolledWindow* win);
+    void releaseCLGLResources() { _axis.deinit(); _grid.deinit(); _quad.deinit(); }
+    void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
     
   private:
     void guiUpdate();

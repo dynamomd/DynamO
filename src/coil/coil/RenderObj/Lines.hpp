@@ -26,7 +26,8 @@ namespace coil {
     RLines(size_t N, std::string name);
     ~RLines();
 
-    virtual void glRender();
+    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
+    virtual void clTick(const magnet::GL::Camera& cam) {}
     virtual void initOpenGL();
 
     void setGLColors(std::vector<GLubyte>& VertexColor);

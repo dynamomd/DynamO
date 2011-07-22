@@ -27,7 +27,7 @@ namespace coil {
 
     virtual void initOpenCL();
     virtual void initOpenGL();
-    virtual void clTick();
+    virtual void clTick(const magnet::GL::Camera& cam);
 
     cl::Buffer& getPointData() { return _pointData; }
     cl::Buffer& getDirectionData() { return _directionData; }

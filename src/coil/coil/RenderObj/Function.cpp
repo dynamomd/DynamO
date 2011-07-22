@@ -213,9 +213,9 @@ namespace coil {
   }
 
   void 
-  RFunction::glRender()
+  RFunction::glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam)
   {
-    RTriangles::glRender();
+    RTriangles::glRender(fbo, cam);
 
     //Draw the axis of the plotted function
     if (_drawAxis && _visible)
@@ -303,9 +303,9 @@ namespace coil {
   }
 
   void 
-  RFunction::pickingRender()
+  RFunction::pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam)
   {
-    RTriangles::glRender();
+    RTriangles::glRender(fbo, cam);
   }
 
   void 
