@@ -27,8 +27,6 @@ namespace magnet {
       class DepthRenderShader: public detail::Shader
       {
       public:
-	DepthRenderShader(): Shader(true, true) {}
-
 	virtual std::string initVertexShaderSource()
 	{
 	  return STRINGIFY(

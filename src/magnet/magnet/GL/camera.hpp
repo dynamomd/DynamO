@@ -266,6 +266,16 @@ namespace magnet {
 				  _zFarDist//Far distance)
 				  );
       }
+      
+      /*! \brief Get the normal matrix.
+       *
+       * \param offset This is an offset in camera coordinates to
+       * apply to the head location. It's primary use is to calculate
+       * the perspective shift for the left and right eye in
+       * Analygraph rendering.
+       */
+      inline const Matrix getNormalMatrix(Vector offset = Vector(0,0,0)) const 
+      { return Inverse(Matrix(getViewMatrix(offset))); }
 
       //! \brief Returns the screen's width (in simulation units).
       double getScreenPlaneWidth() const

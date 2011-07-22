@@ -182,9 +182,8 @@ namespace coil {
     GLhandleARB oldshader = glGetHandleARB(GL_PROGRAM_OBJECT_ARB);
 
 
-    _shader["ProjectionMatrix"] = _currentDepthFBO.getContext().getProjectionMatrix();
-    _shader["ViewMatrix"] = _currentDepthFBO.getContext().getViewMatrix();
-
+    _shader["ProjectionMatrix"] = camera.getProjectionMatrix();
+    _shader["ViewMatrix"] = camera.getViewMatrix();
     _shader["FocalLength"] = GLfloat(1.0f / std::tan(camera.getFOVY() * (M_PI / 360.0f)));
     { 
       std::tr1::array<GLfloat,2> winsize = {{camera.getWidth(), camera.getHeight()}};

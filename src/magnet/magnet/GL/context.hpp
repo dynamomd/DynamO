@@ -197,44 +197,6 @@ namespace magnet {
       }
       /**@}*/
 
-      /** @name The OpenGL matrix interface. */
-      /**@{*/
-      void setProjectionMatrix(const GLMatrix& mat)
-      {
-	if (_projectionMatrix == mat) return;
-	_projectionMatrix = mat;
-	_projectionMatrixCallback(mat);
-      }
-
-      void setViewMatrix(const GLMatrix& mat)
-      { 
-	if (_viewMatrix == mat) return;
-	_viewMatrix = mat;
-	_viewMatrixCallback(mat);
-      }
-
-      void registerViewMatrixCallback(function::Delegate1<const GLMatrix&> cb)
-      { 
-	_viewMatrixCallback = cb; 
-	_viewMatrixCallback(_viewMatrix);
-      }
-
-      void unregisterViewMatrixCallback(function::Delegate1<const GLMatrix&> cb)
-      { if (_viewMatrixCallback == cb) _viewMatrixCallback = &nullMatrixCallback; }
-
-      void registerProjectionMatrixCallback(function::Delegate1<const GLMatrix&> cb)
-      { 
-	_projectionMatrixCallback = cb;
-	_projectionMatrixCallback(_projectionMatrix);
-      }
-
-      void unregisterProjectionMatrixCallback(function::Delegate1<const GLMatrix&> cb)
-      { if (_projectionMatrixCallback == cb) _projectionMatrixCallback = &nullMatrixCallback; }
-
-      const GLMatrix& getViewMatrix() const { return _viewMatrix; }
-      const GLMatrix& getProjectionMatrix() const { return _projectionMatrix; }
-      /**@}*/
-
       /** @name The OpenCL-OpenGL interface. */
       /**@{*/
       //! \brief Fetch the OpenCL platform for this OpenGL context.

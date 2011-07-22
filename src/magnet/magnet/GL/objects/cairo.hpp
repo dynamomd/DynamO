@@ -46,7 +46,7 @@ namespace magnet {
 	{
 	  size_t _alpha_testing;
 	public:
-	  CairoShader(): Shader(true, true), _alpha_testing(0) {}
+	  CairoShader(): _alpha_testing(0) {}
 
 	  /*! \brief Builds the shader and sets the draw mode.
 	   *
@@ -230,11 +230,14 @@ void main()
 	 * controlled through the \ref Shader instance attributes.  Or
 	 * alternately through the modelview matrix.
 	 */
-	inline void glRender()
+	inline void glRender(const Camera& camera)
 	{
 	  _surface.bind(6);
 	  _shader["cairoTexture"] = 6;
-	  _shader.attach();	  
+	  _shader["ProjectionMatrix"] = camera.getProjectionMatrix();
+	  _shader["ViewMatrix"] = camera.getViewMatrix();
+
+	  _shader.attach();
 	  _vertexData.drawArray(magnet::GL::element_type::QUADS, 2); 
 	}
 

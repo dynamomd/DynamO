@@ -66,34 +66,34 @@ namespace magnet {
        */
       inline void drawLight()
       {
-	Context& context = Context::getContext();
-	context.color(1, 1, 1);
-	
-	GLfloat rotationAngle 
-	  = (180.0 / M_PI) * std::acos(Vector(0,0,-1) | getCameraDirection());
-	
-	Vector RotationAxis = Vector(0,0,-1) ^ getCameraDirection();
-	float norm = RotationAxis.nrm();
-	RotationAxis /= norm;
-	if (norm < std::numeric_limits<double>::epsilon())
-	  RotationAxis = Vector(1,0,0);
-
-	Vector cameraLocation(getEyeLocation());
-	
-	GLMatrix oldviewMatrix = context.getViewMatrix();
-
-	context.setViewMatrix(oldviewMatrix 
-			      * GLMatrix::translate(cameraLocation[0], cameraLocation[1], cameraLocation[2])
-			      * GLMatrix::rotate(rotationAngle, RotationAxis)
-			      * GLMatrix::translate(0,0,0.0025));
-
-	GLfloat r = 0.05f;
-	double fovY = getFOVY();
-	glutSolidCone(r * std::sin(fovY * M_PI / 360.0f), 
-		      r * std::cos(fovY * M_PI / 360.0f), 
-		      15, 15);
-
-	context.setViewMatrix(oldviewMatrix);
+//	Context& context = Context::getContext();
+//	context.color(1, 1, 1);
+//	
+//	GLfloat rotationAngle 
+//	  = (180.0 / M_PI) * std::acos(Vector(0,0,-1) | getCameraDirection());
+//	
+//	Vector RotationAxis = Vector(0,0,-1) ^ getCameraDirection();
+//	float norm = RotationAxis.nrm();
+//	RotationAxis /= norm;
+//	if (norm < std::numeric_limits<double>::epsilon())
+//	  RotationAxis = Vector(1,0,0);
+//
+//	Vector cameraLocation(getEyeLocation());
+//	
+//	GLMatrix oldviewMatrix = context.getViewMatrix();
+//
+//	context.setViewMatrix(oldviewMatrix 
+//			      * GLMatrix::translate(cameraLocation[0], cameraLocation[1], cameraLocation[2])
+//			      * GLMatrix::rotate(rotationAngle, RotationAxis)
+//			      * GLMatrix::translate(0,0,0.0025));
+//
+//	GLfloat r = 0.05f;
+//	double fovY = getFOVY();
+//	glutSolidCone(r * std::sin(fovY * M_PI / 360.0f), 
+//		      r * std::cos(fovY * M_PI / 360.0f), 
+//		      15, 15);
+//
+//	context.setViewMatrix(oldviewMatrix);
       }
 
       /*! \brief Allow copying the lights location from a \ref Camera.
@@ -125,13 +125,13 @@ namespace magnet {
        * \param textureUnit The texture unit whose matrix is to be
        * setup for shadowmapping.
        */
-      inline GLMatrix getShadowTextureMatrix()
+      inline GLMatrix getShadowTextureMatrix(const Camera& camera)
       {
 	return GLMatrix::translate(Vector(0.5, 0.5, 0.5))
 	  * GLMatrix::scale(Vector(0.5, 0.5, 0.5))
 	  * getProjectionMatrix()
 	  * getViewMatrix()
-	  * Context::getContext().getViewMatrix().inverse();
+	  * camera.getViewMatrix().inverse();
       }
     };
   }

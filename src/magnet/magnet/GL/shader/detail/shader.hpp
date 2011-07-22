@@ -132,68 +132,13 @@ namespace magnet {
 	 * \li "iScale" = \ref Context::instanceScaleAttrIndex
 	 * \li "vTexCoord" = \ref Context::vertexTexCoordAttrIndex
 	 *
-	 * If the shader requires access to the current projection
-	 * and/or view matrix, this must be registered using the
-	 * Shader constructor. Please see the constructor for more
-	 * information.
 	 */
 	class Shader 
 	{
 	public:
 	  /*! \brief Constructor for Shader objects.
-	   * 
-	   * If the derived shader needs access to the view matrix or
-	   * the projection matrix, it should indicate this to the
-	   * Shader constructor.
-	   *
-	   * When the \ref attach() method is called, if either matrix
-	   * is required, the shader will register itself with the GL
-	   * context and track any changes to these matricies.
-	   *
-	   * \param needsProjectionMatrix If true, the derived shader
-	   * needs to track the projection matrix. This will be made
-	   * available in the "mat4 ProjectionMatrix" uniform, which
-	   * must be defined and used at least once in the shader.
-
-	   * \param needsViewMatrix If true, the derived shader
-	   * needs to track the view matrix. This will be made
-	   * available in the "mat4 ViewMatrix" uniform, which
-	   * must be defined and used at least once in the shader.
-	   *
-	   * \param needsNormalMatrix If true, the derived shader
-	   * needs to track the normal matrix. This will be made
-	   * available in the "mat3 NormalMatrix" uniform, which must
-	   * be defined and used at least once in the shader. This is
-	   * calculated as the inverse transpose of the upper left 3x3
-	   * submatrix of the ModelView matrix. It is recalculated
-	   * whenever the modelview matrix is updated.
 	   */
-	  Shader(bool needsProjectionMatrix = false,
-		 bool needsViewMatrix = false,
-		 bool needsNormalMatrix = false):
-	    _built(false),
-	    _needsProjectionMatrix(needsProjectionMatrix),
-	    _needsViewMatrix(needsViewMatrix),
-	    _needsNormalMatrix(needsNormalMatrix)
-	  {}
-
-	  /*! \brief Callback function for when the projection matrix
-	   * is updated.
-	   */
-	  void projectionMatrixUpdate(const GLMatrix& mat)
-	  { operator[]("ProjectionMatrix") = mat; }
-
-	  /*! \brief Callback function for when the view matrix is
-	   * updated.
-	   */
-	  void viewMatrixUpdate(const GLMatrix& mat)
-	  { 
-	    if (_needsViewMatrix)
-	      operator[]("ViewMatrix") = mat;
-
-	    if (_needsNormalMatrix)
-	      operator[]("NormalMatrix") = Matrix(Inverse(Matrix(mat)));
-	  }
+	  Shader(): _built(false) {}
 
 	  //! \brief Destructor
 	  inline ~Shader() { deinit(); }
@@ -211,12 +156,6 @@ namespace magnet {
 
 		if (!(_geometryShaderCode.empty()))
 		  glDeleteShader(_geometryShaderHandle);
-		
-		_context->unregisterProjectionMatrixCallback
-		  (magnet::function::MakeDelegate(this, &Shader::projectionMatrixUpdate));
-	    
-		_context->unregisterViewMatrixCallback
-		  (magnet::function::MakeDelegate(this, &Shader::viewMatrixUpdate));
 	      }
 
 	    _vertexShaderCode.clear();
@@ -235,15 +174,6 @@ namespace magnet {
 	  inline void attach() 
 	  {
 	    if (!_built) M_throw() << "Cannot attach a Shader which has not been built()";
-	    
-	    if (_needsProjectionMatrix)
-	      _context->registerProjectionMatrixCallback
-		(magnet::function::MakeDelegate(this, &Shader::projectionMatrixUpdate));
-	    
-	    if (_needsViewMatrix || _needsNormalMatrix)
-	      _context->registerViewMatrixCallback
-		(magnet::function::MakeDelegate(this, &Shader::viewMatrixUpdate));
-
 	    _context->setShader(_programHandle);
 	  }
 
@@ -417,9 +347,6 @@ namespace magnet {
 	  GLhandleARB _geometryShaderHandle;
 	  GLhandleARB _programHandle;
 	  bool _built;
-	  bool _needsProjectionMatrix;
-	  bool _needsViewMatrix;
-	  bool _needsNormalMatrix;
 	  Context* _context;
 
 	  std::string _vertexShaderCode;
@@ -467,7 +394,6 @@ namespace magnet {
 	
 	    return retVal;
 	  }
-
        	};
       }
     }

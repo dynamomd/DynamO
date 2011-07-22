@@ -38,6 +38,7 @@ namespace coil {
     virtual void initGTK();
 
     virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
+    virtual void clTick(const magnet::GL::Camera&) {}
 
     virtual void releaseCLGLResources();
 

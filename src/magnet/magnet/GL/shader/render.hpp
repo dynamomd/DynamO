@@ -28,8 +28,6 @@ namespace magnet {
       class RenderShader: public detail::Shader
       {
       public:
-	RenderShader(): Shader(true, true, true) {}
-	
 	virtual std::string initVertexShaderSource()
 	{
 	  return STRINGIFY(

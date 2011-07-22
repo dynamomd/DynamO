@@ -27,8 +27,6 @@ namespace magnet {
       class SimpleRenderShader: public detail::Shader
       {
       public:
-	SimpleRenderShader(): Shader(true, true) {}
-
 	virtual std::string initVertexShaderSource()
 	{
 	  return STRINGIFY( 

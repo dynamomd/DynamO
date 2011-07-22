@@ -706,7 +706,7 @@ namespace coil {
     RenderObjects.push_back(new Console(textcolor));
 
     //  //Test volume render object
-    //  RenderObjects.push_back(new coil::RVolume("Test Volume"));
+    //RenderObjects.push_back(new RVolume("Test Volume"));
 
     //Inform objects about the accessory objects, like the console or the pointer
     for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
@@ -723,7 +723,7 @@ namespace coil {
     //    .loadRawFile("/home/mjki2mb2/Desktop/Output.raw", 300, 300, 300, 1);
     //  
     //  //bonsai plant test
-    //  RenderObjects.back().as<coil::RVolume>()
+    //  RenderObjects.back().as<RVolume>()
     //    .loadRawFile("bonsai.raw", 256, 256, 256, 1);
     //
     //  //Cadaver
@@ -848,12 +848,11 @@ namespace coil {
     //Prepare for the GL render
     if (_shadowMapping)
       {
-	_depthRenderShader.attach();
 	//////////////////Pass 1//////////////////
 	///Here we draw from the lights perspective
-	getGLContext().setViewMatrix(_light0.getViewMatrix());
-	getGLContext().setProjectionMatrix(_light0.getProjectionMatrix());
-	  
+	_depthRenderShader.attach();
+	_depthRenderShader["ProjectionMatrix"] = _light0.getProjectionMatrix();
+	_depthRenderShader["ViewMatrix"] = _light0.getViewMatrix();	  
 	//Setup the FBO for shadow maps
 	_shadowFBO.attach();
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -878,20 +877,20 @@ namespace coil {
 	const double eyedist = 6.5; //
 	Vector eyeDisplacement(0.5 * eyedist, 0, 0);
 	  
-	getGLContext().setViewMatrix(_camera.getViewMatrix(-eyeDisplacement));
-	getGLContext().setProjectionMatrix(_camera.getProjectionMatrix(-eyeDisplacement));
-
+	_renderShader["ProjectionMatrix"] = _camera.getProjectionMatrix(-eyeDisplacement);
+	_renderShader["ViewMatrix"] = _camera.getViewMatrix(-eyeDisplacement);
+	_renderShader["NormalMatrix"] = _camera.getNormalMatrix(-eyeDisplacement);
 	if (_shadowMapping)
-	  _renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix();
+	  _renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix(_camera);
 
 	glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
 	drawScene(*_renderTarget, _camera);
 	  
-	getGLContext().setViewMatrix(_camera.getViewMatrix(eyeDisplacement));
-	getGLContext().setProjectionMatrix(_camera.getProjectionMatrix(eyeDisplacement));
-
+	_renderShader["ProjectionMatrix"] = _camera.getProjectionMatrix(eyeDisplacement);
+	_renderShader["ViewMatrix"] = _camera.getViewMatrix(eyeDisplacement);
+	_renderShader["NormalMatrix"] = _camera.getNormalMatrix(eyeDisplacement);
 	if (_shadowMapping)
-	  _renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix();
+	  _renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix(_camera);
 	  
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
@@ -900,10 +899,11 @@ namespace coil {
       }
     else
       {
-	getGLContext().setViewMatrix(_camera.getViewMatrix());
-	getGLContext().setProjectionMatrix(_camera.getProjectionMatrix());
+	_renderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
+	_renderShader["ViewMatrix"] = _camera.getViewMatrix();
+	_renderShader["NormalMatrix"] = _camera.getNormalMatrix();
 	if (_shadowMapping)
-	  _renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix();
+	  _renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix(_camera);
 	drawScene(*_renderTarget, _camera);
       }
       
@@ -934,6 +934,9 @@ namespace coil {
 	    _normalsFBO.attach();
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	    _nrmlShader.attach();
+	    _nrmlShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
+	    _nrmlShader["ViewMatrix"] = _camera.getViewMatrix();
+	    _nrmlShader["NormalMatrix"] = _camera.getNormalMatrix();
 	    drawScene(_normalsFBO, _camera);
 	    _normalsFBO.detach();
 	  }
@@ -993,6 +996,8 @@ namespace coil {
     glClear(GL_DEPTH_BUFFER_BIT); 
 
     _simpleRenderShader.attach();
+    _simpleRenderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
+    _simpleRenderShader["ViewMatrix"] = _camera.getViewMatrix();
 
     //Enter the interface draw for all objects
     for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
@@ -1043,7 +1048,7 @@ namespace coil {
 	    else
 	      magnet::image::writeBMPFile(path + "/" + filename.str() +".bmp", pixels, 
 					  _camera.getWidth(), _camera.getHeight());
-	  }                         
+	  }
       }
 
     ++_frameCounter; 
@@ -1515,11 +1520,12 @@ namespace coil {
   CLGLWindow::performPicking(int x, int y)
   {
     _simpleRenderShader.attach();
+    _simpleRenderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
+    _simpleRenderShader["ViewMatrix"] = _camera.getViewMatrix();
     //We need a non-multisampled FBO, just use one of the filter FBO's
     _filterTarget1.attach();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
-    getGLContext().setViewMatrix(_camera.getViewMatrix());
-    getGLContext().setProjectionMatrix(_camera.getProjectionMatrix());
+
     //Perform unique coloring of screen objects
 
     cl_uint startVal = 0;

@@ -47,6 +47,7 @@
 **** TODO Magnetise the wii mote class and write it up on the site.
 **** TODO Write the morton class up.
 **** TODO Write up the image distance class.
+**** TODO Fix the rendering of light sources.
 *** DynamO 1.1 							    :ARCHIVE:
 **** DONE *MAJOR* Remove Unit types from the XML file and simulator.
 **** DONE *MAJOR* Remove aspect ratio and instead load the primary image cell size.
