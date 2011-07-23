@@ -40,19 +40,19 @@ namespace coil {
       inline void glRender(const magnet::GL::GLMatrix& viewProjection)
       {
 	{
-	  std::tr1::array<GLfloat, 4> vec = {{0.5,-0.5,-0.5,1.0}};
+	  std::tr1::array<GLfloat, 4> vec = {{0.55,-0.4,-0.4,1.0}};
 	  vec = viewProjection * vec;
 	  Xx = 0.5 + 0.5 * vec[0] / vec[3];
 	  Xy = 0.5 - 0.5 * vec[1] / vec[3];
 	}
 	{
-	  std::tr1::array<GLfloat, 4> vec = {{-0.5,0.5,-0.5,1.0}};
+	  std::tr1::array<GLfloat, 4> vec = {{-0.4,0.55,-0.4,1.0}};
 	  vec = viewProjection * vec;
 	  Yx = 0.5 + 0.5 * vec[0] / vec[3];
 	  Yy = 0.5 - 0.5 * vec[1] / vec[3];
 	}
 	{
-	  std::tr1::array<GLfloat, 4> vec = {{-0.5,-0.5,0.5,1.0}};
+	  std::tr1::array<GLfloat, 4> vec = {{-0.4,-0.4,0.55,1.0}};
 	  vec = viewProjection * vec;
 	  Zx = 0.5 + 0.5 * vec[0] / vec[3];
 	  Zy = 0.5 - 0.5 * vec[1] / vec[3];
