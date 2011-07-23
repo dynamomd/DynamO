@@ -199,7 +199,7 @@ void main()
 	  _cairoContext->paint();
 	  //The draw alpha must be >0 for the alpha masking effect
 	  _cairoContext->set_operator(Cairo::OPERATOR_OVER);
-	  _cairoContext->set_source_rgba(0, 0, 0, 1);
+	  _cairoContext->set_source_rgba(1, 1, 1, 1);
 	  
 	  drawCommands();
 	  _cairoContext->restore();
@@ -232,32 +232,21 @@ void main()
 	 *
 	 * The position, orientation and size of the scene can be
 	 * controlled through the \ref Shader instance attributes.  Or
-	 * alternately through the modelview matrix.
+	 * alternately through the passed modelview and projection matrix.
 	 */
-	inline void glRender(const Camera& camera)
+	inline void glRender(const GLMatrix& projection = GLMatrix::identity(), const GLMatrix& modelview = GLMatrix::identity())
 	{
 	  _shader.attach();
 	  _surface.bind(6);
 	  _shader["cairoTexture"] = 6;
-	  _shader["ProjectionMatrix"] = camera.getProjectionMatrix();
-	  _shader["ViewMatrix"] = camera.getViewMatrix();
+	  _shader["ProjectionMatrix"] = projection;
+	  _shader["ViewMatrix"] = modelview;
 	  _vertexData.drawArray(magnet::GL::element_type::QUADS, 2); 
 	  _shader.detach();
 	}
 
       protected:
-	/*! \brief Draw specific commands.
-	 *
-	 * This function is to be overridden in the derived classes to
-	 * actually draw the cairo scene.
-	 */
-	virtual void drawCommands() 
-	{
-	  _cairoContext->scale(_width,_height);
-	  _cairoContext->move_to(0.1,0.5);
-	  _cairoContext->set_font_size(0.3);
-	  _cairoContext->show_text("Hello!");
-	}
+	virtual void drawCommands() = 0;
 
 	Texture2D _surface;
 	size_t _width;

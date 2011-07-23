@@ -39,8 +39,7 @@ namespace coil {
 
     _axis.init();
     _grid.init(10,10);
-    _cairoOverlay.init(64, 64, 0);
-    _cairoOverlay.redraw();
+    _cairoOverlay.init();
   }
 
   void 
@@ -106,16 +105,22 @@ namespace coil {
 	std::tr1::array<GLfloat, 16> oldview 
 	  = context.getAttachedShader()["ViewMatrix"].as<std::tr1::array<GLfloat, 16> >();
 	
-	context.getAttachedShader()["ViewMatrix"] 
+	GLMatrix viewMatrix 
 	  = GLMatrix::translate(0, 0, -(nearPlane + axisScale))
 	  * GLMatrix::rotate(camera.getTilt(), Vector(1, 0, 0))
 	  * GLMatrix::rotate(camera.getPan(), Vector(0, 1, 0))
 	  * GLMatrix::scale(axisScale, axisScale, axisScale);
 
-	context.getAttachedShader()["ProjectionMatrix"] = GLMatrix::perspective(45, 1, nearPlane, 1000);
+	GLMatrix projectionMatrix
+	  = GLMatrix::perspective(45, 1, nearPlane, 1000);
+
+	context.getAttachedShader()["ViewMatrix"]  = viewMatrix;
+	context.getAttachedShader()["ProjectionMatrix"] = projectionMatrix;
 
 	context.color(0.5f,0.5f,0.5f,0.8f);
 	_axis.glRender();
+
+	_cairoOverlay.glRender(projectionMatrix * viewMatrix);
 
 	context.setViewport(oldviewport);
 	context.getAttachedShader()["ProjectionMatrix"] = oldproj;
@@ -128,7 +133,6 @@ namespace coil {
 
   void Console::glRender(magnet::GL::FBO&, const magnet::GL::Camera& camera)
   {
-    _cairoOverlay.glRender(camera);
 
     if (_showGrid->get_active())
       {

@@ -26,10 +26,61 @@
 #include <memory>
 #include <sstream>
 #include <list>
+#include <iostream>
 
 namespace coil {
   class Console: public RenderObj
   {
+
+    class AxisText : public magnet::GL::objects::CairoSurface
+    {
+    public:
+      inline void init() { CairoSurface::init(100,100,0); }
+
+      inline void glRender(const magnet::GL::GLMatrix& viewProjection)
+      {
+	{
+	  std::tr1::array<GLfloat, 4> vec = {{0.5,-0.5,-0.5,1.0}};
+	  vec = viewProjection * vec;
+	  Xx = 0.5 + 0.5 * vec[0] / vec[3];
+	  Xy = 0.5 - 0.5 * vec[1] / vec[3];
+	}
+	{
+	  std::tr1::array<GLfloat, 4> vec = {{-0.5,0.5,-0.5,1.0}};
+	  vec = viewProjection * vec;
+	  Yx = 0.5 + 0.5 * vec[0] / vec[3];
+	  Yy = 0.5 - 0.5 * vec[1] / vec[3];
+	}
+	{
+	  std::tr1::array<GLfloat, 4> vec = {{-0.5,-0.5,0.5,1.0}};
+	  vec = viewProjection * vec;
+	  Zx = 0.5 + 0.5 * vec[0] / vec[3];
+	  Zy = 0.5 - 0.5 * vec[1] / vec[3];
+	}
+	CairoSurface::redraw();
+	CairoSurface::glRender();
+      }
+
+    protected:
+      virtual void drawCommands() 
+      {
+	_cairoContext->scale(_width,_height);
+	_cairoContext->set_font_size(0.2);
+
+	_cairoContext->set_source_rgba(1.0, 0.1, 0.1, 1);
+	_cairoContext->move_to(Xx,Xy);
+	_cairoContext->show_text("X");
+	_cairoContext->set_source_rgba(0.1, 1.0, 0.1, 1);
+	_cairoContext->move_to(Yx,Yy);
+	_cairoContext->show_text("Y");
+	_cairoContext->set_source_rgba(0.1, 0.1, 1.0, 1);
+	_cairoContext->move_to(Zx,Zy);
+	_cairoContext->show_text("Z");
+      }
+
+      GLfloat Xx,Xy,Yx,Yy,Zx,Zy;
+    };
+
   public:
     struct end {};
 
@@ -61,7 +112,7 @@ namespace coil {
 
     magnet::GL::objects::Axis _axis;
     magnet::GL::objects::Grid _grid;
-    magnet::GL::objects::CairoSurface _cairoOverlay;
+    AxisText _cairoOverlay;
 
     std::auto_ptr<Gtk::VBox> _optList; 
     std::auto_ptr<Gtk::CheckButton> _showGrid;

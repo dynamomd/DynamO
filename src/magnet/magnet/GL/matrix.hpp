@@ -184,6 +184,19 @@ namespace magnet {
 	    }
 	return retval;
       }
+
+      /*! \brief Matrix multiplication operator.
+       */       
+      inline std::tr1::array<GLfloat, 4> operator*(const std::tr1::array<GLfloat, 4>& vec) const
+      {
+	std::tr1::array<GLfloat, 4> retval = {{0,0,0,0}};
+	for (size_t i(0); i < 4; ++i)
+	  for (size_t j(0); j < 4; ++j)
+	    retval[i] += operator[](j * 4 + i) * vec[j];
+
+	return retval;
+      }
+
       
       /*! \brief Transpose the matrix.
        */       
