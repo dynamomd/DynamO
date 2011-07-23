@@ -92,7 +92,7 @@ void main()
 				   + iOrigin.xyz, 1.0);
   gl_Position = ProjectionMatrix * vVertex;
   texCoord = 0.5 + 0.5 * vPosition.xy * vec2(1.0, -1.0);
-  if (ALPHA_TESTING) color = vColor;
+  if (ALPHA_TESTING > 0) color = vColor;
 });
 	    return os.str();
 	  }
@@ -107,7 +107,7 @@ varying vec2 texCoord;
 varying vec4 color;
 void main() 
 { 
-  if (ALPHA_TESTING)
+  if (ALPHA_TESTING > 0)
     {
       if (texture2D(cairoTexture, texCoord).r <= 0.5) discard;
       gl_FragColor = color;
