@@ -48,6 +48,8 @@ namespace coil {
     virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
     virtual void finishPicking(cl_uint& offset, const cl_uint val);
 
+    magnet::GL::Context& getContext() { return _posBuff.getContext(); }
+
   protected:
     void guiUpdate();
   

@@ -915,7 +915,7 @@ namespace coil {
       
     bool FBOalternate = false;
 
-    if (_filterEnable)
+    if (_filterEnable && !_filterStore->children().empty())
       {
 	//Check if we need an extra pass where we calculate normals and depth values
 	bool renderNormsAndDepth = false;

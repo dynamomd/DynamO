@@ -291,7 +291,7 @@ namespace coil {
   void
   RTSpheres::recolor()
   {
-    magnet::GL::Context& context = magnet::GL::Context::getContext();  
+    magnet::GL::Context& context = getContext();
     //Aqquire GL buffer objects
  
     //Run color kernels

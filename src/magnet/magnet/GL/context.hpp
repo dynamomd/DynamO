@@ -79,6 +79,7 @@ namespace magnet {
       {
 	if (attrnum >= _vertexAttributeState.size())
 	  M_throw() << "Attribute index out of range";
+	if (_vertexAttributeState[attrnum].active) return;
 	glEnableVertexAttribArray(attrnum);
 	_vertexAttributeState[attrnum].active = true;
       }
@@ -90,7 +91,10 @@ namespace magnet {
 
 	for (GLuint i(0); i < _vertexAttributeState.size(); ++i)
 	  if (_vertexAttributeState[i].active) 
-	    { glDisableVertexAttribArray(i); _vertexAttributeState[i].active = false;}
+	    { 
+	      glDisableVertexAttribArray(i); 
+	      _vertexAttributeState[i].active = false;
+	    }
       }
 
       /*! \brief Sets the value of a vertex attribute, if no attribute
@@ -102,6 +106,9 @@ namespace magnet {
       {
 	if (idx >= _vertexAttributeState.size())
 	  M_throw() << "Attribute index out of range";
+
+	if (idx == 0)
+	  M_throw() << "Cannot set the value of the 0th vertex attribute.";
 
 	std::tr1::array<GLfloat, 4> newval = {{x,y,z,w}};
 
@@ -423,10 +430,9 @@ namespace magnet {
 	_viewPortState = detail::glGet<GL_VIEWPORT>();
 
 	_vertexAttributeState.resize(detail::glGet<GL_MAX_VERTEX_ATTRIBS>());
-
-	for (GLuint i(0); i < _vertexAttributeState.size(); ++i)
+	for (GLuint i(1); i < _vertexAttributeState.size(); ++i)
 	  glVertexAttrib4f(i, 0,0,0,1);
-	
+
 	color(0,1,1,1);
 	resetInstanceTransform();
       }
@@ -453,7 +459,7 @@ namespace magnet {
       /*! \brief Class used to track the state of a vertex attribute
        * array.
        */
-      struct VertexAttrState 
+      struct VertexAttrState
       {
 	VertexAttrState(): 
 	  active(false),

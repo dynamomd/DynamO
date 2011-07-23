@@ -52,7 +52,7 @@ namespace coil {
     glDisable(GL_DEPTH_TEST);
 
     using namespace magnet::GL;
-    Context& context = Context::getContext();
+    Context& context = _axis.getContext();
     //Draw the console in orthograpic projection
     context.cleanupAttributeArrays();
 
@@ -137,7 +137,7 @@ namespace coil {
     if (_showGrid->get_active())
       {
 	using namespace magnet::GL;
-	Context& context = Context::getContext();
+	Context& context = _axis.getContext();
 
 	GLMatrix old_model_view
 	  = context.getAttachedShader()["ViewMatrix"].as<std::tr1::array<GLfloat, 16> >();

@@ -106,6 +106,7 @@ namespace magnet {
 	  _vertexData.drawArray(magnet::GL::element_type::LINES);
 	}
 
+	Context& getContext() { return _vertexData.getContext(); }
       protected:
 	magnet::GL::Buffer<GLfloat> _vertexData;
 	magnet::GL::Buffer<GLubyte> _colorData;
