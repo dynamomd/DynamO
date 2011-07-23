@@ -1528,14 +1528,18 @@ namespace coil {
     //We need a non-multisampled FBO, just use one of the filter FBO's
     _filterTarget1.attach();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
+    glDisable(GL_ALPHA);
+    glDisable(GL_BLEND);
 
     //Perform unique coloring of screen objects
-
     cl_uint startVal = 0;
     for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	 iPtr != RenderObjects.end(); ++iPtr)
       (*iPtr)->initPicking(startVal);
 
+    //Flush the OpenCL queue, so GL can use the buffers
+    getGLContext().getCLCommandQueue().finish();
+    
     //Now render the scene
     //Enter the render ticks for all objects
     for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
@@ -1548,6 +1552,8 @@ namespace coil {
     glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
 
     _filterTarget1.detach();
+    glEnable(GL_ALPHA);
+    glEnable(GL_BLEND);
 
     //Now let the objects know what was picked
     const cl_uint objID = pixel[0] + 256 * (pixel[1] + 256 * (pixel[2] + 256 * pixel[3]));

@@ -390,8 +390,8 @@ namespace coil {
   RTSpheres::finishPicking(cl_uint& offset, const cl_uint val)
   {
     if (val - offset < _N)
-      (_console.as<coil::Console>()) << "You picked a sphere! with an ID of " 
-				     << (val - offset) << coil::Console::end();
+      std::cout  << "You picked a sphere! with an ID of " 
+		 << (val - offset) << std::endl;
     recolor();
     offset += _N;
   }

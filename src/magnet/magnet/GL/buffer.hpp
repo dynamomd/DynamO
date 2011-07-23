@@ -276,8 +276,8 @@ namespace magnet {
 					getGLObject());
 	  }
 
-	if ((_cl_buffer_acquired++) == 0)
-	  {
+	if ((++_cl_buffer_acquired) == 1)
+	  {					
 	    std::vector<cl::Memory> buffers;
 	    buffers.push_back(_cl_handle);
 	    _context->getCLCommandQueue().enqueueAcquireGLObjects(&buffers);
