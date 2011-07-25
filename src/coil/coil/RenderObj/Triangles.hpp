@@ -42,8 +42,6 @@ namespace coil {
 
     virtual void showControls(Gtk::ScrolledWindow* win);
 
-    virtual void setRenderMode(RenderModeType rm);
-
     virtual void initPicking(cl_uint& offset);
     virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
     virtual void finishPicking(cl_uint& offset, const cl_uint val);
@@ -51,6 +49,11 @@ namespace coil {
     magnet::GL::Context& getContext() { return _posBuff.getContext(); }
 
   protected:
+    enum RenderModeType { POINTS, LINES, TRIANGLES };
+    RenderModeType _RenderMode;
+
+    void setRenderMode(RenderModeType rm);
+
     void initGTK();
     void guiUpdate();
   

@@ -79,17 +79,7 @@ namespace coil {
     _posBuff.getContext().cleanupAttributeArrays();
     _colBuff.attachToColor();
     _posBuff.attachToVertex();
-  
-    switch (_RenderMode)
-      {
-      case TRIANGLES:
-      case LINES:
-	_elementBuff.drawElements(magnet::GL::element_type::LINES);
-	break;
-      case POINTS:
-	_elementBuff.drawElements(magnet::GL::element_type::POINTS);
-	break;
-      }
+    _elementBuff.drawElements(magnet::GL::element_type::LINES);
   }
 
   void 

@@ -183,14 +183,6 @@ namespace coil {
 	.connect(sigc::mem_fun(*this, &CLGLWindow::lightShowCallback));
     }
 
-    {//////Render the surface normals checkbox
-      Gtk::CheckButton* Button;    
-      _refXml->get_widget("showNormals", Button); 
-
-      Button->signal_toggled()
-	.connect(sigc::mem_fun(*this, &CLGLWindow::renderNormalsCallback));
-    }
-
     {//////Snapshot button
       Gtk::Button* btn;
       _refXml->get_widget("SimSnapshot", btn);
@@ -1474,19 +1466,6 @@ namespace coil {
       aboutImage->set(Gdk::Pixbuf::create_from_inline
 		      (coilsplash_size, coilsplash));
     }
-  }
-
-  void
-  CLGLWindow::renderNormalsCallback()
-  {
-    Gtk::CheckButton* Button;
-    _refXml->get_widget("showNormals", Button);
-  
-    bool showNormals = Button->get_active();
-
-    for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
-	 iPtr != RenderObjects.end(); ++iPtr)
-      (*iPtr)->setDisplayNormals(showNormals);
   }
 
   void

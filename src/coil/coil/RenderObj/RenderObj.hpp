@@ -21,28 +21,14 @@
 #include <magnet/GL/camera.hpp>
 #include <magnet/GL/FBO.hpp>
 
-namespace Gtk {
-  class ScrolledWindow;
-}
-
-namespace magnet {
-  namespace GL {
-    class Camera;
-  }
-}
+namespace Gtk { class ScrolledWindow; }
+namespace magnet { namespace GL { class Camera; } }
 
 namespace coil {
   class RenderObj
   {
   public:
-    RenderObj(std::string name):
-      _name(name),
-      _RenderMode(TRIANGLES),
-      _renderNormals(false),
-      _visible(true)
-    {}
-  
-    ~RenderObj() {}
+    RenderObj(std::string name): _name(name), _visible(true) {}
   
     virtual void init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue) 
     { _systemQueue = systemQueue; }
@@ -55,10 +41,6 @@ namespace coil {
     virtual void finishPicking(cl_uint& offset, const cl_uint val) {}
     virtual void showControls(Gtk::ScrolledWindow* win) {}
 
-    enum RenderModeType { POINTS, LINES, TRIANGLES };
-
-    virtual void setRenderMode(RenderModeType rm) { _RenderMode = rm; }
-    inline void setDisplayNormals(bool val) { _renderNormals = val; }
     inline void setVisible(bool val) { _visible = val; }
     inline bool isVisible() const { return _visible; }
     inline const std::string& getName() const { return _name; }
@@ -66,9 +48,6 @@ namespace coil {
 
   protected:
     std::string _name;
-
-    RenderModeType _RenderMode;
-    bool _renderNormals;
     bool _visible;
     magnet::thread::RefPtr<magnet::thread::TaskQueue> _systemQueue;
   };
