@@ -35,10 +35,9 @@ namespace coil {
     //! to all spheres in a single object.
     RSphericalParticles(size_t N, std::string name, size_t spheresPerObject = 1);
   
-    virtual void initGTK();
-
     virtual void showControls(Gtk::ScrolledWindow* win);
-    
+    virtual void init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue) { RTSpheres::init(systemQueue); initGTK(); }
+
     typedef enum {
       SINGLE_COLOR = 1,
       COLOR_BY_ID = 2
@@ -57,6 +56,8 @@ namespace coil {
     void notifyNewParticleData();
 
   protected:
+    void initGTK();
+
     size_t _spheresPerObject;
 
     void sendRenderDataWorker();

@@ -41,6 +41,7 @@ namespace coil {
     _axis.init();
     _grid.init(10,10);
     _cairoOverlay.init();
+    initGTK();
   }
 
   void 

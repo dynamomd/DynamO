@@ -96,12 +96,12 @@ namespace coil {
     void interfaceRender(const magnet::GL::Camera& cam);
     void clTick(const magnet::GL::Camera& cam) {}
     void init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue);
-    void initGTK();
     void showControls(Gtk::ScrolledWindow* win);
     void deinit() { _axis.deinit(); _grid.deinit(); }
     void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
     
   private:
+    void initGTK();
     void guiUpdate();
 
     std::ostringstream os;

@@ -46,7 +46,6 @@ namespace coil {
   
     virtual void init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue) 
     { _systemQueue = systemQueue; }
-    virtual void initGTK() {}
     virtual void deinit() {}
     virtual void clTick(const magnet::GL::Camera& cam) = 0;
     virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam) = 0;

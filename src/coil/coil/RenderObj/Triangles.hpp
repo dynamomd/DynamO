@@ -31,14 +31,14 @@ namespace coil {
     virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
     virtual void clTick(const magnet::GL::Camera& cam) {}
 
+    virtual void init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue) { RenderObj::init(systemQueue); initGTK(); }
+
     void setGLColors(std::vector<GLubyte>& VertexColor);
     void setGLPositions(std::vector<float>& VertexPos);
     void setGLNormals(std::vector<float>& VertexNormals);
     void setGLElements(std::vector<GLuint>& Elements);
 
     virtual void deinit();
-
-    virtual void initGTK();
 
     virtual void showControls(Gtk::ScrolledWindow* win);
 
@@ -51,6 +51,7 @@ namespace coil {
     magnet::GL::Context& getContext() { return _posBuff.getContext(); }
 
   protected:
+    void initGTK();
     void guiUpdate();
   
     std::auto_ptr<Gtk::VBox>        _gtkOptList;

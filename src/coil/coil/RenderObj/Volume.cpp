@@ -41,6 +41,7 @@ namespace coil {
     _shader.build();
     _cube.init();
     _transferFuncTexture.init(256);
+    initGTK();
   }
 
   void 

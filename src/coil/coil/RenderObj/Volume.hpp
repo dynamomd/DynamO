@@ -35,8 +35,6 @@ namespace coil {
   
     virtual void init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue);
     virtual void deinit();
-    virtual void initGTK();
-
     virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
     virtual void clTick(const magnet::GL::Camera&) {}
 
@@ -49,6 +47,7 @@ namespace coil {
     void loadData(const std::vector<GLubyte>& inbuffer, size_t width, size_t height, size_t depth);
 
   protected:
+    void initGTK();
     void guiUpdate();
 
     void transferFunctionUpdated();

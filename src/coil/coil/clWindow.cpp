@@ -117,7 +117,7 @@ namespace coil {
     _filterModelColumns.reset(new FilterModelColumnsType);
     _renderObjModelColumns.reset(new RenderObjModelColumnsType);
 
-    {////////Glade XML loader 
+    {//////////////Glade XML loader 
       Glib::ustring glade_data
 	(reinterpret_cast<const char *>(_binary_clwingtk_gladexml_start), 
 	 _binary_clwingtk_gladexml_end
@@ -533,10 +533,6 @@ namespace coil {
 	  _particleSync = btn->get_active();
 	}
       }
-
-    for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
-	 iPtr != RenderObjects.end(); ++iPtr)
-      (*iPtr)->initGTK();
   }
 
   bool 
