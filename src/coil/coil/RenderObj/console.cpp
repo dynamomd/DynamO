@@ -33,8 +33,9 @@ extern const unsigned char _binary_coilfont_ttf_end[];
 
 namespace coil {
   void 
-  Console::initOpenGL()
+  Console::init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue)
   {
+    RenderObj::init(systemQueue);
     _glutLastTime = glutGet(GLUT_ELAPSED_TIME);
 
     _axis.init();

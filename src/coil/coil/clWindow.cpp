@@ -82,67 +82,7 @@ namespace coil {
     for (size_t i(0); i < 256; ++i) keyStates[i] = false;
   }
 
-  CLGLWindow::~CLGLWindow()
-  {}
-
-  void 
-  CLGLWindow::initOpenGL()
-  {
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE | GLUT_ALPHA);
-    glutInitWindowSize(800, 600);
-    glutInitWindowPosition(0, 0);
-
-    CoilRegister::getCoilInstance().CallGlutCreateWindow(windowTitle.c_str(), this);
-
-    _glContext = &magnet::GL::Context::getContext();
-
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    glDepthFunc(GL_LEQUAL);
-    glEnable(GL_DEPTH_TEST);
-
-    glEnable(GL_BLEND);
-    //Blend colors using the alpha channel
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
-
-    //Switch on line aliasing
-    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-
-    //Setup the viewport
-    CallBackReshapeFunc(800, 600);
-
-    _light0 = magnet::GL::Light(Vector(0.8f,  1.5f, 0.8f),//Position
-				Vector(0.0f, 0.0f, 0.0f),//Lookat
-				75.0f//Beam angle
-				);
-  
-    //Setup the keyboard controls
-    glutIgnoreKeyRepeat(1);
-
-    _lastUpdateTime = _lastFrameTime = _FPStime = glutGet(GLUT_ELAPSED_TIME);
-    _frameRenderTime = 0;
-    //Build the offscreen rendering FBO's
-    _renderTarget.reset(new magnet::GL::FBO());
-    _renderTarget->init(_camera.getWidth(), _camera.getHeight());
-
-    _filterTarget1.init(_camera.getWidth(), _camera.getHeight());
-    _filterTarget2.init(_camera.getWidth(), _camera.getHeight());
-    _normalsFBO.init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
-    _shadowFBO.init(1024);
-    _renderShader.build();
-    _depthRenderShader.build();
-    _simpleRenderShader.build();
-    _nrmlShader.build();
-
-    //Now init the render objects  
-    for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
-	 iPtr != RenderObjects.end(); ++iPtr)
-      (*iPtr)->initOpenGL();
-  
-    Console& _console 
-      = static_cast<Console&>(*RenderObjects[_consoleID]);
-    _console << "Welcome to coil, part of the dynamo simulator..." 
-	     << Console::end();
-  }
+  CLGLWindow::~CLGLWindow() {}
 
   bool
   CLGLWindow::CallBackIdleFunc()
@@ -169,18 +109,6 @@ namespace coil {
       }
 
     return true;
-  }
-
-  void 
-  CLGLWindow::initOpenCL()
-  {
-    //Force the OpenCL platform to be constructed
-    getGLContext().getCLPlatform();
-  
-    //Now init the render objects  
-    for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
-	 iPtr != RenderObjects.end(); ++iPtr)
-      (*iPtr)->initOpenCL();
   }
 
   void
@@ -708,14 +636,60 @@ namespace coil {
     //  //Test volume render object
     //RenderObjects.push_back(new RVolume("Test Volume"));
 
-    //Inform objects about the accessory objects, like the console or the pointer
+    glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE | GLUT_ALPHA);
+    glutInitWindowSize(800, 600);
+    glutInitWindowPosition(0, 0);
+
+    CoilRegister::getCoilInstance().CallGlutCreateWindow(windowTitle.c_str(), this);
+
+    _glContext = &magnet::GL::Context::getContext();
+
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glDepthFunc(GL_LEQUAL);
+    glEnable(GL_DEPTH_TEST);
+
+    glEnable(GL_BLEND);
+    //Blend colors using the alpha channel
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+
+    //Switch on line aliasing
+    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+
+    //Setup the viewport
+    CallBackReshapeFunc(800, 600);
+
+    _light0 = magnet::GL::Light(Vector(0.8f,  1.5f, 0.8f),//Position
+				Vector(0.0f, 0.0f, 0.0f),//Lookat
+				75.0f//Beam angle
+				);
+  
+    //Setup the keyboard controls
+    glutIgnoreKeyRepeat(1);
+
+    _lastUpdateTime = _lastFrameTime = _FPStime = glutGet(GLUT_ELAPSED_TIME);
+    _frameRenderTime = 0;
+    //Build the offscreen rendering FBO's
+    _renderTarget.reset(new magnet::GL::FBO());
+    _renderTarget->init(_camera.getWidth(), _camera.getHeight());
+
+    _filterTarget1.init(_camera.getWidth(), _camera.getHeight());
+    _filterTarget2.init(_camera.getWidth(), _camera.getHeight());
+    _normalsFBO.init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
+    _shadowFBO.init(1024);
+    _renderShader.build();
+    _depthRenderShader.build();
+    _simpleRenderShader.build();
+    _nrmlShader.build();
+
+    //Now init the render objects  
     for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	 iPtr != RenderObjects.end(); ++iPtr)
-      //This is the console and the simulation/system task queue
-      (*iPtr)->accessoryData(RenderObjects[_consoleID], _systemQueue); 
+      (*iPtr)->init(_systemQueue);
   
-    initOpenGL();
-    initOpenCL();
+    Console& _console = static_cast<Console&>(*RenderObjects[_consoleID]);
+    _console << "Welcome to coil, part of the dynamo simulator..." 
+	     << Console::end();
+
     initGTK();
 
     //  //Fabian Test
@@ -777,7 +751,7 @@ namespace coil {
     ///////////////////OpenGL
     for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	 iPtr != RenderObjects.end(); ++iPtr)
-      (*iPtr)->releaseCLGLResources();
+      (*iPtr)->deinit();
 
     RenderObjects.clear();
 

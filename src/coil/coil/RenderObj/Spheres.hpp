@@ -50,8 +50,7 @@ namespace coil {
     virtual void clTick(const magnet::GL::Camera& cam);
     void sortTick(const magnet::GL::Camera& cam);
 
-    virtual void initOpenGL() {}
-    virtual void initOpenCL();
+    virtual void init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue);
 
     cl::Buffer& getSphereDataBuffer() { return _spherePositions; }
     cl::Buffer& getColorDataBuffer() { return _sphereColors; }

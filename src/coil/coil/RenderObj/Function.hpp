@@ -37,10 +37,7 @@ namespace coil {
 	      std::string normalCalc = "normal = normalize((float4)(pos.y * native_sin(t), pos.x * native_sin(t),1,0));\n",
 	      std::string colorCalc = "\n");
 
-    virtual void clTick(magnet::GL::Camera& cam) { clTick(); }
-
-    void initOpenGL();
-    void initOpenCL();
+    virtual void init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue);
 
     virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
 
@@ -53,7 +50,7 @@ namespace coil {
 
     void setConstantA(cl_float val) { _A = val; }
 
-    virtual void clTick(const magnet::GL::Camera&) {}
+    virtual void clTick(const magnet::GL::Camera&) { clTick(); }
 
   protected:
     void clTick();

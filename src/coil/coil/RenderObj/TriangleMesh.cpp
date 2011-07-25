@@ -20,8 +20,10 @@
 
 namespace coil {
   void 
-  RTriangleMesh::initOpenCL()
+  RTriangleMesh::init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue)
   {
+    RTriangles::init(systemQueue);
+
     //Send the data we already have
     setGLPositions(_vertices);
     setGLElements(_elements);

@@ -55,8 +55,6 @@ namespace coil {
   protected:
     volatile bool _readyFlag;
 
-    virtual void initOpenGL() = 0;  
-    virtual void initOpenCL() = 0;
     virtual void initGTK() = 0;
   };
 }

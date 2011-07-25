@@ -86,8 +86,10 @@ namespace coil {
   }
 
   void
-  RTSpheres::initOpenCL()
+  RTSpheres::init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue)
   {
+    RTriangles::init(systemQueue);
+
     magnet::GL::Context& context = magnet::GL::Context::getContext();
     //Build the sort functor now so we can grab the padding
     sortFunctor.build(context.getCLCommandQueue(), context.getCLContext());

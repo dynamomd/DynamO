@@ -27,9 +27,9 @@ namespace coil {
     ~RCylinders();
 
     virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
-    virtual void initOpenGL();
 
-    virtual void releaseCLGLResources();
+    virtual void init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue);
+    virtual void deinit();
 
     std::vector<GLfloat>& getOriginData() { return _origin; }
     std::vector<GLfloat>& getOrientationData() { return _orientation; }

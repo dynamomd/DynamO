@@ -44,45 +44,26 @@ namespace coil {
   
     ~RenderObj() {}
   
-    void accessoryData(const magnet::thread::RefPtr<RenderObj>& console, 
-		       const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue)
-    {
-      _console = console;
-      _systemQueue = systemQueue;
-    }
-
+    virtual void init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue) 
+    { _systemQueue = systemQueue; }
     virtual void initGTK() {}
-    virtual void initOpenGL() {}
-    virtual void initOpenCL() {}
-  
+    virtual void deinit() {}
     virtual void clTick(const magnet::GL::Camera& cam) = 0;
     virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam) = 0;
     virtual void interfaceRender(const magnet::GL::Camera& camera) {}
-
     virtual void initPicking(cl_uint& offset) {}
     virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam) {}
     virtual void finishPicking(cl_uint& offset, const cl_uint val) {}
-
     virtual void showControls(Gtk::ScrolledWindow* win) {}
 
-    enum RenderModeType 
-      {
-	POINTS,
-	LINES,
-	TRIANGLES
-      };
+    enum RenderModeType { POINTS, LINES, TRIANGLES };
 
-    virtual void setRenderMode(RenderModeType rm) { _RenderMode = rm; } 
-  
+    virtual void setRenderMode(RenderModeType rm) { _RenderMode = rm; }
     inline void setDisplayNormals(bool val) { _renderNormals = val; }
     inline void setVisible(bool val) { _visible = val; }
     inline bool isVisible() const { return _visible; }
-
     inline const std::string& getName() const { return _name; }
-
     magnet::thread::RefPtr<magnet::thread::TaskQueue> getQueue() { return _systemQueue; }
-
-    virtual void releaseCLGLResources() {}
 
   protected:
     std::string _name;
@@ -90,7 +71,6 @@ namespace coil {
     RenderModeType _RenderMode;
     bool _renderNormals;
     bool _visible;
-    magnet::thread::RefPtr<RenderObj> _console;
     magnet::thread::RefPtr<magnet::thread::TaskQueue> _systemQueue;
   };
 }

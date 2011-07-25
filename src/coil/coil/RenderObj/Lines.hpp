@@ -28,7 +28,8 @@ namespace coil {
 
     virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
     virtual void clTick(const magnet::GL::Camera& cam) {}
-    virtual void initOpenGL();
+    virtual void init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue);
+    virtual void deinit();
 
     void setGLColors(std::vector<GLubyte>& VertexColor);
     void setGLPositions(std::vector<GLfloat>& VertexPos);
@@ -36,8 +37,6 @@ namespace coil {
 
     magnet::GL::Buffer<GLfloat>& getVertexGLData() { return _posBuff; }
     magnet::GL::Buffer<GLubyte>& getColorGLData() { return _colBuff; }
-
-    virtual void releaseCLGLResources();
 
   protected:
     size_t _N;

@@ -24,14 +24,12 @@ namespace coil {
     RenderObj(name), _N(N)
   {}
 
-  RLines::~RLines()
-  {
-    releaseCLGLResources();
-  }
+  RLines::~RLines() { deinit(); }
 
   void 
-  RLines::initOpenGL()
+  RLines::init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue)
   {
+    RenderObj::init(systemQueue);
     {//Setup initial vertex positions
       std::vector<float> VertexPos(3 * _N * 2, 0.0);
       for (size_t i(0); i < _N; ++i)
@@ -136,7 +134,7 @@ namespace coil {
   }
  
   void 
-  RLines::releaseCLGLResources()
+  RLines::deinit()
   {
     _colBuff.deinit();
     _posBuff.deinit();

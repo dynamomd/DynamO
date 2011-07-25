@@ -33,14 +33,12 @@ namespace coil {
     
     ~RVolume();
   
-    virtual void initOpenGL();
-    virtual void initOpenCL() {}
+    virtual void init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue);
+    virtual void deinit();
     virtual void initGTK();
 
     virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
     virtual void clTick(const magnet::GL::Camera&) {}
-
-    virtual void releaseCLGLResources();
 
     virtual void showControls(Gtk::ScrolledWindow* win);
 

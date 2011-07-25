@@ -44,9 +44,7 @@ SVisualizer::SVisualizer(dynamo::SimData* nSim, std::string nName, double tickFr
   sysName = "Visualizer";
 
   //Build a window, ready to display it
-  _CLWindow = new coil::CLGLWindow("Visualizer : " + nName,
-				   tickFreq,
-				   true);
+  _CLWindow = new coil::CLGLWindow("Visualizer : " + nName, tickFreq, true);
   
   BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
     if (spec.typeTest<CoilRenderObj>())

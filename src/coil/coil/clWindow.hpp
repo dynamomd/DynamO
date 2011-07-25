@@ -128,9 +128,6 @@ namespace coil {
 
     void CameraSetup();
 
-    virtual void initOpenGL();
-    virtual void initOpenCL();
-
     void drawScene(magnet::GL::FBO&, magnet::GL::Camera&);
 
     enum KeyStateType

@@ -23,14 +23,12 @@ namespace coil {
     _N(N)
   {}
 
-  RCylinders::~RCylinders()
-  {
-    releaseCLGLResources();
-  }
+  RCylinders::~RCylinders() { deinit(); }
 
   void 
-  RCylinders::initOpenGL()
+  RCylinders::init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue)
   {
+    RenderObj::init(systemQueue);
     Cylinders::init(_N);
     _origin.resize(3 * _N);
     _orientation.resize(4 * _N);
@@ -39,15 +37,11 @@ namespace coil {
 
   void 
   RCylinders::glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam)
-  {
-    Cylinders::glRender();
-  }
+  { Cylinders::glRender(); }
 
   void 
-  RCylinders::releaseCLGLResources()
-  {
-    Cylinders::deinit();
-  }
+  RCylinders::deinit()
+  { Cylinders::deinit(); }
 
   void 
   RCylinders::notifyDataUpdate()

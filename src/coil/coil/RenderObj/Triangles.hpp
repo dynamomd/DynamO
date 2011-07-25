@@ -36,7 +36,7 @@ namespace coil {
     void setGLNormals(std::vector<float>& VertexNormals);
     void setGLElements(std::vector<GLuint>& Elements);
 
-    virtual void releaseCLGLResources();
+    virtual void deinit();
 
     virtual void initGTK();
 

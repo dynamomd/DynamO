@@ -93,8 +93,10 @@ namespace coil {
   {}
 
   void 
-  RArrows::initOpenGL()
+  RArrows::init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue)
   {
+    RLines::init(systemQueue);
+
     {//Setup initial vertex positions, arrows have 4 verts
       std::vector<float> VertexPos(3 * _N * 4, 0.0);
       for (size_t i(0); i < _N; ++i)
@@ -155,12 +157,7 @@ namespace coil {
       setGLElements(ElementData);
     }
   
-  }
-
-  void 
-  RArrows::initOpenCL()
-  {
-    RLines::initOpenCL();
+    RLines::init(systemQueue);
   
     //Build buffer for line data
     _pointData = cl::Buffer(magnet::GL::Context::getContext().getCLContext(), 

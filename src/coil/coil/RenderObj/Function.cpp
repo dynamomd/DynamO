@@ -64,12 +64,10 @@ namespace coil {
   }
 
   void 
-  RFunction::initOpenGL()
-  {}
-
-  void 
-  RFunction::initOpenCL()
+  RFunction::init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue)
   {
+    RTriangles::init(systemQueue);
+
     {//Setup initial vertex positions
       float spacingFactor = 1.0 / (_N + 0.5f);
 

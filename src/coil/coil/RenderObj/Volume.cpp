@@ -25,7 +25,7 @@
 
 namespace coil {
   void 
-  RVolume::releaseCLGLResources()
+  RVolume::deinit()
   {
     _currentDepthFBO.deinit();
     _data.deinit();
@@ -35,8 +35,9 @@ namespace coil {
   }
 
   void 
-  RVolume::initOpenGL() 
+  RVolume::init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue) 
   {
+    RenderObj::init(systemQueue);
     _shader.build();
     _cube.init();
     _transferFuncTexture.init(256);

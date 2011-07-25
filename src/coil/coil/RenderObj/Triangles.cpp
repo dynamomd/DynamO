@@ -26,7 +26,7 @@ namespace coil {
   {}
 
   RTriangles::~RTriangles()
-  { releaseCLGLResources(); }
+  { deinit(); }
 
   void 
   RTriangles::glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam)
@@ -143,7 +143,7 @@ namespace coil {
   }
 
   void 
-  RTriangles::releaseCLGLResources()
+  RTriangles::deinit()
   {
     _colBuff.deinit();
     _posBuff.deinit();

@@ -24,9 +24,7 @@ namespace coil {
     RQuads(std::string name);
 
     virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
-
-    virtual void releaseCLGLResources() { RTriangles::releaseCLGLResources(); }
-
+    virtual void deinit() { RTriangles::deinit(); }
     void setGLElements(std::vector<GLuint>& Elements);
   };
 }

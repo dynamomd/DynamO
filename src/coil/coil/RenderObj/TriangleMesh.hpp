@@ -30,7 +30,7 @@ namespace coil {
       _elements(elements)
     {}
 
-    void initOpenCL();
+    virtual void init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue);
 
   protected:
     std::vector<GLfloat> _vertices;
