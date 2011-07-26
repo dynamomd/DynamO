@@ -37,6 +37,7 @@
 
 #include <coil/filters/filter.hpp>
 #include <coil/RenderObj/RenderObj.hpp>
+#include <coil/RenderObj/RenderObjGtk.hpp>
 #include <memory>
 
 namespace coil {
@@ -196,24 +197,12 @@ namespace coil {
       Gtk::TreeModelColumn<void*> m_filter_ptr;
     };
 
-    struct RenderObjModelColumnsType : Gtk::TreeModelColumnRecord
-    {
-      RenderObjModelColumnsType()
-      { add(m_name); add(m_visible); add(m_id);}
-    
-      Gtk::TreeModelColumn<Glib::ustring> m_name;
-      Gtk::TreeModelColumn<bool> m_visible;
-      Gtk::TreeModelColumn<size_t> m_id;
-    };
-
     std::auto_ptr<FilterModelColumnsType> _filterModelColumns;
-    std::auto_ptr<RenderObjModelColumnsType> _renderObjModelColumns;
 
     Glib::RefPtr<Gtk::ListStore> _filterStore;
-    Glib::RefPtr<Gtk::ListStore> _renderObjStore;
-
     Gtk::TreeView* _filterView;
-    Gtk::TreeView* _renderObjView;
+
+    RenderObjectsGtkTreeView _renderObjsTree;
 
     //Filter control callbacks
     void filterUpCallback();

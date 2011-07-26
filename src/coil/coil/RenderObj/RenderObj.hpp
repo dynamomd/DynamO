@@ -15,15 +15,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
+#include <coil/RenderObj/RenderObjGtk.hpp>
 #include <magnet/GL/context.hpp>
 #include <magnet/thread/refPtr.hpp>
 #include <magnet/thread/taskQueue.hpp>
 #include <magnet/GL/camera.hpp>
 #include <magnet/GL/FBO.hpp>
+#include <memory>
 
 namespace Gtk { class ScrolledWindow; }
 
 namespace coil {
+  struct RenderObjectsTree;
+
   class RenderObj
   {
   public:
@@ -39,6 +43,15 @@ namespace coil {
     virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam) {}
     virtual void finishPicking(cl_uint& offset, const cl_uint val) {}
     virtual void showControls(Gtk::ScrolledWindow* win) {}
+
+    virtual void addViewRows(RenderObjectsGtkTreeView& view)
+    {
+      Gtk::TreeModel::iterator iter = view._store->append();
+      
+      (*iter)[view._columns->m_name] = getName();
+      (*iter)[view._columns->m_visible] = isVisible();
+      (*iter)[view._columns->m_obj] = this;
+    }
 
     inline void setVisible(bool val) { _visible = val; }
     inline bool isVisible() const { return _visible; }

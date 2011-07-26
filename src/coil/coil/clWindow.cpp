@@ -115,7 +115,6 @@ namespace coil {
   CLGLWindow::initGTK()
   {
     _filterModelColumns.reset(new FilterModelColumnsType);
-    _renderObjModelColumns.reset(new RenderObjModelColumnsType);
 
     {//////////////Glade XML loader 
       Glib::ustring glade_data
@@ -454,17 +453,14 @@ namespace coil {
     }
 
     {///////////////////////Render Objects//////////////////////////////////
-      ///Tree view must be built
-    
-      //Build the store
-      _renderObjStore = Gtk::ListStore::create(*_renderObjModelColumns);
-    
+      ///Tree view must be built    
       //Setup the filter store
-      _refXml->get_widget("renderObjView", _renderObjView);
-      _renderObjView->set_model(_renderObjStore);
-      _renderObjView->append_column("Visible", _renderObjModelColumns->m_visible);
-      _renderObjView->append_column("Object Name", _renderObjModelColumns->m_name);
-    
+      { 
+	Gtk::TreeView* tree;
+	_refXml->get_widget("renderObjView", tree);
+	_renderObjsTree.init(tree);
+      }
+      
       //Populate the render object view
       rebuildRenderView();
       selectRObjCallback();
@@ -472,7 +468,7 @@ namespace coil {
       //////Connect the view to the select callback
       {
 	Glib::RefPtr<Gtk::TreeSelection> treeSelection
-	  = _renderObjView->get_selection();
+	  = _renderObjsTree._view->get_selection();
       
 	treeSelection->signal_changed()
 	  .connect(sigc::mem_fun(this, &CLGLWindow::selectRObjCallback));
@@ -1515,28 +1511,17 @@ namespace coil {
   void 
   CLGLWindow::rebuildRenderView()
   {
-    _renderObjStore->clear();
+    _renderObjsTree._store->clear();
   
     for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	 iPtr != RenderObjects.end(); ++iPtr)
-      {
-	Gtk::TreeModel::iterator iter = _renderObjStore->append();
-      
-	(*iter)[_renderObjModelColumns->m_name]
-	  = (*iPtr)->getName();
-      
-	(*iter)[_renderObjModelColumns->m_visible]
-	  = (*iPtr)->isVisible();
-
-	(*iter)[_renderObjModelColumns->m_id]
-	  = iPtr - RenderObjects.begin();
-      }
+      (*iPtr)->addViewRows(_renderObjsTree);
   }
 
   void CLGLWindow::visibleRObjCallback() 
   {
     Glib::RefPtr<Gtk::TreeSelection> refTreeSelection =
-      _renderObjView->get_selection();
+      _renderObjsTree._view->get_selection();
     Gtk::TreeModel::iterator iter = refTreeSelection->get_selected();
 
     Gtk::ToggleButton *visibleBtn;
@@ -1544,11 +1529,10 @@ namespace coil {
 
     if(iter)
       {
-	size_t objID = (*iter)[_renderObjModelColumns->m_id]; 
 	bool newState = visibleBtn->get_active();
-
-	RenderObjects[objID]->setVisible(newState);
-	(*iter)[_renderObjModelColumns->m_visible] = newState;
+	RenderObj* obj = (*iter)[_renderObjsTree._columns->m_obj];
+	obj->setVisible(newState);
+	(*iter)[_renderObjsTree._columns->m_visible] = newState;
       }
 
     selectRObjCallback();
@@ -1559,7 +1543,7 @@ namespace coil {
   void CLGLWindow::selectRObjCallback() 
   {
     Glib::RefPtr<Gtk::TreeSelection> refTreeSelection =
-      _renderObjView->get_selection();
+      _renderObjsTree._view->get_selection();
 
     Gtk::TreeModel::iterator iter = refTreeSelection->get_selected();
 
@@ -1582,7 +1566,7 @@ namespace coil {
 	editBtn->set_sensitive(false); 
 	visibleBtn->set_sensitive(true);
 
-	if (RenderObjects[(*iter)[_renderObjModelColumns->m_id]]->isVisible())
+	if (static_cast<RenderObj*>((*iter)[_renderObjsTree._columns->m_obj])->isVisible())
 	  {//Object is visible
 	    visibleBtn->set_active(true);
 	    visibleImg->set(Gtk::Stock::YES, Gtk::ICON_SIZE_BUTTON);
@@ -1594,7 +1578,8 @@ namespace coil {
 	  }
 
 	//Load the controls for the window
-	RenderObjects[(*iter)[_renderObjModelColumns->m_id]]->showControls(win);
+	RenderObj* obj = (*iter)[_renderObjsTree._columns->m_obj];
+	obj->showControls(win);
       }
     else
       {
