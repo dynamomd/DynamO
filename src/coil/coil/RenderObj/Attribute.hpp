@@ -44,9 +44,10 @@ namespace coil {
       COORDINATE //!< A special attribute which specifies the location of the attribute.
     };
 
-    Attribute(size_t N, AttributeType = EXTENSIVE, size_t components = 1):
+    Attribute(size_t N, AttributeType type = EXTENSIVE, size_t components = 1):
       _hostData(N * components)
       _components(components),
+      _type(type),
       _references(0)
     {}
     

@@ -76,6 +76,4 @@ alias install : src/dynamo//install-dynamo ;
 alias install-coil : src/coil//install-coil ;
 alias test : src/magnet//test ;
 
-alias TexturedFontCreator : src/magnet//TexturedFontCreator ; 
-
 explicit install install-coil test  ;

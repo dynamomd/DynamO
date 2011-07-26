@@ -47,13 +47,8 @@ namespace coil {
     
     /*! \brief Returns the list of attributes.
      */
-    std::vector<Attribute>& getAttributes() 
+    std::vector<Attribute>& getAttributes()
     { return _attributes; }
-
-    /*! \brief Method to add attributes to the DataSet.
-     */
-    void addAttribute(const Attribute& attr)
-    { _attributes.push_back(attr); }
 
   protected:
     std::vector<Attribute> _attributes;
