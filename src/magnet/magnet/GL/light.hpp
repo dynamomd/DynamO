@@ -125,13 +125,13 @@ namespace magnet {
        * \param textureUnit The texture unit whose matrix is to be
        * setup for shadowmapping.
        */
-      inline GLMatrix getShadowTextureMatrix(const Camera& camera)
+      inline GLMatrix getShadowTextureMatrix(const Camera& camera, Vector offset = Vector(0,0,0))
       {
 	return GLMatrix::translate(Vector(0.5, 0.5, 0.5))
 	  * GLMatrix::scale(Vector(0.5, 0.5, 0.5))
 	  * getProjectionMatrix()
 	  * getViewMatrix()
-	  * camera.getViewMatrix().inverse();
+	  * camera.getViewMatrix(offset).inverse();
       }
     };
   }
