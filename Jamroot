@@ -76,4 +76,6 @@ alias install : src/dynamo//install-dynamo ;
 alias install-coil : src/coil//install-coil ;
 alias test : src/magnet//test ;
 
+alias coilparticletest : src/coil//coilparticletest ;
+
 explicit install install-coil test  ;

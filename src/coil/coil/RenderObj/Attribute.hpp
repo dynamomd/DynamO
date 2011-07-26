@@ -45,7 +45,7 @@ namespace coil {
     };
 
     Attribute(size_t N, AttributeType type = EXTENSIVE, size_t components = 1):
-      _hostData(N * components)
+      _hostData(N * components),
       _components(components),
       _type(type),
       _references(0)

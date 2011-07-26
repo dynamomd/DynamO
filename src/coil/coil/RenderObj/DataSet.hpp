@@ -33,7 +33,7 @@ namespace coil {
   class DataSet: public RenderObj
   {
   public:
-    DataSet() {}
+    DataSet(std::string name): RenderObj(name) {}
     
     /** @name The host code interface. */
     /**@{*/
@@ -49,6 +49,20 @@ namespace coil {
      */
     std::vector<Attribute>& getAttributes()
     { return _attributes; }
+
+    virtual void clTick(const magnet::GL::Camera& cam) 
+    {
+      for (std::vector<DataSetChild>::iterator iPtr = _children.begin();
+	   iPtr != _children.end(); ++iPtr)
+	iPtr->clTick(cam);
+    }
+
+    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam)
+    {
+      for (std::vector<DataSetChild>::iterator iPtr = _children.begin();
+	   iPtr != _children.end(); ++iPtr)
+	iPtr->glRender(fbo, cam);
+    }
 
   protected:
     std::vector<Attribute> _attributes;
