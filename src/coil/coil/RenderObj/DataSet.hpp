@@ -19,10 +19,44 @@
 #include <coil/RenderObj/Attribute.hpp>
 
 namespace coil {
+  class DataSetChild: public RenderObj
+  {
+  public:
+    
+  protected:
+  };
+
+  /*! \brief A container class for a collection of \ref Attribute
+   * instances forming a dataset, and any active filters/glyphs or any
+   * other type derived from \ref DataSetChild.
+   */
   class DataSet: public RenderObj
   {
   public:
+    DataSet() {}
+    
+    /** @name The host code interface. */
+    /**@{*/
+
+    /*! \brief Method to add attributes to the DataSet.
+     */
+    void addAttribute(const Attribute& attr)
+    { _attributes.push_back(attr); }
+    
+    /**@}*/
+    
+    /*! \brief Returns the list of attributes.
+     */
+    std::vector<Attribute>& getAttributes() 
+    { return _attributes; }
+
+    /*! \brief Method to add attributes to the DataSet.
+     */
+    void addAttribute(const Attribute& attr)
+    { _attributes.push_back(attr); }
 
   protected:
+    std::vector<Attribute> _attributes;
+    std::vector<DataSetChild> _children;
   };
 }

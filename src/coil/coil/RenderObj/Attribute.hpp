@@ -38,7 +38,12 @@ namespace coil {
   class Attribute
   {
   public:
-    enum AttributeType { INTENSIVE, EXTENSIVE, ORDINATE };
+    enum AttributeType { 
+      INTENSIVE, //!< Intensive property (e.g., Temperature, density)
+      EXTENSIVE, //!< Extensive property (e.g., mass, momentum)
+      COORDINATE //!< A special attribute which specifies the location of the attribute.
+    };
+
     Attribute(size_t N, AttributeType = EXTENSIVE, size_t components = 1):
       _hostData(N * components)
       _components(components),
@@ -53,6 +58,11 @@ namespace coil {
      */
     void deinit() { _glData.deinit(); }
 
+    /*! \brief Returns the GL buffer associated with the Attribute
+     * data.
+     */
+    magnet::GL::Buffer<GLfloat>& getBuffer() { return _glData; }
+
     /** @name The host code interface. */
     /**@{*/
     
@@ -66,11 +76,12 @@ namespace coil {
     
     /*! \brief Marks that the data in the buffer has been updated, and
      * should be uploaded to the GL system.
+     *
+     * This function just inserts a callback in the GL system to
+     * reinitialise the Attribute.
      */
     void flagNewData()
-    {
-      
-    }
+    { _glData.getContext().queueTask(magnet::function::Task::makeTask(&Attribute::init, this)); }
 
     /*! \brief Test if the attribute is in use and should be
      * updated. 
@@ -100,6 +111,9 @@ namespace coil {
 
     //! \brief The number of components per value.
     size_t _components;
+
+    //! \brief The type of data stored in this Attribute.
+    AttributeType _type;
 
     /*! \brief The number of glyphs, filters and other render objects
      * currently using this type.
