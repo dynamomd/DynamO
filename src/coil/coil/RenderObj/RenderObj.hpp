@@ -22,7 +22,6 @@
 #include <magnet/GL/FBO.hpp>
 
 namespace Gtk { class ScrolledWindow; }
-namespace magnet { namespace GL { class Camera; } }
 
 namespace coil {
   class RenderObj

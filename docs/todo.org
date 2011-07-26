@@ -11,6 +11,7 @@
 **** TODO Auto detect the ensemble, users shouldn't have to specify it.
 **** TODO Make the viewing grid have a scalable box size.
 **** TODO Move to deferred lighting
+**** TODO Look at synchronisation objects for coil
 *** DynamO 1.2
 **** DONE *BUGFIX* Fixed rare error caused by duplicate events in the queue, followed by a recalculation which indicates the event has numerically been cancelled, and the recalculated event is in the future.
 **** DONE *BUGFIX* Made the "well exit test" significantly more stable, allowing correct simulation of large inelastic flexible bodies.

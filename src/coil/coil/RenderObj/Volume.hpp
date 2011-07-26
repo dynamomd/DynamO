@@ -18,7 +18,7 @@
 
 #include <gtkmm.h>
 
-#include "Quads.hpp"
+#include "RenderObj.hpp"
 #include <magnet/gtk/transferFunction.hpp>
 #include <magnet/GL/texture.hpp>
 #include <magnet/GL/shader/volume.hpp>

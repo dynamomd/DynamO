@@ -15,17 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#include "Triangles.hpp"
+#include <coil/RenderObj/RenderObj.hpp>
+#include <coil/RenderObj/Attribute.hpp>
 
 namespace coil {
-  class RQuads : public RTriangles
+  class DataSet: public RenderObj
   {
   public:
-    RQuads(std::string name);
 
-    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
-    virtual void deinit() { RTriangles::deinit(); }
-    void setGLElements(std::vector<GLuint>& Elements);
+  protected:
   };
 }
-

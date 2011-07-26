@@ -25,10 +25,12 @@
 #include <GL/glext.h>
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
+#include <GL/freeglut.h>
 
 #include <magnet/GL/detail/traits.hpp>
 #include <magnet/GL/detail/enums.hpp>
 #include <magnet/GL/detail/typesafe_get.hpp>
+#include <magnet/thread/taskQueue.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/GL/matrix.hpp>
 #include <magnet/function/delegate.hpp>
@@ -284,6 +286,29 @@ namespace magnet {
       inline const std::tr1::array<GLint, 4>& getViewport() const
       { return _viewPortState; }
 
+      /*! \brief Swaps the front and back buffers.
+       *
+       * This command performs a glutSwapBuffers() and then executes
+       * any tasks left in the OpenGL task list. These tasks might
+       * have arisen from host program communication or some other
+       * asynchronous communication.
+       */
+      inline void swapBuffers()
+      {
+	glutSwapBuffers();
+	_glTasks.drainQueue();
+      }
+
+      /*! \brief Add a task to be performed after the next \ref swapBuffers.
+       *
+       * This function is used to allow other threads to instruct the
+       * OpenGL render thread to perform some task. This is usually
+       * used when a simulation thread wishes to update some data used
+       * for rendering.
+       */
+      inline void queueTask(function::Task* threadfunc)
+      { _glTasks.queueTask(threadfunc); }
+
     protected:
       //! \brief The OpenCL platform for this GL context.
       cl::Platform _clplatform;
@@ -297,9 +322,21 @@ namespace magnet {
       bool _clInitialised;
 
       friend class shader::detail::Shader;
+
+      /*! \brief The stack of bound shaders.
+       */
       std::vector<shader::detail::Shader*> _shaderStack;
 
+      /*! \brief A cache of the current OpenGL viewport state.
+       */
       std::tr1::array<GLint, 4> _viewPortState;
+
+      /*! \brief A queue of tasks to complete in the GL thread.
+       *
+       * These tasks are issued after the next \ref swapBuffers
+       * function call.
+       */
+      magnet::thread::TaskQueue _glTasks;
 
       /*! \brief If a matching OpenCL context does not exist, it will
        * create one from the current OpenGL context.
