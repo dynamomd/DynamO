@@ -25,26 +25,25 @@ int main(int argc, char *argv[])
   magnet::ArgShare::getInstance().setArgs(argc, argv);
 
   coil::CoilRegister _coil;
-  std::tr1::shared_ptr<coil::CoilWindow> _CLWindow(new coil::CLGLWindow("Visualizer : ", 1.0));
-  std::tr1::shared_ptr<coil::RenderObj> simdata(new coil::DataSet("Particle Data"));
-  _CLWindow.as<coil::CLGLWindow>().addRenderObj(simdata);
-
+  std::tr1::shared_ptr<coil::CLGLWindow> _CLWindow(new coil::CLGLWindow("Visualizer : ", 1.0));
+  std::tr1::shared_ptr<coil::DataSet> simdata(new coil::DataSet("Particle Data"));
+  _CLWindow->addRenderObj(simdata);
   _coil.getInstance().addWindow(_CLWindow);
 
   //Simulation loop!
   for(double t(0); ; t += 1)
     {
-      if (_CLWindow.as<coil::CLGLWindow>().simupdateTick())
+      if (_CLWindow->simupdateTick())
         {
           magnet::thread::ScopedLock 
-            lock(_CLWindow.as<coil::CLGLWindow>().getDestroyLock());
+            lock(_CLWindow->getDestroyLock());
 
-          if (!_CLWindow.as<coil::CLGLWindow>().isReady()) continue;
+          if (!_CLWindow->isReady()) continue;
           
           std::ostringstream os;
           os << "t:" << t;        
-          _CLWindow.as<coil::CLGLWindow>().setSimStatus1(os.str());
-          _CLWindow.as<coil::CLGLWindow>().flagNewData();
+          _CLWindow->setSimStatus1(os.str());
+          _CLWindow->flagNewData();
         }
     }
 }
