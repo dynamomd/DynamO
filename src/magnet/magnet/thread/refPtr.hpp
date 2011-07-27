@@ -37,45 +37,30 @@ namespace magnet {
 	_mutex(new Mutex)
       {}
 
-      template<class T2>
-      inline RefPtr(const RefPtr<T2>& other):
+      inline RefPtr(const RefPtr<T>& other):
 	_obj(NULL),
 	_counter(NULL),
 	_mutex(NULL)	
-      {
-	if (other._obj != NULL)
-	  {
-	    other._mutex->lock();
-	    _obj = static_cast<T2*>(other._obj);
-	    ++(*(_counter = other._counter));
-	    _mutex = other._mutex;	    
-	    _mutex->unlock();
-	  }
-      }
+      { operator=(other); }
 
       inline ~RefPtr() { release(); }
       
       inline bool isValid() const { return _obj != NULL; }
 
-      template<class T2>
-      inline RefPtr<T>& operator=(const RefPtr<T2>& other)
+      //template<class T2>
+      inline RefPtr<T>& operator=(const RefPtr<T>& other)
       {
 	release();
-	if (other._obj != NULL)
-	  {
-	    other._mutex->lock();	    
-	    _obj = static_cast<T2*>(other._obj);
-	    _mutex = other._mutex;
-	    _counter = other._counter;
-	    ++(*_counter);
-	    _mutex->unlock();
-	  }
+	if (other._obj == NULL) return *this;
+	other._mutex->lock();
+	_obj = other._obj;
+	_mutex = other._mutex;
+	_counter = other._counter;
+	++(*_counter);
+	_mutex->unlock();
 
 	return *this;
       }
-
-//      template<class T2>
-//      operator RefPtr<T2>() { return RefPtr<T2>(*this); }
 
       inline T& operator*() { checkValid(); return *_obj; }
       inline const T& operator*() const { checkValid(); return *_obj; }
@@ -85,24 +70,23 @@ namespace magnet {
 
       inline void release()
       {
-	if (_obj != NULL)
-	  {
-	    _mutex->lock();
-	    --(*_counter);
-	    if(*_counter == 0)
-	      {
-		delete _obj;
-		delete _counter;
-		_mutex->unlock();
-		delete _mutex;
-	      }
-	    else
-	      _mutex->unlock();
+	if (_obj == NULL) return;
 
+	_mutex->lock();
+	--(*_counter);
+	if(*_counter == 0)
+	  {
+	    delete _obj;
+	    delete _counter;
 	    _obj = NULL;
 	    _counter = NULL;
+
+	    _mutex->unlock();
+	    delete _mutex;
 	    _mutex = NULL;
 	  }
+	else
+	  _mutex->unlock();	
       }
 
       template<class T2> 
