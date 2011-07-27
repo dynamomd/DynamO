@@ -22,28 +22,46 @@
 
 int main(int argc, char *argv[])
 {
+  size_t N = 10;
+
   magnet::ArgShare::getInstance().setArgs(argc, argv);
+  coil::CoilRegister coil;
+  std::tr1::shared_ptr<coil::CLGLWindow> window(new coil::CLGLWindow("Visualizer : ", 1.0));
+  std::tr1::shared_ptr<coil::DataSet> data(new coil::DataSet("Particle Data", N));
+  window->addRenderObj(data);
+  coil.getInstance().addWindow(window);
 
-  coil::CoilRegister _coil;
-  std::tr1::shared_ptr<coil::CLGLWindow> _CLWindow(new coil::CLGLWindow("Visualizer : ", 1.0));
-  std::tr1::shared_ptr<coil::DataSet> simdata(new coil::DataSet("Particle Data"));
-  _CLWindow->addRenderObj(simdata);
-  _coil.getInstance().addWindow(_CLWindow);
 
-  //Simulation loop!
+  data->addAttribute("Positions", coil::Attribute::COORDINATE, 3);
+
+  /* Your simulation loop */
   for(double t(0); ; t += 1)
     {
-      if (_CLWindow->simupdateTick())
-        {
-          magnet::thread::ScopedLock 
-            lock(_CLWindow->getDestroyLock());
+      /* Run your simulation timestep here*/
+      
 
-          if (!_CLWindow->isReady()) continue;
-          
+      /* Now update the visualisation */
+      if (window->simupdateTick())
+        {
+          magnet::thread::ScopedLock lock(window->getDestroyLock());
+          if (!window->isReady()) continue;
+         
+	  //Perform your updating of the attributes here
+	  
+	  //Here we update the positions
+	  std::vector<GLfloat>& posdata = (*data)["Positions"].getData();
+	  for (size_t i(0); i < N; ++i)
+	    {
+	      posdata[3 * i + 0] = 0.001 * std::sin((t+i) * 0.01);
+	      posdata[3 * i + 1] = 0.001 * std::cos((t+i) * 0.01);
+	      posdata[3 * i + 2] = 0.001 * (t + i);
+	    }
+	  (*data)["Positions"].flagNewData();
+
           std::ostringstream os;
           os << "t:" << t;        
-          _CLWindow->setSimStatus1(os.str());
-          _CLWindow->flagNewData();
+          window->setSimStatus1(os.str());
+          window->flagNewData();
         }
     }
 }
