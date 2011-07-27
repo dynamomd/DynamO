@@ -26,7 +26,6 @@ int main(int argc, char *argv[])
 
   coil::CoilRegister _coil;
   magnet::thread::RefPtr<coil::CoilWindow> _CLWindow(new coil::CLGLWindow("Visualizer : ", 1.0));
-  
   magnet::thread::RefPtr<coil::RenderObj> simdata(new coil::DataSet("Particle Data"));
   _CLWindow.as<coil::CLGLWindow>().addRenderObj(simdata);
 

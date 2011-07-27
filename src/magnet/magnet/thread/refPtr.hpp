@@ -37,7 +37,8 @@ namespace magnet {
 	_mutex(new Mutex)
       {}
 
-      inline RefPtr(const RefPtr<T>& other):
+      template<class T2>
+      inline RefPtr(const RefPtr<T2>& other):
 	_obj(NULL),
 	_counter(NULL),
 	_mutex(NULL)	
@@ -45,7 +46,7 @@ namespace magnet {
 	if (other._obj != NULL)
 	  {
 	    other._mutex->lock();
-	    _obj = other._obj;
+	    _obj = static_cast<T2*>(other._obj);
 	    ++(*(_counter = other._counter));
 	    _mutex = other._mutex;	    
 	    _mutex->unlock();
@@ -56,23 +57,25 @@ namespace magnet {
       
       inline bool isValid() const { return _obj != NULL; }
 
-      inline RefPtr<T>& operator=(const RefPtr<T>& other)
+      template<class T2>
+      inline RefPtr<T>& operator=(const RefPtr<T2>& other)
       {
 	release();
 	if (other._obj != NULL)
 	  {
 	    other._mutex->lock();	    
-	    _obj = other._obj;
+	    _obj = static_cast<T2*>(other._obj);
 	    _mutex = other._mutex;
 	    _counter = other._counter;
 	    ++(*_counter);
 	    _mutex->unlock();
 	  }
-	else 
-	  M_throw() << "Another kettle of fish";
 
 	return *this;
       }
+
+//      template<class T2>
+//      operator RefPtr<T2>() { return RefPtr<T2>(*this); }
 
       inline T& operator*() { checkValid(); return *_obj; }
       inline const T& operator*() const { checkValid(); return *_obj; }
