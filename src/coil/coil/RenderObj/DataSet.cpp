@@ -21,6 +21,52 @@ namespace coil {
   void 
   DataSet::showControls(Gtk::ScrolledWindow* win)
   {
+    win->remove();
+    _gtkOptList->unparent();
+    win->add(*_gtkOptList);
+    win->show();
+  }
 
+  void 
+  DataSet::initGtk()
+  {
+    _gtkOptList.reset(new Gtk::VBox);
+
+    
+    { _attrcolumns.reset(new ModelColumns);
+      _attrtreestore = Gtk::TreeStore::create(*_attrcolumns);
+
+      _attrview.reset(new Gtk::TreeView);
+      _attrview->set_model(_attrtreestore);
+      _attrview->append_column("Name", _attrcolumns->name);
+      _attrview->append_column("Components", _attrcolumns->components);
+      _attrview->show();
+      Gtk::ScrolledWindow* win = Gtk::manage(new Gtk::ScrolledWindow);
+      win->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+      win->add(*_attrview);
+      _gtkOptList->pack_start(*win, true, true);
+      win->show();
+    }
+
+    _gtkOptList->show();
+  }
+
+  void
+  DataSet::deinit()
+  {
+    _gtkOptList.reset();
+    _attrcolumns.reset();
+    _attrview.reset();
+    _attrtreestore.reset();
+    for (std::vector<DataSetChild>::iterator iPtr = _children.begin();
+	 iPtr != _children.end(); ++iPtr)
+      iPtr->deinit();
+
+    for (std::map<std::string, Attribute>::iterator iPtr = _attributes.begin();
+	 iPtr != _attributes.end(); ++iPtr)
+      iPtr->second.deinit();
+
+    _context = NULL;
+    RenderObj::deinit();
   }
 }

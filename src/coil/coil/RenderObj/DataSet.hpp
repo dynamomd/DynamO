@@ -140,8 +140,28 @@ namespace coil {
   class DataSet: public RenderObj
   {
   public:
-    DataSet(std::string name, size_t N): RenderObj(name),_N(N) {}
+    DataSet(std::string name, size_t N): 
+      RenderObj(name), 
+      _context(NULL),
+      _N(N) {}
     
+    virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue) 
+    { 
+      _context = &(magnet::GL::Context::getContext());
+      RenderObj::init(systemQueue); 
+      initGtk(); 
+
+      for (std::vector<DataSetChild>::iterator iPtr = _children.begin();
+	   iPtr != _children.end(); ++iPtr)
+	iPtr->init(systemQueue);
+
+      for (std::map<std::string, Attribute>::iterator iPtr = _attributes.begin();
+	   iPtr != _attributes.end(); ++iPtr)
+	iPtr->second.init();
+    }
+
+    virtual void deinit();
+
     /** @name The host code interface. */
     /**@{*/
 
@@ -201,8 +221,26 @@ namespace coil {
     virtual void showControls(Gtk::ScrolledWindow* win);
 
   protected:
+    magnet::GL::Context* _context;
+    std::auto_ptr<Gtk::VBox> _gtkOptList;
     size_t _N;
     std::map<std::string, Attribute> _attributes;
     std::vector<DataSetChild> _children;
+
+    void initGtk();
+
+    struct ModelColumns : Gtk::TreeModelColumnRecord
+    {
+      ModelColumns()
+      { add(name); add(components); add(type); }
+      
+      Gtk::TreeModelColumn<Glib::ustring> name;
+      Gtk::TreeModelColumn<size_t> components;
+      Gtk::TreeModelColumn<Attribute::AttributeType> type;
+    };
+    
+    std::auto_ptr<ModelColumns> _attrcolumns;
+    Glib::RefPtr<Gtk::TreeStore> _attrtreestore;
+    std::auto_ptr<Gtk::TreeView> _attrview;
   };
 }
