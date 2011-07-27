@@ -31,7 +31,7 @@ namespace coil {
     virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
     virtual void clTick(const magnet::GL::Camera& cam) {}
 
-    virtual void init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue) { RenderObj::init(systemQueue); initGTK(); }
+    virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue) { RenderObj::init(systemQueue); initGTK(); }
 
     void setGLColors(std::vector<GLubyte>& VertexColor);
     void setGLPositions(std::vector<float>& VertexPos);

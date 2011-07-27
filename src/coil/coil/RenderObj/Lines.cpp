@@ -27,7 +27,7 @@ namespace coil {
   RLines::~RLines() { deinit(); }
 
   void 
-  RLines::init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue)
+  RLines::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
   {
     RenderObj::init(systemQueue);
     {//Setup initial vertex positions

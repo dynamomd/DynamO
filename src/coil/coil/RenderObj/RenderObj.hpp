@@ -17,11 +17,10 @@
 #pragma once
 #include <coil/RenderObj/RenderObjGtk.hpp>
 #include <magnet/GL/context.hpp>
-#include <magnet/thread/refPtr.hpp>
 #include <magnet/thread/taskQueue.hpp>
 #include <magnet/GL/camera.hpp>
 #include <magnet/GL/FBO.hpp>
-#include <memory>
+#include <tr1/memory>
 
 namespace Gtk { class ScrolledWindow; }
 
@@ -33,7 +32,7 @@ namespace coil {
   public:
     RenderObj(std::string name): _name(name), _visible(true) {}
   
-    virtual void init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue) 
+    virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue) 
     { _systemQueue = systemQueue; }
     virtual void deinit() {}
     virtual void clTick(const magnet::GL::Camera& cam) = 0;
@@ -56,11 +55,11 @@ namespace coil {
     inline void setVisible(bool val) { _visible = val; }
     inline bool isVisible() const { return _visible; }
     inline const std::string& getName() const { return _name; }
-    magnet::thread::RefPtr<magnet::thread::TaskQueue> getQueue() { return _systemQueue; }
+    std::tr1::shared_ptr<magnet::thread::TaskQueue> getQueue() { return _systemQueue; }
 
   protected:
     std::string _name;
     bool _visible;
-    magnet::thread::RefPtr<magnet::thread::TaskQueue> _systemQueue;
+    std::tr1::shared_ptr<magnet::thread::TaskQueue> _systemQueue;
   };
 }

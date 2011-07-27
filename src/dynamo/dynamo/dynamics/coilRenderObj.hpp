@@ -18,14 +18,14 @@
 #pragma once
 
 #ifdef DYNAMO_visualizer
-# include <magnet/thread/refPtr.hpp>
 # include <coil/RenderObj/RenderObj.hpp>
+# include <tr1/memory>
 #endif
 
 struct CoilRenderObj
 {
 #ifdef DYNAMO_visualizer
-  virtual magnet::thread::RefPtr<coil::RenderObj>& getCoilRenderObj() const = 0;
+  virtual std::tr1::shared_ptr<coil::RenderObj> getCoilRenderObj() const = 0;
   virtual void updateRenderData(magnet::GL::Context&) const = 0;
 #endif
 };

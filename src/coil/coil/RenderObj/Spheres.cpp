@@ -86,7 +86,7 @@ namespace coil {
   }
 
   void
-  RTSpheres::init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue)
+  RTSpheres::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
   {
     RTriangles::init(systemQueue);
 

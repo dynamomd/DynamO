@@ -93,7 +93,7 @@ namespace coil {
   {}
 
   void 
-  RArrows::init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue)
+  RArrows::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
   {
     RLines::init(systemQueue);
 

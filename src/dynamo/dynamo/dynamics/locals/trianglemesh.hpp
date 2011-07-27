@@ -22,6 +22,9 @@
 #include <boost/tuple/tuple.hpp>
 #include <vector>
 
+#ifdef DYNAMO_visualizer
+# include <coil/RenderObj/TriangleMesh.hpp>
+#endif
 
 class LTriangleMesh: public Local, public CoilRenderObj
 {
@@ -54,13 +57,13 @@ public:
   virtual void checkOverlaps(const Particle&) const;
 
 #ifdef DYNAMO_visualizer
-  virtual magnet::thread::RefPtr<coil::RenderObj>& getCoilRenderObj() const;
+  virtual std::tr1::shared_ptr<coil::RenderObj> getCoilRenderObj() const;
   virtual void updateRenderData(magnet::GL::Context&) const;
 #endif
 
 protected:
 #ifdef DYNAMO_visualizer
-  mutable magnet::thread::RefPtr<coil::RenderObj> _renderObj;
+  mutable std::tr1::shared_ptr<coil::RTriangleMesh> _renderObj;
 #endif
 
   virtual void outputXML(magnet::xml::XmlStream&) const;
@@ -70,6 +73,6 @@ protected:
   typedef boost::tuples::tuple<size_t, size_t, size_t> TriangleElements;
   std::vector<TriangleElements> _elements;
 
-  magnet::thread::RefPtr<Property> _e;
-  magnet::thread::RefPtr<Property> _diameter;
+  std::tr1::shared_ptr<Property> _e;
+  std::tr1::shared_ptr<Property> _diameter;
 };

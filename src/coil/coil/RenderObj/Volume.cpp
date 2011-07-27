@@ -35,7 +35,7 @@ namespace coil {
   }
 
   void 
-  RVolume::init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue) 
+  RVolume::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue) 
   {
     RenderObj::init(systemQueue);
     _shader.build();

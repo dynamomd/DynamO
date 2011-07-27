@@ -20,7 +20,7 @@
 
 namespace coil {
   void 
-  RTriangleMesh::init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue)
+  RTriangleMesh::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
   {
     RTriangles::init(systemQueue);
 

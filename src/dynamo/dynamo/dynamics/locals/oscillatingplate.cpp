@@ -15,10 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef DYNAMO_visualizer
-# include <coil/RenderObj/Function.hpp>
-#endif 
-
 #include <dynamo/dynamics/locals/oscillatingplate.hpp>
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <dynamo/dynamics/locals/localEvent.hpp>
@@ -191,12 +187,12 @@ CLOscillatingPlate::getPlateEnergy() const
 
 #ifdef DYNAMO_visualizer
 
-magnet::thread::RefPtr<coil::RenderObj>& 
+std::tr1::shared_ptr<coil::RenderObj>
 CLOscillatingPlate::getCoilRenderObj() const
 {
   const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
 
-  if (!_renderObj.isValid())
+  if (!_renderObj)
     {
       Vector axis3 = nhat / nhat.nrm();
       Vector axis2(0,0,1);
@@ -220,17 +216,17 @@ CLOscillatingPlate::getCoilRenderObj() const
       axis1 *= Sim->primaryCellSize[1] * lengthRescale / axis1.nrm();
       axis2 *= Sim->primaryCellSize[2] * lengthRescale / axis2.nrm();
 
-      _renderObj = new coil::RFunction(10, 
-				       rw0 - 0.5 * (axis1 + axis2), 
-				       axis1, axis2, axis3,
-				       0, 0, 1, 1, true, false,
-				       "Oscillating wall",
-				       "f = A;",
-				       "normal = -(float4)(" + os.str() + ");"
-				       );
+      _renderObj.reset(new coil::RFunction(10, 
+					   rw0 - 0.5 * (axis1 + axis2), 
+					   axis1, axis2, axis3,
+					   0, 0, 1, 1, true, false,
+					   "Oscillating wall",
+					   "f = A;",
+					   "normal = -(float4)(" + os.str() + ");"
+					   ));
     }
   
-  return _renderObj;
+  return std::tr1::static_pointer_cast<coil::RenderObj>(_renderObj);
 }
 
 void 
@@ -238,9 +234,8 @@ CLOscillatingPlate::updateRenderData(magnet::GL::Context&) const
 {
   const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
 
-  if (_renderObj.isValid())
-    _renderObj.as<coil::RFunction>()
-      .setConstantA((delta * std::cos(omega0 * (Sim->dSysTime + timeshift)) 
-		     - (sigma + 0.5 * Sim->dynamics.units().unitLength())) *  lengthRescale);
+  if (_renderObj)
+    _renderObj->setConstantA((delta * std::cos(omega0 * (Sim->dSysTime + timeshift)) 
+			      - (sigma + 0.5 * Sim->dynamics.units().unitLength())) *  lengthRescale);
 }
 #endif

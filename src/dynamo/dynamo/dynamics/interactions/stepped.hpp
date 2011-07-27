@@ -63,9 +63,9 @@ public:
 
 protected:
   //!This class is used to track how the length scale changes in the system
-  magnet::thread::RefPtr<Property> _unitLength;
+  std::tr1::shared_ptr<Property> _unitLength;
   //!This class is used to track how the energy scale changes in the system
-  magnet::thread::RefPtr<Property> _unitEnergy;
+  std::tr1::shared_ptr<Property> _unitEnergy;
 
   std::vector<steppair> steps;
 };

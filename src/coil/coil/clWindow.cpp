@@ -598,24 +598,26 @@ namespace coil {
     if (_readyFlag) return;
 
     //First render object is the ground
-    RenderObjects.push_back(new RFunction((size_t)64,
-					  Vector(-5, -0.6, -5),
-					  Vector(10,0,0), Vector(0,0,10), Vector(0,1,0), //Axis of the function, x,y,z
-					  -1, -1,//Start point of the functions evaluation (x,y)
-					  1, 1,//Range of the function to evaluate (xrange,yrange
-					  false, //Render a set of Axis as well?
-					  true, //Is the shape static, i.e. is there no time dependence
-					  "Ground",
-					  "f=0;\n",
-					  "normal = (float4)(0,0,1,0);\n",
-					  "colors[0] = (uchar4)(255,255,255,255);"
-					  ));
-
+    std::tr1::shared_ptr<RenderObj> groundObj
+      (new RFunction((size_t)64,
+		     Vector(-5, -0.6, -5),
+		     Vector(10,0,0), Vector(0,0,10), Vector(0,1,0), //Axis of the function, x,y,z
+		     -1, -1,//Start point of the functions evaluation (x,y)
+		     1, 1,//Range of the function to evaluate (xrange,yrange
+		     false, //Render a set of Axis as well?
+		     true, //Is the shape static, i.e. is there no time dependence
+		     "Ground",
+		     "f=0;\n",
+		     "normal = (float4)(0,0,1,0);\n",
+		     "colors[0] = (uchar4)(255,255,255,255);"
+		     ));
+    RenderObjects.push_back(groundObj);
 
     //Second render object is the console
     _consoleID = RenderObjects.size();
     std::tr1::array<GLfloat, 3> textcolor  = {{0.5, 0.5, 0.5}};
-    RenderObjects.push_back(new Console(textcolor));
+    std::tr1::shared_ptr<RenderObj> consoleObj(new Console(textcolor)); 
+    RenderObjects.push_back(consoleObj);
 
     //  //Test volume render object
     //RenderObjects.push_back(new RVolume("Test Volume"));
@@ -666,7 +668,7 @@ namespace coil {
     _nrmlShader.build();
 
     //Now init the render objects  
-    for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	 iPtr != RenderObjects.end(); ++iPtr)
       (*iPtr)->init(_systemQueue);
   
@@ -733,7 +735,7 @@ namespace coil {
     getGLContext().getCLCommandQueue().finish();
 
     ///////////////////OpenGL
-    for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	 iPtr != RenderObjects.end(); ++iPtr)
       (*iPtr)->deinit();
 
@@ -770,7 +772,7 @@ namespace coil {
     //		      Vector(0.0f, 0.0f, 0.0f), GL_LIGHT0);
 
     //Run every objects OpenCL stage
-    for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	 iPtr != RenderObjects.end(); ++iPtr)
       (*iPtr)->clTick(_camera);
 
@@ -959,7 +961,7 @@ namespace coil {
     _simpleRenderShader["ViewMatrix"] = _camera.getViewMatrix();
 
     //Enter the interface draw for all objects
-    for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	 iPtr != RenderObjects.end(); ++iPtr)
       (*iPtr)->interfaceRender(_camera);
 
@@ -1021,7 +1023,7 @@ namespace coil {
   CLGLWindow::drawScene(magnet::GL::FBO& fbo, magnet::GL::Camera& camera)
   {
     //Enter the render ticks for all objects
-    for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	 iPtr != RenderObjects.end(); ++iPtr)
       (*iPtr)->glRender(fbo, camera);
   
@@ -1478,7 +1480,7 @@ namespace coil {
 
     //Perform unique coloring of screen objects
     cl_uint startVal = 0;
-    for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	 iPtr != RenderObjects.end(); ++iPtr)
       (*iPtr)->initPicking(startVal);
 
@@ -1487,7 +1489,7 @@ namespace coil {
     
     //Now render the scene
     //Enter the render ticks for all objects
-    for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	 iPtr != RenderObjects.end(); ++iPtr)
       (*iPtr)->pickingRender(_filterTarget1, _camera);
 
@@ -1503,7 +1505,7 @@ namespace coil {
     //Now let the objects know what was picked
     const cl_uint objID = pixel[0] + 256 * (pixel[1] + 256 * (pixel[2] + 256 * pixel[3]));
     startVal = 0;
-    for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	 iPtr != RenderObjects.end(); ++iPtr)
       (*iPtr)->finishPicking(startVal, objID);
   }
@@ -1513,7 +1515,7 @@ namespace coil {
   {
     _renderObjsTree._store->clear();
   
-    for (std::vector<magnet::thread::RefPtr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = RenderObjects.begin();
 	 iPtr != RenderObjects.end(); ++iPtr)
       (*iPtr)->addViewRows(_renderObjsTree);
   }

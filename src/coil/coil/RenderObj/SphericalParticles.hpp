@@ -36,7 +36,7 @@ namespace coil {
     RSphericalParticles(size_t N, std::string name, size_t spheresPerObject = 1);
   
     virtual void showControls(Gtk::ScrolledWindow* win);
-    virtual void init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue) { RTSpheres::init(systemQueue); initGTK(); }
+    virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue) { RTSpheres::init(systemQueue); initGTK(); }
 
     typedef enum {
       SINGLE_COLOR = 1,

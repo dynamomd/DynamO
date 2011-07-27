@@ -57,6 +57,6 @@ public:
   virtual bool captureTest(const Particle&, const Particle&) const;
 
 protected:
-  magnet::thread::RefPtr<Property> _length;
-  magnet::thread::RefPtr<Property> _e;
+  std::tr1::shared_ptr<Property> _length;
+  std::tr1::shared_ptr<Property> _e;
 };

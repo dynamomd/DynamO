@@ -15,10 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef DYNAMO_visualizer
-# include <coil/RenderObj/TriangleMesh.hpp>
-#endif
-
 #include <dynamo/dynamics/locals/trianglemesh.hpp>
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <dynamo/dynamics/locals/localEvent.hpp>
@@ -262,12 +258,12 @@ LTriangleMesh::checkOverlaps(const Particle& p1) const
 
 #ifdef DYNAMO_visualizer
 
-magnet::thread::RefPtr<coil::RenderObj>& 
+std::tr1::shared_ptr<coil::RenderObj>
 LTriangleMesh::getCoilRenderObj() const
 {
   const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
 
-  if (!_renderObj.isValid())
+  if (_renderObj)
     {
       std::vector<float> verts;
       verts.reserve(3 * _vertices.size());
@@ -287,10 +283,10 @@ LTriangleMesh::getCoilRenderObj() const
 	  elems.push_back(e.get<2>());
 	}
       
-      _renderObj = new coil::RTriangleMesh(getName(), verts, elems);
+      _renderObj.reset(new coil::RTriangleMesh(getName(), verts, elems));
     }
   
-  return _renderObj;
+  return std::tr1::static_pointer_cast<coil::RenderObj>(_renderObj);
 }
 
 void 

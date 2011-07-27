@@ -25,6 +25,7 @@
 #include <magnet/xmlwriter.hpp>
 #include <memory>
 #include "../coilRenderObj.hpp"
+# include <coil/RenderObj/SphericalParticles.hpp>
 
 namespace Gtk {
   class VBox;
@@ -54,15 +55,15 @@ public:
   { M_throw() << "Species has no intertia"; }
 
 #ifdef DYNAMO_visualizer
-  virtual magnet::thread::RefPtr<coil::RenderObj>& getCoilRenderObj() const;
+  virtual std::tr1::shared_ptr<coil::RenderObj> getCoilRenderObj() const;
   virtual void updateRenderData(magnet::GL::Context&) const;
 #endif
 
 protected:
 
 #ifdef DYNAMO_visualizer
-  mutable magnet::thread::RefPtr<coil::RenderObj> _renderObj;
-  mutable magnet::thread::RefPtr<coil::CoilRegister> _coil;
+  mutable std::tr1::shared_ptr<coil::RSphericalParticles> _renderObj;
+  mutable std::tr1::shared_ptr<coil::CoilRegister> _coil;
 #endif
 
 protected:

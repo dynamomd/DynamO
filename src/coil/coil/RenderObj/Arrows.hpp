@@ -25,7 +25,7 @@ namespace coil {
   public:
     RArrows(size_t N, std::string name);
 
-    virtual void init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue);
+    virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
     virtual void clTick(const magnet::GL::Camera& cam);
 
     cl::Buffer& getPointData() { return _pointData; }

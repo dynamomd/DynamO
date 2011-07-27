@@ -18,12 +18,12 @@
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <magnet/thread/refPtr.hpp>
 #include <magnet/units.hpp>
 #include <vector>
 #include <string>
 #include <algorithm>
 #include <cmath>
+#include <tr1/memory>
 
 //! \brief A interface class which allows other classes to access a property
 //! of a particle.  
@@ -210,7 +210,7 @@ protected:
  */
 class PropertyStore
 {
-  typedef magnet::thread::RefPtr<Property> Value;
+  typedef std::tr1::shared_ptr<Property> Value;
   typedef std::vector<Value> Container;
   
   //!\brief Contains the NumericProperty's that are defined by their
@@ -243,8 +243,8 @@ public:
     \param name An Attribute containing either the name or the value of a property.
     \return A reference to the property requested or an instance of NumericProperty.
   */
-  inline magnet::thread::RefPtr<Property> getProperty(const std::string& name,
-						      const Property::Units& units)
+  inline Value getProperty(const std::string& name,
+			   const Property::Units& units)
   {
     try { return getPropertyBase(name, units); }
     catch (boost::bad_lexical_cast&)
@@ -255,8 +255,8 @@ public:
   //!  containing the properties name. 
   //!
   //! See getProperty(const std::string& name) for usage info.
-  inline magnet::thread::RefPtr<Property> getProperty(const magnet::xml::Attribute& name,
-						      const Property::Units& units)
+  inline Value getProperty(const magnet::xml::Attribute& name,
+			   const Property::Units& units)
   {
     try { return getPropertyBase(name.getValue(), units); }
     catch (boost::bad_lexical_cast&)
@@ -266,8 +266,7 @@ public:
   //! \brief Request a handle to a property, but this specialization always
   //!  returns a new instance of NumericProperty.
   //!  \sa getProperty(const std::string& name)
-  inline magnet::thread::RefPtr<Property> getProperty(const double& name, 
-						      const Property::Units& units)
+  inline Value getProperty(const double& name, const Property::Units& units)
   {
     Value retval(new NumericProperty(name, units));
     _numericProperties.push_back(retval);
@@ -282,7 +281,7 @@ public:
       for (magnet::xml::Node propNode = node.getNode("Properties").fastGetNode("Property");
 	   propNode.valid(); ++propNode)
 	if (!std::string("PerParticle").compare(propNode.getAttribute("Type")))
-	  _namedProperties.push_back(new ParticleProperty(propNode));
+	  _namedProperties.push_back(Value(new ParticleProperty(propNode)));
 	else
 	  M_throw() << "Unsupported Property type, " << propNode.getAttribute("Type");
     
@@ -337,22 +336,41 @@ public:
    * simulation, as the typical method for adding a Property to the
    * PropertyStore is using the \ref getProperty methods.
    */
-  inline magnet::thread::RefPtr<Property> push(Property* newProp)
+  inline Value push(Property* newProp)
   {
     if (dynamic_cast<NumericProperty*>(newProp))
       {
-	_numericProperties.push_back(newProp);
+	_numericProperties.push_back(Value(newProp));
 	return _numericProperties.back();
       }    
     
-    _namedProperties.push_back(newProp);
+    _namedProperties.push_back(Value(newProp));
+    return _namedProperties.back();
+  }
+
+  /*! \brief Method for pushing constructed properties into the
+   * PropertyStore.
+   *
+   * This method should only be used when dynamod is building a
+   * simulation, as the typical method for adding a Property to the
+   * PropertyStore is using the \ref getProperty methods.
+   */
+  template<class T>
+  inline Value push(std::tr1::shared_ptr<T> newProp)
+  {
+    if (dynamic_cast<NumericProperty*>(newProp.get()))
+      {
+	_numericProperties.push_back(Value(newProp));
+	return _numericProperties.back();
+      }    
+    
+    _namedProperties.push_back(Value(newProp));
     return _namedProperties.back();
   }
 
 protected:
 
-  inline magnet::thread::RefPtr<Property> getPropertyBase(const std::string name,
-							  const Property::Units& units)
+  inline Value getPropertyBase(const std::string name, const Property::Units& units)
   {
     //Try name based lookup first
     for (const_iterator iPtr = _namedProperties.begin(); 

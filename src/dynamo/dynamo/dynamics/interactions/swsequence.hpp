@@ -88,11 +88,11 @@ public:
   std::vector<std::vector<double> >& getAlphabet() { return alphabet; }
 
 protected:
-  magnet::thread::RefPtr<Property> _diameter;
-  magnet::thread::RefPtr<Property> _lambda;
+  std::tr1::shared_ptr<Property> _diameter;
+  std::tr1::shared_ptr<Property> _lambda;
   //!This class is used to track how the energy scale changes in the system
-  magnet::thread::RefPtr<Property> _unitEnergy;
-  magnet::thread::RefPtr<Property> _e;
+  std::tr1::shared_ptr<Property> _unitEnergy;
+  std::tr1::shared_ptr<Property> _e;
   
   std::vector<size_t> sequence;
   std::vector<std::vector<double> > alphabet;

@@ -33,7 +33,6 @@
 #include <magnet/GL/shader/normal.hpp>
 #include <magnet/GL/shader/depth_render.hpp>
 #include <magnet/GL/shader/simple_render.hpp>
-#include <magnet/thread/refPtr.hpp>
 
 #include <coil/filters/filter.hpp>
 #include <coil/RenderObj/RenderObj.hpp>
@@ -57,7 +56,7 @@ namespace coil {
     const std::string& getWindowTitle() const { return windowTitle; }
     void setWindowtitle(const std::string& newtitle);
   
-    void addRenderObj(const magnet::thread::RefPtr<RenderObj>& nObj)
+    void addRenderObj(const std::tr1::shared_ptr<RenderObj>& nObj)
     { RenderObjects.push_back(nObj); }
 
     inline volatile const int& getLastFrameTime() const { return _lastFrameTime; }
@@ -78,7 +77,7 @@ namespace coil {
     void setSimStatus1(std::string);
     void setSimStatus2(std::string);
 
-    magnet::thread::RefPtr<magnet::thread::TaskQueue>& getQueue() { return  _systemQueue; }
+    std::tr1::shared_ptr<magnet::thread::TaskQueue>& getQueue() { return  _systemQueue; }
 
     magnet::GL::Context& getGLContext()
     {
@@ -105,7 +104,7 @@ namespace coil {
     magnet::GL::shader::NormalShader _nrmlShader;
     magnet::GL::FBO _normalsFBO;
 
-    std::vector<magnet::thread::RefPtr<RenderObj> > RenderObjects;
+    std::vector<std::tr1::shared_ptr<RenderObj> > RenderObjects;
 
     void CallBackSpecialUpFunc(int key, int x, int y) {}
     void CallBackSpecialFunc(int key, int x, int y) {} 
@@ -119,7 +118,7 @@ namespace coil {
 
   private:
     //Task queue for the simulation thread
-    magnet::thread::RefPtr<magnet::thread::TaskQueue> _systemQueue;
+    std::tr1::shared_ptr<magnet::thread::TaskQueue> _systemQueue;
     double _updateIntervalValue;
     size_t _consoleID;
 

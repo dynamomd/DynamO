@@ -24,10 +24,8 @@
 #include <magnet/thread/thread.hpp>
 #include <magnet/thread/mutex.hpp>
 #include <magnet/thread/taskQueue.hpp>
-#include <magnet/thread/refPtr.hpp>
-
+#include <tr1/memory>
 #include <map>
-#include <memory>
 
 namespace coil {
   class CoilMaster {
@@ -38,11 +36,14 @@ namespace coil {
 
     inline bool isRunning() { return _runFlag; }
 
-    void addWindow(magnet::thread::RefPtr<CoilWindow>& window)
+    template<class T>
+    void addWindow(std::tr1::shared_ptr<T>& window)
     {
+      std::tr1::shared_ptr<CoilWindow> win 
+	= std::tr1::static_pointer_cast<CoilWindow>(window);
       if (!isRunning()) M_throw() << "Coil is not running, cannot add a window";
 
-      _coilQueue.queueTask(magnet::function::Task::makeTask(&CoilMaster::addWindowFunc, this, window));
+      _coilQueue.queueTask(magnet::function::Task::makeTask(&CoilMaster::addWindowFunc, this, win));
 
       //Spinlock waiting for the window to initialize
       while (!window->isReady()) { smallSleep(); }
@@ -87,7 +88,7 @@ namespace coil {
 
     ///////////////////////////Glut GL render layer//////////////////////////
 
-    std::map<int, magnet::thread::RefPtr<CoilWindow> > _viewPorts;
+    std::map<int, std::tr1::shared_ptr<CoilWindow> > _viewPorts;
 
     static void CallBackDisplayFunc(); 
     static void CallBackCloseWindow();
@@ -103,7 +104,7 @@ namespace coil {
     static void CallBackVisibilityFunc(int visible);
     
     ///////////////////////////GTK window layer/////////////////////////////
-    inline void addWindowFunc(magnet::thread::RefPtr<CoilWindow>& window)
+    inline void addWindowFunc(std::tr1::shared_ptr<CoilWindow> window)
     {
       magnet::thread::ScopedLock lock(_coilLock);
       window->init();

@@ -3570,15 +3570,15 @@ CIPPacker::initialise()
 
 	Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
-	magnet::thread::RefPtr<Property> D
-	  =  Sim->_properties.push(new ParticleProperty(latticeSites.size(), 
-							Property::Units::Length(),
-							"D", particleDiam));
+	std::tr1::shared_ptr<ParticleProperty> D(new ParticleProperty(latticeSites.size(), 
+								      Property::Units::Length(),
+								      "D", particleDiam));
 
-	magnet::thread::RefPtr<Property> M
-	  = Sim->_properties.push(new ParticleProperty(latticeSites.size(), 
-						       Property::Units::Mass(),
-						       "M", 1.0));
+	std::tr1::shared_ptr<ParticleProperty> M(new ParticleProperty(latticeSites.size(), 
+								      Property::Units::Mass(),
+								      "M", 1.0));
+	Sim->_properties.push(D);
+	Sim->_properties.push(M);
 
 	typedef boost::normal_distribution<double> Distribution;
 	boost::variate_generator<dynamo::baseRNG&, Distribution>
@@ -3594,12 +3594,12 @@ CIPPacker::initialise()
 	      M_throw() << "After 100 attempts, not a single valid particle diameter could be generated."
 			<< "Please recheck the distribution parameters";
 
-	    D.as<ParticleProperty>().getProperty(i) = diameter * particleDiam;
+	    D->getProperty(i) = diameter * particleDiam;
 	    
 	    //A particle with unit diameter has unit mass
 	    double mass = diameter * diameter * diameter;
 	    
-	    M.as<ParticleProperty>().getProperty(i) = mass;
+	    M->getProperty(i) = mass;
 	  }
 	
 	Sim->dynamics.addInteraction(new IHardSphere(Sim, "D", elasticity, new C2RAll()

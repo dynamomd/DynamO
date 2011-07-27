@@ -58,6 +58,6 @@ public:
 
 protected:
   Matrix Rotation;
-  magnet::thread::RefPtr<Property> _diameter;
-  magnet::thread::RefPtr<Property> _e;
+  std::tr1::shared_ptr<Property> _diameter;
+  std::tr1::shared_ptr<Property> _e;
 };

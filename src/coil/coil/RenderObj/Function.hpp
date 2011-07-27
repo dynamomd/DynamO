@@ -37,7 +37,7 @@ namespace coil {
 	      std::string normalCalc = "normal = normalize((float4)(pos.y * native_sin(t), pos.x * native_sin(t),1,0));\n",
 	      std::string colorCalc = "\n");
 
-    virtual void init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue);
+    virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
 
     virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
 

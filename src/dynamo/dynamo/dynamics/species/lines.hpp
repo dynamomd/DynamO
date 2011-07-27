@@ -33,12 +33,6 @@ public:
 
   virtual Species* Clone() const { return new SpLines(*this); }
 
-#ifdef DYNAMO_visualizer
-  virtual magnet::thread::RefPtr<coil::RenderObj>& getCoilRenderObj() const;
-  virtual void updateRenderData(magnet::GL::Context&) const;
-  virtual void updateColorObj(magnet::GL::Context&) const {}
-#endif
-
 protected:
 
   virtual void outputXML(magnet::xml::XmlStream& XML) const 

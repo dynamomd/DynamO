@@ -64,7 +64,7 @@ namespace coil {
   }
 
   void 
-  RFunction::init(const magnet::thread::RefPtr<magnet::thread::TaskQueue>& systemQueue)
+  RFunction::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
   {
     RTriangles::init(systemQueue);
 

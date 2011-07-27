@@ -73,7 +73,7 @@ protected:
 
   virtual void outputXML(magnet::xml::XmlStream&) const = 0;
   
-  magnet::thread::RefPtr<Property> _mass;
+  std::tr1::shared_ptr<Property> _mass;
   magnet::ClonePtr<CRange> range;
   std::string spName;
   std::string intName;
