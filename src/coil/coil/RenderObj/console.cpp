@@ -133,7 +133,7 @@ namespace coil {
     glEnable(GL_DEPTH_TEST);
   }
 
-  void Console::glRender(magnet::GL::FBO&, const magnet::GL::Camera& camera)
+  void Console::glRender(magnet::GL::FBO&, const magnet::GL::Camera& camera, RenderMode mode)
   {
 
     if (_showGrid->get_active())

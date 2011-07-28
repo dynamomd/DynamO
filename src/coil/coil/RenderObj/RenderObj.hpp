@@ -38,6 +38,23 @@ namespace coil {
   class RenderObj
   {
   public:
+    enum RenderMode {
+      COLOR = 1, //!< The object is to render its color information.
+      DEPTH = 2, //!< The object is to render its depth information.
+      SHADOW = 4, //!< This is a shadow calculation pass (typically
+		  //!depth only).
+      PICKING = 8, //!< This is an object picking pass
+      DEFAULT = COLOR | DEPTH, //!< By default, color and depth
+			       //!information should be rendered.
+      SHADOW_PASS = SHADOW | DEPTH, //!< Shadow passes only need depth
+				    //!information.
+      PICKING_PASS = COLOR | PICKING //!< In a picking pass, we only
+				     //!render flat shaded images
+				     //!using unique colors to
+				     //!identify objects selected by
+				     //!the user.
+    };
+
     /*! \brief Default constructor which just sets the name of the
       object.
     */
@@ -73,7 +90,7 @@ namespace coil {
 	
 	\param cam The active camera for the render.
      */
-    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam) = 0;
+    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode = DEFAULT) = 0;
 
     
     /*! \brief Called when the RenderObject should draw its 2D interface controls.
@@ -188,7 +205,6 @@ namespace coil {
      */
     inline void setVisible(bool val = true) { _visible = val; }
     inline bool visible() const { return _visible; }
-
 
     /*! \brief Sets the object's shadow casting.
 

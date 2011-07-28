@@ -39,7 +39,7 @@ namespace coil {
 
     virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
 
-    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
+    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode = DEFAULT);
 
     inline void setDrawAxis(bool val) { _drawAxis = val; }
     inline void setStaticShape(bool val) { _staticShape = val; }

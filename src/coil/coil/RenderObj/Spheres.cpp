@@ -385,7 +385,7 @@ namespace coil {
   void 
   RTSpheres::pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam)
   {
-    glRender(fbo, cam);
+    glRender(fbo, cam, PICKING_PASS);
   }
 
   void 

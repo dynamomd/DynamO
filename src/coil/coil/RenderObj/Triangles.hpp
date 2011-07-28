@@ -28,7 +28,7 @@ namespace coil {
     RTriangles(std::string name);
     ~RTriangles();
 
-    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
+    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode);
     virtual void clTick(const magnet::GL::Camera& cam) {}
 
     virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue) { RenderObj::init(systemQueue); initGTK(); }

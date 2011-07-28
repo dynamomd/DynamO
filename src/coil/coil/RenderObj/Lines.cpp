@@ -72,7 +72,7 @@ namespace coil {
   }
 
   void 
-  RLines::glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam)
+  RLines::glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode)
   {
     if (!_visible) return;
   

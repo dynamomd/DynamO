@@ -183,11 +183,12 @@ namespace coil {
 	iPtr->clTick(cam);
     }
 
-    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam)
+    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode = DEFAULT)
     {
       for (std::vector<DataSetChild>::iterator iPtr = _children.begin();
 	   iPtr != _children.end(); ++iPtr)
-	iPtr->glRender(fbo, cam);
+	if (iPtr->visible() && (!(mode & SHADOW) || iPtr->shadowCasting()))
+	  iPtr->glRender(fbo, cam, mode);
     }
 
     virtual Gtk::TreeModel::iterator addViewRows(RenderObjectsGtkTreeView& view)
