@@ -17,7 +17,22 @@
 
 #include <coil/RenderObj/DataSet.hpp>
 
-namespace coil {
+namespace coil {  
+  void 
+  DataSet::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
+  {
+    _context = &(magnet::GL::Context::getContext());
+    RenderObj::init(systemQueue); 
+    initGtk(); 
+    
+    for (std::vector<DataSetChild>::iterator iPtr = _children.begin();
+	 iPtr != _children.end(); ++iPtr)
+      iPtr->init(systemQueue);
+    
+    //We don't initialise the attributes, as they're initialised on access
+  }
+
+
   void 
   DataSet::showControls(Gtk::ScrolledWindow* win)
   {
@@ -49,6 +64,31 @@ namespace coil {
     }
 
     _gtkOptList->show();
+    rebuildGui();
+  }
+
+  void 
+  DataSet::addAttribute(std::string name, Attribute::AttributeType type, size_t components)
+  {
+    if (find(name) != end())
+      M_throw() << "Trying to add an Attribute with a existing name, " << name;
+      
+    insert(value_type(name, Attribute(_N, type, components)));
+
+    //If we're initialised, we should rebuild the view of attributes
+    if (_context)
+      _context->queueTask(magnet::function::Task::makeTask(&DataSet::rebuildGui, this));
+  }
+  
+  void
+  DataSet::rebuildGui()
+  {
+    for (iterator iPtr = begin(); iPtr != end(); ++iPtr)
+      {
+	Gtk::TreeModel::iterator iter = _attrtreestore->append();
+	(*iter)[_attrcolumns->name] = iPtr->first;
+	(*iter)[_attrcolumns->components] = iPtr->second.getNComponents();
+      }
   }
 
   void
@@ -62,8 +102,7 @@ namespace coil {
 	 iPtr != _children.end(); ++iPtr)
       iPtr->deinit();
 
-    for (std::map<std::string, Attribute>::iterator iPtr = _attributes.begin();
-	 iPtr != _attributes.end(); ++iPtr)
+    for (iterator iPtr = begin(); iPtr != end(); ++iPtr)
       iPtr->second.deinit();
 
     _context = NULL;

@@ -35,6 +35,9 @@ namespace coil {
    * several components per value (e.g. vector quantities like the
    * velocity).
    *
+   * An important implementation note on Attributes is that they're
+   * initialised on access. This is to facilitate the main thread
+   * adding attributes after the GL threads initialisation phase.
    */
   class Attribute
   {
@@ -45,27 +48,23 @@ namespace coil {
       COORDINATE //!< A special attribute which specifies the location of the attribute.
     };
 
-    Attribute(size_t N, AttributeType type = EXTENSIVE, size_t components = 1):
+    inline Attribute(size_t N, AttributeType type = EXTENSIVE, size_t components = 1):
       _hostData(N * components),
       _components(components),
       _type(type),
       _references(0)
     {}
     
-    Attribute() {}
-
-    /*! \brief Initialises the OpenGL resources of this object.
-     */
-    void init() { _glData.init(_hostData); }
+    inline Attribute() {}
 
     /*! \brief Releases the OpenGL resources of this object.
      */
-    void deinit() { _glData.deinit(); }
+    inline void deinit() { _glData.deinit(); }
 
     /*! \brief Returns the GL buffer associated with the Attribute
      * data.
      */
-    magnet::GL::Buffer<GLfloat>& getBuffer() { return _glData; }
+    inline magnet::GL::Buffer<GLfloat>& getBuffer() { return _glData; }
 
     /** @name The host code interface. */
     /**@{*/
@@ -76,7 +75,7 @@ namespace coil {
      * The Attribute data may be directly updated by the host program,
      * but flagNewData() must be called for the update to take effect.
      */
-    std::vector<GLfloat>& getData() { return _hostData; }
+    inline std::vector<GLfloat>& getData() { return _hostData; }
     
     /*! \brief Marks that the data in the buffer has been updated, and
      * should be uploaded to the GL system.
@@ -84,21 +83,25 @@ namespace coil {
      * This function just inserts a callback in the GL system to
      * reinitialise the Attribute.
      */
-    void flagNewData()
-    { _glData.getContext().queueTask(magnet::function::Task::makeTask(&Attribute::init, this)); }
+    inline void flagNewData()
+    { _glData.getContext().queueTask(magnet::function::Task::makeTask(&Attribute::initGLData, this)); }
 
     /*! \brief Test if the attribute is in use and should be
      * updated. 
      */
-    bool active() const { return _references; }
+    inline bool active() const { return _references; }
 
     /*! \brief Returns the number of elements.
      */
-    size_t size() const { return _hostData.size() / _components; }
+    inline size_t size() const { return _hostData.size() / _components; }
+
+    inline size_t getNComponents() const { return _components; }
 
     /**@}*/
 
   protected:
+    void initGLData() { _glData.init(_hostData); }
+
     /*! \brief The OpenGL representation of the attribute data.
      *
      * There are N * _components floats of attribute data.
@@ -137,7 +140,7 @@ namespace coil {
    * instances forming a dataset, and any active filters/glyphs or any
    * other type derived from \ref DataSetChild.
    */
-  class DataSet: public RenderObj
+  class DataSet: public RenderObj, public std::map<std::string, Attribute>
   {
   public:
     DataSet(std::string name, size_t N): 
@@ -145,20 +148,7 @@ namespace coil {
       _context(NULL),
       _N(N) {}
     
-    virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue) 
-    { 
-      _context = &(magnet::GL::Context::getContext());
-      RenderObj::init(systemQueue); 
-      initGtk(); 
-
-      for (std::vector<DataSetChild>::iterator iPtr = _children.begin();
-	   iPtr != _children.end(); ++iPtr)
-	iPtr->init(systemQueue);
-
-      for (std::map<std::string, Attribute>::iterator iPtr = _attributes.begin();
-	   iPtr != _attributes.end(); ++iPtr)
-	iPtr->second.init();
-    }
+    virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
 
     virtual void deinit();
 
@@ -171,23 +161,17 @@ namespace coil {
      * \param type The type of the attribute.
      * \param components The number of components per value of the attribute.
      */
-    void addAttribute(std::string name, Attribute::AttributeType type, size_t components)
-    {
-      if (_attributes.find(name) != _attributes.end())
-	M_throw() << "Trying to add an Attribute with a existing name, " << name;
-
-      _attributes[name] = Attribute(_N, type, components);
-    }
+    void addAttribute(std::string name, Attribute::AttributeType type, size_t components);
 
     /*! \brief Looks up an attribute by its name.
      */
-    Attribute& operator[](const std::string& name)
-    { 
-      std::map<std::string, Attribute>::iterator iPtr = _attributes.find(name);
-      if (iPtr == _attributes.end())
+    inline Attribute& operator[](const std::string& name)
+    {
+      iterator iPtr = find(name);
+      if (iPtr == end())
 	M_throw() << "No attribute named " << name << " in Data set";
       
-      return iPtr->second; 
+      return iPtr->second;
     }
 
     /**@}*/
@@ -221,13 +205,14 @@ namespace coil {
     virtual void showControls(Gtk::ScrolledWindow* win);
 
   protected:
-    magnet::GL::Context* _context;
+    magnet::GL::Context* volatile _context;
     std::auto_ptr<Gtk::VBox> _gtkOptList;
     size_t _N;
-    std::map<std::string, Attribute> _attributes;
     std::vector<DataSetChild> _children;
 
     void initGtk();
+
+    void rebuildGui();
 
     struct ModelColumns : Gtk::TreeModelColumnRecord
     {

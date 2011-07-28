@@ -967,7 +967,7 @@ namespace coil {
 
     _simpleRenderShader.detach();
 
-    glutSwapBuffers();
+    getGLContext().swapBuffers();
 
     //Check if we're recording and then check that if we're
     //framelocking, check that new data is available
