@@ -131,7 +131,7 @@ namespace coil {
   class DataSetChild: public RenderObj
   {
   public:
-    virtual void addViewRows(RenderObjectsGtkTreeView& view, Gtk::TreeModel::iterator&) = 0;
+    virtual Gtk::TreeModel::iterator addViewRows(RenderObjectsGtkTreeView& view, Gtk::TreeModel::iterator&) = 0;
     
   protected:
   };
@@ -190,16 +190,15 @@ namespace coil {
 	iPtr->glRender(fbo, cam);
     }
 
-    virtual void addViewRows(RenderObjectsGtkTreeView& view)
+    virtual Gtk::TreeModel::iterator addViewRows(RenderObjectsGtkTreeView& view)
     {
-      Gtk::TreeModel::iterator iter = view._store->append();      
-      (*iter)[view._columns->m_name] = getName();
-      (*iter)[view._columns->m_visible] = isVisible();
-      (*iter)[view._columns->m_obj] = this;
-
+      Gtk::TreeModel::iterator iter = RenderObj::addViewRows(view);
+      
       for (std::vector<DataSetChild>::iterator iPtr = _children.begin();
 	   iPtr < _children.end(); ++iPtr)
 	iPtr->addViewRows(view, iter);
+
+      return iter;
     }
 
     virtual void showControls(Gtk::ScrolledWindow* win);

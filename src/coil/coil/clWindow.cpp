@@ -795,7 +795,13 @@ namespace coil {
 	//Setup the FBO for shadow maps
 	_shadowFBO.attach();
 	glClear(GL_DEPTH_BUFFER_BIT);
-	drawScene(_shadowFBO, _light0);
+
+	//Enter the render ticks for all objects
+	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = RenderObjects.begin();
+	     iPtr != RenderObjects.end(); ++iPtr)
+	  if ((*iPtr)->shadowCasting())
+	    (*iPtr)->glRender(_shadowFBO, _light0);
+
 	_shadowFBO.detach();
 	_shadowFBO.getDepthTexture().bind(7);
 	_depthRenderShader.detach();

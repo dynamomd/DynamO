@@ -30,7 +30,7 @@ namespace coil {
   class RenderObj
   {
   public:
-    RenderObj(std::string name): _name(name), _visible(true) {}
+    RenderObj(std::string name): _name(name), _visible(true), _shadowCasting(true) {}
   
     virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue) 
     { _systemQueue = systemQueue; }
@@ -42,15 +42,19 @@ namespace coil {
     virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam) {}
     virtual void finishPicking(cl_uint& offset, const cl_uint val) {}
     virtual void showControls(Gtk::ScrolledWindow* win) {}
-    virtual inline void addViewRows(RenderObjectsGtkTreeView& view);
-    inline void setVisible(bool val) { _visible = val; }
-    inline bool isVisible() const { return _visible; }
+    virtual inline Gtk::TreeModel::iterator addViewRows(RenderObjectsGtkTreeView& view);
+    inline void setVisible(bool val = true) { _visible = val; }
+    inline bool visible() const { return _visible; }
+    inline void setShadowCasting(bool val = true) { _shadowCasting = val; }
+    inline bool shadowCasting() const { return _shadowCasting; }
+
     inline const std::string& getName() const { return _name; }
     std::tr1::shared_ptr<magnet::thread::TaskQueue> getQueue() { return _systemQueue; }
 
   protected:
     std::string _name;
     bool _visible;
+    bool _shadowCasting;
     std::tr1::shared_ptr<magnet::thread::TaskQueue> _systemQueue;
   };
 
@@ -74,6 +78,16 @@ namespace coil {
 	renderer->signal_toggled().connect(sigc::mem_fun(*this, &RenderObjectsGtkTreeView::visibleToggled));
       }
 
+      { //The cell renderer 
+	Gtk::CellRendererToggle* renderer =
+	  Gtk::manage(new Gtk::CellRendererToggle());
+	int shadow_col = _view->append_column("Shadow Casting", *renderer);
+	Gtk::TreeViewColumn* column = _view->get_column(shadow_col -1);
+	if (column)
+	  column->add_attribute(renderer->property_active(), _columns->m_shadowcasting);
+	renderer->signal_toggled().connect(sigc::mem_fun(*this, &RenderObjectsGtkTreeView::shadowingToggled));
+      }
+
       _view->append_column("Object Name", _columns->m_name);
 
     }
@@ -81,10 +95,11 @@ namespace coil {
     struct ModelColumns : Gtk::TreeModelColumnRecord
     {
       ModelColumns()
-      { add(m_name); add(m_visible); add(m_obj);}
+      { add(m_name); add(m_visible); add(m_shadowcasting); add(m_obj);}
       
       Gtk::TreeModelColumn<Glib::ustring> m_name;
       Gtk::TreeModelColumn<bool> m_visible;
+      Gtk::TreeModelColumn<bool> m_shadowcasting;
       Gtk::TreeModelColumn<RenderObj*> m_obj;
     };
     
@@ -105,14 +120,28 @@ namespace coil {
       RenderObj* obj = (*iter)[_columns->m_obj];
       obj->setVisible(visible);
     }
+
+    void shadowingToggled(const Glib::ustring& path_string)
+    {
+      Gtk::TreeModel::iterator iter 
+	= _store->get_iter(path_string);
+
+      bool casting = !(*iter)[_columns->m_shadowcasting];
+      (*iter)[_columns->m_shadowcasting] = casting;
+
+      RenderObj* obj = (*iter)[_columns->m_obj];
+      obj->setShadowCasting(casting);
+    }
+
   };
 
-  void RenderObj::addViewRows(RenderObjectsGtkTreeView& view)
+  Gtk::TreeModel::iterator RenderObj::addViewRows(RenderObjectsGtkTreeView& view)
   {
     Gtk::TreeModel::iterator iter = view._store->append();
-    
     (*iter)[view._columns->m_name] = getName();
-    (*iter)[view._columns->m_visible] = isVisible();
+    (*iter)[view._columns->m_visible] = visible();
+    (*iter)[view._columns->m_shadowcasting] = shadowCasting();
     (*iter)[view._columns->m_obj] = this;
+    return iter;
   }
 }
