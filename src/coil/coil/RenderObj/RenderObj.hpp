@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#include <coil/RenderObj/RenderObjGtk.hpp>
+#include <gtkmm.h>
 #include <magnet/GL/context.hpp>
 #include <magnet/thread/taskQueue.hpp>
 #include <magnet/GL/camera.hpp>
@@ -25,7 +25,7 @@
 namespace Gtk { class ScrolledWindow; }
 
 namespace coil {
-  struct RenderObjectsTree;
+  class RenderObjectsGtkTreeView;
 
   class RenderObj
   {
@@ -42,16 +42,7 @@ namespace coil {
     virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam) {}
     virtual void finishPicking(cl_uint& offset, const cl_uint val) {}
     virtual void showControls(Gtk::ScrolledWindow* win) {}
-
-    virtual void addViewRows(RenderObjectsGtkTreeView& view)
-    {
-      Gtk::TreeModel::iterator iter = view._store->append();
-      
-      (*iter)[view._columns->m_name] = getName();
-      (*iter)[view._columns->m_visible] = isVisible();
-      (*iter)[view._columns->m_obj] = this;
-    }
-
+    virtual inline void addViewRows(RenderObjectsGtkTreeView& view);
     inline void setVisible(bool val) { _visible = val; }
     inline bool isVisible() const { return _visible; }
     inline const std::string& getName() const { return _name; }
@@ -62,4 +53,66 @@ namespace coil {
     bool _visible;
     std::tr1::shared_ptr<magnet::thread::TaskQueue> _systemQueue;
   };
+
+  class RenderObjectsGtkTreeView
+  {
+  public:
+    void init(Gtk::TreeView* tree)
+    { 
+      _columns.reset(new ModelColumns); 
+      _view = tree;
+      _store = Gtk::TreeStore::create(*_columns);
+      _view->set_model(_store);
+
+      { //The cell renderer 
+	Gtk::CellRendererToggle* renderer =
+	  Gtk::manage(new Gtk::CellRendererToggle());
+	int visible_col = _view->append_column("Visible", *renderer);
+	Gtk::TreeViewColumn* column = _view->get_column(visible_col -1);
+	if (column)
+	  column->add_attribute(renderer->property_active(), _columns->m_visible);
+	renderer->signal_toggled().connect(sigc::mem_fun(*this, &RenderObjectsGtkTreeView::visibleToggled));
+      }
+
+      _view->append_column("Object Name", _columns->m_name);
+
+    }
+    
+    struct ModelColumns : Gtk::TreeModelColumnRecord
+    {
+      ModelColumns()
+      { add(m_name); add(m_visible); add(m_obj);}
+      
+      Gtk::TreeModelColumn<Glib::ustring> m_name;
+      Gtk::TreeModelColumn<bool> m_visible;
+      Gtk::TreeModelColumn<RenderObj*> m_obj;
+    };
+    
+    std::auto_ptr<ModelColumns> _columns;
+    Glib::RefPtr<Gtk::TreeStore> _store;
+    Gtk::TreeView* _view;
+    
+  protected:
+    
+    void visibleToggled(const Glib::ustring& path_string)
+    {
+      Gtk::TreeModel::iterator iter 
+	= _store->get_iter(path_string);
+
+      bool visible = !(*iter)[_columns->m_visible];
+      (*iter)[_columns->m_visible] = visible;
+
+      RenderObj* obj = (*iter)[_columns->m_obj];
+      obj->setVisible(visible);
+    }
+  };
+
+  void RenderObj::addViewRows(RenderObjectsGtkTreeView& view)
+  {
+    Gtk::TreeModel::iterator iter = view._store->append();
+    
+    (*iter)[view._columns->m_name] = getName();
+    (*iter)[view._columns->m_visible] = isVisible();
+    (*iter)[view._columns->m_obj] = this;
+  }
 }

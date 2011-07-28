@@ -36,7 +36,6 @@
 
 #include <coil/filters/filter.hpp>
 #include <coil/RenderObj/RenderObj.hpp>
-#include <coil/RenderObj/RenderObjGtk.hpp>
 #include <memory>
 
 namespace coil {
@@ -214,10 +213,6 @@ namespace coil {
   
     //Render Object Contol Callbacks
     void rebuildRenderView();
-    void visibleRObjCallback();
-    void editRObjCallback();
-    void deleteRObjCallback();
-    void addRObjCallback();
     void selectRObjCallback();
 
     //Wii Remote callbacks

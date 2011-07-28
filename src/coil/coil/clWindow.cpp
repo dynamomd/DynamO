@@ -473,27 +473,6 @@ namespace coil {
 	treeSelection->signal_changed()
 	  .connect(sigc::mem_fun(this, &CLGLWindow::selectRObjCallback));
       }
-    
-      {///Connect the control buttons
-	Gtk::Button* btn;
-	_refXml->get_widget("robjDelete", btn);
-	btn->signal_clicked()
-	  .connect(sigc::mem_fun(this, &CLGLWindow::deleteRObjCallback));
-
-	_refXml->get_widget("robjEdit", btn);
-	btn->signal_clicked()
-	  .connect(sigc::mem_fun(this, &CLGLWindow::editRObjCallback));
-
-	_refXml->get_widget("robjAdd", btn);
-	btn->signal_clicked()
-	  .connect(sigc::mem_fun(this, &CLGLWindow::addRObjCallback));
-      }
-      {
-	Gtk::ToggleButton* btn;
-	_refXml->get_widget("robjVisible", btn);
-	btn->signal_toggled()
-	  .connect(sigc::mem_fun(this, &CLGLWindow::visibleRObjCallback));
-      }    
     }
 
     if (_dynamo)
@@ -1520,28 +1499,6 @@ namespace coil {
       (*iPtr)->addViewRows(_renderObjsTree);
   }
 
-  void CLGLWindow::visibleRObjCallback() 
-  {
-    Glib::RefPtr<Gtk::TreeSelection> refTreeSelection =
-      _renderObjsTree._view->get_selection();
-    Gtk::TreeModel::iterator iter = refTreeSelection->get_selected();
-
-    Gtk::ToggleButton *visibleBtn;
-    _refXml->get_widget("robjVisible", visibleBtn);
-
-    if(iter)
-      {
-	bool newState = visibleBtn->get_active();
-	RenderObj* obj = (*iter)[_renderObjsTree._columns->m_obj];
-	obj->setVisible(newState);
-	(*iter)[_renderObjsTree._columns->m_visible] = newState;
-      }
-
-    selectRObjCallback();
-  }
-  void CLGLWindow::editRObjCallback() {}
-  void CLGLWindow::deleteRObjCallback() {}
-  void CLGLWindow::addRObjCallback() {}
   void CLGLWindow::selectRObjCallback() 
   {
     Glib::RefPtr<Gtk::TreeSelection> refTreeSelection =
@@ -1549,49 +1506,16 @@ namespace coil {
 
     Gtk::TreeModel::iterator iter = refTreeSelection->get_selected();
 
-    Gtk::Button *deleteBtn, *editBtn, *addBtn;
-    Gtk::ToggleButton *visibleBtn;
-    Gtk::Image *visibleImg;
     Gtk::ScrolledWindow* win;
-    _refXml->get_widget("robjDelete", deleteBtn);
-    _refXml->get_widget("robjEdit", editBtn);
-    _refXml->get_widget("robjAdd", addBtn);
-    _refXml->get_widget("robjVisible", visibleBtn);
-    _refXml->get_widget("robjVisibleImg", visibleImg);
     _refXml->get_widget("ObjectOptions", win);
 
     win->remove(); //Clear the current object controls
     if(iter)
       {
-	//Enable the filter buttons
-	deleteBtn->set_sensitive(false);
-	editBtn->set_sensitive(false); 
-	visibleBtn->set_sensitive(true);
-
-	if (static_cast<RenderObj*>((*iter)[_renderObjsTree._columns->m_obj])->isVisible())
-	  {//Object is visible
-	    visibleBtn->set_active(true);
-	    visibleImg->set(Gtk::Stock::YES, Gtk::ICON_SIZE_BUTTON);
-	  }
-	else
-	  {//Object is not visible
-	    visibleBtn->set_active(false);
-	    visibleImg->set(Gtk::Stock::NO, Gtk::ICON_SIZE_BUTTON);
-	  }
-
 	//Load the controls for the window
 	RenderObj* obj = (*iter)[_renderObjsTree._columns->m_obj];
 	obj->showControls(win);
       }
-    else
-      {
-	//Disable all of the filter buttons
-	deleteBtn->set_sensitive(false);
-	editBtn->set_sensitive(false); 
-	visibleBtn->set_sensitive(false);
-      }
-
-    addBtn->set_sensitive(false); 
   }
 
   void 
