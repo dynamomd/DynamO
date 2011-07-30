@@ -599,7 +599,9 @@ namespace coil {
     RenderObjects.push_back(consoleObj);
 
     //  //Test volume render object
-    //RenderObjects.push_back(new RVolume("Test Volume"));
+    
+    std::tr1::shared_ptr<RVolume> vol(new RVolume("Test Volume"));
+    RenderObjects.push_back(vol);
 
     glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE | GLUT_ALPHA);
     glutInitWindowSize(800, 600);
@@ -658,24 +660,19 @@ namespace coil {
     initGTK();
 
     //  //Fabian Test
-    //  RenderObjects.back().as<coil::RVolume>()
-    //    .loadRawFile("/home/mjki2mb2/Desktop/Output.raw", 300, 300, 300, 1);
+    //  vol->loadRawFile("/home/mjki2mb2/Desktop/Output.raw", 300, 300, 300, 1);
     //  
     //  //bonsai plant test
-    //  RenderObjects.back().as<RVolume>()
-    //    .loadRawFile("bonsai.raw", 256, 256, 256, 1);
+    //  vol->loadRawFile("bonsai.raw", 256, 256, 256, 1);
     //
     //  //Cadaver
-    //  RenderObjects.back().as<coil::RVolume>()
-    //    .loadRawFile("cadaver512x512x106.raw", 512, 512, 106, 2);
+    //  vol->loadRawFile("cadaver512x512x106.raw", 512, 512, 106, 2);
     //
     //  //Male 
-    //  RenderObjects.back().as<coil::RVolume>()
-    //    .loadRawFile("Male128x256x256.raw", 128, 256, 256, 1);
+    //  vol->loadRawFile("Male128x256x256.raw", 128, 256, 256, 1);
     //
     //  //Female
-    //  RenderObjects.back().as<coil::RVolume>()
-    //    .loadRawFile("female384x384x240.raw", 384, 384, 240, 1);
+    vol->loadRawFile("female384x384x240.raw", 384, 384, 240, 1);
 
     _readyFlag = true;
   }

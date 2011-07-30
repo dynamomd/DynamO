@@ -30,8 +30,6 @@ namespace coil {
   {
   public:
     RVolume(std::string name): RenderObj(name), _stepSizeVal(0.01) {}
-    
-    ~RVolume();
   
     virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
     virtual void deinit();

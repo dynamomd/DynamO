@@ -179,11 +179,7 @@ namespace coil {
     _data.bind(1);
     _transferFuncTexture.bind(2);
 
-    //You must save the current shader before binding the volume
-    //shader
-    GLhandleARB oldshader = glGetHandleARB(GL_PROGRAM_OBJECT_ARB);
-
-
+    _shader.attach();
     _shader["ProjectionMatrix"] = camera.getProjectionMatrix();
     _shader["ViewMatrix"] = camera.getViewMatrix();
     _shader["FocalLength"] = GLfloat(1.0f / std::tan(camera.getFOVY() * (M_PI / 360.0f)));
@@ -202,7 +198,6 @@ namespace coil {
     _shader["DitherRay"] = GLfloat(_ditherRay->get_value());
     _shader["TransferTexture"] = 2;
     _shader["LightPosition"] = Vector(-2,-2,-2);
-    _shader.attach();
     
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
@@ -211,12 +206,11 @@ namespace coil {
 
     _currentDepthFBO.getContext().color(1,1,0,1);
     _cube.glRender();
+    _shader.detach();
 
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
     glDisable(GL_CULL_FACE);
-
-    glUseProgramObjectARB(oldshader);
   }
 
   void 
