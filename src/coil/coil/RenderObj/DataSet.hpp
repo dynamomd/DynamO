@@ -211,8 +211,9 @@ namespace coil {
     std::vector<DataSetChild> _children;
 
     void initGtk();
-
     void rebuildGui();
+
+    void addGlyphs();
 
     struct ModelColumns : Gtk::TreeModelColumnRecord
     {

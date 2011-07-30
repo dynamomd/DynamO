@@ -16,6 +16,7 @@
 */
 
 #include <coil/RenderObj/DataSet.hpp>
+#include <iostream>
 
 namespace coil {  
   void 
@@ -47,7 +48,6 @@ namespace coil {
   {
     _gtkOptList.reset(new Gtk::VBox);
 
-    
     { _attrcolumns.reset(new ModelColumns);
       _attrtreestore = Gtk::TreeStore::create(*_attrcolumns);
 
@@ -63,8 +63,22 @@ namespace coil {
       win->show();
     }
 
+    {
+      Gtk::Button* btn = Gtk::manage(new Gtk::Button("Add Glyph"));
+      btn->signal_clicked().connect(sigc::mem_fun(*this, &DataSet::addGlyphs));
+      btn->show();
+      _gtkOptList->pack_start(*btn, false, false);
+    }
+
     _gtkOptList->show();
     rebuildGui();
+  }
+
+
+  void 
+  DataSet::addGlyphs()
+  {
+    std::cerr << "Adding glyphs!";
   }
 
   void 
