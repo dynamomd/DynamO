@@ -462,7 +462,7 @@ namespace coil {
       }
       
       //Populate the render object view
-      rebuildRenderView();
+      _renderObjsTree.buildRenderView();
       selectRObjCallback();
 
       //////Connect the view to the select callback
@@ -590,18 +590,18 @@ namespace coil {
 		     "normal = (float4)(0,0,1,0);\n",
 		     "colors[0] = (uchar4)(255,255,255,255);"
 		     ));
-    RenderObjects.push_back(groundObj);
+    _renderObjsTree._renderObjects.push_back(groundObj);
 
     //Second render object is the console
-    _consoleID = RenderObjects.size();
+    _consoleID = _renderObjsTree._renderObjects.size();
     std::tr1::array<GLfloat, 3> textcolor  = {{0.5, 0.5, 0.5}};
     std::tr1::shared_ptr<RenderObj> consoleObj(new Console(textcolor)); 
-    RenderObjects.push_back(consoleObj);
+    _renderObjsTree._renderObjects.push_back(consoleObj);
 
     //  //Test volume render object
     
     //std::tr1::shared_ptr<RVolume> vol(new RVolume("Test Volume"));
-    //RenderObjects.push_back(vol);
+    //_renderObjsTree._renderObjects.push_back(vol);
 
     glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE | GLUT_ALPHA);
     glutInitWindowSize(800, 600);
@@ -649,11 +649,11 @@ namespace coil {
     _nrmlShader.build();
 
     //Now init the render objects  
-    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = RenderObjects.begin();
-	 iPtr != RenderObjects.end(); ++iPtr)
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
+	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       (*iPtr)->init(_systemQueue);
   
-    Console& _console = static_cast<Console&>(*RenderObjects[_consoleID]);
+    Console& _console = static_cast<Console&>(*_renderObjsTree._renderObjects[_consoleID]);
     _console << "Welcome to coil, part of the dynamo simulator..." 
 	     << Console::end();
 
@@ -711,11 +711,11 @@ namespace coil {
     getGLContext().getCLCommandQueue().finish();
 
     ///////////////////OpenGL
-    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = RenderObjects.begin();
-	 iPtr != RenderObjects.end(); ++iPtr)
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
+	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       (*iPtr)->deinit();
 
-    RenderObjects.clear();
+    _renderObjsTree._renderObjects.clear();
 
     _renderTarget->deinit();
     _filterTarget1.deinit();
@@ -748,8 +748,8 @@ namespace coil {
     //		      Vector(0.0f, 0.0f, 0.0f), GL_LIGHT0);
 
     //Run every objects OpenCL stage
-    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = RenderObjects.begin();
-	 iPtr != RenderObjects.end(); ++iPtr)
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
+	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       (*iPtr)->clTick(_camera);
 
     //Camera Positioning
@@ -794,8 +794,8 @@ namespace coil {
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	//Enter the render ticks for all objects
-	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = RenderObjects.begin();
-	     iPtr != RenderObjects.end(); ++iPtr)
+	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
+	     iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
 	  if ((*iPtr)->shadowCasting() && (*iPtr)->visible())
 	    (*iPtr)->glRender(_shadowFBO, _light0);
 
@@ -943,8 +943,8 @@ namespace coil {
     _simpleRenderShader["ViewMatrix"] = _camera.getViewMatrix();
 
     //Enter the interface draw for all objects
-    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = RenderObjects.begin();
-	 iPtr != RenderObjects.end(); ++iPtr)
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
+	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       (*iPtr)->interfaceRender(_camera);
 
     _simpleRenderShader.detach();
@@ -1005,8 +1005,8 @@ namespace coil {
   CLGLWindow::drawScene(magnet::GL::FBO& fbo, magnet::GL::Camera& camera)
   {
     //Enter the render ticks for all objects
-    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = RenderObjects.begin();
-	 iPtr != RenderObjects.end(); ++iPtr)
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
+	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       if ((*iPtr)->visible()) (*iPtr)->glRender(fbo, camera);
   
     if (_showLight) _light0.drawLight();
@@ -1462,8 +1462,8 @@ namespace coil {
 
     //Perform unique coloring of screen objects
     cl_uint startVal = 0;
-    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = RenderObjects.begin();
-	 iPtr != RenderObjects.end(); ++iPtr)
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
+	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       (*iPtr)->initPicking(startVal);
 
     //Flush the OpenCL queue, so GL can use the buffers
@@ -1471,8 +1471,8 @@ namespace coil {
     
     //Now render the scene
     //Enter the render ticks for all objects
-    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = RenderObjects.begin();
-	 iPtr != RenderObjects.end(); ++iPtr)
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
+	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       (*iPtr)->pickingRender(_filterTarget1, _camera);
 
     unsigned char pixel[4];  
@@ -1487,19 +1487,9 @@ namespace coil {
     //Now let the objects know what was picked
     const cl_uint objID = pixel[0] + 256 * (pixel[1] + 256 * (pixel[2] + 256 * pixel[3]));
     startVal = 0;
-    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = RenderObjects.begin();
-	 iPtr != RenderObjects.end(); ++iPtr)
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
+	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       (*iPtr)->finishPicking(startVal, objID);
-  }
-
-  void 
-  CLGLWindow::rebuildRenderView()
-  {
-    _renderObjsTree._store->clear();
-  
-    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = RenderObjects.begin();
-	 iPtr != RenderObjects.end(); ++iPtr)
-      (*iPtr)->addViewRows(_renderObjsTree);
   }
 
   void CLGLWindow::selectRObjCallback() 
@@ -1532,7 +1522,6 @@ namespace coil {
       updateButton->set_value(defaultsteps);
     }
   }
-
 
   void
   CLGLWindow::guiUpdateCallback()

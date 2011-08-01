@@ -128,12 +128,18 @@ namespace coil {
     size_t _references;
   };
 
+  class DataSet; 
+
   class DataSetChild: public RenderObj
   {
   public:
+    inline DataSetChild(std::string name, DataSet& ds): RenderObj(name), _ds(ds) {}
+
     virtual Gtk::TreeModel::iterator addViewRows(RenderObjectsGtkTreeView& view, Gtk::TreeModel::iterator&) = 0;
     
   protected:
+
+    DataSet& _ds;
   };
   
   /*! \brief A container class for a collection of \ref Attribute
@@ -174,30 +180,32 @@ namespace coil {
       return iPtr->second;
     }
 
+    inline size_t size() const { return _N; }
+
     /**@}*/
         
     virtual void clTick(const magnet::GL::Camera& cam) 
     {
-      for (std::vector<DataSetChild>::iterator iPtr = _children.begin();
+      for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
 	   iPtr != _children.end(); ++iPtr)
-	iPtr->clTick(cam);
+	(*iPtr)->clTick(cam);
     }
 
     virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode = DEFAULT)
     {
-      for (std::vector<DataSetChild>::iterator iPtr = _children.begin();
+      for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
 	   iPtr != _children.end(); ++iPtr)
-	if (iPtr->visible() && (!(mode & SHADOW) || iPtr->shadowCasting()))
-	  iPtr->glRender(fbo, cam, mode);
+	if ((*iPtr)->visible() && (!(mode & SHADOW) || (*iPtr)->shadowCasting()))
+	  (*iPtr)->glRender(fbo, cam, mode);
     }
 
     virtual Gtk::TreeModel::iterator addViewRows(RenderObjectsGtkTreeView& view)
     {
       Gtk::TreeModel::iterator iter = RenderObj::addViewRows(view);
       
-      for (std::vector<DataSetChild>::iterator iPtr = _children.begin();
-	   iPtr < _children.end(); ++iPtr)
-	iPtr->addViewRows(view, iter);
+      for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
+	   iPtr != _children.end(); ++iPtr)
+	(*iPtr)->addViewRows(view, iter);
 
       return iter;
     }
@@ -208,7 +216,7 @@ namespace coil {
     magnet::GL::Context* volatile _context;
     std::auto_ptr<Gtk::VBox> _gtkOptList;
     size_t _N;
-    std::vector<DataSetChild> _children;
+    std::vector<std::tr1::shared_ptr<DataSetChild> > _children;
 
     void initGtk();
     void rebuildGui();

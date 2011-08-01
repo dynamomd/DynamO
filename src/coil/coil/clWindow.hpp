@@ -56,7 +56,7 @@ namespace coil {
     void setWindowtitle(const std::string& newtitle);
   
     void addRenderObj(const std::tr1::shared_ptr<RenderObj>& nObj)
-    { RenderObjects.push_back(nObj); }
+    { _renderObjsTree._renderObjects.push_back(nObj); }
 
     inline volatile const int& getLastFrameTime() const { return _lastFrameTime; }
 
@@ -102,8 +102,6 @@ namespace coil {
 
     magnet::GL::shader::NormalShader _nrmlShader;
     magnet::GL::FBO _normalsFBO;
-
-    std::vector<std::tr1::shared_ptr<RenderObj> > RenderObjects;
 
     void CallBackSpecialUpFunc(int key, int x, int y) {}
     void CallBackSpecialFunc(int key, int x, int y) {} 
@@ -212,7 +210,6 @@ namespace coil {
     void filterActiveCallback();
   
     //Render Object Contol Callbacks
-    void rebuildRenderView();
     void selectRObjCallback();
 
     //Wii Remote callbacks

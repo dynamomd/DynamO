@@ -16,7 +16,7 @@
 */
 
 #include <coil/RenderObj/DataSet.hpp>
-#include <iostream>
+#include <coil/RenderObj/Glyphs.hpp>
 
 namespace coil {  
   void 
@@ -26,9 +26,9 @@ namespace coil {
     RenderObj::init(systemQueue); 
     initGtk(); 
     
-    for (std::vector<DataSetChild>::iterator iPtr = _children.begin();
+    for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
 	 iPtr != _children.end(); ++iPtr)
-      iPtr->init(systemQueue);
+      (*iPtr)->init(systemQueue);
     
     //We don't initialise the attributes, as they're initialised on access
   }
@@ -78,7 +78,11 @@ namespace coil {
   void 
   DataSet::addGlyphs()
   {
-    std::cerr << "Adding glyphs!";
+    std::tr1::shared_ptr<Glyphs> glyph(new Glyphs("Glyphs", *this));
+    _children.push_back(glyph);
+    
+    if (_context)
+      _children.back()->init(_systemQueue);      
   }
 
   void 
@@ -112,9 +116,9 @@ namespace coil {
     _attrcolumns.reset();
     _attrview.reset();
     _attrtreestore.reset();
-    for (std::vector<DataSetChild>::iterator iPtr = _children.begin();
+    for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
 	 iPtr != _children.end(); ++iPtr)
-      iPtr->deinit();
+      (*iPtr)->deinit();
 
     for (iterator iPtr = begin(); iPtr != end(); ++iPtr)
       iPtr->second.deinit();

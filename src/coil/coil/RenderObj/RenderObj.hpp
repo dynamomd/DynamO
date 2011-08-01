@@ -269,6 +269,17 @@ namespace coil {
 
     }
     
+
+    inline void buildRenderView()
+    {
+      _store->clear();
+      
+      for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjects.begin();
+	   iPtr != _renderObjects.end(); ++iPtr)
+	(*iPtr)->addViewRows(*this);
+    }
+
+
     struct ModelColumns : Gtk::TreeModelColumnRecord
     {
       ModelColumns()
@@ -283,7 +294,9 @@ namespace coil {
     std::auto_ptr<ModelColumns> _columns;
     Glib::RefPtr<Gtk::TreeStore> _store;
     Gtk::TreeView* _view;
-    
+
+    std::vector<std::tr1::shared_ptr<RenderObj> > _renderObjects;
+
   protected:
     
     void visibleToggled(const Glib::ustring& path_string)
