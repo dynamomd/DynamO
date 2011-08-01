@@ -82,7 +82,10 @@ namespace coil {
     _children.push_back(glyph);
     
     if (_context)
-      _children.back()->init(_systemQueue);      
+      _children.back()->init(_systemQueue);
+
+    if (_iter)
+      _children.back()->addViewRows(*_view, _iter);
   }
 
   void 

@@ -198,21 +198,27 @@ namespace coil {
 	if ((*iPtr)->visible() && (!(mode & SHADOW) || (*iPtr)->shadowCasting()))
 	  (*iPtr)->glRender(fbo, cam, mode);
     }
-
+    
     virtual Gtk::TreeModel::iterator addViewRows(RenderObjectsGtkTreeView& view)
     {
-      Gtk::TreeModel::iterator iter = RenderObj::addViewRows(view);
+      _view = &view;
+      _iter = RenderObj::addViewRows(view);
       
       for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
 	   iPtr != _children.end(); ++iPtr)
-	(*iPtr)->addViewRows(view, iter);
+	(*iPtr)->addViewRows(view, _iter);
 
-      return iter;
+      return _iter;
     }
 
     virtual void showControls(Gtk::ScrolledWindow* win);
 
   protected:
+    /*! \brief An iterator to this DataSet's row in the Render object
+      treeview.
+     */
+    Gtk::TreeModel::iterator _iter;
+    RenderObjectsGtkTreeView* _view;
     magnet::GL::Context* volatile _context;
     std::auto_ptr<Gtk::VBox> _gtkOptList;
     size_t _N;
