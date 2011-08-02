@@ -13,8 +13,6 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-import feature ;
-import src/magnet/jam/builddep ;
 
 ##########################################################################
 #Location of the boost build root directory
@@ -62,9 +60,6 @@ project	: requirements
 	  <variant>release:<define>NDEBUG
           #This creates a feature coil-integration, which can be set
           #on the command line or auto-detected using the passed target
-	  [ builddep.set-feature-on-build coil-integration 
-            : src/coil//coilDependencies
-            : "Dynamo-Coil Integration" ]
 	: default-build release
 	: build-dir $(build-dir)
 	;

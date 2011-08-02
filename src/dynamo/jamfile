@@ -15,8 +15,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import feature ;
+import ../magnet/jam/builddep ;
 import ../magnet/jam/git ;
 import ../magnet/jam/tags ;
+
+project	: requirements
+          #This creates a feature coil-integration, which can be set
+          #on the command line or auto-detected using the passed target
+	  [ builddep.set-feature-on-build coil-integration 
+            : ../coil//coilDependencies
+            : "Dynamo-Coil Integration" ]
+	: default-build release
+	: build-dir ../../build-dir/
+	;
 
 lib gslcblas ;
 lib gsl : gslcblas : <name>gsl ;
