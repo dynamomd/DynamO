@@ -50,6 +50,10 @@ namespace coil {
       _positionSel.reset(new AttributeSelector);
       _positionSel->buildEntries("Position Data Field:", _ds, Attribute::COORDINATE, 3);
       _gtkOptList->pack_start(*_positionSel, false, false);
+
+      _scaleSel.reset(new AttributeSelector);
+      _scaleSel->buildEntries("Scale Data Field:", _ds, Attribute::COORDINATE, 1);
+      _gtkOptList->pack_start(*_scaleSel, false, false);
     }
     
     inline virtual void deinit()
@@ -130,5 +134,6 @@ namespace coil {
   protected:
     std::auto_ptr<Gtk::VBox> _gtkOptList;
     std::auto_ptr<AttributeSelector> _positionSel;
+    std::auto_ptr<AttributeSelector> _scaleSel;
   };
 }

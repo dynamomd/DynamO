@@ -22,7 +22,6 @@ namespace coil {
   void 
   DataSet::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
   {
-    _context = &(magnet::GL::Context::getContext());
     RenderObj::init(systemQueue); 
     initGtk(); 
     
@@ -31,6 +30,7 @@ namespace coil {
       (*iPtr)->init(systemQueue);
     
     //We don't initialise the attributes, as they're initialised on access
+    _context = &(magnet::GL::Context::getContext());
   }
 
 
@@ -80,7 +80,7 @@ namespace coil {
   {
     std::tr1::shared_ptr<Glyphs> glyph(new Glyphs("Glyphs", *this));
     _children.push_back(glyph);
-    
+        
     if (_context)
       _children.back()->init(_systemQueue);
 
@@ -96,8 +96,11 @@ namespace coil {
   {
     if (find(name) != end())
       M_throw() << "Trying to add an Attribute with a existing name, " << name;
+
+    //Spinlock to force that the Data set is initialised before the attribute is created
+    for (;;) if (_context) break;
       
-    insert(value_type(name, Attribute(_N, type, components)));
+    insert(value_type(name, Attribute(_N, type, components, _context)));
 
     //If we're initialised, we should rebuild the view of attributes
     if (_context)
@@ -107,6 +110,7 @@ namespace coil {
   void
   DataSet::rebuildGui()
   {
+    _attrtreestore->clear();
     for (iterator iPtr = begin(); iPtr != end(); ++iPtr)
       {
 	Gtk::TreeModel::iterator iter = _attrtreestore->append();

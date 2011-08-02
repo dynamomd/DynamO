@@ -31,8 +31,8 @@ int main(int argc, char *argv[])
   window->addRenderObj(data);
   coil.getInstance().addWindow(window);
 
-
   data->addAttribute("Positions", coil::Attribute::COORDINATE, 3);
+  data->addAttribute("Radii", coil::Attribute::INTENSIVE, 1);
 
   /* Your simulation loop */
   for(double t(0); ; t += 1)
@@ -50,13 +50,16 @@ int main(int argc, char *argv[])
 	  
 	  //Here we update the positions
 	  std::vector<GLfloat>& posdata = (*data)["Positions"].getData();
+	  std::vector<GLfloat>& radii = (*data)["Radii"].getData();
 	  for (size_t i(0); i < N; ++i)
 	    {
+	      radii[i] = 0.01;
 	      posdata[3 * i + 0] = std::sin(t * 0.01 + i);
 	      posdata[3 * i + 1] = std::cos(t * 0.01 + i);
 	      posdata[3 * i + 2] = i;
 	    }
 	  (*data)["Positions"].flagNewData();
+	  (*data)["Radii"].flagNewData();
 
           std::ostringstream os;
           os << "t:" << t;        

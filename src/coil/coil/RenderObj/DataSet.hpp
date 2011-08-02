@@ -50,7 +50,9 @@ namespace coil {
       COORDINATE = 3 //!< A special attribute which specifies the location of the attribute.
     };
 
-    inline Attribute(size_t N, AttributeType type = EXTENSIVE, size_t components = 1):
+    inline Attribute(size_t N, AttributeType type, size_t components, 
+		     magnet::GL::Context* context):
+      _context(context),
       _hostData(N * components),
       _components(components),
       _type(type),
@@ -86,7 +88,7 @@ namespace coil {
      * reinitialise the Attribute.
      */
     inline void flagNewData()
-    { _glData.getContext().queueTask(magnet::function::Task::makeTask(&Attribute::initGLData, this)); }
+    { _context->queueTask(magnet::function::Task::makeTask(&Attribute::initGLData, this)); }
 
     /*! \brief Test if the attribute is in use and should be
      * updated. 
@@ -111,6 +113,8 @@ namespace coil {
     }
 
   protected:
+    magnet::GL::Context* _context;
+
     void initGLData() 
     { _glData.init(_hostData); }
 

@@ -245,6 +245,8 @@ namespace coil {
       _store = Gtk::TreeStore::create(*_columns);
       _view->set_model(_store);
 
+      _view->append_column("Object Name", _columns->m_name);
+
       { //The cell renderer 
 	Gtk::CellRendererToggle* renderer =
 	  Gtk::manage(new Gtk::CellRendererToggle());
@@ -264,9 +266,6 @@ namespace coil {
 	  column->add_attribute(renderer->property_active(), _columns->m_shadowcasting);
 	renderer->signal_toggled().connect(sigc::mem_fun(*this, &RenderObjectsGtkTreeView::shadowingToggled));
       }
-
-      _view->append_column("Object Name", _columns->m_name);
-
     }
     
 
