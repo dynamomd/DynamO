@@ -52,9 +52,9 @@ int main(int argc, char *argv[])
 	  std::vector<GLfloat>& posdata = (*data)["Positions"].getData();
 	  for (size_t i(0); i < N; ++i)
 	    {
-	      posdata[3 * i + 0] = 0.001 * std::sin((t+i) * 0.01);
-	      posdata[3 * i + 1] = 0.001 * std::cos((t+i) * 0.01);
-	      posdata[3 * i + 2] = 0.001 * (t + i);
+	      posdata[3 * i + 0] = std::sin(t * 0.01 + i);
+	      posdata[3 * i + 1] = std::cos(t * 0.01 + i);
+	      posdata[3 * i + 2] = i;
 	    }
 	  (*data)["Positions"].flagNewData();
 

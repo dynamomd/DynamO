@@ -17,7 +17,6 @@
 
 #include <coil/RenderObj/DataSet.hpp>
 #include <magnet/GL/objects/instanced.hpp>
-#include <iostream>
 
 namespace coil {  
   class Glyphs : public DataSetChild, public magnet::GL::objects::Instanced
@@ -33,7 +32,6 @@ namespace coil {
     {
       //Do not allow a glRender if uninitialised
       if (!_primitiveVertices.size()) return;
-      std::cerr << "Rendering the glyphs\n";
 
       _primitiveVertices.getContext().resetInstanceTransform();
       _positionSel->bindAttribute(magnet::GL::Context::instanceOriginAttrIndex);
