@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
   coil.getInstance().addWindow(window);
 
   data->addAttribute("Positions", coil::Attribute::COORDINATE, 3);
-  data->addAttribute("Radii", coil::Attribute::INTENSIVE, 1);
+  data->addAttribute("Radii", coil::Attribute::INTENSIVE, 3);
 
   /* Your simulation loop */
   for(double t(0); ; t += 1)
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 	  std::vector<GLfloat>& radii = (*data)["Radii"].getData();
 	  for (size_t i(0); i < N; ++i)
 	    {
-	      radii[i] = 0.01;
+	      radii[3 * i + 0] = radii[3 * i + 1] = radii[3 * i + 2] = 0.5;
 	      posdata[3 * i + 0] = std::sin(t * 0.01 + i);
 	      posdata[3 * i + 1] = std::cos(t * 0.01 + i);
 	      posdata[3 * i + 2] = i;

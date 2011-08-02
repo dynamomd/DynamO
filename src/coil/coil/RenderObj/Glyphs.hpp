@@ -35,6 +35,7 @@ namespace coil {
 
       _primitiveVertices.getContext().resetInstanceTransform();
       _positionSel->bindAttribute(magnet::GL::Context::instanceOriginAttrIndex);
+      _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex);
       Instanced::glRender();
     }
 
