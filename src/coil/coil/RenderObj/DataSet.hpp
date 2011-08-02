@@ -17,6 +17,8 @@
 #pragma once
 #include <coil/RenderObj/RenderObj.hpp>
 #include <magnet/GL/buffer.hpp>
+#include <magnet/gtk/numericEntry.hpp>
+#include <boost/lexical_cast.hpp>
 #include <vector>
 
 namespace coil {
@@ -43,9 +45,9 @@ namespace coil {
   {
   public:
     enum AttributeType { 
-      INTENSIVE, //!< Intensive property (e.g., Temperature, density)
-      EXTENSIVE, //!< Extensive property (e.g., mass, momentum)
-      COORDINATE //!< A special attribute which specifies the location of the attribute.
+      INTENSIVE = 1, //!< Intensive property (e.g., Temperature, density)
+      EXTENSIVE = 2, //!< Extensive property (e.g., mass, momentum)
+      COORDINATE = 3 //!< A special attribute which specifies the location of the attribute.
     };
 
     inline Attribute(size_t N, AttributeType type = EXTENSIVE, size_t components = 1):
@@ -97,10 +99,20 @@ namespace coil {
 
     inline size_t getNComponents() const { return _components; }
 
+    inline AttributeType getType() const { return _type; }
+
     /**@}*/
 
+    inline void bindAttribute(size_t attrnum, bool normalise = false)
+    {
+      //Initialise on demand
+      if (!_glData.size()) initGLData();
+      _glData.attachToAttribute(attrnum, _components, 1, normalise); 
+    }
+
   protected:
-    void initGLData() { _glData.init(_hostData); }
+    void initGLData() 
+    { _glData.init(_hostData); }
 
     /*! \brief The OpenGL representation of the attribute data.
      *
@@ -243,4 +255,117 @@ namespace coil {
     Glib::RefPtr<Gtk::TreeStore> _attrtreestore;
     std::auto_ptr<Gtk::TreeView> _attrview;
   };
+
+  class AttributeSelector : public Gtk::HBox
+  {
+  public:
+    AttributeSelector():
+      _components(0)
+    {
+      //Label
+      _label.show();
+      pack_start(_label, false, false, 5);
+      _context = &(magnet::GL::Context::getContext());
+      //combo box
+      _model = Gtk::ListStore::create(_modelColumns);
+      _comboBox.set_model(_model);      
+      _comboBox.pack_start(_modelColumns.m_name);
+      _comboBox.show();
+      pack_start(_comboBox, false, false, 5);
+      
+      _singleValueLabel.show();
+      _singleValueLabel.set_text("Value:");
+      _singleValueLabel.set_alignment(1.0, 0.5);
+      pack_start(_singleValueLabel, true, true, 5);
+      for (size_t i(0); i < 4; ++i)
+	{
+	  pack_start(_scalarvalues[i], false, false, 0);
+	  _scalarvalues[i].signal_changed()
+	    .connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, _scalarvalues[i]));
+	  _scalarvalues[i].set_text("1.0");
+	  _scalarvalues[i].set_max_length(0);
+	  _scalarvalues[i].set_width_chars(5);	  
+	}
+
+      show();
+    }
+    
+    void buildEntries(std::string name, DataSet& ds, Attribute::AttributeType typemask, size_t components)
+    {
+      _label.set_text(name);
+      _model->clear();
+      _components = components;
+
+      for (size_t i(0); i < components; ++i)
+	_scalarvalues[i].show();
+
+      for (size_t i(components); i < 4; ++i)
+	_scalarvalues[i].hide();
+
+      for (DataSet::iterator iPtr = ds.begin();
+	   iPtr != ds.end(); ++iPtr)
+	if ((iPtr->second.getType() & typemask) && (iPtr->second.getNComponents() ==  _components))
+	  {
+	    Gtk::TreeModel::Row row = *(_model->append());
+	    row[_modelColumns.m_name] = iPtr->first;
+	    row[_modelColumns.m_ptr] = &(iPtr->second);
+	  }
+
+      {
+	Gtk::TreeModel::Row row = *(_model->append());
+	row[_modelColumns.m_name] = "Single Value";
+	row[_modelColumns.m_ptr] = NULL;
+      }
+      
+      _comboBox.set_active(0);
+    }
+    
+    struct ModelColumns : Gtk::TreeModelColumnRecord
+    {
+      ModelColumns()
+      { add(m_name); add(m_ptr); }
+      
+      Gtk::TreeModelColumn<Glib::ustring> m_name;
+      Gtk::TreeModelColumn<Attribute*> m_ptr;
+    };
+
+    void bindAttribute(size_t attrnum, bool normalise = false)
+    {
+      Gtk::TreeModel::iterator iter = _comboBox.get_active();
+
+      if (!iter) { setConstantAttribute(attrnum); return; }
+      
+      Attribute* ptr = (*iter)[_modelColumns.m_ptr];
+      if (!ptr) { setConstantAttribute(attrnum); return; }
+
+      ptr->bindAttribute(attrnum, normalise);
+    }
+
+    ModelColumns _modelColumns;
+    Gtk::ComboBox _comboBox;
+    Gtk::Label _label;
+    Gtk::Label _singleValueLabel;
+    Glib::RefPtr<Gtk::ListStore> _model;
+    Gtk::Entry _scalarvalues[4];
+    
+  protected:
+    magnet::GL::Context* _context;
+    
+    size_t _components;
+    
+    void setConstantAttribute(size_t attr)
+    {
+      _context->disableAttributeArray(attr);
+
+      GLfloat val[4] = {1,1,1,1};
+
+      for (size_t i(0); i < 4; ++i)
+	try {
+	  val[i] = boost::lexical_cast<double>(_scalarvalues[i].get_text());
+	} catch (...) {}
+      
+      _context->setAttribute(attr, val[0], val[1], val[2], val[3]);
+    }
+  };
+
 }

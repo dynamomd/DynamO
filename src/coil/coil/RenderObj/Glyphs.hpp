@@ -17,6 +17,7 @@
 
 #include <coil/RenderObj/DataSet.hpp>
 #include <magnet/GL/objects/instanced.hpp>
+#include <iostream>
 
 namespace coil {  
   class Glyphs : public DataSetChild, public magnet::GL::objects::Instanced
@@ -26,18 +27,51 @@ namespace coil {
   public:
     inline Glyphs(std::string name, DataSet& ds): DataSetChild(name, ds) {}
 
-    virtual void clTick(const magnet::GL::Camera& cam) {}
+    inline virtual void clTick(const magnet::GL::Camera& cam) {}
 
-    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode) {}
+    inline virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode) 
+    {
+      //Do not allow a glRender if uninitialised
+      if (!_primitiveVertices.size()) return;
+      std::cerr << "Rendering the glyphs\n";
+
+      _primitiveVertices.getContext().resetInstanceTransform();
+      _positionSel->bindAttribute(magnet::GL::Context::instanceOriginAttrIndex);
+      Instanced::glRender();
+    }
 
     inline virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
     {
       RenderObj::init(systemQueue);
       Instanced::init(_ds.size());
+            
+      //Initialise the Gtk controls
+      _gtkOptList.reset(new Gtk::VBox);
+      _gtkOptList->show();
+      
+      _positionSel.reset(new AttributeSelector);
+      _positionSel->buildEntries("Position Data Field:", _ds, Attribute::COORDINATE, 3);
+      _gtkOptList->pack_start(*_positionSel, false, false);
     }
     
-    virtual Gtk::TreeModel::iterator addViewRows(RenderObjectsGtkTreeView& view, 
-						 Gtk::TreeModel::iterator& parent_iter)
+    inline virtual void deinit()
+    {
+      Instanced::deinit();
+      RenderObj::deinit();
+      _gtkOptList.reset();
+    }
+
+    inline virtual void showControls(Gtk::ScrolledWindow* win)
+    {
+      win->remove();
+      _gtkOptList->unparent();
+      win->add(*_gtkOptList);
+      win->show();
+    }
+
+
+    inline virtual Gtk::TreeModel::iterator addViewRows(RenderObjectsGtkTreeView& view, 
+							Gtk::TreeModel::iterator& parent_iter)
     {
       Gtk::TreeModel::iterator iter = view._store->append(parent_iter->children());
       (*iter)[view._columns->m_name] = getName();
@@ -48,10 +82,10 @@ namespace coil {
     }
 
 
-    virtual magnet::GL::element_type::Enum  getElementType()
+    inline virtual magnet::GL::element_type::Enum  getElementType()
     { return magnet::GL::element_type::TRIANGLE_STRIP; }
     
-    virtual std::vector<GLfloat> getPrimitiveVertices()
+    inline virtual std::vector<GLfloat> getPrimitiveVertices()
     {
       std::vector<GLfloat> vertices(2 * _LOD * 3);
       
@@ -64,7 +98,7 @@ namespace coil {
       return vertices;
     }
     
-    virtual std::vector<GLfloat> getPrimitiveNormals()
+    inline virtual std::vector<GLfloat> getPrimitiveNormals()
     {
       std::vector<GLfloat> normals(2 * _LOD * 3);
       
@@ -80,7 +114,7 @@ namespace coil {
       return normals;
     }
     
-    virtual std::vector<GLuint>  getPrimitiveIndicies()
+    inline virtual std::vector<GLuint>  getPrimitiveIndicies()
     {
       std::vector<GLuint> indices(2 * _LOD + 2);
       
@@ -96,5 +130,7 @@ namespace coil {
     }
     
   protected:
+    std::auto_ptr<Gtk::VBox> _gtkOptList;
+    std::auto_ptr<AttributeSelector> _positionSel;
   };
 }

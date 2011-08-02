@@ -85,7 +85,10 @@ namespace coil {
       _children.back()->init(_systemQueue);
 
     if (_iter)
-      _children.back()->addViewRows(*_view, _iter);
+      {
+	Gtk::TreeModel::iterator child_iter = _children.back()->addViewRows(*_view, _iter);
+	_view->_view->expand_to_path(_view->_store->get_path(child_iter));
+      }
   }
 
   void 

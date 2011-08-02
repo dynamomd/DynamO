@@ -33,10 +33,6 @@ namespace magnet {
 	inline void deinit() 
 	{
 	  _N = 0;
-	  _positionData.deinit();
-	  _orientationData.deinit();
-	  _scalingData.deinit();
-	  _colorData.deinit();
 	  _primitiveVertices.deinit();
 	  _primitiveNormals.deinit();
 	  _primitiveIndices.deinit();
@@ -61,17 +57,6 @@ namespace magnet {
 	 */
 	inline void glRender()
 	{
-	  if (_positionData.empty()) return;
-
-	  _positionData.getContext().cleanupAttributeArrays();
-	  _positionData.attachToInstanceOrigin();
-	  if (!_orientationData.empty())
-	    _orientationData.attachToInstanceOrientation();
-	  if (!_scalingData.empty())
-	    _scalingData.attachToInstanceScale();
-	  if (!_colorData.empty())
-	    _colorData.attachToColor();
-
 	  _primitiveVertices.attachToVertex();
 	  _primitiveNormals.attachToNormal();
 	  _primitiveIndices.drawInstancedElements(getElementType(), _N);
@@ -84,10 +69,6 @@ namespace magnet {
 
       protected:
 	size_t _N;
-	magnet::GL::Buffer<GLfloat> _positionData;
-	magnet::GL::Buffer<GLfloat> _orientationData;
-	magnet::GL::Buffer<GLfloat> _scalingData;
-	magnet::GL::Buffer<GLubyte> _colorData;
 	magnet::GL::Buffer<GLfloat> _primitiveVertices;
 	magnet::GL::Buffer<GLfloat> _primitiveNormals;
 	magnet::GL::Buffer<GLuint>  _primitiveIndices;

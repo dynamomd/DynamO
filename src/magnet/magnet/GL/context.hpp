@@ -86,17 +86,22 @@ namespace magnet {
 	_vertexAttributeState[attrnum].active = true;
       }
 
+      /*! \brief Disables a vertex attribute array index. */
+      inline void disableAttributeArray(GLuint attrnum)
+      {
+	if (attrnum >= _vertexAttributeState.size())
+	  M_throw() << "Attribute index out of range";
+	if (!(_vertexAttributeState[attrnum].active)) return;
+	glDisableVertexAttribArray(attrnum);
+	_vertexAttributeState[attrnum].active = false;
+      }
+
       /*! \brief Disable all active vertex attribute arrays. */
       inline void cleanupAttributeArrays()
       {
 	resetInstanceTransform();
-
 	for (GLuint i(0); i < _vertexAttributeState.size(); ++i)
-	  if (_vertexAttributeState[i].active) 
-	    { 
-	      glDisableVertexAttribArray(i); 
-	      _vertexAttributeState[i].active = false;
-	    }
+	  disableAttributeArray(i);
       }
 
       /*! \brief Sets the value of a vertex attribute, if no attribute
