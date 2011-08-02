@@ -53,7 +53,7 @@ namespace coil {
       _gtkOptList->pack_start(*_positionSel, false, false);
 
       _scaleSel.reset(new AttributeSelector);
-      _scaleSel->buildEntries("Scale Data Field:", _ds, Attribute::COORDINATE, 1);
+      _scaleSel->buildEntries("Scale Data Field:", _ds, Attribute::INTENSIVE, 3);
       _gtkOptList->pack_start(*_scaleSel, false, false);
     }
     

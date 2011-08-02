@@ -19,7 +19,9 @@
 #include <magnet/GL/buffer.hpp>
 #include <magnet/gtk/numericEntry.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/signal.hpp>
 #include <vector>
+#include <tr1/memory>
 
 namespace coil {
   /*! \brief This class encapsulates attributes (data) associated with
@@ -59,8 +61,6 @@ namespace coil {
       _references(0)
     {}
     
-    inline Attribute() {}
-
     /*! \brief Releases the OpenGL resources of this object.
      */
     inline void deinit() { _glData.deinit(); }
@@ -114,9 +114,18 @@ namespace coil {
 
   protected:
     magnet::GL::Context* _context;
+    boost::signal<void (Attribute&)> _glDataUpdated;
 
     void initGLData() 
-    { _glData.init(_hostData); }
+    { 
+      _glData.init(_hostData);
+      if (!_glDataUpdated.empty())
+	{
+	  _glData.acquireCLObject();
+	  _glDataUpdated(*this);
+	  _glData.releaseCLObject();
+	}
+    }
 
     /*! \brief The OpenGL representation of the attribute data.
      *
@@ -162,7 +171,7 @@ namespace coil {
    * instances forming a dataset, and any active filters/glyphs or any
    * other type derived from \ref DataSetChild.
    */
-  class DataSet: public RenderObj, public std::map<std::string, Attribute>
+  class DataSet: public RenderObj, public std::map<std::string, std::tr1::shared_ptr<Attribute> >
   {
   public:
     DataSet(std::string name, size_t N): 
@@ -193,7 +202,7 @@ namespace coil {
       if (iPtr == end())
 	M_throw() << "No attribute named " << name << " in Data set";
       
-      return iPtr->second;
+      return *(iPtr->second);
     }
 
     inline size_t size() const { return _N; }
@@ -308,17 +317,16 @@ namespace coil {
 
       for (DataSet::iterator iPtr = ds.begin();
 	   iPtr != ds.end(); ++iPtr)
-	if ((iPtr->second.getType() & typemask) && (iPtr->second.getNComponents() ==  _components))
+	if ((iPtr->second->getType() & typemask) && (iPtr->second->getNComponents() ==  _components))
 	  {
 	    Gtk::TreeModel::Row row = *(_model->append());
 	    row[_modelColumns.m_name] = iPtr->first;
-	    row[_modelColumns.m_ptr] = &(iPtr->second);
+	    row[_modelColumns.m_ptr] = iPtr->second;
 	  }
 
       {
 	Gtk::TreeModel::Row row = *(_model->append());
 	row[_modelColumns.m_name] = "Single Value";
-	row[_modelColumns.m_ptr] = NULL;
       }
       
       _comboBox.set_active(0);
@@ -330,7 +338,7 @@ namespace coil {
       { add(m_name); add(m_ptr); }
       
       Gtk::TreeModelColumn<Glib::ustring> m_name;
-      Gtk::TreeModelColumn<Attribute*> m_ptr;
+      Gtk::TreeModelColumn<std::tr1::shared_ptr<Attribute> > m_ptr;
     };
 
     void bindAttribute(size_t attrnum, bool normalise = false)
@@ -339,7 +347,7 @@ namespace coil {
 
       if (!iter) { setConstantAttribute(attrnum); return; }
       
-      Attribute* ptr = (*iter)[_modelColumns.m_ptr];
+      std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
       if (!ptr) { setConstantAttribute(attrnum); return; }
 
       ptr->bindAttribute(attrnum, normalise);

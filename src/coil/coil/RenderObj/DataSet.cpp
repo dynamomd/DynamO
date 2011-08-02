@@ -99,8 +99,9 @@ namespace coil {
 
     //Spinlock to force that the Data set is initialised before the attribute is created
     for (;;) if (_context) break;
-      
-    insert(value_type(name, Attribute(_N, type, components, _context)));
+    
+    mapped_type ptr(new Attribute(_N, type, components, _context));
+    insert(value_type(name, ptr));
 
     //If we're initialised, we should rebuild the view of attributes
     if (_context)
@@ -115,7 +116,7 @@ namespace coil {
       {
 	Gtk::TreeModel::iterator iter = _attrtreestore->append();
 	(*iter)[_attrcolumns->name] = iPtr->first;
-	(*iter)[_attrcolumns->components] = iPtr->second.getNComponents();
+	(*iter)[_attrcolumns->components] = iPtr->second->getNComponents();
       }
   }
 
@@ -131,7 +132,7 @@ namespace coil {
       (*iPtr)->deinit();
 
     for (iterator iPtr = begin(); iPtr != end(); ++iPtr)
-      iPtr->second.deinit();
+      iPtr->second->deinit();
 
     _context = NULL;
     RenderObj::deinit();

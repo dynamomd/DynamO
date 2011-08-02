@@ -48,7 +48,7 @@ rule critical_dependencies ( )
 
 lib coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests examples ]
       glut GLU GL Xext X11 rt GLEW ../magnet//magnet
-      OpenCL gtkmm 
+      OpenCL gtkmm ../boost//signals
       : <include>. <include>../boost <tag>@tags.lib-naming 
        <coil-cwiid>yes:<source>cwiid
       : : <define>GLVIEWER <include>. ;
