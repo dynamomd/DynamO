@@ -61,7 +61,11 @@ namespace coil {
       _components(components),
       _type(type),
       _references(0)
-    {}
+    {
+      if (_components > 4)
+	M_throw() << "We don't support greater than 4 component attributes due to the way "
+		  << "data is sometimes directly passed to the shaders (e.g. positional data)";
+    }
     
     /*! \brief Releases the OpenGL resources of this object.
      */
@@ -431,8 +435,24 @@ namespace coil {
       Gtk::TreeModelColumn<std::tr1::shared_ptr<Attribute> > m_ptr;
     };
 
-    void bindAttribute(size_t attrnum, bool normalise = false)
+    void bindAttribute()
     {
+      size_t attrnum;
+      switch (_type)
+	{
+	case INSTANCE_SCALE:
+	  attrnum = magnet::GL::Context::instanceScaleAttrIndex;
+	  break;
+	case INSTANCE_POSITION:
+	  attrnum = magnet::GL::Context::instanceOriginAttrIndex;
+	  break;
+	case INSTANCE_COLOR:
+	  attrnum = magnet::GL::Context::vertexColorAttrIndex;
+	  break;
+	default:
+	  M_throw() << "Bad type of AttributeSelector passed";
+	}
+
       Gtk::TreeModel::iterator iter = _comboBox.get_active();
 
       if (singleValueMode())
@@ -440,7 +460,7 @@ namespace coil {
       else
 	{
 	  std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
-	  ptr->bindAttribute(attrnum, normalise);
+	  ptr->bindAttribute(attrnum, false);
 	}
     }
 
@@ -505,7 +525,16 @@ namespace coil {
 		_scalarMode.set_visible(true);
 	    }
 	}
-
+      else if (_type == INSTANCE_COLOR)
+	{
+	  Gtk::TreeModel::iterator iter = _comboBox.get_active();
+	  if (iter) 
+	    {
+	      std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
+	      if (ptr && (ptr->getNComponents() == 4))
+		_scalarMode.set_visible(true);
+	    }
+	}
 
       bool sensitive = singleValueMode();
       for (size_t i(0); i < _components; ++i)

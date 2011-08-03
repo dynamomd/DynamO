@@ -32,8 +32,10 @@ int main(int argc, char *argv[])
   coil.getInstance().addWindow(window);
 
   data->addAttribute("Positions", coil::Attribute::COORDINATE, 3);
-  data->addAttribute("3Radii", coil::Attribute::INTENSIVE, 3);
-  data->addAttribute("1Radii", coil::Attribute::INTENSIVE, 1);
+  data->addAttribute("1 Component values", coil::Attribute::INTENSIVE, 1);
+  data->addAttribute("2 Component values", coil::Attribute::INTENSIVE, 2);
+  data->addAttribute("3 Component values", coil::Attribute::INTENSIVE, 3);
+  data->addAttribute("4 Component values", coil::Attribute::INTENSIVE, 4);
 
   /* Your simulation loop */
   for(double t(0); ; t += 1)
@@ -51,21 +53,27 @@ int main(int argc, char *argv[])
 	  
 	  //Here we update the positions
 	  std::vector<GLfloat>& posdata = (*data)["Positions"].getData();
-	  std::vector<GLfloat>& radii_vec = (*data)["3Radii"].getData();
+	  std::vector<GLfloat>& data_1 = (*data)["1 Component values"].getData();
+	  std::vector<GLfloat>& data_2 = (*data)["2 Component values"].getData();
+	  std::vector<GLfloat>& data_3 = (*data)["3 Component values"].getData();
+	  std::vector<GLfloat>& data_4 = (*data)["4 Component values"].getData();
 	  for (size_t i(0); i < N; ++i)
 	    {
-	      radii_vec[3 * i + 0] = radii_vec[3 * i + 1] = radii_vec[3 * i + 2] = 0.5;
 	      posdata[3 * i + 0] = std::sin(t * 0.01 + i);
 	      posdata[3 * i + 1] = std::cos(t * 0.01 + i);
 	      posdata[3 * i + 2] = i;
-	    }
-	  (*data)["Positions"].flagNewData();
-	  (*data)["3Radii"].flagNewData();
 
-	  std::vector<GLfloat>& radii_scalar = (*data)["1Radii"].getData();
-	  for (size_t i(0); i < N; ++i)
-	    radii_scalar[i] = 0.5;
-	  (*data)["1Radii"].flagNewData();
+	      data_1[i] = data_2[2 * i + 0] = data_3[3 * i + 0] = data_4[4 * i + 0] = std::sin(t * 0.01 + i);
+	      data_2[2 * i + 1] = data_3[3 * i + 1] = data_4[4 * i + 1] = std::cos(t * 0.01 + i);
+	      data_3[3 * i + 2] = data_4[4 * i + 2] = std::cos(t * 0.01 + 13.131 * M_PI * i);
+	      data_4[4 * i + 3] = std::sin(t * 0.01 + 12304.123 * M_PI * i);
+	    }
+
+	  (*data)["Positions"].flagNewData();
+	  (*data)["1 Component values"].flagNewData();
+	  (*data)["2 Component values"].flagNewData();
+	  (*data)["3 Component values"].flagNewData();
+	  (*data)["4 Component values"].flagNewData();
 
           std::ostringstream os;
           os << "t:" << t;        
