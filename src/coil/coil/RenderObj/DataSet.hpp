@@ -106,7 +106,7 @@ namespace coil {
      */
     inline size_t size() const { return _hostData.size() / _components; }
 
-    inline size_t getNComponents() const { return _components; }
+    inline size_t components() const { return _components; }
 
     inline AttributeType getType() const { return _type; }
 
@@ -369,8 +369,8 @@ namespace coil {
       for (DataSet::iterator iPtr = ds.begin();
 	   iPtr != ds.end(); ++iPtr)
 	if (((iPtr->second->getType()) & typeMask)
-	    && (iPtr->second->getNComponents() >=  minComponents)
-	    && (iPtr->second->getNComponents() <=  maxComponents))
+	    && (iPtr->second->components() >=  minComponents)
+	    && (iPtr->second->components() <=  maxComponents))
 	  {
 	    Gtk::TreeModel::Row row = *(_model->append());
 	    row[_modelColumns.m_name] = iPtr->first;
@@ -423,31 +423,63 @@ namespace coil {
 	  //We have an attribute, check the mode the ComboBox is in,
 	  //and determine if we have to do something with the data!
 
-//	  //Detect if it is in simple pass-through mode
-//	  if (_componentSelect.get_active_row_number() == 0)
-//	    {
+	  //Detect if it is in simple pass-through mode
+	  if ((!_componentSelect.get_visible())
+	      || (_componentSelect.get_active_row_number() == 0))
+	    {
 	      ptr->bindAttribute(attrnum, false);
 	      return;
-//	    }
-//	    
-//	  size_t filtered_components = 1;
-//	  if (_type == INSTANCE_COLOR)
-//	    filtered_components = 4;
-//
-//	  //Check if the data actually needs updating
-//	  if ((_lastAttribute != ptr.get())
-//	      || (_lastAttributeDataCount != ptr->getUpdateCount())
-//	      || (_lastComponentSelected != _componentSelect.get_active_row_number()))
-//	    {
-//	      _lastAttribute = ptr.get();
-//	      _lastAttributeDataCount = ptr->getUpdateCount();
-//	      _lastComponentSelected = _componentSelect.get_active_row_number();
-//
-//	      //Update the data according to what was selected
-//	      std::vector<GLfloat> data(ptr->size());
-//	    }
-//
-//	  _filteredData.attachToAttribute(attrnum, filtered_components, 1);
+	    }
+	    
+	  size_t filtered_components = 1;
+	  if (_type == INSTANCE_COLOR)
+	    filtered_components = 4;
+
+	  //Check if the data actually needs updating
+	  if ((_lastAttribute != ptr.get())
+	      || (_lastAttributeDataCount != ptr->getUpdateCount())
+	      || (_lastComponentSelected != _componentSelect.get_active_row_number())
+	      || _filteredData.empty())
+	    {
+	      _lastAttribute = ptr.get();
+	      _lastAttributeDataCount = ptr->getUpdateCount();
+	      _lastComponentSelected = _componentSelect.get_active_row_number();
+	      
+	      //Update the data according to what was selected
+	      std::vector<GLfloat> scalardata(ptr->size());
+	      const size_t components = ptr->components();
+	      const std::vector<GLfloat>& attrdata = ptr->getData();
+
+	      if (_lastComponentSelected == 1)
+		//Magnitude calculation
+		{
+		  for (size_t i(0); i < scalardata.size(); ++i)
+		    {
+		      scalardata[i] = 0;
+		      for (size_t j(0); j < components; ++j)
+			{
+			  GLfloat val = attrdata[i * components + j];
+			  scalardata[i] += val * val;
+			}
+		      scalardata[i] = std::sqrt(scalardata[i]);
+		    }
+		}
+	      else
+		{
+		  //Component wise selection
+		  size_t component = _lastComponentSelected - 2;
+#ifdef COIL_DEBUG
+		  if (component >= components)
+		    M_throw() << "Trying to filter an invalid component";
+#endif
+		  for (size_t i(0); i < scalardata.size(); ++i)
+		    scalardata[i] = attrdata[i * components + component];
+		}
+
+	      _filteredData = scalardata;
+	    }
+
+	  _filteredData.attachToAttribute(attrnum, filtered_components, 1);
 	}
     }
 
@@ -507,7 +539,7 @@ namespace coil {
 
       bool singlevalmode = singleValueMode();
 
-      _componentSelect.remove_all();
+      _componentSelect.clear_items();
       if (singlevalmode || (_type == INSTANCE_POSITION))
 	_componentSelect.set_visible(false);
       else
@@ -517,7 +549,7 @@ namespace coil {
 	  Gtk::TreeModel::iterator iter = _comboBox.get_active();
 	  std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
 
-	  if (ptr->getNComponents() > 1)
+	  if (ptr->components() > 1)
 	    {
 	      _componentSelect.append_text("Vector");
 	      _componentSelect.append_text("Magnitude");
@@ -527,9 +559,9 @@ namespace coil {
 	  else
 	    _componentSelect.append_text("Value");
 	    
-	  if (ptr->getNComponents() > 2)
+	  if (ptr->components() > 2)
 	    _componentSelect.append_text("Z");
-	  if (ptr->getNComponents() > 3)
+	  if (ptr->components() > 3)
 	    _componentSelect.append_text("W");
 	  _componentSelect.set_active(0);
 	}

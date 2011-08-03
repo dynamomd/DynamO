@@ -116,7 +116,7 @@ namespace coil {
       {
 	Gtk::TreeModel::iterator iter = _attrtreestore->append();
 	(*iter)[_attrcolumns->name] = iPtr->first;
-	(*iter)[_attrcolumns->components] = iPtr->second->getNComponents();
+	(*iter)[_attrcolumns->components] = iPtr->second->components();
       }
   }
 
