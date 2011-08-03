@@ -23,14 +23,14 @@
 
 namespace magnet {
   namespace color {
-    inline void SebastiantoRGB(cl_uchar4& color, float h) 
+    inline void SebastiantoRGB(GLfloat color[4], float h) 
     {
       h = clamp(h, 0.0f, 1.0f);
 
-      color.s[0] = h * 255;
-      color.s[1] = 4 * h * (1-h) * 255;
-      color.s[2] = (1-h) * 255;
-      color.s[3] = 255;
+      color[0] = h;
+      color[1] = 4 * h * (1 - h);
+      color[2] = (1 - h);
+      color[3] = 1;
     }
   }
 }

@@ -35,6 +35,14 @@ namespace magnet {
 
       void map(cl_uchar4& color, float val)
       {
+	GLfloat floatcolor[4];
+	map(floatcolor, val);
+	for (size_t i(0); i < 4; ++i)
+	  color.s[i] = 255 * floatcolor[i];
+      }
+
+      void map(float color[4], float val)
+      {
 	switch (_mode)
 	  {
 	  case SEBASTIAN:
@@ -66,6 +74,8 @@ namespace magnet {
 	//signal_changed().connect(sigc::mem_fun(*this, &ColorMapSelector::guiUpdate));
 	set_active(0);
       }
+
+      inline Mode_t getMode() const { return _mode; }
 
     private:
       void buildEntry(Mode_t newMode, std::string name)

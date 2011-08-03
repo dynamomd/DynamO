@@ -18,7 +18,7 @@
 #include <coil/RenderObj/RenderObj.hpp>
 #include <magnet/GL/buffer.hpp>
 #include <magnet/gtk/numericEntry.hpp>
-#include <magnet/color/HSV.hpp>
+#include <magnet/gtk/colorMapSelector.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/signal.hpp>
 #include <vector>
@@ -285,7 +285,7 @@ namespace coil {
     std::auto_ptr<Gtk::TreeView> _attrview;
   };
 
-  class AttributeSelector : public Gtk::HBox
+  class AttributeSelector : public Gtk::VBox
   {
   public:
     AttributeSelector(size_t attrnum, bool enableDataFiltering = true):
@@ -297,27 +297,29 @@ namespace coil {
       _attrnum(attrnum),
       _enableDataFiltering(enableDataFiltering)
     {
+      pack_start(_selectorRow, false, false, 5);
+      _selectorRow.show();
       //Label
       _label.show();
-      pack_start(_label, false, false, 5);
+      _selectorRow.pack_start(_label, false, false, 5);
       _context = &(magnet::GL::Context::getContext());
       //combo box
       _model = Gtk::ListStore::create(_modelColumns);
       _comboBox.set_model(_model);      
       _comboBox.pack_start(_modelColumns.m_name);
       _comboBox.show();
-      pack_start(_comboBox, false, false, 5);
+      _selectorRow.pack_start(_comboBox, false, false, 5);
       
-      pack_start(_componentSelect, false, false, 5);
+      _selectorRow.pack_start(_componentSelect, false, false, 5);
       
       _singleValueLabel.show();
       _singleValueLabel.set_text("Value:");
       _singleValueLabel.set_alignment(1.0, 0.5);
 
-      pack_start(_singleValueLabel, true, true, 5);
+      _selectorRow.pack_start(_singleValueLabel, true, true, 5);
       for (size_t i(0); i < 4; ++i)
 	{
-	  pack_start(_scalarvalues[i], false, false, 0);
+	  _selectorRow.pack_start(_scalarvalues[i], false, false, 0);
 	  _scalarvalues[i].signal_changed()
 	    .connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, _scalarvalues[i]));
 	  _scalarvalues[i].set_text("1.0");
@@ -415,7 +417,8 @@ namespace coil {
     Gtk::Label _singleValueLabel;
     Glib::RefPtr<Gtk::ListStore> _model;
     Gtk::Entry _scalarvalues[4];
-    
+    Gtk::HBox _selectorRow;
+
   protected:
     Attribute* _lastAttribute;
     size_t _lastAttributeDataCount;
@@ -537,8 +540,12 @@ namespace coil {
   {
   public:
     AttributeColorSelector():
-      AttributeSelector(magnet::GL::Context::vertexColorAttrIndex, true)
-    {}
+      AttributeSelector(magnet::GL::Context::vertexColorAttrIndex, true),
+      _lastColorMap(-1)
+    {
+      pack_start(_colorMapSelector, false, false, 5);
+      _colorMapSelector.show();
+    }
 
     virtual void bindAttribute()
     {
@@ -564,11 +571,13 @@ namespace coil {
 	  if ((_lastAttribute != ptr.get())
 	      || (_lastAttributeDataCount != ptr->getUpdateCount())
 	      || (_lastComponentSelected != _componentSelect.get_active_row_number())
+	      || (_lastColorMap != _colorMapSelector.getMode())
 	      || _filteredData.empty())
 	    {
 	      _lastAttribute = ptr.get();
 	      _lastAttributeDataCount = ptr->getUpdateCount();
 	      _lastComponentSelected = _componentSelect.get_active_row_number();
+	      _lastColorMap = _colorMapSelector.getMode();
 	      
 	      std::vector<GLfloat> scalardata;
 	      generateFilteredData(scalardata, ptr, _lastComponentSelected);
@@ -577,7 +586,7 @@ namespace coil {
 	      _filteredData.init(4 * scalardata.size());
 	      GLfloat* ptr = _filteredData.map();
 	      for (size_t i(0); i < scalardata.size(); ++i)
-		magnet::color::HSVtoRGB(ptr + 4 * i, scalardata[i]);
+		_colorMapSelector.map(ptr + 4 * i, scalardata[i]);
 	      
 	      _filteredData.unmap();
 	    }
@@ -587,6 +596,8 @@ namespace coil {
     }
 
   protected:
+    magnet::gtk::ColorMapSelector _colorMapSelector;
+    int _lastColorMap;
 
     inline virtual void updateGui()
     {

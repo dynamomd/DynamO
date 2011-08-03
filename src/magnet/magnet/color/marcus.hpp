@@ -23,7 +23,7 @@
 
 namespace magnet {
   namespace color {
-    inline void MarcustoRGB(cl_uchar4& color, float h) 
+    inline void MarcustoRGB(GLfloat color[4], float h) 
     {
       h = clamp(h, 0.0f, 1.0f);
 
@@ -40,10 +40,10 @@ namespace magnet {
 
       G = clamp(G, 0.0f, 1.0f);
 
-      color.s[0] = R * 255;
-      color.s[1] = G * 255;
-      color.s[2] = B * 255;
-      color.s[3] = 255;
+      color[0] = R;
+      color[1] = G;
+      color[2] = B;
+      color[3] = 1;
     }
   }
 }
