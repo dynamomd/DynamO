@@ -23,9 +23,9 @@
 
 namespace magnet {
   namespace color {
-    inline void HSVtoRGB(cl_uchar4& color, float h, float s = 1, float v = 1) 
+    inline void HSVtoRGB(GLfloat color[4], GLfloat h, GLfloat s = 1, GLfloat v = 1) 
     {
-      float temp;
+      GLfloat temp;
       h = std::modf(h, &temp);
       
       s = clamp(s, 0.0f, 1.0f);
@@ -34,15 +34,16 @@ namespace magnet {
       h = h * 6;
       
       unsigned int i = h;
-      float f = h - i;
-      float p = v * (1 - s);
-      float q = v * (1 - s * f);
-      float t = v * (1 - s * (1 - f));
+      GLfloat f = h - i;
+      GLfloat p = v * (1 - s);
+      GLfloat q = v * (1 - s * f);
+      GLfloat t = v * (1 - s * (1 - f));
       
-      float r(0);
-      float g(0);
-      float b(0);
-      
+      GLfloat& r = color[0];
+      GLfloat& g = color[1];
+      GLfloat& b = color[2];
+      r = g = b = 0;
+
       switch(i) {
       case 0:	
 	r = v;
@@ -80,10 +81,16 @@ namespace magnet {
 	b = q;
 	break;
       }
-      color.s[0] = r * 255;
-      color.s[1] = g * 255;
-      color.s[2] = b * 255;
-      color.s[3] =     255;
+      color[3] = 1;
+    }
+
+    inline void HSVtoRGB(cl_uchar4& color, float h, float s = 1, float v = 1)
+    {
+      GLfloat floatcolor[4];
+      HSVtoRGB(floatcolor, h, s, v);
+
+      for (size_t i(0); i < 4; ++i)
+	color.s[i] = 255 * floatcolor[i];
     }
 
     inline std::string getOpenCLHSV()

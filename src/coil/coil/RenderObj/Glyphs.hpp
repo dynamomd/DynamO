@@ -48,17 +48,22 @@ namespace coil {
       //Initialise the Gtk controls
       _gtkOptList.reset(new Gtk::VBox);
       _gtkOptList->show();
-      
-      _positionSel.reset(new AttributeSelector(AttributeSelector::INSTANCE_POSITION));
-      _positionSel->buildEntries("Position Data Field:", _ds);
+
+      _positionSel.reset(new AttributeSelector(magnet::GL::Context::instanceOriginAttrIndex,
+					       false));
+
+      _positionSel->buildEntries("Position Data Field:", _ds, 3, 3, Attribute::COORDINATE, 0);
       _gtkOptList->pack_start(*_positionSel, false, false);
 
-      _scaleSel.reset(new AttributeSelector(AttributeSelector::INSTANCE_SCALE));
-      _scaleSel->buildEntries("Scale Data Field:", _ds);
+      _scaleSel.reset(new AttributeSelector(magnet::GL::Context::instanceScaleAttrIndex));
+
+      _scaleSel->buildEntries("Scale Data Field:", _ds, 1, 4,
+			      Attribute::INTENSIVE | Attribute::EXTENSIVE, 3);
       _gtkOptList->pack_start(*_scaleSel, false, false);
 
-      _colorSel.reset(new AttributeSelector(AttributeSelector::INSTANCE_COLOR));
-      _colorSel->buildEntries("Color Data Field:", _ds);
+      _colorSel.reset(new AttributeColorSelector);
+      _colorSel->buildEntries("Color Data Field:", _ds, 1, 4, 
+			      Attribute::INTENSIVE | Attribute::EXTENSIVE, 4);
       _gtkOptList->pack_start(*_colorSel, false, false);
     }
     
@@ -141,6 +146,6 @@ namespace coil {
     std::auto_ptr<Gtk::VBox> _gtkOptList;
     std::auto_ptr<AttributeSelector> _positionSel;
     std::auto_ptr<AttributeSelector> _scaleSel; 
-    std::auto_ptr<AttributeSelector> _colorSel;
+    std::auto_ptr<AttributeColorSelector> _colorSel;
  };
 }

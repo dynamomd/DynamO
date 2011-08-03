@@ -18,6 +18,7 @@
 #include <coil/RenderObj/RenderObj.hpp>
 #include <magnet/GL/buffer.hpp>
 #include <magnet/gtk/numericEntry.hpp>
+#include <magnet/color/HSV.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/signal.hpp>
 #include <vector>
@@ -287,19 +288,14 @@ namespace coil {
   class AttributeSelector : public Gtk::HBox
   {
   public:
-    enum AttributeSelectorType {
-      INSTANCE_SCALE,
-      INSTANCE_POSITION,
-      INSTANCE_COLOR
-    };
-
-    AttributeSelector(AttributeSelectorType type):
+    AttributeSelector(size_t attrnum, bool enableDataFiltering = true):
       _lastAttribute(NULL),
       _lastAttributeDataCount(-1),
       _lastComponentSelected(-1),
       _context(NULL),
-      _type(type),
-      _components(0)
+      _components(0),
+      _attrnum(attrnum),
+      _enableDataFiltering(enableDataFiltering)
     {
       //Label
       _label.show();
@@ -335,32 +331,10 @@ namespace coil {
 	.connect(sigc::mem_fun(this, &AttributeSelector::updateGui));
     }
     
-    void buildEntries(std::string name, DataSet& ds)
+    void buildEntries(std::string name, DataSet& ds, size_t minComponents, size_t maxComponents, 
+		      int typeMask, size_t components)
     {
-      size_t minComponents, maxComponents;
-      int typeMask;
-
-      switch (_type)
-	{
-	case INSTANCE_SCALE:
-	  minComponents = 1; maxComponents = std::numeric_limits<size_t>::max();
-	  typeMask = Attribute::INTENSIVE | Attribute::EXTENSIVE;
-	  _components = 3;
-	  break;
-	case INSTANCE_POSITION:
-	  minComponents = maxComponents = 3;
-	  typeMask = Attribute::COORDINATE;
-	  _components = 0;
-	  break;
-	case INSTANCE_COLOR:
-	  minComponents = 1; maxComponents = std::numeric_limits<size_t>::max();
-	  typeMask = Attribute::INTENSIVE | Attribute::EXTENSIVE;
-	  _components = 4;
-	  break;
-	default:
-	  M_throw() << "Bad type of AttributeSelector passed";
-	}
-
+      _components = components;
       _label.set_text(name);
       _model->clear();
       
@@ -397,26 +371,10 @@ namespace coil {
 
     void bindAttribute()
     {
-      size_t attrnum;
-      switch (_type)
-	{
-	case INSTANCE_SCALE:
-	  attrnum = magnet::GL::Context::instanceScaleAttrIndex;
-	  break;
-	case INSTANCE_POSITION:
-	  attrnum = magnet::GL::Context::instanceOriginAttrIndex;
-	  break;
-	case INSTANCE_COLOR:
-	  attrnum = magnet::GL::Context::vertexColorAttrIndex;
-	  break;
-	default:
-	  M_throw() << "Bad type of AttributeSelector passed";
-	}
-
       Gtk::TreeModel::iterator iter = _comboBox.get_active();
 
       if (singleValueMode())
-	setConstantAttribute(attrnum);
+	setConstantAttribute(_attrnum);
       else
 	{
 	  std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
@@ -427,14 +385,10 @@ namespace coil {
 	  if ((!_componentSelect.get_visible())
 	      || (_componentSelect.get_active_row_number() == 0))
 	    {
-	      ptr->bindAttribute(attrnum, false);
+	      ptr->bindAttribute(_attrnum, false);
 	      return;
 	    }
 	    
-	  size_t filtered_components = 1;
-	  if (_type == INSTANCE_COLOR)
-	    filtered_components = 4;
-
 	  //Check if the data actually needs updating
 	  if ((_lastAttribute != ptr.get())
 	      || (_lastAttributeDataCount != ptr->getUpdateCount())
@@ -445,41 +399,12 @@ namespace coil {
 	      _lastAttributeDataCount = ptr->getUpdateCount();
 	      _lastComponentSelected = _componentSelect.get_active_row_number();
 	      
-	      //Update the data according to what was selected
-	      std::vector<GLfloat> scalardata(ptr->size());
-	      const size_t components = ptr->components();
-	      const std::vector<GLfloat>& attrdata = ptr->getData();
-
-	      if (_lastComponentSelected == 1)
-		//Magnitude calculation
-		{
-		  for (size_t i(0); i < scalardata.size(); ++i)
-		    {
-		      scalardata[i] = 0;
-		      for (size_t j(0); j < components; ++j)
-			{
-			  GLfloat val = attrdata[i * components + j];
-			  scalardata[i] += val * val;
-			}
-		      scalardata[i] = std::sqrt(scalardata[i]);
-		    }
-		}
-	      else
-		{
-		  //Component wise selection
-		  size_t component = _lastComponentSelected - 2;
-#ifdef COIL_DEBUG
-		  if (component >= components)
-		    M_throw() << "Trying to filter an invalid component";
-#endif
-		  for (size_t i(0); i < scalardata.size(); ++i)
-		    scalardata[i] = attrdata[i * components + component];
-		}
-
+	      std::vector<GLfloat> scalardata;
+	      generateFilteredData(scalardata, ptr, _lastComponentSelected);
 	      _filteredData = scalardata;
 	    }
 
-	  _filteredData.attachToAttribute(attrnum, filtered_components, 1);
+	  _filteredData.attachToAttribute(_attrnum, 1, 1);
 	}
     }
 
@@ -498,9 +423,11 @@ namespace coil {
     magnet::GL::Buffer<GLfloat> _filteredData;
 
     magnet::GL::Context* _context;
-    AttributeSelectorType _type;
-
+        
     size_t _components;
+
+    size_t _attrnum;
+    bool _enableDataFiltering;
     
     inline bool singleValueMode()
     {
@@ -508,6 +435,42 @@ namespace coil {
       if (!iter) return true;
       std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
       return !ptr;
+    }
+
+    inline void generateFilteredData(std::vector<GLfloat>& scalardata,
+				     const std::tr1::shared_ptr<Attribute>& ptr,
+				     size_t mode)
+    {
+      //Update the data according to what was selected
+      scalardata.resize(ptr->size());
+      const size_t components = ptr->components();
+      const std::vector<GLfloat>& attrdata = ptr->getData();
+      
+      if (mode == 1)
+	//Magnitude calculation
+	{
+	  for (size_t i(0); i < scalardata.size(); ++i)
+	    {
+	      scalardata[i] = 0;
+	      for (size_t j(0); j < components; ++j)
+		{
+		  GLfloat val = attrdata[i * components + j];
+		  scalardata[i] += val * val;
+		}
+	      scalardata[i] = std::sqrt(scalardata[i]);
+	    }
+	}
+      else
+	{
+	  //Component wise selection
+	  size_t component = mode - 2;
+#ifdef COIL_DEBUG
+	  if (component >= components)
+	    M_throw() << "Trying to filter an invalid component";
+#endif
+	  for (size_t i(0); i < scalardata.size(); ++i)
+	    scalardata[i] = attrdata[i * components + component];
+	}
     }
 
     inline void setConstantAttribute(size_t attr)
@@ -524,23 +487,23 @@ namespace coil {
       _context->setAttribute(attr, val[0], val[1], val[2], val[3]);
     }
 
-    inline void updateGui()
+    inline virtual void updateGui()
     {
-      if (_components)
-	_singleValueLabel.set_visible(true);
-      else
-	_singleValueLabel.set_visible(false);
-
-      for (size_t i(0); i < _components; ++i)
-	_scalarvalues[i].show();
-
-      for (size_t i(_components); i < 4; ++i)
+      _singleValueLabel.set_visible(false);
+      for (size_t i(0); i < 4; ++i)
 	_scalarvalues[i].hide();
 
       bool singlevalmode = singleValueMode();
 
+      if (_components && singlevalmode)
+	{
+	  _singleValueLabel.set_visible(true);
+	  for (size_t i(0); i < _components; ++i)
+	    _scalarvalues[i].show();
+	}
+
       _componentSelect.clear_items();
-      if (singlevalmode || (_type == INSTANCE_POSITION))
+      if (singlevalmode || !_enableDataFiltering)
 	_componentSelect.set_visible(false);
       else
 	{
@@ -563,12 +526,48 @@ namespace coil {
 	    _componentSelect.append_text("Z");
 	  if (ptr->components() > 3)
 	    _componentSelect.append_text("W");
+	  
+	  //Default to coloring using the magnitude
 	  _componentSelect.set_active(0);
 	}
 
       for (size_t i(0); i < _components; ++i)
 	_scalarvalues[i].set_sensitive(singlevalmode);
     }
+  };
+
+
+  class AttributeColorSelector : public AttributeSelector
+  {
+  public:
+    AttributeColorSelector():
+      AttributeSelector(magnet::GL::Context::vertexColorAttrIndex, true)
+    {}
+  protected:
+
+    inline virtual void updateGui()
+    {
+      AttributeSelector::updateGui();
+      Gtk::TreeModel::iterator iter = _comboBox.get_active();
+      if (iter)
+	{
+	  std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
+	  if (ptr && (ptr->components() > 1))
+	    _componentSelect.set_active(1);
+	}
+    }
+
+//    else
+//      {
+//	_filteredData.init(4 * scalardata.size());
+//	GLfloat* ptr = _filteredData.map();
+//
+//	for (size_t i(0); i < scalardata.size(); ++i)
+//	  magnet::color::HSVtoRGB(ptr + 4 * i, scalardata[i]);
+//
+//	_filteredData.unmap();
+//      }
+// attrnum, (_type == INSTANCE_COLOR) ? 4 : 
   };
 
 }
