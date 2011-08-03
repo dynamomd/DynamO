@@ -56,7 +56,6 @@ namespace coil {
 		     magnet::GL::Context* context):
       _context(context),
       _dataUpdates(0),
-      _scalarUpdates(0),
       _hostData(N * components),
       _components(components),
       _type(type),
@@ -76,31 +75,7 @@ namespace coil {
      */
     inline magnet::GL::Buffer<GLfloat>& getBuffer() { return _glData; }
 
-    inline magnet::GL::Buffer<GLfloat>& getScalarBuffer()
-    {
-      if (_components == 1)
-	return _glData;
-
-      if (_dataUpdates != _scalarUpdates)
-	{
-	  size_t N = size();
-	  _hostScalarData.resize(N);
-	
-	  for (size_t i(0); i < N; ++i)
-	    {
-	      _hostScalarData[i] = 0;
-	      for (size_t j(0); j < _components; ++j)
-		_hostScalarData[i]
-		  += _hostData[_components * i + j] 
-		  * _hostData[_components * i + j];
-	      _hostScalarData[i] =  std::sqrt(_hostScalarData[i]);
-	    }
-	  _glScalarData.init(_hostScalarData);
-	  _scalarUpdates = _dataUpdates;
-	}
-
-      return _glScalarData;
-    }
+    inline size_t getUpdateCount() const { return _dataUpdates; }
 
     /** @name The host code interface. */
     /**@{*/
@@ -166,23 +141,12 @@ namespace coil {
      */
     magnet::GL::Buffer<GLfloat> _glData;
 
-    /*! \brief A copy of the data converted to a scalar through the norm.
-     *
-     * There are N floats of attribute data in this buffer.
-     */
-    magnet::GL::Buffer<GLfloat> _glScalarData;
-    
     /*! \brief A counter of how many updates have been applied to the
       data.
       
       This is used to track when the data has been updated.
      */
     size_t _dataUpdates;
-
-    /*! \brief The value of _dataUpdates when the scalar data was last
-        generated.
-     */
-    size_t _scalarUpdates;
 
     /*! \brief A host side cache of \ref _glData.
      *
@@ -191,12 +155,6 @@ namespace coil {
      * into OpenGL.
      */
     std::vector<GLfloat> _hostData;
-
-    /*! \brief A host side cache of \ref _glScalarData.
-     *
-     * This is used as a communication buffer.
-     */
-    std::vector<GLfloat> _hostScalarData;
 
     //! \brief The number of components per value.
     size_t _components;
@@ -351,12 +309,11 @@ namespace coil {
       _comboBox.show();
       pack_start(_comboBox, false, false, 5);
       
+      pack_start(_componentSelect, false, false, 5);
+      
       _singleValueLabel.show();
       _singleValueLabel.set_text("Value:");
       _singleValueLabel.set_alignment(1.0, 0.5);
-
-      _scalarMode.set_label("Convert To Scalar");
-      pack_start(_scalarMode, false, false, 5);
 
       pack_start(_singleValueLabel, true, true, 5);
       for (size_t i(0); i < 4; ++i)
@@ -466,7 +423,7 @@ namespace coil {
 
     ModelColumns _modelColumns;
     Gtk::ComboBox _comboBox;
-    Gtk::CheckButton _scalarMode;
+    Gtk::ComboBoxText _componentSelect;
     Gtk::Label _label;
     Gtk::Label _singleValueLabel;
     Glib::RefPtr<Gtk::ListStore> _model;
@@ -513,32 +470,34 @@ namespace coil {
       for (size_t i(_components); i < 4; ++i)
 	_scalarvalues[i].hide();
 
-      _scalarMode.set_visible(false);
-      
-      if (_type == INSTANCE_SCALE)
+      bool singlevalmode = singleValueMode();
+
+      _componentSelect.remove_all();
+      if (singlevalmode || (_type == INSTANCE_POSITION))
+	_componentSelect.set_visible(false);
+      else
 	{
+	  _componentSelect.set_visible(true);
+
 	  Gtk::TreeModel::iterator iter = _comboBox.get_active();
-	  if (iter) 
+	  std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
+
+	  _componentSelect.append_text("Magnitude");
+	  if (ptr->getNComponents() > 1)
 	    {
-	      std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
-	      if (ptr && (ptr->getNComponents() == 3))
-		_scalarMode.set_visible(true);
+	      _componentSelect.append_text("Vector");
+	      _componentSelect.append_text("X");
+	      _componentSelect.append_text("Y");
 	    }
-	}
-      else if (_type == INSTANCE_COLOR)
-	{
-	  Gtk::TreeModel::iterator iter = _comboBox.get_active();
-	  if (iter) 
-	    {
-	      std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
-	      if (ptr && (ptr->getNComponents() == 4))
-		_scalarMode.set_visible(true);
-	    }
+	  if (ptr->getNComponents() > 2)
+	    _componentSelect.append_text("Z");
+	  if (ptr->getNComponents() > 3)
+	    _componentSelect.append_text("W");
+	  _componentSelect.set_active(0);
 	}
 
-      bool sensitive = singleValueMode();
       for (size_t i(0); i < _components; ++i)
-	_scalarvalues[i].set_sensitive(sensitive);
+	_scalarvalues[i].set_sensitive(singlevalmode);
     }
   };
 
