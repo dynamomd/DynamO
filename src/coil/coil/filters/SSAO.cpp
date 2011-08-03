@@ -122,6 +122,7 @@ namespace coil
     glActiveTextureARB(GL_TEXTURE7);
     glBindTexture(GL_TEXTURE_2D, _randomTexture);
 
+    _filter.attach();
     _filter["radius"] = _radius;
     _filter["totStrength"] = _totStrength;
     _filter["depthDropoff"] = _dropoff;
@@ -132,6 +133,7 @@ namespace coil
     _filter["u_Texture2"] = 2;
     _filter["rnm"] = 7;
     _filter.invoke();
+    _filter.detach();
   }
 }
 

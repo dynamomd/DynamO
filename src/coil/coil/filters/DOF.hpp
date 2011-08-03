@@ -69,6 +69,7 @@ namespace coil
     inline virtual void invoke(GLint colorTextureUnit, size_t width, size_t height,
 			       const magnet::GL::Camera& vp)
     { 
+      _filter.attach();
       _filter["u_Texture0"] = colorTextureUnit;
       _filter["u_Texture1"] = 0;
       _filter["u_Texture2"] = 2;
@@ -77,6 +78,7 @@ namespace coil
       _filter["focalDistance"] = _focalLength;
       _filter["focalRange"] = _focalWidth;
       _filter.invoke();
+      _filter.detach();
     }
 
     inline virtual bool needsNormalDepth()  { return false; }

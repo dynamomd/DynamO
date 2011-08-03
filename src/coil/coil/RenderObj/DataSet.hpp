@@ -294,6 +294,9 @@ namespace coil {
     };
 
     AttributeSelector(AttributeSelectorType type):
+      _lastAttribute(NULL),
+      _lastAttributeDataCount(-1),
+      _lastComponentSelected(-1),
       _context(NULL),
       _type(type),
       _components(0)
@@ -417,7 +420,34 @@ namespace coil {
       else
 	{
 	  std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
-	  ptr->bindAttribute(attrnum, false);
+	  //We have an attribute, check the mode the ComboBox is in,
+	  //and determine if we have to do something with the data!
+
+//	  //Detect if it is in simple pass-through mode
+//	  if (_componentSelect.get_active_row_number() == 0)
+//	    {
+	      ptr->bindAttribute(attrnum, false);
+	      return;
+//	    }
+//	    
+//	  size_t filtered_components = 1;
+//	  if (_type == INSTANCE_COLOR)
+//	    filtered_components = 4;
+//
+//	  //Check if the data actually needs updating
+//	  if ((_lastAttribute != ptr.get())
+//	      || (_lastAttributeDataCount != ptr->getUpdateCount())
+//	      || (_lastComponentSelected != _componentSelect.get_active_row_number()))
+//	    {
+//	      _lastAttribute = ptr.get();
+//	      _lastAttributeDataCount = ptr->getUpdateCount();
+//	      _lastComponentSelected = _componentSelect.get_active_row_number();
+//
+//	      //Update the data according to what was selected
+//	      std::vector<GLfloat> data(ptr->size());
+//	    }
+//
+//	  _filteredData.attachToAttribute(attrnum, filtered_components, 1);
 	}
     }
 
@@ -430,6 +460,11 @@ namespace coil {
     Gtk::Entry _scalarvalues[4];
     
   protected:
+    Attribute* _lastAttribute;
+    size_t _lastAttributeDataCount;
+    int _lastComponentSelected;
+    magnet::GL::Buffer<GLfloat> _filteredData;
+
     magnet::GL::Context* _context;
     AttributeSelectorType _type;
 
@@ -482,13 +517,16 @@ namespace coil {
 	  Gtk::TreeModel::iterator iter = _comboBox.get_active();
 	  std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
 
-	  _componentSelect.append_text("Magnitude");
 	  if (ptr->getNComponents() > 1)
 	    {
 	      _componentSelect.append_text("Vector");
+	      _componentSelect.append_text("Magnitude");
 	      _componentSelect.append_text("X");
 	      _componentSelect.append_text("Y");
 	    }
+	  else
+	    _componentSelect.append_text("Value");
+	    
 	  if (ptr->getNComponents() > 2)
 	    _componentSelect.append_text("Z");
 	  if (ptr->getNComponents() > 3)

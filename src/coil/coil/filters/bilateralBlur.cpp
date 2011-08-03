@@ -84,13 +84,14 @@ namespace coil
 				    const magnet::GL::Camera& vp) 
   {
     std::tr1::array<GLfloat, 2> val = {{_radius / width, _radius / height}};
+    _filter.attach();
     _filter["scale"] = val;
     _filter["totStrength"] = _zdiff;
     _filter["nearDist"] = vp.getZNear();
     _filter["farDist"] = vp.getZFar();
     _filter["u_Texture0"] = colorTextureUnit;
     _filter["u_Texture2"] = 2;
-
     _filter.invoke();
+    _filter.detach();
   }
 }
