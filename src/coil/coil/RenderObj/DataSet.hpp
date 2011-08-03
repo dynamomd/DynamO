@@ -55,6 +55,8 @@ namespace coil {
     inline Attribute(size_t N, AttributeType type, size_t components, 
 		     magnet::GL::Context* context):
       _context(context),
+      _dataUpdates(0),
+      _scalarUpdates(0),
       _hostData(N * components),
       _components(components),
       _type(type),
@@ -69,6 +71,32 @@ namespace coil {
      * data.
      */
     inline magnet::GL::Buffer<GLfloat>& getBuffer() { return _glData; }
+
+    inline magnet::GL::Buffer<GLfloat>& getScalarBuffer()
+    {
+      if (_components == 1)
+	return _glData;
+
+      if (_dataUpdates != _scalarUpdates)
+	{
+	  size_t N = size();
+	  _hostScalarData.resize(N);
+	
+	  for (size_t i(0); i < N; ++i)
+	    {
+	      _hostScalarData[i] = 0;
+	      for (size_t j(0); j < _components; ++j)
+		_hostScalarData[i]
+		  += _hostData[_components * i + j] 
+		  * _hostData[_components * i + j];
+	      _hostScalarData[i] =  std::sqrt(_hostScalarData[i]);
+	    }
+	  _glScalarData.init(_hostScalarData);
+	  _scalarUpdates = _dataUpdates;
+	}
+
+      return _glScalarData;
+    }
 
     /** @name The host code interface. */
     /**@{*/
@@ -119,6 +147,7 @@ namespace coil {
     void initGLData() 
     { 
       _glData.init(_hostData);
+      ++_dataUpdates;
       if (!_glDataUpdated.empty())
 	{
 	  _glData.acquireCLObject();
@@ -132,7 +161,25 @@ namespace coil {
      * There are N * _components floats of attribute data.
      */
     magnet::GL::Buffer<GLfloat> _glData;
+
+    /*! \brief A copy of the data converted to a scalar through the norm.
+     *
+     * There are N floats of attribute data in this buffer.
+     */
+    magnet::GL::Buffer<GLfloat> _glScalarData;
     
+    /*! \brief A counter of how many updates have been applied to the
+      data.
+      
+      This is used to track when the data has been updated.
+     */
+    size_t _dataUpdates;
+
+    /*! \brief The value of _dataUpdates when the scalar data was last
+        generated.
+     */
+    size_t _scalarUpdates;
+
     /*! \brief A host side cache of \ref _glData.
      *
      * This is used as a communication buffer, both when the host
@@ -140,6 +187,12 @@ namespace coil {
      * into OpenGL.
      */
     std::vector<GLfloat> _hostData;
+
+    /*! \brief A host side cache of \ref _glScalarData.
+     *
+     * This is used as a communication buffer.
+     */
+    std::vector<GLfloat> _hostScalarData;
 
     //! \brief The number of components per value.
     size_t _components;
@@ -272,7 +325,15 @@ namespace coil {
   class AttributeSelector : public Gtk::HBox
   {
   public:
-    AttributeSelector():
+    enum AttributeSelectorType {
+      INSTANCE_SCALE,
+      INSTANCE_POSITION,
+      INSTANCE_COLOR
+    };
+
+    AttributeSelector(AttributeSelectorType type):
+      _context(NULL),
+      _type(type),
       _components(0)
     {
       //Label
@@ -289,6 +350,10 @@ namespace coil {
       _singleValueLabel.show();
       _singleValueLabel.set_text("Value:");
       _singleValueLabel.set_alignment(1.0, 0.5);
+
+      _scalarMode.set_label("Convert To Scalar");
+      pack_start(_scalarMode, false, false, 5);
+
       pack_start(_singleValueLabel, true, true, 5);
       for (size_t i(0); i < 4; ++i)
 	{
@@ -303,17 +368,39 @@ namespace coil {
       show();
 
       _comboBox.signal_changed()
-	.connect(sigc::mem_fun(this, &AttributeSelector::setScalarVisibility));
+	.connect(sigc::mem_fun(this, &AttributeSelector::updateGui));
     }
     
-    void buildEntries(std::string name, DataSet& ds, Attribute::AttributeType typeMask, 
-		      size_t scalarcomponents, size_t minComponents, size_t maxComponents)
+    void buildEntries(std::string name, DataSet& ds)
     {
+      size_t minComponents, maxComponents;
+      int typeMask;
+
+      switch (_type)
+	{
+	case INSTANCE_SCALE:
+	  minComponents = 1; maxComponents = std::numeric_limits<size_t>::max();
+	  typeMask = Attribute::INTENSIVE | Attribute::EXTENSIVE;
+	  _components = 3;
+	  break;
+	case INSTANCE_POSITION:
+	  minComponents = maxComponents = 3;
+	  typeMask = Attribute::COORDINATE;
+	  _components = 0;
+	  break;
+	case INSTANCE_COLOR:
+	  minComponents = 1; maxComponents = std::numeric_limits<size_t>::max();
+	  typeMask = Attribute::INTENSIVE | Attribute::EXTENSIVE;
+	  _components = 4;
+	  break;
+	default:
+	  M_throw() << "Bad type of AttributeSelector passed";
+	}
+
       _label.set_text(name);
       _model->clear();
-      _components = scalarcomponents;
       
-      setScalarVisibility();
+      updateGui();
 
       for (DataSet::iterator iPtr = ds.begin();
 	   iPtr != ds.end(); ++iPtr)
@@ -326,7 +413,7 @@ namespace coil {
 	    row[_modelColumns.m_ptr] = iPtr->second;
 	  }
 
-      if (scalarcomponents)
+      if (_components)
 	{
 	  Gtk::TreeModel::Row row = *(_model->append());
 	  row[_modelColumns.m_name] = "Single Value";
@@ -359,6 +446,7 @@ namespace coil {
 
     ModelColumns _modelColumns;
     Gtk::ComboBox _comboBox;
+    Gtk::CheckButton _scalarMode;
     Gtk::Label _label;
     Gtk::Label _singleValueLabel;
     Glib::RefPtr<Gtk::ListStore> _model;
@@ -366,7 +454,8 @@ namespace coil {
     
   protected:
     magnet::GL::Context* _context;
-    
+    AttributeSelectorType _type;
+
     size_t _components;
     
     inline bool singleValueMode()
@@ -391,7 +480,7 @@ namespace coil {
       _context->setAttribute(attr, val[0], val[1], val[2], val[3]);
     }
 
-    inline void setScalarVisibility()
+    inline void updateGui()
     {
       if (_components)
 	_singleValueLabel.set_visible(true);
@@ -404,11 +493,23 @@ namespace coil {
       for (size_t i(_components); i < 4; ++i)
 	_scalarvalues[i].hide();
 
-      Gtk::TreeModel::iterator iter = _comboBox.get_active();
+      _scalarMode.set_visible(false);
+      
+      if (_type == INSTANCE_SCALE)
+	{
+	  Gtk::TreeModel::iterator iter = _comboBox.get_active();
+	  if (iter) 
+	    {
+	      std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
+	      if (ptr && (ptr->getNComponents() == 3))
+		_scalarMode.set_visible(true);
+	    }
+	}
 
-      if (singleValueMode())
-	for (size_t i(0); i < _components; ++i)
-	  _scalarvalues[i].set_sensitive(true);
+
+      bool sensitive = singleValueMode();
+      for (size_t i(0); i < _components; ++i)
+	_scalarvalues[i].set_sensitive(sensitive);
     }
   };
 
