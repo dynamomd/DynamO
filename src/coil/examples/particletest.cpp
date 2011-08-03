@@ -32,7 +32,8 @@ int main(int argc, char *argv[])
   coil.getInstance().addWindow(window);
 
   data->addAttribute("Positions", coil::Attribute::COORDINATE, 3);
-  data->addAttribute("Radii", coil::Attribute::INTENSIVE, 3);
+  data->addAttribute("3Radii", coil::Attribute::INTENSIVE, 3);
+  data->addAttribute("1Radii", coil::Attribute::INTENSIVE, 1);
 
   /* Your simulation loop */
   for(double t(0); ; t += 1)
@@ -50,16 +51,21 @@ int main(int argc, char *argv[])
 	  
 	  //Here we update the positions
 	  std::vector<GLfloat>& posdata = (*data)["Positions"].getData();
-	  std::vector<GLfloat>& radii = (*data)["Radii"].getData();
+	  std::vector<GLfloat>& radii_vec = (*data)["3Radii"].getData();
 	  for (size_t i(0); i < N; ++i)
 	    {
-	      radii[3 * i + 0] = radii[3 * i + 1] = radii[3 * i + 2] = 0.5;
+	      radii_vec[3 * i + 0] = radii_vec[3 * i + 1] = radii_vec[3 * i + 2] = 0.5;
 	      posdata[3 * i + 0] = std::sin(t * 0.01 + i);
 	      posdata[3 * i + 1] = std::cos(t * 0.01 + i);
 	      posdata[3 * i + 2] = i;
 	    }
 	  (*data)["Positions"].flagNewData();
-	  (*data)["Radii"].flagNewData();
+	  (*data)["3Radii"].flagNewData();
+
+	  std::vector<GLfloat>& radii_scalar = (*data)["1Radii"].getData();
+	  for (size_t i(0); i < N; ++i)
+	    radii_scalar[i] = 0.5;
+	  (*data)["1Radii"].flagNewData();
 
           std::ostringstream os;
           os << "t:" << t;        

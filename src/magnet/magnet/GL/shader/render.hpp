@@ -59,7 +59,9 @@ void main()
   color = vColor;
   normal = normalize(NormalMatrix * qrot(iOrientation, vNormal.xyz));
   
-  vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz) + iOrigin.xyz, 1.0);
+  vec3 scale = iScale.xyz + vec3(equal(iScale.xyz, vec3(0.0))) * iScale.x;
+
+  vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * scale) + iOrigin.xyz, 1.0);
   gl_Position = ProjectionMatrix * vVertex;
   
   ShadowCoord = ShadowMatrix * vVertex;

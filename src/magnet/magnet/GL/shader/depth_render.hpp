@@ -45,7 +45,8 @@ void main()
 {
   //Rotate the vertex according to the instance transformation, and
   //then move it to the instance origin.
-  vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz)
+  vec3 scale = iScale.xyz + vec3(equal(iScale.xyz, vec3(0.0))) * iScale.x;
+  vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * scale)
 				   + iOrigin.xyz, 1.0);
   gl_Position = ProjectionMatrix * vVertex;
 });
