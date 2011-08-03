@@ -245,7 +245,15 @@ namespace coil {
       _store = Gtk::TreeStore::create(*_columns);
       _view->set_model(_store);
 
-      _view->append_column("Object Name", _columns->m_name);
+      {
+	int name_col =_view->append_column("Object Name", _columns->m_name);
+	Gtk::TreeViewColumn* column = _view->get_column(name_col -1);
+	if (column)
+	  {
+	    column->set_sizing(Gtk::TREE_VIEW_COLUMN_AUTOSIZE);
+	    column->set_expand(true);
+	  }
+      }
 
       { //The cell renderer 
 	Gtk::CellRendererToggle* renderer =
@@ -253,7 +261,11 @@ namespace coil {
 	int visible_col = _view->append_column("Visible", *renderer);
 	Gtk::TreeViewColumn* column = _view->get_column(visible_col -1);
 	if (column)
-	  column->add_attribute(renderer->property_active(), _columns->m_visible);
+	  {
+	    column->add_attribute(renderer->property_active(), _columns->m_visible);
+	    column->set_sizing(Gtk::TREE_VIEW_COLUMN_AUTOSIZE);
+	    column->set_expand(false);
+	  }
 	renderer->signal_toggled().connect(sigc::mem_fun(*this, &RenderObjectsGtkTreeView::visibleToggled));
       }
 
@@ -263,9 +275,16 @@ namespace coil {
 	int shadow_col = _view->append_column("Shadow Casting", *renderer);
 	Gtk::TreeViewColumn* column = _view->get_column(shadow_col -1);
 	if (column)
-	  column->add_attribute(renderer->property_active(), _columns->m_shadowcasting);
+	  {
+	    column->add_attribute(renderer->property_active(), _columns->m_shadowcasting);
+	    column->set_sizing(Gtk::TREE_VIEW_COLUMN_AUTOSIZE);
+	    column->set_expand(false);
+	  }
 	renderer->signal_toggled().connect(sigc::mem_fun(*this, &RenderObjectsGtkTreeView::shadowingToggled));
       }
+
+      _view->set_enable_tree_lines(true);
+      //_view->set_level_indentation(5);
     }
     
 
