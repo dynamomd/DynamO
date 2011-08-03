@@ -369,7 +369,7 @@ namespace coil {
       Gtk::TreeModelColumn<std::tr1::shared_ptr<Attribute> > m_ptr;
     };
 
-    void bindAttribute()
+    virtual void bindAttribute()
     {
       Gtk::TreeModel::iterator iter = _comboBox.get_active();
 
@@ -512,16 +512,12 @@ namespace coil {
 	  Gtk::TreeModel::iterator iter = _comboBox.get_active();
 	  std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
 
-	  if (ptr->components() > 1)
-	    {
-	      _componentSelect.append_text("Vector");
-	      _componentSelect.append_text("Magnitude");
-	      _componentSelect.append_text("X");
-	      _componentSelect.append_text("Y");
-	    }
-	  else
-	    _componentSelect.append_text("Value");
+	  _componentSelect.append_text("Raw Data");
+	  _componentSelect.append_text("Magnitude");
+	  _componentSelect.append_text("X");
 	    
+	  if (ptr->components() > 1)
+	    _componentSelect.append_text("Y");
 	  if (ptr->components() > 2)
 	    _componentSelect.append_text("Z");
 	  if (ptr->components() > 3)
@@ -543,6 +539,53 @@ namespace coil {
     AttributeColorSelector():
       AttributeSelector(magnet::GL::Context::vertexColorAttrIndex, true)
     {}
+
+    virtual void bindAttribute()
+    {
+      Gtk::TreeModel::iterator iter = _comboBox.get_active();
+
+      if (singleValueMode())
+	setConstantAttribute(_attrnum);
+      else
+	{
+	  std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
+	  //We have an attribute, check the mode the ComboBox is in,
+	  //and determine if we have to do something with the data!
+
+	  //Detect if it is in simple pass-through mode
+	  if ((_componentSelect.get_visible())
+	      && (_componentSelect.get_active_row_number() == 0))
+	    {
+	      ptr->bindAttribute(_attrnum, false);
+	      return;
+	    }
+	    
+	  //Check if the data actually needs updating
+	  if ((_lastAttribute != ptr.get())
+	      || (_lastAttributeDataCount != ptr->getUpdateCount())
+	      || (_lastComponentSelected != _componentSelect.get_active_row_number())
+	      || _filteredData.empty())
+	    {
+	      _lastAttribute = ptr.get();
+	      _lastAttributeDataCount = ptr->getUpdateCount();
+	      _lastComponentSelected = _componentSelect.get_active_row_number();
+	      
+	      std::vector<GLfloat> scalardata;
+	      generateFilteredData(scalardata, ptr, _lastComponentSelected);
+
+	      //Now convert to HSV or whatever
+	      _filteredData.init(4 * scalardata.size());
+	      GLfloat* ptr = _filteredData.map();
+	      for (size_t i(0); i < scalardata.size(); ++i)
+		magnet::color::HSVtoRGB(ptr + 4 * i, scalardata[i]);
+	      
+	      _filteredData.unmap();
+	    }
+
+	  _filteredData.attachToAttribute(_attrnum, 4, 1);
+	}
+    }
+
   protected:
 
     inline virtual void updateGui()
@@ -557,17 +600,6 @@ namespace coil {
 	}
     }
 
-//    else
-//      {
-//	_filteredData.init(4 * scalardata.size());
-//	GLfloat* ptr = _filteredData.map();
-//
-//	for (size_t i(0); i < scalardata.size(); ++i)
-//	  magnet::color::HSVtoRGB(ptr + 4 * i, scalardata[i]);
-//
-//	_filteredData.unmap();
-//      }
-// attrnum, (_type == INSTANCE_COLOR) ? 4 : 
   };
 
 }
