@@ -49,7 +49,7 @@ namespace coil {
     enum AttributeType { 
       INTENSIVE = 1, //!< Intensive property (e.g., Temperature, density)
       EXTENSIVE = 2, //!< Extensive property (e.g., mass, momentum)
-      COORDINATE = 3 //!< A special attribute which specifies the location of the attribute.
+      COORDINATE = 4 //!< A special attribute which specifies the location of the attribute.
     };
 
     inline Attribute(size_t N, AttributeType type, size_t components, 
@@ -301,33 +301,36 @@ namespace coil {
 	}
 
       show();
+
+      _comboBox.signal_changed()
+	.connect(sigc::mem_fun(this, &AttributeSelector::setScalarVisibility));
     }
     
-    void buildEntries(std::string name, DataSet& ds, Attribute::AttributeType typemask, size_t components)
+    void buildEntries(std::string name, DataSet& ds, Attribute::AttributeType typeMask, 
+		      size_t scalarcomponents, size_t minComponents, size_t maxComponents)
     {
       _label.set_text(name);
       _model->clear();
-      _components = components;
-
-      for (size_t i(0); i < components; ++i)
-	_scalarvalues[i].show();
-
-      for (size_t i(components); i < 4; ++i)
-	_scalarvalues[i].hide();
+      _components = scalarcomponents;
+      
+      setScalarVisibility();
 
       for (DataSet::iterator iPtr = ds.begin();
 	   iPtr != ds.end(); ++iPtr)
-	if ((iPtr->second->getType() & typemask) && (iPtr->second->getNComponents() ==  _components))
+	if (((iPtr->second->getType()) & typeMask)
+	    && (iPtr->second->getNComponents() >=  minComponents)
+	    && (iPtr->second->getNComponents() <=  maxComponents))
 	  {
 	    Gtk::TreeModel::Row row = *(_model->append());
 	    row[_modelColumns.m_name] = iPtr->first;
 	    row[_modelColumns.m_ptr] = iPtr->second;
 	  }
 
-      {
-	Gtk::TreeModel::Row row = *(_model->append());
-	row[_modelColumns.m_name] = "Single Value";
-      }
+      if (scalarcomponents)
+	{
+	  Gtk::TreeModel::Row row = *(_model->append());
+	  row[_modelColumns.m_name] = "Single Value";
+	}
       
       _comboBox.set_active(0);
     }
@@ -345,12 +348,13 @@ namespace coil {
     {
       Gtk::TreeModel::iterator iter = _comboBox.get_active();
 
-      if (!iter) { setConstantAttribute(attrnum); return; }
-      
-      std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
-      if (!ptr) { setConstantAttribute(attrnum); return; }
-
-      ptr->bindAttribute(attrnum, normalise);
+      if (singleValueMode())
+	setConstantAttribute(attrnum);
+      else
+	{
+	  std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
+	  ptr->bindAttribute(attrnum, normalise);
+	}
     }
 
     ModelColumns _modelColumns;
@@ -365,7 +369,15 @@ namespace coil {
     
     size_t _components;
     
-    void setConstantAttribute(size_t attr)
+    inline bool singleValueMode()
+    {
+      Gtk::TreeModel::iterator iter = _comboBox.get_active();
+      if (!iter) return true;
+      std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
+      return !ptr;
+    }
+
+    inline void setConstantAttribute(size_t attr)
     {
       _context->disableAttributeArray(attr);
 
@@ -377,6 +389,26 @@ namespace coil {
 	} catch (...) {}
       
       _context->setAttribute(attr, val[0], val[1], val[2], val[3]);
+    }
+
+    inline void setScalarVisibility()
+    {
+      if (_components)
+	_singleValueLabel.set_visible(true);
+      else
+	_singleValueLabel.set_visible(false);
+
+      for (size_t i(0); i < _components; ++i)
+	_scalarvalues[i].show();
+
+      for (size_t i(_components); i < 4; ++i)
+	_scalarvalues[i].hide();
+
+      Gtk::TreeModel::iterator iter = _comboBox.get_active();
+
+      if (singleValueMode())
+	for (size_t i(0); i < _components; ++i)
+	  _scalarvalues[i].set_sensitive(true);
     }
   };
 

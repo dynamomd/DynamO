@@ -49,11 +49,11 @@ namespace coil {
       _gtkOptList->show();
       
       _positionSel.reset(new AttributeSelector);
-      _positionSel->buildEntries("Position Data Field:", _ds, Attribute::COORDINATE, 3);
+      _positionSel->buildEntries("Position Data Field:", _ds, Attribute::COORDINATE, 0, 3, 3);
       _gtkOptList->pack_start(*_positionSel, false, false);
 
       _scaleSel.reset(new AttributeSelector);
-      _scaleSel->buildEntries("Scale Data Field:", _ds, Attribute::INTENSIVE, 3);
+      _scaleSel->buildEntries("Scale Data Field:", _ds, Attribute::INTENSIVE, 3, 1, 10);
       _gtkOptList->pack_start(*_scaleSel, false, false);
     }
     
