@@ -832,7 +832,7 @@ namespace coil {
 	_renderShader["ViewMatrix"] = _camera.getViewMatrix(eyeDisplacement);
 	_renderShader["NormalMatrix"] = _camera.getNormalMatrix(eyeDisplacement);
 	if (_shadowMapping)
-	  _renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix(_camera, -eyeDisplacement);
+	  _renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix(_camera, eyeDisplacement);
 	  
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
