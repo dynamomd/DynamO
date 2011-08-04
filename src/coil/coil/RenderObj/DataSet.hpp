@@ -544,6 +544,7 @@ namespace coil {
       _lastColorMap(-1)
     {
       pack_start(_colorMapSelector, false, false, 5);
+      _colorMapSelector.signal_changed().connect(sigc::mem_fun(*this, &AttributeColorSelector::colorMapChanged));
     }
 
     virtual void bindAttribute()
@@ -595,6 +596,8 @@ namespace coil {
     }
 
   protected:
+    void colorMapChanged() { _lastColorMap = -2; }
+
     magnet::gtk::ColorMapSelector _colorMapSelector;
     int _lastColorMap;
   };

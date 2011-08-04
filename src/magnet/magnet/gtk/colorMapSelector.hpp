@@ -20,21 +20,55 @@
 #include <magnet/color/sebastian.hpp>
 #include <magnet/color/marcus.hpp>
 #include <magnet/color/HSV.hpp>
+#include <magnet/gtk/numericEntry.hpp>
+#include <iostream>
 
 namespace magnet {
   namespace gtk {
     class ColorMapSelector: public ::Gtk::HBox
     {
-    protected:
-      ::Gtk::ComboBox _comboBox;
     public:
+      enum Mode_t { SEBASTIAN, HSV, MARCUS };
 
-      typedef enum 
+      ColorMapSelector():
+	_min(0), _max(1)
       {
-	SEBASTIAN,
-	HSV,
-	MARCUS
-      } Mode_t;
+	m_refTreeModel = ::Gtk::ListStore::create(m_Columns);
+	_comboBox.set_model(m_refTreeModel);
+	
+	buildEntry(SEBASTIAN, "Heat");
+	buildEntry(HSV, "HSV");
+	buildEntry(MARCUS, "Grayscale safe");
+	
+	_comboBox.pack_start(m_Columns.m_col_name, true);
+	_comboBox.pack_start(m_Columns.m_col_icon, false);
+	_comboBox.signal_changed().connect(sigc::mem_fun(*this, &ColorMapSelector::on_combobox_changed));
+	_comboBox.set_active(0);
+	_comboBox.show();
+
+	show();
+
+	_minValue.set_text("0");
+	_minValue.set_width_chars(5);
+	_minValue.show();
+	_minValue.signal_changed().connect(sigc::mem_fun(*this, &ColorMapSelector::on_limits_changed));
+
+	_maxValue.set_text("1.0");
+	_maxValue.set_width_chars(5);
+	_maxValue.show();
+	_maxValue.signal_changed().connect(sigc::mem_fun(*this, &ColorMapSelector::on_limits_changed));
+
+	Gtk::Label* label = Gtk::manage(new Gtk::Label("Range")); label->show();
+	pack_start(*label, false, false, 5);
+	pack_start(_minValue, false, false, 5);
+	label = Gtk::manage(new Gtk::Label(":")); label->show();
+	pack_start(*label, false, false, 2);
+	pack_start(_maxValue, false, false, 5);
+
+	label = Gtk::manage(new Gtk::Label("Scale")); label->show(); label->set_alignment(0.95, 0.5);
+	pack_start(*label, true, true, 5);
+	pack_start(_comboBox, false, false, 5);
+      }
 
       void map(cl_uchar4& color, float val)
       {
@@ -46,6 +80,7 @@ namespace magnet {
 
       void map(float color[4], float val)
       {
+	val = (val - _min) / (_max - _min);
 	switch (_mode)
 	  {
 	  case SEBASTIAN:
@@ -62,31 +97,17 @@ namespace magnet {
 	  }
       }
 
-      ColorMapSelector()
-      {
-	m_refTreeModel = ::Gtk::ListStore::create(m_Columns);
-	_comboBox.set_model(m_refTreeModel);
-	
-	buildEntry(SEBASTIAN, "Sebastian (Matlab-esque)");
-	buildEntry(HSV, "HSV");
-	buildEntry(MARCUS, "Gnuplot inspired (Good for grayscale)");
-	
-	_comboBox.pack_start(m_Columns.m_col_name, true);
-	_comboBox.pack_start(m_Columns.m_col_icon, false);
-
-	_comboBox.signal_changed().connect(sigc::mem_fun(*this, &ColorMapSelector::on_combobox_changed));
-	_comboBox.set_active(0);
-	_comboBox.show();
-	pack_start(_comboBox, false, false, 5);
-	show();
-      }
-
       inline Mode_t getMode() const { return _mode; }
 
       ::sigc::signal<void> signal_changed() { return _signal_changed; }
 
-    private:
+    protected:
+      ::Gtk::ComboBox _comboBox;
+      ::Gtk::Entry _minValue;
+      ::Gtk::Entry _maxValue;
       ::sigc::signal<void> _signal_changed;
+      GLfloat _min;
+      GLfloat _max;
 
       void buildEntry(Mode_t newMode, std::string name)
       {
@@ -113,6 +134,16 @@ namespace magnet {
       {
 	::Gtk::TreeModel::iterator iter = _comboBox.get_active();
 	if (iter) _mode = ((*iter)[m_Columns.m_col_id]);
+	_signal_changed.emit();
+      }
+
+      void on_limits_changed()
+      {
+	std::cout << "limits changed to " << _minValue.get_text() << " " << _maxValue.get_text();
+	magnet::gtk::forceNumericEntry(_minValue);
+	try { _min = boost::lexical_cast<GLfloat>(_minValue.get_text()); } catch(...) {}
+	magnet::gtk::forceNumericEntry(_maxValue);
+	try { _max = boost::lexical_cast<GLfloat>(_maxValue.get_text()); } catch(...) {}
 	_signal_changed.emit();
       }
 
