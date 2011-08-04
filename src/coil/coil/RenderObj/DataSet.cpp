@@ -59,7 +59,11 @@ namespace coil {
       Gtk::ScrolledWindow* win = Gtk::manage(new Gtk::ScrolledWindow);
       win->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
       win->add(*_attrview);
-      _gtkOptList->pack_start(*win, true, true);
+      win->set_size_request(-1, 150);
+
+      Gtk::Frame* frame = Gtk::manage(new Gtk::Frame("Available Attributes")); frame->show();
+      frame->add(*win);
+      _gtkOptList->pack_start(*frame, false, false, 5);
       win->show();
     }
 
@@ -67,7 +71,7 @@ namespace coil {
       Gtk::Button* btn = Gtk::manage(new Gtk::Button("Add Glyph"));
       btn->signal_clicked().connect(sigc::mem_fun(*this, &DataSet::addGlyphs));
       btn->show();
-      _gtkOptList->pack_start(*btn, false, false);
+      _gtkOptList->pack_start(*btn, false, false, 5);
     }
 
     _gtkOptList->show();

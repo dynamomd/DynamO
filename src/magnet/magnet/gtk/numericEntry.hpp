@@ -21,15 +21,26 @@
 
 namespace magnet {
   namespace gtk {
-    //!This function is designed to be used in a Gtk::Entry's signal_changed() callback.
-    // It enforces that the text is formatted in the style of a numeric value
-    // E.g.  entry.signal_changed().connect(sigc::bind<Gtk::Entry&>(&magnet::Gtk::forceNumericEntry, entry));
+    /*! \brief This function is designed to be used in a Gtk::Entry's
+     signal_changed() callback.  It enforces that the text is
+     formatted in the style of a numeric value.
+
+     It allows the first character to be a minus or plus sign, there
+     to be a sequence of digits, possibly split by one decimal point.
+
+     An example use is \code
+     entry.signal_changed().connect(sigc::bind<Gtk::Entry&>(&magnet::Gtk::forceNumericEntry,
+     entry)); \endcode
+    */
     inline void forceNumericEntry(::Gtk::Entry& textfield)
     {
       std::string value = textfield.get_text();
       
       bool hasPoint = false;
-      for (std::string::iterator iPtr = value.begin(); iPtr != value.end();)
+      std::string::iterator iPtr = value.begin();
+      if ((*iPtr == '-') || (*iPtr == '+')) ++iPtr;
+
+      while (iPtr != value.end())
 	if (std::isdigit(*iPtr))
 	  ++iPtr;
 	else

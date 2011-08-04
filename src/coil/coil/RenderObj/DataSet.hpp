@@ -23,6 +23,7 @@
 #include <boost/signal.hpp>
 #include <vector>
 #include <tr1/memory>
+#include <iostream>
 
 namespace coil {
   /*! \brief This class encapsulates attributes (data) associated with
@@ -600,6 +601,86 @@ namespace coil {
 
     magnet::gtk::ColorMapSelector _colorMapSelector;
     int _lastColorMap;
+  };
+
+
+  class AttributeOrientationSelector : public AttributeSelector
+  {
+  public:
+    AttributeOrientationSelector():
+      AttributeSelector(magnet::GL::Context::instanceOrientationAttrIndex, false)
+    {}
+
+    virtual void bindAttribute()
+    {
+      Gtk::TreeModel::iterator iter = _comboBox.get_active();
+
+      if (singleValueMode())
+	{
+	  setConstantAttribute(_attrnum);
+	  return;
+	}
+      
+      std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];	  
+      if (ptr->components() == 4)
+	{
+	  ptr->bindAttribute(_attrnum, false);
+	  return;
+	}
+      
+      if (ptr->components() != 3)
+	M_throw() << "Cannot create orientation from anything other than a 3 component Attribute";
+
+      
+      const size_t elements = ptr->size();
+      _filteredData.init(4 * elements);
+      const std::vector<GLfloat>& attrdata = ptr->getData();
+      GLfloat* glptr = _filteredData.map();
+
+      for (size_t i(0); i < elements; ++i)
+	{
+	  Vector vec(attrdata[3 * i + 0], attrdata[3 * i + 1], attrdata[3 * i + 2]);	  
+	  Vector axis(0,0,1);
+	  
+	  double vecnrm = vec.nrm();
+	  double cosangle = (vec | axis) / vecnrm;
+	  //Special case of no rotation or zero length vector
+	  if ((vecnrm == 0) || (cosangle == 1))
+	    {
+	      glptr[4 * i + 0] = glptr[4 * i + 1] = glptr[4 * i + 2] = 0;
+	      glptr[4 * i + 3] = 1;
+	      continue;
+	    }
+	  //Special case where vec and axis are opposites
+	  if (cosangle == -1)
+	    {
+	      //Just rotate around the x axis by 180 degrees
+	      glptr[4 * i + 0] = 1;
+	      glptr[4 * i + 1] = glptr[4 * i + 2] = glptr[4 * i + 3] = 0;
+	      continue;
+	    }
+
+	  //Calculate the rotation axis
+	  Vector rot_axis = (vec ^ axis) / vecnrm;
+	  for (size_t j(0); j < 3; ++j)
+	    glptr[4 * i + j] = rot_axis[j];
+
+	  glptr[4 * i + 3] = cosangle;
+
+	  double sum = 0;
+	  for (size_t j(0); j < 4; ++j)
+	    sum += glptr[4 * i + j] * glptr[4 * i + j];
+	  sum = std::sqrt(sum);
+	  for (size_t j(0); j < 4; ++j)
+	    glptr[4 * i + j] /= sum;
+	}
+
+      _filteredData.unmap();
+
+      _filteredData.attachToAttribute(_attrnum, 4, 1);
+    }
+
+  protected:
   };
 
 }

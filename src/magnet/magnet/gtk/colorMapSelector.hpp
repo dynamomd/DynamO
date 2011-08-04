@@ -21,7 +21,6 @@
 #include <magnet/color/marcus.hpp>
 #include <magnet/color/HSV.hpp>
 #include <magnet/gtk/numericEntry.hpp>
-#include <iostream>
 
 namespace magnet {
   namespace gtk {
@@ -139,7 +138,6 @@ namespace magnet {
 
       void on_limits_changed()
       {
-	std::cout << "limits changed to " << _minValue.get_text() << " " << _maxValue.get_text();
 	magnet::gtk::forceNumericEntry(_minValue);
 	try { _min = boost::lexical_cast<GLfloat>(_minValue.get_text()); } catch(...) {}
 	magnet::gtk::forceNumericEntry(_maxValue);

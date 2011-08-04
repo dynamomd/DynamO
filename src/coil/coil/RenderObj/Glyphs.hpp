@@ -37,6 +37,8 @@ namespace coil {
       _positionSel->bindAttribute();
       _scaleSel->bindAttribute();
       _colorSel->bindAttribute();
+      _orientSel->bindAttribute();
+
       Instanced::glRender();
     }
 
@@ -49,22 +51,35 @@ namespace coil {
       _gtkOptList.reset(new Gtk::VBox);
       _gtkOptList->show();
 
+      Gtk::HSeparator* separator;
+
+      separator = Gtk::manage(new Gtk::HSeparator); separator->show(); _gtkOptList->pack_start(*separator, false, false, 0);
       _positionSel.reset(new AttributeSelector(magnet::GL::Context::instanceOriginAttrIndex,
 					       false));
-
+      
       _positionSel->buildEntries("Position Data Field:", _ds, 3, 3, Attribute::COORDINATE, 0);
       _gtkOptList->pack_start(*_positionSel, false, false);
 
+      separator = Gtk::manage(new Gtk::HSeparator); separator->show(); _gtkOptList->pack_start(*separator, false, false, 0);
       _scaleSel.reset(new AttributeSelector(magnet::GL::Context::instanceScaleAttrIndex));
 
       _scaleSel->buildEntries("Scale Data Field:", _ds, 1, 4,
 			      Attribute::INTENSIVE | Attribute::EXTENSIVE, 3);
       _gtkOptList->pack_start(*_scaleSel, false, false);
 
+      separator = Gtk::manage(new Gtk::HSeparator); separator->show(); _gtkOptList->pack_start(*separator, false, false, 0);
       _colorSel.reset(new AttributeColorSelector);
       _colorSel->buildEntries("Color Data Field:", _ds, 1, 4, 
 			      Attribute::INTENSIVE | Attribute::EXTENSIVE, 4);
       _gtkOptList->pack_start(*_colorSel, false, false);
+
+      separator = Gtk::manage(new Gtk::HSeparator); separator->show(); _gtkOptList->pack_start(*separator, false, false, 0);
+
+      _orientSel.reset(new AttributeOrientationSelector);
+      _orientSel->buildEntries("Orientation Data Field:", _ds, 3, 4, 
+			       Attribute::INTENSIVE | Attribute::EXTENSIVE, 4);
+      _gtkOptList->pack_start(*_orientSel, false, false);
+
     }
     
     inline virtual void deinit()
@@ -147,5 +162,6 @@ namespace coil {
     std::auto_ptr<AttributeSelector> _positionSel;
     std::auto_ptr<AttributeSelector> _scaleSel; 
     std::auto_ptr<AttributeColorSelector> _colorSel;
+    std::auto_ptr<AttributeOrientationSelector> _orientSel;
  };
 }
