@@ -490,7 +490,7 @@ namespace coil {
       _context->setAttribute(attr, val[0], val[1], val[2], val[3]);
     }
 
-    inline virtual void updateGui()
+    inline void updateGui()
     {
       _singleValueLabel.set_visible(false);
       for (size_t i(0); i < 4; ++i)
@@ -527,7 +527,7 @@ namespace coil {
 	    _componentSelect.append_text("W");
 	  
 	  //Default to coloring using the magnitude
-	  _componentSelect.set_active(0);
+	  _componentSelect.set_active(1);
 	}
 
       for (size_t i(0); i < _components; ++i)
@@ -544,7 +544,6 @@ namespace coil {
       _lastColorMap(-1)
     {
       pack_start(_colorMapSelector, false, false, 5);
-      _colorMapSelector.show();
     }
 
     virtual void bindAttribute()
@@ -598,19 +597,6 @@ namespace coil {
   protected:
     magnet::gtk::ColorMapSelector _colorMapSelector;
     int _lastColorMap;
-
-    inline virtual void updateGui()
-    {
-      AttributeSelector::updateGui();
-      Gtk::TreeModel::iterator iter = _comboBox.get_active();
-      if (iter)
-	{
-	  std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
-	  if (ptr && (ptr->components() > 1))
-	    _componentSelect.set_active(1);
-	}
-    }
-
   };
 
 }

@@ -23,9 +23,12 @@
 
 namespace magnet {
   namespace gtk {
-    class ColorMapSelector: public ::Gtk::ComboBox
+    class ColorMapSelector: public ::Gtk::HBox
     {
+    protected:
+      ::Gtk::ComboBox _comboBox;
     public:
+
       typedef enum 
       {
 	SEBASTIAN,
@@ -62,22 +65,29 @@ namespace magnet {
       ColorMapSelector()
       {
 	m_refTreeModel = ::Gtk::ListStore::create(m_Columns);
-	set_model(m_refTreeModel);
+	_comboBox.set_model(m_refTreeModel);
 	
 	buildEntry(SEBASTIAN, "Sebastian (Matlab-esque)");
 	buildEntry(HSV, "HSV");
 	buildEntry(MARCUS, "Gnuplot inspired (Good for grayscale)");
 	
-	pack_start(m_Columns.m_col_name, true);
-	pack_start(m_Columns.m_col_icon, false);
+	_comboBox.pack_start(m_Columns.m_col_name, true);
+	_comboBox.pack_start(m_Columns.m_col_icon, false);
 
-	//signal_changed().connect(sigc::mem_fun(*this, &ColorMapSelector::guiUpdate));
-	set_active(0);
+	_comboBox.signal_changed().connect(sigc::mem_fun(*this, &ColorMapSelector::on_combobox_changed));
+	_comboBox.set_active(0);
+	_comboBox.show();
+	pack_start(_comboBox, false, false, 5);
+	show();
       }
 
       inline Mode_t getMode() const { return _mode; }
 
+      ::sigc::signal<void> signal_changed() { return _signal_changed; }
+
     private:
+      ::sigc::signal<void> _signal_changed;
+
       void buildEntry(Mode_t newMode, std::string name)
       {
 	//Icon data
@@ -99,12 +109,11 @@ namespace magnet {
 	  }
       }
 
-      virtual void on_changed()
+      void on_combobox_changed()
       {
-	::Gtk::TreeModel::iterator iter = get_active();
-	if (iter)
-	  _mode = ((*iter)[m_Columns.m_col_id]);
-	::Gtk::ComboBox::on_changed();
+	::Gtk::TreeModel::iterator iter = _comboBox.get_active();
+	if (iter) _mode = ((*iter)[m_Columns.m_col_id]);
+	_signal_changed.emit();
       }
 
       struct ColorMapColumns : public ::Gtk::TreeModel::ColumnRecord

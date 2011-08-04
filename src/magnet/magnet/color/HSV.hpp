@@ -26,12 +26,9 @@ namespace magnet {
     inline void HSVtoRGB(GLfloat color[4], GLfloat h, GLfloat s = 1, GLfloat v = 1) 
     {
       GLfloat temp;
-      h = std::modf(h, &temp);
-      
+      h = std::modf(clamp(h,0.0f, 1.0f), &temp) * 6;
       s = clamp(s, 0.0f, 1.0f);
       v = clamp(v, 0.0f, 1.0f);
-      
-      h = h * 6;
       
       unsigned int i = h;
       GLfloat f = h - i;
