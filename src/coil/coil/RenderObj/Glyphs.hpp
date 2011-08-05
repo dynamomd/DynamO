@@ -53,7 +53,37 @@ namespace coil {
 
       Gtk::HSeparator* separator;
 
+      //Glyph selection and level of detail
+      _glyphBox.reset(new Gtk::HBox); _glyphBox->show();
+      
+      {
+	Gtk::Label* label = Gtk::manage(new Gtk::Label("Glyph Type")); label->show();
+	_glyphBox->pack_start(*label, false, false, 5);
+	
+	_glyphType.reset(new Gtk::ComboBoxText); _glyphType->show();
+	_glyphType->append("Sphere");
+	_glyphType->append("Arrows");
+	_glyphType->append("Cylinder");
+	_glyphType->append("Rod");
+	_glyphType->set_active(0);
+	_glyphBox->pack_start(*_glyphType, false, false, 5);
+      }
+      
+      {
+	_glyphLOD.reset(new Gtk::SpinButton(1.0, 0)); _glyphLOD->show();
+	_glyphLOD->get_adjustment()->configure(6.0, 3.0, 32.0, 1.0, 5.0, 0.0);
+	_glyphLOD->set_numeric(true);
+	_glyphBox->pack_end(*_glyphLOD, false, false, 5);
+
+	Gtk::Label* label = Gtk::manage(new Gtk::Label("Level of Detail")); label->show();
+	_glyphBox->pack_end(*label, false, false, 5);
+      }
+
+      _gtkOptList->pack_start(*_glyphBox, false, false, 5);
+
       separator = Gtk::manage(new Gtk::HSeparator); separator->show(); _gtkOptList->pack_start(*separator, false, false, 0);
+
+      //The attribute selectors
       _positionSel.reset(new AttributeSelector(magnet::GL::Context::instanceOriginAttrIndex,
 					       false));
       
@@ -79,7 +109,6 @@ namespace coil {
       _orientSel->buildEntries("Orientation Data Field:", _ds, 3, 4, 
 			       Attribute::INTENSIVE | Attribute::EXTENSIVE, 4);
       _gtkOptList->pack_start(*_orientSel, false, false);
-
     }
     
     inline virtual void deinit()
@@ -87,6 +116,12 @@ namespace coil {
       Instanced::deinit();
       RenderObj::deinit();
       _gtkOptList.reset();
+      _positionSel.reset();
+      _scaleSel.reset(); 
+      _colorSel.reset();
+      _orientSel.reset();
+      _glyphType.reset();
+      _glyphLOD.reset();
     }
 
     inline virtual void showControls(Gtk::ScrolledWindow* win)
@@ -163,5 +198,8 @@ namespace coil {
     std::auto_ptr<AttributeSelector> _scaleSel; 
     std::auto_ptr<AttributeColorSelector> _colorSel;
     std::auto_ptr<AttributeOrientationSelector> _orientSel;
+    std::auto_ptr<Gtk::ComboBoxText> _glyphType;
+    std::auto_ptr<Gtk::SpinButton> _glyphLOD;
+    std::auto_ptr<Gtk::HBox> _glyphBox;
  };
 }
