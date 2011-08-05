@@ -24,8 +24,6 @@ class SSnapshot: public System
 public:
   SSnapshot(dynamo::SimData*, double, std::string);
   
-  virtual System* Clone() const { return new SSnapshot(*this); }
-
   virtual void runEvent() const;
 
   virtual void initialise(size_t);

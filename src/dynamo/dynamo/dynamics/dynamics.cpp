@@ -99,24 +99,24 @@ Dynamics::getSpecies(std::string name)
   M_throw() << "Could not find the " << name << " species"; 
 }
 
-magnet::ClonePtr<System>&
+std::tr1::shared_ptr<System>&
 Dynamics::getSystem(std::string name)
 {
-  BOOST_FOREACH(magnet::ClonePtr<System>& sysPtr, systems)
-    if (sysPtr->getName() == name)
+  BOOST_FOREACH(std::tr1::shared_ptr<System>& sysPtr, systems)
+    if (sysPtr->getName() == name) 
       return sysPtr;
   
-  M_throw() << "Could not find system plugin";
+  M_throw() << "Could not find system plugin called " << name;
 }
 
-const magnet::ClonePtr<System>&
+const std::tr1::shared_ptr<System>&
 Dynamics::getSystem(std::string name) const
 {
-  BOOST_FOREACH(const magnet::ClonePtr<System>& sysPtr, systems)
+  BOOST_FOREACH(const std::tr1::shared_ptr<System>& sysPtr, systems)
     if (sysPtr->getName() == name)
       return sysPtr;
   
-  M_throw() << "Could not find system plugin";
+  M_throw() << "Could not find system plugin called " << name;
 }
 
 magnet::ClonePtr<Global>&
@@ -228,8 +228,7 @@ Dynamics::addSystem(System* newSystem)
   if (Sim->status >= INITIALISED)
     M_throw() << "Cannot add system events at this time, system is initialised";
   
-  magnet::ClonePtr<System> 
-    tempPlug(newSystem);
+  std::tr1::shared_ptr<System> tempPlug(newSystem);
   
   systems.push_back(tempPlug); 
 }
@@ -252,11 +251,11 @@ Dynamics::addSystemTicker()
   if (Sim->status >= INITIALISED)
     M_throw() << "Cannot add the system ticker now";
 
-  BOOST_FOREACH(magnet::ClonePtr<System>& ptr, systems)
+  BOOST_FOREACH(std::tr1::shared_ptr<System>& ptr, systems)
     if (ptr->getName() == "SystemTicker")
       M_throw() << "System Ticker already exists";
   
-    addSystem(new CSTicker(Sim, Sim->lastRunMFT, "SystemTicker"));
+  addSystem(new CSTicker(Sim, Sim->lastRunMFT, "SystemTicker"));
 }
 
 Interaction* 
@@ -326,7 +325,7 @@ Dynamics::initialise()
 
   ID=0;
 
-  BOOST_FOREACH(magnet::ClonePtr<System>& ptr, systems)
+  BOOST_FOREACH(std::tr1::shared_ptr<System>& ptr, systems)
     ptr->initialise(ID++);
 }
 
@@ -353,7 +352,7 @@ Dynamics::stream(const double& dt)
 
   p_liouvillean->stream(dt);
 
-  BOOST_FOREACH(magnet::ClonePtr<System>& ptr, systems)
+  BOOST_FOREACH(std::tr1::shared_ptr<System>& ptr, systems)
     ptr->stream(dt);
 }
 
@@ -494,7 +493,7 @@ Dynamics::operator<<(const magnet::xml::Node& XML)
     for (magnet::xml::Node node = xDynamics.getNode("SystemEvents").fastGetNode("System"); 
 	 node.valid(); ++node)
       {
-	magnet::ClonePtr<System> tempPlug(System::getClass(node, Sim));
+	std::tr1::shared_ptr<System> tempPlug(System::getClass(node, Sim));
 	systems.push_back(tempPlug);
       }
 }
@@ -527,8 +526,8 @@ Dynamics::outputXML(magnet::xml::XmlStream &XML) const
   XML << magnet::xml::endtag("Topology")
       << magnet::xml::tag("SystemEvents");
   
-  BOOST_FOREACH(const magnet::ClonePtr<System>& ptr, systems)
-    XML << ptr;
+  BOOST_FOREACH(const std::tr1::shared_ptr<System>& ptr, systems)
+    XML << *ptr;
   
   XML << magnet::xml::endtag("SystemEvents")
       << magnet::xml::tag("Globals");

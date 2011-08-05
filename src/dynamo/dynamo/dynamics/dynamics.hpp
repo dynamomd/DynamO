@@ -23,6 +23,7 @@
 #include <magnet/cloneptr.hpp>
 #include <boost/foreach.hpp>
 #include <vector>
+#include <tr1/memory>
 
 class BoundaryCondition;
 class Species;
@@ -154,10 +155,10 @@ public:
 
   const magnet::ClonePtr<Topology>& getTopology(std::string) const;
 
-  std::vector<magnet::ClonePtr<System> >& getSystemEvents() { return systems; }
-  const std::vector<magnet::ClonePtr<System> >& getSystemEvents() const { return systems; }
-  const magnet::ClonePtr<System>& getSystem(std::string) const;
-  magnet::ClonePtr<System>& getSystem(std::string);
+  std::vector<std::tr1::shared_ptr<System> >& getSystemEvents() { return systems; }
+  const std::vector<std::tr1::shared_ptr<System> >& getSystemEvents() const { return systems; }
+  const std::tr1::shared_ptr<System>& getSystem(std::string) const;
+  std::tr1::shared_ptr<System>& getSystem(std::string);
 
   void addSystemTicker();
   
@@ -205,7 +206,7 @@ public:
   std::vector<magnet::ClonePtr<Interaction> > interactions;
   std::vector<magnet::ClonePtr<Global> > globals;
   std::vector<magnet::ClonePtr<Local> > locals;
-  std::vector<magnet::ClonePtr<System> > systems;
+  std::vector<std::tr1::shared_ptr<System> > systems;
   std::vector<magnet::ClonePtr<Topology> > topology;
   std::vector<magnet::ClonePtr<Species> > species;
   magnet::ClonePtr<BoundaryCondition> p_BC;

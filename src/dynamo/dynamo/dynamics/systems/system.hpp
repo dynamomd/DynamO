@@ -31,8 +31,6 @@ public:
   System(dynamo::SimData*);
   
   virtual ~System() {}
-  
-  virtual System* Clone() const = 0; //{ return new OPBlank(*this); };
 
   inline void stream(const double& ndt) { dt -= ndt; }
 

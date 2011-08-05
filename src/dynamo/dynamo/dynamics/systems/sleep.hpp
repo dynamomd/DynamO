@@ -31,8 +31,6 @@ public:
 
   SSleep(dynamo::SimData*, std::string, CRange*, double);
   
-  virtual System* Clone() const { return new SSleep(*this); }
-
   virtual void runEvent() const;
 
   virtual void initialise(size_t);

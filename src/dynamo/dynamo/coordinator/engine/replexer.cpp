@@ -113,10 +113,10 @@ EReplicaExchangeSimulation::initialisation()
   for (unsigned int i = 0; i < nSims; i++)
     {
       bool didWork = false;
-      BOOST_FOREACH(magnet::ClonePtr<System>& sysPtr1, Simulations[i].dynamics.getSystemEvents())
+      BOOST_FOREACH(std::tr1::shared_ptr<System>& sysPtr1, Simulations[i].dynamics.getSystemEvents())
 	if (sysPtr1->getName() == "Thermostat")
 	  {
-	    if (dynamic_cast<CSysGhost*>(sysPtr1.get_ptr()) == NULL)
+	    if (dynamic_cast<CSysGhost*>(sysPtr1.get()) == NULL)
 	      M_throw() << "Could not upcast thermostat to Andersens";
 	    
 	    temperatureList.push_back

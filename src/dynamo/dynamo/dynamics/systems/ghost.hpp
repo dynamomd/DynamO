@@ -27,8 +27,6 @@ public:
 
   CSysGhost(dynamo::SimData*, double, double, std::string);
   
-  virtual System* Clone() const { return new CSysGhost(*this); }
-
   virtual void runEvent() const;
 
   virtual void initialise(size_t);

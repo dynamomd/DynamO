@@ -30,8 +30,6 @@ public:
 
   CSUmbrella(dynamo::SimData*, double, double, double, std::string, CRange*, CRange*);
   
-  virtual System* Clone() const { return new CSUmbrella(*this); }
-
   virtual void runEvent() const;
 
   virtual void initialise(size_t);

@@ -28,8 +28,6 @@ class SVisualizer: public System
 public:
   SVisualizer(dynamo::SimData*, std::string, double);
   
-  virtual System* Clone() const { return new SVisualizer(*this); }
-
   virtual void runEvent() const;
 
   virtual void initialise(size_t);
@@ -39,10 +37,14 @@ public:
   void particlesUpdated(const NEventData&);
 
 protected:
+  SVisualizer(const SVisualizer&); //Cannot copy due to the coil update connection
+
+  void update_render();
+
   virtual void outputXML(magnet::xml::XmlStream&) const {}
 
   mutable double _updateTime;
-  mutable std::tr1::shared_ptr<coil::CLGLWindow> _CLWindow;
+  mutable std::tr1::shared_ptr<coil::CLGLWindow> _window;
   coil::CoilRegister _coil;
 
   mutable boost::posix_time::ptime _lastUpdate;

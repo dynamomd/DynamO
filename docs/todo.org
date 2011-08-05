@@ -12,13 +12,20 @@
 **** TODO Make the viewing grid have a scalable box size.
 **** TODO Fix the construction of the shaders depending on the render requirements.
 **** TODO Move to deferred lighting.
-**** TODO Look at synchronisation objects for coil.
+**** TODO Look at CL/GL synchronisation objects for coil.
+**** TODO Remove all clone ptr's and replace them with shared_ptr's.
+**** TODO Coil library volume renderer (blocking on above)
+**** TODO Fix the light position calculation in the Volume renderer
 *** DynamO 1.2
 **** DONE *BUGFIX* Fixed rare error caused by duplicate events in the queue, followed by a recalculation which indicates the event has numerically been cancelled, and the recalculated event is in the future.
 **** DONE *BUGFIX* Made the "well exit test" significantly more stable, allowing correct simulation of large inelastic flexible bodies.
 **** DONE *BUGFIX* Fixed stepped and sequenced potentials broken in 1.1.
-**** DONE XML errors are now much more verbose and tell you exactly what went wrong and where.
+**** DONE *BUGFIX* Fixed a load error on the MFT if the output configuration is from a simulation with no events.
+**** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
+**** DONE *BUGFIX* Fixed bounded priority queues causing huge slowdowns in very small (N=2) systems.
+**** DONE *BUGFIX* Coil visualizer: Fixed resizing of anti-aliased windows not working on AMD hardware.
 **** DONE *BUGFIX* Fixed the widespread improper use of the XML test functions, causing errors instead of warnings.
+**** DONE XML errors are now much more verbose and tell you exactly what went wrong and where.
 **** DONE Sped up PNG output in coil by 33 percent.
 **** DONE More Doxygen comments to help people understand the source code.
 **** DONE The ParabolaSentinel global is now added automatically to simulations, it needs to be deleted from existing configurations.
@@ -32,22 +39,15 @@
 **** DONE Added dynamod --check mode. Using this you can now check if a configuration file is valid using "dynamod --check config.out.xml.bz2".
 **** DONE Generalized the rescaling thermostat for shear flows http://arxiv.org/pdf/1103.3704.
 **** DONE Coil visualizer now outputs at least 2 updates a second when attached to a slow DynamO simulation.
-**** DONE *BUGFIX* Fixed a load error on the MFT if the output configuration is from a simulation with no events.
-**** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
-**** DONE *BUGFIX* Fixed bounded priority queues causing huge slowdowns in very small (N=2) systems.
-**** DONE *BUGFIX* Coil visualizer: Fixed resizing of anti-aliased windows not working on AMD hardware.
 **** DONE Generalize the Morton ordered neighbour list and remove the old neighbourlist.
 **** DONE Coil: Moved to OpenGL 3.3, remove all the old OpenGL calls.
+**** DONE Improve the way data is made available to Coil, allowing a paraview-like interface to the data sources.
 **** TODO Improve the runEvent loop, its a mess right now.
-**** TODO Improve the way data is made available to Coil, allowing a paraview-like interface to the data sources.
-**** TODO Coil library volume renderer (blocking on above)
-**** TODO Fix the light position calculation in the Volume renderer
 **** TODO Generalized scheduler for multiple neighborlists.
 **** TODO Work on Sebastians project.
 **** TODO Check you haven't broken any histogramming code with the new fuzzy array class.
 **** TODO Move all the dynamo classes into the dynamo namespace.
 **** TODO Magnetise the wii mote class and write it up on the site.
-**** TODO Write the morton class up.
 **** TODO Write up the image distance class.
 **** TODO Fix the rendering of light sources.
 *** DynamO 1.1 							    :ARCHIVE:

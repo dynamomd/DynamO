@@ -246,10 +246,10 @@ namespace dynamo
     
     dynamics.getSystemEvents().swap(other.dynamics.getSystemEvents());
 
-    BOOST_FOREACH(magnet::ClonePtr<System>& aPtr, dynamics.getSystemEvents())
+    BOOST_FOREACH(std::tr1::shared_ptr<System>& aPtr, dynamics.getSystemEvents())
       aPtr->changeSystem(this);
 
-    BOOST_FOREACH(magnet::ClonePtr<System>& aPtr, other.dynamics.getSystemEvents())
+    BOOST_FOREACH(std::tr1::shared_ptr<System>& aPtr, other.dynamics.getSystemEvents())
       aPtr->changeSystem(&other);
 
     dynamics.getLiouvillean().swapSystem(other.dynamics.getLiouvillean());

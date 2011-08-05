@@ -24,8 +24,6 @@ class CSSchedMaintainer: public System
 public:
   CSSchedMaintainer(dynamo::SimData*, double, std::string);
   
-  virtual System* Clone() const { return new CSSchedMaintainer(*this); }
-
   virtual void runEvent() const;
 
   virtual void initialise(size_t);

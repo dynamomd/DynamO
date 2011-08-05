@@ -23,8 +23,6 @@ class CSNBListCompressionFix: public System
 public:
   CSNBListCompressionFix(dynamo::SimData*, double, size_t);
   
-  virtual System* Clone() const { return new CSNBListCompressionFix(*this); }
-
   virtual void runEvent() const;
 
   virtual void initialise(size_t);

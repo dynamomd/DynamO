@@ -27,8 +27,6 @@ public:
   CSysNull(dynamo::SimData* tmp): System(tmp) 
   {  sysName = "NULL"; }
   
-  virtual System* Clone() const { return new CSysNull(*this); }
-
   virtual void stream(double) {}
 
   virtual NEventData runEvent()

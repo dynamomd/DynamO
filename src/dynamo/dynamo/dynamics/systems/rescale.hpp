@@ -38,8 +38,6 @@ public:
   SysRescale(const magnet::xml::Node& XML, dynamo::SimData*);
   SysRescale(dynamo::SimData*, size_t frequency, std::string name, double kT = 1);
 
-  virtual System* Clone() const { return new SysRescale(*this); }
-
   virtual void runEvent() const;
 
   virtual void initialise(size_t);

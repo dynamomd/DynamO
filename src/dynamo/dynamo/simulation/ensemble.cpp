@@ -87,10 +87,11 @@ namespace dynamo {
     EnsembleVals[1] = Sim->dynamics.units().unitVolume();
 
     try {
-      thermostat = Sim->dynamics.getSystem("Thermostat").get_ptr();
-    } catch (std::exception &)
+      thermostat = Sim->dynamics.getSystem("Thermostat").get();
+    } catch (std::exception & err)
       {
-	M_throw() << "Could not find the Thermostat in NVT system";
+	M_throw() << "Could not find the Thermostat in NVT system\n"
+		  << err.what();
       }
     
     //Only one kind of thermostat so far!
@@ -220,7 +221,7 @@ namespace dynamo {
     EnsembleVals[0] = Sim->particleList.size();
 
     try {
-      thermostat = Sim->dynamics.getSystem("Thermostat").get_ptr();
+      thermostat = Sim->dynamics.getSystem("Thermostat").get();
     } catch (std::exception&)
       {
 	M_throw() << "Could not find the Thermostat in NVT system";

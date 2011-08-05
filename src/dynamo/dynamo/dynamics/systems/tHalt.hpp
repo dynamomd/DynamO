@@ -23,8 +23,6 @@ class CStHalt: public System
 public:
   CStHalt(dynamo::SimData*, double, std::string);
   
-  virtual System* Clone() const { return new CStHalt(*this); }
-
   virtual void runEvent() const;
 
   virtual void initialise(size_t);

@@ -24,7 +24,6 @@
 
 #include <magnet/math/vector.hpp>
 #include <magnet/static_assert.hpp>
-
 #include <magnet/GL/light.hpp>
 #include <magnet/GL/shader/render.hpp>
 #include <magnet/GL/shadowFBO.hpp>
@@ -33,9 +32,9 @@
 #include <magnet/GL/shader/normal.hpp>
 #include <magnet/GL/shader/depth_render.hpp>
 #include <magnet/GL/shader/simple_render.hpp>
-
 #include <coil/filters/filter.hpp>
 #include <coil/RenderObj/RenderObj.hpp>
+#include <boost/signals2.hpp>
 #include <memory>
 
 namespace coil {
@@ -63,13 +62,9 @@ namespace coil {
     void init();
     void deinit();
 
-    magnet::thread::Mutex& getDestroyLock() { return _destroyLock; }
-
-    bool simupdateTick();
+    void simupdateTick(double t);
   
     const double& getUpdateInterval() {return _updateIntervalValue; }
-
-    void flagNewData() { _newData = true; }
 
     void setUpdateRateUnitToSteps(size_t defaultsteps = 100);
 
@@ -85,7 +80,11 @@ namespace coil {
       return *_glContext;
     }
 
+    boost::signals2::signal<void ()>& signal_data_update() { return _updateDataSignal; }
+
   protected:
+    boost::signals2::signal<void ()> _updateDataSignal;
+    
     void setLabelText(Gtk::Label*, std::string);
 
     magnet::GL::shader::RenderShader _renderShader;
@@ -113,7 +112,6 @@ namespace coil {
 
     void performPicking(int x, int y);
 
-  private:
     //Task queue for the simulation thread
     std::tr1::shared_ptr<magnet::thread::TaskQueue> _systemQueue;
     double _updateIntervalValue;
@@ -244,7 +242,7 @@ namespace coil {
   public:
     inline bool dynamoParticleSync() const { return _particleSync; }
 
-  private:
+  protected:
     bool _dynamo;
     bool _particleSync;
     volatile bool _newData;

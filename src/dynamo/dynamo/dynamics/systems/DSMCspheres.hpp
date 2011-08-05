@@ -28,8 +28,6 @@ public:
 
   CSDSMCSpheres(dynamo::SimData*, double, double, double, double, std::string, CRange*, CRange*);
   
-  virtual System* Clone() const { return new CSDSMCSpheres(*this); }
-
   virtual void runEvent() const;
 
   virtual void initialise(size_t);

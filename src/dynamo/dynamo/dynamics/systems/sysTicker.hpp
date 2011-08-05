@@ -23,8 +23,6 @@ class CSTicker: public System
 public:
   CSTicker(dynamo::SimData*, double, std::string);
   
-  virtual System* Clone() const { return new CSTicker(*this); }
-
   virtual void runEvent() const;
 
   virtual void initialise(size_t);

@@ -62,9 +62,9 @@ Simulation::scaleTickerPeriod(double nP)
 System* 
 Simulation::getSystem(std::string name)
 {
-  BOOST_FOREACH(magnet::ClonePtr<System>& sysPtr, dynamics.getSystemEvents())
+  BOOST_FOREACH(std::tr1::shared_ptr<System>& sysPtr, dynamics.getSystemEvents())
     if (sysPtr->getName() == name)
-      return sysPtr.get_ptr();
+      return sysPtr.get();
   
   return NULL;
 }

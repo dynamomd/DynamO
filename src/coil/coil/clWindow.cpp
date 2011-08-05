@@ -1128,8 +1128,8 @@ namespace coil {
     keyStates[std::tolower(key)] = false;
   }
 
-  bool 
-  CLGLWindow::simupdateTick()
+  void
+  CLGLWindow::simupdateTick(double t)
   {
     ++_updateCounter;//For the updates per second
 
@@ -1142,7 +1142,7 @@ namespace coil {
 	if (_simrun && (!_simframelock || (_lastUpdateTime != getLastFrameTime()))) break;
       
 	//Jump out without an update if the window has been killed
-	if (!isReady()) return false;
+	if (!isReady()) return;
 
 	//1ms delay to lower CPU usage while blocking, but not to affect framelocked render rates
 	timespec sleeptime;
@@ -1152,11 +1152,20 @@ namespace coil {
       }
 
     //Only redraw if the screen has actually refreshed
-    if (_lastUpdateTime == getLastFrameTime()) return false;
-
+    if (_lastUpdateTime == getLastFrameTime()) return;
     _lastUpdateTime = getLastFrameTime();
 
-    return true;
+    //Update the simulation data
+    {
+      magnet::thread::ScopedLock lock(_destroyLock);
+      if (!isReady()) return;
+      _updateDataSignal();
+      _newData = true;
+
+      std::ostringstream os;
+      os << "t:" << t;        
+      setSimStatus1(os.str());
+    }
   }
 
   void 
