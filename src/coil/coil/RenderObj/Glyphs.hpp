@@ -22,9 +22,6 @@
 namespace coil {  
   class Glyphs : public DataSetChild, public magnet::GL::objects::Instanced
   {
-    static const size_t default_LOD = 6;
-    static const size_t default_type = 0;
-    
   public:
     inline Glyphs(std::string name, DataSet& ds): DataSetChild(name, ds) {}
 
@@ -46,9 +43,7 @@ namespace coil {
 
     inline virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
     {
-      RenderObj::init(systemQueue);
-      Instanced::init(_ds.size());
-            
+      RenderObj::init(systemQueue);            
       //Initialise the Gtk controls
       _gtkOptList.reset(new Gtk::VBox);
       _gtkOptList->show();
@@ -63,21 +58,25 @@ namespace coil {
 	_glyphBox->pack_start(*label, false, false, 5);
 	
 	_glyphType.reset(new Gtk::ComboBoxText); _glyphType->show();
-	_glyphType->append("Sphere");
-	_glyphType->append("Arrows");
-	_glyphType->append("Cylinder");
-	_glyphType->append("Rod");
-	_glyphType->set_active(default_type);
+
+	_glyphType->append_text("Sphere");
+	_glyphType->append_text("Arrows");
+	_glyphType->append_text("Cylinder");
+	_glyphType->append_text("Rod");
+	_glyphType->set_active(0);
+
 	_glyphBox->pack_start(*_glyphType, false, false, 5);
+	_glyphType->signal_changed()
+	  .connect(sigc::mem_fun(*this, &Glyphs::glyph_type_changed));
       }
       
       {
 	_glyphLOD.reset(new Gtk::SpinButton(1.0, 0)); _glyphLOD->show();
-	_glyphLOD->get_adjustment()->configure(default_LOD, 3.0, 8.0, 1.0, 5.0, 0.0);
+	_glyphLOD->get_adjustment()->configure(1, 1, 1, 1.0, 1.0, 0.0); //A temporary low LOD setting
 	_glyphLOD->set_numeric(true);
 	_glyphBox->pack_end(*_glyphLOD, false, false, 5);
 	_glyphLOD->signal_value_changed()
-	  .connect(sigc::mem_fun(*this, &Instanced::reinit));
+	  .connect(sigc::mem_fun(*this, &Glyphs::glyph_LOD_changed));
 
 	Gtk::Label* label = Gtk::manage(new Gtk::Label("Level of Detail")); label->show();
 	_glyphBox->pack_end(*label, false, false, 5);
@@ -113,6 +112,8 @@ namespace coil {
       _orientSel->buildEntries("Orientation Data Field:", _ds, 3, 4, 
 			       Attribute::INTENSIVE | Attribute::EXTENSIVE, 4);
       _gtkOptList->pack_start(*_orientSel, false, false);
+
+      glyph_type_changed();
     }
     
     inline virtual void deinit()
@@ -148,24 +149,39 @@ namespace coil {
       return iter;
     }
 
+  protected:
+    inline void glyph_type_changed()
+    {
+      int type = _glyphType->get_active_row_number();
+      switch (type)
+	{
+	case 0: //Spheres
+	  _glyphLOD->get_adjustment()->configure(3, 0.0, 8.0, 1.0, 1.0, 0.0);
+	  break;
+	case 1: //Arrows
+	case 2: //Cylinder
+	case 3: //Rod
+	default:
+	  _glyphLOD->get_adjustment()->configure(6, 3.0, 32.0, 1.0, 5.0, 0.0);
+	  break;
+	}
+    }
+    
+    inline void glyph_LOD_changed() { Instanced::init(_ds.size()); }
 
     inline virtual magnet::GL::element_type::Enum  getElementType()
     { return magnet::GL::element_type::TRIANGLES; }
     
     inline virtual std::vector<GLfloat> getPrimitiveVertices()
     {
-      int LOD = default_LOD;
-      if (_glyphLOD.get()) LOD = _glyphLOD->get_value_as_int();
-      
-      int type = default_type;
-      if (_glyphType.get()) type = _glyphType->get_active_row_number();
+      int LOD = _glyphLOD->get_value_as_int();
+      int type = _glyphType->get_active_row_number();
 
       switch (type)
 	{
 	case 0: //Spheres
 	  {
-	    magnet::GL::primatives::Sphere sph(magnet::GL::primatives::Sphere::tetrahedron,
-					       LOD - 3);
+	    magnet::GL::primatives::Sphere sph(magnet::GL::primatives::Sphere::tetrahedron, LOD);
 	    return std::vector<GLfloat>(sph.getVertices(), sph.getVertices() + sph.getVertexCount() * 3);
 	  }
 	case 1: //Arrows
@@ -173,7 +189,6 @@ namespace coil {
 	case 3: //Rod
 	default:
 	  {
-	    LOD *= 2;
 	    std::vector<GLfloat> vertices(2 * LOD * 3);
 
 	    for (int vert = 0; vert < 2 * LOD; ++vert)
@@ -189,18 +204,14 @@ namespace coil {
     
     inline virtual std::vector<GLfloat> getPrimitiveNormals()
     {
-      int LOD = default_LOD;
-      if (_glyphLOD.get()) LOD = _glyphLOD->get_value_as_int();
-      
-      int type = default_type;
-      if (_glyphType.get()) type = _glyphType->get_active_row_number();
+      int LOD = _glyphLOD->get_value_as_int();
+      int type = _glyphType->get_active_row_number();
 
       switch (type)
 	{
 	case 0: //Spheres
 	  {
-	    magnet::GL::primatives::Sphere sph(magnet::GL::primatives::Sphere::tetrahedron,
-					       LOD - 3);
+	    magnet::GL::primatives::Sphere sph(magnet::GL::primatives::Sphere::tetrahedron, LOD);
 	    return std::vector<GLfloat>(sph.getVertices(), sph.getVertices() + sph.getVertexCount() * 3);
 	  }
 	case 1: //Arrows
@@ -208,7 +219,6 @@ namespace coil {
 	case 3: //Rod
 	default:
 	  {
-	    LOD *= 2;
 	    std::vector<GLfloat> normals(2 * LOD * 3);
 
 	    for (int vert = 0; vert < 2 * LOD; ++vert)
@@ -227,18 +237,14 @@ namespace coil {
     
     inline virtual std::vector<GLuint>  getPrimitiveIndicies()
     {
-      int LOD = default_LOD;
-      if (_glyphLOD.get()) LOD = _glyphLOD->get_value_as_int();
-
-      int type = default_type;
-      if (_glyphType.get()) type = _glyphType->get_active_row_number();
+      int LOD = _glyphLOD->get_value_as_int();
+      int type = _glyphType->get_active_row_number();
 
       switch (type)
 	{
 	case 0: //Spheres
 	  {
-	    magnet::GL::primatives::Sphere sph(magnet::GL::primatives::Sphere::tetrahedron,
-					       LOD - 3);
+	    magnet::GL::primatives::Sphere sph(magnet::GL::primatives::Sphere::tetrahedron, LOD);
 	    return std::vector<GLuint>(sph.getFaces(), sph.getFaces() + sph.getFaceCount() * 3);
 	  }
 	case 1: //Arrows
@@ -246,7 +252,6 @@ namespace coil {
 	case 3: //Rod
 	default:
 	  {
-	    LOD *= 2;
 	    //2 triangles per face (3 indices per triangle)
 	    std::vector<GLuint> indices(6 * LOD);      
 	    for (int vert = 0; vert < LOD; ++vert)
@@ -263,7 +268,6 @@ namespace coil {
 	}
     }
     
-  protected:
     std::auto_ptr<Gtk::VBox> _gtkOptList;
     std::auto_ptr<AttributeSelector> _positionSel;
     std::auto_ptr<AttributeSelector> _scaleSel; 

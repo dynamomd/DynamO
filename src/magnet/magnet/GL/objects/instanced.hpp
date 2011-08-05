@@ -44,14 +44,10 @@ namespace magnet {
 	 */
 	inline void init(size_t N)
 	{
-	  deinit();
+	  //No need to deinitialise, we'll just initialise over the top of the old data
+	  //deinit(); 
 	  _N = N;
 	  
-	  reinit();
-	}
-	
-	inline void reinit()
-	{
 	  //Load the primitive data into the VBO's
 	  _primitiveVertices.init(getPrimitiveVertices(), buffer_usage::STATIC_DRAW);
 	  _primitiveNormals.init(getPrimitiveNormals(), buffer_usage::STATIC_DRAW);

@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <magnet/math/vector.hpp>
 #include <magnet/exception.hpp>
+#include <iostream>
 
 namespace magnet {
   namespace GL {
@@ -130,9 +131,10 @@ namespace magnet {
 	      M_throw() << "Unknown Sphere Type specified";
 	    }
 
+
+	  std::cerr << "Refining " << order << " times\n";
 	  for (size_t i(0); i < order; ++i)
 	    refine();
-
   
 	  //Renormalize to the volume of a sphere with radius 1!
 	  double spherevol = 4.0 * M_PI / 3.0;
