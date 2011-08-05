@@ -156,7 +156,7 @@ namespace coil {
       switch (type)
 	{
 	case 0: //Spheres
-	  _glyphLOD->get_adjustment()->configure(3, 0.0, 8.0, 1.0, 1.0, 0.0);
+	  _glyphLOD->get_adjustment()->configure(1.0, 0.0, 4.0, 1.0, 1.0, 0.0);
 	  break;
 	case 1: //Arrows
 	case 2: //Cylinder
@@ -165,6 +165,7 @@ namespace coil {
 	  _glyphLOD->get_adjustment()->configure(6, 3.0, 32.0, 1.0, 5.0, 0.0);
 	  break;
 	}
+      glyph_LOD_changed();
     }
     
     inline void glyph_LOD_changed() { Instanced::init(_ds.size()); }
@@ -181,7 +182,7 @@ namespace coil {
 	{
 	case 0: //Spheres
 	  {
-	    magnet::GL::primatives::Sphere sph(magnet::GL::primatives::Sphere::tetrahedron, LOD);
+	    magnet::GL::primatives::Sphere sph(magnet::GL::primatives::Sphere::icosahedron, LOD);
 	    return std::vector<GLfloat>(sph.getVertices(), sph.getVertices() + sph.getVertexCount() * 3);
 	  }
 	case 1: //Arrows
@@ -211,7 +212,7 @@ namespace coil {
 	{
 	case 0: //Spheres
 	  {
-	    magnet::GL::primatives::Sphere sph(magnet::GL::primatives::Sphere::tetrahedron, LOD);
+	    magnet::GL::primatives::Sphere sph(magnet::GL::primatives::Sphere::icosahedron, LOD);
 	    return std::vector<GLfloat>(sph.getVertices(), sph.getVertices() + sph.getVertexCount() * 3);
 	  }
 	case 1: //Arrows
@@ -244,7 +245,7 @@ namespace coil {
 	{
 	case 0: //Spheres
 	  {
-	    magnet::GL::primatives::Sphere sph(magnet::GL::primatives::Sphere::tetrahedron, LOD);
+	    magnet::GL::primatives::Sphere sph(magnet::GL::primatives::Sphere::icosahedron, LOD);
 	    return std::vector<GLuint>(sph.getFaces(), sph.getFaces() + sph.getFaceCount() * 3);
 	  }
 	case 1: //Arrows
