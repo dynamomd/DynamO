@@ -46,13 +46,18 @@ namespace magnet {
 	{
 	  deinit();
 	  _N = N;
-
+	  
+	  reinit();
+	}
+	
+	inline void reinit()
+	{
 	  //Load the primitive data into the VBO's
 	  _primitiveVertices.init(getPrimitiveVertices(), buffer_usage::STATIC_DRAW);
 	  _primitiveNormals.init(getPrimitiveNormals(), buffer_usage::STATIC_DRAW);
 	  _primitiveIndices.init(getPrimitiveIndicies(), buffer_usage::STATIC_DRAW);
 	}
-	
+
 	/*! \brief Renders the instanced object.
 	 */
 	inline void glRender()

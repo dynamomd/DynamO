@@ -17,12 +17,14 @@
 
 #include <coil/RenderObj/DataSet.hpp>
 #include <magnet/GL/objects/instanced.hpp>
+#include <magnet/GL/primatives/Sphere.hpp>
 
 namespace coil {  
   class Glyphs : public DataSetChild, public magnet::GL::objects::Instanced
   {
-    static const size_t _LOD = 6;
-
+    static const size_t default_LOD = 6;
+    static const size_t default_type = 0;
+    
   public:
     inline Glyphs(std::string name, DataSet& ds): DataSetChild(name, ds) {}
 
@@ -65,15 +67,17 @@ namespace coil {
 	_glyphType->append("Arrows");
 	_glyphType->append("Cylinder");
 	_glyphType->append("Rod");
-	_glyphType->set_active(0);
+	_glyphType->set_active(default_type);
 	_glyphBox->pack_start(*_glyphType, false, false, 5);
       }
       
       {
 	_glyphLOD.reset(new Gtk::SpinButton(1.0, 0)); _glyphLOD->show();
-	_glyphLOD->get_adjustment()->configure(6.0, 3.0, 32.0, 1.0, 5.0, 0.0);
+	_glyphLOD->get_adjustment()->configure(default_LOD, 3.0, 8.0, 1.0, 5.0, 0.0);
 	_glyphLOD->set_numeric(true);
 	_glyphBox->pack_end(*_glyphLOD, false, false, 5);
+	_glyphLOD->signal_value_changed()
+	  .connect(sigc::mem_fun(*this, &Instanced::reinit));
 
 	Gtk::Label* label = Gtk::manage(new Gtk::Label("Level of Detail")); label->show();
 	_glyphBox->pack_end(*label, false, false, 5);
@@ -146,50 +150,117 @@ namespace coil {
 
 
     inline virtual magnet::GL::element_type::Enum  getElementType()
-    { return magnet::GL::element_type::TRIANGLE_STRIP; }
+    { return magnet::GL::element_type::TRIANGLES; }
     
     inline virtual std::vector<GLfloat> getPrimitiveVertices()
     {
-      std::vector<GLfloat> vertices(2 * _LOD * 3);
+      int LOD = default_LOD;
+      if (_glyphLOD.get()) LOD = _glyphLOD->get_value_as_int();
       
-      for (size_t vert = 0; vert < 2 * _LOD; ++vert)
+      int type = default_type;
+      if (_glyphType.get()) type = _glyphType->get_active_row_number();
+
+      switch (type)
 	{
-	  vertices[3 * vert + 0] = 0.5f * std::sin((vert / 2) * 2.0f * M_PI / _LOD);
-	  vertices[3 * vert + 1] = 0.5f * std::cos((vert / 2) * 2.0f * M_PI / _LOD);
-	  vertices[3 * vert + 2] = vert % 2;
+	case 0: //Spheres
+	  {
+	    magnet::GL::primatives::Sphere sph(magnet::GL::primatives::Sphere::tetrahedron,
+					       LOD - 3);
+	    return std::vector<GLfloat>(sph.getVertices(), sph.getVertices() + sph.getVertexCount() * 3);
+	  }
+	case 1: //Arrows
+	case 2: //Cylinder
+	case 3: //Rod
+	default:
+	  {
+	    LOD *= 2;
+	    std::vector<GLfloat> vertices(2 * LOD * 3);
+
+	    for (int vert = 0; vert < 2 * LOD; ++vert)
+	      {
+		vertices[3 * vert + 0] = 0.5f * std::sin((vert / 2) * 2.0f * M_PI / LOD);
+		vertices[3 * vert + 1] = 0.5f * std::cos((vert / 2) * 2.0f * M_PI / LOD);
+		vertices[3 * vert + 2] = vert % 2;
+	      }
+	    return vertices;
+	  }
 	}
-      return vertices;
     }
     
     inline virtual std::vector<GLfloat> getPrimitiveNormals()
     {
-      std::vector<GLfloat> normals(2 * _LOD * 3);
+      int LOD = default_LOD;
+      if (_glyphLOD.get()) LOD = _glyphLOD->get_value_as_int();
       
-      for (size_t vert = 0; vert < 2 * _LOD; ++vert)
+      int type = default_type;
+      if (_glyphType.get()) type = _glyphType->get_active_row_number();
+
+      switch (type)
 	{
-	  GLfloat x = 0.5f * std::sin((vert / 2) * 2.0f * M_PI / _LOD);
-	  GLfloat y = 0.5f * std::cos((vert / 2) * 2.0f * M_PI / _LOD);
-	  GLfloat scale = 1.0f / std::sqrt(x * x + y * y);
-	  normals[3 * vert + 0] = x * scale;
-	  normals[3 * vert + 1] = y * scale;
-	  normals[3 * vert + 2] = 0;
+	case 0: //Spheres
+	  {
+	    magnet::GL::primatives::Sphere sph(magnet::GL::primatives::Sphere::tetrahedron,
+					       LOD - 3);
+	    return std::vector<GLfloat>(sph.getVertices(), sph.getVertices() + sph.getVertexCount() * 3);
+	  }
+	case 1: //Arrows
+	case 2: //Cylinder
+	case 3: //Rod
+	default:
+	  {
+	    LOD *= 2;
+	    std::vector<GLfloat> normals(2 * LOD * 3);
+
+	    for (int vert = 0; vert < 2 * LOD; ++vert)
+	      {
+		GLfloat x = 0.5f * std::sin((vert / 2) * 2.0f * M_PI / LOD);
+		GLfloat y = 0.5f * std::cos((vert / 2) * 2.0f * M_PI / LOD);
+		GLfloat scale = 1.0f / std::sqrt(x * x + y * y);
+		normals[3 * vert + 0] = x * scale;
+		normals[3 * vert + 1] = y * scale;
+		normals[3 * vert + 2] = 0;
+	      }
+	    return normals;
+	  }
 	}
-      return normals;
     }
     
     inline virtual std::vector<GLuint>  getPrimitiveIndicies()
     {
-      std::vector<GLuint> indices(2 * _LOD + 2);
-      
-      //Main vertices
-      for (size_t vert = 0; vert < 2 * _LOD; ++vert)
-	indices[vert] = vert;
-      
-      //Rejoin the end vertex
-      indices[2 * _LOD + 0] =  0;
-      indices[2 * _LOD + 1] =  1;
-      
-      return indices;
+      int LOD = default_LOD;
+      if (_glyphLOD.get()) LOD = _glyphLOD->get_value_as_int();
+
+      int type = default_type;
+      if (_glyphType.get()) type = _glyphType->get_active_row_number();
+
+      switch (type)
+	{
+	case 0: //Spheres
+	  {
+	    magnet::GL::primatives::Sphere sph(magnet::GL::primatives::Sphere::tetrahedron,
+					       LOD - 3);
+	    return std::vector<GLuint>(sph.getFaces(), sph.getFaces() + sph.getFaceCount() * 3);
+	  }
+	case 1: //Arrows
+	case 2: //Cylinder
+	case 3: //Rod
+	default:
+	  {
+	    LOD *= 2;
+	    //2 triangles per face (3 indices per triangle)
+	    std::vector<GLuint> indices(6 * LOD);      
+	    for (int vert = 0; vert < LOD; ++vert)
+	      {
+		indices[6 * vert + 0] = (2 * vert + 0) % (2 * LOD);
+		indices[6 * vert + 1] = (2 * vert + 1) % (2 * LOD);
+		indices[6 * vert + 2] = (2 * vert + 2) % (2 * LOD);
+		indices[6 * vert + 3] = (2 * vert + 1) % (2 * LOD);
+		indices[6 * vert + 4] = (2 * vert + 3) % (2 * LOD);
+		indices[6 * vert + 5] = (2 * vert + 2) % (2 * LOD);
+	      }
+	    return indices;
+	  }
+	}
     }
     
   protected:
