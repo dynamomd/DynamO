@@ -263,7 +263,7 @@ LTriangleMesh::getCoilRenderObj() const
 {
   const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
 
-  if (_renderObj)
+  if (!_renderObj)
     {
       std::vector<float> verts;
       verts.reserve(3 * _vertices.size());
