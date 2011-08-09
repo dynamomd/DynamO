@@ -56,7 +56,7 @@ public:
 
 #ifdef DYNAMO_visualizer
   virtual std::tr1::shared_ptr<coil::RenderObj> getCoilRenderObj() const;
-  virtual void updateRenderData(magnet::GL::Context&) const;
+  virtual void updateRenderData() const;
 #endif
 
 protected:

@@ -288,8 +288,4 @@ LTriangleMesh::getCoilRenderObj() const
   
   return std::tr1::static_pointer_cast<coil::RenderObj>(_renderObj);
 }
-
-void 
-LTriangleMesh::updateRenderData(magnet::GL::Context&) const
-{}
 #endif

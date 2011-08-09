@@ -230,7 +230,7 @@ CLOscillatingPlate::getCoilRenderObj() const
 }
 
 void 
-CLOscillatingPlate::updateRenderData(magnet::GL::Context&) const
+CLOscillatingPlate::updateRenderData() const
 {
   const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
 

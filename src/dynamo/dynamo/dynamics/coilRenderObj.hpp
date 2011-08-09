@@ -26,6 +26,6 @@ struct CoilRenderObj
 {
 #ifdef DYNAMO_visualizer
   virtual std::tr1::shared_ptr<coil::RenderObj> getCoilRenderObj() const = 0;
-  virtual void updateRenderData(magnet::GL::Context&) const = 0;
+  virtual void updateRenderData() const = 0;
 #endif
 };

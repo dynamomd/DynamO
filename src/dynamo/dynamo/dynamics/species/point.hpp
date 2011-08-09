@@ -17,22 +17,16 @@
 
 #pragma once
 
-#ifdef DYNAMO_visualizer
-# include <coil/coilMaster.hpp>
-#endif
-
 #include "species.hpp"
 #include <magnet/xmlwriter.hpp>
 #include <memory>
-#include "../coilRenderObj.hpp"
-# include <coil/RenderObj/SphericalParticles.hpp>
 
 namespace Gtk {
   class VBox;
   class RadioButton;
 }
 
-class SpPoint: public Species, public CoilRenderObj
+class SpPoint: public Species
 {
 public:
   template<class T1>
@@ -53,18 +47,6 @@ public:
 
   virtual double getScalarMomentOfInertia(size_t ID) const 
   { M_throw() << "Species has no intertia"; }
-
-#ifdef DYNAMO_visualizer
-  virtual std::tr1::shared_ptr<coil::RenderObj> getCoilRenderObj() const;
-  virtual void updateRenderData(magnet::GL::Context&) const;
-#endif
-
-protected:
-
-#ifdef DYNAMO_visualizer
-  mutable std::tr1::shared_ptr<coil::RSphericalParticles> _renderObj;
-  mutable std::tr1::shared_ptr<coil::CoilRegister> _coil;
-#endif
 
 protected:
   virtual void outputXML(magnet::xml::XmlStream& XML) const;

@@ -47,8 +47,7 @@ SVisualizer::SVisualizer(dynamo::SimData* nSim, std::string nName, double tickFr
   _window.reset(new coil::CLGLWindow("Visualizer : " + nName, tickFreq, true));
   
   BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-    if (spec.typeTest<CoilRenderObj>())
-      _window->addRenderObj(dynamic_cast<const CoilRenderObj&>(*spec).getCoilRenderObj());
+    _window->addRenderObj(spec->createDataSet());
 
   BOOST_FOREACH(magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
     {
@@ -59,9 +58,13 @@ SVisualizer::SVisualizer(dynamo::SimData* nSim, std::string nName, double tickFr
     }
 
   _coil.getInstance().addWindow(_window);
-  
-  _window->signal_data_update().connect(boost::bind(&SVisualizer::update_render, this));
-  update_render();
+
+  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+    {
+      spec->initDataSet();
+      _window->signal_data_update().connect(boost::bind(&Species::updateRenderData, spec.get_ptr()));
+      spec->updateRenderData();
+    }
   
   _lastUpdate = boost::posix_time::microsec_clock::local_time();
 
@@ -87,6 +90,9 @@ SVisualizer::runEvent() const
   Sim->dynamics.stream(locdt);
   locdt += Sim->freestreamAcc;
   Sim->freestreamAcc = 0;
+
+  if (_window->dynamoParticleSync())
+    Sim->dynamics.getLiouvillean().updateAllParticles();
 
   BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
     Ptr->eventUpdate(*this, NEventData(), locdt);
@@ -115,22 +121,4 @@ SVisualizer::particlesUpdated(const NEventData&)
       Sim->ptrScheduler->rebuildSystemEvents();
     }
 }
-
-void 
-SVisualizer::update_render()
-{
-  if (_window->dynamoParticleSync())
-    Sim->dynamics.getLiouvillean().updateAllParticles();
-  
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-    dynamic_cast<const CoilRenderObj&>(*spec).updateRenderData(_window->getGLContext());
-  
-  BOOST_FOREACH(magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
-    {
-      CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*local));
-      
-      if (obj != NULL) obj->updateRenderData(_window->getGLContext());
-    }
-}
-
 #endif

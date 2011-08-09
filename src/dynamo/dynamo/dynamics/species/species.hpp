@@ -22,6 +22,9 @@
 #include "../../base/is_simdata.hpp"
 #include <magnet/cloneptr.hpp>
 #include <string>
+#ifdef DYNAMO_visualizer
+# include <coil/RenderObj/DataSet.hpp>
+#endif
 
 namespace magnet { namespace xml { class Node; } }
 namespace xml { class XmlStream; }
@@ -56,6 +59,14 @@ public:
   virtual Species* Clone() const = 0;
 
   static Species* getClass(const magnet::xml::Node&, dynamo::SimData*, size_t);
+
+#ifdef DYNAMO_visualizer
+  virtual std::tr1::shared_ptr<coil::DataSet> createDataSet() const;
+  virtual void initDataSet() const;
+  virtual void updateRenderData() const;
+protected:
+  mutable std::tr1::shared_ptr<coil::DataSet> _renderData;
+#endif
 
 protected:
   template<class T1>

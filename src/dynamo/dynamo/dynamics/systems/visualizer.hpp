@@ -39,8 +39,6 @@ public:
 protected:
   SVisualizer(const SVisualizer&); //Cannot copy due to the coil update connection
 
-  void update_render();
-
   virtual void outputXML(magnet::xml::XmlStream&) const {}
 
   mutable double _updateTime;
