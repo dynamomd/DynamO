@@ -55,34 +55,34 @@ namespace coil {
     size_t stage_spheres = std::min(size_t(10ul), N - spheres_rendered);
     if (stage_spheres)
       {
-	_renderDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::icosahedron, 2, stage_spheres));
+	_renderDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::objects::primitives::Sphere::icosahedron, 2, stage_spheres));
 	spheres_rendered += stage_spheres;
       }
 
     stage_spheres = std::min(size_t(1000ul), N - spheres_rendered);
     if (stage_spheres)
       {
-	_renderDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::icosahedron, 1, stage_spheres));
+	_renderDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::objects::primitives::Sphere::icosahedron, 1, stage_spheres));
 	spheres_rendered += stage_spheres;
       }
 
     stage_spheres = std::min(size_t(10000ul), N - spheres_rendered);
     if (stage_spheres)
       {
-	_renderDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::icosahedron, 0, stage_spheres));
+	_renderDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::objects::primitives::Sphere::icosahedron, 0, stage_spheres));
 	spheres_rendered += stage_spheres;
       }
 
     stage_spheres = std::min(size_t(200000ul), N - spheres_rendered);
     if (stage_spheres)
       {
-	_renderDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::octahedron, 0, stage_spheres));
+	_renderDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::objects::primitives::Sphere::octahedron, 0, stage_spheres));
 	spheres_rendered += stage_spheres;
       }
 
     stage_spheres = N - spheres_rendered;
     if (stage_spheres)
-      _renderDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::primatives::Sphere::tetrahedron, 0, N - spheres_rendered));
+      _renderDetailLevels.push_back(RTSpheres::SphereDetails(magnet::GL::objects::primitives::Sphere::tetrahedron, 0, N - spheres_rendered));
   }
 
   void

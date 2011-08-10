@@ -797,7 +797,7 @@ namespace coil {
 	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
 	     iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
 	  if ((*iPtr)->shadowCasting() && (*iPtr)->visible())
-	    (*iPtr)->glRender(_shadowFBO, _light0);
+	    (*iPtr)->glRender(_shadowFBO, _light0, RenderObj::SHADOW);
 
 	_shadowFBO.detach();
 	_shadowFBO.getDepthTexture().bind(7);
@@ -1007,7 +1007,7 @@ namespace coil {
     //Enter the render ticks for all objects
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-      if ((*iPtr)->visible()) (*iPtr)->glRender(fbo, camera);
+      if ((*iPtr)->visible()) (*iPtr)->glRender(fbo, camera, RenderObj::DEFAULT);
   
     if (_showLight) _light0.drawLight();
   }

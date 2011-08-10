@@ -17,7 +17,9 @@
 
 #include <coil/RenderObj/DataSet.hpp>
 #include <magnet/GL/objects/instanced.hpp>
-#include <magnet/GL/primatives/Sphere.hpp>
+#include <magnet/GL/objects/primitives/sphere.hpp>
+#include <magnet/GL/objects/primitives/cylinder.hpp>
+#include <magnet/GL/objects/primitives/arrow.hpp>
 
 namespace coil {  
   class Glyphs : public DataSetChild, public magnet::GL::objects::Instanced
@@ -62,7 +64,6 @@ namespace coil {
 	_glyphType->append_text("Sphere");
 	_glyphType->append_text("Arrows");
 	_glyphType->append_text("Cylinder");
-	_glyphType->append_text("Rod");
 	_glyphType->set_active(0);
 
 	_glyphBox->pack_start(*_glyphType, false, false, 5);
@@ -160,7 +161,6 @@ namespace coil {
 	  break;
 	case 1: //Arrows
 	case 2: //Cylinder
-	case 3: //Rod
 	default:
 	  _glyphLOD->get_adjustment()->configure(6, 3.0, 32.0, 1.0, 5.0, 0.0);
 	  break;
@@ -182,24 +182,15 @@ namespace coil {
 	{
 	case 0: //Spheres
 	  {
-	    magnet::GL::primatives::Sphere sph(magnet::GL::primatives::Sphere::icosahedron, LOD);
+	    magnet::GL::objects::primitives::Sphere sph(magnet::GL::objects::primitives::Sphere::icosahedron, LOD);
 	    return std::vector<GLfloat>(sph.getVertices(), sph.getVertices() + sph.getVertexCount() * 3);
 	  }
 	case 1: //Arrows
+	  return magnet::GL::objects::primitives::Arrow::getVertices(LOD);
 	case 2: //Cylinder
-	case 3: //Rod
+	  return magnet::GL::objects::primitives::Cylinder::getVertices(LOD);
 	default:
-	  {
-	    std::vector<GLfloat> vertices(2 * LOD * 3);
-
-	    for (int vert = 0; vert < 2 * LOD; ++vert)
-	      {
-		vertices[3 * vert + 0] = 0.5f * std::sin((vert / 2) * 2.0f * M_PI / LOD);
-		vertices[3 * vert + 1] = 0.5f * std::cos((vert / 2) * 2.0f * M_PI / LOD);
-		vertices[3 * vert + 2] = vert % 2;
-	      }
-	    return vertices;
-	  }
+	  M_throw() << "Unrecognised glyph type";
 	}
     }
     
@@ -212,27 +203,15 @@ namespace coil {
 	{
 	case 0: //Spheres
 	  {
-	    magnet::GL::primatives::Sphere sph(magnet::GL::primatives::Sphere::icosahedron, LOD);
+	    magnet::GL::objects::primitives::Sphere sph(magnet::GL::objects::primitives::Sphere::icosahedron, LOD);
 	    return std::vector<GLfloat>(sph.getVertices(), sph.getVertices() + sph.getVertexCount() * 3);
 	  }
 	case 1: //Arrows
+	  return magnet::GL::objects::primitives::Arrow::getNormals(LOD);
 	case 2: //Cylinder
-	case 3: //Rod
+	  return magnet::GL::objects::primitives::Cylinder::getNormals(LOD);
 	default:
-	  {
-	    std::vector<GLfloat> normals(2 * LOD * 3);
-
-	    for (int vert = 0; vert < 2 * LOD; ++vert)
-	      {
-		GLfloat x = 0.5f * std::sin((vert / 2) * 2.0f * M_PI / LOD);
-		GLfloat y = 0.5f * std::cos((vert / 2) * 2.0f * M_PI / LOD);
-		GLfloat scale = 1.0f / std::sqrt(x * x + y * y);
-		normals[3 * vert + 0] = x * scale;
-		normals[3 * vert + 1] = y * scale;
-		normals[3 * vert + 2] = 0;
-	      }
-	    return normals;
-	  }
+	  M_throw() << "Unrecognised glyph type";
 	}
     }
     
@@ -245,27 +224,16 @@ namespace coil {
 	{
 	case 0: //Spheres
 	  {
-	    magnet::GL::primatives::Sphere sph(magnet::GL::primatives::Sphere::icosahedron, LOD);
+	    magnet::GL::objects::primitives::Sphere 
+	      sph(magnet::GL::objects::primitives::Sphere::icosahedron, LOD);
 	    return std::vector<GLuint>(sph.getFaces(), sph.getFaces() + sph.getFaceCount() * 3);
 	  }
 	case 1: //Arrows
+	  return magnet::GL::objects::primitives::Arrow::getIndices(LOD);
 	case 2: //Cylinder
-	case 3: //Rod
+	  return magnet::GL::objects::primitives::Cylinder::getIndices(LOD);
 	default:
-	  {
-	    //2 triangles per face (3 indices per triangle)
-	    std::vector<GLuint> indices(6 * LOD);      
-	    for (int vert = 0; vert < LOD; ++vert)
-	      {
-		indices[6 * vert + 0] = (2 * vert + 0) % (2 * LOD);
-		indices[6 * vert + 1] = (2 * vert + 1) % (2 * LOD);
-		indices[6 * vert + 2] = (2 * vert + 2) % (2 * LOD);
-		indices[6 * vert + 3] = (2 * vert + 1) % (2 * LOD);
-		indices[6 * vert + 4] = (2 * vert + 3) % (2 * LOD);
-		indices[6 * vert + 5] = (2 * vert + 2) % (2 * LOD);
-	      }
-	    return indices;
-	  }
+	  M_throw() << "Unrecognised glyph type";
 	}
     }
     

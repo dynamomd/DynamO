@@ -63,6 +63,9 @@ void
 Species::initDataSet() const
 {
   _renderData->addAttribute("Positions", coil::Attribute::COORDINATE, 3);
+  _renderData->addAttribute("Velocity", coil::Attribute::INTENSIVE, 3);
+  _renderData->addAttribute("Radii", coil::Attribute::INTENSIVE, 1);
+
   _renderData->addAttribute("Mass", coil::Attribute::EXTENSIVE, 1);
   { 
     size_t nsph = dynamic_cast<const SphericalRepresentation&>(*getIntPtr()).spheresPerParticle();    
@@ -76,7 +79,20 @@ Species::initDataSet() const
       }
     (*_renderData)["Mass"].flagNewData();
   }
-  _renderData->addAttribute("Radii", coil::Attribute::INTENSIVE, 1);
+
+  _renderData->addAttribute("ID", coil::Attribute::INTENSIVE, 1);
+  { 
+    size_t nsph = dynamic_cast<const SphericalRepresentation&>(*getIntPtr()).spheresPerParticle();    
+    std::vector<GLfloat>& mass = (*_renderData)["ID"].getData();
+    size_t sphID(0);
+    BOOST_FOREACH(unsigned long ID, *range)
+      {
+	for (size_t s(0); s < nsph; ++s)
+	  mass[nsph * sphID + s] = ID;
+	++sphID;
+      }
+    (*_renderData)["ID"].flagNewData();
+  }
 }
 
 void
@@ -100,17 +116,22 @@ Species::updateRenderData() const
   size_t nsph = data.spheresPerParticle();
 
   std::vector<GLfloat>& posdata = (*_renderData)["Positions"].getData();
+  std::vector<GLfloat>& veldata = (*_renderData)["Velocity"].getData();
   std::vector<GLfloat>& radii = (*_renderData)["Radii"].getData();
 
   size_t sphID(0);
   BOOST_FOREACH(unsigned long ID, *range)
     {
+      Vector vel = Sim->particleList[ID].getVelocity();
       for (size_t s(0); s < nsph; ++s)
 	{
 	  Vector pos = data.getPosition(ID, s);
 	  
 	  for (size_t i(0); i < NDIM; ++i)
 	    posdata[3 * (nsph * sphID + s) + i] = pos[i] * lengthRescale;
+
+	  for (size_t i(0); i < NDIM; ++i)
+	    veldata[3 * (nsph * sphID + s) + i] = vel[i] * lengthRescale;
 	  
 	  radii[nsph * sphID + s] = 0.5 * rfactor * data.getDiameter(ID, s);
 	}
@@ -119,6 +140,7 @@ Species::updateRenderData() const
     }
 
   (*_renderData)["Positions"].flagNewData();
+  (*_renderData)["Velocity"].flagNewData();
   (*_renderData)["Radii"].flagNewData();
 }
 #endif

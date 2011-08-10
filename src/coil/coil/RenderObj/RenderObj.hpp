@@ -90,7 +90,7 @@ namespace coil {
 	
 	\param cam The active camera for the render.
      */
-    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode = DEFAULT) = 0;
+    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode) = 0;
 
     
     /*! \brief Called when the RenderObject should draw its 2D interface controls.

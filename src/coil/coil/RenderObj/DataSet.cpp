@@ -50,6 +50,7 @@ namespace coil {
 
     { _attrcolumns.reset(new ModelColumns);
       _attrtreestore = Gtk::TreeStore::create(*_attrcolumns);
+      _attrtreestore->set_sort_column(_attrcolumns->components, Gtk::SORT_DESCENDING);
 
       _attrview.reset(new Gtk::TreeView);
       _attrview->set_model(_attrtreestore);
@@ -77,7 +78,6 @@ namespace coil {
     _gtkOptList->show();
     rebuildGui();
   }
-
 
   void 
   DataSet::addGlyphs()

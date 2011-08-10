@@ -17,7 +17,7 @@
 
 #pragma once
 #include "Triangles.hpp"
-#include <magnet/GL/primatives/Sphere.hpp>
+#include <magnet/GL/objects/primitives/sphere.hpp>
 #include <magnet/thread/mutex.hpp>
 #include <magnet/CL/sort.hpp>
 
@@ -27,12 +27,12 @@ namespace coil {
   public:
     struct SphereDetails
     {
-      inline SphereDetails(magnet::GL::primatives::Sphere::SphereType type, size_t order, size_t n):
+      inline SphereDetails(magnet::GL::objects::primitives::Sphere::SphereType type, size_t order, size_t n):
 	_type(type, order),
 	_nSpheres(n)
       {}
 
-      magnet::GL::primatives::Sphere _type;
+      magnet::GL::objects::primitives::Sphere _type;
       cl_uint _nSpheres;
 
       void setupCLBuffers(magnet::GL::Context& context)

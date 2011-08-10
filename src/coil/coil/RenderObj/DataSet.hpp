@@ -661,6 +661,8 @@ namespace coil {
 	  
 	  for (size_t i(0); i < elements; ++i)
 	    {
+	      //First we use the vector and axis to calculate a
+	      //rotation twice as big as is needed. 
 	      Vector vec(attrdata[3 * i + 0], attrdata[3 * i + 1], attrdata[3 * i + 2]);	  
 	      Vector axis(0,0,1);
 	      
@@ -695,6 +697,17 @@ namespace coil {
 	      sum = std::sqrt(sum);
 	      for (size_t j(0); j < 4; ++j)
 		glptr[4 * i + j] /= sum;
+	      
+	      //As the rotation is twice as big as needed, we must do
+	      //a half angle conversion.
+	      glptr[4 * i + 3] += 1;
+	      sum = 0;
+	      for (size_t j(0); j < 4; ++j)
+		sum += glptr[4 * i + j] * glptr[4 * i + j];
+	      sum = std::sqrt(sum);
+	      for (size_t j(0); j < 4; ++j)
+		glptr[4 * i + j] /= sum;
+
 	    }
 	  
 	  _filteredData.unmap();

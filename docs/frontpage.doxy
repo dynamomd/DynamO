@@ -82,7 +82,11 @@ namespace magnet {
   namespace GL {
 
     //! \brief Classes representing renderable objects.
-    namespace objects {}
+    namespace objects {
+      //! \brief Classes to generate the vertex positions for OpenGL
+      //! primitive objects
+      namespace primitives {}
+    }
     
     //! \brief Implementation details for OpenGL classes and functions.
     namespace detail {}
