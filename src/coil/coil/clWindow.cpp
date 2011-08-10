@@ -600,8 +600,8 @@ namespace coil {
 
     //  //Test volume render object
     
-    std::tr1::shared_ptr<RVolume> vol(new RVolume("Test Volume"));
-    _renderObjsTree._renderObjects.push_back(vol);
+    //std::tr1::shared_ptr<RVolume> vol(new RVolume("Test Volume"));
+    //_renderObjsTree._renderObjects.push_back(vol);
 
     glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE | GLUT_ALPHA);
     glutInitWindowSize(800, 600);
@@ -671,8 +671,8 @@ namespace coil {
     //  //Male 
     //  vol->loadRawFile("Male128x256x256.raw", 128, 256, 256, 1);
     //
-    //Female
-    vol->loadRawFile("female384x384x240.raw", 384, 384, 240, 1);
+    //  //Female
+    //  vol->loadRawFile("female384x384x240.raw", 384, 384, 240, 1);
 
     _readyFlag = true;
   }
