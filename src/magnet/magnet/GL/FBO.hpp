@@ -16,6 +16,7 @@
  */
 #pragma once
 #include <magnet/GL/texture.hpp>
+#include <tr1/memory>
 
 namespace magnet {
   namespace GL {   
@@ -50,46 +51,80 @@ namespace magnet {
 	if (!GLEW_EXT_framebuffer_object)
 	  M_throw() << "GL_EXT_framebuffer_object extension is not supported! Cannot do offscreen rendering!";
 
-	if (_width || _height) 
-	  M_throw() << "FBO has already been initialised!";
-
-	if (!width || !height)
-	  M_throw() << "Cannot initialise an FBO with a width or height == 0!";
-
-	_context = &Context::getContext();
-
-	_internalformat = internalformat;
-	_width = width;
-	_height = height;
-
 	//Build depth buffer
-	_depthTexture.init(_width, _height, GL_DEPTH_COMPONENT24);
+	std::tr1::shared_ptr<Texture2D> depthTexture(new Texture2D);
+	//We don't force GL_DEPTH_COMPONENT24 as it is likely you get
+	//the best precision anyway
+	depthTexture->init(width, height, GL_DEPTH_COMPONENT);
 	//You must select GL_NEAREST for depth data, as GL_LINEAR
 	//converts the value to 8bit for interpolation (on NVidia).
-	_depthTexture.parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_depthTexture.parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	_depthTexture.parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	_depthTexture.parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	_depthTexture.parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
 	//////////////////////////////////////////////////////////////////////////
 
 	//Build color texture
-	_colorTexture.init(_width, _height, internalformat);
-	_colorTexture.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	_colorTexture.parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	_colorTexture.parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	std::tr1::shared_ptr<Texture2D> colorTexture(new Texture2D);
+	colorTexture->init(width, height, internalformat);
+	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+	init(colorTexture, depthTexture);
+      }
+
+      /*! \brief Initializes the FBO using the passed color and depth buffers
+       * 
+       * \param width The width of the FBO in pixels.
+       * \param height The height of the FBO in pixels.
+       * \param internalformat The pixel type stored by the FBO.
+       */
+      inline 
+      virtual void init(std::tr1::shared_ptr<Texture2D> colorTexture,
+			std::tr1::shared_ptr<Texture2D> depthTexture)
+      {
+	if (_width || _height)
+	  M_throw() << "FBO has already been initialised!";
+
+	if (!colorTexture && !depthTexture)
+	  M_throw() << "You must provide at least a color or a depth texture to the FBO";
+
+	if (colorTexture && depthTexture)
+	  if ((colorTexture->getWidth() != depthTexture->getWidth())
+	      || (colorTexture->getHeight() != depthTexture->getHeight()))
+	    M_throw() << "color and depth texture size mismatch";
+	
+	_context = &Context::getContext();
+	_colorTexture = colorTexture;
+	_depthTexture = depthTexture;
+
+	if (_colorTexture)
+	  {
+	    _width = _colorTexture->getWidth();
+	    _height = _colorTexture->getHeight();
+	  }
+	else
+	  {
+	    _width = _depthTexture->getWidth();
+	    _height = _depthTexture->getHeight();
+	  }
+	  	
 	glGenFramebuffersEXT(1, &_FBO);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
-
+	
 	//Bind the depth texture
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
-				  GL_TEXTURE_2D, _depthTexture.getGLHandle(), 0);
-
+	if (_depthTexture)
+	  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
+				    GL_TEXTURE_2D, _depthTexture->getGLHandle(), 0);
+	
 	//Bind the color texture
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, 
-				  _colorTexture.getGLHandle(), 0);
-
+	if (_colorTexture)
+	  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, 
+				    _colorTexture->getGLHandle(), 0);
+	
 	// check FBO status
 	GLenum FBOstatus = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	switch (FBOstatus)
@@ -105,9 +140,6 @@ namespace magnet {
 	  default: M_throw() << "Failed to create FrameBufferObject: Unkown error code";
 	  case GL_FRAMEBUFFER_COMPLETE_EXT: break;
 	  }
-	
-	// switch back to window-system-provided framebuffer
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
       }
       
       /*! \brief Resizes the FBO
@@ -128,9 +160,16 @@ namespace magnet {
 	
 	//Skip identity operations
 	if ((_width == width) && (_height == height)) return;
+	
+	std::tr1::shared_ptr<Texture2D> colorTexture = _colorTexture;
+	std::tr1::shared_ptr<Texture2D> depthTexture = _depthTexture;
 
 	deinit();
-	init(width, height, _internalformat);
+
+	colorTexture->resize(width, height);
+	depthTexture->resize(width, height);
+
+	init(colorTexture, depthTexture);
       }
 
       /*! \brief Renders the contents of the FBO to the real screen FBO.
@@ -155,8 +194,8 @@ namespace magnet {
       inline 
       virtual void deinit()
       {
-	_colorTexture.deinit();
-	_depthTexture.deinit();
+	_colorTexture.reset();
+	_depthTexture.reset();
 	
 	if (_width)
 	  glDeleteFramebuffersEXT(1, &_FBO);
@@ -207,10 +246,18 @@ namespace magnet {
       inline GLuint getFBO() { return _FBO; }
 
       /*! \brief Fetch the texture bound to the color buffer. */
-      inline Texture2D& getColorTexture() { return _colorTexture; }
+      inline Texture2D& getColorTexture() 
+      { 
+	if (!_colorTexture) M_throw() << "Cannot fetch the color texture if the FBO has none bound";
+	return *_colorTexture; 
+      }
 
       /*! \brief Fetch the texture bound to the depth buffer. */
-      inline Texture2D& getDepthTexture() { return _depthTexture; }
+      inline Texture2D& getDepthTexture() 
+      { 
+	if (!_depthTexture) M_throw() << "Cannot fetch the color texture if the FBO has none bound";
+	return *_depthTexture; 
+      }
 
       /*! \brief Fetch the width of the FBO in pixels. */
       inline GLsizei getWidth() { return _width; }
@@ -227,11 +274,10 @@ namespace magnet {
 
     protected:
       Context* _context;
-      Texture2D _colorTexture;
-      Texture2D _depthTexture;
+      std::tr1::shared_ptr<Texture2D> _colorTexture;
+      std::tr1::shared_ptr<Texture2D> _depthTexture;
       GLuint _FBO;
       GLsizei _width, _height;
-      GLint _internalformat;
     };
   }
 }

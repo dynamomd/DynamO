@@ -87,7 +87,11 @@ namespace magnet {
 	inline bool isValid() const { return _valid; }
 
 	/*! \brief Returns the OpenGL handle for the texture. */
-	inline GLuint getGLHandle() { return _handle; }
+	inline GLuint getGLHandle() 
+	{ 
+	  if (!_valid) M_throw() << "Texture is not initialised yet";
+	  return _handle; 
+	}
 
       protected:
       
@@ -148,6 +152,15 @@ namespace magnet {
 		     safeFormat(_internalFormat), GL_UNSIGNED_BYTE, NULL); 
       }
 
+      /*! \brief Resize the texture.
+       */
+      inline void resize(size_t width)
+      {
+	GLint internalformat = _internalFormat;
+	deinit();
+	init(width, internalformat);
+      }
+
       /*! \brief Fills a section of the texture with the passed data
        *
        * \param data The pixel data to fill the texture with.
@@ -204,6 +217,15 @@ namespace magnet {
 		     //The following values are not used as no data is
 		     //passed here, use subImage for that.
 		     safeFormat(_internalFormat), GL_UNSIGNED_BYTE, NULL); 
+      }
+      
+      /*! \brief Resize the texture.
+       */
+      inline void resize(size_t width, size_t height)
+      {
+	GLint internalformat = _internalFormat;
+	deinit();
+	init(width, height, internalformat);
       }
 
       /*! \brief Fills a section of the texture with the passed data
@@ -292,6 +314,15 @@ namespace magnet {
 		     //The following values are not used as no data is
 		     //passed here, use subImage for that.
 		     safeFormat(_internalFormat), GL_UNSIGNED_BYTE, NULL); 
+      }
+
+      /*! \brief Resize the texture.
+       */
+      inline void resize(size_t width, size_t height, size_t depth)
+      {
+	GLint internalformat = _internalFormat;
+	deinit();
+	init(width, height, depth, internalformat);
       }
 
       /*! \brief Fills a section of the texture with the passed data
