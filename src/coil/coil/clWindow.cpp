@@ -642,7 +642,7 @@ namespace coil {
     _filterTarget1.init(_camera.getWidth(), _camera.getHeight());
     _filterTarget2.init(_camera.getWidth(), _camera.getHeight());
     _normalsFBO.init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
-    _shadowFBO.init(1024);
+    _shadowFBO.init(1024, 1024);
     _renderShader.build();
     _depthRenderShader.build();
     _simpleRenderShader.build();
@@ -787,7 +787,7 @@ namespace coil {
 	//////////////////Pass 1//////////////////
 	///Here we draw from the lights perspective
 	_depthRenderShader.attach();
-	_depthRenderShader["ProjectionMatrix"] = _light0.getProjectionMatrix();
+	_depthRenderShader["ProjectionMatrix"] = _light0.getProjectionMatrix(Vector(0,0,0), 6.1035e-5);
 	_depthRenderShader["ViewMatrix"] = _light0.getViewMatrix();	  
 	//Setup the FBO for shadow maps
 	_shadowFBO.attach();
@@ -810,7 +810,6 @@ namespace coil {
     _renderShader.attach();
     _renderShader["ShadowMap"] = 7;
     _renderShader["ShadowIntensity"] = _shadowIntensity;
-    _renderShader["ShadowTexelWidth"] = 1.0f / _shadowFBO.getWidth();
     _renderShader["ShadowMapping"] = _shadowMapping;
     _renderShader["lightPosition"] = _light0.getEyeLocation();
 

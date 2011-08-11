@@ -73,10 +73,9 @@ void main()
 	virtual std::string initFragmentShaderSource()
 	{
 	  return STRINGIFY(
-uniform sampler2DShadow ShadowMap; //The sampler for the shadow map
+uniform sampler2D ShadowMap; //The sampler for the shadow map
 uniform int ShadowMapping; //If shadow mapping is enabled or not
 uniform float ShadowIntensity; //How dark the shadow is
-uniform float ShadowTexelWidth; //The normalised width of one shadowmap texel
 
 varying vec4 ShadowCoord; // Texture coordinate used for shadow lookup
 varying vec3 lightDir; //Direction of the light
@@ -102,29 +101,13 @@ void main()
 
   //Shadow factor (0 = in shadow, 1 = unshadowed)
   //If shadow mapping is off, we want everything to be unshadowed
-  float shadow = 1.0 - float(ShadowMapping);
+  float shadow = 1.0;
   if (bool(ShadowMapping) //Perform shadow mapping if enabled
       && (ShadowCoord.w > 0.0) //Only check surfaces in front of the light
       )
     {
-      vec4 ShadowCoordWdiv = ShadowCoord / ShadowCoord.w;
-      ShadowCoordWdiv.z -= 0.0001;
-
-      for (int x = 0; x < steps; ++x)
-	for (int y = 0; y < steps; ++y)
-	  {
-	    vec4 sampleCoords = ShadowCoordWdiv;
-	    sampleCoords.x += (float(x) - stepoffset) * ShadowTexelWidth;
-	    sampleCoords.y += (float(y) - stepoffset) * ShadowTexelWidth;
-
-	    vec2 circle = (sampleCoords.xy) - vec2(0.5, 0.5);
-	    
-	    //Makes the light source a spotlight (and fixes a wierd
-	    //line perpendicular to the light beam).
-	    if (dot(circle, circle) < 0.25)
-	      shadow += shadow2DProj(ShadowMap, sampleCoords).r;
-	  }
-      shadow /= stepsf * stepsf;
+      vec4 shadow_coord_postw = ShadowCoord / ShadowCoord.w;
+      shadow = shadow_coord_postw.z <= texture2D(ShadowMap, shadow_coord_postw).r;
     }
 
   //This term accounts for self shadowing, to help remove shadow acne

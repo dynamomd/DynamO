@@ -286,7 +286,7 @@ namespace coil {
     std::auto_ptr<Gtk::TreeView> _attrview;
   };
 
-  class AttributeSelector : public Gtk::VBox
+  class AttributeSelector: public Gtk::VBox
   {
   public:
     AttributeSelector(size_t attrnum, bool enableDataFiltering = true):
@@ -619,10 +619,8 @@ namespace coil {
     AttributeOrientationSelector():
       AttributeSelector(magnet::GL::Context::instanceOrientationAttrIndex, false)
     {
-
       for (size_t i(0); i < 3; ++i)
 	_scalarvalues[i].set_text("0.0");
-
       _scalarvalues[3].set_text("1.0");
     }
 
@@ -707,16 +705,11 @@ namespace coil {
 	      sum = std::sqrt(sum);
 	      for (size_t j(0); j < 4; ++j)
 		glptr[4 * i + j] /= sum;
-
 	    }
 	  
 	  _filteredData.unmap();
 	}
-
       _filteredData.attachToAttribute(_attrnum, 4, 1);
     }
-
-  protected:
   };
-
 }

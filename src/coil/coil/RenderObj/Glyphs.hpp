@@ -59,7 +59,8 @@ namespace coil {
 	Gtk::Label* label = Gtk::manage(new Gtk::Label("Glyph Type")); label->show();
 	_glyphBox->pack_start(*label, false, false, 5);
 	
-	_glyphType.reset(new Gtk::ComboBoxText); _glyphType->show();
+	_glyphType.reset(new Gtk::ComboBoxText);
+	_glyphType->show();
 
 	_glyphType->append_text("Sphere");
 	_glyphType->append_text("Arrows");
@@ -85,7 +86,9 @@ namespace coil {
 
       _gtkOptList->pack_start(*_glyphBox, false, false, 5);
 
-      separator = Gtk::manage(new Gtk::HSeparator); separator->show(); _gtkOptList->pack_start(*separator, false, false, 0);
+      separator = Gtk::manage(new Gtk::HSeparator);
+      separator->show();
+      _gtkOptList->pack_start(*separator, false, false, 0);
 
       //The attribute selectors
       _positionSel.reset(new AttributeSelector(magnet::GL::Context::instanceOriginAttrIndex,
@@ -94,20 +97,42 @@ namespace coil {
       _positionSel->buildEntries("Position Data Field:", _ds, 3, 3, Attribute::COORDINATE, 0);
       _gtkOptList->pack_start(*_positionSel, false, false);
 
-      separator = Gtk::manage(new Gtk::HSeparator); separator->show(); _gtkOptList->pack_start(*separator, false, false, 0);
+      separator = Gtk::manage(new Gtk::HSeparator); 
+      separator->show(); 
+      _gtkOptList->pack_start(*separator, false, false, 0);
+
       _scaleSel.reset(new AttributeSelector(magnet::GL::Context::instanceScaleAttrIndex));
 
       _scaleSel->buildEntries("Scale Data Field:", _ds, 1, 4,
 			      Attribute::INTENSIVE | Attribute::EXTENSIVE, 3);
       _gtkOptList->pack_start(*_scaleSel, false, false);
 
-      separator = Gtk::manage(new Gtk::HSeparator); separator->show(); _gtkOptList->pack_start(*separator, false, false, 0);
+      _scaleFactorBox.reset(new Gtk::HBox);
+      _scaleFactorBox->show();
+      _gtkOptList->pack_start(*_scaleFactorBox, false, false, 5);
+      _scaleLabel.reset(new Gtk::Label("Scale factor", 1.0, 0.5f));
+      _scaleLabel->show();
+      _scaleFactorBox->pack_start(*_scaleLabel, true, true, 5);
+      _scaleFactor.reset(new Gtk::Entry);
+      _scaleFactor->show();
+      _scaleFactorBox->pack_start(*_scaleFactor, false, false, 5);
+      _scaleFactor->set_text("1.0");
+
+      _scaleFactor->signal_changed()
+	.connect(sigc::mem_fun(*this, &Glyphs::glyph_scale_changed));
+
+      separator = Gtk::manage(new Gtk::HSeparator); 
+      separator->show(); 
+      _gtkOptList->pack_start(*separator, false, false, 0);
+
       _colorSel.reset(new AttributeColorSelector);
       _colorSel->buildEntries("Color Data Field:", _ds, 1, 4, 
 			      Attribute::INTENSIVE | Attribute::EXTENSIVE, 4);
       _gtkOptList->pack_start(*_colorSel, false, false);
 
-      separator = Gtk::manage(new Gtk::HSeparator); separator->show(); _gtkOptList->pack_start(*separator, false, false, 0);
+      separator = Gtk::manage(new Gtk::HSeparator); 
+      separator->show(); 
+      _gtkOptList->pack_start(*separator, false, false, 0);
 
       _orientSel.reset(new AttributeOrientationSelector);
       _orientSel->buildEntries("Orientation Data Field:", _ds, 3, 4, 
@@ -128,6 +153,9 @@ namespace coil {
       _orientSel.reset();
       _glyphType.reset();
       _glyphLOD.reset();
+      _scaleFactorBox.reset();
+      _scaleLabel.reset();
+      _scaleFactor.reset();
     }
 
     inline virtual void showControls(Gtk::ScrolledWindow* win)
@@ -151,6 +179,14 @@ namespace coil {
     }
 
   protected:
+    
+    inline void glyph_scale_changed()
+    {
+      magnet::gtk::forceNumericEntry(*_scaleFactor);
+      glyph_type_changed();
+    }
+
+
     inline void glyph_type_changed()
     {
       int type = _glyphType->get_active_row_number();
@@ -245,5 +281,9 @@ namespace coil {
     std::auto_ptr<Gtk::ComboBoxText> _glyphType;
     std::auto_ptr<Gtk::SpinButton> _glyphLOD;
     std::auto_ptr<Gtk::HBox> _glyphBox;
+
+    std::auto_ptr<Gtk::HBox>  _scaleFactorBox;
+    std::auto_ptr<Gtk::Label> _scaleLabel;
+    std::auto_ptr<Gtk::Entry> _scaleFactor;
  };
 }

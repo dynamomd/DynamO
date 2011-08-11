@@ -230,13 +230,17 @@ namespace magnet {
       }
 
       /*! \brief Get the projection matrix.
-       *
-       * \param offset This is an offset in camera coordinates to
-       * apply to the head location. It's primary use is to calculate
-       * the perspective shift for the left and right eye in
-       * Analygraph rendering.
+       
+        \param offset This is an offset in camera coordinates to apply
+        to the head location. It's primary use is to calculate the
+        perspective shift for the left and right eye in Analygraph
+        rendering.
+       
+	\param zoffset The amount to bias the depth values in the
+	camera. See \ref GLMatrix::frustrum() for more information as
+	the parameter is directly passed to that function.
        */
-      inline const GLMatrix getProjectionMatrix(Vector offset = Vector(0,0,0)) const 
+      inline const GLMatrix getProjectionMatrix(Vector offset = Vector(0,0,0), GLfloat zoffset = 0) const 
       { 
 	//Local head location
 	Vector headLoc = _headLocation + offset / _simLength;
@@ -263,7 +267,8 @@ namespace magnet {
 				  (-0.5f * getScreenPlaneHeight() - headLoc[1]) * _zNearDist / headLoc[2],// bottom 
 				  (+0.5f * getScreenPlaneHeight() - headLoc[1]) * _zNearDist / headLoc[2],// top
 				  _zNearDist,//Near distance
-				  _zFarDist//Far distance)
+				  _zFarDist,//Far distance
+				  zoffset
 				  );
       }
       

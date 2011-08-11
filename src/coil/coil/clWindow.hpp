@@ -26,7 +26,6 @@
 #include <magnet/static_assert.hpp>
 #include <magnet/GL/light.hpp>
 #include <magnet/GL/shader/render.hpp>
-#include <magnet/GL/shadowFBO.hpp>
 #include <magnet/GL/camera.hpp>
 #include <magnet/GL/multisampledFBO.hpp>
 #include <magnet/GL/shader/normal.hpp>
@@ -90,7 +89,7 @@ namespace coil {
     magnet::GL::shader::RenderShader _renderShader;
     magnet::GL::shader::DepthRenderShader _depthRenderShader;
     magnet::GL::shader::SimpleRenderShader _simpleRenderShader;
-    magnet::GL::shadowFBO _shadowFBO;
+    magnet::GL::FBO _shadowFBO;
 
     //Primary render target
     std::auto_ptr<magnet::GL::FBO> _renderTarget;

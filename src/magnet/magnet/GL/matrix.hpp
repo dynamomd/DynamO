@@ -127,12 +127,21 @@ namespace magnet {
       { return GLMatrix(Rodrigues((angle * M_PI / 180.0f) * axis)); }
 
       /*! \brief Return a matrix corresponding to a frustrum projection.
-       *
-       * This command emulates the glFrustrum command.
+       
+        This command emulates the glFrustrum command with one
+        important exception. There is an additional factor called
+        zoffset, which biases all surfaces towards (positive) or away
+        (negative) from the camera. This is used to solve Z-fighting
+        errors. The resource which explains this value is given here
+	http://www.terathon.com/gdc07_lengyel.pdf
+	
+	If you wish to bias a light source's projection matrix (for
+	shadow map calculations) you should set zoffset to 4.8e-7.
        */
       inline static GLMatrix frustrum(const GLfloat left, const GLfloat right, 
 				      const GLfloat bottom, const GLfloat top, 
-				      const GLfloat nearVal, const GLfloat farVal)
+				      const GLfloat nearVal, const GLfloat farVal,
+				      const GLfloat zoffset = 0)
       { 
 	GLfloat A = (right + left) / (right - left);
 	GLfloat B = (top + bottom) / (top - bottom);
@@ -141,7 +150,7 @@ namespace magnet {
 	
 	Base retval = {{2 * nearVal / (right - left), 0, 0, 0,
 			0, 2 * nearVal / (top - bottom), 0, 0,
-			A, B, C, -1,
+			A, B, C - zoffset, -1,
 			0, 0, D, 0}};
 	return retval;
       }
