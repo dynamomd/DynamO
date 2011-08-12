@@ -119,6 +119,7 @@ namespace coil {
       _scaleFactor->show();
       _scaleFactorBox->pack_start(*_scaleFactor, false, false, 5);
       _scaleFactor->set_text("1.0");
+      _scaleFactor->set_width_chars(5);
 
       _scaleFactor->signal_changed()
 	.connect(sigc::mem_fun(*this, &Glyphs::glyph_scale_changed));
@@ -216,20 +217,38 @@ namespace coil {
       int LOD = _glyphLOD->get_value_as_int();
       int type = _glyphType->get_active_row_number();
 
+
+      std::vector<GLfloat> vertices;
+
       switch (type)
 	{
 	case 0: //Spheres
 	  {
 	    magnet::GL::objects::primitives::Sphere sph(magnet::GL::objects::primitives::Sphere::icosahedron, LOD);
-	    return std::vector<GLfloat>(sph.getVertices(), sph.getVertices() + sph.getVertexCount() * 3);
+	    vertices = std::vector<GLfloat>(sph.getVertices(), sph.getVertices() + sph.getVertexCount() * 3);
+	    break;
 	  }
 	case 1: //Arrows
-	  return magnet::GL::objects::primitives::Arrow::getVertices(LOD);
+	  vertices = magnet::GL::objects::primitives::Arrow::getVertices(LOD);
+	  break;
 	case 2: //Cylinder
-	  return magnet::GL::objects::primitives::Cylinder::getVertices(LOD);
+	  vertices = magnet::GL::objects::primitives::Cylinder::getVertices(LOD);
+	  break;
 	default:
 	  M_throw() << "Unrecognised glyph type";
 	}
+
+      GLfloat factor = 1.0;
+      
+      try {
+	factor = boost::lexical_cast<double>(_scaleFactor->get_text());
+      } catch (...) {}
+
+      for (std::vector<GLfloat>::iterator iPtr = vertices.begin();
+	   iPtr != vertices.end(); ++iPtr)
+	*iPtr *= factor;
+      
+      return vertices;
     }
     
     inline virtual std::vector<GLfloat> getPrimitiveNormals()
