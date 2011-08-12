@@ -31,6 +31,7 @@
 #include <coil/RenderObj/Function.hpp>
 #include <coil/RenderObj/Spheres.hpp>
 #include <coil/RenderObj/Lines.hpp>
+#include <coil/RenderObj/DataSet.hpp>
 #include <boost/foreach.hpp>
 #include <algorithm>
 

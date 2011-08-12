@@ -15,14 +15,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "include.hpp"
+#include <dynamo/dynamics/species/include.hpp>
+
+#ifdef DYNAMO_visualizer
+# include <coil/RenderObj/DataSet.hpp>
+# include <dynamo/dynamics/interactions/representations/spherical.hpp>
+# include <dynamo/dynamics/liouvillean/CompressionL.hpp>
+#endif
+
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
 
-#ifdef DYNAMO_visualizer
-#include "../interactions/representations/spherical.hpp"
-#include "../liouvillean/CompressionL.hpp"
-#endif
+Species::~Species() {}
 
 Species* 
 Species::getClass(const magnet::xml::Node& XML, dynamo::SimData* tmp, size_t nID)
@@ -62,11 +66,11 @@ Species::createDataSet() const
 void
 Species::initDataSet() const
 {
-  _renderData->addAttribute("Positions", coil::Attribute::COORDINATE, 3);
+  _renderData->addAttribute("Positions", coil::Attribute::COORDINATE | coil::Attribute::DEFAULT_GLYPH_POSITION, 3);
   _renderData->addAttribute("Velocity", coil::Attribute::INTENSIVE, 3);
-  _renderData->addAttribute("Radii", coil::Attribute::INTENSIVE, 1);
-
+  _renderData->addAttribute("Radii", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_SCALING, 1);
   _renderData->addAttribute("Mass", coil::Attribute::EXTENSIVE, 1);
+
   { 
     size_t nsph = dynamic_cast<const SphericalRepresentation&>(*getIntPtr()).spheresPerParticle();    
     std::vector<GLfloat>& mass = (*_renderData)["Mass"].getData();

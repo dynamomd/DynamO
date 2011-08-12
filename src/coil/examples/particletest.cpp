@@ -60,8 +60,13 @@ int main(int argc, char *argv[])
   coil.getInstance().addWindow(window);
 
   //Now add some data (aka Attributes) to our dataset
-  data->addAttribute("Positions", coil::Attribute::COORDINATE, 3);
-  data->addAttribute("1 Component values", coil::Attribute::INTENSIVE, 1);
+  //
+  // DEFAULT_GLYPH_POSITION and DEFAULT_GLYPH_SCALING set the default
+  // values for the glyph positioning and scaling, use these to make
+  // it so that when you add a glyph using the coil GUI, it is sized
+  // to a reasonable value.
+  data->addAttribute("Positions", coil::Attribute::COORDINATE | coil::Attribute::DEFAULT_GLYPH_POSITION, 3);
+  data->addAttribute("1 Component values", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_SCALING, 1);
   data->addAttribute("2 Component values", coil::Attribute::INTENSIVE, 2);
   data->addAttribute("3 Component values", coil::Attribute::INTENSIVE, 3);
   data->addAttribute("4 Component values", coil::Attribute::INTENSIVE, 4);

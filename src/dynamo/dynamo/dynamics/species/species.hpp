@@ -18,25 +18,22 @@
 #pragma once
 
 #include <dynamo/base.hpp>
-#include "../ranges/1range.hpp"
-#include "../../base/is_simdata.hpp"
+#include <dynamo/dynamics/ranges/1range.hpp>
+#include <dynamo/base/is_simdata.hpp>
 #include <magnet/cloneptr.hpp>
 #include <string>
-#ifdef DYNAMO_visualizer
-# include <coil/RenderObj/DataSet.hpp>
-#endif
 
 namespace magnet { namespace xml { class Node; } }
 namespace xml { class XmlStream; }
 class Particle;
 class Interaction;
 class RenderObj;
-namespace magnet { namespace GL { class CLGLState; } }
+namespace coil { class DataSet; }
 
 class Species: public dynamo::SimBase
 {
 public:
-  virtual ~Species() {}
+  virtual ~Species();
 
   inline bool isSpecies(const Particle& p1) const { return range->isInRange(p1); }  
 
@@ -65,6 +62,7 @@ public:
   virtual void initDataSet() const;
   virtual void updateRenderData() const;
 protected:
+
   mutable std::tr1::shared_ptr<coil::DataSet> _renderData;
 #endif
 

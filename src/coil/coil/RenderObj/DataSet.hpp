@@ -49,12 +49,15 @@ namespace coil {
   {
   public:
     enum AttributeType { 
-      INTENSIVE = 1, //!< Intensive property (e.g., Temperature, density)
-      EXTENSIVE = 2, //!< Extensive property (e.g., mass, momentum)
-      COORDINATE = 4 //!< A special attribute which specifies the location of the attribute.
+      INTENSIVE  = 1 << 0, //!< Intensive property (e.g., Temperature, density)
+      EXTENSIVE  = 1 << 1, //!< Extensive property (e.g., mass, momentum)
+      COORDINATE = 1 << 2, //!< A special attribute which specifies the location of the attribute.
+      
+      DEFAULT_GLYPH_POSITION = 1 << 3, //!< This flag marks that the attribute should be used as the initial position value for a glyph.
+      DEFAULT_GLYPH_SCALING  = 1 << 4, //!< This flag marks that the attribute should be used as the initial scaling field for a glyph.
     };
 
-    inline Attribute(size_t N, AttributeType type, size_t components, 
+    inline Attribute(size_t N, int type, size_t components, 
 		     magnet::GL::Context* context):
       _context(context),
       _dataUpdates(0),
@@ -110,7 +113,7 @@ namespace coil {
 
     inline size_t components() const { return _components; }
 
-    inline AttributeType getType() const { return _type; }
+    inline int getType() const { return _type; }
 
     /**@}*/
 
@@ -162,7 +165,7 @@ namespace coil {
     size_t _components;
 
     //! \brief The type of data stored in this Attribute.
-    AttributeType _type;
+    int _type;
 
     /*! \brief The number of glyphs, filters and other render objects
      * currently using this type.
@@ -209,7 +212,7 @@ namespace coil {
      * \param type The type of the attribute.
      * \param components The number of components per value of the attribute.
      */
-    void addAttribute(std::string name, Attribute::AttributeType type, size_t components);
+    void addAttribute(std::string name, int type, size_t components);
 
     /*! \brief Looks up an attribute by its name.
      */
@@ -335,7 +338,7 @@ namespace coil {
     }
     
     void buildEntries(std::string name, DataSet& ds, size_t minComponents, size_t maxComponents, 
-		      int typeMask, size_t components)
+		      int typeMask, size_t components, int defaultMask = 0)
     {
       _components = components;
       _label.set_text(name);
@@ -360,7 +363,21 @@ namespace coil {
 	    row[_modelColumns.m_ptr] = iPtr->second;
 	  }
       
-      _comboBox.set_active(0);
+      typedef Gtk::TreeModel::Children::iterator iterator;
+      iterator selected = _comboBox.get_model()->children().begin();
+
+      for (iterator iPtr = _comboBox.get_model()->children().begin();
+	   iPtr != _comboBox.get_model()->children().end(); ++iPtr)
+	{
+	  std::tr1::shared_ptr<Attribute> attr_ptr = (*iPtr)[_modelColumns.m_ptr];
+	  if ((attr_ptr) && (attr_ptr->getType() & defaultMask))
+	    {
+	      selected = iPtr;
+	      break;
+	    }
+	}
+
+      _comboBox.set_active(selected);
     }
     
     struct ModelColumns : Gtk::TreeModelColumnRecord

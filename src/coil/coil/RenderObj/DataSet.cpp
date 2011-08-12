@@ -96,7 +96,7 @@ namespace coil {
   }
 
   void 
-  DataSet::addAttribute(std::string name, Attribute::AttributeType type, size_t components)
+  DataSet::addAttribute(std::string name, int type, size_t components)
   {
     if (find(name) != end())
       M_throw() << "Trying to add an Attribute with a existing name, " << name;
