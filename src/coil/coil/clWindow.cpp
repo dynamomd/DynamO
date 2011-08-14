@@ -642,9 +642,18 @@ namespace coil {
     _filterTarget1.init(_camera.getWidth(), _camera.getHeight());
     _filterTarget2.init(_camera.getWidth(), _camera.getHeight());
     _normalsFBO.init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
-    _shadowFBO.init(1024, 1024);
+
+    std::tr1::shared_ptr<magnet::GL::Texture2D> 
+      _VSMColorTex(new magnet::GL::Texture2D), 
+      _VSMDepthTex(new magnet::GL::Texture2D);
+    _VSMColorTex->init(1024, 1024, GL_RGB16F_ARB);
+    _VSMColorTex->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP);
+    _VSMColorTex->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP);
+    _VSMDepthTex->init(1024, 1024, GL_DEPTH_COMPONENT);
+    _shadowFBO.init(_VSMColorTex, _VSMDepthTex);
+    
     _renderShader.build();
-    _depthRenderShader.build();
+    _VSMShader.build();
     _simpleRenderShader.build();
     _nrmlShader.build();
 
@@ -723,7 +732,7 @@ namespace coil {
     _normalsFBO.deinit();
     _shadowFBO.deinit();
     _renderShader.deinit();
-    _depthRenderShader.deinit();
+    _VSMShader.deinit();
     _simpleRenderShader.build();
     _nrmlShader.deinit();
 
@@ -786,12 +795,14 @@ namespace coil {
       {
 	//////////////////Pass 1//////////////////
 	///Here we draw from the lights perspective
-	_depthRenderShader.attach();
-	_depthRenderShader["ProjectionMatrix"] = _light0.getProjectionMatrix(Vector(0,0,0), 6.1035e-5);
-	_depthRenderShader["ViewMatrix"] = _light0.getViewMatrix();	  
+	_VSMShader.attach();
+	_VSMShader["ProjectionMatrix"] = _light0.getProjectionMatrix(Vector(0,0,0), 6.1035e-5);
+	_VSMShader["ViewMatrix"] = _light0.getViewMatrix();	  
 	//Setup the FBO for shadow maps
 	_shadowFBO.attach();
-	glClear(GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_ALPHA_TEST);
+	glDisable(GL_BLEND);
 
 	//Enter the render ticks for all objects
 	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
@@ -800,8 +811,10 @@ namespace coil {
 	    (*iPtr)->glRender(_shadowFBO, _light0, RenderObj::SHADOW);
 
 	_shadowFBO.detach();
-	_shadowFBO.getDepthTexture().bind(7);
-	_depthRenderShader.detach();
+	_shadowFBO.getColorTexture().bind(7);
+	_VSMShader.detach();
+	glEnable(GL_BLEND);
+	glEnable(GL_ALPHA_TEST);
       }
       
     //Bind to the multisample buffer
@@ -1465,7 +1478,7 @@ namespace coil {
     //We need a non-multisampled FBO, just use one of the filter FBO's
     _filterTarget1.attach();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
-    glDisable(GL_ALPHA);
+    glDisable(GL_ALPHA_TEST);
     glDisable(GL_BLEND);
 
     //Perform unique coloring of screen objects
@@ -1489,8 +1502,8 @@ namespace coil {
     glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
 
     _filterTarget1.detach();
-    glEnable(GL_ALPHA);
     glEnable(GL_BLEND);
+    glEnable(GL_ALPHA_TEST);
 
     //Now let the objects know what was picked
     const cl_uint objID = pixel[0] + 256 * (pixel[1] + 256 * (pixel[2] + 256 * pixel[3]));

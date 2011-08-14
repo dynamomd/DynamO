@@ -29,7 +29,7 @@
 #include <magnet/GL/camera.hpp>
 #include <magnet/GL/multisampledFBO.hpp>
 #include <magnet/GL/shader/normal.hpp>
-#include <magnet/GL/shader/depth_render.hpp>
+#include <magnet/GL/shader/vsm.hpp>
 #include <magnet/GL/shader/simple_render.hpp>
 #include <coil/filters/filter.hpp>
 #include <coil/RenderObj/RenderObj.hpp>
@@ -87,7 +87,7 @@ namespace coil {
     void setLabelText(Gtk::Label*, std::string);
 
     magnet::GL::shader::RenderShader _renderShader;
-    magnet::GL::shader::DepthRenderShader _depthRenderShader;
+    magnet::GL::shader::VSMShader _VSMShader;
     magnet::GL::shader::SimpleRenderShader _simpleRenderShader;
     magnet::GL::FBO _shadowFBO;
 

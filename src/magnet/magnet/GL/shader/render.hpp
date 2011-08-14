@@ -83,6 +83,27 @@ varying vec3 normal; //The surface normal
 varying vec4 color;
 varying vec3 eyeVector;
 
+vec4 ShadowCoordPostW;
+
+float chebyshevUpperBound(float distance)
+{
+  vec2 moments = texture2D(ShadowMap,ShadowCoordPostW.xy).rg;
+	
+  // Surface is fully lit. as the current fragment is before the light occluder
+  if (distance <= moments.x)
+    return 1.0 ;
+
+  // The fragment is either in shadow or penumbra. We now use
+  // chebyshev's upperBound to check How likely this pixel is to be
+  // lit (p_max)
+  float variance = moments.y - (moments.x * moments.x);
+  //variance = max(variance, 0.002);
+
+  float d = distance - moments.x;
+  float p_max = variance / (variance + d * d);
+
+  return p_max;
+}
 
 void main()
 {
@@ -106,10 +127,11 @@ void main()
       && (ShadowCoord.w > 0.0) //Only check surfaces in front of the light
       )
     {
-      vec4 shadow_coord_postw = ShadowCoord / ShadowCoord.w;
-      shadow = shadow_coord_postw.z <= texture2D(ShadowMap, shadow_coord_postw).r;
+      ShadowCoordPostW = ShadowCoord / ShadowCoord.w;
+      shadow = ShadowCoord.z <= texture2D(ShadowMap,ShadowCoordPostW.xy).r;
+      //chebyshevUpperBound(ShadowCoordPostW.z);
     }
-
+  
   //This term accounts for self shadowing, to help remove shadow acne
   //on the sides of objects
   shadow = min(shadow, smoothstep(-0.1, 1.0, lightNormDot));
@@ -138,6 +160,7 @@ void main()
   intensity *= attenuation;
 
   gl_FragColor = vec4(intensity * color.rgb, color.a);
+  //gl_FragColor = vec4(ShadowCoord.z > 0.0, ShadowCoord.z > 0.5, ShadowCoord.z > 1.0, 1.0 + intensity);
 });
 	}
       };
