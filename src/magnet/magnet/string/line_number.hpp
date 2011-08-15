@@ -17,6 +17,7 @@
 
 #pragma once
 #include <magnet/string/searchreplace.hpp>
+#include <iomanip>
 
 namespace magnet {
   namespace string {
@@ -26,15 +27,16 @@ namespace magnet {
       class LineNum
       {
       public:
-	LineNum():_count(0) {}
+	LineNum(size_t count_width):_count(1), _width(count_width) {}
 
 	LineNum& operator++() { ++_count; return *this; }
 
 	friend std::ostream& operator<<(std::ostream& os, LineNum& id)
-	{ return os << id._count++ << ": "; }
+	{ return os << std::setw(id._width) << id._count++ << ": "; }
 
       protected:
 	size_t _count;
+	size_t _width;
       };
     }
     /*! \brief Formats text by adding line numbers.  
@@ -47,7 +49,10 @@ namespace magnet {
     add_line_numbers(std::string in)
     { 
       std::ostringstream os;
-      detail::LineNum number;
+      size_t lines = std::count(in.begin(), in.end(), '\n') + 1;
+      size_t digits = 0; while (lines) { lines /= 10; ++digits; }
+
+      detail::LineNum number(digits);
 
       os << number;
 

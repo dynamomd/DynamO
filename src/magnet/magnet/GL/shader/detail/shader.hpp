@@ -343,7 +343,7 @@ namespace magnet {
 		if (!result)
 		  M_throw() << "Vertex shader compilation failed, build log follows\n"
 			    << getShaderBuildlog(_vertexShaderHandle)
-			    << "\n Source code:\n\n"
+			    << "\n Source code:\n"
 			    << magnet::string::add_line_numbers(_vertexShaderCode)
 			    << "\n";
 	      }
@@ -363,7 +363,7 @@ namespace magnet {
 		if (!result)
 		  M_throw() << "Fragment shader compilation failed, build log follows\n"
 			    << getShaderBuildlog(_fragmentShaderHandle)
-			    << "\n Source code:\n\n"
+			    << "\n Source code:\n"
 			    << magnet::string::add_line_numbers(_fragmentShaderCode)
 			    << "\n";
 	      }
@@ -383,7 +383,7 @@ namespace magnet {
 		if (!result)
 		  M_throw() << "Geometry shader compilation failed, build log follows\n"
 			    << getShaderBuildlog(_geometryShaderHandle)
-			    << "\n Source code:\n\n"
+			    << "\n Source code:\n"
 			    << magnet::string::add_line_numbers(_geometryShaderCode)
 			    << "\n";
 	      }
@@ -495,15 +495,16 @@ namespace magnet {
 	   */
 	  inline std::string getShaderBuildlog(GLhandleARB shaderHandle)
 	  {
-	    std::string retVal;
 	    GLint errorLoglength;
 	    glGetObjectParameterivARB(shaderHandle, GL_OBJECT_INFO_LOG_LENGTH_ARB, &errorLoglength);
-	    retVal.resize(errorLoglength);
+	    char* buffer = new char[errorLoglength];
 	  
 	    GLsizei actualErrorLogLength;
-	    glGetInfoLogARB(shaderHandle, errorLoglength, &actualErrorLogLength, &retVal[0]);
-	
-	    return retVal;
+	    glGetInfoLogARB(shaderHandle, errorLoglength, &actualErrorLogLength, buffer);
+
+	    std::string retval(buffer, buffer + actualErrorLogLength);
+	    delete[] buffer;
+	    return retval;
 	  }
        	};
       }

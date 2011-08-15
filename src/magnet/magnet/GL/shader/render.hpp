@@ -128,8 +128,9 @@ void main()
       )
     {
       ShadowCoordPostW = ShadowCoord / ShadowCoord.w;
-      shadow = ShadowCoordPostW.z <= texture2D(ShadowMap,ShadowCoordPostW).r;
-      //chebyshevUpperBound(ShadowCoordPostW.z);
+      shadow 
+	= float(ShadowCoordPostW.z 
+		<= texture2D(ShadowMap,ShadowCoordPostW.xy).r);
     }
   
   //This term accounts for self shadowing, to help remove shadow acne
