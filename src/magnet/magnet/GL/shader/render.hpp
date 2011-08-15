@@ -130,7 +130,7 @@ void main()
       ShadowCoordPostW = ShadowCoord / ShadowCoord.w;
       shadow 
 	= float(ShadowCoordPostW.z 
-		<= texture2D(ShadowMap,ShadowCoordPostW.xy).r);
+		<=  (2.0 * texture2D(ShadowMap, ShadowCoordPostW.xy).r - 1.0));
     }
   
   //This term accounts for self shadowing, to help remove shadow acne

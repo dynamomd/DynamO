@@ -821,7 +821,7 @@ namespace coil {
 	    (*iPtr)->glRender(_shadowFBO, _light0, RenderObj::SHADOW);
 
 	_shadowFBO.detach();
-	_shadowFBO.getDepthTexture().bind(7);
+	_shadowFBO.getColorTexture().bind(7);
 	_VSMShader.detach();
 	glEnable(GL_BLEND);
 	glEnable(GL_ALPHA_TEST);
