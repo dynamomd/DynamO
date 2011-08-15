@@ -97,7 +97,7 @@ float chebyshevUpperBound(float distance)
   // chebyshev's upperBound to check How likely this pixel is to be
   // lit (p_max)
   float variance = moments.y - (moments.x * moments.x);
-  //variance = max(variance, 0.0002);
+  variance = max(variance, 0.0000001);
 
   float d = distance - moments.x;
   float p_max = variance / (variance + d * d);

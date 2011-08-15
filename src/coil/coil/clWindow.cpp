@@ -648,11 +648,11 @@ namespace coil {
       _VSMDepthTex(new magnet::GL::Texture2D);
 
     _VSMColorTex->init(1024, 1024, GL_RG32F);
+    _VSMColorTex->genMipmaps();
     _VSMColorTex->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP);
     _VSMColorTex->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP);
     _VSMColorTex->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    _VSMColorTex->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    _VSMColorTex->genMipmaps();
+    _VSMColorTex->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     _VSMDepthTex->init(1024, 1024, GL_DEPTH_COMPONENT);
     _VSMDepthTex->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
