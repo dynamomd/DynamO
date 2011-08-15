@@ -18,6 +18,7 @@
 #include <magnet/GL/context.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/string/formatcode.hpp>
+#include <magnet/string/line_number.hpp>
 #include <boost/any.hpp>
 #include <tr1/array>
 #include <tr1/unordered_map>
@@ -341,7 +342,10 @@ namespace magnet {
 		glGetObjectParameterivARB(_vertexShaderHandle, GL_OBJECT_COMPILE_STATUS_ARB, &result);
 		if (!result)
 		  M_throw() << "Vertex shader compilation failed, build log follows\n"
-			    << getShaderBuildlog(_vertexShaderHandle);
+			    << getShaderBuildlog(_vertexShaderHandle)
+			    << "\n Source code:\n\n"
+			    << magnet::string::add_line_numbers(_vertexShaderCode)
+			    << "\n";
 	      }
 
 	    //Fragment shader
@@ -358,7 +362,10 @@ namespace magnet {
 		glGetObjectParameterivARB(_fragmentShaderHandle, GL_OBJECT_COMPILE_STATUS_ARB, &result);
 		if (!result)
 		  M_throw() << "Fragment shader compilation failed, build log follows\n"
-			    << getShaderBuildlog(_fragmentShaderHandle);
+			    << getShaderBuildlog(_fragmentShaderHandle)
+			    << "\n Source code:\n\n"
+			    << magnet::string::add_line_numbers(_fragmentShaderCode)
+			    << "\n";
 	      }
 
 	    //Geometry shader
@@ -369,13 +376,16 @@ namespace magnet {
 
 		if (!(_geometryShaderHandle = glCreateShaderObjectARB(GL_GEOMETRY_SHADER_EXT)))
 		  M_throw() << "Failed to create geometry shader handle";
-		const GLcharARB* src = _fragmentShaderCode.c_str();
+		const GLcharARB* src = _geometryShaderCode.c_str();
 		glShaderSourceARB(_geometryShaderHandle, 1, &src, NULL);
 		glCompileShaderARB(_geometryShaderHandle);
-		glGetObjectParameterivARB(_fragmentShaderHandle, GL_OBJECT_COMPILE_STATUS_ARB, &result);
+		glGetObjectParameterivARB(_geometryShaderHandle, GL_OBJECT_COMPILE_STATUS_ARB, &result);
 		if (!result)
 		  M_throw() << "Geometry shader compilation failed, build log follows\n"
-			    << getShaderBuildlog(_fragmentShaderHandle);
+			    << getShaderBuildlog(_geometryShaderHandle)
+			    << "\n Source code:\n\n"
+			    << magnet::string::add_line_numbers(_geometryShaderCode)
+			    << "\n";
 	      }
 
 	    //Now we've build both shaders, combine them into a program
