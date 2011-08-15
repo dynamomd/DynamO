@@ -128,7 +128,7 @@ void main()
       )
     {
       ShadowCoordPostW = ShadowCoord / ShadowCoord.w;
-      shadow = ShadowCoord.z <= texture2D(ShadowMap,ShadowCoordPostW.xy).r;
+      shadow = ShadowCoordPostW.z <= texture2D(ShadowMap,ShadowCoordPostW).r;
       //chebyshevUpperBound(ShadowCoordPostW.z);
     }
   
@@ -160,7 +160,6 @@ void main()
   intensity *= attenuation;
 
   gl_FragColor = vec4(intensity * color.rgb, color.a);
-  //gl_FragColor = vec4(ShadowCoord.z > 0.0, ShadowCoord.z > 0.5, ShadowCoord.z > 1.0, 1.0 + intensity);
 });
 	}
       };

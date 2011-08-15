@@ -62,12 +62,16 @@ void main()
 	
 	virtual std::string initFragmentShaderSource()
 	{ return STRINGIFY(
+uniform mat4 ProjectionMatrix;
 varying vec4 position;
 void main()
 {
-  float depth = position.z / position.w ;
+  float depth = position.z ;
+  float A = ProjectionMatrix[2].z;
+  float B = ProjectionMatrix[3].z;
+  depth = 0.5 * (-A * depth + B) / depth + 0.5;
   //Don't forget to move away from unit cube ([-1,1]) to [0,1] coordinate system
-  depth = depth * 0.5 + 0.5;
+  //depth = depth * 0.5 + 0.5;
   
   float moment1 = depth;
   float moment2 = depth * depth;

@@ -646,10 +646,20 @@ namespace coil {
     std::tr1::shared_ptr<magnet::GL::Texture2D> 
       _VSMColorTex(new magnet::GL::Texture2D), 
       _VSMDepthTex(new magnet::GL::Texture2D);
+
     _VSMColorTex->init(1024, 1024, GL_RGB16F_ARB);
-    _VSMColorTex->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP);
-    _VSMColorTex->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP);
+    _VSMColorTex->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    _VSMColorTex->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    _VSMColorTex->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    _VSMColorTex->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
     _VSMDepthTex->init(1024, 1024, GL_DEPTH_COMPONENT);
+    _VSMDepthTex->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    _VSMDepthTex->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    _VSMDepthTex->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    _VSMDepthTex->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    _VSMDepthTex->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+
     _shadowFBO.init(_VSMColorTex, _VSMDepthTex);
     
     _renderShader.build();
@@ -811,7 +821,7 @@ namespace coil {
 	    (*iPtr)->glRender(_shadowFBO, _light0, RenderObj::SHADOW);
 
 	_shadowFBO.detach();
-	_shadowFBO.getColorTexture().bind(7);
+	_shadowFBO.getDepthTexture().bind(7);
 	_VSMShader.detach();
 	glEnable(GL_BLEND);
 	glEnable(GL_ALPHA_TEST);
