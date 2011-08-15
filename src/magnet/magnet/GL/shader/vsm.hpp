@@ -42,7 +42,7 @@ attribute vec4 iOrigin;
 attribute vec4 iOrientation;
 attribute vec4 iScale;
 
-varying vec4 position;
+varying float depth;
 
 vec3 qrot(vec4 q, vec3 v)
 { return v + 2.0 * cross(cross(v,q.xyz) + q.w * v, q.xyz); }
@@ -55,7 +55,7 @@ void main()
   vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * scale)
 				   + iOrigin.xyz, 1.0);
   vec4 pos = ProjectionMatrix * vVertex;
-  position = pos;
+  depth = -vVertex.z;
   gl_Position = pos;
 });
 	}
@@ -63,19 +63,17 @@ void main()
 	virtual std::string initFragmentShaderSource()
 	{ return STRINGIFY(
 uniform mat4 ProjectionMatrix;
-varying vec4 position;
+varying float depth;
 void main()
 {
-  float depth = position.z / position.w;
-  //Don't forget to move away from unit cube ([-1,1]) to [0,1] coordinate system
-  depth = depth * 0.5 + 0.5;
-  
-  float moment1 = depth;
-  float moment2 = depth * depth;
+  float A = ProjectionMatrix[2].z;
+  float B = ProjectionMatrix[3].z;
+  float moment1 = 0.5 * (-A * depth + B) / depth + 0.5;
+  float moment2 = moment1 * moment1;
 
   // Adjusting moments (this is sort of bias per pixel) using derivative
-  float dx = dFdx(depth);
-  float dy = dFdy(depth);
+  float dx = dFdx(moment1);
+  float dy = dFdy(moment1);
   moment2 += 0.25 * (dx * dx + dy * dy);
 	
   gl_FragColor = vec4(moment1, moment2, 0, 1.0);

@@ -67,6 +67,12 @@ namespace magnet {
 	  glBindTexture(_texType, _handle);
 	}
 
+	inline void genMipmaps()
+	{
+	  bind(0);
+	  glGenerateMipmap(_texType);
+	}
+
 	/*! \brief Sets an integer parameter of the texture.
 	 *
 	 * \param paramname The name of the parameter to set.

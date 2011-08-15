@@ -97,7 +97,7 @@ float chebyshevUpperBound(float distance)
   // chebyshev's upperBound to check How likely this pixel is to be
   // lit (p_max)
   float variance = moments.y - (moments.x * moments.x);
-  //variance = max(variance, 0.002);
+  //variance = max(variance, 0.0002);
 
   float d = distance - moments.x;
   float p_max = variance / (variance + d * d);
@@ -128,9 +128,8 @@ void main()
       )
     {
       ShadowCoordPostW = ShadowCoord / ShadowCoord.w;
-      shadow 
-	= float(ShadowCoordPostW.z 
-		<=  (2.0 * texture2D(ShadowMap, ShadowCoordPostW.xy).r - 1.0));
+      //shadow = float(ShadowCoordPostW.z <= texture2D(ShadowMap, ShadowCoordPostW.xy).r);
+      shadow = chebyshevUpperBound(ShadowCoordPostW.z);
     }
   
   //This term accounts for self shadowing, to help remove shadow acne
