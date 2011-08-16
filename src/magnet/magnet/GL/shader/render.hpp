@@ -120,17 +120,16 @@ void main()
   vec3 renormLightDir = normalize(lightDir);
   float lightNormDot = dot(renormal, renormLightDir);
 
-  //Shadow factor (0 = in shadow, 1 = unshadowed)
+  ShadowCoordPostW = ShadowCoord / ShadowCoord.w;
+
   //If shadow mapping is off, we want everything to be unshadowed
-  float shadow = 1.0;
-  if (bool(ShadowMapping) //Perform shadow mapping if enabled
-      && (ShadowCoord.w > 0.0) //Only check surfaces in front of the light
-      )
-    {
-      ShadowCoordPostW = ShadowCoord / ShadowCoord.w;
-      //shadow = float(ShadowCoordPostW.z <= texture2D(ShadowMap, ShadowCoordPostW.xy).r);
-      shadow = chebyshevUpperBound(ShadowCoordPostW.z);
-    }
+  float shadow = 1 - bool(ShadowMapping);
+  vec2 circle = (ShadowCoordPostW.xy) - vec2(0.5, 0.5);
+
+  if (bool(ShadowMapping)
+      && (dot(circle, circle) < 0.25)
+      && (ShadowCoord.w > 0.0))
+    shadow = chebyshevUpperBound(ShadowCoordPostW.z);
   
   //This term accounts for self shadowing, to help remove shadow acne
   //on the sides of objects
