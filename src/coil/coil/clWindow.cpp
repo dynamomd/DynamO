@@ -643,25 +643,12 @@ namespace coil {
     _filterTarget2.init(_camera.getWidth(), _camera.getHeight());
     _normalsFBO.init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
 
-    std::tr1::shared_ptr<magnet::GL::Texture2D> 
-      _VSMColorTex(new magnet::GL::Texture2D), 
-      _VSMDepthTex(new magnet::GL::Texture2D);
-
-    _VSMColorTex->init(1024, 1024, GL_RG32F);
-    _VSMColorTex->genMipmaps();
-    _VSMColorTex->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP);
-    _VSMColorTex->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP);
-    _VSMColorTex->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    _VSMColorTex->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    _VSMDepthTex->init(1024, 1024, GL_DEPTH_COMPONENT);
-    _VSMDepthTex->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    _VSMDepthTex->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    _VSMDepthTex->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP);
-    _VSMDepthTex->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP);
-    _VSMDepthTex->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-
-    _shadowFBO.init(_VSMColorTex, _VSMDepthTex);
+    _shadowFBO.setSamples(std::min(4, magnet::GL::MultisampledFBO::getSupportedSamples()));
+    _shadowFBO.init(1024, 1024, GL_RG32F);
+    _shadowFBO.getColorTexture().parameter(GL_TEXTURE_WRAP_S, GL_CLAMP);
+    _shadowFBO.getColorTexture().parameter(GL_TEXTURE_WRAP_T, GL_CLAMP);
+    _shadowFBO.getColorTexture().parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    _shadowFBO.getColorTexture().parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
     _renderShader.build();
     _VSMShader.build();

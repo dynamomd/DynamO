@@ -36,9 +36,11 @@ namespace magnet {
        *
        * \param samples The number of subsamples per pixel.
        */
-      inline MultisampledFBO(GLsizei samples):
+      inline MultisampledFBO(GLsizei samples = 1):
 	_samples(samples)
       {}
+
+      inline void setSamples(GLsizei samples) { _samples = samples; }
 
       inline 
       virtual void init(GLsizei width, GLsizei height, GLint internalformat = GL_RGBA)
@@ -52,12 +54,12 @@ namespace magnet {
 	//Now create the multisampling color buffer
 	glGenRenderbuffersEXT(1, &_multisampleColorBuffer);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _multisampleColorBuffer);
-	glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT, _samples, GL_RGBA, _width, _height);
+	glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT, _samples, internalformat, _width, _height);
 
 	// multi sampled depth buffer
 	glGenRenderbuffersEXT(1, &_multisampleDepthBuffer);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _multisampleDepthBuffer);
-	glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT, _samples, GL_DEPTH_COMPONENT24, _width, _height);
+	glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT, _samples, GL_DEPTH_COMPONENT, _width, _height);
 
 	//Now build the multisample FBO
 	glGenFramebuffersEXT(1, &_multisampleFBO);
@@ -74,7 +76,11 @@ namespace magnet {
 	
 	// switch back to window-system-provided framebuffer
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+      }
 
+      inline 
+      virtual void init()
+      {
       }
       
       inline 

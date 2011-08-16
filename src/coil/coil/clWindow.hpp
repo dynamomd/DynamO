@@ -89,7 +89,7 @@ namespace coil {
     magnet::GL::shader::RenderShader _renderShader;
     magnet::GL::shader::VSMShader _VSMShader;
     magnet::GL::shader::SimpleRenderShader _simpleRenderShader;
-    magnet::GL::FBO _shadowFBO;
+    magnet::GL::MultisampledFBO _shadowFBO;
 
     //Primary render target
     std::auto_ptr<magnet::GL::FBO> _renderTarget;
