@@ -41,6 +41,9 @@ namespace coil {
     _gtkOptList->unparent();
     win->add(*_gtkOptList);
     win->show();
+    //Force a rebuild of the Gui when this object is selected, to
+    //allow stuff like the data set statistics to be updated
+    rebuildGui();
   }
 
   void 
@@ -48,7 +51,33 @@ namespace coil {
   {
     _gtkOptList.reset(new Gtk::VBox);
 
-    { _attrcolumns.reset(new ModelColumns);
+    {//The heading of the data set window
+      Gtk::HBox* box = Gtk::manage(new Gtk::HBox); box->show();
+      Gtk::Frame* frame = Gtk::manage(new Gtk::Frame("Data Set Statistics")); frame->show();
+      box->pack_start(*frame, true, true, 5);
+      Gtk::VBox* vbox = Gtk::manage(new Gtk::VBox); vbox->show();
+      frame->add(*vbox);
+
+      {
+	Gtk::Label* label 
+	  = Gtk::manage(new Gtk::Label("Points: " 
+				       + boost::lexical_cast<std::string>(_N))); 
+	label->show();
+	vbox->pack_start(*label, false, false, 5);	
+      }
+
+      {
+	Gtk::Button* btn = Gtk::manage(new Gtk::Button("Add Glyph"));
+	btn->signal_clicked().connect(sigc::mem_fun(*this, &DataSet::addGlyphs));
+	btn->show();
+	box->pack_start(*btn, false, false, 5);
+      }
+      
+      _gtkOptList->pack_start(*box, false, false, 5);
+    }
+    
+    { 
+      _attrcolumns.reset(new ModelColumns);
       _attrtreestore = Gtk::TreeStore::create(*_attrcolumns);
       _attrtreestore->set_sort_column(_attrcolumns->components, Gtk::SORT_DESCENDING);
 
@@ -56,23 +85,16 @@ namespace coil {
       _attrview->set_model(_attrtreestore);
       _attrview->append_column("Name", _attrcolumns->name);
       _attrview->append_column("Components", _attrcolumns->components);
+      _attrview->append_column("Range", _attrcolumns->range);
       _attrview->show();
       Gtk::ScrolledWindow* win = Gtk::manage(new Gtk::ScrolledWindow);
       win->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
       win->add(*_attrview);
-      win->set_size_request(-1, 150);
 
       Gtk::Frame* frame = Gtk::manage(new Gtk::Frame("Available Attributes")); frame->show();
       frame->add(*win);
-      _gtkOptList->pack_start(*frame, false, false, 5);
+      _gtkOptList->pack_start(*frame, true, true, 5);
       win->show();
-    }
-
-    {
-      Gtk::Button* btn = Gtk::manage(new Gtk::Button("Add Glyph"));
-      btn->signal_clicked().connect(sigc::mem_fun(*this, &DataSet::addGlyphs));
-      btn->show();
-      _gtkOptList->pack_start(*btn, false, false, 5);
     }
 
     _gtkOptList->show();
@@ -121,6 +143,20 @@ namespace coil {
 	Gtk::TreeModel::iterator iter = _attrtreestore->append();
 	(*iter)[_attrcolumns->name] = iPtr->first;
 	(*iter)[_attrcolumns->components] = iPtr->second->components();
+	std::ostringstream os;
+	const std::vector<GLfloat>& mins = iPtr->second->minVals();
+	const std::vector<GLfloat>& maxs = iPtr->second->maxVals();
+	if (!mins.empty() && !maxs.empty())
+	  {
+	    os << "[" << mins[0];
+	    for (size_t i(1); i < mins.size(); ++i)
+	      os << ", " << mins[i];
+	    os << "] to [" << maxs[0];
+	    for (size_t i(1); i < maxs.size(); ++i)
+	      os << ", " << maxs[i];
+	    os << "]";
+	  }
+	(*iter)[_attrcolumns->range] = os.str();
       }
   }
 

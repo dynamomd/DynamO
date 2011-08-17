@@ -73,7 +73,7 @@ Species::initDataSet() const
 
   { 
     size_t nsph = dynamic_cast<const SphericalRepresentation&>(*getIntPtr()).spheresPerParticle();    
-    std::vector<GLfloat>& mass = (*_renderData)["Mass"].getData();
+    std::vector<GLfloat>& mass = (*_renderData)["Mass"];
     size_t sphID(0);
     BOOST_FOREACH(unsigned long ID, *range)
       {
@@ -87,7 +87,7 @@ Species::initDataSet() const
   _renderData->addAttribute("ID", coil::Attribute::INTENSIVE, 1);
   { 
     size_t nsph = dynamic_cast<const SphericalRepresentation&>(*getIntPtr()).spheresPerParticle();    
-    std::vector<GLfloat>& mass = (*_renderData)["ID"].getData();
+    std::vector<GLfloat>& mass = (*_renderData)["ID"];
     size_t sphID(0);
     BOOST_FOREACH(unsigned long ID, *range)
       {
@@ -119,9 +119,9 @@ Species::updateRenderData() const
 
   size_t nsph = data.spheresPerParticle();
 
-  std::vector<GLfloat>& posdata = (*_renderData)["Positions"].getData();
-  std::vector<GLfloat>& veldata = (*_renderData)["Velocity"].getData();
-  std::vector<GLfloat>& radii = (*_renderData)["Radii"].getData();
+  std::vector<GLfloat>& posdata = (*_renderData)["Positions"];
+  std::vector<GLfloat>& veldata = (*_renderData)["Velocity"];
+  std::vector<GLfloat>& radii = (*_renderData)["Radii"];
 
   size_t sphID(0);
   BOOST_FOREACH(unsigned long ID, *range)

@@ -16,6 +16,7 @@
 */
 #pragma once
 #include <coil/RenderObj/RenderObj.hpp>
+#include <coil/RenderObj/Attribute.hpp>
 #include <magnet/GL/buffer.hpp>
 #include <magnet/gtk/numericEntry.hpp>
 #include <magnet/gtk/colorMapSelector.hpp>
@@ -23,156 +24,8 @@
 #include <boost/signal.hpp>
 #include <vector>
 #include <tr1/memory>
-#include <iostream>
 
 namespace coil {
-  /*! \brief This class encapsulates attributes (data) associated with
-   * some topology.
-   *
-   * This class is the primary communication interface between a
-   * simulation and the coil library. After the visualizer is
-   * initialised, all data to be rendered should be passed through
-   * this class.
-   * 
-   * The topology may be a collection of points or cells and the data
-   * may be ordinates (positions of the points), extensive properties
-   * (like the mass) or intensive properties (like the density). Some
-   * data is scalar (like the temperature) and some data will have
-   * several components per value (e.g. vector quantities like the
-   * velocity).
-   *
-   * An important implementation note on Attributes is that they're
-   * initialised on access. This is to facilitate the main thread
-   * adding attributes after the GL threads initialisation phase.
-   */
-  class Attribute
-  {
-  public:
-    enum AttributeType { 
-      INTENSIVE  = 1 << 0, //!< Intensive property (e.g., Temperature, density)
-      EXTENSIVE  = 1 << 1, //!< Extensive property (e.g., mass, momentum)
-      COORDINATE = 1 << 2, //!< A special attribute which specifies the location of the attribute.
-      
-      DEFAULT_GLYPH_POSITION = 1 << 3, //!< This flag marks that the attribute should be used as the initial position value for a glyph.
-      DEFAULT_GLYPH_SCALING  = 1 << 4, //!< This flag marks that the attribute should be used as the initial scaling field for a glyph.
-    };
-
-    inline Attribute(size_t N, int type, size_t components, 
-		     magnet::GL::Context* context):
-      _context(context),
-      _dataUpdates(0),
-      _hostData(N * components),
-      _components(components),
-      _type(type),
-      _references(0)
-    {
-      if (_components > 4)
-	M_throw() << "We don't support greater than 4 component attributes due to the way "
-		  << "data is sometimes directly passed to the shaders (e.g. positional data)";
-    }
-    
-    /*! \brief Releases the OpenGL resources of this object.
-     */
-    inline void deinit() { _glData.deinit(); }
-
-    /*! \brief Returns the GL buffer associated with the Attribute
-     * data.
-     */
-    inline magnet::GL::Buffer<GLfloat>& getBuffer() { return _glData; }
-
-    inline size_t getUpdateCount() const { return _dataUpdates; }
-
-    /** @name The host code interface. */
-    /**@{*/
-    
-    /*! \brief Returns a reference to the host-cache of the Attribute
-     * data.
-     *
-     * The Attribute data may be directly updated by the host program,
-     * but flagNewData() must be called for the update to take effect.
-     */
-    inline std::vector<GLfloat>& getData() { return _hostData; }
-    
-    /*! \brief Marks that the data in the buffer has been updated, and
-     * should be uploaded to the GL system.
-     *
-     * This function just inserts a callback in the GL system to
-     * reinitialise the Attribute.
-     */
-    inline void flagNewData()
-    { _context->queueTask(magnet::function::Task::makeTask(&Attribute::initGLData, this)); }
-
-    /*! \brief Test if the attribute is in use and should be
-     * updated. 
-     */
-    inline bool active() const { return _references; }
-
-    /*! \brief Returns the number of elements.
-     */
-    inline size_t size() const { return _hostData.size() / _components; }
-
-    inline size_t components() const { return _components; }
-
-    inline int getType() const { return _type; }
-
-    /**@}*/
-
-    inline void bindAttribute(size_t attrnum, bool normalise = false)
-    {
-      //Initialise on demand
-      if (!_glData.size()) initGLData();
-      _glData.attachToAttribute(attrnum, _components, 1, normalise); 
-    }
-
-  protected:
-    magnet::GL::Context* _context;
-    boost::signal<void (Attribute&)> _glDataUpdated;
-
-    void initGLData() 
-    { 
-      _glData.init(_hostData);
-      ++_dataUpdates;
-      if (!_glDataUpdated.empty())
-	{
-	  _glData.acquireCLObject();
-	  _glDataUpdated(*this);
-	  _glData.releaseCLObject();
-	}
-    }
-
-    /*! \brief The OpenGL representation of the attribute data.
-     *
-     * There are N * _components floats of attribute data.
-     */
-    magnet::GL::Buffer<GLfloat> _glData;
-
-    /*! \brief A counter of how many updates have been applied to the
-      data.
-      
-      This is used to track when the data has been updated.
-     */
-    size_t _dataUpdates;
-
-    /*! \brief A host side cache of \ref _glData.
-     *
-     * This is used as a communication buffer, both when the host
-     * program is writing into coil, and when coil passes the data
-     * into OpenGL.
-     */
-    std::vector<GLfloat> _hostData;
-
-    //! \brief The number of components per value.
-    size_t _components;
-
-    //! \brief The type of data stored in this Attribute.
-    int _type;
-
-    /*! \brief The number of glyphs, filters and other render objects
-     * currently using this type.
-     */
-    size_t _references;
-  };
-
   class DataSet; 
 
   class DataSetChild: public RenderObj
@@ -277,10 +130,11 @@ namespace coil {
     struct ModelColumns : Gtk::TreeModelColumnRecord
     {
       ModelColumns()
-      { add(name); add(components); add(type); }
+      { add(name); add(components); add(type); add(range); }
       
       Gtk::TreeModelColumn<Glib::ustring> name;
       Gtk::TreeModelColumn<size_t> components;
+      Gtk::TreeModelColumn<std::string> range;
       Gtk::TreeModelColumn<Attribute::AttributeType> type;
     };
     
@@ -463,9 +317,9 @@ namespace coil {
 				     size_t mode)
     {
       //Update the data according to what was selected
-      scalardata.resize(ptr->size());
+      scalardata.resize(ptr->num_elements());
       const size_t components = ptr->components();
-      const std::vector<GLfloat>& attrdata = ptr->getData();
+      const std::vector<GLfloat>& attrdata = *ptr;
       
       if (mode == 1)
 	//Magnitude calculation
@@ -669,9 +523,9 @@ namespace coil {
 	  _lastAttribute = ptr.get();
 	  _lastAttributeDataCount = ptr->getUpdateCount();
       
-	  const size_t elements = ptr->size();
+	  const size_t elements = ptr->num_elements();
 	  _filteredData.init(4 * elements);
-	  const std::vector<GLfloat>& attrdata = ptr->getData();
+	  const std::vector<GLfloat>& attrdata = *ptr;
 	  GLfloat* glptr = _filteredData.map();
 	  
 	  for (size_t i(0); i < elements; ++i)

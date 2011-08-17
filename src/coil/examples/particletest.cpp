@@ -94,11 +94,11 @@ int main(int argc, char *argv[])
 void updateRenderer()
 {
   //Here we update the positions
-  std::vector<GLfloat>& posdata = (*data)["Positions"].getData();
-  std::vector<GLfloat>& data_1 = (*data)["1 Component values"].getData();
-  std::vector<GLfloat>& data_2 = (*data)["2 Component values"].getData();
-  std::vector<GLfloat>& data_3 = (*data)["3 Component values"].getData();
-  std::vector<GLfloat>& data_4 = (*data)["4 Component values"].getData();
+  std::vector<GLfloat>& posdata = (*data)["Positions"];
+  std::vector<GLfloat>& data_1 = (*data)["1 Component values"];
+  std::vector<GLfloat>& data_2 = (*data)["2 Component values"];
+  std::vector<GLfloat>& data_3 = (*data)["3 Component values"];
+  std::vector<GLfloat>& data_4 = (*data)["4 Component values"];
   for (size_t i(0); i < N; ++i)
     {
       posdata[3 * i + 0] = std::sin(t * 0.01 + i);
