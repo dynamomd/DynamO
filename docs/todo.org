@@ -22,6 +22,8 @@
 **** TODO Fix the rendering of light sources.
 **** TODO Write up the image distance class.
 **** TODO Generalized scheduler for multiple neighborlists.
+**** TODO Make coil scale independent.
+**** TODO Add information on the data sets to the data set screen.
 *** DynamO 1.2
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
 **** DONE *BUGFIX* Fixed the widespread improper use of the XML test functions, causing errors instead of warnings.
