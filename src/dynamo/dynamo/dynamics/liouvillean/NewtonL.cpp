@@ -1448,7 +1448,7 @@ LNewtonian::runLineLineCollision(const IntEvent& eevent, const double& elasticit
 }
 
 
-//Here starts my code for offCenterSpheres
+//Here starts my code for offCenterSpheres :P
 bool 
 LNewtonian::getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const double& length,  const double& diameter, 
 						       const Particle& p1, const Particle& p2) const
