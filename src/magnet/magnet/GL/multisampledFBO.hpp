@@ -79,11 +79,6 @@ namespace magnet {
       }
 
       inline 
-      virtual void init()
-      {
-      }
-      
-      inline 
       virtual void resize(GLsizei width, GLsizei height)
       {
 	//If we've not been initialised, then just return

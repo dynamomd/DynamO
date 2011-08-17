@@ -16,9 +16,9 @@
 */
 
 #pragma once
-#include "local.hpp"
-#include "../coilRenderObj.hpp"
-#include "../../base/is_simdata.hpp"
+#include <dynamo/dynamics/locals/local.hpp>
+#include <dynamo/dynamics/coilRenderObj.hpp>
+#include <dynamo/base/is_simdata.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <vector>
 

@@ -16,18 +16,30 @@
 */
 
 #pragma once
-#include "local.hpp"
+#include <dynamo/dynamics/locals/local.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <tr1/memory>
 
-class CLWall: public Local
+class LWall: public Local
 {
 public:
-  CLWall(const magnet::xml::Node&, dynamo::SimData*);
-  CLWall(dynamo::SimData*, double, Vector , Vector , 
-	 std::string, CRange*, bool nrender = true);
+  LWall(const magnet::xml::Node&, dynamo::SimData*);
 
-  virtual ~CLWall() {}
+  template<class T1, class T2>
+  LWall(dynamo::SimData* nSim, T1 e, T2 d, Vector nnorm,
+	Vector  norigin, std::string nname, CRange* nRange):
+    Local(nRange, nSim, "LocalWall"),
+    vNorm(nnorm),
+    vPosition(norigin),
+    _diameter(Sim->_properties.getProperty
+	      (d, Property::Units::Length())),
+    _e(Sim->_properties.getProperty
+       (e, Property::Units::Dimensionless()))
+  { localName = nname; }
 
-  virtual Local* Clone() const { return new CLWall(*this); };
+  virtual ~LWall() {}
+
+  virtual Local* Clone() const { return new LWall(*this); };
 
   virtual LocalEvent getEvent(const Particle&) const;
 
@@ -46,6 +58,7 @@ protected:
 
   Vector  vNorm;
   Vector  vPosition;
-  double e;
+  std::tr1::shared_ptr<Property> _diameter;
+  std::tr1::shared_ptr<Property> _e;
   bool render;
 };

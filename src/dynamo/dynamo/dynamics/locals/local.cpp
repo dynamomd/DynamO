@@ -50,7 +50,7 @@ Local*
 Local::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
 {
   if (!strcmp(XML.getAttribute("Type"),"Wall"))
-    return new CLWall(XML, Sim);
+    return new LWall(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"RoughWall"))
     return new LRoughWall(XML, Sim);
   else if (!strcmp(XML.getAttribute("Type"),"TriangleMesh"))

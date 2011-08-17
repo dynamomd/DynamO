@@ -871,10 +871,10 @@ CIPPacker::initialise()
 	if (vm.count("f1"))
 	  elasticity =  vm["f1"].as<double>();
 
-	Sim->dynamics.addLocal(new CLWall(Sim, elasticity, Vector(1,0,0), 
+	Sim->dynamics.addLocal(new LWall(Sim, elasticity, 0, Vector(1,0,0),
 					  Vector(-Sim->primaryCellSize[0] / 2, 0, 0),
-					  "LowWall", new CRAll(Sim)));
-	Sim->dynamics.addLocal(new CLWall(Sim, elasticity, Vector(-1,0,0), 
+					 "LowWall", new CRAll(Sim)));
+	Sim->dynamics.addLocal(new LWall(Sim, elasticity, 0, Vector(-1,0,0), 
 					  Vector(Sim->primaryCellSize[0] / 2, 0, 0),
 					  "HighWall", new CRAll(Sim)));
 
@@ -2279,20 +2279,20 @@ CIPPacker::initialise()
 						      new C2RAll()
 						      ))->setName("Bulk");
 
-	Sim->dynamics.addLocal(new CLWall(Sim, PlateInelas, Vector(0,0,1), 
+	Sim->dynamics.addLocal(new LWall(Sim, PlateInelas, 0, Vector(0,0,1), 
 					  Vector(0, 0, -0.5 * Aspect),
-					  "Plate2", new CRAll(Sim), false));
+					  "Plate2", new CRAll(Sim)));
 
-	Sim->dynamics.addLocal(new CLWall(Sim, PlateInelas, Vector(0,0,-1), Vector(0, 0, +0.5 * Aspect),
-					  "Plate3", new CRAll(Sim), false));
+	Sim->dynamics.addLocal(new LWall(Sim, PlateInelas, 0, Vector(0,0,-1), Vector(0, 0, +0.5 * Aspect),
+					  "Plate3", new CRAll(Sim)));
 
-	Sim->dynamics.addLocal(new CLWall(Sim, PlateInelas, Vector(0,+1,0), 
+	Sim->dynamics.addLocal(new LWall(Sim, PlateInelas, 0, Vector(0,+1,0), 
 					  Vector(0, -0.5 * Aspect, 0),
-					  "Plate4", new CRAll(Sim), false));
+					  "Plate4", new CRAll(Sim)));
 
-	Sim->dynamics.addLocal(new CLWall(Sim, PlateInelas, Vector(0,-1,0), 
+	Sim->dynamics.addLocal(new LWall(Sim, PlateInelas, 0, Vector(0,-1,0), 
 					  Vector(0, +0.5 * Aspect, 0),
-					  "Plate5", new CRAll(Sim), false));
+					  "Plate5", new CRAll(Sim)));
 
 	Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
 				 (new SpPoint(Sim, new CRAll(Sim), 1.0, 
@@ -2559,9 +2559,9 @@ CIPPacker::initialise()
 	//wall spacing by 0.9995 to prevent particles being
 	//initialised touching the wall and to insert the wall just
 	//inside the primary image
-	Sim->dynamics.addLocal(new CLWall(Sim, 1.0, Vector(0,1,0), 
+	Sim->dynamics.addLocal(new LWall(Sim, 1.0, 0, Vector(0,1,0), 
 					  Vector(0, - 0.9995 * 0.5 * Sim->primaryCellSize[1], 0),
-					  "GroundPlate", new CRAll(Sim), false));
+					  "GroundPlate", new CRAll(Sim)));
 	
 	unsigned long nParticles = 0;
 	Sim->particleList.reserve(latticeSites.size());
