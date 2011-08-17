@@ -85,7 +85,8 @@ namespace coil {
       _attrview->set_model(_attrtreestore);
       _attrview->append_column("Name", _attrcolumns->name);
       _attrview->append_column("Components", _attrcolumns->components);
-      _attrview->append_column("Range", _attrcolumns->range);
+      _attrview->append_column("Min Values", _attrcolumns->min);
+      _attrview->append_column("Max Values", _attrcolumns->max);
       _attrview->show();
       Gtk::ScrolledWindow* win = Gtk::manage(new Gtk::ScrolledWindow);
       win->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
@@ -143,20 +144,30 @@ namespace coil {
 	Gtk::TreeModel::iterator iter = _attrtreestore->append();
 	(*iter)[_attrcolumns->name] = iPtr->first;
 	(*iter)[_attrcolumns->components] = iPtr->second->components();
-	std::ostringstream os;
 	const std::vector<GLfloat>& mins = iPtr->second->minVals();
 	const std::vector<GLfloat>& maxs = iPtr->second->maxVals();
 	if (!mins.empty() && !maxs.empty())
 	  {
+	    std::ostringstream os;
 	    os << "[" << mins[0];
 	    for (size_t i(1); i < mins.size(); ++i)
 	      os << ", " << mins[i];
-	    os << "] to [" << maxs[0];
+	    os << "]";
+	    (*iter)[_attrcolumns->min] = os.str();
+	    os.str("");
+
+	    os << "[" << maxs[0];
 	    for (size_t i(1); i < maxs.size(); ++i)
 	      os << ", " << maxs[i];
 	    os << "]";
+
+	    (*iter)[_attrcolumns->max] = os.str();
 	  }
-	(*iter)[_attrcolumns->range] = os.str();
+	else
+	  {
+	    (*iter)[_attrcolumns->min] = "N/A";
+	    (*iter)[_attrcolumns->max] = "N/A";
+	  }
       }
   }
 

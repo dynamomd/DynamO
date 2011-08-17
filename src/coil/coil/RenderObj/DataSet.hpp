@@ -130,11 +130,12 @@ namespace coil {
     struct ModelColumns : Gtk::TreeModelColumnRecord
     {
       ModelColumns()
-      { add(name); add(components); add(type); add(range); }
+      { add(name); add(components); add(type); add(min); add(max); }
       
       Gtk::TreeModelColumn<Glib::ustring> name;
       Gtk::TreeModelColumn<size_t> components;
-      Gtk::TreeModelColumn<std::string> range;
+      Gtk::TreeModelColumn<std::string> min;
+      Gtk::TreeModelColumn<std::string> max;
       Gtk::TreeModelColumn<Attribute::AttributeType> type;
     };
     
