@@ -414,10 +414,17 @@ namespace coil {
   public:
     AttributeColorSelector():
       AttributeSelector(magnet::GL::Context::vertexColorAttrIndex, true),
+      _autoScaling("Autoscale to data range"),
       _lastColorMap(-1)
     {
       pack_start(_colorMapSelector, false, false, 5);
-      _colorMapSelector.signal_changed().connect(sigc::mem_fun(*this, &AttributeColorSelector::colorMapChanged));
+      pack_start(_autoScaling, false, false, 5);
+      _autoScaling.show();
+
+      _colorMapSelector.signal_changed()
+	.connect(sigc::mem_fun(*this, &AttributeColorSelector::colorMapChanged));
+      _autoScaling.signal_toggled()
+	.connect(sigc::mem_fun(*this, &AttributeColorSelector::colorMapChanged));
     }
 
     virtual void bindAttribute()
@@ -447,21 +454,35 @@ namespace coil {
 	      || (_lastColorMap != _colorMapSelector.getMode())
 	      || _filteredData.empty())
 	    {
+	      std::vector<GLfloat> scalardata;
+	      generateFilteredData(scalardata, ptr, _lastComponentSelected);
+	      
+	      if (_autoScaling.get_active() && !scalardata.empty())
+		{
+		  GLfloat min(scalardata[0]), max(scalardata[0]);
+		  
+		  for (std::vector<GLfloat>::const_iterator iPtr = scalardata.begin();
+		       iPtr != scalardata.end();
+		       ++iPtr)
+		    {
+		      min = std::min(min, *iPtr);
+		      max = std::max(max, *iPtr);
+		      _colorMapSelector.setRange(min, max);
+		    }
+		}
+
+	      //Now convert to HSV or whatever
+	      _filteredData.init(4 * scalardata.size());
+	      GLfloat* data_ptr = _filteredData.map();
+	      for (size_t i(0); i < scalardata.size(); ++i)
+		_colorMapSelector.map(data_ptr + 4 * i, scalardata[i]);
+	      
+	      _filteredData.unmap();
+	      
 	      _lastAttribute = ptr.get();
 	      _lastAttributeDataCount = ptr->getUpdateCount();
 	      _lastComponentSelected = _componentSelect.get_active_row_number();
 	      _lastColorMap = _colorMapSelector.getMode();
-	      
-	      std::vector<GLfloat> scalardata;
-	      generateFilteredData(scalardata, ptr, _lastComponentSelected);
-
-	      //Now convert to HSV or whatever
-	      _filteredData.init(4 * scalardata.size());
-	      GLfloat* ptr = _filteredData.map();
-	      for (size_t i(0); i < scalardata.size(); ++i)
-		_colorMapSelector.map(ptr + 4 * i, scalardata[i]);
-	      
-	      _filteredData.unmap();
 	    }
 
 	  _filteredData.attachToAttribute(_attrnum, 4, 1);
@@ -475,12 +496,19 @@ namespace coil {
     {
       AttributeSelector::updateGui();
       if (singleValueMode())
-	_colorMapSelector.hide();
+	{
+	  _colorMapSelector.hide();
+	  _autoScaling.hide();
+	}
       else
-	_colorMapSelector.show();
+	{
+	  _colorMapSelector.show();
+	  _autoScaling.show();
+	}
     }
 
     magnet::gtk::ColorMapSelector _colorMapSelector;
+    Gtk::CheckButton _autoScaling;
     int _lastColorMap;
   };
 

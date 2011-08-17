@@ -100,6 +100,12 @@ namespace magnet {
 
       ::sigc::signal<void> signal_changed() { return _signal_changed; }
 
+      inline void setRange(GLfloat min, GLfloat max)
+      {
+	_minValue.set_text(boost::lexical_cast<std::string>(min));
+	_maxValue.set_text(boost::lexical_cast<std::string>(max));
+      }
+	
     protected:
       ::Gtk::ComboBox _comboBox;
       ::Gtk::Entry _minValue;
