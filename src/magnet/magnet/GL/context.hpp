@@ -17,13 +17,11 @@
 #pragma once
 
 //Here we have the correct order of GL includes
-#define GL_GLEXT_PROTOTYPES
 #include <GL/glew.h>
 #include <GL/glx.h>
-#include <GL/glext.h>
+#include <GL/freeglut.h>
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
-#include <GL/freeglut.h>
 
 #include <magnet/GL/detail/traits.hpp>
 #include <magnet/GL/detail/enums.hpp>

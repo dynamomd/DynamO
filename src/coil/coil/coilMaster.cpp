@@ -15,12 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define __CL_ENABLE_EXCEPTIONS
-
+#include <gtkmm.h>
+#include <magnet/GL/context.hpp>
 #include <magnet/arg_share.hpp>
 #include <coil/coilMaster.hpp>
-#include <magnet/GL/context.hpp>
 #include <coil/coilWindow.hpp>
+#include <GL/freeglut.h>
 #include <GL/freeglut_ext.h>
 #include <stdexcept>
 #include <cstdlib>
