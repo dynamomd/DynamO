@@ -17,9 +17,6 @@
 #pragma once
 
 #include <gtkmm.h>
-#define GL_GLEXT_PROTOTYPES
-#include <GL/glew.h>
-#include <GL/freeglut.h>
 #include <coil/coilWindow.hpp>
 #include <magnet/thread/thread.hpp>
 #include <magnet/thread/mutex.hpp>

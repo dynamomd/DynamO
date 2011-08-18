@@ -16,12 +16,7 @@
 */
 #pragma once
 
-#include <vector>
 #include <gtkmm.h>
-#include <coil/coilMaster.hpp>
-#define __CL_ENABLE_EXCEPTIONS
-#include <CL/cl.hpp>
-
 #include <magnet/math/vector.hpp>
 #include <magnet/static_assert.hpp>
 #include <magnet/GL/light.hpp>
@@ -33,7 +28,9 @@
 #include <magnet/GL/shader/simple_render.hpp>
 #include <coil/filters/filter.hpp>
 #include <coil/RenderObj/RenderObj.hpp>
+#include <coil/coilMaster.hpp>
 #include <boost/signals2.hpp>
+#include <vector>
 #include <memory>
 
 namespace coil {

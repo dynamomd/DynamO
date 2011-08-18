@@ -16,9 +16,8 @@
  */
 #pragma once
 
-#include <limits>
 #include <magnet/GL/camera.hpp>
-#include <magnet/GL/context.hpp>
+#include <limits>
 
 namespace magnet {
   namespace GL {

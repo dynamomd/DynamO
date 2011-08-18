@@ -24,7 +24,7 @@ project	: requirements
           #on the command line or auto-detected using the passed target
 	  [ builddep.set-feature-on-build coil-integration 
             : ../coil//coilDependencies
-            : "Dynamo-Coil Integration" ]
+            : "DynamO-Coil Integration" ]
 	: default-build release
 	: build-dir ../../build-dir/
 	;

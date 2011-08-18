@@ -10,7 +10,7 @@ project	: requirements
           #on the command line or auto-detected using the passed target
 	  [ builddep.set-feature-on-build coil-cwiid 
             : cwiidtest
-            : "Coil Wii (libCwiid) Integration" ]
+            : "Coil: Wii-mote support (libCwiid)" ]
 	: default-build release
 	: build-dir ../../build-dir/
 	;

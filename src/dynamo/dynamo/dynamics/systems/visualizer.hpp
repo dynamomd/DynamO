@@ -19,8 +19,8 @@
 
 #ifdef DYNAMO_visualizer
 
-#include "system.hpp"
 #include <coil/clWindow.hpp>
+#include <dynamo/dynamics/systems/system.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
 class SVisualizer: public System

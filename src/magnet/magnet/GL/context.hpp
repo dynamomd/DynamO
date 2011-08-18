@@ -19,8 +19,6 @@
 //Here we have the correct order of GL includes
 #define GL_GLEXT_PROTOTYPES
 #include <GL/glew.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include <GL/glx.h>
 #include <GL/glext.h>
 #define __CL_ENABLE_EXCEPTIONS

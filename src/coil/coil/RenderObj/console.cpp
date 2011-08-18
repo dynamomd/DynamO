@@ -20,14 +20,6 @@
 #include <magnet/clamp.hpp>
 #include <coil/glprimatives/arrow.hpp>
 
-#define GL_GLEXT_PROTOTYPES
-#include <GL/glew.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glx.h>
-#include <GL/glext.h>
-#include <GL/freeglut.h>
-
 extern const unsigned char _binary_coilfont_ttf_start[];
 extern const unsigned char _binary_coilfont_ttf_end[];
 
