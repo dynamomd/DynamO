@@ -64,6 +64,27 @@ namespace magnet {
 		vertices.push_back(x * body_radius_ratio);
 		vertices.push_back(y * body_radius_ratio);
 		vertices.push_back(0);
+
+		//end-cylinder vertex
+		vertices.push_back(x * body_radius_ratio);
+		vertices.push_back(y * body_radius_ratio);
+		vertices.push_back(0);
+
+		//end-cylinder center vertex
+		vertices.push_back(0);
+		vertices.push_back(0);
+		vertices.push_back(0);
+
+		//Cone-cylinder outer vertex
+		vertices.push_back(x);
+		vertices.push_back(y);
+		vertices.push_back(1 - head_length_ratio);
+
+		//Cone-cylinder inner vertex
+		vertices.push_back(x * body_radius_ratio);
+		vertices.push_back(y * body_radius_ratio);
+		vertices.push_back(1 - head_length_ratio);
+
 	      }
 
 	    return vertices;
@@ -106,6 +127,27 @@ namespace magnet {
 		normals.push_back(x);
 		normals.push_back(y);
 		normals.push_back(0);
+
+		//end-cylinder vertex
+		normals.push_back(0);
+		normals.push_back(0);
+		normals.push_back(-1);
+
+		//end-cylinder center vertex
+		normals.push_back(0);
+		normals.push_back(0);
+		normals.push_back(-1);
+
+		//Cone-cylinder outer vertex
+		normals.push_back(0);
+		normals.push_back(0);
+		normals.push_back(-1);
+
+		//Cone-cylinder inner vertex
+		normals.push_back(0);
+		normals.push_back(0);
+		normals.push_back(-1);
+
 	      }
 
 	    return normals;
@@ -113,26 +155,43 @@ namespace magnet {
 
 	  inline static std::vector<GLuint> getIndices(size_t LOD)
 	  {
+	    //The number of vertices per body
+	    size_t v_body = 8;
+	    
 	    //This is the number of body vertices
-	    size_t vertex_count = LOD * 4;
+	    size_t vertex_count = LOD * v_body;
 
 	    std::vector<GLuint> indices;
 
 	    for (size_t slice = 0; slice < LOD; ++slice)
 	      {
 		//The cone triangle is first
-		indices.push_back((4 * (slice + 0) + 0) % vertex_count);
-		indices.push_back((4 * (slice + 1) + 1) % vertex_count);
-		indices.push_back((4 * (slice + 0) + 1) % vertex_count);
+		indices.push_back((v_body * (slice + 0) + 0) % vertex_count);
+		indices.push_back((v_body * (slice + 1) + 1) % vertex_count);
+		indices.push_back((v_body * (slice + 0) + 1) % vertex_count);
 
 		//The body triangles
-		indices.push_back((4 * (slice + 1) + 2) % vertex_count);
-		indices.push_back((4 * (slice + 0) + 3) % vertex_count);
-		indices.push_back((4 * (slice + 0) + 2) % vertex_count);
+		indices.push_back((v_body * (slice + 1) + 2) % vertex_count);
+		indices.push_back((v_body * (slice + 0) + 3) % vertex_count);
+		indices.push_back((v_body * (slice + 0) + 2) % vertex_count);
 
-		indices.push_back((4 * (slice + 1) + 2) % vertex_count);
-		indices.push_back((4 * (slice + 1) + 3) % vertex_count);
-		indices.push_back((4 * (slice + 0) + 3) % vertex_count);
+		indices.push_back((v_body * (slice + 1) + 2) % vertex_count);
+		indices.push_back((v_body * (slice + 1) + 3) % vertex_count);
+		indices.push_back((v_body * (slice + 0) + 3) % vertex_count);
+
+		//The cylinder end cap triangle
+		indices.push_back((v_body * (slice + 0) + 4) % vertex_count);
+		indices.push_back((v_body * (slice + 1) + 4) % vertex_count);
+		indices.push_back((v_body * (slice + 0) + 5) % vertex_count);
+		
+		//The cone-cylinder connection triangles
+		indices.push_back((v_body * (slice + 0) + 7) % vertex_count);
+		indices.push_back((v_body * (slice + 0) + 6) % vertex_count);
+		indices.push_back((v_body * (slice + 1) + 6) % vertex_count);
+
+		indices.push_back((v_body * (slice + 0) + 7) % vertex_count);
+		indices.push_back((v_body * (slice + 1) + 6) % vertex_count);
+		indices.push_back((v_body * (slice + 1) + 7) % vertex_count);
 	      }
 
 	    return indices;
