@@ -160,11 +160,22 @@ namespace magnet {
 
       /*! \brief Resize the texture.
        */
-      inline void resize(size_t width)
+      inline void resize(GLint width)
       {
-	GLint internalformat = _internalFormat;
-	deinit();
-	init(width, internalformat);
+	//Skip identity operations
+	if (width == _width) return;
+
+	if (!_width)
+	  M_throw() << "Cannot resize an uninitialised texture";
+
+	_width = width;
+
+	bind(0);
+	glTexImage1D(_texType, 0, _internalFormat, _width,
+		     0,//Border is off
+		     //The following values are not used as no data is
+		     //passed here, use subImage for that.
+		     safeFormat(_internalFormat), GL_UNSIGNED_BYTE, NULL); 
       }
 
       /*! \brief Fills a section of the texture with the passed data
@@ -227,11 +238,21 @@ namespace magnet {
       
       /*! \brief Resize the texture.
        */
-      inline void resize(size_t width, size_t height)
+      inline void resize(GLint width, GLint height)
       {
-	GLint internalformat = _internalFormat;
-	deinit();
-	init(width, height, internalformat);
+	//Skip identity operations
+	if ((width == _width) && (height == _height)) return;
+
+	if (!_width) M_throw() << "Cannot resize an uninitialised texture";
+
+	_width = width; 
+	_height = height;
+	bind(0);
+	glTexImage2D(_texType, 0, _internalFormat, _width, _height,
+		     0, //Border is off
+		     //The following values are not used as no data is
+		     //passed here, use subImage for that.
+		     safeFormat(_internalFormat), GL_UNSIGNED_BYTE, NULL); 	
       }
 
       /*! \brief Fills a section of the texture with the passed data
@@ -324,11 +345,24 @@ namespace magnet {
 
       /*! \brief Resize the texture.
        */
-      inline void resize(size_t width, size_t height, size_t depth)
+      inline void resize(GLint width, GLint height, GLint depth)
       {
-	GLint internalformat = _internalFormat;
-	deinit();
-	init(width, height, depth, internalformat);
+	//Skip identity operations
+	if ((width == _width) && (height == _height) && (depth == _depth))
+	  return;
+
+	if (!_width) M_throw() << "Cannot resize an uninitialised texture";
+
+	_width = width; _height = height; _depth = depth;
+
+	bind(0);
+	glTexImage3D(_texType, 0, _internalFormat,
+		     _width, _height, _depth, 
+		     //Border is off
+		     0,
+		     //The following values are not used as no data is
+		     //passed here, use subImage for that.
+		     safeFormat(_internalFormat), GL_UNSIGNED_BYTE, NULL);
       }
 
       /*! \brief Fills a section of the texture with the passed data

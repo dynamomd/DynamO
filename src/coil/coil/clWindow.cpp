@@ -894,7 +894,8 @@ namespace coil {
 
 	//Bind the original image to texture (unit 0)
 	_renderTarget->getColorTexture().bind(0);
-	  
+	_renderTarget->getColorTexture().bind(3);
+	
 	//Now bind the texture which has the normals and depths (unit 1)
 	_normalsFBO.getColorTexture().bind(1);
 
@@ -929,32 +930,35 @@ namespace coil {
 	      {
 		//The last output goes into texture 3
 		if (FBOalternate)
-		  {
-		    _filterTarget2.getColorTexture().bind(3);
-		    _filterTarget1.attach();
-		  }
+		  _filterTarget1.attach();
 		else
-		  {
-		    _filterTarget1.getColorTexture().bind(3);
-		    _filterTarget2.attach();
-		  }
-		  
+		  _filterTarget2.attach();
+		
 		filter.invoke(3, _camera.getWidth(), _camera.getHeight(), _camera);
-		  
+		
 		if (FBOalternate)
-		  _filterTarget1.detach();
+		  {
+		    _filterTarget1.detach();
+		    _filterTarget1.getColorTexture().bind(3);
+		  }
 		else
-		  _filterTarget2.detach();
+		  {
+		    _filterTarget2.detach();
+		    _filterTarget2.getColorTexture().bind(3);
+		  }
 		  
 		FBOalternate = !FBOalternate;
 	      }
 	  }
+
+	//Now blit the stored scene to the screen
+	if (FBOalternate)
+	  _filterTarget2.blitToScreen(_camera.getWidth(), _camera.getHeight());
+	else
+	  _filterTarget1.blitToScreen(_camera.getWidth(), _camera.getHeight());
       }
-    //Now blit the stored scene to the screen
-    if (FBOalternate)
-      _filterTarget2.blitToScreen(_camera.getWidth(), _camera.getHeight());
     else
-      _filterTarget1.blitToScreen(_camera.getWidth(), _camera.getHeight());
+      _renderTarget->blitToScreen(_camera.getWidth(), _camera.getHeight());
 
     //We clear the depth as merely disabling gives artifacts
     glClear(GL_DEPTH_BUFFER_BIT); 

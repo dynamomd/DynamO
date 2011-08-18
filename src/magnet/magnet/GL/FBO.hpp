@@ -165,9 +165,11 @@ namespace magnet {
 	std::tr1::shared_ptr<Texture2D> depthTexture = _depthTexture;
 
 	deinit();
+	if (colorTexture)
+	  colorTexture->resize(width, height);
 
-	colorTexture->resize(width, height);
-	depthTexture->resize(width, height);
+	if (depthTexture)
+	  depthTexture->resize(width, height);
 
 	init(colorTexture, depthTexture);
       }
