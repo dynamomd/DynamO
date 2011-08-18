@@ -112,7 +112,7 @@ float chebyshevUpperBound(float distance)
   //always completely in shadow
   p_max = ReduceLightBleeding(p_max, 0.2);
 
-  float p = distance <= moments.x;
+  float p = float(distance <= moments.x);
   return max(p, p_max);
 }
 
@@ -134,7 +134,7 @@ void main()
   ShadowCoordPostW = ShadowCoord / ShadowCoord.w;
 
   //If shadow mapping is off, we want everything to be unshadowed
-  float shadow = 1 - bool(ShadowMapping);
+  float shadow = 1.0 - float(ShadowMapping);
   vec2 circle = (ShadowCoordPostW.xy) - vec2(0.5, 0.5);
 
   if (bool(ShadowMapping)
