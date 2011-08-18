@@ -37,13 +37,18 @@ namespace magnet {
 	  inline static std::vector<GLfloat> getVertices(size_t LOD, GLfloat head_length_ratio = 0.5,
 							 GLfloat body_radius_ratio = 0.5)
 	  {
-	    //Point vertex, plus 3 body vertices per LOD
+	    //4 body vertices per LOD
 	    std::vector<GLfloat> vertices;
 	    for (size_t slice = 0; slice < LOD; ++slice)
 	      {		
 		GLfloat angle = slice * 2.0f * M_PI / LOD;
 		GLfloat x = 0.5f * std::sin(angle);
 		GLfloat y = 0.5f * std::cos(angle);
+
+		//Add the point vertex for the arrow
+		vertices.push_back(0); 
+		vertices.push_back(0); 
+		vertices.push_back(1);
 		
 		//Head cone vertex
 		vertices.push_back(x);
@@ -61,9 +66,6 @@ namespace magnet {
 		vertices.push_back(0);
 	      }
 
-	    //Add the point vertex for the arrow
-	    vertices.push_back(0); vertices.push_back(0); vertices.push_back(1);
-
 	    return vertices;
 	  }
 
@@ -76,11 +78,24 @@ namespace magnet {
 		GLfloat angle = slice * 2.0f * M_PI / LOD;
 		GLfloat x = std::sin(angle);
 		GLfloat y = std::cos(angle);
+
+		Vector zaxis(0,0,1), radialaxis(x,y,0), edge(x,y,-1);
+
+		edge /= edge.nrm();
+
+		Vector rotationAxis = radialaxis ^ zaxis;
+
+		Vector coneNormal = Rodrigues(rotationAxis * (M_PI / 2)) * edge;
 		
+		//Point vertex
+		normals.push_back(coneNormal[0]); 
+		normals.push_back(coneNormal[1]); 
+		normals.push_back(coneNormal[2]);
+
 		//Head cone vertex
-		normals.push_back(x);
-		normals.push_back(y);
-		normals.push_back(0);
+		normals.push_back(coneNormal[0]); 
+		normals.push_back(coneNormal[1]); 
+		normals.push_back(coneNormal[2]);
 
 		//Head-cylinder vertex
 		normals.push_back(x);
@@ -93,34 +108,31 @@ namespace magnet {
 		normals.push_back(0);
 	      }
 
-	    normals.push_back(0); normals.push_back(0); normals.push_back(1);
-
 	    return normals;
 	  }
 
 	  inline static std::vector<GLuint> getIndices(size_t LOD)
 	  {
-	    //This is the index of the point vertex, and also the
-	    //number of body vertices
-	    size_t point_vertex = LOD * 3;
+	    //This is the number of body vertices
+	    size_t vertex_count = LOD * 4;
 
 	    std::vector<GLuint> indices;
 
 	    for (size_t slice = 0; slice < LOD; ++slice)
 	      {
 		//The cone triangle is first
-		indices.push_back(point_vertex);
-		indices.push_back((3 * (slice+1) + 0) % point_vertex);
-		indices.push_back((3 * slice + 0) % point_vertex);
+		indices.push_back((4 * (slice + 0) + 0) % vertex_count);
+		indices.push_back((4 * (slice + 1) + 1) % vertex_count);
+		indices.push_back((4 * (slice + 0) + 1) % vertex_count);
 
 		//The body triangles
-		indices.push_back((3 * (slice + 1) + 1) % point_vertex);
-		indices.push_back((3 * slice + 2) % point_vertex);
-		indices.push_back((3 * slice + 1) % point_vertex);
+		indices.push_back((4 * (slice + 1) + 2) % vertex_count);
+		indices.push_back((4 * (slice + 0) + 3) % vertex_count);
+		indices.push_back((4 * (slice + 0) + 2) % vertex_count);
 
-		indices.push_back((3 * (slice + 1) + 1) % point_vertex);
-		indices.push_back((3 * (slice + 1) + 2) % point_vertex);
-		indices.push_back((3 * slice + 2) % point_vertex);
+		indices.push_back((4 * (slice + 1) + 2) % vertex_count);
+		indices.push_back((4 * (slice + 1) + 3) % vertex_count);
+		indices.push_back((4 * (slice + 0) + 3) % vertex_count);
 	      }
 
 	    return indices;

@@ -85,24 +85,35 @@ varying vec3 eyeVector;
 
 vec4 ShadowCoordPostW;
 
+float linstep(float min, float max, float v)  
+{  
+  return clamp((v - min) / (max - min), 0, 1);  
+}  
+
+float ReduceLightBleeding(float p_max, float Amount)  
+{  
+  // Remove the [0, Amount] tail and linearly rescale (Amount, 1].  
+  return linstep(Amount, 1, p_max);  
+}  
+
 float chebyshevUpperBound(float distance)
 {
   vec2 moments = texture2D(ShadowMap,ShadowCoordPostW.xy).rg;
 	
-  // Surface is fully lit. as the current fragment is before the light occluder
-  if (distance <= moments.x)
-    return 1.0 ;
-
-  // The fragment is either in shadow or penumbra. We now use
-  // chebyshev's upperBound to check How likely this pixel is to be
-  // lit (p_max)
+  // We use chebyshev's upperBound to check How likely this pixel is
+  // to be lit (p_max)
   float variance = moments.y - (moments.x * moments.x);
   variance = max(variance, 0.0000001);
 
   float d = distance - moments.x;
   float p_max = variance / (variance + d * d);
 
-  return p_max;
+  //We linearly remap the probability so that a certain range is
+  //always completely in shadow
+  p_max = ReduceLightBleeding(p_max, 0.2);
+
+  float p = distance <= moments.x;
+  return max(p, p_max);
 }
 
 void main()
