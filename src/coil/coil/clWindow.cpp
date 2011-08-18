@@ -863,9 +863,6 @@ namespace coil {
     _renderTarget->detach();
 
     //////////////FILTERING////////////
-    //Store what the last FBO was for later blitting to the screen
-    magnet::GL::FBO* lastFBO = &(*_renderTarget);
-      
     bool FBOalternate = false;
 
     if (_filterEnable && !_filterStore->children().empty())
@@ -914,21 +911,33 @@ namespace coil {
 
 	    if (filter.type_id() == detail::filterEnum<FlushToOriginal>::val)
 	      {//Check if we're trying to flush the drawing
-		lastFBO->attach();
+		if (FBOalternate)
+		  _filterTarget2.attach();
+		else
+		  _filterTarget1.attach();
+
 		glActiveTextureARB(GL_TEXTURE0);
 		//Now copy the texture 
 		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _camera.getWidth(), _camera.getHeight());
-		lastFBO->detach();
+
+		if (FBOalternate)
+		  _filterTarget2.detach();
+		else
+		  _filterTarget1.detach();
 	      }
 	    else
 	      {
 		//The last output goes into texture 3
-		lastFBO->getColorTexture().bind(3);
-		  
 		if (FBOalternate)
-		  _filterTarget1.attach();
+		  {
+		    _filterTarget2.getColorTexture().bind(3);
+		    _filterTarget1.attach();
+		  }
 		else
-		  _filterTarget2.attach();
+		  {
+		    _filterTarget1.getColorTexture().bind(3);
+		    _filterTarget2.attach();
+		  }
 		  
 		filter.invoke(3, _camera.getWidth(), _camera.getHeight(), _camera);
 		  
@@ -937,15 +946,16 @@ namespace coil {
 		else
 		  _filterTarget2.detach();
 		  
-		lastFBO = FBOalternate ? &_filterTarget1 : &_filterTarget2;
-		  
 		FBOalternate = !FBOalternate;
 	      }
 	  }
       }
     //Now blit the stored scene to the screen
-    lastFBO->blitToScreen(_camera.getWidth(), _camera.getHeight());
-  
+    if (FBOalternate)
+      _filterTarget2.blitToScreen(_camera.getWidth(), _camera.getHeight());
+    else
+      _filterTarget1.blitToScreen(_camera.getWidth(), _camera.getHeight());
+
     //We clear the depth as merely disabling gives artifacts
     glClear(GL_DEPTH_BUFFER_BIT); 
 
