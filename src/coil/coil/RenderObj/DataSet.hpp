@@ -98,6 +98,9 @@ namespace coil {
 	   iPtr != _children.end(); ++iPtr)
 	if ((*iPtr)->visible() && (!(mode & SHADOW) || (*iPtr)->shadowCasting()))
 	  (*iPtr)->glRender(fbo, cam, mode);
+      
+      for (iterator iPtr = begin(); iPtr != end(); ++iPtr)
+	iPtr->second->renderComplete();
     }
     
     virtual Gtk::TreeModel::iterator addViewRows(RenderObjectsGtkTreeView& view, Gtk::TreeModel::iterator& iter)

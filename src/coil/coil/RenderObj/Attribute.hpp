@@ -54,6 +54,8 @@ namespace coil {
     inline Attribute(size_t N, int type, size_t components, 
 		     magnet::GL::Context* context):
       std::vector<GLfloat>(N * components),
+      _usedInLastRender(false),
+      _usedInCurrentRender(false),
       _context(context),
       _dataUpdates(0),
       _components(components),
@@ -106,13 +108,26 @@ namespace coil {
     {
       //Initialise on demand
       if (!_glData.size()) initGLData();
+
+      _usedInCurrentRender = true;
       _glData.attachToAttribute(attrnum, _components, 1, normalise); 
     }
 
     inline const std::vector<GLfloat>& minVals() const { return _minVals; }
     inline const std::vector<GLfloat>& maxVals() const { return _maxVals; }
 
+    inline volatile bool inUse() { return _usedInLastRender; }
+
+    inline void renderComplete()
+    {
+      _usedInLastRender = _usedInCurrentRender;
+      _usedInCurrentRender = false;
+    }
+
   protected:
+    volatile bool _usedInLastRender;
+    volatile bool _usedInCurrentRender;
+    
     magnet::GL::Context* _context;
     boost::signal<void (Attribute&)> _glDataUpdated;
     std::vector<GLfloat> _minVals;

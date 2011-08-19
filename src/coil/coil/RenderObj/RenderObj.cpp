@@ -132,7 +132,6 @@ namespace coil {
 	(*iter)[_columns->m_name] = string;
       }
   }
-  
 
   bool 
   RenderObjectsGtkTreeView::button_press(GdkEventButton* btn)
