@@ -16,44 +16,45 @@
 **** TODO Remove all clone ptr's and replace them with shared_ptr's.
 **** TODO Coil library volume renderer (blocking on above)
 **** TODO Fix the light position calculation in the Volume renderer
-**** TODO Move to anti-aliased VSM
-**** TODO Fix the light bleeding on VSM
 **** TODO Move all the dynamo classes into the dynamo namespace.
+**** TODO Move the magnet vector and matrix classes into the magnet namespace and expose them in the coil and dynamo namespaces.
 **** TODO Fix the rendering of light sources.
 **** TODO Write up the image distance class.
 **** TODO Generalized scheduler for multiple neighborlists.
 **** TODO Make coil scale independent.
 **** TODO Add information on the data sets to the data set screen.
 **** TODO Expose the get neighborhood functions in the scheduler.
+**** TODO Make compression work with polydisperse walls.
 *** DynamO 1.2
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
 **** DONE *BUGFIX* Fixed the widespread improper use of the XML test functions, causing errors instead of warnings.
 **** DONE *BUGFIX* DynamO: Fixed rare error caused by duplicate events in the queue, followed by a recalculation which indicates the event has numerically been cancelled, and the recalculated event is in the future.
 **** DONE *BUGFIX* DynamO: Made the "well exit test" significantly more stable, allowing correct simulation of large inelastic flexible bodies.
 **** DONE *BUGFIX* DynamO: Fixed stepped and sequenced potentials broken in 1.1.
-**** DONE *BUGFIX* DynamO: Fixed a load error on the MFT, triggered by an input configuration from a simulation with no events.
+**** DONE *BUGFIX* DynamO: Fixed a config load error triggered by an input configuration from a simulation with no events.
 **** DONE *BUGFIX* DYNAMO: Fixed bounded priority queues causing huge slowdowns in very small (N=2) systems.
 **** DONE *BUGFIX* COIL: Fixed resizing of anti-aliased windows not working on AMD hardware.
-**** DONE XML errors are now much more verbose and tell you exactly what went wrong and where.
-**** DONE Lots more Doxygen comments to help people understand the source code.
+**** DONE All: Lots of extra Doxygen comments to help people understand the source code.
+**** DONE All: The build system now has an advanced configuration mode, testing for all dependencies before trying to build.
 **** DONE DynamO: The ParabolaSentinel global is now added automatically to simulations, it needs to be deleted from existing configurations.
 **** DONE DynamO: Initial support for triangular meshes. The current version is not optimized using a neighbor list.
-**** DONE DynamO: Implemented multicanonical simulations!
+**** DONE DynamO: Implemented multicanonical simulations, which can also be used with the replica exchange MC mode.
+**** DONE DynamO: Generalized the rescaling thermostat for shear flows http://arxiv.org/pdf/1103.3704.
+**** DONE DynamO: Added initial support for polydisperse wall interactions, however compression will not work correctly in this case.
 **** DONE DynamO: Allow adjustable shear rates for the Lees-Edwards boundary condition.
 **** DONE DynamO: Moved the dynamo code into its own folder in the src directory.
 **** DONE DynamO: Removed the raster 3d output for the tinkerXYZ plugin, no-one used it anyway.
 **** DONE DynamO: Added dynamod --check mode. Using this you can now check if a configuration file is valid using "dynamod --check config.out.xml.bz2".
-**** DONE DynamO: Generalized the rescaling thermostat for shear flows http://arxiv.org/pdf/1103.3704.
 **** DONE DynamO: Generalized the Morton ordered neighbour list and remove the old neighbourlist.
-**** DONE DynamO/COIL: The DynamO-Coil integration can be forcibly enabled or disabled at build time.
-**** DONE DynamO/COIL: Visualizer now outputs at least 2 updates a second when attached to a slow DynamO simulation.
-**** DONE COIL: Sped up PNG output in coil by 33 percent.
-**** DONE COIL: Moved to a new console output formatting class.
-**** DONE COIL: Moved to OpenGL 3.3, remove all the old OpenGL calls.
-**** DONE COIL: Improve the way data is made available to Coil, allowing a paraview-like interface to the data sources.
-**** DONE COIL: Cleanup the wii-mote head-tracking class.
+**** DONE DynamO/Coil: The DynamO-Coil integration can be forcibly enabled or disabled at build time.
+**** DONE DynamO/Coil: Visualizer now outputs at least 2 updates a second when attached to a slow DynamO simulation.
+**** DONE Coil: Moved to OpenGL 3.3, removed all the old OpenGL calls.
+**** DONE Coil: New OpenGL instancing framework allows arbitrary glyphing using arrows/spheres/whatever.
+**** DONE Coil: Improved the way data is made available to Coil, allowing a paraview-like interface.
+**** DONE Coil: Now using anti-aliased variance shadow maps for greatly improved lighting effects.
+**** DONE Coil: Sped up PNG output in coil by 33 percent.
+**** DONE Magnet: XML errors are now much more verbose and tell you exactly what went wrong and where.
 **** TODO Work on Sebastians project.
-**** TODO Compression with walls.
 *** DynamO 1.1 							    :ARCHIVE:
 **** DONE *MAJOR* Remove Unit types from the XML file and simulator.
 **** DONE *MAJOR* Remove aspect ratio and instead load the primary image cell size.
