@@ -23,7 +23,7 @@ project	: requirements
           #This creates a feature coil-integration, which can be set
           #on the command line or auto-detected using the passed target
 	  [ builddep.set-feature-on-build coil-integration 
-            : ../coil//coilDependencies
+            : /coil//coilDependencies
             : "DynamO-Coil Integration" ]
 	: default-build release
 	: build-dir ../../build-dir/
@@ -49,12 +49,12 @@ explicit dynamo_core gsltest test zlibtest bzip2test dynamoDependencies ;
 always gsltest zlibtest bzip2test dynamoDependencies ;
 
 lib dynamo_core : [ glob-tree *.cpp : programs tests ]
-      ../magnet//magnet ../boost//iostreams ../boost//filesystem
-      ../boost//program_options rt 
+      /magnet//magnet /boost//iostreams /boost//filesystem
+      /boost//program_options rt 
     : <include>include <include>. [ critical_dependencies ]
       <variant>debug:<define>DYNAMO_DEBUG <link>static
      [ check-target-builds gsltest "DynamO: GSL (RadiusGyration)" : <source>gsl <define>DYNAMO_GSL : ]
-      <coil-integration>yes:<source>../coil//coil/<link>static
+      <coil-integration>yes:<source>/coil//coil/<link>static
       <coil-integration>yes:<define>DYNAMO_visualizer
     : : <include>include 
     <variant>debug:<define>DYNAMO_DEBUG <threading>multi <link>static <include>.
@@ -67,7 +67,7 @@ rule critical_dependencies ( )
 
 exe dynarun : programs/dynarun.cpp dynamo_core 
     : [ git.defines ] [ critical_dependencies ] <tag>@tags.exe-naming ;
-exe dynareplex_opt : programs/dynareplex_opt.cpp ../boost//program_options
+exe dynareplex_opt : programs/dynareplex_opt.cpp /boost//program_options
     : [ git.defines ] [ critical_dependencies ] <tag>@tags.exe-naming ;
 exe dynahist_rw : programs/dynahist_rw.cpp dynamo_core 
     : [ git.defines ] [ critical_dependencies ] <tag>@tags.exe-naming ;

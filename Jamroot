@@ -67,10 +67,15 @@ project	: requirements
 ##########################################################################
 #Targets
 
-alias install : src/dynamo//install-dynamo ;
-alias install-coil : src/coil//install-coil ;
-alias test : src/magnet//test ;
+use-project /dynamo : src/dynamo ;
+use-project /magnet : src/magnet ;
+use-project /boost : src/boost ;
+use-project /coil : src/coil ;
 
-alias coilparticletest : src/coil//coilparticletest ;
+alias install : /dynamo//install-dynamo ;
+alias install-coil : /coil//install-coil ;
+alias test : /magnet//test ;
+
+alias coilparticletest : /coil//coilparticletest ;
 
 explicit install install-coil test  ;
