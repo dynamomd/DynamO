@@ -32,8 +32,6 @@ namespace coil {
   {
   public:
     inline DataSetChild(std::string name, DataSet& ds): RenderObj(name), _ds(ds) {}
-
-    virtual Gtk::TreeModel::iterator addViewRows(RenderObjectsGtkTreeView& view, Gtk::TreeModel::iterator&) = 0;
     
   protected:
 
@@ -82,7 +80,7 @@ namespace coil {
 
     /**@}*/
         
-    virtual void clTick(const magnet::GL::Camera& cam) 
+    virtual void clTick(const magnet::GL::Camera& cam)
     {
       for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
 	   iPtr != _children.end(); ++iPtr)
@@ -97,19 +95,25 @@ namespace coil {
 	  (*iPtr)->glRender(fbo, cam, mode);
     }
     
-    virtual Gtk::TreeModel::iterator addViewRows(RenderObjectsGtkTreeView& view)
+    virtual Gtk::TreeModel::iterator addViewRows(RenderObjectsGtkTreeView& view, Gtk::TreeModel::iterator& iter)
     {
       _view = &view;
-      _iter = RenderObj::addViewRows(view);
       
+      _iter = iter;
+      RenderObj::addViewRows(view, _iter);
+
       for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
 	   iPtr != _children.end(); ++iPtr)
-	(*iPtr)->addViewRows(view, _iter);
-
+	{
+	  Gtk::TreeModel::iterator child_iter = view._store->append(_iter->children());
+	  (*iPtr)->addViewRows(view, child_iter);
+	}
       return _iter;
     }
 
     virtual void showControls(Gtk::ScrolledWindow* win);
+
+    virtual Glib::RefPtr<Gdk::Pixbuf> getIcon();
 
   protected:
     /*! \brief An iterator to this DataSet's row in the Render object

@@ -18,7 +18,16 @@
 #include <coil/RenderObj/DataSet.hpp>
 #include <coil/RenderObj/Glyphs.hpp>
 
+extern const guint8 DataSet_Icon[];
+extern const size_t DataSet_Icon_size;
+
 namespace coil {  
+  Glib::RefPtr<Gdk::Pixbuf> 
+  DataSet::getIcon()
+  {
+    return Gdk::Pixbuf::create_from_inline(DataSet_Icon_size, DataSet_Icon);
+  }
+
   void 
   DataSet::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
   {
@@ -107,13 +116,14 @@ namespace coil {
   {
     std::tr1::shared_ptr<Glyphs> glyph(new Glyphs("Glyphs", *this));
     _children.push_back(glyph);
-        
+    
     if (_context)
       _children.back()->init(_systemQueue);
 
     if (_iter)
       {
-	Gtk::TreeModel::iterator child_iter = _children.back()->addViewRows(*_view, _iter);
+	Gtk::TreeModel::iterator child_iter = _view->_store->append(_iter->children());
+	_children.back()->addViewRows(*_view, child_iter);
 	_view->_view->expand_to_path(_view->_store->get_path(child_iter));
       }
   }

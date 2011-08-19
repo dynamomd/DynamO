@@ -46,7 +46,10 @@ explicit cwiidtest OpenCLtest OpenCLpptest gluttest gtkmmtest GLEWtest coilDepen
 rule critical_dependencies ( )
 { return [ check-target-builds coilDependencies "Coil library dependencies" :  : <build>no ] ; }
 
-lib coil : [ glob-tree *.cpp *.gladexml *.pixbufsvg *.ttf : tests examples ]
+lib coil 
+      : [ glob-tree *.cpp : tests examples images ]
+        [ glob-tree *.pixbufsvg *.ttf : tests examples coil ]
+      clwingtk.gladexml
       glut GLU GL Xext X11 rt GLEW ../magnet//magnet
       OpenCL gtkmm ../boost//signals
       : <include>. <include>../boost <tag>@tags.lib-naming 
