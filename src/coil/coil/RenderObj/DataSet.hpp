@@ -33,6 +33,11 @@ namespace coil {
   public:
     inline DataSetChild(std::string name, DataSet& ds): RenderObj(name), _ds(ds) {}
     
+    virtual bool deletable() { return true; }
+
+    /*! \brief Called when the object should be deleted. */
+    virtual void request_delete();
+
   protected:
 
     DataSet& _ds;
@@ -115,7 +120,14 @@ namespace coil {
 
     virtual Glib::RefPtr<Gdk::Pixbuf> getIcon();
 
+    void deleteChild(DataSetChild* child)
+    {
+      _context->queueTask(magnet::function::Task::makeTask(&DataSet::deleteChildWorker, this, child));
+    }
+
   protected:
+    void deleteChildWorker(DataSetChild* child);
+
     /*! \brief An iterator to this DataSet's row in the Render object
       treeview.
      */

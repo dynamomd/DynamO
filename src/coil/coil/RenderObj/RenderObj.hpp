@@ -227,9 +227,18 @@ namespace coil {
      */
     inline const std::string& getName() const { return _name; }
 
+    inline void setName(const std::string& name) { _name = name; }
+
     /*! \brief Returns the system queue.
      */    
     std::tr1::shared_ptr<magnet::thread::TaskQueue> getQueue() { return _systemQueue; }
+
+    
+    /*! \brief Called when the object should be deleted.
+     */
+    virtual void request_delete() {}
+
+    virtual bool deletable() { return false; }
 
   protected:
     std::string _name;
@@ -248,11 +257,12 @@ namespace coil {
     struct ModelColumns : Gtk::TreeModelColumnRecord
     {
       ModelColumns()
-      { add(m_name); add(m_visible); add(m_shadowcasting); add(m_obj); add(m_icon); }
+      { add(m_name); add(m_visible); add(m_shadowcasting); add(m_delete); add(m_obj); add(m_icon); }
       
       Gtk::TreeModelColumn<Glib::ustring> m_name;
-      Gtk::TreeModelColumn<bool> m_visible;
-      Gtk::TreeModelColumn<bool> m_shadowcasting;
+      Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > m_visible;
+      Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > m_shadowcasting;
+      Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > m_delete;
       Gtk::TreeModelColumn<RenderObj*> m_obj;
       Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > m_icon;
     };
@@ -264,9 +274,9 @@ namespace coil {
     std::vector<std::tr1::shared_ptr<RenderObj> > _renderObjects;
 
   protected:
-    
-    void visibleToggled(const Glib::ustring& path_string);
+    int _obj_col, _visible_col, _shadow_col;
 
-    void shadowingToggled(const Glib::ustring& path_string);
+    bool button_press(GdkEventButton*);
+    void name_edited(const Glib::ustring& path,const Glib::ustring& string);
   };
 }

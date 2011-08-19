@@ -17,6 +17,7 @@
 
 #include <coil/RenderObj/DataSet.hpp>
 #include <coil/RenderObj/Glyphs.hpp>
+#include <iostream>
 
 extern const guint8 DataSet_Icon[];
 extern const size_t DataSet_Icon_size;
@@ -26,6 +27,29 @@ namespace coil {
   DataSet::getIcon()
   {
     return Gdk::Pixbuf::create_from_inline(DataSet_Icon_size, DataSet_Icon);
+  }
+
+  void 
+  DataSetChild::request_delete()
+  { _ds.deleteChild(this); }
+
+  void 
+  DataSet::deleteChildWorker(DataSetChild* child)
+  {
+    for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
+	 iPtr != _children.end(); ++iPtr)
+      if (iPtr->get() == child)
+	{
+	  //Found the child to delete
+	  (*iPtr)->deinit();
+	  _children.erase(iPtr);
+
+	  //Rebuild this objects gui
+	  rebuildGui();	  
+	  //And the render object tree view
+	  _view->buildRenderView();
+	  return;
+	}
   }
 
   void 
@@ -117,8 +141,9 @@ namespace coil {
     std::tr1::shared_ptr<Glyphs> glyph(new Glyphs("Glyphs", *this));
     _children.push_back(glyph);
     
-    if (_context)
-      _children.back()->init(_systemQueue);
+    if (!_context) M_throw() << "Cannot add glyphs before the Dataset is initialised";
+    
+    _children.back()->init(_systemQueue);
 
     if (_iter)
       {
