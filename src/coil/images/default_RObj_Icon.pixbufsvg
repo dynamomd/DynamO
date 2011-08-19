@@ -15,7 +15,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.0 r9654"
-   sodipodi:docname="defaultRObjIcon.pixbufsvg">
+   sodipodi:docname="default_RObj_Icon.pixbufsvg">
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -24,8 +24,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="22.4"
-     inkscape:cx="18.817506"
-     inkscape:cy="11.106772"
+     inkscape:cx="10.692506"
+     inkscape:cy="11.999629"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -62,15 +62,15 @@
     <linearGradient
        id="linearGradient3820">
       <stop
-         style="stop-color:#61ea26;stop-opacity:1;"
+         style="stop-color:#4ccf14;stop-opacity:1;"
          offset="0"
          id="stop3822" />
       <stop
          id="stop3852"
          offset="0.5"
-         style="stop-color:#f1fdeb;stop-opacity:1;" />
+         style="stop-color:#c3f6aa;stop-opacity:1;" />
       <stop
-         style="stop-color:#61ea26;stop-opacity:1;"
+         style="stop-color:#4dd014;stop-opacity:1;"
          offset="1"
          id="stop3824" />
     </linearGradient>
@@ -136,6 +136,16 @@
        y1="1037.1539"
        x2="21.083332"
        y2="1037.1539" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3820"
+       id="linearGradient3012"
+       gradientUnits="userSpaceOnUse"
+       x1="15"
+       y1="1037.3622"
+       x2="18"
+       y2="1036.3622"
+       gradientTransform="translate(0,-1)" />
   </defs>
   <metadata
      id="metadata7">
@@ -154,22 +164,18 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-1028.3622)">
-    <g
-       id="g3854"
-       transform="translate(0,-1)">
-      <path
-         sodipodi:nodetypes="cccc"
-         inkscape:connector-curvature="0"
-         id="path3818"
-         d="m 7,1040.3622 7,-11 0,15.5833 z"
-         style="fill:#3ea80f;fill-opacity:1;stroke:none" />
-      <path
-         sodipodi:nodetypes="cccc"
-         inkscape:connector-curvature="0"
-         id="path3830"
-         d="m 14,1044.9455 7.083333,-2.8333 L 14,1029.3622 z"
-         style="fill:url(#linearGradient3858);fill-opacity:1;stroke:none" />
-    </g>
+    <path
+       style="fill:#3ea80f;fill-opacity:1;stroke:none"
+       d="m 7,1039.3622 7,-11 0,15.5833 z"
+       id="path3818"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc" />
+    <path
+       style="fill:url(#linearGradient3012);fill-opacity:1;stroke:none"
+       d="m 14,1043.9455 7.083333,-2.8333 L 14,1028.3622 z"
+       id="path3830"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc" />
     <g
        sodipodi:type="inkscape:box3d"
        style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:3.5999999;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
@@ -222,7 +228,7 @@
        sodipodi:cy="17"
        sodipodi:rx="5"
        sodipodi:ry="5"
-       d="M 11,17 A 5,5 0 1 1 1,17 5,5 0 1 1 11,17 z"
+       d="m 11,17 c 0,2.761424 -2.2385763,5 -5,5 -2.7614237,0 -5,-2.238576 -5,-5 0,-2.761424 2.2385763,-5 5,-5 2.7614237,0 5,2.238576 5,5 z"
        transform="matrix(1.3,0,0,1.3,-0.3,1022.7622)" />
   </g>
 </svg>
