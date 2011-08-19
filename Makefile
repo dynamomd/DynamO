@@ -7,9 +7,6 @@ BJAM="./src/boost/bjam"
 all : build_deps
 	$(BJAM) -j4 install
 
-coil : build_deps
-	$(BJAM) -j4 install-coil
-
 debug : build_deps
 	$(BJAM) -j4 debug
 
@@ -27,6 +24,7 @@ build_deps:
 install: build_deps all
 	if [ -d ./bin ]; then mkdir -p $(DESTDIR)/usr/bin/; cp bin/* $(DESTDIR)/usr/bin/; fi
 	if [ -d ./lib ]; then mkdir -p $(DESTDIR)/usr/lib/; cp lib/* $(DESTDIR)/usr/lib/; fi
+	if [ -d ./include ]; then mkdir -p $(DESTDIR)/usr/include/; cp include/* $(DESTDIR)/usr/include/; fi
 
 distclean: build_deps
 	rm -Rf build-dir

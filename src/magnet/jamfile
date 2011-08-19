@@ -23,6 +23,11 @@ alias magnet : dl
       : <include>. <variant>debug:<define>MAGNET_DEBUG <variant>debug:<linkflags>-rdynamic <variant>fulldebug:<define>MAGNET_DEBUG <variant>fulldebug:<linkflags>-rdynamic 
       ;
 
+install install-magnet
+      : [ glob magnet/*.hpp magnet/*/*.hpp magnet/*/*/*.hpp magnet/*/*/*/*.hpp magnet/*/*/*/*/*.hpp ]
+      : <location>$(INCLUDE_INSTALL_PATH) <install-source-root>./ ;
+      
+
 ##################### TESTS ######################
 using testing ;
 

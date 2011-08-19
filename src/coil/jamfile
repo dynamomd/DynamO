@@ -12,7 +12,7 @@ project	: requirements
             : cwiidtest
             : "Coil: Wii-mote support (libCwiid)" ]
 	: default-build release
-	: build-dir ../../build-dir/
+	: build-dir $(BUILD_DIR_PATH)
 	;
 
 lib glut : : <link>shared ;
@@ -62,10 +62,16 @@ exe gl_test
 
 explicit gl_test test coil ;
 
-install install-coil
+install install-libs
 	: coil 
-	: <location>../../lib [ critical_dependencies ]
+	: <location>$(LIB_INSTALL_PATH) [ critical_dependencies ]
 	;	
 
+install install-headers
+	: [ glob coil/*.hpp coil/*/*.hpp coil/*/*/*.hpp ]
+	: <location>$(INCLUDE_INSTALL_PATH) <install-source-root>./ [ critical_dependencies ]
+	;
+
+alias install-coil : install-libs install-headers ;
 
 exe coilparticletest : examples/particletest.cpp coil ;

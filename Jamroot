@@ -17,17 +17,21 @@
 ##########################################################################
 #Location of the boost build root directory
 path-constant BOOST_ROOT : src/boost/tools/build/v2 ;
+path-constant BUILD_DIR_PATH : ./build-dir ;
+
+path-constant LIB_INSTALL_PATH : ./lib ;
+path-constant BIN_INSTALL_PATH : ./bin ;
+path-constant INCLUDE_INSTALL_PATH : ./include ;
 
 ##########################################################################
 #If the build-dir doesn't exist at the very start of the build, all
 #the configuration test build output goes to stdout. So we create the
 #directory now
 import os ;
-local build-dir = "build-dir" ;
 if [ os.name ] = NT
-{ SHELL "mkdir "$(build-dir) ; }
+{ SHELL "mkdir "$(BUILD_DIR_PATH) ; }
 else
-{ SHELL "mkdir -p "$(build-dir) ; }
+{ SHELL "mkdir -p "$(BUILD_DIR_PATH) ; }
 
 ##########################################################################
 #Additional build variants
@@ -61,7 +65,7 @@ project	: requirements
           #This creates a feature coil-integration, which can be set
           #on the command line or auto-detected using the passed target
 	: default-build release
-	: build-dir $(build-dir)
+	: build-dir $(BUILD_DIR_PATH)
 	;
 
 ##########################################################################
@@ -72,10 +76,10 @@ use-project /magnet : src/magnet ;
 use-project /boost : src/boost ;
 use-project /coil : src/coil ;
 
-alias install : /dynamo//install-dynamo ;
-alias install-coil : /coil//install-coil ;
+alias install : /dynamo//install-dynamo /coil//install-coil /magnet//install-magnet ;
+
 alias test : /magnet//test ;
 
 alias coilparticletest : /coil//coilparticletest ;
 
-explicit install install-coil test  ;
+explicit install test coilparticletest ;
