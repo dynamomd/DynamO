@@ -15,10 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "SCparameter.hpp"
-#include "../../dynamics/globals/neighbourList.hpp"
-#include "../../dynamics/units/units.hpp"
-#include "../../dynamics/BC/BC.hpp"
+#include <dynamo/outputplugins/tickerproperty/SCparameter.hpp>
+#include <dynamo/dynamics/globals/neighbourList.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/dynamics/BC/BC.hpp>
 #include <boost/math/special_functions/pow.hpp>  
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -26,83 +26,85 @@
 #include <cmath>
 #include <limits>
 
-OPSCParameter::OPSCParameter(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
-  OPTicker(tmp,"SCParameter"),
-  maxWaveNumber(0),
-  count(0),
-  runningsum(0)
-{
-  operator<<(XML);
-}
+namespace dynamo {
+  OPSCParameter::OPSCParameter(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
+    OPTicker(tmp,"SCParameter"),
+    maxWaveNumber(0),
+    count(0),
+    runningsum(0)
+  {
+    operator<<(XML);
+  }
 
-void 
-OPSCParameter::initialise() 
-{
-  for (size_t iDim(0); iDim < NDIM; ++iDim)
-    if (Sim->primaryCellSize[iDim] != 1.0) 
-      M_throw() << "Cannot use this parameter in a non-cubic box";
+  void 
+  OPSCParameter::initialise() 
+  {
+    for (size_t iDim(0); iDim < NDIM; ++iDim)
+      if (Sim->primaryCellSize[iDim] != 1.0) 
+	M_throw() << "Cannot use this parameter in a non-cubic box";
   
-  maxWaveNumber = lrint(std::pow(Sim->N, 1.0/3.0));
+    maxWaveNumber = lrint(std::pow(Sim->N, 1.0/3.0));
 
-  if (boost::math::pow<3>(maxWaveNumber) != Sim->N)
-    M_throw() << "Failed, N does not have an integer cube root!";
+    if (boost::math::pow<3>(maxWaveNumber) != Sim->N)
+      M_throw() << "Failed, N does not have an integer cube root!";
 
-  dout << "Max wavelength is "
-	   << 1.0 / (maxWaveNumber * Sim->dynamics.units().unitLength()) << std::endl;
+    dout << "Max wavelength is "
+	 << 1.0 / (maxWaveNumber * Sim->dynamics.units().unitLength()) << std::endl;
 
-  maxWaveNumber *= 2;
+    maxWaveNumber *= 2;
 
-  runningsum.resize(maxWaveNumber + 1, 0);
+    runningsum.resize(maxWaveNumber + 1, 0);
 
-  ticker();
-}
+    ticker();
+  }
 
-void 
-OPSCParameter::ticker()
-{
-  ++count;
+  void 
+  OPSCParameter::ticker()
+  {
+    ++count;
 
-  for (size_t k(0); k <= maxWaveNumber; ++k)
-    {
-      std::complex<double> sum(0, 0);
+    for (size_t k(0); k <= maxWaveNumber; ++k)
+      {
+	std::complex<double> sum(0, 0);
 
-      BOOST_FOREACH(const Particle& part, Sim->particleList)
-	{
-	  double psum(0);
+	BOOST_FOREACH(const Particle& part, Sim->particleList)
+	  {
+	    double psum(0);
 	  
-	  for (size_t iDim(0); iDim < NDIM; ++iDim)
-	    psum += part.getPosition()[iDim];
+	    for (size_t iDim(0); iDim < NDIM; ++iDim)
+	      psum += part.getPosition()[iDim];
 	  
-	  psum *= 2.0 * M_PI * k;
-	  sum += std::complex<double>(std::cos(psum), std::sin(psum));
-	}
+	    psum *= 2.0 * M_PI * k;
+	    sum += std::complex<double>(std::cos(psum), std::sin(psum));
+	  }
       
-      runningsum[k] += std::abs(sum);
-    }
-}
+	runningsum[k] += std::abs(sum);
+      }
+  }
 
-void 
-OPSCParameter::output(magnet::xml::XmlStream& XML)
-{
-  XML << magnet::xml::tag("SCParameter")
-      << magnet::xml::attr("SCWaveNumber") 
-      << lrint(std::pow(Sim->N, 1.0/3.0))
-      << magnet::xml::attr("SCWaveNumberVal") 
-      << runningsum[lrint(std::pow(Sim->N, 1.0/3.0))] 
-    / (static_cast<double>(count) * Sim->N) 
-      << magnet::xml::chardata();
+  void 
+  OPSCParameter::output(magnet::xml::XmlStream& XML)
+  {
+    XML << magnet::xml::tag("SCParameter")
+	<< magnet::xml::attr("SCWaveNumber") 
+	<< lrint(std::pow(Sim->N, 1.0/3.0))
+	<< magnet::xml::attr("SCWaveNumberVal") 
+	<< runningsum[lrint(std::pow(Sim->N, 1.0/3.0))] 
+      / (static_cast<double>(count) * Sim->N) 
+	<< magnet::xml::chardata();
   
-  for (size_t k(0); k <= maxWaveNumber; ++k)
-    {
-      XML << k * Sim->dynamics.units().unitLength() << " "
-	  << runningsum[k] / (static_cast<double>(count) * Sim->N) 
-	  << "\n";
-    }
+    for (size_t k(0); k <= maxWaveNumber; ++k)
+      {
+	XML << k * Sim->dynamics.units().unitLength() << " "
+	    << runningsum[k] / (static_cast<double>(count) * Sim->N) 
+	    << "\n";
+      }
 
-  XML << magnet::xml::endtag("SCParameter");
-}
+    XML << magnet::xml::endtag("SCParameter");
+  }
 
-void 
-OPSCParameter::operator<<(const magnet::xml::Node& XML)
-{
+  void 
+  OPSCParameter::operator<<(const magnet::xml::Node& XML)
+  {
+  }
 }

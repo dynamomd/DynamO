@@ -16,24 +16,26 @@
 */
 
 #pragma once
-#include "collticker.hpp"
+#include <dynamo/outputplugins/0partproperty/collticker.hpp>
 
-class OPQMGA: public OPCollTicker
-{
- public:
-  OPQMGA(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPQMGA: public OPCollTicker
+  {
+  public:
+    OPQMGA(const dynamo::SimData*, const magnet::xml::Node&);
 
-  virtual OutputPlugin *Clone() const
-  { return new OPQMGA(*this); }
+    virtual OutputPlugin *Clone() const
+    { return new OPQMGA(*this); }
 
-  virtual void initialise() { printImage(); }
+    virtual void initialise() { printImage(); }
 
-  virtual void stream(double) {}
+    virtual void stream(double) {}
 
-  virtual void ticker();
+    virtual void ticker();
   
- protected:
-  int frameCount;
+  protected:
+    int frameCount;
 
-  void printImage();
-};
+    void printImage();
+  };
+}

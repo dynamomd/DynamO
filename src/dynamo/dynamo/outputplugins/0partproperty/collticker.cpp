@@ -15,39 +15,41 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "collticker.hpp"
+#include <dynamo/outputplugins/0partproperty/collticker.hpp>
 #include <boost/foreach.hpp>
-#include "../../dynamics/include.hpp"
+#include <dynamo/dynamics/include.hpp>
 
-OPCollTicker::OPCollTicker(const dynamo::SimData* t1,const char *t2, unsigned char order):
-  OutputPlugin(t1,t2,order)
-{}
+namespace dynamo {
+  OPCollTicker::OPCollTicker(const dynamo::SimData* t1,const char *t2, unsigned char order):
+    OutputPlugin(t1,t2,order)
+  {}
 
-void 
-OPCollTicker::eventUpdate(const IntEvent &event, 
-		    const PairEventData &) 
-{
-  stream(event.getdt());
-  ticker();
-}
+  void 
+  OPCollTicker::eventUpdate(const IntEvent &event, 
+			    const PairEventData &) 
+  {
+    stream(event.getdt());
+    ticker();
+  }
 
-void 
-OPCollTicker::eventUpdate(const GlobalEvent &event, const NEventData&) 
-{
-  stream(event.getdt());
-  ticker();
-}
+  void 
+  OPCollTicker::eventUpdate(const GlobalEvent &event, const NEventData&) 
+  {
+    stream(event.getdt());
+    ticker();
+  }
 
-void 
-OPCollTicker::eventUpdate(const LocalEvent &event, const NEventData&) 
-{
-  stream(event.getdt());
-  ticker();
-}
+  void 
+  OPCollTicker::eventUpdate(const LocalEvent &event, const NEventData&) 
+  {
+    stream(event.getdt());
+    ticker();
+  }
 
-void 
-OPCollTicker::eventUpdate(const System&, const NEventData&, const double& dt)
-{
-  stream(dt);
-  ticker();
+  void 
+  OPCollTicker::eventUpdate(const System&, const NEventData&, const double& dt)
+  {
+    stream(dt);
+    ticker();
+  }
 }

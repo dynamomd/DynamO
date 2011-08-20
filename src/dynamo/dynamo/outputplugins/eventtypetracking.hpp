@@ -16,33 +16,32 @@
 */
 
 #pragma once
-#include "../dynamics/eventtypes.hpp"
+#include <dynamo/dynamics/eventtypes.hpp>
 #include <utility>
 #include <string>
 
 namespace dynamo
 {
   class SimData;
-}
+  class Interaction;
+  class GlobalEvent;
+  class System;
+  class LocalEvent;
+  class IntEvent;
 
-class Interaction;
-class GlobalEvent;
-class System;
-class LocalEvent;
-class IntEvent;
-
-namespace EventTypeTracking {
+  namespace EventTypeTracking {
   
-  //! Keeps the type of event (interaction etc) and the ID num
-  typedef std::pair<size_t, EEventType> classKey;
+    //! Keeps the type of event (interaction etc) and the ID num
+    typedef std::pair<size_t, EEventType> classKey;
 
-  std::string getName(const classKey&, const dynamo::SimData*);
+    std::string getName(const classKey&, const dynamo::SimData*);
 
-  classKey getClassKey(const IntEvent&);
+    classKey getClassKey(const IntEvent&);
 
-  classKey getClassKey(const System&);
+    classKey getClassKey(const System&);
 
-  classKey getClassKey(const GlobalEvent&);
+    classKey getClassKey(const GlobalEvent&);
 
-  classKey getClassKey(const LocalEvent&);
+    classKey getClassKey(const LocalEvent&);
+  }
 }

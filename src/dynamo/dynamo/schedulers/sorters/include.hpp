@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "cbt.hpp"
-#include "boundedPQ.hpp"
-#include "MinMaxHeap.hpp"
-#include "SingleEvent.hpp"
+#include <dynamo/schedulers/sorters/cbt.hpp>
+#include <dynamo/schedulers/sorters/boundedPQ.hpp>
+#include <dynamo/schedulers/sorters/MinMaxHeap.hpp>
+#include <dynamo/schedulers/sorters/SingleEvent.hpp>

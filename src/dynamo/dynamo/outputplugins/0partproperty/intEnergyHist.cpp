@@ -15,170 +15,172 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "intEnergyHist.hpp"
-#include "../../dynamics/include.hpp"
-#include "../../dynamics/liouvillean/NewtonMCL.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../1partproperty/uenergy.hpp"
+#include <dynamo/outputplugins/0partproperty/intEnergyHist.hpp>
+#include <dynamo/dynamics/include.hpp>
+#include <dynamo/dynamics/liouvillean/NewtonMCL.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/outputplugins/1partproperty/uenergy.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 #include <fstream>
 
-OPIntEnergyHist::OPIntEnergyHist(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
-  OPCollTicker(tmp,"InternalEnergyHistogram", 10),//Before OPEnergy
-  intEnergyHist(1.0),
-  ptrOPEnergy(NULL),
-  weight(0.0),
-  binwidth(1.0)
-{
-  operator<<(XML);
-}
+namespace dynamo {
+  OPIntEnergyHist::OPIntEnergyHist(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
+    OPCollTicker(tmp,"InternalEnergyHistogram", 10),//Before OPEnergy
+    intEnergyHist(1.0),
+    ptrOPEnergy(NULL),
+    weight(0.0),
+    binwidth(1.0)
+  {
+    operator<<(XML);
+  }
 
-void 
-OPIntEnergyHist::operator<<(const magnet::xml::Node& XML)
-{  
-  try 
-    {
-      if (XML.hasAttribute("BinWidth"))
-	binwidth = XML.getAttribute("BinWidth").as<double>();
-    }
-  catch (boost::bad_lexical_cast &)
-    {
-      M_throw() << "Failed a lexical cast in OPIntEnergyHist";
-    }  
-}
+  void 
+  OPIntEnergyHist::operator<<(const magnet::xml::Node& XML)
+  {  
+    try 
+      {
+	if (XML.hasAttribute("BinWidth"))
+	  binwidth = XML.getAttribute("BinWidth").as<double>();
+      }
+    catch (boost::bad_lexical_cast &)
+      {
+	M_throw() << "Failed a lexical cast in OPIntEnergyHist";
+      }  
+  }
 
-void 
-OPIntEnergyHist::initialise() 
-{
-  ptrOPEnergy = Sim->getOutputPlugin<OPUEnergy>();
-  intEnergyHist = C1DWeightHistogram(binwidth * Sim->dynamics.units().unitEnergy());
-}
+  void 
+  OPIntEnergyHist::initialise() 
+  {
+    ptrOPEnergy = Sim->getOutputPlugin<OPUEnergy>();
+    intEnergyHist = C1DWeightHistogram(binwidth * Sim->dynamics.units().unitEnergy());
+  }
 
-void 
-OPIntEnergyHist::changeSystem(OutputPlugin* EHist2)
-{
-  //Add the current data
-  intEnergyHist.addVal(ptrOPEnergy->getSimU(), weight);
-  //Same for the other histogram
-  static_cast<OPIntEnergyHist*>(EHist2)->intEnergyHist.addVal
-    (static_cast<OPIntEnergyHist*>(EHist2)->ptrOPEnergy->getSimU(), 
-     static_cast<OPIntEnergyHist*>(EHist2)->weight);
+  void 
+  OPIntEnergyHist::changeSystem(OutputPlugin* EHist2)
+  {
+    //Add the current data
+    intEnergyHist.addVal(ptrOPEnergy->getSimU(), weight);
+    //Same for the other histogram
+    static_cast<OPIntEnergyHist*>(EHist2)->intEnergyHist.addVal
+      (static_cast<OPIntEnergyHist*>(EHist2)->ptrOPEnergy->getSimU(), 
+       static_cast<OPIntEnergyHist*>(EHist2)->weight);
 
-  //Now swap over the data
-  std::swap(Sim, static_cast<OPIntEnergyHist*>(EHist2)->Sim);
+    //Now swap over the data
+    std::swap(Sim, static_cast<OPIntEnergyHist*>(EHist2)->Sim);
 
-  //NEVER SWAP THE PLUGIN POINTERS! they don't change
-  //std::swap(ptrOPEnergy, static_cast<OPIntEnergyHist*>(EHist2)->ptrOPEnergy);
+    //NEVER SWAP THE PLUGIN POINTERS! they don't change
+    //std::swap(ptrOPEnergy, static_cast<OPIntEnergyHist*>(EHist2)->ptrOPEnergy);
 
-  //Reset the weighting
-  weight = 0.0;
-  static_cast<OPIntEnergyHist*>(EHist2)->weight = 0.0;
-}
+    //Reset the weighting
+    weight = 0.0;
+    static_cast<OPIntEnergyHist*>(EHist2)->weight = 0.0;
+  }
 
-void 
-OPIntEnergyHist::stream(double dt)
-{
-  weight += dt;
-}
+  void 
+  OPIntEnergyHist::stream(double dt)
+  {
+    weight += dt;
+  }
 
-void 
-OPIntEnergyHist::ticker()
-{
-  intEnergyHist.addVal(ptrOPEnergy->getSimU(), weight);
-  weight = 0.0;
-}
+  void 
+  OPIntEnergyHist::ticker()
+  {
+    intEnergyHist.addVal(ptrOPEnergy->getSimU(), weight);
+    weight = 0.0;
+  }
 
-boost::unordered_map<int, double> 
-OPIntEnergyHist::getImprovedW() const
-{
-  boost::unordered_map<int, double> retval;
+  boost::unordered_map<int, double> 
+  OPIntEnergyHist::getImprovedW() const
+  {
+    boost::unordered_map<int, double> retval;
 
-  bool isMC(Sim->dynamics.liouvilleanTypeTest<LNewtonianMC>());
+    bool isMC(Sim->dynamics.liouvilleanTypeTest<LNewtonianMC>());
 
-  typedef std::pair<const long, double> lv1pair;
-  BOOST_FOREACH(const lv1pair &p1, intEnergyHist)
-    {
-      double E = p1.first * intEnergyHist.getBinWidth();
+    typedef std::pair<const long, double> lv1pair;
+    BOOST_FOREACH(const lv1pair &p1, intEnergyHist)
+      {
+	double E = p1.first * intEnergyHist.getBinWidth();
       
-      //Fetch the current W value
-      double W = 0;
+	//Fetch the current W value
+	double W = 0;
       
-      if (isMC) W += static_cast<const LNewtonianMC&>(Sim->dynamics.getLiouvillean()).W(E);
+	if (isMC) W += static_cast<const LNewtonianMC&>(Sim->dynamics.getLiouvillean()).W(E);
       
-      double Pc = static_cast<double>(p1.second)
-	/ (intEnergyHist.getBinWidth() * intEnergyHist.getSampleCount()
-	   * Sim->dynamics.units().unitEnergy());
+	double Pc = static_cast<double>(p1.second)
+	  / (intEnergyHist.getBinWidth() * intEnergyHist.getSampleCount()
+	     * Sim->dynamics.units().unitEnergy());
 
-      //We only try to optimize parts of the histogram with greater
-      //than 1% probability
-      if (Pc > 0.01)
-	retval[lrint(E / intEnergyHist.getBinWidth())] = W + std::log(Pc);
-    }
+	//We only try to optimize parts of the histogram with greater
+	//than 1% probability
+	if (Pc > 0.01)
+	  retval[lrint(E / intEnergyHist.getBinWidth())] = W + std::log(Pc);
+      }
   
-  //Now center the energy warps about 0 to not cause funny changes in the tails.
-  typedef std::pair<const int, double> locpair;
-  double avg = 0;
-  BOOST_FOREACH(const locpair& p, retval)
-    avg += p.second;
+    //Now center the energy warps about 0 to not cause funny changes in the tails.
+    typedef std::pair<const int, double> locpair;
+    double avg = 0;
+    BOOST_FOREACH(const locpair& p, retval)
+      avg += p.second;
 
-  avg /= retval.size();
+    avg /= retval.size();
 
-  BOOST_FOREACH(locpair& p, retval)
-    p.second -= avg;
+    BOOST_FOREACH(locpair& p, retval)
+      p.second -= avg;
 
-  return retval;
-}
+    return retval;
+  }
 
 
-void 
-OPIntEnergyHist::output(magnet::xml::XmlStream& XML)
-{
-  XML << magnet::xml::tag("EnergyHist")
-      << magnet::xml::attr("BinWidth") << binwidth;
+  void 
+  OPIntEnergyHist::output(magnet::xml::XmlStream& XML)
+  {
+    XML << magnet::xml::tag("EnergyHist")
+	<< magnet::xml::attr("BinWidth") << binwidth;
 
-  if (dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()) != NULL)
-    XML << magnet::xml::attr("T") 
-	<< static_cast<const dynamo::EnsembleNVT&>(*(Sim->ensemble)).getReducedEnsembleVals()[2];
+    if (dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()) != NULL)
+      XML << magnet::xml::attr("T") 
+	  << static_cast<const dynamo::EnsembleNVT&>(*(Sim->ensemble)).getReducedEnsembleVals()[2];
   
-  intEnergyHist.outputClearHistogram(XML, Sim->dynamics.units().unitEnergy());
+    intEnergyHist.outputClearHistogram(XML, Sim->dynamics.units().unitEnergy());
   
-  if (Sim->dynamics.liouvilleanTypeTest<LNewtonianMC>())
-    {
-      dout << "Detected a Multi-canonical Liouvillean, outputting w parameters" << std::endl;
-      const LNewtonianMC& liouvillean(static_cast<const LNewtonianMC&>(Sim->dynamics.getLiouvillean()));
+    if (Sim->dynamics.liouvilleanTypeTest<LNewtonianMC>())
+      {
+	dout << "Detected a Multi-canonical Liouvillean, outputting w parameters" << std::endl;
+	const LNewtonianMC& liouvillean(static_cast<const LNewtonianMC&>(Sim->dynamics.getLiouvillean()));
   
 #ifdef DYNAMO_DEBUG      
-      if (!dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()))
-	M_throw() << "Multi-canonical simulations require an NVT ensemble";
+	if (!dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()))
+	  M_throw() << "Multi-canonical simulations require an NVT ensemble";
 #endif
       
-      XML << magnet::xml::tag("PotentialDeformation")
-	  << magnet::xml::attr("EnergyStep") << intEnergyHist.getBinWidth() * Sim->dynamics.units().unitEnergy();
+	XML << magnet::xml::tag("PotentialDeformation")
+	    << magnet::xml::attr("EnergyStep") << intEnergyHist.getBinWidth() * Sim->dynamics.units().unitEnergy();
       
-      typedef std::pair<const long, double> lv1pair;
-      BOOST_FOREACH(const lv1pair &p1, intEnergyHist)
-	{
-	  double E = p1.first * intEnergyHist.getBinWidth();
+	typedef std::pair<const long, double> lv1pair;
+	BOOST_FOREACH(const lv1pair &p1, intEnergyHist)
+	  {
+	    double E = p1.first * intEnergyHist.getBinWidth();
 	  
-	  //Fetch the current W value
-	  double W = liouvillean.W(E);
+	    //Fetch the current W value
+	    double W = liouvillean.W(E);
 	  
-	  double Pc = static_cast<double>(p1.second)
-	    / (intEnergyHist.getBinWidth() * intEnergyHist.getSampleCount()
-	       * Sim->dynamics.units().unitEnergy());
+	    double Pc = static_cast<double>(p1.second)
+	      / (intEnergyHist.getBinWidth() * intEnergyHist.getSampleCount()
+		 * Sim->dynamics.units().unitEnergy());
 	  
-	  XML << magnet::xml::tag("W")
-	      << magnet::xml::attr("Energy") << E * Sim->dynamics.units().unitEnergy()
-	      << magnet::xml::attr("Value") << W + std::log(Pc)
-	      << magnet::xml::attr("OldValue") << W
-	      << magnet::xml::endtag("W");
-	}
+	    XML << magnet::xml::tag("W")
+		<< magnet::xml::attr("Energy") << E * Sim->dynamics.units().unitEnergy()
+		<< magnet::xml::attr("Value") << W + std::log(Pc)
+		<< magnet::xml::attr("OldValue") << W
+		<< magnet::xml::endtag("W");
+	  }
       
-      XML << magnet::xml::endtag("PotentialDeformation");
+	XML << magnet::xml::endtag("PotentialDeformation");
       
-    }
-  XML << magnet::xml::endtag("EnergyHist");
+      }
+    XML << magnet::xml::endtag("EnergyHist");
 
+  }
 }

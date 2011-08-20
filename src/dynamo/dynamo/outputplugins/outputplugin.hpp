@@ -19,67 +19,69 @@
 #include <dynamo/base.hpp>
 #include <dynamo/base/is_simdata.hpp>
 
-class IntEvent;
-class GlobalEvent;
-struct XMLNode;
-class PairEventData;
-class ParticleEventData;
-class NEventData;
-class System;
-
 namespace xml { class XmlStream; }
 namespace magnet { namespace xml { class Node; } }
 
-class OutputPlugin: public dynamo::SimBase_const
-{
-public:
-  OutputPlugin(const dynamo::SimData*, const char*, unsigned char order=100);
-  
-  inline virtual ~OutputPlugin() {}
-  
-  virtual void initialise() = 0;
-  
-  virtual void eventUpdate(const IntEvent&, const PairEventData&) = 0;
-  
-  virtual void eventUpdate(const GlobalEvent&, const NEventData&) = 0;
+namespace dynamo {
+  class IntEvent;
+  class GlobalEvent;
+  struct XMLNode;
+  class PairEventData;
+  class ParticleEventData;
+  class NEventData;
+  class System;
 
-  virtual void eventUpdate(const LocalEvent&, const NEventData&) = 0;
+  class OutputPlugin: public dynamo::SimBase_const
+  {
+  public:
+    OutputPlugin(const dynamo::SimData*, const char*, unsigned char order=100);
+  
+    inline virtual ~OutputPlugin() {}
+  
+    virtual void initialise() = 0;
+  
+    virtual void eventUpdate(const IntEvent&, const PairEventData&) = 0;
+  
+    virtual void eventUpdate(const GlobalEvent&, const NEventData&) = 0;
 
-  virtual void eventUpdate(const System&, const NEventData&, const double&) = 0;
-  
-  virtual OutputPlugin *Clone() const = 0;
-  
-  virtual void output(magnet::xml::XmlStream&);
-  
-  virtual void periodicOutput();
-  
-  static OutputPlugin* getPlugin(const magnet::xml::Node&, const dynamo::SimData*);
-  static OutputPlugin* getPlugin(const std::string, const dynamo::SimData*);
-  
-  inline bool operator<(const OutputPlugin& OP) const
-  { return updateOrder < OP.updateOrder; }
-  
-  inline bool operator>(const OutputPlugin& OP) const
-  { return updateOrder > OP.updateOrder; }
-  
-  virtual void changeSystem(OutputPlugin*) 
-  { M_throw() << "This plugin hasn't been prepared for changes of system\n Plugin " <<  name; }
-  
-  virtual void temperatureRescale(const double&) {}
-  
-protected:
-  std::ostream& I_Pcout() const;
-  
-  // This sets the order in which these things are updated
-  // 0 is first
-  // 100 is default
-  // 250 is last
-  //
-  // Lets other plugins take data from plugins before/after they are updated
-  unsigned char updateOrder;
+    virtual void eventUpdate(const LocalEvent&, const NEventData&) = 0;
 
-private:
+    virtual void eventUpdate(const System&, const NEventData&, const double&) = 0;
+  
+    virtual OutputPlugin *Clone() const = 0;
+  
+    virtual void output(magnet::xml::XmlStream&);
+  
+    virtual void periodicOutput();
+  
+    static OutputPlugin* getPlugin(const magnet::xml::Node&, const dynamo::SimData*);
+    static OutputPlugin* getPlugin(const std::string, const dynamo::SimData*);
+  
+    inline bool operator<(const OutputPlugin& OP) const
+    { return updateOrder < OP.updateOrder; }
+  
+    inline bool operator>(const OutputPlugin& OP) const
+    { return updateOrder > OP.updateOrder; }
+  
+    virtual void changeSystem(OutputPlugin*) 
+    { M_throw() << "This plugin hasn't been prepared for changes of system\n Plugin " <<  name; }
+  
+    virtual void temperatureRescale(const double&) {}
+  
+  protected:
+    std::ostream& I_Pcout() const;
+  
+    // This sets the order in which these things are updated
+    // 0 is first
+    // 100 is default
+    // 250 is last
+    //
+    // Lets other plugins take data from plugins before/after they are updated
+    unsigned char updateOrder;
 
-  template<class T> static OutputPlugin* 
-  testGeneratePlugin(const dynamo::SimData*, const magnet::xml::Node&);
-};
+  private:
+
+    template<class T> static OutputPlugin* 
+    testGeneratePlugin(const dynamo::SimData*, const magnet::xml::Node&);
+  };
+}

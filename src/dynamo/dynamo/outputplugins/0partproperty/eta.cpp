@@ -15,29 +15,31 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "eta.hpp"
-#include "../../base/is_simdata.hpp"
+#include <dynamo/outputplugins/0partproperty/eta.hpp>
+#include <dynamo/base/is_simdata.hpp>
 
-OPETA::OPETA(const dynamo::SimData* tmp, const magnet::xml::Node&):
-  OutputPlugin(tmp,"EstTime", 249)
-{}
+namespace dynamo {
+  OPETA::OPETA(const dynamo::SimData* tmp, const magnet::xml::Node&):
+    OutputPlugin(tmp,"EstTime", 249)
+  {}
 
-void
-OPETA::initialise()
-{
-  time(&start_Time);
-}
+  void
+  OPETA::initialise()
+  {
+    time(&start_Time);
+  }
 
-void
-OPETA::periodicOutput()
-{
-  time_t currTime;
-  time(&currTime);
+  void
+  OPETA::periodicOutput()
+  {
+    time_t currTime;
+    time(&currTime);
 
-  double ETA = floor(((Sim->endEventCount - Sim->eventCount) * difftime(currTime, start_Time)) / Sim->eventCount);
-  double ETA_hours = floor(ETA/3600);
-  double ETA_mins = floor(ETA/60) - (ETA_hours * 60);
-  double ETA_secs = ETA - (ETA_mins * 60) - (ETA_hours * 3600);
+    double ETA = floor(((Sim->endEventCount - Sim->eventCount) * difftime(currTime, start_Time)) / Sim->eventCount);
+    double ETA_hours = floor(ETA/3600);
+    double ETA_mins = floor(ETA/60) - (ETA_hours * 60);
+    double ETA_secs = ETA - (ETA_mins * 60) - (ETA_hours * 3600);
 
-  I_Pcout() << "ETA " << ETA_hours << "h " << ETA_mins << "m " << ETA_secs << "s, ";
+    I_Pcout() << "ETA " << ETA_hours << "h " << ETA_mins << "m " << ETA_secs << "s, ";
+  }
 }

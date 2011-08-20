@@ -16,33 +16,35 @@
 */
 
 #pragma once
-#include "ticker.hpp"
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 
-class OPMSD;
+namespace dynamo {
+  class OPMSD;
 
-class OPPeriodicMSD: public OPTicker
-{
- public:
-  OPPeriodicMSD(const dynamo::SimData*, const magnet::xml::Node&);
+  class OPPeriodicMSD: public OPTicker
+  {
+  public:
+    OPPeriodicMSD(const dynamo::SimData*, const magnet::xml::Node&);
 
-  virtual void initialise();
+    virtual void initialise();
 
-  void output(magnet::xml::XmlStream &); 
+    void output(magnet::xml::XmlStream &); 
 
-  virtual OutputPlugin *Clone() const { return new OPPeriodicMSD(*this); };
+    virtual OutputPlugin *Clone() const { return new OPPeriodicMSD(*this); };
   
- protected:
-  virtual void stream(double) {}  
-  virtual void ticker();
+  protected:
+    virtual void stream(double) {}  
+    virtual void ticker();
 
-  typedef std::pair<double, double> localpair;
+    typedef std::pair<double, double> localpair;
 
-  std::list<localpair> results;
+    std::list<localpair> results;
 
-  typedef std::pair<const Topology*, std::list<localpair> > localpair2;
+    typedef std::pair<const Topology*, std::list<localpair> > localpair2;
 
-  std::vector<localpair2> structResults;
-  std::vector<std::vector<localpair> > speciesData;
+    std::vector<localpair2> structResults;
+    std::vector<std::vector<localpair> > speciesData;
 
-  const OPMSD* ptrOPMSD;
-};
+    const OPMSD* ptrOPMSD;
+  };
+}

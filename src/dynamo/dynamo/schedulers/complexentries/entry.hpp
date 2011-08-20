@@ -17,45 +17,47 @@
 
 #pragma once
 #include <dynamo/base.hpp>
-#include "../../dynamics/ranges/1range.hpp"
-#include "../../dynamics/globals/neighbourList.hpp"
+#include <dynamo/dynamics/ranges/1range.hpp>
+#include <dynamo/dynamics/globals/neighbourList.hpp>
 #include <magnet/cloneptr.hpp>
 
 namespace magnet { namespace xml { class Node; } }
 namespace xml { class XmlStream; }
 
-class Particle;
+namespace dynamo {
+  class Particle;
 
-class CSCEntry: public dynamo::SimBase
-{
-public:
-  CSCEntry(dynamo::SimData* const, const char *);
+  class CSCEntry: public dynamo::SimBase
+  {
+  public:
+    CSCEntry(dynamo::SimData* const, const char *);
   
-  virtual ~CSCEntry() {};
+    virtual ~CSCEntry() {};
 
-  virtual void initialise() {};
+    virtual void initialise() {};
   
-  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const CSCEntry&);
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const CSCEntry&);
 
-  static CSCEntry* getClass(const magnet::xml::Node&, dynamo::SimData* const);
+    static CSCEntry* getClass(const magnet::xml::Node&, dynamo::SimData* const);
  
-  virtual void operator<<(const magnet::xml::Node&) = 0;
+    virtual void operator<<(const magnet::xml::Node&) = 0;
 
-  bool isApplicable(const Particle& part) const;
+    bool isApplicable(const Particle& part) const;
   
-  virtual void getParticleNeighbourhood(const Particle&, 
-					const GNeighbourList::nbHoodFunc&) const {}
+    virtual void getParticleNeighbourhood(const Particle&, 
+					  const GNeighbourList::nbHoodFunc&) const {}
 
-  virtual void getParticleLocalNeighbourhood(const Particle&, 
-					     const GNeighbourList::nbHoodFunc&
-					     ) const 
-  {}
+    virtual void getParticleLocalNeighbourhood(const Particle&, 
+					       const GNeighbourList::nbHoodFunc&
+					       ) const 
+    {}
 
-  virtual CSCEntry* Clone() const = 0;
+    virtual CSCEntry* Clone() const = 0;
 
-protected:
+  protected:
 
-  virtual void outputXML(magnet::xml::XmlStream&) const = 0;
+    virtual void outputXML(magnet::xml::XmlStream&) const = 0;
   
-  magnet::ClonePtr<CRange> range;
-};
+    magnet::ClonePtr<CRange> range;
+  };
+}

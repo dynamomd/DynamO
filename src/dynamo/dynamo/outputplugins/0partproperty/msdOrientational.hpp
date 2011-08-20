@@ -19,38 +19,40 @@
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <vector>
 
-class OPMSDOrientational: public OutputPlugin
-{
- public:
-  OPMSDOrientational(const dynamo::SimData*, const magnet::xml::Node&);
-  ~OPMSDOrientational();
-
-  virtual void initialise();
-
-  // All null events
-  virtual void eventUpdate(const IntEvent&, const PairEventData&) {}
-  virtual void eventUpdate(const GlobalEvent&, const NEventData&) {}
-  virtual void eventUpdate(const LocalEvent&, const NEventData&) {}
-  virtual void eventUpdate(const System&, const NEventData&, const double&) {}
-
-  void output(magnet::xml::XmlStream &);
-
-  virtual OutputPlugin *Clone() const { return new OPMSDOrientational(*this); };
-
-  struct msdCalcReturn
+namespace dynamo {
+  class OPMSDOrientational: public OutputPlugin
   {
-    double parallel;
-    double perpendicular;
-    double rotational_legendre1;
-    double rotational_legendre2;
+  public:
+    OPMSDOrientational(const dynamo::SimData*, const magnet::xml::Node&);
+    ~OPMSDOrientational();
+
+    virtual void initialise();
+
+    // All null events
+    virtual void eventUpdate(const IntEvent&, const PairEventData&) {}
+    virtual void eventUpdate(const GlobalEvent&, const NEventData&) {}
+    virtual void eventUpdate(const LocalEvent&, const NEventData&) {}
+    virtual void eventUpdate(const System&, const NEventData&, const double&) {}
+
+    void output(magnet::xml::XmlStream &);
+
+    virtual OutputPlugin *Clone() const { return new OPMSDOrientational(*this); };
+
+    struct msdCalcReturn
+    {
+      double parallel;
+      double perpendicular;
+      double rotational_legendre1;
+      double rotational_legendre2;
+    };
+
+    msdCalcReturn calculate() const;
+
+    typedef std::pair<Vector,Vector> RUpair;
+
+  protected:
+
+    std::vector<RUpair> initialConfiguration;
+
   };
-
-  msdCalcReturn calculate() const;
-
-  typedef std::pair<Vector,Vector> RUpair;
-
- protected:
-
-  std::vector<RUpair> initialConfiguration;
-
-};
+}

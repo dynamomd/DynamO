@@ -22,9 +22,8 @@
 
 namespace magnet { namespace xml { class Node; class XmlStream; } }
 
-class System;
-
 namespace dynamo {
+  class System;
   class SimData;
 
   /*! \brief This class specifies the simulation ensemble that the

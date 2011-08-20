@@ -15,101 +15,103 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "kenergyticker.hpp"
-#include "../../dynamics/include.hpp"
-#include "../../dynamics/liouvillean/liouvillean.hpp"
+#include <dynamo/outputplugins/tickerproperty/kenergyticker.hpp>
+#include <dynamo/dynamics/include.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 
-OPKEnergyTicker::OPKEnergyTicker(const dynamo::SimData* tmp, 
-				 const magnet::xml::Node& XML):
-  OPTicker(tmp,"KEnergyTicker"),
-  count(0)
-{ operator<<(XML); }
+namespace dynamo {
+  OPKEnergyTicker::OPKEnergyTicker(const dynamo::SimData* tmp, 
+				   const magnet::xml::Node& XML):
+    OPTicker(tmp,"KEnergyTicker"),
+    count(0)
+  { operator<<(XML); }
 
-void 
-OPKEnergyTicker::operator<<(const magnet::xml::Node& XML)
-{}
+  void 
+  OPKEnergyTicker::operator<<(const magnet::xml::Node& XML)
+  {}
 
-void 
-OPKEnergyTicker::initialise()
-{
-  for (size_t iDim = 0; iDim < NDIM; ++iDim)
-    for (size_t jDim = 0; jDim < NDIM; ++jDim)
-      sum[iDim][jDim] = 0.0;
-}
-
-void 
-OPKEnergyTicker::ticker()
-{
-  ++count;
-
-  matrix localE;
-
-  for (size_t iDim = 0; iDim < NDIM; ++iDim)
-    for (size_t jDim = 0; jDim < NDIM; ++jDim)
-      localE[iDim][jDim] = 0.0;
-
-  BOOST_FOREACH(const Particle& part, Sim->particleList)
+  void 
+  OPKEnergyTicker::initialise()
+  {
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       for (size_t jDim = 0; jDim < NDIM; ++jDim)
-	localE[iDim][jDim] += part.getVelocity()[iDim] * part.getVelocity()[jDim]
-	  * Sim->dynamics.getSpecies(part).getMass(part.getID());
+	sum[iDim][jDim] = 0.0;
+  }
 
-  //Try and stop round off error this way
+  void 
+  OPKEnergyTicker::ticker()
+  {
+    ++count;
+
+    matrix localE;
+
+    for (size_t iDim = 0; iDim < NDIM; ++iDim)
+      for (size_t jDim = 0; jDim < NDIM; ++jDim)
+	localE[iDim][jDim] = 0.0;
+
+    BOOST_FOREACH(const Particle& part, Sim->particleList)
+      for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	for (size_t jDim = 0; jDim < NDIM; ++jDim)
+	  localE[iDim][jDim] += part.getVelocity()[iDim] * part.getVelocity()[jDim]
+	    * Sim->dynamics.getSpecies(part).getMass(part.getID());
+
+    //Try and stop round off error this way
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	sum[iDim][jDim] += localE[iDim][jDim];
-}
+  }
 
-void
-OPKEnergyTicker::output(magnet::xml::XmlStream& XML)
-{
-  double sumComp(0);
+  void
+  OPKEnergyTicker::output(magnet::xml::XmlStream& XML)
+  {
+    double sumComp(0);
   
-  for (size_t iDim(0); iDim < NDIM; ++iDim)
-    sumComp += sum[iDim][iDim];
+    for (size_t iDim(0); iDim < NDIM; ++iDim)
+      sumComp += sum[iDim][iDim];
 
-  XML << magnet::xml::tag("KEnergyTicker")
-      << magnet::xml::attr("T")
-      << sumComp / (((double) count) * ((double)NDIM) * Sim->N * Sim->dynamics.units().unitEnergy());
+    XML << magnet::xml::tag("KEnergyTicker")
+	<< magnet::xml::attr("T")
+	<< sumComp / (((double) count) * ((double)NDIM) * Sim->N * Sim->dynamics.units().unitEnergy());
   
 
-  XML << magnet::xml::tag("KineticTensor");
+    XML << magnet::xml::tag("KineticTensor");
  
-  for (size_t iDim = 0; iDim < NDIM; ++iDim)
-    {
-      std::string name = std::string("d") + boost::lexical_cast<std::string>(iDim);
+    for (size_t iDim = 0; iDim < NDIM; ++iDim)
+      {
+	std::string name = std::string("d") + boost::lexical_cast<std::string>(iDim);
       
-      XML << magnet::xml::tag(name.c_str());
+	XML << magnet::xml::tag(name.c_str());
 
-      for (size_t jDim = 0; jDim < NDIM; ++jDim)
-	{
-	  std::string name = std::string("d") + boost::lexical_cast<std::string>(jDim);	  
-	  XML << magnet::xml::attr(name.c_str())
-	      << sum[iDim][jDim] / (((double) count) * Sim->N 				    
-				    * Sim->dynamics.units().unitEnergy());;
-	}
+	for (size_t jDim = 0; jDim < NDIM; ++jDim)
+	  {
+	    std::string name = std::string("d") + boost::lexical_cast<std::string>(jDim);	  
+	    XML << magnet::xml::attr(name.c_str())
+		<< sum[iDim][jDim] / (((double) count) * Sim->N 				    
+				      * Sim->dynamics.units().unitEnergy());;
+	  }
       
-      XML << magnet::xml::endtag(name.c_str());
-    }
+	XML << magnet::xml::endtag(name.c_str());
+      }
   
-  XML << magnet::xml::endtag("KineticTensor");
+    XML << magnet::xml::endtag("KineticTensor");
 
-  XML << magnet::xml::endtag("KEnergyTicker");
-}
+    XML << magnet::xml::endtag("KEnergyTicker");
+  }
 
-void
-OPKEnergyTicker::periodicOutput()
-{
-  double sumComp(0);
+  void
+  OPKEnergyTicker::periodicOutput()
+  {
+    double sumComp(0);
   
-  for (size_t iDim(0); iDim < NDIM; ++iDim)
-    sumComp += sum[iDim][iDim];
+    for (size_t iDim(0); iDim < NDIM; ++iDim)
+      sumComp += sum[iDim][iDim];
 
-  sumComp /= ((double) count) * ((double)NDIM) * Sim->N 
-    * Sim->dynamics.units().unitEnergy();
+    sumComp /= ((double) count) * ((double)NDIM) * Sim->N 
+      * Sim->dynamics.units().unitEnergy();
 
-  I_Pcout() << "<T>_t " <<  sumComp 
-	    << ", ";
+    I_Pcout() << "<T>_t " <<  sumComp 
+	      << ", ";
+  }
 }

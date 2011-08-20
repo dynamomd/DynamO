@@ -16,33 +16,35 @@
 */
 
 #pragma once
-#include "ticker.hpp"
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 
-class OPStructureImaging: public OPTicker
-{
- public:
-  OPStructureImaging(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPStructureImaging: public OPTicker
+  {
+  public:
+    OPStructureImaging(const dynamo::SimData*, const magnet::xml::Node&);
 
-  virtual OutputPlugin *Clone() const
-  { return new OPStructureImaging(*this); }
+    virtual OutputPlugin *Clone() const
+    { return new OPStructureImaging(*this); }
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void stream(double) {}
+    virtual void stream(double) {}
 
-  virtual void ticker();
+    virtual void ticker();
 
-  virtual void changeSystem(OutputPlugin*);
+    virtual void changeSystem(OutputPlugin*);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-  virtual void output(magnet::xml::XmlStream&);
+    virtual void output(magnet::xml::XmlStream&);
   
- protected:
+  protected:
 
-  void printImage();
-  size_t id;
-  size_t imageCount;
-  std::vector<std::vector<Vector  > > imagelist;
-  std::string structureName;
-};
+    void printImage();
+    size_t id;
+    size_t imageCount;
+    std::vector<std::vector<Vector  > > imagelist;
+    std::string structureName;
+  };
+}

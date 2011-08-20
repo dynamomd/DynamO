@@ -16,31 +16,33 @@
 */
 
 #pragma once
-#include "2partproperty.hpp"
-#include "../../datatypes/histogram.hpp"
+#include <dynamo/outputplugins/1partproperty/2partproperty.hpp>
+#include <dynamo/datatypes/histogram.hpp>
 #include <boost/circular_buffer.hpp>
 #include <vector>
 
-class OPCollisionCorrelator: public OP2PP
-{
-public:
-  OPCollisionCorrelator(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPCollisionCorrelator: public OP2PP
+  {
+  public:
+    OPCollisionCorrelator(const dynamo::SimData*, const magnet::xml::Node&);
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual OutputPlugin* Clone() const 
-  { return new OPCollisionCorrelator(*this); }
+    virtual OutputPlugin* Clone() const 
+    { return new OPCollisionCorrelator(*this); }
 
-  void output(magnet::xml::XmlStream &XML);
+    void output(magnet::xml::XmlStream &XML);
 
-  void operator<<(const magnet::xml::Node&);
+    void operator<<(const magnet::xml::Node&);
 
-private:
+  private:
 
-  virtual void A2ParticleChange(const PairEventData&);
+    virtual void A2ParticleChange(const PairEventData&);
 
-  virtual void stream(const double&) {}  
+    virtual void stream(const double&) {}  
 
-  C1DHistogram freetimehist;
-  std::vector<std::vector<double> > lastColl;
-};
+    C1DHistogram freetimehist;
+    std::vector<std::vector<double> > lastColl;
+  };
+}

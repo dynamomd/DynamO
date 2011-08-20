@@ -20,68 +20,70 @@
 #include <boost/circular_buffer.hpp>
 #include <tr1/array>
 
-class OPViscosityE: public OutputPlugin
-{
-  typedef std::tr1::array<double, NDIM> col;
-  typedef std::tr1::array<col, NDIM> matrix;
+namespace dynamo {
+  class OPViscosityE: public OutputPlugin
+  {
+    typedef std::tr1::array<double, NDIM> col;
+    typedef std::tr1::array<col, NDIM> matrix;
   
-public:
-  OPViscosityE(const dynamo::SimData*, const magnet::xml::Node& XML);
+  public:
+    OPViscosityE(const dynamo::SimData*, const magnet::xml::Node& XML);
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void output(magnet::xml::XmlStream &);
+    virtual void output(magnet::xml::XmlStream &);
   
-  virtual OutputPlugin* Clone() const { return new OPViscosityE(*this); }
+    virtual OutputPlugin* Clone() const { return new OPViscosityE(*this); }
   
-  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
+    virtual void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const LocalEvent&, const NEventData&);
+    virtual void eventUpdate(const LocalEvent&, const NEventData&);
   
-  virtual void eventUpdate(const System&, const NEventData&, const double&);
+    virtual void eventUpdate(const System&, const NEventData&, const double&);
   
-  virtual void eventUpdate(const IntEvent&, const PairEventData&);
+    virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
-  void stream(const double&);
+    void stream(const double&);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-protected:
-  void impulseDelG(const PairEventData&);
-  void impulseDelG(const NEventData&);
+  protected:
+    void impulseDelG(const PairEventData&);
+    void impulseDelG(const NEventData&);
 
-  void updateConstDelG(const PairEventData&);
-  void updateConstDelG(const ParticleEventData&);
-  void updateConstDelG(const NEventData&);
+    void updateConstDelG(const PairEventData&);
+    void updateConstDelG(const ParticleEventData&);
+    void updateConstDelG(const NEventData&);
   
-  void newG(const matrix&);
-  void accPass();
+    void newG(const matrix&);
+    void accPass();
 
-  matrix avgTrace;
+    matrix avgTrace;
 
-  size_t count;
-  double dt, currentdt;
-  matrix constDelG, delG;
+    size_t count;
+    double dt, currentdt;
+    matrix constDelG, delG;
 
-  size_t currlen;
-  bool notReady;
+    size_t currlen;
+    bool notReady;
 
-  /*! \brief This is the length of the correlation function, in
-   * timesteps */
-  size_t CorrelatorLength;
+    /*! \brief This is the length of the correlation function, in
+     * timesteps */
+    size_t CorrelatorLength;
 
-  /*! \brief These values are the past values of the correlation
-   * function.
-   *
-   * There are \ref CorrelatorLength stored values. 
-   */
-  boost::circular_buffer<matrix> G;
+    /*! \brief These values are the past values of the correlation
+     * function.
+     *
+     * There are \ref CorrelatorLength stored values. 
+     */
+    boost::circular_buffer<matrix> G;
 
-  /*! \brief This is the actual correlation function.
-   *
-   * It is updated every time a new value of the correlator is stored
-   * into \ref G.
-   */
-  std::vector<matrix> accG2;
-  double dtfactor;
-};
+    /*! \brief This is the actual correlation function.
+     *
+     * It is updated every time a new value of the correlator is stored
+     * into \ref G.
+     */
+    std::vector<matrix> accG2;
+    double dtfactor;
+  };
+}

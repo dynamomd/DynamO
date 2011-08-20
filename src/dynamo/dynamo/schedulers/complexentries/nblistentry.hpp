@@ -16,29 +16,31 @@
 */
 
 #pragma once
-#include "entry.hpp"
+#include <dynamo/schedulers/complexentries/entry.hpp>
 
-class CSCENBList: public CSCEntry
-{
-public:
-  CSCENBList(const magnet::xml::Node&, dynamo::SimData* const);
+namespace dynamo {
+  class CSCENBList: public CSCEntry
+  {
+  public:
+    CSCENBList(const magnet::xml::Node&, dynamo::SimData* const);
   
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-  virtual void getParticleNeighbourhood(const Particle&, 
-					const GNeighbourList::nbHoodFunc&) const;
+    virtual void getParticleNeighbourhood(const Particle&, 
+					  const GNeighbourList::nbHoodFunc&) const;
 
-  virtual void getParticleLocalNeighbourhood(const Particle&, 
-					     const GNeighbourList::nbHoodFunc&) const;
+    virtual void getParticleLocalNeighbourhood(const Particle&, 
+					       const GNeighbourList::nbHoodFunc&) const;
 
-  virtual CSCEntry* Clone() const { return new CSCENBList(*this); }
+    virtual CSCEntry* Clone() const { return new CSCENBList(*this); }
 
-protected:
+  protected:
 
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void outputXML(magnet::xml::XmlStream&) const;
   
-  std::string name;
-  size_t nblistID;
-};
+    std::string name;
+    size_t nblistID;
+  };
+}

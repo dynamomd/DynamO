@@ -25,159 +25,161 @@
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 
-OPMSDCorrelator::OPMSDCorrelator(const dynamo::SimData* tmp, 
-				 const magnet::xml::Node& XML):
-  OPTicker(tmp,"MSDCorrelator"),
-  length(20),
-  currCorrLength(0),
-  ticksTaken(0),
-  notReady(true)
-{
-  operator<<(XML);
-}
+namespace dynamo {
+  OPMSDCorrelator::OPMSDCorrelator(const dynamo::SimData* tmp, 
+				   const magnet::xml::Node& XML):
+    OPTicker(tmp,"MSDCorrelator"),
+    length(20),
+    currCorrLength(0),
+    ticksTaken(0),
+    notReady(true)
+  {
+    operator<<(XML);
+  }
 
-void 
-OPMSDCorrelator::operator<<(const magnet::xml::Node& XML)
-{
-  try 
-    {
-      if (XML.hasAttribute("Length"))
-	length = XML.getAttribute("Length").as<size_t>();
-    }
-  catch (boost::bad_lexical_cast &)
-    {
-      M_throw() << "Failed a lexical cast in OPMSDCorrelator";
-    }    
+  void 
+  OPMSDCorrelator::operator<<(const magnet::xml::Node& XML)
+  {
+    try 
+      {
+	if (XML.hasAttribute("Length"))
+	  length = XML.getAttribute("Length").as<size_t>();
+      }
+    catch (boost::bad_lexical_cast &)
+      {
+	M_throw() << "Failed a lexical cast in OPMSDCorrelator";
+      }    
 
-}
+  }
 
-void 
-OPMSDCorrelator::initialise()
-{
-  dout << "The length of the MSD correlator is " << length << std::endl;
+  void 
+  OPMSDCorrelator::initialise()
+  {
+    dout << "The length of the MSD correlator is " << length << std::endl;
 
-  posHistory.resize(Sim->N, boost::circular_buffer<Vector>(length));
+    posHistory.resize(Sim->N, boost::circular_buffer<Vector>(length));
 
-  currCorrLength=1;
+    currCorrLength=1;
 
-  BOOST_FOREACH(const Particle& part, Sim->particleList)
-    posHistory[part.getID()].push_front(part.getPosition());
+    BOOST_FOREACH(const Particle& part, Sim->particleList)
+      posHistory[part.getID()].push_front(part.getPosition());
 
-  speciesData.resize(Sim->dynamics.getSpecies().size(), 
-		     std::vector<double>(length, 0.0));
+    speciesData.resize(Sim->dynamics.getSpecies().size(), 
+		       std::vector<double>(length, 0.0));
 
-  structData.resize(Sim->dynamics.getTopology().size(), 
-		    std::vector<double>(length, 0.0));
-}
+    structData.resize(Sim->dynamics.getTopology().size(), 
+		      std::vector<double>(length, 0.0));
+  }
 
-void 
-OPMSDCorrelator::ticker()
-{
-  BOOST_FOREACH(const Particle& part, Sim->particleList)
-    posHistory[part.getID()].push_front(part.getPosition());
+  void 
+  OPMSDCorrelator::ticker()
+  {
+    BOOST_FOREACH(const Particle& part, Sim->particleList)
+      posHistory[part.getID()].push_front(part.getPosition());
   
-  if (notReady)
-    {
-      if (++currCorrLength != length)
-	return;
+    if (notReady)
+      {
+	if (++currCorrLength != length)
+	  return;
       
-      notReady = false;
-    }
+	notReady = false;
+      }
   
-  accPass();
-}
+    accPass();
+  }
 
-void
-OPMSDCorrelator::accPass()
-{
-  ++ticksTaken;
+  void
+  OPMSDCorrelator::accPass()
+  {
+    ++ticksTaken;
   
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
-    BOOST_FOREACH(const size_t& ID, *sp->getRange())
-    for (size_t step(1); step < length; ++step)
-      speciesData[sp->getID()][step]
-	+= (posHistory[ID][step] - posHistory[ID][0]).nrm2();
-  
-  BOOST_FOREACH(const magnet::ClonePtr<Topology>& topo, Sim->dynamics.getTopology())
-    BOOST_FOREACH(const magnet::ClonePtr<CRange>& range, topo->getMolecules())
-    {
-      Vector  molCOM(0,0,0);
-      double molMass(0);
-
-      BOOST_FOREACH(const size_t& ID, *range)
-	{
-	  double mass = Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass(ID);
-	  molCOM += posHistory[ID][0] * mass;
-	  molMass += mass;
-	}
-
-      molCOM /= molMass;
-
+    BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+      BOOST_FOREACH(const size_t& ID, *sp->getRange())
       for (size_t step(1); step < length; ++step)
-	{
-	  Vector  molCOM2(0,0,0);
-	  
-	  BOOST_FOREACH(const size_t& ID, *range)
-	    molCOM2 += posHistory[ID][step] 
-	    * Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass(ID);
-	  
-	  molCOM2 /= molMass;
-	  
-	  structData[topo->getID()][step] += (molCOM2 - molCOM).nrm2();
-	}
-    }
-}
+	speciesData[sp->getID()][step]
+	  += (posHistory[ID][step] - posHistory[ID][0]).nrm2();
+  
+    BOOST_FOREACH(const magnet::ClonePtr<Topology>& topo, Sim->dynamics.getTopology())
+      BOOST_FOREACH(const magnet::ClonePtr<CRange>& range, topo->getMolecules())
+      {
+	Vector  molCOM(0,0,0);
+	double molMass(0);
 
-void
-OPMSDCorrelator::output(magnet::xml::XmlStream &XML)
-{
-  XML << magnet::xml::tag("MSDCorrelator")
-      << magnet::xml::tag("Particles");
+	BOOST_FOREACH(const size_t& ID, *range)
+	  {
+	    double mass = Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass(ID);
+	    molCOM += posHistory[ID][0] * mass;
+	    molMass += mass;
+	  }
+
+	molCOM /= molMass;
+
+	for (size_t step(1); step < length; ++step)
+	  {
+	    Vector  molCOM2(0,0,0);
+	  
+	    BOOST_FOREACH(const size_t& ID, *range)
+	      molCOM2 += posHistory[ID][step] 
+	      * Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass(ID);
+	  
+	    molCOM2 /= molMass;
+	  
+	    structData[topo->getID()][step] += (molCOM2 - molCOM).nrm2();
+	  }
+      }
+  }
+
+  void
+  OPMSDCorrelator::output(magnet::xml::XmlStream &XML)
+  {
+    XML << magnet::xml::tag("MSDCorrelator")
+	<< magnet::xml::tag("Particles");
   
-  double dt = dynamic_cast<const CSTicker&>
-    (*Sim->dynamics.getSystem("SystemTicker")).getPeriod()
-    / Sim->dynamics.units().unitTime();
+    double dt = dynamic_cast<const CSTicker&>
+      (*Sim->dynamics.getSystem("SystemTicker")).getPeriod()
+      / Sim->dynamics.units().unitTime();
   
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
-    {
-      XML << magnet::xml::tag("Species")
-	  << magnet::xml::attr("Name")
-	  << sp->getName()
-	  << magnet::xml::chardata();
+    BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+      {
+	XML << magnet::xml::tag("Species")
+	    << magnet::xml::attr("Name")
+	    << sp->getName()
+	    << magnet::xml::chardata();
       
-      for (size_t step(0); step < length; ++step)
-	XML << dt * step << " "
-	    << speciesData[sp->getID()][step] 
-	  / (static_cast<double>(ticksTaken) 
-	     * static_cast<double>(sp->getCount())
-	     * Sim->dynamics.units().unitArea())
-	    << "\n";
+	for (size_t step(0); step < length; ++step)
+	  XML << dt * step << " "
+	      << speciesData[sp->getID()][step] 
+	    / (static_cast<double>(ticksTaken) 
+	       * static_cast<double>(sp->getCount())
+	       * Sim->dynamics.units().unitArea())
+	      << "\n";
       
-      XML << magnet::xml::endtag("Species");
-    }
+	XML << magnet::xml::endtag("Species");
+      }
   
-  XML << magnet::xml::endtag("Particles")
-      << magnet::xml::tag("Topology");
+    XML << magnet::xml::endtag("Particles")
+	<< magnet::xml::tag("Topology");
   
-  BOOST_FOREACH(const magnet::ClonePtr<Topology>& topo, 
-		Sim->dynamics.getTopology())
-    {
-      XML << magnet::xml::tag("Structure")
-	  << magnet::xml::attr("Name")
-	  << topo->getName()
-	  << magnet::xml::chardata();
+    BOOST_FOREACH(const magnet::ClonePtr<Topology>& topo, 
+		  Sim->dynamics.getTopology())
+      {
+	XML << magnet::xml::tag("Structure")
+	    << magnet::xml::attr("Name")
+	    << topo->getName()
+	    << magnet::xml::chardata();
       
-      for (size_t step(0); step < length; ++step)
-	XML << dt * step << " "
-	    << structData[topo->getID()][step]
-	  / (static_cast<double>(ticksTaken) 
-	     * static_cast<double>(topo->getMolecules().size())
-	     * Sim->dynamics.units().unitArea())
-	    << "\n";
+	for (size_t step(0); step < length; ++step)
+	  XML << dt * step << " "
+	      << structData[topo->getID()][step]
+	    / (static_cast<double>(ticksTaken) 
+	       * static_cast<double>(topo->getMolecules().size())
+	       * Sim->dynamics.units().unitArea())
+	      << "\n";
 	
-      XML << magnet::xml::endtag("Structure");
-    }
+	XML << magnet::xml::endtag("Structure");
+      }
   
-  XML << magnet::xml::endtag("Topology")
-      << magnet::xml::endtag("MSDCorrelator");
+    XML << magnet::xml::endtag("Topology")
+	<< magnet::xml::endtag("MSDCorrelator");
+  }
 }

@@ -16,63 +16,65 @@
 */
 
 #pragma once
-#include "../outputplugin.hpp"
-#include "../../dynamics/eventtypes.hpp"
-#include "../eventtypetracking.hpp"
+#include <dynamo/outputplugins/outputplugin.hpp>
+#include <dynamo/dynamics/eventtypes.hpp>
+#include <dynamo/outputplugins/eventtypetracking.hpp>
 #include <map>
 #include <vector>
 
-using namespace EventTypeTracking;
+namespace dynamo {
+  class Particle;
 
-class Particle;
-
-class OPCollMatrix: public OutputPlugin
-{
-private:
-  
-public:
-  OPCollMatrix(const dynamo::SimData*, const magnet::xml::Node&);
-  ~OPCollMatrix();
-
-  virtual void initialise();
-
-  virtual void eventUpdate(const IntEvent&, const PairEventData&);
-
-  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
-
-  virtual void eventUpdate(const LocalEvent&, const NEventData&);
-
-  virtual void eventUpdate(const System&, const NEventData&, const double&);
-
-  void output(magnet::xml::XmlStream &);
-
-  virtual OutputPlugin *Clone() const { return new OPCollMatrix(*this); };
-
-  //This is fine to replica exchange as the interaction, global and system lookups are done using names
-  virtual void changeSystem(OutputPlugin* plug) { std::swap(Sim, static_cast<OPCollMatrix*>(plug)->Sim); }
-  
- protected:
-  void newEvent(const size_t&, const EEventType&, const classKey&);
-  
-  struct counterData
+  class OPCollMatrix: public OutputPlugin
   {
-    counterData():count(0), initialCount(0), totalTime(0) {}
-    unsigned long count;
-    size_t initialCount;
-    double totalTime;
+    using namespace EventTypeTracking;
+
+  private:
+  
+  public:
+    OPCollMatrix(const dynamo::SimData*, const magnet::xml::Node&);
+    ~OPCollMatrix();
+
+    virtual void initialise();
+
+    virtual void eventUpdate(const IntEvent&, const PairEventData&);
+
+    virtual void eventUpdate(const GlobalEvent&, const NEventData&);
+
+    virtual void eventUpdate(const LocalEvent&, const NEventData&);
+
+    virtual void eventUpdate(const System&, const NEventData&, const double&);
+
+    void output(magnet::xml::XmlStream &);
+
+    virtual OutputPlugin *Clone() const { return new OPCollMatrix(*this); };
+
+    //This is fine to replica exchange as the interaction, global and system lookups are done using names
+    virtual void changeSystem(OutputPlugin* plug) { std::swap(Sim, static_cast<OPCollMatrix*>(plug)->Sim); }
+  
+  protected:
+    void newEvent(const size_t&, const EEventType&, const classKey&);
+  
+    struct counterData
+    {
+      counterData():count(0), initialCount(0), totalTime(0) {}
+      unsigned long count;
+      size_t initialCount;
+      double totalTime;
+    };
+  
+    unsigned long totalCount;
+
+    typedef std::pair<classKey, EEventType> eventKey;
+
+    typedef std::pair<eventKey, eventKey> counterKey;
+  
+    std::map<counterKey, counterData> counters;
+  
+    std::map<eventKey, size_t> initialCounter;
+
+    typedef std::pair<double, eventKey> lastEventData;
+
+    std::vector<lastEventData> lastEvent; 
   };
-  
-  unsigned long totalCount;
-
-  typedef std::pair<classKey, EEventType> eventKey;
-
-  typedef std::pair<eventKey, eventKey> counterKey;
-  
-  std::map<counterKey, counterData> counters;
-  
-  std::map<eventKey, size_t> initialCounter;
-
-  typedef std::pair<double, eventKey> lastEventData;
-
-  std::vector<lastEventData> lastEvent; 
-};
+}

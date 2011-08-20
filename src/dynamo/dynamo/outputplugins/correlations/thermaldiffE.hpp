@@ -20,55 +20,57 @@
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <boost/circular_buffer.hpp>
 
-class OPThermalDiffusionE: public OutputPlugin
-{
-public:
-  OPThermalDiffusionE(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPThermalDiffusionE: public OutputPlugin
+  {
+  public:
+    OPThermalDiffusionE(const dynamo::SimData*, const magnet::xml::Node&);
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void output(magnet::xml::XmlStream&);
+    virtual void output(magnet::xml::XmlStream&);
 
-  virtual OutputPlugin* Clone() const 
-  { return new OPThermalDiffusionE(*this); }
+    virtual OutputPlugin* Clone() const 
+    { return new OPThermalDiffusionE(*this); }
 
-  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
-  virtual void eventUpdate(const LocalEvent&, const NEventData&);
-  virtual void eventUpdate(const System&, const NEventData&, const double&);
-  virtual void eventUpdate(const IntEvent&, const PairEventData&);
+    virtual void eventUpdate(const GlobalEvent&, const NEventData&);
+    virtual void eventUpdate(const LocalEvent&, const NEventData&);
+    virtual void eventUpdate(const System&, const NEventData&, const double&);
+    virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
-  void operator<<(const magnet::xml::Node&);
+    void operator<<(const magnet::xml::Node&);
   
-protected:
-  boost::circular_buffer<Vector  > G;
-  std::vector<Vector  > accG2;
-  size_t count;
-  double dt, currentdt;
-  Vector  constDelG, delG;
-  size_t currlen;
-  bool notReady;
-  size_t CorrelatorLength;
-  boost::circular_buffer<Vector  > Gsp1;
-  Vector  constDelGsp1;
-  Vector  delGsp1;
-  size_t species1;
-  Vector  sysMom;
-  double massFracSp1;
+  protected:
+    boost::circular_buffer<Vector  > G;
+    std::vector<Vector  > accG2;
+    size_t count;
+    double dt, currentdt;
+    Vector  constDelG, delG;
+    size_t currlen;
+    bool notReady;
+    size_t CorrelatorLength;
+    boost::circular_buffer<Vector  > Gsp1;
+    Vector  constDelGsp1;
+    Vector  delGsp1;
+    size_t species1;
+    Vector  sysMom;
+    double massFracSp1;
 
-  std::string species1name;
+    std::string species1name;
 
-  double rescaleFactor();
+    double rescaleFactor();
   
-  Vector  impulseDelG(const PairEventData&);
-  Vector  impulseDelG(const NEventData&); 
+    Vector  impulseDelG(const PairEventData&);
+    Vector  impulseDelG(const NEventData&); 
   
-  void updateConstDelG(const PairEventData&);
-  void updateConstDelG(const ParticleEventData&);
-  void updateConstDelG(const NEventData&);
+    void updateConstDelG(const PairEventData&);
+    void updateConstDelG(const ParticleEventData&);
+    void updateConstDelG(const NEventData&);
 
-  void stream(const double);
+    void stream(const double);
 
-  void newG();
+    void newG();
 
-  void accPass();
-};
+    void accPass();
+  };
+}

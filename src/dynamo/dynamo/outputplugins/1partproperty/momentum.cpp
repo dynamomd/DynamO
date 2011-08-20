@@ -23,50 +23,52 @@
 #include <boost/foreach.hpp>
 #include <cmath>
 
-OPMomentum::OPMomentum(const dynamo::SimData* tmp, const magnet::xml::Node&):
-  OP1PP(tmp,"Momentum", 250),
-  accMom(0,0,0), accMomsq(0,0,0), sysMom(0,0,0)
-{}
+namespace dynamo {
+  OPMomentum::OPMomentum(const dynamo::SimData* tmp, const magnet::xml::Node&):
+    OP1PP(tmp,"Momentum", 250),
+    accMom(0,0,0), accMomsq(0,0,0), sysMom(0,0,0)
+  {}
 
-void
-OPMomentum::initialise()
-{  
-  accMom = Vector (0,0,0);
-  accMomsq = Vector (0,0,0);
-  sysMom = Vector (0,0,0);
+  void
+  OPMomentum::initialise()
+  {  
+    accMom = Vector (0,0,0);
+    accMomsq = Vector (0,0,0);
+    sysMom = Vector (0,0,0);
 
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-    BOOST_FOREACH(const size_t& ID, *spec->getRange())
-    sysMom += spec->getMass(ID) * Sim->particleList[ID].getVelocity();
-}
+    BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+      BOOST_FOREACH(const size_t& ID, *spec->getRange())
+      sysMom += spec->getMass(ID) * Sim->particleList[ID].getVelocity();
+  }
 
-void 
-OPMomentum::A1ParticleChange(const ParticleEventData& PDat)
-{
-  sysMom += PDat.getDeltaP();
-}
+  void 
+  OPMomentum::A1ParticleChange(const ParticleEventData& PDat)
+  {
+    sysMom += PDat.getDeltaP();
+  }
 
-void 
-OPMomentum::stream(const double& dt)
-{
-  Vector  tmp(sysMom * dt);
-  accMom += tmp;
-  for (size_t i(0); i < NDIM; ++i)
-    accMomsq[i] += sysMom[i] * tmp[i];
-}
+  void 
+  OPMomentum::stream(const double& dt)
+  {
+    Vector  tmp(sysMom * dt);
+    accMom += tmp;
+    for (size_t i(0); i < NDIM; ++i)
+      accMomsq[i] += sysMom[i] * tmp[i];
+  }
 
-void
-OPMomentum::output(magnet::xml::XmlStream &XML)
-{
-  XML << magnet::xml::tag("Momentum")
-      << magnet::xml::tag("Current")
-      << sysMom / Sim->dynamics.units().unitMomentum()
-      << magnet::xml::endtag("Current")
-      << magnet::xml::tag("Avg") 
-      << accMom / (Sim->dSysTime * Sim->dynamics.units().unitMomentum())
-      << magnet::xml::endtag("Avg")    
-      << magnet::xml::tag("SqAvg") 
-      << accMomsq / (Sim->dSysTime * Sim->dynamics.units().unitMomentum() * Sim->dynamics.units().unitMomentum())
-      << magnet::xml::endtag("SqAvg")
-      << magnet::xml::endtag("Momentum");
+  void
+  OPMomentum::output(magnet::xml::XmlStream &XML)
+  {
+    XML << magnet::xml::tag("Momentum")
+	<< magnet::xml::tag("Current")
+	<< sysMom / Sim->dynamics.units().unitMomentum()
+	<< magnet::xml::endtag("Current")
+	<< magnet::xml::tag("Avg") 
+	<< accMom / (Sim->dSysTime * Sim->dynamics.units().unitMomentum())
+	<< magnet::xml::endtag("Avg")    
+	<< magnet::xml::tag("SqAvg") 
+	<< accMomsq / (Sim->dSysTime * Sim->dynamics.units().unitMomentum() * Sim->dynamics.units().unitMomentum())
+	<< magnet::xml::endtag("SqAvg")
+	<< magnet::xml::endtag("Momentum");
+  }
 }

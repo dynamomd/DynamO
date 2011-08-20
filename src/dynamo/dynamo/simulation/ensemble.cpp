@@ -21,7 +21,6 @@
 #include <dynamo/dynamics/BC/LEBC.hpp>
 #include <dynamo/outputplugins/1partproperty/uenergy.hpp>
 #include <dynamo/dynamics/liouvillean/NewtonMCL.hpp>
-
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>

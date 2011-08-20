@@ -17,54 +17,56 @@
 
 #pragma once
 
-#include "neighbourlist.hpp"
+#include <dynamo/schedulers/neighbourlist.hpp>
 #include <magnet/thread/threadpool.hpp>
 
-class SThreadedNBList: public CSNeighbourList
-{
-public:
-  SThreadedNBList(const magnet::xml::Node&, dynamo::SimData* const);
+namespace dynamo {
+  class SThreadedNBList: public CSNeighbourList
+  {
+  public:
+    SThreadedNBList(const magnet::xml::Node&, dynamo::SimData* const);
 
-  SThreadedNBList(dynamo::SimData* const, CSSorter*, size_t threadCount);
+    SThreadedNBList(dynamo::SimData* const, CSSorter*, size_t threadCount);
 
-  virtual void addEvents(const Particle&);
+    virtual void addEvents(const Particle&);
   
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-  virtual void fullUpdate(const Particle& part);
+    virtual void fullUpdate(const Particle& part);
 
-  virtual void fullUpdate(const Particle& p1, const Particle& p2);
+    virtual void fullUpdate(const Particle& p1, const Particle& p2);
 
-  void threadAddLocalEvent(const Particle& part, 
+    void threadAddLocalEvent(const Particle& part, 
+			     const size_t id,
+			     magnet::thread::Mutex& sorterLock);
+
+    void threadAddIntEvent(const Particle& part, 
 			   const size_t id,
 			   magnet::thread::Mutex& sorterLock);
 
-  void threadAddIntEvent(const Particle& part, 
-			 const size_t id,
-			 magnet::thread::Mutex& sorterLock);
+    void spawnThreadAddLocalEvent1(const Particle& part, 
+				   const size_t& id);
 
-  void spawnThreadAddLocalEvent1(const Particle& part, 
-				const size_t& id);
+    void spawnThreadAddLocalEvent2(const Particle& part, 
+				   const size_t& id);
 
-  void spawnThreadAddLocalEvent2(const Particle& part, 
-				 const size_t& id);
+    void threadStreamParticles(const size_t id) const;
 
-  void threadStreamParticles(const size_t id) const;
+    void streamParticles(const Particle& part, const size_t& id) const;
 
-  void streamParticles(const Particle& part, const size_t& id) const;
+    void addEvents2(const Particle& part, const size_t& id) const;
 
-  void addEvents2(const Particle& part, const size_t& id) const;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+    void addEventsInit(const Particle&);
 
-  void addEventsInit(const Particle&);
+    void addGlobal(const Particle& p1, const magnet::ClonePtr<Global>& glob, magnet::thread::Mutex& sorterLock);
 
-  void addGlobal(const Particle& p1, const magnet::ClonePtr<Global>& glob, magnet::thread::Mutex& sorterLock);
+    magnet::thread::ThreadPool _threadPool;
 
-  magnet::thread::ThreadPool _threadPool;
-
-  magnet::thread::Mutex _P1SorterLock;
-  magnet::thread::Mutex _P2SorterLock;
+    magnet::thread::Mutex _P1SorterLock;
+    magnet::thread::Mutex _P2SorterLock;
   
-};
+  };
+}

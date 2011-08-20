@@ -16,22 +16,24 @@
 */
 
 #pragma once
-#include "../outputplugin.hpp"
+#include <dynamo/outputplugins/outputplugin.hpp>
 
-class OP2PP: public OutputPlugin
-{
-public:
-  OP2PP(const dynamo::SimData*, const char*);
+namespace dynamo {
+  class OP2PP: public OutputPlugin
+  {
+  public:
+    OP2PP(const dynamo::SimData*, const char*);
 
-  virtual void eventUpdate(const IntEvent&, const PairEventData&);
+    virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
-  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
+    virtual void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const LocalEvent&, const NEventData&);
+    virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const System&, const NEventData&, const double&);
+    virtual void eventUpdate(const System&, const NEventData&, const double&);
 
-private:
-  virtual void A2ParticleChange(const PairEventData&) = 0;
-  virtual void stream(const double&) = 0;  
-};
+  private:
+    virtual void A2ParticleChange(const PairEventData&) = 0;
+    virtual void stream(const double&) = 0;  
+  };
+}

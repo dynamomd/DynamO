@@ -16,43 +16,44 @@
 */
 
 #pragma once
-#include "ticker.hpp"
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <fstream>
 #include <vector>
 
-class OPPlateMotion: public OPTicker
-{
- public:
-  OPPlateMotion(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPPlateMotion: public OPTicker
+  {
+  public:
+    OPPlateMotion(const dynamo::SimData*, const magnet::xml::Node&);
 
-  OPPlateMotion(const OPPlateMotion&);
+    OPPlateMotion(const OPPlateMotion&);
   
-  virtual OutputPlugin *Clone() const
-  { return new OPPlateMotion(*this); }
+    virtual OutputPlugin *Clone() const
+    { return new OPPlateMotion(*this); }
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void stream(double) {}
+    virtual void stream(double) {}
 
-  virtual void ticker();
+    virtual void ticker();
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
   
-  virtual void eventUpdate(const LocalEvent&, const NEventData&);
+    virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const IntEvent&, const PairEventData&);
+    virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
-  virtual void output(magnet::xml::XmlStream&);
+    virtual void output(magnet::xml::XmlStream&);
 
- protected:
-  mutable std::ofstream logfile;
-  size_t plateID;
-  std::string plateName;
-  typedef std::pair<double,std::vector<double> > localEntry;
-  std::vector<localEntry> localEnergyFlux;
-  std::vector<localEntry> localEnergyLoss;
-  double partpartEnergyLoss;
-  double oldPlateEnergy;
-  Vector momentumChange;
-
-};
+  protected:
+    mutable std::ofstream logfile;
+    size_t plateID;
+    std::string plateName;
+    typedef std::pair<double,std::vector<double> > localEntry;
+    std::vector<localEntry> localEnergyFlux;
+    std::vector<localEntry> localEnergyLoss;
+    double partpartEnergyLoss;
+    double oldPlateEnergy;
+    Vector momentumChange;
+  };
+}

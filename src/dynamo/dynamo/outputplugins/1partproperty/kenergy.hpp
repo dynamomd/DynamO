@@ -18,41 +18,43 @@
 #pragma once
 #include <dynamo/outputplugins/1partproperty/1partproperty.hpp>
 
-class OPKEnergy: public OP1PP
-{
- public:
-  OPKEnergy(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPKEnergy: public OP1PP
+  {
+  public:
+    OPKEnergy(const dynamo::SimData*, const magnet::xml::Node&);
 
-  void A1ParticleChange(const ParticleEventData&);
+    void A1ParticleChange(const ParticleEventData&);
 
-  void A2ParticleChange(const PairEventData&);
+    void A2ParticleChange(const PairEventData&);
 
-  void stream(const double&);  
+    void stream(const double&);  
 
-  void output(magnet::xml::XmlStream &); 
+    void output(magnet::xml::XmlStream &); 
 
-  void periodicOutput();
+    void periodicOutput();
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual OutputPlugin *Clone() const { return new OPKEnergy(*this); }
+    virtual OutputPlugin *Clone() const { return new OPKEnergy(*this); }
 
-  double getAvgkT() const;
+    double getAvgkT() const;
 
-  double getAvgTheta() const;
+    double getAvgTheta() const;
      
-  double getAvgSqTheta() const;
+    double getAvgSqTheta() const;
   
-  void changeSystem(OutputPlugin*);
+    void changeSystem(OutputPlugin*);
 
-  void temperatureRescale(const double&);
+    void temperatureRescale(const double&);
   
-  const double& getCurrentkT() const { return KECurrent; }
+    const double& getCurrentkT() const { return KECurrent; }
 
- protected:
+  protected:
 
-  double InitialKE;
-  double KEacc;
-  double KEsqAcc;
-  double KECurrent;  
-};
+    double InitialKE;
+    double KEacc;
+    double KEsqAcc;
+    double KECurrent;  
+  };
+}

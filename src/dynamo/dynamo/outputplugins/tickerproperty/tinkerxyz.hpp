@@ -16,47 +16,48 @@
 */
 
 #pragma once
-#include "ticker.hpp"
-#include "../../dynamics/liouvillean/liouvillean.hpp"
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
 
+namespace dynamo {
+  class OPTinkerXYZ: public OPTicker
+  {
+  public:
+    OPTinkerXYZ(const dynamo::SimData*, const magnet::xml::Node&);
+    ~OPTinkerXYZ();
 
-class OPTinkerXYZ: public OPTicker
-{
- public:
-  OPTinkerXYZ(const dynamo::SimData*, const magnet::xml::Node&);
-  ~OPTinkerXYZ();
+    virtual OutputPlugin *Clone() const
+    { return new OPTinkerXYZ(*this); }
 
-  virtual OutputPlugin *Clone() const
-  { return new OPTinkerXYZ(*this); }
+    virtual void initialise();
 
-  virtual void initialise();
+    virtual void stream(double) {}
 
-  virtual void stream(double) {}
+    virtual void ticker();
 
-  virtual void ticker();
+    void operator<<(const magnet::xml::Node&);
 
-  void operator<<(const magnet::xml::Node&);
+  protected:
+    int frameCount;
+    bool fileOutput;
+    bool liveOutput;
+    bool blockForVMD;
+    int max_frame_count;
 
- protected:
-  int frameCount;
-  bool fileOutput;
-  bool liveOutput;
-  bool blockForVMD;
-  int max_frame_count;
+    bool P1track;
 
-  bool P1track;
+    void *clientsock;
+    void *sock;
 
-  void *clientsock;
-  void *sock;
+    int port;
 
-  int port;
+    std::vector<float> coords;
 
-  std::vector<float> coords;
-
-  void printFileImage();
-  void printLiveImage();
-};
+    void printFileImage();
+    void printLiveImage();
+  };
+}

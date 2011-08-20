@@ -17,31 +17,33 @@
 
 #pragma once
 
-#include "ticker.hpp"
-#include "../../datatypes/histogram.hpp"
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <dynamo/datatypes/histogram.hpp>
 
-class OPRadialDistribution: public OPTicker
-{
- public:
-  OPRadialDistribution(const dynamo::SimData*, 
-		       const magnet::xml::Node&);
+namespace dynamo {
+  class OPRadialDistribution: public OPTicker
+  {
+  public:
+    OPRadialDistribution(const dynamo::SimData*, 
+			 const magnet::xml::Node&);
 
-  virtual OutputPlugin *Clone() const
-  { return new OPRadialDistribution(*this); }
+    virtual OutputPlugin *Clone() const
+    { return new OPRadialDistribution(*this); }
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void stream(double) {}
+    virtual void stream(double) {}
 
-  virtual void ticker();
+    virtual void ticker();
   
-  virtual void output(magnet::xml::XmlStream&);
+    virtual void output(magnet::xml::XmlStream&);
 
-  void operator<<(const magnet::xml::Node&);
+    void operator<<(const magnet::xml::Node&);
 
- protected:
-  double binWidth;
-  size_t length;
-  unsigned long sampleCount;  
-  std::vector<std::vector<std::vector<unsigned long> > > data;
-};
+  protected:
+    double binWidth;
+    size_t length;
+    unsigned long sampleCount;  
+    std::vector<std::vector<std::vector<unsigned long> > > data;
+  };
+}

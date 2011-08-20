@@ -19,51 +19,53 @@
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <boost/circular_buffer.hpp>
 
-class OPThermalConductivityE: public OutputPlugin
-{
-public:
-  OPThermalConductivityE(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPThermalConductivityE: public OutputPlugin
+  {
+  public:
+    OPThermalConductivityE(const dynamo::SimData*, const magnet::xml::Node&);
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void output(magnet::xml::XmlStream&);
+    virtual void output(magnet::xml::XmlStream&);
 
-  virtual OutputPlugin* Clone() const 
-  { return new OPThermalConductivityE(*this); }
+    virtual OutputPlugin* Clone() const 
+    { return new OPThermalConductivityE(*this); }
   
-  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
+    virtual void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const LocalEvent&, const NEventData&);
+    virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const System&, const NEventData&, const double&); 
+    virtual void eventUpdate(const System&, const NEventData&, const double&); 
   
-  virtual void eventUpdate(const IntEvent&, const PairEventData&);
+    virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-protected:
-  boost::circular_buffer<Vector  > G;
-  std::vector<Vector  > accG2;
-  size_t count;
-  double dt, currentdt;
-  Vector  constDelG, delG;
-  size_t currlen;
-  bool notReady;
+  protected:
+    boost::circular_buffer<Vector  > G;
+    std::vector<Vector  > accG2;
+    size_t count;
+    double dt, currentdt;
+    Vector  constDelG, delG;
+    size_t currlen;
+    bool notReady;
 
-  size_t CorrelatorLength;
+    size_t CorrelatorLength;
 
-  void stream(const double&);
+    void stream(const double&);
 
-  void newG();
+    void newG();
 
-  void accPass();
+    void accPass();
 
-  double rescaleFactor();
+    double rescaleFactor();
   
-  Vector  impulseDelG(const PairEventData&);
-  Vector  impulseDelG(const NEventData&);
+    Vector  impulseDelG(const PairEventData&);
+    Vector  impulseDelG(const NEventData&);
 
-  void updateConstDelG(const NEventData&);
-  void updateConstDelG(const PairEventData&);
-  void updateConstDelG(const ParticleEventData&);
-};
+    void updateConstDelG(const NEventData&);
+    void updateConstDelG(const PairEventData&);
+    void updateConstDelG(const ParticleEventData&);
+  };
+}

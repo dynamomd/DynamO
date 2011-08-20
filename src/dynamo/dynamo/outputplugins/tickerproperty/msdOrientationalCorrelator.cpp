@@ -15,177 +15,179 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "msdOrientationalCorrelator.hpp"
-#include "../../dynamics/include.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../../dynamics/liouvillean/liouvillean.hpp"
-#include "../../dynamics/systems/sysTicker.hpp"
+#include <dynamo/outputplugins/tickerproperty/msdOrientationalCorrelator.hpp>
+#include <dynamo/dynamics/include.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/systems/sysTicker.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 #include <boost/math/special_functions/legendre.hpp>
 
-OPMSDOrientationalCorrelator::OPMSDOrientationalCorrelator(const dynamo::SimData* tmp,
-							   const magnet::xml::Node& XML):
-  OPTicker(tmp,"MSDOrientationalCorrelator"),
-  length(50),
-  currCorrLength(0),
-  ticksTaken(0),
-  notReady(true)
-{
-  operator<<(XML);
-}
-
-void
-OPMSDOrientationalCorrelator::operator<<(const magnet::xml::Node& XML)
-{
-  try {
-    if (XML.hasAttribute("Length"))
-      length = XML.getAttribute("Length").as<size_t>();
-  }
-  catch (boost::bad_lexical_cast &)
+namespace dynamo {
+  OPMSDOrientationalCorrelator::OPMSDOrientationalCorrelator(const dynamo::SimData* tmp,
+							     const magnet::xml::Node& XML):
+    OPTicker(tmp,"MSDOrientationalCorrelator"),
+    length(50),
+    currCorrLength(0),
+    ticksTaken(0),
+    notReady(true)
   {
-    M_throw() << "Failed a lexical cast in OPMSDCorrelator";
+    operator<<(XML);
   }
-}
 
-void
-OPMSDOrientationalCorrelator::initialise()
-{
-  dout << "The length of the MSD orientational correlator is " << length << std::endl;
-
-  historicalData.resize(Sim->N, boost::circular_buffer<RUpair>(length));
-
-  stepped_data_parallel.resize(length, double(0.0));
-  stepped_data_perpendicular.resize(length, double(0.0));
-  stepped_data_rotational_legendre1.resize(length, double(0.0));
-  stepped_data_rotational_legendre2.resize(length, double(0.0));
-
-  // The Legendre polynomials are equal to 1 at t = 0
-  stepped_data_rotational_legendre1[0] = 1.0;
-  stepped_data_rotational_legendre2[0] = 1.0;
-
-  currCorrLength = 1.0;
-
-  const std::vector<Liouvillean::rotData>& initial_rdat(Sim->dynamics.getLiouvillean().getCompleteRotData());
-
-  BOOST_FOREACH(const Particle& part, Sim->particleList)
+  void
+  OPMSDOrientationalCorrelator::operator<<(const magnet::xml::Node& XML)
   {
-    historicalData[part.getID()].push_front(RUpair(part.getPosition(), initial_rdat[part.getID()].orientation));
-  }
-}
-
-void
-OPMSDOrientationalCorrelator::ticker()
-{
-  const std::vector<Liouvillean::rotData>& current_rdat(Sim->dynamics.getLiouvillean().getCompleteRotData());
-  BOOST_FOREACH(const Particle& part, Sim->particleList)
-  {
-    historicalData[part.getID()].push_front(RUpair(part.getPosition(), current_rdat[part.getID()].orientation));
-  }
-
-  if (notReady)
-    {
-      if (++currCorrLength != length)
+    try {
+      if (XML.hasAttribute("Length"))
+	length = XML.getAttribute("Length").as<size_t>();
+    }
+    catch (boost::bad_lexical_cast &)
       {
-	return;
+	M_throw() << "Failed a lexical cast in OPMSDCorrelator";
+      }
+  }
+
+  void
+  OPMSDOrientationalCorrelator::initialise()
+  {
+    dout << "The length of the MSD orientational correlator is " << length << std::endl;
+
+    historicalData.resize(Sim->N, boost::circular_buffer<RUpair>(length));
+
+    stepped_data_parallel.resize(length, double(0.0));
+    stepped_data_perpendicular.resize(length, double(0.0));
+    stepped_data_rotational_legendre1.resize(length, double(0.0));
+    stepped_data_rotational_legendre2.resize(length, double(0.0));
+
+    // The Legendre polynomials are equal to 1 at t = 0
+    stepped_data_rotational_legendre1[0] = 1.0;
+    stepped_data_rotational_legendre2[0] = 1.0;
+
+    currCorrLength = 1.0;
+
+    const std::vector<Liouvillean::rotData>& initial_rdat(Sim->dynamics.getLiouvillean().getCompleteRotData());
+
+    BOOST_FOREACH(const Particle& part, Sim->particleList)
+      {
+	historicalData[part.getID()].push_front(RUpair(part.getPosition(), initial_rdat[part.getID()].orientation));
+      }
+  }
+
+  void
+  OPMSDOrientationalCorrelator::ticker()
+  {
+    const std::vector<Liouvillean::rotData>& current_rdat(Sim->dynamics.getLiouvillean().getCompleteRotData());
+    BOOST_FOREACH(const Particle& part, Sim->particleList)
+      {
+	historicalData[part.getID()].push_front(RUpair(part.getPosition(), current_rdat[part.getID()].orientation));
       }
 
-      notReady = false;
-    }
+    if (notReady)
+      {
+	if (++currCorrLength != length)
+	  {
+	    return;
+	  }
 
-  accPass();
-}
+	notReady = false;
+      }
 
-void
-OPMSDOrientationalCorrelator::accPass()
-{
-  ++ticksTaken;
-
-  double longitudinal_projection(0.0), cos_theta(0.0);
-  Vector displacement_term(0,0,0);
-
-  BOOST_FOREACH(const Particle& part, Sim->particleList)
-  {
-    for (size_t step(1); step < length; ++step)
-    {
-      displacement_term = historicalData[part.getID()][step].first - historicalData[part.getID()][0].first;
-      longitudinal_projection = (displacement_term | historicalData[part.getID()][0].second);
-      cos_theta = (historicalData[part.getID()][step].second | historicalData[part.getID()][0].second);
-
-      stepped_data_parallel[step] += std::pow(longitudinal_projection, 2);
-      stepped_data_perpendicular[step] += (displacement_term - (longitudinal_projection * historicalData[part.getID()][0].second)).nrm2();
-
-      stepped_data_rotational_legendre1[step] += boost::math::legendre_p(1, cos_theta);
-      stepped_data_rotational_legendre2[step] += boost::math::legendre_p(2, cos_theta);
-    }
-  }
-}
-
-void
-OPMSDOrientationalCorrelator::output(magnet::xml::XmlStream &XML)
-{
-  // Begin XML output
-  XML << magnet::xml::tag("MSDOrientationalCorrelator");
-
-  double dt = dynamic_cast<const CSTicker&> (*Sim->dynamics.getSystem("SystemTicker")).getPeriod() / Sim->dynamics.units().unitTime();
-
-  XML << magnet::xml::tag("Component")
-      << magnet::xml::attr("Type") << "Parallel"
-      << magnet::xml::chardata();
-
-  for (size_t step(0); step < length; ++step)
-  {
-    XML << dt * step << "\t"
-	<< stepped_data_parallel[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N) * Sim->dynamics.units().unitArea())
-	<< "\n";
+    accPass();
   }
 
-  XML << magnet::xml::endtag("Component");
-
-  XML << magnet::xml::tag("Component")
-      << magnet::xml::attr("Type") << "Perpendicular"
-      << magnet::xml::chardata();
-
-  for (size_t step(0); step < length; ++step)
+  void
+  OPMSDOrientationalCorrelator::accPass()
   {
-    XML << dt * step << "\t"
-	<< stepped_data_perpendicular[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N) * Sim->dynamics.units().unitArea())
-	<< "\n";
+    ++ticksTaken;
+
+    double longitudinal_projection(0.0), cos_theta(0.0);
+    Vector displacement_term(0,0,0);
+
+    BOOST_FOREACH(const Particle& part, Sim->particleList)
+      {
+	for (size_t step(1); step < length; ++step)
+	  {
+	    displacement_term = historicalData[part.getID()][step].first - historicalData[part.getID()][0].first;
+	    longitudinal_projection = (displacement_term | historicalData[part.getID()][0].second);
+	    cos_theta = (historicalData[part.getID()][step].second | historicalData[part.getID()][0].second);
+
+	    stepped_data_parallel[step] += std::pow(longitudinal_projection, 2);
+	    stepped_data_perpendicular[step] += (displacement_term - (longitudinal_projection * historicalData[part.getID()][0].second)).nrm2();
+
+	    stepped_data_rotational_legendre1[step] += boost::math::legendre_p(1, cos_theta);
+	    stepped_data_rotational_legendre2[step] += boost::math::legendre_p(2, cos_theta);
+	  }
+      }
   }
 
-  XML << magnet::xml::endtag("Component");
-
-  XML << magnet::xml::tag("Component")
-      << magnet::xml::attr("Type") << "Rotational";
-
-  XML << magnet::xml::tag("Method")
-      << magnet::xml::attr("Name") << "LegendrePolynomial1"
-      << magnet::xml::chardata();
-
-  for (size_t step(0); step < length; ++step)
+  void
+  OPMSDOrientationalCorrelator::output(magnet::xml::XmlStream &XML)
   {
-    XML << dt * step << "\t"
-	<< stepped_data_rotational_legendre1[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N))
-	<< "\n";
+    // Begin XML output
+    XML << magnet::xml::tag("MSDOrientationalCorrelator");
+
+    double dt = dynamic_cast<const CSTicker&> (*Sim->dynamics.getSystem("SystemTicker")).getPeriod() / Sim->dynamics.units().unitTime();
+
+    XML << magnet::xml::tag("Component")
+	<< magnet::xml::attr("Type") << "Parallel"
+	<< magnet::xml::chardata();
+
+    for (size_t step(0); step < length; ++step)
+      {
+	XML << dt * step << "\t"
+	    << stepped_data_parallel[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N) * Sim->dynamics.units().unitArea())
+	    << "\n";
+      }
+
+    XML << magnet::xml::endtag("Component");
+
+    XML << magnet::xml::tag("Component")
+	<< magnet::xml::attr("Type") << "Perpendicular"
+	<< magnet::xml::chardata();
+
+    for (size_t step(0); step < length; ++step)
+      {
+	XML << dt * step << "\t"
+	    << stepped_data_perpendicular[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N) * Sim->dynamics.units().unitArea())
+	    << "\n";
+      }
+
+    XML << magnet::xml::endtag("Component");
+
+    XML << magnet::xml::tag("Component")
+	<< magnet::xml::attr("Type") << "Rotational";
+
+    XML << magnet::xml::tag("Method")
+	<< magnet::xml::attr("Name") << "LegendrePolynomial1"
+	<< magnet::xml::chardata();
+
+    for (size_t step(0); step < length; ++step)
+      {
+	XML << dt * step << "\t"
+	    << stepped_data_rotational_legendre1[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N))
+	    << "\n";
+      }
+
+    XML << magnet::xml::endtag("Method");
+
+    XML << magnet::xml::tag("Method")
+	<< magnet::xml::attr("Name") << "LegendrePolynomial2"
+	<< magnet::xml::chardata();
+
+    for (size_t step(0); step < length; ++step)
+      {
+	XML << dt * step << "\t"
+	    << stepped_data_rotational_legendre2[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N))
+	    << "\n";
+      }
+
+    XML << magnet::xml::endtag("Method");
+
+    XML << magnet::xml::endtag("Component");
+
+    XML << magnet::xml::endtag("MSDOrientationalCorrelator");
   }
-
-  XML << magnet::xml::endtag("Method");
-
-  XML << magnet::xml::tag("Method")
-      << magnet::xml::attr("Name") << "LegendrePolynomial2"
-      << magnet::xml::chardata();
-
-  for (size_t step(0); step < length; ++step)
-  {
-    XML << dt * step << "\t"
-	<< stepped_data_rotational_legendre2[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N))
-	<< "\n";
-  }
-
-  XML << magnet::xml::endtag("Method");
-
-  XML << magnet::xml::endtag("Component");
-
-  XML << magnet::xml::endtag("MSDOrientationalCorrelator");
 }

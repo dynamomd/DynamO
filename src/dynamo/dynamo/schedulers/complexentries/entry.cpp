@@ -15,32 +15,34 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "include.hpp"
+#include <dynamo/schedulers/complexentries/include.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-CSCEntry::CSCEntry(dynamo::SimData* const tmp, const char *aName):
-  SimBase(tmp, aName)
-{}
+namespace dynamo {
+  CSCEntry::CSCEntry(dynamo::SimData* const tmp, const char *aName):
+    SimBase(tmp, aName)
+  {}
 
-CSCEntry* 
-CSCEntry::getClass(const magnet::xml::Node& XML, dynamo::SimData* const Sim)
-{
-  if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
-    return new CSCENBList(XML, Sim);      
-  else 
-    M_throw() << "Unknown type of ComplexSchedulerEntry `" 
-	      << XML.getAttribute("Type") << "`encountered";
-}
+  CSCEntry* 
+  CSCEntry::getClass(const magnet::xml::Node& XML, dynamo::SimData* const Sim)
+  {
+    if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
+      return new CSCENBList(XML, Sim);      
+    else 
+      M_throw() << "Unknown type of ComplexSchedulerEntry `" 
+		<< XML.getAttribute("Type") << "`encountered";
+  }
 
-magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const CSCEntry& g)
-{
-  g.outputXML(XML);
-  return XML;
-}
+  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const CSCEntry& g)
+  {
+    g.outputXML(XML);
+    return XML;
+  }
 
-bool 
-CSCEntry::isApplicable(const Particle& part) const
-{
-  return range->isInRange(part);
+  bool 
+  CSCEntry::isApplicable(const Particle& part) const
+  {
+    return range->isInRange(part);
+  }
 }

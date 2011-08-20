@@ -16,38 +16,40 @@
 */
 
 #pragma once
-#include "1partproperty.hpp"
-#include "../../datatypes/histogram.hpp"
-#include <vector>
+#include <dynamo/outputplugins/1partproperty/1partproperty.hpp>
+#include <dynamo/datatypes/histogram.hpp>
 #include <boost/circular_buffer.hpp>
+#include <vector>
 
-class OPMFT: public OP1PP
-{
- public:
-  OPMFT(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPMFT: public OP1PP
+  {
+  public:
+    OPMFT(const dynamo::SimData*, const magnet::xml::Node&);
 
-  void A1ParticleChange(const ParticleEventData&);
+    void A1ParticleChange(const ParticleEventData&);
 
-  void stream(const double&) {}
+    void stream(const double&) {}
 
-  void output(magnet::xml::XmlStream &); 
+    void output(magnet::xml::XmlStream &); 
 
-  void periodicOutput() {}
+    void periodicOutput() {}
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual OutputPlugin *Clone() const { return new OPMFT(*this); }
+    virtual OutputPlugin *Clone() const { return new OPMFT(*this); }
   
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
   
- protected:
-  size_t collisionHistoryLength;
+  protected:
+    size_t collisionHistoryLength;
   
-  double binwidth;
+    double binwidth;
 
-  //! Each particles last collision times
-  std::vector<boost::circular_buffer<double> > lastTime;
+    //! Each particles last collision times
+    std::vector<boost::circular_buffer<double> > lastTime;
 
-  //! A histogram for each species
-  std::vector<std::vector<C1DHistogram> > data;
-};
+    //! A histogram for each species
+    std::vector<std::vector<C1DHistogram> > data;
+  };
+}

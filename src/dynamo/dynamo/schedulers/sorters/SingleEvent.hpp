@@ -17,71 +17,73 @@
 
 #pragma once
 
-#include "datastruct.hpp"
+#include <dynamo/schedulers/sorters/datastruct.hpp>
 #include <magnet/xmlwriter.hpp>
 
-//! There is a trick used here to speed up comparisons between
-//! MinMaxHeaps.  The top element is set to HUGE_VAL, whenever the
-//! queue is cleared, or pop'd empty. This means no conditional logic
-//! is required to deal with the comparison of empty queues.
-class PELSingleEvent
-{
-  intPart _event;
-
-public:
-  PELSingleEvent() { clear(); }
-
-  inline size_t size() const { return _event.type != NONE; }
-  inline bool empty() const { return _event.type == NONE; }
-  inline bool full() const { return _event.type != NONE; }
-
-  inline const intPart& front() const { return _event; }
-  inline const intPart& top() const { return _event; }  
-
-  inline void pop() 
-  { 
-    if (empty()) return;
-      
-    _event.type = VIRTUAL; //Force a recalculation for any further events
-  }
-
-  inline void clear() { _event.dt = HUGE_VAL; _event.type = NONE; }
-
-  inline bool operator> (const PELSingleEvent& ip) const throw()
-  { 
-    return _event.dt > ip._event.dt; 
-  }
-
-  inline bool operator< (const PELSingleEvent& ip) const throw()
-  { 
-    return _event.dt < ip._event.dt; 
-  }
-
-  inline double getdt() const 
+namespace dynamo {
+  //! There is a trick used here to speed up comparisons between
+  //! MinMaxHeaps.  The top element is set to HUGE_VAL, whenever the
+  //! queue is cleared, or pop'd empty. This means no conditional logic
+  //! is required to deal with the comparison of empty queues.
+  class PELSingleEvent
   {
-    return _event.dt;
+    intPart _event;
+
+  public:
+    PELSingleEvent() { clear(); }
+
+    inline size_t size() const { return _event.type != NONE; }
+    inline bool empty() const { return _event.type == NONE; }
+    inline bool full() const { return _event.type != NONE; }
+
+    inline const intPart& front() const { return _event; }
+    inline const intPart& top() const { return _event; }  
+
+    inline void pop() 
+    { 
+      if (empty()) return;
+      
+      _event.type = VIRTUAL; //Force a recalculation for any further events
+    }
+
+    inline void clear() { _event.dt = HUGE_VAL; _event.type = NONE; }
+
+    inline bool operator> (const PELSingleEvent& ip) const throw()
+    { 
+      return _event.dt > ip._event.dt; 
+    }
+
+    inline bool operator< (const PELSingleEvent& ip) const throw()
+    { 
+      return _event.dt < ip._event.dt; 
+    }
+
+    inline double getdt() const 
+    {
+      return _event.dt;
+    }
+  
+    inline void stream(const double& ndt) throw()
+    { _event.dt -= ndt; }
+
+    inline void addTime(const double& ndt) throw()
+    { _event.dt += ndt; }
+
+    inline void push(const intPart& __x)
+    { if (__x < _event) _event = __x; }
+
+    inline void rescaleTimes(const double& scale) throw()
+    { _event.dt *= scale; }
+
+    inline void swap(PELSingleEvent& rhs)
+    { std::swap(_event, rhs._event); }
+  
+  };
+
+  namespace std
+  {
+    /*! \brief Template specialisation of the std::swap function for PELSingleEvent*/
+    inline void swap(PELSingleEvent& lhs, PELSingleEvent& rhs)
+    { lhs.swap(rhs); }
   }
-  
-  inline void stream(const double& ndt) throw()
-  { _event.dt -= ndt; }
-
-  inline void addTime(const double& ndt) throw()
-  { _event.dt += ndt; }
-
-  inline void push(const intPart& __x)
-  { if (__x < _event) _event = __x; }
-
-  inline void rescaleTimes(const double& scale) throw()
-  { _event.dt *= scale; }
-
-  inline void swap(PELSingleEvent& rhs)
-  { std::swap(_event, rhs._event); }
-  
-};
-
-namespace std
-{
-  /*! \brief Template specialisation of the std::swap function for PELSingleEvent*/
-  inline void swap(PELSingleEvent& lhs, PELSingleEvent& rhs)
-  { lhs.swap(rhs); }
 }

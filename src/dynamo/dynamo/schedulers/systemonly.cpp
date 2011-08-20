@@ -15,85 +15,87 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "systemonly.hpp"
-#include "../dynamics/interactions/intEvent.hpp"
-#include "../simulation/particle.hpp"
-#include "../dynamics/dynamics.hpp"
-#include "../dynamics/liouvillean/liouvillean.hpp"
-#include "../dynamics/BC/BC.hpp"
-#include "../dynamics/BC/LEBC.hpp"
-#include "../base/is_simdata.hpp"
-#include "../dynamics/globals/globEvent.hpp"
-#include "../dynamics/systems/system.hpp"
-#include "../dynamics/globals/global.hpp"
-#include "../dynamics/globals/globEvent.hpp"
-#include "../dynamics/globals/neighbourList.hpp"
-#include "../dynamics/locals/local.hpp"
-#include "../dynamics/locals/localEvent.hpp"
+#include <dynamo/schedulers/systemonly.hpp>
+#include <dynamo/dynamics/interactions/intEvent.hpp>
+#include <dynamo/simulation/particle.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/BC/BC.hpp>
+#include <dynamo/dynamics/BC/LEBC.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/globals/globEvent.hpp>
+#include <dynamo/dynamics/systems/system.hpp>
+#include <dynamo/dynamics/globals/global.hpp>
+#include <dynamo/dynamics/globals/globEvent.hpp>
+#include <dynamo/dynamics/globals/neighbourList.hpp>
+#include <dynamo/dynamics/locals/local.hpp>
+#include <dynamo/dynamics/locals/localEvent.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cmath> //for huge val
 
-CSSystemOnly::CSSystemOnly(const magnet::xml::Node& XML, 
-			   dynamo::SimData* const Sim):
-  CScheduler(Sim,"SystemOnlyScheduler", NULL)
-{ 
-  dout << "System Events Only Scheduler Algorithmn" << std::endl;
-  operator<<(XML);
-}
+namespace dynamo {
+  CSSystemOnly::CSSystemOnly(const magnet::xml::Node& XML, 
+			     dynamo::SimData* const Sim):
+    CScheduler(Sim,"SystemOnlyScheduler", NULL)
+  { 
+    dout << "System Events Only Scheduler Algorithmn" << std::endl;
+    operator<<(XML);
+  }
 
-CSSystemOnly::CSSystemOnly(dynamo::SimData* const Sim, CSSorter* ns):
-  CScheduler(Sim,"SystemOnlyScheduler", ns)
-{ dout << "System Events Only Scheduler Algorithmn" << std::endl; }
+  CSSystemOnly::CSSystemOnly(dynamo::SimData* const Sim, CSSorter* ns):
+    CScheduler(Sim,"SystemOnlyScheduler", ns)
+  { dout << "System Events Only Scheduler Algorithmn" << std::endl; }
 
-void 
-CSSystemOnly::operator<<(const magnet::xml::Node& XML)
-{
-  sorter.set_ptr(CSSorter::getClass(XML.getNode("Sorter"), Sim));
-}
+  void 
+  CSSystemOnly::operator<<(const magnet::xml::Node& XML)
+  {
+    sorter.set_ptr(CSSorter::getClass(XML.getNode("Sorter"), Sim));
+  }
 
-void
-CSSystemOnly::initialise()
-{
-  dout << "Reinitialising on collision " << Sim->eventCount << std::endl;
+  void
+  CSSystemOnly::initialise()
+  {
+    dout << "Reinitialising on collision " << Sim->eventCount << std::endl;
 
-  if (Sim->dynamics.getSystemEvents().empty())
-    M_throw() << "A SystemOnlyScheduler used when there are no system events?";
+    if (Sim->dynamics.getSystemEvents().empty())
+      M_throw() << "A SystemOnlyScheduler used when there are no system events?";
   
-  sorter->clear();
-  sorter->resize(Sim->N+1);
-  eventCount.clear();
-  eventCount.resize(Sim->N+1, 0);  
-  sorter->init();
-  rebuildSystemEvents();
-}
+    sorter->clear();
+    sorter->resize(Sim->N+1);
+    eventCount.clear();
+    eventCount.resize(Sim->N+1, 0);  
+    sorter->init();
+    rebuildSystemEvents();
+  }
 
-void
-CSSystemOnly::rebuildList()
-{
+  void
+  CSSystemOnly::rebuildList()
+  {
 #ifdef DYNAMO_DEBUG
-  initialise();
+    initialise();
 #else
-  if (Sim->dynamics.getSystemEvents().empty())
-    M_throw() << "A SystemOnlyScheduler used when there are no system events?";
+    if (Sim->dynamics.getSystemEvents().empty())
+      M_throw() << "A SystemOnlyScheduler used when there are no system events?";
   
-  sorter->clear();
-  sorter->resize(Sim->N+1);
-  eventCount.clear();
-  eventCount.resize(Sim->N+1, 0);  
-  sorter->rebuild();
-  rebuildSystemEvents();
+    sorter->clear();
+    sorter->resize(Sim->N+1);
+    eventCount.clear();
+    eventCount.resize(Sim->N+1, 0);  
+    sorter->rebuild();
+    rebuildSystemEvents();
 #endif
-}
+  }
 
-void 
-CSSystemOnly::outputXML(magnet::xml::XmlStream& XML) const
-{
-  XML << magnet::xml::attr("Type") << "SystemOnly"
-      << magnet::xml::tag("Sorter")
-      << sorter
-      << magnet::xml::endtag("Sorter");
-}
+  void 
+  CSSystemOnly::outputXML(magnet::xml::XmlStream& XML) const
+  {
+    XML << magnet::xml::attr("Type") << "SystemOnly"
+	<< magnet::xml::tag("Sorter")
+	<< sorter
+	<< magnet::xml::endtag("Sorter");
+  }
 
-void 
-CSSystemOnly::addEvents(const Particle& part)
-{}
+  void 
+  CSSystemOnly::addEvents(const Particle& part)
+  {}
+}

@@ -16,48 +16,50 @@
 */
 
 #pragma once
-#include "../outputplugin.hpp"
-#include "../../datatypes/histogram.hpp"
-#include "../eventtypetracking.hpp"
+#include <dynamo/outputplugins/outputplugin.hpp>
+#include <dynamo/datatypes/histogram.hpp>
+#include <dynamo/outputplugins/eventtypetracking.hpp>
 #include <map>
 
-using namespace EventTypeTracking;
-
-class OPCubeComp: public OutputPlugin
-{
- public:
-  OPCubeComp(const dynamo::SimData*, const magnet::xml::Node&);
-
-  virtual void initialise();
-  
-  virtual void eventUpdate(const IntEvent&, const PairEventData&);
-
-  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
-
-  virtual void eventUpdate(const LocalEvent&, const NEventData&);
-
-  virtual void eventUpdate(const System&, const NEventData&, const double&);
-
-  void output(magnet::xml::XmlStream &);
-
-  virtual void changeSystem(OutputPlugin* plug) { std::swap(Sim, static_cast<OPCubeComp*>(plug)->Sim); }
-  
-  virtual OutputPlugin *Clone() const { return new OPCubeComp(*this); };
-  
- protected:
-  struct mapdata
+namespace dynamo {
+  class OPCubeComp: public OutputPlugin
   {
-    mapdata() 
-    {
-      angles[0] = C1DHistogram(0.01);
-      angles[1] = C1DHistogram(0.01);
-      angles[2] = C1DHistogram(0.01);
-    }
-    
-    C1DHistogram angles[3];
-  };
-  
-  typedef std::pair<EEventType, classKey> mapKey;
+    using namespace EventTypeTracking;
 
-  std::map<mapKey, mapdata> angles;
-};
+  public:
+    OPCubeComp(const dynamo::SimData*, const magnet::xml::Node&);
+
+    virtual void initialise();
+  
+    virtual void eventUpdate(const IntEvent&, const PairEventData&);
+
+    virtual void eventUpdate(const GlobalEvent&, const NEventData&);
+
+    virtual void eventUpdate(const LocalEvent&, const NEventData&);
+
+    virtual void eventUpdate(const System&, const NEventData&, const double&);
+
+    void output(magnet::xml::XmlStream &);
+
+    virtual void changeSystem(OutputPlugin* plug) { std::swap(Sim, static_cast<OPCubeComp*>(plug)->Sim); }
+  
+    virtual OutputPlugin *Clone() const { return new OPCubeComp(*this); };
+  
+  protected:
+    struct mapdata
+    {
+      mapdata() 
+      {
+	angles[0] = C1DHistogram(0.01);
+	angles[1] = C1DHistogram(0.01);
+	angles[2] = C1DHistogram(0.01);
+      }
+    
+      C1DHistogram angles[3];
+    };
+  
+    typedef std::pair<EEventType, classKey> mapKey;
+
+    std::map<mapKey, mapdata> angles;
+  };
+}

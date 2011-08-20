@@ -16,53 +16,54 @@
 */
 
 #pragma once
-#include "ticker.hpp"
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 
-class OPSHCrystal: public OPTicker
-{
- public:
-  OPSHCrystal(const dynamo::SimData*, const magnet::xml::Node&);
-
-  virtual OutputPlugin *Clone() const
-  { return new OPSHCrystal(*this); }
-
-  virtual void initialise();
-
-  virtual void stream(double) {}
-
-  virtual void ticker();
-  
-  virtual void output(magnet::xml::XmlStream&);
-
-  virtual void operator<<(const magnet::xml::Node&);
-
- protected:
-
-  std::complex<double> localq(const Particle& part, int l, int m);
-
-  //! Cut-off radius 
-  double rg;
-  size_t maxl;
-  size_t nblistID;
-  long count;
-  
-  std::vector<std::vector<std::complex<double> > > globalcoeff;
-
-  struct sphericalsum
+namespace dynamo {
+  class OPSHCrystal: public OPTicker
   {
-    sphericalsum(const dynamo::SimData * const, 
-		 const double&, const size_t&);
-    
-    void operator()(const Particle&, const size_t&) const;
-    
-    void clear();
+  public:
+    OPSHCrystal(const dynamo::SimData*, const magnet::xml::Node&);
 
-    const dynamo::SimData* const Sim;
-    const double rg;
-    const size_t maxl;
-    mutable size_t count;
-    mutable std::vector<std::vector<std::complex<double> > > coeffsum;
+    virtual OutputPlugin *Clone() const
+    { return new OPSHCrystal(*this); }
+
+    virtual void initialise();
+
+    virtual void stream(double) {}
+
+    virtual void ticker();
+  
+    virtual void output(magnet::xml::XmlStream&);
+
+    virtual void operator<<(const magnet::xml::Node&);
+
+  protected:
+
+    std::complex<double> localq(const Particle& part, int l, int m);
+
+    //! Cut-off radius 
+    double rg;
+    size_t maxl;
+    size_t nblistID;
+    long count;
+  
+    std::vector<std::vector<std::complex<double> > > globalcoeff;
+
+    struct sphericalsum
+    {
+      sphericalsum(const dynamo::SimData * const, 
+		   const double&, const size_t&);
+    
+      void operator()(const Particle&, const size_t&) const;
+    
+      void clear();
+
+      const dynamo::SimData* const Sim;
+      const double rg;
+      const size_t maxl;
+      mutable size_t count;
+      mutable std::vector<std::vector<std::complex<double> > > coeffsum;
+    };
   };
-};
-
+}

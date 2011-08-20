@@ -16,52 +16,52 @@
 */
 
 #pragma once
-#include "../outputplugin.hpp"
-#include "../../dynamics/eventtypes.hpp"
-#include "../eventtypetracking.hpp"
+#include <dynamo/outputplugins/outputplugin.hpp>
+#include <dynamo/dynamics/eventtypes.hpp>
+#include <dynamo/outputplugins/eventtypetracking.hpp>
 #include <map>
 
-using namespace EventTypeTracking;
+namespace dynamo {
+  class Particle;
 
-class Particle;
-
-class OPEventEffects: public OutputPlugin
-{
-private:
-  
-public:
-  OPEventEffects(const dynamo::SimData*, const magnet::xml::Node&);
-  ~OPEventEffects();
-
-  virtual void initialise();
-
-  virtual void eventUpdate(const IntEvent&, const PairEventData&);
-
-  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
-
-  virtual void eventUpdate(const LocalEvent&, const NEventData&);
-
-  virtual void eventUpdate(const System&, const NEventData&, const double&);
-
-  void output(magnet::xml::XmlStream &);
-
-  virtual OutputPlugin *Clone() const { return new OPEventEffects(*this); };
-
-  //This is fine to replica exchange as the interaction, global and system lookups are done using id's
-  virtual void changeSystem(OutputPlugin* plug) { std::swap(Sim, static_cast<OPEventEffects*>(plug)->Sim); }
-  
- protected:
-  typedef std::pair<classKey, EEventType> eventKey;
-
-  void newEvent(const EEventType&, const classKey&, const double&, const Vector &);
-  
-  struct counterData
+  class OPEventEffects: public OutputPlugin
   {
-    counterData():count(0), energyLoss(0), momentumChange(0,0,0) {}
-    unsigned long count;
-    double energyLoss;
-    Vector  momentumChange;
-  };
+    using namespace EventTypeTracking;
   
-  std::map<eventKey, counterData> counters;
-};
+  public:
+    OPEventEffects(const dynamo::SimData*, const magnet::xml::Node&);
+    ~OPEventEffects();
+
+    virtual void initialise();
+
+    virtual void eventUpdate(const IntEvent&, const PairEventData&);
+
+    virtual void eventUpdate(const GlobalEvent&, const NEventData&);
+
+    virtual void eventUpdate(const LocalEvent&, const NEventData&);
+
+    virtual void eventUpdate(const System&, const NEventData&, const double&);
+
+    void output(magnet::xml::XmlStream &);
+
+    virtual OutputPlugin *Clone() const { return new OPEventEffects(*this); };
+
+    //This is fine to replica exchange as the interaction, global and system lookups are done using id's
+    virtual void changeSystem(OutputPlugin* plug) { std::swap(Sim, static_cast<OPEventEffects*>(plug)->Sim); }
+  
+  protected:
+    typedef std::pair<classKey, EEventType> eventKey;
+
+    void newEvent(const EEventType&, const classKey&, const double&, const Vector &);
+  
+    struct counterData
+    {
+      counterData():count(0), energyLoss(0), momentumChange(0,0,0) {}
+      unsigned long count;
+      double energyLoss;
+      Vector  momentumChange;
+    };
+  
+    std::map<eventKey, counterData> counters;
+  };
+}

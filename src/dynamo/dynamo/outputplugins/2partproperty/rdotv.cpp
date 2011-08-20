@@ -16,153 +16,155 @@
 */
 
 
-#include "rdotv.hpp"
-#include "../../dynamics/include.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../0partproperty/collMatrix.hpp"
+#include <dynamo/outputplugins/1partproperty/rdotv.hpp>
+#include <dynamo/dynamics/include.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/outputplugins/0partproperty/collMatrix.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 
-OPRdotV::OPRdotV(const dynamo::SimData* tmp, const magnet::xml::Node&):
-  OutputPlugin(tmp, "RdotV")
-{}
+namespace dynamo {
+  OPRdotV::OPRdotV(const dynamo::SimData* tmp, const magnet::xml::Node&):
+    OutputPlugin(tmp, "RdotV")
+  {}
 
-void 
-OPRdotV::initialise()
-{
-  _periodicRdotV = 0;
-  _periodict = 0;
-}
+  void 
+  OPRdotV::initialise()
+  {
+    _periodicRdotV = 0;
+    _periodict = 0;
+  }
 
-void 
-OPRdotV::eventUpdate(const IntEvent& iEvent, const PairEventData& pDat)
-{
-  size_t speciesIDlow = pDat.particle1_.getSpecies().getID(), 
-    speciesIDhigh =pDat.particle2_.getSpecies().getID();
+  void 
+  OPRdotV::eventUpdate(const IntEvent& iEvent, const PairEventData& pDat)
+  {
+    size_t speciesIDlow = pDat.particle1_.getSpecies().getID(), 
+      speciesIDhigh =pDat.particle2_.getSpecies().getID();
   
-  if (speciesIDlow > speciesIDhigh) 
-    std::swap(speciesIDhigh,speciesIDlow);
+    if (speciesIDlow > speciesIDhigh) 
+      std::swap(speciesIDhigh,speciesIDlow);
 
-  mapdata& ref = rvdotacc[mapKey(iEvent.getType(), getClassKey(iEvent),
-				 speciesIDlow, speciesIDhigh)];
+    mapdata& ref = rvdotacc[mapKey(iEvent.getType(), getClassKey(iEvent),
+				   speciesIDlow, speciesIDhigh)];
 
-  double rdotdelV = pDat.rij | pDat.particle1_.getDeltaP();
-  ref.addVal(rdotdelV);
-  _periodicRdotV += rdotdelV;
+    double rdotdelV = pDat.rij | pDat.particle1_.getDeltaP();
+    ref.addVal(rdotdelV);
+    _periodicRdotV += rdotdelV;
 
-  ref.costheta.addVal(pDat.rij | pDat.vijold 
-		      / (pDat.rij.nrm() * pDat.vijold.nrm()));
-}
+    ref.costheta.addVal(pDat.rij | pDat.vijold 
+			/ (pDat.rij.nrm() * pDat.vijold.nrm()));
+  }
 
-void 
-OPRdotV::eventUpdate(const GlobalEvent& globEvent, const NEventData& SDat)
-{
-  BOOST_FOREACH(const PairEventData& pDat, SDat.L2partChanges)
-    {
-      size_t speciesIDlow = pDat.particle1_.getSpecies().getID(), 
-	speciesIDhigh =pDat.particle2_.getSpecies().getID();
+  void 
+  OPRdotV::eventUpdate(const GlobalEvent& globEvent, const NEventData& SDat)
+  {
+    BOOST_FOREACH(const PairEventData& pDat, SDat.L2partChanges)
+      {
+	size_t speciesIDlow = pDat.particle1_.getSpecies().getID(), 
+	  speciesIDhigh =pDat.particle2_.getSpecies().getID();
       
-      if (speciesIDlow > speciesIDhigh) 
-	std::swap(speciesIDhigh,speciesIDlow);
+	if (speciesIDlow > speciesIDhigh) 
+	  std::swap(speciesIDhigh,speciesIDlow);
 
-      mapdata& ref = rvdotacc[mapKey(globEvent.getType(), 
-				     getClassKey(globEvent),
-				     speciesIDlow, speciesIDhigh)];
+	mapdata& ref = rvdotacc[mapKey(globEvent.getType(), 
+				       getClassKey(globEvent),
+				       speciesIDlow, speciesIDhigh)];
 
-      double rdotdelV = pDat.rij | pDat.particle1_.getDeltaP();
+	double rdotdelV = pDat.rij | pDat.particle1_.getDeltaP();
       
-      ref.addVal(rdotdelV);
-      _periodicRdotV += rdotdelV;
+	ref.addVal(rdotdelV);
+	_periodicRdotV += rdotdelV;
 
-      ref.costheta.addVal(pDat.rij | pDat.vijold / (pDat.rij.nrm() * pDat.vijold.nrm()));
-    }
-}
+	ref.costheta.addVal(pDat.rij | pDat.vijold / (pDat.rij.nrm() * pDat.vijold.nrm()));
+      }
+  }
 
-void 
-OPRdotV::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
-{
-  BOOST_FOREACH(const PairEventData& pDat, SDat.L2partChanges)
-    {
-      size_t speciesIDlow = pDat.particle1_.getSpecies().getID(), 
-	speciesIDhigh =pDat.particle2_.getSpecies().getID();
+  void 
+  OPRdotV::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
+  {
+    BOOST_FOREACH(const PairEventData& pDat, SDat.L2partChanges)
+      {
+	size_t speciesIDlow = pDat.particle1_.getSpecies().getID(), 
+	  speciesIDhigh =pDat.particle2_.getSpecies().getID();
       
-      if (speciesIDlow > speciesIDhigh) 
-	std::swap(speciesIDhigh,speciesIDlow);
+	if (speciesIDlow > speciesIDhigh) 
+	  std::swap(speciesIDhigh,speciesIDlow);
       
-      mapdata& ref = rvdotacc[mapKey(localEvent.getType(), 
-				     getClassKey(localEvent),
-				     speciesIDlow, speciesIDhigh)];
+	mapdata& ref = rvdotacc[mapKey(localEvent.getType(), 
+				       getClassKey(localEvent),
+				       speciesIDlow, speciesIDhigh)];
       
-      double rdotdelV = pDat.rij | pDat.particle1_.getDeltaP();
-      ref.addVal(rdotdelV);
-      _periodicRdotV += rdotdelV;
+	double rdotdelV = pDat.rij | pDat.particle1_.getDeltaP();
+	ref.addVal(rdotdelV);
+	_periodicRdotV += rdotdelV;
 
-      ref.costheta.addVal(pDat.rij | pDat.vijold / (pDat.rij.nrm() * pDat.vijold.nrm()));
-    }
-}
+	ref.costheta.addVal(pDat.rij | pDat.vijold / (pDat.rij.nrm() * pDat.vijold.nrm()));
+      }
+  }
 
-void
-OPRdotV::eventUpdate(const System& sysEvent, const NEventData& SDat, const double&)
-{
-  BOOST_FOREACH(const PairEventData& pDat, SDat.L2partChanges)
-    {
-      size_t speciesIDlow = pDat.particle1_.getSpecies().getID(), 
-	speciesIDhigh =pDat.particle2_.getSpecies().getID();
+  void
+  OPRdotV::eventUpdate(const System& sysEvent, const NEventData& SDat, const double&)
+  {
+    BOOST_FOREACH(const PairEventData& pDat, SDat.L2partChanges)
+      {
+	size_t speciesIDlow = pDat.particle1_.getSpecies().getID(), 
+	  speciesIDhigh =pDat.particle2_.getSpecies().getID();
       
-      if (speciesIDlow > speciesIDhigh) 
-	std::swap(speciesIDhigh,speciesIDlow);
+	if (speciesIDlow > speciesIDhigh) 
+	  std::swap(speciesIDhigh,speciesIDlow);
       
-      mapdata& ref = rvdotacc[mapKey(sysEvent.getType(), 
-				     getClassKey(sysEvent),
-				     speciesIDlow, speciesIDhigh)];
+	mapdata& ref = rvdotacc[mapKey(sysEvent.getType(), 
+				       getClassKey(sysEvent),
+				       speciesIDlow, speciesIDhigh)];
       
-      double rdotdelV = pDat.rij | pDat.particle1_.getDeltaP();
-      ref.addVal(rdotdelV);
-      _periodicRdotV += rdotdelV;
+	double rdotdelV = pDat.rij | pDat.particle1_.getDeltaP();
+	ref.addVal(rdotdelV);
+	_periodicRdotV += rdotdelV;
 
-      ref.costheta.addVal(pDat.rij | pDat.vijold / (pDat.rij.nrm() * pDat.vijold.nrm()));
-    } 
-}
+	ref.costheta.addVal(pDat.rij | pDat.vijold / (pDat.rij.nrm() * pDat.vijold.nrm()));
+      } 
+  }
 
-void
-OPRdotV::periodicOutput()
-{
-  double P = 1 + _periodicRdotV 
-    / (3 * Sim->N * (Sim->dSysTime - _periodict) * Sim->dynamics.getLiouvillean().getkT());
+  void
+  OPRdotV::periodicOutput()
+  {
+    double P = 1 + _periodicRdotV 
+      / (3 * Sim->N * (Sim->dSysTime - _periodict) * Sim->dynamics.getLiouvillean().getkT());
 
-  I_Pcout() << "P* " << P << ", ";
+    I_Pcout() << "P* " << P << ", ";
 
-  _periodict = Sim->dSysTime;
-  _periodicRdotV = 0;
-}
+    _periodict = Sim->dSysTime;
+    _periodicRdotV = 0;
+  }
 
-void
-OPRdotV::output(magnet::xml::XmlStream &XML)
-{
-  XML << magnet::xml::tag("RdotV");
+  void
+  OPRdotV::output(magnet::xml::XmlStream &XML)
+  {
+    XML << magnet::xml::tag("RdotV");
   
-  typedef std::pair<const mapKey, mapdata> mappair;
+    typedef std::pair<const mapKey, mapdata> mappair;
 
-  BOOST_FOREACH(const mappair& pair1, rvdotacc)
-    {
-      XML << magnet::xml::tag("Element")
-	  << magnet::xml::attr("Type") 
-	  << pair1.first.get<0>()
-	  << magnet::xml::attr("EventName") 
-	  << getName(pair1.first.get<1>(), Sim)
-	  << magnet::xml::attr("Species1")
-	  << Sim->dynamics.getSpecies()[pair1.first.get<2>()]->getName()
-	  << magnet::xml::attr("Species2")
-	  << Sim->dynamics.getSpecies()[pair1.first.get<3>()]->getName()
-	  << magnet::xml::attr("RijdotDeltaMomentum") << pair1.second.getAvg()
-	/ (Sim->dynamics.units().unitVelocity() 
-	   * Sim->dynamics.units().unitLength()
-	   * Sim->dynamics.units().unitMass());
+    BOOST_FOREACH(const mappair& pair1, rvdotacc)
+      {
+	XML << magnet::xml::tag("Element")
+	    << magnet::xml::attr("Type") 
+	    << pair1.first.get<0>()
+	    << magnet::xml::attr("EventName") 
+	    << getName(pair1.first.get<1>(), Sim)
+	    << magnet::xml::attr("Species1")
+	    << Sim->dynamics.getSpecies()[pair1.first.get<2>()]->getName()
+	    << magnet::xml::attr("Species2")
+	    << Sim->dynamics.getSpecies()[pair1.first.get<3>()]->getName()
+	    << magnet::xml::attr("RijdotDeltaMomentum") << pair1.second.getAvg()
+	  / (Sim->dynamics.units().unitVelocity() 
+	     * Sim->dynamics.units().unitLength()
+	     * Sim->dynamics.units().unitMass());
       
-      pair1.second.costheta.outputHistogram(XML, 1.0);
+	pair1.second.costheta.outputHistogram(XML, 1.0);
       
-      XML << magnet::xml::endtag("Element");
-    }
+	XML << magnet::xml::endtag("Element");
+      }
 
     XML << magnet::xml::endtag("RdotV");
+  }
 }
