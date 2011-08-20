@@ -139,7 +139,6 @@ Species::updateRenderData() const
 	  
 	  radii[nsph * sphID + s] = 0.5 * rfactor * data.getDiameter(ID, s);
 	}
-
       ++sphID;
     }
 

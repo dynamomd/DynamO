@@ -86,7 +86,6 @@ namespace coil {
     magnet::GL::shader::RenderShader _renderShader;
     magnet::GL::shader::VSMShader _VSMShader;
     magnet::GL::shader::SimpleRenderShader _simpleRenderShader;
-    magnet::GL::MultisampledFBO _shadowFBO;
 
     //Primary render target
     std::auto_ptr<magnet::GL::FBO> _renderTarget;
@@ -158,7 +157,6 @@ namespace coil {
     volatile bool _simframelock;
     bool _snapshot;
     bool _record;
-    bool _showLight; 
     bool _PNGFileFormat;
     bool _fpsLimit;
     int  _fpsLimitValue;
@@ -221,7 +219,6 @@ namespace coil {
     void snapshotCallback();
     void recordCallback();
     void axisShowCallback();
-    void lightShowCallback();
     void lightPlaceCallback();
     void shadowIntensityCallback(double);
     void snapshotFileFormatCallback();

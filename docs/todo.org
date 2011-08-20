@@ -14,17 +14,17 @@
 **** TODO Move to deferred lighting.
 **** TODO Fix the light position calculation in the Volume renderer
 **** TODO Fix the rendering of light sources.
-**** TODO New multiple light and cube light mechanism
+**** TODO New multiple light and cube light mechanism.
 **** TODO Look at CL/GL synchronisation objects for coil.
 **** TODO Remove all clone ptr's and replace them with shared_ptr's.
-**** TODO Coil library volume renderer (blocking on above)
+**** TODO Coil library volume renderer.
 **** TODO Move all the dynamo classes into the dynamo namespace.
 **** TODO Move the magnet vector and matrix classes into the magnet namespace and expose them in the coil and dynamo namespaces.
 **** TODO Write up the image distance class.
 **** TODO Generalized scheduler for multiple neighborlists.
 **** TODO Make coil scale independent.
-**** TODO Expose the get neighborhood functions in the scheduler.
 **** TODO Make compression work with polydisperse walls.
+**** TODO Expose the get neighborhood functions in the scheduler for patrics work.
 *** DynamO 1.2
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
 **** DONE *BUGFIX* Fixed the widespread improper use of the XML test functions, causing errors instead of warnings.

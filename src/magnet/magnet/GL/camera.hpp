@@ -77,8 +77,7 @@ namespace magnet {
 	  M_throw() << "zNearDist > _zFarDist!";
 
 	up /= up.nrm();
-	
-      
+	      
 	//Now rotate about the up vector, we do tilt seperately
 	Vector directionNorm = (lookAtPoint - position);
 	directionNorm /= directionNorm.nrm();

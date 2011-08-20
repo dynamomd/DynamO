@@ -70,7 +70,6 @@ namespace coil {
     _simframelock(false),
     _snapshot(false),
     _record(false),
-    _showLight(false),
     _PNGFileFormat(true),
     _fpsLimit(true),
     _fpsLimitValue(35),
@@ -172,14 +171,6 @@ namespace coil {
 
       lightButton->signal_clicked()
 	.connect(sigc::mem_fun(*this, &CLGLWindow::lightPlaceCallback));
-    }
-
-    {//////Show light checkbox
-      Gtk::CheckButton* lightShowButton;    
-      _refXml->get_widget("lightShow", lightShowButton); 
-
-      lightShowButton->signal_toggled()
-	.connect(sigc::mem_fun(*this, &CLGLWindow::lightShowCallback));
     }
 
     {//////Snapshot button
@@ -565,7 +556,7 @@ namespace coil {
 	Gtk::SpinButton* shadowmapSize;
 	_refXml->get_widget("shadowmapSize", shadowmapSize);
       
-	_shadowFBO.resize(shadowmapSize->get_value(), shadowmapSize->get_value());
+	_light0.shadowFBO().resize(shadowmapSize->get_value(), shadowmapSize->get_value());
       }
   }
 
@@ -643,12 +634,7 @@ namespace coil {
     _filterTarget2.init(_camera.getWidth(), _camera.getHeight());
     _normalsFBO.init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
 
-    _shadowFBO.setSamples(std::min(4, magnet::GL::MultisampledFBO::getSupportedSamples()));
-    _shadowFBO.init(1024, 1024, GL_RG32F);
-    _shadowFBO.getColorTexture().parameter(GL_TEXTURE_WRAP_S, GL_CLAMP);
-    _shadowFBO.getColorTexture().parameter(GL_TEXTURE_WRAP_T, GL_CLAMP);
-    _shadowFBO.getColorTexture().parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    _shadowFBO.getColorTexture().parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    _light0.init();
     
     _renderShader.build();
     _VSMShader.build();
@@ -728,12 +714,12 @@ namespace coil {
     _filterTarget1.deinit();
     _filterTarget2.deinit();
     _normalsFBO.deinit();
-    _shadowFBO.deinit();
     _renderShader.deinit();
     _VSMShader.deinit();
     _simpleRenderShader.build();
     _nrmlShader.deinit();
 
+    _light0.deinit();
     ///////////////////Finally, unregister with COIL
     CoilRegister::getCoilInstance().unregisterWindow(this);
   }
@@ -748,11 +734,6 @@ namespace coil {
 
     //Prepare for the OpenCL ticks
     glFinish();//Finish with the GL buffers
-
-    //  const float speed = 1000;
-    //  _light0 = lightInfo(Vector(1.5f*std::cos(_currFrameTime/speed), 1.5f, 
-    //			     1.5f * std::sin(_currFrameTime/speed)), 
-    //		      Vector(0.0f, 0.0f, 0.0f), GL_LIGHT0);
 
     //Run every objects OpenCL stage
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
@@ -791,26 +772,26 @@ namespace coil {
     //Prepare for the GL render
     if (_shadowMapping)
       {
-	//////////////////Pass 1//////////////////
-	///Here we draw from the lights perspective
-	_VSMShader.attach();
-	_VSMShader["ProjectionMatrix"] = _light0.getProjectionMatrix(Vector(0,0,0), 6.1035e-5);
-	_VSMShader["ViewMatrix"] = _light0.getViewMatrix();	  
-	//Setup the FBO for shadow maps
-	_shadowFBO.attach();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
+	_VSMShader.attach();
+
+	//Render each light's shadow map
+	_VSMShader["ProjectionMatrix"] = _light0.getProjectionMatrix();
+	_VSMShader["ViewMatrix"] = _light0.getViewMatrix();	  
+	_light0.shadowFBO().attach();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 
 	//Enter the render ticks for all objects
 	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
 	     iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
 	  if ((*iPtr)->shadowCasting() && (*iPtr)->visible())
-	    (*iPtr)->glRender(_shadowFBO, _light0, RenderObj::SHADOW);
+	    (*iPtr)->glRender(_light0.shadowFBO(), _light0, RenderObj::SHADOW);
 
-	_shadowFBO.detach();
-	_shadowFBO.getColorTexture().genMipmaps();	
-	_shadowFBO.getColorTexture().bind(7);
+	_light0.shadowFBO().detach();
+	_light0.shadowTex().genMipmaps();
+	_light0.shadowTex().bind(7);
+
 	_VSMShader.detach();
 	glEnable(GL_BLEND);
 	glEnable(GL_ALPHA_TEST);
@@ -818,7 +799,7 @@ namespace coil {
       
     //Bind to the multisample buffer
     _renderTarget->attach();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     _renderShader.attach();
     _renderShader["ShadowMap"] = 7;
     _renderShader["ShadowIntensity"] = _shadowIntensity;
@@ -1033,8 +1014,6 @@ namespace coil {
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       if ((*iPtr)->visible()) (*iPtr)->glRender(fbo, camera, RenderObj::DEFAULT);
-  
-    if (_showLight) _light0.drawLight();
   }
 
   void CLGLWindow::CallBackReshapeFunc(int w, int h)
@@ -1238,19 +1217,8 @@ namespace coil {
   }
 
   void 
-  CLGLWindow::lightShowCallback()
-  {
-    Gtk::CheckButton* lightShowButton;
-    _refXml->get_widget("lightShow", lightShowButton);
-  
-    _showLight = lightShowButton->get_active();
-  }
-
-  void 
   CLGLWindow::lightPlaceCallback()
-  {
-    _light0 = _camera;
-  }
+  { _light0 = _camera; }
 
   void 
   CLGLWindow::shadowIntensityCallback(double val)

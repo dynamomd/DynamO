@@ -295,32 +295,11 @@
                         <property name="visible">True</property>
                         <property name="orientation">vertical</property>
                         <child>
-                          <object class="GtkHBox" id="hbox8">
+                          <object class="GtkButton" id="lightLocation">
+                            <property name="label" translatable="yes">Place Light At Camera Location</property>
                             <property name="visible">True</property>
-                            <child>
-                              <object class="GtkButton" id="lightLocation">
-                                <property name="label" translatable="yes">Place Light At Camera Location</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                              </object>
-                              <packing>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkCheckButton" id="lightShow">
-                                <property name="label" translatable="yes">Display Light Source</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">False</property>
-                                <property name="draw_indicator">True</property>
-                              </object>
-                              <packing>
-                                <property name="padding">10</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
                           </object>
                           <packing>
                             <property name="position">0</property>

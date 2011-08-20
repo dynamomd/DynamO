@@ -17,6 +17,7 @@
 #pragma once
 
 #include <magnet/GL/camera.hpp>
+#include <magnet/GL/multisampledFBO.hpp>
 #include <limits>
 
 namespace magnet {
@@ -61,38 +62,23 @@ namespace magnet {
 	Camera(1,1,position, lookAtPoint, fovY, zNearDist, zFarDist, up)
       {}
 
-      /*! \brief Renders the light source as a cone in the OpenGL scene
+      /*! \brief Initialise the OpenGL resources of this light source. 
        */
-      inline void drawLight()
+      void init()
       {
-//	Context& context = Context::getContext();
-//	context.color(1, 1, 1);
-//	
-//	GLfloat rotationAngle 
-//	  = (180.0 / M_PI) * std::acos(Vector(0,0,-1) | getCameraDirection());
-//	
-//	Vector RotationAxis = Vector(0,0,-1) ^ getCameraDirection();
-//	float norm = RotationAxis.nrm();
-//	RotationAxis /= norm;
-//	if (norm < std::numeric_limits<double>::epsilon())
-//	  RotationAxis = Vector(1,0,0);
-//
-//	Vector cameraLocation(getEyeLocation());
-//	
-//	GLMatrix oldviewMatrix = context.getViewMatrix();
-//
-//	context.setViewMatrix(oldviewMatrix 
-//			      * GLMatrix::translate(cameraLocation[0], cameraLocation[1], cameraLocation[2])
-//			      * GLMatrix::rotate(rotationAngle, RotationAxis)
-//			      * GLMatrix::translate(0,0,0.0025));
-//
-//	GLfloat r = 0.05f;
-//	double fovY = getFOVY();
-//	glutSolidCone(r * std::sin(fovY * M_PI / 360.0f), 
-//		      r * std::cos(fovY * M_PI / 360.0f), 
-//		      15, 15);
-//
-//	context.setViewMatrix(oldviewMatrix);
+	_shadowFBO.setSamples(std::min(4, magnet::GL::MultisampledFBO::getSupportedSamples()));
+	_shadowFBO.init(1024, 1024, GL_RG32F);
+	_shadowFBO.getColorTexture().parameter(GL_TEXTURE_WRAP_S, GL_CLAMP);
+	_shadowFBO.getColorTexture().parameter(GL_TEXTURE_WRAP_T, GL_CLAMP);
+	_shadowFBO.getColorTexture().parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	_shadowFBO.getColorTexture().parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      }
+
+      /*! \brief Release the OpenGL resources of this light source. 
+       */
+      void deinit()
+      {
+	_shadowFBO.deinit();
       }
 
       /*! \brief Allow copying the lights location from a \ref Camera.
@@ -132,6 +118,17 @@ namespace magnet {
 	  * getViewMatrix()
 	  * camera.getViewMatrix(offset).inverse();
       }
+
+      /*! \brief Returns the frame buffer containing the shadow map.
+       */
+      MultisampledFBO& shadowFBO() { return _shadowFBO; }
+
+      /*! \brief Returns the texture containing the shadow map.
+       */
+      Texture2D& shadowTex() { return _shadowFBO.getColorTexture(); }
+
+    protected:
+      MultisampledFBO _shadowFBO;
     };
   }
 }
