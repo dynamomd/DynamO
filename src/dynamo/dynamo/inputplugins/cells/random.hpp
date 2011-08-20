@@ -19,37 +19,39 @@
 #include <dynamo/inputplugins/cells/cell.hpp>
 #include <dynamo/base/is_simdata.hpp>
 
-struct CURandom: public CUCell
-{
-  CURandom(size_t nN, Vector  ndimensions, 
-	   boost::uniform_01<dynamo::baseRNG, double>& RNG,
-	   CUCell* nextCell):
-    CUCell(nextCell),
-    N(nN),
-    dimensions(ndimensions),
-    uniform_sampler(RNG)
-  {}
-
-  size_t N;
-  Vector  dimensions;
-  boost::uniform_01<dynamo::baseRNG, double>& uniform_sampler;
-
-  virtual std::vector<Vector  > placeObjects(const Vector & centre)
+namespace dynamo {
+  struct CURandom: public CUCell
   {
-    std::vector<Vector  > retval;
+    CURandom(size_t nN, Vector  ndimensions, 
+	     boost::uniform_01<dynamo::baseRNG, double>& RNG,
+	     CUCell* nextCell):
+      CUCell(nextCell),
+      N(nN),
+      dimensions(ndimensions),
+      uniform_sampler(RNG)
+    {}
 
-    for (size_t i(0); i < N; ++i)
-      {
-	Vector  position;
-	for (size_t iDim = 0; iDim < NDIM; iDim++)
-	  position[iDim] = centre[iDim] - (uniform_sampler() - 0.5) * dimensions[iDim];
+    size_t N;
+    Vector  dimensions;
+    boost::uniform_01<dynamo::baseRNG, double>& uniform_sampler;
+
+    virtual std::vector<Vector  > placeObjects(const Vector & centre)
+    {
+      std::vector<Vector  > retval;
+
+      for (size_t i(0); i < N; ++i)
+	{
+	  Vector  position;
+	  for (size_t iDim = 0; iDim < NDIM; iDim++)
+	    position[iDim] = centre[iDim] - (uniform_sampler() - 0.5) * dimensions[iDim];
 	
 	
-	//Get the next unit cells positions and push them to your list
-	BOOST_FOREACH(const Vector & vec, uc->placeObjects(position))
-	  retval.push_back(vec);
-      }
+	  //Get the next unit cells positions and push them to your list
+	  BOOST_FOREACH(const Vector & vec, uc->placeObjects(position))
+	    retval.push_back(vec);
+	}
 
-    return retval;    
-  }
-};
+      return retval;    
+    }
+  };
+}

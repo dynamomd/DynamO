@@ -17,21 +17,21 @@
 
 #pragma once
 
-#include "point.hpp"
+#include <dynamo/dynamics/species/point.hpp>
 
-/*! A thin class to just dynamically check that a species has inertia*/
-class SpInertia: public SpPoint
-{
-public:
-  SpInertia(dynamo::SimData* sim, CRange* r, 
-	    double nMass, std::string nName,
-	    unsigned int ID, std::string nIName="Bulk"):
-    SpPoint(sim, r, nMass, nName, ID, nIName)
-  {}
+namespace dynamo {
+  /*! A thin class to just dynamically check that a species has inertia*/
+  class SpInertia: public SpPoint
+  {
+  public:
+    SpInertia(dynamo::SimData* sim, CRange* r, 
+	      double nMass, std::string nName,
+	      unsigned int ID, std::string nIName="Bulk"):
+      SpPoint(sim, r, nMass, nName, ID, nIName)
+    {}
 
-  SpInertia(const magnet::xml::Node& XML, dynamo::SimData* Sim, unsigned int ID):
-    SpPoint(XML,Sim,ID)
-  {}
-
-  
-};
+    SpInertia(const magnet::xml::Node& XML, dynamo::SimData* Sim, unsigned int ID):
+      SpPoint(XML,Sim,ID)
+    {}
+  };
+}

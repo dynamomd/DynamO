@@ -16,37 +16,39 @@
 */
 
 #pragma once
-#include "local.hpp"
+#include <dynamo/dynamics/locals/local.hpp>
 #include <vector>
 
-class CLDblWall: public Local
-{
-public:
-  CLDblWall(const magnet::xml::Node&, dynamo::SimData*);
-  CLDblWall(dynamo::SimData*, double, Vector , Vector , 
-	 std::string, CRange*);
+namespace dynamo {
+  class CLDblWall: public Local
+  {
+  public:
+    CLDblWall(const magnet::xml::Node&, dynamo::SimData*);
+    CLDblWall(dynamo::SimData*, double, Vector , Vector , 
+	      std::string, CRange*);
 
-  virtual ~CLDblWall() {}
+    virtual ~CLDblWall() {}
 
-  virtual Local* Clone() const { return new CLDblWall(*this); };
+    virtual Local* Clone() const { return new CLDblWall(*this); };
 
-  virtual LocalEvent getEvent(const Particle&) const;
+    virtual LocalEvent getEvent(const Particle&) const;
 
-  virtual void runEvent(const Particle&, const LocalEvent&) const;
+    virtual void runEvent(const Particle&, const LocalEvent&) const;
   
-  virtual bool isInCell(const Vector &, const Vector &) const;
+    virtual bool isInCell(const Vector &, const Vector &) const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-  virtual void particleUpdate(const NEventData &) const;
+    virtual void particleUpdate(const NEventData &) const;
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  Vector  vNorm;
-  Vector  vPosition;
-  double e;
-  mutable size_t lastID;
-};
+    Vector  vNorm;
+    Vector  vPosition;
+    double e;
+    mutable size_t lastID;
+  };
+}

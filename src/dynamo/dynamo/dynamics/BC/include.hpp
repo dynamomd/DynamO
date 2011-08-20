@@ -15,6 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "PBC.hpp"
-#include "None.hpp"
-#include "LEBC.hpp"
+#include <dynamo/dynamics/BC/PBC.hpp>
+#include <dynamo/dynamics/BC/None.hpp>
+#include <dynamo/dynamics/BC/LEBC.hpp>

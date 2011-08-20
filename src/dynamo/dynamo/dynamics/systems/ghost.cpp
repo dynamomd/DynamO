@@ -15,16 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ghost.hpp"
-#include "../dynamics.hpp"
-#include "../units/units.hpp"
-#include "../BC/BC.hpp"
-#include "../../simulation/particle.hpp"
-#include "../species/species.hpp"
-#include "../NparticleEventData.hpp"
-#include "../ranges/include.hpp"
-#include "../liouvillean/liouvillean.hpp"
-#include "../../schedulers/scheduler.hpp"
+#include <dynamo/dynamics/systems/ghost.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/dynamics/BC/BC.hpp>
+#include <dynamo/simulation/particle.hpp>
+#include <dynamo/dynamics/species/species.hpp>
+#include <dynamo/dynamics/NparticleEventData.hpp>
+#include <dynamo/dynamics/ranges/include.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/random/uniform_int.hpp>
@@ -35,163 +35,165 @@
 #include <boost/math/special_functions/fpclassify.hpp>
 #endif
 
+namespace dynamo {
 
-CSysGhost::CSysGhost(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
-  System(tmp),
-  meanFreeTime(100000),
-  Temp(Sim->dynamics.units().unitEnergy()),
-  sqrtTemp(std::sqrt(Sim->dynamics.units().unitEnergy())),
-  tune(false),
-  setPoint(0.05),
-  eventCount(0),
-  lastlNColl(0),
-  setFrequency(100),
-  range(NULL)
-{
-  dt = HUGE_VAL;
-  operator<<(XML);
-  type = GAUSSIAN;
-}
+  CSysGhost::CSysGhost(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
+    System(tmp),
+    meanFreeTime(100000),
+    Temp(Sim->dynamics.units().unitEnergy()),
+    sqrtTemp(std::sqrt(Sim->dynamics.units().unitEnergy())),
+    tune(false),
+    setPoint(0.05),
+    eventCount(0),
+    lastlNColl(0),
+    setFrequency(100),
+    range(NULL)
+  {
+    dt = HUGE_VAL;
+    operator<<(XML);
+    type = GAUSSIAN;
+  }
 
-CSysGhost::CSysGhost(dynamo::SimData* nSim, double mft, double t, 
-		     std::string nName):
-  System(nSim),
-  meanFreeTime(mft),
-  Temp(t),
-  tune(true),
-  setPoint(0.05),
-  eventCount(0),
-  lastlNColl(0),
-  setFrequency(100),
-  range(new CRAll(Sim))
-{
-  sysName = nName;
-  type = GAUSSIAN;
-}
+  CSysGhost::CSysGhost(dynamo::SimData* nSim, double mft, double t, 
+		       std::string nName):
+    System(nSim),
+    meanFreeTime(mft),
+    Temp(t),
+    tune(true),
+    setPoint(0.05),
+    eventCount(0),
+    lastlNColl(0),
+    setFrequency(100),
+    range(new CRAll(Sim))
+  {
+    sysName = nName;
+    type = GAUSSIAN;
+  }
 
-void 
-CSysGhost::runEvent() const
-{
-  ++Sim->eventCount;
-  ++eventCount;
+  void 
+  CSysGhost::runEvent() const
+  {
+    ++Sim->eventCount;
+    ++eventCount;
 
-  if (tune && (eventCount > setFrequency))
-    {
-      meanFreeTime *= static_cast<double>(eventCount)
-	/ ((Sim->eventCount - lastlNColl) * setPoint);
-
-      lastlNColl = Sim->eventCount;
-      eventCount = 0;
-    }
-
-  double locdt = dt;
-  
-#ifdef DYNAMO_DEBUG 
-  if (boost::math::isnan(locdt))
-    M_throw() << "A NAN system event time has been found";
-#endif
-    
-  Sim->dSysTime += locdt;
-    
-  Sim->ptrScheduler->stream(locdt);
-  
-  Sim->dynamics.stream(locdt);
-
-  locdt +=  Sim->freestreamAcc;
-  Sim->freestreamAcc = 0;
-
-  dt = getGhostt();
-
-  unsigned int step = boost::variate_generator
-    <dynamo::baseRNG&, boost::uniform_int<unsigned int> >
-    (Sim->ranGenerator, 
-     boost::uniform_int<unsigned int>(0, range->size() - 1))();
-
-  const Particle& part(Sim->particleList[*(range->begin()+step)]);
-
-  //Run the collision and catch the data
-  NEventData SDat(Sim->dynamics.getLiouvillean().randomGaussianEvent
-		      (part, sqrtTemp));
-  
-  Sim->signalParticleUpdate(SDat);
-
-  Sim->ptrScheduler->fullUpdate(part);
-  
-  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(*this, SDat, locdt);
-
-}
-
-void 
-CSysGhost::initialise(size_t nID)
-{
-  ID = nID;
-  meanFreeTime /= Sim->N;
-  dt = getGhostt();
-  sqrtTemp = sqrt(Temp);
-}
-
-void 
-CSysGhost::operator<<(const magnet::xml::Node& XML)
-{
-  if (strcmp(XML.getAttribute("Type"),"Andersen"))
-    M_throw() << "Attempting to load Andersen from non Andersen entry"; 
-  
-  try {
-    meanFreeTime = XML.getAttribute("MFT").as<double>() * Sim->dynamics.units().unitTime();
-    Temp = XML.getAttribute("Temperature").as<double>() * Sim->dynamics.units().unitEnergy();
-    sysName = XML.getAttribute("Name");
-
-    if (XML.hasAttribute("SetFrequency") && XML.hasAttribute("SetPoint"))
+    if (tune && (eventCount > setFrequency))
       {
-	tune = true;
-	setFrequency = XML.getAttribute("SetFrequency").as<unsigned long long>();
-	setPoint = boost::lexical_cast<double>(XML.getAttribute("SetPoint"));
+	meanFreeTime *= static_cast<double>(eventCount)
+	  / ((Sim->eventCount - lastlNColl) * setPoint);
+
+	lastlNColl = Sim->eventCount;
+	eventCount = 0;
       }
 
-    range.set_ptr(CRange::getClass(XML,Sim));
+    double locdt = dt;
+  
+#ifdef DYNAMO_DEBUG 
+    if (boost::math::isnan(locdt))
+      M_throw() << "A NAN system event time has been found";
+#endif
+    
+    Sim->dSysTime += locdt;
+    
+    Sim->ptrScheduler->stream(locdt);
+  
+    Sim->dynamics.stream(locdt);
+
+    locdt +=  Sim->freestreamAcc;
+    Sim->freestreamAcc = 0;
+
+    dt = getGhostt();
+
+    unsigned int step = boost::variate_generator
+      <dynamo::baseRNG&, boost::uniform_int<unsigned int> >
+      (Sim->ranGenerator, 
+       boost::uniform_int<unsigned int>(0, range->size() - 1))();
+
+    const Particle& part(Sim->particleList[*(range->begin()+step)]);
+
+    //Run the collision and catch the data
+    NEventData SDat(Sim->dynamics.getLiouvillean().randomGaussianEvent
+		    (part, sqrtTemp));
+  
+    Sim->signalParticleUpdate(SDat);
+
+    Sim->ptrScheduler->fullUpdate(part);
+  
+    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+      Ptr->eventUpdate(*this, SDat, locdt);
+
   }
-  catch (boost::bad_lexical_cast &)
-    {
-      M_throw() << "Failed a lexical cast in CGGlobal";
+
+  void 
+  CSysGhost::initialise(size_t nID)
+  {
+    ID = nID;
+    meanFreeTime /= Sim->N;
+    dt = getGhostt();
+    sqrtTemp = sqrt(Temp);
+  }
+
+  void 
+  CSysGhost::operator<<(const magnet::xml::Node& XML)
+  {
+    if (strcmp(XML.getAttribute("Type"),"Andersen"))
+      M_throw() << "Attempting to load Andersen from non Andersen entry"; 
+  
+    try {
+      meanFreeTime = XML.getAttribute("MFT").as<double>() * Sim->dynamics.units().unitTime();
+      Temp = XML.getAttribute("Temperature").as<double>() * Sim->dynamics.units().unitEnergy();
+      sysName = XML.getAttribute("Name");
+
+      if (XML.hasAttribute("SetFrequency") && XML.hasAttribute("SetPoint"))
+	{
+	  tune = true;
+	  setFrequency = XML.getAttribute("SetFrequency").as<unsigned long long>();
+	  setPoint = boost::lexical_cast<double>(XML.getAttribute("SetPoint"));
+	}
+
+      range.set_ptr(CRange::getClass(XML,Sim));
     }
-}
+    catch (boost::bad_lexical_cast &)
+      {
+	M_throw() << "Failed a lexical cast in CGGlobal";
+      }
+  }
 
-void 
-CSysGhost::outputXML(magnet::xml::XmlStream& XML) const
-{
-  XML << magnet::xml::tag("System")
-      << magnet::xml::attr("Type") << "Andersen"
-      << magnet::xml::attr("Name") << sysName
-      << magnet::xml::attr("MFT") << meanFreeTime
-    * Sim->N
-    / Sim->dynamics.units().unitTime()
-      << magnet::xml::attr("Temperature") << Temp 
-    / Sim->dynamics.units().unitEnergy();
+  void 
+  CSysGhost::outputXML(magnet::xml::XmlStream& XML) const
+  {
+    XML << magnet::xml::tag("System")
+	<< magnet::xml::attr("Type") << "Andersen"
+	<< magnet::xml::attr("Name") << sysName
+	<< magnet::xml::attr("MFT") << meanFreeTime
+      * Sim->N
+      / Sim->dynamics.units().unitTime()
+	<< magnet::xml::attr("Temperature") << Temp 
+      / Sim->dynamics.units().unitEnergy();
   
-  if (tune)
-    XML << magnet::xml::attr("SetPoint") << setPoint
-	<< magnet::xml::attr("SetFrequency") << setFrequency;
+    if (tune)
+      XML << magnet::xml::attr("SetPoint") << setPoint
+	  << magnet::xml::attr("SetFrequency") << setFrequency;
   
-  XML << range
-      << magnet::xml::endtag("System");
-}
+    XML << range
+	<< magnet::xml::endtag("System");
+  }
 
-double 
-CSysGhost::getGhostt() const
-{ 
-  return  - meanFreeTime * log(1 - Sim->uniform_sampler());
-}
+  double 
+  CSysGhost::getGhostt() const
+  { 
+    return  - meanFreeTime * log(1 - Sim->uniform_sampler());
+  }
 
-double 
-CSysGhost::getReducedTemperature() const
-{
-  return Temp / Sim->dynamics.units().unitEnergy();
-}
+  double 
+  CSysGhost::getReducedTemperature() const
+  {
+    return Temp / Sim->dynamics.units().unitEnergy();
+  }
 
 
-void 
-CSysGhost::setReducedTemperature(double nT)
-{
-  Temp = nT * Sim->dynamics.units().unitEnergy(); 
+  void 
+  CSysGhost::setReducedTemperature(double nT)
+  {
+    Temp = nT * Sim->dynamics.units().unitEnergy(); 
+  }
 }

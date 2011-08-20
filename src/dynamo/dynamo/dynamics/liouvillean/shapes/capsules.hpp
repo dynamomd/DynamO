@@ -16,56 +16,57 @@
 */
 
 #pragma once
-#include "../../../simulation/particle.hpp"
-#include "../../BC/BC.hpp"
-#include "../../dynamics.hpp"
-#include "../../../base/is_simdata.hpp"
-#include "shape.hpp"
+#include <dynamo/simulation/particle.hpp>
+#include <dynamo/dynamics/BC/BC.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/dynamics/liouvillean/../../../base/is_simdata.hpp>
+#include <dynamo/dynamics/liouvillean/shape.hpp>
 
-class CCapsulesFunc : public CShape {
-public:
-  CCapsulesFunc(const Vector& nr12, const Vector& nv12,
-		const Vector& nw1, const Vector& nw2, 
-		const Vector& nu1, const Vector& nu2):
-    w1(nw1), w2(nw2), u1(nu1), u2(nu2),
-    w12(nw1-nw2), r12(nr12), v12(nv12)
-  {}
+namespace dynamo {
+  class CCapsulesFunc : public CShape {
+  public:
+    CCapsulesFunc(const Vector& nr12, const Vector& nv12,
+		  const Vector& nw1, const Vector& nw2, 
+		  const Vector& nu1, const Vector& nu2):
+      w1(nw1), w2(nw2), u1(nu1), u2(nu2),
+      w12(nw1-nw2), r12(nr12), v12(nv12)
+    {}
 
-  void stream(const double& dt)
-  {
-    u1 = Rodrigues(w1 * dt) * Vector(u1);
-    u2 = Rodrigues(w2 * dt) * Vector(u2);
-    r12 += v12 * dt;
-  }
+    void stream(const double& dt)
+    {
+      u1 = Rodrigues(w1 * dt) * Vector(u1);
+      u2 = Rodrigues(w2 * dt) * Vector(u2);
+      r12 += v12 * dt;
+    }
   
-  std::pair<double, double> getCollisionPoints() const
-  {
-    M_throw() << "Don't use!";
-  }
+    std::pair<double, double> getCollisionPoints() const
+    {
+      M_throw() << "Don't use!";
+    }
   
-  //Distance between 2 particles
-   double F_zeroDeriv() const
-  // For the moment we will assume only one sided dumbbell
-  // so the equation get simpler.
-  { return (r12 + (u1 + u2) * L * 0.5).nrm2()  - Diameter * Diameter;}
+    //Distance between 2 particles
+    double F_zeroDeriv() const
+    // For the moment we will assume only one sided dumbbell
+    // so the equation get simpler.
+    { return (r12 + (u1 + u2) * L * 0.5).nrm2()  - Diameter * Diameter;}
 			      
 
-  double F_firstDeriv() const
-  {    
-    // Simply chain rule
-    return 2.0* (r12 + (u1 + u2) * L * 0.5 ) | (v12 + ((w1 ^ u1) + (w2 ^ u2)) * L * 0.5);
-  }
+    double F_firstDeriv() const
+    {    
+      // Simply chain rule
+      return 2.0* (r12 + (u1 + u2) * L * 0.5 ) | (v12 + ((w1 ^ u1) + (w2 ^ u2)) * L * 0.5);
+    }
 
-  double F_firstDeriv_max(const double& length) const
-  { 
-    return  2 * (3 * L + Diameter) * (v12.nrm() + (w1.nrm() + w2.nrm()) * L / 2);
-  }
+    double F_firstDeriv_max(const double& length) const
+    { 
+      return  2 * (3 * L + Diameter) * (v12.nrm() + (w1.nrm() + w2.nrm()) * L / 2);
+    }
 
-  double F_secondDeriv() const
-  {
-    return 2.0* ((r12 + u1*L/2.0 + u2*L/2.0)|(- w1.nrm()*w1.nrm()*u1*L/2.0 - w2.nrm()*w2.nrm()*u2*L/2.0 ) 
-		 + (v12 + w1^u1*L/2.0 + w2^u2*L/2.0)|(v12 + w1^u1*L/2.0 + w2^u2*L/2.0)) ;
-  }
+    double F_secondDeriv() const
+    {
+      return 2.0* ((r12 + u1*L/2.0 + u2*L/2.0)|(- w1.nrm()*w1.nrm()*u1*L/2.0 - w2.nrm()*w2.nrm()*u2*L/2.0 ) 
+		   + (v12 + w1^u1*L/2.0 + w2^u2*L/2.0)|(v12 + w1^u1*L/2.0 + w2^u2*L/2.0)) ;
+    }
 
     double F_secondDeriv_max(const double& length) const
     {
@@ -115,3 +116,4 @@ public:
     Vector r12;
     Vector v12;
   };
+}

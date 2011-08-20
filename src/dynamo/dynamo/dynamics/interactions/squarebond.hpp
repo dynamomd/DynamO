@@ -17,53 +17,55 @@
 
 #pragma once
 
-#include "interaction.hpp"
-#include "../../base/is_simdata.hpp"
+#include <dynamo/dynamics/interactions/interaction.hpp>
+#include <dynamo/base/is_simdata.hpp>
 
-class ISquareBond: public Interaction
-{
-public:
-  template<class T1, class T2, class T3>
-  ISquareBond(dynamo::SimData* tmp, T1 d, T2 l, T3 e, C2Range* nR):
-    Interaction(tmp, nR),
-    _diameter(Sim->_properties.getProperty
-	      (d, Property::Units::Length())),
-    _lambda(Sim->_properties.getProperty
-	    (l, Property::Units::Dimensionless())),
-    _e(Sim->_properties.getProperty
-       (e, Property::Units::Dimensionless()))
-  {}
+namespace dynamo {
+  class ISquareBond: public Interaction
+  {
+  public:
+    template<class T1, class T2, class T3>
+    ISquareBond(dynamo::SimData* tmp, T1 d, T2 l, T3 e, C2Range* nR):
+      Interaction(tmp, nR),
+      _diameter(Sim->_properties.getProperty
+		(d, Property::Units::Length())),
+      _lambda(Sim->_properties.getProperty
+	      (l, Property::Units::Dimensionless())),
+      _e(Sim->_properties.getProperty
+	 (e, Property::Units::Dimensionless()))
+    {}
 
-  ISquareBond(const magnet::xml::Node&, dynamo::SimData*);
+    ISquareBond(const magnet::xml::Node&, dynamo::SimData*);
 
-  void operator<<(const magnet::xml::Node&);
+    void operator<<(const magnet::xml::Node&);
 
-  virtual Interaction* Clone() const;
+    virtual Interaction* Clone() const;
 
-  virtual double getExcludedVolume(size_t) const 
-  { M_throw() << "Bonds don't have excluded volumes! They shouldn't be used as the defining interaction for a species."; }
+    virtual double getExcludedVolume(size_t) const 
+    { M_throw() << "Bonds don't have excluded volumes! They shouldn't be used as the defining interaction for a species."; }
 
-  virtual double maxIntDist() const;
+    virtual double maxIntDist() const;
 
-  virtual double getCaptureEnergy() const;
+    virtual double getCaptureEnergy() const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual bool captureTest(const Particle&, const Particle&) const;
+    virtual bool captureTest(const Particle&, const Particle&) const;
 
-  virtual void checkOverlaps(const Particle&, const Particle&) const;
+    virtual void checkOverlaps(const Particle&, const Particle&) const;
 
-  virtual IntEvent getEvent(const Particle&, const Particle&) const;
+    virtual IntEvent getEvent(const Particle&, const Particle&) const;
   
-  virtual void runEvent(const Particle&, const Particle&, const IntEvent&) const;
+    virtual void runEvent(const Particle&, const Particle&, const IntEvent&) const;
     
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  virtual double getInternalEnergy() const { return 0.0; }
+    virtual double getInternalEnergy() const { return 0.0; }
 
-protected:
+  protected:
 
-  std::tr1::shared_ptr<Property> _diameter;
-  std::tr1::shared_ptr<Property> _lambda;
-  std::tr1::shared_ptr<Property> _e;
-};
+    std::tr1::shared_ptr<Property> _diameter;
+    std::tr1::shared_ptr<Property> _lambda;
+    std::tr1::shared_ptr<Property> _e;
+  };
+}

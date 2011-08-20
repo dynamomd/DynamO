@@ -19,67 +19,69 @@
  */
 
 #pragma once
-#include "engine.hpp"
+#include <dynamo/coordinator/engine/engine.hpp>
 
-/*! \brief An Engine for simulating a single system.
- *
- * This merely sets up and exectues a single Simulation instance.
- */
-class ESingleSimulation: public Engine
-{
-public:
-  /*! \brief Only constructor.
+namespace dynamo {
+  /*! \brief An Engine for simulating a single system.
    *
-   * \param vm A reference to the Coordinator's parsed command line variables.
-   * \param tp A reference to the thread pool of the dynarun instance.
-   */ 
-  ESingleSimulation(const boost::program_options::variables_map& vm, 
-		    magnet::thread::ThreadPool& tp);
+   * This merely sets up and exectues a single Simulation instance.
+   */
+  class ESingleSimulation: public Engine
+  {
+  public:
+    /*! \brief Only constructor.
+     *
+     * \param vm A reference to the Coordinator's parsed command line variables.
+     * \param tp A reference to the thread pool of the dynarun instance.
+     */ 
+    ESingleSimulation(const boost::program_options::variables_map& vm, 
+		      magnet::thread::ThreadPool& tp);
 
-  /*! \brief Trivial virtual destructor */
-  virtual ~ESingleSimulation() {}
+    /*! \brief Trivial virtual destructor */
+    virtual ~ESingleSimulation() {}
   
-  /*! \brief There is no status to be printed other than what the
-   * Simulation outputs.
-   */
-  virtual void printStatus() {}
+    /*! \brief There is no status to be printed other than what the
+     * Simulation outputs.
+     */
+    virtual void printStatus() {}
   
-  /*! \brief Just runs the Simulation::runSimulation() loop and
-   * provides a peek functionality.
-   */
-  virtual void runSimulation();
+    /*! \brief Just runs the Simulation::runSimulation() loop and
+     * provides a peek functionality.
+     */
+    virtual void runSimulation();
 
-  /*! \brief Just wraps the Simulation::outputData(const char*) function.
-   */
-  virtual void outputData();
+    /*! \brief Just wraps the Simulation::outputData(const char*) function.
+     */
+    virtual void outputData();
   
-  /*! \brief Just wraps the Simulation::writeXMLfile(const char*) function.
-   */
-  virtual void outputConfigs();
+    /*! \brief Just wraps the Simulation::writeXMLfile(const char*) function.
+     */
+    virtual void outputConfigs();
 
-  /*! \brief No Engine finalisation required.
-   */
-  virtual void finaliseRun() {}
+    /*! \brief No Engine finalisation required.
+     */
+    virtual void finaliseRun() {}
 
-  /*! \brief Just wraps the Simulation::simShutdown() function.
-   */
-  virtual void forceShutdown();
+    /*! \brief Just wraps the Simulation::simShutdown() function.
+     */
+    virtual void forceShutdown();
 
-  /*! \brief Performs the minimum steps to initialise a simulation.
-   */
-  virtual void initialisation();
+    /*! \brief Performs the minimum steps to initialise a simulation.
+     */
+    virtual void initialisation();
 
-  /*! \brief Triggers the peek mode in the loop.
-   */
-  virtual void peekData();
+    /*! \brief Triggers the peek mode in the loop.
+     */
+    virtual void peekData();
 
-protected:
-  /*! \brief The single instance of a Simulation required.
-   */
-  Simulation simulation;
+  protected:
+    /*! \brief The single instance of a Simulation required.
+     */
+    Simulation simulation;
   
-  /*! \brief If this is true, the Simulation's end time will be reset
-   * and the ESingleSimulation run loop in runSimulation() will be repeated.
-   */
- bool peekMode; 
-};
+    /*! \brief If this is true, the Simulation's end time will be reset
+     * and the ESingleSimulation run loop in runSimulation() will be repeated.
+     */
+    bool peekMode; 
+  };
+}

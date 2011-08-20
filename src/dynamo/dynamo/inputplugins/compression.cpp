@@ -33,114 +33,117 @@
 #include <dynamo/dynamics/globals/neighbourList.hpp>
 #include <boost/foreach.hpp>
 
-CIPCompression::CIPCompression(dynamo::SimData* tmp, double GR): 
-  CInputPlugin(tmp, "CompressionPlugin"),
-  growthRate(GR)
-{
-  dout << "Compression plugin loaded\n"
-	   << "Compaction parameter gamma " << growthRate << std::endl;
-}
+namespace dynamo {
 
-void 
-CIPCompression::MakeGrowth()
-{
-  dout << "Backing up old liouvillean" << std::endl;
+  CIPCompression::CIPCompression(dynamo::SimData* tmp, double GR): 
+    CInputPlugin(tmp, "CompressionPlugin"),
+    growthRate(GR)
+  {
+    dout << "Compression plugin loaded\n"
+	 << "Compaction parameter gamma " << growthRate << std::endl;
+  }
 
-  //Required to reset the dynamics
-  Sim->dynamics.getLiouvillean().updateAllParticles();
+  void 
+  CIPCompression::MakeGrowth()
+  {
+    dout << "Backing up old liouvillean" << std::endl;
 
-  oldLio = Sim->dynamics.getLiouvillean().Clone();
+    //Required to reset the dynamics
+    Sim->dynamics.getLiouvillean().updateAllParticles();
 
-  dout << "Loading compression liouvillean" << std::endl;
-  Sim->dynamics.setLiouvillean(new LCompression(Sim, growthRate 
-						 / (Sim->dynamics.units()
-						    .unitTime())));
-}
+    oldLio = Sim->dynamics.getLiouvillean().Clone();
 
-void
-CIPCompression::RestoreSystem()
-{
-  dout << "Restoring original liouvillean" << std::endl;
+    dout << "Loading compression liouvillean" << std::endl;
+    Sim->dynamics.setLiouvillean(new LCompression(Sim, growthRate 
+						  / (Sim->dynamics.units()
+						     .unitTime())));
+  }
 
-  //Required to finish off the compression dynamics
-  Sim->dynamics.getLiouvillean().updateAllParticles();
+  void
+  CIPCompression::RestoreSystem()
+  {
+    dout << "Restoring original liouvillean" << std::endl;
 
-  if (dynamic_cast<CSNeighbourList*>(Sim->ptrScheduler) != NULL)
-    {
-      BOOST_FOREACH(magnet::ClonePtr<Global>& ptr, Sim->dynamics.getGlobals())
-	if (dynamic_cast<const GNeighbourList*>(ptr.get_ptr()) != NULL)      
-	  //Rebulid the collision scheduler without the overlapping cells!
-	  dynamic_cast<GNeighbourList&>(*ptr).setCellOverlap(true);
-    }
-  else
-    dout << "No cellular device to fix" << std::endl;
+    //Required to finish off the compression dynamics
+    Sim->dynamics.getLiouvillean().updateAllParticles();
 
-  double rescale_factor = 1.0 + Sim->dSysTime * growthRate / Sim->dynamics.units().unitTime();
+    if (dynamic_cast<CSNeighbourList*>(Sim->ptrScheduler) != NULL)
+      {
+	BOOST_FOREACH(magnet::ClonePtr<Global>& ptr, Sim->dynamics.getGlobals())
+	  if (dynamic_cast<const GNeighbourList*>(ptr.get_ptr()) != NULL)      
+	    //Rebulid the collision scheduler without the overlapping cells!
+	    dynamic_cast<GNeighbourList&>(*ptr).setCellOverlap(true);
+      }
+    else
+      dout << "No cellular device to fix" << std::endl;
 
-  // The length scale is rescaled as the particles have grown. We want
-  // that if a particle had a radius of 1 before the compression, it
-  // will have a radius of 1 after the compression (but the simulation
-  // volume will be less).
-  Sim->dynamics.units().rescaleLength(rescale_factor);
-  // The time scale is also rescaled, so that the energy and velocity
-  // scales are unchanged.
-  Sim->dynamics.units().rescaleTime(rescale_factor);
-  Sim->_properties.rescaleUnit(Property::Units::L, rescale_factor);
-  Sim->_properties.rescaleUnit(Property::Units::T, rescale_factor);
+    double rescale_factor = 1.0 + Sim->dSysTime * growthRate / Sim->dynamics.units().unitTime();
 
-  Sim->dynamics.setLiouvillean(oldLio->Clone());
+    // The length scale is rescaled as the particles have grown. We want
+    // that if a particle had a radius of 1 before the compression, it
+    // will have a radius of 1 after the compression (but the simulation
+    // volume will be less).
+    Sim->dynamics.units().rescaleLength(rescale_factor);
+    // The time scale is also rescaled, so that the energy and velocity
+    // scales are unchanged.
+    Sim->dynamics.units().rescaleTime(rescale_factor);
+    Sim->_properties.rescaleUnit(Property::Units::L, rescale_factor);
+    Sim->_properties.rescaleUnit(Property::Units::T, rescale_factor);
+
+    Sim->dynamics.setLiouvillean(oldLio->Clone());
   
-  Sim->ssHistory << "\nCompression dynamics run"
-		 << "\nEnd packing fraction" 
-		 << Sim->dynamics.getPackingFraction();
-}
+    Sim->ssHistory << "\nCompression dynamics run"
+		   << "\nEnd packing fraction" 
+		   << Sim->dynamics.getPackingFraction();
+  }
 
-void
-CIPCompression::CellSchedulerHack()
-{
-  for (size_t i(0); i < Sim->dynamics.getGlobals().size(); ++i)
-    {      
-      if (dynamic_cast<const GNeighbourList*>(Sim->dynamics.getGlobals()[i].get_ptr()) != NULL)
-	{
-	  //Rebulid the collision scheduler without the overlapping
-	  //cells, otherwise cells are always rebuilt as they overlap
-	  //such that the maximum supported interaction distance is
-	  //equal to the current maximum interaction distance.
-	  static_cast<GNeighbourList&>(*Sim->dynamics.getGlobals()[i]).setCellOverlap(false);
+  void
+  CIPCompression::CellSchedulerHack()
+  {
+    for (size_t i(0); i < Sim->dynamics.getGlobals().size(); ++i)
+      {      
+	if (dynamic_cast<const GNeighbourList*>(Sim->dynamics.getGlobals()[i].get_ptr()) != NULL)
+	  {
+	    //Rebulid the collision scheduler without the overlapping
+	    //cells, otherwise cells are always rebuilt as they overlap
+	    //such that the maximum supported interaction distance is
+	    //equal to the current maximum interaction distance.
+	    static_cast<GNeighbourList&>(*Sim->dynamics.getGlobals()[i]).setCellOverlap(false);
 	  
-	  //Add the system watcher
-	  Sim->dynamics.addSystem
-	    (new CSNBListCompressionFix(Sim, growthRate 
-					/ Sim->dynamics.units().unitTime(),
-					i));
-	}
-    }
-}
+	    //Add the system watcher
+	    Sim->dynamics.addSystem
+	      (new CSNBListCompressionFix(Sim, growthRate 
+					  / Sim->dynamics.units().unitTime(),
+					  i));
+	  }
+      }
+  }
 
-void 
-CIPCompression::limitPackingFraction(double targetp)
-{
-  dout << "Limiting maximum packing fraction to " << targetp << std::endl;
+  void 
+  CIPCompression::limitPackingFraction(double targetp)
+  {
+    dout << "Limiting maximum packing fraction to " << targetp << std::endl;
   
-  double packfrac = Sim->dynamics.getPackingFraction();
+    double packfrac = Sim->dynamics.getPackingFraction();
   
-  if (targetp < packfrac)
-    M_throw() << "Target packing fraction is lower than current!";
+    if (targetp < packfrac)
+      M_throw() << "Target packing fraction is lower than current!";
   
-  Sim->dynamics.addSystem(new CStHalt(Sim, (pow(targetp / packfrac, 1.0/3.0) 
-					    - 1.0) / growthRate, 
-				      "CompresionLimiter"));
-}
+    Sim->dynamics.addSystem(new CStHalt(Sim, (pow(targetp / packfrac, 1.0/3.0) 
+					      - 1.0) / growthRate, 
+					"CompresionLimiter"));
+  }
 
-void 
-CIPCompression::limitDensity(double targetrho)
-{
-  dout << "Limiting maximum density to " << targetrho << std::endl;
+  void 
+  CIPCompression::limitDensity(double targetrho)
+  {
+    dout << "Limiting maximum density to " << targetrho << std::endl;
   
-  double molVol = (Sim->dynamics.getPackingFraction() * Sim->dynamics.getSimVolume())
-    / (Sim->N * Sim->dynamics.units().unitVolume());
+    double molVol = (Sim->dynamics.getPackingFraction() * Sim->dynamics.getSimVolume())
+      / (Sim->N * Sim->dynamics.units().unitVolume());
 
-  dout << "Corresponding packing fraction for that density is "
-	   << molVol * targetrho << std::endl;
-  limitPackingFraction(molVol * targetrho);
+    dout << "Corresponding packing fraction for that density is "
+	 << molVol * targetrho << std::endl;
+    limitPackingFraction(molVol * targetrho);
+  }
 }

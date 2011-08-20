@@ -17,64 +17,65 @@
 
 #pragma once
 
-#include "local.hpp"
-#include "../coilRenderObj.hpp"
+#include <dynamo/dynamics/locals/local.hpp>
+#include <dynamo/dynamics/coilRenderObj.hpp>
 #ifdef DYNAMO_visualizer
 # include <coil/RenderObj/Function.hpp>
 #endif 
 
+namespace dynamo {
+  class CLOscillatingPlate: public Local, public CoilRenderObj
+  {
+  public:
+    CLOscillatingPlate(const magnet::xml::Node&, dynamo::SimData*);
+    CLOscillatingPlate(dynamo::SimData*, Vector, Vector, double, 
+		       double, double, double, double, std::string, CRange*, 
+		       double timeshift = 0, bool nstrongPlate = false);
 
-class CLOscillatingPlate: public Local, public CoilRenderObj
-{
-public:
-  CLOscillatingPlate(const magnet::xml::Node&, dynamo::SimData*);
-  CLOscillatingPlate(dynamo::SimData*, Vector, Vector, double, 
-		     double, double, double, double, std::string, CRange*, 
-		     double timeshift = 0, bool nstrongPlate = false);
+    virtual ~CLOscillatingPlate() {}
 
-  virtual ~CLOscillatingPlate() {}
+    virtual Local* Clone() const { return new CLOscillatingPlate(*this); };
 
-  virtual Local* Clone() const { return new CLOscillatingPlate(*this); };
+    virtual LocalEvent getEvent(const Particle&) const;
 
-  virtual LocalEvent getEvent(const Particle&) const;
-
-  virtual void runEvent(const Particle&, const LocalEvent&) const;
+    virtual void runEvent(const Particle&, const LocalEvent&) const;
   
-  virtual bool isInCell(const Vector &, const Vector &) const;
+    virtual bool isInCell(const Vector &, const Vector &) const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-  Vector getPosition() const;
+    Vector getPosition() const;
 
-  Vector getVelocity() const;
+    Vector getVelocity() const;
 
-  double getPlateEnergy() const;
+    double getPlateEnergy() const;
 
-  const Vector& getCentre() const { return rw0; }
+    const Vector& getCentre() const { return rw0; }
 
 #ifdef DYNAMO_visualizer
-  virtual std::tr1::shared_ptr<coil::RenderObj> getCoilRenderObj() const;
-  virtual void updateRenderData() const;
+    virtual std::tr1::shared_ptr<coil::RenderObj> getCoilRenderObj() const;
+    virtual void updateRenderData() const;
 #endif
 
-protected:
+  protected:
 #ifdef DYNAMO_visualizer
-  mutable std::tr1::shared_ptr<coil::RFunction> _renderObj;
+    mutable std::tr1::shared_ptr<coil::RFunction> _renderObj;
 #endif
 
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  bool strongPlate;
-  Vector rw0;
-  Vector nhat;
-  double omega0;
-  double sigma;
-  double e;
-  mutable double delta;
-  double mass;
-  mutable double timeshift;
-  mutable size_t lastID;
-  mutable long double lastdSysTime;
-};
+    bool strongPlate;
+    Vector rw0;
+    Vector nhat;
+    double omega0;
+    double sigma;
+    double e;
+    mutable double delta;
+    double mass;
+    mutable double timeshift;
+    mutable size_t lastID;
+    mutable long double lastdSysTime;
+  };
+}

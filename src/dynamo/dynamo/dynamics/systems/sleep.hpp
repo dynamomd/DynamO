@@ -18,40 +18,42 @@
 
 #pragma once
 
-#include "system.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../ranges/1range.hpp"
+#include <dynamo/dynamics/systems/system.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/ranges/1range.hpp>
 #include <magnet/cloneptr.hpp>
 #include <map>
 
-class SSleep: public System
-{
-public:
-  SSleep(const magnet::xml::Node& XML, dynamo::SimData*);
+namespace dynamo {
+  class SSleep: public System
+  {
+  public:
+    SSleep(const magnet::xml::Node& XML, dynamo::SimData*);
 
-  SSleep(dynamo::SimData*, std::string, CRange*, double);
+    SSleep(dynamo::SimData*, std::string, CRange*, double);
   
-  virtual void runEvent() const;
+    virtual void runEvent() const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  void particlesUpdated(const NEventData&);
+    void particlesUpdated(const NEventData&);
 
-  void recalculateTime();
+    void recalculateTime();
 
-  bool sleepCondition(const Particle& part, const Vector& g, const Vector& vel = Vector(0,0,0));
+    bool sleepCondition(const Particle& part, const Vector& g, const Vector& vel = Vector(0,0,0));
 
-  magnet::ClonePtr<CRange> _range;
-  double _sleepDistance;
-  double _sleepTime;
-  double _sleepVelocity;
+    magnet::ClonePtr<CRange> _range;
+    double _sleepDistance;
+    double _sleepTime;
+    double _sleepVelocity;
 
-  mutable std::map<size_t, Vector> stateChange;
+    mutable std::map<size_t, Vector> stateChange;
 
-  std::vector<std::pair<Vector, long double> > _lastData;
-};
+    std::vector<std::pair<Vector, long double> > _lastData;
+  };
+}

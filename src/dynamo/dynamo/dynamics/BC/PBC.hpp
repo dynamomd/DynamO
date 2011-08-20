@@ -16,69 +16,71 @@
 */
 
 #pragma once
-#include "BC.hpp"
+#include <dynamo/dynamics/BC/BC.hpp>
 
-/*! \brief A simple rectangular periodic boundary condition.
- * 
- * See the BoundaryCondition base class for member descriptions.
- */
-class BCPeriodic: public BoundaryCondition
-{
-public:
-  BCPeriodic(const dynamo::SimData*);
+namespace dynamo {
+  /*! \brief A simple rectangular periodic boundary condition.
+   * 
+   * See the BoundaryCondition base class for member descriptions.
+   */
+  class BCPeriodic: public BoundaryCondition
+  {
+  public:
+    BCPeriodic(const dynamo::SimData*);
 
-  virtual void applyBC(Vector &) const;
+    virtual void applyBC(Vector &) const;
   
-  virtual void applyBC(Vector &, Vector &) const;
+    virtual void applyBC(Vector &, Vector &) const;
 
-  virtual void applyBC(Vector &, const double&) const;
+    virtual void applyBC(Vector &, const double&) const;
 
-  virtual void outputXML(magnet::xml::XmlStream&) const;
-  virtual void operator<<(const magnet::xml::Node&);
-  virtual BoundaryCondition* Clone () const;
-};
+    virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void operator<<(const magnet::xml::Node&);
+    virtual BoundaryCondition* Clone () const;
+  };
 
-/*! \brief This class ignores the x direction but is periodic in others.
- *
- * Used to check that a system bounded by walls in the x direction has
- * no leaks as these are not rounded and would show up in animations
- * or inspections.
- */
-class BCPeriodicExceptX: public BoundaryCondition
-{
-public:
-  BCPeriodicExceptX(const dynamo::SimData*);
+  /*! \brief This class ignores the x direction but is periodic in others.
+   *
+   * Used to check that a system bounded by walls in the x direction has
+   * no leaks as these are not rounded and would show up in animations
+   * or inspections.
+   */
+  class BCPeriodicExceptX: public BoundaryCondition
+  {
+  public:
+    BCPeriodicExceptX(const dynamo::SimData*);
 
-  virtual void applyBC(Vector& pos) const;
+    virtual void applyBC(Vector& pos) const;
   
-  virtual void applyBC(Vector& pos, Vector&) const;
+    virtual void applyBC(Vector& pos, Vector&) const;
   
-  virtual void applyBC(Vector& pos, const double&) const;
+    virtual void applyBC(Vector& pos, const double&) const;
 
-  virtual void outputXML(magnet::xml::XmlStream&) const;
-  virtual void operator<<(const magnet::xml::Node&);
-  virtual BoundaryCondition* Clone () const;
-};
+    virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void operator<<(const magnet::xml::Node&);
+    virtual BoundaryCondition* Clone () const;
+  };
 
-/*! \brief This class ignores all directions but is periodic in
+  /*! \brief This class ignores all directions but is periodic in
     the x.
- *
- * Used to check that a system bounded by walls in the x direction has
- * no leaks as these are not rounded and would show up in animations
- * or inspections.
- */
-class BCPeriodicXOnly: public BoundaryCondition
-{
-public:
-  BCPeriodicXOnly(const dynamo::SimData*);
+    *
+    * Used to check that a system bounded by walls in the x direction has
+    * no leaks as these are not rounded and would show up in animations
+    * or inspections.
+    */
+  class BCPeriodicXOnly: public BoundaryCondition
+  {
+  public:
+    BCPeriodicXOnly(const dynamo::SimData*);
 
-  virtual void applyBC(Vector& pos) const;
+    virtual void applyBC(Vector& pos) const;
   
-  virtual void applyBC(Vector& pos, Vector&) const;
+    virtual void applyBC(Vector& pos, Vector&) const;
   
-  virtual void applyBC(Vector& pos, const double&) const;
+    virtual void applyBC(Vector& pos, const double&) const;
 
-  virtual void outputXML(magnet::xml::XmlStream&) const;
-  virtual void operator<<(const magnet::xml::Node&);
-  virtual BoundaryCondition* Clone () const;
-};
+    virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void operator<<(const magnet::xml::Node&);
+    virtual BoundaryCondition* Clone () const;
+  };
+}

@@ -25,6 +25,8 @@
 **** TODO Make coil scale independent.
 **** TODO Make compression work with polydisperse walls.
 **** TODO Expose the get neighborhood functions in the scheduler for patrics work.
+**** TODO Move the dynamo overlap functions into magnet.
+**** TODO Move the histogram class into magnet.
 *** DynamO 1.2
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
 **** DONE *BUGFIX* Fixed the widespread improper use of the XML test functions, causing errors instead of warnings.

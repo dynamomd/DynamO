@@ -16,38 +16,40 @@
 */
 
 #pragma once
-#include "system.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../ranges/1range.hpp"
+#include <dynamo/dynamics/systems/system.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/ranges/1range.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <magnet/cloneptr.hpp>
 
-class CSUmbrella: public System
-{
-public:
-  CSUmbrella(const magnet::xml::Node& XML, dynamo::SimData*);
+namespace dynamo {
+  class CSUmbrella: public System
+  {
+  public:
+    CSUmbrella(const magnet::xml::Node& XML, dynamo::SimData*);
 
-  CSUmbrella(dynamo::SimData*, double, double, double, std::string, CRange*, CRange*);
+    CSUmbrella(dynamo::SimData*, double, double, double, std::string, CRange*, CRange*);
   
-  virtual void runEvent() const;
+    virtual void runEvent() const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  void particlesUpdated(const NEventData&);
+    void particlesUpdated(const NEventData&);
 
-  void recalculateTime();
+    void recalculateTime();
 
-  double a,b,delU;
-  int ulevelcenter;
-  mutable int ulevel;
-  bool ulevelset;
+    double a,b,delU;
+    int ulevelcenter;
+    mutable int ulevel;
+    bool ulevelset;
 
-  magnet::ClonePtr<CRange> range1;
-  magnet::ClonePtr<CRange> range2;
-};
+    magnet::ClonePtr<CRange> range1;
+    magnet::ClonePtr<CRange> range2;
+  };
+}

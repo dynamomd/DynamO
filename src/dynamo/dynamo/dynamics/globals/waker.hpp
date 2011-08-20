@@ -18,42 +18,43 @@
 
 #pragma once
 
-#include "global.hpp"
+#include <dynamo/dynamics/globals/global.hpp>
 #include <vector>
 #include <map>
 
-class GWaker: public Global
-{
-public:
-  GWaker(const magnet::xml::Node&, dynamo::SimData*);
+namespace dynamo {
+  class GWaker: public Global
+  {
+  public:
+    GWaker(const magnet::xml::Node&, dynamo::SimData*);
 
-  GWaker(dynamo::SimData*, const std::string&, CRange*, const double, const double,
-	 std::string nblist);
+    GWaker(dynamo::SimData*, const std::string&, CRange*, const double, const double,
+	   std::string nblist);
   
-  virtual ~GWaker() {}
+    virtual ~GWaker() {}
 
-  virtual Global* Clone() const { return new GWaker(*this); };
+    virtual Global* Clone() const { return new GWaker(*this); };
 
-  virtual GlobalEvent getEvent(const Particle &) const;
+    virtual GlobalEvent getEvent(const Particle &) const;
 
-  virtual void runEvent(const Particle&, const double) const;
+    virtual void runEvent(const Particle&, const double) const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-protected:
-  void particlesUpdated(const NEventData&);
+  protected:
+    void particlesUpdated(const NEventData&);
 
-  void nblistCallback(const Particle& part, const size_t& oid) const;
+    void nblistCallback(const Particle& part, const size_t& oid) const;
 
-  mutable size_t _neighbors;
+    mutable size_t _neighbors;
 
-  virtual void outputXML(magnet::xml::XmlStream&) const;
-  double _wakeTime;
-  double _wakeVelocity;
+    virtual void outputXML(magnet::xml::XmlStream&) const;
+    double _wakeTime;
+    double _wakeVelocity;
 
-  std::string _nblistName;
-  size_t _NBListID;  
-};
-
+    std::string _nblistName;
+    size_t _NBListID;  
+  };
+}

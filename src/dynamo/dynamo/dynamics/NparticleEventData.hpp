@@ -17,19 +17,21 @@
 
 #pragma once
 
-#include "2particleEventData.hpp"
+#include <dynamo/dynamics/2particleEventData.hpp>
 #include <list>
 
-class NEventData
-{
-public:
-  NEventData() {};
-  NEventData(const ParticleEventData& a) { L1partChanges.push_back(a); }
-  NEventData(const PairEventData& a) { L2partChanges.push_back(a); }
+namespace dynamo {
+  class NEventData
+  {
+  public:
+    NEventData() {};
+    NEventData(const ParticleEventData& a) { L1partChanges.push_back(a); }
+    NEventData(const PairEventData& a) { L2partChanges.push_back(a); }
 
-  NEventData&  operator+=(const ParticleEventData& p) { L1partChanges.push_back(p); return *this; }
-  NEventData&  operator+=(const PairEventData& p) { L2partChanges.push_back(p); return *this; }
+    NEventData&  operator+=(const ParticleEventData& p) { L1partChanges.push_back(p); return *this; }
+    NEventData&  operator+=(const PairEventData& p) { L2partChanges.push_back(p); return *this; }
 
-  std::list<ParticleEventData> L1partChanges;
-  std::list<PairEventData> L2partChanges;
-};
+    std::list<ParticleEventData> L1partChanges;
+    std::list<PairEventData> L2partChanges;
+  };
+}

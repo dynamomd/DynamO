@@ -17,60 +17,62 @@
 
 #pragma once
 
-#include "captures.hpp"
-#include "representations/spherical.hpp"
-#include "../../base/is_simdata.hpp"
+#include <dynamo/dynamics/interactions/captures.hpp>
+#include <dynamo/dynamics/interactions/representations/spherical.hpp>
+#include <dynamo/base/is_simdata.hpp>
 
-class ISquareWell: public ISingleCapture, public Interaction, public SphericalRepresentation
-{
-public:
-  template<class T1, class T2, class T3, class T4>
-  ISquareWell(dynamo::SimData* tmp, T1 d, T2 l, 
-	      T3 wd, T4 e, C2Range* nR):
-    Interaction(tmp,nR),
-    _diameter(Sim->_properties.getProperty
-	      (d, Property::Units::Length())),
-    _lambda(Sim->_properties.getProperty
-	    (l, Property::Units::Dimensionless())),
-    _wellDepth(Sim->_properties.getProperty
-	       (wd, Property::Units::Energy())),
-    _e(Sim->_properties.getProperty
-       (e, Property::Units::Dimensionless()))
-  {}
+namespace dynamo {
+  class ISquareWell: public ISingleCapture, public Interaction, public SphericalRepresentation
+  {
+  public:
+    template<class T1, class T2, class T3, class T4>
+    ISquareWell(dynamo::SimData* tmp, T1 d, T2 l, 
+		T3 wd, T4 e, C2Range* nR):
+      Interaction(tmp,nR),
+      _diameter(Sim->_properties.getProperty
+		(d, Property::Units::Length())),
+      _lambda(Sim->_properties.getProperty
+	      (l, Property::Units::Dimensionless())),
+      _wellDepth(Sim->_properties.getProperty
+		 (wd, Property::Units::Energy())),
+      _e(Sim->_properties.getProperty
+	 (e, Property::Units::Dimensionless()))
+    {}
 
-  ISquareWell(const magnet::xml::Node&, dynamo::SimData*);
+    ISquareWell(const magnet::xml::Node&, dynamo::SimData*);
   
-  void operator<<(const magnet::xml::Node&);
+    void operator<<(const magnet::xml::Node&);
 
-  virtual Interaction* Clone() const;
+    virtual Interaction* Clone() const;
 
-  virtual size_t spheresPerParticle() const { return 1; }
-  virtual double getDiameter(size_t ID, size_t subID) const;
-  virtual Vector getPosition(size_t ID, size_t subID) const;
+    virtual size_t spheresPerParticle() const { return 1; }
+    virtual double getDiameter(size_t ID, size_t subID) const;
+    virtual Vector getPosition(size_t ID, size_t subID) const;
 
-  virtual double getExcludedVolume(size_t) const;
+    virtual double getExcludedVolume(size_t) const;
 
-  virtual double maxIntDist() const;
+    virtual double maxIntDist() const;
 
-  virtual void checkOverlaps(const Particle&, const Particle&) const;
+    virtual void checkOverlaps(const Particle&, const Particle&) const;
 
-  virtual bool captureTest(const Particle&, const Particle&) const;
+    virtual bool captureTest(const Particle&, const Particle&) const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual IntEvent getEvent(const Particle&, const Particle&) const;
+    virtual IntEvent getEvent(const Particle&, const Particle&) const;
   
-  virtual void runEvent(const Particle&, const Particle&, const IntEvent&) const;
+    virtual void runEvent(const Particle&, const Particle&, const IntEvent&) const;
   
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  virtual double getInternalEnergy() const;
+    virtual double getInternalEnergy() const;
 
-  virtual double getInternalEnergy(const Particle&, const Particle&) const;
+    virtual double getInternalEnergy(const Particle&, const Particle&) const;
 
-protected:
-  std::tr1::shared_ptr<Property> _diameter;
-  std::tr1::shared_ptr<Property> _lambda;
-  std::tr1::shared_ptr<Property> _wellDepth;
-  std::tr1::shared_ptr<Property> _e;
-};
+  protected:
+    std::tr1::shared_ptr<Property> _diameter;
+    std::tr1::shared_ptr<Property> _lambda;
+    std::tr1::shared_ptr<Property> _wellDepth;
+    std::tr1::shared_ptr<Property> _e;
+  };
+}

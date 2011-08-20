@@ -17,54 +17,56 @@
 #pragma once
 
 #include <dynamo/base.hpp>
-#include "../ranges/1range.hpp"
+#include <dynamo/dynamics/ranges/1range.hpp>
 #include <magnet/cloneptr.hpp>
 #include <string>
 #include <list>
 
 namespace magnet { namespace xml { class Node; } }
 namespace xml { class XmlStream; }
-class Particle;
-class Interaction;
+namespace dynamo {
+  class Particle;
+  class Interaction;
 
-class Topology: public dynamo::SimBase_const
-{
-public:  
-  virtual ~Topology() {}
+  class Topology: public dynamo::SimBase_const
+  {
+  public:  
+    virtual ~Topology() {}
 
-  bool isInStructure(const Particle &) const;
+    bool isInStructure(const Particle &) const;
   
-  const size_t& getID() const { return ID; }
+    const size_t& getID() const { return ID; }
   
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-  virtual void initialise() {}
+    virtual void initialise() {}
 
-  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Topology&);
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Topology&);
   
-  const std::string& getName() const
-  { return spName; }
+    const std::string& getName() const
+    { return spName; }
   
-  static Topology* getClass(const magnet::xml::Node& ,dynamo::SimData*, size_t);
+    static Topology* getClass(const magnet::xml::Node& ,dynamo::SimData*, size_t);
 
-  virtual Topology* Clone() const = 0; //{ return new CTopology(this); }
+    virtual Topology* Clone() const = 0; //{ return new CTopology(this); }
 
-  inline void addMolecule(CRange* ptr)
-  { ranges.push_back(magnet::ClonePtr<CRange>(ptr)); }
+    inline void addMolecule(CRange* ptr)
+    { ranges.push_back(magnet::ClonePtr<CRange>(ptr)); }
 
-  inline const std::list<magnet::ClonePtr<CRange> >& getMolecules() const
-  { return ranges; }
+    inline const std::list<magnet::ClonePtr<CRange> >& getMolecules() const
+    { return ranges; }
 
-  inline size_t getMoleculeCount() const { return ranges.size(); }
+    inline size_t getMoleculeCount() const { return ranges.size(); }
 
-protected:
-  Topology(dynamo::SimData*, size_t ID);
+  protected:
+    Topology(dynamo::SimData*, size_t ID);
 
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void outputXML(magnet::xml::XmlStream&) const;
   
-  std::list<magnet::ClonePtr<CRange> > ranges;
+    std::list<magnet::ClonePtr<CRange> > ranges;
   
-  std::string spName;
+    std::string spName;
   
-  size_t ID;
-};
+    size_t ID;
+  };
+}

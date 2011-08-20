@@ -17,46 +17,48 @@
 
 #pragma once
 
-#include "captures.hpp"
-#include "../../base/is_simdata.hpp"
+#include <dynamo/dynamics/interactions/captures.hpp>
+#include <dynamo/base/is_simdata.hpp>
 
-class ILines: public ISingleCapture, public Interaction
-{
-public:
-  template<class T1, class T2>
-  ILines(dynamo::SimData* tmp, T1 l, T2 e, C2Range* nR):
-    Interaction(tmp, nR),
-    _length(Sim->_properties.getProperty
-	    (l, Property::Units::Length())),
-    _e(Sim->_properties.getProperty
-       (e, Property::Units::Dimensionless()))
-  {}
+namespace magnet {
+  class ILines: public ISingleCapture, public Interaction
+  {
+  public:
+    template<class T1, class T2>
+    ILines(dynamo::SimData* tmp, T1 l, T2 e, C2Range* nR):
+      Interaction(tmp, nR),
+      _length(Sim->_properties.getProperty
+	      (l, Property::Units::Length())),
+      _e(Sim->_properties.getProperty
+	 (e, Property::Units::Dimensionless()))
+    {}
 
-  ILines(const magnet::xml::Node&, dynamo::SimData*);
+    ILines(const magnet::xml::Node&, dynamo::SimData*);
 
-  void operator<<(const magnet::xml::Node&);
+    void operator<<(const magnet::xml::Node&);
 
-  virtual double getInternalEnergy() const { return 0; }
+    virtual double getInternalEnergy() const { return 0; }
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual double maxIntDist() const;
+    virtual double maxIntDist() const;
 
-  virtual double getExcludedVolume(size_t) const { return 0; }
+    virtual double getExcludedVolume(size_t) const { return 0; }
 
-  virtual Interaction* Clone() const;
+    virtual Interaction* Clone() const;
   
-  virtual IntEvent getEvent(const Particle&, const Particle&) const;
+    virtual IntEvent getEvent(const Particle&, const Particle&) const;
  
-  virtual void runEvent(const Particle&, const Particle&, const IntEvent&) const;
+    virtual void runEvent(const Particle&, const Particle&, const IntEvent&) const;
    
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  virtual void checkOverlaps(const Particle&, const Particle&) const {}
+    virtual void checkOverlaps(const Particle&, const Particle&) const {}
  
-  virtual bool captureTest(const Particle&, const Particle&) const;
+    virtual bool captureTest(const Particle&, const Particle&) const;
 
-protected:
-  std::tr1::shared_ptr<Property> _length;
-  std::tr1::shared_ptr<Property> _e;
-};
+  protected:
+    std::tr1::shared_ptr<Property> _length;
+    std::tr1::shared_ptr<Property> _e;
+  };
+}

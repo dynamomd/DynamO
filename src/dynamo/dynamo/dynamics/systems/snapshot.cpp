@@ -15,98 +15,100 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "snapshot.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../NparticleEventData.hpp"
-#include "../liouvillean/liouvillean.hpp"
-#include "../../outputplugins/tickerproperty/ticker.hpp"
-#include "../units/units.hpp"
-#include "../../schedulers/scheduler.hpp"
+#include <dynamo/dynamics/systems/snapshot.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/NparticleEventData.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
 #include <magnet/string/searchreplace.hpp>
 
 #ifdef DYNAMO_DEBUG 
 #include <boost/math/special_functions/fpclassify.hpp>
 #endif
 
-SSnapshot::SSnapshot(dynamo::SimData* nSim, double nPeriod, std::string nName):
-  System(nSim),
-  _applyBC(false),
-  _saveCounter(0)
+namespace dynamo {
+  SSnapshot::SSnapshot(dynamo::SimData* nSim, double nPeriod, std::string nName):
+    System(nSim),
+    _applyBC(false),
+    _saveCounter(0)
 
-{
-  if (nPeriod <= 0.0)
-    nPeriod = 1.0;
+  {
+    if (nPeriod <= 0.0)
+      nPeriod = 1.0;
 
-  nPeriod *= Sim->dynamics.units().unitTime();
+    nPeriod *= Sim->dynamics.units().unitTime();
 
-  dt = nPeriod;
-  _period = nPeriod;
+    dt = nPeriod;
+    _period = nPeriod;
 
-  sysName = nName;
+    sysName = nName;
 
-  dout << "Snapshot set for a peroid of " 
-	   << _period / Sim->dynamics.units().unitTime() << std::endl;
-}
+    dout << "Snapshot set for a peroid of " 
+	 << _period / Sim->dynamics.units().unitTime() << std::endl;
+  }
 
-void
-SSnapshot::runEvent() const
-{
-  double locdt = dt;
+  void
+  SSnapshot::runEvent() const
+  {
+    double locdt = dt;
   
 #ifdef DYNAMO_DEBUG 
-  if (boost::math::isnan(dt))
-    M_throw() << "A NAN system event time has been found";
+    if (boost::math::isnan(dt))
+      M_throw() << "A NAN system event time has been found";
 #endif
     
 
-  Sim->dSysTime += locdt;
+    Sim->dSysTime += locdt;
 
-  Sim->ptrScheduler->stream(locdt);
+    Sim->ptrScheduler->stream(locdt);
   
-  //dynamics must be updated first
-  Sim->dynamics.stream(locdt);
+    //dynamics must be updated first
+    Sim->dynamics.stream(locdt);
   
-  dt += _period;
+    dt += _period;
   
-  locdt += Sim->freestreamAcc;
-  Sim->freestreamAcc = 0;
+    locdt += Sim->freestreamAcc;
+    Sim->freestreamAcc = 0;
 
-  //This is done here as most ticker properties require it
-  Sim->dynamics.getLiouvillean().updateAllParticles();
+    //This is done here as most ticker properties require it
+    Sim->dynamics.getLiouvillean().updateAllParticles();
 
-  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(*this, NEventData(), locdt);
+    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+      Ptr->eventUpdate(*this, NEventData(), locdt);
   
-  std::string filename = magnet::string::search_replace("Snapshot.%i.xml.bz2", "%i", boost::lexical_cast<std::string>(_saveCounter++));
-  Sim->writeXMLfile(filename, _applyBC);
-}
+    std::string filename = magnet::string::search_replace("Snapshot.%i.xml.bz2", "%i", boost::lexical_cast<std::string>(_saveCounter++));
+    Sim->writeXMLfile(filename, _applyBC);
+  }
 
-void 
-SSnapshot::initialise(size_t nID)
-{ ID = nID; }
+  void 
+  SSnapshot::initialise(size_t nID)
+  { ID = nID; }
 
-void 
-SSnapshot::setdt(double ndt)
-{ 
-  dt = ndt * Sim->dynamics.units().unitTime(); 
-}
+  void 
+  SSnapshot::setdt(double ndt)
+  { 
+    dt = ndt * Sim->dynamics.units().unitTime(); 
+  }
 
-void 
-SSnapshot::increasedt(double ndt)
-{ 
-  dt += ndt * Sim->dynamics.units().unitTime(); 
-}
+  void 
+  SSnapshot::increasedt(double ndt)
+  { 
+    dt += ndt * Sim->dynamics.units().unitTime(); 
+  }
 
-void 
-SSnapshot::setTickerPeriod(const double& nP)
-{ 
-  dout << "Setting system ticker period to " 
-	   << nP / Sim->dynamics.units().unitTime() << std::endl;
+  void 
+  SSnapshot::setTickerPeriod(const double& nP)
+  { 
+    dout << "Setting system ticker period to " 
+	 << nP / Sim->dynamics.units().unitTime() << std::endl;
 
-  _period = nP; 
+    _period = nP; 
 
-  dt = nP;
+    dt = nP;
 
-  if ((Sim->status >= INITIALISED) && Sim->endEventCount)
-    Sim->ptrScheduler->rebuildSystemEvents();
+    if ((Sim->status >= INITIALISED) && Sim->endEventCount)
+      Sim->ptrScheduler->rebuildSystemEvents();
+  }
 }

@@ -26,53 +26,55 @@
 # include <coil/RenderObj/TriangleMesh.hpp>
 #endif
 
-class LTriangleMesh: public Local, public CoilRenderObj
-{
-public:
-  LTriangleMesh(const magnet::xml::Node&, dynamo::SimData*);
+namespace dynamo {
+  class LTriangleMesh: public Local, public CoilRenderObj
+  {
+  public:
+    LTriangleMesh(const magnet::xml::Node&, dynamo::SimData*);
 
-  template<class T1, class T2>
-  LTriangleMesh(dynamo::SimData* nSim, T1 e, T2 d, std::string name, CRange* nRange):
-    Local(nRange, nSim, "LocalWall"),
-    _e(Sim->_properties.getProperty
-       (e, Property::Units::Dimensionless())),
-    _diameter(Sim->_properties.getProperty
-	      (d, Property::Units::Length()))
-  { localName = name; }
+    template<class T1, class T2>
+    LTriangleMesh(dynamo::SimData* nSim, T1 e, T2 d, std::string name, CRange* nRange):
+      Local(nRange, nSim, "LocalWall"),
+      _e(Sim->_properties.getProperty
+	 (e, Property::Units::Dimensionless())),
+      _diameter(Sim->_properties.getProperty
+		(d, Property::Units::Length()))
+    { localName = name; }
 
-  virtual ~LTriangleMesh() {}
+    virtual ~LTriangleMesh() {}
 
-  virtual Local* Clone() const { return new LTriangleMesh(*this); };
+    virtual Local* Clone() const { return new LTriangleMesh(*this); };
 
-  virtual LocalEvent getEvent(const Particle&) const;
+    virtual LocalEvent getEvent(const Particle&) const;
 
-  virtual void runEvent(const Particle&, const LocalEvent&) const;
+    virtual void runEvent(const Particle&, const LocalEvent&) const;
   
-  virtual bool isInCell(const Vector &, const Vector &) const;
+    virtual bool isInCell(const Vector &, const Vector &) const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-  virtual void checkOverlaps(const Particle&) const;
+    virtual void checkOverlaps(const Particle&) const;
 
 #ifdef DYNAMO_visualizer
-  virtual std::tr1::shared_ptr<coil::RenderObj> getCoilRenderObj() const;
-  virtual void updateRenderData() const {}
+    virtual std::tr1::shared_ptr<coil::RenderObj> getCoilRenderObj() const;
+    virtual void updateRenderData() const {}
 #endif
 
-protected:
+  protected:
 #ifdef DYNAMO_visualizer
-  mutable std::tr1::shared_ptr<coil::RTriangleMesh> _renderObj;
+    mutable std::tr1::shared_ptr<coil::RTriangleMesh> _renderObj;
 #endif
 
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  std::vector<Vector> _vertices;
+    std::vector<Vector> _vertices;
 
-  typedef boost::tuples::tuple<size_t, size_t, size_t> TriangleElements;
-  std::vector<TriangleElements> _elements;
+    typedef boost::tuples::tuple<size_t, size_t, size_t> TriangleElements;
+    std::vector<TriangleElements> _elements;
 
-  std::tr1::shared_ptr<Property> _e;
-  std::tr1::shared_ptr<Property> _diameter;
-};
+    std::tr1::shared_ptr<Property> _e;
+    std::tr1::shared_ptr<Property> _diameter;
+  };
+}

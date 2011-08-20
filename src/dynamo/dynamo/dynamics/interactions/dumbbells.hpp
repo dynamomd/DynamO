@@ -17,59 +17,61 @@
 
 #pragma once
 
-#include "captures.hpp"
-#include "interaction.hpp"
-#include "../../base/is_simdata.hpp"
-#include "representations/spherical.hpp"
+#include <dynamo/dynamics/interactions/captures.hpp>
+#include <dynamo/dynamics/interactions/interaction.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/interactions/representations/spherical.hpp>
 
-class IDumbbells: public ISingleCapture, public Interaction, public SphericalRepresentation
-{
-public:
-  template<class T1, class T2, class T3>
-  IDumbbells(dynamo::SimData* tmp, T1 l, T2 e, T3 d, C2Range* nR):
-    Interaction(tmp, nR),
-    _length(Sim->_properties.getProperty
-	    (l, Property::Units::Length())),
-    _diameter(Sim->_properties.getProperty
-	      (d, Property::Units::Length())),
-    _e(Sim->_properties.getProperty
-       (e, Property::Units::Dimensionless()))
-  {}
+namespace dynamo {
+  class IDumbbells: public ISingleCapture, public Interaction, public SphericalRepresentation
+  {
+  public:
+    template<class T1, class T2, class T3>
+    IDumbbells(dynamo::SimData* tmp, T1 l, T2 e, T3 d, C2Range* nR):
+      Interaction(tmp, nR),
+      _length(Sim->_properties.getProperty
+	      (l, Property::Units::Length())),
+      _diameter(Sim->_properties.getProperty
+		(d, Property::Units::Length())),
+      _e(Sim->_properties.getProperty
+	 (e, Property::Units::Dimensionless()))
+    {}
 
-  virtual size_t spheresPerParticle() const { return 2; }
-  virtual double getDiameter(size_t ID, size_t subID) const;
-  virtual Vector getPosition(size_t ID, size_t subID) const;
+    virtual size_t spheresPerParticle() const { return 2; }
+    virtual double getDiameter(size_t ID, size_t subID) const;
+    virtual Vector getPosition(size_t ID, size_t subID) const;
 
-  IDumbbells(const magnet::xml::Node&, dynamo::SimData*);
+    IDumbbells(const magnet::xml::Node&, dynamo::SimData*);
 
-  void operator<<(const magnet::xml::Node&);
+    void operator<<(const magnet::xml::Node&);
   
-  double getDiameter() const { return _diameter->getMaxValue(); }
+    double getDiameter() const { return _diameter->getMaxValue(); }
 
-  double getLength() const { return _length->getMaxValue(); }
+    double getLength() const { return _length->getMaxValue(); }
   
-  virtual double getInternalEnergy() const { return 0; }
+    virtual double getInternalEnergy() const { return 0; }
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual double maxIntDist() const;
+    virtual double maxIntDist() const;
 
-  virtual double getExcludedVolume(size_t) const;
+    virtual double getExcludedVolume(size_t) const;
 
-  virtual Interaction* Clone() const;
+    virtual Interaction* Clone() const;
   
-  virtual IntEvent getEvent(const Particle&, const Particle&) const;
+    virtual IntEvent getEvent(const Particle&, const Particle&) const;
  
-  virtual void runEvent(const Particle&, const Particle&, const IntEvent&) const;
+    virtual void runEvent(const Particle&, const Particle&, const IntEvent&) const;
    
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  virtual void checkOverlaps(const Particle&, const Particle&) const;
+    virtual void checkOverlaps(const Particle&, const Particle&) const;
  
-  virtual bool captureTest(const Particle&, const Particle&) const;
+    virtual bool captureTest(const Particle&, const Particle&) const;
 
-protected:
-  std::tr1::shared_ptr<Property> _length;
-  std::tr1::shared_ptr<Property> _diameter;
-  std::tr1::shared_ptr<Property> _e;
-};
+  protected:
+    std::tr1::shared_ptr<Property> _length;
+    std::tr1::shared_ptr<Property> _diameter;
+    std::tr1::shared_ptr<Property> _e;
+  };
+}

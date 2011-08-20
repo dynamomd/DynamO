@@ -17,28 +17,30 @@
 
 #pragma once
 
-#include "inertia.hpp"
+#include <dynamo/dynamics/species/inertia.hpp>
 
-class SpSphericalTop: public SpInertia
-{
-public:
-  SpSphericalTop(dynamo::SimData*, CRange*, double nMass, std::string nName, 
-		 unsigned int ID, double iC, std::string nIName="Bulk");
+namespace dynamo {
+  class SpSphericalTop: public SpInertia
+  {
+  public:
+    SpSphericalTop(dynamo::SimData*, CRange*, double nMass, std::string nName, 
+		   unsigned int ID, double iC, std::string nIName="Bulk");
   
-  SpSphericalTop(const magnet::xml::Node&, dynamo::SimData*, unsigned int ID);
+    SpSphericalTop(const magnet::xml::Node&, dynamo::SimData*, unsigned int ID);
 
-  virtual Species* Clone() const { return new SpSphericalTop(*this); }
+    virtual Species* Clone() const { return new SpSphericalTop(*this); }
 
-  virtual double getScalarMomentOfInertia(size_t ID) const 
-  { return inertiaConstant * getMass(ID); }
+    virtual double getScalarMomentOfInertia(size_t ID) const 
+    { return inertiaConstant * getMass(ID); }
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-protected:
+  protected:
 
-  virtual void outputXML(magnet::xml::XmlStream& XML) const { outputXML(XML, "SphericalTop"); }
+    virtual void outputXML(magnet::xml::XmlStream& XML) const { outputXML(XML, "SphericalTop"); }
 
-  void outputXML(magnet::xml::XmlStream& XML, std::string type) const;
+    void outputXML(magnet::xml::XmlStream& XML, std::string type) const;
   
-  double inertiaConstant;
-};
+    double inertiaConstant;
+  };
+}

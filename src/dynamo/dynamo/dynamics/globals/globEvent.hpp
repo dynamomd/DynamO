@@ -17,70 +17,71 @@
 
 #pragma once
 
+#include <dynamo/dynamics/eventtypes.hpp>
+#include <dynamo/simulation/particle.hpp>
 #include <cfloat>
-#include "../eventtypes.hpp"
-#include "../../simulation/particle.hpp"
 
 struct XMLNode;
 namespace xml
 {
   class XmlStream;
 }
+
 namespace dynamo {
   class SimData;
-}
-class IntEvent;
-class Global;
+  class IntEvent;
+  class Global;
+  
+  class GlobalEvent
+  {
+  public:  
+    GlobalEvent (const Particle&, const double&, 
+		 EEventType, const Global&);
 
-class GlobalEvent
-{
-public:  
-  GlobalEvent (const Particle&, const double&, 
-	      EEventType, const Global&);
-
-  inline bool operator== (const Particle &partx) const 
+    inline bool operator== (const Particle &partx) const 
     { return (*particle_ == partx); }
   
-  bool areInvolved(const IntEvent&) const; 
+    bool areInvolved(const IntEvent&) const; 
   
-  inline void invalidate() 
-  { 
-    dt = DBL_MAX; 
-    CType = NONE; 
-  }
+    inline void invalidate() 
+    { 
+      dt = DBL_MAX; 
+      CType = NONE; 
+    }
 
-  inline bool operator< (const GlobalEvent & C2) const 
-  { return dt < C2.dt;}
+    inline bool operator< (const GlobalEvent & C2) const 
+    { return dt < C2.dt;}
   
-  inline bool operator> (const GlobalEvent & C2) const 
+    inline bool operator> (const GlobalEvent & C2) const 
     { return dt > C2.dt;}
 
-  inline void incrementTime(const double& deltat) {dt -= deltat; }
+    inline void incrementTime(const double& deltat) {dt -= deltat; }
 
-  inline void addTime(const double& deltat) {dt += deltat; }
+    inline void addTime(const double& deltat) {dt += deltat; }
 
-  inline const Particle& getParticle() const { return *particle_; }
+    inline const Particle& getParticle() const { return *particle_; }
 
-  inline const double& getdt() const { return dt; }
-  inline void setdt(double nt) { dt = nt; }
+    inline const double& getdt() const { return dt; }
+    inline void setdt(double nt) { dt = nt; }
 
-  inline EEventType getType() const
+    inline EEventType getType() const
     { return CType; }
 
-  inline void setType(EEventType t) { CType = t; }
+    inline void setType(EEventType t) { CType = t; }
   
-  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const GlobalEvent&);
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const GlobalEvent&);
 
-  std::string stringData(const dynamo::SimData*) const;
+    std::string stringData(const dynamo::SimData*) const;
 
-  const size_t& getGlobalID() const { return globalID; } 
+    const size_t& getGlobalID() const { return globalID; } 
 
-  inline void scaleTime(const double& scale)
-  { dt *= scale; }
+    inline void scaleTime(const double& scale)
+    { dt *= scale; }
 
-protected:
-  const Particle*  particle_;
-  double dt;
-  EEventType CType;
-  size_t globalID;
-};
+  protected:
+    const Particle*  particle_;
+    double dt;
+    EEventType CType;
+    size_t globalID;
+  };
+}

@@ -19,69 +19,71 @@
 #include <dynamo/inputplugins/cells/cell.hpp>
 #include <cmath>
 
-struct CUringSnake: public CUCell
-{
-  CUringSnake(size_t pcl, double WL, CUCell* nextCell):
-    CUCell(nextCell),
-    pairchainlength(pcl),
-    walklength(WL)
+namespace dynamo {
+  struct CUringSnake: public CUCell
   {
-    if (pcl == 0) M_throw() << "Cant have zero chain length";
-  }
+    CUringSnake(size_t pcl, double WL, CUCell* nextCell):
+      CUCell(nextCell),
+      pairchainlength(pcl),
+      walklength(WL)
+    {
+      if (pcl == 0) M_throw() << "Cant have zero chain length";
+    }
 
-  size_t pairchainlength;  
-  double walklength;
+    size_t pairchainlength;  
+    double walklength;
   
-  virtual std::vector<Vector> placeObjects(const Vector & centre)
-  {
-    size_t L = static_cast<size_t>(std::sqrt(static_cast<double>(pairchainlength)));
+    virtual std::vector<Vector> placeObjects(const Vector & centre)
+    {
+      size_t L = static_cast<size_t>(std::sqrt(static_cast<double>(pairchainlength)));
     
-    std::vector<Vector  > localsites;
+      std::vector<Vector  > localsites;
 
-    Vector  x(0,0,0);
+      Vector  x(0,0,0);
 
-    double direction(walklength);
+      double direction(walklength);
     
-    for (size_t i(0); i < pairchainlength;)
-      {
-	if (i % L)
-	  x[0] += direction;
-	else
-	  {
-	    x[1] += walklength;
-	    direction *= -1;
-	  }
+      for (size_t i(0); i < pairchainlength;)
+	{
+	  if (i % L)
+	    x[0] += direction;
+	  else
+	    {
+	      x[1] += walklength;
+	      direction *= -1;
+	    }
 
-	localsites.push_back(x);
+	  localsites.push_back(x);
 	
-	++i;
-      }
+	  ++i;
+	}
 
-    direction *= -1;
-    x[2] += walklength;
+      direction *= -1;
+      x[2] += walklength;
 
-    for (size_t i(pairchainlength - 1); i != 0;)
-      {
-	localsites.push_back(x);
+      for (size_t i(pairchainlength - 1); i != 0;)
+	{
+	  localsites.push_back(x);
 	
-	if (i % L)
-	  x[0] += direction;
-	else
-	  {
-	    x[1] -= walklength;
-	    direction *= -1;
-	  }
+	  if (i % L)
+	    x[0] += direction;
+	  else
+	    {
+	      x[1] -= walklength;
+	      direction *= -1;
+	    }
 
-	--i;
-      }
+	  --i;
+	}
 
-    localsites.push_back(x);
+      localsites.push_back(x);
         
-    std::vector<Vector  > retval;
-    BOOST_FOREACH(const Vector & vec, localsites)
-      BOOST_FOREACH(const Vector & vec2, uc->placeObjects(vec))
+      std::vector<Vector  > retval;
+      BOOST_FOREACH(const Vector & vec, localsites)
+	BOOST_FOREACH(const Vector & vec2, uc->placeObjects(vec))
         retval.push_back(vec2);
 
-    return retval;    
-  }
-};
+      return retval;    
+    }
+  };
+}

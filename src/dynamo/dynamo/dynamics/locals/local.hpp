@@ -18,65 +18,67 @@
 #pragma once
 
 #include <dynamo/base.hpp>
-#include "../ranges/1range.hpp"
+#include <dynamo/dynamics/ranges/1range.hpp>
 #include <magnet/cloneptr.hpp>
 #include <magnet/math/vector.hpp>
 #include <string>
 
 namespace magnet { namespace xml { class Node; } }
 namespace xml { class XmlStream; }
-class IntEvent;
-class NEventData;
-class LocalEvent;
+namespace dynamo {
+  class IntEvent;
+  class NEventData;
+  class LocalEvent;
 
-/*! \brief Represents 1-particle event sources which are Local in space.
- *
- * The purpose of this specialized class is to allow 1-particle
- * events, which are localized in space, to be inserted into a
- * neighbor list for efficiency.
- *
- * To do this, the Local class provides the isInCell method, used by a
- * GNeighbourList to check if this Local is in a certain cell.
- */
-class Local: public dynamo::SimBase
-{
-public:
-  Local(dynamo::SimData*, const char *);
+  /*! \brief Represents 1-particle event sources which are Local in space.
+   *
+   * The purpose of this specialized class is to allow 1-particle
+   * events, which are localized in space, to be inserted into a
+   * neighbor list for efficiency.
+   *
+   * To do this, the Local class provides the isInCell method, used by a
+   * GNeighbourList to check if this Local is in a certain cell.
+   */
+  class Local: public dynamo::SimBase
+  {
+  public:
+    Local(dynamo::SimData*, const char *);
 
-  Local(CRange*, dynamo::SimData*, const char *);
+    Local(CRange*, dynamo::SimData*, const char *);
   
-  virtual ~Local() {}
+    virtual ~Local() {}
 
-  bool isInteraction(const Particle&) const;
+    bool isInteraction(const Particle&) const;
 
-  virtual Local* Clone() const = 0; //{ return new OPBlank(*this); };
+    virtual Local* Clone() const = 0; //{ return new OPBlank(*this); };
 
-  virtual LocalEvent getEvent(const Particle&) const = 0;
+    virtual LocalEvent getEvent(const Particle&) const = 0;
 
-  virtual void runEvent(const Particle&, const LocalEvent&) const = 0;
+    virtual void runEvent(const Particle&, const LocalEvent&) const = 0;
   
-  virtual bool isInCell(const Vector &, const Vector &) const = 0;
+    virtual bool isInCell(const Vector &, const Vector &) const = 0;
 
-  virtual void initialise(size_t) = 0;
+    virtual void initialise(size_t) = 0;
 
-  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Local&);
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Local&);
 
-  static Local* getClass(const magnet::xml::Node&, dynamo::SimData*);
+    static Local* getClass(const magnet::xml::Node&, dynamo::SimData*);
 
-  virtual void operator<<(const magnet::xml::Node&) = 0;
+    virtual void operator<<(const magnet::xml::Node&) = 0;
 
-  void setName(const std::string& tmp) { localName = tmp; }
+    void setName(const std::string& tmp) { localName = tmp; }
 
-  const std::string& getName() const { return localName; }
+    const std::string& getName() const { return localName; }
 
-  inline const size_t& getID() const { return ID; }
+    inline const size_t& getID() const { return ID; }
 
-  virtual void checkOverlaps(const Particle&) const  {}
+    virtual void checkOverlaps(const Particle&) const  {}
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const = 0;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
-  magnet::ClonePtr<CRange> range;  
-  std::string localName;
-  size_t ID;
-};
+    magnet::ClonePtr<CRange> range;  
+    std::string localName;
+    size_t ID;
+  };
+}

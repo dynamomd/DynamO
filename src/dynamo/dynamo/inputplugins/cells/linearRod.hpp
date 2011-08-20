@@ -19,33 +19,35 @@
 #include <dynamo/inputplugins/cells/cell.hpp>
 #include <cmath>
 
-struct CUlinearRod: public CUCell
-{
-  CUlinearRod(size_t pcl, double WL, CUCell* nextCell):
-    CUCell(nextCell),
-    pairchainlength(pcl),
-    walklength(WL)
+namespace dynamo {
+  struct CUlinearRod: public CUCell
   {
-    if (pcl == 0) M_throw() << "Cant have zero chain length";
-  }
+    CUlinearRod(size_t pcl, double WL, CUCell* nextCell):
+      CUCell(nextCell),
+      pairchainlength(pcl),
+      walklength(WL)
+    {
+      if (pcl == 0) M_throw() << "Cant have zero chain length";
+    }
 
-  size_t pairchainlength;  
-  double walklength;
+    size_t pairchainlength;  
+    double walklength;
   
-  virtual std::vector<Vector> placeObjects(const Vector & centre)
-  {
-    Vector tmp(0,0,0);
+    virtual std::vector<Vector> placeObjects(const Vector & centre)
+    {
+      Vector tmp(0,0,0);
 
-    std::vector<Vector> retval;
+      std::vector<Vector> retval;
 
-    for (size_t iStep = 0; iStep < pairchainlength; ++iStep)
-      { 
-	tmp[0] = (double(iStep) - (double(walklength) * 0.5)) * walklength;
+      for (size_t iStep = 0; iStep < pairchainlength; ++iStep)
+	{ 
+	  tmp[0] = (double(iStep) - (double(walklength) * 0.5)) * walklength;
 	
-	BOOST_FOREACH(const Vector & vec, uc->placeObjects(tmp + centre))
-	  retval.push_back(vec);
-      }
+	  BOOST_FOREACH(const Vector & vec, uc->placeObjects(tmp + centre))
+	    retval.push_back(vec);
+	}
 
-    return retval;
-  }
-};
+      return retval;
+    }
+  };
+}

@@ -16,35 +16,37 @@
 */
 
 #pragma once
-#include "local.hpp"
+#include <dynamo/dynamics/locals/local.hpp>
 #include <magnet/math/vector.hpp>
 
-class CLAndersenWall: public Local
-{
-public:
-  CLAndersenWall(const magnet::xml::Node&, dynamo::SimData*);
+namespace dynamo {
+  class CLAndersenWall: public Local
+  {
+  public:
+    CLAndersenWall(const magnet::xml::Node&, dynamo::SimData*);
 
-  CLAndersenWall(dynamo::SimData*, double, Vector , Vector , 
-		 std::string, CRange*);
+    CLAndersenWall(dynamo::SimData*, double, Vector , Vector , 
+		   std::string, CRange*);
 
-  virtual ~CLAndersenWall() {}
+    virtual ~CLAndersenWall() {}
 
-  virtual Local* Clone() const { return new CLAndersenWall(*this); }
+    virtual Local* Clone() const { return new CLAndersenWall(*this); }
 
-  virtual LocalEvent getEvent(const Particle &) const;
+    virtual LocalEvent getEvent(const Particle &) const;
 
-  virtual void runEvent(const Particle&, const LocalEvent&) const;
+    virtual void runEvent(const Particle&, const LocalEvent&) const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-  virtual bool isInCell(const Vector &, const Vector &) const;
+    virtual bool isInCell(const Vector &, const Vector &) const;
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  Vector  vNorm;
-  Vector  vPosition;
-  double sqrtT;
-};
+    Vector  vNorm;
+    Vector  vPosition;
+    double sqrtT;
+  };
+}

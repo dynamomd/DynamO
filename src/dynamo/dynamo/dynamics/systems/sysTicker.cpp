@@ -15,99 +15,101 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "sysTicker.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../NparticleEventData.hpp"
-#include "../liouvillean/liouvillean.hpp"
-#include "../../outputplugins/tickerproperty/ticker.hpp"
-#include "../units/units.hpp"
-#include "../../schedulers/scheduler.hpp"
+#include <dynamo/dynamics/systems/sysTicker.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/NparticleEventData.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
 
 #ifdef DYNAMO_DEBUG 
 #include <boost/math/special_functions/fpclassify.hpp>
 #endif
 
-CSTicker::CSTicker(dynamo::SimData* nSim, double nPeriod, std::string nName):
-  System(nSim)
-{
-  if (nPeriod <= 0.0)
-    nPeriod = Sim->dynamics.units().unitTime();
+namespace dynamo {
+  CSTicker::CSTicker(dynamo::SimData* nSim, double nPeriod, std::string nName):
+    System(nSim)
+  {
+    if (nPeriod <= 0.0)
+      nPeriod = Sim->dynamics.units().unitTime();
 
-  dt = nPeriod;
-  period = nPeriod;
+    dt = nPeriod;
+    period = nPeriod;
 
-  sysName = nName;
+    sysName = nName;
 
-  dout << "System ticker set for a peroid of " 
-	   << nPeriod / Sim->dynamics.units().unitTime() << std::endl;
-}
+    dout << "System ticker set for a peroid of " 
+	 << nPeriod / Sim->dynamics.units().unitTime() << std::endl;
+  }
 
-void
-CSTicker::runEvent() const
-{
-  double locdt = dt;
+  void
+  CSTicker::runEvent() const
+  {
+    double locdt = dt;
   
 #ifdef DYNAMO_DEBUG 
-  if (boost::math::isnan(dt))
-    M_throw() << "A NAN system event time has been found";
+    if (boost::math::isnan(dt))
+      M_throw() << "A NAN system event time has been found";
 #endif
     
 
-  Sim->dSysTime += locdt;
+    Sim->dSysTime += locdt;
 
-  Sim->ptrScheduler->stream(locdt);
+    Sim->ptrScheduler->stream(locdt);
   
-  //dynamics must be updated first
-  Sim->dynamics.stream(locdt);
+    //dynamics must be updated first
+    Sim->dynamics.stream(locdt);
   
-  dt += period;
+    dt += period;
   
-  locdt += Sim->freestreamAcc;
-  Sim->freestreamAcc = 0;
+    locdt += Sim->freestreamAcc;
+    Sim->freestreamAcc = 0;
 
-  //This is done here as most ticker properties require it
-  Sim->dynamics.getLiouvillean().updateAllParticles();
+    //This is done here as most ticker properties require it
+    Sim->dynamics.getLiouvillean().updateAllParticles();
 
-  {
-    OPTicker* ptr = NULL;
+    {
+      OPTicker* ptr = NULL;
+      BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+	{
+	  ptr = dynamic_cast<OPTicker*>(Ptr.get_ptr());
+	  if (ptr != NULL)
+	    ptr->ticker();
+	}
+    }
+
     BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
-      {
-	ptr = dynamic_cast<OPTicker*>(Ptr.get_ptr());
-	if (ptr != NULL)
-	  ptr->ticker();
-      }
+      Ptr->eventUpdate(*this, NEventData(), locdt);
   }
 
-  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(*this, NEventData(), locdt);
-}
+  void 
+  CSTicker::initialise(size_t nID)
+  { ID = nID; }
 
-void 
-CSTicker::initialise(size_t nID)
-{ ID = nID; }
+  void 
+  CSTicker::setdt(double ndt)
+  { 
+    dt = ndt * Sim->dynamics.units().unitTime(); 
+  }
 
-void 
-CSTicker::setdt(double ndt)
-{ 
-  dt = ndt * Sim->dynamics.units().unitTime(); 
-}
+  void 
+  CSTicker::increasedt(double ndt)
+  { 
+    dt += ndt * Sim->dynamics.units().unitTime(); 
+  }
 
-void 
-CSTicker::increasedt(double ndt)
-{ 
-  dt += ndt * Sim->dynamics.units().unitTime(); 
-}
+  void 
+  CSTicker::setTickerPeriod(const double& nP)
+  { 
+    dout << "Setting system ticker period to " 
+	 << nP / Sim->dynamics.units().unitTime() << std::endl;
 
-void 
-CSTicker::setTickerPeriod(const double& nP)
-{ 
-  dout << "Setting system ticker period to " 
-	   << nP / Sim->dynamics.units().unitTime() << std::endl;
+    period = nP; 
 
-  period = nP; 
+    dt = nP;
 
-  dt = nP;
-
-  if ((Sim->status >= INITIALISED) && Sim->endEventCount)
-    Sim->ptrScheduler->rebuildSystemEvents();
+    if ((Sim->status >= INITIALISED) && Sim->endEventCount)
+      Sim->ptrScheduler->rebuildSystemEvents();
+  }
 }

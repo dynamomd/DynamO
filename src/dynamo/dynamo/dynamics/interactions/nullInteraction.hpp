@@ -17,35 +17,38 @@
 
 #pragma once
 
-#include "interaction.hpp"
+#include <dynamo/dynamics/interactions/interaction.hpp>
 
-class INull: public Interaction
-{
-public:
-  INull(dynamo::SimData*, C2Range*);
+namespace dynamo {
+  class INull: public Interaction
+  {
+  public:
+    INull(dynamo::SimData*, C2Range*);
 
-  INull(const magnet::xml::Node&, dynamo::SimData*);
+    INull(const magnet::xml::Node&, dynamo::SimData*);
 
-  void operator<<(const magnet::xml::Node&);
+    void operator<<(const magnet::xml::Node&);
 
-  virtual double getInternalEnergy() const { return 0; }
+    virtual double getInternalEnergy() const { return 0; }
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual double maxIntDist() const { return 0; }
+    virtual double maxIntDist() const { return 0; }
 
-  virtual double getExcludedVolume(size_t) const { return 0; }
+    virtual double getExcludedVolume(size_t) const { return 0; }
 
-  virtual Interaction* Clone() const;
+    virtual Interaction* Clone() const;
   
-  virtual IntEvent getEvent(const Particle&, const Particle&) const;
+    virtual IntEvent getEvent(const Particle&, const Particle&) const;
  
-  virtual void runEvent(const Particle&, const Particle&, 
-			const IntEvent&) const;
+    virtual void runEvent(const Particle&, const Particle&, 
+			  const IntEvent&) const;
    
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  virtual void checkOverlaps(const Particle&, const Particle&) const {}
+    virtual void checkOverlaps(const Particle&, const Particle&) const {}
  
-protected:
-};
+  protected:
+  };
+}
+

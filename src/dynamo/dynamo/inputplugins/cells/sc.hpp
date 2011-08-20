@@ -18,41 +18,43 @@
 #pragma once
 #include "cell.hpp"
 
-struct CUSC: public CUCell
-{
-  CUSC(std::tr1::array<long, 3> ncells, Vector  ndimensions, CUCell* nextCell):
-    CUCell(nextCell),
-    cells(ncells),
-    dimensions(ndimensions)
-  {}
-
-  std::tr1::array<long, 3> cells;
-  Vector  dimensions;
-
-  virtual std::vector<Vector  > placeObjects(const Vector & centre)
+namespace dynamo {
+  struct CUSC: public CUCell
   {
-    std::vector<Vector  > retval;
+    CUSC(std::tr1::array<long, 3> ncells, Vector  ndimensions, CUCell* nextCell):
+      CUCell(nextCell),
+      cells(ncells),
+      dimensions(ndimensions)
+    {}
+
+    std::tr1::array<long, 3> cells;
+    Vector  dimensions;
+
+    virtual std::vector<Vector  > placeObjects(const Vector & centre)
+    {
+      std::vector<Vector  > retval;
   
-    Vector  cellWidth;
-    for (size_t iDim = 0; iDim < NDIM; ++iDim)
-      cellWidth[iDim] = dimensions[iDim] / cells[iDim];
+      Vector  cellWidth;
+      for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	cellWidth[iDim] = dimensions[iDim] / cells[iDim];
     
-    Vector  position;
-    std::tr1::array<int, 3> iterVec;
+      Vector  position;
+      std::tr1::array<int, 3> iterVec;
     
-    for (iterVec[2] = 0; iterVec[2] < cells[2]; iterVec[2]++)
-      for (iterVec[1] = 0; iterVec[1] < cells[1]; iterVec[1]++)
-	for (iterVec[0] = 0; iterVec[0] < cells[0]; iterVec[0]++)
-	  {
-	    //The itervec + 0.5 centres the lattice points correctly as the unit cell isn't symmetric
-	    for (size_t iDim = 0; iDim < NDIM; iDim++)
-	      position[iDim] = cellWidth[iDim] * (iterVec[iDim] + 0.5) - 0.5 * dimensions[iDim] + centre[iDim];
+      for (iterVec[2] = 0; iterVec[2] < cells[2]; iterVec[2]++)
+	for (iterVec[1] = 0; iterVec[1] < cells[1]; iterVec[1]++)
+	  for (iterVec[0] = 0; iterVec[0] < cells[0]; iterVec[0]++)
+	    {
+	      //The itervec + 0.5 centres the lattice points correctly as the unit cell isn't symmetric
+	      for (size_t iDim = 0; iDim < NDIM; iDim++)
+		position[iDim] = cellWidth[iDim] * (iterVec[iDim] + 0.5) - 0.5 * dimensions[iDim] + centre[iDim];
 
 	      //Get the next unit cells positions and push them to your list
-	    BOOST_FOREACH(const Vector & vec, uc->placeObjects(position))
+	      BOOST_FOREACH(const Vector & vec, uc->placeObjects(position))
 		retval.push_back(vec);
-	  }
+	    }
     
-    return retval;
-  }
-};
+      return retval;
+    }
+  };
+}

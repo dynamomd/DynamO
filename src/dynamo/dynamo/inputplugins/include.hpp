@@ -16,5 +16,5 @@
 */
 
 //All input plugins
-#include "inputplugin.hpp"
-#include "packer.hpp"
+#include <dynamo/dynamics/systems/inputplugin.hpp>
+#include <dynamo/dynamics/systems/packer.hpp>

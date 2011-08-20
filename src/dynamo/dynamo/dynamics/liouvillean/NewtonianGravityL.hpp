@@ -17,87 +17,86 @@
 
 #pragma once
 
-#include "NewtonL.hpp"
+#include <dynamo/dynamics/liouvillean/NewtonL.hpp>
 
-//! \brief A Liouvillean which implements standard Newtonian dynamics
-//! with an additional constant force vector.
+namespace dynamo {
+  /*! \brief A Liouvillean which implements standard Newtonian dynamics
+    with an additional constant force vector.
+  */
+  class LNewtonianGravity: public LNewtonian
+  {
+  public:
+    LNewtonianGravity(dynamo::SimData*, const magnet::xml::Node&);
 
-//! This Liouvillean specializes the Local and Global events to
-//! systems with a parabolic motion of a particle. If a particle has its 
+    LNewtonianGravity(dynamo::SimData* tmp, Vector gravity, double eV = 0, double tc = -HUGE_VAL);
 
-class LNewtonianGravity: public LNewtonian
-{
-public:
-  LNewtonianGravity(dynamo::SimData*, const magnet::xml::Node&);
+    void initialise();
 
-  LNewtonianGravity(dynamo::SimData* tmp, Vector gravity, double eV = 0, double tc = -HUGE_VAL);
+    const Vector& getGravityVector() const { return g; }
 
-  void initialise();
+    virtual bool SphereSphereInRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const;
+    virtual bool SphereSphereOutRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const;  
 
-  const Vector& getGravityVector() const { return g; }
+    virtual void streamParticle(Particle&, const double&) const;
 
-  virtual bool SphereSphereInRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const;
-  virtual bool SphereSphereOutRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const;  
+    virtual double getSquareCellCollision2(const Particle&, 
+					   const Vector &, 
+					   const Vector &
+					   ) const;
 
-  virtual void streamParticle(Particle&, const double&) const;
-
-  virtual double getSquareCellCollision2(const Particle&, 
-				       const Vector &, 
-				       const Vector &
-				       ) const;
-
-  virtual int getSquareCellCollision3(const Particle&, 
-				      const Vector &, 
-				      const Vector &
-				      ) const;
+    virtual int getSquareCellCollision3(const Particle&, 
+					const Vector &, 
+					const Vector &
+					) const;
   
-  virtual std::pair<bool,double>
-  getPointPlateCollision(const Particle& np1, const Vector& nrw0,
-			 const Vector& nhat, const double& Delta,
-			 const double& Omega, const double& Sigma,
-			 const double& t, bool) const;
+    virtual std::pair<bool,double>
+    getPointPlateCollision(const Particle& np1, const Vector& nrw0,
+			   const Vector& nhat, const double& Delta,
+			   const double& Omega, const double& Sigma,
+			   const double& t, bool) const;
 
-  virtual double getPBCSentinelTime(const Particle&, const double&) const;
+    virtual double getPBCSentinelTime(const Particle&, const double&) const;
 
-  virtual double getParabolaSentinelTime(const Particle&) const;
+    virtual double getParabolaSentinelTime(const Particle&) const;
 
-  virtual void enforceParabola(const Particle&) const;
+    virtual void enforceParabola(const Particle&) const;
 
-  virtual double getWallCollision(const Particle&, 
-				const Vector &, 
-				const Vector &) const;
+    virtual double getWallCollision(const Particle&, 
+				    const Vector &, 
+				    const Vector &) const;
 
-  virtual double getCylinderWallCollision(const Particle&, 
-					  const Vector &, 
-					  const Vector &,
-					  const double&
-					  ) const;
+    virtual double getCylinderWallCollision(const Particle&, 
+					    const Vector &, 
+					    const Vector &,
+					    const double&
+					    ) const;
 
-  virtual PairEventData SmoothSpheresColl(const IntEvent&, const double&, 
-					  const double&, 
-					  const EEventType& eType) const;
+    virtual PairEventData SmoothSpheresColl(const IntEvent&, const double&, 
+					    const double&, 
+					    const EEventType& eType) const;
 
-  //Cloning
-  virtual Liouvillean* Clone() const { return new LNewtonianGravity(*this); }
+    //Cloning
+    virtual Liouvillean* Clone() const { return new LNewtonianGravity(*this); }
 
-  virtual std::pair<double, Liouvillean::TriangleIntersectingPart> 
-  getSphereTriangleEvent(const Particle& part, 
-			 const Vector & A, 
-			 const Vector & B, 
-			 const Vector & C,
-			 const double dist
-			 ) const;
+    virtual std::pair<double, Liouvillean::TriangleIntersectingPart> 
+    getSphereTriangleEvent(const Particle& part, 
+			   const Vector & A, 
+			   const Vector & B, 
+			   const Vector & C,
+			   const double dist
+			   ) const;
 
-  virtual ParticleEventData runWallCollision(const Particle&, 
-					     const Vector &,
-					     const double&
-					     ) const;
-protected:
-  double elasticV;
-  Vector g;
+    virtual ParticleEventData runWallCollision(const Particle&, 
+					       const Vector &,
+					       const double&
+					       ) const;
+  protected:
+    double elasticV;
+    Vector g;
 
-  mutable std::vector<long double> _tcList;
-  double _tc;
+    mutable std::vector<long double> _tcList;
+    double _tc;
 
-  virtual void outputXML(magnet::xml::XmlStream&) const;
-};
+    virtual void outputXML(magnet::xml::XmlStream&) const;
+  };
+}

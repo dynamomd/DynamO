@@ -20,45 +20,47 @@
 #include <dynamo/base/is_simdata.hpp>
 #include <tr1/memory>
 
-class LWall: public Local
-{
-public:
-  LWall(const magnet::xml::Node&, dynamo::SimData*);
+namespace dynamo {
+  class LWall: public Local
+  {
+  public:
+    LWall(const magnet::xml::Node&, dynamo::SimData*);
 
-  template<class T1, class T2>
-  LWall(dynamo::SimData* nSim, T1 e, T2 d, Vector nnorm,
-	Vector  norigin, std::string nname, CRange* nRange):
-    Local(nRange, nSim, "LocalWall"),
-    vNorm(nnorm),
-    vPosition(norigin),
-    _diameter(Sim->_properties.getProperty
-	      (d, Property::Units::Length())),
-    _e(Sim->_properties.getProperty
-       (e, Property::Units::Dimensionless()))
-  { localName = nname; }
+    template<class T1, class T2>
+    LWall(dynamo::SimData* nSim, T1 e, T2 d, Vector nnorm,
+	  Vector  norigin, std::string nname, CRange* nRange):
+      Local(nRange, nSim, "LocalWall"),
+      vNorm(nnorm),
+      vPosition(norigin),
+      _diameter(Sim->_properties.getProperty
+		(d, Property::Units::Length())),
+      _e(Sim->_properties.getProperty
+	 (e, Property::Units::Dimensionless()))
+    { localName = nname; }
 
-  virtual ~LWall() {}
+    virtual ~LWall() {}
 
-  virtual Local* Clone() const { return new LWall(*this); };
+    virtual Local* Clone() const { return new LWall(*this); };
 
-  virtual LocalEvent getEvent(const Particle&) const;
+    virtual LocalEvent getEvent(const Particle&) const;
 
-  virtual void runEvent(const Particle&, const LocalEvent&) const;
+    virtual void runEvent(const Particle&, const LocalEvent&) const;
   
-  virtual bool isInCell(const Vector &, const Vector &) const;
+    virtual bool isInCell(const Vector &, const Vector &) const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-  virtual void checkOverlaps(const Particle&) const;
+    virtual void checkOverlaps(const Particle&) const;
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  Vector  vNorm;
-  Vector  vPosition;
-  std::tr1::shared_ptr<Property> _diameter;
-  std::tr1::shared_ptr<Property> _e;
-  bool render;
-};
+    Vector  vNorm;
+    Vector  vPosition;
+    std::tr1::shared_ptr<Property> _diameter;
+    std::tr1::shared_ptr<Property> _e;
+    bool render;
+  };
+}

@@ -15,61 +15,63 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "tHalt.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../NparticleEventData.hpp"
-#include "../units/units.hpp"
-#include "../../schedulers/scheduler.hpp"
+#include <dynamo/dynamics/systems/tHalt.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/NparticleEventData.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
 
 #ifdef DYNAMO_DEBUG 
 #include <boost/math/special_functions/fpclassify.hpp>
 #endif
 
-CStHalt::CStHalt(dynamo::SimData* nSim, double ndt, std::string nName):
-  System(nSim)
-{
-  dt = ndt * Sim->dynamics.units().unitTime();
+namespace dynamo {
+  CStHalt::CStHalt(dynamo::SimData* nSim, double ndt, std::string nName):
+    System(nSim)
+  {
+    dt = ndt * Sim->dynamics.units().unitTime();
 
-  sysName = nName;
+    sysName = nName;
 
-  dout << "System halt set for " 
-	   << ndt << std::endl;
-}
+    dout << "System halt set for " 
+	 << ndt << std::endl;
+  }
 
-void
-CStHalt::runEvent() const
-{
-  double locdt = dt;
+  void
+  CStHalt::runEvent() const
+  {
+    double locdt = dt;
   
 #ifdef DYNAMO_DEBUG 
-  if (boost::math::isnan(dt))
-    M_throw() << "A NAN system event time has been found";
+    if (boost::math::isnan(dt))
+      M_throw() << "A NAN system event time has been found";
 #endif
     
-  Sim->dSysTime += locdt;
+    Sim->dSysTime += locdt;
     
-  Sim->ptrScheduler->stream(locdt);
+    Sim->ptrScheduler->stream(locdt);
   
-  //dynamics must be updated first
-  Sim->dynamics.stream(locdt);
+    //dynamics must be updated first
+    Sim->dynamics.stream(locdt);
 
-  Sim->freestreamAcc += locdt;
+    Sim->freestreamAcc += locdt;
   
-  Sim->nextPrintEvent = Sim->endEventCount = Sim->eventCount;
-}
+    Sim->nextPrintEvent = Sim->endEventCount = Sim->eventCount;
+  }
 
-void 
-CStHalt::initialise(size_t nID)
-{
-  ID=nID;
-}
+  void 
+  CStHalt::initialise(size_t nID)
+  {
+    ID=nID;
+  }
 
-void 
-CStHalt::setdt(double ndt)
-{ dt = ndt * Sim->dynamics.units().unitTime(); }
+  void 
+  CStHalt::setdt(double ndt)
+  { dt = ndt * Sim->dynamics.units().unitTime(); }
 
-void 
-CStHalt::increasedt(double ndt)
-{ 
-  dt += ndt * Sim->dynamics.units().unitTime(); 
+  void 
+  CStHalt::increasedt(double ndt)
+  { 
+    dt += ndt * Sim->dynamics.units().unitTime(); 
+  }
 }

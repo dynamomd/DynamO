@@ -16,47 +16,49 @@
 */
 
 #pragma once
-#include "system.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../ranges/1range.hpp"
+#include <dynamo/dynamics/systems/system.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/ranges/1range.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <magnet/cloneptr.hpp>
 
-/*! \brief A rescaling thermostat.
- *
- * This event "attempts" to thermostat the system by simply rescaling
- * the kinetic energy periodically. It does this by multiplying all
- * velocities (linear and angular) with a factor calculated like so
- * \f[ F = \sqrt{\frac{k_b\,T_{desired}}{k_b\,T_{current}}} \f] such
- * that the velocities after the event are related to the velocities
- * before by \f[ {\bf v}_{new} = F\, {\bf v}_{old} \f].
- */
-class SysRescale: public System
-{
-public:
-  SysRescale(const magnet::xml::Node& XML, dynamo::SimData*);
-  SysRescale(dynamo::SimData*, size_t frequency, std::string name, double kT = 1);
+namespace dynamo {
+  /*! \brief A rescaling thermostat.
+   *
+   * This event "attempts" to thermostat the system by simply rescaling
+   * the kinetic energy periodically. It does this by multiplying all
+   * velocities (linear and angular) with a factor calculated like so
+   * \f[ F = \sqrt{\frac{k_b\,T_{desired}}{k_b\,T_{current}}} \f] such
+   * that the velocities after the event are related to the velocities
+   * before by \f[ {\bf v}_{new} = F\, {\bf v}_{old} \f].
+   */
+  class SysRescale: public System
+  {
+  public:
+    SysRescale(const magnet::xml::Node& XML, dynamo::SimData*);
+    SysRescale(dynamo::SimData*, size_t frequency, std::string name, double kT = 1);
 
-  virtual void runEvent() const;
+    virtual void runEvent() const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-  void checker(const NEventData&);
+    void checker(const NEventData&);
   
-  inline const long double& getScaleFactor() const {return scaleFactor; }
+    inline const long double& getScaleFactor() const {return scaleFactor; }
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  size_t _frequency;
+    size_t _frequency;
 
-  double _kT, _timestep;
+    double _kT, _timestep;
 
-  mutable long double scaleFactor;
+    mutable long double scaleFactor;
 
-  mutable long double LastTime, RealTime;
+    mutable long double LastTime, RealTime;
   
-};
+  };
+}

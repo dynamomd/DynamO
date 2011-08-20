@@ -19,30 +19,32 @@
 #include <dynamo/dynamics/globals/gcellsmorton.hpp>
 #include <dynamo/dynamics/ranges/1range.hpp>
 
-class GCellsShearing: public GCells
-{
-public:
-  GCellsShearing(const magnet::xml::Node&, dynamo::SimData*);
+namespace dynamo {
+  class GCellsShearing: public GCells
+  {
+  public:
+    GCellsShearing(const magnet::xml::Node&, dynamo::SimData*);
   
-  GCellsShearing(dynamo::SimData*, const std::string&);
+    GCellsShearing(dynamo::SimData*, const std::string&);
   
-  virtual ~GCellsShearing() {}
+    virtual ~GCellsShearing() {}
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
   
-  virtual Global* Clone() const 
-  { return new GCellsShearing(*this); }
+    virtual Global* Clone() const 
+    { return new GCellsShearing(*this); }
   
-  virtual GlobalEvent getEvent(const Particle &) const;
+    virtual GlobalEvent getEvent(const Particle &) const;
 
-  virtual void runEvent(const Particle&, const double) const;
+    virtual void runEvent(const Particle&, const double) const;
 
-  virtual void getParticleNeighbourhood(const Particle&, 
-					const nbHoodFunc&) const;
+    virtual void getParticleNeighbourhood(const Particle&, 
+					  const nbHoodFunc&) const;
 
-  void getExtraLEParticleNeighbourhood(const Particle& part,
-				       const nbHoodFunc& func) const;
+    void getExtraLEParticleNeighbourhood(const Particle& part,
+					 const nbHoodFunc& func) const;
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const;
-};
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const;
+  };
+}

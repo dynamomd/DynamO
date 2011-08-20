@@ -16,8 +16,8 @@
 */
 
 #pragma once
-#include "../eventtypes.hpp"
-#include "../../simulation/particle.hpp"
+#include <dynamo/dynamics/eventtypes.hpp>
+#include <dynamo/simulation/particle.hpp>
 #include <cfloat>
 
 struct XMLNode;
@@ -27,59 +27,59 @@ namespace xml
 }
 namespace dynamo {
   class SimData;
-}
-class IntEvent;
-class Local;
+  class IntEvent;
+  class Local;
 
-class LocalEvent
-{
-public:  
-  LocalEvent(const Particle&, const double&,
-	     EEventType, const Local&, const size_t extraData = 0);
+  class LocalEvent
+  {
+  public:  
+    LocalEvent(const Particle&, const double&,
+	       EEventType, const Local&, const size_t extraData = 0);
 
-  inline bool operator== (const Particle &partx) const 
+    inline bool operator== (const Particle &partx) const 
     { return (*particle_ == partx); }
   
-  bool areInvolved(const IntEvent&) const; 
+    bool areInvolved(const IntEvent&) const; 
   
-  inline void invalidate() 
-  { 
-    dt = DBL_MAX; 
-    CType = NONE; 
-  }
+    inline void invalidate() 
+    { 
+      dt = DBL_MAX; 
+      CType = NONE; 
+    }
 
-  inline bool operator< (const LocalEvent & C2) const 
-  { return dt < C2.dt;}
+    inline bool operator< (const LocalEvent & C2) const 
+    { return dt < C2.dt;}
   
-  inline bool operator> (const LocalEvent & C2) const 
+    inline bool operator> (const LocalEvent & C2) const 
     { return dt > C2.dt;}
 
-  inline void incrementTime(const double& deltat) {dt -= deltat; }
+    inline void incrementTime(const double& deltat) {dt -= deltat; }
 
-  inline void addTime(const double& deltat) {dt += deltat; }
+    inline void addTime(const double& deltat) {dt += deltat; }
 
-  inline const Particle& getParticle() const { return *particle_; }
+    inline const Particle& getParticle() const { return *particle_; }
 
-  inline const double& getdt() const { return dt; }
+    inline const double& getdt() const { return dt; }
 
-  inline EEventType getType() const
-  { return CType; }
+    inline EEventType getType() const
+    { return CType; }
   
-  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const LocalEvent&);
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const LocalEvent&);
 
-  std::string stringData(const dynamo::SimData*) const;
+    std::string stringData(const dynamo::SimData*) const;
 
-  const size_t& getLocalID() const { return localID; }
+    const size_t& getLocalID() const { return localID; }
 
-  inline void scaleTime(const double& scale)
-  { dt *= scale; }
+    inline void scaleTime(const double& scale)
+    { dt *= scale; }
 
-  inline size_t getExtraData() const { return _extraData; }
+    inline size_t getExtraData() const { return _extraData; }
 
-protected:
-  const Particle*  particle_;
-  double dt;
-  mutable EEventType CType;
-  const size_t localID;
-  const size_t _extraData;
-};
+  protected:
+    const Particle*  particle_;
+    double dt;
+    mutable EEventType CType;
+    const size_t localID;
+    const size_t _extraData;
+  };
+}

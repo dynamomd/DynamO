@@ -15,18 +15,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "fcc.hpp"
-#include "bcc.hpp"
-#include "sc.hpp"
-#include "file.hpp"
-#include "randomwalk.hpp"
-#include "helix.hpp"
-#include "mirror.hpp"
-#include "ringRod.hpp"
-#include "ringSnake.hpp"
-#include "randomise.hpp"
-#include "random.hpp"
-#include "linearRod.hpp"
-#include "binary.hpp"
-#include "cylinder.hpp"
-#include "triangleIntersection.hpp"
+#include <dynamo/dynamics/systems/fcc.hpp>
+#include <dynamo/dynamics/systems/bcc.hpp>
+#include <dynamo/dynamics/systems/sc.hpp>
+#include <dynamo/dynamics/systems/file.hpp>
+#include <dynamo/dynamics/systems/randomwalk.hpp>
+#include <dynamo/dynamics/systems/helix.hpp>
+#include <dynamo/dynamics/systems/mirror.hpp>
+#include <dynamo/dynamics/systems/ringRod.hpp>
+#include <dynamo/dynamics/systems/ringSnake.hpp>
+#include <dynamo/dynamics/systems/randomise.hpp>
+#include <dynamo/dynamics/systems/random.hpp>
+#include <dynamo/dynamics/systems/linearRod.hpp>
+#include <dynamo/dynamics/systems/binary.hpp>
+#include <dynamo/dynamics/systems/cylinder.hpp>
+#include <dynamo/dynamics/systems/triangleIntersection.hpp>

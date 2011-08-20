@@ -19,46 +19,48 @@
 #include <dynamo/inputplugins/cells/cell.hpp>
 #include <cmath>
 
-struct CUHelix: public CUCell
-{
-  CUHelix(long CL, long RL, double WL, double D, CUCell* nextCell):
-    CUCell(nextCell),
-    chainlength(CL),
-    ringlength(RL),
-    walklength(WL),
-    diameter(D)
-  {}
-
-  long chainlength;
-  long ringlength;
-  double walklength;
-  double diameter;
-  
-  virtual std::vector<Vector  > placeObjects(const Vector & centre)
+namespace dynamo {
+  struct CUHelix: public CUCell
   {
-    double a = diameter * (0.5 / M_PI);
-    double sigstep = 2.0 * M_PI / ringlength;
-    double zcentre = a * (chainlength - 1) * sigstep * a;
-    double radius = 0.5 * std::sqrt(walklength * walklength - std::pow(a / ringlength,2)) / std::sin(M_PI / ringlength);
+    CUHelix(long CL, long RL, double WL, double D, CUCell* nextCell):
+      CUCell(nextCell),
+      chainlength(CL),
+      ringlength(RL),
+      walklength(WL),
+      diameter(D)
+    {}
 
-    std::vector<Vector  > localsites;
-    
-    Vector  tmp;
-    
-    for (int iStep = 0; iStep < chainlength; ++iStep)
-      { 
-	tmp[0] = radius * std::cos(sigstep * iStep);
-	tmp[1] = radius * std::sin(sigstep * iStep);
-	tmp[2] = a * sigstep * iStep - zcentre;
-
-	localsites.push_back(tmp + centre);
-      }
+    long chainlength;
+    long ringlength;
+    double walklength;
+    double diameter;
   
-    std::vector<Vector  > retval;
-    BOOST_FOREACH(const Vector & vec, localsites)
-      BOOST_FOREACH(const Vector & vec2, uc->placeObjects(vec))
+    virtual std::vector<Vector  > placeObjects(const Vector & centre)
+    {
+      double a = diameter * (0.5 / M_PI);
+      double sigstep = 2.0 * M_PI / ringlength;
+      double zcentre = a * (chainlength - 1) * sigstep * a;
+      double radius = 0.5 * std::sqrt(walklength * walklength - std::pow(a / ringlength,2)) / std::sin(M_PI / ringlength);
+
+      std::vector<Vector  > localsites;
+    
+      Vector  tmp;
+    
+      for (int iStep = 0; iStep < chainlength; ++iStep)
+	{ 
+	  tmp[0] = radius * std::cos(sigstep * iStep);
+	  tmp[1] = radius * std::sin(sigstep * iStep);
+	  tmp[2] = a * sigstep * iStep - zcentre;
+
+	  localsites.push_back(tmp + centre);
+	}
+  
+      std::vector<Vector  > retval;
+      BOOST_FOREACH(const Vector & vec, localsites)
+	BOOST_FOREACH(const Vector & vec2, uc->placeObjects(vec))
         retval.push_back(vec2);
 
-    return retval;    
-  }
-};
+      return retval;    
+    }
+  };
+}

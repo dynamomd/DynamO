@@ -19,28 +19,30 @@
 #include <dynamo/dynamics/globals/global.hpp>
 #include <magnet/math/vector.hpp>
 
-class GSOCells: public Global
-{
-public:
-  GSOCells(const magnet::xml::Node&, dynamo::SimData*);
+namespace dynamo {
+  class GSOCells: public Global
+  {
+  public:
+    GSOCells(const magnet::xml::Node&, dynamo::SimData*);
 
-  GSOCells(dynamo::SimData*, const std::string&);
+    GSOCells(dynamo::SimData*, const std::string&);
 
-  virtual ~GSOCells() {}
+    virtual ~GSOCells() {}
 
-  virtual Global* Clone() const { return new GSOCells(*this); }
+    virtual Global* Clone() const { return new GSOCells(*this); }
 
-  virtual GlobalEvent getEvent(const Particle &) const;
+    virtual GlobalEvent getEvent(const Particle &) const;
 
-  virtual void runEvent(const Particle&, const double) const;
+    virtual void runEvent(const Particle&, const double) const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-  virtual void outputXML(magnet::xml::XmlStream& XML) const;
+    virtual void outputXML(magnet::xml::XmlStream& XML) const;
 
-protected:
-  Vector  cellDimension;
-  size_t cuberootN;
-};
+  protected:
+    Vector  cellDimension;
+    size_t cuberootN;
+  };
+}

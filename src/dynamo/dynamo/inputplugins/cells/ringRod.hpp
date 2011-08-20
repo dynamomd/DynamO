@@ -19,48 +19,50 @@
 #include <dynamo/inputplugins/cells/cell.hpp>
 #include <cmath>
 
-struct CUringRod: public CUCell
-{
-  CUringRod(size_t pcl, double WL, CUCell* nextCell):
-    CUCell(nextCell),
-    pairchainlength(pcl),
-    walklength(WL)
+namespace dynamo {
+  struct CUringRod: public CUCell
   {
-    if (pcl == 0) M_throw() << "Cant have zero chain length";
-  }
+    CUringRod(size_t pcl, double WL, CUCell* nextCell):
+      CUCell(nextCell),
+      pairchainlength(pcl),
+      walklength(WL)
+    {
+      if (pcl == 0) M_throw() << "Cant have zero chain length";
+    }
 
-  size_t pairchainlength;  
-  double walklength;
+    size_t pairchainlength;  
+    double walklength;
   
-  virtual std::vector<Vector  > placeObjects(const Vector & centre)
-  {
-    std::vector<Vector  > localsites;
+    virtual std::vector<Vector  > placeObjects(const Vector & centre)
+    {
+      std::vector<Vector  > localsites;
         
-    for (size_t iStep = 0; iStep < pairchainlength; ++iStep)
-      { 
-	Vector  tmp(0,0,0);
-	tmp[0] = -0.5 * walklength;
-	tmp[1] = walklength * ( iStep - 0.5 * (pairchainlength-1));
+      for (size_t iStep = 0; iStep < pairchainlength; ++iStep)
+	{ 
+	  Vector  tmp(0,0,0);
+	  tmp[0] = -0.5 * walklength;
+	  tmp[1] = walklength * ( iStep - 0.5 * (pairchainlength-1));
 
-	localsites.push_back(tmp + centre);
-      }
+	  localsites.push_back(tmp + centre);
+	}
 
-    for (int iStep = pairchainlength; iStep != 0;)
-      { 
-	Vector tmp(0,0,0);
+      for (int iStep = pairchainlength; iStep != 0;)
+	{ 
+	  Vector tmp(0,0,0);
 
-	--iStep;
-	tmp[0] = 0.5 * walklength;
-	tmp[1] = walklength * ( iStep - 0.5 * (pairchainlength-1));
+	  --iStep;
+	  tmp[0] = 0.5 * walklength;
+	  tmp[1] = walklength * ( iStep - 0.5 * (pairchainlength-1));
 
-	localsites.push_back(tmp + centre);
-      }
+	  localsites.push_back(tmp + centre);
+	}
   
-    std::vector<Vector  > retval;
-    BOOST_FOREACH(const Vector & vec, localsites)
-      BOOST_FOREACH(const Vector & vec2, uc->placeObjects(vec))
+      std::vector<Vector  > retval;
+      BOOST_FOREACH(const Vector & vec, localsites)
+	BOOST_FOREACH(const Vector & vec2, uc->placeObjects(vec))
         retval.push_back(vec2);
 
-    return retval;    
-  }
-};
+      return retval;    
+    }
+  };
+}

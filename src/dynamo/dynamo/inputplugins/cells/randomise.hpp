@@ -19,19 +19,21 @@
 #include <dynamo/inputplugins/cells/cell.hpp>
 #include <algorithm>
 
-struct CURandomise: public CUCell
-{
-  CURandomise(CUCell* nextCell):
-    CUCell(nextCell)
-  {}
-
-  virtual std::vector<Vector  > placeObjects(const Vector & centre)
+namespace dynamo {
+  struct CURandomise: public CUCell
   {
-    //Must be placed at zero for the mirroring to work correctly
-    std::vector<Vector  > retval(uc->placeObjects(Vector (centre)));
+    CURandomise(CUCell* nextCell):
+      CUCell(nextCell)
+    {}
+
+    virtual std::vector<Vector  > placeObjects(const Vector & centre)
+    {
+      //Must be placed at zero for the mirroring to work correctly
+      std::vector<Vector  > retval(uc->placeObjects(Vector (centre)));
     
-    std::random_shuffle(retval.begin(), retval.end());
+      std::random_shuffle(retval.begin(), retval.end());
     
-    return retval;    
-  }
-};
+      return retval;    
+    }
+  };
+}

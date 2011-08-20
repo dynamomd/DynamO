@@ -25,73 +25,76 @@
 
 namespace magnet { namespace xml { class Node; } }
 namespace xml { class XmlStream; }
-class Particle;
-class Interaction;
-class RenderObj;
-namespace coil { class DataSet; }
 
-class Species: public dynamo::SimBase
-{
-public:
-  virtual ~Species();
+namespace dynamo {
+  class Particle;
+  class Interaction;
+  class RenderObj;
+  namespace coil { class DataSet; }
 
-  inline bool isSpecies(const Particle& p1) const { return range->isInRange(p1); }  
+  class Species: public dynamo::SimBase
+  {
+  public:
+    virtual ~Species();
 
-  inline const double& getMass(size_t ID) const { return _mass->getProperty(ID); }
-  inline unsigned long getCount() const { return range->size(); }
-  inline unsigned int getID() const { return ID; }
-  inline const std::string& getName() const { return spName; }
-  inline const std::string& getIntName() const { return intName; }
-  inline const magnet::ClonePtr<CRange>& getRange() const { return range; }
-  inline const Interaction* getIntPtr() const { return IntPtr; }
-  inline void setIntPtr(Interaction* nPtr) { IntPtr = nPtr; }
-  virtual double getScalarMomentOfInertia(size_t ID) const = 0;
+    inline bool isSpecies(const Particle& p1) const { return range->isInRange(p1); }  
 
-  virtual void operator<<(const magnet::xml::Node&) = 0;
+    inline const double& getMass(size_t ID) const { return _mass->getProperty(ID); }
+    inline unsigned long getCount() const { return range->size(); }
+    inline unsigned int getID() const { return ID; }
+    inline const std::string& getName() const { return spName; }
+    inline const std::string& getIntName() const { return intName; }
+    inline const magnet::ClonePtr<CRange>& getRange() const { return range; }
+    inline const Interaction* getIntPtr() const { return IntPtr; }
+    inline void setIntPtr(Interaction* nPtr) { IntPtr = nPtr; }
+    virtual double getScalarMomentOfInertia(size_t ID) const = 0;
 
-  virtual void initialise() = 0;
+    virtual void operator<<(const magnet::xml::Node&) = 0;
 
-  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Species&);
+    virtual void initialise() = 0;
+
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Species&);
   
-  virtual Species* Clone() const = 0;
+    virtual Species* Clone() const = 0;
 
-  static Species* getClass(const magnet::xml::Node&, dynamo::SimData*, size_t);
+    static Species* getClass(const magnet::xml::Node&, dynamo::SimData*, size_t);
 
 #ifdef DYNAMO_visualizer
-  virtual std::tr1::shared_ptr<coil::DataSet> createDataSet() const;
-  virtual void initDataSet() const;
-  virtual void updateRenderData() const;
-protected:
+    virtual std::tr1::shared_ptr<coil::DataSet> createDataSet() const;
+    virtual void initDataSet() const;
+    virtual void updateRenderData() const;
+  protected:
 
-  mutable std::tr1::shared_ptr<coil::DataSet> _renderData;
+    mutable std::tr1::shared_ptr<coil::DataSet> _renderData;
 #endif
 
-protected:
-  template<class T1>
-  Species(dynamo::SimData* tmp, std::string name, 
-	  CRange* nr, T1 mass, std::string nName, 
-	  unsigned int nID, std::string nIName):
-    SimBase(tmp, name),
-    _mass(Sim->_properties.getProperty(mass, Property::Units::Mass())),
-    range(nr),
-    spName(nName),
-    intName(nIName),
-    IntPtr(NULL),
-    ID(nID)
-  {}
+  protected:
+    template<class T1>
+    Species(dynamo::SimData* tmp, std::string name, 
+	    CRange* nr, T1 mass, std::string nName, 
+	    unsigned int nID, std::string nIName):
+      SimBase(tmp, name),
+      _mass(Sim->_properties.getProperty(mass, Property::Units::Mass())),
+      range(nr),
+      spName(nName),
+      intName(nIName),
+      IntPtr(NULL),
+      ID(nID)
+    {}
 
-  virtual void outputXML(magnet::xml::XmlStream&) const = 0;
+    virtual void outputXML(magnet::xml::XmlStream&) const = 0;
   
-  std::tr1::shared_ptr<Property> _mass;
-  magnet::ClonePtr<CRange> range;
-  std::string spName;
-  std::string intName;
-  Interaction* IntPtr;
-  unsigned int ID;
-};
+    std::tr1::shared_ptr<Property> _mass;
+    magnet::ClonePtr<CRange> range;
+    std::string spName;
+    std::string intName;
+    Interaction* IntPtr;
+    unsigned int ID;
+  };
 
-inline magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Species& g)
-{
-  g.outputXML(XML);
-  return XML;
+  inline magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Species& g)
+  {
+    g.outputXML(XML);
+    return XML;
+  }
 }

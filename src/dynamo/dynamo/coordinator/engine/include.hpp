@@ -15,6 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "replexer.hpp"
-#include "single.hpp"
-#include "compressor.hpp"
+#include <dynamo/coordinator/engine/replexer.hpp>
+#include <dynamo/coordinator/engine/single.hpp>
+#include <dynamo/coordinator/engine/compressor.hpp>

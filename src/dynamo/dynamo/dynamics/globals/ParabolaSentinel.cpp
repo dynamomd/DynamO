@@ -15,85 +15,87 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ParabolaSentinel.hpp"
-#include "globEvent.hpp"
-#include "../NparticleEventData.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../liouvillean/liouvillean.hpp"
-#include "../../schedulers/scheduler.hpp"
+#include <dynamo/dynamics/globals/ParabolaSentinel.hpp>
+#include <dynamo/dynamics/globals/globEvent.hpp>
+#include <dynamo/dynamics/NparticleEventData.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
 #include <magnet/xmlreader.hpp>
 
 #ifdef DYNAMO_DEBUG 
 #include <boost/math/special_functions/fpclassify.hpp>
 #endif
 
+namespace dynamo {
 
-CGParabolaSentinel::CGParabolaSentinel(dynamo::SimData* nSim, const std::string& name):
-  Global(nSim, "ParabolaSentinel")
-{
-  globName = name;
-  dout << "ParabolaSentinel Loaded" << std::endl;
-}
+  GParabolaSentinel::GParabolaSentinel(dynamo::SimData* nSim, const std::string& name):
+    Global(nSim, "ParabolaSentinel")
+  {
+    globName = name;
+    dout << "ParabolaSentinel Loaded" << std::endl;
+  }
 
-void 
-CGParabolaSentinel::initialise(size_t nID)
-{
-  ID=nID;
-}
+  void 
+  GParabolaSentinel::initialise(size_t nID)
+  {
+    ID=nID;
+  }
 
-GlobalEvent 
-CGParabolaSentinel::getEvent(const Particle& part) const
-{
-  Sim->dynamics.getLiouvillean().updateParticle(part);
+  GlobalEvent 
+  GParabolaSentinel::getEvent(const Particle& part) const
+  {
+    Sim->dynamics.getLiouvillean().updateParticle(part);
 
-  return GlobalEvent(part, Sim->dynamics.getLiouvillean()
-		     .getParabolaSentinelTime(part), 
-		     VIRTUAL, *this);
-}
+    return GlobalEvent(part, Sim->dynamics.getLiouvillean()
+		       .getParabolaSentinelTime(part), 
+		       VIRTUAL, *this);
+  }
 
-void 
-CGParabolaSentinel::runEvent(const Particle& part, const double) const
-{
-  Sim->dynamics.getLiouvillean().updateParticle(part);
+  void 
+  GParabolaSentinel::runEvent(const Particle& part, const double) const
+  {
+    Sim->dynamics.getLiouvillean().updateParticle(part);
 
-  GlobalEvent iEvent(getEvent(part));
+    GlobalEvent iEvent(getEvent(part));
 
-  if (iEvent.getdt() == HUGE_VAL)
-    {
-      //We've numerically drifted slightly passed the parabola, so
-      //just reschedule the particles events, no need to enforce anything
-      Sim->ptrScheduler->fullUpdate(part);
-      return;
-    }
+    if (iEvent.getdt() == HUGE_VAL)
+      {
+	//We've numerically drifted slightly passed the parabola, so
+	//just reschedule the particles events, no need to enforce anything
+	Sim->ptrScheduler->fullUpdate(part);
+	return;
+      }
 
 #ifdef DYNAMO_DEBUG 
-  if (boost::math::isnan(iEvent.getdt()))
-    M_throw() << "A NAN Interaction collision time has been found when recalculating this global"
-	      << iEvent.stringData(Sim);
+    if (boost::math::isnan(iEvent.getdt()))
+      M_throw() << "A NAN Interaction collision time has been found when recalculating this global"
+		<< iEvent.stringData(Sim);
 #endif
 
-  Sim->dSysTime += iEvent.getdt();
+    Sim->dSysTime += iEvent.getdt();
     
-  Sim->ptrScheduler->stream(iEvent.getdt());
+    Sim->ptrScheduler->stream(iEvent.getdt());
   
-  Sim->dynamics.stream(iEvent.getdt());
+    Sim->dynamics.stream(iEvent.getdt());
 
-  Sim->dynamics.getLiouvillean().enforceParabola(part);
+    Sim->dynamics.getLiouvillean().enforceParabola(part);
   
 #ifdef DYNAMO_DEBUG
-  iEvent.addTime(Sim->freestreamAcc);
+    iEvent.addTime(Sim->freestreamAcc);
   
-  Sim->freestreamAcc = 0;
+    Sim->freestreamAcc = 0;
 
-  NEventData EDat(ParticleEventData(part, Sim->dynamics.getSpecies(part), VIRTUAL));
+    NEventData EDat(ParticleEventData(part, Sim->dynamics.getSpecies(part), VIRTUAL));
 
-  Sim->signalParticleUpdate(EDat);
+    Sim->signalParticleUpdate(EDat);
 
-  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(iEvent, EDat);
+    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+      Ptr->eventUpdate(iEvent, EDat);
 #else
-  Sim->freestreamAcc += iEvent.getdt();
+    Sim->freestreamAcc += iEvent.getdt();
 #endif
 
-  Sim->ptrScheduler->fullUpdate(part);
+    Sim->ptrScheduler->fullUpdate(part);
+  }
 }

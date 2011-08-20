@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "point.hpp"
-#include "sphericalTop.hpp"
-#include "fixedCollider.hpp"
-#include "lines.hpp"
-#include "dumbbell.hpp"
+#include <dynamo/dynamics/species/point.hpp>
+#include <dynamo/dynamics/species/sphericalTop.hpp>
+#include <dynamo/dynamics/species/fixedCollider.hpp>
+#include <dynamo/dynamics/species/lines.hpp>
+#include <dynamo/dynamics/species/dumbbell.hpp>

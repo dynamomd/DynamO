@@ -16,35 +16,37 @@
 */
 
 #pragma once
-#include "local.hpp"
+#include <dynamo/dynamics/locals/local.hpp>
 
-class CLSphere: public Local
-{
-public:
-  CLSphere(const magnet::xml::Node&, dynamo::SimData*);
-  CLSphere(dynamo::SimData*, double, Vector , double, 
-	 std::string, CRange*, bool nrender = true);
+namespace dynamo {
+  class CLSphere: public Local
+  {
+  public:
+    CLSphere(const magnet::xml::Node&, dynamo::SimData*);
+    CLSphere(dynamo::SimData*, double, Vector , double, 
+	     std::string, CRange*, bool nrender = true);
 
-  virtual ~CLSphere() {}
+    virtual ~CLSphere() {}
 
-  virtual Local* Clone() const { return new CLSphere(*this); };
+    virtual Local* Clone() const { return new CLSphere(*this); };
 
-  virtual LocalEvent getEvent(const Particle&) const;
+    virtual LocalEvent getEvent(const Particle&) const;
 
-  virtual void runEvent(const Particle&, const LocalEvent&) const;
+    virtual void runEvent(const Particle&, const LocalEvent&) const;
   
-  virtual bool isInCell(const Vector &, const Vector &) const;
+    virtual bool isInCell(const Vector &, const Vector &) const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  Vector  vPosition;
-  double e;
-  double radius;
-  double r2;
-  bool render;
-};
+    Vector  vPosition;
+    double e;
+    double radius;
+    double r2;
+    bool render;
+  };
+}

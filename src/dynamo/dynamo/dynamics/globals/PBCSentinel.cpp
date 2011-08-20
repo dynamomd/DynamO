@@ -27,90 +27,92 @@
 #include <boost/math/special_functions/fpclassify.hpp>
 #endif
 
-GPBCSentinel::GPBCSentinel(dynamo::SimData* nSim, const std::string& name):
-  Global(nSim, "PBCSentinel"),
-  maxintdist(0)
-{
-  globName = name;
-  dout << "PBCSentinel Loaded" << std::endl;
-}
+namespace dynamo {
+  GPBCSentinel::GPBCSentinel(dynamo::SimData* nSim, const std::string& name):
+    Global(nSim, "PBCSentinel"),
+    maxintdist(0)
+  {
+    globName = name;
+    dout << "PBCSentinel Loaded" << std::endl;
+  }
 
-GPBCSentinel::GPBCSentinel(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
-  Global(ptrSim, "PBCSentinel"),
-  maxintdist(0)
-{
-  operator<<(XML);
+  GPBCSentinel::GPBCSentinel(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
+    Global(ptrSim, "PBCSentinel"),
+    maxintdist(0)
+  {
+    operator<<(XML);
 
-  dout << "PBCSentinel Loaded" << std::endl;
-}
+    dout << "PBCSentinel Loaded" << std::endl;
+  }
 
-void 
-GPBCSentinel::initialise(size_t nID)
-{
-  ID=nID;
+  void 
+  GPBCSentinel::initialise(size_t nID)
+  {
+    ID=nID;
   
-  maxintdist = Sim->dynamics.getLongestInteraction();
-}
+    maxintdist = Sim->dynamics.getLongestInteraction();
+  }
 
-void 
-GPBCSentinel::operator<<(const magnet::xml::Node& XML)
-{
-  globName = XML.getAttribute("Name");	
-}
+  void 
+  GPBCSentinel::operator<<(const magnet::xml::Node& XML)
+  {
+    globName = XML.getAttribute("Name");	
+  }
 
-GlobalEvent 
-GPBCSentinel::getEvent(const Particle& part) const
-{
-  return GlobalEvent(part, Sim->dynamics.getLiouvillean().getPBCSentinelTime(part, maxintdist), 
-		     VIRTUAL, *this);
-}
+  GlobalEvent 
+  GPBCSentinel::getEvent(const Particle& part) const
+  {
+    return GlobalEvent(part, Sim->dynamics.getLiouvillean().getPBCSentinelTime(part, maxintdist), 
+		       VIRTUAL, *this);
+  }
 
-void 
-GPBCSentinel::runEvent(const Particle& part, const double dt) const
-{
-  GlobalEvent iEvent(part, dt, VIRTUAL, *this);
+  void 
+  GPBCSentinel::runEvent(const Particle& part, const double dt) const
+  {
+    GlobalEvent iEvent(part, dt, VIRTUAL, *this);
 
 #ifdef DYNAMO_DEBUG 
-  if (boost::math::isnan(iEvent.getdt()))
-    M_throw() << "A NAN Interaction collision time has been found"
-	      << iEvent.stringData(Sim);
+    if (boost::math::isnan(iEvent.getdt()))
+      M_throw() << "A NAN Interaction collision time has been found"
+		<< iEvent.stringData(Sim);
   
-  if (iEvent.getdt() == HUGE_VAL)
-    M_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
-	      << iEvent.stringData(Sim);
+    if (iEvent.getdt() == HUGE_VAL)
+      M_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
+		<< iEvent.stringData(Sim);
 #endif
 
-  Sim->dSysTime += iEvent.getdt();
+    Sim->dSysTime += iEvent.getdt();
     
-  Sim->ptrScheduler->stream(iEvent.getdt());
+    Sim->ptrScheduler->stream(iEvent.getdt());
   
-  Sim->dynamics.stream(iEvent.getdt());
+    Sim->dynamics.stream(iEvent.getdt());
 
-  Sim->dynamics.getLiouvillean().updateParticle(part);
+    Sim->dynamics.getLiouvillean().updateParticle(part);
 
 #ifdef DYNAMO_DEBUG
-  iEvent.addTime(Sim->freestreamAcc);
+    iEvent.addTime(Sim->freestreamAcc);
   
-  Sim->freestreamAcc = 0;
+    Sim->freestreamAcc = 0;
 
-  NEventData EDat(ParticleEventData(part, Sim->dynamics.getSpecies(part), VIRTUAL));
+    NEventData EDat(ParticleEventData(part, Sim->dynamics.getSpecies(part), VIRTUAL));
 
-  Sim->signalParticleUpdate(EDat);
+    Sim->signalParticleUpdate(EDat);
 
-  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(iEvent, EDat);
+    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+      Ptr->eventUpdate(iEvent, EDat);
 #else
-  Sim->freestreamAcc += iEvent.getdt();
+    Sim->freestreamAcc += iEvent.getdt();
 #endif
 
-  Sim->ptrScheduler->fullUpdate(part);
-}
+    Sim->ptrScheduler->fullUpdate(part);
+  }
 
-void 
-GPBCSentinel::outputXML(magnet::xml::XmlStream& XML) const
-{
-  XML << magnet::xml::tag("Global") 
-      << magnet::xml::attr("Type") << "PBCSentinel"
-      << magnet::xml::attr("Name") << globName
-      << magnet::xml::endtag("Global");
+  void 
+  GPBCSentinel::outputXML(magnet::xml::XmlStream& XML) const
+  {
+    XML << magnet::xml::tag("Global") 
+	<< magnet::xml::attr("Type") << "PBCSentinel"
+	<< magnet::xml::attr("Name") << globName
+	<< magnet::xml::endtag("Global");
+  }
 }

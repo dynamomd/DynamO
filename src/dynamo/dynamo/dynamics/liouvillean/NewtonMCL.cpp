@@ -15,204 +15,206 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "NewtonMCL.hpp"
-#include "../interactions/intEvent.hpp"
-#include "../2particleEventData.hpp"
-#include "../NparticleEventData.hpp"
-#include "../dynamics.hpp"
-#include "../BC/BC.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../species/species.hpp"
-#include "../../schedulers/sorters/datastruct.hpp"
-#include "shapes/frenkelroot.hpp"
-#include "shapes/oscillatingplate.hpp"
-#include "../../outputplugins/1partproperty/uenergy.hpp"
-#include "../../outputplugins/0partproperty/intEnergyHist.hpp"
-#include "../units/units.hpp"
+#include <dynamo/dynamics/liouvillean/NewtonMCL.hpp>
+#include <dynamo/dynamics/interactions/intEvent.hpp>
+#include <dynamo/dynamics/2particleEventData.hpp>
+#include <dynamo/dynamics/NparticleEventData.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/dynamics/BC/BC.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/species/species.hpp>
+#include <dynamo/schedulers/sorters/datastruct.hpp>
+#include <dynamo/dynamics/liouvillean/shapes/frenkelroot.hpp>
+#include <dynamo/dynamics/liouvillean/shapes/oscillatingplate.hpp>
+#include <dynamo/outputplugins/1partproperty/uenergy.hpp>
+#include <dynamo/outputplugins/0partproperty/intEnergyHist.hpp>
+#include <dynamo/dynamicsunits/units.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 
-LNewtonianMC::LNewtonianMC(dynamo::SimData* tmp, const magnet::xml::Node& XML):
-  LNewtonian(tmp),
-  EnergyPotentialStep(1)
-{
-  if (strcmp(XML.getAttribute("Type"),"NewtonianMC"))
-    M_throw() << "Attempting to load NewtonianMC from " 
-	      << XML.getAttribute("Type")
-	      << " entry";
-  try 
-    {     
-      if (XML.hasNode("PotentialDeformation"))
-	if (XML.getNode("PotentialDeformation").hasAttribute("EnergyStep"))
-	  EnergyPotentialStep 
-	    = XML.getNode("PotentialDeformation").getAttribute("EnergyStep").as<double>();
+namespace dynamo {
+  LNewtonianMC::LNewtonianMC(dynamo::SimData* tmp, const magnet::xml::Node& XML):
+    LNewtonian(tmp),
+    EnergyPotentialStep(1)
+  {
+    if (strcmp(XML.getAttribute("Type"),"NewtonianMC"))
+      M_throw() << "Attempting to load NewtonianMC from " 
+		<< XML.getAttribute("Type")
+		<< " entry";
+    try 
+      {     
+	if (XML.hasNode("PotentialDeformation"))
+	  if (XML.getNode("PotentialDeformation").hasAttribute("EnergyStep"))
+	    EnergyPotentialStep 
+	      = XML.getNode("PotentialDeformation").getAttribute("EnergyStep").as<double>();
       
-      EnergyPotentialStep /= Sim->dynamics.units().unitEnergy();
+	EnergyPotentialStep /= Sim->dynamics.units().unitEnergy();
       
-      if (dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()) == NULL)
-	M_throw() << "Multi-canonical simulations require an NVT ensemble";
+	if (dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()) == NULL)
+	  M_throw() << "Multi-canonical simulations require an NVT ensemble";
 
-      if (XML.hasNode("PotentialDeformation"))
-	for (magnet::xml::Node node = XML.getNode("PotentialDeformation").fastGetNode("W"); 
-	     node.valid(); ++node)
-	  {
-	    double energy = node.getAttribute("Energy").as<double>() / Sim->dynamics.units().unitEnergy();	    
-	    double Wval = node.getAttribute("Value").as<double>();
+	if (XML.hasNode("PotentialDeformation"))
+	  for (magnet::xml::Node node = XML.getNode("PotentialDeformation").fastGetNode("W"); 
+	       node.valid(); ++node)
+	    {
+	      double energy = node.getAttribute("Energy").as<double>() / Sim->dynamics.units().unitEnergy();	    
+	      double Wval = node.getAttribute("Value").as<double>();
 	    
-	    //Here, the Wval needs to be multiplied by kT to turn it
-	    //into an Energy, but the Ensemble is not yet initialised,
-	    //we must do this conversion later, when we actually use the W val.
-	    _W[lrint(energy / EnergyPotentialStep)] = Wval;
+	      //Here, the Wval needs to be multiplied by kT to turn it
+	      //into an Energy, but the Ensemble is not yet initialised,
+	      //we must do this conversion later, when we actually use the W val.
+	      _W[lrint(energy / EnergyPotentialStep)] = Wval;
+	    }
+      }
+    catch (boost::bad_lexical_cast &)
+      { M_throw() << "Failed a lexical cast in LNewtonianMC"; }
+  }
+
+  void 
+  LNewtonianMC::outputXML(magnet::xml::XmlStream& XML) const
+  {
+    double step = EnergyPotentialStep;
+    boost::unordered_map<int, double> wout = _W;
+
+    try {
+      wout = Sim->getOutputPlugin<OPIntEnergyHist>()->getImprovedW();
+      step = Sim->getOutputPlugin<OPIntEnergyHist>()->getBinWidth();
+    } catch (std::exception&)
+      {}
+
+    XML << magnet::xml::attr("Type")
+	<< "NewtonianMC"
+	<< magnet::xml::tag("PotentialDeformation")
+	<< magnet::xml::attr("EnergyStep")
+	<< step * Sim->dynamics.units().unitEnergy();
+
+    typedef std::pair<const double,double> locpair;
+
+    BOOST_FOREACH(const locpair& val, wout)
+      {
+	double key = val.first * EnergyPotentialStep 
+	  * Sim->dynamics.units().unitEnergy();
+      
+	XML << magnet::xml::tag("W")
+	    << magnet::xml::attr("Energy") << key
+	    << magnet::xml::attr("Value") << val.second
+	    << magnet::xml::attr("OldValue") << W(key)
+	    << magnet::xml::endtag("W");
+      }
+    
+    XML << magnet::xml::endtag("PotentialDeformation");
+  }
+
+
+
+  void LNewtonianMC::initialise()
+  {
+    LNewtonian::initialise();
+  }
+
+
+  NEventData 
+  LNewtonianMC::multibdyWellEvent(const CRange& range1, const CRange& range2, 
+				  const double&, const double& deltaKE, 
+				  EEventType& eType) const
+  {
+    M_throw() << "Not implemented";
+  }
+
+  PairEventData 
+  LNewtonianMC::SphereWellEvent(const IntEvent& event, const double& deltaKE, 
+				const double &) const
+  {
+    const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
+    const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
+
+    updateParticlePair(particle1, particle2);  
+
+    PairEventData retVal(particle1, particle2,
+			 Sim->dynamics.getSpecies(particle1),
+			 Sim->dynamics.getSpecies(particle2),
+			 event.getType());
+    
+    Sim->dynamics.BCs().applyBC(retVal.rij,retVal.vijold);
+  
+    retVal.rvdot = (retVal.rij | retVal.vijold);
+  
+    double p1Mass = retVal.particle1_.getSpecies().getMass(particle1.getID());
+    double p2Mass = retVal.particle2_.getSpecies().getMass(particle2.getID());
+    double mu = p1Mass * p2Mass / (p1Mass + p2Mass);  
+    double R2 = retVal.rij.nrm2();
+
+    double CurrentE = Sim->getOutputPlugin<OPUEnergy>()->getSimU();
+
+    //Calculate the deformed energy change of the system (the one used in the dynamics)
+    double MCDeltaKE = deltaKE;
+
+    //If there are entries for the current and possible future energy, then take them into account
+    MCDeltaKE += W(CurrentE) * Sim->ensemble->getEnsembleVals()[2];
+    MCDeltaKE -= W(CurrentE - deltaKE) * Sim->ensemble->getEnsembleVals()[2];
+
+    //Test if the deformed energy change allows a capture event to occur
+    double sqrtArg = retVal.rvdot * retVal.rvdot + 2.0 * R2 * MCDeltaKE / mu;
+    if ((MCDeltaKE < 0) && (sqrtArg < 0))
+      {
+	event.setType(BOUNCE);
+	retVal.setType(BOUNCE);
+	retVal.dP = retVal.rij * 2.0 * mu * retVal.rvdot / R2;
+      }
+    else
+      {
+	if (MCDeltaKE < 0)
+	  {
+	    event.setType(WELL_KEDOWN);
+	    retVal.setType(WELL_KEDOWN);
 	  }
-    }
-  catch (boost::bad_lexical_cast &)
-    { M_throw() << "Failed a lexical cast in LNewtonianMC"; }
-}
-
-void 
-LNewtonianMC::outputXML(magnet::xml::XmlStream& XML) const
-{
-  double step = EnergyPotentialStep;
-  boost::unordered_map<int, double> wout = _W;
-
-  try {
-    wout = Sim->getOutputPlugin<OPIntEnergyHist>()->getImprovedW();
-    step = Sim->getOutputPlugin<OPIntEnergyHist>()->getBinWidth();
-  } catch (std::exception&)
-    {}
-
-  XML << magnet::xml::attr("Type")
-      << "NewtonianMC"
-      << magnet::xml::tag("PotentialDeformation")
-      << magnet::xml::attr("EnergyStep")
-      << step * Sim->dynamics.units().unitEnergy();
-
-  typedef std::pair<const double,double> locpair;
-
-  BOOST_FOREACH(const locpair& val, wout)
-    {
-      double key = val.first * EnergyPotentialStep 
-	* Sim->dynamics.units().unitEnergy();
+	else
+	  {
+	    event.setType(WELL_KEUP);
+	    retVal.setType(WELL_KEUP);	  
+	  }
       
-      XML << magnet::xml::tag("W")
-	  << magnet::xml::attr("Energy") << key
-	  << magnet::xml::attr("Value") << val.second
-	  << magnet::xml::attr("OldValue") << W(key)
-	  << magnet::xml::endtag("W");
-    }
-    
-  XML << magnet::xml::endtag("PotentialDeformation");
-}
-
-
-
-void LNewtonianMC::initialise()
-{
-  LNewtonian::initialise();
-}
-
-
-NEventData 
-LNewtonianMC::multibdyWellEvent(const CRange& range1, const CRange& range2, 
-				const double&, const double& deltaKE, 
-				EEventType& eType) const
-{
-  M_throw() << "Not implemented";
-}
-
-PairEventData 
-LNewtonianMC::SphereWellEvent(const IntEvent& event, const double& deltaKE, 
-			      const double &) const
-{
-  const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
-  const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
-
-  updateParticlePair(particle1, particle2);  
-
-  PairEventData retVal(particle1, particle2,
-			Sim->dynamics.getSpecies(particle1),
-			Sim->dynamics.getSpecies(particle2),
-			event.getType());
-    
-  Sim->dynamics.BCs().applyBC(retVal.rij,retVal.vijold);
-  
-  retVal.rvdot = (retVal.rij | retVal.vijold);
-  
-  double p1Mass = retVal.particle1_.getSpecies().getMass(particle1.getID());
-  double p2Mass = retVal.particle2_.getSpecies().getMass(particle2.getID());
-  double mu = p1Mass * p2Mass / (p1Mass + p2Mass);  
-  double R2 = retVal.rij.nrm2();
-
-  double CurrentE = Sim->getOutputPlugin<OPUEnergy>()->getSimU();
-
-  //Calculate the deformed energy change of the system (the one used in the dynamics)
-  double MCDeltaKE = deltaKE;
-
-  //If there are entries for the current and possible future energy, then take them into account
-  MCDeltaKE += W(CurrentE) * Sim->ensemble->getEnsembleVals()[2];
-  MCDeltaKE -= W(CurrentE - deltaKE) * Sim->ensemble->getEnsembleVals()[2];
-
-  //Test if the deformed energy change allows a capture event to occur
-  double sqrtArg = retVal.rvdot * retVal.rvdot + 2.0 * R2 * MCDeltaKE / mu;
-  if ((MCDeltaKE < 0) && (sqrtArg < 0))
-    {
-      event.setType(BOUNCE);
-      retVal.setType(BOUNCE);
-      retVal.dP = retVal.rij * 2.0 * mu * retVal.rvdot / R2;
-    }
-  else
-    {
-      if (MCDeltaKE < 0)
-	{
-	  event.setType(WELL_KEDOWN);
-	  retVal.setType(WELL_KEDOWN);
-	}
-      else
-	{
-	  event.setType(WELL_KEUP);
-	  retVal.setType(WELL_KEUP);	  
-	}
+	retVal.particle1_.setDeltaU(-0.5 * deltaKE);
+	retVal.particle2_.setDeltaU(-0.5 * deltaKE);	  
       
-      retVal.particle1_.setDeltaU(-0.5 * deltaKE);
-      retVal.particle2_.setDeltaU(-0.5 * deltaKE);	  
-      
-      if (retVal.rvdot < 0)
-	retVal.dP = retVal.rij 
-	  * (2.0 * MCDeltaKE / (std::sqrt(sqrtArg) - retVal.rvdot));
-      else
-	retVal.dP = retVal.rij 
-	  * (-2.0 * MCDeltaKE / (retVal.rvdot + std::sqrt(sqrtArg)));
-    }
+	if (retVal.rvdot < 0)
+	  retVal.dP = retVal.rij 
+	    * (2.0 * MCDeltaKE / (std::sqrt(sqrtArg) - retVal.rvdot));
+	else
+	  retVal.dP = retVal.rij 
+	    * (-2.0 * MCDeltaKE / (retVal.rvdot + std::sqrt(sqrtArg)));
+      }
   
 #ifdef DYNAMO_DEBUG
-  if (boost::math::isnan(retVal.dP[0]))
-    M_throw() << "A nan dp has ocurred";
+    if (boost::math::isnan(retVal.dP[0]))
+      M_throw() << "A nan dp has ocurred";
 #endif
   
-  //This function must edit particles so it overrides the const!
-  const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-  const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+    //This function must edit particles so it overrides the const!
+    const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+    const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
   
-  retVal.particle1_.setDeltaKE(0.5 * p1Mass * (particle1.getVelocity().nrm2() 
-					       - retVal.particle1_.getOldVel().nrm2()));
+    retVal.particle1_.setDeltaKE(0.5 * p1Mass * (particle1.getVelocity().nrm2() 
+						 - retVal.particle1_.getOldVel().nrm2()));
   
-  retVal.particle2_.setDeltaKE(0.5 * p2Mass * (particle2.getVelocity().nrm2() 
-					       - retVal.particle2_.getOldVel().nrm2()));
+    retVal.particle2_.setDeltaKE(0.5 * p2Mass * (particle2.getVelocity().nrm2() 
+						 - retVal.particle2_.getOldVel().nrm2()));
 
-  return retVal;
-}
+    return retVal;
+  }
 
-void 
-LNewtonianMC::swapSystem(Liouvillean& oLiouvillean)
-{
+  void 
+  LNewtonianMC::swapSystem(Liouvillean& oLiouvillean)
+  {
 #ifdef DYNAMO_DEBUG
-  if (dynamic_cast<const LNewtonianMC*>(&oLiouvillean) == NULL)
-    M_throw() << "Trying to swap Liouvilleans with different derived types!";
+    if (dynamic_cast<const LNewtonianMC*>(&oLiouvillean) == NULL)
+      M_throw() << "Trying to swap Liouvilleans with different derived types!";
 #endif
 
-  LNewtonianMC& ol(static_cast<LNewtonianMC&>(oLiouvillean));
+    LNewtonianMC& ol(static_cast<LNewtonianMC&>(oLiouvillean));
 
-  std::swap(EnergyPotentialStep, ol.EnergyPotentialStep);
-  std::swap(_W, ol._W);
+    std::swap(EnergyPotentialStep, ol.EnergyPotentialStep);
+    std::swap(_W, ol._W);
+  }
 }

@@ -16,26 +16,28 @@
 */
 
 #pragma once
-#include "global.hpp"
+#include <dynamo/dynamics/globals/global.hpp>
 #include <vector>
 
-class CGParabolaSentinel: public Global
-{
-public:
-  CGParabolaSentinel(dynamo::SimData*, const std::string&);
+namespace dynamo {
+  class GParabolaSentinel: public Global
+  {
+  public:
+    GParabolaSentinel(dynamo::SimData*, const std::string&);
   
-  virtual ~CGParabolaSentinel() {}
+    virtual ~GParabolaSentinel() {}
 
-  virtual Global* Clone() const { return new CGParabolaSentinel(*this); };
+    virtual Global* Clone() const { return new CGParabolaSentinel(*this); };
 
-  virtual GlobalEvent getEvent(const Particle &) const;
+    virtual GlobalEvent getEvent(const Particle &) const;
 
-  virtual void runEvent(const Particle&, const double) const;
+    virtual void runEvent(const Particle&, const double) const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual void operator<<(const magnet::xml::Node&) {}
+    virtual void operator<<(const magnet::xml::Node&) {}
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const {}
-};
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const {}
+  };
+}

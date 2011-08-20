@@ -17,107 +17,111 @@
 
 #pragma once
 
-#include "../eventtypes.hpp"
-#include "../../simulation/particle.hpp"
-#include "interaction.hpp"
+#include <dynamo/dynamics/eventtypes.hpp>
+#include <dynamo/simulation/particle.hpp>
+#include <dynamo/dynamics/interactions/interaction.hpp>
 #include <cfloat>
 #include <limits>
 
 struct XMLNode;
+
 class Interaction;
 namespace dynamo {
   class SimData;
 }
+
 namespace xml
 {
   class XmlStream;
 }
 
-class IntEvent
-{
-public:  
-  friend class intPart;
+namespace dynamo {
+  class IntEvent
+  {
+  public:  
+    friend class intPart;
 
-  inline IntEvent ():
-    particle1(std::numeric_limits<size_t>::max()), particle2(std::numeric_limits<size_t>::max()), 
-    dt(HUGE_VAL), CType(NONE),
-    intID(std::numeric_limits<size_t>::max()) {}
+    inline IntEvent ():
+      particle1(std::numeric_limits<size_t>::max()), particle2(std::numeric_limits<size_t>::max()), 
+      dt(HUGE_VAL), CType(NONE),
+      intID(std::numeric_limits<size_t>::max()) {}
 
-  inline IntEvent(const Particle& part1, const Particle& part2, 
-		   const double &delt, EEventType nType, 
-		   const Interaction& pI):
-    particle1(part1.getID()), particle2(part2.getID()), dt(delt), 
-    CType(nType), intID(pI.getID()) {}
+    inline IntEvent(const Particle& part1, const Particle& part2, 
+		    const double &delt, EEventType nType, 
+		    const Interaction& pI):
+      particle1(part1.getID()), particle2(part2.getID()), dt(delt), 
+      CType(nType), intID(pI.getID()) {}
   
-  inline IntEvent (const Particle& part1):
-    particle1(part1.getID()), particle2(std::numeric_limits<size_t>::max()), 
-    dt(HUGE_VAL), CType(NONE),
-    intID(std::numeric_limits<size_t>::max()) {}
+    inline IntEvent (const Particle& part1):
+      particle1(part1.getID()), particle2(std::numeric_limits<size_t>::max()), 
+      dt(HUGE_VAL), CType(NONE),
+      intID(std::numeric_limits<size_t>::max()) {}
 
-  inline IntEvent(const Particle& part1, const double& dt, 
-		     EEventType etype):
-    particle1(part1.getID()), particle2(std::numeric_limits<size_t>::max()), 
-    dt(dt), CType(etype),
-    intID(std::numeric_limits<size_t>::max()) {}
+    inline IntEvent(const Particle& part1, const double& dt, 
+		    EEventType etype):
+      particle1(part1.getID()), particle2(std::numeric_limits<size_t>::max()), 
+      dt(dt), CType(etype),
+      intID(std::numeric_limits<size_t>::max()) {}
 
-  inline bool operator== (const Particle &partx) const 
-  { return ((particle1 == partx.getID()) || (particle2 == partx.getID())); }
+    inline bool operator== (const Particle &partx) const 
+    { return ((particle1 == partx.getID()) || (particle2 == partx.getID())); }
   
-  inline bool areInvolved(const IntEvent &coll) const 
-  { 
-    return ((coll.particle1 == particle1) 
-	    || (coll.particle1 == particle2)
-	    || (coll.particle2 == particle1)
-	    || (coll.particle2 == particle2));
-  }
+    inline bool areInvolved(const IntEvent &coll) const 
+    { 
+      return ((coll.particle1 == particle1) 
+	      || (coll.particle1 == particle2)
+	      || (coll.particle2 == particle1)
+	      || (coll.particle2 == particle2));
+    }
   
-  inline void invalidate() 
-  { 
-    dt = DBL_MAX; 
-    CType = NONE; 
-  }
+    inline void invalidate() 
+    { 
+      dt = DBL_MAX; 
+      CType = NONE; 
+    }
 
-  inline bool operator< (const IntEvent & C2) const 
-  { return dt < C2.dt;}
+    inline bool operator< (const IntEvent & C2) const 
+    { return dt < C2.dt;}
   
-  inline bool operator> (const IntEvent & C2) const 
+    inline bool operator> (const IntEvent & C2) const 
     { return dt > C2.dt;}
 
-  inline void incrementTime(const double deltat) {dt -= deltat; }
+    inline void incrementTime(const double deltat) {dt -= deltat; }
   
-  inline void addTime(const double deltat) {dt += deltat; }
+    inline void addTime(const double deltat) {dt += deltat; }
   
-  inline const size_t& getParticle1ID() const { return particle1; }
+    inline const size_t& getParticle1ID() const { return particle1; }
   
-  inline const size_t& getParticle2ID() const { return particle2; }
+    inline const size_t& getParticle2ID() const { return particle2; }
   
-  inline bool hasParticle2() const { return particle2 != std::numeric_limits<size_t>::max(); }
+    inline bool hasParticle2() const { return particle2 != std::numeric_limits<size_t>::max(); }
 
-  inline const double& getdt() const { return dt; }
+    inline const double& getdt() const { return dt; }
 
-  inline EEventType getType() const
-  { return CType; }
+    inline EEventType getType() const
+    { return CType; }
   
-  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const IntEvent&);
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const IntEvent&);
 
-  std::string stringData(const dynamo::SimData*) const;
+    std::string stringData(const dynamo::SimData*) const;
   
-  inline void setType(EEventType a) const
-  { 
-    //A bit of nastiness required by SquareWells
-    CType = a;
-  }
+    inline void setType(EEventType a) const
+    { 
+      //A bit of nastiness required by SquareWells
+      CType = a;
+    }
   
-  inline void scaleTime(const double& scale)
-  { dt *= scale; }
+    inline void scaleTime(const double& scale)
+    { dt *= scale; }
 
-  inline const size_t& getInteractionID() const 
-  { return intID; }
+    inline const size_t& getInteractionID() const 
+    { return intID; }
 
-private:
-  size_t  particle1;
-  size_t  particle2;
-  double dt;
-  mutable EEventType CType;
-  size_t intID;
-};
+  private:
+    size_t  particle1;
+    size_t  particle2;
+    double dt;
+    mutable EEventType CType;
+    size_t intID;
+  };
+}

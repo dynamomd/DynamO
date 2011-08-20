@@ -19,33 +19,35 @@
 #include <vector>
 #include <boost/scoped_ptr.hpp>
 
-class CUCell
-{
-public:
-  CUCell(CUCell* nP): uc(nP) {}
-
-  virtual ~CUCell() {}
-
-  virtual void initialise() { uc->initialise(); }
-
-  virtual std::vector<Vector  > placeObjects(const Vector & ) = 0;  
-  
-  boost::scoped_ptr<CUCell> uc;
-};
-
-//A simple terminator, used to place a particle at this point
-class CUParticle: public CUCell
-{
-public:
-  CUParticle(): CUCell(NULL) {}
-
-  //Terminate initialisation
-  virtual void initialise() {}
-
-  virtual std::vector<Vector  > placeObjects(const Vector & centre)
+namespace dynamo {
+  class CUCell
   {
-    std::vector<Vector  > retval;
-    retval.push_back(centre);
-    return retval;
-  }
-};
+  public:
+    CUCell(CUCell* nP): uc(nP) {}
+
+    virtual ~CUCell() {}
+
+    virtual void initialise() { uc->initialise(); }
+
+    virtual std::vector<Vector  > placeObjects(const Vector & ) = 0;  
+  
+    boost::scoped_ptr<CUCell> uc;
+  };
+
+  //A simple terminator, used to place a particle at this point
+  class CUParticle: public CUCell
+  {
+  public:
+    CUParticle(): CUCell(NULL) {}
+
+    //Terminate initialisation
+    virtual void initialise() {}
+
+    virtual std::vector<Vector  > placeObjects(const Vector & centre)
+    {
+      std::vector<Vector  > retval;
+      retval.push_back(centre);
+      return retval;
+    }
+  };
+}

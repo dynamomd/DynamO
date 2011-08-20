@@ -15,11 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "lwall.hpp"
-#include "ldblwall.hpp"
-#include "AndersenWall.hpp"
-#include "oscillatingplate.hpp"
-#include "lcylinder.hpp"
-#include "lsphere.hpp"
-#include "lroughwall.hpp"
-#include "trianglemesh.hpp"
+#include <dynamo/dynamics/locals/lwall.hpp>
+#include <dynamo/dynamics/locals/ldblwall.hpp>
+#include <dynamo/dynamics/locals/AndersenWall.hpp>
+#include <dynamo/dynamics/locals/oscillatingplate.hpp>
+#include <dynamo/dynamics/locals/lcylinder.hpp>
+#include <dynamo/dynamics/locals/lsphere.hpp>
+#include <dynamo/dynamics/locals/lroughwall.hpp>
+#include <dynamo/dynamics/locals/trianglemesh.hpp>

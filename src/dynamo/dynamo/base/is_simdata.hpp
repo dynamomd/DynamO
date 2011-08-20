@@ -37,23 +37,22 @@ class Particle;
 class OutputPlugin;
 
 namespace magnet {
-  template <class T>
-  class ClonePtr;
+  template <class T> class ClonePtr;
 }
-
-//! \brief Holds the different phases of the simulation initialisation
-typedef enum 
-  {
-    START         = 0, /*!< The first phase of the simulation. */
-    CONFIG_LOADED = 1, /*!< After the configuration has been loaded. */
-    INITIALISED   = 2, /*!< Once the classes have been initialised and
-                          the simulation is ready to begin. */
-    PRODUCTION    = 3, /*!< The simulation has already begun. */
-    ERROR         = 4  /*!< The simulation has failed. */
-  } ESimulationStatus;
 
 namespace dynamo
 {  
+  //! \brief Holds the different phases of the simulation initialisation
+  typedef enum 
+    {
+      START         = 0, /*!< The first phase of the simulation. */
+      CONFIG_LOADED = 1, /*!< After the configuration has been loaded. */
+      INITIALISED   = 2, /*!< Once the classes have been initialised and
+			   the simulation is ready to begin. */
+      PRODUCTION    = 3, /*!< The simulation has already begun. */
+      ERROR         = 4  /*!< The simulation has failed. */
+    } ESimulationStatus;
+
   typedef boost::mt19937 baseRNG;
   
   /*! \brief Fundamental collection of the Simulation data.

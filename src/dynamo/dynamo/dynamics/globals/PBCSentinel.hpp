@@ -19,40 +19,42 @@
 #include <dynamo/dynamics/globals/global.hpp>
 #include <vector>
 
-/*! \brief A Global event which helps prevent wrap around problems
- * with neighbor lists in periodic systems.
- *
- * If a particle has a clear path from one end of the simulation to
- * the other and PBC are applied, the cellular neighbor lists can
- * enter an infinite loop. The particle keeps travelling around and
- * around the simulation, without actually moving forward in time
- * because it doesn't actually hit anything.
- *
- * This Global attempts to break this infinite loop by making
- * particles have a virtual event when they travel half a simulation
- * box length.
- */
-class GPBCSentinel: public Global
-{
-public:
-  GPBCSentinel(const magnet::xml::Node&, dynamo::SimData*);
+namespace dynamo {
+  /*! \brief A Global event which helps prevent wrap around problems
+   * with neighbor lists in periodic systems.
+   *
+   * If a particle has a clear path from one end of the simulation to
+   * the other and PBC are applied, the cellular neighbor lists can
+   * enter an infinite loop. The particle keeps travelling around and
+   * around the simulation, without actually moving forward in time
+   * because it doesn't actually hit anything.
+   *
+   * This Global attempts to break this infinite loop by making
+   * particles have a virtual event when they travel half a simulation
+   * box length.
+   */
+  class GPBCSentinel: public Global
+  {
+  public:
+    GPBCSentinel(const magnet::xml::Node&, dynamo::SimData*);
 
-  GPBCSentinel(dynamo::SimData*, const std::string&);
+    GPBCSentinel(dynamo::SimData*, const std::string&);
   
-  virtual ~GPBCSentinel() {}
+    virtual ~GPBCSentinel() {}
 
-  virtual Global* Clone() const { return new GPBCSentinel(*this); };
+    virtual Global* Clone() const { return new GPBCSentinel(*this); };
 
-  virtual GlobalEvent getEvent(const Particle &) const;
+    virtual GlobalEvent getEvent(const Particle &) const;
 
-  virtual void runEvent(const Particle&, const double) const;
+    virtual void runEvent(const Particle&, const double) const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  double maxintdist;
-};
+    double maxintdist;
+  };
+}

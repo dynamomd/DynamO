@@ -17,8 +17,8 @@
 
 #pragma once
 
-#include "1range.hpp"
-#include "../../base/is_simdata.hpp"
+#include <dynamo/dynamics/ranges/1range.hpp>
+#include <dynamo/base/is_simdata.hpp>
 
 class CRAll: public CRange, public dynamo::SimBase_const
 {

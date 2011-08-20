@@ -17,56 +17,58 @@
 
 #pragma once
 #include <dynamo/base.hpp>
-#include "../eventtypes.hpp"
+#include <dynamo/dynamics/eventtypes.hpp>
 #include <string>
 
 namespace magnet { namespace xml { class Node; class XmlStream; } }
-class IntEvent;
-class GlobalEvent;
-class NEventData;
+namespace dynamo {
+  class IntEvent;
+  class GlobalEvent;
+  class NEventData;
 
-class System: public dynamo::SimBase
-{
-public:
-  System(dynamo::SimData*);
+  class System: public dynamo::SimBase
+  {
+  public:
+    System(dynamo::SimData*);
   
-  virtual ~System() {}
+    virtual ~System() {}
 
-  inline void stream(const double& ndt) { dt -= ndt; }
+    inline void stream(const double& ndt) { dt -= ndt; }
 
-  virtual void runEvent() const = 0;
+    virtual void runEvent() const = 0;
 
-  virtual void initialise(size_t) = 0;
+    virtual void initialise(size_t) = 0;
 
-  virtual void operator<<(const magnet::xml::Node&) = 0;
+    virtual void operator<<(const magnet::xml::Node&) = 0;
 
-  bool operator<(const IntEvent&) const;
+    bool operator<(const IntEvent&) const;
 
-  bool operator<(const GlobalEvent&) const;
+    bool operator<(const GlobalEvent&) const;
 
-  bool operator<(const System&) const;
+    bool operator<(const System&) const;
   
-  double getdt() const { return dt; }
+    double getdt() const { return dt; }
   
-  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const System&);
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const System&);
   
-  static System* getClass(const magnet::xml::Node&, dynamo::SimData*);
+    static System* getClass(const magnet::xml::Node&, dynamo::SimData*);
   
-  void setName(const std::string& tmp) { sysName = tmp; }
+    void setName(const std::string& tmp) { sysName = tmp; }
 
-  const std::string& getName() const { return sysName; }
+    const std::string& getName() const { return sysName; }
 
-  EEventType getType() const { return type; }
+    EEventType getType() const { return type; }
 
-  virtual void changeSystem(dynamo::SimData* ptr) { Sim = ptr; }
+    virtual void changeSystem(dynamo::SimData* ptr) { Sim = ptr; }
 
-  inline const size_t& getID() const { return ID; }
+    inline const size_t& getID() const { return ID; }
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const = 0;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
-  std::string sysName;  
-  mutable double dt;
-  EEventType type;
-  size_t ID;
-};
+    std::string sysName;  
+    mutable double dt;
+    EEventType type;
+    size_t ID;
+  };
+}
