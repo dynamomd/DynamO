@@ -16,28 +16,30 @@
 */
 
 #pragma once
-#include "1range.hpp"
-#include "2range.hpp"
+#include <dynamo/dynamics/ranges/1range.hpp>
+#include <dynamo/dynamics/ranges/2range.hpp>
 #include <magnet/cloneptr.hpp>
 
-class C2RChainGroups:public C2Range
-{
-public:
-  C2RChainGroups(const magnet::xml::Node&, const dynamo::SimData*);
+namespace dynamo {
+  class C2RChainGroups:public C2Range
+  {
+  public:
+    C2RChainGroups(const magnet::xml::Node&, const dynamo::SimData*);
 
-  C2RChainGroups(size_t, size_t, size_t);
+    C2RChainGroups(size_t, size_t, size_t);
   
-  virtual C2Range* Clone() const 
-  { return new C2RChainGroups(*this); };
+    virtual C2Range* Clone() const 
+    { return new C2RChainGroups(*this); };
 
-  virtual bool isInRange(const Particle&, const Particle&) const;
+    virtual bool isInRange(const Particle&, const Particle&) const;
   
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
   
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  size_t range1;
-  size_t range2;
-  size_t length;
-};
+    size_t range1;
+    size_t range2;
+    size_t length;
+  };
+}

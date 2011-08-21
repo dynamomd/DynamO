@@ -16,25 +16,26 @@
 */
 
 #pragma once
-
-class Particle;
 namespace magnet { namespace xml { class Node; class XmlStream; } }
-namespace dynamo { class SimData; }
+namespace dynamo { 
+  class SimData;
+  class Particle;
 
-class C2Range
-{
-public:
-  virtual ~C2Range() {};
+  class C2Range
+  {
+  public:
+    virtual ~C2Range() {};
  
-  virtual bool isInRange(const Particle&, const Particle&) const =0;  
-  virtual void operator<<(const magnet::xml::Node& XML) = 0;
+    virtual bool isInRange(const Particle&, const Particle&) const =0;  
+    virtual void operator<<(const magnet::xml::Node& XML) = 0;
   
-  virtual C2Range* Clone() const = 0;
+    virtual C2Range* Clone() const = 0;
 
-  static C2Range* getClass(const magnet::xml::Node&, const dynamo::SimData*);
+    static C2Range* getClass(const magnet::xml::Node&, const dynamo::SimData*);
 
-  friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const C2Range&);
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const C2Range&);
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream& XML) const = 0;
-};
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream& XML) const = 0;
+  };
+}

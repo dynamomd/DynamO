@@ -25,10 +25,10 @@
 namespace dynamo {
   class Particle;
 
+  using namespace EventTypeTracking;
+
   class OPCollMatrix: public OutputPlugin
   {
-    using namespace EventTypeTracking;
-
   private:
   
   public:

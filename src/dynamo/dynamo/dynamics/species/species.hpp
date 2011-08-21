@@ -24,13 +24,13 @@
 #include <string>
 
 namespace magnet { namespace xml { class Node; } }
+namespace coil { class DataSet; }
 namespace xml { class XmlStream; }
 
 namespace dynamo {
   class Particle;
   class Interaction;
   class RenderObj;
-  namespace coil { class DataSet; }
 
   class Species: public dynamo::SimBase
   {

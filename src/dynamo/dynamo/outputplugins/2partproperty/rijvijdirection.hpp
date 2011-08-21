@@ -22,10 +22,10 @@
 #include <map>
 
 namespace dynamo {
+  using namespace EventTypeTracking;
+
   class OPRijVij: public OutputPlugin
   {
-    using namespace EventTypeTracking;
-
   public:
     OPRijVij(const dynamo::SimData*, const magnet::xml::Node&);
 

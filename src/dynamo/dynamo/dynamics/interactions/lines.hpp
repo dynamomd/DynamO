@@ -20,7 +20,7 @@
 #include <dynamo/dynamics/interactions/captures.hpp>
 #include <dynamo/base/is_simdata.hpp>
 
-namespace magnet {
+namespace dynamo {
   class ILines: public ISingleCapture, public Interaction
   {
   public:

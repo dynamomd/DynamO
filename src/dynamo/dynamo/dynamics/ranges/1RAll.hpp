@@ -20,42 +20,44 @@
 #include <dynamo/dynamics/ranges/1range.hpp>
 #include <dynamo/base/is_simdata.hpp>
 
-class CRAll: public CRange, public dynamo::SimBase_const
-{
-public:
-  CRAll(const dynamo::SimData* SimDat):
-    SimBase_const(SimDat,"CRAll"){}
+namespace dynamo {
+  class CRAll: public CRange, public dynamo::SimBase_const
+  {
+  public:
+    CRAll(const dynamo::SimData* SimDat):
+      SimBase_const(SimDat,"CRAll"){}
 
-  CRAll(const magnet::xml::Node&, const dynamo::SimData*);
+    CRAll(const magnet::xml::Node&, const dynamo::SimData*);
 
-  virtual CRange* Clone() const { return new CRAll(*this); };
+    virtual CRange* Clone() const { return new CRAll(*this); };
 
-  virtual bool isInRange(const Particle&) const
-  { return true; }
+    virtual bool isInRange(const Particle&) const
+    { return true; }
 
-  //The data output classes
-  virtual void operator<<(const magnet::xml::Node&);
+    //The data output classes
+    virtual void operator<<(const magnet::xml::Node&);
 
-  virtual unsigned long size() const { return Sim->particleList.size(); }
+    virtual unsigned long size() const { return Sim->particleList.size(); }
 
-  virtual iterator begin() const { return CRange::iterator(0, this); }
+    virtual iterator begin() const { return CRange::iterator(0, this); }
 
-  virtual iterator end() const { return CRange::iterator(Sim->particleList.size(), this); }
+    virtual iterator end() const { return CRange::iterator(Sim->particleList.size(), this); }
 
-  virtual unsigned long operator[](unsigned long i) const  
-  { return i; }
+    virtual unsigned long operator[](unsigned long i) const  
+    { return i; }
 
-  virtual unsigned long at(unsigned long i) const 
-  { 
-    if (i >= Sim->particleList.size())
-      M_throw() << "Bad array access value in range.at()";
+    virtual unsigned long at(unsigned long i) const 
+    { 
+      if (i >= Sim->particleList.size())
+	M_throw() << "Bad array access value in range.at()";
 
-    return i;
-  }
+      return i;
+    }
 
-protected:
+  protected:
 
-  virtual const unsigned long& getIteratorID(const unsigned long &i) const { return i; }
+    virtual const unsigned long& getIteratorID(const unsigned long &i) const { return i; }
 
-  virtual void outputXML(magnet::xml::XmlStream&) const;
-};
+    virtual void outputXML(magnet::xml::XmlStream&) const;
+  };
+}

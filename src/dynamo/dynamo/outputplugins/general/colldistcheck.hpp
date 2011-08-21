@@ -16,44 +16,46 @@
 */
 
 #pragma once
-#include "../outputplugin.hpp"
-#include "../../datatypes/histogram.hpp"
-#include "../eventtypetracking.hpp"
+#include <dynamo/outputplugins/outputplugin.hpp>
+#include <dynamo/datatypes/histogram.hpp>
+#include <dynamo/outputplugins/eventtypetracking.hpp>
 #include <map>
 
-using namespace EventTypeTracking;
+namespace dynamo {
+  using namespace EventTypeTracking;
 
-class OPCollMatrix;
+  class OPCollMatrix;
 
-class OPCollDistCheck: public OutputPlugin
-{
-public:
-  OPCollDistCheck(const dynamo::SimData*, 
-		  const magnet::xml::Node&);
+  class OPCollDistCheck: public OutputPlugin
+  {
+  public:
+    OPCollDistCheck(const dynamo::SimData*, 
+		    const magnet::xml::Node&);
 
-  ~OPCollDistCheck();
+    ~OPCollDistCheck();
 
-  void eventUpdate(const IntEvent&, const PairEventData&);
+    void eventUpdate(const IntEvent&, const PairEventData&);
 
-  void eventUpdate(const GlobalEvent&, const NEventData&);
+    void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  void eventUpdate(const LocalEvent&, const NEventData&);
+    void eventUpdate(const LocalEvent&, const NEventData&);
   
-  void eventUpdate(const System&, const NEventData&, const double&);
+    void eventUpdate(const System&, const NEventData&, const double&);
 
-  OutputPlugin *Clone() const { return new OPCollDistCheck(*this); }
+    OutputPlugin *Clone() const { return new OPCollDistCheck(*this); }
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void output(magnet::xml::XmlStream&);
+    virtual void output(magnet::xml::XmlStream&);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-private:
+  private:
 
-  typedef std::pair<classKey, EEventType> eventKey;
+    typedef std::pair<classKey, EEventType> eventKey;
   
-  std::map<eventKey, C1DHistogram> distList;
+    std::map<eventKey, C1DHistogram> distList;
   
-  double binwidth;
-};
+    double binwidth;
+  };
+}

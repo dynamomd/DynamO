@@ -16,7 +16,7 @@
 */
 
 
-#include <dynamo/outputplugins/1partproperty/cubecomponents.hpp>
+#include <dynamo/outputplugins/2partproperty/cubecomponents.hpp>
 #include <dynamo/dynamics/include.hpp>
 #include <dynamo/base/is_simdata.hpp>
 #include <dynamo/outputplugins/0partproperty/collMatrix.hpp>

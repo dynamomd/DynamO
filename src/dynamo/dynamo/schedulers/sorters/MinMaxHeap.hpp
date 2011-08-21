@@ -105,14 +105,14 @@ namespace dynamo {
     }
   
   };
+}
 
-  namespace std
+namespace std
+{
+  /*! \brief Template specialisation of the std::swap function for pList*/
+  template<size_t Size>
+  void swap(dynamo::MinMaxHeapPList<Size>& lhs, dynamo::MinMaxHeapPList<Size>& rhs)
   {
-    /*! \brief Template specialisation of the std::swap function for pList*/
-    template<size_t Size> inline
-    void swap(MinMaxHeapPList<Size>& lhs, MinMaxHeapPList<Size>& rhs)
-    {
-      lhs.swap(rhs);
-    }
+    lhs.swap(rhs);
   }
 }

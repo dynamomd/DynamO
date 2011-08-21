@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/outputplugins/1partproperty/thermalCondSpeciesSpeciesE.hpp>
+#include <dynamo/outputplugins/correlations/thermalCondSpeciesSpeciesE.hpp>
 #include <dynamo/dynamics/include.hpp>
 #include <dynamo/dynamics/interactions/intEvent.hpp>
 #include <dynamo/outputplugins/1partproperty/kenergy.hpp>

@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/outputplugins/1partproperty/viscosityCollisionalE.hpp>
+#include <dynamo/outputplugins/correlations/viscosityCollisionalE.hpp>
 #include <dynamo/dynamics/include.hpp>
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <dynamo/outputplugins/1partproperty/kenergy.hpp>

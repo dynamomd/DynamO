@@ -16,17 +16,17 @@
 */
 
 #include <dynamo/inputplugins/inputplugin.hpp>
-#include <dynamo/dynamics/simulation/particle.hpp>
-#include <dynamo/dynamics/schedulers/include.hpp>
-#include <dynamo/dynamics/dynamics/dynamics.hpp>
-#include <dynamo/dynamics/dynamics/species/species.hpp>
-#include <dynamo/dynamics/dynamics/interactions/include.hpp>
-#include <dynamo/dynamics/dynamics/ranges/include.hpp>
-#include <dynamo/dynamics/dynamics/BC/include.hpp>
-#include <dynamo/dynamics/dynamics/liouvillean/include.hpp>
-#include <dynamo/dynamics/dynamics/systems/ghost.hpp>
-#include <dynamo/dynamics/base/is_simdata.hpp>
-#include <dynamo/dynamics/dynamics/topology/include.hpp>
+#include <dynamo/simulation/particle.hpp>
+#include <dynamo/schedulers/include.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/dynamics/species/species.hpp>
+#include <dynamo/dynamics/interactions/include.hpp>
+#include <dynamo/dynamics/ranges/include.hpp>
+#include <dynamo/dynamics/BC/include.hpp>
+#include <dynamo/dynamics/liouvillean/include.hpp>
+#include <dynamo/dynamics/systems/ghost.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/topology/include.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/foreach.hpp>

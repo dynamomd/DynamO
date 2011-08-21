@@ -24,10 +24,10 @@
 namespace dynamo {
   class Particle;
 
+  using namespace EventTypeTracking;
+
   class OPEventEffects: public OutputPlugin
   {
-    using namespace EventTypeTracking;
-  
   public:
     OPEventEffects(const dynamo::SimData*, const magnet::xml::Node&);
     ~OPEventEffects();

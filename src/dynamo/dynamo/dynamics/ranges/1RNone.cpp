@@ -15,24 +15,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "1RNone.hpp"
+#include <dynamo/dynamics/ranges/1RNone.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-CRNone::CRNone(const magnet::xml::Node& XML)
-{ operator<<(XML); }
+namespace dynamo {
+  CRNone::CRNone(const magnet::xml::Node& XML)
+  { operator<<(XML); }
 
-void 
-CRNone::operator<<(const magnet::xml::Node& XML)
-{
-  if (strcmp(XML.getAttribute("Range"),"None"))
-    M_throw() << "Attempting to load CRNone from non None type";
+  void 
+  CRNone::operator<<(const magnet::xml::Node& XML)
+  {
+    if (strcmp(XML.getAttribute("Range"),"None"))
+      M_throw() << "Attempting to load CRNone from non None type";
+  }
+
+  void 
+  CRNone::outputXML(magnet::xml::XmlStream& XML) const
+  {
+    XML << magnet::xml::attr("Range") << "All";
+  }
 }
-
-void 
-CRNone::outputXML(magnet::xml::XmlStream& XML) const
-{
-  XML << magnet::xml::attr("Range") << "All";
-}
-
-

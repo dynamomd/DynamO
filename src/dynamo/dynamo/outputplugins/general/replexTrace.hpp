@@ -17,33 +17,35 @@
 
 #pragma once
 
-#include "../outputplugin.hpp"
+#include <dynamo/outputplugins/outputplugin.hpp>
 #include <vector>
 #include <string>
 
-class OPReplexTrace: public OutputPlugin
-{
-public:
-  OPReplexTrace(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPReplexTrace: public OutputPlugin
+  {
+  public:
+    OPReplexTrace(const dynamo::SimData*, const magnet::xml::Node&);
 
-  void eventUpdate(const IntEvent&, const PairEventData&) {}
+    void eventUpdate(const IntEvent&, const PairEventData&) {}
 
-  void eventUpdate(const GlobalEvent&, const NEventData&) {}
+    void eventUpdate(const GlobalEvent&, const NEventData&) {}
 
-  void eventUpdate(const LocalEvent&, const NEventData&) {}
+    void eventUpdate(const LocalEvent&, const NEventData&) {}
 
-  void eventUpdate(const System&, const NEventData&, const double&) {}
+    void eventUpdate(const System&, const NEventData&, const double&) {}
 
-  OutputPlugin *Clone() const { return new OPReplexTrace(*this); }
+    OutputPlugin *Clone() const { return new OPReplexTrace(*this); }
 
-  virtual void initialise() { addPoint(); }
+    virtual void initialise() { addPoint(); }
 
-  virtual void output(magnet::xml::XmlStream&);
+    virtual void output(magnet::xml::XmlStream&);
 
-  virtual void changeSystem(OutputPlugin*); 
+    virtual void changeSystem(OutputPlugin*); 
 
-private:
-  void addPoint();
+  private:
+    void addPoint();
 
-  mutable std::vector<std::string> entries;
-};
+    mutable std::vector<std::string> entries;
+  };
+}

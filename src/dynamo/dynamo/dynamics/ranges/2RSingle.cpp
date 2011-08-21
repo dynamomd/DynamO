@@ -15,37 +15,38 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "2RSingle.hpp"
+#include <dynamo/dynamics/ranges/2RSingle.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-C2RSingle::C2RSingle(const magnet::xml::Node& XML, const dynamo::SimData* Sim):
-  range(NULL)
-{ 
-  if (strcmp(XML.getAttribute("Range"),"2Single"))
-    M_throw() << "Attempting to load a 2Single from a non pair";
+namespace dynamo {
+  C2RSingle::C2RSingle(const magnet::xml::Node& XML, const dynamo::SimData* Sim):
+    range(NULL)
+  { 
+    if (strcmp(XML.getAttribute("Range"),"2Single"))
+      M_throw() << "Attempting to load a 2Single from a non pair";
   
-  range.set_ptr(CRange::getClass(XML.getNode("SingleRange"), Sim));
-}
+    range.set_ptr(CRange::getClass(XML.getNode("SingleRange"), Sim));
+  }
 
-bool 
-C2RSingle::isInRange(const Particle&p1, const Particle&p2) const
-{
-  return (range->isInRange(p1) && range->isInRange(p2));
-}
+  bool 
+  C2RSingle::isInRange(const Particle&p1, const Particle&p2) const
+  {
+    return (range->isInRange(p1) && range->isInRange(p2));
+  }
 
-void 
-C2RSingle::operator<<(const magnet::xml::Node&)
-{
-  M_throw() << "Due to problems with C2RSingle operator<< cannot work for this class";
-}
+  void 
+  C2RSingle::operator<<(const magnet::xml::Node&)
+  {
+    M_throw() << "Due to problems with C2RSingle operator<< cannot work for this class";
+  }
 
-void 
-C2RSingle::outputXML(magnet::xml::XmlStream& XML) const
-{
-  XML << magnet::xml::attr("Range") << "2Single" 
-      << magnet::xml::tag("SingleRange")
-      << range
-      << magnet::xml::endtag("SingleRange");
+  void 
+  C2RSingle::outputXML(magnet::xml::XmlStream& XML) const
+  {
+    XML << magnet::xml::attr("Range") << "2Single" 
+	<< magnet::xml::tag("SingleRange")
+	<< range
+	<< magnet::xml::endtag("SingleRange");
+  }
 }
-

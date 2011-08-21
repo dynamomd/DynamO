@@ -24,10 +24,10 @@
 #include <map>
 
 namespace dynamo {
+  using namespace EventTypeTracking;
+
   class OPRdotV: public OutputPlugin
   {
-    using namespace EventTypeTracking;
-
   public:
     OPRdotV(const dynamo::SimData*, const magnet::xml::Node&);
 

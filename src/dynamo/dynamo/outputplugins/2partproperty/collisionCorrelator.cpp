@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/outputplugins/1partproperty/collisionCorrelator.hpp>
+#include <dynamo/outputplugins/2partproperty/collisionCorrelator.hpp>
 #include <dynamo/dynamics/2particleEventData.hpp>
 #include <dynamo/dynamics/include.hpp>
 #include <magnet/xmlwriter.hpp>

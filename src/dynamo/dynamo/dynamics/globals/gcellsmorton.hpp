@@ -26,7 +26,7 @@ namespace dynamo {
   {
   public:
     GCells(const magnet::xml::Node&, dynamo::SimData*);
-    GCells(dynamo::SimData*, const std::string&, size_t overlink = 1);
+    GCells(SimData*, const std::string&, size_t overlink = 1);
 
     virtual ~GCells() {}
 

@@ -16,44 +16,46 @@
 */
 
 #pragma once
-#include "1range.hpp"
-#include "../../base/is_simdata.hpp"
+#include <dynamo/dynamics/ranges/1range.hpp>
+#include <dynamo/base/is_simdata.hpp>
 
-class CRNone: public CRange
-{
-public:
-  CRNone() {}
-
-  CRNone(const magnet::xml::Node&);
-
-  virtual CRange* Clone() const { return new CRNone(*this); };
-
-  virtual bool isInRange(const Particle&) const
-  { return false; }
-
-  //The data output classes
-  virtual void operator<<(const magnet::xml::Node&);
-
-  virtual unsigned long size() const { return 0; }
-
-  virtual iterator begin() const { return CRange::iterator(0, this); }
-
-  virtual iterator end() const { return CRange::iterator(0, this); }
-
-  virtual unsigned long operator[](unsigned long i) const  
+namespace dynamo {
+  class CRNone: public CRange
   {
-    M_throw() << "Nothing to access";
-  }
+  public:
+    CRNone() {}
 
-  virtual unsigned long at(unsigned long i) const 
-  { 
-    M_throw() << "Nothing to access";
-  }
+    CRNone(const magnet::xml::Node&);
 
-protected:
+    virtual CRange* Clone() const { return new CRNone(*this); };
 
-  virtual const unsigned long& getIteratorID(const unsigned long &i) const 
-  { M_throw() << "Nothing here!"; }
+    virtual bool isInRange(const Particle&) const
+    { return false; }
 
-  virtual void outputXML(magnet::xml::XmlStream&) const;
-};
+    //The data output classes
+    virtual void operator<<(const magnet::xml::Node&);
+
+    virtual unsigned long size() const { return 0; }
+
+    virtual iterator begin() const { return CRange::iterator(0, this); }
+
+    virtual iterator end() const { return CRange::iterator(0, this); }
+
+    virtual unsigned long operator[](unsigned long i) const  
+    {
+      M_throw() << "Nothing to access";
+    }
+
+    virtual unsigned long at(unsigned long i) const 
+    { 
+      M_throw() << "Nothing to access";
+    }
+
+  protected:
+
+    virtual const unsigned long& getIteratorID(const unsigned long &i) const 
+    { M_throw() << "Nothing here!"; }
+
+    virtual void outputXML(magnet::xml::XmlStream&) const;
+  };
+}

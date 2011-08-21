@@ -16,6 +16,7 @@
 */
 
 #pragma once
+#include <ostream>
 
 namespace dynamo {
 #define ETYPE_ENUM_FACTORY(F)						\
@@ -51,8 +52,6 @@ namespace dynamo {
   typedef enum {
     ETYPE_ENUM_FACTORY(buildEnum)
   } EEventType; 
-
-#include <ostream>
 
 #define printEnum(VAL,COMMENT)			\
   case VAL: return os << #VAL;

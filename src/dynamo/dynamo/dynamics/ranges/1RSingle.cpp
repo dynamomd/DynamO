@@ -15,39 +15,41 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "1RSingle.hpp"
-#include "../../simulation/particle.hpp"
+#include <dynamo/dynamics/ranges/1RSingle.hpp>
+#include <dynamo/simulation/particle.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-CRSingle::CRSingle(const magnet::xml::Node& XML) 
-{ operator<<(XML); }
+namespace dynamo {
+  CRSingle::CRSingle(const magnet::xml::Node& XML) 
+  { operator<<(XML); }
 
-bool 
-CRSingle::isInRange(const Particle &part) const
-{
-  if (part.getID() == ID)
-    return true;
+  bool 
+  CRSingle::isInRange(const Particle &part) const
+  {
+    if (part.getID() == ID)
+      return true;
   
     return false;
-}
+  }
 
-//The data output classes
-void 
-CRSingle::operator<<(const magnet::xml::Node& XML)
-{
-  if (strcmp(XML.getAttribute("Range"),"Single"))
-    M_throw() << "Attempting to load CRSingle from non single";
+  //The data output classes
+  void 
+  CRSingle::operator<<(const magnet::xml::Node& XML)
+  {
+    if (strcmp(XML.getAttribute("Range"),"Single"))
+      M_throw() << "Attempting to load CRSingle from non single";
     try {
       ID = XML.getAttribute("ID").as<size_t>();
     }
     catch (boost::bad_lexical_cast &)
       { M_throw() << "Failed a lexical cast in CRRange"; }
-}
+  }
 
-void 
-CRSingle::outputXML(magnet::xml::XmlStream& XML) const
-{
-  XML << magnet::xml::attr("Range") << "Single"
-      << magnet::xml::attr("ID") << ID;
+  void 
+  CRSingle::outputXML(magnet::xml::XmlStream& XML) const
+  {
+    XML << magnet::xml::attr("Range") << "Single"
+	<< magnet::xml::attr("ID") << ID;
+  }
 }

@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/outputplugins/1partproperty/vacf.hpp>
+#include <dynamo/outputplugins/correlations/vacf.hpp>
 #include <dynamo/dynamics/liouvillean/SLLOD.hpp>
 
 namespace dynamo {

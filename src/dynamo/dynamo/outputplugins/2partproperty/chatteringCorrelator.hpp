@@ -16,7 +16,7 @@
 */
 
 #pragma once
-#include <dynamo/outputplugins/1partproperty/2partproperty.hpp>
+#include <dynamo/outputplugins/2partproperty/2partproperty.hpp>
 #include <dynamo/datatypes/histogram.hpp>
 #include <boost/circular_buffer.hpp>
 #include <vector>

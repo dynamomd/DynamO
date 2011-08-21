@@ -15,85 +15,87 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "2RList.hpp"
-#include "../../simulation/particle.hpp"
+#include <dynamo/dynamics/ranges/2RList.hpp>
+#include <dynamo/simulation/particle.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 
-C2RList::C2RList(const magnet::xml::Node& XML) 
-{ operator<<(XML); }
+namespace dynamo {
+  C2RList::C2RList(const magnet::xml::Node& XML) 
+  { operator<<(XML); }
 
-bool 
-C2RList::isInRange(const Particle&p1, const Particle&p2) const
-{
-  std::map<unsigned long, std::list<unsigned long> >::const_iterator
-    iPtr;
+  bool 
+  C2RList::isInRange(const Particle&p1, const Particle&p2) const
+  {
+    std::map<unsigned long, std::list<unsigned long> >::const_iterator
+      iPtr;
   
-  unsigned long a = p1.getID();
-  unsigned long b = p2.getID();
+    unsigned long a = p1.getID();
+    unsigned long b = p2.getID();
   
-  if (a < b)
-    {
-      if ((iPtr = pairmap.find(a)) != pairmap.end())
+    if (a < b)
+      {
+	if ((iPtr = pairmap.find(a)) != pairmap.end())
+	  {
+	    BOOST_FOREACH(unsigned long val, iPtr->second)
+	      if (b == val)
+		return true;
+	  }
+      }
+    else
+      if ((iPtr = pairmap.find(b))  != pairmap.end())
 	{
 	  BOOST_FOREACH(unsigned long val, iPtr->second)
-	    if (b == val)
+	    if (a == val)
 	      return true;
 	}
-    }
-  else
-    if ((iPtr = pairmap.find(b))  != pairmap.end())
+  
+    return false;
+  }
+
+  void 
+  C2RList::addPair(unsigned long a, unsigned long b)
+  {
+    if (a < b)
+      pairmap[a].push_back(b);
+    else 
+      pairmap[b].push_back(a);
+  }
+
+  const std::map<unsigned long, std::list<unsigned long> >& 
+  C2RList::getPairMap() const
+  {
+    return pairmap;
+  }
+
+
+  void 
+  C2RList::operator<<(const magnet::xml::Node& XML)
+  {
+    if (strcmp(XML.getAttribute("Range"),"List"))
+      M_throw() << "Attempting to load a List from a non List";    
+  
+    try 
       {
-	BOOST_FOREACH(unsigned long val, iPtr->second)
-	  if (a == val)
-	    return true;
+	for (magnet::xml::Node node = XML.fastGetNode("RangePair"); node.valid(); ++node)
+	  addPair(node.getAttribute("ID1").as<unsigned long>(), 
+		  node.getAttribute("ID2").as<unsigned long>());
       }
-  
-  return false;
-}
+    catch (boost::bad_lexical_cast &)
+      {
+	M_throw() << "Failed a lexical cast in C2RList";
+      }
+  }
 
-void 
-C2RList::addPair(unsigned long a, unsigned long b)
-{
-  if (a < b)
-    pairmap[a].push_back(b);
-  else 
-    pairmap[b].push_back(a);
-}
-
-const std::map<unsigned long, std::list<unsigned long> >& 
-C2RList::getPairMap() const
-{
-  return pairmap;
-}
-
-
-void 
-C2RList::operator<<(const magnet::xml::Node& XML)
-{
-  if (strcmp(XML.getAttribute("Range"),"List"))
-    M_throw() << "Attempting to load a List from a non List";    
-  
-  try 
-    {
-      for (magnet::xml::Node node = XML.fastGetNode("RangePair"); node.valid(); ++node)
-	addPair(node.getAttribute("ID1").as<unsigned long>(), 
-		node.getAttribute("ID2").as<unsigned long>());
-    }
-  catch (boost::bad_lexical_cast &)
-    {
-      M_throw() << "Failed a lexical cast in C2RList";
-    }
-}
-
-void 
-C2RList::outputXML(magnet::xml::XmlStream& XML) const
-{
-  XML << magnet::xml::attr("Range") << "List";
-  typedef const std::pair<const unsigned long, std::list<unsigned long> >& thepair;
-  BOOST_FOREACH(thepair mypair, pairmap)
-    BOOST_FOREACH(unsigned long val, mypair.second)
-    XML << magnet::xml::tag("RangePair") << magnet::xml::attr("ID1") << mypair.first
-	<< magnet::xml::attr("ID2") << val << magnet::xml::endtag("RangePair");
+  void 
+  C2RList::outputXML(magnet::xml::XmlStream& XML) const
+  {
+    XML << magnet::xml::attr("Range") << "List";
+    typedef const std::pair<const unsigned long, std::list<unsigned long> >& thepair;
+    BOOST_FOREACH(thepair mypair, pairmap)
+      BOOST_FOREACH(unsigned long val, mypair.second)
+      XML << magnet::xml::tag("RangePair") << magnet::xml::attr("ID1") << mypair.first
+	  << magnet::xml::attr("ID2") << val << magnet::xml::endtag("RangePair");
+  }
 }

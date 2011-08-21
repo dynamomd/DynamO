@@ -15,45 +15,47 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "1RList.hpp"
-#include "../../simulation/particle.hpp"
+#include <dynamo/dynamics/ranges/1RList.hpp>
+#include <dynamo/simulation/particle.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 
-CRList::CRList(const magnet::xml::Node& XML) 
-{ operator<<(XML); }
+namespace dynamo {
+  CRList::CRList(const magnet::xml::Node& XML) 
+  { operator<<(XML); }
 
-bool 
-CRList::isInRange(const Particle &part) const
-{
-  BOOST_FOREACH(const unsigned long ID, IDs)
-    if (part.getID() == ID)
-      return true;
-  return false;
-}
-
-void 
-CRList::operator<<(const magnet::xml::Node& XML)
-{
-  if (strcmp(XML.getAttribute("Range"),"List"))
-    M_throw() << "Attempting to load CRList from non list";
-  try {
-    
-    for (magnet::xml::Node node = XML.fastGetNode("ID"); node.valid(); ++node)
-      IDs.push_back(node.getAttribute("val").as<unsigned long>());
+  bool 
+  CRList::isInRange(const Particle &part) const
+  {
+    BOOST_FOREACH(const unsigned long ID, IDs)
+      if (part.getID() == ID)
+	return true;
+    return false;
   }
-  catch (boost::bad_lexical_cast &)
-    {
-      M_throw() << "Failed a lexical cast in CRList";
-    }
-}
 
-void 
-CRList::outputXML(magnet::xml::XmlStream& XML) const
-{
-  XML << magnet::xml::attr("Range") << "List";
-  BOOST_FOREACH(unsigned long ID, IDs)
-    XML << magnet::xml::tag("ID") << magnet::xml::attr("val") << ID << magnet::xml::endtag("ID");
+  void 
+  CRList::operator<<(const magnet::xml::Node& XML)
+  {
+    if (strcmp(XML.getAttribute("Range"),"List"))
+      M_throw() << "Attempting to load CRList from non list";
+    try {
+    
+      for (magnet::xml::Node node = XML.fastGetNode("ID"); node.valid(); ++node)
+	IDs.push_back(node.getAttribute("val").as<unsigned long>());
+    }
+    catch (boost::bad_lexical_cast &)
+      {
+	M_throw() << "Failed a lexical cast in CRList";
+      }
+  }
+
+  void 
+  CRList::outputXML(magnet::xml::XmlStream& XML) const
+  {
+    XML << magnet::xml::attr("Range") << "List";
+    BOOST_FOREACH(unsigned long ID, IDs)
+      XML << magnet::xml::tag("ID") << magnet::xml::attr("val") << ID << magnet::xml::endtag("ID");
+  }
 }

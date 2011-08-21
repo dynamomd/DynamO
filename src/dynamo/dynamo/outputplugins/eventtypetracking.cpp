@@ -14,9 +14,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <dynamo/outputplugins/1partproperty/eventtypetracking.hpp>
-#include <dynamo/outputplugins/base/is_simdata.hpp>
-#include <dynamo/outputplugins/dynamics/include.hpp>
+#include <dynamo/outputplugins/eventtypetracking.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/include.hpp>
 
 namespace dynamo {
   namespace EventTypeTracking {

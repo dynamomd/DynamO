@@ -15,18 +15,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/dynamics/systems/fcc.hpp>
-#include <dynamo/dynamics/systems/bcc.hpp>
-#include <dynamo/dynamics/systems/sc.hpp>
-#include <dynamo/dynamics/systems/file.hpp>
-#include <dynamo/dynamics/systems/randomwalk.hpp>
-#include <dynamo/dynamics/systems/helix.hpp>
-#include <dynamo/dynamics/systems/mirror.hpp>
-#include <dynamo/dynamics/systems/ringRod.hpp>
-#include <dynamo/dynamics/systems/ringSnake.hpp>
-#include <dynamo/dynamics/systems/randomise.hpp>
-#include <dynamo/dynamics/systems/random.hpp>
-#include <dynamo/dynamics/systems/linearRod.hpp>
-#include <dynamo/dynamics/systems/binary.hpp>
-#include <dynamo/dynamics/systems/cylinder.hpp>
-#include <dynamo/dynamics/systems/triangleIntersection.hpp>
+#include <dynamo/inputplugins/cells/fcc.hpp>
+#include <dynamo/inputplugins/cells/bcc.hpp>
+#include <dynamo/inputplugins/cells/sc.hpp>
+#include <dynamo/inputplugins/cells/file.hpp>
+#include <dynamo/inputplugins/cells/randomwalk.hpp>
+#include <dynamo/inputplugins/cells/helix.hpp>
+#include <dynamo/inputplugins/cells/mirror.hpp>
+#include <dynamo/inputplugins/cells/ringRod.hpp>
+#include <dynamo/inputplugins/cells/ringSnake.hpp>
+#include <dynamo/inputplugins/cells/randomise.hpp>
+#include <dynamo/inputplugins/cells/random.hpp>
+#include <dynamo/inputplugins/cells/linearRod.hpp>
+#include <dynamo/inputplugins/cells/binary.hpp>
+#include <dynamo/inputplugins/cells/cylinder.hpp>
+#include <dynamo/inputplugins/cells/triangleIntersection.hpp>

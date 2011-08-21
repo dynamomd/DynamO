@@ -53,7 +53,7 @@ namespace dynamo {
    * particles being tested.
    */
 
-  class Liouvillean: public dynamo::SimBase
+  class Liouvillean: public SimBase
   {
   public:  
     struct rotData

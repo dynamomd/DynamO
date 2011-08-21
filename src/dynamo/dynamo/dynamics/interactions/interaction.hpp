@@ -22,21 +22,39 @@
 #include <magnet/cloneptr.hpp>
 #include <string>
 
+namespace magnet { namespace xml { class Node; class XmlStream; } }
+
 namespace dynamo {
+  class CRange;
   class PairEventData;
   class IntEvent;
   class Species;
-  class CRange;
 
-  namespace magnet { namespace xml { class Node; class XmlStream; } }
-  //! \brief This class is the base interface for Interation classes.
-  //!
-  //! Interaction's are events that describe the Interaction between two
-  //! particles. These classes are responsible for: 
-  //! - Storing the values used in calculating the interactions (e.g., the interaction diameter).
-  //! - Storing the "state" of the interaction, to ensure only correct dynamics occur (e.g., a square well particle must capture a particle before it can be released or it can hit the inner core). This state storing often uses one of the ICapture classes (ISingleCapture or IMultiCapture).
-  //! - Performing high level calculations or optimizations for the interactions (e.g., for hard lines (ILines), we use a bounding sphere before testing for the expensive line-line collision, the bounding sphere test is organised in here).
-  //! \warning You must only perform high level calculations here. All actual collision testing should use the "primative" functions defined in the Liouvillean class. This allows an interaction to be easily ported to alternative dynamics (like compression or gravity).
+  /*! \brief This class is the base interface for Interation classes.
+  
+   Interaction's are events that describe the Interaction between two
+   particles. These classes are responsible for: 
+
+   - Storing the values used in calculating the interactions (e.g.,
+     the interaction diameter).
+
+   - Storing the "state" of the interaction, to ensure only correct
+     dynamics occur (e.g., a square well particle must capture a
+     particle before it can be released or it can hit the inner
+     core). This state storing often uses one of the ICapture classes
+     (ISingleCapture or IMultiCapture).
+
+   - Performing high level calculations or optimizations for the
+     interactions (e.g., for hard lines (ILines), we use a bounding
+     sphere before testing for the expensive line-line collision, the
+     bounding sphere test is organised in here).
+
+   \warning You must only perform high level calculations here. All
+   actual collision testing should use the "primative" functions
+   defined in the Liouvillean class. This allows an interaction to be
+   easily ported to alternative dynamics (like compression or
+   gravity).
+  */
   class Interaction: public dynamo::SimBase
   {
   public:

@@ -22,10 +22,10 @@
 #include <map>
 
 namespace dynamo {
+  using namespace EventTypeTracking;
+
   class OPCubeComp: public OutputPlugin
   {
-    using namespace EventTypeTracking;
-
   public:
     OPCubeComp(const dynamo::SimData*, const magnet::xml::Node&);
 

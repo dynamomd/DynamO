@@ -15,26 +15,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "1RAll.hpp"
+#include <dynamo/dynamics/ranges/1RAll.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-CRAll::CRAll(const magnet::xml::Node& XML, const dynamo::SimData* SimDat):
-  SimBase_const(SimDat, "CRAll")
-{ operator<<(XML); }
+namespace dynamo {
+  CRAll::CRAll(const magnet::xml::Node& XML, const dynamo::SimData* SimDat):
+    SimBase_const(SimDat, "CRAll")
+  { operator<<(XML); }
 
-//The data output classes
-void 
-CRAll::operator<<(const magnet::xml::Node& XML)
-{
-  if (strcmp(XML.getAttribute("Range"),"All"))
-    M_throw() << "Attempting to load CRAll from non All type";
+  //The data output classes
+  void 
+  CRAll::operator<<(const magnet::xml::Node& XML)
+  {
+    if (strcmp(XML.getAttribute("Range"),"All"))
+      M_throw() << "Attempting to load CRAll from non All type";
+  }
+
+  void 
+  CRAll::outputXML(magnet::xml::XmlStream& XML) const
+  {
+    XML << magnet::xml::attr("Range") << "All";
+  }
 }
-
-void 
-CRAll::outputXML(magnet::xml::XmlStream& XML) const
-{
-  XML << magnet::xml::attr("Range") << "All";
-}
-
-

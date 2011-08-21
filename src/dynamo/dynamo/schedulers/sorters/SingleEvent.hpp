@@ -76,14 +76,13 @@ namespace dynamo {
     { _event.dt *= scale; }
 
     inline void swap(PELSingleEvent& rhs)
-    { std::swap(_event, rhs._event); }
-  
+    { std::swap(_event, rhs._event); }  
   };
+}
 
-  namespace std
-  {
-    /*! \brief Template specialisation of the std::swap function for PELSingleEvent*/
-    inline void swap(PELSingleEvent& lhs, PELSingleEvent& rhs)
-    { lhs.swap(rhs); }
-  }
+namespace std
+{
+  template<>
+  inline void swap(dynamo::PELSingleEvent& lhs, dynamo::PELSingleEvent& rhs)
+  { lhs.swap(rhs); }
 }

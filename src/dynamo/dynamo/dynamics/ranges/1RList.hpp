@@ -16,37 +16,39 @@
 */
 
 #pragma once
-#include "1range.hpp"
+#include <dynamo/dynamics/ranges/1range.hpp>
 #include <vector>
 
-class CRList: public CRange
-{
-public:
-  CRList(const magnet::xml::Node&);
+namespace dynamo {
+  class CRList: public CRange
+  {
+  public:
+    CRList(const magnet::xml::Node&);
 
-  CRList() {}
+    CRList() {}
 
-  virtual CRange* Clone() const { return new CRList(*this); };
+    virtual CRange* Clone() const { return new CRList(*this); };
 
-  virtual bool isInRange(const Particle &) const;
+    virtual bool isInRange(const Particle &) const;
 
-  //The data output classes
-  virtual void operator<<(const magnet::xml::Node&);
+    //The data output classes
+    virtual void operator<<(const magnet::xml::Node&);
   
-  virtual unsigned long size() const { return IDs.size(); };
+    virtual unsigned long size() const { return IDs.size(); };
 
-  virtual iterator begin() const { return CRange::iterator(0, this); }
+    virtual iterator begin() const { return CRange::iterator(0, this); }
 
-  virtual iterator end() const { return CRange::iterator(IDs.size(), this); }
+    virtual iterator end() const { return CRange::iterator(IDs.size(), this); }
 
-  virtual unsigned long operator[](unsigned long i) const { return IDs[i]; }
+    virtual unsigned long operator[](unsigned long i) const { return IDs[i]; }
 
-  virtual unsigned long at(unsigned long i) const { return IDs.at(i); }
+    virtual unsigned long at(unsigned long i) const { return IDs.at(i); }
 
-protected:
-  virtual const unsigned long& getIteratorID(const unsigned long &i) const { return IDs[i]; }
+  protected:
+    virtual const unsigned long& getIteratorID(const unsigned long &i) const { return IDs[i]; }
 
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  std::vector<unsigned long> IDs;
-};
+    std::vector<unsigned long> IDs;
+  };
+}

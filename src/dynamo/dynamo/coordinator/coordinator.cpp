@@ -20,6 +20,7 @@
  */
 
 #include <dynamo/coordinator/coordinator.hpp>
+#include <dynamo/coordinator/engine/include.hpp>
 #include <cstdio>
 
 namespace dynamo {

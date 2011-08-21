@@ -32,16 +32,16 @@
 #include <vector>
 #include <list>
 
-class CScheduler;
-class Particle;
-class OutputPlugin;
-
 namespace magnet {
   template <class T> class ClonePtr;
 }
 
 namespace dynamo
 {  
+  class CScheduler;
+  class Particle;
+  class OutputPlugin;
+
   //! \brief Holds the different phases of the simulation initialisation
   typedef enum 
     {

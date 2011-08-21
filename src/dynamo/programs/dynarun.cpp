@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 
   /*! \brief The programs single instantiation of the simulation control class.
    */
-  Coordinator coord;
+  dynamo::Coordinator coord;
 
   //Run the simulation
   try 

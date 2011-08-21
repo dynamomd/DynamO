@@ -25,8 +25,15 @@
 #include <vector>
 #include <tr1/memory>
 
+namespace magnet {    
+  namespace xml { 
+    class Node; 
+  }
+}
+
 namespace dynamo {
   class BoundaryCondition;
+  class Particle;
   class Species;
   class GlobalEvent;
   class Global;
@@ -39,10 +46,6 @@ namespace dynamo {
   class NEventData;
   class PairEventData;
   class ParticleEventData;
-  namespace magnet {
-    namespace xml
-    { class Node; }
-  }
 
   class Dynamics: public dynamo::SimBase
   {

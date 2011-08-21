@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/outputplugins/1partproperty/selfdiffOrientationalGK.hpp>
+#include <dynamo/outputplugins/correlations/selfdiffOrientationalGK.hpp>
 #include <dynamo/dynamics/liouvillean/SLLOD.hpp>
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <magnet/math/matrix.hpp>

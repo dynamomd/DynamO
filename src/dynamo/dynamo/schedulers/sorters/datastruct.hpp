@@ -22,6 +22,7 @@
 #include <dynamo/dynamics/locals/localEvent.hpp>
 #include <dynamo/dynamics/globals/global.hpp>
 #include <boost/foreach.hpp>
+#include <algorithm>
 #include <queue>
 
 namespace dynamo {
@@ -163,14 +164,11 @@ namespace dynamo {
       c.swap(rhs.c);
     }
   };
+}
 
-  namespace std
-  {
-    /*! \brief Template specialisation of the std::swap function for pList*/
-    template<> inline
-    void swap(pList& lhs, pList& rhs)
-    {
-      lhs.swap(rhs);
-    }
-  }
+namespace std
+{
+  /*! \brief Template specialisation of the std::swap function for pList*/
+  template<> inline void swap(dynamo::pList& lhs, dynamo::pList& rhs)
+  { lhs.swap(rhs); }
 }
