@@ -18,7 +18,6 @@
 **** TODO Look at CL/GL synchronisation objects for coil.
 **** TODO Remove all clone ptr's and replace them with shared_ptr's.
 **** TODO Coil library volume renderer.
-**** TODO Move the magnet vector and matrix classes into the magnet namespace and expose them in the coil and dynamo namespaces.
 **** TODO Write up the image distance class.
 **** TODO Generalized scheduler for multiple neighborlists.
 **** TODO Make coil scale independent.
