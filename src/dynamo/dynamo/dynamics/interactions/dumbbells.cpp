@@ -16,16 +16,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/dynamics/interactions/dumbbells.hpp"
-#include <dynamo/dynamics/interactions/intEvent.hpp"
-#include <dynamo/dynamics/liouvillean/liouvillean.hpp"
-#include <dynamo/dynamics/units/units.hpp"
-#include <dynamo/base/is_simdata.hpp"
-#include <dynamo/dynamics/2particleEventData.hpp"
-#include <dynamo/dynamics/BC/BC.hpp"
-#include <dynamo/dynamics/ranges/1range.hpp"
-#include <dynamo/schedulers/scheduler.hpp"
-#include <dynamo/dynamics/NparticleEventData.hpp"
+#include <dynamo/dynamics/interactions/dumbbells.hpp>
+#include <dynamo/dynamics/interactions/intEvent.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/2particleEventData.hpp>
+#include <dynamo/dynamics/BC/BC.hpp>
+#include <dynamo/dynamics/ranges/1range.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/dynamics/NparticleEventData.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cmath>

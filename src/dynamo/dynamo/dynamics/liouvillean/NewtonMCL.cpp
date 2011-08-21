@@ -28,7 +28,7 @@
 #include <dynamo/dynamics/liouvillean/shapes/oscillatingplate.hpp>
 #include <dynamo/outputplugins/1partproperty/uenergy.hpp>
 #include <dynamo/outputplugins/0partproperty/intEnergyHist.hpp>
-#include <dynamo/dynamicsunits/units.hpp>
+#include <dynamo/dynamics/units/units.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>

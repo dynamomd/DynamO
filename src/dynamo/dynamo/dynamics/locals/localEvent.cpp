@@ -19,8 +19,8 @@
 #include <dynamo/dynamics/locals/local.hpp>
 #include <dynamo/simulation/particle.hpp>
 #include <dynamo/base/is_simdata.hpp>
-#include <dynamo/units/units.hpp>
-#include <dynamo/interactions/intEvent.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/dynamics/interactions/intEvent.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <cmath>
 

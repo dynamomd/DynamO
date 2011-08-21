@@ -17,7 +17,7 @@
 
 #include <dynamo/dynamics/species/sphericalTop.hpp>
 #include <dynamo/dynamics/units/units.hpp>
-#include <dynamo/dynamics/base/is_simdata.hpp>
+#include <dynamo/base/is_simdata.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 

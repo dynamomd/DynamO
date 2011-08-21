@@ -15,6 +15,5 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//All input plugins
-#include <dynamo/dynamics/systems/inputplugin.hpp>
-#include <dynamo/dynamics/systems/packer.hpp>
+#include <dynamo/inputplugins/inputplugin.hpp>
+#include <dynamo/inputplugins/packer.hpp>

@@ -369,7 +369,7 @@ namespace dynamo {
 	{ hasNBlist = true; break; }
   
     if (hasNBlist)
-      Sim->dynamics.addGlobal(new CGParabolaSentinel(Sim, "NBListParabolaSentinel"));
+      Sim->dynamics.addGlobal(new GParabolaSentinel(Sim, "NBListParabolaSentinel"));
   }
 
   PairEventData 

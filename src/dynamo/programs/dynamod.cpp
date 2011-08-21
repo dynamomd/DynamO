@@ -32,7 +32,7 @@ namespace po = boost::program_options;
 #include <dynamo/schedulers/include.hpp>
 #include <dynamo/inputplugins/include.hpp>
 #include <magnet/exception.hpp>
-Simulation sim;
+dynamo::Simulation sim;
 
 int
 main(int argc, char *argv[])
@@ -87,10 +87,10 @@ main(int argc, char *argv[])
       
       
       helpOpts.add(allopts);
-      helpOpts.add(CIPPacker::getOptions());
+      helpOpts.add(dynamo::CIPPacker::getOptions());
              
       allopts.add(loadopts);
-      allopts.add(CIPPacker::getOptions());
+      allopts.add(dynamo::CIPPacker::getOptions());
       
       hiddenopts.add_options()
 	("b1", "boolean option one.")
@@ -134,15 +134,15 @@ main(int argc, char *argv[])
       //Now load the config
       if (!vm.count("config-file"))
 	{
-	  CIPPacker plug(vm, &sim);
+	  dynamo::CIPPacker plug(vm, &sim);
 	  plug.initialise();
 
 	  //We don't zero momentum and rescale for certain packer modes
 	  if ((vm["packer-mode"].as<size_t>() != 23)
 	      && (vm["packer-mode"].as<size_t>() != 25))
 	    {
-	      CInputPlugin(&sim, "Rescaler").zeroMomentum();
-	      CInputPlugin(&sim, "Rescaler").rescaleVels(1.0);
+	      dynamo::CInputPlugin(&sim, "Rescaler").zeroMomentum();
+	      dynamo::CInputPlugin(&sim, "Rescaler").rescaleVels(1.0);
 	    }
 	  sim.configLoaded();
 	}
@@ -153,17 +153,17 @@ main(int argc, char *argv[])
 
       if (vm.count("thermostat"))
 	{
-	  System* thermostat = sim.getSystem("Thermostat");
+	  dynamo::System* thermostat = sim.getSystem("Thermostat");
 	  if (thermostat == NULL)
 	    {
-	      sim.addSystem(new CSysGhost(&sim, 1.0, 1.0, "Thermostat"));
+	      sim.addSystem(new dynamo::CSysGhost(&sim, 1.0, 1.0, "Thermostat"));
 	      thermostat = sim.getSystem("Thermostat");
 	    }
 
-	  if (dynamic_cast<const CSysGhost*>(thermostat) == NULL)
+	  if (dynamic_cast<const dynamo::CSysGhost*>(thermostat) == NULL)
 	    M_throw() << "Could not upcast thermostat to Andersens";
 	  
-	  static_cast<CSysGhost*>(thermostat)->setReducedTemperature(vm["thermostat"].as<double>());
+	  static_cast<dynamo::CSysGhost*>(thermostat)->setReducedTemperature(vm["thermostat"].as<double>());
 	  
 	  //Install a NVT Ensemble
 	  sim.getEnsemble().reset(new dynamo::EnsembleNVT(&sim));
@@ -174,22 +174,22 @@ main(int argc, char *argv[])
       //Here we modify the sim accordingly      
 
       if (vm.count("zero-momentum"))
-	CInputPlugin(&sim, "MomentumZeroer")
+	dynamo::CInputPlugin(&sim, "MomentumZeroer")
 	  .zeroMomentum();	
 
       if (vm.count("check"))
 	sim.checkSystem();
 
       if (vm.count("zero-com"))
-	CInputPlugin(&sim, "CentreOfMassZeroer")
+	dynamo::CInputPlugin(&sim, "CentreOfMassZeroer")
 	  .zeroCentreOfMass();	
 
       if (vm.count("rescale-T"))
-	CInputPlugin(&sim, "Rescaler")
+	dynamo::CInputPlugin(&sim, "Rescaler")
 	  .rescaleVels(vm["rescale-T"].as<double>());
 
       if (vm.count("mirror-system"))
-	CInputPlugin(&sim, "Mirrorer").
+	dynamo::CInputPlugin(&sim, "Mirrorer").
 	  mirrorDirection(vm["mirror-system"].as<unsigned int>());
 
       if (vm.count("set-com-vel"))
@@ -208,13 +208,13 @@ main(int argc, char *argv[])
 	  if (details_iter == tokens.end()) M_throw() << "set-com-vel requires 3 components";
 	  vel[2] = boost::lexical_cast<double>(*(details_iter));
 	  
-	  CInputPlugin(&sim, "velSetter")
+	  dynamo::CInputPlugin(&sim, "velSetter")
 	    .setCOMVelocity(vel);
 	}
 
       if (vm.count("zero-vel"))
-	CInputPlugin(&sim, "Vel-Component-Zeroer").
-	  zeroVelComp(vm["zero-vel"].as<size_t>());
+	dynamo::CInputPlugin(&sim, "Vel-Component-Zeroer")
+	  .zeroVelComp(vm["zero-vel"].as<size_t>());
 
 
       //Write out now we've changed the system

@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/outputplugins/1partproperty/2partproperty.hpp>
+#include <dynamo/outputplugins/2partproperty/2partproperty.hpp>
 #include <dynamo/dynamics/include.hpp>
 #include <boost/foreach.hpp>
 
