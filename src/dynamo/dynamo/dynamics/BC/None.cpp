@@ -15,45 +15,47 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "None.hpp"
+#include <dynamo/dynamics/BC/None.hpp>
 #include <magnet/xmlwriter.hpp>
 
-BCNone::BCNone(const dynamo::SimData* Sim):
-  BoundaryCondition(Sim, "NullBC")
-{ dout << "No boundary condition loaded" << std::endl; }
+namespace dynamo {
+  BCNone::BCNone(const dynamo::SimData* Sim):
+    BoundaryCondition(Sim, "NullBC")
+  { dout << "No boundary condition loaded" << std::endl; }
 
-BCNone::~BCNone() {}
+  BCNone::~BCNone() {}
     
-void 
-BCNone::applyBC(Vector  &)const 
-{}
+  void 
+  BCNone::applyBC(Vector  &)const 
+  {}
 
-void 
-BCNone::applyBC(Vector  &, Vector &) const 
-{}
+  void 
+  BCNone::applyBC(Vector  &, Vector &) const 
+  {}
 
-void 
-BCNone::applyBC(Vector  &, const double&) const 
-{}
+  void 
+  BCNone::applyBC(Vector  &, const double&) const 
+  {}
 
-void 
-BCNone::update(const double &) 
-{}
+  void 
+  BCNone::update(const double &) 
+  {}
 
-void 
-BCNone::outputXML(magnet::xml::XmlStream &XML) const
-{
-  XML << magnet::xml::attr("Type") << "None";
+  void 
+  BCNone::outputXML(magnet::xml::XmlStream &XML) const
+  {
+    XML << magnet::xml::attr("Type") << "None";
+  }
+
+  void 
+  BCNone::operator<<(const magnet::xml::Node&)
+  {}
+
+  BoundaryCondition* 
+  BCNone::Clone () const 
+  { return new BCNone(*this); }
+
+  void 
+  BCNone::rounding(Vector &) const 
+  {}
 }
-
-void 
-BCNone::operator<<(const magnet::xml::Node&)
-{}
-
-BoundaryCondition* 
-BCNone::Clone () const 
-{ return new BCNone(*this); }
-
-void 
-BCNone::rounding(Vector &) const 
-{}

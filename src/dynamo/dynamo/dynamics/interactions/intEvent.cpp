@@ -15,37 +15,39 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "intEvent.hpp"
-#include "../../simulation/particle.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../units/units.hpp"
+#include <dynamo/dynamics/interactions/intEvent.hpp>
+#include <dynamo/simulation/particle.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/units/units.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <cmath>
 
-magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream &XML, 
-			    const IntEvent &coll)
-{
-  XML << magnet::xml::tag("Collision")
-      << magnet::xml::attr("p1ID") << coll.getParticle1ID()
-      << coll.particle1
-      << magnet::xml::attr("p2ID") << coll.getParticle1ID()
-      << coll.particle2
-      << magnet::xml::attr("dt")   << coll.dt
-      << magnet::xml::endtag("Collision");
+namespace dynamo {
+  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream &XML, 
+				     const IntEvent &coll)
+  {
+    XML << magnet::xml::tag("Collision")
+	<< magnet::xml::attr("p1ID") << coll.getParticle1ID()
+	<< coll.particle1
+	<< magnet::xml::attr("p2ID") << coll.getParticle1ID()
+	<< coll.particle2
+	<< magnet::xml::attr("dt")   << coll.dt
+	<< magnet::xml::endtag("Collision");
   
-  return XML;
-}
+    return XML;
+  }
 
-std::string 
-IntEvent::stringData(const dynamo::SimData* Sim) const
-{
-  std::ostringstream tmpstring;
-  tmpstring << "dt :" << dt / Sim->dynamics.units().unitTime()
-	    << "\nType :" << CType
-	    << "\nP1 :" << particle1;
+  std::string 
+  IntEvent::stringData(const dynamo::SimData* Sim) const
+  {
+    std::ostringstream tmpstring;
+    tmpstring << "dt :" << dt / Sim->dynamics.units().unitTime()
+	      << "\nType :" << CType
+	      << "\nP1 :" << particle1;
 
-  if (hasParticle2())
-    tmpstring << "\nP2 :" << particle2;
+    if (hasParticle2())
+      tmpstring << "\nP2 :" << particle2;
 
-  return tmpstring.str();
+    return tmpstring.str();
+  }
 }

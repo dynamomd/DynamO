@@ -16,32 +16,34 @@
 */
 
 #pragma once
-#include "../outputplugin.hpp"
+#include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <ctime>
 
-class OPETA: public OutputPlugin
-{
- public:
-  OPETA(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPETA: public OutputPlugin
+  {
+  public:
+    OPETA(const dynamo::SimData*, const magnet::xml::Node&);
 
-  void periodicOutput();
+    void periodicOutput();
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void eventUpdate(const IntEvent&, const PairEventData&) {}
+    virtual void eventUpdate(const IntEvent&, const PairEventData&) {}
 
-  virtual void eventUpdate(const GlobalEvent&, const NEventData&) {}
+    virtual void eventUpdate(const GlobalEvent&, const NEventData&) {}
 
-  virtual void eventUpdate(const LocalEvent&, const NEventData&) {}
+    virtual void eventUpdate(const LocalEvent&, const NEventData&) {}
 
-  virtual void eventUpdate(const System&, const NEventData&, const double&) 
-  {}
+    virtual void eventUpdate(const System&, const NEventData&, const double&) 
+    {}
 
-  virtual OutputPlugin* Clone() const 
-  { return new OPETA(*this); }
+    virtual OutputPlugin* Clone() const 
+    { return new OPETA(*this); }
   
- protected:
-  time_t start_Time;
+  protected:
+    time_t start_Time;
   
-};
+  };
+}

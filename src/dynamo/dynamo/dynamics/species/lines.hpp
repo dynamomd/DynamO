@@ -17,25 +17,26 @@
 
 #pragma once
 
-#include "sphericalTop.hpp"
+#include <dynamo/dynamics/species/sphericalTop.hpp>
 
-class SpLines : public SpSphericalTop
-{
-public:
-  SpLines(dynamo::SimData* Sim, CRange* R, double nMass, std::string nName, 
-	  unsigned int ID, double r, std::string nIName="Bulk"):
-    SpSphericalTop(Sim, R, nMass, nName, ID, r * r / 12.0,  nIName)
-  {}
+namespace dynamo {
+  class SpLines : public SpSphericalTop
+  {
+  public:
+    SpLines(dynamo::SimData* Sim, CRange* R, double nMass, std::string nName, 
+	    unsigned int ID, double r, std::string nIName="Bulk"):
+      SpSphericalTop(Sim, R, nMass, nName, ID, r * r / 12.0,  nIName)
+    {}
   
-  SpLines(const magnet::xml::Node& XML, dynamo::SimData* Sim, unsigned int ID):
-    SpSphericalTop(XML, Sim, ID)
-  {}
+    SpLines(const magnet::xml::Node& XML, dynamo::SimData* Sim, unsigned int ID):
+      SpSphericalTop(XML, Sim, ID)
+    {}
 
-  virtual Species* Clone() const { return new SpLines(*this); }
+    virtual Species* Clone() const { return new SpLines(*this); }
 
-protected:
+  protected:
 
-  virtual void outputXML(magnet::xml::XmlStream& XML) const 
-  { SpSphericalTop::outputXML(XML, "Lines"); }
-};
-
+    virtual void outputXML(magnet::xml::XmlStream& XML) const 
+    { SpSphericalTop::outputXML(XML, "Lines"); }
+  };
+}

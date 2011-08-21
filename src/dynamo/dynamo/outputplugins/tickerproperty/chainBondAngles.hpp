@@ -16,41 +16,43 @@
 */
 
 #pragma once
-#include "ticker.hpp"
-#include "../../datatypes/histogram.hpp"
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <dynamo/datatypes/histogram.hpp>
 #include <boost/shared_array.hpp>
 
-class OPChainBondAngles: public OPTicker
-{
- public:
-  OPChainBondAngles(const dynamo::SimData*, const magnet::xml::Node&);
-
-  virtual OutputPlugin *Clone() const
-  { return new OPChainBondAngles(*this); }
-
-  virtual void initialise();
-
-  virtual void stream(double) {}
-
-  virtual void ticker();
-
-  virtual void changeSystem(OutputPlugin*);
-
-  virtual void output(magnet::xml::XmlStream&);
-
-  virtual void operator<<(const magnet::xml::Node&);
-  
- protected:
-
-  struct Cdata
+namespace dynamo {
+  class OPChainBondAngles: public OPTicker
   {
-    Cdata(size_t, size_t, double);
-    const size_t chainID;
-    std::vector<C1DHistogram> BondCorrelations;
-    std::vector<double> BondCorrelationsAvg;
-    std::vector<size_t> BondCorrelationsSamples;
-  };
+  public:
+    OPChainBondAngles(const dynamo::SimData*, const magnet::xml::Node&);
 
-  std::list<Cdata> chains;
-  double binwidth;
-};
+    virtual OutputPlugin *Clone() const
+    { return new OPChainBondAngles(*this); }
+
+    virtual void initialise();
+
+    virtual void stream(double) {}
+
+    virtual void ticker();
+
+    virtual void changeSystem(OutputPlugin*);
+
+    virtual void output(magnet::xml::XmlStream&);
+
+    virtual void operator<<(const magnet::xml::Node&);
+  
+  protected:
+
+    struct Cdata
+    {
+      Cdata(size_t, size_t, double);
+      const size_t chainID;
+      std::vector<C1DHistogram> BondCorrelations;
+      std::vector<double> BondCorrelationsAvg;
+      std::vector<size_t> BondCorrelationsSamples;
+    };
+
+    std::list<Cdata> chains;
+    double binwidth;
+  };
+}

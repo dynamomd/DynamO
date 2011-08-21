@@ -15,32 +15,34 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "1RRange.hpp"
-#include "../../simulation/particle.hpp"
+#include <dynamo/dynamics/ranges/1RRange.hpp>
+#include <dynamo/simulation/particle.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-CRRange::CRRange(const magnet::xml::Node& XML) 
-{ operator<<(XML); }
+namespace dynamo {
+  CRRange::CRRange(const magnet::xml::Node& XML) 
+  { operator<<(XML); }
 
-void 
-CRRange::operator<<(const magnet::xml::Node& XML)
-{
-  if (strcmp(XML.getAttribute("Range"), "Ranged"))
-    M_throw() << "Attempting to load CRRange from non range";
+  void 
+  CRRange::operator<<(const magnet::xml::Node& XML)
+  {
+    if (strcmp(XML.getAttribute("Range"), "Ranged"))
+      M_throw() << "Attempting to load CRRange from non range";
 
-  try {
-    startID = XML.getAttribute("Start").as<unsigned long>();
-    endID = XML.getAttribute("End").as<unsigned long>();
+    try {
+      startID = XML.getAttribute("Start").as<unsigned long>();
+      endID = XML.getAttribute("End").as<unsigned long>();
+    }
+    catch (boost::bad_lexical_cast &)
+      { M_throw() << "Failed a lexical cast in CRRange"; }
   }
-  catch (boost::bad_lexical_cast &)
-    { M_throw() << "Failed a lexical cast in CRRange"; }
-}
 
-void 
-CRRange::outputXML(magnet::xml::XmlStream& XML) const
-{
-  XML << magnet::xml::attr("Range") << "Ranged"
-      << magnet::xml::attr("Start") << startID
-      << magnet::xml::attr("End") << endID;
+  void 
+  CRRange::outputXML(magnet::xml::XmlStream& XML) const
+  {
+    XML << magnet::xml::attr("Range") << "Ranged"
+	<< magnet::xml::attr("Start") << startID
+	<< magnet::xml::attr("End") << endID;
+  }
 }

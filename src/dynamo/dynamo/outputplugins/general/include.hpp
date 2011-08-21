@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "replexTrace.hpp"
-#include "colldistcheck.hpp"
-#include "reverseEvents.hpp"
-#include "trajectory.hpp"
+#include <dynamo/outputplugins/general/replexTrace.hpp>
+#include <dynamo/outputplugins/general/colldistcheck.hpp>
+#include <dynamo/outputplugins/general/reverseEvents.hpp>
+#include <dynamo/outputplugins/general/trajectory.hpp>

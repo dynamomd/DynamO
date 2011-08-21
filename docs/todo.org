@@ -18,13 +18,17 @@
 **** TODO Look at CL/GL synchronisation objects for coil.
 **** TODO Remove all clone ptr's and replace them with shared_ptr's.
 **** TODO Coil library volume renderer.
-**** TODO Move all the dynamo classes into the dynamo namespace.
 **** TODO Move the magnet vector and matrix classes into the magnet namespace and expose them in the coil and dynamo namespaces.
 **** TODO Write up the image distance class.
 **** TODO Generalized scheduler for multiple neighborlists.
 **** TODO Make coil scale independent.
 **** TODO Make compression work with polydisperse walls.
 **** TODO Expose the get neighborhood functions in the scheduler for patrics work.
+**** TODO Move the dynamo overlap functions into magnet.
+**** TODO Move the histogram class into magnet.
+**** TODO Move the frenkel root finder into magnet.
+**** TODO Rewrite the range classes.
+**** TODO Move the minmax heap into magnet.
 *** DynamO 1.2
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
 **** DONE *BUGFIX* Fixed the widespread improper use of the XML test functions, causing errors instead of warnings.
@@ -47,6 +51,7 @@
 **** DONE DynamO: Removed the raster 3d output for the tinkerXYZ plugin, no-one used it anyway.
 **** DONE DynamO: Added dynamod --check mode. Using this you can now check if a configuration file is valid using "dynamod --check config.out.xml.bz2".
 **** DONE DynamO: Generalized the Morton ordered neighbour list and remove the old neighbourlist.
+**** DONE DynamO: Move all the dynamo classes into the dynamo namespace.
 **** DONE DynamO/Coil: The DynamO-Coil integration can be forcibly enabled or disabled at build time.
 **** DONE DynamO/Coil: Visualizer now outputs at least 2 updates a second when attached to a slow DynamO simulation.
 **** DONE Coil: Moved to OpenGL 3.3, removed all the old OpenGL calls.

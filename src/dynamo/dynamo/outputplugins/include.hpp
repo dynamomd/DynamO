@@ -15,9 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//Output plugins
-#include "correlations/include.hpp"
-#include "0partproperty/include.hpp"
-#include "1partproperty/include.hpp"
-#include "2partproperty/include.hpp"
-#include "tickerproperty/include.hpp"
+#include <dynamo/outputplugins/correlations/include.hpp>
+#include <dynamo/outputplugins/0partproperty/include.hpp>
+#include <dynamo/outputplugins/1partproperty/include.hpp>
+#include <dynamo/outputplugins/2partproperty/include.hpp>
+#include <dynamo/outputplugins/tickerproperty/include.hpp>

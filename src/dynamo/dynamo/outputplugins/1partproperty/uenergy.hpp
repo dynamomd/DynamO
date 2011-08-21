@@ -16,38 +16,40 @@
 */
 
 #pragma once
-#include "1partproperty.hpp"
+#include <dynamo/outputplugins/1partproperty/1partproperty.hpp>
 
-class OPUEnergy: public OP1PP
-{
- public:
-  OPUEnergy(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPUEnergy: public OP1PP
+  {
+  public:
+    OPUEnergy(const dynamo::SimData*, const magnet::xml::Node&);
 
-  void A1ParticleChange(const ParticleEventData&);
+    void A1ParticleChange(const ParticleEventData&);
 
-  void A2ParticleChange(const PairEventData&);
+    void A2ParticleChange(const PairEventData&);
 
-  void stream(const double&);  
+    void stream(const double&);  
 
-  void output(magnet::xml::XmlStream &); 
+    void output(magnet::xml::XmlStream &); 
 
-  void periodicOutput();
+    void periodicOutput();
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual OutputPlugin *Clone() const { return new OPUEnergy(*this); }
+    virtual OutputPlugin *Clone() const { return new OPUEnergy(*this); }
 
-  double getAvgU() const;
+    double getAvgU() const;
 
-  double getAvgSqU() const;
+    double getAvgSqU() const;
 
-  double getSimU() const { return intECurrent; }
+    double getSimU() const { return intECurrent; }
 
-  void changeSystem(OutputPlugin*);
+    void changeSystem(OutputPlugin*);
 
- protected:
+  protected:
 
-  double intECurrent;
-  double intEsqAcc;
-  double intEAcc;
-};
+    double intECurrent;
+    double intEsqAcc;
+    double intEAcc;
+  };
+}

@@ -16,60 +16,62 @@
 */
 
 #pragma once
-#include "../outputplugin.hpp"
-#include "../../datatypes/histogram.hpp"
-#include "../eventtypetracking.hpp"
+#include <dynamo/outputplugins/outputplugin.hpp>
+#include <dynamo/datatypes/histogram.hpp>
+#include <dynamo/outputplugins/eventtypetracking.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
 #include <map>
 
-using namespace EventTypeTracking;
+namespace dynamo {
+  using namespace EventTypeTracking;
 
-class OPRdotV: public OutputPlugin
-{
- public:
-  OPRdotV(const dynamo::SimData*, const magnet::xml::Node&);
-
-  virtual void initialise();
-  
-  virtual void eventUpdate(const IntEvent&, const PairEventData&);
-
-  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
-
-  virtual void eventUpdate(const LocalEvent&, const NEventData&);
-
-  virtual void eventUpdate(const System&, const NEventData&, const double&);
-
-  virtual void periodicOutput();
-
-  void output(magnet::xml::XmlStream &);
-
-  virtual void changeSystem(OutputPlugin* plug) { std::swap(Sim, static_cast<OPRdotV*>(plug)->Sim); }
-  
-  virtual OutputPlugin *Clone() const { return new OPRdotV(*this); };
-  
- protected:
-  struct mapdata
+  class OPRdotV: public OutputPlugin
   {
-    mapdata(): count(0), accRdotV(0.0), costheta(0.005) {}
-    
-    unsigned long count;
+  public:
+    OPRdotV(const dynamo::SimData*, const magnet::xml::Node&);
 
-    double accRdotV;
-
-    void addVal(const double& dval)
-    { accRdotV += dval; ++count; }
-
-    double getAvg() const
-    { return accRdotV / count; }
-
-    C1DHistogram costheta;
-  };
+    virtual void initialise();
   
-  typedef boost::tuple<EEventType, classKey, size_t, size_t> mapKey;
+    virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
-  std::map<mapKey, mapdata> rvdotacc;
+    virtual void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  double _periodicRdotV;
-  long double _periodict;
-};
+    virtual void eventUpdate(const LocalEvent&, const NEventData&);
+
+    virtual void eventUpdate(const System&, const NEventData&, const double&);
+
+    virtual void periodicOutput();
+
+    void output(magnet::xml::XmlStream &);
+
+    virtual void changeSystem(OutputPlugin* plug) { std::swap(Sim, static_cast<OPRdotV*>(plug)->Sim); }
+  
+    virtual OutputPlugin *Clone() const { return new OPRdotV(*this); };
+  
+  protected:
+    struct mapdata
+    {
+      mapdata(): count(0), accRdotV(0.0), costheta(0.005) {}
+    
+      unsigned long count;
+
+      double accRdotV;
+
+      void addVal(const double& dval)
+      { accRdotV += dval; ++count; }
+
+      double getAvg() const
+      { return accRdotV / count; }
+
+      C1DHistogram costheta;
+    };
+  
+    typedef boost::tuple<EEventType, classKey, size_t, size_t> mapKey;
+
+    std::map<mapKey, mapdata> rvdotacc;
+
+    double _periodicRdotV;
+    long double _periodict;
+  };
+}

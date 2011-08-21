@@ -23,40 +23,42 @@
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-Global::Global(dynamo::SimData* tmp, std::string name, CRange* nR):
-  SimBase(tmp, name),
-  range(nR ? nR : new CRAll(tmp))
-{}
+namespace dynamo {
+  Global::Global(dynamo::SimData* tmp, std::string name, CRange* nR):
+    SimBase(tmp, name),
+    range(nR ? nR : new CRAll(tmp))
+  {}
 
-bool 
-Global::isInteraction(const Particle &p1) const
-{
-  return range->isInRange(p1);
-}
+  bool 
+  Global::isInteraction(const Particle &p1) const
+  {
+    return range->isInRange(p1);
+  }
 
-magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Global& g)
-{
-  g.outputXML(XML);
-  return XML;
-}
+  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Global& g)
+  {
+    g.outputXML(XML);
+    return XML;
+  }
 
-Global* 
-Global::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
-{
-  if (!strcmp(XML.getAttribute("Type"),"Cells2")
-      || !strcmp(XML.getAttribute("Type"),"Cells")
-      || !strcmp(XML.getAttribute("Type"),"CellsMorton"))
-    return new GCells(XML, Sim);
-  else if (!strcmp(XML.getAttribute("Type"),"ShearingCells"))
-    return new GCellsShearing(XML, Sim);
-  else if (!strcmp(XML.getAttribute("Type"),"PBCSentinel"))
-    return new GPBCSentinel(XML, Sim);
-  else if (!strcmp(XML.getAttribute("Type"),"SOCells"))
-    return new GSOCells(XML, Sim);
-  else if (!strcmp(XML.getAttribute("Type"),"Waker"))
-    return new GWaker(XML, Sim);
-  else 
-    M_throw() << XML.getAttribute("Type")
-	      << ", Unknown type of Global Interaction encountered";
+  Global* 
+  Global::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
+  {
+    if (!strcmp(XML.getAttribute("Type"),"Cells2")
+	|| !strcmp(XML.getAttribute("Type"),"Cells")
+	|| !strcmp(XML.getAttribute("Type"),"CellsMorton"))
+      return new GCells(XML, Sim);
+    else if (!strcmp(XML.getAttribute("Type"),"ShearingCells"))
+      return new GCellsShearing(XML, Sim);
+    else if (!strcmp(XML.getAttribute("Type"),"PBCSentinel"))
+      return new GPBCSentinel(XML, Sim);
+    else if (!strcmp(XML.getAttribute("Type"),"SOCells"))
+      return new GSOCells(XML, Sim);
+    else if (!strcmp(XML.getAttribute("Type"),"Waker"))
+      return new GWaker(XML, Sim);
+    else 
+      M_throw() << XML.getAttribute("Type")
+		<< ", Unknown type of Global Interaction encountered";
+  }
 }
 

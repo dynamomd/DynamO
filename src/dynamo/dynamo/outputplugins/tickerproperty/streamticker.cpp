@@ -15,13 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "streamticker.hpp"
+#include <dynamo/outputplugins/tickerproperty/streamticker.hpp>
 
-OPStreamTicker::OPStreamTicker(const dynamo::SimData* tmp, const magnet::xml::Node&):
-  OPTicker(tmp,"StreamTicker")
-{}
+namespace dynamo {
+  OPStreamTicker::OPStreamTicker(const dynamo::SimData* tmp, const magnet::xml::Node&):
+    OPTicker(tmp,"StreamTicker")
+  {}
 
-void 
-OPStreamTicker::ticker()
-{}
-
+  void 
+  OPStreamTicker::ticker()
+  {}
+}

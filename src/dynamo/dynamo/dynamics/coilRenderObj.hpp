@@ -22,10 +22,12 @@
 # include <tr1/memory>
 #endif
 
-struct CoilRenderObj
-{
+namespace dynamo {
+  struct CoilRenderObj
+  {
 #ifdef DYNAMO_visualizer
-  virtual std::tr1::shared_ptr<coil::RenderObj> getCoilRenderObj() const = 0;
-  virtual void updateRenderData() const = 0;
+    virtual std::tr1::shared_ptr<coil::RenderObj> getCoilRenderObj() const = 0;
+    virtual void updateRenderData() const = 0;
 #endif
-};
+  };
+}

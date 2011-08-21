@@ -16,38 +16,40 @@
 */
 
 #pragma once
-#include "../outputplugin.hpp"
+#include <dynamo/outputplugins/outputplugin.hpp>
 #include <fstream>
 
-class OPTrajectory: public OutputPlugin
-{
-public:
-  OPTrajectory(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPTrajectory: public OutputPlugin
+  {
+  public:
+    OPTrajectory(const dynamo::SimData*, const magnet::xml::Node&);
 
-  OPTrajectory(const OPTrajectory&);
+    OPTrajectory(const OPTrajectory&);
   
-  ~OPTrajectory() {}
+    ~OPTrajectory() {}
 
-  void eventUpdate(const IntEvent&, const PairEventData&);
+    void eventUpdate(const IntEvent&, const PairEventData&);
 
-  void eventUpdate(const GlobalEvent&, const NEventData&);
+    void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  void eventUpdate(const LocalEvent&, const NEventData&);
+    void eventUpdate(const LocalEvent&, const NEventData&);
   
-  void eventUpdate(const System&, const NEventData&, const double&);
+    void eventUpdate(const System&, const NEventData&, const double&);
 
-  OutputPlugin *Clone() const { return new OPTrajectory(*this); }
+    OutputPlugin *Clone() const { return new OPTrajectory(*this); }
 
-  virtual void changeSystem(OutputPlugin*) {}
+    virtual void changeSystem(OutputPlugin*) {}
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void output(magnet::xml::XmlStream&);
+    virtual void output(magnet::xml::XmlStream&);
 
-private:
+  private:
 
-  void printData(const size_t&,
-		 const size_t&) const;
+    void printData(const size_t&,
+		   const size_t&) const;
 
-  mutable std::ofstream logfile;
-};
+    mutable std::ofstream logfile;
+  };
+}

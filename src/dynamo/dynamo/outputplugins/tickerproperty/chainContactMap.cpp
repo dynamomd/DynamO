@@ -25,111 +25,113 @@
 #include <magnet/xmlwriter.hpp>
 #include <vector>
 
-OPCContactMap::Cdata::Cdata(const CTChain* ptr, unsigned long nMolRange):
-  chainPtr(ptr),
-  array(new unsigned long[nMolRange * nMolRange]),
-  counter(0), chainlength(nMolRange)
-{
-  for (unsigned long i = 0; i < nMolRange * nMolRange; i++)
-    array[i] = 0;
-}
+namespace dynamo {
+  OPCContactMap::Cdata::Cdata(const CTChain* ptr, unsigned long nMolRange):
+    chainPtr(ptr),
+    array(new unsigned long[nMolRange * nMolRange]),
+    counter(0), chainlength(nMolRange)
+  {
+    for (unsigned long i = 0; i < nMolRange * nMolRange; i++)
+      array[i] = 0;
+  }
 
-OPCContactMap::OPCContactMap(const dynamo::SimData* tmp, const magnet::xml::Node&):
-  OPTicker(tmp,"ContactMap")
-{}
+  OPCContactMap::OPCContactMap(const dynamo::SimData* tmp, const magnet::xml::Node&):
+    OPTicker(tmp,"ContactMap")
+  {}
 
-void 
-OPCContactMap::initialise()
-{
-  BOOST_FOREACH(const magnet::ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
-    if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
-      chains.push_back(Cdata(dynamic_cast<const CTChain*>(plugPtr.get_ptr()), 
-			     plugPtr->getMolecules().front()->size()));
-}
+  void 
+  OPCContactMap::initialise()
+  {
+    BOOST_FOREACH(const magnet::ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
+      if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
+	chains.push_back(Cdata(dynamic_cast<const CTChain*>(plugPtr.get_ptr()), 
+			       plugPtr->getMolecules().front()->size()));
+  }
 
-void 
-OPCContactMap::changeSystem(OutputPlugin* OPPlug)
-{
-  std::swap(Sim, static_cast<OPCContactMap*>(OPPlug)->Sim);
+  void 
+  OPCContactMap::changeSystem(OutputPlugin* OPPlug)
+  {
+    std::swap(Sim, static_cast<OPCContactMap*>(OPPlug)->Sim);
 
-  BOOST_FOREACH(Cdata& dat, chains)
-    {
-      try {
-	const Topology* tmpPtr = Sim->dynamics.getTopology(dat.chainPtr->getName()).get_ptr();
-	dat.chainPtr = dynamic_cast<const CTChain*>(tmpPtr);
-      } catch (std::exception&)
-	{
-	  M_throw() << "On changing the system OPCContactMap could not find the topology \"" 
-		    << dat.chainPtr->getName() << "\"\n in the new system";
-	}
+    BOOST_FOREACH(Cdata& dat, chains)
+      {
+	try {
+	  const Topology* tmpPtr = Sim->dynamics.getTopology(dat.chainPtr->getName()).get_ptr();
+	  dat.chainPtr = dynamic_cast<const CTChain*>(tmpPtr);
+	} catch (std::exception&)
+	  {
+	    M_throw() << "On changing the system OPCContactMap could not find the topology \"" 
+		      << dat.chainPtr->getName() << "\"\n in the new system";
+	  }
       
-      if (dat.chainPtr == NULL)
-	M_throw() << "On changing the system OPCContactMap found the topology but failed to upcast!";
-    }
-}
+	if (dat.chainPtr == NULL)
+	  M_throw() << "On changing the system OPCContactMap found the topology but failed to upcast!";
+      }
+  }
 
-void 
-OPCContactMap::ticker()
-{
-  BOOST_FOREACH(Cdata& dat,chains)
-    BOOST_FOREACH(const magnet::ClonePtr<CRange>& range,  dat.chainPtr->getMolecules())
-    {
-      dat.counter++;
-      for (unsigned long i = 0; i < dat.chainlength; i++)
-	{
-	  const Particle& part1 = Sim->particleList[(*range)[i]];
+  void 
+  OPCContactMap::ticker()
+  {
+    BOOST_FOREACH(Cdata& dat,chains)
+      BOOST_FOREACH(const magnet::ClonePtr<CRange>& range,  dat.chainPtr->getMolecules())
+      {
+	dat.counter++;
+	for (unsigned long i = 0; i < dat.chainlength; i++)
+	  {
+	    const Particle& part1 = Sim->particleList[(*range)[i]];
 	 
-	  for (unsigned long j = i+1; j < dat.chainlength; j++)
-	    {
-	      const Particle& part2 = Sim->particleList[(*range)[j]];
+	    for (unsigned long j = i+1; j < dat.chainlength; j++)
+	      {
+		const Particle& part2 = Sim->particleList[(*range)[j]];
 
-	      BOOST_FOREACH(const magnet::ClonePtr<Interaction>& ptr, Sim->dynamics.getInteractions())
-		if (ptr->isInteraction(part1,part2))
-		  if (dynamic_cast<const ICapture*>(ptr.get_ptr()) != NULL)
-		    if (dynamic_cast<const ICapture*>(ptr.get_ptr())
-			->isCaptured(part1,part2))
-		      dat.array[i * dat.chainlength + j]++;
-	    }
-	}
-    }
-}
+		BOOST_FOREACH(const magnet::ClonePtr<Interaction>& ptr, Sim->dynamics.getInteractions())
+		  if (ptr->isInteraction(part1,part2))
+		    if (dynamic_cast<const ICapture*>(ptr.get_ptr()) != NULL)
+		      if (dynamic_cast<const ICapture*>(ptr.get_ptr())
+			  ->isCaptured(part1,part2))
+			dat.array[i * dat.chainlength + j]++;
+	      }
+	  }
+      }
+  }
 
-void 
-OPCContactMap::output(magnet::xml::XmlStream& XML)
-{
-  XML << magnet::xml::tag("ContactMap");
+  void 
+  OPCContactMap::output(magnet::xml::XmlStream& XML)
+  {
+    XML << magnet::xml::tag("ContactMap");
   
-  BOOST_FOREACH(Cdata& dat, chains)
-    {
-      //Copying
+    BOOST_FOREACH(Cdata& dat, chains)
+      {
+	//Copying
       
-      for (unsigned long i = 0; i < dat.chainlength; i++)
-	{
-	  for (unsigned long j = i+1; j < dat.chainlength; j++)
-	    dat.array[j * dat.chainlength + i] = dat.array[i * dat.chainlength + j];
-	}
+	for (unsigned long i = 0; i < dat.chainlength; i++)
+	  {
+	    for (unsigned long j = i+1; j < dat.chainlength; j++)
+	      dat.array[j * dat.chainlength + i] = dat.array[i * dat.chainlength + j];
+	  }
 
-      XML << magnet::xml::tag(dat.chainPtr->getName().c_str())
-	  << magnet::xml::chardata();
+	XML << magnet::xml::tag(dat.chainPtr->getName().c_str())
+	    << magnet::xml::chardata();
 
-      //Have to draw the boxes so it renders correctly, hence the doubling up      
-      for (unsigned long i = 0; i < dat.chainlength; i++)
-	{
-	  for (unsigned long j = 0; j < dat.chainlength; j++)
-	    XML << i - 0.5 << " " << j - 0.5 << " " << (((double) dat.array[i * dat.chainlength + j])/((double) dat.counter)) << "\n"
-		<< i - 0.5 << " " << j + 0.5 << " " << (((double) dat.array[i * dat.chainlength + j])/((double) dat.counter)) << "\n";
-	  XML << "\n";
+	//Have to draw the boxes so it renders correctly, hence the doubling up      
+	for (unsigned long i = 0; i < dat.chainlength; i++)
+	  {
+	    for (unsigned long j = 0; j < dat.chainlength; j++)
+	      XML << i - 0.5 << " " << j - 0.5 << " " << (((double) dat.array[i * dat.chainlength + j])/((double) dat.counter)) << "\n"
+		  << i - 0.5 << " " << j + 0.5 << " " << (((double) dat.array[i * dat.chainlength + j])/((double) dat.counter)) << "\n";
+	    XML << "\n";
 
-	  for (unsigned long j = 0; j < dat.chainlength; j++)
-	    XML << i + 0.5 << " " << j - 0.5 << " " << (((double) dat.array[i * dat.chainlength + j])/((double) dat.counter)) << "\n"
-		<< i + 0.5 << " " << j + 0.5 << " " << (((double) dat.array[i * dat.chainlength + j])/((double) dat.counter)) << "\n";
-	  XML << "\n";
+	    for (unsigned long j = 0; j < dat.chainlength; j++)
+	      XML << i + 0.5 << " " << j - 0.5 << " " << (((double) dat.array[i * dat.chainlength + j])/((double) dat.counter)) << "\n"
+		  << i + 0.5 << " " << j + 0.5 << " " << (((double) dat.array[i * dat.chainlength + j])/((double) dat.counter)) << "\n";
+	    XML << "\n";
 
-	}
+	  }
       
             
-      XML << magnet::xml::endtag(dat.chainPtr->getName().c_str());
-    }
+	XML << magnet::xml::endtag(dat.chainPtr->getName().c_str());
+      }
 
-  XML << magnet::xml::endtag("ContactMap");
+    XML << magnet::xml::endtag("ContactMap");
+  }
 }

@@ -29,137 +29,139 @@
 #include <boost/foreach.hpp>
 #include <fstream>
 
-OPStructureImaging::OPStructureImaging(const dynamo::SimData* tmp, 
-				       const magnet::xml::Node& XML):
-  OPTicker(tmp,"StructureImaging"),
-  id(0),
-  imageCount(500)
-{
-  operator<<(XML);
-}
+namespace dynamo {
+  OPStructureImaging::OPStructureImaging(const dynamo::SimData* tmp, 
+					 const magnet::xml::Node& XML):
+    OPTicker(tmp,"StructureImaging"),
+    id(0),
+    imageCount(500)
+  {
+    operator<<(XML);
+  }
 
-void 
-OPStructureImaging::operator<<(const magnet::xml::Node& XML)
-{
-  try 
-    {
-      if (!XML.hasAttribute("Structure"))
-	M_throw() << "You must specify the name of the structure to monitor for StructureImaging";
+  void 
+  OPStructureImaging::operator<<(const magnet::xml::Node& XML)
+  {
+    try 
+      {
+	if (!XML.hasAttribute("Structure"))
+	  M_throw() << "You must specify the name of the structure to monitor for StructureImaging";
       
-      structureName = XML.getAttribute("Structure");
+	structureName = XML.getAttribute("Structure");
 
-      if (XML.hasAttribute("MaxImages"))
-	imageCount = XML.getAttribute("MaxImages").as<size_t>();
-    }
-  catch (boost::bad_lexical_cast &)
-    {
-      M_throw() << "Failed a lexical cast in OPVACF";
-    }
-}
-
-
-void 
-OPStructureImaging::initialise()
-{
-  dout << "Initialising Structure imaging with a max of " << imageCount
-       << " snapshots"<< std::endl;
+	if (XML.hasAttribute("MaxImages"))
+	  imageCount = XML.getAttribute("MaxImages").as<size_t>();
+      }
+    catch (boost::bad_lexical_cast &)
+      {
+	M_throw() << "Failed a lexical cast in OPVACF";
+      }
+  }
 
 
-  id = Sim->dynamics.getTopology().size();
+  void 
+  OPStructureImaging::initialise()
+  {
+    dout << "Initialising Structure imaging with a max of " << imageCount
+	 << " snapshots"<< std::endl;
+
+
+    id = Sim->dynamics.getTopology().size();
   
-  BOOST_FOREACH(const magnet::ClonePtr<Topology>& ptr, Sim->dynamics.getTopology())
-    if (boost::iequals(structureName, ptr->getName()))
-      id = ptr->getID();
+    BOOST_FOREACH(const magnet::ClonePtr<Topology>& ptr, Sim->dynamics.getTopology())
+      if (boost::iequals(structureName, ptr->getName()))
+	id = ptr->getID();
   
-  if (id == Sim->dynamics.getTopology().size())
-    M_throw() << "Could not find a structure named " << structureName << " in the simulation";
+    if (id == Sim->dynamics.getTopology().size())
+      M_throw() << "Could not find a structure named " << structureName << " in the simulation";
   
-  imagelist.clear();
-  ticker();
-}
+    imagelist.clear();
+    ticker();
+  }
 
-void 
-OPStructureImaging::changeSystem(OutputPlugin* nplug) 
-{
-  std::swap(Sim, static_cast<OPStructureImaging*>(nplug)->Sim);
-}
+  void 
+  OPStructureImaging::changeSystem(OutputPlugin* nplug) 
+  {
+    std::swap(Sim, static_cast<OPStructureImaging*>(nplug)->Sim);
+  }
 
-void 
-OPStructureImaging::ticker()
-{
-  if (imageCount != 0)
-    {
-      --imageCount;
-      printImage();
-    }
-}
+  void 
+  OPStructureImaging::ticker()
+  {
+    if (imageCount != 0)
+      {
+	--imageCount;
+	printImage();
+      }
+  }
 
-void
-OPStructureImaging::printImage()
-{
-  BOOST_FOREACH(const magnet::ClonePtr<CRange>& prange, Sim->dynamics.getTopology()[id]->getMolecules())
-    {
-      std::vector<Vector  > atomDescription;
+  void
+  OPStructureImaging::printImage()
+  {
+    BOOST_FOREACH(const magnet::ClonePtr<CRange>& prange, Sim->dynamics.getTopology()[id]->getMolecules())
+      {
+	std::vector<Vector  > atomDescription;
 
-      Vector  lastpos(Sim->particleList[*prange->begin()].getPosition());
+	Vector  lastpos(Sim->particleList[*prange->begin()].getPosition());
       
-      Vector  masspos(0,0,0);
+	Vector  masspos(0,0,0);
 
-      double sysMass(0.0);
+	double sysMass(0.0);
 
-      Vector  sumrij(0,0,0);
+	Vector  sumrij(0,0,0);
       
-      BOOST_FOREACH(const size_t& pid, *prange)
-	{
-	  //This is all to make sure we walk along the structure
-	  const Particle& part(Sim->particleList[pid]);
-	  Vector  rij = part.getPosition() - lastpos;
-	  lastpos = part.getPosition();
-	  Sim->dynamics.BCs().applyBC(rij);
+	BOOST_FOREACH(const size_t& pid, *prange)
+	  {
+	    //This is all to make sure we walk along the structure
+	    const Particle& part(Sim->particleList[pid]);
+	    Vector  rij = part.getPosition() - lastpos;
+	    lastpos = part.getPosition();
+	    Sim->dynamics.BCs().applyBC(rij);
 	  
-	  sumrij += rij;
+	    sumrij += rij;
 	  
-	  double pmass = Sim->dynamics.getSpecies(part).getMass(pid);
-	  sysMass += pmass;
-	  masspos += sumrij * pmass;
+	    double pmass = Sim->dynamics.getSpecies(part).getMass(pid);
+	    sysMass += pmass;
+	    masspos += sumrij * pmass;
 	  
-	  atomDescription.push_back(sumrij);
-	}
+	    atomDescription.push_back(sumrij);
+	  }
       
-      masspos /= sysMass;
+	masspos /= sysMass;
 
-      BOOST_FOREACH(Vector & rijpos, atomDescription)
-	rijpos -= masspos;
+	BOOST_FOREACH(Vector & rijpos, atomDescription)
+	  rijpos -= masspos;
 
-      //We use a trick to not copy the vector, just swap it over
-      imagelist.push_back(std::vector<Vector  >());
-      std::swap(imagelist.back(), atomDescription);
-    }
-}
+	//We use a trick to not copy the vector, just swap it over
+	imagelist.push_back(std::vector<Vector  >());
+	std::swap(imagelist.back(), atomDescription);
+      }
+  }
 
-void 
-OPStructureImaging::output(magnet::xml::XmlStream& XML)
-{
-  XML << magnet::xml::tag("StructureImages")
-      << magnet::xml::attr("version") << 2;
+  void 
+  OPStructureImaging::output(magnet::xml::XmlStream& XML)
+  {
+    XML << magnet::xml::tag("StructureImages")
+	<< magnet::xml::attr("version") << 2;
   
-  BOOST_FOREACH(const std::vector<Vector  >& vec, imagelist)
-    {
-      XML << magnet::xml::tag("Image");
+    BOOST_FOREACH(const std::vector<Vector  >& vec, imagelist)
+      {
+	XML << magnet::xml::tag("Image");
 
-      size_t id(0);
+	size_t id(0);
 
-      BOOST_FOREACH(const Vector & vec2, vec)
-	{
-	  XML << magnet::xml::tag("Atom")
-	      << magnet::xml::attr("ID")
-	      << id++
-	      << (vec2 / Sim->dynamics.units().unitLength())
-	      << magnet::xml::endtag("Atom");
-	}
+	BOOST_FOREACH(const Vector & vec2, vec)
+	  {
+	    XML << magnet::xml::tag("Atom")
+		<< magnet::xml::attr("ID")
+		<< id++
+		<< (vec2 / Sim->dynamics.units().unitLength())
+		<< magnet::xml::endtag("Atom");
+	  }
 	  
-      XML << magnet::xml::endtag("Image");
-    }
+	XML << magnet::xml::endtag("Image");
+      }
     
-  XML << magnet::xml::endtag("StructureImages");
+    XML << magnet::xml::endtag("StructureImages");
+  }
 }

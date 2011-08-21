@@ -20,51 +20,53 @@
 #include <boost/circular_buffer.hpp>
 #include <tr1/array>
 
-class OPViscosityCollisionalE: public OutputPlugin
-{
-  typedef std::tr1::array<double, NDIM> col;
-  typedef std::tr1::array<col, NDIM> matrix;
+namespace dynamo {
+  class OPViscosityCollisionalE: public OutputPlugin
+  {
+    typedef std::tr1::array<double, NDIM> col;
+    typedef std::tr1::array<col, NDIM> matrix;
   
-public:
-  OPViscosityCollisionalE(const dynamo::SimData*, const magnet::xml::Node& XML);
+  public:
+    OPViscosityCollisionalE(const dynamo::SimData*, const magnet::xml::Node& XML);
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void output(magnet::xml::XmlStream &);
+    virtual void output(magnet::xml::XmlStream &);
   
-  virtual OutputPlugin* Clone() const { return new OPViscosityCollisionalE(*this); }
+    virtual OutputPlugin* Clone() const { return new OPViscosityCollisionalE(*this); }
   
-  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
+    virtual void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const LocalEvent&, const NEventData&);
+    virtual void eventUpdate(const LocalEvent&, const NEventData&);
   
-  virtual void eventUpdate(const System&, const NEventData&, const double&);
+    virtual void eventUpdate(const System&, const NEventData&, const double&);
   
-  virtual void eventUpdate(const IntEvent&, const PairEventData&);
+    virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
-  void stream(const double&);
+    void stream(const double&);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-protected:
-  void impulseDelG(const PairEventData&);
-  void impulseDelG(const NEventData&);
+  protected:
+    void impulseDelG(const PairEventData&);
+    void impulseDelG(const NEventData&);
 
-  void newG(const matrix&);
-  void accPass();
+    void newG(const matrix&);
+    void accPass();
 
-  matrix avgTrace;
+    matrix avgTrace;
 
-  size_t count;
-  double dt, currentdt;
-  matrix delG;
+    size_t count;
+    double dt, currentdt;
+    matrix delG;
 
-  size_t currlen;
-  bool notReady;
+    size_t currlen;
+    bool notReady;
 
-  size_t CorrelatorLength;
+    size_t CorrelatorLength;
 
-  boost::circular_buffer<matrix> G;
-  std::vector<matrix> accG2;
-  double dtfactor;
-};
+    boost::circular_buffer<matrix> G;
+    std::vector<matrix> accG2;
+    double dtfactor;
+  };
+}

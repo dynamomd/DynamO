@@ -15,14 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "hardsphere.hpp"
-#include "roughhardsphere.hpp"
-#include "squarewell.hpp"
-#include "swsequence.hpp"
-#include "squarebond.hpp"
-#include "softcore.hpp"
-#include "nullInteraction.hpp"
-#include "lines.hpp"
-#include "rotatedparallelcubes.hpp"
-#include "stepped.hpp"
-#include "dumbbells.hpp"
+#include <dynamo/dynamics/interactions/hardsphere.hpp>
+#include <dynamo/dynamics/interactions/roughhardsphere.hpp>
+#include <dynamo/dynamics/interactions/squarewell.hpp>
+#include <dynamo/dynamics/interactions/swsequence.hpp>
+#include <dynamo/dynamics/interactions/squarebond.hpp>
+#include <dynamo/dynamics/interactions/softcore.hpp>
+#include <dynamo/dynamics/interactions/nullInteraction.hpp>
+#include <dynamo/dynamics/interactions/lines.hpp>
+#include <dynamo/dynamics/interactions/rotatedparallelcubes.hpp>
+#include <dynamo/dynamics/interactions/stepped.hpp>
+#include <dynamo/dynamics/interactions/dumbbells.hpp>

@@ -16,40 +16,42 @@
 */
 
 #pragma once
-#include "NewtonL.hpp"
+#include <dynamo/dynamics/liouvillean/NewtonL.hpp>
 
-class LCompression: public LNewtonian
-{
-public:
-  LCompression(dynamo::SimData*, double);
+namespace dynamo {
+  class LCompression: public LNewtonian
+  {
+  public:
+    LCompression(dynamo::SimData*, double);
 
-  virtual bool SphereSphereInRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const;
-  virtual bool SphereSphereOutRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const;  
-  virtual bool sphereOverlap(const CPDData&, const double&) const;
+    virtual bool SphereSphereInRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const;
+    virtual bool SphereSphereOutRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const;  
+    virtual bool sphereOverlap(const CPDData&, const double&) const;
 
-  virtual PairEventData SmoothSpheresColl(const IntEvent&, const double&, const double&, const EEventType&) const;
+    virtual PairEventData SmoothSpheresColl(const IntEvent&, const double&, const double&, const EEventType&) const;
 
-  virtual PairEventData SphereWellEvent(const IntEvent&, const double&, const double&) const;
+    virtual PairEventData SphereWellEvent(const IntEvent&, const double&, const double&) const;
   
-  virtual Liouvillean* Clone() const { return new LCompression(*this); };
+    virtual Liouvillean* Clone() const { return new LCompression(*this); };
 
-  double getGrowthRate() const { return growthRate; }
+    double getGrowthRate() const { return growthRate; }
 
-  virtual double getPBCSentinelTime(const Particle&, const double&) const;
+    virtual double getPBCSentinelTime(const Particle&, const double&) const;
 
-  virtual bool CubeCubeInRoot(CPDData& pd, const double& d) const { M_throw() << "Not Implemented"; }
+    virtual bool CubeCubeInRoot(CPDData& pd, const double& d) const { M_throw() << "Not Implemented"; }
 
-  virtual bool CubeCubeOutRoot(CPDData&, const double& d) const { M_throw() << "Not Implemented"; }
+    virtual bool CubeCubeOutRoot(CPDData&, const double& d) const { M_throw() << "Not Implemented"; }
 
-  virtual bool cubeOverlap(const CPDData& PD, const double& d) const { M_throw() << "Not Implemented"; }
+    virtual bool cubeOverlap(const CPDData& PD, const double& d) const { M_throw() << "Not Implemented"; }
 
-  virtual PairEventData parallelCubeColl(const IntEvent& event,
-					  const double& e, const double& d,
-					  const Matrix& rot,
-					  const EEventType& eType = CORE) const;
+    virtual PairEventData parallelCubeColl(const IntEvent& event,
+					   const double& e, const double& d,
+					   const Matrix& rot,
+					   const EEventType& eType = CORE) const;
   
-protected:
-  virtual void outputXML(magnet::xml::XmlStream& ) const;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream& ) const;
   
-  double growthRate;
-};
+    double growthRate;
+  };
+}

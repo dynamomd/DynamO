@@ -16,39 +16,41 @@
 */
 
 #pragma once
-#include "collticker.hpp"
-#include "../../datatypes/histogram.hpp"
+#include <dynamo/outputplugins/0partproperty/collticker.hpp>
+#include <dynamo/datatypes/histogram.hpp>
 #include <boost/unordered_map.hpp>
 
-class OPUEnergy;
+namespace dynamo {
+  class OPUEnergy;
 
-class OPIntEnergyHist: public OPCollTicker
-{
- public:
-  OPIntEnergyHist(const dynamo::SimData*, const magnet::xml::Node&);
+  class OPIntEnergyHist: public OPCollTicker
+  {
+  public:
+    OPIntEnergyHist(const dynamo::SimData*, const magnet::xml::Node&);
 
-  virtual OutputPlugin *Clone() const
-  { return new OPIntEnergyHist(*this); }
+    virtual OutputPlugin *Clone() const
+    { return new OPIntEnergyHist(*this); }
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void stream(double);
+    virtual void stream(double);
 
-  virtual void ticker();
+    virtual void ticker();
 
-  virtual void output(magnet::xml::XmlStream&);
+    virtual void output(magnet::xml::XmlStream&);
 
-  virtual void changeSystem(OutputPlugin*);
+    virtual void changeSystem(OutputPlugin*);
   
-  void operator<<(const magnet::xml::Node&);
+    void operator<<(const magnet::xml::Node&);
 
-  boost::unordered_map<int, double> getImprovedW() const;
-  inline double getBinWidth() const { return intEnergyHist.getBinWidth(); }
- protected:
+    boost::unordered_map<int, double> getImprovedW() const;
+    inline double getBinWidth() const { return intEnergyHist.getBinWidth(); }
+  protected:
 
-  C1DWeightHistogram intEnergyHist;
-  const OPUEnergy* ptrOPEnergy;
-  double weight;
-  double binwidth;
+    C1DWeightHistogram intEnergyHist;
+    const OPUEnergy* ptrOPEnergy;
+    double weight;
+    double binwidth;
 
-};
+  };
+}

@@ -14,49 +14,51 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "eventtypetracking.hpp"
-#include "../base/is_simdata.hpp"
-#include "../dynamics/include.hpp"
+#include <dynamo/outputplugins/eventtypetracking.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/include.hpp>
 
-namespace EventTypeTracking {
+namespace dynamo {
+  namespace EventTypeTracking {
 
-  std::string getName(const classKey& key, const dynamo::SimData* Sim)
-  {
-  switch (key.second)
+    std::string getName(const classKey& key, const dynamo::SimData* Sim)
     {
-    case INTERACTION:
-      return Sim->dynamics.getInteractions()[key.first]->getName();
-      break;
-    case GLOBAL:
-      return Sim->dynamics.getGlobals()[key.first]->getName();
-      break;
-    case SYSTEM:
-      return Sim->dynamics.getSystemEvents()[key.first]->getName();
-      break;
-    case LOCAL:
-      return Sim->dynamics.getLocals()[key.first]->getName();
-      break;
-    default:
-      M_throw() << "Collision matrix found an unknown event class";
+      switch (key.second)
+	{
+	case INTERACTION:
+	  return Sim->dynamics.getInteractions()[key.first]->getName();
+	  break;
+	case GLOBAL:
+	  return Sim->dynamics.getGlobals()[key.first]->getName();
+	  break;
+	case SYSTEM:
+	  return Sim->dynamics.getSystemEvents()[key.first]->getName();
+	  break;
+	case LOCAL:
+	  return Sim->dynamics.getLocals()[key.first]->getName();
+	  break;
+	default:
+	  M_throw() << "Collision matrix found an unknown event class";
+	}
     }
-  }
 
-  classKey getClassKey(const IntEvent& i)
-  {
-    return classKey(i.getInteractionID(), INTERACTION);
-  }
-  classKey getClassKey(const System& s)
-  {
-    return classKey(s.getID(), SYSTEM);
-  }
+    classKey getClassKey(const IntEvent& i)
+    {
+      return classKey(i.getInteractionID(), INTERACTION);
+    }
+    classKey getClassKey(const System& s)
+    {
+      return classKey(s.getID(), SYSTEM);
+    }
 
-  classKey getClassKey(const GlobalEvent& g)
-  {
-    return classKey(g.getGlobalID(), GLOBAL);
-  }
+    classKey getClassKey(const GlobalEvent& g)
+    {
+      return classKey(g.getGlobalID(), GLOBAL);
+    }
 
-  classKey getClassKey(const LocalEvent& g)
-  {
-    return classKey(g.getLocalID(), LOCAL);
+    classKey getClassKey(const LocalEvent& g)
+    {
+      return classKey(g.getLocalID(), LOCAL);
+    }
   }
 }

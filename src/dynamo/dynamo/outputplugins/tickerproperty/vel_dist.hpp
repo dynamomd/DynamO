@@ -17,32 +17,34 @@
 
 #pragma once
 
-#include "ticker.hpp"
-#include "../../datatypes/histogram.hpp"
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <dynamo/datatypes/histogram.hpp>
 
-class OPKEnergy;
+namespace dynamo {
+  class OPKEnergy;
 
-class OPVelDist: public OPTicker
-{
- public:
-  OPVelDist(const dynamo::SimData*, const magnet::xml::Node&);
+  class OPVelDist: public OPTicker
+  {
+  public:
+    OPVelDist(const dynamo::SimData*, const magnet::xml::Node&);
 
-  virtual OutputPlugin *Clone() const
-  { return new OPVelDist(*this); }
+    virtual OutputPlugin *Clone() const
+    { return new OPVelDist(*this); }
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void stream(double) {}
+    virtual void stream(double) {}
 
-  virtual void ticker();
+    virtual void ticker();
   
-  virtual void output(magnet::xml::XmlStream&);
+    virtual void output(magnet::xml::XmlStream&);
 
-  void operator<<(const magnet::xml::Node&);
+    void operator<<(const magnet::xml::Node&);
 
- protected:
-  double binWidth;
-  std::vector<C1DHistogram> data[NDIM];
+  protected:
+    double binWidth;
+    std::vector<C1DHistogram> data[NDIM];
 
-  const OPKEnergy* _ptrOPEnergy;
-};
+    const OPKEnergy* _ptrOPEnergy;
+  };
+}

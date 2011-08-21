@@ -15,35 +15,37 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "include.hpp"
+#include <dynamo/dynamics/BC/include.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cstring>
 
-magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
-			   const BoundaryCondition& g)
-{
-  g.outputXML(XML);
-  return XML;
-}
+namespace dynamo {
+  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
+				     const BoundaryCondition& g)
+  {
+    g.outputXML(XML);
+    return XML;
+  }
 
 
-BoundaryCondition* 
-BoundaryCondition::getClass(const magnet::xml::Node& XML, dynamo::SimData* tmp)
-{
-  if (!std::strcmp(XML.getAttribute("Type"),"None")
-      || !std::strcmp(XML.getAttribute("Type"),"Null"))
-    return new BCNone(tmp);
-  else if (!std::strcmp(XML.getAttribute("Type"),"PBC"))
-    return new BCPeriodic(tmp);
-  else if (!std::strcmp(XML.getAttribute("Type"),"NoXPBC"))
-    return new BCPeriodicExceptX(tmp);
-  else if (!std::strcmp(XML.getAttribute("Type"),"OnlyXPBC"))
-    return new BCPeriodicXOnly(tmp);
-  else if (!std::strcmp(XML.getAttribute("Type"),"LE"))
-    return new BCLeesEdwards(XML,tmp);
-  else 
-    M_throw() << XML.getAttribute("Type") 
-	      << ", Unknown type of boundary encountered";
+  BoundaryCondition* 
+  BoundaryCondition::getClass(const magnet::xml::Node& XML, dynamo::SimData* tmp)
+  {
+    if (!std::strcmp(XML.getAttribute("Type"),"None")
+	|| !std::strcmp(XML.getAttribute("Type"),"Null"))
+      return new BCNone(tmp);
+    else if (!std::strcmp(XML.getAttribute("Type"),"PBC"))
+      return new BCPeriodic(tmp);
+    else if (!std::strcmp(XML.getAttribute("Type"),"NoXPBC"))
+      return new BCPeriodicExceptX(tmp);
+    else if (!std::strcmp(XML.getAttribute("Type"),"OnlyXPBC"))
+      return new BCPeriodicXOnly(tmp);
+    else if (!std::strcmp(XML.getAttribute("Type"),"LE"))
+      return new BCLeesEdwards(XML,tmp);
+    else 
+      M_throw() << XML.getAttribute("Type") 
+		<< ", Unknown type of boundary encountered";
+  }
 }

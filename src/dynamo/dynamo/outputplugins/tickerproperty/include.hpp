@@ -15,24 +15,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "chaintorsion.hpp"
-#include "radiusGyration.hpp"
-#include "tinkerxyz.hpp"
-#include "chainContactMap.hpp"
-#include "overlap.hpp"
-#include "periodmsd.hpp"
-#include "chainBondAngles.hpp"
-#include "chainBondLength.hpp"
-#include "vel_dist.hpp"
-#include "radialdist.hpp"
-#include "velprof.hpp"
-#include "vtk.hpp"
-#include "msdcorrelator.hpp"
-#include "kenergyticker.hpp"
-#include "structureImage.hpp"
-#include "streamticker.hpp"
-#include "boundedQstats.hpp"
-#include "SHcrystal.hpp"
-#include "SCparameter.hpp"
-#include "plateMotion.hpp"
-#include "msdOrientationalCorrelator.hpp"
+#include <dynamo/outputplugins/tickerproperty/chaintorsion.hpp>
+#include <dynamo/outputplugins/tickerproperty/radiusGyration.hpp>
+#include <dynamo/outputplugins/tickerproperty/tinkerxyz.hpp>
+#include <dynamo/outputplugins/tickerproperty/chainContactMap.hpp>
+#include <dynamo/outputplugins/tickerproperty/overlap.hpp>
+#include <dynamo/outputplugins/tickerproperty/periodmsd.hpp>
+#include <dynamo/outputplugins/tickerproperty/chainBondAngles.hpp>
+#include <dynamo/outputplugins/tickerproperty/chainBondLength.hpp>
+#include <dynamo/outputplugins/tickerproperty/vel_dist.hpp>
+#include <dynamo/outputplugins/tickerproperty/radialdist.hpp>
+#include <dynamo/outputplugins/tickerproperty/velprof.hpp>
+#include <dynamo/outputplugins/tickerproperty/vtk.hpp>
+#include <dynamo/outputplugins/tickerproperty/msdcorrelator.hpp>
+#include <dynamo/outputplugins/tickerproperty/kenergyticker.hpp>
+#include <dynamo/outputplugins/tickerproperty/structureImage.hpp>
+#include <dynamo/outputplugins/tickerproperty/streamticker.hpp>
+#include <dynamo/outputplugins/tickerproperty/boundedQstats.hpp>
+#include <dynamo/outputplugins/tickerproperty/SHcrystal.hpp>
+#include <dynamo/outputplugins/tickerproperty/SCparameter.hpp>
+#include <dynamo/outputplugins/tickerproperty/plateMotion.hpp>
+#include <dynamo/outputplugins/tickerproperty/msdOrientationalCorrelator.hpp>

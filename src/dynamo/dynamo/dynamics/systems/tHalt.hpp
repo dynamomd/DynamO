@@ -16,23 +16,25 @@
 */
 
 #pragma once
-#include "system.hpp"
+#include <dynamo/dynamics/systems/system.hpp>
 
-class CStHalt: public System
-{
-public:
-  CStHalt(dynamo::SimData*, double, std::string);
+namespace dynamo {
+  class CStHalt: public System
+  {
+  public:
+    CStHalt(dynamo::SimData*, double, std::string);
   
-  virtual void runEvent() const;
+    virtual void runEvent() const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual void operator<<(const magnet::xml::Node&) {}
+    virtual void operator<<(const magnet::xml::Node&) {}
 
-  void setdt(double);
+    void setdt(double);
 
-  void increasedt(double);
+    void increasedt(double);
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const {}
-};
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const {}
+  };
+}

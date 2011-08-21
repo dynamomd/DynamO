@@ -17,28 +17,30 @@
 
 #pragma once
 
-#include "point.hpp"
+#include <dynamo/dynamics/species/point.hpp>
 #include <magnet/xmlwriter.hpp>
 
-class SpFixedCollider:public SpPoint
-{
-public:  
-  SpFixedCollider(dynamo::SimData* sim, CRange* r, std::string nName, 
-		  unsigned int ID, std::string nIName="Bulk"):
-    SpPoint(sim, r, 0, nName, ID, nIName)
-  { name = "SpFixedCollider"; }
+namespace dynamo {
+  class SpFixedCollider:public SpPoint
+  {
+  public:  
+    SpFixedCollider(dynamo::SimData* sim, CRange* r, std::string nName, 
+		    unsigned int ID, std::string nIName="Bulk"):
+      SpPoint(sim, r, 0, nName, ID, nIName)
+    { name = "SpFixedCollider"; }
   
-  SpFixedCollider(const magnet::xml::Node& XML, dynamo::SimData* nSim, unsigned int nID):
-    SpPoint(nSim, NULL, 0, "", nID,"")
-  { name = "SpFixedCollider"; operator<<(XML); }
+    SpFixedCollider(const magnet::xml::Node& XML, dynamo::SimData* nSim, unsigned int nID):
+      SpPoint(nSim, NULL, 0, "", nID,"")
+    { name = "SpFixedCollider"; operator<<(XML); }
   
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void operator<<(const magnet::xml::Node& XML);
+    virtual void operator<<(const magnet::xml::Node& XML);
 
-  virtual SpFixedCollider* Clone() const { return new SpFixedCollider(*this); }
+    virtual SpFixedCollider* Clone() const { return new SpFixedCollider(*this); }
 
-protected:
+  protected:
 
-  virtual void outputXML(magnet::xml::XmlStream& XML) const;
-};
+    virtual void outputXML(magnet::xml::XmlStream& XML) const;
+  };
+}

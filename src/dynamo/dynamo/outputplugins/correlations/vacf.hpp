@@ -26,43 +26,45 @@
 #include <magnet/xmlwriter.hpp>
 #include <vector>
 
-class OPVACF: public OutputPlugin
-{
- public:
-  OPVACF(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPVACF: public OutputPlugin
+  {
+  public:
+    OPVACF(const dynamo::SimData*, const magnet::xml::Node&);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
+    virtual void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const LocalEvent&, const NEventData&);
+    virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const System&, const NEventData&, const double&);
+    virtual void eventUpdate(const System&, const NEventData&, const double&);
   
-  virtual void eventUpdate(const IntEvent&, const PairEventData&);
+    virtual void eventUpdate(const IntEvent&, const PairEventData&);
     
-  virtual void output(magnet::xml::XmlStream&);
+    virtual void output(magnet::xml::XmlStream&);
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual OutputPlugin *Clone() const { return new OPVACF(*this); }
+    virtual OutputPlugin *Clone() const { return new OPVACF(*this); }
    
-protected:  
+  protected:  
   
-  virtual void newG(const PairEventData&);
-  virtual void newG(const ParticleEventData&);
-  virtual void newG(const NEventData&);
+    virtual void newG(const PairEventData&);
+    virtual void newG(const ParticleEventData&);
+    virtual void newG(const NEventData&);
   
-  virtual void accPass();
+    virtual void accPass();
 
-  double getdt();
+    double getdt();
 
-  std::vector<boost::circular_buffer<Vector  > > G;
-  std::vector<std::vector<Vector  > > accG2;
-  long count;
-  double dt, currentdt;
+    std::vector<boost::circular_buffer<Vector  > > G;
+    std::vector<std::vector<Vector  > > accG2;
+    long count;
+    double dt, currentdt;
   
-  size_t CorrelatorLength;
-  size_t currCorrLen;
-  bool notReady;
-};
+    size_t CorrelatorLength;
+    size_t currCorrLen;
+    bool notReady;
+  };
+}

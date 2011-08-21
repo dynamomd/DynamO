@@ -15,72 +15,73 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "include.hpp"
+#include <dynamo/dynamics/ranges/include.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-CRange* 
-CRange::getClass(const magnet::xml::Node& XML, const dynamo::SimData * Sim)
-{
-  if (!strcmp(XML.getAttribute("Range"),"All"))
-    return new CRAll(XML, Sim);
-  else if (!strcmp(XML.getAttribute("Range"),"None"))
-    return new CRNone(XML);
-  else if (!strcmp(XML.getAttribute("Range"),"Single"))
-    return new CRSingle(XML);
-  else if (!strcmp(XML.getAttribute("Range"),"Ranged"))
-    return new CRRange(XML);
-  else if (!strcmp(XML.getAttribute("Range"),"List"))
-    return new CRList(XML);
-  else 
-    M_throw() << XML.getAttribute("Range")
-	      << ", Unknown type of Range encountered";
-}
+namespace dynamo {
+  CRange* 
+  CRange::getClass(const magnet::xml::Node& XML, const dynamo::SimData * Sim)
+  {
+    if (!strcmp(XML.getAttribute("Range"),"All"))
+      return new CRAll(XML, Sim);
+    else if (!strcmp(XML.getAttribute("Range"),"None"))
+      return new CRNone(XML);
+    else if (!strcmp(XML.getAttribute("Range"),"Single"))
+      return new CRSingle(XML);
+    else if (!strcmp(XML.getAttribute("Range"),"Ranged"))
+      return new CRRange(XML);
+    else if (!strcmp(XML.getAttribute("Range"),"List"))
+      return new CRList(XML);
+    else 
+      M_throw() << XML.getAttribute("Range")
+		<< ", Unknown type of Range encountered";
+  }
 
-magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const CRange&g)
-{
-  g.outputXML(XML);
-  return XML;
-}
+  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const CRange&g)
+  {
+    g.outputXML(XML);
+    return XML;
+  }
 
-magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
-			    const C2Range& g)
-{
-  g.outputXML(XML);
-  return XML;
-}
+  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
+				     const C2Range& g)
+  {
+    g.outputXML(XML);
+    return XML;
+  }
 
-C2Range*
-C2Range::getClass(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
-{
-  if (!strcmp(XML.getAttribute("Range"),"Pair"))
-    return new C2RPair(XML, Sim);
-  else if (!strcmp(XML.getAttribute("Range"),"List"))
-    return new C2RList(XML);
-  else if (!strcmp(XML.getAttribute("Range"),"2Single"))
-    return new C2RSingle(XML,Sim);
-  else if (!strcmp(XML.getAttribute("Range"),"RangeList"))
-    return new C2RRangeList(XML,Sim);
-  else if (!strcmp(XML.getAttribute("Range"),"Chain"))
-    return new C2RChain(XML,Sim);
-  else if (!strcmp(XML.getAttribute("Range"),"Chains"))
-    return new C2RChains(XML,Sim);              
-  else if (!strcmp(XML.getAttribute("Range"),"ChainGroups"))
-    return new C2RChainGroups(XML,Sim);
-  else if (!strcmp(XML.getAttribute("Range"),"ChainEnds"))
-    return new C2RChainEnds(XML,Sim);
-  else if (!strcmp(XML.getAttribute("Range"),"IntraChains"))
-    return new C2RIntraChains(XML,Sim);              
-  else if (!strcmp(XML.getAttribute("Range"),"Ring"))
-    return new C2RRing(XML,Sim);
-  else if (!strcmp(XML.getAttribute("Range"),"Rings"))
-    return new C2RRings(XML,Sim);
-  else if (!strcmp(XML.getAttribute("Range"),"2All"))
-    return new C2RAll(XML,Sim);
-  else if (!strcmp(XML.getAttribute("Range"),"2None"))
-    return new C2RNone(XML,Sim);
-  else 
-    M_throw() << XML.getAttribute("Range")
-	      << ", Unknown type of C2Range encountered";
+  C2Range*
+  C2Range::getClass(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
+  {
+    if (!strcmp(XML.getAttribute("Range"),"Pair"))
+      return new C2RPair(XML, Sim);
+    else if (!strcmp(XML.getAttribute("Range"),"List"))
+      return new C2RList(XML);
+    else if (!strcmp(XML.getAttribute("Range"),"2Single"))
+      return new C2RSingle(XML,Sim);
+    else if (!strcmp(XML.getAttribute("Range"),"RangeList"))
+      return new C2RRangeList(XML,Sim);
+    else if (!strcmp(XML.getAttribute("Range"),"Chain"))
+      return new C2RChain(XML,Sim);
+    else if (!strcmp(XML.getAttribute("Range"),"Chains"))
+      return new C2RChains(XML,Sim);              
+    else if (!strcmp(XML.getAttribute("Range"),"ChainGroups"))
+      return new C2RChainGroups(XML,Sim);
+    else if (!strcmp(XML.getAttribute("Range"),"ChainEnds"))
+      return new C2RChainEnds(XML,Sim);
+    else if (!strcmp(XML.getAttribute("Range"),"IntraChains"))
+      return new C2RIntraChains(XML,Sim);              
+    else if (!strcmp(XML.getAttribute("Range"),"Ring"))
+      return new C2RRing(XML,Sim);
+    else if (!strcmp(XML.getAttribute("Range"),"Rings"))
+      return new C2RRings(XML,Sim);
+    else if (!strcmp(XML.getAttribute("Range"),"2All"))
+      return new C2RAll(XML,Sim);
+    else if (!strcmp(XML.getAttribute("Range"),"2None"))
+      return new C2RNone(XML,Sim);
+    else 
+      M_throw() << XML.getAttribute("Range")
+		<< ", Unknown type of C2Range encountered";
+  }
 }
-

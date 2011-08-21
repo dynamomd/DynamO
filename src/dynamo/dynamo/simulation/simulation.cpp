@@ -15,17 +15,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "simulation.hpp"
-#include "../dynamics/include.hpp"
-#include "../schedulers/scheduler.hpp"
-#include "../dynamics/include.hpp"
-#include "../dynamics/interactions/intEvent.hpp"
-#include "../outputplugins/outputplugin.hpp"
-#include "../dynamics/liouvillean/liouvillean.hpp"
-#include "../dynamics/systems/system.hpp"
-#include "../dynamics/NparticleEventData.hpp"
-#include "../outputplugins/tickerproperty/ticker.hpp"
-#include "../dynamics/systems/sysTicker.hpp"
+#include <dynamo/simulation/simulation.hpp>
+#include <dynamo/dynamics/include.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/dynamics/include.hpp>
+#include <dynamo/dynamics/interactions/intEvent.hpp>
+#include <dynamo/outputplugins/outputplugin.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/systems/system.hpp>
+#include <dynamo/dynamics/NparticleEventData.hpp>
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <dynamo/dynamics/systems/sysTicker.hpp>
 #include <magnet/exception.hpp>
 #include <boost/foreach.hpp>
 #include <iomanip>
@@ -38,227 +38,229 @@
 #include <boost/iostreams/copy.hpp>
 #include <boost/filesystem.hpp>
 
-void 
-Simulation::setTickerPeriod(double nP)
-{
-  CSTicker* ptr = dynamic_cast<CSTicker*>(getSystem("SystemTicker"));
-  if (ptr == NULL)
-    M_throw() << "Could not find system ticker (maybe not required?)";
+namespace dynamo {
+  void 
+  Simulation::setTickerPeriod(double nP)
+  {
+    CSTicker* ptr = dynamic_cast<CSTicker*>(getSystem("SystemTicker"));
+    if (ptr == NULL)
+      M_throw() << "Could not find system ticker (maybe not required?)";
 
-  ptr->setTickerPeriod(nP * dynamics.units().unitTime());
-}
+    ptr->setTickerPeriod(nP * dynamics.units().unitTime());
+  }
 
-void 
-Simulation::scaleTickerPeriod(double nP)
-{
-  CSTicker* ptr = dynamic_cast<CSTicker*>(getSystem("SystemTicker"));
+  void 
+  Simulation::scaleTickerPeriod(double nP)
+  {
+    CSTicker* ptr = dynamic_cast<CSTicker*>(getSystem("SystemTicker"));
 
-  if (ptr == NULL)
-    M_throw() << "Could not find system ticker (maybe not required?)";
+    if (ptr == NULL)
+      M_throw() << "Could not find system ticker (maybe not required?)";
 
-  ptr->setTickerPeriod(nP * ptr->getPeriod());
-}
+    ptr->setTickerPeriod(nP * ptr->getPeriod());
+  }
 
-System* 
-Simulation::getSystem(std::string name)
-{
-  BOOST_FOREACH(std::tr1::shared_ptr<System>& sysPtr, dynamics.getSystemEvents())
-    if (sysPtr->getName() == name)
-      return sysPtr.get();
+  System* 
+  Simulation::getSystem(std::string name)
+  {
+    BOOST_FOREACH(std::tr1::shared_ptr<System>& sysPtr, dynamics.getSystemEvents())
+      if (sysPtr->getName() == name)
+	return sysPtr.get();
   
-  return NULL;
-}
+    return NULL;
+  }
 
-void 
-Simulation::addGlobal(Global* tmp)
-{
-  if (tmp == NULL)
-    M_throw() << "Adding a NULL global";
+  void 
+  Simulation::addGlobal(Global* tmp)
+  {
+    if (tmp == NULL)
+      M_throw() << "Adding a NULL global";
 
-  if (status != CONFIG_LOADED)
-    M_throw() << "Cannot add global events now its initialised";
+    if (status != CONFIG_LOADED)
+      M_throw() << "Cannot add global events now its initialised";
 
-  dynamics.addGlobal(tmp);
-}
+    dynamics.addGlobal(tmp);
+  }
 
-void 
-Simulation::addSystem(System* tmp)
-{
-  if (tmp == NULL)
-    M_throw() << "Adding a NULL systemEvent";
+  void 
+  Simulation::addSystem(System* tmp)
+  {
+    if (tmp == NULL)
+      M_throw() << "Adding a NULL systemEvent";
 
-  if (status != CONFIG_LOADED)
-    M_throw() << "Cannot add system events now it is initialised";
+    if (status != CONFIG_LOADED)
+      M_throw() << "Cannot add system events now it is initialised";
 
-  dynamics.addSystem(tmp);
-}
+    dynamics.addSystem(tmp);
+  }
 
-void 
-Simulation::addOutputPlugin(std::string Name)
-{
-  if (status >= INITIALISED)
-    M_throw() << "Cannot add plugins now";
+  void 
+  Simulation::addOutputPlugin(std::string Name)
+  {
+    if (status >= INITIALISED)
+      M_throw() << "Cannot add plugins now";
   
-  dout << "Loading output plugin string " << Name << std::endl;
+    dout << "Loading output plugin string " << Name << std::endl;
 
-  magnet::ClonePtr<OutputPlugin> tempPlug(OutputPlugin::getPlugin(Name, this));
-  outputPlugins.push_back(tempPlug);
-}
+    magnet::ClonePtr<OutputPlugin> tempPlug(OutputPlugin::getPlugin(Name, this));
+    outputPlugins.push_back(tempPlug);
+  }
 
-void 
-Simulation::setRandSeed(unsigned int x)
-{ ranGenerator.seed(x); }
+  void 
+  Simulation::setRandSeed(unsigned int x)
+  { ranGenerator.seed(x); }
 
-void 
-Simulation::setnPrint(unsigned long long newnPrint)
-{ 
-  dout << "Periodic output length set to " << newnPrint << " collisions" << std::endl;
-  eventPrintInterval = newnPrint; 
-}
+  void 
+  Simulation::setnPrint(unsigned long long newnPrint)
+  { 
+    dout << "Periodic output length set to " << newnPrint << " collisions" << std::endl;
+    eventPrintInterval = newnPrint; 
+  }
 
-void 
-Simulation::simShutdown()
-{ nextPrintEvent = endEventCount = eventCount; }
+  void 
+  Simulation::simShutdown()
+  { nextPrintEvent = endEventCount = eventCount; }
 
-void 
-Simulation::setTrajectoryLength(unsigned long long newMaxColl)
-{ 
-  //dout << "Trajectory length set to " << newMaxColl << " collisions" << std::endl;
-  endEventCount = newMaxColl; 
-}
+  void 
+  Simulation::setTrajectoryLength(unsigned long long newMaxColl)
+  { 
+    //dout << "Trajectory length set to " << newMaxColl << " collisions" << std::endl;
+    endEventCount = newMaxColl; 
+  }
 
-void
-Simulation::initialise()
-{
-  dout << "Sorting the Output Plugins" << std::endl;
+  void
+  Simulation::initialise()
+  {
+    dout << "Sorting the Output Plugins" << std::endl;
 
-  std::sort(outputPlugins.begin(), outputPlugins.end());
+    std::sort(outputPlugins.begin(), outputPlugins.end());
   
-  bool needTicker = false;
+    bool needTicker = false;
   
-  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
-    if (dynamic_cast<OPTicker*>(Ptr.get_ptr()) != NULL)
-      {
-	needTicker = true; 
-	break;
-      }
+    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
+      if (dynamic_cast<OPTicker*>(Ptr.get_ptr()) != NULL)
+	{
+	  needTicker = true; 
+	  break;
+	}
 
-  if (needTicker)
-    dynamics.addSystemTicker();
+    if (needTicker)
+      dynamics.addSystemTicker();
 
-  if (status != CONFIG_LOADED)
-    M_throw() << "Sim initialised at wrong time";
+    if (status != CONFIG_LOADED)
+      M_throw() << "Sim initialised at wrong time";
 
-  dout << "Initialising Components" << std::endl;  
+    dout << "Initialising Components" << std::endl;  
 
-  if (ptrScheduler == NULL)
-    M_throw() << "The scheduler has not been set!";      
+    if (ptrScheduler == NULL)
+      M_throw() << "The scheduler has not been set!";      
   
-  dout << "Initialising the dynamics" << std::endl;
-  dynamics.initialise();
+    dout << "Initialising the dynamics" << std::endl;
+    dynamics.initialise();
 
-  ensemble->initialise();
+    ensemble->initialise();
     
-  std::cout.flush();
+    std::cout.flush();
 
-  if (endEventCount) //Only initialise the scheduler if we're simulating
-    {
-      dout << "Initialising the scheduler" << std::endl;
-      ptrScheduler->initialise();
-    }
-  else
-    dout << "Skipping initialisation of the Scheduler" << std::endl;
-  
-  dout << "Initialising the output plugins" << std::endl;
-  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
-    Ptr->initialise();
-
-  dout << "System initialised" << std::endl;
-
-  status = INITIALISED;
-}
-
-void
-Simulation::runSimulation(bool silentMode)
-{
-  if (status != INITIALISED && status != PRODUCTION)
-    M_throw() << "Bad state for runSimulation()";
-
-  status = PRODUCTION;
-
-  size_t lastprint = eventCount + eventPrintInterval;
-
-  for (; eventCount < endEventCount;)
-    try
+    if (endEventCount) //Only initialise the scheduler if we're simulating
       {
-	ptrScheduler->runNextEvent();
+	dout << "Initialising the scheduler" << std::endl;
+	ptrScheduler->initialise();
+      }
+    else
+      dout << "Skipping initialisation of the Scheduler" << std::endl;
+  
+    dout << "Initialising the output plugins" << std::endl;
+    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
+      Ptr->initialise();
+
+    dout << "System initialised" << std::endl;
+
+    status = INITIALISED;
+  }
+
+  void
+  Simulation::runSimulation(bool silentMode)
+  {
+    if (status != INITIALISED && status != PRODUCTION)
+      M_throw() << "Bad state for runSimulation()";
+
+    status = PRODUCTION;
+
+    size_t lastprint = eventCount + eventPrintInterval;
+
+    for (; eventCount < endEventCount;)
+      try
+	{
+	  ptrScheduler->runNextEvent();
 	
-	//Periodic work
-	if ((eventCount > lastprint)
-	    && !silentMode
-	    && outputPlugins.size())
-	  {
-	    //Print the screen data plugins
-	    BOOST_FOREACH( magnet::ClonePtr<OutputPlugin> & Ptr, 
-			   outputPlugins)
-	      Ptr->periodicOutput();
+	  //Periodic work
+	  if ((eventCount > lastprint)
+	      && !silentMode
+	      && outputPlugins.size())
+	    {
+	      //Print the screen data plugins
+	      BOOST_FOREACH( magnet::ClonePtr<OutputPlugin> & Ptr, 
+			     outputPlugins)
+		Ptr->periodicOutput();
 
-	    lastprint = eventCount + eventPrintInterval;
-	    std::cout << std::endl;
-	  }
-      }
-    catch (std::exception &cep)
-      {
-	M_throw() << "\nWhile executing event "
-		  << eventCount << cep.what();
-      }
-}
+	      lastprint = eventCount + eventPrintInterval;
+	      std::cout << std::endl;
+	    }
+	}
+      catch (std::exception &cep)
+	{
+	  M_throw() << "\nWhile executing event "
+		    << eventCount << cep.what();
+	}
+  }
 
-void 
-Simulation::configLoaded()
-{
-  //Handled by an input plugin
-  if (status != START)
-    M_throw() << "Loading config at wrong time";
+  void 
+  Simulation::configLoaded()
+  {
+    //Handled by an input plugin
+    if (status != START)
+      M_throw() << "Loading config at wrong time";
   
-  status = CONFIG_LOADED;
-}
+    status = CONFIG_LOADED;
+  }
 
-void
-Simulation::outputData(std::string filename)
-{
-  if (status < INITIALISED || status == ERROR)
-    M_throw() << "Cannot output data when not initialised!";
+  void
+  Simulation::outputData(std::string filename)
+  {
+    if (status < INITIALISED || status == ERROR)
+      M_throw() << "Cannot output data when not initialised!";
 
-  namespace io = boost::iostreams;
-  io::filtering_ostream coutputFile;
+    namespace io = boost::iostreams;
+    io::filtering_ostream coutputFile;
   
-  if (std::string(filename.end()-4, filename.end()) == ".bz2")
-    coutputFile.push(io::bzip2_compressor());
+    if (std::string(filename.end()-4, filename.end()) == ".bz2")
+      coutputFile.push(io::bzip2_compressor());
   
-  coutputFile.push(io::file_sink(filename));
+    coutputFile.push(io::file_sink(filename));
   
-  magnet::xml::XmlStream XML(coutputFile);
-  XML.setFormatXML(true);
+    magnet::xml::XmlStream XML(coutputFile);
+    XML.setFormatXML(true);
   
-  XML << std::setprecision(std::numeric_limits<double>::digits10)
-      << magnet::xml::prolog() << magnet::xml::tag("OutputData");
+    XML << std::setprecision(std::numeric_limits<double>::digits10)
+	<< magnet::xml::prolog() << magnet::xml::tag("OutputData");
   
-  //Output the data and delete the outputplugins
-  BOOST_FOREACH( magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
-    Ptr->output(XML);
+    //Output the data and delete the outputplugins
+    BOOST_FOREACH( magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
+      Ptr->output(XML);
   
-  XML << magnet::xml::endtag("OutputData");
+    XML << magnet::xml::endtag("OutputData");
 
-  dout << "Output written to " << filename << std::endl;
-}
+    dout << "Output written to " << filename << std::endl;
+  }
 
-long double 
-Simulation::getSysTime()
-{ return dSysTime / dynamics.units().unitTime(); }
+  long double 
+  Simulation::getSysTime()
+  { return dSysTime / dynamics.units().unitTime(); }
 
-void
-Simulation::checkSystem()
-{
-  dynamics.SystemOverlapTest();
+  void
+  Simulation::checkSystem()
+  {
+    dynamics.SystemOverlapTest();
+  }
 }

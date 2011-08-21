@@ -14,116 +14,117 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-#include "engine.hpp"
+ 
+#include <dynamo/coordinator/engine/engine.hpp>
+#include <dynamo/inputplugins/compression.hpp>
+#include <dynamo/dynamics/systems/tHalt.hpp>
+#include <dynamo/dynamics/systems/schedMaintainer.hpp>
+#include <dynamo/outputplugins/0partproperty/misc.hpp>
+#include <dynamo/outputplugins/general/reverseEvents.hpp>
+#include <dynamo/dynamics/systems/visualizer.hpp>
+#include <dynamo/dynamics/systems/snapshot.hpp>
 #include <limits>
-#include "../../inputplugins/compression.hpp"
-#include "../../dynamics/systems/tHalt.hpp"
-#include "../../dynamics/systems/schedMaintainer.hpp"
-#include "../../outputplugins/0partproperty/misc.hpp"
-#include "../../outputplugins/general/reverseEvents.hpp"
-#include "../../dynamics/systems/snapshot.hpp"
 
-#ifdef DYNAMO_visualizer
-#include "../../dynamics/systems/visualizer.hpp"
-#endif
-void
-Engine::getCommonOptions(boost::program_options::options_description& opts)
-{
-  boost::program_options::options_description simopts("Common Engine Options");
 
-  simopts.add_options()
-    ("ncoll,c", boost::program_options::value<unsigned long long>()
-     ->default_value(std::numeric_limits<unsigned long long>::max(), "no-limit"),
-     "No. of collisions in a trajectory")
-    ("print-coll,p", boost::program_options::value<unsigned long long>()->default_value(100000), 
-     "Default No. of collisions between periodic screen output")
-    ("random-seed,s", boost::program_options::value<unsigned int>(),
-     "Random seed for generator (To make the simulation reproduceable - Not for production use!)")
-    ("ticker-period,t",boost::program_options::value<double>(), 
-     "Time between data collections. Defaults to the system MFT or 1 if no MFT available")
+namespace dynamo {
+  void
+  Engine::getCommonOptions(boost::program_options::options_description& opts)
+  {
+    boost::program_options::options_description simopts("Common Engine Options");
+
+    simopts.add_options()
+      ("ncoll,c", boost::program_options::value<unsigned long long>()
+       ->default_value(std::numeric_limits<unsigned long long>::max(), "no-limit"),
+       "No. of collisions in a trajectory")
+      ("print-coll,p", boost::program_options::value<unsigned long long>()->default_value(100000), 
+       "Default No. of collisions between periodic screen output")
+      ("random-seed,s", boost::program_options::value<unsigned int>(),
+       "Random seed for generator (To make the simulation reproduceable - Not for production use!)")
+      ("ticker-period,t",boost::program_options::value<double>(), 
+       "Time between data collections. Defaults to the system MFT or 1 if no MFT available")
 #ifdef DYNAMO_visualizer    
-    ("visualizer,V", boost::program_options::value<double>(), 
-     "Enables the visualizer and sets the initial update frequency")
+      ("visualizer,V", boost::program_options::value<double>(), 
+       "Enables the visualizer and sets the initial update frequency")
 #endif
-    ("equilibrate,E", "Turns off most output for a fast silent run")
-    ("load-plugin,L", boost::program_options::value<std::vector<std::string> >(), 
-     "Additional individual plugins to load")
-    ("halt-time,h", boost::program_options::value<double>(),
-     "Halt the system at this time")
-    ("scheduler-maintainance,m", boost::program_options::value<double>(),
-     "Rebuild the scheduler periodically, for systems where we've not built "
-     "the scheduler correctly")
-    ("unwrapped", "Don't apply the boundary conditions of the system when writing out the particle positions.")
-    ("snapshot", boost::program_options::value<double>(),
-     "Sets the system time inbetween saving snapshots of the system.")
-    ;
+      ("equilibrate,E", "Turns off most output for a fast silent run")
+      ("load-plugin,L", boost::program_options::value<std::vector<std::string> >(), 
+       "Additional individual plugins to load")
+      ("halt-time,h", boost::program_options::value<double>(),
+       "Halt the system at this time")
+      ("scheduler-maintainance,m", boost::program_options::value<double>(),
+       "Rebuild the scheduler periodically, for systems where we've not built "
+       "the scheduler correctly")
+      ("unwrapped", "Don't apply the boundary conditions of the system when writing out the particle positions.")
+      ("snapshot", boost::program_options::value<double>(),
+       "Sets the system time inbetween saving snapshots of the system.")
+      ;
   
-  opts.add(simopts);
-}
+    opts.add(simopts);
+  }
 
 
-Engine::Engine(const boost::program_options::variables_map& nvm, 
-	       std::string configFile, std::string outputFile,
-	       magnet::thread::ThreadPool& tp):
-  vm(nvm),
-  configFormat(configFile),
-  outputFormat(outputFile),
-  threads(tp)
-{}
+  Engine::Engine(const boost::program_options::variables_map& nvm, 
+		 std::string configFile, std::string outputFile,
+		 magnet::thread::ThreadPool& tp):
+    vm(nvm),
+    configFormat(configFile),
+    outputFormat(outputFile),
+    threads(tp)
+  {}
 
-void 
-Engine::preSimInit()
-{
-  if (vm.count("out-config-file"))
-    configFormat = vm["out-config-file"].as<std::string>();
+  void 
+  Engine::preSimInit()
+  {
+    if (vm.count("out-config-file"))
+      configFormat = vm["out-config-file"].as<std::string>();
   
-  if (vm.count("out-data-file"))
-    outputFormat = vm["out-data-file"].as<std::string>();
-}
+    if (vm.count("out-data-file"))
+      outputFormat = vm["out-data-file"].as<std::string>();
+  }
 
 
-void 
-Engine::setupSim(Simulation& Sim, const std::string filename)
-{
-  if (vm.count("random-seed"))
-    Sim.setRandSeed(vm["random-seed"].as<unsigned int>());
+  void 
+  Engine::setupSim(Simulation& Sim, const std::string filename)
+  {
+    if (vm.count("random-seed"))
+      Sim.setRandSeed(vm["random-seed"].as<unsigned int>());
   
-  ////////////////////////Simulation Initialisation!!!!!!!!!!!!!
-  //Now load the config
-  Sim.loadXMLfile(filename.c_str());
-  Sim.setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
+    ////////////////////////Simulation Initialisation!!!!!!!!!!!!!
+    //Now load the config
+    Sim.loadXMLfile(filename.c_str());
+    Sim.setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
   
-  if (vm["ncoll"].as<unsigned long long>() 
-      > vm["print-coll"].as<unsigned long long>())
-    Sim.setnPrint(vm["print-coll"].as<unsigned long long>());
-  else
-    Sim.setnPrint(vm["ncoll"].as<unsigned long long>());
+    if (vm["ncoll"].as<unsigned long long>() 
+	> vm["print-coll"].as<unsigned long long>())
+      Sim.setnPrint(vm["print-coll"].as<unsigned long long>());
+    else
+      Sim.setnPrint(vm["ncoll"].as<unsigned long long>());
     
-  if (vm.count("halt-time"))
-    Sim.addSystem(new CStHalt(&Sim, vm["halt-time"].as<double>(), "SystemHaltEvent"));
+    if (vm.count("halt-time"))
+      Sim.addSystem(new CStHalt(&Sim, vm["halt-time"].as<double>(), "SystemHaltEvent"));
 
-  if (vm.count("scheduler-maintainance"))
-    Sim.addSystem(new CSSchedMaintainer(&Sim, vm["scheduler-maintainance"].as<double>(), "SchedulerRebuilder"));
+    if (vm.count("scheduler-maintainance"))
+      Sim.addSystem(new CSSchedMaintainer(&Sim, vm["scheduler-maintainance"].as<double>(), "SchedulerRebuilder"));
 
 #ifdef DYNAMO_visualizer
-  if (vm.count("visualizer"))
-    Sim.addSystem(new SVisualizer(&Sim, filename, vm["visualizer"].as<double>()));
+    if (vm.count("visualizer"))
+      Sim.addSystem(new SVisualizer(&Sim, filename, vm["visualizer"].as<double>()));
 #endif  
 
-  if (vm.count("snapshot"))
-    Sim.addSystem(new SSnapshot(&Sim, vm["snapshot"].as<double>(), "SnapshotEvent"));
+    if (vm.count("snapshot"))
+      Sim.addSystem(new SSnapshot(&Sim, vm["snapshot"].as<double>(), "SnapshotEvent"));
 
-  if (vm.count("load-plugin"))
-    {
-      BOOST_FOREACH(const std::string& tmpString, 
-		    vm["load-plugin"].as<std::vector<std::string> >())
-	Sim.addOutputPlugin(tmpString);
-    }
+    if (vm.count("load-plugin"))
+      {
+	BOOST_FOREACH(const std::string& tmpString, 
+		      vm["load-plugin"].as<std::vector<std::string> >())
+	  Sim.addOutputPlugin(tmpString);
+      }
   
-  Sim.addOutputPlugin("ReverseEventsCheck");
+    Sim.addOutputPlugin("ReverseEventsCheck");
   
-  if (!vm.count("equilibrate"))
-    //Just add the bare minimum outputplugin
-    Sim.addOutputPlugin("Misc");
+    if (!vm.count("equilibrate"))
+      //Just add the bare minimum outputplugin
+      Sim.addOutputPlugin("Misc");
+  }
 }

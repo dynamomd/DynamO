@@ -15,70 +15,72 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "collisionCorrelator.hpp"
-#include "../../dynamics/2particleEventData.hpp"
-#include "../../dynamics/include.hpp"
+#include <dynamo/outputplugins/2partproperty/collisionCorrelator.hpp>
+#include <dynamo/dynamics/2particleEventData.hpp>
+#include <dynamo/dynamics/include.hpp>
 #include <magnet/xmlwriter.hpp>
 
-OPCollisionCorrelator::OPCollisionCorrelator(const dynamo::SimData* t1,
+namespace dynamo {
+  OPCollisionCorrelator::OPCollisionCorrelator(const dynamo::SimData* t1,
 					       const magnet::xml::Node& XML):
-  OP2PP(t1,"CollisionCorrelator")
-{ operator<<(XML); }
+    OP2PP(t1,"CollisionCorrelator")
+  { operator<<(XML); }
 
-void 
-OPCollisionCorrelator::operator<<(const magnet::xml::Node& XML)
-{
-  try {
-    /*if (XML.isAttributeSet("length"))
-      collisionHistoryLength 
+  void 
+  OPCollisionCorrelator::operator<<(const magnet::xml::Node& XML)
+  {
+    try {
+      /*if (XML.isAttributeSet("length"))
+	collisionHistoryLength 
 	= boost::lexical_cast<size_t>
 	(XML.getAttribute("length"));*/
-      }
-  catch (std::exception& excep)
-    {
-      M_throw() << "Error while parsing " << name << "options\n"
-		<< excep.what();
     }
-}
+    catch (std::exception& excep)
+      {
+	M_throw() << "Error while parsing " << name << "options\n"
+		  << excep.what();
+      }
+  }
 
-void 
-OPCollisionCorrelator::initialise()
-{
-  //Set the history size
-  lastColl.resize(Sim->N, std::vector<double>(Sim->N, 0.0));
+  void 
+  OPCollisionCorrelator::initialise()
+  {
+    //Set the history size
+    lastColl.resize(Sim->N, std::vector<double>(Sim->N, 0.0));
 
-  if (Sim->lastRunMFT == 0.0)
-    M_throw() << "This output plugin requires an estimate for the mean free time. run the configuration a little first.";
+    if (Sim->lastRunMFT == 0.0)
+      M_throw() << "This output plugin requires an estimate for the mean free time. run the configuration a little first.";
 
-  //Histogram in mean free times
-  freetimehist = C1DHistogram(Sim->lastRunMFT*0.1);
-}
+    //Histogram in mean free times
+    freetimehist = C1DHistogram(Sim->lastRunMFT*0.1);
+  }
 
-void 
-OPCollisionCorrelator::A2ParticleChange(const PairEventData& PDat)
-{
-  size_t ID1 = PDat.particle1_.getParticle().getID();
-  size_t ID2 = PDat.particle2_.getParticle().getID();
+  void 
+  OPCollisionCorrelator::A2ParticleChange(const PairEventData& PDat)
+  {
+    size_t ID1 = PDat.particle1_.getParticle().getID();
+    size_t ID2 = PDat.particle2_.getParticle().getID();
 
-  if (ID1 > ID2) std::swap(ID1, ID2);
+    if (ID1 > ID2) std::swap(ID1, ID2);
 
-  //Check there was a previous collision
-  if (lastColl[ID1][ID2] != 0.0)
-    freetimehist.addVal(Sim->dSysTime - lastColl[ID1][ID2]);
+    //Check there was a previous collision
+    if (lastColl[ID1][ID2] != 0.0)
+      freetimehist.addVal(Sim->dSysTime - lastColl[ID1][ID2]);
 
-  lastColl[ID1][ID2] = Sim->dSysTime;  
-}
+    lastColl[ID1][ID2] = Sim->dSysTime;  
+  }
 
-void
-OPCollisionCorrelator::output(magnet::xml::XmlStream &XML)
-{
-  for (size_t ID1(0); ID1 < Sim->N; ++ID1)
-    for (size_t ID2(ID1+1); ID2 < Sim->N; ++ID2)
-      if (lastColl[ID1][ID2] > 100* freetimehist.getBinWidth()) freetimehist.addVal(-1.0);
+  void
+  OPCollisionCorrelator::output(magnet::xml::XmlStream &XML)
+  {
+    for (size_t ID1(0); ID1 < Sim->N; ++ID1)
+      for (size_t ID2(ID1+1); ID2 < Sim->N; ++ID2)
+	if (lastColl[ID1][ID2] > 100* freetimehist.getBinWidth()) freetimehist.addVal(-1.0);
 
-  XML << magnet::xml::tag("CollisionCorrelator");
+    XML << magnet::xml::tag("CollisionCorrelator");
   
-  freetimehist.outputHistogram(XML, 1.0/Sim->dynamics.units().unitTime());
+    freetimehist.outputHistogram(XML, 1.0/Sim->dynamics.units().unitTime());
 
-  XML << magnet::xml::endtag("CollisionCorrelator");
+    XML << magnet::xml::endtag("CollisionCorrelator");
+  }
 }

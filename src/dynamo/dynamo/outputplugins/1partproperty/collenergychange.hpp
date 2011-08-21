@@ -16,49 +16,51 @@
 */
 
 #pragma once
-#include "1partproperty.hpp"
-#include "../../datatypes/histogram.hpp"
+#include <dynamo/outputplugins/1partproperty/1partproperty.hpp>
+#include <dynamo/datatypes/histogram.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
 #include <vector>
 #include <map>
 
-class OPCollEnergyChange: public OP1PP
-{
- public:
-  OPCollEnergyChange(const dynamo::SimData*, const magnet::xml::Node&);
-
-  void A1ParticleChange(const ParticleEventData&);
-
-  void A2ParticleChange(const PairEventData&);
-
-  void stream(const double&) {}
-
-  void output(magnet::xml::XmlStream &); 
-
-  void periodicOutput() {}
-
-  virtual void initialise();
-
-  virtual OutputPlugin *Clone() const 
-  { return new OPCollEnergyChange(*this); }
-
-  void operator<<(const magnet::xml::Node&);
-
- protected:  
-  double binWidth; 
-
-  static double KEBinWidth;
-
-  struct histogram: public C1DHistogram
+namespace dynamo {
+  class OPCollEnergyChange: public OP1PP
   {
-    histogram(): C1DHistogram(OPCollEnergyChange::KEBinWidth) {}
+  public:
+    OPCollEnergyChange(const dynamo::SimData*, const magnet::xml::Node&);
+
+    void A1ParticleChange(const ParticleEventData&);
+
+    void A2ParticleChange(const PairEventData&);
+
+    void stream(const double&) {}
+
+    void output(magnet::xml::XmlStream &); 
+
+    void periodicOutput() {}
+
+    virtual void initialise();
+
+    virtual OutputPlugin *Clone() const 
+    { return new OPCollEnergyChange(*this); }
+
+    void operator<<(const magnet::xml::Node&);
+
+  protected:  
+    double binWidth; 
+
+    static double KEBinWidth;
+
+    struct histogram: public C1DHistogram
+    {
+      histogram(): C1DHistogram(OPCollEnergyChange::KEBinWidth) {}
+    };
+
+    typedef boost::tuple<size_t, size_t, EEventType> mapkey;
+
+    std::map<mapkey, histogram> collisionKE;
+
+    std::vector<C1DHistogram> data;
+    C1DHistogram specialhist;
   };
-
-  typedef boost::tuple<size_t, size_t, EEventType> mapkey;
-
-  std::map<mapkey, histogram> collisionKE;
-
-  std::vector<C1DHistogram> data;
-  C1DHistogram specialhist;
-};
+}

@@ -22,104 +22,106 @@
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 
-OPMSD::OPMSD(const dynamo::SimData* tmp, const magnet::xml::Node&):
-  OutputPlugin(tmp,"MSD")
-{}
+namespace dynamo {
+  OPMSD::OPMSD(const dynamo::SimData* tmp, const magnet::xml::Node&):
+    OutputPlugin(tmp,"MSD")
+  {}
 
-OPMSD::~OPMSD()
-{}
+  OPMSD::~OPMSD()
+  {}
 
-void
-OPMSD::initialise()
-{
-  initPos.clear();
-  initPos.resize(Sim->N);
+  void
+  OPMSD::initialise()
+  {
+    initPos.clear();
+    initPos.resize(Sim->N);
   
-  for (size_t ID = 0; ID < Sim->N; ++ID)
-    initPos[ID] = Sim->particleList[ID].getPosition();
-}
+    for (size_t ID = 0; ID < Sim->N; ++ID)
+      initPos[ID] = Sim->particleList[ID].getPosition();
+  }
 
-void
-OPMSD::output(magnet::xml::XmlStream &XML)
-{
-  //Required to get the correct results
-  Sim->dynamics.getLiouvillean().updateAllParticles();
+  void
+  OPMSD::output(magnet::xml::XmlStream &XML)
+  {
+    //Required to get the correct results
+    Sim->dynamics.getLiouvillean().updateAllParticles();
   
-  XML << magnet::xml::tag("MSD");
+    XML << magnet::xml::tag("MSD");
   
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
-    {
-      double MSD(calcMSD(*(sp->getRange())));
+    BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+      {
+	double MSD(calcMSD(*(sp->getRange())));
       
-      XML << magnet::xml::tag("Species")
-	  << magnet::xml::attr("Name") << sp->getName()
-	  << magnet::xml::attr("val") << MSD
-	  << magnet::xml::attr("diffusionCoeff") 
-	  << MSD * Sim->dynamics.units().unitTime() / Sim->dSysTime
-	  << magnet::xml::endtag("Species");
-    }
+	XML << magnet::xml::tag("Species")
+	    << magnet::xml::attr("Name") << sp->getName()
+	    << magnet::xml::attr("val") << MSD
+	    << magnet::xml::attr("diffusionCoeff") 
+	    << MSD * Sim->dynamics.units().unitTime() / Sim->dSysTime
+	    << magnet::xml::endtag("Species");
+      }
 
-  if (!Sim->dynamics.getTopology().empty())
-    {
-      XML << magnet::xml::tag("Structures");
+    if (!Sim->dynamics.getTopology().empty())
+      {
+	XML << magnet::xml::tag("Structures");
 
-      BOOST_FOREACH(const magnet::ClonePtr<Topology>& topo, Sim->dynamics.getTopology())
-	{
-	  double MSD(calcStructMSD(*topo));
+	BOOST_FOREACH(const magnet::ClonePtr<Topology>& topo, Sim->dynamics.getTopology())
+	  {
+	    double MSD(calcStructMSD(*topo));
 
-	  XML << magnet::xml::tag("Structure")
-	      << magnet::xml::attr("Name") << topo->getName()
-	      << magnet::xml::attr("val") << MSD
-	      << magnet::xml::attr("diffusionCoeff") 
-	      << MSD * Sim->dynamics.units().unitTime() / Sim->dSysTime
-	      << magnet::xml::endtag("Structure");
-	}
+	    XML << magnet::xml::tag("Structure")
+		<< magnet::xml::attr("Name") << topo->getName()
+		<< magnet::xml::attr("val") << MSD
+		<< magnet::xml::attr("diffusionCoeff") 
+		<< MSD * Sim->dynamics.units().unitTime() / Sim->dSysTime
+		<< magnet::xml::endtag("Structure");
+	  }
 
-      XML << magnet::xml::endtag("Structures");
-    }
+	XML << magnet::xml::endtag("Structures");
+      }
 
-  XML << magnet::xml::endtag("MSD");
-}
+    XML << magnet::xml::endtag("MSD");
+  }
 
-double
-OPMSD::calcMSD(const CRange& range) const
-{
-  double acc = 0.0;
+  double
+  OPMSD::calcMSD(const CRange& range) const
+  {
+    double acc = 0.0;
 
-  BOOST_FOREACH(const size_t ID, range)
-    acc += (Sim->particleList[ID].getPosition() - initPos[ID]).nrm2();
+    BOOST_FOREACH(const size_t ID, range)
+      acc += (Sim->particleList[ID].getPosition() - initPos[ID]).nrm2();
   
-  return acc / (range.size() * 2.0 * NDIM * Sim->dynamics.units().unitArea());
-}
+    return acc / (range.size() * 2.0 * NDIM * Sim->dynamics.units().unitArea());
+  }
 
-double
-OPMSD::calcStructMSD(const Topology& Itop) const
-{
-  //Required to get the correct results
-  Sim->dynamics.getLiouvillean().updateAllParticles();
+  double
+  OPMSD::calcStructMSD(const Topology& Itop) const
+  {
+    //Required to get the correct results
+    Sim->dynamics.getLiouvillean().updateAllParticles();
 
-  double acc = 0.0;
-  BOOST_FOREACH(const magnet::ClonePtr<CRange>& molRange, Itop.getMolecules())
-    {
-      Vector  origPos(0,0,0), currPos(0,0,0);
-      double totmass = 0.0;
-      BOOST_FOREACH(const unsigned long& ID, *molRange)
-	{
-	  double pmass = Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass(ID);
+    double acc = 0.0;
+    BOOST_FOREACH(const magnet::ClonePtr<CRange>& molRange, Itop.getMolecules())
+      {
+	Vector  origPos(0,0,0), currPos(0,0,0);
+	double totmass = 0.0;
+	BOOST_FOREACH(const unsigned long& ID, *molRange)
+	  {
+	    double pmass = Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass(ID);
 
-	  totmass += pmass;
-	  currPos += Sim->particleList[ID].getPosition() * pmass;
-	  origPos += initPos[ID] * pmass;
-	}
+	    totmass += pmass;
+	    currPos += Sim->particleList[ID].getPosition() * pmass;
+	    origPos += initPos[ID] * pmass;
+	  }
       
-      currPos /= totmass;
-      origPos /= totmass;
+	currPos /= totmass;
+	origPos /= totmass;
 
-      acc += (currPos - origPos).nrm2();
-    }
+	acc += (currPos - origPos).nrm2();
+      }
 
-  acc /= Itop.getMoleculeCount() * 2.0 * NDIM
-    * Sim->dynamics.units().unitArea();
+    acc /= Itop.getMoleculeCount() * 2.0 * NDIM
+      * Sim->dynamics.units().unitArea();
   
-  return acc;
+    return acc;
+  }
 }

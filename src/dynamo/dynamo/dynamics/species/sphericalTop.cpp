@@ -15,50 +15,52 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "sphericalTop.hpp"
-#include "../units/units.hpp"
-#include "../../base/is_simdata.hpp"
+#include <dynamo/dynamics/species/sphericalTop.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/base/is_simdata.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-SpSphericalTop::SpSphericalTop(dynamo::SimData* tmp, CRange* nr, double nMass, 
-			       std::string nName, unsigned int nID, double inertiaConst,
-			       std::string nIName):
-  SpInertia(tmp, nr, nMass, nName, nID, nIName),
-  inertiaConstant(inertiaConst)
-{
-  spName = "SpSphericalTop";
-}
+namespace dynamo {
+  SpSphericalTop::SpSphericalTop(dynamo::SimData* tmp, CRange* nr, double nMass, 
+				 std::string nName, unsigned int nID, double inertiaConst,
+				 std::string nIName):
+    SpInertia(tmp, nr, nMass, nName, nID, nIName),
+    inertiaConstant(inertiaConst)
+  {
+    spName = "SpSphericalTop";
+  }
 
-SpSphericalTop::SpSphericalTop(const magnet::xml::Node& XML, dynamo::SimData* Sim, 
-			       unsigned int nID):
-  SpInertia(XML, Sim, nID)
-{ operator<<(XML); }
+  SpSphericalTop::SpSphericalTop(const magnet::xml::Node& XML, dynamo::SimData* Sim, 
+				 unsigned int nID):
+    SpInertia(XML, Sim, nID)
+  { operator<<(XML); }
 
 
-void 
-SpSphericalTop::outputXML(magnet::xml::XmlStream& XML, std::string type) const
-{
-  XML << magnet::xml::attr("InertiaConstant") 
-      << inertiaConstant / Sim->dynamics.units().unitArea()
-      << magnet::xml::attr("Mass") << _mass->getName()
-      << magnet::xml::attr("Name") << spName
-      << magnet::xml::attr("IntName") << intName
-      << magnet::xml::attr("Type") << type
-      << range;
-}
+  void 
+  SpSphericalTop::outputXML(magnet::xml::XmlStream& XML, std::string type) const
+  {
+    XML << magnet::xml::attr("InertiaConstant") 
+	<< inertiaConstant / Sim->dynamics.units().unitArea()
+	<< magnet::xml::attr("Mass") << _mass->getName()
+	<< magnet::xml::attr("Name") << spName
+	<< magnet::xml::attr("IntName") << intName
+	<< magnet::xml::attr("Type") << type
+	<< range;
+  }
 
-void 
-SpSphericalTop::operator<<(const magnet::xml::Node& XML)
-{
-  SpPoint::operator<<(XML);
+  void 
+  SpSphericalTop::operator<<(const magnet::xml::Node& XML)
+  {
+    SpPoint::operator<<(XML);
 
-  try {
-    inertiaConstant 
-      = XML.getAttribute("InertiaConstant").as<double>() * Sim->dynamics.units().unitArea();
-  } 
-  catch (boost::bad_lexical_cast &)
-    {
-      M_throw() << "Failed a lexical cast in CSSphericalTop";
-    }
+    try {
+      inertiaConstant 
+	= XML.getAttribute("InertiaConstant").as<double>() * Sim->dynamics.units().unitArea();
+    } 
+    catch (boost::bad_lexical_cast &)
+      {
+	M_throw() << "Failed a lexical cast in CSSphericalTop";
+      }
+  }
 }

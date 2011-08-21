@@ -15,85 +15,87 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "single.hpp"
+#include <dynamo/coordinator/engine/single.hpp>
 
-ESingleSimulation::ESingleSimulation(const boost::program_options::variables_map& nVM, 
-				     magnet::thread::ThreadPool& tp):
-  Engine(nVM, "config.out.xml.bz2", "output.xml.bz2", tp),
-  peekMode(false)
-{}
+namespace dynamo {
+  ESingleSimulation::ESingleSimulation(const boost::program_options::variables_map& nVM, 
+				       magnet::thread::ThreadPool& tp):
+    Engine(nVM, "config.out.xml.bz2", "output.xml.bz2", tp),
+    peekMode(false)
+  {}
 
-void 
-ESingleSimulation::peekData()
-{
-  peekMode = true;
-  simulation.simShutdown();
-}
-
-void
-ESingleSimulation::runSimulation()
-{
-  try {
-    do
-      {
-	if (peekMode)
-	  {
-	    simulation.setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
-	    simulation.outputData("peek.data.xml.bz2");
-	    peekMode = false;
-	  }
-	
-	simulation.runSimulation();
-      }
-    while (peekMode);
+  void 
+  ESingleSimulation::peekData()
+  {
+    peekMode = true;
+    simulation.simShutdown();
   }
-  catch (std::exception& cep)
-    {
-      try {
-	std::cerr << "\nEngine: Trying to output config to config.error.xml.bz2";
-	simulation.writeXMLfile("config.error.xml.bz2", !vm.count("unwrapped"));
-      } catch (...)
+
+  void
+  ESingleSimulation::runSimulation()
+  {
+    try {
+      do
 	{
-	  std::cerr << "\nEngine: Could not output error config";
+	  if (peekMode)
+	    {
+	      simulation.setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
+	      simulation.outputData("peek.data.xml.bz2");
+	      peekMode = false;
+	    }
+	
+	  simulation.runSimulation();
 	}
-      throw;
+      while (peekMode);
     }
-}
+    catch (std::exception& cep)
+      {
+	try {
+	  std::cerr << "\nEngine: Trying to output config to config.error.xml.bz2";
+	  simulation.writeXMLfile("config.error.xml.bz2", !vm.count("unwrapped"));
+	} catch (...)
+	  {
+	    std::cerr << "\nEngine: Could not output error config";
+	  }
+	throw;
+      }
+  }
 
-void
-ESingleSimulation::initialisation()
-{
-  preSimInit();
+  void
+  ESingleSimulation::initialisation()
+  {
+    preSimInit();
 
-  if (!(vm.count("config-file")) || 
-      (vm["config-file"].as<std::vector<std::string> >().size() != 1))
-    M_throw() << "You must only provide one input file in single mode";
+    if (!(vm.count("config-file")) || 
+	(vm["config-file"].as<std::vector<std::string> >().size() != 1))
+      M_throw() << "You must only provide one input file in single mode";
 
-  setupSim(simulation, vm["config-file"].as<std::vector<std::string> >()[0]);
+    setupSim(simulation, vm["config-file"].as<std::vector<std::string> >()[0]);
 
-  simulation.initialise();
+    simulation.initialise();
 
-  postSimInit(simulation);
+    postSimInit(simulation);
 
-  if (vm.count("ticker-period"))
-    simulation.setTickerPeriod(vm["ticker-period"].as<double>());
+    if (vm.count("ticker-period"))
+      simulation.setTickerPeriod(vm["ticker-period"].as<double>());
 
-}
+  }
 
-void
-ESingleSimulation::outputData()
-{
-  simulation.outputData(outputFormat.c_str());
-}
+  void
+  ESingleSimulation::outputData()
+  {
+    simulation.outputData(outputFormat.c_str());
+  }
 
-void
-ESingleSimulation::outputConfigs()
-{
-  simulation.writeXMLfile(configFormat.c_str(), !vm.count("unwrapped"));
-}
+  void
+  ESingleSimulation::outputConfigs()
+  {
+    simulation.writeXMLfile(configFormat.c_str(), !vm.count("unwrapped"));
+  }
 
-void 
-ESingleSimulation::forceShutdown()
-{
-  simulation.simShutdown();
+  void 
+  ESingleSimulation::forceShutdown()
+  {
+    simulation.simShutdown();
+  }
 }

@@ -16,24 +16,27 @@
 */
 
 #pragma once
-#include "../outputplugin.hpp"
+#include <dynamo/outputplugins/outputplugin.hpp>
 
-class OPCollTicker: public OutputPlugin
-{
-public:
-  OPCollTicker(const dynamo::SimData*, const char*, unsigned char order=100);
+namespace dynamo {
+  class OPCollTicker: public OutputPlugin
+  {
+  public:
+    OPCollTicker(const dynamo::SimData*, const char*, unsigned char order=100);
 
-  virtual void eventUpdate(const IntEvent&, const PairEventData&);
+    virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
-  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
+    virtual void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const LocalEvent&, const NEventData&);
+    virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const System&, const NEventData&, const double&);
+    virtual void eventUpdate(const System&, const NEventData&, const double&);
 
-  virtual void output(magnet::xml::XmlStream&) {}
+    virtual void output(magnet::xml::XmlStream&) {}
 
-private:
-  virtual void stream(double) = 0;  
-  virtual void ticker() = 0;
-};
+  private:
+    virtual void stream(double) = 0;  
+    virtual void ticker() = 0;
+  };
+}
+

@@ -16,53 +16,55 @@
 */
 
 #pragma once
-#include "1range.hpp"
-#include "../../simulation/particle.hpp"
+#include <dynamo/dynamics/ranges/1range.hpp>
+#include <dynamo/simulation/particle.hpp>
 #include <magnet/exception.hpp>
 
-class CRRange: public CRange
-{
-public:
-  CRRange(const magnet::xml::Node&);
-  CRRange(unsigned int s, unsigned int e):startID(s),endID(e) {}
-
-  virtual CRange* Clone() const { return new CRRange(*this); }
-
-  inline virtual bool isInRange(const Particle& part) const
+namespace dynamo {
+  class CRRange: public CRange
   {
-    if ((part.getID() >= startID) && (part.getID() <= endID))
-      return true;
-    return false;
-  }
+  public:
+    CRRange(const magnet::xml::Node&);
+    CRRange(unsigned int s, unsigned int e):startID(s),endID(e) {}
 
-  //The data output classes
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual CRange* Clone() const { return new CRRange(*this); }
+
+    inline virtual bool isInRange(const Particle& part) const
+    {
+      if ((part.getID() >= startID) && (part.getID() <= endID))
+	return true;
+      return false;
+    }
+
+    //The data output classes
+    virtual void operator<<(const magnet::xml::Node&);
   
-  virtual unsigned long size() const { return (endID - startID + 1); };
+    virtual unsigned long size() const { return (endID - startID + 1); };
 
-  unsigned long getStart() { return startID; }
-  unsigned long getEnd() { return endID; }
+    unsigned long getStart() { return startID; }
+    unsigned long getEnd() { return endID; }
   
-  virtual iterator begin() const { return CRange::iterator(startID, this); }
+    virtual iterator begin() const { return CRange::iterator(startID, this); }
 
-  virtual iterator end() const { return CRange::iterator(endID+1, this); }
+    virtual iterator end() const { return CRange::iterator(endID+1, this); }
 
-  virtual unsigned long operator[](unsigned long i) const  
-  { return startID + i; }
+    virtual unsigned long operator[](unsigned long i) const  
+    { return startID + i; }
 
-  virtual unsigned long at(unsigned long i) const 
-  { 
-    if (i > endID - startID)
-      M_throw() << "Bad array access value in range.at()";
+    virtual unsigned long at(unsigned long i) const 
+    { 
+      if (i > endID - startID)
+	M_throw() << "Bad array access value in range.at()";
     
-    return startID + i;
-  }
+      return startID + i;
+    }
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  virtual const unsigned long& getIteratorID(const unsigned long &i) const { return i; }
+    virtual const unsigned long& getIteratorID(const unsigned long &i) const { return i; }
 
-  unsigned long startID;
-  unsigned long endID;
-};
+    unsigned long startID;
+    unsigned long endID;
+  };
+}

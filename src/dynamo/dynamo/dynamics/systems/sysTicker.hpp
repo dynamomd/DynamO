@@ -16,28 +16,30 @@
 */
 
 #pragma once
-#include "system.hpp"
+#include <dynamo/dynamics/systems/system.hpp>
 
-class CSTicker: public System
-{
-public:
-  CSTicker(dynamo::SimData*, double, std::string);
+namespace dynamo {
+  class CSTicker: public System
+  {
+  public:
+    CSTicker(dynamo::SimData*, double, std::string);
   
-  virtual void runEvent() const;
+    virtual void runEvent() const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual void operator<<(const magnet::xml::Node&) {}
+    virtual void operator<<(const magnet::xml::Node&) {}
 
-  void setdt(double);
+    void setdt(double);
 
-  void increasedt(double);
+    void increasedt(double);
 
-  void setTickerPeriod(const double&);
+    void setTickerPeriod(const double&);
 
-  const double& getPeriod() const { return period; }
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const {}
+    const double& getPeriod() const { return period; }
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const {}
 
-  double period;
-};
+    double period;
+  };
+}

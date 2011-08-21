@@ -16,29 +16,31 @@
 */
 
 #pragma once
-#include "2range.hpp"
+#include <dynamo/dynamics/ranges/2range.hpp>
 #include <map>
 #include <list>
 
-class C2RList:public C2Range
-{
-public:
-  C2RList(const magnet::xml::Node&);
-  C2RList() {}
+namespace dynamo {
+  class C2RList:public C2Range
+  {
+  public:
+    C2RList(const magnet::xml::Node&);
+    C2RList() {}
 
-  virtual C2Range* Clone() const 
-  { return new C2RList(*this); };
+    virtual C2Range* Clone() const 
+    { return new C2RList(*this); };
 
-  virtual bool isInRange(const Particle&, const Particle&) const;
+    virtual bool isInRange(const Particle&, const Particle&) const;
 
-  void addPair(unsigned long, unsigned long);
+    void addPair(unsigned long, unsigned long);
   
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-  const std::map<unsigned long, std::list<unsigned long> >& getPairMap() const;
+    const std::map<unsigned long, std::list<unsigned long> >& getPairMap() const;
   
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  std::map<unsigned long, std::list<unsigned long> > pairmap;
-};
+    std::map<unsigned long, std::list<unsigned long> > pairmap;
+  };
+}

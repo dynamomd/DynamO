@@ -15,43 +15,46 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "globEvent.hpp"
-#include "../../simulation/particle.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../units/units.hpp"
-#include "../interactions/intEvent.hpp"
-#include "global.hpp"
+#include <dynamo/dynamics/globals/globEvent.hpp>
+#include <dynamo/simulation/particle.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/dynamics/interactions/intEvent.hpp>
+#include <dynamo/dynamics/globals/global.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cmath>
 
-GlobalEvent::GlobalEvent(const Particle& part1, const double &delt, 
-		       EEventType nType, const Global& glob):
-  particle_(&part1), dt(delt), 
-  CType(nType), globalID(glob.getID())
-{}
+namespace dynamo {
+  GlobalEvent::GlobalEvent(const Particle& part1, const double &delt, 
+			   EEventType nType, const Global& glob):
+    particle_(&part1), dt(delt), 
+    CType(nType), globalID(glob.getID())
+  {}
   
-magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream &XML, 
-			    const GlobalEvent &coll)
-{
-  XML << magnet::xml::tag("Collision")
-      << magnet::xml::attr("p1ID") << coll.getParticle().getID()
-      << magnet::xml::attr("dt")   << coll.dt
-      << magnet::xml::endtag("Collision");
+  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream &XML, 
+				     const GlobalEvent &coll)
+  {
+    XML << magnet::xml::tag("Collision")
+	<< magnet::xml::attr("p1ID") << coll.getParticle().getID()
+	<< magnet::xml::attr("dt")   << coll.dt
+	<< magnet::xml::endtag("Collision");
   
-  return XML;
-}
+    return XML;
+  }
 
-std::string 
-GlobalEvent::stringData(const dynamo::SimData* Sim) const
-{
-  std::ostringstream tmpstring;
-  tmpstring << "dt :" << dt / Sim->dynamics.units().unitTime()
-	    << "\nType :" << CType
-	    << "\nP1 :" << particle_->getID();
+  std::string 
+  GlobalEvent::stringData(const dynamo::SimData* Sim) const
+  {
+    std::ostringstream tmpstring;
+    tmpstring << "dt :" << dt / Sim->dynamics.units().unitTime()
+	      << "\nType :" << CType
+	      << "\nP1 :" << particle_->getID();
     return tmpstring.str();
+  }
+
+  bool 
+  GlobalEvent::areInvolved(const IntEvent &coll) const 
+  { return (coll == *particle_); }
 }
 
-bool 
-GlobalEvent::areInvolved(const IntEvent &coll) const 
-{ return (coll == *particle_); }

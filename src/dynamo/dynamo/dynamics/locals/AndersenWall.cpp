@@ -32,101 +32,103 @@
 #include <boost/random/uniform_real.hpp>
 #include <cmath>
 
-CLAndersenWall::CLAndersenWall(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
-  Local(ptrSim, "GlobalAndersenWall"),
-  sqrtT(1.0)
-{
-  operator<<(XML);
-}
+namespace dynamo {
+  CLAndersenWall::CLAndersenWall(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
+    Local(ptrSim, "GlobalAndersenWall"),
+    sqrtT(1.0)
+  {
+    operator<<(XML);
+  }
 
-CLAndersenWall::CLAndersenWall(dynamo::SimData* nSim, double nsqrtT,
-			       Vector  nnorm, Vector norigin, 
-			       std::string nname, CRange* nRange):
-  Local(nRange, nSim, "AndersenWall"),
-  vNorm(nnorm),
-  vPosition(norigin),
-  sqrtT(nsqrtT)
-{
-  localName = nname;
-}
+  CLAndersenWall::CLAndersenWall(dynamo::SimData* nSim, double nsqrtT,
+				 Vector  nnorm, Vector norigin, 
+				 std::string nname, CRange* nRange):
+    Local(nRange, nSim, "AndersenWall"),
+    vNorm(nnorm),
+    vPosition(norigin),
+    sqrtT(nsqrtT)
+  {
+    localName = nname;
+  }
 
-LocalEvent 
-CLAndersenWall::getEvent(const Particle& part) const
-{
+  LocalEvent 
+  CLAndersenWall::getEvent(const Particle& part) const
+  {
 #ifdef ISSS_DEBUG
-  if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
-    M_throw() << "Particle is not up to date";
+    if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
+      M_throw() << "Particle is not up to date";
 #endif
 
-  return LocalEvent(part, Sim->dynamics.getLiouvillean().getWallCollision(part, vPosition, vNorm), WALL, *this);
-}
+    return LocalEvent(part, Sim->dynamics.getLiouvillean().getWallCollision(part, vPosition, vNorm), WALL, *this);
+  }
 
-void
-CLAndersenWall::runEvent(const Particle& part, const LocalEvent& iEvent) const
-{
-  ++Sim->eventCount;
+  void
+  CLAndersenWall::runEvent(const Particle& part, const LocalEvent& iEvent) const
+  {
+    ++Sim->eventCount;
   
-  NEventData EDat
-    (Sim->dynamics.getLiouvillean().runAndersenWallCollision
-     (part, vNorm, sqrtT));
+    NEventData EDat
+      (Sim->dynamics.getLiouvillean().runAndersenWallCollision
+       (part, vNorm, sqrtT));
   
-  Sim->signalParticleUpdate(EDat);
+    Sim->signalParticleUpdate(EDat);
   
-  Sim->ptrScheduler->fullUpdate(part);
+    Sim->ptrScheduler->fullUpdate(part);
   
-  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(iEvent, EDat);
-}
+    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+      Ptr->eventUpdate(iEvent, EDat);
+  }
 
-bool 
-CLAndersenWall::isInCell(const Vector & Origin, 
-			 const Vector & CellDim) const
-{
-  return dynamo::OverlapFunctions::CubePlane
-    (Origin, CellDim, vPosition, vNorm);
-}
+  bool 
+  CLAndersenWall::isInCell(const Vector & Origin, 
+			   const Vector & CellDim) const
+  {
+    return dynamo::OverlapFunctions::CubePlane
+      (Origin, CellDim, vPosition, vNorm);
+  }
 
-void 
-CLAndersenWall::initialise(size_t nID)
-{
-  ID = nID;
-}
+  void 
+  CLAndersenWall::initialise(size_t nID)
+  {
+    ID = nID;
+  }
 
-void 
-CLAndersenWall::operator<<(const magnet::xml::Node& XML)
-{
-  range.set_ptr(CRange::getClass(XML,Sim));
+  void 
+  CLAndersenWall::operator<<(const magnet::xml::Node& XML)
+  {
+    range.set_ptr(CRange::getClass(XML,Sim));
   
-  try {
+    try {
     
-    sqrtT = sqrt(XML.getAttribute("Temperature").as<double>() 
-		 * Sim->dynamics.units().unitEnergy());
+      sqrtT = sqrt(XML.getAttribute("Temperature").as<double>() 
+		   * Sim->dynamics.units().unitEnergy());
 
-    localName = XML.getAttribute("Name");
-    vNorm << XML.getNode("Norm");
-    vNorm /= vNorm.nrm();
-    vPosition << XML.getNode("Origin");
-    vPosition *= Sim->dynamics.units().unitLength();
+      localName = XML.getAttribute("Name");
+      vNorm << XML.getNode("Norm");
+      vNorm /= vNorm.nrm();
+      vPosition << XML.getNode("Origin");
+      vPosition *= Sim->dynamics.units().unitLength();
 
-  } 
-  catch (boost::bad_lexical_cast &)
-    {
-      M_throw() << "Failed a lexical cast in CLAndersenWall";
-    }
-}
+    } 
+    catch (boost::bad_lexical_cast &)
+      {
+	M_throw() << "Failed a lexical cast in CLAndersenWall";
+      }
+  }
 
-void
-CLAndersenWall::outputXML(magnet::xml::XmlStream& XML) const
-{
-  XML << magnet::xml::attr("Type") << "AndersenWall"
-      << magnet::xml::attr("Name") << localName
-      << magnet::xml::attr("Temperature") << sqrtT * sqrtT 
-    / Sim->dynamics.units().unitEnergy()
-      << range
-      << magnet::xml::tag("Norm")
-      << vNorm
-      << magnet::xml::endtag("Norm")
-      << magnet::xml::tag("Origin")
-      << vPosition / Sim->dynamics.units().unitLength()
-      << magnet::xml::endtag("Origin");
+  void
+  CLAndersenWall::outputXML(magnet::xml::XmlStream& XML) const
+  {
+    XML << magnet::xml::attr("Type") << "AndersenWall"
+	<< magnet::xml::attr("Name") << localName
+	<< magnet::xml::attr("Temperature") << sqrtT * sqrtT 
+      / Sim->dynamics.units().unitEnergy()
+	<< range
+	<< magnet::xml::tag("Norm")
+	<< vNorm
+	<< magnet::xml::endtag("Norm")
+	<< magnet::xml::tag("Origin")
+	<< vPosition / Sim->dynamics.units().unitLength()
+	<< magnet::xml::endtag("Origin");
+  }
 }

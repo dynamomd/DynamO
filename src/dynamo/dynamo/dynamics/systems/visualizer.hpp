@@ -23,29 +23,30 @@
 #include <dynamo/dynamics/systems/system.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
-class SVisualizer: public System
-{
-public:
-  SVisualizer(dynamo::SimData*, std::string, double);
+namespace dynamo {
+  class SVisualizer: public System
+  {
+  public:
+    SVisualizer(dynamo::SimData*, std::string, double);
   
-  virtual void runEvent() const;
+    virtual void runEvent() const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual void operator<<(const magnet::xml::Node&) {}
+    virtual void operator<<(const magnet::xml::Node&) {}
 
-  void particlesUpdated(const NEventData&);
+    void particlesUpdated(const NEventData&);
 
-protected:
-  SVisualizer(const SVisualizer&); //Cannot copy due to the coil update connection
+  protected:
+    SVisualizer(const SVisualizer&); //Cannot copy due to the coil update connection
 
-  virtual void outputXML(magnet::xml::XmlStream&) const {}
+    virtual void outputXML(magnet::xml::XmlStream&) const {}
 
-  mutable double _updateTime;
-  mutable std::tr1::shared_ptr<coil::CLGLWindow> _window;
-  coil::CoilRegister _coil;
+    mutable double _updateTime;
+    mutable std::tr1::shared_ptr<coil::CLGLWindow> _window;
+    coil::CoilRegister _coil;
 
-  mutable boost::posix_time::ptime _lastUpdate;
-};
-
+    mutable boost::posix_time::ptime _lastUpdate;
+  };
+}
 #endif

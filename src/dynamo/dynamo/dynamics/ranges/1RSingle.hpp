@@ -16,44 +16,46 @@
 */
 
 #pragma once
-#include "1range.hpp"
+#include <dynamo/dynamics/ranges/1range.hpp>
 #include <magnet/exception.hpp>
 
-class CRSingle: public CRange
-{
-public:
-  CRSingle(const magnet::xml::Node&);
+namespace dynamo {
+  class CRSingle: public CRange
+  {
+  public:
+    CRSingle(const magnet::xml::Node&);
 
-  CRSingle():ID(0) {}
+    CRSingle():ID(0) {}
 
-  virtual CRange* Clone() const { return new CRSingle(*this); };
+    virtual CRange* Clone() const { return new CRSingle(*this); };
 
-  virtual bool isInRange(const Particle &) const;
+    virtual bool isInRange(const Particle &) const;
 
-  //The data output classes
-  virtual void operator<<(const magnet::xml::Node&);
+    //The data output classes
+    virtual void operator<<(const magnet::xml::Node&);
   
-  virtual unsigned long size() const { return 1; };
+    virtual unsigned long size() const { return 1; };
 
-  virtual iterator begin() const { return CRange::iterator(ID, this); }
+    virtual iterator begin() const { return CRange::iterator(ID, this); }
 
-  virtual iterator end() const { return CRange::iterator(ID+1, this); }
+    virtual iterator end() const { return CRange::iterator(ID+1, this); }
 
-  virtual unsigned long operator[](unsigned long) const  
-  { return ID; }
+    virtual unsigned long operator[](unsigned long) const  
+    { return ID; }
 
-  virtual unsigned long at(unsigned long i) const 
-  { 
-    if (i != 0)
-      M_throw() << "Bad array access value in range.at()";
+    virtual unsigned long at(unsigned long i) const 
+    { 
+      if (i != 0)
+	M_throw() << "Bad array access value in range.at()";
     
-    return ID;
-  }
+      return ID;
+    }
   
-protected:
-  virtual const unsigned long& getIteratorID(const unsigned long &i) const { return i; }
+  protected:
+    virtual const unsigned long& getIteratorID(const unsigned long &i) const { return i; }
 
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  unsigned long ID;
-};
+    unsigned long ID;
+  };
+}

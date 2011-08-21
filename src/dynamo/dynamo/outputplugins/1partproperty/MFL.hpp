@@ -16,34 +16,36 @@
 */
 
 #pragma once 
-#include "1partproperty.hpp"
-#include "../../datatypes/histogram.hpp"
+#include <dynamo/outputplugins/1partproperty/1partproperty.hpp>
+#include <dynamo/datatypes/histogram.hpp>
 #include <vector>
 
-class OPMFL: public OP1PP
-{
- public:
-  OPMFL(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPMFL: public OP1PP
+  {
+  public:
+    OPMFL(const dynamo::SimData*, const magnet::xml::Node&);
 
-  void A1ParticleChange(const ParticleEventData&);
+    void A1ParticleChange(const ParticleEventData&);
 
-  void stream(const double&) {}
+    void stream(const double&) {}
 
-  void output(magnet::xml::XmlStream &); 
+    void output(magnet::xml::XmlStream &); 
 
-  void periodicOutput() {}
+    void periodicOutput() {}
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual OutputPlugin *Clone() const { return new OPMFL(*this); }
+    virtual OutputPlugin *Clone() const { return new OPMFL(*this); }
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
- protected:
+  protected:
 
-  std::vector<double> lastTime;
+    std::vector<double> lastTime;
 
-  std::vector<C1DHistogram> data;
+    std::vector<C1DHistogram> data;
 
-  double binwidth;
-};
+    double binwidth;
+  };
+}

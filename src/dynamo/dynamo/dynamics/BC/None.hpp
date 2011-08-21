@@ -16,34 +16,36 @@
 */
 
 #pragma once
-#include "BC.hpp"
+#include <dynamo/dynamics/BC/BC.hpp>
 
-/*! \brief An infinite system boundary condition
- * 
- * Performs no rounding at the simulation boundaries. This is useful
- * for isolated polymer simulations but you must remember that
- * positions can overflow eventually.
- */
-class BCNone: virtual public BoundaryCondition
-{
- public:
-  BCNone(const dynamo::SimData*);
+namespace dynamo {
+  /*! \brief An infinite system boundary condition
+   * 
+   * Performs no rounding at the simulation boundaries. This is useful
+   * for isolated polymer simulations but you must remember that
+   * positions can overflow eventually.
+   */
+  class BCNone: virtual public BoundaryCondition
+  {
+  public:
+    BCNone(const dynamo::SimData*);
   
-  virtual ~BCNone();
+    virtual ~BCNone();
     
-  virtual void applyBC(Vector&)const;
+    virtual void applyBC(Vector&)const;
 
-  virtual void applyBC(Vector&, Vector&) const;
+    virtual void applyBC(Vector&, Vector&) const;
 
-  virtual void applyBC(Vector&, const double&) const;
+    virtual void applyBC(Vector&, const double&) const;
 
-  virtual void update(const double&);
+    virtual void update(const double&);
 
-  virtual void outputXML(magnet::xml::XmlStream &XML) const;
+    virtual void outputXML(magnet::xml::XmlStream &XML) const;
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-  virtual BoundaryCondition* Clone () const;
+    virtual BoundaryCondition* Clone () const;
 
-  virtual void rounding(Vector &) const;
-};
+    virtual void rounding(Vector &) const;
+  };
+}

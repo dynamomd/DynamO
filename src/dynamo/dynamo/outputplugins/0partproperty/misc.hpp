@@ -16,44 +16,46 @@
 */
 
 #pragma once
-#include "../outputplugin.hpp"
+#include <dynamo/outputplugins/outputplugin.hpp>
 #include <ctime>
 #include <time.h>
 
-class OPMisc: public OutputPlugin
-{
-public:
-  OPMisc(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPMisc: public OutputPlugin
+  {
+  public:
+    OPMisc(const dynamo::SimData*, const magnet::xml::Node&);
   
-  virtual void initialise();
+    virtual void initialise();
   
-  virtual void eventUpdate(const IntEvent&, const PairEventData&);
+    virtual void eventUpdate(const IntEvent&, const PairEventData&);
   
-  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
+    virtual void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const LocalEvent&, const NEventData&);
+    virtual void eventUpdate(const LocalEvent&, const NEventData&);
   
-  virtual void eventUpdate(const System&, const NEventData&, 
-			   const double&);
+    virtual void eventUpdate(const System&, const NEventData&, 
+			     const double&);
   
-  void output(magnet::xml::XmlStream &); 
+    void output(magnet::xml::XmlStream &); 
   
-  void periodicOutput();
+    void periodicOutput();
   
-  virtual OutputPlugin *Clone() const 
-  { return new OPMisc(*this); }
+    virtual OutputPlugin *Clone() const 
+    { return new OPMisc(*this); }
   
-  double getMFT() const;
+    double getMFT() const;
   
-  void changeSystem(OutputPlugin*);
+    void changeSystem(OutputPlugin*);
 
-protected:
-  std::time_t tstartTime;
-  timespec acc_tstartTime;
+  protected:
+    std::time_t tstartTime;
+    timespec acc_tstartTime;
 
-  double oldSysTime;
+    double oldSysTime;
 
-  unsigned long dualEvents;  
-  unsigned long singleEvents;
-  unsigned long oldcoll;
-};
+    unsigned long dualEvents;  
+    unsigned long singleEvents;
+    unsigned long oldcoll;
+  };
+}

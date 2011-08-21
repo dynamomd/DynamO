@@ -16,28 +16,30 @@
 */
 
 #pragma once
-#include "1range.hpp"
-#include "2range.hpp"
+#include <dynamo/dynamics/ranges/1range.hpp>
+#include <dynamo/dynamics/ranges/2range.hpp>
 #include <magnet/cloneptr.hpp>
 
-class C2RSingle:public C2Range
-{
-public:
-  C2RSingle(const magnet::xml::Node&, const dynamo::SimData*);
+namespace dynamo {
+  class C2RSingle:public C2Range
+  {
+  public:
+    C2RSingle(const magnet::xml::Node&, const dynamo::SimData*);
 
-  C2RSingle(CRange* r1):range(r1) {}
+    C2RSingle(CRange* r1):range(r1) {}
   
-  virtual C2Range* Clone() const 
-  { return new C2RSingle(*this); };
+    virtual C2Range* Clone() const 
+    { return new C2RSingle(*this); };
 
-  virtual bool isInRange(const Particle&, const Particle&) const;
+    virtual bool isInRange(const Particle&, const Particle&) const;
   
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
   
-  const magnet::ClonePtr<CRange>& getRange() const { return range; }
+    const magnet::ClonePtr<CRange>& getRange() const { return range; }
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  magnet::ClonePtr<CRange> range;
-};
+    magnet::ClonePtr<CRange> range;
+  };
+}

@@ -16,33 +16,35 @@
 */
 
 #pragma once
-#include "../outputplugin.hpp"
+#include <dynamo/outputplugins/outputplugin.hpp>
 
-/*! \brief An output plugin marker class for periodically 'ticked'
- * plugins, ticked by the CSTicker class.
- *
- * This class doesn't require any Liouvillean::updateParticle or
- * Liouvillean::updateAllParticles as this is done in the CSTicker
- * class. This is optimal as most ticker plugins need it anyway
- */
-class OPTicker: public OutputPlugin
-{
-public:
-  OPTicker(const dynamo::SimData*, const char*);
+namespace dynamo {
+  /*! \brief An output plugin marker class for periodically 'ticked'
+   * plugins, ticked by the CSTicker class.
+   *
+   * This class doesn't require any Liouvillean::updateParticle or
+   * Liouvillean::updateAllParticles as this is done in the CSTicker
+   * class. This is optimal as most ticker plugins need it anyway
+   */
+  class OPTicker: public OutputPlugin
+  {
+  public:
+    OPTicker(const dynamo::SimData*, const char*);
 
-  //Non virtual to warn if you use them,
-  void eventUpdate(const IntEvent&, const PairEventData&) {}
-  void eventUpdate(const GlobalEvent&, const NEventData&) {}
-  void eventUpdate(const LocalEvent&, const NEventData&) {}
-  void eventUpdate(const System&, const NEventData&, const double&) {}
+    //Non virtual to warn if you use them,
+    void eventUpdate(const IntEvent&, const PairEventData&) {}
+    void eventUpdate(const GlobalEvent&, const NEventData&) {}
+    void eventUpdate(const LocalEvent&, const NEventData&) {}
+    void eventUpdate(const System&, const NEventData&, const double&) {}
 
-  virtual void output(magnet::xml::XmlStream&) {}
+    virtual void output(magnet::xml::XmlStream&) {}
 
-  virtual void ticker() = 0;
+    virtual void ticker() = 0;
   
-  virtual void periodicOutput() {}
+    virtual void periodicOutput() {}
 
-protected:
+  protected:
 
-  double getTickerTime() const;
-};
+    double getTickerTime() const;
+  };
+}

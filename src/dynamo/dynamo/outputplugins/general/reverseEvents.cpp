@@ -14,61 +14,63 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "reverseEvents.hpp"
-#include "../../dynamics/dynamics.hpp"
-#include "../../dynamics/units/units.hpp"
-#include "../../dynamics/globals/globEvent.hpp"
-#include "../../dynamics/interactions/intEvent.hpp"
-#include "../../dynamics/locals/localEvent.hpp"
+#include <dynamo/outputplugins/general/reverseEvents.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/dynamics/globals/globEvent.hpp>
+#include <dynamo/dynamics/interactions/intEvent.hpp>
+#include <dynamo/dynamics/locals/localEvent.hpp>
 #include <magnet/xmlwriter.hpp>
 
-OPReverseEventsCheck::OPReverseEventsCheck(const dynamo::SimData* t1, const magnet::xml::Node&):
-  OutputPlugin(t1,"ReverseEventsChecker"),
-  lReverseEvents(0)
-{
-}
+namespace dynamo {
+  OPReverseEventsCheck::OPReverseEventsCheck(const dynamo::SimData* t1, const magnet::xml::Node&):
+    OutputPlugin(t1,"ReverseEventsChecker"),
+    lReverseEvents(0)
+  {
+  }
 
-void
-OPReverseEventsCheck::initialise()
-{
-}
+  void
+  OPReverseEventsCheck::initialise()
+  {
+  }
 
-void 
-OPReverseEventsCheck::eventUpdate(const IntEvent& eevent, 
-				   const PairEventData&)
-{
-  if (eevent.getdt() < 0) 
-  	++lReverseEvents;
-}
+  void 
+  OPReverseEventsCheck::eventUpdate(const IntEvent& eevent, 
+				    const PairEventData&)
+  {
+    if (eevent.getdt() < 0) 
+      ++lReverseEvents;
+  }
 
-void 
-OPReverseEventsCheck::eventUpdate(const GlobalEvent& eevent, 
-				   const NEventData&)
-{
-  if (eevent.getdt() < 0) ++lReverseEvents;
-}
+  void 
+  OPReverseEventsCheck::eventUpdate(const GlobalEvent& eevent, 
+				    const NEventData&)
+  {
+    if (eevent.getdt() < 0) ++lReverseEvents;
+  }
 
-void 
-OPReverseEventsCheck::eventUpdate(const LocalEvent& eevent, 
-				   const NEventData&)
-{
-  if (eevent.getdt() < 0) ++lReverseEvents;
-}
+  void 
+  OPReverseEventsCheck::eventUpdate(const LocalEvent& eevent, 
+				    const NEventData&)
+  {
+    if (eevent.getdt() < 0) ++lReverseEvents;
+  }
 
-void 
-OPReverseEventsCheck::eventUpdate(const System&, const NEventData&, 
-				   const double& dt)
-{
-  if (dt < 0) ++lReverseEvents;  
-}
+  void 
+  OPReverseEventsCheck::eventUpdate(const System&, const NEventData&, 
+				    const double& dt)
+  {
+    if (dt < 0) ++lReverseEvents;  
+  }
 
-void 
-OPReverseEventsCheck::output(magnet::xml::XmlStream& XML)
-{
-  dout << "Reverse Event Count " << lReverseEvents << std::endl;
+  void 
+  OPReverseEventsCheck::output(magnet::xml::XmlStream& XML)
+  {
+    dout << "Reverse Event Count " << lReverseEvents << std::endl;
 
-  XML << magnet::xml::tag("ReverseEvents")
-      << magnet::xml::attr("Count") << lReverseEvents
-      << magnet::xml::endtag("ReverseEvents");
+    XML << magnet::xml::tag("ReverseEvents")
+	<< magnet::xml::attr("Count") << lReverseEvents
+	<< magnet::xml::endtag("ReverseEvents");
 
+  }
 }

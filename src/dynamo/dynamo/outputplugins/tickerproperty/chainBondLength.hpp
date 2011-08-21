@@ -16,37 +16,38 @@
 */
 
 #pragma once
-#include "ticker.hpp"
-#include "../../datatypes/histogram.hpp"
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <dynamo/datatypes/histogram.hpp>
 #include <boost/shared_array.hpp>
 
-class OPChainBondLength: public OPTicker
-{
- public:
-  OPChainBondLength(const dynamo::SimData*, const magnet::xml::Node&);
-
-  virtual OutputPlugin *Clone() const
-  { return new OPChainBondLength(*this); }
-
-  virtual void initialise();
-
-  virtual void stream(double) {}
-
-  virtual void ticker();
-
-  virtual void changeSystem(OutputPlugin*);
-
-  virtual void output(magnet::xml::XmlStream&);
-  
- protected:
-
-  struct Cdata
+namespace dynamo {
+  class OPChainBondLength: public OPTicker
   {
-    Cdata(size_t chainID, size_t CL);
-    const size_t chainID;
-    std::vector<C1DHistogram> BondLengths;
+  public:
+    OPChainBondLength(const dynamo::SimData*, const magnet::xml::Node&);
+
+    virtual OutputPlugin *Clone() const
+    { return new OPChainBondLength(*this); }
+
+    virtual void initialise();
+
+    virtual void stream(double) {}
+
+    virtual void ticker();
+
+    virtual void changeSystem(OutputPlugin*);
+
+    virtual void output(magnet::xml::XmlStream&);
+  
+  protected:
+
+    struct Cdata
+    {
+      Cdata(size_t chainID, size_t CL);
+      const size_t chainID;
+      std::vector<C1DHistogram> BondLengths;
+    };
+
+    std::list<Cdata> chains;
   };
-
-  std::list<Cdata> chains;
-
-};
+}

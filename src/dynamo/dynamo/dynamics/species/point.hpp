@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include "species.hpp"
+#include <dynamo/dynamics/species/species.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <memory>
 
@@ -26,28 +26,30 @@ namespace Gtk {
   class RadioButton;
 }
 
-class SpPoint: public Species
-{
-public:
-  template<class T1>
-  SpPoint(dynamo::SimData* sim, CRange* r, T1 nmass, std::string nName,
-	  unsigned int ID, std::string nIName="Bulk"):
-    Species(sim, "SpPoint", r, nmass, nName, ID, nIName)
-  {}
+namespace dynamo {
+  class SpPoint: public Species
+  {
+  public:
+    template<class T1>
+    SpPoint(dynamo::SimData* sim, CRange* r, T1 nmass, std::string nName,
+	    unsigned int ID, std::string nIName="Bulk"):
+      Species(sim, "SpPoint", r, nmass, nName, ID, nIName)
+    {}
   
-  SpPoint(const magnet::xml::Node& XML, dynamo::SimData* nSim, unsigned int nID):
-    Species(nSim, "", NULL, 0, "", nID,"")
-  { operator<<(XML); }
+    SpPoint(const magnet::xml::Node& XML, dynamo::SimData* nSim, unsigned int nID):
+      Species(nSim, "", NULL, 0, "", nID,"")
+    { operator<<(XML); }
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void operator<<(const magnet::xml::Node& XML);
+    virtual void operator<<(const magnet::xml::Node& XML);
 
-  virtual Species* Clone() const { return new SpPoint(*this); }
+    virtual Species* Clone() const { return new SpPoint(*this); }
 
-  virtual double getScalarMomentOfInertia(size_t ID) const 
-  { M_throw() << "Species has no intertia"; }
+    virtual double getScalarMomentOfInertia(size_t ID) const 
+    { M_throw() << "Species has no intertia"; }
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream& XML) const;
-};
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream& XML) const;
+  };
+}

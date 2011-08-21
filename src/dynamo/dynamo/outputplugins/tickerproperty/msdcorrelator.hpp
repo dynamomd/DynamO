@@ -16,36 +16,38 @@
 */
 
 #pragma once
-#include "ticker.hpp"
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <boost/circular_buffer.hpp>
 
-class OPMSD;
+namespace dynamo {
+  class OPMSD;
 
-class OPMSDCorrelator: public OPTicker
-{
- public:
-  OPMSDCorrelator(const dynamo::SimData*, const magnet::xml::Node&);
+  class OPMSDCorrelator: public OPTicker
+  {
+  public:
+    OPMSDCorrelator(const dynamo::SimData*, const magnet::xml::Node&);
 
-  virtual void initialise();
+    virtual void initialise();
 
-  void output(magnet::xml::XmlStream &); 
+    void output(magnet::xml::XmlStream &); 
 
-  virtual OutputPlugin *Clone() const 
-  { return new OPMSDCorrelator(*this); };
+    virtual OutputPlugin *Clone() const 
+    { return new OPMSDCorrelator(*this); };
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
   
- protected:
-  virtual void stream(double) {}
-  virtual void ticker();
+  protected:
+    virtual void stream(double) {}
+    virtual void ticker();
 
-  void accPass();
+    void accPass();
 
-  std::vector<boost::circular_buffer<Vector  > > posHistory;
-  std::vector<std::vector<double> > speciesData;
-  std::vector<std::vector<double> > structData;
-  size_t length;
-  size_t currCorrLength;
-  size_t ticksTaken;
-  bool notReady;
-};
+    std::vector<boost::circular_buffer<Vector  > > posHistory;
+    std::vector<std::vector<double> > speciesData;
+    std::vector<std::vector<double> > structData;
+    size_t length;
+    size_t currCorrLength;
+    size_t ticksTaken;
+    bool notReady;
+  };
+}

@@ -22,58 +22,60 @@
 #include <sstream>
 #include <tr1/array>
 
-OPReplexTrace::OPReplexTrace(const dynamo::SimData* t1, const magnet::xml::Node&):
-  OutputPlugin(t1,"ReplexTrace")
-{}
+namespace dynamo {
+  OPReplexTrace::OPReplexTrace(const dynamo::SimData* t1, const magnet::xml::Node&):
+    OutputPlugin(t1,"ReplexTrace")
+  {}
 
-void 
-OPReplexTrace::changeSystem(OutputPlugin* OPP)
-{
+  void 
+  OPReplexTrace::changeSystem(OutputPlugin* OPP)
+  {
 #ifdef DYNAMO_DEBUG
-  if (dynamic_cast<OPReplexTrace*>(OPP) == NULL)
-    M_throw() << "Not the correct plugin to change System with";
+    if (dynamic_cast<OPReplexTrace*>(OPP) == NULL)
+      M_throw() << "Not the correct plugin to change System with";
 #endif
 
-  addPoint();
-  static_cast<OPReplexTrace*>(OPP)->addPoint();
+    addPoint();
+    static_cast<OPReplexTrace*>(OPP)->addPoint();
 
-  std::swap(Sim, static_cast<OPReplexTrace*>(OPP)->Sim);
+    std::swap(Sim, static_cast<OPReplexTrace*>(OPP)->Sim);
   
-  addPoint(); 
-  static_cast<OPReplexTrace*>(OPP)->addPoint();
+    addPoint(); 
+    static_cast<OPReplexTrace*>(OPP)->addPoint();
 
-  std::swap(entries, static_cast<OPReplexTrace*>(OPP)->entries);
-}
+    std::swap(entries, static_cast<OPReplexTrace*>(OPP)->entries);
+  }
 
-void 
-OPReplexTrace::addPoint()
-{
-  const std::tr1::array<double,3>& 
-    ensembleVals(Sim->ensemble->getReducedEnsembleVals());
+  void 
+  OPReplexTrace::addPoint()
+  {
+    const std::tr1::array<double,3>& 
+      ensembleVals(Sim->ensemble->getReducedEnsembleVals());
 
-  std::ostringstream op;
+    std::ostringstream op;
 
-  op << Sim->replexExchangeNumber << " "
-     << Sim->dSysTime / Sim->dynamics.units().unitTime() << " "
-     << ensembleVals[0] << " " 
-     << ensembleVals[1] << " " 
-     << ensembleVals[2] << "\n";
+    op << Sim->replexExchangeNumber << " "
+       << Sim->dSysTime / Sim->dynamics.units().unitTime() << " "
+       << ensembleVals[0] << " " 
+       << ensembleVals[1] << " " 
+       << ensembleVals[2] << "\n";
 
-  entries.push_back(op.str());
-}
+    entries.push_back(op.str());
+  }
 
-void 
-OPReplexTrace::output(magnet::xml::XmlStream& XML)
-{
-  addPoint();
+  void 
+  OPReplexTrace::output(magnet::xml::XmlStream& XML)
+  {
+    addPoint();
 
-  XML << magnet::xml::tag("ReplexTrace")
-      << magnet::xml::chardata();
+    XML << magnet::xml::tag("ReplexTrace")
+	<< magnet::xml::chardata();
   
-  BOOST_FOREACH(const std::string& str, entries)
-    XML << str;
+    BOOST_FOREACH(const std::string& str, entries)
+      XML << str;
 
-  XML << magnet::xml::endtag("ReplexTrace");
+    XML << magnet::xml::endtag("ReplexTrace");
 
-  entries.pop_back();
+    entries.pop_back();
+  }
 }

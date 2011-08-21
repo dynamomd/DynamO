@@ -16,19 +16,21 @@
 */
 
 #pragma once
-#include "ticker.hpp"
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 
-class OPStreamTicker: public OPTicker
-{
- public:
-  OPStreamTicker(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPStreamTicker: public OPTicker
+  {
+  public:
+    OPStreamTicker(const dynamo::SimData*, const magnet::xml::Node&);
 
-  virtual OutputPlugin *Clone() const
-  { return new OPStreamTicker(*this); }
+    virtual OutputPlugin *Clone() const
+    { return new OPStreamTicker(*this); }
 
-  virtual void initialise() {}
+    virtual void initialise() {}
 
-  virtual void stream(double) {}
+    virtual void stream(double) {}
 
-  virtual void ticker();
-};
+    virtual void ticker();
+  };
+}

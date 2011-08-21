@@ -16,23 +16,25 @@
 */
 
 #pragma once
-#include "scheduler.hpp"
+#include <dynamo/schedulers/scheduler.hpp>
 
-class CSDumb: public CScheduler
-{
-public:
-  CSDumb(const magnet::xml::Node&, dynamo::SimData* const);
+namespace dynamo {
+  class CSDumb: public CScheduler
+  {
+  public:
+    CSDumb(const magnet::xml::Node&, dynamo::SimData* const);
 
-  CSDumb(dynamo::SimData* const, CSSorter*);
+    CSDumb(dynamo::SimData* const, CSSorter*);
 
-  virtual void rebuildList();
+    virtual void rebuildList();
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void addEvents(const Particle&);
+    virtual void addEvents(const Particle&);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const;
-};
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const;
+  };
+}

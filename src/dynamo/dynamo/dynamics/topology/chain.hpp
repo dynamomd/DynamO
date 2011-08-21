@@ -17,25 +17,27 @@
 
 #pragma once
 
-#include "topology.hpp"
+#include <dynamo/dynamics/topology/topology.hpp>
 #include <magnet/cloneptr.hpp>
 #include <string>
 #include <list>
 
-class CTChain: public Topology
-{
-public:  
-  CTChain(const magnet::xml::Node&, dynamo::SimData*, unsigned int ID);
+namespace dynamo {
+  class CTChain: public Topology
+  {
+  public:  
+    CTChain(const magnet::xml::Node&, dynamo::SimData*, unsigned int ID);
 
-  CTChain(dynamo::SimData*, unsigned int ID, std::string);
+    CTChain(dynamo::SimData*, unsigned int ID, std::string);
 
-  virtual ~CTChain() {}
+    virtual ~CTChain() {}
   
-  virtual void operator<<(const magnet::xml::Node&) {}
+    virtual void operator<<(const magnet::xml::Node&) {}
 
-  virtual CTChain* Clone() const { return new CTChain(*this); }
+    virtual CTChain* Clone() const { return new CTChain(*this); }
 
-protected:
+  protected:
   
-  virtual void outputXML(magnet::xml::XmlStream&) const;
-};
+    virtual void outputXML(magnet::xml::XmlStream&) const;
+  };
+}

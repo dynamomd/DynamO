@@ -16,43 +16,45 @@
 */
 
 #pragma once
-#include "ticker.hpp"
-#include "../../datatypes/histogram.hpp"
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <dynamo/datatypes/histogram.hpp>
 #include <boost/shared_array.hpp>
 
-class CTChain;
-class CRange;
+namespace dynamo {
+  class CTChain;
+  class CRange;
 
-class OPCContactMap: public OPTicker
-{
- public:
-  OPCContactMap(const dynamo::SimData*, const magnet::xml::Node&);
-
-  virtual OutputPlugin *Clone() const
-  { return new OPCContactMap(*this); }
-
-  virtual void initialise();
-
-  virtual void stream(double) {}
-
-  virtual void ticker();
-
-  virtual void changeSystem(OutputPlugin*);
-
-  virtual void output(magnet::xml::XmlStream&);
-  
- protected:
-
-  struct Cdata
+  class OPCContactMap: public OPTicker
   {
-    Cdata(const CTChain*, unsigned long);
+  public:
+    OPCContactMap(const dynamo::SimData*, const magnet::xml::Node&);
 
-    const CTChain* chainPtr;
-    boost::shared_array<unsigned long> array;
-    unsigned long counter;
-    unsigned long chainlength;
+    virtual OutputPlugin *Clone() const
+    { return new OPCContactMap(*this); }
+
+    virtual void initialise();
+
+    virtual void stream(double) {}
+
+    virtual void ticker();
+
+    virtual void changeSystem(OutputPlugin*);
+
+    virtual void output(magnet::xml::XmlStream&);
+  
+  protected:
+
+    struct Cdata
+    {
+      Cdata(const CTChain*, unsigned long);
+
+      const CTChain* chainPtr;
+      boost::shared_array<unsigned long> array;
+      unsigned long counter;
+      unsigned long chainlength;
+    };
+
+    std::list<Cdata> chains;
+
   };
-
-  std::list<Cdata> chains;
-
-};
+}

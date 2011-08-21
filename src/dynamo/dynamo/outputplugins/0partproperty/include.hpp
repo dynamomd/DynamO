@@ -15,10 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "collMatrix.hpp"
-#include "msd.hpp"
-#include "eta.hpp"
-#include "misc.hpp"
-#include "qmga.hpp"
-#include "intEnergyHist.hpp"
-#include "msdOrientational.hpp"
+#include <dynamo/outputplugins/0partproperty/collMatrix.hpp>
+#include <dynamo/outputplugins/0partproperty/msd.hpp>
+#include <dynamo/outputplugins/0partproperty/eta.hpp>
+#include <dynamo/outputplugins/0partproperty/misc.hpp>
+#include <dynamo/outputplugins/0partproperty/qmga.hpp>
+#include <dynamo/outputplugins/0partproperty/intEnergyHist.hpp>
+#include <dynamo/outputplugins/0partproperty/msdOrientational.hpp>

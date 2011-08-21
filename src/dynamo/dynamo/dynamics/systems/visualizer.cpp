@@ -35,91 +35,93 @@
 #include <boost/foreach.hpp>
 #include <algorithm>
 
-SVisualizer::SVisualizer(dynamo::SimData* nSim, std::string nName, double tickFreq):
-  System(nSim)
-{
-  _updateTime = tickFreq * Sim->dynamics.units().unitTime();
-  dt = -HUGE_VAL;//We want to ensure we get at least one update before
-		 //anything occurs in the system
+namespace dynamo {
+  SVisualizer::SVisualizer(dynamo::SimData* nSim, std::string nName, double tickFreq):
+    System(nSim)
+  {
+    _updateTime = tickFreq * Sim->dynamics.units().unitTime();
+    dt = -HUGE_VAL;//We want to ensure we get at least one update before
+    //anything occurs in the system
   
-  sysName = "Visualizer";
+    sysName = "Visualizer";
 
-  //Build a window, ready to display it
-  _window.reset(new coil::CLGLWindow("Visualizer : " + nName, tickFreq, true));
+    //Build a window, ready to display it
+    _window.reset(new coil::CLGLWindow("Visualizer : " + nName, tickFreq, true));
   
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-    _window->addRenderObj(spec->createDataSet());
+    BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+      _window->addRenderObj(spec->createDataSet());
 
-  BOOST_FOREACH(magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
-    {
-      CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*local));
+    BOOST_FOREACH(magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
+      {
+	CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*local));
 
-      if (obj != NULL)
-	_window->addRenderObj(obj->getCoilRenderObj());
-    }
+	if (obj != NULL)
+	  _window->addRenderObj(obj->getCoilRenderObj());
+      }
 
-  _coil.getInstance().addWindow(_window);
+    _coil.getInstance().addWindow(_window);
 
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-    {
-      spec->initDataSet();
-      _window->signal_data_update().connect(boost::bind(&Species::updateRenderData, spec.get_ptr()));
-      spec->updateRenderData();
-    }
+    BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+      {
+	spec->initDataSet();
+	_window->signal_data_update().connect(boost::bind(&Species::updateRenderData, spec.get_ptr()));
+	spec->updateRenderData();
+      }
   
-  _lastUpdate = boost::posix_time::microsec_clock::local_time();
+    _lastUpdate = boost::posix_time::microsec_clock::local_time();
 
-  dout << "Visualizer initialised\nOpenCL Plaftorm:" 
-       << _window->getGLContext().getCLPlatform().getInfo<CL_PLATFORM_NAME>()
-       << "\nOpenCL Device:" 
-       << _window->getGLContext().getCLDevice().getInfo<CL_DEVICE_NAME>() << std::endl;
-}
+    dout << "Visualizer initialised\nOpenCL Plaftorm:" 
+	 << _window->getGLContext().getCLPlatform().getInfo<CL_PLATFORM_NAME>()
+	 << "\nOpenCL Device:" 
+	 << _window->getGLContext().getCLDevice().getInfo<CL_DEVICE_NAME>() << std::endl;
+  }
 
-void
-SVisualizer::runEvent() const
-{
-  _updateTime = _window->getUpdateInterval();
-  if (dt == -HUGE_VAL) dt = 0;
+  void
+  SVisualizer::runEvent() const
+  {
+    _updateTime = _window->getUpdateInterval();
+    if (dt == -HUGE_VAL) dt = 0;
   
-  double locdt = dt;
-  dt += _updateTime;
+    double locdt = dt;
+    dt += _updateTime;
 
-  //Actually move forward the system time
-  Sim->dSysTime += locdt;
-  Sim->ptrScheduler->stream(locdt);      
-  //dynamics must be updated first
-  Sim->dynamics.stream(locdt);
-  locdt += Sim->freestreamAcc;
-  Sim->freestreamAcc = 0;
+    //Actually move forward the system time
+    Sim->dSysTime += locdt;
+    Sim->ptrScheduler->stream(locdt);      
+    //dynamics must be updated first
+    Sim->dynamics.stream(locdt);
+    locdt += Sim->freestreamAcc;
+    Sim->freestreamAcc = 0;
 
-  if (_window->dynamoParticleSync())
-    Sim->dynamics.getLiouvillean().updateAllParticles();
+    if (_window->dynamoParticleSync())
+      Sim->dynamics.getLiouvillean().updateAllParticles();
 
-  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(*this, NEventData(), locdt);
+    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+      Ptr->eventUpdate(*this, NEventData(), locdt);
   
-  _window->simupdateTick(Sim->dSysTime);
+    _window->simupdateTick(Sim->dSysTime);
 
-  _lastUpdate = boost::posix_time::microsec_clock::local_time();
-}
+    _lastUpdate = boost::posix_time::microsec_clock::local_time();
+  }
 
-void 
-SVisualizer::initialise(size_t nID)
-{ 
-  ID = nID; 
+  void 
+  SVisualizer::initialise(size_t nID)
+  { 
+    ID = nID; 
 
-  Sim->registerParticleUpdateFunc
-    (magnet::function::MakeDelegate(this, &SVisualizer::particlesUpdated));
-}
+    Sim->registerParticleUpdateFunc
+      (magnet::function::MakeDelegate(this, &SVisualizer::particlesUpdated));
+  }
 
-void 
-SVisualizer::particlesUpdated(const NEventData&)
-{
-  if ((boost::posix_time::microsec_clock::local_time() - _lastUpdate) 
-      > boost::posix_time::milliseconds(500))
-    {
-      dt = -HUGE_VAL;
-      Sim->ptrScheduler->rebuildSystemEvents();
-    }
+  void 
+  SVisualizer::particlesUpdated(const NEventData&)
+  {
+    if ((boost::posix_time::microsec_clock::local_time() - _lastUpdate) 
+	> boost::posix_time::milliseconds(500))
+      {
+	dt = -HUGE_VAL;
+	Sim->ptrScheduler->rebuildSystemEvents();
+      }
+  }
 }
 #endif

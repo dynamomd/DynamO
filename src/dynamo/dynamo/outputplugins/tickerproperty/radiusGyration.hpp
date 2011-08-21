@@ -19,69 +19,72 @@
 
 #ifdef DYNAMO_GSL
 
-#include "ticker.hpp"
-#include "../../datatypes/histogram.hpp"
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <dynamo/datatypes/histogram.hpp>
+
 class CRange;
 
-class CTChain;
+namespace dynamo {
+  class CTChain;
 
-class OPRGyration: public OPTicker
-{
- public:
-  OPRGyration(const dynamo::SimData*, const magnet::xml::Node&);
-
-  virtual OutputPlugin *Clone() const
-  { return new OPRGyration(*this); }
-
-  virtual void initialise();
-
-  virtual void stream(double) {}
-
-  virtual void ticker();
-
-  virtual void changeSystem(OutputPlugin*);
-
-  virtual void output(magnet::xml::XmlStream&);
-
-  struct molGyrationDat
+  class OPRGyration: public OPTicker
   {
-    Vector  EigenVal;
-    Vector  EigenVec[3];
-    Vector  MassCentre;
-  };
-  
-  static molGyrationDat getGyrationEigenSystem(const magnet::ClonePtr<CRange>&, const dynamo::SimData*);
+  public:
+    OPRGyration(const dynamo::SimData*, const magnet::xml::Node&);
 
-  static Vector  NematicOrderParameter(const std::list<Vector  >&);
-  static double CubaticOrderParameter(const std::list<Vector  >&);
+    virtual OutputPlugin *Clone() const
+    { return new OPRGyration(*this); }
 
-  virtual void operator<<(const magnet::xml::Node&);
-  
- protected:
+    virtual void initialise();
 
-  struct CTCdata
-  {
-    const CTChain* chainPtr;
-    std::vector<C1DHistogram> gyrationRadii;
-    std::vector<C1DHistogram> nematicOrder;
-    C1DHistogram cubaticOrder;    
+    virtual void stream(double) {}
 
-    CTCdata(const CTChain* ptr, double binwidth1, double binwidth2, double binwidth3):
-      chainPtr(ptr),
-      cubaticOrder(binwidth3)
+    virtual void ticker();
+
+    virtual void changeSystem(OutputPlugin*);
+
+    virtual void output(magnet::xml::XmlStream&);
+
+    struct molGyrationDat
     {
-      for (size_t i = 0; i < NDIM; i++)
-	{
-	  gyrationRadii.push_back(C1DHistogram(binwidth1));
-	  nematicOrder.push_back(C1DHistogram(binwidth2));
-	}
-    }
+      Vector  EigenVal;
+      Vector  EigenVec[3];
+      Vector  MassCentre;
+    };
+  
+    static molGyrationDat getGyrationEigenSystem(const magnet::ClonePtr<CRange>&, const dynamo::SimData*);
 
+    static Vector  NematicOrderParameter(const std::list<Vector  >&);
+    static double CubaticOrderParameter(const std::list<Vector  >&);
+
+    virtual void operator<<(const magnet::xml::Node&);
+  
+  protected:
+
+    struct CTCdata
+    {
+      const CTChain* chainPtr;
+      std::vector<C1DHistogram> gyrationRadii;
+      std::vector<C1DHistogram> nematicOrder;
+      C1DHistogram cubaticOrder;    
+
+      CTCdata(const CTChain* ptr, double binwidth1, double binwidth2, double binwidth3):
+	chainPtr(ptr),
+	cubaticOrder(binwidth3)
+      {
+	for (size_t i = 0; i < NDIM; i++)
+	  {
+	    gyrationRadii.push_back(C1DHistogram(binwidth1));
+	    nematicOrder.push_back(C1DHistogram(binwidth2));
+	  }
+      }
+
+    };
+
+    std::list<CTCdata> chains;
+
+    double binwidth1, binwidth2, binwidth3;  
   };
-
-  std::list<CTCdata> chains;
-
-  double binwidth1, binwidth2, binwidth3;  
-};
+}
 
 #endif

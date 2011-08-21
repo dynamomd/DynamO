@@ -16,29 +16,31 @@
 */
 
 #pragma once
-#include "2partproperty.hpp"
-#include "../../datatypes/histogram.hpp"
+#include <dynamo/outputplugins/2partproperty/2partproperty.hpp>
+#include <dynamo/datatypes/histogram.hpp>
 #include <boost/circular_buffer.hpp>
 #include <vector>
 
-class OPChatteringCorrelator: public OP2PP
-{
-public:
-  OPChatteringCorrelator(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPChatteringCorrelator: public OP2PP
+  {
+  public:
+    OPChatteringCorrelator(const dynamo::SimData*, const magnet::xml::Node&);
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual OutputPlugin* Clone() const
-  { return new OPChatteringCorrelator(*this); }
+    virtual OutputPlugin* Clone() const
+    { return new OPChatteringCorrelator(*this); }
 
-  void output(magnet::xml::XmlStream &XML);
+    void output(magnet::xml::XmlStream &XML);
 
-private:
+  private:
 
-  virtual void A2ParticleChange(const PairEventData&);
+    virtual void A2ParticleChange(const PairEventData&);
 
-  virtual void stream(const double&) {}
+    virtual void stream(const double&) {}
 
-  C1DWeightHistogram hist;
-  std::vector<std::pair<double,double> > chatterTracker;
-};
+    C1DWeightHistogram hist;
+    std::vector<std::pair<double,double> > chatterTracker;
+  };
+}

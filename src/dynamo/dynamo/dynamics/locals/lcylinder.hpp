@@ -16,35 +16,37 @@
 */
 
 #pragma once
-#include "local.hpp"
+#include <dynamo/dynamics/locals/local.hpp>
 
-class CLCylinder: public Local
-{
-public:
-  CLCylinder(const magnet::xml::Node&, dynamo::SimData*);
-  CLCylinder(dynamo::SimData*, double, Vector , Vector , double, 
-	 std::string, CRange*, bool nrender = true);
+namespace dynamo {
+  class CLCylinder: public Local
+  {
+  public:
+    CLCylinder(const magnet::xml::Node&, dynamo::SimData*);
+    CLCylinder(dynamo::SimData*, double, Vector , Vector , double, 
+	       std::string, CRange*, bool nrender = true);
 
-  virtual ~CLCylinder() {}
+    virtual ~CLCylinder() {}
 
-  virtual Local* Clone() const { return new CLCylinder(*this); };
+    virtual Local* Clone() const { return new CLCylinder(*this); };
 
-  virtual LocalEvent getEvent(const Particle&) const;
+    virtual LocalEvent getEvent(const Particle&) const;
 
-  virtual void runEvent(const Particle&, const LocalEvent&) const;
+    virtual void runEvent(const Particle&, const LocalEvent&) const;
   
-  virtual bool isInCell(const Vector &, const Vector &) const;
+    virtual bool isInCell(const Vector &, const Vector &) const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  Vector  vNorm;
-  Vector  vPosition;
-  double e;
-  double radius;
-  bool render;
-};
+    Vector  vNorm;
+    Vector  vPosition;
+    double e;
+    double radius;
+    bool render;
+  };
+}

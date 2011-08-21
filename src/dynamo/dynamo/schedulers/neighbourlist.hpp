@@ -16,27 +16,29 @@
 */
 
 #pragma once
-#include "scheduler.hpp"
+#include <dynamo/schedulers/scheduler.hpp>
 
-class CSNeighbourList: public CScheduler
-{
-public:
-  CSNeighbourList(const magnet::xml::Node&, dynamo::SimData* const);
+namespace dynamo {
+  class CSNeighbourList: public CScheduler
+  {
+  public:
+    CSNeighbourList(const magnet::xml::Node&, dynamo::SimData* const);
 
-  CSNeighbourList(dynamo::SimData* const, CSSorter*);
+    CSNeighbourList(dynamo::SimData* const, CSSorter*);
 
-  virtual void rebuildList();
+    virtual void rebuildList();
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void addEvents(const Particle&);
+    virtual void addEvents(const Particle&);
   
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  void addEventsInit(const Particle&);
+    void addEventsInit(const Particle&);
   
-  size_t NBListID;
-};
+    size_t NBListID;
+  };
+}

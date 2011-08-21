@@ -16,38 +16,40 @@
 */
 
 #pragma once
-#include "local.hpp"
+#include <dynamo/dynamics/locals/local.hpp>
 
-class LRoughWall: public Local
-{
-public:
-  LRoughWall(const magnet::xml::Node&, dynamo::SimData*);
-  LRoughWall(dynamo::SimData*, double, double, double, Vector , Vector , 
-	 std::string, CRange*, bool nrender = true);
+namespace dynamo {
+  class LRoughWall: public Local
+  {
+  public:
+    LRoughWall(const magnet::xml::Node&, dynamo::SimData*);
+    LRoughWall(dynamo::SimData*, double, double, double, Vector , Vector , 
+	       std::string, CRange*, bool nrender = true);
 
-  virtual ~LRoughWall() {}
+    virtual ~LRoughWall() {}
 
-  virtual Local* Clone() const { return new LRoughWall(*this); };
+    virtual Local* Clone() const { return new LRoughWall(*this); };
 
-  virtual LocalEvent getEvent(const Particle&) const;
+    virtual LocalEvent getEvent(const Particle&) const;
 
-  virtual void runEvent(const Particle&, const LocalEvent&) const;
+    virtual void runEvent(const Particle&, const LocalEvent&) const;
   
-  virtual bool isInCell(const Vector &, const Vector &) const;
+    virtual bool isInCell(const Vector &, const Vector &) const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-  virtual void checkOverlaps(const Particle&) const;
+    virtual void checkOverlaps(const Particle&) const;
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  Vector  vNorm;
-  Vector  vPosition;
-  double e;
-  double et;
-  double r;
-  bool render;
-};
+    Vector  vNorm;
+    Vector  vPosition;
+    double e;
+    double et;
+    double r;
+    bool render;
+  };
+}

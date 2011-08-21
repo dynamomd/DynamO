@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "NewtonL.hpp"
-#include "CompressionL.hpp"
-#include "SLLOD.hpp"
-#include "NewtonianGravityL.hpp"
-#include "NewtonMCL.hpp"
+#include <dynamo/dynamics/liouvillean/NewtonL.hpp>
+#include <dynamo/dynamics/liouvillean/CompressionL.hpp>
+#include <dynamo/dynamics/liouvillean/SLLOD.hpp>
+#include <dynamo/dynamics/liouvillean/NewtonianGravityL.hpp>
+#include <dynamo/dynamics/liouvillean/NewtonMCL.hpp>

@@ -15,85 +15,87 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "periodmsd.hpp"
-#include "../../dynamics/include.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../../dynamics/liouvillean/liouvillean.hpp"
-#include "../0partproperty/msd.hpp"
-#include "../../dynamics/ranges/1RAll.hpp"
+#include <dynamo/outputplugins/tickerproperty/periodmsd.hpp>
+#include <dynamo/dynamics/include.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/outputplugins/0partproperty/msd.hpp>
+#include <dynamo/dynamics/ranges/1RAll.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/math/ctime_pow.hpp>
 #include <magnet/xmlwriter.hpp>
 
-OPPeriodicMSD::OPPeriodicMSD(const dynamo::SimData* tmp, const magnet::xml::Node&):
-  OPTicker(tmp,"PeriodicMSD"),
-  ptrOPMSD(NULL)
-{}
+namespace dynamo {
+  OPPeriodicMSD::OPPeriodicMSD(const dynamo::SimData* tmp, const magnet::xml::Node&):
+    OPTicker(tmp,"PeriodicMSD"),
+    ptrOPMSD(NULL)
+  {}
 
-void 
-OPPeriodicMSD::initialise()
-{
-  //Load the diffusion class
-  ptrOPMSD = Sim->getOutputPlugin<OPMSD>();
+  void 
+  OPPeriodicMSD::initialise()
+  {
+    //Load the diffusion class
+    ptrOPMSD = Sim->getOutputPlugin<OPMSD>();
 
-  //Now cache a local list of the topology
-  BOOST_FOREACH(const magnet::ClonePtr<Topology>& topo, Sim->dynamics.getTopology())
-    {
-      localpair2 tmpPair;
-      tmpPair.first = topo.get_ptr();
-      structResults.push_back(tmpPair);
-    }
+    //Now cache a local list of the topology
+    BOOST_FOREACH(const magnet::ClonePtr<Topology>& topo, Sim->dynamics.getTopology())
+      {
+	localpair2 tmpPair;
+	tmpPair.first = topo.get_ptr();
+	structResults.push_back(tmpPair);
+      }
 
-  //Species
-  speciesData.resize(Sim->dynamics.getSpecies().size());
+    //Species
+    speciesData.resize(Sim->dynamics.getSpecies().size());
 
-}
+  }
 
-void 
-OPPeriodicMSD::ticker()
-{
-  BOOST_FOREACH(localpair2& dat, structResults)
-    dat.second.push_back(std::make_pair
-			 (Sim->dSysTime / Sim->dynamics.units().unitTime(),
-			  ptrOPMSD->calcStructMSD(*dat.first)));
+  void 
+  OPPeriodicMSD::ticker()
+  {
+    BOOST_FOREACH(localpair2& dat, structResults)
+      dat.second.push_back(std::make_pair
+			   (Sim->dSysTime / Sim->dynamics.units().unitTime(),
+			    ptrOPMSD->calcStructMSD(*dat.first)));
 
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
-    speciesData[sp->getID()].push_back(std::make_pair(Sim->dSysTime, ptrOPMSD->calcMSD(*(sp->getRange()))));
-}
+    BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+      speciesData[sp->getID()].push_back(std::make_pair(Sim->dSysTime, ptrOPMSD->calcMSD(*(sp->getRange()))));
+  }
 
-void
-OPPeriodicMSD::output(magnet::xml::XmlStream &XML)
-{
-  XML << magnet::xml::tag("PeriodicMSD");
+  void
+  OPPeriodicMSD::output(magnet::xml::XmlStream &XML)
+  {
+    XML << magnet::xml::tag("PeriodicMSD");
   
-  BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
-    {
-      XML << magnet::xml::tag("Species") 
-	  << magnet::xml::attr("Name") << sp->getName()
-	  << magnet::xml::chardata();
+    BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+      {
+	XML << magnet::xml::tag("Species") 
+	    << magnet::xml::attr("Name") << sp->getName()
+	    << magnet::xml::chardata();
       
-      BOOST_FOREACH(const localpair& dat, speciesData[sp->getID()])
-	XML << dat.first / Sim->dynamics.units().unitTime() << " " 
-	    << dat.second * 6 << "\n";
+	BOOST_FOREACH(const localpair& dat, speciesData[sp->getID()])
+	  XML << dat.first / Sim->dynamics.units().unitTime() << " " 
+	      << dat.second * 6 << "\n";
 
-      XML << magnet::xml::tag("Species");
-    }
+	XML << magnet::xml::tag("Species");
+      }
   
-  if (!structResults.empty())
-    {
-      BOOST_FOREACH(localpair2& dat, structResults)
-	{
-	  XML << magnet::xml::tag("Structure")	  
-	      << magnet::xml::attr("Name") <<  dat.first->getName()
-	      << magnet::xml::chardata();
+    if (!structResults.empty())
+      {
+	BOOST_FOREACH(localpair2& dat, structResults)
+	  {
+	    XML << magnet::xml::tag("Structure")	  
+		<< magnet::xml::attr("Name") <<  dat.first->getName()
+		<< magnet::xml::chardata();
 	  
-	  BOOST_FOREACH(const localpair& myp, dat.second)
-	    XML << myp.first << " " << myp.second << "\n";
+	    BOOST_FOREACH(const localpair& myp, dat.second)
+	      XML << myp.first << " " << myp.second << "\n";
 	  
-	  XML << magnet::xml::endtag("Structure");	
-	}
-    }
+	    XML << magnet::xml::endtag("Structure");	
+	  }
+      }
  
   
-  XML << magnet::xml::endtag("PeriodicMSD");
+    XML << magnet::xml::endtag("PeriodicMSD");
+  }
 }

@@ -16,30 +16,32 @@
 */
 
 #pragma once
-#include "ticker.hpp"
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 
-class OPSCParameter: public OPTicker
-{
- public:
-  OPSCParameter(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPSCParameter: public OPTicker
+  {
+  public:
+    OPSCParameter(const dynamo::SimData*, const magnet::xml::Node&);
 
-  virtual OutputPlugin *Clone() const
-  { return new OPSCParameter(*this); }
+    virtual OutputPlugin *Clone() const
+    { return new OPSCParameter(*this); }
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void stream(double) {}
+    virtual void stream(double) {}
 
-  virtual void ticker();
+    virtual void ticker();
   
-  virtual void output(magnet::xml::XmlStream&);
+    virtual void output(magnet::xml::XmlStream&);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
- protected:
+  protected:
   
-  size_t maxWaveNumber;
-  size_t count;
-  std::vector<double> runningsum;
-};
+    size_t maxWaveNumber;
+    size_t count;
+    std::vector<double> runningsum;
+  };
+}

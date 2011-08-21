@@ -19,31 +19,33 @@
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <vector>
 
-class OPMSD: public OutputPlugin
-{
- public:
-  OPMSD(const dynamo::SimData*, const magnet::xml::Node&);
-  ~OPMSD();
+namespace dynamo {
+  class OPMSD: public OutputPlugin
+  {
+  public:
+    OPMSD(const dynamo::SimData*, const magnet::xml::Node&);
+    ~OPMSD();
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void eventUpdate(const IntEvent&, const PairEventData&) {}
+    virtual void eventUpdate(const IntEvent&, const PairEventData&) {}
 
-  virtual void eventUpdate(const GlobalEvent&, const NEventData&) {}
+    virtual void eventUpdate(const GlobalEvent&, const NEventData&) {}
 
-  virtual void eventUpdate(const LocalEvent&, const NEventData&) {}
+    virtual void eventUpdate(const LocalEvent&, const NEventData&) {}
 
-  virtual void eventUpdate(const System&, const NEventData&, const double&) {}
+    virtual void eventUpdate(const System&, const NEventData&, const double&) {}
 
-  void output(magnet::xml::XmlStream &); 
+    void output(magnet::xml::XmlStream &); 
 
-  virtual OutputPlugin *Clone() const { return new OPMSD(*this); };
+    virtual OutputPlugin *Clone() const { return new OPMSD(*this); };
 
-  double calcMSD(const CRange& range) const;
+    double calcMSD(const CRange& range) const;
 
-  double calcStructMSD(const Topology&) const;
+    double calcStructMSD(const Topology&) const;
   
- protected:
+  protected:
   
-  std::vector<Vector> initPos;
-};
+    std::vector<Vector> initPos;
+  };
+}

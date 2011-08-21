@@ -18,22 +18,24 @@
 #pragma once
 #include <dynamo/outputplugins/1partproperty/1partproperty.hpp>
 
-class OPMomentum: public OP1PP
-{
- public:
-  OPMomentum(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPMomentum: public OP1PP
+  {
+  public:
+    OPMomentum(const dynamo::SimData*, const magnet::xml::Node&);
 
-  void A1ParticleChange(const ParticleEventData&);
+    void A1ParticleChange(const ParticleEventData&);
 
-  void stream(const double&);  
+    void stream(const double&);  
 
-  void output(magnet::xml::XmlStream &); 
+    void output(magnet::xml::XmlStream &); 
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual OutputPlugin *Clone() const { return new OPMomentum(*this); }
+    virtual OutputPlugin *Clone() const { return new OPMomentum(*this); }
        
- protected:
+  protected:
 
-  Vector  accMom, accMomsq, sysMom;
-};
+    Vector  accMom, accMomsq, sysMom;
+  };
+}

@@ -15,64 +15,66 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "qmga.hpp"
-#include "../../dynamics/include.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../../dynamics/liouvillean/liouvillean.hpp"
+#include <dynamo/outputplugins/0partproperty/qmga.hpp>
+#include <dynamo/dynamics/include.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <fstream>
 
-OPQMGA::OPQMGA(const dynamo::SimData* tmp, const magnet::xml::Node&):
-  OPCollTicker(tmp,"OPQMGA"),
-  frameCount(0)
-{}
+namespace dynamo {
+  OPQMGA::OPQMGA(const dynamo::SimData* tmp, const magnet::xml::Node&):
+    OPCollTicker(tmp,"OPQMGA"),
+    frameCount(0)
+  {}
 
-void 
-OPQMGA::ticker()
-{
-  if (!(Sim->eventCount % 1000))
-    printImage();
-}
+  void 
+  OPQMGA::ticker()
+  {
+    if (!(Sim->eventCount % 1000))
+      printImage();
+  }
 
-void
-OPQMGA::printImage()
-{
-  char *fileName;
+  void
+  OPQMGA::printImage()
+  {
+    char *fileName;
 
-  //Dont let this fill up your hard drive!
-  if (frameCount > 1000)
-    return;
+    //Dont let this fill up your hard drive!
+    if (frameCount > 1000)
+      return;
 
-  Sim->dynamics.getLiouvillean().updateAllParticles();
+    Sim->dynamics.getLiouvillean().updateAllParticles();
 
-  if ( asprintf(&fileName, "cnf.%04d", frameCount++) < 0)
-    M_throw() << "asprintf error in QMGA";
+    if ( asprintf(&fileName, "cnf.%04d", frameCount++) < 0)
+      M_throw() << "asprintf error in QMGA";
   
-  std::ofstream of(fileName);
+    std::ofstream of(fileName);
   
-  if (!of.is_open())
-    M_throw() << "Could not open QMGA file for writing";
+    if (!of.is_open())
+      M_throw() << "Could not open QMGA file for writing";
 
-  of << Sim->N << "\n"
-     << Sim->primaryCellSize[0] / Sim->dynamics.units().unitLength() << "\n"
-     << Sim->primaryCellSize[1] / Sim->dynamics.units().unitLength() << "\n"
-     << Sim->primaryCellSize[2] / Sim->dynamics.units().unitLength() << "\n"
-     << "0.0 0.0\n";
+    of << Sim->N << "\n"
+       << Sim->primaryCellSize[0] / Sim->dynamics.units().unitLength() << "\n"
+       << Sim->primaryCellSize[1] / Sim->dynamics.units().unitLength() << "\n"
+       << Sim->primaryCellSize[2] / Sim->dynamics.units().unitLength() << "\n"
+       << "0.0 0.0\n";
   
-  std::list<unsigned long> tmpList;
+    std::list<unsigned long> tmpList;
 
-  unsigned int i = 0;
-  BOOST_FOREACH(const Particle& part, Sim->particleList)
-    {
-      Vector  pos = part.getPosition();
-      Sim->dynamics.BCs().applyBC(pos);
-      pos /= Sim->dynamics.units().unitLength();
+    unsigned int i = 0;
+    BOOST_FOREACH(const Particle& part, Sim->particleList)
+      {
+	Vector  pos = part.getPosition();
+	Sim->dynamics.BCs().applyBC(pos);
+	pos /= Sim->dynamics.units().unitLength();
       
-      of << pos[0] << " " << pos[1] << " " << pos[2]
-	 << "0 0 0 0.0 1.0 0.0 0 0 0 " << part.getID()
-	 << " " << i << "\n";
-    }
+	of << pos[0] << " " << pos[1] << " " << pos[2]
+	   << "0 0 0 0.0 1.0 0.0 0 0 0 " << part.getID()
+	   << " " << i << "\n";
+      }
   
-  of.close();
+    of.close();
+  }
 }

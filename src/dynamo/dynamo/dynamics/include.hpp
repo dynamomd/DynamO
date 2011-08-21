@@ -15,17 +15,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "interactions/intEvent.hpp"
-#include "interactions/interaction.hpp"
-#include "units/units.hpp"
-#include "globals/globEvent.hpp"
-#include "globals/global.hpp"
-#include "locals/local.hpp"
-#include "locals/localEvent.hpp"
-#include "species/species.hpp"
-#include "BC/BC.hpp"
-#include "dynamics.hpp"
-#include "systems/system.hpp"
-#include "NparticleEventData.hpp"
-#include "topology/topology.hpp"
-#include "liouvillean/liouvillean.hpp"
+#include <dynamo/dynamics/interactions/intEvent.hpp>
+#include <dynamo/dynamics/interactions/interaction.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/dynamics/globals/globEvent.hpp>
+#include <dynamo/dynamics/globals/global.hpp>
+#include <dynamo/dynamics/locals/local.hpp>
+#include <dynamo/dynamics/locals/localEvent.hpp>
+#include <dynamo/dynamics/species/species.hpp>
+#include <dynamo/dynamics/BC/BC.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/dynamics/systems/system.hpp>
+#include <dynamo/dynamics/NparticleEventData.hpp>
+#include <dynamo/dynamics/topology/topology.hpp>
+#include <dynamo/dynamics/liouvillean/liouvillean.hpp>

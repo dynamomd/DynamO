@@ -19,28 +19,30 @@
 #include <dynamo/inputplugins/cells/cell.hpp>
 #include <cmath>
 
-struct CUBinary: public CUCell
-{
-  CUBinary(size_t x, CUCell* nextCell1, CUCell* nextCell2):
-    CUCell(nextCell1),
-    uc2(nextCell2),
-    count(0),
-    countA(x)
-  {}
-
-  boost::scoped_ptr<CUCell> uc2;
-  size_t count;
-  const size_t countA;
-  
-  virtual std::vector<Vector> placeObjects(const Vector & centre)
+namespace dynamo {
+  struct CUBinary: public CUCell
   {
-    if (count < countA)
-      {
-	++count;
-	return uc->placeObjects(centre);
-      }
-    else
-	return uc2->placeObjects(centre);
-  }
+    CUBinary(size_t x, CUCell* nextCell1, CUCell* nextCell2):
+      CUCell(nextCell1),
+      uc2(nextCell2),
+      count(0),
+      countA(x)
+    {}
 
-};
+    boost::scoped_ptr<CUCell> uc2;
+    size_t count;
+    const size_t countA;
+  
+    virtual std::vector<Vector> placeObjects(const Vector & centre)
+    {
+      if (count < countA)
+	{
+	  ++count;
+	  return uc->placeObjects(centre);
+	}
+      else
+	return uc2->placeObjects(centre);
+    }
+
+  };
+}

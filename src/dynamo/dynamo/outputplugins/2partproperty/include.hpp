@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "rdotv.hpp"
-#include "collisionCorrelator.hpp"
-#include "chatteringCorrelator.hpp"
-#include "rijvijdirection.hpp"
-#include "cubecomponents.hpp"
+#include <dynamo/outputplugins/2partproperty/rdotv.hpp>
+#include <dynamo/outputplugins/2partproperty/collisionCorrelator.hpp>
+#include <dynamo/outputplugins/2partproperty/chatteringCorrelator.hpp>
+#include <dynamo/outputplugins/2partproperty/rijvijdirection.hpp>
+#include <dynamo/outputplugins/2partproperty/cubecomponents.hpp>

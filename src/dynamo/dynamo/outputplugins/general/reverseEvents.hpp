@@ -16,34 +16,36 @@
 */
 
 #pragma once
-#include "../outputplugin.hpp"
+#include <dynamo/outputplugins/outputplugin.hpp>
 
-class OPCollMatrix;
+namespace dynamo {
+  class OPCollMatrix;
 
-class OPReverseEventsCheck: public OutputPlugin
-{
-public:
-  OPReverseEventsCheck(const dynamo::SimData*, const magnet::xml::Node&);
+  class OPReverseEventsCheck: public OutputPlugin
+  {
+  public:
+    OPReverseEventsCheck(const dynamo::SimData*, const magnet::xml::Node&);
 
-  ~OPReverseEventsCheck() {}
+    ~OPReverseEventsCheck() {}
 
-  void eventUpdate(const IntEvent&, const PairEventData&);
+    void eventUpdate(const IntEvent&, const PairEventData&);
 
-  void eventUpdate(const GlobalEvent&, const NEventData&);
+    void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  void eventUpdate(const LocalEvent&, const NEventData&);
+    void eventUpdate(const LocalEvent&, const NEventData&);
   
-  void eventUpdate(const System&, const NEventData&, const double&);
+    void eventUpdate(const System&, const NEventData&, const double&);
 
-  OutputPlugin *Clone() const { return new OPReverseEventsCheck(*this); }
+    OutputPlugin *Clone() const { return new OPReverseEventsCheck(*this); }
 
-  virtual void changeSystem(OutputPlugin*) {}
+    virtual void changeSystem(OutputPlugin*) {}
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void output(magnet::xml::XmlStream&);
+    virtual void output(magnet::xml::XmlStream&);
 
-private:
+  private:
 
-  unsigned long lReverseEvents;
-};
+    unsigned long lReverseEvents;
+  };
+}

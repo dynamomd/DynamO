@@ -15,22 +15,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "1RAll.hpp"
-#include "1RList.hpp"
-#include "1RRange.hpp"
-#include "1RSingle.hpp"
-#include "1RNone.hpp"
-
-#include "2RList.hpp"
-#include "2RPair.hpp"
-#include "2RRangeList.hpp"
-#include "2RSingle.hpp"
-#include "2RChain.hpp"
-#include "2RChains.hpp"
-#include "2RChainGroups.hpp"
-#include "2RIntraChains.hpp"
-#include "2RRing.hpp"
-#include "2RRings.hpp"
-#include "2RAll.hpp"
-#include "2RNone.hpp"
-#include "2RChainEnds.hpp"
+#include <dynamo/dynamics/ranges/1RAll.hpp>
+#include <dynamo/dynamics/ranges/1RList.hpp>
+#include <dynamo/dynamics/ranges/1RRange.hpp>
+#include <dynamo/dynamics/ranges/1RSingle.hpp>
+#include <dynamo/dynamics/ranges/1RNone.hpp>
+#include <dynamo/dynamics/ranges/2RList.hpp>
+#include <dynamo/dynamics/ranges/2RPair.hpp>
+#include <dynamo/dynamics/ranges/2RRangeList.hpp>
+#include <dynamo/dynamics/ranges/2RSingle.hpp>
+#include <dynamo/dynamics/ranges/2RChain.hpp>
+#include <dynamo/dynamics/ranges/2RChains.hpp>
+#include <dynamo/dynamics/ranges/2RChainGroups.hpp>
+#include <dynamo/dynamics/ranges/2RIntraChains.hpp>
+#include <dynamo/dynamics/ranges/2RRing.hpp>
+#include <dynamo/dynamics/ranges/2RRings.hpp>
+#include <dynamo/dynamics/ranges/2RAll.hpp>
+#include <dynamo/dynamics/ranges/2RNone.hpp>
+#include <dynamo/dynamics/ranges/2RChainEnds.hpp>

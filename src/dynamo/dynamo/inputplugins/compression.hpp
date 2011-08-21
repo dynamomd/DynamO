@@ -19,67 +19,69 @@
  */
 
 #pragma once
-#include "inputplugin.hpp"
+#include <dynamo/inputplugins/inputplugin.hpp>
 
-class Liouvillean;
+namespace dynamo {
+  class Liouvillean;
 
-/*! \brief A plugin to change a simulation to compression dynamics and
- * back again.
- * 
- * This class came about as when a simulation is being compressed its
- * dynamics, or more specifically its Liouvillean, is replaced with
- * the LCompression liouvilean. This stores the old liouvillean and
- * also provides several helpful plugins to hack parts of the system
- * into co-operating with the compression like the cellular scheduler.
- */
-class CIPCompression: public CInputPlugin
-{
- public:
+  /*! \brief A plugin to change a simulation to compression dynamics and
+   * back again.
+   * 
+   * This class came about as when a simulation is being compressed its
+   * dynamics, or more specifically its Liouvillean, is replaced with
+   * the LCompression liouvilean. This stores the old liouvillean and
+   * also provides several helpful plugins to hack parts of the system
+   * into co-operating with the compression like the cellular scheduler.
+   */
+  class CIPCompression: public CInputPlugin
+  {
+  public:
   
-  /*! \brief The only constructor.
-   *
-   * \param sim The Simulation this plugin is in control of
-   * \param cr The compression rate of the Simulation.
-   */
-  CIPCompression(dynamo::SimData* sim, double cr);
+    /*! \brief The only constructor.
+     *
+     * \param sim The Simulation this plugin is in control of
+     * \param cr The compression rate of the Simulation.
+     */
+    CIPCompression(dynamo::SimData* sim, double cr);
 
-  /*! \brief Stores the old CLiovillean and installs the LCompression.
-   */  
-  void MakeGrowth();
+    /*! \brief Stores the old CLiovillean and installs the LCompression.
+     */  
+    void MakeGrowth();
   
-  /*! \brief Restores the old Liouvillean stored in oldLio.
-   */
-  void RestoreSystem();  
+    /*! \brief Restores the old Liouvillean stored in oldLio.
+     */
+    void RestoreSystem();  
 
-  /*! \brief Installs the CSCellHack system event to make sure the
-   *   cellular scheduler doesn't fail.
-   */
-  void CellSchedulerHack();
+    /*! \brief Installs the CSCellHack system event to make sure the
+     *   cellular scheduler doesn't fail.
+     */
+    void CellSchedulerHack();
 
-  /*! \brief Limits the maximum packing fraction by installing a
-   *  CStHalt system event at the right time.
-   *
-   * \param mxpf The maximum packing fraction allowed.
-   */
-  void limitPackingFraction(double mxpf);
+    /*! \brief Limits the maximum packing fraction by installing a
+     *  CStHalt system event at the right time.
+     *
+     * \param mxpf The maximum packing fraction allowed.
+     */
+    void limitPackingFraction(double mxpf);
 
-  /*! \brief Limits the maximum density by installing a
-   *  CStHalt system event at the right time.
-   *
-   * \param mxrho The maximum number density allowed.
-   */
-  void limitDensity(double mxrho);
+    /*! \brief Limits the maximum density by installing a
+     *  CStHalt system event at the right time.
+     *
+     * \param mxrho The maximum number density allowed.
+     */
+    void limitDensity(double mxrho);
 
-private:
-  /*! \brief The compression rate of the simulation.
-   */
-  double growthRate;
+  private:
+    /*! \brief The compression rate of the simulation.
+     */
+    double growthRate;
   
-  /*! \brief The old Liouvillean of the simulation.
-   */
-  Liouvillean* oldLio;
+    /*! \brief The old Liouvillean of the simulation.
+     */
+    Liouvillean* oldLio;
   
-  /*! \brief Stores a cell overlap parameter of the cellular scheduler
-   * to be restored later.
-   */
-};
+    /*! \brief Stores a cell overlap parameter of the cellular scheduler
+     * to be restored later.
+     */
+  };
+}

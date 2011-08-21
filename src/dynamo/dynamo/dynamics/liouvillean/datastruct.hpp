@@ -20,32 +20,35 @@
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/dynamics/BC/BC.hpp>
 
-//Pair dynamics data, can be allocated in compile time saving new() calls
-struct CPDData
-{
-  inline CPDData(): p1(NULL), p2(NULL) {}
-
-  inline CPDData(const dynamo::SimData& Sim, const Particle& np1, 
-		 const Particle& np2):
-    rij(np1.getPosition() - np2.getPosition()),
-    vij(np1.getVelocity() - np2.getVelocity()),    
-    dt(HUGE_VAL),
-    p1(&np1),
-    p2(&np2)
+namespace dynamo {
+  /*! \brief Pair dynamics data.
+   */
+  struct CPDData
   {
-    Sim.dynamics.BCs().applyBC(rij, vij);
-    rvdot = rij | vij;
-    r2 = rij.nrm2();
-    v2 = vij.nrm2();
-  }
+    inline CPDData(): p1(NULL), p2(NULL) {}
 
-  CPDData(const dynamo::SimData&, const CRange&, const CRange&);
+    inline CPDData(const dynamo::SimData& Sim, const Particle& np1, 
+		   const Particle& np2):
+      rij(np1.getPosition() - np2.getPosition()),
+      vij(np1.getVelocity() - np2.getVelocity()),    
+      dt(HUGE_VAL),
+      p1(&np1),
+      p2(&np2)
+    {
+      Sim.dynamics.BCs().applyBC(rij, vij);
+      rvdot = rij | vij;
+      r2 = rij.nrm2();
+      v2 = vij.nrm2();
+    }
 
-  Vector  rij, vij;
-  double rvdot;
-  double r2;
-  double v2;
-  double dt;
-  const Particle* const p1;
-  const Particle* const p2;
-};
+    CPDData(const dynamo::SimData&, const CRange&, const CRange&);
+
+    Vector  rij, vij;
+    double rvdot;
+    double r2;
+    double v2;
+    double dt;
+    const Particle* const p1;
+    const Particle* const p2;
+  };
+}

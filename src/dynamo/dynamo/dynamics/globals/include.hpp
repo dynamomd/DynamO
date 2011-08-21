@@ -15,9 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "gcellsmorton.hpp"
-#include "gcellsShearing.hpp"
-#include "PBCSentinel.hpp"
-#include "ParabolaSentinel.hpp"
-#include "socells.hpp"
-#include "waker.hpp"
+#include <dynamo/dynamics/globals/gcellsmorton.hpp>
+#include <dynamo/dynamics/globals/gcellsShearing.hpp>
+#include <dynamo/dynamics/globals/PBCSentinel.hpp>
+#include <dynamo/dynamics/globals/ParabolaSentinel.hpp>
+#include <dynamo/dynamics/globals/socells.hpp>
+#include <dynamo/dynamics/globals/waker.hpp>

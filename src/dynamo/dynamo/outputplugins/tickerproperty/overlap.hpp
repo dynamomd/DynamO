@@ -17,23 +17,25 @@
 
 #pragma once
 
-#include "ticker.hpp"
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 
-class OPOverlapTest: public OPTicker
-{
- public:
-  OPOverlapTest(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPOverlapTest: public OPTicker
+  {
+  public:
+    OPOverlapTest(const dynamo::SimData*, const magnet::xml::Node&);
 
-  virtual OutputPlugin *Clone() const
-  { return new OPOverlapTest(*this); }
+    virtual OutputPlugin *Clone() const
+    { return new OPOverlapTest(*this); }
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void stream(double) {}
+    virtual void stream(double) {}
 
-  virtual void ticker();
+    virtual void ticker();
   
-  virtual void output(magnet::xml::XmlStream&);
+    virtual void output(magnet::xml::XmlStream&);
 
- protected:
-};
+  protected:
+  };
+}

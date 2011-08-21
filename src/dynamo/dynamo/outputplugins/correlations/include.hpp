@@ -14,12 +14,12 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "vacf.hpp"
-#include "viscosityE.hpp"
-#include "viscosityCollisionalE.hpp"
-#include "thermalCondE.hpp"
-#include "mutualdiffGK.hpp"
-#include "mutualdiffE.hpp"
-#include "thermaldiffE.hpp"
-#include "thermalCondSpeciesSpeciesE.hpp"
-#include "selfdiffOrientationalGK.hpp"
+#include <dynamo/outputplugins/correlations/vacf.hpp>
+#include <dynamo/outputplugins/correlations/viscosityE.hpp>
+#include <dynamo/outputplugins/correlations/viscosityCollisionalE.hpp>
+#include <dynamo/outputplugins/correlations/thermalCondE.hpp>
+#include <dynamo/outputplugins/correlations/mutualdiffGK.hpp>
+#include <dynamo/outputplugins/correlations/mutualdiffE.hpp>
+#include <dynamo/outputplugins/correlations/thermaldiffE.hpp>
+#include <dynamo/outputplugins/correlations/thermalCondSpeciesSpeciesE.hpp>
+#include <dynamo/outputplugins/correlations/selfdiffOrientationalGK.hpp>

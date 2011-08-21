@@ -16,199 +16,202 @@
 */
 
 #pragma once
-#include "global.hpp"
+#include <dynamo/dynamics/globals/global.hpp>
 #include <boost/function.hpp>
 #include <magnet/function/delegate.hpp>
 #include <vector>
 
-/*! \brief A base class for Global events which implement a neighbour list.
- * 
- * This is the interface for neighbour lists, which are used to
- * optimise the look up of \ref Local events and other particles in
- * the neighbourhood of a given \ref Particle.
- *
- * This class also defines callback's that can be registered so that
- * other parts of DynamO can be updated when a particle changes
- * neighbours.
- */
-class GNeighbourList: public Global
-{
-public:
-  /*! \brief The type of function that can be registered for callbacks
-   * when new neighbours of a particle have appeared. 
+namespace dynamo {
+  /*! \brief A base class for Global events which implement a neighbour list.
+   * 
+   * This is the interface for neighbour lists, which are used to
+   * optimise the look up of \ref Local events and other particles in
+   * the neighbourhood of a given \ref Particle.
+   *
+   * This class also defines callback's that can be registered so that
+   * other parts of DynamO can be updated when a particle changes
+   * neighbours.
    */
-  typedef magnet::function::Delegate2
-  <const Particle&, const size_t&, void> nbHoodFunc;
+  class GNeighbourList: public Global
+  {
+  public:
+    /*! \brief The type of function that can be registered for callbacks
+     * when new neighbours of a particle have appeared. 
+     */
+    typedef magnet::function::Delegate2
+    <const Particle&, const size_t&, void> nbHoodFunc;
 
   
-  /*! \brief The type of function that can be registered for callbacks
-   * when the neighbourlist is reinitialized.
-   */
-  typedef magnet::function::Delegate0<void> initFunc;  
-protected:
-  typedef std::pair<size_t, nbHoodFunc> nbHoodSlot;
+    /*! \brief The type of function that can be registered for callbacks
+     * when the neighbourlist is reinitialized.
+     */
+    typedef magnet::function::Delegate0<void> initFunc;  
+  protected:
+    typedef std::pair<size_t, nbHoodFunc> nbHoodSlot;
 
-  typedef std::pair<size_t, initFunc> initSlot;
+    typedef std::pair<size_t, initFunc> initSlot;
 
-  struct nbHoodSlotEraser
-  {
-    nbHoodSlotEraser(const size_t& id_in): 
-      id(id_in)
+    struct nbHoodSlotEraser
+    {
+      nbHoodSlotEraser(const size_t& id_in): 
+	id(id_in)
+      {}
+
+      bool operator()(const nbHoodSlot& nbs) const
+      { return  nbs.first == id; } 
+
+      size_t id;
+    };
+
+    struct initSlotEraser
+    {
+      initSlotEraser(const size_t& id_in): 
+	id(id_in)
+      {}
+
+      bool operator()(const initSlot& nbs) const
+      { return  nbs.first == id; } 
+
+      size_t id;
+    };
+
+  public:
+    GNeighbourList(dynamo::SimData* a, const char *b): 
+      Global(a,b),
+      lambda(0.9)
     {}
 
-    bool operator()(const nbHoodSlot& nbs) const
-    { return  nbs.first == id; } 
+    GNeighbourList(const GNeighbourList&);
 
-    size_t id;
-  };
+    virtual void getParticleNeighbourhood(const Particle&, 
+					  const nbHoodFunc&) const = 0;
 
-  struct initSlotEraser
-  {
-    initSlotEraser(const size_t& id_in): 
-      id(id_in)
-    {}
+    virtual void getParticleLocalNeighbourhood(const Particle&, 
+					       const nbHoodFunc&) const = 0;
 
-    bool operator()(const initSlot& nbs) const
-    { return  nbs.first == id; } 
-
-    size_t id;
-  };
-
-public:
-  GNeighbourList(dynamo::SimData* a, const char *b): 
-    Global(a,b),
-    lambda(0.9)
-  {}
-
-  GNeighbourList(const GNeighbourList&);
-
-  virtual void getParticleNeighbourhood(const Particle&, 
-					const nbHoodFunc&) const = 0;
-
-  virtual void getParticleLocalNeighbourhood(const Particle&, 
-					     const nbHoodFunc&) const = 0;
-
-  template<class T> size_t
-  ConnectSigCellChangeNotify
-  (void (T::*func)(const Particle&, const size_t&)const , const T* tp) const 
-  {    
-    sigCellChangeNotify.push_back
-      (nbHoodSlot(++sigCellChangeNotifyCount, 
-		  getNBDelegate(func,tp)));
+    template<class T> size_t
+    ConnectSigCellChangeNotify
+    (void (T::*func)(const Particle&, const size_t&)const , const T* tp) const 
+    {    
+      sigCellChangeNotify.push_back
+	(nbHoodSlot(++sigCellChangeNotifyCount, 
+		    getNBDelegate(func,tp)));
     
-    return sigCellChangeNotifyCount; 
-  }
+      return sigCellChangeNotifyCount; 
+    }
 
-  inline void
-  DisconnectSigCellChangeNotify(const size_t& id) const 
-  {    
-    sigCellChangeNotify.erase
-      (std::remove_if(sigCellChangeNotify.begin(),
-		      sigCellChangeNotify.end(),
-		      nbHoodSlotEraser(id)), 
-      sigCellChangeNotify.end());
-  }
+    inline void
+    DisconnectSigCellChangeNotify(const size_t& id) const 
+    {    
+      sigCellChangeNotify.erase
+	(std::remove_if(sigCellChangeNotify.begin(),
+			sigCellChangeNotify.end(),
+			nbHoodSlotEraser(id)), 
+	 sigCellChangeNotify.end());
+    }
 
-  template<class T> size_t
-  ConnectSigNewLocalNotify
-  (void (T::*func)(const Particle&, const size_t&) const, const T* tp) const 
-  {    
-    sigNewLocalNotify.push_back
-      (nbHoodSlot(++sigNewLocalNotifyCount, 
-		  getNBDelegate(func,tp)));
+    template<class T> size_t
+    ConnectSigNewLocalNotify
+    (void (T::*func)(const Particle&, const size_t&) const, const T* tp) const 
+    {    
+      sigNewLocalNotify.push_back
+	(nbHoodSlot(++sigNewLocalNotifyCount, 
+		    getNBDelegate(func,tp)));
     
-    return sigNewLocalNotifyCount; 
-  }
+      return sigNewLocalNotifyCount; 
+    }
 
-  inline void
-  DisconnectSigNewLocalNotify(const size_t& id) const 
-  {    
-    sigNewLocalNotify.erase
-      (std::remove_if(sigNewLocalNotify.begin(),
-		      sigNewLocalNotify.end(),
-		      nbHoodSlotEraser(id)), 
-      sigNewLocalNotify.end());
-  }
+    inline void
+    DisconnectSigNewLocalNotify(const size_t& id) const 
+    {    
+      sigNewLocalNotify.erase
+	(std::remove_if(sigNewLocalNotify.begin(),
+			sigNewLocalNotify.end(),
+			nbHoodSlotEraser(id)), 
+	 sigNewLocalNotify.end());
+    }
 
 
-  template<class T> size_t
-  ConnectSigNewNeighbourNotify
-  (void (T::*func)(const Particle&, const size_t&) const, const T* tp) const 
-  {    
-    sigNewNeighbourNotify.push_back
-      (nbHoodSlot(++sigNewNeighbourNotifyCount, 
-		  getNBDelegate(func, tp)));
+    template<class T> size_t
+    ConnectSigNewNeighbourNotify
+    (void (T::*func)(const Particle&, const size_t&) const, const T* tp) const 
+    {    
+      sigNewNeighbourNotify.push_back
+	(nbHoodSlot(++sigNewNeighbourNotifyCount, 
+		    getNBDelegate(func, tp)));
     
-    return sigNewNeighbourNotifyCount; 
-  }
+      return sigNewNeighbourNotifyCount; 
+    }
 
-  inline void
-  DisconnectSigNewNeighbourNotify(const size_t& id) const 
-  {    
-    sigNewNeighbourNotify.erase
-      (std::remove_if(sigNewNeighbourNotify.begin(),
-		      sigNewNeighbourNotify.end(),
-		      nbHoodSlotEraser(id)), 
-      sigNewNeighbourNotify.end());
-  }
+    inline void
+    DisconnectSigNewNeighbourNotify(const size_t& id) const 
+    {    
+      sigNewNeighbourNotify.erase
+	(std::remove_if(sigNewNeighbourNotify.begin(),
+			sigNewNeighbourNotify.end(),
+			nbHoodSlotEraser(id)), 
+	 sigNewNeighbourNotify.end());
+    }
     
-  template<class T> size_t
-  ConnectSigReInitNotify(void (T::*func)(), T* tp) const 
-  {    
-    sigReInitNotify.push_back
-      (initSlot(++sigReInitNotifyCount, 
-		getInitDelegate(func,tp)));
+    template<class T> size_t
+    ConnectSigReInitNotify(void (T::*func)(), T* tp) const 
+    {    
+      sigReInitNotify.push_back
+	(initSlot(++sigReInitNotifyCount, 
+		  getInitDelegate(func,tp)));
     
-    return sigReInitNotifyCount; 
-  }
+      return sigReInitNotifyCount; 
+    }
 
-  inline void
-  DisconnectSigReInitNotify(const size_t& id) const 
-  {    
-    sigReInitNotify.erase
-      (std::remove_if(sigReInitNotify.begin(),
-		      sigReInitNotify.end(),
-		      initSlotEraser(id)), 
-      sigReInitNotify.end());
-  }
+    inline void
+    DisconnectSigReInitNotify(const size_t& id) const 
+    {    
+      sigReInitNotify.erase
+	(std::remove_if(sigReInitNotify.begin(),
+			sigReInitNotify.end(),
+			initSlotEraser(id)), 
+	 sigReInitNotify.end());
+    }
 
-  virtual double getMaxSupportedInteractionLength() const = 0;
+    virtual double getMaxSupportedInteractionLength() const = 0;
 
-  virtual double getMaxInteractionLength() const = 0;
+    virtual double getMaxInteractionLength() const = 0;
 
-  virtual void reinitialise(const double&) = 0;
+    virtual void reinitialise(const double&) = 0;
 
-  void markAsUsedInScheduler() { isUsedInScheduler = true; }
+    void markAsUsedInScheduler() { isUsedInScheduler = true; }
 
-  void setCellOverlap(bool overlap) 
-  {
-    if (overlap)
-      lambda = 0.9; 
-    else
-      lambda = 0.001;
-  }
+    void setCellOverlap(bool overlap) 
+    {
+      if (overlap)
+	lambda = 0.9; 
+      else
+	lambda = 0.001;
+    }
   
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const = 0;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
   
-  //Signals
-  mutable size_t sigCellChangeNotifyCount;
-  mutable std::vector<nbHoodSlot>
-  sigCellChangeNotify;
+    //Signals
+    mutable size_t sigCellChangeNotifyCount;
+    mutable std::vector<nbHoodSlot>
+    sigCellChangeNotify;
 
-  mutable size_t sigNewLocalNotifyCount;
-  mutable std::vector<nbHoodSlot>
-  sigNewLocalNotify;
+    mutable size_t sigNewLocalNotifyCount;
+    mutable std::vector<nbHoodSlot>
+    sigNewLocalNotify;
 
-  mutable size_t sigNewNeighbourNotifyCount;
-  mutable std::vector<nbHoodSlot>
-  sigNewNeighbourNotify;
+    mutable size_t sigNewNeighbourNotifyCount;
+    mutable std::vector<nbHoodSlot>
+    sigNewNeighbourNotify;
 
-  mutable size_t sigReInitNotifyCount;
-  mutable std::vector<initSlot> 
-  sigReInitNotify;
+    mutable size_t sigReInitNotifyCount;
+    mutable std::vector<initSlot> 
+    sigReInitNotify;
 
-  bool isUsedInScheduler;
-  double lambda; 
-};
+    bool isUsedInScheduler;
+    double lambda; 
+  };
+}
+

@@ -15,70 +15,72 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "boundedQstats.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../../schedulers/scheduler.hpp"
-#include "../../schedulers/sorters/boundedPQ.hpp"
+#include <dynamo/outputplugins/tickerproperty/boundedQstats.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/schedulers/sorters/boundedPQ.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 
-OPBoundedQStats::OPBoundedQStats(const dynamo::SimData* tmp, 
-				 const magnet::xml::Node&):
-  OPTicker(tmp,"BoundedPQstats"),
-  treeSize(1)
-{}
+namespace dynamo {
+  OPBoundedQStats::OPBoundedQStats(const dynamo::SimData* tmp, 
+				   const magnet::xml::Node&):
+    OPTicker(tmp,"BoundedPQstats"),
+    treeSize(1)
+  {}
 
-void 
-OPBoundedQStats::initialise()
-{  
-  if (dynamic_cast<const CSSBoundedPQ<>*>
-      (Sim->ptrScheduler->getSorter().get_ptr()) == NULL)
-    M_throw() << "Not a bounded queue sorter!";
+  void 
+  OPBoundedQStats::initialise()
+  {  
+    if (dynamic_cast<const CSSBoundedPQ<>*>
+	(Sim->ptrScheduler->getSorter().get_ptr()) == NULL)
+      M_throw() << "Not a bounded queue sorter!";
 
-}
+  }
 
-void
-OPBoundedQStats::ticker()
-{
-  const CSSBoundedPQ<>& sorter(dynamic_cast<const CSSBoundedPQ<>&>
-		       (*(Sim->ptrScheduler->getSorter())));
+  void
+  OPBoundedQStats::ticker()
+  {
+    const CSSBoundedPQ<>& sorter(dynamic_cast<const CSSBoundedPQ<>&>
+				 (*(Sim->ptrScheduler->getSorter())));
  
-  treeSize.addVal(sorter.treeSize());
+    treeSize.addVal(sorter.treeSize());
 
-}
+  }
 
-void 
-OPBoundedQStats::output(magnet::xml::XmlStream& XML)
-{
-  const CSSBoundedPQ<>& sorter(dynamic_cast<const CSSBoundedPQ<>&>
-			     (*(Sim->ptrScheduler->getSorter())));
+  void 
+  OPBoundedQStats::output(magnet::xml::XmlStream& XML)
+  {
+    const CSSBoundedPQ<>& sorter(dynamic_cast<const CSSBoundedPQ<>&>
+				 (*(Sim->ptrScheduler->getSorter())));
 
-  XML << magnet::xml::tag("boundedQstats") 
-      << magnet::xml::attr("ExceptionEvents") << sorter.exceptionEvents()
-      << magnet::xml::tag("CBTSize");
+    XML << magnet::xml::tag("boundedQstats") 
+	<< magnet::xml::attr("ExceptionEvents") << sorter.exceptionEvents()
+	<< magnet::xml::tag("CBTSize");
 
-  treeSize.outputHistogram(XML,1.0);
+    treeSize.outputHistogram(XML,1.0);
 
-  XML << magnet::xml::endtag("CBTSize")
-    << magnet::xml::tag("treedist")
-      << magnet::xml::chardata();
+    XML << magnet::xml::endtag("CBTSize")
+	<< magnet::xml::tag("treedist")
+	<< magnet::xml::chardata();
 
-  if (!Sim->eventCount)
-    {
-      derr << "Cannot print the tree as the queue is\n"
-	       << "not initialised until an event is run (i.e. N_event != 0).\n"
-	       << "Continuing without tree output." << std::endl;
-    }
-  else
-    {
-      const std::vector<size_t>& eventdist(sorter.getEventCounts());
+    if (!Sim->eventCount)
+      {
+	derr << "Cannot print the tree as the queue is\n"
+	     << "not initialised until an event is run (i.e. N_event != 0).\n"
+	     << "Continuing without tree output." << std::endl;
+      }
+    else
+      {
+	const std::vector<size_t>& eventdist(sorter.getEventCounts());
       
-      for (size_t i = 0; i < eventdist.size(); ++i)
-	XML << i << " " 
-	    << eventdist[i]
-	    << "\n";
-    }
+	for (size_t i = 0; i < eventdist.size(); ++i)
+	  XML << i << " " 
+	      << eventdist[i]
+	      << "\n";
+      }
   
-  XML << magnet::xml::endtag("treedist")
-      << magnet::xml::endtag("boundedQstats");
+    XML << magnet::xml::endtag("treedist")
+	<< magnet::xml::endtag("boundedQstats");
+  }
 }

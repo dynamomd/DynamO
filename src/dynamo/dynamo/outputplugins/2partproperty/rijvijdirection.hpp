@@ -16,63 +16,65 @@
 */
 
 #pragma once
-#include "../outputplugin.hpp"
-#include "../../datatypes/histogram.hpp"
-#include "../eventtypetracking.hpp"
+#include <dynamo/outputplugins/outputplugin.hpp>
+#include <dynamo/datatypes/histogram.hpp>
+#include <dynamo/outputplugins/eventtypetracking.hpp>
 #include <map>
 
-using namespace EventTypeTracking;
+namespace dynamo {
+  using namespace EventTypeTracking;
 
-class OPRijVij: public OutputPlugin
-{
- public:
-  OPRijVij(const dynamo::SimData*, const magnet::xml::Node&);
-
-  virtual void initialise();
-  
-  virtual void eventUpdate(const IntEvent&, const PairEventData&);
-
-  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
-
-  virtual void eventUpdate(const LocalEvent&, const NEventData&);
-
-  virtual void eventUpdate(const System&, const NEventData&, const double&);
-
-  void output(magnet::xml::XmlStream &);
-
-  virtual void changeSystem(OutputPlugin* plug) 
-  { std::swap(Sim, static_cast<OPRijVij*>(plug)->Sim); }
-  
-  virtual OutputPlugin *Clone() const { return new OPRijVij(*this); };
-  
- protected:
-  struct mapdata
+  class OPRijVij: public OutputPlugin
   {
-    mapdata(): anglemapcount(0)
-    {
-      for (size_t iDim(0); iDim < NDIM; ++iDim)
-	{
-	  rij[iDim] = C1DHistogram(0.001);
-	  vij[iDim] = C1DHistogram(0.001);
+  public:
+    OPRijVij(const dynamo::SimData*, const magnet::xml::Node&);
 
-	  rijcostheta[iDim].resize(2000, std::pair<size_t,double>(0, 0));
-	  costhetarij[iDim].resize(1000, std::pair<size_t,double>(0, 0));
-	  anglemap[iDim].resize(200, std::vector<size_t>(100, 0));
-	}
-    }
-    
-    C1DHistogram rij[NDIM];
-    C1DHistogram vij[NDIM];
-    
-    std::vector<std::pair<size_t,double> > rijcostheta[NDIM];
-    std::vector<std::pair<size_t,double> > costhetarij[NDIM];
-    std::vector<std::vector<size_t> > anglemap[NDIM];
-    size_t anglemapcount;
-  };
+    virtual void initialise();
   
-  typedef std::pair<EEventType, classKey> mapKey;
+    virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
-  std::map<mapKey, mapdata> rvdotacc;
+    virtual void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  void process2PED(mapdata&, const PairEventData&);
-};
+    virtual void eventUpdate(const LocalEvent&, const NEventData&);
+
+    virtual void eventUpdate(const System&, const NEventData&, const double&);
+
+    void output(magnet::xml::XmlStream &);
+
+    virtual void changeSystem(OutputPlugin* plug) 
+    { std::swap(Sim, static_cast<OPRijVij*>(plug)->Sim); }
+  
+    virtual OutputPlugin *Clone() const { return new OPRijVij(*this); };
+  
+  protected:
+    struct mapdata
+    {
+      mapdata(): anglemapcount(0)
+      {
+	for (size_t iDim(0); iDim < NDIM; ++iDim)
+	  {
+	    rij[iDim] = C1DHistogram(0.001);
+	    vij[iDim] = C1DHistogram(0.001);
+
+	    rijcostheta[iDim].resize(2000, std::pair<size_t,double>(0, 0));
+	    costhetarij[iDim].resize(1000, std::pair<size_t,double>(0, 0));
+	    anglemap[iDim].resize(200, std::vector<size_t>(100, 0));
+	  }
+      }
+    
+      C1DHistogram rij[NDIM];
+      C1DHistogram vij[NDIM];
+    
+      std::vector<std::pair<size_t,double> > rijcostheta[NDIM];
+      std::vector<std::pair<size_t,double> > costhetarij[NDIM];
+      std::vector<std::vector<size_t> > anglemap[NDIM];
+      size_t anglemapcount;
+    };
+  
+    typedef std::pair<EEventType, classKey> mapKey;
+
+    std::map<mapKey, mapdata> rvdotacc;
+
+    void process2PED(mapdata&, const PairEventData&);
+  };
+}

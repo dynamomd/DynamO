@@ -17,31 +17,33 @@
 
 #pragma once
 
-#include "system.hpp"
-#include "../../base/is_exception.hpp"
-#include "../NparticleEventData.hpp"
+#include <dynamo/dynamics/systems/system.hpp>
+#include <dynamo/base/is_exception.hpp>
+#include <dynamo/dynamics/NparticleEventData.hpp>
 
-class CSysNull: public System
-{
-public:
-  CSysNull(dynamo::SimData* tmp): System(tmp) 
-  {  sysName = "NULL"; }
+namespace dynamo {
+  class CSysNull: public System
+  {
+  public:
+    CSysNull(dynamo::SimData* tmp): System(tmp) 
+    {  sysName = "NULL"; }
   
-  virtual void stream(double) {}
+    virtual void stream(double) {}
 
-  virtual NEventData runEvent()
-  { M_throw() << "You're running the null system event"; }
+    virtual NEventData runEvent()
+    { M_throw() << "You're running the null system event"; }
 
-  virtual void initialise() {}
+    virtual void initialise() {}
 
-  virtual void operator<<(XMLNode&) {}
+    virtual void operator<<(XMLNode&) {}
 
-  virtual bool operator<(const IntEvent&) const { return false; }
+    virtual bool operator<(const IntEvent&) const { return false; }
 
-  virtual bool operator<(const GlobalEvent&) const { return false; }
+    virtual bool operator<(const GlobalEvent&) const { return false; }
 
-  virtual bool operator<(const System&) const { return false; }
+    virtual bool operator<(const System&) const { return false; }
 
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const {}
-};
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const {}
+  };
+}

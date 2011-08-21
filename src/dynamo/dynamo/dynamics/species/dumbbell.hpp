@@ -17,25 +17,26 @@
 
 #pragma once
 
-#include "sphericalTop.hpp"
+#include <dynamo/dynamics/species/sphericalTop.hpp>
 
-class SpDumbbells : public SpSphericalTop
-{
-public:
-  inline SpDumbbells(dynamo::SimData* Sim, CRange* R, double nMass, std::string nName, 
-	  unsigned int ID, double r, std::string nIName="Bulk"):
-    SpSphericalTop(Sim, R, nMass, nName, ID, r,  nIName)
-  {}
+namespace dynamo {
+  class SpDumbbells : public SpSphericalTop
+  {
+  public:
+    inline SpDumbbells(dynamo::SimData* Sim, CRange* R, double nMass, std::string nName, 
+		       unsigned int ID, double r, std::string nIName="Bulk"):
+      SpSphericalTop(Sim, R, nMass, nName, ID, r,  nIName)
+    {}
   
-  inline SpDumbbells(const magnet::xml::Node& XML, dynamo::SimData* Sim, unsigned int ID):
-    SpSphericalTop(XML, Sim, ID)
-  {}
+    inline SpDumbbells(const magnet::xml::Node& XML, dynamo::SimData* Sim, unsigned int ID):
+      SpSphericalTop(XML, Sim, ID)
+    {}
 
-  inline virtual Species* Clone() const { return new SpDumbbells(*this); }
+    inline virtual Species* Clone() const { return new SpDumbbells(*this); }
 
-protected:
+  protected:
 
-  inline virtual void outputXML(magnet::xml::XmlStream& XML) const 
-  { SpSphericalTop::outputXML(XML, "Dumbbells"); }
-};
-
+    inline virtual void outputXML(magnet::xml::XmlStream& XML) const 
+    { SpSphericalTop::outputXML(XML, "Dumbbells"); }
+  };
+}

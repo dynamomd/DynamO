@@ -15,13 +15,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "neighbourList.hpp"
+#include <dynamo/dynamics/globals/neighbourList.hpp>
 
-GNeighbourList::GNeighbourList(const GNeighbourList& nb):
-  Global(nb),
-  isUsedInScheduler(false),
-  lambda(nb.lambda)
-{
-  dout << "On copy this class erases callbacks" << std::endl;
+namespace dynamo {
+  GNeighbourList::GNeighbourList(const GNeighbourList& nb):
+    Global(nb),
+    isUsedInScheduler(false),
+    lambda(nb.lambda)
+  {
+    dout << "On copy this class erases callbacks" << std::endl;
+  }
 }
-

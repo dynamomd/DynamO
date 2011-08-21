@@ -16,39 +16,41 @@
 */
 
 #pragma once
-#include "system.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../ranges/1range.hpp"
+#include <dynamo/dynamics/systems/system.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/ranges/1range.hpp>
 
-class CSysGhost: public System
-{
-public:
-  CSysGhost(const magnet::xml::Node& XML, dynamo::SimData*);
+namespace dynamo {
+  class CSysGhost: public System
+  {
+  public:
+    CSysGhost(const magnet::xml::Node& XML, dynamo::SimData*);
 
-  CSysGhost(dynamo::SimData*, double, double, std::string);
+    CSysGhost(dynamo::SimData*, double, double, std::string);
   
-  virtual void runEvent() const;
+    virtual void runEvent() const;
 
-  virtual void initialise(size_t);
+    virtual void initialise(size_t);
 
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-  double getTemperature() const { return Temp; }
-  double getReducedTemperature() const;
-  void setTemperature(double nT) { Temp = nT; sqrtTemp = std::sqrt(Temp); }
-  void setReducedTemperature(double nT);
+    double getTemperature() const { return Temp; }
+    double getReducedTemperature() const;
+    void setTemperature(double nT) { Temp = nT; sqrtTemp = std::sqrt(Temp); }
+    void setReducedTemperature(double nT);
   
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const;
-  mutable double meanFreeTime;
-  double Temp, sqrtTemp;
-  bool tune;
-  double setPoint;
-  mutable unsigned long long eventCount;
-  mutable unsigned long long lastlNColl;
-  unsigned long long setFrequency;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const;
+    mutable double meanFreeTime;
+    double Temp, sqrtTemp;
+    bool tune;
+    double setPoint;
+    mutable unsigned long long eventCount;
+    mutable unsigned long long lastlNColl;
+    unsigned long long setFrequency;
 
-  double getGhostt() const;
+    double getGhostt() const;
   
-  magnet::ClonePtr<CRange> range;
-};
+    magnet::ClonePtr<CRange> range;
+  };
+}

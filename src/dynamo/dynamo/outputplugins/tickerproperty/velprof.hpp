@@ -16,29 +16,31 @@
 */
 
 #pragma once
-#include "ticker.hpp"
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <vector>
 
-class OPVelProfile: public OPTicker
-{
- public:
-  OPVelProfile(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPVelProfile: public OPTicker
+  {
+  public:
+    OPVelProfile(const dynamo::SimData*, const magnet::xml::Node&);
 
-  virtual OutputPlugin *Clone() const
-  { return new OPVelProfile(*this); }
+    virtual OutputPlugin *Clone() const
+    { return new OPVelProfile(*this); }
 
-  virtual void initialise();
+    virtual void initialise();
 
-  virtual void stream(double) {}
+    virtual void stream(double) {}
 
-  virtual void ticker();
+    virtual void ticker();
 
-  virtual void output(magnet::xml::XmlStream&);
+    virtual void output(magnet::xml::XmlStream&);
   
- protected:
+  protected:
 
-  std::vector<std::vector<std::pair<size_t, double> > > vx;
+    std::vector<std::vector<std::pair<size_t, double> > > vx;
 
-  size_t samplesTaken;
-  double binWidth;
-};
+    size_t samplesTaken;
+    double binWidth;
+  };
+}

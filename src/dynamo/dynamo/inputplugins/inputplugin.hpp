@@ -19,29 +19,31 @@
 #include <dynamo/base.hpp>
 #include <magnet/math/vector.hpp>
 
-class CInputPlugin: public dynamo::SimBase
-{
- public:
-  CInputPlugin(dynamo::SimData*, const char *aName);
+namespace dynamo {
+  class CInputPlugin: public dynamo::SimBase
+  {
+  public:
+    CInputPlugin(dynamo::SimData*, const char *aName);
 
-  virtual ~CInputPlugin() {};
+    virtual ~CInputPlugin() {};
 
-  virtual void initialise() {};
+    virtual void initialise() {};
 
-  //Rescaling system
-  void rescaleVels(double val = 1.0);
+    //Rescaling system
+    void rescaleVels(double val = 1.0);
 
-  void zeroMomentum();  
+    void zeroMomentum();  
 
-  void setCOMVelocity(const Vector);
+    void setCOMVelocity(const Vector);
 
-  void zeroCentreOfMass();  
+    void zeroCentreOfMass();  
   
-  void setPackFrac(double);
+    void setPackFrac(double);
 
-  void mirrorDirection(unsigned int);
+    void mirrorDirection(unsigned int);
 
-  void zeroVelComp(size_t);
+    void zeroVelComp(size_t);
   
- protected:  
-};
+  protected:  
+  };
+}

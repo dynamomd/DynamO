@@ -15,4 +15,4 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "chain.hpp"
+#include <dynamo/dynamics/topology/chain.hpp>

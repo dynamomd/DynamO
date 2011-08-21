@@ -16,77 +16,79 @@
 */
 
 #pragma once
-#include "BC.hpp"
+#include <dynamo/dynamics/BC/BC.hpp>
 
-class Particle;
+namespace dynamo {
+  class Particle;
 
-/*! \brief A Lees-Edwards simple shear boundary condition.
- * 
- * This class implements the sliding brick boundary condtion. In this
- * the simulation images above and below the primary image are set in
- * motion. This affects the particle velocities and positions on a
- * transition of the boundary.
- *
- * See \ref BoundaryCondition for a general description of the member functions.
- */
-class BCLeesEdwards: public BoundaryCondition
-{
- public:
-  BCLeesEdwards(const dynamo::SimData*);
-
-  BCLeesEdwards(const magnet::xml::Node&, const dynamo::SimData*);
-
-  virtual void outputXML(magnet::xml::XmlStream&) const;
-
-  virtual void operator<<(const magnet::xml::Node&);
-
-  virtual BoundaryCondition* Clone () const;
-
-  virtual void applyBC(Vector&) const; 
-
-  virtual void applyBC(Vector&, Vector&) const;
-
-  virtual void applyBC(Vector&, const double& dt) const;
-
-  virtual void update(const double&);
-
-  /*! \brief Returns the shear rate of the boundaries. */
-  inline double getShearRate() const { return _shearRate; }
-
-  /*! \brief Returns the stream velocity at the passed particles
-   *    position. 
-   *
-   * This stream velocity is based off a linear interpolation between
-   * the boundary velocities. It is only guaranteed to be correct at
-   * the simulation boundaries and its periodic images.
-   *
-   * This is an important distinction to make, as Lees-Edwards
-   * boundary conditions do not force a linear shear profile, only a
-   * specified fixed shear rate over a box length. To enforce a linear
-   * profile you must also use a thermostat, but this may be
-   * problematic (see Evans and Morris, "Statistical Mechanics of
-   * Nonequilibrium Liquids"). Essentially, a thermostat will cause
-   * "strings" to form in the system.
-   */
-  Vector getStreamVelocity(const Particle& part) const;
-
-  /*! \brief Returns the peculiar velocity of the particle.
-   *
-   * By definition, the peculiar velocity is the velocity of a
-   * particle, minus the velocity of the fluid at that point.  \sa
-   * getStreamVelocity(const Particle&)
-   */
-  Vector getPeculiarVelocity(const Particle& part) const;
-
- protected:  
-  /*! \brief The amount neighboring periodic images have slid against
-   *   each other.
+  /*! \brief A Lees-Edwards simple shear boundary condition.
    * 
-   * This value must be stored so that when a simulation is saved and
-   * loaded so the sliding PBC images are at the same place.
+   * This class implements the sliding brick boundary condtion. In this
+   * the simulation images above and below the primary image are set in
+   * motion. This affects the particle velocities and positions on a
+   * transition of the boundary.
+   *
+   * See \ref BoundaryCondition for a general description of the member functions.
    */
-  double _dxd;
+  class BCLeesEdwards: public BoundaryCondition
+  {
+  public:
+    BCLeesEdwards(const dynamo::SimData*);
 
-  /*! \brief The rate of shear.*/
-  double _shearRate;
-};
+    BCLeesEdwards(const magnet::xml::Node&, const dynamo::SimData*);
+
+    virtual void outputXML(magnet::xml::XmlStream&) const;
+
+    virtual void operator<<(const magnet::xml::Node&);
+
+    virtual BoundaryCondition* Clone () const;
+
+    virtual void applyBC(Vector&) const; 
+
+    virtual void applyBC(Vector&, Vector&) const;
+
+    virtual void applyBC(Vector&, const double& dt) const;
+
+    virtual void update(const double&);
+
+    /*! \brief Returns the shear rate of the boundaries. */
+    inline double getShearRate() const { return _shearRate; }
+
+    /*! \brief Returns the stream velocity at the passed particles
+     *    position. 
+     *
+     * This stream velocity is based off a linear interpolation between
+     * the boundary velocities. It is only guaranteed to be correct at
+     * the simulation boundaries and its periodic images.
+     *
+     * This is an important distinction to make, as Lees-Edwards
+     * boundary conditions do not force a linear shear profile, only a
+     * specified fixed shear rate over a box length. To enforce a linear
+     * profile you must also use a thermostat, but this may be
+     * problematic (see Evans and Morris, "Statistical Mechanics of
+     * Nonequilibrium Liquids"). Essentially, a thermostat will cause
+     * "strings" to form in the system.
+     */
+    Vector getStreamVelocity(const Particle& part) const;
+
+    /*! \brief Returns the peculiar velocity of the particle.
+     *
+     * By definition, the peculiar velocity is the velocity of a
+     * particle, minus the velocity of the fluid at that point.  \sa
+     * getStreamVelocity(const Particle&)
+     */
+    Vector getPeculiarVelocity(const Particle& part) const;
+
+  protected:  
+    /*! \brief The amount neighboring periodic images have slid against
+     *   each other.
+     * 
+     * This value must be stored so that when a simulation is saved and
+     * loaded so the sliding PBC images are at the same place.
+     */
+    double _dxd;
+
+    /*! \brief The rate of shear.*/
+    double _shearRate;
+  };
+}

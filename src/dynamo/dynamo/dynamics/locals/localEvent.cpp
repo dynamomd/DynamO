@@ -15,45 +15,48 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "localEvent.hpp"
-#include "local.hpp"
-#include "../../simulation/particle.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../units/units.hpp"
-#include "../interactions/intEvent.hpp"
+#include <dynamo/dynamics/locals/localEvent.hpp>
+#include <dynamo/dynamics/locals/local.hpp>
+#include <dynamo/simulation/particle.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/dynamics/interactions/intEvent.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <cmath>
 
-LocalEvent::LocalEvent(const Particle& part1, const double &delt, 
-		       EEventType nType, const Local& local,
-		       const size_t extraData):
-  particle_(&part1), dt(delt), 
-  CType(nType), localID(local.getID()),
-  _extraData(extraData)
-{}
+namespace dynamo {
+  LocalEvent::LocalEvent(const Particle& part1, const double &delt, 
+			 EEventType nType, const Local& local,
+			 const size_t extraData):
+    particle_(&part1), dt(delt), 
+    CType(nType), localID(local.getID()),
+    _extraData(extraData)
+  {}
   
 
-magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream &XML, 
-			    const LocalEvent &coll)
-{
-  XML << magnet::xml::tag("Collision")
-      << magnet::xml::attr("p1ID") << coll.getParticle().getID()
-      << magnet::xml::attr("dt")   << coll.dt
-      << magnet::xml::endtag("Collision");
+  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream &XML, 
+				     const LocalEvent &coll)
+  {
+    XML << magnet::xml::tag("Collision")
+	<< magnet::xml::attr("p1ID") << coll.getParticle().getID()
+	<< magnet::xml::attr("dt")   << coll.dt
+	<< magnet::xml::endtag("Collision");
   
-  return XML;
-}
+    return XML;
+  }
 
-std::string 
-LocalEvent::stringData(const dynamo::SimData* Sim) const
-{
-  std::ostringstream tmpstring;
-  tmpstring << "dt :" << dt / Sim->dynamics.units().unitTime()
-	    << "\nType :" << CType
-	    << "\nP1 :" << particle_->getID();
+  std::string 
+  LocalEvent::stringData(const dynamo::SimData* Sim) const
+  {
+    std::ostringstream tmpstring;
+    tmpstring << "dt :" << dt / Sim->dynamics.units().unitTime()
+	      << "\nType :" << CType
+	      << "\nP1 :" << particle_->getID();
     return tmpstring.str();
+  }
+
+  bool 
+  LocalEvent::areInvolved(const IntEvent &coll) const 
+  { return (coll == *particle_); }
 }
 
-bool 
-LocalEvent::areInvolved(const IntEvent &coll) const 
-{ return (coll == *particle_); }

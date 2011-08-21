@@ -16,56 +16,58 @@
 */
 
 #pragma once
+#include <ostream>
 
-#define ETYPE_ENUM_FACTORY(F)\
-  F(NONE, /*!< No collision occurs*/ ) \
-  F(CELL, /*!< Marks cell transitions*/ ) \
-  F(GLOBAL, /*!< Marks all global events*/ ) \
-  F(INTERACTION, /*!< Marks Interaction events*/ ) \
-  F(SYSTEM, /*!< Marks System events*/ ) \
-  F(LOCAL, /*!< Marks Local events*/ ) \
-  F(CORE, /*!< Hard core collision*/ ) \
+namespace dynamo {
+#define ETYPE_ENUM_FACTORY(F)						\
+  F(NONE, /*!< No collision occurs*/ )					\
+  F(CELL, /*!< Marks cell transitions*/ )				\
+  F(GLOBAL, /*!< Marks all global events*/ )				\
+  F(INTERACTION, /*!< Marks Interaction events*/ )			\
+  F(SYSTEM, /*!< Marks System events*/ )				\
+  F(LOCAL, /*!< Marks Local events*/ )					\
+  F(CORE, /*!< Hard core collision*/ )					\
   F(WELL_IN, /*!< Well Event where spheres are heading toward each other*/ ) \
   F(WELL_OUT, /*!< Well Event where spheres are heading away from each other*/ ) \
-  F(WELL_KEUP, /*!< Well event where Kinetic Energy increases*/ ) \
-  F(WELL_KEDOWN, /*!< Well event where Kinetic Energy decreases*/ ) \
-  F(BOUNCE, /*!< CORE event due to energetic constraints*/ ) \
-  F(WALL, /*!< Wall or other obstacle event*/ ) \
+  F(WELL_KEUP, /*!< Well event where Kinetic Energy increases*/ )	\
+  F(WELL_KEDOWN, /*!< Well event where Kinetic Energy decreases*/ )	\
+  F(BOUNCE, /*!< CORE event due to energetic constraints*/ )		\
+  F(WALL, /*!< Wall or other obstacle event*/ )				\
   F(GAUSSIAN, /*!< Reassignment from a gaussian Andersen thermostat*/ ) \
-  F(DSMC, /*!< DSMC event*/ ) \
-  F(UMBRELLA, /*!< Umbrella potential event*/ ) \
-  F(HALT, /*!< Call to halt the system*/ ) \
-  F(STREAM, /*!< Call to free stream the system an amount*/ ) \
+  F(DSMC, /*!< DSMC event*/ )						\
+  F(UMBRELLA, /*!< Umbrella potential event*/ )				\
+  F(HALT, /*!< Call to halt the system*/ )				\
+  F(STREAM, /*!< Call to free stream the system an amount*/ )		\
   F(NON_EVENT, /*!< Anything that is not part of the system dynamics*/ ) \
-  F(RESCALE, /*!< A rescaling of the system energy*/ ) \
-  F(VIRTUAL, /*!< Fake events that cause a particle to free stream*/ ) \
+  F(RESCALE, /*!< A rescaling of the system energy*/ )			\
+  F(VIRTUAL, /*!< Fake events that cause a particle to free stream*/ )	\
   F(SLEEP, /*!< Event to transition a particle from dynamic to static*/ ) \
   F(RESLEEP, /*!< Event to zero a sleeping particles velocity after being hit*/ ) \
   F(WAKEUP, /*!< Event to transition a particle from static to dynamic*/ ) \
   F(CORRECT, /*!< An event used to correct a previous event*/ )		\
 
-#define buildEnum(VAL,COMMENT) \
+#define buildEnum(VAL,COMMENT)			\
   VAL, COMMENT
 
-typedef enum {
-ETYPE_ENUM_FACTORY(buildEnum)
-} EEventType; 
+  typedef enum {
+    ETYPE_ENUM_FACTORY(buildEnum)
+  } EEventType; 
 
-#include <ostream>
-
-#define printEnum(VAL,COMMENT) \
+#define printEnum(VAL,COMMENT)			\
   case VAL: return os << #VAL;
 
-inline std::ostream& operator<<(std::ostream& os, EEventType etype)
-{
-  switch (etype)
-    {
-ETYPE_ENUM_FACTORY(printEnum)
-    }
+  inline std::ostream& operator<<(std::ostream& os, EEventType etype)
+  {
+    switch (etype)
+      {
+	ETYPE_ENUM_FACTORY(printEnum)
+	  }
 
-  return os << "Failed to find a name for the Event Type! Memory corruption?";
-}
+    return os << "Failed to find a name for the Event Type! Memory corruption?";
+  }
 
 #undef ETYPE_ENUM_FACTORY
 #undef buildEnum
 #undef printEnum
+}
+

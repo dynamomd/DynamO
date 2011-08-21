@@ -26,187 +26,189 @@
 #include <magnet/xmlwriter.hpp>
 #include <vector>
 
-OPCTorsion::OPCTorsion(const dynamo::SimData* tmp, const magnet::xml::Node&):
-  OPTicker(tmp,"Torsion")
-{}
+namespace dynamo {
+  OPCTorsion::OPCTorsion(const dynamo::SimData* tmp, const magnet::xml::Node&):
+    OPTicker(tmp,"Torsion")
+  {}
 
-void 
-OPCTorsion::initialise()
-{
-  BOOST_FOREACH(const magnet::ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
-    if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
-      chains.push_back(CTCdata(dynamic_cast<const CTChain*>(plugPtr.get_ptr()), 
-			       0.005, 0.005, 0.01));
+  void 
+  OPCTorsion::initialise()
+  {
+    BOOST_FOREACH(const magnet::ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
+      if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
+	chains.push_back(CTCdata(dynamic_cast<const CTChain*>(plugPtr.get_ptr()), 
+				 0.005, 0.005, 0.01));
 
-  if (!Sim->dynamics.BCTypeTest<BCNone>())
-    M_throw() << "Can only use this plugin with Null BC's"
-	      << "\nPositions must be unwrapped";
-}
+    if (!Sim->dynamics.BCTypeTest<BCNone>())
+      M_throw() << "Can only use this plugin with Null BC's"
+		<< "\nPositions must be unwrapped";
+  }
 
-void 
-OPCTorsion::changeSystem(OutputPlugin* plug)
-{
-  std::swap(Sim, static_cast<OPCTorsion*>(plug)->Sim);
+  void 
+  OPCTorsion::changeSystem(OutputPlugin* plug)
+  {
+    std::swap(Sim, static_cast<OPCTorsion*>(plug)->Sim);
   
 #ifdef DYNAMO_DEBUG
-  if (chains.size() != static_cast<OPCTorsion*>(plug)->chains.size())
-    M_throw() << "CTorsion chain data size mismatch in replex exchange";
+    if (chains.size() != static_cast<OPCTorsion*>(plug)->chains.size())
+      M_throw() << "CTorsion chain data size mismatch in replex exchange";
 #endif
 
-  std::list<CTCdata>::iterator iPtr1 = chains.begin(), 
-    iPtr2 = static_cast<OPCTorsion*>(plug)->chains.begin();
+    std::list<CTCdata>::iterator iPtr1 = chains.begin(), 
+      iPtr2 = static_cast<OPCTorsion*>(plug)->chains.begin();
 
-  while(iPtr1 != chains.end())
-    {
+    while(iPtr1 != chains.end())
+      {
 
 #ifdef DYNAMO_DEBUG
-      if (iPtr1->chainPtr->getName() != iPtr2->chainPtr->getName())
-	M_throw() << "Chain name mismatch when swapping chain plugins";
+	if (iPtr1->chainPtr->getName() != iPtr2->chainPtr->getName())
+	  M_throw() << "Chain name mismatch when swapping chain plugins";
 #endif
 
-      std::swap(iPtr1->chainPtr, iPtr2->chainPtr);
+	std::swap(iPtr1->chainPtr, iPtr2->chainPtr);
 
-      ++iPtr1;
-      ++iPtr2;     
-    }
-}
+	++iPtr1;
+	++iPtr2;     
+      }
+  }
 
-void 
-OPCTorsion::ticker()
-{
-  BOOST_FOREACH(CTCdata& dat,chains)
-    {
-      double sysGamma  = 0.0;
-      long count = 0;
-      BOOST_FOREACH(const magnet::ClonePtr<CRange>& range,  dat.chainPtr->getMolecules())
-	{
-	  if (range->size() < 3)//Need three for curv and torsion
-	    break;
+  void 
+  OPCTorsion::ticker()
+  {
+    BOOST_FOREACH(CTCdata& dat,chains)
+      {
+	double sysGamma  = 0.0;
+	long count = 0;
+	BOOST_FOREACH(const magnet::ClonePtr<CRange>& range,  dat.chainPtr->getMolecules())
+	  {
+	    if (range->size() < 3)//Need three for curv and torsion
+	      break;
 
 #ifdef DYNAMO_DEBUG
-	  if (NDIM != 3)
-	    M_throw() << "Not implemented chain curvature in non 3 dimensional systems";
+	    if (NDIM != 3)
+	      M_throw() << "Not implemented chain curvature in non 3 dimensional systems";
 #endif
 	  
-	  Vector tmp;
-	  std::vector<Vector> dr1;
-	  std::vector<Vector> dr2;
-	  std::vector<Vector> dr3;
-	  std::vector<Vector> vec;
+	    Vector tmp;
+	    std::vector<Vector> dr1;
+	    std::vector<Vector> dr2;
+	    std::vector<Vector> dr3;
+	    std::vector<Vector> vec;
 
-	  //Calc first and second derivatives
-	  for (CRange::iterator it = range->begin() + 1; it != range->end() - 1; it++)
-	    {
-	      tmp = 0.5 * (Sim->particleList[*(it+1)].getPosition()
-			   - Sim->particleList[*(it-1)].getPosition());
+	    //Calc first and second derivatives
+	    for (CRange::iterator it = range->begin() + 1; it != range->end() - 1; it++)
+	      {
+		tmp = 0.5 * (Sim->particleList[*(it+1)].getPosition()
+			     - Sim->particleList[*(it-1)].getPosition());
 
-	      dr1.push_back(tmp);
+		dr1.push_back(tmp);
 	      
-	      tmp = Sim->particleList[*(it+1)].getPosition() 
-		- (2.0 * Sim->particleList[*it].getPosition())
-		+ Sim->particleList[*(it-1)].getPosition();
+		tmp = Sim->particleList[*(it+1)].getPosition() 
+		  - (2.0 * Sim->particleList[*it].getPosition())
+		  + Sim->particleList[*(it-1)].getPosition();
 	      
-	      dr2.push_back(tmp);
+		dr2.push_back(tmp);
 	      
-	      vec.push_back(dr1.back() ^ dr2.back());
-	    }
+		vec.push_back(dr1.back() ^ dr2.back());
+	      }
 	  
-	  //Create third derivative
-	  for (std::vector<Vector  >::iterator it2 = dr2.begin() + 1; it2 != dr2.end() - 1; it2++)
-	    dr3.push_back(0.5 * (*(it2+1) - *(it2-1)));
+	    //Create third derivative
+	    for (std::vector<Vector  >::iterator it2 = dr2.begin() + 1; it2 != dr2.end() - 1; it2++)
+	      dr3.push_back(0.5 * (*(it2+1) - *(it2-1)));
 	  
-	  size_t derivsize = dr3.size();
+	    size_t derivsize = dr3.size();
 
-	  //Gamma Calc
-	  double gamma = 0.0;
-	  double fsum = 0.0;
+	    //Gamma Calc
+	    double gamma = 0.0;
+	    double fsum = 0.0;
 
-	  for (unsigned int i = 0; i < derivsize; i++)
-	    {
-	      double torsion = ((vec[i+1]) | (dr3[i])) / (vec[i+1].nrm2()); //Torsion
-	      double curvature = (vec[i+1].nrm()) / pow(dr1[i+1].nrm(), 3); //Curvature
+	    for (unsigned int i = 0; i < derivsize; i++)
+	      {
+		double torsion = ((vec[i+1]) | (dr3[i])) / (vec[i+1].nrm2()); //Torsion
+		double curvature = (vec[i+1].nrm()) / pow(dr1[i+1].nrm(), 3); //Curvature
 
-	      double instGamma = torsion / curvature;
-	      gamma += instGamma;
+		double instGamma = torsion / curvature;
+		gamma += instGamma;
 
-	      double helixradius = 1.0/(curvature * (1.0+instGamma*instGamma));
+		double helixradius = 1.0/(curvature * (1.0+instGamma*instGamma));
 
-	      double minradius = HUGE_VAL;
+		double minradius = HUGE_VAL;
 
-	      for (CRange::iterator it1 = range->begin(); 
-		   it1 != range->end(); it1++)
-		//Check this particle is not the same, or adjacent
-		if (*it1 != *(range->begin()+2+i)
-		    && *it1 != *(range->begin()+1+i)
-		    && *it1 != *(range->begin()+3+i))
-		  for (CRange::iterator it2 = range->begin() + 1; 
-		       it2 != range->end() - 1; it2++)
-		    //Check this particle is not the same, or adjacent to the studied particle
-		    if (*it1 != *it2
-			&& *it2 != *(range->begin()+2+i)
-			&& *it2 != *(range->begin()+1+i)
-			&& *it2 != *(range->begin()+3+i))
-		      {
-			//We have three points, calculate the lengths
-			//of the triangle sides
-			double a = (Sim->particleList[*it1].getPosition() 
-				  - Sim->particleList[*it2].getPosition()).nrm(),
-			  b = (Sim->particleList[*(range->begin()+2+i)].getPosition() 
-				  - Sim->particleList[*it2].getPosition()).nrm(),
-			  c = (Sim->particleList[*it1].getPosition() 
-			       - Sim->particleList[*(range->begin()+2+i)].getPosition()).nrm();
+		for (CRange::iterator it1 = range->begin(); 
+		     it1 != range->end(); it1++)
+		  //Check this particle is not the same, or adjacent
+		  if (*it1 != *(range->begin()+2+i)
+		      && *it1 != *(range->begin()+1+i)
+		      && *it1 != *(range->begin()+3+i))
+		    for (CRange::iterator it2 = range->begin() + 1; 
+			 it2 != range->end() - 1; it2++)
+		      //Check this particle is not the same, or adjacent to the studied particle
+		      if (*it1 != *it2
+			  && *it2 != *(range->begin()+2+i)
+			  && *it2 != *(range->begin()+1+i)
+			  && *it2 != *(range->begin()+3+i))
+			{
+			  //We have three points, calculate the lengths
+			  //of the triangle sides
+			  double a = (Sim->particleList[*it1].getPosition() 
+				      - Sim->particleList[*it2].getPosition()).nrm(),
+			    b = (Sim->particleList[*(range->begin()+2+i)].getPosition() 
+				 - Sim->particleList[*it2].getPosition()).nrm(),
+			    c = (Sim->particleList[*it1].getPosition() 
+				 - Sim->particleList[*(range->begin()+2+i)].getPosition()).nrm();
 
-			//Now calc the area of the triangle
-			double s = (a + b + c) / 2.0;
-			double A = std::sqrt(s * (s - a) * (s - b) * (s - c));
-			double R = a * b * c / (4.0 * A);
-			if (R < minradius) minradius = R;			 
-		      }
-	      fsum += minradius / helixradius;
-	    }
+			  //Now calc the area of the triangle
+			  double s = (a + b + c) / 2.0;
+			  double A = std::sqrt(s * (s - a) * (s - b) * (s - c));
+			  double R = a * b * c / (4.0 * A);
+			  if (R < minradius) minradius = R;			 
+			}
+		fsum += minradius / helixradius;
+	      }
 
-	  gamma /= derivsize;
-	  sysGamma += gamma;
-	  fsum /= derivsize;
+	    gamma /= derivsize;
+	    sysGamma += gamma;
+	    fsum /= derivsize;
 
-	  ++count;
-	  //Restrict the data collection to reasonable bounds
-	  if (gamma < 10 && gamma > -10)
-	    dat.gammaMol.addVal(gamma);
+	    ++count;
+	    //Restrict the data collection to reasonable bounds
+	    if (gamma < 10 && gamma > -10)
+	      dat.gammaMol.addVal(gamma);
 
-	  dat.f.addVal(fsum);
-	}
+	    dat.f.addVal(fsum);
+	  }
 
-      if (sysGamma < 10 && sysGamma > -10)
-	dat.gammaSys.addVal(sysGamma/count);
-    }
-}
+	if (sysGamma < 10 && sysGamma > -10)
+	  dat.gammaSys.addVal(sysGamma/count);
+      }
+  }
 
-void 
-OPCTorsion::output(magnet::xml::XmlStream& XML)
-{
-  XML << magnet::xml::tag("ChainTorsion");
+  void 
+  OPCTorsion::output(magnet::xml::XmlStream& XML)
+  {
+    XML << magnet::xml::tag("ChainTorsion");
   
-  BOOST_FOREACH(CTCdata& dat, chains)
-    {
-      XML << magnet::xml::tag(dat.chainPtr->getName().c_str())
-	  << magnet::xml::tag("MolecularHistogram");
+    BOOST_FOREACH(CTCdata& dat, chains)
+      {
+	XML << magnet::xml::tag(dat.chainPtr->getName().c_str())
+	    << magnet::xml::tag("MolecularHistogram");
       
-      dat.gammaMol.outputHistogram(XML, 1.0);
+	dat.gammaMol.outputHistogram(XML, 1.0);
       
-      XML << magnet::xml::endtag("MolecularHistogram")
-	  << magnet::xml::tag("SystemHistogram");
+	XML << magnet::xml::endtag("MolecularHistogram")
+	    << magnet::xml::tag("SystemHistogram");
       
-      dat.gammaSys.outputHistogram(XML, 1.0);
+	dat.gammaSys.outputHistogram(XML, 1.0);
       
-      XML << magnet::xml::endtag("SystemHistogram")
-	  << magnet::xml::tag("FHistogram");
+	XML << magnet::xml::endtag("SystemHistogram")
+	    << magnet::xml::tag("FHistogram");
       
-      dat.f.outputHistogram(XML, 1.0);
+	dat.f.outputHistogram(XML, 1.0);
       
-      XML << magnet::xml::endtag("FHistogram")
-	  << magnet::xml::endtag(dat.chainPtr->getName().c_str());
-    }
+	XML << magnet::xml::endtag("FHistogram")
+	    << magnet::xml::endtag(dat.chainPtr->getName().c_str());
+      }
 
-  XML << magnet::xml::endtag("ChainTorsion");
+    XML << magnet::xml::endtag("ChainTorsion");
+  }
 }

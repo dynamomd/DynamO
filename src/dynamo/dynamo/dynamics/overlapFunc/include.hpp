@@ -15,4 +15,4 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "CubePlane.hpp"
+#include <dynamo/dynamics/overlapFunc/CubePlane.hpp>

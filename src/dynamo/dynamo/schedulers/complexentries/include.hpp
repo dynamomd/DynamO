@@ -15,5 +15,5 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "nblistentry.hpp"
+#include <dynamo/schedulers/complexentries/nblistentry.hpp>
 

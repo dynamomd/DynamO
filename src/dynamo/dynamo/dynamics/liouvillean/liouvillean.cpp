@@ -25,341 +25,343 @@
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 
-magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Liouvillean& g)
-{
-  g.outputXML(XML);
-  return XML;
-}
+namespace dynamo {
+  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Liouvillean& g)
+  {
+    g.outputXML(XML);
+    return XML;
+  }
 
-Liouvillean* 
-Liouvillean::loadClass(const magnet::xml::Node& XML, dynamo::SimData* tmp)
-{
-  if (!strcmp(XML.getAttribute("Type"),"Newtonian"))
-    return new LNewtonian(tmp);
-  if (!strcmp(XML.getAttribute("Type"),"NewtonianGravity"))
-    return new LNewtonianGravity(tmp, XML);
-  else if (!strcmp(XML.getAttribute("Type"),"SLLOD"))
-    return new LSLLOD(tmp);
-  else if (!strcmp(XML.getAttribute("Type"),"NewtonianMC"))
-    return new LNewtonianMC(tmp, XML);
-  else 
-    M_throw() << XML.getAttribute("Type")
-	      << ", Unknown type of Liouvillean encountered";
-}
+  Liouvillean* 
+  Liouvillean::loadClass(const magnet::xml::Node& XML, dynamo::SimData* tmp)
+  {
+    if (!strcmp(XML.getAttribute("Type"),"Newtonian"))
+      return new LNewtonian(tmp);
+    if (!strcmp(XML.getAttribute("Type"),"NewtonianGravity"))
+      return new LNewtonianGravity(tmp, XML);
+    else if (!strcmp(XML.getAttribute("Type"),"SLLOD"))
+      return new LSLLOD(tmp);
+    else if (!strcmp(XML.getAttribute("Type"),"NewtonianMC"))
+      return new LNewtonianMC(tmp, XML);
+    else 
+      M_throw() << XML.getAttribute("Type")
+		<< ", Unknown type of Liouvillean encountered";
+  }
 
 
-void 
-Liouvillean::initialise()
-{
-  streamFreq = 10 * Sim->N;
+  void 
+  Liouvillean::initialise()
+  {
+    streamFreq = 10 * Sim->N;
     
-  if (hasOrientationData())
-    {
-      double sumEnergy(0.0);
-      BOOST_FOREACH(const Particle& part, Sim->particleList)  
-	sumEnergy += Sim->dynamics.getSpecies(part).getScalarMomentOfInertia(part.getID())
-	* orientationData[part.getID()].angularVelocity.nrm2();
+    if (hasOrientationData())
+      {
+	double sumEnergy(0.0);
+	BOOST_FOREACH(const Particle& part, Sim->particleList)  
+	  sumEnergy += Sim->dynamics.getSpecies(part).getScalarMomentOfInertia(part.getID())
+	  * orientationData[part.getID()].angularVelocity.nrm2();
       
-      //Check if any of the species are overridden
-      bool hasInertia(false);
-      BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-	if (dynamic_cast<const SpInertia*>(spec.get_ptr()) != NULL)
-	  hasInertia = true;
+	//Check if any of the species are overridden
+	bool hasInertia(false);
+	BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+	  if (dynamic_cast<const SpInertia*>(spec.get_ptr()) != NULL)
+	    hasInertia = true;
 
-      if (!hasInertia)
-	M_throw() << "No species have inertia, yet the particles have orientational degrees of freedom set!";
+	if (!hasInertia)
+	  M_throw() << "No species have inertia, yet the particles have orientational degrees of freedom set!";
 
-      sumEnergy *= 0.5 / Sim->dynamics.units().unitEnergy();
+	sumEnergy *= 0.5 / Sim->dynamics.units().unitEnergy();
   
-      dout << "System Rotational Energy " << sumEnergy
-	       << "\nRotational kT " << sumEnergy / Sim->N << std::endl;
-    }
-}
+	dout << "System Rotational Energy " << sumEnergy
+	     << "\nRotational kT " << sumEnergy / Sim->N << std::endl;
+      }
+  }
 
-PairEventData 
-Liouvillean::runLineLineCollision(const IntEvent&,
-				   const double&, const double&) const
-{ M_throw() << "Not implemented for this Liouvillean."; }
+  PairEventData 
+  Liouvillean::runLineLineCollision(const IntEvent&,
+				    const double&, const double&) const
+  { M_throw() << "Not implemented for this Liouvillean."; }
 
-bool
-Liouvillean::getLineLineCollision(CPDData&, const double&, 
-				   const Particle&, const Particle&
-				   ) const
-{ M_throw() << "Not implemented for this Liouvillean."; }
+  bool
+  Liouvillean::getLineLineCollision(CPDData&, const double&, 
+				    const Particle&, const Particle&
+				    ) const
+  { M_throw() << "Not implemented for this Liouvillean."; }
 
-PairEventData 
-Liouvillean::runOffCenterSphereOffCenterSphereCollision(const IntEvent&,
-							const double&, const double&,const double&) const
-{ M_throw() << "Not implemented for this Liouvillean."; }
+  PairEventData 
+  Liouvillean::runOffCenterSphereOffCenterSphereCollision(const IntEvent&,
+							  const double&, const double&,const double&) const
+  { M_throw() << "Not implemented for this Liouvillean."; }
 
-bool
-Liouvillean::getOffCenterSphereOffCenterSphereCollision(CPDData&, const double&, const double&,  
-				   const Particle&, const Particle&
-				   ) const
-{ M_throw() << "Not implemented for this Liouvillean."; }
-double 
-Liouvillean::getPBCSentinelTime(const Particle&, const double&) const
-{ M_throw() << "Not implemented for this Liouvillean."; }
+  bool
+  Liouvillean::getOffCenterSphereOffCenterSphereCollision(CPDData&, const double&, const double&,  
+							  const Particle&, const Particle&
+							  ) const
+  { M_throw() << "Not implemented for this Liouvillean."; }
+  double 
+  Liouvillean::getPBCSentinelTime(const Particle&, const double&) const
+  { M_throw() << "Not implemented for this Liouvillean."; }
 
-void 
-Liouvillean::loadParticleXMLData(const magnet::xml::Node& XML)
-{
-  dout << "Loading Particle Data" << std::endl;
+  void 
+  Liouvillean::loadParticleXMLData(const magnet::xml::Node& XML)
+  {
+    dout << "Loading Particle Data" << std::endl;
 
-  bool outofsequence = false;  
+    bool outofsequence = false;  
   
-  for (magnet::xml::Node node = XML.getNode("ParticleData").fastGetNode("Pt"); 
-       node.valid(); ++node)
-    {
-      if (!node.hasAttribute("ID")
-	  || node.getAttribute("ID").as<size_t>() != Sim->particleList.size())
-	outofsequence = true;
+    for (magnet::xml::Node node = XML.getNode("ParticleData").fastGetNode("Pt"); 
+	 node.valid(); ++node)
+      {
+	if (!node.hasAttribute("ID")
+	    || node.getAttribute("ID").as<size_t>() != Sim->particleList.size())
+	  outofsequence = true;
       
-      Particle part(node, Sim->particleList.size());
-      part.getVelocity() *= Sim->dynamics.units().unitVelocity();
-      part.getPosition() *= Sim->dynamics.units().unitLength();
-      Sim->particleList.push_back(part);
-    }
+	Particle part(node, Sim->particleList.size());
+	part.getVelocity() *= Sim->dynamics.units().unitVelocity();
+	part.getPosition() *= Sim->dynamics.units().unitLength();
+	Sim->particleList.push_back(part);
+      }
 
-  if (outofsequence)
-    dout << "Particle ID's out of sequence!\n"
-	     << "This can result in incorrect capture map loads etc.\n"
-	     << "Erase any capture maps in the configuration file so they are regenerated." << std::endl;
+    if (outofsequence)
+      dout << "Particle ID's out of sequence!\n"
+	   << "This can result in incorrect capture map loads etc.\n"
+	   << "Erase any capture maps in the configuration file so they are regenerated." << std::endl;
 
-  Sim->N = Sim->particleList.size();
+    Sim->N = Sim->particleList.size();
 
-  dout << "Particle count " << Sim->N << std::endl;
+    dout << "Particle count " << Sim->N << std::endl;
 
-  if (XML.getNode("ParticleData").hasAttribute("OrientationData"))
-    {
-      orientationData.resize(Sim->N);
-      size_t i(0);
-      for (magnet::xml::Node node = XML.getNode("ParticleData").fastGetNode("Pt"); 
-	   node.valid(); ++node, ++i)
-	{
-	  orientationData[i].orientation << node.getNode("U");
-	  orientationData[i].angularVelocity << node.getNode("O");
+    if (XML.getNode("ParticleData").hasAttribute("OrientationData"))
+      {
+	orientationData.resize(Sim->N);
+	size_t i(0);
+	for (magnet::xml::Node node = XML.getNode("ParticleData").fastGetNode("Pt"); 
+	     node.valid(); ++node, ++i)
+	  {
+	    orientationData[i].orientation << node.getNode("U");
+	    orientationData[i].angularVelocity << node.getNode("O");
       
-	  double oL = orientationData[i].orientation.nrm();
+	    double oL = orientationData[i].orientation.nrm();
       
-	  if (!(oL > 0.0))
-	    M_throw() << "Particle ID " << i 
-		      << " orientation vector is zero!";
+	    if (!(oL > 0.0))
+	      M_throw() << "Particle ID " << i 
+			<< " orientation vector is zero!";
       
-	  //Makes the vector a unit vector
-	  orientationData[i].orientation /= oL;
-	}
-    }
-}
+	    //Makes the vector a unit vector
+	    orientationData[i].orientation /= oL;
+	  }
+      }
+  }
 
-void 
-Liouvillean::outputParticleXMLData(magnet::xml::XmlStream& XML, bool applyBC) const
-{
-  XML << magnet::xml::tag("ParticleData");
+  void 
+  Liouvillean::outputParticleXMLData(magnet::xml::XmlStream& XML, bool applyBC) const
+  {
+    XML << magnet::xml::tag("ParticleData");
   
-  if (hasOrientationData())
-    XML << magnet::xml::attr("OrientationData") << "Y";
+    if (hasOrientationData())
+      XML << magnet::xml::attr("OrientationData") << "Y";
 
-  for (size_t i = 0; i < Sim->N; ++i)
-    {
-      Particle tmp(Sim->particleList[i]);
-      if (applyBC) 
-	Sim->dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
+    for (size_t i = 0; i < Sim->N; ++i)
+      {
+	Particle tmp(Sim->particleList[i]);
+	if (applyBC) 
+	  Sim->dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
       
-      tmp.getVelocity() *= (1.0 / Sim->dynamics.units().unitVelocity());
-      tmp.getPosition() *= (1.0 / Sim->dynamics.units().unitLength());
+	tmp.getVelocity() *= (1.0 / Sim->dynamics.units().unitVelocity());
+	tmp.getPosition() *= (1.0 / Sim->dynamics.units().unitLength());
       
-      XML << magnet::xml::tag("Pt");
-      Sim->_properties.outputParticleXMLData(XML, i);
-      XML << tmp;
+	XML << magnet::xml::tag("Pt");
+	Sim->_properties.outputParticleXMLData(XML, i);
+	XML << tmp;
 
-      if (hasOrientationData())
-	XML << magnet::xml::tag("O")
-	    << orientationData[i].angularVelocity
-	    << magnet::xml::endtag("O")
-	    << magnet::xml::tag("U")
-	    << orientationData[i].orientation
-	    << magnet::xml::endtag("U") ;
+	if (hasOrientationData())
+	  XML << magnet::xml::tag("O")
+	      << orientationData[i].angularVelocity
+	      << magnet::xml::endtag("O")
+	      << magnet::xml::tag("U")
+	      << orientationData[i].orientation
+	      << magnet::xml::endtag("U") ;
 
-      XML << magnet::xml::endtag("Pt");
-    }
+	XML << magnet::xml::endtag("Pt");
+      }
   
-  XML << magnet::xml::endtag("ParticleData");
-}
+    XML << magnet::xml::endtag("ParticleData");
+  }
 
-double 
-Liouvillean::getParticleKineticEnergy(const Particle& part) const
-{
-  double energy(0);
-  if (Sim->dynamics.BCTypeTest<BCLeesEdwards>())
-    {
-      const BCLeesEdwards& bc = static_cast<const BCLeesEdwards&>(Sim->dynamics.BCs());
+  double 
+  Liouvillean::getParticleKineticEnergy(const Particle& part) const
+  {
+    double energy(0);
+    if (Sim->dynamics.BCTypeTest<BCLeesEdwards>())
+      {
+	const BCLeesEdwards& bc = static_cast<const BCLeesEdwards&>(Sim->dynamics.BCs());
 
-      energy += bc.getPeculiarVelocity(part).nrm2()
+	energy += bc.getPeculiarVelocity(part).nrm2()
+	  * Sim->dynamics.getSpecies(part).getMass(part.getID());
+      }
+    else
+      energy += part.getVelocity().nrm2()
 	* Sim->dynamics.getSpecies(part).getMass(part.getID());
-    }
-  else
-    energy += part.getVelocity().nrm2()
-      * Sim->dynamics.getSpecies(part).getMass(part.getID());
   
-  if (hasOrientationData())
-    energy += orientationData[part.getID()].angularVelocity.nrm2()
-      * Sim->dynamics.getSpecies(part).getScalarMomentOfInertia(part.getID());
+    if (hasOrientationData())
+      energy += orientationData[part.getID()].angularVelocity.nrm2()
+	* Sim->dynamics.getSpecies(part).getScalarMomentOfInertia(part.getID());
 
-  return 0.5 * energy;
-}
+    return 0.5 * energy;
+  }
 
-double 
-Liouvillean::getSystemKineticEnergy() const
-{
-  double sumEnergy(0);
+  double 
+  Liouvillean::getSystemKineticEnergy() const
+  {
+    double sumEnergy(0);
 
-  BOOST_FOREACH(const Particle& part, Sim->particleList)
-    sumEnergy += getParticleKineticEnergy(part);
+    BOOST_FOREACH(const Particle& part, Sim->particleList)
+      sumEnergy += getParticleKineticEnergy(part);
 
-  return sumEnergy;
-}
+    return sumEnergy;
+  }
 
-void
-Liouvillean::rescaleSystemKineticEnergy(const double& scale)
-{
-  double scalefactor(sqrt(scale));
+  void
+  Liouvillean::rescaleSystemKineticEnergy(const double& scale)
+  {
+    double scalefactor(sqrt(scale));
 
-  if (Sim->dynamics.BCTypeTest<BCLeesEdwards>())
-    {
-      const BCLeesEdwards& bc = static_cast<const BCLeesEdwards&>(Sim->dynamics.BCs());
+    if (Sim->dynamics.BCTypeTest<BCLeesEdwards>())
+      {
+	const BCLeesEdwards& bc = static_cast<const BCLeesEdwards&>(Sim->dynamics.BCs());
 
-      BOOST_FOREACH(Particle& part, Sim->particleList)
-	part.getVelocity() = Vector(bc.getPeculiarVelocity(part) * scalefactor
-				    + bc.getStreamVelocity(part));
-    }
-  else
-    {
-      double scalefactor(sqrt(scale));
+	BOOST_FOREACH(Particle& part, Sim->particleList)
+	  part.getVelocity() = Vector(bc.getPeculiarVelocity(part) * scalefactor
+				      + bc.getStreamVelocity(part));
+      }
+    else
+      {
+	double scalefactor(sqrt(scale));
       
-      BOOST_FOREACH(Particle& part, Sim->particleList)
-	part.getVelocity() *= scalefactor;
-    }
+	BOOST_FOREACH(Particle& part, Sim->particleList)
+	  part.getVelocity() *= scalefactor;
+      }
 
-  BOOST_FOREACH(rotData& rdat, orientationData)
-    rdat.angularVelocity *= scalefactor;      
-}
+    BOOST_FOREACH(rotData& rdat, orientationData)
+      rdat.angularVelocity *= scalefactor;      
+  }
 
-PairEventData 
-Liouvillean::parallelCubeColl(const IntEvent& event, 
-			       const double& e, 
-			       const double& d,
-			       const Matrix& Rot,
-			       const EEventType& eType) const
-{ M_throw() << "Not Implemented"; }
+  PairEventData 
+  Liouvillean::parallelCubeColl(const IntEvent& event, 
+				const double& e, 
+				const double& d,
+				const Matrix& Rot,
+				const EEventType& eType) const
+  { M_throw() << "Not Implemented"; }
 
-std::pair<bool,double>
-Liouvillean::getPointPlateCollision(const Particle& np1, const Vector& nrw0,
-				     const Vector& nhat, const double& Delta,
-				     const double& Omega, const double& Sigma,
-				     const double& t, bool) const
-{
-  M_throw() << "Not Implemented";
-}
+  std::pair<bool,double>
+  Liouvillean::getPointPlateCollision(const Particle& np1, const Vector& nrw0,
+				      const Vector& nhat, const double& Delta,
+				      const double& Omega, const double& Sigma,
+				      const double& t, bool) const
+  {
+    M_throw() << "Not Implemented";
+  }
 
-ParticleEventData 
-Liouvillean::runOscilatingPlate
-(const Particle& part, const Vector& rw0, const Vector& nhat, double& delta, 
- const double& omega0, const double& sigma, const double& mass, const double& e,
- double& t, bool strongPlate) const
-{
-  M_throw() << "Not Implemented";
-}
+  ParticleEventData 
+  Liouvillean::runOscilatingPlate
+  (const Particle& part, const Vector& rw0, const Vector& nhat, double& delta, 
+   const double& omega0, const double& sigma, const double& mass, const double& e,
+   double& t, bool strongPlate) const
+  {
+    M_throw() << "Not Implemented";
+  }
 
 
-double 
-Liouvillean::getCylinderWallCollision(const Particle& part, 
-				       const Vector& origin, 
-				       const Vector& norm,
-				       const double&
-				       ) const
-{
-  M_throw() << "Not Implemented";
-}
+  double 
+  Liouvillean::getCylinderWallCollision(const Particle& part, 
+					const Vector& origin, 
+					const Vector& norm,
+					const double&
+					) const
+  {
+    M_throw() << "Not Implemented";
+  }
 
-ParticleEventData 
-Liouvillean::runCylinderWallCollision(const Particle&, 
-				       const Vector &,
-				       const Vector &,
-				       const double&
-				       ) const
-{
-  M_throw() << "Not Implemented";
-}
+  ParticleEventData 
+  Liouvillean::runCylinderWallCollision(const Particle&, 
+					const Vector &,
+					const Vector &,
+					const double&
+					) const
+  {
+    M_throw() << "Not Implemented";
+  }
 
-ParticleEventData 
-Liouvillean::runSphereWallCollision(const Particle&, 
-				    const Vector &,
-				    const double&
-				    ) const
-{
-  M_throw() << "Not Implemented";
-}
+  ParticleEventData 
+  Liouvillean::runSphereWallCollision(const Particle&, 
+				      const Vector &,
+				      const double&
+				      ) const
+  {
+    M_throw() << "Not Implemented";
+  }
 
-PairEventData 
-Liouvillean::RoughSpheresColl(const IntEvent& event, 
-			      const double& e, 
-			      const double& et, 
-			      const double& d2, 
-			      const EEventType& eType
-			      ) const
-{
-  M_throw() << "Not Implemented, you need rotational dynamics";
-}
+  PairEventData 
+  Liouvillean::RoughSpheresColl(const IntEvent& event, 
+				const double& e, 
+				const double& et, 
+				const double& d2, 
+				const EEventType& eType
+				) const
+  {
+    M_throw() << "Not Implemented, you need rotational dynamics";
+  }
 
-ParticleEventData 
-Liouvillean::runRoughWallCollision(const Particle& part, 
-				   const Vector & vNorm,
-				   const double& e,
-				   const double& et,
-				   const double& r
-				   ) const
-{
-  M_throw() << "Not Implemented, you need rotational dynamics";
-}
+  ParticleEventData 
+  Liouvillean::runRoughWallCollision(const Particle& part, 
+				     const Vector & vNorm,
+				     const double& e,
+				     const double& et,
+				     const double& r
+				     ) const
+  {
+    M_throw() << "Not Implemented, you need rotational dynamics";
+  }
 
-void 
-Liouvillean::initOrientations(double ToI)
-{
-  orientationData.resize(Sim->particleList.size());
+  void 
+  Liouvillean::initOrientations(double ToI)
+  {
+    orientationData.resize(Sim->particleList.size());
   
-  dout << "Initialising the line orientations" << std::endl;
+    dout << "Initialising the line orientations" << std::endl;
 
-  double factor = ToI * 0.5;
+    double factor = ToI * 0.5;
 
-  Vector angVelCrossing;
+    Vector angVelCrossing;
 
-  for (size_t i = 0; i < Sim->particleList.size(); ++i)
-    {
-      //Assign the new velocities
-      for (size_t iDim = 0; iDim < NDIM; ++iDim)
-        orientationData[i].orientation[iDim] = Sim->normal_sampler();
+    for (size_t i = 0; i < Sim->particleList.size(); ++i)
+      {
+	//Assign the new velocities
+	for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  orientationData[i].orientation[iDim] = Sim->normal_sampler();
       
-      orientationData[i].orientation /= orientationData[i].orientation.nrm();
+	orientationData[i].orientation /= orientationData[i].orientation.nrm();
       
-      for (size_t iDim = 0; iDim < NDIM; ++iDim)
-        angVelCrossing[iDim] = Sim->normal_sampler();
+	for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	  angVelCrossing[iDim] = Sim->normal_sampler();
       
-      orientationData[i].angularVelocity
-        = orientationData[i].orientation ^ angVelCrossing;
+	orientationData[i].angularVelocity
+	  = orientationData[i].orientation ^ angVelCrossing;
       
-      orientationData[i].angularVelocity *= Sim->normal_sampler() * factor 
-	/ orientationData[i].angularVelocity.nrm();
-    }
-}
+	orientationData[i].angularVelocity *= Sim->normal_sampler() * factor 
+	  / orientationData[i].angularVelocity.nrm();
+      }
+  }
 
-std::pair<double, Liouvillean::TriangleIntersectingPart> 
-Liouvillean::getSphereTriangleEvent(const Particle& part, 
-				    const Vector & A, 
-				    const Vector & B, 
-				    const Vector & C,
-				    const double d
-				    ) const
-{
-  M_throw() << "Not implemented";
+  std::pair<double, Liouvillean::TriangleIntersectingPart> 
+  Liouvillean::getSphereTriangleEvent(const Particle& part, 
+				      const Vector & A, 
+				      const Vector & B, 
+				      const Vector & C,
+				      const double d
+				      ) const
+  {
+    M_throw() << "Not implemented";
+  }
 }

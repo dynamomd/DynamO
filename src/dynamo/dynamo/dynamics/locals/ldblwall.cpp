@@ -23,144 +23,145 @@
 #include <dynamo/dynamics/units/units.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 
+namespace dynamo {
+  CLDblWall::CLDblWall(dynamo::SimData* nSim, double ne, Vector  nnorm, 
+		       Vector  norigin, std::string nname, CRange* nRange):
+    Local(nRange, nSim, "LocalWall"),
+    vNorm(nnorm),
+    vPosition(norigin),
+    e(ne)
+  {
+    localName = nname;
+  }
 
-CLDblWall::CLDblWall(dynamo::SimData* nSim, double ne, Vector  nnorm, 
-	       Vector  norigin, std::string nname, CRange* nRange):
-  Local(nRange, nSim, "LocalWall"),
-  vNorm(nnorm),
-  vPosition(norigin),
-  e(ne)
-{
-  localName = nname;
-}
+  CLDblWall::CLDblWall(const magnet::xml::Node& XML, dynamo::SimData* tmp):
+    Local(tmp, "LocalDoubleWall")
+  {
+    operator<<(XML);
+  }
 
-CLDblWall::CLDblWall(const magnet::xml::Node& XML, dynamo::SimData* tmp):
-  Local(tmp, "LocalDoubleWall")
-{
-  operator<<(XML);
-}
-
-LocalEvent 
-CLDblWall::getEvent(const Particle& part) const
-{
+  LocalEvent 
+  CLDblWall::getEvent(const Particle& part) const
+  {
 #ifdef ISSS_DEBUG
-  if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
-    M_throw() << "Particle is not up to date";
+    if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
+      M_throw() << "Particle is not up to date";
 #endif
 
-  if (part.getID() == lastID) return LocalEvent(part, HUGE_VAL, NONE, *this);
+    if (part.getID() == lastID) return LocalEvent(part, HUGE_VAL, NONE, *this);
   
-  Vector rij = part.getPosition() - vPosition;
-  Sim->dynamics.BCs().applyBC(rij);
+    Vector rij = part.getPosition() - vPosition;
+    Sim->dynamics.BCs().applyBC(rij);
 
-  Vector norm(vNorm);
-  if ((norm | rij) < 0)
-    norm *= -1;
+    Vector norm(vNorm);
+    if ((norm | rij) < 0)
+      norm *= -1;
 
-  return LocalEvent(part, Sim->dynamics.getLiouvillean().getWallCollision
-		     (part, vPosition, norm), WALL, *this);
-}
+    return LocalEvent(part, Sim->dynamics.getLiouvillean().getWallCollision
+		      (part, vPosition, norm), WALL, *this);
+  }
 
-void
-CLDblWall::runEvent(const Particle& part, const LocalEvent& iEvent) const
-{
-  ++Sim->eventCount;
+  void
+  CLDblWall::runEvent(const Particle& part, const LocalEvent& iEvent) const
+  {
+    ++Sim->eventCount;
 
-  Vector norm = vNorm;
+    Vector norm = vNorm;
 
-  Vector rij = part.getPosition() - vPosition;
-  Sim->dynamics.BCs().applyBC(rij);
+    Vector rij = part.getPosition() - vPosition;
+    Sim->dynamics.BCs().applyBC(rij);
   
-  if ((norm | rij) < 0)
-    norm *= -1;
+    if ((norm | rij) < 0)
+      norm *= -1;
 
-  //Run the collision and catch the data
-  NEventData EDat(Sim->dynamics.getLiouvillean().runWallCollision
-		      (part, norm, e));
+    //Run the collision and catch the data
+    NEventData EDat(Sim->dynamics.getLiouvillean().runWallCollision
+		    (part, norm, e));
 
-  Sim->signalParticleUpdate(EDat);
+    Sim->signalParticleUpdate(EDat);
 
-  //Must do this after the signal is run
-  lastID = part.getID();
+    //Must do this after the signal is run
+    lastID = part.getID();
 
-  //Now we're past the event update the scheduler and plugins
-  Sim->ptrScheduler->fullUpdate(part);
+    //Now we're past the event update the scheduler and plugins
+    Sim->ptrScheduler->fullUpdate(part);
   
-  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
-    Ptr->eventUpdate(iEvent, EDat);
-}
+    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+      Ptr->eventUpdate(iEvent, EDat);
+  }
 
-bool 
-CLDblWall::isInCell(const Vector & Origin, const Vector& CellDim) const
-{
-  return dynamo::OverlapFunctions::CubePlane
-    (Origin, CellDim, vPosition, vNorm);
-}
+  bool 
+  CLDblWall::isInCell(const Vector & Origin, const Vector& CellDim) const
+  {
+    return dynamo::OverlapFunctions::CubePlane
+      (Origin, CellDim, vPosition, vNorm);
+  }
 
-void 
-CLDblWall::initialise(size_t nID)
-{
-  ID = nID;
-  lastID = std::numeric_limits<size_t>::max();
+  void 
+  CLDblWall::initialise(size_t nID)
+  {
+    ID = nID;
+    lastID = std::numeric_limits<size_t>::max();
 
-  Sim->registerParticleUpdateFunc
-    (magnet::function::MakeDelegate(this, &CLDblWall::particleUpdate));
+    Sim->registerParticleUpdateFunc
+      (magnet::function::MakeDelegate(this, &CLDblWall::particleUpdate));
 
-}
+  }
 
-void
-CLDblWall::particleUpdate(const NEventData& PDat) const
-{
-  if (lastID == std::numeric_limits<size_t>::max()) return;
+  void
+  CLDblWall::particleUpdate(const NEventData& PDat) const
+  {
+    if (lastID == std::numeric_limits<size_t>::max()) return;
 
-  BOOST_FOREACH(const ParticleEventData& pdat, PDat.L1partChanges)
-    if (pdat.getParticle().getID() == lastID)
+    BOOST_FOREACH(const ParticleEventData& pdat, PDat.L1partChanges)
+      if (pdat.getParticle().getID() == lastID)
+	{
+	  lastID = std::numeric_limits<size_t>::max();
+	  return;
+	}
+  
+    BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
+      if (pdat.particle1_.getParticle().getID() == lastID 
+	  || pdat.particle2_.getParticle().getID() == lastID)
+	{
+	  lastID = std::numeric_limits<size_t>::max();
+	  return;
+	}
+  }
+
+  void 
+  CLDblWall::operator<<(const magnet::xml::Node& XML)
+  {
+    range.set_ptr(CRange::getClass(XML,Sim));
+  
+    try {
+      e = XML.getAttribute("Elasticity").as<double>();
+      magnet::xml::Node xBrowseNode = XML.getNode("Norm");
+      localName = XML.getAttribute("Name");
+      vNorm << xBrowseNode;
+      vNorm /= vNorm.nrm();
+      xBrowseNode = XML.getNode("Origin");
+      vPosition << xBrowseNode;
+      vPosition *= Sim->dynamics.units().unitLength();
+    } 
+    catch (boost::bad_lexical_cast &)
       {
-	lastID = std::numeric_limits<size_t>::max();
-	return;
+	M_throw() << "Failed a lexical cast in CLDblWall";
       }
-  
-  BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
-    if (pdat.particle1_.getParticle().getID() == lastID 
-	|| pdat.particle2_.getParticle().getID() == lastID)
-      {
-	lastID = std::numeric_limits<size_t>::max();
-	return;
-      }
-}
+  }
 
-void 
-CLDblWall::operator<<(const magnet::xml::Node& XML)
-{
-  range.set_ptr(CRange::getClass(XML,Sim));
-  
-  try {
-    e = XML.getAttribute("Elasticity").as<double>();
-    magnet::xml::Node xBrowseNode = XML.getNode("Norm");
-    localName = XML.getAttribute("Name");
-    vNorm << xBrowseNode;
-    vNorm /= vNorm.nrm();
-    xBrowseNode = XML.getNode("Origin");
-    vPosition << xBrowseNode;
-    vPosition *= Sim->dynamics.units().unitLength();
-  } 
-  catch (boost::bad_lexical_cast &)
-    {
-      M_throw() << "Failed a lexical cast in CLDblWall";
-    }
-}
-
-void 
-CLDblWall::outputXML(magnet::xml::XmlStream& XML) const
-{
-  XML << magnet::xml::attr("Type") << "DoubleWall" 
-      << magnet::xml::attr("Name") << localName
-      << magnet::xml::attr("Elasticity") << e
-      << range
-      << magnet::xml::tag("Norm")
-      << vNorm
-      << magnet::xml::endtag("Norm")
-      << magnet::xml::tag("Origin")
-      << vPosition / Sim->dynamics.units().unitLength()
-      << magnet::xml::endtag("Origin");
+  void 
+  CLDblWall::outputXML(magnet::xml::XmlStream& XML) const
+  {
+    XML << magnet::xml::attr("Type") << "DoubleWall" 
+	<< magnet::xml::attr("Name") << localName
+	<< magnet::xml::attr("Elasticity") << e
+	<< range
+	<< magnet::xml::tag("Norm")
+	<< vNorm
+	<< magnet::xml::endtag("Norm")
+	<< magnet::xml::tag("Origin")
+	<< vPosition / Sim->dynamics.units().unitLength()
+	<< magnet::xml::endtag("Origin");
+  }
 }

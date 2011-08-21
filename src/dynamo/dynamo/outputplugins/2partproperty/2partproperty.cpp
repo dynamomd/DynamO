@@ -15,45 +15,47 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "2partproperty.hpp"
+#include <dynamo/outputplugins/2partproperty/2partproperty.hpp>
+#include <dynamo/dynamics/include.hpp>
 #include <boost/foreach.hpp>
-#include "../../dynamics/include.hpp"
 
-OP2PP::OP2PP(const dynamo::SimData* t1,const char *t2):
-  OutputPlugin(t1,t2)
-{}
+namespace dynamo {
+  OP2PP::OP2PP(const dynamo::SimData* t1,const char *t2):
+    OutputPlugin(t1,t2)
+  {}
 
-void 
-OP2PP::eventUpdate(const IntEvent &event, 
-		    const PairEventData &SDat) 
-{
-  stream(event.getdt());
-  A2ParticleChange(SDat);
-}
+  void 
+  OP2PP::eventUpdate(const IntEvent &event, 
+		     const PairEventData &SDat) 
+  {
+    stream(event.getdt());
+    A2ParticleChange(SDat);
+  }
 
-void 
-OP2PP::eventUpdate(const GlobalEvent &event, const NEventData& SDat) 
-{
-  stream(event.getdt());
+  void 
+  OP2PP::eventUpdate(const GlobalEvent &event, const NEventData& SDat) 
+  {
+    stream(event.getdt());
 
-  BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
-    A2ParticleChange(pData);
-}
+    BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
+      A2ParticleChange(pData);
+  }
 
-void 
-OP2PP::eventUpdate(const LocalEvent &event, const NEventData& SDat) 
-{
-  stream(event.getdt());
+  void 
+  OP2PP::eventUpdate(const LocalEvent &event, const NEventData& SDat) 
+  {
+    stream(event.getdt());
 
-  BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
-    A2ParticleChange(pData);
-}
+    BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
+      A2ParticleChange(pData);
+  }
 
-void 
-OP2PP::eventUpdate(const System&, const NEventData& SDat, const double& dt)
-{
-  stream(dt);
+  void 
+  OP2PP::eventUpdate(const System&, const NEventData& SDat, const double& dt)
+  {
+    stream(dt);
 
-  BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
-    A2ParticleChange(pData);
+    BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
+      A2ParticleChange(pData);
+  }
 }

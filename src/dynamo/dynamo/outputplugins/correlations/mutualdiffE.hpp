@@ -16,68 +16,70 @@
 */
 
 #pragma once
-#include "../outputplugin.hpp"
+#include <dynamo/outputplugins/outputplugin.hpp>
 #include <boost/circular_buffer.hpp>
 
-class OPMutualDiffusionE: public OutputPlugin
-{
-public:
-  OPMutualDiffusionE(const dynamo::SimData*, const magnet::xml::Node&);
+namespace dynamo {
+  class OPMutualDiffusionE: public OutputPlugin
+  {
+  public:
+    OPMutualDiffusionE(const dynamo::SimData*, const magnet::xml::Node&);
   
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-  virtual OutputPlugin* Clone() const { return new OPMutualDiffusionE(*this); }
+    virtual OutputPlugin* Clone() const { return new OPMutualDiffusionE(*this); }
 
-  virtual void stream(const double);
+    virtual void stream(const double);
 
-  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
+    virtual void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const LocalEvent&, const NEventData&);
+    virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const System&, const NEventData&, const double&);
+    virtual void eventUpdate(const System&, const NEventData&, const double&);
   
-  virtual void eventUpdate(const IntEvent&, const PairEventData&);
+    virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
-  virtual double rescaleFactor();
+    virtual double rescaleFactor();
 
-  virtual void output(magnet::xml::XmlStream&);
+    virtual void output(magnet::xml::XmlStream&);
 
-  virtual void initialise();
+    virtual void initialise();
  
-  std::list<Vector  > getAvgAcc() const;
+    std::list<Vector  > getAvgAcc() const;
   
- protected:  
-  virtual void updateDelG(const PairEventData&);
+  protected:  
+    virtual void updateDelG(const PairEventData&);
 
-  virtual void updateDelG(const ParticleEventData&);
+    virtual void updateDelG(const ParticleEventData&);
 
-  virtual void updateDelG(const NEventData&);
+    virtual void updateDelG(const NEventData&);
     
-  virtual void newG();
+    virtual void newG();
   
-  virtual void accPass();
+    virtual void accPass();
 
-  double getdt();
+    double getdt();
     
-  boost::circular_buffer<Vector  > G1;
-  boost::circular_buffer<Vector  > G2;
-  std::vector<Vector  > accG;
-  size_t count;
-  double dt, currentdt;
+    boost::circular_buffer<Vector  > G1;
+    boost::circular_buffer<Vector  > G2;
+    std::vector<Vector  > accG;
+    size_t count;
+    double dt, currentdt;
 
-  Vector  delGsp1, delGsp2, Gsp1, Gsp2;
+    Vector  delGsp1, delGsp2, Gsp1, Gsp2;
 
-  size_t species1;
-  size_t species2;
+    size_t species1;
+    size_t species2;
   
-  Vector  sysMom;
+    Vector  sysMom;
 
-  double massFracSp1;
-  double massFracSp2;
+    double massFracSp1;
+    double massFracSp2;
 
-  size_t CorrelatorLength;
-  size_t currCorrLen;
-  bool notReady;
-  std::string species1name, species2name;
+    size_t CorrelatorLength;
+    size_t currCorrLen;
+    bool notReady;
+    std::string species1name, species2name;
 
-};
+  };
+}

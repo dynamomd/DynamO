@@ -16,25 +16,27 @@
 */
 
 #pragma once
-#include "../outputplugin.hpp"
+#include <dynamo/outputplugins/outputplugin.hpp>
 
-class OP1PP: public OutputPlugin
-{
-public:
-  OP1PP(const dynamo::SimData*, const char*, unsigned char order = 100);
+namespace dynamo {
+  class OP1PP: public OutputPlugin
+  {
+  public:
+    OP1PP(const dynamo::SimData*, const char*, unsigned char order = 100);
 
-  virtual void eventUpdate(const IntEvent&, const PairEventData&);
+    virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
-  virtual void eventUpdate(const GlobalEvent&, const NEventData&);
+    virtual void eventUpdate(const GlobalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const LocalEvent&, const NEventData&);
+    virtual void eventUpdate(const LocalEvent&, const NEventData&);
 
-  virtual void eventUpdate(const System&, const NEventData&, const double&);
+    virtual void eventUpdate(const System&, const NEventData&, const double&);
 
-private:
-  virtual void A2ParticleChange(const PairEventData&);
+  private:
+    virtual void A2ParticleChange(const PairEventData&);
 
-  /* This class of plugins implement these functions */
-  virtual void A1ParticleChange(const ParticleEventData&) = 0;
-  virtual void stream(const double&) = 0;  
-};
+    /* This class of plugins implement these functions */
+    virtual void A1ParticleChange(const ParticleEventData&) = 0;
+    virtual void stream(const double&) = 0;  
+  };
+}

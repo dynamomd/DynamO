@@ -26,22 +26,25 @@ using namespace std;
 using namespace boost;
 namespace po = boost::program_options;
 
-class CUCell;
+namespace dynamo {
+  class CUCell;
 
-class CIPPacker: public dynamo::SimBase
-{
- public:
-  CIPPacker(po::variables_map&, dynamo::SimData* tmp);
+  class CIPPacker: public dynamo::SimBase
+  {
+  public:
+    CIPPacker(po::variables_map&, dynamo::SimData* tmp);
 
-  void initialise();
+    void initialise();
 
-  static po::options_description getOptions();
+    static po::options_description getOptions();
 
- protected:
-  std::tr1::array<long, 3> getCells();
-  Vector  getNormalisedCellDimensions();
-  Vector  getRandVelVec();
-  CUCell* standardPackingHelper(CUCell*, bool forceRectangular = false);
+  protected:
+    std::tr1::array<long, 3> getCells();
+    Vector  getNormalisedCellDimensions();
+    Vector  getRandVelVec();
+    CUCell* standardPackingHelper(CUCell*, bool forceRectangular = false);
 
-  po::variables_map& vm;
-};
+    po::variables_map& vm;
+  };
+}
+

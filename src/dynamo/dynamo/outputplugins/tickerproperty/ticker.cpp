@@ -16,22 +16,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ticker.hpp"
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <dynamo/dynamics/include.hpp>
+#include <dynamo/dynamics/systems/sysTicker.hpp>
 #include <boost/foreach.hpp>
-#include "../../dynamics/include.hpp"
-#include "../../dynamics/systems/sysTicker.hpp"
 
-OPTicker::OPTicker(const dynamo::SimData* t1,const char *t2):
-  OutputPlugin(t1,t2)
-{}
+namespace dynamo {
+  OPTicker::OPTicker(const dynamo::SimData* t1,const char *t2):
+    OutputPlugin(t1,t2)
+  {}
 
-double 
-OPTicker::getTickerTime() const
-{
-  try {
-    return dynamic_cast<const CSTicker&>(*Sim->dynamics.getSystem("SystemTicker")).getPeriod();
-  } catch (const std::bad_cast&)
-    {
-      M_throw() << "Could not upcast the SystemTicker system event to CSTicker, have you named a system as SystemTicker?";
-    }
+  double 
+  OPTicker::getTickerTime() const
+  {
+    try {
+      return dynamic_cast<const CSTicker&>(*Sim->dynamics.getSystem("SystemTicker")).getPeriod();
+    } catch (const std::bad_cast&)
+      {
+	M_throw() << "Could not upcast the SystemTicker system event to CSTicker, have you named a system as SystemTicker?";
+      }
+  }
 }

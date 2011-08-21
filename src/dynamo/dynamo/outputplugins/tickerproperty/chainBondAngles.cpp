@@ -27,109 +27,111 @@
 #include <boost/foreach.hpp>
 #include <vector>
 
-OPChainBondAngles::Cdata::Cdata(size_t ID, size_t CL, double bw):
-  chainID(ID)
-{
-  BondCorrelations.resize(CL-2, C1DHistogram(bw));
-  BondCorrelationsAvg.resize(CL-2, 0);
-  BondCorrelationsSamples.resize(CL-2, 0);
-}
+namespace dynamo {
+  OPChainBondAngles::Cdata::Cdata(size_t ID, size_t CL, double bw):
+    chainID(ID)
+  {
+    BondCorrelations.resize(CL-2, C1DHistogram(bw));
+    BondCorrelationsAvg.resize(CL-2, 0);
+    BondCorrelationsSamples.resize(CL-2, 0);
+  }
 
-OPChainBondAngles::OPChainBondAngles(const dynamo::SimData* tmp, 
-				     const magnet::xml::Node& XML):
-  OPTicker(tmp,"ChainBondAngles"),
-  binwidth(0.0001)
-{
-  operator<<(XML);
-}
+  OPChainBondAngles::OPChainBondAngles(const dynamo::SimData* tmp, 
+				       const magnet::xml::Node& XML):
+    OPTicker(tmp,"ChainBondAngles"),
+    binwidth(0.0001)
+  {
+    operator<<(XML);
+  }
 
-void 
-OPChainBondAngles::operator<<(const magnet::xml::Node& XML)
-{
-  try 
-    {
-      if (XML.hasAttribute("binwidth"))
-	binwidth = XML.getAttribute("binwidth").as<double>();
-    }
-  catch (boost::bad_lexical_cast &)
-    {
-      M_throw() << "Failed a lexical cast in OPChainBondAngles";
-    }
-}
-
-void 
-OPChainBondAngles::initialise()
-{
-  BOOST_FOREACH(const magnet::ClonePtr<Topology>& plugPtr, 
-		Sim->dynamics.getTopology())
-    if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
-      chains.push_back(Cdata(plugPtr->getID(), 
-			     plugPtr->getMolecules().front()->size(),
-			     binwidth));
-}
-
-void 
-OPChainBondAngles::changeSystem(OutputPlugin* OPPlug)
-{
-  std::swap(Sim, static_cast<OPChainBondAngles*>(OPPlug)->Sim);
-}
-
-void 
-OPChainBondAngles::ticker()
-{
-  BOOST_FOREACH(Cdata& dat,chains)
-    BOOST_FOREACH(const magnet::ClonePtr<CRange>& range, 
-		  Sim->dynamics.getTopology()[dat.chainID]->getMolecules())
-    if (range->size() > 2)
+  void 
+  OPChainBondAngles::operator<<(const magnet::xml::Node& XML)
+  {
+    try 
       {
-	//Walk the polymer
-	for (size_t j = 0; j < range->size()-2; ++j)
-	  {
-	    Vector  bond1 = Sim->particleList[(*range)[j+1]].getPosition()
-	      - Sim->particleList[(*range)[j]].getPosition();
-
-	    bond1 /= bond1.nrm();
-
-	    for (size_t i = j+2; i < range->size(); ++i)
-	      {
-		Vector  bond2 = Sim->particleList[(*range)[i]].getPosition()
-		  -Sim->particleList[(*range)[i-1]].getPosition();
-		
-		bond2 /= bond2.nrm();
-		
-		dat.BondCorrelations[i-j-2].addVal(bond1 | bond2);
-		dat.BondCorrelationsAvg[i-j-2] += (bond1 | bond2);
-		++(dat.BondCorrelationsSamples[i-j-2]);
-	      }
-	  }
+	if (XML.hasAttribute("binwidth"))
+	  binwidth = XML.getAttribute("binwidth").as<double>();
       }
-}
+    catch (boost::bad_lexical_cast &)
+      {
+	M_throw() << "Failed a lexical cast in OPChainBondAngles";
+      }
+  }
 
-void 
-OPChainBondAngles::output(magnet::xml::XmlStream& XML)
-{
-  XML << magnet::xml::tag("BondAngleCorrelators");
-  
-  BOOST_FOREACH(Cdata& dat, chains)
-    {
-      XML << magnet::xml::tag("Chain")
-	  << magnet::xml::attr("Name") << Sim->dynamics.getTopology()[dat.chainID]->getName();
-            
-      size_t Nc = Sim->dynamics.getTopology()[dat.chainID]
-	->getMolecules().front()->size() - 2;
-      
-      for (size_t i = 0; i < Nc; ++i)
+  void 
+  OPChainBondAngles::initialise()
+  {
+    BOOST_FOREACH(const magnet::ClonePtr<Topology>& plugPtr, 
+		  Sim->dynamics.getTopology())
+      if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
+	chains.push_back(Cdata(plugPtr->getID(), 
+			       plugPtr->getMolecules().front()->size(),
+			       binwidth));
+  }
+
+  void 
+  OPChainBondAngles::changeSystem(OutputPlugin* OPPlug)
+  {
+    std::swap(Sim, static_cast<OPChainBondAngles*>(OPPlug)->Sim);
+  }
+
+  void 
+  OPChainBondAngles::ticker()
+  {
+    BOOST_FOREACH(Cdata& dat,chains)
+      BOOST_FOREACH(const magnet::ClonePtr<CRange>& range, 
+		    Sim->dynamics.getTopology()[dat.chainID]->getMolecules())
+      if (range->size() > 2)
 	{
-	  XML << magnet::xml::tag("Hist") << magnet::xml::attr("Avg") 
-	      << (dat.BondCorrelationsAvg[i] / dat.BondCorrelationsSamples[i]);
+	  //Walk the polymer
+	  for (size_t j = 0; j < range->size()-2; ++j)
+	    {
+	      Vector  bond1 = Sim->particleList[(*range)[j+1]].getPosition()
+		- Sim->particleList[(*range)[j]].getPosition();
 
-	  dat.BondCorrelations[i].outputHistogram(XML, 1.0);
+	      bond1 /= bond1.nrm();
 
-	  XML << magnet::xml::endtag("Hist");
+	      for (size_t i = j+2; i < range->size(); ++i)
+		{
+		  Vector  bond2 = Sim->particleList[(*range)[i]].getPosition()
+		    -Sim->particleList[(*range)[i-1]].getPosition();
+		
+		  bond2 /= bond2.nrm();
+		
+		  dat.BondCorrelations[i-j-2].addVal(bond1 | bond2);
+		  dat.BondCorrelationsAvg[i-j-2] += (bond1 | bond2);
+		  ++(dat.BondCorrelationsSamples[i-j-2]);
+		}
+	    }
 	}
-      
-      XML << magnet::xml::endtag("Chain");
-    }
+  }
 
-  XML << magnet::xml::endtag("BondAngleCorrelators");
+  void 
+  OPChainBondAngles::output(magnet::xml::XmlStream& XML)
+  {
+    XML << magnet::xml::tag("BondAngleCorrelators");
+  
+    BOOST_FOREACH(Cdata& dat, chains)
+      {
+	XML << magnet::xml::tag("Chain")
+	    << magnet::xml::attr("Name") << Sim->dynamics.getTopology()[dat.chainID]->getName();
+            
+	size_t Nc = Sim->dynamics.getTopology()[dat.chainID]
+	  ->getMolecules().front()->size() - 2;
+      
+	for (size_t i = 0; i < Nc; ++i)
+	  {
+	    XML << magnet::xml::tag("Hist") << magnet::xml::attr("Avg") 
+		<< (dat.BondCorrelationsAvg[i] / dat.BondCorrelationsSamples[i]);
+
+	    dat.BondCorrelations[i].outputHistogram(XML, 1.0);
+
+	    XML << magnet::xml::endtag("Hist");
+	  }
+      
+	XML << magnet::xml::endtag("Chain");
+      }
+
+    XML << magnet::xml::endtag("BondAngleCorrelators");
+  }
 }

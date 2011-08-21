@@ -15,40 +15,43 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "fixedCollider.hpp"
+#include <dynamo/dynamics/species/fixedCollider.hpp>
 #include <boost/foreach.hpp>
-#include "../../base/is_simdata.hpp"
+#include <dynamo/base/is_simdata.hpp>
 #include <magnet/xmlreader.hpp>
-void 
-SpFixedCollider::initialise()
-{
-  SpPoint::initialise();
 
-  BOOST_FOREACH(size_t ID, *range)
-    Sim->particleList[ID].clearState(Particle::DYNAMIC);
-}
+namespace dynamo {
+  void 
+  SpFixedCollider::initialise()
+  {
+    SpPoint::initialise();
 
-void 
-SpFixedCollider::operator<<(const magnet::xml::Node& XML)
-{
-  range.set_ptr(CRange::getClass(XML, Sim));
+    BOOST_FOREACH(size_t ID, *range)
+      Sim->particleList[ID].clearState(Particle::DYNAMIC);
+  }
+
+  void 
+  SpFixedCollider::operator<<(const magnet::xml::Node& XML)
+  {
+    range.set_ptr(CRange::getClass(XML, Sim));
   
-  try {
-    spName = XML.getAttribute("Name");
-    intName = XML.getAttribute("IntName");
-  } 
-  catch (boost::bad_lexical_cast &)
-    {
-      M_throw() << "Failed a lexical cast in SpFixedCollider";
-    }
-}
+    try {
+      spName = XML.getAttribute("Name");
+      intName = XML.getAttribute("IntName");
+    } 
+    catch (boost::bad_lexical_cast &)
+      {
+	M_throw() << "Failed a lexical cast in SpFixedCollider";
+      }
+  }
 
-void 
-SpFixedCollider::outputXML(magnet::xml::XmlStream& XML) const
-{
-  XML << magnet::xml::attr("Name") << spName
-      << magnet::xml::attr("IntName") << intName
-      << magnet::xml::attr("Type") << "FixedCollider";
+  void 
+  SpFixedCollider::outputXML(magnet::xml::XmlStream& XML) const
+  {
+    XML << magnet::xml::attr("Name") << spName
+	<< magnet::xml::attr("IntName") << intName
+	<< magnet::xml::attr("Type") << "FixedCollider";
   
-  XML << range;
+    XML << range;
+  }
 }

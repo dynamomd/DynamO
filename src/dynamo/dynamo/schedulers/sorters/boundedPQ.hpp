@@ -16,11 +16,10 @@
 */
 
 #pragma once
-#include "datastruct.hpp"
-#include "sorter.hpp"
-
-#include "../../dynamics/units/units.hpp"
-#include "../../base/is_simdata.hpp"
+#include <dynamo/schedulers/sorters/datastruct.hpp>
+#include <dynamo/schedulers/sorters/sorter.hpp>
+#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/base/is_simdata.hpp>
 #include <boost/static_assert.hpp>
 #include <magnet/exception.hpp>
 #include <string>
@@ -32,144 +31,145 @@
 #include <boost/math/special_functions/fpclassify.hpp>
 #endif
 
-template<size_t Size>
-class MinMaxHeapPList;
+namespace dynamo {
+  template<size_t Size>
+  class MinMaxHeapPList;
 
-class pList;
+  class pList;
 
-class PELSingleEvent;
+  class PELSingleEvent;
 
-template<class T>
-struct CSSBoundedPQName
-{
-  BOOST_STATIC_ASSERT(sizeof(T) == 0);
-};
-
-template<>
-struct CSSBoundedPQName<pList>
-{
-  inline static std::string name() { return "BoundedPQ"; }
-};
-
-template<size_t I>
-struct CSSBoundedPQName<MinMaxHeapPList<I> >
-{
-  inline static std::string name() { return std::string("BoundedPQMinMax") + boost::lexical_cast<std::string>(I); }
-};
-
-template<>
-struct CSSBoundedPQName<PELSingleEvent>
-{
-  inline static std::string name() { return "BoundedPQSingleEvent"; }
-};
-
-template<typename T = pList>
-class CSSBoundedPQ: public CSSorter
-{
-private:
-  //Bounded priority queue variables and types
-  struct eventQEntry
+  template<class T>
+  struct CSSBoundedPQName
   {
-    T data;
-    int next;
-    int previous;
-    int qIndex;
+    BOOST_STATIC_ASSERT(sizeof(T) == 0);
   };
 
-  std::vector<int> linearLists;
-  int currentIndex;
+  template<>
+  struct CSSBoundedPQName<pList>
+  {
+    inline static std::string name() { return "BoundedPQ"; }
+  };
 
-  double scale;
-  double pecTime;
-  double listWidth;
-  int nlists;  
+  template<size_t I>
+  struct CSSBoundedPQName<MinMaxHeapPList<I> >
+  {
+    inline static std::string name() { return std::string("BoundedPQMinMax") + boost::lexical_cast<std::string>(I); }
+  };
 
-  //Binary tree variables
-  std::vector<unsigned long> CBT;
-  std::vector<unsigned long> Leaf;
-  std::vector<eventQEntry> Min;
-  size_t NP, N;
-  size_t exceptionCount;
+  template<>
+  struct CSSBoundedPQName<PELSingleEvent>
+  {
+    inline static std::string name() { return "BoundedPQSingleEvent"; }
+  };
 
-public:  
-  CSSBoundedPQ(const dynamo::SimData* const& SD):
-    CSSorter(SD, "BoundedPQ"),
-    exceptionCount(0) 
-  {}
+  template<typename T = pList>
+  class CSSBoundedPQ: public CSSorter
+  {
+  private:
+    //Bounded priority queue variables and types
+    struct eventQEntry
+    {
+      T data;
+      int next;
+      int previous;
+      int qIndex;
+    };
 
-  ~CSSBoundedPQ() 
-  { 
-    dout << "Exception Events = " << exceptionCount << std::endl;
-  }
+    std::vector<int> linearLists;
+    int currentIndex;
+
+    double scale;
+    double pecTime;
+    double listWidth;
+    int nlists;  
+
+    //Binary tree variables
+    std::vector<unsigned long> CBT;
+    std::vector<unsigned long> Leaf;
+    std::vector<eventQEntry> Min;
+    size_t NP, N;
+    size_t exceptionCount;
+
+  public:  
+    CSSBoundedPQ(const dynamo::SimData* const& SD):
+      CSSorter(SD, "BoundedPQ"),
+      exceptionCount(0) 
+    {}
+
+    ~CSSBoundedPQ() 
+    { 
+      dout << "Exception Events = " << exceptionCount << std::endl;
+    }
   
-  inline size_t size() const { return Min.size() - 1; }
-  inline bool empty() const { return Min.empty(); }
+    inline size_t size() const { return Min.size() - 1; }
+    inline bool empty() const { return Min.empty(); }
 
-  inline const int& NLists() const { return nlists; }
-  inline const double& scaleFactor() const { return scale; }
-  inline const size_t& exceptionEvents() const { return exceptionCount; }
-  inline const size_t& treeSize() const { return NP; }
+    inline const int& NLists() const { return nlists; }
+    inline const double& scaleFactor() const { return scale; }
+    inline const size_t& exceptionEvents() const { return exceptionCount; }
+    inline const size_t& treeSize() const { return NP; }
 
-  inline std::vector<size_t> getEventCounts() const
-  {
-    std::vector<size_t> tmpVec;
-    tmpVec.resize(nlists - 1,0);
+    inline std::vector<size_t> getEventCounts() const
+    {
+      std::vector<size_t> tmpVec;
+      tmpVec.resize(nlists - 1,0);
 
-    //Miss the binary tree
-    for (int i = 1; i < nlists - 1; ++i)
-      {
-	int index = i + currentIndex;
-	if (index > nlists -1)
-	  index -= nlists;
-	size_t counter = 0;
-	//Scroll through the list counting
-	int nextID = linearLists[index];	
-	while (nextID != -1)
-	  {
-	    ++counter;
-	    nextID = Min[nextID].next;
-	  }
-	tmpVec[i] = counter;
-      }
-    return tmpVec;
-  }
+      //Miss the binary tree
+      for (int i = 1; i < nlists - 1; ++i)
+	{
+	  int index = i + currentIndex;
+	  if (index > nlists -1)
+	    index -= nlists;
+	  size_t counter = 0;
+	  //Scroll through the list counting
+	  int nextID = linearLists[index];	
+	  while (nextID != -1)
+	    {
+	      ++counter;
+	      nextID = Min[nextID].next;
+	    }
+	  tmpVec[i] = counter;
+	}
+      return tmpVec;
+    }
 
-  void resize(const size_t& a)
-  {
-    clear();
-    N = a;
-    CBT.resize(2 * N);
-    Leaf.resize(N + 1);
-    Min.resize(N + 1);
-    //Min.front().data.push(intPart(HUGE_VAL, NONE));
-  }
+    void resize(const size_t& a)
+    {
+      clear();
+      N = a;
+      CBT.resize(2 * N);
+      Leaf.resize(N + 1);
+      Min.resize(N + 1);
+      //Min.front().data.push(intPart(HUGE_VAL, NONE));
+    }
 
-  void clear() 
-  {
-    CBT.clear();
-    Leaf.clear();
-    Min.clear();
-    linearLists.clear();
-    N = 0;
-    NP = 0;
-    currentIndex = 0;
-    pecTime = 0.0;
-  }
+    void clear() 
+    {
+      CBT.clear();
+      Leaf.clear();
+      Min.clear();
+      linearLists.clear();
+      N = 0;
+      NP = 0;
+      currentIndex = 0;
+      pecTime = 0.0;
+    }
 
-  inline void stream(const double& ndt) { pecTime += ndt; }
+    inline void stream(const double& ndt) { pecTime += ndt; }
 
-  void init()
-  {
-    init(false);
-  }
+    void init()
+    {
+      init(false);
+    }
 
-  void rebuild()
-  {
-    init(true);
-  }
+    void rebuild()
+    {
+      init(true);
+    }
 
-  void init(bool quiet)
-  {
+    void init(bool quiet)
+    {
       {
 	double minVal(0), maxVal(-HUGE_VAL);
 	size_t counter(0);
@@ -218,306 +218,307 @@ public:
 	  }
       }
 
-    listWidth = nlists / scale;
-    if (scale == HUGE_VAL)
-      M_throw() << "Scale factor is infinite (only zero time collisions or no collisions?)";
+      listWidth = nlists / scale;
+      if (scale == HUGE_VAL)
+	M_throw() << "Scale factor is infinite (only zero time collisions or no collisions?)";
 
-    if (scale <= 0.0)
-      M_throw() << "Scale factor is zero or negative (negative collisions?)";
+      if (scale <= 0.0)
+	M_throw() << "Scale factor is zero or negative (negative collisions?)";
 
-    if (nlists == 0)
-      {
-	derr << "nlists = 0!\n"
-	     << "This is a BAD thing, unless NCells = NParticles and "
-	  "they're in a perfect crystal, if it happens again after the "
-	  "preliminary run its certainly a bug" << std::endl;
-	nlists = 1000;
-      }
+      if (nlists == 0)
+	{
+	  derr << "nlists = 0!\n"
+	       << "This is a BAD thing, unless NCells = NParticles and "
+	    "they're in a perfect crystal, if it happens again after the "
+	    "preliminary run its certainly a bug" << std::endl;
+	  nlists = 1000;
+	}
 
-    if (!quiet)
-      dout << "Length of linear list = " << nlists
-	   << "Scale factor = " 
-	   << scale * Sim->dynamics.units().unitTime() 
-	   << std::endl;
+      if (!quiet)
+	dout << "Length of linear list = " << nlists
+	     << "Scale factor = " 
+	     << scale * Sim->dynamics.units().unitTime() 
+	     << std::endl;
 
-    linearLists.resize(nlists+1, -1); /*+1 for overflow, -1 for
-					marking empty*/ 
+      linearLists.resize(nlists+1, -1); /*+1 for overflow, -1 for
+					  marking empty*/ 
 
-    if (!quiet)
-      {
-	dout << "Sorting all events, please wait..." << std::endl;
-      }
+      if (!quiet)
+	{
+	  dout << "Sorting all events, please wait..." << std::endl;
+	}
 
-    //Now insert all of the events!
-    for (unsigned long i = 1; i <= N; i++)
-      insertInEventQ(i);
+      //Now insert all of the events!
+      for (unsigned long i = 1; i <= N; i++)
+	insertInEventQ(i);
 
   
-    if (!quiet)
-      {
-	dout << "Finding first event..." << std::endl;
-      }
+      if (!quiet)
+	{
+	  dout << "Finding first event..." << std::endl;
+	}
     
-    //Find the next event and place it first so nextEventID() works
-    orderNextEvent();
-    if (!quiet)
-      dout << "Ready for simulation." << std::endl;
-  }
+      //Find the next event and place it first so nextEventID() works
+      orderNextEvent();
+      if (!quiet)
+	dout << "Ready for simulation." << std::endl;
+    }
 
-  inline void push(const intPart& tmpVal, const size_t& pID)
-  {
+    inline void push(const intPart& tmpVal, const size_t& pID)
+    {
 #ifdef DYNAMO_DEBUG
-    if (boost::math::isnan(tmpVal.dt))
-      M_throw() << "NaN value pushed into the sorter! Should be Inf I guess?";
+      if (boost::math::isnan(tmpVal.dt))
+	M_throw() << "NaN value pushed into the sorter! Should be Inf I guess?";
 #endif 
 
-    tmpVal.dt += pecTime;
-    Min[pID + 1].data.push(tmpVal);
-  }
+      tmpVal.dt += pecTime;
+      Min[pID + 1].data.push(tmpVal);
+    }
 
-  inline void update(const size_t& pID)
-  {
-    deleteFromEventQ(pID + 1);
-    insertInEventQ(pID + 1);
-  }
+    inline void update(const size_t& pID)
+    {
+      deleteFromEventQ(pID + 1);
+      insertInEventQ(pID + 1);
+    }
 
-//  inline const T& operator[](const size_t& a) const 
-//  {
-//#ifdef DYNAMO_DEBUG 
-//    if (Min.empty())
-//      M_throw() << "Heap not yet sized";
-//#endif
-//    
-//    return Min[a+1].data; 
-//  }
+    //  inline const T& operator[](const size_t& a) const 
+    //  {
+    //#ifdef DYNAMO_DEBUG 
+    //    if (Min.empty())
+    //      M_throw() << "Heap not yet sized";
+    //#endif
+    //    
+    //    return Min[a+1].data; 
+    //  }
   
-//  inline T& operator[](const size_t& a) 
-//  {
-//#ifdef DYNAMO_DEBUG 
-//    if (Min.empty())
-//      M_throw() << "Heap not yet sized";
-//#endif
-//
-//    return Min[a+1].data; 
-//  }
+    //  inline T& operator[](const size_t& a) 
+    //  {
+    //#ifdef DYNAMO_DEBUG 
+    //    if (Min.empty())
+    //      M_throw() << "Heap not yet sized";
+    //#endif
+    //
+    //    return Min[a+1].data; 
+    //  }
 
-  inline void clearPEL(const size_t& ID) { Min[ID+1].data.clear(); }
-  inline void popNextPELEvent(const size_t& ID) { Min[ID+1].data.pop(); }
-  inline void popNextEvent() { Min[CBT[1]].data.pop(); }
-  inline bool nextPELEmpty() const { return Min[CBT[1]].data.empty(); }
+    inline void clearPEL(const size_t& ID) { Min[ID+1].data.clear(); }
+    inline void popNextPELEvent(const size_t& ID) { Min[ID+1].data.pop(); }
+    inline void popNextEvent() { Min[CBT[1]].data.pop(); }
+    inline bool nextPELEmpty() const { return Min[CBT[1]].data.empty(); }
 
-  inline intPart copyNextEvent() const 
-  { intPart retval(Min[CBT[1]].data.top());
-    retval.dt -= pecTime;
-    return retval; 
-  }
+    inline intPart copyNextEvent() const 
+    { intPart retval(Min[CBT[1]].data.top());
+      retval.dt -= pecTime;
+      return retval; 
+    }
 
-  inline size_t next_ID() const { return CBT[1] - 1; }
-  inline EEventType next_type() const { return Min[CBT[1]].data.top().type; }
-  inline unsigned long next_collCounter2() const { return Min[CBT[1]].data.top().collCounter2; }
-  inline size_t next_p2() const { return Min[CBT[1]].data.top().p2; }
+    inline size_t next_ID() const { return CBT[1] - 1; }
+    inline EEventType next_type() const { return Min[CBT[1]].data.top().type; }
+    inline unsigned long next_collCounter2() const { return Min[CBT[1]].data.top().collCounter2; }
+    inline size_t next_p2() const { return Min[CBT[1]].data.top().p2; }
 
-  //inline T& next_Data() { return Min[CBT[1]].data; }
-  //inline const T& next_Data() const { return Min[CBT[1]].data; }
-  inline double next_dt() const { return Min[CBT[1]].data.getdt() - pecTime; }
+    //inline T& next_Data() { return Min[CBT[1]].data; }
+    //inline const T& next_Data() const { return Min[CBT[1]].data; }
+    inline double next_dt() const { return Min[CBT[1]].data.getdt() - pecTime; }
 
-  inline void sort() { orderNextEvent(); }
+    inline void sort() { orderNextEvent(); }
 
-  inline void rescaleTimes(const double& factor)
-  {
-    BOOST_FOREACH(eventQEntry& dat, Min)
-      dat.data.rescaleTimes(factor);
+    inline void rescaleTimes(const double& factor)
+    {
+      BOOST_FOREACH(eventQEntry& dat, Min)
+	dat.data.rescaleTimes(factor);
 
-    pecTime *= factor;
+      pecTime *= factor;
     
-    scale /= factor;
-    listWidth = nlists/scale;
+      scale /= factor;
+      listWidth = nlists/scale;
 
-  }
+    }
 
-private:
-  virtual CSSorter* Clone() const { return new CSSBoundedPQ(*this); };
-  ///////////////////////////BOUNDED QUEUE IMPLEMENTATION
-  inline void insertInEventQ(int p)
-  {
-    double box = scale * Min[p].data.getdt();
+  private:
+    virtual CSSorter* Clone() const { return new CSSBoundedPQ(*this); };
+    ///////////////////////////BOUNDED QUEUE IMPLEMENTATION
+    inline void insertInEventQ(int p)
+    {
+      double box = scale * Min[p].data.getdt();
 
-    int i = (box > std::numeric_limits<int>::max())
-      ? (nlists + nlists) //Put this in the overflow list
-      : static_cast<int>(box); //You can use this as usual
+      int i = (box > std::numeric_limits<int>::max())
+	? (nlists + nlists) //Put this in the overflow list
+	: static_cast<int>(box); //You can use this as usual
     
-    //This line makes negative time events possible without a segfault
-    if (i < currentIndex) i = currentIndex;
+      //This line makes negative time events possible without a segfault
+      if (i < currentIndex) i = currentIndex;
 
-    if (i > (nlists-1)) /* account for wrap */
-      {
-	i -= nlists;
-	if(i>=currentIndex-1)
-	  //Its overflowed!
-	  i=nlists; /* store in overflow list */
-      }
+      if (i > (nlists-1)) /* account for wrap */
+	{
+	  i -= nlists;
+	  if(i>=currentIndex-1)
+	    //Its overflowed!
+	    i=nlists; /* store in overflow list */
+	}
 
-    Min[p].qIndex=i;
+      Min[p].qIndex=i;
 
-    if(i == currentIndex)
-      Insert(p); /* insert in PQ */
-    else
-      {
-	/* insert in linked list */
-	int oldFirst = linearLists[i];
-	Min[p].previous = -1;
-	Min[p].next = oldFirst;
-	linearLists[i]= p;
-	if(oldFirst != -1)
-	  Min[oldFirst].previous = p;
-      }
-  }
+      if(i == currentIndex)
+	Insert(p); /* insert in PQ */
+      else
+	{
+	  /* insert in linked list */
+	  int oldFirst = linearLists[i];
+	  Min[p].previous = -1;
+	  Min[p].next = oldFirst;
+	  linearLists[i]= p;
+	  if(oldFirst != -1)
+	    Min[oldFirst].previous = p;
+	}
+    }
 
-  inline void processOverflowList()
-  {
-    int e = linearLists[nlists];
-    linearLists[nlists] = -1; /* mark empty; we will treat all entries and may re-add some */
+    inline void processOverflowList()
+    {
+      int e = linearLists[nlists];
+      linearLists[nlists] = -1; /* mark empty; we will treat all entries and may re-add some */
 
-    while(e!=-1)
-      {
-	++exceptionCount;
-	int eNext = Min[e].next; /* save next */
-	insertInEventQ(e); /* try add to regular list now */
-	e=eNext;
-      }
-  }
+      while(e!=-1)
+	{
+	  ++exceptionCount;
+	  int eNext = Min[e].next; /* save next */
+	  insertInEventQ(e); /* try add to regular list now */
+	  e=eNext;
+	}
+    }
 
-  inline void deleteFromEventQ(const int& e)
-  {
-    if(Min[e].qIndex == currentIndex)
-      Delete(e); /* delete from pq */
-    else
-      {
-	/* remove from linked list */
-	int prev = Min[e].previous,
-	  next = Min[e].next;
-	if(prev == -1)
-	  linearLists[Min[e].qIndex] = Min[e].next;
-	else
-	  Min[prev].next = next;
+    inline void deleteFromEventQ(const int& e)
+    {
+      if(Min[e].qIndex == currentIndex)
+	Delete(e); /* delete from pq */
+      else
+	{
+	  /* remove from linked list */
+	  int prev = Min[e].previous,
+	    next = Min[e].next;
+	  if(prev == -1)
+	    linearLists[Min[e].qIndex] = Min[e].next;
+	  else
+	    Min[prev].next = next;
 
-	if(next != -1)
-	  Min[next].previous = prev;
-      }
-  }
+	  if(next != -1)
+	    Min[next].previous = prev;
+	}
+    }
 
-  inline void orderNextEvent()
-  {
-    while(NP==0)/*if priority queue exhausted*/
-      {
+    inline void orderNextEvent()
+    {
+      while(NP==0)/*if priority queue exhausted*/
+	{
 #ifdef dynamo_UpdateCollDebug
-	    std::cerr << "\nQueue exhausted";
+	  std::cerr << "\nQueue exhausted";
 #endif
-	/* change current index */
-	if(++currentIndex==nlists)
-	  {
-	    //This is where we've wrapped all the way around
-	    //Need to do lots here to maintain the list
-	    currentIndex=0;
+	  /* change current index */
+	  if(++currentIndex==nlists)
+	    {
+	      //This is where we've wrapped all the way around
+	      //Need to do lots here to maintain the list
+	      currentIndex=0;
 
-	    //Stream every event by the list width!
-	    BOOST_FOREACH(eventQEntry& dat, Min)
-	      dat.data.stream(listWidth);
+	      //Stream every event by the list width!
+	      BOOST_FOREACH(eventQEntry& dat, Min)
+		dat.data.stream(listWidth);
 #ifdef dynamo_UpdateCollDebug
-	    std::cerr << "\nPecTime Stream occuring";
+	      std::cerr << "\nPecTime Stream occuring";
 #endif
-	    //update the peculiar time
-	    pecTime -= listWidth;
+	      //update the peculiar time
+	      pecTime -= listWidth;
 
-	    //Need to process this once per wrap so do it now 
-	    //All events that had dt > listWidth are now processed
-	    processOverflowList();
-	  }
+	      //Need to process this once per wrap so do it now 
+	      //All events that had dt > listWidth are now processed
+	      processOverflowList();
+	    }
 
-	/* populate pq */
-	for (int e = linearLists[currentIndex]; e!=-1; e=Min[e].next)
-	  Insert(e);
+	  /* populate pq */
+	  for (int e = linearLists[currentIndex]; e!=-1; e=Min[e].next)
+	    Insert(e);
 
-	linearLists[currentIndex] = -1;
-      }
-  }
+	  linearLists[currentIndex] = -1;
+	}
+    }
 
 
-  ///////////////////////////BINARY TREE IMPLEMENTATION
-  inline void UpdateCBT(const unsigned int& i)
-  {
-    unsigned int f = Leaf[i] / 2;
+    ///////////////////////////BINARY TREE IMPLEMENTATION
+    inline void UpdateCBT(const unsigned int& i)
+    {
+      unsigned int f = Leaf[i] / 2;
     
-    for(; (f > 0) && (CBT[f] == i); f /= 2) 
-      {
-	unsigned int l = CBT[f*2],
-	  r = CBT[f*2+1];
-	CBT[f] = (Min[r].data > Min[l].data) ? l : r;
-      }
+      for(; (f > 0) && (CBT[f] == i); f /= 2) 
+	{
+	  unsigned int l = CBT[f*2],
+	    r = CBT[f*2+1];
+	  CBT[f] = (Min[r].data > Min[l].data) ? l : r;
+	}
 
-    //Walk up finding the winners till it doesn't change or you hit
-    //the top of the tree
-    for( ; f>0; f /= 2) 
-      {
-	unsigned int w = CBT[f], /* old winner */
-	  l = CBT[f*2],
-	  r = CBT[f*2+1];
+      //Walk up finding the winners till it doesn't change or you hit
+      //the top of the tree
+      for( ; f>0; f /= 2) 
+	{
+	  unsigned int w = CBT[f], /* old winner */
+	    l = CBT[f*2],
+	    r = CBT[f*2+1];
 	
-	CBT[f] = (Min[r].data > Min[l].data) ? l : r;
+	  CBT[f] = (Min[r].data > Min[l].data) ? l : r;
 
-	if (CBT[f] == w) return; /* end of the event time comparisons */
-      }
-  }
+	  if (CBT[f] == w) return; /* end of the event time comparisons */
+	}
+    }
 
-  inline void Insert(const unsigned int& i)
-  {
-    if (NP)
-      {
-	int j = CBT[NP];	
-	CBT [NP*2] = j;
-	CBT [NP*2+1] = i;
-	Leaf[j] = NP*2;
-	Leaf[i]= NP*2+1;
-	++NP;
-	UpdateCBT(j);
-      }
-    else
-      {
-	CBT[1]=i; 
-	++NP; 
-      }
-  }
+    inline void Insert(const unsigned int& i)
+    {
+      if (NP)
+	{
+	  int j = CBT[NP];	
+	  CBT [NP*2] = j;
+	  CBT [NP*2+1] = i;
+	  Leaf[j] = NP*2;
+	  Leaf[i]= NP*2+1;
+	  ++NP;
+	  UpdateCBT(j);
+	}
+      else
+	{
+	  CBT[1]=i; 
+	  ++NP; 
+	}
+    }
   
-  inline void Delete(const unsigned int& i)
-  {
-    if (NP < 2) { CBT[1]=0; Leaf[0]=1; --NP; return; }
+    inline void Delete(const unsigned int& i)
+    {
+      if (NP < 2) { CBT[1]=0; Leaf[0]=1; --NP; return; }
 
-    int l = NP * 2 - 1;
+      int l = NP * 2 - 1;
 
-    if (CBT[l-1] == i)
-      {
-	Leaf[CBT[l]] = l/2;
-	CBT[l/2] =CBT[l];
-	UpdateCBT(CBT[l]);
-	--NP;
-	return;
-      }
+      if (CBT[l-1] == i)
+	{
+	  Leaf[CBT[l]] = l/2;
+	  CBT[l/2] =CBT[l];
+	  UpdateCBT(CBT[l]);
+	  --NP;
+	  return;
+	}
 
-    Leaf[CBT[l-1]] = l/2;
-    CBT[l/2] = CBT[l-1];
-    UpdateCBT(CBT[l-1]);
+      Leaf[CBT[l-1]] = l/2;
+      CBT[l/2] = CBT[l-1];
+      UpdateCBT(CBT[l-1]);
 
-    if (CBT[l] != i) 
-      {
-	CBT[Leaf[i]] = CBT[l];
-	Leaf[CBT[l]] = Leaf[i];
-	UpdateCBT(CBT[l]);
-      }
+      if (CBT[l] != i) 
+	{
+	  CBT[Leaf[i]] = CBT[l];
+	  Leaf[CBT[l]] = Leaf[i];
+	  UpdateCBT(CBT[l]);
+	}
     
-    --NP;
-  }
+      --NP;
+    }
   
-  virtual void outputXML(magnet::xml::XmlStream& XML) const
-  { XML << magnet::xml::attr("Type") << CSSBoundedPQName<T>::name(); }
+    virtual void outputXML(magnet::xml::XmlStream& XML) const
+    { XML << magnet::xml::attr("Type") << CSSBoundedPQName<T>::name(); }
 
-};
+  };
+}

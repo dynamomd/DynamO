@@ -15,48 +15,50 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "include.hpp"
-#include "../ranges/1range.hpp"
-#include "../ranges/1RAll.hpp"
-#include "../../simulation/particle.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../units/units.hpp"
+#include <dynamo/dynamics/species/include.hpp>
+#include <dynamo/dynamics/ranges/1range.hpp>
+#include <dynamo/dynamics/ranges/1RAll.hpp>
+#include <dynamo/simulation/particle.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/units/units.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cstring>
 
-void 
-SpPoint::operator<<(const magnet::xml::Node& XML)
-{
-  range.set_ptr(CRange::getClass(XML,Sim));
+namespace dynamo {
+  void 
+  SpPoint::operator<<(const magnet::xml::Node& XML)
+  {
+    range.set_ptr(CRange::getClass(XML,Sim));
   
-  try {
-    _mass = Sim->_properties.getProperty(XML.getAttribute("Mass"),
-					 Property::Units::Mass());
-    spName = XML.getAttribute("Name");
-    intName = XML.getAttribute("IntName");
-  } 
-  catch (boost::bad_lexical_cast &)
-    {
-      M_throw() << "Failed a lexical cast in SpPoint";
-    }
-}
+    try {
+      _mass = Sim->_properties.getProperty(XML.getAttribute("Mass"),
+					   Property::Units::Mass());
+      spName = XML.getAttribute("Name");
+      intName = XML.getAttribute("IntName");
+    } 
+    catch (boost::bad_lexical_cast &)
+      {
+	M_throw() << "Failed a lexical cast in SpPoint";
+      }
+  }
 
-void 
-SpPoint::outputXML(magnet::xml::XmlStream& XML) const
-{
-  XML << magnet::xml::attr("Mass") 
-      << _mass->getName()
-      << magnet::xml::attr("Name") << spName
-      << magnet::xml::attr("IntName") << intName
-      << magnet::xml::attr("Type") << "Point"
-      << range;
-}
+  void 
+  SpPoint::outputXML(magnet::xml::XmlStream& XML) const
+  {
+    XML << magnet::xml::attr("Mass") 
+	<< _mass->getName()
+	<< magnet::xml::attr("Name") << spName
+	<< magnet::xml::attr("IntName") << intName
+	<< magnet::xml::attr("Type") << "Point"
+	<< range;
+  }
 
-void
-SpPoint::initialise()
-{ 
-  if (IntPtr == NULL)
-    M_throw() << "SpPoint missing a matching interaction";
+  void
+  SpPoint::initialise()
+  { 
+    if (IntPtr == NULL)
+      M_throw() << "SpPoint missing a matching interaction";
+  }
 }

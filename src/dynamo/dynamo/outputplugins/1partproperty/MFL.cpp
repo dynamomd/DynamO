@@ -15,76 +15,77 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "MFL.hpp"
-#include "../../base/is_simdata.hpp"
-#include "../../dynamics/dynamics.hpp"
-#include "../../dynamics/species/species.hpp"
-#include "../../dynamics/1particleEventData.hpp"
-#include "../../dynamics/units/units.hpp"
+#include <dynamo/outputplugins/1partproperty/MFL.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/dynamics/species/species.hpp>
+#include <dynamo/dynamics/1particleEventData.hpp>
+#include <dynamo/dynamics/units/units.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 
-OPMFL::OPMFL(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
-  OP1PP(tmp,"MeanFreeLength", 250),
-  binwidth(0.01)
-{
-  operator<<(XML);
-}
+namespace dynamo {
+  OPMFL::OPMFL(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
+    OP1PP(tmp,"MeanFreeLength", 250),
+    binwidth(0.01)
+  {
+    operator<<(XML);
+  }
 
-void 
-OPMFL::operator<<(const magnet::xml::Node& XML)
-{
-  try 
-    {
-      if (XML.hasAttribute("binwidth"))
-	binwidth = XML.getAttribute("binwidth").as<double>();
-    }
-  catch (boost::bad_lexical_cast&)
-    {
-      M_throw() << "Failed a lexical cast in OPMFL";
-    }
-}
+  void 
+  OPMFL::operator<<(const magnet::xml::Node& XML)
+  {
+    try 
+      {
+	if (XML.hasAttribute("binwidth"))
+	  binwidth = XML.getAttribute("binwidth").as<double>();
+      }
+    catch (boost::bad_lexical_cast&)
+      {
+	M_throw() << "Failed a lexical cast in OPMFL";
+      }
+  }
 
-void
-OPMFL::initialise()
-{
-  lastTime.resize(Sim->N, 0.0);
-  data.resize(Sim->dynamics.getSpecies().size(), 
-	      C1DHistogram(Sim->dynamics.units().unitLength() * binwidth));
-}
+  void
+  OPMFL::initialise()
+  {
+    lastTime.resize(Sim->N, 0.0);
+    data.resize(Sim->dynamics.getSpecies().size(), 
+		C1DHistogram(Sim->dynamics.units().unitLength() * binwidth));
+  }
 
-void 
-OPMFL::A1ParticleChange(const ParticleEventData& PDat)
-{
-  //We ignore stuff that hasn't had an event yet
-  if (lastTime[PDat.getParticle().getID()] != 0.0)
-    { 
-     data[PDat.getSpecies().getID()]
-	.addVal(PDat.getParticle().getVelocity().nrm() 
-	     * (Sim->dSysTime 
-		- lastTime[PDat.getParticle().getID()]));
-    }
+  void 
+  OPMFL::A1ParticleChange(const ParticleEventData& PDat)
+  {
+    //We ignore stuff that hasn't had an event yet
+    if (lastTime[PDat.getParticle().getID()] != 0.0)
+      { 
+	data[PDat.getSpecies().getID()]
+	  .addVal(PDat.getParticle().getVelocity().nrm() 
+		  * (Sim->dSysTime 
+		     - lastTime[PDat.getParticle().getID()]));
+      }
   
-  lastTime[PDat.getParticle().getID()] = Sim->dSysTime;
-}
+    lastTime[PDat.getParticle().getID()] = Sim->dSysTime;
+  }
 
-void
-OPMFL::output(magnet::xml::XmlStream &XML)
-{
-  XML << magnet::xml::tag("MFL");
+  void
+  OPMFL::output(magnet::xml::XmlStream &XML)
+  {
+    XML << magnet::xml::tag("MFL");
   
-  for (size_t id = 0; id < data.size(); ++id)
-    {
-      XML << magnet::xml::tag("Species")
-	  << magnet::xml::attr("Name")
-	  << Sim->dynamics.getSpecies()[id]->getName();
+    for (size_t id = 0; id < data.size(); ++id)
+      {
+	XML << magnet::xml::tag("Species")
+	    << magnet::xml::attr("Name")
+	    << Sim->dynamics.getSpecies()[id]->getName();
 
-      data[id].outputHistogram(XML, 1.0 / Sim->dynamics.units().unitLength());
+	data[id].outputHistogram(XML, 1.0 / Sim->dynamics.units().unitLength());
       
-      XML << magnet::xml::endtag("Species");
-    }
+	XML << magnet::xml::endtag("Species");
+      }
 
-  XML << magnet::xml::endtag("MFL");
+    XML << magnet::xml::endtag("MFL");
+  }
 }
-

@@ -16,31 +16,33 @@
 */
 
 #pragma once
-#include "2range.hpp"
+#include <dynamo/dynamics/ranges/2range.hpp>
 #include <dynamo/base.hpp>
 #include <magnet/cloneptr.hpp>
 #include <list>
 
-class C2RRangeList:public C2Range, dynamo::SimBase_const
-{
-public:
-  C2RRangeList(const magnet::xml::Node&, const dynamo::SimData*);
-  C2RRangeList(const dynamo::SimData* nSim):SimBase_const(nSim,"C2RRangeList") {}
+namespace dynamo {
+  class C2RRangeList:public C2Range, dynamo::SimBase_const
+  {
+  public:
+    C2RRangeList(const magnet::xml::Node&, const dynamo::SimData*);
+    C2RRangeList(const dynamo::SimData* nSim):SimBase_const(nSim,"C2RRangeList") {}
 
-  virtual C2Range* Clone() const 
-  { return new C2RRangeList(*this); };
+    virtual C2Range* Clone() const 
+    { return new C2RRangeList(*this); };
 
-  virtual bool isInRange(const Particle&, const Particle&) const;
+    virtual bool isInRange(const Particle&, const Particle&) const;
 
-  void addRange(C2Range* nRange)
-  { ranges.push_back(magnet::ClonePtr<C2Range>(nRange)); }
+    void addRange(C2Range* nRange)
+    { ranges.push_back(magnet::ClonePtr<C2Range>(nRange)); }
   
-  virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node&);
 
-  const std::list<magnet::ClonePtr<C2Range> >& getRanges() const;
+    const std::list<magnet::ClonePtr<C2Range> >& getRanges() const;
   
-protected:
-  virtual void outputXML(magnet::xml::XmlStream&) const;
+  protected:
+    virtual void outputXML(magnet::xml::XmlStream&) const;
 
-  std::list<magnet::ClonePtr<C2Range> > ranges;
-};
+    std::list<magnet::ClonePtr<C2Range> > ranges;
+  };
+}

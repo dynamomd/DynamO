@@ -16,43 +16,45 @@
 */
 
 #pragma once
-#include "ticker.hpp"
-#include "../../datatypes/histogram.hpp"
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <dynamo/datatypes/histogram.hpp>
 
-class CTChain;
+namespace dynamo {
+  class CTChain;
 
-class OPCTorsion: public OPTicker
-{
- public:
-  OPCTorsion(const dynamo::SimData*, const magnet::xml::Node&);
-
-  virtual OutputPlugin *Clone() const
-  { return new OPCTorsion(*this); }
-
-  virtual void initialise();
-
-  virtual void stream(double) {}
-
-  virtual void ticker();
-
-  virtual void changeSystem(OutputPlugin*);
-
-  virtual void output(magnet::xml::XmlStream&);
-  
- protected:
-
-  struct CTCdata
+  class OPCTorsion: public OPTicker
   {
-    const CTChain* chainPtr;
-    C1DHistogram gammaMol;
-    C1DHistogram gammaSys;
-    C1DHistogram f;
-    CTCdata(const CTChain* ptr, double binwidth1, double binwidth2, double binwidth3):
-      chainPtr(ptr), gammaMol(binwidth1),
-      gammaSys(binwidth2), f(binwidth3)
-    {}
+  public:
+    OPCTorsion(const dynamo::SimData*, const magnet::xml::Node&);
 
+    virtual OutputPlugin *Clone() const
+    { return new OPCTorsion(*this); }
+
+    virtual void initialise();
+
+    virtual void stream(double) {}
+
+    virtual void ticker();
+
+    virtual void changeSystem(OutputPlugin*);
+
+    virtual void output(magnet::xml::XmlStream&);
+  
+  protected:
+
+    struct CTCdata
+    {
+      const CTChain* chainPtr;
+      C1DHistogram gammaMol;
+      C1DHistogram gammaSys;
+      C1DHistogram f;
+      CTCdata(const CTChain* ptr, double binwidth1, double binwidth2, double binwidth3):
+	chainPtr(ptr), gammaMol(binwidth1),
+	gammaSys(binwidth2), f(binwidth3)
+      {}
+
+    };
+
+    std::list<CTCdata> chains;
   };
-
-  std::list<CTCdata> chains;
-};
+}

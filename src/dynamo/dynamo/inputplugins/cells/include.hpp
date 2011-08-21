@@ -15,18 +15,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "fcc.hpp"
-#include "bcc.hpp"
-#include "sc.hpp"
-#include "file.hpp"
-#include "randomwalk.hpp"
-#include "helix.hpp"
-#include "mirror.hpp"
-#include "ringRod.hpp"
-#include "ringSnake.hpp"
-#include "randomise.hpp"
-#include "random.hpp"
-#include "linearRod.hpp"
-#include "binary.hpp"
-#include "cylinder.hpp"
-#include "triangleIntersection.hpp"
+#include <dynamo/inputplugins/cells/fcc.hpp>
+#include <dynamo/inputplugins/cells/bcc.hpp>
+#include <dynamo/inputplugins/cells/sc.hpp>
+#include <dynamo/inputplugins/cells/file.hpp>
+#include <dynamo/inputplugins/cells/randomwalk.hpp>
+#include <dynamo/inputplugins/cells/helix.hpp>
+#include <dynamo/inputplugins/cells/mirror.hpp>
+#include <dynamo/inputplugins/cells/ringRod.hpp>
+#include <dynamo/inputplugins/cells/ringSnake.hpp>
+#include <dynamo/inputplugins/cells/randomise.hpp>
+#include <dynamo/inputplugins/cells/random.hpp>
+#include <dynamo/inputplugins/cells/linearRod.hpp>
+#include <dynamo/inputplugins/cells/binary.hpp>
+#include <dynamo/inputplugins/cells/cylinder.hpp>
+#include <dynamo/inputplugins/cells/triangleIntersection.hpp>

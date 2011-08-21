@@ -16,59 +16,61 @@
 */
 
 #pragma once
-#include "cell.hpp"
+#include <dynamo/inputplugins/cells/cell.hpp>
 
-struct CUBCC: public CUCell
-{
-  CUBCC(std::tr1::array<long, 3> ncells, Vector  ndimensions, CUCell* nextCell):
-    CUCell(nextCell),
-    cells(ncells),
-    dimensions(ndimensions)
-  {}
-
-  std::tr1::array<long, 3> cells;
-  Vector  dimensions;
-
-  virtual std::vector<Vector> placeObjects(const Vector & centre)
+namespace dynamo {
+  struct CUBCC: public CUCell
   {
-    std::vector<Vector> retval;
+    CUBCC(std::tr1::array<long, 3> ncells, Vector  ndimensions, CUCell* nextCell):
+      CUCell(nextCell),
+      cells(ncells),
+      dimensions(ndimensions)
+    {}
 
-    Vector  cellWidth;
-    for (size_t iDim = 0; iDim < NDIM; ++iDim)
-      cellWidth[iDim] = dimensions[iDim] / cells[iDim];
+    std::tr1::array<long, 3> cells;
+    Vector  dimensions;
+
+    virtual std::vector<Vector> placeObjects(const Vector & centre)
+    {
+      std::vector<Vector> retval;
+
+      Vector  cellWidth;
+      for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	cellWidth[iDim] = dimensions[iDim] / cells[iDim];
     
-    Vector  position;
-    std::tr1::array<long, 3> iterVec = {{0,0,0}};
+      Vector  position;
+      std::tr1::array<long, 3> iterVec = {{0,0,0}};
     
-    while (iterVec[NDIM - 1] != cells[NDIM-1])
-      {      
-	for (size_t iDim = 0; iDim < NDIM; iDim++)
-	  position[iDim] = cellWidth[iDim] * (static_cast<double>(iterVec[iDim]) + 0.25) - 0.5 * dimensions[iDim] 
-	    + centre[iDim];
+      while (iterVec[NDIM - 1] != cells[NDIM-1])
+	{      
+	  for (size_t iDim = 0; iDim < NDIM; iDim++)
+	    position[iDim] = cellWidth[iDim] * (static_cast<double>(iterVec[iDim]) + 0.25) - 0.5 * dimensions[iDim] 
+	      + centre[iDim];
 	
-	BOOST_FOREACH(const Vector & vec, uc->placeObjects(position))
-	  retval.push_back(vec);
+	  BOOST_FOREACH(const Vector & vec, uc->placeObjects(position))
+	    retval.push_back(vec);
 	
-	for (size_t iDim = 0; iDim < NDIM; iDim++)
-	  position[iDim] += cellWidth[iDim]/2.0;
+	  for (size_t iDim = 0; iDim < NDIM; iDim++)
+	    position[iDim] += cellWidth[iDim]/2.0;
 	
-	BOOST_FOREACH(const Vector & vec, uc->placeObjects(position))
-	  retval.push_back(vec);
+	  BOOST_FOREACH(const Vector & vec, uc->placeObjects(position))
+	    retval.push_back(vec);
 	
-	//Now update the displacement vector
-	iterVec[0]++;
+	  //Now update the displacement vector
+	  iterVec[0]++;
 	
-	for (size_t iDim = 1; iDim < NDIM; iDim++)
-	  {
-	    //This increments the next dimension along when
-	    if (iterVec[iDim - 1] == cells[iDim -1])
-	      {
-		iterVec[iDim - 1] = 0;
-		iterVec[iDim] += 1;
-	      }
-	  }
-      }
+	  for (size_t iDim = 1; iDim < NDIM; iDim++)
+	    {
+	      //This increments the next dimension along when
+	      if (iterVec[iDim - 1] == cells[iDim -1])
+		{
+		  iterVec[iDim - 1] = 0;
+		  iterVec[iDim] += 1;
+		}
+	    }
+	}
     
-    return retval;
-  }
-};
+      return retval;
+    }
+  };
+}
