@@ -11,10 +11,10 @@
 **** TODO Auto detect the ensemble, users shouldn't have to specify it.
 **** TODO Make the viewing grid have a scalable box size.
 **** TODO Fix the construction of the shaders depending on the render requirements.
-**** TODO Move to deferred lighting.
+**** TODO Move to deferred lighting (Use the depth buffer from the render pass).
 **** TODO Fix the light position calculation in the Volume renderer
-**** TODO Fix the rendering of light sources.
-**** TODO New multiple light and cube light mechanism.
+**** TODO Add rendering of light sources (crepuscular rays too?).
+**** TODO Cube shadow map lights.
 **** TODO Look at CL/GL synchronisation objects for coil.
 **** TODO Remove all clone ptr's and replace them with shared_ptr's.
 **** TODO Coil library volume renderer.
