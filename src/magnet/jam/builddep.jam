@@ -29,7 +29,7 @@ rule set-feature-on-build ( feature : check : checkname : build-success-value ? 
   if ! $(build-fail-value) { build-fail-value = "no" ; }
 
   import feature ;
-  feature.feature $(feature) : $(build-fail-value) $(build-success-value) : propagated optional ;
+  feature.feature $(feature) : $(build-fail-value) $(build-success-value) : symmetric optional ;
 
   if ! [ cmd-line-feature-value-set $(feature) ]
   { 
