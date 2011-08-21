@@ -32,9 +32,9 @@ namespace magnet {
     //! \param E1 The first edge vector of the triangle (V1-V0).
     //! \param E2 The second edge vector of the triangle (V2-V0).
     //! \return Whether the point is inside the triangle.
-    inline bool point_triangle(const Vector& P, 
-			       const Vector& E1, 
-			       const Vector& E2)
+    inline bool point_triangle(const math::Vector& P, 
+			       const math::Vector& E1, 
+			       const math::Vector& E2)
     {
       double uu = E1 | E1;
       double uv = E1 | E2;

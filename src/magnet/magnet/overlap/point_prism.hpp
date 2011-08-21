@@ -28,10 +28,10 @@ namespace magnet {
     //! \param N Normal of the triangle.
     //! \param d The depth of the prism.
     //! \return Whether the point is inside the triangle.
-    inline bool point_prism(const Vector& P, 
-			    const Vector& E1, 
-			    const Vector& E2,
-			    const Vector& N,
+    inline bool point_prism(const math::Vector& P, 
+			    const math::Vector& E1, 
+			    const math::Vector& E2,
+			    const math::Vector& N,
 			    const double d)
     {
 

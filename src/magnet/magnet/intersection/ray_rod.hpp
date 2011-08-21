@@ -34,9 +34,9 @@ namespace magnet {
     //! \param A The axial vector of the rod.
     //! \param r Radius of the rod.
     //! \return The time until the intersection, or HUGE_VAL if no intersection.
-    inline double ray_rod_bfc(Vector T, 
-			      Vector D, 
-			      const Vector& A,
+    inline double ray_rod_bfc(math::Vector T, 
+			      math::Vector D, 
+			      const math::Vector& A,
 			      const double r)
     {
       
@@ -62,9 +62,9 @@ namespace magnet {
     //! \param A The axial vector of the inverse rod.
     //! \param r Radius of the inverse rod.
     //! \return The time until the intersection, or HUGE_VAL if no intersection.
-    inline double ray_inv_rod_bfc(Vector T, 
-				  Vector D, 
-				  const Vector& A,
+    inline double ray_inv_rod_bfc(math::Vector T, 
+				  math::Vector D, 
+				  const math::Vector& A,
 				  const double r)
     {
       double t = ray_inv_cylinder_bfc(T, D, A / A.nrm(), r);

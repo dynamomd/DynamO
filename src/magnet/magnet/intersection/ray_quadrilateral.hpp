@@ -35,10 +35,10 @@ namespace magnet {
     //! \param E2 Another edge of the quadrangle (V2 - V0);
     //! \return The time until the intersection, or HUGE_VAL if no intersection.
     template<bool BACKFACE_CULLING>
-    inline double ray_quadrilateral(const Vector& T,
-				    const Vector& D,
-				    const Vector& E1,
-				    const Vector& E2)
+    inline double ray_quadrilateral(const math::Vector& T,
+				    const math::Vector& D,
+				    const math::Vector& E1,
+				    const math::Vector& E2)
     {
       //Do a test against the triangle of this quad, without the
       //diagonal test!

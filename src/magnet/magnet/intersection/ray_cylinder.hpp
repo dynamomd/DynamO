@@ -30,14 +30,14 @@ namespace magnet {
     //! \param A A normalized vector parallel to the axis of the cylinder.
     //! \param r Radius of the cylinder.
     //! \return The time until the intersection, or HUGE_VAL if no intersection.
-    inline double ray_inv_cylinder_bfc(Vector T, 
-				       Vector D, 
-				       const Vector& A, 
+    inline double ray_inv_cylinder_bfc(math::Vector T, 
+				       math::Vector D, 
+				       const math::Vector& A, 
 				       const double r)
     {
       //Project off the axial component of the position and velocity
-      T -= Vector((T | A) * A);
-      D -= Vector((D | A) * A);
+      T -= math::Vector((T | A) * A);
+      D -= math::Vector((D | A) * A);
 
       return ray_inv_sphere_bfc(T, D, r);
     }
@@ -53,11 +53,11 @@ namespace magnet {
     //! \param A A normalized vector parallel to the axis of the cylinder.
     //! \param r Radius of the cylinder.
     //! \return The time until the intersection, or HUGE_VAL if no intersection.
-    inline double ray_cylinder_bfc(Vector T, Vector D, const Vector& A, const double r)
+    inline double ray_cylinder_bfc(math::Vector T, math::Vector D, const math::Vector& A, const double r)
     {
       //Project off the axial component of the position and velocity
-      T -= Vector((T | A) * A);
-      D -= Vector((D | A) * A);
+      T -= math::Vector((T | A) * A);
+      D -= math::Vector((D | A) * A);
 
       return ray_sphere_bfc(T, D, r);
     }
