@@ -221,7 +221,7 @@ main(int argc, char *argv[])
       sim.getHistory() << "configmod run as so\n";
       for (int i = 0; i< argc; i++)
 	sim.getHistory() << argv[i] << " ";
-      sim.getHistory() << "\nGIT hash " << VALUE_TO_STRING(GITHASH);
+      sim.getHistory() << "\nGIT hash " << STR(GITHASH);
       sim.writeXMLfile(vm["out-config-file"].as<string>(), 
 		       !vm.count("unwrapped"), vm.count("round"));
     }
