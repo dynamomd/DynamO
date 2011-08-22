@@ -42,8 +42,8 @@ namespace magnet {
 	    for (size_t slice = 0; slice < LOD; ++slice)
 	      {		
 		GLfloat angle = slice * 2.0f * M_PI / LOD;
-		GLfloat x = 0.5f * std::sin(angle);
-		GLfloat y = 0.5f * std::cos(angle);
+		GLfloat x = 0.25f * std::sin(angle);
+		GLfloat y = 0.25f * std::cos(angle);
 
 		//Add the point vertex for the arrow
 		vertices.push_back(0); 
