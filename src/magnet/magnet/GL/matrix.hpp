@@ -43,9 +43,9 @@ namespace magnet {
       GLMatrix& operator=(const Base& o)
       { Base::operator=(o); return *this; }
 
-      operator Matrix() const
+      operator math::Matrix() const
       {
-	Matrix retval;
+	math::Matrix retval;
 	for (size_t i(0); i < 3; ++i)
 	  for (size_t j(0); j < 3; ++j)
 	    retval(i, j) = (*this)[4 * j + i];
@@ -55,7 +55,7 @@ namespace magnet {
       /*! \brief Constructs the matrix from a 3x3 rotation
        * matrix.
        */       
-      GLMatrix(const ::Matrix& m)
+      GLMatrix(const math::Matrix& m)
       {
 	Base val =
 	  {{m(0,0),m(1,0),m(2,0),0,
@@ -80,7 +80,7 @@ namespace magnet {
        *
        * This command emulates the glTranslate command.
        */
-      inline static GLMatrix translate(const Vector& vec)
+      inline static GLMatrix translate(const math::Vector& vec)
       { return translate(vec[0], vec[1], vec[2]); }
 
       /*! \brief Return a matrix corresponding to a translation.
@@ -100,7 +100,7 @@ namespace magnet {
        *
        * This command emulates the glScale command.
        */
-      inline static GLMatrix scale(const Vector& vec)
+      inline static GLMatrix scale(const math::Vector& vec)
       { return scale(vec[0], vec[1], vec[2]); }
 
       /*! \brief Return a matrix corresponding to a scaling.
@@ -123,7 +123,7 @@ namespace magnet {
        * \param angle The angle of rotation (in degrees).
        * \param axis The axis of rotation.
        */
-      inline static GLMatrix rotate(const GLfloat& angle, const Vector& axis)
+      inline static GLMatrix rotate(const GLfloat& angle, const math::Vector& axis)
       { return GLMatrix(Rodrigues((angle * M_PI / 180.0f) * axis)); }
 
       /*! \brief Return a matrix corresponding to a frustrum projection.
@@ -178,7 +178,7 @@ namespace magnet {
 	return *this;
       }
 
-      /*! \brief Matrix multiplication operator.
+      /*! \brief math::Matrix multiplication operator.
        */       
       inline GLMatrix operator*(const GLMatrix& om) const
       {

@@ -42,9 +42,9 @@ namespace magnet {
     //! \param G The acceleration of the ray.
     //! \param r The radius of the sphere.
     //! \return The time until the intersection, or HUGE_VAL if no intersection.
-    inline double parabola_sphere_bfc(const Vector& T,
-				      const Vector& D,
-				      const Vector& G,
+    inline double parabola_sphere_bfc(const math::Vector& T,
+				      const math::Vector& D,
+				      const math::Vector& G,
 				      const double& r)
     {
       //This is our lengthscale to which we bisect the roots

@@ -29,9 +29,9 @@ namespace magnet {
     //! \param N The normal of the plane.
     //! \return The time until the intersection, or HUGE_VAL if no intersection.
     template<bool BACKFACE_CULLING>
-    inline double ray_plane(const Vector& T,
-			    const Vector& D,
-			    const Vector& N)
+    inline double ray_plane(const math::Vector& T,
+			    const math::Vector& D,
+			    const math::Vector& N)
     {
       double ND = (D | N);
       

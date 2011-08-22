@@ -28,7 +28,7 @@ namespace magnet {
      * This class can perform all the calculations required for
      * setting up the projection and modelview matricies of the
      * camera. There is also support for head tracking calculations
-     * using the \ref _headLocation \ref Vector.
+     * using the \ref _headLocation \ref math::Vector.
      */
     class Camera
     {
@@ -55,11 +55,11 @@ namespace magnet {
       //We need a default constructor as viewPorts may be created without GL being initialized
       inline Camera(size_t height = 600, 
 		    size_t width = 800,
-		    Vector position = Vector(1,1,1), 
-		    Vector lookAtPoint = Vector(0,0,0),
+		    math::Vector position = math::Vector(1,1,1), 
+		    math::Vector lookAtPoint = math::Vector(0,0,0),
 		    GLfloat fovY = 60.0f,
 		    GLfloat zNearDist = 0.01f, GLfloat zFarDist = 20.0f,
-		    Vector up = Vector(0,1,0)
+		    math::Vector up = math::Vector(0,1,0)
 		    ):
 	_height(height),
 	_width(width),
@@ -79,14 +79,14 @@ namespace magnet {
 	up /= up.nrm();
 	      
 	//Now rotate about the up vector, we do tilt seperately
-	Vector directionNorm = (lookAtPoint - position);
+	math::Vector directionNorm = (lookAtPoint - position);
 	directionNorm /= directionNorm.nrm();
 	double upprojection = (directionNorm | up);
-	Vector directionInXZplane = directionNorm - upprojection * up;
+	math::Vector directionInXZplane = directionNorm - upprojection * up;
 	directionInXZplane /= (directionInXZplane.nrm() != 0) ? directionInXZplane.nrm() : 0;
-	_panrotation = -(180.0f / M_PI) * std::acos(directionInXZplane | Vector(0,0,-1));
+	_panrotation = -(180.0f / M_PI) * std::acos(directionInXZplane | math::Vector(0,0,-1));
 		
-	Vector rotationAxis = up ^ directionInXZplane;
+	math::Vector rotationAxis = up ^ directionInXZplane;
 	rotationAxis /= rotationAxis.nrm();
 
 	_tiltrotation = (180.0f / M_PI) * std::acos(directionInXZplane | directionNorm);
@@ -108,15 +108,15 @@ namespace magnet {
 	//When the FOV is adjusted, we move the head position away
 	//from the view plane, but we adjust the viewplane position to
 	//compensate this motion
-	Vector headLocationChange = Vector(0, 0, 0.5f * (_pixelPitch * _width / _simLength) 
+	math::Vector headLocationChange = math::Vector(0, 0, 0.5f * (_pixelPitch * _width / _simLength) 
 					   / std::tan((fovY / 180.0f) * M_PI / 2) 
 					   - _headLocation[2]);
 
 	if (compensate)
 	  {
-	    ::Matrix viewTransformation 
-	      = Rodrigues(Vector(0, -_panrotation * M_PI/180, 0))
-	      * Rodrigues(Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
+	    math::Matrix viewTransformation 
+	      = Rodrigues(math::Vector(0, -_panrotation * M_PI/180, 0))
+	      * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
 	    
 	    _position -= viewTransformation * headLocationChange;	
 	  }
@@ -129,7 +129,7 @@ namespace magnet {
        * \param head The position of the viewers head, relative to the
        * center of the near viewing plane (in cm).
        */
-      inline void setHeadLocation(Vector head)
+      inline void setHeadLocation(math::Vector head)
       { _headLocation = head / _simLength; }
 
       /*! \brief Gets the OpenGL head location (in cm).
@@ -137,7 +137,7 @@ namespace magnet {
        * The position of the viewers head is relative to the center of
        * the near viewing plane (in cm).
        */
-      inline const Vector getHeadLocation() const
+      inline const math::Vector getHeadLocation() const
       { return _headLocation * _simLength; }
 
       /*! \brief Returns the current field of vision of the camera */
@@ -166,10 +166,10 @@ namespace magnet {
 	      //added to make it appear to rotate around the head
 	      //position
 	      //Calculate the current camera position
-	      Vector cameraLocationOld(getEyeLocation());	      
+	      math::Vector cameraLocationOld(getEyeLocation());	      
 	      _panrotation += diffX;
 	      _tiltrotation = magnet::clamp(diffY + _tiltrotation, -90.0f, 90.0f);
-	      Vector cameraLocationNew(getEyeLocation());
+	      math::Vector cameraLocationNew(getEyeLocation());
 
 	      _position -= cameraLocationNew - cameraLocationOld;
 	      break;
@@ -190,14 +190,14 @@ namespace magnet {
       inline void CameraUpdate(float forward = 0, float sideways = 0, float vertical = 0)
       {
 	//Build a matrix to rotate from camera to world
-	::Matrix Transformation = Rodrigues(Vector(0,-_panrotation * M_PI/180,0))
-	  * Rodrigues(Vector(-_tiltrotation * M_PI/180.0,0,0));
+	math::Matrix Transformation = Rodrigues(math::Vector(0,-_panrotation * M_PI/180,0))
+	  * Rodrigues(math::Vector(-_tiltrotation * M_PI/180.0,0,0));
 	
 	//This vector is the movement vector from the camera's
 	//viewpoint (not including the vertical component)
-	Vector movement(sideways,0,-forward); //Strafe direction (left-right)
+	math::Vector movement(sideways,0,-forward); //Strafe direction (left-right)
 	
-	_position += Transformation * movement + Vector(0,vertical,0);
+	_position += Transformation * movement + math::Vector(0,vertical,0);
       }
       
       /*! \brief Get the modelview matrix.
@@ -207,22 +207,22 @@ namespace magnet {
        * the perspective shift for the left and right eye in
        * Analygraph rendering.
        */
-      inline const GLMatrix getViewMatrix(Vector offset = Vector(0,0,0)) const 
+      inline const GLMatrix getViewMatrix(math::Vector offset = math::Vector(0,0,0)) const 
       { 
 	//Local head location
-	Vector headLoc = _headLocation + offset / _simLength;
+	math::Vector headLoc = _headLocation + offset / _simLength;
 
 	//Now add in the movement of the head and the movement of the
 	//camera
-	::Matrix viewTransformation 
-	    = Rodrigues(Vector(0, -_panrotation * M_PI/180, 0))
-	    * Rodrigues(Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
+	math::Matrix viewTransformation 
+	    = Rodrigues(math::Vector(0, -_panrotation * M_PI/180, 0))
+	    * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
 	
-	Vector cameraLocation((viewTransformation * headLoc) + _position);
+	math::Vector cameraLocation((viewTransformation * headLoc) + _position);
 
 	//Setup the view matrix
-	return GLMatrix::rotate(_tiltrotation, Vector(1,0,0))
-	  * GLMatrix::rotate(_panrotation, Vector(0,1,0))
+	return GLMatrix::rotate(_tiltrotation, math::Vector(1,0,0))
+	  * GLMatrix::rotate(_panrotation, math::Vector(0,1,0))
 	  * GLMatrix::translate(-cameraLocation);
       }
 
@@ -237,10 +237,11 @@ namespace magnet {
 	camera. See \ref GLMatrix::frustrum() for more information as
 	the parameter is directly passed to that function.
        */
-      inline const GLMatrix getProjectionMatrix(Vector offset = Vector(0,0,0), GLfloat zoffset = 0) const 
+      inline const GLMatrix getProjectionMatrix(math::Vector offset = math::Vector(0,0,0), 
+						GLfloat zoffset = 0) const 
       { 
 	//Local head location
-	Vector headLoc = _headLocation + offset / _simLength;
+	math::Vector headLoc = _headLocation + offset / _simLength;
 
 	//We will move the camera to the location of the head in sim
 	//space. So we must create a viewing frustrum which, in real
@@ -276,8 +277,8 @@ namespace magnet {
        * the perspective shift for the left and right eye in
        * Analygraph rendering.
        */
-      inline const Matrix getNormalMatrix(Vector offset = Vector(0,0,0)) const 
-      { return Inverse(Matrix(getViewMatrix(offset))); }
+      inline const math::Matrix getNormalMatrix(math::Vector offset = math::Vector(0,0,0)) const 
+      { return Inverse(math::Matrix(getViewMatrix(offset))); }
 
       //! \brief Returns the screen's width (in simulation units).
       double getScreenPlaneWidth() const
@@ -299,7 +300,7 @@ namespace magnet {
       inline const float& getTilt() const { return _tiltrotation; }
 
       //! \brief Get the position of the viewing plane (effectively the camera position)
-      inline const Vector& getViewPlanePosition() const { return _position; } 
+      inline const math::Vector& getViewPlanePosition() const { return _position; } 
 
       /*! \brief Fetch the location of the users eyes, in simulation
        * coordinates.
@@ -309,12 +310,12 @@ namespace magnet {
        * location (relative to the viewing plane/screen) onto the
        * current position.
        */
-      inline const Vector 
+      inline const math::Vector 
       getEyeLocation() const 
       { 
-	::Matrix viewTransformation 
-	  = Rodrigues(Vector(0, -_panrotation * M_PI/180, 0))
-	  * Rodrigues(Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
+	math::Matrix viewTransformation 
+	  = Rodrigues(math::Vector(0, -_panrotation * M_PI/180, 0))
+	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
 
 	return (viewTransformation * _headLocation) + _position;
       }
@@ -328,21 +329,21 @@ namespace magnet {
       { return ((GLfloat)_width) / _height; }
 
       //! \brief Get the up direction of the camera.
-      inline Vector getCameraUp() const 
+      inline math::Vector getCameraUp() const 
       { 
-	::Matrix viewTransformation 
-	  = Rodrigues(Vector(0, -_panrotation * M_PI/180, 0))
-	  * Rodrigues(Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
-	return viewTransformation * Vector(0,1,0);
+	math::Matrix viewTransformation 
+	  = Rodrigues(math::Vector(0, -_panrotation * M_PI/180, 0))
+	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
+	return viewTransformation * math::Vector(0,1,0);
       } 
 
       //! \brief Get the direction the camera is pointing in
-      inline Vector getCameraDirection() const
+      inline math::Vector getCameraDirection() const
       { 
-	::Matrix viewTransformation 
-	  = Rodrigues(Vector(0, -_panrotation * M_PI/180, 0))
-	  * Rodrigues(Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
-	return viewTransformation * Vector(0,0,-1);
+	math::Matrix viewTransformation 
+	  = Rodrigues(math::Vector(0, -_panrotation * M_PI/180, 0))
+	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
+	return viewTransformation * math::Vector(0,0,-1);
       } 
 
       //! \brief Get the height of the screen, in pixels.
@@ -365,11 +366,11 @@ namespace magnet {
       size_t _height, _width;
       float _panrotation;
       float _tiltrotation;
-      Vector _position;
+      math::Vector _position;
       
       GLfloat _zNearDist;
       GLfloat _zFarDist;
-      Vector _headLocation;
+      math::Vector _headLocation;
       
       //! \brief One simulation length in cm (real units)
       double _simLength;

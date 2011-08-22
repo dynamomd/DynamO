@@ -31,12 +31,12 @@ namespace magnet {
     //! \param A A normalized vector parallel to the axis of the cylinder.
     //! \param r Radius of the cylinder.
     //! \return The time until the intersection, or HUGE_VAL if no intersection.
-    inline double parabola_cylinder_bfc(Vector T, Vector D, Vector Aray, const Vector& A, const double r)
+    inline double parabola_cylinder_bfc(math::Vector T, math::Vector D, math::Vector Aray, const math::Vector& A, const double r)
     {
       //Project off the axial component of the position, velocity and acceleration
-      T -= Vector((T | A) * A);
-      D -= Vector((D | A) * A);
-      Aray -= Vector((Aray | A) * A);
+      T -= math::Vector((T | A) * A);
+      D -= math::Vector((D | A) * A);
+      Aray -= math::Vector((Aray | A) * A);
 
       return parabola_sphere_bfc(T, D, Aray, r);
     }

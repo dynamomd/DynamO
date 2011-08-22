@@ -92,7 +92,7 @@ namespace magnet {
       //v_angle = std::acos(0.5 *  ScreenYlength / eye_pos[2]) + M_PI / 2;
     }
 
-    inline Vector getHeadPosition()
+    inline math::Vector getHeadPosition()
     { 
       magnet::thread::ScopedLock lock(_irdatalock);
       return eye_pos;
@@ -213,7 +213,7 @@ namespace magnet {
     }
 
     cwiid_wiimote_t* m_wiimote; 
-    Vector eye_pos;
+    math::Vector eye_pos;
     volatile double v_angle;
     volatile float _batteryLevel;
 

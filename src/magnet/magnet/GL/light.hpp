@@ -54,11 +54,11 @@ namespace magnet {
        * \param zFarDist The distance to the far clipping plane.
        * \param up A vector describing the up direction of the camera.
        */
-      inline Light(Vector position, 
-		   Vector lookAtPoint,
+      inline Light(math::Vector position, 
+		   math::Vector lookAtPoint,
 		   GLfloat fovY = 45.0f,
 		   GLfloat zNearDist = 0.05f, GLfloat zFarDist = 10.0f,
-		   Vector up = Vector(0,1,0)):
+		   math::Vector up = math::Vector(0,1,0)):
 	Camera(1,1,position, lookAtPoint, fovY, zNearDist, zFarDist, up)
       {}
 
@@ -110,10 +110,10 @@ namespace magnet {
        * \param textureUnit The texture unit whose matrix is to be
        * setup for shadowmapping.
        */
-      inline GLMatrix getShadowTextureMatrix(const Camera& camera, Vector offset = Vector(0,0,0))
+      inline GLMatrix getShadowTextureMatrix(const Camera& camera, math::Vector offset = math::Vector(0,0,0))
       {
-	return GLMatrix::translate(Vector(0.5, 0.5, 0.5))
-	  * GLMatrix::scale(Vector(0.5, 0.5, 0.5))
+	return GLMatrix::translate(math::Vector(0.5, 0.5, 0.5))
+	  * GLMatrix::scale(math::Vector(0.5, 0.5, 0.5))
 	  * getProjectionMatrix()
 	  * getViewMatrix()
 	  * camera.getViewMatrix(offset).inverse();

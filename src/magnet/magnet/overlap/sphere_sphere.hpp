@@ -28,7 +28,7 @@ namespace magnet {
     //! \param S The point's relative position.
     //! \param d The diameter of the sphere.
     //! \return Whether the point is inside the sphere.
-    inline bool point_sphere(const Vector& P, 
+    inline bool point_sphere(const math::Vector& P, 
 			     const double d)
     { return P.nrm2() <= d * d; }
 
@@ -40,7 +40,7 @@ namespace magnet {
     //! \param S The other sphere's relative position.
     //! \param d The average diameter of the spheres.
     //! \return Whether the spheres are overlapping.
-    inline bool sphere_sphere(const Vector& P, 
+    inline bool sphere_sphere(const math::Vector& P, 
 			     const double d)
     { return point_sphere(P, d); }
   }

@@ -59,7 +59,7 @@ namespace dynamo {
 	_e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
 					  Property::Units::Dimensionless());
 	intName = XML.getAttribute("Name");
-	::operator<<(Rotation, XML.getNode("Rotation"));
+	magnet::math::operator<<(Rotation, XML.getNode("Rotation"));
       }
     catch (boost::bad_lexical_cast &)
       {

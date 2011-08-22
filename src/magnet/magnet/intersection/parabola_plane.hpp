@@ -29,10 +29,10 @@ namespace magnet {
      * \param N The normal of the plane.
      * \return The time until the intersection, or HUGE_VAL if no intersection.
      */
-    inline double parabola_plane_bfc(const Vector& T,
-				     const Vector& D,
-				     const Vector& A,
-				     const Vector& N)
+    inline double parabola_plane_bfc(const math::Vector& T,
+				     const math::Vector& D,
+				     const math::Vector& A,
+				     const math::Vector& N)
     {
       double adot = (N | A);
       if (adot == 0) return ray_plane<true>(T, D, N);

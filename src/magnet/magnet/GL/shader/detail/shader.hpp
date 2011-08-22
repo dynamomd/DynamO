@@ -98,13 +98,13 @@ namespace magnet {
 	  inline void operator=(const GLint& val)
 	  { std::tr1::array<GLint,1> val2 = {{val}}; operator=(val2); }
 
-	  inline void operator=(const Vector& vec)
+	  inline void operator=(const math::Vector& vec)
 	  { 
 	    std::tr1::array<GLfloat, 3> val = {{vec[0], vec[1], vec[2]}}; 
 	    operator=(val); 
 	  }
 
-	  inline void operator=(const Matrix& mat)
+	  inline void operator=(const math::Matrix& mat)
 	  { 
 	    std::tr1::array<GLfloat, 9> val;
 	    for (size_t i(0); i < 3 * 3; ++i)

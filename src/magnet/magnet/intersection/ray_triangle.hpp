@@ -45,12 +45,12 @@ namespace magnet {
     //! \param E2 The second edge vector of the triangle (V2-V0).
     //! \return The time until the intersection, or HUGE_VAL if no intersection.
     template<bool BACKFACE_CULLING, bool DIAGONAL_TEST>
-    inline double ray_triangle(const Vector& T, 
-			       const Vector& D,
-			       const Vector& E1, 
-			       const Vector& E2)
+    inline double ray_triangle(const math::Vector& T, 
+			       const math::Vector& D,
+			       const math::Vector& E1, 
+			       const math::Vector& E2)
     {
-      Vector P = D ^ E2;
+      math::Vector P = D ^ E2;
       double det = E1 | P;
       
       if (BACKFACE_CULLING)
@@ -61,7 +61,7 @@ namespace magnet {
 	  double u = T | P;
 	  if ((u < 0) || (u > det)) return HUGE_VAL;
 	  
-	  Vector Q = T ^ E1;
+	  math::Vector Q = T ^ E1;
 	  double v = D | Q;
 	  
 	  if ((v < 0) 
@@ -81,7 +81,7 @@ namespace magnet {
 
 	  if ((u < 0) || (u > 1)) return HUGE_VAL;
 
-	  Vector Q = T ^ E1;
+	  math::Vector Q = T ^ E1;
 	  double v = (D | Q) * invdet;
 
 	  if ((v < 0) || (DIAGONAL_TEST && ((u + v) > 1)))  return HUGE_VAL;

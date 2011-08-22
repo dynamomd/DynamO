@@ -205,7 +205,7 @@ namespace magnet {
        * \param angle The rotation angle in radians.
        * \param axis The rotation axis.
        */
-      inline void rotation(GLfloat angle, Vector axis) 
+      inline void rotation(GLfloat angle, math::Vector axis) 
       {
 	GLfloat s = std::sin(angle / 2);
 	GLfloat c = std::cos(angle / 2);

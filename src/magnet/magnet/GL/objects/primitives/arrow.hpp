@@ -100,13 +100,13 @@ namespace magnet {
 		GLfloat x = std::sin(angle);
 		GLfloat y = std::cos(angle);
 
-		Vector zaxis(0,0,1), radialaxis(x,y,0), edge(x,y,-1);
+		math::Vector zaxis(0,0,1), radialaxis(x,y,0), edge(x,y,-1);
 
 		edge /= edge.nrm();
 
-		Vector rotationAxis = radialaxis ^ zaxis;
+		math::Vector rotationAxis = radialaxis ^ zaxis;
 
-		Vector coneNormal = Rodrigues(rotationAxis * (M_PI / 2)) * edge;
+		math::Vector coneNormal = Rodrigues(rotationAxis * (M_PI / 2)) * edge;
 		
 		//Point vertex
 		normals.push_back(coneNormal[0]); 

@@ -34,7 +34,7 @@ namespace magnet {
        * It also provides an alpha-tested magnification routine and
        * corresponding shader to help fake "vectorised" bitmap
        * graphics. The technique is briefly described in the paper
-       * "Improved Alpha-Tested Magnification for Vector Textures and
+       * "Improved Alpha-Tested Magnification for math::Vector Textures and
        * Special Effects," by Chris Green from Valve.
        */
       class CairoSurface

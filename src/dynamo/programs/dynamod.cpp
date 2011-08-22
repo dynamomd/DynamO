@@ -199,7 +199,7 @@ main(int argc, char *argv[])
 	  
 	  boost::tokenizer<boost::char_separator<char> >::iterator details_iter = tokens.begin();
 
-	  Vector vel(0,0,0);
+	  dynamo::Vector vel(0,0,0);
 
 	  if (details_iter == tokens.end()) M_throw() << "set-com-vel requires 3 components";
 	  vel[0] = boost::lexical_cast<double>(*(details_iter++));
