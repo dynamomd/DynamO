@@ -3282,7 +3282,7 @@ namespace dynamo {
 		"       --f1 : Elasticity [0.4]\n"
 		"       --f2 : Elastic Velocity [Disabled]\n"
 		"       --f3 : Sleep velocity [Disabled]\n"
-		"       --f4 : tc model time [Disabled]\n"
+		"       --f4 : tc model time [0.1] (0=off)\n"
 		"       --f5 : If using a sleep velocity, this sets the periodic wake up time [Disabled]\n";
 	      exit(1);
 	    }
@@ -3291,19 +3291,21 @@ namespace dynamo {
 	  if (vm.count("f1"))
 	    elasticity = vm["f1"].as<double>();
 
-	  double elasticV = 0.0;
+	  double elasticV = 0;
 	  if (vm.count("f2"))
 	    elasticV = vm["f2"].as<double>();
 
-	  double sleepV = 0.01;
+	  double sleepV = 0;
 	  if (vm.count("f3"))
 	    sleepV = vm["f3"].as<double>();
 
-	  double tc = -HUGE_VAL;
+	  double tc = 0.04;
 	  if (vm.count("f4"))
 	    tc = vm["f4"].as<double>();
 
-	  double wakeTime = 0.1;
+	  if (!tc) tc = -HUGE_VAL;
+
+	  double wakeTime = 0;
 	  if (vm.count("f5"))
 	    wakeTime = vm["f5"].as<double>();
 
@@ -3477,15 +3479,15 @@ namespace dynamo {
 
 	  Sim->dynamics.addGlobal(new GPBCSentinel(Sim, "PBCSentinel"));
 
-	  if (vm.count("f3"))
+	  if (sleepV)
 	    {
 	      Sim->dynamics.addSystem(new SSleep(Sim, "Sleeper",
 						 new CRRange(funnelSites.size(),
 							     funnelSites.size()
 							     + dynamicSites.size() - 1),
 						 sleepV * Sim->dynamics.units().unitVelocity()));
-	    
-	      if (vm.count("f5"))
+	      
+	      if (wakeTime)
 		Sim->dynamics.addGlobal(new GWaker(Sim, "Waker",
 						   new CRRange(funnelSites.size(),
 							       funnelSites.size()
