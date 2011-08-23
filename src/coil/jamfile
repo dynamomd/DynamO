@@ -63,7 +63,7 @@ exe gl_test
 explicit gl_test test coil ;
 
 install install-libs
-	: coil 
+	: coil coil/<link>static
 	: <location>$(LIB_INSTALL_PATH) [ critical_dependencies ]
 	;	
 
