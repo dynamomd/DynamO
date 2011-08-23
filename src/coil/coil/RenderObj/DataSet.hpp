@@ -166,50 +166,7 @@ namespace coil {
   class AttributeSelector: public Gtk::VBox
   {
   public:
-    AttributeSelector(size_t attrnum, bool enableDataFiltering = true):
-      _lastAttribute(NULL),
-      _lastAttributeDataCount(-1),
-      _lastComponentSelected(-1),
-      _context(NULL),
-      _components(0),
-      _attrnum(attrnum),
-      _enableDataFiltering(enableDataFiltering)
-    {
-      pack_start(_selectorRow, false, false, 5);
-      _selectorRow.show();
-      //Label
-      _label.show();
-      _selectorRow.pack_start(_label, false, false, 5);
-      _context = &(magnet::GL::Context::getContext());
-      //combo box
-      _model = Gtk::ListStore::create(_modelColumns);
-      _comboBox.set_model(_model);      
-      _comboBox.pack_start(_modelColumns.m_name);
-      _comboBox.show();
-      _selectorRow.pack_start(_comboBox, false, false, 5);
-      
-      _selectorRow.pack_start(_componentSelect, false, false, 5);
-      
-      _singleValueLabel.show();
-      _singleValueLabel.set_text("Value:");
-      _singleValueLabel.set_alignment(1.0, 0.5);
-
-      _selectorRow.pack_start(_singleValueLabel, true, true, 5);
-      for (size_t i(0); i < 4; ++i)
-	{
-	  _selectorRow.pack_start(_scalarvalues[i], false, false, 0);
-	  _scalarvalues[i].signal_changed()
-	    .connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, _scalarvalues[i]));
-	  _scalarvalues[i].set_text("1.0");
-	  _scalarvalues[i].set_max_length(0);
-	  _scalarvalues[i].set_width_chars(5);	  
-	}
-
-      show();
-
-      _comboBox.signal_changed()
-	.connect(sigc::mem_fun(this, &AttributeSelector::updateGui));
-    }
+    AttributeSelector(size_t attrnum, bool enableDataFiltering = true);
     
     void buildEntries(std::string name, DataSet& ds, size_t minComponents, size_t maxComponents, 
 		      int typeMask, size_t components, int defaultMask = 0)
@@ -431,21 +388,8 @@ namespace coil {
   class AttributeColorSelector : public AttributeSelector
   {
   public:
-    AttributeColorSelector():
-      AttributeSelector(magnet::GL::Context::vertexColorAttrIndex, true),
-      _autoScaling("Autoscale to data range"),
-      _lastColorMap(-1)
-    {
-      pack_start(_colorMapSelector, false, false, 5);
-      pack_start(_autoScaling, false, false, 5);
-      _autoScaling.show();
-
-      _colorMapSelector.signal_changed()
-	.connect(sigc::mem_fun(*this, &AttributeColorSelector::colorMapChanged));
-      _autoScaling.signal_toggled()
-	.connect(sigc::mem_fun(*this, &AttributeColorSelector::colorMapChanged));
-    }
-
+    AttributeColorSelector();
+    
     virtual void bindAttribute()
     {
       Gtk::TreeModel::iterator iter = _comboBox.get_active();
