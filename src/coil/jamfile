@@ -1,3 +1,19 @@
+#    DYNAMO:- Event driven molecular dynamics simulator 
+#    http://www.marcusbannerman.co.uk/dynamo
+#    Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+#
+#    This program is free software: you can redistribute it and/or
+#    modify it under the terms of the GNU General Public License
+#    version 3 as published by the Free Software Foundation.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import ../magnet/jam/filetypes ;
 import ../magnet/jam/tags ;
 import ../magnet/jam/builddep ;
@@ -22,26 +38,22 @@ lib Xext : : <link>shared ;
 lib X11  : : <link>shared ;
 lib rt   : : <link>shared ;
 lib GLEW : : <link>shared ;
-lib OpenCL : : <link>shared ;
 alias gtkmm : : : : <linkflags>"`pkg-config gtkmm-2.4 --libs`" <cflags>"`pkg-config gtkmm-2.4 --cflags`" ;
 
 #Test executables for determining what is available in the build environment
-exe OpenCLtest : tests/opencl.cpp OpenCL ;
-exe OpenCLpptest : tests/openclpp.cpp OpenCL ;
 exe gluttest : tests/gluttest.cpp glut ;
 exe gtkmmtest : tests/gtkmmtest.cpp gtkmm ;
 exe GLEWtest : tests/glewtest.cpp ;
 
 exe coilDependencies : tests/buildreq.cpp : 
-[ check-target-builds OpenCLpptest "Coil: OpenCL C++ header" : : <define>BUILDFAIL ]
-[ check-target-builds OpenCLtest "Coil: OpenCL" : : <define>BUILDFAIL ]
+[ check-target-builds /opencl//test "Coil: OpenCL" : : <define>BUILDFAIL ]
 [ check-target-builds gluttest "Coil: FreeGlut" : : <define>BUILDFAIL ]
 [ check-target-builds gtkmmtest "Coil: GTKmm" : : <define>BUILDFAIL ]
 [ check-target-builds GLEWtest "Coil: GLEW" : : <define>BUILDFAIL ]
 : : ;
 
-always cwiidtest OpenCLtest OpenCLpptest gluttest gtkmmtest GLEWtest coilDependencies ;
-explicit cwiidtest OpenCLtest OpenCLpptest gluttest gtkmmtest GLEWtest coilDependencies ;
+always cwiidtest gluttest gtkmmtest GLEWtest coilDependencies ;
+explicit cwiidtest gluttest gtkmmtest GLEWtest coilDependencies ;
 
 rule critical_dependencies ( )
 { return [ check-target-builds coilDependencies "Coil library dependencies" :  : <build>no ] ; }
@@ -51,7 +63,7 @@ lib coil
         [ glob-tree *.pixbufsvg *.ttf : tests examples coil ]
       clwingtk.gladexml
       glut GLU GL Xext X11 rt GLEW /magnet//magnet
-      OpenCL gtkmm /boost//signals
+      /opencl//opencl gtkmm /boost//signals
       : <include>. <include>../boost <tag>@tags.lib-naming 
        <coil-cwiid>yes:<source>cwiid
       : : <define>GLVIEWER <include>. ;

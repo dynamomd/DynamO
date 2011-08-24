@@ -14,13 +14,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-lib OpenCL : : <link>shared ;
 lib dl : : <link>shared ;
 
-alias magnet : dl
+alias magnet : dl /opencl//opencl
       : <include>. 
-      : 
-      : <include>. <variant>debug:<define>MAGNET_DEBUG <variant>debug:<linkflags>-rdynamic <variant>fulldebug:<define>MAGNET_DEBUG <variant>fulldebug:<linkflags>-rdynamic 
+      : : <include>. <variant>debug:<define>MAGNET_DEBUG <variant>debug:<linkflags>-rdynamic <variant>fulldebug:<define>MAGNET_DEBUG <variant>fulldebug:<linkflags>-rdynamic 
       ;
 
 install install-magnet

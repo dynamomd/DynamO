@@ -64,7 +64,7 @@ namespace coil {
     _mouseSensitivity(0.3),
     _moveSensitivity(0.001),
     _specialKeys(0),
-    _shadowMapping(true),
+    _shadowMapping(false),
     _shadowIntensity(0.8),
     _simrun(false),
     _simframelock(false),
@@ -242,13 +242,6 @@ namespace coil {
 	    multisampleBox->set_sensitive(true);
 	  }
 	
-	  //Connect the anti aliasing checkbox
-	  Gtk::CheckButton* multisampleEnable;
-	  _refXml->get_widget("multisampleEnable", multisampleEnable);
-	  multisampleEnable->signal_toggled()
-	    .connect(sigc::mem_fun(*this, &CLGLWindow::multisampleEnableCallback));
-	  
-	
 	  Gtk::ComboBox* aliasSelections;
 	  _refXml->get_widget("multisampleLevels", aliasSelections);
 	
@@ -274,17 +267,18 @@ namespace coil {
 	
 	  aliasSelections->pack_start(vals.m_col_id);
 	
-	  //Activate a multisample of 2<<(2)=8 by default
-	  aliasSelections->set_active(std::min(lastrow, 2));
+	  //Activate a multisample of 2<<(1)=4 by default
+	  aliasSelections->set_active(std::min(lastrow, 1));
 	
-	  multisampleEnable->set_active(true);
-	
-	  _renderTarget.reset(new magnet::GL::MultisampledFBO
-			      (2 << aliasSelections->get_active_row_number()));
-	
-	  _renderTarget->init(_camera.getWidth(), _camera.getHeight());
-	
+	  
 	  aliasSelections->signal_changed()
+	    .connect(sigc::mem_fun(*this, &CLGLWindow::multisampleEnableCallback));
+
+	  //Connect the anti aliasing checkbox
+	  Gtk::CheckButton* multisampleEnable;
+	  _refXml->get_widget("multisampleEnable", multisampleEnable);
+	  multisampleEnable->set_active(false);
+	  multisampleEnable->signal_toggled()
 	    .connect(sigc::mem_fun(*this, &CLGLWindow::multisampleEnableCallback));
 	}
     
@@ -292,6 +286,8 @@ namespace coil {
       {
 	Gtk::CheckButton* shadowmapEnable;
 	_refXml->get_widget("shadowmapEnable", shadowmapEnable);
+
+	shadowmapEnable->set_active(_shadowMapping);
 	shadowmapEnable->signal_toggled()
 	  .connect(sigc::mem_fun(this, &CLGLWindow::shadowEnableCallback));
       }

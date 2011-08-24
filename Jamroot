@@ -75,8 +75,9 @@ use-project /dynamo : src/dynamo ;
 use-project /magnet : src/magnet ;
 use-project /boost : src/boost ;
 use-project /coil : src/coil ;
+use-project /opencl : src/opencl ;
 
-alias install : /dynamo//install-dynamo /coil//install-coil /magnet//install-magnet ;
+alias install : /dynamo//install-dynamo /coil//install-coil /magnet//install-magnet /opencl//install-headers ;
 
 alias test : /magnet//test ;
 
