@@ -24,7 +24,6 @@
 #include <dynamo/base/is_simdata.hpp>
 #include <dynamo/dynamics/species/species.hpp>
 #include <dynamo/schedulers/sorters/datastruct.hpp>
-#include <dynamo/dynamics/liouvillean/shapes/frenkelroot.hpp>
 #include <dynamo/dynamics/liouvillean/shapes/oscillatingplate.hpp>
 #include <dynamo/dynamics/globals/neighbourList.hpp>
 #include <dynamo/dynamics/globals/ParabolaSentinel.hpp>

@@ -25,11 +25,11 @@
 #include <dynamo/base/is_simdata.hpp>
 #include <dynamo/dynamics/species/species.hpp>
 #include <dynamo/schedulers/sorters/datastruct.hpp>
-#include <dynamo/dynamics/liouvillean/shapes/frenkelroot.hpp>
 #include <dynamo/dynamics/liouvillean/shapes/oscillatingplate.hpp>
 #include <dynamo/dynamics/liouvillean/shapes/lines.hpp>
 #include <dynamo/dynamics/liouvillean/shapes/dumbbells.hpp>
 #include <dynamo/dynamics/units/units.hpp>
+#include <magnet/math/frenkelroot.hpp>
 #include <magnet/overlap/point_prism.hpp>
 #include <magnet/intersection/ray_triangle.hpp>
 #include <magnet/intersection/ray_rod.hpp>
@@ -975,7 +975,7 @@ namespace dynamo {
     t_high *= 1.01;
   
     std::pair<bool,double> root1 
-      = frenkelRootSearch(fL, t_low1, t_high, 1e-12 * Sigma);
+      = magnet::math::frenkelRootSearch(fL, t_low1, t_high, 1e-12 * Sigma);
 
     fL.flipSigma();
 
@@ -996,7 +996,7 @@ namespace dynamo {
       }
 
     std::pair<bool,double> root2 
-      = frenkelRootSearch(fL, t_low2, t_high, 1e-12 * Sigma);
+      = magnet::math::frenkelRootSearch(fL, t_low2, t_high, 1e-12 * Sigma);
 
     //Check if the particle is penetrating a wall
     //Or if no roots are found at all
@@ -1368,7 +1368,7 @@ namespace dynamo {
     if(dtw.second < t_high)
       t_high = dtw.second;
   
-    std::pair<bool,double> root = frenkelRootSearch(fL, t_low, t_high, length * 1e-10);
+    std::pair<bool,double> root = magnet::math::frenkelRootSearch(fL, t_low, t_high, length * 1e-10);
 
     if (root.first) 
       { 
@@ -1484,7 +1484,7 @@ namespace dynamo {
 	/ fL1.F_secondDeriv_max();
   
     //I_cout()<<"Sphere intersection between "<<t_low <<" and "<< t_high; 
-    std::pair<bool,double> root1 = frenkelRootSearch(fL1, t_low, t_high,length*tolerance);
+    std::pair<bool,double> root1 = magnet::math::frenkelRootSearch(fL1, t_low, t_high,length*tolerance);
 
 
     CDumbbellsFunc fL2(PD.rij, PD.vij,
@@ -1499,7 +1499,7 @@ namespace dynamo {
       t_low += fabs(2.0 * fL2.F_firstDeriv())
 	/ fL2.F_secondDeriv_max();
   
-    std::pair<bool,double> root2 = frenkelRootSearch(fL2, t_low, t_high,length*tolerance);
+    std::pair<bool,double> root2 = magnet::math::frenkelRootSearch(fL2, t_low, t_high,length*tolerance);
 
     CDumbbellsFunc fL3(PD.rij, PD.vij,
 		       orientationData[p1.getID()].angularVelocity,
@@ -1513,7 +1513,7 @@ namespace dynamo {
       t_low += fabs(2.0 * fL3.F_firstDeriv())
 	/ fL3.F_secondDeriv_max();
   
-    std::pair<bool,double> root3 = frenkelRootSearch(fL3, t_low, t_high,length*tolerance);
+    std::pair<bool,double> root3 = magnet::math::frenkelRootSearch(fL3, t_low, t_high,length*tolerance);
 
     CDumbbellsFunc fL4(PD.rij, PD.vij,
 		       orientationData[p1.getID()].angularVelocity,
@@ -1527,7 +1527,7 @@ namespace dynamo {
       t_low += fabs(2.0 * fL4.F_firstDeriv())
 	/ fL4.F_secondDeriv_max();
   
-    std::pair<bool,double> root4 = frenkelRootSearch(fL4, t_low, t_high,length*tolerance);
+    std::pair<bool,double> root4 = magnet::math::frenkelRootSearch(fL4, t_low, t_high,length*tolerance);
 
     if (root1.first || root2.first || root3.first || root4.first )
       {

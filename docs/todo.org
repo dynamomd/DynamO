@@ -25,7 +25,6 @@
 **** TODO Expose the get neighborhood functions in the scheduler for patrics work.
 **** TODO Move the dynamo overlap functions into magnet.
 **** TODO Move the histogram class into magnet.
-**** TODO Move the frenkel root finder into magnet.
 **** TODO Rewrite the range classes.
 **** TODO Move the minmax heap into magnet.
 *** DynamO 1.2
