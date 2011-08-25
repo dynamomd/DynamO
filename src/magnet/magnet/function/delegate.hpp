@@ -47,6 +47,8 @@
 
 #pragma once
 
+#ifndef DOXYGEN_SHOULD_IGNORE_THIS
+
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
@@ -2102,8 +2104,9 @@ namespace magnet {
       return Delegate8<Param1, Param2, Param3, Param4, Param5, Param6, Param7, Param8, FASTDLGT_RETTYPE>(x, func);
     }
 
-
     // clean up after ourselves...
 #undef FASTDLGT_RETTYPE
   }
 }
+
+#endif

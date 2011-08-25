@@ -21,6 +21,7 @@
 namespace magnet {
   namespace math {
     namespace detail {
+#ifndef DOXYGEN_SHOULD_IGNORE_THIS
       template <size_t val, size_t base>
       struct ctime_floor_log_worker
       {
@@ -56,6 +57,7 @@ namespace magnet {
       {
 	static const size_t result = ctime_ceil_log_tester<val / base, base, val % base>::result;
       };
+#endif
     }
 
     /*! \brief A template metafunction to calculate the log of an
@@ -70,20 +72,20 @@ namespace magnet {
       static const size_t result = detail::ctime_floor_log_worker<val / base, base>::result;
     };
     
-    // A specialization to produce an error for the log of zero.
+    //! \brief A specialization to produce an error for the log of zero.
     template <size_t base> struct ctime_floor_log<0, base> {};
 
-    // A specialization to produce an error for the base 1 log.
+    //! \brief A specialization to produce an error for the base 1 log.
     template <size_t val> struct ctime_floor_log<val, 1> {};
 
-    // A specialization to produce an error for the base 0 log.
+    //! \brief A specialization to produce an error for the base 0 log.
     template <size_t val> struct ctime_floor_log<val, 0> {};
     
     /*! \brief A template metafunction to calculate the log of an
-     * size_t integer.
-     *
-     * This function actually returns \f${\textrm
-     * floor}\left(\log_base(val)\right)\f$.
+      size_t integer.
+      
+      This function actually returns \f${\textrm
+      floor}\left(\log_base(val)\right)\f$.
      */
     template <size_t val, size_t base>
     struct ctime_ceil_log
@@ -98,13 +100,13 @@ namespace magnet {
       static const size_t result = 0;
     };
 
-    // A specialization to produce an error for the log of zero.
+    //! \brief A specialization to produce an error for the log of zero.
     template <size_t base> struct ctime_ceil_log<0, base> {};
 
-    // A specialization to produce an error for the base 1 log.
+    //! \brief A specialization to produce an error for the base 1 log.
     template <size_t val> struct ctime_ceil_log<val, 1> {};
 
-    // A specialization to produce an error for the base 0 log.
+    //! \brief A specialization to produce an error for the base 0 log.
     template <size_t val> struct ctime_ceil_log<val, 0> {};
   }
 }

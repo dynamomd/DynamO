@@ -28,8 +28,6 @@
 #define PNG_SKIP_SETJMP_CHECK
 #include <png.h>
 
-#include <magnet/image/pixel.hpp>
-
 namespace magnet {
   namespace image {
     namespace detail {

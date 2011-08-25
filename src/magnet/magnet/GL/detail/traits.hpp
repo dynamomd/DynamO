@@ -34,6 +34,8 @@ namespace magnet {
        */
       template <GLenum T> struct gl_enum_to_c_type {};
 
+#ifndef DOXYGEN_SHOULD_IGNORE_THIS
+
 #define GL_ENUM_TO_C_TYPE(GL_ENUM_VAL, C_TYPE)				\
       template <> struct gl_enum_to_c_type<GL_ENUM_VAL> { typedef C_TYPE Type; };
 
@@ -50,6 +52,8 @@ namespace magnet {
 
       BASE_GL_TYPE_FACTORY(C_TYPE_TO_GL_ENUM)
 #undef C_TYPE_TO_GL_ENUM
+
+#endif
     }
   }
 }

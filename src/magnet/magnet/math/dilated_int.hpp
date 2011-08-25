@@ -59,6 +59,7 @@ namespace magnet {
   namespace math {
     //! \brief Implementation details  for the \ref dilate and \ref undilate functions.
     namespace dilatedinteger {
+#ifndef DOXYGEN_SHOULD_IGNORE_THIS
       /*! \brief Number of bits in the size_t type.
        */
       static const size_t uint_bits = sizeof(size_t) * 8;
@@ -252,6 +253,7 @@ namespace magnet {
 	  static const size_t undilate_shift = (d * (s<d>::result - 1) + 1 - s<d>::result); 
 	  return undilateWorker<undilation_rounds<d>::result, 0>::eval(val) >> undilate_shift;
 	};
+#endif
       };
 
       //! \brief The actual dilation function.
@@ -279,11 +281,11 @@ namespace magnet {
       };
 
       /*! \brief A specialization of dilate for d=2.
-       *
-       * We have to use a specialization of dilate for a dilation
-       * width of \f$d==2\f$, as the multiplication method is not
-       * valid here.  Instead, we use the so-called Shift-Or
-       * algorithm.
+       
+        We have to use a specialization of dilate for a dilation
+        width of \f$d==2\f$, as the multiplication method is not
+        valid here.  Instead, we use the so-called Shift-Or
+        algorithm.
        */
       template<>
       struct dilate<2>
@@ -319,29 +321,29 @@ namespace magnet {
     }
     
     /*! \brief A function to dilate an integer value.
-     *
-     * Dilation is the act of spreading the bits of an integer out
-     * over a wider range by introducing \ref d zero bits in between
-     * every bit of the original integer. This amount of spread is
-     * known as the dilation.
-     *
-     * This function accepts and returns size_t values as it is likely
-     * you will use the dilated integer for memory access (Dilated
-     * integers are required for the calculation of Morton numbers, a
-     * nice way to increase cache efficiency).
-     *
-     * A design choice was made to dilated the integers using
-     * mathematical/bitwise operations instead of using look-up
-     * tables. This is because calculation is relatively cheap in
-     * modern CPU's. Also, if you are using dilated integers to
-     * optimize your memory access patterns, then we don't want to
-     * fill the cache up with even more data.
-     *
-     * Please see the original paper "Converting to and from Dilated
-     * Integers"(doi:10.1109/TC.2007.70814) for the details on the
-     * underlying math. The rest is template metaprogramming.
-     *
-     * \tparam d The requested dilation of the passed integer.
+     
+      Dilation is the act of spreading the bits of an integer out
+      over a wider range by introducing \ref d zero bits in between
+      every bit of the original integer. This amount of spread is
+      known as the dilation.
+     
+      This function accepts and returns size_t values as it is likely
+      you will use the dilated integer for memory access (Dilated
+      integers are required for the calculation of Morton numbers, a
+      nice way to increase cache efficiency).
+     
+      A design choice was made to dilated the integers using
+      mathematical/bitwise operations instead of using look-up
+      tables. This is because calculation is relatively cheap in
+      modern CPU's. Also, if you are using dilated integers to
+      optimize your memory access patterns, then we don't want to
+      fill the cache up with even more data.
+     
+      Please see the original paper "Converting to and from Dilated
+      Integers"(doi:10.1109/TC.2007.70814) for the details on the
+      underlying math. The rest is template metaprogramming.
+     
+      \tparam d The requested dilation of the passed integer.
      */
     template<size_t d>
     inline size_t dilate(size_t val)
@@ -371,12 +373,12 @@ namespace magnet {
 
 
     /*! \brief A helper class which allows mathematics to be performed
-     * directly on a dilated integer.
-     *
-     * This class is based on the paper "Fast additions on masked
-     * integers" by M. D. Adams and D. S. Wise
-     * (doi:10.1145/1149982.1149987).
-     *
+      directly on a dilated integer.
+     
+      This class is based on the paper "Fast additions on masked
+      integers" by M. D. Adams and D. S. Wise
+      (doi:10.1145/1149982.1149987).
+     
      */
     template<size_t d>
     class DilatedInteger
@@ -465,13 +467,13 @@ namespace magnet {
       { return _value >= o._value; }
 
       /*! \brief Modulus operator (expensive).
-       *
-       * A complication with the modulus operation is that the real
-       * value actually has less bits than the type. This means that
-       * large overflows are not wrapped correctly.
-       *
-       * To fix this we simply mask off the unused bits of the real
-       * value.
+       
+        A complication with the modulus operation is that the real
+        value actually has less bits than the type. This means that
+        large overflows are not wrapped correctly.
+       
+        To fix this we simply mask off the unused bits of the real
+        value.
        */
       inline DilatedInteger operator%(const size_t& mod) const
       { return DilatedInteger(getRealValue() % mod); }

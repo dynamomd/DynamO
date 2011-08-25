@@ -64,7 +64,8 @@ namespace magnet {
       {
 	static const bool isCLType = false;
       };
-    
+
+#ifndef DOXYGEN_SHOULD_IGNORE_THIS
       //We use the CL_TYPE_FACTORY to generate our type traits
 #define TRAIT_FACTORY(cl_type,hosttype,tensororder,basetype,vec2type,vec4type,vec8type,vec16type,bitshifttype) \
       template<> struct traits<hosttype>				\
@@ -84,6 +85,8 @@ namespace magnet {
       CL_TYPE_FACTORY(TRAIT_FACTORY)
     
 #undef TRAIT_FACTORY
+
+#endif
     }
   }
 }

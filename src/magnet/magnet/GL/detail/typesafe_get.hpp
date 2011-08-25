@@ -20,15 +20,17 @@
 namespace magnet {
   namespace GL {
     namespace detail {
+#ifndef DOXYGEN_SHOULD_IGNORE_THIS
+
+      template<GLenum val> struct glget_enum_to_type {};
+
 #define GL_GET_ENUM_TYPE_TRAIT_FACTORY(F)		\
       F(GL_VIEWPORT, GLint, 4)				\
       F(GL_MAX_VERTEX_ATTRIBS, GLint, 1)
 
       template<size_t width, class T> struct return_type { typedef std::tr1::array<T, width> Type; };
       template<class T> struct return_type<1, T> { typedef T Type; };
-
       
-      template<GLenum val> struct glget_enum_to_type {};
 #define GL_GET_TO_C_TYPE(GL_ENUM_VAL, C_TYPE, WIDTH)		\
       template<> struct glget_enum_to_type<GL_ENUM_VAL>		\
       {								\
@@ -41,27 +43,21 @@ namespace magnet {
 #undef GL_GET_ENUM_TYPE_TRAIT_FACTORY
 
       inline void glGetWorker(GLenum val, GLboolean* ptr)
-      {
-	glGetBooleanv(val, ptr);
-      }
+      { glGetBooleanv(val, ptr); }
 
       inline void glGetWorker(GLenum val, GLdouble* ptr)
-      {
-	glGetDoublev(val, ptr);
-      }
+      { glGetDoublev(val, ptr); }
 
       inline void glGetWorker(GLenum val, GLfloat* ptr)
-      {
-	glGetFloatv(val, ptr);
-      }
+      { glGetFloatv(val, ptr); }
 
       inline void glGetWorker(GLenum val, GLint* ptr)
-      {
-	glGetIntegerv(val, ptr);
-      }
+      { glGetIntegerv(val, ptr); }
+
+#endif
 
       /*! \brief A type safe glGet command, to fetch parameters of the
-       * current OpenGL state.
+        current OpenGL state.
        */
       template<GLenum ENUM>
       typename glget_enum_to_type<ENUM>::ReturnType glGet()

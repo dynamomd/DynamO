@@ -25,6 +25,7 @@ namespace magnet {
       static const int result = X * ctime_pow<X, Y-1>::result;
     };
     
+#ifndef DOXYGEN_SHOULD_IGNORE_THIS
     template<int X>
     struct ctime_pow<X,1> {
       static const int result = X;
@@ -34,6 +35,7 @@ namespace magnet {
     struct ctime_pow<X,0> {
       static const int result = 1;
     };
+#endif
   }
 }
 
