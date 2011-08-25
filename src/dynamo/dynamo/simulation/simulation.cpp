@@ -19,6 +19,7 @@
 #include <dynamo/dynamics/include.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/dynamics/include.hpp>
+#include <dynamo/dynamics/BC/include.hpp>
 #include <dynamo/dynamics/interactions/intEvent.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>
@@ -26,6 +27,8 @@
 #include <dynamo/dynamics/NparticleEventData.hpp>
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <dynamo/dynamics/systems/sysTicker.hpp>
+#include <dynamo/dynamics/globals/ParabolaSentinel.hpp>
+#include <dynamo/dynamics/globals/PBCSentinel.hpp>
 #include <magnet/exception.hpp>
 #include <boost/foreach.hpp>
 #include <iomanip>
@@ -137,6 +140,11 @@ namespace dynamo {
   
     bool needTicker = false;
   
+    if (dynamics.BCTypeTest<BCPeriodic>()
+	|| dynamics.BCTypeTest<BCPeriodicExceptX>()
+	|| dynamics.BCTypeTest<BCPeriodicXOnly>())
+      dynamics.addGlobal(new GPBCSentinel(this, "PBCSentinel"));
+
     BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
       if (dynamic_cast<OPTicker*>(Ptr.get_ptr()) != NULL)
 	{
@@ -156,6 +164,7 @@ namespace dynamo {
       M_throw() << "The scheduler has not been set!";      
   
     dout << "Initialising the dynamics" << std::endl;
+
     dynamics.initialise();
 
     ensemble->initialise();

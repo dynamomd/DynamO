@@ -143,7 +143,6 @@ namespace dynamo {
 		"       --f1 : Sets the elasticity of the hard spheres\n"
 		"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 		"       --i2 : Adds a temperature rescale event every x events\n"
-		"       --b1 : Installs the collision sentinel for low densities\n"
 		"       --b2 : Forces the use of non-morton cells in square systems\n";
 	      exit(1);
 	    }
@@ -206,9 +205,6 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
-
-	  if (vm.count("b1"))
-	    Sim->dynamics.addGlobal(new GPBCSentinel(Sim, "PBCSentinel"));
 
 	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -862,8 +858,6 @@ namespace dynamo {
 	  //Set up a standard simulation
 	  Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
 
-	  if (vm.count("b1"))
-	    Sim->dynamics.addGlobal(new GPBCSentinel(Sim, "PBCSentinel"));
 
 	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 	
@@ -1142,8 +1136,6 @@ namespace dynamo {
 	    }
 
 	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
-
-	  Sim->dynamics.addGlobal(new GPBCSentinel(Sim, "PBCSentinel"));
 
 	  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0;
 
@@ -2269,9 +2261,6 @@ namespace dynamo {
 	  //Set up a standard simulation
 	  Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
 
-	  //The sentinel is needed because of the high speeds of the particles!
-	  Sim->dynamics.addGlobal(new GPBCSentinel(Sim, "PBCSentinel"));
-
 	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	  Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, 
@@ -2385,9 +2374,6 @@ namespace dynamo {
 	  //Set up a standard simulation
 	  Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
 
-	  if (vm.count("b1"))
-	    Sim->dynamics.addGlobal(new GPBCSentinel(Sim, "PBCSentinel"));
-
 	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	  Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, 1.0,
@@ -2475,9 +2461,6 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler = new CSNeighbourList(Sim, new DefaultSorter(Sim));
-
-	  if (vm.count("b1"))
-	    Sim->dynamics.addGlobal(new GPBCSentinel(Sim, "PBCSentinel"));
 
 	  Sim->dynamics.addLocal(new CLCylinder(Sim, 1.0, Vector(1,0,0), 
 						Vector(0,0,0), cylRad , "Cylinder", 
@@ -2681,8 +2664,6 @@ namespace dynamo {
 				   (new SpPoint(Sim, new CRRange(funnelSites.size(), 
 								 funnelSites.size() + dynamicSites.size() - 1), 
 						1.0, "Bulk", 0, "Bulk")));
-
-	  Sim->dynamics.addGlobal(new GPBCSentinel(Sim, "PBCSentinel"));
 
 	  unsigned long nParticles = 0;
 	  Sim->particleList.reserve(funnelSites.size() + dynamicSites.size());
@@ -3476,8 +3457,6 @@ namespace dynamo {
 				   (new SpPoint(Sim, new CRRange(funnelSites.size(), 
 								 funnelSites.size() + dynamicSites.size() - 1), 
 						1.0, "Bulk", 0, "Bulk")));
-
-	  Sim->dynamics.addGlobal(new GPBCSentinel(Sim, "PBCSentinel"));
 
 	  if (sleepV)
 	    {

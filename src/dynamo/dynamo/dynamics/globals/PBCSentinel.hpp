@@ -53,7 +53,7 @@ namespace dynamo {
     virtual void operator<<(const magnet::xml::Node&);
 
   protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void outputXML(magnet::xml::XmlStream&) const {}
 
     double maxintdist;
   };

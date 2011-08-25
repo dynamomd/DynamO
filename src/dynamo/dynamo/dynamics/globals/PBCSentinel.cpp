@@ -106,13 +106,4 @@ namespace dynamo {
 
     Sim->ptrScheduler->fullUpdate(part);
   }
-
-  void 
-  GPBCSentinel::outputXML(magnet::xml::XmlStream& XML) const
-  {
-    XML << magnet::xml::tag("Global") 
-	<< magnet::xml::attr("Type") << "PBCSentinel"
-	<< magnet::xml::attr("Name") << globName
-	<< magnet::xml::endtag("Global");
-  }
 }

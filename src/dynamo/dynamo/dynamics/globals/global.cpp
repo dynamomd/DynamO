@@ -50,8 +50,6 @@ namespace dynamo {
       return new GCells(XML, Sim);
     else if (!strcmp(XML.getAttribute("Type"),"ShearingCells"))
       return new GCellsShearing(XML, Sim);
-    else if (!strcmp(XML.getAttribute("Type"),"PBCSentinel"))
-      return new GPBCSentinel(XML, Sim);
     else if (!strcmp(XML.getAttribute("Type"),"SOCells"))
       return new GSOCells(XML, Sim);
     else if (!strcmp(XML.getAttribute("Type"),"Waker"))

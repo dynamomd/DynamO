@@ -41,6 +41,7 @@
 **** DONE All: The build system now has an advanced configuration mode, testing for all dependencies before trying to build.
 **** DONE All: You can now install the magnet and coil library into your system for use in other projects.
 **** DONE DynamO: The ParabolaSentinel global is now added automatically to simulations, it needs to be deleted from existing configurations.
+**** DONE DynamO: The PBC Sentinel global is now added automatically to simulations, it needs to be deleted from existing configurations.
 **** DONE DynamO: Initial support for triangular meshes. The current version is not optimized using a neighbor list.
 **** DONE DynamO: Implemented multicanonical simulations, which can also be used with the replica exchange MC mode.
 **** DONE DynamO: Generalized the rescaling thermostat for shear flows http://arxiv.org/pdf/1103.3704.
