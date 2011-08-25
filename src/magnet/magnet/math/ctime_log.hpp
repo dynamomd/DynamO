@@ -72,6 +72,7 @@ namespace magnet {
       static const size_t result = detail::ctime_floor_log_worker<val / base, base>::result;
     };
     
+#ifndef DOXYGEN_SHOULD_IGNORE_THIS
     //! \brief A specialization to produce an error for the log of zero.
     template <size_t base> struct ctime_floor_log<0, base> {};
 
@@ -80,6 +81,7 @@ namespace magnet {
 
     //! \brief A specialization to produce an error for the base 0 log.
     template <size_t val> struct ctime_floor_log<val, 0> {};
+#endif
     
     /*! \brief A template metafunction to calculate the log of an
       size_t integer.
@@ -94,6 +96,7 @@ namespace magnet {
 	+ detail::ctime_ceil_log_tester<val / base, base, val % base>::result;
     };
 
+#ifndef DOXYGEN_SHOULD_IGNORE_THIS
     template <size_t base>
     struct ctime_ceil_log<1, base>
     {
@@ -108,5 +111,6 @@ namespace magnet {
 
     //! \brief A specialization to produce an error for the base 0 log.
     template <size_t val> struct ctime_ceil_log<val, 0> {};
+#endif
   }
 }

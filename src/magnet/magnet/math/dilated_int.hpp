@@ -253,7 +253,6 @@ namespace magnet {
 	  static const size_t undilate_shift = (d * (s<d>::result - 1) + 1 - s<d>::result); 
 	  return undilateWorker<undilation_rounds<d>::result, 0>::eval(val) >> undilate_shift;
 	};
-#endif
       };
 
       //! \brief The actual dilation function.
@@ -318,6 +317,7 @@ namespace magnet {
 	  return dilateWorker<dilation_rounds<2>::result, 0>::eval(val);
 	};
       };
+#endif
     }
     
     /*! \brief A function to dilate an integer value.

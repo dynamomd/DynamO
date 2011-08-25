@@ -29,8 +29,10 @@ namespace magnet {
     template <typename T, std::size_t N> class MinMaxHeap;
     
     //The unsupported sizes of the MinMax heap
+#ifndef DOXYGEN_SHOULD_IGNORE_THIS
     template <typename T> class MinMaxHeap<T,0> {};
     template <typename T> class MinMaxHeap<T,1> {};
+#endif
 
     //! \brief A fixed size MinMax heap implementation. 
     //!
