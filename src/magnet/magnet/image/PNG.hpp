@@ -54,10 +54,11 @@ namespace magnet {
      * \param width Variable used to return the width of the image.
      * \param height Variable used to return the height of the image.
      */
-    template<ColorType CT>
     inline void readPNGFile(const std::string& filename,
-			    std::vector<Pixel<CT> >& image, size_t& width,
-			    size_t& height) {
+			    std::vector<uint8_t>& image, 
+			    size_t& width, size_t& height,
+			    size_t& components) 
+    {
 
       std::ifstream pngFile(filename.c_str(), std::fstream::binary);
 
@@ -66,9 +67,9 @@ namespace magnet {
 	strm << "failed to open file '" << filename << "'";
 	throw std::runtime_error(strm.str().c_str());
       }
-
+      
       pngFile.exceptions(std::fstream::badbit | std::fstream::failbit);
-
+      
       const size_t pngHeaderSize = 8;
       png_byte pngHeader[pngHeaderSize];
 
@@ -123,65 +124,32 @@ namespace magnet {
 	throw std::runtime_error(strm.str().c_str());
       }
 
-      bool needCopy = false;
-
-      if(CT == RGBA && png_get_color_type(png, pngInfo) ==
-	 PNG_COLOR_TYPE_RGB)
-	needCopy = true;
-
-      if(CT != RGBA && png_get_color_type(png, pngInfo) ==
-	 PNG_COLOR_TYPE_RGBA) {
-
-	std::stringstream strm;
-	strm << "failed to read file '" << filename << "': " <<
-	  "images uses alpha channel, parameter 'image' has to be " <<
-	  " of type std::vector<magnet::image::Pixel<magnet::image::RGBA> >";
-	throw std::runtime_error(strm.str().c_str());
-      }
-
       width = png_get_image_width(png, pngInfo);
       height = png_get_image_height(png, pngInfo);
-      size_t channels = png_get_channels(png, pngInfo);
+      components = png_get_channels(png, pngInfo);
+
+      if ((components != 3) && (components != 4))
+	throw std::runtime_error("Unsupported number of components");
       size_t bitDepth = png_get_bit_depth(png, pngInfo);
 
-      if(channels < 3) {
-	png_destroy_read_struct(&png, &pngInfo, &pngEndInfo);
-
-	std::stringstream strm;
-	strm << "failed to read '" << filename << "': unsupported " <<
-	  "number of channels: " << channels;
-	throw std::runtime_error(strm.str().c_str());
-      }
 
       if(bitDepth != 8) {
 	png_destroy_read_struct(&png, &pngInfo, &pngEndInfo);
-
+	
 	std::stringstream strm;
 	strm << "failed to read '" << filename << "': invalid bit " <<
 	  "depth: " << bitDepth;
 	throw std::runtime_error(strm.str().c_str());
       }
 
-#ifdef DEBUG
-      std::cerr << "reading png image of size " << width << "x" <<
-	height << " pixels (" << bitDepth << " bit/pixel, " <<
-	channels << " channels)..." << std::endl;
-#endif
-
       size_t bytesPerRow = png_get_rowbytes(png, pngInfo);
       png_bytep* pngRows = new png_bytep[height];
       png_bytep pngData = 0;
 
-      if(needCopy)
-	pngData = new png_byte[height * bytesPerRow];
-
-      image.resize(height * width);
+      image.resize(height * width * components);
 
       size_t offset = 0;
-      png_bytep basePointer = pngData;
-
-      if(!needCopy)
-	basePointer = reinterpret_cast<png_bytep>(&image[0]);
+      png_bytep basePointer = reinterpret_cast<png_bytep>(&image[0]);
 
       for(size_t row = 0; row < height; ++row) {
 	pngRows[row] = basePointer + offset;
@@ -198,18 +166,6 @@ namespace magnet {
 
       png_read_image(png, pngRows);
       png_read_end(png, pngEndInfo);
-
-      if(needCopy) {
-	for(size_t y = 0; y < height; ++y) {
-	  for(size_t x = 0; x < width; ++x) {
-	    Pixel<CT> value;
-
-	    value.convert(pngData + bytesPerRow * y + x * channels);
-
-	    image[y * width + x] = value;
-	  }
-	}
-      }
 
       // all went well, we can clean up now
       png_destroy_read_struct(&png, &pngInfo, &pngEndInfo);
@@ -228,20 +184,22 @@ namespace magnet {
      * \param disableFiltering Prevent the PNG library from filtering the output.
      * \param flip Flips the vertical ordering of the image (to allow easy saving of OpenGL renderings).
      */
-    template<ColorType CT>
     inline void writePNGFile(const std::string& filename,
-			     std::vector<Pixel<CT> >& image, size_t width, size_t height,
+			     std::vector<uint8_t >& image, 
+			     size_t width, size_t height,
+			     size_t components,
 			     int compressionLevel = PNG_COMPRESSION_TYPE_DEFAULT,
 			     bool disableFiltering = false, bool flip = false) {
 
-      if(image.size() != width * height) {
-	std::stringstream strm;
-	strm << "invalid input to writePNGFile(): " <<
-	  "size mismatch of input vector (is " << image.size() <<
-	  ", should be " << width << "x" << height << " = " <<
-	  width * height;
-	throw std::runtime_error(strm.str().c_str());
-      }
+      if(image.size() != width * height * components) 
+	{
+	  std::stringstream strm;
+	  strm << "invalid input to writePNGFile(): " <<
+	    "size mismatch of input vector (is " << image.size() <<
+	    ", should be " << width << "x" << height << " = " <<
+	    width * height;
+	  throw std::runtime_error(strm.str().c_str());
+	}
 
       if(compressionLevel < 0 || compressionLevel > 9) {
 	std::stringstream strm;
@@ -253,11 +211,12 @@ namespace magnet {
 
       std::ofstream pngFile(filename.c_str(), std::fstream::binary);
 
-      if(!pngFile.is_open()) {
-	std::stringstream strm;
-	strm << "failed to open file '" << filename << "'";
-	throw std::runtime_error(strm.str().c_str());
-      }
+      if(!pngFile.is_open()) 
+	{
+	  std::stringstream strm;
+	  strm << "failed to open file '" << filename << "'";
+	  throw std::runtime_error(strm.str().c_str());
+	}
 
       pngFile.exceptions(std::fstream::badbit | std::fstream::failbit);
 
@@ -283,9 +242,21 @@ namespace magnet {
       png_set_write_fn(png, static_cast<void*>(&pngFile),
 		       detail::write, detail::flush);
 
-      png_set_IHDR(png, pngInfo, width, height, 8, CT,
-		   PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
-		   PNG_FILTER_TYPE_BASE);
+      switch (components)
+	{
+	case 3:
+	  png_set_IHDR(png, pngInfo, width, height, 8, PNG_COLOR_TYPE_RGB,
+		       PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
+		       PNG_FILTER_TYPE_BASE);
+	  break;
+	case 4:
+	  png_set_IHDR(png, pngInfo, width, height, 8, PNG_COLOR_TYPE_RGB_ALPHA,
+		       PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
+		       PNG_FILTER_TYPE_BASE);
+	  break;
+	default:
+	  throw std::runtime_error("Unsupported number of components");
+	}
 
       if(disableFiltering)
 	png_set_filter(png, PNG_FILTER_TYPE_BASE, PNG_FILTER_NONE);
@@ -298,7 +269,7 @@ namespace magnet {
       size_t bytesPerRow = png_get_rowbytes(png, pngInfo);
       png_bytep* pngRows = new png_bytep[height];
 
-      if(image.size() * sizeof(Pixel<CT>) != (height * bytesPerRow)) 
+      if(image.size() != (height * bytesPerRow)) 
 	{
 	  std::stringstream strm;
 	  strm << "writePNGFile(): invalid size of input data";

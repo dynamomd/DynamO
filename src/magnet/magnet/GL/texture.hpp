@@ -30,7 +30,8 @@ namespace magnet {
 	/*! \brief Constructor which requires the texture type. */
 	inline TextureBasic(GLenum texType):
 	  _valid(false),
-	  _texType(texType)
+	  _texType(texType),
+	  _pixelcount(0)
 	{}
 
 	inline ~TextureBasic() { deinit(); }
@@ -59,7 +60,7 @@ namespace magnet {
 	 * \param unit The number of the texture unit to bind the
 	 * texture to.
 	 */
-	inline void bind(int unit)
+	inline void bind(int unit) const
 	{
 	  glActiveTextureARB(GL_TEXTURE0 + unit);
 	  glBindTexture(_texType, _handle);
@@ -97,12 +98,22 @@ namespace magnet {
 	  return _handle; 
 	}
 
+	inline void getTexture(std::vector<uint8_t>& data, GLint level = 0) const
+	{
+	  bind(0);
+	  
+	  if (data.size() != _pixelcount * 4)
+	    M_throw() << "Cannot write texture data to improperly sized buffer";
+	  
+	  glGetTexImage(_texType, level, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
+	}
+	
       protected:
       
 	/*! \brief Function which returns an appropriate format
 	 * parameter given a set internalformat. 
 	 */
-	GLenum safeFormat(GLint internalformat)
+	static GLenum safeFormat(GLint internalformat)
 	{
 	  GLenum format = GL_RGB;
 	  switch (internalformat)
@@ -123,6 +134,7 @@ namespace magnet {
 	bool _valid;
 	GLint _internalFormat;
 	const GLenum _texType;
+	size_t _pixelcount;
       };
     }
 
@@ -140,7 +152,7 @@ namespace magnet {
        */
       inline void init(size_t width, GLint internalformat = GL_RGBA8)
       {
-	_width = width; _internalFormat = internalformat;
+	_pixelcount = _width = width; _internalFormat = internalformat;
 	TextureBasic::init();
 	bind(0);
 	parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -166,7 +178,7 @@ namespace magnet {
 	if (!_width)
 	  M_throw() << "Cannot resize an uninitialised texture";
 
-	_width = width;
+	_pixelcount = _width = width;
 
 	bind(0);
 	glTexImage1D(_texType, 0, _internalFormat, _width,
@@ -222,6 +234,7 @@ namespace magnet {
       {
 	_width = width; 
 	_height = height; 
+	_pixelcount = _width *  _height;
 	_internalFormat = internalformat;
 
 	TextureBasic::init();
@@ -245,6 +258,7 @@ namespace magnet {
 
 	_width = width; 
 	_height = height;
+	_pixelcount = _width *  _height;
 	bind(0);
 	glTexImage2D(_texType, 0, _internalFormat, _width, _height,
 		     0, //Border is off
@@ -322,6 +336,7 @@ namespace magnet {
 		       GLint internalformat = GL_RGBA8)
       {
 	_width = width; _height = height; _depth = depth;
+	_pixelcount = _width *  _height * _depth;
 	_internalFormat = internalformat;
 	TextureBasic::init();
 	bind(0);
@@ -352,6 +367,7 @@ namespace magnet {
 	if (!_width) M_throw() << "Cannot resize an uninitialised texture";
 
 	_width = width; _height = height; _depth = depth;
+	_pixelcount = _width *  _height * _depth;
 
 	bind(0);
 	glTexImage3D(_texType, 0, _internalFormat,

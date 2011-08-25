@@ -221,7 +221,6 @@ namespace coil {
     void axisShowCallback();
     void lightPlaceCallback();
     void shadowIntensityCallback(double);
-    void snapshotFileFormatCallback();
     void FPSLimitCallback();
     void aboutCallback();
     void renderNormalsCallback();

@@ -16,7 +16,9 @@
 */
 
 #pragma once
-#include <magnet/image/pixel.hpp>
+#include <vector>
+#include <fstream>
+#include <inttypes.h>
 
 namespace magnet {
   namespace image {
@@ -88,28 +90,33 @@ namespace magnet {
       };
     }
     
-    /*! \brief Helper function to write out a collection of pixels as a bmp file.
+    /*! \brief Helper function to write out a collection of pixels as
+        a bmp file.
+	
      */
-    template<ColorType color>
     inline void writeBMPFile(const std::string& filename,
-			     const std::vector<Pixel<color> >& image, 
-			     size_t width, size_t height)
+			     const std::vector<uint8_t>& image,
+			     size_t width, size_t height,
+			     size_t components = 4)
     {
       std::ofstream bmpFile(filename.c_str(), std::fstream::binary);
       bmpFile << detail::bitmap_information_header(width, height);
       
+      if (components < 3)
+	M_throw() << "Cannot write out bitmaps with less than three components";
+
       size_t rowpadding = ((width * 3 + 3) & 0xFFFC) - width * 3;
       for (size_t y(0); y < height; ++y)
 	{
 	  for (size_t x(0); x < width; ++x)
 	    {
-	      detail::write(bmpFile, image[y * width + x].blue());
-	      detail::write(bmpFile, image[y * width + x].green());
-	      detail::write(bmpFile, image[y * width + x].red());
+	      detail::write(bmpFile, image[components * (y * width + x) + 0]);
+	      detail::write(bmpFile, image[components * (y * width + x) + 1]);
+	      detail::write(bmpFile, image[components * (y * width + x) + 2]);
 	    }
 	  
 	  for (size_t xpad(0); xpad < rowpadding; ++xpad)
-	    detail::write(bmpFile,int8_t(0));
+	    detail::write(bmpFile, int8_t(0));
 	}
     }
   }

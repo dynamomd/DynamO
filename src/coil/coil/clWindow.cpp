@@ -185,16 +185,6 @@ namespace coil {
       recordButton->signal_toggled()
 	.connect(sigc::mem_fun(this, &CLGLWindow::recordCallback));
     }
-
-    {///////File format selection
-      Gtk::RadioButton* radioButton;
-      _refXml->get_widget("snapshotBMP", radioButton);
-      radioButton->set_active(false);
-      radioButton->signal_toggled()
-	.connect(sigc::mem_fun(this, &CLGLWindow::snapshotFileFormatCallback));
-      _refXml->get_widget("snapshotPNG", radioButton);
-      radioButton->set_active(true);
-    }
   
     {///////Control the update rate from the simulation
       Gtk::SpinButton* updateButton;
@@ -842,6 +832,7 @@ namespace coil {
     //////////////FILTERING////////////
     bool FBOalternate = false;
 
+    magnet::GL::FBO* lastFBO = &(*_renderTarget);
     if (_filterEnable && !_filterStore->children().empty())
       {
 	//Check if we need an extra pass where we calculate normals and depth values
@@ -870,9 +861,7 @@ namespace coil {
 	  }
 
 	//Bind the original image to texture (unit 0)
-	_renderTarget->getColorTexture().bind(0);
-	_renderTarget->getColorTexture().bind(3);
-	
+	_renderTarget->getColorTexture().bind(0);	
 	//Now bind the texture which has the normals and depths (unit 1)
 	_normalsFBO.getColorTexture().bind(1);
 
@@ -889,22 +878,15 @@ namespace coil {
 
 	    if (filter.type_id() == detail::filterEnum<FlushToOriginal>::val)
 	      {//Check if we're trying to flush the drawing
-		if (FBOalternate)
-		  _filterTarget2.attach();
-		else
-		  _filterTarget1.attach();
-
+		lastFBO->attach();
 		glActiveTextureARB(GL_TEXTURE0);
 		//Now copy the texture 
 		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _camera.getWidth(), _camera.getHeight());
-
-		if (FBOalternate)
-		  _filterTarget2.detach();
-		else
-		  _filterTarget1.detach();
+		lastFBO->detach();
 	      }
 	    else
 	      {
+		lastFBO->getColorTexture().bind(3);
 		//The last output goes into texture 3
 		if (FBOalternate)
 		  _filterTarget1.attach();
@@ -914,28 +896,18 @@ namespace coil {
 		filter.invoke(3, _camera.getWidth(), _camera.getHeight(), _camera);
 		
 		if (FBOalternate)
-		  {
-		    _filterTarget1.detach();
-		    _filterTarget1.getColorTexture().bind(3);
-		  }
+		  { _filterTarget1.detach(); lastFBO = &_filterTarget1; }
 		else
-		  {
-		    _filterTarget2.detach();
-		    _filterTarget2.getColorTexture().bind(3);
-		  }
-		  
+		  { _filterTarget2.detach(); lastFBO = &_filterTarget2; }
+
 		FBOalternate = !FBOalternate;
 	      }
 	  }
 
-	//Now blit the stored scene to the screen
-	if (FBOalternate)
-	  _filterTarget2.blitToScreen(_camera.getWidth(), _camera.getHeight());
-	else
-	  _filterTarget1.blitToScreen(_camera.getWidth(), _camera.getHeight());
       }
-    else
-      _renderTarget->blitToScreen(_camera.getWidth(), _camera.getHeight());
+
+    //Now blit the stored scene to the screen
+    lastFBO->blitToScreen(_camera.getWidth(), _camera.getHeight());
 
     //We clear the depth as merely disabling gives artifacts
     glClear(GL_DEPTH_BUFFER_BIT); 
@@ -959,12 +931,11 @@ namespace coil {
       {
 	_newData = false;
 
-	std::vector<magnet::image::Pixel<magnet::image::RGB> > pixels;
-	pixels.resize(_camera.getWidth() * _camera.getHeight());
+	std::vector<uint8_t> pixels;
+	pixels.resize(_camera.getWidth() * _camera.getHeight() * 4);
 	//Read the pixels into our container
-	glReadPixels(0,0, _camera.getWidth(), _camera.getHeight(), GL_RGB, 
-		     GL_UNSIGNED_BYTE, &pixels[0]);
-      
+	lastFBO->getColorTexture().getTexture(pixels);
+
 	std::string path;
 	{
 	  Gtk::FileChooserButton* fileChooser;
@@ -975,26 +946,17 @@ namespace coil {
 	if (_snapshot)
 	  {
 	    _snapshot = false;
-
-	    if (_PNGFileFormat)
-	      magnet::image::writePNGFile(path + "/snapshot.png", pixels, _camera.getWidth(), 
-					  _camera.getHeight(), 9, false, true);
-	    else
-	      magnet::image::writeBMPFile(path + "/snapshot.bmp", pixels, _camera.getWidth(), 
-					  _camera.getHeight());
+	    magnet::image::writePNGFile(path + "/snapshot.png", pixels, _camera.getWidth(), 
+					_camera.getHeight(), 4, 9, false, true);
 	  }
-
+	
 	if (_record)
 	  {
 	    std::ostringstream filename;
 	    filename << std::setw(6) <<  std::setfill('0') << std::right << std::dec << _snapshot_counter++;
 	  
-	    if (_PNGFileFormat)
-	      magnet::image::writePNGFile(path + "/" + filename.str() +".png", pixels, 
-					  _camera.getWidth(), _camera.getHeight(), 1, true, true);
-	    else
-	      magnet::image::writeBMPFile(path + "/" + filename.str() +".bmp", pixels, 
-					  _camera.getWidth(), _camera.getHeight());
+	    magnet::image::writePNGFile(path + "/" + filename.str() +".png", pixels, 
+					_camera.getWidth(), _camera.getHeight(), 4, 1, true, true);
 	  }
       }
 
@@ -1016,7 +978,7 @@ namespace coil {
   {
     if (!CoilRegister::getCoilInstance().isRunning() || !_readyFlag) return;
 
-    _camera.setHeightWidth(h,w);
+    _camera.setHeightWidth(h, w);
     //Update the viewport
     _renderTarget->resize(w, h);  
     _filterTarget1.resize(w, h);
@@ -1220,14 +1182,6 @@ namespace coil {
   CLGLWindow::shadowIntensityCallback(double val)
   {
     _shadowIntensity = val;
-  }
-
-  void 
-  CLGLWindow::snapshotFileFormatCallback()
-  {
-    Gtk::RadioButton* radioButton;
-    _refXml->get_widget("snapshotPNG", radioButton);
-    _PNGFileFormat = radioButton->get_active();
   }
 
   void 
