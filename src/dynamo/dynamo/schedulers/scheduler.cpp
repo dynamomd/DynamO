@@ -36,7 +36,7 @@
 #include <boost/math/special_functions/fpclassify.hpp>
 
 namespace dynamo {
-  CScheduler::CScheduler(dynamo::SimData* const tmp, const char * aName,
+  Scheduler::Scheduler(dynamo::SimData* const tmp, const char * aName,
 			 CSSorter* nS):
     SimBase(tmp, aName),
     sorter(nS),
@@ -44,36 +44,34 @@ namespace dynamo {
     _localRejectionCounter(0)
   {}
 
-  CScheduler::~CScheduler()
+  Scheduler::~Scheduler()
   {}
 
-  CScheduler* 
-  CScheduler::getClass(const magnet::xml::Node& XML, dynamo::SimData* const Sim)
+  Scheduler* 
+  Scheduler::getClass(const magnet::xml::Node& XML, dynamo::SimData* const Sim)
   {
     if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
-      return new CSNeighbourList(XML, Sim);
+      return new SNeighbourList(XML, Sim);
     else if (!strcmp(XML.getAttribute("Type"),"Dumb"))
-      return new CSDumb(XML, Sim);
+      return new SDumb(XML, Sim);
     else if (!strcmp(XML.getAttribute("Type"),"SystemOnly"))
-      return new CSSystemOnly(XML, Sim);
+      return new SSystemOnly(XML, Sim);
     else if (!strcmp(XML.getAttribute("Type"),"Complex"))
-      return new CSComplex(XML, Sim);
-    else if (!strcmp(XML.getAttribute("Type"),"ThreadedNeighbourList"))
-      return new SThreadedNBList(XML, Sim);
+      return new SComplex(XML, Sim);
     else 
       M_throw() << XML.getAttribute("Type")
 		<< ", Unknown type of Scheduler encountered";
   }
 
   magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
-				     const CScheduler& g)
+				     const Scheduler& g)
   {
     g.outputXML(XML);
     return XML;
   }
 
   void 
-  CScheduler::rebuildSystemEvents() const
+  Scheduler::rebuildSystemEvents() const
   {
     sorter->clearPEL(Sim->N);
 
@@ -85,26 +83,26 @@ namespace dynamo {
   }
 
   void 
-  CScheduler::popNextEvent()
+  Scheduler::popNextEvent()
   {
     sorter->popNextPELEvent(sorter->next_ID());
   }
 
   void 
-  CScheduler::pushEvent(const Particle& part,
+  Scheduler::pushEvent(const Particle& part,
 			const intPart& newevent)
   {
     sorter->push(newevent, part.getID());
   }
 
   void 
-  CScheduler::sort(const Particle& part)
+  Scheduler::sort(const Particle& part)
   {
     sorter->update(part.getID());
   }
 
   void 
-  CScheduler::invalidateEvents(const Particle& part)
+  Scheduler::invalidateEvents(const Particle& part)
   {
     //Invalidate previous entries
     ++eventCount[part.getID()];
@@ -112,7 +110,7 @@ namespace dynamo {
   }
 
   void
-  CScheduler::runNextEvent()
+  Scheduler::runNextEvent()
   {
     sorter->sort();
 
@@ -367,7 +365,7 @@ namespace dynamo {
   }
 
   void 
-  CScheduler::addInteractionEvent(const Particle& part, 
+  Scheduler::addInteractionEvent(const Particle& part, 
 				  const size_t& id) const
   {
     if (part.getID() == id) return;
@@ -382,7 +380,7 @@ namespace dynamo {
   }
 
   void 
-  CScheduler::addInteractionEventInit(const Particle& part, 
+  Scheduler::addInteractionEventInit(const Particle& part, 
 				      const size_t& id) const
   {
     if (part.getID() == id) return;
@@ -417,7 +415,7 @@ namespace dynamo {
   }
 
   void 
-  CScheduler::addLocalEvent(const Particle& part, 
+  Scheduler::addLocalEvent(const Particle& part, 
 			    const size_t& id) const
   {
     if (Sim->dynamics.getLocals()[id]->isInteraction(part))
@@ -425,7 +423,7 @@ namespace dynamo {
   }
 
   void 
-  CScheduler::fullUpdate(const Particle& p1, const Particle& p2)
+  Scheduler::fullUpdate(const Particle& p1, const Particle& p2)
   {
     //Even though we would have less invalid events in the queue if we
     //interleaved the following updates, we only want one valid event
@@ -443,7 +441,7 @@ namespace dynamo {
   }
 
   void 
-  CScheduler::fullUpdate(const Particle& part)
+  Scheduler::fullUpdate(const Particle& part)
   {
     invalidateEvents(part);
     addEvents(part);
@@ -451,7 +449,7 @@ namespace dynamo {
   }
 
   void 
-  CScheduler::lazyDeletionCleanup()
+  Scheduler::lazyDeletionCleanup()
   {
     while ((sorter->next_type() == INTERACTION)
 	   && (sorter->next_collCounter2()

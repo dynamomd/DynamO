@@ -126,7 +126,7 @@ namespace dynamo
     _properties << mainNode;
     dynamics << mainNode;
     ptrScheduler 
-      = CScheduler::getClass(subNode.getNode("Scheduler"), this);
+      = Scheduler::getClass(subNode.getNode("Scheduler"), this);
 
     dynamics.getLiouvillean().loadParticleXMLData(mainNode);
   

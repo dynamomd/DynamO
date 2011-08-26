@@ -19,12 +19,12 @@
 #include <dynamo/schedulers/scheduler.hpp>
 
 namespace dynamo {
-  class CSNeighbourList: public CScheduler
+  class SNeighbourList: public Scheduler
   {
   public:
-    CSNeighbourList(const magnet::xml::Node&, dynamo::SimData* const);
+    SNeighbourList(const magnet::xml::Node&, dynamo::SimData* const);
 
-    CSNeighbourList(dynamo::SimData* const, CSSorter*);
+    SNeighbourList(dynamo::SimData* const, CSSorter*);
 
     virtual void rebuildList();
 

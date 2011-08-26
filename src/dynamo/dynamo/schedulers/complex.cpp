@@ -36,7 +36,7 @@
 
 namespace dynamo {
   void 
-  CSComplex::operator<<(const magnet::xml::Node& XML)
+  SComplex::operator<<(const magnet::xml::Node& XML)
   {
     sorter.set_ptr(CSSorter::getClass(XML.getNode("Sorter"), Sim));
 
@@ -46,7 +46,7 @@ namespace dynamo {
   }
 
   void
-  CSComplex::initialise()
+  SComplex::initialise()
   {
     dout << "Reinitialising on collision " << Sim->eventCount << std::endl;
     std::cout.flush();
@@ -78,7 +78,7 @@ namespace dynamo {
   }
 
   void 
-  CSComplex::rebuildList()
+  SComplex::rebuildList()
   {
 #ifdef DYNAMO_DEBUG
     initialise();
@@ -104,7 +104,7 @@ namespace dynamo {
 
 
   void 
-  CSComplex::outputXML(magnet::xml::XmlStream& XML) const
+  SComplex::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Type") << "Complex"
 	<< magnet::xml::tag("Sorter")
@@ -120,19 +120,19 @@ namespace dynamo {
     XML << magnet::xml::endtag("Entries");
   }
 
-  CSComplex::CSComplex(const magnet::xml::Node& XML, dynamo::SimData* const Sim):
-    CScheduler(Sim,"ComplexScheduler", NULL)
+  SComplex::SComplex(const magnet::xml::Node& XML, dynamo::SimData* const Sim):
+    Scheduler(Sim,"ComplexScheduler", NULL)
   { 
     dout << "Complex Scheduler Algorithmn Loaded" << std::endl;
     operator<<(XML);
   }
 
-  CSComplex::CSComplex(dynamo::SimData* const Sim, CSSorter* ns):
-    CScheduler(Sim,"ComplexScheduler", ns)
+  SComplex::SComplex(dynamo::SimData* const Sim, CSSorter* ns):
+    Scheduler(Sim,"ComplexScheduler", ns)
   { dout << "Complex Scheduler Algorithmn Loaded" << std::endl; }
 
   void 
-  CSComplex::addEvents(const Particle& part)
+  SComplex::addEvents(const Particle& part)
   {
     Sim->dynamics.getLiouvillean().updateParticle(part);
   
@@ -145,15 +145,15 @@ namespace dynamo {
       if (ent->isApplicable(part))
 	{
 	  ent->getParticleLocalNeighbourhood
-	    (part, magnet::function::MakeDelegate(this, &CScheduler::addLocalEvent));
+	    (part, magnet::function::MakeDelegate(this, &Scheduler::addLocalEvent));
 
 	  ent->getParticleNeighbourhood
-	    (part, magnet::function::MakeDelegate(this, &CScheduler::addInteractionEvent));
+	    (part, magnet::function::MakeDelegate(this, &Scheduler::addInteractionEvent));
 	}
   }
 
   void 
-  CSComplex::addEventsInit(const Particle& part)
+  SComplex::addEventsInit(const Particle& part)
   {  
     Sim->dynamics.getLiouvillean().updateParticle(part);
 
@@ -166,10 +166,10 @@ namespace dynamo {
       if (ent->isApplicable(part))
 	{
 	  ent->getParticleLocalNeighbourhood
-	    (part, magnet::function::MakeDelegate(this, &CScheduler::addLocalEvent));
+	    (part, magnet::function::MakeDelegate(this, &Scheduler::addLocalEvent));
 
 	  ent->getParticleNeighbourhood
-	    (part, magnet::function::MakeDelegate(this, &CScheduler::addInteractionEventInit));
+	    (part, magnet::function::MakeDelegate(this, &Scheduler::addInteractionEventInit));
 	}
   }
 }

@@ -67,7 +67,7 @@ namespace dynamo {
     //Required to finish off the compression dynamics
     Sim->dynamics.getLiouvillean().updateAllParticles();
 
-    if (dynamic_cast<CSNeighbourList*>(Sim->ptrScheduler) != NULL)
+    if (dynamic_cast<SNeighbourList*>(Sim->ptrScheduler) != NULL)
       {
 	BOOST_FOREACH(magnet::ClonePtr<Global>& ptr, Sim->dynamics.getGlobals())
 	  if (dynamic_cast<const GNeighbourList*>(ptr.get_ptr()) != NULL)      

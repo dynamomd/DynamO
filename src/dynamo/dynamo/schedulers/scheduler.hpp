@@ -28,12 +28,12 @@ namespace dynamo {
   class Particle;
   class intPart;
 
-  class CScheduler: public dynamo::SimBase
+  class Scheduler: public dynamo::SimBase
   {
   public:
-    CScheduler(dynamo::SimData* const, const char *, CSSorter*);
+    Scheduler(dynamo::SimData* const, const char *, CSSorter*);
   
-    virtual ~CScheduler() = 0;
+    virtual ~Scheduler() = 0;
 
     virtual void initialise() = 0;
   
@@ -57,9 +57,9 @@ namespace dynamo {
 
     virtual void rebuildList() = 0;
 
-    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const CScheduler&);
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Scheduler&);
 
-    static CScheduler* getClass(const magnet::xml::Node&, dynamo::SimData* const);
+    static Scheduler* getClass(const magnet::xml::Node&, dynamo::SimData* const);
 
     virtual void operator<<(const magnet::xml::Node&) = 0;
   

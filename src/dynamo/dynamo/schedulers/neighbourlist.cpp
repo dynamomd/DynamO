@@ -34,13 +34,13 @@
 
 namespace dynamo {
   void 
-  CSNeighbourList::operator<<(const magnet::xml::Node& XML)
+  SNeighbourList::operator<<(const magnet::xml::Node& XML)
   {
     sorter.set_ptr(CSSorter::getClass(XML.getNode("Sorter"), Sim));
   }
 
   void
-  CSNeighbourList::initialise()
+  SNeighbourList::initialise()
   {
     try {
       NBListID = Sim->dynamics.getGlobal("SchedulerNBList")->getID();
@@ -88,7 +88,7 @@ namespace dynamo {
   }
 
   void 
-  CSNeighbourList::rebuildList()
+  SNeighbourList::rebuildList()
   { 
 #ifdef DYNAMO_DEBUG
     initialise();
@@ -109,7 +109,7 @@ namespace dynamo {
   }
 
   void 
-  CSNeighbourList::outputXML(magnet::xml::XmlStream& XML) const
+  SNeighbourList::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Type") << "NeighbourList"
 	<< magnet::xml::tag("Sorter")
@@ -117,20 +117,20 @@ namespace dynamo {
 	<< magnet::xml::endtag("Sorter");
   }
 
-  CSNeighbourList::CSNeighbourList(const magnet::xml::Node& XML, 
+  SNeighbourList::SNeighbourList(const magnet::xml::Node& XML, 
 				   dynamo::SimData* const Sim):
-    CScheduler(Sim,"NeighbourListScheduler", NULL)
+    Scheduler(Sim,"NeighbourListScheduler", NULL)
   { 
     dout << "Neighbour List Scheduler Algorithmn Loaded" << std::endl;
     operator<<(XML);
   }
 
-  CSNeighbourList::CSNeighbourList(dynamo::SimData* const Sim, CSSorter* ns):
-    CScheduler(Sim,"NeighbourListScheduler", ns)
+  SNeighbourList::SNeighbourList(dynamo::SimData* const Sim, CSSorter* ns):
+    Scheduler(Sim,"NeighbourListScheduler", ns)
   { dout << "Neighbour List Scheduler Algorithmn Loaded" << std::endl; }
 
   void 
-  CSNeighbourList::addEvents(const Particle& part)
+  SNeighbourList::addEvents(const Particle& part)
   {
     Sim->dynamics.getLiouvillean().updateParticle(part);
   
@@ -153,15 +153,15 @@ namespace dynamo {
   
     //Add the local cell events
     nblist.getParticleLocalNeighbourhood
-      (part, magnet::function::MakeDelegate(this, &CScheduler::addLocalEvent));
+      (part, magnet::function::MakeDelegate(this, &Scheduler::addLocalEvent));
 
     //Add the interaction events
     nblist.getParticleNeighbourhood
-      (part, magnet::function::MakeDelegate(this, &CScheduler::addInteractionEvent));  
+      (part, magnet::function::MakeDelegate(this, &Scheduler::addInteractionEvent));  
   }
 
   void 
-  CSNeighbourList::addEventsInit(const Particle& part)
+  SNeighbourList::addEventsInit(const Particle& part)
   {  
     Sim->dynamics.getLiouvillean().updateParticle(part);
 
@@ -185,11 +185,11 @@ namespace dynamo {
     //Add the local cell events
     nblist.getParticleLocalNeighbourhood
       (part, magnet::function::MakeDelegate
-       (this, &CScheduler::addLocalEvent));
+       (this, &Scheduler::addLocalEvent));
 
     //Add the interaction events
     nblist.getParticleNeighbourhood
       (part, magnet::function::MakeDelegate
-       (this, &CScheduler::addInteractionEventInit));  
+       (this, &Scheduler::addInteractionEventInit));  
   }
 }

@@ -143,7 +143,7 @@ namespace dynamo {
 	//of code
 	if (isUsedInScheduler)
 	  getParticleNeighbourhood(part, magnet::function::MakeDelegate(Sim->ptrScheduler, 
-									&CScheduler::addInteractionEvent));
+									&Scheduler::addInteractionEvent));
       
 	BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
 	  getParticleNeighbourhood(part, nbs.second);
@@ -169,7 +169,7 @@ namespace dynamo {
 	//Check the extra LE neighbourhood strip
 	if (isUsedInScheduler)
 	  getExtraLEParticleNeighbourhood(part, magnet::function::MakeDelegate(Sim->ptrScheduler,
-									       &CScheduler::addInteractionEvent));
+									       &Scheduler::addInteractionEvent));
       
 	BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
 	  getExtraLEParticleNeighbourhood(part, nbs.second);
@@ -212,7 +212,7 @@ namespace dynamo {
 	  {
 	    if (isUsedInScheduler)
 	      getExtraLEParticleNeighbourhood(part, magnet::function::MakeDelegate(Sim->ptrScheduler,
-										   &CScheduler::addInteractionEvent));
+										   &Scheduler::addInteractionEvent));
 	  
 	    BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
 	      getExtraLEParticleNeighbourhood(part, nbs.second);

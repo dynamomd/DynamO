@@ -19,12 +19,12 @@
 #include <dynamo/schedulers/scheduler.hpp>
 
 namespace dynamo {
-  class CSSystemOnly: public CScheduler
+  class SSystemOnly: public Scheduler
   {
   public:
-    CSSystemOnly(const magnet::xml::Node&, dynamo::SimData* const);
+    SSystemOnly(const magnet::xml::Node&, dynamo::SimData* const);
 
-    CSSystemOnly(dynamo::SimData* const, CSSorter*);
+    SSystemOnly(dynamo::SimData* const, CSSorter*);
 
     virtual void rebuildList();
 

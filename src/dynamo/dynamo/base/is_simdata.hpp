@@ -38,7 +38,7 @@ namespace magnet {
 
 namespace dynamo
 {  
-  class CScheduler;
+  class Scheduler;
   class Particle;
   class OutputPlugin;
 
@@ -78,10 +78,10 @@ namespace dynamo
      */
     SimData();
 
-    /*! \brief Handles deleting the CScheduler pointer
+    /*! \brief Handles deleting the Scheduler pointer
      *
      * \bug Make the Scheduler handled by a smrtPlugPtr, and make the
-     * CScheduler class copyable.
+     * Scheduler class copyable.
      */
     ~SimData();
     
@@ -174,8 +174,8 @@ namespace dynamo
     /*! \brief A log of the previous simulation history. */
     std::ostringstream ssHistory;
 
-    /*! \brief A ptr to the CScheduler of the system. */
-    CScheduler *ptrScheduler;
+    /*! \brief A ptr to the Scheduler of the system. */
+    Scheduler *ptrScheduler;
 
     /*! \brief The Dynamics of the system. */
     Dynamics dynamics;

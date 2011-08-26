@@ -34,26 +34,26 @@
 #include <cmath> //for huge val
 
 namespace dynamo {
-  CSSystemOnly::CSSystemOnly(const magnet::xml::Node& XML, 
+  SSystemOnly::SSystemOnly(const magnet::xml::Node& XML, 
 			     dynamo::SimData* const Sim):
-    CScheduler(Sim,"SystemOnlyScheduler", NULL)
+    Scheduler(Sim,"SystemOnlyScheduler", NULL)
   { 
     dout << "System Events Only Scheduler Algorithmn" << std::endl;
     operator<<(XML);
   }
 
-  CSSystemOnly::CSSystemOnly(dynamo::SimData* const Sim, CSSorter* ns):
-    CScheduler(Sim,"SystemOnlyScheduler", ns)
+  SSystemOnly::SSystemOnly(dynamo::SimData* const Sim, CSSorter* ns):
+    Scheduler(Sim,"SystemOnlyScheduler", ns)
   { dout << "System Events Only Scheduler Algorithmn" << std::endl; }
 
   void 
-  CSSystemOnly::operator<<(const magnet::xml::Node& XML)
+  SSystemOnly::operator<<(const magnet::xml::Node& XML)
   {
     sorter.set_ptr(CSSorter::getClass(XML.getNode("Sorter"), Sim));
   }
 
   void
-  CSSystemOnly::initialise()
+  SSystemOnly::initialise()
   {
     dout << "Reinitialising on collision " << Sim->eventCount << std::endl;
 
@@ -69,7 +69,7 @@ namespace dynamo {
   }
 
   void
-  CSSystemOnly::rebuildList()
+  SSystemOnly::rebuildList()
   {
 #ifdef DYNAMO_DEBUG
     initialise();
@@ -87,7 +87,7 @@ namespace dynamo {
   }
 
   void 
-  CSSystemOnly::outputXML(magnet::xml::XmlStream& XML) const
+  SSystemOnly::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Type") << "SystemOnly"
 	<< magnet::xml::tag("Sorter")
@@ -96,6 +96,6 @@ namespace dynamo {
   }
 
   void 
-  CSSystemOnly::addEvents(const Particle& part)
+  SSystemOnly::addEvents(const Particle& part)
   {}
 }

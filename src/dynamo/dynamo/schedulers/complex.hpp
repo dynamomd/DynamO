@@ -21,12 +21,12 @@
 namespace dynamo {
   class CSCEntry;
 
-  class CSComplex: public CScheduler
+  class SComplex: public Scheduler
   {
   public:
-    CSComplex(const magnet::xml::Node&, dynamo::SimData* const);
+    SComplex(const magnet::xml::Node&, dynamo::SimData* const);
 
-    CSComplex(dynamo::SimData* const, CSSorter*);
+    SComplex(dynamo::SimData* const, CSSorter*);
 
     virtual void rebuildList();
 

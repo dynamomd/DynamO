@@ -34,25 +34,25 @@
 #include <cmath> //for huge val
 
 namespace dynamo {
-  CSDumb::CSDumb(const magnet::xml::Node& XML, dynamo::SimData* const Sim):
-    CScheduler(Sim,"DumbScheduler", NULL)
+  SDumb::SDumb(const magnet::xml::Node& XML, dynamo::SimData* const Sim):
+    Scheduler(Sim,"DumbScheduler", NULL)
   { 
     dout << "Dumb Scheduler Algorithmn" << std::endl;
     operator<<(XML);
   }
 
-  CSDumb::CSDumb(dynamo::SimData* const Sim, CSSorter* ns):
-    CScheduler(Sim,"DumbScheduler", ns)
+  SDumb::SDumb(dynamo::SimData* const Sim, CSSorter* ns):
+    Scheduler(Sim,"DumbScheduler", ns)
   { dout << "Dumb Scheduler Algorithmn" << std::endl; }
 
   void 
-  CSDumb::operator<<(const magnet::xml::Node& XML)
+  SDumb::operator<<(const magnet::xml::Node& XML)
   {
     sorter.set_ptr(CSSorter::getClass(XML.getNode("Sorter"), Sim));
   }
 
   void
-  CSDumb::initialise()
+  SDumb::initialise()
   {
     dout << "Reinitialising on collision " << Sim->eventCount << std::endl;
   
@@ -70,7 +70,7 @@ namespace dynamo {
   }
 
   void 
-  CSDumb::rebuildList()
+  SDumb::rebuildList()
   {
 #ifdef DYNAMO_DEBUG
     initialise();
@@ -91,7 +91,7 @@ namespace dynamo {
 
 
   void 
-  CSDumb::outputXML(magnet::xml::XmlStream& XML) const
+  SDumb::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Type") << "Dumb"
 	<< magnet::xml::tag("Sorter")
@@ -100,7 +100,7 @@ namespace dynamo {
   }
 
   void 
-  CSDumb::addEvents(const Particle& part)
+  SDumb::addEvents(const Particle& part)
   {  
     Sim->dynamics.getLiouvillean().updateParticle(part);
 
