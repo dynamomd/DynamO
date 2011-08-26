@@ -62,50 +62,7 @@ namespace dynamo {
       (*Sim->dynamics.getGlobals()[NBListID].get_ptr())
       .markAsUsedInScheduler();
 
-    dout << "Building all events on collision " << Sim->eventCount << std::endl;
-    std::cout.flush();
-
-    sorter->clear();
-    //The plus one is because system events are stored in the last heap;
-    sorter->resize(Sim->N+1);
-    eventCount.clear();
-    eventCount.resize(Sim->N+1, 0);
-
-    //Now initialise the interactions
-    {
-      boost::progress_display prog(Sim->N);
- 
-      BOOST_FOREACH(const Particle& part, Sim->particleList)
-	{
-	  addEventsInit(part);
-	  ++prog;
-	}
-    }
-  
-    sorter->init();
-
-    rebuildSystemEvents();
-  }
-
-  void 
-  SNeighbourList::rebuildList()
-  { 
-#ifdef DYNAMO_DEBUG
-    initialise();
-#else
-    sorter->clear();
-    //The plus one is because system events are stored in the last heap;
-    sorter->resize(Sim->N+1);
-    eventCount.clear();
-    eventCount.resize(Sim->N+1, 0);
-
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
-      addEventsInit(part);
-  
-    sorter->rebuild();
-  
-    rebuildSystemEvents();
-#endif
+    Scheduler::initialise();
   }
 
   void 
@@ -130,15 +87,9 @@ namespace dynamo {
   { dout << "Neighbour List Scheduler Algorithmn Loaded" << std::endl; }
 
   void 
-  SNeighbourList::addEvents(const Particle& part)
+  SNeighbourList::getParticleNeighbourhood(const Particle& part,
+					   const nbHoodFunc& func) const
   {
-    Sim->dynamics.getLiouvillean().updateParticle(part);
-  
-    //Add the global events
-    BOOST_FOREACH(const magnet::ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
-      if (glob->isInteraction(part))
-	sorter->push(glob->getEvent(part), part.getID());
-  
 #ifdef DYNAMO_DEBUG
     if (dynamic_cast<const GNeighbourList*>
 	(Sim->dynamics.getGlobals()[NBListID].get_ptr())
@@ -151,25 +102,13 @@ namespace dynamo {
 				 (Sim->dynamics.getGlobals()[NBListID]
 				  .get_ptr()));
   
-    //Add the local cell events
-    nblist.getParticleLocalNeighbourhood
-      (part, magnet::function::MakeDelegate(this, &Scheduler::addLocalEvent));
-
-    //Add the interaction events
-    nblist.getParticleNeighbourhood
-      (part, magnet::function::MakeDelegate(this, &Scheduler::addInteractionEvent));  
+    nblist.getParticleNeighbourhood(part, func);      
   }
-
+    
   void 
-  SNeighbourList::addEventsInit(const Particle& part)
-  {  
-    Sim->dynamics.getLiouvillean().updateParticle(part);
-
-    //Add the global events
-    BOOST_FOREACH(const magnet::ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
-      if (glob->isInteraction(part))
-	sorter->push(glob->getEvent(part), part.getID());
-  
+  SNeighbourList::getParticleLocalNeighbourhood(const Particle& part, 
+						const nbHoodFunc& func) const
+  {
 #ifdef DYNAMO_DEBUG
     if (dynamic_cast<const GNeighbourList*>
 	(Sim->dynamics.getGlobals()[NBListID].get_ptr())
@@ -181,15 +120,9 @@ namespace dynamo {
     const GNeighbourList& nblist(*static_cast<const GNeighbourList*>
 				 (Sim->dynamics.getGlobals()[NBListID]
 				  .get_ptr()));
-  
-    //Add the local cell events
-    nblist.getParticleLocalNeighbourhood
-      (part, magnet::function::MakeDelegate
-       (this, &Scheduler::addLocalEvent));
 
-    //Add the interaction events
-    nblist.getParticleNeighbourhood
-      (part, magnet::function::MakeDelegate
-       (this, &Scheduler::addInteractionEventInit));  
+    //Add the local cell events
+    nblist.getParticleLocalNeighbourhood(part, func);
+    
   }
 }

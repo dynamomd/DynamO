@@ -94,8 +94,4 @@ namespace dynamo {
 	<< sorter
 	<< magnet::xml::endtag("Sorter");
   }
-
-  void 
-  SSystemOnly::addEvents(const Particle& part)
-  {}
 }

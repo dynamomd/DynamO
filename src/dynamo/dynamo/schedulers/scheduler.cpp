@@ -44,8 +44,51 @@ namespace dynamo {
     _localRejectionCounter(0)
   {}
 
-  Scheduler::~Scheduler()
-  {}
+  Scheduler::~Scheduler() {}
+
+  void
+  Scheduler::initialise()
+  {
+    dout << "Building all events on collision " << Sim->eventCount << std::endl;
+    rebuildList();
+  }
+
+  void
+  Scheduler::rebuildList()
+  {
+    sorter->clear();
+    //The plus one is because system events are stored in the last heap;
+    sorter->resize(Sim->N+1);
+    eventCount.clear();
+    eventCount.resize(Sim->N+1, 0);
+
+    BOOST_FOREACH(const Particle& part, Sim->particleList)
+      addEvents(part);
+  
+    sorter->init();
+
+    rebuildSystemEvents();
+  }
+
+
+  void 
+  Scheduler::addEvents(const Particle& part)
+  {  
+    Sim->dynamics.getLiouvillean().updateParticle(part);
+
+    //Add the global events
+    BOOST_FOREACH(const magnet::ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
+      if (glob->isInteraction(part))
+	sorter->push(glob->getEvent(part), part.getID());
+  
+    //Add the local cell events
+    getParticleLocalNeighbourhood
+      (part, magnet::function::MakeDelegate(this, &Scheduler::addLocalEvent));
+
+    //Add the interaction events
+    getParticleNeighbourhood
+      (part, magnet::function::MakeDelegate(this, &Scheduler::addInteractionEvent));
+  }
 
   Scheduler* 
   Scheduler::getClass(const magnet::xml::Node& XML, dynamo::SimData* const Sim)
@@ -420,32 +463,6 @@ namespace dynamo {
   {
     if (Sim->dynamics.getLocals()[id]->isInteraction(part))
       sorter->push(Sim->dynamics.getLocals()[id]->getEvent(part), part.getID());  
-  }
-
-  void 
-  Scheduler::fullUpdate(const Particle& p1, const Particle& p2)
-  {
-    //Even though we would have less invalid events in the queue if we
-    //interleaved the following updates, we only want one valid event
-    //for the (p1,p2) interaction. So we still split the p1 and p2
-    //interactions.
-    //
-    // We want only one valid p1,p2 interaction to help prevent loops in
-    // the event recalculation code. So if we try to exectue one p1,p2
-    // interaction, but find the p2,p1 interaction is sooner by a
-    // numerically insignificant amount caused by being pushed into the
-    // sorter, we will enter a loop which has to be broken by the
-    // _interactionRejectionCounter logic.
-    fullUpdate(p1);
-    fullUpdate(p2);
-  }
-
-  void 
-  Scheduler::fullUpdate(const Particle& part)
-  {
-    invalidateEvents(part);
-    addEvents(part);
-    sort(part);
   }
 
   void 

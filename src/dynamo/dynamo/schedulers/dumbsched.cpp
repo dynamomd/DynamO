@@ -51,45 +51,6 @@ namespace dynamo {
     sorter.set_ptr(CSSorter::getClass(XML.getNode("Sorter"), Sim));
   }
 
-  void
-  SDumb::initialise()
-  {
-    dout << "Reinitialising on collision " << Sim->eventCount << std::endl;
-  
-    sorter->clear();
-    sorter->resize(Sim->N+1);
-    eventCount.clear();
-    eventCount.resize(Sim->N+1, 0);
-  
-    //Now initialise the interactions
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
-      addEvents(part);
-  
-    sorter->init();
-    rebuildSystemEvents();
-  }
-
-  void 
-  SDumb::rebuildList()
-  {
-#ifdef DYNAMO_DEBUG
-    initialise();
-#else
-    sorter->clear();
-    sorter->resize(Sim->N+1);
-    eventCount.clear();
-    eventCount.resize(Sim->N+1, 0);
-  
-    //Now initialise the interactions
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
-      addEvents(part);
-  
-    sorter->rebuild();
-    rebuildSystemEvents();
-#endif
-  }
-
-
   void 
   SDumb::outputXML(magnet::xml::XmlStream& XML) const
   {
@@ -99,23 +60,20 @@ namespace dynamo {
 	<< magnet::xml::endtag("Sorter");
   }
 
+
   void 
-  SDumb::addEvents(const Particle& part)
-  {  
-    Sim->dynamics.getLiouvillean().updateParticle(part);
-
-    //Add the global events
-    BOOST_FOREACH(const magnet::ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
-      if (glob->isInteraction(part))
-	sorter->push(glob->getEvent(part), part.getID());
-  
-    //Add the local cell events
+  SDumb::getParticleNeighbourhood(const Particle& part,
+				  const nbHoodFunc& func) const
+  {
+    BOOST_FOREACH(const Particle& op, Sim->particleList)
+      if (op != part) func(part, op.getID());
+  }
+    
+  void 
+  SDumb::getParticleLocalNeighbourhood(const Particle& part, 
+				       const nbHoodFunc& func) const
+  {
     BOOST_FOREACH(const magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
-      addLocalEvent(part, local->getID());
-
-    //Add the interaction events
-    BOOST_FOREACH(const Particle& part2, Sim->particleList)
-      if (part2 != part)
-	addInteractionEvent(part, part2.getID());
+      func(part, local->getID());
   }
 }

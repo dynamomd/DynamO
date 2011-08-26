@@ -20,6 +20,7 @@
 #include <dynamo/schedulers/sorters/sorter.hpp>
 #include <dynamo/dynamics/interactions/intEvent.hpp>
 #include <dynamo/dynamics/globals/globEvent.hpp>
+#include <magnet/function/delegate.hpp>
 #include <vector>
 
 namespace magnet { namespace xml { class Node; } }
@@ -35,15 +36,42 @@ namespace dynamo {
   
     virtual ~Scheduler() = 0;
 
-    virtual void initialise() = 0;
-  
-    virtual void fullUpdate(const Particle& part);
+    virtual void initialise();
 
-    virtual void fullUpdate(const Particle& p1, const Particle& p2);
+    void rebuildList();
+  
+    /*! \brief Retest for events for a single particle.
+     */
+    void fullUpdate(const Particle& part)
+    {
+      invalidateEvents(part);
+      addEvents(part);
+      sort(part);
+    }
+
+    /*! \brief Retest for events for two particles.
+
+      Even though we would have less invalid events in the queue if we
+      interleaved the following updates, we only want one valid event
+      for the (p1,p2) interaction. So we still split the p1 and p2
+      interactions.
+      
+      We want only one valid p1,p2 interaction to help prevent loops in
+      the event recalculation code. So if we try to exectue one p1,p2
+      interaction, but find the p2,p1 interaction is sooner by a
+      numerically insignificant amount caused by being pushed into the
+      sorter, we will enter a loop which has to be broken by the
+      _interactionRejectionCounter logic.
+    */
+    inline void fullUpdate(const Particle& p1, const Particle& p2)
+    {
+      fullUpdate(p1);
+      fullUpdate(p2);
+    }
 
     void invalidateEvents(const Particle&);
 
-    virtual void addEvents(const Particle&) = 0;
+    void addEvents(const Particle&);
 
     void sort(const Particle&);
 
@@ -54,8 +82,6 @@ namespace dynamo {
     void stream(const double& dt) {  sorter->stream(dt); }
   
     void runNextEvent();
-
-    virtual void rebuildList() = 0;
 
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Scheduler&);
 
@@ -74,7 +100,16 @@ namespace dynamo {
     void addInteractionEventInit(const Particle&, const size_t&) const;
 
     void addLocalEvent(const Particle&, const size_t&) const;
-  
+
+    typedef magnet::function::Delegate2
+    <const Particle&, const size_t&, void> nbHoodFunc;
+
+    virtual void getParticleNeighbourhood(const Particle&,
+					  const nbHoodFunc&) const = 0;
+    
+    virtual void getParticleLocalNeighbourhood(const Particle&, 
+					       const nbHoodFunc&) const = 0;
+
   protected:
     /*! \brief Performs the lazy deletion algorithm to find the next
      * valid event in the queue.

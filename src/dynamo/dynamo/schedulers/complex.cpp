@@ -54,54 +54,8 @@ namespace dynamo {
     BOOST_FOREACH(magnet::ClonePtr<CSCEntry>& ent, entries)
       ent->initialise();
 
-    sorter->clear();
-
-    //The plus one is because system events are stored in the last heap;
-    sorter->resize(Sim->N+1);
-    eventCount.clear();
-    eventCount.resize(Sim->N+1, 0);
-
-    //Now initialise the interactions
-    {
-      boost::progress_display prog(Sim->N);
- 
-      BOOST_FOREACH(const Particle& part, Sim->particleList)
-	{
-	  addEventsInit(part);
-	  ++prog;
-	}
-    }
-  
-    sorter->init();
-
-    rebuildSystemEvents();
+    Scheduler::initialise();
   }
-
-  void 
-  SComplex::rebuildList()
-  {
-#ifdef DYNAMO_DEBUG
-    initialise();
-#else
-    BOOST_FOREACH(magnet::ClonePtr<CSCEntry>& ent, entries)
-      ent->initialise();
-
-    sorter->clear();
-
-    //The plus one is because system events are stored in the last heap;
-    sorter->resize(Sim->N+1);
-    eventCount.clear();
-    eventCount.resize(Sim->N+1, 0);
-
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
-      addEventsInit(part);
-  
-    sorter->rebuild();
-
-    rebuildSystemEvents();
-#endif
-  }
-
 
   void 
   SComplex::outputXML(magnet::xml::XmlStream& XML) const
@@ -132,44 +86,20 @@ namespace dynamo {
   { dout << "Complex Scheduler Algorithmn Loaded" << std::endl; }
 
   void 
-  SComplex::addEvents(const Particle& part)
+  SComplex::getParticleNeighbourhood(const Particle& part,
+				     const nbHoodFunc& func) const
   {
-    Sim->dynamics.getLiouvillean().updateParticle(part);
-  
-    //Add the global events
-    BOOST_FOREACH(const magnet::ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
-      if (glob->isInteraction(part))
-	sorter->push(glob->getEvent(part), part.getID());
-  
     BOOST_FOREACH(const magnet::ClonePtr<CSCEntry>& ent, entries)
       if (ent->isApplicable(part))
-	{
-	  ent->getParticleLocalNeighbourhood
-	    (part, magnet::function::MakeDelegate(this, &Scheduler::addLocalEvent));
-
-	  ent->getParticleNeighbourhood
-	    (part, magnet::function::MakeDelegate(this, &Scheduler::addInteractionEvent));
-	}
+	ent->getParticleNeighbourhood(part, func);
   }
-
+    
   void 
-  SComplex::addEventsInit(const Particle& part)
-  {  
-    Sim->dynamics.getLiouvillean().updateParticle(part);
-
-    //Add the global events
-    BOOST_FOREACH(const magnet::ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
-      if (glob->isInteraction(part))
-	sorter->push(glob->getEvent(part), part.getID());
-  
+  SComplex::getParticleLocalNeighbourhood(const Particle& part, 
+				       const nbHoodFunc& func) const
+  {
     BOOST_FOREACH(const magnet::ClonePtr<CSCEntry>& ent, entries)
       if (ent->isApplicable(part))
-	{
-	  ent->getParticleLocalNeighbourhood
-	    (part, magnet::function::MakeDelegate(this, &Scheduler::addLocalEvent));
-
-	  ent->getParticleNeighbourhood
-	    (part, magnet::function::MakeDelegate(this, &Scheduler::addInteractionEventInit));
-	}
+	ent->getParticleNeighbourhood(part, func);
   }
 }

@@ -30,9 +30,15 @@ namespace dynamo {
 
     virtual void initialise();
 
-    virtual void addEvents(const Particle&);
-
     virtual void operator<<(const magnet::xml::Node&);
+
+    virtual void getParticleNeighbourhood(const Particle&,
+					  const nbHoodFunc&) const 
+    {}
+    
+    virtual void getParticleLocalNeighbourhood(const Particle&, 
+					       const nbHoodFunc&) const
+    {}
 
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;
