@@ -31,6 +31,7 @@
 #include <magnet/GL/matrix.hpp>
 #include <magnet/function/delegate.hpp>
 #include <map>
+#include <iostream>
 
 namespace magnet {
   namespace GL {
@@ -356,7 +357,9 @@ namespace magnet {
        */
       inline void initOpenCLContext()
       {
+	std::cout << "GL-Context " << _context << ": Creating an OpenCL GPU context" << std::endl;	
 	if (initOpenCLContextType(CL_DEVICE_TYPE_GPU)) return;
+	std::cout << "GL-Context " << _context << ": Failed to create OpenCL GPU context, trying all devices for OpenCL context" << std::endl;
 	if (initOpenCLContextType(CL_DEVICE_TYPE_ALL)) return;
 
 	M_throw() << "Failed to create an OpenCL context from the OpenGL context!";
@@ -377,6 +380,12 @@ namespace magnet {
 	for (std::vector<cl::Platform>::const_iterator iPtr = platforms.begin();
 	     iPtr != platforms.end(); ++iPtr)
 	  {
+	    std::cout << "GL-Context " << _context << ":   Trying OpenCL platform - " 
+		      << iPtr->getInfo<CL_PLATFORM_VENDOR>() 
+		      << " - " << iPtr->getInfo<CL_PLATFORM_NAME>()
+		      << " - " << iPtr->getInfo<CL_PLATFORM_VERSION>()
+		      << std::endl;	
+
 	    std::vector<cl::Device> devices;
 	    try {
 	      iPtr->getDevices(devType, &devices);
@@ -386,7 +395,13 @@ namespace magnet {
 	    for (std::vector<cl::Device>::const_iterator devPtr = devices.begin();
 		 devPtr != devices.end(); ++devPtr)
 	      {
+		std::cout << "GL-Context " << _context << ":     Trying  Device - " 
+			  << devPtr->getInfo<CL_DEVICE_NAME>() 
+			  << " - " << devPtr->getInfo<CL_DRIVER_VERSION>() 
+			  << std::endl;	
 		if (!getCLGLContext(*iPtr, *devPtr)) continue;
+
+		std::cout << "GL-Context " << _context << ": Success" << std::endl;
 		
 		//Success! now set the platform+device and return!
 		_clplatform = *iPtr;
@@ -439,26 +454,27 @@ namespace magnet {
       inline void init()
       {
 	_context = getCurrentContextKey();
-	
+
+	std::cout << "GL-Context " << _context << ": Created a new OpenGL context" << std::endl;	
 	//////////Capability testing /////////////////////////////
 	if (glewInit() != GLEW_OK)
-	  M_throw() << "Failed to initialise GLEW!";
+	  M_throw() << "GL-Context " << _context << "Failed to initialise GLEW!";
 		
 	if (!GLEW_EXT_framebuffer_object)
-	  M_throw() << "Critical OpenGL dependency: Frame buffers are not supported";
+	  M_throw() << "GL-Context " << _context << "Critical OpenGL dependency: Frame buffers are not supported";
     
 	if (!GLEW_ARB_vertex_buffer_object)
-	  M_throw() << "Critical OpenGL dependency: Vertex buffer objects are not supported";
+	  M_throw() << "GL-Context " << _context << "Critical OpenGL dependency: Vertex buffer objects are not supported";
     
 	if (!GLEW_ARB_fragment_program || !GLEW_ARB_vertex_program
 	    || !GLEW_ARB_fragment_shader || !GLEW_ARB_vertex_shader)
-	  M_throw() << "Critical OpenGL dependency: Fragment/Vertex shaders are not supported";
+	  M_throw() << "GL-Context " << _context << "Critical OpenGL dependency: Fragment/Vertex shaders are not supported";
 
 	if (!GLEW_ARB_depth_texture || !GLEW_ARB_shadow)
-	  M_throw() << "Critical OpenGL dependency: GL_ARB_depth_texture or GL_ARB_shadow not supported";
+	  M_throw() << "GL-Context " << _context << "Critical OpenGL dependency: GL_ARB_depth_texture or GL_ARB_shadow not supported";
 
 	if (!GLEW_ARB_instanced_arrays)
-	  M_throw() << "Critical OpenGL dependency: GL_ARB_instanced_arrays not supported";
+	  M_throw() << "GL-Context " << _context << "Critical OpenGL dependency: GL_ARB_instanced_arrays not supported";
 
 	///////Variable initialisation ///////////////////////////
 	_viewMatrix = GLMatrix::identity();
