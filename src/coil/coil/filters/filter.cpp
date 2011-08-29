@@ -33,17 +33,19 @@ namespace coil
     Glib::RefPtr<Gtk::ListStore> m_refTreeModel = Gtk::ListStore::create(getSelectColumnsInstance());
     filterSelectBox->set_model(m_refTreeModel);
 
-#define COMBO_BOX_GEN_FUNC(enumeration,stringname,type)			\
-    {									\
-      Gtk::TreeModel::Row row = *(m_refTreeModel->prepend());		\
-      row[getSelectColumnsInstance().m_col_id] = enumeration;					\
-      row[getSelectColumnsInstance().m_col_name] = stringname;				\
+#define COMBO_BOX_GEN_FUNC(enumeration,stringname,type)		\
+    {								\
+      Gtk::TreeModel::Row row = *(m_refTreeModel->prepend());	\
+      row[getSelectColumnsInstance().m_col_id] = enumeration;	\
+      row[getSelectColumnsInstance().m_col_name] = stringname;	\
     }
     
     FILTER_FACTORY(COMBO_BOX_GEN_FUNC)
 
 #undef COMBO_BOX_GEN_FUNC
 
+    
+    filterSelectBox->set_active(0);
     filterSelectBox->pack_start(getSelectColumnsInstance().m_col_name);
   }
   
