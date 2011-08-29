@@ -93,10 +93,18 @@ namespace dynamo {
       if (ent->isApplicable(part))
 	ent->getParticleNeighbourhood(part, func);
   }
+
+  void 
+  SComplex::getParticleNeighbourhood(const Vector& vec,
+				     const nbHoodFunc2& func) const
+  {
+    BOOST_FOREACH(const magnet::ClonePtr<CSCEntry>& ent, entries)
+	ent->getParticleNeighbourhood(vec, func);
+  }
     
   void 
-  SComplex::getParticleLocalNeighbourhood(const Particle& part, 
-				       const nbHoodFunc& func) const
+  SComplex::getLocalNeighbourhood(const Particle& part, 
+				  const nbHoodFunc& func) const
   {
     BOOST_FOREACH(const magnet::ClonePtr<CSCEntry>& ent, entries)
       if (ent->isApplicable(part))

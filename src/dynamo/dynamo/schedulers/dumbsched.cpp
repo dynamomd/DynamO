@@ -70,10 +70,17 @@ namespace dynamo {
   }
     
   void 
-  SDumb::getParticleLocalNeighbourhood(const Particle& part, 
+  SDumb::getLocalNeighbourhood(const Particle& part, 
 				       const nbHoodFunc& func) const
   {
     BOOST_FOREACH(const magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
       func(part, local->getID());
+  }
+
+  void 
+  SDumb::getParticleNeighbourhood(const Vector& vec, const nbHoodFunc2& func) const
+  {
+    BOOST_FOREACH(const Particle& op, Sim->particleList)
+      func(op.getID());
   }
 }

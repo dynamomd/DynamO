@@ -38,8 +38,11 @@ namespace dynamo {
 
     virtual void runEvent(const Particle&, const double) const;
 
-    virtual void getParticleNeighbourhood(const Particle&, 
+    virtual void getParticleNeighbourhood(const Particle&,
 					  const nbHoodFunc&) const;
+
+    virtual void getParticleNeighbourhood(const Vector&, 
+					  const nbHoodFunc2&) const;
 
     void getExtraLEParticleNeighbourhood(const Particle& part,
 					 const nbHoodFunc& func) const;

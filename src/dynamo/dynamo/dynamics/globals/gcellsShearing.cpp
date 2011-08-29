@@ -310,6 +310,42 @@ namespace dynamo {
   }
 
   void 
+  GCellsShearing::getParticleNeighbourhood(const Vector& vec,
+					   const nbHoodFunc2& func) const
+  {
+    GCells::getParticleNeighbourhood(vec, func);
+  
+    magnet::math::MortonNumber<3> cellCoords = getCellID(vec);
+
+    if ((cellCoords[1] == 0) || (cellCoords[1] == dilatedCellMax[1]))
+      {
+	//Move to the bottom of x
+	cellCoords[0] = 0;
+	//Get the correct y-side (its the opposite to the particles current side)
+	cellCoords[1] = (cellCoords[1] > 0) ? 0 : dilatedCellMax[1];  
+	////Move a single cell down in Z
+	cellCoords[2] = (cellCoords[2].getRealValue() + cellCount[2] - 1) % cellCount[2];
+	
+	for (size_t i(0); i < 3; ++i)
+	  {
+	    cellCoords[2] %= cellCount[2];
+	    
+	    for (size_t j(0); j < cellCount[0]; ++j)
+	      {
+		for (int next = list[cellCoords.getMortonNum()]; next >= 0; 
+		     next = partCellData[next].next)
+		  func(next);
+		
+		++cellCoords[0];
+	      }
+	    ++cellCoords[2];
+	    cellCoords[0] = 0;
+	  }
+      }
+  }
+
+
+  void 
   GCellsShearing::getExtraLEParticleNeighbourhood(const Particle& part,
 						  const nbHoodFunc& func) const
   {

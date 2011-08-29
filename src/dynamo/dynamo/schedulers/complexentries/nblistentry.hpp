@@ -31,8 +31,11 @@ namespace dynamo {
     virtual void getParticleNeighbourhood(const Particle&, 
 					  const GNeighbourList::nbHoodFunc&) const;
 
-    virtual void getParticleLocalNeighbourhood(const Particle&, 
-					       const GNeighbourList::nbHoodFunc&) const;
+    virtual void getParticleNeighbourhood(const Vector&, 
+					  const GNeighbourList::nbHoodFunc2&) const;
+
+    virtual void getLocalNeighbourhood(const Particle&, 
+				       const GNeighbourList::nbHoodFunc&) const;
 
     virtual CSCEntry* Clone() const { return new CSCENBList(*this); }
 

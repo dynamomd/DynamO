@@ -378,6 +378,8 @@ namespace dynamo {
     return retval;
   }
 
+
+
   void 
   GCells::getParticleNeighbourhood(const Particle& part,
 				   const nbHoodFunc& func) const
@@ -416,9 +418,48 @@ namespace dynamo {
       }
   }
 
+  void
+  GCells::getParticleNeighbourhood(const Vector& vec,
+				   const nbHoodFunc2& func) const
+  {
+    
+    const magnet::math::MortonNumber<3> particle_cell_coords = getCellID(vec);
+
+    magnet::math::MortonNumber<3> zero_coords;
+    for (size_t iDim(0); iDim < NDIM; ++iDim)
+      zero_coords[iDim] = (particle_cell_coords[iDim].getRealValue() + cellCount[iDim] - overlink)
+	% cellCount[iDim];
+
+    magnet::math::MortonNumber<3> max_coords;
+    for (size_t iDim(0); iDim < NDIM; ++iDim)
+      max_coords[iDim] = (particle_cell_coords[iDim].getRealValue() + overlink + 1)
+	% cellCount[iDim];
+
+    magnet::math::MortonNumber<3> coords(zero_coords);
+    while (coords[2] != max_coords[2])
+      {
+	for (int next(list[coords.getMortonNum()]);
+	     next >= 0; next = partCellData[next].next)
+	  func(next);
+      
+	++coords[0];
+	if (coords[0] > dilatedCellMax[0]) coords[0] = 0;
+	if (coords[0] != max_coords[0]) continue;
+      
+	++coords[1];
+	coords[0] = zero_coords[0];
+	if (coords[1] > dilatedCellMax[1]) coords[1] = 0;
+	if (coords[1] != max_coords[1]) continue;
+      
+	++coords[2];
+	coords[1] = zero_coords[1];
+	if (coords[2] > dilatedCellMax[2]) coords[2] = 0;
+      }
+  }
+
   void 
-  GCells::getParticleLocalNeighbourhood(const Particle& part, 
-					const nbHoodFunc& func) const
+  GCells::getLocalNeighbourhood(const Particle& part, 
+				const nbHoodFunc& func) const
   {
     BOOST_FOREACH(const size_t& id, cells[partCellData[part.getID()].cell])
       func(part, id);

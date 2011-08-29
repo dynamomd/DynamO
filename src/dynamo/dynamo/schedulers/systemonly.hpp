@@ -35,9 +35,13 @@ namespace dynamo {
     virtual void getParticleNeighbourhood(const Particle&,
 					  const nbHoodFunc&) const 
     {}
+
+    virtual void getParticleNeighbourhood(const Vector&, 
+					  const nbHoodFunc2&) const
+    {}
     
-    virtual void getParticleLocalNeighbourhood(const Particle&, 
-					       const nbHoodFunc&) const
+    virtual void getLocalNeighbourhood(const Particle&, 
+				       const nbHoodFunc&) const
     {}
 
   protected:

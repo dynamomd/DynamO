@@ -19,6 +19,7 @@
 #include <dynamo/dynamics/globals/global.hpp>
 #include <boost/function.hpp>
 #include <magnet/function/delegate.hpp>
+#include <magnet/math/vector.hpp>
 #include <vector>
 
 namespace dynamo {
@@ -41,6 +42,11 @@ namespace dynamo {
     typedef magnet::function::Delegate2
     <const Particle&, const size_t&, void> nbHoodFunc;
 
+    /*! \brief The type of function that is called back when asking
+      for neighbors around a point.
+     */
+    typedef magnet::function::Delegate1
+    <const size_t&, void> nbHoodFunc2;
   
     /*! \brief The type of function that can be registered for callbacks
      * when the neighbourlist is reinitialized.
@@ -86,8 +92,11 @@ namespace dynamo {
     virtual void getParticleNeighbourhood(const Particle&, 
 					  const nbHoodFunc&) const = 0;
 
-    virtual void getParticleLocalNeighbourhood(const Particle&, 
-					       const nbHoodFunc&) const = 0;
+    virtual void getParticleNeighbourhood(const Vector&, 
+					  const nbHoodFunc2&) const = 0;
+    
+    virtual void getLocalNeighbourhood(const Particle&, 
+				       const nbHoodFunc&) const = 0;
 
     template<class T> size_t
     ConnectSigCellChangeNotify

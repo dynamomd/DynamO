@@ -92,8 +92,7 @@ namespace dynamo {
   {
 #ifdef DYNAMO_DEBUG
     if (dynamic_cast<const GNeighbourList*>
-	(Sim->dynamics.getGlobals()[NBListID].get_ptr())
-	== NULL)
+	(Sim->dynamics.getGlobals()[NBListID].get_ptr()) == NULL)
       M_throw() << "Not a GNeighbourList!";
 #endif
 
@@ -102,12 +101,12 @@ namespace dynamo {
 				 (Sim->dynamics.getGlobals()[NBListID]
 				  .get_ptr()));
   
-    nblist.getParticleNeighbourhood(part, func);      
+    nblist.getParticleNeighbourhood(part, func);
   }
     
   void 
-  SNeighbourList::getParticleLocalNeighbourhood(const Particle& part, 
-						const nbHoodFunc& func) const
+  SNeighbourList::getLocalNeighbourhood(const Particle& part, 
+					const nbHoodFunc& func) const
   {
 #ifdef DYNAMO_DEBUG
     if (dynamic_cast<const GNeighbourList*>
@@ -122,7 +121,24 @@ namespace dynamo {
 				  .get_ptr()));
 
     //Add the local cell events
-    nblist.getParticleLocalNeighbourhood(part, func);
-    
+    nblist.getLocalNeighbourhood(part, func);
   }
+
+  void 
+  SNeighbourList::getParticleNeighbourhood(const Vector& vec, const nbHoodFunc2& func) const
+  {
+#ifdef DYNAMO_DEBUG
+    if (dynamic_cast<const GNeighbourList*>
+	(Sim->dynamics.getGlobals()[NBListID].get_ptr()) == NULL)
+      M_throw() << "Not a GNeighbourList!";
+#endif
+
+    //Grab a reference to the neighbour list
+    const GNeighbourList& nblist(*static_cast<const GNeighbourList*>
+				 (Sim->dynamics.getGlobals()[NBListID]
+				  .get_ptr()));
+    
+    nblist.getParticleNeighbourhood(vec, func);
+  }
+
 }

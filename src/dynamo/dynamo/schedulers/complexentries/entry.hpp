@@ -44,12 +44,17 @@ namespace dynamo {
 
     bool isApplicable(const Particle& part) const;
   
-    virtual void getParticleNeighbourhood(const Particle&, 
-					  const GNeighbourList::nbHoodFunc&) const {}
+    virtual void getParticleNeighbourhood(const Vector&, 
+					  const GNeighbourList::nbHoodFunc2&) const 
+    {}
 
-    virtual void getParticleLocalNeighbourhood(const Particle&, 
-					       const GNeighbourList::nbHoodFunc&
-					       ) const 
+    virtual void getParticleNeighbourhood(const Particle&, 
+					  const GNeighbourList::nbHoodFunc&) const 
+    {}
+
+    virtual void getLocalNeighbourhood(const Particle&, 
+				       const GNeighbourList::nbHoodFunc&
+				       ) const 
     {}
 
     virtual CSCEntry* Clone() const = 0;

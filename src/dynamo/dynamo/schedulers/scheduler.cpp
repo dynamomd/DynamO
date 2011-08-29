@@ -82,7 +82,7 @@ namespace dynamo {
 	sorter->push(glob->getEvent(part), part.getID());
   
     //Add the local cell events
-    getParticleLocalNeighbourhood
+    getLocalNeighbourhood
       (part, magnet::function::MakeDelegate(this, &Scheduler::addLocalEvent));
 
     //Add the interaction events
