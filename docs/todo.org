@@ -40,6 +40,7 @@
 **** DONE *BUGFIX* DynamO: Fixed a config load error triggered by an input configuration from a simulation with no events.
 **** DONE *BUGFIX* DYNAMO: Fixed bounded priority queues causing huge slowdowns in very small (N=2) systems.
 **** DONE *BUGFIX* COIL: Fixed resizing of anti-aliased windows not working on AMD hardware.
+**** DONE All: Moved to using boost version 1.47.0, fixing some compile errors for clang.
 **** DONE All: Lots of extra Doxygen comments to help people understand the source code.
 **** DONE All: The build system now has an advanced configuration mode, testing for all dependencies before trying to build.
 **** DONE All: You can now install the magnet and coil library into your system for use in other projects.
