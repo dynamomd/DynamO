@@ -18,20 +18,9 @@
 #Location of the boost build root directory
 path-constant BOOST_ROOT : src/boost/tools/build/v2 ;
 path-constant BUILD_DIR_PATH : ./build-dir ;
-
 path-constant LIB_INSTALL_PATH : ./lib ;
 path-constant BIN_INSTALL_PATH : ./bin ;
 path-constant INCLUDE_INSTALL_PATH : ./include ;
-
-##########################################################################
-#If the build-dir doesn't exist at the very start of the build, all
-#the configuration test build output goes to stdout. So we create the
-#directory now
-import os ;
-if [ os.name ] = NT
-{ SHELL "mkdir "$(BUILD_DIR_PATH) ; }
-else
-{ SHELL "mkdir -p "$(BUILD_DIR_PATH) ; }
 
 ##########################################################################
 #Additional build variants
@@ -42,6 +31,7 @@ else
 #<define>_GLIBCXX_DEBUG_PEDANTIC <define>_GLIBCXX_CONCEPT_CHECKS
 #<define>_GLIBCPP_DEBUG_PEDANTIC <define>_GLIBCPP_DEBUG
 #<define>_GLIBCPP_CONCEPT_CHECKS
+
 variant fulldebug : debug : <define>_GLIBCXX_DEBUG  <define>DYNAMO_DEBUG  <define>DYNAMO_CollDebug <define>DYNAMO_WallCollDebug <cxxflags>-fstack-protector-all <define>DYNAMO_OverlapTesting ;
 
 # The valgrind variant is useful for code analysis in tools like
