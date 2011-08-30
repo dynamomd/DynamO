@@ -87,13 +87,6 @@ namespace dynamo {
   CSCENBList::getParticleNeighbourhood(const Vector& vec, 
 				       const GNeighbourList::nbHoodFunc2& func) const
   {
-#ifdef DYNAMO_DEBUG
-    if (!isApplicable(part))
-      M_throw() << "This complexNBlist entry ("
-		<< name << ") is not valid for this particle (" 
-		<< part.getID() << ") yet it is being used anyway!";
-#endif
-
     static_cast<const GNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID])
       .getParticleNeighbourhood(vec, func);
   }
