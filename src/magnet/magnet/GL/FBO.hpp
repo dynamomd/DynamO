@@ -98,32 +98,34 @@ namespace magnet {
 	    M_throw() << "color and depth texture size mismatch";
 	
 	_context = &Context::getContext();
-	_colorTexture = colorTexture;
+
+	glGenFramebuffersEXT(1, &_FBO);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
+
+	_colorTextures.resize(detail::glGet<GL_MAX_COLOR_ATTACHMENTS_EXT>());
+	_colorTextures[0] = colorTexture;
 	_depthTexture = depthTexture;
 
-	if (_colorTexture)
+	if (_colorTextures[0])
 	  {
-	    _width = _colorTexture->getWidth();
-	    _height = _colorTexture->getHeight();
+	    _width = _colorTextures[0]->getWidth();
+	    _height = _colorTextures[0]->getHeight();
 	  }
 	else
 	  {
 	    _width = _depthTexture->getWidth();
 	    _height = _depthTexture->getHeight();
 	  }
-	  	
-	glGenFramebuffersEXT(1, &_FBO);
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
-	
+	  		
 	//Bind the depth texture
 	if (_depthTexture)
 	  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
 				    GL_TEXTURE_2D, _depthTexture->getGLHandle(), 0);
 	
 	//Bind the color texture
-	if (_colorTexture)
+	if (_colorTextures[0])
 	  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, 
-				    _colorTexture->getGLHandle(), 0);
+				    _colorTextures[0]->getGLHandle(), 0);
 	
 	// check FBO status
 	GLenum FBOstatus = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
@@ -161,17 +163,19 @@ namespace magnet {
 	//Skip identity operations
 	if ((_width == width) && (_height == height)) return;
 	
-	std::tr1::shared_ptr<Texture2D> colorTexture = _colorTexture;
+	std::vector<std::tr1::shared_ptr<Texture2D> > colorTextures = _colorTextures;
 	std::tr1::shared_ptr<Texture2D> depthTexture = _depthTexture;
 
 	deinit();
-	if (colorTexture)
-	  colorTexture->resize(width, height);
+	for (std::vector<std::tr1::shared_ptr<Texture2D> >::iterator iPtr = _colorTextures.begin();
+	     iPtr != _colorTextures.end(); ++iPtr)
+	  if (*iPtr)
+	    (*iPtr)->resize(width, height);
 
 	if (depthTexture)
 	  depthTexture->resize(width, height);
 
-	init(colorTexture, depthTexture);
+	init(colorTextures[0], depthTexture);
       }
 
       /*! \brief Renders the contents of the FBO to the real screen FBO.
@@ -196,7 +200,7 @@ namespace magnet {
       inline 
       virtual void deinit()
       {
-	_colorTexture.reset();
+	_colorTextures.clear();
 	_depthTexture.reset();
 	
 	if (_width)
@@ -248,10 +252,14 @@ namespace magnet {
       inline GLuint getFBO() { return _FBO; }
 
       /*! \brief Fetch the texture bound to the color buffer. */
-      inline Texture2D& getColorTexture() 
+      inline Texture2D& getColorTexture(const size_t ID = 0) 
       { 
-	if (!_colorTexture) M_throw() << "Cannot fetch the color texture if the FBO has none bound";
-	return *_colorTexture; 
+	if (ID >= _colorTextures.size())
+	  M_throw() << "Out of range";
+
+	if (!_colorTextures[ID]) 
+	  M_throw() << "Cannot fetch the color texture " << ID << " if the FBO has none bound";
+	return *_colorTextures[ID]; 
       }
 
       /*! \brief Fetch the texture bound to the depth buffer. */
@@ -276,7 +284,7 @@ namespace magnet {
 
     protected:
       Context* _context;
-      std::tr1::shared_ptr<Texture2D> _colorTexture;
+      std::vector<std::tr1::shared_ptr<Texture2D> > _colorTextures;
       std::tr1::shared_ptr<Texture2D> _depthTexture;
       GLuint _FBO;
       GLsizei _width, _height;
