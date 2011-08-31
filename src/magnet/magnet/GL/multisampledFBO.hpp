@@ -54,12 +54,12 @@ namespace magnet {
 	//Now create the multisampling color buffer
 	glGenRenderbuffersEXT(1, &_multisampleColorBuffer);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _multisampleColorBuffer);
-	glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT, _samples, internalformat, _width, _height);
+	glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT, _samples, internalformat, width, height);
 
 	// multi sampled depth buffer
 	glGenRenderbuffersEXT(1, &_multisampleDepthBuffer);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _multisampleDepthBuffer);
-	glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT, _samples, GL_DEPTH_COMPONENT, _width, _height);
+	glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT, _samples, GL_DEPTH_COMPONENT, width, height);
 
 	//Now build the multisample FBO
 	glGenFramebuffersEXT(1, &_multisampleFBO);
@@ -82,10 +82,10 @@ namespace magnet {
       virtual void resize(GLsizei width, GLsizei height)
       {
 	//If we've not been initialised, then just return
-	if (!_width) return;
+	if (!_context) return;
 
 	//Skip identity operations
-	if ((_width == width) && (_height == height)) return;
+	if ((getWidth() == width) && (getHeight() == height)) return;
 
 	//We don't use the resize commands, as it causes problems on
 	//AMD hardware (the buffer doesn't actually resize). Instead
@@ -102,20 +102,24 @@ namespace magnet {
       inline 
       virtual void attach()
       {
-	if (!_width)
+	if (!_context)
 	  M_throw() << "Cannot attach() an uninitialised multisampledFBO";
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _multisampleFBO);
-	_context->setViewport(0, 0, _width, _height);
+	_context->setViewport(0, 0, getWidth(), getHeight());
       }
 
       inline 
       virtual void detach()
       {
+	validate();
+	if (!_context)
+	  M_throw() << "Cannot detach() an uninitialised multisampledFBO";
 	//First blit between the two FBO's
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, _multisampleFBO);
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, _FBO);
-	glBlitFramebufferEXT(0, 0, _width, _height, 0, 0, 
-			     _width, _height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+	glBlitFramebufferEXT(0, 0, getWidth(), getHeight(), 0, 0, 
+			     getWidth(), getHeight(), 
+			     GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, 0);
@@ -127,11 +131,12 @@ namespace magnet {
       virtual void copyto(FBO& other, GLbitfield opts = GL_COLOR_BUFFER_BIT 
 			  | GL_DEPTH_BUFFER_BIT)
       {
+	validate();
 	//First blit between the two FBO's
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, _multisampleFBO);
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, other.getFBO());
-	glBlitFramebufferEXT(0, 0, _width, _height, 0, 0, 
-			     _width, _height, opts, GL_NEAREST);
+	glBlitFramebufferEXT(0, 0, getWidth(), getHeight(), 0, 0, 
+			     getWidth(), getHeight(), opts, GL_NEAREST);
 	
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, 0);
@@ -140,7 +145,7 @@ namespace magnet {
       inline 
       virtual void deinit()
       {
-	if (_width)
+	if (_context)
 	  {
 	    glDeleteFramebuffersEXT(1, &_multisampleFBO);
 	    glDeleteRenderbuffersEXT(1, &_multisampleDepthBuffer);

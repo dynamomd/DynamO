@@ -21,12 +21,17 @@
 namespace magnet {
   namespace GL {   
     /*! \brief A Frame Buffer Object.
-     *
-     * Frame buffer objects are "virtual screens" which can be drawn
-     * to, but the output is captured by bound textures instead of the
-     * real user screen.
-     *
-     * \sa MultisampledFBO
+     
+      Frame buffer objects are "virtual screens" which can be drawn
+      to, but the output is captured to bound textures instead of the
+      users screen.
+     
+      This framebuffer wrapper uses a validate-on-attachment
+      methodology like the underlying OpenGL FBO. This means that you
+      initialise the FBO, attach buffers to its attachment points and
+      when you call attach() it validates the configuration.
+
+      \sa MultisampledFBO
      */
     class FBO
     {
@@ -36,7 +41,7 @@ namespace magnet {
        * The FBO is unusable at this point and must be first \ref
        * init() ialized.
        */
-      inline FBO():_context(NULL), _width(0), _height(0) {}
+      inline FBO():_context(NULL), _validated(false) {}
 
       /*! \brief Initializes the FBO
        * 
@@ -73,75 +78,27 @@ namespace magnet {
 	colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	init(colorTexture, depthTexture);
+	init();
+	attachColorTexture(colorTexture, 0);
+	attachDepthTexture(depthTexture);
       }
 
-      /*! \brief Initializes the FBO using the passed color and depth buffers
-       * 
-       * \param width The width of the FBO in pixels.
-       * \param height The height of the FBO in pixels.
-       * \param internalformat The pixel type stored by the FBO.
+      /*! \brief Initializes the FBO.
+	
+	This function does not attach any textures to the FBO, you
+	must attach at least one texture using \ref attachColorTexture() or \ref \attachDepthTexture() 
+	before attempting to \ref attach() this FBO.
        */
       inline 
-      virtual void init(std::tr1::shared_ptr<Texture2D> colorTexture,
-			std::tr1::shared_ptr<Texture2D> depthTexture)
+      virtual void init()
       {
-	if (_width || _height)
+	if (_context)
 	  M_throw() << "FBO has already been initialised!";
-
-	if (!colorTexture && !depthTexture)
-	  M_throw() << "You must provide at least a color or a depth texture to the FBO";
-
-	if (colorTexture && depthTexture)
-	  if ((colorTexture->getWidth() != depthTexture->getWidth())
-	      || (colorTexture->getHeight() != depthTexture->getHeight()))
-	    M_throw() << "color and depth texture size mismatch";
 	
 	_context = &Context::getContext();
 
 	glGenFramebuffersEXT(1, &_FBO);
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
-
 	_colorTextures.resize(detail::glGet<GL_MAX_COLOR_ATTACHMENTS_EXT>());
-	_colorTextures[0] = colorTexture;
-	_depthTexture = depthTexture;
-
-	if (_colorTextures[0])
-	  {
-	    _width = _colorTextures[0]->getWidth();
-	    _height = _colorTextures[0]->getHeight();
-	  }
-	else
-	  {
-	    _width = _depthTexture->getWidth();
-	    _height = _depthTexture->getHeight();
-	  }
-	  		
-	//Bind the depth texture
-	if (_depthTexture)
-	  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
-				    GL_TEXTURE_2D, _depthTexture->getGLHandle(), 0);
-	
-	//Bind the color texture
-	if (_colorTextures[0])
-	  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, 
-				    _colorTextures[0]->getGLHandle(), 0);
-	
-	// check FBO status
-	GLenum FBOstatus = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-	switch (FBOstatus)
-	  {
-	  case GL_FRAMEBUFFER_UNDEFINED: M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_UNDEFINED";
-	  case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
-	  case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
-	  case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
-	  case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
-	  case GL_FRAMEBUFFER_UNSUPPORTED: M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_UNSUPPORTED";
-	  case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE: M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
-	  case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS: M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
-	  default: M_throw() << "Failed to create FrameBufferObject: Unkown error code";
-	  case GL_FRAMEBUFFER_COMPLETE_EXT: break;
-	  }
       }
       
       /*! \brief Resizes the FBO
@@ -157,25 +114,30 @@ namespace magnet {
       inline 
       virtual void resize(GLsizei width, GLsizei height)
       {
-	if (!_width)
+	if (!_context)
 	  M_throw() << "Cannot resize an uninitialized FBO";
 	
 	//Skip identity operations
-	if ((_width == width) && (_height == height)) return;
+	if ((width == getWidth()) && (height == getHeight())) return;
 	
 	std::vector<std::tr1::shared_ptr<Texture2D> > colorTextures = _colorTextures;
 	std::tr1::shared_ptr<Texture2D> depthTexture = _depthTexture;
 
 	deinit();
-	for (std::vector<std::tr1::shared_ptr<Texture2D> >::iterator iPtr = _colorTextures.begin();
-	     iPtr != _colorTextures.end(); ++iPtr)
-	  if (*iPtr)
-	    (*iPtr)->resize(width, height);
+	init();
+
+	for (size_t attachment(0); attachment < colorTextures.size(); ++attachment)
+	  if (colorTextures[attachment]) 
+	    { 
+	      colorTextures[attachment]->resize(width, height); 
+	      attachColorTexture(colorTextures[attachment], attachment);
+	    }
 
 	if (depthTexture)
-	  depthTexture->resize(width, height);
-
-	init(colorTextures[0], depthTexture);
+	  {
+	    depthTexture->resize(width, height);
+	    attachDepthTexture(depthTexture);
+	  }
       }
 
       /*! \brief Renders the contents of the FBO to the real screen FBO.
@@ -185,11 +147,13 @@ namespace magnet {
        */
       inline void blitToScreen(GLsizei screenwidth, GLsizei screenheight)
       {
+	validate();
+
 	if (!GLEW_EXT_framebuffer_blit)
 	  M_throw() << "The GL_EXT_framebuffer_blit extension is not supported! Cannot blit!";
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, _FBO);
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, 0);
-	glBlitFramebufferEXT(0, 0, _width, _height, 0, 0, screenwidth, screenheight, 
+	glBlitFramebufferEXT(0, 0, getWidth(), getHeight(), 0, 0, screenwidth, screenheight, 
 			     GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
       }
@@ -203,11 +167,9 @@ namespace magnet {
 	_colorTextures.clear();
 	_depthTexture.reset();
 	
-	if (_width)
+	if (_context)
 	  glDeleteFramebuffersEXT(1, &_FBO);
 
-	_width = 0;
-	_height = 0;
 	_context = NULL;
       }
 
@@ -215,17 +177,40 @@ namespace magnet {
       inline 
       virtual void attach()
       {
-	if (!_width)
-	  M_throw() << "Cannot attach() an uninitialised FBO";
+	validate();
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
-	_context->setViewport(0, 0, _width, _height);
+	_context->setViewport(0, 0, getWidth(), getHeight());
       }
 
       /*! \brief Restores the screen FBO as the current render target. */
       inline 
       virtual void detach()
       {
+	if (!_context)
+	  M_throw() << "Cannot detach() an uninitialised FBO";
+
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+      }
+
+      inline void attachColorTexture(std::tr1::shared_ptr<Texture2D> coltex, size_t i)
+      {
+	if (!_context)
+	  M_throw() << "Cannot attach textures to an uninitialised FBO";
+	
+	if (i >= _colorTextures.size())
+	  M_throw() << "Out of range";
+
+	_colorTextures[i] = coltex;
+	_validated = false;
+      }
+
+      inline void attachDepthTexture(std::tr1::shared_ptr<Texture2D> depthtex)
+      {
+	if (!_context)
+	  M_throw() << "Cannot attach textures to an uninitialised FBO";
+	
+	_depthTexture = depthtex;
+	_validated = false;
       }
 
       /*! \brief Copies the contents of this FBO to another.
@@ -237,11 +222,12 @@ namespace magnet {
       virtual void copyto(FBO& other, GLbitfield opts = GL_COLOR_BUFFER_BIT 
 			  | GL_DEPTH_BUFFER_BIT)
       {
+	validate();
 	//First blit between the two FBO's
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, _FBO);
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, other._FBO);
-	glBlitFramebufferEXT(0, 0, _width, _height, 0, 0, 
-			     other._width, other._height, opts, GL_NEAREST);
+	glBlitFramebufferEXT(0, 0, getWidth(), getHeight(), 0, 0, 
+			     other.getWidth(), other.getHeight(), opts, GL_NEAREST);
 	
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, 0);
@@ -252,42 +238,124 @@ namespace magnet {
       inline GLuint getFBO() { return _FBO; }
 
       /*! \brief Fetch the texture bound to the color buffer. */
-      inline Texture2D& getColorTexture(const size_t ID = 0) 
+      inline Texture2D& getColorTexture(const size_t ID = 0)
       { 
 	if (ID >= _colorTextures.size())
 	  M_throw() << "Out of range";
 
 	if (!_colorTextures[ID]) 
-	  M_throw() << "Cannot fetch the color texture " << ID << " if the FBO has none bound";
-	return *_colorTextures[ID]; 
+	  M_throw() << "Cannot fetch the color texture " << ID << " as the FBO has none bound";
+
+	return *_colorTextures[ID];
       }
 
       /*! \brief Fetch the texture bound to the depth buffer. */
       inline Texture2D& getDepthTexture() 
       { 
-	if (!_depthTexture) M_throw() << "Cannot fetch the color texture if the FBO has none bound";
+	if (!_depthTexture) 
+	  M_throw() << "Cannot fetch the depth texture as the FBO has none bound";
 	return *_depthTexture; 
       }
 
       /*! \brief Fetch the width of the FBO in pixels. */
-      inline GLsizei getWidth() { return _width; }
+      inline GLsizei getWidth() 
+      {
+	validate(); //Check the format of the FBO is consistent!
+	//Find the first bound texture and return its dimensions
+	if (_depthTexture) return _depthTexture->getWidth();
+
+	for (std::vector<std::tr1::shared_ptr<Texture2D> >::iterator iPtr = _colorTextures.begin();
+	     iPtr != _colorTextures.end(); ++iPtr)
+	  if (*iPtr) return (*iPtr)->getWidth();
+	
+	M_throw() << "Cannot query the width of a FBO without any bound textures";
+      }
 
       /*! \brief Fetch the height of the FBO in pixels. */
-      inline GLsizei getHeight() { return _height; }
+      inline GLsizei getHeight() 
+      {
+	validate(); //Check the format of the FBO is consistent!
+	//Find the first bound texture and return its dimensions
+	if (_depthTexture) return _depthTexture->getHeight();
+
+	for (std::vector<std::tr1::shared_ptr<Texture2D> >::iterator iPtr = _colorTextures.begin();
+	     iPtr != _colorTextures.end(); ++iPtr)
+	  if (*iPtr) return (*iPtr)->getHeight();
+	
+	M_throw() << "Cannot query the height of a FBO without any bound textures";
+      }
 
       Context& getContext()
       { 
-	if (!_width) 
+	if (!_context)
 	  M_throw() << "Cannot get an FBO's context if it is uninitialized";
 	return *_context;
       }
 
     protected:
+      /*! \brief Validate the current state of the FBO and raise an exception if there is an error.
+       */
+      void validate()
+      {
+	if (!_context)
+	  M_throw() << "Cannot attach() an uninitialised FBO";
+
+	if(!_validated)
+	  {
+	    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
+
+	    //Bind the textures, or unbind the unbound textures ready for the completeness test
+	    if (_depthTexture)
+	      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
+					GL_TEXTURE_2D, _depthTexture->getGLHandle(), 0);
+	    else
+	      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
+					GL_TEXTURE_2D, 0, 0);
+
+	    
+	    for (size_t attachment(0); attachment < _colorTextures.size(); ++attachment)
+	      if (_colorTextures[attachment])
+		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + attachment, GL_TEXTURE_2D, 
+					  _colorTextures[attachment]->getGLHandle(), 0);
+	      else
+		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + attachment, GL_TEXTURE_2D, 
+					  0, 0);
+
+	    // check FBO status
+	    GLenum FBOstatus = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	    switch (FBOstatus)
+	      {
+	      case GL_FRAMEBUFFER_UNDEFINED: 
+		M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_UNDEFINED";
+	      case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: 
+		M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+	      case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: 
+		M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+	      case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: 
+		M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
+	      case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: 
+		M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
+	      case GL_FRAMEBUFFER_UNSUPPORTED: 
+		M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_UNSUPPORTED";
+	      case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE: 
+		M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
+	      case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS: 
+		M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
+	      default: 
+		M_throw() << "Failed to create FrameBufferObject: Unkown error code";
+	      case GL_FRAMEBUFFER_COMPLETE_EXT: 
+		break;
+	      }
+	    _validated = true;
+	  }
+      }
+
+
       Context* _context;
       std::vector<std::tr1::shared_ptr<Texture2D> > _colorTextures;
       std::tr1::shared_ptr<Texture2D> _depthTexture;
       GLuint _FBO;
-      GLsizei _width, _height;
+      bool _validated;
     };
   }
 }
