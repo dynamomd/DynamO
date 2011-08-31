@@ -54,9 +54,7 @@ namespace dynamo {
   OPPeriodicMSD::ticker()
   {
     BOOST_FOREACH(localpair2& dat, structResults)
-      dat.second.push_back(std::make_pair
-			   (Sim->dSysTime / Sim->dynamics.units().unitTime(),
-			    ptrOPMSD->calcStructMSD(*dat.first)));
+      dat.second.push_back(std::make_pair(Sim->dSysTime, ptrOPMSD->calcStructMSD(*dat.first)));
 
     BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
       speciesData[sp->getID()].push_back(std::make_pair(Sim->dSysTime, ptrOPMSD->calcMSD(*(sp->getRange()))));
@@ -75,7 +73,7 @@ namespace dynamo {
       
 	BOOST_FOREACH(const localpair& dat, speciesData[sp->getID()])
 	  XML << dat.first / Sim->dynamics.units().unitTime() << " " 
-	      << dat.second * 6 << "\n";
+	      << dat.second << "\n";
 
 	XML << magnet::xml::tag("Species");
       }
@@ -89,7 +87,7 @@ namespace dynamo {
 		<< magnet::xml::chardata();
 	  
 	    BOOST_FOREACH(const localpair& myp, dat.second)
-	      XML << myp.first << " " << myp.second << "\n";
+	      XML << myp.first / Sim->dynamics.units().unitTime() << " " << myp.second << "\n";
 	  
 	    XML << magnet::xml::endtag("Structure");	
 	  }

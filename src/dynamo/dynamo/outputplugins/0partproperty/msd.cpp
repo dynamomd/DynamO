@@ -56,7 +56,7 @@ namespace dynamo {
 	    << magnet::xml::attr("Name") << sp->getName()
 	    << magnet::xml::attr("val") << MSD
 	    << magnet::xml::attr("diffusionCoeff") 
-	    << MSD * Sim->dynamics.units().unitTime() / Sim->dSysTime
+	    << MSD * Sim->dynamics.units().unitTime() / (2 * NDIM * Sim->dSysTime)
 	    << magnet::xml::endtag("Species");
       }
 
@@ -72,7 +72,7 @@ namespace dynamo {
 		<< magnet::xml::attr("Name") << topo->getName()
 		<< magnet::xml::attr("val") << MSD
 		<< magnet::xml::attr("diffusionCoeff") 
-		<< MSD * Sim->dynamics.units().unitTime() / Sim->dSysTime
+		<< MSD * Sim->dynamics.units().unitTime() / (2 * NDIM * Sim->dSysTime)
 		<< magnet::xml::endtag("Structure");
 	  }
 
@@ -90,7 +90,7 @@ namespace dynamo {
     BOOST_FOREACH(const size_t ID, range)
       acc += (Sim->particleList[ID].getPosition() - initPos[ID]).nrm2();
   
-    return acc / (range.size() * 2.0 * NDIM * Sim->dynamics.units().unitArea());
+    return acc / (range.size() * Sim->dynamics.units().unitArea());
   }
 
   double
@@ -119,8 +119,7 @@ namespace dynamo {
 	acc += (currPos - origPos).nrm2();
       }
 
-    acc /= Itop.getMoleculeCount() * 2.0 * NDIM
-      * Sim->dynamics.units().unitArea();
+    acc /= Itop.getMoleculeCount() * Sim->dynamics.units().unitArea();
   
     return acc;
   }
