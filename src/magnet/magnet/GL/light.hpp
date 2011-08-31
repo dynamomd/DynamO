@@ -67,19 +67,36 @@ namespace magnet {
       void init()
       {
 	_shadowFBO.setSamples(std::min(4, magnet::GL::MultisampledFBO::getSupportedSamples()));
-	_shadowFBO.init(1024, 1024, GL_RG32F);
-	_shadowFBO.getColorTexture().parameter(GL_TEXTURE_WRAP_S, GL_CLAMP);
-	_shadowFBO.getColorTexture().parameter(GL_TEXTURE_WRAP_T, GL_CLAMP);
-	_shadowFBO.getColorTexture().parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	_shadowFBO.getColorTexture().parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	//Build depth buffer
+	std::tr1::shared_ptr<Texture2D> depthTexture(new Texture2D);
+	//We don't force GL_DEPTH_COMPONENT24 as it is likely you get
+	//the best precision anyway
+	depthTexture->init(1024, 1024, GL_DEPTH_COMPONENT);
+	//You must select GL_NEAREST for depth data, as GL_LINEAR
+	//converts the value to 8bit for interpolation (on NVidia).
+	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+
+	//Build color texture
+	std::tr1::shared_ptr<Texture2D> colorTexture(new Texture2D);
+	colorTexture->init(1024, 1024, GL_RG32F);
+	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP);
+	colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+	_shadowFBO.init();
+	_shadowFBO.attachColorTexture(colorTexture, 0);
+	_shadowFBO.attachDepthTexture(depthTexture);
       }
 
       /*! \brief Release the OpenGL resources of this light source. 
        */
-      void deinit()
-      {
-	_shadowFBO.deinit();
-      }
+      void deinit() { _shadowFBO.deinit(); }
 
       /*! \brief Allow copying the lights location from a \ref Camera.
        * 

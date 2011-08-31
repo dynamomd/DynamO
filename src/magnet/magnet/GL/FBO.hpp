@@ -43,54 +43,13 @@ namespace magnet {
        */
       inline FBO():_context(NULL), _validated(false) {}
 
-      /*! \brief Initializes the FBO
-       * 
-       * \param width The width of the FBO in pixels.
-       * \param height The height of the FBO in pixels.
-       * \param internalformat The pixel type stored by the FBO.
-       */
-      inline 
-      virtual void init(GLsizei width, GLsizei height, GLint internalformat = GL_RGBA)
-      {
-	deinit();
-	if (!GLEW_EXT_framebuffer_object)
-	  M_throw() << "GL_EXT_framebuffer_object extension is not supported! Cannot do offscreen rendering!";
-
-	//Build depth buffer
-	std::tr1::shared_ptr<Texture2D> depthTexture(new Texture2D);
-	//We don't force GL_DEPTH_COMPONENT24 as it is likely you get
-	//the best precision anyway
-	depthTexture->init(width, height, GL_DEPTH_COMPONENT);
-	//You must select GL_NEAREST for depth data, as GL_LINEAR
-	//converts the value to 8bit for interpolation (on NVidia).
-	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-	//////////////////////////////////////////////////////////////////////////
-
-	//Build color texture
-	std::tr1::shared_ptr<Texture2D> colorTexture(new Texture2D);
-	colorTexture->init(width, height, internalformat);
-	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	init();
-	attachColorTexture(colorTexture, 0);
-	attachDepthTexture(depthTexture);
-      }
-
       /*! \brief Initializes the FBO.
 	
 	This function does not attach any textures to the FBO, you
 	must attach at least one texture using \ref attachColorTexture() or \ref \attachDepthTexture() 
 	before attempting to \ref attach() this FBO.
        */
-      inline 
-      virtual void init()
+      inline virtual void init()
       {
 	if (_context)
 	  M_throw() << "FBO has already been initialised!";
@@ -112,8 +71,7 @@ namespace magnet {
        * \param width The new width of the FBO in pixels.
        * \param height The new height of the FBO in pixels.
        */
-      inline 
-      virtual void resize(GLsizei width, GLsizei height)
+      inline void resize(GLsizei width, GLsizei height)
       {
 	if (!_context)
 	  M_throw() << "Cannot resize an uninitialized FBO";
@@ -351,7 +309,6 @@ namespace magnet {
 	    _validated = true;
 	  }
       }
-
 
       Context* _context;
       std::vector<std::tr1::shared_ptr<Texture2D> > _colorTextures;

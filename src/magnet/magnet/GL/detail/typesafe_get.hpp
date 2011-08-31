@@ -27,7 +27,8 @@ namespace magnet {
 #define GL_GET_ENUM_TYPE_TRAIT_FACTORY(F)		\
       F(GL_VIEWPORT, GLint, 4)				\
       F(GL_MAX_VERTEX_ATTRIBS, GLint, 1)                \
-      F(GL_MAX_COLOR_ATTACHMENTS_EXT, GLint, 1)
+      F(GL_MAX_COLOR_ATTACHMENTS_EXT, GLint, 1)		\
+      F(GL_MAX_SAMPLES, GLint, 1)
 
       template<size_t width, class T> struct return_type { typedef std::tr1::array<T, width> Type; };
       template<class T> struct return_type<1, T> { typedef T Type; };

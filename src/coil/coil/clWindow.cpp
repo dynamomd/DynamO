@@ -511,21 +511,36 @@ namespace coil {
   void 
   CLGLWindow::multisampleEnableCallback()
   {
+    //This function is called during initialisation to setup the renderTarget!
     Gtk::CheckButton* multisampleEnable;
     _refXml->get_widget("multisampleEnable", multisampleEnable);
-    if (multisampleEnable->get_active())
-      {
-	Gtk::ComboBox* aliasSelections;
-	_refXml->get_widget("multisampleLevels", aliasSelections);
+    Gtk::ComboBox* aliasSelections;
+    _refXml->get_widget("multisampleLevels", aliasSelections);
 
-	_renderTarget.reset(new magnet::GL::MultisampledFBO(2 << aliasSelections->get_active_row_number()));
-	_renderTarget->init(_camera.getWidth(), _camera.getHeight());
-      }
+    //Build depth buffer
+    std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
+    depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);
+    depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+
+    std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+    colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
+    colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    if (multisampleEnable->get_active())
+      _renderTarget.reset(new magnet::GL::MultisampledFBO(2 << aliasSelections->get_active_row_number()));
     else
-      {
-	_renderTarget.reset(new magnet::GL::FBO());
-	_renderTarget->init(_camera.getWidth(), _camera.getHeight());
-      }
+      _renderTarget.reset(new magnet::GL::FBO());
+
+    _renderTarget->init();
+    _renderTarget->attachColorTexture(colorTexture, 0);
+    _renderTarget->attachDepthTexture(depthTexture);
   }
 
   void 
@@ -612,13 +627,69 @@ namespace coil {
 
     _lastUpdateTime = _lastFrameTime = _FPStime = glutGet(GLUT_ELAPSED_TIME);
     _frameRenderTime = 0;
-    //Build the offscreen rendering FBO's
-    _renderTarget.reset(new magnet::GL::FBO());
-    _renderTarget->init(_camera.getWidth(), _camera.getHeight());
 
-    _filterTarget1.init(_camera.getWidth(), _camera.getHeight());
-    _filterTarget2.init(_camera.getWidth(), _camera.getHeight());
-    _normalsFBO.init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
+    {
+      std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
+      depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);
+      depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+      
+      std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
+      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      
+      _filterTarget1.init();
+      _filterTarget1.attachColorTexture(colorTexture, 0);
+      _filterTarget1.attachDepthTexture(depthTexture);
+    }
+
+    {
+      std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
+      depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);
+      depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+      
+      std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
+      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      
+      _filterTarget2.init();
+      _filterTarget2.attachColorTexture(colorTexture, 0);
+      _filterTarget2.attachDepthTexture(depthTexture);
+    }
+
+    {
+      std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
+      depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);
+      depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+      
+      std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
+      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      
+      _normalsFBO.init();
+      _normalsFBO.attachColorTexture(colorTexture, 0);
+      _normalsFBO.attachDepthTexture(depthTexture);
+    }
 
     _light0.init();
     
@@ -637,6 +708,9 @@ namespace coil {
 	     << Console::end();
 
     initGTK();
+
+    //Setup the render target
+    multisampleEnableCallback();
 
     //  //Fabian Test
     //  vol->loadRawFile("/home/mjki2mb2/Desktop/Output.raw", 300, 300, 300, 1);

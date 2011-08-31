@@ -40,39 +40,25 @@ namespace magnet {
 	_samples(samples)
       {}
 
-      inline void setSamples(GLsizei samples) { _samples = samples; }
+      /*! \brief Set the number of samples to be used by the multisampling buffers
+       */
+      inline void setSamples(GLsizei samples) 
+      {
+	_samples = samples;
+	_validated = false;
+      }
 
-      inline 
-      virtual void init(GLsizei width, GLsizei height, GLint internalformat = GL_RGBA)
+      inline virtual void init()
       {
 	if (!GLEW_EXT_framebuffer_multisample)
 	  M_throw() << "GLEW_EXT_framebuffer_multisample is not supported, cannot perform anti-aliasing";
 
-	//Setup the RTT FBO
-	FBO::init(width, height, internalformat);
+	FBO::init();
+	glGenFramebuffersEXT(1, &_multisampleFBO);
 	_colorRenderBuffers.resize(_colorTextures.size());
       }
 
-      inline 
-      virtual void resize(GLsizei width, GLsizei height)
-      {
-	//If we've not been initialised, then just return
-	if (!_context) return;
-
-	//Skip identity operations
-	if ((getWidth() == width) && (getHeight() == height)) return;
-
-	//We don't use the resize commands, as it causes problems on
-	//AMD hardware (the buffer doesn't actually resize). Instead
-	//we just recreate the render buffers. This is also noted on
-	//the opengl wiki.
-	// http://www.opengl.org/wiki/Renderbuffer_Object
-	deinit();
-	init(width, height);
-      }
-
-      inline ~MultisampledFBO()
-      { deinit(); }
+      inline ~MultisampledFBO() { deinit(); }
 
       inline 
       virtual void attach()
@@ -117,7 +103,6 @@ namespace magnet {
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, 0);
       }
 
-      inline 
       virtual void deinit()
       {
 	_colorRenderBuffers.clear();
@@ -135,10 +120,7 @@ namespace magnet {
       static GLint getSupportedSamples()
       {
 	if (!GLEW_EXT_framebuffer_multisample) return 1;
-
-	GLint maxSamples;
-	glGetIntegerv(GL_MAX_SAMPLES, &maxSamples);
-	return maxSamples;
+	return detail::glGet<GL_MAX_SAMPLES>();
       }
 
     private:
@@ -163,7 +145,7 @@ namespace magnet {
 	  \param internalformat The pixel format of the buffer (e.g., GL_RGBA).
 	  \param samples The number of pixel sub-samples (0 disables multisampling).
 	 */
-	void init(GLsizei width, GLsizei height, GLint internalformat, GLsizei samples)
+	virtual void init(GLsizei width, GLsizei height, GLint internalformat, GLsizei samples)
 	{
 	  deinit();
 	  glGenRenderbuffersEXT(1, &_buf);
@@ -174,7 +156,7 @@ namespace magnet {
 
 	/*! \brief Release the resources obtained by this buffer.
 	 */
-	void deinit()
+	virtual void deinit()
 	{
 	  if (_valid) glDeleteRenderbuffersEXT(1, &_buf);
 	  _valid = false;
