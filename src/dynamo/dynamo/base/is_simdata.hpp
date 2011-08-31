@@ -28,7 +28,7 @@
 #include <boost/random/uniform_01.hpp>
 #include <boost/foreach.hpp>
 #include <boost/scoped_ptr.hpp>
-#include <include/boost/random/01_normal_distribution.hpp>
+#include <boost/random/normal_distribution.hpp>
 #include <vector>
 #include <list>
 
@@ -194,7 +194,7 @@ namespace dynamo
      */
     mutable baseRNG ranGenerator;
 
-    mutable boost::variate_generator<dynamo::baseRNG&, boost::normal_distribution_01<double> > normal_sampler;
+    mutable boost::variate_generator<dynamo::baseRNG&, boost::normal_distribution<double> > normal_sampler;
 
     mutable boost::uniform_01<dynamo::baseRNG, double> uniform_sampler;  
 

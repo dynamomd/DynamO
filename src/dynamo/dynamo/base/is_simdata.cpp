@@ -49,7 +49,7 @@ namespace dynamo
     dynamics(this),
     primaryCellSize(1,1,1),
     ranGenerator(static_cast<unsigned>(std::time(0))),
-    normal_sampler(ranGenerator, boost::normal_distribution_01<double>()),
+    normal_sampler(ranGenerator, boost::normal_distribution<double>()),
     uniform_sampler(ranGenerator),
     lastRunMFT(0.0),
     simID(0),

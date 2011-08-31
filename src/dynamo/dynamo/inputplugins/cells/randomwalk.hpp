@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/inputplugins/cells/cell.hpp>
-#include <include/boost/random/normal_distribution.hpp>
+#include <boost/random/normal_distribution.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/mersenne_twister.hpp>
 
