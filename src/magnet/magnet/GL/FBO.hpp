@@ -57,7 +57,10 @@ namespace magnet {
 	_context = &Context::getContext();
 
 	glGenFramebuffersEXT(1, &_FBO);
-	_colorTextures.resize(detail::glGet<GL_MAX_COLOR_ATTACHMENTS_EXT>());
+	//Here we only allocate enough textures for the maximum
+	//allowed drawable buffers!
+	//Any more would just be silly and confuse things!
+	_colorTextures.resize(detail::glGet<GL_MAX_DRAW_BUFFERS>());
 	_validated = false;
       }
       
@@ -134,12 +137,18 @@ namespace magnet {
       }
 
       /*! \brief Attaches this FBO as the current render target. */
-      inline 
-      virtual void attach()
+      inline virtual void attach()
       {
 	validate();
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
 	_context->setViewport(0, 0, getWidth(), getHeight());
+
+	std::vector<GLenum> states(_colorTextures.size(), GL_NONE);
+	for (size_t attachment(0); attachment < _colorTextures.size(); ++attachment)
+	  if (_colorTextures[attachment])
+	    states[attachment] = GL_COLOR_ATTACHMENT0_EXT + attachment;
+
+	glDrawBuffers(states.size(), &states[0]);
       }
 
       /*! \brief Restores the screen FBO as the current render target. */
@@ -150,6 +159,11 @@ namespace magnet {
 	  M_throw() << "Cannot detach() an uninitialised FBO";
 
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+	//Reset the draw states
+	std::tr1::array<GLenum, 4> states 
+	  = {{GL_FRONT_LEFT, GL_FRONT_RIGHT, GL_BACK_LEFT, GL_BACK_RIGHT}};
+	glDrawBuffers(4, &states[0]);
       }
 
       inline void attachColorTexture(std::tr1::shared_ptr<Texture2D> coltex, size_t i)
@@ -273,13 +287,20 @@ namespace magnet {
 					GL_TEXTURE_2D, 0, 0);
 
 	    
+	    std::vector<GLenum> states(_colorTextures.size(), GL_NONE);
+
 	    for (size_t attachment(0); attachment < _colorTextures.size(); ++attachment)
 	      if (_colorTextures[attachment])
-		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + attachment, GL_TEXTURE_2D, 
-					  _colorTextures[attachment]->getGLHandle(), 0);
+		{
+		  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + attachment, GL_TEXTURE_2D, 
+					    _colorTextures[attachment]->getGLHandle(), 0);
+		  states[attachment] = GL_COLOR_ATTACHMENT0_EXT + attachment;
+		}
 	      else
 		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + attachment, GL_TEXTURE_2D, 
 					  0, 0);
+
+	    glDrawBuffers(states.size(), &states[0]);
 
 	    // check FBO status
 	    GLenum FBOstatus = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);

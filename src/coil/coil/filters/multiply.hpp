@@ -38,7 +38,6 @@ namespace coil
       _filter.detach();
     }
 
-    inline virtual bool needsNormalDepth()  { return false; }
   protected:
     magnet::GL::shader::MultiplyTexture _filter;
   };

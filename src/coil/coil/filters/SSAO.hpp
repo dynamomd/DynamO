@@ -32,8 +32,6 @@ namespace coil
     inline virtual void invoke(GLint colorTextureUnit, size_t width, size_t height,
 			       const magnet::GL::Camera& vp);
 
-    inline virtual bool needsNormalDepth()  { return true; }
-
     virtual void showControls(Gtk::ScrolledWindow*);
 
   protected:

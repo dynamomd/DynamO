@@ -22,7 +22,7 @@
 
 namespace coil 
 {
-  template <class T, bool reqNormalDepth>
+  template <class T>
   class magnetFilterWrapper: public Filter
   {
   public:
@@ -41,13 +41,13 @@ namespace coil
       _radiusSlider.set_digits(0);
       _radiusSlider.set_value(_radius);
       _radiusSlider.signal_value_changed()
-	.connect(sigc::mem_fun(this, &magnetFilterWrapper<T,reqNormalDepth>::settingsCallback));
+	.connect(sigc::mem_fun(this, &magnetFilterWrapper<T>::settingsCallback));
       _optlist.add(_radiusSlider); _radiusSlider.show();
       
       _optlist.show();
     }
 
-    inline virtual size_t type_id() { return detail::filterEnum<magnetFilterWrapper<T,reqNormalDepth> >::val; }    
+    inline virtual size_t type_id() { return detail::filterEnum<magnetFilterWrapper<T> >::val; }
 
 
     inline virtual void invoke(GLint colorTextureUnit, size_t width, size_t height, const magnet::GL::Camera&)
@@ -59,8 +59,6 @@ namespace coil
       _filter.invoke(); 
       _filter.detach();
     }
-
-    inline virtual bool needsNormalDepth() { return reqNormalDepth; }
 
     virtual void showControls(Gtk::ScrolledWindow* start)
     {
@@ -77,9 +75,6 @@ namespace coil
     Gtk::HScale _radiusSlider;
     Gtk::HBox _optlist;
 
-    void settingsCallback()
-    {
-      _radius = _radiusSlider.get_value();
-    }
+    void settingsCallback() { _radius = _radiusSlider.get_value(); }
   };
 }

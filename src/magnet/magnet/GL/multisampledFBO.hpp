@@ -67,6 +67,12 @@ namespace magnet {
 	  M_throw() << "Cannot attach() an uninitialised multisampledFBO";
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _multisampleFBO);
 	_context->setViewport(0, 0, getWidth(), getHeight());
+
+	std::vector<GLenum> states(_colorTextures.size(), GL_NONE);
+	for (size_t attachment(0); attachment < _colorTextures.size(); ++attachment)
+	  if (_colorTextures[attachment])
+	    states[attachment] = GL_COLOR_ATTACHMENT0_EXT + attachment;
+	glDrawBuffers(states.size(), &states[0]);
       }
 
       inline 

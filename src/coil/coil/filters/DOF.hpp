@@ -81,8 +81,6 @@ namespace coil
       _filter.detach();
     }
 
-    inline virtual bool needsNormalDepth()  { return false; }
-
     virtual void showControls(Gtk::ScrolledWindow* start)
     {
       _optlist.unparent();

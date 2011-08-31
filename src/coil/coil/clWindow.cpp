@@ -533,6 +533,13 @@ namespace coil {
     colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+    std::tr1::shared_ptr<magnet::GL::Texture2D> normalTexture(new magnet::GL::Texture2D);
+    normalTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
+    normalTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    normalTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    normalTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP);
+    normalTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP);
+
     if (multisampleEnable->get_active())
       _renderTarget.reset(new magnet::GL::MultisampledFBO(2 << aliasSelections->get_active_row_number()));
     else
@@ -540,6 +547,7 @@ namespace coil {
 
     _renderTarget->init();
     _renderTarget->attachColorTexture(colorTexture, 0);
+    _renderTarget->attachColorTexture(normalTexture, 1);
     _renderTarget->attachDepthTexture(depthTexture);
   }
 
@@ -670,33 +678,11 @@ namespace coil {
       _filterTarget2.attachDepthTexture(depthTexture);
     }
 
-    {
-      std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
-      depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);
-      depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-      
-      std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      
-      _normalsFBO.init();
-      _normalsFBO.attachColorTexture(colorTexture, 0);
-      _normalsFBO.attachDepthTexture(depthTexture);
-    }
-
     _light0.init();
     
     _renderShader.build();
     _VSMShader.build();
     _simpleRenderShader.build();
-    _nrmlShader.build();
 
     //Now init the render objects  
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
@@ -773,11 +759,9 @@ namespace coil {
     _renderTarget->deinit();
     _filterTarget1.deinit();
     _filterTarget2.deinit();
-    _normalsFBO.deinit();
     _renderShader.deinit();
     _VSMShader.deinit();
     _simpleRenderShader.build();
-    _nrmlShader.deinit();
 
     _light0.deinit();
     ///////////////////Finally, unregister with COIL
@@ -909,40 +893,14 @@ namespace coil {
     magnet::GL::FBO* lastFBO = &(*_renderTarget);
     if (_filterEnable && !_filterStore->children().empty())
       {
-	//Check if we need an extra pass where we calculate normals and depth values
-	bool renderNormsAndDepth = false;
-	  
-	for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
-	     iPtr != _filterStore->children().end(); ++iPtr)
-	  {
-	    void* filter_ptr = (*iPtr)[_filterModelColumns->m_filter_ptr];
-
-	    if (static_cast<Filter*>(filter_ptr)->needsNormalDepth())
-	      { renderNormsAndDepth = true; break; }
-	  }
-
-	if (renderNormsAndDepth)
-	  {
-	    _normalsFBO.attach();
-	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	    _nrmlShader.attach();
-	    _nrmlShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
-	    _nrmlShader["ViewMatrix"] = _camera.getViewMatrix();
-	    _nrmlShader["NormalMatrix"] = _camera.getNormalMatrix();
-	    drawScene(_normalsFBO, _camera);
-	    _nrmlShader.detach();
-	    _normalsFBO.detach();
-	  }
-
 	//Bind the original image to texture (unit 0)
-	_renderTarget->getColorTexture().bind(0);	
-	//Now bind the texture which has the normals and depths (unit 1)
-	_normalsFBO.getColorTexture().bind(1);
-
+	_renderTarget->getColorTexture(0).bind(0);	
+	//Now bind the texture which has the normals (unit 1)
+	_renderTarget->getColorTexture(1).bind(1);
 	//High quality depth information is attached to (unit 2)
 	_renderTarget->getDepthTexture().bind(2);
 
-	for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin(); 
+	for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin();
 	     iPtr != _filterStore->children().end(); ++iPtr)
 	  {
 	    void* filter_ptr = (*iPtr)[_filterModelColumns->m_filter_ptr];
@@ -977,7 +935,6 @@ namespace coil {
 		FBOalternate = !FBOalternate;
 	      }
 	  }
-
       }
 
     //Now blit the stored scene to the screen
@@ -1057,7 +1014,6 @@ namespace coil {
     _renderTarget->resize(w, h);  
     _filterTarget1.resize(w, h);
     _filterTarget2.resize(w, h);
-    _normalsFBO.resize(w, h);
     std::ostringstream os;
     os << "Coil visualizer (" << w << "," << h << ")";
     setWindowtitle(os.str());

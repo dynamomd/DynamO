@@ -30,7 +30,7 @@ namespace magnet {
       public:
 	virtual std::string initVertexShaderSource()
 	{
-	  return STRINGIFY(
+	  return "#version 110\n" STRINGIFY(
 uniform mat4 ShadowMatrix;
 uniform vec3 lightPosition;
 
@@ -72,7 +72,7 @@ void main()
 	
 	virtual std::string initFragmentShaderSource()
 	{
-	  return STRINGIFY(
+	  return "#version 110\n" STRINGIFY(
 uniform sampler2D ShadowMap; //The sampler for the shadow map
 uniform int ShadowMapping; //If shadow mapping is enabled or not
 uniform float ShadowIntensity; //How dark the shadow is
@@ -87,13 +87,13 @@ vec4 ShadowCoordPostW;
 
 float linstep(float min, float max, float v)  
 {  
-  return clamp((v - min) / (max - min), 0, 1);  
+  return clamp((v - min) / (max - min), 0.0, 1.0);  
 }  
 
 float ReduceLightBleeding(float p_max, float Amount)  
 {  
   // Remove the [0, Amount] tail and linearly rescale (Amount, 1].  
-  return linstep(Amount, 1, p_max);  
+  return linstep(Amount, 1.0, p_max);  
 }  
 
 float chebyshevUpperBound(float distance)
@@ -169,7 +169,8 @@ void main()
   float attenuation = min(1.0, 1.0 / (0.2 + lightDist * (0.1 + 0.01 * lightDist)));
   intensity *= attenuation;
 
-  gl_FragColor = vec4(intensity * color.rgb, color.a);
+  gl_FragData[0] = vec4(intensity * color.rgb, color.a);
+  gl_FragData[1] = vec4(0.5 * renormal + 0.5, 1.0);
 });
 	}
       };

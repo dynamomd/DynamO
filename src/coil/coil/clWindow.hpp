@@ -23,7 +23,6 @@
 #include <magnet/GL/shader/render.hpp>
 #include <magnet/GL/camera.hpp>
 #include <magnet/GL/multisampledFBO.hpp>
-#include <magnet/GL/shader/normal.hpp>
 #include <magnet/GL/shader/vsm.hpp>
 #include <magnet/GL/shader/simple_render.hpp>
 #include <coil/filters/filter.hpp>
@@ -93,9 +92,6 @@ namespace coil {
     //Frame buffers to flip flop filters between
     magnet::GL::FBO _filterTarget1;
     magnet::GL::FBO _filterTarget2;
-
-    magnet::GL::shader::NormalShader _nrmlShader;
-    magnet::GL::FBO _normalsFBO;
 
     void CallBackSpecialUpFunc(int key, int x, int y) {}
     void CallBackSpecialFunc(int key, int x, int y) {} 
