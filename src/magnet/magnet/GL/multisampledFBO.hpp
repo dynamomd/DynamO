@@ -50,32 +50,7 @@ namespace magnet {
 
 	//Setup the RTT FBO
 	FBO::init(width, height, internalformat);
-
-	//Now create the multisampling color buffer
-	glGenRenderbuffersEXT(1, &_multisampleColorBuffer);
-	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _multisampleColorBuffer);
-	glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT, _samples, internalformat, width, height);
-
-	// multi sampled depth buffer
-	glGenRenderbuffersEXT(1, &_multisampleDepthBuffer);
-	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _multisampleDepthBuffer);
-	glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT, _samples, GL_DEPTH_COMPONENT, width, height);
-
-	//Now build the multisample FBO
-	glGenFramebuffersEXT(1, &_multisampleFBO);
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _multisampleFBO);
-	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
-				     GL_RENDERBUFFER_EXT, _multisampleColorBuffer);
-	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
-				     GL_RENDERBUFFER_EXT, _multisampleDepthBuffer);
-
-	// check FBO status
-	GLenum FBOstatus = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-	if(FBOstatus != GL_FRAMEBUFFER_COMPLETE_EXT)
-	  M_throw() << "GL_FRAMEBUFFER_COMPLETE_EXT failed";
-	
-	// switch back to window-system-provided framebuffer
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	_colorRenderBuffers.resize(_colorTextures.size());
       }
 
       inline 
@@ -145,12 +120,10 @@ namespace magnet {
       inline 
       virtual void deinit()
       {
+	_colorRenderBuffers.clear();
+	_depthRenderBuffer.deinit();
 	if (_context)
-	  {
-	    glDeleteFramebuffersEXT(1, &_multisampleFBO);
-	    glDeleteRenderbuffersEXT(1, &_multisampleDepthBuffer);
-	    glDeleteRenderbuffersEXT(1, &_multisampleColorBuffer);
-	  }
+	  glDeleteFramebuffersEXT(1, &_multisampleFBO);
 
 	FBO::deinit();
       }
@@ -169,9 +142,108 @@ namespace magnet {
       }
 
     private:
+      /*! \brief Class to represent and manage a single (possibly
+          multisampling) render buffer.
+       */
+      class RenderBuffer
+      {
+      public:
+	/*! \brief Constructor
+	 */
+	RenderBuffer(): _valid(false) {}
+
+	/*! \brief Destructor
+	 */
+	~RenderBuffer() { deinit(); }
+
+	/*! \brief Initialises the OpenGL resources for this render buffer.
+	  
+	  \param width The width of the render buffer in pixels.
+	  \param height The height of the render buffer in pixels.
+	  \param internalformat The pixel format of the buffer (e.g., GL_RGBA).
+	  \param samples The number of pixel sub-samples (0 disables multisampling).
+	 */
+	void init(GLsizei width, GLsizei height, GLint internalformat, GLsizei samples)
+	{
+	  deinit();
+	  glGenRenderbuffersEXT(1, &_buf);
+	  bind();
+	  glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT, samples, internalformat, width, height);
+	  _valid = true;
+	}
+
+	/*! \brief Release the resources obtained by this buffer.
+	 */
+	void deinit()
+	{
+	  if (_valid) glDeleteRenderbuffersEXT(1, &_buf);
+	  _valid = false;
+	}
+
+	/*! \brief Bind the renderbuffer to the OpenGL state.
+	 */
+	void bind() { glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, _buf); }
+
+	void attach(GLenum attachment)
+	{ glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, attachment, GL_RENDERBUFFER_EXT, _buf); }
+
+      protected:
+	bool _valid;
+	GLuint _buf;
+      };
+
+      virtual void validate()
+      {
+	if (!_context)
+	  M_throw() << "Cannot attach() an uninitialised FBO";
+
+	//We let the underlying FBO validate first as it will verify
+	//the bound texture formats etc.
+	bool alreadyvalidated = _validated;
+	FBO::validate();
+
+	//Now rebuild the multisampled attachments
+	if(!alreadyvalidated)
+	  {
+	    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _multisampleFBO);
+
+	    if (_depthTexture)
+	      {
+		_depthRenderBuffer.init(_depthTexture->getWidth(), _depthTexture->getHeight(),
+					_depthTexture->getInternalFormat(), _samples);
+		_depthRenderBuffer.attach(GL_DEPTH_ATTACHMENT_EXT);
+	      }
+	    else
+	      {
+		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, 0);
+		_depthRenderBuffer.deinit();
+	      }
+		
+	    for (size_t attachment(0); attachment < _colorTextures.size(); ++attachment)
+	      if (_colorTextures[attachment])
+		{
+		  _colorRenderBuffers[attachment].init(_colorTextures[attachment]->getWidth(), 
+						       _colorTextures[attachment]->getHeight(),
+						       _colorTextures[attachment]->getInternalFormat(), _samples);
+		  _colorRenderBuffers[attachment].attach(GL_COLOR_ATTACHMENT0_EXT + attachment);
+		}
+	      else
+		{
+		  glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + attachment,
+					       GL_RENDERBUFFER_EXT, 0);
+		  _colorRenderBuffers[attachment].deinit();
+		}
+
+	    // check FBO status
+	    GLenum FBOstatus = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	    if(FBOstatus != GL_FRAMEBUFFER_COMPLETE_EXT)
+	      M_throw() << "GL_FRAMEBUFFER_COMPLETE_EXT failed";
+	  }
+      }
+
       GLuint _multisampleFBO;
-      GLuint _multisampleColorBuffer;
-      GLuint _multisampleDepthBuffer;
+      std::vector<RenderBuffer> _colorRenderBuffers;
+      RenderBuffer _depthRenderBuffer;
       GLsizei _samples;
     };
   }

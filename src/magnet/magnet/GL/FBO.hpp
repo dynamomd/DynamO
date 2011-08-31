@@ -99,6 +99,7 @@ namespace magnet {
 
 	glGenFramebuffersEXT(1, &_FBO);
 	_colorTextures.resize(detail::glGet<GL_MAX_COLOR_ATTACHMENTS_EXT>());
+	_validated = false;
       }
       
       /*! \brief Resizes the FBO
@@ -171,6 +172,7 @@ namespace magnet {
 	  glDeleteFramebuffersEXT(1, &_FBO);
 
 	_context = NULL;
+	_validated = false;
       }
 
       /*! \brief Attaches this FBO as the current render target. */
@@ -250,7 +252,7 @@ namespace magnet {
       }
 
       /*! \brief Fetch the texture bound to the depth buffer. */
-      inline Texture2D& getDepthTexture() 
+      inline Texture2D& getDepthTexture()
       { 
 	if (!_depthTexture) 
 	  M_throw() << "Cannot fetch the depth texture as the FBO has none bound";
@@ -295,7 +297,7 @@ namespace magnet {
     protected:
       /*! \brief Validate the current state of the FBO and raise an exception if there is an error.
        */
-      void validate()
+      virtual void validate()
       {
 	if (!_context)
 	  M_throw() << "Cannot attach() an uninitialised FBO";

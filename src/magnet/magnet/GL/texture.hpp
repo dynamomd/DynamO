@@ -108,6 +108,13 @@ namespace magnet {
 	  glGetTexImage(_texType, level, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
 	}
 	
+	inline GLint getInternalFormat() const
+	{
+	  if (!_valid)
+	    M_throw() << "Cannot query the internal format of an uninitialised texture";
+	  return _internalFormat;
+	}
+
       protected:
       
 	/*! \brief Function which returns an appropriate format
