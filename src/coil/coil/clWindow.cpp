@@ -907,7 +907,6 @@ namespace coil {
 	    Filter& filter = *static_cast<Filter*>(filter_ptr);
 
 	    if (!((*iPtr)[_filterModelColumns->m_active])) continue; //Only run active filters, skip to the next filter
-
 	    if (filter.type_id() == detail::filterEnum<FlushToOriginal>::val)
 	      {//Check if we're trying to flush the drawing
 		lastFBO->attach();

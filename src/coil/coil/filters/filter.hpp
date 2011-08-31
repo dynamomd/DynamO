@@ -106,4 +106,12 @@ namespace coil
   protected:
     bool _active;
   };
+
+  class FlushToOriginal: public Filter
+  {
+  public:
+    inline virtual size_t type_id() { return detail::filterEnum<FlushToOriginal>::val; }
+    inline virtual void invoke(GLint, size_t, size_t, const magnet::GL::Camera&) {}
+  protected:
+  };
 }
