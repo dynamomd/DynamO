@@ -39,6 +39,9 @@ namespace coil {
 
     virtual Glib::RefPtr<Gdk::Pixbuf> getIcon();
 
+    virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, uint32_t& offset);
+    virtual void finishPicking(uint32_t& offset, const uint32_t val);
+
   protected:
     
     void glyph_scale_changed();

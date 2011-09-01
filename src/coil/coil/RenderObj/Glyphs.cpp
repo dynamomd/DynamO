@@ -201,7 +201,6 @@ namespace coil {
     int LOD = _glyphLOD->get_value_as_int();
     int type = _glyphType->get_active_row_number();
 
-
     std::vector<GLfloat> vertices;
 
     switch (type)
@@ -279,4 +278,43 @@ namespace coil {
 	M_throw() << "Unrecognised glyph type";
       }
   }
+
+  void 
+  Glyphs::pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, uint32_t& offset)
+  {
+    //Do not allow a glRender if uninitialised
+    if (!_primitiveVertices.size()) return;
+
+    _primitiveVertices.getContext().resetInstanceTransform();
+
+    magnet::GL::Buffer<GLubyte> colorbuf;    
+    std::vector<GLubyte> colors;
+    colors.resize(4 * _N);
+    for (uint32_t i(0); i < _N; ++i)
+      *reinterpret_cast<uint32_t*>(&(colors[4 * i])) = offset + i;
+    
+    offset += _N;
+    colorbuf = colors;
+    colorbuf.attachToColor();
+
+    _positionSel->bindAttribute();
+    _scaleSel->bindAttribute();
+    _orientSel->bindAttribute();
+
+    Instanced::glRender();
+  }
+
+  void 
+  Glyphs::finishPicking(uint32_t& offset, const uint32_t val)
+  {
+    bool picked = (val >= offset) && ((val - offset) < _N);
+
+    if (picked)
+      std::cout << "You picked a glyph with an ID of " 
+		<< (val - offset) << std::endl;
+
+    offset += _N;
+  }
+
+
 }

@@ -385,7 +385,7 @@ namespace coil {
     glRender(fbo, cam, PICKING_PASS);
   }
 
-  void RTSpheres::finishPicking(cl_uint& offset, const cl_uint val)
+  void RTSpheres::finishPicking(uint32_t& offset, const uint32_t val)
   {
     recolor();
 
