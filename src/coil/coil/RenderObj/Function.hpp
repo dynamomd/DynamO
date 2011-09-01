@@ -44,9 +44,9 @@ namespace coil {
     inline void setDrawAxis(bool val) { _drawAxis = val; }
     inline void setStaticShape(bool val) { _staticShape = val; }
 
-    virtual void initPicking(cl_uint& offset);
-    virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
-    virtual void finishPicking(cl_uint& offset, const cl_uint val);
+    // Cannot do picking for functions, as the triangle mesh will interpolate colors and screw it all up!
+//    virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, uint32_t& offset);
+//    virtual bool finishPicking(uint32_t& offset, const uint32_t val);
 
     void setConstantA(cl_float val) { _A = val; }
 

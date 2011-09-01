@@ -1431,24 +1431,24 @@ namespace coil {
     _simpleRenderShader["ViewMatrix"] = _camera.getViewMatrix();
     //We need a non-multisampled FBO, just use one of the filter FBO's
     _filterTarget1.attach();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     glDisable(GL_ALPHA_TEST);
     glDisable(GL_BLEND);
-
-    //Perform unique coloring of screen objects
-    cl_uint startVal = 0;
-    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
-	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-      (*iPtr)->initPicking(startVal);
-
+    glDisable(GL_DITHER);
+    glShadeModel(GL_FLAT);
+    
     //Flush the OpenCL queue, so GL can use the buffers
     getGLContext().getCLCommandQueue().finish();
     
+    //Perform unique coloring of screen objects
+    uint32_t offset = 0;
     //Now render the scene
     //Enter the render ticks for all objects
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-      (*iPtr)->pickingRender(_filterTarget1, _camera);
+      if ((*iPtr)->visible())
+	(*iPtr)->pickingRender(_filterTarget1, _camera, offset);
 
     unsigned char pixel[4];  
     GLint viewport[4];
@@ -1458,13 +1458,17 @@ namespace coil {
     _filterTarget1.detach();
     glEnable(GL_BLEND);
     glEnable(GL_ALPHA_TEST);
+    glEnable(GL_DITHER);
+    glShadeModel(GL_SMOOTH);
 
     //Now let the objects know what was picked
     const cl_uint objID = pixel[0] + 256 * (pixel[1] + 256 * (pixel[2] + 256 * pixel[3]));
-    startVal = 0;
-    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
+    offset = 0;
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
+	   = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-      (*iPtr)->finishPicking(startVal, objID);
+      if ((*iPtr)->visible())
+	(*iPtr)->finishPicking(offset, objID);
   }
 
   void CLGLWindow::selectRObjCallback() 
@@ -1486,7 +1490,7 @@ namespace coil {
       }
   }
 
-  void 
+  void
   CLGLWindow::setUpdateRateUnitToSteps(size_t defaultsteps)
   {
     {//Sim Update Frequency Control

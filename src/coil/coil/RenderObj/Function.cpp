@@ -288,52 +288,52 @@ namespace coil {
 																		 ));
   }
 
-
-  void 
-  RFunction::initPicking(cl_uint& offset)
-  {
-    //Run Kernel
-    _pickFunc((cl::Buffer)_colBuff.acquireCLObject(), offset);
-    //Release resources
-    _colBuff.releaseCLObject();
-
-    offset += _N * _N;
-  }
-
-  void 
-  RFunction::pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam)
-  {
-    RTriangles::glRender(fbo, cam, PICKING_PASS);
-  }
-
-  void 
-  RFunction::finishPicking(cl_uint& offset, const cl_uint val)
-  {
-    if (val - offset < _N * _N)
-      std::cout << "You picked a function point with coords of " 
-		<< (val - offset) % _N
-		<< ","
-		<< (val - offset) / _N 
-		<< std::endl;
-
-    //Run Kernel
-    _kernelFunc((cl::Buffer)_posBuff.acquireCLObject(),
-		(cl::Buffer)_colBuff.acquireCLObject(),
-		(cl::Buffer)_normBuff.acquireCLObject(),
-		tempo,
-		_functionOrigin,
-		_functionRange,
-		_cl_axis1,
-		_cl_axis2,
-		_cl_axis3,
-		_cl_origin,
-		_N);
-  
-    //Release resources
-    _posBuff.releaseCLObject();
-    _colBuff.releaseCLObject();
-    _normBuff.releaseCLObject();
-
-    offset += _N * _N;
-  }
+//  void 
+//  RFunction::pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, uint32_t& offset)
+//  {
+//    //Run Kernel
+//    glFinish();
+//    cl_uint cl_offset = offset;
+//    _pickFunc((cl::Buffer)_colBuff.acquireCLObject(), cl_offset);
+//    //Release resources
+//    _colBuff.releaseCLObject();
+//    offset += _N * _N;
+//    _colBuff.getContext().getCLCommandQueue().finish();
+//
+//    RTriangles::glRender(fbo, cam, PICKING_PASS);
+//  }
+//
+//  bool
+//  RFunction::finishPicking(uint32_t& offset, const uint32_t val)
+//  {
+//    //Run Kernel
+//    _kernelFunc((cl::Buffer)_posBuff.acquireCLObject(),
+//		(cl::Buffer)_colBuff.acquireCLObject(),
+//		(cl::Buffer)_normBuff.acquireCLObject(),
+//		tempo,
+//		_functionOrigin,
+//		_functionRange,
+//		_cl_axis1,
+//		_cl_axis2,
+//		_cl_axis3,
+//		_cl_origin,
+//		_N);
+//  
+//    //Release resources
+//    _posBuff.releaseCLObject();
+//    _colBuff.releaseCLObject();
+//    _normBuff.releaseCLObject();
+//
+//    bool picked = (val >= offset) && ((val - offset) < (_N * _N));
+//
+//    if (picked)
+//      std::cout << "You picked a function point (id=" << (val - offset)
+//		<< ") with coords of " << (val - offset) % _N
+//		<< "," << (val - offset) / _N 
+//		<< std::endl;
+//    
+//    offset += _N * _N;
+//    
+//    return picked;
+//  }
 }

@@ -55,9 +55,8 @@ namespace coil {
     cl::Buffer& getSphereDataBuffer() { return _spherePositions; }
     cl::Buffer& getColorDataBuffer() { return _sphereColors; }
 
-    virtual void initPicking(cl_uint& offset);
-    virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam);
-    virtual void finishPicking(cl_uint& offset, const cl_uint val);
+    virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, uint32_t& offset);
+    virtual void finishPicking(uint32_t& offset, const uint32_t val);
   
   protected:
     cl::Program _program;

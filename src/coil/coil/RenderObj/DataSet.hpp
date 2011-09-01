@@ -127,6 +127,22 @@ namespace coil {
     {
       _context->queueTask(magnet::function::Task::makeTask(&DataSet::deleteChildWorker, this, child));
     }
+    
+    virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, uint32_t& offset)
+    {
+      for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
+	   iPtr != _children.end(); ++iPtr)
+	if ((*iPtr)->visible())
+	  (*iPtr)->pickingRender(fbo, cam, offset);
+    }
+
+    virtual void finishPicking(uint32_t& offset, const uint32_t val)
+    {
+      for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
+	   iPtr != _children.end(); ++iPtr)
+	if ((*iPtr)->visible())
+	  (*iPtr)->finishPicking(offset, val);
+    }
 
   protected:
     void deleteChildWorker(DataSetChild* child);

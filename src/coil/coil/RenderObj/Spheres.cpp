@@ -353,16 +353,17 @@ namespace coil {
     _posBuff.releaseCLObject();
   }
 
-
   void 
-  RTSpheres::initPicking(cl_uint& offset)
+  RTSpheres::pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, uint32_t& offset)
   {
     //Run color kernels  
     cl_uint renderedSpheres = 0;
     cl_uint renderedVertexData = 0;
   
     cl::Buffer clcolbuf = _colBuff.acquireCLObject();
-  
+    cl_uint cl_offset = offset;
+
+
     for (std::vector<SphereDetails>::iterator iPtr = _renderDetailLevels.begin();
 	 iPtr != _renderDetailLevels.end(); ++iPtr)
       {
@@ -370,7 +371,7 @@ namespace coil {
       
 	_pickingKernelFunc(clcolbuf, iPtr->_type.getVertexCount(), 
 			   renderedSpheres, renderedSpheres + iPtr->_nSpheres, 
-			   vertexOffset, _sortData, offset, _N);
+			   vertexOffset, _sortData, cl_offset, _N);
       
 	renderedSpheres += iPtr->_nSpheres;
 	renderedVertexData += iPtr->_nSpheres * iPtr->_type.getVertexCount();
@@ -378,23 +379,22 @@ namespace coil {
   
     //Release resources
     _colBuff.releaseCLObject();
-
+    _colBuff.getContext().getCLCommandQueue().finish();
     offset += _N;
-  }
 
-  void 
-  RTSpheres::pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam)
-  {
     glRender(fbo, cam, PICKING_PASS);
   }
 
-  void 
-  RTSpheres::finishPicking(cl_uint& offset, const cl_uint val)
+  void RTSpheres::finishPicking(cl_uint& offset, const cl_uint val)
   {
-    if (val - offset < _N)
-      std::cout  << "You picked a sphere! with an ID of " 
-		 << (val - offset) << std::endl;
     recolor();
+
+    bool picked = (val >= offset) && ((val - offset) < _N);
+
+    if (picked)
+      std::cout << "You picked a sphere! with an ID of " 
+		<< (val - offset) << std::endl;
+
     offset += _N;
   }
 }

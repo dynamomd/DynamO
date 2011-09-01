@@ -276,7 +276,7 @@ namespace coil {
   }
 
   void 
-  RTriangles::initPicking(cl_uint& offset)
+  RTriangles::pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, uint32_t& offset)
   {
     size_t N = (_posBuff.size() / 3);
 
@@ -297,22 +297,20 @@ namespace coil {
       }
 
     offset += N;
-  }
 
-  void 
-  RTriangles::pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam)
-  {
     _pickingRenderMode = true;
     RTriangles::glRender(fbo, cam, PICKING_PASS);
     _pickingRenderMode = false;
   }
 
-  void 
+  void
   RTriangles::finishPicking(cl_uint& offset, const cl_uint val)
   {
     size_t N = (_posBuff.size() / 3);
 
-    if (val - offset < N)
+    bool picked = (val >= offset) && ((val - offset) < N);
+
+    if (picked)
       std::cout  << "You clicked near triangle vertex " << val - offset
 		 << std::endl;
     offset += N;

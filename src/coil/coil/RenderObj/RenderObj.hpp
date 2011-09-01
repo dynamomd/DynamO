@@ -99,13 +99,11 @@ namespace coil {
     virtual void interfaceRender(const magnet::GL::Camera& camera) {}
 
 
-    /*! \brief The initialisation phase of the picking render.
+    /*! \brief The render phase of the picking render.
       
       The picking render determines the current object underneath the
       cursor by drawing every object in a unique color and sampling
-      the pixel underneath the mouse. This function is used to setup
-      the unique coloring of the object ready for a picking render
-      phase.
+      the pixel underneath the mouse. 
       
       An \ref offset value is passed into this function to allow the
       render object to determine unique colors for its own objects. If
@@ -120,21 +118,15 @@ namespace coil {
       object. Thus \ref offset is an offset to be applied to the
       unique colors generated for this object.
 
-      \param offset This number is the running sum of "pickable"
-      objects. This value should be increased by the number of unique
-      objects drawn in the \ref pickingRender() function before
-      initPicking returns.
-
-      \sa pickingRender
-     */
-    virtual void initPicking(cl_uint& offset) {}
-    
-    /*! \brief The render phase of the picking render.
-
       Typically, this will just call \ref glRender() but with a unique
       color buffer generated in \ref initPicking() . However, if the
       object has special needs (like a custom shader), then extra
       logic will need to be implemented here.
+
+      \param offset This number is the running sum of "pickable"
+      objects. This value should be increased by the number of unique
+      objects drawn in the \ref pickingRender() function before
+      initPicking returns.
 
       \param fbo The target framebuffer object which the scene is
       being rendered to.
@@ -143,7 +135,7 @@ namespace coil {
 
       \sa initPicking()
      */
-    virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam) {}
+    virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, uint32_t& offset) {}
 
 
     /*! \brief The cleanup and callback phase of the picking render.
@@ -164,7 +156,7 @@ namespace coil {
       
       \sa initPicking()
      */
-    virtual void finishPicking(cl_uint& offset, const cl_uint val) {}
+    virtual void finishPicking(uint32_t& offset, const uint32_t val) {}
 
     
     /*! \brief Callback for when the RenderObj is to make its Gtk
