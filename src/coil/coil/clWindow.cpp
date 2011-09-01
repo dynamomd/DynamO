@@ -825,67 +825,43 @@ namespace coil {
 	_VSMShader["ViewMatrix"] = _light0.getViewMatrix();	  
 	_light0.shadowFBO().attach();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
-
+	
 	//Enter the render ticks for all objects
 	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
 	     iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
 	  if ((*iPtr)->shadowCasting() && (*iPtr)->visible())
 	    (*iPtr)->glRender(_light0.shadowFBO(), _light0, RenderObj::SHADOW);
-
+	
 	_light0.shadowFBO().detach();
 	_light0.shadowTex().genMipmaps();
 	_light0.shadowTex().bind(7);
-
+	
 	_VSMShader.detach();
 	glEnable(GL_BLEND);
 	glEnable(GL_ALPHA_TEST);
       }
       
-    //Bind to the multisample buffer
     _renderTarget->attach();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    _renderShader.attach();
-    _renderShader["ShadowMap"] = 7;
-    _renderShader["ShadowIntensity"] = _shadowIntensity;
-    _renderShader["ShadowMapping"] = _shadowMapping;
-    _renderShader["lightPosition"] = _light0.getEyeLocation();
-
+    _renderTarget->detach();
+    
+    //Bind to the multisample buffer
     if (_analygraphMode)
       {
-	const double eyedist = 6.5; //
+	const double eyedist = 6.5;
 	Vector eyeDisplacement(0.5 * eyedist, 0, 0);
 	  
-	_renderShader["ProjectionMatrix"] = _camera.getProjectionMatrix(-eyeDisplacement);
-	_renderShader["ViewMatrix"] = _camera.getViewMatrix(-eyeDisplacement);
-	_renderShader["NormalMatrix"] = _camera.getNormalMatrix(-eyeDisplacement);
-	if (_shadowMapping)
-	  _renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix(_camera, -eyeDisplacement);
-
 	glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
-	drawScene(*_renderTarget, _camera);
-	  
-	_renderShader["ProjectionMatrix"] = _camera.getProjectionMatrix(eyeDisplacement);
-	_renderShader["ViewMatrix"] = _camera.getViewMatrix(eyeDisplacement);
-	_renderShader["NormalMatrix"] = _camera.getNormalMatrix(eyeDisplacement);
-	if (_shadowMapping)
-	  _renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix(_camera, eyeDisplacement);
-	  
+	drawScene(*_renderTarget, _camera, eyeDisplacement);
+
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
-	drawScene(*_renderTarget, _camera);
+	drawScene(*_renderTarget, _camera, -eyeDisplacement);
+
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
       }
     else
-      {
-	_renderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
-	_renderShader["ViewMatrix"] = _camera.getViewMatrix();
-	_renderShader["NormalMatrix"] = _camera.getNormalMatrix();
-	if (_shadowMapping)
-	  _renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix(_camera);
-	drawScene(*_renderTarget, _camera);
-      }
-    _renderShader.detach();      
-    _renderTarget->detach();
+      drawScene(*_renderTarget, _camera, Vector(0,0,0));
 
     //////////////FILTERING////////////
     bool FBOalternate = false;
@@ -996,12 +972,30 @@ namespace coil {
   }
 
   void 
-  CLGLWindow::drawScene(magnet::GL::FBO& fbo, magnet::GL::Camera& camera)
+  CLGLWindow::drawScene(magnet::GL::FBO& fbo, magnet::GL::Camera& camera, Vector eyeDisplacement)
   {
+    _renderTarget->attach();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    _renderShader.attach();
+    _renderShader["ShadowMap"] = 7;
+    _renderShader["ShadowIntensity"] = _shadowIntensity;
+    _renderShader["ShadowMapping"] = _shadowMapping;
+    _renderShader["lightPosition"] = _light0.getEyeLocation();
+    _renderShader["ProjectionMatrix"] = _camera.getProjectionMatrix(eyeDisplacement);
+    _renderShader["ViewMatrix"] = _camera.getViewMatrix(eyeDisplacement);
+    _renderShader["NormalMatrix"] = _camera.getNormalMatrix(eyeDisplacement);
+    if (_shadowMapping)
+      _renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix(_camera, eyeDisplacement);
+
     //Enter the render ticks for all objects
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       if ((*iPtr)->visible()) (*iPtr)->glRender(fbo, camera, RenderObj::DEFAULT);
+
+    _renderShader.detach();
+
+    _renderTarget->detach();
   }
 
   void CLGLWindow::CallBackReshapeFunc(int w, int h)
