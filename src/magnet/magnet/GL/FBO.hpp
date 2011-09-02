@@ -159,11 +159,8 @@ namespace magnet {
 	  M_throw() << "Cannot detach() an uninitialised FBO";
 
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-
-	//Reset the draw states
-	std::tr1::array<GLenum, 4> states 
-	  = {{GL_FRONT_LEFT, GL_FRONT_RIGHT, GL_BACK_LEFT, GL_BACK_RIGHT}};
-	glDrawBuffers(4, &states[0]);
+	//No need to reset the draw states, glDrawBuffers is not valid
+	//for the default framebuffer.
       }
 
       inline void attachColorTexture(std::tr1::shared_ptr<Texture2D> coltex, size_t i)
