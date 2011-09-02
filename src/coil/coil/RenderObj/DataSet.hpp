@@ -144,6 +144,12 @@ namespace coil {
 	  (*iPtr)->finishPicking(offset, val);
     }
 
+    void glyphClicked(size_t id)
+    {
+      std::cout << "You picked a glyph with an ID of " 
+		<< id << std::endl;
+    }
+
   protected:
     void deleteChildWorker(DataSetChild* child);
 

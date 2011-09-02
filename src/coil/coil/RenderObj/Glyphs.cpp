@@ -308,13 +308,7 @@ namespace coil {
   Glyphs::finishPicking(uint32_t& offset, const uint32_t val)
   {
     bool picked = (val >= offset) && ((val - offset) < _N);
-
-    if (picked)
-      std::cout << "You picked a glyph with an ID of " 
-		<< (val - offset) << std::endl;
-
+    if (picked) _ds.glyphClicked(val - offset);
     offset += _N;
   }
-
-
 }
