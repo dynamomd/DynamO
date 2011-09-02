@@ -1445,7 +1445,8 @@ namespace coil {
     uint32_t offset = 0;
     //Now render the scene
     //Enter the render ticks for all objects
-    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator 
+	   iPtr = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       if ((*iPtr)->visible())
 	(*iPtr)->pickingRender(_filterTarget1, _camera, offset);
@@ -1469,6 +1470,10 @@ namespace coil {
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       if ((*iPtr)->visible())
 	(*iPtr)->finishPicking(offset, objID);
+
+    //Debugging output for the picking buffer
+    //_filterTarget1.blitToScreen(_camera.getWidth(), _camera.getHeight());
+    //getGLContext().swapBuffers();
   }
 
   void CLGLWindow::selectRObjCallback() 

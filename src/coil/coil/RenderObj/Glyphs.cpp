@@ -288,20 +288,20 @@ namespace coil {
     _primitiveVertices.getContext().resetInstanceTransform();
 
     magnet::GL::Buffer<GLubyte> colorbuf;    
-    std::vector<GLubyte> colors;
-    colors.resize(4 * _N);
-    for (uint32_t i(0); i < _N; ++i)
-      *reinterpret_cast<uint32_t*>(&(colors[4 * i])) = offset + i;
-    
-    offset += _N;
-    colorbuf = colors;
-    colorbuf.attachToColor();
-
+    {//Send unique color id's to colorbuf
+      std::vector<GLubyte> colors;
+      colors.resize(4 * _N);
+      for (uint32_t i(0); i < _N; ++i)
+	*reinterpret_cast<uint32_t*>(&(colors[4 * i])) = offset + i;
+      colorbuf = colors;
+    }
+    colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 1, true); 
     _positionSel->bindAttribute();
     _scaleSel->bindAttribute();
     _orientSel->bindAttribute();
 
     Instanced::glRender();
+    offset += _N;
   }
 
   void 
