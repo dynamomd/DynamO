@@ -18,6 +18,7 @@
 #pragma once
 #include <coil/RenderObj/RenderObj.hpp>
 #include <coil/RenderObj/Attribute.hpp>
+#include <magnet/GL/objects/textbox.hpp>
 #include <magnet/GL/buffer.hpp>
 #include <magnet/gtk/numericEntry.hpp>
 #include <magnet/gtk/colorMapSelector.hpp>
@@ -161,6 +162,7 @@ namespace coil {
     std::auto_ptr<Gtk::VBox> _gtkOptList;
     size_t _N;
     std::vector<std::tr1::shared_ptr<DataSetChild> > _children;
+    magnet::GL::objects::TextSurface _overlay;
 
     void initGtk();
     void rebuildGui();

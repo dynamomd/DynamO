@@ -123,6 +123,7 @@ namespace coil {
 	 iPtr != _children.end(); ++iPtr)
       (*iPtr)->init(systemQueue);
     
+    _overlay.init(600, 600);
     //We don't initialise the attributes, as they're initialised on access
     _context = &(magnet::GL::Context::getContext());
   }
@@ -282,6 +283,7 @@ namespace coil {
       iPtr->second->deinit();
 
     _context = NULL;
+    _overlay.deinit();
     RenderObj::deinit();
   }
 
@@ -289,13 +291,23 @@ namespace coil {
   void 
   DataSet::glyphClicked(size_t id)
   {
-    std::cout << "You picked a glyph with an ID of " 
-	      << id << std::endl;
+    _overlay.clear();
+    _overlay << "Glyph ID: " << id;
+    
+    for (const_iterator iPtr = begin(); iPtr != end(); ++iPtr)
+      {
+	size_t comps = iPtr->second->components();
+	_overlay << "\n" << iPtr->first << ":"; 
+
+	for (size_t i(0); i < comps; ++i)
+	  _overlay << " " << (*(iPtr->second))[id * comps + i];
+      }
   }
 
   void 
   DataSet::interfaceRender(const magnet::GL::Camera& camera)
   {
-
+    _overlay.resize(camera.getWidth(), camera.getHeight());
+    _overlay.glRender();
   }
 }

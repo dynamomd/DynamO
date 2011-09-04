@@ -130,13 +130,23 @@ void main()
 	inline ~CairoSurface() { deinit(); }
 
 	//! \brief Release any associated OpenGL resources.
-	inline void deinit() 
+	virtual void deinit() 
 	{ 
 	  _cairoSurface.clear();
 	  _cairoContext.clear();
 	  _vertexData.deinit();
 	  _shader.deinit();
 	  _width = _height = 0;
+	}
+
+	/*! \brief Resizes the cairo texture if required.
+	 */
+	virtual void resize(size_t width, size_t height)
+	{
+	  if ((width == _width) && (height == _height))
+	    return;
+
+	  init(width, height, _alpha_testing);
 	}
 
 	/*! \brief Sets up the vertex buffer objects for the quad and
@@ -235,14 +245,15 @@ void main()
 	 * controlled through the \ref Shader instance attributes.  Or
 	 * alternately through the passed modelview and projection matrix.
 	 */
-	inline void glRender(const GLMatrix& projection = GLMatrix::identity(), const GLMatrix& modelview = GLMatrix::identity())
+	inline void glRender(const GLMatrix& projection = GLMatrix::identity(),
+			     const GLMatrix& modelview = GLMatrix::identity())
 	{
 	  _shader.attach();
 	  _surface.bind(6);
 	  _shader["cairoTexture"] = 6;
 	  _shader["ProjectionMatrix"] = projection;
 	  _shader["ViewMatrix"] = modelview;
-	  _vertexData.drawArray(magnet::GL::element_type::QUADS, 2); 
+	  _vertexData.drawArray(magnet::GL::element_type::QUADS, 2);
 	  _shader.detach();
 	}
 
