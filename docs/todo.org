@@ -20,7 +20,6 @@
 **** TODO Add rendering of light sources (crepuscular rays too?).
 **** TODO Cube shadow map lights.
 **** TODO Look at CL/GL synchronisation objects for coil.
-**** TODO Remove all clone ptr's and replace them with shared_ptr's.
 **** TODO Remove all Clone functions
 **** TODO Alter the functions in dynamics that add/get/set objects and take/return a pointer to return shared_ptr's (search for uses of shared_ptr's get() function).
 **** TODO Alter the change system functions to take sharedptrs.
@@ -61,6 +60,7 @@
 **** DONE DynamO: Added dynamod --check mode. Using this you can now check if a configuration file is valid using "dynamod --check config.out.xml.bz2".
 **** DONE DynamO: Generalized the Morton ordered neighbour list and remove the old neighbourlist.
 **** DONE DynamO: Move all the dynamo classes into the dynamo namespace.
+**** DONE Remove all clone ptr's and replace them with shared_ptr's.
 **** DONE DynamO/Coil: The DynamO-Coil integration can be forcibly enabled or disabled at build time.
 **** DONE DynamO/Coil: Visualizer now outputs at least 2 updates a second when attached to a slow DynamO simulation.
 **** DONE Coil: Moved to OpenGL 3.3, removed all the old OpenGL calls.
