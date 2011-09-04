@@ -43,7 +43,7 @@ namespace coil {
 
     DataSet& _ds;
   };
-  
+    
   /*! \brief A container class for a collection of \ref Attribute
    * instances forming a dataset, and any active filters/glyphs or any
    * other type derived from \ref DataSetChild.
@@ -145,11 +145,9 @@ namespace coil {
 	  (*iPtr)->finishPicking(offset, val);
     }
 
-    void glyphClicked(size_t id)
-    {
-      std::cout << "You picked a glyph with an ID of " 
-		<< id << std::endl;
-    }
+    void glyphClicked(size_t id);
+
+    virtual void interfaceRender(const magnet::GL::Camera&);
 
   protected:
     void deleteChildWorker(DataSetChild* child);

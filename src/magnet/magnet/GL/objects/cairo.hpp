@@ -155,6 +155,7 @@ void main()
 	 */
 	inline void init(size_t width, size_t height, size_t alpha_testing = 0)
 	{
+	  deinit();
 	  _alpha_testing = alpha_testing;
 
 	  _width = width * (alpha_testing + !alpha_testing);

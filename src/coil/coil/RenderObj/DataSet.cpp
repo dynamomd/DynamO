@@ -284,4 +284,18 @@ namespace coil {
     _context = NULL;
     RenderObj::deinit();
   }
+
+  
+  void 
+  DataSet::glyphClicked(size_t id)
+  {
+    std::cout << "You picked a glyph with an ID of " 
+	      << id << std::endl;
+  }
+
+  void 
+  DataSet::interfaceRender(const magnet::GL::Camera& camera)
+  {
+
+  }
 }
