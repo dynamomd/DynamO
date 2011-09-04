@@ -131,12 +131,31 @@ namespace dynamo {
     endEventCount = newMaxColl; 
   }
 
+  namespace {
+    /*! \brief Hidden functor used for sorting containers of
+        shared_ptr's holiding OutputPlugin classes.
+     */
+    struct OutputPluginSort: std::binary_function<const std::tr1::shared_ptr<OutputPlugin>&, 
+						  const std::tr1::shared_ptr<OutputPlugin>&,
+						  bool>
+    {
+      bool operator()(const std::tr1::shared_ptr<OutputPlugin>& lhs, 
+		      const std::tr1::shared_ptr<OutputPlugin>& rhs)
+      {
+	return (*lhs) < (*rhs);
+      }
+    };
+  }
+
   void
   Simulation::initialise()
   {
     dout << "Sorting the Output Plugins" << std::endl;
 
-    std::sort(outputPlugins.begin(), outputPlugins.end());
+    //This sorting must be done according to the derived plugins sort
+    //operators.
+
+    std::sort(outputPlugins.begin(), outputPlugins.end(), OutputPluginSort());
   
     bool needTicker = false;
   
