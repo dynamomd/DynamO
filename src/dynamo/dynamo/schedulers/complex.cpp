@@ -38,11 +38,11 @@ namespace dynamo {
   void 
   SComplex::operator<<(const magnet::xml::Node& XML)
   {
-    sorter.set_ptr(CSSorter::getClass(XML.getNode("Sorter"), Sim));
+    Scheduler::operator<<(XML);
 
     for (magnet::xml::Node node = XML.getNode("Entries").fastGetNode("Entry"); 
 	 node.valid(); ++node)
-      entries.push_back(magnet::ClonePtr<CSCEntry>(CSCEntry::getClass(node, Sim)));
+      entries.push_back(std::tr1::shared_ptr<CSCEntry>(CSCEntry::getClass(node, Sim)));
   }
 
   void
@@ -51,7 +51,7 @@ namespace dynamo {
     dout << "Reinitialising on collision " << Sim->eventCount << std::endl;
     std::cout.flush();
 
-    BOOST_FOREACH(magnet::ClonePtr<CSCEntry>& ent, entries)
+    BOOST_FOREACH(std::tr1::shared_ptr<CSCEntry>& ent, entries)
       ent->initialise();
 
     Scheduler::initialise();
@@ -62,11 +62,11 @@ namespace dynamo {
   {
     XML << magnet::xml::attr("Type") << "Complex"
 	<< magnet::xml::tag("Sorter")
-	<< sorter
+	<< *sorter
 	<< magnet::xml::endtag("Sorter")
 	<< magnet::xml::tag("Entries");
   
-    BOOST_FOREACH(const magnet::ClonePtr<CSCEntry>& ent,  entries)
+    BOOST_FOREACH(const std::tr1::shared_ptr<CSCEntry>& ent,  entries)
       XML << magnet::xml::tag("Entry")
 	  << ent
 	  << magnet::xml::endtag("Entry");
@@ -89,7 +89,7 @@ namespace dynamo {
   SComplex::getParticleNeighbourhood(const Particle& part,
 				     const nbHoodFunc& func) const
   {
-    BOOST_FOREACH(const magnet::ClonePtr<CSCEntry>& ent, entries)
+    BOOST_FOREACH(const std::tr1::shared_ptr<CSCEntry>& ent, entries)
       if (ent->isApplicable(part))
 	ent->getParticleNeighbourhood(part, func);
   }
@@ -98,7 +98,7 @@ namespace dynamo {
   SComplex::getParticleNeighbourhood(const Vector& vec,
 				     const nbHoodFunc2& func) const
   {
-    BOOST_FOREACH(const magnet::ClonePtr<CSCEntry>& ent, entries)
+    BOOST_FOREACH(const std::tr1::shared_ptr<CSCEntry>& ent, entries)
 	ent->getParticleNeighbourhood(vec, func);
   }
     
@@ -106,7 +106,7 @@ namespace dynamo {
   SComplex::getLocalNeighbourhood(const Particle& part, 
 				  const nbHoodFunc& func) const
   {
-    BOOST_FOREACH(const magnet::ClonePtr<CSCEntry>& ent, entries)
+    BOOST_FOREACH(const std::tr1::shared_ptr<CSCEntry>& ent, entries)
       if (ent->isApplicable(part))
 	ent->getParticleNeighbourhood(part, func);
   }

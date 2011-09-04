@@ -21,7 +21,7 @@
 #include <dynamo/dynamics/systems/system.hpp>
 #include <dynamo/base/is_simdata.hpp>
 #include <dynamo/dynamics/ranges/1range.hpp>
-#include <magnet/cloneptr.hpp>
+#include <tr1/memory>
 #include <map>
 
 namespace dynamo {
@@ -47,7 +47,7 @@ namespace dynamo {
 
     bool sleepCondition(const Particle& part, const Vector& g, const Vector& vel = Vector(0,0,0));
 
-    magnet::ClonePtr<CRange> _range;
+    std::tr1::shared_ptr<CRange> _range;
     double _sleepDistance;
     double _sleepTime;
     double _sleepVelocity;

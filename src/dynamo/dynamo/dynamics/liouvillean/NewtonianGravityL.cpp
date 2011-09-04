@@ -363,8 +363,8 @@ namespace dynamo {
     //Now add the parabola sentinel if there are cell neighbor lists in
     //use.
     bool hasNBlist = false;
-    BOOST_FOREACH(magnet::ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
-      if (glob.typeTest<GNeighbourList>())
+    BOOST_FOREACH(std::tr1::shared_ptr<Global>& glob, Sim->dynamics.getGlobals())
+      if (std::tr1::dynamic_pointer_cast<GNeighbourList>(glob))
 	{ hasNBlist = true; break; }
   
     if (hasNBlist)

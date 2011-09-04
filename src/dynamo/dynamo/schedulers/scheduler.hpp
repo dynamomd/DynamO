@@ -87,11 +87,11 @@ namespace dynamo {
 
     static Scheduler* getClass(const magnet::xml::Node&, dynamo::SimData* const);
 
-    virtual void operator<<(const magnet::xml::Node&) = 0;
+    virtual void operator<<(const magnet::xml::Node&);
   
     void rescaleTimes(const double& scale) { sorter->rescaleTimes(scale); }
 
-    const magnet::ClonePtr<CSSorter>& getSorter() const { return sorter; }
+    const std::tr1::shared_ptr<CSSorter>& getSorter() const { return sorter; }
 
     void rebuildSystemEvents() const;
 
@@ -122,7 +122,7 @@ namespace dynamo {
      */
     void lazyDeletionCleanup();
 
-    mutable magnet::ClonePtr<CSSorter> sorter;
+    mutable std::tr1::shared_ptr<CSSorter> sorter;
     mutable std::vector<unsigned long> eventCount;
   
     size_t _interactionRejectionCounter;

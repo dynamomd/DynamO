@@ -65,7 +65,7 @@ namespace dynamo {
     if (strcmp(XML.getAttribute("Type"),"Stepped"))
       M_throw() << "Attempting to load Stepped from non Stepped entry";
   
-    range.set_ptr(C2Range::getClass(XML,Sim));
+    Interaction::operator<<(XML);
   
     try {
       intName = XML.getAttribute("Name");
@@ -295,7 +295,7 @@ namespace dynamo {
 
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	  BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
 	  break;
 	}
@@ -330,7 +330,7 @@ namespace dynamo {
 	
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	  BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
 	    
 	  break;
@@ -356,7 +356,7 @@ namespace dynamo {
   {
     XML << magnet::xml::attr("Type") << "Stepped"
 	<< magnet::xml::attr("Name") << intName
-	<< range;
+	<< *range;
 
     BOOST_FOREACH(const steppair& s, steps)
       XML << magnet::xml::tag("Step")

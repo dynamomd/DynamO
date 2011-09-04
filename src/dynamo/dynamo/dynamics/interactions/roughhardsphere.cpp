@@ -48,7 +48,7 @@ namespace dynamo {
     if (strcmp(XML.getAttribute("Type"),"RoughHardSphere"))
       M_throw() << "Attempting to load Hardsphere from non RoughHardSphere entry";
   
-    range.set_ptr(C2Range::getClass(XML,Sim));
+    Interaction::operator<<(XML);
   
     try 
       {
@@ -159,7 +159,7 @@ namespace dynamo {
     //Now we're past the event, update the scheduler and plugins
     Sim->ptrScheduler->fullUpdate(p1, p2);
   
-    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(iEvent,EDat);
   }
    
@@ -171,7 +171,7 @@ namespace dynamo {
 	<< magnet::xml::attr("Elasticity") << _e->getName()
 	<< magnet::xml::attr("TangentialElasticity") << _et->getName()
 	<< magnet::xml::attr("Name") << intName
-	<< range;
+	<< *range;
   }
 
   void

@@ -21,6 +21,11 @@
 **** TODO Cube shadow map lights.
 **** TODO Look at CL/GL synchronisation objects for coil.
 **** TODO Remove all clone ptr's and replace them with shared_ptr's.
+**** TODO Remove all Clone functions
+**** TODO Alter the functions in dynamics that add/get/set objects and take/return a pointer to return shared_ptr's (search for uses of shared_ptr's get() function).
+**** TODO Alter the change system functions to take sharedptrs.
+**** TODO Change the loadClass XML functions to return shared_ptr's.
+**** TODO Alter getOutputPlugin() to sharedptrs.
 **** TODO Coil library volume renderer.
 **** TODO Write up the image distance class.
 **** TODO Generalized scheduler for multiple neighborlists.

@@ -48,7 +48,7 @@ namespace dynamo {
 	<< magnet::xml::attr("Elasticity") << _e->getName()
 	<< magnet::xml::attr("Lambda") << _lambda->getName()
 	<< magnet::xml::attr("Name") << intName
-	<< range;
+	<< *range;
 
     XML << magnet::xml::tag("Sequence");
   
@@ -81,8 +81,8 @@ namespace dynamo {
     if (strcmp(XML.getAttribute("Type"),"SquareWellSeq"))
       M_throw() << "Attempting to load SquareWell from non SquareWell entry";
   
-    range.set_ptr(C2Range::getClass(XML,Sim));
-  
+    Interaction::operator<<(XML);
+
     try { 
       _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
 					       Property::Units::Length());
@@ -339,7 +339,7 @@ namespace dynamo {
 	
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	  BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
 
 	  break;
@@ -361,7 +361,7 @@ namespace dynamo {
 
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	  BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
 
 	  break;
@@ -383,7 +383,7 @@ namespace dynamo {
 
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	  BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
 
 	  break;

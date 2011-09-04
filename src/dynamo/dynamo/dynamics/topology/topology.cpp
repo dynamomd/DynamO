@@ -48,7 +48,7 @@ namespace dynamo {
       }
     
     for (magnet::xml::Node node = XML.fastGetNode("Molecule"); node.valid(); ++node)
-      ranges.push_back(magnet::ClonePtr<CRange>(CRange::getClass(node, Sim)));
+      ranges.push_back(std::tr1::shared_ptr<CRange>(CRange::getClass(node, Sim)));
   }
 
   void
@@ -56,7 +56,7 @@ namespace dynamo {
   {
     XML << magnet::xml::attr("Name") << spName;
   
-    BOOST_FOREACH(const magnet::ClonePtr<CRange>& plugPtr, ranges)
+    BOOST_FOREACH(const std::tr1::shared_ptr<CRange>& plugPtr, ranges)
       XML << magnet::xml::tag("Molecule") << plugPtr
 	  << magnet::xml::endtag("Molecule");
   }

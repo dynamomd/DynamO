@@ -63,8 +63,8 @@ namespace dynamo {
       
 	//Check if any of the species are overridden
 	bool hasInertia(false);
-	BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
-	  if (dynamic_cast<const SpInertia*>(spec.get_ptr()) != NULL)
+	BOOST_FOREACH(const std::tr1::shared_ptr<Species>& spec, Sim->dynamics.getSpecies())
+	  if (std::tr1::dynamic_pointer_cast<SpInertia>(spec))
 	    hasInertia = true;
 
 	if (!hasInertia)

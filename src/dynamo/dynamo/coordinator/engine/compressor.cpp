@@ -51,8 +51,8 @@ namespace dynamo {
     if (vm.count("snapshot"))
       M_throw() << "Snapshots do not currently work in compressing systems.";
 
-    compressPlug.set_ptr(new CIPCompression
-			 (&simulation, vm["growth-rate"].as<double>()));
+    compressPlug = std::tr1::shared_ptr<CIPCompression>
+      (new CIPCompression(&simulation, vm["growth-rate"].as<double>()));
   }
 
   void 

@@ -18,7 +18,7 @@
 #pragma once
 #include <dynamo/base.hpp>
 #include <dynamo/dynamics/ranges/1range.hpp>
-#include <magnet/cloneptr.hpp>
+#include <tr1/memory>
 #include <string>
 
 namespace magnet { namespace xml { class Node; } }
@@ -106,7 +106,7 @@ namespace dynamo {
      */
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
-    magnet::ClonePtr<CRange> range;  
+    std::tr1::shared_ptr<CRange> range;  
     std::string globName;
     size_t ID;
   };

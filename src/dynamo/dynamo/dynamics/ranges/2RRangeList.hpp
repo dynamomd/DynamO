@@ -18,7 +18,7 @@
 #pragma once
 #include <dynamo/dynamics/ranges/2range.hpp>
 #include <dynamo/base.hpp>
-#include <magnet/cloneptr.hpp>
+#include <tr1/memory>
 #include <list>
 
 namespace dynamo {
@@ -34,15 +34,15 @@ namespace dynamo {
     virtual bool isInRange(const Particle&, const Particle&) const;
 
     void addRange(C2Range* nRange)
-    { ranges.push_back(magnet::ClonePtr<C2Range>(nRange)); }
+    { ranges.push_back(std::tr1::shared_ptr<C2Range>(nRange)); }
   
     virtual void operator<<(const magnet::xml::Node&);
 
-    const std::list<magnet::ClonePtr<C2Range> >& getRanges() const;
+    const std::list<std::tr1::shared_ptr<C2Range> >& getRanges() const;
   
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    std::list<magnet::ClonePtr<C2Range> > ranges;
+    std::list<std::tr1::shared_ptr<C2Range> > ranges;
   };
 }

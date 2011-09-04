@@ -30,32 +30,29 @@
 namespace dynamo {
 
   Dynamics::Dynamics(dynamo::SimData* tmp): 
-    SimBase(tmp, "Dynamics"),
-    p_BC(NULL), 
-    p_liouvillean(NULL)
+    SimBase(tmp, "Dynamics")
   {}
 
   Dynamics::Dynamics(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
-    SimBase(tmp, "Dynamics"),
-    p_BC(NULL)
+    SimBase(tmp, "Dynamics")
   { operator<<(XML); }
 
   Dynamics::~Dynamics() {}
 
-  magnet::ClonePtr<Topology>& 
+  std::tr1::shared_ptr<Topology>& 
   Dynamics::getTopology(std::string name)
   {
-    BOOST_FOREACH(magnet::ClonePtr<Topology>& sysPtr, topology)
+    BOOST_FOREACH(std::tr1::shared_ptr<Topology>& sysPtr, topology)
       if (sysPtr->getName() == name)
 	return sysPtr;
   
     M_throw() << "Could not find the topology " << name;
   }
 
-  const magnet::ClonePtr<Topology>& 
+  const std::tr1::shared_ptr<Topology>& 
   Dynamics::getTopology(std::string name) const
   {
-    BOOST_FOREACH(const magnet::ClonePtr<Topology>& sysPtr, topology)
+    BOOST_FOREACH(const std::tr1::shared_ptr<Topology>& sysPtr, topology)
       if (sysPtr->getName() == name)
 	return sysPtr;
   
@@ -65,7 +62,7 @@ namespace dynamo {
   const Species& 
   Dynamics::getSpecies(const Particle& p1) const 
   {
-    BOOST_FOREACH(const magnet::ClonePtr<Species>& ptr, species)
+    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& ptr, species)
       if (ptr->isSpecies(p1))
 	return *ptr;
   
@@ -84,7 +81,7 @@ namespace dynamo {
   const Species& 
   Dynamics::getSpecies(std::string name) const
   {
-    BOOST_FOREACH(const magnet::ClonePtr<Species>& ptr, species)
+    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& ptr, species)
       if (ptr->getName() == name)
 	return *ptr;
   
@@ -94,7 +91,7 @@ namespace dynamo {
   Species& 
   Dynamics::getSpecies(std::string name)
   {
-    BOOST_FOREACH(magnet::ClonePtr<Species>& ptr, species)
+    BOOST_FOREACH(std::tr1::shared_ptr<Species>& ptr, species)
       if (ptr->getName() == name)
 	return *ptr;
   
@@ -121,60 +118,60 @@ namespace dynamo {
     M_throw() << "Could not find system plugin called " << name;
   }
 
-  magnet::ClonePtr<Global>&
+  std::tr1::shared_ptr<Global>&
   Dynamics::getGlobal(std::string name)
   {
-    BOOST_FOREACH(magnet::ClonePtr<Global>& sysPtr, globals)
+    BOOST_FOREACH(std::tr1::shared_ptr<Global>& sysPtr, globals)
       if (sysPtr->getName() == name)
 	return sysPtr;
   
     M_throw() << "Could not find global plugin";
   }
 
-  const magnet::ClonePtr<Global>&
+  const std::tr1::shared_ptr<Global>&
   Dynamics::getGlobal(std::string name) const
   {
-    BOOST_FOREACH(const magnet::ClonePtr<Global>& sysPtr, globals)
+    BOOST_FOREACH(const std::tr1::shared_ptr<Global>& sysPtr, globals)
       if (sysPtr->getName() == name)
 	return sysPtr;
   
     M_throw() << "Could not find global plugin";
   }
 
-  magnet::ClonePtr<Local>&
+  std::tr1::shared_ptr<Local>&
   Dynamics::getLocal(std::string name)
   {
-    BOOST_FOREACH(magnet::ClonePtr<Local>& sysPtr, locals)
+    BOOST_FOREACH(std::tr1::shared_ptr<Local>& sysPtr, locals)
       if (sysPtr->getName() == name)
 	return sysPtr;
   
     M_throw() << "Could not find local plugin";
   }
 
-  const magnet::ClonePtr<Local>&
+  const std::tr1::shared_ptr<Local>&
   Dynamics::getLocal(std::string name) const
   {
-    BOOST_FOREACH(const magnet::ClonePtr<Local>& sysPtr, locals)
+    BOOST_FOREACH(const std::tr1::shared_ptr<Local>& sysPtr, locals)
       if (sysPtr->getName() == name)
 	return sysPtr;
   
     M_throw() << "Could not find local plugin";
   }
 
-  magnet::ClonePtr<Interaction>&
+  std::tr1::shared_ptr<Interaction>&
   Dynamics::getInteraction(std::string name)
   {
-    BOOST_FOREACH(magnet::ClonePtr<Interaction>& sysPtr, interactions)
+    BOOST_FOREACH(std::tr1::shared_ptr<Interaction>& sysPtr, interactions)
       if (sysPtr->getName() == name)
 	return sysPtr;
   
     M_throw() << "Could not find interaction plugin";
   }
 
-  const magnet::ClonePtr<Interaction>&
+  const std::tr1::shared_ptr<Interaction>&
   Dynamics::getInteraction(std::string name) const
   {
-    BOOST_FOREACH(const magnet::ClonePtr<Interaction>& sysPtr, interactions)
+    BOOST_FOREACH(const std::tr1::shared_ptr<Interaction>& sysPtr, interactions)
       if (sysPtr->getName() == name)
 	return sysPtr;
   
@@ -182,17 +179,17 @@ namespace dynamo {
   }
 
   void 
-  Dynamics::addSpecies(const magnet::ClonePtr<Species>& sp)
+  Dynamics::addSpecies(const std::tr1::shared_ptr<Species>& sp)
   {
     if (Sim->status >= INITIALISED)
       M_throw() << "Cannot add species after simulation initialisation";
 
     species.push_back(sp);
 
-    BOOST_FOREACH(magnet::ClonePtr<Interaction>& intPtr , interactions)
+    BOOST_FOREACH(std::tr1::shared_ptr<Interaction>& intPtr , interactions)
       if (intPtr->isInteraction(*species.back()))
 	{
-	  species.back()->setIntPtr(intPtr.get_ptr());
+	  species.back()->setIntPtr(intPtr.get());
 	  return;
 	}
 
@@ -206,7 +203,7 @@ namespace dynamo {
     if (Sim->status >= INITIALISED)
       M_throw() << "Cannot add global events after simulation initialisation";
 
-    magnet::ClonePtr<Global> 
+    std::tr1::shared_ptr<Global> 
       tempPlug(newGlobal);
   
     globals.push_back(tempPlug);
@@ -218,7 +215,7 @@ namespace dynamo {
     if (Sim->status >= INITIALISED)
       M_throw() << "Cannot add local events after simulation initialisation";
 
-    magnet::ClonePtr<Local> 
+    std::tr1::shared_ptr<Local> 
       tempPlug(newLocal);
   
     locals.push_back(tempPlug);
@@ -241,7 +238,7 @@ namespace dynamo {
     if (Sim->status >= INITIALISED)
       M_throw() << "Cannot add structure after simulation initialisation";
 
-    magnet::ClonePtr<Topology> 
+    std::tr1::shared_ptr<Topology> 
       tempPlug(newSystem);
   
     topology.push_back(tempPlug); 
@@ -263,22 +260,22 @@ namespace dynamo {
   Interaction* 
   Dynamics::addInteraction(Interaction* CInt)
   {
-    magnet::ClonePtr<Interaction> tempPlug(CInt);
+    std::tr1::shared_ptr<Interaction> tempPlug(CInt);
     interactions.push_back(tempPlug);
-    return interactions.back().get_ptr();
+    return interactions.back().get();
   }
 
   void 
   Dynamics::initialise()
   {
-    BOOST_FOREACH(magnet::ClonePtr<Species>& ptr, species)
+    BOOST_FOREACH(std::tr1::shared_ptr<Species>& ptr, species)
       ptr->initialise();
   
     unsigned int count = 0;
     //Now confirm that every species has only one species type!
     BOOST_FOREACH(const Particle& part, Sim->particleList)
       {
-	BOOST_FOREACH(magnet::ClonePtr<Species>& ptr, species)
+	BOOST_FOREACH(std::tr1::shared_ptr<Species>& ptr, species)
 	  if (ptr->isSpecies(part)) { count++; break; }
       
 	if (count < 1)
@@ -292,7 +289,7 @@ namespace dynamo {
     //Now confirm that there are not more counts from each species than there are particles
     {
       unsigned long tot = 0;
-      BOOST_FOREACH(magnet::ClonePtr<Species>& ptr, species)
+      BOOST_FOREACH(std::tr1::shared_ptr<Species>& ptr, species)
 	tot += ptr->getCount();
     
       if (tot < Sim->N)
@@ -310,19 +307,19 @@ namespace dynamo {
 
     size_t ID=0;
 
-    BOOST_FOREACH(magnet::ClonePtr<Interaction>& ptr, interactions)
+    BOOST_FOREACH(std::tr1::shared_ptr<Interaction>& ptr, interactions)
       ptr->initialise(ID++);
 
     ID=0;
 
     //Must be initialised before globals. Neighbour lists are
     //implemented as globals and must initialise where locals are and their ID.
-    BOOST_FOREACH(magnet::ClonePtr<Local>& ptr, locals)
+    BOOST_FOREACH(std::tr1::shared_ptr<Local>& ptr, locals)
       ptr->initialise(ID++);
 
     ID=0;
 
-    BOOST_FOREACH(magnet::ClonePtr<Global>& ptr, globals)
+    BOOST_FOREACH(std::tr1::shared_ptr<Global>& ptr, globals)
       ptr->initialise(ID++);
 
     ID=0;
@@ -331,10 +328,10 @@ namespace dynamo {
       ptr->initialise(ID++);
   }
 
-  const magnet::ClonePtr<Interaction>&
+  const std::tr1::shared_ptr<Interaction>&
   Dynamics::getInteraction(const Particle& p1, const Particle& p2) const 
   {
-    BOOST_FOREACH(const magnet::ClonePtr<Interaction>& ptr, interactions)
+    BOOST_FOREACH(const std::tr1::shared_ptr<Interaction>& ptr, interactions)
       if (ptr->isInteraction(p1,p2))
 	return ptr;
   
@@ -364,7 +361,7 @@ namespace dynamo {
   {
     double intECurrent = 0.0;
 
-    BOOST_FOREACH(const magnet::ClonePtr<Interaction> & plugptr, 
+    BOOST_FOREACH(const std::tr1::shared_ptr<Interaction> & plugptr, 
 		  Sim->dynamics.getInteractions())
       intECurrent += plugptr->getInternalEnergy();
 
@@ -392,7 +389,7 @@ namespace dynamo {
   {
     double volume = 0.0;
   
-    BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& sp, Sim->dynamics.getSpecies())
       BOOST_FOREACH(const size_t& ID, *(sp->getRange()))
       volume += sp->getIntPtr()->getExcludedVolume(ID);
   
@@ -437,7 +434,7 @@ namespace dynamo {
     Sim->primaryCellSize /= Sim->dynamics.units().unitLength();
 
     //Now load the BC
-    p_BC.set_ptr(BoundaryCondition::getClass(xDynamics.getNode("BC"), Sim));
+    p_BC = std::tr1::shared_ptr<BoundaryCondition>(BoundaryCondition::getClass(xDynamics.getNode("BC"), Sim));
   
     if (xDynamics.hasNode("Topology"))
       {
@@ -445,7 +442,7 @@ namespace dynamo {
 	for (magnet::xml::Node node = xDynamics.getNode("Topology").fastGetNode("Structure");
 	     node.valid(); ++node, ++i)
 	  {
-	    magnet::ClonePtr<Topology> tempPlug(Topology::getClass(node, Sim, i));
+	    std::tr1::shared_ptr<Topology> tempPlug(Topology::getClass(node, Sim, i));
 	    topology.push_back(tempPlug);
 	  }
       }
@@ -454,24 +451,24 @@ namespace dynamo {
       size_t i(0);
       for (magnet::xml::Node node = xDynamics.getNode("Genus").fastGetNode("Species");
 	   node.valid(); ++node, ++i)
-	species.push_back(magnet::ClonePtr<Species>(Species::getClass(node, Sim, i)));
+	species.push_back(std::tr1::shared_ptr<Species>(Species::getClass(node, Sim, i)));
     }
 
-    p_liouvillean.set_ptr(Liouvillean::loadClass(xDynamics.getNode("Liouvillean"), Sim));  
+    p_liouvillean = std::tr1::shared_ptr<Liouvillean>(Liouvillean::loadClass(xDynamics.getNode("Liouvillean"), Sim));
   
     for (magnet::xml::Node node = xDynamics.getNode("Interactions").fastGetNode("Interaction");
 	 node.valid(); ++node)
       {
-	magnet::ClonePtr<Interaction> tempPlug(Interaction::getClass(node, Sim));
+	std::tr1::shared_ptr<Interaction> tempPlug(Interaction::getClass(node, Sim));
 	interactions.push_back(tempPlug);
       }  
   
     //Link the species and interactions
-    BOOST_FOREACH(magnet::ClonePtr<Species>& sp , species)
-      BOOST_FOREACH(magnet::ClonePtr<Interaction>& intPtr , interactions)
+    BOOST_FOREACH(std::tr1::shared_ptr<Species>& sp , species)
+      BOOST_FOREACH(std::tr1::shared_ptr<Interaction>& intPtr , interactions)
       if (intPtr->isInteraction(*sp))
 	{
-	  sp->setIntPtr(intPtr.get_ptr());
+	  sp->setIntPtr(intPtr.get());
 	  break;
 	}
   
@@ -479,7 +476,7 @@ namespace dynamo {
       for (magnet::xml::Node node = xDynamics.getNode("Globals").fastGetNode("Global"); 
 	   node.valid(); ++node)
 	{
-	  magnet::ClonePtr<Global> tempPlug(Global::getClass(node, Sim));
+	  std::tr1::shared_ptr<Global> tempPlug(Global::getClass(node, Sim));
 	  globals.push_back(tempPlug);
 	}
 
@@ -487,7 +484,7 @@ namespace dynamo {
       for (magnet::xml::Node node = xDynamics.getNode("Locals").fastGetNode("Local"); 
 	   node.valid(); ++node)
 	{
-	  magnet::ClonePtr<Local> tempPlug(Local::getClass(node, Sim));
+	  std::tr1::shared_ptr<Local> tempPlug(Local::getClass(node, Sim));
 	  locals.push_back(tempPlug);
 	}
   
@@ -508,21 +505,21 @@ namespace dynamo {
 	<< Sim->primaryCellSize / Sim->dynamics.units().unitLength()
 	<< magnet::xml::endtag("SimulationSize")
 	<< magnet::xml::tag("BC")
-	<< p_BC
+	<< *p_BC
 	<< magnet::xml::endtag("BC")
 	<< magnet::xml::tag("Genus");
   
-    BOOST_FOREACH(const magnet::ClonePtr<Species>& ptr, species)
+    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& ptr, species)
       XML << magnet::xml::tag("Species")
-	  << ptr
+	  << *ptr
 	  << magnet::xml::endtag("Species");
   
     XML << magnet::xml::endtag("Genus")
 	<< magnet::xml::tag("Topology");
   
-    BOOST_FOREACH(const magnet::ClonePtr<Topology>& ptr, topology)
+    BOOST_FOREACH(const std::tr1::shared_ptr<Topology>& ptr, topology)
       XML << magnet::xml::tag("Structure")
-	  << ptr
+	  << *ptr
 	  << magnet::xml::endtag("Structure");
   
     XML << magnet::xml::endtag("Topology")
@@ -534,28 +531,28 @@ namespace dynamo {
     XML << magnet::xml::endtag("SystemEvents")
 	<< magnet::xml::tag("Globals");
   
-    BOOST_FOREACH(const magnet::ClonePtr<Global>& ptr, globals)
-      XML << ptr;
+    BOOST_FOREACH(const std::tr1::shared_ptr<Global>& ptr, globals)
+      XML << *ptr;
   
     XML << magnet::xml::endtag("Globals")
 	<< magnet::xml::tag("Locals");
   
-    BOOST_FOREACH(const magnet::ClonePtr<Local>& ptr, locals)
+    BOOST_FOREACH(const std::tr1::shared_ptr<Local>& ptr, locals)
       XML << magnet::xml::tag("Local")
-	  << ptr
+	  << *ptr
 	  << magnet::xml::endtag("Local");
   
     XML << magnet::xml::endtag("Locals")
 	<< magnet::xml::tag("Interactions");
   
-    BOOST_FOREACH(const magnet::ClonePtr<Interaction>& ptr, interactions)
+    BOOST_FOREACH(const std::tr1::shared_ptr<Interaction>& ptr, interactions)
       XML << magnet::xml::tag("Interaction")
-	  << ptr
+	  << *ptr
 	  << magnet::xml::endtag("Interaction");
   
     XML << magnet::xml::endtag("Interactions")
 	<< magnet::xml::tag("Liouvillean")
-	<< p_liouvillean
+	<< *p_liouvillean
 	<< magnet::xml::endtag("Liouvillean")
 	<< magnet::xml::endtag("Dynamics");
   }
@@ -565,7 +562,7 @@ namespace dynamo {
   {
     double maxval = 0.0;
 
-    BOOST_FOREACH(const magnet::ClonePtr<Interaction>& ptr, interactions)
+    BOOST_FOREACH(const std::tr1::shared_ptr<Interaction>& ptr, interactions)
       if (ptr->maxIntDist() > maxval)
 	maxval = ptr->maxIntDist();
 
@@ -585,7 +582,7 @@ namespace dynamo {
 	getInteraction(*iPtr1, *iPtr2)->checkOverlaps(*iPtr1, *iPtr2);
 
     BOOST_FOREACH(const Particle& part, Sim->particleList)
-      BOOST_FOREACH(const magnet::ClonePtr<Local>& lcl, locals)
+      BOOST_FOREACH(const std::tr1::shared_ptr<Local>& lcl, locals)
       if (lcl->isInteraction(part))
 	lcl->checkOverlaps(part);
     
@@ -593,5 +590,5 @@ namespace dynamo {
 
   void 
   Dynamics::setLiouvillean(Liouvillean* Uptr) 
-  { p_liouvillean.set_ptr(Uptr); }
+  { p_liouvillean = std::tr1::shared_ptr<Liouvillean>(Uptr); }
 }

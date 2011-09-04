@@ -76,6 +76,6 @@ namespace dynamo {
 
     /*! \brief A single CIPCompression plugin to manipulate the Simulation.
      */
-    magnet::ClonePtr<CIPCompression> compressPlug;
+    std::tr1::shared_ptr<CIPCompression> compressPlug;
   };
 }

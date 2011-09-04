@@ -30,7 +30,7 @@ namespace dynamo {
   void 
   SpPoint::operator<<(const magnet::xml::Node& XML)
   {
-    range.set_ptr(CRange::getClass(XML,Sim));
+    range = std::tr1::shared_ptr<CRange>(CRange::getClass(XML,Sim));
   
     try {
       _mass = Sim->_properties.getProperty(XML.getAttribute("Mass"),
@@ -52,7 +52,7 @@ namespace dynamo {
 	<< magnet::xml::attr("Name") << spName
 	<< magnet::xml::attr("IntName") << intName
 	<< magnet::xml::attr("Type") << "Point"
-	<< range;
+	<< *range;
   }
 
   void

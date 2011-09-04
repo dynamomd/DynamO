@@ -46,6 +46,12 @@ namespace dynamo {
 
   Scheduler::~Scheduler() {}
 
+  void 
+  Scheduler::operator<<(const magnet::xml::Node& XML)
+  {
+    sorter = std::tr1::shared_ptr<CSSorter>(CSSorter::getClass(XML.getNode("Sorter"), Sim));
+  }
+
   void
   Scheduler::initialise()
   {
@@ -77,7 +83,7 @@ namespace dynamo {
     Sim->dynamics.getLiouvillean().updateParticle(part);
 
     //Add the global events
-    BOOST_FOREACH(const magnet::ClonePtr<Global>& glob, Sim->dynamics.getGlobals())
+    BOOST_FOREACH(const std::tr1::shared_ptr<Global>& glob, Sim->dynamics.getGlobals())
       if (glob->isInteraction(part))
 	sorter->push(glob->getEvent(part), part.getID());
   

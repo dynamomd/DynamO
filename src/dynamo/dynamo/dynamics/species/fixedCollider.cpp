@@ -33,7 +33,7 @@ namespace dynamo {
   void 
   SpFixedCollider::operator<<(const magnet::xml::Node& XML)
   {
-    range.set_ptr(CRange::getClass(XML, Sim));
+    range = std::tr1::shared_ptr<CRange>(CRange::getClass(XML, Sim));
   
     try {
       spName = XML.getAttribute("Name");
@@ -52,6 +52,6 @@ namespace dynamo {
 	<< magnet::xml::attr("IntName") << intName
 	<< magnet::xml::attr("Type") << "FixedCollider";
   
-    XML << range;
+    XML << *range;
   }
 }

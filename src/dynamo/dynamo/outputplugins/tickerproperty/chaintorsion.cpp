@@ -34,9 +34,9 @@ namespace dynamo {
   void 
   OPCTorsion::initialise()
   {
-    BOOST_FOREACH(const magnet::ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
-      if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
-	chains.push_back(CTCdata(dynamic_cast<const CTChain*>(plugPtr.get_ptr()), 
+    BOOST_FOREACH(const std::tr1::shared_ptr<Topology>& plugPtr, Sim->dynamics.getTopology())
+      if (std::tr1::dynamic_pointer_cast<CTChain>(plugPtr))
+	chains.push_back(CTCdata(static_cast<const CTChain*>(plugPtr.get()), 
 				 0.005, 0.005, 0.01));
 
     if (!Sim->dynamics.BCTypeTest<BCNone>())
@@ -79,7 +79,7 @@ namespace dynamo {
       {
 	double sysGamma  = 0.0;
 	long count = 0;
-	BOOST_FOREACH(const magnet::ClonePtr<CRange>& range,  dat.chainPtr->getMolecules())
+	BOOST_FOREACH(const std::tr1::shared_ptr<CRange>& range,  dat.chainPtr->getMolecules())
 	  {
 	    if (range->size() < 3)//Need three for curv and torsion
 	      break;

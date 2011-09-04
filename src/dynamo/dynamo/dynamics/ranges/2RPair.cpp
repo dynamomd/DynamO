@@ -20,15 +20,13 @@
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  C2RPair::C2RPair(const magnet::xml::Node& XML, const dynamo::SimData* Sim):
-    range1(NULL), range2(NULL) 
+  C2RPair::C2RPair(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
   { 
-
     if (strcmp(XML.getAttribute("Range"), "Pair"))
       M_throw() << "Attempting to load a pair from a non pair";
   
-    range1.set_ptr(CRange::getClass(XML.getNode("Range1"), Sim));
-    range2.set_ptr(CRange::getClass(XML.getNode("Range2"), Sim));
+    range1 = std::tr1::shared_ptr<CRange>(CRange::getClass(XML.getNode("Range1"), Sim));
+    range2 = std::tr1::shared_ptr<CRange>(CRange::getClass(XML.getNode("Range2"), Sim));
   }
 
   bool 

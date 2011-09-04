@@ -48,10 +48,10 @@ namespace dynamo {
     //Build a window, ready to display it
     _window.reset(new coil::CLGLWindow("Visualizer : " + nName, tickFreq, true));
   
-    BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& spec, Sim->dynamics.getSpecies())
       _window->addRenderObj(spec->createDataSet());
 
-    BOOST_FOREACH(magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
+    BOOST_FOREACH(std::tr1::shared_ptr<Local>& local, Sim->dynamics.getLocals())
       {
 	CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*local));
 
@@ -61,10 +61,10 @@ namespace dynamo {
 
     _coil.getInstance().addWindow(_window);
 
-    BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& spec, Sim->dynamics.getSpecies())
       {
 	spec->initDataSet();
-	_window->signal_data_update().connect(boost::bind(&Species::updateRenderData, spec.get_ptr()));
+	_window->signal_data_update().connect(boost::bind(&Species::updateRenderData, spec.get()));
 	spec->updateRenderData();
       }
   
@@ -96,7 +96,7 @@ namespace dynamo {
     if (_window->dynamoParticleSync())
       Sim->dynamics.getLiouvillean().updateAllParticles();
 
-    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(*this, NEventData(), locdt);
   
     _window->simupdateTick(Sim->dSysTime);

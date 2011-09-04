@@ -282,7 +282,7 @@ namespace dynamo
     outputPlugins.swap(other.outputPlugins);      
     
     {
-      std::vector<magnet::ClonePtr<OutputPlugin> >::iterator iPtr1 = outputPlugins.begin(), 
+      std::vector<std::tr1::shared_ptr<OutputPlugin> >::iterator iPtr1 = outputPlugins.begin(), 
 	iPtr2 = other.outputPlugins.begin();
       
       while (iPtr1 != outputPlugins.end())
@@ -292,7 +292,7 @@ namespace dynamo
 	    M_throw() << "Output plugin mismatch while replexing! lists not sorted the same perhaps?";
 #endif
 	  
-	  (*iPtr1)->changeSystem(iPtr2->get_ptr());
+	  (*iPtr1)->changeSystem(iPtr2->get());
 	  
 	  (*iPtr1)->temperatureRescale(scale1 * scale1);
 	  (*iPtr2)->temperatureRescale(scale2 * scale2);

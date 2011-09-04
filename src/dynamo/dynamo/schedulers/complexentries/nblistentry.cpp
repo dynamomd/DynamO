@@ -32,7 +32,7 @@ namespace dynamo {
   void 
   CSCENBList::operator<<(const magnet::xml::Node& XML)
   {
-    range.set_ptr(CRange::getClass(XML, Sim));
+    range = std::tr1::shared_ptr<CRange>(CRange::getClass(XML, Sim));
   
     try 
       {
@@ -61,7 +61,7 @@ namespace dynamo {
 		  << "\n" << cep.what();
       }
 
-    if (dynamic_cast<GNeighbourList*>(Sim->dynamics.getGlobals()[nblistID].get_ptr()) == NULL)
+    if (!std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->dynamics.getGlobals()[nblistID]))
       M_throw() << "Global named " << name << " is not a GNeighbourList";
   
     static_cast<GNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID])

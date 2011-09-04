@@ -46,20 +46,13 @@ namespace dynamo {
   { dout << "Dumb Scheduler Algorithmn" << std::endl; }
 
   void 
-  SDumb::operator<<(const magnet::xml::Node& XML)
-  {
-    sorter.set_ptr(CSSorter::getClass(XML.getNode("Sorter"), Sim));
-  }
-
-  void 
   SDumb::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Type") << "Dumb"
 	<< magnet::xml::tag("Sorter")
-	<< sorter
+	<< *sorter
 	<< magnet::xml::endtag("Sorter");
   }
-
 
   void 
   SDumb::getParticleNeighbourhood(const Particle& part,
@@ -73,7 +66,7 @@ namespace dynamo {
   SDumb::getLocalNeighbourhood(const Particle& part, 
 				       const nbHoodFunc& func) const
   {
-    BOOST_FOREACH(const magnet::ClonePtr<Local>& local, Sim->dynamics.getLocals())
+    BOOST_FOREACH(const std::tr1::shared_ptr<Local>& local, Sim->dynamics.getLocals())
       func(part, local->getID());
   }
 

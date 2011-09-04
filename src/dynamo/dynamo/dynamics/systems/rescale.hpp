@@ -21,7 +21,7 @@
 #include <dynamo/dynamics/ranges/1range.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_real.hpp>
-#include <magnet/cloneptr.hpp>
+#include <tr1/memory>
 
 namespace dynamo {
   /*! \brief A rescaling thermostat.

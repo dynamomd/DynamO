@@ -343,7 +343,7 @@ namespace dynamo {
   {
     ++count;
 
-    BOOST_FOREACH(const magnet::ClonePtr<Species>& spec, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& spec, Sim->dynamics.getSpecies())
       {
 	BOOST_FOREACH(const size_t& ID, *spec->getRange())
 	  {

@@ -19,7 +19,7 @@
 #include <dynamo/dynamics/systems/system.hpp>
 #include <dynamo/base/is_simdata.hpp>
 #include <dynamo/dynamics/ranges/1range.hpp>
-#include <magnet/cloneptr.hpp>
+#include <tr1/memory>
 
 namespace dynamo {
   class CSDSMCSpheres: public System
@@ -46,7 +46,7 @@ namespace dynamo {
     double e;
     double factor;
 
-    magnet::ClonePtr<CRange> range1;
-    magnet::ClonePtr<CRange> range2;
+    std::tr1::shared_ptr<CRange> range1;
+    std::tr1::shared_ptr<CRange> range2;
   };
 }

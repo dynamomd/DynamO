@@ -86,7 +86,7 @@ namespace dynamo {
     //Now we're past the event update the scheduler and plugins
     Sim->ptrScheduler->fullUpdate(part);
   
-    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, EDat);
   }
 
@@ -132,7 +132,7 @@ namespace dynamo {
   void 
   CLDblWall::operator<<(const magnet::xml::Node& XML)
   {
-    range.set_ptr(CRange::getClass(XML,Sim));
+    range = std::tr1::shared_ptr<CRange>(CRange::getClass(XML,Sim));
   
     try {
       e = XML.getAttribute("Elasticity").as<double>();

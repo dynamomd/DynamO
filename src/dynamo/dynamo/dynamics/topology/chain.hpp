@@ -18,7 +18,7 @@
 #pragma once
 
 #include <dynamo/dynamics/topology/topology.hpp>
-#include <magnet/cloneptr.hpp>
+#include <tr1/memory>
 #include <string>
 #include <list>
 

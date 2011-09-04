@@ -20,7 +20,7 @@
 #include <dynamo/base.hpp>
 #include <dynamo/dynamics/ranges/1range.hpp>
 #include <dynamo/base/is_simdata.hpp>
-#include <magnet/cloneptr.hpp>
+#include <tr1/memory>
 #include <string>
 
 namespace magnet { namespace xml { class Node; } }
@@ -44,7 +44,7 @@ namespace dynamo {
     inline unsigned int getID() const { return ID; }
     inline const std::string& getName() const { return spName; }
     inline const std::string& getIntName() const { return intName; }
-    inline const magnet::ClonePtr<CRange>& getRange() const { return range; }
+    inline const std::tr1::shared_ptr<CRange>& getRange() const { return range; }
     inline const Interaction* getIntPtr() const { return IntPtr; }
     inline void setIntPtr(Interaction* nPtr) { IntPtr = nPtr; }
     virtual double getScalarMomentOfInertia(size_t ID) const = 0;
@@ -85,7 +85,7 @@ namespace dynamo {
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
   
     std::tr1::shared_ptr<Property> _mass;
-    magnet::ClonePtr<CRange> range;
+    std::tr1::shared_ptr<CRange> range;
     std::string spName;
     std::string intName;
     Interaction* IntPtr;

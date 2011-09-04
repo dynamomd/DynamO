@@ -20,13 +20,12 @@
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  C2RSingle::C2RSingle(const magnet::xml::Node& XML, const dynamo::SimData* Sim):
-    range(NULL)
+  C2RSingle::C2RSingle(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
   { 
     if (strcmp(XML.getAttribute("Range"),"2Single"))
       M_throw() << "Attempting to load a 2Single from a non pair";
   
-    range.set_ptr(CRange::getClass(XML.getNode("SingleRange"), Sim));
+    range = std::tr1::shared_ptr<CRange>(CRange::getClass(XML.getNode("SingleRange"), Sim));
   }
 
   bool 

@@ -62,7 +62,7 @@ namespace dynamo {
     double factor = std::sqrt(Sim->dynamics.units().unitMass() 
 			      / _ptrOPEnergy->getCurrentkT());
 
-    BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& sp, Sim->dynamics.getSpecies())
       BOOST_FOREACH(const size_t& ID, *sp->getRange())
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	data[iDim][sp->getID()]

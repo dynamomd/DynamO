@@ -20,7 +20,7 @@
 #include <dynamo/dynamics/interactions/interaction.hpp>
 #include <dynamo/dynamics/interactions/intEvent.hpp>
 #include <dynamo/dynamics/units/units.hpp>
-#include <magnet/cloneptr.hpp>
+#include <tr1/memory>
 #include <boost/foreach.hpp>
 #include <vector>
 #include <tr1/memory>
@@ -65,7 +65,7 @@ namespace dynamo {
 
     Interaction* addInteraction(Interaction*);
 
-    void addSpecies(const magnet::ClonePtr<Species>&);
+    void addSpecies(const std::tr1::shared_ptr<Species>&);
   
     void addGlobal(Global*);
 
@@ -77,19 +77,19 @@ namespace dynamo {
 
     const Species& getSpecies(const Particle&) const;
   
-    const magnet::ClonePtr<Interaction>& 
+    const std::tr1::shared_ptr<Interaction>& 
     getInteraction(const Particle&, const Particle&) const; 
   
     void stream(const double&);
   
     inline IntEvent getEvent(const Particle& p1, const Particle& p2) const
     {
-      BOOST_FOREACH(const magnet::ClonePtr<Interaction>& ptr, interactions)
+      BOOST_FOREACH(const std::tr1::shared_ptr<Interaction>& ptr, interactions)
 	if (ptr->isInteraction(p1,p2))
 	  {
 #ifdef dynamo_UpdateCollDebug
 	    std::cerr << "\nGOT INTERACTION P1 = " << p1.getID() << " P2 = " 
-		      << p2.getID() << " NAME = " << typeid(*ptr.get_ptr()).name();
+		      << p2.getID() << " NAME = " << typeid(*(ptr.get())).name();
 #endif
 	    return ptr->getEvent(p1,p2);
 	  }
@@ -132,32 +132,32 @@ namespace dynamo {
 
     Dynamics* Clone() const { return new Dynamics(*this); }
 
-    std::vector<magnet::ClonePtr<Interaction> >& getInteractions() { return interactions; }
-    const std::vector<magnet::ClonePtr<Interaction> >& getInteractions() const { return interactions; }
+    std::vector<std::tr1::shared_ptr<Interaction> >& getInteractions() { return interactions; }
+    const std::vector<std::tr1::shared_ptr<Interaction> >& getInteractions() const { return interactions; }
 
-    magnet::ClonePtr<Interaction>& getInteraction(std::string);
-    const magnet::ClonePtr<Interaction>& getInteraction(std::string) const;
+    std::tr1::shared_ptr<Interaction>& getInteraction(std::string);
+    const std::tr1::shared_ptr<Interaction>& getInteraction(std::string) const;
 
-    const std::vector<magnet::ClonePtr<Global> >& getGlobals() const { return globals; }
-    std::vector<magnet::ClonePtr<Global> >& getGlobals() { return globals; }
-    magnet::ClonePtr<Global>& getGlobal(std::string);
-    const magnet::ClonePtr<Global>& getGlobal(std::string) const;
+    const std::vector<std::tr1::shared_ptr<Global> >& getGlobals() const { return globals; }
+    std::vector<std::tr1::shared_ptr<Global> >& getGlobals() { return globals; }
+    std::tr1::shared_ptr<Global>& getGlobal(std::string);
+    const std::tr1::shared_ptr<Global>& getGlobal(std::string) const;
 
-    std::vector<magnet::ClonePtr<Local> >& getLocals() { return locals; }
-    const std::vector<magnet::ClonePtr<Local> >& getLocals() const { return locals; }
-    magnet::ClonePtr<Local>& getLocal(std::string);
-    const magnet::ClonePtr<Local>& getLocal(std::string) const;
+    std::vector<std::tr1::shared_ptr<Local> >& getLocals() { return locals; }
+    const std::vector<std::tr1::shared_ptr<Local> >& getLocals() const { return locals; }
+    std::tr1::shared_ptr<Local>& getLocal(std::string);
+    const std::tr1::shared_ptr<Local>& getLocal(std::string) const;
 
-    const std::vector<magnet::ClonePtr<Species> >& getSpecies() const { return species; }
+    const std::vector<std::tr1::shared_ptr<Species> >& getSpecies() const { return species; }
     const Species& getSpecies(std::string) const;
     Species& getSpecies(std::string);
 
-    std::vector<magnet::ClonePtr<Topology> >& getTopology() { return topology; }
-    const std::vector<magnet::ClonePtr<Topology> >& getTopology() const { return topology; }
+    std::vector<std::tr1::shared_ptr<Topology> >& getTopology() { return topology; }
+    const std::vector<std::tr1::shared_ptr<Topology> >& getTopology() const { return topology; }
 
-    magnet::ClonePtr<Topology>& getTopology(std::string);
+    std::tr1::shared_ptr<Topology>& getTopology(std::string);
 
-    const magnet::ClonePtr<Topology>& getTopology(std::string) const;
+    const std::tr1::shared_ptr<Topology>& getTopology(std::string) const;
 
     std::vector<std::tr1::shared_ptr<System> >& getSystemEvents() { return systems; }
     const std::vector<std::tr1::shared_ptr<System> >& getSystemEvents() const { return systems; }
@@ -183,19 +183,19 @@ namespace dynamo {
 
     template<class T>
     inline bool liouvilleanTypeTest() const
-    { return dynamic_cast<const T*>(p_liouvillean.get_ptr()) != NULL; }
+    { return std::tr1::dynamic_pointer_cast<T>(p_liouvillean); }
 
     template<class T>
     inline bool BCTypeTest() const
-    { return dynamic_cast<const T*>(p_BC.get_ptr()) != NULL; }
+    { return std::tr1::dynamic_pointer_cast<T>(p_BC); }
 
     //templates
     template<class T> void applyBC()
     {
-      if (p_BC.empty())
+      if (p_BC)
 	dout << "Warning, resetting the BC's" << std::endl;
       
-      p_BC.set_ptr(new T(Sim));
+      p_BC = std::tr1::shared_ptr<BoundaryCondition>(new T(Sim));
     }
 
     double getSimVolume() const;
@@ -207,14 +207,14 @@ namespace dynamo {
   protected:
     void outputXML(magnet::xml::XmlStream &) const;
 
-    std::vector<magnet::ClonePtr<Interaction> > interactions;
-    std::vector<magnet::ClonePtr<Global> > globals;
-    std::vector<magnet::ClonePtr<Local> > locals;
+    std::vector<std::tr1::shared_ptr<Interaction> > interactions;
+    std::vector<std::tr1::shared_ptr<Global> > globals;
+    std::vector<std::tr1::shared_ptr<Local> > locals;
     std::vector<std::tr1::shared_ptr<System> > systems;
-    std::vector<magnet::ClonePtr<Topology> > topology;
-    std::vector<magnet::ClonePtr<Species> > species;
-    magnet::ClonePtr<BoundaryCondition> p_BC;
-    magnet::ClonePtr<Liouvillean> p_liouvillean;
+    std::vector<std::tr1::shared_ptr<Topology> > topology;
+    std::vector<std::tr1::shared_ptr<Species> > species;
+    std::tr1::shared_ptr<BoundaryCondition> p_BC;
+    std::tr1::shared_ptr<Liouvillean> p_liouvillean;
     Units _units;
   };
 }

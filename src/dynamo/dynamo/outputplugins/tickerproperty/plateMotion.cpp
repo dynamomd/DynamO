@@ -57,7 +57,7 @@ namespace dynamo {
 	M_throw() << "Could not find the PlateName specified. You said " << plateName;
       }
   
-    if (dynamic_cast<const CLOscillatingPlate*>(Sim->dynamics.getLocals()[plateID].get_ptr()) == NULL) 
+    if (!std::tr1::dynamic_pointer_cast<CLOscillatingPlate>(Sim->dynamics.getLocals()[plateID])) 
       M_throw() << "The PlateName'd local is not a CLOscillatingPlate";
 
     if (logfile.is_open())
@@ -68,7 +68,7 @@ namespace dynamo {
     localEnergyLoss.resize(Sim->dynamics.getLocals().size(), std::make_pair(double(0),std::vector<double>()));
     localEnergyFlux.resize(Sim->dynamics.getLocals().size(), std::make_pair(double(0),std::vector<double>()));
 
-    oldPlateEnergy = dynamic_cast<const CLOscillatingPlate*>(Sim->dynamics.getLocals()[plateID].get_ptr())->getPlateEnergy();
+    oldPlateEnergy = static_cast<const CLOscillatingPlate*>(Sim->dynamics.getLocals()[plateID].get())->getPlateEnergy();
     partpartEnergyLoss = 0;
 
     momentumChange = Vector(0, 0, 0);
@@ -81,7 +81,7 @@ namespace dynamo {
     double newPlateEnergy = oldPlateEnergy;
 
     if (localEvent.getLocalID() == plateID)
-      newPlateEnergy = dynamic_cast<const CLOscillatingPlate*>(Sim->dynamics.getLocals()[plateID].get_ptr())->getPlateEnergy();
+      newPlateEnergy = static_cast<const CLOscillatingPlate*>(Sim->dynamics.getLocals()[plateID].get())->getPlateEnergy();
 
     double EnergyChange(0);
 
@@ -142,7 +142,7 @@ namespace dynamo {
   
     partEnergy *= 0.5;
 
-    const CLOscillatingPlate& plate(*dynamic_cast<const CLOscillatingPlate*>(Sim->dynamics.getLocals()[plateID].get_ptr()));
+    const CLOscillatingPlate& plate(*static_cast<const CLOscillatingPlate*>(Sim->dynamics.getLocals()[plateID].get()));
 
     Vector platePos = (plate.getPosition() - plate.getCentre()) / Sim->dynamics.units().unitLength();
 

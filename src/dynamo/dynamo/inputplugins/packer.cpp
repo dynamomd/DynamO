@@ -217,7 +217,7 @@ namespace dynamo {
 						       new C2RAll()
 						       ))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 	
@@ -301,7 +301,7 @@ namespace dynamo {
 							   new C2RAll()
 							   ))->setName("Bulk");
 	    
-	      Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	      Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				       (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						    "Bulk")));
 	    }
@@ -401,7 +401,7 @@ namespace dynamo {
 		  const speciesData& spdat1 = speciesList[spID1];
 		  std::string sp1Name = "A";
 		  sp1Name[0] += spID1;
-		  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+		  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 					   (new SpPoint(Sim, new CRRange(spdat1.idStart, 
 									 spdat1.idEnd), 
 							spdat1.mass, sp1Name, spID1, 
@@ -547,7 +547,7 @@ namespace dynamo {
 							 new C2RAll()
 							 ))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -634,7 +634,7 @@ namespace dynamo {
 						       ))->setName("Bulk");
 
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -702,7 +702,7 @@ namespace dynamo {
 						       new C2RAll()
 						       ))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -802,7 +802,7 @@ namespace dynamo {
 						       new C2RAll()
 						       ))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -876,7 +876,7 @@ namespace dynamo {
 						       new C2RAll()
 						       ))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0, "Bulk")));
 
 	  unsigned long nParticles = 0;
@@ -975,7 +975,7 @@ namespace dynamo {
 	    }
 
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -1068,11 +1068,11 @@ namespace dynamo {
 	    (new IHardSphere(Sim, sizeRatio * particleDiam, 1.0,
 			     new C2RAll()))->setName("BBInt");
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRRange(0, nA - 1), 1.0, "A", 0,
 						"AAInt")));
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRRange(nA, latticeSites.size()-1),
 						massFrac, "B", 0, "BBInt")));
 
@@ -1145,7 +1145,7 @@ namespace dynamo {
 
 	  double inertiaMultiplicativeFactor = (vm.count("f2")) ? vm["f2"].as<double>() : 1.0;
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpLines(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						std::sqrt(inertiaMultiplicativeFactor) * particleDiam,
 						"Bulk")));
@@ -1229,7 +1229,7 @@ namespace dynamo {
 			       2.0 * tij / latticeSites.size(), chi, 1.0,
 			       "Thermostat", new CRAll(Sim), new CRAll(Sim)));
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -1308,7 +1308,7 @@ namespace dynamo {
 			       chi, alpha, "Thermostat",
 			       new CRAll(Sim), new CRAll(Sim)));
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -1507,11 +1507,11 @@ namespace dynamo {
 			       new CRRange(nA, latticeSites.size()-1)));
 
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRRange(0, nA - 1), 1.0, "A", 0,
 						"AAInt")));
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRRange(nA, latticeSites.size()-1),
 						massFrac, "B", 0, "BBInt")));
 
@@ -1564,7 +1564,7 @@ namespace dynamo {
 						  new C2RAll()
 						  ))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpLines(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						particleDiam, "Bulk")));
 
@@ -1687,11 +1687,11 @@ namespace dynamo {
 	    (new IHardSphere(Sim, particleDiamB, 1.0,
 			     new C2RAll()))->setName("BBInt");
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRRange(0, nPartA - 1), 1.0, "A", 0,
 						"AAInt")));
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRRange(nPartA, latticeSites.size()-1),
 						massFrac / chainlength, "B", 0, "BBInt")));
 
@@ -1776,7 +1776,7 @@ namespace dynamo {
 					Matrix::identity(),
 					new C2RAll()))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0,
 						"Bulk", 0, "Bulk")));
 
@@ -1947,7 +1947,7 @@ namespace dynamo {
 						    new C2RAll()
 						    ))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -2040,7 +2040,7 @@ namespace dynamo {
 			    2.0 * tij / latticeSites.size(), chi12, chi13, 1.0,
 			    "RingDSMC", new CRAll(Sim)));
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -2130,7 +2130,7 @@ namespace dynamo {
 			    2.0 * tij / latticeSites.size(), chi12, chi13, inelasticity,
 			    "RingDSMC", new CRAll(Sim)));
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -2283,7 +2283,7 @@ namespace dynamo {
 					   Vector(0, +0.5 * Aspect, 0),
 					   "Plate5", new CRAll(Sim)));
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, 
 						"Bulk", 0, "Bulk")));
 
@@ -2380,7 +2380,7 @@ namespace dynamo {
 						       new C2RAll()
 						       ))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -2473,7 +2473,7 @@ namespace dynamo {
 						       new C2RAll()
 						       ))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -2534,7 +2534,7 @@ namespace dynamo {
 						       new C2RAll()
 						       ))->setName("Bulk");
 	
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 	
@@ -2657,10 +2657,10 @@ namespace dynamo {
 	      }
 
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpFixedCollider(Sim, new CRRange(0, funnelSites.size()-1), "FunnelParticles", 
 							0, "Bulk")));
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRRange(funnelSites.size(), 
 								 funnelSites.size() + dynamicSites.size() - 1), 
 						1.0, "Bulk", 0, "Bulk")));
@@ -3229,7 +3229,7 @@ namespace dynamo {
 	    }
 	  }
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -3450,10 +3450,10 @@ namespace dynamo {
 						       new C2RAll()
 						       ))->setName("Bulk");
 	
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpFixedCollider(Sim, new CRRange(0, funnelSites.size()-1), "FunnelParticles", 
 							0, "Bulk")));
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRRange(funnelSites.size(), 
 								 funnelSites.size() + dynamicSites.size() - 1), 
 						1.0, "Bulk", 0, "Bulk")));
@@ -3586,7 +3586,7 @@ namespace dynamo {
 	  Sim->dynamics.addInteraction(new IHardSphere(Sim, "D", elasticity, new C2RAll()
 						       ))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(magnet::ClonePtr<Species>
+	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), "M", "Bulk", 0, "Bulk")));
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);

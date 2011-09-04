@@ -29,6 +29,10 @@ namespace dynamo {
     range(nR)
   {}
 
+  void 
+  Interaction::operator<<(const magnet::xml::Node& XML)
+  { range = std::tr1::shared_ptr<C2Range>(C2Range::getClass(XML,Sim)); }
+
   bool 
   Interaction::isInteraction(const IntEvent &coll) const
   { 
@@ -49,11 +53,11 @@ namespace dynamo {
     return XML;
   }
 
-  magnet::ClonePtr<C2Range>& 
+  std::tr1::shared_ptr<C2Range>& 
   Interaction::getRange() 
   { return range; }
 
-  const magnet::ClonePtr<C2Range>& 
+  const std::tr1::shared_ptr<C2Range>& 
   Interaction::getRange() const
   { return range; }
 

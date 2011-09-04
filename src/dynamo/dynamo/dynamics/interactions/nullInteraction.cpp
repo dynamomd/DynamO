@@ -43,7 +43,7 @@ namespace dynamo {
       M_throw() << "Attempting to load NullInteraction from " 
 		<< XML.getAttribute("Type") <<" entry";
   
-    range.set_ptr(C2Range::getClass(XML,Sim));
+    Interaction::operator<<(XML);
   
     try 
       { intName = XML.getAttribute("Name"); }
@@ -74,7 +74,7 @@ namespace dynamo {
   {
     XML << magnet::xml::attr("Type") << "Null"
 	<< magnet::xml::attr("Name") << intName
-	<< range;
+	<< *range;
   }
 }
 

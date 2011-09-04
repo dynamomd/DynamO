@@ -37,9 +37,7 @@
 namespace dynamo {
   CSDSMCSpheres::CSDSMCSpheres(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
     System(tmp),
-    maxprob(0.0),
-    range1(NULL),
-    range2(NULL)
+    maxprob(0.0)
   {
     dt = HUGE_VAL;
     operator<<(XML);
@@ -100,7 +98,7 @@ namespace dynamo {
  
     size_t nmax = static_cast<size_t>(intPart);
   
-    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(*this, NEventData(), locdt);
 
     if (Sim->uniform_sampler() < fracpart)
@@ -138,7 +136,7 @@ namespace dynamo {
   
 	    Sim->ptrScheduler->fullUpdate(p1, p2);
 	  
-	    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+	    BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
 	      Ptr->eventUpdate(*this, SDat, 0.0);
 	  }
       }
@@ -217,8 +215,8 @@ namespace dynamo {
       diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
       e = XML.getAttribute("Inelasticity").as<double>();
       d2 = diameter * diameter;
-      range1.set_ptr(CRange::getClass(XML.getNode("Range1"), Sim));
-      range2.set_ptr(CRange::getClass(XML.getNode("Range2"), Sim));
+      range1 = std::tr1::shared_ptr<CRange>(CRange::getClass(XML.getNode("Range1"), Sim));
+      range2 = std::tr1::shared_ptr<CRange>(CRange::getClass(XML.getNode("Range2"), Sim));
       if (XML.hasAttribute("MaxProbability"))
 	maxprob = XML.getAttribute("MaxProbability").as<double>();
     }

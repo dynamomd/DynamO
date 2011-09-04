@@ -65,10 +65,10 @@ namespace dynamo {
   OPSHCrystal::initialise() 
   { 
     double smallestlength = HUGE_VAL;
-    BOOST_FOREACH(const magnet::ClonePtr<Global>& pGlob, Sim->dynamics.getGlobals())
-      if (dynamic_cast<const GNeighbourList*>(pGlob.get_ptr()) != NULL)
+    BOOST_FOREACH(const std::tr1::shared_ptr<Global>& pGlob, Sim->dynamics.getGlobals())
+      if (std::tr1::dynamic_pointer_cast<GNeighbourList>(pGlob))
 	{
-	  const double l(static_cast<const GNeighbourList*>(pGlob.get_ptr())
+	  const double l(static_cast<const GNeighbourList*>(pGlob.get())
 			 ->getMaxSupportedInteractionLength());
 	  if ((l >= rg) && (l < smallestlength))
 	    {
@@ -97,7 +97,7 @@ namespace dynamo {
     BOOST_FOREACH(const Particle& part, Sim->particleList)
       {
 	static_cast<const GNeighbourList*>
-	  (Sim->dynamics.getGlobals()[nblistID].get_ptr())
+	  (Sim->dynamics.getGlobals()[nblistID].get())
 	  ->getParticleNeighbourhood
 	  (part, magnet::function::MakeDelegate(&ssum, &sphericalsum::operator()));
       

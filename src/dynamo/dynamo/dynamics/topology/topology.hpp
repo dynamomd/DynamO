@@ -18,7 +18,7 @@
 
 #include <dynamo/base.hpp>
 #include <dynamo/dynamics/ranges/1range.hpp>
-#include <magnet/cloneptr.hpp>
+#include <tr1/memory>
 #include <string>
 #include <list>
 
@@ -51,9 +51,9 @@ namespace dynamo {
     virtual Topology* Clone() const = 0; //{ return new CTopology(this); }
 
     inline void addMolecule(CRange* ptr)
-    { ranges.push_back(magnet::ClonePtr<CRange>(ptr)); }
+    { ranges.push_back(std::tr1::shared_ptr<CRange>(ptr)); }
 
-    inline const std::list<magnet::ClonePtr<CRange> >& getMolecules() const
+    inline const std::list<std::tr1::shared_ptr<CRange> >& getMolecules() const
     { return ranges; }
 
     inline size_t getMoleculeCount() const { return ranges.size(); }
@@ -63,7 +63,7 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
   
-    std::list<magnet::ClonePtr<CRange> > ranges;
+    std::list<std::tr1::shared_ptr<CRange> > ranges;
   
     std::string spName;
   

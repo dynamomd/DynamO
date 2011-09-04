@@ -21,7 +21,7 @@
 #include <dynamo/dynamics/ranges/1range.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_real.hpp>
-#include <magnet/cloneptr.hpp>
+#include <tr1/memory>
 
 namespace dynamo {
   class CSUmbrella: public System
@@ -49,7 +49,7 @@ namespace dynamo {
     mutable int ulevel;
     bool ulevelset;
 
-    magnet::ClonePtr<CRange> range1;
-    magnet::ClonePtr<CRange> range2;
+    std::tr1::shared_ptr<CRange> range1;
+    std::tr1::shared_ptr<CRange> range2;
   };
 }

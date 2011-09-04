@@ -105,7 +105,7 @@ namespace dynamo {
   
     dout << "Loading output plugin string " << Name << std::endl;
 
-    magnet::ClonePtr<OutputPlugin> tempPlug(OutputPlugin::getPlugin(Name, this));
+    std::tr1::shared_ptr<OutputPlugin> tempPlug(OutputPlugin::getPlugin(Name, this));
     outputPlugins.push_back(tempPlug);
   }
 
@@ -145,8 +145,8 @@ namespace dynamo {
 	|| dynamics.BCTypeTest<BCPeriodicXOnly>())
       dynamics.addGlobal(new GPBCSentinel(this, "PBCSentinel"));
 
-    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
-      if (dynamic_cast<OPTicker*>(Ptr.get_ptr()) != NULL)
+    BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin> & Ptr, outputPlugins)
+      if (std::tr1::dynamic_pointer_cast<OPTicker>(Ptr))
 	{
 	  needTicker = true; 
 	  break;
@@ -180,7 +180,7 @@ namespace dynamo {
       dout << "Skipping initialisation of the Scheduler" << std::endl;
   
     dout << "Initialising the output plugins" << std::endl;
-    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
+    BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin> & Ptr, outputPlugins)
       Ptr->initialise();
 
     dout << "System initialised" << std::endl;
@@ -209,7 +209,7 @@ namespace dynamo {
 	      && outputPlugins.size())
 	    {
 	      //Print the screen data plugins
-	      BOOST_FOREACH( magnet::ClonePtr<OutputPlugin> & Ptr, 
+	      BOOST_FOREACH( std::tr1::shared_ptr<OutputPlugin> & Ptr, 
 			     outputPlugins)
 		Ptr->periodicOutput();
 
@@ -255,7 +255,7 @@ namespace dynamo {
 	<< magnet::xml::prolog() << magnet::xml::tag("OutputData");
   
     //Output the data and delete the outputplugins
-    BOOST_FOREACH( magnet::ClonePtr<OutputPlugin> & Ptr, outputPlugins)
+    BOOST_FOREACH( std::tr1::shared_ptr<OutputPlugin> & Ptr, outputPlugins)
       Ptr->output(XML);
   
     XML << magnet::xml::endtag("OutputData");

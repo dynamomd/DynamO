@@ -17,6 +17,7 @@
 */
 
 #pragma once
+#include <tr1/memory>
 #include <stack>
 #include <string>
 #include <sstream>
@@ -119,12 +120,23 @@ namespace magnet {
       /*! \brief Default insertion operator, just delegates the passed
        * object to the underlying std::stream.
        */
-      template<class t>
-      XmlStream& operator<<(const t& value) {
+      template<class T>
+      XmlStream& operator<<(const T& value) {
 	if (stateTagName == state)
 	  tagName << value;
 	s << value;
 	return *this;
+      }
+
+      /*! \brief Specialisation for pointers.
+	
+	Calls the output operator on the dereferenced object
+       */
+      template<class T>
+      XmlStream& operator<<(const std::tr1::shared_ptr<T>& value) {
+	if (stateTagName == state)
+	  tagName << value;
+	return ((*this) << (*value));
       }
 
       //! \brief Returns the underlying output stream.

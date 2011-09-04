@@ -61,11 +61,10 @@ namespace dynamo {
   void 
   OPChainBondAngles::initialise()
   {
-    BOOST_FOREACH(const magnet::ClonePtr<Topology>& plugPtr, 
+    BOOST_FOREACH(const std::tr1::shared_ptr<Topology>& plugPtr, 
 		  Sim->dynamics.getTopology())
-      if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
-	chains.push_back(Cdata(plugPtr->getID(), 
-			       plugPtr->getMolecules().front()->size(),
+      if (std::tr1::dynamic_pointer_cast<CTChain>(plugPtr))
+	chains.push_back(Cdata(plugPtr->getID(), plugPtr->getMolecules().front()->size(),
 			       binwidth));
   }
 
@@ -79,7 +78,7 @@ namespace dynamo {
   OPChainBondAngles::ticker()
   {
     BOOST_FOREACH(Cdata& dat,chains)
-      BOOST_FOREACH(const magnet::ClonePtr<CRange>& range, 
+      BOOST_FOREACH(const std::tr1::shared_ptr<CRange>& range, 
 		    Sim->dynamics.getTopology()[dat.chainID]->getMolecules())
       if (range->size() > 2)
 	{

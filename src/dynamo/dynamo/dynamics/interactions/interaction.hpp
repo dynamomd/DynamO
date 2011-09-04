@@ -19,7 +19,7 @@
 
 #include <dynamo/base.hpp>
 #include <dynamo/dynamics/ranges/2range.hpp>
-#include <magnet/cloneptr.hpp>
+#include <tr1/memory>
 #include <string>
 
 namespace magnet { namespace xml { class Node; class XmlStream; } }
@@ -90,7 +90,7 @@ namespace dynamo {
     virtual Interaction* Clone() const = 0; //{ return new OPBlank(*this); };
 
     //! Loads the parameters of the Interaction from an XML node in the configuration file.
-    virtual void operator<<(const magnet::xml::Node&) = 0;
+    virtual void operator<<(const magnet::xml::Node&);
   
     //! A helper function that calls Interaction::outputXML to write out the parameters of this interaction to a config file.
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Interaction&);
@@ -118,11 +118,11 @@ namespace dynamo {
 
     //! Returns the C2Range describing the pairs of particles this
     //! Interaction can generate events for.
-    magnet::ClonePtr<C2Range>& getRange();
+    std::tr1::shared_ptr<C2Range>& getRange();
 
     //! Returns the C2Range describing the pairs of particles this
     //! Interaction can generate events for.
-    const magnet::ClonePtr<C2Range>& getRange() const;
+    const std::tr1::shared_ptr<C2Range>& getRange() const;
 
     //! Test if an invalid state has occurred between the two passed particles
     virtual void checkOverlaps(const Particle&, const Particle&) const = 0;
@@ -140,7 +140,7 @@ namespace dynamo {
     //! Write out an XML tag that describes this Interaction and stores its Property -s.
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
-    magnet::ClonePtr<C2Range> range;
+    std::tr1::shared_ptr<C2Range> range;
 
     std::string intName;
     size_t ID;

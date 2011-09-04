@@ -75,7 +75,7 @@ namespace dynamo {
     //This is done here as most ticker properties require it
     Sim->dynamics.getLiouvillean().updateAllParticles();
 
-    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(*this, NEventData(), locdt);
   
     std::string filename = magnet::string::search_replace("Snapshot.%i.xml.bz2", "%i", boost::lexical_cast<std::string>(_saveCounter++));

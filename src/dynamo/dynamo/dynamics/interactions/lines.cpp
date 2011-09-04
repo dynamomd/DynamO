@@ -51,7 +51,7 @@ namespace dynamo {
     if (strcmp(XML.getAttribute("Type"),"Lines"))
       M_throw() << "Attempting to load Lines from non Lines entry";
   
-    range.set_ptr(C2Range::getClass(XML,Sim));
+    Interaction::operator<<(XML);
   
     try 
       {
@@ -144,7 +144,7 @@ namespace dynamo {
 	
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, 
+	  BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin> & Ptr, 
 			Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retval);
 
@@ -186,7 +186,7 @@ namespace dynamo {
 	<< magnet::xml::attr("Length") << _length->getName()
 	<< magnet::xml::attr("Elasticity") << _e->getName()
 	<< magnet::xml::attr("Name") << intName
-	<< range;
+	<< *range;
 
     ISingleCapture::outputCaptureMap(XML);
   }

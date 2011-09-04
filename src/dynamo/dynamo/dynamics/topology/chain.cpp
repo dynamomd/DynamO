@@ -26,7 +26,7 @@ namespace dynamo {
     Topology::operator<<(XML);
   
     size_t Clength = (*ranges.begin())->size();
-    BOOST_FOREACH(const magnet::ClonePtr<CRange>& nRange, ranges)
+    BOOST_FOREACH(const std::tr1::shared_ptr<CRange>& nRange, ranges)
       if (nRange->size() != Clength)
 	M_throw() << "Size mismatch in loading one of the ranges in Chain topology \"" 
 		  << spName << "\"";

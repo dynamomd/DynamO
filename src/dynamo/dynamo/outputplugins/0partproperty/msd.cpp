@@ -48,7 +48,7 @@ namespace dynamo {
   
     XML << magnet::xml::tag("MSD");
   
-    BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& sp, Sim->dynamics.getSpecies())
       {
 	double MSD(calcMSD(*(sp->getRange())));
       
@@ -64,7 +64,7 @@ namespace dynamo {
       {
 	XML << magnet::xml::tag("Structures");
 
-	BOOST_FOREACH(const magnet::ClonePtr<Topology>& topo, Sim->dynamics.getTopology())
+	BOOST_FOREACH(const std::tr1::shared_ptr<Topology>& topo, Sim->dynamics.getTopology())
 	  {
 	    double MSD(calcStructMSD(*topo));
 
@@ -100,7 +100,7 @@ namespace dynamo {
     Sim->dynamics.getLiouvillean().updateAllParticles();
 
     double acc = 0.0;
-    BOOST_FOREACH(const magnet::ClonePtr<CRange>& molRange, Itop.getMolecules())
+    BOOST_FOREACH(const std::tr1::shared_ptr<CRange>& molRange, Itop.getMolecules())
       {
 	Vector  origPos(0,0,0), currPos(0,0,0);
 	double totmass = 0.0;

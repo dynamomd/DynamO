@@ -24,7 +24,7 @@
 
 #include <dynamo/coordinator/engine/engine.hpp>
 #include <magnet/thread/threadpool.hpp>
-#include <magnet/cloneptr.hpp>
+#include <tr1/memory>
 #include <boost/program_options.hpp>
 #include <vector>
 #include <signal.h>
@@ -45,9 +45,7 @@ namespace dynamo {
      *
      * Only the Engine smart pointer needs to be set to null to ease debugging.
      */
-    Coordinator():
-      _engine(NULL)
-    {}
+    Coordinator() {}
 
     /*! \brief Parses the command line options, including any engine specific options.
      *
@@ -105,7 +103,7 @@ namespace dynamo {
 
     /*! \brief A smart pointer to the Engine being run.
      */
-    magnet::ClonePtr<Engine> _engine;
+    std::tr1::shared_ptr<Engine> _engine;
 
     /*! \brief A thread pool to utilise multiple cores on the computational node.
      *

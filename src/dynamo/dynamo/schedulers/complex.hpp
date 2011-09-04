@@ -42,6 +42,6 @@ namespace dynamo {
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    std::vector<magnet::ClonePtr<CSCEntry> > entries;
+    std::vector<std::tr1::shared_ptr<CSCEntry> > entries;
   };
 }

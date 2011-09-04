@@ -68,7 +68,7 @@ namespace dynamo {
 
     id = Sim->dynamics.getTopology().size();
   
-    BOOST_FOREACH(const magnet::ClonePtr<Topology>& ptr, Sim->dynamics.getTopology())
+    BOOST_FOREACH(const std::tr1::shared_ptr<Topology>& ptr, Sim->dynamics.getTopology())
       if (boost::iequals(structureName, ptr->getName()))
 	id = ptr->getID();
   
@@ -98,7 +98,7 @@ namespace dynamo {
   void
   OPStructureImaging::printImage()
   {
-    BOOST_FOREACH(const magnet::ClonePtr<CRange>& prange, Sim->dynamics.getTopology()[id]->getMolecules())
+    BOOST_FOREACH(const std::tr1::shared_ptr<CRange>& prange, Sim->dynamics.getTopology()[id]->getMolecules())
       {
 	std::vector<Vector  > atomDescription;
 

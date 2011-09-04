@@ -18,7 +18,7 @@
 #pragma once
 #include <dynamo/dynamics/ranges/1range.hpp>
 #include <dynamo/dynamics/ranges/2range.hpp>
-#include <magnet/cloneptr.hpp>
+#include <tr1/memory>
 
 namespace dynamo {
   class C2RPair:public C2Range
@@ -38,7 +38,7 @@ namespace dynamo {
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    magnet::ClonePtr<CRange> range1;
-    magnet::ClonePtr<CRange> range2;
+    std::tr1::shared_ptr<CRange> range1;
+    std::tr1::shared_ptr<CRange> range2;
   };
 }

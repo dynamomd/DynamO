@@ -44,9 +44,7 @@ namespace dynamo {
     delU(0.1),
     ulevelcenter(0),
     ulevel(-1),
-    ulevelset(false),
-    range1(NULL),
-    range2(NULL)
+    ulevelset(false)
   {
     dt = HUGE_VAL;
     operator<<(XML);
@@ -136,7 +134,7 @@ namespace dynamo {
 
     Sim->freestreamAcc = 0;
 
-    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(*this, SDat, locdt); 
   }
 
@@ -280,8 +278,8 @@ namespace dynamo {
 	* Sim->dynamics.units().unitLength();
 
       delU = XML.getAttribute("delU").as<double>() * Sim->dynamics.units().unitEnergy();
-      range1.set_ptr(CRange::getClass(XML.getNode("Range1"), Sim));
-      range2.set_ptr(CRange::getClass(XML.getNode("Range2"), Sim));
+      range1 = std::tr1::shared_ptr<CRange>(CRange::getClass(XML.getNode("Range1"), Sim));
+      range2 = std::tr1::shared_ptr<CRange>(CRange::getClass(XML.getNode("Range2"), Sim));
     
       if (XML.hasAttribute("currentulevel"))
 	{

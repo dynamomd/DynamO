@@ -38,8 +38,7 @@
 
 namespace dynamo {
   SSleep::SSleep(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
-    System(tmp),
-    _range(NULL)
+    System(tmp)
   {
     dt = HUGE_VAL;
     operator<<(XML);
@@ -86,7 +85,7 @@ namespace dynamo {
       _sleepVelocity = XML.getAttribute("SleepV").as<double>() * Sim->dynamics.units().unitVelocity();
       _sleepDistance = Sim->dynamics.units().unitLength() * 0.01;
       _sleepTime = Sim->dynamics.units().unitTime() * 0.0001;
-      _range.set_ptr(CRange::getClass(XML, Sim));
+      _range = std::tr1::shared_ptr<CRange>(CRange::getClass(XML, Sim));
     }
     catch (boost::bad_lexical_cast &)
       { M_throw() << "Failed a lexical cast in SSleep"; }
@@ -320,7 +319,7 @@ namespace dynamo {
 
     Sim->freestreamAcc = 0;
   
-    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(*this, SDat, locdt); 
   }
 }

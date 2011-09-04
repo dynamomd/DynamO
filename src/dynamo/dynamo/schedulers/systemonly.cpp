@@ -46,12 +46,6 @@ namespace dynamo {
     Scheduler(Sim,"SystemOnlyScheduler", ns)
   { dout << "System Events Only Scheduler Algorithmn" << std::endl; }
 
-  void 
-  SSystemOnly::operator<<(const magnet::xml::Node& XML)
-  {
-    sorter.set_ptr(CSSorter::getClass(XML.getNode("Sorter"), Sim));
-  }
-
   void
   SSystemOnly::initialise()
   {
@@ -91,7 +85,7 @@ namespace dynamo {
   {
     XML << magnet::xml::attr("Type") << "SystemOnly"
 	<< magnet::xml::tag("Sorter")
-	<< sorter
+	<< *sorter
 	<< magnet::xml::endtag("Sorter");
   }
 }

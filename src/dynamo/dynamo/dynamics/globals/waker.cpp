@@ -65,9 +65,7 @@ namespace dynamo {
 		  << cxp.what();
       }
   
-    if (dynamic_cast<const GNeighbourList*>
-	(Sim->dynamics.getGlobals()[_NBListID].get_ptr())
-	== NULL)
+    if (!std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->dynamics.getGlobals()[_NBListID]))
       M_throw() << "The Global named SchedulerNBList is not a neighbour list!";
 
   }
@@ -75,7 +73,7 @@ namespace dynamo {
   void 
   GWaker::operator<<(const magnet::xml::Node& XML)
   {
-    range.set_ptr(CRange::getClass(XML, Sim));
+    range = std::tr1::shared_ptr<CRange>(CRange::getClass(XML, Sim));
 
     try {
       globName = XML.getAttribute("Name");
@@ -131,11 +129,9 @@ namespace dynamo {
     ++Sim->eventCount;
   
     _neighbors = 0;
-    //Grab a reference to the neighbour list
-    const GNeighbourList& nblist(*static_cast<const GNeighbourList*>(Sim->dynamics.getGlobals()[_NBListID]
-								     .get_ptr()));
+
     //Add the interaction events
-    nblist.getParticleNeighbourhood(part, magnet::function::MakeDelegate(this, &GWaker::nblistCallback));  
+    Sim->ptrScheduler->getParticleNeighbourhood(part, magnet::function::MakeDelegate(this, &GWaker::nblistCallback));
   
     //  if (_neighbors < 10)
     //    {
@@ -156,7 +152,7 @@ namespace dynamo {
       
     Sim->signalParticleUpdate(EDat);
       
-    BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, EDat);
     //    }
     //  else

@@ -46,7 +46,7 @@ namespace dynamo {
     if (strcmp(XML.getAttribute("Type"),"SoftCore"))
       M_throw() << "Attempting to load SoftCore from non SoftCore entry";
   
-    range.set_ptr(C2Range::getClass(XML,Sim));
+    Interaction::operator<<(XML);
   
     try {
       _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
@@ -175,7 +175,7 @@ namespace dynamo {
 	  Sim->signalParticleUpdate(retVal);
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	  BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
 
 
@@ -194,7 +194,7 @@ namespace dynamo {
 	  //Now we're past the event, update the scheduler and plugins
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	  BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& Ptr, 
+	  BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin>& Ptr, 
 			Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
 
@@ -241,7 +241,7 @@ namespace dynamo {
 	<< magnet::xml::attr("Diameter") << _diameter->getName()
 	<< magnet::xml::attr("WellDepth") << _wellDepth->getName()
 	<< magnet::xml::attr("Name") << intName
-	<< range;
+	<< *range;
   
     ISingleCapture::outputCaptureMap(XML);  
   }

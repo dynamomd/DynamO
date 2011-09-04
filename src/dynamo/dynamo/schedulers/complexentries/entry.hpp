@@ -19,7 +19,7 @@
 #include <dynamo/base.hpp>
 #include <dynamo/dynamics/ranges/1range.hpp>
 #include <dynamo/dynamics/globals/neighbourList.hpp>
-#include <magnet/cloneptr.hpp>
+#include <tr1/memory>
 
 namespace magnet { namespace xml { class Node; } }
 namespace xml { class XmlStream; }
@@ -63,6 +63,6 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
   
-    magnet::ClonePtr<CRange> range;
+    std::tr1::shared_ptr<CRange> range;
   };
 }

@@ -42,9 +42,9 @@ namespace dynamo {
   void 
   OPCContactMap::initialise()
   {
-    BOOST_FOREACH(const magnet::ClonePtr<Topology>& plugPtr, Sim->dynamics.getTopology())
-      if (dynamic_cast<const CTChain*>(plugPtr.get_ptr()) != NULL)
-	chains.push_back(Cdata(dynamic_cast<const CTChain*>(plugPtr.get_ptr()), 
+    BOOST_FOREACH(const std::tr1::shared_ptr<Topology>& plugPtr, Sim->dynamics.getTopology())
+      if (std::tr1::dynamic_pointer_cast<CTChain>(plugPtr))
+	chains.push_back(Cdata(static_cast<const CTChain*>(plugPtr.get()), 
 			       plugPtr->getMolecules().front()->size()));
   }
 
@@ -56,7 +56,7 @@ namespace dynamo {
     BOOST_FOREACH(Cdata& dat, chains)
       {
 	try {
-	  const Topology* tmpPtr = Sim->dynamics.getTopology(dat.chainPtr->getName()).get_ptr();
+	  const Topology* tmpPtr = Sim->dynamics.getTopology(dat.chainPtr->getName()).get();
 	  dat.chainPtr = dynamic_cast<const CTChain*>(tmpPtr);
 	} catch (std::exception&)
 	  {
@@ -73,7 +73,7 @@ namespace dynamo {
   OPCContactMap::ticker()
   {
     BOOST_FOREACH(Cdata& dat,chains)
-      BOOST_FOREACH(const magnet::ClonePtr<CRange>& range,  dat.chainPtr->getMolecules())
+      BOOST_FOREACH(const std::tr1::shared_ptr<CRange>& range,  dat.chainPtr->getMolecules())
       {
 	dat.counter++;
 	for (unsigned long i = 0; i < dat.chainlength; i++)
@@ -84,11 +84,10 @@ namespace dynamo {
 	      {
 		const Particle& part2 = Sim->particleList[(*range)[j]];
 
-		BOOST_FOREACH(const magnet::ClonePtr<Interaction>& ptr, Sim->dynamics.getInteractions())
+		BOOST_FOREACH(const std::tr1::shared_ptr<Interaction>& ptr, Sim->dynamics.getInteractions())
 		  if (ptr->isInteraction(part1,part2))
-		    if (dynamic_cast<const ICapture*>(ptr.get_ptr()) != NULL)
-		      if (dynamic_cast<const ICapture*>(ptr.get_ptr())
-			  ->isCaptured(part1,part2))
+		    if (std::tr1::dynamic_pointer_cast<ICapture>(ptr))
+		      if (dynamic_cast<const ICapture*>(ptr.get())->isCaptured(part1,part2))
 			dat.array[i * dat.chainlength + j]++;
 	      }
 	  }

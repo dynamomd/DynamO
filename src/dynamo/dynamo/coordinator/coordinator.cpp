@@ -191,13 +191,13 @@ namespace dynamo {
     switch (vm["engine"].as<size_t>())
       {
       case (1):
-	_engine.set_ptr(new ESingleSimulation(vm, _threads));
+	_engine = std::tr1::shared_ptr<ESingleSimulation>(new ESingleSimulation(vm, _threads));
 	break;
       case (2):
-	_engine.set_ptr(new EReplicaExchangeSimulation(vm, _threads));
+	_engine = std::tr1::shared_ptr<EReplicaExchangeSimulation>(new EReplicaExchangeSimulation(vm, _threads));
 	break;
       case (3):
-	_engine.set_ptr(new ECompressingSimulation(vm, _threads));
+	_engine = std::tr1::shared_ptr<ECompressingSimulation>(new ECompressingSimulation(vm, _threads));
 	break;
       default:
 	M_throw() << vm["engine"].as<size_t>()

@@ -93,14 +93,14 @@ namespace dynamo {
   {
     ++ticksTaken;
   
-    BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& sp, Sim->dynamics.getSpecies())
       BOOST_FOREACH(const size_t& ID, *sp->getRange())
       for (size_t step(1); step < length; ++step)
 	speciesData[sp->getID()][step]
 	  += (posHistory[ID][step] - posHistory[ID][0]).nrm2();
   
-    BOOST_FOREACH(const magnet::ClonePtr<Topology>& topo, Sim->dynamics.getTopology())
-      BOOST_FOREACH(const magnet::ClonePtr<CRange>& range, topo->getMolecules())
+    BOOST_FOREACH(const std::tr1::shared_ptr<Topology>& topo, Sim->dynamics.getTopology())
+      BOOST_FOREACH(const std::tr1::shared_ptr<CRange>& range, topo->getMolecules())
       {
 	Vector  molCOM(0,0,0);
 	double molMass(0);
@@ -139,7 +139,7 @@ namespace dynamo {
       (*Sim->dynamics.getSystem("SystemTicker")).getPeriod()
       / Sim->dynamics.units().unitTime();
   
-    BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& sp, Sim->dynamics.getSpecies())
       {
 	XML << magnet::xml::tag("Species")
 	    << magnet::xml::attr("Name")
@@ -160,7 +160,7 @@ namespace dynamo {
     XML << magnet::xml::endtag("Particles")
 	<< magnet::xml::tag("Topology");
   
-    BOOST_FOREACH(const magnet::ClonePtr<Topology>& topo, 
+    BOOST_FOREACH(const std::tr1::shared_ptr<Topology>& topo, 
 		  Sim->dynamics.getTopology())
       {
 	XML << magnet::xml::tag("Structure")

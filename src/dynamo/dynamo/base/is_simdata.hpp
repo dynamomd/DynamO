@@ -32,10 +32,6 @@
 #include <vector>
 #include <list>
 
-namespace magnet {
-  template <class T> class ClonePtr;
-}
-
 namespace dynamo
 {  
   class Scheduler;
@@ -92,9 +88,9 @@ namespace dynamo
     template<class T>
     const T* getOutputPlugin() const
     {
-      BOOST_FOREACH(const magnet::ClonePtr<OutputPlugin>& plugin, outputPlugins)
-	if (dynamic_cast<const T*>(plugin.get_ptr()) != NULL)
-	  return dynamic_cast<const T*>(plugin.get_ptr());
+      BOOST_FOREACH(const std::tr1::shared_ptr<OutputPlugin>& plugin, outputPlugins)
+	if (std::tr1::dynamic_pointer_cast<T>(plugin))
+	  return dynamic_cast<const T*>(plugin.get());
       
       M_throw() << "The output plugin " << (typeid(T).name()) << " is required, please add it";
     }   
@@ -107,9 +103,9 @@ namespace dynamo
     template<class T>
     T* getOutputPlugin()
     {
-      BOOST_FOREACH(magnet::ClonePtr<OutputPlugin>& plugin, outputPlugins)
-	if (dynamic_cast<T*>(plugin.get_ptr()) != NULL)
-	  return dynamic_cast<T*>(plugin.get_ptr());
+      BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin>& plugin, outputPlugins)
+	if (std::tr1::dynamic_pointer_cast<T>(plugin))
+	  return dynamic_cast<T*>(plugin.get());
 
       M_throw() << "The output plugin " << (typeid(T).name()) << " is required, please add it";
     }    
@@ -200,7 +196,7 @@ namespace dynamo
 
     /*! \brief The collection of OutputPlugin's operating on this system.
      */
-    std::vector<magnet::ClonePtr<OutputPlugin> > outputPlugins; 
+    std::vector<std::tr1::shared_ptr<OutputPlugin> > outputPlugins; 
 
     /*! \brief The mean free time of the previous simulation run
      *

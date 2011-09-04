@@ -104,7 +104,7 @@ namespace dynamo {
       }
   
     double sysMass = 0;
-    BOOST_FOREACH(const magnet::ClonePtr<Species>& sp, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& sp, Sim->dynamics.getSpecies())
       BOOST_FOREACH(const size_t ID, *(sp->getRange()))
       sysMass += sp->getMass(ID);
 

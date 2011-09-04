@@ -32,8 +32,7 @@ namespace dynamo {
   void 
   OPBoundedQStats::initialise()
   {  
-    if (dynamic_cast<const CSSBoundedPQ<>*>
-	(Sim->ptrScheduler->getSorter().get_ptr()) == NULL)
+    if (!std::tr1::dynamic_pointer_cast<CSSBoundedPQ<> >(Sim->ptrScheduler->getSorter()))
       M_throw() << "Not a bounded queue sorter!";
 
   }

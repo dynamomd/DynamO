@@ -18,7 +18,7 @@
 #pragma once
 #include <dynamo/dynamics/ranges/1range.hpp>
 #include <dynamo/dynamics/ranges/2range.hpp>
-#include <magnet/cloneptr.hpp>
+#include <tr1/memory>
 
 namespace dynamo {
   class C2RAll:public C2Range
