@@ -134,6 +134,7 @@ void main()
 	{ 
 	  _cairoSurface.clear();
 	  _cairoContext.clear();
+	  _surface.deinit();
 	  _vertexData.deinit();
 	  _shader.deinit();
 	  _width = _height = 0;

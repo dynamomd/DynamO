@@ -51,8 +51,8 @@ namespace magnet {
 	    return;
 
 	  std::string olddata = _os.str();
-	  init(width, height, _alpha_testing);	  
-	  _os << olddata;
+	  CairoSurface::resize(width, height);
+	  (*this) << olddata;
 	}
 
 
