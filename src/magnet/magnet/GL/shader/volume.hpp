@@ -47,27 +47,45 @@ void main()
 	virtual std::string initFragmentShaderSource()
 	{
 	  return STRINGIFY( 
-uniform mat4 ViewMatrix;
 uniform float FocalLength;
 uniform vec2 WindowSize;
 uniform vec3 RayOrigin;
+
 //The light's position in model space (untransformed)
 uniform vec3 LightPosition;
 uniform sampler1D TransferTexture;
 uniform sampler2D DepthTexture;
 uniform sampler3D DataTexture;
-uniform float NearDist;
-uniform float FarDist;
 uniform float StepSize;
 uniform float DiffusiveLighting;
 uniform float SpecularLighting;
 uniform float DitherRay;
 
+uniform mat4 ProjectionMatrix;
+uniform mat4 ViewMatrix;
+
 //This function converts a value in a depth buffer back into a object-space distance
 float recalcZCoord(float zoverw)
 {
-  return (2.0 * NearDist * FarDist) 
-    / (FarDist + NearDist - (2.0 * zoverw - 1.0) * (FarDist - NearDist));
+  float A = ProjectionMatrix[2].z;
+  float B = ProjectionMatrix[3].z;
+  float zNearDist =  -B / (1.0 - A);
+  float zFarDist = B / (1.0 + A);
+  
+  return (2.0 * zNearDist * zFarDist) 
+    / (zFarDist + zNearDist - (2.0 * zoverw - 1.0) * (zFarDist - zNearDist));
+}
+
+float ztodepthbuf(float zoverw)
+{
+
+  float A = ProjectionMatrix[2].z;
+  float B = ProjectionMatrix[3].z;
+  float zNearDist =  -B / (1.0 - A);
+  float zFarDist = B / (1.0 + A);
+
+  return (2.0 * zNearDist * zFarDist) 
+    / (zFarDist + zNearDist - (2.0 * zoverw - 1.0) * (zFarDist - zNearDist));
 }
 
 void main()
@@ -104,7 +122,8 @@ void main()
 
   //Check what the screen depth is to make sure we don't sample the
   //volume past any standard GL objects
-  float depth = recalcZCoord(texture2D(DepthTexture, gl_FragCoord.xy / WindowSize.xy).r);
+  float bufferDepth = texture2D(DepthTexture, gl_FragCoord.xy / WindowSize.xy).r;
+  float depth = recalcZCoord(bufferDepth);
   if (tfar > depth) tfar = depth;
   
   //This value is used to ensure that changing the step size does not
@@ -151,12 +170,6 @@ void main()
       vec3 lightDir = normalize(LightPosition - rayPos);
       float lightNormDot = dot(normalize(norm), lightDir);
       
-      ////////////Normal viewer
-      //This allows you to visualize the normals of the system (albeit without direction)
-//      src.rgb = vec3(abs(dot(norm, vec3(1.0,0.0,0.0))),
-//		     abs(dot(norm, vec3(0.0,1.0,0.0))),
-//		     abs(dot(norm, vec3(0.0,0.0,1.0))));
-
       //Diffuse lighting
       float diffTerm =  max(0.5 * lightNormDot + 0.5, 0.5);
       //Quadratic falloff of the diffusive term
@@ -188,7 +201,7 @@ void main()
 	  //below)
 	  color.rgb /= color.a;
 	  //Set the alpha to one to make sure the pixel is not transparent
-	  color.a = 1.0; 
+	  color.a = 1.0;
 	  break;
 	}
     }

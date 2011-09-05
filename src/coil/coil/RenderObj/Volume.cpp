@@ -201,8 +201,6 @@ namespace coil {
     }
     _shader["RayOrigin"] = camera.getEyeLocation();
     _shader["DepthTexture"] = 0;
-    _shader["NearDist"] = camera.getZNear();
-    _shader["FarDist"] = camera.getZFar();
     _shader["DataTexture"] = 1;
     _shader["StepSize"] = _stepSizeVal;
     _shader["DiffusiveLighting"] = GLfloat(_diffusiveLighting->get_value());
