@@ -44,7 +44,7 @@ namespace magnet {
 	{
 	  CairoSurface::init(width, height, alpha_testing);
 	  _pango = Pango::Layout::create(_cairoContext);
-	  Pango::FontDescription font("monospace bold 12");
+	  Pango::FontDescription font("sans 12");
 	  _pango->set_font_description(font);
 	  
 	  _pos[0] = 0.5 * _width;
@@ -110,20 +110,31 @@ namespace magnet {
 	  _pango->add_to_cairo_context(_cairoContext);
 	  double topleft[2], bottomright[2];
 	  _cairoContext->get_stroke_extents(topleft[0], topleft[1], bottomright[0], bottomright[1]);
-	  topleft[0] -= padding; topleft[1] -= padding;
-	  bottomright[0] += 2 * padding; bottomright[1] += 2 * padding;
+	  topleft[0] += padding; topleft[1] += padding;
+	  bottomright[0] += 3 * padding; bottomright[1] += 3 * padding;
+
+	  _cairoContext->begin_new_path();	  
+	  _cairoContext->set_source_rgba(0, 0, 0, 1.0);	 
+	  _cairoContext->move_to(_pos[0] - 2 * padding, _pos[1]);
+	  _cairoContext->line_to(_pos[0] + 2 * padding, _pos[1]);
+	  _cairoContext->move_to(_pos[0], _pos[1] - 2 * padding);
+	  _cairoContext->line_to(_pos[0], _pos[1] + 2 * padding);
+	  _cairoContext->set_line_width(2.0);
+	  _cairoContext->stroke();
 
 	  //Make sure the box doesn't overlap the sides. The left hand
 	  //side takes priority over the right
 	  double dimensions[2] = {_width, _height};
 	  for (size_t i(0); i < 2; ++i)
 	    {
-	      //right
-	      topleft[i] += std::min(0.0, dimensions[i] - bottomright[i]);
-	      bottomright[i] += std::min(0.0, dimensions[i] - bottomright[i]);
-	      //left edge
-	      topleft[i] += std::max(-topleft[i], 0.0);
-	      bottomright[i] += std::max(-topleft[i], 0.0);
+	      //right/bottom edge
+	      double shift = std::min(0.0, dimensions[i] - bottomright[i]);
+	      topleft[i] += shift;
+	      bottomright[i] += shift;
+	      //left/top edge
+	      shift = std::max(-topleft[i], 0.0);
+	      topleft[i] += shift;
+	      bottomright[i] += shift;
 	    }
 
 	  //Background box
@@ -132,11 +143,11 @@ namespace magnet {
 				   bottomright[0] - topleft[0],
 				   bottomright[1] - topleft[1]);
 
-	  _cairoContext->set_source_rgba(0.2, 0.70588, 0.94118, 0.5);
+	  _cairoContext->set_source_rgba(0.5, 0.70588, 0.94118, 0.7);
 	  _cairoContext->fill();
 
 	  //Main text
-	  _cairoContext->set_source_rgba(0.0, 0.0, 0.0, 1);
+	  _cairoContext->set_source_rgba(0, 0, 0, 1);
 	  _cairoContext->move_to(topleft[0] + padding, topleft[1] + padding);
 	  _pango->show_in_cairo_context(_cairoContext);
 	}
