@@ -204,7 +204,7 @@ namespace magnet {
 	public:
 	  /*! \brief Constructor for Shader objects.
 	   */
-	  Shader(): _built(false) {}
+	  Shader(): _built(false), _context(NULL) {}
 
 	  //! \brief Destructor
 	  inline ~Shader() { deinit(); }
@@ -227,7 +227,9 @@ namespace magnet {
 	    _vertexShaderCode.clear();
 	    _fragmentShaderCode.clear();
 	    _geometryShaderCode.clear();
+	    _uniformCache.clear();
 	    _built = false;
+	    _context = NULL;
 	  }
 
 	  /*! \brief Attach the shader, so it is used for the next

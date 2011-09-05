@@ -45,11 +45,10 @@ namespace magnet {
 	  CairoSurface::init(width, height, alpha_testing);
 	  _pango = Pango::Layout::create(_cairoContext);
 	  Pango::FontDescription font("monospace bold 12");
-	  font.set_weight(Pango::WEIGHT_ULTRALIGHT); 
 	  _pango->set_font_description(font);
 	}
 
-	virtual void deinit() 
+	virtual void deinit()
 	{
 	  CairoSurface::deinit();
 	  clear();
@@ -62,7 +61,7 @@ namespace magnet {
 	    return;
 
 	  std::string olddata = _os.str();
-	  CairoSurface::resize(width, height);
+	  init(width, height, _alpha_testing);
 	  (*this) << olddata;
 	}
 
