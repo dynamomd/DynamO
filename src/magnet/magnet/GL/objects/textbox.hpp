@@ -46,6 +46,9 @@ namespace magnet {
 	  _pango = Pango::Layout::create(_cairoContext);
 	  Pango::FontDescription font("monospace bold 12");
 	  _pango->set_font_description(font);
+	  
+	  _pos[0] = 0.5 * _width;
+	  _pos[1] = 0.5 * _height;
 	}
 
 	virtual void deinit()
@@ -83,19 +86,27 @@ namespace magnet {
 	  CairoSurface::glRender(projection, modelview);
 	}
 
+	void setPosition(double x, double y)
+	{
+	  if ((x == _pos[0]) && (y == _pos[1])) return;
+	  _pos[0] = x;
+	  _pos[1] = y;
+	  _valid = false;
+	}
+
       protected:
 	std::ostringstream _os;
 	bool _valid;
 	Glib::RefPtr<Pango::Layout> _pango;
+	double _pos[2];
 
 	virtual void drawCommands()
 	{
-	  double x = 0.5 * _width, y = 0.5 * _height;
 	  const double padding = 5;
 	  _pango->set_text(_os.str());
 
 	  //Fetch the box dimensions
-	  _cairoContext->move_to(x,y);
+	  _cairoContext->move_to(_pos[0], _pos[1]);
 	  _pango->add_to_cairo_context(_cairoContext);
 	  double topleft[2], bottomright[2];
 	  _cairoContext->get_stroke_extents(topleft[0], topleft[1], bottomright[0], bottomright[1]);
@@ -121,7 +132,7 @@ namespace magnet {
 				   bottomright[0] - topleft[0],
 				   bottomright[1] - topleft[1]);
 
-	  _cairoContext->set_source_rgba(0, 0.70588, 0.94118, 0.3);
+	  _cairoContext->set_source_rgba(0.2, 0.70588, 0.94118, 0.5);
 	  _cairoContext->fill();
 
 	  //Main text

@@ -17,7 +17,6 @@
 
 #include <coil/RenderObj/DataSet.hpp>
 #include <coil/RenderObj/Glyphs.hpp>
-#include <iostream>
 
 extern const guint8 DataSet_Icon[];
 extern const size_t DataSet_Icon_size;
@@ -295,10 +294,6 @@ namespace coil {
     _selectedGlyphLocation = loc;
     _overlay.clear();
     _overlay << "Glyph ID: " << _selectedGlyph;
-    _overlay << "\n Position: " 
-	     << loc[0] << " "
-	     << loc[1] << " "
-	     << loc[2];
     
     for (const_iterator iPtr = begin(); iPtr != end(); ++iPtr)
       {
@@ -316,6 +311,15 @@ namespace coil {
     if (_selectedGlyph >= 0)
       {
 	_overlay.resize(camera.getWidth(), camera.getHeight());
+	std::tr1::array<GLfloat, 4> vec = {{_selectedGlyphLocation[0],
+					    _selectedGlyphLocation[1],
+					    _selectedGlyphLocation[2],
+					    1.0}};
+	vec = camera.getViewMatrix() * vec;
+	vec = camera.getProjectionMatrix() * vec;
+	
+	_overlay.setPosition((0.5 + 0.5 * vec[0] / vec[3]) * camera.getWidth(), 
+			     (0.5 - 0.5 * vec[1] / vec[3]) * camera.getHeight());
 	_overlay.glRender();
       }
   }

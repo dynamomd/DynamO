@@ -35,6 +35,7 @@
 **** TODO Move the histogram class into magnet.
 **** TODO Rewrite the range classes.
 **** TODO Move the minmax heap into magnet.
+**** TODO HUD text showing the time.
 *** DynamO 1.2
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
 **** DONE *BUGFIX* Fixed the widespread improper use of the XML test functions, causing errors instead of warnings.
