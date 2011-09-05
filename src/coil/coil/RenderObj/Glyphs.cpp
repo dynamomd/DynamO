@@ -308,7 +308,12 @@ namespace coil {
   Glyphs::finishPicking(uint32_t& offset, const uint32_t val)
   {
     bool picked = (val >= offset) && ((val - offset) < _N);
-    if (picked) _ds.glyphClicked(val - offset);
+    if (picked)
+      {
+	std::vector<GLfloat> data = _positionSel->getValue(val - offset);
+	data.resize(3, 0);
+	_ds.glyphClicked(val - offset, Vector(data[0], data[1], data[2]));
+      }
     offset += _N;
   }
 }

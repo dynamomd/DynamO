@@ -16,13 +16,3 @@
 */
 
 #include <dynamo/dynamics/globals/neighbourList.hpp>
-
-namespace dynamo {
-  GNeighbourList::GNeighbourList(const GNeighbourList& nb):
-    Global(nb),
-    isUsedInScheduler(false),
-    lambda(nb.lambda)
-  {
-    dout << "On copy this class erases callbacks" << std::endl;
-  }
-}

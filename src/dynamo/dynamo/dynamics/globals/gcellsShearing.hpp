@@ -31,9 +31,6 @@ namespace dynamo {
 
     virtual void initialise(size_t);
   
-    virtual Global* Clone() const 
-    { return new GCellsShearing(*this); }
-  
     virtual GlobalEvent getEvent(const Particle &) const;
 
     virtual void runEvent(const Particle&, const double) const;

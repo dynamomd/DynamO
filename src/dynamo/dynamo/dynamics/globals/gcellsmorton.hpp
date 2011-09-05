@@ -30,8 +30,6 @@ namespace dynamo {
 
     virtual ~GCells() {}
 
-    virtual Global* Clone() const { return new GCells(*this); }
-
     virtual GlobalEvent getEvent(const Particle &) const;
 
     virtual void runEvent(const Particle&, const double) const;
@@ -59,6 +57,7 @@ namespace dynamo {
     virtual double getMaxInteractionLength() const;
 
   protected:
+    GCells(const GCells&);
 
     struct partCEntry
     {

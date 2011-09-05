@@ -53,11 +53,6 @@ namespace dynamo {
      */
     bool isInteraction(const Particle&) const;
 
-    /*! \brief Function for typesafe copying derived classes from a
-     * Global pointer.
-     */
-    virtual Global* Clone() const = 0;
-
     /*! \brief Returns the next calculated event for the passed
      * particle.
      */

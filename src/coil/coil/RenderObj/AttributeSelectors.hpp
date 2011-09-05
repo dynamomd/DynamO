@@ -115,6 +115,22 @@ namespace coil {
 	}
     }
 
+    virtual std::vector<GLfloat> getValue(size_t id)
+    {
+      Gtk::TreeModel::iterator iter = _comboBox.get_active();
+      if (!iter) return std::vector<GLfloat>();
+
+      std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
+      if (!ptr) return std::vector<GLfloat>();
+      
+      std::vector<GLfloat> retval(ptr->components());
+
+      for (size_t i(0); i < ptr->components(); ++i)
+	retval[i] = (*ptr)[id * ptr->components() + i];
+      
+      return retval;
+    }
+
     ModelColumns _modelColumns;
     Gtk::ComboBox _comboBox;
     Gtk::ComboBoxText _componentSelect;

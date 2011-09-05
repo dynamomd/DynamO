@@ -289,25 +289,34 @@ namespace coil {
 
   
   void 
-  DataSet::glyphClicked(size_t id)
+  DataSet::glyphClicked(size_t id, Vector loc)
   {
+    _selectedGlyph = id;
+    _selectedGlyphLocation = loc;
     _overlay.clear();
-    _overlay << "Glyph ID: " << id;
+    _overlay << "Glyph ID: " << _selectedGlyph;
+    _overlay << "\n Position: " 
+	     << loc[0] << " "
+	     << loc[1] << " "
+	     << loc[2];
     
     for (const_iterator iPtr = begin(); iPtr != end(); ++iPtr)
       {
 	size_t comps = iPtr->second->components();
 	_overlay << "\n" << iPtr->first << ":"; 
-
+	
 	for (size_t i(0); i < comps; ++i)
-	  _overlay << " " << (*(iPtr->second))[id * comps + i];
+	  _overlay << " " << (*(iPtr->second))[_selectedGlyph * comps + i];
       }
   }
 
   void 
   DataSet::interfaceRender(const magnet::GL::Camera& camera)
   {
-    _overlay.resize(camera.getWidth(), camera.getHeight());
-    _overlay.glRender();
+    if (_selectedGlyph >= 0)
+      {
+	_overlay.resize(camera.getWidth(), camera.getHeight());
+	_overlay.glRender();
+      }
   }
 }

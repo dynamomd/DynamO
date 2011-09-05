@@ -83,11 +83,10 @@ namespace dynamo {
 
   public:
     GNeighbourList(dynamo::SimData* a, const char *b): 
-      Global(a,b),
+      Global(a, b),
+      isUsedInScheduler(false),
       lambda(0.9)
     {}
-
-    GNeighbourList(const GNeighbourList&);
 
     virtual void getParticleNeighbourhood(const Particle&, 
 					  const nbHoodFunc&) const = 0;
@@ -199,6 +198,8 @@ namespace dynamo {
     }
   
   protected:
+    GNeighbourList(const GNeighbourList&);
+
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
   

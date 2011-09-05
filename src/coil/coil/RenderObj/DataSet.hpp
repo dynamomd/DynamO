@@ -55,7 +55,9 @@ namespace coil {
     DataSet(std::string name, size_t N): 
       RenderObj(name), 
       _context(NULL),
-      _N(N) {}
+      _N(N),
+      _selectedGlyph(-1)
+    {}
     
     virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
 
@@ -140,13 +142,14 @@ namespace coil {
 
     virtual void finishPicking(uint32_t& offset, const uint32_t val)
     {
+      _selectedGlyph = -1;
       for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
 	   iPtr != _children.end(); ++iPtr)
 	if ((*iPtr)->visible())
 	  (*iPtr)->finishPicking(offset, val);
     }
 
-    void glyphClicked(size_t id);
+    void glyphClicked(size_t id, Vector loc);
 
     virtual void interfaceRender(const magnet::GL::Camera&);
 
@@ -163,6 +166,8 @@ namespace coil {
     size_t _N;
     std::vector<std::tr1::shared_ptr<DataSetChild> > _children;
     magnet::GL::objects::TextSurface _overlay;
+    int _selectedGlyph;
+    Vector _selectedGlyphLocation;
 
     void initGtk();
     void rebuildGui();
