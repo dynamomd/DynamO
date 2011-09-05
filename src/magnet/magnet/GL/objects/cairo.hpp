@@ -164,7 +164,7 @@ void main()
 	 * description for more general information.
 	 *
 	 */
-	inline void init(size_t width, size_t height, size_t alpha_testing = 0)
+	virtual void init(size_t width, size_t height, size_t alpha_testing = 0)
 	{
 	  deinit();
 	  _alpha_testing = alpha_testing;

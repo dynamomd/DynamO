@@ -17,6 +17,7 @@
 #pragma once
 #include <magnet/GL/objects/cairo.hpp>
 #include <sstream>
+#include <pangomm.h>
 
 namespace magnet {
   namespace GL {
@@ -39,10 +40,20 @@ namespace magnet {
 	  return *this;
 	}
 
+	virtual void init(size_t width, size_t height, size_t alpha_testing = 0)
+	{
+	  CairoSurface::init(width, height, alpha_testing);
+	  _pango = Pango::Layout::create(_cairoContext);
+	  Pango::FontDescription font("monospace bold 12");
+	  font.set_weight(Pango::WEIGHT_ULTRALIGHT); 
+	  _pango->set_font_description(font);
+	}
+
 	virtual void deinit() 
 	{
 	  CairoSurface::deinit();
 	  clear();
+	  _pango.clear();
 	}
 
 	virtual void resize(size_t width, size_t height)
@@ -76,15 +87,31 @@ namespace magnet {
       protected:
 	std::ostringstream _os;
 	bool _valid;
+	Glib::RefPtr<Pango::Layout> _pango;
 
 	virtual void drawCommands()
 	{
-	  _cairoContext->scale(_width, _height);
-	  _cairoContext->set_font_size(0.01);
-	  _cairoContext->set_source_rgba(1.0, 0.1, 0.1, 1);
-	  _cairoContext->move_to(0.5, 0.5);
-	  std::string ostr = _os.str();
-	  _cairoContext->show_text(ostr.c_str());
+	  double x = 0.5 * _width, y = 0.5 * _height;
+	  const double padding = 5;
+	  _pango->set_text(_os.str());
+
+	  //Surrounding box
+	  _cairoContext->move_to(x,y);
+	  _pango->add_to_cairo_context(_cairoContext);
+	  double topleft[2], bottomright[2];
+	  _cairoContext->get_stroke_extents(topleft[0], topleft[1], bottomright[0], bottomright[1]);
+	  _cairoContext->begin_new_path();	  
+	  _cairoContext->rectangle(topleft[0] - padding, topleft[1] - padding, 
+				   bottomright[0] - topleft[0] + 2 * padding,
+				   bottomright[1] - topleft[1] + 2 * padding);
+
+	  _cairoContext->set_source_rgba(0, 0.70588, 0.94118, 0.3);
+	  _cairoContext->fill();
+
+	  //Main text
+	  _cairoContext->set_source_rgba(0.0, 0.0, 0.0, 1);
+	  _cairoContext->move_to(x,y);
+	  _pango->show_in_cairo_context(_cairoContext);
 	}
       };
     }
