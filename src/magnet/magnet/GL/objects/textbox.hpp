@@ -115,10 +115,14 @@ namespace magnet {
 
 	  _cairoContext->begin_new_path();	  
 	  _cairoContext->set_source_rgba(0, 0, 0, 1.0);	 
-	  _cairoContext->move_to(_pos[0] - 2 * padding, _pos[1]);
-	  _cairoContext->line_to(_pos[0] + 2 * padding, _pos[1]);
-	  _cairoContext->move_to(_pos[0], _pos[1] - 2 * padding);
-	  _cairoContext->line_to(_pos[0], _pos[1] + 2 * padding);
+	  _cairoContext->move_to(_pos[0] - 2 * padding, _pos[1] + 0.5 * padding);
+	  _cairoContext->line_to(_pos[0] - 0.5 * padding, _pos[1] + 0.5 * padding);
+	  _cairoContext->line_to(_pos[0] - 0.5 * padding, _pos[1] + 2 * padding);
+
+	  _cairoContext->move_to(_pos[0] + 0.5 * padding, _pos[1] - 2   * padding);
+	  _cairoContext->line_to(_pos[0] + 0.5 * padding, _pos[1] - 0.5 * padding);
+	  _cairoContext->line_to(_pos[0] + 2   * padding, _pos[1] - 0.5 * padding);
+
 	  _cairoContext->set_line_width(2.0);
 	  _cairoContext->stroke();
 

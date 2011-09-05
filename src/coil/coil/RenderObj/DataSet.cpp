@@ -292,16 +292,15 @@ namespace coil {
   {
     _selectedGlyph = id;
     _selectedGlyphLocation = loc;
-    _overlay.clear();
-    _overlay << "Glyph ID: " << _selectedGlyph;
-    
+    _overlay.clear();    
     for (const_iterator iPtr = begin(); iPtr != end(); ++iPtr)
       {
 	size_t comps = iPtr->second->components();
-	_overlay << "\n" << iPtr->first << ":"; 
+	_overlay << iPtr->first << ":"; 
 	
 	for (size_t i(0); i < comps; ++i)
 	  _overlay << " " << (*(iPtr->second))[_selectedGlyph * comps + i];
+	_overlay << "\n";
       }
   }
 
