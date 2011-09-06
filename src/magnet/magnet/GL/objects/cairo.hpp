@@ -21,26 +21,27 @@
 #include <cairommconfig.h>
 #include <cairomm/context.h>
 #include <cairomm/surface.h>
+#include <ctime>
 
 namespace magnet {
   namespace GL {
     namespace objects {
       /*! \brief A quad textured with a 2D image generated from cairo
-       * drawing commands.
-       *
-       * This class is used to form a base class for rendering cairo
-       * surfaces into an OpenGL scene.
-       *
-       * It also provides an alpha-tested magnification routine and
-       * corresponding shader to help fake "vectorised" bitmap
-       * graphics. The technique is briefly described in the paper
-       * "Improved Alpha-Tested Magnification for math::Vector Textures and
-       * Special Effects," by Chris Green from Valve.
+        drawing commands.
+       
+        This class is used to form a base class for rendering cairo
+        surfaces into an OpenGL scene.
+       
+        It also provides an alpha-tested magnification routine and
+        corresponding shader to help fake "vectorised" bitmap
+        graphics. The technique is briefly described in the paper
+        "Improved Alpha-Tested Magnification for math::Vector Textures
+        and Special Effects," by Chris Green from Valve.
        */
       class CairoSurface
       {
 	/*! \brief An alpha-testing shader for painting Cario
-	 * generated textures.
+	  generated textures.
 	 */
 	class CairoShader: public GL::shader::detail::Shader
 	{
@@ -49,15 +50,16 @@ namespace magnet {
 	  CairoShader(): _alpha_testing(0) {}
 
 	  /*! \brief Builds the shader and sets the draw mode.
-	   *
-	   * \param alpha_testing Controls the mode of the shader,
-	   * current supported modes are:
-	   *
-	   * \li 0 : Standard texturing of the quad with the passed texture.
-	   *
-	   * \li 1 : Use the red channel of the texture to perform
-	   * alpha testing for a value of r 0.5. The color of the
-	   * object is taken from the GL state.
+	   
+	    \param alpha_testing Controls the mode of the shader,
+	    current supported modes are:
+	   
+	    \li 0 : Standard texturing of the quad with the passed
+	    texture.
+	   
+	    \li 1 : Use the red channel of the texture to perform
+	    alpha testing for a value of r 0.5. The color of the
+	    object is taken from the GL state.
 	   */
 	  void build(size_t alpha_testing)
 	  {
@@ -152,18 +154,19 @@ void main()
 	}
 
 	/*! \brief Sets up the vertex buffer objects for the quad and
-	 * the Cairo backend for rendering the texture.
-	 *
-	 * \param width The width of the final texture.
-	 *
-	 * \param height The height of the final texture.
-	 *
-	 * \param alpha_testing If alpha_testing > 0, this enables the alpha-tested
-	 * texture generation and sets the relative pixel size of the
-	 * Cario scene. For a value of 0, this class simply renders a
-	 * cairo scene and pastes it into an OpenGL texture. See the class
-	 * description for more general information.
-	 *
+	  the Cairo backend for rendering the texture.
+	 
+	  \param width The width of the final texture.
+	 
+	  \param height The height of the final texture.
+	 
+	  \param alpha_testing If alpha_testing > 0, this enables the
+	  alpha-tested texture generation and sets the relative pixel
+	  size of the Cario scene. For a value of 0, this class simply
+	  renders a cairo scene and pastes it into an OpenGL
+	  texture. See the class description for more general
+	  information.
+	 
 	 */
 	virtual void init(size_t width, size_t height, size_t alpha_testing = 0)
 	{
@@ -245,10 +248,11 @@ void main()
 	}
 	
 	/*! \brief Renders the Cairo scene.
-	 *
-	 * The position, orientation and size of the scene can be
-	 * controlled through the \ref Shader instance attributes.  Or
-	 * alternately through the passed modelview and projection matrix.
+	 
+	  The position, orientation and size of the scene can be
+	  controlled through the \ref Shader instance attributes.  Or
+	  alternately through the passed modelview and projection
+	  matrix.
 	 */
 	inline void glRender(const GLMatrix& projection = GLMatrix::identity(),
 			     const GLMatrix& modelview = GLMatrix::identity())
@@ -265,18 +269,22 @@ void main()
       protected:
 	virtual void drawCommands() = 0;
 
-	void drawCursor(double x, double y, double size)
+	void drawCursor(double x, double y, double size, double spins_per_sec = 0.3)
 	{
-	  _cairoContext->move_to(x - 2 * size, y + 0.5 * size);
-	  _cairoContext->line_to(x - 0.5 * size, y + 0.5 * size);
-	  _cairoContext->line_to(x - 0.5 * size, y + 2 * size);
-	  
-	  _cairoContext->move_to(x + 0.5 * size, y - 2   * size);
-	  _cairoContext->line_to(x + 0.5 * size, y - 0.5 * size);
-	  _cairoContext->line_to(x + 2   * size, y - 0.5 * size);
+	  std::clock_t time = std::clock();
+	  _cairoContext->save();
+	  _cairoContext->translate(x, y);
+	  _cairoContext->rotate(2 * M_PI * spins_per_sec * time / double(CLOCKS_PER_SEC));
+	  _cairoContext->move_to(- 2   * size, + 0.5 * size);
+	  _cairoContext->line_to(- 0.5 * size, + 0.5 * size);
+	  _cairoContext->line_to(- 0.5 * size, + 2   * size);	  
+	  _cairoContext->move_to(+ 0.5 * size, - 2   * size);
+	  _cairoContext->line_to(+ 0.5 * size, - 0.5 * size);
+	  _cairoContext->line_to(+ 2   * size, - 0.5 * size);
+	  _cairoContext->restore();
 	}
 
-	void textBox(double x, double y, std::string text, double padding = 5)
+	void drawTextBox(double x, double y, std::string text, double padding = 5)
 	{
 	  _pango->set_text(text.c_str());
 	  //Fetch the text dimensions, use pango's built in extents

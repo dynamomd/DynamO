@@ -39,24 +39,25 @@ namespace magnet {
     template<class T> class Buffer;
 
     /*! \brief Class representing an OpenGL context (and its
-        associated OpenCL context if required).
-     *
-     * The purpose of this class is to track the state of an OpenGL
-     * context, allowing queries as to the currently bound shader,
-     * textures and so on.
-     *
-     * This class also establishes the corresponding CL context for
-     * the GL context.
-     *
+      associated OpenCL context if required).
+	
+      The purpose of this class is to track the state of an OpenGL
+      context, allowing queries as to the currently bound shader,
+      textures and so on. It also tracks the GL state to minimise the
+      number of GL state changes and redundant state changes are
+      ignored.
+     
+      This class also establishes the corresponding OpenCL context for
+      the GL context on access.
      */
     class Context
     {
     public:
 
       /*! \brief Method to fetch the current OpenGL context.
-       *
-       * This function is used to make sure that whenever the context
-       * is requested, the same copy is always returned.
+       
+        This function is used to make sure that whenever the context
+        is requested, the same copy is always returned.
        */
       inline static Context& getContext()
       {
@@ -102,9 +103,9 @@ namespace magnet {
       }
 
       /*! \brief Sets the value of a vertex attribute, if no attribute
-       * array is bound.
-       *
-       * This function only sets the state if it has been updated.
+        array is bound.
+       
+        This function only sets the state if it has been updated.
        */
       inline void setAttribute(GLuint idx, GLfloat x = 0, GLfloat y = 0, GLfloat z = 0, GLfloat w = 0)
       {
@@ -130,9 +131,9 @@ namespace magnet {
       }
       
       /*! \brief Sets the divisor of a vertex attribute.
-       *
-       * The divisor is used in instancing to set the rate at which
-       * vertex attributes are incremented.
+       
+        The divisor is used in instancing to set the rate at which
+        vertex attributes are incremented.
        */
       inline void setAttributeDivisor(GLuint idx, GLuint divisor)
       {
@@ -145,41 +146,47 @@ namespace magnet {
       }
 
       /*! \brief The index of the automatically-indexed position
-       * vertex attribute.  
-       *
-       * This index for the vertex position is used in the OpenGL
-       * standard.
-       * \sa detail::Shader::build()
+        vertex attribute.
+       
+        This index for the vertex position is set in the OpenGL
+        standard.
+
+        \sa detail::Shader::build()
        */
       static const GLuint vertexPositionAttrIndex = 0;
 
-      /*! \brief The index of the automatically-indexed position
-       * color attribute.  
-       * \sa detail::Shader::build()
+      /*! \brief The index of the automatically-indexed position color
+        attribute.
+
+        \sa detail::Shader::build()
        */
       static const GLuint vertexColorAttrIndex = 1;
 
       /*! \brief The index of the automatically-indexed normal vertex
-       * attribute.  
-       * \sa detail::Shader::build()
+        attribute.
+	
+	\sa detail::Shader::build()
        */
       static const GLuint vertexNormalAttrIndex = 2;
 
-      /*! \brief The index of the automatically-indexed instance origin
-       * vertex attribute.  
-       * \sa detail::Shader::build()
+      /*! \brief The index of the automatically-indexed instance
+        origin vertex attribute.
+
+        \sa detail::Shader::build()
        */
       static const GLuint instanceOriginAttrIndex = 3;
 
       /*! \brief The index of the automatically-indexed instance
-       * orientation vertex attribute.
-       * \sa detail::Shader::build()
+        orientation vertex attribute.
+       
+	\sa detail::Shader::build()
        */
       static const GLuint instanceOrientationAttrIndex = 4;
 
-      /*! \brief The index of the automatically-indexed instance
-       * scale vertex attribute.
-       * \sa detail::Shader::build()
+      /*! \brief The index of the automatically-indexed instance scale
+        vertex attribute.
+       
+	\sa detail::Shader::build()
        */
       static const GLuint instanceScaleAttrIndex = 5;
 
@@ -190,21 +197,21 @@ namespace magnet {
       static const GLuint vertexTexCoordAttrIndex = 6;
 
       /*! \brief Convenience function to set the vertex attribute
-       * representing the color in a shader.
-       *
-       * This uses the \ref vertexColorAttrIndex value for the index
-       * of the color attribute.
+        representing the color in a shader.
+       
+        This uses the \ref vertexColorAttrIndex value for the index of
+        the color attribute.
        */
       inline void color(GLfloat r = 0, GLfloat g = 0, GLfloat b = 0, GLfloat a = 1) 
       { setAttribute(vertexColorAttrIndex, r, g, b, a); }
 
       /*! \brief Convenience function to set the instance rotation.
-       *
-       * This uses the \ref vertexColorAttrIndex value for the index
-       * of the color attribute.
-       *
-       * \param angle The rotation angle in radians.
-       * \param axis The rotation axis.
+       
+        This uses the \ref vertexColorAttrIndex value for the index of
+        the color attribute.
+       
+        \param angle The rotation angle in radians.
+        \param axis The rotation axis.
        */
       inline void rotation(GLfloat angle, math::Vector axis) 
       {
@@ -214,7 +221,7 @@ namespace magnet {
       }
 
       /*! \brief Resets the vertex attributes used in instancing to
-       * avoid unintended transformations of the instanced object.
+        avoid unintended transformations of the instanced object.
        */
       inline void resetInstanceTransform()
       {
@@ -244,10 +251,10 @@ namespace magnet {
       /**@}*/
 
       /*! \brief Returns the currently attached shader program.
-       *
-       * The currently attached shader program is managed by the \ref
-       * Shader classes \ref Shader::attach() and \ref
-       * Shader::detach() functions.
+       
+        The currently attached shader program is managed by the \ref
+        Shader classes \ref Shader::attach() and \ref Shader::detach()
+        functions.
        */
       inline shader::detail::Shader& getAttachedShader()
       {
@@ -258,11 +265,11 @@ namespace magnet {
       }
       
       /*! \brief Sets the current viewport.
-       *
-       * \param x The coordinate of the leftmost pixel in the viewport.
-       * \param y The coordinate of the lowest pixel in the viewport. 
-       * \param width The width of the viewport in pixels. 
-       * \param height The height of the viewport in pixels. 
+       
+        \param x The coordinate of the leftmost pixel in the viewport.
+        \param y The coordinate of the lowest pixel in the viewport. 
+        \param width The width of the viewport in pixels. 
+        \param height The height of the viewport in pixels. 
        */
       inline void setViewport(GLint x, GLint y, GLsizei width, GLsizei height)
       {
@@ -281,37 +288,51 @@ namespace magnet {
       }
       
       /*! \brief Returns the current viewport state.
-       *
-       * The returned array contains, in order, the leftmost pixel,
-       * the lowest pixel, the width and the height of the viewport.
+       
+        The returned array contains, in order, the leftmost pixel, the
+        lowest pixel, the width and the height of the viewport.
        */
       inline const std::tr1::array<GLint, 4>& getViewport() const
       { return _viewPortState; }
 
       /*! \brief Swaps the front and back buffers.
-       *
-       * This command performs a glutSwapBuffers() and then executes
-       * any tasks left in the OpenGL task list. These tasks might
-       * have arisen from host program communication or some other
-       * asynchronous communication.
+       
+        This command performs a glutSwapBuffers() and then executes
+        any tasks left in the OpenGL task list. These tasks might have
+        arisen from host program communication or some other
+        asynchronous communication.
        */
       inline void swapBuffers()
       {
 	glutSwapBuffers();
 	_glTasks.drainQueue();
+	++_frameCounter;
       }
 
       /*! \brief Add a task to be performed after the next \ref swapBuffers.
-       *
-       * This function is used to allow other threads to instruct the
-       * OpenGL render thread to perform some task. This is usually
-       * used when a simulation thread wishes to update some data used
-       * for rendering.
+       
+        This function is used to allow other threads to instruct the
+        OpenGL render thread to perform some task. This is usually
+        used when a simulation thread wishes to update some data used
+        for rendering.
        */
       inline void queueTask(function::Task* threadfunc)
       { _glTasks.queueTask(threadfunc); }
 
+      /*! \brief The total number of \ref swapBuffers() calls.
+	
+	This function should give a the count of the number of frames
+	drawn to the screen, assuming \ref swapBuffers() is used to
+	paint the back buffer to the screen.
+       */
+      inline size_t getFrameCount() const 
+      { return _frameCounter; }
+
     protected:
+      /*! \brief A counter of the number of calls to \ref
+          swapBuffers(). 
+      */
+      size_t _frameCounter;
       //! \brief The OpenCL platform for this GL context.
       cl::Platform _clplatform;
       //! \brief The OpenCL context for this GL context.
@@ -334,14 +355,14 @@ namespace magnet {
       std::tr1::array<GLint, 4> _viewPortState;
 
       /*! \brief A queue of tasks to complete in the GL thread.
-       *
-       * These tasks are issued after the next \ref swapBuffers
-       * function call.
+	
+        These tasks are issued after the next \ref swapBuffers
+        function call.
        */
       magnet::thread::TaskQueue _glTasks;
 
       /*! \brief If a matching OpenCL context does not exist, it will
-       * create one from the current OpenGL context.
+        create one from the current OpenGL context.
        */
       inline void initCL()
       {
@@ -353,7 +374,7 @@ namespace magnet {
       }
 
       /*! \brief Initializes an OpenCL context, platform and device
-       * from the current OpenGL context.
+        from the current OpenGL context.
        */
       inline void initOpenCLContext()
       {
@@ -366,10 +387,10 @@ namespace magnet {
       }
 
       /*! \brief Attempts to Initializes an OpenCL context given a
-       * specific device type.
-       *
-       * \returns True if a matching device and context could be
-       * constructed.
+        specific device type.
+       
+        \returns True if a matching device and context could be
+        constructed.
        */
       inline bool initOpenCLContextType(cl_device_type devType)
       {
@@ -414,18 +435,19 @@ namespace magnet {
       }
 
       /*! \fn bool getCLGLContext(cl::Platform clplatform, cl::Device dev)
-       * 
-       * \brief This is a system specific command to build a OpenCL
-       * context from the current OpenGL context.
-       *
-       * \returns True if a context could be created for the passed
-       * device and platform.
+        
+        \brief This is a system specific command to build a OpenCL
+        context from the current OpenGL context.
+       
+        \returns True if a context could be created for the passed
+        device and platform.
        */
 
       /*! \fn ContextKey getCurrentContextKey()
-       * 
-       * \brief This is a system-specific command to fetch the system-specific
-       * OpenGL-context-handle of the current GL context.
+        
+        \brief This is a system-specific command to fetch the
+        system-specific OpenGL-context-handle of the current GL
+        context.
        */
 
       ////////////////X11 specific bindings////////////////
@@ -453,6 +475,7 @@ namespace magnet {
        */
       inline void init()
       {
+	_frameCounter = 0;
 	_context = getCurrentContextKey();
 
 	std::cout << "GL-Context " << _context << ": Created a new OpenGL context" << std::endl;	

@@ -102,7 +102,7 @@ namespace magnet {
 	  _cairoContext->set_source_rgba(0, 0, 0, 1);
 	  _cairoContext->stroke();
 
-	  textBox(_pos[0] + padding, _pos[1] + padding, _os.str(), padding);
+	  drawTextBox(_pos[0] + padding, _pos[1] + padding, _os.str(), padding);
 	}
       };
     }
