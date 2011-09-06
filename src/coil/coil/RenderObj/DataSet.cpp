@@ -195,9 +195,6 @@ namespace coil {
     {
       _positionSel.reset(new AttributeSelector(magnet::GL::Context::instanceOriginAttrIndex,
 					       false));
-      
-      _positionSel->buildEntries("Position Attribute:", *this, 3, 3, Attribute::COORDINATE, 0,
-				 Attribute::DEFAULT_GLYPH_POSITION);
       _gtkOptList->pack_start(*_positionSel, false, false);
     }
 
@@ -273,7 +270,9 @@ namespace coil {
 	    (*iter)[_attrcolumns->min] = "N/A";
 	    (*iter)[_attrcolumns->max] = "N/A";
 	  }
-      }
+      }      
+    _positionSel->buildEntries("Position Attribute:", *this, 3, 3, Attribute::COORDINATE, 0,
+			       Attribute::DEFAULT_GLYPH_POSITION);
   }
 
   void
@@ -328,6 +327,7 @@ namespace coil {
 	      _overlay << "\n";
 	  }
 
+	//Render the overlay
 	_overlay.glRender();
       }
   }
