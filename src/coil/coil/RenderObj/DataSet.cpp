@@ -192,6 +192,15 @@ namespace coil {
       win->show();
     }
 
+    {
+      _positionSel.reset(new AttributeSelector(magnet::GL::Context::instanceOriginAttrIndex,
+					       false));
+      
+      _positionSel->buildEntries("Position Attribute:", *this, 3, 3, Attribute::COORDINATE, 0,
+				 Attribute::DEFAULT_GLYPH_POSITION);
+      _gtkOptList->pack_start(*_positionSel, false, false);
+    }
+
     _gtkOptList->show();
     rebuildGui();
   }
@@ -270,6 +279,7 @@ namespace coil {
   void
   DataSet::deinit()
   {
+    _positionSel.reset();
     _gtkOptList.reset();
     _attrcolumns.reset();
     _attrview.reset();
@@ -286,30 +296,26 @@ namespace coil {
     RenderObj::deinit();
   }
 
-  
-  void 
-  DataSet::glyphClicked(size_t id, Vector loc)
-  {
-    _selectedGlyph = id;
-    _selectedGlyphLocation = loc;
-  }
-
   void 
   DataSet::interfaceRender(const magnet::GL::Camera& camera)
   {
     if (_selectedGlyph >= 0)
       {
+	//Resize the overlay if needed
 	_overlay.resize(camera.getWidth(), camera.getHeight());
-	std::tr1::array<GLfloat, 4> vec = {{_selectedGlyphLocation[0],
-					    _selectedGlyphLocation[1],
-					    _selectedGlyphLocation[2],
-					    1.0}};
-	vec = camera.getViewMatrix() * vec;
-	vec = camera.getProjectionMatrix() * vec;
-	
-	_overlay.setPosition((0.5 + 0.5 * vec[0] / vec[3]) * camera.getWidth(), 
-			     (0.5 - 0.5 * vec[1] / vec[3]) * camera.getHeight());
 
+	{ //Glyph position calculation
+	  std::vector<GLfloat> pos = _positionSel->getValue(_selectedGlyph);
+	  pos.resize(3, 0);
+	  std::tr1::array<GLfloat, 4> vec = {{pos[0], pos[1], pos[2], 1.0}};
+	  vec = camera.getViewMatrix() * vec;
+	  vec = camera.getProjectionMatrix() * vec;
+	
+	  _overlay.setPosition((0.5 + 0.5 * vec[0] / vec[3]) * camera.getWidth(), 
+			       (0.5 - 0.5 * vec[1] / vec[3]) * camera.getHeight());
+	}
+
+	//Generate the text for the overlay
 	_overlay.clear();    
 	for (const_iterator iPtr = begin(); iPtr != end();)
 	  {
@@ -325,4 +331,8 @@ namespace coil {
 	_overlay.glRender();
       }
   }
+  
+  void 
+  DataSet::bindPositionAttribute() const
+  { _positionSel->bindAttribute(); }
 }

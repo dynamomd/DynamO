@@ -59,7 +59,6 @@ namespace coil {
     virtual std::vector<GLuint>  getPrimitiveIndicies();
 
     std::auto_ptr<Gtk::VBox> _gtkOptList;
-    std::auto_ptr<AttributeSelector> _positionSel;
     std::auto_ptr<AttributeSelector> _scaleSel; 
     std::auto_ptr<AttributeColorSelector> _colorSel;
     std::auto_ptr<AttributeOrientationSelector> _orientSel;

@@ -34,7 +34,7 @@ namespace coil {
     if (!_primitiveVertices.size()) return;
 
     _primitiveVertices.getContext().resetInstanceTransform();
-    _positionSel->bindAttribute();
+    _ds.bindPositionAttribute();
     _scaleSel->bindAttribute();
     _colorSel->bindAttribute();
     _orientSel->bindAttribute();
@@ -48,7 +48,6 @@ namespace coil {
     Instanced::deinit();
     RenderObj::deinit();
     _gtkOptList.reset();
-    _positionSel.reset();
     _scaleSel.reset(); 
     _colorSel.reset();
     _orientSel.reset();
@@ -117,17 +116,6 @@ namespace coil {
     _gtkOptList->pack_start(*separator, false, false, 0);
 
     //The attribute selectors
-    _positionSel.reset(new AttributeSelector(magnet::GL::Context::instanceOriginAttrIndex,
-					     false));
-      
-    _positionSel->buildEntries("Position Data Field:", _ds, 3, 3, Attribute::COORDINATE, 0,
-			       Attribute::DEFAULT_GLYPH_POSITION);
-    _gtkOptList->pack_start(*_positionSel, false, false);
-
-    separator = Gtk::manage(new Gtk::HSeparator); 
-    separator->show(); 
-    _gtkOptList->pack_start(*separator, false, false, 0);
-
     _scaleSel.reset(new AttributeSelector(magnet::GL::Context::instanceScaleAttrIndex));
 
     _scaleSel->buildEntries("Scale Data Field:", _ds, 1, 4,
@@ -296,7 +284,7 @@ namespace coil {
       colorbuf = colors;
     }
     colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 1, true); 
-    _positionSel->bindAttribute();
+    _ds.bindPositionAttribute();
     _scaleSel->bindAttribute();
     _orientSel->bindAttribute();
 
@@ -310,9 +298,7 @@ namespace coil {
     bool picked = (val >= offset) && ((val - offset) < _N);
     if (picked)
       {
-	std::vector<GLfloat> data = _positionSel->getValue(val - offset);
-	data.resize(3, 0);
-	_ds.glyphClicked(val - offset, Vector(data[0], data[1], data[2]));
+	_ds.glyphClicked(val - offset);
       }
     offset += _N;
   }

@@ -28,7 +28,8 @@
 #include <tr1/memory>
 
 namespace coil {
-  class DataSet; 
+  class DataSet;
+  class AttributeSelector;
 
   class DataSetChild: public RenderObj
   {
@@ -149,9 +150,12 @@ namespace coil {
 	  (*iPtr)->finishPicking(offset, val);
     }
 
-    void glyphClicked(size_t id, Vector loc);
+    inline void glyphClicked(size_t id)
+    { _selectedGlyph = id; }
 
     virtual void interfaceRender(const magnet::GL::Camera&);
+
+    void bindPositionAttribute() const;      
 
   protected:
     void deleteChildWorker(DataSetChild* child);
@@ -167,7 +171,7 @@ namespace coil {
     std::vector<std::tr1::shared_ptr<DataSetChild> > _children;
     magnet::GL::objects::TextSurface _overlay;
     int _selectedGlyph;
-    Vector _selectedGlyphLocation;
+    std::tr1::shared_ptr<AttributeSelector> _positionSel;
 
     void initGtk();
     void rebuildGui();
