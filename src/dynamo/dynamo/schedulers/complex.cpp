@@ -108,6 +108,6 @@ namespace dynamo {
   {
     BOOST_FOREACH(const std::tr1::shared_ptr<CSCEntry>& ent, entries)
       if (ent->isApplicable(part))
-	ent->getParticleNeighbourhood(part, func);
+	ent->getLocalNeighbourhood(part, func);
   }
 }

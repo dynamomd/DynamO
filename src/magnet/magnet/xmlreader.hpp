@@ -49,7 +49,11 @@ namespace magnet {
 #else
 	for (std::vector<std::pair<std::string, size_t> >::const_reverse_iterator 
 	       iPtr = pathTree.rbegin(); iPtr != pathTree.rend(); ++iPtr)
-	  os << "/" << iPtr->first << "[" << iPtr->second << "]";
+	  {
+	    os << "/" << iPtr->first; 
+	    if (iPtr->second)
+	      os << "[" << iPtr->second << "]";
+	  }
 #endif	
 	return os.str();
       }

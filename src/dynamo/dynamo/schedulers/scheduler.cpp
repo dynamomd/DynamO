@@ -465,7 +465,7 @@ namespace dynamo {
 
   void 
   Scheduler::addLocalEvent(const Particle& part, 
-			    const size_t& id) const
+			   const size_t& id) const
   {
     if (Sim->dynamics.getLocals()[id]->isInteraction(part))
       sorter->push(Sim->dynamics.getLocals()[id]->getEvent(part), part.getID());  

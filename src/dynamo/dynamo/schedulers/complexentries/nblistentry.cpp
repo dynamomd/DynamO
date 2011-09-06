@@ -65,7 +65,7 @@ namespace dynamo {
       M_throw() << "Global named " << name << " is not a GNeighbourList";
   
     static_cast<GNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID])
-      .markAsUsedInScheduler();				 
+      .markAsUsedInScheduler();
   }
 
   void 
