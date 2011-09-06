@@ -137,6 +137,7 @@ void main()
 	  _surface.deinit();
 	  _vertexData.deinit();
 	  _shader.deinit();
+	  _pango.clear();
 	  _width = _height = 0;
 	}
 
@@ -196,6 +197,9 @@ void main()
 	  _cairoSurface = Cairo::ImageSurface::create(_alpha_testing ? Cairo::FORMAT_A8 : Cairo::FORMAT_ARGB32, 
 						      _width, _height);
 	  _cairoContext = Cairo::Context::create(_cairoSurface);
+	  _pango = Pango::Layout::create(_cairoContext);
+	  Pango::FontDescription font("sans 12");
+	  _pango->set_font_description(font);	 
 	}
 	
 	/*! \brief Forces the underlying Cairo scene to be rerendered
@@ -261,12 +265,66 @@ void main()
       protected:
 	virtual void drawCommands() = 0;
 
+	void drawCursor(double x, double y, double size)
+	{
+	  _cairoContext->move_to(x - 2 * size, y + 0.5 * size);
+	  _cairoContext->line_to(x - 0.5 * size, y + 0.5 * size);
+	  _cairoContext->line_to(x - 0.5 * size, y + 2 * size);
+	  
+	  _cairoContext->move_to(x + 0.5 * size, y - 2   * size);
+	  _cairoContext->line_to(x + 0.5 * size, y - 0.5 * size);
+	  _cairoContext->line_to(x + 2   * size, y - 0.5 * size);
+	}
+
+	void textBox(double x, double y, std::string text, double padding = 5)
+	{
+	  _pango->set_text(text.c_str());
+	  //Fetch the text dimensions, use pango's built in extents
+	  //calculator as it is very fast
+	  double topleft[2] = {x, y};
+	  int pango_width, pango_height;
+	  _pango->get_size(pango_width, pango_height);
+	  double bottomright[2];
+	  bottomright[0] = topleft[0] + double(pango_width) / Pango::SCALE + 2 * padding;
+	  bottomright[1] = topleft[1] + double(pango_height) / Pango::SCALE + 2 * padding;
+
+	  //Make sure the box doesn't overlap the sides. The left hand
+	  //side takes priority over the right
+	  double dimensions[2] = {_width, _height};
+	  for (size_t i(0); i < 2; ++i)
+	    {
+	      //right/bottom edge
+	      double shift = std::min(0.0, dimensions[i] - bottomright[i]);
+	      topleft[i] += shift;
+	      bottomright[i] += shift;
+	      //left/top edge
+	      shift = std::max(-topleft[i], 0.0);
+	      topleft[i] += shift;
+	      bottomright[i] += shift;
+	    }
+	  
+	  //Background box
+	  _cairoContext->begin_new_path();
+	  _cairoContext->rectangle(topleft[0], topleft[1], 
+	  			   bottomright[0] - topleft[0],
+	  			   bottomright[1] - topleft[1]);
+	  
+	  _cairoContext->set_source_rgba(0.5, 0.70588, 0.94118, 0.7);
+	  _cairoContext->fill();
+	  
+	  //Main text
+	  _cairoContext->set_source_rgba(0, 0, 0, 1);
+	  _cairoContext->move_to(topleft[0] + padding, topleft[1] + padding);
+	  _pango->show_in_cairo_context(_cairoContext);
+	}
+
 	Texture2D _surface;
 	size_t _width;
 	size_t _height;
 	size_t _alpha_testing;
 	Cairo::RefPtr<Cairo::ImageSurface> _cairoSurface;
 	Cairo::RefPtr<Cairo::Context> _cairoContext;
+	Glib::RefPtr<Pango::Layout> _pango;
 	magnet::GL::Buffer<GLfloat> _vertexData;
 	CairoShader _shader;
       };

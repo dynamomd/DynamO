@@ -43,10 +43,6 @@ namespace magnet {
 	virtual void init(size_t width, size_t height, size_t alpha_testing = 0)
 	{
 	  CairoSurface::init(width, height, alpha_testing);
-	  _pango = Pango::Layout::create(_cairoContext);
-	  Pango::FontDescription font("sans 12");
-	  _pango->set_font_description(font);
-	  
 	  _pos[0] = 0.5 * _width;
 	  _pos[1] = 0.5 * _height;
 	}
@@ -55,7 +51,6 @@ namespace magnet {
 	{
 	  CairoSurface::deinit();
 	  clear();
-	  _pango.clear();
 	}
 
 	virtual void resize(size_t width, size_t height)
@@ -67,7 +62,6 @@ namespace magnet {
 	  init(width, height, _alpha_testing);
 	  (*this) << olddata;
 	}
-
 
 	inline void clear() 
 	{ 
@@ -97,63 +91,18 @@ namespace magnet {
       protected:
 	std::ostringstream _os;
 	bool _valid;
-	Glib::RefPtr<Pango::Layout> _pango;
 	double _pos[2];
 
 	virtual void drawCommands()
 	{
 	  const double padding = 5;
-	  _pango->set_text(_os.str());
 
-	  //Fetch the box dimensions
-	  _cairoContext->move_to(_pos[0], _pos[1]);
-	  _pango->add_to_cairo_context(_cairoContext);
-	  double topleft[2], bottomright[2];
-	  _cairoContext->get_stroke_extents(topleft[0], topleft[1], bottomright[0], bottomright[1]);
-	  topleft[0] += padding; topleft[1] += padding;
-	  bottomright[0] += 3 * padding; bottomright[1] += 3 * padding;
-
-	  _cairoContext->begin_new_path();	  
-	  _cairoContext->set_source_rgba(0, 0, 0, 1.0);	 
-	  _cairoContext->move_to(_pos[0] - 2 * padding, _pos[1] + 0.5 * padding);
-	  _cairoContext->line_to(_pos[0] - 0.5 * padding, _pos[1] + 0.5 * padding);
-	  _cairoContext->line_to(_pos[0] - 0.5 * padding, _pos[1] + 2 * padding);
-
-	  _cairoContext->move_to(_pos[0] + 0.5 * padding, _pos[1] - 2   * padding);
-	  _cairoContext->line_to(_pos[0] + 0.5 * padding, _pos[1] - 0.5 * padding);
-	  _cairoContext->line_to(_pos[0] + 2   * padding, _pos[1] - 0.5 * padding);
-
+	  drawCursor(_pos[0], _pos[1], padding);
 	  _cairoContext->set_line_width(2.0);
+	  _cairoContext->set_source_rgba(0, 0, 0, 1);
 	  _cairoContext->stroke();
 
-	  //Make sure the box doesn't overlap the sides. The left hand
-	  //side takes priority over the right
-	  double dimensions[2] = {_width, _height};
-	  for (size_t i(0); i < 2; ++i)
-	    {
-	      //right/bottom edge
-	      double shift = std::min(0.0, dimensions[i] - bottomright[i]);
-	      topleft[i] += shift;
-	      bottomright[i] += shift;
-	      //left/top edge
-	      shift = std::max(-topleft[i], 0.0);
-	      topleft[i] += shift;
-	      bottomright[i] += shift;
-	    }
-
-	  //Background box
-	  _cairoContext->begin_new_path();	  
-	  _cairoContext->rectangle(topleft[0], topleft[1], 
-				   bottomright[0] - topleft[0],
-				   bottomright[1] - topleft[1]);
-
-	  _cairoContext->set_source_rgba(0.5, 0.70588, 0.94118, 0.7);
-	  _cairoContext->fill();
-
-	  //Main text
-	  _cairoContext->set_source_rgba(0, 0, 0, 1);
-	  _cairoContext->move_to(topleft[0] + padding, topleft[1] + padding);
-	  _pango->show_in_cairo_context(_cairoContext);
+	  textBox(_pos[0] + padding, _pos[1] + padding, _os.str(), padding);
 	}
       };
     }

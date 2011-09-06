@@ -292,16 +292,6 @@ namespace coil {
   {
     _selectedGlyph = id;
     _selectedGlyphLocation = loc;
-    _overlay.clear();    
-    for (const_iterator iPtr = begin(); iPtr != end(); ++iPtr)
-      {
-	size_t comps = iPtr->second->components();
-	_overlay << iPtr->first << ":"; 
-	
-	for (size_t i(0); i < comps; ++i)
-	  _overlay << " " << (*(iPtr->second))[_selectedGlyph * comps + i];
-	_overlay << "\n";
-      }
   }
 
   void 
@@ -319,6 +309,19 @@ namespace coil {
 	
 	_overlay.setPosition((0.5 + 0.5 * vec[0] / vec[3]) * camera.getWidth(), 
 			     (0.5 - 0.5 * vec[1] / vec[3]) * camera.getHeight());
+
+	_overlay.clear();    
+	for (const_iterator iPtr = begin(); iPtr != end();)
+	  {
+	    size_t comps = iPtr->second->components();
+	    _overlay << iPtr->first << ":"; 
+	
+	    for (size_t i(0); i < comps; ++i)
+	      _overlay << " " << (*(iPtr->second))[_selectedGlyph * comps + i];
+	    if (++iPtr != end())
+	      _overlay << "\n";
+	  }
+
 	_overlay.glRender();
       }
   }
