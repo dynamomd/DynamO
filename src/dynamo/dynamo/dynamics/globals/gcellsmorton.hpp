@@ -19,6 +19,7 @@
 #include <dynamo/dynamics/globals/neighbourList.hpp>
 #include <dynamo/simulation/particle.hpp>
 #include <magnet/math/morton_number.hpp>
+#include <boost/unordered_map.hpp>
 #include <vector>
 
 namespace dynamo {
@@ -36,7 +37,7 @@ namespace dynamo {
 
     virtual void initialise(size_t);
 
-    virtual void reinitialise(const double&);
+    virtual void reinitialise();
 
     virtual void getParticleNeighbourhood(const Particle&, 
 					  const nbHoodFunc&) const;
@@ -54,13 +55,12 @@ namespace dynamo {
 
     virtual double getMaxSupportedInteractionLength() const;
 
-    virtual double getMaxInteractionLength() const;
-
   protected:
     GCells(const GCells&);
 
     struct partCEntry
     {
+      partCEntry(): prev(-1), next(-1), cell(-1) {}
       int prev;
       int next;
       int cell;
@@ -97,8 +97,12 @@ namespace dynamo {
     //! \brief The local events in each cell.
     mutable std::vector<std::vector<size_t> > cells;
 
-    //! \brief The linked list of the particles in each cell.
-    mutable std::vector<partCEntry> partCellData;
+    /*! \brief The linked list of the particles in each cell.
+      
+      This container is an unordered map, so we only store the linked
+      list for the particles actually inserted into this neighborlist.
+     */
+    mutable boost::unordered_map<int, partCEntry> partCellData;
 
     inline void addToCell(const int& ID, const int& cellID) const
     {
@@ -107,7 +111,7 @@ namespace dynamo {
 	partCellData.at(list.at(cellID)).prev = ID;
     
       partCellData.at(ID).next = list.at(cellID);
-      list.at(cellID) = ID;    
+      list.at(cellID) = ID;
       partCellData.at(ID).prev = -1;
       partCellData.at(ID).cell = cellID;
 # else
@@ -115,9 +119,9 @@ namespace dynamo {
 	partCellData[list[cellID]].prev = ID;
     
       partCellData[ID].next = list[cellID];
-      list[cellID] = ID;    
+      list[cellID] = ID;
       partCellData[ID].prev = -1;
-      partCellData[ID].cell = cellID;    
+      partCellData[ID].cell = cellID;
 #endif
     }
   
@@ -132,10 +136,7 @@ namespace dynamo {
       if (partCellData[ID].next != -1)
 	partCellData[partCellData[ID].next].prev = partCellData[ID].prev;
 
-#ifdef DYNAMO_DEBUG
-      partCellData[ID].cell = -1;
-#endif
+      partCellData.quick_erase(partCellData.find(ID));
     }
-
   };
 }

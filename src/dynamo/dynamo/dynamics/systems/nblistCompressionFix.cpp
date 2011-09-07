@@ -50,7 +50,10 @@ namespace dynamo {
   
     GNeighbourList& nblist(dynamic_cast<GNeighbourList&>(*Sim->dynamics.getGlobals()[cellID]));
 
-    dt = (nblist.getMaxSupportedInteractionLength() / nblist.getMaxInteractionLength() - 1.0) / growthRate - Sim->dSysTime;
+    initialSupportedRange = nblist.getMaxInteractionRange();
+      
+    dt = (nblist.getMaxSupportedInteractionLength() / initialSupportedRange - 1.0) 
+      / growthRate - Sim->dSysTime;
 
     dout << "Compression Hack Loaded"
 	 << "\nFor global " << nblist.getName()
@@ -91,9 +94,9 @@ namespace dynamo {
 	 << "\nNColl = " << Sim->eventCount
 	 << "\nSys t = " << Sim->dSysTime / Sim->dynamics.units().unitTime() << std::endl;
   
-    nblist.reinitialise(1.0001 * nblist.getMaxSupportedInteractionLength());
+    nblist.setMaxInteractionRange(nblist.getMaxSupportedInteractionLength());
   
     dt = (nblist.getMaxSupportedInteractionLength()
-	  / nblist.getMaxInteractionLength() - 1.0) / growthRate - Sim->dSysTime;
+	  / initialSupportedRange - 1.0) / growthRate - Sim->dSysTime;
   }
 }

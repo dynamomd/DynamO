@@ -66,7 +66,10 @@ namespace dynamo {
       if (_oversizeCells < 1.0)
 	M_throw() << "You must specify an Oversize greater than 1.0, otherwise your cells are too small!";
     
-      globName = XML.getAttribute("Name");	
+      globName = XML.getAttribute("Name");
+
+      if (XML.hasAttribute("Range"))
+	range = std::tr1::shared_ptr<CRange>(CRange::getClass(XML, Sim));
     }
     catch(...)
       {
@@ -232,16 +235,20 @@ namespace dynamo {
   GCells::initialise(size_t nID)
   {
     ID=nID;
-    reinitialise(getMaxInteractionLength());
+    reinitialise();
   }
 
   void
-  GCells::reinitialise(const double& maxdiam)
+  GCells::reinitialise()
   {
+    GNeighbourList::reinitialise();
+      
     dout << "Reinitialising on collision " << Sim->eventCount << std::endl;
 
     //Create the cells
-    addCells(_oversizeCells * (maxdiam * (1.0 + 10 * std::numeric_limits<double>::epsilon())) / overlink);
+    addCells((_maxInteractionRange 
+	      * (1.0 + 10 * std::numeric_limits<double>::epsilon()))
+	     * _oversizeCells / overlink);
 
     addLocalEvents();
 
@@ -257,12 +264,15 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("Global")
 	<< magnet::xml::attr("Type") << type
-	<< magnet::xml::attr("Name") << globName;
+	<< magnet::xml::attr("Name") << globName
+	<< magnet::xml::attr("NeighbourhoodRange") 
+	<< _maxInteractionRange / Sim->dynamics.units().unitLength();
 
     if (overlink > 1)   XML << magnet::xml::attr("OverLink") << overlink;
     if (_oversizeCells != 1.0) XML << magnet::xml::attr("Oversize") << _oversizeCells;
   
-    XML << magnet::xml::endtag("Global");
+    XML << *range
+	<< magnet::xml::endtag("Global");
   }
 
   void
@@ -273,8 +283,6 @@ namespace dynamo {
   GCells::addCells(double maxdiam)
   {
     cells.clear();
-    partCellData.resize(Sim->N); //Location data for particles
-
     NCells = 1;
 
     for (size_t iDim = 0; iDim < NDIM; iDim++)
@@ -335,9 +343,13 @@ namespace dynamo {
     //Required so particles find the right owning cell
     Sim->dynamics.getLiouvillean().updateAllParticles(); 
   
-    ////initialise the data structures
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
-      addToCell(part.getID(), getCellID(part.getPosition()).getMortonNum());
+    ////Add all the particles 
+    BOOST_FOREACH(const size_t& id, *range)
+      {
+	const Particle& p = Sim->particleList[id];
+	Sim->dynamics.getLiouvillean().updateParticle(p); 
+	addToCell(id, getCellID(p.getPosition()).getMortonNum());
+      }
   }
 
   void 
@@ -480,10 +492,6 @@ namespace dynamo {
     return cellLatticeWidth[minDiam] 
       + lambda * (cellLatticeWidth[minDiam] - cellDimension[minDiam]);
   }
-
-  double 
-  GCells::getMaxInteractionLength() const
-  { return Sim->dynamics.getLongestInteraction(); }
 
   Vector 
   GCells::calcPosition(const magnet::math::MortonNumber<3>& coords, const Particle& part) const

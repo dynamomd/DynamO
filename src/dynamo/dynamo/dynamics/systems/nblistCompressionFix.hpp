@@ -34,6 +34,7 @@ namespace dynamo {
     virtual void outputXML(magnet::xml::XmlStream&) const {}
   
     double growthRate;
+    double initialSupportedRange;
     size_t cellID;
   };
 }

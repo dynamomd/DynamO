@@ -59,7 +59,7 @@ namespace dynamo {
 
     if (overlink != 1) M_throw() << "Cannot shear with overlinking yet";
 
-    reinitialise(Sim->dynamics.getLongestInteraction());
+    reinitialise();
   }
 
   void

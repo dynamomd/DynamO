@@ -17,6 +17,8 @@
 
 #pragma once
 #include <dynamo/dynamics/globals/global.hpp>
+#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <boost/function.hpp>
 #include <magnet/function/delegate.hpp>
 #include <magnet/math/vector.hpp>
@@ -84,6 +86,8 @@ namespace dynamo {
   public:
     GNeighbourList(dynamo::SimData* a, const char *b): 
       Global(a, b),
+      _initialised(false),
+      _maxInteractionRange(0),
       isUsedInScheduler(false),
       lambda(0.9)
     {}
@@ -181,12 +185,24 @@ namespace dynamo {
 	 sigReInitNotify.end());
     }
 
-    virtual double getMaxSupportedInteractionLength() const = 0;
+    /*! \brief This returns the maximum interaction length this
+      neighbourlist supports.
+      
+      Due the to neighbourlists using integer numbers of cells, they
+      end up supporting an interaction range larger than 
+      \ref getMaxInteractionRange().
+    */
+    virtual double
+    getMaxSupportedInteractionLength() const = 0;
 
-    virtual double getMaxInteractionLength() const = 0;
+    virtual void reinitialise()
+    {
+      if (!_maxInteractionRange)
+	_maxInteractionRange = Sim->dynamics.getLongestInteraction();
 
-    virtual void reinitialise(const double&) = 0;
-
+      _initialised = true;
+    }
+    
     void markAsUsedInScheduler() { isUsedInScheduler = true; }
 
     void setCellOverlap(bool overlap) 
@@ -196,8 +212,30 @@ namespace dynamo {
       else
 	lambda = 0.001;
     }
-  
+
+    /*! \brief Set the minimum range this neighbourlist is to support.
+      
+      This is the minimum as neighbourlists usually must support a
+      slightly larger distance.
+      
+      \sa getMaxSupportedInteractionLength()
+     */
+    void setMaxInteractionRange(double range)
+    {
+      _maxInteractionRange = range;
+      if (_initialised) reinitialise();
+    }
+
+    /*! \brief Returns the requested minimum supported interaction
+        range.
+     */
+    double getMaxInteractionRange() const
+    { return _maxInteractionRange; }
+
   protected:
+    bool _initialised;
+    double _maxInteractionRange;
+
     GNeighbourList(const GNeighbourList&);
 
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
