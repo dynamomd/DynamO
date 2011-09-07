@@ -37,6 +37,7 @@
   F(ThermalConductivity) \
   F(ThermalDiffusion) \
   F(Viscosity) \
+  F(Density) \
   F(Pressure)
   
 
@@ -149,8 +150,11 @@ namespace magnet {
       //!Returns a Units for viscosity
       static inline Units Viscosity() { return  Dimensionless() / (Time() * Length()); }
 
-      //!Returns a Units for pressue
+      //!Returns a Units for pressue.
       static inline Units Pressure() { return  Mass() / (Time() * Time() * Length()); }
+
+      //!Returns a Units for density.
+      static inline Units Density() { return  Mass() / Volume(); }
       
       //!This attempts to determine a std::string representation for a
       //!Units instance. Useful if the Units has to be written to a
