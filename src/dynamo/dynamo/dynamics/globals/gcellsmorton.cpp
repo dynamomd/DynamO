@@ -235,6 +235,13 @@ namespace dynamo {
   GCells::initialise(size_t nID)
   {
     ID=nID;
+    typedef void (GCells::*CallBackType)(size_t);
+
+    _particleAdded = Sim->particle_added_signal()
+      .connect(boost::bind(CallBackType(&GCells::addToCell), this, _1));
+    _particleRemoved = Sim->particle_removed_signal()
+      .connect(boost::bind(CallBackType(&GCells::removeFromCell), this, _1));
+
     reinitialise();
   }
 
@@ -348,7 +355,7 @@ namespace dynamo {
       {
 	const Particle& p = Sim->particleList[id];
 	Sim->dynamics.getLiouvillean().updateParticle(p); 
-	addToCell(id, getCellID(p.getPosition()).getMortonNum());
+	addToCell(id);
       }
   }
 

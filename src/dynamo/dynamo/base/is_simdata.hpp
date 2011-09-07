@@ -28,6 +28,7 @@
 #include <boost/random/uniform_01.hpp>
 #include <boost/foreach.hpp>
 #include <boost/scoped_ptr.hpp>
+#include <boost/signals2.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <vector>
 #include <list>
@@ -233,9 +234,17 @@ namespace dynamo
     void signalParticleUpdate(const NEventData&) const;
 
     void replexerSwap(SimData&);
-  private:
     
+    boost::signals2::signal<void (size_t)>& particle_added_signal()
+    { return _particleAddedToSim; }
+
+    boost::signals2::signal<void (size_t)>& particle_removed_signal()
+    { return _particleRemovedFromSim; }
+
+  private:    
     mutable std::vector<particleUpdateFunc> _particleUpdateNotify;
+    mutable boost::signals2::signal<void (size_t)> _particleAddedToSim;
+    mutable boost::signals2::signal<void (size_t)> _particleRemovedFromSim;
   };
 
 }

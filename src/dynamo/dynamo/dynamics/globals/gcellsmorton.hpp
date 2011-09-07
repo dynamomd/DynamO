@@ -56,7 +56,24 @@ namespace dynamo {
     virtual double getMaxSupportedInteractionLength() const;
 
   protected:
-    GCells(const GCells&);
+    size_t cellCount[3];
+    magnet::math::DilatedInteger<3> dilatedCellMax[3];
+    Vector cellDimension;
+    Vector cellLatticeWidth;
+    Vector cellOffset;
+
+    double _oversizeCells;
+    size_t NCells;
+    size_t overlink;
+
+    boost::signals2::scoped_connection _particleAdded;
+    boost::signals2::scoped_connection _particleRemoved;
+
+    //! \brief The start of the list of particles in each cell.
+    mutable std::vector<int> list;
+
+    //! \brief The local events in each cell.
+    mutable std::vector<std::vector<size_t> > cells;
 
     struct partCEntry
     {
@@ -65,6 +82,15 @@ namespace dynamo {
       int next;
       int cell;
     };
+
+    /*! \brief The linked list of the particles in each cell.
+      
+      This container is an unordered map, so we only store the linked
+      list for the particles actually inserted into this neighborlist.
+     */
+    mutable boost::unordered_map<int, partCEntry> partCellData;
+
+    GCells(const GCells&);
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
     void outputXML(magnet::xml::XmlStream&, const std::string&) const;
@@ -80,31 +106,10 @@ namespace dynamo {
 
     void addLocalEvents();
 
-    //Variables
-    size_t cellCount[3];
-    magnet::math::DilatedInteger<3> dilatedCellMax[3];
-    Vector cellDimension;
-    Vector cellLatticeWidth;
-    Vector cellOffset;
+    inline void addToCell(size_t ID)
+    { addToCell(ID, getCellID(Sim->particleList[ID].getPosition()).getMortonNum()); }
 
-    double _oversizeCells;
-    size_t NCells;
-    size_t overlink;
-
-    //! \brief The start of the list of particles in each cell.
-    mutable std::vector<int> list;
-
-    //! \brief The local events in each cell.
-    mutable std::vector<std::vector<size_t> > cells;
-
-    /*! \brief The linked list of the particles in each cell.
-      
-      This container is an unordered map, so we only store the linked
-      list for the particles actually inserted into this neighborlist.
-     */
-    mutable boost::unordered_map<int, partCEntry> partCellData;
-
-    inline void addToCell(const int& ID, const int& cellID) const
+    inline void addToCell(size_t ID, size_t cellID) const
     {
 #ifdef DYNAMO_DEBUG
       if (list.at(cellID) != -1)
@@ -125,7 +130,7 @@ namespace dynamo {
 #endif
     }
   
-    inline void removeFromCell(const int& ID) const
+    inline void removeFromCell(size_t ID) const
     {
       /* remove from linked list */    
       if (partCellData[ID].prev != -1)
