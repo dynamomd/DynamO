@@ -27,7 +27,6 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_01.hpp>
 #include <boost/foreach.hpp>
-#include <boost/scoped_ptr.hpp>
 #include <boost/signals2.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <vector>
@@ -129,7 +128,7 @@ namespace dynamo
     void writeXMLfile(std::string filename, bool applyBC = true, bool round = false);
 
     /*! \brief The Ensemble of the Simulation. */
-    boost::scoped_ptr<Ensemble> ensemble;
+    std::tr1::shared_ptr<Ensemble> ensemble;
 
     /*! \brief The current system time of the simulation. 
      * 
@@ -172,7 +171,7 @@ namespace dynamo
     std::ostringstream ssHistory;
 
     /*! \brief A ptr to the Scheduler of the system. */
-    Scheduler *ptrScheduler;
+    std::tr1::shared_ptr<Scheduler> ptrScheduler;
 
     /*! \brief The Dynamics of the system. */
     Dynamics dynamics;

@@ -37,7 +37,6 @@ namespace dynamo
 {
   SimData::SimData():
     Base("Simulation"),
-    ensemble(NULL),
     dSysTime(0.0),
     freestreamAcc(0.0),
     eventCount(0),
@@ -45,7 +44,6 @@ namespace dynamo
     eventPrintInterval(50000),
     nextPrintEvent(0),
     N(0),
-    ptrScheduler(NULL),
     dynamics(this),
     primaryCellSize(1,1,1),
     ranGenerator(static_cast<unsigned>(std::time(0))),
@@ -58,10 +56,7 @@ namespace dynamo
   {
   }
 
-  SimData::~SimData()
-  {
-    if (ptrScheduler != NULL) delete ptrScheduler;
-  }
+  SimData::~SimData() {}
 
   void
   SimData::loadXMLfile(std::string fileName)
@@ -126,7 +121,7 @@ namespace dynamo
     _properties << mainNode;
     dynamics << mainNode;
     ptrScheduler 
-      = Scheduler::getClass(subNode.getNode("Scheduler"), this);
+      = std::tr1::shared_ptr<Scheduler>(Scheduler::getClass(subNode.getNode("Scheduler"), this));
 
     dynamics.getLiouvillean().loadParticleXMLData(mainNode);
   

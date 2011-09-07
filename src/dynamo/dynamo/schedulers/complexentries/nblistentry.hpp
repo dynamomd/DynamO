@@ -36,9 +36,6 @@ namespace dynamo {
 
     virtual void getLocalNeighbourhood(const Particle&, 
 				       const GNeighbourList::nbHoodFunc&) const;
-
-    virtual CSCEntry* Clone() const { return new CSCENBList(*this); }
-
   protected:
 
     virtual void outputXML(magnet::xml::XmlStream&) const;

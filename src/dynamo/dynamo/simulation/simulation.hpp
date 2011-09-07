@@ -121,11 +121,11 @@ namespace dynamo {
     long double getSysTime();
 
     //! Get the Ensemble of the Simulation.
-    inline const boost::scoped_ptr<dynamo::Ensemble>& getEnsemble() const 
+    inline const std::tr1::shared_ptr<dynamo::Ensemble>& getEnsemble() const 
     { return ensemble; }
 
     //! Get the Ensemble of the Simulation.
-    inline boost::scoped_ptr<dynamo::Ensemble>& getEnsemble() 
+    inline std::tr1::shared_ptr<dynamo::Ensemble>& getEnsemble() 
     { return ensemble; }
   
     //! Get the std::ostringstream storing the Simulation history.

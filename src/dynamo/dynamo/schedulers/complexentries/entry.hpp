@@ -45,20 +45,14 @@ namespace dynamo {
     bool isApplicable(const Particle& part) const;
   
     virtual void getParticleNeighbourhood(const Vector&, 
-					  const GNeighbourList::nbHoodFunc2&) const 
-    {}
+					  const GNeighbourList::nbHoodFunc2&) const = 0;
 
     virtual void getParticleNeighbourhood(const Particle&, 
-					  const GNeighbourList::nbHoodFunc&) const 
-    {}
+					  const GNeighbourList::nbHoodFunc&) const = 0;
 
     virtual void getLocalNeighbourhood(const Particle&, 
 				       const GNeighbourList::nbHoodFunc&
-				       ) const 
-    {}
-
-    virtual CSCEntry* Clone() const = 0;
-
+				       ) const = 0;
   protected:
 
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;

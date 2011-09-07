@@ -142,8 +142,7 @@ namespace dynamo {
 		"  0:  Monocomponent hard spheres\n"
 		"       --f1 : Sets the elasticity of the hard spheres\n"
 		"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-		"       --i2 : Adds a temperature rescale event every x events\n"
-		"       --b2 : Forces the use of non-morton cells in square systems\n";
+		"       --i2 : Adds a temperature rescale event every x events\n";
 	      exit(1);
 	    }
 	  //Pack of hard spheres
@@ -155,17 +154,9 @@ namespace dynamo {
 	    latticeSites(packptr->placeObjects(Vector(0,0,0)));
 
 	  if (vm.count("rectangular-box"))
-	    {
-	      Sim->primaryCellSize = getNormalisedCellDimensions();
-	      Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
-	    }
-	  else
-	    {
-	      if (vm.count("b2"))
-		Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
-	      else
-		Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
-	    }
+	    Sim->primaryCellSize = getNormalisedCellDimensions();
+
+	  Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
 
 	  Sim->dynamics.applyBC<BCPeriodic>();
 
@@ -204,7 +195,8 @@ namespace dynamo {
 	    }
 
 	  //Set up a standard simulation
-	  Sim->ptrScheduler = new SNeighbourList(Sim, new DefaultSorter(Sim));
+	  Sim->ptrScheduler 
+	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -277,7 +269,8 @@ namespace dynamo {
 	  //Sim->ptrScheduler = new CSMultList(Sim);
 
 	  //New scheduler and global
-	  Sim->ptrScheduler = new SNeighbourList(Sim, new DefaultSorter(Sim));
+	  Sim->ptrScheduler 
+	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 	  Sim->dynamics.addGlobal(new GCells(Sim, "SchedulerNBList"));
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
@@ -472,14 +465,13 @@ namespace dynamo {
 	  if (chainlength > 49)
 	    {
 	      Sim->ptrScheduler 
-		= new SNeighbourList(Sim, new DefaultSorter(Sim));
+		= std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	      Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
 	    }
 	  else
-	    {
-	      Sim->ptrScheduler = new SDumb(Sim, new DefaultSorter(Sim));
-	    }
+	      Sim->ptrScheduler 
+		= std::tr1::shared_ptr<SDumb>(new SDumb(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.applyBC<BCNone>();
 
@@ -623,7 +615,8 @@ namespace dynamo {
 	    latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
 	  //New scheduler and global
-	  Sim->ptrScheduler = new SNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
+	  Sim->ptrScheduler
+	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSBoundedPQ<>(Sim)));
 	  Sim->dynamics.addGlobal(new GCells(Sim, "SchedulerNBList"));
 
 	  Sim->dynamics.applyBC<BCPeriodic>();
@@ -690,7 +683,8 @@ namespace dynamo {
 	    alpha = vm["f1"].as<double>();
 
 	  //Set up a standard simulation
-	  Sim->ptrScheduler = new SNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
+	  Sim->ptrScheduler
+	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSBoundedPQ<>(Sim)));
 	  Sim->dynamics.addGlobal(new GCellsShearing(Sim,"SchedulerNBList"));
 
 	  Sim->dynamics.applyBC<BCLeesEdwards>();
@@ -785,7 +779,8 @@ namespace dynamo {
 	    (sysPack.placeObjects(Vector (0,0,0)));
 
 	  //Set up the system now
-	  Sim->ptrScheduler = new SDumb(Sim, new CSSBoundedPQ<>(Sim));
+	  Sim->ptrScheduler
+	    = std::tr1::shared_ptr<SDumb>(new SDumb(Sim, new CSSBoundedPQ<>(Sim)));
 
 	  Sim->dynamics.applyBC<BCNone>();
 
@@ -856,7 +851,8 @@ namespace dynamo {
 	  Sim->dynamics.units().setUnitLength(particleDiam);
 
 	  //Set up a standard simulation
-	  Sim->ptrScheduler = new SNeighbourList(Sim, new DefaultSorter(Sim));
+	  Sim->ptrScheduler 
+	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 
 	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
@@ -938,7 +934,8 @@ namespace dynamo {
 	    (sysPack.placeObjects(Vector (0,0,0)));
 
 	  //Set up the system now
-	  Sim->ptrScheduler = new SNeighbourList(Sim, new DefaultSorter(Sim));
+	  Sim->ptrScheduler 
+	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
 
@@ -1043,7 +1040,8 @@ namespace dynamo {
 	  //Set up a standard simulation
 	  //Sim->ptrScheduler = new CSMultList(Sim);
 
-	  Sim->ptrScheduler = new SNeighbourList(Sim, new DefaultSorter(Sim));
+	  Sim->ptrScheduler
+	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.addGlobal(new GCells(Sim, "SchedulerNBList"));
 
@@ -1126,12 +1124,14 @@ namespace dynamo {
 	    {
 	      // Choose the dumb scheduler if the system volume is roughly smaller than (3L)^3
 	      dout << "Dumb scheduler selected due to density/particle ratio" << std::endl;
-	      Sim->ptrScheduler = new SDumb(Sim, new DefaultSorter(Sim));
+	      Sim->ptrScheduler
+		= std::tr1::shared_ptr<SDumb>(new SDumb(Sim, new DefaultSorter(Sim)));
 	    }
 	  else
 	    {
 	      dout << "Neighbour List scheduler selected" << std::endl;
-	      Sim->ptrScheduler = new SNeighbourList(Sim, new DefaultSorter(Sim));
+	      Sim->ptrScheduler 
+		= std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 	      Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
 	    }
 
@@ -1199,7 +1199,8 @@ namespace dynamo {
 	  Sim->dynamics.units().setUnitLength(particleDiam);
 
 	  //Set up a standard simulation
-	  Sim->ptrScheduler = new SSystemOnly(Sim, new CSSCBT(Sim));
+	  Sim->ptrScheduler 
+	    = std::tr1::shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new CSSCBT(Sim)));
 
 	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -1284,7 +1285,8 @@ namespace dynamo {
 	  Sim->dynamics.units().setUnitLength(particleDiam);
 
 	  //Set up a standard simulation
-	  Sim->ptrScheduler = new SSystemOnly(Sim, new CSSCBT(Sim));
+	  Sim->ptrScheduler 
+	    = std::tr1::shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new CSSCBT(Sim)));
 
 	  Sim->dynamics.setLiouvillean(new LSLLOD(Sim));
 
@@ -1370,7 +1372,8 @@ namespace dynamo {
 	  Sim->dynamics.units().setUnitLength(particleDiam);
 
 	  //Set up a standard simulation
-	  Sim->ptrScheduler = new SSystemOnly(Sim, new CSSCBT(Sim));
+	  Sim->ptrScheduler 
+	    = std::tr1::shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new CSSCBT(Sim)));
 
 	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -1552,7 +1555,8 @@ namespace dynamo {
 				    / latticeSites.size(), double(1.0 / 3.0));
 
 	  //Set up a standard simulation
-	  Sim->ptrScheduler = new SNeighbourList(Sim, new DefaultSorter(Sim));
+	  Sim->ptrScheduler 
+	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -1651,7 +1655,8 @@ namespace dynamo {
 	  std::vector<Vector>
 	    latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
-	  Sim->ptrScheduler = new SNeighbourList(Sim, new DefaultSorter(Sim));
+	  Sim->ptrScheduler 
+	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.addGlobal(new GCells(Sim, "SchedulerNBList"));
 
@@ -1749,7 +1754,8 @@ namespace dynamo {
 				    / latticeSites.size(), double(1.0 / 3.0));
 
 	  //Set up a standard simulation
-	  Sim->ptrScheduler = new SNeighbourList(Sim, new DefaultSorter(Sim));
+	  Sim->ptrScheduler 
+	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 	  Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
 
 
@@ -1870,7 +1876,8 @@ namespace dynamo {
 	  //Sim->ptrScheduler = new CSMultList(Sim);
 
 	  //New scheduler and global
-	  Sim->ptrScheduler = new SNeighbourList(Sim, new DefaultSorter(Sim));
+	  Sim->ptrScheduler 
+	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	  {
 	    size_t overlink = 1;
@@ -1997,7 +2004,8 @@ namespace dynamo {
 	  Sim->dynamics.units().setUnitLength(particleDiam);
 
 	  //Set up a standard simulation
-	  Sim->ptrScheduler = new SSystemOnly(Sim, new CSSCBT(Sim));
+	  Sim->ptrScheduler 
+	    = std::tr1::shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new CSSCBT(Sim)));
 
 	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -2095,7 +2103,8 @@ namespace dynamo {
 	  Sim->dynamics.units().setUnitLength(particleDiam);
 
 	  //Set up a standard simulation
-	  Sim->ptrScheduler = new SSystemOnly(Sim, new CSSCBT(Sim));
+	  Sim->ptrScheduler 
+	    = std::tr1::shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new CSSCBT(Sim)));
 
 	  Sim->dynamics.setLiouvillean(new LSLLOD(Sim));
 
@@ -2259,7 +2268,8 @@ namespace dynamo {
 	  double particleDiam = 1.0 / boxL;
 
 	  //Set up a standard simulation
-	  Sim->ptrScheduler = new SNeighbourList(Sim, new DefaultSorter(Sim));
+	  Sim->ptrScheduler 
+	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -2372,7 +2382,8 @@ namespace dynamo {
 	    latticeSites(packptr->placeObjects(Vector(0,0,0)));
 
 	  //Set up a standard simulation
-	  Sim->ptrScheduler = new SNeighbourList(Sim, new DefaultSorter(Sim));
+	  Sim->ptrScheduler 
+	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
@@ -2460,7 +2471,8 @@ namespace dynamo {
 	    * boxlimit;
 
 	  //Set up a standard simulation
-	  Sim->ptrScheduler = new SNeighbourList(Sim, new DefaultSorter(Sim));
+	  Sim->ptrScheduler 
+	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.addLocal(new CLCylinder(Sim, 1.0, Vector(1,0,0), 
 						Vector(0,0,0), cylRad , "Cylinder", 
@@ -2519,7 +2531,8 @@ namespace dynamo {
 				    / latticeSites.size(), double(1.0 / 3.0));
 
 	  //Set up a standard simulation
-	  Sim->ptrScheduler = new SNeighbourList(Sim, new DefaultSorter(Sim));
+	  Sim->ptrScheduler 
+	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
 
@@ -2601,7 +2614,8 @@ namespace dynamo {
 	
 
 	  //Set up a standard simulation
-	  Sim->ptrScheduler = new SNeighbourList(Sim, new CSSCBT(Sim));
+	  Sim->ptrScheduler 
+	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSCBT(Sim)));
 
 	  Sim->dynamics.setLiouvillean(new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0), elasticV * Sim->dynamics.units().unitVelocity()));
 
@@ -2735,14 +2749,13 @@ namespace dynamo {
 	  if (chainlength > 49)
 	    {
 	      Sim->ptrScheduler 
-		= new SNeighbourList(Sim, new DefaultSorter(Sim));
+		= std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	      Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
 	    }
 	  else
-	    {
-	      Sim->ptrScheduler = new SDumb(Sim, new DefaultSorter(Sim));
-	    }
+	    Sim->ptrScheduler 
+	      = std::tr1::shared_ptr<SDumb>(new SDumb(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.applyBC<BCNone>();
 
@@ -3302,7 +3315,8 @@ namespace dynamo {
 	
 
 	  //Set up a standard simulation
-	  Sim->ptrScheduler = new SNeighbourList(Sim, new CSSCBT(Sim));
+	  Sim->ptrScheduler 
+	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSCBT(Sim)));
 
 	  Sim->dynamics.setLiouvillean(new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0),
 							     elasticV * Sim->dynamics.units().unitVelocity(),
@@ -3543,7 +3557,8 @@ namespace dynamo {
 	    elasticity = vm["f1"].as<double>();
 
 	  //Set up a standard simulation
-	  Sim->ptrScheduler = new SNeighbourList(Sim, new CSSBoundedPQ<>(Sim));
+	  Sim->ptrScheduler 
+	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSBoundedPQ<>(Sim)));
 	  Sim->dynamics.addGlobal(new GCellsShearing(Sim,"SchedulerNBList"));
 
 	  Sim->dynamics.applyBC<BCLeesEdwards>();
