@@ -16,4 +16,4 @@
 */
 
 #include <dynamo/schedulers/complexentries/nblistentry.hpp>
-
+#include <dynamo/schedulers/complexentries/rangeentry.hpp>

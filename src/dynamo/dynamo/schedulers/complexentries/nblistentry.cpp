@@ -22,15 +22,15 @@
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  CSCENBList::CSCENBList(const magnet::xml::Node& XML, dynamo::SimData* const nSim):
-    CSCEntry(nSim, "ComplexNBlistEntry"),
+  SCENBList::SCENBList(const magnet::xml::Node& XML, dynamo::SimData* const nSim):
+    SCEntry(nSim, "ComplexNBlistEntry"),
     nblistID(std::numeric_limits<size_t>::max())
   {
     operator<<(XML);
   }
 
   void 
-  CSCENBList::operator<<(const magnet::xml::Node& XML)
+  SCENBList::operator<<(const magnet::xml::Node& XML)
   {
     range = std::tr1::shared_ptr<CRange>(CRange::getClass(XML, Sim));
   
@@ -44,12 +44,12 @@ namespace dynamo {
       }
     catch (boost::bad_lexical_cast &)
       {
-	M_throw() << "Failed a lexical cast in CSCENBList";
+	M_throw() << "Failed a lexical cast in SCENBList";
       }
   }
 
   void 
-  CSCENBList::initialise()
+  SCENBList::initialise()
   {
     try {
       nblistID = Sim->dynamics.getGlobal(name)->getID();
@@ -57,7 +57,7 @@ namespace dynamo {
     catch (std::exception& cep)
       {
 	M_throw() << "Failed to find the global named " 
-		  << name << " for the CSCENBList entry."
+		  << name << " for the SCENBList entry."
 		  << "\n" << cep.what();
       }
 
@@ -69,7 +69,7 @@ namespace dynamo {
   }
 
   void 
-  CSCENBList::getParticleNeighbourhood(const Particle& part, 
+  SCENBList::getParticleNeighbourhood(const Particle& part, 
 				       const GNeighbourList::nbHoodFunc& func) const
   {
 #ifdef DYNAMO_DEBUG
@@ -84,7 +84,7 @@ namespace dynamo {
   }
 
   void 
-  CSCENBList::getParticleNeighbourhood(const Vector& vec, 
+  SCENBList::getParticleNeighbourhood(const Vector& vec, 
 				       const GNeighbourList::nbHoodFunc2& func) const
   {
     static_cast<const GNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID])
@@ -92,7 +92,7 @@ namespace dynamo {
   }
 
   void 
-  CSCENBList::getLocalNeighbourhood(const Particle& part, 
+  SCENBList::getLocalNeighbourhood(const Particle& part, 
 				    const GNeighbourList::nbHoodFunc& func) const
   {
 #ifdef DYNAMO_DEBUG
@@ -108,11 +108,11 @@ namespace dynamo {
 
 
   void 
-  CSCENBList::outputXML(magnet::xml::XmlStream& XML) const
+  SCENBList::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Type") << "NeighbourList"
 	<< magnet::xml::attr("NBListName")
-	<< Sim->dynamics.getGlobals()[nblistID]->getName()
+	<< name
 	<< range
       ;
   }

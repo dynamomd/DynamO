@@ -20,29 +20,29 @@
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  CSCEntry::CSCEntry(dynamo::SimData* const tmp, const char *aName):
+  SCEntry::SCEntry(dynamo::SimData* const tmp, const char *aName):
     SimBase(tmp, aName)
   {}
 
-  CSCEntry* 
-  CSCEntry::getClass(const magnet::xml::Node& XML, dynamo::SimData* const Sim)
+  SCEntry* 
+  SCEntry::getClass(const magnet::xml::Node& XML, dynamo::SimData* const Sim)
   {
     if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
-      return new CSCENBList(XML, Sim);      
-    else 
-      M_throw() << "Unknown type of ComplexSchedulerEntry `" 
+      return new SCENBList(XML, Sim);
+    else if (!strcmp(XML.getAttribute("Type"),"ParticleRange"))
+      return new SCERange(XML, Sim);
+    else
+      M_throw() << "Unknown type of ComplexSchedulerEntry "
 		<< XML.getAttribute("Type") << "`encountered";
   }
 
-  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const CSCEntry& g)
+  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const SCEntry& g)
   {
     g.outputXML(XML);
     return XML;
   }
 
   bool 
-  CSCEntry::isApplicable(const Particle& part) const
-  {
-    return range->isInRange(part);
-  }
+  SCEntry::isApplicable(const Particle& part) const
+  { return range->isInRange(part); }
 }

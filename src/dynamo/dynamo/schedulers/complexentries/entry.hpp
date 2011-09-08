@@ -27,18 +27,18 @@ namespace xml { class XmlStream; }
 namespace dynamo {
   class Particle;
 
-  class CSCEntry: public dynamo::SimBase
+  class SCEntry: public dynamo::SimBase
   {
   public:
-    CSCEntry(dynamo::SimData* const, const char *);
+    SCEntry(dynamo::SimData* const, const char *);
   
-    virtual ~CSCEntry() {};
+    virtual ~SCEntry() {};
 
     virtual void initialise() {};
   
-    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const CSCEntry&);
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const SCEntry&);
 
-    static CSCEntry* getClass(const magnet::xml::Node&, dynamo::SimData* const);
+    static SCEntry* getClass(const magnet::xml::Node&, dynamo::SimData* const);
  
     virtual void operator<<(const magnet::xml::Node&) = 0;
 

@@ -19,13 +19,11 @@
 #include <dynamo/schedulers/complexentries/entry.hpp>
 
 namespace dynamo {
-  class SCENBList: public SCEntry
+  class SCERange: public SCEntry
   {
   public:
-    SCENBList(const magnet::xml::Node&, dynamo::SimData* const);
+    SCERange(const magnet::xml::Node&, dynamo::SimData* const);
   
-    virtual void initialise();
-
     virtual void operator<<(const magnet::xml::Node&);
 
     virtual void getParticleNeighbourhood(const Particle&, 
@@ -35,12 +33,11 @@ namespace dynamo {
 					  const GNeighbourList::nbHoodFunc2&) const;
 
     virtual void getLocalNeighbourhood(const Particle&, 
-				       const GNeighbourList::nbHoodFunc&) const;
+				       const GNeighbourList::nbHoodFunc&) const {}
   protected:
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
-  
-    std::string name;
-    size_t nblistID;
+
+    std::tr1::shared_ptr<CRange> _testrange;
   };
 }

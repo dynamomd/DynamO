@@ -19,7 +19,7 @@
 #include <dynamo/schedulers/scheduler.hpp>
 
 namespace dynamo {
-  class CSCEntry;
+  class SCEntry;
 
   class SComplex: public Scheduler
   {
@@ -42,6 +42,6 @@ namespace dynamo {
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    std::vector<std::tr1::shared_ptr<CSCEntry> > entries;
+    std::vector<std::tr1::shared_ptr<SCEntry> > entries;
   };
 }

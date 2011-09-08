@@ -111,15 +111,6 @@ namespace dynamo {
 
     inline void addToCell(size_t ID, size_t cellID) const
     {
-#ifdef DYNAMO_DEBUG
-      if (list.at(cellID) != -1)
-	partCellData.at(list.at(cellID)).prev = ID;
-    
-      partCellData.at(ID).next = list.at(cellID);
-      list.at(cellID) = ID;
-      partCellData.at(ID).prev = -1;
-      partCellData.at(ID).cell = cellID;
-# else
       if (list[cellID] != -1)
 	partCellData[list[cellID]].prev = ID;
     
@@ -127,7 +118,6 @@ namespace dynamo {
       list[cellID] = ID;
       partCellData[ID].prev = -1;
       partCellData[ID].cell = cellID;
-#endif
     }
   
     inline void removeFromCell(size_t ID) const

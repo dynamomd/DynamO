@@ -42,7 +42,7 @@ namespace dynamo {
 
     for (magnet::xml::Node node = XML.getNode("Entries").fastGetNode("Entry"); 
 	 node.valid(); ++node)
-      entries.push_back(std::tr1::shared_ptr<CSCEntry>(CSCEntry::getClass(node, Sim)));
+      entries.push_back(std::tr1::shared_ptr<SCEntry>(SCEntry::getClass(node, Sim)));
   }
 
   void
@@ -51,7 +51,7 @@ namespace dynamo {
     dout << "Reinitialising on collision " << Sim->eventCount << std::endl;
     std::cout.flush();
 
-    BOOST_FOREACH(std::tr1::shared_ptr<CSCEntry>& ent, entries)
+    BOOST_FOREACH(std::tr1::shared_ptr<SCEntry>& ent, entries)
       ent->initialise();
 
     Scheduler::initialise();
@@ -66,7 +66,7 @@ namespace dynamo {
 	<< magnet::xml::endtag("Sorter")
 	<< magnet::xml::tag("Entries");
   
-    BOOST_FOREACH(const std::tr1::shared_ptr<CSCEntry>& ent,  entries)
+    BOOST_FOREACH(const std::tr1::shared_ptr<SCEntry>& ent,  entries)
       XML << magnet::xml::tag("Entry")
 	  << ent
 	  << magnet::xml::endtag("Entry");
@@ -89,7 +89,7 @@ namespace dynamo {
   SComplex::getParticleNeighbourhood(const Particle& part,
 				     const nbHoodFunc& func) const
   {
-    BOOST_FOREACH(const std::tr1::shared_ptr<CSCEntry>& ent, entries)
+    BOOST_FOREACH(const std::tr1::shared_ptr<SCEntry>& ent, entries)
       if (ent->isApplicable(part))
 	ent->getParticleNeighbourhood(part, func);
   }
@@ -98,7 +98,7 @@ namespace dynamo {
   SComplex::getParticleNeighbourhood(const Vector& vec,
 				     const nbHoodFunc2& func) const
   {
-    BOOST_FOREACH(const std::tr1::shared_ptr<CSCEntry>& ent, entries)
+    BOOST_FOREACH(const std::tr1::shared_ptr<SCEntry>& ent, entries)
 	ent->getParticleNeighbourhood(vec, func);
   }
     
@@ -106,7 +106,7 @@ namespace dynamo {
   SComplex::getLocalNeighbourhood(const Particle& part, 
 				  const nbHoodFunc& func) const
   {
-    BOOST_FOREACH(const std::tr1::shared_ptr<CSCEntry>& ent, entries)
+    BOOST_FOREACH(const std::tr1::shared_ptr<SCEntry>& ent, entries)
       if (ent->isApplicable(part))
 	ent->getLocalNeighbourhood(part, func);
   }
