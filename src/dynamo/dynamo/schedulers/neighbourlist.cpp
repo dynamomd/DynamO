@@ -54,6 +54,8 @@ namespace dynamo {
       M_throw() << "The Global named SchedulerNBList is not a neighbour list!";
 
     nblist->markAsUsedInScheduler();
+    nblist->ConnectSigNewNeighbourNotify<Scheduler>(&Scheduler::addInteractionEvent, this);
+    nblist->ConnectSigNewLocalNotify<Scheduler>(&Scheduler::addLocalEvent, this);
     Scheduler::initialise();
   }
 

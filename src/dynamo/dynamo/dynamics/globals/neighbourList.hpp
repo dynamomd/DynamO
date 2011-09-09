@@ -107,7 +107,7 @@ namespace dynamo {
     {    
       sigCellChangeNotify.push_back
 	(nbHoodSlot(++sigCellChangeNotifyCount, 
-		    getNBDelegate(func,tp)));
+		    nbHoodFunc(tp, func)));
     
       return sigCellChangeNotifyCount; 
     }
@@ -128,7 +128,7 @@ namespace dynamo {
     {    
       sigNewLocalNotify.push_back
 	(nbHoodSlot(++sigNewLocalNotifyCount, 
-		    getNBDelegate(func,tp)));
+		    nbHoodFunc(tp, func)));
     
       return sigNewLocalNotifyCount; 
     }
@@ -150,7 +150,7 @@ namespace dynamo {
     {    
       sigNewNeighbourNotify.push_back
 	(nbHoodSlot(++sigNewNeighbourNotifyCount, 
-		    getNBDelegate(func, tp)));
+		    nbHoodFunc(tp, func)));
     
       return sigNewNeighbourNotifyCount; 
     }

@@ -70,25 +70,17 @@ namespace dynamo {
     boost::signals2::scoped_connection _particleRemoved;
 
     //! \brief The start of the list of particles in each cell.
-    mutable std::vector<int> list;
+    mutable std::vector<std::vector<size_t> > list;
 
     //! \brief The local events in each cell.
     mutable std::vector<std::vector<size_t> > cells;
 
-    struct partCEntry
-    {
-      partCEntry(): prev(-1), next(-1), cell(-1) {}
-      int prev;
-      int next;
-      int cell;
-    };
-
-    /*! \brief The linked list of the particles in each cell.
+    /*! \brief The cell for a given particle.
       
       This container is an unordered map, so we only store the linked
       list for the particles actually inserted into this neighborlist.
      */
-    mutable boost::unordered_map<int, partCEntry> partCellData;
+    mutable boost::unordered_map<size_t, size_t> partCellData;
 
     GCells(const GCells&);
 
@@ -111,27 +103,31 @@ namespace dynamo {
 
     inline void addToCell(size_t ID, size_t cellID) const
     {
-      if (list[cellID] != -1)
-	partCellData[list[cellID]].prev = ID;
-    
-      partCellData[ID].next = list[cellID];
-      list[cellID] = ID;
-      partCellData[ID].prev = -1;
-      partCellData[ID].cell = cellID;
+      list[cellID].push_back(ID);
+      partCellData[ID] = cellID;
     }
   
     inline void removeFromCell(size_t ID) const
-    {
-      /* remove from linked list */    
-      if (partCellData[ID].prev != -1)
-	partCellData[partCellData[ID].prev].next = partCellData[ID].next;
-      else
-	list[partCellData[ID].cell] = partCellData[ID].next;
-    
-      if (partCellData[ID].next != -1)
-	partCellData[partCellData[ID].next].prev = partCellData[ID].prev;
+    { removeFromCellwIt(ID, partCellData.find(ID)); }
 
-      partCellData.quick_erase(partCellData.find(ID));
+    inline void removeFromCellwIt(size_t ID, boost::unordered_map<size_t, size_t>::iterator it) const
+    {
+#ifdef DYNAMO_DEBUG
+    if (it == partCellData.end())
+      M_throw() << "Could not find the particle's cell data";
+#endif
+      const size_t cellID = it->second;
+      //Erase the cell data
+      partCellData.quick_erase(it);
+
+      std::vector<std::vector<size_t> >::iterator listIt = list.begin() + cellID;
+      std::vector<size_t>::iterator pit = std::find(listIt->begin(), listIt->end(), ID);      
+
+#ifdef DYNAMO_DEBUG
+      if (pit == listIt->end())
+	M_throw() << "Removing a particle (ID=" << ID << ") which is not in a cell";
+#endif
+      listIt->erase(pit);
     }
   };
 }

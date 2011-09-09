@@ -79,7 +79,7 @@ namespace dynamo {
     return GlobalEvent(part,
 		       Sim->dynamics.getLiouvillean().
 		       getSquareCellCollision2
-		       (part, calcPosition(partCellData[part.getID()].cell), 
+		       (part, calcPosition(partCellData[part.getID()]), 
 			cellDimension)
 		       - Sim->dynamics.getLiouvillean().getParticleDelay(part),
 		       CELL, *this);
@@ -90,7 +90,7 @@ namespace dynamo {
   {
     Sim->dynamics.getLiouvillean().updateParticle(part);
 
-    size_t oldCell(partCellData[part.getID()].cell);
+    size_t oldCell(partCellData[part.getID()]);
     magnet::math::MortonNumber<3> oldCellCoords(oldCell);
     Vector oldCellPosition(calcPosition(oldCellCoords));
 
@@ -209,14 +209,8 @@ namespace dynamo {
 	  //We're at the boundary moving in the z direction, we must
 	  //add the new LE strips as neighbours	
 	  //We just check the entire Extra LE neighbourhood
-	  {
-	    if (isUsedInScheduler)
-	      getExtraLEParticleNeighbourhood(part, magnet::function::MakeDelegate(&(*Sim->ptrScheduler),
-										   &Scheduler::addInteractionEvent));
-	  
-	    BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
-	      getExtraLEParticleNeighbourhood(part, nbs.second);
-	  }
+	  BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
+	    getExtraLEParticleNeighbourhood(part, nbs.second);
 
 	//Particle has just arrived into a new cell warn the scheduler about
 	//its new neighbours so it can add them to the heap
@@ -242,15 +236,9 @@ namespace dynamo {
 	      {
 		newNBCell[dim1] %= cellCount[dim1];
   
-		for (int next = list[newNBCell.getMortonNum()]; next >= 0; 
-		     next = partCellData[next].next)
-		  {
-		    if (isUsedInScheduler)
-		      Sim->ptrScheduler->addInteractionEvent(part, next);
-
-		    BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
-		      nbs.second(part, next);
-		  }
+		BOOST_FOREACH(const size_t& next, list[newNBCell.getMortonNum()])
+		  BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
+		    nbs.second(part, next);
 	  
 		++newNBCell[dim1];
 	      }
@@ -261,13 +249,8 @@ namespace dynamo {
       }
 	   
     BOOST_FOREACH(const size_t& lID, cells[endCell.getMortonNum()])
-      {
-	if (isUsedInScheduler)
-	  Sim->ptrScheduler->addLocalEvent(part, lID);
-      
-	BOOST_FOREACH(const nbHoodSlot& nbs, sigNewLocalNotify)
-	  nbs.second(part, lID);
-      }
+      BOOST_FOREACH(const nbHoodSlot& nbs, sigNewLocalNotify)
+        nbs.second(part, lID);
   
     //Push the next virtual event, this is the reason the scheduler
     //doesn't need a second callback
@@ -302,7 +285,7 @@ namespace dynamo {
   {
     GCells::getParticleNeighbourhood(part, func);
   
-    size_t cell(partCellData[part.getID()].cell);
+    size_t cell(partCellData[part.getID()]);
     magnet::math::MortonNumber<3> cellCoords(cell);
 
     if ((cellCoords[1] == 0) || (cellCoords[1] == dilatedCellMax[1]))
@@ -332,8 +315,8 @@ namespace dynamo {
 	    
 	    for (size_t j(0); j < cellCount[0]; ++j)
 	      {
-		for (int next = list[cellCoords.getMortonNum()]; next >= 0; 
-		     next = partCellData[next].next)
+		
+		BOOST_FOREACH(const size_t& next, list[cellCoords.getMortonNum()])
 		  func(next);
 		
 		++cellCoords[0];
@@ -349,7 +332,7 @@ namespace dynamo {
   GCellsShearing::getExtraLEParticleNeighbourhood(const Particle& part,
 						  const nbHoodFunc& func) const
   {
-    size_t cell(partCellData[part.getID()].cell);
+    size_t cell(partCellData[part.getID()]);
     magnet::math::MortonNumber<3> cellCoords(cell);
   
 #ifdef DYNAMO_DEBUG
@@ -370,8 +353,7 @@ namespace dynamo {
 
 	for (size_t j(0); j < cellCount[0]; ++j)
 	  {
-	    for (int next = list[cellCoords.getMortonNum()]; next >= 0; 
-		 next = partCellData[next].next)
+	    BOOST_FOREACH(const size_t& next, list[cellCoords.getMortonNum()])
 	      func(part, next);
 
 	    ++cellCoords[0];

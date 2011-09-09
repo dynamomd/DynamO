@@ -16,6 +16,7 @@
 */
 
 #include <dynamo/schedulers/complexentries/nblistentry.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/dynamics/globals/neighbourList.hpp>
 #include <dynamo/base/is_simdata.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -64,8 +65,11 @@ namespace dynamo {
     if (!std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->dynamics.getGlobals()[nblistID]))
       M_throw() << "Global named " << name << " is not a GNeighbourList";
   
-    static_cast<GNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID])
-      .markAsUsedInScheduler();
+    GNeighbourList& nblist = static_cast<GNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID]);
+    nblist.markAsUsedInScheduler();
+
+    nblist.ConnectSigNewNeighbourNotify<Scheduler>(&Scheduler::addInteractionEvent, Sim->ptrScheduler.get());
+    nblist.ConnectSigNewLocalNotify<Scheduler>(&Scheduler::addLocalEvent, Sim->ptrScheduler.get());
   }
 
   void 

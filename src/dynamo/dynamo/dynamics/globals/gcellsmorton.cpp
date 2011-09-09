@@ -97,11 +97,12 @@ namespace dynamo {
     return GlobalEvent(part,
 		       Sim->dynamics.getLiouvillean().
 		       getSquareCellCollision2
-		       (part, calcPosition(partCellData[part.getID()].cell,
-					   part), cellDimension)
-		       -Sim->dynamics.getLiouvillean().getParticleDelay(part)
-		       ,
+		       (part, 
+			calcPosition(partCellData[part.getID()], part), 
+			cellDimension)
+		       -Sim->dynamics.getLiouvillean().getParticleDelay(part),
 		       CELL, *this);
+
   }
 
   void
@@ -112,7 +113,10 @@ namespace dynamo {
     //expect the particle to be up to date.
     Sim->dynamics.getLiouvillean().updateParticle(part);
 
-    const size_t oldCell(partCellData[part.getID()].cell);
+    boost::unordered_map<size_t, size_t>::iterator it = partCellData.find(part.getID());
+
+    const size_t oldCell(it->second);
+
     size_t endCell;
 
     //Determine the cell transition direction, its saved
@@ -148,7 +152,7 @@ namespace dynamo {
       endCell = dendCell.getMortonNum();
     }
     
-    removeFromCell(part.getID());
+    removeFromCellwIt(part.getID(), it);
     addToCell(part.getID(), endCell);
 
     //Get rid of the virtual event we're running, an updated event is
@@ -180,15 +184,9 @@ namespace dynamo {
 	  {
 	    newNBCell[dim1] %= cellCount[dim1];
   
-	    for (int next = list[newNBCell.getMortonNum()]; next >= 0; 
-		 next = partCellData[next].next)
-	      {
-		if (isUsedInScheduler)
-		  Sim->ptrScheduler->addInteractionEvent(part, next);
-
-		BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
-		  nbs.second(part, next);
-	      }
+	    BOOST_FOREACH(const size_t& next, list[newNBCell.getMortonNum()])
+	      BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
+	        nbs.second(part, next);
 	  
 	    ++newNBCell[dim1];
 	  }
@@ -199,13 +197,8 @@ namespace dynamo {
 
     //Tell about the new locals
     BOOST_FOREACH(const size_t& lID, cells[endCell])
-      {
-	if (isUsedInScheduler)
-	  Sim->ptrScheduler->addLocalEvent(part, lID);
-
-	BOOST_FOREACH(const nbHoodSlot& nbs, sigNewLocalNotify)
-	  nbs.second(part, lID);
-      }
+      BOOST_FOREACH(const nbHoodSlot& nbs, sigNewLocalNotify)
+        nbs.second(part, lID);
   
     //Push the next virtual event, this is the reason the scheduler
     //doesn't need a second callback
@@ -249,8 +242,7 @@ namespace dynamo {
     reinitialise();
 
     dout << "Neighbourlist contains " << partCellData.size() 
-	 << " particle entries\n"
-	 << "Used in scheduler = " << isUsedInScheduler << std::endl;
+	 << " particle entries";
   }
 
   void
@@ -343,20 +335,14 @@ namespace dynamo {
     magnet::math::MortonNumber<3> coords(cellCount[0], cellCount[1], cellCount[2]);
     size_t sizeReq = coords.getMortonNum();
 
-
     cells.resize(sizeReq); //Empty Cells created!
     list.resize(sizeReq); //Empty Cells created!
 
     dout << "Vector Size <N>  " << sizeReq << std::endl;
   
-    for (size_t iDim = 0; iDim < cellCount[0]; ++iDim)
-      for (size_t jDim = 0; jDim < cellCount[1]; ++jDim)
-	for (size_t kDim = 0; kDim < cellCount[2]; ++kDim)
-	  list[magnet::math::MortonNumber<3>(iDim, jDim, kDim).getMortonNum()] = -1;
-
     //Add the particles section
     //Required so particles find the right owning cell
-    Sim->dynamics.getLiouvillean().updateAllParticles(); 
+    Sim->dynamics.getLiouvillean().updateAllParticles();
   
     ////Add all the particles 
     BOOST_FOREACH(const size_t& id, *range)
@@ -411,7 +397,7 @@ namespace dynamo {
   GCells::getParticleNeighbourhood(const Particle& part,
 				   const nbHoodFunc& func) const
   {
-    const magnet::math::MortonNumber<3> particle_cell_coords(partCellData[part.getID()].cell);
+    const magnet::math::MortonNumber<3> particle_cell_coords(partCellData[part.getID()]);
 
     magnet::math::MortonNumber<3> zero_coords;
     for (size_t iDim(0); iDim < NDIM; ++iDim)
@@ -426,8 +412,7 @@ namespace dynamo {
     magnet::math::MortonNumber<3> coords(zero_coords);
     while (coords[2] != max_coords[2])
       {
-	for (int next(list[coords.getMortonNum()]);
-	     next >= 0; next = partCellData[next].next)
+	BOOST_FOREACH(const size_t& next, list[coords.getMortonNum()])
 	  func(part, next);
       
 	++coords[0];
@@ -465,8 +450,7 @@ namespace dynamo {
     magnet::math::MortonNumber<3> coords(zero_coords);
     while (coords[2] != max_coords[2])
       {
-	for (int next(list[coords.getMortonNum()]);
-	     next >= 0; next = partCellData[next].next)
+	BOOST_FOREACH(const size_t& next, list[coords.getMortonNum()])
 	  func(next);
       
 	++coords[0];
@@ -488,7 +472,7 @@ namespace dynamo {
   GCells::getLocalNeighbourhood(const Particle& part, 
 				const nbHoodFunc& func) const
   {
-    BOOST_FOREACH(const size_t& id, cells[partCellData[part.getID()].cell])
+    BOOST_FOREACH(const size_t& id, cells[partCellData[part.getID()]])
       func(part, id);
   }
 
