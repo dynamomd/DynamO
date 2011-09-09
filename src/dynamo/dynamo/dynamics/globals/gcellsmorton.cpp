@@ -60,6 +60,10 @@ namespace dynamo {
       if (XML.hasAttribute("OverLink"))
 	overlink = XML.getAttribute("OverLink").as<size_t>();
 
+      if (XML.hasAttribute("NeighbourhoodRange"))
+	_maxInteractionRange = XML.getAttribute("NeighbourhoodRange").as<double>()
+	  * Sim->dynamics.units().unitLength();
+
       if (XML.hasAttribute("Oversize"))
 	_oversizeCells = XML.getAttribute("Oversize").as<double>();
 
@@ -243,6 +247,10 @@ namespace dynamo {
       .connect(boost::bind(CallBackType(&GCells::removeFromCell), this, _1));
 
     reinitialise();
+
+    dout << "Neighbourlist contains " << partCellData.size() 
+	 << " particle entries\n"
+	 << "Used in scheduler = " << isUsedInScheduler << std::endl;
   }
 
   void

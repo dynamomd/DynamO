@@ -36,9 +36,7 @@ variant fulldebug : debug : <define>_GLIBCXX_DEBUG  <define>DYNAMO_DEBUG  <defin
 
 # The valgrind variant is useful for code analysis in tools like
 # valgrind. It merely turns debug symbols on and turns inlining off
-variant valgrind : <inlining>off <optimization>speed <debug-symbols>on <profiling>off ;
-# The same as valgrind but with inlining on
-variant valgrind_in : valgrind : <inlining>on  ;
+variant valgrind : <inlining>on <optimization>speed <debug-symbols>on <profiling>off ;
 
 ##########################################################################
 #Main project definition

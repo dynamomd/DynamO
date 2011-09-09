@@ -36,7 +36,10 @@
 **** TODO Rewrite the range classes.
 **** TODO Move the minmax heap into magnet.
 **** TODO HUD text showing the time.
-*** DynamO 1.2
+**** TODO Remove the Dynamics tags in the config and rename the Liouvillean to Dynamics.
+**** TODO Collapse the schedulers to just the complex scheduler.
+**** TODO Work on Sebastians project.
+*** DynamO 1.2							    :ARCHIVE:
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
 **** DONE *BUGFIX* Fixed the widespread improper use of the XML test functions, causing errors instead of warnings.
 **** DONE *BUGFIX* DynamO: Fixed rare error caused by duplicate events in the queue, followed by a recalculation which indicates the event has numerically been cancelled, and the recalculated event is in the future.
@@ -70,7 +73,6 @@
 **** DONE Coil: Now using anti-aliased variance shadow maps for greatly improved lighting effects.
 **** DONE Coil: Sped up PNG output in coil by 33 percent.
 **** DONE Magnet: XML errors are now much more verbose and tell you exactly what went wrong and where.
-**** TODO Work on Sebastians project.
 *** DynamO 1.1 							    :ARCHIVE:
 **** DONE *MAJOR* Remove Unit types from the XML file and simulator.
 **** DONE *MAJOR* Remove aspect ratio and instead load the primary image cell size.
