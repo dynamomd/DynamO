@@ -309,27 +309,25 @@ namespace dynamo {
 	cellOffset[iDim] = -(cellLatticeWidth[iDim] - maxdiam) * lambda * 0.5;
       }
 
-    dout << "Cells <x,y,z>  " << cellCount[0] << ","
-	 << cellCount[1] << "," << cellCount[2] << std::endl;
-
-    dout << "Cell Offset <x,y,z>  "
+    dout << "Cells <x,y,z> " << cellCount[0] << ","
+	 << cellCount[1] << "," << cellCount[2]
+	 << "\nCell Offset "
 	 << cellOffset[0] / Sim->dynamics.units().unitLength() << ","
 	 << cellOffset[1] / Sim->dynamics.units().unitLength() << ","
-	 << cellOffset[2] / Sim->dynamics.units().unitLength() << std::endl;
-
-    dout << "Cells Dimension <x,y,z>  " 
+	 << cellOffset[2] / Sim->dynamics.units().unitLength()
+	 << "\nCells Dimension " 
 	 << cellDimension[0] / Sim->dynamics.units().unitLength()
 	 << ","
 	 << cellDimension[1] / Sim->dynamics.units().unitLength()
 	 << "," 
-	 << cellDimension[2] / Sim->dynamics.units().unitLength() << std::endl;
-
-    dout << "Lattice spacing <x,y,z>  " 
+	 << cellDimension[2] / Sim->dynamics.units().unitLength()
+	 << "\nLattice spacing " 
 	 << cellLatticeWidth[0] / Sim->dynamics.units().unitLength()
 	 << ","
 	 << cellLatticeWidth[1] / Sim->dynamics.units().unitLength()
 	 << "," 
-	 << cellLatticeWidth[2] / Sim->dynamics.units().unitLength() << std::endl;
+	 << cellLatticeWidth[2] / Sim->dynamics.units().unitLength()
+	 << std::endl;
 
     //Find the required size of the morton array
     magnet::math::MortonNumber<3> coords(cellCount[0], cellCount[1], cellCount[2]);
@@ -351,6 +349,9 @@ namespace dynamo {
 	Sim->dynamics.getLiouvillean().updateParticle(p); 
 	addToCell(id);
       }
+
+    dout << "\nCell loading " << float(partCellData.size()) / NCells 
+	 << std::endl;
   }
 
   void 

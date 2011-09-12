@@ -23,6 +23,30 @@
 #include <vector>
 
 namespace dynamo {
+  /*! \brief A regular cell neighbour list implementation.
+    
+    This neighbour list is the main neighbour list implemenetation for
+    dynamo. It uses a regular grid of cells into which the particles
+    are sorted to accelerate calculating the neighbourhood of a single
+    particle.
+
+    There are several "unusual" properties of this neighbour list
+    which are used to optimise its behaviour.
+    
+    Although the neighbour list is a regular grid of cells, each cell
+    overlaps with its neighbours. This means that if you cross from
+    one cell into another, you enter the other cell some finite
+    distance from the cells border. This helps remove "rattling"
+    events where particles rapidly pass between two cells. It also
+    helps prevent local event objects (like walls) falling numerically
+    outside all cells when the wall lies on the cell border.
+
+    The second property is that the contents of each cell is stored as
+    a std::vector. In theory, a linked list is far more memory
+    efficient however, the vector is much more cache friendly and can
+    boost performance by 50% in cases where the cell has multiple
+    particles inside of it.
+   */
   class GCells: public GNeighbourList
   {
   public:
@@ -121,13 +145,20 @@ namespace dynamo {
       partCellData.quick_erase(it);
 
       std::vector<std::vector<size_t> >::iterator listIt = list.begin() + cellID;
+#ifdef DYNAMO_DEBUG
+    if (listIt == list.end())
+      M_throw() << "Could not find the particle's cell data";
+#endif
+
       std::vector<size_t>::iterator pit = std::find(listIt->begin(), listIt->end(), ID);      
 
 #ifdef DYNAMO_DEBUG
       if (pit == listIt->end())
 	M_throw() << "Removing a particle (ID=" << ID << ") which is not in a cell";
 #endif
-      listIt->erase(pit);
+
+      *pit = listIt->back();
+      listIt->pop_back();
     }
   };
 }
