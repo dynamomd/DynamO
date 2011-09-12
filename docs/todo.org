@@ -6,6 +6,7 @@
 * Code improvements
 ** Version Milestones
 *** DynamO 1.3
+**** DONE Up to 50% faster in polydisperse systems thanks to a new cache friendly nblist implementation.
 **** TODO Optimized triangle meshes by inserting them into the neighbor lists.
 **** TODO Make a test for an invalid state in locals, globals and interactions (for particle insertion).
 **** TODO Remove the repeated code in the neighbourlist callbacks.
