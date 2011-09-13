@@ -952,14 +952,7 @@ namespace coil {
     _renderShader.detach();
     _Gbuffer.detach();
 
-    //_renderShader["ShadowMap"] = 7;
-    //_renderShader["ShadowIntensity"] = _shadowIntensity;
-    //_renderShader["ShadowMapping"] = _shadowMapping;
-    //if (_shadowMapping)
-    //  _renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix(_camera, eyeDisplacement);
-
     _renderTarget.attach();
-    
     
     _deferredShader.attach();
     _Gbuffer.getColorTexture(0).bind(0);
@@ -970,7 +963,15 @@ namespace coil {
     _deferredShader["positionTex"] = 2;
     _deferredShader["lightPosition"] = _light0.getEyeLocation();
     _deferredShader["camPosition"] = camera.getEyeLocation();
+
+    _deferredShader["ShadowMap"] = 7;
+    _deferredShader["ShadowIntensity"] = _shadowIntensity;
+    _deferredShader["ShadowMapping"] = _shadowMapping;
+    if (_shadowMapping)
+      _deferredShader["ShadowMatrix"] = _light0.getShadowTextureMatrix();
+
     _deferredShader.invoke();
+
     _deferredShader.detach();
     _renderTarget.detach();
   }

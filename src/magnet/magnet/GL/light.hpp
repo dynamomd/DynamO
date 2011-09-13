@@ -119,21 +119,20 @@ namespace magnet {
       }
 
       /*! \brief Load the specified OpenGL texture matrix with the
-       * projection required for shadow mapping.
-       * 
-       * \note The current OpenGL model view matrix must be the matrix
-       * used for rendering.
-       *
-       * \param textureUnit The texture unit whose matrix is to be
-       * setup for shadowmapping.
+        projection required for shadow mapping.
+        
+        \note The current OpenGL model view matrix must be the matrix
+        used for rendering.
+       
+        \param textureUnit The texture unit whose matrix is to be
+        setup for shadowmapping.
        */
-      inline GLMatrix getShadowTextureMatrix(const Camera& camera, math::Vector offset = math::Vector(0,0,0))
+      inline GLMatrix getShadowTextureMatrix()
       {
 	return GLMatrix::translate(math::Vector(0.5, 0.5, 0.5))
 	  * GLMatrix::scale(math::Vector(0.5, 0.5, 0.5))
 	  * getProjectionMatrix()
-	  * getViewMatrix()
-	  * camera.getViewMatrix(offset).inverse();
+	  * getViewMatrix();
       }
 
       /*! \brief Returns the frame buffer containing the shadow map.

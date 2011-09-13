@@ -32,22 +32,64 @@ namespace magnet {
 	virtual std::string initFragmentShaderSource()
 	{
 	  return "#version 110\n" STRINGIFY(
+//Normalized position on the screen
+varying vec2 screenCoord;
+
+//Standard G-buffer data
 uniform sampler2D colorTex;
 uniform sampler2D normalTex;
 uniform sampler2D positionTex;
 uniform vec3 lightPosition;
 uniform vec3 camPosition;
-varying vec2 screenCoord;
+
+
+///////////////Shadow mapping functions and variables
+uniform mat4 ShadowMatrix;
+
+vec4 ShadowCoord;
+uniform sampler2D ShadowMap;
+uniform int ShadowMapping;
+uniform float ShadowIntensity;
+
+float linstep(float min, float max, float v)  
+{  
+  return clamp((v - min) / (max - min), 0.0, 1.0);  
+}  
+
+float ReduceLightBleeding(float p_max, float Amount)  
+{  
+  // Remove the [0, Amount] tail and linearly rescale (Amount, 1].  
+  return linstep(Amount, 1.0, p_max);  
+}  
+
+float chebyshevUpperBound(float distance)
+{
+  vec2 moments = texture2D(ShadowMap,ShadowCoord.xy).rg;
+	
+  // We use chebyshev's upperBound to check How likely this pixel is
+  // to be lit (p_max)
+  float variance = moments.y - (moments.x * moments.x);
+  variance = max(variance, 0.0000001);
+
+  float d = distance - moments.x;
+  float p_max = variance / (variance + d * d);
+
+  //We linearly remap the probability so that a certain range is
+  //always completely in shadow
+  p_max = ReduceLightBleeding(p_max, 0.2);
+
+  float p = float(distance <= moments.x);
+  return max(p, p_max);
+}
 
 void main()
 {
-  vec3 color = texture2D(colorTex, screenCoord).rgb;
+  //Model space position of the vertex
+  vec3 position = texture2D(positionTex, screenCoord).xyz;
+
   vec3 normal = texture2D(normalTex, screenCoord).rgb;
   normal = normalize(normal);
 
-  //Model space position of the vertex
-  vec3 position = texture2D(positionTex, screenCoord).xyz;
-  
   //light position relative to the pixel location
   vec3 lightVector = lightPosition - position;
   float lightDistance = length(lightVector);
@@ -59,17 +101,39 @@ void main()
 
   //Light calculations
   float lightNormDot = dot(normal, lightDirection);
+  
+  /////////////////////////////
+  //Shadow Mapping
+  /////////////////////////////
+  ShadowCoord = ShadowMatrix * vec4(position, 1.0);
+  float ShadowCoordW = ShadowCoord.w;
+  ShadowCoord = ShadowCoord * (1.0 / ShadowCoord.w);
 
-  float shadow = 1.0;
+ //If shadow mapping is off, we want everything to be unshadowed
+  float shadow = 1.0 - float(ShadowMapping);
+  vec2 circle = (ShadowCoord.xy) - vec2(0.5, 0.5);
 
+  if (bool(ShadowMapping)
+      && (dot(circle, circle) < 0.25)
+      && (ShadowCoord.w > 0.0))
+    shadow = chebyshevUpperBound(ShadowCoord.z);
+
+  shadow = min(shadow, smoothstep(-0.1, 1.0, lightNormDot));
+
+  /////////////////////////////
+  //Blinn Phong lighting calculation
+  /////////////////////////////
+  vec3 color = texture2D(colorTex, screenCoord).rgb;
+  
   /////////////////////Ambient light
   float intensity = 0.2;
 
   vec3 ReflectedRay = reflect(-lightDirection, normal);
-  intensity += 0.0001 * float(lightNormDot > 0.0) * shadow * pow(max(dot(ReflectedRay, eyeDirection), 0.0), 96.0);
+  intensity += 0.0001 * float(lightNormDot > 0.0) 
+    * shadow * pow(max(dot(ReflectedRay, eyeDirection), 0.0), 96.0);
   
   //Scale the shadow by the shadow intensity
-  //shadow = 1.0 - ShadowIntensity * (1.0 - shadow);
+  shadow = 1.0 - ShadowIntensity * (1.0 - shadow);
 
   /////////////////////Diffuse light "shadowing"
   //The diffuse light is calculated as a "shadow", 
