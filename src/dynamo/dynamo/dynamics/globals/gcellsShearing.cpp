@@ -206,11 +206,13 @@ namespace dynamo {
 
 	if ((cellDirection == 2) &&
 	    ((oldCellCoords[1] == 0) || (oldCellCoords[1] == cellCount[1] -1)))
-	  //We're at the boundary moving in the z direction, we must
-	  //add the new LE strips as neighbours	
-	  //We just check the entire Extra LE neighbourhood
-	  BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
-	    getExtraLEParticleNeighbourhood(part, nbs.second);
+	  {
+	    //We're at the boundary moving in the z direction, we must
+	    //add the new LE strips as neighbours	
+	    //We just check the entire Extra LE neighbourhood
+	    BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
+	      getExtraLEParticleNeighbourhood(part, nbs.second);
+	  }
 
 	//Particle has just arrived into a new cell warn the scheduler about
 	//its new neighbours so it can add them to the heap
