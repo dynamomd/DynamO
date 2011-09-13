@@ -624,21 +624,21 @@ namespace coil {
       depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
       
       std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB16F_ARB);
+      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
       colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
       colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
       colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       
       std::tr1::shared_ptr<magnet::GL::Texture2D> normalTexture(new magnet::GL::Texture2D);
-      normalTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB16F_ARB);
+      normalTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
       normalTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
       normalTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       normalTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
       normalTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
       std::tr1::shared_ptr<magnet::GL::Texture2D> posTexture(new magnet::GL::Texture2D);
-      posTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB16F_ARB);
+      posTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
       posTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
       posTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       posTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
