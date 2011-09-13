@@ -35,8 +35,6 @@ namespace dynamo {
 
     void eventUpdate(const System&, const NEventData&, const double&) {}
 
-    OutputPlugin *Clone() const { return new OPReplexTrace(*this); }
-
     virtual void initialise() { addPoint(); }
 
     virtual void output(magnet::xml::XmlStream&);

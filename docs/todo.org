@@ -7,11 +7,15 @@
 ** Version Milestones
 *** DynamO 1.3
 **** DONE Up to 50% faster in polydisperse systems thanks to a new cache friendly nblist implementation.
+**** DONE Remove all Clone functions.
+**** TODO Remove the Dynamics class and move its functions into the SimData class.
+**** TODO Remove the Dynamics tags in the config.
+**** TODO Rename the Liouvillean to Dynamics.
+**** TODO Fix the const casting in the liouvillean.
+**** TODO Move to the complex scheduler.
+**** TODO Collapse the schedulers to just the complex scheduler.
 **** TODO Optimized triangle meshes by inserting them into the neighbor lists.
 **** TODO Make a test for an invalid state in locals, globals and interactions (for particle insertion).
-**** TODO Remove the repeated code in the neighbourlist callbacks.
-**** TODO Move to the complex scheduler.
-**** TODO Fix the const casting in the liouvillean.
 **** TODO Remove the cached particle data used in the collision detection. Migrate to the magnet libraries collision detection functions.
 **** TODO Auto detect the ensemble, users shouldn't have to specify it.
 **** TODO Make the viewing grid have a scalable box size.
@@ -21,7 +25,6 @@
 **** TODO Add rendering of light sources (crepuscular rays too?).
 **** TODO Cube shadow map lights.
 **** TODO Look at CL/GL synchronisation objects for coil.
-**** TODO Remove all Clone functions
 **** TODO Alter the functions in dynamics that add/get/set objects and take/return a pointer to return shared_ptr's (search for uses of shared_ptr's get() function).
 **** TODO Alter the change system functions to take sharedptrs.
 **** TODO Change the loadClass XML functions to return shared_ptr's.
@@ -37,8 +40,6 @@
 **** TODO Rewrite the range classes.
 **** TODO Move the minmax heap into magnet.
 **** TODO HUD text showing the time.
-**** TODO Remove the Dynamics tags in the config and rename the Liouvillean to Dynamics.
-**** TODO Collapse the schedulers to just the complex scheduler.
 **** TODO Work on Sebastians project.
 *** DynamO 1.2							    :ARCHIVE:
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.

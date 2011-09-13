@@ -78,7 +78,7 @@ namespace dynamo {
   
     /*! \brief The old Liouvillean of the simulation.
      */
-    Liouvillean* oldLio;
+    std::tr1::shared_ptr<Liouvillean> oldLio;
   
     /*! \brief Stores a cell overlap parameter of the cellular scheduler
      * to be restored later.

@@ -46,8 +46,6 @@ namespace dynamo {
 
     virtual void initialise();
 
-    virtual OutputPlugin *Clone() const { return new OPSelfDiffusionOrientationalGK(*this); }
-
     typedef std::pair<Vector,Vector> VUpair;
 
   protected:

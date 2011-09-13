@@ -67,9 +67,6 @@ namespace dynamo {
 					 const double&, const double&, 
 					 EEventType&) const;
 
-    //Cloning
-    virtual Liouvillean* Clone() const { return new LNewtonianMC(*this); }
-
     virtual void initialise();
 
     /*! \brief Returns the \f$W(E)\f$ function.

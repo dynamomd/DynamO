@@ -41,8 +41,6 @@ namespace dynamo {
 
     virtual void operator<<(const magnet::xml::Node&);
 
-    virtual BoundaryCondition* Clone () const;
-
     virtual void applyBC(Vector&) const; 
 
     virtual void applyBC(Vector&, Vector&) const;

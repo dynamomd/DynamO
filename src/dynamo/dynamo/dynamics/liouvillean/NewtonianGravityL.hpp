@@ -75,9 +75,6 @@ namespace dynamo {
 					    const double&, 
 					    const EEventType& eType) const;
 
-    //Cloning
-    virtual Liouvillean* Clone() const { return new LNewtonianGravity(*this); }
-
     virtual std::pair<double, Liouvillean::TriangleIntersectingPart> 
     getSphereTriangleEvent(const Particle& part, 
 			   const Vector & A, 

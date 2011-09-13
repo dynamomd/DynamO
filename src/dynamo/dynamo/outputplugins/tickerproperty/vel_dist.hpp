@@ -28,9 +28,6 @@ namespace dynamo {
   public:
     OPVelDist(const dynamo::SimData*, const magnet::xml::Node&);
 
-    virtual OutputPlugin *Clone() const
-    { return new OPVelDist(*this); }
-
     virtual void initialise();
 
     virtual void stream(double) {}

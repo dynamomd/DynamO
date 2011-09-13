@@ -29,9 +29,6 @@ namespace dynamo {
 
     virtual void initialise();
 
-    virtual OutputPlugin* Clone() const 
-    { return new OPCollisionCorrelator(*this); }
-
     void output(magnet::xml::XmlStream &XML);
 
     void operator<<(const magnet::xml::Node&);

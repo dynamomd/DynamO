@@ -25,9 +25,6 @@ namespace dynamo {
   public:
     OPOverlapTest(const dynamo::SimData*, const magnet::xml::Node&);
 
-    virtual OutputPlugin *Clone() const
-    { return new OPOverlapTest(*this); }
-
     virtual void initialise();
 
     virtual void stream(double) {}

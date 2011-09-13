@@ -48,8 +48,6 @@ namespace dynamo {
 
     virtual void eventUpdate(const System&, const NEventData&, const double&) = 0;
   
-    virtual OutputPlugin *Clone() const = 0;
-  
     virtual void output(magnet::xml::XmlStream&);
   
     virtual void periodicOutput();

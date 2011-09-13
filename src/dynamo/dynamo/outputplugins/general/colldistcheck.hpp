@@ -42,8 +42,6 @@ namespace dynamo {
   
     void eventUpdate(const System&, const NEventData&, const double&);
 
-    OutputPlugin *Clone() const { return new OPCollDistCheck(*this); }
-
     virtual void initialise();
 
     virtual void output(magnet::xml::XmlStream&);

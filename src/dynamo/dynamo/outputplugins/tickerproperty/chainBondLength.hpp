@@ -26,9 +26,6 @@ namespace dynamo {
   public:
     OPChainBondLength(const dynamo::SimData*, const magnet::xml::Node&);
 
-    virtual OutputPlugin *Clone() const
-    { return new OPChainBondLength(*this); }
-
     virtual void initialise();
 
     virtual void stream(double) {}

@@ -44,8 +44,6 @@ namespace dynamo {
 
     virtual void operator<<(const magnet::xml::Node& XML);
 
-    virtual Species* Clone() const { return new SpPoint(*this); }
-
     virtual double getScalarMomentOfInertia(size_t ID) const 
     { M_throw() << "Species has no intertia"; }
 

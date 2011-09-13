@@ -60,11 +60,6 @@ namespace dynamo {
   BCPeriodic::operator<<(const magnet::xml::Node&) 
   {}
 
-  BoundaryCondition* 
-  BCPeriodic::Clone () const 
-  { return new BCPeriodic(*this); }
-
-
   BCPeriodicExceptX::BCPeriodicExceptX(const dynamo::SimData* tmp):
     BoundaryCondition(tmp, "NoXPBC")
   { Sim = tmp; }
@@ -78,10 +73,6 @@ namespace dynamo {
   void 
   BCPeriodicExceptX::operator<<(const magnet::xml::Node&) 
   {}
-
-  BoundaryCondition* 
-  BCPeriodicExceptX::Clone () const 
-  { return new BCPeriodicExceptX(*this); }
 
   void 
   BCPeriodicExceptX::applyBC(Vector & pos) const
@@ -136,10 +127,6 @@ namespace dynamo {
   void 
   BCPeriodicXOnly::operator<<(const magnet::xml::Node&) 
   {}
-
-  BoundaryCondition* 
-  BCPeriodicXOnly::Clone () const 
-  { return new BCPeriodicXOnly(*this); }
 
   void 
   BCPeriodicXOnly::applyBC(Vector & pos) const

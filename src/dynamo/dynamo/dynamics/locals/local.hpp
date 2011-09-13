@@ -50,8 +50,6 @@ namespace dynamo {
 
     bool isInteraction(const Particle&) const;
 
-    virtual Local* Clone() const = 0; //{ return new OPBlank(*this); };
-
     virtual LocalEvent getEvent(const Particle&) const = 0;
 
     virtual void runEvent(const Particle&, const LocalEvent&) const = 0;

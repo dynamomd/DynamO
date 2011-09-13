@@ -39,8 +39,6 @@ namespace dynamo {
 
     void operator<<(const magnet::xml::Node&);
 
-    virtual Interaction* Clone() const;
-
     virtual double getExcludedVolume(size_t) const 
     { M_throw() << "Bonds don't have excluded volumes! They shouldn't be used as the defining interaction for a species."; }
 

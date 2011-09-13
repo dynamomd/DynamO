@@ -33,8 +33,6 @@ namespace dynamo {
   
     virtual ~GWaker() {}
 
-    virtual Global* Clone() const { return new GWaker(*this); };
-
     virtual GlobalEvent getEvent(const Particle &) const;
 
     virtual void runEvent(const Particle&, const double) const;

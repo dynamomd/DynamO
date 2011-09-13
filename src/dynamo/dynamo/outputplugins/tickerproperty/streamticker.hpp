@@ -24,9 +24,6 @@ namespace dynamo {
   public:
     OPStreamTicker(const dynamo::SimData*, const magnet::xml::Node&);
 
-    virtual OutputPlugin *Clone() const
-    { return new OPStreamTicker(*this); }
-
     virtual void initialise() {}
 
     virtual void stream(double) {}

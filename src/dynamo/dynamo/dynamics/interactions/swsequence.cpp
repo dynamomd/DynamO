@@ -139,10 +139,6 @@ namespace dynamo {
       }
   }
 
-  Interaction* 
-  ISWSequence::Clone() const 
-  { return new ISWSequence(*this); }
-
   double 
   ISWSequence::getDiameter(size_t ID, size_t subID) const
   { return _diameter->getProperty(ID); }

@@ -32,9 +32,6 @@ namespace dynamo {
   public:
     OPRGyration(const dynamo::SimData*, const magnet::xml::Node&);
 
-    virtual OutputPlugin *Clone() const
-    { return new OPRGyration(*this); }
-
     virtual void initialise();
 
     virtual void stream(double) {}

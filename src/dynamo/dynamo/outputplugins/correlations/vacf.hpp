@@ -46,8 +46,6 @@ namespace dynamo {
 
     virtual void initialise();
 
-    virtual OutputPlugin *Clone() const { return new OPVACF(*this); }
-   
   protected:  
   
     virtual void newG(const PairEventData&);

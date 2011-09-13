@@ -28,9 +28,6 @@ namespace dynamo {
   public:
     OPIntEnergyHist(const dynamo::SimData*, const magnet::xml::Node&);
 
-    virtual OutputPlugin *Clone() const
-    { return new OPIntEnergyHist(*this); }
-
     virtual void initialise();
 
     virtual void stream(double);

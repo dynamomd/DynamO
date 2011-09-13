@@ -26,9 +26,6 @@ namespace dynamo {
   public:
     OPChainBondAngles(const dynamo::SimData*, const magnet::xml::Node&);
 
-    virtual OutputPlugin *Clone() const
-    { return new OPChainBondAngles(*this); }
-
     virtual void initialise();
 
     virtual void stream(double) {}

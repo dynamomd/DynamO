@@ -28,8 +28,6 @@ namespace dynamo {
 
     virtual ~LRoughWall() {}
 
-    virtual Local* Clone() const { return new LRoughWall(*this); };
-
     virtual LocalEvent getEvent(const Particle&) const;
 
     virtual void runEvent(const Particle&, const LocalEvent&) const;

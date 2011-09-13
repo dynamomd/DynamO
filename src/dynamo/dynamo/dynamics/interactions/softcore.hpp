@@ -42,8 +42,6 @@ namespace dynamo {
 
     void operator<<(const magnet::xml::Node&);
 
-    virtual Interaction* Clone() const;
-
     virtual double getExcludedVolume(size_t) const { return 0; }
 
     virtual double maxIntDist() const;

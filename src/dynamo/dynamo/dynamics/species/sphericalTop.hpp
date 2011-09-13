@@ -28,8 +28,6 @@ namespace dynamo {
   
     SpSphericalTop(const magnet::xml::Node&, dynamo::SimData*, unsigned int ID);
 
-    virtual Species* Clone() const { return new SpSphericalTop(*this); }
-
     virtual double getScalarMomentOfInertia(size_t ID) const 
     { return inertiaConstant * getMass(ID); }
 

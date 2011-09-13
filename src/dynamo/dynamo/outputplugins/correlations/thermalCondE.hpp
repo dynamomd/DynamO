@@ -29,9 +29,6 @@ namespace dynamo {
 
     virtual void output(magnet::xml::XmlStream&);
 
-    virtual OutputPlugin* Clone() const 
-    { return new OPThermalConductivityE(*this); }
-  
     virtual void eventUpdate(const GlobalEvent&, const NEventData&);
 
     virtual void eventUpdate(const LocalEvent&, const NEventData&);

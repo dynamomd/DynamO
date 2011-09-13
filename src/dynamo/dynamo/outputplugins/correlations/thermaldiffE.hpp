@@ -30,9 +30,6 @@ namespace dynamo {
 
     virtual void output(magnet::xml::XmlStream&);
 
-    virtual OutputPlugin* Clone() const 
-    { return new OPThermalDiffusionE(*this); }
-
     virtual void eventUpdate(const GlobalEvent&, const NEventData&);
     virtual void eventUpdate(const LocalEvent&, const NEventData&);
     virtual void eventUpdate(const System&, const NEventData&, const double&);

@@ -55,8 +55,6 @@ namespace dynamo {
 
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Species&);
   
-    virtual Species* Clone() const = 0;
-
     static Species* getClass(const magnet::xml::Node&, dynamo::SimData*, size_t);
 
 #ifdef DYNAMO_visualizer

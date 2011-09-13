@@ -37,8 +37,6 @@ namespace dynamo {
 
     virtual void operator<<(const magnet::xml::Node& XML);
 
-    virtual SpFixedCollider* Clone() const { return new SpFixedCollider(*this); }
-
   protected:
 
     virtual void outputXML(magnet::xml::XmlStream& XML) const;

@@ -30,9 +30,6 @@ namespace dynamo {
     typedef std::tr1::array<double, NDIM> col;
     typedef std::tr1::array<col, NDIM> matrix;
 
-    virtual OutputPlugin *Clone() const
-    { return new OPKEnergyTicker(*this); }
-
     virtual void initialise();
 
     virtual void stream(double) {}

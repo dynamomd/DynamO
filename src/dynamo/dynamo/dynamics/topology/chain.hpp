@@ -34,8 +34,6 @@ namespace dynamo {
   
     virtual void operator<<(const magnet::xml::Node&) {}
 
-    virtual CTChain* Clone() const { return new CTChain(*this); }
-
   protected:
   
     virtual void outputXML(magnet::xml::XmlStream&) const;

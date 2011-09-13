@@ -36,8 +36,6 @@ namespace dynamo {
 
     virtual void initialise();
 
-    virtual OutputPlugin *Clone() const { return new OPKEnergy(*this); }
-
     double getAvgkT() const;
 
     double getAvgTheta() const;

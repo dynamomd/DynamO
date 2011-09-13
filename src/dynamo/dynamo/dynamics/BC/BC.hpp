@@ -96,9 +96,6 @@ namespace dynamo
     /*! \brief Load the Boundary condition from an XML file. */
     virtual void operator<<(const magnet::xml::Node&) = 0;
 
-    /*! \brief A polymorphic class copy helper. */
-    virtual BoundaryCondition* Clone () const = 0;
-
     /*! \brief A helper for writing BoundaryCondition's to an XmlStream. */
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const BoundaryCondition&);
 

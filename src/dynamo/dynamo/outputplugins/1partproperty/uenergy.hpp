@@ -36,8 +36,6 @@ namespace dynamo {
 
     virtual void initialise();
 
-    virtual OutputPlugin *Clone() const { return new OPUEnergy(*this); }
-
     double getAvgU() const;
 
     double getAvgSqU() const;

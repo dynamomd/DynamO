@@ -27,9 +27,6 @@ namespace dynamo {
     OPRadialDistribution(const dynamo::SimData*, 
 			 const magnet::xml::Node&);
 
-    virtual OutputPlugin *Clone() const
-    { return new OPRadialDistribution(*this); }
-
     virtual void initialise();
 
     virtual void stream(double) {}

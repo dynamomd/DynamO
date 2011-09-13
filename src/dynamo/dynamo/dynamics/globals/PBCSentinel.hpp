@@ -42,8 +42,6 @@ namespace dynamo {
   
     virtual ~GPBCSentinel() {}
 
-    virtual Global* Clone() const { return new GPBCSentinel(*this); };
-
     virtual GlobalEvent getEvent(const Particle &) const;
 
     virtual void runEvent(const Particle&, const double) const;

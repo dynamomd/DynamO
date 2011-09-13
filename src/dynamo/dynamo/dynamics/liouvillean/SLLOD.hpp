@@ -77,8 +77,6 @@ namespace dynamo {
 
     virtual ParticleEventData randomGaussianEvent(const Particle&, const double&) const;
 
-    virtual Liouvillean* Clone() const { return new LSLLOD(*this); }
-
   protected:
     virtual void outputXML(magnet::xml::XmlStream& ) const;
   };

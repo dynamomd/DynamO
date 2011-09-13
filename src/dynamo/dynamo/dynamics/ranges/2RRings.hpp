@@ -29,9 +29,6 @@ namespace dynamo {
     //Start, End, Interval
     C2RRings(unsigned long, unsigned long, unsigned long);
   
-    virtual C2Range* Clone() const 
-    { return new C2RRings(*this); };
-
     virtual bool isInRange(const Particle&, const Particle&) const;
   
     virtual void operator<<(const magnet::xml::Node&);

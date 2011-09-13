@@ -113,10 +113,6 @@ namespace dynamo  {
     return vol - (1.0/12.0) * M_PI * (2 * diam + length) * std::pow(diam - length, 2); 
   }
 
-  Interaction* 
-  IDumbbells::Clone() const 
-  { return new IDumbbells(*this); }
-
   IntEvent 
   IDumbbells::getEvent(const Particle &p1,
 		       const Particle &p2) const 

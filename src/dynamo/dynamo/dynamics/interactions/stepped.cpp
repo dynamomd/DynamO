@@ -92,10 +92,6 @@ namespace dynamo {
 		<< getName();
   }
 
-  Interaction* 
-  IStepped::Clone() const 
-  { return new IStepped(*this); }
-
   double 
   IStepped::getExcludedVolume(size_t ID) const 
   { 

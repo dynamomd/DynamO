@@ -44,8 +44,6 @@ namespace dynamo {
 
     virtual void operator<<(const magnet::xml::Node&);
 
-    virtual BoundaryCondition* Clone () const;
-
     virtual void rounding(Vector &) const;
   };
 }

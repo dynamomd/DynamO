@@ -86,9 +86,6 @@ namespace dynamo {
     //! Returns the excluded volume of a certain particle.
     virtual double getExcludedVolume(size_t) const = 0;
 
-    //! Used to copy polymorphic classes.
-    virtual Interaction* Clone() const = 0; //{ return new OPBlank(*this); };
-
     //! Loads the parameters of the Interaction from an XML node in the configuration file.
     virtual void operator<<(const magnet::xml::Node&);
   

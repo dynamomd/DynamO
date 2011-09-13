@@ -27,8 +27,6 @@ namespace dynamo {
   
     virtual void operator<<(const magnet::xml::Node&);
 
-    virtual OutputPlugin* Clone() const { return new OPMutualDiffusionE(*this); }
-
     virtual void stream(const double);
 
     virtual void eventUpdate(const GlobalEvent&, const NEventData&);

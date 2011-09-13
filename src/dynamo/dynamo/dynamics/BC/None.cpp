@@ -51,10 +51,6 @@ namespace dynamo {
   BCNone::operator<<(const magnet::xml::Node&)
   {}
 
-  BoundaryCondition* 
-  BCNone::Clone () const 
-  { return new BCNone(*this); }
-
   void 
   BCNone::rounding(Vector &) const 
   {}

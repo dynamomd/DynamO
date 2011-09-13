@@ -29,8 +29,6 @@ namespace dynamo {
 
     virtual ~CLDblWall() {}
 
-    virtual Local* Clone() const { return new CLDblWall(*this); };
-
     virtual LocalEvent getEvent(const Particle&) const;
 
     virtual void runEvent(const Particle&, const LocalEvent&) const;

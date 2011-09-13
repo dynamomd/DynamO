@@ -47,8 +47,6 @@ namespace dynamo {
 
     void output(magnet::xml::XmlStream &);
 
-    virtual OutputPlugin *Clone() const { return new OPCollMatrix(*this); };
-
     //This is fine to replica exchange as the interaction, global and system lookups are done using names
     virtual void changeSystem(OutputPlugin* plug) { std::swap(Sim, static_cast<OPCollMatrix*>(plug)->Sim); }
   

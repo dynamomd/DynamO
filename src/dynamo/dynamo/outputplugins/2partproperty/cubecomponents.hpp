@@ -43,8 +43,6 @@ namespace dynamo {
 
     virtual void changeSystem(OutputPlugin* plug) { std::swap(Sim, static_cast<OPCubeComp*>(plug)->Sim); }
   
-    virtual OutputPlugin *Clone() const { return new OPCubeComp(*this); };
-  
   protected:
     struct mapdata
     {

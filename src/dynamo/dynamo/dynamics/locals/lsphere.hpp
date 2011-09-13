@@ -28,8 +28,6 @@ namespace dynamo {
 
     virtual ~CLSphere() {}
 
-    virtual Local* Clone() const { return new CLSphere(*this); };
-
     virtual LocalEvent getEvent(const Particle&) const;
 
     virtual void runEvent(const Particle&, const LocalEvent&) const;

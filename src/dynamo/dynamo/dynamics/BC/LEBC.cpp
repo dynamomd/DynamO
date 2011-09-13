@@ -70,10 +70,6 @@ namespace dynamo {
       { M_throw() << "Failed a lexical cast in LEBC"; }
   }
 
-  BoundaryCondition*
-  BCLeesEdwards::Clone() const 
-  { return new BCLeesEdwards(*this); }
-
   void 
   BCLeesEdwards::applyBC(Vector& pos) const
   {

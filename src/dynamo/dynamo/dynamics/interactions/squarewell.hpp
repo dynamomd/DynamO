@@ -43,8 +43,6 @@ namespace dynamo {
   
     void operator<<(const magnet::xml::Node&);
 
-    virtual Interaction* Clone() const;
-
     virtual size_t spheresPerParticle() const { return 1; }
     virtual double getDiameter(size_t ID, size_t subID) const;
     virtual Vector getPosition(size_t ID, size_t subID) const;

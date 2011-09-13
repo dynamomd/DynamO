@@ -30,8 +30,6 @@ namespace dynamo {
 
     void output(magnet::xml::XmlStream &); 
 
-    virtual OutputPlugin *Clone() const { return new OPPeriodicMSD(*this); };
-  
   protected:
     virtual void stream(double) {}  
     virtual void ticker();

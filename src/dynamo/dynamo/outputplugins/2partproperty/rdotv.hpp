@@ -47,8 +47,6 @@ namespace dynamo {
 
     virtual void changeSystem(OutputPlugin* plug) { std::swap(Sim, static_cast<OPRdotV*>(plug)->Sim); }
   
-    virtual OutputPlugin *Clone() const { return new OPRdotV(*this); };
-  
   protected:
     struct mapdata
     {

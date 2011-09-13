@@ -28,9 +28,6 @@ namespace dynamo {
     C2RRangeList(const magnet::xml::Node&, const dynamo::SimData*);
     C2RRangeList(const dynamo::SimData* nSim):SimBase_const(nSim,"C2RRangeList") {}
 
-    virtual C2Range* Clone() const 
-    { return new C2RRangeList(*this); };
-
     virtual bool isInRange(const Particle&, const Particle&) const;
 
     void addRange(C2Range* nRange)

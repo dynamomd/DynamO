@@ -22,8 +22,6 @@ namespace dynamo {
   public:
     virtual void stream(const double& dt) = 0;
 
-    virtual CShape* Clone() const = 0;
-  
     virtual double F_zeroDeriv() const = 0;
 
     virtual double F_firstDeriv() const = 0;

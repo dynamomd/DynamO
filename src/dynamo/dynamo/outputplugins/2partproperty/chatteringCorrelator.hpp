@@ -29,9 +29,6 @@ namespace dynamo {
 
     virtual void initialise();
 
-    virtual OutputPlugin* Clone() const
-    { return new OPChatteringCorrelator(*this); }
-
     void output(magnet::xml::XmlStream &XML);
 
   private:

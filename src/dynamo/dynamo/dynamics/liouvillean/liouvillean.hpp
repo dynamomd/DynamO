@@ -580,10 +580,6 @@ namespace dynamo {
     virtual ParticleEventData randomGaussianEvent(const Particle& part, 
 						  const double& sqrtT) const = 0;
 
-    /*! \brief A method to allow polymorphic classes to be copied
-     */
-    virtual Liouvillean* Clone() const = 0;
-
     /*! \brief An XML output operator for the class. Calls the virtual
      * OutputXML member function.
      */

@@ -62,8 +62,6 @@ namespace dynamo {
     virtual double getDiameter(size_t ID, size_t subID) const;
     virtual Vector getPosition(size_t ID, size_t subID) const;
 
-    virtual Interaction* Clone() const;
-
     virtual double getExcludedVolume(size_t) const;
 
     virtual double maxIntDist() const;

@@ -48,8 +48,6 @@ namespace dynamo {
   
     static Topology* getClass(const magnet::xml::Node& ,dynamo::SimData*, size_t);
 
-    virtual Topology* Clone() const = 0; //{ return new CTopology(this); }
-
     inline void addMolecule(CRange* ptr)
     { ranges.push_back(std::tr1::shared_ptr<CRange>(ptr)); }
 

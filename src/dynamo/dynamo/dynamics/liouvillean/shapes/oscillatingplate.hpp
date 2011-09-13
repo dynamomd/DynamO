@@ -111,8 +111,6 @@ namespace dynamo {
       return Delta * Omega * Omega;
     }
 
-    virtual CShape* Clone() const { return new COscillatingPlateFunc(*this); };
-
     virtual bool test_root() const
     {
       return (((vp | nhat) - velnHatWall()) 

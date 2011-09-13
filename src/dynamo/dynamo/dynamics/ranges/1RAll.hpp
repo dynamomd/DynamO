@@ -29,8 +29,6 @@ namespace dynamo {
 
     CRAll(const magnet::xml::Node&, const dynamo::SimData*);
 
-    virtual CRange* Clone() const { return new CRAll(*this); };
-
     virtual bool isInRange(const Particle&) const
     { return true; }
 

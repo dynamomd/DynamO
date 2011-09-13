@@ -36,8 +36,6 @@ namespace dynamo {
   
     void eventUpdate(const System&, const NEventData&, const double&);
 
-    OutputPlugin *Clone() const { return new OPReverseEventsCheck(*this); }
-
     virtual void changeSystem(OutputPlugin*) {}
 
     virtual void initialise();

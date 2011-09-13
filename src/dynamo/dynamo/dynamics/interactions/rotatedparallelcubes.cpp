@@ -78,10 +78,6 @@ namespace dynamo {
     return diam * diam * diam; 
   }
 
-  Interaction* 
-  IRotatedParallelCubes::Clone() const 
-  { return new IRotatedParallelCubes(*this); }
-  
   IntEvent 
   IRotatedParallelCubes::getEvent(const Particle &p1, const Particle &p2) const 
   { 

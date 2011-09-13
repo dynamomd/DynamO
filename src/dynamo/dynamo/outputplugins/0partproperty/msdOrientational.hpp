@@ -36,8 +36,6 @@ namespace dynamo {
 
     void output(magnet::xml::XmlStream &);
 
-    virtual OutputPlugin *Clone() const { return new OPMSDOrientational(*this); };
-
     struct msdCalcReturn
     {
       double parallel;

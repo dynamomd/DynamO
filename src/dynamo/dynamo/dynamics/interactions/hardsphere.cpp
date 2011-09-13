@@ -85,10 +85,6 @@ namespace dynamo {
     return diam * diam * diam * M_PI / 6.0; 
   }
 
-  Interaction* 
-  IHardSphere::Clone() const 
-  { return new IHardSphere(*this); }
-  
   IntEvent 
   IHardSphere::getEvent(const Particle &p1, const Particle &p2) const 
   { 

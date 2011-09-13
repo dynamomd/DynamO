@@ -38,8 +38,6 @@ namespace dynamo {
 
     void output(magnet::xml::XmlStream &); 
 
-    virtual OutputPlugin *Clone() const { return new OPMSD(*this); };
-
     double calcMSD(const CRange& range) const;
 
     double calcStructMSD(const Topology&) const;

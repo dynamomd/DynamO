@@ -336,7 +336,6 @@ namespace dynamo {
     }
 
   private:
-    virtual CSSorter* Clone() const { return new CSSBoundedPQ(*this); };
     ///////////////////////////BOUNDED QUEUE IMPLEMENTATION
     inline void insertInEventQ(int p)
     {

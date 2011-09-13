@@ -66,10 +66,6 @@ namespace dynamo {
       }
   }
 
-  Interaction* 
-  ISquareBond::Clone() const 
-  { return new ISquareBond(*this); }
-
   double 
   ISquareBond::getCaptureEnergy() const 
   { return 0.0; }

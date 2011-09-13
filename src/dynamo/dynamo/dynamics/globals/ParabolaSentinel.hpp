@@ -27,8 +27,6 @@ namespace dynamo {
   
     virtual ~GParabolaSentinel() {}
 
-    virtual Global* Clone() const { return new GParabolaSentinel(*this); };
-
     virtual GlobalEvent getEvent(const Particle &) const;
 
     virtual void runEvent(const Particle&, const double) const;

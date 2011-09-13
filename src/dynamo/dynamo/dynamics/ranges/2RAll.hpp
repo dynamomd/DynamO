@@ -28,9 +28,6 @@ namespace dynamo {
 
     C2RAll() {}
   
-    virtual C2Range* Clone() const 
-    { return new C2RAll(*this); };
-
     virtual bool isInRange(const Particle&, const Particle&) const
     { return true; }
   

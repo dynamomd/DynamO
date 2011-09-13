@@ -43,8 +43,6 @@ namespace dynamo {
 
     virtual ~LTriangleMesh() {}
 
-    virtual Local* Clone() const { return new LTriangleMesh(*this); };
-
     virtual LocalEvent getEvent(const Particle&) const;
 
     virtual void runEvent(const Particle&, const LocalEvent&) const;

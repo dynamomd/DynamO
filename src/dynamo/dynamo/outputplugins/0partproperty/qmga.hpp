@@ -24,9 +24,6 @@ namespace dynamo {
   public:
     OPQMGA(const dynamo::SimData*, const magnet::xml::Node&);
 
-    virtual OutputPlugin *Clone() const
-    { return new OPQMGA(*this); }
-
     virtual void initialise() { printImage(); }
 
     virtual void stream(double) {}

@@ -89,11 +89,6 @@ namespace dynamo {
     return retval;
   }
 
-
-  Interaction* 
-  IRoughHardSphere::Clone() const 
-  { return new IRoughHardSphere(*this); }
-  
   IntEvent 
   IRoughHardSphere::getEvent(const Particle& p1, const Particle& p2) const 
   { 

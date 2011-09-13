@@ -30,9 +30,6 @@ namespace dynamo {
     OPTinkerXYZ(const dynamo::SimData*, const magnet::xml::Node&);
     ~OPTinkerXYZ();
 
-    virtual OutputPlugin *Clone() const
-    { return new OPTinkerXYZ(*this); }
-
     virtual void initialise();
 
     virtual void stream(double) {}

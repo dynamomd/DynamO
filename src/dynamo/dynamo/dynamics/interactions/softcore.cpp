@@ -60,10 +60,6 @@ namespace dynamo {
       { M_throw() << "Failed a lexical cast in CISoftCore"; }
   }
 
-  Interaction* 
-  ISoftCore::Clone() const 
-  { return new ISoftCore(*this); }
-
   double 
   ISoftCore::maxIntDist() const 
   { return _diameter->getMaxValue(); }

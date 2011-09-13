@@ -59,7 +59,6 @@ namespace dynamo {
 
     //! Fetch the next event in the list, 
     virtual intPart   copyNextEvent() const               = 0;
-    virtual CSSorter* Clone()                          const = 0;
 
     static CSSorter* getClass(const magnet::xml::Node&, const dynamo::SimData*);
 

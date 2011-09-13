@@ -39,9 +39,6 @@ namespace dynamo {
     virtual void eventUpdate(const System&, const NEventData&, const double&) 
     {}
 
-    virtual OutputPlugin* Clone() const 
-    { return new OPETA(*this); }
-  
   protected:
     time_t start_Time;
   

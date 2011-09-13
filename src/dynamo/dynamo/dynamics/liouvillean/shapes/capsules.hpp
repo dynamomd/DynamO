@@ -98,8 +98,6 @@ namespace dynamo {
     const Vector& getr12() const { return r12; }
     const Vector& getv12() const { return v12; }
 
-    virtual CShape* Clone() const { return new CCapsulesFunc(*this); };
-
     virtual bool test_root(const double& length) const
     {
       double cp = getCollisionPoints();

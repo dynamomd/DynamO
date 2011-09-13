@@ -29,8 +29,6 @@ namespace dynamo {
     virtual bool isInRange(const Particle&, const Particle&) const =0;  
     virtual void operator<<(const magnet::xml::Node& XML) = 0;
   
-    virtual C2Range* Clone() const = 0;
-
     static C2Range* getClass(const magnet::xml::Node&, const dynamo::SimData*);
 
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const C2Range&);

@@ -28,9 +28,6 @@ namespace dynamo {
 
     OPPlateMotion(const OPPlateMotion&);
   
-    virtual OutputPlugin *Clone() const
-    { return new OPPlateMotion(*this); }
-
     virtual void initialise();
 
     virtual void stream(double) {}

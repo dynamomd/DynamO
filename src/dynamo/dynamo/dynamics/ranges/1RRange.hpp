@@ -27,8 +27,6 @@ namespace dynamo {
     CRRange(const magnet::xml::Node&);
     CRRange(unsigned int s, unsigned int e):startID(s),endID(e) {}
 
-    virtual CRange* Clone() const { return new CRRange(*this); }
-
     inline virtual bool isInRange(const Particle& part) const
     {
       if ((part.getID() >= startID) && (part.getID() <= endID))

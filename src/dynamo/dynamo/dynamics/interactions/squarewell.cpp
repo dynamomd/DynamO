@@ -70,10 +70,6 @@ namespace dynamo {
       }
   }
 
-  Interaction* 
-  ISquareWell::Clone() const 
-  { return new ISquareWell(*this); }
-
   double 
   ISquareWell::getDiameter(size_t ID, size_t subID) const
   { return _diameter->getProperty(ID); }

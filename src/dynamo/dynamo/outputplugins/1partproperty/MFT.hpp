@@ -37,8 +37,6 @@ namespace dynamo {
 
     virtual void initialise();
 
-    virtual OutputPlugin *Clone() const { return new OPMFT(*this); }
-  
     virtual void operator<<(const magnet::xml::Node&);
   
   protected:

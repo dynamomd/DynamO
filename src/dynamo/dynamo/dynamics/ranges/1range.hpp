@@ -40,8 +40,6 @@ namespace dynamo {
 
     virtual void operator<<(const magnet::xml::Node&) = 0;  
 
-    virtual CRange* Clone() const = 0;
-
     virtual unsigned long size() const = 0;
 
     virtual unsigned long operator[](unsigned long) const = 0;

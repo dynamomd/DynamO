@@ -44,8 +44,6 @@ namespace dynamo {
 
     void output(magnet::xml::XmlStream &);
 
-    virtual OutputPlugin *Clone() const { return new OPEventEffects(*this); };
-
     //This is fine to replica exchange as the interaction, global and system lookups are done using id's
     virtual void changeSystem(OutputPlugin* plug) { std::swap(Sim, static_cast<OPEventEffects*>(plug)->Sim); }
   

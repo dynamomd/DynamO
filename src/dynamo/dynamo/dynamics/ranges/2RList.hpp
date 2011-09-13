@@ -27,9 +27,6 @@ namespace dynamo {
     C2RList(const magnet::xml::Node&);
     C2RList() {}
 
-    virtual C2Range* Clone() const 
-    { return new C2RList(*this); };
-
     virtual bool isInRange(const Particle&, const Particle&) const;
 
     void addPair(unsigned long, unsigned long);

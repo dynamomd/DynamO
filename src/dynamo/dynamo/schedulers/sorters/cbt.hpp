@@ -145,8 +145,6 @@ namespace dynamo {
 
     inline void sort() {}
 
-    virtual CSSorter* Clone() const { return new CSSCBT(*this); }
-
   private:
     inline void UpdateCBT(unsigned int i)
     {

@@ -51,7 +51,7 @@ namespace dynamo {
     //Required to reset the dynamics
     Sim->dynamics.getLiouvillean().updateAllParticles();
 
-    oldLio = Sim->dynamics.getLiouvillean().Clone();
+    oldLio = Sim->dynamics.getLiouvilleanPtr();
 
     dout << "Loading compression liouvillean" << std::endl;
     Sim->dynamics.setLiouvillean(new LCompression(Sim, growthRate 
@@ -90,7 +90,7 @@ namespace dynamo {
     Sim->_properties.rescaleUnit(Property::Units::L, rescale_factor);
     Sim->_properties.rescaleUnit(Property::Units::T, rescale_factor);
 
-    Sim->dynamics.setLiouvillean(oldLio->Clone());
+    Sim->dynamics.getLiouvilleanPtr() = oldLio;
   
     Sim->ssHistory << "\nCompression dynamics run"
 		   << "\nEnd packing fraction" 

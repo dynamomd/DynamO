@@ -130,8 +130,6 @@ namespace dynamo {
   
     double calcInternalEnergy() const;
 
-    Dynamics* Clone() const { return new Dynamics(*this); }
-
     std::vector<std::tr1::shared_ptr<Interaction> >& getInteractions() { return interactions; }
     const std::vector<std::tr1::shared_ptr<Interaction> >& getInteractions() const { return interactions; }
 
@@ -180,6 +178,9 @@ namespace dynamo {
 
     inline  Liouvillean& getLiouvillean()
     { return *p_liouvillean; }
+
+    inline  std::tr1::shared_ptr<Liouvillean>& getLiouvilleanPtr()
+    { return p_liouvillean; }
 
     template<class T>
     inline bool liouvilleanTypeTest() const

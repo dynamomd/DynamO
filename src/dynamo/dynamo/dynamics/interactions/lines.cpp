@@ -72,10 +72,6 @@ namespace dynamo {
   ILines::maxIntDist() const 
   { return _length->getMaxValue(); }
 
-  Interaction* 
-  ILines::Clone() const 
-  { return new ILines(*this); }
-
   IntEvent 
   ILines::getEvent(const Particle &p1,
 		   const Particle &p2) const 

@@ -47,8 +47,6 @@ namespace dynamo {
 
     virtual double getExcludedVolume(size_t) const;
 
-    virtual Interaction* Clone() const;
-  
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
  
     virtual void runEvent(const Particle&, const Particle&, const IntEvent&) const;

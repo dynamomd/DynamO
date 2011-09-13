@@ -53,10 +53,6 @@ namespace dynamo {
       }
   }
 
-  Interaction* 
-  INull::Clone() const 
-  { return new INull(*this); }
-  
   IntEvent 
   INull::getEvent(const Particle &p1, const Particle &p2) const 
   { 

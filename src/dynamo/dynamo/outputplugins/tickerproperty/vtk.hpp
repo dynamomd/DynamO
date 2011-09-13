@@ -23,9 +23,6 @@ namespace dynamo {
   public:
     OPVTK(const dynamo::SimData*, const magnet::xml::Node&);
 
-    virtual OutputPlugin *Clone() const
-    { return new OPVTK(*this); }
-
     virtual void initialise();
 
     virtual void stream(double) {}

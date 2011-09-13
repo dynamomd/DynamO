@@ -25,9 +25,6 @@ namespace dynamo {
   public:
     OPVelProfile(const dynamo::SimData*, const magnet::xml::Node&);
 
-    virtual OutputPlugin *Clone() const
-    { return new OPVelProfile(*this); }
-
     virtual void initialise();
 
     virtual void stream(double) {}

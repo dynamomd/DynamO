@@ -26,9 +26,6 @@ namespace dynamo {
   public:
     OPBoundedQStats(const dynamo::SimData*, const magnet::xml::Node&);
 
-    virtual OutputPlugin *Clone() const
-    { return new OPBoundedQStats(*this); }
-
     virtual void initialise();
 
     virtual void stream(double) {};

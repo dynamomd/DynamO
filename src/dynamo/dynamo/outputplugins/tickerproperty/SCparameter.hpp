@@ -25,9 +25,6 @@ namespace dynamo {
   public:
     OPSCParameter(const dynamo::SimData*, const magnet::xml::Node&);
 
-    virtual OutputPlugin *Clone() const
-    { return new OPSCParameter(*this); }
-
     virtual void initialise();
 
     virtual void stream(double) {}

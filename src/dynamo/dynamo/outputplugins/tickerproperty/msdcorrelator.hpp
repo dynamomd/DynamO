@@ -31,9 +31,6 @@ namespace dynamo {
 
     void output(magnet::xml::XmlStream &); 
 
-    virtual OutputPlugin *Clone() const 
-    { return new OPMSDCorrelator(*this); };
-
     virtual void operator<<(const magnet::xml::Node&);
   
   protected:

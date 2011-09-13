@@ -30,9 +30,6 @@ namespace dynamo {
 
     void output(magnet::xml::XmlStream &);
 
-    virtual OutputPlugin *Clone() const
-    { return new OPMSDOrientationalCorrelator(*this); };
-
     virtual void operator<<(const magnet::xml::Node&);
 
     typedef std::pair<Vector,Vector> RUpair;

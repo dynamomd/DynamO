@@ -27,8 +27,6 @@ namespace dynamo {
 
     CRNone(const magnet::xml::Node&);
 
-    virtual CRange* Clone() const { return new CRNone(*this); };
-
     virtual bool isInRange(const Particle&) const
     { return false; }
 

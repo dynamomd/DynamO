@@ -41,9 +41,6 @@ namespace dynamo {
   
     void periodicOutput();
   
-    virtual OutputPlugin *Clone() const 
-    { return new OPMisc(*this); }
-  
     double getMFT() const;
   
     void changeSystem(OutputPlugin*);

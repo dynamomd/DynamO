@@ -28,9 +28,6 @@ namespace dynamo {
 
     C2RChainEnds(size_t, size_t, size_t);
   
-    virtual C2Range* Clone() const 
-    { return new C2RChainEnds(*this); };
-
     virtual bool isInRange(const Particle&, const Particle&) const;
   
     virtual void operator<<(const magnet::xml::Node&);

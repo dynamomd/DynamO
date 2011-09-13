@@ -32,8 +32,6 @@ namespace dynamo {
       SpSphericalTop(XML, Sim, ID)
     {}
 
-    virtual Species* Clone() const { return new SpLines(*this); }
-
   protected:
 
     virtual void outputXML(magnet::xml::XmlStream& XML) const 

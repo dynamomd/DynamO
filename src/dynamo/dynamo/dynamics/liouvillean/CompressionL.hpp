@@ -32,8 +32,6 @@ namespace dynamo {
 
     virtual PairEventData SphereWellEvent(const IntEvent&, const double&, const double&) const;
   
-    virtual Liouvillean* Clone() const { return new LCompression(*this); };
-
     double getGrowthRate() const { return growthRate; }
 
     virtual double getPBCSentinelTime(const Particle&, const double&) const;

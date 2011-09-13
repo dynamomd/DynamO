@@ -30,8 +30,6 @@ namespace dynamo {
 
     virtual ~CLAndersenWall() {}
 
-    virtual Local* Clone() const { return new CLAndersenWall(*this); }
-
     virtual LocalEvent getEvent(const Particle &) const;
 
     virtual void runEvent(const Particle&, const LocalEvent&) const;

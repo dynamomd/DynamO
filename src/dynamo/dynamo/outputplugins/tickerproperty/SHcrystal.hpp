@@ -25,9 +25,6 @@ namespace dynamo {
   public:
     OPSHCrystal(const dynamo::SimData*, const magnet::xml::Node&);
 
-    virtual OutputPlugin *Clone() const
-    { return new OPSHCrystal(*this); }
-
     virtual void initialise();
 
     virtual void stream(double) {}

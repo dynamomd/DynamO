@@ -28,8 +28,6 @@ namespace dynamo {
 
     virtual ~CLCylinder() {}
 
-    virtual Local* Clone() const { return new CLCylinder(*this); };
-
     virtual LocalEvent getEvent(const Particle&) const;
 
     virtual void runEvent(const Particle&, const LocalEvent&) const;

@@ -32,8 +32,6 @@ namespace dynamo {
 
     virtual void initialise();
 
-    virtual OutputPlugin *Clone() const { return new OPMomentum(*this); }
-       
   protected:
 
     Vector  accMom, accMomsq, sysMom;

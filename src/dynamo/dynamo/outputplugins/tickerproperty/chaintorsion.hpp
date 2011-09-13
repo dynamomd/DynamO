@@ -27,9 +27,6 @@ namespace dynamo {
   public:
     OPCTorsion(const dynamo::SimData*, const magnet::xml::Node&);
 
-    virtual OutputPlugin *Clone() const
-    { return new OPCTorsion(*this); }
-
     virtual void initialise();
 
     virtual void stream(double) {}

@@ -36,7 +36,6 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
     virtual void operator<<(const magnet::xml::Node&);
-    virtual BoundaryCondition* Clone () const;
   };
 
   /*! \brief This class ignores the x direction but is periodic in others.
@@ -58,7 +57,6 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
     virtual void operator<<(const magnet::xml::Node&);
-    virtual BoundaryCondition* Clone () const;
   };
 
   /*! \brief This class ignores all directions but is periodic in
@@ -81,6 +79,5 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
     virtual void operator<<(const magnet::xml::Node&);
-    virtual BoundaryCondition* Clone () const;
   };
 }

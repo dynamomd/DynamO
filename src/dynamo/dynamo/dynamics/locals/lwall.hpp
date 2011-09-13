@@ -40,8 +40,6 @@ namespace dynamo {
 
     virtual ~LWall() {}
 
-    virtual Local* Clone() const { return new LWall(*this); };
-
     virtual LocalEvent getEvent(const Particle&) const;
 
     virtual void runEvent(const Particle&, const LocalEvent&) const;

@@ -131,9 +131,6 @@ namespace dynamo {
 					 const double&, const double&, 
 					 EEventType&) const;
 
-    //Cloning
-    virtual Liouvillean* Clone() const { return new LNewtonian(*this); }
-
     virtual PairEventData parallelCubeColl(const IntEvent& event,
 					   const double& e, const double& d,
 					   const Matrix& rot,

@@ -41,9 +41,6 @@ namespace dynamo {
 
     virtual void initialise();
 
-    virtual OutputPlugin *Clone() const 
-    { return new OPCollEnergyChange(*this); }
-
     void operator<<(const magnet::xml::Node&);
 
   protected:  

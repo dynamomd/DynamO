@@ -24,9 +24,6 @@ namespace dynamo {
   public:
     OPStructureImaging(const dynamo::SimData*, const magnet::xml::Node&);
 
-    virtual OutputPlugin *Clone() const
-    { return new OPStructureImaging(*this); }
-
     virtual void initialise();
 
     virtual void stream(double) {}

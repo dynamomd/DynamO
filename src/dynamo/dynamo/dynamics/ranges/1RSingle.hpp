@@ -27,8 +27,6 @@ namespace dynamo {
 
     CRSingle():ID(0) {}
 
-    virtual CRange* Clone() const { return new CRSingle(*this); };
-
     virtual bool isInRange(const Particle &) const;
 
     //The data output classes
