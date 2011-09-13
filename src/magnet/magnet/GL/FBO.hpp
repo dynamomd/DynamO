@@ -320,7 +320,7 @@ namespace magnet {
 	      case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS: 
 		M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
 	      default: 
-		M_throw() << "Failed to create FrameBufferObject: Unkown error code";
+		M_throw() << "Failed to create FrameBufferObject: Unknown error code = " << FBOstatus << " ";
 	      case GL_FRAMEBUFFER_COMPLETE_EXT: 
 		break;
 	      }
