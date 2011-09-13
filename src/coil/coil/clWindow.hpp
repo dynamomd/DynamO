@@ -21,6 +21,7 @@
 #include <magnet/static_assert.hpp>
 #include <magnet/GL/light.hpp>
 #include <magnet/GL/shader/render.hpp>
+#include <magnet/GL/shader/deferred.hpp>
 #include <magnet/GL/camera.hpp>
 #include <magnet/GL/multisampledFBO.hpp>
 #include <magnet/GL/shader/vsm.hpp>
@@ -83,11 +84,13 @@ namespace coil {
     void setLabelText(Gtk::Label*, std::string);
 
     magnet::GL::shader::RenderShader _renderShader;
+    magnet::GL::shader::DeferredLightingShader _deferredShader;
     magnet::GL::shader::VSMShader _VSMShader;
     magnet::GL::shader::SimpleRenderShader _simpleRenderShader;
 
     //Primary render target
-    std::auto_ptr<magnet::GL::FBO> _renderTarget;
+    magnet::GL::FBO _renderTarget;
+    magnet::GL::FBO _Gbuffer;
 
     //Frame buffers to flip flop filters between
     magnet::GL::FBO _filterTarget1;
@@ -207,9 +210,7 @@ namespace coil {
     void HeadReset();
 
     //Other callbacks
-    void multisampleEnableCallback();
     void shadowEnableCallback();
-
     void simRunControlCallback();
     void simFramelockControlCallback();
     void snapshotCallback();

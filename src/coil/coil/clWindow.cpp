@@ -221,57 +221,6 @@ namespace coil {
 
     ///////////////////////Render Pipeline//////////////////////////////////
     {
-      ///////////////////////Multisampling (anti-aliasing)//////////////////////////////////
-      GLint maxSamples = magnet::GL::MultisampledFBO::getSupportedSamples();
-    
-      if (maxSamples > 1)
-	{//Offer anti aliasing
-	  {//Turn on the antialiasing box
-	    Gtk::HBox* multisampleBox;
-	    _refXml->get_widget("multisampleBox", multisampleBox);
-	    multisampleBox->set_sensitive(true);
-	  }
-	
-	  Gtk::ComboBox* aliasSelections;
-	  _refXml->get_widget("multisampleLevels", aliasSelections);
-	
-	  struct aliasColumns : public Gtk::TreeModel::ColumnRecord
-	  {
-	    aliasColumns() { add(m_col_id); }
-	    Gtk::TreeModelColumn<int> m_col_id;
-	  };
-	
-	  aliasColumns vals;
-	  Glib::RefPtr<Gtk::ListStore> m_refTreeModel = Gtk::ListStore::create(vals);
-	  aliasSelections->set_model(m_refTreeModel);
-	
-	  Gtk::TreeModel::Row row;
-	  int lastrow = -1;
-	  GLint currentSamples = maxSamples;
-	  for ( ; currentSamples > 1; currentSamples >>= 1)
-	    {
-	      row = *(m_refTreeModel->prepend());
-	      row[vals.m_col_id] = currentSamples;
-	      ++lastrow;
-	    }
-	
-	  aliasSelections->pack_start(vals.m_col_id);
-	
-	  //Activate a multisample of 2<<(1)=4 by default
-	  aliasSelections->set_active(std::min(lastrow, 1));
-	
-	  
-	  aliasSelections->signal_changed()
-	    .connect(sigc::mem_fun(*this, &CLGLWindow::multisampleEnableCallback));
-
-	  //Connect the anti aliasing checkbox
-	  Gtk::CheckButton* multisampleEnable;
-	  _refXml->get_widget("multisampleEnable", multisampleEnable);
-	  multisampleEnable->set_active(false);
-	  multisampleEnable->signal_toggled()
-	    .connect(sigc::mem_fun(*this, &CLGLWindow::multisampleEnableCallback));
-	}
-    
       ///////////////////////Shadow Mapping//////////////////////////////////
       {
 	Gtk::CheckButton* shadowmapEnable;
@@ -509,49 +458,6 @@ namespace coil {
   }
 
   void 
-  CLGLWindow::multisampleEnableCallback()
-  {
-    //This function is called during initialisation to setup the renderTarget!
-    Gtk::CheckButton* multisampleEnable;
-    _refXml->get_widget("multisampleEnable", multisampleEnable);
-    Gtk::ComboBox* aliasSelections;
-    _refXml->get_widget("multisampleLevels", aliasSelections);
-
-    //Build depth buffer
-    std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
-    depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);
-    depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-
-    std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-    colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
-    colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    std::tr1::shared_ptr<magnet::GL::Texture2D> normalTexture(new magnet::GL::Texture2D);
-    normalTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
-    normalTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    normalTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    normalTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP);
-    normalTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP);
-
-    if (multisampleEnable->get_active())
-      _renderTarget.reset(new magnet::GL::MultisampledFBO(2 << aliasSelections->get_active_row_number()));
-    else
-      _renderTarget.reset(new magnet::GL::FBO());
-
-    _renderTarget->init();
-    _renderTarget->attachColorTexture(colorTexture, 0);
-    _renderTarget->attachColorTexture(normalTexture, 1);
-    _renderTarget->attachDepthTexture(depthTexture);
-  }
-
-  void 
   CLGLWindow::shadowEnableCallback()
   {
     Gtk::CheckButton* shadowmapEnable;
@@ -681,8 +587,69 @@ namespace coil {
     _light0.init();
     
     _renderShader.build();
+    _deferredShader.build();
     _VSMShader.build();
     _simpleRenderShader.build();
+
+    { 
+      //Build render buffer
+      std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
+      depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);
+      depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+      
+      std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB);
+      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      
+      _renderTarget.init();
+      _renderTarget.attachColorTexture(colorTexture, 0);
+      _renderTarget.attachDepthTexture(depthTexture);
+    }
+
+    {
+      //Build G buffer
+      std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
+      depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);
+      depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+      
+      std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB);
+      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      
+      std::tr1::shared_ptr<magnet::GL::Texture2D> normalTexture(new magnet::GL::Texture2D);
+      normalTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB16F_ARB);
+      normalTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      normalTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      normalTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      normalTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+      std::tr1::shared_ptr<magnet::GL::Texture2D> posTexture(new magnet::GL::Texture2D);
+      posTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB32F_ARB);
+      posTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      posTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      posTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      posTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
+      _Gbuffer.init();
+      _Gbuffer.attachColorTexture(colorTexture, 0);
+      _Gbuffer.attachColorTexture(normalTexture, 1);
+      _Gbuffer.attachColorTexture(posTexture, 2);
+      _Gbuffer.attachDepthTexture(depthTexture);
+    }
 
     //Now init the render objects  
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
@@ -694,9 +661,6 @@ namespace coil {
 	     << Console::end();
 
     initGTK();
-
-    //Setup the render target
-    multisampleEnableCallback();
 
     //  //Fabian Test
     //  vol->loadRawFile("/home/mjki2mb2/Desktop/Output.raw", 300, 300, 300, 1);
@@ -756,10 +720,12 @@ namespace coil {
 
     _renderObjsTree._renderObjects.clear();
 
-    _renderTarget->deinit();
+    _renderTarget.deinit();
+    _Gbuffer.deinit();
     _filterTarget1.deinit();
     _filterTarget2.deinit();
     _renderShader.deinit();
+    _deferredShader.deinit();	
     _VSMShader.deinit();
     _simpleRenderShader.build();
 
@@ -801,12 +767,10 @@ namespace coil {
     //Run an update if the wiiMote was connected
     if ((magnet::TrackWiimote::getInstance()).connected())
       {
-	{
-	  Gtk::CheckButton* wiiHeadTrack;
-	  _refXml->get_widget("wiiHeadTracking", wiiHeadTrack);
-	  if (wiiHeadTrack->get_active())
-	    _camera.setHeadLocation((magnet::TrackWiimote::getInstance()).getHeadPosition());
-	}
+	Gtk::CheckButton* wiiHeadTrack;
+	_refXml->get_widget("wiiHeadTracking", wiiHeadTrack);
+	if (wiiHeadTrack->get_active())
+	  _camera.setHeadLocation((magnet::TrackWiimote::getInstance()).getHeadPosition());
       }
 #endif
 
@@ -841,9 +805,9 @@ namespace coil {
 	glEnable(GL_ALPHA_TEST);
       }
       
-    _renderTarget->attach();
+    _renderTarget.attach();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    _renderTarget->detach();
+    _renderTarget.detach();
     
     //Bind to the multisample buffer
     if (_analygraphMode)
@@ -852,29 +816,29 @@ namespace coil {
 	Vector eyeDisplacement(0.5 * eyedist, 0, 0);
 	  
 	glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
-	drawScene(*_renderTarget, _camera, eyeDisplacement);
+	drawScene(_renderTarget, _camera, eyeDisplacement);
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
-	drawScene(*_renderTarget, _camera, -eyeDisplacement);
+	drawScene(_renderTarget, _camera, -eyeDisplacement);
 
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
       }
     else
-      drawScene(*_renderTarget, _camera, Vector(0,0,0));
+      drawScene(_renderTarget, _camera, Vector(0,0,0));
 
     //////////////FILTERING////////////
     bool FBOalternate = false;
 
-    magnet::GL::FBO* lastFBO = &(*_renderTarget);
+    magnet::GL::FBO* lastFBO = &_renderTarget;
     if (_filterEnable && !_filterStore->children().empty())
       {
 	//Bind the original image to texture (unit 0)
-	_renderTarget->getColorTexture(0).bind(0);	
+	_renderTarget.getColorTexture(0).bind(0);	
 	//Now bind the texture which has the normals (unit 1)
-	_renderTarget->getColorTexture(1).bind(1);
+	_renderTarget.getColorTexture(1).bind(1);
 	//High quality depth information is attached to (unit 2)
-	_renderTarget->getDepthTexture().bind(2);
+	_Gbuffer.getDepthTexture().bind(2);
 
 	for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin();
 	     iPtr != _filterStore->children().end(); ++iPtr)
@@ -974,19 +938,11 @@ namespace coil {
   void 
   CLGLWindow::drawScene(magnet::GL::FBO& fbo, magnet::GL::Camera& camera, Vector eyeDisplacement)
   {
-    _renderTarget->attach();
+    _Gbuffer.attach();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     _renderShader.attach();
-    _renderShader["ShadowMap"] = 7;
-    _renderShader["ShadowIntensity"] = _shadowIntensity;
-    _renderShader["ShadowMapping"] = _shadowMapping;
-    _renderShader["lightPosition"] = _light0.getEyeLocation();
     _renderShader["ProjectionMatrix"] = _camera.getProjectionMatrix(eyeDisplacement);
     _renderShader["ViewMatrix"] = _camera.getViewMatrix(eyeDisplacement);
-    _renderShader["NormalMatrix"] = _camera.getNormalMatrix(eyeDisplacement);
-    if (_shadowMapping)
-      _renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix(_camera, eyeDisplacement);
 
     //Enter the render ticks for all objects
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
@@ -994,8 +950,29 @@ namespace coil {
       if ((*iPtr)->visible()) (*iPtr)->glRender(fbo, camera, RenderObj::DEFAULT);
 
     _renderShader.detach();
+    _Gbuffer.detach();
 
-    _renderTarget->detach();
+    //_renderShader["ShadowMap"] = 7;
+    //_renderShader["ShadowIntensity"] = _shadowIntensity;
+    //_renderShader["ShadowMapping"] = _shadowMapping;
+    //if (_shadowMapping)
+    //  _renderShader["ShadowMatrix"] = _light0.getShadowTextureMatrix(_camera, eyeDisplacement);
+
+    _renderTarget.attach();
+    
+    
+    _deferredShader.attach();
+    _Gbuffer.getColorTexture(0).bind(0);
+    _deferredShader["colorTex"] = 0;
+    _Gbuffer.getColorTexture(1).bind(1);
+    _deferredShader["normalTex"] = 1;
+    _Gbuffer.getColorTexture(2).bind(2);
+    _deferredShader["positionTex"] = 2;
+    _deferredShader["lightPosition"] = _light0.getEyeLocation();
+    _deferredShader["camPosition"] = camera.getEyeLocation();
+    _deferredShader.invoke();
+    _deferredShader.detach();
+    _renderTarget.detach();
   }
 
   void CLGLWindow::CallBackReshapeFunc(int w, int h)
@@ -1004,7 +981,8 @@ namespace coil {
 
     _camera.setHeightWidth(h, w);
     //Update the viewport
-    _renderTarget->resize(w, h);  
+    _renderTarget.resize(w, h);  
+    _Gbuffer.resize(w, h);  
     _filterTarget1.resize(w, h);
     _filterTarget2.resize(w, h);
     std::ostringstream os;
