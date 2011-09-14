@@ -506,13 +506,6 @@ namespace magnet {
 		  << detail::glGet<GL_MAJOR_VERSION>() << "."
 		  << detail::glGet<GL_MINOR_VERSION>() << std::endl;	
 	
-	size_t numExtensions = detail::glGet<GL_NUM_EXTENSIONS>();
-	for (size_t i(0); i < numExtensions; ++i)
-	  std::cout << "GL-Context " << _context << ": \"" 
-		    << glGetStringi(GL_EXTENSIONS, i)
-		    << "\"\n";
-	std::cout.flush();
-
 	if (!testExtension("GL_EXT_framebuffer_object"))
 	  M_throw() << "GL-Context " << _context 
 		    << ": Critical OpenGL dependency: Frame buffers are not supported";
