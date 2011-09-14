@@ -333,8 +333,13 @@ namespace magnet {
 	    //Vertex shader
 	    if (!_vertexShaderCode.empty())
 	      {
-		if (!GLEW_ARB_vertex_shader)
-		  M_throw() << "Vertex shaders are not supported by your OpenGL driver.";
+		if (!_context->testExtension("GL_ARB_vertex_program"))
+		  M_throw() << "GL-Context " << _context 
+			    << ": Critical OpenGL dependency: Vertex programs are not supported";
+		
+		if (!_context->testExtension("GL_ARB_vertex_shader"))
+		  M_throw() << "GL-Context " << _context 
+			    << ": Critical OpenGL dependency: Vertex shaders are not supported";
 
 		if (!(_vertexShaderHandle = glCreateShaderObjectARB(GL_VERTEX_SHADER)))
 		  M_throw() << "Failed to create vertex shader handle";
@@ -352,9 +357,14 @@ namespace magnet {
 
 	    //Fragment shader
 	    if (!_fragmentShaderCode.empty())
-	      {
-		if (!GLEW_ARB_fragment_shader)
-		  M_throw() << "Fragment shaders are not supported by your OpenGL driver.";
+	      {	
+		if (!_context->testExtension("GL_ARB_fragment_program"))
+		  M_throw() << "GL-Context " << _context 
+			    << ": Critical OpenGL dependency: Fragment programs are not supported";
+		
+		if (!_context->testExtension("GL_ARB_fragment_shader"))
+		  M_throw() << "GL-Context " << _context 
+			    << ": Critical OpenGL dependency: Fragment shaders are not supported";
 
 		if (!(_fragmentShaderHandle = glCreateShaderObjectARB(GL_FRAGMENT_SHADER)))
 		  M_throw() << "Failed to create fragment shader handle";
@@ -373,7 +383,7 @@ namespace magnet {
 	    //Geometry shader
 	    if (!(_geometryShaderCode.empty()))
 	      {
-		if (!GL_EXT_geometry_shader4)
+		if (!_context->testExtension("GL_EXT_geometry_shader4"))
 		  M_throw() << "Geometry shaders are not supported by your OpenGL driver.";
 
 		if (!(_geometryShaderHandle = glCreateShaderObjectARB(GL_GEOMETRY_SHADER_EXT)))

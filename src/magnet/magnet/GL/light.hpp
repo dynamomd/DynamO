@@ -86,8 +86,8 @@ namespace magnet {
 	colorTexture->init(1024, 1024, GL_RG32F);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP);
-	colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP);
+	colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	_shadowFBO.init();
 	_shadowFBO.attachColorTexture(colorTexture, 0);

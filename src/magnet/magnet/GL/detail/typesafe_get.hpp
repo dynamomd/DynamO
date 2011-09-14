@@ -28,7 +28,10 @@ namespace magnet {
       F(GL_VIEWPORT, GLint, 4)				\
       F(GL_MAX_VERTEX_ATTRIBS, GLint, 1)                \
       F(GL_MAX_COLOR_ATTACHMENTS_EXT, GLint, 1)		\
-      F(GL_MAX_DRAW_BUFFERS, GLint, 1)		\
+      F(GL_MAJOR_VERSION, GLint, 1)			\
+      F(GL_MINOR_VERSION, GLint, 1)			\
+      F(GL_MAX_DRAW_BUFFERS, GLint, 1)			\
+      F(GL_NUM_EXTENSIONS, GLint, 1)			\
       F(GL_MAX_SAMPLES, GLint, 1)
 
       template<size_t width, class T> struct return_type { typedef std::tr1::array<T, width> Type; };

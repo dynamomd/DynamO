@@ -328,6 +328,20 @@ namespace magnet {
       inline size_t getFrameCount() const 
       { return _frameCounter; }
 
+      bool testExtension(std::string extension)
+      {
+	size_t numExtensions = detail::glGet<GL_NUM_EXTENSIONS>();
+	for (size_t i(0); i < numExtensions; ++i)
+	  {
+	    std::string ext(reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i)));
+	    
+	    if (ext.compare(extension) == 0)
+	      return true;
+	  }
+
+	return false;
+      }
+
     protected:
       /*! \brief A counter of the number of calls to \ref
           swapBuffers(). 
@@ -480,24 +494,40 @@ namespace magnet {
 
 	std::cout << "GL-Context " << _context << ": Created a new OpenGL context" << std::endl;	
 	//////////Capability testing /////////////////////////////
+
+	//We must set this true as glew uses deprecated code
+	//(glGetString) for testing for extensions
+	glewExperimental=true;
 	if (glewInit() != GLEW_OK)
 	  M_throw() << "GL-Context " << _context << "Failed to initialise GLEW!";
-		
-	if (!GLEW_EXT_framebuffer_object)
-	  M_throw() << "GL-Context " << _context << "Critical OpenGL dependency: Frame buffers are not supported";
-    
-	if (!GLEW_ARB_vertex_buffer_object)
-	  M_throw() << "GL-Context " << _context << "Critical OpenGL dependency: Vertex buffer objects are not supported";
-    
-	if (!GLEW_ARB_fragment_program || !GLEW_ARB_vertex_program
-	    || !GLEW_ARB_fragment_shader || !GLEW_ARB_vertex_shader)
-	  M_throw() << "GL-Context " << _context << "Critical OpenGL dependency: Fragment/Vertex shaders are not supported";
 
-	if (!GLEW_ARB_depth_texture || !GLEW_ARB_shadow)
-	  M_throw() << "GL-Context " << _context << "Critical OpenGL dependency: GL_ARB_depth_texture or GL_ARB_shadow not supported";
+	std::cout << "GL-Context " << _context 
+		  << ": OpenGL version " 
+		  << detail::glGet<GL_MAJOR_VERSION>() << "."
+		  << detail::glGet<GL_MINOR_VERSION>() << std::endl;	
+	
+	size_t numExtensions = detail::glGet<GL_NUM_EXTENSIONS>();
+	for (size_t i(0); i < numExtensions; ++i)
+	  std::cout << "GL-Context " << _context << ": \"" 
+		    << glGetStringi(GL_EXTENSIONS, i)
+		    << "\"\n";
+	std::cout.flush();
 
-	if (!GLEW_ARB_instanced_arrays)
-	  M_throw() << "GL-Context " << _context << "Critical OpenGL dependency: GL_ARB_instanced_arrays not supported";
+	if (!testExtension("GL_EXT_framebuffer_object"))
+	  M_throw() << "GL-Context " << _context 
+		    << ": Critical OpenGL dependency: Frame buffers are not supported";
+    
+	if (!testExtension("GL_ARB_vertex_buffer_object"))
+	  M_throw() << "GL-Context " << _context 
+		    << ": Critical OpenGL dependency: Vertex buffer objects are not supported";
+    
+	if (!testExtension("GL_ARB_depth_texture") || !testExtension("GL_ARB_shadow"))
+	  M_throw() << "GL-Context " << _context 
+		    << ": Critical OpenGL dependency: GL_ARB_depth_texture or GL_ARB_shadow not supported";
+
+	if (!testExtension("GL_ARB_instanced_arrays"))
+	  M_throw() << "GL-Context " << _context 
+		    << ": Critical OpenGL dependency: GL_ARB_instanced_arrays not supported";
 
 	///////Variable initialisation ///////////////////////////
 	_viewMatrix = GLMatrix::identity();
