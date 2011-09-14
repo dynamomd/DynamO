@@ -506,16 +506,16 @@ namespace coil {
 
     //  //Test volume render object
     
-    //std::tr1::shared_ptr<RVolume> vol(new RVolume("Test Volume"));
-    //_renderObjsTree._renderObjects.push_back(vol);
+//    std::tr1::shared_ptr<RVolume> vol(new RVolume("Test Volume"));
+//    _renderObjsTree._renderObjects.push_back(vol);
 
-//    glutInitContextVersion(3, 3);
-//    
-//#ifdef MAGNET_DEBUG
-//    glutInitContextFlags(GLUT_CORE_PROFILE | GLUT_DEBUG);
-//#else
-//    glutInitContextFlags(GLUT_CORE_PROFILE);
-//#endif
+    glutInitContextVersion(3, 3);
+    
+#ifdef MAGNET_DEBUG
+    glutInitContextFlags(GLUT_CORE_PROFILE | GLUT_DEBUG);
+#else
+    glutInitContextFlags(GLUT_CORE_PROFILE);
+#endif
     glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE | GLUT_ALPHA);
     glutInitWindowSize(800, 600);
     glutInitWindowPosition(0, 0);
@@ -672,7 +672,7 @@ namespace coil {
     //  //Fabian Test
     //  vol->loadRawFile("/home/mjki2mb2/Desktop/Output.raw", 300, 300, 300, 1);
     //  
-    //  //bonsai plant test
+    //bonsai plant test
     //  vol->loadRawFile("bonsai.raw", 256, 256, 256, 1);
     //
     //  //Cadaver
@@ -843,7 +843,7 @@ namespace coil {
 	//Bind the original image to texture (unit 0)
 	_renderTarget.getColorTexture(0).bind(0);	
 	//Now bind the texture which has the normals (unit 1)
-	_renderTarget.getColorTexture(1).bind(1);
+	_Gbuffer.getColorTexture(1).bind(1);
 	//High quality depth information is attached to (unit 2)
 	_Gbuffer.getDepthTexture().bind(2);
 

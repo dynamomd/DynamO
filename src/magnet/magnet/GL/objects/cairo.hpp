@@ -17,6 +17,7 @@
 #pragma once
 #include <magnet/GL/texture.hpp>
 #include <magnet/GL/shader/detail/shader.hpp>
+#include <magnet/GL/objects/fullscreen_quad.hpp>
 #include <magnet/image/signed_distance.hpp>
 #include <cairommconfig.h>
 #include <cairomm/context.h>
@@ -38,7 +39,7 @@ namespace magnet {
         "Improved Alpha-Tested Magnification for math::Vector Textures
         and Special Effects," by Chris Green from Valve.
        */
-      class CairoSurface
+      class CairoSurface : private FullScreenQuad
       {
 	/*! \brief An alpha-testing shader for painting Cario
 	  generated textures.
@@ -137,10 +138,10 @@ void main()
 	  _cairoSurface.clear();
 	  _cairoContext.clear();
 	  _surface.deinit();
-	  _vertexData.deinit();
 	  _shader.deinit();
 	  _pango.clear();
 	  _width = _height = 0;
+	  FullScreenQuad::deinit();
 	}
 
 	/*! \brief Resizes the cairo texture if required.
@@ -171,23 +172,11 @@ void main()
 	virtual void init(size_t width, size_t height, size_t alpha_testing = 0)
 	{
 	  deinit();
+	  FullScreenQuad::init();
 	  _alpha_testing = alpha_testing;
 
 	  _width = width * (alpha_testing + !alpha_testing);
 	  _height = height * (alpha_testing + !alpha_testing);
-
-	  { ///////////////////Vertex Data
-	    // Single quad, in pre-transformed screen coordinates
-	    // (rotate, translate and scale using the instancing
-	    // mechanism)
-	    std::vector<GLfloat> vertexdata(4 * 2);
-	    vertexdata[2 * 0 + 0] = -1; vertexdata[2 * 0 + 1] = -1;
-	    vertexdata[2 * 1 + 0] =  1; vertexdata[2 * 1 + 1] = -1;
-	    vertexdata[2 * 2 + 0] =  1; vertexdata[2 * 2 + 1] =  1;
-	    vertexdata[2 * 3 + 0] = -1; vertexdata[2 * 3 + 1] =  1;
-	    _vertexData.init(vertexdata);
-	    magnet::GL::Buffer<GLfloat> _vertexData;
-	  }
 
 	  _shader.build(_alpha_testing);
 	  _surface.init(_width / (_alpha_testing + !_alpha_testing), 
@@ -262,7 +251,7 @@ void main()
 	  _shader["cairoTexture"] = 6;
 	  _shader["ProjectionMatrix"] = projection;
 	  _shader["ViewMatrix"] = modelview;
-	  _vertexData.drawArray(magnet::GL::element_type::QUADS, 2);
+	  FullScreenQuad::glRender();
 	  _shader.detach();
 	}
 
@@ -333,7 +322,6 @@ void main()
 	Cairo::RefPtr<Cairo::ImageSurface> _cairoSurface;
 	Cairo::RefPtr<Cairo::Context> _cairoContext;
 	Glib::RefPtr<Pango::Layout> _pango;
-	magnet::GL::Buffer<GLfloat> _vertexData;
 	CairoShader _shader;
       };
     }

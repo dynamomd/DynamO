@@ -42,18 +42,21 @@ namespace magnet {
 	{
 	  ///////////////////Vertex Data
 	  // Single quad, in pre-transformed screen coordinates
-	  std::vector<GLfloat> vertexdata(4 * 2);
+	  std::vector<GLfloat> vertexdata(2 * 6);
 	  vertexdata[2 * 0 + 0] = -1; vertexdata[2 * 0 + 1] = -1;
 	  vertexdata[2 * 1 + 0] =  1; vertexdata[2 * 1 + 1] = -1;
 	  vertexdata[2 * 2 + 0] =  1; vertexdata[2 * 2 + 1] =  1;
-	  vertexdata[2 * 3 + 0] = -1; vertexdata[2 * 3 + 1] =  1;
+
+	  vertexdata[2 * 3 + 0] =  1; vertexdata[2 * 3 + 1] =  1;
+	  vertexdata[2 * 5 + 0] = -1; vertexdata[2 * 5 + 1] =  1;
+	  vertexdata[2 * 4 + 0] = -1; vertexdata[2 * 4 + 1] = -1;
 	  _vertexData.init(vertexdata);
 	}
 
 	/*! \brief Attaches the vertex buffer and renders the quad.
 	 */
 	inline void glRender()
-	{ _vertexData.drawArray(magnet::GL::element_type::QUADS, 2); }
+	{ _vertexData.drawArray(magnet::GL::element_type::TRIANGLES, 2); }
 
       protected:
 	magnet::GL::Buffer<GLfloat> _vertexData;
