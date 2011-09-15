@@ -23,7 +23,6 @@
 #include <magnet/gtk/numericEntry.hpp>
 #include <magnet/gtk/colorMapSelector.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/signal.hpp>
 #include <vector>
 #include <tr1/memory>
 

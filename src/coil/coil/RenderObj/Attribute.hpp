@@ -16,7 +16,6 @@
 */
 #pragma once
 #include <magnet/GL/buffer.hpp>
-#include <boost/signal.hpp>
 #include <vector>
 
 namespace coil {
@@ -129,7 +128,6 @@ namespace coil {
     volatile bool _usedInCurrentRender;
     
     magnet::GL::Context* _context;
-    boost::signal<void (Attribute&)> _glDataUpdated;
     std::vector<GLfloat> _minVals;
     std::vector<GLfloat> _maxVals;
     
@@ -157,17 +155,6 @@ namespace coil {
 	    _minVals[j] = std::min(_minVals[j], (*this)[i * comps + j]);
 	    _maxVals[j] = std::max(_minVals[j], (*this)[i * comps + j]);
 	  }
-
-      if (!_glDataUpdated.empty())
-	{
-	  //We aqquire the data in the OpenCL context to ensure that
-	  //only one acquire is performed per update.
-	  _glData.acquireCLObject();
-	  //Now emit the signal
-	  _glDataUpdated(*this);
-	  //And release
-	  _glData.releaseCLObject();
-	}
     }
 
     /*! \brief The OpenGL representation of the attribute data.
