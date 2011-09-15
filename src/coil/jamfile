@@ -63,7 +63,7 @@ lib coil
         [ glob-tree *.pixbufsvg *.ttf : tests examples coil ]
       clwingtk.gladexml
       glut GLU GL Xext X11 rt GLEW /magnet//magnet
-      /opencl//opencl gtkmm /boost//system
+      /opencl//opencl gtkmm 
       : <include>. <include>../boost <tag>@tags.lib-naming 
        <coil-cwiid>yes:<source>cwiid
       : : <define>GLVIEWER <include>. ;
