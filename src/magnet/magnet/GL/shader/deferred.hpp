@@ -31,7 +31,7 @@ namespace magnet {
       public:
 	virtual std::string initFragmentShaderSource()
 	{
-	  return "#version 110\n" STRINGIFY(
+	  return STRINGIFY(
 //Normalized position on the screen
 varying vec2 screenCoord;
 

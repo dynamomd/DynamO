@@ -514,9 +514,9 @@ namespace magnet {
 	  M_throw() << "GL-Context " << _context 
 		    << ": Critical OpenGL dependency: Vertex buffer objects are not supported";
     
-	if (!testExtension("GL_ARB_depth_texture") || !testExtension("GL_ARB_shadow"))
+	if (!testExtension("GL_ARB_depth_texture"))
 	  M_throw() << "GL-Context " << _context 
-		    << ": Critical OpenGL dependency: GL_ARB_depth_texture or GL_ARB_shadow not supported";
+		    << ": Critical OpenGL dependency: GL_ARB_depth_texture not supported";
 
 	if (!testExtension("GL_ARB_instanced_arrays"))
 	  M_throw() << "GL-Context " << _context 
