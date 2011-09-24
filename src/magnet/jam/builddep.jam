@@ -16,7 +16,6 @@
 
 #Dependency calculations
 
-
 #Parses the command line to see if a property has been set by the user
 rule cmd-line-feature-value-set ( feature )
 { return [ MATCH "^$(feature)=(.*)" :  [ modules.peek : ARGV ] ] ; }
@@ -39,5 +38,19 @@ rule set-feature-on-build ( feature : check : checkname : build-success-value ? 
   }
 }
 
+rule combine-features ( feature : dependencies + )
+{
+  import feature ;
+  feature.feature $(feature) : yes no : symmetric ;
 
-IMPORT $(__name__) : set-feature-on-build : : builddep.set-feature-on-build ;
+  local result ;
+
+  for dep in $(dependencies)
+  {
+    result += "<"$(dep)">no:<"$(feature)">no" ;
+  }
+
+  return $(result) ;
+}
+
+IMPORT $(__name__) : set-feature-on-build combine-features : : builddep.set-feature-on-build builddep.combine-features ;

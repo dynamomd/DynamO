@@ -21,16 +21,6 @@ import ../magnet/jam/builddep ;
 lib cwiid : : <link>shared : : <define>COIL_wiimote ;
 exe cwiidtest : tests/wiimote.cpp cwiid ;
 
-project	: requirements
-          #This creates a feature coil-integration, which can be set
-          #on the command line or auto-detected using the passed target
-	  [ builddep.set-feature-on-build coil-cwiid 
-            : cwiidtest
-            : "Coil: Wii-mote support (libCwiid)" ]
-	: default-build release
-	: build-dir $(BUILD_DIR_PATH)
-	;
-
 lib glut : : <link>shared ;
 lib GLU  : : <link>shared ;
 lib GL   : : <link>shared ;
@@ -45,43 +35,43 @@ exe gluttest : tests/gluttest.cpp glut ;
 exe gtkmmtest : tests/gtkmmtest.cpp gtkmm ;
 exe GLEWtest : tests/glewtest.cpp ;
 
-exe coilDependencies : tests/buildreq.cpp : 
-[ check-target-builds /opencl//test "Coil: OpenCL" : : <define>BUILDFAIL ]
-[ check-target-builds gluttest "Coil: FreeGlut" : : <define>BUILDFAIL ]
-[ check-target-builds gtkmmtest "Coil: GTKmm" : : <define>BUILDFAIL ]
-[ check-target-builds GLEWtest "Coil: GLEW" : : <define>BUILDFAIL ]
-: : ;
+SHELL "touch src/coil/tests/* " ;
 
-always cwiidtest gluttest gtkmmtest GLEWtest coilDependencies ;
-explicit cwiidtest gluttest gtkmmtest GLEWtest coilDependencies ;
+project	: requirements
+          #This creates a feature coil-integration, which can be set
+          #on the command line or auto-detected using the passed target
+	  [ builddep.set-feature-on-build coil-cwiid : cwiidtest : "Coil: libCwiid Wii-mote support (Optional)" ]
+	  [ builddep.set-feature-on-build coil-GLUT : gluttest : "Coil: GLUT" ]
+	  [ builddep.set-feature-on-build coil-GLEW : GLEWtest : "Coil: GLEW" ]
+	  [ builddep.set-feature-on-build coil-OpenCL : /opencl//test : "Coil: OpenCL lib" ]
+	  [ builddep.set-feature-on-build coil-Gtkmm : gtkmmtest : "Coil: Gtkmm" ]
+	  [ builddep.combine-features coil-buildable : coil-GLUT coil-GLEW coil-OpenCL coil-Gtkmm ]
+	: default-build release
+	: build-dir $(BUILD_DIR_PATH)
+	;
 
-rule critical_dependencies ( )
-{ return [ check-target-builds coilDependencies "Coil library dependencies" :  : <build>no ] ; }
+exe coilDependencies : tests/buildreq.cpp : <coil-buildable>no:<define>BUILDFAIL ;
 
-lib coil 
+lib coil
       : [ glob-tree *.cpp : tests examples images ]
         [ glob-tree *.pixbufsvg *.ttf : tests examples coil ]
       clwingtk.gladexml
       glut GLU GL Xext X11 rt GLEW /magnet//magnet
       /opencl//opencl gtkmm 
       : <include>. <include>../boost <tag>@tags.lib-naming 
-       <coil-cwiid>yes:<source>cwiid
+       <coil-cwiid>yes:<source>cwiid <coil-buildable>no:<build>no
       : : <define>GLVIEWER <include>. ;
 
-exe gl_test
-    : tests/glviewer_test.cpp coil/<link>static
-    ;
-
-explicit gl_test test coil ;
+explicit test coil ;
 
 install install-libs
 	: coil coil/<link>static
-	: <location>$(LIB_INSTALL_PATH) [ critical_dependencies ]
+	: <location>$(LIB_INSTALL_PATH) <coil-buildable>no:<build>no
 	;	
 
 install install-headers
 	: [ glob coil/*.hpp coil/*/*.hpp coil/*/*/*.hpp ]
-	: <location>$(INCLUDE_INSTALL_PATH) <install-source-root>./ [ critical_dependencies ]
+	: <location>$(INCLUDE_INSTALL_PATH) <install-source-root>./ <coil-buildable>no:<build>no
 	;
 
 alias install-coil : install-libs install-headers ;
