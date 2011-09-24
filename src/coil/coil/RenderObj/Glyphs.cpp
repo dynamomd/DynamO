@@ -30,8 +30,16 @@ namespace coil {
   void 
   Glyphs::glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode) 
   {
-    //Do not allow a glRender if uninitialised
-    if (!_primitiveVertices.size()) return;
+    ////Do not allow a glRender if uninitialised
+    //if (!_primitiveVertices.size()) return;
+    //
+    //_primitiveVertices.getContext().resetInstanceTransform();
+    //_ds.bindPositionAttribute();
+    //_scaleSel->bindAttribute();
+    //_colorSel->bindAttribute();
+    //_orientSel->bindAttribute();
+    //
+    //Instanced::glRender();
 
     _primitiveVertices.getContext().resetInstanceTransform();
     _ds.bindPositionAttribute();
@@ -39,7 +47,8 @@ namespace coil {
     _colorSel->bindAttribute();
     _orientSel->bindAttribute();
 
-    Instanced::glRender();
+    _ds.bindPositionAttribute();
+    _primitiveIndices.drawInstancedElements(getElementType(), _N);
   }
 
   void 
@@ -283,10 +292,12 @@ namespace coil {
 	*reinterpret_cast<uint32_t*>(&(colors[4 * i])) = offset + i;
       colorbuf = colors;
     }
+
     colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 1, true); 
-    _ds.bindPositionAttribute();
     _scaleSel->bindAttribute();
     _orientSel->bindAttribute();
+
+    _ds.bindPositionAttribute();
 
     Instanced::glRender();
     offset += _N;

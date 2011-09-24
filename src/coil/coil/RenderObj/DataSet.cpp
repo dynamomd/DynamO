@@ -334,5 +334,7 @@ namespace coil {
   
   void 
   DataSet::bindPositionAttribute() const
-  { _positionSel->bindAttribute(); }
+  { 
+    _positionSel->bindAttribute(); 
+  }
 }

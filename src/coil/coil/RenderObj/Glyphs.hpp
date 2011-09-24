@@ -16,7 +16,8 @@
 */
 
 #include <coil/RenderObj/DataSet.hpp>
-#include <coil/RenderObj/AttributeSelectors.hpp>
+#include <coil/RenderObj/AttributeColorSelector.hpp>
+#include <coil/RenderObj/AttributeOrientationSelector.hpp>
 #include <magnet/GL/objects/instanced.hpp>
 #include <magnet/GL/objects/primitives/sphere.hpp>
 #include <magnet/GL/objects/primitives/cylinder.hpp>

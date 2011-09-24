@@ -73,7 +73,13 @@ namespace coil {
     /*! \brief Returns the GL buffer associated with the Attribute
      * data.
      */
-    inline magnet::GL::Buffer<GLfloat>& getBuffer() { return _glData; }
+    inline magnet::GL::Buffer<GLfloat>& getBuffer()
+    { 
+      //Initialise on demand
+      if (!_glData.size()) initGLData();
+      _usedInCurrentRender = true;
+      return _glData; 
+    }
 
     inline size_t getUpdateCount() const { return _dataUpdates; }
 
@@ -104,13 +110,7 @@ namespace coil {
     /**@}*/
 
     inline void bindAttribute(size_t attrnum, bool normalise = false)
-    {
-      //Initialise on demand
-      if (!_glData.size()) initGLData();
-
-      _usedInCurrentRender = true;
-      _glData.attachToAttribute(attrnum, _components, 1, normalise); 
-    }
+    { getBuffer().attachToAttribute(attrnum, _components, 1, normalise); }
 
     inline const std::vector<GLfloat>& minVals() const { return _minVals; }
     inline const std::vector<GLfloat>& maxVals() const { return _maxVals; }
