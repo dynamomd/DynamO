@@ -40,7 +40,6 @@ uniform sampler2D colorTex;
 uniform sampler2D normalTex;
 uniform sampler2D positionTex;
 uniform vec3 lightPosition;
-uniform vec3 camPosition;
 
 
 ///////////////Shadow mapping functions and variables
@@ -84,9 +83,10 @@ float chebyshevUpperBound(float distance)
 
 void main()
 {
-  //Model space position of the vertex
+  //Eye space position of the vertex
   vec3 position = texture2D(positionTex, screenCoord).xyz;
-
+  
+  //Eye space normal of the vertex
   vec3 normal = texture2D(normalTex, screenCoord).rgb;
   normal = normalize(normal);
 
@@ -96,7 +96,7 @@ void main()
   vec3 lightDirection = lightVector * (1.0 / lightDistance);
 
   //Camera position relative to the pixel location
-  vec3 eyeVector = camPosition - position;
+  vec3 eyeVector = - position;
   vec3 eyeDirection = normalize(eyeVector);
 
   //Light calculations

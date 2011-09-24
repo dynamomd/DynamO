@@ -330,6 +330,8 @@ namespace magnet {
 	  
 	    GLint result;
 
+	    _programHandle = glCreateProgramObjectARB();
+
 	    //Vertex shader
 	    if (!_vertexShaderCode.empty())
 	      {
@@ -353,6 +355,8 @@ namespace magnet {
 			    << "\n Source code:\n"
 			    << magnet::string::add_line_numbers(_vertexShaderCode)
 			    << "\n";
+
+		glAttachObjectARB(_programHandle,_vertexShaderHandle);
 	      }
 
 	    //Fragment shader
@@ -378,6 +382,8 @@ namespace magnet {
 			    << "\n Source code:\n"
 			    << magnet::string::add_line_numbers(_fragmentShaderCode)
 			    << "\n";
+
+		glAttachObjectARB(_programHandle,_fragmentShaderHandle);
 	      }
 
 	    //Geometry shader
@@ -398,33 +404,16 @@ namespace magnet {
 			    << "\n Source code:\n"
 			    << magnet::string::add_line_numbers(_geometryShaderCode)
 			    << "\n";
+
+		glAttachObjectARB(_programHandle, _geometryShaderHandle);
 	      }
-
-	    //Now we've build both shaders, combine them into a program
-	    _programHandle = glCreateProgramObjectARB();
-
-	    if (!(_vertexShaderCode.empty()))
-	      glAttachObjectARB(_programHandle,_vertexShaderHandle);
-
-	    if (!(_fragmentShaderCode.empty()))
-	      glAttachObjectARB(_programHandle,_fragmentShaderHandle);
-
-	    if (!(_geometryShaderCode.empty()))
-	      glAttachObjectARB(_programHandle,_geometryShaderHandle);
 	    
 	    //Bind the default shader variables to the indices
 	    //specified in the \ref Context class.
-	    glBindAttribLocation(_programHandle, Context::vertexPositionAttrIndex, "vPosition");
-	    glBindAttribLocation(_programHandle, Context::vertexColorAttrIndex, "vColor");
-	    glBindAttribLocation(_programHandle, Context::vertexNormalAttrIndex, "vNormal");
-	    glBindAttribLocation(_programHandle, Context::vertexTexCoordAttrIndex, "vTexCoord");
-	    glBindAttribLocation(_programHandle, Context::instanceOriginAttrIndex, "iOrigin");
-	    glBindAttribLocation(_programHandle, Context::instanceOrientationAttrIndex, "iOrientation");
-	    glBindAttribLocation(_programHandle, Context::instanceScaleAttrIndex, "iScale");
-
 	    glLinkProgramARB(_programHandle);
 
-	    //Done, now the inheriting shader should grab the locations of its uniforms
+	    //Done, now the inheriting shader should grab the
+	    //locations of its uniforms
 	    _built = true;
 	  }
 	  	  

@@ -21,61 +21,83 @@
 namespace magnet {
   namespace GL {
     namespace shader {
-      /*! \brief A G-Buffer render shader.
-
-	This shader outputs all of the information needed for deffered
-	shading calculations later on.
+      /*! \brief A G-Buffer shader which billboards and raytraces spheres.
        */
-      class RenderShader: public detail::Shader
+      class SphereShader: public detail::Shader
       {
       public:
 	virtual std::string initVertexShaderSource()
 	{
-	  return "#version 330\n"
+	  return "#version 330\n" 
 	    STRINGIFY(
-uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
 
 layout (location = 0) in vec4 vPosition;
 layout (location = 1) in vec4 vColor;
-layout (location = 2) in vec4 vNormal;
-layout (location = 3) in vec4 iOrigin;
-layout (location = 4) in vec4 iOrientation;
 layout (location = 5) in vec4 iScale;
 
-flat out vec4 color;
-smooth out vec3 normal;
-smooth out vec3 position;
-
-vec3 qrot(vec4 q, vec3 v)
-{ return v + 2.0 * cross(cross(v,q.xyz) + q.w * v, q.xyz); } 
+out vec4 color;
+out float scale;
 
 void main()
 {
   color = vColor;
-  //We store the normals in eye-space
-  normal 
-    = normalize((ViewMatrix
-		 * vec4(qrot(iOrientation, vNormal.xyz), 0.0)).xyz);
-  
-  vec3 scale = iScale.xyz + vec3(equal(iScale.xyz, vec3(0.0))) * iScale.x;
-  vec4 vVertex
-    = ViewMatrix
-    * vec4(qrot(iOrientation, vPosition.xyz * scale) + iOrigin.xyz, 1.0);
-
-  //We store the eye-space position of the vertex
-  position = vVertex.xyz;
-  gl_Position = ProjectionMatrix * vVertex;
+  scale = iScale.x;
+  gl_Position = ViewMatrix * vec4(vPosition.xyz, 1.0);
 });
+	}
+	
+	virtual std::string initGeometryShaderSource()
+	{
+	  return
+	    "#version 330\n"
+	    STRINGIFY(
+uniform mat4 ProjectionMatrix;
+
+layout(points) in;
+layout(triangle_strip) out;
+layout(max_vertices = 4) out;
+
+in vec4 color[];
+in float scale[];
+
+flat out vec4 vert_color;
+smooth out vec3 model_position_frag;
+smooth out vec2 ordinate;
+
+void VertexEmit(vec2 displacement, float amount)
+{
+  ordinate = displacement;
+  vec4 shift = vec4(amount * displacement, 0.0, 0.0);
+  vec4 eyespace_position = gl_in[0].gl_Position + shift;
+  model_position_frag = eyespace_position.xyz;
+  gl_Position = ProjectionMatrix * eyespace_position;
+  EmitVertex();
+}
+
+void main()
+{
+  float halfsize = scale[0] * 0.5;
+
+  //Standard data for each fragment
+  vert_color = color[0];
+
+  VertexEmit(vec2(-1.0, -1.0), halfsize);
+  VertexEmit(vec2(-1.0, +1.0), halfsize);
+  VertexEmit(vec2(+1.0, -1.0), halfsize);
+  VertexEmit(vec2(+1.0, +1.0), halfsize);
+  EndPrimitive();
+}
+);
 	}
 	
 	virtual std::string initFragmentShaderSource()
 	{
 	  return "#version 330\n"
 	    STRINGIFY(
-flat in vec4 color;
-smooth in vec3 normal;
-smooth in vec3 position;
+flat in vec4 vert_color;
+smooth in vec3 model_position_frag;
+smooth in vec2 ordinate;
 
 layout (location = 0) out vec4 color_out;
 layout (location = 1) out vec4 normal_out;
@@ -83,12 +105,9 @@ layout (location = 2) out vec4 position_out;
 
 void main()
 {
-  color_out = vec4(color.rgb, 1.0);
-
-  vec3 outnormal = normal;
-  if (!gl_FrontFacing) outnormal = -outnormal;
-  normal_out = vec4(outnormal, 1.0);
-  position_out = vec4(position, 1.0);
+  color_out = vec4(0.5 * ordinate + vec2(0.5, 0.5), 0.0, 1.0);
+  normal_out = vec4(1.0, 0.0, 0.0, 1.0);
+  position_out = vec4(model_position_frag, 1.0);
 });
 	}
       };

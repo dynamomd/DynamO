@@ -19,9 +19,11 @@
 #include <coil/RenderObj/AttributeColorSelector.hpp>
 #include <coil/RenderObj/AttributeOrientationSelector.hpp>
 #include <magnet/GL/objects/instanced.hpp>
+#include <magnet/GL/shader/sphere.hpp>
 #include <magnet/GL/objects/primitives/sphere.hpp>
 #include <magnet/GL/objects/primitives/cylinder.hpp>
 #include <magnet/GL/objects/primitives/arrow.hpp>
+
 
 namespace coil {  
   class Glyphs : public DataSetChild, public magnet::GL::objects::Instanced
@@ -73,5 +75,6 @@ namespace coil {
     
     bool _raytraceSpheres;
     magnet::GL::Context* _context;
+    magnet::GL::shader::SphereShader _sphereShader;
  };
 }

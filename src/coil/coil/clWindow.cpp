@@ -968,14 +968,21 @@ namespace coil {
     _deferredShader["normalTex"] = 1;
     _Gbuffer.getColorTexture(2).bind(2);
     _deferredShader["positionTex"] = 2;
-    _deferredShader["lightPosition"] = _light0.getEyeLocation();
-    _deferredShader["camPosition"] = camera.getEyeLocation();
+
+    {
+      magnet::math::Vector vec = _light0.getEyeLocation();
+      std::tr1::array<GLfloat, 4> lightPos = {{vec[0], vec[1], vec[2], 1.0}};
+      std::tr1::array<GLfloat, 4> lightPos_eyespace 
+	= camera.getViewMatrix(eyeDisplacement) * lightPos;
+      magnet::math::Vector vec2(lightPos_eyespace[0], lightPos_eyespace[1], lightPos_eyespace[2]);
+      _deferredShader["lightPosition"] = vec2;
+    }
 
     _deferredShader["ShadowMap"] = 7;
     _deferredShader["ShadowIntensity"] = _shadowIntensity;
     _deferredShader["ShadowMapping"] = _shadowMapping;
     if (_shadowMapping)
-      _deferredShader["ShadowMatrix"] = _light0.getShadowTextureMatrix();
+      _deferredShader["ShadowMatrix"] = _light0.getShadowTextureMatrix() * camera.getViewMatrix(eyeDisplacement).inverse();
 
     _deferredShader.invoke();
 

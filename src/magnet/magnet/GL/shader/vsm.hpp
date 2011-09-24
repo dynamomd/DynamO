@@ -33,16 +33,17 @@ namespace magnet {
       public:
 	virtual std::string initVertexShaderSource()
 	{
-	  return STRINGIFY(
+	  return "#version 330\n"
+	    STRINGIFY(
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
 
-attribute vec4 vPosition;
-attribute vec4 iOrigin;
-attribute vec4 iOrientation;
-attribute vec4 iScale;
+layout (location = 0) in vec4 vPosition;
+layout (location = 3) in vec4 iOrigin;
+layout (location = 4) in vec4 iOrientation;
+layout (location = 5) in vec4 iScale;
 
-varying float depth;
+smooth out float depth;
 
 vec3 qrot(vec4 q, vec3 v)
 { return v + 2.0 * cross(cross(v,q.xyz) + q.w * v, q.xyz); }
@@ -54,16 +55,19 @@ void main()
   vec3 scale = iScale.xyz + vec3(equal(iScale.xyz, vec3(0.0))) * iScale.x;
   vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * scale)
 				   + iOrigin.xyz, 1.0);
-  vec4 pos = ProjectionMatrix * vVertex;
   depth = -vVertex.z;
+  vec4 pos = ProjectionMatrix * vVertex;
   gl_Position = pos;
 });
 	}
 	
 	virtual std::string initFragmentShaderSource()
-	{ return STRINGIFY(
+	{ return "#version 330\n"
+	    STRINGIFY(
 uniform mat4 ProjectionMatrix;
-varying float depth;
+smooth in float depth;
+
+layout (location = 0) out vec4 color_out;
 void main()
 {
   float A = ProjectionMatrix[2].z;
@@ -76,7 +80,7 @@ void main()
   float dy = dFdy(moment1);
   moment2 += 0.25 * (dx * dx + dy * dy);
 	
-  gl_FragColor = vec4(moment1, moment2, 0, 1.0);
+  color_out = vec4(moment1, moment2, 0, 1.0);
 });
 	}
       };

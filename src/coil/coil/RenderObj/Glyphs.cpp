@@ -32,10 +32,14 @@ namespace coil {
   {    
     if (_raytraceSpheres)
       {
+	_sphereShader.attach();
+	_sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
+	_sphereShader["ViewMatrix"] = cam.getViewMatrix();
 	_primitiveVertices.getContext().resetInstanceTransform();
 	_scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
 	_colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 0);;
 	_ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+	_sphereShader.detach();
       }
     else
       {
@@ -55,6 +59,7 @@ namespace coil {
   {
     Instanced::deinit();
     RenderObj::deinit();
+    _sphereShader.deinit();
     _gtkOptList.reset();
     _scaleSel.reset(); 
     _colorSel.reset();
@@ -90,6 +95,9 @@ namespace coil {
     
     _context = &(magnet::GL::Context::getContext());
     _raytraceSpheres = _context->testExtension("GL_EXT_geometry_shader4");
+    _raytraceSpheres = false;
+    if (_raytraceSpheres)
+      _sphereShader.build();
 
     {
       Gtk::Label* label = Gtk::manage(new Gtk::Label("Glyph Type")); label->show();
@@ -297,10 +305,15 @@ namespace coil {
 
     if (_raytraceSpheres)
       {
+	_sphereShader.attach();
+	_sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
+	_sphereShader["ViewMatrix"] = cam.getViewMatrix();
+	
 	_primitiveVertices.getContext().resetInstanceTransform();
 	_scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
 	colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 0, true); 
 	_ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+	_sphereShader.detach();
       }
     else
       {
