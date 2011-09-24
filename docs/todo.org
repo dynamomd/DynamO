@@ -9,6 +9,7 @@
 **** DONE DynamO: Up to 50% faster in polydisperse systems thanks to a new cache friendly nblist implementation.
 **** DONE DynamO: Remove all Clone functions.
 **** DONE Coil: Moved to deferred shading.
+**** TODO Coil: Get rid of the context pointers
 **** TODO Remove the Dynamics class and move its functions into the SimData class.
 **** TODO Remove the Dynamics tags in the config.
 **** TODO Rename the Liouvillean to Dynamics.

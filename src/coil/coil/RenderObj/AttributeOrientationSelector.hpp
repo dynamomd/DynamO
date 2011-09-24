@@ -23,27 +23,27 @@ namespace coil {
   {
   public:
     AttributeOrientationSelector():
-      AttributeSelector(magnet::GL::Context::instanceOrientationAttrIndex, false)
+      AttributeSelector(false)
     {
       for (size_t i(0); i < 3; ++i)
 	_scalarvalues[i].set_text("0.0");
       _scalarvalues[3].set_text("1.0");
     }
 
-    virtual void bindAttribute()
+    virtual void bindAttribute(size_t attrnum, size_t divisor = 1)
     {
       Gtk::TreeModel::iterator iter = _comboBox.get_active();
 
       if (singleValueMode())
 	{
-	  setConstantAttribute(_attrnum);
+	  setConstantAttribute(attrnum);
 	  return;
 	}
       
       std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];	  
       if (ptr->components() == 4)
 	{
-	  ptr->bindAttribute(_attrnum, false);
+	  ptr->bindAttribute(attrnum, false, divisor);
 	  return;
 	}
       
@@ -115,7 +115,8 @@ namespace coil {
 	  
 	  _filteredData.unmap();
 	}
-      _filteredData.attachToAttribute(_attrnum, 4, 1);
+
+      _filteredData.attachToAttribute(attrnum, 4, divisor);
     }
   };
 }

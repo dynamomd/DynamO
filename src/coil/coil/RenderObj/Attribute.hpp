@@ -109,8 +109,8 @@ namespace coil {
 
     /**@}*/
 
-    inline void bindAttribute(size_t attrnum, bool normalise = false)
-    { getBuffer().attachToAttribute(attrnum, _components, 1, normalise); }
+    inline void bindAttribute(size_t attrnum, bool normalise = false, size_t divisor = 1)
+    { getBuffer().attachToAttribute(attrnum, _components, divisor, normalise); }
 
     inline const std::vector<GLfloat>& minVals() const { return _minVals; }
     inline const std::vector<GLfloat>& maxVals() const { return _maxVals; }

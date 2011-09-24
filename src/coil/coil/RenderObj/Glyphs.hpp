@@ -70,5 +70,8 @@ namespace coil {
     std::auto_ptr<Gtk::HBox>  _scaleFactorBox;
     std::auto_ptr<Gtk::Label> _scaleLabel;
     std::auto_ptr<Gtk::Entry> _scaleFactor;
+    
+    bool _raytraceSpheres;
+    magnet::GL::Context* _context;
  };
 }

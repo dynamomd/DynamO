@@ -22,13 +22,12 @@ extern const guint8 DataSet_Icon[];
 extern const size_t DataSet_Icon_size;
 
 namespace coil {  
-  AttributeSelector::AttributeSelector(size_t attrnum, bool enableDataFiltering):
+  AttributeSelector::AttributeSelector(bool enableDataFiltering):
     _lastAttribute(NULL),
     _lastAttributeDataCount(-1),
     _lastComponentSelected(-1),
     _context(NULL),
     _components(0),
-    _attrnum(attrnum),
     _enableDataFiltering(enableDataFiltering)
   {
     pack_start(_selectorRow, false, false, 5);
@@ -68,7 +67,7 @@ namespace coil {
   }
 
   AttributeColorSelector::AttributeColorSelector():
-    AttributeSelector(magnet::GL::Context::vertexColorAttrIndex, true),
+    AttributeSelector(true),
     _autoScaling("Autoscale to data range"),
     _lastColorMap(-1)
   {
@@ -193,8 +192,7 @@ namespace coil {
     }
 
     {
-      _positionSel.reset(new AttributeSelector(magnet::GL::Context::instanceOriginAttrIndex,
-					       false));
+      _positionSel.reset(new AttributeSelector(false));
       _gtkOptList->pack_start(*_positionSel, false, false);
     }
 
@@ -332,9 +330,7 @@ namespace coil {
       }
   }
   
-  void 
-  DataSet::bindPositionAttribute() const
-  { 
-    _positionSel->bindAttribute(); 
-  }
+  magnet::GL::Buffer<GLfloat>& 
+  DataSet::getPositionBuffer()
+  { return _positionSel->getBuffer(); }
 }

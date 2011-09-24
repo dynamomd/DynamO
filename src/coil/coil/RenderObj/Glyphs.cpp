@@ -29,26 +29,25 @@ namespace coil {
 
   void 
   Glyphs::glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode) 
-  {
-    ////Do not allow a glRender if uninitialised
-    //if (!_primitiveVertices.size()) return;
-    //
-    //_primitiveVertices.getContext().resetInstanceTransform();
-    //_ds.bindPositionAttribute();
-    //_scaleSel->bindAttribute();
-    //_colorSel->bindAttribute();
-    //_orientSel->bindAttribute();
-    //
-    //Instanced::glRender();
+  {    
+    if (_raytraceSpheres)
+      {
+	_primitiveVertices.getContext().resetInstanceTransform();
+	_scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
+	_colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 0);;
+	_ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+      }
+    else
+      {
+	if (!_primitiveVertices.size()) return;
 
-    _primitiveVertices.getContext().resetInstanceTransform();
-    _ds.bindPositionAttribute();
-    _scaleSel->bindAttribute();
-    _colorSel->bindAttribute();
-    _orientSel->bindAttribute();
-
-    _ds.bindPositionAttribute();
-    _primitiveIndices.drawInstancedElements(getElementType(), _N);
+	_primitiveVertices.getContext().resetInstanceTransform();
+	_ds.getPositionBuffer().attachToAttribute(magnet::GL::Context::instanceOriginAttrIndex, 3, 1);
+	_scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 1);
+	_orientSel->bindAttribute(magnet::GL::Context::instanceOrientationAttrIndex, 1);
+	_colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 1);
+	Instanced::glRender();
+      }
   }
 
   void 
@@ -88,7 +87,10 @@ namespace coil {
 
     //Glyph selection and level of detail
     _glyphBox.reset(new Gtk::HBox); _glyphBox->show();
-      
+    
+    _context = &(magnet::GL::Context::getContext());
+    _raytraceSpheres = _context->testExtension("GL_EXT_geometry_shader4");
+
     {
       Gtk::Label* label = Gtk::manage(new Gtk::Label("Glyph Type")); label->show();
       _glyphBox->pack_start(*label, false, false, 5);
@@ -293,13 +295,22 @@ namespace coil {
       colorbuf = colors;
     }
 
-    colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 1, true); 
-    _scaleSel->bindAttribute();
-    _orientSel->bindAttribute();
+    if (_raytraceSpheres)
+      {
+	_primitiveVertices.getContext().resetInstanceTransform();
+	_scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
+	colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 0, true); 
+	_ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+      }
+    else
+      {
+	_ds.getPositionBuffer().attachToAttribute(magnet::GL::Context::instanceOriginAttrIndex, 3, 1);
+	_scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 1);
+	_orientSel->bindAttribute(magnet::GL::Context::instanceOrientationAttrIndex, 1);
+	colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 1, true); 
+	Instanced::glRender();
+      }
 
-    _ds.bindPositionAttribute();
-
-    Instanced::glRender();
     offset += _N;
   }
 

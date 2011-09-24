@@ -154,8 +154,8 @@ namespace coil {
 
     virtual void interfaceRender(const magnet::GL::Camera&);
 
-    void bindPositionAttribute() const;      
-
+    magnet::GL::Buffer<GLfloat>& getPositionBuffer();
+    
   protected:
     void deleteChildWorker(DataSetChild* child);
 

@@ -24,12 +24,12 @@ namespace coil {
   public:
     AttributeColorSelector();
     
-    virtual void bindAttribute()
+    virtual void bindAttribute(size_t attrnum, size_t divisor = 1)
     {
       Gtk::TreeModel::iterator iter = _comboBox.get_active();
 
       if (singleValueMode())
-	setConstantAttribute(_attrnum);
+	setConstantAttribute(attrnum);
       else
 	{
 	  std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
@@ -40,7 +40,7 @@ namespace coil {
 	  if ((_componentSelect.get_visible())
 	      && (_componentSelect.get_active_row_number() == 0))
 	    {
-	      ptr->bindAttribute(_attrnum, false);
+	      ptr->bindAttribute(attrnum, false, divisor);
 	      return;
 	    }
 	    
@@ -82,7 +82,7 @@ namespace coil {
 	      _lastColorMap = _colorMapSelector.getMode();
 	    }
 
-	  _filteredData.attachToAttribute(_attrnum, 4, 1);
+	  _filteredData.attachToAttribute(attrnum, 4, divisor);
 	}
     }
 

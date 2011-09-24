@@ -22,7 +22,7 @@ namespace coil {
   class AttributeSelector: public Gtk::VBox
   {
   public:
-    AttributeSelector(size_t attrnum, bool enableDataFiltering = true);
+    AttributeSelector(bool enableDataFiltering = true);
     
     void buildEntries(std::string name, DataSet& ds, size_t minComponents, size_t maxComponents, 
 		      int typeMask, size_t components, int defaultMask = 0)
@@ -86,10 +86,7 @@ namespace coil {
  
       if ((!_componentSelect.get_visible())
 	  || (_componentSelect.get_active_row_number() == 0))
-	{
-	  ptr->bindAttribute(_attrnum, false);
-	  return ptr->getBuffer();
-	}
+	return ptr->getBuffer();
 
       //Check if the data actually needs updating
       if ((_lastAttribute != ptr.get())
@@ -109,15 +106,15 @@ namespace coil {
       return _filteredData;
     }
 
-    virtual void bindAttribute()
+    virtual void bindAttribute(size_t attrnum, size_t divisor = 1)
     {
       if (singleValueMode()) 
 	{
-	  setConstantAttribute(_attrnum);
+	  setConstantAttribute(attrnum);
 	  return;
 	}
 
-      getBuffer().attachToAttribute(_attrnum, 1, 1);
+      getBuffer().attachToAttribute(attrnum, 1, divisor);
     }
 
     virtual std::vector<GLfloat> getValue(size_t id)
@@ -150,12 +147,8 @@ namespace coil {
     size_t _lastAttributeDataCount;
     int _lastComponentSelected;
     magnet::GL::Buffer<GLfloat> _filteredData;
-
-    magnet::GL::Context* _context;
-        
+    magnet::GL::Context* _context;        
     size_t _components;
-
-    size_t _attrnum;
     bool _enableDataFiltering;
     
     inline bool singleValueMode()
