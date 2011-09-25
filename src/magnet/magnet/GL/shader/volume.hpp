@@ -37,11 +37,11 @@ namespace magnet {
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
 
-attribute vec4 vPosition;
+layout (location = 0) in vec4 vPosition;
+
 void main()
-{
-  gl_Position = ProjectionMatrix * (ViewMatrix * vPosition);
-}); 
+{ gl_Position = ProjectionMatrix * (ViewMatrix * vPosition); }
+); 
 	}
 
 	virtual std::string initFragmentShaderSource()
