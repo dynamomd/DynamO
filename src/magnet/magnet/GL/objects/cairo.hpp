@@ -72,30 +72,24 @@ namespace magnet {
 	  virtual std::string initVertexShaderSource()
 	  {
 	    std::ostringstream os;
-	    os << "const int ALPHA_TESTING = " << _alpha_testing << ";"
+	    os << "#version 330\n"
+	       << "const int ALPHA_TESTING = " << _alpha_testing << ";"
 	       << STRINGIFY(
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
 
-attribute vec4 vPosition;
-attribute vec4 vColor;
-attribute vec4 iOrigin;
-attribute vec4 iOrientation;
-attribute vec4 iScale;
+layout (location = 0) in vec4 vPosition;
+layout (location = 1) in vec4 vColor;
 
-varying vec2 texCoord;
-varying vec4 color;
-
-vec3 qrot(vec4 q, vec3 v)
-{ return v + 2.0 * cross(cross(v,q.xyz) + q.w * v, q.xyz); }
+smooth out vec2 texCoord;
+flat out vec4 color;
 
 void main()
 {
-  vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * iScale.xyz)
-				   + iOrigin.xyz, 1.0);
+  vec4 vVertex = ViewMatrix * vec4(vPosition.xyz, 1.0);
   gl_Position = ProjectionMatrix * vVertex;
   texCoord = 0.5 + 0.5 * vPosition.xy * vec2(1.0, -1.0);
-  if (ALPHA_TESTING > 0) color = vColor;
+  color = vColor;
 });
 	    return os.str();
 	  }
@@ -103,23 +97,27 @@ void main()
 	  virtual std::string initFragmentShaderSource()
 	  {
 	    std::ostringstream os;
-	    os << "const int ALPHA_TESTING = " << _alpha_testing << ";"
+	    os << "#version 330\n"
+	       << "const int ALPHA_TESTING = " << _alpha_testing << ";"
 	       << STRINGIFY(
 uniform sampler2D cairoTexture;
-varying vec2 texCoord;
-varying vec4 color;
+smooth in vec2 texCoord;
+flat in vec4 color;
+
+layout (location = 0) out vec4 color_out;
+
 void main() 
 { 
   if (ALPHA_TESTING > 0)
     {
       if (texture2D(cairoTexture, texCoord).r <= 0.5) discard;
-      gl_FragColor = color;
+      color_out = color;
     }
   else
     {
       vec4 sample = texture2D(cairoTexture, texCoord);
       if (sample.a == 0.0) discard;
-      gl_FragColor = sample;
+      color_out = sample;
     }
 }); 
 	    return os.str();
