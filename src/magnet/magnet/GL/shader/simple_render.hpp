@@ -29,35 +29,44 @@ namespace magnet {
       public:
 	virtual std::string initVertexShaderSource()
 	{
-	  return STRINGIFY( 
+	  return "#version 330\n"
+	    STRINGIFY( 
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
 
-attribute vec4 vPosition;
-attribute vec4 vColor;
-attribute vec4 iOrigin;
-attribute vec4 iOrientation;
-attribute vec4 iScale;
+layout (location = 0) in vec4 vPosition;
+layout (location = 1) in vec4 vColor;
+layout (location = 3) in vec4 iOrigin;
+layout (location = 4) in vec4 iOrientation;
+layout (location = 5) in vec4 iScale;
 
-varying vec4 color;
+flat out vec4 color;
 
 vec3 qrot(vec4 q, vec3 v)
-{ return v + 2.0 * cross(cross(v,q.xyz) + q.w * v, q.xyz); }
+{ return v + 2.0 * cross(cross(v,q.xyz) + q.w * v, q.xyz); } 
 
 void main()
 {
-  //Rotate the vertex according to the instance transformation, and
-  //then move it to the instance origin.
-  vec3 scale = iScale.xyz + vec3(equal(iScale.xyz, vec3(0.0))) * iScale.x;
-  vec4 vVertex = ViewMatrix * vec4(qrot(iOrientation, vPosition.xyz * scale)
-					   + iOrigin.xyz, 1.0);
-  gl_Position = ProjectionMatrix * vVertex;
   color = vColor;
+  
+  vec3 scale = iScale.xyz + vec3(equal(iScale.xyz, vec3(0.0))) * iScale.x;
+  vec4 vVertex
+    = ViewMatrix
+    * vec4(qrot(iOrientation, vPosition.xyz * scale) + iOrigin.xyz, 1.0);
+
+  gl_Position = ProjectionMatrix * vVertex;
 });
 	}
 	
 	virtual std::string initFragmentShaderSource()
-	{ return STRINGIFY(varying vec4 color; void main() { gl_FragColor = color; }); }
+	{ return "#version 330\n"
+	    STRINGIFY(
+flat in vec4 color;
+layout (location = 0) out vec4 color_out;
+void main()
+{ color_out = color; }
+); 
+	}
       };
     }
   }

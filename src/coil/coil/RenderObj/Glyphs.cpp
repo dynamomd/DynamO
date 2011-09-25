@@ -30,7 +30,7 @@ namespace coil {
   void 
   Glyphs::glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode) 
   {    
-    if (_raytraceSpheres)
+    if (_raytraceSpheres && (_glyphType->get_active_row_number() == 3))
       {
 	_sphereShader.attach();
 	_sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
@@ -95,9 +95,8 @@ namespace coil {
     
     _context = &(magnet::GL::Context::getContext());
     _raytraceSpheres = _context->testExtension("GL_EXT_geometry_shader4");
-    _raytraceSpheres = false;
-    if (_raytraceSpheres)
-      _sphereShader.build();
+
+    if (_raytraceSpheres) _sphereShader.build();
 
     {
       Gtk::Label* label = Gtk::manage(new Gtk::Label("Glyph Type")); label->show();
@@ -106,9 +105,12 @@ namespace coil {
       _glyphType.reset(new Gtk::ComboBoxText);
       _glyphType->show();
 
-      _glyphType->append_text("Sphere");
+      _glyphType->append_text("Sphere");      
       _glyphType->append_text("Arrows");
       _glyphType->append_text("Cylinder");
+      if (_raytraceSpheres)
+	_glyphType->append_text("Ray-traced Spheres");
+
       _glyphType->set_active(0);
 
       _glyphBox->pack_start(*_glyphType, false, false, 5);
@@ -195,8 +197,11 @@ namespace coil {
 	break;
       case 1: //Arrows
       case 2: //Cylinder
+	_glyphLOD->get_adjustment()->configure(6, 3.0, 32.0, 1.0, 5.0, 0.0);	
+	break;
+      case 3: //Ray traced spheres
+	return;
       default:
-	_glyphLOD->get_adjustment()->configure(6, 3.0, 32.0, 1.0, 5.0, 0.0);
 	break;
       }
     glyph_LOD_changed();
@@ -292,8 +297,6 @@ namespace coil {
     //Do not allow a glRender if uninitialised
     if (!_primitiveVertices.size()) return;
 
-    _primitiveVertices.getContext().resetInstanceTransform();
-
     magnet::GL::Buffer<GLubyte> colorbuf;    
     {//Send unique color id's to colorbuf
       std::vector<GLubyte> colors;
@@ -303,15 +306,17 @@ namespace coil {
       colorbuf = colors;
     }
 
-    if (_raytraceSpheres)
+    _primitiveVertices.getContext().resetInstanceTransform();
+
+    
+    if (_raytraceSpheres && (_glyphType->get_active_row_number() == 3))
       {
 	_sphereShader.attach();
 	_sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
 	_sphereShader["ViewMatrix"] = cam.getViewMatrix();
-	
 	_primitiveVertices.getContext().resetInstanceTransform();
 	_scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
-	colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 0, true); 
+	colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 0, true);
 	_ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
 	_sphereShader.detach();
       }

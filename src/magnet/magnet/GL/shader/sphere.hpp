@@ -62,6 +62,7 @@ in vec4 color[];
 in float scale[];
 
 flat out vec4 vert_color;
+flat out float frag_scale;
 smooth out vec3 model_position_frag;
 smooth out vec2 ordinate;
 
@@ -77,15 +78,15 @@ void VertexEmit(vec2 displacement, float amount)
 
 void main()
 {
-  float halfsize = scale[0] * 0.5;
+  float halfsize = scale[0];
 
   //Standard data for each fragment
   vert_color = color[0];
-
-  VertexEmit(vec2(-1.0, -1.0), halfsize);
-  VertexEmit(vec2(-1.0, +1.0), halfsize);
-  VertexEmit(vec2(+1.0, -1.0), halfsize);
-  VertexEmit(vec2(+1.0, +1.0), halfsize);
+  frag_scale = scale[0];
+  VertexEmit(vec2(-1.0, -1.0), scale[0]);
+  VertexEmit(vec2(-1.0, +1.0), scale[0]);
+  VertexEmit(vec2(+1.0, -1.0), scale[0]);
+  VertexEmit(vec2(+1.0, +1.0), scale[0]);
   EndPrimitive();
 }
 );
@@ -96,6 +97,7 @@ void main()
 	  return "#version 330\n"
 	    STRINGIFY(
 flat in vec4 vert_color;
+flat in float frag_scale;
 smooth in vec3 model_position_frag;
 smooth in vec2 ordinate;
 
@@ -105,8 +107,16 @@ layout (location = 2) out vec4 position_out;
 
 void main()
 {
-  color_out = vec4(0.5 * ordinate + vec2(0.5, 0.5), 0.0, 1.0);
-  normal_out = vec4(1.0, 0.0, 0.0, 1.0);
+  //The ordinate variable contains the x and y position of the
+  //sphere. Use the equation of a sphere to determine the z pos
+  float z = 1.0 - ordinate.x * ordinate.x - ordinate.y * ordinate.y;
+
+  if (z <= 0.0) discard;
+
+  z = sqrt(z);
+
+  color_out = vert_color;
+  normal_out = vec4(ordinate.x, ordinate.y, z, 1.0);
   position_out = vec4(model_position_frag, 1.0);
 });
 	}

@@ -83,7 +83,7 @@ layout (location = 2) out vec4 position_out;
 
 void main()
 {
-  color_out = vec4(color.rgb, 1.0);
+  color_out = color;
 
   vec3 outnormal = normal;
   if (!gl_FrontFacing) outnormal = -outnormal;
