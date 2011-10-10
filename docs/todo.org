@@ -8,6 +8,7 @@
 *** DynamO 1.3
 **** DONE DynamO: Up to 50% faster in polydisperse systems thanks to a new cache friendly nblist implementation.
 **** DONE DynamO: Remove all Clone functions.
+**** DONE DynamO: All particle positions are now shuffled for mixture systems in dynamod to enable faster equilibration.
 **** DONE Coil: Moved to deferred shading.
 **** TODO Coil: Make the snapshot button output to seperate files.
 **** TODO Coil: Get rid of the context pointers
