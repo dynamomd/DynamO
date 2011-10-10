@@ -244,7 +244,7 @@ namespace dynamo {
 	    }
 	  //Pack of square well molecules
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	  boost::scoped_ptr<CUCell> packptr(new CURandomise(standardPackingHelper(new CUParticle())));
 	  packptr->initialise();
 
 	  std::vector<Vector  >
@@ -1339,7 +1339,7 @@ namespace dynamo {
 	      exit(1);
 	    }
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	  boost::scoped_ptr<CUCell> packptr(new CURandomise(standardPackingHelper(new CUParticle())));
 	  packptr->initialise();
 
 	  std::vector<Vector  >
@@ -1617,7 +1617,7 @@ namespace dynamo {
 
 	  {
 	    boost::scoped_ptr<CUCell> packptr
-	      (standardPackingHelper(new CUParticle()));
+	      (new CURandomise(standardPackingHelper(new CUParticle())));
 
 	    packptr->initialise();
 
