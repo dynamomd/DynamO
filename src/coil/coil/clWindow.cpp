@@ -550,14 +550,6 @@ namespace coil {
     _frameRenderTime = 0;
 
     {
-      std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
-      depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);
-      depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-      
       std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
       colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
       colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -567,18 +559,9 @@ namespace coil {
       
       _filterTarget1.init();
       _filterTarget1.attachColorTexture(colorTexture, 0);
-      _filterTarget1.attachDepthTexture(depthTexture);
     }
 
     {
-      std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
-      depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);
-      depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-      
       std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
       colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
       colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -588,7 +571,6 @@ namespace coil {
       
       _filterTarget2.init();
       _filterTarget2.attachColorTexture(colorTexture, 0);
-      _filterTarget2.attachDepthTexture(depthTexture);
     }
 
     _light0.init();
@@ -840,6 +822,8 @@ namespace coil {
     magnet::GL::FBO* lastFBO = &_renderTarget;
     if (_filterEnable && !_filterStore->children().empty())
       {
+	glDisable(GL_DEPTH_TEST);
+
 	//Bind the original image to texture (unit 0)
 	_renderTarget.getColorTexture(0).bind(0);	
 	//Now bind the texture which has the normals (unit 1)
@@ -881,6 +865,7 @@ namespace coil {
 		FBOalternate = !FBOalternate;
 	      }
 	  }
+	glEnable(GL_DEPTH_TEST);
       }
 
     //Now blit the stored scene to the screen
