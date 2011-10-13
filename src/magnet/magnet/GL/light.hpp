@@ -90,8 +90,8 @@ namespace magnet {
 	colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	_shadowFBO.init();
-	_shadowFBO.attachColorTexture(colorTexture, 0);
-	_shadowFBO.attachDepthTexture(depthTexture);
+	_shadowFBO.attachTexture(colorTexture, 0);
+	_shadowFBO.attachTexture(depthTexture);
       }
 
       /*! \brief Release the OpenGL resources of this light source. 

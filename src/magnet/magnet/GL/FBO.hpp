@@ -92,13 +92,13 @@ namespace magnet {
 	  if (colorTextures[attachment]) 
 	    { 
 	      colorTextures[attachment]->resize(width, height); 
-	      attachColorTexture(colorTextures[attachment], attachment);
+	      attachTexture(colorTextures[attachment], attachment);
 	    }
 
 	if (depthTexture)
 	  {
 	    depthTexture->resize(width, height);
-	    attachDepthTexture(depthTexture);
+	    attachTexture(depthTexture);
 	  }
       }
 
@@ -163,24 +163,26 @@ namespace magnet {
 	//for the default framebuffer.
       }
 
-      inline void attachColorTexture(std::tr1::shared_ptr<Texture2D> coltex, size_t i)
+      inline void attachTexture(std::tr1::shared_ptr<Texture2D> tex, size_t i = 0)
       {
 	if (!_context)
 	  M_throw() << "Cannot attach textures to an uninitialised FBO";
 	
-	if (i >= _colorTextures.size())
-	  M_throw() << "Out of range";
-
-	_colorTextures[i] = coltex;
-	_validated = false;
-      }
-
-      inline void attachDepthTexture(std::tr1::shared_ptr<Texture2D> depthtex)
-      {
-	if (!_context)
-	  M_throw() << "Cannot attach textures to an uninitialised FBO";
+	switch (tex->getInternalFormat())
+	  {
+	  case GL_DEPTH_STENCIL_EXT:
+	  case GL_DEPTH_COMPONENT:
+	    if (i)
+	      M_throw() << "Texture attachment point out of range";
+	    _depthTexture = tex;
+	    break;
+	  default:
+	    if (i >= _colorTextures.size())
+	      M_throw() << "Texture attachment point Out of range";
+	    _colorTextures[i] = tex;
+	    break;
+	  }
 	
-	_depthTexture = depthtex;
 	_validated = false;
       }
 
@@ -277,8 +279,14 @@ namespace magnet {
 
 	    //Bind the textures, or unbind the unbound textures ready for the completeness test
 	    if (_depthTexture)
-	      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
-					GL_TEXTURE_2D, _depthTexture->getGLHandle(), 0);
+	      {
+		if (_depthTexture->getInternalFormat() == GL_DEPTH_STENCIL_EXT)	
+		  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_STENCIL_ATTACHMENT, 
+					    GL_TEXTURE_2D, _depthTexture->getGLHandle(), 0);	  
+		else
+		  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
+					    GL_TEXTURE_2D, _depthTexture->getGLHandle(), 0);
+	      }
 	    else
 	      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
 					GL_TEXTURE_2D, 0, 0);

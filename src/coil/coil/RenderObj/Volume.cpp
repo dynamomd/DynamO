@@ -52,7 +52,7 @@ namespace coil {
     depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-    _currentDepthFBO.attachDepthTexture(depthTexture);
+    _currentDepthFBO.attachTexture(depthTexture);
 
     initGTK();
   }

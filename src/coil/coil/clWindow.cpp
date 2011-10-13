@@ -558,7 +558,7 @@ namespace coil {
       colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       
       _filterTarget1.init();
-      _filterTarget1.attachColorTexture(colorTexture, 0);
+      _filterTarget1.attachTexture(colorTexture, 0);
     }
 
     {
@@ -570,7 +570,7 @@ namespace coil {
       colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       
       _filterTarget2.init();
-      _filterTarget2.attachColorTexture(colorTexture, 0);
+      _filterTarget2.attachTexture(colorTexture, 0);
     }
 
     _light0.init();
@@ -598,8 +598,8 @@ namespace coil {
       colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       
       _renderTarget.init();
-      _renderTarget.attachColorTexture(colorTexture, 0);
-      _renderTarget.attachDepthTexture(depthTexture);
+      _renderTarget.attachTexture(colorTexture, 0);
+      _renderTarget.attachTexture(depthTexture);
     }
 
     {
@@ -634,10 +634,10 @@ namespace coil {
       posTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     
       _Gbuffer.init();
-      _Gbuffer.attachColorTexture(colorTexture, 0);
-      _Gbuffer.attachColorTexture(normalTexture, 1);
-      _Gbuffer.attachColorTexture(posTexture, 2);
-      _Gbuffer.attachDepthTexture(depthTexture);
+      _Gbuffer.attachTexture(colorTexture, 0);
+      _Gbuffer.attachTexture(normalTexture, 1);
+      _Gbuffer.attachTexture(posTexture, 2);
+      _Gbuffer.attachTexture(depthTexture);
     }
 
     //Now init the render objects  
