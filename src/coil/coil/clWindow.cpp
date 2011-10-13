@@ -605,7 +605,7 @@ namespace coil {
     {
       //Build G buffer
       std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
-      depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);
+      depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH24_STENCIL8);
       depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
       depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

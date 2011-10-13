@@ -118,23 +118,37 @@ namespace magnet {
       protected:
       
 	/*! \brief Function which returns an appropriate format
-	 * parameter given a set internalformat. 
+	  parameter given a set internalformat.
 	 */
 	static GLenum safeFormat(GLint internalformat)
 	{
-	  GLenum format = GL_RGB;
 	  switch (internalformat)
 	    {
+	    case GL_DEPTH24_STENCIL8:
+	    case GL_DEPTH32F_STENCIL8:
+	      return GL_DEPTH_STENCIL;
 	    case GL_DEPTH_COMPONENT:
 	    case GL_DEPTH_COMPONENT16:
 	    case GL_DEPTH_COMPONENT24:
 	    case GL_DEPTH_COMPONENT32:
-	      format = GL_DEPTH_COMPONENT;
+	      return GL_DEPTH_COMPONENT;
 	    default:
-	      break;
+	      return GL_RGB;
 	    }
+	}
 
-	  return format;
+	/*! \brief Function which returns an appropriate pixel data
+	 * type given a set internalformat.
+	 */
+	static GLenum safeType(GLint internalformat)
+	{
+	  switch (internalformat)
+	    {
+	    case GL_DEPTH24_STENCIL8:
+	      return GL_UNSIGNED_INT_24_8;
+	    default:
+	      return GL_UNSIGNED_BYTE;
+	    }
 	}
       
 	GLuint _handle;
@@ -172,7 +186,7 @@ namespace magnet {
 		     0,
 		     //The following values are not used as no data is
 		     //passed here, use subImage for that.
-		     safeFormat(_internalFormat), GL_UNSIGNED_BYTE, NULL); 
+		     safeFormat(_internalFormat), safeType(_internalFormat), NULL); 
       }
 
       /*! \brief Resize the texture.
@@ -192,7 +206,7 @@ namespace magnet {
 		     0,//Border is off
 		     //The following values are not used as no data is
 		     //passed here, use subImage for that.
-		     safeFormat(_internalFormat), GL_UNSIGNED_BYTE, NULL); 
+		     safeFormat(_internalFormat), safeType(_internalFormat), NULL); 
       }
 
       /*! \brief Fills a section of the texture with the passed data
@@ -214,7 +228,7 @@ namespace magnet {
 
 	bind(0);
 	glTexSubImage1D(_texType, level, xoffset, width,
-			pixelformat, GL_UNSIGNED_BYTE, &data[0]);
+			pixelformat, safeType(_internalFormat), &data[0]);
       }
 
       inline const GLint& getWidth() const { return _width; }
@@ -251,7 +265,7 @@ namespace magnet {
 		     0, //Border is off
 		     //The following values are not used as no data is
 		     //passed here, use subImage for that.
-		     safeFormat(_internalFormat), GL_UNSIGNED_BYTE, NULL); 
+		     safeFormat(_internalFormat), safeType(_internalFormat), NULL); 
       }
       
       /*! \brief Resize the texture.
@@ -271,7 +285,7 @@ namespace magnet {
 		     0, //Border is off
 		     //The following values are not used as no data is
 		     //passed here, use subImage for that.
-		     safeFormat(_internalFormat), GL_UNSIGNED_BYTE, NULL); 	
+		     safeFormat(_internalFormat), safeType(_internalFormat), NULL); 	
       }
 
       /*! \brief Fills a section of the texture with the passed data
@@ -299,7 +313,7 @@ namespace magnet {
 
 	bind(0);
 	glTexSubImage2D(_texType, level, xoffset, yoffset, width, height,
-			pixelformat, GL_UNSIGNED_BYTE, &data[0]);
+			pixelformat, safeType(_internalFormat), &data[0]);
       }
 
       inline void subImage(const uint8_t* data, GLenum pixelformat, GLint width, 
@@ -314,7 +328,7 @@ namespace magnet {
 
 	bind(0);
 	glTexSubImage2D(_texType, level, xoffset, yoffset, width, height,
-			pixelformat, GL_UNSIGNED_BYTE, data);
+			pixelformat, safeType(_internalFormat), data);
       }
 
       inline const GLint& getWidth() const { return _width; }
@@ -360,7 +374,7 @@ namespace magnet {
 		     0,
 		     //The following values are not used as no data is
 		     //passed here, use subImage for that.
-		     safeFormat(_internalFormat), GL_UNSIGNED_BYTE, NULL); 
+		     safeFormat(_internalFormat), safeType(_internalFormat), NULL); 
       }
 
       /*! \brief Resize the texture.
@@ -383,7 +397,7 @@ namespace magnet {
 		     0,
 		     //The following values are not used as no data is
 		     //passed here, use subImage for that.
-		     safeFormat(_internalFormat), GL_UNSIGNED_BYTE, NULL);
+		     safeFormat(_internalFormat), safeType(_internalFormat), NULL);
       }
 
       /*! \brief Fills a section of the texture with the passed data
@@ -419,7 +433,7 @@ namespace magnet {
 
 	bind(0);
 	glTexSubImage3D(_texType, level, xoffset, yoffset, zoffset, width, height, depth,
-			pixelformat, GL_UNSIGNED_BYTE, &data[0]);
+			pixelformat, safeType(_internalFormat), &data[0]);
       }
 
       inline const GLint& getWidth() const { return _width; }

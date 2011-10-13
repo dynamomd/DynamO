@@ -170,7 +170,8 @@ namespace magnet {
 	
 	switch (tex->getInternalFormat())
 	  {
-	  case GL_DEPTH_STENCIL_EXT:
+	  case GL_DEPTH24_STENCIL8:
+	  case GL_DEPTH32F_STENCIL8:
 	  case GL_DEPTH_COMPONENT:
 	    if (i)
 	      M_throw() << "Texture attachment point out of range";
@@ -280,7 +281,8 @@ namespace magnet {
 	    //Bind the textures, or unbind the unbound textures ready for the completeness test
 	    if (_depthTexture)
 	      {
-		if (_depthTexture->getInternalFormat() == GL_DEPTH_STENCIL_EXT)	
+		if ((_depthTexture->getInternalFormat() == GL_DEPTH24_STENCIL8)
+		    || (_depthTexture->getInternalFormat() == GL_DEPTH32F_STENCIL8))
 		  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_STENCIL_ATTACHMENT, 
 					    GL_TEXTURE_2D, _depthTexture->getGLHandle(), 0);	  
 		else
