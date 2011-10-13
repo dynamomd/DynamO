@@ -105,7 +105,7 @@ namespace dynamo {
 	//Test for a line collision
 	//Upper limit can be HUGE_VAL!
 	if (Sim->dynamics.getLiouvillean().getLineLineCollision
-	    (colldat, l, p1, p2))
+	    (colldat, l, p1, p2, colldat.dt))
 	  return IntEvent(p1, p2, colldat.dt, CORE, *this);
       
 	return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);

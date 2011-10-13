@@ -1329,7 +1329,8 @@ namespace dynamo {
 
   bool 
   LNewtonian::getLineLineCollision(CPDData& PD, const double& length, 
-				   const Particle& p1, const Particle& p2) const
+				   const Particle& p1, const Particle& p2,
+				   double t_high) const
   {  
 #ifdef DYNAMO_DEBUG
     if (!hasOrientationData())
@@ -1343,7 +1344,6 @@ namespace dynamo {
 #endif
 
     double t_low = 0.0;
-    double t_high = PD.dt;
   
     CLinesFunc fL(PD.rij, PD.vij,
 		  orientationData[p1.getID()].angularVelocity,

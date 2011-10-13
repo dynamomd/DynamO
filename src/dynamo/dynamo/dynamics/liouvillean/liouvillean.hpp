@@ -244,12 +244,13 @@ namespace dynamo {
      * \param length The length of the lines, or interaction length.
      * \param p1 First particle.
      * \param p2 Second particle.
-     * \param twindow Maximum time to check till.
+     * \param t_max The maximum time to consider roots in.
      * \return Wether the event will occur or not.
      */    
     virtual bool getLineLineCollision(CPDData& PD, const double& length, 
-				      const Particle& p1, const Particle& p2
-				      ) const;
+				      const Particle& p1, const Particle& p2,
+				      double t_max) const;
+
     /*! \brief Tests if and when two off center spheres will collide.
      *
      * \param PD Some precalculated data on the spehres.

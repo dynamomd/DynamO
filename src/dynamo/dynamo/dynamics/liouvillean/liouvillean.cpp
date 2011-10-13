@@ -84,8 +84,8 @@ namespace dynamo {
 
   bool
   Liouvillean::getLineLineCollision(CPDData&, const double&, 
-				    const Particle&, const Particle&
-				    ) const
+				    const Particle&, const Particle&,
+				    double) const
   { M_throw() << "Not implemented for this Liouvillean."; }
 
   PairEventData 
