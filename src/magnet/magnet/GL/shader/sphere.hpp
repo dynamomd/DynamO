@@ -63,7 +63,7 @@ in float scale[];
 
 flat out vec4 vert_color;
 flat out float frag_scale;
-smooth out vec3 model_position_frag;
+flat out vec3 model_position_frag;
 smooth out vec2 ordinate;
 
 void VertexEmit(vec2 displacement, float amount)
@@ -71,7 +71,6 @@ void VertexEmit(vec2 displacement, float amount)
   ordinate = displacement;
   vec4 shift = vec4(amount * displacement, 0.0, 0.0);
   vec4 eyespace_position = gl_in[0].gl_Position + shift;
-  model_position_frag = eyespace_position.xyz;
   gl_Position = ProjectionMatrix * eyespace_position;
   EmitVertex();
 }
@@ -83,6 +82,7 @@ void main()
   //Standard data for each fragment
   vert_color = color[0];
   frag_scale = scale[0];
+  model_position_frag = gl_in[0].gl_Position.xyz;
   VertexEmit(vec2(-1.0, -1.0), scale[0]);
   VertexEmit(vec2(-1.0, +1.0), scale[0]);
   VertexEmit(vec2(+1.0, -1.0), scale[0]);
@@ -96,9 +96,11 @@ void main()
 	{
 	  return "#version 330\n"
 	    STRINGIFY(
+uniform mat4 ProjectionMatrix;
+
 flat in vec4 vert_color;
 flat in float frag_scale;
-smooth in vec3 model_position_frag;
+flat in vec3 model_position_frag;
 smooth in vec2 ordinate;
 
 layout (location = 0) out vec4 color_out;
@@ -114,10 +116,11 @@ void main()
   if (z <= 0.0) discard;
 
   z = sqrt(z);
-
+  vec4 frag_position_eye = vec4(model_position_frag + vec3(ordinate * frag_scale, 0.0), 1.0);
+  vec4 frag_position_proj = ProjectionMatrix * frag_position_eye;
   color_out = vert_color;
   normal_out = vec4(ordinate.x, ordinate.y, z, 1.0);
-  position_out = vec4(model_position_frag, 1.0);
+  position_out = frag_position_eye;
 });
 	}
       };
