@@ -1434,14 +1434,11 @@ namespace coil {
     _simpleRenderShader.attach();
     _simpleRenderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
     _simpleRenderShader["ViewMatrix"] = _camera.getViewMatrix();
-    //We need a non-multisampled FBO, just use one of the filter FBO's
-    _filterTarget1.attach();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    _Gbuffer.attach();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_ALPHA_TEST);
     glDisable(GL_BLEND);
-    glDisable(GL_DITHER);
-    glShadeModel(GL_FLAT);
     
     //Flush the OpenCL queue, so GL can use the buffers
     getGLContext().getCLCommandQueue().finish();
@@ -1467,11 +1464,9 @@ namespace coil {
 	      << int(pixel[2]) << " "
 	      << int(pixel[3]) << std::endl;
 
-    _filterTarget1.detach();
+    _Gbuffer.detach();
     glEnable(GL_BLEND);
     glEnable(GL_ALPHA_TEST);
-    glEnable(GL_DITHER);
-    glShadeModel(GL_SMOOTH);
 
     //Now let the objects know what was picked
     const cl_uint objID = pixel[0] + 256 * (pixel[1] + 256 * (pixel[2] + 256 * pixel[3]));
