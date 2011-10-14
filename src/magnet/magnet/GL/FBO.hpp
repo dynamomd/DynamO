@@ -57,9 +57,8 @@ namespace magnet {
 	_context = &Context::getContext();
 
 	glGenFramebuffersEXT(1, &_FBO);
-	//Here we only allocate enough textures for the maximum
+	//Here we only allocate enough texture pointers for the maximum
 	//allowed drawable buffers!
-	//Any more would just be silly and confuse things!
 	_colorTextures.resize(detail::glGet<GL_MAX_DRAW_BUFFERS>());
 	_validated = false;
       }
@@ -78,10 +77,26 @@ namespace magnet {
       {
 	if (!_context)
 	  M_throw() << "Cannot resize an uninitialized FBO";
-	
-	//Skip identity operations
-	if ((width == getWidth()) && (height == getHeight())) return;
-	
+
+	//We don't check if the FBO is validated as textures might be
+	//shared between multiple FBO's. We should resize if *any* of
+	//the bound textures of this FBO do not match the new size.
+	{
+	  //Check if the resize is a no_op
+	  size_t no_op = true;
+	  for (size_t attachment(0); attachment < _colorTextures.size(); ++attachment)
+	    if (_colorTextures[attachment])
+	      if ((_colorTextures[attachment]->getWidth() != width)
+		  && (_colorTextures[attachment]->getHeight() != height))
+		{ no_op = false; break; }
+	  if (_depthTexture)
+	    if ((_depthTexture->getWidth() != width)
+		&& (_depthTexture->getHeight() != height))
+	      no_op = false;
+	  
+	  if (no_op) return;
+	}
+
 	std::vector<std::tr1::shared_ptr<Texture2D> > colorTextures = _colorTextures;
 	std::tr1::shared_ptr<Texture2D> depthTexture = _depthTexture;
 
