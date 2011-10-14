@@ -113,18 +113,20 @@ void main()
   //sphere. Use the equation of a sphere to determine the z pos
   float z = 1.0 - ordinate.x * ordinate.x - ordinate.y * ordinate.y;
 
+  //Discard the fragment if it lies outside the sphere
   if (z <= 0.0) discard;
 
+  //Calculate the fragments real position on the sphere
   z = sqrt(z);
-  vec4 frag_position_eye = vec4(model_position_frag + vec3(ordinate * frag_scale, 0.0), 1.0);
-  vec4 frag_position_proj = ProjectionMatrix * frag_position_eye;
+  vec4 frag_position_eye = vec4(model_position_frag + vec3(ordinate, z) * frag_scale, 1.0);
+  //Calculate the fragments depth
+  vec4 pos = ProjectionMatrix * frag_position_eye;
+  gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0; 
+
+  //Write out the fragment's data
+  position_out = frag_position_eye;
   color_out = vert_color;
   normal_out = vec4(ordinate.x, ordinate.y, z, 1.0);
-  position_out = frag_position_eye;
-  
-  vec4 pos = vec4(0.0, 0.0, model_position_frag.z + z * frag_scale, 1.0);
-  pos = ProjectionMatrix * pos;
-  gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0; 
 });
 	}
       };
