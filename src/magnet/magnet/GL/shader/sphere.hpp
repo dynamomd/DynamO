@@ -121,6 +121,10 @@ void main()
   color_out = vert_color;
   normal_out = vec4(ordinate.x, ordinate.y, z, 1.0);
   position_out = frag_position_eye;
+  
+  vec4 pos = vec4(0.0, 0.0, model_position_frag.z + z * frag_scale, 1.0);
+  pos = ProjectionMatrix * pos;
+  gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0; 
 });
 	}
       };
