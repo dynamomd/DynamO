@@ -1402,9 +1402,12 @@ namespace coil {
     _fpsLimitValue = fpsButton->get_value();
 
     _renderTimeout.disconnect();
-    _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 
-						    _fpsLimit ? 1000 / _fpsLimitValue : 10, 
-						    Glib::PRIORITY_DEFAULT_IDLE);
+    if (!_fpsLimit)
+      _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 10, 
+						      Glib::PRIORITY_DEFAULT_IDLE);
+    else if (_fpsLimitValue != 0)
+      _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 
+						      1000 / _fpsLimitValue, Glib::PRIORITY_DEFAULT_IDLE);
   }
 
   void
