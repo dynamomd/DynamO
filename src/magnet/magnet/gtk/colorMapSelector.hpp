@@ -30,7 +30,7 @@ namespace magnet {
       enum Mode_t { SEBASTIAN, HSV, MARCUS };
 
       ColorMapSelector():
-	_min(0), _max(1)
+	_min(0), _invRange(1)
       {
 	m_refTreeModel = ::Gtk::ListStore::create(m_Columns);
 	_comboBox.set_model(m_refTreeModel);
@@ -78,8 +78,8 @@ namespace magnet {
       }
 
       void map(float color[4], float val)
-      {
-	val = (val - _min) / (_max - _min);
+      {	
+	val = (val - _min) * _invRange;
 	switch (_mode)
 	  {
 	  case SEBASTIAN:
@@ -100,9 +100,14 @@ namespace magnet {
 
       ::sigc::signal<void> signal_changed() { return _signal_changed; }
 
-      inline void setRange(GLfloat min, GLfloat max)
+      inline void setRange(float min, float max)
       {
 	_minValue.set_text(boost::lexical_cast<std::string>(min));
+
+	float range = max - min;
+	if (range == 0) range = 1;
+	_invRange = 1 / range;
+
 	_maxValue.set_text(boost::lexical_cast<std::string>(max));
       }
 	
@@ -112,7 +117,7 @@ namespace magnet {
       ::Gtk::Entry _maxValue;
       ::sigc::signal<void> _signal_changed;
       GLfloat _min;
-      GLfloat _max;
+      GLfloat _invRange;
 
       void buildEntry(Mode_t newMode, std::string name)
       {
@@ -147,7 +152,12 @@ namespace magnet {
 	magnet::gtk::forceNumericEntry(_minValue);
 	try { _min = boost::lexical_cast<GLfloat>(_minValue.get_text()); } catch(...) {}
 	magnet::gtk::forceNumericEntry(_maxValue);
-	try { _max = boost::lexical_cast<GLfloat>(_maxValue.get_text()); } catch(...) {}
+	try { 
+	  float max = boost::lexical_cast<GLfloat>(_maxValue.get_text()); 
+	  float range = max - _min;
+	  if (range == 0) range = 1;
+	  _invRange = 1 / range;
+	} catch(...) {}
 	_signal_changed.emit();
       }
 
