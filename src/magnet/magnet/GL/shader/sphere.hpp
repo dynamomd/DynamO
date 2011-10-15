@@ -31,6 +31,7 @@ namespace magnet {
 	  return "#version 330\n" 
 	    STRINGIFY(
 uniform mat4 ViewMatrix;
+uniform float global_scale;
 
 layout (location = 0) in vec4 vPosition;
 layout (location = 1) in vec4 vColor;
@@ -42,7 +43,7 @@ out float scale;
 void main()
 {
   color = vColor;
-  scale = iScale.x;
+  scale = iScale.x * global_scale;
   gl_Position = ViewMatrix * vec4(vPosition.xyz, 1.0);
 });
 	}

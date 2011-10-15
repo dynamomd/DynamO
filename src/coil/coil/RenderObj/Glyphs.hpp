@@ -29,7 +29,7 @@ namespace coil {
   class Glyphs : public DataSetChild, public magnet::GL::objects::Instanced
   {
   public:
-    inline Glyphs(std::string name, DataSet& ds): DataSetChild(name, ds) {}
+    inline Glyphs(std::string name, DataSet& ds): DataSetChild(name, ds), _scale(1) {}
 
     inline virtual void clTick(const magnet::GL::Camera& cam) {}
 
@@ -72,6 +72,7 @@ namespace coil {
 ;
     
     bool _raytraceable;
+    float _scale;
     magnet::GL::Context* _context;
     magnet::GL::shader::SphereShader _sphereShader;
  };

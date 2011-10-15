@@ -41,6 +41,7 @@ namespace coil {
 	      _sphereShader.attach();
 	      _sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
 	      _sphereShader["ViewMatrix"] = cam.getViewMatrix();
+	      _sphereShader["global_scale"] = _scale;
 	      _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
 	      _colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 0);;
 	      _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
@@ -79,6 +80,7 @@ namespace coil {
     _scaleFactorBox.reset();
     _scaleLabel.reset();
     _scaleFactor.reset();
+    _glyphRaytrace.reset();
   }
 
   void 
@@ -236,6 +238,9 @@ namespace coil {
   {
     magnet::gtk::forceNumericEntry(*_scaleFactor);
     _glyphLOD->set_sensitive(true);
+    try {
+      _scale = boost::lexical_cast<double>(_scaleFactor->get_text());
+    } catch (...) {}
 
     switch (_glyphType->get_active_row_number())
       {
@@ -280,15 +285,9 @@ namespace coil {
 	M_throw() << "Unrecognised glyph type";
       }
 
-    GLfloat factor = 1.0;
-      
-    try {
-      factor = boost::lexical_cast<double>(_scaleFactor->get_text());
-    } catch (...) {}
-
     for (std::vector<GLfloat>::iterator iPtr = vertices.begin();
 	 iPtr != vertices.end(); ++iPtr)
-      *iPtr *= factor;
+      *iPtr *= _scale;
       
     return vertices;
   }
@@ -361,6 +360,7 @@ namespace coil {
 	      _sphereShader.attach();
 	      _sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
 	      _sphereShader["ViewMatrix"] = cam.getViewMatrix();
+	      _sphereShader["global_scale"] = _scale;
 	      _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
 	      colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 0, true);
 	      _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
