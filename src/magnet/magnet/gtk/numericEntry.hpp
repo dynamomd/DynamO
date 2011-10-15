@@ -37,17 +37,30 @@ namespace magnet {
       std::string value = textfield.get_text();
       
       bool hasPoint = false;
+      bool hasExponent = false;
       std::string::iterator iPtr = value.begin();
       if ((*iPtr == '-') || (*iPtr == '+')) ++iPtr;
 
       while (iPtr != value.end())
 	if (std::isdigit(*iPtr))
 	  ++iPtr;
+	else if ((*iPtr == '.') && (!hasPoint))
+	  { ++iPtr; hasPoint = true; }
+	else if ((*iPtr == 'e') 
+		 && (!hasExponent)
+		 && (iPtr != value.begin())
+		 && std::isdigit(*(iPtr - 1)))
+	  {
+	    //If the last value was a digit we can have a single e
+	    //argument, but don't allow decimal exponents
+	    hasExponent=true; 
+	    hasPoint = true;
+	    ++iPtr;
+	    //Eat the sign of the exponent
+	    if ((*iPtr == '-') || (*iPtr == '+')) ++iPtr;
+	  }
 	else
-	  if ((*iPtr == '.') && (!hasPoint))
-	    { ++iPtr; hasPoint = true; }
-	  else
-	    iPtr = value.erase(iPtr);
+	  iPtr = value.erase(iPtr);
       
       if (value[0] == '.') value.erase(value.begin());
 
