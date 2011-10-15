@@ -30,28 +30,38 @@ namespace coil {
   void 
   Glyphs::glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode) 
   {    
-    if (_raytraceSpheres && (_glyphType->get_active_row_number() == 3))
-      {
-	_sphereShader.attach();
-	_sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
-	_sphereShader["ViewMatrix"] = cam.getViewMatrix();
-	_primitiveVertices.getContext().resetInstanceTransform();
-	_scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
-	_colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 0);;
-	_ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
-	_sphereShader.detach();
-      }
-    else
-      {
-	if (!_primitiveVertices.size()) return;
+    _primitiveVertices.getContext().resetInstanceTransform();
 
-	_primitiveVertices.getContext().resetInstanceTransform();
-	_ds.getPositionBuffer().attachToAttribute(magnet::GL::Context::instanceOriginAttrIndex, 3, 1);
-	_scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 1);
-	_orientSel->bindAttribute(magnet::GL::Context::instanceOrientationAttrIndex, 1);
-	_colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 1);
-	Instanced::glRender();
+    switch (_glyphType->get_active_row_number())
+      {
+      case 0: //Spheres
+	{
+	  if (_raytraceable && _glyphRaytrace->get_active())
+	    {
+	      _sphereShader.attach();
+	      _sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
+	      _sphereShader["ViewMatrix"] = cam.getViewMatrix();
+	      _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
+	      _colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 0);;
+	      _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+	      _sphereShader.detach();
+	      return;
+	    }
+	}
+	break;
+      case 1: //Arrows
+      case 2: //Cylinder
+      default:
+	break;
       }
+    
+    if (!_primitiveVertices.size()) return;
+    
+    _ds.getPositionBuffer().attachToAttribute(magnet::GL::Context::instanceOriginAttrIndex, 3, 1);
+    _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 1);
+    _orientSel->bindAttribute(magnet::GL::Context::instanceOrientationAttrIndex, 1);
+    _colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 1);
+    Instanced::glRender();
   }
 
   void 
@@ -94,9 +104,12 @@ namespace coil {
     _glyphBox.reset(new Gtk::HBox); _glyphBox->show();
     
     _context = &(magnet::GL::Context::getContext());
-    _raytraceSpheres = _context->testExtension("GL_EXT_geometry_shader4");
+    _raytraceable = _context->testExtension("GL_EXT_geometry_shader4");
 
-    if (_raytraceSpheres) _sphereShader.build();
+    if (_raytraceable) 
+      {
+	_sphereShader.build();
+      }	
 
     {
       Gtk::Label* label = Gtk::manage(new Gtk::Label("Glyph Type")); label->show();
@@ -108,23 +121,31 @@ namespace coil {
       _glyphType->append_text("Sphere");      
       _glyphType->append_text("Arrows");
       _glyphType->append_text("Cylinder");
-      if (_raytraceSpheres)
-	_glyphType->append_text("Ray-traced Spheres");
-
       _glyphType->set_active(0);
 
       _glyphBox->pack_start(*_glyphType, false, false, 5);
       _glyphType->signal_changed()
-	.connect(sigc::mem_fun(*this, &Glyphs::glyph_type_changed));
+	.connect(sigc::mem_fun(*this, &Glyphs::guiUpdate));
     }
-      
+    
+    {
+      _glyphRaytrace.reset(new Gtk::CheckButton("RayTrace")); ;
+      if (_raytraceable) 
+	_glyphRaytrace->show();
+      _glyphRaytrace->set_active(_raytraceable);
+      _glyphRaytrace->set_sensitive(_raytraceable);
+      _glyphRaytrace->signal_toggled()
+	.connect(sigc::mem_fun(this, &Glyphs::guiUpdate));
+      _glyphBox->pack_start(*_glyphRaytrace, false, false, 5);
+    }
+
     {
       _glyphLOD.reset(new Gtk::SpinButton(1.0, 0)); _glyphLOD->show();
       _glyphLOD->get_adjustment()->configure(1, 1, 1, 1.0, 1.0, 0.0); //A temporary low LOD setting
       _glyphLOD->set_numeric(true);
       _glyphBox->pack_end(*_glyphLOD, false, false, 5);
       _glyphLOD->signal_value_changed()
-	.connect(sigc::mem_fun(*this, &Glyphs::glyph_LOD_changed));
+	.connect(sigc::mem_fun(*this, &Glyphs::guiUpdate));
 
       Gtk::Label* label = Gtk::manage(new Gtk::Label("Level of Detail")); label->show();
       _glyphBox->pack_end(*label, false, false, 5);
@@ -157,7 +178,7 @@ namespace coil {
     _scaleFactor->set_width_chars(5);
 
     _scaleFactor->signal_changed()
-      .connect(sigc::mem_fun(*this, &Glyphs::glyph_scale_changed));
+      .connect(sigc::mem_fun(*this, &Glyphs::guiUpdate));
 
     separator = Gtk::manage(new Gtk::HSeparator); 
     separator->show(); 
@@ -177,34 +198,44 @@ namespace coil {
 			     Attribute::INTENSIVE | Attribute::EXTENSIVE, 4);
     _gtkOptList->pack_start(*_orientSel, false, false);
 
-    glyph_type_changed();
+    guiUpdate();
   }
 
-  void Glyphs::glyph_scale_changed()
+  void 
+  Glyphs::guiUpdate()
   {
     magnet::gtk::forceNumericEntry(*_scaleFactor);
-    glyph_type_changed();
-  }
-  
-  void 
-  Glyphs::glyph_type_changed()
-  {
+
     int type = _glyphType->get_active_row_number();
+
     switch (type)
       {
       case 0: //Spheres
-	_glyphLOD->get_adjustment()->configure(1.0, 0.0, 4.0, 1.0, 1.0, 0.0);
+	{
+	  _glyphLOD->get_adjustment()->configure(1.0, 0.0, 4.0, 1.0, 1.0, 0.0);
+	  _glyphLOD->set_sensitive(true);
+
+	  if (_raytraceable)
+	    {
+	      _glyphRaytrace->set_sensitive(true);
+	      if (_glyphRaytrace->get_active())
+		_glyphLOD->set_sensitive(false);
+	    }
+	  else
+	    _glyphRaytrace->set_sensitive(false);
+
+	}
 	break;
       case 1: //Arrows
       case 2: //Cylinder
-	_glyphLOD->get_adjustment()->configure(6, 3.0, 32.0, 1.0, 5.0, 0.0);	
+	_glyphLOD->get_adjustment()->configure(6, 3.0, 32.0, 1.0, 5.0, 0.0);
+	_glyphRaytrace->set_sensitive(false);	
 	break;
-      case 3: //Ray traced spheres
-	return;
       default:
 	break;
       }
-    glyph_LOD_changed();
+
+    Instanced::init(_ds.size());
   }
 
   std::vector<GLfloat> 
@@ -294,8 +325,7 @@ namespace coil {
   void 
   Glyphs::pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, uint32_t& offset)
   {
-    //Do not allow a glRender if uninitialised
-    if (!_primitiveVertices.size()) return;
+    _primitiveVertices.getContext().resetInstanceTransform();
 
     magnet::GL::Buffer<GLubyte> colorbuf;    
     {//Send unique color id's to colorbuf
@@ -306,28 +336,36 @@ namespace coil {
       colorbuf = colors;
     }
 
-    _primitiveVertices.getContext().resetInstanceTransform();
-
+    switch (_glyphType->get_active_row_number())
+      {
+      case 0: //Spheres
+	{
+	  if (_raytraceable && _glyphRaytrace->get_active())
+	    {
+	      _sphereShader.attach();
+	      _sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
+	      _sphereShader["ViewMatrix"] = cam.getViewMatrix();
+	      _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
+	      colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 0, true);
+	      _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+	      _sphereShader.detach();
+	      return;
+	    }
+	}
+	break;
+      case 1: //Arrows
+      case 2: //Cylinder
+      default:
+	break;
+      }
     
-    if (_raytraceSpheres && (_glyphType->get_active_row_number() == 3))
-      {
-	_sphereShader.attach();
-	_sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
-	_sphereShader["ViewMatrix"] = cam.getViewMatrix();
-	_primitiveVertices.getContext().resetInstanceTransform();
-	_scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
-	colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 0, true);
-	_ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
-	_sphereShader.detach();
-      }
-    else
-      {
-	_ds.getPositionBuffer().attachToAttribute(magnet::GL::Context::instanceOriginAttrIndex, 3, 1);
-	_scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 1);
-	_orientSel->bindAttribute(magnet::GL::Context::instanceOrientationAttrIndex, 1);
-	colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 1, true); 
-	Instanced::glRender();
-      }
+    if (!_primitiveVertices.size()) return;
+    
+    _ds.getPositionBuffer().attachToAttribute(magnet::GL::Context::instanceOriginAttrIndex, 3, 1);
+    _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 1);
+    _orientSel->bindAttribute(magnet::GL::Context::instanceOrientationAttrIndex, 1);
+    colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 1, true); 
+    Instanced::glRender();
 
     offset += _N;
   }

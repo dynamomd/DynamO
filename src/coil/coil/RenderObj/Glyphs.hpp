@@ -47,12 +47,7 @@ namespace coil {
     virtual void finishPicking(uint32_t& offset, const uint32_t val);
 
   protected:
-    
-    void glyph_scale_changed();
-
-    void glyph_type_changed();
-
-    inline void glyph_LOD_changed() { Instanced::init(_ds.size()); }
+    void guiUpdate();
 
     inline virtual magnet::GL::element_type::Enum  getElementType()
     { return magnet::GL::element_type::TRIANGLES; }
@@ -68,12 +63,14 @@ namespace coil {
     std::auto_ptr<Gtk::ComboBoxText> _glyphType;
     std::auto_ptr<Gtk::SpinButton> _glyphLOD;
     std::auto_ptr<Gtk::HBox> _glyphBox;
+    std::auto_ptr<Gtk::CheckButton> _glyphRaytrace;
 
     std::auto_ptr<Gtk::HBox>  _scaleFactorBox;
     std::auto_ptr<Gtk::Label> _scaleLabel;
     std::auto_ptr<Gtk::Entry> _scaleFactor;
+;
     
-    bool _raytraceSpheres;
+    bool _raytraceable;
     magnet::GL::Context* _context;
     magnet::GL::shader::SphereShader _sphereShader;
  };
