@@ -125,7 +125,7 @@ namespace coil {
 
       _glyphBox->pack_start(*_glyphType, false, false, 5);
       _glyphType->signal_changed()
-	.connect(sigc::mem_fun(*this, &Glyphs::guiUpdate));
+	.connect(sigc::mem_fun(*this, &Glyphs::glyph_type_changed));
     }
     
     {
@@ -141,7 +141,6 @@ namespace coil {
 
     {
       _glyphLOD.reset(new Gtk::SpinButton(1.0, 0)); _glyphLOD->show();
-      _glyphLOD->get_adjustment()->configure(1, 1, 1, 1.0, 1.0, 0.0); //A temporary low LOD setting
       _glyphLOD->set_numeric(true);
       _glyphBox->pack_end(*_glyphLOD, false, false, 5);
       _glyphLOD->signal_value_changed()
@@ -198,38 +197,55 @@ namespace coil {
 			     Attribute::INTENSIVE | Attribute::EXTENSIVE, 4);
     _gtkOptList->pack_start(*_orientSel, false, false);
 
+    glyph_type_changed();
+  }
+
+  void 
+  Glyphs::glyph_type_changed()
+  {
+    _glyphRaytrace->set_sensitive(false);
+    _glyphRaytrace->set_active(false);
+
+    switch (_glyphType->get_active_row_number())
+      {
+      case 0: //Spheres
+	{	  
+	  if (_raytraceable)
+	    {
+	      _glyphRaytrace->set_sensitive(true);
+	      _glyphRaytrace->set_active(true);
+	    }
+	    
+	  _glyphLOD->get_adjustment()->configure(1, 0.0, 4.0, 1.0, 1.0, 0.0);
+	}
+	break;
+      case 1: //Arrows
+      case 2: //Cylinder
+	_glyphLOD->get_adjustment()->configure(6.0, 6.0, 32.0, 1.0, 5.0, 0.0);
+	break;
+      default:
+	break;
+      }
+
     guiUpdate();
   }
+
 
   void 
   Glyphs::guiUpdate()
   {
     magnet::gtk::forceNumericEntry(*_scaleFactor);
+    _glyphLOD->set_sensitive(true);
 
-    int type = _glyphType->get_active_row_number();
-
-    switch (type)
+    switch (_glyphType->get_active_row_number())
       {
       case 0: //Spheres
-	{
-	  _glyphLOD->get_adjustment()->configure(1.0, 0.0, 4.0, 1.0, 1.0, 0.0);
-	  _glyphLOD->set_sensitive(true);
-
-	  if (_raytraceable)
-	    {
-	      _glyphRaytrace->set_sensitive(true);
-	      if (_glyphRaytrace->get_active())
-		_glyphLOD->set_sensitive(false);
-	    }
-	  else
-	    _glyphRaytrace->set_sensitive(false);
-
-	}
+	if (_raytraceable)
+	  if (_glyphRaytrace->get_active())
+	    _glyphLOD->set_sensitive(false);
 	break;
       case 1: //Arrows
       case 2: //Cylinder
-	_glyphLOD->get_adjustment()->configure(6, 3.0, 32.0, 1.0, 5.0, 0.0);
-	_glyphRaytrace->set_sensitive(false);	
 	break;
       default:
 	break;

@@ -47,6 +47,7 @@ namespace coil {
     virtual void finishPicking(uint32_t& offset, const uint32_t val);
 
   protected:
+    void glyph_type_changed();
     void guiUpdate();
 
     inline virtual magnet::GL::element_type::Enum  getElementType()
