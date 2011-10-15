@@ -64,8 +64,8 @@ namespace coil {
 		    {
 		      min = std::min(min, *iPtr);
 		      max = std::max(max, *iPtr);
-		      _colorMapSelector.setRange(min, max);
 		    }
+		  _colorMapSelector.setRange(min, max);
 		}
 
 	      //Now convert to HSV or whatever
