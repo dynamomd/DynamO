@@ -53,7 +53,6 @@ namespace magnet {
     class Context
     {
     public:
-
       /*! \brief Method to fetch the current OpenGL context.
        
         This function is used to make sure that whenever the context
@@ -343,6 +342,14 @@ namespace magnet {
       }
 
     protected:
+
+      /*! \brief A dummy vertex array object (VAO).
+	
+	The OpenGL standard requires from 3.2 (core), a VAO must be
+	bound to the state as the default VAO is not available.
+       */
+      GLuint _dummyVAO;
+
       /*! \brief A counter of the number of calls to \ref
           swapBuffers(). 
       */
@@ -535,6 +542,10 @@ namespace magnet {
 
 	color(0,1,1,1);
 	resetInstanceTransform();
+
+	//Bind the dummy VAO object (so hacky)
+	glGenVertexArrays(1, &_dummyVAO);
+	glBindVertexArray(_dummyVAO);
       }
 
       typedef GLXContext ContextKey;

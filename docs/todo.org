@@ -10,11 +10,14 @@
 **** DONE DynamO: Remove all Clone functions.
 **** DONE DynamO: All particle positions are now shuffled for mixture systems in dynamod to enable faster equilibration.
 **** DONE Coil: Moved to deferred shading.
+**** DONE Coil: Now requires and successfully supports the OpenGL 3.3 Core profile.
+**** TODO Coil: Fix the dummy vertex array object mess.
 **** TODO Coil: Make the snapshot button output to seperate files.
 **** TODO Coil: Get rid of the context pointers
 **** TODO Remove the Dynamics class and move its functions into the SimData class.
 **** TODO Remove the Dynamics tags in the config.
 **** TODO Rename the Liouvillean to Dynamics.
+**** TODO Coil: Sort out the console output in coil, do we need it? it's a mess in clWindow.cpp
 **** TODO Fix the const casting in the liouvillean.
 **** TODO Collapse the schedulers to just the complex scheduler.
 **** TODO Optimized triangle meshes by inserting them into the neighbor lists.

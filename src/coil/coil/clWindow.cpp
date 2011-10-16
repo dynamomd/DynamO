@@ -509,13 +509,12 @@ namespace coil {
 //    std::tr1::shared_ptr<RVolume> vol(new RVolume("Test Volume"));
 //    _renderObjsTree._renderObjects.push_back(vol);
 
-//    glutInitContextVersion(3, 3);
-//    
-//#ifdef MAGNET_DEBUG
-//    glutInitContextFlags(GLUT_CORE_PROFILE | GLUT_DEBUG);
-//#else
-//    glutInitContextFlags(GLUT_CORE_PROFILE);
-//#endif
+    glutInitContextVersion(3, 3);
+#ifdef MAGNET_DEBUG
+    glutInitContextFlags(GLUT_CORE_PROFILE | GLUT_DEBUG);
+#else
+    glutInitContextFlags(GLUT_CORE_PROFILE);
+#endif
     glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE | GLUT_ALPHA);
     glutInitWindowSize(800, 600);
     glutInitWindowPosition(0, 0);
