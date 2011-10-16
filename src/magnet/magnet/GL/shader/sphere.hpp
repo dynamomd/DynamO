@@ -21,7 +21,43 @@
 namespace magnet {
   namespace GL {
     namespace shader {
-      /*! \brief A G-Buffer shader which billboards and raytraces spheres.
+      /*! \brief A deffered rendering (G-Buffer) shader which
+          billboards/raytraces spheres.
+
+	  This shader provides an extremely fast method to render
+	  perfect spheres in OpenGL. This method appears to outperform
+	  even the most poorly tesselated spheres. Only the position
+	  of the sphere (the input type is GL_POINTS) is needed as
+	  input (The radius of the sphere is passed in through the
+	  iScale vertex attribute). A geometry shader then converts
+	  each POINT into two triangles as a square bilboard. When the
+	  billboard is rasterized into fragments, in the fragment
+	  shader, each fragment is used to ray trace a sphere within
+	  the billboard. Thus, we only draw the front face of the
+	  sphere, using the absolute minimum input data, only two
+	  triangles at the cost of a slightly expensive fragment
+	  shader and an additional (trivial) geometry shader stage.
+
+	  A final note is that we put the billboards exactly one
+	  radius towards the viewer. This means the fragment shader
+	  only increases the fragments depth after raytracing. This
+	  coupled with the use of the GL_ARB_conservative_depth
+	  extension allows early-Z culling to still be performed for
+	  the standard GL_LESS/GL_LEQUAL depth testing!
+
+	  There's tricky trick here too. The billboard is sized and
+	  passed through the Projection matrix at the center depth of
+	  the ball. This is all well and good, we will get a billboard
+	  at exactly the correct xy size on the screen. But then we
+	  wish to set the depth to exactly +r in projected space so
+	  that the billboard depth is at the minimum the sphere might
+	  yield. We can't just project the billboard at (position.z+r)
+	  in the first place as with a perspecitve, the billboard will
+	  be larger than requried to render the sphere! We have to
+	  calculate the screen space z we want, project the billboard
+	  in the middle and then replace its z component with the
+	  screen space z we want multiplied by the w coordinate! See
+	  the code for more details.
        */
       class SphereShader: public detail::Shader
       {
@@ -67,27 +103,56 @@ flat out float frag_scale;
 flat out vec3 model_position_frag;
 smooth out vec2 ordinate;
 
-void VertexEmit(vec2 displacement, float amount)
+//Function to emit a bilboard vertex with all the correct output given
+//the displacement
+void VertexEmit(in vec2 displacement, in float finalz)
 {
   ordinate = displacement;
-  vec4 shift = vec4(amount * displacement, 0.0, 0.0);
+
+  vec4 shift = vec4(scale[0] * displacement, 0.0, 0.0);
   vec4 eyespace_position = gl_in[0].gl_Position + shift;
-  gl_Position = ProjectionMatrix * eyespace_position;
+  vec4 proj_position =  ProjectionMatrix * eyespace_position;
+
+  //Here we do the cryptic thing of inputting the finalz times by the
+  //w coordinate, so that when the w divide is performed by OpenGL, we
+  //will recover the w divide.
+  gl_Position = vec4(proj_position.xy, finalz * proj_position.w, proj_position.w);
   EmitVertex();
 }
 
 void main()
 {
-  float halfsize = scale[0];
+  //All of this paragraph concerns the manipulations required to get
+  //the GL_ARB_conservative_depth extension to work without increasing
+  //the render load.
+
+  //We want to place the billboard at the front of the sphere, but we
+  //want to make its screen dimensions those of a billboard halfway
+  //through the sphere. Unfortunately, if we have perspective,
+  //altering the depth will alter the screen dimensions too.
+
+  //To get around this, we must calculate the
+  //post-perspective/w-divided z we want (called finalz). We then
+  //place our billboard vertices at the sphere middle but replace its
+  //z component with finalz multiplied by the sphere middle w value,
+  //so when OpenGL does the w-divide, we recover the correct depth!
+  //Horray!
+
+  //The projected position of the center of the front of the sphere
+  vec4 centerpos = ProjectionMatrix * (gl_in[0].gl_Position + vec4(0.0, 0.0, scale[0], 0.0));
+  
+  //We now perform the w divide so that we have the minimum
+  //screen-space depth of the sphere.
+  float finalz = centerpos.z / centerpos.w;
 
   //Standard data for each fragment
   vert_color = color[0];
   frag_scale = scale[0];
   model_position_frag = gl_in[0].gl_Position.xyz;
-  VertexEmit(vec2(-1.0, -1.0), scale[0]);
-  VertexEmit(vec2(-1.0, +1.0), scale[0]);
-  VertexEmit(vec2(+1.0, -1.0), scale[0]);
-  VertexEmit(vec2(+1.0, +1.0), scale[0]);
+  VertexEmit(vec2(-1.0, -1.0), finalz);
+  VertexEmit(vec2(-1.0, +1.0), finalz);
+  VertexEmit(vec2(+1.0, -1.0), finalz);
+  VertexEmit(vec2(+1.0, +1.0), finalz);
   EndPrimitive();
 }
 );
@@ -96,6 +161,10 @@ void main()
 	virtual std::string initFragmentShaderSource()
 	{
 	  return "#version 330\n"
+	    "#ifdef GL_ARB_conservative_depth\n"
+	    "#extension GL_ARB_conservative_depth : enable\n"
+	    "layout (depth_greater) out float gl_FragDepth;"
+	    "#endif\n"
 	    STRINGIFY(
 uniform mat4 ProjectionMatrix;
 
@@ -112,7 +181,7 @@ void main()
 {
   //The ordinate variable contains the x and y position of the
   //sphere. Use the equation of a sphere to determine the z pos
-  float z = 1.0 - ordinate.x * ordinate.x - ordinate.y * ordinate.y;
+  float z = 1.0 - dot(ordinate,ordinate);
 
   //Discard the fragment if it lies outside the sphere
   if (z <= 0.0) discard;
