@@ -1457,11 +1457,11 @@ namespace coil {
     glGetIntegerv(GL_VIEWPORT, viewport);  
     glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
     
-    std::cout << "Pixel read gave " 
-	      << int(pixel[0]) << " "
-	      << int(pixel[1]) << " "
-	      << int(pixel[2]) << " "
-	      << int(pixel[3]) << std::endl;
+    //    std::cout << "Pixel read gave " 
+    //	      << int(pixel[0]) << " "
+    //	      << int(pixel[1]) << " "
+    //	      << int(pixel[2]) << " "
+    //	      << int(pixel[3]) << std::endl;
 
     _Gbuffer.detach();
     glEnable(GL_BLEND);
