@@ -365,6 +365,7 @@ namespace coil {
 	      colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 0, true);
 	      _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
 	      _sphereShader.detach();
+	      offset += _N;
 	      return;
 	    }
 	}
@@ -382,7 +383,6 @@ namespace coil {
     _orientSel->bindAttribute(magnet::GL::Context::instanceOrientationAttrIndex, 1);
     colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 1, true); 
     Instanced::glRender();
-
     offset += _N;
   }
 
