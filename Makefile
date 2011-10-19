@@ -17,7 +17,7 @@ docs :
 	doxygen
 
 clean: build_deps
-	$(BJAM) clean
+	rm -Rf build-dir
 
 #Make sure we've downloaded boost and built the bjam executable inside
 build_deps:
