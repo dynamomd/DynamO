@@ -18,6 +18,7 @@
 #pragma once
 
 #include <cmath>
+#include <algorithm>
 #include <tr1/array>
 
 namespace magnet {

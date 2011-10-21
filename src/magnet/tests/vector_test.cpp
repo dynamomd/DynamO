@@ -9,8 +9,8 @@ bool err(double val, double expected)
 
 int main()
 {
-  Vector A(0,0,0);
-  Vector B(1,1,1);
+  magnet::math::Vector A(0,0,0);
+  magnet::math::Vector B(1,1,1);
 
   if (err((A+B).nrm(), std::sqrt(3)))
     { std::cout << "(A+B).nrm() is wrong"; return 1; }

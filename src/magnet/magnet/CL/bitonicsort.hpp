@@ -21,14 +21,14 @@
 namespace magnet {
   namespace CL {
     template<class T>
-    class bitonicSort : public detail::Functor
+    class bitonicSort : public detail::Program
     {
       cl::Kernel _sortKernel, _smallSortKernel, _subSortKernel;
     
     public:
       void build(cl::CommandQueue queue, cl::Context context)
       {
-	Functor::build(queue, context, "");
+	Program::build(queue, context, "");
 	// set up kernel
 	_sortKernel = cl::Kernel(_program, "bitonicSort");
 	_smallSortKernel = cl::Kernel(_program, 

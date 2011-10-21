@@ -16,7 +16,6 @@
  */
 #pragma once
 
-#include <magnet/GL/context.hpp>
 #include <magnet/CL/detail/extension_wrangler.hpp>
 #include <magnet/string/formatcode.hpp>
 #include <string>
@@ -32,16 +31,6 @@ namespace magnet {
       class Program
       {
       public:
-	/*! \brief Build the kernel source using the passed GL context.
-	 *
-	 * \param context The OpenGL context to build the Program in.
-	 * \param buildFlags Any compiler options to pass to the OpenCL compiler.
-	 */
-	inline void build(magnet::GL::Context& context, std::string buildFlags = "")
-	{
-	  build(context.getCLCommandQueue(), context.getCLContext(), buildFlags);
-	}
-
 	/*! \brief Build the kernel source and store the queue and
 	 * context.
 	 *

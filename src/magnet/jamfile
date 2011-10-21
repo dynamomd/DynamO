@@ -31,21 +31,21 @@ using testing ;
 
 #####################OPENCL
 #### Prefix Scan ####
-unit-test scan_test : tests/scan_test.cpp magnet OpenCL ;
+unit-test scan_test : tests/scan_test.cpp magnet /opencl//opencl ;
 
 #### Radix Sort ####
-unit-test radixsort_NVIDIA_test : tests/radixsort_NVIDIA_test.cpp magnet OpenCL scan_test ;
-unit-test radixsort_AMD_test : tests/radixsort_AMD_test.cpp magnet OpenCL scan_test ;
+unit-test radixsort_NVIDIA_test : tests/radixsort_NVIDIA_test.cpp magnet /opencl//opencl scan_test ;
+unit-test radixsort_AMD_test : tests/radixsort_AMD_test.cpp magnet /opencl//opencl scan_test ;
 
 #### Bitonic Sort ####
-unit-test bitonicsort_test : tests/bitonicsort_test.cpp magnet OpenCL ;
+unit-test bitonicsort_test : tests/bitonicsort_test.cpp magnet /opencl//opencl ;
 
 #### Heap Sort ####
-unit-test heapsort_test : tests/heapsort_test.cpp magnet OpenCL ;
+unit-test heapsort_test : tests/heapsort_test.cpp magnet /opencl//opencl ;
 
-unit-test sorter_test : tests/sorter_test.cpp magnet OpenCL ;
+unit-test sorter_test : tests/sorter_test.cpp magnet /opencl//opencl ;
 
-alias opencl-test : scan_test radixsort_NVIDIA_test radixsort_AMD_test bitonicsort_test heapsort_test OpenCL sorter_test ;
+alias opencl-test : scan_test radixsort_NVIDIA_test radixsort_AMD_test bitonicsort_test heapsort_test /opencl//opencl sorter_test ;
 
 #################### THREAD ######################
 unit-test threadpool_test : tests/threadpool_test.cpp magnet
