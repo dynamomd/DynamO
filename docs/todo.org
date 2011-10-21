@@ -11,6 +11,7 @@
 **** DONE DynamO: All particle positions are now shuffled for mixture systems in dynamod to enable faster equilibration.
 **** DONE Coil: Moved to deferred shading.
 **** DONE Coil: Now requires and successfully supports the OpenGL 3.3 Core profile.
+**** TODO Magnet: Move all shaders to GLSL 330.
 **** TODO Coil: Fix the dummy vertex array object mess.
 **** TODO Coil: Make the snapshot button output to seperate files.
 **** TODO Coil: Get rid of the context pointers
