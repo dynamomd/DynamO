@@ -272,38 +272,6 @@
                             <property name="position">0</property>
                           </packing>
                         </child>
-                        <child>
-                          <object class="GtkHBox" id="hbox15">
-                            <property name="visible">True</property>
-                            <child>
-                              <object class="GtkLabel" id="label12">
-                                <property name="visible">True</property>
-                                <property name="xpad">7</property>
-                                <property name="label" translatable="yes">Beam Angle</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkHScale" id="lightFOVScale">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="adjustment">LightFOVAdjustment</property>
-                                <property name="digits">0</property>
-                              </object>
-                              <packing>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
                       </object>
                     </child>
                     <child type="label">
@@ -1361,14 +1329,6 @@
   <object class="GtkAdjustment" id="FOVadjustment">
     <property name="value">45</property>
     <property name="lower">15</property>
-    <property name="upper">180</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-    <property name="page_size">10</property>
-  </object>
-  <object class="GtkAdjustment" id="LightFOVAdjustment">
-    <property name="value">45</property>
-    <property name="lower">5</property>
     <property name="upper">180</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
