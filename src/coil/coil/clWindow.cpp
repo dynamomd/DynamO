@@ -115,15 +115,18 @@ namespace coil {
   {
     _filterModelColumns.reset(new FilterModelColumnsType);
 
-    {//////////////Glade XML loader 
-      Glib::ustring glade_data
-	(reinterpret_cast<const char *>(_binary_clwingtk_gladexml_start), 
-	 _binary_clwingtk_gladexml_end
-	 -_binary_clwingtk_gladexml_start);
-    
-      _refXml = Gtk::Builder::create_from_string(glade_data);
-    }
-  
+    try
+      {
+	_refXml = Gtk::Builder::create_from_string
+	  (std::string(_binary_clwingtk_gladexml_start,
+		       _binary_clwingtk_gladexml_end));  
+      }
+    catch (std::exception& err)
+      {
+	M_throw() << "Failed to load the interface design into Gtk::Builder\n"
+		  << err.what();
+      }
+	
     /////////Timeout for FPS and UPS calculation
     _timeout_connection
       = Glib::signal_timeout().connect_seconds(sigc::mem_fun(this, &CLGLWindow::GTKTick), 1);
@@ -634,7 +637,13 @@ namespace coil {
     _console << "Welcome to coil, part of the dynamo simulator..." 
 	     << Console::end();
 
-    initGTK();
+    try {
+      initGTK();
+    } catch(std::exception& err)
+      {
+	M_throw() << "An exception was thrown while initialising GTK\n"
+		  << err.what() << "\n";
+      }
 
     //  //Fabian Test
     //  vol->loadRawFile("/home/mjki2mb2/Desktop/Output.raw", 300, 300, 300, 1);
@@ -1109,18 +1118,17 @@ namespace coil {
   void
   CLGLWindow::simupdateTick(double t)
   {
-    ++_updateCounter;//For the updates per second
-
     for (;;)
       {
+	//Jump out without an update if the window has been killed
+	if (!isReady()) return;
+
 	_systemQueue->drainQueue();
 
 	//Block the simulation if _simrun is false or if we're in frame lock
 	//and a new frame has not been drawn.
 	if (_simrun && (!_simframelock || (_lastUpdateTime != getLastFrameTime()))) break;
       
-	//Jump out without an update if the window has been killed
-	if (!isReady()) return;
 
 	//1ms delay to lower CPU usage while blocking, but not to affect framelocked render rates
 	timespec sleeptime;
@@ -1128,6 +1136,9 @@ namespace coil {
 	sleeptime.tv_nsec = 1000000;
 	nanosleep(&sleeptime, NULL);
       }
+    
+    //For the updates per second
+    ++_updateCounter;
 
     //Only redraw if the screen has actually refreshed
     if (_lastUpdateTime == getLastFrameTime()) return;

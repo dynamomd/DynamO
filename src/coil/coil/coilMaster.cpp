@@ -274,15 +274,44 @@ namespace coil {
     } catch (std::exception& except)
       {
 	std::cerr << "\nRender thread caught an exception\n"
-		  << except.what()
-		  << "\n As we're in a thread we can only exit(1)!";
-	std::exit(1);
+		  << except.what() << "\n";
+
+	shutdownCoil();
+	renderThreadShutdownTasks();
       } catch (...)
       {
-	std::cerr << "\nRender thread caught an unknown exception!\n"
-		  << "\n As we're in a thread we can only exit(1)!";
-	std::exit(1);
+	std::cerr << "\nRender thread caught an unknown exception!\n";
+	shutdownCoil();
+	renderThreadShutdownTasks();
       }
+  }
+
+  void 
+  CoilMaster::renderThreadShutdownTasks()
+  {
+    //The task queue should not get any more tasks as
+    //CoilRegister::getCoilInstance().isRunning() is false
+    
+    //! \todo{There is a race condition here if a window is added as coil is shutting down}
+    {
+      magnet::thread::ScopedLock lock(_coilLock);
+      
+      //Now we must get glut to destroy all the windows
+      
+      while (!_viewPorts.empty())
+	{
+	  glutDestroyWindow(_viewPorts.begin()->first);
+	  //Run glutMainLoopEvent to let destroyed windows close
+	  glutMainLoopEvent();
+	  glutMainLoopEvent();
+	  glutMainLoopEvent();
+	  glutMainLoopEvent();	      
+	  glutMainLoopEvent();
+	  glutMainLoopEvent();
+	}
+    }
+    
+    Gtk::Main::quit();
   }
 
   bool 
@@ -290,46 +319,23 @@ namespace coil {
   {
     try {
       _coilQueue.drainQueue();
-    
-      if (!isRunning()) 
-	{
-	  //The task queue should not get any more tasks as
-	  //CoilRegister::getCoilInstance().isRunning() is false
-	
-	  //! \todo{There is a race condition here if a window is added as coil is shutting down}
-	  {
-	    magnet::thread::ScopedLock lock(_coilLock);
-	  
-	    //Now we must get glut to destroy all the windows
 
-	    while (!_viewPorts.empty())
-	      {
-		glutDestroyWindow(_viewPorts.begin()->first);
-		//Run glutMainLoopEvent to let destroyed windows close
-		glutMainLoopEvent();
-		glutMainLoopEvent();
-		glutMainLoopEvent();
-		glutMainLoopEvent();	      
-		glutMainLoopEvent();
-		glutMainLoopEvent();
-	      }
-	  }
-	
-	  Gtk::Main::quit();
-	
-	}
+      if (!isRunning()) 
+	renderThreadShutdownTasks();
+
     } catch (cl::Error err)
       {
 	std::cerr << "\nCoil caught an exception while performing its tasks\n"
 		  << "An OpenCL error occured," << err.what()
-		  << "\nError num of " << err.err()
-		  << "\n As we're in a thread we can only exit(1)!";
-	std::exit(1);
+		  << "\nError num of " << err.err() << "\n";
+	shutdownCoil();
+	renderThreadShutdownTasks();
       } catch (std::exception& except)
       {
 	std::cerr << "\nCoil caught an exception while performing its tasks\n"
-		  << except.what();
-	std::exit(1);
+		  << except.what() << "\n";
+	shutdownCoil();
+	renderThreadShutdownTasks();
       }
 
     return true;
@@ -338,16 +344,7 @@ namespace coil {
   bool 
   CoilMaster::glutIdleTimeout()
   {
-    try {
-      //Fire off a tick to glut
-      glutMainLoopEvent();
-    
-    } catch (cl::Error err)
-      {
-	M_throw() << "An OpenCL error occured," << err.what()
-		  << "\nError num of " << err.err() << "\n";
-      }
-  
+    glutMainLoopEvent();
     return true;
   }
 

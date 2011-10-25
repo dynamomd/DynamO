@@ -43,7 +43,12 @@ namespace coil {
       _coilQueue.queueTask(magnet::function::Task::makeTask(&CoilMaster::addWindowFunc, this, win));
 
       //Spinlock waiting for the window to initialize
-      while (!window->isReady()) { smallSleep(); }
+      while ((!window->isReady())) 
+	{ 
+	  smallSleep(); 
+	  if (!isRunning())
+	    M_throw() << "Coil failed to add the window as the main render thread died";
+	}
     }
 
     magnet::thread::TaskQueue& getTaskQueue() { return _coilQueue; }
@@ -76,6 +81,8 @@ namespace coil {
     void coilThreadEntryPoint();
 
     void smallSleep();
+
+    void renderThreadShutdownTasks();
 
     volatile bool _runFlag; 
     volatile bool _coilReadyFlag;
