@@ -11,6 +11,8 @@
 **** DONE DynamO: All particle positions are now shuffled for mixture systems in dynamod to enable faster equilibration.
 **** DONE Coil: Moved to deferred shading.
 **** DONE Coil: Now requires and successfully supports the OpenGL 3.3 Core profile.
+**** DONE Coil: Fixed segfaults occuring when adding a window crashes the main render thread.
+**** DONE Coil: Fixed a rare segfault caused by a misinterpretation of the glade file data stored in memory.
 **** TODO Coil: Fix light placement.
 **** TODO Magnet: Move all shaders to GLSL 330.
 **** TODO Coil: Fix the dummy vertex array object mess.
