@@ -633,10 +633,6 @@ namespace coil {
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       (*iPtr)->init(_systemQueue);
   
-    Console& _console = static_cast<Console&>(*_renderObjsTree._renderObjects[_consoleID]);
-    _console << "Welcome to coil, part of the dynamo simulator..." 
-	     << Console::end();
-
     try {
       initGTK();
     } catch(std::exception& err)
@@ -898,15 +894,9 @@ namespace coil {
 	  path = fileChooser->get_filename();
 	}
 
-	if (_snapshot)
+	if (_record || _snapshot)
 	  {
 	    _snapshot = false;
-	    magnet::image::writePNGFile(path + "/snapshot.png", pixels, _camera.getWidth(), 
-					_camera.getHeight(), 4, 9, false, true);
-	  }
-	
-	if (_record)
-	  {
 	    std::ostringstream filename;
 	    filename << std::setw(6) <<  std::setfill('0') << std::right << std::dec << _snapshot_counter++;
 	  

@@ -8,6 +8,9 @@
 *** DynanO 1.4
 **** TODO Coil: Replace freeglut with your own implementation to fix the whole debacle of GL context management and deleting resources. 
 ***** TODO Coil: Fix the dummy vertex array object mess.
+**** TODO Add rendering of light sources (crepuscular rays too?).
+**** TODO Cube shadow map lights.
+**** TODO Look at CL/GL synchronisation objects for coil.
 *** DynamO 1.3
 **** DONE DynamO: Up to 50% faster in polydisperse systems thanks to a new cache friendly nblist implementation.
 **** DONE DynamO: Remove all Clone functions.
@@ -16,15 +19,16 @@
 **** DONE Coil: Now requires and complies with the OpenGL 3.3 Core profile.
 **** DONE Coil: Fixed segfaults occuring when adding a window crashes the main render thread.
 **** DONE Coil: Fixed a rare segfault caused by a misinterpretation of the glade file data stored in memory.
+**** DONE Coil: The snapshot button now captures using the same file counter as the record button.
+**** DONE Coil: Disabled the console text feature in coil. Need to rethink its implementation.
 **** DONE Magnet: Move all shaders to GLSL 330.
+**** TODO Coil: Clean up the 3D vision mode, so it's possible for 3D techniques to use it.
 **** TODO Coil: Fix light placement.
-**** TODO Coil: Make the snapshot button output to seperate files.
 **** TODO Coil: Get rid of the context pointers
 **** TODO Remove the requirement of a statically linked bzip2 or zlib library
 **** TODO Remove the Dynamics class and move its functions into the SimData class.
 **** TODO Remove the Dynamics tags in the config.
 **** TODO Rename the Liouvillean to Dynamics.
-**** TODO Coil: Sort out the console output in coil, do we need it? it's a mess in clWindow.cpp
 **** TODO Fix the const casting in the liouvillean.
 **** TODO Collapse the schedulers to just the complex scheduler.
 **** TODO Optimized triangle meshes by inserting them into the neighbor lists.
@@ -33,9 +37,6 @@
 **** TODO Auto detect the ensemble, users shouldn't have to specify it.
 **** TODO Make the viewing grid have a scalable box size.
 **** TODO Fix the light position calculation in the Volume renderer
-**** TODO Add rendering of light sources (crepuscular rays too?).
-**** TODO Cube shadow map lights.
-**** TODO Look at CL/GL synchronisation objects for coil.
 **** TODO Alter the functions in dynamics that add/get/set objects and take/return a pointer to return shared_ptr's (search for uses of shared_ptr's get() function).
 **** TODO Alter the change system functions to take sharedptrs.
 **** TODO Change the loadClass XML functions to return shared_ptr's.
