@@ -155,6 +155,9 @@ namespace magnet {
 	  template<class T> 
 	  bool test_assign(const T& val)
 	  {
+	    //If this uniform does not exist in the code, don't ever
+	    //try to assign it
+	    if (_uniformHandle == -1) return false;
 	    if (*this == val) return false;
 	    _data = boost::any(val);
 	    return true;
@@ -304,8 +307,11 @@ namespace magnet {
 	    if (it != _uniformCache.end()) return it->second;
 
 	    GLint uniformHandle = glGetUniformLocationARB(_programHandle, uniformName.c_str());
+#ifdef MAGNET_DEBUG
 	    if (uniformHandle == -1)
-	      M_throw() << "Uniform " << uniformName << " not found in this shader";
+	      std::cerr << "\nMAGNET WARNING: Uniform " << uniformName 
+			<< " not found in this shader, returning dummy uniform\n";
+#endif	      
 	    _uniformCache[uniformName].setHandle(uniformHandle);
 
 	    return _uniformCache[uniformName];

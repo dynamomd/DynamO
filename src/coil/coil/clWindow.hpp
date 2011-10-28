@@ -26,6 +26,7 @@
 #include <magnet/GL/multisampledFBO.hpp>
 #include <magnet/GL/shader/vsm.hpp>
 #include <magnet/GL/shader/simple_render.hpp>
+#include <magnet/GL/shader/copy.hpp>
 #include <coil/filters/filter.hpp>
 #include <coil/RenderObj/RenderObj.hpp>
 #include <coil/coilMaster.hpp>
@@ -87,6 +88,7 @@ namespace coil {
     magnet::GL::shader::DeferredLightingShader _deferredShader;
     magnet::GL::shader::VSMShader _VSMShader;
     magnet::GL::shader::SimpleRenderShader _simpleRenderShader;
+    magnet::GL::shader::CopyShader _copyShader;
 
     //Primary render target, or the render target for the left eye.
     magnet::GL::FBO _renderTarget;

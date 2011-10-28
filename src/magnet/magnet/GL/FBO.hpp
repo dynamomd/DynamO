@@ -123,7 +123,9 @@ namespace magnet {
        * \param screenheight The height of the screen in pixels.
        */
       inline void blitToScreen(GLsizei screenwidth, GLsizei screenheight, 
-			       GLsizei screenx = 0, GLsizei screeny = 0)
+			       GLsizei screenx = 0, GLsizei screeny = 0,
+			       GLenum filter = GL_NEAREST,
+			       GLbitfield mask = GL_COLOR_BUFFER_BIT)
       {
 	validate();
 
@@ -134,7 +136,7 @@ namespace magnet {
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, 0);
 	glBlitFramebufferEXT(0, 0, getWidth(), getHeight(), screenx, screeny, 
 			     screenwidth + screenx, screenheight + screeny, 
-			     GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+			     mask, filter);
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
       }
 

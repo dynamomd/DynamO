@@ -576,6 +576,7 @@ namespace coil {
     _light0.init();
     
     _renderShader.build();
+    _copyShader.build();
     _deferredShader.build();
     _VSMShader.build();
     _simpleRenderShader.build();
@@ -712,7 +713,8 @@ namespace coil {
     _renderShader.deinit();
     _deferredShader.deinit();	
     _VSMShader.deinit();
-    _simpleRenderShader.build();
+    _simpleRenderShader.deinit();
+    _copyShader.deinit();
 
     _light0.deinit();
     ///////////////////Finally, unregister with COIL
@@ -810,32 +812,47 @@ namespace coil {
 	switch(mode)
 	  {
 	  case 0: //Analygraph Red-Cyan
-	    glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
 	    drawScene(_renderTarget, _camera, eyeDisplacement);
-
-	    glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
-	    drawScene(_renderTarget, _camera, -eyeDisplacement);
-
+	    _renderTarget.getColorTexture(0)->bind(0);
+	    _copyShader.attach();
+	    _copyShader["u_Texture0"] = 0;
 	    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
+	    { 
+	      std::tr1::array<GLfloat, 2> arg 
+		= {{GLfloat(1) / _camera.getWidth(), 
+		    GLfloat(1) / _camera.getHeight()}};
+	      _copyShader["u_Scale"] = arg;
+	    }
+	    glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
+	    _copyShader.invoke(); 
+	    _copyShader.detach();
+	    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+	    drawScene(_renderTarget, _camera, -eyeDisplacement);
+	    _renderTarget.getColorTexture(0)->bind(0);
+	    _copyShader.attach();
+	    glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
+	    _copyShader.invoke(); 
+	    _copyShader.detach();
+	    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	    break;
 	  case 1:
 	    drawScene(_renderTarget, _camera, eyeDisplacement);
 	    _renderTarget.blitToScreen(_camera.getWidth() / 2, 
-				       _camera.getHeight(), 0);
+				       _camera.getHeight(), 0, 0, GL_LINEAR);
 
 	    drawScene(_renderTarget, _camera, -eyeDisplacement);
 	    _renderTarget.blitToScreen(_camera.getWidth() / 2, _camera.getHeight(),
-				       _camera.getWidth() / 2);	    
+				       _camera.getWidth() / 2, 0, GL_LINEAR);	    
 	    break;
 	  case 2:
 	    drawScene(_renderTarget, _camera, eyeDisplacement);
 	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight()  /2,
-				       0, 0);
+				       0, 0, GL_LINEAR);
 
 	    drawScene(_renderTarget, _camera, -eyeDisplacement);
 	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight() / 2,
-				       0, _camera.getHeight() / 2);
+				       0, _camera.getHeight() / 2, GL_LINEAR);
 	    break;
 	  default:
 	    M_throw() << "Unknown stereo render mode";

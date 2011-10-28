@@ -74,7 +74,7 @@ namespace magnet {
 	  {
 	    //Simple writethrough fragment shader
 	    std::ostringstream data;
-	    data << _stencilwidth; 
+	    data << GLfloat(_stencilwidth);
 	  
 	    return std::string("#version 330\n#define stencilwidth ") + data.str() + "\n"
 STRINGIFY(
