@@ -21,8 +21,8 @@
 **** DONE Coil: Fixed a rare segfault caused by a misinterpretation of the glade file data stored in memory.
 **** DONE Coil: The snapshot button now captures using the same file counter as the record button.
 **** DONE Coil: Disabled the console text feature in coil. Need to rethink its implementation.
-**** DONE Magnet: Move all shaders to GLSL 330.
-**** TODO Coil: Clean up the 3D vision mode, so it's possible for 3D techniques to use it.
+**** DONE Coil: Cleaned up the stereo (3D) vision mode, so it's possible for standard 3D TV's to use it as well as red-cyan glasses.
+**** DONE Magnet: Upgraded all shaders to GLSL 330.
 **** TODO Coil: Fix light placement.
 **** TODO Coil: Get rid of the context pointers
 **** TODO Remove the requirement of a statically linked bzip2 or zlib library
