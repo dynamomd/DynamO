@@ -25,8 +25,8 @@
 **** DONE Coil: Disabled the console text feature in coil. Need to rethink its implementation.
 **** DONE Coil: Made the Camera class track the EYE position, now 3D rendering works for all objects.
 **** DONE Magnet: Upgraded all shaders to GLSL 330.
+**** DONE Bugfix Coil: Fix light placement relative to camera.
 **** TODO Coil: Need buttons to align the camera with the XYZ directions.
-**** TODO Coil: Fix light placement.
 **** TODO Coil: Get rid of the context pointers
 **** TODO Remove the requirement of a statically linked bzip2 or zlib library
 **** TODO Remove the Dynamics class and move its functions into the SimData class.

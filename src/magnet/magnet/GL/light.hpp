@@ -106,15 +106,9 @@ namespace magnet {
        */
       Light& operator=(const Camera& vp)
       {
-	//The FOV and the aspect ratio of the light must be maintained
-	size_t width = _width;
-	size_t height = _height;
-	double fovY = getFOVY();
-	Camera::operator=(vp);
-	setFOVY(fovY);
-	_width = width;
-	_height = height;
-	
+	_position = vp.getViewPlanePosition();
+	_panrotation = vp.getPan();
+	_tiltrotation = vp.getTilt();
 	return *this; 
       }
 
