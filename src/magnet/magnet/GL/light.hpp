@@ -141,7 +141,8 @@ namespace magnet {
 
       /*! \brief Returns the texture containing the shadow map.
        */
-      Texture2D& shadowTex() { return _shadowFBO.getColorTexture(); }
+      std::tr1::shared_ptr<Texture2D>& shadowTex() 
+      { return _shadowFBO.getColorTexture(); }
 
     protected:
       MultisampledFBO _shadowFBO;

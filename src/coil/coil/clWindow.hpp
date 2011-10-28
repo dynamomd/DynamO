@@ -88,8 +88,10 @@ namespace coil {
     magnet::GL::shader::VSMShader _VSMShader;
     magnet::GL::shader::SimpleRenderShader _simpleRenderShader;
 
-    //Primary render target
+    //Primary render target, or the render target for the left eye.
     magnet::GL::FBO _renderTarget;
+    //Secondary render target, or the render target for the left eye.
+    magnet::GL::FBO _renderTargetR;
     magnet::GL::FBO _Gbuffer;
 
     //Frame buffers to flip flop filters between

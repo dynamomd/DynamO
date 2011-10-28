@@ -227,7 +227,7 @@ namespace magnet {
       inline GLuint getFBO() { return _FBO; }
 
       /*! \brief Fetch the texture bound to the color buffer. */
-      inline Texture2D& getColorTexture(const size_t ID = 0)
+      inline std::tr1::shared_ptr<Texture2D>& getColorTexture(const size_t ID = 0)
       { 
 	if (ID >= _colorTextures.size())
 	  M_throw() << "Out of range";
@@ -235,15 +235,15 @@ namespace magnet {
 	if (!_colorTextures[ID]) 
 	  M_throw() << "Cannot fetch the color texture " << ID << " as the FBO has none bound";
 
-	return *_colorTextures[ID];
+	return _colorTextures[ID];
       }
 
       /*! \brief Fetch the texture bound to the depth buffer. */
-      inline Texture2D& getDepthTexture()
+      inline std::tr1::shared_ptr<Texture2D>& getDepthTexture()
       { 
 	if (!_depthTexture) 
 	  M_throw() << "Cannot fetch the depth texture as the FBO has none bound";
-	return *_depthTexture; 
+	return _depthTexture; 
       }
 
       /*! \brief Fetch the width of the FBO in pixels. */

@@ -575,17 +575,8 @@ namespace coil {
     _simpleRenderShader.build();
 
     {
-      //We use a shared depth/stencil buffer for the deferred and forward shading passes
-      std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
-      depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH24_STENCIL8);
-      depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-      
-      { 
-	//Build render buffer
+      {
+	//Build the main/left-eye render buffer
 	std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
 	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -593,9 +584,43 @@ namespace coil {
 	colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       
+
+	//We use a shared depth/stencil buffer for the deferred and forward shading passes
+	std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
+	depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH24_STENCIL8);
+	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+      
 	_renderTarget.init();
 	_renderTarget.attachTexture(colorTexture, 0);
 	_renderTarget.attachTexture(depthTexture);
+      }
+
+      {
+	//Build the right-eye render buffer
+	std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB);
+	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      
+
+	//We use a shared depth/stencil buffer for the deferred and forward shading passes
+	std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
+	depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH24_STENCIL8);
+	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+      
+	_renderTargetR.init();
+	_renderTargetR.attachTexture(colorTexture, 0);
+	_renderTargetR.attachTexture(depthTexture);
       }
 
       {
@@ -625,7 +650,6 @@ namespace coil {
 	_Gbuffer.attachTexture(colorTexture, 0);
 	_Gbuffer.attachTexture(normalTexture, 1);
 	_Gbuffer.attachTexture(posTexture, 2);
-	_Gbuffer.attachTexture(depthTexture);
       }
     }
     //Now init the render objects  
@@ -700,6 +724,7 @@ namespace coil {
     _renderObjsTree._renderObjects.clear();
 
     _renderTarget.deinit();
+    _renderTargetR.deinit();
     _Gbuffer.deinit();
     _filterTarget1.deinit();
     _filterTarget2.deinit();
@@ -756,10 +781,11 @@ namespace coil {
     //Flush the OpenCL queue, so GL can use the buffers
     getGLContext().getCLCommandQueue().finish();
   
-    //Prepare for the GL render
+    ////////////Lighting shadow map creation////////////////////
+    //This stage only needs to be performed once per frame
+
     if (_shadowMapping)
       {
-	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
 	_VSMShader.attach();
 
@@ -776,104 +802,34 @@ namespace coil {
 	    (*iPtr)->glRender(_light0.shadowFBO(), _light0, RenderObj::SHADOW);
 	
 	_light0.shadowFBO().detach();
-	_light0.shadowTex().genMipmaps();
-	_light0.shadowTex().bind(7);
+	_light0.shadowTex()->genMipmaps();
+	_light0.shadowTex()->bind(7);
 	
 	_VSMShader.detach();
 	glEnable(GL_BLEND);
-	glEnable(GL_ALPHA_TEST);
       }
-          
+    
+    ////////Eye render//////////
+
     //Bind to the multisample buffer
-    if (_analygraphMode)
-      {
-	M_throw()
-	  << "Analygraph mode is broken as the deferred shading pass uses a combined" 
-	  << " depth and stencil buffer with the render pass.";
-	const double eyedist = 6.5;
-	Vector eyeDisplacement(0.5 * eyedist, 0, 0);
-	  
-	glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
-	drawScene(_renderTarget, _camera, eyeDisplacement);
+//    if (_analygraphMode)
+//      {
+//	const double eyedist = 6.5;
+//	Vector eyeDisplacement(0.5 * eyedist, 0, 0);
+//	  
+//	glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
+//	drawScene(_renderTarget, _camera, eyeDisplacement);
+//
+//	glClear(GL_DEPTH_BUFFER_BIT);
+//	glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
+//	drawScene(_renderTarget, _camera, -eyeDisplacement);
+//
+//	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+//      }
+//    else
 
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
-	drawScene(_renderTarget, _camera, -eyeDisplacement);
-
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-      }
-    else
-      drawScene(_renderTarget, _camera, Vector(0,0,0));
-
-    //////////////FILTERING////////////
-    bool FBOalternate = false;
-
-    magnet::GL::FBO* lastFBO = &_renderTarget;
-    if (_filterEnable && !_filterStore->children().empty())
-      {
-	glDisable(GL_DEPTH_TEST);
-
-	//Bind the original image to texture (unit 0)
-	_renderTarget.getColorTexture(0).bind(0);	
-	//Now bind the texture which has the normals (unit 1)
-	_Gbuffer.getColorTexture(1).bind(1);
-	//High quality depth information is attached to (unit 2)
-	_Gbuffer.getDepthTexture().bind(2);
-
-	for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin();
-	     iPtr != _filterStore->children().end(); ++iPtr)
-	  {
-	    void* filter_ptr = (*iPtr)[_filterModelColumns->m_filter_ptr];
-	    Filter& filter = *static_cast<Filter*>(filter_ptr);
-
-	    if (!((*iPtr)[_filterModelColumns->m_active])) continue; //Only run active filters, skip to the next filter
-	    if (filter.type_id() == detail::filterEnum<FlushToOriginal>::val)
-	      {//Check if we're trying to flush the drawing
-		lastFBO->attach();
-		glActiveTextureARB(GL_TEXTURE0);
-		//Now copy the texture 
-		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _camera.getWidth(), _camera.getHeight());
-		lastFBO->detach();
-	      }
-	    else
-	      {
-		lastFBO->getColorTexture().bind(3);
-		//The last output goes into texture 3
-		if (FBOalternate)
-		  _filterTarget1.attach();
-		else
-		  _filterTarget2.attach();
-		
-		filter.invoke(3, _camera.getWidth(), _camera.getHeight(), _camera);
-		
-		if (FBOalternate)
-		  { _filterTarget1.detach(); lastFBO = &_filterTarget1; }
-		else
-		  { _filterTarget2.detach(); lastFBO = &_filterTarget2; }
-
-		FBOalternate = !FBOalternate;
-	      }
-	  }
-	glEnable(GL_DEPTH_TEST);
-      }
-
-    //Now blit the stored scene to the screen
-    lastFBO->blitToScreen(_camera.getWidth(), _camera.getHeight());
-
-    //We clear the depth as merely disabling gives artifacts
-    glClear(GL_DEPTH_BUFFER_BIT); 
-
-    _simpleRenderShader.attach();
-    _simpleRenderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
-    _simpleRenderShader["ViewMatrix"] = _camera.getViewMatrix();
-
-    //Enter the interface draw for all objects
-    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
-	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-      (*iPtr)->interfaceRender(_camera);
-
-    _simpleRenderShader.detach();
-
+    drawScene(_renderTarget, _camera, Vector(0,0,0));
+    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
     getGLContext().swapBuffers();
 
     //Check if we're recording and then check that if we're
@@ -881,25 +837,25 @@ namespace coil {
     if ((_snapshot || _record) && (!_simframelock || _newData))
       {
 	_newData = false;
-
+	
 	std::vector<uint8_t> pixels;
 	pixels.resize(_camera.getWidth() * _camera.getHeight() * 4);
 	//Read the pixels into our container
-	lastFBO->getColorTexture().getTexture(pixels);
-
+	_renderTarget.getColorTexture()->getTexture(pixels);
+	
 	std::string path;
 	{
 	  Gtk::FileChooserButton* fileChooser;
 	  _refXml->get_widget("snapshotDirectory", fileChooser);
 	  path = fileChooser->get_filename();
 	}
-
+	
 	if (_record || _snapshot)
 	  {
 	    _snapshot = false;
 	    std::ostringstream filename;
 	    filename << std::setw(6) <<  std::setfill('0') << std::right << std::dec << _snapshot_counter++;
-	  
+	    
 	    magnet::image::writePNGFile(path + "/" + filename.str() +".png", pixels, 
 					_camera.getWidth(), _camera.getHeight(), 4, 1, true, true);
 	  }
@@ -917,9 +873,12 @@ namespace coil {
     //pass for objects which cannot be deferred, like volumes etc.
 
     ///////////////////////Deferred Shading G-Buffer Creation /////////////////
-
     //We use the stencil buffer to track which pixels should be shaded
     //in the deferred pass.
+
+    //We share the depth and stencil texture between the GBuffer and
+    //the target fbo
+    _Gbuffer.attachTexture(fbo.getDepthTexture(), 0);
     _Gbuffer.attach();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     _renderShader.attach();
@@ -940,7 +899,7 @@ namespace coil {
     _Gbuffer.detach();
 
     ///////////////////////Deferred Shading Pass /////////////////
-    _renderTarget.attach();
+    fbo.attach();
     //The render buffer shares its depth and stencil buffer with the
     //g-buffer, so we only need to wipe the color data of the render
     //target.
@@ -955,11 +914,11 @@ namespace coil {
     glDepthMask(GL_FALSE);
 
     _deferredShader.attach();
-    _Gbuffer.getColorTexture(0).bind(0);
+    _Gbuffer.getColorTexture(0)->bind(0);
     _deferredShader["colorTex"] = 0;
-    _Gbuffer.getColorTexture(1).bind(1);
+    _Gbuffer.getColorTexture(1)->bind(1);
     _deferredShader["normalTex"] = 1;
-    _Gbuffer.getColorTexture(2).bind(2);
+    _Gbuffer.getColorTexture(2)->bind(2);
     _deferredShader["positionTex"] = 2;
 
     {
@@ -986,7 +945,86 @@ namespace coil {
     glDisable(GL_STENCIL_TEST);
     ///////////////////////Forward Shading Pass /////////////////
 
-    _renderTarget.detach();
+    fbo.detach();
+    //////////////////////FILTERING////////////
+    //Attempt to perform some filtering
+    glDisable(GL_DEPTH_TEST);
+
+    bool FBOalternate = false;
+    magnet::GL::FBO* lastFBO = &fbo;
+    
+    if (_filterEnable)
+      {
+       	//Bind the original image to texture (unit 0)
+       	fbo.getColorTexture(0)->bind(0);	
+       	//Now bind the texture which has the normals (unit 1)
+       	_Gbuffer.getColorTexture(1)->bind(1);
+       	//High quality depth information is attached to (unit 2)
+       	_Gbuffer.getDepthTexture()->bind(2);
+         
+       	for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin();
+       	     iPtr != _filterStore->children().end(); ++iPtr)
+       	  {
+       	    void* filter_ptr = (*iPtr)[_filterModelColumns->m_filter_ptr];
+       	    Filter& filter = *static_cast<Filter*>(filter_ptr);
+       	  
+       	    if (!((*iPtr)[_filterModelColumns->m_active])) continue; //Only run active filters, skip to the next filter
+       	    if (filter.type_id() == detail::filterEnum<FlushToOriginal>::val)
+       	      {//Check if we're trying to flush the drawing
+       		lastFBO->attach();
+       		glActiveTextureARB(GL_TEXTURE0);
+       		//Now copy the texture 
+       		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _camera.getWidth(), _camera.getHeight());
+       		lastFBO->detach();
+       	      }
+       	    else
+       	      {
+       		lastFBO->getColorTexture()->bind(3);
+       		//The last output goes into texture 3
+       		if (FBOalternate)
+       		  _filterTarget1.attach();
+       		else
+       		  _filterTarget2.attach();
+       	      
+       		filter.invoke(3, _camera.getWidth(), _camera.getHeight(), _camera);
+       	      
+       		if (FBOalternate)
+       		  { _filterTarget1.detach(); lastFBO = &_filterTarget1; }
+       		else
+       		  { _filterTarget2.detach(); lastFBO = &_filterTarget2; }
+       	      
+       		FBOalternate = !FBOalternate;
+       	      }
+       	  }
+      }
+       
+    //////////////Interface draw////////////////////////
+    lastFBO->attach();
+    _simpleRenderShader.attach();
+    _simpleRenderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
+    _simpleRenderShader["ViewMatrix"] = _camera.getViewMatrix();
+
+    //Enter the interface draw for all objects
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
+	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
+      (*iPtr)->interfaceRender(_camera);
+
+    _simpleRenderShader.detach();
+    lastFBO->detach();
+
+    //Check if we actually did something and copy the data to the
+    //output FBO if needed
+    if (lastFBO != &fbo)
+      {
+	lastFBO->attach();
+	fbo.getColorTexture(0)->bind(0);
+	glActiveTextureARB(GL_TEXTURE0);
+	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _camera.getWidth(), 
+			    _camera.getHeight());
+	lastFBO->detach();
+      }
+
+    glEnable(GL_DEPTH_TEST);   
   }
 
   void CLGLWindow::CallBackReshapeFunc(int w, int h)
@@ -1429,7 +1467,6 @@ namespace coil {
 
     _Gbuffer.attach();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glDisable(GL_ALPHA_TEST);
     glDisable(GL_BLEND);
     
     //Flush the OpenCL queue, so GL can use the buffers
@@ -1458,7 +1495,6 @@ namespace coil {
 
     _Gbuffer.detach();
     glEnable(GL_BLEND);
-    glEnable(GL_ALPHA_TEST);
 
     //Now let the objects know what was picked
     const cl_uint objID = pixel[0] + 256 * (pixel[1] + 256 * (pixel[2] + 256 * pixel[3]));

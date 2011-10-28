@@ -40,7 +40,7 @@ namespace coil {
   Console::interfaceRender(const magnet::GL::Camera& camera)
   {
     //Only draw if the console has something in it or if it's visible
-    if (_consoleEntries.empty() || !_visible) return;
+    if (!_visible) return;
 
     //Disable anything that might affect the rastering 
     glDisable(GL_DEPTH_TEST);
