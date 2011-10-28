@@ -841,12 +841,12 @@ namespace coil {
 	    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	    break;
 	  case 1:
-	    _camera.setEyeLocation(currentEyePos + eyeDisplacement);
+	    _camera.setEyeLocation(currentEyePos - eyeDisplacement);
 	    drawScene(_renderTarget, _camera);
 	    _renderTarget.blitToScreen(_camera.getWidth() / 2, 
 				       _camera.getHeight(), 0, 0, GL_LINEAR);
 
-	    _camera.setEyeLocation(currentEyePos - eyeDisplacement);
+	    _camera.setEyeLocation(currentEyePos + eyeDisplacement);
 	    drawScene(_renderTarget, _camera);
 	    _renderTarget.blitToScreen(_camera.getWidth() / 2, _camera.getHeight(),
 				       _camera.getWidth() / 2, 0, GL_LINEAR);	    
