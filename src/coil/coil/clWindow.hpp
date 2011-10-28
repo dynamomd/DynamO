@@ -90,8 +90,6 @@ namespace coil {
 
     //Primary render target, or the render target for the left eye.
     magnet::GL::FBO _renderTarget;
-    //Secondary render target, or the render target for the left eye.
-    magnet::GL::FBO _renderTargetR;
     magnet::GL::FBO _Gbuffer;
 
     //Frame buffers to flip flop filters between
@@ -162,7 +160,7 @@ namespace coil {
     bool _fpsLimit;
     int  _fpsLimitValue;
     bool _filterEnable;
-    bool _analygraphMode;
+    bool _stereoMode;
 
     size_t _snapshot_counter;
 

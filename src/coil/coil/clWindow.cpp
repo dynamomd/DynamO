@@ -74,7 +74,7 @@ namespace coil {
     _fpsLimit(true),
     _fpsLimitValue(35),
     _filterEnable(true),
-    _analygraphMode(false),
+    _stereoMode(false),
     _snapshot_counter(0),
     _dynamo(dynamo)
   {
@@ -305,10 +305,16 @@ namespace coil {
     
       {/////////////////////3D effects
 	{
-	  Gtk::CheckButton* analygraphEnable;
-	  _refXml->get_widget("analygraphMode", analygraphEnable);
-	  analygraphEnable->signal_toggled()
+	  Gtk::CheckButton* stereoEnable;
+	  _refXml->get_widget("StereoModeEnable", stereoEnable);
+	  stereoEnable->signal_toggled()
 	    .connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
+	}
+	
+	{
+	  Gtk::ComboBox* stereoMode;
+	  _refXml->get_widget("StereoMode", stereoMode);
+	  stereoMode->set_active(0);
 	}
       
 	{
@@ -600,30 +606,6 @@ namespace coil {
       }
 
       {
-	//Build the right-eye render buffer
-	std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB);
-	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      
-
-	//We use a shared depth/stencil buffer for the deferred and forward shading passes
-	std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
-	depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH24_STENCIL8);
-	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-      
-	_renderTargetR.init();
-	_renderTargetR.attachTexture(colorTexture, 0);
-	_renderTargetR.attachTexture(depthTexture);
-      }
-
-      {
 	//Build G buffer      
 	std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
 	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
@@ -724,7 +706,6 @@ namespace coil {
     _renderObjsTree._renderObjects.clear();
 
     _renderTarget.deinit();
-    _renderTargetR.deinit();
     _Gbuffer.deinit();
     _filterTarget1.deinit();
     _filterTarget2.deinit();
@@ -812,24 +793,55 @@ namespace coil {
     ////////Eye render//////////
 
     //Bind to the multisample buffer
-//    if (_analygraphMode)
-//      {
-//	const double eyedist = 6.5;
-//	Vector eyeDisplacement(0.5 * eyedist, 0, 0);
-//	  
-//	glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
-//	drawScene(_renderTarget, _camera, eyeDisplacement);
-//
-//	glClear(GL_DEPTH_BUFFER_BIT);
-//	glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
-//	drawScene(_renderTarget, _camera, -eyeDisplacement);
-//
-//	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-//      }
-//    else
+    if (!_stereoMode)
+      {
+	drawScene(_renderTarget, _camera, Vector(0,0,0));
+	_renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
+      }
+    else
+      {
+	const double eyedist = 6.5;
+	Vector eyeDisplacement(0.5 * eyedist, 0, 0);
+	
+	Gtk::ComboBox* stereoMode;
+	_refXml->get_widget("StereoMode", stereoMode);
+	int mode = stereoMode->get_active_row_number();
 
-    drawScene(_renderTarget, _camera, Vector(0,0,0));
-    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
+	switch(mode)
+	  {
+	  case 0: //Analygraph Red-Cyan
+	    glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
+	    drawScene(_renderTarget, _camera, eyeDisplacement);
+
+	    glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
+	    drawScene(_renderTarget, _camera, -eyeDisplacement);
+
+	    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
+	    break;
+	  case 1:
+	    drawScene(_renderTarget, _camera, eyeDisplacement);
+	    _renderTarget.blitToScreen(_camera.getWidth() / 2, 
+				       _camera.getHeight(), 0);
+
+	    drawScene(_renderTarget, _camera, -eyeDisplacement);
+	    _renderTarget.blitToScreen(_camera.getWidth() / 2, _camera.getHeight(),
+				       _camera.getWidth() / 2);	    
+	    break;
+	  case 2:
+	    drawScene(_renderTarget, _camera, eyeDisplacement);
+	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight()  /2,
+				       0, 0);
+
+	    drawScene(_renderTarget, _camera, -eyeDisplacement);
+	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight() / 2,
+				       0, _camera.getHeight() / 2);
+	    break;
+	  default:
+	    M_throw() << "Unknown stereo render mode";
+	  }
+      }
+
     getGLContext().swapBuffers();
 
     //Check if we're recording and then check that if we're
@@ -1570,8 +1582,8 @@ namespace coil {
 
     {//Analygraph work
       Gtk::CheckButton* btn;
-      _refXml->get_widget("analygraphMode", btn);    
-      _analygraphMode = btn->get_active();
+      _refXml->get_widget("StereoModeEnable", btn);    
+      _stereoMode = btn->get_active();
     }
 
     {

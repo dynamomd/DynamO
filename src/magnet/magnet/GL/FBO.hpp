@@ -122,15 +122,18 @@ namespace magnet {
        * \param screenwidth The width of the screen in pixels.
        * \param screenheight The height of the screen in pixels.
        */
-      inline void blitToScreen(GLsizei screenwidth, GLsizei screenheight)
+      inline void blitToScreen(GLsizei screenwidth, GLsizei screenheight, 
+			       GLsizei screenx = 0, GLsizei screeny = 0)
       {
 	validate();
 
 	if (!GLEW_EXT_framebuffer_blit)
-	  M_throw() << "The GL_EXT_framebuffer_blit extension is not supported! Cannot blit!";
+	  M_throw() << "The GL_EXT_framebuffer_blit extension is not supported!"
+		    << " Cannot blit!";
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, _FBO);
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, 0);
-	glBlitFramebufferEXT(0, 0, getWidth(), getHeight(), 0, 0, screenwidth, screenheight, 
+	glBlitFramebufferEXT(0, 0, getWidth(), getHeight(), screenx, screeny, 
+			     screenwidth + screenx, screenheight + screeny, 
 			     GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
       }
