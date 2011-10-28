@@ -200,6 +200,141 @@ void main()
 });
 	}
       };
+
+      /*! \brief A variant of the SphereShader used for variance
+          shadow mapping.
+       */
+      class SphereVSMShader: public detail::Shader
+      {
+	virtual std::string initVertexShaderSource()
+	{
+	  return "#version 330\n" 
+	    STRINGIFY(
+uniform mat4 ViewMatrix;
+uniform float global_scale;
+
+layout (location = 0) in vec4 vPosition;
+layout (location = 5) in vec4 iScale;
+out float scale;
+out float depth;
+
+void main()
+{
+  scale = iScale.x * global_scale;
+  vec4 vVertex = ViewMatrix * vec4(vPosition.xyz, 1.0); 
+  gl_Position = vVertex;
+  depth = -vVertex.z;
+});
+	}
+
+	virtual std::string initGeometryShaderSource()
+	{
+	  return
+	    "#version 330\n"
+	    STRINGIFY(
+uniform mat4 ProjectionMatrix;
+
+layout(points) in;
+layout(triangle_strip) out;
+layout(max_vertices = 4) out;
+
+in float scale[];
+in float depth[];
+
+flat out float frag_scale;
+flat out float frag_depth;
+flat out vec3 model_position_frag;
+smooth out vec2 ordinate;
+
+//Function to emit a bilboard vertex with all the correct output given
+//the displacement
+void VertexEmit(in vec2 displacement, in float finalz)
+{
+  ordinate = displacement;
+
+  vec4 shift = vec4(scale[0] * displacement, 0.0, 0.0);
+  vec4 eyespace_position = gl_in[0].gl_Position + shift;
+  vec4 proj_position =  ProjectionMatrix * eyespace_position;
+
+  //Here we do the cryptic thing of inputting the finalz times by the
+  //w coordinate, so that when the w divide is performed by OpenGL, we
+  //will recover the w divide.
+  gl_Position = vec4(proj_position.xy, finalz * proj_position.w, proj_position.w);
+  EmitVertex();
+}
+
+void main()
+{
+  //The projected position of the center of the front of the sphere
+  vec4 centerpos = ProjectionMatrix * (gl_in[0].gl_Position + vec4(0.0, 0.0, scale[0], 0.0));
+  
+  //We now perform the w divide so that we have the minimum
+  //screen-space depth of the sphere.
+  float finalz = centerpos.z / centerpos.w;
+
+  //Standard data for each fragment
+  frag_scale = scale[0];
+  frag_depth = depth[0];
+  model_position_frag = gl_in[0].gl_Position.xyz;
+  VertexEmit(vec2(-1.0, -1.0), finalz);
+  VertexEmit(vec2(-1.0, +1.0), finalz);
+  VertexEmit(vec2(+1.0, -1.0), finalz);
+  VertexEmit(vec2(+1.0, +1.0), finalz);
+  EndPrimitive();
+}
+);
+	}
+
+	virtual std::string initFragmentShaderSource()
+	{
+	  return "#version 330\n"
+	    "#ifdef GL_ARB_conservative_depth\n"
+	    "#extension GL_ARB_conservative_depth : enable\n"
+	    "layout (depth_greater) out float gl_FragDepth;"
+	    "#endif\n"
+	    STRINGIFY(
+uniform mat4 ProjectionMatrix;
+uniform mat4 ViewMatrix;
+
+flat in float frag_scale;
+flat in float frag_depth;
+flat in vec3 model_position_frag;
+smooth in vec2 ordinate;
+
+layout (location = 0) out vec4 color_out;
+
+void main()
+{
+  //The ordinate variable contains the x and y position of the
+  //sphere. Use the equation of a sphere to determine the z pos
+  float z = 1.0 - dot(ordinate,ordinate);
+
+  //Discard the fragment if it lies outside the sphere
+  if (z <= 0.0) discard;
+
+  //Calculate the fragments real position on the sphere
+  z = sqrt(z);
+  vec4 frag_position_eye = vec4(model_position_frag + vec3(ordinate, z) * frag_scale, 1.0);
+  //Calculate the fragments depth
+  vec4 pos = ProjectionMatrix * frag_position_eye;
+  gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0;
+
+  float depth = frag_depth;
+  float A = ProjectionMatrix[2].z;
+  float B = ProjectionMatrix[3].z;
+  float moment1 = 0.5 * (-A * depth + B) / depth + 0.5;
+  float moment2 = moment1 * moment1;
+
+  // Adjusting moments (this is sort of bias per pixel) using derivative
+  float dx = dFdx(moment1);
+  float dy = dFdy(moment1);
+  moment2 += 0.25 * (dx * dx + dy * dy);
+	
+  color_out = vec4(moment1, moment2, 0.0, 1.0);
+});
+	}
+
+      };
     }
   }
 }

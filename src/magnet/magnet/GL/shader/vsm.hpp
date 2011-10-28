@@ -80,7 +80,7 @@ void main()
   float dy = dFdy(moment1);
   moment2 += 0.25 * (dx * dx + dy * dy);
 	
-  color_out = vec4(moment1, moment2, 0, 1.0);
+  color_out = vec4(moment1, moment2, 0.0, 1.0);
 });
 	}
       };

@@ -38,14 +38,29 @@ namespace coil {
 	{
 	  if (_raytraceable && _glyphRaytrace->get_active())
 	    {
-	      _sphereShader.attach();
-	      _sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
-	      _sphereShader["ViewMatrix"] = cam.getViewMatrix();
-	      _sphereShader["global_scale"] = _scale;
-	      _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
-	      _colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 0);;
-	      _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
-	      _sphereShader.detach();
+	      if (mode & RenderObj::SHADOW)
+		{
+		  _sphereVSMShader.attach();
+		  _sphereVSMShader["ProjectionMatrix"] = cam.getProjectionMatrix();
+		  _sphereVSMShader["ViewMatrix"] = cam.getViewMatrix();
+		  _sphereVSMShader["global_scale"] = _scale;
+		  _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
+		  _colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 0);;
+		  _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+		  _sphereVSMShader.detach();
+
+		}
+	      else
+		{
+		  _sphereShader.attach();
+		  _sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
+		  _sphereShader["ViewMatrix"] = cam.getViewMatrix();
+		  _sphereShader["global_scale"] = _scale;
+		  _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
+		  _colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 0);;
+		  _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+		  _sphereShader.detach();
+		}
 	      return;
 	    }
 	}
@@ -71,6 +86,7 @@ namespace coil {
     Instanced::deinit();
     RenderObj::deinit();
     _sphereShader.deinit();
+    _sphereVSMShader.deinit();
     _gtkOptList.reset();
     _scaleSel.reset(); 
     _colorSel.reset();
@@ -111,6 +127,7 @@ namespace coil {
     if (_raytraceable) 
       {
 	_sphereShader.build();
+	_sphereVSMShader.build();
       }	
 
     {
