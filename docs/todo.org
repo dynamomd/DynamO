@@ -26,6 +26,7 @@
 **** DONE Coil: Made the Camera class track the EYE position, now 3D rendering works for all objects.
 **** DONE Magnet: Upgraded all shaders to GLSL 330.
 **** DONE Bugfix Coil: Fix light placement relative to camera.
+**** TODO Coil: Fix the position look-up in the shadow mapping, perhaps using texel lookups.
 **** TODO Coil: Correct the shadow mapping calculation and remove the noise.
 **** TODO Coil: Check the perspective correction on the raytraced spheres, they're not fisheyed like the triangular ones are
 **** TODO Coil: Need buttons to align the camera with the XYZ directions.
@@ -55,7 +56,6 @@
 **** TODO Move the histogram class into magnet.
 **** TODO Rewrite the range classes.
 **** TODO Move the minmax heap into magnet.
-**** TODO HUD text showing the time.
 **** TODO Work on Sebastians project.
 *** DynamO 1.2							    :ARCHIVE:
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
