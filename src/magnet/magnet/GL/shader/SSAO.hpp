@@ -34,7 +34,8 @@ namespace magnet {
       public:
 	virtual std::string initFragmentShaderSource()
 	{
-	  return STRINGIFY(
+	  return "#version 330\n"
+	    STRINGIFY(
 uniform sampler2D u_Texture1;
 uniform sampler2D u_Texture2;
 uniform sampler2D rnm;
@@ -47,7 +48,8 @@ uniform float farDist;
 
 const float invSamples = 1.0 / 10.0;
 
-varying vec2 screenCoord;
+smooth in vec2 screenCoord;
+layout (location = 0) out vec4 color_out;
 
 float LinearizeDepth(float zoverw)
 {
@@ -105,7 +107,7 @@ void main(void)
 
   float val = clamp(1.0 - totStrength * bl * invSamples, 0.0, 1.0);
 
-  gl_FragColor = vec4(val, val, val, 1.0);
+  color_out = vec4(val, val, val, 1.0);
 });
 	}
       };

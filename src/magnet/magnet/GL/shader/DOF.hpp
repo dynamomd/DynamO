@@ -44,7 +44,8 @@ namespace magnet {
 	/*! \brief The actual DOF filter. */
 	virtual std::string initFragmentShaderSource()
 	{
-	  return STRINGIFY(
+	  return "#version 330\n"
+	    STRINGIFY(
 uniform sampler2D u_Texture0; //Blurred image
 uniform sampler2D u_Texture1; //Original
 uniform sampler2D u_Texture2; //Depth buffer
@@ -53,7 +54,8 @@ uniform float focalRange;
 uniform float nearDist;
 uniform float farDist;
 
-varying vec2 screenCoord;
+smooth in vec2 screenCoord;
+layout (location = 0) out vec4 color_out;
 
 float LinearizeDepth(float zoverw)
 {
@@ -72,8 +74,7 @@ void main(void)
   float depth = LinearizeDepth(texture2D(u_Texture2, screenCoord).r);
   float blur = clamp(abs(depth - fcldist) / focalRange, 0.0, 1.0);
   
-  //gl_FragColor =  vec4(blur,0,0,0);
-  gl_FragColor = original + blur * (blurred - original);
+  color_out = original + blur * (blurred - original);
 });
 	}
       };

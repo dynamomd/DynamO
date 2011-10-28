@@ -33,7 +33,8 @@ namespace magnet {
       {
       public:      
 	virtual std::string initVertexShaderSource()
-	{ return STRINGIFY(
+	{ return "#version 330\n"
+	    STRINGIFY(
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
 
@@ -46,7 +47,8 @@ void main()
 
 	virtual std::string initFragmentShaderSource()
 	{
-	  return STRINGIFY( 
+	  return "#version 330\n"
+	    STRINGIFY(
 uniform float FocalLength;
 uniform vec2 WindowSize;
 uniform vec3 RayOrigin;
@@ -63,6 +65,8 @@ uniform float DitherRay;
 
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
+
+layout (location = 0) out vec4 color_out;
 
 //This function converts a value in a depth buffer back into a object-space distance
 float recalcZCoord(float zoverw)
@@ -220,7 +224,7 @@ void main()
   The solution is to divide by the alpha, as this is the "amount of color" added to color.
   */
   color.rgb /= (color.a == 0.0) +  color.a;
-  gl_FragColor = color;
+  color_out = color;
 });
 	}
       };

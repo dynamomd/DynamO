@@ -60,15 +60,17 @@ namespace magnet {
 	
 	  /*! \brief A trivial passthrough vertex shader. */
 	  virtual std::string initVertexShaderSource()
-	  { return STRINGIFY(
-			     const vec2 madd=vec2(0.5, 0.5);
-			     attribute vec4 vPosition;
-			     varying vec2 screenCoord;
-			     void main() 
-			     {
-			       screenCoord = vPosition.xy * madd + madd;
-			       gl_Position = vec4(vPosition.xy, 0.0, 1.0); 
-			     }); 
+	  { return "#version 330\n"
+	      STRINGIFY(
+layout (location = 0) in vec4 vPosition;
+smooth out vec2 screenCoord;
+
+void main() 
+{
+  const vec2 madd=vec2(0.5, 0.5);
+  screenCoord = vPosition.xy * madd + madd;
+  gl_Position = vec4(vPosition.xy, 0.0, 1.0); 
+}); 
 	  }
 	protected:
 

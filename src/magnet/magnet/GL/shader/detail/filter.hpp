@@ -76,13 +76,14 @@ namespace magnet {
 	    std::ostringstream data;
 	    data << _stencilwidth; 
 	  
-	    return std::string("#define stencilwidth ") + data.str() + "\n"
+	    return std::string("#version 330\n#define stencilwidth ") + data.str() + "\n"
 STRINGIFY(
 uniform vec2 u_Scale;
 uniform float weights[stencilwidth * stencilwidth];
 uniform sampler2D u_Texture0;
 
-varying vec2 screenCoord;
+smooth in vec2 screenCoord;
+layout (location = 0) out vec4 color_out;
 
 void main()
 {
@@ -93,7 +94,7 @@ void main()
 							 + vec2((x - stencilwidth / 2) * u_Scale.x, 
 								(y - stencilwidth / 2) * u_Scale.y));
   
-  gl_FragColor = vec4(color.rgb, 1.0);
+  color_out = vec4(color.rgb, 1.0);
 });
 	  }
 

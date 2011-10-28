@@ -31,11 +31,12 @@ namespace magnet {
 uniform sampler2D u_Texture0; //input
 uniform sampler2D u_Texture1; //Depth buffer
 
-varying vec2 screenCoord;
+smooth in vec2 screenCoord;
+layout (location = 0) out vec4 color_out;
 
 void main(void)
 {
-  gl_FragColor = texture2D(u_Texture0, screenCoord) * texture2D(u_Texture1, screenCoord);
+  color_out = texture2D(u_Texture0, screenCoord) * texture2D(u_Texture1, screenCoord);
 });
 	}
       };

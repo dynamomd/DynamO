@@ -31,16 +31,17 @@ namespace magnet {
       public:
 	virtual std::string initFragmentShaderSource()
 	{
-	  return STRINGIFY(
+	  return "#version 330\n"
+	    STRINGIFY(
 //Normalized position on the screen
-varying vec2 screenCoord;
+smooth in vec2 screenCoord;
+layout (location = 0) out vec4 color_out;
 
 //Standard G-buffer data
 uniform sampler2D colorTex;
 uniform sampler2D normalTex;
 uniform sampler2D positionTex;
 uniform vec3 lightPosition;
-
 
 ///////////////Shadow mapping functions and variables
 uniform mat4 ShadowMatrix;
@@ -144,7 +145,7 @@ void main()
   float attenuation = min(1.0, 1.0 / (0.2 + lightDistance * (0.1 + 0.01 * lightDistance)));
   intensity *= attenuation;
 
-  gl_FragData[0] = vec4(intensity * color.rgb, 1.0);
+  color_out = vec4(intensity * color.rgb, 1.0);
 });
 	}
       };
