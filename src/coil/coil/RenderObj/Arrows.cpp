@@ -207,7 +207,7 @@ namespace coil {
   void 
   RArrows::clTick(const magnet::GL::Camera& camera)
   {
-    cl_float4 campos = getclVec(camera.getEyeLocation());
+    cl_float4 campos = getclVec(camera.getEyeLocationObjSpace());
     cl_uint NArrows = _N;
     //Generate the sort data
     _kernelFunc(_pointData, _directionData, (cl::Buffer)_posBuff.acquireCLObject(),

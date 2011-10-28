@@ -27,8 +27,8 @@ namespace magnet {
      *
      * This class can perform all the calculations required for
      * setting up the projection and modelview matricies of the
-     * camera. There is also support for head tracking calculations
-     * using the \ref _headLocation \ref math::Vector.
+     * camera. There is also support for eye tracking calculations
+     * using the \ref _eyeLocation \ref math::Vector.
      */
     class Camera
     {
@@ -68,7 +68,7 @@ namespace magnet {
 	_position(position),
 	_zNearDist(zNearDist),
 	_zFarDist(zFarDist),
-	_headLocation(0, 0, 1),
+	_eyeLocation(0, 0, 1),
 	_simLength(25),
 	_pixelPitch(0.025), //Measured from my screen
 	_camMode(ROTATE_CAMERA)
@@ -92,7 +92,7 @@ namespace magnet {
 	_tiltrotation = (180.0f / M_PI) * std::acos(directionInXZplane | directionNorm);
 
 	//We use the field of vision and the width of the screen in
-	//simulation units to calculate how far back the head should
+	//simulation units to calculate how far back the eye should
 	//be at the start
 	setFOVY(fovY);
       }
@@ -100,17 +100,17 @@ namespace magnet {
       /*! \brief Change the field of vision of the camera.
        *
        * \param fovY The field of vision in degrees.
-       * \param compensate Counter the movement of the head position
+       * \param compensate Counter the movement of the eye position
        * by moving the viewing plane position.
        */
       inline void setFOVY(double fovY, bool compensate = true) 
       {
-	//When the FOV is adjusted, we move the head position away
+	//When the FOV is adjusted, we move the eye position away
 	//from the view plane, but we adjust the viewplane position to
 	//compensate this motion
-	math::Vector headLocationChange = math::Vector(0, 0, 0.5f * (_pixelPitch * _width / _simLength) 
+	math::Vector eyeLocationChange = math::Vector(0, 0, 0.5f * (_pixelPitch * _width / _simLength) 
 					   / std::tan((fovY / 180.0f) * M_PI / 2) 
-					   - _headLocation[2]);
+					   - _eyeLocation[2]);
 
 	if (compensate)
 	  {
@@ -118,31 +118,31 @@ namespace magnet {
 	      = Rodrigues(math::Vector(0, -_panrotation * M_PI/180, 0))
 	      * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
 	    
-	    _position -= viewTransformation * headLocationChange;	
+	    _position -= viewTransformation * eyeLocationChange;	
 	  }
 
-	_headLocation += headLocationChange;
+	_eyeLocation += eyeLocationChange;
       }
       
-      /*! \brief Sets the OpenGL head location.
+      /*! \brief Sets the eye location.
        *
-       * \param head The position of the viewers head, relative to the
+       * \param eye The position of the viewers eye, relative to the
        * center of the near viewing plane (in cm).
        */
-      inline void setHeadLocation(math::Vector head)
-      { _headLocation = head / _simLength; }
+      inline void setEyeLocation(math::Vector eye)
+      { _eyeLocation = eye / _simLength; }
 
-      /*! \brief Gets the OpenGL head location (in cm).
+      /*! \brief Gets the eye location (in cm).
        *
-       * The position of the viewers head is relative to the center of
+       * The position of the viewers eye is relative to the center of
        * the near viewing plane (in cm).
        */
-      inline const math::Vector getHeadLocation() const
-      { return _headLocation * _simLength; }
+      inline const math::Vector getEyeLocation() const
+      { return _eyeLocation * _simLength; }
 
       /*! \brief Returns the current field of vision of the camera */
       inline double getFOVY() const
-      { return 2 * std::atan2(0.5f * (_pixelPitch * _width / _simLength),  _headLocation[2]) * (180.0f / M_PI); }
+      { return 2 * std::atan2(0.5f * (_pixelPitch * _width / _simLength),  _eyeLocation[2]) * (180.0f / M_PI); }
 
       /*! \brief Converts the motion of the mouse into a motion of the
        * camera.
@@ -163,7 +163,7 @@ namespace magnet {
 	    }
 	  case ROTATE_CAMERA:
 	    { //The camera is rotated and an additional movement is
-	      //added to make it appear to rotate around the head
+	      //added to make it appear to rotate around the eye
 	      //position
 	      //Calculate the current camera position
 	      math::Vector cameraLocationOld(getEyeLocation());	      
@@ -203,22 +203,19 @@ namespace magnet {
       /*! \brief Get the modelview matrix.
        *
        * \param offset This is an offset in camera coordinates to
-       * apply to the head location. It's primary use is to calculate
+       * apply to the eye location. It's primary use is to calculate
        * the perspective shift for the left and right eye in
        * Analygraph rendering.
        */
-      inline const GLMatrix getViewMatrix(math::Vector offset = math::Vector(0,0,0)) const 
+      inline const GLMatrix getViewMatrix() const 
       { 
-	//Local head location
-	math::Vector headLoc = _headLocation + offset / _simLength;
-
-	//Now add in the movement of the head and the movement of the
+	//Add in the movement of the eye and the movement of the
 	//camera
 	math::Matrix viewTransformation 
 	    = Rodrigues(math::Vector(0, -_panrotation * M_PI/180, 0))
 	    * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
 	
-	math::Vector cameraLocation((viewTransformation * headLoc) + _position);
+	math::Vector cameraLocation((viewTransformation * _eyeLocation) + _position);
 
 	//Setup the view matrix
 	return GLMatrix::rotate(_tiltrotation, math::Vector(1,0,0))
@@ -229,7 +226,7 @@ namespace magnet {
       /*! \brief Get the projection matrix.
        
         \param offset This is an offset in camera coordinates to apply
-        to the head location. It's primary use is to calculate the
+        to the eye location. It's primary use is to calculate the
         perspective shift for the left and right eye in Analygraph
         rendering.
        
@@ -237,33 +234,29 @@ namespace magnet {
 	camera. See \ref GLMatrix::frustrum() for more information as
 	the parameter is directly passed to that function.
        */
-      inline const GLMatrix getProjectionMatrix(math::Vector offset = math::Vector(0,0,0), 
-						GLfloat zoffset = 0) const 
+      inline const GLMatrix getProjectionMatrix(GLfloat zoffset = 0) const 
       { 
-	//Local head location
-	math::Vector headLoc = _headLocation + offset / _simLength;
-
-	//We will move the camera to the location of the head in sim
+	//We will move the camera to the location of the eye in sim
 	//space. So we must create a viewing frustrum which, in real
 	//space, cuts through the image on the screen. The trick is to
 	//take the real world relative coordinates of the screen and
-	//head transform them to simulation units.
+	//eye transform them to simulation units.
 	//
 	//This allows us to calculate the left, right, bottom and top of
 	//the frustrum as if the near plane of the frustrum was at the
 	//screens location.
 	//
 	//Finally, all length scales are multiplied by
-	//(_zNearDist/_headLocation[2]).
+	//(_zNearDist/_eyeLocation[2]).
 	//
 	//This is to allow the frustrum's near plane to be placed
 	//somewhere other than the screen (this factor places it at
 	//_zNearDist)!
 	//
-	return GLMatrix::frustrum((-0.5f * getScreenPlaneWidth()  - headLoc[0]) * _zNearDist / headLoc[2],// left
-				  (+0.5f * getScreenPlaneWidth()  - headLoc[0]) * _zNearDist / headLoc[2],// right
-				  (-0.5f * getScreenPlaneHeight() - headLoc[1]) * _zNearDist / headLoc[2],// bottom 
-				  (+0.5f * getScreenPlaneHeight() - headLoc[1]) * _zNearDist / headLoc[2],// top
+	return GLMatrix::frustrum((-0.5f * getScreenPlaneWidth()  - _eyeLocation[0]) * _zNearDist / _eyeLocation[2],// left
+				  (+0.5f * getScreenPlaneWidth()  - _eyeLocation[0]) * _zNearDist / _eyeLocation[2],// right
+				  (-0.5f * getScreenPlaneHeight() - _eyeLocation[1]) * _zNearDist / _eyeLocation[2],// bottom 
+				  (+0.5f * getScreenPlaneHeight() - _eyeLocation[1]) * _zNearDist / _eyeLocation[2],// top
 				  _zNearDist,//Near distance
 				  _zFarDist,//Far distance
 				  zoffset
@@ -273,12 +266,12 @@ namespace magnet {
       /*! \brief Get the normal matrix.
        *
        * \param offset This is an offset in camera coordinates to
-       * apply to the head location. It's primary use is to calculate
+       * apply to the eye location. It's primary use is to calculate
        * the perspective shift for the left and right eye in
        * Analygraph rendering.
        */
-      inline const math::Matrix getNormalMatrix(math::Vector offset = math::Vector(0,0,0)) const 
-      { return Inverse(math::Matrix(getViewMatrix(offset))); }
+      inline const math::Matrix getNormalMatrix() const 
+      { return Inverse(math::Matrix(getViewMatrix())); }
 
       //! \brief Returns the screen's width (in simulation units).
       double getScreenPlaneWidth() const
@@ -302,22 +295,22 @@ namespace magnet {
       //! \brief Get the position of the viewing plane (effectively the camera position)
       inline const math::Vector& getViewPlanePosition() const { return _position; } 
 
-      /*! \brief Fetch the location of the users eyes, in simulation
+      /*! \brief Fetch the location of the users eyes, in object space
        * coordinates.
        * 
-       * Useful for head tracking applications. This returns the
-       * position of the eyes in simulation space by adding the head
+       * Useful for eye tracking applications. This returns the
+       * position of the eyes in object space by adding the eye
        * location (relative to the viewing plane/screen) onto the
        * current position.
        */
       inline const math::Vector 
-      getEyeLocation() const 
+      getEyeLocationObjSpace() const 
       { 
 	math::Matrix viewTransformation 
 	  = Rodrigues(math::Vector(0, -_panrotation * M_PI/180, 0))
 	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
 
-	return (viewTransformation * _headLocation) + _position;
+	return (viewTransformation * _eyeLocation) + _position;
       }
 
       //! \brief Set the height and width of the screen in pixels.
@@ -370,7 +363,7 @@ namespace magnet {
       
       GLfloat _zNearDist;
       GLfloat _zFarDist;
-      math::Vector _headLocation;
+      math::Vector _eyeLocation;
       
       //! \brief One simulation length in cm (real units)
       double _simLength;

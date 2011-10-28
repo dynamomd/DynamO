@@ -15,17 +15,19 @@
 **** DONE DynamO: Up to 50% faster in polydisperse systems thanks to a new cache friendly nblist implementation.
 **** DONE DynamO: Remove all Clone functions.
 **** DONE DynamO: All particle positions are now shuffled for mixture systems in dynamod to enable faster equilibration.
-**** DONE Coil: Moved to deferred shading.
+**** DONE Coil: By default, spheres are ray-traced using geometry and fragment shaders to allow rendering of millions of perfectly spherical particles.
+**** DONE Coil: Cleaned up the stereo (3D) vision mode, so it's possible for standard 3D TV's to use it as well as red-cyan glasses.
+**** DONE Coil: Moved to a deferred shading and forward rendering setup. Improves performance for complex systems.
 **** DONE Coil: Now requires and complies with the OpenGL 3.3 Core profile.
 **** DONE Coil: Fixed segfaults occuring when adding a window crashes the main render thread.
 **** DONE Coil: Fixed a rare segfault caused by a misinterpretation of the glade file data stored in memory.
 **** DONE Coil: The snapshot button now captures using the same file counter as the record button.
 **** DONE Coil: Disabled the console text feature in coil. Need to rethink its implementation.
-**** DONE Coil: Cleaned up the stereo (3D) vision mode, so it's possible for standard 3D TV's to use it as well as red-cyan glasses.
+**** DONE Coil: Made the Camera class track the EYE position, now 3D rendering works for all objects.
 **** DONE Magnet: Upgraded all shaders to GLSL 330.
+**** TODO Coil: Need buttons to align the camera with the XYZ directions.
 **** TODO Coil: Fix light placement.
 **** TODO Coil: Get rid of the context pointers
-**** TODO Coil: Make the camera's permanently track the head position to fix the bad rendering of raytraced sphere glyphs in 3D mode.
 **** TODO Remove the requirement of a statically linked bzip2 or zlib library
 **** TODO Remove the Dynamics class and move its functions into the SimData class.
 **** TODO Remove the Dynamics tags in the config.

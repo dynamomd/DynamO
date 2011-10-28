@@ -750,17 +750,6 @@ namespace coil {
 
     guiUpdateCallback(); //We frequently ping the gui update     
 
-#ifdef COIL_wiimote
-    //Run an update if the wiiMote was connected
-    if ((magnet::TrackWiimote::getInstance()).connected())
-      {
-	Gtk::CheckButton* wiiHeadTrack;
-	_refXml->get_widget("wiiHeadTracking", wiiHeadTrack);
-	if (wiiHeadTrack->get_active())
-	  _camera.setHeadLocation((magnet::TrackWiimote::getInstance()).getHeadPosition());
-      }
-#endif
-
     //Flush the OpenCL queue, so GL can use the buffers
     getGLContext().getCLCommandQueue().finish();
   
@@ -792,19 +781,32 @@ namespace coil {
 	glEnable(GL_BLEND);
       }
     
-    ////////Eye render//////////
+    ////////3D or Stereo rendering image composition//////////
+
+#ifdef COIL_wiimote
+    //Run an update if the wiiMote was connected
+    if ((magnet::TrackWiimote::getInstance()).connected())
+      {
+	Gtk::CheckButton* wiiHeadTrack;
+	_refXml->get_widget("wiiHeadTracking", wiiHeadTrack);
+	if (wiiHeadTrack->get_active())
+	  _camera.setEyeLocation((magnet::TrackWiimote::getInstance()).getHeadPosition());
+      }
+#endif
 
     //Bind to the multisample buffer
     if (!_stereoMode)
       {
-	drawScene(_renderTarget, _camera, Vector(0,0,0));
+	drawScene(_renderTarget, _camera);
 	_renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
       }
     else
       {
 	const double eyedist = 6.5;
 	Vector eyeDisplacement(0.5 * eyedist, 0, 0);
-	
+
+	Vector currentEyePos = _camera.getEyeLocation();
+
 	Gtk::ComboBox* stereoMode;
 	_refXml->get_widget("StereoMode", stereoMode);
 	int mode = stereoMode->get_active_row_number();
@@ -812,7 +814,8 @@ namespace coil {
 	switch(mode)
 	  {
 	  case 0: //Analygraph Red-Cyan
-	    drawScene(_renderTarget, _camera, eyeDisplacement);
+	    _camera.setEyeLocation(currentEyePos + eyeDisplacement);
+	    drawScene(_renderTarget, _camera);
 	    _renderTarget.getColorTexture(0)->bind(0);
 	    _copyShader.attach();
 	    _copyShader["u_Texture0"] = 0;
@@ -828,7 +831,8 @@ namespace coil {
 	    _copyShader.detach();
 	    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-	    drawScene(_renderTarget, _camera, -eyeDisplacement);
+	    _camera.setEyeLocation(currentEyePos - eyeDisplacement);
+	    drawScene(_renderTarget, _camera);
 	    _renderTarget.getColorTexture(0)->bind(0);
 	    _copyShader.attach();
 	    glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
@@ -837,26 +841,32 @@ namespace coil {
 	    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	    break;
 	  case 1:
-	    drawScene(_renderTarget, _camera, eyeDisplacement);
+	    _camera.setEyeLocation(currentEyePos + eyeDisplacement);
+	    drawScene(_renderTarget, _camera);
 	    _renderTarget.blitToScreen(_camera.getWidth() / 2, 
 				       _camera.getHeight(), 0, 0, GL_LINEAR);
 
-	    drawScene(_renderTarget, _camera, -eyeDisplacement);
+	    _camera.setEyeLocation(currentEyePos - eyeDisplacement);
+	    drawScene(_renderTarget, _camera);
 	    _renderTarget.blitToScreen(_camera.getWidth() / 2, _camera.getHeight(),
 				       _camera.getWidth() / 2, 0, GL_LINEAR);	    
 	    break;
 	  case 2:
-	    drawScene(_renderTarget, _camera, eyeDisplacement);
+	    _camera.setEyeLocation(currentEyePos + eyeDisplacement);
+	    drawScene(_renderTarget, _camera);
 	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight()  /2,
 				       0, 0, GL_LINEAR);
 
-	    drawScene(_renderTarget, _camera, -eyeDisplacement);
+	    _camera.setEyeLocation(currentEyePos - eyeDisplacement);
+	    drawScene(_renderTarget, _camera);
 	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight() / 2,
 				       0, _camera.getHeight() / 2, GL_LINEAR);
 	    break;
 	  default:
 	    M_throw() << "Unknown stereo render mode";
 	  }
+	//Reset the eye position
+	_camera.setEyeLocation(currentEyePos);
       }
 
     getGLContext().swapBuffers();
@@ -896,7 +906,7 @@ namespace coil {
   }
 
   void 
-  CLGLWindow::drawScene(magnet::GL::FBO& fbo, magnet::GL::Camera& camera, Vector eyeDisplacement)
+  CLGLWindow::drawScene(magnet::GL::FBO& fbo, magnet::GL::Camera& camera)
   {
     //We perform a deffered shading pass followed by a forward shading
     //pass for objects which cannot be deferred, like volumes etc.
@@ -911,8 +921,8 @@ namespace coil {
     _Gbuffer.attach();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     _renderShader.attach();
-    _renderShader["ProjectionMatrix"] = _camera.getProjectionMatrix(eyeDisplacement);
-    _renderShader["ViewMatrix"] = _camera.getViewMatrix(eyeDisplacement);
+    _renderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
+    _renderShader["ViewMatrix"] = _camera.getViewMatrix();
     //Set up to write 1 into the stencil buffer if the depth and
     //stencil test pass
     glEnable(GL_STENCIL_TEST);
@@ -951,10 +961,10 @@ namespace coil {
     _deferredShader["positionTex"] = 2;
 
     {
-      magnet::math::Vector vec = _light0.getEyeLocation();
+      magnet::math::Vector vec = _light0.getEyeLocationObjSpace();
       std::tr1::array<GLfloat, 4> lightPos = {{vec[0], vec[1], vec[2], 1.0}};
       std::tr1::array<GLfloat, 4> lightPos_eyespace 
-	= camera.getViewMatrix(eyeDisplacement) * lightPos;
+	= camera.getViewMatrix() * lightPos;
       magnet::math::Vector vec2(lightPos_eyespace[0], lightPos_eyespace[1], lightPos_eyespace[2]);
       _deferredShader["lightPosition"] = vec2;
     }
@@ -963,7 +973,7 @@ namespace coil {
     _deferredShader["ShadowIntensity"] = _shadowIntensity;
     _deferredShader["ShadowMapping"] = _shadowMapping;
     if (_shadowMapping)
-      _deferredShader["ShadowMatrix"] = _light0.getShadowTextureMatrix() * camera.getViewMatrix(eyeDisplacement).inverse();
+      _deferredShader["ShadowMatrix"] = _light0.getShadowTextureMatrix() * camera.getViewMatrix().inverse();
 
     _deferredShader.invoke();
     _deferredShader.detach();
@@ -1627,13 +1637,13 @@ namespace coil {
       Gtk::Label* ZHead;
       _refXml->get_widget("ZHead", ZHead);
       std::ostringstream os;
-      os << _camera.getHeadLocation()[0] << "cm";
+      os << _camera.getEyeLocation()[0] << "cm";
       XHead->set_text(os.str());
       os.str("");
-      os << _camera.getHeadLocation()[1] << "cm";
+      os << _camera.getEyeLocation()[1] << "cm";
       YHead->set_text(os.str());
       os.str("");
-      os << _camera.getHeadLocation()[2] << "cm";
+      os << _camera.getEyeLocation()[2] << "cm";
       ZHead->set_text(os.str());
     }
 
@@ -1813,7 +1823,7 @@ namespace coil {
   void 
   CLGLWindow::HeadReset()
   {
-    _camera.setHeadLocation(Vector(0,0,_camera.getHeadLocation()[2]));
+    _camera.setEyeLocation(Vector(0, 0, _camera.getEyeLocation()[2]));
     _camera.setFOVY(60.f, false);
   }
 }

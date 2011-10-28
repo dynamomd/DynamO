@@ -199,7 +199,7 @@ namespace coil {
       std::tr1::array<GLfloat,2> winsize = {{camera.getWidth(), camera.getHeight()}};
       _shader["WindowSize"] = winsize;
     }
-    _shader["RayOrigin"] = camera.getEyeLocation();
+    _shader["RayOrigin"] = camera.getEyeLocationObjSpace();
     _shader["DepthTexture"] = 0;
     _shader["DataTexture"] = 1;
     _shader["StepSize"] = _stepSizeVal;
