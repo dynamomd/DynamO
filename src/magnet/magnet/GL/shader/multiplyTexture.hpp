@@ -27,7 +27,8 @@ namespace magnet {
       public:
 	virtual std::string initFragmentShaderSource()
 	{
-	  return STRINGIFY(
+	  return "#version 330\n"
+	    STRINGIFY(
 uniform sampler2D u_Texture0; //input
 uniform sampler2D u_Texture1; //Depth buffer
 
