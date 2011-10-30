@@ -13,20 +13,21 @@
 **** TODO Look at CL/GL synchronisation objects for coil.
 *** DynamO 1.3
 **** DONE DynamO: Up to 50% faster in polydisperse systems thanks to a new cache friendly nblist implementation.
-**** DONE DynamO: Remove all Clone functions.
 **** DONE DynamO: All particle positions are now shuffled for mixture systems in dynamod to enable faster equilibration.
+**** DONE DynamO: Removed all deprecated Clone functions for copying of classes in the code.
 **** DONE Coil: By default, spheres are ray-traced using geometry and fragment shaders to allow rendering of millions of perfectly spherical particles.
 **** DONE Coil: Cleaned up the stereo (3D) vision mode, so it's possible for standard 3D TV's to use it as well as red-cyan glasses.
 **** DONE Coil: Moved to a deferred shading and forward rendering setup. Improves performance for complex systems.
 **** DONE Coil: Now requires and complies with the OpenGL 3.3 Core profile.
 **** DONE Coil: Fixed segfaults occuring when adding a window crashes the main render thread.
-**** DONE Coil: Fixed a rare segfault caused by a misinterpretation of the glade file data stored in memory.
+**** DONE Coil: Fixed a rare segfault caused by a miscalculation of the glade file data size stored in memory.
 **** DONE Coil: The snapshot button now captures using the same file counter as the record button.
-**** DONE Coil: Disabled the console text feature in coil. Need to rethink its implementation.
+**** DONE Coil: Disabled the console text feature in coil, it's not really functional.
 **** DONE Coil: Made the Camera class track the EYE position, now 3D rendering works for all objects.
-**** DONE Coil: Corrected the shadow mapping calculation and removed the noise.
-**** DONE Magnet: Upgraded all shaders to GLSL 330.
+**** DONE Bugfix Coil: Corrected the shadow mapping calculation and removed the noise.
 **** DONE Bugfix Coil: Fix light placement relative to camera.
+**** DONE Bugfix Coil: Fixed the bilateral blur filter.
+**** DONE Magnet: Upgraded all shaders to GLSL 330.
 **** TODO Coil: Check the perspective correction on the raytraced spheres, they're not fisheyed like the triangular ones are
 **** TODO Coil: Need buttons to align the camera with the XYZ directions.
 **** TODO Coil: Get rid of the context pointers

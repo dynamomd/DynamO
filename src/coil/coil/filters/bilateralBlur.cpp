@@ -58,7 +58,7 @@ namespace coil
     _radiusSlider.show();
 
     _zdiffSlider.set_increments(0.0001,0.0001);
-    _zdiffSlider.set_range(0.0001, 0.005);
+    _zdiffSlider.set_range(0.0001, 0.5);
     _zdiffSlider.set_digits(6);
     _zdiffSlider.set_value(_zdiff); 
     _zdiffSlider.signal_value_changed()
@@ -83,14 +83,15 @@ namespace coil
 				    size_t width, size_t height,
 				    const magnet::GL::Camera& vp) 
   {
-    std::tr1::array<GLfloat, 2> val = {{_radius / width, _radius / height}};
+    std::tr1::array<GLfloat, 2> val = {{GLfloat(_radius) / width, 
+					GLfloat(_radius) / height}};
     _filter.attach();
     _filter["scale"] = val;
     _filter["totStrength"] = _zdiff;
     _filter["nearDist"] = vp.getZNear();
     _filter["farDist"] = vp.getZFar();
     _filter["u_Texture0"] = colorTextureUnit;
-    _filter["u_Texture2"] = 2;
+    _filter["u_Texture2"] = 3;
     _filter.invoke();
     _filter.detach();
   }

@@ -995,11 +995,13 @@ namespace coil {
     
     if (_filterEnable)
       {
-       	//Bind the original image to texture (unit 0)
+       	//Bind the original image to texture unit 0
        	fbo.getColorTexture(0)->bind(0);	
-       	//Now bind the texture which has the normals (unit 1)
+       	//Now bind the texture which has the normals unit 1
        	_Gbuffer.getColorTexture(1)->bind(1);
-       	//High quality depth information is attached to (unit 2)
+       	//High quality depth information is attached to unit 2
+       	_Gbuffer.getDepthTexture()->bind(2);
+       	//Positional information is attached to unit 3
        	_Gbuffer.getDepthTexture()->bind(2);
          
        	for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin();

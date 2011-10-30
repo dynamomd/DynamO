@@ -46,20 +46,13 @@ uniform float farDist;
 smooth in vec2 screenCoord;
 layout (location = 0) out vec4 color_out;
 
-const float invSamples = 1.0 / 10.0;
-
 const float weight[5] = float[5](0.05496597,0.24581,0.4076311347,0.24581,0.05496597);
 
 float sampleWeight(int i, int j) { return weight[i] * weight[j]; }
 
-float LinearizeDepth(float zoverw)
-{
-  return(2.0 * nearDist) / (farDist + nearDist - zoverw * (farDist - nearDist));
-}
-
 void main(void)
 {
-  float currentPixelDepth = LinearizeDepth(texture2D(u_Texture2, screenCoord).r);
+  float currentPixelDepth = texture2D(u_Texture2, screenCoord).z;
   
   vec3 accum = vec3(0, 0, 0);
   float totalWeight = 0.0;
@@ -68,7 +61,7 @@ void main(void)
     for (int y = 0; y < 5; ++y)
       {
 	vec2 sampleLoc = screenCoord + vec2((x - 2) * scale.x, (y - 2) * scale.y);
-	float sampleDepth = LinearizeDepth(texture2D(u_Texture2, sampleLoc).r);
+	float sampleDepth = texture2D(u_Texture2, sampleLoc).z;
 	
 	float Zdifference = abs(currentPixelDepth - sampleDepth);
 	float sampleweight = (1.0 - step(totStrength, Zdifference)) * sampleWeight(x,y);

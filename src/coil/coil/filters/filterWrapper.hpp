@@ -54,7 +54,8 @@ namespace coil
     { 
       _filter.attach();
       _filter["u_Texture0"] = colorTextureUnit;
-      std::tr1::array<GLfloat, 2> arg = {{GLfloat(_radius) / width, GLfloat(_radius) / height}};
+      std::tr1::array<GLfloat, 2> arg = {{GLfloat(_radius) / width, 
+					  GLfloat(_radius) / height}};
       _filter["u_Scale"] = arg;
       _filter.invoke(); 
       _filter.detach();
