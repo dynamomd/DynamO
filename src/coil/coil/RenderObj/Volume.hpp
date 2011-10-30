@@ -33,7 +33,7 @@ namespace coil {
   
     virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
     virtual void deinit();
-    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode);
+    virtual void forwardRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode);
     virtual void clTick(const magnet::GL::Camera&) {}
 
     virtual void showControls(Gtk::ScrolledWindow* win);

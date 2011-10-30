@@ -126,7 +126,7 @@ void main()
 
   //Check what the screen depth is to make sure we don't sample the
   //volume past any standard GL objects
-  float bufferDepth = texture2D(DepthTexture, gl_FragCoord.xy / WindowSize.xy).r;
+  float bufferDepth = texture(DepthTexture, gl_FragCoord.xy / WindowSize.xy).r;
   float depth = recalcZCoord(bufferDepth);
   if (tfar > depth) tfar = depth;
   
@@ -152,7 +152,7 @@ void main()
        length -= StepSize, rayPos.xyz += rayDirection * StepSize)
     {
       //Grab the volume sample
-      vec4 sample = texture3D(DataTexture, (rayPos + 1.0) * 0.5);
+      vec4 sample = texture(DataTexture, (rayPos + 1.0) * 0.5);
 
       //Sort out the normal data
       vec3 norm = sample.xyz * 2.0 - 1.0;
@@ -162,7 +162,7 @@ void main()
       lastnorm = norm; 
 
       //Calculate the color of the voxel using the transfer function
-      vec4 src = texture1D(TransferTexture, sample.a);
+      vec4 src = texture(TransferTexture, sample.a);
       
       //This corrects the transparency change caused by changing step
       //size. All alphas are defined for a certain base step size
@@ -189,7 +189,7 @@ void main()
       //This is enabled if (SpecularLighting == 1)
       vec3 ReflectedRay = reflect(lightDir, norm);
       src.rgb += SpecularLighting
-	* (lightNormDot > 0) //Test to ensure that specular is only
+	* float(lightNormDot > 0) //Test to ensure that specular is only
 	//applied to front facing voxels
 	* vec3(1.0,1.0,1.0) * pow(max(dot(ReflectedRay, rayDirection), 0.0), 96.0);
       
@@ -223,7 +223,7 @@ void main()
   So the final color of the ray is half way between white and black, but the voxel it hit was white!
   The solution is to divide by the alpha, as this is the "amount of color" added to color.
   */
-  color.rgb /= (color.a == 0.0) +  color.a;
+  color.rgb /= float(color.a == 0.0) +  color.a;
   color_out = color;
 });
 	}

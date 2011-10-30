@@ -83,15 +83,28 @@ namespace coil {
      */
     virtual void clTick(const magnet::GL::Camera& cam) = 0;
 
-    /*! \brief Called when the RenderObject must be drawn in the OpenGL scene.
+    /*! \brief Called when the RenderObject must be drawn in the
+	OpenGL scene using deferred shading.
 	
 	\param fbo The target framebuffer object which the scene is
 	being rendered to.
 	
 	\param cam The active camera for the render.
      */
-    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode) = 0;
+    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode)
+    {}
     
+    /*! \brief Called when the RenderObject must be drawn in the
+	OpenGL scene using forward rendering.
+	
+	\param fbo The target framebuffer object which the scene is
+	being rendered to.
+	
+	\param cam The active camera for the render.
+     */
+    virtual void forwardRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode) 
+    {}
+
     /*! \brief Called when the RenderObject should draw its 2D interface controls.
 	\param camera The active camera for the render.
      */
