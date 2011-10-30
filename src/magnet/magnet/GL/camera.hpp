@@ -166,10 +166,10 @@ namespace magnet {
 	      //added to make it appear to rotate around the eye
 	      //position
 	      //Calculate the current camera position
-	      math::Vector cameraLocationOld(getEyeLocation());	      
+	      math::Vector cameraLocationOld(getEyeLocationObjSpace());	      
 	      _panrotation += diffX;
 	      _tiltrotation = magnet::clamp(diffY + _tiltrotation, -90.0f, 90.0f);
-	      math::Vector cameraLocationNew(getEyeLocation());
+	      math::Vector cameraLocationNew(getEyeLocationObjSpace());
 
 	      _position -= cameraLocationNew - cameraLocationOld;
 	      break;
