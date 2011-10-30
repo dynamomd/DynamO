@@ -765,7 +765,7 @@ namespace coil {
 	_VSMShader["ProjectionMatrix"] = _light0.getProjectionMatrix();
 	_VSMShader["ViewMatrix"] = _light0.getViewMatrix();	  
 	_light0.shadowFBO().attach();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	//Enter the render ticks for all objects
 	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
@@ -774,7 +774,8 @@ namespace coil {
 	    (*iPtr)->glRender(_light0.shadowFBO(), _light0, RenderObj::SHADOW);
 	
 	_light0.shadowFBO().detach();
-	_light0.shadowTex()->genMipmaps();
+	/////////////MIPMAPPED shadow maps don't seem to work
+	//_light0.shadowTex()->genMipmaps();
 	_light0.shadowTex()->bind(7);
 	
 	_VSMShader.detach();

@@ -66,7 +66,7 @@ namespace magnet {
        */
       void init()
       {
-	_shadowFBO.setSamples(std::min(4, magnet::GL::MultisampledFBO::getSupportedSamples()));
+	//_shadowFBO.setSamples(std::min(4, magnet::GL::MultisampledFBO::getSupportedSamples()));
 
 	//Build depth buffer
 	std::tr1::shared_ptr<Texture2D> depthTexture(new Texture2D);
@@ -84,7 +84,7 @@ namespace magnet {
 	//Build color texture
 	std::tr1::shared_ptr<Texture2D> colorTexture(new Texture2D);
 	colorTexture->init(1024, 1024, GL_RG32F);
-	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
