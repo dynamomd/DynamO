@@ -37,7 +37,9 @@ layout (location = 0) out vec4 color_out;
 
 void main(void)
 {
-  color_out = texture2D(u_Texture0, screenCoord) * texture2D(u_Texture1, screenCoord);
+  color_out 
+    = texture(u_Texture0, screenCoord) 
+    * texture(u_Texture1, screenCoord);
 });
 	}
       };

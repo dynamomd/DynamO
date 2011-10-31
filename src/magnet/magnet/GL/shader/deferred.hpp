@@ -64,7 +64,7 @@ float ReduceLightBleeding(float p_max, float Amount)
 
 float chebyshevUpperBound(float distance)
 {
-  vec2 moments = texture2D(ShadowMap,ShadowCoord.xy).rg;
+  vec2 moments = texture(ShadowMap,ShadowCoord.xy).rg;
 	
   // We use chebyshev's upperBound to check How likely this pixel is
   // to be lit (p_max)
@@ -85,10 +85,10 @@ float chebyshevUpperBound(float distance)
 void main()
 {
   //Eye space position of the vertex
-  vec3 position = texture2D(positionTex, screenCoord).xyz;
+  vec3 position = texture(positionTex, screenCoord).xyz;
   
   //Eye space normal of the vertex
-  vec3 normal = texture2D(normalTex, screenCoord).rgb;
+  vec3 normal = texture(normalTex, screenCoord).rgb;
   normal = normalize(normal);
 
   //light position relative to the pixel location
@@ -124,7 +124,7 @@ void main()
   /////////////////////////////
   //Blinn Phong lighting calculation
   /////////////////////////////
-  vec3 color = texture2D(colorTex, screenCoord).rgb;
+  vec3 color = texture(colorTex, screenCoord).rgb;
   
   /////////////////////Ambient light
   float intensity = 0.2;

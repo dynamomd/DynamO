@@ -90,9 +90,9 @@ void main()
   vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
   for(int x = 0; x < stencilwidth; ++x)
     for(int y = 0; y < stencilwidth; ++y)
-      color += weights[y * stencilwidth + x] * texture2D(u_Texture0, screenCoord
-							 + vec2((x - stencilwidth / 2) * u_Scale.x, 
-								(y - stencilwidth / 2) * u_Scale.y));
+      color += weights[y * stencilwidth + x] * texture(u_Texture0, screenCoord
+						       + vec2((x - stencilwidth / 2) * u_Scale.x, 
+							      (y - stencilwidth / 2) * u_Scale.y));
   
   color_out = vec4(color.rgb, 1.0);
 });

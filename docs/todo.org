@@ -28,7 +28,6 @@
 **** DONE Bugfix Coil: Fix light placement relative to camera.
 **** DONE Bugfix Coil: Fixed the bilateral blur filter.
 **** DONE Magnet: Upgraded all shaders to GLSL 330.
-**** TODO Magnet: Remove all deprecated textureXD calls with texture calls.
 **** TODO Coil: Check the perspective correction on the raytraced spheres, they're not fisheyed like the triangular ones are
 **** TODO Coil: Need buttons to align the camera with the XYZ directions.
 **** TODO Coil: Get rid of the context pointers
