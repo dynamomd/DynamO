@@ -66,8 +66,6 @@ namespace magnet {
        */
       void init()
       {
-	//_shadowFBO.setSamples(std::min(4, magnet::GL::MultisampledFBO::getSupportedSamples()));
-
 	//Build depth buffer
 	std::tr1::shared_ptr<Texture2D> depthTexture(new Texture2D);
 	//We don't force GL_DEPTH_COMPONENT24 as it is likely you get
@@ -131,7 +129,7 @@ namespace magnet {
 
       /*! \brief Returns the frame buffer containing the shadow map.
        */
-      MultisampledFBO& shadowFBO() { return _shadowFBO; }
+      FBO& shadowFBO() { return _shadowFBO; }
 
       /*! \brief Returns the texture containing the shadow map.
        */
@@ -139,7 +137,7 @@ namespace magnet {
       { return _shadowFBO.getColorTexture(); }
 
     protected:
-      MultisampledFBO _shadowFBO;
+      FBO _shadowFBO;
     };
   }
 }
