@@ -39,9 +39,21 @@ uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
 
 layout (location = 0) in vec4 vPosition;
+layout (location = 3) in vec4 iOrigin;
+layout (location = 4) in vec4 iOrientation;
+layout (location = 5) in vec4 iScale;
+
+vec3 qrot(vec4 q, vec3 v)
+{ return v + 2.0 * cross(cross(v,q.xyz) + q.w * v, q.xyz); } 
 
 void main()
-{ gl_Position = ProjectionMatrix * (ViewMatrix * vPosition); }
+{ 
+  vec3 scale = iScale.xyz + vec3(equal(iScale.xyz, vec3(0.0))) * iScale.x;
+  vec4 vVertex
+    = ViewMatrix
+    * vec4(qrot(iOrientation, vPosition.xyz * scale) + iOrigin.xyz, 1.0);
+
+  gl_Position = ProjectionMatrix * vVertex; }
 ); 
 	}
 
@@ -102,7 +114,7 @@ void main()
   rayDirection.z = -FocalLength;
   rayDirection = (vec4(rayDirection, 0.0) * ViewMatrix).xyz;
   rayDirection = normalize(rayDirection);
-
+  
   //Cube ray intersection test
   vec3 invR = 1.0 / rayDirection;
   vec3 boxMin = vec3(-1.0,-1.0,-1.0);
@@ -114,16 +126,16 @@ void main()
   vec3 tmin = min(ttop, tbot); //Closest planes
   vec2 t = max(tmin.xx, tmin.yz); //Out of the closest planes, find the last to be entered (collision point)
   float tnear = max(t.x, t.y);//...
-
+  
   //If the viewpoint is penetrating the volume, make sure to only cast the ray
   //from the eye position, not behind it
   if (tnear < 0.0) tnear = 0.0;
-
+  
   //Now work out when the ray will leave the volume
   vec3 tmax = max(ttop, tbot); //Distant planes
   t = min(tmax.xx, tmax.yz);//Find the first plane to be exited
   float tfar = min(t.x, t.y);//...
-
+  
   //Check what the screen depth is to make sure we don't sample the
   //volume past any standard GL objects
   float bufferDepth = texture(DepthTexture, gl_FragCoord.xy / WindowSize.xy).r;
@@ -134,40 +146,40 @@ void main()
   //change the visualization as the alphas are renormalized using it.
   //For more information see the loop below where it is used
   const float baseStepSize = 0.01;
-
+  
   //We need to calculate the ray's starting position. We add a random
   //fraction of the stepsize to the original starting point to dither
   //the output
   float random = DitherRay * fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453); 
   vec3 rayPos = RayOrigin + rayDirection * (tnear + StepSize * random);
-
+  
   //The color accumulation variable
   vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
   
   //We store the last valid normal, incase we hit a homogeneous region
   //and need to reuse it, but at the start we have no normal
   vec3 lastnorm = vec3(0,0,0); 
-
+  
   for (float length = tfar - tnear; length > 0.0; 
        length -= StepSize, rayPos.xyz += rayDirection * StepSize)
     {
       //Grab the volume sample
       vec4 sample = texture(DataTexture, (rayPos + 1.0) * 0.5);
-
+  
       //Sort out the normal data
       vec3 norm = sample.xyz * 2.0 - 1.0;
       //Test if we've got a bad normal and need to reuse the old one
       if (dot(norm,norm) < 0.5) norm = lastnorm; 
       //Store the current normal
       lastnorm = norm; 
-
+  
       //Calculate the color of the voxel using the transfer function
       vec4 src = texture(TransferTexture, sample.a);
       
       //This corrects the transparency change caused by changing step
       //size. All alphas are defined for a certain base step size
       src.a = 1.0 - pow((1.0 - src.a), StepSize / baseStepSize);
-
+  
       ////////////Lighting calculations
       //We perform all the calculations in the model (untransformed)
       //space.
@@ -178,7 +190,7 @@ void main()
       float diffTerm =  max(0.5 * lightNormDot + 0.5, 0.5);
       //Quadratic falloff of the diffusive term
       diffTerm *= diffTerm;
-
+  
       //We either use diffusive lighting plus an ambient, or if its
       //disabled (DiffusiveLighting = 0), we just use the original
       //color.
@@ -189,37 +201,37 @@ void main()
       //This is enabled if (SpecularLighting == 1)
       vec3 ReflectedRay = reflect(lightDir, norm);
       src.rgb += SpecularLighting
-	* float(lightNormDot > 0) //Test to ensure that specular is only
-	//applied to front facing voxels
-	* vec3(1.0,1.0,1.0) * pow(max(dot(ReflectedRay, rayDirection), 0.0), 96.0);
+  	* float(lightNormDot > 0) //Test to ensure that specular is only
+  	//applied to front facing voxels
+  	* vec3(1.0,1.0,1.0) * pow(max(dot(ReflectedRay, rayDirection), 0.0), 96.0);
       
       ///////////Front to back blending
       src.rgb *= src.a;
       color = (1.0 - color.a) * src + color;
-
+  
       //We only accumulate up to 0.95 alpha (the front to back
       //blending never reaches 1). 
       if (color.a >= 0.95)
-	{
-	  //We have to renormalize the color by the alpha value (see
-	  //below)
-	  color.rgb /= color.a;
-	  //Set the alpha to one to make sure the pixel is not transparent
-	  color.a = 1.0;
-	  break;
-	}
+  	{
+  	  //We have to renormalize the color by the alpha value (see
+  	  //below)
+  	  color.rgb /= color.a;
+  	  //Set the alpha to one to make sure the pixel is not transparent
+  	  color.a = 1.0;
+  	  break;
+  	}
     }
   /*We must renormalize the color by the alpha value. For example, if
   our ray only hits just one white voxel with a alpha of 0.5, we will have
-
+  
   src.rgb = vec4(1,1,1,0.5)
-
+  
   src.rgb *= src.a; 
   //which gives, src.rgb = 0.5 * src.rgb = vec4(0.5,0.5,0.5,0.5)
-
+  
   color = (1.0 - color.a) * src + color;
   //which gives, color = (1.0 - 0) * vec4(0.5,0.5,0.5,0.5) + vec4(0,0,0,0) = vec4(0.5,0.5,0.5,0.5)
-
+  
   So the final color of the ray is half way between white and black, but the voxel it hit was white!
   The solution is to divide by the alpha, as this is the "amount of color" added to color.
   */

@@ -507,9 +507,9 @@ namespace coil {
 
     //  //Test volume render object
     
-//    std::tr1::shared_ptr<RVolume> vol(new RVolume("Test Volume"));
-//    _renderObjsTree._renderObjects.push_back(vol);
-
+    //std::tr1::shared_ptr<RVolume> vol(new RVolume("Test Volume"));
+    //_renderObjsTree._renderObjects.push_back(vol);
+    
     glutInitContextVersion(3, 3);
 #ifdef MAGNET_DEBUG
     glutInitContextFlags(GLUT_CORE_PROFILE | GLUT_DEBUG);
@@ -649,7 +649,7 @@ namespace coil {
     //  vol->loadRawFile("/home/mjki2mb2/Desktop/Output.raw", 300, 300, 300, 1);
     //  
     //bonsai plant test
-    //  vol->loadRawFile("bonsai.raw", 256, 256, 256, 1);
+    //vol->loadRawFile("bonsai.raw", 256, 256, 256, 1);
     //
     //  //Cadaver
     //  vol->loadRawFile("cadaver512x512x106.raw", 512, 512, 106, 2);
@@ -928,9 +928,11 @@ namespace coil {
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
     //Enter the render ticks for all objects
-    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
+	   = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-      if ((*iPtr)->visible()) (*iPtr)->glRender(fbo, camera, RenderObj::DEFAULT);
+      if ((*iPtr)->visible()) 
+	(*iPtr)->glRender(fbo, camera, RenderObj::DEFAULT);
 
     _renderShader.detach();
     _Gbuffer.detach();
@@ -963,7 +965,9 @@ namespace coil {
       std::tr1::array<GLfloat, 4> lightPos = {{vec[0], vec[1], vec[2], 1.0}};
       std::tr1::array<GLfloat, 4> lightPos_eyespace 
 	= camera.getViewMatrix() * lightPos;
-      magnet::math::Vector vec2(lightPos_eyespace[0], lightPos_eyespace[1], lightPos_eyespace[2]);
+      magnet::math::Vector vec2(lightPos_eyespace[0], 
+				lightPos_eyespace[1], 
+				lightPos_eyespace[2]);
       _deferredShader["lightPosition"] = vec2;
     }
 
@@ -982,6 +986,13 @@ namespace coil {
     glDisable(GL_STENCIL_TEST);
     ///////////////////////Forward Shading Pass /////////////////
 
+    //Enter the forward render ticks for all objects
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
+	   = _renderObjsTree._renderObjects.begin();
+	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
+      if ((*iPtr)->visible())
+	(*iPtr)->forwardRender(fbo, camera, RenderObj::DEFAULT);
+    
     fbo.detach();
     //////////////////////FILTERING////////////
     //Attempt to perform some filtering

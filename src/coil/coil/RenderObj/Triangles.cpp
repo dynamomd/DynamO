@@ -59,27 +59,6 @@ namespace coil {
 	_specialElementBuff.drawElements(magnet::GL::element_type::POINTS);
 	break;
       }
-
-//    if (_renderNormals && _normBuff.size())
-//      {
-//	const GLfloat* posPointer = _posBuff.map();
-//	const GLfloat* normPointer = _normBuff.map();
-//
-//	const float scale = 0.005;
-//	for (size_t i= 0; i < _posBuff.size(); i+= 3)
-//	  {
-//	    Vector point1, point2;
-//	    for (size_t iDim = 0; iDim < 3; ++iDim)
-//	      {
-//		point1[iDim] = posPointer[i + iDim];
-//		point2[iDim] = point1[iDim] + scale * normPointer[i + iDim];
-//	      }
-//	    coil::glprimatives::drawArrow(point1, point2);
-//	  }
-//      
-//	_posBuff.unmap();
-//	_normBuff.unmap();
-//      }
   }
 
   void 

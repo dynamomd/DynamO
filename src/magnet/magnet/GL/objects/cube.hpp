@@ -38,7 +38,12 @@ namespace magnet {
 	{
 	  GLfloat vertices[] = {-1,-1,-1,  1,-1,-1,  1, 1,-1, -1, 1,-1,
 				-1,-1, 1, -1, 1, 1,  1, 1, 1,  1,-1, 1};
-	  GLuint elements[] = {3,2,1,0, 6,7,1,2, 5,4,7,6, 3,0,4,5, 6,2,3,5, 7,4,0,1 };
+	  GLuint elements[] = {3,2,1, 1,0,3, 
+			       6,7,1, 1,2,6, 
+			       5,4,7, 7,6,5, 
+			       3,0,4, 4,5,3, 
+			       6,2,3, 3,5,6, 
+			       7,4,0, 0,1,7 };
 	  
 	  _vertexData.init(std::vector<GLfloat>(vertices, vertices + sizeof(vertices) / sizeof(float)));
 	  _indexData.init(std::vector<GLuint>(elements, elements + sizeof(elements) / sizeof(int)));
@@ -50,7 +55,7 @@ namespace magnet {
 	inline void glRender()
 	{
 	  _vertexData.attachToVertex();
-	  _indexData.drawElements(magnet::GL::element_type::QUADS);
+	  _indexData.drawElements(magnet::GL::element_type::TRIANGLES);
 	}
 
       protected:

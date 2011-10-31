@@ -47,7 +47,6 @@
 **** TODO Alter the change system functions to take sharedptrs.
 **** TODO Change the loadClass XML functions to return shared_ptr's.
 **** TODO Alter getOutputPlugin() to sharedptrs.
-**** TODO Fix the coil library volume renderer.
 **** TODO Write up the image distance class.
 **** TODO Make the complex scheduler the default scheduler!
 **** TODO Make coil scale independent.

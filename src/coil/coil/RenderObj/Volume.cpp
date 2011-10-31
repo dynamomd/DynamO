@@ -214,7 +214,7 @@ namespace coil {
     glDepthMask(GL_FALSE);
     glDisable(GL_DEPTH_TEST);
 
-    _currentDepthFBO.getContext().color(1,1,0,1);
+    _currentDepthFBO.getContext().cleanupAttributeArrays();
     _cube.glRender();
     _shader.detach();
 
