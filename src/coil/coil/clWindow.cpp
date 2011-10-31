@@ -532,9 +532,6 @@ namespace coil {
     //Blend colors using the alpha channel
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
-    //Switch on line aliasing
-    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-
     //Setup the viewport
     CallBackReshapeFunc(800, 600);
 
