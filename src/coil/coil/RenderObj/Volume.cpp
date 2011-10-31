@@ -58,11 +58,21 @@ namespace coil {
   }
 
   void 
-  RVolume::loadRawFile(std::string filename, size_t width, size_t height, size_t depth,
-		       size_t bytes)
+  RVolume::loadRawFile(std::string filename, size_t width, size_t height, 
+		       size_t depth, size_t bytes)
+  {
+    std::tr1::array<size_t, 3> dim = {{width, height, depth}};
+    _currentDepthFBO.getContext().queueTask(magnet::function::Task::makeTask
+					    (&RVolume::loadRawFileWorker, this, 
+					     filename, dim, bytes));
+  }
+
+  void 
+  RVolume::loadRawFileWorker(std::string filename, std::tr1::array<size_t,3> dim, 
+			     size_t bytes)
   {
     std::ifstream file(filename.c_str(), std::ifstream::binary);
-    std::vector<GLubyte> inbuffer(width * height * depth);
+    std::vector<GLubyte> inbuffer(dim[0] * dim[1] * dim[2]);
     
     switch (bytes)
       {
@@ -74,7 +84,7 @@ namespace coil {
 	break;
       case 2:
 	{
-	  std::vector<uint16_t> tempBuffer(width * height * depth);
+	  std::vector<uint16_t> tempBuffer(dim[0] * dim[1] * dim[2]);
 	  file.read(reinterpret_cast<char*>(&tempBuffer[0]), 2 * tempBuffer.size());
 	  if (file.fail()) M_throw() << "Failed to load the texture from the file";
 	  for (size_t i(0); i < tempBuffer.size(); ++i)
@@ -85,7 +95,7 @@ namespace coil {
 	M_throw() << "Cannot load at that bit depth yet";
       }
 
-    loadData(inbuffer, width, height, depth);
+    loadData(inbuffer, dim[0], dim[1], dim[2]);
   }
 
   void

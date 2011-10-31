@@ -24,6 +24,7 @@
 #include <magnet/GL/shader/volume.hpp>
 #include <magnet/GL/objects/cube.hpp>
 #include <memory>
+#include <tr1/array>
 
 namespace coil {
   class RVolume : public RenderObj
@@ -33,18 +34,25 @@ namespace coil {
   
     virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
     virtual void deinit();
-    virtual void forwardRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode);
+    virtual void forwardRender(magnet::GL::FBO& fbo, 
+			       const magnet::GL::Camera& cam, RenderMode mode);
+
     virtual void clTick(const magnet::GL::Camera&) {}
 
     virtual void showControls(Gtk::ScrolledWindow* win);
 
     void loadRawFile(std::string filename, size_t width, size_t height, 
 		     size_t depth, size_t bytes);
-    void loadSphereTestPattern();
-
-    void loadData(const std::vector<GLubyte>& inbuffer, size_t width, size_t height, size_t depth);
 
   protected:
+    void loadRawFileWorker(std::string filename, std::tr1::array<size_t, 3> dim, 
+			   size_t bytes);
+
+    void loadSphereTestPattern();
+
+    void loadData(const std::vector<GLubyte>& inbuffer, 
+		  size_t width, size_t height, size_t depth);
+
     void initGTK();
     void guiUpdate();
 

@@ -505,11 +505,6 @@ namespace coil {
     std::tr1::shared_ptr<RenderObj> consoleObj(new Console(textcolor)); 
     _renderObjsTree._renderObjects.push_back(consoleObj);
 
-    //  //Test volume render object
-    
-    //std::tr1::shared_ptr<RVolume> vol(new RVolume("Test Volume"));
-    //_renderObjsTree._renderObjects.push_back(vol);
-    
     glutInitContextVersion(3, 3);
 #ifdef MAGNET_DEBUG
     glutInitContextFlags(GLUT_CORE_PROFILE | GLUT_DEBUG);
@@ -644,21 +639,6 @@ namespace coil {
 	M_throw() << "An exception was thrown while initialising GTK\n"
 		  << err.what() << "\n";
       }
-
-    //  //Fabian Test
-    //  vol->loadRawFile("/home/mjki2mb2/Desktop/Output.raw", 300, 300, 300, 1);
-    //  
-    //bonsai plant test
-    //vol->loadRawFile("bonsai.raw", 256, 256, 256, 1);
-    //
-    //  //Cadaver
-    //  vol->loadRawFile("cadaver512x512x106.raw", 512, 512, 106, 2);
-    //
-    //  //Male 
-    //  vol->loadRawFile("Male128x256x256.raw", 128, 256, 256, 1);
-    //
-    //  //Female
-    //  vol->loadRawFile("female384x384x240.raw", 384, 384, 240, 1);
 
     _readyFlag = true;
   }

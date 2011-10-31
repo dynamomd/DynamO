@@ -53,8 +53,8 @@ project	: requirements
 exe coilDependencies : tests/buildreq.cpp : <coil-buildable>no:<define>BUILDFAIL ;
 
 lib coil
-      : [ glob-tree *.cpp : tests examples images ]
-        [ glob-tree *.pixbufsvg *.ttf : tests examples coil ]
+      : [ glob-tree *.cpp : tests examples images programs ]
+        [ glob-tree *.pixbufsvg *.ttf : tests examples coil programs ]
       clwingtk.gladexml
       glut GLU GL Xext X11 rt GLEW /magnet//magnet
       /opencl//opencl gtkmm 
@@ -62,7 +62,15 @@ lib coil
        <coil-cwiid>yes:<source>cwiid <coil-buildable>no:<build>no
       : : <define>GLVIEWER <include>. ;
 
-explicit test coil ;
+exe coilvol : programs/coilvol.cpp coil /boost/program_options/<link>static 
+            : <tag>@tags.exe-naming ;
+
+explicit test coil coilvol ;
+
+install install-exe
+	: coilvol/<link>static
+	: <location>$(BIN_INSTALL_PATH) <coil-buildable>no:<build>no
+	;
 
 install install-libs
 	: coil coil/<link>static
@@ -71,9 +79,10 @@ install install-libs
 
 install install-headers
 	: [ glob coil/*.hpp coil/*/*.hpp coil/*/*/*.hpp ]
-	: <location>$(INCLUDE_INSTALL_PATH) <install-source-root>./ <coil-buildable>no:<build>no
+	: <location>$(INCLUDE_INSTALL_PATH) <install-source-root>./ 
+	<coil-buildable>no:<build>no
 	;
 
-alias install-coil : install-libs install-headers ;
+alias install-coil : install-exe install-libs install-headers ;
 
 exe coilparticletest : examples/particletest.cpp coil ;

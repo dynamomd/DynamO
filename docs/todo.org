@@ -17,9 +17,10 @@
 **** DONE DynamO: Removed all deprecated Clone functions for copying of classes in the code.
 **** DONE Coil: By default, spheres are ray-traced using geometry and fragment shaders to allow rendering of millions of perfectly spherical particles.
 **** DONE Coil: Cleaned up the stereo (3D) vision mode, so it's possible for standard 3D TV's to use it as well as red-cyan glasses.
+**** DONE Coil: There is now a separate Volume rendering visualisation executable to allow direct visualisation of volume data.
 **** DONE Coil: Moved to a deferred shading and forward rendering setup. Improves performance for complex systems.
 **** DONE Coil: Now requires and complies with the OpenGL 3.3 Core profile.
-**** DONE Coil: Fixed segfaults occuring when adding a window crashes the main render thread.
+**** DONE Coil: Fixed segfaults occurring when adding a window crashes the main render thread.
 **** DONE Coil: Fixed a rare segfault caused by a miscalculation of the glade file data size stored in memory.
 **** DONE Coil: The snapshot button now captures using the same file counter as the record button.
 **** DONE Coil: Disabled the console text feature in coil, it's not really functional.
