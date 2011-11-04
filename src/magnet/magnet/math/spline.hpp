@@ -117,7 +117,9 @@ namespace magnet {
       inline double lowCalc(double xval)
       {
 	const double lx = xval - x(0);
-	const double firstDeriv = (y(1) - y(0)) / h(0) - 2 * h(0) * (_data[0].b + 2 * _data[1].b) / 6;
+	const double firstDeriv = (y(1) - y(0)) 
+	  / h(0) - 2 * h(0) 
+	  * (_data[0].b + 2 * _data[1].b) / 6;
 	switch(_BCLow)
 	  {
 	  case FIXED_1ST_DERIV_BC:
@@ -180,7 +182,6 @@ namespace magnet {
       {
 	if (size() < 2) 
 	  throw std::runtime_error("Spline requires at least 2 points");
-
 	
 	//If any spline points are at the same x location, we have to
 	//just slightly seperate them

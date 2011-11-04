@@ -20,6 +20,7 @@
 #include <magnet/math/spline.hpp>
 #include <magnet/clamp.hpp>
 #include <magnet/exception.hpp>
+#include <magnet/color/HSV.hpp>
 #include <cmath>
 #include <stdint.h>
 
@@ -27,20 +28,20 @@ namespace magnet {
   namespace color {
     namespace detail {
       struct Knot { 
-	Knot(double x, double r, double g, double b, double a):
+	Knot(double x, double h, double s, double v, double a):
 	  _x(clamp(x, 0.0, 1.0)), 
-	  _r(clamp(r, 0.0, 1.0)), 
-	  _g(clamp(g, 0.0, 1.0)), 
-	  _b(clamp(b, 0.0, 1.0)),
+	  _h(clamp(h, 0.0, 1.0)), 
+	  _s(clamp(s, 0.0, 1.0)), 
+	  _v(clamp(v, 0.0, 1.0)),
 	  _a(clamp(a, 0.0, 1.0)) 
 	{}
 	
 	const double& operator()(size_t i) const
 	{ switch (i)
 	    {
-	    case 0: return _r;
-	    case 1: return _g;
-	    case 2: return _b;
+	    case 0: return _h;
+	    case 1: return _s;
+	    case 2: return _v;
 	    case 3: return _a;
 	    }
 	  M_throw() << "Bad index";
@@ -49,9 +50,9 @@ namespace magnet {
 	double& operator()(size_t i)
 	{ switch (i)
 	    {
-	    case 0: return _r;
-	    case 1: return _g;
-	    case 2: return _b;
+	    case 0: return _h;
+	    case 1: return _s;
+	    case 2: return _v;
 	    case 3: return _a;
 	    }
 	  M_throw() << "Bad index";
@@ -59,7 +60,7 @@ namespace magnet {
 	
 	bool operator<(const Knot& ok) const { return _x < ok._x; }
 	
-	double _x, _r, _g, _b, _a;
+	double _x, _h, _s, _v, _a;
       };
     }
 
@@ -70,20 +71,64 @@ namespace magnet {
       typedef std::vector<Knot> Base;
       typedef Base::const_iterator const_iterator;
 
-      TransferFunction():_valid(false) {}
+      TransferFunction():_valid(false) 
+      {
+	for (size_t channel(0); channel < 4; ++channel)
+	  {
+	    spline[channel].setLowBC(math::Spline::FIXED_1ST_DERIV_BC, 0);
+	    spline[channel].setHighBC(math::Spline::FIXED_1ST_DERIV_BC, 0);
+	  }
+      }
       
-      void addKnot(double x, double r, double g, double b, double a)
+      void addKnot(double x, double h, double s, double v, double a)
       { 
-	push_back(Knot(x, r, g, b, a)); 
+	push_back(Knot(x, h, s, v, a)); 
 	_valid = false; 
       }
 
-      const std::vector<uint8_t>& getColorMap()
+      const std::vector<uint8_t> getIndexRGBMap(size_t samples = 256)
+      {
+	std::vector<float> floatColorMap = getFloatRGBMap(samples);
+
+	std::vector<uint8_t> colorMap;
+	colorMap.resize(4 * samples);
+
+	for (size_t i(0); i < samples; ++i)
+	  for (size_t channel(0); channel < 4; ++channel)
+	    colorMap[4 * i + channel] = clamp(255.0 * floatColorMap[4*i+channel], 
+					      0.0, 255.0);
+
+	return colorMap;
+      }
+
+      const std::vector<float> getFloatRGBMap(size_t samples = 256)
       {
 	if (!_valid) generate();
-	return _colorMap;
+
+	std::vector<float> colorMap;
+	colorMap.resize(4 * samples);
+
+	for (size_t i(0); i < samples; ++i)
+	  HSVtoRGB<float>(&(colorMap[4 * i]),
+			  spline[0](double(i) / (samples - 1)),
+			  spline[1](double(i) / (samples - 1)), 
+			  spline[2](double(i) / (samples - 1)),
+			  spline[3](double(i) / (samples - 1)));
+	
+	return colorMap;
       }
       
+      void addInterpolatedKnot(float x)
+      {
+	addKnot(x, spline[0](x), spline[1](x), spline[2](x), spline[3](x));
+      }
+
+      std::tr1::array<float,4> getValue(float x)
+      {
+	std::tr1::array<float,4> retval = {{spline[0](x), spline[1](x), spline[2](x), spline[3](x)}};
+	return retval;
+      }
+
       void setKnot(const const_iterator& it, const Knot& val)
       {
 	*(Base::begin() + (it - begin())) = val;
@@ -113,28 +158,19 @@ namespace magnet {
     protected:
       void generate()
       {
-	_colorMap.resize(4 * 256);
-
-	math::Spline spline;
-	spline.setLowBC(math::Spline::FIXED_1ST_DERIV_BC, 0);
-	spline.setHighBC(math::Spline::FIXED_1ST_DERIV_BC, 0);
-
 	for (size_t channel(0); channel < 4; ++channel)
 	  {
-	    spline.clear();
-
+	    spline[channel].clear();
+	    
 	    for (const_iterator iPtr = begin(); iPtr != end(); ++iPtr)
-	      spline.addPoint(iPtr->_x, (*iPtr)(channel));
-
-	    for (size_t i(0); i < 256; ++i)
-	      _colorMap[4 * i + channel] = clamp(255 * spline(double(i) / 255.0), 0.0, 255.0);
+	      spline[channel].addPoint(iPtr->_x, (*iPtr)(channel));
 	  }
 	
 	_valid = true;
       }
 
-      std::vector<uint8_t> _colorMap;
       bool _valid;
+      math::Spline spline[4];
     };
   }
 }

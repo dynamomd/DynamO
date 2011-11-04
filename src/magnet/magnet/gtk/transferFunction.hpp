@@ -18,10 +18,12 @@
 #pragma once
 
 #include <magnet/color/transferFunction.hpp>
+#include <magnet/color/HSV.hpp>
+#include <magnet/function/delegate.hpp>
 #include <gtkmm/drawingarea.h>
 #include <gdk/gdkkeysyms.h>
 #include <gtkmm/colorselection.h>
-#include <magnet/function/delegate.hpp>
+#include <tr1/array>
 
 namespace magnet {
   namespace gtk {
@@ -32,15 +34,25 @@ namespace magnet {
       Gdk::Color ConvertKnotToGdk(const Knot& knot)
       {
 	Gdk::Color retval;
-	retval.set_red(knot._r * G_MAXUSHORT); retval.set_green(knot._g * G_MAXUSHORT);
-	retval.set_blue(knot._b * G_MAXUSHORT); 
+	float color[4];
+	magnet::color::HSVtoRGB<float>(color,knot._h, knot._s, knot._v, knot._a);
+	retval.set_red(color[0] * G_MAXUSHORT);
+	retval.set_green(color[1] * G_MAXUSHORT);
+	retval.set_blue(color[2] * G_MAXUSHORT);
 	return retval;
       }
 
       Knot ConvertGdkToKnot(const Gdk::Color& col, const guint16 alpha, double x)
       {
-	Knot knot(x, double(col.get_red()) / G_MAXUSHORT, double(col.get_green()) / G_MAXUSHORT,
-		  double(col.get_blue()) / G_MAXUSHORT, double(alpha) / G_MAXUSHORT);
+	float color[4];
+	
+	magnet::color::RGBtoHSV(color,
+				float(col.get_red()) / G_MAXUSHORT,
+				float(col.get_green()) / G_MAXUSHORT,
+				float(col.get_blue()) / G_MAXUSHORT,
+				float(alpha) / G_MAXUSHORT);
+
+	Knot knot(x, color[0], color[1], color[2], color[3]);
 	return knot;
       }
 
@@ -53,32 +65,13 @@ namespace magnet {
 		   | ::Gdk::BUTTON_RELEASE_MASK | ::Gdk::POINTER_MOTION_MASK);
 	set_flags(::Gtk::CAN_FOCUS);
 
-	//Male head transfer function
-//	_transferFunction.addKnot(0,        0.91, 0.7, 0.61, 0.0);
-//	_transferFunction.addKnot(40.0/255, 0.91, 0.7, 0.61, 0.0);
-//	_transferFunction.addKnot(60.0/255, 0.91, 0.7, 0.61, 0.2);
-//	_transferFunction.addKnot(63.0/255, 0.91, 0.7, 0.61, 0.05);
-//	_transferFunction.addKnot(80.0/255, 0.91, 0.7, 0.61, 0.0);
-//	_transferFunction.addKnot(82.0/255, 1.0,  1.0, 0.85, 0.9);
-//	_transferFunction.addKnot(1.0,      1.0,  1.0, 0.85, 1.0);
-
-	//Bonsai transfer function
-	_transferFunction.addKnot(0, 1, 1, 1, 0.0);
-	_transferFunction.addKnot(0.563063, 1, 1, 1, 0);
-	_transferFunction.addKnot(0.487387, 1, 1, 1, 0.0176471);
-	_transferFunction.addKnot(0.525225, 0.718364, 0.337743, 0.0011902, 0.947051);
-	_transferFunction.addKnot(0.35045, 1, 1, 1, 0);
-	_transferFunction.addKnot(0.26036, 1, 1, 1, 0);
-	_transferFunction.addKnot(0.303604, 0.691081, 0.493706, 0.0336309, 1);
-	_transferFunction.addKnot(0.215315, 1, 1, 1, 0);
-	_transferFunction.addKnot(0.127027, 0.952941, 0.921569, 0.854902, 0);
-	_transferFunction.addKnot(0.15045, 0.394034, 1, 0.0628672, 0.194118);
-	_transferFunction.addKnot(0.191892, 0.52549, 0.996078, 0.262745, 0.217647);
-	_transferFunction.addKnot(0.7, 1, 1, 1, 1);
+	_transferFunction.addKnot(0.0, 1, 0, 1, 0.0);
+	_transferFunction.addKnot(0.5, 1, 0, 1, 0.5);
+	_transferFunction.addKnot(1.0, 1, 0, 1, 1.0);
       }
 
-      const std::vector<uint8_t>& getColorMap()
-      { return _transferFunction.getColorMap(); }
+      std::vector<uint8_t> getColorMap()
+      { return _transferFunction.getIndexRGBMap(); }
 
       std::vector<float>& getHistogram() { return _histogram; }
 
@@ -167,15 +160,7 @@ namespace magnet {
 		  std::pair<double, double> newPlace 
 		    = from_graph_transform(event->x - allocation.get_x(), 
 					   event->y - allocation.get_y());
-
-		  const std::vector<uint8_t>& colmap(_transferFunction.getColorMap());
-		  size_t index = 4 * size_t(255 * newPlace.first);
-		  _transferFunction.addKnot
-		    (newPlace.first, colmap[index + 0] / 255.0, 
-		     colmap[index + 1] / 255.0, 
-		     colmap[index + 2] / 255.0,
-		     newPlace.second);
-
+		  _transferFunction.addInterpolatedKnot(newPlace.first);
 		  _updatedCallback();
 		  forceRedraw();
 		}
@@ -243,7 +228,7 @@ namespace magnet {
 
 	    _transferFunction.setKnot
 	      (iPtr, magnet::color::TransferFunction::Knot
-	       (newPlace.first, iPtr->_r, iPtr->_g, iPtr->_b, newPlace.second));
+	       (newPlace.first, iPtr->_h, iPtr->_s, iPtr->_v, newPlace.second));
 	
 	    forceRedraw();
 	    _updatedCallback();
@@ -319,17 +304,19 @@ namespace magnet {
 	    cr->save();
 	    {
 	      //First build the gradient 
-	      const std::vector<uint8_t>& colmap(_transferFunction.getColorMap());
 	      Cairo::RefPtr<Cairo::LinearGradient> grad
 		= Cairo::LinearGradient::create(0.5 * getPointSize(), 0,
 						allocation.get_width() 
 						- 0.5 * getPointSize(), 0);
 	      for (size_t i(1); i < 256; ++i)
-		grad->add_color_stop_rgba(i / 255.0, 
-					  colmap[4 * i + 0] / 255.0,
-					  colmap[4 * i + 1] / 255.0,
-					  colmap[4 * i + 2] / 255.0,
-					  colmap[4 * i + 3] / 255.0);
+		{
+		  std::tr1::array<float,4> val = _transferFunction.getValue(i / 255.0);
+		  
+		  float color[4];
+		  magnet::color::HSVtoRGB(color, val[0], val[1], val[2], val[3]);
+
+		  grad->add_color_stop_rgba(i / 255.0, color[0], color[1], color[2], color[3]);
+		}
 	      
 	      cr->set_source(grad);
 	      graph_rectangle(cr, 0, 0, 1, 1);
@@ -359,13 +346,12 @@ namespace magnet {
 	    { //draw the curve of the graph
 	      cr->set_source_rgba(0, 0, 0, 1);
 	      cr->set_line_width(5 * _grid_line_width);
-	      const std::vector<uint8_t>& colmap(_transferFunction.getColorMap());
 
 	      //Initial point
-	      graph_move_to(cr, 0, colmap[3] / 255.0);
-
+	      graph_move_to(cr, 0, _transferFunction.getValue(0)[3]);
+	      
 	      for (size_t i(1); i < 256; ++i)
-		graph_line_to(cr, i / 255.0, colmap[4 * i + 3] / 255.0);
+		graph_line_to(cr, i / 255.0, magnet::clamp(_transferFunction.getValue(i / 255.0)[3], 0.0f, 1.0f));
 	  
 	      cr->stroke();
 	    }
@@ -384,6 +370,7 @@ namespace magnet {
 	    
 	    { // draw the nodes of the graph
 	      typedef magnet::color::TransferFunction::const_iterator it;
+
 	      for (it iPtr = _transferFunction.begin(); iPtr != _transferFunction.end(); ++iPtr)
 		{
 		  cr->set_source_rgba(0, 0, 0, 1);
@@ -391,7 +378,11 @@ namespace magnet {
 		  const std::pair<double, double>& pos(to_graph_transform(iPtr->_x, iPtr->_a));
 		  cr->arc(pos.first, pos.second,  getPointSize() / 2, 0, 2 * M_PI);
 
-		  cr->set_source_rgba(iPtr->_r, iPtr->_g, iPtr->_b, 1);    
+		  float color[4];
+		  magnet::color::HSVtoRGB<float>(color, iPtr->_h, iPtr->_s, iPtr->_v, 1);
+
+
+		  cr->set_source_rgba(color[0], color[1], color[2], 1.0);
 		  cr->fill_preserve();
 
 		  if (iPtr - _transferFunction.begin() == _selectedNode)

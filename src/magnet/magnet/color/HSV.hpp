@@ -23,22 +23,64 @@
 
 namespace magnet {
   namespace color {
-    inline void HSVtoRGB(GLfloat color[4], GLfloat h, GLfloat s = 1, GLfloat v = 1) 
+    template<class T>
+    inline void RGBtoHSV(T color[4], T r, T g = 1, T b = 1, T alpha = 1) 
     {
-      GLfloat temp;
+      T min = std::min(r, std::min(g, b));
+      T max = std::max(r, std::max(g, b));
+
+      color[0] = 0; //h
+      color[1] = 0; //s
+      color[2] = max; //v
+      color[3] = alpha; //a
+
+      if (max == 0) return; //Early exit
+
+      r /= max;
+      g /= max;
+      b /= max;
+      min /= max;
+      max = 1;
+
+      T delta = max - min;
+      color[1] = delta; //s
+
+      if (delta == 0)
+	return;
+
+      r = (r - min) / delta;
+      g = (g - min) / delta;
+      b = (b - min) / delta;
+      min = 0; max = 1;
+
+      if ((r > g) && (r > b))
+	color[0] = (g - b) / 6.0;
+      else if ((g > r) && (g > b))
+	color[0] = (1.0/3.0) + (b - r) / 6.0;
+      else
+	color[0] = (2.0/3.0) + (r - g) / 6.0;
+
+      color[0] += (color[0] < 0);
+    }
+
+
+    template<class T>
+    inline void HSVtoRGB(T color[4], T h, T s = 1, T v = 1, T alpha = 1) 
+    {
+      T temp;
       h = std::modf(clamp(h,0.0f, 1.0f), &temp) * 6;
       s = clamp(s, 0.0f, 1.0f);
       v = clamp(v, 0.0f, 1.0f);
       
       unsigned int i = h;
-      GLfloat f = h - i;
-      GLfloat p = v * (1 - s);
-      GLfloat q = v * (1 - s * f);
-      GLfloat t = v * (1 - s * (1 - f));
+      T f = h - i;
+      T p = v * (1 - s);
+      T q = v * (1 - s * f);
+      T t = v * (1 - s * (1 - f));
       
-      GLfloat& r = color[0];
-      GLfloat& g = color[1];
-      GLfloat& b = color[2];
+      T& r = color[0];
+      T& g = color[1];
+      T& b = color[2];
       r = g = b = 0;
 
       switch(i) {
@@ -78,7 +120,7 @@ namespace magnet {
 	b = q;
 	break;
       }
-      color[3] = 1;
+      color[3] = alpha;
     }
 
     inline void HSVtoRGB(cl_uchar4& color, float h, float s = 1, float v = 1)
