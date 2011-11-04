@@ -64,6 +64,7 @@ namespace coil {
 
     magnet::GL::Texture3D _data;
     magnet::GL::Texture1D _transferFuncTexture;
+    magnet::GL::Texture1D _preintTransferFuncTexture;
 
     //GTK gui stuff
     std::auto_ptr<Gtk::VBox> _optList;

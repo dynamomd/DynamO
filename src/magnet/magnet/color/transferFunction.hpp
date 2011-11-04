@@ -118,6 +118,37 @@ namespace magnet {
 	return colorMap;
       }
       
+      /*! \brief Calculate the pre-integrated color map.
+       */
+      std::vector<float> getPreIntegratedMapping(size_t samples = 256)
+      {
+	if (!_valid) generate();
+
+	std::vector<float> colorMap = getFloatRGBMap(samples);
+	std::vector<float> integral;
+	integral.resize(4 * samples);
+
+	//Initial value
+	for (size_t c(0); c < 4; ++c)
+	  integral[4 * 0 + c] = colorMap[4 * 0 + c];
+
+	for (size_t i(1); i < samples; ++i)
+	  {
+	    for (size_t c(0); c < 3; ++c)
+	      integral[4 * i + c] = integral[4 * (i - 1) + c] 
+		+ colorMap[4 * i + c] * colorMap[4 * i + 3];
+
+	    integral[4 * i + 3] = integral[4 * (i - 1) + 3] + colorMap[4 * i + 3];
+	  }
+
+	//Normalization
+	for (size_t i(0); i < samples; ++i)
+	  for (size_t c(0); c < 4; ++c)
+	    integral[4 * i + c] /= samples;
+
+	return integral;
+      }
+
       void addInterpolatedKnot(float x)
       {
 	addKnot(x, spline[0](x), spline[1](x), spline[2](x), spline[3](x));

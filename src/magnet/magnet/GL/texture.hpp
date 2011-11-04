@@ -231,6 +231,29 @@ namespace magnet {
 			pixelformat, safeType(_internalFormat), &data[0]);
       }
 
+      /*! \brief Fills a section of the texture with the passed data
+       *
+       * \param data The pixel data to fill the texture with.
+       * \param pixelformat The format of the pixel data.
+       * \param xoffset The starting x position of the texture to write to.
+       * \param width The amount of pixels to write.
+       * \param level The texture mipmap level to write to.
+       */
+      inline void subImage(const std::vector<GLfloat>& data, GLenum pixelformat,
+			   GLint xoffset = 0, GLint width = -1, GLint level = 0)
+      { 
+	//If there are negative values, assume they mean to use the
+	//full space
+	if (width  < 0) width  = _width;
+	if (xoffset < 0) M_throw() << "x offset is negative";
+	if (xoffset + width > _width) M_throw() << "Texture write x overrun";
+
+	bind(0);
+	glTexSubImage1D(_texType, level, xoffset, width,
+			pixelformat, GL_FLOAT, &data[0]);
+      }
+
+
       inline const GLint& getWidth() const { return _width; }
     private:
       
@@ -315,6 +338,35 @@ namespace magnet {
 	glTexSubImage2D(_texType, level, xoffset, yoffset, width, height,
 			pixelformat, safeType(_internalFormat), &data[0]);
       }
+
+      /*! \brief Fills a section of the texture with the passed data
+       *
+       * \param data The pixel data to fill the texture with.
+       * \param pixelformat The format of the pixel data.
+       * \param xoffset The starting x position of the texture to write to.
+       * \param yoffset The starting y position of the texture to write to.
+       * \param width The amount of pixels to write in the x direction.
+       * \param height The amount of pixels to write in the y direction.
+       * \param level The texture mipmap level to write to.
+       */
+      inline void subImage(const std::vector<GLfloat>& data, GLenum pixelformat,
+			   GLint xoffset = 0, GLint yoffset = 0, GLint width = -1, 
+			   GLint height = -1, GLint level = 0)
+      { 
+	//If there are negative values, assume they mean to use the
+	//full space
+	if (width  < 0) width  = _width;
+	if (height  < 0) height  = _height;
+	if (xoffset < 0) M_throw() << "x offset is negative";
+	if (yoffset < 0) M_throw() << "y offset is negative";
+	if (xoffset + width > _width) M_throw() << "Texture write x overrun";
+	if (yoffset + height > _height) M_throw() << "Texture write y overrun";
+
+	bind(0);
+	glTexSubImage2D(_texType, level, xoffset, yoffset, width, height,
+			pixelformat, GL_FLOAT, &data[0]);
+      }
+
 
       inline void subImage(const uint8_t* data, GLenum pixelformat, GLint width, 
 			   GLint height, GLint xoffset = 0, GLint yoffset = 0, GLint level = 0)

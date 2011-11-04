@@ -50,8 +50,6 @@ project	: requirements
           <toolset>clang:<cflags>-Wno-mismatched-tags
           <toolset>clang:<cflags>-Wno-ambiguous-member-template
 	  <variant>release:<define>NDEBUG
-          #This creates a feature coil-integration, which can be set
-          #on the command line or auto-detected using the passed target
 	: default-build release
 	: build-dir $(BUILD_DIR_PATH)
 	;

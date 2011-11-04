@@ -73,6 +73,9 @@ namespace magnet {
       std::vector<uint8_t> getColorMap()
       { return _transferFunction.getIndexRGBMap(); }
 
+      std::vector<float> getPreIntegratedMapping()
+      { return _transferFunction.getPreIntegratedMapping(); }
+
       std::vector<float>& getHistogram() { return _histogram; }
 
       virtual ~TransferFunction() {}

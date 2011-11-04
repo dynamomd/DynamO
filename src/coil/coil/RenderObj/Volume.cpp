@@ -41,6 +41,7 @@ namespace coil {
     _shader.build();
     _cube.init();
     _transferFuncTexture.init(256);
+    _preintTransferFuncTexture.init(256, GL_RGBA32F);
 
     //Resize the copy FBO
     _currentDepthFBO.init();
@@ -200,6 +201,7 @@ namespace coil {
     _currentDepthFBO.getDepthTexture()->bind(0);
     _data.bind(1);
     _transferFuncTexture.bind(2);
+    _preintTransferFuncTexture.bind(3);
 
     _shader.attach();
     _shader["ProjectionMatrix"] = camera.getProjectionMatrix();
@@ -217,6 +219,7 @@ namespace coil {
     _shader["SpecularLighting"] = GLfloat(_specularLighting->get_value());
     _shader["DitherRay"] = GLfloat(_ditherRay->get_value());
     _shader["TransferTexture"] = 2;
+    _shader["IntTransferTexture"] = 2;
     _shader["LightPosition"] = Vector(-2,-2,-2);
     
     glEnable(GL_CULL_FACE);
@@ -237,7 +240,14 @@ namespace coil {
   RVolume::transferFunctionUpdated()
   {
     if (_transferFunction.get() != NULL)
-      _transferFuncTexture.subImage(_transferFunction->getColorMap(), GL_RGBA);
+      {
+	_transferFuncTexture.subImage(_transferFunction->getColorMap(), GL_RGBA);
+	
+	std::vector<float> data = _transferFunction->getPreIntegratedMapping();
+	std::vector<GLfloat> GLdata = data;
+
+	_preintTransferFuncTexture.subImage(GLdata, GL_RGBA);
+      }
   }
   
   void

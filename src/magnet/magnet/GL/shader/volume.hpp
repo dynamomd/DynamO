@@ -68,6 +68,7 @@ uniform vec3 RayOrigin;
 //The light's position in model space (untransformed)
 uniform vec3 LightPosition;
 uniform sampler1D TransferTexture;
+uniform sampler1D IntTransferTexture;
 uniform sampler2D DepthTexture;
 uniform sampler3D DataTexture;
 uniform float StepSize;
@@ -158,9 +159,18 @@ void main()
   
   //We store the last valid normal, incase we hit a homogeneous region
   //and need to reuse it, but at the start we have no normal
-  vec3 lastnorm = vec3(0,0,0); 
+  vec4 lastsample = texture(DataTexture, (rayPos + 1.0) * 0.5);
+  vec4 lastTransfer = texture(IntTransferTexture, lastsample.a);
+
+  vec3 lastnorm = lastsample.xyz * 2.0 - 1.0; 
+  { 
+    float l = length(lastnorm);
+    lastnorm /=  l + float(l < 0.01);
+  }
   
-  for (float length = tfar - tnear; length > 0.0; 
+  rayPos.xyz += rayDirection * StepSize;
+  
+  for (float length = tfar - tnear - StepSize; length > 0.0; 
        length -= StepSize, rayPos.xyz += rayDirection * StepSize)
     {
       //Grab the volume sample
@@ -174,39 +184,43 @@ void main()
       lastnorm = norm; 
   
       //Calculate the color of the voxel using the transfer function
-      vec4 src = texture(TransferTexture, sample.a);
+      vec4 transfer = texture(IntTransferTexture, sample.a);
       
-      //This corrects the transparency change caused by changing step
-      //size. All alphas are defined for a certain base step size
-      src.a = 1.0 - pow((1.0 - src.a), StepSize / baseStepSize);
+      /*Pre-Integrated color calc*/
+      vec4 src = vec4(StepSize * (transfer.rgb - lastTransfer.rgb)
+		      / (sample.a - lastsample.a),
+		      1 - exp(- StepSize * (transfer.a - lastTransfer.a)));
+
+      lastsample = sample; lastTransfer = transfer;
+
   
-      ////////////Lighting calculations
-      //We perform all the calculations in the model (untransformed)
-      //space.
-      vec3 lightDir = normalize(LightPosition - rayPos);
-      float lightNormDot = dot(normalize(norm), lightDir);
-      
-      //Diffuse lighting
-      float diffTerm =  max(0.5 * lightNormDot + 0.5, 0.5);
-      //Quadratic falloff of the diffusive term
-      diffTerm *= diffTerm;
-  
-      //We either use diffusive lighting plus an ambient, or if its
-      //disabled (DiffusiveLighting = 0), we just use the original
-      //color.
-      vec3 ambient = vec3(0.1,0.1,0.1);
-      src.rgb *= DiffusiveLighting * (diffTerm + ambient) + (1.0 - DiffusiveLighting);
-      
-      //Specular lighting term
-      //This is enabled if (SpecularLighting == 1)
-      vec3 ReflectedRay = reflect(lightDir, norm);
-      src.rgb += SpecularLighting
-  	* float(lightNormDot > 0) //Test to ensure that specular is only
-  	//applied to front facing voxels
-  	* vec3(1.0,1.0,1.0) * pow(max(dot(ReflectedRay, rayDirection), 0.0), 96.0);
+//      ////////////Lighting calculations
+//      //We perform all the calculations in the model (untransformed)
+//      //space.
+//      vec3 lightDir = normalize(LightPosition - rayPos);
+//      float lightNormDot = dot(normalize(norm), lightDir);
+//      
+//      //Diffuse lighting
+//      float diffTerm =  max(0.5 * lightNormDot + 0.5, 0.5);
+//      //Quadratic falloff of the diffusive term
+//      diffTerm *= diffTerm;
+//  
+//      //We either use diffusive lighting plus an ambient, or if its
+//      //disabled (DiffusiveLighting = 0), we just use the original
+//      //color.
+//      vec3 ambient = vec3(0.1,0.1,0.1);
+//      src.rgb *= DiffusiveLighting * (diffTerm + ambient) + (1.0 - DiffusiveLighting);
+//      
+//      //Specular lighting term
+//      //This is enabled if (SpecularLighting == 1)
+//      vec3 ReflectedRay = reflect(lightDir, norm);
+//      src.rgb += SpecularLighting
+//  	* float(lightNormDot > 0) //Test to ensure that specular is only
+//  	//applied to front facing voxels
+//  	* vec3(1.0,1.0,1.0) * pow(max(dot(ReflectedRay, rayDirection), 0.0), 96.0);
       
       ///////////Front to back blending
-      src.rgb *= src.a;
+      //src.rgb *= src.a;
       color = (1.0 - color.a) * src + color;
   
       //We only accumulate up to 0.95 alpha (the front to back
