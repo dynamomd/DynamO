@@ -20,18 +20,19 @@
 
 namespace magnet {
   namespace overlap {
-    //! \brief A point-triangle overlap test.
-    //!
-    //! This function assumes the point passed lies somewhere in the
-    //! plane of the triangle and is defined relative to the first
-    //! vertex of the triangle (V0).
-    //!
-    //! See http://softsurfer.com/Archive/algorithm_0105/algorithm_0105.htm
-    //!
-    //! \param P The point's position, relative to V0.
-    //! \param E1 The first edge vector of the triangle (V1-V0).
-    //! \param E2 The second edge vector of the triangle (V2-V0).
-    //! \return Whether the point is inside the triangle.
+    /*! \brief A point-triangle overlap test.
+    
+      This function assumes the point passed lies somewhere in the
+      plane of the triangle and is defined relative to the first
+      vertex of the triangle (V0).
+    
+      See http://softsurfer.com/Archive/algorithm_0105/algorithm_0105.htm
+    
+      \param P The point's position, relative to V0.
+      \param E1 The first edge vector of the triangle (V1-V0).
+      \param E2 The second edge vector of the triangle (V2-V0).
+      \return Whether the point is inside the triangle.
+    */
     inline bool point_triangle(const math::Vector& P, 
 			       const math::Vector& E1, 
 			       const math::Vector& E2)

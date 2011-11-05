@@ -44,7 +44,6 @@
 **** TODO Remove the cached particle data used in the collision detection. Migrate to the magnet libraries collision detection functions.
 **** TODO Auto detect the ensemble, users shouldn't have to specify it.
 **** TODO Make the viewing grid have a scalable box size.
-**** TODO Fix the light position calculation in the Volume renderer
 **** TODO Alter the functions in dynamics that add/get/set objects and take/return a pointer to return shared_ptr's (search for uses of shared_ptr's get() function).
 **** TODO Alter the change system functions to take sharedptrs.
 **** TODO Change the loadClass XML functions to return shared_ptr's.
@@ -53,7 +52,6 @@
 **** TODO Make the complex scheduler the default scheduler!
 **** TODO Make coil scale independent.
 **** TODO Make compression work with polydisperse walls.
-**** TODO Move the dynamo overlap functions into magnet.
 **** TODO Rewrite the range classes.
 **** TODO Move the minmax heap into magnet.
 **** TODO Work on Sebastians project.

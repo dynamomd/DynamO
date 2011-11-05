@@ -971,7 +971,7 @@ namespace coil {
 	   = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       if ((*iPtr)->visible())
-	(*iPtr)->forwardRender(fbo, camera, RenderObj::DEFAULT);
+	(*iPtr)->forwardRender(fbo, camera, _light0, RenderObj::DEFAULT);
     
     fbo.detach();
     //////////////////////FILTERING////////////

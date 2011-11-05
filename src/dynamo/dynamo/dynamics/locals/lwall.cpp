@@ -19,9 +19,9 @@
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <dynamo/dynamics/locals/localEvent.hpp>
 #include <dynamo/dynamics/NparticleEventData.hpp>
-#include <dynamo/dynamics/overlapFunc/CubePlane.hpp>
 #include <dynamo/dynamics/units/units.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
+#include <magnet/overlap/cube_plane.hpp>
 
 namespace dynamo {
   LWall::LWall(const magnet::xml::Node& XML, dynamo::SimData* tmp):
@@ -70,7 +70,8 @@ namespace dynamo {
 
     Vector data(max_int_dist, max_int_dist, max_int_dist);
 
-    return dynamo::OverlapFunctions::CubePlane(Origin - 0.5 * data, CellDim + data, vPosition, vNorm);
+    return magnet::overlap::cube_plane(Origin - 0.5 * data, CellDim + data, 
+				       vPosition, vNorm);
   }
 
   void 

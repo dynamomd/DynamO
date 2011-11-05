@@ -196,7 +196,10 @@ namespace coil {
   }
   
   void 
-  RVolume::forwardRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& camera, RenderMode mode)
+  RVolume::forwardRender(magnet::GL::FBO& fbo,
+			 const magnet::GL::Camera& camera,
+			 const magnet::GL::Light& light,
+			 RenderMode mode)
   {
     if (!_visible || !_data.isValid()) return;
 
@@ -229,7 +232,7 @@ namespace coil {
     _shader["DitherRay"] = GLfloat(_ditherRay->get_value());
     _shader["TransferTexture"] = 2;
     _shader["IntTransferTexture"] = 3;
-    _shader["LightPosition"] = Vector(0,3,0);
+    _shader["LightPosition"] = light.getEyeLocationObjSpace();
     
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
@@ -354,42 +357,3 @@ namespace coil {
     _stepSizeVal = boost::lexical_cast<double>(val);
   }
 }
-
-//////////////////SOME OLD CODE THAT MIGHT BE USEFUL
-//      //Gaussian blur the system
-//      const double weights[5] = {0.0544886845,0.244201342,0.4026199469,0.244201342,0.0544886845};
-//
-//      for (size_t component(0); component < 3; ++component)
-//	for (GLint z(0); z < _depth; ++z)
-//	  for (GLint y(0); y < _height; ++y)
-//	    for (GLint x(0); x < _width; ++x)
-//	      {
-//		double sum(0);
-//		for (int i(0); i < 5; ++i)
-//		  {
-//		    GLint pos[3] = {x,y,z};
-//		    pos[component] += i - 2;
-//		    sum += weights[i] 
-//		      * voldata[4 * detail::coordCalc(pos[0], pos[1], pos[2], 
-//						      _width, _height, _depth) + component];
-//		  }
-//		voldata[4 * detail::coordCalc(x, y, z, _width, _height, _depth) 
-//			+ component] = sum;
-//	      }
-//      
-//      //Renormalize the gradients
-//      for (GLint z(0); z < _depth; ++z)
-//	for (GLint y(0); y < _height; ++y)
-//	  for (GLint x(0); x < _width; ++x)
-//	    {
-//	      std::vector<GLubyte>::iterator iPtr = voldata.begin()
-//		+ 4 * detail::coordCalc(x, y, z, _width, _height, _depth);
-//	      
-//	      Vector grad(*(iPtr + 0) - 128.0, *(iPtr + 1) - 128.0, *(iPtr + 2) - 128.0);
-//	      float nrm = grad.nrm();
-//	      if (nrm > 0) grad /= nrm;
-//
-//	      *(iPtr + 0) = uint8_t((grad[0] * 0.5 + 0.5) * 255);
-//	      *(iPtr + 1) = uint8_t((grad[1] * 0.5 + 0.5) * 255);
-//	      *(iPtr + 2) = uint8_t((grad[2] * 0.5 + 0.5) * 255);
-//	    }

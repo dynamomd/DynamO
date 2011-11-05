@@ -19,6 +19,7 @@
 #include <magnet/GL/context.hpp>
 #include <magnet/thread/taskQueue.hpp>
 #include <magnet/GL/camera.hpp>
+#include <magnet/GL/light.hpp>
 #include <magnet/GL/FBO.hpp>
 #include <tr1/memory>
 
@@ -102,7 +103,10 @@ namespace coil {
 	
 	\param cam The active camera for the render.
      */
-    virtual void forwardRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode) 
+    virtual void forwardRender(magnet::GL::FBO& fbo, 
+			       const magnet::GL::Camera& cam,
+			       const magnet::GL::Light& light,
+			       RenderMode mode) 
     {}
 
     /*! \brief Called when the RenderObject should draw its 2D interface controls.

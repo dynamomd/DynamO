@@ -20,7 +20,6 @@
 #include <dynamo/dynamics/liouvillean/NewtonL.hpp>
 #include <dynamo/dynamics/locals/localEvent.hpp>
 #include <dynamo/dynamics/NparticleEventData.hpp>
-#include <dynamo/dynamics/overlapFunc/CubePlane.hpp>
 #include <dynamo/dynamics/units/units.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 

@@ -19,9 +19,9 @@
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <dynamo/dynamics/locals/localEvent.hpp>
 #include <dynamo/dynamics/NparticleEventData.hpp>
-#include <dynamo/dynamics/overlapFunc/CubePlane.hpp>
 #include <dynamo/dynamics/units/units.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
+#include <magnet/overlap/cube_plane.hpp>
 
 namespace dynamo {
   CLDblWall::CLDblWall(dynamo::SimData* nSim, double ne, Vector  nnorm, 
@@ -93,8 +93,7 @@ namespace dynamo {
   bool 
   CLDblWall::isInCell(const Vector & Origin, const Vector& CellDim) const
   {
-    return dynamo::OverlapFunctions::CubePlane
-      (Origin, CellDim, vPosition, vNorm);
+    return magnet::overlap::cube_plane(Origin, CellDim, vPosition, vNorm);
   }
 
   void 
