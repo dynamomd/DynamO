@@ -40,10 +40,17 @@ namespace coil {
     RenderObj::init(systemQueue);
     _shader.build();
     _cube.init();
-    _transferFuncTexture.init(256);
+    _transferFuncTexture.init(256, GL_RGBA16F);
+    _transferFuncTexture.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    _transferFuncTexture.parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    _transferFuncTexture.parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    _transferFuncTexture.parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
     _preintTransferFuncTexture.init(256, GL_RGBA16F);
     _preintTransferFuncTexture.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     _preintTransferFuncTexture.parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    _preintTransferFuncTexture.parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    _preintTransferFuncTexture.parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     //Resize the copy FBO
     _currentDepthFBO.init();
@@ -221,7 +228,7 @@ namespace coil {
     _shader["SpecularLighting"] = GLfloat(_specularLighting->get_value());
     _shader["DitherRay"] = GLfloat(_ditherRay->get_value());
     _shader["TransferTexture"] = 2;
-    _shader["IntTransferTexture"] = 2;
+    _shader["IntTransferTexture"] = 3;
     _shader["LightPosition"] = Vector(-2,-2,-2);
     
     glEnable(GL_CULL_FACE);
@@ -243,11 +250,15 @@ namespace coil {
   {
     if (_transferFunction.get() != NULL)
       {
-	_transferFuncTexture.subImage(_transferFunction->getColorMap(), GL_RGBA);
+	size_t samples = 256;
+	float transmittanceFactor = 1000;
 
-	std::vector<float> data = _transferFunction->getPreIntegratedMapping();
+	std::vector<float> data = _transferFunction->getMap(samples, transmittanceFactor);
 	std::vector<GLfloat> GLdata = data;
-
+	_transferFuncTexture.subImage(GLdata, GL_RGBA);
+	
+	data = _transferFunction->getPreIntegratedMap(samples, transmittanceFactor);
+	GLdata = data;
 	_preintTransferFuncTexture.subImage(GLdata, GL_RGBA);
       }
   }

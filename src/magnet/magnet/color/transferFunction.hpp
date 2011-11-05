@@ -86,22 +86,7 @@ namespace magnet {
 	_valid = false; 
       }
 
-      const std::vector<uint8_t> getIndexRGBMap(size_t samples = 256)
-      {
-	std::vector<float> floatColorMap = getFloatRGBMap(samples);
-
-	std::vector<uint8_t> colorMap;
-	colorMap.resize(4 * samples);
-
-	for (size_t i(0); i < samples; ++i)
-	  for (size_t channel(0); channel < 4; ++channel)
-	    colorMap[4 * i + channel] = clamp(255.0 * floatColorMap[4*i+channel], 
-					      0.0, 255.0);
-
-	return colorMap;
-      }
-
-      const std::vector<float> getFloatRGBMap(size_t samples = 256, float transmittanceScale = 10000)
+      const std::vector<float> getMap(size_t samples, float transmittanceScale)
       {
 	if (!_valid) generate();
 
@@ -128,11 +113,11 @@ namespace magnet {
       
       /*! \brief Calculate the pre-integrated color map.
        */
-      std::vector<float> getPreIntegratedMapping(size_t samples = 256, float transmittanceScale = 10000)
+      std::vector<float> getPreIntegratedMap(size_t samples, float transmittanceScale)
       {
 	if (!_valid) generate();
 
-	std::vector<float> colorMap = getFloatRGBMap(samples, transmittanceScale);
+	std::vector<float> colorMap = getMap(samples, transmittanceScale);
 	std::vector<float> integral;
 	integral.resize(4 * samples);
 
@@ -152,7 +137,7 @@ namespace magnet {
 	//Normalization
 	for (size_t i(0); i < samples; ++i)
 	  for (size_t c(0); c < 4; ++c)
-	    integral[4 * i + c] /= samples;
+	    integral[4 * i + c] /= (samples-1);
 
 	return integral;
       }

@@ -70,11 +70,11 @@ namespace magnet {
 	_transferFunction.addKnot(1.0, 1, 1, 1, 1.0);
       }
 
-      std::vector<uint8_t> getColorMap()
-      { return _transferFunction.getIndexRGBMap(); }
+      std::vector<float> getMap(size_t samples, float transmittancefactor)
+      { return _transferFunction.getMap(samples, transmittancefactor); }
 
-      std::vector<float> getPreIntegratedMapping()
-      { return _transferFunction.getPreIntegratedMapping(); }
+      std::vector<float> getPreIntegratedMap(size_t samples, float transmittancefactor)
+      { return _transferFunction.getPreIntegratedMap(samples, transmittancefactor); }
 
       std::vector<float>& getHistogram() { return _histogram; }
 

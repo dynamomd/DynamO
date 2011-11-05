@@ -157,81 +157,73 @@ void main()
   //The color accumulation variable
   vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
   
-  //We store the last valid normal, incase we hit a homogeneous region
-  //and need to reuse it, but at the start we have no normal
-  vec4 lastsample = texture(DataTexture, (rayPos + 1.0) * 0.5);
-  vec4 lastTransfer = texture(IntTransferTexture, lastsample.a);
-
-//  vec3 lastnorm = lastsample.xyz * 2.0 - 1.0; 
-//  { 
-//    float l = length(lastnorm);
-//    lastnorm /=  l + float(l < 0.01);
-//  }
+  //Start the sampling by initialising the ray variables
+  float lastsamplea = 0.0;
+  vec4 lastTransfer = texture(IntTransferTexture, lastsamplea);
+  vec3 lastnorm = vec3(0.0, 0.0, 0.0); 
   
-  rayPos.xyz += rayDirection * StepSize;
-  
-  for (float length = tfar - tnear - StepSize; length > 0.0; 
+  for (float length = tfar - tnear; length > 0.0; 
        length -= StepSize, rayPos.xyz += rayDirection * StepSize)
     {
       //Grab the volume sample
       vec4 sample = texture(DataTexture, (rayPos + 1.0) * 0.5);
   
 //      //Sort out the normal data
-//      vec3 norm = sample.xyz * 2.0 - 1.0;
-//      //Test if we've got a bad normal and need to reuse the old one
-//      if (dot(norm,norm) < 0.5) norm = lastnorm; 
-//      //Store the current normal
-//      lastnorm = norm; 
+      vec3 norm = sample.xyz * 2.0 - 1.0;
+      //Test if we've got a bad normal and need to reuse the old one
+      if (dot(norm,norm) < 0.2) norm = lastnorm; 
+      //Store the current normal
+      lastnorm = norm;
       
-      vec4 src;
-      float delta = sample.a - lastsample.a;
+      vec4 src = vec4(0.0, 0.0, 0.0, 0.0);
+      float delta = sample.a - lastsamplea;
       vec4 transfer = texture(IntTransferTexture, sample.a);
+      float deltaT = transfer.a - lastTransfer.a;
+      vec3 deltaK = transfer.rgb - lastTransfer.rgb;
 
-      //if (delta == 0)
+      if (delta == 0.0)
 	{ //Special case where the integration breaks down, just use the constant val.
 	  src = texture(TransferTexture, sample.a);
 	  src.a = (1.0 - exp( - StepSize * src.a));
-
-	  src.rgb *= src.a;
 	}
-//      else
-//	{
-//	  /*Pre-Integrated color calc*/
-//	  float weight = StepSize / (sample.a - lastsample.a);
-//	  
-//	  vec4 src = vec4(weight * (transfer.rgb - lastTransfer.rgb),
-//			  1.0 - exp(-(transfer.a - lastTransfer.a) * weight));	  
-//	}
+      else
+	{
+	  /*Pre-Integrated color calc*/
+	  float opacity = 1.0 - exp( - deltaT * StepSize / delta);	  
+	  vec3 color = abs(deltaK) / (abs(deltaT) + 1.0e-10);
+	  src = vec4(color, opacity);
+	}
 
       lastTransfer = transfer;
-      lastsample = sample;
+      lastsamplea = sample.a;
 
-//      ////////////Lighting calculations
-//      //We perform all the calculations in the model (untransformed)
-//      //space.
-//      vec3 lightDir = normalize(LightPosition - rayPos);
-//      float lightNormDot = dot(normalize(norm), lightDir);
-//      
-//      //Diffuse lighting
-//      float diffTerm =  max(0.5 * lightNormDot + 0.5, 0.5);
-//      //Quadratic falloff of the diffusive term
-//      diffTerm *= diffTerm;
-//  
-//      //We either use diffusive lighting plus an ambient, or if its
-//      //disabled (DiffusiveLighting = 0), we just use the original
-//      //color.
-//      vec3 ambient = vec3(0.1,0.1,0.1);
-//      src.rgb *= DiffusiveLighting * (diffTerm + ambient) + (1.0 - DiffusiveLighting);
-//      
-//      //Specular lighting term
-//      //This is enabled if (SpecularLighting == 1)
-//      vec3 ReflectedRay = reflect(lightDir, norm);
-//      src.rgb += SpecularLighting
-//  	* float(lightNormDot > 0) //Test to ensure that specular is only
-//  	//applied to front facing voxels
-//  	* vec3(1.0,1.0,1.0) * pow(max(dot(ReflectedRay, rayDirection), 0.0), 96.0);
+      ////////////Lighting calculations
+      //We perform all the calculations in the model (untransformed)
+      //space.
+      vec3 lightDir = normalize(LightPosition - rayPos);
+      float lightNormDot = dot(normalize(norm), lightDir);
+      
+      //Diffuse lighting
+      float diffTerm =  max(0.5 * lightNormDot + 0.5, 0.5);
+      //Quadratic falloff of the diffusive term
+      diffTerm *= diffTerm;
+  
+      //We either use diffusive lighting plus an ambient, or if its
+      //disabled (DiffusiveLighting = 0), we just use the original
+      //color.
+      vec3 ambient = vec3(0.1,0.1,0.1);
+      src.rgb *= DiffusiveLighting * (diffTerm + ambient) + (1.0 - DiffusiveLighting);
+      
+      //Specular lighting term
+      //This is enabled if (SpecularLighting == 1)
+      vec3 ReflectedRay = reflect(lightDir, norm);
+      src.rgb += SpecularLighting
+  	* float(lightNormDot > 0) //Test to ensure that specular is only
+  	//applied to front facing voxels
+  	* vec3(1.0,1.0,1.0) * pow(max(dot(ReflectedRay, rayDirection), 0.0), 96.0);
       
       ///////////Front to back blending
+      src.rgb *= src.a;
       color = (1.0 - color.a) * src + color;
   
       //We only accumulate up to 0.95 alpha (the blending never
@@ -260,7 +252,7 @@ void main()
   So the final color of the ray is half way between white and black, but the voxel it hit was white!
   The solution is to divide by the alpha, as this is the "amount of color" added to color.
   */
-  color.rgb /= float(color.a == 0.0) +  color.a;
+  color.rgb /= float(color.a == 0.0) + color.a;
   color_out = color;
 });
 	}
