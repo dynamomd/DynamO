@@ -127,7 +127,7 @@ struct SimData
 
     //Now navigate to the histogram and load the data
     std::istringstream HistogramData
-      (std::string(mainNode.getNode("EnergyHist").getNode("WeightHistogram")));
+      (std::string(mainNode.getNode("EnergyHist").getNode("HistogramWeighted")));
     //Load the histogram data from string to array
     histogramEntry tmpData;
     while (HistogramData >> tmpData.X[0])

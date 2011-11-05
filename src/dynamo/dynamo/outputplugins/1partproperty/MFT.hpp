@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/outputplugins/1partproperty/1partproperty.hpp>
-#include <dynamo/datatypes/histogram.hpp>
+#include <magnet/math/histogram.hpp>
 #include <boost/circular_buffer.hpp>
 #include <vector>
 
@@ -48,6 +48,6 @@ namespace dynamo {
     std::vector<boost::circular_buffer<double> > lastTime;
 
     //! A histogram for each species
-    std::vector<std::vector<C1DHistogram> > data;
+    std::vector<std::vector<magnet::math::Histogram> > data;
   };
 }

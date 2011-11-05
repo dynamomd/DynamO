@@ -31,7 +31,7 @@ namespace dynamo {
   OPChainBondAngles::Cdata::Cdata(size_t ID, size_t CL, double bw):
     chainID(ID)
   {
-    BondCorrelations.resize(CL-2, C1DHistogram(bw));
+    BondCorrelations.resize(CL-2, magnet::math::Histogram(bw));
     BondCorrelationsAvg.resize(CL-2, 0);
     BondCorrelationsSamples.resize(CL-2, 0);
   }

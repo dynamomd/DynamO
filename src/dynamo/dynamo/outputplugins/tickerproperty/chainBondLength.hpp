@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
-#include <dynamo/datatypes/histogram.hpp>
+#include <magnet/math/histogram.hpp>
 #include <boost/shared_array.hpp>
 
 namespace dynamo {
@@ -42,7 +42,7 @@ namespace dynamo {
     {
       Cdata(size_t chainID, size_t CL);
       const size_t chainID;
-      std::vector<C1DHistogram> BondLengths;
+      std::vector<magnet::math::Histogram> BondLengths;
     };
 
     std::list<Cdata> chains;

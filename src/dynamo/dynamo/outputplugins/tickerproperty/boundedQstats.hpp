@@ -18,7 +18,7 @@
 #pragma once
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
-#include <dynamo/datatypes/histogram.hpp>
+#include <magnet/math/histogram.hpp>
 
 namespace dynamo {
   class OPBoundedQStats: public OPTicker
@@ -36,6 +36,6 @@ namespace dynamo {
   
   protected:
   
-    C1DHistogram treeSize;  
+    magnet::math::Histogram treeSize;  
   };
 }

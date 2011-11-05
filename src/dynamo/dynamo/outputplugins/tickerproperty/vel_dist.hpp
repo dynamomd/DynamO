@@ -18,7 +18,7 @@
 #pragma once
 
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
-#include <dynamo/datatypes/histogram.hpp>
+#include <magnet/math/histogram.hpp>
 
 namespace dynamo {
   class OPKEnergy;
@@ -40,7 +40,7 @@ namespace dynamo {
 
   protected:
     double binWidth;
-    std::vector<C1DHistogram> data[NDIM];
+    std::vector<magnet::math::Histogram> data[NDIM];
 
     const OPKEnergy* _ptrOPEnergy;
   };

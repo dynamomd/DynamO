@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/outputplugins/outputplugin.hpp>
-#include <dynamo/datatypes/histogram.hpp>
+#include <magnet/math/histogram.hpp>
 #include <dynamo/outputplugins/eventtypetracking.hpp>
 #include <map>
 
@@ -51,8 +51,8 @@ namespace dynamo {
       {
 	for (size_t iDim(0); iDim < NDIM; ++iDim)
 	  {
-	    rij[iDim] = C1DHistogram(0.001);
-	    vij[iDim] = C1DHistogram(0.001);
+	    rij[iDim] = magnet::math::Histogram(0.001);
+	    vij[iDim] = magnet::math::Histogram(0.001);
 
 	    rijcostheta[iDim].resize(2000, std::pair<size_t,double>(0, 0));
 	    costhetarij[iDim].resize(1000, std::pair<size_t,double>(0, 0));
@@ -60,8 +60,8 @@ namespace dynamo {
 	  }
       }
     
-      C1DHistogram rij[NDIM];
-      C1DHistogram vij[NDIM];
+      magnet::math::Histogram rij[NDIM];
+      magnet::math::Histogram vij[NDIM];
     
       std::vector<std::pair<size_t,double> > rijcostheta[NDIM];
       std::vector<std::pair<size_t,double> > costhetarij[NDIM];

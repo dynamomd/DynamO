@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/outputplugins/2partproperty/2partproperty.hpp>
-#include <dynamo/datatypes/histogram.hpp>
+#include <magnet/math/histogram.hpp>
 #include <boost/circular_buffer.hpp>
 #include <vector>
 
@@ -37,7 +37,7 @@ namespace dynamo {
 
     virtual void stream(const double&) {}
 
-    C1DWeightHistogram hist;
+    magnet::math::HistogramWeighted hist;
     std::vector<std::pair<double,double> > chatterTracker;
   };
 }

@@ -20,7 +20,7 @@
 #ifdef DYNAMO_GSL
 
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
-#include <dynamo/datatypes/histogram.hpp>
+#include <magnet/math/histogram.hpp>
 
 class CRange;
 
@@ -61,9 +61,9 @@ namespace dynamo {
     struct CTCdata
     {
       const CTChain* chainPtr;
-      std::vector<C1DHistogram> gyrationRadii;
-      std::vector<C1DHistogram> nematicOrder;
-      C1DHistogram cubaticOrder;    
+      std::vector<magnet::math::Histogram> gyrationRadii;
+      std::vector<magnet::math::Histogram> nematicOrder;
+      magnet::math::Histogram cubaticOrder;    
 
       CTCdata(const CTChain* ptr, double binwidth1, double binwidth2, double binwidth3):
 	chainPtr(ptr),
@@ -71,8 +71,8 @@ namespace dynamo {
       {
 	for (size_t i = 0; i < NDIM; i++)
 	  {
-	    gyrationRadii.push_back(C1DHistogram(binwidth1));
-	    nematicOrder.push_back(C1DHistogram(binwidth2));
+	    gyrationRadii.push_back(magnet::math::Histogram(binwidth1));
+	    nematicOrder.push_back(magnet::math::Histogram(binwidth2));
 	  }
       }
 

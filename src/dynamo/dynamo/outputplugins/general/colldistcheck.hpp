@@ -17,8 +17,8 @@
 
 #pragma once
 #include <dynamo/outputplugins/outputplugin.hpp>
-#include <dynamo/datatypes/histogram.hpp>
 #include <dynamo/outputplugins/eventtypetracking.hpp>
+#include <magnet/math/histogram.hpp>
 #include <map>
 
 namespace dynamo {
@@ -52,7 +52,7 @@ namespace dynamo {
 
     typedef std::pair<classKey, EEventType> eventKey;
   
-    std::map<eventKey, C1DHistogram> distList;
+    std::map<eventKey, magnet::math::Histogram> distList;
   
     double binwidth;
   };

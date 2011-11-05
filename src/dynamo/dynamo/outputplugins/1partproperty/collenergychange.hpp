@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/outputplugins/1partproperty/1partproperty.hpp>
-#include <dynamo/datatypes/histogram.hpp>
+#include <magnet/math/histogram.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
 #include <vector>
@@ -48,16 +48,16 @@ namespace dynamo {
 
     static double KEBinWidth;
 
-    struct histogram: public C1DHistogram
+    struct histogram: public magnet::math::Histogram
     {
-      histogram(): C1DHistogram(OPCollEnergyChange::KEBinWidth) {}
+      histogram(): Histogram(OPCollEnergyChange::KEBinWidth) {}
     };
 
     typedef boost::tuple<size_t, size_t, EEventType> mapkey;
 
     std::map<mapkey, histogram> collisionKE;
 
-    std::vector<C1DHistogram> data;
-    C1DHistogram specialhist;
+    std::vector<magnet::math::Histogram> data;
+    magnet::math::Histogram specialhist;
   };
 }

@@ -30,7 +30,7 @@ namespace dynamo {
   OPChainBondLength::Cdata::Cdata(size_t ID, size_t CL):
     chainID(ID)
   {
-    BondLengths.resize(CL-1, C1DHistogram(0.0001));
+    BondLengths.resize(CL-1, magnet::math::Histogram(0.0001));
   }
 
   OPChainBondLength::OPChainBondLength(const dynamo::SimData* tmp, const magnet::xml::Node&):

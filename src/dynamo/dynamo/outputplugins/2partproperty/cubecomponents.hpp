@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/outputplugins/outputplugin.hpp>
-#include <dynamo/datatypes/histogram.hpp>
+#include <magnet/math/histogram.hpp>
 #include <dynamo/outputplugins/eventtypetracking.hpp>
 #include <map>
 
@@ -48,12 +48,12 @@ namespace dynamo {
     {
       mapdata() 
       {
-	angles[0] = C1DHistogram(0.01);
-	angles[1] = C1DHistogram(0.01);
-	angles[2] = C1DHistogram(0.01);
+	angles[0] = magnet::math::Histogram(0.01);
+	angles[1] = magnet::math::Histogram(0.01);
+	angles[2] = magnet::math::Histogram(0.01);
       }
     
-      C1DHistogram angles[3];
+      magnet::math::Histogram angles[3];
     };
   
     typedef std::pair<EEventType, classKey> mapKey;

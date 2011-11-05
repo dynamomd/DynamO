@@ -54,7 +54,7 @@ namespace dynamo {
   OPIntEnergyHist::initialise() 
   {
     ptrOPEnergy = Sim->getOutputPlugin<OPUEnergy>();
-    intEnergyHist = C1DWeightHistogram(binwidth * Sim->dynamics.units().unitEnergy());
+    intEnergyHist = magnet::math::HistogramWeighted(binwidth * Sim->dynamics.units().unitEnergy());
   }
 
   void 

@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/outputplugins/0partproperty/collticker.hpp>
-#include <dynamo/datatypes/histogram.hpp>
+#include <magnet/math/histogram.hpp>
 #include <boost/unordered_map.hpp>
 
 namespace dynamo {
@@ -44,7 +44,7 @@ namespace dynamo {
     inline double getBinWidth() const { return intEnergyHist.getBinWidth(); }
   protected:
 
-    C1DWeightHistogram intEnergyHist;
+    magnet::math::HistogramWeighted intEnergyHist;
     const OPUEnergy* ptrOPEnergy;
     double weight;
     double binwidth;

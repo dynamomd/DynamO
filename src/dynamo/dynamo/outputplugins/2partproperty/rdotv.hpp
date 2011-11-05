@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/outputplugins/outputplugin.hpp>
-#include <dynamo/datatypes/histogram.hpp>
+#include <magnet/math/histogram.hpp>
 #include <dynamo/outputplugins/eventtypetracking.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
@@ -62,7 +62,7 @@ namespace dynamo {
       double getAvg() const
       { return accRdotV / count; }
 
-      C1DHistogram costheta;
+      magnet::math::Histogram costheta;
     };
   
     typedef boost::tuple<EEventType, classKey, size_t, size_t> mapKey;

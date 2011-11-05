@@ -17,7 +17,7 @@
 
 #pragma once 
 #include <dynamo/outputplugins/1partproperty/1partproperty.hpp>
-#include <dynamo/datatypes/histogram.hpp>
+#include <magnet/math/histogram.hpp>
 #include <vector>
 
 namespace dynamo {
@@ -42,7 +42,7 @@ namespace dynamo {
 
     std::vector<double> lastTime;
 
-    std::vector<C1DHistogram> data;
+    std::vector<magnet::math::Histogram> data;
 
     double binwidth;
   };

@@ -18,7 +18,7 @@
 #pragma once
 
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
-#include <dynamo/datatypes/histogram.hpp>
+#include <magnet/math/histogram.hpp>
 
 namespace dynamo {
   class OPRadialDistribution: public OPTicker

@@ -52,7 +52,7 @@ namespace dynamo {
 
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       data[iDim].resize(Sim->dynamics.getSpecies().size(), 
-			C1DHistogram(Sim->dynamics.units().unitVelocity() 
+			magnet::math::Histogram(Sim->dynamics.units().unitVelocity() 
 				     * binWidth));
   }
 

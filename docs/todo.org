@@ -54,7 +54,6 @@
 **** TODO Make coil scale independent.
 **** TODO Make compression work with polydisperse walls.
 **** TODO Move the dynamo overlap functions into magnet.
-**** TODO Move the histogram class into magnet.
 **** TODO Rewrite the range classes.
 **** TODO Move the minmax heap into magnet.
 **** TODO Work on Sebastians project.
