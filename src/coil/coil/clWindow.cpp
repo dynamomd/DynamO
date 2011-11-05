@@ -858,7 +858,7 @@ namespace coil {
 	std::vector<uint8_t> pixels;
 	pixels.resize(_camera.getWidth() * _camera.getHeight() * 4);
 	//Read the pixels into our container
-	_renderTarget.getColorTexture()->getTexture(pixels);
+	_renderTarget.getColorTexture()->writeto(pixels);
 	
 	std::string path;
 	{

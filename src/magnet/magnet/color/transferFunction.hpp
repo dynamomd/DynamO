@@ -101,7 +101,7 @@ namespace magnet {
 	return colorMap;
       }
 
-      const std::vector<float> getFloatRGBMap(size_t samples = 256)
+      const std::vector<float> getFloatRGBMap(size_t samples = 256, float transmittanceScale = 10000)
       {
 	if (!_valid) generate();
 
@@ -109,22 +109,30 @@ namespace magnet {
 	colorMap.resize(4 * samples);
 
 	for (size_t i(0); i < samples; ++i)
-	  HSVtoRGB<float>(&(colorMap[4 * i]),
-			  spline[0](double(i) / (samples - 1)),
-			  spline[1](double(i) / (samples - 1)), 
-			  spline[2](double(i) / (samples - 1)),
-			  spline[3](double(i) / (samples - 1)));
+	  {
+	    double transmittance = magnet::clamp(spline[3](double(i) / (samples - 1)), 0.0, 1.0);
+	    transmittance *= transmittance;
+	    transmittance *= transmittance;
+	    transmittance *= transmittance;
+	    transmittance *= transmittanceScale;
+
+	    HSVtoRGB<float>(&(colorMap[4 * i]),
+			    magnet::clamp(spline[0](double(i) / (samples - 1)), 0.0, 1.0),
+			    magnet::clamp(spline[1](double(i) / (samples - 1)), 0.0, 1.0), 
+			    magnet::clamp(spline[2](double(i) / (samples - 1)), 0.0, 1.0),
+			    transmittance);
+	  }
 	
 	return colorMap;
       }
       
       /*! \brief Calculate the pre-integrated color map.
        */
-      std::vector<float> getPreIntegratedMapping(size_t samples = 256)
+      std::vector<float> getPreIntegratedMapping(size_t samples = 256, float transmittanceScale = 10000)
       {
 	if (!_valid) generate();
 
-	std::vector<float> colorMap = getFloatRGBMap(samples);
+	std::vector<float> colorMap = getFloatRGBMap(samples, transmittanceScale);
 	std::vector<float> integral;
 	integral.resize(4 * samples);
 

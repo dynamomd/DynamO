@@ -41,7 +41,9 @@ namespace coil {
     _shader.build();
     _cube.init();
     _transferFuncTexture.init(256);
-    _preintTransferFuncTexture.init(256, GL_RGBA32F);
+    _preintTransferFuncTexture.init(256, GL_RGBA16F);
+    _preintTransferFuncTexture.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    _preintTransferFuncTexture.parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     //Resize the copy FBO
     _currentDepthFBO.init();
@@ -242,7 +244,7 @@ namespace coil {
     if (_transferFunction.get() != NULL)
       {
 	_transferFuncTexture.subImage(_transferFunction->getColorMap(), GL_RGBA);
-	
+
 	std::vector<float> data = _transferFunction->getPreIntegratedMapping();
 	std::vector<GLfloat> GLdata = data;
 

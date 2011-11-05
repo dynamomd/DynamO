@@ -98,21 +98,61 @@ namespace magnet {
 	  return _handle; 
 	}
 
-	inline void getTexture(std::vector<uint8_t>& data, GLint level = 0) const
-	{
-	  bind(0);
-	  
-	  if (data.size() != _pixelcount * 4)
-	    M_throw() << "Cannot write texture data to improperly sized buffer";
-	  
-	  glGetTexImage(_texType, level, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
-	}
-	
 	inline GLint getInternalFormat() const
 	{
 	  if (!_valid)
 	    M_throw() << "Cannot query the internal format of an uninitialised texture";
 	  return _internalFormat;
+	}
+
+	/*! \brief Copy the contents of the texture to an integer array.
+
+	  This will automatically resize the passed array to fit the
+	  entire contents of the texture in.
+	 */
+	inline void writeto(std::vector<GLfloat>& data)
+	{
+	  data.resize(4 * _pixelcount);
+	  
+	  bind(0);
+
+	  GLenum type;
+	  switch (components())
+	    {
+	    case 1: type = GL_R; break;
+	    case 2: type = GL_RG; break;
+	    case 3: type = GL_RGB; break;
+	    case 4: type = GL_RGBA; break;
+	    default:
+	      M_throw() << "Too many components!";
+	    }
+
+	  glGetTexImage(_texType, 0, type, GL_FLOAT, &data[0]);
+	}
+	
+	/*! \brief Copy the contents of the texture to a floating point array.
+
+	  This will automatically resize the passed array to fit the
+	  entire contents of the texture in.
+	 */
+	inline void writeto(std::vector<uint8_t>& data)
+	{
+	  data.resize(4 * _pixelcount);
+	  
+	  bind(0);
+
+	  GLenum type;
+	  switch (components())
+	    {
+	    case 1: type = GL_R; break;
+	    case 2: type = GL_RG; break;
+	    case 3: type = GL_RGB; break;
+	    case 4: type = GL_RGBA; break;
+	    default:
+	      M_throw() << "Too many components!";
+	    }
+
+	  glGetTexImage(_texType, 0, type, GL_UNSIGNED_BYTE, &data[0]);
 	}
 
       protected:
@@ -151,6 +191,43 @@ namespace magnet {
 	    }
 	}
       
+	size_t components()
+	{
+	  switch (_internalFormat)
+	    {
+	    case 1:
+	    case GL_ALPHA:
+	    case GL_DEPTH_COMPONENT:
+	    case GL_DEPTH_COMPONENT16:
+	    case GL_DEPTH_COMPONENT24:
+	    case GL_DEPTH_COMPONENT32:
+	    case GL_LUMINANCE:
+	    case GL_INTENSITY:
+	    case GL_R:	
+	    case GL_R16F:
+	    case GL_R32F:
+	      return 1;
+	    case 2:
+	    case GL_RG:	
+	    case GL_RG16F:
+	    case GL_RG32F:
+	    case GL_COMPRESSED_LUMINANCE_ALPHA:
+	      return 2;
+	    case 3:
+	    case GL_RGB:	
+	    case GL_RGB16F:
+	    case GL_RGB32F:
+	      return 3;
+	    case 4:
+	    case GL_RGBA:	
+	    case GL_RGBA16F:
+	    case GL_RGBA32F:
+	      return 4;
+	    default:
+	      M_throw() << "Unknown number of components for this format";
+	    }
+	}
+
 	GLuint _handle;
 	bool _valid;
 	GLint _internalFormat;

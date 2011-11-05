@@ -65,9 +65,9 @@ namespace magnet {
 		   | ::Gdk::BUTTON_RELEASE_MASK | ::Gdk::POINTER_MOTION_MASK);
 	set_flags(::Gtk::CAN_FOCUS);
 
-	_transferFunction.addKnot(0.0, 1, 0, 1, 0.0);
-	_transferFunction.addKnot(0.5, 1, 0, 1, 0.5);
-	_transferFunction.addKnot(1.0, 1, 0, 1, 1.0);
+	_transferFunction.addKnot(0.0, 1, 1, 1, 0.0);
+	_transferFunction.addKnot(0.5, 1, 1, 1, 0.5);
+	_transferFunction.addKnot(1.0, 1, 1, 1, 1.0);
       }
 
       std::vector<uint8_t> getColorMap()

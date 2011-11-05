@@ -162,11 +162,11 @@ void main()
   vec4 lastsample = texture(DataTexture, (rayPos + 1.0) * 0.5);
   vec4 lastTransfer = texture(IntTransferTexture, lastsample.a);
 
-  vec3 lastnorm = lastsample.xyz * 2.0 - 1.0; 
-  { 
-    float l = length(lastnorm);
-    lastnorm /=  l + float(l < 0.01);
-  }
+//  vec3 lastnorm = lastsample.xyz * 2.0 - 1.0; 
+//  { 
+//    float l = length(lastnorm);
+//    lastnorm /=  l + float(l < 0.01);
+//  }
   
   rayPos.xyz += rayDirection * StepSize;
   
@@ -176,24 +176,36 @@ void main()
       //Grab the volume sample
       vec4 sample = texture(DataTexture, (rayPos + 1.0) * 0.5);
   
-      //Sort out the normal data
-      vec3 norm = sample.xyz * 2.0 - 1.0;
-      //Test if we've got a bad normal and need to reuse the old one
-      if (dot(norm,norm) < 0.5) norm = lastnorm; 
-      //Store the current normal
-      lastnorm = norm; 
-  
-      //Calculate the color of the voxel using the transfer function
-      vec4 transfer = texture(IntTransferTexture, sample.a);
+//      //Sort out the normal data
+//      vec3 norm = sample.xyz * 2.0 - 1.0;
+//      //Test if we've got a bad normal and need to reuse the old one
+//      if (dot(norm,norm) < 0.5) norm = lastnorm; 
+//      //Store the current normal
+//      lastnorm = norm; 
       
-      /*Pre-Integrated color calc*/
-      vec4 src = vec4(StepSize * (transfer.rgb - lastTransfer.rgb)
-		      / (sample.a - lastsample.a),
-		      1 - exp(- StepSize * (transfer.a - lastTransfer.a)));
+      vec4 src;
+      float delta = sample.a - lastsample.a;
+      vec4 transfer = texture(IntTransferTexture, sample.a);
 
-      lastsample = sample; lastTransfer = transfer;
+      //if (delta == 0)
+	{ //Special case where the integration breaks down, just use the constant val.
+	  src = texture(TransferTexture, sample.a);
+	  src.a = (1.0 - exp( - StepSize * src.a));
 
-  
+	  src.rgb *= src.a;
+	}
+//      else
+//	{
+//	  /*Pre-Integrated color calc*/
+//	  float weight = StepSize / (sample.a - lastsample.a);
+//	  
+//	  vec4 src = vec4(weight * (transfer.rgb - lastTransfer.rgb),
+//			  1.0 - exp(-(transfer.a - lastTransfer.a) * weight));	  
+//	}
+
+      lastTransfer = transfer;
+      lastsample = sample;
+
 //      ////////////Lighting calculations
 //      //We perform all the calculations in the model (untransformed)
 //      //space.
@@ -220,11 +232,10 @@ void main()
 //  	* vec3(1.0,1.0,1.0) * pow(max(dot(ReflectedRay, rayDirection), 0.0), 96.0);
       
       ///////////Front to back blending
-      //src.rgb *= src.a;
       color = (1.0 - color.a) * src + color;
   
-      //We only accumulate up to 0.95 alpha (the front to back
-      //blending never reaches 1). 
+      //We only accumulate up to 0.95 alpha (the blending never
+      //reaches 1).
       if (color.a >= 0.95)
   	{
   	  //We have to renormalize the color by the alpha value (see
