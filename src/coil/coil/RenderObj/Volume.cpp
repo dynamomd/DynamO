@@ -229,7 +229,7 @@ namespace coil {
     _shader["DitherRay"] = GLfloat(_ditherRay->get_value());
     _shader["TransferTexture"] = 2;
     _shader["IntTransferTexture"] = 3;
-    _shader["LightPosition"] = Vector(-2,-2,-2);
+    _shader["LightPosition"] = Vector(0,3,0);
     
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
