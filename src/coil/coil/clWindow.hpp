@@ -224,6 +224,7 @@ namespace coil {
     void aboutCallback();
     void renderNormalsCallback();
 
+    void cameraModeCallback();
     void runCallback(); 
 
     //Generic Value update callback

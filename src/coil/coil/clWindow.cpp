@@ -39,14 +39,35 @@
 # include <magnet/wiiheadtracking.hpp>
 #endif 
 
-extern const guint8 coilsplash[];
-extern const size_t coilsplash_size;
-
 //The glade xml file is "linked" into a binary file and stuffed in the executable, these are the symbols to its data
 extern const char _binary_clwingtk_gladexml_start[];
 extern const char _binary_clwingtk_gladexml_end[];
+
+//All of the icons and images compiled into the exectuable
 extern const guint8 coilicon[];
 extern const size_t coilicon_size;
+
+extern const guint8 coilsplash[];
+extern const size_t coilsplash_size;
+
+extern const guint8 camplusx[];
+extern const size_t camplusx_size;
+extern const guint8 camplusy[];
+extern const size_t camplusy_size;
+extern const guint8 camplusz[];
+extern const size_t camplusz_size;
+extern const guint8 camnegx[];
+extern const size_t camnegx_size;
+extern const guint8 camnegy[];
+extern const size_t camnegy_size;
+extern const guint8 camnegz[];
+extern const size_t camnegz_size;
+
+extern const guint8 cammode_rotate[];
+extern const size_t cammode_rotate_size;
+
+extern const guint8 cammode_fps[];
+extern const size_t cammode_fps_size;
 
 
 namespace coil {
@@ -142,6 +163,66 @@ namespace coil {
     controlwindow->set_icon(Gdk::Pixbuf::create_from_inline
 			    (coilicon_size, coilicon));
 
+    {
+      Gtk::Image* icon;
+
+      _refXml->get_widget("CamPlusXimg", icon);
+      icon->set(Gdk::Pixbuf::create_from_inline(camplusx_size, camplusx));
+
+      _refXml->get_widget("CamPlusYimg", icon);
+      icon->set(Gdk::Pixbuf::create_from_inline(camplusy_size, camplusy));
+
+      _refXml->get_widget("CamPlusZimg", icon);
+      icon->set(Gdk::Pixbuf::create_from_inline(camplusz_size, camplusz));
+
+      _refXml->get_widget("CamNegXimg", icon);
+      icon->set(Gdk::Pixbuf::create_from_inline(camnegx_size, camnegx));
+
+      _refXml->get_widget("CamNegYimg", icon);
+      icon->set(Gdk::Pixbuf::create_from_inline(camnegy_size, camnegy));
+
+      _refXml->get_widget("CamNegZimg", icon);
+      icon->set(Gdk::Pixbuf::create_from_inline(camnegz_size, camnegz));
+    }
+
+    {
+      Gtk::Button* button;
+
+      _refXml->get_widget("CamPlusXbtn", button);
+      button->signal_clicked()
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector(1,0,0)));
+
+      _refXml->get_widget("CamPlusYbtn", button);
+      button->signal_clicked()
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector(0,1,0)));
+
+      _refXml->get_widget("CamPlusZbtn", button);
+      button->signal_clicked()
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector(0,0,1)));
+
+
+      _refXml->get_widget("CamNegXbtn", button);
+      button->signal_clicked()
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector(-1,0,0)));
+
+      _refXml->get_widget("CamNegYbtn", button);
+      button->signal_clicked()
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector(0,-1,0)));
+
+      _refXml->get_widget("CamNegZbtn", button);
+      button->signal_clicked()
+	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector(0,0,-1)));
+
+    }
+
+
+    {
+      Gtk::Button* button;    
+      _refXml->get_widget("CamMode", button); 
+      
+      button->signal_clicked()
+	.connect(sigc::mem_fun(*this, &CLGLWindow::cameraModeCallback));
+    }
 
     ///////Register the about button
     {
@@ -1517,12 +1598,6 @@ namespace coil {
     glGetIntegerv(GL_VIEWPORT, viewport);  
     glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
     
-    //    std::cout << "Pixel read gave " 
-    //	      << int(pixel[0]) << " "
-    //	      << int(pixel[1]) << " "
-    //	      << int(pixel[2]) << " "
-    //	      << int(pixel[3]) << std::endl;
-
     _Gbuffer.detach();
     glEnable(GL_BLEND);
 
@@ -1534,10 +1609,6 @@ namespace coil {
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       if ((*iPtr)->visible())
 	(*iPtr)->finishPicking(offset, objID);
-
-    //Debugging output for the picking buffer
-    //_filterTarget1.blitToScreen(_camera.getWidth(), _camera.getHeight());
-    //getGLContext().swapBuffers();
   }
 
   void CLGLWindow::selectRObjCallback() 
@@ -1572,6 +1643,22 @@ namespace coil {
   }
 
   void
+  CLGLWindow::cameraModeCallback()
+  {
+    switch (_camera.getMode())
+      {
+      case magnet::GL::Camera::ROTATE_CAMERA:
+	_camera.setMode(magnet::GL::Camera::ROTATE_WORLD);
+	break;
+      case magnet::GL::Camera::ROTATE_WORLD:
+	_camera.setMode(magnet::GL::Camera::ROTATE_CAMERA);
+	break;
+      default:
+	M_throw() << "Cannot change camera mode as it's in an unknown mode";
+      }
+  }
+
+  void
   CLGLWindow::guiUpdateCallback()
   {
     {//Dynamo particle sync checkbox
@@ -1579,6 +1666,23 @@ namespace coil {
       _refXml->get_widget("forceParticleSync", btn);
     
       _particleSync = btn->get_active();
+    }
+
+    {
+      Gtk::Image* icon;
+      _refXml->get_widget("CamModeimg", icon);
+
+      switch (_camera.getMode())
+	{
+	case magnet::GL::Camera::ROTATE_CAMERA:
+	  icon->set(Gdk::Pixbuf::create_from_inline(cammode_fps_size, cammode_fps));
+	  break;
+	case magnet::GL::Camera::ROTATE_WORLD:
+	  icon->set(Gdk::Pixbuf::create_from_inline(cammode_rotate_size, cammode_rotate));
+	  break;
+	default:
+	  M_throw() << "Cannot find the appropriate icon for the camera mode";
+	}
     }
 
     {//Filter enable/disable
