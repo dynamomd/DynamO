@@ -133,6 +133,8 @@ namespace coil {
 	}
       setGLElements(ElementData);
     }
+
+    magnet::GL::Context::ContextPtr context = magnet::GL::Context::getContext();
   
     _kernelsrc = genKernelSrc();
 
@@ -140,17 +142,17 @@ namespace coil {
 
     kernelSource.push_back(std::pair<const char*, ::size_t>(_kernelsrc.c_str(), _kernelsrc.size()));
   
-    _program = cl::Program(magnet::GL::Context::getContext().getCLContext(), kernelSource);
+    _program = cl::Program(context->getCLContext(), kernelSource);
 
     try
-      { _program.build(std::vector<cl::Device>(1, magnet::GL::Context::getContext().getCLDevice())); }
+      { _program.build(std::vector<cl::Device>(1, context->getCLDevice())); }
     catch(cl::Error& err) 
       {    
 	std::string msg 
-	  = _program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(magnet::GL::Context::getContext().getCLDevice());
+	  = _program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(context->getCLDevice());
       
-	std::cout << "Compilation failed for device " <<
-	  magnet::GL::Context::getContext().getCLDevice().getInfo<CL_DEVICE_NAME>()
+	std::cout << "Compilation failed for device " 
+		  << context->getCLDevice().getInfo<CL_DEVICE_NAME>()
 		  << "\nBuild Log:" << msg;
 	throw;
       }
@@ -159,12 +161,11 @@ namespace coil {
     _pickKernel = cl::Kernel(_program, "FunctionPickKernel");
     const size_t workgroupSize = 256;
   
-    magnet::GL::Context& context = magnet::GL::Context::getContext();
     //N is a multiple of 16, so a workgroup size of 256 is always good
-    _kernelFunc = _kernel.bind(context.getCLCommandQueue(), cl::NDRange(_N * _N), 
+    _kernelFunc = _kernel.bind(context->getCLCommandQueue(), cl::NDRange(_N * _N), 
 			       cl::NDRange(workgroupSize));
 
-    _pickFunc = _pickKernel.bind(context.getCLCommandQueue(), cl::NDRange(_N * _N), 
+    _pickFunc = _pickKernel.bind(context->getCLCommandQueue(), cl::NDRange(_N * _N), 
 				 cl::NDRange(workgroupSize));
   
     clock_gettime(CLOCK_MONOTONIC, &startTime);

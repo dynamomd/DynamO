@@ -30,6 +30,7 @@
 #include <magnet/exception.hpp>
 #include <magnet/GL/matrix.hpp>
 #include <magnet/function/delegate.hpp>
+#include <tr1/memory>
 #include <map>
 #include <iostream>
 
@@ -52,21 +53,43 @@ namespace magnet {
      */
     class Context
     {
+    protected:
+      /** @name Platform specific code. */
+      /**@{*/
+      typedef GLXContext ContextKey;
+
+      inline static ContextKey getCurrentContextKey()
+      { 
+	ContextKey key = glXGetCurrentContext();
+	if (!key) M_throw() << "Not in a valid GLX context";
+	return key; 
+      }
+      /**@}*/
+
     public:
+      /*!\brief The reference counting type to use for a holding a
+         reference to a context.
+       */
+      typedef std::tr1::shared_ptr<Context> ContextPtr;
+
       /*! \brief Method to fetch the current OpenGL context.
        
         This function is used to make sure that whenever the context
         is requested, the same copy is always returned.
        */
-      inline static Context& getContext()
+      inline static ContextPtr getContext()
       {
-	static std::map<ContextKey, Context> contexts;
+	typedef std::map<ContextKey, ContextPtr> ContextStoreType; 
+	static ContextStoreType contexts;
 
 	ContextKey key = getCurrentContextKey();
 
-	std::map<ContextKey, Context>::iterator ctxPtr = contexts.find(key);
+	ContextStoreType::iterator ctxPtr = contexts.find(key);
 	if (ctxPtr == contexts.end())
-	  contexts[key].init();
+	  {
+	    contexts[key].reset(new Context);
+	    contexts[key]->init();
+	  }
 	  
 	return contexts[key];
       }
@@ -548,14 +571,6 @@ namespace magnet {
 	glBindVertexArray(_dummyVAO);
       }
 
-      typedef GLXContext ContextKey;
-
-      inline static ContextKey getCurrentContextKey()
-      { 
-	ContextKey key = glXGetCurrentContext();
-	if (!key) M_throw() << "Not in a valid GLX context";
-	return key; 
-      }
       /////////////////////////////////////////////////////
 
       //! \brief Only allow \ref getContext() to instantiate Context objects.
@@ -563,9 +578,6 @@ namespace magnet {
 
       //! \brief The system-dependent handle to the GL context.
       ContextKey _context;
-
-      //! \brief Friend statement needed for \ref getContext().
-      friend class std::map<ContextKey, Context>;
 
       /*! \brief Class used to track the state of a vertex attribute
        * array.

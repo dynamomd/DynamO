@@ -46,9 +46,9 @@ namespace coil {
     glDisable(GL_DEPTH_TEST);
 
     using namespace magnet::GL;
-    Context& context = _axis.getContext();
+    const Context::ContextPtr& context = _axis.getContext();
     //Draw the console in orthograpic projection
-    context.cleanupAttributeArrays();
+    context->cleanupAttributeArrays();
 
 //    if (_showConsole->get_active())
 //      {
@@ -91,13 +91,13 @@ namespace coil {
 	  axisScale = 0.09;
     
 	//The axis is in a little 100x100 pixel area in the lower left
-	std::tr1::array<GLint, 4> oldviewport = context.getViewport();
-	context.setViewport(0,0,100,100);
+	std::tr1::array<GLint, 4> oldviewport = context->getViewport();
+	context->setViewport(0,0,100,100);
     
 	std::tr1::array<GLfloat, 16> oldproj 
-	  = context.getAttachedShader()["ProjectionMatrix"].as<std::tr1::array<GLfloat, 16> >();
+	  = context->getAttachedShader()["ProjectionMatrix"].as<std::tr1::array<GLfloat, 16> >();
 	std::tr1::array<GLfloat, 16> oldview 
-	  = context.getAttachedShader()["ViewMatrix"].as<std::tr1::array<GLfloat, 16> >();
+	  = context->getAttachedShader()["ViewMatrix"].as<std::tr1::array<GLfloat, 16> >();
 	
 	GLMatrix viewMatrix 
 	  = GLMatrix::translate(0, 0, -(nearPlane + axisScale))
@@ -108,17 +108,17 @@ namespace coil {
 	GLMatrix projectionMatrix
 	  = GLMatrix::perspective(45, 1, nearPlane, 1000);
 
-	context.getAttachedShader()["ViewMatrix"]  = viewMatrix;
-	context.getAttachedShader()["ProjectionMatrix"] = projectionMatrix;
+	context->getAttachedShader()["ViewMatrix"]  = viewMatrix;
+	context->getAttachedShader()["ProjectionMatrix"] = projectionMatrix;
 
-	context.color(0.5f,0.5f,0.5f,0.8f);
+	context->color(0.5f,0.5f,0.5f,0.8f);
 	_axis.glRender();
 
 	_cairoOverlay.glRender(projectionMatrix * viewMatrix);
 
-	context.setViewport(oldviewport);
-	context.getAttachedShader()["ProjectionMatrix"] = oldproj;
-	context.getAttachedShader()["ViewMatrix"] = oldview;
+	context->setViewport(oldviewport);
+	context->getAttachedShader()["ProjectionMatrix"] = oldproj;
+	context->getAttachedShader()["ViewMatrix"] = oldview;
       }    
 
     //Restore GL state
@@ -131,50 +131,50 @@ namespace coil {
     if (_showGrid->get_active())
       {
 	using namespace magnet::GL;
-	Context& context = _axis.getContext();
+	const Context::ContextPtr& context = _axis.getContext();
 
 	GLMatrix old_model_view
-	  = context.getAttachedShader()["ViewMatrix"].as<std::tr1::array<GLfloat, 16> >();
+	  = context->getAttachedShader()["ViewMatrix"].as<std::tr1::array<GLfloat, 16> >();
 
-	context.getAttachedShader()["ViewMatrix"]
+	context->getAttachedShader()["ViewMatrix"]
 	  = old_model_view
 	  * GLMatrix::translate(camera.getViewPlanePosition())
 	  * GLMatrix::rotate(-camera.getPan(), Vector(0, 1, 0))
 	  * GLMatrix::rotate(-camera.getTilt(), Vector(1, 0, 0));
 
-	context.color(1,1,1,1);
+	context->color(1,1,1,1);
 	//Back face
-	context.setAttribute(Context::instanceOriginAttrIndex, 0, 0, -camera.getScreenPlaneWidth(), 0);
-	context.setAttribute(Context::instanceScaleAttrIndex,
+	context->setAttribute(Context::instanceOriginAttrIndex, 0, 0, -camera.getScreenPlaneWidth(), 0);
+	context->setAttribute(Context::instanceScaleAttrIndex,
 			     camera.getScreenPlaneWidth(),
 			     camera.getScreenPlaneHeight(), 1);
 	_grid.glRender();
 
 	//Sides
-	context.setAttribute(Context::instanceOriginAttrIndex, 
+	context->setAttribute(Context::instanceOriginAttrIndex, 
 			     0.5 * camera.getScreenPlaneWidth(), 0, 
 			     -0.5 * camera.getScreenPlaneWidth(), 0);
-	context.rotation(M_PI / 2, Vector(0, 1, 0));
+	context->rotation(M_PI / 2, Vector(0, 1, 0));
   	_grid.glRender(); //Right side
-	context.setAttribute(Context::instanceOriginAttrIndex, 
+	context->setAttribute(Context::instanceOriginAttrIndex, 
 			     -0.5 * camera.getScreenPlaneWidth(), 0, 
 			     -0.5 * camera.getScreenPlaneWidth(), 0);
   	_grid.glRender(); //Left side
 
 	//Top and bottom
-	context.rotation(M_PI / 2, Vector(1, 0, 0));
-	context.setAttribute(Context::instanceScaleAttrIndex,
+	context->rotation(M_PI / 2, Vector(1, 0, 0));
+	context->setAttribute(Context::instanceScaleAttrIndex,
 			     camera.getScreenPlaneWidth(),
 			     camera.getScreenPlaneWidth(), 1);
-	context.setAttribute(Context::instanceOriginAttrIndex, 0,
+	context->setAttribute(Context::instanceOriginAttrIndex, 0,
 			     -0.5 * camera.getScreenPlaneHeight(), 
 			     -0.5 * camera.getScreenPlaneWidth(), 0);
 	_grid.glRender();//bottom
-	context.setAttribute(Context::instanceOriginAttrIndex, 0,
+	context->setAttribute(Context::instanceOriginAttrIndex, 0,
 			     0.5 * camera.getScreenPlaneHeight(), 
 			     -0.5 * camera.getScreenPlaneWidth(), 0);
 	_grid.glRender();//top
-	context.getAttachedShader()["ViewMatrix"] = old_model_view;
+	context->getAttachedShader()["ViewMatrix"] = old_model_view;
       }
   }
 

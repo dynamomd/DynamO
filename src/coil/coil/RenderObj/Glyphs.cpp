@@ -30,7 +30,7 @@ namespace coil {
   void 
   Glyphs::glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode) 
   {    
-    _primitiveVertices.getContext().resetInstanceTransform();
+    _primitiveVertices.getContext()->resetInstanceTransform();
 
     switch (_glyphType->get_active_row_number())
       {
@@ -121,7 +121,7 @@ namespace coil {
     //Glyph selection and level of detail
     _glyphBox.reset(new Gtk::HBox); _glyphBox->show();
     
-    _context = &(magnet::GL::Context::getContext());
+    _context = magnet::GL::Context::getContext();
     _raytraceable = _context->testExtension("GL_EXT_geometry_shader4");
 
     if (_raytraceable) 
@@ -357,7 +357,7 @@ namespace coil {
   void 
   Glyphs::pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, uint32_t& offset)
   {
-    _primitiveVertices.getContext().resetInstanceTransform();
+    _primitiveVertices.getContext()->resetInstanceTransform();
 
     magnet::GL::Buffer<GLubyte> colorbuf;    
     {//Send unique color id's to colorbuf

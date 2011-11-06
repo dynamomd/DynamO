@@ -34,7 +34,7 @@ namespace coil {
   {
     if (!_visible) return;
 
-    _posBuff.getContext().cleanupAttributeArrays();
+    _posBuff.getContext()->cleanupAttributeArrays();
 
     if (_pickingRenderMode)
       _pickingColorBuff.attachToColor();

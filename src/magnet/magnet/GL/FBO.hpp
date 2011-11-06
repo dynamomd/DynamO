@@ -41,7 +41,7 @@ namespace magnet {
        * The FBO is unusable at this point and must be first \ref
        * init() ialized.
        */
-      inline FBO():_context(NULL), _validated(false) {}
+      inline FBO(): _validated(false) {}
 
       /*! \brief Initializes the FBO.
 	
@@ -54,7 +54,7 @@ namespace magnet {
 	if (_context)
 	  M_throw() << "FBO has already been initialised!";
 	
-	_context = &Context::getContext();
+	_context = Context::getContext();
 
 	glGenFramebuffersEXT(1, &_FBO);
 	//Here we only allocate enough texture pointers for the maximum
@@ -152,7 +152,7 @@ namespace magnet {
 	if (_context)
 	  glDeleteFramebuffersEXT(1, &_FBO);
 
-	_context = NULL;
+	_context.reset();
 	_validated = false;
       }
 
@@ -358,7 +358,7 @@ namespace magnet {
 	  }
       }
 
-      Context* _context;
+      Context::ContextPtr _context;
       std::vector<std::tr1::shared_ptr<Texture2D> > _colorTextures;
       std::tr1::shared_ptr<Texture2D> _depthTexture;
       GLuint _FBO;

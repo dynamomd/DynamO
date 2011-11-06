@@ -207,7 +207,7 @@ namespace magnet {
 	public:
 	  /*! \brief Constructor for Shader objects.
 	   */
-	  Shader(): _built(false), _context(NULL) {}
+	  Shader(): _built(false) {}
 
 	  //! \brief Destructor
 	  inline ~Shader() { deinit(); }
@@ -232,7 +232,7 @@ namespace magnet {
 	    _geometryShaderCode.clear();
 	    _uniformCache.clear();
 	    _built = false;
-	    _context = NULL;
+	    _context.reset();
 	  }
 
 	  /*! \brief Attach the shader, so it is used for the next
@@ -325,7 +325,7 @@ namespace magnet {
 	    */
 	  inline void build()
 	  {
-	    _context = &(Context::getContext());
+	    _context = Context::getContext();
 
 	    if (_vertexShaderCode.empty()) 
 	      _vertexShaderCode = magnet::string::format_code(initVertexShaderSource());
@@ -465,7 +465,7 @@ namespace magnet {
 	  GLhandleARB _geometryShaderHandle;
 	  GLhandleARB _programHandle;
 	  bool _built;
-	  Context* _context;
+	  Context::ContextPtr _context;
 
 	  std::string _vertexShaderCode;
 	  std::string _fragmentShaderCode;

@@ -51,7 +51,7 @@ namespace coil {
     };
 
     inline Attribute(size_t N, int type, size_t components, 
-		     magnet::GL::Context* context):
+		     magnet::GL::Context::ContextPtr context):
       std::vector<GLfloat>(N * components),
       _usedInLastRender(false),
       _usedInCurrentRender(false),
@@ -127,7 +127,7 @@ namespace coil {
     volatile bool _usedInLastRender;
     volatile bool _usedInCurrentRender;
     
-    magnet::GL::Context* _context;
+    magnet::GL::Context::ContextPtr _context;
     std::vector<GLfloat> _minVals;
     std::vector<GLfloat> _maxVals;
     

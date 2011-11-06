@@ -73,7 +73,7 @@ namespace coil {
     
     bool _raytraceable;
     float _scale;
-    magnet::GL::Context* _context;
+    magnet::GL::Context::ContextPtr _context;
     magnet::GL::shader::SphereShader _sphereShader;
     magnet::GL::shader::SphereVSMShader _sphereVSMShader;
  };

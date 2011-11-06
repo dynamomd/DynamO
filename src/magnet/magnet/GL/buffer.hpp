@@ -39,7 +39,6 @@ namespace magnet {
     public:
       inline Buffer(): 
 	_size(0), 
-	_context(NULL), 
 	_cl_handle_init(false), 
 	_cl_buffer_acquired(0) 
       {}
@@ -81,7 +80,7 @@ namespace magnet {
 	//On the first initialisation
 	if (empty())
 	  {
-	    _context = &Context::getContext();
+	    _context = Context::getContext();
 	    glGenBuffersARB(1, &_buffer);	
 	  }
 
@@ -140,7 +139,7 @@ namespace magnet {
 	_cl_handle_init = false;
 	if (_size)
 	  glDeleteBuffersARB(1, &_buffer);
-	_context = NULL;
+	_context.reset();
 	_size = 0;
       }
       
@@ -162,7 +161,7 @@ namespace magnet {
 
       /*! \brief Returns the OpenGL context this buffer lives in.
        */
-      inline Context& getContext() const { initTest(); return *_context; }
+      inline const Context::ContextPtr& getContext() const { initTest(); return _context; }
 
       /*! \brief Draw all the elements in the current buffer.
        */
@@ -316,7 +315,7 @@ namespace magnet {
 
       size_t _size;
       GLuint _buffer;
-      Context* _context;
+      Context::ContextPtr _context;
       ::cl::BufferGL _cl_handle;
       bool _cl_handle_init;
       size_t _cl_buffer_acquired;

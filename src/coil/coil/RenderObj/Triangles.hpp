@@ -45,7 +45,7 @@ namespace coil {
     virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, uint32_t& offset);
     virtual void finishPicking(uint32_t& offset, const uint32_t val);
 
-    magnet::GL::Context& getContext() { return _posBuff.getContext(); }
+    const magnet::GL::Context::ContextPtr& getContext() const { return _posBuff.getContext(); }
 
   protected:
     enum RenderModeType { POINTS, LINES, TRIANGLES };

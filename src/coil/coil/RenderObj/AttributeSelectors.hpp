@@ -147,7 +147,7 @@ namespace coil {
     size_t _lastAttributeDataCount;
     int _lastComponentSelected;
     magnet::GL::Buffer<GLfloat> _filteredData;
-    magnet::GL::Context* _context;        
+    magnet::GL::Context::ContextPtr _context;        
     size_t _components;
     bool _enableDataFiltering;
     

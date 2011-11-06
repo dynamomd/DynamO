@@ -77,7 +77,6 @@ namespace coil {
 			 ):
     _systemQueue(new magnet::thread::TaskQueue),
     _updateIntervalValue(updateIntervalValue),
-    _glContext(NULL),
     keyState(DEFAULT),
     windowTitle(title),
     _frameCounter(0),
@@ -598,7 +597,7 @@ namespace coil {
 
     CoilRegister::getCoilInstance().CallGlutCreateWindow(windowTitle.c_str(), this);
 
-    _glContext = &magnet::GL::Context::getContext();
+    _glContext = magnet::GL::Context::getContext();
 
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glDepthFunc(GL_LEQUAL);
@@ -755,7 +754,7 @@ namespace coil {
 
     /////////////////OpenCL
 
-    getGLContext().getCLCommandQueue().finish();
+    getGLContext()->getCLCommandQueue().finish();
 
     ///////////////////OpenGL
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
@@ -809,7 +808,7 @@ namespace coil {
     guiUpdateCallback(); //We frequently ping the gui update     
 
     //Flush the OpenCL queue, so GL can use the buffers
-    getGLContext().getCLCommandQueue().finish();
+    getGLContext()->getCLCommandQueue().finish();
   
     ////////////Lighting shadow map creation////////////////////
     //This stage only needs to be performed once per frame
@@ -928,7 +927,7 @@ namespace coil {
 	_camera.setEyeLocation(currentEyePos);
       }
 
-    getGLContext().swapBuffers();
+    getGLContext()->swapBuffers();
 
     //Check if we're recording and then check that if we're
     //framelocking, check that new data is available
@@ -1581,7 +1580,7 @@ namespace coil {
     glDisable(GL_BLEND);
     
     //Flush the OpenCL queue, so GL can use the buffers
-    getGLContext().getCLCommandQueue().finish();
+    getGLContext()->getCLCommandQueue().finish();
     
     //Perform unique coloring of screen objects
     uint32_t offset = 0;

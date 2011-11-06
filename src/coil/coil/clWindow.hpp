@@ -70,11 +70,11 @@ namespace coil {
 
     std::tr1::shared_ptr<magnet::thread::TaskQueue>& getQueue() { return  _systemQueue; }
 
-    magnet::GL::Context& getGLContext()
+    magnet::GL::Context::ContextPtr& getGLContext()
     {
-      if (_glContext == NULL)
+      if (!_glContext)
 	M_throw() << "GL context not yet set!";
-      return *_glContext;
+      return _glContext;
     }
 
     boost::signals2::signal<void ()>& signal_data_update() { return _updateDataSignal; }
@@ -113,7 +113,7 @@ namespace coil {
     double _updateIntervalValue;
     size_t _consoleID;
 
-    magnet::GL::Context* _glContext;
+    magnet::GL::Context::ContextPtr _glContext;
 
     magnet::thread::Mutex _destroyLock;
 

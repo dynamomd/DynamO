@@ -54,7 +54,6 @@ namespace coil {
   public:
     DataSet(std::string name, size_t N): 
       RenderObj(name), 
-      _context(NULL),
       _N(N),
       _selectedGlyph(-1)
     {}
@@ -164,7 +163,7 @@ namespace coil {
      */
     Gtk::TreeModel::iterator _iter;
     RenderObjectsGtkTreeView* _view;
-    magnet::GL::Context* volatile _context;
+    magnet::GL::Context::ContextPtr _context;
     std::auto_ptr<Gtk::VBox> _gtkOptList;
     size_t _N;
     std::vector<std::tr1::shared_ptr<DataSetChild> > _children;

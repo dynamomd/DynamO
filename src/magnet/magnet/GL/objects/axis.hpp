@@ -101,12 +101,12 @@ namespace magnet {
 	 */
 	inline void glRender()
 	{
-	  _colorData.getContext().cleanupAttributeArrays();
+	  _colorData.getContext()->cleanupAttributeArrays();
 	  _colorData.attachToColor();
 	  _vertexData.drawArray(magnet::GL::element_type::LINES);
 	}
 
-	Context& getContext() { return _vertexData.getContext(); }
+	const Context::ContextPtr& getContext() { return _vertexData.getContext(); }
       protected:
 	magnet::GL::Buffer<GLfloat> _vertexData;
 	magnet::GL::Buffer<GLubyte> _colorData;

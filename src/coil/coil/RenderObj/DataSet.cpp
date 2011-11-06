@@ -26,7 +26,6 @@ namespace coil {
     _lastAttribute(NULL),
     _lastAttributeDataCount(-1),
     _lastComponentSelected(-1),
-    _context(NULL),
     _components(0),
     _enableDataFiltering(enableDataFiltering)
   {
@@ -35,7 +34,7 @@ namespace coil {
     //Label
     _label.show();
     _selectorRow.pack_start(_label, false, false, 5);
-    _context = &(magnet::GL::Context::getContext());
+    _context = magnet::GL::Context::getContext();
     //combo box
     _model = Gtk::ListStore::create(_modelColumns);
     _comboBox.set_model(_model);      
@@ -123,7 +122,7 @@ namespace coil {
     
     _overlay.init(600, 600);
     //We don't initialise the attributes, as they're initialised on access
-    _context = &(magnet::GL::Context::getContext());
+    _context = magnet::GL::Context::getContext();
   }
 
 
@@ -288,7 +287,7 @@ namespace coil {
     for (iterator iPtr = begin(); iPtr != end(); ++iPtr)
       iPtr->second->deinit();
 
-    _context = NULL;
+    _context.reset();
     _overlay.deinit();
     RenderObj::deinit();
   }
