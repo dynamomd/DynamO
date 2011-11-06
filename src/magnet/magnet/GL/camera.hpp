@@ -202,18 +202,7 @@ namespace magnet {
 		{
 		  math::Vector rotationAxis =  _position ^ _up;
 		  double norm = rotationAxis.nrm();
-		  std::cout << "\nRotationAxis " 
-			    << rotationAxis[0] << " "
-			    << rotationAxis[1] << " "
-			    << rotationAxis[2] << " norm "
-			    << norm;		    
 		  rotationAxis /= (norm != 0.0) ? norm : 1.0;
-
-		  std::cout << "\nRotationAxisNormed " 
-			    << rotationAxis[0] << " "
-			    << rotationAxis[1] << " "
-			    << rotationAxis[2];
-
 		  _position = Rodrigues(M_PI * (diffY / 180.0f) * rotationAxis) * _position;
 		}
 
