@@ -48,7 +48,7 @@ namespace magnet {
 	    STRINGIFY(
 uniform sampler2D u_Texture0; //Blurred image
 uniform sampler2D u_Texture1; //Original
-uniform sampler2D u_Texture2; //Depth buffer
+uniform sampler2D u_Texture2; //Position Buffer
 uniform float focalDistance;
 uniform float focalRange;
 uniform float nearDist;
@@ -57,21 +57,16 @@ uniform float farDist;
 smooth in vec2 screenCoord;
 layout (location = 0) out vec4 color_out;
 
-float LinearizeDepth(float zoverw)
-{
-  return(2.0 * nearDist) / (farDist + nearDist - zoverw * (farDist - nearDist));
-}
-
 void main(void)
 {
   float fcldist = focalDistance;
   if (fcldist == 0) //Automatic mode
-    fcldist = LinearizeDepth(texture(u_Texture2, vec2(0.5,0.5)).r);
+    fcldist = texture(u_Texture2, vec2(0.5, 0.5)).z;
   
   vec4 original = texture(u_Texture1, screenCoord);
   vec4 blurred = texture(u_Texture0, screenCoord);
   
-  float depth = LinearizeDepth(texture(u_Texture2, screenCoord).r);
+  float depth = texture(u_Texture2, screenCoord).z;
   float blur = clamp(abs(depth - fcldist) / focalRange, 0.0, 1.0);
   
   color_out = original + blur * (blurred - original);

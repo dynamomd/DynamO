@@ -73,8 +73,6 @@ namespace coil
       _filter["u_Texture0"] = colorTextureUnit;
       _filter["u_Texture1"] = 0;
       _filter["u_Texture2"] = 2;
-      _filter["nearDist"] = vp.getZNear();
-      _filter["farDist"] = vp.getZFar();
       _filter["focalDistance"] = _focalLength;
       _filter["focalRange"] = _focalWidth;
       _filter.invoke();

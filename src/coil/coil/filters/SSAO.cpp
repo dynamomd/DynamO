@@ -127,10 +127,8 @@ namespace coil
     _filter["totStrength"] = _totStrength;
     _filter["depthDropoff"] = _dropoff;
     _filter["offset"] = GLfloat(std::max(width, height)) / _randomTextureSize;
-    _filter["nearDist"] = vp.getZNear();
-    _filter["farDist"] = vp.getZFar();
-    _filter["u_Texture1"] = 1;
-    _filter["u_Texture2"] = 2;
+    _filter["NormalsTex"] = 1;
+    _filter["EyePosTex"] = 2;
     _filter["rnm"] = 7;
     _filter.invoke();
     _filter.detach();

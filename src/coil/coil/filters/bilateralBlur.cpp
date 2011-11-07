@@ -88,10 +88,8 @@ namespace coil
     _filter.attach();
     _filter["scale"] = val;
     _filter["totStrength"] = _zdiff;
-    _filter["nearDist"] = vp.getZNear();
-    _filter["farDist"] = vp.getZFar();
-    _filter["u_Texture0"] = colorTextureUnit;
-    _filter["u_Texture2"] = 3;
+    _filter["ImageTex"] = colorTextureUnit;
+    _filter["EyePosTex"] = 3;
     _filter.invoke();
     _filter.detach();
   }

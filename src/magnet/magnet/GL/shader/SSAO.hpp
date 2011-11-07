@@ -36,8 +36,8 @@ namespace magnet {
 	{
 	  return "#version 330\n"
 	    STRINGIFY(
-uniform sampler2D u_Texture1;
-uniform sampler2D u_Texture2;
+uniform sampler2D NormalsTex;
+uniform sampler2D EyePosTex;
 uniform sampler2D rnm;
 uniform float radius;
 uniform float totStrength;
@@ -50,11 +50,6 @@ const float invSamples = 1.0 / 10.0;
 
 smooth in vec2 screenCoord;
 layout (location = 0) out vec4 color_out;
-
-float LinearizeDepth(float zoverw)
-{
-  return(2.0 * nearDist) / (farDist + nearDist - zoverw * (farDist - nearDist));
-}
 
 void main(void)
 {
@@ -73,12 +68,12 @@ void main(void)
   // grab a normal for reflecting the sample rays later on
   vec3 fres = normalize(2.0 * texture(rnm, screenCoord * offset).xyz - vec3(1.0));
     
-  float currentPixelDepth = LinearizeDepth(texture(u_Texture2, screenCoord).r);
+  float currentPixelDepth = -texture(EyePosTex, screenCoord).z;
   
   // current fragment coords in screen space
   vec3 ep = vec3(screenCoord, currentPixelDepth);
   // get the normal of current fragment
-  vec3 norm = normalize(2.0 * texture(u_Texture1, screenCoord).xyz - 1.0);
+  vec3 norm = normalize(2.0 * texture(NormalsTex, screenCoord).xyz - 1.0);
   
   float bl = 0.0;
   float radD = radius / currentPixelDepth;
@@ -92,9 +87,9 @@ void main(void)
       
       // get the depth of the occluder fragment
       vec2 occluderLoc = ep.xy + sign(dot(ray,norm) ) * ray.xy;
-      vec4 occluderFragment = texture(u_Texture1, occluderLoc);
+      vec4 occluderFragment = texture(NormalsTex, occluderLoc);
 
-      float occluderDepth = LinearizeDepth(texture(u_Texture2, occluderLoc).r);
+      float occluderDepth = -texture(EyePosTex, occluderLoc).z;
 
       // if d (depth difference) is negative = occluder is behind current fragment
       float d = currentPixelDepth - occluderDepth;

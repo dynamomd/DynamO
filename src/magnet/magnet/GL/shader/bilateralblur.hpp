@@ -36,8 +36,8 @@ namespace magnet {
 	{ 
 	  return "#version 330\n"
 	    STRINGIFY(
-uniform sampler2D u_Texture0; //input
-uniform sampler2D u_Texture2; //Depth buffer
+uniform sampler2D ImageTex; //input
+uniform sampler2D EyePosTex;
 uniform vec2 scale;
 uniform float totStrength;
 uniform float nearDist;
@@ -52,7 +52,7 @@ float sampleWeight(int i, int j) { return weight[i] * weight[j]; }
 
 void main(void)
 {
-  float currentPixelDepth = texture(u_Texture2, screenCoord).z;
+  float currentPixelDepth = texture(EyePosTex, screenCoord).z;
   
   vec3 accum = vec3(0, 0, 0);
   float totalWeight = 0.0;
@@ -61,11 +61,11 @@ void main(void)
     for (int y = 0; y < 5; ++y)
       {
 	vec2 sampleLoc = screenCoord + vec2((x - 2) * scale.x, (y - 2) * scale.y);
-	float sampleDepth = texture(u_Texture2, sampleLoc).z;
+	float sampleDepth = texture(EyePosTex, sampleLoc).z;
 	
 	float Zdifference = abs(currentPixelDepth - sampleDepth);
 	float sampleweight = (1.0 - step(totStrength, Zdifference)) * sampleWeight(x,y);
-	accum += sampleweight * texture(u_Texture0, sampleLoc).rgb;
+	accum += sampleweight * texture(ImageTex, sampleLoc).rgb;
 	totalWeight += sampleweight;
       }
   
