@@ -20,6 +20,7 @@
 #include <magnet/GL/camera.hpp>
 #include <magnet/GL/shader/laplacianFilter.hpp>
 #include <magnet/GL/shader/blur.hpp>
+#include <magnet/GL/shader/hipass.hpp>
 #include <gtkmm.h>
 
 namespace coil 
@@ -38,20 +39,24 @@ typedef coil::magnetFilterWrapper<magnet::GL::shader::Laplacian3x3B> lap3x3B;
 typedef coil::magnetFilterWrapper<magnet::GL::shader::LoG9x9> lapgauss9x9;
 typedef coil::magnetFilterWrapper<magnet::GL::shader::Gaussian5x5Blur> gauss5x5;
 typedef coil::magnetFilterWrapper<magnet::GL::shader::Box5x5Blur> box5x5;
+typedef coil::magnetFilterWrapper<magnet::GL::shader::HiPass3x3> HiPass3x3;
+typedef coil::magnetFilterWrapper<magnet::GL::shader::HiPass5x5> HiPass5x5;
 
 //Format is F(enumeration,stringname,type)
 #define FILTER_FACTORY(F)						\
-  F(0, "5x5 Laplacian", lap5x5)						\
-  F(1, "3x3 Laplacian A", lap3x3A)					\
-  F(2, "3x3 Laplacian B", lap3x3B)					\
-  F(3, "9x9 Laplacian of Gaussian", lapgauss9x9)			\
-  F(4, "5x5 Gaussian Blur", gauss5x5)					\
-  F(5, "5x5 Box Filter", box5x5)					\
-  F(6, "5x5 Gaussian Bilateral Blur", BilateralBlurWrapper)		\
-  F(7, "SSAO: Shadow (After, use a bilateral blur, then multiply)", SSAOWrapper)	\
-  F(8, "Multiply with Original Image", MultiplyFilter)			\
-  F(9, "DOF Filter (Make a fully blurred image first)", DOFFilter)      \
-  F(10, "Flush Current (Do after a SSAO/DOF filter to allow further processing)", FlushToOriginal) 
+  F(0, "3x3 Hi-Pass Filter", HiPass3x3)					\
+  F(1, "5x5 Hi-Pass Filter", HiPass5x5)					\
+  F(2, "5x5 Laplacian", lap5x5)						\
+  F(3, "3x3 Laplacian A", lap3x3A)					\
+  F(4, "3x3 Laplacian B", lap3x3B)					\
+  F(5, "9x9 Laplacian of Gaussian", lapgauss9x9)			\
+  F(6, "5x5 Gaussian Blur", gauss5x5)					\
+  F(7, "5x5 Box Filter", box5x5)					\
+  F(8, "5x5 Gaussian Bilateral Blur", BilateralBlurWrapper)		\
+  F(9, "SSAO: Shadow (After, use a bilateral blur, then multiply)", SSAOWrapper)	\
+  F(10, "Multiply with Original Image", MultiplyFilter)			\
+  F(11, "DOF Filter (Make a fully blurred image first)", DOFFilter)      \
+  F(12, "Flush Current (Do after a SSAO/DOF filter to allow further processing)", FlushToOriginal) 
 
 namespace coil 
 {
