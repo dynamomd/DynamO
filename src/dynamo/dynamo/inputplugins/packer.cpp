@@ -133,6 +133,8 @@ namespace dynamo {
   {
     //Set the default liouvillean
     Sim->dynamics.setLiouvillean(std::tr1::shared_ptr<Liouvillean>(new LNewtonian(Sim)));
+    //Set the default Boundary Conditions
+    Sim->dynamics.applyBC<BCPeriodic>();
 
     switch (vm["packer-mode"].as<size_t>())
       {
@@ -161,7 +163,6 @@ namespace dynamo {
 
 	  Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
 
-	  Sim->dynamics.applyBC<BCPeriodic>();
 
 	  double simVol = 1.0;
 
@@ -253,8 +254,6 @@ namespace dynamo {
 
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
-
-	  Sim->dynamics.applyBC<BCPeriodic>();
 
 	  double simVol = 1.0;
 
@@ -616,7 +615,6 @@ namespace dynamo {
 	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSBoundedPQ<>(Sim)));
 	  Sim->dynamics.addGlobal(new GCells(Sim, "SchedulerNBList"));
 
-	  Sim->dynamics.applyBC<BCPeriodic>();
 	  Sim->dynamics.addInteraction(new IHardSphere(Sim, diamScale, 1.0,
 						       new C2RAll()
 						       ))->setName("Bulk");
@@ -928,8 +926,6 @@ namespace dynamo {
 
 	  Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
 
-	  Sim->dynamics.applyBC<BCPeriodic>();
-
 	  Sim->dynamics.addInteraction
 	    (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0,
 			     (vm.count("b1"))
@@ -1014,8 +1010,6 @@ namespace dynamo {
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
 	
-	  Sim->dynamics.applyBC<BCPeriodic>();
-
 	  double simVol = 1.0;
 
 	  for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -1094,8 +1088,6 @@ namespace dynamo {
 	  std::vector<Vector  >
 	    latticeSites(packroutine.placeObjects(Vector (0,0,0)));
 
-	  Sim->dynamics.applyBC<BCPeriodic>();
-
 	  double particleDiam = pow(vm["density"].as<double>()
 				    / latticeSites.size(), double(1.0 / 3.0));
 
@@ -1168,8 +1160,6 @@ namespace dynamo {
 
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
-
-	  Sim->dynamics.applyBC<BCPeriodic>();
 
 	  double simVol = 1.0;
 
@@ -1247,8 +1237,6 @@ namespace dynamo {
 
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
-
-	  Sim->dynamics.applyBC<BCPeriodic>();
 
 	  double alpha = 1.0;
 
@@ -1328,8 +1316,6 @@ namespace dynamo {
 
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
-
-	  Sim->dynamics.applyBC<BCPeriodic>();
 
 	  double molFrac = 0.01, massFrac = 0.001, sizeRatio = 0.1;
 
@@ -1609,8 +1595,6 @@ namespace dynamo {
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
 
-	  Sim->dynamics.applyBC<BCPeriodic>();
-
 	  double simVol = 1.0;
 
 	  for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -1717,8 +1701,6 @@ namespace dynamo {
 
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
-
-	  Sim->dynamics.applyBC<BCPeriodic>();
 
 	  double simVol = 1.0;
 
@@ -1831,8 +1813,6 @@ namespace dynamo {
 
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
-
-	  Sim->dynamics.applyBC<BCPeriodic>();
 
 	  double simVol = 1.0;
 
@@ -1961,8 +1941,6 @@ namespace dynamo {
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
 	
-	  Sim->dynamics.applyBC<BCPeriodic>();
-
 	  double simVol = 1.0;
 
 	  for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -2052,8 +2030,6 @@ namespace dynamo {
 
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
-
-	  Sim->dynamics.applyBC<BCPeriodic>();
 
 	  double simVol = 1.0;
 
@@ -2321,8 +2297,6 @@ namespace dynamo {
 	  else
 	    Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
 
-	  Sim->dynamics.applyBC<BCPeriodic>();
-
 	  double simVol = 1.0;
 
 	  for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -2572,7 +2546,6 @@ namespace dynamo {
 	  double particleDiam = std::min(1 / (2 * R + 1), 1 / (H + 1));
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
-	  Sim->dynamics.applyBC<BCPeriodic>();
 	  Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
 	
 
@@ -3272,7 +3245,6 @@ namespace dynamo {
 	  double particleDiam = (2 * Rmax) / l;
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
-	  Sim->dynamics.applyBC<BCPeriodic>();
 	  Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
 	
 
