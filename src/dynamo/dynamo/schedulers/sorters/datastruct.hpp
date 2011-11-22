@@ -61,19 +61,19 @@ namespace dynamo {
     inline intPart(const IntEvent& coll, const unsigned long& nCC2) throw():
       dt(coll.getdt()),
       collCounter2(nCC2),
-      type((coll.getType() == VIRTUAL) ? VIRTUAL : INTERACTION),
+      type(INTERACTION),
       p2(coll.getParticle2ID())
     {}
 
     inline intPart(const GlobalEvent& coll) throw():
       dt(coll.getdt()),
-      type((coll.getType() == VIRTUAL) ? VIRTUAL : GLOBAL),
+      type(GLOBAL),
       p2(coll.getGlobalID())
     {}
 
     inline intPart(const LocalEvent& coll) throw():
       dt(coll.getdt()),
-      type((coll.getType() == VIRTUAL) ? VIRTUAL : LOCAL),
+      type(LOCAL),
       p2(coll.getLocalID())
     {}
 

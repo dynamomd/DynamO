@@ -57,8 +57,8 @@ namespace dynamo {
 //    dynamic_cast<const LNewtonian&>(Sim->dynamics.getLiouvillean())
 //      . LNewtonian::SphereSphereOutRoot(colldat, r2,
 //					part.testState(Particle::DYNAMIC), false);
-
-    return LocalEvent(part, colldat.dt, WALL, *this);
+//
+//    return LocalEvent(part, colldat.dt, WALL, *this);
   }
 
   void
