@@ -82,8 +82,8 @@ namespace dynamo {
 				    const double&, const double&) const
   { M_throw() << "Not implemented for this Liouvillean."; }
 
-  bool
-  Liouvillean::getLineLineCollision(CPDData&, const double&, 
+  std::pair<bool, double>
+  Liouvillean::getLineLineCollision(const double, 
 				    const Particle&, const Particle&,
 				    double) const
   { M_throw() << "Not implemented for this Liouvillean."; }

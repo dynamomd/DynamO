@@ -249,7 +249,7 @@ namespace dynamo {
      * \param t_max The maximum time to consider roots in.
      * \return Wether the event will occur or not.
      */    
-    virtual bool getLineLineCollision(CPDData& PD, const double& length, 
+    virtual std::pair<bool, double> getLineLineCollision(const double length, 
 				      const Particle& p1, const Particle& p2,
 				      double t_max) const;
 

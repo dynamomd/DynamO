@@ -73,8 +73,7 @@ namespace dynamo {
   { return _length->getMaxValue(); }
 
   IntEvent 
-  ILines::getEvent(const Particle &p1,
-		   const Particle &p2) const 
+  ILines::getEvent(const Particle &p1, const Particle &p2) const
   {
 #ifdef DYNAMO_DEBUG
     if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
@@ -86,8 +85,6 @@ namespace dynamo {
     if (p1 == p2)
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
-  
-    CPDData colldat(*Sim, p1, p2);
   
     double l = (_length->getProperty(p1.getID())
 		+ _length->getProperty(p2.getID())) * 0.5;
@@ -101,11 +98,19 @@ namespace dynamo {
 	//Lower limit is right now
 	//Test for a line collision
 	//Upper limit can be HUGE_VAL!
-	if (Sim->dynamics.getLiouvillean().getLineLineCollision
-	    (colldat, l, p1, p2, dt))
-	  return IntEvent(p1, p2, dt, CORE, *this);
-      
-	return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
+	std::pair<bool, double> colltime = Sim->dynamics.getLiouvillean().getLineLineCollision(l, p1, p2, dt);
+
+	if (colltime.second == HUGE_VAL)
+	  return IntEvent(p1, p2, dt, WELL_OUT, *this);
+
+	//Something happens in the time interval
+
+	if (colltime.first)
+	  //Its a collision!
+	  return IntEvent(p1, p2, colltime.second, CORE, *this);
+	else
+	  //Its a virtual event, we need to recalculate in a bit
+	  return IntEvent(p1, p2, colltime.second, VIRTUAL, *this);
       }
     else 
       {

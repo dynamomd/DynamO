@@ -1304,9 +1304,8 @@ namespace dynamo {
     return retVal; 
   }
 
-  bool 
-  LNewtonian::getLineLineCollision(CPDData& PD, const double& length, 
-				   const Particle& p1, const Particle& p2,
+  std::pair<bool, double> 
+  LNewtonian::getLineLineCollision(const double length, const Particle& p1, const Particle& p2,
 				   double t_high) const
   {  
 #ifdef DYNAMO_DEBUG
@@ -1320,9 +1319,13 @@ namespace dynamo {
       M_throw() << "Particle2 " << p2.getID() << " is not up to date";
 #endif
 
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Vector v12 = p1.getVelocity() - p2.getVelocity();
+    Sim->dynamics.BCs().applyBC(r12, v12);
+
     double t_low = 0.0;
   
-    CLinesFunc fL(PD.rij, PD.vij,
+    CLinesFunc fL(r12, v12,
 		  orientationData[p1.getID()].angularVelocity,
 		  orientationData[p2.getID()].angularVelocity,
 		  orientationData[p1.getID()].orientation,
@@ -1345,15 +1348,7 @@ namespace dynamo {
     if(dtw.second < t_high)
       t_high = dtw.second;
   
-    std::pair<bool,double> root = magnet::math::frenkelRootSearch(fL, t_low, t_high, length * 1e-10);
-
-    if (root.first) 
-      { 
-	PD.dt = root.second;
-	return true; 
-      }
-    else 
-      return false;
+    return magnet::math::frenkelRootSearch(fL, t_low, t_high, length * 1e-10);
   }
 
   PairEventData 

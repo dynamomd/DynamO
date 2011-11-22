@@ -139,9 +139,9 @@ namespace dynamo {
 					   const Matrix& rot,
 					   const EEventType& eType = CORE) const;
 
-    virtual bool getLineLineCollision(CPDData& PD, const double& length, 
-				      const Particle& p1, const Particle& p2,
-				      double t_max) const;
+    virtual std::pair<bool, double> getLineLineCollision(const double length,
+							 const Particle& p1, const Particle& p2,
+							 double t_max) const;
   
     virtual PairEventData runLineLineCollision(const IntEvent& eevent, 
 					       const double& elasticity, const double& length) const;
