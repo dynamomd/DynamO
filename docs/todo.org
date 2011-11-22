@@ -35,6 +35,7 @@
 **** DONE Magnet: Upgraded all shaders to GLSL 330.
 **** TODO DynamO: Move the test state code into the liouvillean.
 **** TODO DynamO: Repair or remove the lsphere interaction.
+**** TODO DynamO: Figure out how the virtual interactions are supposed to work.
 **** TODO Magnet: confirm ray_inv_rod_bfc implementation is correct.
 **** TODO Coil: Check the perspective correction on the raytraced spheres, they're not fisheyed like the triangular ones are
 **** TODO Remove the requirement of a statically linked bzip2 or zlib library
