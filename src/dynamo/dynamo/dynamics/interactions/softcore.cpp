@@ -129,9 +129,7 @@ namespace dynamo {
     else
       {
 	double dt = Sim->dynamics.getLiouvillean()
-	  .SphereSphereInRoot(p1, p2, d,
-			      p1.testState(Particle::DYNAMIC), 
-			      p2.testState(Particle::DYNAMIC));
+	  .SphereSphereInRoot(p1, p2, d);
 	if (dt != HUGE_VAL) 
 	  {
 #ifdef DYNAMO_OverlapTesting

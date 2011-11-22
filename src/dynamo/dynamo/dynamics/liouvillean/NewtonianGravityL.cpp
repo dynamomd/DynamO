@@ -90,12 +90,14 @@ namespace dynamo {
   }
 
   double
-  LNewtonianGravity::SphereSphereInRoot(const Particle& p1, const Particle& p2, double d,
-					bool p1Dynamic, bool p2Dynamic) const
+  LNewtonianGravity::SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const
   {
+    bool p1Dynamic = p1.testState(Particle::DYNAMIC);
+    bool p2Dynamic = p2.testState(Particle::DYNAMIC);
+    
     //If both particles feel gravity, or both don't, the root finding is the same.
     if (p1Dynamic == p2Dynamic)
-      return LNewtonian::SphereSphereInRoot(p1, p2, d, p1Dynamic, p2Dynamic);
+      return LNewtonian::SphereSphereInRoot(p1, p2, d);
 
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();

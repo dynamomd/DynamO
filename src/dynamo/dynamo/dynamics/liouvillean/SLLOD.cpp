@@ -123,8 +123,7 @@ namespace dynamo {
   }
 
   double 
-  LSLLOD::SphereSphereInRoot(const Particle& p1, const Particle& p2, 
-			     double d, bool p1Dynamic, bool p2Dynamic) const
+  LSLLOD::SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const
   {
     M_throw() << "Not Implemented";
   }

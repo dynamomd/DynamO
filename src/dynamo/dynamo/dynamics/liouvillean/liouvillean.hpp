@@ -142,7 +142,7 @@ namespace dynamo {
      *
      * \return Whether the event will occur
      */
-    virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d, bool p1Dynamic, bool p2Dynamic) const = 0;
+    virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const = 0;
 
     /*! \brief Determines if and when two spheres will stop intersecting.
      *

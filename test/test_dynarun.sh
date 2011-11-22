@@ -17,6 +17,7 @@
 
 Dynarun="../bin/dynarun"
 Dynamod="../bin/dynamod"
+
 #Next is the name of XML starlet
 Xml="xml"
 
@@ -34,9 +35,13 @@ which $Xml || `echo "Could not find XMLStarlet"; exit`
 
 which gawk || `echo "Could not find gawk"; exit`
 
+#We create a local copy of the executables, so that recompilation won't break running tests
+cp $Dynamod ./dynamod
+cp $Dynarun ./dynarun
+
 function HS_replex_test {
     for i in $(seq 0 2); do
-	$Dynamod -m 0 -C 7 -T $(echo "0.5*$i + 0.5" | bc -l) \
+	./dynamod -m 0 -C 7 -T $(echo "0.5*$i + 0.5" | bc -l) \
 	    -o config.$i.start1.xml.bz2 > /dev/null
 
 	bzcat config.$i.start1.xml.bz2 | \
@@ -47,11 +52,11 @@ function HS_replex_test {
     done
 
     #Equilibration
-    time $Dynarun --engine 2 $2 -c 10000000000 -i 10 -f 100 \
+    time ./dynarun --engine 2 $2 -c 10000000000 -i 10 -f 100 \
 	config.*.start.xml.bz2 > /dev/null
     
     #Production
-    time $Dynarun --engine 2 $2 -c 10000000000 -i 10 -f 200 \
+    time ./dynarun --engine 2 $2 -c 10000000000 -i 10 -f 200 \
 	-L KEnergy config.*.end.xml.bz2 > /dev/null
 
     if [ ! -e "output.0.xml.bz2" ]; then
@@ -112,7 +117,7 @@ function HS_replex_test {
 function HS_compressiontest { 
     #Compresses some N=256, rho=0.5 hard spheres in a fcc, which
     #should compress into a maximum packed FCC crystal quite rapidly
-    $Dynamod -m0 -d0.5 -C 4 &> run.log
+    ./dynamod -m0 -d0.5 -C 4 &> run.log
 
     #Set the scheduler
     bzcat config.out.xml.bz2 | \
@@ -120,10 +125,10 @@ function HS_compressiontest {
 	| bzip2 > tmp.xml.bz2
 
     #Run the simulation
-    $Dynarun -c 100000 --engine 3 --growth-rate 100.0 $2 tmp.xml.bz2 &> run2.log
+    ./dynarun -c 100000 --engine 3 --growth-rate 100.0 $2 tmp.xml.bz2 &> run2.log
     cat run2.log >> run.log
     rm run2.log
-    $Dynarun -c 1 config.out.xml.bz2 &> run2.log
+    ./dynarun -c 1 config.out.xml.bz2 &> run2.log
     cat run2.log >> run.log
     rm run2.log
 
@@ -159,10 +164,10 @@ function wallsw {
 	| bzip2 > tmp.xml.bz2
     #Any multiple of 5 will/should always give the original configuration
     #doing 9995 as this stops any 2 periodicity
-    $Dynarun -c 9995 $2 tmp.xml.bz2 &> run.log
+    ./dynarun -c 9995 $2 tmp.xml.bz2 &> run.log
     
-    $Dynamod --round config.out.xml.bz2 > /dev/null
-    $Dynamod config.out.xml.bz2 > /dev/null
+    ./dynamod --round config.out.xml.bz2 > /dev/null
+    ./dynamod config.out.xml.bz2 > /dev/null
 
     bzcat config.out.xml.bz2 | \
 	$Xml sel -t -c '//ParticleData' > testresult.dat
@@ -193,11 +198,11 @@ function umbrella {
     
     #Any multiple of 12 will/should always give the original configuration
     #doing only 12 to stop error creeping in
-    $Dynarun -c 12 $2 tmp.xml.bz2 &> run.log
+    ./dynarun -c 12 $2 tmp.xml.bz2 &> run.log
 
     ##This rounds the last digit off 
-    $Dynamod --round config.out.xml.bz2 > /dev/null
-    $Dynamod config.out.xml.bz2 > /dev/null
+    ./dynamod --round config.out.xml.bz2 > /dev/null
+    ./dynamod config.out.xml.bz2 > /dev/null
 
     bzcat config.out.xml.bz2 | \
 	$Xml sel -t -c '//ParticleData' > testresult.dat
@@ -227,7 +232,7 @@ function cannon {
     
     rm tmp2.xml.bz2
     
-    $Dynarun -c 1000 tmp.xml.bz2 &> run.log
+    ./dynarun -c 1000 tmp.xml.bz2 &> run.log
     
     if [ -e output.xml.bz2 ]; then
 	var=$(bzcat output.xml.bz2 | \
@@ -261,7 +266,7 @@ function linescannon {
     
     rm tmp2.xml.bz2
     
-    $Dynarun -c 10 tmp.xml.bz2 &> run.log
+    ./dynarun -c 10 tmp.xml.bz2 &> run.log
     
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
@@ -285,10 +290,10 @@ function ThermostatTest {
     #Testing the Andersen thermostat holds the right temperature
     > run.log
 
-    $Dynamod -m 0 -r 0.1 -T 1.0 -o tmp.xml.bz2 &> run.log    
-    $Dynarun -c 100000 tmp.xml.bz2 >> run.log 2>&1
-    $Dynarun -c 100000 config.out.xml.bz2 >> run.log 2>&1
-    $Dynarun -c 500000 config.out.xml.bz2 -L KEnergy >> run.log 2>&1
+    ./dynamod -m 0 -r 0.1 -T 1.0 -o tmp.xml.bz2 &> run.log    
+    ./dynarun -c 100000 tmp.xml.bz2 >> run.log 2>&1
+    ./dynarun -c 100000 config.out.xml.bz2 >> run.log 2>&1
+    ./dynarun -c 500000 config.out.xml.bz2 -L KEnergy >> run.log 2>&1
     
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
@@ -312,9 +317,9 @@ function ThermostatTest {
 function HardSphereTest {
     > run.log
 
-    $Dynamod -s 1 -m 0 &> run.log    
-    $Dynarun -c 500000 config.out.xml.bz2 >> run.log 2>&1
-    $Dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
+    ./dynamod -s 1 -m 0 &> run.log    
+    ./dynarun -c 500000 config.out.xml.bz2 >> run.log 2>&1
+    ./dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
     
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
@@ -338,9 +343,9 @@ function HardSphereTest {
 function SquareWellTest {
     > run.log
 
-    $Dynamod -s1 -m 1 -T 1 &> run.log    
-    $Dynarun -c 3000000 config.out.xml.bz2 >> run.log 2>&1
-    $Dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
+    ./dynamod -s1 -m 1 -T 1 &> run.log    
+    ./dynarun -c 3000000 config.out.xml.bz2 >> run.log 2>&1
+    ./dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
     
     MFT="0.036"
 
@@ -370,13 +375,13 @@ function SquareWellTest {
 function BinarySphereTest {
     > run.log
 
-    $Dynamod -s1 -m 8 --f3 0.05 -d 1.4 -C 10 --f1 0.5 &> run.log
+    ./dynamod -s1 -m 8 --f3 0.05 -d 1.4 -C 10 --f1 0.5 &> run.log
     bzcat config.out.xml.bz2 \
 	| $Xml ed -u "//Globals/Global[@Name='SchedulerNBList']/@Type" \
 	-v "$1" | bzip2 > tmp.xml.bz2
 
-    $Dynarun -c 1000000 tmp.xml.bz2 >> run.log 2>&1
-    $Dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
+    ./dynarun -c 1000000 tmp.xml.bz2 >> run.log 2>&1
+    ./dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
     
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
@@ -400,9 +405,9 @@ function BinarySphereTest {
 function ShearingTest {
     > run.log
 
-    $Dynamod -s1 -m 4 --f1 0.9 &> run.log    
-    $Dynarun -c 500000 config.out.xml.bz2 >> run.log 2>&1
-    $Dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
+    ./dynamod -s1 -m 4 --f1 0.9 &> run.log    
+    ./dynarun -c 500000 config.out.xml.bz2 >> run.log 2>&1
+    ./dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
     
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
@@ -426,9 +431,9 @@ function ShearingTest {
 function IsolatedPolymerTest {
     > run.log
 
-    $Dynamod -s1 -m 2 --i1 50  &> run.log
-    $Dynarun -s2 -c 1000000 config.out.xml.bz2 >> run.log 2>&1
-    $Dynarun -s3 -c 1000000 config.out.xml.bz2 >> run.log 2>&1
+    ./dynamod -s1 -m 2 --i1 50  &> run.log
+    ./dynarun -s2 -c 1000000 config.out.xml.bz2 >> run.log 2>&1
+    ./dynarun -s3 -c 1000000 config.out.xml.bz2 >> run.log 2>&1
     
     MFT=0.0240657157464771
     if [ -e output.xml.bz2 ]; then
@@ -454,7 +459,7 @@ function IsolatedPolymerTest {
 function HeavySphereTest {
     > run.log
 
-    $Dynarun -c 100000 hvySpheres.xml.bz2 >> run.log 2>&1
+    ./dynarun -c 100000 hvySpheres.xml.bz2 >> run.log 2>&1
     
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
@@ -478,7 +483,7 @@ function HeavySphereTest {
 function HeavySphereCompressionTest {
     > run.log
 
-    $Dynarun --engine 3 --target-pack-frac 0.2 hvySpheres.xml.bz2 >> run.log 2>&1
+    ./dynarun --engine 3 --target-pack-frac 0.2 hvySpheres.xml.bz2 >> run.log 2>&1
     
     if [ -e output.xml.bz2 ]; then
 	echo "HeavySphereCompressionTest -: PASSED"
@@ -496,8 +501,8 @@ function HardLinesTest {
     > run.log
 
     dens=0.1
-    $Dynamod -s1 -m 9 -C 1000 -d $dens  &> run.log
-    $Dynarun -c 100000 config.out.xml.bz2 >> run.log 2>&1
+    ./dynamod -s1 -m 9 -C 1000 -d $dens  &> run.log
+    ./dynarun -c 100000 config.out.xml.bz2 >> run.log 2>&1
 
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
@@ -525,8 +530,8 @@ function HardLinesTest {
 function GravityPlateTest {
     > run.log
 
-    $Dynamod -s1 -m 22 -d 0.1  &> run.log
-    $Dynarun -c 100000 config.out.xml.bz2 >> run.log 2>&1
+    ./dynamod -s1 -m 22 -d 0.1  &> run.log
+    ./dynarun -c 100000 config.out.xml.bz2 >> run.log 2>&1
     MFT=3.53170571948864
 
     if [ -e output.xml.bz2 ]; then
@@ -555,7 +560,7 @@ function GravityPlateTest {
 function StaticSpheresTest {
     > run.log
 
-    $Dynarun -c 500000 static-spheres.xml.bz2 >> run.log 2>&1
+    ./dynarun -c 500000 static-spheres.xml.bz2 >> run.log 2>&1
     
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \

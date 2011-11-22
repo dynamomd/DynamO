@@ -31,8 +31,7 @@ namespace dynamo {
     growthRate(GR) {}
 
   double 
-  LCompression::SphereSphereInRoot(const Particle& p1, const Particle& p2, double d, 
-				   bool p1Dynamic, bool p2Dynamic) const
+  LCompression::SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();

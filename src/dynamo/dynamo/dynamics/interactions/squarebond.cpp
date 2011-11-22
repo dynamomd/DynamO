@@ -154,7 +154,6 @@ namespace dynamo {
 
     double d = (_diameter->getProperty(p1.getID())
 		+ _diameter->getProperty(p2.getID())) * 0.5;
-    double d2 = d * d;
     double l = (_lambda->getProperty(p1.getID())
 		+ _lambda->getProperty(p2.getID())) * 0.5;
   
@@ -163,9 +162,7 @@ namespace dynamo {
     IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
 
     double dt = Sim->dynamics.getLiouvillean()
-      .SphereSphereInRoot(p1, p2, d,
-			  p1.testState(Particle::DYNAMIC), 
-			  p2.testState(Particle::DYNAMIC));
+      .SphereSphereInRoot(p1, p2, d);
     if (dt != HUGE_VAL)
       {
 #ifdef DYNAMO_OverlapTesting

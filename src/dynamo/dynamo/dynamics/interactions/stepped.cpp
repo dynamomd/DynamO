@@ -198,10 +198,7 @@ namespace dynamo {
       {
 	double d = steps.front().first * _unitLength->getMaxValue();
 	double dt 
-	  = Sim->dynamics.getLiouvillean().SphereSphereInRoot
-	  (p1, p2, d,
-	   p1.testState(Particle::DYNAMIC), 
-	   p2.testState(Particle::DYNAMIC));
+	  = Sim->dynamics.getLiouvillean().SphereSphereInRoot(p1, p2, d);
 
 	//Not captured, test for capture
 	if (dt != HUGE_VAL)
@@ -228,9 +225,7 @@ namespace dynamo {
 	  {
 	    double d = steps[capstat->second].first * _unitLength->getMaxValue();
 	    double dt = Sim->dynamics.getLiouvillean().SphereSphereInRoot
-	      (p1, p2, d,
-	       p1.testState(Particle::DYNAMIC), 
-	       p2.testState(Particle::DYNAMIC));
+	      (p1, p2, d);
 	    
 	      if (dt != HUGE_VAL)
 		{
