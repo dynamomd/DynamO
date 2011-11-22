@@ -92,7 +92,7 @@ namespace dynamo {
     double l = (_length->getProperty(p1.getID())
 		+ _length->getProperty(p2.getID())) * 0.5;
 
-    if (isCaptured(p1, p2)) 
+    if (isCaptured(p1, p2))
       {
 	//Run this to determine when the spheres no longer intersect
 	double dt = Sim->dynamics.getLiouvillean().SphereSphereOutRoot(p1, p2, l);

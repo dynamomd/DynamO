@@ -124,22 +124,28 @@ namespace magnet {
       return std::pair<bool,double>(false, HUGE_VAL);
     }
 
-    /* \brief A root finder that is guarranteed to find the earliest
-    ** root in an interval, for functions with known maximum first and
-    ** second derivatives.
-    **
-    **   Firstly, search for root in main window
-    **  - If a root is not found, return failure
-    **
-    ** If a root is found: bring in an artificial new high boundary just beneath new root
-    **  - If this leaves a window, search window for root
-    **    - If a root is found, return to top of this section storing only this new root
-    **    - If no root is found, drop out of this inner loop
-    **  - Check root validity
-    **    - If root is valid, this is earliest possible root - roll with it
-    **    - If root is invalid, set new concrete t_low just above this found root and go from the top
-    **
-    ** \param toleranceLengthScale Should be 10^-10 the typical length scale of the system
+    /*! \brief A root finder that is guarranteed to find the earliest
+     root in an interval, for functions with known maximum first and
+     second derivatives.
+    
+     First, search for root in main window
+      - If a root is not found, return a failure
+    
+     If a root is found: start a new search in the window just between this root and the lower bound.
+        - If a root is found, restart the search again, in the smaller 
+        - If no root is found, drop out of this inner loop
+      - Check root validity
+        - If root is valid, this is earliest possible root - roll with it
+        - If root is invalid, set new concrete t_low just above this found root and go from the top
+    
+     \param toleranceLengthScale Should be 10^-10 the typical length scale of the system
+
+     If the root finder fails, it will return (false, HUGE_VAL), if it
+     fails due to the iteration count going too high, it will return
+     (false, t_low), where t_low is a lower bound on any possible root.
+
+     Otherwise it will return (true, t) where t is the location of the
+     root.
     */
     template<class T>
     std::pair<bool,double> frenkelRootSearch(const T& fL, double t_low, double t_high,
