@@ -157,17 +157,12 @@ namespace dynamo {
 
     /*! \brief Determines if two spheres are overlapping
      *
-     * \param pd Some precomputed data about the event that is cached by
-     * the interaction/calling class.
-     *
-     * \param d2 Square of the interaction distance.
+     * \param d The interaction distance.
      *
      * \return True if the spheres are overlapping.
      */
-    virtual bool sphereOverlap(const CPDData& PD, const double& d2) const = 0;
-
-    virtual bool sphereOverlap(const Particle& p1, const Particle& p2, 
-			       const double& d2) const = 0;
+    virtual double sphereOverlap(const Particle& p1, const Particle& p2, 
+				 const double& d2) const = 0;
 
     /*! \brief Determines if and when two parallel cube will intersect.
      *
@@ -263,9 +258,9 @@ namespace dynamo {
      * \return Wether the event will occur or not.
      */    
 
-    virtual bool getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const double& length, const double& diameter,
-							    const Particle& p1, const Particle& p2
-							    ) const;
+    virtual bool getOffCenterSphereOffCenterSphereCollision(const double length, const double diameter,
+							    const Particle& p1, const Particle& p2,
+							    const double) const;
 
     /*! \brief Tests if and when a point will collide with a pair of
      * oscillating walls, which are parallel and facing inwards to a centre point

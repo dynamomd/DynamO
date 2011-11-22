@@ -105,20 +105,21 @@ namespace dynamo {
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
 
-    CPDData colldat(*Sim, p1, p2);
-
     double d = (_diameter->getProperty(p1.getID())
 		+ _diameter->getProperty(p2.getID())) * 0.5;
-    
 
     double dt = Sim->dynamics.getLiouvillean().SphereSphereInRoot(p1, p2, d);
     if (dt != HUGE_VAL)
       {
 #ifdef DYNAMO_OverlapTesting
 	if (Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d))
-	  M_throw() << "Overlapping particles found" 
-		    << ", particle1 " << p1.getID() << ", particle2 " 
-		    << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
+	  M_throw() << "Overlapping particles found"
+		    << ", particle1 " << p1.getID()
+		    << ", particle2 " << p2.getID()
+		    << "\nOverlap = " 
+		    << Sim->dynamics.getLiouvillean()
+	    .sphereOverlap(p1, p2, d)
+	    / Sim->dynamics.units().unitLength();
 #endif
 
 	return IntEvent(p1, p2, dt, CORE, *this);

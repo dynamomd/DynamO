@@ -128,8 +128,6 @@ namespace dynamo  {
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
   
-    CPDData colldat(*Sim, p1, p2);
-  
     double d = (_diameter->getProperty(p1.getID())
 		+ _diameter->getProperty(p2.getID())) * 0.5;
 
@@ -141,13 +139,11 @@ namespace dynamo  {
 	//Run this to determine when the spheres no longer intersect
 	double dt = Sim->dynamics.getLiouvillean().SphereSphereOutRoot(p1, p2, l + d);
 
-	//colldat.dt has the upper limit of the line collision time
-	//Lower limit is right now
-	//Test for a line collision
-	//Upper limit can be HUGE_VAL!
-	if (Sim->dynamics.getLiouvillean().getOffCenterSphereOffCenterSphereCollision
-	    (colldat, l, d, p1, p2))
-	  return IntEvent(p1, p2, dt, CORE, *this);
+	double dt_offcenter = Sim->dynamics.getLiouvillean()
+	  .getOffCenterSphereOffCenterSphereCollision(l, d, p1, p2, dt);
+
+	if (dt_offcenter < dt)
+	  return IntEvent(p1, p2, dt_offcenter, CORE, *this);
       
 	return IntEvent(p1, p2, dt, WELL_OUT, *this);
       }
@@ -248,11 +244,7 @@ namespace dynamo  {
     double l = (_length->getProperty(p1.getID())
 		+ _length->getProperty(p2.getID())) * 0.5;
 
-    Vector  rij = p1.getPosition() - p2.getPosition();
-    Sim->dynamics.BCs().applyBC(rij);
-
-    return (rij | rij) <= (l + d) * (l + d);
-
+    return Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, l + d);
   }
 
   void

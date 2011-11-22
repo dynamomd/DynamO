@@ -37,10 +37,8 @@ namespace dynamo {
     //Pair particle dynamics
     virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const;
     virtual double SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const;  
-    virtual bool sphereOverlap(const CPDData&, const double&) const;
-
-    virtual bool sphereOverlap(const Particle& p1, const Particle& p2,
-			       const double& d) const;
+    virtual double sphereOverlap(const Particle& p1, const Particle& p2,
+				 const double& d) const;
 
     virtual bool CubeCubeInRoot(CPDData&, const double&) const;
 
@@ -160,10 +158,10 @@ namespace dynamo {
 						    const double& r
 						    ) const;
 
-    virtual bool getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const double& length, 
-							    const double& diameter,
-							    const Particle& p1, const Particle& p2
-							    ) const;
+    virtual bool getOffCenterSphereOffCenterSphereCollision(const double length, 
+							    const double diameter,
+							    const Particle& p1, const Particle& p2,
+							    const double) const;
   
     virtual PairEventData runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, 
 								     const double& elasticity, 

@@ -26,9 +26,8 @@ namespace dynamo {
 
     virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const;
     virtual double SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const;  
-    virtual bool sphereOverlap(const CPDData&, const double&) const;
-    virtual bool sphereOverlap(const Particle& p1, const Particle& p2,
-			       const double& d) const;
+    virtual double sphereOverlap(const Particle& p1, const Particle& p2,
+				 const double& d) const;
 
     virtual PairEventData SmoothSpheresColl(const IntEvent&, const double&, const double&, const EEventType&) const;
 

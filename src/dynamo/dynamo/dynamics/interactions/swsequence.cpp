@@ -202,29 +202,21 @@ namespace dynamo {
   {
     if (&(*(Sim->dynamics.getInteraction(p1, p2))) != this) return false;
 
-    Vector  rij = p1.getPosition() - p2.getPosition();
-    Sim->dynamics.BCs().applyBC(rij);
-
     double d = (_diameter->getProperty(p1.getID())
 		+ _diameter->getProperty(p2.getID())) * 0.5;
 
     double l = (_lambda->getProperty(p1.getID())
 		+ _lambda->getProperty(p2.getID())) * 0.5;
   
-    double ld2 = d * l * d * l;
-
 #ifdef DYNAMO_DEBUG
-    double d2 = d * d;
-    if (rij.nrm2() < d2)
-      {
-	derr << "Warning! Two particles are overlapping"
-	     << "\nrij^2 = " << (rij | rij)
-	     << "\nd^2 = " << d2
-	     << "\np1 = " << p1.getID() << " p2 = " << p2.getID() << std::endl;
-      }
+    if (Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d))
+      derr << "Warning! Two particles might be overlapping"
+	   << "Overlap is " << Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d) 
+	/ Sim->dynamics.units().unitLength()
+	   << "\nd = " << d / Sim->dynamics.units().unitLength() << std::endl;
 #endif
-
-    return (rij.nrm2() <= ld2);
+ 
+    return Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, l * d);
   }
 
   IntEvent 
@@ -245,8 +237,6 @@ namespace dynamo {
 #ifdef DYNAMO_CollDebug
     std::cerr << "\n Testing p1 = " << p1.getID() << " p2 = " << p2.getID();
 #endif
-    CPDData colldat(*Sim, p1, p2);
-  
     double d = (_diameter->getProperty(p1.getID())
 		+ _diameter->getProperty(p2.getID())) * 0.5;
 
@@ -267,7 +257,9 @@ namespace dynamo {
 	      M_throw() << "Overlapping particles found" 
 			<< ", particle1 " << p1.getID() 
 			<< ", particle2 " 
-			<< p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
+			<< p2.getID() << "\nOverlap = " 
+			<< Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d) 
+		/ Sim->dynamics.units().unitLength();
 #endif	  
 	    retval = IntEvent(p1, p2, dt, CORE, *this);
 	  }
@@ -283,16 +275,20 @@ namespace dynamo {
 	if (dt != HUGE_VAL)
 	  {
 #ifdef DYNAMO_OverlapTesting
-	    if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat,ld2))
+	    if (Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, l * d))
 	      {
-		if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat,d2))
+		if (Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d))
 		  M_throw() << "Overlapping cores (but not registerd as captured) particles found in square well" 
 			    << "\nparticle1 " << p1.getID() << ", particle2 " 
-			    << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
+			    << p2.getID() << "\nOverlap = " 
+			    << Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d) 
+		    / Sim->dynamics.units().unitLength();
 		else
 		  M_throw() << "Overlapping wells (but not registerd as captured) particles found" 
 			    << "\nparticle1 " << p1.getID() << ", particle2 " 
-			    << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(ld2))/Sim->dynamics.units().unitLength();
+			    << p2.getID() << "\nOverlap = " 
+			    << Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, l * d)
+		    / Sim->dynamics.units().unitLength();
 	  
 	      }
 #endif

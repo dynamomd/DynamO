@@ -103,21 +103,6 @@ namespace dynamo {
     return magnet::intersection::ray_inv_sphere_bfc<true>(r12, v12, d);
   }
 
-  bool 
-  LNewtonian::sphereOverlap(const CPDData& dat, const double& d2) const
-  {
-    return (dat.r2 - d2) < 0.0;
-  }
-
-  bool 
-  LNewtonian::sphereOverlap(const Particle& p1, const Particle& p2,
-			    const double& d) const
-  {
-    Vector r12 = p1.getPosition() - p2.getPosition();
-    Sim->dynamics.BCs().applyBC(r12);
-    return (r12 | r12) < (d * d);
-  }
-
   ParticleEventData 
   LNewtonian::randomGaussianEvent(const Particle& part, const double& sqrtT) const
   {
@@ -1420,11 +1405,21 @@ namespace dynamo {
     return retVal;
   }
 
+  double 
+  LNewtonian::sphereOverlap(const Particle& p1, const Particle& p2, 
+			    const double& d) const
+  {
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Sim->dynamics.BCs().applyBC(r12);
+
+    return std::sqrt(std::max(d * d - (r12 | r12), 0.0));
+  }
 
   //Here starts my code for offCenterSpheres :P
   bool 
-  LNewtonian::getOffCenterSphereOffCenterSphereCollision(CPDData& PD, const double& length,  const double& diameter, 
-							 const Particle& p1, const Particle& p2) const
+  LNewtonian::getOffCenterSphereOffCenterSphereCollision(const double length,  const double diameter, 
+							 const Particle& p1, const Particle& p2, 
+							 const double t_h_init) const
 
   {  
 #ifdef DYNAMO_DEBUG
@@ -1438,11 +1433,15 @@ namespace dynamo {
       M_throw() << "Particle2 " << p2.getID() << " is not up to date";
 #endif
 
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Vector v12 = p1.getVelocity() - p2.getVelocity();
+    Sim->dynamics.BCs().applyBC(r12, v12);
+
     double t_low = 0.0;
-    double t_high = PD.dt;
+    double t_high = t_h_init;
     double tolerance = 1e-16;
   
-    CDumbbellsFunc fL1(PD.rij, PD.vij,
+    CDumbbellsFunc fL1(r12, v12,
 		       orientationData[p1.getID()].angularVelocity,
 		       orientationData[p2.getID()].angularVelocity,
 		       orientationData[p1.getID()].orientation,
@@ -1459,7 +1458,7 @@ namespace dynamo {
     std::pair<bool,double> root1 = magnet::math::frenkelRootSearch(fL1, t_low, t_high,length*tolerance);
 
 
-    CDumbbellsFunc fL2(PD.rij, PD.vij,
+    CDumbbellsFunc fL2(r12, v12,
 		       orientationData[p1.getID()].angularVelocity,
 		       orientationData[p2.getID()].angularVelocity,
 		       -orientationData[p1.getID()].orientation,
@@ -1473,7 +1472,7 @@ namespace dynamo {
   
     std::pair<bool,double> root2 = magnet::math::frenkelRootSearch(fL2, t_low, t_high,length*tolerance);
 
-    CDumbbellsFunc fL3(PD.rij, PD.vij,
+    CDumbbellsFunc fL3(r12, v12,
 		       orientationData[p1.getID()].angularVelocity,
 		       orientationData[p2.getID()].angularVelocity,
 		       orientationData[p1.getID()].orientation,
@@ -1487,7 +1486,7 @@ namespace dynamo {
   
     std::pair<bool,double> root3 = magnet::math::frenkelRootSearch(fL3, t_low, t_high,length*tolerance);
 
-    CDumbbellsFunc fL4(PD.rij, PD.vij,
+    CDumbbellsFunc fL4(r12, v12,
 		       orientationData[p1.getID()].angularVelocity,
 		       orientationData[p2.getID()].angularVelocity,
 		       -orientationData[p1.getID()].orientation,
@@ -1501,19 +1500,12 @@ namespace dynamo {
   
     std::pair<bool,double> root4 = magnet::math::frenkelRootSearch(fL4, t_low, t_high,length*tolerance);
 
-    if (root1.first || root2.first || root3.first || root4.first )
-      {
-      
-	double roots[4] = {root1.second, root2.second, root3.second, root4.second};  
-	//I_cout()<<roots[0]<< " "<< roots[1]<< " "<<roots[2]<< " "<<roots[3]<< " "; 
-      
-	PD.dt = *std::min_element(roots,roots+4);
-	return true;
-      }
-    else
-      return false;
+    double roots[4] = {root1.second, root2.second, root3.second, root4.second};  
+    //I_cout()<<roots[0]<< " "<< roots[1]<< " "<<roots[2]<< " "<<roots[3]<< " "; 
+    
+    return *std::min_element(roots, roots+4);
   }
-
+  
   PairEventData 
   LNewtonian::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, const double& elasticity, const double& length,const double& diameter) const
 
