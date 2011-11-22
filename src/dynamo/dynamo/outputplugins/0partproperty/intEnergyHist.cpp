@@ -29,7 +29,6 @@ namespace dynamo {
   OPIntEnergyHist::OPIntEnergyHist(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
     OPCollTicker(tmp,"InternalEnergyHistogram", 10),//Before OPEnergy
     intEnergyHist(1.0),
-    ptrOPEnergy(NULL),
     weight(0.0),
     binwidth(1.0)
   {

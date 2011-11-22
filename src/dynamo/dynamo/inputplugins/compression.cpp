@@ -54,9 +54,9 @@ namespace dynamo {
     oldLio = Sim->dynamics.getLiouvilleanPtr();
 
     dout << "Loading compression liouvillean" << std::endl;
-    Sim->dynamics.setLiouvillean(new LCompression(Sim, growthRate 
-						  / (Sim->dynamics.units()
-						     .unitTime())));
+    Sim->dynamics.setLiouvillean(std::tr1::shared_ptr<dynamo::Liouvillean>
+				 (new LCompression(Sim, growthRate 
+						   / Sim->dynamics.units().unitTime())));
   }
 
   void

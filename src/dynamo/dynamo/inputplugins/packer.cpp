@@ -131,6 +131,9 @@ namespace dynamo {
   void
   CIPPacker::initialise()
   {
+    //Set the default liouvillean
+    Sim->dynamics.setLiouvillean(std::tr1::shared_ptr<Liouvillean>(new LNewtonian(Sim)));
+
     switch (vm["packer-mode"].as<size_t>())
       {
       case 0:
@@ -197,8 +200,6 @@ namespace dynamo {
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
 	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
-
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	  double elasticity = 1.0;
 
@@ -276,8 +277,6 @@ namespace dynamo {
 	  Sim->dynamics.units().setUnitLength(particleDiam);
 	  //Set the unit energy to 1 (assuming the unit of mass is 1);
 	  Sim->dynamics.units().setUnitTime(particleDiam); 
-
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	  if (!vm.count("s1"))
 	    {
@@ -475,8 +474,6 @@ namespace dynamo {
 
 	  Sim->dynamics.applyBC<BCNone>();
 
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
-
 	  Sim->dynamics.addInteraction
 	    (new ISquareBond(Sim, sigmin * diamScale,
 			     sigmax / sigmin, 1.0,
@@ -620,8 +617,6 @@ namespace dynamo {
 	  Sim->dynamics.addGlobal(new GCells(Sim, "SchedulerNBList"));
 
 	  Sim->dynamics.applyBC<BCPeriodic>();
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
-
 	  Sim->dynamics.addInteraction(new IHardSphere(Sim, diamScale, 1.0,
 						       new C2RAll()
 						       ))->setName("Bulk");
@@ -689,8 +684,6 @@ namespace dynamo {
 
 	  Sim->dynamics.applyBC<BCLeesEdwards>();
 	  const double shearRate = 1;
-
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	  Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, alpha,
 						       new C2RAll()
@@ -784,8 +777,6 @@ namespace dynamo {
 
 	  Sim->dynamics.applyBC<BCNone>();
 
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
-
 	  Sim->dynamics.addInteraction
 	    (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0,
 			     new C2RChain(0, latticeSites.size()-1)
@@ -855,8 +846,6 @@ namespace dynamo {
 	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
-	
 	  double elasticity = 1;
 	  if (vm.count("f1"))
 	    elasticity =  vm["f1"].as<double>();
@@ -940,8 +929,6 @@ namespace dynamo {
 	  Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
 
 	  Sim->dynamics.applyBC<BCPeriodic>();
-
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	  Sim->dynamics.addInteraction
 	    (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0,
@@ -1046,8 +1033,6 @@ namespace dynamo {
 	  Sim->dynamics.addGlobal(new GCells(Sim, "SchedulerNBList"));
 
 
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
-
 	  size_t nA = static_cast<size_t>(molFrac * latticeSites.size());
 
 	  Sim->dynamics.addInteraction
@@ -1135,8 +1120,6 @@ namespace dynamo {
 	      Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
 	    }
 
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
-
 	  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0;
 
 	  Sim->dynamics.addInteraction(new ILines(Sim, particleDiam, elasticity,
@@ -1201,8 +1184,6 @@ namespace dynamo {
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
 	    = std::tr1::shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new CSSCBT(Sim)));
-
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	  //This is to stop interactions being used for these particles
 	  Sim->dynamics.addInteraction
@@ -1288,7 +1269,7 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = std::tr1::shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new CSSCBT(Sim)));
 
-	  Sim->dynamics.setLiouvillean(new LSLLOD(Sim));
+	  Sim->dynamics.setLiouvillean(std::tr1::shared_ptr<Liouvillean>(new LSLLOD(Sim)));
 
 	  //This is to stop interactions being used for these particles
 	  Sim->dynamics.addInteraction
@@ -1374,8 +1355,6 @@ namespace dynamo {
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
 	    = std::tr1::shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new CSSCBT(Sim)));
-
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	  //This is to stop interactions being used for these particles
 	  Sim->dynamics.addInteraction
@@ -1558,8 +1537,6 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
-
 	  Sim->dynamics.addGlobal(new GCellsShearing(Sim,"SchedulerNBList"));
 
 	  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0 ;
@@ -1660,8 +1637,6 @@ namespace dynamo {
 
 	  Sim->dynamics.addGlobal(new GCells(Sim, "SchedulerNBList"));
 
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
-
 	  Sim->dynamics.addInteraction
 	    (new IHardSphere(Sim, particleDiam, 1.0,
 			     new C2RSingle(new CRRange(0, nPartA - 1)))
@@ -1757,9 +1732,6 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 	  Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
-
-
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	  if (vm.count("b1"))
 	    Sim->dynamics.addGlobal(new GSOCells(Sim,"SOCells"));
@@ -1892,8 +1864,6 @@ namespace dynamo {
 	  //Set the unit energy to 1 (assuming the unit of mass is 1);
 	  Sim->dynamics.units().setUnitTime(particleDiam); 
 
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
-
 	  typedef std::pair<double,double> locpair;
 	  std::vector<locpair> diamvec;
 
@@ -2007,8 +1977,6 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = std::tr1::shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new CSSCBT(Sim)));
 
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
-
 	  //This is to stop interactions being used for these particles
 	  Sim->dynamics.addInteraction
 	    (new INull(Sim, new C2RAll()))->setName("Catchall");
@@ -2106,7 +2074,7 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = std::tr1::shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new CSSCBT(Sim)));
 
-	  Sim->dynamics.setLiouvillean(new LSLLOD(Sim));
+	  Sim->dynamics.setLiouvillean(std::tr1::shared_ptr<Liouvillean>(new LSLLOD(Sim)));
 
 	  //This is to stop interactions being used for these particles
 	  Sim->dynamics.addInteraction
@@ -2271,8 +2239,6 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
-
 	  Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, 
 						       ParticleInelas,
 						       new C2RAll()
@@ -2385,8 +2351,6 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
-
 	  Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, 1.0,
 						       new C2RAll()
 						       ))->setName("Bulk");
@@ -2479,8 +2443,6 @@ namespace dynamo {
 						new CRAll(Sim), true));
 
 
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
-
 	  Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, 1.0,
 						       new C2RAll()
 						       ))->setName("Bulk");
@@ -2536,7 +2498,8 @@ namespace dynamo {
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
 
-	  Sim->dynamics.setLiouvillean(new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0)));
+	  Sim->dynamics.setLiouvillean(std::tr1::shared_ptr<Liouvillean>
+				       (new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0))));
 
 	  double elasticity = 1.0;
 
@@ -2617,7 +2580,8 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSCBT(Sim)));
 
-	  Sim->dynamics.setLiouvillean(new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0), elasticV * Sim->dynamics.units().unitVelocity()));
+	  Sim->dynamics.setLiouvillean(std::tr1::shared_ptr<Liouvillean>
+				       (new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0), elasticV * Sim->dynamics.units().unitVelocity())));
 
 	  Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, elasticity,
 						       new C2RAll()
@@ -2758,8 +2722,6 @@ namespace dynamo {
 	      = std::tr1::shared_ptr<SDumb>(new SDumb(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.applyBC<BCNone>();
-
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	  Sim->dynamics.addInteraction
 	    (new ISquareBond(Sim, sigmin * diamScale,
@@ -3318,9 +3280,10 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSCBT(Sim)));
 
-	  Sim->dynamics.setLiouvillean(new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0),
-							     elasticV * Sim->dynamics.units().unitVelocity(),
-							     tc * Sim->dynamics.units().unitTime()));
+	  Sim->dynamics.setLiouvillean(std::tr1::shared_ptr<Liouvillean>
+				       (new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0),
+							      elasticV * Sim->dynamics.units().unitVelocity(),
+							      tc * Sim->dynamics.units().unitTime())));
 
 	  ///Now build our funnel, so we know how many particles it takes
 	  std::vector<Vector> funnelSites;
@@ -3563,8 +3526,6 @@ namespace dynamo {
 
 	  Sim->dynamics.applyBC<BCLeesEdwards>();
 	  const double shearRate(1);
-
-	  Sim->dynamics.setLiouvillean(new LNewtonian(Sim));
 
 	  std::tr1::shared_ptr<ParticleProperty> D(new ParticleProperty(latticeSites.size(), 
 									Property::Units::Length(),

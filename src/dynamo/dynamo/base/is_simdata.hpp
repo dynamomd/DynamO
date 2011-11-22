@@ -86,14 +86,16 @@ namespace dynamo
      * Throws an exception if there's already the same plugin loaded.
      */
     template<class T>
-    const T* getOutputPlugin() const
+    std::tr1::shared_ptr<const T> getOutputPlugin() const
     {
-      BOOST_FOREACH(const std::tr1::shared_ptr<OutputPlugin>& plugin, outputPlugins)
-	if (std::tr1::dynamic_pointer_cast<T>(plugin))
-	  return dynamic_cast<const T*>(plugin.get());
+      BOOST_FOREACH(const std::tr1::shared_ptr<OutputPlugin>& plugin, 
+		    outputPlugins)
+	if (std::tr1::dynamic_pointer_cast<const T>(plugin))
+	  return std::tr1::static_pointer_cast<const T>(plugin);
       
-      M_throw() << "The output plugin " << (typeid(T).name()) << " is required, please add it";
-    }   
+      M_throw() << "The output plugin " << (typeid(T).name()) 
+		<< " is required, please add it";
+    }
 
     /*! \brief Finds a plugin of the given type using RTTI.
      *
@@ -101,13 +103,15 @@ namespace dynamo
      * exception if it can't find the plugin.
      */
     template<class T>
-    T* getOutputPlugin()
+    std::tr1::shared_ptr<T> getOutputPlugin()
     {
-      BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin>& plugin, outputPlugins)
+      BOOST_FOREACH(const std::tr1::shared_ptr<OutputPlugin>& plugin, 
+		    outputPlugins)
 	if (std::tr1::dynamic_pointer_cast<T>(plugin))
-	  return dynamic_cast<T*>(plugin.get());
-
-      M_throw() << "The output plugin " << (typeid(T).name()) << " is required, please add it";
+	  return std::tr1::static_pointer_cast<T>(plugin);
+      
+      M_throw() << "The output plugin " << (typeid(T).name()) 
+		<< " is required, please add it";
     }    
 
     //! Loads a Simulation from the passed XML file.

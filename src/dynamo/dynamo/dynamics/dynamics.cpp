@@ -587,8 +587,4 @@ namespace dynamo {
 	lcl->checkOverlaps(part);
     
   }
-
-  void 
-  Dynamics::setLiouvillean(Liouvillean* Uptr) 
-  { p_liouvillean = std::tr1::shared_ptr<Liouvillean>(Uptr); }
 }

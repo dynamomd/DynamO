@@ -8,6 +8,8 @@
 *** DynanO 1.4
 **** TODO Coil: Replace freeglut with your own implementation to fix the whole debacle of GL context management and deleting resources. 
 ***** TODO Coil: Fix the dummy vertex array object mess.
+**** TODO Coil: Switch to a multisampling deferred shading implementation.
+**** TODO Coil: Fix the mip-mapping issue with the shadow maps
 **** TODO Add rendering of light sources (crepuscular rays too?).
 **** TODO Cube shadow map lights.
 **** TODO Look at CL/GL synchronisation objects for coil.
@@ -26,6 +28,7 @@
 **** DONE Coil: Fixed a rare segfault caused by a miscalculation of the glade file data size stored in memory.
 **** DONE Coil: The snapshot button now captures using the same file counter as the record button.
 **** DONE Coil: Made the Camera class track the EYE position, now 3D rendering works for all objects.
+**** DONE Coil: Added some sharpen filters to the screen space effects.
 **** DONE Bugfix Coil: Corrected the shadow mapping calculation and removed the noise.
 **** DONE Bugfix Coil: Fix light placement relative to camera.
 **** DONE Bugfix Coil: Fixed the bilateral blur filter.
@@ -45,7 +48,6 @@
 **** TODO Alter the functions in dynamics that add/get/set objects and take/return a pointer to return shared_ptr's (search for uses of shared_ptr's get() function).
 **** TODO Alter the change system functions to take sharedptrs.
 **** TODO Change the loadClass XML functions to return shared_ptr's.
-**** TODO Alter getOutputPlugin() to sharedptrs.
 **** TODO Write up the image distance class.
 **** TODO Make the complex scheduler the default scheduler!
 **** TODO Make coil scale independent.

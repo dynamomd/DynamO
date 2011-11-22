@@ -27,8 +27,7 @@ namespace dynamo {
   OPVelDist::OPVelDist(const dynamo::SimData* tmp, 
 		       const magnet::xml::Node& XML):
     OPTicker(tmp,"VelDist"),
-    binWidth(0.01),
-    _ptrOPEnergy(NULL)
+    binWidth(0.01)
   { operator<<(XML); }
 
   void 

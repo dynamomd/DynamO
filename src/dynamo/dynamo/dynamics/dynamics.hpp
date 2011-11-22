@@ -59,9 +59,8 @@ namespace dynamo {
 
     ~Dynamics();
   
-    void setUnits(Units*);
-
-    void setLiouvillean(Liouvillean*);
+    inline void setLiouvillean(std::tr1::shared_ptr<Liouvillean> ptr)
+    { p_liouvillean = ptr; }
 
     Interaction* addInteraction(Interaction*);
 

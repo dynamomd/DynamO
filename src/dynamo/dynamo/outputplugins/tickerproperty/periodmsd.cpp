@@ -27,8 +27,7 @@
 
 namespace dynamo {
   OPPeriodicMSD::OPPeriodicMSD(const dynamo::SimData* tmp, const magnet::xml::Node&):
-    OPTicker(tmp,"PeriodicMSD"),
-    ptrOPMSD(NULL)
+    OPTicker(tmp,"PeriodicMSD")
   {}
 
   void 
