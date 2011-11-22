@@ -53,8 +53,6 @@ namespace dynamo {
 
     Particle fakeParticle(vPosition, Vector(0,0,0),std::numeric_limits<size_t>::max());
     
-    CPDData colldat(*Sim, part, fakeParticle);
-
     M_throw() << "Need to repair this functionality";
 //    dynamic_cast<const LNewtonian&>(Sim->dynamics.getLiouvillean())
 //      . LNewtonian::SphereSphereOutRoot(colldat, r2,
