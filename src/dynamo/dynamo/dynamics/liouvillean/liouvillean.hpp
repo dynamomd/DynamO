@@ -138,9 +138,9 @@ namespace dynamo {
      * \param pd Some precomputed data about the event that is cached by
      * the interaction/calling class
      *
-     * \param d2 The interaction diameter
+     * \param d The interaction diameter/distance.
      *
-     * \return Whether the event will occur
+     * \return Time of the next event, or HUGE_VAL if no event.
      */
     virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const = 0;
 
@@ -149,12 +149,11 @@ namespace dynamo {
      * \param pd Some precomputed data about the event that is cached by
      * the interaction/calling class
      *
-     * \param d2 Square of the interaction distance
+     * \param d The interaction diameter/distance.
      *
-     * \return Whether the event will occur (Always true for LNewtonian
-     * but not for LCompression!)
+     * \return Time of the next event, or HUGE_VAL if no event.
      */
-    virtual bool SphereSphereOutRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const = 0;  
+    virtual double SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const = 0;  
 
     /*! \brief Determines if two spheres are overlapping
      *

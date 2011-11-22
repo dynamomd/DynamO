@@ -91,22 +91,19 @@ namespace dynamo {
   
     double l = (_length->getProperty(p1.getID())
 		+ _length->getProperty(p2.getID())) * 0.5;
-    double l2 = l*l;
 
     if (isCaptured(p1, p2)) 
       {
 	//Run this to determine when the spheres no longer intersect
-	Sim->dynamics.getLiouvillean()
-	  .SphereSphereOutRoot(colldat, l2,
-			       p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC));
+	double dt = Sim->dynamics.getLiouvillean().SphereSphereOutRoot(p1, p2, l * l);
       
 	//colldat.dt has the upper limit of the line collision time
 	//Lower limit is right now
 	//Test for a line collision
 	//Upper limit can be HUGE_VAL!
 	if (Sim->dynamics.getLiouvillean().getLineLineCollision
-	    (colldat, l, p1, p2, colldat.dt))
-	  return IntEvent(p1, p2, colldat.dt, CORE, *this);
+	    (colldat, l, p1, p2, dt))
+	  return IntEvent(p1, p2, dt, CORE, *this);
       
 	return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
       }

@@ -247,12 +247,9 @@ namespace dynamo {
 
 	{//Now test for the outward step
 	  double d = steps[capstat->second-1].first * _unitLength->getMaxValue();
-	  double d2 = d * d;
-	
-	  if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot
-	      (colldat, d2, p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
-	    if (retval.getdt() > colldat.dt)
-	      retval = IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
+	  double dt = Sim->dynamics.getLiouvillean().SphereSphereOutRoot(p1, p2, d);
+	  if (retval.getdt() > dt)
+	      retval = IntEvent(p1, p2, dt, WELL_OUT, *this);
 	}
       }
 

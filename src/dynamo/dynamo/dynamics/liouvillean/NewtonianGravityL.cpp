@@ -112,11 +112,14 @@ namespace dynamo {
     return magnet::intersection::parabola_sphere_bfc(r12, v12, g12, d);
   }
   
-  bool 
-  LNewtonianGravity::SphereSphereOutRoot(CPDData& dat, const double& d2, bool p1Dynamic, bool p2Dynamic) const
+  double
+  LNewtonianGravity::SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const
   {
+    bool p1Dynamic = p1.testState(Particle::DYNAMIC);
+    bool p2Dynamic = p2.testState(Particle::DYNAMIC);
+
     if (p1Dynamic == p2Dynamic)
-      return LNewtonian::SphereSphereOutRoot(dat,d2,p1Dynamic,p2Dynamic);
+      return LNewtonian::SphereSphereOutRoot(p1, p2, d);
 
     M_throw() << "Function not implemented";
   }

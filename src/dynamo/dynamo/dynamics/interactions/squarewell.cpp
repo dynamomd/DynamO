@@ -150,8 +150,7 @@ namespace dynamo {
 
     double l = (_lambda->getProperty(p1.getID())
 		+ _lambda->getProperty(p2.getID())) * 0.5;
-    double ld2 = d * l * d * l;
-  
+
     IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
 
     if (isCaptured(p1, p2))
@@ -172,12 +171,9 @@ namespace dynamo {
 	    retval = IntEvent(p1, p2, dt, CORE, *this);
 	  }
 
-	if (Sim->dynamics.getLiouvillean()
-	    .SphereSphereOutRoot(colldat, ld2,
-				 p1.testState(Particle::DYNAMIC), 
-				 p2.testState(Particle::DYNAMIC)))
-	  if (retval.getdt() > colldat.dt)
-	    retval = IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
+	dt = Sim->dynamics.getLiouvillean().SphereSphereOutRoot(p1, p2, l * d);
+	if (retval.getdt() > dt)
+	    retval = IntEvent(p1, p2, dt, WELL_OUT, *this);
       }
     else
       {

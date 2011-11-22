@@ -139,9 +139,7 @@ namespace dynamo  {
     if (isCaptured(p1, p2)) 
       {
 	//Run this to determine when the spheres no longer intersect
-	Sim->dynamics.getLiouvillean()
-	  .SphereSphereOutRoot(colldat, (l + d) * (l + d),
-			       p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC));
+	double dt = Sim->dynamics.getLiouvillean().SphereSphereOutRoot(p1, p2, l + d);
 
 	//colldat.dt has the upper limit of the line collision time
 	//Lower limit is right now
@@ -149,9 +147,9 @@ namespace dynamo  {
 	//Upper limit can be HUGE_VAL!
 	if (Sim->dynamics.getLiouvillean().getOffCenterSphereOffCenterSphereCollision
 	    (colldat, l, d, p1, p2))
-	  return IntEvent(p1, p2, colldat.dt, CORE, *this);
+	  return IntEvent(p1, p2, dt, CORE, *this);
       
-	return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
+	return IntEvent(p1, p2, dt, WELL_OUT, *this);
       }
   
     double dt = Sim->dynamics.getLiouvillean()

@@ -42,15 +42,23 @@ namespace magnet {
       return  - c / (TD - std::sqrt(arg));
     }
 
-    //! \brief A ray-inverse_sphere intersection test with backface culling.
-    //!
-    //! An inverse sphere means an "enclosing" sphere.
-    //!
-    //! \param T The origin of the ray relative to the inverse sphere
-    //! center.
-    //! \param D The direction/velocity of the ray.
-    //! \param d The diameter of the inverse sphere.
-    //! \return The time until the intersection, or HUGE_VAL if no intersection.
+    /*! \brief A ray-inverse_sphere intersection test with backface culling.
+      
+      An inverse sphere means an "enclosing" sphere.
+      
+      \param T The origin of the ray relative to the inverse sphere
+      center.
+      \param D The direction/velocity of the ray.
+      \param d The diameter of the inverse sphere.
+
+      \tparam always_intersect If true, this will ensure that glancing
+      ray's never escape the enclosing sphere by returning the time
+      when the ray is nearest the sphere if the ray does not intersect
+      the sphere.
+      
+      \return The time until the intersection, or HUGE_VAL if no intersection.
+    */
+    template<bool always_intersect>
     inline double ray_inv_sphere_bfc(const math::Vector& T,
 				     const math::Vector& D,
 				     const double& r)
@@ -62,7 +70,18 @@ namespace magnet {
       double TD = T | D;
       double arg = TD * TD - D2 * (T.nrm2() - r * r);
 
-      if (arg < 0) return HUGE_VAL;
+      if (always_intersect)
+	{
+	  //Never allow a ray to escape a sphere interaction.
+	  if (arg < 0) 
+	    {
+	      //The ray never passes through the sphere, return the
+	      //time when it is closest to the sphere surface
+	      return - TD / D2;
+	    }
+	}
+      else
+	if (arg < 0) return HUGE_VAL;
 
       return (std::sqrt(arg) - TD) / D2;
     }

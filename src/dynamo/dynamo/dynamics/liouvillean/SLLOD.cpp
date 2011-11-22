@@ -128,8 +128,8 @@ namespace dynamo {
     M_throw() << "Not Implemented";
   }
     
-  bool 
-  LSLLOD::SphereSphereOutRoot(CPDData& dat, const double& d2, bool p1Dynamic, bool p2Dynamic) const
+  double 
+  LSLLOD::SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const
   {
     M_throw() << "Not Implemented";
   }

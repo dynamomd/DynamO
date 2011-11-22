@@ -274,11 +274,9 @@ namespace dynamo {
 	    retval = IntEvent(p1, p2, dt, CORE, *this);
 	  }
       
-	if (Sim->dynamics.getLiouvillean()
-	    .SphereSphereOutRoot(colldat, ld2,
-				 p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
-	  if (retval.getdt() > colldat.dt)
-	    retval = IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
+	dt = Sim->dynamics.getLiouvillean().SphereSphereOutRoot(p1, p2, l * d);
+	if (retval.getdt() > dt)
+	  retval = IntEvent(p1, p2, dt, WELL_OUT, *this);
       }
     else
       {

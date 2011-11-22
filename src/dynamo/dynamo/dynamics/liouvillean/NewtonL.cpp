@@ -94,29 +94,13 @@ namespace dynamo {
     return magnet::intersection::ray_sphere_bfc(r12, v12, d);
   }
   
-  bool 
-  LNewtonian::SphereSphereOutRoot(CPDData& dat, const double& d2, bool, bool) const
+  double
+  LNewtonian::SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const
   {
-    //If the particles are not moving apart, there is no collision
-    if (dat.v2 == 0) { dat.dt = HUGE_VAL; return false; }
-
-    double arg = dat.rvdot * dat.rvdot - dat.v2 * (dat.r2 - d2);
-
-    if (arg < 0)
-      { 
-	//The particles never intersect! Set an event to occur when the
-	//particles are as close as possible.
-	//
-	//The root of the first derivative of the quadratic is the
-	//minimum
-	dat.dt = - dat.rvdot / dat.v2;
-      }
-    else
-      dat.dt = (std::sqrt(arg) - dat.rvdot) / dat.v2;
-  
-    dat.dt = std::max(dat.dt, 0.0);
-
-    return true;
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Vector v12 = p1.getVelocity() - p2.getVelocity();
+    Sim->dynamics.BCs().applyBC(r12, v12);
+    return magnet::intersection::ray_inv_sphere_bfc<true>(r12, v12, d);
   }
 
   bool 

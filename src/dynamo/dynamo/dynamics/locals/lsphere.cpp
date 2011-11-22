@@ -55,9 +55,10 @@ namespace dynamo {
     
     CPDData colldat(*Sim, part, fakeParticle);
 
-    dynamic_cast<const LNewtonian&>(Sim->dynamics.getLiouvillean())
-      . LNewtonian::SphereSphereOutRoot(colldat, r2,
-					part.testState(Particle::DYNAMIC), false);
+    M_throw() << "Need to repair this functionality";
+//    dynamic_cast<const LNewtonian&>(Sim->dynamics.getLiouvillean())
+//      . LNewtonian::SphereSphereOutRoot(colldat, r2,
+//					part.testState(Particle::DYNAMIC), false);
 
     return LocalEvent(part, colldat.dt, WALL, *this);
   }

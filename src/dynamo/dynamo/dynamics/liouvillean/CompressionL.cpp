@@ -57,29 +57,35 @@ namespace dynamo {
     return  c / (sqrt(arg) - b);
   }
   
-  bool 
-  LCompression::SphereSphereOutRoot(CPDData& dat, const double& d2, bool p1Dynamic, bool p2Dynamic) const
+  double 
+  LCompression::SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const
   {
-    double a = dat.v2 - growthRate * growthRate * d2;
-    double b = dat.rvdot - d2 * (growthRate * growthRate 
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Vector v12 = p1.getVelocity() - p2.getVelocity();
+    Sim->dynamics.BCs().applyBC(r12, v12);
+    double rvdot = r12 | v12;
+    double r2 = r12 | r12;
+    double v2 = v12 | v12;
+    double d2 = d * d;
+
+    double a = v2 - growthRate * growthRate * d2;
+    double b = rvdot - d2 * (growthRate * growthRate 
 				 * Sim->dSysTime + growthRate);
     double c = d2 * (1.0 + growthRate * Sim->dSysTime 
-		     * (2.0 + growthRate * Sim->dSysTime)) - dat.r2;
+		     * (2.0 + growthRate * Sim->dSysTime)) - r2;
 
     double arg = (b * b) + a * c;
   
-    if (arg > 0.0) 
+    if (arg > 0.0)
       if (a > 0.0)
 	{
 	  if (b < 0)
-	    dat.dt = (sqrt(arg) - b) / a;
-	  else
-	    dat.dt = c / (sqrt(arg) + b);
-
-	  return true;
+	    return (sqrt(arg) - b) / a;
+	  
+	  return c / (sqrt(arg) + b);
 	}
-  
-    return false;
+    
+    return HUGE_VAL;
   }
 
   bool 

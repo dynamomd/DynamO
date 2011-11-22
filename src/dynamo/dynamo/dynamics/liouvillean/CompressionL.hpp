@@ -25,7 +25,7 @@ namespace dynamo {
     LCompression(dynamo::SimData*, double);
 
     virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const;
-    virtual bool SphereSphereOutRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const;  
+    virtual double SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const;  
     virtual bool sphereOverlap(const CPDData&, const double&) const;
     virtual bool sphereOverlap(const Particle& p1, const Particle& p2,
 			       const double& d) const;

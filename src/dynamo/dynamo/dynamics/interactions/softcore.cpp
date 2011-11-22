@@ -121,10 +121,9 @@ namespace dynamo {
 
     if (isCaptured(p1, p2)) 
       {
-	if (Sim->dynamics.getLiouvillean()
-	    .SphereSphereOutRoot(colldat, d * d, 
-				 p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
-	  return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
+	double dt = Sim->dynamics.getLiouvillean().SphereSphereOutRoot(p1, p2, d);
+	if (dt != HUGE_VAL)
+	  return IntEvent(p1, p2, dt, WELL_OUT, *this);
       }
     else
       {
