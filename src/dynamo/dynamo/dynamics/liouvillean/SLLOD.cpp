@@ -122,12 +122,13 @@ namespace dynamo {
     M_throw() << "Not Implemented";
   }
 
-  bool 
-  LSLLOD::SphereSphereInRoot(CPDData& dat, const double& d2, bool p1Dynamic, bool p2Dynamic) const
+  double 
+  LSLLOD::SphereSphereInRoot(const Particle& p1, const Particle& p2, 
+			     double d, bool p1Dynamic, bool p2Dynamic) const
   {
     M_throw() << "Not Implemented";
   }
-  
+    
   bool 
   LSLLOD::SphereSphereOutRoot(CPDData& dat, const double& d2, bool p1Dynamic, bool p2Dynamic) const
   {
@@ -136,6 +137,13 @@ namespace dynamo {
 
   bool 
   LSLLOD::sphereOverlap(const CPDData& dat, const double& d2) const
+  {
+    M_throw() << "Not Implemented";
+  }
+
+  bool 
+  LSLLOD::sphereOverlap(const Particle&, const Particle&,
+			const double&) const
   {
     M_throw() << "Not Implemented";
   }

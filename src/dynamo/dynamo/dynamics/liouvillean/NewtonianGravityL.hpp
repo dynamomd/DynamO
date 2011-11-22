@@ -34,7 +34,7 @@ namespace dynamo {
 
     const Vector& getGravityVector() const { return g; }
 
-    virtual bool SphereSphereInRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const;
+    virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d, bool p1Dynamic, bool p2Dynamic) const;
     virtual bool SphereSphereOutRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const;  
 
     virtual void streamParticle(Particle&, const double&) const;

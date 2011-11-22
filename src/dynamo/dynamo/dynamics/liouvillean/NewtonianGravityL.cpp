@@ -89,23 +89,25 @@ namespace dynamo {
     particle.getVelocity() += dt * g * isDynamic;
   }
 
-  bool 
-  LNewtonianGravity::SphereSphereInRoot(CPDData& dat, const double& d2, 
+  double
+  LNewtonianGravity::SphereSphereInRoot(const Particle& p1, const Particle& p2, double d,
 					bool p1Dynamic, bool p2Dynamic) const
   {
     //If both particles feel gravity, or both don't, the root finding is the same.
     if (p1Dynamic == p2Dynamic)
-      return LNewtonian::SphereSphereInRoot(dat,d2,p1Dynamic,p2Dynamic);
+      return LNewtonian::SphereSphereInRoot(p1, p2, d, p1Dynamic, p2Dynamic);
+
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Vector v12 = p1.getVelocity() - p2.getVelocity();
+    Sim->dynamics.BCs().applyBC(r12, v12);
 
     //One particle feels gravity and the other does not. Here we get the
     //sign right on the acceleration g12
-    Vector gij(g);
-    if (p2Dynamic) gij = -g;
+    Vector g12(g);
+    if (p2Dynamic) g12 = -g;
 
     //Now test for a parabolic ray and sphere intersection
-    dat.dt = magnet::intersection::parabola_sphere_bfc(dat.rij, dat.vij, gij, std::sqrt(d2));
-    
-    return (dat.dt != HUGE_VAL);
+    return magnet::intersection::parabola_sphere_bfc(r12, v12, g12, d);
   }
   
   bool 

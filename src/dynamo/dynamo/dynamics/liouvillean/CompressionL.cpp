@@ -30,27 +30,32 @@ namespace dynamo {
     LNewtonian(tmp),
     growthRate(GR) {}
 
-  bool 
-  LCompression::SphereSphereInRoot(CPDData& dat, const double& d2, bool p1Dynamic, bool p2Dynamic) const
+  double 
+  LCompression::SphereSphereInRoot(const Particle& p1, const Particle& p2, double d, 
+				   bool p1Dynamic, bool p2Dynamic) const
   {
-    double b = dat.rvdot - d2 
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Vector v12 = p1.getVelocity() - p2.getVelocity();
+    Sim->dynamics.BCs().applyBC(r12, v12);
+    double rvdot = r12 | v12;
+    double r2 = r12 | r12;
+    double v2 = v12 | v12;
+    double d2 = d * d;
+    
+    double b = rvdot - d2 
       * (growthRate * growthRate * Sim->dSysTime + growthRate);
   
-    if (b < -0.0) 
-      {
-	double a = dat.v2 - growthRate * growthRate * d2;
-	double c = dat.r2 - d2 * (1.0 + growthRate * Sim->dSysTime 
-				  * (2.0 + growthRate * Sim->dSysTime));
-	double arg = (b * b) - a * c;
-      
-	if (arg > 0.0) 
-	  {
-	    dat.dt = c / (sqrt(arg) - b);
-	    return true;
-	  }
-      }
-  
-    return false;
+    if (b >= 0.0) return HUGE_VAL;
+
+
+    double a = v2 - growthRate * growthRate * d2;
+    double c = r2 - d2 * (1.0 + growthRate * Sim->dSysTime 
+			  * (2.0 + growthRate * Sim->dSysTime));
+    double arg = (b * b) - a * c;
+    
+    if (arg < 0.0) return HUGE_VAL;
+
+    return  c / (sqrt(arg) - b);
   }
   
   bool 
@@ -86,6 +91,19 @@ namespace dynamo {
   
     return ((dat.r2 - currd2) < 0.0);
   }
+
+  bool 
+  LCompression::sphereOverlap(const Particle& p1, const Particle& p2,
+			      const double& d) const
+  {
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Sim->dynamics.BCs().applyBC(r12);
+
+    double currd2 = d * d * (1 + 2.0 * Sim->dSysTime * growthRate 
+			     + pow(Sim->dSysTime * growthRate, 2));
+    return (r12 | r12) < currd2;
+  }
+
 
   PairEventData 
   LCompression::SmoothSpheresColl(const IntEvent& event, const double& e, const double& d2, const EEventType& eType) const

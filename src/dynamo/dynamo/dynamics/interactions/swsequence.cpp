@@ -261,19 +261,21 @@ namespace dynamo {
 
     if (isCaptured(p1, p2)) 
       {
-	if (Sim->dynamics.getLiouvillean()
-	    .SphereSphereInRoot(colldat, d2,
-				p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC))) 
+	double dt = Sim->dynamics.getLiouvillean()
+	  .SphereSphereInRoot(p1, p2, d,
+			      p1.testState(Particle::DYNAMIC), 
+			      p2.testState(Particle::DYNAMIC));
+	if (dt != HUGE_VAL) 
 	  {
 #ifdef DYNAMO_OverlapTesting
 	    //Check that there is no overlap 
-	    if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat, d2))
+	    if (Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d))
 	      M_throw() << "Overlapping particles found" 
 			<< ", particle1 " << p1.getID() 
 			<< ", particle2 " 
 			<< p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
 #endif	  
-	    retval = IntEvent(p1, p2, colldat.dt, CORE, *this);
+	    retval = IntEvent(p1, p2, dt, CORE, *this);
 	  }
       
 	if (Sim->dynamics.getLiouvillean()
@@ -282,27 +284,31 @@ namespace dynamo {
 	  if (retval.getdt() > colldat.dt)
 	    retval = IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
       }
-    else if (Sim->dynamics.getLiouvillean()
-	     .SphereSphereInRoot(colldat, ld2,
-				 p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC))) 
+    else
       {
-#ifdef DYNAMO_OverlapTesting
-	if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat,ld2))
+	double dt = Sim->dynamics.getLiouvillean()
+	  .SphereSphereInRoot(p1, p2, l * d,
+			      p1.testState(Particle::DYNAMIC), 
+			      p2.testState(Particle::DYNAMIC));
+	if (dt != HUGE_VAL)
 	  {
-	    if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat,d2))
-	      M_throw() << "Overlapping cores (but not registerd as captured) particles found in square well" 
-			<< "\nparticle1 " << p1.getID() << ", particle2 " 
-			<< p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
-	    else
-	      M_throw() << "Overlapping wells (but not registerd as captured) particles found" 
-			<< "\nparticle1 " << p1.getID() << ", particle2 " 
-			<< p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(ld2))/Sim->dynamics.units().unitLength();
+#ifdef DYNAMO_OverlapTesting
+	    if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat,ld2))
+	      {
+		if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat,d2))
+		  M_throw() << "Overlapping cores (but not registerd as captured) particles found in square well" 
+			    << "\nparticle1 " << p1.getID() << ", particle2 " 
+			    << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(d2))/Sim->dynamics.units().unitLength();
+		else
+		  M_throw() << "Overlapping wells (but not registerd as captured) particles found" 
+			    << "\nparticle1 " << p1.getID() << ", particle2 " 
+			    << p2.getID() << "\nOverlap = " << (sqrt(colldat.r2) - sqrt(ld2))/Sim->dynamics.units().unitLength();
 	  
-	  }
+	      }
 #endif
-	retval = IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
+	    retval = IntEvent(p1, p2, dt, WELL_IN, *this);
+	  }
       }
-
     return retval;
   }
 

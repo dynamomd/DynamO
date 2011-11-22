@@ -197,15 +197,18 @@ namespace dynamo {
     if (capstat == captureMap.end())
       {
 	double d = steps.front().first * _unitLength->getMaxValue();
-	double d2 = d * d;
+	double dt 
+	  = Sim->dynamics.getLiouvillean().SphereSphereInRoot
+	  (p1, p2, d,
+	   p1.testState(Particle::DYNAMIC), 
+	   p2.testState(Particle::DYNAMIC));
 
 	//Not captured, test for capture
-	if (Sim->dynamics.getLiouvillean().SphereSphereInRoot
-	    (colldat, d2, p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
+	if (dt != HUGE_VAL)
 	  {
 #ifdef DYNAMO_OverlapTesting
 	    //Check that there is no overlap 
-	    if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat, d2))
+	    if (Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d))
 	      M_throw() << "Overlapping particles found" 
 			<< ", particle1 " << p1.getID() 
 			<< ", particle2 " << p2.getID() 
@@ -214,7 +217,7 @@ namespace dynamo {
 		/ Sim->dynamics.units().unitLength();
 #endif
 	  
-	    retval = IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
+	    retval = IntEvent(p1, p2, dt, WELL_IN, *this);
 	  }
       }
     else
@@ -224,25 +227,27 @@ namespace dynamo {
 	if (capstat->second < static_cast<int>(steps.size()))
 	  {
 	    double d = steps[capstat->second].first * _unitLength->getMaxValue();
-	    double d2 = d * d;
-	    if (Sim->dynamics.getLiouvillean().SphereSphereInRoot
-		(colldat, d2, 
-		 p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
-	      {
+	    double dt = Sim->dynamics.getLiouvillean().SphereSphereInRoot
+	      (p1, p2, d,
+	       p1.testState(Particle::DYNAMIC), 
+	       p2.testState(Particle::DYNAMIC));
+	    
+	      if (dt != HUGE_VAL)
+		{
 #ifdef DYNAMO_OverlapTesting
-		//Check that there is no overlap 
-		if (Sim->dynamics.getLiouvillean().sphereOverlap
-		    (colldat, d2))
-		  M_throw() << "Overlapping particles found" 
-			    << ", particle1 " << p1.getID() 
-			    << ", particle2 " 
-			    << p2.getID() << "\nOverlap = " 
-			    << (sqrt(colldat.r2) - d)
-		    /Sim->dynamics.units().unitLength();
+		  //Check that there is no overlap 
+		  if (Sim->dynamics.getLiouvillean().sphereOverlap
+		      (p1, p2, d2))
+		    M_throw() << "Overlapping particles found" 
+			      << ", particle1 " << p1.getID() 
+			      << ", particle2 " 
+			      << p2.getID() << "\nOverlap = " 
+			      << (sqrt(colldat.r2) - d)
+		      /Sim->dynamics.units().unitLength();
 #endif
 	      
-		retval = IntEvent(p1, p2, colldat.dt, WELL_IN , *this);
-	      }
+		  retval = IntEvent(p1, p2, dt, WELL_IN , *this);
+		}
 	  }
 
 	{//Now test for the outward step

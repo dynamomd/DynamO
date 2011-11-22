@@ -184,56 +184,59 @@ namespace dynamo {
     dt = HUGE_VAL;
     type = NONE;
 
-    if (ulevel == ulevelcenter)
-      {
-	R_max = b - sqrt((ulevel * delU) / a);      
-    
-	if (b==0)//Allow a double width well if b==0
-	  R_max = b + sqrt((ulevel + 1 * delU) / a);
-      
-	//Just look for escaping as we're in the well step spanning r = 0 
-	if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot
-	    (partdata, R_max * R_max, true, true))
-	  {
-	    dt = partdata.dt;
-	    type = WELL_OUT;
-	  }
-      
-	return;
-      }
-  
-    if (ulevel == 0)
-      {
-	//We're on the minimum
+    M_throw() << "Must navigate to using the liouvillean functions not using the CPData";
 
-	//We don't worry about the minimum crossing r=0, as this is
-	//caught by the above if statement
-      
-	R_max = b + sqrt((1 * delU) / a);
-	R_min = b - sqrt((1 * delU) / a);
-      }
-    else if (ulevel < 0)
-      {
-	R_max = b - sqrt((-ulevel) * delU / a);
-	R_min = b - sqrt(((-ulevel) + 1) * delU / a);
-      }
-    else
-      {
-	R_min = b + sqrt((ulevel * delU) / a);
-	R_max = b + sqrt(((ulevel + 1) * delU) / a);
-      }
-
-    if (Sim->dynamics.getLiouvillean().SphereSphereInRoot(partdata, R_min * R_min, true, true))
-      {
-	dt = partdata.dt;
-	type = WELL_IN;
-      }
-    else 
-      if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot(partdata, R_max * R_max, true, true))
-	{
-	  dt = partdata.dt;
-	  type = WELL_OUT;
-	}
+//    if (ulevel == ulevelcenter)
+//      {
+//	R_max = b - sqrt((ulevel * delU) / a);      
+//    
+//	if (b==0)//Allow a double width well if b==0
+//	  R_max = b + sqrt((ulevel + 1 * delU) / a);
+//      
+//	//Just look for escaping as we're in the well step spanning r = 0 
+//	if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot
+//	    (partdata, R_max * R_max, true, true))
+//	  {
+//	    dt = partdata.dt;
+//	    type = WELL_OUT;
+//	  }
+//      
+//	return;
+//      }
+//  
+//    if (ulevel == 0)
+//      {
+//	//We're on the minimum
+//
+//	//We don't worry about the minimum crossing r=0, as this is
+//	//caught by the above if statement
+//      
+//	R_max = b + sqrt((1 * delU) / a);
+//	R_min = b - sqrt((1 * delU) / a);
+//      }
+//    else if (ulevel < 0)
+//      {
+//	R_max = b - sqrt((-ulevel) * delU / a);
+//	R_min = b - sqrt(((-ulevel) + 1) * delU / a);
+//      }
+//    else
+//      {
+//	R_min = b + sqrt((ulevel * delU) / a);
+//	R_max = b + sqrt(((ulevel + 1) * delU) / a);
+//      }
+//
+//    if (Sim->dynamics.getLiouvillean().SphereSphereInRoot(partdata, R_min * R_min, 
+//							  true, true))
+//      {
+//	dt = partdata.dt;
+//	type = WELL_IN;
+//      }
+//    else 
+//      if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot(partdata, R_max * R_max, true, true))
+//	{
+//	  dt = partdata.dt;
+//	  type = WELL_OUT;
+//	}
   }
 
   void 

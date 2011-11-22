@@ -85,29 +85,13 @@ namespace dynamo {
     return true;
   }
 
-  bool 
-  LNewtonian::SphereSphereInRoot(CPDData& dat, const double& d2, bool, bool) const
+  double
+  LNewtonian::SphereSphereInRoot(const Particle& p1, const Particle& p2, double d, bool p1Dynamic, bool p2Dynamic) const
   {
-    if (dat.rvdot >= 0) return false;
-
-    double c = dat.r2 - d2;
-  
-    if (c <= 0) {dat.dt = 0; return true; }
-
-    double arg = dat.rvdot * dat.rvdot - dat.v2 * c;
-  
-    if (arg < 0) return false;
-  
-    //This is the more numerically stable form of the quadratic
-    //formula
-    dat.dt = std::max(0.0, (d2 - dat.r2) / (dat.rvdot-sqrt(arg)));
-  
-#ifdef DYNAMO_DEBUG
-    if (boost::math::isnan(dat.dt))
-      M_throw() << "dat.dt is nan";
-#endif
-
-    return true;
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Vector v12 = p1.getVelocity() - p2.getVelocity();
+    Sim->dynamics.BCs().applyBC(r12, v12);
+    return magnet::intersection::ray_sphere_bfc(r12, v12, d);
   }
   
   bool 
@@ -139,6 +123,15 @@ namespace dynamo {
   LNewtonian::sphereOverlap(const CPDData& dat, const double& d2) const
   {
     return (dat.r2 - d2) < 0.0;
+  }
+
+  bool 
+  LNewtonian::sphereOverlap(const Particle& p1, const Particle& p2,
+			    const double& d) const
+  {
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Sim->dynamics.BCs().applyBC(r12);
+    return (r12 | r12) < (d * d);
   }
 
   ParticleEventData 

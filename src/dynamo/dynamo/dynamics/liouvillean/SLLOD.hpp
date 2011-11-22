@@ -34,9 +34,12 @@ namespace dynamo {
 					 EEventType&) const;
 
     //Pair particle dynamics
-    virtual bool SphereSphereInRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const;
+    virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, 
+				      double d, bool p1Dynamic, bool p2Dynamic) const;
     virtual bool SphereSphereOutRoot(CPDData&, const double&, bool p1Dynamic, bool p2Dynamic) const;  
     virtual bool sphereOverlap(const CPDData&, const double&) const;
+    virtual bool sphereOverlap(const Particle&, const Particle&, 
+			       const double&) const;
 
     virtual void streamParticle(Particle&, const double&) const;
 

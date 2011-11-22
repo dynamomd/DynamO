@@ -154,11 +154,13 @@ namespace dynamo  {
 	return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
       }
   
-    if (Sim->dynamics.getLiouvillean()
-	.SphereSphereInRoot(colldat, (l + d) * (l + d),
-			    p1.testState(Particle::DYNAMIC), 
-			    p2.testState(Particle::DYNAMIC))) 
-      return IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
+    double dt = Sim->dynamics.getLiouvillean()
+      .SphereSphereInRoot(p1, p2, l + d,
+			  p1.testState(Particle::DYNAMIC), 
+			  p2.testState(Particle::DYNAMIC));
+    
+    if (dt != HUGE_VAL)
+      return IntEvent(p1, p2, dt, WELL_IN, *this);
   
     return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
   }

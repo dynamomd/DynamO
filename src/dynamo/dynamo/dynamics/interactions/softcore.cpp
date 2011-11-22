@@ -116,30 +116,34 @@ namespace dynamo {
 
     CPDData colldat(*Sim, p1, p2);
 
-    double d2 = (_diameter->getProperty(p1.getID())
-		 + _diameter->getProperty(p2.getID())) * 0.5;
-    d2 *= d2;
-    
+    double d = (_diameter->getProperty(p1.getID())
+		+ _diameter->getProperty(p2.getID())) * 0.5;
+
     if (isCaptured(p1, p2)) 
       {
 	if (Sim->dynamics.getLiouvillean()
-	    .SphereSphereOutRoot(colldat, d2, 
+	    .SphereSphereOutRoot(colldat, d * d, 
 				 p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC)))
 	  return IntEvent(p1, p2, colldat.dt, WELL_OUT, *this);
       }
-    else if (Sim->dynamics.getLiouvillean()
-	     .SphereSphereInRoot(colldat, d2,
-				 p1.testState(Particle::DYNAMIC), p2.testState(Particle::DYNAMIC))) 
+    else
       {
+	double dt = Sim->dynamics.getLiouvillean()
+	  .SphereSphereInRoot(p1, p2, d,
+			      p1.testState(Particle::DYNAMIC), 
+			      p2.testState(Particle::DYNAMIC));
+	if (dt != HUGE_VAL) 
+	  {
 #ifdef DYNAMO_OverlapTesting
-	if (Sim->dynamics.getLiouvillean().sphereOverlap(colldat,d2))
-	  M_throw() << "Overlapping cores (but not registered as captured) particles found in soft core" 
-		    << "\nparticle1 " << p1.getID() << ", particle2 " 
-		    << p2.getID() << "\nOverlap = " 
-		    << (sqrt(colldat.r2) - sqrt(d2)) / Sim->dynamics.units().unitLength();
+	    if (Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d))
+	      M_throw() << "Overlapping cores (but not registered as captured) particles found in soft core" 
+			<< "\nparticle1 " << p1.getID() << ", particle2 " 
+			<< p2.getID() << "\nOverlap = " 
+			<< (sqrt(colldat.r2) - sqrt(d2)) / Sim->dynamics.units().unitLength();
 #endif
-
-	return IntEvent(p1, p2, colldat.dt, WELL_IN, *this);
+	    
+	    return IntEvent(p1, p2, dt, WELL_IN, *this);
+	  }
       }
 
     return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
