@@ -252,12 +252,10 @@ namespace dynamo {
 
     double l = (_lambda->getProperty(p1.getID())
 		+ _lambda->getProperty(p2.getID())) * 0.5;
-  
-    double ld2 = d * l * d * l;
 
     IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
 
-    if (isCaptured(p1, p2)) 
+    if (isCaptured(p1, p2))
       {
 	double dt = Sim->dynamics.getLiouvillean()
 	  .SphereSphereInRoot(p1, p2, d);

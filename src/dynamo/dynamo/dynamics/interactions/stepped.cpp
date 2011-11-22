@@ -189,7 +189,6 @@ namespace dynamo {
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
 
-    CPDData colldat(*Sim, p1, p2);  
     const_cmap_it capstat = getCMap_it(p1,p2);
 
     IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);

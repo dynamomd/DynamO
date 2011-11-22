@@ -95,7 +95,7 @@ namespace dynamo {
     if (isCaptured(p1, p2)) 
       {
 	//Run this to determine when the spheres no longer intersect
-	double dt = Sim->dynamics.getLiouvillean().SphereSphereOutRoot(p1, p2, l * l);
+	double dt = Sim->dynamics.getLiouvillean().SphereSphereOutRoot(p1, p2, l);
       
 	//colldat.dt has the upper limit of the line collision time
 	//Lower limit is right now

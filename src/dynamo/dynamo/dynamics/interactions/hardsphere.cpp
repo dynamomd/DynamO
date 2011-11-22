@@ -104,6 +104,7 @@ namespace dynamo {
 
     double dt = Sim->dynamics.getLiouvillean()
       .SphereSphereInRoot(p1, p2, d);
+
     if (dt != HUGE_VAL)
       {
 #ifdef DYNAMO_OverlapTesting
