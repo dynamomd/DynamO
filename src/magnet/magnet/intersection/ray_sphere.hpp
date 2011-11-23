@@ -20,12 +20,13 @@
 
 namespace magnet {
   namespace intersection {
-    //! \brief A ray-sphere intersection test with backface culling.
-    //!
-    //! \param T The origin of the ray relative to the sphere center.
-    //! \param D The direction/velocity of the ray.
-    //! \param r The radius of the sphere.
-    //! \return The time until the intersection, or HUGE_VAL if no intersection.
+    /*! \brief A ray-sphere intersection test with backface culling.
+       
+      \param T The origin of the ray relative to the sphere center.
+      \param D The direction/velocity of the ray.
+      \param r The radius of the sphere.
+      \return The time until the intersection, or HUGE_VAL if no intersection.
+    */
     inline double ray_sphere_bfc(const math::Vector& T,
 				 const math::Vector& D,
 				 const double& r)
