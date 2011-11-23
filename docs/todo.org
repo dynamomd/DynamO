@@ -12,6 +12,7 @@
 **** TODO Coil: Fix the mip-mapping issue with the shadow maps
 **** TODO Add rendering of light sources (crepuscular rays too?).
 **** TODO Cube shadow map lights.
+**** TODO Make the viewing grid have a scalable box size.
 **** TODO Look at CL/GL synchronisation objects for coil.
 *** DynamO 1.3
 **** DONE DynamO: Up to 50% faster in polydisperse systems thanks to a new cache friendly nblist implementation.
@@ -34,7 +35,6 @@
 **** DONE Bugfix Coil: Fixed the bilateral blur filter.
 **** DONE Magnet: Upgraded all shaders to GLSL 330.
 **** TODO DynamO: Fix the umbrella interaction.
-**** TODO DynamO: Move the test state code into the liouvillean.
 **** TODO DynamO: Repair or remove the lsphere interaction.
 **** TODO DynamO: Figure out how the virtual interactions are supposed to work.
 **** TODO Magnet: confirm ray_inv_rod_bfc implementation is correct.
@@ -47,9 +47,7 @@
 **** TODO Collapse the schedulers to just the complex scheduler.
 **** TODO Optimized triangle meshes by inserting them into the neighbor lists.
 **** TODO Make a test for an invalid state in locals, globals and interactions (for particle insertion).
-**** TODO Remove the cached particle data used in the collision detection. Migrate to the magnet libraries collision detection functions.
 **** TODO Auto detect the ensemble, users shouldn't have to specify it.
-**** TODO Make the viewing grid have a scalable box size.
 **** TODO Alter the functions in dynamics that add/get/set objects and take/return a pointer to return shared_ptr's (search for uses of shared_ptr's get() function).
 **** TODO Alter the change system functions to take sharedptrs.
 **** TODO Change the loadClass XML functions to return shared_ptr's.
