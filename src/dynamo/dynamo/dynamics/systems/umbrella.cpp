@@ -149,23 +149,63 @@ namespace dynamo {
     BOOST_FOREACH(const size_t& id, *range2)
       Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[id]);
   
-    CPDData partdata(*Sim, *range1, *range2);
-
-    ulevelcenter = int( - a * b * b / delU);
-
-    double r = partdata.rij.nrm();
-
-    if (!ulevelset)
-      {
-	ulevel = int(a * (r - b) * (r - b) / delU);
-	if (r < b) ulevel *= -1;
-	ulevelset = true;
-      }
+    //This used to be called CPDData partdata(*Sim, *range1, *range2);
+    //To call the following code
+    /*
+    Vector  COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
   
-    recalculateTime();
+    double structmass1(0), structmass2(0);
+    
+    BOOST_FOREACH(const size_t& ID, range1)
+      {
+	double mass = Sim.dynamics.getSpecies(Sim.particleList[ID]).getMass(ID);
 
-    Sim->registerParticleUpdateFunc
-      (magnet::function::MakeDelegate(this, &CSUmbrella::particlesUpdated));
+	structmass1 += mass;
+	COMVel1 += Sim.particleList[ID].getVelocity() * mass;
+	COMPos1 += Sim.particleList[ID].getPosition() * mass;
+      }
+    
+    BOOST_FOREACH(const size_t& ID, range2)
+      {
+	double mass = Sim.dynamics.getSpecies(Sim.particleList[ID]).getMass(ID);
+	structmass2 += mass;
+	COMVel2 += Sim.particleList[ID].getVelocity() * mass;	
+	COMPos2 += Sim.particleList[ID].getPosition() * mass;
+      }
+    
+    COMVel1 /= structmass1;
+    COMVel2 /= structmass2;
+
+    COMPos1 /= structmass1;
+    COMPos2 /= structmass2;
+
+    rij = COMPos1 - COMPos2;
+
+    vij = COMVel1 - COMVel2;
+
+    Sim.dynamics.BCs().applyBC(rij, vij);
+
+    rvdot = (rij | vij);
+
+    r2 = rij.nrm2();
+    v2 = vij.nrm2();
+    */
+
+//    ulevelcenter = int( - a * b * b / delU);
+//
+//    double r = partdata.rij.nrm();
+//
+//    if (!ulevelset)
+//      {
+//	ulevel = int(a * (r - b) * (r - b) / delU);
+//	if (r < b) ulevel *= -1;
+//	ulevelset = true;
+//      }
+//  
+//    recalculateTime();
+//
+//    Sim->registerParticleUpdateFunc
+//      (magnet::function::MakeDelegate(this, &CSUmbrella::particlesUpdated));
   }
 
   void 
@@ -177,8 +217,6 @@ namespace dynamo {
     BOOST_FOREACH(const size_t& id, *range2)
       Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[id]);
   
-    CPDData partdata(*Sim, *range1, *range2);
-
     double R_max, R_min;
 
     dt = HUGE_VAL;
@@ -186,6 +224,7 @@ namespace dynamo {
 
     M_throw() << "Must navigate to using the liouvillean functions not using the CPData";
 
+//    CPDData partdata(*Sim, *range1, *range2);
 //    if (ulevel == ulevelcenter)
 //      {
 //	R_max = b - sqrt((ulevel * delU) / a);      

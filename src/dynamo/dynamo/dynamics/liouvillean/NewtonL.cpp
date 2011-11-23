@@ -476,7 +476,7 @@ namespace dynamo {
 
   PairEventData 
   LNewtonian::parallelCubeColl(const IntEvent& event, const double& e,
-			       const double&, const Matrix& rot,
+			       const double&,
 			       const EEventType& eType) const
   {
     const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
@@ -491,9 +491,6 @@ namespace dynamo {
     
     Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
   
-    retVal.rij = rot * Vector(retVal.rij);
-    retVal.vijold = rot * Vector(retVal.vijold);
-
     size_t dim(0);
    
     for (size_t iDim(1); iDim < NDIM; ++iDim)
@@ -513,10 +510,6 @@ namespace dynamo {
     retVal.rvdot = (retVal.rij | retVal.vijold);
 
     retVal.dP = collvec * (1.0 + e) * mu * (collvec | retVal.vijold);  
-
-    retVal.dP = Transpose(rot) * Vector(retVal.dP);
-    retVal.rij = Transpose(rot) * Vector(retVal.rij);
-    retVal.vijold = Transpose(rot) * Vector(retVal.vijold);
 
     //This function must edit particles so it overrides the const!
     const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;

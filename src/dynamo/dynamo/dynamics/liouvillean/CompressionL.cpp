@@ -290,7 +290,6 @@ namespace dynamo {
   PairEventData 
   LCompression::parallelCubeColl(const IntEvent&,
 				 const double&, const double&,
-				 const Matrix&,
 				 const EEventType&) const
   { M_throw() << "Not Implemented"; }
 }

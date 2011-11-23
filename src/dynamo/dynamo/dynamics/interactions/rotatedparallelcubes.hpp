@@ -21,21 +21,19 @@
 #include <magnet/math/matrix.hpp>
 
 namespace dynamo {
-  class IRotatedParallelCubes: public Interaction
+  class IParallelCubes: public Interaction
   {
   public:
     template<class T1, class T2>
-    IRotatedParallelCubes(dynamo::SimData* tmp, T1 d, T2 e, 
-			  const Matrix& rot, C2Range* nR):
+    IParallelCubes(dynamo::SimData* tmp, T1 d, T2 e, C2Range* nR):
       Interaction(tmp, nR),
-      Rotation(rot),
       _diameter(Sim->_properties.getProperty
 		(d, Property::Units::Length())),
       _e(Sim->_properties.getProperty
 	 (e, Property::Units::Dimensionless()))
     {}
 
-    IRotatedParallelCubes(const magnet::xml::Node&, dynamo::SimData*);
+    IParallelCubes(const magnet::xml::Node&, dynamo::SimData*);
 
     void operator<<(const magnet::xml::Node&);
 
@@ -56,7 +54,6 @@ namespace dynamo {
     virtual void checkOverlaps(const Particle&, const Particle&) const;
 
   protected:
-    Matrix Rotation;
     std::tr1::shared_ptr<Property> _diameter;
     std::tr1::shared_ptr<Property> _e;
   };

@@ -1731,9 +1731,8 @@ namespace dynamo {
 						   "Wall3", new CRAll(Sim)));
 	    }
 
-	  Sim->dynamics.addInteraction(new IRotatedParallelCubes
+	  Sim->dynamics.addInteraction(new IParallelCubes
 				       (Sim, particleDiam, 1.0,
-					Matrix::identity(),
 					new C2RAll()))->setName("Bulk");
 
 	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>

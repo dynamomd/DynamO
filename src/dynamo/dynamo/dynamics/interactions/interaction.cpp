@@ -83,7 +83,7 @@ namespace dynamo {
     else if (!std::strcmp(XML.getAttribute("Type"),"Dumbbells"))
       return new IDumbbells(XML, Sim);
     else if (!std::strcmp(XML.getAttribute("Type"),"RotatedParallelCubes"))
-      return new IRotatedParallelCubes(XML, Sim);
+      return new IParallelCubes(XML, Sim);
     else if (!std::strcmp(XML.getAttribute("Type"),"Stepped"))
       return new IStepped(XML, Sim);
     else 

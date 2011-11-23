@@ -32,22 +32,22 @@
 #include <iomanip>
 
 namespace dynamo {
-  IRotatedParallelCubes::IRotatedParallelCubes(const magnet::xml::Node& XML, 
+  IParallelCubes::IParallelCubes(const magnet::xml::Node& XML, 
 					       dynamo::SimData* tmp):
     Interaction(tmp,NULL)
   { operator<<(XML); }
 
   void 
-  IRotatedParallelCubes::initialise(size_t nID)
+  IParallelCubes::initialise(size_t nID)
   { 
     ID=nID; 
   }
 
   void 
-  IRotatedParallelCubes::operator<<(const magnet::xml::Node& XML)
+  IParallelCubes::operator<<(const magnet::xml::Node& XML)
   { 
-    if (strcmp(XML.getAttribute("Type"),"RotatedParallelCubes"))
-      M_throw() << "Attempting to load RotatedParallelCubes from " 
+    if (strcmp(XML.getAttribute("Type"),"ParallelCubes"))
+      M_throw() << "Attempting to load ParallelCubes from " 
 		<< XML.getAttribute("Type") << " entry";
   
     Interaction::operator<<(XML);
@@ -59,27 +59,26 @@ namespace dynamo {
 	_e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
 					  Property::Units::Dimensionless());
 	intName = XML.getAttribute("Name");
-	magnet::math::operator<<(Rotation, XML.getNode("Rotation"));
       }
     catch (boost::bad_lexical_cast &)
       {
-	M_throw() << "Failed a lexical cast in CIRotatedParallelCubes";
+	M_throw() << "Failed a lexical cast in CIParallelCubes";
       }
   }
 
   double 
-  IRotatedParallelCubes::maxIntDist() const 
+  IParallelCubes::maxIntDist() const 
   { return std::sqrt(double(NDIM)) * _diameter->getMaxValue(); }
 
   double 
-  IRotatedParallelCubes::getExcludedVolume(size_t ID) const 
+  IParallelCubes::getExcludedVolume(size_t ID) const 
   {
     double diam = _diameter->getProperty(ID);
     return diam * diam * diam; 
   }
 
   IntEvent 
-  IRotatedParallelCubes::getEvent(const Particle &p1, const Particle &p2) const 
+  IParallelCubes::getEvent(const Particle &p1, const Particle &p2) const 
   { 
 #ifdef DYNAMO_DEBUG
     if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
@@ -94,11 +93,6 @@ namespace dynamo {
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
 
-    CPDData colldat(*Sim, p1, p2);
-
-    colldat.rij = Rotation * Vector(colldat.rij);
-    colldat.vij = Rotation * Vector(colldat.vij);
-  
     double d = (_diameter->getProperty(p1.getID())
 		+ _diameter->getProperty(p2.getID())) * 0.5;
 
@@ -107,11 +101,11 @@ namespace dynamo {
     if (dt != HUGE_VAL)
       {
 #ifdef DYNAMO_OverlapTesting
-	if (Sim->dynamics.getLiouvillean().cubeOverlap(colldat, d))
+	if (Sim->dynamics.getLiouvillean().cubeOverlap(p1, p2, d))
 	  M_throw() << "Overlapping particles found" 
 		    << ", particle1 " << p1.getID() << ", particle2 " 
 		    << p2.getID() << "\nOverlap = " 
-		    << (sqrt(colldat.r2) - d) 
+		    << Sim->dynamics.getLiouvillean().cubeOverlap(p1, p2, d)
 	    / Sim->dynamics.units().unitLength();
 #endif
 
@@ -122,7 +116,7 @@ namespace dynamo {
   }
 
   void
-  IRotatedParallelCubes::runEvent(const Particle& p1,
+  IParallelCubes::runEvent(const Particle& p1,
 				  const Particle& p2,
 				  const IntEvent& iEvent) const
   {
@@ -135,7 +129,7 @@ namespace dynamo {
    
     //Run the collision and catch the data
     PairEventData EDat
-      (Sim->dynamics.getLiouvillean().parallelCubeColl(iEvent, e, d, Rotation)); 
+      (Sim->dynamics.getLiouvillean().parallelCubeColl(iEvent, e, d)); 
 
     Sim->signalParticleUpdate(EDat);
 
@@ -147,20 +141,17 @@ namespace dynamo {
   }
    
   void 
-  IRotatedParallelCubes::outputXML(magnet::xml::XmlStream& XML) const
+  IParallelCubes::outputXML(magnet::xml::XmlStream& XML) const
   {
-    XML << magnet::xml::attr("Type") << "RotatedParallelCubes"
+    XML << magnet::xml::attr("Type") << "ParallelCubes"
 	<< magnet::xml::attr("Diameter") << _diameter->getName()
 	<< magnet::xml::attr("Elasticity") << _e->getName()
 	<< magnet::xml::attr("Name") << intName
-	<< *range
-	<< magnet::xml::tag("Rotation")
-	<< Rotation
-	<< magnet::xml::endtag("Rotation");
+	<< *range;
   }
 
   void
-  IRotatedParallelCubes::checkOverlaps(const Particle& part1, const Particle& part2) const
+  IParallelCubes::checkOverlaps(const Particle& part1, const Particle& part2) const
   {
     Vector  rij = part1.getPosition() - part2.getPosition();  
     Sim->dynamics.BCs().applyBC(rij); 

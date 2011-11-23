@@ -136,7 +136,6 @@ namespace dynamo {
 
     virtual PairEventData parallelCubeColl(const IntEvent& event,
 					   const double& e, const double& d,
-					   const Matrix& rot,
 					   const EEventType& eType = CORE) const;
 
     virtual std::pair<bool, double> getLineLineCollision(const double length,

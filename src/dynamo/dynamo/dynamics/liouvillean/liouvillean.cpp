@@ -251,7 +251,6 @@ namespace dynamo {
   Liouvillean::parallelCubeColl(const IntEvent& event, 
 				const double& e, 
 				const double& d,
-				const Matrix& Rot,
 				const EEventType& eType) const
   { M_throw() << "Not Implemented"; }
 

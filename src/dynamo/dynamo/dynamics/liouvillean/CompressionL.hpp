@@ -41,16 +41,12 @@ namespace dynamo {
 				  double d) const 
     { M_throw() << "Not Implemented"; }
 
-    virtual bool CubeCubeOutRoot(CPDData&, const double& d) const 
-    { M_throw() << "Not Implemented"; }
-
     virtual bool cubeOverlap(const Particle& p1, const Particle& p2, 
 			     const double d) const 
     { M_throw() << "Not Implemented"; }
 
     virtual PairEventData parallelCubeColl(const IntEvent& event,
 					   const double& e, const double& d,
-					   const Matrix& rot,
 					   const EEventType& eType = CORE) const;
   
   protected:

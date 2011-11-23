@@ -174,17 +174,6 @@ namespace dynamo {
 				  double d) const 
     { M_throw() << "Not Implemented"; }
 
-    /*! \brief Determines if and when two parallel cubes will stop intersecting.
-     *
-     * \param pd Some precomputed data about the event that is cached by
-     * the interaction/calling class.
-     *
-     * \param d The interaction distance.
-     *
-     * \return Whether the event will occur (Almost always true for
-     * LNewtonian but not for LCompression).
-     */
-    virtual bool CubeCubeOutRoot(CPDData&, const double& d) const { M_throw() << "Not Implemented"; }
 
     /*! \brief Determines if two parallel cubes are overlapping
      *
@@ -506,13 +495,11 @@ namespace dynamo {
      * \param e Elasticity
      * \param event The event containing the data on the two particles
      * \param d2 The interaction distance
-     * \param rot Rotation matrix
      * \param eType A way of setting the collision type from CORE to BOUNCE etc.
      * \return The collision data
      */
     virtual PairEventData parallelCubeColl(const IntEvent& event,
 					   const double& e, const double& d,
-					   const Matrix& rot,
 					   const EEventType& eType = CORE) const;
 
     /*! \brief Tests for a collision between spherical particles
