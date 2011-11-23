@@ -516,36 +516,34 @@ namespace dynamo {
 					   const EEventType& eType = CORE) const;
 
     /*! \brief Tests for a collision between spherical particles
-     * according to the ESMC (Enskog DSMC)
-     * 
-     *
-     * \param p1 First particle to test
-     * \param p1 Second particle to test
-     * \param maxprob The current maximum of the collision radius
-     * \param pdat Some cached calc data
-     * \return Whether the collision occurs
+      according to the ESMC (Enskog DSMC)
+      
+      \param p1 First particle to test
+      \param p1 Second particle to test
+      \param maxprob The current maximum of the collision radius
+      \param rij The vector seperating the two particles.
+      \return Whether the collision occurs
      */  
     virtual bool DSMCSpheresTest(const Particle& p1,
 				 const Particle& p2,
 				 double& maxprob,
 				 const double& factor,
-				 CPDData& pdat
+				 Vector rij
 				 ) const = 0;
   
     /*! \brief Performs a hard sphere collision between the two
-     * particles according to the ESMC (Enskog DSMC)
-     * 
-     *
-     * \param p1 First particle to test
-     * \param p1 Second particle to test
-     * \param e Inelasticity
-     * \param pdat Some cached calc data
-     * \return Data on the collision
+      particles according to the ESMC (Enskog DSMC)
+      
+      \param p1 First particle to test
+      \param p1 Second particle to test
+      \param e Inelasticity
+      \param rij The vector separating the two particles.
+      \return Data on the collision
      */  
     virtual PairEventData DSMCSpheresRun(const Particle& p1,
 					 const Particle& p2,
 					 const double& e,
-					 CPDData& pdat
+					 Vector rij
 					 ) const = 0;
 
     /*! \brief Executes a well/shoulder event

@@ -43,47 +43,51 @@ namespace dynamo {
 			  const Particle& p2, 
 			  double& maxprob,
 			  const double& factor,
-			  CPDData& pdat) const
+			  Vector rij) const
   {
-    pdat.vij = p1.getVelocity() - p2.getVelocity();
-    pdat.vij[0] -= pdat.rij[1];
-    pdat.rvdot = (pdat.rij | pdat.vij);
+    updateParticlePair(p1, p2);  
+
+    Vector vij = p1.getVelocity() - p2.getVelocity();
+    vij[0] -= rij[1];
+    double rvdot = (rij | vij);
   
-    if (pdat.rvdot >= 0)
+    if (rvdot >= 0)
       return false; //Positive rvdot
   
-    double prob = factor * (-pdat.rvdot);
+    double prob = factor * (-rvdot);
   
     if (prob > maxprob)
       maxprob = prob;
 
-    return prob > Sim->uniform_sampler() * maxprob;
+    return (prob > Sim->uniform_sampler() * maxprob);
   }
 
   PairEventData
   LSLLOD::DSMCSpheresRun(const Particle& p1, 
 			 const Particle& p2, 
 			 const double& e,
-			 CPDData& pdat) const
+			 Vector rij) const
   {
     updateParticlePair(p1, p2);  
+    Vector vij = p1.getVelocity() - p2.getVelocity();
+    vij[0] -= rij[1];
+    double rvdot = (rij | vij);
 
     PairEventData retVal(p1, p2,
 			 Sim->dynamics.getSpecies(p1),
 			 Sim->dynamics.getSpecies(p2),
 			 CORE);
  
-    retVal.vijold = pdat.vij;
+    retVal.vijold = vij;
 
-    retVal.rij = pdat.rij;
-    retVal.rvdot = pdat.rvdot;
+    retVal.rij = rij;
+    retVal.rvdot = rvdot;
 
     double p1Mass = retVal.particle1_.getSpecies().getMass(p1.getID()); 
     double p2Mass = retVal.particle2_.getSpecies().getMass(p2.getID());
     double mu = p1Mass * p2Mass/(p1Mass+p2Mass);
 
-    retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot 
-			      / retVal.rij.nrm2());  
+    retVal.dP = rij * ((1.0 + e) * mu * rvdot / rij.nrm2());  
 
     //This function must edit particles so it overrides the const!
     const_cast<Particle&>(p1).getVelocity() -= retVal.dP / p1Mass;

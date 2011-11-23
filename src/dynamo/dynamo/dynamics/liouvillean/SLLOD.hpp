@@ -55,10 +55,10 @@ namespace dynamo {
     virtual PairEventData SmoothSpheresColl(const IntEvent&, const double&, const double&, const EEventType& eType) const;
 
     virtual bool DSMCSpheresTest(const Particle&, const Particle&, 
-				 double&, const double&, CPDData&) const;
+				 double&, const double&, Vector) const;
 
     virtual PairEventData DSMCSpheresRun(const Particle&, const Particle&, 
-					 const double&, CPDData&) const;
+					 const double&, Vector) const;
   
     virtual PairEventData SphereWellEvent(const IntEvent&, const double&, const double&) const;
 

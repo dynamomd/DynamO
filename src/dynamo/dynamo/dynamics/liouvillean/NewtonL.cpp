@@ -369,17 +369,20 @@ namespace dynamo {
 			      const Particle& p2, 
 			      double& maxprob,
 			      const double& factor,
-			      CPDData& pdat) const
+			      Vector rij) const
   {
-    pdat.vij = p1.getVelocity() - p2.getVelocity();
+    updateParticlePair(p1, p2);
+
+    Vector vij = p1.getVelocity() - p2.getVelocity();
+    Sim->dynamics.BCs().applyBC(rij, vij);
 
     //Sim->dynamics.BCs().applyBC(pdat.rij, pdat.vij);
-    pdat.rvdot = (pdat.rij | pdat.vij);
+    double rvdot = (rij | vij);
   
-    if (pdat.rvdot > 0)
+    if (rvdot > 0)
       return false; //Positive rvdot
 
-    double prob = factor * (-pdat.rvdot);
+    double prob = factor * (-rvdot);
 
     if (prob > maxprob)
       maxprob = prob;
@@ -391,24 +394,28 @@ namespace dynamo {
   LNewtonian::DSMCSpheresRun(const Particle& p1, 
 			     const Particle& p2, 
 			     const double& e,
-			     CPDData& pdat) const
+			     Vector rij) const
   {
     updateParticlePair(p1, p2);  
+
+    Vector vij = p1.getVelocity() - p2.getVelocity();
+    Sim->dynamics.BCs().applyBC(rij, vij);
+
+    double rvdot = (rij | vij);
 
     PairEventData retVal(p1, p2,
 			 Sim->dynamics.getSpecies(p1),
 			 Sim->dynamics.getSpecies(p2),
 			 CORE);
   
-    retVal.rij = pdat.rij;
-    retVal.rvdot = pdat.rvdot;
+    retVal.rij = rij;
+    retVal.rvdot = rvdot;
 
     double p1Mass = retVal.particle1_.getSpecies().getMass(p1.getID());
     double p2Mass = retVal.particle2_.getSpecies().getMass(p2.getID());
     double mu = p1Mass * p2Mass/(p1Mass+p2Mass);
 
-    retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot 
-			      / retVal.rij.nrm2());  
+    retVal.dP = rij * ((1.0 + e) * mu * rvdot / rij.nrm2());  
 
     //This function must edit particles so it overrides the const!
     const_cast<Particle&>(p1).getVelocity() -= retVal.dP / p1Mass;
@@ -419,7 +426,6 @@ namespace dynamo {
   
     retVal.particle2_.setDeltaKE(0.5 * p2Mass * (p2.getVelocity().nrm2() 
 						 - retVal.particle2_.getOldVel().nrm2()));
-
     return retVal;
   }
 
