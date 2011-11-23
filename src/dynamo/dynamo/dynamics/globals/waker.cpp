@@ -18,6 +18,7 @@
 
 #include <dynamo/dynamics/globals/waker.hpp>
 #include <dynamo/dynamics/globals/globEvent.hpp>
+#include <dynamo/dynamics/BC/BC.hpp>
 #include <dynamo/dynamics/NparticleEventData.hpp>
 #include <dynamo/base/is_simdata.hpp>
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>

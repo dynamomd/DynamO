@@ -21,7 +21,6 @@
 #include <dynamo/dynamics/eventtypes.hpp>
 #include <dynamo/simulation/particle.hpp>
 #include <dynamo/base/is_simdata.hpp>
-#include <dynamo/dynamics/liouvillean/datastruct.hpp>
 #include <magnet/math/matrix.hpp>
 
 namespace xml { class XmlStream; }

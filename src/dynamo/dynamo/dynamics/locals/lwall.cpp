@@ -16,6 +16,7 @@
 */
 
 #include <dynamo/dynamics/locals/lwall.hpp>
+#include <dynamo/dynamics/BC/BC.hpp>
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <dynamo/dynamics/locals/localEvent.hpp>
 #include <dynamo/dynamics/NparticleEventData.hpp>
