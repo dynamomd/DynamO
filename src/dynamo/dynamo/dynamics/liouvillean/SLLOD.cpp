@@ -134,13 +134,7 @@ namespace dynamo {
     M_throw() << "Not Implemented";
   }
 
-  bool 
-  LSLLOD::sphereOverlap(const CPDData& dat, const double& d2) const
-  {
-    M_throw() << "Not Implemented";
-  }
-
-  bool 
+  double 
   LSLLOD::sphereOverlap(const Particle&, const Particle&,
 			const double&) const
   {

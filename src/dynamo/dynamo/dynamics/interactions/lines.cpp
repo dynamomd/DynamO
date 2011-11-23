@@ -94,10 +94,6 @@ namespace dynamo {
 	//Run this to determine when the spheres no longer intersect
 	double dt = Sim->dynamics.getLiouvillean().SphereSphereOutRoot(p1, p2, l);
       
-	//colldat.dt has the upper limit of the line collision time
-	//Lower limit is right now
-	//Test for a line collision
-	//Upper limit can be HUGE_VAL!
 	std::pair<bool, double> colltime = Sim->dynamics.getLiouvillean().getLineLineCollision(l, p1, p2, dt);
 
 	if (colltime.second == HUGE_VAL)
@@ -197,14 +193,10 @@ namespace dynamo {
   {
     if (&(*(Sim->dynamics.getInteraction(p1, p2))) != this) return false;
 
-    Vector  rij = p1.getPosition() - p2.getPosition();
-    Sim->dynamics.BCs().applyBC(rij);
- 
-    double l2 = (_length->getProperty(p1.getID())
-		 + _length->getProperty(p2.getID())) * 0.5;
-    l2 *= l2;
- 
-    return (rij | rij) <= l2;
+    double l = (_length->getProperty(p1.getID())
+		+ _length->getProperty(p2.getID())) * 0.5;
+
+    return Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, l);
   }
 }
 

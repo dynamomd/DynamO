@@ -94,10 +94,11 @@ namespace dynamo {
   { M_throw() << "Not implemented for this Liouvillean."; }
 
   bool
-  Liouvillean::getOffCenterSphereOffCenterSphereCollision(CPDData&, const double&, const double&,  
-							  const Particle&, const Particle&
-							  ) const
+  Liouvillean::getOffCenterSphereOffCenterSphereCollision(const double, const double,  
+							  const Particle&, const Particle&,
+							  const double) const
   { M_throw() << "Not implemented for this Liouvillean."; }
+
   double 
   Liouvillean::getPBCSentinelTime(const Particle&, const double&) const
   { M_throw() << "Not implemented for this Liouvillean."; }
@@ -364,4 +365,5 @@ namespace dynamo {
   {
     M_throw() << "Not implemented";
   }
+
 }

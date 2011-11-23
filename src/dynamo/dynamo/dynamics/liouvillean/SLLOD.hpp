@@ -36,9 +36,9 @@ namespace dynamo {
     //Pair particle dynamics
     virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const;
     virtual double SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const;  
-    virtual bool sphereOverlap(const CPDData&, const double&) const;
-    virtual bool sphereOverlap(const Particle&, const Particle&, 
-			       const double&) const;
+
+    virtual double sphereOverlap(const Particle&, const Particle&, 
+				 const double&) const;
 
     virtual void streamParticle(Particle&, const double&) const;
 

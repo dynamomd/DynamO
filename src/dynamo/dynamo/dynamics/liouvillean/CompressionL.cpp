@@ -88,16 +88,7 @@ namespace dynamo {
     return HUGE_VAL;
   }
 
-  bool 
-  LCompression::sphereOverlap(const CPDData& dat, const double& d2) const
-  {
-    double currd2 = d2 * (1 + 2.0 * Sim->dSysTime * growthRate 
-			  + pow(Sim->dSysTime * growthRate,2));
-  
-    return ((dat.r2 - currd2) < 0.0);
-  }
-
-  bool 
+  double
   LCompression::sphereOverlap(const Particle& p1, const Particle& p2,
 			      const double& d) const
   {
@@ -106,7 +97,7 @@ namespace dynamo {
 
     double currd2 = d * d * (1 + 2.0 * Sim->dSysTime * growthRate 
 			     + pow(Sim->dSysTime * growthRate, 2));
-    return (r12 | r12) < currd2;
+    return std::sqrt(std::max(currd2 - (r12 | r12), 0.0));
   }
 
 
