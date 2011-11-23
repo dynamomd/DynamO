@@ -102,7 +102,9 @@ namespace dynamo {
     double d = (_diameter->getProperty(p1.getID())
 		+ _diameter->getProperty(p2.getID())) * 0.5;
 
-    if (Sim->dynamics.getLiouvillean().CubeCubeInRoot(colldat, d))
+    double dt = Sim->dynamics.getLiouvillean().CubeCubeInRoot(p1, p2, d);
+
+    if (dt != HUGE_VAL)
       {
 #ifdef DYNAMO_OverlapTesting
 	if (Sim->dynamics.getLiouvillean().cubeOverlap(colldat, d))
@@ -113,10 +115,10 @@ namespace dynamo {
 	    / Sim->dynamics.units().unitLength();
 #endif
 
-	return IntEvent(p1, p2, colldat.dt, CORE, *this);
+	return IntEvent(p1, p2, dt, CORE, *this);
       }
   
-    return IntEvent(p1,p2,HUGE_VAL, NONE, *this);
+    return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
   }
 
   void

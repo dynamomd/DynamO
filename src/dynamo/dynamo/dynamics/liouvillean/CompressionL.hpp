@@ -37,11 +37,16 @@ namespace dynamo {
 
     virtual double getPBCSentinelTime(const Particle&, const double&) const;
 
-    virtual bool CubeCubeInRoot(CPDData& pd, const double& d) const { M_throw() << "Not Implemented"; }
+    virtual double CubeCubeInRoot(const Particle& p1, const Particle& p2, 
+				  double d) const 
+    { M_throw() << "Not Implemented"; }
 
-    virtual bool CubeCubeOutRoot(CPDData&, const double& d) const { M_throw() << "Not Implemented"; }
+    virtual bool CubeCubeOutRoot(CPDData&, const double& d) const 
+    { M_throw() << "Not Implemented"; }
 
-    virtual bool cubeOverlap(const CPDData& PD, const double& d) const { M_throw() << "Not Implemented"; }
+    virtual bool cubeOverlap(const Particle& p1, const Particle& p2, 
+			     const double d) const 
+    { M_throw() << "Not Implemented"; }
 
     virtual PairEventData parallelCubeColl(const IntEvent& event,
 					   const double& e, const double& d,

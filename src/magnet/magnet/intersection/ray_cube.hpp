@@ -38,7 +38,7 @@ namespace magnet {
     */
     inline double ray_AAcube_bfc(const math::Vector& T,
 				 const math::Vector& D,
-				 Vector C)
+				 math::Vector C)
     {
       //We need the cube half lengths
       C *= 0.5;
@@ -53,14 +53,20 @@ namespace magnet {
 	    {//Its zero, a collision can only occur if this range is already within the cubes limits.
 	      if ((T[i] * T[i]) > (C[i] * C[i]))
 		return HUGE_VAL;
+	      else
+		{
+		  //We're within the cube limits but with zero
+		  //velocity, this means we entered at -HUGE_VAL and
+		  //left at HUGE_VAL. Nothing to be done here
+		}
 	    }
 	  else
 	    {
-	      double time_in  = (-std::sign(D) * C[i] - T[i]) / D[i];
-	      double time_out = (+std::sign(D) * C[i] - T[i]) / D[i];
+	      double time_in  = (-copysign(C[i],D[i]) - T[i]) / D[i];
+	      double time_out = (+copysign(C[i],D[i]) - T[i]) / D[i];
 
 	      time_in_max = std::max(time_in_max, time_in);
-	      time_out_min = std::min(time_out_min, time_in);
+	      time_out_min = std::min(time_out_min, time_out);
 	    }
 	}
       

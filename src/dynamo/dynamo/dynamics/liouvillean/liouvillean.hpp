@@ -166,14 +166,13 @@ namespace dynamo {
 
     /*! \brief Determines if and when two parallel cube will intersect.
      *
-     * \param pd Some precomputed data about the event that is cached by
-     * the interaction/calling class.
+     * \param d The length of the cube.
      *
-     * \param d Rhe interaction distance.
-     *
-     * \return Whether the event will occur.
+     * \return The time of the intersection
      */
-    virtual bool CubeCubeInRoot(CPDData& pd, const double& d) const { M_throw() << "Not Implemented"; }
+    virtual double CubeCubeInRoot(const Particle& p1, const Particle& p2, 
+				  double d) const 
+    { M_throw() << "Not Implemented"; }
 
     /*! \brief Determines if and when two parallel cubes will stop intersecting.
      *
@@ -196,7 +195,8 @@ namespace dynamo {
      *
      * \return True if the cubes are overlapping.
      */
-    virtual bool cubeOverlap(const CPDData& PD, const double& d) const 
+    virtual bool cubeOverlap(const Particle& p1, const Particle& p2, 
+			     const double d) const 
     { M_throw() << "Not Implemented"; }
 
     /*! \brief Determines when the particle center will hit a bounding box.

@@ -40,9 +40,11 @@ namespace dynamo {
     virtual double sphereOverlap(const Particle& p1, const Particle& p2,
 				 const double& d) const;
 
-    virtual bool CubeCubeInRoot(CPDData&, const double&) const;
+    virtual double CubeCubeInRoot(const Particle& p1, const Particle& p2, 
+				  double d) const;
 
-    virtual bool cubeOverlap(const CPDData&, const double&) const;
+    virtual bool cubeOverlap(const Particle& p1, const Particle& p2, 
+			     const double d) const;
 
     virtual void streamParticle(Particle&, const double&) const;
 

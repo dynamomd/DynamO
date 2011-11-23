@@ -31,58 +31,34 @@
 #include <dynamo/dynamics/units/units.hpp>
 #include <magnet/math/frenkelroot.hpp>
 #include <magnet/overlap/point_prism.hpp>
+#include <magnet/overlap/point_cube.hpp>
 #include <magnet/intersection/ray_triangle.hpp>
 #include <magnet/intersection/ray_rod.hpp>
 #include <magnet/intersection/ray_sphere.hpp>
 #include <magnet/intersection/ray_plane.hpp>
+#include <magnet/intersection/ray_cube.hpp>
 #include <magnet/math/matrix.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 
 namespace dynamo {
-  bool 
-  LNewtonian::CubeCubeInRoot(CPDData& dat, const double& d) const
+  double
+  LNewtonian::CubeCubeInRoot(const Particle& p1, const Particle& p2, 
+			     double d) const 
   {
-    //To be approaching, the largest dimension of rij must be shrinking
-  
-    size_t largedim(0);
-    for (size_t iDim(1); iDim < NDIM; ++iDim)
-      if (fabs(dat.rij[iDim]) > fabs(dat.rij[largedim])) largedim = iDim;
-    
-    if (dat.rij[largedim] * dat.vij[largedim] >= 0) return false;
-
-    double tInMax(-HUGE_VAL), tOutMin(HUGE_VAL);
-  
-    for (size_t iDim(0); iDim < NDIM; ++iDim)
-      {
-	double tmptime1 = -(dat.rij[iDim] + d) / dat.vij[iDim];
-	double tmptime2 = -(dat.rij[iDim] - d) / dat.vij[iDim];
-      
-	if (tmptime1 < tmptime2)
-	  {
-	    if (tmptime1 > tInMax) tInMax = tmptime1;
-	    if (tmptime2 < tOutMin) tOutMin = tmptime2;
-	  }
-	else
-	  {
-	    if (tmptime2 > tInMax) tInMax = tmptime2;
-	    if (tmptime1 < tOutMin) tOutMin = tmptime1;
-	  }
-      }
-  
-    if (tInMax >= tOutMin) return false;
-
-    dat.dt = tInMax;
-    return true;
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Vector v12 = p1.getVelocity() - p2.getVelocity();
+    Sim->dynamics.BCs().applyBC(r12, v12);
+    return magnet::intersection::ray_AAcube_bfc(r12, v12, Vector(d, d, d));
   }
 
   bool 
-  LNewtonian::cubeOverlap(const CPDData& dat, const double& d) const
+  LNewtonian::cubeOverlap(const Particle& p1, const Particle& p2, 
+			  const double d) const
   {
-    for (size_t iDim(0); iDim < NDIM; ++iDim)
-      if (fabs(dat.rij[iDim]) > d) return false;
-  
-    return true;
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Sim->dynamics.BCs().applyBC(r12);
+    return magnet::overlap::point_cube(r12, Vector(2*d, 2*d, 2*d));
   }
 
   double
