@@ -78,7 +78,7 @@ namespace dynamo {
     /*! \brief Constructs a derived Global class according to the passed
      * XML Node.
      */
-    static Global* getClass(const magnet::xml::Node&, dynamo::SimData*);
+    static std::tr1::shared_ptr<Global> getClass(const magnet::xml::Node&, dynamo::SimData*);
 
     /*! \brief Loads a derived class from a passed XML Node.
      */

@@ -32,17 +32,17 @@ namespace dynamo {
     return XML;
   }
 
-  Liouvillean* 
-  Liouvillean::loadClass(const magnet::xml::Node& XML, dynamo::SimData* tmp)
+  std::tr1::shared_ptr<Liouvillean>
+  Liouvillean::getClass(const magnet::xml::Node& XML, dynamo::SimData* tmp)
   {
     if (!strcmp(XML.getAttribute("Type"),"Newtonian"))
-      return new LNewtonian(tmp);
+      return std::tr1::shared_ptr<Liouvillean>(new LNewtonian(tmp));
     if (!strcmp(XML.getAttribute("Type"),"NewtonianGravity"))
-      return new LNewtonianGravity(tmp, XML);
+      return std::tr1::shared_ptr<Liouvillean>(new LNewtonianGravity(tmp, XML));
     else if (!strcmp(XML.getAttribute("Type"),"SLLOD"))
-      return new LSLLOD(tmp);
+      return std::tr1::shared_ptr<Liouvillean>(new LSLLOD(tmp));
     else if (!strcmp(XML.getAttribute("Type"),"NewtonianMC"))
-      return new LNewtonianMC(tmp, XML);
+      return std::tr1::shared_ptr<Liouvillean>(new LNewtonianMC(tmp, XML));
     else 
       M_throw() << XML.getAttribute("Type")
 		<< ", Unknown type of Liouvillean encountered";

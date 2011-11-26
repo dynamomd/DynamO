@@ -52,8 +52,8 @@ namespace dynamo {
   
     virtual void periodicOutput();
   
-    static OutputPlugin* getPlugin(const magnet::xml::Node&, const dynamo::SimData*);
-    static OutputPlugin* getPlugin(const std::string, const dynamo::SimData*);
+    static std::tr1::shared_ptr<OutputPlugin> getPlugin(const magnet::xml::Node&, const dynamo::SimData*);
+    static std::tr1::shared_ptr<OutputPlugin> getPlugin(const std::string, const dynamo::SimData*);
   
     inline bool operator<(const OutputPlugin& OP) const
     { return updateOrder < OP.updateOrder; }
@@ -76,10 +76,5 @@ namespace dynamo {
     //
     // Lets other plugins take data from plugins before/after they are updated
     unsigned char updateOrder;
-
-  private:
-
-    template<class T> static OutputPlugin* 
-    testGeneratePlugin(const dynamo::SimData*, const magnet::xml::Node&);
   };
 }

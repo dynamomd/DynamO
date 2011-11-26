@@ -60,7 +60,8 @@ namespace dynamo {
     //! Fetch the next event in the list, 
     virtual intPart   copyNextEvent() const               = 0;
 
-    static CSSorter* getClass(const magnet::xml::Node&, const dynamo::SimData*);
+    static std::tr1::shared_ptr<CSSorter>
+    getClass(const magnet::xml::Node&, const dynamo::SimData*);
 
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const CSSorter&);
 

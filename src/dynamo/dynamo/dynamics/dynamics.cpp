@@ -434,34 +434,28 @@ namespace dynamo {
     Sim->primaryCellSize /= Sim->dynamics.units().unitLength();
 
     //Now load the BC
-    p_BC = std::tr1::shared_ptr<BoundaryCondition>(BoundaryCondition::getClass(xDynamics.getNode("BC"), Sim));
+    p_BC = BoundaryCondition::getClass(xDynamics.getNode("BC"), Sim);
   
     if (xDynamics.hasNode("Topology"))
       {
 	size_t i(0);
 	for (magnet::xml::Node node = xDynamics.getNode("Topology").fastGetNode("Structure");
 	     node.valid(); ++node, ++i)
-	  {
-	    std::tr1::shared_ptr<Topology> tempPlug(Topology::getClass(node, Sim, i));
-	    topology.push_back(tempPlug);
-	  }
+	  topology.push_back(Topology::getClass(node, Sim, i));
       }
   
     { 
       size_t i(0);
       for (magnet::xml::Node node = xDynamics.getNode("Genus").fastGetNode("Species");
 	   node.valid(); ++node, ++i)
-	species.push_back(std::tr1::shared_ptr<Species>(Species::getClass(node, Sim, i)));
+	species.push_back(Species::getClass(node, Sim, i));
     }
 
-    p_liouvillean = std::tr1::shared_ptr<Liouvillean>(Liouvillean::loadClass(xDynamics.getNode("Liouvillean"), Sim));
+    p_liouvillean = Liouvillean::getClass(xDynamics.getNode("Liouvillean"), Sim);
   
     for (magnet::xml::Node node = xDynamics.getNode("Interactions").fastGetNode("Interaction");
 	 node.valid(); ++node)
-      {
-	std::tr1::shared_ptr<Interaction> tempPlug(Interaction::getClass(node, Sim));
-	interactions.push_back(tempPlug);
-      }  
+      interactions.push_back(Interaction::getClass(node, Sim));
   
     //Link the species and interactions
     BOOST_FOREACH(std::tr1::shared_ptr<Species>& sp , species)
@@ -475,26 +469,17 @@ namespace dynamo {
     if (xDynamics.hasNode("Globals"))
       for (magnet::xml::Node node = xDynamics.getNode("Globals").fastGetNode("Global"); 
 	   node.valid(); ++node)
-	{
-	  std::tr1::shared_ptr<Global> tempPlug(Global::getClass(node, Sim));
-	  globals.push_back(tempPlug);
-	}
+	globals.push_back(Global::getClass(node, Sim));
 
     if (xDynamics.hasNode("Locals"))
       for (magnet::xml::Node node = xDynamics.getNode("Locals").fastGetNode("Local"); 
 	   node.valid(); ++node)
-	{
-	  std::tr1::shared_ptr<Local> tempPlug(Local::getClass(node, Sim));
-	  locals.push_back(tempPlug);
-	}
+	locals.push_back(Local::getClass(node, Sim));
   
     if (xDynamics.hasNode("SystemEvents"))
       for (magnet::xml::Node node = xDynamics.getNode("SystemEvents").fastGetNode("System"); 
 	   node.valid(); ++node)
-	{
-	  std::tr1::shared_ptr<System> tempPlug(System::getClass(node, Sim));
-	  systems.push_back(tempPlug);
-	}
+	systems.push_back(System::getClass(node, Sim));
   }
 
   void

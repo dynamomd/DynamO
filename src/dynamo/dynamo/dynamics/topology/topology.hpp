@@ -46,7 +46,7 @@ namespace dynamo {
     const std::string& getName() const
     { return spName; }
   
-    static Topology* getClass(const magnet::xml::Node& ,dynamo::SimData*, size_t);
+    static std::tr1::shared_ptr<Topology> getClass(const magnet::xml::Node& ,dynamo::SimData*, size_t);
 
     inline void addMolecule(CRange* ptr)
     { ranges.push_back(std::tr1::shared_ptr<CRange>(ptr)); }

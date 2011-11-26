@@ -19,6 +19,7 @@
 #include <dynamo/base.hpp>
 #include <dynamo/dynamics/eventtypes.hpp>
 #include <string>
+#include <tr1/memory>
 
 namespace magnet { namespace xml { class Node; class XmlStream; } }
 namespace dynamo {
@@ -51,7 +52,7 @@ namespace dynamo {
   
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const System&);
   
-    static System* getClass(const magnet::xml::Node&, dynamo::SimData*);
+    static std::tr1::shared_ptr<System> getClass(const magnet::xml::Node&, dynamo::SimData*);
   
     void setName(const std::string& tmp) { sysName = tmp; }
 

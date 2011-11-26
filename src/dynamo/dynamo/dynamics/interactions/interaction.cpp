@@ -61,31 +61,31 @@ namespace dynamo {
   Interaction::getRange() const
   { return range; }
 
-  Interaction*
+  std::tr1::shared_ptr<Interaction>
   Interaction::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
   {
     if (!std::strcmp(XML.getAttribute("Type"),"HardSphere"))
-      return new IHardSphere(XML, Sim);
+      return std::tr1::shared_ptr<Interaction>(new IHardSphere(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"RoughHardSphere"))
-      return new IRoughHardSphere(XML, Sim);
+      return std::tr1::shared_ptr<Interaction>(new IRoughHardSphere(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"SquareWell"))
-      return new ISquareWell(XML, Sim);
+      return std::tr1::shared_ptr<Interaction>(new ISquareWell(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"SquareWellSeq"))
-      return new ISWSequence(XML, Sim);
+      return std::tr1::shared_ptr<Interaction>(new ISWSequence(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"SquareBond"))
-      return new ISquareBond(XML, Sim);
+      return std::tr1::shared_ptr<Interaction>(new ISquareBond(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"SoftCore"))
-      return new ISoftCore(XML, Sim);
+      return std::tr1::shared_ptr<Interaction>(new ISoftCore(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"Null"))
-      return new INull(XML, Sim);
+      return std::tr1::shared_ptr<Interaction>(new INull(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"Lines"))
-      return new ILines(XML, Sim);
+      return std::tr1::shared_ptr<Interaction>(new ILines(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"Dumbbells"))
-      return new IDumbbells(XML, Sim);
+      return std::tr1::shared_ptr<Interaction>(new IDumbbells(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"RotatedParallelCubes"))
-      return new IParallelCubes(XML, Sim);
+      return std::tr1::shared_ptr<Interaction>(new IParallelCubes(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"Stepped"))
-      return new IStepped(XML, Sim);
+      return std::tr1::shared_ptr<Interaction>(new IStepped(XML, Sim));
     else 
       M_throw() << XML.getAttribute("Type")
 		<< ", Unknown type of interaction encountered";

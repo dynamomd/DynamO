@@ -60,7 +60,7 @@ namespace dynamo {
 
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Local&);
 
-    static Local* getClass(const magnet::xml::Node&, dynamo::SimData*);
+    static std::tr1::shared_ptr<Local> getClass(const magnet::xml::Node&, dynamo::SimData*);
 
     virtual void operator<<(const magnet::xml::Node&) = 0;
 

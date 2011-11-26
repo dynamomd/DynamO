@@ -47,7 +47,7 @@ namespace dynamo {
     return std::cout;
   }
 
-  OutputPlugin*
+  std::tr1::shared_ptr<OutputPlugin>
   OutputPlugin::getPlugin(std::string Details, const dynamo::SimData* Sim)
   {
     typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
@@ -96,22 +96,24 @@ namespace dynamo {
 
     return getPlugin(magnet::xml::Node(node, NULL), Sim);
   }
-
-  template<class T> OutputPlugin*
-  OutputPlugin::testGeneratePlugin(const dynamo::SimData* Sim, const magnet::xml::Node& XML)
-  {
-    try {
-      Sim->getOutputPlugin<T>();
-    } catch (std::exception&)
-      {
-	return new T(Sim, XML);
-      }
-
-    //It's already in the simulation
-    M_throw() << "Plugin is already loaded";
+  
+  namespace {
+    template<class T> std::tr1::shared_ptr<dynamo::OutputPlugin>
+    testGeneratePlugin(const dynamo::SimData* Sim, const magnet::xml::Node& XML)
+    {
+      try {
+	Sim->getOutputPlugin<T>();
+      } catch (std::exception&)
+	{
+	  return std::tr1::shared_ptr<dynamo::OutputPlugin>(new T(Sim, XML));
+	}
+      
+      //It's already in the simulation
+      M_throw() << "Plugin is already loaded";
+    }
   }
 
-  OutputPlugin*
+  std::tr1::shared_ptr<OutputPlugin>
   OutputPlugin::getPlugin(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
   {
     std::string Name(XML.getAttribute("Type"));

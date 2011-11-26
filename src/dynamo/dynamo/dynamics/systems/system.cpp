@@ -64,21 +64,21 @@ namespace dynamo {
     return XML;
   }
 
-  System* 
+  std::tr1::shared_ptr<System>
   System::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
   {
     if (!strcmp(XML.getAttribute("Type"),"Andersen"))
-      return new CSysGhost(XML,Sim);
+      return std::tr1::shared_ptr<System>(new CSysGhost(XML,Sim));
     else if (!strcmp(XML.getAttribute("Type"), "DSMCSpheres"))
-      return new CSDSMCSpheres(XML, Sim);
+      return std::tr1::shared_ptr<System>(new CSDSMCSpheres(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"), "Rescale"))
-      return new SysRescale(XML, Sim);
+      return std::tr1::shared_ptr<System>(new SysRescale(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"), "RingDSMC"))
-      return new CSRingDSMC(XML, Sim);
+      return std::tr1::shared_ptr<System>(new CSRingDSMC(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"), "Umbrella"))
-      return new CSUmbrella(XML, Sim);
+      return std::tr1::shared_ptr<System>(new CSUmbrella(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"), "Sleep"))
-      return new SSleep(XML, Sim);
+      return std::tr1::shared_ptr<System>(new SSleep(XML, Sim));
     else
       M_throw() << XML.getAttribute("Type")
 		<< ", Unknown type of System event encountered";

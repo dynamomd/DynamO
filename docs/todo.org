@@ -50,7 +50,7 @@
 **** TODO Auto detect the ensemble, users shouldn't have to specify it.
 **** TODO Alter the functions in dynamics that add/get/set objects and take/return a pointer to return shared_ptr's (search for uses of shared_ptr's get() function).
 **** TODO Alter the change system functions to take sharedptrs.
-**** TODO Change the loadClass XML functions to return shared_ptr's.
+**** DONE DynamO: Change the loadClass XML functions to return shared_ptr's.
 **** TODO Write up the image distance class.
 **** TODO Make the complex scheduler the default scheduler!
 **** TODO Make coil scale independent.

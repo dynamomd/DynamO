@@ -41,19 +41,19 @@ namespace dynamo {
     return XML;
   }
 
-  Global* 
+  std::tr1::shared_ptr<Global>
   Global::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
   {
     if (!strcmp(XML.getAttribute("Type"),"Cells2")
 	|| !strcmp(XML.getAttribute("Type"),"Cells")
 	|| !strcmp(XML.getAttribute("Type"),"CellsMorton"))
-      return new GCells(XML, Sim);
+      return std::tr1::shared_ptr<Global>(new GCells(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"ShearingCells"))
-      return new GCellsShearing(XML, Sim);
+      return std::tr1::shared_ptr<Global>(new GCellsShearing(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"SOCells"))
-      return new GSOCells(XML, Sim);
+      return std::tr1::shared_ptr<Global>(new GSOCells(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"Waker"))
-      return new GWaker(XML, Sim);
+      return std::tr1::shared_ptr<Global>(new GWaker(XML, Sim));
     else 
       M_throw() << XML.getAttribute("Type")
 		<< ", Unknown type of Global Interaction encountered";

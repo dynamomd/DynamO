@@ -571,10 +571,10 @@ namespace dynamo {
      *   the liouvillean is holding and wants to store in the particles XML.
      */
 
-    /*! \brief Instantiates and loads CLiovillean classes from an XML
+    /*! \brief Instantiates and loads Liovillean classes from an XML
      * entry.
      */
-    static Liouvillean* loadClass(const magnet::xml::Node& ,dynamo::SimData*);
+    static std::tr1::shared_ptr<Liouvillean> getClass(const magnet::xml::Node& ,dynamo::SimData*);
     
     /*! \brief Free streams all particles up to the current time.
      * 

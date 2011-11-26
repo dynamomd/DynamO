@@ -100,7 +100,7 @@ namespace dynamo
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const BoundaryCondition&);
 
     /*! \brief The class loader for boundary conditions. */
-    static BoundaryCondition* getClass(const magnet::xml::Node&, dynamo::SimData*);
+    static std::tr1::shared_ptr<BoundaryCondition> getClass(const magnet::xml::Node&, dynamo::SimData*);
 
   protected:
     /*! \brief The XML output for a BoundaryCondition class*/

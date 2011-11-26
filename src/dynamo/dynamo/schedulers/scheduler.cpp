@@ -49,7 +49,7 @@ namespace dynamo {
   void 
   Scheduler::operator<<(const magnet::xml::Node& XML)
   {
-    sorter = std::tr1::shared_ptr<CSSorter>(CSSorter::getClass(XML.getNode("Sorter"), Sim));
+    sorter = CSSorter::getClass(XML.getNode("Sorter"), Sim);
   }
 
   void
@@ -96,17 +96,17 @@ namespace dynamo {
       (part, magnet::function::MakeDelegate(this, &Scheduler::addInteractionEvent));
   }
 
-  Scheduler* 
+  std::tr1::shared_ptr<Scheduler>
   Scheduler::getClass(const magnet::xml::Node& XML, dynamo::SimData* const Sim)
   {
     if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
-      return new SNeighbourList(XML, Sim);
+      return std::tr1::shared_ptr<Scheduler>(new SNeighbourList(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"Dumb"))
-      return new SDumb(XML, Sim);
+      return std::tr1::shared_ptr<Scheduler>(new SDumb(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"SystemOnly"))
-      return new SSystemOnly(XML, Sim);
+      return std::tr1::shared_ptr<Scheduler>(new SSystemOnly(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"Complex"))
-      return new SComplex(XML, Sim);
+      return std::tr1::shared_ptr<Scheduler>(new SComplex(XML, Sim));
     else 
       M_throw() << XML.getAttribute("Type")
 		<< ", Unknown type of Scheduler encountered";

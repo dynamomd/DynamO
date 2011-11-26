@@ -85,7 +85,8 @@ namespace dynamo {
 
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Scheduler&);
 
-    static Scheduler* getClass(const magnet::xml::Node&, dynamo::SimData* const);
+    static std::tr1::shared_ptr<Scheduler>
+    getClass(const magnet::xml::Node&, dynamo::SimData* const);
 
     virtual void operator<<(const magnet::xml::Node&);
   
@@ -96,7 +97,7 @@ namespace dynamo {
     void rebuildSystemEvents() const;
 
     void addInteractionEvent(const Particle&, const size_t&) const;
-
+    
     void addInteractionEventInit(const Particle&, const size_t&) const;
 
     void addLocalEvent(const Particle&, const size_t&) const;

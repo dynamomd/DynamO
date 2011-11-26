@@ -18,6 +18,7 @@
 
 #include <dynamo/base.hpp>
 #include <tr1/array>
+#include <tr1/memory>
 #include <string>
 
 namespace magnet { namespace xml { class Node; class XmlStream; } }
@@ -43,8 +44,9 @@ namespace dynamo {
     //! generate the correct derived Ensemble type.
     //! \param XML The XML node containing the type of the Ensemble
     //! \param Sim A pointer to the simulation data this Ensemble is valid for.
-    static Ensemble* getClass(const magnet::xml::Node& XML, 
-			       const dynamo::SimData* Sim);
+    static std::tr1::shared_ptr<Ensemble> 
+    getClass(const magnet::xml::Node& XML, 
+	     const dynamo::SimData* Sim);
 
     //! Helper function which generates an Ensemble XML tag.
     //! \sa getName

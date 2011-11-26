@@ -55,7 +55,7 @@ namespace dynamo {
 
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Species&);
   
-    static Species* getClass(const magnet::xml::Node&, dynamo::SimData*, size_t);
+    static std::tr1::shared_ptr<Species> getClass(const magnet::xml::Node&, dynamo::SimData*, size_t);
 
 #ifdef DYNAMO_visualizer
     virtual std::tr1::shared_ptr<coil::DataSet> createDataSet() const;

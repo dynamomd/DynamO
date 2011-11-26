@@ -28,22 +28,23 @@ namespace dynamo {
     g.outputXML(XML);
     return XML;
   }
+  
+  namespace{typedef std::tr1::shared_ptr<BoundaryCondition> retptr;}
 
-
-  BoundaryCondition* 
+  retptr
   BoundaryCondition::getClass(const magnet::xml::Node& XML, dynamo::SimData* tmp)
   {
     if (!std::strcmp(XML.getAttribute("Type"),"None")
 	|| !std::strcmp(XML.getAttribute("Type"),"Null"))
-      return new BCNone(tmp);
+      return retptr(new BCNone(tmp));
     else if (!std::strcmp(XML.getAttribute("Type"),"PBC"))
-      return new BCPeriodic(tmp);
+      return retptr(new BCPeriodic(tmp));
     else if (!std::strcmp(XML.getAttribute("Type"),"NoXPBC"))
-      return new BCPeriodicExceptX(tmp);
+      return retptr(new BCPeriodicExceptX(tmp));
     else if (!std::strcmp(XML.getAttribute("Type"),"OnlyXPBC"))
-      return new BCPeriodicXOnly(tmp);
+      return retptr(new BCPeriodicXOnly(tmp));
     else if (!std::strcmp(XML.getAttribute("Type"),"LE"))
-      return new BCLeesEdwards(XML,tmp);
+      return retptr(new BCLeesEdwards(XML,tmp));
     else 
       M_throw() << XML.getAttribute("Type") 
 		<< ", Unknown type of boundary encountered";

@@ -95,7 +95,7 @@ namespace dynamo {
     //! This static function will instantiate a new interaction of the correct type specified by the xml node passed. 
     //!
     //! This is the birth point for all Interactions loaded from a configuration file.
-    static Interaction* getClass(const magnet::xml::Node&, dynamo::SimData*);
+    static std::tr1::shared_ptr<Interaction> getClass(const magnet::xml::Node&, dynamo::SimData*);
 
     //! Tests if this interaction is meant to be used between the two passed Particle -s.
     bool isInteraction(const Particle &p1, const Particle &p2) const

@@ -116,12 +116,11 @@ namespace dynamo
 
     ssHistory << subNode.getNode("History");
 
-    ensemble.reset(dynamo::Ensemble::getClass(subNode.getNode("Ensemble"), this));
+    ensemble = dynamo::Ensemble::getClass(subNode.getNode("Ensemble"), this);
 
     _properties << mainNode;
     dynamics << mainNode;
-    ptrScheduler 
-      = std::tr1::shared_ptr<Scheduler>(Scheduler::getClass(subNode.getNode("Scheduler"), this));
+    ptrScheduler = Scheduler::getClass(subNode.getNode("Scheduler"), this);
 
     dynamics.getLiouvillean().loadParticleXMLData(mainNode);
   
