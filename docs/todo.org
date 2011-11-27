@@ -18,6 +18,8 @@
 **** DONE DynamO: Up to 50% faster in polydisperse systems thanks to a new cache friendly nblist implementation.
 **** DONE DynamO: All particle positions are now shuffled for mixture systems in dynamod to enable faster equilibration.
 **** DONE DynamO: Removed all deprecated Clone functions for copying of classes in the code.
+**** DONE DynamO: Alter the functions in dynamics that add/get/set objects and take/return a pointer to return shared_ptr's (search for uses of shared_ptr's get() function).
+**** DONE DynamO: Change the loadClass XML functions to return shared_ptr's.
 **** DONE Coil: By default, spheres are ray-traced using geometry and fragment shaders to allow rendering of millions of perfectly spherical particles.
 **** DONE Coil: Cleaned up the stereo (3D) vision mode, so it's possible for 3D TV's to use it as well as red-cyan glasses.
 **** DONE Coil: There is now a separate Volume rendering visualisation executable to allow direct visualisation of volume data.
@@ -48,9 +50,7 @@
 **** TODO Optimized triangle meshes by inserting them into the neighbor lists.
 **** TODO Make a test for an invalid state in locals, globals and interactions (for particle insertion).
 **** TODO Auto detect the ensemble, users shouldn't have to specify it.
-**** TODO Alter the functions in dynamics that add/get/set objects and take/return a pointer to return shared_ptr's (search for uses of shared_ptr's get() function).
 **** TODO Alter the change system functions to take sharedptrs.
-**** DONE DynamO: Change the loadClass XML functions to return shared_ptr's.
 **** TODO Write up the image distance class.
 **** TODO Make the complex scheduler the default scheduler!
 **** TODO Make coil scale independent.

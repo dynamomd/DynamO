@@ -101,18 +101,18 @@ namespace dynamo {
       Sim.setnPrint(vm["ncoll"].as<unsigned long long>());
     
     if (vm.count("halt-time"))
-      Sim.addSystem(new CStHalt(&Sim, vm["halt-time"].as<double>(), "SystemHaltEvent"));
+      Sim.addSystem(shared_ptr<System>(new CStHalt(&Sim, vm["halt-time"].as<double>(), "SystemHaltEvent")));
 
     if (vm.count("scheduler-maintainance"))
-      Sim.addSystem(new CSSchedMaintainer(&Sim, vm["scheduler-maintainance"].as<double>(), "SchedulerRebuilder"));
+      Sim.addSystem(shared_ptr<System>(new CSSchedMaintainer(&Sim, vm["scheduler-maintainance"].as<double>(), "SchedulerRebuilder")));
 
 #ifdef DYNAMO_visualizer
     if (vm.count("visualizer"))
-      Sim.addSystem(new SVisualizer(&Sim, filename, vm["visualizer"].as<double>()));
+      Sim.addSystem(shared_ptr<System>(new SVisualizer(&Sim, filename, vm["visualizer"].as<double>())));
 #endif  
 
     if (vm.count("snapshot"))
-      Sim.addSystem(new SSnapshot(&Sim, vm["snapshot"].as<double>(), "SnapshotEvent"));
+      Sim.addSystem(shared_ptr<System>(new SSnapshot(&Sim, vm["snapshot"].as<double>(), "SnapshotEvent")));
 
     if (vm.count("load-plugin"))
       {

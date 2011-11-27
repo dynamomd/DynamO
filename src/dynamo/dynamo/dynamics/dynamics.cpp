@@ -179,17 +179,17 @@ namespace dynamo {
   }
 
   void 
-  Dynamics::addSpecies(const shared_ptr<Species>& sp)
+  Dynamics::addSpecies(shared_ptr<Species> sp)
   {
     if (Sim->status >= INITIALISED)
       M_throw() << "Cannot add species after simulation initialisation";
 
     species.push_back(sp);
 
-    BOOST_FOREACH(shared_ptr<Interaction>& intPtr , interactions)
-      if (intPtr->isInteraction(*species.back()))
+    BOOST_FOREACH(shared_ptr<Interaction>& intPtr, interactions)
+      if (intPtr->isInteraction(*sp))
 	{
-	  species.back()->setIntPtr(intPtr.get());
+	  sp->setIntPtr(intPtr.get());
 	  return;
 	}
 
@@ -197,64 +197,46 @@ namespace dynamo {
 	      << sp->getName() << "\"";
   }
 
-  void 
-  Dynamics::addGlobal(Global* newGlobal)
+  void Dynamics::addGlobal(shared_ptr<Global> ptr)
   {
+    if (!ptr) M_throw() << "Cannot add an unset Global";
     if (Sim->status >= INITIALISED)
       M_throw() << "Cannot add global events after simulation initialisation";
-
-    shared_ptr<Global> 
-      tempPlug(newGlobal);
-  
-    globals.push_back(tempPlug);
+    globals.push_back(ptr);
   }
-
-  void 
-  Dynamics::addLocal(Local* newLocal)
+  
+  void Dynamics::addLocal(shared_ptr<Local> ptr)
   {
+    if (!ptr) M_throw() << "Cannot add an unset Local";
     if (Sim->status >= INITIALISED)
       M_throw() << "Cannot add local events after simulation initialisation";
-
-    shared_ptr<Local> 
-      tempPlug(newLocal);
-  
-    locals.push_back(tempPlug);
+    locals.push_back(ptr);
   }
-
-  void
-  Dynamics::addSystem(System* newSystem)
+  
+  void Dynamics::addSystem(shared_ptr<System> ptr)
   {
+    if (!ptr) M_throw() << "Cannot add an unset System";
     if (Sim->status >= INITIALISED)
       M_throw() << "Cannot add system events at this time, system is initialised";
-  
-    shared_ptr<System> tempPlug(newSystem);
-  
-    systems.push_back(tempPlug); 
+    systems.push_back(ptr); 
   }
-
-  void
-  Dynamics::addStructure(Topology* newSystem)
+  
+  void Dynamics::addStructure(shared_ptr<Topology> ptr)
   { 
+    if (!ptr) M_throw() << "Cannot add an unset Topology";
     if (Sim->status >= INITIALISED)
       M_throw() << "Cannot add structure after simulation initialisation";
-
-    shared_ptr<Topology> 
-      tempPlug(newSystem);
-  
-    topology.push_back(tempPlug); 
+    topology.push_back(ptr);
   }
-
+  
   void 
   Dynamics::addSystemTicker()
   {
-    if (Sim->status >= INITIALISED)
-      M_throw() << "Cannot add the system ticker now";
-
     BOOST_FOREACH(shared_ptr<System>& ptr, systems)
       if (ptr->getName() == "SystemTicker")
 	M_throw() << "System Ticker already exists";
   
-    addSystem(new CSTicker(Sim, Sim->lastRunMFT, "SystemTicker"));
+    addSystem(shared_ptr<System>(new CSTicker(Sim, Sim->lastRunMFT, "SystemTicker")));
   }
 
   void 

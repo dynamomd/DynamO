@@ -63,15 +63,11 @@ namespace dynamo {
     inline shared_ptr<Interaction> addInteraction(shared_ptr<Interaction> ptr)
     { interactions.push_back(ptr); return interactions.back(); }
 
-    void addSpecies(const shared_ptr<Species>&);
-  
-    void addGlobal(Global*);
-
-    void addLocal(Local*);
-
-    void addSystem(System*);
-
-    void addStructure(Topology*);
+    void addSpecies(shared_ptr<Species>);  
+    void addGlobal(shared_ptr<Global> ptr);
+    void addLocal(shared_ptr<Local> ptr);
+    void addSystem(shared_ptr<System> ptr);
+    void addStructure(shared_ptr<Topology> ptr);
 
     const Species& getSpecies(const Particle&) const;
   

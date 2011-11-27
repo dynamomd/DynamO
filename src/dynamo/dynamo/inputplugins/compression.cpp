@@ -112,9 +112,10 @@ namespace dynamo {
 	    
 	    //Add the system watcher
 	    Sim->dynamics.addSystem
-	      (new CSNBListCompressionFix(Sim, growthRate 
-					  / Sim->dynamics.units().unitTime(),
-					  i));
+	      (shared_ptr<System>
+	       (new CSNBListCompressionFix(Sim, growthRate 
+					   / Sim->dynamics.units().unitTime(),
+					   i)));
 	  }
       }
   }
@@ -129,9 +130,10 @@ namespace dynamo {
     if (targetp < packfrac)
       M_throw() << "Target packing fraction is lower than current!";
   
-    Sim->dynamics.addSystem(new CStHalt(Sim, (pow(targetp / packfrac, 1.0/3.0) 
-					      - 1.0) / growthRate, 
-					"CompresionLimiter"));
+    Sim->dynamics.addSystem
+      (shared_ptr<System>
+       (new CStHalt(Sim, (pow(targetp / packfrac, 1.0/3.0) - 1.0) / growthRate, 
+		    "CompresionLimiter")));
   }
 
   void 

@@ -250,7 +250,7 @@ namespace dynamo {
     Engine::setupSim(Sim, filename);
 
     //Add the halt time, set to zero so a replica exchange occurrs immediately
-    Sim.addSystem(new CStHalt(&Sim, 0, "ReplexHalt"));
+    Sim.addSystem(shared_ptr<System>(new CStHalt(&Sim, 0, "ReplexHalt")));
 
     Sim.addOutputPlugin("UEnergy");
   }

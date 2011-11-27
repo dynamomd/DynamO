@@ -161,7 +161,7 @@ namespace dynamo {
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
 
-	  Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
+	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 
 	  double simVol = 1.0;
@@ -226,7 +226,7 @@ namespace dynamo {
 	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	
 	  if (vm.count("i2"))
-	    Sim->dynamics.addSystem(new SysRescale(Sim, vm["i2"].as<size_t>(), "RescalerEvent"));
+	    Sim->dynamics.addSystem(shared_ptr<System>(new SysRescale(Sim, vm["i2"].as<size_t>(), "RescalerEvent")));
 
 	  break;
 	}
@@ -271,7 +271,7 @@ namespace dynamo {
 	  //New scheduler and global
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
-	  Sim->dynamics.addGlobal(new GCells(Sim, "SchedulerNBList"));
+	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList")));
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
 	  //Set the unit energy to 1 (assuming the unit of mass is 1);
@@ -467,7 +467,7 @@ namespace dynamo {
 	      Sim->ptrScheduler 
 		= shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
-	      Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
+	      Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 	    }
 	  else
 	      Sim->ptrScheduler 
@@ -547,7 +547,7 @@ namespace dynamo {
 	  //Set the unit energy to 1 (assuming the unit of mass is 1);
 	  Sim->dynamics.units().setUnitTime(diamScale); 
 
-	  Sim->dynamics.addStructure(new CTChain(Sim, 1, "HelixPolymer"));
+	  Sim->dynamics.addStructure(shared_ptr<Topology>(new CTChain(Sim, 1, "HelixPolymer")));
 
 	  Sim->dynamics.getTopology().back()->addMolecule(new CRAll(Sim));
 
@@ -617,7 +617,7 @@ namespace dynamo {
 	  //New scheduler and global
 	  Sim->ptrScheduler
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSBoundedPQ<>(Sim)));
-	  Sim->dynamics.addGlobal(new GCells(Sim, "SchedulerNBList"));
+	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList")));
 
 	  Sim->dynamics.addInteraction
 	    (shared_ptr<Interaction>
@@ -682,7 +682,7 @@ namespace dynamo {
 	  //Set up a standard simulation
 	  Sim->ptrScheduler
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSBoundedPQ<>(Sim)));
-	  Sim->dynamics.addGlobal(new GCellsShearing(Sim,"SchedulerNBList"));
+	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
 
 	  Sim->dynamics.applyBC<BCLeesEdwards>();
 	  const double shearRate = 1;
@@ -798,7 +798,7 @@ namespace dynamo {
 	  //Set the unit energy to 1 (assuming the unit of mass is 1);
 	  Sim->dynamics.units().setUnitTime(diamScale); 
 
-	  Sim->dynamics.addStructure(new CTChain(Sim, 1, "HelixPolymer"));
+	  Sim->dynamics.addStructure(shared_ptr<Topology>(new CTChain(Sim, 1, "HelixPolymer")));
 
 	  Sim->dynamics.getTopology().back()->addMolecule(new CRAll(Sim));
 
@@ -831,7 +831,7 @@ namespace dynamo {
 	  Sim->primaryCellSize = getNormalisedCellDimensions();
 	  //Cut off the x periodic boundaries
 	  Sim->dynamics.applyBC<BCPeriodicExceptX>();
-	  Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
+	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  double simVol = 1.0;
 
@@ -852,12 +852,14 @@ namespace dynamo {
 	  if (vm.count("f1"))
 	    elasticity =  vm["f1"].as<double>();
 
-	  Sim->dynamics.addLocal(new LWall(Sim, elasticity, 0, Vector(1,0,0),
-					   Vector(-Sim->primaryCellSize[0] / 2, 0, 0),
-					   "LowWall", new CRAll(Sim)));
-	  Sim->dynamics.addLocal(new LWall(Sim, elasticity, 0, Vector(-1,0,0), 
-					   Vector(Sim->primaryCellSize[0] / 2, 0, 0),
-					   "HighWall", new CRAll(Sim)));
+	  Sim->dynamics.addLocal
+	    (shared_ptr<Local>(new LWall(Sim, elasticity, 0, Vector(1,0,0),
+					 Vector(-Sim->primaryCellSize[0] / 2, 0, 0),
+					 "LowWall", new CRAll(Sim))));
+	  Sim->dynamics.addLocal
+	    (shared_ptr<Local>(new LWall(Sim, elasticity, 0, Vector(-1,0,0), 
+					 Vector(Sim->primaryCellSize[0] / 2, 0, 0),
+					 "HighWall", new CRAll(Sim))));
 
 	  Sim->dynamics.addInteraction
 	    (shared_ptr<Interaction>
@@ -929,7 +931,7 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
-	  Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
+	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  Sim->dynamics.addInteraction
 	    (shared_ptr<Interaction>
@@ -966,7 +968,7 @@ namespace dynamo {
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
-	  Sim->dynamics.addStructure(new CTChain(Sim, 1, "Ring"));
+	  Sim->dynamics.addStructure(shared_ptr<Topology>(new CTChain(Sim, 1, "Ring")));
 
 	  Sim->dynamics.getTopology().back()->addMolecule(new CRAll(Sim));
 
@@ -1031,7 +1033,7 @@ namespace dynamo {
 	  Sim->ptrScheduler
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
-	  Sim->dynamics.addGlobal(new GCells(Sim, "SchedulerNBList"));
+	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList")));
 
 
 	  size_t nA = static_cast<size_t>(molFrac * latticeSites.size());
@@ -1118,7 +1120,7 @@ namespace dynamo {
 	      dout << "Neighbour List scheduler selected" << std::endl;
 	      Sim->ptrScheduler 
 		= shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
-	      Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
+	      Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 	    }
 
 	  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0;
@@ -1207,9 +1209,10 @@ namespace dynamo {
 
 	  //No thermostat added yet
 	  Sim->dynamics.addSystem
-	    (new CSDSMCSpheres(Sim, particleDiam,
-			       2.0 * tij / latticeSites.size(), chi, 1.0,
-			       "Thermostat", new CRAll(Sim), new CRAll(Sim)));
+	    (shared_ptr<System>
+	     (new CSDSMCSpheres(Sim, particleDiam,
+				2.0 * tij / latticeSites.size(), chi, 1.0,
+				"Thermostat", new CRAll(Sim), new CRAll(Sim))));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
@@ -1286,9 +1289,10 @@ namespace dynamo {
 
 	  //No thermostat added yet
 	  Sim->dynamics.addSystem
-	    (new CSDSMCSpheres(Sim, particleDiam, 0.001,
-			       chi, alpha, "Thermostat",
-			       new CRAll(Sim), new CRAll(Sim)));
+	    (shared_ptr<System>
+	     (new CSDSMCSpheres(Sim, particleDiam, 0.001,
+				chi, alpha, "Thermostat",
+				new CRAll(Sim), new CRAll(Sim))));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
@@ -1470,22 +1474,25 @@ namespace dynamo {
 			      "BBInt")));
 
 	  Sim->dynamics.addSystem
-	    (new CSDSMCSpheres(Sim, particleDiam,
-			       tAA / (2.0 * nA), chiAA, 1.0,
-			       "AADSMC", new CRRange(0, nA - 1),
-			       new CRRange(0, nA - 1)));
+	    (shared_ptr<System>
+	     (new CSDSMCSpheres(Sim, particleDiam,
+				tAA / (2.0 * nA), chiAA, 1.0,
+				"AADSMC", new CRRange(0, nA - 1),
+				new CRRange(0, nA - 1))));
 
 	  Sim->dynamics.addSystem
-	    (new CSDSMCSpheres(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam,
-			       tAB / (2.0 * nA), chiAB, 1.0,
-			       "ABDSMC", new CRRange(0, nA-1),
-			       new CRRange(nA, latticeSites.size()-1)));
+	    (shared_ptr<System>
+	     (new CSDSMCSpheres(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam,
+				tAB / (2.0 * nA), chiAB, 1.0,
+				"ABDSMC", new CRRange(0, nA-1),
+				new CRRange(nA, latticeSites.size()-1))));
 
 	  Sim->dynamics.addSystem
-	    (new CSDSMCSpheres(Sim, sizeRatio * particleDiam,
-			       tBB / (2.0 * (latticeSites.size() - nA)), chiBB, 1.0,
-			       "BBDSMC", new CRRange(nA, latticeSites.size()-1),
-			       new CRRange(nA, latticeSites.size()-1)));
+	    (shared_ptr<System>
+	     (new CSDSMCSpheres(Sim, sizeRatio * particleDiam,
+				tBB / (2.0 * (latticeSites.size() - nA)), chiBB, 1.0,
+				"BBDSMC", new CRRange(nA, latticeSites.size()-1),
+				new CRRange(nA, latticeSites.size()-1))));
 
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
@@ -1536,7 +1543,7 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
-	  Sim->dynamics.addGlobal(new GCellsShearing(Sim,"SchedulerNBList"));
+	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
 
 	  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0 ;
 
@@ -1632,7 +1639,7 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
-	  Sim->dynamics.addGlobal(new GCells(Sim, "SchedulerNBList"));
+	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList")));
 
 	  Sim->dynamics.addInteraction
 	    (shared_ptr<Interaction>
@@ -1730,22 +1737,25 @@ namespace dynamo {
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
-	  Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
+	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  if (vm.count("b1"))
-	    Sim->dynamics.addGlobal(new GSOCells(Sim,"SOCells"));
+	    Sim->dynamics.addGlobal(shared_ptr<Global>(new GSOCells(Sim,"SOCells")));
 
 	  if (vm.count("b2"))
 	    {
-	      Sim->dynamics.addLocal(new CLDblWall(Sim, 1.0, Vector(1,0,0),
-						   Vector(0,0,0),
-						   "Wall1", new CRAll(Sim)));
-	      Sim->dynamics.addLocal(new CLDblWall(Sim, 1.0, Vector(0,1,0),
-						   Vector(0,0,0),
-						   "Wall2", new CRAll(Sim)));
-	      Sim->dynamics.addLocal(new CLDblWall(Sim, 1.0, Vector(0,0,1),
-						   Vector(0,0,0),
-						   "Wall3", new CRAll(Sim)));
+	      Sim->dynamics.addLocal(shared_ptr<Local>
+				     (new CLDblWall(Sim, 1.0, Vector(1,0,0),
+						    Vector(0,0,0),
+						    "Wall1", new CRAll(Sim))));
+	      Sim->dynamics.addLocal(shared_ptr<Local>
+				     (new CLDblWall(Sim, 1.0, Vector(0,1,0),
+						    Vector(0,0,0),
+						    "Wall2", new CRAll(Sim))));
+	      Sim->dynamics.addLocal(shared_ptr<Local>
+				     (new CLDblWall(Sim, 1.0, Vector(0,0,1),
+						    Vector(0,0,0),
+						    "Wall3", new CRAll(Sim))));
 	    }
 
 	  Sim->dynamics.addInteraction
@@ -1852,8 +1862,7 @@ namespace dynamo {
 	    if (vm.count("i2"))
 	      overlink = vm["i2"].as<size_t>();
 
-	    Sim->dynamics.addGlobal(new GCells(Sim, "SchedulerNBList",
-					       overlink));
+	    Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList", overlink)));
 	  }
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
@@ -2005,9 +2014,10 @@ namespace dynamo {
 
 	  //No thermostat added yet
 	  Sim->dynamics.addSystem
-	    (new CSRingDSMC(Sim, particleDiam,
-			    2.0 * tij / latticeSites.size(), chi12, chi13, 1.0,
-			    "RingDSMC", new CRAll(Sim)));
+	    (shared_ptr<System>
+	     (new CSRingDSMC(Sim, particleDiam,
+			     2.0 * tij / latticeSites.size(), chi12, chi13, 1.0,
+			     "RingDSMC", new CRAll(Sim))));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
@@ -2095,9 +2105,10 @@ namespace dynamo {
 
 	  //No thermostat added yet
 	  Sim->dynamics.addSystem
-	    (new CSRingDSMC(Sim, particleDiam,
-			    2.0 * tij / latticeSites.size(), chi12, chi13, inelasticity,
-			    "RingDSMC", new CRAll(Sim)));
+	    (shared_ptr<System>
+	     (new CSRingDSMC(Sim, particleDiam,
+			     2.0 * tij / latticeSites.size(), chi12, chi13, inelasticity,
+			     "RingDSMC", new CRAll(Sim))));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
@@ -2218,7 +2229,7 @@ namespace dynamo {
 	    latticeSites(packptr->placeObjects(particleCOM));
 
 	  Sim->dynamics.applyBC<BCNone>();
-	  Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
+	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  double simVol = 1.0;
 
@@ -2235,20 +2246,24 @@ namespace dynamo {
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, particleDiam, ParticleInelas, new C2RAll(), "Bulk")));
 
-	  Sim->dynamics.addLocal(new LWall(Sim, PlateInelas, 0, Vector(0,0,1), 
-					   Vector(0, 0, -0.5 * Aspect),
-					   "Plate2", new CRAll(Sim)));
+	  Sim->dynamics.addLocal(shared_ptr<Local>
+				 (new LWall(Sim, PlateInelas, 0, Vector(0,0,1), 
+					    Vector(0, 0, -0.5 * Aspect),
+					    "Plate2", new CRAll(Sim))));
 
-	  Sim->dynamics.addLocal(new LWall(Sim, PlateInelas, 0, Vector(0,0,-1), Vector(0, 0, +0.5 * Aspect),
-					   "Plate3", new CRAll(Sim)));
+	  Sim->dynamics.addLocal(shared_ptr<Local>
+				 (new LWall(Sim, PlateInelas, 0, Vector(0,0,-1), Vector(0, 0, +0.5 * Aspect),
+					    "Plate3", new CRAll(Sim))));
+	  
+	  Sim->dynamics.addLocal(shared_ptr<Local>
+				 (new LWall(Sim, PlateInelas, 0, Vector(0,+1,0), 
+					    Vector(0, -0.5 * Aspect, 0),
+					    "Plate4", new CRAll(Sim))));
 
-	  Sim->dynamics.addLocal(new LWall(Sim, PlateInelas, 0, Vector(0,+1,0), 
-					   Vector(0, -0.5 * Aspect, 0),
-					   "Plate4", new CRAll(Sim)));
-
-	  Sim->dynamics.addLocal(new LWall(Sim, PlateInelas, 0, Vector(0,-1,0), 
-					   Vector(0, +0.5 * Aspect, 0),
-					   "Plate5", new CRAll(Sim)));
+	  Sim->dynamics.addLocal(shared_ptr<Local>
+				 (new LWall(Sim, PlateInelas, 0, Vector(0,-1,0), 
+					    Vector(0, +0.5 * Aspect, 0),
+					    "Plate5", new CRAll(Sim))));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, 
@@ -2278,10 +2293,11 @@ namespace dynamo {
 	    strongPlate = true;
 
 	  Sim->dynamics.addLocal
-	    (new CLOscillatingPlate(Sim, Vector(0,0,0), Vector(1,0,0), Omega0,
-				    0.5 * L / boxL, PlateInelas, Delta / boxL, 
-				    MassRatio * nParticles, "Plate1", 
-				    new CRAll(Sim), 0.0, strongPlate));
+	    (shared_ptr<Local>
+	     (new CLOscillatingPlate(Sim, Vector(0,0,0), Vector(1,0,0), Omega0,
+				     0.5 * L / boxL, PlateInelas, Delta / boxL, 
+				     MassRatio * nParticles, "Plate1", 
+				     new CRAll(Sim), 0.0, strongPlate)));
 
 	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
@@ -2307,10 +2323,10 @@ namespace dynamo {
 	  if (vm.count("rectangular-box"))
 	    {
 	      Sim->primaryCellSize = getNormalisedCellDimensions();
-	      Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
+	      Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 	    }
 	  else
-	    Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
+	    Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  double simVol = 1.0;
 
@@ -2417,7 +2433,7 @@ namespace dynamo {
 	  boxlimit *= 0.9;
 
 	  Sim->dynamics.applyBC<BCPeriodicXOnly>();
-	  Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
+	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  double particleDiam 
 	    = pow(vm["density"].as<double>() / latticeSites.size(), double(1.0 / 3.0))
@@ -2427,9 +2443,10 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
-	  Sim->dynamics.addLocal(new CLCylinder(Sim, 1.0, Vector(1,0,0), 
-						Vector(0,0,0), cylRad , "Cylinder", 
-						new CRAll(Sim), true));
+	  Sim->dynamics.addLocal(shared_ptr<Local>
+				 (new CLCylinder(Sim, 1.0, Vector(1,0,0), 
+						 Vector(0,0,0), cylRad , "Cylinder", 
+						 new CRAll(Sim), true)));
 
 
 	  Sim->dynamics.addInteraction
@@ -2471,7 +2488,7 @@ namespace dynamo {
 
 	  Sim->primaryCellSize = getNormalisedCellDimensions();
 	  Sim->dynamics.applyBC<BCNone>();
-	  Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
+	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  double simVol = 1.0;
 
@@ -2507,9 +2524,10 @@ namespace dynamo {
 	  //wall spacing by 0.9995 to prevent particles being
 	  //initialised touching the wall and to insert the wall just
 	  //inside the primary image
-	  Sim->dynamics.addLocal(new LWall(Sim, 1.0, 0, Vector(0,1,0), 
-					   Vector(0, - 0.9995 * 0.5 * Sim->primaryCellSize[1], 0),
-					   "GroundPlate", new CRAll(Sim)));
+	  Sim->dynamics.addLocal(shared_ptr<Local>
+				 (new LWall(Sim, 1.0, 0, Vector(0,1,0), 
+					    Vector(0, - 0.9995 * 0.5 * Sim->primaryCellSize[1], 0),
+					    "GroundPlate", new CRAll(Sim))));
 	
 	  unsigned long nParticles = 0;
 	  Sim->particleList.reserve(latticeSites.size());
@@ -2561,7 +2579,7 @@ namespace dynamo {
 	  double particleDiam = std::min(1 / (2 * R + 1), 1 / (H + 1));
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
-	  Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
+	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 	
 
 	  //Set up a standard simulation
@@ -2703,7 +2721,7 @@ namespace dynamo {
 	      Sim->ptrScheduler 
 		= shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
-	      Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
+	      Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 	    }
 	  else
 	    Sim->ptrScheduler 
@@ -3199,7 +3217,7 @@ namespace dynamo {
 	  //Set the unit energy to 1 (assuming the unit of mass is 1);
 	  Sim->dynamics.units().setUnitTime(diamScale); 
 
-	  Sim->dynamics.addStructure(new CTChain(Sim, 1, "HelixPolymer"));
+	  Sim->dynamics.addStructure(shared_ptr<Topology>(new CTChain(Sim, 1, "HelixPolymer")));
 
 	  Sim->dynamics.getTopology().back()->addMolecule(new CRAll(Sim));
 
@@ -3259,7 +3277,7 @@ namespace dynamo {
 	  double particleDiam = (2 * Rmax) / l;
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
-	  Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
+	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 	
 
 	  //Set up a standard simulation
@@ -3424,20 +3442,22 @@ namespace dynamo {
 
 	  if (sleepV)
 	    {
-	      Sim->dynamics.addSystem(new SSleep(Sim, "Sleeper",
+	      Sim->dynamics.addSystem
+		(shared_ptr<System>(new SSleep(Sim, "Sleeper",
+					       new CRRange(funnelSites.size(),
+							   funnelSites.size()
+							   + dynamicSites.size() - 1),
+					       sleepV * Sim->dynamics.units().unitVelocity())));
+	      
+	      if (wakeTime)
+		Sim->dynamics.addGlobal
+		  (shared_ptr<Global>(new GWaker(Sim, "Waker",
 						 new CRRange(funnelSites.size(),
 							     funnelSites.size()
 							     + dynamicSites.size() - 1),
-						 sleepV * Sim->dynamics.units().unitVelocity()));
-	      
-	      if (wakeTime)
-		Sim->dynamics.addGlobal(new GWaker(Sim, "Waker",
-						   new CRRange(funnelSites.size(),
-							       funnelSites.size()
-							       + dynamicSites.size() - 1),
-						   wakeTime * Sim->dynamics.units().unitTime(),
-						   0.5 * sleepV * Sim->dynamics.units().unitVelocity(),
-						   "SchedulerNBList"));
+						 wakeTime * Sim->dynamics.units().unitTime(),
+						 0.5 * sleepV * Sim->dynamics.units().unitVelocity(),
+						 "SchedulerNBList")));
 	    }
 
 	  unsigned long nParticles = 0;
@@ -3509,7 +3529,7 @@ namespace dynamo {
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSBoundedPQ<>(Sim)));
-	  Sim->dynamics.addGlobal(new GCellsShearing(Sim,"SchedulerNBList"));
+	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
 
 	  Sim->dynamics.applyBC<BCLeesEdwards>();
 	  const double shearRate(1);

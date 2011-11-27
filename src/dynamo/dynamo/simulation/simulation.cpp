@@ -74,26 +74,8 @@ namespace dynamo {
   }
 
   void 
-  Simulation::addGlobal(Global* tmp)
+  Simulation::addSystem(shared_ptr<System> tmp)
   {
-    if (tmp == NULL)
-      M_throw() << "Adding a NULL global";
-
-    if (status != CONFIG_LOADED)
-      M_throw() << "Cannot add global events now its initialised";
-
-    dynamics.addGlobal(tmp);
-  }
-
-  void 
-  Simulation::addSystem(System* tmp)
-  {
-    if (tmp == NULL)
-      M_throw() << "Adding a NULL systemEvent";
-
-    if (status != CONFIG_LOADED)
-      M_throw() << "Cannot add system events now it is initialised";
-
     dynamics.addSystem(tmp);
   }
 
@@ -162,7 +144,7 @@ namespace dynamo {
     if (dynamics.BCTypeTest<BCPeriodic>()
 	|| dynamics.BCTypeTest<BCPeriodicExceptX>()
 	|| dynamics.BCTypeTest<BCPeriodicXOnly>())
-      dynamics.addGlobal(new GPBCSentinel(this, "PBCSentinel"));
+      dynamics.addGlobal(shared_ptr<Global>(new GPBCSentinel(this, "PBCSentinel")));
 
     BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)
       if (std::tr1::dynamic_pointer_cast<OPTicker>(Ptr))

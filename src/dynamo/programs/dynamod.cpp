@@ -156,7 +156,8 @@ main(int argc, char *argv[])
 	  dynamo::System* thermostat = sim.getSystem("Thermostat");
 	  if (thermostat == NULL)
 	    {
-	      sim.addSystem(new dynamo::CSysGhost(&sim, 1.0, 1.0, "Thermostat"));
+	      sim.addSystem(dynamo::shared_ptr<dynamo::System>
+			    (new dynamo::CSysGhost(&sim, 1.0, 1.0, "Thermostat")));
 	      thermostat = sim.getSystem("Thermostat");
 	    }
 

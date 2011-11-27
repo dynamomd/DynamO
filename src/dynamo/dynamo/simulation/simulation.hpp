@@ -84,17 +84,11 @@ namespace dynamo {
     //! \sa dynamo::SimData::ranGenerator
     void setRandSeed(unsigned int);
 
-    //! Allows the Coordinator class to add Global events to the
-    //! Simulation.
-    //!
-    //! This is only allowed before the simulation is initialised.
-    void addGlobal(Global*);
-
     //! Allows the Coordinator class to add System events to the
     //! Simulation.
     //!
     //! This is only allowed before the simulation is initialised.
-    void addSystem(System*);
+    void addSystem(shared_ptr<System>);
 
     //! Sets the ID of the simulation.
     //!
