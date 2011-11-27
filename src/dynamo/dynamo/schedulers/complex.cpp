@@ -81,7 +81,7 @@ namespace dynamo {
     operator<<(XML);
   }
 
-  SComplex::SComplex(dynamo::SimData* const Sim, EventSorter* ns):
+  SComplex::SComplex(dynamo::SimData* const Sim, FEL* ns):
     Scheduler(Sim,"ComplexScheduler", ns)
   { dout << "Complex Scheduler Algorithmn Loaded" << std::endl; }
 

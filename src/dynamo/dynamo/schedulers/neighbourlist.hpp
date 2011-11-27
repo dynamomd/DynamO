@@ -24,7 +24,7 @@ namespace dynamo {
   public:
     SNeighbourList(const magnet::xml::Node&, dynamo::SimData* const);
 
-    SNeighbourList(dynamo::SimData* const, EventSorter*);
+    SNeighbourList(dynamo::SimData* const, FEL*);
 
     virtual void initialise();
 

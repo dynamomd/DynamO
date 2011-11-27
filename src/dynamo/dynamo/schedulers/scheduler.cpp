@@ -37,7 +37,7 @@
 
 namespace dynamo {
   Scheduler::Scheduler(dynamo::SimData* const tmp, const char * aName,
-			 EventSorter* nS):
+			 FEL* nS):
     SimBase(tmp, aName),
     sorter(nS),
     _interactionRejectionCounter(0),
@@ -49,7 +49,7 @@ namespace dynamo {
   void 
   Scheduler::operator<<(const magnet::xml::Node& XML)
   {
-    sorter = EventSorter::getClass(XML.getNode("Sorter"), Sim);
+    sorter = FEL::getClass(XML.getNode("Sorter"), Sim);
   }
 
   void

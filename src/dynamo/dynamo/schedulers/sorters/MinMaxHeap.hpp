@@ -27,12 +27,12 @@ namespace dynamo {
   //! queue is cleared, or pop'd empty. This means no conditional logic
   //! is required to deal with the comparison of empty queues.
   template<size_t Size>
-  class MinMaxHeapPList
+  class PELMinMax
   {
     magnet::containers::MinMaxHeap<intPart,Size> _innerHeap;
 
   public:
-    MinMaxHeapPList() 
+    PELMinMax() 
     { 
       //We use the iterators to do this as it doesn't check the size of
       //the heap!
@@ -54,12 +54,12 @@ namespace dynamo {
 
     inline void clear() { _innerHeap.clear(); _innerHeap.begin()->dt = HUGE_VAL; }
 
-    inline bool operator> (const MinMaxHeapPList& ip) const throw()
+    inline bool operator> (const PELMinMax& ip) const throw()
     { 
       return _innerHeap.begin()->dt > ip._innerHeap.begin()->dt; 
     }
 
-    inline bool operator< (const MinMaxHeapPList& ip) const throw()
+    inline bool operator< (const PELMinMax& ip) const throw()
     { 
       return _innerHeap.begin()->dt < ip._innerHeap.begin()->dt; 
     }
@@ -99,7 +99,7 @@ namespace dynamo {
 	dat.dt *= scale;
     }
 
-    inline void swap(MinMaxHeapPList& rhs)
+    inline void swap(PELMinMax& rhs)
     {
       _innerHeap.swap(rhs._innerHeap);
     }
@@ -111,7 +111,7 @@ namespace std
 {
   /*! \brief Template specialisation of the std::swap function for pList*/
   template<size_t Size>
-  void swap(dynamo::MinMaxHeapPList<Size>& lhs, dynamo::MinMaxHeapPList<Size>& rhs)
+  void swap(dynamo::PELMinMax<Size>& lhs, dynamo::PELMinMax<Size>& rhs)
   {
     lhs.swap(rhs);
   }

@@ -24,12 +24,16 @@ namespace magnet { namespace xml { class Node; } }
 namespace xml { class XmlStream; } 
 
 namespace dynamo {
-  class EventSorter: public dynamo::SimBase_const
+  /*! \brief Future Event Lists (FEL) sort the Particle Event Lists
+      (PEL) to determine the next event to occur.
+   */
+
+  class FEL: public dynamo::SimBase_const
   {
   public:
-    EventSorter(const dynamo::SimData* const& SD, const char *aName);
+    FEL(const dynamo::SimData* const& SD, const char *aName);
 
-    virtual ~EventSorter() {}
+    virtual ~FEL() {}
     virtual size_t size()                              const = 0;
     virtual bool   empty()                             const = 0;
     virtual void   resize(const size_t&)                     = 0;
@@ -60,10 +64,10 @@ namespace dynamo {
     //! Fetch the next event in the list, 
     virtual intPart   copyNextEvent() const               = 0;
 
-    static shared_ptr<EventSorter>
+    static shared_ptr<FEL>
     getClass(const magnet::xml::Node&, const dynamo::SimData*);
 
-    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const EventSorter&);
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const FEL&);
 
   private:
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;

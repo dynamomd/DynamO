@@ -25,7 +25,7 @@
 #include <cmath>
 
 namespace dynamo {
-  class ESCBT: public EventSorter
+  class FELCBT: public FEL
   {
   private:
     std::vector<unsigned long> CBT;
@@ -36,8 +36,8 @@ namespace dynamo {
     double pecTime;
 
   public:  
-    ESCBT(const dynamo::SimData* const& SD):
-      EventSorter(SD, "CBT")
+    FELCBT(const dynamo::SimData* const& SD):
+      FEL(SD, "CBT")
     {}
 
     typedef std::vector<pList>::iterator iterator;

@@ -32,7 +32,7 @@ namespace dynamo {
   class Scheduler: public dynamo::SimBase
   {
   public:
-    Scheduler(dynamo::SimData* const, const char *, EventSorter*);
+    Scheduler(dynamo::SimData* const, const char *, FEL*);
   
     virtual ~Scheduler() = 0;
 
@@ -92,7 +92,7 @@ namespace dynamo {
   
     void rescaleTimes(const double& scale) { sorter->rescaleTimes(scale); }
 
-    const shared_ptr<EventSorter>& getSorter() const { return sorter; }
+    const shared_ptr<FEL>& getSorter() const { return sorter; }
 
     void rebuildSystemEvents() const;
 
@@ -123,7 +123,7 @@ namespace dynamo {
      */
     void lazyDeletionCleanup();
 
-    mutable shared_ptr<EventSorter> sorter;
+    mutable shared_ptr<FEL> sorter;
     mutable std::vector<unsigned long> eventCount;
   
     size_t _interactionRejectionCounter;

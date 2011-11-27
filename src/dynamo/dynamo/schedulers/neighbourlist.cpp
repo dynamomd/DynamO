@@ -76,7 +76,7 @@ namespace dynamo {
     operator<<(XML);
   }
 
-  SNeighbourList::SNeighbourList(dynamo::SimData* const Sim, EventSorter* ns):
+  SNeighbourList::SNeighbourList(dynamo::SimData* const Sim, FEL* ns):
     Scheduler(Sim,"NeighbourListScheduler", ns)
   { dout << "Neighbour List Scheduler Algorithmn Loaded" << std::endl; }
 

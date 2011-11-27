@@ -47,7 +47,7 @@
 #include <cmath>
 
 namespace dynamo {
-  typedef ESBoundedPQ<MinMaxHeapPList<3> > DefaultSorter;
+  typedef FELBoundedPQ<PELMinMax<3> > DefaultSorter;
 
   namespace {
     struct speciesData 
@@ -616,7 +616,7 @@ namespace dynamo {
 
 	  //New scheduler and global
 	  Sim->ptrScheduler
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new ESBoundedPQ<>(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELBoundedPQ<>(Sim)));
 	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList")));
 
 	  Sim->dynamics.addInteraction
@@ -681,7 +681,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new ESBoundedPQ<>(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELBoundedPQ<>(Sim)));
 	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
 
 	  Sim->dynamics.applyBC<BCLeesEdwards>();
@@ -776,7 +776,7 @@ namespace dynamo {
 
 	  //Set up the system now
 	  Sim->ptrScheduler
-	    = shared_ptr<SDumb>(new SDumb(Sim, new ESBoundedPQ<>(Sim)));
+	    = shared_ptr<SDumb>(new SDumb(Sim, new FELBoundedPQ<>(Sim)));
 
 	  Sim->dynamics.applyBC<BCNone>();
 
@@ -1185,7 +1185,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new ESCBT(Sim)));
+	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new FELCBT(Sim)));
 
 	  //This is to stop interactions being used for these particles
 	  Sim->dynamics.addInteraction
@@ -1268,7 +1268,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new ESCBT(Sim)));
+	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new FELCBT(Sim)));
 
 	  Sim->dynamics.setLiouvillean(shared_ptr<Liouvillean>(new LSLLOD(Sim)));
 
@@ -1355,7 +1355,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new ESCBT(Sim)));
+	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new FELCBT(Sim)));
 
 	  //This is to stop interactions being used for these particles
 	  Sim->dynamics.addInteraction
@@ -1977,7 +1977,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new ESCBT(Sim)));
+	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new FELCBT(Sim)));
 
 	  //This is to stop interactions being used for these particles
 	  Sim->dynamics.addInteraction
@@ -2073,7 +2073,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new ESCBT(Sim)));
+	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new FELCBT(Sim)));
 
 	  Sim->dynamics.setLiouvillean(shared_ptr<Liouvillean>(new LSLLOD(Sim)));
 
@@ -2584,7 +2584,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new ESCBT(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELCBT(Sim)));
 
 	  Sim->dynamics.setLiouvillean(shared_ptr<Liouvillean>
 				       (new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0), elasticV * Sim->dynamics.units().unitVelocity())));
@@ -3282,7 +3282,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new ESCBT(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELCBT(Sim)));
 
 	  Sim->dynamics.setLiouvillean(shared_ptr<Liouvillean>
 				       (new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0),
@@ -3528,7 +3528,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new ESBoundedPQ<>(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELBoundedPQ<>(Sim)));
 	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
 
 	  Sim->dynamics.applyBC<BCLeesEdwards>();

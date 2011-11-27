@@ -33,38 +33,38 @@
 
 namespace dynamo {
   template<size_t Size>
-  class MinMaxHeapPList;
+  class PELMinMax;
 
   class pList;
 
   class PELSingleEvent;
 
   template<class T>
-  struct ESBoundedPQName
+  struct FELBoundedPQName
   {
     BOOST_STATIC_ASSERT(sizeof(T) == 0);
   };
 
   template<>
-  struct ESBoundedPQName<pList>
+  struct FELBoundedPQName<pList>
   {
     inline static std::string name() { return "BoundedPQ"; }
   };
 
   template<size_t I>
-  struct ESBoundedPQName<MinMaxHeapPList<I> >
+  struct FELBoundedPQName<PELMinMax<I> >
   {
     inline static std::string name() { return std::string("BoundedPQMinMax") + boost::lexical_cast<std::string>(I); }
   };
 
   template<>
-  struct ESBoundedPQName<PELSingleEvent>
+  struct FELBoundedPQName<PELSingleEvent>
   {
     inline static std::string name() { return "BoundedPQSingleEvent"; }
   };
 
   template<typename T = pList>
-  class ESBoundedPQ: public EventSorter
+  class FELBoundedPQ: public FEL
   {
   private:
     //Bounded priority queue variables and types
@@ -92,12 +92,12 @@ namespace dynamo {
     size_t exceptionCount;
 
   public:  
-    ESBoundedPQ(const dynamo::SimData* const& SD):
-      EventSorter(SD, "BoundedPQ"),
+    FELBoundedPQ(const dynamo::SimData* const& SD):
+      FEL(SD, "BoundedPQ"),
       exceptionCount(0) 
     {}
 
-    ~ESBoundedPQ() 
+    ~FELBoundedPQ() 
     { 
       dout << "Exception Events = " << exceptionCount << std::endl;
     }
@@ -517,7 +517,7 @@ namespace dynamo {
     }
   
     virtual void outputXML(magnet::xml::XmlStream& XML) const
-    { XML << magnet::xml::attr("Type") << ESBoundedPQName<T>::name(); }
+    { XML << magnet::xml::attr("Type") << FELBoundedPQName<T>::name(); }
 
   };
 }

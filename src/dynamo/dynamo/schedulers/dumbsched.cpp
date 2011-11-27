@@ -41,7 +41,7 @@ namespace dynamo {
     operator<<(XML);
   }
 
-  SDumb::SDumb(dynamo::SimData* const Sim, EventSorter* ns):
+  SDumb::SDumb(dynamo::SimData* const Sim, FEL* ns):
     Scheduler(Sim,"DumbScheduler", ns)
   { dout << "Dumb Scheduler Algorithmn" << std::endl; }
 

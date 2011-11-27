@@ -26,7 +26,7 @@ namespace dynamo {
   public:
     SComplex(const magnet::xml::Node&, dynamo::SimData* const);
 
-    SComplex(dynamo::SimData* const, EventSorter*);
+    SComplex(dynamo::SimData* const, FEL*);
 
     virtual void initialise();
 
