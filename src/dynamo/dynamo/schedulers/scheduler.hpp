@@ -27,7 +27,7 @@ namespace magnet { namespace xml { class Node; } }
 
 namespace dynamo {
   class Particle;
-  class intPart;
+  class Event;
 
   class Scheduler: public dynamo::SimBase
   {
@@ -77,7 +77,7 @@ namespace dynamo {
 
     void popNextEvent();
 
-    void pushEvent(const Particle&, const intPart&);
+    void pushEvent(const Particle&, const Event&);
   
     void stream(const double& dt) {  sorter->stream(dt); }
   

@@ -16,7 +16,7 @@
 */
 
 #pragma once
-#include <dynamo/schedulers/sorters/datastruct.hpp>
+#include <dynamo/schedulers/sorters/event.hpp>
 #include <dynamo/base.hpp>
 #include <dynamo/dynamics/eventtypes.hpp>
 
@@ -42,13 +42,13 @@ namespace dynamo {
     //A slient version of init
     virtual void   rebuild()                                 = 0;
     virtual void   stream(const double&)                       = 0;
-    virtual void   push(const intPart&, const size_t&)       = 0;
+    virtual void   push(const Event&, const size_t&)       = 0;
     virtual void   update(const size_t&)                     = 0;
     virtual size_t next_ID()                           const = 0;
-    //virtual pList& next_Data()                               = 0;
-    //virtual const pList& next_Data()                   const = 0;
-    //virtual const pList& operator[](const size_t&)     const = 0;
-    //virtual pList& operator[](const size_t&)                 = 0;
+    //virtual PELHeap& next_Data()                               = 0;
+    //virtual const PELHeap& next_Data()                   const = 0;
+    //virtual const PELHeap& operator[](const size_t&)     const = 0;
+    //virtual PELHeap& operator[](const size_t&)                 = 0;
     virtual double   next_dt()                           const = 0;
     virtual EEventType next_type() const                     = 0;
     virtual unsigned long next_collCounter2() const          = 0;
@@ -62,7 +62,7 @@ namespace dynamo {
     virtual bool nextPELEmpty() const                        = 0;
 
     //! Fetch the next event in the list, 
-    virtual intPart   copyNextEvent() const               = 0;
+    virtual Event   copyNextEvent() const               = 0;
 
     static shared_ptr<FEL>
     getClass(const magnet::xml::Node&, const dynamo::SimData*);

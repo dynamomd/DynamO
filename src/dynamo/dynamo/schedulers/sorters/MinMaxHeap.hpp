@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <dynamo/schedulers/sorters/datastruct.hpp>
+#include <dynamo/schedulers/sorters/event.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/containers/MinMaxHeap.hpp>
 
@@ -29,7 +29,7 @@ namespace dynamo {
   template<size_t Size>
   class PELMinMax
   {
-    magnet::containers::MinMaxHeap<intPart,Size> _innerHeap;
+    magnet::containers::MinMaxHeap<Event,Size> _innerHeap;
 
   public:
     PELMinMax() 
@@ -43,8 +43,8 @@ namespace dynamo {
     inline bool empty() const { return _innerHeap.empty(); }
     inline bool full() const { return _innerHeap.full(); }
 
-    inline const intPart& front() const { return *_innerHeap.begin(); }
-    inline const intPart& top() const { return front(); }  
+    inline const Event& front() const { return *_innerHeap.begin(); }
+    inline const Event& top() const { return front(); }  
 
     inline void pop() 
     { 
@@ -71,17 +71,17 @@ namespace dynamo {
   
     inline void stream(const double& ndt) throw()
     {
-      BOOST_FOREACH(intPart& dat, _innerHeap)
+      BOOST_FOREACH(Event& dat, _innerHeap)
 	dat.dt -= ndt;
     }
 
     inline void addTime(const double& ndt) throw()
     {
-      BOOST_FOREACH(intPart& dat, _innerHeap)
+      BOOST_FOREACH(Event& dat, _innerHeap)
 	dat.dt += ndt;
     }
 
-    inline void push(const intPart& __x)
+    inline void push(const Event& __x)
     {
       if (!_innerHeap.full())
 	_innerHeap.insert(__x);
@@ -95,7 +95,7 @@ namespace dynamo {
 
     inline void rescaleTimes(const double& scale) throw()
     { 
-      BOOST_FOREACH(intPart& dat, _innerHeap)
+      BOOST_FOREACH(Event& dat, _innerHeap)
 	dat.dt *= scale;
     }
 
@@ -109,7 +109,7 @@ namespace dynamo {
 
 namespace std
 {
-  /*! \brief Template specialisation of the std::swap function for pList*/
+  /*! \brief Template specialisation of the std::swap function for PELHeap*/
   template<size_t Size>
   void swap(dynamo::PELMinMax<Size>& lhs, dynamo::PELMinMax<Size>& rhs)
   {

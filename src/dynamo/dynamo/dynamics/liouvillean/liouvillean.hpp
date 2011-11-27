@@ -29,7 +29,7 @@ namespace dynamo {
   class PairEventData;
   class ParticleEventData;
   class IntEvent;
-  class intPart;
+  class Event;
 
   /*! \brief Implements the time operators for the system.
    *

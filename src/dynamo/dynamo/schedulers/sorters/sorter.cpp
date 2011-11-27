@@ -28,7 +28,7 @@ namespace dynamo {
   shared_ptr<FEL>
   FEL::getClass(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
   {
-    if (std::string(XML.getAttribute("Type")) == FELBoundedPQName<pList>::name())
+    if (std::string(XML.getAttribute("Type")) == FELBoundedPQName<PELHeap>::name())
       return shared_ptr<FEL>(new FELBoundedPQ<>(Sim));
     if (std::string(XML.getAttribute("Type")) == FELBoundedPQName<PELSingleEvent>::name())
       return shared_ptr<FEL>(new FELBoundedPQ<PELSingleEvent>(Sim));

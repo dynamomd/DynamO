@@ -92,11 +92,11 @@ namespace dynamo {
       id2sampler(Sim->ranGenerator, 
 		 boost::uniform_int<size_t>(0, range2->size() - 1));
 
-    double intPart;
+    double Event;
     double fracpart = std::modf(0.5 * maxprob * range1->size(),
-				&intPart);
+				&Event);
  
-    size_t nmax = static_cast<size_t>(intPart);
+    size_t nmax = static_cast<size_t>(Event);
   
     BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(*this, NEventData(), locdt);

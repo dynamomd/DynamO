@@ -93,10 +93,10 @@ namespace dynamo {
       Ptr->eventUpdate(*this, NEventData(), locdt);
 
     //////////////////// T(1,2) operator
-    double intPart;
-    double fracpart = std::modf(maxprob12 * range1->size(), &intPart);
+    double Event;
+    double fracpart = std::modf(maxprob12 * range1->size(), &Event);
  
-    size_t nmax = static_cast<size_t>(intPart) + (Sim->uniform_sampler() < fracpart);
+    size_t nmax = static_cast<size_t>(Event) + (Sim->uniform_sampler() < fracpart);
   
     {
       boost::variate_generator
@@ -138,9 +138,9 @@ namespace dynamo {
 
     //////////////////// T(1,3) operator
     {
-      fracpart = std::modf(maxprob13 * range1->size(), &intPart);
+      fracpart = std::modf(maxprob13 * range1->size(), &Event);
     
-      nmax = static_cast<size_t>(intPart) + (Sim->uniform_sampler() < fracpart);
+      nmax = static_cast<size_t>(Event) + (Sim->uniform_sampler() < fracpart);
     
       boost::variate_generator
 	<dynamo::baseRNG&, boost::uniform_int<size_t> >

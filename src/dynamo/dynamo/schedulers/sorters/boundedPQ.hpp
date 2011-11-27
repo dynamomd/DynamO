@@ -16,8 +16,9 @@
 */
 
 #pragma once
-#include <dynamo/schedulers/sorters/datastruct.hpp>
+#include <dynamo/schedulers/sorters/event.hpp>
 #include <dynamo/schedulers/sorters/sorter.hpp>
+#include <dynamo/schedulers/sorters/heapPEL.hpp>
 #include <dynamo/dynamics/units/units.hpp>
 #include <dynamo/base/is_simdata.hpp>
 #include <boost/static_assert.hpp>
@@ -35,8 +36,6 @@ namespace dynamo {
   template<size_t Size>
   class PELMinMax;
 
-  class pList;
-
   class PELSingleEvent;
 
   template<class T>
@@ -46,7 +45,7 @@ namespace dynamo {
   };
 
   template<>
-  struct FELBoundedPQName<pList>
+  struct FELBoundedPQName<PELHeap>
   {
     inline static std::string name() { return "BoundedPQ"; }
   };
@@ -63,7 +62,7 @@ namespace dynamo {
     inline static std::string name() { return "BoundedPQSingleEvent"; }
   };
 
-  template<typename T = pList>
+  template<typename T = PELHeap>
   class FELBoundedPQ: public FEL
   {
   private:
@@ -141,7 +140,7 @@ namespace dynamo {
       CBT.resize(2 * N);
       Leaf.resize(N + 1);
       Min.resize(N + 1);
-      //Min.front().data.push(intPart(HUGE_VAL, NONE));
+      //Min.front().data.push(Event(HUGE_VAL, NONE));
     }
 
     void clear() 
@@ -264,7 +263,7 @@ namespace dynamo {
 	dout << "Ready for simulation." << std::endl;
     }
 
-    inline void push(const intPart& tmpVal, const size_t& pID)
+    inline void push(const Event& tmpVal, const size_t& pID)
     {
 #ifdef DYNAMO_DEBUG
       if (boost::math::isnan(tmpVal.dt))
@@ -306,8 +305,8 @@ namespace dynamo {
     inline void popNextEvent() { Min[CBT[1]].data.pop(); }
     inline bool nextPELEmpty() const { return Min[CBT[1]].data.empty(); }
 
-    inline intPart copyNextEvent() const 
-    { intPart retval(Min[CBT[1]].data.top());
+    inline Event copyNextEvent() const 
+    { Event retval(Min[CBT[1]].data.top());
       retval.dt -= pecTime;
       return retval; 
     }

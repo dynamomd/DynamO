@@ -23,7 +23,7 @@
 #include <dynamo/dynamics/BC/BC.hpp>
 #include <dynamo/base/is_simdata.hpp>
 #include <dynamo/dynamics/species/species.hpp>
-#include <dynamo/schedulers/sorters/datastruct.hpp>
+#include <dynamo/schedulers/sorters/event.hpp>
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {

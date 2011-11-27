@@ -16,7 +16,8 @@
 */
 
 #pragma once
-#include <dynamo/schedulers/sorters/datastruct.hpp>
+#include <dynamo/schedulers/sorters/event.hpp>
+#include <dynamo/schedulers/sorters/heapPEL.hpp>
 #include <dynamo/schedulers/sorters/sorter.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <magnet/exception.hpp>
@@ -30,7 +31,7 @@ namespace dynamo {
   private:
     std::vector<unsigned long> CBT;
     std::vector<unsigned long> Leaf;
-    std::vector<pList> Min;
+    std::vector<PELHeap> Min;
     unsigned long NP, N, streamFreq, nUpdate;
 
     double pecTime;
@@ -40,8 +41,8 @@ namespace dynamo {
       FEL(SD, "CBT")
     {}
 
-    typedef std::vector<pList>::iterator iterator;
-    typedef std::vector<pList>::const_iterator const_iterator;
+    typedef std::vector<PELHeap>::iterator iterator;
+    typedef std::vector<PELHeap>::const_iterator const_iterator;
 
     inline iterator begin() { return Min.begin(); }
     inline const_iterator begin() const { return Min.begin(); }
@@ -92,8 +93,8 @@ namespace dynamo {
 #ifdef dynamo_UpdateCollDebug
 	  std::cerr << "PecTime Stream occuring";
 #endif
-	  BOOST_FOREACH(pList& pDat, Min)
-	    BOOST_FOREACH(intPart& event, pDat)
+	  BOOST_FOREACH(PELHeap& pDat, Min)
+	    BOOST_FOREACH(Event& event, pDat)
 	    event.dt -= pecTime;
 	
 	  pecTime = 0.0;
@@ -105,8 +106,8 @@ namespace dynamo {
     inline void popNextEvent() { Min[CBT[1]].pop(); }
     inline bool nextPELEmpty() const { return Min[CBT[1]].empty(); }
 
-    inline intPart copyNextEvent() const 
-    { intPart retval(Min[CBT[1]].top());
+    inline Event copyNextEvent() const 
+    { Event retval(Min[CBT[1]].top());
       retval.dt -= pecTime;
       return retval; 
     }
@@ -115,7 +116,7 @@ namespace dynamo {
     inline unsigned long next_collCounter2() const { return Min[CBT[1]].top().collCounter2; }
     inline size_t next_p2() const { return Min[CBT[1]].top().p2; }
 
-    inline void push(const intPart& tmpVal, const size_t& pID)
+    inline void push(const Event& tmpVal, const size_t& pID)
     {
       //Exit early
 #ifdef DYNAMO_DEBUG
@@ -136,8 +137,8 @@ namespace dynamo {
 
     inline void rescaleTimes(const double& factor)
     {
-      BOOST_FOREACH(pList& pDat, Min)
-	BOOST_FOREACH(intPart& event, pDat)
+      BOOST_FOREACH(PELHeap& pDat, Min)
+	BOOST_FOREACH(Event& event, pDat)
         event.dt *= factor;
 
       pecTime *= factor;

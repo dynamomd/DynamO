@@ -1,31 +1,31 @@
 /*! \mainpage DynamO source code documentation
- *
- * The C++ code consists of several programs which share a common code base. This code base is in the src/ directory. The main programs are:
- * 
- * - dynarun (dynarun.cpp) - The main simulation program. dynarun takes configuration files as input and runs them in a simulation. OutputPlugin(s) can be used to collect data on the simulation as it runs (e.g., viscosity).
- * 
- * - dynamod (dynamod.cpp) - The configuration
- * editor/generator. Its primary purpose is to generate starting configurations for dynarun or configurations to be used as a basis for your Simulation. However, dynamod can also edit/modify existing configuration files (e.g., rescale the temperature, zero the total momentum, add a thermostat).
- *
- * - dynahist_rw (dynahist_rw.cpp) - Used to perform histogram
- * reweighting on the output from a replica exchange/ parallel tempering
- * Simulation (see the simulation engine EReplicaExchangeSimulation).
- *
- * - dynareplex_opt (dynareplex_opt.cpp) - This is an
- * implementation of the replica exchange optimisation described by
- * Katzgraber et
- * al. (http://dx.doi.org/10.1088/1742-5468/2006/03/P03018).
- *
- * \note To learn how to use these executables, see the tutorial section of the DynamO site, or just run "dyna*** --help" on the command line.
- *
- * Unfortunately doxygen doesn't support multiple programs in one
- * documentation, thus only the main() function of dynarun is
- * available here. If you are looking at the source code for the first
- * time it is probably best to start here in main(), in dynarun.cpp then
- * branch out reading just the description of each class.
- *
- * Alternatively if you wish to jump in, Simulation::runSimulation(bool)
- * is the very inner loop of a single simulation.
+ 
+  The C++ code consists of several programs which share a common code base. This code base is in the src/ directory. The main programs are:
+  
+  - dynarun (dynarun.cpp) - The main simulation program. dynarun takes configuration files as input and runs them in a simulation. OutputPlugin(s) can be used to collect data on the simulation as it runs (e.g., viscosity).
+  
+  - dynamod (dynamod.cpp) - The configuration
+  editor/generator. Its primary purpose is to generate starting configurations for dynarun or configurations to be used as a basis for your Simulation. However, dynamod can also edit/modify existing configuration files (e.g., rescale the temperature, zero the total momentum, add a thermostat).
+ 
+  - dynahist_rw (dynahist_rw.cpp) - Used to perform histogram
+  reweighting on the output from a replica exchange/ parallel tempering
+  Simulation (see the simulation engine EReplicaExchangeSimulation).
+ 
+  - dynareplex_opt (dynareplex_opt.cpp) - This is an
+  implementation of the replica exchange optimisation described by
+  Katzgraber et
+  al. (http://dx.doi.org/10.1088/1742-5468/2006/03/P03018).
+ 
+  \note To learn how to use these executables, see the tutorial section of the DynamO site, or just run "dyna*** --help" on the command line.
+ 
+  Unfortunately doxygen doesn't support multiple programs in one
+  documentation, thus only the main() function of dynarun is
+  available here. If you are looking at the source code for the first
+  time it is probably best to start here in main(), in dynarun.cpp then
+  branch out reading just the description of each class.
+ 
+  Alternatively if you wish to jump in, \ref dynamo::Simulation::runSimulation()
+  is the very inner loop of a single simulation.
  */
 
 /*! \brief Namespace for the components of the DynamO simulation package. */

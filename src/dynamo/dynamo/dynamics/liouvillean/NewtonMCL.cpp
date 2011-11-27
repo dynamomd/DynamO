@@ -23,7 +23,7 @@
 #include <dynamo/dynamics/BC/BC.hpp>
 #include <dynamo/base/is_simdata.hpp>
 #include <dynamo/dynamics/species/species.hpp>
-#include <dynamo/schedulers/sorters/datastruct.hpp>
+#include <dynamo/schedulers/sorters/event.hpp>
 #include <dynamo/dynamics/liouvillean/shapes/oscillatingplate.hpp>
 #include <dynamo/outputplugins/1partproperty/uenergy.hpp>
 #include <dynamo/outputplugins/0partproperty/intEnergyHist.hpp>

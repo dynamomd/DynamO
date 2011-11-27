@@ -61,7 +61,7 @@ namespace dynamo {
        << Sim->primaryCellSize[2] / Sim->dynamics.units().unitLength() << "\n"
        << "0.0 0.0\n";
   
-    std::list<unsigned long> tmpList;
+    std::list<unsigned long> tmPELHeap;
 
     unsigned int i = 0;
     BOOST_FOREACH(const Particle& part, Sim->particleList)

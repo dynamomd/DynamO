@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <dynamo/schedulers/sorters/datastruct.hpp>
+#include <dynamo/schedulers/sorters/event.hpp>
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
@@ -27,7 +27,7 @@ namespace dynamo {
   //! is required to deal with the comparison of empty queues.
   class PELSingleEvent
   {
-    intPart _event;
+    Event _event;
 
   public:
     PELSingleEvent() { clear(); }
@@ -36,8 +36,8 @@ namespace dynamo {
     inline bool empty() const { return _event.type == NONE; }
     inline bool full() const { return _event.type != NONE; }
 
-    inline const intPart& front() const { return _event; }
-    inline const intPart& top() const { return _event; }  
+    inline const Event& front() const { return _event; }
+    inline const Event& top() const { return _event; }  
 
     inline void pop() 
     { 
@@ -69,7 +69,7 @@ namespace dynamo {
     inline void addTime(const double& ndt) throw()
     { _event.dt += ndt; }
 
-    inline void push(const intPart& __x)
+    inline void push(const Event& __x)
     { if (__x < _event) _event = __x; }
 
     inline void rescaleTimes(const double& scale) throw()

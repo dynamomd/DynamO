@@ -126,7 +126,7 @@ namespace dynamo {
 
     BOOST_FOREACH(const shared_ptr<System>& sysptr, 
 		  Sim->dynamics.getSystemEvents())
-      sorter->push(intPart(sysptr->getdt(), SYSTEM, sysptr->getID(), 0), Sim->N);
+      sorter->push(Event(sysptr->getdt(), SYSTEM, sysptr->getID(), 0), Sim->N);
 
     sorter->update(Sim->N);
   }
@@ -139,7 +139,7 @@ namespace dynamo {
 
   void 
   Scheduler::pushEvent(const Particle& part,
-			const intPart& newevent)
+			const Event& newevent)
   {
     sorter->push(newevent, part.getID());
   }
@@ -425,7 +425,7 @@ namespace dynamo {
     const IntEvent& eevent(Sim->dynamics.getEvent(part, part2));
 
     if (eevent.getType() != NONE)
-      sorter->push(intPart(eevent, eventCount[id]), part.getID());
+      sorter->push(Event(eevent, eventCount[id]), part.getID());
   }
 
   void 

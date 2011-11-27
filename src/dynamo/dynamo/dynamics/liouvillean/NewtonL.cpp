@@ -24,7 +24,7 @@
 #include <dynamo/dynamics/BC/BC.hpp>
 #include <dynamo/base/is_simdata.hpp>
 #include <dynamo/dynamics/species/species.hpp>
-#include <dynamo/schedulers/sorters/datastruct.hpp>
+#include <dynamo/schedulers/sorters/event.hpp>
 #include <dynamo/dynamics/liouvillean/shapes/oscillatingplate.hpp>
 #include <dynamo/dynamics/liouvillean/shapes/lines.hpp>
 #include <dynamo/dynamics/liouvillean/shapes/dumbbells.hpp>

@@ -39,7 +39,7 @@ namespace dynamo {
   class IntEvent
   {
   public:  
-    friend class intPart;
+    friend class Event;
 
     inline IntEvent ():
       particle1(std::numeric_limits<size_t>::max()), particle2(std::numeric_limits<size_t>::max()), 
