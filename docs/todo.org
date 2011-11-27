@@ -13,6 +13,7 @@
 **** TODO Add rendering of light sources (crepuscular rays too?).
 **** TODO Cube shadow map lights.
 **** TODO Make the viewing grid have a scalable box size.
+**** TODO Write up the image distance class.
 **** TODO Look at CL/GL synchronisation objects for coil.
 *** DynamO 1.3
 **** DONE DynamO: Up to 50% faster in polydisperse systems thanks to a new cache friendly nblist implementation.
@@ -51,7 +52,6 @@
 **** TODO Make a test for an invalid state in locals, globals and interactions (for particle insertion).
 **** TODO Auto detect the ensemble, users shouldn't have to specify it.
 **** TODO Alter the change system functions to take sharedptrs.
-**** TODO Write up the image distance class.
 **** TODO Make the complex scheduler the default scheduler!
 **** TODO Make coil scale independent.
 **** TODO Make compression work with polydisperse walls.
