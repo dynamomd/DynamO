@@ -132,7 +132,7 @@ namespace dynamo {
   CIPPacker::initialise()
   {
     //Set the default liouvillean
-    Sim->dynamics.setLiouvillean(std::tr1::shared_ptr<Liouvillean>(new LNewtonian(Sim)));
+    Sim->dynamics.setLiouvillean(shared_ptr<Liouvillean>(new LNewtonian(Sim)));
     //Set the default Boundary Conditions
     Sim->dynamics.applyBC<BCPeriodic>();
 
@@ -200,18 +200,19 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	  double elasticity = 1.0;
 
 	  if (vm.count("f1"))
 	    elasticity =  vm["f1"].as<double>();
 
-	  Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, elasticity,
-						       new C2RAll()
-						       ))->setName("Bulk");
+	  shared_ptr<Interaction> 
+	    intPtr(new IHardSphere(Sim, particleDiam, elasticity, new C2RAll()));
+	  intPtr->setName("Bulk");
+	  Sim->dynamics.addInteraction(intPtr);
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 	
@@ -270,7 +271,7 @@ namespace dynamo {
 
 	  //New scheduler and global
 	  Sim->ptrScheduler 
-	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 	  Sim->dynamics.addGlobal(new GCells(Sim, "SchedulerNBList"));
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
@@ -287,12 +288,15 @@ namespace dynamo {
 	      if (vm.count("f2"))
 		wellDepth = vm["f2"].as<double>();
 	    
-	      Sim->dynamics.addInteraction(new ISquareWell(Sim, particleDiam,
-							   lambda, wellDepth, 1.0,
-							   new C2RAll()
-							   ))->setName("Bulk");
-	    
-	      Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	      Sim->dynamics.addInteraction
+		(shared_ptr<Interaction>
+		 (new ISquareWell(Sim, particleDiam,
+				  lambda, wellDepth, 1.0,
+				  new C2RAll()
+				  ))
+		 )->setName("Bulk");
+		 
+	      Sim->dynamics.addSpecies(shared_ptr<Species>
 				       (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						    "Bulk")));
 	    }
@@ -377,13 +381,14 @@ namespace dynamo {
 		      std::string sp2Name = "A";
 		      sp2Name[0] += spID2;
 		      Sim->dynamics.addInteraction
-			(new ISquareWell(Sim, 0.5 * particleDiam 
-					 * (spdat1.diameter + spdat2.diameter),
-					 0.5 * (spdat1.lambda + spdat2.lambda), 
-					 0.5 * (spdat1.wellDepth + spdat2.wellDepth), 1.0,
-					 new C2RPair(new CRRange(spdat1.idStart, spdat1.idEnd),
-						     new CRRange(spdat2.idStart, spdat2.idEnd))
-					 ))->setName(sp1Name + sp2Name);
+			(shared_ptr<Interaction>
+			 (new ISquareWell(Sim, 0.5 * particleDiam 
+					  * (spdat1.diameter + spdat2.diameter),
+					  0.5 * (spdat1.lambda + spdat2.lambda), 
+					  0.5 * (spdat1.wellDepth + spdat2.wellDepth), 1.0,
+					  new C2RPair(new CRRange(spdat1.idStart, spdat1.idEnd),
+						      new CRRange(spdat2.idStart, spdat2.idEnd))
+					  )))->setName(sp1Name + sp2Name);
 		    }
 		}
 
@@ -392,7 +397,7 @@ namespace dynamo {
 		  const speciesData& spdat1 = speciesList[spID1];
 		  std::string sp1Name = "A";
 		  sp1Name[0] += spID1;
-		  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+		  Sim->dynamics.addSpecies(shared_ptr<Species>
 					   (new SpPoint(Sim, new CRRange(spdat1.idStart, 
 									 spdat1.idEnd), 
 							spdat1.mass, sp1Name, spID1, 
@@ -463,22 +468,23 @@ namespace dynamo {
 	  if (chainlength > 49)
 	    {
 	      Sim->ptrScheduler 
-		= std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+		= shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	      Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
 	    }
 	  else
 	      Sim->ptrScheduler 
-		= std::tr1::shared_ptr<SDumb>(new SDumb(Sim, new DefaultSorter(Sim)));
+		= shared_ptr<SDumb>(new SDumb(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.applyBC<BCNone>();
 
 	  Sim->dynamics.addInteraction
-	    (new ISquareBond(Sim, sigmin * diamScale,
-			     sigmax / sigmin, 1.0,
-			     new C2RChain(0, latticeSites.size()-1)
-			     )
-	     )->setName("Bonds");
+	    (shared_ptr<Interaction>
+	     (new ISquareBond(Sim, sigmin * diamScale,
+			      sigmax / sigmin, 1.0,
+			      new C2RChain(0, latticeSites.size()-1)
+			      )
+	      ))->setName("Bonds");
 	
 	  if (vm.count("s1"))
 	    {
@@ -505,8 +511,9 @@ namespace dynamo {
 	      if (has1 && has0)
 		{
 		  Sim->dynamics.addInteraction
-		    (new ISWSequence(Sim, sigma * diamScale, lambda, 1.0,
-				     seq, new C2RAll()))->setName("Bulk");
+		    (shared_ptr<Interaction>
+		     (new ISWSequence(Sim, sigma * diamScale, lambda, 1.0,
+				      seq, new C2RAll())))->setName("Bulk");
 		
 		  ISWSequence& interaction
 		    (dynamic_cast<ISWSequence&>
@@ -518,24 +525,30 @@ namespace dynamo {
 		  interaction.getAlphabet().at(0).at(1) = 0.5;
 		}
 	      else if (has0 && !has1)
-		Sim->dynamics.addInteraction(new ISquareWell(Sim, sigma * diamScale,
-							     lambda, 1.0,
-							     1.0,
-							     new C2RAll()
-							     ))->setName("Bulk");
+		Sim->dynamics.addInteraction
+		  (shared_ptr<Interaction>
+		   (new ISquareWell(Sim, sigma * diamScale,
+				    lambda, 1.0,
+				    1.0,
+				    new C2RAll()
+				    )))->setName("Bulk");
 	      else if (has1 && !has0)
-		Sim->dynamics.addInteraction(new IHardSphere(Sim, sigma * diamScale, 1.0,
-							     new C2RAll()
-							     ))->setName("Bulk");
+		Sim->dynamics.addInteraction
+		  (shared_ptr<Interaction>
+		   (new IHardSphere(Sim, sigma * diamScale, 1.0,
+				    new C2RAll()
+				    )))->setName("Bulk");
 	    }
 	  else
-	    Sim->dynamics.addInteraction(new ISquareWell(Sim, sigma * diamScale,
-							 lambda, 1.0,
-							 1.0,
-							 new C2RAll()
-							 ))->setName("Bulk");
+	    Sim->dynamics.addInteraction
+	      (shared_ptr<Interaction>
+	       (new ISquareWell(Sim, sigma * diamScale,
+				lambda, 1.0,
+				1.0,
+				new C2RAll()
+				)))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -612,15 +625,16 @@ namespace dynamo {
 
 	  //New scheduler and global
 	  Sim->ptrScheduler
-	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSBoundedPQ<>(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSBoundedPQ<>(Sim)));
 	  Sim->dynamics.addGlobal(new GCells(Sim, "SchedulerNBList"));
 
-	  Sim->dynamics.addInteraction(new IHardSphere(Sim, diamScale, 1.0,
-						       new C2RAll()
-						       ))->setName("Bulk");
+	  Sim->dynamics.addInteraction
+	    (shared_ptr<Interaction>
+	     (new IHardSphere(Sim, diamScale, 1.0,
+			      new C2RAll()
+			      )))->setName("Bulk");
 
-
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -677,17 +691,19 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler
-	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSBoundedPQ<>(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSBoundedPQ<>(Sim)));
 	  Sim->dynamics.addGlobal(new GCellsShearing(Sim,"SchedulerNBList"));
 
 	  Sim->dynamics.applyBC<BCLeesEdwards>();
 	  const double shearRate = 1;
 
-	  Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, alpha,
-						       new C2RAll()
-						       ))->setName("Bulk");
+	  Sim->dynamics.addInteraction
+	    (shared_ptr<Interaction>
+	     (new IHardSphere(Sim, particleDiam, alpha,
+			      new C2RAll()
+			      )))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -771,22 +787,25 @@ namespace dynamo {
 
 	  //Set up the system now
 	  Sim->ptrScheduler
-	    = std::tr1::shared_ptr<SDumb>(new SDumb(Sim, new CSSBoundedPQ<>(Sim)));
+	    = shared_ptr<SDumb>(new SDumb(Sim, new CSSBoundedPQ<>(Sim)));
 
 	  Sim->dynamics.applyBC<BCNone>();
 
 	  Sim->dynamics.addInteraction
-	    (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0,
-			     new C2RChain(0, latticeSites.size()-1)
-			     ))->setName("Bonds");
-	
-	  Sim->dynamics.addInteraction(new ISquareWell(Sim, sigma * diamScale,
-						       lambda, 1.0,
-						       1.0,
-						       new C2RAll()
-						       ))->setName("Bulk");
+	    (shared_ptr<Interaction>
+	     (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0,
+			      new C2RChain(0, latticeSites.size()-1)
+			      )))->setName("Bonds");
+	     
+	  Sim->dynamics.addInteraction
+	    (shared_ptr<Interaction>
+	     (new ISquareWell(Sim, sigma * diamScale,
+			      lambda, 1.0,
+			      1.0,
+			      new C2RAll()
+			      )))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -841,7 +860,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 
 	  double elasticity = 1;
@@ -855,11 +874,13 @@ namespace dynamo {
 					   Vector(Sim->primaryCellSize[0] / 2, 0, 0),
 					   "HighWall", new CRAll(Sim)));
 
-	  Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, elasticity,
-						       new C2RAll()
-						       ))->setName("Bulk");
+	  Sim->dynamics.addInteraction
+	    (shared_ptr<Interaction>
+	     (new IHardSphere(Sim, particleDiam, elasticity,
+			      new C2RAll()
+			      )))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0, "Bulk")));
 
 	  unsigned long nParticles = 0;
@@ -922,16 +943,17 @@ namespace dynamo {
 
 	  //Set up the system now
 	  Sim->ptrScheduler 
-	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
 
 	  Sim->dynamics.addInteraction
-	    (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0,
-			     (vm.count("b1"))
-			     ? static_cast<C2Range*>(new C2RChain(0, latticeSites.size()-1))
-			     : static_cast<C2Range*>(new C2RRing(0, latticeSites.size()-1))
-			     ))->setName("Bonds");
+	    (shared_ptr<Interaction>
+	     (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0,
+			      (vm.count("b1"))
+			      ? static_cast<C2Range*>(new C2RChain(0, latticeSites.size()-1))
+			      : static_cast<C2Range*>(new C2RRing(0, latticeSites.size()-1))
+			      )))->setName("Bonds");
 
 	  if (lambda >= 1.0)
 	    {
@@ -939,23 +961,27 @@ namespace dynamo {
 	      //Set the unit energy to 1 (assuming the unit of mass is 1);
 	      Sim->dynamics.units().setUnitTime(diamScale); 
 
-	      Sim->dynamics.addInteraction(new ISquareWell(Sim, sigma * diamScale,
-							   lambda, 1.0,
-							   1.0,
-							   new C2RAll()
-							   ))->setName("Bulk");
+	      Sim->dynamics.addInteraction
+		(shared_ptr<Interaction>
+		 (new ISquareWell(Sim, sigma * diamScale,
+				  lambda, 1.0,
+				  1.0,
+				  new C2RAll()
+				  )))->setName("Bulk");
 	    }
 	  else
 	    {
 	      Sim->dynamics.units().setUnitLength(diamScale);
 
-	      Sim->dynamics.addInteraction(new IHardSphere(Sim, diamScale, 1.0,
-							   new C2RAll()
-							   ))->setName("Bulk");
+	      Sim->dynamics.addInteraction
+		(shared_ptr<Interaction>
+		 (new IHardSphere(Sim, diamScale, 1.0,
+				  new C2RAll()
+				  )))->setName("Bulk");
 	    }
 
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -1022,7 +1048,7 @@ namespace dynamo {
 	  //Sim->ptrScheduler = new CSMultList(Sim);
 
 	  Sim->ptrScheduler
-	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.addGlobal(new GCells(Sim, "SchedulerNBList"));
 
@@ -1030,26 +1056,29 @@ namespace dynamo {
 	  size_t nA = static_cast<size_t>(molFrac * latticeSites.size());
 
 	  Sim->dynamics.addInteraction
-	    (new IHardSphere(Sim, particleDiam, 1.0,
-			     new C2RSingle(new CRRange(0, nA - 1)))
-	     )->setName("AAInt");
+	    (shared_ptr<Interaction>
+	     (new IHardSphere(Sim, particleDiam, 1.0,
+			      new C2RSingle(new CRRange(0, nA - 1)))
+	      ))->setName("AAInt");
 
 	  Sim->dynamics.addInteraction
-	    (new IHardSphere(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam,
-			     1.0,
-			     new C2RPair(new CRRange(0, nA - 1),
-					 new CRRange(nA, latticeSites.size()-1)))
-	     )->setName("ABInt");
+	    (shared_ptr<Interaction>
+	     (new IHardSphere(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam,
+			      1.0,
+			      new C2RPair(new CRRange(0, nA - 1),
+					  new CRRange(nA, latticeSites.size()-1)))
+	      ))->setName("ABInt");
 
 	  Sim->dynamics.addInteraction
-	    (new IHardSphere(Sim, sizeRatio * particleDiam, 1.0,
-			     new C2RAll()))->setName("BBInt");
-
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	    (shared_ptr<Interaction>
+	     (new IHardSphere(Sim, sizeRatio * particleDiam, 1.0,
+			      new C2RAll())))->setName("BBInt");
+	     
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRRange(0, nA - 1), 1.0, "A", 0,
 						"AAInt")));
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRRange(nA, latticeSites.size()-1),
 						massFrac, "B", 0, "BBInt")));
 
@@ -1102,25 +1131,27 @@ namespace dynamo {
 	      // Choose the dumb scheduler if the system volume is roughly smaller than (3L)^3
 	      dout << "Dumb scheduler selected due to density/particle ratio" << std::endl;
 	      Sim->ptrScheduler
-		= std::tr1::shared_ptr<SDumb>(new SDumb(Sim, new DefaultSorter(Sim)));
+		= shared_ptr<SDumb>(new SDumb(Sim, new DefaultSorter(Sim)));
 	    }
 	  else
 	    {
 	      dout << "Neighbour List scheduler selected" << std::endl;
 	      Sim->ptrScheduler 
-		= std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+		= shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 	      Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
 	    }
 
 	  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0;
 
-	  Sim->dynamics.addInteraction(new ILines(Sim, particleDiam, elasticity,
-						  new C2RAll()
-						  ))->setName("Bulk");
+	  Sim->dynamics.addInteraction
+	    (shared_ptr<Interaction>
+	     (new ILines(Sim, particleDiam, elasticity,
+			 new C2RAll()
+			 )))->setName("Bulk");
 
 	  double inertiaMultiplicativeFactor = (vm.count("f2")) ? vm["f2"].as<double>() : 1.0;
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpLines(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						std::sqrt(inertiaMultiplicativeFactor) * particleDiam,
 						"Bulk")));
@@ -1173,16 +1204,16 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = std::tr1::shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new CSSCBT(Sim)));
+	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new CSSCBT(Sim)));
 
 	  //This is to stop interactions being used for these particles
 	  Sim->dynamics.addInteraction
-	    (new INull(Sim, new C2RAll()))->setName("Catchall");
+	    (shared_ptr<Interaction>(new INull(Sim, new C2RAll())))->setName("Catchall");
 
 	  //This is to provide data on the particles
 	  Sim->dynamics.addInteraction
-	    (new IHardSphere
-	     (Sim, particleDiam, 1.0, new C2RAll()))->setName("Bulk");
+	    (shared_ptr<Interaction>
+	     (new IHardSphere(Sim, particleDiam, 1.0, new C2RAll())))->setName("Bulk");
 
 	  //double chi = 1.0 /
 	  //(4.0 * tij * vm["density"].as<double>() * std::sqrt(M_PI));
@@ -1201,7 +1232,7 @@ namespace dynamo {
 			       2.0 * tij / latticeSites.size(), chi, 1.0,
 			       "Thermostat", new CRAll(Sim), new CRAll(Sim)));
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -1255,18 +1286,19 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = std::tr1::shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new CSSCBT(Sim)));
+	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new CSSCBT(Sim)));
 
-	  Sim->dynamics.setLiouvillean(std::tr1::shared_ptr<Liouvillean>(new LSLLOD(Sim)));
+	  Sim->dynamics.setLiouvillean(shared_ptr<Liouvillean>(new LSLLOD(Sim)));
 
 	  //This is to stop interactions being used for these particles
 	  Sim->dynamics.addInteraction
-	    (new INull(Sim, new C2RAll()))->setName("Catchall");
+	    (shared_ptr<Interaction>(new INull(Sim, new C2RAll())))->setName("Catchall");
 
 	  //This is to provide data on the particles
 	  Sim->dynamics.addInteraction
-	    (new IHardSphere
-	     (Sim, particleDiam, 1.0, new C2RAll()))->setName("Bulk");
+	    (shared_ptr<Interaction>
+	     (new IHardSphere
+	      (Sim, particleDiam, 1.0, new C2RAll())))->setName("Bulk");
 
 	  double packfrac = vm["density"].as<double>() * M_PI / 6.0;
 
@@ -1279,7 +1311,7 @@ namespace dynamo {
 			       chi, alpha, "Thermostat",
 			       new CRAll(Sim), new CRAll(Sim)));
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -1340,11 +1372,11 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = std::tr1::shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new CSSCBT(Sim)));
+	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new CSSCBT(Sim)));
 
 	  //This is to stop interactions being used for these particles
 	  Sim->dynamics.addInteraction
-	    (new INull(Sim, new C2RAll()))->setName("Catchall");
+	    (shared_ptr<Interaction>(new INull(Sim, new C2RAll())))->setName("Catchall");
 
 	  size_t nA = static_cast<size_t>(molFrac * latticeSites.size());
 
@@ -1447,14 +1479,16 @@ namespace dynamo {
 
 	  //This is to provide data on the particles
 	  Sim->dynamics.addInteraction
-	    (new IHardSphere(Sim, particleDiam, 1.0,
-			     new C2RSingle(new CRRange(0, nA - 1)))
-	     )->setName("AAInt");
+	    (std::tr1::shared_ptr<Interaction>
+	     (new IHardSphere(Sim, particleDiam, 1.0,
+			      new C2RSingle(new CRRange(0, nA - 1)))
+	      ))->setName("AAInt");
 
 	  Sim->dynamics.addInteraction
-	    (new IHardSphere(Sim, sizeRatio * particleDiam, 1.0,
-			     new C2RSingle(new CRRange(nA, latticeSites.size()-1)))
-	     )->setName("BBInt");
+	    (std::tr1::shared_ptr<Interaction>
+	     (new IHardSphere(Sim, sizeRatio * particleDiam, 1.0,
+			      new C2RSingle(new CRRange(nA, latticeSites.size()-1)))
+	      ))->setName("BBInt");
 
 	  Sim->dynamics.addSystem
 	    (new CSDSMCSpheres(Sim, particleDiam,
@@ -1475,11 +1509,11 @@ namespace dynamo {
 			       new CRRange(nA, latticeSites.size()-1)));
 
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRRange(0, nA - 1), 1.0, "A", 0,
 						"AAInt")));
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRRange(nA, latticeSites.size()-1),
 						massFrac, "B", 0, "BBInt")));
 
@@ -1521,17 +1555,18 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.addGlobal(new GCellsShearing(Sim,"SchedulerNBList"));
 
 	  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0 ;
 
-	  Sim->dynamics.addInteraction(new ILines(Sim, particleDiam, elasticity,
-						  new C2RAll()
-						  ))->setName("Bulk");
+	  Sim->dynamics.addInteraction
+	    (std::tr1::shared_ptr<Interaction>(new ILines(Sim, particleDiam, elasticity,
+							  new C2RAll()
+							  )))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpLines(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						particleDiam, "Bulk")));
 
@@ -1617,45 +1652,50 @@ namespace dynamo {
 	    latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
 	  Sim->ptrScheduler 
-	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.addGlobal(new GCells(Sim, "SchedulerNBList"));
 
 	  Sim->dynamics.addInteraction
-	    (new IHardSphere(Sim, particleDiam, 1.0,
-			     new C2RSingle(new CRRange(0, nPartA - 1)))
-	     )->setName("AAInt");
+	    (std::tr1::shared_ptr<Interaction>
+	     (new IHardSphere(Sim, particleDiam, 1.0,
+			      new C2RSingle(new CRRange(0, nPartA - 1)))
+	      ))->setName("AAInt");
 
 	  Sim->dynamics.addInteraction
-	    (new IHardSphere(Sim, (particleDiam + particleDiamB) / 2.0,
-			     1.0,
-			     new C2RPair
-			     (new CRRange(0, nPartA - 1),
-			      new CRRange(nPartA, latticeSites.size()-1)))
-	     )->setName("ABInt");
+	    (std::tr1::shared_ptr<Interaction>
+	     (new IHardSphere(Sim, (particleDiam + particleDiamB) / 2.0,
+			      1.0,
+			      new C2RPair
+			      (new CRRange(0, nPartA - 1),
+			       new CRRange(nPartA, latticeSites.size()-1)))
+	      ))->setName("ABInt");
 
 	  Sim->dynamics.addInteraction
-	    (new ISquareBond(Sim, 0.9 * particleDiamB, 1.1 / 0.9, 1.0,
-			     new C2RChains(nPartA, latticeSites.size() - 1,
-					   chainlength)
-			     ))->setName("Bonds");
+	    (std::tr1::shared_ptr<Interaction>
+	     (new ISquareBond(Sim, 0.9 * particleDiamB, 1.1 / 0.9, 1.0,
+			      new C2RChains(nPartA, latticeSites.size() - 1,
+					    chainlength)
+			      )))->setName("Bonds");
 
 
 	  Sim->dynamics.addInteraction
-	    (new IHardSphere(Sim, (chainlength - 1) * particleDiamB, 1.0,
-			     new C2RChainEnds
-			     (nPartA, latticeSites.size() - 1,
-			      chainlength)))->setName("RodEnds");
+	    (std::tr1::shared_ptr<Interaction>
+	     (new IHardSphere(Sim, (chainlength - 1) * particleDiamB, 1.0,
+			      new C2RChainEnds
+			      (nPartA, latticeSites.size() - 1,
+			       chainlength))))->setName("RodEnds");
 
 	  Sim->dynamics.addInteraction
-	    (new IHardSphere(Sim, particleDiamB, 1.0,
-			     new C2RAll()))->setName("BBInt");
-
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	    (std::tr1::shared_ptr<Interaction>
+	     (new IHardSphere(Sim, particleDiamB, 1.0,
+			      new C2RAll())))->setName("BBInt");
+	     
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRRange(0, nPartA - 1), 1.0, "A", 0,
 						"AAInt")));
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRRange(nPartA, latticeSites.size()-1),
 						massFrac / chainlength, "B", 0, "BBInt")));
 
@@ -1712,7 +1752,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 	  Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
 
 	  if (vm.count("b1"))
@@ -1731,11 +1771,13 @@ namespace dynamo {
 						   "Wall3", new CRAll(Sim)));
 	    }
 
-	  Sim->dynamics.addInteraction(new IParallelCubes
-				       (Sim, particleDiam, 1.0,
-					new C2RAll()))->setName("Bulk");
+	  Sim->dynamics.addInteraction
+	    (std::tr1::shared_ptr<Interaction>
+	     (new IParallelCubes
+	      (Sim, particleDiam, 1.0,
+	       new C2RAll())))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0,
 						"Bulk", 0, "Bulk")));
 
@@ -1828,7 +1870,7 @@ namespace dynamo {
 
 	  //New scheduler and global
 	  Sim->ptrScheduler 
-	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	  {
 	    size_t overlink = 1;
@@ -1898,12 +1940,11 @@ namespace dynamo {
 	      oldr = p.first;
 	    }
 
-	  Sim->dynamics.addInteraction(new IStepped(Sim,
-						    diamvec,
-						    new C2RAll()
-						    ))->setName("Bulk");
+	  Sim->dynamics.addInteraction
+	    (std::tr1::shared_ptr<Interaction>
+	     (new IStepped(Sim, diamvec, new C2RAll())))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -1952,16 +1993,16 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = std::tr1::shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new CSSCBT(Sim)));
+	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new CSSCBT(Sim)));
 
 	  //This is to stop interactions being used for these particles
 	  Sim->dynamics.addInteraction
-	    (new INull(Sim, new C2RAll()))->setName("Catchall");
+	    (std::tr1::shared_ptr<Interaction>(new INull(Sim, new C2RAll())))->setName("Catchall");
 
 	  //This is to provide data on the particles
 	  Sim->dynamics.addInteraction
-	    (new IHardSphere
-	     (Sim, particleDiam, 1.0, new C2RAll()))->setName("Bulk");
+	    (std::tr1::shared_ptr<Interaction>
+	     (new IHardSphere(Sim, particleDiam, 1.0, new C2RAll())))->setName("Bulk");
 
 	  double packfrac = vm["density"].as<double>() * M_PI / 6.0;
 
@@ -1993,7 +2034,7 @@ namespace dynamo {
 			    2.0 * tij / latticeSites.size(), chi12, chi13, 1.0,
 			    "RingDSMC", new CRAll(Sim)));
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -2047,18 +2088,19 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = std::tr1::shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new CSSCBT(Sim)));
+	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new CSSCBT(Sim)));
 
-	  Sim->dynamics.setLiouvillean(std::tr1::shared_ptr<Liouvillean>(new LSLLOD(Sim)));
+	  Sim->dynamics.setLiouvillean(shared_ptr<Liouvillean>(new LSLLOD(Sim)));
 
 	  //This is to stop interactions being used for these particles
 	  Sim->dynamics.addInteraction
-	    (new INull(Sim, new C2RAll()))->setName("Catchall");
+	    (std::tr1::shared_ptr<Interaction>
+	     (new INull(Sim, new C2RAll())))->setName("Catchall");
 
 	  //This is to provide data on the particles
 	  Sim->dynamics.addInteraction
-	    (new IHardSphere
-	     (Sim, particleDiam, 1.0, new C2RAll()))->setName("Bulk");
+	    (std::tr1::shared_ptr<Interaction>
+	     (new IHardSphere(Sim, particleDiam, 1.0, new C2RAll())))->setName("Bulk");
 
 	  double packfrac = vm["density"].as<double>() * M_PI / 6.0;
 
@@ -2082,7 +2124,7 @@ namespace dynamo {
 			    2.0 * tij / latticeSites.size(), chi12, chi13, inelasticity,
 			    "RingDSMC", new CRAll(Sim)));
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -2212,12 +2254,11 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
-	  Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, 
-						       ParticleInelas,
-						       new C2RAll()
-						       ))->setName("Bulk");
+	  Sim->dynamics.addInteraction
+	    (std::tr1::shared_ptr<Interaction>
+	     (new IHardSphere(Sim, particleDiam, ParticleInelas, new C2RAll())))->setName("Bulk");
 
 	  Sim->dynamics.addLocal(new LWall(Sim, PlateInelas, 0, Vector(0,0,1), 
 					   Vector(0, 0, -0.5 * Aspect),
@@ -2234,7 +2275,7 @@ namespace dynamo {
 					   Vector(0, +0.5 * Aspect, 0),
 					   "Plate5", new CRAll(Sim)));
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, 
 						"Bulk", 0, "Bulk")));
 
@@ -2322,13 +2363,13 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
-	  Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, 1.0,
-						       new C2RAll()
-						       ))->setName("Bulk");
+	  Sim->dynamics.addInteraction
+	    (std::tr1::shared_ptr<Interaction>
+	     (new IHardSphere(Sim, particleDiam, 1.0, new C2RAll())))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -2409,18 +2450,18 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.addLocal(new CLCylinder(Sim, 1.0, Vector(1,0,0), 
 						Vector(0,0,0), cylRad , "Cylinder", 
 						new CRAll(Sim), true));
 
 
-	  Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, 1.0,
-						       new C2RAll()
-						       ))->setName("Bulk");
+	  Sim->dynamics.addInteraction
+	    (std::tr1::shared_ptr<Interaction>
+	     (new IHardSphere(Sim, particleDiam, 1.0, new C2RAll())))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -2467,11 +2508,11 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
 
-	  Sim->dynamics.setLiouvillean(std::tr1::shared_ptr<Liouvillean>
+	  Sim->dynamics.setLiouvillean(shared_ptr<Liouvillean>
 				       (new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0))));
 
 	  double elasticity = 1.0;
@@ -2479,11 +2520,11 @@ namespace dynamo {
 	  if (vm.count("f1"))
 	    elasticity =  vm["f1"].as<double>();
 
-	  Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, elasticity,
-						       new C2RAll()
-						       ))->setName("Bulk");
+	  Sim->dynamics.addInteraction
+	    (std::tr1::shared_ptr<Interaction>
+	     (new IHardSphere(Sim, particleDiam, elasticity, new C2RAll())))->setName("Bulk");
 	
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 	
@@ -2550,14 +2591,14 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSCBT(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSCBT(Sim)));
 
-	  Sim->dynamics.setLiouvillean(std::tr1::shared_ptr<Liouvillean>
+	  Sim->dynamics.setLiouvillean(shared_ptr<Liouvillean>
 				       (new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0), elasticV * Sim->dynamics.units().unitVelocity())));
 
-	  Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam, elasticity,
-						       new C2RAll()
-						       ))->setName("Bulk");
+	  Sim->dynamics.addInteraction
+	    (std::tr1::shared_ptr<Interaction>
+	     (new IHardSphere(Sim, particleDiam, elasticity, new C2RAll())))->setName("Bulk");
 	
 	  ///Now build our funnel, so we know how many particles it takes
 	  std::vector<Vector> funnelSites;
@@ -2607,10 +2648,10 @@ namespace dynamo {
 	      }
 
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpFixedCollider(Sim, new CRRange(0, funnelSites.size()-1), "FunnelParticles", 
 							0, "Bulk")));
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRRange(funnelSites.size(), 
 								 funnelSites.size() + dynamicSites.size() - 1), 
 						1.0, "Bulk", 0, "Bulk")));
@@ -2685,21 +2726,19 @@ namespace dynamo {
 	  if (chainlength > 49)
 	    {
 	      Sim->ptrScheduler 
-		= std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+		= shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	      Sim->dynamics.addGlobal(new GCells(Sim,"SchedulerNBList"));
 	    }
 	  else
 	    Sim->ptrScheduler 
-	      = std::tr1::shared_ptr<SDumb>(new SDumb(Sim, new DefaultSorter(Sim)));
+	      = shared_ptr<SDumb>(new SDumb(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.applyBC<BCNone>();
 
 	  Sim->dynamics.addInteraction
-	    (new ISquareBond(Sim, sigmin * diamScale,
-			     sigmax / sigmin, 1.0,
-			     new C2RChain(0, latticeSites.size()-1)
-			     )
+	    (std::tr1::shared_ptr<Interaction>
+	     (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0, new C2RChain(0, latticeSites.size()-1)))
 	     )->setName("Bonds");
 	
 	
@@ -3141,8 +3180,9 @@ namespace dynamo {
 	    }
 
 	    Sim->dynamics.addInteraction
-	      (new ISWSequence(Sim, sigma * diamScale, lambda, 1.0,
-			       seq, new C2RAll()))->setName("Bulk");
+	      (std::tr1::shared_ptr<Interaction>
+	       (new ISWSequence(Sim, sigma * diamScale, lambda, 1.0,
+				seq, new C2RAll())))->setName("Bulk");
 		
 	    ISWSequence& interaction
 	      (dynamic_cast<ISWSequence&>
@@ -3176,7 +3216,7 @@ namespace dynamo {
 	    }
 	  }
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
@@ -3249,9 +3289,9 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSCBT(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSCBT(Sim)));
 
-	  Sim->dynamics.setLiouvillean(std::tr1::shared_ptr<Liouvillean>
+	  Sim->dynamics.setLiouvillean(shared_ptr<Liouvillean>
 				       (new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0),
 							      elasticV * Sim->dynamics.units().unitVelocity(),
 							      tc * Sim->dynamics.units().unitTime())));
@@ -3394,14 +3434,15 @@ namespace dynamo {
 	  //	  }
 	  //	}
 	
-	  Sim->dynamics.addInteraction(new IHardSphere(Sim, particleDiam * 2.0, elasticity,
-						       new C2RAll()
-						       ))->setName("Bulk");
+	  Sim->dynamics.addInteraction
+	    (std::tr1::shared_ptr<Interaction>
+	     (new IHardSphere(Sim, particleDiam * 2.0, elasticity,
+			      new C2RAll())))->setName("Bulk");
 	
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpFixedCollider(Sim, new CRRange(0, funnelSites.size()-1), "FunnelParticles", 
 							0, "Bulk")));
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRRange(funnelSites.size(), 
 								 funnelSites.size() + dynamicSites.size() - 1), 
 						1.0, "Bulk", 0, "Bulk")));
@@ -3492,17 +3533,17 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = std::tr1::shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSBoundedPQ<>(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new CSSBoundedPQ<>(Sim)));
 	  Sim->dynamics.addGlobal(new GCellsShearing(Sim,"SchedulerNBList"));
 
 	  Sim->dynamics.applyBC<BCLeesEdwards>();
 	  const double shearRate(1);
 
-	  std::tr1::shared_ptr<ParticleProperty> D(new ParticleProperty(latticeSites.size(), 
+	  shared_ptr<ParticleProperty> D(new ParticleProperty(latticeSites.size(), 
 									Property::Units::Length(),
 									"D", particleDiam));
 
-	  std::tr1::shared_ptr<ParticleProperty> M(new ParticleProperty(latticeSites.size(), 
+	  shared_ptr<ParticleProperty> M(new ParticleProperty(latticeSites.size(), 
 									Property::Units::Mass(),
 									"M", 1.0));
 	  Sim->_properties.push(D);
@@ -3530,10 +3571,12 @@ namespace dynamo {
 	      M->getProperty(i) = mass;
 	    }
 	
-	  Sim->dynamics.addInteraction(new IHardSphere(Sim, "D", elasticity, new C2RAll()
-						       ))->setName("Bulk");
+	  Sim->dynamics.addInteraction
+	    (std::tr1::shared_ptr<Interaction>
+	     (new IHardSphere(Sim, "D", elasticity, new C2RAll()
+			      )))->setName("Bulk");
 
-	  Sim->dynamics.addSpecies(std::tr1::shared_ptr<Species>
+	  Sim->dynamics.addSpecies(shared_ptr<Species>
 				   (new SpPoint(Sim, new CRAll(Sim), "M", "Bulk", 0, "Bulk")));
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);

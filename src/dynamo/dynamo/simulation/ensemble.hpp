@@ -15,11 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-
 #include <dynamo/base.hpp>
 #include <tr1/array>
-#include <tr1/memory>
-#include <string>
 
 namespace magnet { namespace xml { class Node; class XmlStream; } }
 

@@ -19,7 +19,6 @@
 
 #include <dynamo/base.hpp>
 #include <dynamo/dynamics/ranges/2range.hpp>
-#include <tr1/memory>
 #include <string>
 
 namespace magnet { namespace xml { class Node; class XmlStream; } }

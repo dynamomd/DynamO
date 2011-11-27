@@ -21,7 +21,6 @@
 #include <dynamo/dynamics/ranges/1range.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_real.hpp>
-#include <tr1/memory>
 
 namespace dynamo {
   class CSRingDSMC: public System

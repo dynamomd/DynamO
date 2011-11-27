@@ -19,14 +19,14 @@
 
 #ifdef DYNAMO_visualizer
 # include <coil/RenderObj/RenderObj.hpp>
-# include <tr1/memory>
+# include <dynamo/base.hpp>
 #endif
 
 namespace dynamo {
   struct CoilRenderObj
   {
 #ifdef DYNAMO_visualizer
-    virtual std::tr1::shared_ptr<coil::RenderObj> getCoilRenderObj() const = 0;
+    virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const = 0;
     virtual void updateRenderData() const = 0;
 #endif
   };

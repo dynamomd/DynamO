@@ -66,7 +66,7 @@ namespace dynamo {
   System* 
   Simulation::getSystem(std::string name)
   {
-    BOOST_FOREACH(std::tr1::shared_ptr<System>& sysPtr, dynamics.getSystemEvents())
+    BOOST_FOREACH(shared_ptr<System>& sysPtr, dynamics.getSystemEvents())
       if (sysPtr->getName() == name)
 	return sysPtr.get();
   
@@ -105,7 +105,7 @@ namespace dynamo {
   
     dout << "Loading output plugin string " << Name << std::endl;
 
-    std::tr1::shared_ptr<OutputPlugin> tempPlug(OutputPlugin::getPlugin(Name, this));
+    shared_ptr<OutputPlugin> tempPlug(OutputPlugin::getPlugin(Name, this));
     outputPlugins.push_back(tempPlug);
   }
 
@@ -135,12 +135,12 @@ namespace dynamo {
     /*! \brief Hidden functor used for sorting containers of
         shared_ptr's holiding OutputPlugin classes.
      */
-    struct OutputPluginSort: std::binary_function<const std::tr1::shared_ptr<OutputPlugin>&, 
-						  const std::tr1::shared_ptr<OutputPlugin>&,
+    struct OutputPluginSort: std::binary_function<const shared_ptr<OutputPlugin>&, 
+						  const shared_ptr<OutputPlugin>&,
 						  bool>
     {
-      bool operator()(const std::tr1::shared_ptr<OutputPlugin>& lhs, 
-		      const std::tr1::shared_ptr<OutputPlugin>& rhs)
+      bool operator()(const shared_ptr<OutputPlugin>& lhs, 
+		      const shared_ptr<OutputPlugin>& rhs)
       {
 	return (*lhs) < (*rhs);
       }
@@ -164,7 +164,7 @@ namespace dynamo {
 	|| dynamics.BCTypeTest<BCPeriodicXOnly>())
       dynamics.addGlobal(new GPBCSentinel(this, "PBCSentinel"));
 
-    BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin> & Ptr, outputPlugins)
+    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)
       if (std::tr1::dynamic_pointer_cast<OPTicker>(Ptr))
 	{
 	  needTicker = true; 
@@ -199,7 +199,7 @@ namespace dynamo {
       dout << "Skipping initialisation of the Scheduler" << std::endl;
   
     dout << "Initialising the output plugins" << std::endl;
-    BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin> & Ptr, outputPlugins)
+    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)
       Ptr->initialise();
 
     dout << "System initialised" << std::endl;
@@ -228,8 +228,8 @@ namespace dynamo {
 	      && outputPlugins.size())
 	    {
 	      //Print the screen data plugins
-	      BOOST_FOREACH( std::tr1::shared_ptr<OutputPlugin> & Ptr, 
-			     outputPlugins)
+	      BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, 
+			    outputPlugins)
 		Ptr->periodicOutput();
 
 	      lastprint = eventCount + eventPrintInterval;
@@ -274,7 +274,7 @@ namespace dynamo {
 	<< magnet::xml::prolog() << magnet::xml::tag("OutputData");
   
     //Output the data and delete the outputplugins
-    BOOST_FOREACH( std::tr1::shared_ptr<OutputPlugin> & Ptr, outputPlugins)
+    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)
       Ptr->output(XML);
   
     XML << magnet::xml::endtag("OutputData");

@@ -24,7 +24,6 @@
 
 #include <dynamo/coordinator/engine/engine.hpp>
 #include <magnet/thread/threadpool.hpp>
-#include <tr1/memory>
 #include <boost/program_options.hpp>
 #include <vector>
 #include <signal.h>

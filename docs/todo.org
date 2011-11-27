@@ -5,7 +5,7 @@
 
 * Code improvements
 ** Version Milestones
-*** DynanO 1.4
+*** DynamO 1.4
 **** TODO Coil: Replace freeglut with your own implementation to fix the whole debacle of GL context management and deleting resources. 
 ***** TODO Coil: Fix the dummy vertex array object mess.
 **** TODO Coil: Switch to a multisampling deferred shading implementation.

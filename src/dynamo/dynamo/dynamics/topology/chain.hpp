@@ -16,11 +16,7 @@
 */
 
 #pragma once
-
 #include <dynamo/dynamics/topology/topology.hpp>
-#include <tr1/memory>
-#include <string>
-#include <list>
 
 namespace dynamo {
   class CTChain: public Topology

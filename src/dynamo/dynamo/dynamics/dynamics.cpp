@@ -257,14 +257,6 @@ namespace dynamo {
     addSystem(new CSTicker(Sim, Sim->lastRunMFT, "SystemTicker"));
   }
 
-  Interaction* 
-  Dynamics::addInteraction(Interaction* CInt)
-  {
-    std::tr1::shared_ptr<Interaction> tempPlug(CInt);
-    interactions.push_back(tempPlug);
-    return interactions.back().get();
-  }
-
   void 
   Dynamics::initialise()
   {

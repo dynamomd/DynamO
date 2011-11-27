@@ -19,7 +19,6 @@
 
 #include <dynamo/base.hpp>
 #include <dynamo/dynamics/ranges/1range.hpp>
-#include <tr1/memory>
 #include <magnet/math/vector.hpp>
 #include <string>
 

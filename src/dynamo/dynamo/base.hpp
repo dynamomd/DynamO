@@ -19,10 +19,13 @@
 #include <magnet/stream/console_specials.hpp>
 #include <magnet/stream/formattedostream.hpp>
 #include <magnet/exception.hpp>
+#include <tr1/memory>
 #include <iostream>
 
 namespace dynamo
 {
+  using std::tr1::shared_ptr;
+
   class SimData;
 
   /*! \brief Provides some basic IO functionality to a derived class.

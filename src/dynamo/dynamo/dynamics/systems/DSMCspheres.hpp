@@ -19,7 +19,6 @@
 #include <dynamo/dynamics/systems/system.hpp>
 #include <dynamo/base/is_simdata.hpp>
 #include <dynamo/dynamics/ranges/1range.hpp>
-#include <tr1/memory>
 
 namespace dynamo {
   class CSDSMCSpheres: public System

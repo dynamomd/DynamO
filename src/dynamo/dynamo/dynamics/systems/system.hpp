@@ -18,8 +18,6 @@
 #pragma once
 #include <dynamo/base.hpp>
 #include <dynamo/dynamics/eventtypes.hpp>
-#include <string>
-#include <tr1/memory>
 
 namespace magnet { namespace xml { class Node; class XmlStream; } }
 namespace dynamo {

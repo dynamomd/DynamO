@@ -20,10 +20,8 @@
 #include <dynamo/dynamics/interactions/interaction.hpp>
 #include <dynamo/dynamics/interactions/intEvent.hpp>
 #include <dynamo/dynamics/units/units.hpp>
-#include <tr1/memory>
 #include <boost/foreach.hpp>
 #include <vector>
-#include <tr1/memory>
 
 namespace magnet {    
   namespace xml { 
@@ -62,7 +60,8 @@ namespace dynamo {
     inline void setLiouvillean(std::tr1::shared_ptr<Liouvillean> ptr)
     { p_liouvillean = ptr; }
 
-    Interaction* addInteraction(Interaction*);
+    inline std::tr1::shared_ptr<Interaction> addInteraction(std::tr1::shared_ptr<Interaction> ptr)
+    { interactions.push_back(ptr); return interactions.back(); }
 
     void addSpecies(const std::tr1::shared_ptr<Species>&);
   

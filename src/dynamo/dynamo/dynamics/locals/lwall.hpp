@@ -18,7 +18,6 @@
 #pragma once
 #include <dynamo/dynamics/locals/local.hpp>
 #include <dynamo/base/is_simdata.hpp>
-#include <tr1/memory>
 
 namespace dynamo {
   class LWall: public Local

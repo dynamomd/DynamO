@@ -20,7 +20,6 @@
 #include <dynamo/base.hpp>
 #include <dynamo/dynamics/ranges/1range.hpp>
 #include <dynamo/base/is_simdata.hpp>
-#include <tr1/memory>
 #include <string>
 
 namespace magnet { namespace xml { class Node; } }
