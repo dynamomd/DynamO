@@ -20,26 +20,26 @@
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  CTChain::CTChain(const magnet::xml::Node& XML, dynamo::SimData* Sim, unsigned int ID):
+  TChain::TChain(const magnet::xml::Node& XML, dynamo::SimData* Sim, unsigned int ID):
     Topology(Sim, ID)
   {
     Topology::operator<<(XML);
   
     size_t Clength = (*ranges.begin())->size();
-    BOOST_FOREACH(const shared_ptr<CRange>& nRange, ranges)
+    BOOST_FOREACH(const shared_ptr<Range>& nRange, ranges)
       if (nRange->size() != Clength)
 	M_throw() << "Size mismatch in loading one of the ranges in Chain topology \"" 
 		  << spName << "\"";
   }
 
-  CTChain::CTChain(dynamo::SimData* Sim, unsigned int ID, std::string nName):
+  TChain::TChain(dynamo::SimData* Sim, unsigned int ID, std::string nName):
     Topology(Sim,ID)
   {
     spName = nName;
   }
 
   void 
-  CTChain::outputXML(magnet::xml::XmlStream& XML) const 
+  TChain::outputXML(magnet::xml::XmlStream& XML) const 
   {
     XML << magnet::xml::attr("Type") << "Chain";
     Topology::outputXML(XML);

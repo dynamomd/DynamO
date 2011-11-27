@@ -25,8 +25,8 @@
 #include <magnet/overlap/cube_plane.hpp>
 
 namespace dynamo {
-  CLDblWall::CLDblWall(dynamo::SimData* nSim, double ne, Vector  nnorm, 
-		       Vector  norigin, std::string nname, CRange* nRange):
+  LDblWall::LDblWall(dynamo::SimData* nSim, double ne, Vector  nnorm, 
+		       Vector  norigin, std::string nname, Range* nRange):
     Local(nRange, nSim, "LocalWall"),
     vNorm(nnorm),
     vPosition(norigin),
@@ -35,14 +35,14 @@ namespace dynamo {
     localName = nname;
   }
 
-  CLDblWall::CLDblWall(const magnet::xml::Node& XML, dynamo::SimData* tmp):
+  LDblWall::LDblWall(const magnet::xml::Node& XML, dynamo::SimData* tmp):
     Local(tmp, "LocalDoubleWall")
   {
     operator<<(XML);
   }
 
   LocalEvent 
-  CLDblWall::getEvent(const Particle& part) const
+  LDblWall::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
     if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
@@ -63,7 +63,7 @@ namespace dynamo {
   }
 
   void
-  CLDblWall::runEvent(const Particle& part, const LocalEvent& iEvent) const
+  LDblWall::runEvent(const Particle& part, const LocalEvent& iEvent) const
   {
     ++Sim->eventCount;
 
@@ -92,24 +92,24 @@ namespace dynamo {
   }
 
   bool 
-  CLDblWall::isInCell(const Vector & Origin, const Vector& CellDim) const
+  LDblWall::isInCell(const Vector & Origin, const Vector& CellDim) const
   {
     return magnet::overlap::cube_plane(Origin, CellDim, vPosition, vNorm);
   }
 
   void 
-  CLDblWall::initialise(size_t nID)
+  LDblWall::initialise(size_t nID)
   {
     ID = nID;
     lastID = std::numeric_limits<size_t>::max();
 
     Sim->registerParticleUpdateFunc
-      (magnet::function::MakeDelegate(this, &CLDblWall::particleUpdate));
+      (magnet::function::MakeDelegate(this, &LDblWall::particleUpdate));
 
   }
 
   void
-  CLDblWall::particleUpdate(const NEventData& PDat) const
+  LDblWall::particleUpdate(const NEventData& PDat) const
   {
     if (lastID == std::numeric_limits<size_t>::max()) return;
 
@@ -130,9 +130,9 @@ namespace dynamo {
   }
 
   void 
-  CLDblWall::operator<<(const magnet::xml::Node& XML)
+  LDblWall::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<CRange>(CRange::getClass(XML,Sim));
+    range = shared_ptr<Range>(Range::getClass(XML,Sim));
   
     try {
       e = XML.getAttribute("Elasticity").as<double>();
@@ -146,12 +146,12 @@ namespace dynamo {
     } 
     catch (boost::bad_lexical_cast &)
       {
-	M_throw() << "Failed a lexical cast in CLDblWall";
+	M_throw() << "Failed a lexical cast in LDblWall";
       }
   }
 
   void 
-  CLDblWall::outputXML(magnet::xml::XmlStream& XML) const
+  LDblWall::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Type") << "DoubleWall" 
 	<< magnet::xml::attr("Name") << localName

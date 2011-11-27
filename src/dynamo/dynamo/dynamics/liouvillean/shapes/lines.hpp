@@ -24,9 +24,9 @@
 #include <magnet/math/matrix.hpp>
 
 namespace dynamo {
-  class CLinesFunc : public CShape {
+  class SFLines : public ShapeFunc {
   public:
-    CLinesFunc(const Vector& nr12, const Vector& nv12,
+    SFLines(const Vector& nr12, const Vector& nv12,
 	       const Vector& nw1, const Vector& nw2, 
 	       const Vector& nu1, const Vector& nu2,
 	       const double& length):

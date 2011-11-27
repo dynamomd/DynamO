@@ -107,7 +107,7 @@ namespace dynamo {
     //!
     //! This function is used by Engine classes like the
     //! EReplicaExchangeSimulation class to fetch System events like the
-    //! Thermostat (e.g. CSysGhost).
+    //! Thermostat (e.g. SysAndersen).
     System* getSystem(std::string);
 
     //! Get the current time of the Simulation.
@@ -146,10 +146,10 @@ namespace dynamo {
     //! parsed. E.g., "Plugin:OptA=1,OptB=2"
     void addOutputPlugin(std::string pluginDescriptor);
   
-    //! Sets the frequency of the CSTicker event.
+    //! Sets the frequency of the SysTicker event.
     void setTickerPeriod(double);
 
-    //! Scales the frequency of the CSTicker event by the passed factor.
+    //! Scales the frequency of the SysTicker event by the passed factor.
     void scaleTickerPeriod(double);
   
     /*! \brief An expensive sanity check for the system.

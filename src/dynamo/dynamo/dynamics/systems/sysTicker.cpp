@@ -28,7 +28,7 @@
 #endif
 
 namespace dynamo {
-  CSTicker::CSTicker(dynamo::SimData* nSim, double nPeriod, std::string nName):
+  SysTicker::SysTicker(dynamo::SimData* nSim, double nPeriod, std::string nName):
     System(nSim)
   {
     if (nPeriod <= 0.0)
@@ -44,7 +44,7 @@ namespace dynamo {
   }
 
   void
-  CSTicker::runEvent() const
+  SysTicker::runEvent() const
   {
     double locdt = dt;
   
@@ -80,23 +80,23 @@ namespace dynamo {
   }
 
   void 
-  CSTicker::initialise(size_t nID)
+  SysTicker::initialise(size_t nID)
   { ID = nID; }
 
   void 
-  CSTicker::setdt(double ndt)
+  SysTicker::setdt(double ndt)
   { 
     dt = ndt * Sim->dynamics.units().unitTime(); 
   }
 
   void 
-  CSTicker::increasedt(double ndt)
+  SysTicker::increasedt(double ndt)
   { 
     dt += ndt * Sim->dynamics.units().unitTime(); 
   }
 
   void 
-  CSTicker::setTickerPeriod(const double& nP)
+  SysTicker::setTickerPeriod(const double& nP)
   { 
     dout << "Setting system ticker period to " 
 	 << nP / Sim->dynamics.units().unitTime() << std::endl;

@@ -83,7 +83,7 @@ namespace dynamo {
   }
 
   double
-  OPMSD::calcMSD(const CRange& range) const
+  OPMSD::calcMSD(const Range& range) const
   {
     double acc = 0.0;
 
@@ -100,7 +100,7 @@ namespace dynamo {
     Sim->dynamics.getLiouvillean().updateAllParticles();
 
     double acc = 0.0;
-    BOOST_FOREACH(const shared_ptr<CRange>& molRange, Itop.getMolecules())
+    BOOST_FOREACH(const shared_ptr<Range>& molRange, Itop.getMolecules())
       {
 	Vector  origPos(0,0,0), currPos(0,0,0);
 	double totmass = 0.0;

@@ -19,14 +19,14 @@
 #include <dynamo/dynamics/locals/local.hpp>
 
 namespace dynamo {
-  class CLSphere: public Local
+  class LSphere: public Local
   {
   public:
-    CLSphere(const magnet::xml::Node&, dynamo::SimData*);
-    CLSphere(dynamo::SimData*, double, Vector , double, 
-	     std::string, CRange*, bool nrender = true);
+    LSphere(const magnet::xml::Node&, dynamo::SimData*);
+    LSphere(dynamo::SimData*, double, Vector , double, 
+	     std::string, Range*, bool nrender = true);
 
-    virtual ~CLSphere() {}
+    virtual ~LSphere() {}
 
     virtual LocalEvent getEvent(const Particle&) const;
 

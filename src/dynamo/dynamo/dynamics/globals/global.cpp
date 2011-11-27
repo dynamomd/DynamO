@@ -24,9 +24,9 @@
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  Global::Global(dynamo::SimData* tmp, std::string name, CRange* nR):
+  Global::Global(dynamo::SimData* tmp, std::string name, Range* nR):
     SimBase(tmp, name),
-    range(nR ? nR : new CRAll(tmp))
+    range(nR ? nR : new RAll(tmp))
   {}
 
   bool 

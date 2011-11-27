@@ -126,11 +126,11 @@ namespace dynamo {
     virtual ParticleEventData randomGaussianEvent(const Particle&, const double&) const;
 
     //Structure dynamics
-    virtual NEventData multibdyCollision(const CRange&, const CRange&,
+    virtual NEventData multibdyCollision(const Range&, const Range&,
 					 const double&,
 					 const EEventType&) const;
 
-    virtual NEventData multibdyWellEvent(const CRange&, const CRange&, 
+    virtual NEventData multibdyWellEvent(const Range&, const Range&, 
 					 const double&, const double&, 
 					 EEventType&) const;
 

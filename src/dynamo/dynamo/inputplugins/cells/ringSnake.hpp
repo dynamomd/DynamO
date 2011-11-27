@@ -20,10 +20,10 @@
 #include <cmath>
 
 namespace dynamo {
-  struct CUringSnake: public CUCell
+  struct CUringSnake: public UCell
   {
-    CUringSnake(size_t pcl, double WL, CUCell* nextCell):
-      CUCell(nextCell),
+    CUringSnake(size_t pcl, double WL, UCell* nextCell):
+      UCell(nextCell),
       pairchainlength(pcl),
       walklength(WL)
     {

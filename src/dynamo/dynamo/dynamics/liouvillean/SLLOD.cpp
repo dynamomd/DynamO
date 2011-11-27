@@ -112,14 +112,14 @@ namespace dynamo {
   }
 
   NEventData 
-  LSLLOD::multibdyCollision(const CRange&, const CRange&, const double&, 
+  LSLLOD::multibdyCollision(const Range&, const Range&, const double&, 
 			    const EEventType&) const
   {
     M_throw() << "Not Implemented";
   }
 
   NEventData 
-  LSLLOD::multibdyWellEvent(const CRange&, const CRange&, 
+  LSLLOD::multibdyWellEvent(const Range&, const Range&, 
 			    const double&, const double&, 
 			    EEventType&) const
   {

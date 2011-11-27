@@ -51,8 +51,8 @@ namespace dynamo {
     if (vm.count("snapshot"))
       M_throw() << "Snapshots do not currently work in compressing systems.";
 
-    compressPlug = shared_ptr<CIPCompression>
-      (new CIPCompression(&simulation, vm["growth-rate"].as<double>()));
+    compressPlug = shared_ptr<IPCompression>
+      (new IPCompression(&simulation, vm["growth-rate"].as<double>()));
   }
 
   void 

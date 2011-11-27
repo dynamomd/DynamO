@@ -20,12 +20,12 @@
 #include <magnet/exception.hpp>
 
 namespace dynamo {
-  class CRSingle: public CRange
+  class RSingle: public Range
   {
   public:
-    CRSingle(const magnet::xml::Node&);
+    RSingle(const magnet::xml::Node&);
 
-    CRSingle():ID(0) {}
+    RSingle():ID(0) {}
 
     virtual bool isInRange(const Particle &) const;
 
@@ -34,9 +34,9 @@ namespace dynamo {
   
     virtual unsigned long size() const { return 1; };
 
-    virtual iterator begin() const { return CRange::iterator(ID, this); }
+    virtual iterator begin() const { return Range::iterator(ID, this); }
 
-    virtual iterator end() const { return CRange::iterator(ID+1, this); }
+    virtual iterator end() const { return Range::iterator(ID+1, this); }
 
     virtual unsigned long operator[](unsigned long) const  
     { return ID; }

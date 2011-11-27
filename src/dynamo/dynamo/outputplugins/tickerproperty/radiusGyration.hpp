@@ -22,10 +22,10 @@
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <magnet/math/histogram.hpp>
 
-class CRange;
+class Range;
 
 namespace dynamo {
-  class CTChain;
+  class TChain;
 
   class OPRGyration: public OPTicker
   {
@@ -49,7 +49,7 @@ namespace dynamo {
       Vector  MassCentre;
     };
   
-    static molGyrationDat getGyrationEigenSystem(const shared_ptr<CRange>&, const dynamo::SimData*);
+    static molGyrationDat getGyrationEigenSystem(const shared_ptr<Range>&, const dynamo::SimData*);
 
     static Vector  NematicOrderParameter(const std::list<Vector  >&);
     static double CubaticOrderParameter(const std::list<Vector  >&);
@@ -60,12 +60,12 @@ namespace dynamo {
 
     struct CTCdata
     {
-      const CTChain* chainPtr;
+      const TChain* chainPtr;
       std::vector<magnet::math::Histogram> gyrationRadii;
       std::vector<magnet::math::Histogram> nematicOrder;
       magnet::math::Histogram cubaticOrder;    
 
-      CTCdata(const CTChain* ptr, double binwidth1, double binwidth2, double binwidth3):
+      CTCdata(const TChain* ptr, double binwidth1, double binwidth2, double binwidth3):
 	chainPtr(ptr),
 	cubaticOrder(binwidth3)
       {

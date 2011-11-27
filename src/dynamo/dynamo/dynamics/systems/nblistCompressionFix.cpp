@@ -28,7 +28,7 @@
 #endif
 
 namespace dynamo {
-  CSNBListCompressionFix::CSNBListCompressionFix(dynamo::SimData* nSim, double nGR, size_t nblistID):
+  SysNBListCompressionFix::SysNBListCompressionFix(dynamo::SimData* nSim, double nGR, size_t nblistID):
     System(nSim),
     growthRate(nGR),
     cellID(nblistID)
@@ -37,11 +37,11 @@ namespace dynamo {
     type = NON_EVENT;
 
     if (!std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->dynamics.getGlobals()[cellID]))
-      M_throw() << "The ID passed to CSNBListCompressionFix isn't a GNeighbourList";
+      M_throw() << "The ID passed to SysNBListCompressionFix isn't a GNeighbourList";
   }
 
   void
-  CSNBListCompressionFix::initialise(size_t nID)
+  SysNBListCompressionFix::initialise(size_t nID)
   {
     ID = nID;
 
@@ -69,7 +69,7 @@ namespace dynamo {
   }
 
   void
-  CSNBListCompressionFix::runEvent() const
+  SysNBListCompressionFix::runEvent() const
   {
     double locdt = dt;
   

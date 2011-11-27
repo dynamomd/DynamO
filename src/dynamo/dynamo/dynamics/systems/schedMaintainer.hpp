@@ -20,10 +20,10 @@
 #include <dynamo/dynamics/systems/system.hpp>
 
 namespace dynamo {
-  class CSSchedMaintainer: public System
+  class SysSchedMaintainer: public System
   {
   public:
-    CSSchedMaintainer(dynamo::SimData*, double, std::string);
+    SysSchedMaintainer(dynamo::SimData*, double, std::string);
   
     virtual void runEvent() const;
 

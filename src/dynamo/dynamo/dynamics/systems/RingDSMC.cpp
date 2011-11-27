@@ -35,7 +35,7 @@
 #endif
 
 namespace dynamo {
-  CSRingDSMC::CSRingDSMC(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
+  SysRingDSMC::SysRingDSMC(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
     System(tmp),
     uniformRand(Sim->ranGenerator, boost::uniform_real<>(0,1)),
     maxprob12(0.0),
@@ -46,8 +46,8 @@ namespace dynamo {
     type = DSMC;
   }
 
-  CSRingDSMC::CSRingDSMC(dynamo::SimData* nSim, double nd, double ntstp, double nChi1, double nChi2,
-			 double ne, std::string nName, CRange* r1):
+  SysRingDSMC::SysRingDSMC(dynamo::SimData* nSim, double nd, double ntstp, double nChi1, double nChi2,
+			 double ne, std::string nName, Range* r1):
     System(nSim),
     uniformRand(Sim->ranGenerator,boost::uniform_real<>(0,1)),
     tstep(ntstp),
@@ -68,7 +68,7 @@ namespace dynamo {
   }
 
   void 
-  CSRingDSMC::runEvent() const
+  SysRingDSMC::runEvent() const
   {
     double locdt = dt;
   
@@ -191,7 +191,7 @@ namespace dynamo {
   }
 
   void
-  CSRingDSMC::initialise(size_t nID)
+  SysRingDSMC::initialise(size_t nID)
   {
     ID = nID;
     dt = tstep;
@@ -288,7 +288,7 @@ namespace dynamo {
   }
 
   void
-  CSRingDSMC::operator<<(const magnet::xml::Node& XML)
+  SysRingDSMC::operator<<(const magnet::xml::Node& XML)
   {
     if (strcmp(XML.getAttribute("Type"),"RingDSMC"))
       M_throw() << "Attempting to load RingDSMC from a " 
@@ -302,7 +302,7 @@ namespace dynamo {
       diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
       e = XML.getAttribute("Inelasticity").as<double>();
       d2 = diameter * diameter;
-      range1 = shared_ptr<CRange>(CRange::getClass(XML.getNode("Range1"), Sim));
+      range1 = shared_ptr<Range>(Range::getClass(XML.getNode("Range1"), Sim));
 
       if (XML.hasAttribute("MaxProbability12"))
 	maxprob12 = XML.getAttribute("MaxProbability12").as<double>();
@@ -317,7 +317,7 @@ namespace dynamo {
   }
 
   void 
-  CSRingDSMC::outputXML(magnet::xml::XmlStream& XML) const
+  SysRingDSMC::outputXML(magnet::xml::XmlStream& XML) const
   {
     if (n12 || n13)
       dout << "Number of T(1,2) events " << n12

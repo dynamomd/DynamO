@@ -24,15 +24,15 @@
 #endif 
 
 namespace dynamo {
-  class CLOscillatingPlate: public Local, public CoilRenderObj
+  class LOscillatingPlate: public Local, public CoilRenderObj
   {
   public:
-    CLOscillatingPlate(const magnet::xml::Node&, dynamo::SimData*);
-    CLOscillatingPlate(dynamo::SimData*, Vector, Vector, double, 
-		       double, double, double, double, std::string, CRange*, 
+    LOscillatingPlate(const magnet::xml::Node&, dynamo::SimData*);
+    LOscillatingPlate(dynamo::SimData*, Vector, Vector, double, 
+		       double, double, double, double, std::string, Range*, 
 		       double timeshift = 0, bool nstrongPlate = false);
 
-    virtual ~CLOscillatingPlate() {}
+    virtual ~LOscillatingPlate() {}
 
     virtual LocalEvent getEvent(const Particle&) const;
 

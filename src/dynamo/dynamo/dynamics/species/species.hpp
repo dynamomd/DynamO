@@ -43,7 +43,7 @@ namespace dynamo {
     inline unsigned int getID() const { return ID; }
     inline const std::string& getName() const { return spName; }
     inline const std::string& getIntName() const { return intName; }
-    inline const shared_ptr<CRange>& getRange() const { return range; }
+    inline const shared_ptr<Range>& getRange() const { return range; }
     inline const Interaction* getIntPtr() const { return IntPtr; }
     inline void setIntPtr(Interaction* nPtr) { IntPtr = nPtr; }
     virtual double getScalarMomentOfInertia(size_t ID) const = 0;
@@ -68,7 +68,7 @@ namespace dynamo {
   protected:
     template<class T1>
     Species(dynamo::SimData* tmp, std::string name, 
-	    CRange* nr, T1 mass, std::string nName, 
+	    Range* nr, T1 mass, std::string nName, 
 	    unsigned int nID, std::string nIName):
       SimBase(tmp, name),
       _mass(Sim->_properties.getProperty(mass, Property::Units::Mass())),
@@ -82,7 +82,7 @@ namespace dynamo {
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
   
     shared_ptr<Property> _mass;
-    shared_ptr<CRange> range;
+    shared_ptr<Range> range;
     std::string spName;
     std::string intName;
     Interaction* IntPtr;

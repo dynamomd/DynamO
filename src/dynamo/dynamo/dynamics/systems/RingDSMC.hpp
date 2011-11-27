@@ -23,12 +23,12 @@
 #include <boost/random/uniform_real.hpp>
 
 namespace dynamo {
-  class CSRingDSMC: public System
+  class SysRingDSMC: public System
   {
   public:
-    CSRingDSMC(const magnet::xml::Node& XML, dynamo::SimData*);
+    SysRingDSMC(const magnet::xml::Node& XML, dynamo::SimData*);
 
-    CSRingDSMC(dynamo::SimData*, double, double, double, double, double, std::string, CRange*);
+    SysRingDSMC(dynamo::SimData*, double, double, double, double, double, std::string, Range*);
   
     virtual void runEvent() const;
 
@@ -55,6 +55,6 @@ namespace dynamo {
     mutable unsigned long n12;
     mutable unsigned long n13;
 
-    shared_ptr<CRange> range1;
+    shared_ptr<Range> range1;
   };
 }

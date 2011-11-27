@@ -24,7 +24,7 @@ namespace dynamo {
   class SpInertia: public SpPoint
   {
   public:
-    SpInertia(dynamo::SimData* sim, CRange* r, 
+    SpInertia(dynamo::SimData* sim, Range* r, 
 	      double nMass, std::string nName,
 	      unsigned int ID, std::string nIName="Bulk"):
       SpPoint(sim, r, nMass, nName, ID, nIName)

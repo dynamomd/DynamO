@@ -33,7 +33,7 @@ namespace dynamo {
   void 
   SCENBList::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<CRange>(CRange::getClass(XML, Sim));
+    range = shared_ptr<Range>(Range::getClass(XML, Sim));
   
     try 
       {

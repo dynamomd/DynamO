@@ -32,7 +32,7 @@
 #endif
 
 namespace dynamo {
-  GWaker::GWaker(dynamo::SimData* nSim, const std::string& name, CRange* range, 
+  GWaker::GWaker(dynamo::SimData* nSim, const std::string& name, Range* range, 
 		 const double wt,const double wv, std::string nblist):
     Global(nSim, "GWaker", range),
     _wakeTime(wt),
@@ -74,7 +74,7 @@ namespace dynamo {
   void 
   GWaker::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<CRange>(CRange::getClass(XML, Sim));
+    range = shared_ptr<Range>(Range::getClass(XML, Sim));
 
     try {
       globName = XML.getAttribute("Name");

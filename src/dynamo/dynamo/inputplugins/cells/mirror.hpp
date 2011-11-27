@@ -20,10 +20,10 @@
 #include <cmath>
 
 namespace dynamo {
-  struct CUMirror: public CUCell
+  struct CUMirror: public UCell
   {
-    CUMirror(double F, CUCell* nextCell):
-      CUCell(nextCell),
+    CUMirror(double F, UCell* nextCell):
+      UCell(nextCell),
       fraction(F),
       count1(0),
       count2(0)

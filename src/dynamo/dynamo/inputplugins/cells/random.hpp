@@ -20,12 +20,12 @@
 #include <dynamo/base/is_simdata.hpp>
 
 namespace dynamo {
-  struct CURandom: public CUCell
+  struct CURandom: public UCell
   {
     CURandom(size_t nN, Vector  ndimensions, 
 	     boost::uniform_01<dynamo::baseRNG, double>& RNG,
-	     CUCell* nextCell):
-      CUCell(nextCell),
+	     UCell* nextCell):
+      UCell(nextCell),
       N(nN),
       dimensions(ndimensions),
       uniform_sampler(RNG)

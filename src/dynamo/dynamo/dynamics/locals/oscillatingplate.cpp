@@ -23,11 +23,11 @@
 #include <dynamo/schedulers/scheduler.hpp>
 
 namespace dynamo {
-  CLOscillatingPlate::CLOscillatingPlate(dynamo::SimData* nSim,
+  LOscillatingPlate::LOscillatingPlate(dynamo::SimData* nSim,
 					 Vector nrw0, Vector nnhat,
 					 double nomega0, double nsigma, double ne,
 					 double ndelta, double nmass, std::string nname, 
-					 CRange* nRange, double timeshift, bool nstrongPlate):
+					 Range* nRange, double timeshift, bool nstrongPlate):
     Local(nRange, nSim, "OscillatingPlate"),
     strongPlate(nstrongPlate),
     rw0(nrw0), nhat(nnhat), omega0(nomega0), sigma(nsigma), 
@@ -37,7 +37,7 @@ namespace dynamo {
     localName = nname;
   }
 
-  CLOscillatingPlate::CLOscillatingPlate(const magnet::xml::Node& XML, dynamo::SimData* tmp):
+  LOscillatingPlate::LOscillatingPlate(const magnet::xml::Node& XML, dynamo::SimData* tmp):
     Local(tmp, "OscillatingPlate"),
     lastID(std::numeric_limits<size_t>::max()), lastdSysTime(HUGE_VAL)
   {
@@ -45,7 +45,7 @@ namespace dynamo {
   }
 
   LocalEvent 
-  CLOscillatingPlate::getEvent(const Particle& part) const
+  LOscillatingPlate::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
     if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
@@ -72,7 +72,7 @@ namespace dynamo {
 
 
   void
-  CLOscillatingPlate::runEvent(const Particle& part, const LocalEvent& iEvent) const
+  LOscillatingPlate::runEvent(const Particle& part, const LocalEvent& iEvent) const
   {
     ++Sim->eventCount;
   
@@ -97,21 +97,21 @@ namespace dynamo {
   }
 
   bool 
-  CLOscillatingPlate::isInCell(const Vector & Origin, const Vector& CellDim) const
+  LOscillatingPlate::isInCell(const Vector & Origin, const Vector& CellDim) const
   {
     return true;
   }
 
   void 
-  CLOscillatingPlate::initialise(size_t nID)
+  LOscillatingPlate::initialise(size_t nID)
   {
     ID = nID;
   }
 
   void 
-  CLOscillatingPlate::operator<<(const magnet::xml::Node& XML)
+  LOscillatingPlate::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<CRange>(CRange::getClass(XML,Sim));
+    range = shared_ptr<Range>(Range::getClass(XML,Sim));
   
     try {
       e = XML.getAttribute("Elasticity").as<double>();
@@ -134,12 +134,12 @@ namespace dynamo {
     } 
     catch (boost::bad_lexical_cast &)
       {
-	M_throw() << "Failed a lexical cast in CLOscillatingPlate";
+	M_throw() << "Failed a lexical cast in LOscillatingPlate";
       }
   }
 
   void 
-  CLOscillatingPlate::outputXML(magnet::xml::XmlStream& XML) const
+  LOscillatingPlate::outputXML(magnet::xml::XmlStream& XML) const
   {
     double tmp = Sim->dSysTime + timeshift;
 
@@ -165,19 +165,19 @@ namespace dynamo {
   }
 
   Vector
-  CLOscillatingPlate::getPosition() const
+  LOscillatingPlate::getPosition() const
   {
     return nhat * (delta * std::cos(omega0 * (Sim->dSysTime + timeshift))) + rw0;
   }
 
   Vector
-  CLOscillatingPlate::getVelocity() const
+  LOscillatingPlate::getVelocity() const
   {
     return - nhat * (delta * omega0 * std::sin(omega0 * (Sim->dSysTime + timeshift)));
   }
 
   double 
-  CLOscillatingPlate::getPlateEnergy() const
+  LOscillatingPlate::getPlateEnergy() const
   {
     return 0.5 * mass 
       * (std::pow(omega0 * delta * std::cos(omega0 * (Sim->dSysTime + timeshift)), 2)
@@ -187,7 +187,7 @@ namespace dynamo {
 #ifdef DYNAMO_visualizer
 
   shared_ptr<coil::RenderObj>
-  CLOscillatingPlate::getCoilRenderObj() const
+  LOscillatingPlate::getCoilRenderObj() const
   {
     const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
 
@@ -229,7 +229,7 @@ namespace dynamo {
   }
 
   void 
-  CLOscillatingPlate::updateRenderData() const
+  LOscillatingPlate::updateRenderData() const
   {
     const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
 

@@ -33,16 +33,16 @@
 #include <cmath>
 
 namespace dynamo {
-  CLAndersenWall::CLAndersenWall(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
+  LAndersenWall::LAndersenWall(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
     Local(ptrSim, "GlobalAndersenWall"),
     sqrtT(1.0)
   {
     operator<<(XML);
   }
 
-  CLAndersenWall::CLAndersenWall(dynamo::SimData* nSim, double nsqrtT,
+  LAndersenWall::LAndersenWall(dynamo::SimData* nSim, double nsqrtT,
 				 Vector  nnorm, Vector norigin, 
-				 std::string nname, CRange* nRange):
+				 std::string nname, Range* nRange):
     Local(nRange, nSim, "AndersenWall"),
     vNorm(nnorm),
     vPosition(norigin),
@@ -52,7 +52,7 @@ namespace dynamo {
   }
 
   LocalEvent 
-  CLAndersenWall::getEvent(const Particle& part) const
+  LAndersenWall::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
     if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
@@ -63,7 +63,7 @@ namespace dynamo {
   }
 
   void
-  CLAndersenWall::runEvent(const Particle& part, const LocalEvent& iEvent) const
+  LAndersenWall::runEvent(const Particle& part, const LocalEvent& iEvent) const
   {
     ++Sim->eventCount;
   
@@ -80,22 +80,22 @@ namespace dynamo {
   }
 
   bool 
-  CLAndersenWall::isInCell(const Vector & Origin, 
+  LAndersenWall::isInCell(const Vector & Origin, 
 			   const Vector & CellDim) const
   {
     return magnet::overlap::cube_plane(Origin, CellDim, vPosition, vNorm);
   }
 
   void 
-  CLAndersenWall::initialise(size_t nID)
+  LAndersenWall::initialise(size_t nID)
   {
     ID = nID;
   }
 
   void 
-  CLAndersenWall::operator<<(const magnet::xml::Node& XML)
+  LAndersenWall::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<CRange>(CRange::getClass(XML,Sim));
+    range = shared_ptr<Range>(Range::getClass(XML,Sim));
   
     try {
     
@@ -111,12 +111,12 @@ namespace dynamo {
     } 
     catch (boost::bad_lexical_cast &)
       {
-	M_throw() << "Failed a lexical cast in CLAndersenWall";
+	M_throw() << "Failed a lexical cast in LAndersenWall";
       }
   }
 
   void
-  CLAndersenWall::outputXML(magnet::xml::XmlStream& XML) const
+  LAndersenWall::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Type") << "AndersenWall"
 	<< magnet::xml::attr("Name") << localName

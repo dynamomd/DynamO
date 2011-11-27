@@ -24,9 +24,9 @@
 #include <dynamo/schedulers/scheduler.hpp>
 
 namespace dynamo {
-  CLSphere::CLSphere(dynamo::SimData* nSim, double ne,
+  LSphere::LSphere(dynamo::SimData* nSim, double ne,
 		     Vector  norigin, double nr, std::string nname, 
-		     CRange* nRange, bool nrender):
+		     Range* nRange, bool nrender):
     Local(nRange, nSim, "SphereWall"),
     vPosition(norigin),
     e(ne),
@@ -37,14 +37,14 @@ namespace dynamo {
     localName = nname;
   }
 
-  CLSphere::CLSphere(const magnet::xml::Node& XML, dynamo::SimData* tmp):
+  LSphere::LSphere(const magnet::xml::Node& XML, dynamo::SimData* tmp):
     Local(tmp, "SphereWall")
   {
     operator<<(XML);
   }
 
   LocalEvent 
-  CLSphere::getEvent(const Particle& part) const
+  LSphere::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
     if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
@@ -62,7 +62,7 @@ namespace dynamo {
   }
 
   void
-  CLSphere::runEvent(const Particle& part, const LocalEvent& iEvent) const
+  LSphere::runEvent(const Particle& part, const LocalEvent& iEvent) const
   {
     ++Sim->eventCount;
 
@@ -80,21 +80,21 @@ namespace dynamo {
   }
 
   bool 
-  CLSphere::isInCell(const Vector & Origin, const Vector& CellDim) const
+  LSphere::isInCell(const Vector & Origin, const Vector& CellDim) const
   {
     return true;
   }
 
   void 
-  CLSphere::initialise(size_t nID)
+  LSphere::initialise(size_t nID)
   {
     ID = nID;
   }
 
   void 
-  CLSphere::operator<<(const magnet::xml::Node& XML)
+  LSphere::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<CRange>(CRange::getClass(XML,Sim));
+    range = shared_ptr<Range>(Range::getClass(XML,Sim));
   
     try {
       e = XML.getAttribute("Elasticity").as<double>();
@@ -107,12 +107,12 @@ namespace dynamo {
     } 
     catch (boost::bad_lexical_cast &)
       {
-	M_throw() << "Failed a lexical cast in CLSphere";
+	M_throw() << "Failed a lexical cast in LSphere";
       }
   }
 
   void 
-  CLSphere::outputXML(magnet::xml::XmlStream& XML) const
+  LSphere::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Type") << "SphereWall" 
 	<< magnet::xml::attr("Name") << localName

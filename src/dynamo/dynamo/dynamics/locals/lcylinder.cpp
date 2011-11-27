@@ -23,9 +23,9 @@
 #include <dynamo/schedulers/scheduler.hpp>
 
 namespace dynamo {
-  CLCylinder::CLCylinder(dynamo::SimData* nSim, double ne, Vector  nnorm, 
+  LCylinder::LCylinder(dynamo::SimData* nSim, double ne, Vector  nnorm, 
 			 Vector  norigin, double nr, std::string nname, 
-			 CRange* nRange, bool nrender):
+			 Range* nRange, bool nrender):
     Local(nRange, nSim, "CylinderWall"),
     vNorm(nnorm),
     vPosition(norigin),
@@ -36,14 +36,14 @@ namespace dynamo {
     localName = nname;
   }
 
-  CLCylinder::CLCylinder(const magnet::xml::Node& XML, dynamo::SimData* tmp):
+  LCylinder::LCylinder(const magnet::xml::Node& XML, dynamo::SimData* tmp):
     Local(tmp, "CylinderWall")
   {
     operator<<(XML);
   }
 
   LocalEvent 
-  CLCylinder::getEvent(const Particle& part) const
+  LCylinder::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
     if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
@@ -55,7 +55,7 @@ namespace dynamo {
   }
 
   void
-  CLCylinder::runEvent(const Particle& part, const LocalEvent& iEvent) const
+  LCylinder::runEvent(const Particle& part, const LocalEvent& iEvent) const
   {
     ++Sim->eventCount;
 
@@ -73,21 +73,21 @@ namespace dynamo {
   }
 
   bool 
-  CLCylinder::isInCell(const Vector & Origin, const Vector& CellDim) const
+  LCylinder::isInCell(const Vector & Origin, const Vector& CellDim) const
   {
     return true;
   }
 
   void 
-  CLCylinder::initialise(size_t nID)
+  LCylinder::initialise(size_t nID)
   {
     ID = nID;
   }
 
   void 
-  CLCylinder::operator<<(const magnet::xml::Node& XML)
+  LCylinder::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<CRange>(CRange::getClass(XML,Sim));
+    range = shared_ptr<Range>(Range::getClass(XML,Sim));
   
     try {
       e = XML.getAttribute("Elasticity").as<double>();
@@ -105,12 +105,12 @@ namespace dynamo {
     } 
     catch (boost::bad_lexical_cast &)
       {
-	M_throw() << "Failed a lexical cast in CLCylinder";
+	M_throw() << "Failed a lexical cast in LCylinder";
       }
   }
 
   void 
-  CLCylinder::outputXML(magnet::xml::XmlStream& XML) const
+  LCylinder::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Type") << "CylinderWall" 
 	<< magnet::xml::attr("Name") << localName

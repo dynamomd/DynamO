@@ -35,8 +35,8 @@ namespace dynamo {
   OPCTorsion::initialise()
   {
     BOOST_FOREACH(const shared_ptr<Topology>& plugPtr, Sim->dynamics.getTopology())
-      if (std::tr1::dynamic_pointer_cast<CTChain>(plugPtr))
-	chains.push_back(CTCdata(static_cast<const CTChain*>(plugPtr.get()), 
+      if (std::tr1::dynamic_pointer_cast<TChain>(plugPtr))
+	chains.push_back(CTCdata(static_cast<const TChain*>(plugPtr.get()), 
 				 0.005, 0.005, 0.01));
 
     if (!Sim->dynamics.BCTypeTest<BCNone>())
@@ -79,7 +79,7 @@ namespace dynamo {
       {
 	double sysGamma  = 0.0;
 	long count = 0;
-	BOOST_FOREACH(const shared_ptr<CRange>& range,  dat.chainPtr->getMolecules())
+	BOOST_FOREACH(const shared_ptr<Range>& range,  dat.chainPtr->getMolecules())
 	  {
 	    if (range->size() < 3)//Need three for curv and torsion
 	      break;
@@ -96,7 +96,7 @@ namespace dynamo {
 	    std::vector<Vector> vec;
 
 	    //Calc first and second derivatives
-	    for (CRange::iterator it = range->begin() + 1; it != range->end() - 1; it++)
+	    for (Range::iterator it = range->begin() + 1; it != range->end() - 1; it++)
 	      {
 		tmp = 0.5 * (Sim->particleList[*(it+1)].getPosition()
 			     - Sim->particleList[*(it-1)].getPosition());
@@ -134,13 +134,13 @@ namespace dynamo {
 
 		double minradius = HUGE_VAL;
 
-		for (CRange::iterator it1 = range->begin(); 
+		for (Range::iterator it1 = range->begin(); 
 		     it1 != range->end(); it1++)
 		  //Check this particle is not the same, or adjacent
 		  if (*it1 != *(range->begin()+2+i)
 		      && *it1 != *(range->begin()+1+i)
 		      && *it1 != *(range->begin()+3+i))
-		    for (CRange::iterator it2 = range->begin() + 1; 
+		    for (Range::iterator it2 = range->begin() + 1; 
 			 it2 != range->end() - 1; it2++)
 		      //Check this particle is not the same, or adjacent to the studied particle
 		      if (*it1 != *it2

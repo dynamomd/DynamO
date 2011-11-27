@@ -20,16 +20,16 @@
 #include <cmath>
 
 namespace dynamo {
-  struct CUBinary: public CUCell
+  struct CUBinary: public UCell
   {
-    CUBinary(size_t x, CUCell* nextCell1, CUCell* nextCell2):
-      CUCell(nextCell1),
+    CUBinary(size_t x, UCell* nextCell1, UCell* nextCell2):
+      UCell(nextCell1),
       uc2(nextCell2),
       count(0),
       countA(x)
     {}
 
-    boost::scoped_ptr<CUCell> uc2;
+    boost::scoped_ptr<UCell> uc2;
     size_t count;
     const size_t countA;
   

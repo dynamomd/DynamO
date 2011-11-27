@@ -236,7 +236,7 @@ namespace dynamo {
       if (ptr->getName() == "SystemTicker")
 	M_throw() << "System Ticker already exists";
   
-    addSystem(shared_ptr<System>(new CSTicker(Sim, Sim->lastRunMFT, "SystemTicker")));
+    addSystem(shared_ptr<System>(new SysTicker(Sim, Sim->lastRunMFT, "SystemTicker")));
   }
 
   void 

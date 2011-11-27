@@ -20,12 +20,12 @@
 #include <magnet/math/vector.hpp>
 
 namespace dynamo {
-  class CInputPlugin: public dynamo::SimBase
+  class InputPlugin: public dynamo::SimBase
   {
   public:
-    CInputPlugin(dynamo::SimData*, const char *aName);
+    InputPlugin(dynamo::SimData*, const char *aName);
 
-    virtual ~CInputPlugin() {};
+    virtual ~InputPlugin() {};
 
     virtual void initialise() {};
 

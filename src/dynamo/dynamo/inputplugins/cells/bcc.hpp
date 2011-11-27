@@ -19,10 +19,10 @@
 #include <dynamo/inputplugins/cells/cell.hpp>
 
 namespace dynamo {
-  struct CUBCC: public CUCell
+  struct CUBCC: public UCell
   {
-    CUBCC(std::tr1::array<long, 3> ncells, Vector  ndimensions, CUCell* nextCell):
-      CUCell(nextCell),
+    CUBCC(std::tr1::array<long, 3> ncells, Vector  ndimensions, UCell* nextCell):
+      UCell(nextCell),
       cells(ncells),
       dimensions(ndimensions)
     {}

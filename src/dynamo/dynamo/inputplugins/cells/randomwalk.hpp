@@ -22,10 +22,10 @@
 #include <boost/random/mersenne_twister.hpp>
 
 namespace dynamo {
-  struct CURandWalk: public CUCell
+  struct CURandWalk: public UCell
   {
-    CURandWalk(long CL, double WL, double D, CUCell* nextCell):
-      CUCell(nextCell),
+    CURandWalk(long CL, double WL, double D, UCell* nextCell):
+      UCell(nextCell),
       chainlength(CL),
       walklength(WL),
       diameter(D),

@@ -22,10 +22,10 @@
 #include <dynamo/dynamics/NparticleEventData.hpp>
 
 namespace dynamo {
-  class CSysNull: public System
+  class SysNull: public System
   {
   public:
-    CSysNull(dynamo::SimData* tmp): System(tmp) 
+    SysNull(dynamo::SimData* tmp): System(tmp) 
     {  sysName = "NULL"; }
   
     virtual void stream(double) {}

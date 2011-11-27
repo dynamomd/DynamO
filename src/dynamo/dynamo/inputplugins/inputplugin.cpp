@@ -32,12 +32,12 @@
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-  CInputPlugin::CInputPlugin(dynamo::SimData* tmp, const char *aName):
+  InputPlugin::InputPlugin(dynamo::SimData* tmp, const char *aName):
     SimBase(tmp, aName)
   {}
 
   void 
-  CInputPlugin::rescaleVels(double val)
+  InputPlugin::rescaleVels(double val)
   {
     dout << "WARNING Rescaling kT to " << val << std::endl;
   
@@ -50,7 +50,7 @@ namespace dynamo {
   }
 
   void 
-  CInputPlugin::setCOMVelocity(const Vector vel)
+  InputPlugin::setCOMVelocity(const Vector vel)
   {
     dout << "Setting COM Velocity" << std::endl;
   
@@ -63,7 +63,7 @@ namespace dynamo {
 
 
   void 
-  CInputPlugin::zeroMomentum()
+  InputPlugin::zeroMomentum()
   {
     dout << "Zeroing Momentum" << std::endl;
   
@@ -75,7 +75,7 @@ namespace dynamo {
   }
 
   void 
-  CInputPlugin::zeroCentreOfMass()
+  InputPlugin::zeroCentreOfMass()
   {
     dout << "Zeroing Centre of Mass" << std::endl;
   
@@ -93,7 +93,7 @@ namespace dynamo {
   }
 
   void 
-  CInputPlugin::mirrorDirection(unsigned int iDim)
+  InputPlugin::mirrorDirection(unsigned int iDim)
   {
     BOOST_FOREACH(Particle& part, Sim->particleList)  
       {
@@ -103,7 +103,7 @@ namespace dynamo {
   }
 
   void 
-  CInputPlugin::zeroVelComp(size_t iDim)
+  InputPlugin::zeroVelComp(size_t iDim)
   {
     dout << "Zeroing the " << iDim << " dimension velocities" << std::endl;
     BOOST_FOREACH(Particle& part, Sim->particleList)

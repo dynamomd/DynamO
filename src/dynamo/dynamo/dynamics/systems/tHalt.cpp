@@ -26,7 +26,7 @@
 #endif
 
 namespace dynamo {
-  CStHalt::CStHalt(dynamo::SimData* nSim, double ndt, std::string nName):
+  SystHalt::SystHalt(dynamo::SimData* nSim, double ndt, std::string nName):
     System(nSim)
   {
     dt = ndt * Sim->dynamics.units().unitTime();
@@ -38,7 +38,7 @@ namespace dynamo {
   }
 
   void
-  CStHalt::runEvent() const
+  SystHalt::runEvent() const
   {
     double locdt = dt;
   
@@ -60,17 +60,17 @@ namespace dynamo {
   }
 
   void 
-  CStHalt::initialise(size_t nID)
+  SystHalt::initialise(size_t nID)
   {
     ID=nID;
   }
 
   void 
-  CStHalt::setdt(double ndt)
+  SystHalt::setdt(double ndt)
   { dt = ndt * Sim->dynamics.units().unitTime(); }
 
   void 
-  CStHalt::increasedt(double ndt)
+  SystHalt::increasedt(double ndt)
   { 
     dt += ndt * Sim->dynamics.units().unitTime(); 
   }

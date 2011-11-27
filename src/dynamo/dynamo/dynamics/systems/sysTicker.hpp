@@ -19,10 +19,10 @@
 #include <dynamo/dynamics/systems/system.hpp>
 
 namespace dynamo {
-  class CSTicker: public System
+  class SysTicker: public System
   {
   public:
-    CSTicker(dynamo::SimData*, double, std::string);
+    SysTicker(dynamo::SimData*, double, std::string);
   
     virtual void runEvent() const;
 

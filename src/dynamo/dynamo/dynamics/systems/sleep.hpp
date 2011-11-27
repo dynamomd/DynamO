@@ -29,7 +29,7 @@ namespace dynamo {
   public:
     SSleep(const magnet::xml::Node& XML, dynamo::SimData*);
 
-    SSleep(dynamo::SimData*, std::string, CRange*, double);
+    SSleep(dynamo::SimData*, std::string, Range*, double);
   
     virtual void runEvent() const;
 
@@ -46,7 +46,7 @@ namespace dynamo {
 
     bool sleepCondition(const Particle& part, const Vector& g, const Vector& vel = Vector(0,0,0));
 
-    shared_ptr<CRange> _range;
+    shared_ptr<Range> _range;
     double _sleepDistance;
     double _sleepTime;
     double _sleepVelocity;

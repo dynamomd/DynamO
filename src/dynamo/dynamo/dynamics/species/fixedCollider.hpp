@@ -24,7 +24,7 @@ namespace dynamo {
   class SpFixedCollider:public SpPoint
   {
   public:  
-    SpFixedCollider(dynamo::SimData* sim, CRange* r, std::string nName, 
+    SpFixedCollider(dynamo::SimData* sim, Range* r, std::string nName, 
 		    unsigned int ID, std::string nIName="Bulk"):
       SpPoint(sim, r, 0, nName, ID, nIName)
     { name = "SpFixedCollider"; }

@@ -44,7 +44,7 @@ namespace dynamo {
      * \param range The range of particles for which this interaction is
      * valid (the default value of NULL indicates all particles are valid).
      */
-    Global(dynamo::SimData* sim, std::string name, CRange* range = NULL);
+    Global(dynamo::SimData* sim, std::string name, Range* range = NULL);
   
     /*! \brief Returns true if the Global applies to the passed
      * particle.
@@ -99,7 +99,7 @@ namespace dynamo {
      */
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
-    shared_ptr<CRange> range;  
+    shared_ptr<Range> range;  
     std::string globName;
     size_t ID;
   };

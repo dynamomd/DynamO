@@ -63,7 +63,7 @@ namespace dynamo {
     //Pair particle dynamics
     virtual PairEventData SphereWellEvent(const IntEvent&, const double&, 
 					  const double&) const;
-    virtual NEventData multibdyWellEvent(const CRange&, const CRange&, 
+    virtual NEventData multibdyWellEvent(const Range&, const Range&, 
 					 const double&, const double&, 
 					 EEventType&) const;
 

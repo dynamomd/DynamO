@@ -20,20 +20,20 @@
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  CRAll::CRAll(const magnet::xml::Node& XML, const dynamo::SimData* SimDat):
-    SimBase_const(SimDat, "CRAll")
+  RAll::RAll(const magnet::xml::Node& XML, const dynamo::SimData* SimDat):
+    SimBase_const(SimDat, "RAll")
   { operator<<(XML); }
 
   //The data output classes
   void 
-  CRAll::operator<<(const magnet::xml::Node& XML)
+  RAll::operator<<(const magnet::xml::Node& XML)
   {
     if (strcmp(XML.getAttribute("Range"),"All"))
-      M_throw() << "Attempting to load CRAll from non All type";
+      M_throw() << "Attempting to load RAll from non All type";
   }
 
   void 
-  CRAll::outputXML(magnet::xml::XmlStream& XML) const
+  RAll::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Range") << "All";
   }

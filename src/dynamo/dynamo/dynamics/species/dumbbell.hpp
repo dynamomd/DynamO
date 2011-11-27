@@ -23,7 +23,7 @@ namespace dynamo {
   class SpDumbbells : public SpSphericalTop
   {
   public:
-    inline SpDumbbells(dynamo::SimData* Sim, CRange* R, double nMass, std::string nName, 
+    inline SpDumbbells(dynamo::SimData* Sim, Range* R, double nMass, std::string nName, 
 		       unsigned int ID, double r, std::string nIName="Bulk"):
       SpSphericalTop(Sim, R, nMass, nName, ID, r,  nIName)
     {}

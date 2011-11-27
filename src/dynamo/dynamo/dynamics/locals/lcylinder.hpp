@@ -19,14 +19,14 @@
 #include <dynamo/dynamics/locals/local.hpp>
 
 namespace dynamo {
-  class CLCylinder: public Local
+  class LCylinder: public Local
   {
   public:
-    CLCylinder(const magnet::xml::Node&, dynamo::SimData*);
-    CLCylinder(dynamo::SimData*, double, Vector , Vector , double, 
-	       std::string, CRange*, bool nrender = true);
+    LCylinder(const magnet::xml::Node&, dynamo::SimData*);
+    LCylinder(dynamo::SimData*, double, Vector , Vector , double, 
+	       std::string, Range*, bool nrender = true);
 
-    virtual ~CLCylinder() {}
+    virtual ~LCylinder() {}
 
     virtual LocalEvent getEvent(const Particle&) const;
 

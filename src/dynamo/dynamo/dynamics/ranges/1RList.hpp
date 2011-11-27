@@ -20,12 +20,12 @@
 #include <vector>
 
 namespace dynamo {
-  class CRList: public CRange
+  class RList: public Range
   {
   public:
-    CRList(const magnet::xml::Node&);
+    RList(const magnet::xml::Node&);
 
-    CRList() {}
+    RList() {}
 
     virtual bool isInRange(const Particle &) const;
 
@@ -34,9 +34,9 @@ namespace dynamo {
   
     virtual unsigned long size() const { return IDs.size(); };
 
-    virtual iterator begin() const { return CRange::iterator(0, this); }
+    virtual iterator begin() const { return Range::iterator(0, this); }
 
-    virtual iterator end() const { return CRange::iterator(IDs.size(), this); }
+    virtual iterator end() const { return Range::iterator(IDs.size(), this); }
 
     virtual unsigned long operator[](unsigned long i) const { return IDs[i]; }
 

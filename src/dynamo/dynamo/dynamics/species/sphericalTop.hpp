@@ -23,7 +23,7 @@ namespace dynamo {
   class SpSphericalTop: public SpInertia
   {
   public:
-    SpSphericalTop(dynamo::SimData*, CRange*, double nMass, std::string nName, 
+    SpSphericalTop(dynamo::SimData*, Range*, double nMass, std::string nName, 
 		   unsigned int ID, double iC, std::string nIName="Bulk");
   
     SpSphericalTop(const magnet::xml::Node&, dynamo::SimData*, unsigned int ID);

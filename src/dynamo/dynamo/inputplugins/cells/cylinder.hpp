@@ -25,12 +25,12 @@
 #include <cmath>
 
 namespace dynamo {
-  struct CUCylinder: public CUCell
+  struct CUCylinder: public UCell
   {
     CUCylinder(double partD, double cylD, Vector naxis,
 	       boost::uniform_01<dynamo::baseRNG, double>& rng, 
-	       CUCell* nextCell):
-      CUCell(nextCell),
+	       UCell* nextCell):
+      UCell(nextCell),
       diameter(cylD),
       minSpacing(partD),
       axis(naxis),

@@ -20,10 +20,10 @@
 #include <algorithm>
 
 namespace dynamo {
-  struct CURandomise: public CUCell
+  struct CURandomise: public UCell
   {
-    CURandomise(CUCell* nextCell):
-      CUCell(nextCell)
+    CURandomise(UCell* nextCell):
+      UCell(nextCell)
     {}
 
     virtual std::vector<Vector  > placeObjects(const Vector & centre)

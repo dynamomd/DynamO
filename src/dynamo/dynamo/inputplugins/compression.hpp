@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*! \file compression.hpp
- * Contains the definition of the class CIPCompression.
+ * Contains the definition of the class IPCompression.
  */
 
 #pragma once
@@ -33,7 +33,7 @@ namespace dynamo {
    * also provides several helpful plugins to hack parts of the system
    * into co-operating with the compression like the cellular scheduler.
    */
-  class CIPCompression: public CInputPlugin
+  class IPCompression: public InputPlugin
   {
   public:
   
@@ -42,7 +42,7 @@ namespace dynamo {
      * \param sim The Simulation this plugin is in control of
      * \param cr The compression rate of the Simulation.
      */
-    CIPCompression(dynamo::SimData* sim, double cr);
+    IPCompression(dynamo::SimData* sim, double cr);
 
     /*! \brief Stores the old CLiovillean and installs the LCompression.
      */  
@@ -58,14 +58,14 @@ namespace dynamo {
     void CellSchedulerHack();
 
     /*! \brief Limits the maximum packing fraction by installing a
-     *  CStHalt system event at the right time.
+     *  SystHalt system event at the right time.
      *
      * \param mxpf The maximum packing fraction allowed.
      */
     void limitPackingFraction(double mxpf);
 
     /*! \brief Limits the maximum density by installing a
-     *  CStHalt system event at the right time.
+     *  SystHalt system event at the right time.
      *
      * \param mxrho The maximum number density allowed.
      */

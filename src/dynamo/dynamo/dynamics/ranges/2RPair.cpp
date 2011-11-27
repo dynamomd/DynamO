@@ -25,8 +25,8 @@ namespace dynamo {
     if (strcmp(XML.getAttribute("Range"), "Pair"))
       M_throw() << "Attempting to load a pair from a non pair";
   
-    range1 = shared_ptr<CRange>(CRange::getClass(XML.getNode("Range1"), Sim));
-    range2 = shared_ptr<CRange>(CRange::getClass(XML.getNode("Range2"), Sim));
+    range1 = shared_ptr<Range>(Range::getClass(XML.getNode("Range1"), Sim));
+    range2 = shared_ptr<Range>(Range::getClass(XML.getNode("Range2"), Sim));
   }
 
   bool 
@@ -41,7 +41,7 @@ namespace dynamo {
   void 
   C2RPair::operator<<(const magnet::xml::Node&)
   {
-    M_throw() << "Due to problems with CRAll C2RPair operator<< cannot work for this class";
+    M_throw() << "Due to problems with RAll C2RPair operator<< cannot work for this class";
   }
 
   void 

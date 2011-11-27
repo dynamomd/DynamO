@@ -63,7 +63,7 @@ namespace dynamo {
   void 
   C2RChainGroups::operator<<(const magnet::xml::Node&)
   {
-    M_throw() << "Due to problems with CRAll C2RChainGroups operator<<"
+    M_throw() << "Due to problems with RAll C2RChainGroups operator<<"
       " cannot work for this class";
   }
 

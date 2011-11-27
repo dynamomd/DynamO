@@ -20,7 +20,7 @@
 #include <magnet/math/histogram.hpp>
 
 namespace dynamo {
-  class CTChain;
+  class TChain;
 
   class OPCTorsion: public OPTicker
   {
@@ -41,11 +41,11 @@ namespace dynamo {
 
     struct CTCdata
     {
-      const CTChain* chainPtr;
+      const TChain* chainPtr;
       magnet::math::Histogram gammaMol;
       magnet::math::Histogram gammaSys;
       magnet::math::Histogram f;
-      CTCdata(const CTChain* ptr, double binwidth1, double binwidth2, double binwidth3):
+      CTCdata(const TChain* ptr, double binwidth1, double binwidth2, double binwidth3):
 	chainPtr(ptr), gammaMol(binwidth1),
 	gammaSys(binwidth2), f(binwidth3)
       {}

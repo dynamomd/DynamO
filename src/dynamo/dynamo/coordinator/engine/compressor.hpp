@@ -62,20 +62,20 @@ namespace dynamo {
     static void getOptions(boost::program_options::options_description& od);
 
   protected:
-    /*! \brief Boot a CIPCompression plugin to handle the manipulation
+    /*! \brief Boot a IPCompression plugin to handle the manipulation
      * of the single Simulation.
      *
      * This function also calls the Engine::preSimInit function
      */
     virtual void preSimInit();
   
-    /*! \brief Use the CIPCompression plugins to switch to compression
+    /*! \brief Use the IPCompression plugins to switch to compression
      * dynamics.
      */
     virtual void setupSim(Simulation&, const std::string);
 
-    /*! \brief A single CIPCompression plugin to manipulate the Simulation.
+    /*! \brief A single IPCompression plugin to manipulate the Simulation.
      */
-    shared_ptr<CIPCompression> compressPlug;
+    shared_ptr<IPCompression> compressPlug;
   };
 }

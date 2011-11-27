@@ -43,7 +43,7 @@ namespace dynamo {
   public:
     Local(dynamo::SimData*, const char *);
 
-    Local(CRange*, dynamo::SimData*, const char *);
+    Local(Range*, dynamo::SimData*, const char *);
   
     virtual ~Local() {}
 
@@ -74,7 +74,7 @@ namespace dynamo {
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
-    shared_ptr<CRange> range;  
+    shared_ptr<Range> range;  
     std::string localName;
     size_t ID;
   };

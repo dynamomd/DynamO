@@ -21,11 +21,11 @@
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  CRSingle::CRSingle(const magnet::xml::Node& XML) 
+  RSingle::RSingle(const magnet::xml::Node& XML) 
   { operator<<(XML); }
 
   bool 
-  CRSingle::isInRange(const Particle &part) const
+  RSingle::isInRange(const Particle &part) const
   {
     if (part.getID() == ID)
       return true;
@@ -35,19 +35,19 @@ namespace dynamo {
 
   //The data output classes
   void 
-  CRSingle::operator<<(const magnet::xml::Node& XML)
+  RSingle::operator<<(const magnet::xml::Node& XML)
   {
     if (strcmp(XML.getAttribute("Range"),"Single"))
-      M_throw() << "Attempting to load CRSingle from non single";
+      M_throw() << "Attempting to load RSingle from non single";
     try {
       ID = XML.getAttribute("ID").as<size_t>();
     }
     catch (boost::bad_lexical_cast &)
-      { M_throw() << "Failed a lexical cast in CRRange"; }
+      { M_throw() << "Failed a lexical cast in RRange"; }
   }
 
   void 
-  CRSingle::outputXML(magnet::xml::XmlStream& XML) const
+  RSingle::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Range") << "Single"
 	<< magnet::xml::attr("ID") << ID;

@@ -73,7 +73,7 @@ namespace dynamo {
       globName = XML.getAttribute("Name");
 
       if (XML.hasAttribute("Range"))
-	range = shared_ptr<CRange>(CRange::getClass(XML, Sim));
+	range = shared_ptr<Range>(Range::getClass(XML, Sim));
     }
     catch(...)
       {

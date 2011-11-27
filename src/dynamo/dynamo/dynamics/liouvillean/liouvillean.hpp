@@ -118,17 +118,17 @@ namespace dynamo {
      * 
      * Also works for bounce (it will collide receeding structures).
      *
-     * \param r1 The first structure defining CRange.
-     * \param r2 The second structure defining CRange.
+     * \param r1 The first structure defining Range.
+     * \param r2 The second structure defining Range.
      * \param d2 The square of the interaction distance.
      * \param eType A way of setting the collision type from CORE to BOUNCE etc.
      * \return The collision data.
      */  
-    virtual NEventData multibdyCollision(const CRange& r1, const CRange& r2,
+    virtual NEventData multibdyCollision(const Range& r1, const Range& r2,
 					 const double& d2,
 					 const EEventType& eType) const = 0;
 
-    virtual NEventData multibdyWellEvent(const CRange&, const CRange&, 
+    virtual NEventData multibdyWellEvent(const Range&, const Range&, 
 					 const double&, const double&, 
 					 EEventType&) const = 0;
 

@@ -23,11 +23,11 @@
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-  CRList::CRList(const magnet::xml::Node& XML) 
+  RList::RList(const magnet::xml::Node& XML) 
   { operator<<(XML); }
 
   bool 
-  CRList::isInRange(const Particle &part) const
+  RList::isInRange(const Particle &part) const
   {
     BOOST_FOREACH(const unsigned long ID, IDs)
       if (part.getID() == ID)
@@ -36,10 +36,10 @@ namespace dynamo {
   }
 
   void 
-  CRList::operator<<(const magnet::xml::Node& XML)
+  RList::operator<<(const magnet::xml::Node& XML)
   {
     if (strcmp(XML.getAttribute("Range"),"List"))
-      M_throw() << "Attempting to load CRList from non list";
+      M_throw() << "Attempting to load RList from non list";
     try {
     
       for (magnet::xml::Node node = XML.fastGetNode("ID"); node.valid(); ++node)
@@ -47,12 +47,12 @@ namespace dynamo {
     }
     catch (boost::bad_lexical_cast &)
       {
-	M_throw() << "Failed a lexical cast in CRList";
+	M_throw() << "Failed a lexical cast in RList";
       }
   }
 
   void 
-  CRList::outputXML(magnet::xml::XmlStream& XML) const
+  RList::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Range") << "List";
     BOOST_FOREACH(unsigned long ID, IDs)

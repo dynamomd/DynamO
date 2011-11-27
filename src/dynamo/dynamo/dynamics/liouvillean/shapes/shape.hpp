@@ -18,7 +18,7 @@
 #pragma once
 
 namespace dynamo {
-  class CShape {
+  class ShapeFunc {
   public:
     virtual void stream(const double& dt) = 0;
 

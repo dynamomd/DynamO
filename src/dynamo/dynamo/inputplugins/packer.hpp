@@ -27,12 +27,12 @@ using namespace boost;
 namespace po = boost::program_options;
 
 namespace dynamo {
-  class CUCell;
+  class UCell;
 
-  class CIPPacker: public dynamo::SimBase
+  class IPPacker: public dynamo::SimBase
   {
   public:
-    CIPPacker(po::variables_map&, dynamo::SimData* tmp);
+    IPPacker(po::variables_map&, dynamo::SimData* tmp);
 
     void initialise();
 
@@ -42,7 +42,7 @@ namespace dynamo {
     std::tr1::array<long, 3> getCells();
     Vector  getNormalisedCellDimensions();
     Vector  getRandVelVec();
-    CUCell* standardPackingHelper(CUCell*, bool forceRectangular = false);
+    UCell* standardPackingHelper(UCell*, bool forceRectangular = false);
 
     po::variables_map& vm;
   };

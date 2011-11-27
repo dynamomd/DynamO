@@ -20,10 +20,10 @@
 #include <cmath>
 
 namespace dynamo {
-  struct CUlinearRod: public CUCell
+  struct CUlinearRod: public UCell
   {
-    CUlinearRod(size_t pcl, double WL, CUCell* nextCell):
-      CUCell(nextCell),
+    CUlinearRod(size_t pcl, double WL, UCell* nextCell):
+      UCell(nextCell),
       pairchainlength(pcl),
       walklength(WL)
     {

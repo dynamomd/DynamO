@@ -24,9 +24,9 @@
 #include <iomanip>
 
 namespace dynamo {
-  class CDumbbellsFunc : public CShape {
+  class SFDumbbells : public ShapeFunc {
   public:
-    CDumbbellsFunc(const Vector& nr12, const Vector& nv12,
+    SFDumbbells(const Vector& nr12, const Vector& nv12,
 		   const Vector& nw1, const Vector& nw2, 
 		   const Vector& nu1, const Vector& nu2,const double nl,const double nd):
       w1(nw1), w2(nw2), u1(nu1), u2(nu2),

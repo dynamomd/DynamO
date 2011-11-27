@@ -24,9 +24,9 @@
 #include <limits>
 
 namespace dynamo {
-  class COscillatingPlateFunc : public CShape {
+  class SFOscillatingPlate : public ShapeFunc {
   public:
-    COscillatingPlateFunc(const Vector& nvp, const Vector& nnhat,
+    SFOscillatingPlate(const Vector& nvp, const Vector& nnhat,
 			  const Vector& nrp, 
 			  const double& nt, const double& nDelta,
 			  const double& nOmega, const double& nSigma):

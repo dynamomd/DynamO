@@ -94,12 +94,12 @@ namespace dynamo {
       }
     
     //Only one kind of thermostat so far!
-    if (dynamic_cast<const CSysGhost*>(thermostat) == NULL)
+    if (dynamic_cast<const SysAndersen*>(thermostat) == NULL)
       {
 	M_throw() << "Could not upcast thermostat to Andersens";
       }    
     
-    EnsembleVals[2] = static_cast<const CSysGhost*>(thermostat)->getTemperature();
+    EnsembleVals[2] = static_cast<const SysAndersen*>(thermostat)->getTemperature();
     
     dout << "NVT Ensemble initialised\nN=" << EnsembleVals[0]
 	     << "\nV=" << EnsembleVals[1] / Sim->dynamics.units().unitVolume()
@@ -227,12 +227,12 @@ namespace dynamo {
       }
     
     //Only one kind of thermostat so far!
-    if (dynamic_cast<const CSysGhost*>(thermostat) == NULL)
+    if (dynamic_cast<const SysAndersen*>(thermostat) == NULL)
       {
 	M_throw() << "Could not upcast thermostat to Andersens";
       }
     
-    EnsembleVals[1] = static_cast<const CSysGhost*>
+    EnsembleVals[1] = static_cast<const SysAndersen*>
       (thermostat)->getTemperature();
     
     try {

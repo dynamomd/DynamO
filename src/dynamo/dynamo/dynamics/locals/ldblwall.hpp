@@ -20,14 +20,14 @@
 #include <vector>
 
 namespace dynamo {
-  class CLDblWall: public Local
+  class LDblWall: public Local
   {
   public:
-    CLDblWall(const magnet::xml::Node&, dynamo::SimData*);
-    CLDblWall(dynamo::SimData*, double, Vector , Vector , 
-	      std::string, CRange*);
+    LDblWall(const magnet::xml::Node&, dynamo::SimData*);
+    LDblWall(dynamo::SimData*, double, Vector , Vector , 
+	      std::string, Range*);
 
-    virtual ~CLDblWall() {}
+    virtual ~LDblWall() {}
 
     virtual LocalEvent getEvent(const Particle&) const;
 

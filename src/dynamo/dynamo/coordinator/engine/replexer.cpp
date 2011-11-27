@@ -117,7 +117,7 @@ namespace dynamo {
 	BOOST_FOREACH(shared_ptr<System>& sysPtr1, Simulations[i].dynamics.getSystemEvents())
 	  if (sysPtr1->getName() == "Thermostat")
 	    {
-	      if (dynamic_cast<CSysGhost*>(sysPtr1.get()) == NULL)
+	      if (dynamic_cast<SysAndersen*>(sysPtr1.get()) == NULL)
 		M_throw() << "Could not upcast thermostat to Andersens";
 	    
 	      temperatureList.push_back
@@ -250,7 +250,7 @@ namespace dynamo {
     Engine::setupSim(Sim, filename);
 
     //Add the halt time, set to zero so a replica exchange occurrs immediately
-    Sim.addSystem(shared_ptr<System>(new CStHalt(&Sim, 0, "ReplexHalt")));
+    Sim.addSystem(shared_ptr<System>(new SystHalt(&Sim, 0, "ReplexHalt")));
 
     Sim.addOutputPlugin("UEnergy");
   }
@@ -503,7 +503,7 @@ namespace dynamo {
 	    for (size_t i = nSims; i != 0;)
 	      {
 		//Reset the stop event
-		CStHalt* tmpRef = dynamic_cast<CStHalt*>
+		SystHalt* tmpRef = dynamic_cast<SystHalt*>
 		  (Simulations[--i].getSystem("ReplexHalt"));
 		      
 #ifdef DYNAMO_DEBUG

@@ -21,13 +21,13 @@
 #include <dynamo/base/is_simdata.hpp>
 
 namespace dynamo {
-  class CRAll: public CRange, public dynamo::SimBase_const
+  class RAll: public Range, public dynamo::SimBase_const
   {
   public:
-    CRAll(const dynamo::SimData* SimDat):
-      SimBase_const(SimDat,"CRAll"){}
+    RAll(const dynamo::SimData* SimDat):
+      SimBase_const(SimDat,"RAll"){}
 
-    CRAll(const magnet::xml::Node&, const dynamo::SimData*);
+    RAll(const magnet::xml::Node&, const dynamo::SimData*);
 
     virtual bool isInRange(const Particle&) const
     { return true; }
@@ -37,9 +37,9 @@ namespace dynamo {
 
     virtual unsigned long size() const { return Sim->particleList.size(); }
 
-    virtual iterator begin() const { return CRange::iterator(0, this); }
+    virtual iterator begin() const { return Range::iterator(0, this); }
 
-    virtual iterator end() const { return CRange::iterator(Sim->particleList.size(), this); }
+    virtual iterator end() const { return Range::iterator(Sim->particleList.size(), this); }
 
     virtual unsigned long operator[](unsigned long i) const  
     { return i; }

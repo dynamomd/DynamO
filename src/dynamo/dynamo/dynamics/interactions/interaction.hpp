@@ -24,7 +24,7 @@
 namespace magnet { namespace xml { class Node; class XmlStream; } }
 
 namespace dynamo {
-  class CRange;
+  class Range;
   class PairEventData;
   class IntEvent;
   class Species;

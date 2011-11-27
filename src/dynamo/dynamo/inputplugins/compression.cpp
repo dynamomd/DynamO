@@ -35,8 +35,8 @@
 
 namespace dynamo {
 
-  CIPCompression::CIPCompression(dynamo::SimData* tmp, double GR): 
-    CInputPlugin(tmp, "CompressionPlugin"),
+  IPCompression::IPCompression(dynamo::SimData* tmp, double GR): 
+    InputPlugin(tmp, "CompressionPlugin"),
     growthRate(GR)
   {
     dout << "Compression plugin loaded\n"
@@ -44,7 +44,7 @@ namespace dynamo {
   }
 
   void 
-  CIPCompression::MakeGrowth()
+  IPCompression::MakeGrowth()
   {
     dout << "Backing up old liouvillean" << std::endl;
 
@@ -60,7 +60,7 @@ namespace dynamo {
   }
 
   void
-  CIPCompression::RestoreSystem()
+  IPCompression::RestoreSystem()
   {
     dout << "Restoring original liouvillean" << std::endl;
 
@@ -98,7 +98,7 @@ namespace dynamo {
   }
 
   void
-  CIPCompression::CellSchedulerHack()
+  IPCompression::CellSchedulerHack()
   {
     for (size_t i(0); i < Sim->dynamics.getGlobals().size(); ++i)
       {      
@@ -113,7 +113,7 @@ namespace dynamo {
 	    //Add the system watcher
 	    Sim->dynamics.addSystem
 	      (shared_ptr<System>
-	       (new CSNBListCompressionFix(Sim, growthRate 
+	       (new SysNBListCompressionFix(Sim, growthRate 
 					   / Sim->dynamics.units().unitTime(),
 					   i)));
 	  }
@@ -121,7 +121,7 @@ namespace dynamo {
   }
 
   void 
-  CIPCompression::limitPackingFraction(double targetp)
+  IPCompression::limitPackingFraction(double targetp)
   {
     dout << "Limiting maximum packing fraction to " << targetp << std::endl;
   
@@ -132,12 +132,12 @@ namespace dynamo {
   
     Sim->dynamics.addSystem
       (shared_ptr<System>
-       (new CStHalt(Sim, (pow(targetp / packfrac, 1.0/3.0) - 1.0) / growthRate, 
+       (new SystHalt(Sim, (pow(targetp / packfrac, 1.0/3.0) - 1.0) / growthRate, 
 		    "CompresionLimiter")));
   }
 
   void 
-  CIPCompression::limitDensity(double targetrho)
+  IPCompression::limitDensity(double targetrho)
   {
     dout << "Limiting maximum density to " << targetrho << std::endl;
   

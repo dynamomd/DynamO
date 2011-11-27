@@ -24,15 +24,15 @@
 #include <fstream>
 
 namespace dynamo {
-  struct CUTriangleIntersect: public CUCell
+  struct CUTriangleIntersect: public UCell
   {
     double _diameter, _diametersq;
     std::string _fileName;
     typedef std::tr1::array<Vector, NDIM+1> triangle_type;
     std::vector<triangle_type> _triangles;
 
-    CUTriangleIntersect(CUCell* nextCell, double diameter, std::string fileName):
-      CUCell(nextCell),
+    CUTriangleIntersect(UCell* nextCell, double diameter, std::string fileName):
+      UCell(nextCell),
       _diameter(diameter),
       _diametersq(diameter * diameter),
       _fileName(fileName)

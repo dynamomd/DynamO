@@ -30,13 +30,13 @@ namespace dynamo {
 
   namespace { class RangeIterator; }
 
-  class CRange
+  class Range
   {
   public:
     typedef RangeIterator iterator;
     typedef RangeIterator const_iterator;
 
-    virtual ~CRange() {};
+    virtual ~Range() {};
 
     virtual bool isInRange(const Particle&) const = 0;
 
@@ -48,9 +48,9 @@ namespace dynamo {
 
     virtual unsigned long at(unsigned long) const = 0;
 
-    static CRange* getClass(const magnet::xml::Node&, const dynamo::SimData * Sim);
+    static Range* getClass(const magnet::xml::Node&, const dynamo::SimData * Sim);
 
-    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const CRange&);
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Range&);
 
     virtual iterator begin() const = 0;
 
@@ -67,7 +67,7 @@ namespace dynamo {
     class RangeIterator
     {
     public:
-      RangeIterator(unsigned long nPos, const CRange* nRangePtr):
+      RangeIterator(unsigned long nPos, const Range* nRangePtr):
 	pos(nPos), rangePtr(nRangePtr) {}
 
       inline bool operator==(const RangeIterator& nIT) const
@@ -99,7 +99,7 @@ namespace dynamo {
 
     private:
       unsigned long pos;
-      const CRange* rangePtr;
+      const Range* rangePtr;
     };
   }
 }

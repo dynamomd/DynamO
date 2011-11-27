@@ -65,7 +65,7 @@ namespace dynamo {
   void 
   C2RChains::operator<<(const magnet::xml::Node&)
   {
-    M_throw() << "Due to problems with CRAll C2RChains::operator<< cannot work for this class";
+    M_throw() << "Due to problems with RAll C2RChains::operator<< cannot work for this class";
   }
 
   void 

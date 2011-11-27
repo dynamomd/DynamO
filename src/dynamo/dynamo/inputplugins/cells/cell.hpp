@@ -20,25 +20,25 @@
 #include <boost/scoped_ptr.hpp>
 
 namespace dynamo {
-  class CUCell
+  class UCell
   {
   public:
-    CUCell(CUCell* nP): uc(nP) {}
+    UCell(UCell* nP): uc(nP) {}
 
-    virtual ~CUCell() {}
+    virtual ~UCell() {}
 
     virtual void initialise() { uc->initialise(); }
 
     virtual std::vector<Vector  > placeObjects(const Vector & ) = 0;  
   
-    boost::scoped_ptr<CUCell> uc;
+    boost::scoped_ptr<UCell> uc;
   };
 
   //A simple terminator, used to place a particle at this point
-  class CUParticle: public CUCell
+  class UParticle: public UCell
   {
   public:
-    CUParticle(): CUCell(NULL) {}
+    UParticle(): UCell(NULL) {}
 
     //Terminate initialisation
     virtual void initialise() {}

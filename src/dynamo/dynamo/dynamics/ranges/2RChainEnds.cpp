@@ -69,7 +69,7 @@ namespace dynamo {
   void 
   C2RChainEnds::operator<<(const magnet::xml::Node&)
   {
-    M_throw() << "Due to problems with CRAll C2RChainEnds operator<<"
+    M_throw() << "Due to problems with RAll C2RChainEnds operator<<"
       " cannot work for this class";
   }
 

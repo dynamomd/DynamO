@@ -29,10 +29,10 @@
 #include <boost/lexical_cast.hpp>
 
 namespace dynamo {
-  struct CUFile: public CUCell
+  struct CUFile: public UCell
   {
-    CUFile(Vector  ndimensions, std::string fn, CUCell* nextCell):
-      CUCell(nextCell),
+    CUFile(Vector  ndimensions, std::string fn, UCell* nextCell):
+      UCell(nextCell),
       dimensions(ndimensions),
       fileName(fn)
     {}

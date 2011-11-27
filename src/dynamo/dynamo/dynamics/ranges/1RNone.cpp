@@ -20,18 +20,18 @@
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  CRNone::CRNone(const magnet::xml::Node& XML)
+  RNone::RNone(const magnet::xml::Node& XML)
   { operator<<(XML); }
 
   void 
-  CRNone::operator<<(const magnet::xml::Node& XML)
+  RNone::operator<<(const magnet::xml::Node& XML)
   {
     if (strcmp(XML.getAttribute("Range"),"None"))
-      M_throw() << "Attempting to load CRNone from non None type";
+      M_throw() << "Attempting to load RNone from non None type";
   }
 
   void 
-  CRNone::outputXML(magnet::xml::XmlStream& XML) const
+  RNone::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Range") << "All";
   }

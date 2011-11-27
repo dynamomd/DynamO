@@ -21,8 +21,8 @@
 #include <boost/shared_array.hpp>
 
 namespace dynamo {
-  class CTChain;
-  class CRange;
+  class TChain;
+  class Range;
 
   class OPCContactMap: public OPTicker
   {
@@ -43,9 +43,9 @@ namespace dynamo {
 
     struct Cdata
     {
-      Cdata(const CTChain*, unsigned long);
+      Cdata(const TChain*, unsigned long);
 
-      const CTChain* chainPtr;
+      const TChain* chainPtr;
       boost::shared_array<unsigned long> array;
       unsigned long counter;
       unsigned long chainlength;

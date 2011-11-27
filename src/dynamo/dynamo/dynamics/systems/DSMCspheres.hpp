@@ -21,12 +21,12 @@
 #include <dynamo/dynamics/ranges/1range.hpp>
 
 namespace dynamo {
-  class CSDSMCSpheres: public System
+  class SysDSMCSpheres: public System
   {
   public:
-    CSDSMCSpheres(const magnet::xml::Node& XML, dynamo::SimData*);
+    SysDSMCSpheres(const magnet::xml::Node& XML, dynamo::SimData*);
 
-    CSDSMCSpheres(dynamo::SimData*, double, double, double, double, std::string, CRange*, CRange*);
+    SysDSMCSpheres(dynamo::SimData*, double, double, double, double, std::string, Range*, Range*);
   
     virtual void runEvent() const;
 
@@ -45,7 +45,7 @@ namespace dynamo {
     double e;
     double factor;
 
-    shared_ptr<CRange> range1;
-    shared_ptr<CRange> range2;
+    shared_ptr<Range> range1;
+    shared_ptr<Range> range2;
   };
 }

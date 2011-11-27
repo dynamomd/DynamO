@@ -26,7 +26,7 @@
 #endif
 
 namespace dynamo {
-  CSSchedMaintainer::CSSchedMaintainer(dynamo::SimData* nSim, double ndt, std::string nName):
+  SysSchedMaintainer::SysSchedMaintainer(dynamo::SimData* nSim, double ndt, std::string nName):
     System(nSim),
     periodt(ndt * nSim->dynamics.units().unitTime())
   {
@@ -38,7 +38,7 @@ namespace dynamo {
   }
 
   void 
-  CSSchedMaintainer::runEvent() const
+  SysSchedMaintainer::runEvent() const
   {
     double locdt = dt;
   
@@ -62,15 +62,15 @@ namespace dynamo {
   }
 
   void 
-  CSSchedMaintainer::initialise(size_t nID)
+  SysSchedMaintainer::initialise(size_t nID)
   { ID = nID; }
 
   void 
-  CSSchedMaintainer::setdt(double ndt)
+  SysSchedMaintainer::setdt(double ndt)
   { dt = ndt * Sim->dynamics.units().unitTime(); }
 
   void 
-  CSSchedMaintainer::increasedt(double ndt)
+  SysSchedMaintainer::increasedt(double ndt)
   { 
     dt += ndt * Sim->dynamics.units().unitTime(); 
   }

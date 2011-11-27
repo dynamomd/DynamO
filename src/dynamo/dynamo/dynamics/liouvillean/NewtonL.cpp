@@ -525,7 +525,7 @@ namespace dynamo {
   }
 
   NEventData 
-  LNewtonian::multibdyCollision(const CRange& range1, const CRange& range2, 
+  LNewtonian::multibdyCollision(const Range& range1, const Range& range2, 
 				const double&, const EEventType& eType) const
   {
     Vector COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
@@ -620,7 +620,7 @@ namespace dynamo {
   }
 
   NEventData 
-  LNewtonian::multibdyWellEvent(const CRange& range1, const CRange& range2, 
+  LNewtonian::multibdyWellEvent(const Range& range1, const Range& range2, 
 				const double&, const double& deltaKE, EEventType& eType) const
   {
     Vector  COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
@@ -871,7 +871,7 @@ namespace dynamo {
       t_high = -(Sigma + Delta + surfaceOffset) / surfaceVel;
   
 
-    COscillatingPlateFunc fL(vel, nhat, pos, t, Delta, Omega, Sigma);
+    SFOscillatingPlate fL(vel, nhat, pos, t, Delta, Omega, Sigma);
   
 #ifdef DYNAMO_DEBUG
     if (Sigma < 0) M_throw() << "Assuming a positive Sigma here";
@@ -959,8 +959,8 @@ namespace dynamo {
 	  {
 #ifdef DYNAMO_DEBUG
 	    {
-	      COscillatingPlateFunc ftmp(fL);
-	      COscillatingPlateFunc ftmp2(fL);
+	      SFOscillatingPlate ftmp(fL);
+	      SFOscillatingPlate ftmp2(fL);
 	      ftmp.flipSigma();
 	    
 	      double fl01(ftmp.F_zeroDeriv());
@@ -1061,7 +1061,7 @@ namespace dynamo {
 
     ParticleEventData retVal(part, Sim->dynamics.getSpecies(part), WALL);
 
-    COscillatingPlateFunc fL(part.getVelocity(), nhat, part.getPosition(),
+    SFOscillatingPlate fL(part.getVelocity(), nhat, part.getPosition(),
 			     t + Sim->dSysTime, delta, omega0, sigma);
 
     //Should force the particle to the plate surface
@@ -1285,7 +1285,7 @@ namespace dynamo {
 
     double t_low = 0.0;
   
-    CLinesFunc fL(r12, v12,
+    SFLines fL(r12, v12,
 		  orientationData[p1.getID()].angularVelocity,
 		  orientationData[p2.getID()].angularVelocity,
 		  orientationData[p1.getID()].orientation,
@@ -1336,7 +1336,7 @@ namespace dynamo {
     double KE1before = getParticleKineticEnergy(particle1);
     double KE2before = getParticleKineticEnergy(particle2);
 
-    CLinesFunc fL(retVal.rij, retVal.vijold,
+    SFLines fL(retVal.rij, retVal.vijold,
 		  orientationData[particle1.getID()].angularVelocity,
 		  orientationData[particle2.getID()].angularVelocity,
 		  orientationData[particle1.getID()].orientation,
@@ -1416,7 +1416,7 @@ namespace dynamo {
     double t_high = t_h_init;
     double tolerance = 1e-16;
   
-    CDumbbellsFunc fL1(r12, v12,
+    SFDumbbells fL1(r12, v12,
 		       orientationData[p1.getID()].angularVelocity,
 		       orientationData[p2.getID()].angularVelocity,
 		       orientationData[p1.getID()].orientation,
@@ -1433,7 +1433,7 @@ namespace dynamo {
     std::pair<bool,double> root1 = magnet::math::frenkelRootSearch(fL1, t_low, t_high,length*tolerance);
 
 
-    CDumbbellsFunc fL2(r12, v12,
+    SFDumbbells fL2(r12, v12,
 		       orientationData[p1.getID()].angularVelocity,
 		       orientationData[p2.getID()].angularVelocity,
 		       -orientationData[p1.getID()].orientation,
@@ -1447,7 +1447,7 @@ namespace dynamo {
   
     std::pair<bool,double> root2 = magnet::math::frenkelRootSearch(fL2, t_low, t_high,length*tolerance);
 
-    CDumbbellsFunc fL3(r12, v12,
+    SFDumbbells fL3(r12, v12,
 		       orientationData[p1.getID()].angularVelocity,
 		       orientationData[p2.getID()].angularVelocity,
 		       orientationData[p1.getID()].orientation,
@@ -1461,7 +1461,7 @@ namespace dynamo {
   
     std::pair<bool,double> root3 = magnet::math::frenkelRootSearch(fL3, t_low, t_high,length*tolerance);
 
-    CDumbbellsFunc fL4(r12, v12,
+    SFDumbbells fL4(r12, v12,
 		       orientationData[p1.getID()].angularVelocity,
 		       orientationData[p2.getID()].angularVelocity,
 		       -orientationData[p1.getID()].orientation,
@@ -1532,7 +1532,7 @@ namespace dynamo {
     dout << "i " << sign.first << " j " << sign.second << std::endl; 
   
     //Now the pair sign gives the right two particles
-    CDumbbellsFunc fL(retVal.rij, retVal.vijold,
+    SFDumbbells fL(retVal.rij, retVal.vijold,
 		      orientationData[particle1.getID()].angularVelocity,
 		      orientationData[particle2.getID()].angularVelocity,
 		      pow(-1,sign.first) * orientationData[particle1.getID()].orientation,

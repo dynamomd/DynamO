@@ -100,7 +100,7 @@ namespace dynamo {
 	  += (posHistory[ID][step] - posHistory[ID][0]).nrm2();
   
     BOOST_FOREACH(const shared_ptr<Topology>& topo, Sim->dynamics.getTopology())
-      BOOST_FOREACH(const shared_ptr<CRange>& range, topo->getMolecules())
+      BOOST_FOREACH(const shared_ptr<Range>& range, topo->getMolecules())
       {
 	Vector  molCOM(0,0,0);
 	double molMass(0);
@@ -135,7 +135,7 @@ namespace dynamo {
     XML << magnet::xml::tag("MSDCorrelator")
 	<< magnet::xml::tag("Particles");
   
-    double dt = dynamic_cast<const CSTicker&>
+    double dt = dynamic_cast<const SysTicker&>
       (*Sim->dynamics.getSystem("SystemTicker")).getPeriod()
       / Sim->dynamics.units().unitTime();
   

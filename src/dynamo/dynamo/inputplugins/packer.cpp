@@ -62,7 +62,7 @@ namespace dynamo {
     };
   }
 
-  CIPPacker::CIPPacker(po::variables_map& vm2, dynamo::SimData* tmp):
+  IPPacker::IPPacker(po::variables_map& vm2, dynamo::SimData* tmp):
     SimBase(tmp, "SysPacker"),
     vm(vm2)
   {}
@@ -73,7 +73,7 @@ namespace dynamo {
   }
 
   po::options_description
-  CIPPacker::getOptions()
+  IPPacker::getOptions()
   {
     po::options_description retval("Packer options");
 
@@ -129,7 +129,7 @@ namespace dynamo {
   }
 
   void
-  CIPPacker::initialise()
+  IPPacker::initialise()
   {
     //Set the default liouvillean
     Sim->dynamics.setLiouvillean(shared_ptr<Liouvillean>(new LNewtonian(Sim)));
@@ -152,7 +152,7 @@ namespace dynamo {
 	    }
 	  //Pack of hard spheres
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
 	  std::vector<Vector  >
@@ -212,7 +212,7 @@ namespace dynamo {
 	     (new IHardSphere(Sim, particleDiam, elasticity, new C2RAll(), "Bulk")));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				   (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 	
 	  Sim->dynamics.units().setUnitLength(particleDiam);
@@ -246,7 +246,7 @@ namespace dynamo {
 	    }
 	  //Pack of square well molecules
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<CUCell> packptr(new CURandomise(standardPackingHelper(new CUParticle())));
+	  boost::scoped_ptr<UCell> packptr(new CURandomise(standardPackingHelper(new UParticle())));
 	  packptr->initialise();
 
 	  std::vector<Vector  >
@@ -294,7 +294,7 @@ namespace dynamo {
 				  new C2RAll(), "Bulk")));
 		 
 	      Sim->dynamics.addSpecies(shared_ptr<Species>
-				       (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				       (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0,
 						    "Bulk")));
 	    }
 	  else
@@ -383,8 +383,8 @@ namespace dynamo {
 					  * (spdat1.diameter + spdat2.diameter),
 					  0.5 * (spdat1.lambda + spdat2.lambda), 
 					  0.5 * (spdat1.wellDepth + spdat2.wellDepth), 1.0,
-					  new C2RPair(new CRRange(spdat1.idStart, spdat1.idEnd),
-						      new CRRange(spdat2.idStart, spdat2.idEnd)),
+					  new C2RPair(new RRange(spdat1.idStart, spdat1.idEnd),
+						      new RRange(spdat2.idStart, spdat2.idEnd)),
 					  sp1Name + sp2Name)));
 		    }
 		}
@@ -395,7 +395,7 @@ namespace dynamo {
 		  std::string sp1Name = "A";
 		  sp1Name[0] += spID1;
 		  Sim->dynamics.addSpecies(shared_ptr<Species>
-					   (new SpPoint(Sim, new CRRange(spdat1.idStart, 
+					   (new SpPoint(Sim, new RRange(spdat1.idStart, 
 									 spdat1.idEnd), 
 							spdat1.mass, sp1Name, spID1, 
 							sp1Name + sp1Name)));
@@ -452,7 +452,7 @@ namespace dynamo {
 	  double diamScale = 1.0 / chainlength;
 
 	  CURandWalk sysPack(chainlength, (sigmin + 0.95 * (sigmax - sigmin))
-			     * diamScale, sigma * diamScale, new CUParticle());
+			     * diamScale, sigma * diamScale, new UParticle());
 
 	  sysPack.initialise();
 
@@ -540,16 +540,16 @@ namespace dynamo {
 				new C2RAll(), "Bulk")));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				   (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
 	  Sim->dynamics.units().setUnitLength(diamScale);
 	  //Set the unit energy to 1 (assuming the unit of mass is 1);
 	  Sim->dynamics.units().setUnitTime(diamScale); 
 
-	  Sim->dynamics.addStructure(shared_ptr<Topology>(new CTChain(Sim, 1, "HelixPolymer")));
+	  Sim->dynamics.addStructure(shared_ptr<Topology>(new TChain(Sim, 1, "HelixPolymer")));
 
-	  Sim->dynamics.getTopology().back()->addMolecule(new CRAll(Sim));
+	  Sim->dynamics.getTopology().back()->addMolecule(new RAll(Sim));
 
 	  unsigned long nParticles = 0;
 
@@ -581,16 +581,16 @@ namespace dynamo {
 	  if (vm.count("s1"))
 	    fileName = vm["s1"].as<std::string>();
 
-	  CUCell* tmpPtr;
+	  UCell* tmpPtr;
 
 	  //Figure out how many particles are in a single unit
-	  tmpPtr = new CUFile(Vector (1,1,1), fileName, new CUParticle());
+	  tmpPtr = new CUFile(Vector (1,1,1), fileName, new UParticle());
 	  tmpPtr->initialise();
 	  size_t NUnit = tmpPtr->placeObjects(Vector(0,0,0)).size();
 	  delete tmpPtr;
 
 	  //Figure out how many units there are
-	  tmpPtr = standardPackingHelper(new CUParticle());
+	  tmpPtr = standardPackingHelper(new UParticle());
 	  tmpPtr->initialise();
 	  size_t NUnitSites = tmpPtr->placeObjects(Vector(0,0,0)).size();
 	  delete tmpPtr;
@@ -604,11 +604,11 @@ namespace dynamo {
 	  if (vm.count("f1"))
 	    tmpPtr = new CUMirror(vm["f1"].as<double>(),
 				  new CUFile(Vector (diamScale,diamScale,diamScale),
-					     fileName, new CUParticle()));
+					     fileName, new UParticle()));
 	  else
-	    tmpPtr = new CUFile(Vector (diamScale,diamScale,diamScale), fileName, new CUParticle());
+	    tmpPtr = new CUFile(Vector (diamScale,diamScale,diamScale), fileName, new UParticle());
 
-	  boost::scoped_ptr<CUCell> packptr(standardPackingHelper(tmpPtr));
+	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(tmpPtr));
 	  packptr->initialise();
 
 	  std::vector<Vector  >
@@ -625,7 +625,7 @@ namespace dynamo {
 			      new C2RAll(), "Bulk")));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				   (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
 	  Sim->dynamics.units().setUnitLength(diamScale);
@@ -655,7 +655,7 @@ namespace dynamo {
 	    }
 	  //FCC simple cubic pack of hard spheres with inelasticity and shearing
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
 	  std::vector<Vector  >
@@ -693,7 +693,7 @@ namespace dynamo {
 			      new C2RAll(), "Bulk")));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				   (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
@@ -766,7 +766,7 @@ namespace dynamo {
 	  CUHelix sysPack(chainlength, ringlength,
 			  (sigmin + tightness * (sigmax - sigmin)) * diamScale,
 			  (1.0 + tightness) * sigma * diamScale,
-			  new CUParticle());
+			  new UParticle());
 
 	  sysPack.initialise();
 
@@ -791,16 +791,16 @@ namespace dynamo {
 			      1.0, new C2RAll(),"Bulk")));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				   (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
 	  Sim->dynamics.units().setUnitLength(diamScale);
 	  //Set the unit energy to 1 (assuming the unit of mass is 1);
 	  Sim->dynamics.units().setUnitTime(diamScale); 
 
-	  Sim->dynamics.addStructure(shared_ptr<Topology>(new CTChain(Sim, 1, "HelixPolymer")));
+	  Sim->dynamics.addStructure(shared_ptr<Topology>(new TChain(Sim, 1, "HelixPolymer")));
 
-	  Sim->dynamics.getTopology().back()->addMolecule(new CRAll(Sim));
+	  Sim->dynamics.getTopology().back()->addMolecule(new RAll(Sim));
 
 	  unsigned long nParticles = 0;
 
@@ -822,7 +822,7 @@ namespace dynamo {
 		"       --f1 : Elasticity of the particle and wall collisions [1]\n";
 	      exit(1);
 	    }
-	  boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle(), true));
+	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle(), true));
 	  packptr->initialise();
 
 	  std::vector<Vector  >
@@ -855,11 +855,11 @@ namespace dynamo {
 	  Sim->dynamics.addLocal
 	    (shared_ptr<Local>(new LWall(Sim, elasticity, 0, Vector(1,0,0),
 					 Vector(-Sim->primaryCellSize[0] / 2, 0, 0),
-					 "LowWall", new CRAll(Sim))));
+					 "LowWall", new RAll(Sim))));
 	  Sim->dynamics.addLocal
 	    (shared_ptr<Local>(new LWall(Sim, elasticity, 0, Vector(-1,0,0), 
 					 Vector(Sim->primaryCellSize[0] / 2, 0, 0),
-					 "HighWall", new CRAll(Sim))));
+					 "HighWall", new RAll(Sim))));
 
 	  Sim->dynamics.addInteraction
 	    (shared_ptr<Interaction>
@@ -867,7 +867,7 @@ namespace dynamo {
 			      new C2RAll(), "Bulk")));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0, "Bulk")));
+				   (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0, "Bulk")));
 
 	  unsigned long nParticles = 0;
 	  Sim->particleList.reserve(latticeSites.size());
@@ -916,10 +916,10 @@ namespace dynamo {
 	  double diamScale = 0.5 / (sigmax * chainlength + 2 * sigma);
 
 	  //CUringRod sysPack(chainlength, ((sigmax - sigmin) * 0.95 + sigmin)
-	  //                               * diamScale, new CUParticle());
+	  //                               * diamScale, new UParticle());
 
 	  CUringSnake sysPack(chainlength, ((sigmax - sigmin) * 0.95 + sigmin)
-			      * diamScale, new CUParticle());
+			      * diamScale, new UParticle());
 
 	  sysPack.initialise();
 
@@ -965,12 +965,12 @@ namespace dynamo {
 
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				   (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
-	  Sim->dynamics.addStructure(shared_ptr<Topology>(new CTChain(Sim, 1, "Ring")));
+	  Sim->dynamics.addStructure(shared_ptr<Topology>(new TChain(Sim, 1, "Ring")));
 
-	  Sim->dynamics.getTopology().back()->addMolecule(new CRAll(Sim));
+	  Sim->dynamics.getTopology().back()->addMolecule(new RAll(Sim));
 
 	  unsigned long nParticles = 0;
 
@@ -997,8 +997,8 @@ namespace dynamo {
 	      exit(1);
 	    }
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<CUCell> packptr
-	    (new CURandomise(standardPackingHelper(new CUParticle())));
+	  boost::scoped_ptr<UCell> packptr
+	    (new CURandomise(standardPackingHelper(new UParticle())));
 
 	  packptr->initialise();
 
@@ -1041,14 +1041,14 @@ namespace dynamo {
 	  Sim->dynamics.addInteraction
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, particleDiam, 1.0,
-			      new C2RSingle(new CRRange(0, nA - 1)), "AAInt")));
+			      new C2RSingle(new RRange(0, nA - 1)), "AAInt")));
 
 	  Sim->dynamics.addInteraction
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam,
 			      1.0,
-			      new C2RPair(new CRRange(0, nA - 1),
-					  new CRRange(nA, latticeSites.size()-1)),
+			      new C2RPair(new RRange(0, nA - 1),
+					  new RRange(nA, latticeSites.size()-1)),
 			      "ABInt")));
 
 	  Sim->dynamics.addInteraction
@@ -1057,11 +1057,11 @@ namespace dynamo {
 			      new C2RAll(), "BBInt")));
 	     
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRRange(0, nA - 1), 1.0, "A", 0,
+				   (new SpPoint(Sim, new RRange(0, nA - 1), 1.0, "A", 0,
 						"AAInt")));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRRange(nA, latticeSites.size()-1),
+				   (new SpPoint(Sim, new RRange(nA, latticeSites.size()-1),
 						massFrac, "B", 0, "BBInt")));
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
@@ -1092,7 +1092,7 @@ namespace dynamo {
 	  //Pack the system, determine the number of particles
 	  CURandom packroutine(vm["NCells"].as<unsigned long>(),
 			       Vector (1,1,1), Sim->uniform_sampler,
-			       new CUParticle());
+			       new UParticle());
 
 	  packroutine.initialise();
 
@@ -1133,7 +1133,7 @@ namespace dynamo {
 	  double inertiaMultiplicativeFactor = (vm.count("f2")) ? vm["f2"].as<double>() : 1.0;
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpLines(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				   (new SpLines(Sim, new RAll(Sim), 1.0, "Bulk", 0,
 						std::sqrt(inertiaMultiplicativeFactor) * particleDiam,
 						"Bulk")));
 
@@ -1164,7 +1164,7 @@ namespace dynamo {
 	    }
 	  //Pack of DSMC hard spheres
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
 	  std::vector<Vector  >
@@ -1210,12 +1210,12 @@ namespace dynamo {
 	  //No thermostat added yet
 	  Sim->dynamics.addSystem
 	    (shared_ptr<System>
-	     (new CSDSMCSpheres(Sim, particleDiam,
+	     (new SysDSMCSpheres(Sim, particleDiam,
 				2.0 * tij / latticeSites.size(), chi, 1.0,
-				"Thermostat", new CRAll(Sim), new CRAll(Sim))));
+				"Thermostat", new RAll(Sim), new RAll(Sim))));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				   (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
 	  unsigned long nParticles = 0;
@@ -1242,7 +1242,7 @@ namespace dynamo {
 	      exit(1);
 	    }
 
-	  boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
 	  std::vector<Vector  >
@@ -1290,12 +1290,12 @@ namespace dynamo {
 	  //No thermostat added yet
 	  Sim->dynamics.addSystem
 	    (shared_ptr<System>
-	     (new CSDSMCSpheres(Sim, particleDiam, 0.001,
+	     (new SysDSMCSpheres(Sim, particleDiam, 0.001,
 				chi, alpha, "Thermostat",
-				new CRAll(Sim), new CRAll(Sim))));
+				new RAll(Sim), new RAll(Sim))));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				   (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
 	  unsigned long nParticles = 0;
@@ -1323,7 +1323,7 @@ namespace dynamo {
 	      exit(1);
 	    }
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<CUCell> packptr(new CURandomise(standardPackingHelper(new CUParticle())));
+	  boost::scoped_ptr<UCell> packptr(new CURandomise(standardPackingHelper(new UParticle())));
 	  packptr->initialise();
 
 	  std::vector<Vector  >
@@ -1464,43 +1464,43 @@ namespace dynamo {
 	  Sim->dynamics.addInteraction
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, particleDiam, 1.0,
-			      new C2RSingle(new CRRange(0, nA - 1)),
+			      new C2RSingle(new RRange(0, nA - 1)),
 			      "AAInt")));
 
 	  Sim->dynamics.addInteraction
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, sizeRatio * particleDiam, 1.0,
-			      new C2RSingle(new CRRange(nA, latticeSites.size()-1)),
+			      new C2RSingle(new RRange(nA, latticeSites.size()-1)),
 			      "BBInt")));
 
 	  Sim->dynamics.addSystem
 	    (shared_ptr<System>
-	     (new CSDSMCSpheres(Sim, particleDiam,
+	     (new SysDSMCSpheres(Sim, particleDiam,
 				tAA / (2.0 * nA), chiAA, 1.0,
-				"AADSMC", new CRRange(0, nA - 1),
-				new CRRange(0, nA - 1))));
+				"AADSMC", new RRange(0, nA - 1),
+				new RRange(0, nA - 1))));
 
 	  Sim->dynamics.addSystem
 	    (shared_ptr<System>
-	     (new CSDSMCSpheres(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam,
+	     (new SysDSMCSpheres(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam,
 				tAB / (2.0 * nA), chiAB, 1.0,
-				"ABDSMC", new CRRange(0, nA-1),
-				new CRRange(nA, latticeSites.size()-1))));
+				"ABDSMC", new RRange(0, nA-1),
+				new RRange(nA, latticeSites.size()-1))));
 
 	  Sim->dynamics.addSystem
 	    (shared_ptr<System>
-	     (new CSDSMCSpheres(Sim, sizeRatio * particleDiam,
+	     (new SysDSMCSpheres(Sim, sizeRatio * particleDiam,
 				tBB / (2.0 * (latticeSites.size() - nA)), chiBB, 1.0,
-				"BBDSMC", new CRRange(nA, latticeSites.size()-1),
-				new CRRange(nA, latticeSites.size()-1))));
+				"BBDSMC", new RRange(nA, latticeSites.size()-1),
+				new RRange(nA, latticeSites.size()-1))));
 
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRRange(0, nA - 1), 1.0, "A", 0,
+				   (new SpPoint(Sim, new RRange(0, nA - 1), 1.0, "A", 0,
 						"AAInt")));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRRange(nA, latticeSites.size()-1),
+				   (new SpPoint(Sim, new RRange(nA, latticeSites.size()-1),
 						massFrac, "B", 0, "BBInt")));
 
 	  unsigned long nParticles = 0;
@@ -1527,7 +1527,7 @@ namespace dynamo {
 	  //Pack the system, determine the number of particles
 	  CURandom packroutine(vm["NCells"].as<unsigned long>(),
 			       Vector (1,1,1), Sim->uniform_sampler,
-			       new CUParticle());
+			       new UParticle());
 
 	  packroutine.initialise();
 
@@ -1552,7 +1552,7 @@ namespace dynamo {
 						new C2RAll(), "Bulk")));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpLines(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				   (new SpLines(Sim, new RAll(Sim), 1.0, "Bulk", 0,
 						particleDiam, "Bulk")));
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
@@ -1599,8 +1599,8 @@ namespace dynamo {
 	    chainlength = vm["i2"].as<size_t>();
 
 	  {
-	    boost::scoped_ptr<CUCell> packptr
-	      (new CURandomise(standardPackingHelper(new CUParticle())));
+	    boost::scoped_ptr<UCell> packptr
+	      (new CURandomise(standardPackingHelper(new UParticle())));
 
 	    packptr->initialise();
 
@@ -1625,11 +1625,11 @@ namespace dynamo {
 
 	  double particleDiamB = rodlength * particleDiam / chainlength;
 
-	  boost::scoped_ptr<CUCell> packptr
+	  boost::scoped_ptr<UCell> packptr
 	    (standardPackingHelper
-	     (new CUBinary(nPartA, new CUParticle(),
+	     (new CUBinary(nPartA, new UParticle(),
 			   new CUlinearRod(chainlength, 1.05 * particleDiamB,
-					   new CUParticle()))));
+					   new UParticle()))));
 
 	  packptr->initialise();
 
@@ -1644,7 +1644,7 @@ namespace dynamo {
 	  Sim->dynamics.addInteraction
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, particleDiam, 1.0,
-			      new C2RSingle(new CRRange(0, nPartA - 1)),
+			      new C2RSingle(new RRange(0, nPartA - 1)),
 			      "AAInt")));
 
 	  Sim->dynamics.addInteraction
@@ -1652,8 +1652,8 @@ namespace dynamo {
 	     (new IHardSphere(Sim, (particleDiam + particleDiamB) / 2.0,
 			      1.0,
 			      new C2RPair
-			      (new CRRange(0, nPartA - 1),
-			       new CRRange(nPartA, latticeSites.size()-1)),
+			      (new RRange(0, nPartA - 1),
+			       new RRange(nPartA, latticeSites.size()-1)),
 			      "ABInt")));
 
 	  Sim->dynamics.addInteraction
@@ -1676,11 +1676,11 @@ namespace dynamo {
 			      new C2RAll(), "BBInt")));
 	     
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRRange(0, nPartA - 1), 1.0, "A", 0,
+				   (new SpPoint(Sim, new RRange(0, nPartA - 1), 1.0, "A", 0,
 						"AAInt")));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRRange(nPartA, latticeSites.size()-1),
+				   (new SpPoint(Sim, new RRange(nPartA, latticeSites.size()-1),
 						massFrac / chainlength, "B", 0, "BBInt")));
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
@@ -1713,7 +1713,7 @@ namespace dynamo {
 	  if (!vm.count("i1") || vm["i1"].as<size_t>() != 2)
 	    M_throw() << "You should initialise cubes with simple cubic packing \"--i1 2\"";
 
-	  boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
 	  std::vector<Vector>
@@ -1745,17 +1745,17 @@ namespace dynamo {
 	  if (vm.count("b2"))
 	    {
 	      Sim->dynamics.addLocal(shared_ptr<Local>
-				     (new CLDblWall(Sim, 1.0, Vector(1,0,0),
+				     (new LDblWall(Sim, 1.0, Vector(1,0,0),
 						    Vector(0,0,0),
-						    "Wall1", new CRAll(Sim))));
+						    "Wall1", new RAll(Sim))));
 	      Sim->dynamics.addLocal(shared_ptr<Local>
-				     (new CLDblWall(Sim, 1.0, Vector(0,1,0),
+				     (new LDblWall(Sim, 1.0, Vector(0,1,0),
 						    Vector(0,0,0),
-						    "Wall2", new CRAll(Sim))));
+						    "Wall2", new RAll(Sim))));
 	      Sim->dynamics.addLocal(shared_ptr<Local>
-				     (new CLDblWall(Sim, 1.0, Vector(0,0,1),
+				     (new LDblWall(Sim, 1.0, Vector(0,0,1),
 						    Vector(0,0,0),
-						    "Wall3", new CRAll(Sim))));
+						    "Wall3", new RAll(Sim))));
 	    }
 
 	  Sim->dynamics.addInteraction
@@ -1763,7 +1763,7 @@ namespace dynamo {
 	     (new IParallelCubes(Sim, particleDiam, 1.0, new C2RAll(), "Bulk")));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRAll(Sim), 1.0,
+				   (new SpPoint(Sim, new RAll(Sim), 1.0,
 						"Bulk", 0, "Bulk")));
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
@@ -1831,7 +1831,7 @@ namespace dynamo {
 	      exit(1);
 	    }
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
 	  std::vector<Vector  >
@@ -1929,7 +1929,7 @@ namespace dynamo {
 	     (new IStepped(Sim, diamvec, new C2RAll(), "Bulk")));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				   (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
 	  unsigned long nParticles = 0;
@@ -1956,7 +1956,7 @@ namespace dynamo {
 	      exit(1);
 	    }
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
 	  std::vector<Vector>
@@ -2015,12 +2015,12 @@ namespace dynamo {
 	  //No thermostat added yet
 	  Sim->dynamics.addSystem
 	    (shared_ptr<System>
-	     (new CSRingDSMC(Sim, particleDiam,
+	     (new SysRingDSMC(Sim, particleDiam,
 			     2.0 * tij / latticeSites.size(), chi12, chi13, 1.0,
-			     "RingDSMC", new CRAll(Sim))));
+			     "RingDSMC", new RAll(Sim))));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				   (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
 	  unsigned long nParticles = 0;
@@ -2047,7 +2047,7 @@ namespace dynamo {
 	      exit(1);
 	    }
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
 	  std::vector<Vector>
@@ -2106,12 +2106,12 @@ namespace dynamo {
 	  //No thermostat added yet
 	  Sim->dynamics.addSystem
 	    (shared_ptr<System>
-	     (new CSRingDSMC(Sim, particleDiam,
+	     (new SysRingDSMC(Sim, particleDiam,
 			     2.0 * tij / latticeSites.size(), chi12, chi13, inelasticity,
-			     "RingDSMC", new CRAll(Sim))));
+			     "RingDSMC", new RAll(Sim))));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				   (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
 	  unsigned long nParticles = 0;
@@ -2197,32 +2197,32 @@ namespace dynamo {
 	  //The system starts at a full extention
 	  Vector particleCOM = Vector(Delta / boxL, 0, 0);
 
-	  CUCell* sysPack;
+	  UCell* sysPack;
 	  if (!vm.count("i1"))
-	    sysPack = new CUFCC(getCells(), particleArea, new CUParticle());
+	    sysPack = new CUFCC(getCells(), particleArea, new UParticle());
 	  else
 	    switch (vm["i1"].as<size_t>())
 	      {
 	      case 0:
 		{
-		  sysPack = new CUFCC(getCells(), particleArea, new CUParticle());
+		  sysPack = new CUFCC(getCells(), particleArea, new UParticle());
 		  break;
 		}
 	      case 1:
 		{
-		  sysPack = new CUBCC(getCells(), particleArea, new CUParticle());
+		  sysPack = new CUBCC(getCells(), particleArea, new UParticle());
 		  break;
 		}
 	      case 2:
 		{
-		  sysPack = new CUSC(getCells(), particleArea, new CUParticle());
+		  sysPack = new CUSC(getCells(), particleArea, new UParticle());
 		  break;
 		}
 	      default:
 		M_throw() << "Not a valid packing type (--i1)";
 	      }
 
-	  boost::scoped_ptr<CUCell> packptr(sysPack);
+	  boost::scoped_ptr<UCell> packptr(sysPack);
 	  packptr->initialise();
 
 	  std::vector<Vector>
@@ -2249,24 +2249,24 @@ namespace dynamo {
 	  Sim->dynamics.addLocal(shared_ptr<Local>
 				 (new LWall(Sim, PlateInelas, 0, Vector(0,0,1), 
 					    Vector(0, 0, -0.5 * Aspect),
-					    "Plate2", new CRAll(Sim))));
+					    "Plate2", new RAll(Sim))));
 
 	  Sim->dynamics.addLocal(shared_ptr<Local>
 				 (new LWall(Sim, PlateInelas, 0, Vector(0,0,-1), Vector(0, 0, +0.5 * Aspect),
-					    "Plate3", new CRAll(Sim))));
+					    "Plate3", new RAll(Sim))));
 	  
 	  Sim->dynamics.addLocal(shared_ptr<Local>
 				 (new LWall(Sim, PlateInelas, 0, Vector(0,+1,0), 
 					    Vector(0, -0.5 * Aspect, 0),
-					    "Plate4", new CRAll(Sim))));
+					    "Plate4", new RAll(Sim))));
 
 	  Sim->dynamics.addLocal(shared_ptr<Local>
 				 (new LWall(Sim, PlateInelas, 0, Vector(0,-1,0), 
 					    Vector(0, +0.5 * Aspect, 0),
-					    "Plate5", new CRAll(Sim))));
+					    "Plate5", new RAll(Sim))));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRAll(Sim), 1.0, 
+				   (new SpPoint(Sim, new RAll(Sim), 1.0, 
 						"Bulk", 0, "Bulk")));
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
@@ -2294,10 +2294,10 @@ namespace dynamo {
 
 	  Sim->dynamics.addLocal
 	    (shared_ptr<Local>
-	     (new CLOscillatingPlate(Sim, Vector(0,0,0), Vector(1,0,0), Omega0,
+	     (new LOscillatingPlate(Sim, Vector(0,0,0), Vector(1,0,0), Omega0,
 				     0.5 * L / boxL, PlateInelas, Delta / boxL, 
 				     MassRatio * nParticles, "Plate1", 
-				     new CRAll(Sim), 0.0, strongPlate)));
+				     new RAll(Sim), 0.0, strongPlate)));
 
 	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
@@ -2317,7 +2317,7 @@ namespace dynamo {
 	    }
 
 	  //Pack the system, determine the number of particles
-	  size_t N = boost::scoped_ptr<CUCell>(standardPackingHelper(new CUParticle()))
+	  size_t N = boost::scoped_ptr<UCell>(standardPackingHelper(new UParticle()))
 	    ->placeObjects(Vector(0,0,0)).size();
 
 	  if (vm.count("rectangular-box"))
@@ -2343,8 +2343,8 @@ namespace dynamo {
 	  if (!vm.count("s1"))
 	    M_throw() << "No triangle file name specified";
 
-	  boost::scoped_ptr<CUCell> 
-	    packptr(new CUTriangleIntersect(standardPackingHelper(new CUParticle()),
+	  boost::scoped_ptr<UCell> 
+	    packptr(new CUTriangleIntersect(standardPackingHelper(new UParticle()),
 					    overlapDiameter, vm["s1"].as<std::string>()));
 
 	  packptr->initialise();
@@ -2361,7 +2361,7 @@ namespace dynamo {
 	     (new IHardSphere(Sim, particleDiam, 1.0, new C2RAll(), "Bulk")));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				   (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
@@ -2389,7 +2389,7 @@ namespace dynamo {
 	      exit(1);
 	    }
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
 	  std::vector<Vector>
@@ -2444,9 +2444,9 @@ namespace dynamo {
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
 	  Sim->dynamics.addLocal(shared_ptr<Local>
-				 (new CLCylinder(Sim, 1.0, Vector(1,0,0), 
+				 (new LCylinder(Sim, 1.0, Vector(1,0,0), 
 						 Vector(0,0,0), cylRad , "Cylinder", 
-						 new CRAll(Sim), true)));
+						 new RAll(Sim), true)));
 
 
 	  Sim->dynamics.addInteraction
@@ -2454,7 +2454,7 @@ namespace dynamo {
 	     (new IHardSphere(Sim, particleDiam, 1.0, new C2RAll(), "Bulk")));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				   (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
@@ -2480,7 +2480,7 @@ namespace dynamo {
 	      exit(1);
 	    }
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 	
 	  std::vector<Vector>
@@ -2517,7 +2517,7 @@ namespace dynamo {
 	     (new IHardSphere(Sim, particleDiam, elasticity, new C2RAll(), "Bulk")));
 	
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				   (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 	
 	  //We actually shrink our lattice length scale by 0.999 and our
@@ -2527,7 +2527,7 @@ namespace dynamo {
 	  Sim->dynamics.addLocal(shared_ptr<Local>
 				 (new LWall(Sim, 1.0, 0, Vector(0,1,0), 
 					    Vector(0, - 0.9995 * 0.5 * Sim->primaryCellSize[1], 0),
-					    "GroundPlate", new CRAll(Sim))));
+					    "GroundPlate", new RAll(Sim))));
 	
 	  unsigned long nParticles = 0;
 	  Sim->particleList.reserve(latticeSites.size());
@@ -2642,10 +2642,10 @@ namespace dynamo {
 
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpFixedCollider(Sim, new CRRange(0, funnelSites.size()-1), "FunnelParticles", 
+				   (new SpFixedCollider(Sim, new RRange(0, funnelSites.size()-1), "FunnelParticles", 
 							0, "Bulk")));
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRRange(funnelSites.size(), 
+				   (new SpPoint(Sim, new RRange(funnelSites.size(), 
 								 funnelSites.size() + dynamicSites.size() - 1), 
 						1.0, "Bulk", 0, "Bulk")));
 
@@ -2706,7 +2706,7 @@ namespace dynamo {
 	  double diamScale = 1.0 / chainlength;
 
 	  CURandWalk sysPack(chainlength, (sigmin + 0.95 * (sigmax - sigmin))
-			     * diamScale, sigma * diamScale, new CUParticle());
+			     * diamScale, sigma * diamScale, new UParticle());
 
 	  sysPack.initialise();
 
@@ -3210,16 +3210,16 @@ namespace dynamo {
 	  }
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRAll(Sim), 1.0, "Bulk", 0,
+				   (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
 	  Sim->dynamics.units().setUnitLength(diamScale);
 	  //Set the unit energy to 1 (assuming the unit of mass is 1);
 	  Sim->dynamics.units().setUnitTime(diamScale); 
 
-	  Sim->dynamics.addStructure(shared_ptr<Topology>(new CTChain(Sim, 1, "HelixPolymer")));
+	  Sim->dynamics.addStructure(shared_ptr<Topology>(new TChain(Sim, 1, "HelixPolymer")));
 
-	  Sim->dynamics.getTopology().back()->addMolecule(new CRAll(Sim));
+	  Sim->dynamics.getTopology().back()->addMolecule(new RAll(Sim));
 
 	  unsigned long nParticles = 0;
 
@@ -3433,10 +3433,10 @@ namespace dynamo {
 			      new C2RAll(), "Bulk")));
 	
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpFixedCollider(Sim, new CRRange(0, funnelSites.size()-1), "FunnelParticles", 
+				   (new SpFixedCollider(Sim, new RRange(0, funnelSites.size()-1), "FunnelParticles", 
 							0, "Bulk")));
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRRange(funnelSites.size(), 
+				   (new SpPoint(Sim, new RRange(funnelSites.size(), 
 								 funnelSites.size() + dynamicSites.size() - 1), 
 						1.0, "Bulk", 0, "Bulk")));
 
@@ -3444,7 +3444,7 @@ namespace dynamo {
 	    {
 	      Sim->dynamics.addSystem
 		(shared_ptr<System>(new SSleep(Sim, "Sleeper",
-					       new CRRange(funnelSites.size(),
+					       new RRange(funnelSites.size(),
 							   funnelSites.size()
 							   + dynamicSites.size() - 1),
 					       sleepV * Sim->dynamics.units().unitVelocity())));
@@ -3452,7 +3452,7 @@ namespace dynamo {
 	      if (wakeTime)
 		Sim->dynamics.addGlobal
 		  (shared_ptr<Global>(new GWaker(Sim, "Waker",
-						 new CRRange(funnelSites.size(),
+						 new RRange(funnelSites.size(),
 							     funnelSites.size()
 							     + dynamicSites.size() - 1),
 						 wakeTime * Sim->dynamics.units().unitTime(),
@@ -3504,7 +3504,7 @@ namespace dynamo {
 
 	  //FCC simple cubic pack of hard spheres with inelasticity and shearing
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<CUCell> packptr(standardPackingHelper(new CUParticle()));
+	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
 	  std::vector<Vector  >
@@ -3571,7 +3571,7 @@ namespace dynamo {
 	     (new IHardSphere(Sim, "D", elasticity, new C2RAll(), "Bulk")));
 
 	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new CRAll(Sim), "M", "Bulk", 0, "Bulk")));
+				   (new SpPoint(Sim, new RAll(Sim), "M", "Bulk", 0, "Bulk")));
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
 
@@ -3597,7 +3597,7 @@ namespace dynamo {
   }
 
   Vector
-  CIPPacker::getNormalisedCellDimensions()
+  IPPacker::getNormalisedCellDimensions()
   {
     std::tr1::array<long, 3> cells = getCells();
     size_t maxdim = 0;
@@ -3616,10 +3616,10 @@ namespace dynamo {
     return retval;
   }
 
-  CUCell*
-  CIPPacker::standardPackingHelper(CUCell* tmpPtr, bool forceRectangular)
+  UCell*
+  IPPacker::standardPackingHelper(UCell* tmpPtr, bool forceRectangular)
   {
-    CUCell* sysPack;
+    UCell* sysPack;
 
     Vector  boxDimensions(1,1,1);
 
@@ -3657,7 +3657,7 @@ namespace dynamo {
   }
 
   std::tr1::array<long, 3>
-  CIPPacker::getCells()
+  IPPacker::getCells()
   {
     long NCells = vm["NCells"].as<unsigned long>();
     std::tr1::array<long, 3> cells = {{NCells, NCells, NCells}};
@@ -3675,7 +3675,7 @@ namespace dynamo {
   }
 
   Vector
-  CIPPacker::getRandVelVec()
+  IPPacker::getRandVelVec()
   {
     //See http://mathworld.wolfram.com/SpherePointPicking.html
     boost::normal_distribution<double> normdist(0.0, (1.0 / sqrt(double(NDIM))));

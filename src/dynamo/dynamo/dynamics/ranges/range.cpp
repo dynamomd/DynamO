@@ -20,25 +20,25 @@
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  CRange* 
-  CRange::getClass(const magnet::xml::Node& XML, const dynamo::SimData * Sim)
+  Range* 
+  Range::getClass(const magnet::xml::Node& XML, const dynamo::SimData * Sim)
   {
     if (!strcmp(XML.getAttribute("Range"),"All"))
-      return new CRAll(XML, Sim);
+      return new RAll(XML, Sim);
     else if (!strcmp(XML.getAttribute("Range"),"None"))
-      return new CRNone(XML);
+      return new RNone(XML);
     else if (!strcmp(XML.getAttribute("Range"),"Single"))
-      return new CRSingle(XML);
+      return new RSingle(XML);
     else if (!strcmp(XML.getAttribute("Range"),"Ranged"))
-      return new CRRange(XML);
+      return new RRange(XML);
     else if (!strcmp(XML.getAttribute("Range"),"List"))
-      return new CRList(XML);
+      return new RList(XML);
     else 
       M_throw() << XML.getAttribute("Range")
 		<< ", Unknown type of Range encountered";
   }
 
-  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const CRange&g)
+  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Range&g)
   {
     g.outputXML(XML);
     return XML;

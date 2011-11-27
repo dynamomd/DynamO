@@ -37,7 +37,7 @@
 
 namespace dynamo {
 
-  CSysGhost::CSysGhost(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
+  SysAndersen::SysAndersen(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
     System(tmp),
     meanFreeTime(100000),
     Temp(Sim->dynamics.units().unitEnergy()),
@@ -53,7 +53,7 @@ namespace dynamo {
     type = GAUSSIAN;
   }
 
-  CSysGhost::CSysGhost(dynamo::SimData* nSim, double mft, double t, 
+  SysAndersen::SysAndersen(dynamo::SimData* nSim, double mft, double t, 
 		       std::string nName):
     System(nSim),
     meanFreeTime(mft),
@@ -63,14 +63,14 @@ namespace dynamo {
     eventCount(0),
     lastlNColl(0),
     setFrequency(100),
-    range(new CRAll(Sim))
+    range(new RAll(Sim))
   {
     sysName = nName;
     type = GAUSSIAN;
   }
 
   void 
-  CSysGhost::runEvent() const
+  SysAndersen::runEvent() const
   {
     ++Sim->eventCount;
     ++eventCount;
@@ -123,7 +123,7 @@ namespace dynamo {
   }
 
   void 
-  CSysGhost::initialise(size_t nID)
+  SysAndersen::initialise(size_t nID)
   {
     ID = nID;
     meanFreeTime /= Sim->N;
@@ -132,7 +132,7 @@ namespace dynamo {
   }
 
   void 
-  CSysGhost::operator<<(const magnet::xml::Node& XML)
+  SysAndersen::operator<<(const magnet::xml::Node& XML)
   {
     if (strcmp(XML.getAttribute("Type"),"Andersen"))
       M_throw() << "Attempting to load Andersen from non Andersen entry"; 
@@ -149,7 +149,7 @@ namespace dynamo {
 	  setPoint = boost::lexical_cast<double>(XML.getAttribute("SetPoint"));
 	}
 
-      range = shared_ptr<CRange>(CRange::getClass(XML,Sim));
+      range = shared_ptr<Range>(Range::getClass(XML,Sim));
     }
     catch (boost::bad_lexical_cast &)
       {
@@ -158,7 +158,7 @@ namespace dynamo {
   }
 
   void 
-  CSysGhost::outputXML(magnet::xml::XmlStream& XML) const
+  SysAndersen::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::tag("System")
 	<< magnet::xml::attr("Type") << "Andersen"
@@ -178,20 +178,20 @@ namespace dynamo {
   }
 
   double 
-  CSysGhost::getGhostt() const
+  SysAndersen::getGhostt() const
   { 
     return  - meanFreeTime * log(1 - Sim->uniform_sampler());
   }
 
   double 
-  CSysGhost::getReducedTemperature() const
+  SysAndersen::getReducedTemperature() const
   {
     return Temp / Sim->dynamics.units().unitEnergy();
   }
 
 
   void 
-  CSysGhost::setReducedTemperature(double nT)
+  SysAndersen::setReducedTemperature(double nT)
   {
     Temp = nT * Sim->dynamics.units().unitEnergy(); 
   }

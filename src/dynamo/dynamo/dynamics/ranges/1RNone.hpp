@@ -20,12 +20,12 @@
 #include <dynamo/base/is_simdata.hpp>
 
 namespace dynamo {
-  class CRNone: public CRange
+  class RNone: public Range
   {
   public:
-    CRNone() {}
+    RNone() {}
 
-    CRNone(const magnet::xml::Node&);
+    RNone(const magnet::xml::Node&);
 
     virtual bool isInRange(const Particle&) const
     { return false; }
@@ -35,9 +35,9 @@ namespace dynamo {
 
     virtual unsigned long size() const { return 0; }
 
-    virtual iterator begin() const { return CRange::iterator(0, this); }
+    virtual iterator begin() const { return Range::iterator(0, this); }
 
-    virtual iterator end() const { return CRange::iterator(0, this); }
+    virtual iterator end() const { return Range::iterator(0, this); }
 
     virtual unsigned long operator[](unsigned long i) const  
     {

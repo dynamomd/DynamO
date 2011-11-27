@@ -101,10 +101,10 @@ namespace dynamo {
       Sim.setnPrint(vm["ncoll"].as<unsigned long long>());
     
     if (vm.count("halt-time"))
-      Sim.addSystem(shared_ptr<System>(new CStHalt(&Sim, vm["halt-time"].as<double>(), "SystemHaltEvent")));
+      Sim.addSystem(shared_ptr<System>(new SystHalt(&Sim, vm["halt-time"].as<double>(), "SystemHaltEvent")));
 
     if (vm.count("scheduler-maintainance"))
-      Sim.addSystem(shared_ptr<System>(new CSSchedMaintainer(&Sim, vm["scheduler-maintainance"].as<double>(), "SchedulerRebuilder")));
+      Sim.addSystem(shared_ptr<System>(new SysSchedMaintainer(&Sim, vm["scheduler-maintainance"].as<double>(), "SchedulerRebuilder")));
 
 #ifdef DYNAMO_visualizer
     if (vm.count("visualizer"))

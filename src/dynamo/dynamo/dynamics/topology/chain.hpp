@@ -19,14 +19,14 @@
 #include <dynamo/dynamics/topology/topology.hpp>
 
 namespace dynamo {
-  class CTChain: public Topology
+  class TChain: public Topology
   {
   public:  
-    CTChain(const magnet::xml::Node&, dynamo::SimData*, unsigned int ID);
+    TChain(const magnet::xml::Node&, dynamo::SimData*, unsigned int ID);
 
-    CTChain(dynamo::SimData*, unsigned int ID, std::string);
+    TChain(dynamo::SimData*, unsigned int ID, std::string);
 
-    virtual ~CTChain() {}
+    virtual ~TChain() {}
   
     virtual void operator<<(const magnet::xml::Node&) {}
 

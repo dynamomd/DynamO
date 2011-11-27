@@ -31,7 +31,7 @@ namespace dynamo {
   void 
   C2RAll::operator<<(const magnet::xml::Node&)
   {
-    M_throw() << "Due to problems with CRAll C2RAll operator<< cannot work for this class";
+    M_throw() << "Due to problems with RAll C2RAll operator<< cannot work for this class";
   }
 
   void 

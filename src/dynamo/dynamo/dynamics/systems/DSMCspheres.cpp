@@ -35,7 +35,7 @@
 #endif
 
 namespace dynamo {
-  CSDSMCSpheres::CSDSMCSpheres(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
+  SysDSMCSpheres::SysDSMCSpheres(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
     System(tmp),
     maxprob(0.0)
   {
@@ -44,8 +44,8 @@ namespace dynamo {
     type = DSMC;
   }
 
-  CSDSMCSpheres::CSDSMCSpheres(dynamo::SimData* nSim, double nd, double ntstp, double nChi, 
-			       double ne, std::string nName, CRange* r1, CRange* r2):
+  SysDSMCSpheres::SysDSMCSpheres(dynamo::SimData* nSim, double nd, double ntstp, double nChi, 
+			       double ne, std::string nName, Range* r1, Range* r2):
     System(nSim),
     tstep(ntstp),
     chi(nChi),
@@ -61,7 +61,7 @@ namespace dynamo {
   }
 
   void 
-  CSDSMCSpheres::runEvent() const
+  SysDSMCSpheres::runEvent() const
   {
     double locdt = dt;
   
@@ -143,7 +143,7 @@ namespace dynamo {
   }
 
   void
-  CSDSMCSpheres::initialise(size_t nID)
+  SysDSMCSpheres::initialise(size_t nID)
   {
     ID = nID;
     dt = tstep;
@@ -200,7 +200,7 @@ namespace dynamo {
   }
 
   void
-  CSDSMCSpheres::operator<<(const magnet::xml::Node& XML)
+  SysDSMCSpheres::operator<<(const magnet::xml::Node& XML)
   {
     if (strcmp(XML.getAttribute("Type"),"DSMCSpheres"))
       M_throw() << "Attempting to load DSMCSpheres from a " << XML.getAttribute("Type") <<  " entry"; 
@@ -212,8 +212,8 @@ namespace dynamo {
       diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
       e = XML.getAttribute("Inelasticity").as<double>();
       d2 = diameter * diameter;
-      range1 = shared_ptr<CRange>(CRange::getClass(XML.getNode("Range1"), Sim));
-      range2 = shared_ptr<CRange>(CRange::getClass(XML.getNode("Range2"), Sim));
+      range1 = shared_ptr<Range>(Range::getClass(XML.getNode("Range1"), Sim));
+      range2 = shared_ptr<Range>(Range::getClass(XML.getNode("Range2"), Sim));
       if (XML.hasAttribute("MaxProbability"))
 	maxprob = XML.getAttribute("MaxProbability").as<double>();
     }
@@ -224,7 +224,7 @@ namespace dynamo {
   }
 
   void 
-  CSDSMCSpheres::outputXML(magnet::xml::XmlStream& XML) const
+  SysDSMCSpheres::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::tag("System")
 	<< magnet::xml::attr("Type") << "DSMCSpheres"

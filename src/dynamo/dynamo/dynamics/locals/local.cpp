@@ -26,10 +26,10 @@
 namespace dynamo {
   Local::Local(dynamo::SimData* tmp, const char *name):
     SimBase(tmp,name),
-    range(new CRAll(tmp))
+    range(new RAll(tmp))
   {}
 
-  Local::Local(CRange* nR, dynamo::SimData* tmp, const char *name):
+  Local::Local(Range* nR, dynamo::SimData* tmp, const char *name):
     SimBase(tmp, name),
     range(nR)
   {}
@@ -57,15 +57,15 @@ namespace dynamo {
     else if (!strcmp(XML.getAttribute("Type"),"TriangleMesh"))
       return shared_ptr<Local>(new LTriangleMesh(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"AndersenWall"))
-      return shared_ptr<Local>(new CLAndersenWall(XML, Sim));
+      return shared_ptr<Local>(new LAndersenWall(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"DoubleWall"))
-      return shared_ptr<Local>(new CLDblWall(XML, Sim));
+      return shared_ptr<Local>(new LDblWall(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"OscillatingPlate"))
-      return shared_ptr<Local>(new CLOscillatingPlate(XML, Sim));
+      return shared_ptr<Local>(new LOscillatingPlate(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"CylinderWall"))
-      return shared_ptr<Local>(new CLCylinder(XML, Sim));
+      return shared_ptr<Local>(new LCylinder(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"SphereWall"))
-      return shared_ptr<Local>(new CLSphere(XML, Sim));
+      return shared_ptr<Local>(new LSphere(XML, Sim));
     else 
       M_throw() << XML.getAttribute("Type")
 		<< ", Unknown type of Local Interaction encountered";

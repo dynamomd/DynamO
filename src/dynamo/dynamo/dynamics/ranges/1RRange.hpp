@@ -21,11 +21,11 @@
 #include <magnet/exception.hpp>
 
 namespace dynamo {
-  class CRRange: public CRange
+  class RRange: public Range
   {
   public:
-    CRRange(const magnet::xml::Node&);
-    CRRange(unsigned int s, unsigned int e):startID(s),endID(e) {}
+    RRange(const magnet::xml::Node&);
+    RRange(unsigned int s, unsigned int e):startID(s),endID(e) {}
 
     inline virtual bool isInRange(const Particle& part) const
     {
@@ -42,9 +42,9 @@ namespace dynamo {
     unsigned long getStart() { return startID; }
     unsigned long getEnd() { return endID; }
   
-    virtual iterator begin() const { return CRange::iterator(startID, this); }
+    virtual iterator begin() const { return Range::iterator(startID, this); }
 
-    virtual iterator end() const { return CRange::iterator(endID+1, this); }
+    virtual iterator end() const { return Range::iterator(endID+1, this); }
 
     virtual unsigned long operator[](unsigned long i) const  
     { return startID + i; }

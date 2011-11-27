@@ -23,12 +23,12 @@
 #include <boost/random/uniform_real.hpp>
 
 namespace dynamo {
-  class CSUmbrella: public System
+  class SysUmbrella: public System
   {
   public:
-    CSUmbrella(const magnet::xml::Node& XML, dynamo::SimData*);
+    SysUmbrella(const magnet::xml::Node& XML, dynamo::SimData*);
 
-    CSUmbrella(dynamo::SimData*, double, double, double, std::string, CRange*, CRange*);
+    SysUmbrella(dynamo::SimData*, double, double, double, std::string, Range*, Range*);
   
     virtual void runEvent() const;
 
@@ -48,7 +48,7 @@ namespace dynamo {
     mutable int ulevel;
     bool ulevelset;
 
-    shared_ptr<CRange> range1;
-    shared_ptr<CRange> range2;
+    shared_ptr<Range> range1;
+    shared_ptr<Range> range2;
   };
 }

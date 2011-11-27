@@ -25,17 +25,17 @@ namespace dynamo {
   public:
     C2RSingle(const magnet::xml::Node&, const dynamo::SimData*);
 
-    C2RSingle(CRange* r1):range(r1) {}
+    C2RSingle(Range* r1):range(r1) {}
   
     virtual bool isInRange(const Particle&, const Particle&) const;
   
     virtual void operator<<(const magnet::xml::Node&);
   
-    const shared_ptr<CRange>& getRange() const { return range; }
+    const shared_ptr<Range>& getRange() const { return range; }
 
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    shared_ptr<CRange> range;
+    shared_ptr<Range> range;
   };
 }

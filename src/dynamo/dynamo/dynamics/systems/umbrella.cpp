@@ -37,7 +37,7 @@
 
 namespace dynamo {
 
-  CSUmbrella::CSUmbrella(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
+  SysUmbrella::SysUmbrella(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
     System(tmp),
     a(1.0),
     b(1.0),
@@ -51,8 +51,8 @@ namespace dynamo {
     type = UMBRELLA;
   }
 
-  CSUmbrella::CSUmbrella(dynamo::SimData* nSim, double na, double nb, double ndelu, 
-			 std::string nName, CRange* r1, CRange* r2):
+  SysUmbrella::SysUmbrella(dynamo::SimData* nSim, double na, double nb, double ndelu, 
+			 std::string nName, Range* r1, Range* r2):
     System(nSim),
     a(na),
     b(nb),
@@ -68,7 +68,7 @@ namespace dynamo {
   }
 
   void 
-  CSUmbrella::runEvent() const
+  SysUmbrella::runEvent() const
   {
     double locdt = dt;
   
@@ -139,7 +139,7 @@ namespace dynamo {
   }
 
   void
-  CSUmbrella::initialise(size_t nID)
+  SysUmbrella::initialise(size_t nID)
   {
     ID = nID;
 
@@ -205,11 +205,11 @@ namespace dynamo {
 //    recalculateTime();
 //
 //    Sim->registerParticleUpdateFunc
-//      (magnet::function::MakeDelegate(this, &CSUmbrella::particlesUpdated));
+//      (magnet::function::MakeDelegate(this, &SysUmbrella::particlesUpdated));
   }
 
   void 
-  CSUmbrella::recalculateTime()
+  SysUmbrella::recalculateTime()
   {
     BOOST_FOREACH(const size_t& id, *range1)
       Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[id]);
@@ -279,7 +279,7 @@ namespace dynamo {
   }
 
   void 
-  CSUmbrella::particlesUpdated(const NEventData& PDat)
+  SysUmbrella::particlesUpdated(const NEventData& PDat)
   {
     BOOST_FOREACH(const ParticleEventData& pdat, PDat.L1partChanges)
       if (range1->isInRange(pdat.getParticle())
@@ -303,7 +303,7 @@ namespace dynamo {
   }
 
   void
-  CSUmbrella::operator<<(const magnet::xml::Node& XML)
+  SysUmbrella::operator<<(const magnet::xml::Node& XML)
   {
     if (strcmp(XML.getAttribute("Type"),"Umbrella"))
       M_throw() << "Attempting to load Umbrella from a " 
@@ -320,8 +320,8 @@ namespace dynamo {
 	* Sim->dynamics.units().unitLength();
 
       delU = XML.getAttribute("delU").as<double>() * Sim->dynamics.units().unitEnergy();
-      range1 = shared_ptr<CRange>(CRange::getClass(XML.getNode("Range1"), Sim));
-      range2 = shared_ptr<CRange>(CRange::getClass(XML.getNode("Range2"), Sim));
+      range1 = shared_ptr<Range>(Range::getClass(XML.getNode("Range1"), Sim));
+      range2 = shared_ptr<Range>(Range::getClass(XML.getNode("Range2"), Sim));
     
       if (XML.hasAttribute("currentulevel"))
 	{
@@ -331,11 +331,11 @@ namespace dynamo {
     
     }
     catch (boost::bad_lexical_cast &)
-      { M_throw() << "Failed a lexical cast in CSUmbrella"; }
+      { M_throw() << "Failed a lexical cast in SysUmbrella"; }
   }
 
   void 
-  CSUmbrella::outputXML(magnet::xml::XmlStream& XML) const
+  SysUmbrella::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::tag("System")
 	<< magnet::xml::attr("Type") << "Umbrella"

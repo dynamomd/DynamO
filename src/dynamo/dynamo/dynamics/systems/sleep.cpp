@@ -45,7 +45,7 @@ namespace dynamo {
     type = SLEEP;
   }
 
-  SSleep::SSleep(dynamo::SimData* nSim, std::string nName, CRange* r1, double sleepV):
+  SSleep::SSleep(dynamo::SimData* nSim, std::string nName, Range* r1, double sleepV):
     System(nSim),
     _range(r1),
     _sleepVelocity(sleepV)
@@ -85,7 +85,7 @@ namespace dynamo {
       _sleepVelocity = XML.getAttribute("SleepV").as<double>() * Sim->dynamics.units().unitVelocity();
       _sleepDistance = Sim->dynamics.units().unitLength() * 0.01;
       _sleepTime = Sim->dynamics.units().unitTime() * 0.0001;
-      _range = shared_ptr<CRange>(CRange::getClass(XML, Sim));
+      _range = shared_ptr<Range>(Range::getClass(XML, Sim));
     }
     catch (boost::bad_lexical_cast &)
       { M_throw() << "Failed a lexical cast in SSleep"; }

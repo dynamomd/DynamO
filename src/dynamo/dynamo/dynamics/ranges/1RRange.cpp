@@ -21,25 +21,25 @@
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  CRRange::CRRange(const magnet::xml::Node& XML) 
+  RRange::RRange(const magnet::xml::Node& XML) 
   { operator<<(XML); }
 
   void 
-  CRRange::operator<<(const magnet::xml::Node& XML)
+  RRange::operator<<(const magnet::xml::Node& XML)
   {
     if (strcmp(XML.getAttribute("Range"), "Ranged"))
-      M_throw() << "Attempting to load CRRange from non range";
+      M_throw() << "Attempting to load RRange from non range";
 
     try {
       startID = XML.getAttribute("Start").as<unsigned long>();
       endID = XML.getAttribute("End").as<unsigned long>();
     }
     catch (boost::bad_lexical_cast &)
-      { M_throw() << "Failed a lexical cast in CRRange"; }
+      { M_throw() << "Failed a lexical cast in RRange"; }
   }
 
   void 
-  CRRange::outputXML(magnet::xml::XmlStream& XML) const
+  RRange::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Range") << "Ranged"
 	<< magnet::xml::attr("Start") << startID

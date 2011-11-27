@@ -20,15 +20,15 @@
 #include <magnet/math/vector.hpp>
 
 namespace dynamo {
-  class CLAndersenWall: public Local
+  class LAndersenWall: public Local
   {
   public:
-    CLAndersenWall(const magnet::xml::Node&, dynamo::SimData*);
+    LAndersenWall(const magnet::xml::Node&, dynamo::SimData*);
 
-    CLAndersenWall(dynamo::SimData*, double, Vector , Vector , 
-		   std::string, CRange*);
+    LAndersenWall(dynamo::SimData*, double, Vector , Vector , 
+		   std::string, Range*);
 
-    virtual ~CLAndersenWall() {}
+    virtual ~LAndersenWall() {}
 
     virtual LocalEvent getEvent(const Particle &) const;
 

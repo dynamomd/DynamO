@@ -26,7 +26,7 @@
 #include <vector>
 
 namespace dynamo {
-  OPCContactMap::Cdata::Cdata(const CTChain* ptr, unsigned long nMolRange):
+  OPCContactMap::Cdata::Cdata(const TChain* ptr, unsigned long nMolRange):
     chainPtr(ptr),
     array(new unsigned long[nMolRange * nMolRange]),
     counter(0), chainlength(nMolRange)
@@ -43,8 +43,8 @@ namespace dynamo {
   OPCContactMap::initialise()
   {
     BOOST_FOREACH(const shared_ptr<Topology>& plugPtr, Sim->dynamics.getTopology())
-      if (std::tr1::dynamic_pointer_cast<CTChain>(plugPtr))
-	chains.push_back(Cdata(static_cast<const CTChain*>(plugPtr.get()), 
+      if (std::tr1::dynamic_pointer_cast<TChain>(plugPtr))
+	chains.push_back(Cdata(static_cast<const TChain*>(plugPtr.get()), 
 			       plugPtr->getMolecules().front()->size()));
   }
 
@@ -57,7 +57,7 @@ namespace dynamo {
       {
 	try {
 	  const Topology* tmpPtr = Sim->dynamics.getTopology(dat.chainPtr->getName()).get();
-	  dat.chainPtr = dynamic_cast<const CTChain*>(tmpPtr);
+	  dat.chainPtr = dynamic_cast<const TChain*>(tmpPtr);
 	} catch (std::exception&)
 	  {
 	    M_throw() << "On changing the system OPCContactMap could not find the topology \"" 
@@ -73,7 +73,7 @@ namespace dynamo {
   OPCContactMap::ticker()
   {
     BOOST_FOREACH(Cdata& dat,chains)
-      BOOST_FOREACH(const shared_ptr<CRange>& range,  dat.chainPtr->getMolecules())
+      BOOST_FOREACH(const shared_ptr<Range>& range,  dat.chainPtr->getMolecules())
       {
 	dat.counter++;
 	for (unsigned long i = 0; i < dat.chainlength; i++)

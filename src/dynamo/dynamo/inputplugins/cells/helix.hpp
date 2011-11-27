@@ -20,10 +20,10 @@
 #include <cmath>
 
 namespace dynamo {
-  struct CUHelix: public CUCell
+  struct CUHelix: public UCell
   {
-    CUHelix(long CL, long RL, double WL, double D, CUCell* nextCell):
-      CUCell(nextCell),
+    CUHelix(long CL, long RL, double WL, double D, UCell* nextCell):
+      UCell(nextCell),
       chainlength(CL),
       ringlength(RL),
       walklength(WL),

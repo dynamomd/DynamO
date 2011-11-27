@@ -68,15 +68,15 @@ namespace dynamo {
   System::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
   {
     if (!strcmp(XML.getAttribute("Type"),"Andersen"))
-      return shared_ptr<System>(new CSysGhost(XML,Sim));
+      return shared_ptr<System>(new SysAndersen(XML,Sim));
     else if (!strcmp(XML.getAttribute("Type"), "DSMCSpheres"))
-      return shared_ptr<System>(new CSDSMCSpheres(XML, Sim));
+      return shared_ptr<System>(new SysDSMCSpheres(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"), "Rescale"))
       return shared_ptr<System>(new SysRescale(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"), "RingDSMC"))
-      return shared_ptr<System>(new CSRingDSMC(XML, Sim));
+      return shared_ptr<System>(new SysRingDSMC(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"), "Umbrella"))
-      return shared_ptr<System>(new CSUmbrella(XML, Sim));
+      return shared_ptr<System>(new SysUmbrella(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"), "Sleep"))
       return shared_ptr<System>(new SSleep(XML, Sim));
     else

@@ -21,12 +21,12 @@
 #include <dynamo/dynamics/ranges/1range.hpp>
 
 namespace dynamo {
-  class CSysGhost: public System
+  class SysAndersen: public System
   {
   public:
-    CSysGhost(const magnet::xml::Node& XML, dynamo::SimData*);
+    SysAndersen(const magnet::xml::Node& XML, dynamo::SimData*);
 
-    CSysGhost(dynamo::SimData*, double, double, std::string);
+    SysAndersen(dynamo::SimData*, double, double, std::string);
   
     virtual void runEvent() const;
 
@@ -51,6 +51,6 @@ namespace dynamo {
 
     double getGhostt() const;
   
-    shared_ptr<CRange> range;
+    shared_ptr<Range> range;
   };
 }

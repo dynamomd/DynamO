@@ -20,10 +20,10 @@
 #include <cmath>
 
 namespace dynamo {
-  struct CUringRod: public CUCell
+  struct CUringRod: public UCell
   {
-    CUringRod(size_t pcl, double WL, CUCell* nextCell):
-      CUCell(nextCell),
+    CUringRod(size_t pcl, double WL, UCell* nextCell):
+      UCell(nextCell),
       pairchainlength(pcl),
       walklength(WL)
     {

@@ -23,9 +23,9 @@
 #include <dynamo/dynamics/liouvillean/shape.hpp>
 
 namespace dynamo {
-  class CCapsulesFunc : public CShape {
+  class SFCapsules : public ShapeFunc {
   public:
-    CCapsulesFunc(const Vector& nr12, const Vector& nv12,
+    SFCapsules(const Vector& nr12, const Vector& nv12,
 		  const Vector& nw1, const Vector& nw2, 
 		  const Vector& nu1, const Vector& nu2):
       w1(nw1), w2(nw2), u1(nu1), u2(nu2),

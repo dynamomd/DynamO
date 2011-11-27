@@ -45,7 +45,7 @@ namespace dynamo {
   void 
   Simulation::setTickerPeriod(double nP)
   {
-    CSTicker* ptr = dynamic_cast<CSTicker*>(getSystem("SystemTicker"));
+    SysTicker* ptr = dynamic_cast<SysTicker*>(getSystem("SystemTicker"));
     if (ptr == NULL)
       M_throw() << "Could not find system ticker (maybe not required?)";
 
@@ -55,7 +55,7 @@ namespace dynamo {
   void 
   Simulation::scaleTickerPeriod(double nP)
   {
-    CSTicker* ptr = dynamic_cast<CSTicker*>(getSystem("SystemTicker"));
+    SysTicker* ptr = dynamic_cast<SysTicker*>(getSystem("SystemTicker"));
 
     if (ptr == NULL)
       M_throw() << "Could not find system ticker (maybe not required?)";

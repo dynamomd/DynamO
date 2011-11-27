@@ -98,7 +98,7 @@ namespace dynamo {
   void
   OPStructureImaging::printImage()
   {
-    BOOST_FOREACH(const shared_ptr<CRange>& prange, Sim->dynamics.getTopology()[id]->getMolecules())
+    BOOST_FOREACH(const shared_ptr<Range>& prange, Sim->dynamics.getTopology()[id]->getMolecules())
       {
 	std::vector<Vector  > atomDescription;
 

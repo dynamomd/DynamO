@@ -19,10 +19,10 @@
 #include <dynamo/dynamics/systems/system.hpp>
 
 namespace dynamo {
-  class CStHalt: public System
+  class SystHalt: public System
   {
   public:
-    CStHalt(dynamo::SimData*, double, std::string);
+    SystHalt(dynamo::SimData*, double, std::string);
   
     virtual void runEvent() const;
 

@@ -72,7 +72,7 @@ namespace dynamo {
   void 
   C2RRing::operator<<(const magnet::xml::Node&)
   {
-    M_throw() << "Due to problems with CRAll C2RRing::operator<< cannot work for this class";
+    M_throw() << "Due to problems with RAll C2RRing::operator<< cannot work for this class";
   }
 
   void 

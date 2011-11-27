@@ -19,10 +19,10 @@
 #include "cell.hpp"
 
 namespace dynamo {
-  struct CUSC: public CUCell
+  struct CUSC: public UCell
   {
-    CUSC(std::tr1::array<long, 3> ncells, Vector  ndimensions, CUCell* nextCell):
-      CUCell(nextCell),
+    CUSC(std::tr1::array<long, 3> ncells, Vector  ndimensions, UCell* nextCell):
+      UCell(nextCell),
       cells(ncells),
       dimensions(ndimensions)
     {}

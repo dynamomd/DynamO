@@ -19,10 +19,10 @@
 #include <dynamo/dynamics/systems/system.hpp>
 
 namespace dynamo {
-  class CSNBListCompressionFix: public System
+  class SysNBListCompressionFix: public System
   {
   public:
-    CSNBListCompressionFix(dynamo::SimData*, double, size_t);
+    SysNBListCompressionFix(dynamo::SimData*, double, size_t);
   
     virtual void runEvent() const;
 
