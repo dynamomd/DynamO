@@ -88,8 +88,8 @@ namespace dynamo {
   {
     ++sampleCount;
   
-    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& sp1, Sim->dynamics.getSpecies())
-      BOOST_FOREACH(const std::tr1::shared_ptr<Species>& sp2, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& sp1, Sim->dynamics.getSpecies())
+      BOOST_FOREACH(const shared_ptr<Species>& sp2, Sim->dynamics.getSpecies())
       { BOOST_FOREACH(const size_t& p1, *sp1->getRange())
 	  BOOST_FOREACH(const size_t& p2, *sp2->getRange())
 	  {
@@ -113,8 +113,8 @@ namespace dynamo {
 	<< sampleCount;
 
   
-    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& sp1, Sim->dynamics.getSpecies())
-      BOOST_FOREACH(const std::tr1::shared_ptr<Species>& sp2, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& sp1, Sim->dynamics.getSpecies())
+      BOOST_FOREACH(const shared_ptr<Species>& sp2, Sim->dynamics.getSpecies())
       {
 	double density = sp2->getCount() / Sim->dynamics.getSimVolume();
 

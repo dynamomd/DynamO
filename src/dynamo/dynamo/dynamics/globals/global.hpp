@@ -76,7 +76,7 @@ namespace dynamo {
     /*! \brief Constructs a derived Global class according to the passed
      * XML Node.
      */
-    static std::tr1::shared_ptr<Global> getClass(const magnet::xml::Node&, dynamo::SimData*);
+    static shared_ptr<Global> getClass(const magnet::xml::Node&, dynamo::SimData*);
 
     /*! \brief Loads a derived class from a passed XML Node.
      */
@@ -99,7 +99,7 @@ namespace dynamo {
      */
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
-    std::tr1::shared_ptr<CRange> range;  
+    shared_ptr<CRange> range;  
     std::string globName;
     size_t ID;
   };

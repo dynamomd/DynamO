@@ -98,7 +98,7 @@ namespace dynamo {
  
     size_t nmax = static_cast<size_t>(intPart);
   
-    BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(*this, NEventData(), locdt);
 
     if (Sim->uniform_sampler() < fracpart)
@@ -135,7 +135,7 @@ namespace dynamo {
   
 	    Sim->ptrScheduler->fullUpdate(p1, p2);
 	  
-	    BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+	    BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
 	      Ptr->eventUpdate(*this, SDat, 0.0);
 	  }
       }
@@ -212,8 +212,8 @@ namespace dynamo {
       diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
       e = XML.getAttribute("Inelasticity").as<double>();
       d2 = diameter * diameter;
-      range1 = std::tr1::shared_ptr<CRange>(CRange::getClass(XML.getNode("Range1"), Sim));
-      range2 = std::tr1::shared_ptr<CRange>(CRange::getClass(XML.getNode("Range2"), Sim));
+      range1 = shared_ptr<CRange>(CRange::getClass(XML.getNode("Range1"), Sim));
+      range2 = shared_ptr<CRange>(CRange::getClass(XML.getNode("Range2"), Sim));
       if (XML.hasAttribute("MaxProbability"))
 	maxprob = XML.getAttribute("MaxProbability").as<double>();
     }

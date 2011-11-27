@@ -50,7 +50,7 @@ namespace dynamo {
   
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const System&);
   
-    static std::tr1::shared_ptr<System> getClass(const magnet::xml::Node&, dynamo::SimData*);
+    static shared_ptr<System> getClass(const magnet::xml::Node&, dynamo::SimData*);
   
     void setName(const std::string& tmp) { sysName = tmp; }
 

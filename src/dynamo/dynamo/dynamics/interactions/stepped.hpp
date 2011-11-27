@@ -62,9 +62,9 @@ namespace dynamo {
 
   protected:
     //!This class is used to track how the length scale changes in the system
-    std::tr1::shared_ptr<Property> _unitLength;
+    shared_ptr<Property> _unitLength;
     //!This class is used to track how the energy scale changes in the system
-    std::tr1::shared_ptr<Property> _unitEnergy;
+    shared_ptr<Property> _unitEnergy;
 
     std::vector<steppair> steps;
   };

@@ -45,7 +45,7 @@ namespace dynamo {
     double e;
     double factor;
 
-    std::tr1::shared_ptr<CRange> range1;
-    std::tr1::shared_ptr<CRange> range2;
+    shared_ptr<CRange> range1;
+    shared_ptr<CRange> range2;
   };
 }

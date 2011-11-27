@@ -47,7 +47,7 @@ namespace dynamo {
 		  << cxp.what();
       }
   
-    std::tr1::shared_ptr<GNeighbourList> nblist 
+    shared_ptr<GNeighbourList> nblist 
       = std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->dynamics.getGlobals()[NBListID]);
 
     if (!nblist)

@@ -89,7 +89,7 @@ namespace dynamo {
     locdt += Sim->freestreamAcc;
     Sim->freestreamAcc = 0;
 
-    BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(*this, NEventData(), locdt);
 
     //////////////////// T(1,2) operator
@@ -130,7 +130,7 @@ namespace dynamo {
 	    
 	      Sim->ptrScheduler->fullUpdate(p1, p2);
 	    
-	      BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+	      BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
 		Ptr->eventUpdate(*this, SDat, 0.0);
 	    }
 	}
@@ -182,7 +182,7 @@ namespace dynamo {
 	    
 	      Sim->ptrScheduler->fullUpdate(p1, p2);
 	    
-	      BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin>& Ptr, 
+	      BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, 
 			     Sim->outputPlugins)
 		Ptr->eventUpdate(*this, SDat, 0.0);
 	    }
@@ -302,7 +302,7 @@ namespace dynamo {
       diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
       e = XML.getAttribute("Inelasticity").as<double>();
       d2 = diameter * diameter;
-      range1 = std::tr1::shared_ptr<CRange>(CRange::getClass(XML.getNode("Range1"), Sim));
+      range1 = shared_ptr<CRange>(CRange::getClass(XML.getNode("Range1"), Sim));
 
       if (XML.hasAttribute("MaxProbability12"))
 	maxprob12 = XML.getAttribute("MaxProbability12").as<double>();

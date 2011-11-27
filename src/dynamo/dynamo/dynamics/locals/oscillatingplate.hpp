@@ -53,13 +53,13 @@ namespace dynamo {
     const Vector& getCentre() const { return rw0; }
 
 #ifdef DYNAMO_visualizer
-    virtual std::tr1::shared_ptr<coil::RenderObj> getCoilRenderObj() const;
+    virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const;
     virtual void updateRenderData() const;
 #endif
 
   protected:
 #ifdef DYNAMO_visualizer
-    mutable std::tr1::shared_ptr<coil::RFunction> _renderObj;
+    mutable shared_ptr<coil::RFunction> _renderObj;
 #endif
 
     virtual void outputXML(magnet::xml::XmlStream&) const;

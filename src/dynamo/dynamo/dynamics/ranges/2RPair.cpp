@@ -25,8 +25,8 @@ namespace dynamo {
     if (strcmp(XML.getAttribute("Range"), "Pair"))
       M_throw() << "Attempting to load a pair from a non pair";
   
-    range1 = std::tr1::shared_ptr<CRange>(CRange::getClass(XML.getNode("Range1"), Sim));
-    range2 = std::tr1::shared_ptr<CRange>(CRange::getClass(XML.getNode("Range2"), Sim));
+    range1 = shared_ptr<CRange>(CRange::getClass(XML.getNode("Range1"), Sim));
+    range2 = shared_ptr<CRange>(CRange::getClass(XML.getNode("Range2"), Sim));
   }
 
   bool 

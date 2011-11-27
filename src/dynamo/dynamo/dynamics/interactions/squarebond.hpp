@@ -62,8 +62,8 @@ namespace dynamo {
 
   protected:
 
-    std::tr1::shared_ptr<Property> _diameter;
-    std::tr1::shared_ptr<Property> _lambda;
-    std::tr1::shared_ptr<Property> _e;
+    shared_ptr<Property> _diameter;
+    shared_ptr<Property> _lambda;
+    shared_ptr<Property> _e;
   };
 }

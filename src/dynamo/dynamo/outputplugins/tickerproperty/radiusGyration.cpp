@@ -64,7 +64,7 @@ namespace dynamo {
   void 
   OPRGyration::initialise()
   {
-    BOOST_FOREACH(const std::tr1::shared_ptr<Topology>& plugPtr, Sim->dynamics.getTopology())
+    BOOST_FOREACH(const shared_ptr<Topology>& plugPtr, Sim->dynamics.getTopology())
       if (std::tr1::dynamic_pointer_cast<CTChain>(plugPtr))
 	chains.push_back(CTCdata(static_cast<const CTChain*>(plugPtr.get()), 
 				 binwidth1 * Sim->dynamics.units().unitArea(), binwidth2, binwidth3));
@@ -96,7 +96,7 @@ namespace dynamo {
   }
 
   OPRGyration::molGyrationDat
-  OPRGyration::getGyrationEigenSystem(const std::tr1::shared_ptr<CRange>& range, const dynamo::SimData* Sim)
+  OPRGyration::getGyrationEigenSystem(const shared_ptr<CRange>& range, const dynamo::SimData* Sim)
   {
     //Determine the centre of mass. Watch for periodic images
     Vector  tmpVec;  
@@ -307,7 +307,7 @@ namespace dynamo {
       {
 	std::list<Vector  > molAxis;
 
-	BOOST_FOREACH(const std::tr1::shared_ptr<CRange>& range,  dat.chainPtr->getMolecules())
+	BOOST_FOREACH(const shared_ptr<CRange>& range,  dat.chainPtr->getMolecules())
 	  {
 	    molGyrationDat vals = getGyrationEigenSystem(range, Sim);	  
 	    //Take the largest eigenvector as the molecular axis
@@ -346,7 +346,7 @@ namespace dynamo {
 
 	std::list<Vector  > molAxis;
 
-	BOOST_FOREACH(const std::tr1::shared_ptr<CRange>& range,  dat.chainPtr->getMolecules())
+	BOOST_FOREACH(const shared_ptr<CRange>& range,  dat.chainPtr->getMolecules())
 	  molAxis.push_back(getGyrationEigenSystem(range, Sim).EigenVec[NDIM-1]);
 
 	Vector  EigenVal = NematicOrderParameter(molAxis);

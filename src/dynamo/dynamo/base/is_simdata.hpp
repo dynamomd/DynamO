@@ -86,9 +86,9 @@ namespace dynamo
      * Throws an exception if there's already the same plugin loaded.
      */
     template<class T>
-    std::tr1::shared_ptr<const T> getOutputPlugin() const
+    shared_ptr<const T> getOutputPlugin() const
     {
-      BOOST_FOREACH(const std::tr1::shared_ptr<OutputPlugin>& plugin, 
+      BOOST_FOREACH(const shared_ptr<OutputPlugin>& plugin, 
 		    outputPlugins)
 	if (std::tr1::dynamic_pointer_cast<const T>(plugin))
 	  return std::tr1::static_pointer_cast<const T>(plugin);
@@ -103,9 +103,9 @@ namespace dynamo
      * exception if it can't find the plugin.
      */
     template<class T>
-    std::tr1::shared_ptr<T> getOutputPlugin()
+    shared_ptr<T> getOutputPlugin()
     {
-      BOOST_FOREACH(const std::tr1::shared_ptr<OutputPlugin>& plugin, 
+      BOOST_FOREACH(const shared_ptr<OutputPlugin>& plugin, 
 		    outputPlugins)
 	if (std::tr1::dynamic_pointer_cast<T>(plugin))
 	  return std::tr1::static_pointer_cast<T>(plugin);
@@ -132,7 +132,7 @@ namespace dynamo
     void writeXMLfile(std::string filename, bool applyBC = true, bool round = false);
 
     /*! \brief The Ensemble of the Simulation. */
-    std::tr1::shared_ptr<Ensemble> ensemble;
+    shared_ptr<Ensemble> ensemble;
 
     /*! \brief The current system time of the simulation. 
      * 
@@ -175,7 +175,7 @@ namespace dynamo
     std::ostringstream ssHistory;
 
     /*! \brief A ptr to the Scheduler of the system. */
-    std::tr1::shared_ptr<Scheduler> ptrScheduler;
+    shared_ptr<Scheduler> ptrScheduler;
 
     /*! \brief The Dynamics of the system. */
     Dynamics dynamics;
@@ -200,7 +200,7 @@ namespace dynamo
 
     /*! \brief The collection of OutputPlugin's operating on this system.
      */
-    std::vector<std::tr1::shared_ptr<OutputPlugin> > outputPlugins; 
+    std::vector<shared_ptr<OutputPlugin> > outputPlugins; 
 
     /*! \brief The mean free time of the previous simulation run
      *

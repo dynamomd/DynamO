@@ -37,7 +37,7 @@ namespace dynamo {
     ptrOPMSD = Sim->getOutputPlugin<OPMSD>();
 
     //Now cache a local list of the topology
-    BOOST_FOREACH(const std::tr1::shared_ptr<Topology>& topo, Sim->dynamics.getTopology())
+    BOOST_FOREACH(const shared_ptr<Topology>& topo, Sim->dynamics.getTopology())
       {
 	localpair2 tmpPair;
 	tmpPair.first = topo.get();
@@ -55,7 +55,7 @@ namespace dynamo {
     BOOST_FOREACH(localpair2& dat, structResults)
       dat.second.push_back(std::make_pair(Sim->dSysTime, ptrOPMSD->calcStructMSD(*dat.first)));
 
-    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& sp, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->dynamics.getSpecies())
       speciesData[sp->getID()].push_back(std::make_pair(Sim->dSysTime, ptrOPMSD->calcMSD(*(sp->getRange()))));
   }
 
@@ -64,7 +64,7 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("PeriodicMSD");
   
-    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& sp, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->dynamics.getSpecies())
       {
 	XML << magnet::xml::tag("Species") 
 	    << magnet::xml::attr("Name") << sp->getName()

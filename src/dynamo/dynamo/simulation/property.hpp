@@ -23,7 +23,6 @@
 #include <string>
 #include <algorithm>
 #include <cmath>
-#include <tr1/memory>
 
 namespace dynamo {
   //! \brief A interface class which allows other classes to access a property
@@ -211,7 +210,7 @@ namespace dynamo {
    */
   class PropertyStore
   {
-    typedef std::tr1::shared_ptr<Property> Value;
+    typedef shared_ptr<Property> Value;
     typedef std::vector<Value> Container;
   
     //!\brief Contains the NumericProperty's that are defined by their
@@ -357,7 +356,7 @@ namespace dynamo {
      * PropertyStore is using the \ref getProperty methods.
      */
     template<class T>
-    inline Value push(std::tr1::shared_ptr<T> newProp)
+    inline Value push(shared_ptr<T> newProp)
     {
       if (dynamic_cast<NumericProperty*>(newProp.get()))
 	{

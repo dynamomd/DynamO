@@ -73,7 +73,7 @@ namespace dynamo {
       globName = XML.getAttribute("Name");
 
       if (XML.hasAttribute("Range"))
-	range = std::tr1::shared_ptr<CRange>(CRange::getClass(XML, Sim));
+	range = shared_ptr<CRange>(CRange::getClass(XML, Sim));
     }
     catch(...)
       {
@@ -367,7 +367,7 @@ namespace dynamo {
 	    Vector pos = calcPosition(coords);
 	  
 	    //We make the box slightly larger to ensure objects on the boundary are included
-	    BOOST_FOREACH(const std::tr1::shared_ptr<Local>& local, Sim->dynamics.getLocals())
+	    BOOST_FOREACH(const shared_ptr<Local>& local, Sim->dynamics.getLocals())
 	      if (local->isInCell(pos - 0.0001 * cellDimension, 1.0002 * cellDimension))
 		cells[id].push_back(local->getID());
 	  }

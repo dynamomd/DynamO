@@ -26,19 +26,19 @@
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  std::tr1::shared_ptr<Ensemble>
+  shared_ptr<Ensemble>
   Ensemble::getClass(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
   {
     if (!strcmp(XML.getAttribute("Type"), "NVT"))
-      return std::tr1::shared_ptr<Ensemble>(new EnsembleNVT(Sim));
+      return shared_ptr<Ensemble>(new EnsembleNVT(Sim));
     else if (!strcmp(XML.getAttribute("Type"), "NVE"))
-      return std::tr1::shared_ptr<Ensemble>(new EnsembleNVE(Sim));
+      return shared_ptr<Ensemble>(new EnsembleNVE(Sim));
     else if (!strcmp(XML.getAttribute("Type"), "NVShear"))
-      return std::tr1::shared_ptr<Ensemble>(new EnsembleNVShear(Sim));
+      return shared_ptr<Ensemble>(new EnsembleNVShear(Sim));
     else if (!strcmp(XML.getAttribute("Type"), "NECompression"))
-      return std::tr1::shared_ptr<Ensemble>(new EnsembleNECompression(Sim));
+      return shared_ptr<Ensemble>(new EnsembleNECompression(Sim));
     else if (!strcmp(XML.getAttribute("Type"), "NTCompression"))
-      return std::tr1::shared_ptr<Ensemble>(new EnsembleNTCompression(Sim));
+      return shared_ptr<Ensemble>(new EnsembleNTCompression(Sim));
     else
       M_throw() << "Cannot correctly identify the ensemble";
   }

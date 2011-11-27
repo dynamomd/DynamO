@@ -83,7 +83,7 @@ namespace dynamo {
     Sim->dynamics.getLiouvillean().updateParticle(part);
 
     //Add the global events
-    BOOST_FOREACH(const std::tr1::shared_ptr<Global>& glob, Sim->dynamics.getGlobals())
+    BOOST_FOREACH(const shared_ptr<Global>& glob, Sim->dynamics.getGlobals())
       if (glob->isInteraction(part))
 	sorter->push(glob->getEvent(part), part.getID());
   
@@ -96,17 +96,17 @@ namespace dynamo {
       (part, magnet::function::MakeDelegate(this, &Scheduler::addInteractionEvent));
   }
 
-  std::tr1::shared_ptr<Scheduler>
+  shared_ptr<Scheduler>
   Scheduler::getClass(const magnet::xml::Node& XML, dynamo::SimData* const Sim)
   {
     if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
-      return std::tr1::shared_ptr<Scheduler>(new SNeighbourList(XML, Sim));
+      return shared_ptr<Scheduler>(new SNeighbourList(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"Dumb"))
-      return std::tr1::shared_ptr<Scheduler>(new SDumb(XML, Sim));
+      return shared_ptr<Scheduler>(new SDumb(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"SystemOnly"))
-      return std::tr1::shared_ptr<Scheduler>(new SSystemOnly(XML, Sim));
+      return shared_ptr<Scheduler>(new SSystemOnly(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"Complex"))
-      return std::tr1::shared_ptr<Scheduler>(new SComplex(XML, Sim));
+      return shared_ptr<Scheduler>(new SComplex(XML, Sim));
     else 
       M_throw() << XML.getAttribute("Type")
 		<< ", Unknown type of Scheduler encountered";
@@ -124,7 +124,7 @@ namespace dynamo {
   {
     sorter->clearPEL(Sim->N);
 
-    BOOST_FOREACH(const std::tr1::shared_ptr<System>& sysptr, 
+    BOOST_FOREACH(const shared_ptr<System>& sysptr, 
 		  Sim->dynamics.getSystemEvents())
       sorter->push(intPart(sysptr->getdt(), SYSTEM, sysptr->getID(), 0), Sim->N);
 

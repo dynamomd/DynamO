@@ -55,6 +55,6 @@ namespace dynamo {
     mutable unsigned long n12;
     mutable unsigned long n13;
 
-    std::tr1::shared_ptr<CRange> range1;
+    shared_ptr<CRange> range1;
   };
 }

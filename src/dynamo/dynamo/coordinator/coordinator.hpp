@@ -102,7 +102,7 @@ namespace dynamo {
 
     /*! \brief A smart pointer to the Engine being run.
      */
-    std::tr1::shared_ptr<Engine> _engine;
+    shared_ptr<Engine> _engine;
 
     /*! \brief A thread pool to utilise multiple cores on the computational node.
      *

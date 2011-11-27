@@ -574,7 +574,7 @@ namespace dynamo {
     /*! \brief Instantiates and loads Liovillean classes from an XML
      * entry.
      */
-    static std::tr1::shared_ptr<Liouvillean> getClass(const magnet::xml::Node& ,dynamo::SimData*);
+    static shared_ptr<Liouvillean> getClass(const magnet::xml::Node& ,dynamo::SimData*);
     
     /*! \brief Free streams all particles up to the current time.
      * 

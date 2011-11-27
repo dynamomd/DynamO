@@ -43,6 +43,6 @@ namespace dynamo {
     std::vector<localpair2> structResults;
     std::vector<std::vector<localpair> > speciesData;
 
-    std::tr1::shared_ptr<const OPMSD> ptrOPMSD;
+    shared_ptr<const OPMSD> ptrOPMSD;
   };
 }

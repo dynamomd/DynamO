@@ -19,6 +19,7 @@
 #include <dynamo/simulation/particle.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
+#include <cstring>
 
 namespace dynamo {
   C2RAll::C2RAll(const magnet::xml::Node& XML, const dynamo::SimData*)

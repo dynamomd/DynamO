@@ -51,6 +51,6 @@ namespace dynamo {
 
     double getGhostt() const;
   
-    std::tr1::shared_ptr<CRange> range;
+    shared_ptr<CRange> range;
   };
 }

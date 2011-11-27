@@ -52,8 +52,8 @@ namespace dynamo {
   
     virtual void periodicOutput();
   
-    static std::tr1::shared_ptr<OutputPlugin> getPlugin(const magnet::xml::Node&, const dynamo::SimData*);
-    static std::tr1::shared_ptr<OutputPlugin> getPlugin(const std::string, const dynamo::SimData*);
+    static shared_ptr<OutputPlugin> getPlugin(const magnet::xml::Node&, const dynamo::SimData*);
+    static shared_ptr<OutputPlugin> getPlugin(const std::string, const dynamo::SimData*);
   
     inline bool operator<(const OutputPlugin& OP) const
     { return updateOrder < OP.updateOrder; }

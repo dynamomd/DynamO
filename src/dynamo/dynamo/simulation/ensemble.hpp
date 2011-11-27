@@ -41,7 +41,7 @@ namespace dynamo {
     //! generate the correct derived Ensemble type.
     //! \param XML The XML node containing the type of the Ensemble
     //! \param Sim A pointer to the simulation data this Ensemble is valid for.
-    static std::tr1::shared_ptr<Ensemble> 
+    static shared_ptr<Ensemble> 
     getClass(const magnet::xml::Node& XML, 
 	     const dynamo::SimData* Sim);
 

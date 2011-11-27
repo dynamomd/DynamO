@@ -42,6 +42,6 @@ namespace dynamo {
     double binWidth;
     std::vector<magnet::math::Histogram> data[NDIM];
 
-    std::tr1::shared_ptr<const OPKEnergy> _ptrOPEnergy;
+    shared_ptr<const OPKEnergy> _ptrOPEnergy;
   };
 }

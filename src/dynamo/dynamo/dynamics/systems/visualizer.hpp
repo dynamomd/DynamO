@@ -43,7 +43,7 @@ namespace dynamo {
     virtual void outputXML(magnet::xml::XmlStream&) const {}
 
     mutable double _updateTime;
-    mutable std::tr1::shared_ptr<coil::CLGLWindow> _window;
+    mutable shared_ptr<coil::CLGLWindow> _window;
     coil::CoilRegister _coil;
 
     mutable boost::posix_time::ptime _lastUpdate;

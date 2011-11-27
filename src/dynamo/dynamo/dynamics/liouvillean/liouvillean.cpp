@@ -32,17 +32,17 @@ namespace dynamo {
     return XML;
   }
 
-  std::tr1::shared_ptr<Liouvillean>
+  shared_ptr<Liouvillean>
   Liouvillean::getClass(const magnet::xml::Node& XML, dynamo::SimData* tmp)
   {
     if (!strcmp(XML.getAttribute("Type"),"Newtonian"))
-      return std::tr1::shared_ptr<Liouvillean>(new LNewtonian(tmp));
+      return shared_ptr<Liouvillean>(new LNewtonian(tmp));
     if (!strcmp(XML.getAttribute("Type"),"NewtonianGravity"))
-      return std::tr1::shared_ptr<Liouvillean>(new LNewtonianGravity(tmp, XML));
+      return shared_ptr<Liouvillean>(new LNewtonianGravity(tmp, XML));
     else if (!strcmp(XML.getAttribute("Type"),"SLLOD"))
-      return std::tr1::shared_ptr<Liouvillean>(new LSLLOD(tmp));
+      return shared_ptr<Liouvillean>(new LSLLOD(tmp));
     else if (!strcmp(XML.getAttribute("Type"),"NewtonianMC"))
-      return std::tr1::shared_ptr<Liouvillean>(new LNewtonianMC(tmp, XML));
+      return shared_ptr<Liouvillean>(new LNewtonianMC(tmp, XML));
     else 
       M_throw() << XML.getAttribute("Type")
 		<< ", Unknown type of Liouvillean encountered";
@@ -63,7 +63,7 @@ namespace dynamo {
       
 	//Check if any of the species are overridden
 	bool hasInertia(false);
-	BOOST_FOREACH(const std::tr1::shared_ptr<Species>& spec, Sim->dynamics.getSpecies())
+	BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->dynamics.getSpecies())
 	  if (std::tr1::dynamic_pointer_cast<SpInertia>(spec))
 	    hasInertia = true;
 

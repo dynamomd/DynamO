@@ -87,11 +87,11 @@ namespace dynamo {
     std::vector<std::vector<double> >& getAlphabet() { return alphabet; }
 
   protected:
-    std::tr1::shared_ptr<Property> _diameter;
-    std::tr1::shared_ptr<Property> _lambda;
+    shared_ptr<Property> _diameter;
+    shared_ptr<Property> _lambda;
     //!This class is used to track how the energy scale changes in the system
-    std::tr1::shared_ptr<Property> _unitEnergy;
-    std::tr1::shared_ptr<Property> _e;
+    shared_ptr<Property> _unitEnergy;
+    shared_ptr<Property> _e;
   
     std::vector<size_t> sequence;
     std::vector<std::vector<double> > alphabet;

@@ -18,7 +18,6 @@
 #pragma once
 #include <dynamo/dynamics/ranges/1range.hpp>
 #include <dynamo/dynamics/ranges/2range.hpp>
-#include <tr1/memory>
 
 namespace dynamo {
   class C2RSingle:public C2Range
@@ -32,11 +31,11 @@ namespace dynamo {
   
     virtual void operator<<(const magnet::xml::Node&);
   
-    const std::tr1::shared_ptr<CRange>& getRange() const { return range; }
+    const shared_ptr<CRange>& getRange() const { return range; }
 
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    std::tr1::shared_ptr<CRange> range;
+    shared_ptr<CRange> range;
   };
 }

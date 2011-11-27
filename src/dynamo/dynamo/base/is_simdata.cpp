@@ -240,10 +240,10 @@ namespace dynamo
     
     dynamics.getSystemEvents().swap(other.dynamics.getSystemEvents());
 
-    BOOST_FOREACH(std::tr1::shared_ptr<System>& aPtr, dynamics.getSystemEvents())
+    BOOST_FOREACH(shared_ptr<System>& aPtr, dynamics.getSystemEvents())
       aPtr->changeSystem(this);
 
-    BOOST_FOREACH(std::tr1::shared_ptr<System>& aPtr, other.dynamics.getSystemEvents())
+    BOOST_FOREACH(shared_ptr<System>& aPtr, other.dynamics.getSystemEvents())
       aPtr->changeSystem(&other);
 
     dynamics.getLiouvillean().swapSystem(other.dynamics.getLiouvillean());
@@ -276,7 +276,7 @@ namespace dynamo
     outputPlugins.swap(other.outputPlugins);      
     
     {
-      std::vector<std::tr1::shared_ptr<OutputPlugin> >::iterator iPtr1 = outputPlugins.begin(), 
+      std::vector<shared_ptr<OutputPlugin> >::iterator iPtr1 = outputPlugins.begin(), 
 	iPtr2 = other.outputPlugins.begin();
       
       while (iPtr1 != outputPlugins.end())

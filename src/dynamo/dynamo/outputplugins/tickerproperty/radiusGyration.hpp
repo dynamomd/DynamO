@@ -49,7 +49,7 @@ namespace dynamo {
       Vector  MassCentre;
     };
   
-    static molGyrationDat getGyrationEigenSystem(const std::tr1::shared_ptr<CRange>&, const dynamo::SimData*);
+    static molGyrationDat getGyrationEigenSystem(const shared_ptr<CRange>&, const dynamo::SimData*);
 
     static Vector  NematicOrderParameter(const std::list<Vector  >&);
     static double CubaticOrderParameter(const std::list<Vector  >&);

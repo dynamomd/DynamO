@@ -45,12 +45,12 @@ namespace dynamo {
     const std::string& getName() const
     { return spName; }
   
-    static std::tr1::shared_ptr<Topology> getClass(const magnet::xml::Node& ,dynamo::SimData*, size_t);
+    static shared_ptr<Topology> getClass(const magnet::xml::Node& ,dynamo::SimData*, size_t);
 
     inline void addMolecule(CRange* ptr)
-    { ranges.push_back(std::tr1::shared_ptr<CRange>(ptr)); }
+    { ranges.push_back(shared_ptr<CRange>(ptr)); }
 
-    inline const std::list<std::tr1::shared_ptr<CRange> >& getMolecules() const
+    inline const std::list<shared_ptr<CRange> >& getMolecules() const
     { return ranges; }
 
     inline size_t getMoleculeCount() const { return ranges.size(); }
@@ -60,7 +60,7 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
   
-    std::list<std::tr1::shared_ptr<CRange> > ranges;
+    std::list<shared_ptr<CRange> > ranges;
   
     std::string spName;
   

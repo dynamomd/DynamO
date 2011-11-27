@@ -16,9 +16,8 @@
 */
 
 #pragma once
-#include <dynamo/dynamics/ranges/1range.hpp>
 #include <dynamo/dynamics/ranges/2range.hpp>
-#include <tr1/memory>
+#include <cstring>
 
 namespace dynamo {
   class C2RChainEnds:public C2Range

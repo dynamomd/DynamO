@@ -61,9 +61,9 @@ namespace dynamo {
     virtual void checkOverlaps(const Particle&, const Particle&) const;
 
   protected:
-    std::tr1::shared_ptr<Property> _diameter;
-    std::tr1::shared_ptr<Property> _e;
-    std::tr1::shared_ptr<Property> _et;
+    shared_ptr<Property> _diameter;
+    shared_ptr<Property> _e;
+    shared_ptr<Property> _et;
   };
 }
 

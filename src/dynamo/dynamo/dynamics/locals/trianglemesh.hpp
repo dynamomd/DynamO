@@ -56,13 +56,13 @@ namespace dynamo {
     virtual void checkOverlaps(const Particle&) const;
 
 #ifdef DYNAMO_visualizer
-    virtual std::tr1::shared_ptr<coil::RenderObj> getCoilRenderObj() const;
+    virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const;
     virtual void updateRenderData() const {}
 #endif
 
   protected:
 #ifdef DYNAMO_visualizer
-    mutable std::tr1::shared_ptr<coil::RTriangleMesh> _renderObj;
+    mutable shared_ptr<coil::RTriangleMesh> _renderObj;
 #endif
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
@@ -72,7 +72,7 @@ namespace dynamo {
     typedef boost::tuples::tuple<size_t, size_t, size_t> TriangleElements;
     std::vector<TriangleElements> _elements;
 
-    std::tr1::shared_ptr<Property> _e;
-    std::tr1::shared_ptr<Property> _diameter;
+    shared_ptr<Property> _e;
+    shared_ptr<Property> _diameter;
   };
 }

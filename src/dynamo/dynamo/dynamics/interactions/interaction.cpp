@@ -31,7 +31,7 @@ namespace dynamo {
 
   void 
   Interaction::operator<<(const magnet::xml::Node& XML)
-  { range = std::tr1::shared_ptr<C2Range>(C2Range::getClass(XML,Sim)); }
+  { range = shared_ptr<C2Range>(C2Range::getClass(XML,Sim)); }
 
   bool 
   Interaction::isInteraction(const IntEvent &coll) const
@@ -53,39 +53,39 @@ namespace dynamo {
     return XML;
   }
 
-  std::tr1::shared_ptr<C2Range>& 
+  shared_ptr<C2Range>& 
   Interaction::getRange() 
   { return range; }
 
-  const std::tr1::shared_ptr<C2Range>& 
+  const shared_ptr<C2Range>& 
   Interaction::getRange() const
   { return range; }
 
-  std::tr1::shared_ptr<Interaction>
+  shared_ptr<Interaction>
   Interaction::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
   {
     if (!std::strcmp(XML.getAttribute("Type"),"HardSphere"))
-      return std::tr1::shared_ptr<Interaction>(new IHardSphere(XML, Sim));
+      return shared_ptr<Interaction>(new IHardSphere(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"RoughHardSphere"))
-      return std::tr1::shared_ptr<Interaction>(new IRoughHardSphere(XML, Sim));
+      return shared_ptr<Interaction>(new IRoughHardSphere(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"SquareWell"))
-      return std::tr1::shared_ptr<Interaction>(new ISquareWell(XML, Sim));
+      return shared_ptr<Interaction>(new ISquareWell(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"SquareWellSeq"))
-      return std::tr1::shared_ptr<Interaction>(new ISWSequence(XML, Sim));
+      return shared_ptr<Interaction>(new ISWSequence(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"SquareBond"))
-      return std::tr1::shared_ptr<Interaction>(new ISquareBond(XML, Sim));
+      return shared_ptr<Interaction>(new ISquareBond(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"SoftCore"))
-      return std::tr1::shared_ptr<Interaction>(new ISoftCore(XML, Sim));
+      return shared_ptr<Interaction>(new ISoftCore(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"Null"))
-      return std::tr1::shared_ptr<Interaction>(new INull(XML, Sim));
+      return shared_ptr<Interaction>(new INull(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"Lines"))
-      return std::tr1::shared_ptr<Interaction>(new ILines(XML, Sim));
+      return shared_ptr<Interaction>(new ILines(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"Dumbbells"))
-      return std::tr1::shared_ptr<Interaction>(new IDumbbells(XML, Sim));
+      return shared_ptr<Interaction>(new IDumbbells(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"RotatedParallelCubes"))
-      return std::tr1::shared_ptr<Interaction>(new IParallelCubes(XML, Sim));
+      return shared_ptr<Interaction>(new IParallelCubes(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"Stepped"))
-      return std::tr1::shared_ptr<Interaction>(new IStepped(XML, Sim));
+      return shared_ptr<Interaction>(new IStepped(XML, Sim));
     else 
       M_throw() << XML.getAttribute("Type")
 		<< ", Unknown type of interaction encountered";

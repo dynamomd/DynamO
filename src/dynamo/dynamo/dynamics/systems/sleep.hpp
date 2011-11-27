@@ -46,7 +46,7 @@ namespace dynamo {
 
     bool sleepCondition(const Particle& part, const Vector& g, const Vector& vel = Vector(0,0,0));
 
-    std::tr1::shared_ptr<CRange> _range;
+    shared_ptr<CRange> _range;
     double _sleepDistance;
     double _sleepTime;
     double _sleepVelocity;

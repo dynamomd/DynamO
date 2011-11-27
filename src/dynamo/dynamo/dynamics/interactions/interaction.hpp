@@ -94,7 +94,7 @@ namespace dynamo {
     //! This static function will instantiate a new interaction of the correct type specified by the xml node passed. 
     //!
     //! This is the birth point for all Interactions loaded from a configuration file.
-    static std::tr1::shared_ptr<Interaction> getClass(const magnet::xml::Node&, dynamo::SimData*);
+    static shared_ptr<Interaction> getClass(const magnet::xml::Node&, dynamo::SimData*);
 
     //! Tests if this interaction is meant to be used between the two passed Particle -s.
     bool isInteraction(const Particle &p1, const Particle &p2) const
@@ -114,11 +114,11 @@ namespace dynamo {
 
     //! Returns the C2Range describing the pairs of particles this
     //! Interaction can generate events for.
-    std::tr1::shared_ptr<C2Range>& getRange();
+    shared_ptr<C2Range>& getRange();
 
     //! Returns the C2Range describing the pairs of particles this
     //! Interaction can generate events for.
-    const std::tr1::shared_ptr<C2Range>& getRange() const;
+    const shared_ptr<C2Range>& getRange() const;
 
     //! Test if an invalid state has occurred between the two passed particles
     virtual void checkOverlaps(const Particle&, const Particle&) const = 0;
@@ -136,7 +136,7 @@ namespace dynamo {
     //! Write out an XML tag that describes this Interaction and stores its Property -s.
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
-    std::tr1::shared_ptr<C2Range> range;
+    shared_ptr<C2Range> range;
 
     std::string intName;
     size_t ID;

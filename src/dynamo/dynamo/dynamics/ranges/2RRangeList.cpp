@@ -29,7 +29,7 @@ namespace dynamo {
   bool 
   C2RRangeList::isInRange(const Particle&p1, const Particle&p2) const
   {
-    BOOST_FOREACH(const std::tr1::shared_ptr<C2Range>& rPtr, ranges)
+    BOOST_FOREACH(const shared_ptr<C2Range>& rPtr, ranges)
       if (rPtr->isInRange(p1,p2))
 	return true;
   
@@ -45,7 +45,7 @@ namespace dynamo {
     try 
       {
 	for (magnet::xml::Node node = XML.fastGetNode("RangeListItem"); node.valid(); ++node)
-	  ranges.push_back(std::tr1::shared_ptr<C2Range>(C2Range::getClass(node, Sim)));
+	  ranges.push_back(shared_ptr<C2Range>(C2Range::getClass(node, Sim)));
       }
     catch (boost::bad_lexical_cast &)
       {
@@ -58,7 +58,7 @@ namespace dynamo {
   {
     XML << magnet::xml::attr("Range") << "RangeList";
 
-    BOOST_FOREACH(const std::tr1::shared_ptr<C2Range>& rPtr, ranges)
+    BOOST_FOREACH(const shared_ptr<C2Range>& rPtr, ranges)
       XML << magnet::xml::tag("RangeListItem") << rPtr << magnet::xml::endtag("RangeListItem");
   }
 }

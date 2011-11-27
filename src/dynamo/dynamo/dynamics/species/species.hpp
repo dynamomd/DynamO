@@ -43,7 +43,7 @@ namespace dynamo {
     inline unsigned int getID() const { return ID; }
     inline const std::string& getName() const { return spName; }
     inline const std::string& getIntName() const { return intName; }
-    inline const std::tr1::shared_ptr<CRange>& getRange() const { return range; }
+    inline const shared_ptr<CRange>& getRange() const { return range; }
     inline const Interaction* getIntPtr() const { return IntPtr; }
     inline void setIntPtr(Interaction* nPtr) { IntPtr = nPtr; }
     virtual double getScalarMomentOfInertia(size_t ID) const = 0;
@@ -54,15 +54,15 @@ namespace dynamo {
 
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Species&);
   
-    static std::tr1::shared_ptr<Species> getClass(const magnet::xml::Node&, dynamo::SimData*, size_t);
+    static shared_ptr<Species> getClass(const magnet::xml::Node&, dynamo::SimData*, size_t);
 
 #ifdef DYNAMO_visualizer
-    virtual std::tr1::shared_ptr<coil::DataSet> createDataSet() const;
+    virtual shared_ptr<coil::DataSet> createDataSet() const;
     virtual void initDataSet() const;
     virtual void updateRenderData() const;
   protected:
 
-    mutable std::tr1::shared_ptr<coil::DataSet> _renderData;
+    mutable shared_ptr<coil::DataSet> _renderData;
 #endif
 
   protected:
@@ -81,8 +81,8 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
   
-    std::tr1::shared_ptr<Property> _mass;
-    std::tr1::shared_ptr<CRange> range;
+    shared_ptr<Property> _mass;
+    shared_ptr<CRange> range;
     std::string spName;
     std::string intName;
     Interaction* IntPtr;

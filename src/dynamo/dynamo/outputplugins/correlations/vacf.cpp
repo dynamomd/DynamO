@@ -268,7 +268,7 @@ namespace dynamo {
   {
     ++count;
   
-    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& spec, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->dynamics.getSpecies())
       BOOST_FOREACH(const size_t& ID, *spec->getRange())
       for (size_t j = 0; j < CorrelatorLength; ++j)
 	for (size_t iDim(0); iDim < NDIM; ++iDim)

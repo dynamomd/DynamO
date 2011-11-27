@@ -85,14 +85,14 @@ namespace dynamo {
 
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Scheduler&);
 
-    static std::tr1::shared_ptr<Scheduler>
+    static shared_ptr<Scheduler>
     getClass(const magnet::xml::Node&, dynamo::SimData* const);
 
     virtual void operator<<(const magnet::xml::Node&);
   
     void rescaleTimes(const double& scale) { sorter->rescaleTimes(scale); }
 
-    const std::tr1::shared_ptr<CSSorter>& getSorter() const { return sorter; }
+    const shared_ptr<CSSorter>& getSorter() const { return sorter; }
 
     void rebuildSystemEvents() const;
 
@@ -123,7 +123,7 @@ namespace dynamo {
      */
     void lazyDeletionCleanup();
 
-    mutable std::tr1::shared_ptr<CSSorter> sorter;
+    mutable shared_ptr<CSSorter> sorter;
     mutable std::vector<unsigned long> eventCount;
   
     size_t _interactionRejectionCounter;

@@ -45,7 +45,7 @@ namespace dynamo {
   protected:
 
     magnet::math::HistogramWeighted intEnergyHist;
-    std::tr1::shared_ptr<const OPUEnergy> ptrOPEnergy;
+    shared_ptr<const OPUEnergy> ptrOPEnergy;
     double weight;
     double binwidth;
 

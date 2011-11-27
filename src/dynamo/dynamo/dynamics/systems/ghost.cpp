@@ -117,7 +117,7 @@ namespace dynamo {
 
     Sim->ptrScheduler->fullUpdate(part);
   
-    BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(*this, SDat, locdt);
 
   }
@@ -149,7 +149,7 @@ namespace dynamo {
 	  setPoint = boost::lexical_cast<double>(XML.getAttribute("SetPoint"));
 	}
 
-      range = std::tr1::shared_ptr<CRange>(CRange::getClass(XML,Sim));
+      range = shared_ptr<CRange>(CRange::getClass(XML,Sim));
     }
     catch (boost::bad_lexical_cast &)
       {

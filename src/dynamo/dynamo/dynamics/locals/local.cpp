@@ -47,25 +47,25 @@ namespace dynamo {
     return XML;
   }
 
-  std::tr1::shared_ptr<Local> 
+  shared_ptr<Local> 
   Local::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
   {
     if (!strcmp(XML.getAttribute("Type"),"Wall"))
-      return std::tr1::shared_ptr<Local>(new LWall(XML, Sim));
+      return shared_ptr<Local>(new LWall(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"RoughWall"))
-      return std::tr1::shared_ptr<Local>(new LRoughWall(XML, Sim));
+      return shared_ptr<Local>(new LRoughWall(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"TriangleMesh"))
-      return std::tr1::shared_ptr<Local>(new LTriangleMesh(XML, Sim));
+      return shared_ptr<Local>(new LTriangleMesh(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"AndersenWall"))
-      return std::tr1::shared_ptr<Local>(new CLAndersenWall(XML, Sim));
+      return shared_ptr<Local>(new CLAndersenWall(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"DoubleWall"))
-      return std::tr1::shared_ptr<Local>(new CLDblWall(XML, Sim));
+      return shared_ptr<Local>(new CLDblWall(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"OscillatingPlate"))
-      return std::tr1::shared_ptr<Local>(new CLOscillatingPlate(XML, Sim));
+      return shared_ptr<Local>(new CLOscillatingPlate(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"CylinderWall"))
-      return std::tr1::shared_ptr<Local>(new CLCylinder(XML, Sim));
+      return shared_ptr<Local>(new CLCylinder(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"SphereWall"))
-      return std::tr1::shared_ptr<Local>(new CLSphere(XML, Sim));
+      return shared_ptr<Local>(new CLSphere(XML, Sim));
     else 
       M_throw() << XML.getAttribute("Type")
 		<< ", Unknown type of Local Interaction encountered";

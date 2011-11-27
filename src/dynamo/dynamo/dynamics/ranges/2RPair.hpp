@@ -18,7 +18,6 @@
 #pragma once
 #include <dynamo/dynamics/ranges/1range.hpp>
 #include <dynamo/dynamics/ranges/2range.hpp>
-#include <tr1/memory>
 
 namespace dynamo {
   class C2RPair:public C2Range
@@ -26,7 +25,7 @@ namespace dynamo {
   public:
     C2RPair(const magnet::xml::Node&, const dynamo::SimData*);
 
-    C2RPair(CRange* r1, CRange* r2 ):range1(r1),range2(r2) {}
+    C2RPair(CRange* r1, CRange* r2 ):range1(r1), range2(r2) {}
   
     virtual bool isInRange(const Particle&, const Particle&) const;
   
@@ -35,7 +34,7 @@ namespace dynamo {
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    std::tr1::shared_ptr<CRange> range1;
-    std::tr1::shared_ptr<CRange> range2;
+    shared_ptr<CRange> range1;
+    shared_ptr<CRange> range2;
   };
 }

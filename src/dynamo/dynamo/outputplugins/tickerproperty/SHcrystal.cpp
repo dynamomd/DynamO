@@ -65,7 +65,7 @@ namespace dynamo {
   OPSHCrystal::initialise() 
   { 
     double smallestlength = HUGE_VAL;
-    BOOST_FOREACH(const std::tr1::shared_ptr<Global>& pGlob, Sim->dynamics.getGlobals())
+    BOOST_FOREACH(const shared_ptr<Global>& pGlob, Sim->dynamics.getGlobals())
       if (std::tr1::dynamic_pointer_cast<GNeighbourList>(pGlob))
 	{
 	  const double l(static_cast<const GNeighbourList*>(pGlob.get())

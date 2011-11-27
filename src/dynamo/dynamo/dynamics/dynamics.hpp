@@ -57,13 +57,13 @@ namespace dynamo {
 
     ~Dynamics();
   
-    inline void setLiouvillean(std::tr1::shared_ptr<Liouvillean> ptr)
+    inline void setLiouvillean(shared_ptr<Liouvillean> ptr)
     { p_liouvillean = ptr; }
 
-    inline std::tr1::shared_ptr<Interaction> addInteraction(std::tr1::shared_ptr<Interaction> ptr)
+    inline shared_ptr<Interaction> addInteraction(shared_ptr<Interaction> ptr)
     { interactions.push_back(ptr); return interactions.back(); }
 
-    void addSpecies(const std::tr1::shared_ptr<Species>&);
+    void addSpecies(const shared_ptr<Species>&);
   
     void addGlobal(Global*);
 
@@ -75,14 +75,14 @@ namespace dynamo {
 
     const Species& getSpecies(const Particle&) const;
   
-    const std::tr1::shared_ptr<Interaction>& 
+    const shared_ptr<Interaction>& 
     getInteraction(const Particle&, const Particle&) const; 
   
     void stream(const double&);
   
     inline IntEvent getEvent(const Particle& p1, const Particle& p2) const
     {
-      BOOST_FOREACH(const std::tr1::shared_ptr<Interaction>& ptr, interactions)
+      BOOST_FOREACH(const shared_ptr<Interaction>& ptr, interactions)
 	if (ptr->isInteraction(p1,p2))
 	  {
 #ifdef dynamo_UpdateCollDebug
@@ -128,37 +128,37 @@ namespace dynamo {
   
     double calcInternalEnergy() const;
 
-    std::vector<std::tr1::shared_ptr<Interaction> >& getInteractions() { return interactions; }
-    const std::vector<std::tr1::shared_ptr<Interaction> >& getInteractions() const { return interactions; }
+    std::vector<shared_ptr<Interaction> >& getInteractions() { return interactions; }
+    const std::vector<shared_ptr<Interaction> >& getInteractions() const { return interactions; }
 
-    std::tr1::shared_ptr<Interaction>& getInteraction(std::string);
-    const std::tr1::shared_ptr<Interaction>& getInteraction(std::string) const;
+    shared_ptr<Interaction>& getInteraction(std::string);
+    const shared_ptr<Interaction>& getInteraction(std::string) const;
 
-    const std::vector<std::tr1::shared_ptr<Global> >& getGlobals() const { return globals; }
-    std::vector<std::tr1::shared_ptr<Global> >& getGlobals() { return globals; }
-    std::tr1::shared_ptr<Global>& getGlobal(std::string);
-    const std::tr1::shared_ptr<Global>& getGlobal(std::string) const;
+    const std::vector<shared_ptr<Global> >& getGlobals() const { return globals; }
+    std::vector<shared_ptr<Global> >& getGlobals() { return globals; }
+    shared_ptr<Global>& getGlobal(std::string);
+    const shared_ptr<Global>& getGlobal(std::string) const;
 
-    std::vector<std::tr1::shared_ptr<Local> >& getLocals() { return locals; }
-    const std::vector<std::tr1::shared_ptr<Local> >& getLocals() const { return locals; }
-    std::tr1::shared_ptr<Local>& getLocal(std::string);
-    const std::tr1::shared_ptr<Local>& getLocal(std::string) const;
+    std::vector<shared_ptr<Local> >& getLocals() { return locals; }
+    const std::vector<shared_ptr<Local> >& getLocals() const { return locals; }
+    shared_ptr<Local>& getLocal(std::string);
+    const shared_ptr<Local>& getLocal(std::string) const;
 
-    const std::vector<std::tr1::shared_ptr<Species> >& getSpecies() const { return species; }
+    const std::vector<shared_ptr<Species> >& getSpecies() const { return species; }
     const Species& getSpecies(std::string) const;
     Species& getSpecies(std::string);
 
-    std::vector<std::tr1::shared_ptr<Topology> >& getTopology() { return topology; }
-    const std::vector<std::tr1::shared_ptr<Topology> >& getTopology() const { return topology; }
+    std::vector<shared_ptr<Topology> >& getTopology() { return topology; }
+    const std::vector<shared_ptr<Topology> >& getTopology() const { return topology; }
 
-    std::tr1::shared_ptr<Topology>& getTopology(std::string);
+    shared_ptr<Topology>& getTopology(std::string);
 
-    const std::tr1::shared_ptr<Topology>& getTopology(std::string) const;
+    const shared_ptr<Topology>& getTopology(std::string) const;
 
-    std::vector<std::tr1::shared_ptr<System> >& getSystemEvents() { return systems; }
-    const std::vector<std::tr1::shared_ptr<System> >& getSystemEvents() const { return systems; }
-    const std::tr1::shared_ptr<System>& getSystem(std::string) const;
-    std::tr1::shared_ptr<System>& getSystem(std::string);
+    std::vector<shared_ptr<System> >& getSystemEvents() { return systems; }
+    const std::vector<shared_ptr<System> >& getSystemEvents() const { return systems; }
+    const shared_ptr<System>& getSystem(std::string) const;
+    shared_ptr<System>& getSystem(std::string);
 
     void addSystemTicker();
   
@@ -177,7 +177,7 @@ namespace dynamo {
     inline  Liouvillean& getLiouvillean()
     { return *p_liouvillean; }
 
-    inline  std::tr1::shared_ptr<Liouvillean>& getLiouvilleanPtr()
+    inline  shared_ptr<Liouvillean>& getLiouvilleanPtr()
     { return p_liouvillean; }
 
     template<class T>
@@ -194,7 +194,7 @@ namespace dynamo {
       if (p_BC)
 	dout << "Warning, resetting the BC's" << std::endl;
       
-      p_BC = std::tr1::shared_ptr<BoundaryCondition>(new T(Sim));
+      p_BC = shared_ptr<BoundaryCondition>(new T(Sim));
     }
 
     double getSimVolume() const;
@@ -206,14 +206,14 @@ namespace dynamo {
   protected:
     void outputXML(magnet::xml::XmlStream &) const;
 
-    std::vector<std::tr1::shared_ptr<Interaction> > interactions;
-    std::vector<std::tr1::shared_ptr<Global> > globals;
-    std::vector<std::tr1::shared_ptr<Local> > locals;
-    std::vector<std::tr1::shared_ptr<System> > systems;
-    std::vector<std::tr1::shared_ptr<Topology> > topology;
-    std::vector<std::tr1::shared_ptr<Species> > species;
-    std::tr1::shared_ptr<BoundaryCondition> p_BC;
-    std::tr1::shared_ptr<Liouvillean> p_liouvillean;
+    std::vector<shared_ptr<Interaction> > interactions;
+    std::vector<shared_ptr<Global> > globals;
+    std::vector<shared_ptr<Local> > locals;
+    std::vector<shared_ptr<System> > systems;
+    std::vector<shared_ptr<Topology> > topology;
+    std::vector<shared_ptr<Species> > species;
+    shared_ptr<BoundaryCondition> p_BC;
+    shared_ptr<Liouvillean> p_liouvillean;
     Units _units;
   };
 }

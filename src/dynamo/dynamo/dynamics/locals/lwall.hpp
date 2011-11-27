@@ -56,8 +56,8 @@ namespace dynamo {
 
     Vector  vNorm;
     Vector  vPosition;
-    std::tr1::shared_ptr<Property> _diameter;
-    std::tr1::shared_ptr<Property> _e;
+    shared_ptr<Property> _diameter;
+    shared_ptr<Property> _e;
     bool render;
   };
 }

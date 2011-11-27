@@ -39,20 +39,20 @@ namespace dynamo {
 
   Dynamics::~Dynamics() {}
 
-  std::tr1::shared_ptr<Topology>& 
+  shared_ptr<Topology>& 
   Dynamics::getTopology(std::string name)
   {
-    BOOST_FOREACH(std::tr1::shared_ptr<Topology>& sysPtr, topology)
+    BOOST_FOREACH(shared_ptr<Topology>& sysPtr, topology)
       if (sysPtr->getName() == name)
 	return sysPtr;
   
     M_throw() << "Could not find the topology " << name;
   }
 
-  const std::tr1::shared_ptr<Topology>& 
+  const shared_ptr<Topology>& 
   Dynamics::getTopology(std::string name) const
   {
-    BOOST_FOREACH(const std::tr1::shared_ptr<Topology>& sysPtr, topology)
+    BOOST_FOREACH(const shared_ptr<Topology>& sysPtr, topology)
       if (sysPtr->getName() == name)
 	return sysPtr;
   
@@ -62,7 +62,7 @@ namespace dynamo {
   const Species& 
   Dynamics::getSpecies(const Particle& p1) const 
   {
-    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& ptr, species)
+    BOOST_FOREACH(const shared_ptr<Species>& ptr, species)
       if (ptr->isSpecies(p1))
 	return *ptr;
   
@@ -81,7 +81,7 @@ namespace dynamo {
   const Species& 
   Dynamics::getSpecies(std::string name) const
   {
-    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& ptr, species)
+    BOOST_FOREACH(const shared_ptr<Species>& ptr, species)
       if (ptr->getName() == name)
 	return *ptr;
   
@@ -91,87 +91,87 @@ namespace dynamo {
   Species& 
   Dynamics::getSpecies(std::string name)
   {
-    BOOST_FOREACH(std::tr1::shared_ptr<Species>& ptr, species)
+    BOOST_FOREACH(shared_ptr<Species>& ptr, species)
       if (ptr->getName() == name)
 	return *ptr;
   
     M_throw() << "Could not find the " << name << " species"; 
   }
 
-  std::tr1::shared_ptr<System>&
+  shared_ptr<System>&
   Dynamics::getSystem(std::string name)
   {
-    BOOST_FOREACH(std::tr1::shared_ptr<System>& sysPtr, systems)
+    BOOST_FOREACH(shared_ptr<System>& sysPtr, systems)
       if (sysPtr->getName() == name) 
 	return sysPtr;
   
     M_throw() << "Could not find system plugin called " << name;
   }
 
-  const std::tr1::shared_ptr<System>&
+  const shared_ptr<System>&
   Dynamics::getSystem(std::string name) const
   {
-    BOOST_FOREACH(const std::tr1::shared_ptr<System>& sysPtr, systems)
+    BOOST_FOREACH(const shared_ptr<System>& sysPtr, systems)
       if (sysPtr->getName() == name)
 	return sysPtr;
   
     M_throw() << "Could not find system plugin called " << name;
   }
 
-  std::tr1::shared_ptr<Global>&
+  shared_ptr<Global>&
   Dynamics::getGlobal(std::string name)
   {
-    BOOST_FOREACH(std::tr1::shared_ptr<Global>& sysPtr, globals)
+    BOOST_FOREACH(shared_ptr<Global>& sysPtr, globals)
       if (sysPtr->getName() == name)
 	return sysPtr;
   
     M_throw() << "Could not find global plugin";
   }
 
-  const std::tr1::shared_ptr<Global>&
+  const shared_ptr<Global>&
   Dynamics::getGlobal(std::string name) const
   {
-    BOOST_FOREACH(const std::tr1::shared_ptr<Global>& sysPtr, globals)
+    BOOST_FOREACH(const shared_ptr<Global>& sysPtr, globals)
       if (sysPtr->getName() == name)
 	return sysPtr;
   
     M_throw() << "Could not find global plugin";
   }
 
-  std::tr1::shared_ptr<Local>&
+  shared_ptr<Local>&
   Dynamics::getLocal(std::string name)
   {
-    BOOST_FOREACH(std::tr1::shared_ptr<Local>& sysPtr, locals)
+    BOOST_FOREACH(shared_ptr<Local>& sysPtr, locals)
       if (sysPtr->getName() == name)
 	return sysPtr;
   
     M_throw() << "Could not find local plugin";
   }
 
-  const std::tr1::shared_ptr<Local>&
+  const shared_ptr<Local>&
   Dynamics::getLocal(std::string name) const
   {
-    BOOST_FOREACH(const std::tr1::shared_ptr<Local>& sysPtr, locals)
+    BOOST_FOREACH(const shared_ptr<Local>& sysPtr, locals)
       if (sysPtr->getName() == name)
 	return sysPtr;
   
     M_throw() << "Could not find local plugin";
   }
 
-  std::tr1::shared_ptr<Interaction>&
+  shared_ptr<Interaction>&
   Dynamics::getInteraction(std::string name)
   {
-    BOOST_FOREACH(std::tr1::shared_ptr<Interaction>& sysPtr, interactions)
+    BOOST_FOREACH(shared_ptr<Interaction>& sysPtr, interactions)
       if (sysPtr->getName() == name)
 	return sysPtr;
   
     M_throw() << "Could not find interaction plugin";
   }
 
-  const std::tr1::shared_ptr<Interaction>&
+  const shared_ptr<Interaction>&
   Dynamics::getInteraction(std::string name) const
   {
-    BOOST_FOREACH(const std::tr1::shared_ptr<Interaction>& sysPtr, interactions)
+    BOOST_FOREACH(const shared_ptr<Interaction>& sysPtr, interactions)
       if (sysPtr->getName() == name)
 	return sysPtr;
   
@@ -179,14 +179,14 @@ namespace dynamo {
   }
 
   void 
-  Dynamics::addSpecies(const std::tr1::shared_ptr<Species>& sp)
+  Dynamics::addSpecies(const shared_ptr<Species>& sp)
   {
     if (Sim->status >= INITIALISED)
       M_throw() << "Cannot add species after simulation initialisation";
 
     species.push_back(sp);
 
-    BOOST_FOREACH(std::tr1::shared_ptr<Interaction>& intPtr , interactions)
+    BOOST_FOREACH(shared_ptr<Interaction>& intPtr , interactions)
       if (intPtr->isInteraction(*species.back()))
 	{
 	  species.back()->setIntPtr(intPtr.get());
@@ -203,7 +203,7 @@ namespace dynamo {
     if (Sim->status >= INITIALISED)
       M_throw() << "Cannot add global events after simulation initialisation";
 
-    std::tr1::shared_ptr<Global> 
+    shared_ptr<Global> 
       tempPlug(newGlobal);
   
     globals.push_back(tempPlug);
@@ -215,7 +215,7 @@ namespace dynamo {
     if (Sim->status >= INITIALISED)
       M_throw() << "Cannot add local events after simulation initialisation";
 
-    std::tr1::shared_ptr<Local> 
+    shared_ptr<Local> 
       tempPlug(newLocal);
   
     locals.push_back(tempPlug);
@@ -227,7 +227,7 @@ namespace dynamo {
     if (Sim->status >= INITIALISED)
       M_throw() << "Cannot add system events at this time, system is initialised";
   
-    std::tr1::shared_ptr<System> tempPlug(newSystem);
+    shared_ptr<System> tempPlug(newSystem);
   
     systems.push_back(tempPlug); 
   }
@@ -238,7 +238,7 @@ namespace dynamo {
     if (Sim->status >= INITIALISED)
       M_throw() << "Cannot add structure after simulation initialisation";
 
-    std::tr1::shared_ptr<Topology> 
+    shared_ptr<Topology> 
       tempPlug(newSystem);
   
     topology.push_back(tempPlug); 
@@ -250,7 +250,7 @@ namespace dynamo {
     if (Sim->status >= INITIALISED)
       M_throw() << "Cannot add the system ticker now";
 
-    BOOST_FOREACH(std::tr1::shared_ptr<System>& ptr, systems)
+    BOOST_FOREACH(shared_ptr<System>& ptr, systems)
       if (ptr->getName() == "SystemTicker")
 	M_throw() << "System Ticker already exists";
   
@@ -260,14 +260,14 @@ namespace dynamo {
   void 
   Dynamics::initialise()
   {
-    BOOST_FOREACH(std::tr1::shared_ptr<Species>& ptr, species)
+    BOOST_FOREACH(shared_ptr<Species>& ptr, species)
       ptr->initialise();
   
     unsigned int count = 0;
     //Now confirm that every species has only one species type!
     BOOST_FOREACH(const Particle& part, Sim->particleList)
       {
-	BOOST_FOREACH(std::tr1::shared_ptr<Species>& ptr, species)
+	BOOST_FOREACH(shared_ptr<Species>& ptr, species)
 	  if (ptr->isSpecies(part)) { count++; break; }
       
 	if (count < 1)
@@ -281,7 +281,7 @@ namespace dynamo {
     //Now confirm that there are not more counts from each species than there are particles
     {
       unsigned long tot = 0;
-      BOOST_FOREACH(std::tr1::shared_ptr<Species>& ptr, species)
+      BOOST_FOREACH(shared_ptr<Species>& ptr, species)
 	tot += ptr->getCount();
     
       if (tot < Sim->N)
@@ -299,31 +299,31 @@ namespace dynamo {
 
     size_t ID=0;
 
-    BOOST_FOREACH(std::tr1::shared_ptr<Interaction>& ptr, interactions)
+    BOOST_FOREACH(shared_ptr<Interaction>& ptr, interactions)
       ptr->initialise(ID++);
 
     ID=0;
 
     //Must be initialised before globals. Neighbour lists are
     //implemented as globals and must initialise where locals are and their ID.
-    BOOST_FOREACH(std::tr1::shared_ptr<Local>& ptr, locals)
+    BOOST_FOREACH(shared_ptr<Local>& ptr, locals)
       ptr->initialise(ID++);
 
     ID=0;
 
-    BOOST_FOREACH(std::tr1::shared_ptr<Global>& ptr, globals)
+    BOOST_FOREACH(shared_ptr<Global>& ptr, globals)
       ptr->initialise(ID++);
 
     ID=0;
 
-    BOOST_FOREACH(std::tr1::shared_ptr<System>& ptr, systems)
+    BOOST_FOREACH(shared_ptr<System>& ptr, systems)
       ptr->initialise(ID++);
   }
 
-  const std::tr1::shared_ptr<Interaction>&
+  const shared_ptr<Interaction>&
   Dynamics::getInteraction(const Particle& p1, const Particle& p2) const 
   {
-    BOOST_FOREACH(const std::tr1::shared_ptr<Interaction>& ptr, interactions)
+    BOOST_FOREACH(const shared_ptr<Interaction>& ptr, interactions)
       if (ptr->isInteraction(p1,p2))
 	return ptr;
   
@@ -343,7 +343,7 @@ namespace dynamo {
 
     p_liouvillean->stream(dt);
 
-    BOOST_FOREACH(std::tr1::shared_ptr<System>& ptr, systems)
+    BOOST_FOREACH(shared_ptr<System>& ptr, systems)
       ptr->stream(dt);
   }
 
@@ -353,7 +353,7 @@ namespace dynamo {
   {
     double intECurrent = 0.0;
 
-    BOOST_FOREACH(const std::tr1::shared_ptr<Interaction> & plugptr, 
+    BOOST_FOREACH(const shared_ptr<Interaction> & plugptr, 
 		  Sim->dynamics.getInteractions())
       intECurrent += plugptr->getInternalEnergy();
 
@@ -381,7 +381,7 @@ namespace dynamo {
   {
     double volume = 0.0;
   
-    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& sp, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->dynamics.getSpecies())
       BOOST_FOREACH(const size_t& ID, *(sp->getRange()))
       volume += sp->getIntPtr()->getExcludedVolume(ID);
   
@@ -450,8 +450,8 @@ namespace dynamo {
       interactions.push_back(Interaction::getClass(node, Sim));
   
     //Link the species and interactions
-    BOOST_FOREACH(std::tr1::shared_ptr<Species>& sp , species)
-      BOOST_FOREACH(std::tr1::shared_ptr<Interaction>& intPtr , interactions)
+    BOOST_FOREACH(shared_ptr<Species>& sp , species)
+      BOOST_FOREACH(shared_ptr<Interaction>& intPtr , interactions)
       if (intPtr->isInteraction(*sp))
 	{
 	  sp->setIntPtr(intPtr.get());
@@ -486,7 +486,7 @@ namespace dynamo {
 	<< magnet::xml::endtag("BC")
 	<< magnet::xml::tag("Genus");
   
-    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& ptr, species)
+    BOOST_FOREACH(const shared_ptr<Species>& ptr, species)
       XML << magnet::xml::tag("Species")
 	  << *ptr
 	  << magnet::xml::endtag("Species");
@@ -494,7 +494,7 @@ namespace dynamo {
     XML << magnet::xml::endtag("Genus")
 	<< magnet::xml::tag("Topology");
   
-    BOOST_FOREACH(const std::tr1::shared_ptr<Topology>& ptr, topology)
+    BOOST_FOREACH(const shared_ptr<Topology>& ptr, topology)
       XML << magnet::xml::tag("Structure")
 	  << *ptr
 	  << magnet::xml::endtag("Structure");
@@ -502,19 +502,19 @@ namespace dynamo {
     XML << magnet::xml::endtag("Topology")
 	<< magnet::xml::tag("SystemEvents");
   
-    BOOST_FOREACH(const std::tr1::shared_ptr<System>& ptr, systems)
+    BOOST_FOREACH(const shared_ptr<System>& ptr, systems)
       XML << *ptr;
   
     XML << magnet::xml::endtag("SystemEvents")
 	<< magnet::xml::tag("Globals");
   
-    BOOST_FOREACH(const std::tr1::shared_ptr<Global>& ptr, globals)
+    BOOST_FOREACH(const shared_ptr<Global>& ptr, globals)
       XML << *ptr;
   
     XML << magnet::xml::endtag("Globals")
 	<< magnet::xml::tag("Locals");
   
-    BOOST_FOREACH(const std::tr1::shared_ptr<Local>& ptr, locals)
+    BOOST_FOREACH(const shared_ptr<Local>& ptr, locals)
       XML << magnet::xml::tag("Local")
 	  << *ptr
 	  << magnet::xml::endtag("Local");
@@ -522,7 +522,7 @@ namespace dynamo {
     XML << magnet::xml::endtag("Locals")
 	<< magnet::xml::tag("Interactions");
   
-    BOOST_FOREACH(const std::tr1::shared_ptr<Interaction>& ptr, interactions)
+    BOOST_FOREACH(const shared_ptr<Interaction>& ptr, interactions)
       XML << magnet::xml::tag("Interaction")
 	  << *ptr
 	  << magnet::xml::endtag("Interaction");
@@ -539,7 +539,7 @@ namespace dynamo {
   {
     double maxval = 0.0;
 
-    BOOST_FOREACH(const std::tr1::shared_ptr<Interaction>& ptr, interactions)
+    BOOST_FOREACH(const shared_ptr<Interaction>& ptr, interactions)
       if (ptr->maxIntDist() > maxval)
 	maxval = ptr->maxIntDist();
 
@@ -559,7 +559,7 @@ namespace dynamo {
 	getInteraction(*iPtr1, *iPtr2)->checkOverlaps(*iPtr1, *iPtr2);
 
     BOOST_FOREACH(const Particle& part, Sim->particleList)
-      BOOST_FOREACH(const std::tr1::shared_ptr<Local>& lcl, locals)
+      BOOST_FOREACH(const shared_ptr<Local>& lcl, locals)
       if (lcl->isInteraction(part))
 	lcl->checkOverlaps(part);
     

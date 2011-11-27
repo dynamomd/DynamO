@@ -63,8 +63,8 @@ namespace dynamo {
     virtual double getInternalEnergy(const Particle&, const Particle&) const;
 
   protected:
-    std::tr1::shared_ptr<Property> _diameter;
-    std::tr1::shared_ptr<Property> _wellDepth;
+    shared_ptr<Property> _diameter;
+    shared_ptr<Property> _wellDepth;
   };
 }
 

@@ -145,7 +145,7 @@ namespace dynamo {
     //Now we're past the event update the scheduler and plugins
     Sim->ptrScheduler->fullUpdate(part);
   
-    BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, EDat);
   }
 
@@ -160,7 +160,7 @@ namespace dynamo {
   void 
   LTriangleMesh::operator<<(const magnet::xml::Node& XML)
   {
-    range = std::tr1::shared_ptr<CRange>(CRange::getClass(XML,Sim));
+    range = shared_ptr<CRange>(CRange::getClass(XML,Sim));
   
     try {
       _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
@@ -259,7 +259,7 @@ namespace dynamo {
 
 #ifdef DYNAMO_visualizer
 
-  std::tr1::shared_ptr<coil::RenderObj>
+  shared_ptr<coil::RenderObj>
   LTriangleMesh::getCoilRenderObj() const
   {
     const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();

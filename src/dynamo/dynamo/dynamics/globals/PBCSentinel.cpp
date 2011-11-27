@@ -98,7 +98,7 @@ namespace dynamo {
 
     Sim->signalParticleUpdate(EDat);
 
-    BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, EDat);
 #else
     Sim->freestreamAcc += iEvent.getdt();

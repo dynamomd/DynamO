@@ -134,7 +134,7 @@ namespace dynamo {
 
     Sim->freestreamAcc = 0;
 
-    BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(*this, SDat, locdt); 
   }
 
@@ -320,8 +320,8 @@ namespace dynamo {
 	* Sim->dynamics.units().unitLength();
 
       delU = XML.getAttribute("delU").as<double>() * Sim->dynamics.units().unitEnergy();
-      range1 = std::tr1::shared_ptr<CRange>(CRange::getClass(XML.getNode("Range1"), Sim));
-      range2 = std::tr1::shared_ptr<CRange>(CRange::getClass(XML.getNode("Range2"), Sim));
+      range1 = shared_ptr<CRange>(CRange::getClass(XML.getNode("Range1"), Sim));
+      range2 = shared_ptr<CRange>(CRange::getClass(XML.getNode("Range2"), Sim));
     
       if (XML.hasAttribute("currentulevel"))
 	{

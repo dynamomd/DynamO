@@ -47,7 +47,7 @@ namespace dynamo {
     return std::cout;
   }
 
-  std::tr1::shared_ptr<OutputPlugin>
+  shared_ptr<OutputPlugin>
   OutputPlugin::getPlugin(std::string Details, const dynamo::SimData* Sim)
   {
     typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
@@ -98,14 +98,14 @@ namespace dynamo {
   }
   
   namespace {
-    template<class T> std::tr1::shared_ptr<dynamo::OutputPlugin>
+    template<class T> shared_ptr<dynamo::OutputPlugin>
     testGeneratePlugin(const dynamo::SimData* Sim, const magnet::xml::Node& XML)
     {
       try {
 	Sim->getOutputPlugin<T>();
       } catch (std::exception&)
 	{
-	  return std::tr1::shared_ptr<dynamo::OutputPlugin>(new T(Sim, XML));
+	  return shared_ptr<dynamo::OutputPlugin>(new T(Sim, XML));
 	}
       
       //It's already in the simulation
@@ -113,7 +113,7 @@ namespace dynamo {
     }
   }
 
-  std::tr1::shared_ptr<OutputPlugin>
+  shared_ptr<OutputPlugin>
   OutputPlugin::getPlugin(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
   {
     std::string Name(XML.getAttribute("Type"));

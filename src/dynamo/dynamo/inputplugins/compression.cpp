@@ -54,7 +54,7 @@ namespace dynamo {
     oldLio = Sim->dynamics.getLiouvilleanPtr();
 
     dout << "Loading compression liouvillean" << std::endl;
-    Sim->dynamics.setLiouvillean(std::tr1::shared_ptr<dynamo::Liouvillean>
+    Sim->dynamics.setLiouvillean(shared_ptr<dynamo::Liouvillean>
 				 (new LCompression(Sim, growthRate 
 						   / Sim->dynamics.units().unitTime())));
   }
@@ -69,7 +69,7 @@ namespace dynamo {
 
     if (std::tr1::dynamic_pointer_cast<SNeighbourList>(Sim->ptrScheduler))
       {
-	BOOST_FOREACH(std::tr1::shared_ptr<Global>& ptr, Sim->dynamics.getGlobals())
+	BOOST_FOREACH(shared_ptr<Global>& ptr, Sim->dynamics.getGlobals())
 	  if (std::tr1::dynamic_pointer_cast<GNeighbourList>(ptr))
 	    //Rebulid the collision scheduler without the overlapping cells!
 	    static_cast<GNeighbourList&>(*ptr).setCellOverlap(true);

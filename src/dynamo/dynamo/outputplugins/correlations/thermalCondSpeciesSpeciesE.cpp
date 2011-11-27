@@ -93,7 +93,7 @@ namespace dynamo {
       }
   
     //Sum up the constant Del G.
-    BOOST_FOREACH(const std::tr1::shared_ptr<Species>& spec, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->dynamics.getSpecies())
       BOOST_FOREACH(const size_t& id, *spec->getRange())
       {
 	const Particle& part(Sim->particleList[id]);

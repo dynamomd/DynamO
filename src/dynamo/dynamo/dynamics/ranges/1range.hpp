@@ -19,10 +19,12 @@
 
 #include <boost/range.hpp>
 #include <iterator>
+#include <tr1/memory>
 
 namespace magnet { namespace xml { class Node; class XmlStream; } }
 
 namespace dynamo { 
+  using std::tr1::shared_ptr;
   class SimData; 
   class Particle;
 

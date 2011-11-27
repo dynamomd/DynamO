@@ -141,7 +141,7 @@ namespace dynamo {
 	
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	  BOOST_FOREACH(std::tr1::shared_ptr<OutputPlugin> & Ptr, 
+	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, 
 			Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retval);
 

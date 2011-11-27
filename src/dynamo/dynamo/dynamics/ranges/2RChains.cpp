@@ -19,6 +19,7 @@
 #include <dynamo/simulation/particle.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
+#include <cstring>
 
 namespace dynamo {
   C2RChains::C2RChains(unsigned long r1, unsigned long r2, unsigned long r3):

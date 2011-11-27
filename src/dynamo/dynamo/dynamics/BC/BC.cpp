@@ -29,7 +29,7 @@ namespace dynamo {
     return XML;
   }
   
-  namespace{typedef std::tr1::shared_ptr<BoundaryCondition> retptr;}
+  namespace{typedef shared_ptr<BoundaryCondition> retptr;}
 
   retptr
   BoundaryCondition::getClass(const magnet::xml::Node& XML, dynamo::SimData* tmp)

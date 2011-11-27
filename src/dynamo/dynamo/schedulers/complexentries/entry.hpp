@@ -56,6 +56,6 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
   
-    std::tr1::shared_ptr<CRange> range;
+    shared_ptr<CRange> range;
   };
 }

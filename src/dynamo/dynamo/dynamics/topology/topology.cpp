@@ -48,7 +48,7 @@ namespace dynamo {
       }
     
     for (magnet::xml::Node node = XML.fastGetNode("Molecule"); node.valid(); ++node)
-      ranges.push_back(std::tr1::shared_ptr<CRange>(CRange::getClass(node, Sim)));
+      ranges.push_back(shared_ptr<CRange>(CRange::getClass(node, Sim)));
   }
 
   void
@@ -56,17 +56,17 @@ namespace dynamo {
   {
     XML << magnet::xml::attr("Name") << spName;
   
-    BOOST_FOREACH(const std::tr1::shared_ptr<CRange>& plugPtr, ranges)
+    BOOST_FOREACH(const shared_ptr<CRange>& plugPtr, ranges)
       XML << magnet::xml::tag("Molecule") << plugPtr
 	  << magnet::xml::endtag("Molecule");
   }
 
 
-  std::tr1::shared_ptr<Topology>
+  shared_ptr<Topology>
   Topology::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim, size_t ID)
   {
     if (!strcmp(XML.getAttribute("Type"),"Chain"))
-      return std::tr1::shared_ptr<Topology>(new CTChain(XML, Sim, ID));
+      return shared_ptr<Topology>(new CTChain(XML, Sim, ID));
     else 
       M_throw() << XML.getAttribute("Type")
 		<< ", Unknown type of Topology encountered";
