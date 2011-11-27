@@ -25,7 +25,12 @@
 #include <algorithm>
 
 namespace dynamo {
-  //Datatype for a single event, stored in lists for each particle
+  /*! \brief A generic event type, which the more specialised events
+      are converted to before they are sorted.
+
+      This conversion is lossy, so events need to be recalculated if
+      they are to be exectuted.
+   */
   class Event
   {
   public:   
