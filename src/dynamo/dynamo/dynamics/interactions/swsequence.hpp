@@ -29,7 +29,7 @@ namespace dynamo {
   public:
     template<class T1, class T2, class T3>
     ISWSequence(dynamo::SimData* tmp, T1 d, T2 l, T3 e, 
-		std::vector<size_t> seq, C2Range* nR):
+		std::vector<size_t> seq, C2Range* nR, std::string name):
       Interaction(tmp,nR),
       _diameter(Sim->_properties.getProperty
 		(d, Property::Units::Length())),
@@ -41,6 +41,7 @@ namespace dynamo {
 	 (e, Property::Units::Dimensionless())),
       sequence(seq) 
     {
+      intName = name;
       std::set<size_t> letters;
     
       BOOST_FOREACH(const size_t& id, seq)

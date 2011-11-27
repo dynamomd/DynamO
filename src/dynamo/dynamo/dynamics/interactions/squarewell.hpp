@@ -27,7 +27,7 @@ namespace dynamo {
   public:
     template<class T1, class T2, class T3, class T4>
     ISquareWell(dynamo::SimData* tmp, T1 d, T2 l, 
-		T3 wd, T4 e, C2Range* nR):
+		T3 wd, T4 e, C2Range* nR, std::string name):
       Interaction(tmp,nR),
       _diameter(Sim->_properties.getProperty
 		(d, Property::Units::Length())),
@@ -37,7 +37,9 @@ namespace dynamo {
 		 (wd, Property::Units::Energy())),
       _e(Sim->_properties.getProperty
 	 (e, Property::Units::Dimensionless()))
-    {}
+    {
+      intName = name;
+    }
 
     ISquareWell(const magnet::xml::Node&, dynamo::SimData*);
   

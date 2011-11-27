@@ -106,9 +106,6 @@ namespace dynamo {
     //! Tests if this interaction is suitable to describe the basic properties of an entire species.
     bool isInteraction(const Species &) const;
 
-    //! Sets the "name" of the interaction used when performing lookups. Mainly used to name interactions in the configuration file.
-    inline void setName(const std::string& tmp) { intName = tmp; }
-
     //! Returns the "name" of the interaction used in name-based look-ups.
     inline const std::string& getName() const { return intName; }
 

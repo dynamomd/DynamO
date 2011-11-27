@@ -26,13 +26,13 @@ namespace dynamo {
   {
   public:
     template<class T1, class T2>
-    ISoftCore(dynamo::SimData* tmp, T1 d, T2 wd, C2Range* nR):
+    ISoftCore(dynamo::SimData* tmp, T1 d, T2 wd, C2Range* nR, std::string name):
       Interaction(tmp,nR),
       _diameter(Sim->_properties.getProperty
 		(d, Property::Units::Length())),
       _wellDepth(Sim->_properties.getProperty
 		 (wd, Property::Units::Energy()))
-    {}
+    { intName = name; }
   
     ISoftCore(const magnet::xml::Node&, dynamo::SimData*);
   

@@ -25,7 +25,8 @@ namespace dynamo {
   {
   public:
     template<class T1, class T2, class T3>
-    ISquareBond(dynamo::SimData* tmp, T1 d, T2 l, T3 e, C2Range* nR):
+    ISquareBond(dynamo::SimData* tmp, T1 d, T2 l, T3 e, C2Range* nR,
+		std::string name):
       Interaction(tmp, nR),
       _diameter(Sim->_properties.getProperty
 		(d, Property::Units::Length())),
@@ -33,7 +34,9 @@ namespace dynamo {
 	      (l, Property::Units::Dimensionless())),
       _e(Sim->_properties.getProperty
 	 (e, Property::Units::Dimensionless()))
-    {}
+    {
+      intName = name;
+    }
 
     ISquareBond(const magnet::xml::Node&, dynamo::SimData*);
 

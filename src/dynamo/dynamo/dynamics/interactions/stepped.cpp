@@ -36,7 +36,8 @@
 
 namespace dynamo {
   IStepped::IStepped(dynamo::SimData* tmp, 
-		     const std::vector<steppair>& vec, C2Range* nR):
+		     const std::vector<steppair>& vec, C2Range* nR,
+		     std::string name):
     Interaction(tmp,nR),
     _unitLength(Sim->_properties.getProperty
 		(Sim->dynamics.units().unitLength(), 
@@ -45,7 +46,7 @@ namespace dynamo {
 		(Sim->dynamics.units().unitEnergy(), 
 		 Property::Units::Energy())),
     steps(vec)
-  {}
+  { intName = name; }
 
   IStepped::IStepped(const magnet::xml::Node& XML, dynamo::SimData* tmp):
     Interaction(tmp, NULL), //A temporary value!

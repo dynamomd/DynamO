@@ -26,7 +26,8 @@ namespace dynamo {
   {
   public:
     template<class T1, class T2, class T3>
-    IRoughHardSphere(dynamo::SimData* tmp, T1 d, T2 e, T3 et, C2Range* nR):
+    IRoughHardSphere(dynamo::SimData* tmp, T1 d, T2 e, T3 et, C2Range* nR,
+		     std::string name):
       Interaction(tmp, nR),
       _diameter(Sim->_properties.getProperty
 		(d, Property::Units::Length())),
@@ -34,7 +35,7 @@ namespace dynamo {
 	 (e, Property::Units::Dimensionless())),
       _et(Sim->_properties.getProperty
 	  (et, Property::Units::Dimensionless()))
-    {}
+    { intName = name; }
 
     IRoughHardSphere(const magnet::xml::Node&, dynamo::SimData*);
 

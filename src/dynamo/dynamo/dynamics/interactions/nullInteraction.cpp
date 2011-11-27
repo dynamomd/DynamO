@@ -23,8 +23,8 @@
 #include <cstring>
 
 namespace dynamo {
-  INull::INull(dynamo::SimData* tmp, C2Range* nR):
-    Interaction(tmp, nR) {}
+  INull::INull(dynamo::SimData* tmp, C2Range* nR, std::string name):
+    Interaction(tmp, nR) { intName = name; }
 
   INull::INull(const magnet::xml::Node& XML, dynamo::SimData* tmp):
     Interaction(tmp, NULL)
