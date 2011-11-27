@@ -25,7 +25,7 @@
 #include <cmath>
 
 namespace dynamo {
-  class CSSCBT: public CSSorter
+  class ESCBT: public EventSorter
   {
   private:
     std::vector<unsigned long> CBT;
@@ -36,8 +36,8 @@ namespace dynamo {
     double pecTime;
 
   public:  
-    CSSCBT(const dynamo::SimData* const& SD):
-      CSSorter(SD, "CBT")
+    ESCBT(const dynamo::SimData* const& SD):
+      EventSorter(SD, "CBT")
     {}
 
     typedef std::vector<pList>::iterator iterator;

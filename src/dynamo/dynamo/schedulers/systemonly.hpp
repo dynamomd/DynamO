@@ -24,7 +24,7 @@ namespace dynamo {
   public:
     SSystemOnly(const magnet::xml::Node&, dynamo::SimData* const);
 
-    SSystemOnly(dynamo::SimData* const, CSSorter*);
+    SSystemOnly(dynamo::SimData* const, EventSorter*);
 
     virtual void rebuildList();
 

@@ -24,12 +24,12 @@ namespace magnet { namespace xml { class Node; } }
 namespace xml { class XmlStream; } 
 
 namespace dynamo {
-  class CSSorter: public dynamo::SimBase_const
+  class EventSorter: public dynamo::SimBase_const
   {
   public:
-    CSSorter(const dynamo::SimData* const& SD, const char *aName);
+    EventSorter(const dynamo::SimData* const& SD, const char *aName);
 
-    virtual ~CSSorter() {}
+    virtual ~EventSorter() {}
     virtual size_t size()                              const = 0;
     virtual bool   empty()                             const = 0;
     virtual void   resize(const size_t&)                     = 0;
@@ -60,10 +60,10 @@ namespace dynamo {
     //! Fetch the next event in the list, 
     virtual intPart   copyNextEvent() const               = 0;
 
-    static shared_ptr<CSSorter>
+    static shared_ptr<EventSorter>
     getClass(const magnet::xml::Node&, const dynamo::SimData*);
 
-    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const CSSorter&);
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const EventSorter&);
 
   private:
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;

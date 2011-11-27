@@ -42,7 +42,7 @@ namespace dynamo {
     operator<<(XML);
   }
 
-  SSystemOnly::SSystemOnly(dynamo::SimData* const Sim, CSSorter* ns):
+  SSystemOnly::SSystemOnly(dynamo::SimData* const Sim, EventSorter* ns):
     Scheduler(Sim,"SystemOnlyScheduler", ns)
   { dout << "System Events Only Scheduler Algorithmn" << std::endl; }
 

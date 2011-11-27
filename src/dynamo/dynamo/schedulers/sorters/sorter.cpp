@@ -21,38 +21,38 @@
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  CSSorter::CSSorter(const dynamo::SimData* const& SD, const char *aName):
+  EventSorter::EventSorter(const dynamo::SimData* const& SD, const char *aName):
     SimBase_const(SD, aName)
   {}
 
-  shared_ptr<CSSorter>
-  CSSorter::getClass(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
+  shared_ptr<EventSorter>
+  EventSorter::getClass(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
   {
-    if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<pList>::name())
-      return shared_ptr<CSSorter>(new CSSBoundedPQ<>(Sim));
-    if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<PELSingleEvent>::name())
-      return shared_ptr<CSSorter>(new CSSBoundedPQ<PELSingleEvent>(Sim));
-    if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<MinMaxHeapPList<2> >::name())
-      return shared_ptr<CSSorter>(new CSSBoundedPQ<MinMaxHeapPList<2> >(Sim));
-    if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<MinMaxHeapPList<3> >::name())
-      return shared_ptr<CSSorter>(new CSSBoundedPQ<MinMaxHeapPList<3> >(Sim));
-    if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<MinMaxHeapPList<4> >::name())
-      return shared_ptr<CSSorter>(new CSSBoundedPQ<MinMaxHeapPList<4> >(Sim));
-    if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<MinMaxHeapPList<5> >::name())
-      return shared_ptr<CSSorter>(new CSSBoundedPQ<MinMaxHeapPList<5> >(Sim));
-    if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<MinMaxHeapPList<6> >::name())
-      return shared_ptr<CSSorter>(new CSSBoundedPQ<MinMaxHeapPList<6> >(Sim));
-    if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<MinMaxHeapPList<7> >::name())
-      return shared_ptr<CSSorter>(new CSSBoundedPQ<MinMaxHeapPList<7> >(Sim));
-    if (std::string(XML.getAttribute("Type")) == CSSBoundedPQName<MinMaxHeapPList<8> >::name())
-      return shared_ptr<CSSorter>(new CSSBoundedPQ<MinMaxHeapPList<8> >(Sim));
+    if (std::string(XML.getAttribute("Type")) == ESBoundedPQName<pList>::name())
+      return shared_ptr<EventSorter>(new ESBoundedPQ<>(Sim));
+    if (std::string(XML.getAttribute("Type")) == ESBoundedPQName<PELSingleEvent>::name())
+      return shared_ptr<EventSorter>(new ESBoundedPQ<PELSingleEvent>(Sim));
+    if (std::string(XML.getAttribute("Type")) == ESBoundedPQName<MinMaxHeapPList<2> >::name())
+      return shared_ptr<EventSorter>(new ESBoundedPQ<MinMaxHeapPList<2> >(Sim));
+    if (std::string(XML.getAttribute("Type")) == ESBoundedPQName<MinMaxHeapPList<3> >::name())
+      return shared_ptr<EventSorter>(new ESBoundedPQ<MinMaxHeapPList<3> >(Sim));
+    if (std::string(XML.getAttribute("Type")) == ESBoundedPQName<MinMaxHeapPList<4> >::name())
+      return shared_ptr<EventSorter>(new ESBoundedPQ<MinMaxHeapPList<4> >(Sim));
+    if (std::string(XML.getAttribute("Type")) == ESBoundedPQName<MinMaxHeapPList<5> >::name())
+      return shared_ptr<EventSorter>(new ESBoundedPQ<MinMaxHeapPList<5> >(Sim));
+    if (std::string(XML.getAttribute("Type")) == ESBoundedPQName<MinMaxHeapPList<6> >::name())
+      return shared_ptr<EventSorter>(new ESBoundedPQ<MinMaxHeapPList<6> >(Sim));
+    if (std::string(XML.getAttribute("Type")) == ESBoundedPQName<MinMaxHeapPList<7> >::name())
+      return shared_ptr<EventSorter>(new ESBoundedPQ<MinMaxHeapPList<7> >(Sim));
+    if (std::string(XML.getAttribute("Type")) == ESBoundedPQName<MinMaxHeapPList<8> >::name())
+      return shared_ptr<EventSorter>(new ESBoundedPQ<MinMaxHeapPList<8> >(Sim));
     else if (std::string(XML.getAttribute("Type")) == std::string("CBT"))
-      return shared_ptr<CSSorter>(new CSSCBT(Sim));
+      return shared_ptr<EventSorter>(new ESCBT(Sim));
     else 
       M_throw() << "Unknown type of Sorter encountered";
   }
 
-  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const CSSorter& srtr)
+  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const EventSorter& srtr)
   {
     srtr.outputXML(XML);
     return XML;

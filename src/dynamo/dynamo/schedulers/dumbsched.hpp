@@ -24,7 +24,7 @@ namespace dynamo {
   public:
     SDumb(const magnet::xml::Node&, dynamo::SimData* const);
 
-    SDumb(dynamo::SimData* const, CSSorter*);
+    SDumb(dynamo::SimData* const, EventSorter*);
 
     virtual void getParticleNeighbourhood(const Particle&,
 					  const nbHoodFunc&) const;

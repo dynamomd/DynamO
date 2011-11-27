@@ -32,7 +32,7 @@ namespace dynamo {
   void 
   OPBoundedQStats::initialise()
   {  
-    if (!std::tr1::dynamic_pointer_cast<CSSBoundedPQ<> >(Sim->ptrScheduler->getSorter()))
+    if (!std::tr1::dynamic_pointer_cast<ESBoundedPQ<> >(Sim->ptrScheduler->getSorter()))
       M_throw() << "Not a bounded queue sorter!";
 
   }
@@ -40,7 +40,7 @@ namespace dynamo {
   void
   OPBoundedQStats::ticker()
   {
-    const CSSBoundedPQ<>& sorter(dynamic_cast<const CSSBoundedPQ<>&>
+    const ESBoundedPQ<>& sorter(dynamic_cast<const ESBoundedPQ<>&>
 				 (*(Sim->ptrScheduler->getSorter())));
  
     treeSize.addVal(sorter.treeSize());
@@ -50,7 +50,7 @@ namespace dynamo {
   void 
   OPBoundedQStats::output(magnet::xml::XmlStream& XML)
   {
-    const CSSBoundedPQ<>& sorter(dynamic_cast<const CSSBoundedPQ<>&>
+    const ESBoundedPQ<>& sorter(dynamic_cast<const ESBoundedPQ<>&>
 				 (*(Sim->ptrScheduler->getSorter())));
 
     XML << magnet::xml::tag("boundedQstats") 
