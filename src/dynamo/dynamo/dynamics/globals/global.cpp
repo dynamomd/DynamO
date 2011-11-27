@@ -56,7 +56,8 @@ namespace dynamo {
       return shared_ptr<Global>(new GWaker(XML, Sim));
     else 
       M_throw() << XML.getAttribute("Type")
-		<< ", Unknown type of Global Interaction encountered";
+		<< ", Unknown type (" << XML.getAttribute("Type")
+		<< ") of Global Interaction encountered";
   }
 }
 
