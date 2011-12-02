@@ -201,7 +201,9 @@ namespace dynamo {
 	    }
 	  else
 	    {
-	      if (maxVal < 0 ) M_throw() << "Queue filled with negative events";
+	      if (maxVal < 0 ) 
+		derr << "WARNING! The event queue is filled with negative events!"  
+		     << std::endl;;
 	      
 	      scale = counter / (maxVal - minVal);
 	      nlists = Min.size();
