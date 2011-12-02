@@ -192,9 +192,9 @@ namespace dynamo {
 					   / (Sim->primaryCellSize[dimension] * latticeSites.size()));		
 		
 		  dout << "I'm changing what looks like the unused box dimension (" 
-		       << dimension << ") to the optimal 2D value (3 particle diameters)" << std::endl;
+		       << dimension << ") to the smallest value allowed by the neighbourlist implementation (slightly more than 4 particle diameters)" << std::endl;
 
-		  Sim->primaryCellSize[dimension] = 3.0000001 * particleDiam;
+		  Sim->primaryCellSize[dimension] = 4.0000001 * particleDiam;
 		}
 	    }
 

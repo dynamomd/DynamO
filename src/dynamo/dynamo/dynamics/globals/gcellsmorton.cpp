@@ -303,7 +303,7 @@ namespace dynamo {
 		    << "Your simulation box is too small in this dimension to use "
 		    << "Neighbourlists. If this cannot be changed, you can try "
 		    << "using a Dumb scheduler and deleting the Neighbourlist, "
-		    << "but this may make the simulation much slower";
+		    << "but this may make the simulation much slower.";
       
 	NCells *= cellCount[iDim];
       
@@ -416,28 +416,11 @@ namespace dynamo {
 	% cellCount[iDim];
 
     magnet::math::MortonNumber<3> coords(zero_coords);
-    if (part.getID() == 7)
-      derr << "Particle 7 Neighbourhood:" 
-	   << "<" << particle_cell_coords[0].getRealValue()
-	   << "," << particle_cell_coords[1].getRealValue()
-	   << "," << particle_cell_coords[2].getRealValue() << ">"
-	   << std::endl;
 
     while (coords[2] != max_coords[2])
       {
-	if (part.getID() == 7)
-	  derr << "   Neighbourhood Cell:" 
-	       << "<" << coords[0].getRealValue()
-	       << "," << coords[1].getRealValue()
-	       << "," << coords[2].getRealValue() << ">"
-	       << std::endl;
-
 	BOOST_FOREACH(const size_t& next, list[coords.getMortonNum()])
-	  {
-	    if (part.getID() == 7)
-	      derr << " ID = " << next << std::endl;
-	    func(part, next);
-	  }
+	  func(part, next);
       
 	++coords[0];
 	if (coords[0] > dilatedCellMax[0]) coords[0] = 0;
