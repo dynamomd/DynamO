@@ -151,7 +151,7 @@ namespace dynamo {
 	}
       endCell = dendCell.getMortonNum();
     }
-    
+
     removeFromCellwIt(part.getID(), it);
     addToCell(part.getID(), endCell);
 
@@ -169,8 +169,8 @@ namespace dynamo {
       dim2 = (cellDirection + 2) % 3;
 
     newNBCell[dim1] += cellCount[dim1] - overlink;
-    newNBCell[dim2] += cellCount[dim1] - overlink;
-  
+    newNBCell[dim2] += cellCount[dim2] - overlink;
+
     size_t walkLength = 2 * overlink + 1;
 
     const magnet::math::DilatedInteger<3> saved_coord(newNBCell[dim1]);
@@ -183,7 +183,7 @@ namespace dynamo {
 	for (size_t jDim(0); jDim < walkLength; ++jDim)
 	  {
 	    newNBCell[dim1] %= cellCount[dim1];
-  
+	    
 	    BOOST_FOREACH(const size_t& next, list[newNBCell.getMortonNum()])
 	      BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
 	        nbs.second(part, next);
