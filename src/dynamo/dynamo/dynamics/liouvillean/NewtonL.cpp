@@ -837,12 +837,13 @@ namespace dynamo {
     double retval = HUGE_VAL;
 
     for (size_t i(0); i < NDIM; ++i)
-      {
-	double tmp = (0.25 * Sim->primaryCellSize[i] - lMax) / fabs(vel[i]);
-
-	if (tmp < retval)
-	  retval = tmp;
-      }
+      if (vel[i] != 0)
+	{
+	  double tmp = (0.25 * Sim->primaryCellSize[i] - lMax) / fabs(vel[i]);
+	  
+	  if (tmp < retval)
+	    retval = tmp;
+	}
 
     return retval;
   }
