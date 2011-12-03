@@ -40,7 +40,9 @@ namespace dynamo {
   protected:
     double binWidth;
     size_t length;
-    unsigned long sampleCount;  
+    unsigned long sampleCount;
+    double sample_energy; 
+    double sample_energy_bin_width;
     std::vector<std::vector<std::vector<unsigned long> > > data;
   };
 }

@@ -16,6 +16,7 @@
 */
 
 #include <dynamo/outputplugins/tickerproperty/radialdist.hpp>
+#include <dynamo/outputplugins/1partproperty/uenergy.hpp>
 #include <dynamo/dynamics/include.hpp>
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -28,7 +29,9 @@ namespace dynamo {
     OPTicker(tmp,"RadialDistribution"),
     binWidth(0.1),
     length(100),
-    sampleCount(0)
+    sampleCount(0),
+    sample_energy(0),
+    sample_energy_bin_width(0)
   { 
     if (NDIM != 3)
       M_throw() << "This plugin will not work as I've not correctly calculated "
@@ -60,6 +63,19 @@ namespace dynamo {
 	    + static_cast<size_t>(Sim->primaryCellSize[mindir] / (2 * binWidth));
 	}
 
+      if (XML.hasAttribute("SampleEnergy"))
+	{
+	  sample_energy 
+	    = XML.getAttribute("SampleEnergy").as<double>() 
+	    * Sim->dynamics.units().unitEnergy();
+
+	  sample_energy_bin_width = 1 / Sim->dynamics.units().unitEnergy();
+	  if (XML.hasAttribute("SampleEnergyWidth"))
+	    sample_energy_bin_width
+	      = XML.getAttribute("SampleEnergyWidth").as<double>()
+	      * Sim->dynamics.units().unitEnergy();
+	}
+      
       dout << "Binwidth = " << binWidth / Sim->dynamics.units().unitLength()
 	   << "\nLength = " << length << std::endl;
     }
@@ -86,23 +102,39 @@ namespace dynamo {
   void 
   OPRadialDistribution::ticker()
   {
+    //A test to ensure we only sample at a target energy (if
+    //specified)
+    if (sample_energy_bin_width)
+      if (std::abs(sample_energy - Sim->getOutputPlugin<OPUEnergy>()->getSimU())
+	  > sample_energy_bin_width * 0.5)
+	return;
+
+    dout << "Sampling rad as energy is " 
+	 << Sim->getOutputPlugin<OPUEnergy>()->getSimU()
+      / Sim->dynamics.units().unitEnergy()
+	 << " sample_energy is "
+	 << sample_energy / Sim->dynamics.units().unitEnergy()
+	 << " and sample_energy_bin_width is "
+	 << sample_energy_bin_width / Sim->dynamics.units().unitEnergy()
+	 << std::endl;
+
     ++sampleCount;
   
     BOOST_FOREACH(const shared_ptr<Species>& sp1, Sim->dynamics.getSpecies())
       BOOST_FOREACH(const shared_ptr<Species>& sp2, Sim->dynamics.getSpecies())
-      { BOOST_FOREACH(const size_t& p1, *sp1->getRange())
-	  BOOST_FOREACH(const size_t& p2, *sp2->getRange())
-	  {
-	    Vector  rij = Sim->particleList[p1].getPosition()
-	      - Sim->particleList[p2].getPosition();
-
-	    Sim->dynamics.BCs().applyBC(rij);
-
-	    size_t i = (long) (((rij.nrm())/binWidth) + 0.5);
-
-	    if (i < length)
-	      ++data[sp1->getID()][sp2->getID()][i];
-	  }}
+      BOOST_FOREACH(const size_t& p1, *sp1->getRange())
+      BOOST_FOREACH(const size_t& p2, *sp2->getRange())
+      {
+	Vector  rij = Sim->particleList[p1].getPosition()
+	  - Sim->particleList[p2].getPosition();
+	
+	Sim->dynamics.BCs().applyBC(rij);
+	
+	size_t i = (long) (((rij.nrm())/binWidth) + 0.5);
+	
+	if (i < length)
+	  ++data[sp1->getID()][sp2->getID()][i];
+      }
   }
 
   void
