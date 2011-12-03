@@ -483,7 +483,7 @@ function HeavySphereTest {
 function HeavySphereCompressionTest {
     > run.log
 
-    ./dynarun --engine 3 --target-pack-frac 0.2 hvySpheres.xml.bz2 >> run.log 2>&1
+    ./dynarun --engine 3 --target-pack-frac 0.1 hvySpheres.xml.bz2 >> run.log 2>&1
     
     if [ -e output.xml.bz2 ]; then
 	echo "HeavySphereCompressionTest -: PASSED"
