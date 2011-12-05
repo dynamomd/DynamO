@@ -32,7 +32,9 @@ namespace magnet {
       F(GL_MINOR_VERSION, GLint, 1)			\
       F(GL_MAX_DRAW_BUFFERS, GLint, 1)			\
       F(GL_NUM_EXTENSIONS, GLint, 1)			\
-      F(GL_MAX_SAMPLES, GLint, 1)
+      F(GL_MAX_SAMPLES, GLint, 1)			\
+      F(GL_MAX_COLOR_TEXTURE_SAMPLES, GLint, 1)		\
+      F(GL_MAX_DEPTH_TEXTURE_SAMPLES, GLint, 1)
 
       template<size_t width, class T> struct return_type { typedef std::tr1::array<T, width> Type; };
       template<class T> struct return_type<1, T> { typedef T Type; };

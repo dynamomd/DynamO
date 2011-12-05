@@ -468,6 +468,67 @@ namespace magnet {
       GLint _height;
     };
 
+
+    /*! \brief A 2D Texture. 
+     */
+    class Texture2DMultisampled: public detail::TextureBasic
+    {
+    public:
+      Texture2DMultisampled(): TextureBasic(GL_TEXTURE_2D_MULTISAMPLE) {}
+      
+      /*! \brief Initializes a 2D Multisampled texture.
+        
+	\param width The width of the texture in pixels.
+	\param height The height of the texture in pixels.
+        \param samples The number of sub-pixel samples.
+	\param internalformat The underlying format of the texture.
+	\param fixedSampleLocations Used to disable adaptive AA.
+       */
+      inline void init(size_t width, size_t height, GLint samples, GLint internalformat = GL_RGBA8,
+		       bool fixedSampleLocations = false)
+      {
+	_width = width; 
+	_height = height; 
+	_pixelcount = _width *  _height;
+	_internalFormat = internalformat;
+	_fixedSampleLocations = fixedSampleLocations;
+	_samples = samples;
+
+	TextureBasic::init();
+	bind(0);
+	
+	glTexImage2DMultisample(_texType, _samples, _internalFormat, 
+				_width, _height, _fixedSampleLocations);
+      }
+      
+      /*! \brief Resize the texture.
+       */
+      inline void resize(GLint width, GLint height)
+      {
+	//Skip identity operations
+	if ((width == _width) && (height == _height)) return;
+	if (!_width) M_throw() << "Cannot resize an uninitialised texture";
+
+	_width = width; 
+	_height = height;
+	_pixelcount = _width *  _height;
+	bind(0);
+
+	glTexImage2DMultisample(_texType, _samples, _internalFormat, 
+				_width, _height, _fixedSampleLocations); 
+      }
+
+      inline const GLint& getWidth() const { return _width; }
+      inline const GLint& getHeight() const { return _height; }
+
+    private:
+      
+      bool _fixedSampleLocations;
+      GLint _samples;
+      GLint _width;
+      GLint _height;
+    };
+
     /*! \brief A 3D Texture. 
      */
     class Texture3D: public detail::TextureBasic
