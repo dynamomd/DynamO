@@ -38,6 +38,7 @@ smooth in vec2 screenCoord;
 layout (location = 0) out vec4 color_out;
 
 //Standard G-buffer data
+uniform sampler2D depthTex;
 uniform sampler2D colorTex;
 uniform sampler2D normalTex;
 uniform sampler2D positionTex;
@@ -84,6 +85,14 @@ float chebyshevUpperBound(float distance)
 
 void main()
 {
+  gl_FragDepth = texture(depthTex, screenCoord).r;
+  vec4 color = texture(colorTex, screenCoord).rgba;
+  if (color.a == 0)
+    {
+      color_out = vec4(color.rgb, 1.0);
+      return;
+    }
+
   //Eye space position of the vertex
   vec3 position = texture(positionTex, screenCoord).xyz;
   
@@ -124,7 +133,6 @@ void main()
   /////////////////////////////
   //Blinn Phong lighting calculation
   /////////////////////////////
-  vec3 color = texture(colorTex, screenCoord).rgb;
   
   /////////////////////Ambient light
   float intensity = 0.2;

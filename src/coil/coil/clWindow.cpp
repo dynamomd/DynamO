@@ -599,7 +599,7 @@ namespace coil {
 
     _glContext = magnet::GL::Context::getContext();
 
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_DEPTH_TEST);
 
@@ -659,18 +659,13 @@ namespace coil {
 	std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
 	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      
+	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);      
 
 	//We use a shared depth/stencil buffer for the deferred and forward shading passes
 	std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
 	depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH24_STENCIL8);
 	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
       
 	_renderTarget.init();
@@ -684,27 +679,28 @@ namespace coil {
 	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       
 	std::tr1::shared_ptr<magnet::GL::Texture2D> normalTexture(new magnet::GL::Texture2D);
 	normalTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
 	normalTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	normalTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	normalTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	normalTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	std::tr1::shared_ptr<magnet::GL::Texture2D> posTexture(new magnet::GL::Texture2D);
 	posTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
 	posTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	posTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	posTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	posTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
+	depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);
+	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
     
 	_Gbuffer.init();
 	_Gbuffer.attachTexture(colorTexture, 0);
 	_Gbuffer.attachTexture(normalTexture, 1);
 	_Gbuffer.attachTexture(posTexture, 2);
+	_Gbuffer.attachTexture(depthTexture);
       }
     }
     //Now init the render objects  
@@ -975,18 +971,12 @@ namespace coil {
 
     //We share the depth and stencil texture between the GBuffer and
     //the target fbo
-    _Gbuffer.attachTexture(fbo.getDepthTexture(), 0);
     _Gbuffer.attach();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     _renderShader.attach();
     _renderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
     _renderShader["ViewMatrix"] = _camera.getViewMatrix();
-    //Set up to write 1 into the stencil buffer if the depth and
-    //stencil test pass
-    glEnable(GL_STENCIL_TEST);
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
+    
     //Enter the render ticks for all objects
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
 	   = _renderObjsTree._renderObjects.begin();
@@ -998,19 +988,10 @@ namespace coil {
     _Gbuffer.detach();
 
     ///////////////////////Deferred Shading Pass /////////////////
+    //We do a full screen pass, no need for color or depth clear or
+    //depth-test, just copy the data and calculate the ambient
+    //lighting
     fbo.attach();
-    //The render buffer shares its depth and stencil buffer with the
-    //g-buffer, so we only need to wipe the color data of the render
-    //target.
-    glClear(GL_COLOR_BUFFER_BIT);
-    //We do a full screen pass, without changing or reading the depth
-    //buffer.
-    
-    //We want to only shade pixels with a 1 in the stencil buffer
-    glStencilFunc(GL_EQUAL, 1, 0xFF);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-    glDisable(GL_DEPTH_TEST);
-    glDepthMask(GL_FALSE);
 
     _deferredShader.attach();
     _Gbuffer.getColorTexture(0)->bind(0);
@@ -1019,6 +1000,8 @@ namespace coil {
     _deferredShader["normalTex"] = 1;
     _Gbuffer.getColorTexture(2)->bind(2);
     _deferredShader["positionTex"] = 2;
+    _Gbuffer.getDepthTexture()->bind(3);
+    _deferredShader["depthTex"] = 3;
 
     {
       magnet::math::Vector vec = _light0.getEyeLocationObjSpace();
@@ -1035,7 +1018,8 @@ namespace coil {
     _deferredShader["ShadowIntensity"] = _shadowIntensity;
     _deferredShader["ShadowMapping"] = _shadowMapping;
     if (_shadowMapping)
-      _deferredShader["ShadowMatrix"] = _light0.getShadowTextureMatrix() * camera.getViewMatrix().inverse();
+      _deferredShader["ShadowMatrix"] 
+	= _light0.getShadowTextureMatrix() * camera.getViewMatrix().inverse();
 
     _deferredShader.invoke();
     _deferredShader.detach();

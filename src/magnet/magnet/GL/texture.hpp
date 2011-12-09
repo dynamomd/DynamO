@@ -171,6 +171,7 @@ namespace magnet {
 	    case GL_DEPTH_COMPONENT16:
 	    case GL_DEPTH_COMPONENT24:
 	    case GL_DEPTH_COMPONENT32:
+	    case GL_DEPTH_COMPONENT32F:
 	      return GL_DEPTH_COMPONENT;
 	    default:
 	      return GL_RGB;
@@ -351,7 +352,7 @@ namespace magnet {
        * \param height The height of the texture in pixels.
        * \param internalformat The underlying format of the texture.
        */
-      inline void init(size_t width, size_t height, GLint internalformat = GL_RGBA8)
+      inline virtual void init(size_t width, size_t height, GLint internalformat = GL_RGBA8)
       {
 	_width = width; 
 	_height = height; 
@@ -370,7 +371,7 @@ namespace magnet {
       
       /*! \brief Resize the texture.
        */
-      inline void resize(GLint width, GLint height)
+      inline virtual void resize(GLint width, GLint height)
       {
 	//Skip identity operations
 	if ((width == _width) && (height == _height)) return;
@@ -398,9 +399,9 @@ namespace magnet {
        * \param height The amount of pixels to write in the y direction.
        * \param level The texture mipmap level to write to.
        */
-      inline void subImage(const std::vector<uint8_t>& data, GLenum pixelformat,
-			   GLint xoffset = 0, GLint yoffset = 0, GLint width = -1, 
-			   GLint height = -1, GLint level = 0)
+      inline virtual void subImage(const std::vector<uint8_t>& data, GLenum pixelformat,
+				   GLint xoffset = 0, GLint yoffset = 0, GLint width = -1, 
+				   GLint height = -1, GLint level = 0)
       { 
 	//If there are negative values, assume they mean to use the
 	//full space
@@ -426,9 +427,9 @@ namespace magnet {
        * \param height The amount of pixels to write in the y direction.
        * \param level The texture mipmap level to write to.
        */
-      inline void subImage(const std::vector<GLfloat>& data, GLenum pixelformat,
-			   GLint xoffset = 0, GLint yoffset = 0, GLint width = -1, 
-			   GLint height = -1, GLint level = 0)
+      inline virtual void subImage(const std::vector<GLfloat>& data, GLenum pixelformat,
+				   GLint xoffset = 0, GLint yoffset = 0, GLint width = -1, 
+				   GLint height = -1, GLint level = 0)
       { 
 	//If there are negative values, assume they mean to use the
 	//full space
@@ -445,8 +446,8 @@ namespace magnet {
       }
 
 
-      inline void subImage(const uint8_t* data, GLenum pixelformat, GLint width, 
-			   GLint height, GLint xoffset = 0, GLint yoffset = 0, GLint level = 0)
+      inline virtual void subImage(const uint8_t* data, GLenum pixelformat, GLint width, 
+				   GLint height, GLint xoffset = 0, GLint yoffset = 0, GLint level = 0)
       { 
 	//If there are negative values, assume they mean to use the
 	//full space
@@ -463,7 +464,8 @@ namespace magnet {
       inline const GLint& getWidth() const { return _width; }
       inline const GLint& getHeight() const { return _height; }
     private:
-      
+      friend class Texture2DMultisampled;
+      Texture2D(GLenum type): TextureBasic(type) {}
       GLint _width;
       GLint _height;
     };
@@ -471,10 +473,14 @@ namespace magnet {
 
     /*! \brief A 2D Texture. 
      */
-    class Texture2DMultisampled: public detail::TextureBasic
+    class Texture2DMultisampled: public Texture2D
     {
     public:
-      Texture2DMultisampled(): TextureBasic(GL_TEXTURE_2D_MULTISAMPLE) {}
+      Texture2DMultisampled(GLint samples = 1, bool fixedSampleLocations = false):
+	Texture2D(GL_TEXTURE_2D_MULTISAMPLE), 
+	_fixedSampleLocations(fixedSampleLocations),
+	_samples(samples)
+      {}
       
       /*! \brief Initializes a 2D Multisampled texture.
         
@@ -484,15 +490,12 @@ namespace magnet {
 	\param internalformat The underlying format of the texture.
 	\param fixedSampleLocations Used to disable adaptive AA.
        */
-      inline void init(size_t width, size_t height, GLint samples, GLint internalformat = GL_RGBA8,
-		       bool fixedSampleLocations = false)
+      inline virtual void init(size_t width, size_t height, GLint internalformat = GL_RGBA8)
       {
 	_width = width; 
 	_height = height; 
 	_pixelcount = _width *  _height;
 	_internalFormat = internalformat;
-	_fixedSampleLocations = fixedSampleLocations;
-	_samples = samples;
 
 	TextureBasic::init();
 	bind(0);
@@ -503,7 +506,7 @@ namespace magnet {
       
       /*! \brief Resize the texture.
        */
-      inline void resize(GLint width, GLint height)
+      inline virtual void resize(GLint width, GLint height)
       {
 	//Skip identity operations
 	if ((width == _width) && (height == _height)) return;
@@ -521,12 +524,25 @@ namespace magnet {
       inline const GLint& getWidth() const { return _width; }
       inline const GLint& getHeight() const { return _height; }
 
+      inline virtual void subImage(const std::vector<uint8_t>& data, GLenum pixelformat,
+			   GLint xoffset = 0, GLint yoffset = 0, GLint width = -1, 
+			   GLint height = -1, GLint level = 0)
+      { M_throw() << "Cannot perform subimage on a multisampled texture"; }
+
+      inline void subImage(const std::vector<GLfloat>& data, GLenum pixelformat,
+			   GLint xoffset = 0, GLint yoffset = 0, GLint width = -1, 
+			   GLint height = -1, GLint level = 0)
+      { M_throw() << "Cannot perform subimage on a multisampled texture"; }
+
+
+      inline void subImage(const uint8_t* data, GLenum pixelformat, GLint width, 
+			   GLint height, GLint xoffset = 0, GLint yoffset = 0, GLint level = 0)
+      { M_throw() << "Cannot perform subimage on a multisampled texture"; }
+
     private:
       
       bool _fixedSampleLocations;
       GLint _samples;
-      GLint _width;
-      GLint _height;
     };
 
     /*! \brief A 3D Texture. 
