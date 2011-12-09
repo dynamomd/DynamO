@@ -55,10 +55,14 @@ namespace magnet {
 	    }
 	}
 
+	/*! \brief Returns the OpenGL enum type of the texture
+	 */
+	GLenum getGLType() const { return _texType; }
+
 	/*! \brief Binds the texture to the specified texture unit.
-	 *
-	 * \param unit The number of the texture unit to bind the
-	 * texture to.
+	 
+	  \param unit The number of the texture unit to bind the
+	  texture to.
 	 */
 	inline void bind(int unit) const
 	{

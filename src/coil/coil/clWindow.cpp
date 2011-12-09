@@ -69,6 +69,9 @@ extern const size_t cammode_rotate_size;
 extern const guint8 cammode_fps[];
 extern const size_t cammode_fps_size;
 
+namespace{
+  const GLint MS_samples = 4;
+}
 
 namespace coil {
   CLGLWindow::CLGLWindow(std::string title,
@@ -675,27 +678,17 @@ namespace coil {
 
       {
 	//Build G buffer      
-	std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+	std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2DMultisampled(MS_samples));
 	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
-	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       
-	std::tr1::shared_ptr<magnet::GL::Texture2D> normalTexture(new magnet::GL::Texture2D);
+	std::tr1::shared_ptr<magnet::GL::Texture2D> normalTexture(new magnet::GL::Texture2DMultisampled(MS_samples));
 	normalTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
-	normalTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	normalTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	std::tr1::shared_ptr<magnet::GL::Texture2D> posTexture(new magnet::GL::Texture2D);
+	std::tr1::shared_ptr<magnet::GL::Texture2D> posTexture(new magnet::GL::Texture2DMultisampled(MS_samples));
 	posTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
-	posTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	posTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
-	depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);
-	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-    
+	std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2DMultisampled(MS_samples));
+	depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);    
 	_Gbuffer.init();
 	_Gbuffer.attachTexture(colorTexture, 0);
 	_Gbuffer.attachTexture(normalTexture, 1);
@@ -994,6 +987,9 @@ namespace coil {
     fbo.attach();
 
     _deferredShader.attach();
+
+    _deferredShader["samples"] = MS_samples;
+
     _Gbuffer.getColorTexture(0)->bind(0);
     _deferredShader["colorTex"] = 0;
     _Gbuffer.getColorTexture(1)->bind(1);

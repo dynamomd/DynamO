@@ -192,6 +192,9 @@ namespace magnet {
 	  {
 	  case GL_DEPTH24_STENCIL8:
 	  case GL_DEPTH32F_STENCIL8:
+	  case GL_DEPTH_COMPONENT24:
+	  case GL_DEPTH_COMPONENT32:
+	  case GL_DEPTH_COMPONENT32F:
 	  case GL_DEPTH_COMPONENT:
 	    if (i)
 	      M_throw() << "Texture attachment point out of range";
@@ -304,14 +307,14 @@ namespace magnet {
 		if ((_depthTexture->getInternalFormat() == GL_DEPTH24_STENCIL8)
 		    || (_depthTexture->getInternalFormat() == GL_DEPTH32F_STENCIL8))
 		  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_STENCIL_ATTACHMENT, 
-					    GL_TEXTURE_2D, _depthTexture->getGLHandle(), 0);	  
+					    _depthTexture->getGLType(), _depthTexture->getGLHandle(), 0);	  
 		else
 		  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
-					    GL_TEXTURE_2D, _depthTexture->getGLHandle(), 0);
+					    _depthTexture->getGLType(), _depthTexture->getGLHandle(), 0);
 	      }
 	    else
 	      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
-					GL_TEXTURE_2D, 0, 0);
+					_depthTexture->getGLType(), 0, 0);
 
 	    
 	    std::vector<GLenum> states(_colorTextures.size(), GL_NONE);
@@ -319,7 +322,8 @@ namespace magnet {
 	    for (size_t attachment(0); attachment < _colorTextures.size(); ++attachment)
 	      if (_colorTextures[attachment])
 		{
-		  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + attachment, GL_TEXTURE_2D, 
+		  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + attachment, 
+					    _colorTextures[attachment]->getGLType(), 
 					    _colorTextures[attachment]->getGLHandle(), 0);
 		  states[attachment] = GL_COLOR_ATTACHMENT0_EXT + attachment;
 		}

@@ -38,10 +38,11 @@ smooth in vec2 screenCoord;
 layout (location = 0) out vec4 color_out;
 
 //Standard G-buffer data
-uniform sampler2D depthTex;
-uniform sampler2D colorTex;
-uniform sampler2D normalTex;
-uniform sampler2D positionTex;
+uniform sampler2DMS depthTex;
+uniform sampler2DMS colorTex;
+uniform sampler2DMS normalTex;
+uniform sampler2DMS positionTex;
+uniform int samples;
 uniform vec3 lightPosition;
 
 ///////////////Shadow mapping functions and variables
@@ -83,30 +84,14 @@ float chebyshevUpperBound(float distance)
   return max(p, p_max);
 }
 
-void main()
+float calcLighting(vec3 position, vec3 normal)
 {
-  gl_FragDepth = texture(depthTex, screenCoord).r;
-  vec4 color = texture(colorTex, screenCoord).rgba;
-  if (color.a == 0)
-    {
-      color_out = vec4(color.rgb, 1.0);
-      return;
-    }
-
-  //Eye space position of the vertex
-  vec3 position = texture(positionTex, screenCoord).xyz;
-  
-  //Eye space normal of the vertex
-  vec3 normal = texture(normalTex, screenCoord).rgb;
-  normal = normalize(normal);
-
-  //light position relative to the pixel location
   vec3 lightVector = lightPosition - position;
   float lightDistance = length(lightVector);
   vec3 lightDirection = lightVector * (1.0 / lightDistance);
 
   //Camera position relative to the pixel location
-  vec3 eyeVector = - position;
+  vec3 eyeVector = -position;
   vec3 eyeDirection = normalize(eyeVector);
 
   //Light calculations
@@ -152,8 +137,35 @@ void main()
   //Light attenuation
   float attenuation = min(1.0, 1.0 / (0.2 + lightDistance * (0.1 + 0.01 * lightDistance)));
   intensity *= attenuation;
+  return intensity;
+}
 
-  color_out = vec4(intensity * color.rgb, 1.0);
+void main()
+{
+  ivec2 pixelcoord = ivec2(textureSize(colorTex) * screenCoord);
+
+  //Copy the first sample depth across
+  gl_FragDepth = texelFetch(depthTex, pixelcoord, 0).r;
+
+  //Now calculate the color from the samples
+  vec3 color_sum = vec3(0.0);
+  for (int sample_id = 0; sample_id < samples; sample_id++)
+    {
+      vec4 color = texelFetch(colorTex, pixelcoord, sample_id).rgba;
+      if (color.a == 0)
+	{//Skybox pixel, don't try to light
+	  color_sum += color.rgb;
+	}
+      else
+	{
+	  //Eye space normal of the vertex
+	  vec3 normal = texelFetch(normalTex, pixelcoord, sample_id).rgb;
+	  //Eye space position of the vertex
+	  vec3 position = texelFetch(positionTex, pixelcoord, sample_id).xyz;
+	  color_sum += color.rgb * calcLighting(position, normalize(normal));
+	}
+    }
+  color_out = vec4(color_sum / samples, 1.0);
 });
 	}
       };
