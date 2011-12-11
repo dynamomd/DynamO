@@ -244,9 +244,8 @@ namespace magnet {
 	  inline void attach() 
 	  {
 	    if (!_built) M_throw() << "Cannot attach a Shader which has not been built()";
-	    if (!(_context->_shaderStack.empty())
-		&& (_context->_shaderStack.back() == this)) return;
 	    _context->_shaderStack.push_back(this);
+
 	    glUseProgramObjectARB(_programHandle);
 	  }
 

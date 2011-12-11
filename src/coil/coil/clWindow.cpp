@@ -69,10 +69,6 @@ extern const size_t cammode_rotate_size;
 extern const guint8 cammode_fps[];
 extern const size_t cammode_fps_size;
 
-namespace{
-  const GLint MS_samples = 4;
-}
-
 namespace coil {
   CLGLWindow::CLGLWindow(std::string title,
 			 double updateIntervalValue,
@@ -299,6 +295,24 @@ namespace coil {
 
     ///////////////////////Render Pipeline//////////////////////////////////
     {
+      size_t maxsamples 
+	= std::min(magnet::GL::detail::glGet<GL_MAX_COLOR_TEXTURE_SAMPLES>(),
+		   magnet::GL::detail::glGet<GL_MAX_DEPTH_TEXTURE_SAMPLES>());
+      _aasamples.reset(new Gtk::ComboBoxText);
+      for (size_t samples = maxsamples; samples > 0; samples /= 2)
+	_aasamples->prepend(boost::lexical_cast<std::string>(samples));
+      
+      _aasamples->set_active(0);
+      _aasamples->show();
+      
+      Gtk::Box* AAsamplebox;
+      _refXml->get_widget("AAbox", AAsamplebox);
+      AAsamplebox->pack_start(*_aasamples, false, false);      
+      AAsamplechangeCallback();
+      
+      _aasamples->signal_changed()
+	.connect(sigc::mem_fun(this, &CLGLWindow::AAsamplechangeCallback));
+
       ///////////////////////Shadow Mapping//////////////////////////////////
       {
 	Gtk::CheckButton* shadowmapEnable;
@@ -675,26 +689,6 @@ namespace coil {
 	_renderTarget.attachTexture(colorTexture, 0);
 	_renderTarget.attachTexture(depthTexture);
       }
-
-      {
-	//Build G buffer      
-	std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2DMultisampled(MS_samples));
-	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
-      
-	std::tr1::shared_ptr<magnet::GL::Texture2D> normalTexture(new magnet::GL::Texture2DMultisampled(MS_samples));
-	normalTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
-
-	std::tr1::shared_ptr<magnet::GL::Texture2D> posTexture(new magnet::GL::Texture2DMultisampled(MS_samples));
-	posTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
-
-	std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2DMultisampled(MS_samples));
-	depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);    
-	_Gbuffer.init();
-	_Gbuffer.attachTexture(colorTexture, 0);
-	_Gbuffer.attachTexture(normalTexture, 1);
-	_Gbuffer.attachTexture(posTexture, 2);
-	_Gbuffer.attachTexture(depthTexture);
-      }
     }
     //Now init the render objects  
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
@@ -740,6 +734,7 @@ namespace coil {
     }
   
     _refXml.reset(); //Destroy GTK instance
+    _aasamples.reset();
 
     /////////////////OpenCL
 
@@ -987,9 +982,6 @@ namespace coil {
     fbo.attach();
 
     _deferredShader.attach();
-
-    _deferredShader["samples"] = MS_samples;
-
     _Gbuffer.getColorTexture(0)->bind(0);
     _deferredShader["colorTex"] = 0;
     _Gbuffer.getColorTexture(1)->bind(1);
@@ -1890,6 +1882,37 @@ namespace coil {
       }
 #endif
     return true;
+  }
+
+  void 
+  CLGLWindow::AAsamplechangeCallback()
+  {
+    const GLint MS_samples = boost::lexical_cast<size_t>(_aasamples->get_active_text());
+
+    _deferredShader.attach();
+    _deferredShader["samples"] = MS_samples;
+    _deferredShader.detach();
+
+    //Build G buffer      
+    std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2DMultisampled(MS_samples));
+    colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
+    
+    std::tr1::shared_ptr<magnet::GL::Texture2D> normalTexture(new magnet::GL::Texture2DMultisampled(MS_samples));
+    normalTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
+    
+    std::tr1::shared_ptr<magnet::GL::Texture2D> posTexture(new magnet::GL::Texture2DMultisampled(MS_samples));
+    posTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
+    
+    std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2DMultisampled(MS_samples));
+    depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);    
+
+    _Gbuffer.deinit();
+    _Gbuffer.init();
+
+    _Gbuffer.attachTexture(colorTexture, 0);
+    _Gbuffer.attachTexture(normalTexture, 1);
+    _Gbuffer.attachTexture(posTexture, 2);
+    _Gbuffer.attachTexture(depthTexture);
   }
 
   void 

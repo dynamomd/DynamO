@@ -224,6 +224,8 @@ namespace coil {
     void aboutCallback();
     void renderNormalsCallback();
 
+    void AAsamplechangeCallback();
+
     void cameraModeCallback();
     void runCallback(); 
 
@@ -238,6 +240,6 @@ namespace coil {
     bool _dynamo;
     bool _particleSync;
     volatile bool _newData;
-
+    std::auto_ptr<Gtk::ComboBoxText> _aasamples;
   };
 }
