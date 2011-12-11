@@ -25,7 +25,7 @@
 **** DONE Coil: Cleaned up the stereo (3D) vision mode, so it's possible for 3D TV's to use it as well as red-cyan glasses.
 **** DONE Coil: There is now a separate Volume rendering visualisation executable to allow direct visualisation of volume data.
 **** DONE Coil: Volume rendering now uses pre-integrated transfer functions for greatly improved render quality.
-**** DONE Coil: Moved to a combined deferred/forward rendering pipline which improves performance.
+**** DONE Coil: Moved to a combined deferred/forward rendering pipline which greatly improves performance and flexibility.
 **** DONE Coil: Added new camera controls for positioning and aligning the camera along with a new camera control modes.
 **** DONE Coil: Now requires and complies with the OpenGL 3.3 Core profile.
 **** DONE Coil: Fixed segfaults occurring when adding a window crashes the main render thread.
