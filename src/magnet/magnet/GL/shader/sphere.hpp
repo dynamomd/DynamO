@@ -38,6 +38,13 @@ namespace magnet {
 	  triangles at the cost of a slightly expensive fragment
 	  shader and an additional (trivial) geometry shader stage.
 
+	  Anti-aliasing can be achieved by forcing the GL state to
+	  evaluate all samples of the fragments using the
+	  GL_ARB_sample_shading extension when available. Something
+	  like \code glEnable(SAMPLE_SHADING_ARB);
+	  glMinSampleShadingARB(1.0); \endcode will enable
+	  multisampling on the spheres when possible.
+
 	  A final note is that we put the billboards exactly one
 	  radius towards the viewer. This means the fragment shader
 	  only increases the fragments depth after raytracing. This
@@ -58,6 +65,13 @@ namespace magnet {
 	  in the middle and then replace its z component with the
 	  screen space z we want multiplied by the w coordinate! See
 	  the code for more details.
+
+	  The only problem with this whole approach is that the
+	  spheres aren't "fisheyed" correctly when they are very close
+	  to the screen, when the triangular tesselated spheres are
+	  fisheyed. I can't fix this without doing a better raytrace
+	  in the fragment shader, which I haven't bothered to figure
+	  out.
        */
       class SphereShader: public detail::Shader
       {
@@ -157,7 +171,7 @@ void main()
 }
 );
 	}
-	
+
 	virtual std::string initFragmentShaderSource()
 	{
 	  return "#version 330\n"

@@ -69,9 +69,9 @@ namespace coil {
     std::auto_ptr<Gtk::HBox>  _scaleFactorBox;
     std::auto_ptr<Gtk::Label> _scaleLabel;
     std::auto_ptr<Gtk::Entry> _scaleFactor;
-;
     
     bool _raytraceable;
+    bool _GL_ARB_sample_shading;
     float _scale;
     magnet::GL::Context::ContextPtr _context;
     magnet::GL::shader::SphereShader _sphereShader;
