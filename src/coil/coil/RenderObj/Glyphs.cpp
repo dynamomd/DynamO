@@ -40,6 +40,9 @@ namespace coil {
 	    {
 	      if (_GL_ARB_sample_shading)
 		{
+#ifndef GL_SAMPLE_SHADING
+# define GL_SAMPLE_SHADING GL_SAMPLE_SHADING_ARB
+#endif
 		  glEnable(GL_SAMPLE_SHADING);
 		  glMinSampleShadingARB(1.0);
 		}
