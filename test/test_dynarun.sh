@@ -557,6 +557,36 @@ function GravityPlateTest {
 	tmp.xml.bz2 run.log
 }
 
+function twoDsteppedPotentialTest {
+    > run.log
+    ./dynamod -m 16 -z 1 --i1=2 --zero-vel 2 --rectangular-box \
+	--s1 "1.0,0.1:0.9,0.2:0.8,0.3:0.7,0.4:0.6,0.5:0.5,0.6:0.4,0.7:0.3,0.8:0.2,0.9:0.1,1.0" \
+	-x128 -y128 -d 1.0 -s 1  >> run.log 2>&1
+
+    #Equilibration
+    ./dynarun config.out.xml.bz2 -c 1000000 >> run.log 2>&1
+
+    #Collection of data
+    ./dynarun config.out.xml.bz2 -c 1000000 >> run.log 2>&1
+
+    MFT="0.0359243"
+
+    if [ -e output.xml.bz2 ]; then
+	if [ $(bzcat output.xml.bz2 \
+	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
+	    | gawk '{mft='$MFT'; var=($1-mft)/mft; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
+	    echo "2D-Stepped-Potential-Test -: FAILED"
+	    exit 1
+	else
+	    echo "2D-Stepped-Potential-Test -: PASSED"
+	fi
+    else
+	echo "Error, no output.0.xml.bz2 in 2D-Stepped-Potential-Test"
+	exit 1
+    fi
+
+}
+
 function StaticSpheresTest {
     > run.log
 
@@ -606,6 +636,9 @@ HardLinesTest
 #linescannon "NeighbourList" "BoundedPQ"
 echo "Testing static spheres in gravity, NeighbourLists and BoundedPQ's"
 StaticSpheresTest
+
+echo "Testing *2D* stepped potential spheres, NeighbourLists and BoundedPQ's"
+twoDsteppedPotentialTest
 
 echo ""
 echo "GLOBALS"

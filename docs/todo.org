@@ -16,6 +16,7 @@
 **** TODO Write up the image distance class.
 **** TODO Look at CL/GL synchronisation objects for coil.
 *** DynamO 1.3
+**** DONE DynamO: 2D systems are now officially *supported* in DynamO, although they're not optimal.
 **** DONE DynamO: Up to 50% faster in polydisperse systems thanks to a new cache friendly nblist implementation.
 **** DONE DynamO: All particle positions are now shuffled for mixture systems in dynamod to enable faster equilibration.
 **** DONE DynamO: Removed all deprecated Clone functions for copying of classes in the code.
@@ -37,7 +38,6 @@
 **** DONE Bugfix Coil: Fix light placement relative to camera.
 **** DONE Bugfix Coil: Fixed the bilateral blur filter.
 **** DONE Magnet: Upgraded all shaders to GLSL 330.
-**** TODO DynamO: Implement a 2D neighbour list test case.
 **** TODO DynamO: Fix the umbrella interaction.
 **** TODO DynamO: Repair or remove the lsphere interaction.
 **** TODO DynamO: Figure out how the virtual interactions are supposed to work.
