@@ -39,7 +39,7 @@
 **** DONE Bugfix Coil: Fixed the bilateral blur filter.
 **** DONE Bugfix Coil: Fixed the rendering on NVIDIA drivers.
 **** DONE Magnet: Upgraded all shaders to GLSL 330.
-**** TODO Coil: Fix shadow map mipmapping
+**** DONE Coil: Fix shadow map mipmapping (Not done as the mipmapping slows the render down by 2x)
      http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=280024
 **** TODO DynamO: Fix the umbrella interaction.
 **** TODO DynamO: Repair or remove the lsphere interaction.
