@@ -149,63 +149,26 @@ namespace dynamo {
     BOOST_FOREACH(const size_t& id, *range2)
       Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[id]);
   
-    //This used to be called CPDData partdata(*Sim, *range1, *range2);
-    //To call the following code
-    /*
-    Vector  COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
+    ulevelcenter = int( - a * b * b / delU);
+    
+    std::pair<Vector, Vector> r1data = Sim->dynamics.getLiouvillean().getCOMPosVel(*range1);
+    std::pair<Vector, Vector> r2data = Sim->dynamics.getLiouvillean().getCOMPosVel(*range2);
+    Vector r12 = r1data.first - r2data.first;
+    Sim->dynamics.BCs().applyBC(r12);
+
+    double r = r12.nrm();
+    
+    if (!ulevelset)
+      {
+	ulevel = int(a * (r - b) * (r - b) / delU);
+	if (r < b) ulevel *= -1;
+	ulevelset = true;
+      }
   
-    double structmass1(0), structmass2(0);
-    
-    BOOST_FOREACH(const size_t& ID, range1)
-      {
-	double mass = Sim.dynamics.getSpecies(Sim.particleList[ID]).getMass(ID);
+    recalculateTime();
 
-	structmass1 += mass;
-	COMVel1 += Sim.particleList[ID].getVelocity() * mass;
-	COMPos1 += Sim.particleList[ID].getPosition() * mass;
-      }
-    
-    BOOST_FOREACH(const size_t& ID, range2)
-      {
-	double mass = Sim.dynamics.getSpecies(Sim.particleList[ID]).getMass(ID);
-	structmass2 += mass;
-	COMVel2 += Sim.particleList[ID].getVelocity() * mass;	
-	COMPos2 += Sim.particleList[ID].getPosition() * mass;
-      }
-    
-    COMVel1 /= structmass1;
-    COMVel2 /= structmass2;
-
-    COMPos1 /= structmass1;
-    COMPos2 /= structmass2;
-
-    rij = COMPos1 - COMPos2;
-
-    vij = COMVel1 - COMVel2;
-
-    Sim.dynamics.BCs().applyBC(rij, vij);
-
-    rvdot = (rij | vij);
-
-    r2 = rij.nrm2();
-    v2 = vij.nrm2();
-    */
-
-//    ulevelcenter = int( - a * b * b / delU);
-//
-//    double r = partdata.rij.nrm();
-//
-//    if (!ulevelset)
-//      {
-//	ulevel = int(a * (r - b) * (r - b) / delU);
-//	if (r < b) ulevel *= -1;
-//	ulevelset = true;
-//      }
-//  
-//    recalculateTime();
-//
-//    Sim->registerParticleUpdateFunc
-//      (magnet::function::MakeDelegate(this, &SysUmbrella::particlesUpdated));
+    Sim->registerParticleUpdateFunc
+      (magnet::function::MakeDelegate(this, &SysUmbrella::particlesUpdated));
   }
 
   void 
@@ -222,60 +185,60 @@ namespace dynamo {
     dt = HUGE_VAL;
     type = NONE;
 
-    M_throw() << "Must navigate to using the liouvillean functions not using the CPData";
+    if (ulevel == ulevelcenter)
+      {
+	R_max = b - sqrt((ulevel * delU) / a);      
+    
+	if (b==0)//Allow a double width well if b==0
+	  R_max = b + sqrt((ulevel + 1 * delU) / a);
+      
+	dt = Sim->dynamics.getLiouvillean()
+	  .SphereSphereOutRoot(*range1, *range2, R_max);
+	
+	if (dt != HUGE_VAL)
+	  type = WELL_OUT;
+      
+	return;
+      }
+  
+    if (ulevel == 0)
+      {
+	//We're on the minimum
 
-//    CPDData partdata(*Sim, *range1, *range2);
-//    if (ulevel == ulevelcenter)
-//      {
-//	R_max = b - sqrt((ulevel * delU) / a);      
-//    
-//	if (b==0)//Allow a double width well if b==0
-//	  R_max = b + sqrt((ulevel + 1 * delU) / a);
-//      
-//	//Just look for escaping as we're in the well step spanning r = 0 
-//	if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot
-//	    (partdata, R_max * R_max, true, true))
-//	  {
-//	    dt = partdata.dt;
-//	    type = WELL_OUT;
-//	  }
-//      
-//	return;
-//      }
-//  
-//    if (ulevel == 0)
-//      {
-//	//We're on the minimum
-//
-//	//We don't worry about the minimum crossing r=0, as this is
-//	//caught by the above if statement
-//      
-//	R_max = b + sqrt((1 * delU) / a);
-//	R_min = b - sqrt((1 * delU) / a);
-//      }
-//    else if (ulevel < 0)
-//      {
-//	R_max = b - sqrt((-ulevel) * delU / a);
-//	R_min = b - sqrt(((-ulevel) + 1) * delU / a);
-//      }
-//    else
-//      {
-//	R_min = b + sqrt((ulevel * delU) / a);
-//	R_max = b + sqrt(((ulevel + 1) * delU) / a);
-//      }
-//
-//    if (Sim->dynamics.getLiouvillean().SphereSphereInRoot(partdata, R_min * R_min, 
-//							  true, true))
-//      {
-//	dt = partdata.dt;
-//	type = WELL_IN;
-//      }
-//    else 
-//      if (Sim->dynamics.getLiouvillean().SphereSphereOutRoot(partdata, R_max * R_max, true, true))
-//	{
-//	  dt = partdata.dt;
-//	  type = WELL_OUT;
-//	}
+	//We don't worry about the minimum crossing r=0, as this is
+	//caught by the above if statement
+      
+	R_max = b + sqrt((1 * delU) / a);
+	R_min = b - sqrt((1 * delU) / a);
+      }
+    else if (ulevel < 0)
+      {
+	R_max = b - sqrt((-ulevel) * delU / a);
+	R_min = b - sqrt(((-ulevel) + 1) * delU / a);
+      }
+    else
+      {
+	R_min = b + sqrt((ulevel * delU) / a);
+	R_max = b + sqrt(((ulevel + 1) * delU) / a);
+      }
+
+    dt = Sim->dynamics.getLiouvillean()
+      .SphereSphereInRoot(*range1, *range2, R_min);
+    
+    if (dt != HUGE_VAL)
+      {
+	type = WELL_IN;
+	return;
+      }
+
+    dt = Sim->dynamics.getLiouvillean()
+      .SphereSphereOutRoot(*range1, *range2, R_max);
+
+    if (dt != HUGE_VAL)
+      {
+	type = WELL_OUT;
+	return;
+      }
   }
 
   void 

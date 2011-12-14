@@ -28,42 +28,8 @@ namespace dynamo {
   class SimData; 
   class Particle;
 
-  namespace { class RangeIterator; }
-
   class Range
   {
-  public:
-    typedef RangeIterator iterator;
-    typedef RangeIterator const_iterator;
-
-    virtual ~Range() {};
-
-    virtual bool isInRange(const Particle&) const = 0;
-
-    virtual void operator<<(const magnet::xml::Node&) = 0;  
-
-    virtual unsigned long size() const = 0;
-
-    virtual unsigned long operator[](unsigned long) const = 0;
-
-    virtual unsigned long at(unsigned long) const = 0;
-
-    static Range* getClass(const magnet::xml::Node&, const dynamo::SimData * Sim);
-
-    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Range&);
-
-    virtual iterator begin() const = 0;
-
-    virtual iterator end() const = 0;
-
-    virtual const unsigned long& getIteratorID(const unsigned long &) const =0;// { return i; }
-
-  protected:
-
-    virtual void outputXML(magnet::xml::XmlStream& ) const = 0;    
-  };
-
-  namespace {
     class RangeIterator
     {
     public:
@@ -101,5 +67,37 @@ namespace dynamo {
       unsigned long pos;
       const Range* rangePtr;
     };
-  }
+
+  public:
+    typedef RangeIterator iterator;
+    typedef RangeIterator const_iterator;
+
+    virtual ~Range() {};
+
+    virtual bool isInRange(const Particle&) const = 0;
+
+    virtual void operator<<(const magnet::xml::Node&) = 0;  
+
+    virtual unsigned long size() const = 0;
+
+    virtual unsigned long operator[](unsigned long) const = 0;
+
+    virtual unsigned long at(unsigned long) const = 0;
+
+    static Range* getClass(const magnet::xml::Node&, const dynamo::SimData * Sim);
+
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Range&);
+
+    virtual iterator begin() const = 0;
+
+    virtual iterator end() const = 0;
+
+    virtual const unsigned long& getIteratorID(const unsigned long &) const =0;// { return i; }
+
+    inline bool empty() const { return begin() == end(); }
+
+  protected:
+
+    virtual void outputXML(magnet::xml::XmlStream& ) const = 0;    
+  };
 }

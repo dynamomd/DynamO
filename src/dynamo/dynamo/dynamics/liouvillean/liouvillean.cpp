@@ -363,4 +363,41 @@ namespace dynamo {
     M_throw() << "Not implemented";
   }
 
+  std::pair<Vector, Vector> 
+  Liouvillean::getCOMPosVel(const Range& particles) const
+  {
+    if (particles.empty())
+      M_throw() << "Cannot calculate the COM position and velocity from an empty Range";
+    
+    Vector pos = Vector(0,0,0), 
+      vel = Vector(0,0,0);
+
+    Vector pos0 = Sim->particleList[*(particles.begin())].getPosition(), 
+      vel0 = Sim->particleList[*(particles.begin())].getVelocity();
+
+    double totMass = 0;
+
+    BOOST_FOREACH(size_t ID, particles)
+      {
+	const Particle& part = Sim->particleList[ID];
+	double mass = Sim->dynamics.getSpecies(part).getMass(ID);
+
+	//Take everything relative to the first particle's position to
+	//minimise issues with PBC wrapping the particles.
+	Vector r12 = part.getPosition() - pos0;
+	Vector v12 = part.getVelocity() - vel0;
+	Sim->dynamics.BCs().applyBC(r12, v12);
+
+	pos += mass * r12;
+	vel += mass * v12;
+
+	totMass += mass;
+      }
+
+    pos /= totMass;
+    vel /= totMass;
+    
+    return std::make_pair(pos, vel);
+  }
+
 }

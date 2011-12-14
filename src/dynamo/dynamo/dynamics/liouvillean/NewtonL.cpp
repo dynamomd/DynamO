@@ -69,12 +69,34 @@ namespace dynamo {
     Sim->dynamics.BCs().applyBC(r12, v12);
     return magnet::intersection::ray_sphere_bfc(r12, v12, d);
   }
+
+  double
+  LNewtonian::SphereSphereInRoot(const Range& p1, const Range& p2, double d) const
+  {
+    std::pair<Vector, Vector> r1data = getCOMPosVel(p1);
+    std::pair<Vector, Vector> r2data = getCOMPosVel(p2);
+    Vector r12 = r1data.first - r2data.first;
+    Vector v12 = r1data.second - r2data.second;
+    Sim->dynamics.BCs().applyBC(r12, v12);
+    return magnet::intersection::ray_sphere_bfc(r12, v12, d);
+  }
   
   double
   LNewtonian::SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
+    Sim->dynamics.BCs().applyBC(r12, v12);
+    return magnet::intersection::ray_inv_sphere_bfc<true>(r12, v12, d);
+  }
+
+  double
+  LNewtonian::SphereSphereOutRoot(const Range& p1, const Range& p2, double d) const
+  {
+    std::pair<Vector, Vector> r1data = getCOMPosVel(p1);
+    std::pair<Vector, Vector> r2data = getCOMPosVel(p2);
+    Vector r12 = r1data.first - r2data.first;
+    Vector v12 = r1data.second - r2data.second;
     Sim->dynamics.BCs().applyBC(r12, v12);
     return magnet::intersection::ray_inv_sphere_bfc<true>(r12, v12, d);
   }

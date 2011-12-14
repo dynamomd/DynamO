@@ -133,32 +133,58 @@ namespace dynamo {
 					 EEventType&) const = 0;
 
     /*! \brief Determines if and when two spheres will intersect.
-     *
-     * \param pd Some precomputed data about the event that is cached by
-     * the interaction/calling class
-     *
-     * \param d The interaction diameter/distance.
-     *
-     * \return Time of the next event, or HUGE_VAL if no event.
+     
+      \param pd Some precomputed data about the event that is cached by
+      the interaction/calling class
+     
+      \param d The interaction diameter/distance.
+     
+      \return Time of the next event, or HUGE_VAL if no event.
      */
     virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const = 0;
 
+    /*! \brief Determines if and when two spheres, around the center
+      of masses of the supplied sets of particles, will
+      intersect.
+     
+      \param pd Some precomputed data about the event that is cached by
+      the interaction/calling class
+     
+      \param d The interaction diameter/distance.
+     
+      \return Time of the next event, or HUGE_VAL if no event.
+     */
+    virtual double SphereSphereInRoot(const Range& p1, const Range& p2, double d) const = 0;
+
     /*! \brief Determines if and when two spheres will stop intersecting.
-     *
-     * \param pd Some precomputed data about the event that is cached by
-     * the interaction/calling class
-     *
-     * \param d The interaction diameter/distance.
-     *
-     * \return Time of the next event, or HUGE_VAL if no event.
+     
+      \param pd Some precomputed data about the event that is cached by
+      the interaction/calling class
+     
+      \param d The interaction diameter/distance.
+     
+      \return Time of the next event, or HUGE_VAL if no event.
      */
     virtual double SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const = 0;  
 
+    /*! \brief Determines if and when two spheres, around the center
+      of masses of the supplied sets of particles, will stop
+      intersecting.
+     
+      \param pd Some precomputed data about the event that is cached by
+      the interaction/calling class
+     
+      \param d The interaction diameter/distance.
+     
+      \return Time of the next event, or HUGE_VAL if no event.
+     */
+    virtual double SphereSphereOutRoot(const Range& p1, const Range& p2, double d) const = 0;  
+
     /*! \brief Determines if two spheres are overlapping
-     *
-     * \param d The interaction distance.
-     *
-     * \return True if the spheres are overlapping.
+     
+      \param d The interaction distance.
+     
+      \return True if the spheres are overlapping.
      */
     virtual double sphereOverlap(const Particle& p1, const Particle& p2, 
 				 const double& d2) const = 0;
@@ -678,28 +704,38 @@ namespace dynamo {
     { return orientationData; }
 
     /*! \brief Used to test if the liouvillean has orientation data
-     *  available.
+       available.
      */
     inline bool hasOrientationData() const { return orientationData.size(); }
 
     /*! \brief Initialises the orientation data of the system.
-     *
-     *  This is used by the packer to insert random orientations and
-     *  angular velocities into the system.
-     *
-     * \param ToI The mean square gaussian angular velocity to
-     * assign. AKA k_B T / I
+     
+       This is used by the packer to insert random orientations and
+       angular velocities into the system.
+     
+      \param ToI The mean square gaussian angular velocity to
+      assign. AKA k_B T / I
      */
     void initOrientations(double ToI);
+
+    /* \brief Method to safely calculate the Centre of Mass position
+       and velocity of a group of particles.
+       
+       Provided the particles are never spread over a distance larger
+       than 0.5 box lengths in periodic boundary conditions this
+       function should work.
+     */
+    std::pair<Vector, Vector> getCOMPosVel(const Range& particles) const;
 
   protected:
     friend class GCellsShearing;
 
-    /*! \brief A dangerous function to predictivly move a particle forward.
-     *
-     * See GCellsShearing, this just over advances the particle to find
-     * its future position in boundary changes.
-     */
+    /*! \brief A dangerous function to predictivly move a particle
+      forward.
+    
+      See GCellsShearing, this just over advances the particle to find
+      its future position in boundary changes.
+    */
     inline void advanceUpdateParticle(const Particle& part, const double& dt) const
     {
       streamParticle(const_cast<Particle&>(part), 
