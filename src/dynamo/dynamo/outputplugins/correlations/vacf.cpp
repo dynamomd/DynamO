@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/outputplugins/correlations/vacf.hpp>
-#include <dynamo/dynamics/liouvillean/SLLOD.hpp>
 
 namespace dynamo {
   OPVACF::OPVACF(const dynamo::SimData* tmp,const magnet::xml::Node& XML):
@@ -128,9 +127,6 @@ namespace dynamo {
   void 
   OPVACF::newG(const ParticleEventData& PDat)
   {
-    if (Sim->dynamics.liouvilleanTypeTest<LSLLOD>())
-      Sim->dynamics.getLiouvillean().updateAllParticles();
-
     for (size_t i = 0; i < Sim->N; ++i)
       G[i].push_front(Sim->particleList[i].getVelocity());	      
   

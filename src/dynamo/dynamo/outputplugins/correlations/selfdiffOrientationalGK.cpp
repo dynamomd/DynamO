@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/outputplugins/correlations/selfdiffOrientationalGK.hpp>
-#include <dynamo/dynamics/liouvillean/SLLOD.hpp>
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <magnet/math/matrix.hpp>
 
@@ -142,11 +141,6 @@ namespace dynamo {
   void
   OPSelfDiffusionOrientationalGK::newG(const ParticleEventData& PDat)
   {
-    if (Sim->dynamics.liouvilleanTypeTest<LSLLOD>())
-      {
-	Sim->dynamics.getLiouvillean().updateAllParticles();
-      }
-
     for (size_t i = 0; i < Sim->N; ++i)
       {
 	const Liouvillean::rotData& rdat(Sim->dynamics.getLiouvillean().getRotData(Sim->particleList[i]));

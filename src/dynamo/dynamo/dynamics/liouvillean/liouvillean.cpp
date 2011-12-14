@@ -39,8 +39,6 @@ namespace dynamo {
       return shared_ptr<Liouvillean>(new LNewtonian(tmp));
     if (!strcmp(XML.getAttribute("Type"),"NewtonianGravity"))
       return shared_ptr<Liouvillean>(new LNewtonianGravity(tmp, XML));
-    else if (!strcmp(XML.getAttribute("Type"),"SLLOD"))
-      return shared_ptr<Liouvillean>(new LSLLOD(tmp));
     else if (!strcmp(XML.getAttribute("Type"),"NewtonianMC"))
       return shared_ptr<Liouvillean>(new LNewtonianMC(tmp, XML));
     else 

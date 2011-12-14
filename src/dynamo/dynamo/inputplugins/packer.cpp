@@ -91,14 +91,14 @@ namespace dynamo {
       "\n8:  Binary Hard Spheres"
       "\n9:  Hard needle system"
       "\n10: Monocomponent hard spheres using DSMC interactions"
-      "\n11: Monocomponent hard spheres sheared using DSMC interactions"
+      "\n11: (DEPRECATED) Monocomponent hard spheres sheared using DSMC interactions"
       "\n12: Binary hard spheres using DSMC interactions"
       "\n13: Crystal pack of sheared lines"
       "\n14: Packing of spheres and linear rods made from stiff polymers"
       "\n15: Monocomponent hard-parallel cubes"
       "\n16: Stepped Potential"
       "\n17: Monocomponent hard spheres using Ring DSMC interactions"
-      "\n18: Monocomponent sheared hard spheres using Ring DSMC interactions"
+      "\n18: (DEPRECATED) Monocomponent sheared hard spheres using Ring DSMC interactions"
       "\n19: Oscillating plates bounding a system"
       "\n20: Load a set of triangles and plate it with spheres"
       "\n21: Pack a cylinder with spheres"
@@ -1230,82 +1230,7 @@ namespace dynamo {
 	}
       case 11:
 	{
-	  //Pack of DSMC hard spheres
-	  //Pack the system, determine the number of particles
-	  if (vm.count("help"))
-	    {
-	      std::cout<<
-		"Mode specific options:\n"
-		"  11: Monocomponent hard spheres sheared using DSMC interactions\n"
-		"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-		"       --f1 : Inelasticity [1.0]\n";
-	      exit(1);
-	    }
-
-	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
-	  packptr->initialise();
-
-	  std::vector<Vector  >
-	    latticeSites(packptr->placeObjects(Vector (0,0,0)));
-
-	  if (vm.count("rectangular-box"))
-	    Sim->primaryCellSize = getNormalisedCellDimensions();
-
-	  double alpha = 1.0;
-
-	  if (vm.count("f1"))
-	    alpha = vm["f1"].as<double>();
-
-	  double simVol = 1.0;
-
-	  for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	    simVol *= Sim->primaryCellSize[iDim];
-
-	  double particleDiam = pow(simVol * vm["density"].as<double>()
-				    / latticeSites.size(), double(1.0 / 3.0));
-
-	  Sim->dynamics.units().setUnitLength(particleDiam);
-
-	  //Set up a standard simulation
-	  Sim->ptrScheduler 
-	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new FELCBT(Sim)));
-
-	  Sim->dynamics.setLiouvillean(shared_ptr<Liouvillean>(new LSLLOD(Sim)));
-
-	  //This is to stop interactions being used for these particles
-	  Sim->dynamics.addInteraction
-	    (shared_ptr<Interaction>(new INull(Sim, new C2RAll(), "Catchall")));
-
-	  //This is to provide data on the particles
-	  Sim->dynamics.addInteraction
-	    (shared_ptr<Interaction>
-	     (new IHardSphere
-	      (Sim, particleDiam, 1.0, new C2RAll(), "Bulk")));
-
-	  double packfrac = vm["density"].as<double>() * M_PI / 6.0;
-
-	  double chi = (1.0 - 0.5 * packfrac)
-	    / std::pow(1.0 - packfrac, 3);
-
-	  //No thermostat added yet
-	  Sim->dynamics.addSystem
-	    (shared_ptr<System>
-	     (new SysDSMCSpheres(Sim, particleDiam, 0.001,
-				chi, alpha, "Thermostat",
-				new RAll(Sim), new RAll(Sim))));
-
-	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0,
-						"Bulk")));
-
-	  unsigned long nParticles = 0;
-	  Sim->particleList.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
-						 nParticles++));
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
-	  break;
+	  M_throw() << "Option no longer supported";
 	}
       case 12:
 	{
@@ -2059,94 +1984,7 @@ namespace dynamo {
 	}
       case 18:
 	{
-	  if (vm.count("help"))
-	    {
-	      std::cout<<
-		"Mode specific options:\n"
-		"  18: Monocomponent sheared hard spheres using Ring DSMC interactions\n"
-		"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-		"       --f1 : Inelasticity [0.9]\n"
-		"       --b1 : Sets chi12 to 1 [BMCSL]\n"
-		"       --b2 : Sets chi13 to 1 [BMCSL]\n";
-	      exit(1);
-	    }
-	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
-	  packptr->initialise();
-
-	  std::vector<Vector>
-	    latticeSites(packptr->placeObjects(Vector (0,0,0)));
-
-	  if (vm.count("rectangular-box"))
-	    Sim->primaryCellSize = getNormalisedCellDimensions();
-
-	  double simVol = 1.0;
-
-	  for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	    simVol *= Sim->primaryCellSize[iDim];
-
-	  double particleDiam = pow(simVol * vm["density"].as<double>()
-				    / latticeSites.size(), double(1.0 / 3.0));
-
-	  double inelasticity = 0.9;
-
-	  if (vm.count("f1"))
-	    inelasticity = vm["f1"].as<double>();
-
-	  Sim->dynamics.units().setUnitLength(particleDiam);
-
-	  //Set up a standard simulation
-	  Sim->ptrScheduler 
-	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new FELCBT(Sim)));
-
-	  Sim->dynamics.setLiouvillean(shared_ptr<Liouvillean>(new LSLLOD(Sim)));
-
-	  //This is to stop interactions being used for these particles
-	  Sim->dynamics.addInteraction
-	    (shared_ptr<Interaction>
-	     (new INull(Sim, new C2RAll(), "Catchall")));
-
-	  //This is to provide data on the particles
-	  Sim->dynamics.addInteraction
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, particleDiam, 1.0, new C2RAll(), "Bulk")));
-
-	  double packfrac = vm["density"].as<double>() * M_PI / 6.0;
-
-	  double chi12 = (1.0 - 0.5 * packfrac)
-	    / std::pow(1.0 - packfrac, 3);
-
-	  double chi13 = chi12;
-
-	  if (vm.count("b1"))
-	    chi12 = 1.0;
-
-	  if (vm.count("b2"))
-	    chi13 = 1.0;
-
-	  double tij = 1.0
-	    / (4.0 * std::sqrt(M_PI) * vm["density"].as<double>() * chi12);
-
-	  //No thermostat added yet
-	  Sim->dynamics.addSystem
-	    (shared_ptr<System>
-	     (new SysRingDSMC(Sim, particleDiam,
-			     2.0 * tij / latticeSites.size(), chi12, chi13, inelasticity,
-			     "RingDSMC", new RAll(Sim))));
-
-	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0,
-						"Bulk")));
-
-	  unsigned long nParticles = 0;
-	  Sim->particleList.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back
-	    (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
-		      nParticles++));
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
-	  break;
+	  M_throw() << "Option no longer supported";
 	}
       case 19:
 	{
