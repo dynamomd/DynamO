@@ -37,13 +37,13 @@
 **** DONE Bugfix Coil: Corrected the shadow mapping calculation and removed the noise.
 **** DONE Bugfix Coil: Fix light placement relative to camera.
 **** DONE Bugfix Coil: Fixed the bilateral blur filter.
+**** DONE Bugfix Coil: Fixed the rendering on NVIDIA drivers.
 **** DONE Magnet: Upgraded all shaders to GLSL 330.
 **** TODO Coil: Fix shadow map mipmapping
      http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=280024
 **** TODO DynamO: Fix the umbrella interaction.
 **** TODO DynamO: Repair or remove the lsphere interaction.
 **** TODO DynamO: Figure out how the virtual interactions are supposed to work.
-**** TODO Magnet: confirm ray_inv_rod_bfc implementation is correct.
 **** TODO Coil: Check the perspective correction on the raytraced spheres, they're not fisheyed like the triangular ones are
 **** TODO Remove the requirement of a statically linked bzip2 or zlib library
 **** TODO Remove the Dynamics class and move its functions into the SimData class.
