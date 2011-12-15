@@ -42,8 +42,10 @@
 **** DONE Magnet: Upgraded all shaders to GLSL 330.
 **** DONE Coil: Fix shadow map mipmapping (Not done as the mipmapping slows the render down by 2x)
      http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=280024
-**** TODO DynamO: Add the gravity version of the sphere-sphere-out test. Fix and check that the umbrella implementation is general.
 **** TODO Coil: Check the perspective correction on the raytraced spheres, they're not fisheyed like the triangular ones are
+**** TODO Coil: Make coil scale independent.
+**** TODO DynamO: Check that the PBC sentinel is correctly working for 2 particles, it seems something else is doing the updates.
+**** TODO DynamO: Add the gravity version of the sphere-sphere-out test. Fix and check that the umbrella implementation is general.
 **** TODO DynamO: Remove the requirement of a statically linked bzip2 or zlib library
 **** TODO DynamO: Remove the Dynamics class and move its functions into the SimData class.
 **** TODO DynamO: Remove the Dynamics tags in the config.
@@ -55,7 +57,6 @@
 **** TODO DynamO: Make a test for an invalid state in locals, globals and interactions (for particle insertion).
 **** TODO DynamO: Auto detect the ensemble, users shouldn't have to specify it.
 **** TODO DynamO: Alter the change system functions to take sharedptrs.
-**** TODO Coil: Make coil scale independent.
 **** TODO DynamO: Make compression work with polydisperse walls.
 **** TODO DynamO: Rewrite the range classes.
 **** TODO Work on Sebastians project.
