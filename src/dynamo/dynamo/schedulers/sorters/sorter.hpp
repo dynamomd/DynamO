@@ -26,6 +26,10 @@ namespace xml { class XmlStream; }
 namespace dynamo {
   /*! \brief Future Event Lists (FEL) sort the Particle Event Lists
       (PEL) to determine the next event to occur.
+
+      Classes Derived from this base class provide a mechanism to sort
+      \ref Event s. These events are first pre-sorted using a Particle
+      Event List before being sorted by these classes.
    */
 
   class FEL: public dynamo::SimBase_const

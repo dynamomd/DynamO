@@ -139,7 +139,7 @@ namespace dynamo {
 
   void 
   Scheduler::pushEvent(const Particle& part,
-			const Event& newevent)
+		       const Event& newevent)
   {
     sorter->push(newevent, part.getID());
   }
@@ -392,12 +392,17 @@ namespace dynamo {
 	}
       case VIRTUAL:
 	{
-	  //Just recalc the events for these particles, no free
-	  //streaming (PBCSentinel will free stream virtual events but
-	  //for a specific reason)
-	  //derr << "VIRTUAL for " << sorter->next_ID() << std::endl;
+	  //This is a special type which requires that the system is
+	  //moved forward to the current time and the events for this
+	  //particle recalculated.
 
-	  this->fullUpdate(Sim->particleList[sorter->next_ID()]);
+	  double dt = sorter->next_dt();
+	  size_t ID = sorter->next_ID();
+	  Sim->dSysTime += dt;
+	  Sim->ptrScheduler->stream(dt);
+	  Sim->dynamics.stream(dt);
+	  Sim->freestreamAcc += dt;
+	  this->fullUpdate(Sim->particleList[ID]);
 	  break;
 	}
       case NONE:
@@ -407,15 +412,13 @@ namespace dynamo {
 	}
       default:
 	M_throw() << "Unhandled event type requested to be run\n"
-		  << "Type is " 
-		  << sorter->next_type()
-		  << "";
+		  << "Type is " << sorter->next_type();
       }
   }
 
   void 
   Scheduler::addInteractionEvent(const Particle& part, 
-				  const size_t& id) const
+				 const size_t& id) const
   {
     if (part.getID() == id) return;
     const Particle& part2(Sim->particleList[id]);

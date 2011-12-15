@@ -49,7 +49,7 @@ namespace dynamo {
 
     return GlobalEvent(part, Sim->dynamics.getLiouvillean()
 		       .getParabolaSentinelTime(part), 
-		       VIRTUAL, *this);
+		       VIRTUAL_PARABOLA, *this);
   }
 
   void 
@@ -86,7 +86,7 @@ namespace dynamo {
   
     Sim->freestreamAcc = 0;
 
-    NEventData EDat(ParticleEventData(part, Sim->dynamics.getSpecies(part), VIRTUAL));
+    NEventData EDat(ParticleEventData(part, Sim->dynamics.getSpecies(part), VIRTUAL_PARABOLA));
 
     Sim->signalParticleUpdate(EDat);
 

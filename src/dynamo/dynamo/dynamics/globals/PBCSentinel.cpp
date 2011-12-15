@@ -62,48 +62,15 @@ namespace dynamo {
   GlobalEvent 
   GPBCSentinel::getEvent(const Particle& part) const
   {
-    return GlobalEvent(part, Sim->dynamics.getLiouvillean().getPBCSentinelTime(part, maxintdist), 
+    return GlobalEvent(part, Sim->dynamics.getLiouvillean()
+		       .getPBCSentinelTime(part, maxintdist),
 		       VIRTUAL, *this);
   }
 
   void 
   GPBCSentinel::runEvent(const Particle& part, const double dt) const
   {
-    GlobalEvent iEvent(part, dt, VIRTUAL, *this);
-
-#ifdef DYNAMO_DEBUG 
-    if (boost::math::isnan(iEvent.getdt()))
-      M_throw() << "A NAN Interaction collision time has been found"
-		<< iEvent.stringData(Sim);
-  
-    if (iEvent.getdt() == HUGE_VAL)
-      M_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
-		<< iEvent.stringData(Sim);
-#endif
-
-    Sim->dSysTime += iEvent.getdt();
-    
-    Sim->ptrScheduler->stream(iEvent.getdt());
-  
-    Sim->dynamics.stream(iEvent.getdt());
-
-    Sim->dynamics.getLiouvillean().updateParticle(part);
-
-#ifdef DYNAMO_DEBUG
-    iEvent.addTime(Sim->freestreamAcc);
-  
-    Sim->freestreamAcc = 0;
-
-    NEventData EDat(ParticleEventData(part, Sim->dynamics.getSpecies(part), VIRTUAL));
-
-    Sim->signalParticleUpdate(EDat);
-
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
-      Ptr->eventUpdate(iEvent, EDat);
-#else
-    Sim->freestreamAcc += iEvent.getdt();
-#endif
-
-    Sim->ptrScheduler->fullUpdate(part);
+    M_throw() << "Virtual Event types are handled by the Scheduler,"
+	      << " this function should never be called";
   }
 }

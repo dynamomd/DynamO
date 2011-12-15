@@ -29,7 +29,13 @@ namespace dynamo {
       are converted to before they are sorted.
 
       This conversion is lossy, so events need to be recalculated if
-      they are to be exectuted.
+      they are to be exectuted. 
+
+      The VIRTUAL event type is special. If any IntEvent, GlobalEvent
+      or LocalEvent has a type VIRTUAL, it is carried through. VIRTUAL
+      events cause the system to be moved forward in time and the
+      events for the particle are recalculated. This can all be
+      handled by the scheduler.
    */
   class Event
   {
@@ -41,21 +47,8 @@ namespace dynamo {
       p2(std::numeric_limits<size_t>::max())    
     {}
 
-    inline Event(const double& ndt, const EEventType& nT) throw():
-      dt(ndt),
-      type(nT),
-      p2(0)
-    {}
-
-    inline Event(const double& ndt, const unsigned long & direction) throw():
-      dt(ndt),
-      collCounter2(direction),
-      type(CELL),
-      p2(0)
-    {}
-  
     inline Event(const double& ndt, const EEventType& nT, 
-		   const size_t& nID2, const unsigned long & nCC2) throw():
+		 const size_t& nID2, const unsigned long & nCC2) throw():
       dt(ndt),
       collCounter2(nCC2),
       type(nT),
@@ -67,19 +60,25 @@ namespace dynamo {
       collCounter2(nCC2),
       type(INTERACTION),
       p2(coll.getParticle2ID())
-    {}
+    {
+      if (coll.getType() == VIRTUAL) type = VIRTUAL;
+    }
 
     inline Event(const GlobalEvent& coll) throw():
       dt(coll.getdt()),
       type(GLOBAL),
       p2(coll.getGlobalID())
-    {}
+    {
+      if (coll.getType() == VIRTUAL) type = VIRTUAL;
+    }
 
     inline Event(const LocalEvent& coll) throw():
       dt(coll.getdt()),
       type(LOCAL),
       p2(coll.getLocalID())
-    {}
+    {
+      if (coll.getType() == VIRTUAL) type = VIRTUAL;
+    }
 
     inline bool operator< (const Event& ip) const throw()
     { return dt < ip.dt; }
