@@ -64,8 +64,6 @@ namespace dynamo {
       return shared_ptr<Local>(new LOscillatingPlate(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"CylinderWall"))
       return shared_ptr<Local>(new LCylinder(XML, Sim));
-    else if (!strcmp(XML.getAttribute("Type"),"SphereWall"))
-      return shared_ptr<Local>(new LSphere(XML, Sim));
     else 
       M_throw() << XML.getAttribute("Type")
 		<< ", Unknown type of Local Interaction encountered";

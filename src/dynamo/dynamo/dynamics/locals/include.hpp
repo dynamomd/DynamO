@@ -20,6 +20,5 @@
 #include <dynamo/dynamics/locals/AndersenWall.hpp>
 #include <dynamo/dynamics/locals/oscillatingplate.hpp>
 #include <dynamo/dynamics/locals/lcylinder.hpp>
-#include <dynamo/dynamics/locals/lsphere.hpp>
 #include <dynamo/dynamics/locals/lroughwall.hpp>
 #include <dynamo/dynamics/locals/trianglemesh.hpp>
