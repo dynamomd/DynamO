@@ -111,6 +111,46 @@ namespace dynamo {
     //Now test for a parabolic ray and sphere intersection
     return magnet::intersection::parabola_sphere_bfc(r12, v12, g12, d);
   }
+
+  double
+  LNewtonianGravity::SphereSphereInRoot(const Range& p1, const Range& p2, double d) const
+  {
+    double accel1sum = 0;
+    double mass1 = 0;
+    BOOST_FOREACH(const size_t ID, p1)
+      {
+	const Particle& part = Sim->particleList[ID];       
+	double mass = Sim->dynamics.getSpecies(part).getMass(ID);
+
+	if (part.testState(Particle::DYNAMIC))
+	  accel1sum += mass;
+
+	mass1 += mass;
+      }
+    accel1sum /= mass1;
+    
+    double accel2sum = 0;
+    double mass2 = 0;
+    BOOST_FOREACH(const size_t ID, p2)
+      {
+	const Particle& part = Sim->particleList[ID];       
+	double mass = Sim->dynamics.getSpecies(part).getMass(ID);
+
+	if (part.testState(Particle::DYNAMIC))
+	  accel2sum += mass;
+
+	mass2 += mass;
+      }
+    accel2sum /= mass2;
+
+    std::pair<Vector, Vector> r1data = getCOMPosVel(p1);
+    std::pair<Vector, Vector> r2data = getCOMPosVel(p2);
+    Vector r12 = r1data.first - r2data.first;
+    Vector v12 = r1data.second - r2data.second;
+    Vector a12 = g * (accel1sum - accel2sum);
+    Sim->dynamics.BCs().applyBC(r12, v12);
+    return magnet::intersection::parabola_sphere_bfc(r12, v12, a12, d);
+  }
   
   double
   LNewtonianGravity::SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const
@@ -121,7 +161,59 @@ namespace dynamo {
     if (p1Dynamic == p2Dynamic)
       return LNewtonian::SphereSphereOutRoot(p1, p2, d);
 
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Vector v12 = p1.getVelocity() - p2.getVelocity();
+    Sim->dynamics.BCs().applyBC(r12, v12);
+
+    //One particle feels gravity and the other does not. Here we get the
+    //sign right on the acceleration g12
+    Vector g12(g);
+    if (p2Dynamic) g12 = -g;
+
+    //return magnet::intersection::parabola_inv_sphere_bfc(r12, v12, a12, d);
     M_throw() << "Function not implemented";
+  }
+
+  double
+  LNewtonianGravity::SphereSphereOutRoot(const Range& p1, const Range& p2, double d) const
+  {
+    double accel1sum = 0;
+    double mass1 = 0;
+    BOOST_FOREACH(const size_t ID, p1)
+      {
+	const Particle& part = Sim->particleList[ID];       
+	double mass = Sim->dynamics.getSpecies(part).getMass(ID);
+
+	if (part.testState(Particle::DYNAMIC))
+	  accel1sum += mass;
+
+	mass1 += mass;
+      }
+    accel1sum /= mass1;
+    
+    double accel2sum = 0;
+    double mass2 = 0;
+    BOOST_FOREACH(const size_t ID, p2)
+      {
+	const Particle& part = Sim->particleList[ID];       
+	double mass = Sim->dynamics.getSpecies(part).getMass(ID);
+
+	if (part.testState(Particle::DYNAMIC))
+	  accel2sum += mass;
+
+	mass2 += mass;
+      }
+    accel2sum /= mass2;
+
+    std::pair<Vector, Vector> r1data = getCOMPosVel(p1);
+    std::pair<Vector, Vector> r2data = getCOMPosVel(p2);
+    Vector r12 = r1data.first - r2data.first;
+    Vector v12 = r1data.second - r2data.second;
+    Vector a12 = g * (accel1sum - accel2sum);
+    Sim->dynamics.BCs().applyBC(r12, v12);
+
+    M_throw() << "Not implemented yet";
+    //return magnet::intersection::parabola_inv_sphere_bfc(r12, v12, a12, d);
   }
 
 

@@ -42,7 +42,7 @@
 **** DONE Magnet: Upgraded all shaders to GLSL 330.
 **** DONE Coil: Fix shadow map mipmapping (Not done as the mipmapping slows the render down by 2x)
      http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=280024
-**** TODO DynamO: Fix the umbrella interaction. Add the gravity version of the test and include the particle state. Check that the implementation is general.
+**** TODO DynamO: Add the gravity version of the sphere-sphere-out test. Fix and check that the umbrella implementation is general.
 **** TODO DynamO: Repair or remove the lsphere interaction.
 **** TODO DynamO: Figure out how the virtual interactions are supposed to work.
 **** TODO Coil: Check the perspective correction on the raytraced spheres, they're not fisheyed like the triangular ones are
