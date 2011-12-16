@@ -44,6 +44,7 @@
      http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=280024
 **** TODO Coil: Check the perspective correction on the raytraced spheres, they're not fisheyed like the triangular ones are
 **** TODO Coil: Make coil scale independent.
+**** TODO Coil: Fix the DOF filter and the SSAO filter, as multisampling has changed them.
 **** TODO DynamO: Check that the PBC sentinel is correctly working for 2 particles, it seems something else is doing the updates.
 **** TODO DynamO: Add the gravity version of the sphere-sphere-out test. Fix and check that the umbrella implementation is general.
 **** TODO DynamO: Remove the requirement of a statically linked bzip2 or zlib library

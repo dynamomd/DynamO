@@ -36,8 +36,8 @@ namespace magnet {
 	{
 	  return "#version 330\n"
 	    STRINGIFY(
-uniform sampler2D NormalsTex;
-uniform sampler2D EyePosTex;
+uniform sampler2DMS NormalsTex;
+uniform sampler2DMS EyePosTex;
 uniform sampler2D rnm;
 uniform float radius;
 uniform float totStrength;
@@ -68,12 +68,14 @@ void main(void)
   // grab a normal for reflecting the sample rays later on
   vec3 fres = normalize(2.0 * texture(rnm, screenCoord * offset).xyz - vec3(1.0));
     
-  float currentPixelDepth = -texture(EyePosTex, screenCoord).z;
+  ivec2 pixelcoord = ivec2(textureSize(EyePosTex) * screenCoord);
+  float currentPixelDepth = -texelFetch(EyePosTex, pixelcoord, 0).z;
   
   // current fragment coords in screen space
   vec3 ep = vec3(screenCoord, currentPixelDepth);
   // get the normal of current fragment
-  vec3 norm = normalize(2.0 * texture(NormalsTex, screenCoord).xyz - 1.0);
+
+  vec3 norm = normalize(2.0 * texelFetch(NormalsTex, pixelcoord, 0).xyz - 1.0);
   
   float bl = 0.0;
   float radD = radius / currentPixelDepth;
@@ -87,9 +89,9 @@ void main(void)
       
       // get the depth of the occluder fragment
       vec2 occluderLoc = ep.xy + sign(dot(ray,norm) ) * ray.xy;
-      vec4 occluderFragment = texture(NormalsTex, occluderLoc);
-
-      float occluderDepth = -texture(EyePosTex, occluderLoc).z;
+      ivec2 occluderPixel = ivec2(textureSize(EyePosTex) * occluderLoc);
+      vec4 occluderFragment = texelFetch(NormalsTex, occluderPixel, 0);
+      float occluderDepth = -texelFetch(EyePosTex, occluderPixel, 0).z;
 
       // if d (depth difference) is negative = occluder is behind current fragment
       float d = currentPixelDepth - occluderDepth;

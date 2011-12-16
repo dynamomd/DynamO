@@ -314,7 +314,7 @@ namespace magnet {
 	      }
 	    else
 	      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
-					_depthTexture->getGLType(), 0, 0);
+					GL_TEXTURE_2D, 0, 0);
 
 	    
 	    std::vector<GLenum> states(_colorTextures.size(), GL_NONE);
