@@ -674,13 +674,14 @@ namespace coil {
       {
 	//Build the main/left-eye render buffer
 	std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB);
+	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);      
 
 	//We use a shared depth/stencil buffer for the deferred and forward shading passes
 	std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
-	depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH24_STENCIL8);
+	depthTexture->init(_camera.getWidth(), _camera.getHeight(), 
+			   GL_DEPTH_COMPONENT);
 	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
@@ -1545,9 +1546,9 @@ namespace coil {
     _simpleRenderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
     _simpleRenderShader["ViewMatrix"] = _camera.getViewMatrix();
 
-    _Gbuffer.attach();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    _renderTarget.attach();
     glDisable(GL_BLEND);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     //Flush the OpenCL queue, so GL can use the buffers
     getGLContext()->getCLCommandQueue().finish();
@@ -1560,20 +1561,19 @@ namespace coil {
 	   iPtr = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       if ((*iPtr)->visible())
-	(*iPtr)->pickingRender(_filterTarget1, _camera, offset);
+	(*iPtr)->pickingRender(_renderTarget, _camera, offset);
 
     unsigned char pixel[4];  
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);  
-    glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
-    
-    _Gbuffer.detach();
+    glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);    
+    _renderTarget.detach();
     glEnable(GL_BLEND);
 
     //Now let the objects know what was picked
     const cl_uint objID = pixel[0] + 256 * (pixel[1] + 256 * (pixel[2] + 256 * pixel[3]));
     offset = 0;
-    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr
 	   = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       if ((*iPtr)->visible())
