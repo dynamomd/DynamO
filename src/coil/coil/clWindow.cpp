@@ -620,9 +620,9 @@ namespace coil {
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_DEPTH_TEST);
 
-    glEnable(GL_BLEND);
     //Blend colors using the alpha channel
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     //Setup the viewport
     CallBackReshapeFunc(800, 600);
@@ -1013,10 +1013,6 @@ namespace coil {
     _deferredShader.invoke();
     _deferredShader.detach();
 
-    glDepthMask(GL_TRUE);
-    glEnable(GL_DEPTH_TEST);
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glDisable(GL_STENCIL_TEST);
     ///////////////////////Forward Shading Pass /////////////////
 
     //Enter the forward render ticks for all objects
