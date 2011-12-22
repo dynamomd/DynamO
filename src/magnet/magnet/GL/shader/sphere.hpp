@@ -93,6 +93,10 @@ smooth out vec2 ordinate;
 //the displacement
 void VertexEmit(in vec2 displacement)
 {
+  //This oversizes the billboard to allow for correct ray tracing of
+  //the particle
+  displacement *= 1.5;
+
   ordinate = displacement;
 
   vec4 proj_position = ProjectionMatrix 
@@ -113,17 +117,12 @@ void main()
   VertexEmit(vec2(+1.0, -1.0));
   VertexEmit(vec2(+1.0, +1.0));
   EndPrimitive();
-}
-);
+});
 	}
 
 	virtual std::string initFragmentShaderSource()
 	{
 	  return "#version 330\n"
-	    "#ifdef GL_ARB_conservative_depth\n"
-	    "#extension GL_ARB_conservative_depth : enable\n"
-	    "layout (depth_greater) out float gl_FragDepth;"
-	    "#endif\n"
 	    STRINGIFY(
 uniform mat4 ProjectionMatrix;
 
@@ -142,18 +141,20 @@ void main()
   //sphere. Use the equation of a sphere to determine the z pos
   float z = 1.0 - dot(ordinate,ordinate);
 
+  vec3 frag_position_eye = model_position_frag + vec3(ordinate, z) * frag_radius;
+
   //Discard the fragment if it lies outside the sphere
   if (z <= 0.0) discard;
 
   //Calculate the fragments real position on the sphere
   z = sqrt(z);
-  vec4 frag_position_eye = vec4(model_position_frag + vec3(ordinate, z) * frag_radius, 1.0);
+
   //Calculate the fragments depth
-  vec4 pos = ProjectionMatrix * frag_position_eye;
+  vec4 pos = ProjectionMatrix * vec4(frag_position_eye, 1.0);
   gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0; 
 
   //Write out the fragment's data
-  position_out = frag_position_eye;
+  position_out = vec4(frag_position_eye, 1.0);
   color_out = vert_color;
   normal_out = vec4(ordinate.x, ordinate.y, z, 1.0);
 });
@@ -183,16 +184,16 @@ void main()
   //sphere. Use the equation of a sphere to determine the z pos
   float z = 1.0 - dot(ordinate,ordinate);
 
+  vec3 frag_position_eye = model_position_frag + vec3(ordinate, z) * frag_radius;
+
   //Discard the fragment if it lies outside the sphere
   if (z <= 0.0) discard;
 
   //Calculate the fragments real position on the sphere
   z = sqrt(z);
 
-  vec4 frag_position_eye = vec4(model_position_frag + vec3(ordinate, z) * frag_radius, 1.0);
-
   //Calculate the fragments depth
-  vec4 pos = ProjectionMatrix * frag_position_eye;
+  vec4 pos = ProjectionMatrix * vec4(frag_position_eye, 1.0);
   gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0;
 
   float depth = -frag_position_eye.z;
