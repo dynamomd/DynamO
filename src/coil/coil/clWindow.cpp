@@ -39,7 +39,8 @@
 # include <magnet/wiiheadtracking.hpp>
 #endif 
 
-//The glade xml file is "linked" into a binary file and stuffed in the executable, these are the symbols to its data
+//The glade xml file is "linked" into a binary file and stuffed in the
+//executable, these are the symbols to its data
 extern const char _binary_clwingtk_gladexml_start[];
 extern const char _binary_clwingtk_gladexml_end[];
 
@@ -344,8 +345,12 @@ namespace coil {
 	shadowButton->signal_value_changed()
 	  .connect(sigc::mem_fun(this, &CLGLWindow::shadowIntensityCallback));
 
-//	shadowButton->set_icon_from_pixbuf(Gdk::Pixbuf::create_from_inline
-//					   (shadow_intensity_Icon_size, shadow_intensity_Icon));
+	Gtk::IconTheme::add_builtin_icon("shadow-intensity-builtin", 16,
+					 Gdk::Pixbuf::create_from_inline
+					 (shadow_intensity_Icon_size, shadow_intensity_Icon));
+	std::vector<Glib::ustring> names;
+	names.push_back("shadow-intensity-builtin");
+	shadowButton->set_icons(names);
       }
 
       {
