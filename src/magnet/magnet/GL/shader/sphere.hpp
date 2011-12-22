@@ -86,7 +86,7 @@ in float radius[];
 
 flat out vec4 vert_color;
 flat out float frag_radius;
-flat out vec3 model_position_frag;
+flat out vec3 sphere_center;
 smooth out vec2 ordinate;
 
 //Function to emit a bilboard vertex with all the correct output given
@@ -95,7 +95,7 @@ void VertexEmit(in vec2 displacement)
 {
   //This oversizes the billboard to allow for correct ray tracing of
   //the particle
-  displacement *= 1.5;
+  displacement *= 1.2;
 
   ordinate = displacement;
 
@@ -111,7 +111,7 @@ void main()
   //Standard data for each fragment
   vert_color = color[0];
   frag_radius = radius[0];
-  model_position_frag = gl_in[0].gl_Position.xyz;
+  sphere_center = gl_in[0].gl_Position.xyz;
   VertexEmit(vec2(-1.0, -1.0));
   VertexEmit(vec2(-1.0, +1.0));
   VertexEmit(vec2(+1.0, -1.0));
@@ -128,7 +128,7 @@ uniform mat4 ProjectionMatrix;
 
 flat in vec4 vert_color;
 flat in float frag_radius;
-flat in vec3 model_position_frag;
+flat in vec3 sphere_center;
 smooth in vec2 ordinate;
 
 layout (location = 0) out vec4 color_out;
@@ -137,18 +137,21 @@ layout (location = 2) out vec4 position_out;
 
 void main()
 {
-  //The ordinate variable contains the x and y position of the
-  //sphere. Use the equation of a sphere to determine the z pos
-  float z = 1.0 - dot(ordinate,ordinate);
+  vec3 billboard_frag_pos = sphere_center + vec3(ordinate, 0.0) * frag_radius;
+  vec3 ray_direction = normalize(billboard_frag_pos);
 
-  vec3 frag_position_eye = model_position_frag + vec3(ordinate, z) * frag_radius;
+  
+  float TD = dot(ray_direction, -sphere_center);
 
-  //Discard the fragment if it lies outside the sphere
-  if (z <= 0.0) discard;
+  float c = dot(sphere_center, sphere_center) - frag_radius * frag_radius;
+  float arg = TD * TD - c;
+      
+  if (arg < 0) discard;
+  
+  float t = - c / (TD - sqrt(arg));
 
-  //Calculate the fragments real position on the sphere
-  z = sqrt(z);
-
+  vec3 frag_position_eye = ray_direction * t;
+  
   //Calculate the fragments depth
   vec4 pos = ProjectionMatrix * vec4(frag_position_eye, 1.0);
   gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0; 
@@ -156,7 +159,7 @@ void main()
   //Write out the fragment's data
   position_out = vec4(frag_position_eye, 1.0);
   color_out = vert_color;
-  normal_out = vec4(ordinate.x, ordinate.y, z, 1.0);
+  normal_out = vec4(normalize(frag_position_eye - sphere_center), 1.0);
 });
 	}
       };
@@ -173,7 +176,7 @@ void main()
 uniform mat4 ProjectionMatrix;
 
 flat in float frag_radius;
-flat in vec3 model_position_frag;
+flat in vec3 sphere_center;
 smooth in vec2 ordinate;
 
 layout (location = 0) out vec4 color_out;
@@ -184,7 +187,7 @@ void main()
   //sphere. Use the equation of a sphere to determine the z pos
   float z = 1.0 - dot(ordinate,ordinate);
 
-  vec3 frag_position_eye = model_position_frag + vec3(ordinate, z) * frag_radius;
+  vec3 frag_position_eye = sphere_center + vec3(ordinate, z) * frag_radius;
 
   //Discard the fragment if it lies outside the sphere
   if (z <= 0.0) discard;
