@@ -98,6 +98,7 @@ namespace coil {
     _filterEnable(true),
     _stereoMode(false),
     _gammaCorrection(2.2),
+    _exposure(1.0),
     _snapshot_counter(0),
     _dynamo(dynamo)
   {
@@ -690,7 +691,7 @@ namespace coil {
 	std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
 	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);      
+	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	//We use a shared depth/stencil buffer for the deferred and forward shading passes
 	std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
@@ -1006,6 +1007,7 @@ namespace coil {
     _Gbuffer.getDepthTexture()->bind(3);
     _deferredShader["depthTex"] = 3;
     _deferredShader["invGamma"] = GLfloat(1.0 / _gammaCorrection);
+    _deferredShader["exposure"] = GLfloat(_exposure);
 
     {
       magnet::math::Vector vec = _light0.getEyeLocationObjSpace();
@@ -1674,6 +1676,14 @@ namespace coil {
       } catch(...) {}
     }
 
+    {
+      Gtk::Entry* exposureEntry;
+      _refXml->get_widget("ExposureEntry", exposureEntry);
+      magnet::gtk::forceNumericEntry(*exposureEntry);
+      try {
+	_exposure = boost::lexical_cast<double>(exposureEntry->get_text());
+      } catch(...) {}
+    }
 
     {//Filter enable/disable
       Gtk::CheckButton* btn;

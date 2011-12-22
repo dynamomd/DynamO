@@ -45,6 +45,7 @@ uniform sampler2DMS positionTex;
 uniform int samples;
 uniform vec3 lightPosition;
 uniform float invGamma;
+uniform float exposure;
 
 ///////////////Shadow mapping functions and variables
 uniform mat4 ShadowMatrix;
@@ -138,7 +139,7 @@ float calcLighting(vec3 position, vec3 normal)
   //Light attenuation
   float attenuation = min(1.0, 1.0 / (0.2 + lightDistance * (0.1 + 0.01 * lightDistance)));
   intensity *= attenuation;
-  return intensity;
+  return intensity * exposure;
 }
 
 void main()

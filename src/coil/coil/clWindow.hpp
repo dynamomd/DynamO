@@ -164,6 +164,7 @@ namespace coil {
     bool _filterEnable;
     bool _stereoMode;
     double _gammaCorrection;
+    double _exposure;
 
     size_t _snapshot_counter;
 
