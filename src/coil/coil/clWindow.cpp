@@ -1005,6 +1005,7 @@ namespace coil {
     _deferredShader["positionTex"] = 2;
     _Gbuffer.getDepthTexture()->bind(3);
     _deferredShader["depthTex"] = 3;
+    _deferredShader["invGamma"] = GLfloat(1.0 / _gammaCorrection);
 
     {
       magnet::math::Vector vec = _light0.getEyeLocationObjSpace();

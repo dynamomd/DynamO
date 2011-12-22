@@ -44,6 +44,7 @@ uniform sampler2DMS normalTex;
 uniform sampler2DMS positionTex;
 uniform int samples;
 uniform vec3 lightPosition;
+uniform float invGamma;
 
 ///////////////Shadow mapping functions and variables
 uniform mat4 ShadowMatrix;
@@ -165,7 +166,8 @@ void main()
 	  color_sum += color.rgb * calcLighting(position, normalize(normal));
 	}
     }
-  color_out = vec4(color_sum / samples, 1.0);
+  
+  color_out = vec4(pow(color_sum / samples, vec3(invGamma)), 1.0);
 });
 	}
       };
