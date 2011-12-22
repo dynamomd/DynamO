@@ -163,6 +163,7 @@ namespace coil {
     int  _fpsLimitValue;
     bool _filterEnable;
     bool _stereoMode;
+    double _gammaCorrection;
 
     size_t _snapshot_counter;
 

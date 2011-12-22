@@ -69,6 +69,9 @@ extern const size_t cammode_rotate_size;
 extern const guint8 cammode_fps[];
 extern const size_t cammode_fps_size;
 
+extern const guint8 shadow_intensity_Icon[];
+extern const size_t shadow_intensity_Icon_size;
+
 namespace coil {
   CLGLWindow::CLGLWindow(std::string title,
 			 double updateIntervalValue,
@@ -94,6 +97,7 @@ namespace coil {
     _fpsLimitValue(35),
     _filterEnable(true),
     _stereoMode(false),
+    _gammaCorrection(2.2),
     _snapshot_counter(0),
     _dynamo(dynamo)
   {
@@ -332,12 +336,22 @@ namespace coil {
       }
     
       {//Setup the shadow intensity
-	Gtk::VolumeButton* shadowButton;
+	Gtk::ScaleButton* shadowButton;
 	_refXml->get_widget("shadowIntensity", shadowButton);
 	shadowButton->set_value(_shadowIntensity);
       
 	shadowButton->signal_value_changed()
 	  .connect(sigc::mem_fun(this, &CLGLWindow::shadowIntensityCallback));
+
+//	shadowButton->set_icon_from_pixbuf(Gdk::Pixbuf::create_from_inline
+//					   (shadow_intensity_Icon_size, shadow_intensity_Icon));
+      }
+
+      {
+	Gtk::Entry* gammaScale;
+	_refXml->get_widget("GammaCorrectionEntry", gammaScale);
+	gammaScale->signal_changed()
+	  .connect(sigc::mem_fun(*this, &CLGLWindow::guiUpdateCallback));
       }
     
       {///////////////////////Filters//////////////////////////////////
@@ -1649,6 +1663,16 @@ namespace coil {
 	  M_throw() << "Cannot find the appropriate icon for the camera mode";
 	}
     }
+
+    {
+      Gtk::Entry* gammaScale;
+      _refXml->get_widget("GammaCorrectionEntry", gammaScale);
+      magnet::gtk::forceNumericEntry(*gammaScale);
+      try {
+	_gammaCorrection = boost::lexical_cast<double>(gammaScale->get_text());
+      } catch(...) {}
+    }
+
 
     {//Filter enable/disable
       Gtk::CheckButton* btn;
