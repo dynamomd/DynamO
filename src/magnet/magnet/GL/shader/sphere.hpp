@@ -44,6 +44,11 @@ namespace magnet {
 	  like \code glEnable(SAMPLE_SHADING_ARB);
 	  glMinSampleShadingARB(1.0); \endcode will enable
 	  multisampling on the spheres when possible.
+
+	  A discussion of this technique is given in the excellent
+	  online GL book by Jason L. McKesson at \url
+	  http://www.arcsynthesis.org/gltut/index.html in the chapter
+	  on lies and IMPOSTORS.
        */
       class SphereShader: public detail::Shader
       {
@@ -140,9 +145,7 @@ void main()
   vec3 billboard_frag_pos = sphere_center + vec3(ordinate, 0.0) * frag_radius;
   vec3 ray_direction = normalize(billboard_frag_pos);
 
-  
   float TD = dot(ray_direction, -sphere_center);
-
   float c = dot(sphere_center, sphere_center) - frag_radius * frag_radius;
   float arg = TD * TD - c;
       
@@ -183,17 +186,18 @@ layout (location = 0) out vec4 color_out;
 
 void main()
 {
-  //The ordinate variable contains the x and y position of the
-  //sphere. Use the equation of a sphere to determine the z pos
-  float z = 1.0 - dot(ordinate,ordinate);
+  vec3 billboard_frag_pos = sphere_center + vec3(ordinate, 0.0) * frag_radius;
+  vec3 ray_direction = normalize(billboard_frag_pos);
 
-  vec3 frag_position_eye = sphere_center + vec3(ordinate, z) * frag_radius;
+  float TD = dot(ray_direction, -sphere_center);
+  float c = dot(sphere_center, sphere_center) - frag_radius * frag_radius;
+  float arg = TD * TD - c;
+      
+  if (arg < 0) discard;
+  
+  float t = - c / (TD - sqrt(arg));
 
-  //Discard the fragment if it lies outside the sphere
-  if (z <= 0.0) discard;
-
-  //Calculate the fragments real position on the sphere
-  z = sqrt(z);
+  vec3 frag_position_eye = ray_direction * t;
 
   //Calculate the fragments depth
   vec4 pos = ProjectionMatrix * vec4(frag_position_eye, 1.0);
