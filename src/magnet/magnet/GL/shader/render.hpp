@@ -54,9 +54,7 @@ void main()
 {
   color = vColor;
   //We store the normals in eye-space
-  normal 
-    = normalize((ViewMatrix
-		 * vec4(qrot(iOrientation, vNormal.xyz), 0.0)).xyz);
+  normal = (ViewMatrix * vec4(qrot(iOrientation, vNormal.xyz), 1.0)).xyz;
   
   vec3 scale = iScale.xyz + vec3(equal(iScale.xyz, vec3(0.0))) * iScale.x;
   vec4 vVertex
