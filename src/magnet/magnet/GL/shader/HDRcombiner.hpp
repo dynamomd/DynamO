@@ -52,7 +52,7 @@ void main()
 
   vec4 color = texelFetch(colorTex, pixelcoord, 0).rgba;
 
-  color_out = vec4(pow(color.rgb, vec3(invGamma)), 1.0);
+  color_out = vec4(pow(color.rgb * exposure, vec3(invGamma)), 1.0);
 });
 	}
       };

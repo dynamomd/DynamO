@@ -1045,10 +1045,10 @@ namespace coil {
     _pointLightShader["positionTex"] = 2;
     _pointLightShader["depthTex"] = 3;    
     _pointLightShader["samples"] = GLint(_samples);
-    _pointLightShader["lightAttenuation"] = 0.001f;
+    _pointLightShader["lightAttenuation"] = 0.0f;
     _pointLightShader["lightSpecularExponent"] = 96.0f;
-    _pointLightShader["lightAttenuation"] = 1.0f;
     _pointLightShader["lightSpecularFactor"] = 0.0001f;
+    _pointLightShader["lightIntensity"] = 1.0f;
 
     { magnet::math::Vector vec = _light0.getEyeLocationObjSpace();
       std::tr1::array<GLfloat, 4> lightPos = {{vec[0], vec[1], vec[2], 1.0}};
