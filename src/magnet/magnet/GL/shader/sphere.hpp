@@ -100,7 +100,7 @@ void VertexEmit(in vec2 displacement)
 {
   //This oversizes the billboard to allow for correct ray tracing of
   //the particle
-  displacement *= 1.2;
+  displacement *= 1.4;
 
   ordinate = displacement;
 

@@ -51,11 +51,16 @@ uniform float lightSpecularFactor;
 uniform int samples;
 
 float calcLighting(vec3 position, vec3 normal)
-{
+{  
   vec3 lightVector = lightPosition - position;
   float lightDistance = length(lightVector);
   vec3 lightDirection = lightVector * (1.0 / lightDistance);
-  
+ 
+  //if the normal has a zero length, illuminate it as though it was
+  //fully lit
+  float normal_length = length(normal);
+  normal = (normal_length == 0) ?  lightDirection : normal / normal_length;
+ 
   //Camera position relative to the pixel location
   vec3 eyeVector = -position;
   vec3 eyeDirection = normalize(eyeVector);
@@ -96,7 +101,7 @@ void main()
 	  vec3 normal = texelFetch(normalTex, pixelcoord, sample_id).rgb;
 	  //Eye space position of the vertex
 	  vec3 position = texelFetch(positionTex, pixelcoord, sample_id).xyz;
-	  color_sum += color.rgb * (ambientLight + calcLighting(position, normalize(normal)));
+	  color_sum += color.rgb * (ambientLight + calcLighting(position, normal));
 	}
     }
   
