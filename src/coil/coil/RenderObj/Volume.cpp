@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Volume.hpp"
+#include <coil/RenderObj/Volume.hpp>
 #include <coil/glprimatives/arrow.hpp>
 #include <coil/RenderObj/console.hpp>
 #include <magnet/gtk/numericEntry.hpp>

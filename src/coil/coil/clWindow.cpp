@@ -19,6 +19,7 @@
 #include <coil/RenderObj/Function.hpp>
 #include <coil/RenderObj/console.hpp>
 #include <coil/RenderObj/Volume.hpp>
+#include <coil/RenderObj/Light.hpp>
 
 #include <magnet/GL/context.hpp>
 
@@ -610,6 +611,10 @@ namespace coil {
     if (_readyFlag) return;
 
     //First render object is the ground
+    std::tr1::shared_ptr<RLight> primaryLight(new RLight("Light 1"));
+    _renderObjsTree._renderObjects.push_back(primaryLight);
+
+    //First render object is the ground
     std::tr1::shared_ptr<RenderObj> groundObj
       (new RFunction((size_t)64,
 		     Vector(-5, -0.6, -5),
@@ -1038,28 +1043,39 @@ namespace coil {
     //Additive blending
     glBlendFunc(GL_ONE, GL_ONE);
 
+
     _pointLightShader.attach();
-    _pointLightShader["ambientLight"] = GLfloat(_ambientIntensity);
     _pointLightShader["colorTex"] = 0;
     _pointLightShader["normalTex"] = 1;
     _pointLightShader["positionTex"] = 2;
     _pointLightShader["depthTex"] = 3;    
     _pointLightShader["samples"] = GLint(_samples);
-    _pointLightShader["lightAttenuation"] = 1.0f;
-    _pointLightShader["lightSpecularExponent"] = 96.0f;
-    _pointLightShader["lightSpecularFactor"] = 0.0001f;
-    _pointLightShader["lightIntensity"] = 1.0f;
+    GLfloat ambient = _ambientIntensity;
 
-    { magnet::math::Vector vec = _light0.getEyeLocationObjSpace();
-      std::tr1::array<GLfloat, 4> lightPos = {{vec[0], vec[1], vec[2], 1.0}};
-      std::tr1::array<GLfloat, 4> lightPos_eyespace 
-	= camera.getViewMatrix() * lightPos;
-      magnet::math::Vector vec2(lightPos_eyespace[0], lightPos_eyespace[1], 
-				lightPos_eyespace[2]);
-      _pointLightShader["lightPosition"] = vec2;
-    }
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
+	   = _renderObjsTree._renderObjects.begin();
+	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
+      if (std::tr1::dynamic_pointer_cast<RLight>(*iPtr))
+	{
+	  std::tr1::shared_ptr<RLight> light 
+	    = std::tr1::dynamic_pointer_cast<RLight>(*iPtr);
+	  _pointLightShader["ambientLight"] = ambient;
+	  _pointLightShader["lightAttenuation"] = light->getAttenuation();
+	  _pointLightShader["lightSpecularExponent"] = light->getSpecularExponent();
+	  _pointLightShader["lightSpecularFactor"] = light->getSpecularFactor();
+	  _pointLightShader["lightIntensity"] = light->getIntensity();
+	  { magnet::math::Vector vec = _light0.getEyeLocationObjSpace();
+	    std::tr1::array<GLfloat, 4> lightPos = {{vec[0], vec[1], vec[2], 1.0}};
+	    std::tr1::array<GLfloat, 4> lightPos_eyespace 
+	      = camera.getViewMatrix() * lightPos;
+	    magnet::math::Vector vec2(lightPos_eyespace[0], lightPos_eyespace[1], 
+				      lightPos_eyespace[2]);
+	    _pointLightShader["lightPosition"] = vec2;
+	  }
+	  _pointLightShader.invoke();
+	  ambient = 0;
+	}
     
-    _pointLightShader.invoke();
     _pointLightShader.detach();
     _lightBuffer.detach();
 
