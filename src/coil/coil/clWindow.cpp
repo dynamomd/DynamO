@@ -1045,7 +1045,7 @@ namespace coil {
     _pointLightShader["positionTex"] = 2;
     _pointLightShader["depthTex"] = 3;    
     _pointLightShader["samples"] = GLint(_samples);
-    _pointLightShader["lightAttenuation"] = 0.0f;
+    _pointLightShader["lightAttenuation"] = 1.0f;
     _pointLightShader["lightSpecularExponent"] = 96.0f;
     _pointLightShader["lightSpecularFactor"] = 0.0001f;
     _pointLightShader["lightIntensity"] = 1.0f;

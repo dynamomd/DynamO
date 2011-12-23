@@ -98,8 +98,6 @@ void main()
 	  vec3 position = texelFetch(positionTex, pixelcoord, sample_id).xyz;
 	  color_sum += color.rgb * (ambientLight + calcLighting(position, normalize(normal)));
 	}
-      else
-	color_sum += color.rgb * ambientLight;
     }
   
   color_out = vec4(color_sum / samples, 1.0);
