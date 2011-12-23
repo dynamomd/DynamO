@@ -264,10 +264,11 @@ namespace coil {
     }
   
     {///////Control the update rate from the simulation
-      Gtk::SpinButton* updateButton;
-      _refXml->get_widget("updateFreq", updateButton);
-      updateButton->set_value(_updateIntervalValue);
-      updateButton->signal_value_changed()
+      Gtk::Entry* updateFreq;
+      _refXml->get_widget("updateFreq", updateFreq);
+      updateFreq->set_text
+	(boost::lexical_cast<std::string>(_updateIntervalValue));
+      updateFreq->signal_changed()
 	.connect(sigc::mem_fun(this, &CLGLWindow::guiUpdateCallback));
     }
 
@@ -1699,13 +1700,20 @@ namespace coil {
     }
 
     {//Sim Update Frequency Control
-      Gtk::SpinButton* updateButton;
-      _refXml->get_widget("updateFreq", updateButton);
+      Gtk::Entry* updateFreq;
+      _refXml->get_widget("updateFreq", updateFreq);
     
-      if (updateButton->get_value() <= 0)
-	updateButton->set_value(0.000001);
-    
-      _updateIntervalValue = updateButton->get_value();
+      magnet::gtk::forceNumericEntry(*updateFreq);
+      if (updateFreq->get_text()[0] == '-')
+	{
+	  std::string value(updateFreq->get_text());
+	  value.erase(value.begin());
+	  updateFreq->set_text(value);
+	}
+
+      try { _updateIntervalValue 
+	  = boost::lexical_cast<float>(updateFreq->get_text()); }
+      catch(...) {}
     }
 
     {//Analygraph work
