@@ -71,9 +71,6 @@ extern const size_t cammode_rotate_size;
 extern const guint8 cammode_fps[];
 extern const size_t cammode_fps_size;
 
-extern const guint8 shadow_intensity_Icon[];
-extern const size_t shadow_intensity_Icon_size;
-
 namespace coil {
   CLGLWindow::CLGLWindow(std::string title,
 			 double updateIntervalValue,
@@ -88,8 +85,6 @@ namespace coil {
     _mouseSensitivity(0.3),
     _moveSensitivity(0.001),
     _specialKeys(0),
-    _shadowMapping(false),
-    _shadowIntensity(0.8),
     _simrun(false),
     _simframelock(false),
     _snapshot(false),
@@ -100,7 +95,7 @@ namespace coil {
     _filterEnable(true),
     _stereoMode(false),
     _gammaCorrection(2.2),
-    _ambientIntensity(0.2),
+    _ambientIntensity(0.01),
     _exposure(1.0),
     _snapshot_counter(0),
     _samples(1),
@@ -219,7 +214,6 @@ namespace coil {
       _refXml->get_widget("CamNegZbtn", button);
       button->signal_clicked()
 	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector(0,0,-1)));
-
     }
 
 
@@ -254,14 +248,6 @@ namespace coil {
       _refXml->get_widget("SimLockButton", framelockButton);
       framelockButton->signal_toggled()
 	.connect(sigc::mem_fun(this, &CLGLWindow::simFramelockControlCallback));
-    }
-
-    {//////Place light button
-      Gtk::Button* lightButton;    
-      _refXml->get_widget("lightLocation", lightButton); 
-
-      lightButton->signal_clicked()
-	.connect(sigc::mem_fun(*this, &CLGLWindow::lightPlaceCallback));
     }
 
     {//////Snapshot button
@@ -322,40 +308,6 @@ namespace coil {
       _aasamples->signal_changed()
 	.connect(sigc::mem_fun(this, &CLGLWindow::AAsamplechangeCallback));
 
-      ///////////////////////Shadow Mapping//////////////////////////////////
-      {
-	Gtk::CheckButton* shadowmapEnable;
-	_refXml->get_widget("shadowmapEnable", shadowmapEnable);
-
-	shadowmapEnable->set_active(_shadowMapping);
-	shadowmapEnable->signal_toggled()
-	  .connect(sigc::mem_fun(this, &CLGLWindow::shadowEnableCallback));
-      }
-    
-      {
-	Gtk::SpinButton* shadowmapSize;
-	_refXml->get_widget("shadowmapSize", shadowmapSize);
-	shadowmapSize->set_value(1024);
-	shadowmapSize->signal_value_changed()
-	  .connect(sigc::mem_fun(this, &CLGLWindow::shadowEnableCallback));
-      }
-    
-      {//Setup the shadow intensity
-	Gtk::ScaleButton* shadowButton;
-	_refXml->get_widget("shadowIntensity", shadowButton);
-	shadowButton->set_value(_shadowIntensity);
-      
-	shadowButton->signal_value_changed()
-	  .connect(sigc::mem_fun(this, &CLGLWindow::shadowIntensityCallback));
-
-	Gtk::IconTheme::add_builtin_icon("shadow-intensity-builtin", 16,
-					 Gdk::Pixbuf::create_from_inline
-					 (shadow_intensity_Icon_size, shadow_intensity_Icon));
-	std::vector<Glib::ustring> names;
-	names.push_back("shadow-intensity-builtin");
-	shadowButton->set_icons(names);
-      }
-
       {
 	Gtk::Entry* gammaScale;
 	_refXml->get_widget("GammaCorrectionEntry", gammaScale);
@@ -366,6 +318,8 @@ namespace coil {
       {
 	Gtk::Entry* AmbientLightIntensity;
 	_refXml->get_widget("AmbientLightIntensity", AmbientLightIntensity);
+	AmbientLightIntensity
+	  ->set_text(boost::lexical_cast<std::string>(_ambientIntensity));
 	AmbientLightIntensity->signal_changed()
 	  .connect(sigc::mem_fun(*this, &CLGLWindow::guiUpdateCallback));
       }
@@ -583,24 +537,6 @@ namespace coil {
     _FPStime = currFrameTime;
 
     return true;
-  }
-
-  void 
-  CLGLWindow::shadowEnableCallback()
-  {
-    Gtk::CheckButton* shadowmapEnable;
-    _refXml->get_widget("shadowmapEnable", shadowmapEnable);
-  
-    _shadowMapping = shadowmapEnable->get_active();
-
-
-    if (_shadowMapping)
-      {
-	Gtk::SpinButton* shadowmapSize;
-	_refXml->get_widget("shadowmapSize", shadowmapSize);
-      
-	_light0.shadowFBO().resize(shadowmapSize->get_value(), shadowmapSize->get_value());
-      }
   }
 
   void
@@ -847,31 +783,31 @@ namespace coil {
     ////////////Lighting shadow map creation////////////////////
     //This stage only needs to be performed once per frame
 
-    if (_shadowMapping)
-      {
-	glDisable(GL_BLEND);
-	_VSMShader.attach();
-
-	//Render each light's shadow map
-	_VSMShader["ProjectionMatrix"] = _light0.getProjectionMatrix();
-	_VSMShader["ViewMatrix"] = _light0.getViewMatrix();	  
-	_light0.shadowFBO().attach();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-	//Enter the render ticks for all objects
-	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
-	     iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-	  if ((*iPtr)->shadowCasting() && (*iPtr)->visible())
-	    (*iPtr)->glRender(_light0.shadowFBO(), _light0, RenderObj::SHADOW);
-	
-	_light0.shadowFBO().detach();
-	/////////////MIPMAPPED shadow maps don't seem to work
-	//_light0.shadowTex()->genMipmaps();
-	_light0.shadowTex()->bind(7);
-	
-	_VSMShader.detach();
-	glEnable(GL_BLEND);
-      }
+//    if (_shadowMapping)
+//      {
+//	glDisable(GL_BLEND);
+//	_VSMShader.attach();
+//
+//	//Render each light's shadow map
+//	_VSMShader["ProjectionMatrix"] = _light0.getProjectionMatrix();
+//	_VSMShader["ViewMatrix"] = _light0.getViewMatrix();	  
+//	_light0.shadowFBO().attach();
+//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//	
+//	//Enter the render ticks for all objects
+//	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
+//	     iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
+//	  if ((*iPtr)->shadowCasting() && (*iPtr)->visible())
+//	    (*iPtr)->glRender(_light0.shadowFBO(), _light0, RenderObj::SHADOW);
+//	
+//	_light0.shadowFBO().detach();
+//	/////////////MIPMAPPED shadow maps don't seem to work
+//	//_light0.shadowTex()->genMipmaps();
+//	_light0.shadowTex()->bind(7);
+//	
+//	_VSMShader.detach();
+//	glEnable(GL_BLEND);
+//      }
     
     ////////3D or Stereo rendering image composition//////////
 
@@ -1391,16 +1327,6 @@ namespace coil {
     _refXml->get_widget("SimRecordButton", recordButton);
 
     _record = recordButton->get_active();  
-  }
-
-  void 
-  CLGLWindow::lightPlaceCallback()
-  { _light0 = _camera; }
-
-  void 
-  CLGLWindow::shadowIntensityCallback(double val)
-  {
-    _shadowIntensity = val;
   }
 
   void 

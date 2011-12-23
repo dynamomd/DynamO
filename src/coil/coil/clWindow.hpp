@@ -155,8 +155,6 @@ namespace coil {
     int _oldMouseX, _oldMouseY;
     int _specialKeys;
 
-    bool _shadowMapping;
-    GLfloat _shadowIntensity;
     volatile bool _simrun;
     volatile bool _simframelock;
     bool _snapshot;
@@ -219,14 +217,11 @@ namespace coil {
     void HeadReset();
 
     //Other callbacks
-    void shadowEnableCallback();
     void simRunControlCallback();
     void simFramelockControlCallback();
     void snapshotCallback();
     void recordCallback();
     void axisShowCallback();
-    void lightPlaceCallback();
-    void shadowIntensityCallback(double);
     void FPSLimitCallback();
     void aboutCallback();
     void renderNormalsCallback();
