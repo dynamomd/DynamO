@@ -21,7 +21,8 @@
 #include <magnet/static_assert.hpp>
 #include <magnet/GL/light.hpp>
 #include <magnet/GL/shader/render.hpp>
-#include <magnet/GL/shader/deferred.hpp>
+#include <magnet/GL/shader/lightShader.hpp>
+#include <magnet/GL/shader/HDRcombiner.hpp>
 #include <magnet/GL/camera.hpp>
 #include <magnet/GL/multisampledFBO.hpp>
 #include <magnet/GL/shader/vsm.hpp>
@@ -85,7 +86,8 @@ namespace coil {
     void setLabelText(Gtk::Label*, std::string);
 
     magnet::GL::shader::RenderShader _renderShader;
-    magnet::GL::shader::DeferredLightingShader _deferredShader;
+    magnet::GL::shader::PointLightShader _pointLightShader;
+    magnet::GL::shader::HDRCombinerShader _hdrCombinerShader;
     magnet::GL::shader::VSMShader _VSMShader;
     magnet::GL::shader::SimpleRenderShader _simpleRenderShader;
     magnet::GL::shader::CopyShader _copyShader;
@@ -93,6 +95,7 @@ namespace coil {
     //Primary render target, or the render target for the left eye.
     magnet::GL::FBO _renderTarget;
     magnet::GL::FBO _Gbuffer;
+    magnet::GL::FBO _lightBuffer;
 
     //Frame buffers to flip flop filters between
     magnet::GL::FBO _filterTarget1;
@@ -164,9 +167,11 @@ namespace coil {
     bool _filterEnable;
     bool _stereoMode;
     double _gammaCorrection;
+    double _ambientIntensity;
     double _exposure;
 
     size_t _snapshot_counter;
+    size_t _samples;
 
     magnet::GL::Light _light0;
 

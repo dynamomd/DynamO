@@ -99,8 +99,10 @@ namespace coil {
     _filterEnable(true),
     _stereoMode(false),
     _gammaCorrection(2.2),
+    _ambientIntensity(0.2),
     _exposure(1.0),
     _snapshot_counter(0),
+    _samples(1),
     _dynamo(dynamo)
   {
     for (size_t i(0); i < 256; ++i) keyStates[i] = false;
@@ -357,6 +359,13 @@ namespace coil {
 	Gtk::Entry* gammaScale;
 	_refXml->get_widget("GammaCorrectionEntry", gammaScale);
 	gammaScale->signal_changed()
+	  .connect(sigc::mem_fun(*this, &CLGLWindow::guiUpdateCallback));
+      }
+
+      {
+	Gtk::Entry* AmbientLightIntensity;
+	_refXml->get_widget("AmbientLightIntensity", AmbientLightIntensity);
+	AmbientLightIntensity->signal_changed()
 	  .connect(sigc::mem_fun(*this, &CLGLWindow::guiUpdateCallback));
       }
     
@@ -636,7 +645,6 @@ namespace coil {
 
     _glContext = magnet::GL::Context::getContext();
 
-    glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_DEPTH_TEST);
 
@@ -686,7 +694,8 @@ namespace coil {
     
     _renderShader.build();
     _copyShader.build();
-    _deferredShader.build();
+    _pointLightShader.build();
+    _hdrCombinerShader.build();
     _VSMShader.build();
     _simpleRenderShader.build();
 
@@ -710,6 +719,19 @@ namespace coil {
 	_renderTarget.attachTexture(colorTexture, 0);
 	_renderTarget.attachTexture(depthTexture);
       }
+
+      {
+	std::tr1::shared_ptr<magnet::GL::Texture2D> 
+	  colorTexture(new magnet::GL::Texture2D);
+
+	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB16F);
+	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	_lightBuffer.init();
+	_lightBuffer.attachTexture(colorTexture, 0);
+      }
+
     }
     //Now init the render objects  
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
@@ -770,10 +792,12 @@ namespace coil {
 
     _renderTarget.deinit();
     _Gbuffer.deinit();
+    _lightBuffer.deinit();
     _filterTarget1.deinit();
     _filterTarget2.deinit();
     _renderShader.deinit();
-    _deferredShader.deinit();	
+    _pointLightShader.deinit();	
+    _hdrCombinerShader.deinit();
     _VSMShader.deinit();
     _simpleRenderShader.deinit();
     _copyShader.deinit();
@@ -981,6 +1005,7 @@ namespace coil {
     //We share the depth and stencil texture between the GBuffer and
     //the target fbo
     _Gbuffer.attach();
+    glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     _renderShader.attach();
     _renderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
@@ -996,44 +1021,67 @@ namespace coil {
     _renderShader.detach();
     _Gbuffer.detach();
 
+    ///////////////////////Light Pre-Pass////////////////////////
+    //Here we calculate the lighting of every pixel in the scene
+
+    //The RGB channels store the specular component of the lights. The
+    //alpha channel stores the diffuse lighting.
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    _Gbuffer.getColorTexture(0)->bind(0);
+    _Gbuffer.getColorTexture(1)->bind(1);
+    _Gbuffer.getColorTexture(2)->bind(2);
+    _Gbuffer.getDepthTexture()->bind(3);
+
+    _lightBuffer.attach();
+    glClear(GL_COLOR_BUFFER_BIT);
+    glEnable(GL_BLEND);
+    //Additive blending
+    glBlendFunc(GL_ONE, GL_ONE);
+
+    _pointLightShader.attach();
+    _pointLightShader["ambientLight"] = GLfloat(_ambientIntensity);
+    _pointLightShader["colorTex"] = 0;
+    _pointLightShader["normalTex"] = 1;
+    _pointLightShader["positionTex"] = 2;
+    _pointLightShader["depthTex"] = 3;    
+    _pointLightShader["samples"] = GLint(_samples);
+    _pointLightShader["lightAttenuation"] = 0.001f;
+    _pointLightShader["lightSpecularExponent"] = 96.0f;
+    _pointLightShader["lightAttenuation"] = 1.0f;
+    _pointLightShader["lightSpecularFactor"] = 0.0001f;
+
+    { magnet::math::Vector vec = _light0.getEyeLocationObjSpace();
+      std::tr1::array<GLfloat, 4> lightPos = {{vec[0], vec[1], vec[2], 1.0}};
+      std::tr1::array<GLfloat, 4> lightPos_eyespace 
+	= camera.getViewMatrix() * lightPos;
+      magnet::math::Vector vec2(lightPos_eyespace[0], lightPos_eyespace[1], 
+				lightPos_eyespace[2]);
+      _pointLightShader["lightPosition"] = vec2;
+    }
+    
+    _pointLightShader.invoke();
+    _pointLightShader.detach();
+    _lightBuffer.detach();
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     ///////////////////////Deferred Shading Pass /////////////////
+
     //We do a full screen pass, no need for color or depth clear or
     //depth-test, just copy the data and calculate the ambient
     //lighting
     fbo.attach();
-
-    _deferredShader.attach();
-    _Gbuffer.getColorTexture(0)->bind(0);
-    _deferredShader["colorTex"] = 0;
-    _Gbuffer.getColorTexture(1)->bind(1);
-    _deferredShader["normalTex"] = 1;
-    _Gbuffer.getColorTexture(2)->bind(2);
-    _deferredShader["positionTex"] = 2;
+    _lightBuffer.getColorTexture(0)->bind(0);
     _Gbuffer.getDepthTexture()->bind(3);
-    _deferredShader["depthTex"] = 3;
-    _deferredShader["invGamma"] = GLfloat(1.0 / _gammaCorrection);
-    _deferredShader["exposure"] = GLfloat(_exposure);
 
-    {
-      magnet::math::Vector vec = _light0.getEyeLocationObjSpace();
-      std::tr1::array<GLfloat, 4> lightPos = {{vec[0], vec[1], vec[2], 1.0}};
-      std::tr1::array<GLfloat, 4> lightPos_eyespace 
-	= camera.getViewMatrix() * lightPos;
-      magnet::math::Vector vec2(lightPos_eyespace[0], 
-				lightPos_eyespace[1], 
-				lightPos_eyespace[2]);
-      _deferredShader["lightPosition"] = vec2;
-    }
+    _hdrCombinerShader.attach();
+    _hdrCombinerShader["colorTex"] = 0;
+    _hdrCombinerShader["depthTex"] = 3;    
+    _hdrCombinerShader["invGamma"] = GLfloat(1.0 / _gammaCorrection);
+    _hdrCombinerShader["exposure"] = GLfloat(_exposure);
 
-    _deferredShader["ShadowMap"] = 7;
-    _deferredShader["ShadowIntensity"] = _shadowIntensity;
-    _deferredShader["ShadowMapping"] = _shadowMapping;
-    if (_shadowMapping)
-      _deferredShader["ShadowMatrix"] 
-	= _light0.getShadowTextureMatrix() * camera.getViewMatrix().inverse();
+    _hdrCombinerShader.invoke();
 
-    _deferredShader.invoke();
-    _deferredShader.detach();
+    _hdrCombinerShader.detach();
 
     ///////////////////////Forward Shading Pass /////////////////
 
@@ -1132,6 +1180,7 @@ namespace coil {
 
     _camera.setHeightWidth(h, w);
     //Update the viewport
+    _lightBuffer.resize(w, h);
     _renderTarget.resize(w, h);  
     _Gbuffer.resize(w, h);  
     _filterTarget1.resize(w, h);
@@ -1690,6 +1739,16 @@ namespace coil {
       } catch(...) {}
     }
 
+    {
+      Gtk::Entry* ambientIntensityEntry;
+      _refXml->get_widget("AmbientLightIntensity", ambientIntensityEntry);
+      magnet::gtk::forceNumericEntry(*ambientIntensityEntry);
+      try {
+	_ambientIntensity
+	  = boost::lexical_cast<double>(ambientIntensityEntry->get_text());
+      } catch(...) {}
+    }
+
     {//Filter enable/disable
       Gtk::CheckButton* btn;
       _refXml->get_widget("filterEnable", btn);
@@ -1923,23 +1982,19 @@ namespace coil {
   void 
   CLGLWindow::AAsamplechangeCallback()
   {
-    const GLint MS_samples = boost::lexical_cast<size_t>(_aasamples->get_active_text());
-
-    _deferredShader.attach();
-    _deferredShader["samples"] = MS_samples;
-    _deferredShader.detach();
+    _samples = boost::lexical_cast<size_t>(_aasamples->get_active_text());
 
     //Build G buffer      
-    std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2DMultisampled(MS_samples));
+    std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2DMultisampled(_samples));
     colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
     
-    std::tr1::shared_ptr<magnet::GL::Texture2D> normalTexture(new magnet::GL::Texture2DMultisampled(MS_samples));
+    std::tr1::shared_ptr<magnet::GL::Texture2D> normalTexture(new magnet::GL::Texture2DMultisampled(_samples));
     normalTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
     
-    std::tr1::shared_ptr<magnet::GL::Texture2D> posTexture(new magnet::GL::Texture2DMultisampled(MS_samples));
+    std::tr1::shared_ptr<magnet::GL::Texture2D> posTexture(new magnet::GL::Texture2DMultisampled(_samples));
     posTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F_ARB);
     
-    std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2DMultisampled(MS_samples));
+    std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2DMultisampled(_samples));
     depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);    
 
     _Gbuffer.deinit();
