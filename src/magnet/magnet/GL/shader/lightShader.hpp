@@ -48,6 +48,8 @@ uniform float lightIntensity;
 uniform float lightAttenuation;
 uniform float lightSpecularExponent;
 uniform float lightSpecularFactor;
+uniform float invGamma;
+uniform float exposure;
 uniform int samples;
 
 float calcLighting(vec3 position, vec3 normal)
@@ -103,9 +105,12 @@ void main()
 	  vec3 position = texelFetch(positionTex, pixelcoord, sample_id).xyz;
 	  color_sum += color.rgb * (ambientLight + calcLighting(position, normal));
 	}
+      else
+	color_sum += vec3(1.0, 1.0, 1.0);
+     
     }
   
-  color_out = vec4(color_sum / samples, 1.0);
+  color_out = vec4(pow(color_sum * exposure / samples, vec3(invGamma)), 1.0);
 });
 	}
       };

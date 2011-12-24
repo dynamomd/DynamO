@@ -634,7 +634,6 @@ namespace coil {
     _renderShader.build();
     _copyShader.build();
     _pointLightShader.build();
-    _hdrCombinerShader.build();
     _VSMShader.build();
     _simpleRenderShader.build();
 
@@ -736,7 +735,6 @@ namespace coil {
     _filterTarget2.deinit();
     _renderShader.deinit();
     _pointLightShader.deinit();	
-    _hdrCombinerShader.deinit();
     _VSMShader.deinit();
     _simpleRenderShader.deinit();
     _copyShader.deinit();
@@ -963,13 +961,13 @@ namespace coil {
 
     //The RGB channels store the specular component of the lights. The
     //alpha channel stores the diffuse lighting.
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     _Gbuffer.getColorTexture(0)->bind(0);
     _Gbuffer.getColorTexture(1)->bind(1);
     _Gbuffer.getColorTexture(2)->bind(2);
     _Gbuffer.getDepthTexture()->bind(3);
 
     _lightBuffer.attach();
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_BLEND);
     //Additive blending
@@ -997,6 +995,8 @@ namespace coil {
 	  _pointLightShader["lightSpecularFactor"] = light->getSpecularFactor();
 	  _pointLightShader["lightIntensity"] = light->getIntensity();
 	  _pointLightShader["lightPosition"] = light->getEyespacePosition(camera);
+	  _pointLightShader["invGamma"] = GLfloat(1.0 / _gammaCorrection);
+	  _pointLightShader["exposure"] = GLfloat(_exposure);
 	  _pointLightShader.invoke();
 	  ambient = 0;
 	}
@@ -1005,25 +1005,7 @@ namespace coil {
     _lightBuffer.detach();
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    ///////////////////////Deferred Shading Pass /////////////////
-
-    //We do a full screen pass, no need for color or depth clear or
-    //depth-test, just copy the data and calculate the ambient
-    //lighting
-    fbo.attach();
-    _lightBuffer.getColorTexture(0)->bind(0);
-    _Gbuffer.getDepthTexture()->bind(3);
-
-    _hdrCombinerShader.attach();
-    _hdrCombinerShader["colorTex"] = 0;
-    _hdrCombinerShader["depthTex"] = 3;    
-    _hdrCombinerShader["invGamma"] = GLfloat(1.0 / _gammaCorrection);
-    _hdrCombinerShader["exposure"] = GLfloat(_exposure);
-
-    _hdrCombinerShader.invoke();
-
-    _hdrCombinerShader.detach();
-
+    _lightBuffer.copyto(fbo, GL_COLOR_BUFFER_BIT);
     ///////////////////////Forward Shading Pass /////////////////
 
 //    //Enter the forward render ticks for all objects

@@ -37,12 +37,16 @@ namespace coil {
   RLight::deinit()
   {
     _shadowFBO.deinit();
+    _cube.deinit();
+    _context.reset();
   }
-
+  
   void 
   RLight::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue) 
   {
     RenderObj::init(systemQueue);
+    _cube.init();
+    _context = magnet::GL::Context::getContext();
 
     {
       //Build depth buffer
@@ -74,6 +78,27 @@ namespace coil {
     }
 
     initGTK();
+  }
+
+  void 
+  RLight::glRender(magnet::GL::FBO& fbo, 
+		   const magnet::GL::Camera& cam, 
+		   RenderMode mode)
+  {
+    if (!_visible) return;
+    
+    using namespace magnet::GL;
+
+    _context->cleanupAttributeArrays();
+
+    //Set the normals to zero so it is fully illuminated
+    _context->setAttribute(Context::vertexNormalAttrIndex, 0,0,0,0);
+
+    magnet::math::Vector loc = getEyeLocationObjSpace();
+    _context->setAttribute(Context::instanceOriginAttrIndex, loc[0], loc[1], loc[2], 1);
+    _context->setAttribute(Context::instanceScaleAttrIndex, 0.05, 0.05, 0.05, 1);
+    _context->setAttribute(Context::vertexColorAttrIndex, 1, 1, 1, 1);
+    _cube.glRender();
   }
 
   void

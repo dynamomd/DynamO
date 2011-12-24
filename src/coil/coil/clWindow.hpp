@@ -21,7 +21,6 @@
 #include <magnet/static_assert.hpp>
 #include <magnet/GL/shader/render.hpp>
 #include <magnet/GL/shader/lightShader.hpp>
-#include <magnet/GL/shader/HDRcombiner.hpp>
 #include <magnet/GL/camera.hpp>
 #include <magnet/GL/multisampledFBO.hpp>
 #include <magnet/GL/shader/vsm.hpp>
@@ -86,7 +85,6 @@ namespace coil {
 
     magnet::GL::shader::RenderShader _renderShader;
     magnet::GL::shader::PointLightShader _pointLightShader;
-    magnet::GL::shader::HDRCombinerShader _hdrCombinerShader;
     magnet::GL::shader::VSMShader _VSMShader;
     magnet::GL::shader::SimpleRenderShader _simpleRenderShader;
     magnet::GL::shader::CopyShader _copyShader;

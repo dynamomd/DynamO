@@ -42,10 +42,10 @@ namespace coil {
   
     virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
     virtual void deinit();
-    virtual void forwardRender(magnet::GL::FBO& fbo,
-			       const magnet::GL::Camera& cam,
-			       const magnet::GL::Camera& light,
-			       RenderMode mode) {}
+
+    virtual void glRender(magnet::GL::FBO& fbo, 
+			  const magnet::GL::Camera& cam, 
+			  RenderMode mode);
 
     virtual void clTick(const magnet::GL::Camera&) {}
 
@@ -105,5 +105,8 @@ namespace coil {
     float _intensity, _attenuation, _specularExponent, _specularFactor;
 
     magnet::GL::FBO _shadowFBO;
+
+    magnet::GL::objects::Cube _cube;
+    magnet::GL::Context::ContextPtr _context;
   };
 }
