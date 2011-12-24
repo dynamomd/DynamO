@@ -53,12 +53,13 @@ vec3 qrot(vec4 q, vec3 v)
 void main()
 {
   color = vColor;
-  //We store the normals in eye-space
-  normal = (ViewMatrix * vec4(qrot(iOrientation, vNormal.xyz), 1.0)).xyz;
+  //We store the normals in eye-space. The w coordinate is 0 to
+  //prevent translations having any effect. The ViewMatrix must have
+  //no scaling, only translations and rotations.
+  normal = (ViewMatrix * vec4(qrot(iOrientation, vNormal.xyz), 0.0)).xyz;
   
   vec3 scale = iScale.xyz + vec3(equal(iScale.xyz, vec3(0.0))) * iScale.x;
-  vec4 vVertex
-    = ViewMatrix
+  vec4 vVertex = ViewMatrix
     * vec4(qrot(iOrientation, vPosition.xyz * scale) + iOrigin.xyz, 1.0);
 
   //We store the eye-space position of the vertex
@@ -83,8 +84,12 @@ void main()
 {
   color_out = color;
 
-  vec3 outnormal = normal;
-  if (!gl_FrontFacing) outnormal = -outnormal;
+  vec3 outnormal = (!gl_FrontFacing) ? -normal : normal;
+
+  float nrm_length = length(outnormal);
+  nrm_length += float(nrm_length == 0);
+  outnormal /= nrm_length;
+
   normal_out = vec4(outnormal, 1.0);
   position_out = vec4(position, 1.0);
 });
