@@ -108,6 +108,7 @@ namespace coil {
 
     { //Intensity
       Gtk::HBox* box = manage(new Gtk::HBox);
+      box->set_homogeneous(true);
       box->show();
       
       {
@@ -145,6 +146,7 @@ namespace coil {
 
     { //Specular
       Gtk::HBox* box = manage(new Gtk::HBox);
+      box->set_homogeneous(true);
       box->show();
 
       {
