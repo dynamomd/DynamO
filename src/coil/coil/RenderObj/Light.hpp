@@ -17,21 +17,26 @@
 #pragma once
 
 #include <gtkmm.h>
-
-#include "RenderObj.hpp"
+#include <coil/RenderObj/RenderObj.hpp>
 #include <magnet/gtk/transferFunction.hpp>
 #include <magnet/GL/texture.hpp>
 #include <magnet/GL/shader/volume.hpp>
 #include <magnet/GL/objects/cube.hpp>
+#include <magnet/GL/camera.hpp>
 #include <memory>
 #include <tr1/array>
 
 namespace coil {
-  class RLight : public RenderObj
+  class RLight : public RenderObj, public magnet::GL::Camera
   {
   public:
-    RLight(std::string name): 
-      RenderObj(name), _intensity(1), 
+    RLight(std::string name, magnet::math::Vector position, 
+	   magnet::math::Vector lookAtPoint, GLfloat fovY = 45.0f,
+	   GLfloat zNearDist = 0.05f, GLfloat zFarDist = 10.0f,
+	   magnet::math::Vector up = magnet::math::Vector(0,1,0)): 
+      RenderObj(name), 
+      Camera(1,1,position, lookAtPoint, fovY, zNearDist, zFarDist, up),
+      _intensity(1), 
       _attenuation(0.5), _specularExponent(96),
       _specularFactor(1) {}
   
@@ -39,7 +44,7 @@ namespace coil {
     virtual void deinit();
     virtual void forwardRender(magnet::GL::FBO& fbo,
 			       const magnet::GL::Camera& cam,
-			       const magnet::GL::Light& light,
+			       const magnet::GL::Camera& light,
 			       RenderMode mode) {}
 
     virtual void clTick(const magnet::GL::Camera&) {}
@@ -51,6 +56,39 @@ namespace coil {
     float getSpecularExponent() const { return _specularExponent; }
     float getSpecularFactor() const { return _specularFactor; }
 
+    /*! \brief Load the specified OpenGL texture matrix with the
+      projection required for shadow mapping.
+      
+      \note The current OpenGL model view matrix must be the matrix
+      used for rendering.
+      
+      \param textureUnit The texture unit whose matrix is to be
+      setup for shadowmapping.
+    */
+    inline magnet::GL::GLMatrix getShadowTextureMatrix()
+    {
+      return magnet::GL::GLMatrix::translate(magnet::math::Vector(0.5, 0.5, 0.5))
+	* magnet::GL::GLMatrix::scale(magnet::math::Vector(0.5, 0.5, 0.5))
+	* getProjectionMatrix()
+	* getViewMatrix();
+    }
+    
+    /*! \brief Returns the frame buffer containing the shadow map.
+     */
+    magnet::GL::FBO& shadowFBO() { return _shadowFBO; }
+
+    /*! \brief Returns a projected light position.
+     */
+    magnet::math::Vector getEyespacePosition(const magnet::GL::Camera& camera) const
+    {
+      magnet::math::Vector vec = getEyeLocationObjSpace();
+      std::tr1::array<GLfloat, 4> lightPos = {{vec[0], vec[1], vec[2], 1.0}};
+      std::tr1::array<GLfloat, 4> lightPos_eyespace
+	= camera.getViewMatrix() * lightPos;
+      return magnet::math::Vector(lightPos_eyespace[0], lightPos_eyespace[1], 
+				  lightPos_eyespace[2]);
+    }
+    
   protected:
     void initGTK();
     void guiUpdate();
@@ -65,5 +103,7 @@ namespace coil {
     std::auto_ptr<Gtk::Entry> _specularFactorEntry;
     
     float _intensity, _attenuation, _specularExponent, _specularFactor;
+
+    magnet::GL::FBO _shadowFBO;
   };
 }

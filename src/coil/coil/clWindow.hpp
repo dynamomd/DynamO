@@ -19,7 +19,6 @@
 #include <gtkmm.h>
 #include <magnet/math/vector.hpp>
 #include <magnet/static_assert.hpp>
-#include <magnet/GL/light.hpp>
 #include <magnet/GL/shader/render.hpp>
 #include <magnet/GL/shader/lightShader.hpp>
 #include <magnet/GL/shader/HDRcombiner.hpp>
@@ -170,8 +169,6 @@ namespace coil {
 
     size_t _snapshot_counter;
     size_t _samples;
-
-    magnet::GL::Light _light0;
 
     /////////GTK members
     virtual void initGTK();

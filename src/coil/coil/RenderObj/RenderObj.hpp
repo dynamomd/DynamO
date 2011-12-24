@@ -19,7 +19,6 @@
 #include <magnet/GL/context.hpp>
 #include <magnet/thread/taskQueue.hpp>
 #include <magnet/GL/camera.hpp>
-#include <magnet/GL/light.hpp>
 #include <magnet/GL/FBO.hpp>
 #include <tr1/memory>
 
@@ -105,7 +104,7 @@ namespace coil {
      */
     virtual void forwardRender(magnet::GL::FBO& fbo, 
 			       const magnet::GL::Camera& cam,
-			       const magnet::GL::Light& light,
+			       const magnet::GL::Camera& light,
 			       RenderMode mode) 
     {}
 

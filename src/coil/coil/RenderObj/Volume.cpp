@@ -198,7 +198,7 @@ namespace coil {
   void 
   RVolume::forwardRender(magnet::GL::FBO& fbo,
 			 const magnet::GL::Camera& camera,
-			 const magnet::GL::Light& light,
+			 const magnet::GL::Camera& light,
 			 RenderMode mode)
   {
     if (!_visible || !_data.isValid()) return;

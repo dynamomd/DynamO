@@ -548,7 +548,11 @@ namespace coil {
     if (_readyFlag) return;
 
     //First render object is the ground
-    std::tr1::shared_ptr<RLight> primaryLight(new RLight("Light 1"));
+    std::tr1::shared_ptr<RLight> primaryLight(new RLight("Light 1",
+							 Vector(0.8f,  1.5f, 0.8f),//Position
+							 Vector(0.0f, 0.0f, 0.0f),//Lookat
+							 75.0f//Beam angle
+							 ));
     _renderObjsTree._renderObjects.push_back(primaryLight);
 
     //First render object is the ground
@@ -597,11 +601,6 @@ namespace coil {
     //Setup the viewport
     CallBackReshapeFunc(800, 600);
 
-    _light0 = magnet::GL::Light(Vector(0.8f,  1.5f, 0.8f),//Position
-				Vector(0.0f, 0.0f, 0.0f),//Lookat
-				75.0f//Beam angle
-				);
-  
     //Setup the keyboard controls
     glutIgnoreKeyRepeat(1);
 
@@ -632,8 +631,6 @@ namespace coil {
       _filterTarget2.attachTexture(colorTexture, 0);
     }
 
-    _light0.init();
-    
     _renderShader.build();
     _copyShader.build();
     _pointLightShader.build();
@@ -743,8 +740,6 @@ namespace coil {
     _VSMShader.deinit();
     _simpleRenderShader.deinit();
     _copyShader.deinit();
-
-    _light0.deinit();
     ///////////////////Finally, unregister with COIL
     CoilRegister::getCoilInstance().unregisterWindow(this);
   }
@@ -1001,14 +996,7 @@ namespace coil {
 	  _pointLightShader["lightSpecularExponent"] = light->getSpecularExponent();
 	  _pointLightShader["lightSpecularFactor"] = light->getSpecularFactor();
 	  _pointLightShader["lightIntensity"] = light->getIntensity();
-	  { magnet::math::Vector vec = _light0.getEyeLocationObjSpace();
-	    std::tr1::array<GLfloat, 4> lightPos = {{vec[0], vec[1], vec[2], 1.0}};
-	    std::tr1::array<GLfloat, 4> lightPos_eyespace 
-	      = camera.getViewMatrix() * lightPos;
-	    magnet::math::Vector vec2(lightPos_eyespace[0], lightPos_eyespace[1], 
-				      lightPos_eyespace[2]);
-	    _pointLightShader["lightPosition"] = vec2;
-	  }
+	  _pointLightShader["lightPosition"] = light->getEyespacePosition(camera);
 	  _pointLightShader.invoke();
 	  ambient = 0;
 	}
@@ -1038,12 +1026,12 @@ namespace coil {
 
     ///////////////////////Forward Shading Pass /////////////////
 
-    //Enter the forward render ticks for all objects
-    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
-	   = _renderObjsTree._renderObjects.begin();
-	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-      if ((*iPtr)->visible())
-	(*iPtr)->forwardRender(fbo, camera, _light0, RenderObj::DEFAULT);
+//    //Enter the forward render ticks for all objects
+//    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
+//	   = _renderObjsTree._renderObjects.begin();
+//	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
+//      if ((*iPtr)->visible())
+//	(*iPtr)->forwardRender(fbo, camera, , RenderObj::DEFAULT);
     
     fbo.detach();
     //////////////////////FILTERING////////////
