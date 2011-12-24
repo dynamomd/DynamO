@@ -96,11 +96,15 @@ namespace coil {
     _stereoMode(false),
     _gammaCorrection(2.2),
     _ambientIntensity(0.01),
+    _backColor(),
     _exposure(1.0),
     _snapshot_counter(0),
     _samples(1),
     _dynamo(dynamo)
   {
+    for (size_t i(0); i < 3; ++i)
+      _backColor[i] = 1.0;
+
     for (size_t i(0); i < 256; ++i) keyStates[i] = false;
   }
 
@@ -990,6 +994,7 @@ namespace coil {
 	  std::tr1::shared_ptr<RLight> light 
 	    = std::tr1::dynamic_pointer_cast<RLight>(*iPtr);
 	  _pointLightShader["ambientLight"] = ambient;
+	  _pointLightShader["backColor"] = _backColor;
 	  _pointLightShader["lightAttenuation"] = light->getAttenuation();
 	  _pointLightShader["lightSpecularExponent"] = light->getSpecularExponent();
 	  _pointLightShader["lightSpecularFactor"] = light->getSpecularFactor();
@@ -1633,6 +1638,17 @@ namespace coil {
 	  M_throw() << "Cannot find the appropriate icon for the camera mode";
 	}
     }
+
+    {
+      Gtk::ColorButton* colorButton;
+      _refXml->get_widget("BackColor", colorButton);
+      
+      Gdk::Color color = colorButton->get_color();
+      
+      _backColor[0] = GLfloat(color.get_red()) / G_MAXUSHORT;
+      _backColor[1] = GLfloat(color.get_green()) / G_MAXUSHORT;
+      _backColor[2] = GLfloat(color.get_blue()) / G_MAXUSHORT;
+    }    
 
     {
       Gtk::Entry* gammaScale;

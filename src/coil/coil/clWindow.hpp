@@ -163,6 +163,7 @@ namespace coil {
     bool _stereoMode;
     double _gammaCorrection;
     double _ambientIntensity;
+    std::tr1::array<GLfloat, 3> _backColor;
     double _exposure;
 
     size_t _snapshot_counter;

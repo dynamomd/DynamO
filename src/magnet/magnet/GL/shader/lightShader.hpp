@@ -43,6 +43,7 @@ uniform sampler2DMS colorTex;
 uniform sampler2DMS normalTex;
 uniform sampler2DMS positionTex;
 uniform vec3 lightPosition;
+uniform vec3 backColor;
 uniform float ambientLight;
 uniform float lightIntensity;
 uniform float lightAttenuation;
@@ -103,14 +104,14 @@ void main()
 	  vec3 normal = texelFetch(normalTex, pixelcoord, sample_id).rgb;
 	  //Eye space position of the vertex
 	  vec3 position = texelFetch(positionTex, pixelcoord, sample_id).xyz;
-	  color_sum += color.rgb * (ambientLight + calcLighting(position, normal));
+	  color_sum += color.rgb * exposure
+	    * (ambientLight + calcLighting(position, normal));
 	}
       else
-	color_sum += vec3(1.0, 1.0, 1.0);
-     
+	color_sum += backColor;
     }
   
-  color_out = vec4(pow(color_sum * exposure / samples, vec3(invGamma)), 1.0);
+  color_out = vec4(pow(color_sum  / samples, vec3(invGamma)), 1.0);
 });
 	}
       };
