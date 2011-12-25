@@ -640,6 +640,7 @@ namespace coil {
     _pointLightShader.build();
     _VSMShader.build();
     _simpleRenderShader.build();
+    _luminanceShader.build();
 
     {
       {
@@ -673,9 +674,31 @@ namespace coil {
 	_lightBuffer.init();
 	_lightBuffer.attachTexture(colorTexture, 0);
       }
+      
+      {
+	std::tr1::shared_ptr<magnet::GL::Texture2D> 
+	  colorTexture(new magnet::GL::Texture2D);
+	
+	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_R16F);
+	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_luminanceBuffer1.init();
+	_luminanceBuffer1.attachTexture(colorTexture, 0);
+      }
 
+      {
+	std::tr1::shared_ptr<magnet::GL::Texture2D> 
+	  colorTexture(new magnet::GL::Texture2D);
+	
+	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_R16F);
+	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	_luminanceBuffer2.init();
+	_luminanceBuffer2.attachTexture(colorTexture, 0);
+      }
     }
-    //Now init the render objects  
+
+      //Now init the render objects  
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       (*iPtr)->init(_systemQueue);
@@ -742,6 +765,7 @@ namespace coil {
     _VSMShader.deinit();
     _simpleRenderShader.deinit();
     _copyShader.deinit();
+    _luminanceShader.deinit();
     ///////////////////Finally, unregister with COIL
     CoilRegister::getCoilInstance().unregisterWindow(this);
   }
@@ -960,11 +984,8 @@ namespace coil {
     _renderShader.detach();
     _Gbuffer.detach();
 
-    ///////////////////////Light Pre-Pass////////////////////////
+    ///////////////////////Lighting pass////////////////////////
     //Here we calculate the lighting of every pixel in the scene
-
-    //The RGB channels store the specular component of the lights. The
-    //alpha channel stores the diffuse lighting.
     _Gbuffer.getColorTexture(0)->bind(0);
     _Gbuffer.getColorTexture(1)->bind(1);
     _Gbuffer.getColorTexture(2)->bind(2);
@@ -974,9 +995,8 @@ namespace coil {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_BLEND);
-    //Additive blending
+    //Additive blending of all of the lights contributions
     glBlendFunc(GL_ONE, GL_ONE);
-
 
     _pointLightShader.attach();
     _pointLightShader["colorTex"] = 0;
@@ -1009,8 +1029,19 @@ namespace coil {
     _pointLightShader.detach();
     _lightBuffer.detach();
 
+    //Now we need to determine the luminance values of the scene.
+    _luminanceBuffer1.attach();
+    _luminanceShader.attach();
+    _luminanceShader.invoke();
+    _luminanceShader.detach();
+    _luminanceBuffer1.detach();
+
+    _luminanceBuffer1.getColorTexture()->genMipmaps();
+
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     _lightBuffer.copyto(fbo, GL_COLOR_BUFFER_BIT);
+
+
     ///////////////////////Forward Shading Pass /////////////////
 
 //    //Enter the forward render ticks for all objects
@@ -1113,6 +1144,8 @@ namespace coil {
     _Gbuffer.resize(w, h);  
     _filterTarget1.resize(w, h);
     _filterTarget2.resize(w, h);
+    _luminanceBuffer1.resize(w, h);
+    _luminanceBuffer2.resize(w, h);
     std::ostringstream os;
     os << "Coil visualizer (" << w << "," << h << ")";
     setWindowtitle(os.str());
