@@ -97,7 +97,7 @@ namespace coil {
     _gammaCorrection(2.2),
     _ambientIntensity(0.01),
     _backColor(),
-    _exposure(1.0),
+    _exposure(0.5),
     _snapshot_counter(0),
     _samples(1),
     _dynamo(dynamo)

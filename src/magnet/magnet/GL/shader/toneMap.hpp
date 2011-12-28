@@ -59,12 +59,35 @@ uniform float exposure;
 
 flat in float inv_log_avg_luma;
 
+//Taken from http://www.gamedev.net/topic/407348-reinhards-tone-mapping-operator/
 void main()
 {
   vec3 color_in = texture(color_tex, screenCoord).rgb;
-  float old_luminance = dot(color_in, vec3(0.2126, 0.7152, 0.0722));
-  float relative_luma = exposure * inv_log_avg_luma;
-  color_out = vec4(pow(relative_luma  * color_in, vec3(invGamma)), 1.0);
+
+  //Convert from RGB to XYZ
+  const mat3 RGB2XYZ = mat3(0.5141364, 0.3238786,  0.16036376,
+			    0.265068,  0.67023428, 0.06409157,
+			    0.0241188, 0.1228178,  0.84442666);
+  vec3 XYZ = RGB2XYZ * color_in;
+  
+  //Convert from XYZ to Yxy
+  float invXYZsum = 1.0 / dot(XYZ, vec3(1.0, 1.0, 1.0));
+  vec3 Yxy = vec3(XYZ.g, XYZ.r * invXYZsum, XYZ.g * invXYZsum);
+
+  // (Lp) Map average luminance to the middlegrey zone by scaling pixel luminance
+  float Lp = Yxy.r * exposure * inv_log_avg_luma;
+  
+  //Compress the luminance in [0,\infty)
+  Yxy.r = Lp / (1.0 + Lp);
+
+  //Convert from Xyx to XYZ
+  XYZ = vec3(Yxy.r * Yxy.g / Yxy.b, Yxy.r, Yxy.r * (1 - Yxy.g - Yxy.b) / Yxy.b);
+
+  //Convert from XYZ to RGB
+  const mat3 XYZ2RGB = mat3(2.5651,-1.1665,-0.3986,
+			    -1.0217, 1.9777, 0.0439, 
+			    0.0753, -0.2543, 1.1892);
+  color_out = vec4(XYZ2RGB * XYZ, 1.0);
 });
 	}
       };
