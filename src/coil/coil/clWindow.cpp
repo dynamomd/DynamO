@@ -748,6 +748,7 @@ namespace coil {
     _renderTarget.deinit();
     _Gbuffer.deinit();
     _lightBuffer.deinit();
+    _luminanceBuffer.deinit();
     _filterTarget1.deinit();
     _filterTarget2.deinit();
     _renderShader.deinit();
@@ -974,7 +975,8 @@ namespace coil {
 
     _renderShader.detach();
     _Gbuffer.detach();
-
+    glDisable(GL_DEPTH_TEST);
+    
     ///////////////////////Lighting pass////////////////////////
     //Here we calculate the lighting of every pixel in the scene
     _Gbuffer.getColorTexture(0)->bind(0);
@@ -1017,6 +1019,7 @@ namespace coil {
     
     _pointLightShader.detach();
     _lightBuffer.detach();
+    glDisable(GL_BLEND);    
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     ///////////////////////Luminance Sampling//////////////////////
@@ -1024,14 +1027,14 @@ namespace coil {
     _lightBuffer.getColorTexture()->bind(0);
 
     _luminanceBuffer.attach();
+
     _luminanceShader.attach();
     _luminanceShader["colorTex"] = 0;
     _luminanceShader.invoke();
     _luminanceShader.detach();
+
     _luminanceBuffer.detach();
     _luminanceBuffer.getColorTexture()->genMipmaps();
-
-    _lightBuffer.copyto(fbo, GL_COLOR_BUFFER_BIT);
 
     ///////////////////////Tone Mapping///////////////////////////
 
@@ -1054,11 +1057,9 @@ namespace coil {
 //	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
 //      if ((*iPtr)->visible())
 //	(*iPtr)->forwardRender(fbo, camera, , RenderObj::DEFAULT);
-    
-    fbo.detach();
+//    fbo.detach();
     //////////////////////FILTERING////////////
     //Attempt to perform some filtering
-    glDisable(GL_DEPTH_TEST);
 
     bool FBOalternate = false;
     magnet::GL::FBO* lastFBO = &fbo;

@@ -43,7 +43,7 @@ void main()
   vec4 color = texture(colorTex, screenCoord).rgba;
   float L = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));
   //Prevent negative logarithms
-  L = min(10.0e-8, L);
+  L = max(10.0e-8, L);
   logL_out = log(L);
 });
 	}
