@@ -41,7 +41,7 @@ uniform sampler2D colorTex;
 void main()
 {
   vec4 color = texture(colorTex, screenCoord).rgba;
-  float L = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));
+  float L = dot(color.rgb, vec3(0.265068,  0.67023428, 0.06409157));
   //Prevent negative logarithms
   L = max(10.0e-8, L);
   logL_out = log(L);

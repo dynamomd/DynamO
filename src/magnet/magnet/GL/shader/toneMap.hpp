@@ -80,7 +80,7 @@ void main()
   //Compress the luminance in [0,\infty)
   Yxy.r = Lp / (1.0 + Lp);
 
-  //Convert from Xyx to XYZ
+  //Convert from Yyx to XYZ
   XYZ = vec3(Yxy.r * Yxy.g / Yxy.b, Yxy.r, Yxy.r * (1 - Yxy.g - Yxy.b) / Yxy.b);
 
   //Convert from XYZ to RGB
