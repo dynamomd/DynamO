@@ -37,18 +37,13 @@ layout (location = 0) out float logL_out;
 
 //Standard G-buffer data
 uniform sampler2D colorTex;
-uniform float background_luminance;
+
 void main()
 {
   vec4 color = texture(colorTex, screenCoord).rgba;
-
   float L = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));
-  
-  L = (color.a == 0) ? background_luminance : L;
-  
   //Prevent negative logarithms
   L = min(10.0e-8, L);
-
   logL_out = log(L);
 });
 	}

@@ -22,6 +22,7 @@
 #include <magnet/GL/shader/render.hpp>
 #include <magnet/GL/shader/lightShader.hpp>
 #include <magnet/GL/shader/luminance.hpp>
+#include <magnet/GL/shader/toneMap.hpp>
 #include <magnet/GL/camera.hpp>
 #include <magnet/GL/multisampledFBO.hpp>
 #include <magnet/GL/shader/vsm.hpp>
@@ -89,14 +90,14 @@ namespace coil {
     magnet::GL::shader::VSMShader _VSMShader;
     magnet::GL::shader::SimpleRenderShader _simpleRenderShader;
     magnet::GL::shader::LuminanceShader _luminanceShader;
+    magnet::GL::shader::ToneMapShader _toneMapShader;
     magnet::GL::shader::CopyShader _copyShader;
 
     //Primary render target, or the render target for the left eye.
     magnet::GL::FBO _renderTarget;
     magnet::GL::FBO _Gbuffer;
     magnet::GL::FBO _lightBuffer;
-    magnet::GL::FBO _luminanceBuffer1;
-    magnet::GL::FBO _luminanceBuffer2;
+    magnet::GL::FBO _luminanceBuffer;
 
     //Frame buffers to flip flop filters between
     magnet::GL::FBO _filterTarget1;

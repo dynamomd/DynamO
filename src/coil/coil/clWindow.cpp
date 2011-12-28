@@ -641,6 +641,7 @@ namespace coil {
     _VSMShader.build();
     _simpleRenderShader.build();
     _luminanceShader.build();
+    _toneMapShader.build();
 
     {
       {
@@ -682,19 +683,8 @@ namespace coil {
 	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_R16F);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	_luminanceBuffer1.init();
-	_luminanceBuffer1.attachTexture(colorTexture, 0);
-      }
-
-      {
-	std::tr1::shared_ptr<magnet::GL::Texture2D> 
-	  colorTexture(new magnet::GL::Texture2D);
-	
-	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_R16F);
-	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	_luminanceBuffer2.init();
-	_luminanceBuffer2.attachTexture(colorTexture, 0);
+	_luminanceBuffer.init();
+	_luminanceBuffer.attachTexture(colorTexture, 0);
       }
     }
 
@@ -761,6 +751,7 @@ namespace coil {
     _filterTarget1.deinit();
     _filterTarget2.deinit();
     _renderShader.deinit();
+    _toneMapShader.deinit();
     _pointLightShader.deinit();	
     _VSMShader.deinit();
     _simpleRenderShader.deinit();
@@ -1002,7 +993,7 @@ namespace coil {
     _pointLightShader["colorTex"] = 0;
     _pointLightShader["normalTex"] = 1;
     _pointLightShader["positionTex"] = 2;
-    _pointLightShader["depthTex"] = 3;    
+    _pointLightShader["depthTex"] = 3;
     _pointLightShader["samples"] = GLint(_samples);
     GLfloat ambient = _ambientIntensity;
 
@@ -1020,28 +1011,41 @@ namespace coil {
 	  _pointLightShader["lightSpecularFactor"] = light->getSpecularFactor();
 	  _pointLightShader["lightIntensity"] = light->getIntensity();
 	  _pointLightShader["lightPosition"] = light->getEyespacePosition(camera);
-	  _pointLightShader["invGamma"] = GLfloat(1.0 / _gammaCorrection);
-	  _pointLightShader["exposure"] = GLfloat(_exposure);
 	  _pointLightShader.invoke();
 	  ambient = 0;
 	}
     
     _pointLightShader.detach();
     _lightBuffer.detach();
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    //Now we need to determine the luminance values of the scene.
-    _luminanceBuffer1.attach();
+    ///////////////////////Luminance Sampling//////////////////////
+    //The light buffer is bound to texture unit 0 for the tone mapping too
+    _lightBuffer.getColorTexture()->bind(0);
+
+    _luminanceBuffer.attach();
     _luminanceShader.attach();
+    _luminanceShader["colorTex"] = 0;
     _luminanceShader.invoke();
     _luminanceShader.detach();
-    _luminanceBuffer1.detach();
+    _luminanceBuffer.detach();
+    _luminanceBuffer.getColorTexture()->genMipmaps();
 
-    _luminanceBuffer1.getColorTexture()->genMipmaps();
-
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     _lightBuffer.copyto(fbo, GL_COLOR_BUFFER_BIT);
 
+    ///////////////////////Tone Mapping///////////////////////////
 
+    fbo.attach();
+    _toneMapShader.attach();
+    _lightBuffer.getColorTexture()->bind(0);
+    _luminanceBuffer.getColorTexture()->bind(1);
+    _toneMapShader["color_tex"] = 0;
+    _toneMapShader["logLuma"] = 1;
+    _toneMapShader["invGamma"] = GLfloat(1.0 / _gammaCorrection);
+    _toneMapShader["exposure"] = GLfloat(_exposure);
+    _toneMapShader.invoke();
+    _toneMapShader.detach();
+    fbo.detach();
     ///////////////////////Forward Shading Pass /////////////////
 
 //    //Enter the forward render ticks for all objects
@@ -1144,8 +1148,7 @@ namespace coil {
     _Gbuffer.resize(w, h);  
     _filterTarget1.resize(w, h);
     _filterTarget2.resize(w, h);
-    _luminanceBuffer1.resize(w, h);
-    _luminanceBuffer2.resize(w, h);
+    _luminanceBuffer.resize(w, h);
     std::ostringstream os;
     os << "Coil visualizer (" << w << "," << h << ")";
     setWindowtitle(os.str());
