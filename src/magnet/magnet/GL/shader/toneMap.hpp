@@ -32,7 +32,7 @@ namespace magnet {
 layout (location = 0) in vec4 vPosition;
 smooth out vec2 screenCoord;
 uniform sampler2D logLuma;
-flat out float inv_avg_luma;
+flat out float inv_log_avg_luma;
 uniform sampler2D color_tex;
 
 void main() 
@@ -40,9 +40,7 @@ void main()
   const vec2 madd=vec2(0.5, 0.5);
   screenCoord = vPosition.xy * madd + madd;
   gl_Position = vec4(vPosition.xy, 0.0, 1.0);
-  //  inv_avg_luma = 1.0 / exp(textureLod(logLuma, vec2(0.5, 0.5), 100.0).r);
-  inv_avg_luma = 1.0 / dot(textureLod(color_tex, vec2(0.5, 0.5), 100.0).rgb, 
-			   vec3(0.2126, 0.7152, 0.0722));
+  inv_log_avg_luma = 1.0 / exp(textureLod(logLuma, vec2(0.5, 0.5), 100.0).r);
 }); 
 	}
 
@@ -59,17 +57,14 @@ uniform sampler2D logLuma;
 uniform float invGamma;
 uniform float exposure;
 
-flat in float inv_avg_luma;
+flat in float inv_log_avg_luma;
 
 void main()
 {
   vec3 color_in = texture(color_tex, screenCoord).rgb;
   float old_luminance = dot(color_in, vec3(0.2126, 0.7152, 0.0722));
-  float relative_luma = exposure * inv_avg_luma;
-  //color_out = vec4(pow(relative_luma  * color_in, vec3(invGamma)), 1.0);
-  //float val = exp(textureLod(logLuma, screenCoord, 0.0).r);
-  float val = exp(textureLod(logLuma, screenCoord, 300.0).r);
-  color_out = vec4(val,val,val, 1.0);
+  float relative_luma = exposure * inv_log_avg_luma;
+  color_out = vec4(pow(relative_luma  * color_in, vec3(invGamma)), 1.0);
 });
 	}
       };
