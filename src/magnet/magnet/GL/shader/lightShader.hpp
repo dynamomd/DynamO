@@ -106,7 +106,7 @@ void main()
 	    * (ambientLight + calcLighting(position, normal));
 	}
       else
-	color_sum += backColor;
+	color_sum += backColor * ambientLight;
     }
   
   color_out = vec4(color_sum / samples, 1.0);
