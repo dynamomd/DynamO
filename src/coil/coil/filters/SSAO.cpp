@@ -16,6 +16,7 @@
 */
 
 #include <gtkmm.h>
+#include <magnet/gtk/numericEntry.hpp>
 #include <coil/filters/SSAO.hpp>
 
 namespace coil 
@@ -71,25 +72,16 @@ namespace coil
     }
     _optlist.show();
 
-    _radiusSlider.set_range(0.00001, 0.01);
-    _radiusSlider.set_increments(1,1);
-    _radiusSlider.set_digits(6);
-    _radiusSlider.set_value(_radius);
-    _radiusSlider.signal_value_changed().connect(sigc::mem_fun(this, &SSAOWrapper::settingsCallback));
+    _radiusSlider.set_text(boost::lexical_cast<std::string>(_radius));
+    _radiusSlider.signal_changed().connect(sigc::mem_fun(this, &SSAOWrapper::settingsCallback));
     _radiusSlider.show();
 
-    _totStrengthSlider.set_range(0,2);
-    _totStrengthSlider.set_increments(1,1);
-    _totStrengthSlider.set_digits(3);
-    _totStrengthSlider.set_value(_totStrength);
-    _totStrengthSlider.signal_value_changed().connect(sigc::mem_fun(this, &SSAOWrapper::settingsCallback));
+    _totStrengthSlider.set_text(boost::lexical_cast<std::string>(_totStrength));
+    _totStrengthSlider.signal_changed().connect(sigc::mem_fun(this, &SSAOWrapper::settingsCallback));
     _totStrengthSlider.show();
-
-    _dropoffSlider.set_range(0.00001,0.20);
-    _dropoffSlider.set_increments(0.1,0.1);
-    _dropoffSlider.set_digits(5);
-    _dropoffSlider.set_value(_dropoff);
-    _dropoffSlider.signal_value_changed().connect(sigc::mem_fun(this, &SSAOWrapper::settingsCallback));
+    
+    _dropoffSlider.set_text(boost::lexical_cast<std::string>(_dropoff));
+    _dropoffSlider.signal_changed().connect(sigc::mem_fun(this, &SSAOWrapper::settingsCallback));
     _dropoffSlider.show();
   }
 
@@ -104,9 +96,13 @@ namespace coil
   void 
   SSAOWrapper::settingsCallback()
   {
-    _radius = _radiusSlider.get_value();
-    _totStrength = _totStrengthSlider.get_value();
-    _dropoff = _dropoffSlider.get_value();
+    magnet::gtk::forceNumericEntry(_radiusSlider);
+    magnet::gtk::forceNumericEntry(_totStrengthSlider);
+    magnet::gtk::forceNumericEntry(_dropoffSlider);
+
+    try { _radius = boost::lexical_cast<float>(_radiusSlider.get_text()); } catch (...) {};
+    try { _totStrength = boost::lexical_cast<float>(_totStrengthSlider.get_text()); } catch (...) {};
+    try { _dropoff = boost::lexical_cast<float>(_dropoffSlider.get_text()); } catch (...) {};
   }
 
 

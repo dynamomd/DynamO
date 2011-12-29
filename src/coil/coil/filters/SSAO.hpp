@@ -45,9 +45,9 @@ namespace coil
 
     void settingsCallback();
     
-    Gtk::HScale _radiusSlider;
-    Gtk::HScale _totStrengthSlider;
-    Gtk::HScale _dropoffSlider;
+    Gtk::Entry _radiusSlider;
+    Gtk::Entry _totStrengthSlider;
+    Gtk::Entry _dropoffSlider;
     Gtk::HBox _optlist;
     static const size_t _randomTextureSize = 64;
   };
