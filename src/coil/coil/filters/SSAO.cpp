@@ -23,9 +23,9 @@ namespace coil
 {
   SSAOWrapper::SSAOWrapper()
   { 
-    _radius = 0.005;
+    _radius = 0.5;
     _totStrength = 1;
-    _dropoff = 0.05;
+    _dropoff = 0.4;
 
     _filter.build(); 
 
