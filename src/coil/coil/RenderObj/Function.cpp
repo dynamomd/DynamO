@@ -175,7 +175,11 @@ namespace coil {
     if (_staticShape)
       {
 	_staticShape = false;
+	//Ignore the state of the visible flag
+	bool isVisible = _visible;
+	_visible = true;
 	clTick();
+	_visible = isVisible;
 	_staticShape = true;      
       }
   }
