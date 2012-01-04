@@ -550,15 +550,25 @@ namespace coil {
     magnet::thread::ScopedLock lock(_destroyLock);
 
     if (_readyFlag) return;
+    
+    {
+      std::tr1::shared_ptr<RLight> light(new RLight("Light 1",
+							   Vector(0.8f,  0.8f, 0.8f),//Position
+							   Vector(0.0f, 0.0f, 0.0f),//Lookat
+							   75.0f//Beam angle
+							   ));
+      _renderObjsTree._renderObjects.push_back(light);
+    }
 
-    //First render object is the ground
-    std::tr1::shared_ptr<RLight> primaryLight(new RLight("Light 1",
-							 Vector(0.8f,  1.5f, 0.8f),//Position
-							 Vector(0.0f, 0.0f, 0.0f),//Lookat
-							 75.0f//Beam angle
-							 ));
-    _renderObjsTree._renderObjects.push_back(primaryLight);
-
+    {
+      std::tr1::shared_ptr<RLight> light(new RLight("Light 2",
+							   Vector(-0.8f,  0.8f, -0.8f),//Position
+							   Vector(0.0f, 0.0f, 0.0f),//Lookat
+							   75.0f//Beam angle
+							   ));
+      _renderObjsTree._renderObjects.push_back(light);
+    }
+  
     //First render object is the ground
     std::tr1::shared_ptr<RenderObj> groundObj
       (new RFunction((size_t)64,
@@ -989,7 +999,7 @@ namespace coil {
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_BLEND);
     //Additive blending of all of the lights contributions
-    glBlendFunc(GL_ONE, GL_ONE);
+    glBlendFunc(GL_ONE, GL_ZERO);
 
     _pointLightShader.attach();
     _pointLightShader["colorTex"] = 0;
@@ -1014,6 +1024,7 @@ namespace coil {
 	  _pointLightShader["lightIntensity"] = light->getIntensity();
 	  _pointLightShader["lightPosition"] = light->getEyespacePosition(camera);
 	  _pointLightShader.invoke();
+	  glBlendFunc(GL_ONE, GL_ONE);
 	  ambient = 0;
 	}
     
