@@ -30,7 +30,6 @@ namespace magnet {
 	{ return "#version 330\n"
 	    STRINGIFY(
 layout (location = 0) in vec4 vPosition;
-smooth out vec2 screenCoord;
 uniform sampler2D logLuma;
 flat out float inv_log_avg_luma;
 uniform sampler2D color_tex;
@@ -38,7 +37,6 @@ uniform sampler2D color_tex;
 void main() 
 {
   const vec2 madd=vec2(0.5, 0.5);
-  screenCoord = vPosition.xy * madd + madd;
   gl_Position = vec4(vPosition.xy, 0.0, 1.0);
   inv_log_avg_luma = 1.0 / exp(textureLod(logLuma, vec2(0.5, 0.5), 100.0).r);
 }); 
@@ -49,7 +47,6 @@ void main()
 	  return "#version 330\n"
 	    STRINGIFY(
 //Normalized position on the screen
-smooth in vec2 screenCoord;
 layout (location = 0) out vec4 color_out;
 
 uniform sampler2D color_tex;
@@ -62,7 +59,7 @@ flat in float inv_log_avg_luma;
 //Taken from http://www.gamedev.net/topic/407348-reinhards-tone-mapping-operator/
 void main()
 {
-  vec3 color_in = texture(color_tex, screenCoord).rgb;
+  vec3 color_in = texelFetch(color_tex, ivec2(gl_FragCoord.xy), 0).rgb;
 
   //Convert from RGB to XYZ
   const mat3 RGB2XYZ = mat3(0.5141364, 0.3238786,  0.16036376,

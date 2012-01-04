@@ -34,7 +34,6 @@ namespace magnet {
 	  return "#version 330\n"
 	    STRINGIFY(
 //Normalized position on the screen
-smooth in vec2 screenCoord;
 layout (location = 0) out vec4 color_out;
 
 //Standard G-buffer data
@@ -86,22 +85,20 @@ float calcLighting(vec3 position, vec3 normal)
 
 void main()
 {
-  ivec2 pixelcoord = ivec2(textureSize(colorTex) * screenCoord);
-
   //Now calculate the color from the samples
   vec3 color_sum = vec3(0.0, 0.0, 0.0);
   
   for (int sample_id = 0; sample_id < samples; sample_id++)
     {
-      vec4 color = texelFetch(colorTex, pixelcoord, sample_id).rgba;
+      vec4 color = texelFetch(colorTex, ivec2(gl_FragCoord.xy), sample_id).rgba;
 
       //If Alpha is zero, this is a skybox pixel and it should be ignored
       if (color.a != 0)
 	{
 	  //Eye space normal of the vertex
-	  vec3 normal = texelFetch(normalTex, pixelcoord, sample_id).rgb;
+	  vec3 normal = texelFetch(normalTex, ivec2(gl_FragCoord.xy), sample_id).rgb;
 	  //Eye space position of the vertex
-	  vec3 position = texelFetch(positionTex, pixelcoord, sample_id).xyz;
+	  vec3 position = texelFetch(positionTex, ivec2(gl_FragCoord.xy), sample_id).xyz;
 	  color_sum += color.rgb
 	    * (ambientLight + calcLighting(position, normal));
 	}
