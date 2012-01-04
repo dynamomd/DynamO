@@ -74,8 +74,16 @@ void main()
   // (Lp) Map average luminance to the middlegrey zone by scaling pixel luminance
   float Lp = Yxy.r * exposure * inv_log_avg_luma;
   
-  //Compress the luminance in [0,\infty)
+  //Compress the luminance in [0,\infty) to [0,1)
+
+  //This is Reinhard's mapping
   Yxy.r = Lp / (1.0 + Lp);
+
+  //This is the Filmic mapping to preserve the crispiness of the
+  //blacks. Note: Do not use gamma correction on this function!
+  
+  //Lp = max(0.0, Lp - 0.004); 
+  //Yxy.r = (Lp * (6.2 * Lp + 0.5))/(Lp * (6.2 * Lp + 1.7) + 0.06);
 
   //Convert from Yyx to XYZ
   XYZ = vec3(Yxy.r * Yxy.g / Yxy.b, Yxy.r, Yxy.r * (1 - Yxy.g - Yxy.b) / Yxy.b);
@@ -84,7 +92,7 @@ void main()
   const mat3 XYZ2RGB = mat3(2.5651,-1.1665,-0.3986,
 			    -1.0217, 1.9777, 0.0439, 
 			    0.0753, -0.2543, 1.1892);
-  color_out = vec4(XYZ2RGB * XYZ, 1.0);
+  color_out = vec4(pow(XYZ2RGB * XYZ, vec3(invGamma,invGamma,invGamma)), 1.0);
 });
 	}
       };
