@@ -1045,8 +1045,43 @@ namespace coil {
     _luminanceShader["colorTex"] = 0;
     _luminanceShader.invoke();
     _luminanceShader.detach();
-
     _luminanceBuffer.detach();
+
+    //Now we need to generate the mipmaps for the bloom target
+    {
+      magnet::GL::Texture2D& tex = *_luminanceBuffer.getColorTexture();
+      GLsizei currentWidth = tex.getWidth();
+      GLsizei currentHeight = tex.getHeight();
+      int numLevels = 1 + int(floorf(log2f(fmaxf(currentWidth, currentHeight))));
+
+      //Ensure the luminance buffer is both attached and its color
+      //texture bound
+      _luminanceBuffer.attach();
+      tex.bind(0);
+      for (int i=1; i < numLevels; ++i)
+	{
+	  GLsizei oldWidth = currentWidth;
+	  GLsizei oldHeight = currentHeight;
+	  //Halve the size of the textures, ensuring they never drop below 1
+	  currentWidth /= 2; currentWidth += !currentWidth;
+	  currentHeight /= 2; currentHeight += !currentHeight;
+	  _glContext->setViewport(0, 0, currentWidth, currentHeight);
+	  tex.parameter(GL_TEXTURE_BASE_LEVEL, i-1);
+	  tex.parameter(GL_TEXTURE_MAX_LEVEL, i-1);
+	  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
+				    tex.getGLType(), tex.getGLHandle(), i);
+
+	  //Now generate the mipmap level using a shader
+	}
+      //Rebind mipmap 0 to the framebuffer
+      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
+				tex.getGLType(), tex.getGLHandle(), 0);
+      _glContext->setViewport(0, 0, tex.getWidth(), tex.getHeight());
+      tex.parameter(GL_TEXTURE_BASE_LEVEL, 0);
+      tex.parameter(GL_TEXTURE_MAX_LEVEL, numLevels - 1);
+      _luminanceBuffer.detach();
+    }
+
     _luminanceBuffer.getColorTexture()->genMipmaps();
 
     ///////////////////////Tone Mapping///////////////////////////
