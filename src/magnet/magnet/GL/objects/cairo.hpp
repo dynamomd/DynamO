@@ -110,12 +110,12 @@ void main()
 { 
   if (ALPHA_TESTING > 0)
     {
-      if (texture2D(cairoTexture, texCoord).r <= 0.5) discard;
+      if (texture(cairoTexture, texCoord).r <= 0.5) discard;
       color_out = color;
     }
   else
     {
-      vec4 sample = texture2D(cairoTexture, texCoord);
+      vec4 sample = texture(cairoTexture, texCoord);
       if (sample.a == 0.0) discard;
       color_out = sample;
     }
@@ -179,8 +179,8 @@ void main()
 	  _shader.build(_alpha_testing);
 	  _surface.init(_width / (_alpha_testing + !_alpha_testing), 
 			_height / (_alpha_testing + !_alpha_testing));
-	  _surface.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	  _surface.parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	  _surface.parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	  _surface.parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	  _surface.parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	  _surface.parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	  

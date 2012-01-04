@@ -553,7 +553,7 @@ namespace coil {
     
     {
       std::tr1::shared_ptr<RLight> light(new RLight("Light 1",
-							   Vector(0.8f,  0.8f, 0.8f),//Position
+							   Vector(-0.8f,  0.8f, 0.8f),//Position
 							   Vector(0.0f, 0.0f, 0.0f),//Lookat
 							   75.0f//Beam angle
 							   ));
@@ -562,7 +562,7 @@ namespace coil {
 
     {
       std::tr1::shared_ptr<RLight> light(new RLight("Light 2",
-							   Vector(-0.8f,  0.8f, -0.8f),//Position
+							   Vector(0.8f,  0.8f, -0.8f),//Position
 							   Vector(0.0f, 0.0f, 0.0f),//Lookat
 							   75.0f//Beam angle
 							   ));
@@ -583,6 +583,8 @@ namespace coil {
 		     "normal = (float4)(0,0,1,0);\n",
 		     "colors[0] = (uchar4)(255,255,255,255);"
 		     ));
+
+    groundObj->setVisible(false);
     _renderObjsTree._renderObjects.push_back(groundObj);
 
     //Second render object is the console

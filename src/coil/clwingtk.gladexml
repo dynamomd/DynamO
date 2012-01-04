@@ -908,7 +908,7 @@
                                 <property name="can_focus">True</property>
                                 <property name="invisible_char">●</property>
                                 <property name="width_chars">7</property>
-                                <property name="text" translatable="yes">0.18</property>
+                                <property name="text" translatable="yes">0.1</property>
                                 <property name="invisible_char_set">True</property>
                               </object>
                               <packing>
