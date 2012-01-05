@@ -90,6 +90,7 @@ namespace coil {
     magnet::GL::shader::VSMShader _VSMShader;
     magnet::GL::shader::SimpleRenderShader _simpleRenderShader;
     magnet::GL::shader::LuminanceShader _luminanceShader;
+    magnet::GL::shader::LuminanceMipMapShader _luminanceMipMapShader;
     magnet::GL::shader::ToneMapShader _toneMapShader;
     magnet::GL::shader::CopyShader _copyShader;
 

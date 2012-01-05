@@ -289,6 +289,38 @@ namespace magnet {
 	return *_context;
       }
 
+      void checkStatus()
+      {
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
+
+	// check FBO status
+	GLenum FBOstatus = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	switch (FBOstatus)
+	  {
+	  case GL_FRAMEBUFFER_UNDEFINED: 
+	    M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_UNDEFINED";
+	  case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: 
+	    M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+	  case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: 
+	    M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+	  case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: 
+	    M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
+	  case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: 
+	    M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
+	  case GL_FRAMEBUFFER_UNSUPPORTED: 
+	    M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_UNSUPPORTED";
+	  case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE: 
+	    M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
+	  case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS: 
+	    M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
+	  default: 
+	    M_throw() << "Failed to create FrameBufferObject: Unknown error code = " << FBOstatus << " ";
+	  case GL_FRAMEBUFFER_COMPLETE_EXT: 
+	    break;
+	  }
+      }
+
+
     protected:
       /*! \brief Validate the current state of the FBO and raise an exception if there is an error.
        */
@@ -332,35 +364,10 @@ namespace magnet {
 					  0, 0);
 
 	    glDrawBuffers(states.size(), &states[0]);
-
-	    // check FBO status
-	    GLenum FBOstatus = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-	    switch (FBOstatus)
-	      {
-	      case GL_FRAMEBUFFER_UNDEFINED: 
-		M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_UNDEFINED";
-	      case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: 
-		M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
-	      case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: 
-		M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
-	      case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: 
-		M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
-	      case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: 
-		M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
-	      case GL_FRAMEBUFFER_UNSUPPORTED: 
-		M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_UNSUPPORTED";
-	      case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE: 
-		M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
-	      case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS: 
-		M_throw() << "Failed to create FrameBufferObject: GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
-	      default: 
-		M_throw() << "Failed to create FrameBufferObject: Unknown error code = " << FBOstatus << " ";
-	      case GL_FRAMEBUFFER_COMPLETE_EXT: 
-		break;
-	      }
+	    checkStatus();
 	    _validated = true;
 	  }
-      }
+      }      
 
       Context::ContextPtr _context;
       std::vector<std::tr1::shared_ptr<Texture2D> > _colorTextures;

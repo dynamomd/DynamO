@@ -653,6 +653,7 @@ namespace coil {
     _VSMShader.build();
     _simpleRenderShader.build();
     _luminanceShader.build();
+    _luminanceMipMapShader.build();
     _toneMapShader.build();
 
     {
@@ -693,8 +694,10 @@ namespace coil {
 	  colorTexture(new magnet::GL::Texture2D);
 	
 	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_R16F);
-	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	colorTexture->genMipmaps(); //Ensure the mipmap chain is built/available
+
 	_luminanceBuffer.init();
 	_luminanceBuffer.attachTexture(colorTexture, 0);
       }
@@ -770,6 +773,7 @@ namespace coil {
     _simpleRenderShader.deinit();
     _copyShader.deinit();
     _luminanceShader.deinit();
+    _luminanceMipMapShader.deinit();
     ///////////////////Finally, unregister with COIL
     CoilRegister::getCoilInstance().unregisterWindow(this);
   }
@@ -1040,7 +1044,6 @@ namespace coil {
     _lightBuffer.getColorTexture()->bind(0);
 
     _luminanceBuffer.attach();
-
     _luminanceShader.attach();
     _luminanceShader["colorTex"] = 0;
     _luminanceShader.invoke();
@@ -1058,6 +1061,10 @@ namespace coil {
       //texture bound
       _luminanceBuffer.attach();
       tex.bind(0);
+
+      //Attach the mipmapping shader
+      _luminanceMipMapShader.attach();
+      _luminanceMipMapShader["luminanceTex"] = 0;
       for (int i=1; i < numLevels; ++i)
 	{
 	  GLsizei oldWidth = currentWidth;
@@ -1070,8 +1077,8 @@ namespace coil {
 	  tex.parameter(GL_TEXTURE_MAX_LEVEL, i-1);
 	  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
 				    tex.getGLType(), tex.getGLHandle(), i);
-
 	  //Now generate the mipmap level using a shader
+	  _luminanceMipMapShader.invoke();
 	}
       //Rebind mipmap 0 to the framebuffer
       glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
@@ -1079,10 +1086,9 @@ namespace coil {
       _glContext->setViewport(0, 0, tex.getWidth(), tex.getHeight());
       tex.parameter(GL_TEXTURE_BASE_LEVEL, 0);
       tex.parameter(GL_TEXTURE_MAX_LEVEL, numLevels - 1);
+      _luminanceMipMapShader.detach();
       _luminanceBuffer.detach();
     }
-
-    _luminanceBuffer.getColorTexture()->genMipmaps();
 
     ///////////////////////Tone Mapping///////////////////////////
 

@@ -33,9 +33,9 @@ namespace magnet {
 	    STRINGIFY(
 //Normalized position on the screen
 smooth in vec2 screenCoord;
-layout (location = 0) out float logL_out;
+layout (location = 0) out vec4 L_out;
 
-//Standard G-buffer data
+//The HDR color buffer
 uniform sampler2D colorTex;
 
 void main()
@@ -44,10 +44,39 @@ void main()
   float L = dot(color.rgb, vec3(0.265068,  0.67023428, 0.06409157));
   //Prevent negative logarithms
   L = max(10.0e-8, L);
-  logL_out = log(L);
+  L_out = vec4(log(L), 1.0, 1.0, 1.0);
 });
 	}
       };
+
+      class LuminanceMipMapShader: public detail::SSShader
+      {
+      public:
+	virtual std::string initFragmentShaderSource()
+	{
+	  return "#version 330\n"
+	    STRINGIFY(
+layout (location = 0) out vec4 L_out;
+smooth in vec2 screenCoord;
+
+uniform sampler2D luminanceTex;
+
+void main()
+{
+  float sum = 0.0;
+
+  sum += textureOffset(luminanceTex, screenCoord, ivec2(0,0)).r;
+  sum += textureOffset(luminanceTex, screenCoord, ivec2(-1,0)).r;
+  sum += textureOffset(luminanceTex, screenCoord, ivec2(0,-1)).r;
+  sum += textureOffset(luminanceTex, screenCoord, ivec2(-1,-1)).r;
+
+  float counter = 4;
+
+  L_out = vec4(sum / counter, 1.0, 1.0, 1.0);
+});
+	}
+      };
+
     }
   }
 }
