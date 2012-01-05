@@ -21,6 +21,7 @@ import ../magnet/jam/builddep ;
 lib cwiid : : <link>shared : : <define>COIL_wiimote ;
 exe cwiidtest : tests/wiimote.cpp cwiid ;
 
+lib png : : <link>shared ;
 lib glut : : <link>shared ;
 lib GLU  : : <link>shared ;
 lib GL   : : <link>shared ;
@@ -28,7 +29,7 @@ lib Xext : : <link>shared ;
 lib X11  : : <link>shared ;
 lib rt   : : <link>shared ;
 lib GLEW : : <link>shared ;
-alias gtkmm : : : : <linkflags>"`pkg-config gtkmm-2.4 --libs`" <cflags>"`pkg-config gtkmm-2.4 --cflags`" ;
+alias gtkmm : : <use>png : : <linkflags>"`pkg-config gtkmm-2.4 --libs`" <cflags>"`pkg-config gtkmm-2.4 --cflags`" ;
 
 #Test executables for determining what is available in the build environment
 exe gluttest : tests/gluttest.cpp glut ;
@@ -55,7 +56,7 @@ exe coilDependencies : tests/buildreq.cpp : <coil-buildable>no:<define>BUILDFAIL
 lib coil
       : [ glob-tree *.cpp : tests examples images programs ]
         [ glob-tree *.pixbufsvg *.ttf : tests examples coil programs ]
-      clwingtk.gladexml
+      clwingtk.gladexml png
       glut GLU GL Xext X11 rt GLEW /magnet//magnet
       /opencl//opencl gtkmm 
       : <include>. <include>../boost <tag>@tags.lib-naming 
