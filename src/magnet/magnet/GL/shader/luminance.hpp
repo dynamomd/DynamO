@@ -60,19 +60,63 @@ layout (location = 0) out vec4 L_out;
 smooth in vec2 screenCoord;
 
 uniform sampler2D luminanceTex;
+uniform ivec2 oldDimensions;
+uniform vec2 oldInvDimensions;
+
+vec4 data = vec4(0.0, 0.0, 0.0, 0.0);
+vec4 divider = vec4(0.0, 1.0, 1.0, 1.0);
+
+vec2 oldPixelOrigin;
+
+void operation(in ivec2 offset)
+{
+  //Fetch the luminance sample
+  float sample = textureOffset(luminanceTex, oldPixelOrigin, offset).r;
+
+  //Store the value for averaging
+  data.r += sample;
+  divider.r += 1.0;
+
+  //Store the maximum value
+  data.g = max(sample, data.g);
+}
 
 void main()
 {
-  float sum = 0.0;
+  oldPixelOrigin = (2.0 * gl_FragCoord.xy - vec2(0.5, 0.5)) * oldInvDimensions;
 
-  sum += textureOffset(luminanceTex, screenCoord, ivec2(0,0)).r;
-  sum += textureOffset(luminanceTex, screenCoord, ivec2(-1,0)).r;
-  sum += textureOffset(luminanceTex, screenCoord, ivec2(0,-1)).r;
-  sum += textureOffset(luminanceTex, screenCoord, ivec2(-1,-1)).r;
+  //This is the texture coordinates of the center of the lower left
+  //pixel to be sampled. This is the "origin" pixel and we are going
+  //to sum up the pixels above and to the right of this pixel.
+  //oldPixelOrigin = screenCoord - 0.0 * oldInvDimensions;
 
-  float counter = 4;
+  //First sample the standard 2x2 grid of pixels
+  operation(ivec2(0,0));
+  operation(ivec2(0,1));
+  operation(ivec2(1,0));
+  operation(ivec2(1,1));
 
-  L_out = vec4(sum / counter, 1.0, 1.0, 1.0);
+  //Now determine if we need to add extra samples in case of
+  //non-power of two textures
+  bool extraXSamples = (2 * (int(gl_FragCoord.x) + 1) == oldDimensions.x - 1);
+  bool extraYSamples = (2 * (int(gl_FragCoord.y) + 1) == oldDimensions.y - 1);
+  
+  if (extraXSamples)
+    {
+      operation(ivec2(2,0));
+      operation(ivec2(2,1));
+    }
+    
+  if (extraYSamples)
+    {
+      operation(ivec2(0,2));
+      operation(ivec2(1,2));
+    }
+
+  if (extraXSamples && extraYSamples)
+    operation(ivec2(2,2));
+
+  L_out = data / divider;
 });
 	}
       };

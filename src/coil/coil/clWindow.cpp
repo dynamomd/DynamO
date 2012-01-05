@@ -693,7 +693,7 @@ namespace coil {
 	std::tr1::shared_ptr<magnet::GL::Texture2D> 
 	  colorTexture(new magnet::GL::Texture2D);
 	
-	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_R16F);
+	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RG16F);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	colorTexture->genMipmaps(); //Ensure the mipmap chain is built/available
@@ -1073,17 +1073,25 @@ namespace coil {
 	  currentWidth /= 2; currentWidth += !currentWidth;
 	  currentHeight /= 2; currentHeight += !currentHeight;
 	  _glContext->setViewport(0, 0, currentWidth, currentHeight);
-	  tex.parameter(GL_TEXTURE_BASE_LEVEL, i-1);
-	  tex.parameter(GL_TEXTURE_MAX_LEVEL, i-1);
+
+	  tex.parameter(GL_TEXTURE_BASE_LEVEL, i - 1);
+	  tex.parameter(GL_TEXTURE_MAX_LEVEL, i - 1);
 	  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
 				    tex.getGLType(), tex.getGLHandle(), i);
+
 	  //Now generate the mipmap level using a shader
+	  std::tr1::array<GLfloat, 2> oldInvDimensions = {{1.0 / oldWidth, 
+							   1.0 / oldHeight}};
+	  _luminanceMipMapShader["oldInvDimensions"] = oldInvDimensions;
+	  std::tr1::array<GLint,2> oldDimensions = {{oldWidth, oldHeight}};
+	  _luminanceMipMapShader["oldDimensions"] = oldDimensions;
 	  _luminanceMipMapShader.invoke();
 	}
       //Rebind mipmap 0 to the framebuffer
       glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
 				tex.getGLType(), tex.getGLHandle(), 0);
       _glContext->setViewport(0, 0, tex.getWidth(), tex.getHeight());
+
       tex.parameter(GL_TEXTURE_BASE_LEVEL, 0);
       tex.parameter(GL_TEXTURE_MAX_LEVEL, numLevels - 1);
       _luminanceMipMapShader.detach();
@@ -1204,6 +1212,7 @@ namespace coil {
     _filterTarget1.resize(w, h);
     _filterTarget2.resize(w, h);
     _luminanceBuffer.resize(w, h);
+    _luminanceBuffer.getColorTexture(0)->genMipmaps();
     std::ostringstream os;
     os << "Coil visualizer (" << w << "," << h << ")";
     setWindowtitle(os.str());

@@ -38,7 +38,10 @@ void main()
 {
   const vec2 madd=vec2(0.5, 0.5);
   gl_Position = vec4(vPosition.xy, 0.0, 1.0);
-  inv_log_avg_luma = 1.0 / exp(textureLod(logLuma, vec2(0.5, 0.5), 100.0).r);
+
+  vec2 luma_data = textureLod(logLuma, vec2(0.5, 0.5), 100.0).rg;
+
+  inv_log_avg_luma = 1.0 / exp(luma_data.r);
 }); 
 	}
 

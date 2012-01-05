@@ -43,6 +43,7 @@ namespace magnet {
 	    _quad.init();
 	    Shader::build();
 	  }
+
 	  /*! \brief Actually calls the shader function.
 	   *
 	   * Attaches the filter shader, renders a full screen quad
@@ -63,12 +64,12 @@ namespace magnet {
 layout (location = 0) in vec4 vPosition;
 smooth out vec2 screenCoord;
 
-void main() 
+void main()
 {
   const vec2 madd=vec2(0.5, 0.5);
   screenCoord = vPosition.xy * madd + madd;
   gl_Position = vec4(vPosition.xy, 0.0, 1.0); 
-}); 
+});
 	  }
 	protected:
 
