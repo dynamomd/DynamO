@@ -66,12 +66,10 @@ uniform vec2 oldInvDimensions;
 vec4 data = vec4(0.0, 0.0, 0.0, 0.0);
 float divider = 0.0;
 
-vec2 oldPixelOrigin;
-
-void operation(in ivec2 offset)
+void operation(in vec2 sample)
 {
   //Fetch the local luminance avg (log), and maximum.
-  vec2 sample = textureOffset(luminanceTex, oldPixelOrigin, offset).rg;
+  ;
 
   //Store the value for averaging
   data.r += sample.r;
@@ -83,18 +81,16 @@ void operation(in ivec2 offset)
 
 void main()
 {
-  oldPixelOrigin = (2.0 * gl_FragCoord.xy - vec2(0.5, 0.5)) * oldInvDimensions;
-
   //This is the texture coordinates of the center of the lower left
   //pixel to be sampled. This is the "origin" pixel and we are going
   //to sum up the pixels above and to the right of this pixel.
-  //oldPixelOrigin = screenCoord - 0.0 * oldInvDimensions;
+  vec2 oldPixelOrigin = (2.0 * gl_FragCoord.xy - vec2(0.5, 0.5)) * oldInvDimensions;
 
   //First sample the standard 2x2 grid of pixels
-  operation(ivec2(0,0));
-  operation(ivec2(0,1));
-  operation(ivec2(1,0));
-  operation(ivec2(1,1));
+  operation(textureOffset(luminanceTex, oldPixelOrigin, ivec2(0,0)).rg);
+  operation(textureOffset(luminanceTex, oldPixelOrigin, ivec2(0,1)).rg);
+  operation(textureOffset(luminanceTex, oldPixelOrigin, ivec2(1,0)).rg);
+  operation(textureOffset(luminanceTex, oldPixelOrigin, ivec2(1,1)).rg);
 
   //Now determine if we need to add extra samples in case of
   //non-power of two textures
@@ -103,18 +99,18 @@ void main()
   
   if (extraXSamples)
     {
-      operation(ivec2(2,0));
-      operation(ivec2(2,1));
+      operation(textureOffset(luminanceTex, oldPixelOrigin, ivec2(2,0)).rg);
+      operation(textureOffset(luminanceTex, oldPixelOrigin, ivec2(2,1)).rg);
     }
     
   if (extraYSamples)
     {
-      operation(ivec2(0,2));
-      operation(ivec2(1,2));
+      operation(textureOffset(luminanceTex, oldPixelOrigin, ivec2(0,2)).rg);
+      operation(textureOffset(luminanceTex, oldPixelOrigin, ivec2(1,2)).rg);
     }
-
+  
   if (extraXSamples && extraYSamples)
-    operation(ivec2(2,2));
+    operation(textureOffset(luminanceTex, oldPixelOrigin, ivec2(2,2)).rg);
 
   L_out = vec4(data.r / divider, data.g, 1.0, 1.0);
 });

@@ -584,7 +584,6 @@ namespace coil {
 		     "colors[0] = (uchar4)(255,255,255,255);"
 		     ));
 
-    groundObj->setVisible(false);
     _renderObjsTree._renderObjects.push_back(groundObj);
 
     //Second render object is the console
