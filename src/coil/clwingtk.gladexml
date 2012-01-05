@@ -907,8 +907,8 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="invisible_char">●</property>
-                                <property name="width_chars">7</property>
-                                <property name="text" translatable="yes">0.1</property>
+                                <property name="width_chars">12</property>
+                                <property name="text" translatable="yes">0.18</property>
                                 <property name="invisible_char_set">True</property>
                               </object>
                               <packing>
@@ -936,7 +936,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="invisible_char">●</property>
-                                <property name="width_chars">7</property>
+                                <property name="width_chars">12</property>
                                 <property name="text" translatable="yes">0.9</property>
                                 <property name="invisible_char_set">True</property>
                                 <property name="progress_fraction">0.01</property>
@@ -1043,7 +1043,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="invisible_char">●</property>
-                                <property name="width_chars">7</property>
+                                <property name="width_chars">12</property>
                                 <property name="text" translatable="yes">0.2</property>
                                 <property name="xalign">0.0099999997764825821</property>
                                 <property name="invisible_char_set">True</property>

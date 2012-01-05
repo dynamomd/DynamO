@@ -170,7 +170,7 @@ namespace coil {
     double _burnoutFactor;
     double _ambientIntensity;
     std::tr1::array<GLfloat, 3> _backColor;
-    double _exposure;
+    float _exposure;
 
     size_t _snapshot_counter;
     size_t _samples;

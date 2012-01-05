@@ -96,8 +96,9 @@ namespace coil {
     _stereoMode(false),
     _burnoutFactor(0.8),
     _ambientIntensity(0.01),
-    _backColor(),
-    _exposure(0.5),
+    //This value of the exposure is actually the subjective midde
+    //brightness (18% reflectance) of photographic paper
+    _exposure(0.18),
     _snapshot_counter(0),
     _samples(1),
     _dynamo(dynamo)
@@ -313,6 +314,12 @@ namespace coil {
       _aasamples->signal_changed()
 	.connect(sigc::mem_fun(this, &CLGLWindow::AAsamplechangeCallback));
 
+      {
+	Gtk::Entry* exposureEntry;
+	_refXml->get_widget("ExposureEntry", exposureEntry);
+	exposureEntry->set_text(boost::lexical_cast<std::string>(_exposure));
+      }
+      
       {
 	Gtk::Entry* burnoutEntry;
 	_refXml->get_widget("BurnoutEntry", burnoutEntry);
