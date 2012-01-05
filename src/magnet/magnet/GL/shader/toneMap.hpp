@@ -31,7 +31,12 @@ namespace magnet {
 	    STRINGIFY(
 layout (location = 0) in vec4 vPosition;
 uniform sampler2D logLuma;
+uniform float exposure;
+uniform float burnout;
+
 flat out float inv_log_avg_luma;
+flat out float scaled_burnout_luma;
+
 uniform sampler2D color_tex;
 
 void main() 
@@ -40,9 +45,12 @@ void main()
   gl_Position = vec4(vPosition.xy, 0.0, 1.0);
 
   vec2 luma_data = textureLod(logLuma, vec2(0.5, 0.5), 100.0).rg;
+  float invlogavgluma = 1.0 / exp(luma_data.r);
+  inv_log_avg_luma = invlogavgluma;
 
-  inv_log_avg_luma = 1.0 / exp(luma_data.r);
-}); 
+  float tmp = burnout * luma_data.g * exposure * invlogavgluma;
+  scaled_burnout_luma = tmp * tmp;
+});
 	}
 
 	virtual std::string initFragmentShaderSource()
@@ -54,10 +62,10 @@ layout (location = 0) out vec4 color_out;
 
 uniform sampler2D color_tex;
 uniform sampler2D logLuma;
-uniform float invGamma;
 uniform float exposure;
 
 flat in float inv_log_avg_luma;
+flat in float scaled_burnout_luma;
 
 //Taken from http://www.gamedev.net/topic/407348-reinhards-tone-mapping-operator/
 void main()
@@ -79,12 +87,14 @@ void main()
   
   //Compress the luminance in [0,\infty) to [0,1)
 
-  //This is Reinhard's mapping
-  Yxy.r = Lp / (1.0 + Lp);
+  //This is Reinhard's simplified mapping
+  //Yxy.r = Lp / (1.0 + Lp);
+
+  //This is Reinhard's modified mapping with controlled burnout
+  Yxy.r = Lp * (1.0 + Lp / scaled_burnout_luma)  / (1.0 + Lp);
 
   //This is the Filmic mapping to preserve the crispiness of the
   //blacks. Note: Do not use gamma correction on this function!
-  
   //Lp = max(0.0, Lp - 0.004); 
   //Yxy.r = (Lp * (6.2 * Lp + 0.5))/(Lp * (6.2 * Lp + 1.7) + 0.06);
 
@@ -95,7 +105,9 @@ void main()
   const mat3 XYZ2RGB = mat3(2.5651,-1.1665,-0.3986,
 			    -1.0217, 1.9777, 0.0439, 
 			    0.0753, -0.2543, 1.1892);
-  color_out = vec4(pow(XYZ2RGB * XYZ, vec3(invGamma,invGamma,invGamma)), 1.0);
+
+  //Additional gamma correction
+  color_out = vec4(pow(XYZ2RGB * XYZ, vec3(1.0/2.2)), 1.0);
 });
 	}
       };

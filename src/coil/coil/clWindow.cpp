@@ -94,7 +94,7 @@ namespace coil {
     _fpsLimitValue(35),
     _filterEnable(true),
     _stereoMode(false),
-    _gammaCorrection(2.2),
+    _burnoutFactor(0.8),
     _ambientIntensity(0.01),
     _backColor(),
     _exposure(0.5),
@@ -314,9 +314,9 @@ namespace coil {
 	.connect(sigc::mem_fun(this, &CLGLWindow::AAsamplechangeCallback));
 
       {
-	Gtk::Entry* gammaScale;
-	_refXml->get_widget("GammaCorrectionEntry", gammaScale);
-	gammaScale->signal_changed()
+	Gtk::Entry* burnoutEntry;
+	_refXml->get_widget("BurnoutEntry", burnoutEntry);
+	burnoutEntry->signal_changed()
 	  .connect(sigc::mem_fun(*this, &CLGLWindow::guiUpdateCallback));
       }
 
@@ -1106,7 +1106,7 @@ namespace coil {
     _luminanceBuffer.getColorTexture()->bind(1);
     _toneMapShader["color_tex"] = 0;
     _toneMapShader["logLuma"] = 1;
-    _toneMapShader["invGamma"] = GLfloat(1.0 / _gammaCorrection);
+    _toneMapShader["burnout"] = GLfloat((1.0 - _exposure) * _burnoutFactor + _exposure);
     _toneMapShader["exposure"] = GLfloat(_exposure);
     _toneMapShader.invoke();
     _toneMapShader.detach();
@@ -1751,11 +1751,11 @@ namespace coil {
     }    
 
     {
-      Gtk::Entry* gammaScale;
-      _refXml->get_widget("GammaCorrectionEntry", gammaScale);
-      magnet::gtk::forceNumericEntry(*gammaScale);
+      Gtk::Entry* burnoutEntry;
+      _refXml->get_widget("BurnoutEntry", burnoutEntry);
+      magnet::gtk::forceNumericEntry(*burnoutEntry);
       try {
-	_gammaCorrection = boost::lexical_cast<double>(gammaScale->get_text());
+	_burnoutFactor = boost::lexical_cast<double>(burnoutEntry->get_text());
       } catch(...) {}
     }
 

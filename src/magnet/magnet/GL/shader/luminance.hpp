@@ -64,21 +64,21 @@ uniform ivec2 oldDimensions;
 uniform vec2 oldInvDimensions;
 
 vec4 data = vec4(0.0, 0.0, 0.0, 0.0);
-vec4 divider = vec4(0.0, 1.0, 1.0, 1.0);
+float divider = 0.0;
 
 vec2 oldPixelOrigin;
 
 void operation(in ivec2 offset)
 {
-  //Fetch the luminance sample
-  float sample = textureOffset(luminanceTex, oldPixelOrigin, offset).r;
+  //Fetch the local luminance avg (log), and maximum.
+  vec2 sample = textureOffset(luminanceTex, oldPixelOrigin, offset).rg;
 
   //Store the value for averaging
-  data.r += sample;
-  divider.r += 1.0;
+  data.r += sample.r;
+  divider += 1.0;
 
   //Store the maximum value
-  data.g = max(sample, data.g);
+  data.g = max(sample.g, data.g);
 }
 
 void main()
@@ -116,7 +116,7 @@ void main()
   if (extraXSamples && extraYSamples)
     operation(ivec2(2,2));
 
-  L_out = data / divider;
+  L_out = vec4(data.r / divider, data.g, 1.0, 1.0);
 });
 	}
       };
