@@ -43,8 +43,7 @@ void main()
   vec4 color = texture(colorTex, screenCoord).rgba;
   float L = dot(color.rgb, vec3(0.265068,  0.67023428, 0.06409157));
   //Prevent negative logarithms
-  L = max(10.0e-8, L);
-  L_out = vec4(log(L), 1.0, 1.0, 1.0);
+  L_out = vec4(log(max(10.0e-8, L)), L, 1.0, 1.0);
 });
 	}
       };
@@ -68,9 +67,6 @@ float divider = 0.0;
 
 void operation(in vec2 sample)
 {
-  //Fetch the local luminance avg (log), and maximum.
-  ;
-
   //Store the value for averaging
   data.r += sample.r;
   divider += 1.0;
