@@ -616,10 +616,6 @@ namespace coil {
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_DEPTH_TEST);
 
-    //Blend colors using the alpha channel
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     //Setup the viewport
     CallBackReshapeFunc(800, 600);
 
@@ -707,7 +703,32 @@ namespace coil {
 	_luminanceBuffer.init();
 	_luminanceBuffer.attachTexture(colorTexture, 0);
       }
+
+      {
+	//Build depth buffer
+	std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
+	depthTexture->init(1024, 1024, GL_DEPTH_COMPONENT);
+	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+	
+	//Build color texture
+	std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+	colorTexture->init(1024, 1024, GL_RG32F);
+	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	
+	_shadowBuffer.init();
+	_shadowBuffer.attachTexture(colorTexture, 0);
+	_shadowBuffer.attachTexture(depthTexture);
+      }
     }
+
+
 
       //Now init the render objects  
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
@@ -770,6 +791,8 @@ namespace coil {
     _Gbuffer.deinit();
     _lightBuffer.deinit();
     _luminanceBuffer.deinit();
+    _shadowBuffer.deinit();
+	
     _filterTarget1.deinit();
     _filterTarget2.deinit();
     _renderShader.deinit();
@@ -845,7 +868,6 @@ namespace coil {
 
 //    if (_shadowMapping)
 //      {
-//	glDisable(GL_BLEND);
 //	_VSMShader.attach();
 //
 //	//Render each light's shadow map
@@ -866,7 +888,6 @@ namespace coil {
 //	_light0.shadowTex()->bind(7);
 //	
 //	_VSMShader.detach();
-//	glEnable(GL_BLEND);
 //      }
     
     ////////3D or Stereo rendering image composition//////////
@@ -1066,8 +1087,7 @@ namespace coil {
     
     _pointLightShader.detach();
     _lightBuffer.detach();
-    glDisable(GL_BLEND);    
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_BLEND);
 
     ///////////////////////Luminance Sampling//////////////////////
     //The light buffer is bound to texture unit 0 for the tone mapping too
@@ -1662,7 +1682,6 @@ namespace coil {
     _simpleRenderShader["ViewMatrix"] = _camera.getViewMatrix();
 
     _renderTarget.attach();
-    glDisable(GL_BLEND);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     //Flush the OpenCL queue, so GL can use the buffers
@@ -1683,7 +1702,6 @@ namespace coil {
     glGetIntegerv(GL_VIEWPORT, viewport);  
     glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);    
     _renderTarget.detach();
-    glEnable(GL_BLEND);
 
     //Now let the objects know what was picked
     const cl_uint objID = pixel[0] + 256 * (pixel[1] + 256 * (pixel[2] + 256 * pixel[3]));

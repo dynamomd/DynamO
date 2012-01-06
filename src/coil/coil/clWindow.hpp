@@ -99,6 +99,7 @@ namespace coil {
     magnet::GL::FBO _Gbuffer;
     magnet::GL::FBO _lightBuffer;
     magnet::GL::FBO _luminanceBuffer;
+    magnet::GL::FBO _shadowBuffer;
 
     //Frame buffers to flip flop filters between
     magnet::GL::FBO _filterTarget1;

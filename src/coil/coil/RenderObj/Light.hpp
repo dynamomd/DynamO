@@ -73,10 +73,6 @@ namespace coil {
 	* getViewMatrix();
     }
     
-    /*! \brief Returns the frame buffer containing the shadow map.
-     */
-    magnet::GL::FBO& shadowFBO() { return _shadowFBO; }
-
     /*! \brief Returns a projected light position.
      */
     magnet::math::Vector getEyespacePosition(const magnet::GL::Camera& camera) const
@@ -103,8 +99,6 @@ namespace coil {
     std::auto_ptr<Gtk::Entry> _specularFactorEntry;
     
     float _intensity, _attenuation, _specularExponent, _specularFactor;
-
-    magnet::GL::FBO _shadowFBO;
 
     magnet::GL::objects::Cube _cube;
     magnet::GL::Context::ContextPtr _context;

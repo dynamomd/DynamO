@@ -36,7 +36,6 @@ namespace coil {
   void 
   RLight::deinit()
   {
-    _shadowFBO.deinit();
     _cube.deinit();
     _context.reset();
   }
@@ -47,35 +46,6 @@ namespace coil {
     RenderObj::init(systemQueue);
     _cube.init();
     _context = magnet::GL::Context::getContext();
-
-    {
-      //Build depth buffer
-      std::tr1::shared_ptr<magnet::GL::Texture2D> 
-	depthTexture(new magnet::GL::Texture2D);
-      //We don't force GL_DEPTH_COMPONENT24 as it is likely you get
-      //the best precision anyway
-      depthTexture->init(1024, 1024, GL_DEPTH_COMPONENT);
-      //You must select GL_NEAREST for depth data, as GL_LINEAR
-      //converts the value to 8bit for interpolation (on NVidia).
-      depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-      
-      //Build color texture
-      std::tr1::shared_ptr<magnet::GL::Texture2D> 
-	colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(1024, 1024, GL_RG32F);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      
-      _shadowFBO.init();
-      _shadowFBO.attachTexture(colorTexture, 0);
-      _shadowFBO.attachTexture(depthTexture);
-    }
 
     initGTK();
   }
