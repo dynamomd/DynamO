@@ -26,23 +26,27 @@ namespace magnet {
       class ToneMapShader: public detail::SSShader
       {
       public:
-	virtual std::string initVertexShaderSource()
+	virtual std::string initGeometryShaderSource()
 	{ return "#version 330\n"
 	    STRINGIFY(
-layout (location = 0) in vec4 vPosition;
+layout(points) in;
+layout(triangle_strip) out;
+layout(max_vertices = 3) out;
+
 uniform sampler2D logLuma;
 uniform float exposure;
 uniform float burnout;
 
 flat out float inv_log_avg_luma;
 flat out float scaled_burnout_luma;
+smooth out vec2 screenCoord;
 
-uniform sampler2D color_tex;
-
-void main() 
+void main()
 {
-  const vec2 madd=vec2(0.5, 0.5);
-  gl_Position = vec4(vPosition.xy, 0.0, 1.0);
+  //Here we draw a fullscreen triangle and allow the GPU to scissor to
+  //the screen. This prevents the difficult interpolation of the
+  //vertex property (screenCoord) on the diagonal of a fullscreen
+  //quad. This is a ridiculous optimisation I know.
 
   vec2 luma_data = textureLod(logLuma, vec2(0.5, 0.5), 100.0).rg;
   float invlogavgluma = 1.0 / exp(luma_data.r);
@@ -50,6 +54,19 @@ void main()
 
   float tmp = burnout * luma_data.g * exposure * invlogavgluma;
   scaled_burnout_luma = tmp * tmp;
+
+  screenCoord = vec2(0.0, 0.0);
+  gl_Position = vec4(-1.0, -1.0, 0.5, 1.0);
+  EmitVertex();
+  
+  screenCoord = vec2(2.0, 0.0);
+  gl_Position = vec4(+3.0, -1.0, 0.5, 1.0);
+  EmitVertex();
+
+  screenCoord = vec2(0.0, 2.0);
+  gl_Position = vec4(-1.0, +3.0, 0.5, 1.0);
+  EmitVertex();
+  EndPrimitive();
 });
 	}
 

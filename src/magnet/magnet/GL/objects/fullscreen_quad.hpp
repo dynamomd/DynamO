@@ -21,11 +21,11 @@ namespace magnet {
   namespace GL {
     namespace objects {
       /*! \brief A full-screen quad.
-       *
-       * This object is used to generate a fragment shader for every
-       * pixel on the screen. It assumes that the fragment shader is a
-       * simple passthrough shader as the verticies are already in
-       * screen/eye space.
+       
+        This object is used to generate a fragment shader for every
+        pixel on the screen. It assumes that the fragment shader is a
+        simple passthrough shader as the verticies are already in
+        screen/eye space.
        */
       class FullScreenQuad
       {

@@ -20,18 +20,18 @@
 namespace magnet {
   namespace GL {
     /*! \brief An OpenGL buffer object.
-     *
-     * This class is used to represent vertex/element/normal buffer
-     * objects and provides some automatic memory handling for them.
-     *
-     * People might argue that by fixing the type of data stored in
-     * the buffer (and so trying to make OpenGL type-safe) is a bad
-     * idea when you want to interleave your vertex data. But please
-     * consider splitting your data across multiple VBOs. It can
-     * actually speed up your GL rendering and it makes the interface
-     * so much nicer.
-     *
-     * \tparam T The type of the data in the buffer.
+     
+      This class is used to represent vertex/element/normal buffer
+      objects and provides some automatic memory handling for them.
+     
+      People might argue that by fixing the type of data stored in the
+      buffer (and so trying to make OpenGL type-safe) is a bad idea
+      when you want to interleave your vertex data. But please
+      consider splitting your data across multiple VBOs. It can
+      actually speed up your GL rendering and it makes the interface
+      so much nicer.
+     
+      \tparam T The type of the data in the buffer.
      */
     template <class T>
     class Buffer
@@ -46,15 +46,15 @@ namespace magnet {
       inline ~Buffer() { deinit(); }
 
       /*! \brief Initialises the Buffer object with the passed data
-       *
-       *  This will create the underlying OpenGL buffer, and load it
-       *  with the contents of data.
-       *
-       * \param data A vector containing the data to be loaded to the
-       * Buffer.
-       *
-       * \param usage The expected host memory access pattern, used to
-       * optimise performance.
+       
+         This will create the underlying OpenGL buffer, and load it
+         with the contents of data.
+       
+        \param data A vector containing the data to be loaded to the
+        Buffer.
+       
+        \param usage The expected host memory access pattern, used to
+        optimise performance.
        */
       inline void init(const std::vector<T>& data, buffer_usage::Enum usage = buffer_usage::DYNAMIC_DRAW)
       { init(data.size(), usage, &data[0]); }

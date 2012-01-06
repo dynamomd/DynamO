@@ -16,8 +16,6 @@
  */
 #pragma once
 #include <magnet/GL/shader/detail/shader.hpp>
-#include <magnet/GL/objects/fullscreen_quad.hpp>
-#include <sstream>
 #define STRINGIFY(A) #A
 
 namespace magnet {
@@ -25,55 +23,69 @@ namespace magnet {
     namespace shader {
       namespace detail {
 	/*! \brief A base class for OpenGL Shaders implementing a
-	 * Screen Space Filter.
-	 *
-	 * Screen space filters are filters that take a rendered image
-	 * and apply an image transform using only the rendered image
-	 * data (such as the pixel color and depth).
+	  Screen Space Filter.
+	 
+	  Screen space filters are filters that take a rendered image
+	  and apply an image transform using only the rendered image
+	  data (such as the pixel color and depth). This base class
+	  simplifies the task of generating a fragment shader for each
+	  pixel of the destination image.
 	 */
 	class SSShader : public Shader
 	{
 	public:
 	  ~SSShader() { deinit(); }
 
-	  inline void deinit() { _quad.deinit(); Shader::deinit(); }
-
-	  inline void build()
-	  {
-	    _quad.init();
-	    Shader::build();
-	  }
-
-	  /*! \brief Actually calls the shader function.
-	   *
-	   * Attaches the filter shader, renders a full screen quad
-	   * to generate a fragment shader for each output pixel and
-	   * then detaches the shader..
+	  /*! \brief Run the fragment shader for each pixel in the
+	    output image.
 	   */
 	  void invoke()
 	  {
 	    if (!_built)
 	      M_throw() << "Cannot invoke a SS filter without it being built first";
-	    _quad.glRender();
+
+	    glDrawArrays(GL_POINTS, 0, 1);
 	  }
 	
-	  /*! \brief A trivial passthrough vertex shader. */
+	  /*!\brief An empty vertex shader. 
+	    
+	    All work is carried out in the Geometry shader.
+	   */
 	  virtual std::string initVertexShaderSource()
-	  { return "#version 330\n"
-	      STRINGIFY(
-layout (location = 0) in vec4 vPosition;
+	  { return "#version 330\n void main() {}"; }
+
+	virtual std::string initGeometryShaderSource()
+	{
+	  return
+	    "#version 330\n"
+	    STRINGIFY(
+layout(points) in;
+layout(triangle_strip) out;
+layout(max_vertices = 3) out;
+
 smooth out vec2 screenCoord;
 
 void main()
 {
-  const vec2 madd=vec2(0.5, 0.5);
-  screenCoord = vPosition.xy * madd + madd;
-  gl_Position = vec4(vPosition.xy, 0.0, 1.0); 
-});
-	  }
-	protected:
+  /*Here we draw a fullscreen triangle and allow the GPU to scissor to
+    the screen. This prevents the difficult interpolation of the
+    vertex property (screenCoord) on the diagonal of a fullscreen
+    quad. This is a ridiculous optimisation I know. */
 
-	  objects::FullScreenQuad _quad;
+  screenCoord = vec2(0.0, 0.0);
+  gl_Position = vec4(-1.0, -1.0, 0.5, 1.0);
+  EmitVertex();
+  
+  screenCoord = vec2(2.0, 0.0);
+  gl_Position = vec4(+3.0, -1.0, 0.5, 1.0);
+  EmitVertex();
+
+  screenCoord = vec2(0.0, 2.0);
+  gl_Position = vec4(-1.0, +3.0, 0.5, 1.0);
+  EmitVertex();
+  EndPrimitive();
+});
+	}
 	};
       }
     }
