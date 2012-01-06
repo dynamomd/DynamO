@@ -1054,9 +1054,9 @@ namespace coil {
     _lightBuffer.attach();
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    glEnable(GL_BLEND);
     //Additive blending of all of the lights contributions
-    glBlendFunc(GL_ONE, GL_ZERO);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE);
 
     _pointLightShader.attach();
     _pointLightShader["colorTex"] = 0;
@@ -1081,7 +1081,6 @@ namespace coil {
 	  _pointLightShader["lightIntensity"] = light->getIntensity();
 	  _pointLightShader["lightPosition"] = light->getEyespacePosition(camera);
 	  _pointLightShader.invoke();
-	  glBlendFunc(GL_ONE, GL_ONE);
 	  ambient = 0;
 	}
     

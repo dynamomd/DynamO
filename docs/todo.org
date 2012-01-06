@@ -8,8 +8,9 @@
 *** DynamO 1.4
 **** TODO Coil: Replace freeglut with your own implementation to fix the whole debacle of GL context management and deleting resources. 
 ***** TODO Coil: Fix the dummy vertex array object mess.
-**** TODO Coil: Switch to a multisampling deferred shading implementation.
-**** TODO Coil: Fix the mip-mapping issue with the shadow maps
+**** TODO Coil: State change tracking for glEnable/Disable.
+**** TODO Coil: State change tracking for glBlendFunc.
+**** TODO Coil: Make coil scale independent.
 **** TODO Add rendering of light sources (crepuscular rays too?).
 **** TODO Cube shadow map lights.
 **** TODO Make the viewing grid have a scalable box size.
@@ -41,9 +42,10 @@
 **** DONE Bugfix Coil: Fixed the bilateral blur filter.
 **** DONE Bugfix Coil: Fixed the rendering on NVIDIA drivers.
 **** DONE Magnet: Upgraded all shaders to GLSL 330.
-**** TODO Coil: Make coil scale independent.
+**** TODO Coil: Fix the volume renderer in the new pipeline.
 **** TODO Coil: Fix the DOF filter and the SSAO filter, as multisampling has changed them.
-**** TODO DynamO: Check that the PBC sentinel is correctly working for 2 particles, it seems something else is doing the updates.
+**** TODO Coil: Add a bloom shader.
+**** TODO DynamO: Check that the PBC sentinel is correctly working for 2 particles, it seems something else is doing the updates (the synchroniser?).
 **** TODO DynamO: Add the gravity version of the sphere-sphere-out test. Fix and check that the umbrella implementation is general.
 **** TODO DynamO: Remove the requirement of a statically linked bzip2 or zlib library
 **** TODO DynamO: Remove the Dynamics class and move its functions into the SimData class.

@@ -85,14 +85,9 @@ namespace coil {
     struct end {};
 
     inline Console(std::tr1::array<GLfloat, 3> color):
-      RenderObj("Console"),
-      _consoleTextColor(color)
+      RenderObj("Console")
     {}
     
-    template<class T>
-    Console& operator<<(const T& value) 
-    { os << value; return *this; }
-
     void interfaceRender(const magnet::GL::Camera& cam);
     void clTick(const magnet::GL::Camera& cam) {}
     void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
@@ -104,11 +99,7 @@ namespace coil {
     void initGTK();
     void guiUpdate();
 
-    std::ostringstream os;
-    typedef std::pair<float, std::string> consoleEntry;
-    std::list<consoleEntry> _consoleEntries;    
     int _glutLastTime;
-    std::tr1::array<GLfloat, 3> _consoleTextColor;
 
     magnet::GL::objects::Axis _axis;
     magnet::GL::objects::Grid _grid;
@@ -119,12 +110,4 @@ namespace coil {
     std::auto_ptr<Gtk::CheckButton> _showConsole;
     std::auto_ptr<Gtk::CheckButton> _showAxis;
   };
-
-  template<>
-  inline Console& Console::operator<< <Console::end>(const Console::end&)
-  {
-    _consoleEntries.push_front(consoleEntry(0, os.str()));
-    os.str("");
-    return *this;
-  }
 }

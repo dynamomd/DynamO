@@ -42,46 +42,10 @@ namespace coil {
     //Only draw if the console has something in it or if it's visible
     if (!_visible) return;
 
-    //Disable anything that might affect the rastering 
-    glDisable(GL_DEPTH_TEST);
-
     using namespace magnet::GL;
     const Context::ContextPtr& context = _axis.getContext();
     //Draw the console in orthograpic projection
     context->cleanupAttributeArrays();
-
-//    if (_showConsole->get_active())
-//      {
-//	float lineHeight = _consoleFont->FaceSize() / (0.5f * _viewPort->getHeight());
-//	float consoleHeight = 1.0f - lineHeight;
-//	
-//	//Calculate how long since the last redraw
-//	int tdelta = glutGet(GLUT_ELAPSED_TIME) - _glutLastTime;
-//	_glutLastTime = glutGet(GLUT_ELAPSED_TIME);
-//	
-//	glColor3f(_consoleTextColor[0], _consoleTextColor[1], 
-//		  _consoleTextColor[2]);
-//	
-//	glRasterPos3f(-1.0, consoleHeight, 0);
-//	_consoleLayout->Render(_consoleEntries.front().second.c_str());
-//	consoleHeight -= lineHeight;
-//	
-//	for (std::list<consoleEntry>::iterator iPtr = ++_consoleEntries.begin();
-//	     iPtr != _consoleEntries.end();)
-//	  {
-//	    //Fade the color based on it's time in the queue
-//	    glColor4f(_consoleTextColor[0], _consoleTextColor[1], 
-//		      _consoleTextColor[2], 1.0f - iPtr->first / 1000.0f);
-//	    glRasterPos3f(-1, consoleHeight, 0);
-//	    _consoleLayout->Render(iPtr->second.c_str());
-//	    iPtr->first += tdelta;
-//	    consoleHeight -= lineHeight;
-//	    
-//	    std::list<consoleEntry>::iterator prev = iPtr++;
-//	    //If this element is invisible, erase it
-//	    if (prev->first > 1000) _consoleEntries.erase(prev);
-//	  }
-//      }
 
     if (_showAxis->get_active())
       {
@@ -120,9 +84,6 @@ namespace coil {
 	context->getAttachedShader()["ProjectionMatrix"] = oldproj;
 	context->getAttachedShader()["ViewMatrix"] = oldview;
       }    
-
-    //Restore GL state
-    glEnable(GL_DEPTH_TEST);
   }
 
   void Console::glRender(magnet::GL::FBO&, const magnet::GL::Camera& camera, RenderMode mode)
