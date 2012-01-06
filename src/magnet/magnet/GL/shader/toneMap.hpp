@@ -22,6 +22,30 @@ namespace magnet {
   namespace GL {
     namespace shader {
       /*! \brief Tone mapping shader for HDR rendering.
+
+      This is Reinhard's simplified mapping
+      \code
+      Yxy.r = Lp / (1.0 + Lp);
+      \endcode
+
+      This is the Filmic mapping to preserve the crispiness of the
+      blacks. Note: Do not use gamma correction on this function!
+
+      \code
+      Lp = max(0.0, Lp - 0.004); 
+      Yxy.r = (Lp * (6.2 * Lp + 0.5))/(Lp * (6.2 * Lp + 1.7) + 0.06);
+      \endcode
+
+      Simplest gamma correction
+      \code 
+      vec3 gamma_rgb = pow(linear_rgb, vec3(1.0/2.2));
+      \endcode
+
+      Better gamma correction
+      \code
+      vec3 gamma_rgb = pow(1.055 * linear_rgb, vec3(1.0/2.4) - vec3(0.055));
+      \endcode
+
        */
       class ToneMapShader: public detail::SSShader
       {
@@ -81,63 +105,74 @@ uniform sampler2D color_tex;
 uniform sampler2D logLuma;
 uniform float exposure;
 
+uniform sampler2D bloom_tex;
+uniform float bloom_amount;
+uniform float bloom_fraction;
+
 flat in float inv_log_avg_luma;
 flat in float scaled_burnout_luma;
+
+vec3 RGBtoXYZ(vec3 input)
+{
+  const mat3 RGB2XYZ = mat3(0.5141364, 0.3238786,  0.16036376,
+			    0.265068,  0.67023428, 0.06409157,
+			    0.0241188, 0.1228178,  0.84442666);
+  return RGB2XYZ * input;
+}
+
+vec3 XYZtoRGB(vec3 input)
+{
+  const mat3 XYZ2RGB = mat3(2.5651,-1.1665,-0.3986,
+			    -1.0217, 1.9777, 0.0439, 
+			    0.0753, -0.2543, 1.1892);
+  return XYZ2RGB * input;
+}
+
+vec3 XYZtoYxy(vec3 input)
+{
+  float invXYZsum = 1.0 / dot(input, vec3(1.0));
+  return vec3(input.g, input.r * invXYZsum, input.g * invXYZsum);
+}
+
+vec3 YxytoXYZ(vec3 input)
+{
+  return vec3(input.r * input.g / input.b, 
+	      input.r,
+	      input.r * (1 - input.g - input.b) / input.b);
+}
+
+vec3 RGBtoYxy(vec3 input)
+{ return XYZtoYxy(RGBtoXYZ(input)); }
+
+vec3 YxytoRGB(vec3 input)
+{ return XYZtoRGB(YxytoXYZ(input)); }
+
+vec3 toneMapYxy(vec3 input)
+{
+  //Map average luminance to the middlegrey zone by scaling pixel luminance
+  float Lp = input.r * exposure * inv_log_avg_luma;
+
+  //Compress the luminance in [0,\infty) to [0,1)
+  //This is Reinhard's modified mapping with controlled burnout
+  input.r = Lp * (1.0 + Lp / scaled_burnout_luma) / (1.0 + Lp);
+
+  return input;
+}
+
+vec3 gammaRGBCorrection(vec3 input)
+{
+  vec3 conditional = vec3(lessThan(input, vec3(0.00304)));
+  return (conditional * 12.92 * input)
+    + (vec3(1.0) - conditional)
+    * pow(1.055 * input, vec3(1.0/2.4) - vec3(0.055));
+}
 
 //Taken from http://www.gamedev.net/topic/407348-reinhards-tone-mapping-operator/
 void main()
 {
   vec3 color_in = texelFetch(color_tex, ivec2(gl_FragCoord.xy), 0).rgb;
-
-  //Convert from RGB to XYZ
-  const mat3 RGB2XYZ = mat3(0.5141364, 0.3238786,  0.16036376,
-			    0.265068,  0.67023428, 0.06409157,
-			    0.0241188, 0.1228178,  0.84442666);
-  vec3 XYZ = RGB2XYZ * color_in;
-  
-  //Convert from XYZ to Yxy
-  float invXYZsum = 1.0 / dot(XYZ, vec3(1.0, 1.0, 1.0));
-  vec3 Yxy = vec3(XYZ.g, XYZ.r * invXYZsum, XYZ.g * invXYZsum);
-
-  // (Lp) Map average luminance to the middlegrey zone by scaling pixel luminance
-  float Lp = Yxy.r * exposure * inv_log_avg_luma;
-  
-  //Compress the luminance in [0,\infty) to [0,1)
-
-  //This is Reinhard's simplified mapping
-  //Yxy.r = Lp / (1.0 + Lp);
-
-  //This is Reinhard's modified mapping with controlled burnout
-  Yxy.r = Lp * (1.0 + Lp / scaled_burnout_luma)  / (1.0 + Lp);
-
-  //This is the Filmic mapping to preserve the crispiness of the
-  //blacks. Note: Do not use gamma correction on this function!
-  //Lp = max(0.0, Lp - 0.004); 
-  //Yxy.r = (Lp * (6.2 * Lp + 0.5))/(Lp * (6.2 * Lp + 1.7) + 0.06);
-
-  //Convert from Yyx to XYZ
-  XYZ = vec3(Yxy.r * Yxy.g / Yxy.b, Yxy.r, Yxy.r * (1 - Yxy.g - Yxy.b) / Yxy.b);
-
-  //Convert from XYZ to RGB
-  const mat3 XYZ2RGB = mat3(2.5651,-1.1665,-0.3986,
-			    -1.0217, 1.9777, 0.0439, 
-			    0.0753, -0.2543, 1.1892);
-
-  //Additional gamma correction
-  vec3 linear_rgb = XYZ2RGB * XYZ;
-
-  //Simplest gamma correction
-  //vec3 gamma_rgb = pow(linear_rgb, vec3(1.0/2.2));
-
-  //Better gamma correction
-  //vec3 gamma_rgb = pow(1.055 * linear_rgb, vec3(1.0/2.4) - vec3(0.055));
-  
-  //Best gamma correction
-  vec3 conditional = vec3(lessThan(linear_rgb, vec3(0.00304)));
-  vec3 gamma_rgb = conditional * 12.92 * linear_rgb;
-  gamma_rgb += (vec3(1.0) - conditional)
-    * pow(1.055 * linear_rgb, vec3(1.0/2.4) - vec3(0.055));
-  
+  vec3 linear_rgb = YxytoRGB(toneMapYxy(RGBtoYxy(color_in)));
+  vec3 gamma_rgb = gammaRGBCorrection(linear_rgb);
   color_out = vec4(gamma_rgb, 1.0);
 });
 	}
