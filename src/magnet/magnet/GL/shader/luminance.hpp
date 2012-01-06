@@ -15,7 +15,7 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <magnet/GL/shader/detail/downsampler.hpp>
+#include <magnet/GL/shader/downsampler.hpp>
 #define STRINGIFY(A) #A
 
 namespace magnet {
@@ -48,7 +48,7 @@ void main()
 	}
       };
 
-      class LuminanceMipMapShader: public detail::DownsamplerShader
+      class LuminanceMipMapShader: public DownsamplerShader
       {
       public:
 	virtual std::string glsl_operation()
@@ -57,7 +57,7 @@ void main()
 vec2 data = vec2(0.0);
 float divider = 0.0;
 
-void combine(in vec2 sample)
+void combine(in vec4 sample)
 {
   //Store the value for averaging
   data.r += sample.r;

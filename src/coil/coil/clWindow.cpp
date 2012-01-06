@@ -627,9 +627,9 @@ namespace coil {
 
     {
       std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB32F);
+      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
       colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       
@@ -639,9 +639,9 @@ namespace coil {
 
     {
       std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB32F);
+      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
       colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       
@@ -651,6 +651,7 @@ namespace coil {
 
     _renderShader.build();
     _copyShader.build();
+    _downsampleShader.build();
     _pointLightShader.build();
     _VSMShader.build();
     _simpleRenderShader.build();
@@ -698,7 +699,7 @@ namespace coil {
 	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RG16F);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	colorTexture->genMipmaps(); //Ensure the mipmap chain is built/available
+	colorTexture->genMipmaps(); //Ensure the mipmap chain is built/available for writing into
 
 	_luminanceBuffer.init();
 	_luminanceBuffer.attachTexture(colorTexture, 0);
@@ -800,6 +801,7 @@ namespace coil {
     _pointLightShader.deinit();	
     _VSMShader.deinit();
     _simpleRenderShader.deinit();
+    _downsampleShader.deinit();
     _copyShader.deinit();
     _luminanceShader.deinit();
     _luminanceMipMapShader.deinit();
@@ -928,7 +930,6 @@ namespace coil {
 	    _renderTarget.getColorTexture(0)->bind(0);
 	    _copyShader.attach();
 	    _copyShader["u_Texture0"] = 0;
-	    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	    { 
 	      std::tr1::array<GLfloat, 2> arg 
 		= {{GLfloat(1) / _camera.getWidth(), 
@@ -1113,7 +1114,7 @@ namespace coil {
 
       //Attach the mipmapping shader
       _luminanceMipMapShader.attach();
-      _luminanceMipMapShader["luminanceTex"] = 0;
+      _luminanceMipMapShader["inputTex"] = 0;
       for (int i=1; i < numLevels; ++i)
 	{
 	  GLsizei oldWidth = currentWidth;
@@ -1147,18 +1148,33 @@ namespace coil {
       _luminanceBuffer.detach();
     }
 
-    ///////////////////////Unmapped Blurred Target///////////////////////////////
-    
-    
+    ///////////////////////Blurred Scene///////////////////////////////
+    //First we downsample the scene
+    {
+      magnet::GL::Texture2D& tex = *_lightBuffer.getColorTexture();
+      tex.bind(0);
+      _luminanceBuffer.getColorTexture()->bind(1);
+      
+      _filterTarget1.attach();
+      _glContext->setViewport(0, 0, tex.getWidth()/2, tex.getHeight()/2);
 
+      _downsampleShader.attach();
+      _downsampleShader["inputTex"] = 0;
+      std::tr1::array<GLfloat, 2> oldInvDimensions = {{1.0 / tex.getWidth(), 
+						       1.0 / tex.getHeight()}};
+      _downsampleShader["oldInvDimensions"] = oldInvDimensions;
+      std::tr1::array<GLint,2> oldDimensions = {{tex.getWidth(), tex.getHeight()}};
+      _downsampleShader["oldDimensions"] = oldDimensions;
+      _downsampleShader.invoke();
+      _downsampleShader.detach();
 
+      _filterTarget1.detach();
+    }
 
     ///////////////////////Tone Mapping///////////////////////////
 
     fbo.attach();
     _toneMapShader.attach();
-    _lightBuffer.getColorTexture()->bind(0);
-    _luminanceBuffer.getColorTexture()->bind(1);
     _toneMapShader["color_tex"] = 0;
     _toneMapShader["logLuma"] = 1;
     _toneMapShader["burnout"] = GLfloat((1.0 - _exposure) * _burnoutFactor + _exposure);
