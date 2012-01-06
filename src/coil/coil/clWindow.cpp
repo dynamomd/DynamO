@@ -793,7 +793,31 @@ namespace coil {
     int _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
 
     //Prepare for the OpenCL ticks
-    glFinish();//Finish with the GL buffers
+    glFinish();
+//    {
+//      //Add the sync and flush it into the device
+//      GLsync waitFence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+//      glFlush();
+//
+//      //Now wait on the sync
+//      for (;;)
+//	{
+//	  switch (glClientWaitSync(waitFence, 0, 100))
+//	    {
+//	    case GL_TIMEOUT_EXPIRED:
+//	      //We are still waiting, perform some Gtk tasks
+//	      //Gtk::Main::iteration(false);
+//	      continue; //test again
+//	    case GL_WAIT_FAILED:
+//	      M_throw() << "Failed to sync the OpenGL queue";
+//	    case GL_CONDITION_SATISFIED:
+//	    case GL_ALREADY_SIGNALED:
+//	      //These cases indicate the sync has occurred
+//	      break;
+//	    }
+//	  break;
+//	}
+//    }
 
     //Run every objects OpenCL stage
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
