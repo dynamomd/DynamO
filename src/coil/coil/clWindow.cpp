@@ -1147,6 +1147,12 @@ namespace coil {
       _luminanceBuffer.detach();
     }
 
+    ///////////////////////Unmapped Blurred Target///////////////////////////////
+    
+    
+
+
+
     ///////////////////////Tone Mapping///////////////////////////
 
     fbo.attach();

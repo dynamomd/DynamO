@@ -15,7 +15,7 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <magnet/GL/shader/detail/ssshader.hpp>
+#include <magnet/GL/shader/detail/downsampler.hpp>
 #define STRINGIFY(A) #A
 
 namespace magnet {
@@ -48,24 +48,16 @@ void main()
 	}
       };
 
-      class LuminanceMipMapShader: public detail::SSShader
+      class LuminanceMipMapShader: public detail::DownsamplerShader
       {
       public:
-	virtual std::string initFragmentShaderSource()
+	virtual std::string glsl_operation()
 	{
-	  return "#version 330\n"
-	    STRINGIFY(
-layout (location = 0) out vec4 L_out;
-smooth in vec2 screenCoord;
-
-uniform sampler2D luminanceTex;
-uniform ivec2 oldDimensions;
-uniform vec2 oldInvDimensions;
-
-vec4 data = vec4(0.0, 0.0, 0.0, 0.0);
+	  return STRINGIFY(
+vec2 data = vec2(0.0);
 float divider = 0.0;
 
-void operation(in vec2 sample)
+void combine(in vec2 sample)
 {
   //Store the value for averaging
   data.r += sample.r;
@@ -75,41 +67,11 @@ void operation(in vec2 sample)
   data.g = max(sample.g, data.g);
 }
 
-void main()
+vec4 output()
 {
-  //This is the texture coordinates of the center of the lower left
-  //pixel to be sampled. This is the "origin" pixel and we are going
-  //to sum up the pixels above and to the right of this pixel.
-  vec2 oldPixelOrigin = (2.0 * gl_FragCoord.xy - vec2(0.5, 0.5)) * oldInvDimensions;
-
-  //First sample the standard 2x2 grid of pixels
-  operation(textureOffset(luminanceTex, oldPixelOrigin, ivec2(0,0)).rg);
-  operation(textureOffset(luminanceTex, oldPixelOrigin, ivec2(0,1)).rg);
-  operation(textureOffset(luminanceTex, oldPixelOrigin, ivec2(1,0)).rg);
-  operation(textureOffset(luminanceTex, oldPixelOrigin, ivec2(1,1)).rg);
-
-  //Now determine if we need to add extra samples in case of
-  //non-power of two textures
-  bool extraXSamples = (2 * (int(gl_FragCoord.x) + 1) == oldDimensions.x - 1);
-  bool extraYSamples = (2 * (int(gl_FragCoord.y) + 1) == oldDimensions.y - 1);
-  
-  if (extraXSamples)
-    {
-      operation(textureOffset(luminanceTex, oldPixelOrigin, ivec2(2,0)).rg);
-      operation(textureOffset(luminanceTex, oldPixelOrigin, ivec2(2,1)).rg);
-    }
-    
-  if (extraYSamples)
-    {
-      operation(textureOffset(luminanceTex, oldPixelOrigin, ivec2(0,2)).rg);
-      operation(textureOffset(luminanceTex, oldPixelOrigin, ivec2(1,2)).rg);
-    }
-  
-  if (extraXSamples && extraYSamples)
-    operation(textureOffset(luminanceTex, oldPixelOrigin, ivec2(2,2)).rg);
-
-  L_out = vec4(data.r / divider, data.g, 1.0, 1.0);
-});
+  return vec4(data.r / divider, data.g, 1.0, 1.0);
+}
+);
 	}
       };
 
