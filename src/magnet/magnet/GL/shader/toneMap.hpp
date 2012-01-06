@@ -107,7 +107,21 @@ void main()
 			    0.0753, -0.2543, 1.1892);
 
   //Additional gamma correction
-  color_out = vec4(pow(XYZ2RGB * XYZ, vec3(1.0/2.2)), 1.0);
+  vec3 linear_rgb = XYZ2RGB * XYZ;
+
+  //Simplest gamma correction
+  //vec3 gamma_rgb = pow(linear_rgb, vec3(1.0/2.2));
+
+  //Better gamma correction
+  //vec3 gamma_rgb = pow(1.055 * linear_rgb, vec3(1.0/2.4) - vec3(0.055));
+  
+  //Best gamma correction
+  vec3 conditional = vec3(lessThan(linear_rgb, vec3(0.00304)));
+  vec3 gamma_rgb = conditional * 12.92 * linear_rgb;
+  gamma_rgb += (vec3(1.0) - conditional)
+    * pow(1.055 * linear_rgb, vec3(1.0/2.4) - vec3(0.055));
+  
+  color_out = vec4(gamma_rgb, 1.0);
 });
 	}
       };
