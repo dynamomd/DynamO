@@ -44,7 +44,7 @@ namespace magnet {
 	    if (!_built)
 	      M_throw() << "Cannot invoke a SS filter without it being built first";
 
-	    glDrawArrays(GL_POINTS, 0, 1);
+	    glDrawArrays(element_type::POINTS, 0, 1);
 	  }
 	
 	  /*!\brief An empty vertex shader. 

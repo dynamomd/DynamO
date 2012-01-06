@@ -17,7 +17,6 @@
 #pragma once
 #include <magnet/GL/texture.hpp>
 #include <magnet/GL/shader/detail/shader.hpp>
-#include <magnet/GL/objects/fullscreen_quad.hpp>
 #include <magnet/image/signed_distance.hpp>
 #include <cairommconfig.h>
 #include <cairomm/context.h>
@@ -39,7 +38,7 @@ namespace magnet {
         "Improved Alpha-Tested Magnification for math::Vector Textures
         and Special Effects," by Chris Green from Valve.
        */
-      class CairoSurface : private FullScreenQuad
+      class CairoSurface
       {
 	/*! \brief An alpha-testing shader for painting Cario
 	  generated textures.
@@ -70,26 +69,60 @@ namespace magnet {
 
 #define STRINGIFY(A) #A
 	  virtual std::string initVertexShaderSource()
+	  { 
+	    return "#version 330\n"
+	      STRINGIFY(
+layout (location = 1) in vec4 vColor;
+
+out vec4 color;
+
+void main()
+{ color = vColor; }
+);
+	  }
+
+	  virtual std::string initGeometryShaderSource()
 	  {
 	    std::ostringstream os;
 	    os << "#version 330\n"
 	       << "const int ALPHA_TESTING = " << _alpha_testing << ";"
 	       << STRINGIFY(
+layout(points) in;
+layout(triangle_strip) out;
+layout(max_vertices = 4) out;
+
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
 
-layout (location = 0) in vec4 vPosition;
-layout (location = 1) in vec4 vColor;
+in vec4 color[];
 
 smooth out vec2 texCoord;
-flat out vec4 color;
+flat out vec4 frag_color;
 
 void main()
 {
-  vec4 vVertex = ViewMatrix * vec4(vPosition.xyz, 1.0);
-  gl_Position = ProjectionMatrix * vVertex;
-  texCoord = 0.5 + 0.5 * vPosition.xy * vec2(1.0, -1.0);
-  color = vColor;
+  frag_color = color[0];
+
+  //The y coordinate of the texture is flipped here as cairo provides
+  //upsided down images
+
+  texCoord = vec2(0.0, 1.0);
+  gl_Position = ProjectionMatrix * (ViewMatrix * vec4(-1.0, -1.0, 0.0, 1.0));
+  EmitVertex();
+
+  texCoord = vec2(0.0, 0.0);
+  gl_Position = ProjectionMatrix * (ViewMatrix * vec4(-1.0, +1.0, 0.0, 1.0));
+  EmitVertex();
+
+  texCoord = vec2(1.0, 1.0);
+  gl_Position = ProjectionMatrix * (ViewMatrix * vec4(+1.0, -1.0, 0.0, 1.0));
+  EmitVertex();
+
+  texCoord = vec2(1.0, 0.0);
+  gl_Position = ProjectionMatrix * (ViewMatrix * vec4(+1.0, +1.0, 0.0, 1.0));
+  EmitVertex();
+
+  EndPrimitive();
 });
 	    return os.str();
 	  }
@@ -102,7 +135,7 @@ void main()
 	       << STRINGIFY(
 uniform sampler2D cairoTexture;
 smooth in vec2 texCoord;
-flat in vec4 color;
+flat in vec4 frag_color;
 
 layout (location = 0) out vec4 color_out;
 
@@ -111,7 +144,7 @@ void main()
   if (ALPHA_TESTING > 0)
     {
       if (texture(cairoTexture, texCoord).r <= 0.5) discard;
-      color_out = color;
+      color_out = frag_color;
     }
   else
     {
@@ -139,7 +172,6 @@ void main()
 	  _shader.deinit();
 	  _pango.clear();
 	  _width = _height = 0;
-	  FullScreenQuad::deinit();
 	}
 
 	/*! \brief Resizes the cairo texture if required.
@@ -170,7 +202,6 @@ void main()
 	virtual void init(size_t width, size_t height, size_t alpha_testing = 0)
 	{
 	  deinit();
-	  FullScreenQuad::init();
 	  _alpha_testing = alpha_testing;
 
 	  _width = width * (alpha_testing + !alpha_testing);
@@ -249,7 +280,9 @@ void main()
 	  _shader["cairoTexture"] = 6;
 	  _shader["ProjectionMatrix"] = projection;
 	  _shader["ViewMatrix"] = modelview;
-	  FullScreenQuad::glRender();
+	  
+	  glDrawArrays(element_type::POINTS, 0, 1);
+	  
 	  _shader.detach();
 	}
 

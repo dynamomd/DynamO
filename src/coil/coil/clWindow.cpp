@@ -1221,10 +1221,15 @@ namespace coil {
       }
        
     //////////////Interface draw////////////////////////
+    //We need alpha blending for the overlays
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     lastFBO->attach();
     _simpleRenderShader.attach();
     _simpleRenderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
     _simpleRenderShader["ViewMatrix"] = _camera.getViewMatrix();
+
 
     //Enter the interface draw for all objects
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
@@ -1233,6 +1238,8 @@ namespace coil {
 
     _simpleRenderShader.detach();
     lastFBO->detach();
+
+    glDisable(GL_BLEND);
 
     //Check if we actually did something and copy the data to the
     //output FBO if needed
