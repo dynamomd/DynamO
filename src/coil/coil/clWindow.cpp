@@ -627,7 +627,7 @@ namespace coil {
 
     {
       std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB32F);
+      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
       colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
       colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -639,7 +639,7 @@ namespace coil {
 
     {
       std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB32F);
+      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
       colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
       colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -649,9 +649,35 @@ namespace coil {
       _filterTarget2.attachTexture(colorTexture, 0);
     }
 
+    {
+      std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+      colorTexture->init(_camera.getWidth() / 2, _camera.getHeight() / 2, GL_RGB16F);
+      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      
+      _blurTarget1.init();
+      _blurTarget1.attachTexture(colorTexture, 0);
+    }
+
+    {
+      std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+      colorTexture->init(_camera.getWidth() / 2, _camera.getHeight() / 2, GL_RGB16F);
+      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      
+      _blurTarget2.init();
+      _blurTarget2.attachTexture(colorTexture, 0);
+    }
+
+
     _renderShader.build();
     _copyShader.build();
     _downsampleShader.build();
+    _blurShader.build();
     _pointLightShader.build();
     _VSMShader.build();
     _simpleRenderShader.build();
@@ -796,12 +822,15 @@ namespace coil {
 	
     _filterTarget1.deinit();
     _filterTarget2.deinit();
+    _blurTarget1.deinit();
+    _blurTarget2.deinit();
     _renderShader.deinit();
     _toneMapShader.deinit();
     _pointLightShader.deinit();	
     _VSMShader.deinit();
     _simpleRenderShader.deinit();
     _downsampleShader.deinit();
+    _blurShader.deinit();
     _copyShader.deinit();
     _luminanceShader.deinit();
     _luminanceMipMapShader.deinit();
@@ -1153,11 +1182,8 @@ namespace coil {
     {
       magnet::GL::Texture2D& tex = *_lightBuffer.getColorTexture();
       tex.bind(0);
-      _luminanceBuffer.getColorTexture()->bind(1);
       
-      _filterTarget1.attach();
-      _glContext->setViewport(0, 0, tex.getWidth()/2, tex.getHeight()/2);
-
+      _blurTarget1.attach();
       _downsampleShader.attach();
       _downsampleShader["inputTex"] = 0;
       std::tr1::array<GLfloat, 2> oldInvDimensions = {{1.0 / tex.getWidth(), 
@@ -1167,13 +1193,40 @@ namespace coil {
       _downsampleShader["oldDimensions"] = oldDimensions;
       _downsampleShader.invoke();
       _downsampleShader.detach();
+      _blurTarget1.detach();
 
-      _filterTarget1.detach();
+
+      _blurShader.attach();
+      _blurShader["colorTex"] = 0;
+      std::tr1::array<GLfloat, 2> invDim = {{1.0 / (tex.getWidth() / 2),
+					     1.0 / (tex.getHeight() / 2)}};
+      _blurShader["invDim"] = invDim;
+
+      _blurTarget1.getColorTexture()->bind(0);
+      _blurTarget2.attach();
+      _blurShader["direction"] = 0;
+
+      _blurShader.invoke();
+      _blurShader.detach();
+      
+      _blurTarget2.detach();
+
+      _blurTarget2.getColorTexture()->bind(0);
+      _blurTarget1.attach();
+
+      _blurShader.attach();
+      _blurShader["direction"] = 1;
+      _blurShader.invoke();
+      _blurShader.detach();
+      
+      _blurTarget1.detach();
     }
 
     ///////////////////////Tone Mapping///////////////////////////
 
     fbo.attach();
+    _lightBuffer.getColorTexture()->bind(0);
+    _luminanceBuffer.getColorTexture()->bind(1);
     _toneMapShader.attach();
     _toneMapShader["color_tex"] = 0;
     _toneMapShader["logLuma"] = 1;
@@ -1289,6 +1342,8 @@ namespace coil {
     _Gbuffer.resize(w, h);  
     _filterTarget1.resize(w, h);
     _filterTarget2.resize(w, h);
+    _blurTarget1.resize(w / 2, h / 2);
+    _blurTarget2.resize(w / 2, h / 2);
     _luminanceBuffer.resize(w, h);
     _luminanceBuffer.getColorTexture(0)->genMipmaps();
     std::ostringstream os;
