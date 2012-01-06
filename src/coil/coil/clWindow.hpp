@@ -182,6 +182,9 @@ namespace coil {
     std::tr1::array<GLfloat, 3> _backColor;
     float _exposure;
 
+    float _bloomStrength;
+    float _bloomCutoff;
+
     size_t _snapshot_counter;
     size_t _samples;
 

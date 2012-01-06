@@ -1202,24 +1202,23 @@ namespace coil {
 					     1.0 / (tex.getHeight() / 2)}};
       _blurShader["invDim"] = invDim;
 
-      _blurTarget1.getColorTexture()->bind(0);
-      _blurTarget2.attach();
-      _blurShader["direction"] = 0;
-
-      _blurShader.invoke();
+      for (size_t passes(0); passes < 1; ++passes)
+	{
+	  _blurTarget1.getColorTexture()->bind(0);
+	  _blurTarget2.attach();
+	  _blurShader["direction"] = 0;	 
+	  _blurShader.invoke();
+	  _blurShader.detach();	  
+	  _blurTarget2.detach();
+	  
+	  _blurTarget2.getColorTexture()->bind(0);
+	  _blurTarget1.attach();
+	  _blurShader.attach();
+	  _blurShader["direction"] = 1;
+	  _blurShader.invoke();
+	  _blurTarget1.detach();
+	}
       _blurShader.detach();
-      
-      _blurTarget2.detach();
-
-      _blurTarget2.getColorTexture()->bind(0);
-      _blurTarget1.attach();
-
-      _blurShader.attach();
-      _blurShader["direction"] = 1;
-      _blurShader.invoke();
-      _blurShader.detach();
-      
-      _blurTarget1.detach();
     }
 
     ///////////////////////Tone Mapping///////////////////////////
@@ -1227,10 +1226,15 @@ namespace coil {
     fbo.attach();
     _lightBuffer.getColorTexture()->bind(0);
     _luminanceBuffer.getColorTexture()->bind(1);
+    _blurTarget1.getColorTexture()->bind(2);
     _toneMapShader.attach();
     _toneMapShader["color_tex"] = 0;
     _toneMapShader["logLuma"] = 1;
-    _toneMapShader["burnout"] = GLfloat((1.0 - _exposure) * _burnoutFactor + _exposure);
+    _toneMapShader["bloom_tex"] = 2;
+    _toneMapShader["bloomStrength"] = GLfloat(_bloomStrength);
+    _toneMapShader["bloomCutoff"] = GLfloat(_bloomCutoff);
+    _toneMapShader["burnout"] 
+      = GLfloat((1.0 - _exposure) * _burnoutFactor + _exposure);
     _toneMapShader["exposure"] = GLfloat(_exposure);
     _toneMapShader.invoke();
     _toneMapShader.detach();
@@ -1896,6 +1900,24 @@ namespace coil {
       magnet::gtk::forceNumericEntry(*exposureEntry);
       try {
 	_exposure = boost::lexical_cast<double>(exposureEntry->get_text());
+      } catch(...) {}
+    }
+
+    {
+      Gtk::Entry* entry;
+      _refXml->get_widget("BloomCutoffEntry", entry);
+      magnet::gtk::forceNumericEntry(*entry);
+      try {
+	_bloomCutoff = boost::lexical_cast<double>(entry->get_text());
+      } catch(...) {}
+    }
+
+    {
+      Gtk::Entry* entry;
+      _refXml->get_widget("BloomStrengthEntry", entry);
+      magnet::gtk::forceNumericEntry(*entry);
+      try {
+	_bloomStrength = boost::lexical_cast<double>(entry->get_text());
       } catch(...) {}
     }
 

@@ -63,6 +63,7 @@ uniform float burnout;
 
 flat out float inv_log_avg_luma;
 flat out float scaled_burnout_luma;
+flat out float burnout_luma;
 smooth out vec2 screenCoord;
 
 void main()
@@ -73,11 +74,14 @@ void main()
   //quad. This is a ridiculous optimisation I know.
 
   vec2 luma_data = textureLod(logLuma, vec2(0.5, 0.5), 100.0).rg;
-  float invlogavgluma = 1.0 / exp(luma_data.r);
+  float log_avg_luma = exp(luma_data.r);
+  float invlogavgluma = 1.0 / log_avg_luma;
   inv_log_avg_luma = invlogavgluma;
 
+  burnout_luma = burnout * luma_data.g;
+
   float tmp = burnout * luma_data.g * exposure * invlogavgluma;
-  scaled_burnout_luma = tmp * tmp;
+  scaled_burnout_luma = tmp;
 
   screenCoord = vec2(0.0, 0.0);
   gl_Position = vec4(-1.0, -1.0, 0.5, 1.0);
@@ -98,7 +102,6 @@ void main()
 	{
 	  return "#version 330\n"
 	    STRINGIFY(
-//Normalized position on the screen
 layout (location = 0) out vec4 color_out;
 
 uniform sampler2D color_tex;
@@ -106,11 +109,14 @@ uniform sampler2D logLuma;
 uniform float exposure;
 
 uniform sampler2D bloom_tex;
-uniform float bloom_amount;
-uniform float bloom_fraction;
+uniform float bloomStrength;
+uniform float bloomCutoff;
 
 flat in float inv_log_avg_luma;
 flat in float scaled_burnout_luma;
+flat in float burnout_luma;
+smooth in vec2 screenCoord;
+
 
 vec3 RGBtoXYZ(vec3 input)
 {
@@ -147,11 +153,15 @@ vec3 RGBtoYxy(vec3 input)
 vec3 YxytoRGB(vec3 input)
 { return XYZtoRGB(YxytoXYZ(input)); }
 
-vec3 toneMapYxy(vec3 input)
+vec3 toneMapYxy(vec3 input, float exposure, 
+		float inv_avg_luma, 
+		float scaled_burnout_luma)
 {
   //Map average luminance to the middlegrey zone by scaling pixel luminance
-  float Lp = input.r * exposure * inv_log_avg_luma;
+  float Lp = input.r * exposure * inv_avg_luma;
 
+  scaled_burnout_luma *= scaled_burnout_luma;
+  
   //Compress the luminance in [0,\infty) to [0,1)
   //This is Reinhard's modified mapping with controlled burnout
   input.r = Lp * (1.0 + Lp / scaled_burnout_luma) / (1.0 + Lp);
@@ -170,10 +180,22 @@ vec3 gammaRGBCorrection(vec3 input)
 //Taken from http://www.gamedev.net/topic/407348-reinhards-tone-mapping-operator/
 void main()
 {
-  vec3 color_in = texelFetch(color_tex, ivec2(gl_FragCoord.xy), 0).rgb;
-  vec3 linear_rgb = YxytoRGB(toneMapYxy(RGBtoYxy(color_in)));
-  vec3 gamma_rgb = gammaRGBCorrection(linear_rgb);
-  color_out = vec4(gamma_rgb, 1.0);
+  vec3 bloom_RGB = texture(bloom_tex, screenCoord, 0).rgb;
+  vec3 bloom_Yxy = RGBtoYxy(bloom_RGB);
+  bloom_Yxy.r = bloomStrength * max(bloom_Yxy.r - bloomCutoff * burnout_luma, 0.0);
+  
+
+  vec3 color_RGB = texelFetch(color_tex, ivec2(gl_FragCoord.xy), 0).rgb;
+
+  color_RGB += YxytoRGB(bloom_Yxy);
+
+  vec3 scaled_RGB = YxytoRGB(toneMapYxy(RGBtoYxy(color_RGB), 
+					exposure,
+					inv_log_avg_luma, 
+					scaled_burnout_luma));
+
+  vec3 gamma_RGB = gammaRGBCorrection(scaled_RGB);
+  color_out = vec4(gamma_RGB, 1.0);
 });
 	}
       };
