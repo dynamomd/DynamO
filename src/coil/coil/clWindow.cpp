@@ -651,7 +651,7 @@ namespace coil {
 
     {
       std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth() / 2, _camera.getHeight() / 2, GL_RGB16F);
+      colorTexture->init(_camera.getWidth() / 4, _camera.getHeight() / 4, GL_RGB16F);
       colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -663,7 +663,7 @@ namespace coil {
 
     {
       std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth() / 2, _camera.getHeight() / 2, GL_RGB16F);
+      colorTexture->init(_camera.getWidth() / 4, _camera.getHeight() / 4, GL_RGB16F);
       colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -1186,6 +1186,7 @@ namespace coil {
       _blurTarget1.attach();
       _downsampleShader.attach();
       _downsampleShader["inputTex"] = 0;
+      _downsampleShader["downscale"] = GLfloat(4.0);
       std::tr1::array<GLfloat, 2> oldInvDimensions = {{1.0 / tex.getWidth(), 
 						       1.0 / tex.getHeight()}};
       _downsampleShader["oldInvDimensions"] = oldInvDimensions;
@@ -1198,8 +1199,8 @@ namespace coil {
 
       _blurShader.attach();
       _blurShader["colorTex"] = 0;
-      std::tr1::array<GLfloat, 2> invDim = {{1.0 / (tex.getWidth() / 2),
-					     1.0 / (tex.getHeight() / 2)}};
+      std::tr1::array<GLfloat, 2> invDim = {{1.0 / (tex.getWidth() / 4),
+					     1.0 / (tex.getHeight() / 4)}};
       _blurShader["invDim"] = invDim;
 
       for (size_t passes(0); passes < 1; ++passes)
@@ -1346,8 +1347,8 @@ namespace coil {
     _Gbuffer.resize(w, h);  
     _filterTarget1.resize(w, h);
     _filterTarget2.resize(w, h);
-    _blurTarget1.resize(w / 2, h / 2);
-    _blurTarget2.resize(w / 2, h / 2);
+    _blurTarget1.resize(w / 4, h / 4);
+    _blurTarget2.resize(w / 4, h / 4);
     _luminanceBuffer.resize(w, h);
     _luminanceBuffer.getColorTexture(0)->genMipmaps();
     std::ostringstream os;

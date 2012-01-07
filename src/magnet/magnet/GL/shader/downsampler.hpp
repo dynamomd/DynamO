@@ -75,6 +75,7 @@ smooth in vec2 screenCoord;
 uniform sampler2D inputTex;
 uniform ivec2 oldDimensions;
 uniform vec2 oldInvDimensions;
+uniform float downscale = 2.0;
 ) 
 	    + glsl_operation() 
 	    + STRINGIFY(
@@ -83,7 +84,7 @@ void main()
   //This is the texture coordinates of the center of the lower left
   //pixel to be sampled. This is the "origin" pixel and we are going
   //to sum up the pixels above and to the right of this pixel.
-  vec2 oldPixelOrigin = (2.0 * gl_FragCoord.xy - vec2(0.5, 0.5)) * oldInvDimensions;
+  vec2 oldPixelOrigin = (downscale * gl_FragCoord.xy - vec2(0.5, 0.5)) * oldInvDimensions;
 
   //First sample the standard 2x2 grid of pixels
   combine(textureOffset(inputTex, oldPixelOrigin, ivec2(0,0)));
