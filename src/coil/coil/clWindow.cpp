@@ -1236,7 +1236,7 @@ namespace coil {
     _toneMapShader["bloomCutoff"] = GLfloat(_bloomCutoff);
     _toneMapShader["burnout"] 
       = GLfloat((1.0 - _exposure) * _burnoutFactor + _exposure);
-    _toneMapShader["exposure"] = GLfloat(_exposure);
+    _toneMapShader["scene_key"] = GLfloat(_exposure);
     _toneMapShader.invoke();
     _toneMapShader.detach();
     fbo.detach();
