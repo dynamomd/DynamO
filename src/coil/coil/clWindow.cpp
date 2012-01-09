@@ -94,7 +94,6 @@ namespace coil {
     _fpsLimitValue(35),
     _filterEnable(true),
     _stereoMode(false),
-    _burnoutFactor(0.8),
     _ambientIntensity(0.01),
     //This value of the exposure is actually the subjective midde
     //brightness (18% reflectance) of photographic paper
@@ -320,13 +319,6 @@ namespace coil {
 	exposureEntry->set_text(boost::lexical_cast<std::string>(_exposure));
       }
       
-      {
-	Gtk::Entry* burnoutEntry;
-	_refXml->get_widget("BurnoutEntry", burnoutEntry);
-	burnoutEntry->signal_changed()
-	  .connect(sigc::mem_fun(*this, &CLGLWindow::guiUpdateCallback));
-      }
-
       {
 	Gtk::Entry* AmbientLightIntensity;
 	_refXml->get_widget("AmbientLightIntensity", AmbientLightIntensity);
@@ -1234,8 +1226,6 @@ namespace coil {
     _toneMapShader["bloom_tex"] = 2;
     _toneMapShader["bloomStrength"] = GLfloat(_bloomStrength);
     _toneMapShader["bloomCutoff"] = GLfloat(_bloomCutoff);
-    _toneMapShader["burnout"] 
-      = GLfloat((1.0 - _exposure) * _burnoutFactor + _exposure);
     _toneMapShader["scene_key"] = GLfloat(_exposure);
     _toneMapShader.invoke();
     _toneMapShader.detach();
@@ -1885,15 +1875,6 @@ namespace coil {
       _backColor[1] = GLfloat(color.get_green()) / G_MAXUSHORT;
       _backColor[2] = GLfloat(color.get_blue()) / G_MAXUSHORT;
     }    
-
-    {
-      Gtk::Entry* burnoutEntry;
-      _refXml->get_widget("BurnoutEntry", burnoutEntry);
-      magnet::gtk::forceNumericEntry(*burnoutEntry);
-      try {
-	_burnoutFactor = boost::lexical_cast<double>(burnoutEntry->get_text());
-      } catch(...) {}
-    }
 
     {
       Gtk::Entry* exposureEntry;

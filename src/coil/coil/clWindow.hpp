@@ -177,7 +177,6 @@ namespace coil {
     int  _fpsLimitValue;
     bool _filterEnable;
     bool _stereoMode;
-    double _burnoutFactor;
     double _ambientIntensity;
     std::tr1::array<GLfloat, 3> _backColor;
     float _exposure;

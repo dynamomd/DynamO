@@ -62,32 +62,38 @@ vec3 YxytoRGB(vec3 input)
 { return XYZtoRGB(YxytoXYZ(input)); }
 
 
-void toneMapLuminance(inout float L, 
+void toneMapLuminance(inout float L,
 		      float scene_key, 
 		      float inv_avg_luma, 
-		      float Lwhite,
-		      float cutout = 1.0)
+		      float Lwhite)
 {
   //Map average luminance to the middlegrey zone by scaling pixel luminance
   float Lp = L * scene_key * inv_avg_luma;
-
   //Compress the luminance in [0,\infty) to [0,1)
   //This is Reinhard's modified mapping with controlled burnout
-  L = Lp * (1.0 + Lp / (Lwhite * Lwhite)) / (cutout + Lp);
+  L = Lp * (1.0 + Lp / (Lwhite * Lwhite)) / (1.0 + Lp);
+}
+
+void toneMapLuminance(inout float L,
+		      float scene_key, 
+		      float inv_avg_luma, 
+		      float Lwhite,
+		      float cutout,
+		      float O)
+{
+  //Map average luminance to the middlegrey zone by scaling pixel luminance
+  float Lp = L * scene_key * inv_avg_luma;
+  //Compress the luminance in [0,\infty) to [0,1)
+  //This is Reinhard's modified mapping with controlled burnout
+  L = max(Lp * (1.0 + Lp / (Lwhite * Lwhite)) - cutout, 0.0) / (O + Lp);
 }
 
 vec3 toneMapRGB(vec3 input, float scene_key, 
 		float inv_avg_luma, 
-		float Lwhite,
-		float cutout = 1.0)
+		float Lwhite)
 {
   vec3 Yxy = RGBtoYxy(input);
-  toneMapLuminance(Yxy.r,
-		   scene_key,
-		   inv_avg_luma, 
-		   Lwhite,
-		   cutout);
-
+  toneMapLuminance(Yxy.r, scene_key, inv_avg_luma, Lwhite);
   return YxytoRGB(Yxy);
 }
 
@@ -102,7 +108,6 @@ vec3 gammaRGBCorrection(vec3 input)
 );
 	}
       }
-
 
       /*! \brief Tone mapping shader for HDR rendering.
 
@@ -210,11 +215,11 @@ void main()
   vec3 tonemapped_RGB = toneMapRGB(scene_RGB, scene_key, inv_log_avg_luma, LWhite);
 
   //Grab the blurred color, and tonemap the bloom/glare
-  vec3 bloom_RGB = texture(bloom_tex, screenCoord, 0).rgb;
-  tonemapped_RGB += toneMapRGB(bloom_RGB,
-			       scene_key,
-			       inv_log_avg_luma, 
-			       LWhite);
+  vec3 bloom_Yxy = RGBtoYxy(texture(bloom_tex, screenCoord, 0).rgb);
+
+  toneMapLuminance(bloom_Yxy.r, scene_key, inv_log_avg_luma, 4.0, bloomCutoff, bloomStrength);
+  
+  tonemapped_RGB += YxytoRGB(bloom_Yxy);
 
   //Finally, gamma correct the image
   vec3 gamma_RGB = gammaRGBCorrection(tonemapped_RGB);
