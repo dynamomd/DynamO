@@ -62,20 +62,18 @@ vec3 YxytoRGB(vec3 input)
 { return XYZtoRGB(YxytoXYZ(input)); }
 
 
-//See www.cs.utah.edu/~reinhard/cdrom/tonemap.pdf
-vec3 toneMapYxy(vec3 input, float scene_key, 
-		float inv_avg_luma, 
-		float Lwhite,
-		float cutout = 1.0)
+void toneMapLuminance(inout float L, 
+		      float scene_key, 
+		      float inv_avg_luma, 
+		      float Lwhite,
+		      float cutout = 1.0)
 {
   //Map average luminance to the middlegrey zone by scaling pixel luminance
-  float Lp = input.r * scene_key * inv_avg_luma;
+  float Lp = L * scene_key * inv_avg_luma;
 
   //Compress the luminance in [0,\infty) to [0,1)
   //This is Reinhard's modified mapping with controlled burnout
-  input.r = Lp * (1.0 + Lp / (Lwhite * Lwhite)) / (cutout + Lp);
-
-  return input;
+  L = Lp * (1.0 + Lp / (Lwhite * Lwhite)) / (cutout + Lp);
 }
 
 vec3 toneMapRGB(vec3 input, float scene_key, 
@@ -83,13 +81,14 @@ vec3 toneMapRGB(vec3 input, float scene_key,
 		float Lwhite,
 		float cutout = 1.0)
 {
-  vec3 unconstrained_Yxy = RGBtoYxy(input);
-  vec3 tonemapped_Yxy = toneMapYxy(unconstrained_Yxy,
-				   scene_key,
-				   inv_avg_luma, 
-				   Lwhite,
-				   cutout);
-  return YxytoRGB(tonemapped_Yxy);
+  vec3 Yxy = RGBtoYxy(input);
+  toneMapLuminance(Yxy.r,
+		   scene_key,
+		   inv_avg_luma, 
+		   Lwhite,
+		   cutout);
+
+  return YxytoRGB(Yxy);
 }
 
 
@@ -143,29 +142,32 @@ layout(max_vertices = 3) out;
 
 uniform sampler2D logLuma;
 uniform float scene_key;
-uniform float burnout;
 
 flat out float inv_log_avg_luma;
 flat out float LWhite;
-flat out float burnout_luma;
 smooth out vec2 screenCoord;
 
 void main()
 {
-  //Here we draw a fullscreen triangle and allow the GPU to scissor to
-  //the screen. This prevents the difficult interpolation of the
-  //vertex property (screenCoord) on the diagonal of a fullscreen
-  //quad. This is a ridiculous optimisation I know.
-
+  //The luminance data sampled from the smallest mipmap (1x1). This
+  //holds the average logarithm of the scene luminance in the red
+  //channel and the maximum scene luminance in the green channel.
   vec2 luma_data = textureLod(logLuma, vec2(0.5, 0.5), 100.0).rg;
+
+  //Convert the average logarithm of the scene luminance into the
+  //inverse geometric mean of the luminance. We use the inverse to
+  //save doing a division in the fragment shader.
+
   float log_avg_luma = exp(luma_data.r);
   float invlogavgluma = 1.0 / log_avg_luma;
   inv_log_avg_luma = invlogavgluma;
-
-  burnout_luma = burnout * luma_data.g;
   
-  LWhite = burnout * luma_data.g * scene_key * invlogavgluma;
+  LWhite = luma_data.g * scene_key * invlogavgluma;
 
+  //Here we draw a fullscreen triangle and allow the GPU to scissor to
+  //the screen. This prevents the difficult interpolation of the
+  //vertex properties (e.g., screenCoord) on the diagonal of a
+  //fullscreen quad
   screenCoord = vec2(0.0, 0.0);
   gl_Position = vec4(-1.0, -1.0, 0.5, 1.0);
   EmitVertex();
@@ -198,27 +200,24 @@ uniform float bloomCutoff;
 
 flat in float inv_log_avg_luma;
 flat in float LWhite;
-flat in float burnout_luma;
 smooth in vec2 screenCoord;
 
 //Taken from http://www.gamedev.net/topic/407348-reinhards-tone-mapping-operator/
 void main()
 {
+  //Grab the scene color and tone map it
+  vec3 scene_RGB = texelFetch(color_tex, ivec2(gl_FragCoord.xy), 0).rgb;
+  vec3 tonemapped_RGB = toneMapRGB(scene_RGB, scene_key, inv_log_avg_luma, LWhite);
+
+  //Grab the blurred color, and tonemap the bloom/glare
   vec3 bloom_RGB = texture(bloom_tex, screenCoord, 0).rgb;
-  vec3 bloom_Yxy = RGBtoYxy(bloom_RGB);
-  bloom_Yxy.r = bloomStrength * max(bloom_Yxy.r - bloomCutoff * burnout_luma, 0.0);
-  
-
-  vec3 color_RGB = texelFetch(color_tex, ivec2(gl_FragCoord.xy), 0).rgb;
-
-  color_RGB += YxytoRGB(bloom_Yxy);
-
-  vec3 scaled_RGB = toneMapRGB(color_RGB,
+  tonemapped_RGB += toneMapRGB(bloom_RGB,
 			       scene_key,
 			       inv_log_avg_luma, 
 			       LWhite);
 
-  vec3 gamma_RGB = gammaRGBCorrection(scaled_RGB);
+  //Finally, gamma correct the image
+  vec3 gamma_RGB = gammaRGBCorrection(tonemapped_RGB);
   color_out = vec4(gamma_RGB, 1.0);
 });
 	}
