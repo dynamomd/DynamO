@@ -67,7 +67,7 @@ void combine(in vec4 sample)
   data.g = max(sample.g, data.g);
 }
 
-vec4 output()
+vec4 output_frag()
 {
   return vec4(data.r / divider, data.g, 1.0, 1.0);
 }

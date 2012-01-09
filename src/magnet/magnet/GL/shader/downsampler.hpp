@@ -34,21 +34,20 @@ namespace magnet {
 	  to combine and output the result of the samples.
 	  
 	  Two functions (and any global variables required) must be
-	  defined, the combine and the output function.
+	  defined, the combine and the output_frag function.
 
 	  The combine function is used to combine a sample to the
 	  output value. This function is usually called 4 times per
-	  output fragment, but may be called up to 9 times for
-	  border pixels in NPOT input textures.
+	  output fragment, but may be called up to 9 times for border
+	  pixels in NPOT input textures.
 
-	  The output function is called at the end of the fragment
-	  shader and must generate the value to be outputted for the
-	  fragment.
+	  The output_frag function is called at the end of the
+	  fragment shader and must generate the value to be outputted
+	  for the fragment.
 	*/
 	virtual std::string glsl_operation()
 	{
 	  return STRINGIFY(
-
 vec4 sum = vec4(0.0);
 float counter = 0.0;
 
@@ -58,11 +57,11 @@ void combine(in vec4 sample)
   counter += 1.0;
 }
 
-vec4 output()
+vec4 output_frag()
 {
   return sum / counter;
 }
-			   );
+);
 	}
 
 	virtual std::string initFragmentShaderSource()
@@ -112,7 +111,7 @@ void main()
   if (extraXSamples && extraYSamples)
     combine(textureOffset(inputTex, oldPixelOrigin, ivec2(2,2)));
 
-  L_out = output();
+  L_out = output_frag();
 });
 	}
       };

@@ -26,40 +26,40 @@ namespace magnet {
 	inline std::string common_glsl_color_functions()
 	{
 	  return STRINGIFY(
-vec3 RGBtoXYZ(vec3 input)
+vec3 RGBtoXYZ(vec3 RGB)
 {
   const mat3 RGB2XYZ = mat3(0.5141364, 0.3238786,  0.16036376,
 			    0.265068,  0.67023428, 0.06409157,
 			    0.0241188, 0.1228178,  0.84442666);
-  return RGB2XYZ * input;
+  return RGB2XYZ * RGB;
 }
 
-vec3 XYZtoRGB(vec3 input)
+vec3 XYZtoRGB(vec3 XYZ)
 {
   const mat3 XYZ2RGB = mat3(2.5651,-1.1665,-0.3986,
 			    -1.0217, 1.9777, 0.0439, 
 			    0.0753, -0.2543, 1.1892);
-  return XYZ2RGB * input;
+  return XYZ2RGB * XYZ;
 }
 
-vec3 XYZtoYxy(vec3 input)
+vec3 XYZtoYxy(vec3 XYZ)
 {
-  float invXYZsum = 1.0 / dot(input, vec3(1.0));
-  return vec3(input.g, input.r * invXYZsum, input.g * invXYZsum);
+  float invXYZsum = 1.0 / dot(XYZ, vec3(1.0));
+  return vec3(XYZ.g, XYZ.x * invXYZsum, XYZ.y * invXYZsum);
 }
 
-vec3 YxytoXYZ(vec3 input)
+vec3 YxytoXYZ(vec3 Yxy)
 {
-  return vec3(input.r * input.g / input.b, 
-	      input.r,
-	      input.r * (1 - input.g - input.b) / input.b);
+  return vec3(Yxy.r * Yxy.g / Yxy.b, 
+	      Yxy.r,
+	      Yxy.r * (1 - Yxy.g - Yxy.b) / Yxy.b);
 }
 
-vec3 RGBtoYxy(vec3 input)
-{ return XYZtoYxy(RGBtoXYZ(input)); }
+vec3 RGBtoYxy(vec3 RGB)
+{ return XYZtoYxy(RGBtoXYZ(RGB)); }
 
-vec3 YxytoRGB(vec3 input)
-{ return XYZtoRGB(YxytoXYZ(input)); }
+vec3 YxytoRGB(vec3 Yxy)
+{ return XYZtoRGB(YxytoXYZ(Yxy)); }
 
 
 void toneMapLuminance(inout float L,
@@ -88,22 +88,22 @@ void toneMapLuminance(inout float L,
   L = max(Lp * (1.0 + Lp / (Lwhite * Lwhite)) - cutout, 0.0) / (O + Lp);
 }
 
-vec3 toneMapRGB(vec3 input, float scene_key, 
+vec3 toneMapRGB(vec3 RGB, float scene_key, 
 		float inv_avg_luma, 
 		float Lwhite)
 {
-  vec3 Yxy = RGBtoYxy(input);
+  vec3 Yxy = RGBtoYxy(RGB);
   toneMapLuminance(Yxy.r, scene_key, inv_avg_luma, Lwhite);
   return YxytoRGB(Yxy);
 }
 
 
-vec3 gammaRGBCorrection(vec3 input)
+vec3 gammaRGBCorrection(vec3 RGB)
 {
-  vec3 conditional = vec3(lessThan(input, vec3(0.00304)));
-  return (conditional * 12.92 * input)
+  vec3 conditional = vec3(lessThan(RGB, vec3(0.00304)));
+  return (conditional * 12.92 * RGB)
     + (vec3(1.0) - conditional)
-    * pow(1.055 * input, vec3(1.0/2.4) - vec3(0.055));
+    * pow(1.055 * RGB, vec3(1.0/2.4) - vec3(0.055));
 }
 );
 	}
