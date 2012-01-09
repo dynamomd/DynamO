@@ -21,6 +21,74 @@
 namespace magnet {
   namespace GL {
     namespace shader {
+      namespace detail {
+	/*! \brief Useful GLSL color functions for tone mapping. */
+	inline std::string common_glsl_color_functions()
+	{
+	  return STRINGIFY(
+vec3 RGBtoXYZ(vec3 input)
+{
+  const mat3 RGB2XYZ = mat3(0.5141364, 0.3238786,  0.16036376,
+			    0.265068,  0.67023428, 0.06409157,
+			    0.0241188, 0.1228178,  0.84442666);
+  return RGB2XYZ * input;
+}
+
+vec3 XYZtoRGB(vec3 input)
+{
+  const mat3 XYZ2RGB = mat3(2.5651,-1.1665,-0.3986,
+			    -1.0217, 1.9777, 0.0439, 
+			    0.0753, -0.2543, 1.1892);
+  return XYZ2RGB * input;
+}
+
+vec3 XYZtoYxy(vec3 input)
+{
+  float invXYZsum = 1.0 / dot(input, vec3(1.0));
+  return vec3(input.g, input.r * invXYZsum, input.g * invXYZsum);
+}
+
+vec3 YxytoXYZ(vec3 input)
+{
+  return vec3(input.r * input.g / input.b, 
+	      input.r,
+	      input.r * (1 - input.g - input.b) / input.b);
+}
+
+vec3 RGBtoYxy(vec3 input)
+{ return XYZtoYxy(RGBtoXYZ(input)); }
+
+vec3 YxytoRGB(vec3 input)
+{ return XYZtoRGB(YxytoXYZ(input)); }
+
+vec3 toneMapYxy(vec3 input, float exposure, 
+		float inv_avg_luma, 
+		float scaled_burnout_luma)
+{
+  //Map average luminance to the middlegrey zone by scaling pixel luminance
+  float Lp = input.r * exposure * inv_avg_luma;
+
+  scaled_burnout_luma *= scaled_burnout_luma;
+  
+  //Compress the luminance in [0,\infty) to [0,1)
+  //This is Reinhard's modified mapping with controlled burnout
+  input.r = Lp * (1.0 + Lp / scaled_burnout_luma) / (1.0 + Lp);
+
+  return input;
+}
+
+vec3 gammaRGBCorrection(vec3 input)
+{
+  vec3 conditional = vec3(lessThan(input, vec3(0.00304)));
+  return (conditional * 12.92 * input)
+    + (vec3(1.0) - conditional)
+    * pow(1.055 * input, vec3(1.0/2.4) - vec3(0.055));
+}
+);
+	}
+      }
+
+
       /*! \brief Tone mapping shader for HDR rendering.
 
       This is Reinhard's simplified mapping
@@ -100,8 +168,9 @@ void main()
 
 	virtual std::string initFragmentShaderSource()
 	{
-	  return "#version 330\n"
-	    STRINGIFY(
+	  return std::string("#version 330\n") 
+	    + detail::common_glsl_color_functions() 
+	    + STRINGIFY(
 layout (location = 0) out vec4 color_out;
 
 uniform sampler2D color_tex;
@@ -116,66 +185,6 @@ flat in float inv_log_avg_luma;
 flat in float scaled_burnout_luma;
 flat in float burnout_luma;
 smooth in vec2 screenCoord;
-
-
-vec3 RGBtoXYZ(vec3 input)
-{
-  const mat3 RGB2XYZ = mat3(0.5141364, 0.3238786,  0.16036376,
-			    0.265068,  0.67023428, 0.06409157,
-			    0.0241188, 0.1228178,  0.84442666);
-  return RGB2XYZ * input;
-}
-
-vec3 XYZtoRGB(vec3 input)
-{
-  const mat3 XYZ2RGB = mat3(2.5651,-1.1665,-0.3986,
-			    -1.0217, 1.9777, 0.0439, 
-			    0.0753, -0.2543, 1.1892);
-  return XYZ2RGB * input;
-}
-
-vec3 XYZtoYxy(vec3 input)
-{
-  float invXYZsum = 1.0 / dot(input, vec3(1.0));
-  return vec3(input.g, input.r * invXYZsum, input.g * invXYZsum);
-}
-
-vec3 YxytoXYZ(vec3 input)
-{
-  return vec3(input.r * input.g / input.b, 
-	      input.r,
-	      input.r * (1 - input.g - input.b) / input.b);
-}
-
-vec3 RGBtoYxy(vec3 input)
-{ return XYZtoYxy(RGBtoXYZ(input)); }
-
-vec3 YxytoRGB(vec3 input)
-{ return XYZtoRGB(YxytoXYZ(input)); }
-
-vec3 toneMapYxy(vec3 input, float exposure, 
-		float inv_avg_luma, 
-		float scaled_burnout_luma)
-{
-  //Map average luminance to the middlegrey zone by scaling pixel luminance
-  float Lp = input.r * exposure * inv_avg_luma;
-
-  scaled_burnout_luma *= scaled_burnout_luma;
-  
-  //Compress the luminance in [0,\infty) to [0,1)
-  //This is Reinhard's modified mapping with controlled burnout
-  input.r = Lp * (1.0 + Lp / scaled_burnout_luma) / (1.0 + Lp);
-
-  return input;
-}
-
-vec3 gammaRGBCorrection(vec3 input)
-{
-  vec3 conditional = vec3(lessThan(input, vec3(0.00304)));
-  return (conditional * 12.92 * input)
-    + (vec3(1.0) - conditional)
-    * pow(1.055 * input, vec3(1.0/2.4) - vec3(0.055));
-}
 
 //Taken from http://www.gamedev.net/topic/407348-reinhards-tone-mapping-operator/
 void main()
