@@ -1153,6 +1153,7 @@ namespace coil {
 	  _luminanceMipMapShader["oldDimensions"] = oldDimensions;
 	  _luminanceMipMapShader.invoke();
 	}
+
       //Rebind mipmap 0 to the framebuffer
       glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
 				tex.getGLType(), tex.getGLHandle(), 0);

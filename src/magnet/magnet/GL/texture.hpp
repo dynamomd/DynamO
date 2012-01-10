@@ -72,7 +72,15 @@ namespace magnet {
 
 	inline void genMipmaps()
 	{
+	  if (!_valid)
+	    M_throw() << "Cannot create mipmaps for an uninitialised texture";
+
 	  bind(0);
+	  //Need to reset the min/max texture levels set from previous
+	  //calls to genMipmaps(), incase the texture has increased in
+	  //size!
+	  parameter(GL_TEXTURE_BASE_LEVEL, 0);
+	  parameter(GL_TEXTURE_MAX_LEVEL, 1000);
 	  glGenerateMipmap(_texType);
 	}
 
