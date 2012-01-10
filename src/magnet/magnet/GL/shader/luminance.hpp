@@ -43,7 +43,7 @@ void main()
   vec4 color = texture(colorTex, screenCoord).rgba;
   float L = dot(color.rgb, vec3(0.265068,  0.67023428, 0.06409157));
   //Prevent negative logarithms
-  L_out = vec4(log(max(10.0e-8, L)), L, 1.0, 1.0);
+  L_out = vec4(log(max(10.0e-8, L)), L, L, 1.0);
 });
 	}
       };
@@ -54,22 +54,33 @@ void main()
 	virtual std::string glsl_operation()
 	{
 	  return STRINGIFY(
-vec2 data = vec2(0.0);
+vec3 data = vec3(0.0);
 float divider = 0.0;
 
 void combine(in vec4 sample)
 {
+  //If this is the first sample, just copy the min max values.
+  if (divider == 0)
+    {
+      data.r = 0.0;
+      data.g = sample.g;
+      data.b = sample.b;
+    }
+
   //Store the value for averaging
   data.r += sample.r;
   divider += 1.0;
 
   //Store the maximum value
   data.g = max(sample.g, data.g);
+
+  //Store the maximum value
+  data.b = min(sample.b, data.b);
 }
 
 vec4 output_frag()
 {
-  return vec4(data.r / divider, data.g, 1.0, 1.0);
+  return vec4(data.r / divider, data.g, data.b, 1.0);
 }
 );
 	}

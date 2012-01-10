@@ -137,6 +137,15 @@ namespace coil {
     return true;
   }
 
+  namespace {
+    void setIcon(Glib::RefPtr<Gtk::Builder>& builder, std::string imgname, size_t iconsize, const guint8* iconstart)
+    { 
+      Gtk::Image* icon; 
+      builder->get_widget(imgname, icon); 
+      icon->set(Gdk::Pixbuf::create_from_inline(iconsize, iconstart)); 
+    }
+  }
+
   void
   CLGLWindow::initGTK()
   {
@@ -169,27 +178,13 @@ namespace coil {
     controlwindow->set_icon(Gdk::Pixbuf::create_from_inline
 			    (coilicon_size, coilicon));
 
-    {
-      Gtk::Image* icon;
-
-      _refXml->get_widget("CamPlusXimg", icon);
-      icon->set(Gdk::Pixbuf::create_from_inline(camplusx_size, camplusx));
-
-      _refXml->get_widget("CamPlusYimg", icon);
-      icon->set(Gdk::Pixbuf::create_from_inline(camplusy_size, camplusy));
-
-      _refXml->get_widget("CamPlusZimg", icon);
-      icon->set(Gdk::Pixbuf::create_from_inline(camplusz_size, camplusz));
-
-      _refXml->get_widget("CamNegXimg", icon);
-      icon->set(Gdk::Pixbuf::create_from_inline(camnegx_size, camnegx));
-
-      _refXml->get_widget("CamNegYimg", icon);
-      icon->set(Gdk::Pixbuf::create_from_inline(camnegy_size, camnegy));
-
-      _refXml->get_widget("CamNegZimg", icon);
-      icon->set(Gdk::Pixbuf::create_from_inline(camnegz_size, camnegz));
-    }
+    setIcon(_refXml, "CamPlusXimg", camplusx_size, camplusx);
+    setIcon(_refXml, "CamPlusYimg", camplusy_size, camplusy);
+    setIcon(_refXml, "CamPlusZimg", camplusz_size, camplusz);
+    setIcon(_refXml, "CamNegXimg", camnegx_size, camnegx);
+    setIcon(_refXml, "CamNegYimg", camnegy_size, camnegy);
+    setIcon(_refXml, "CamNegZimg", camnegz_size, camnegz);
+    setIcon(_refXml, "aboutSplashImage", coilsplash_size, coilsplash);
 
     {
       Gtk::Button* button;
@@ -714,7 +709,7 @@ namespace coil {
 	std::tr1::shared_ptr<magnet::GL::Texture2D> 
 	  colorTexture(new magnet::GL::Texture2D);
 	
-	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RG16F);
+	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB16F);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	colorTexture->genMipmaps(); //Ensure the mipmap chain is built/available for writing into
@@ -1737,19 +1732,9 @@ namespace coil {
   void
   CLGLWindow::aboutCallback()
   {
-    {
-      Gtk::Window* aboutWindow;
-      _refXml->get_widget("aboutSplashWindow", aboutWindow);
-      aboutWindow->show();
-    }
-
-    {
-      Gtk::Image* aboutImage;
-      _refXml->get_widget("aboutSplashImage", aboutImage);
-  
-      aboutImage->set(Gdk::Pixbuf::create_from_inline
-		      (coilsplash_size, coilsplash));
-    }
+    Gtk::Window* aboutWindow;
+    _refXml->get_widget("aboutSplashWindow", aboutWindow);
+    aboutWindow->show();
   }
 
   void

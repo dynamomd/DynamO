@@ -150,24 +150,36 @@ uniform float scene_key;
 
 flat out float inv_log_avg_luma;
 flat out float LWhite;
+flat out float frag_scene_key;
 smooth out vec2 screenCoord;
+
 
 void main()
 {
   //The luminance data sampled from the smallest mipmap (1x1). This
   //holds the average logarithm of the scene luminance in the red
   //channel and the maximum scene luminance in the green channel.
-  vec2 luma_data = textureLod(logLuma, vec2(0.5, 0.5), 100.0).rg;
+  vec3 luma_data = textureLod(logLuma, vec2(0.5, 0.5), 100.0).rgb;
 
   //Convert the average logarithm of the scene luminance into the
   //inverse geometric mean of the luminance. We use the inverse to
   //save doing a division in the fragment shader.
 
-  float log_avg_luma = exp(luma_data.r);
-  float invlogavgluma = 1.0 / log_avg_luma;
+  float Lavg = exp(luma_data.r);
+  float Lmax = luma_data.g;
+  float Lmin = luma_data.b;
+  float invlogavgluma = 1.0 / Lavg;
   inv_log_avg_luma = invlogavgluma;
   
+  frag_scene_key = scene_key;
   LWhite = luma_data.g * scene_key * invlogavgluma;
+
+  //This automatic scene parameter determination was taken from
+  //"Parameter Estimation for Photographic Tone Reproduction" by Erik
+  //Reinhard.
+  //It doesn't work too well for my scene.
+  //frag_scene_key = 0.18 * pow(4.0, (2.0 * log2(Lavg) - log2(luma_data.g) - log2(luma_data.b)) / (log2(luma_data.g) - log2(luma_data.b)));
+  //LWhite = 1.5 * pow(2.0, log2(Lmax) - log2(Lmin) - 5.0);
 
   //Here we draw a fullscreen triangle and allow the GPU to scissor to
   //the screen. This prevents the difficult interpolation of the
@@ -197,7 +209,6 @@ layout (location = 0) out vec4 color_out;
 
 uniform sampler2D color_tex;
 uniform sampler2D logLuma;
-uniform float scene_key;
 
 uniform sampler2D bloom_tex;
 uniform float bloomStrength;
@@ -205,6 +216,7 @@ uniform float bloomCutoff;
 
 flat in float inv_log_avg_luma;
 flat in float LWhite;
+flat in float frag_scene_key;
 smooth in vec2 screenCoord;
 
 //Taken from http://www.gamedev.net/topic/407348-reinhards-tone-mapping-operator/
@@ -212,12 +224,12 @@ void main()
 {
   //Grab the scene color and tone map it
   vec3 scene_RGB = texelFetch(color_tex, ivec2(gl_FragCoord.xy), 0).rgb;
-  vec3 tonemapped_RGB = toneMapRGB(scene_RGB, scene_key, inv_log_avg_luma, LWhite);
+  vec3 tonemapped_RGB = toneMapRGB(scene_RGB, frag_scene_key, inv_log_avg_luma, LWhite);
 
   //Grab the blurred color, and tonemap the bloom/glare
   vec3 bloom_Yxy = RGBtoYxy(texture(bloom_tex, screenCoord, 0).rgb);
 
-  toneMapLuminance(bloom_Yxy.r, scene_key, inv_log_avg_luma, 4.0, bloomCutoff, bloomStrength);
+  toneMapLuminance(bloom_Yxy.r, frag_scene_key, inv_log_avg_luma, 4.0, bloomCutoff, bloomStrength);
   
   tonemapped_RGB += YxytoRGB(bloom_Yxy);
 
