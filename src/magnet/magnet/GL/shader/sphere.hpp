@@ -50,6 +50,7 @@ namespace magnet {
 	  http://www.arcsynthesis.org/gltut/index.html in the chapter
 	  on lies and IMPOSTORS.
        */
+      template<bool unshaded = false>
       class SphereShader: public detail::Shader
       {
       public:
@@ -77,9 +78,9 @@ void main()
 	
 	virtual std::string initGeometryShaderSource()
 	{
-	  return
-	    "#version 330\n"
-	    STRINGIFY(
+	  return std::string("#version 330\nconst bool unshaded = ")
+	    + (unshaded ? std::string("true;\n") : std::string("false;\n"))
+	    + STRINGIFY(
 uniform mat4 ProjectionMatrix;
 
 layout(points) in;
@@ -127,8 +128,9 @@ void main()
 
 	virtual std::string initFragmentShaderSource()
 	{
-	  return "#version 330\n"
-	    STRINGIFY(
+	  return std::string("#version 330\nconst bool unshaded = ")
+	    + (unshaded ? std::string("true;\n") : std::string("false;\n"))
+	    + STRINGIFY(
 uniform mat4 ProjectionMatrix;
 
 flat in vec4 vert_color;
@@ -162,7 +164,10 @@ void main()
   //Write out the fragment's data
   position_out = vec4(frag_position_eye, 1.0);
   color_out = vert_color;
-  normal_out = vec4(normalize(frag_position_eye - sphere_center), 1.0);
+  if (unshaded)
+    normal_out = vec4(0.0);
+  else
+    normal_out = vec4(normalize(frag_position_eye - sphere_center), 1.0);
 });
 	}
       };
@@ -170,7 +175,8 @@ void main()
       /*! \brief A variant of the SphereShader used for variance
           shadow mapping.
        */
-      class SphereVSMShader: public SphereShader
+      template<bool unshaded>
+      class SphereVSMShader: public SphereShader<unshaded>
       {
 	virtual std::string initFragmentShaderSource()
 	{

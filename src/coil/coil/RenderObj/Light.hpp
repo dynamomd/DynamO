@@ -20,8 +20,8 @@
 #include <coil/RenderObj/RenderObj.hpp>
 #include <magnet/gtk/transferFunction.hpp>
 #include <magnet/GL/texture.hpp>
-#include <magnet/GL/shader/volume.hpp>
-#include <magnet/GL/objects/cube.hpp>
+#include <magnet/GL/shader/sphere.hpp>
+#include <magnet/GL/buffer.hpp>
 #include <magnet/GL/camera.hpp>
 #include <memory>
 #include <tr1/array>
@@ -100,7 +100,8 @@ namespace coil {
     
     float _intensity, _attenuation, _specularExponent, _specularFactor;
 
-    magnet::GL::objects::Cube _cube;
+    magnet::GL::shader::SphereShader<true> _sphereShader;
+    magnet::GL::Buffer<GLfloat> _glposition;
     magnet::GL::Context::ContextPtr _context;
   };
 }

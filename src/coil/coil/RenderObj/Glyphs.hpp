@@ -74,7 +74,7 @@ namespace coil {
     bool _GL_ARB_sample_shading;
     float _scale;
     magnet::GL::Context::ContextPtr _context;
-    magnet::GL::shader::SphereShader _sphereShader;
-    magnet::GL::shader::SphereVSMShader _sphereVSMShader;
+    magnet::GL::shader::SphereShader<false> _sphereShader;
+    magnet::GL::shader::SphereVSMShader<false> _sphereVSMShader;
  };
 }

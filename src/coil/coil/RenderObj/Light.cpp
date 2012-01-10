@@ -36,7 +36,8 @@ namespace coil {
   void 
   RLight::deinit()
   {
-    _cube.deinit();
+    _sphereShader.deinit();
+    _glposition.deinit();
     _context.reset();
   }
   
@@ -44,9 +45,16 @@ namespace coil {
   RLight::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue) 
   {
     RenderObj::init(systemQueue);
-    _cube.init();
-    _context = magnet::GL::Context::getContext();
 
+    _sphereShader.build();
+
+
+    magnet::math::Vector loc = getEyeLocationObjSpace();
+    GLfloat pos[3] = {loc[0], loc[1], loc[2]};
+    std::vector<GLfloat> position(pos, pos + 3);
+    _glposition.init(position);
+
+    _context = magnet::GL::Context::getContext();
     initGTK();
   }
 
@@ -59,16 +67,38 @@ namespace coil {
     
     using namespace magnet::GL;
 
-    _context->cleanupAttributeArrays();
+    if (mode & RenderObj::COLOR)
+      {
+	magnet::math::Vector loc = getEyeLocationObjSpace();
+	GLfloat pos[3] = {loc[0], loc[1], loc[2]};
+	std::vector<GLfloat> position(pos, pos + 3);
+	_glposition.init(position);
 
-    //Set the normals to zero so it is fully illuminated
-    _context->setAttribute(Context::vertexNormalAttrIndex, 0,0,0,0);
+	_context->cleanupAttributeArrays();
+	//Set the normals to zero so it is fully illuminated
+	_context->setAttribute(Context::instanceScaleAttrIndex, 0.05, 0.05, 0.05, 1);
+	_context->setAttribute(Context::vertexColorAttrIndex, 1, 1, 1, 1);
+	
+	if (_context->testExtension("GL_ARB_sample_shading"))
+	  {
+#ifndef GL_SAMPLE_SHADING
+# define GL_SAMPLE_SHADING GL_SAMPLE_SHADING_ARB
+#endif
+	    glEnable(GL_SAMPLE_SHADING);
+	    glMinSampleShadingARB(1.0);
+	  }
 
-    magnet::math::Vector loc = getEyeLocationObjSpace();
-    _context->setAttribute(Context::instanceOriginAttrIndex, loc[0], loc[1], loc[2], 1);
-    _context->setAttribute(Context::instanceScaleAttrIndex, 0.05, 0.05, 0.05, 1);
-    _context->setAttribute(Context::vertexColorAttrIndex, 1, 1, 1, 1);
-    _cube.glRender();
+	_sphereShader.attach();
+	_sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
+	_sphereShader["ViewMatrix"] = cam.getViewMatrix();
+	_sphereShader["global_scale"] = GLfloat(1.0);
+	_glposition.drawArray(magnet::GL::element_type::POINTS, 3);
+	_sphereShader.detach();
+
+	if (_context->testExtension("GL_ARB_sample_shading"))
+	  glDisable(GL_SAMPLE_SHADING);
+
+      }
   }
 
   void
