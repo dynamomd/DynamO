@@ -211,8 +211,10 @@ uniform sampler2D color_tex;
 uniform sampler2D logLuma;
 
 uniform sampler2D bloom_tex;
-uniform float bloomStrength;
+uniform bool bloom_enable;
+uniform float bloomCompression;
 uniform float bloomCutoff;
+uniform float Lwhite_bloom = 4.0;
 
 flat in float inv_log_avg_luma;
 flat in float LWhite;
@@ -226,12 +228,15 @@ void main()
   vec3 scene_RGB = texelFetch(color_tex, ivec2(gl_FragCoord.xy), 0).rgb;
   vec3 tonemapped_RGB = toneMapRGB(scene_RGB, frag_scene_key, inv_log_avg_luma, LWhite);
 
-  //Grab the blurred color, and tonemap the bloom/glare
-  vec3 bloom_Yxy = RGBtoYxy(texture(bloom_tex, screenCoord, 0).rgb);
-
-  toneMapLuminance(bloom_Yxy.r, frag_scene_key, inv_log_avg_luma, 4.0, bloomCutoff, bloomStrength);
-  
-  tonemapped_RGB += YxytoRGB(bloom_Yxy);
+  //Test if bloom is enabled
+  if (bloom_enable)
+    {
+      //Grab the blurred color, and tonemap the bloom/glare
+      vec3 bloom_Yxy = RGBtoYxy(texture(bloom_tex, screenCoord, 0).rgb);
+      toneMapLuminance(bloom_Yxy.r, frag_scene_key, inv_log_avg_luma, 
+		       Lwhite_bloom, bloomCutoff, 1.0 / (bloomCompression + 1.0e-8));
+      tonemapped_RGB += YxytoRGB(bloom_Yxy);
+    }
 
   //Finally, gamma correct the image
   vec3 gamma_RGB = gammaRGBCorrection(tonemapped_RGB);

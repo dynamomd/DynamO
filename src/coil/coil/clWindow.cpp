@@ -1116,7 +1116,8 @@ namespace coil {
     _luminanceShader.detach();
     _luminanceBuffer.detach();
 
-    //Now we need to generate the mipmaps for the bloom target
+    //Now we need to generate the mipmaps containing the scene
+    //average, minimum and maximum luminances
     {
       magnet::GL::Texture2D& tex = *_luminanceBuffer.getColorTexture();
       GLsizei currentWidth = tex.getWidth();
@@ -1166,62 +1167,64 @@ namespace coil {
     }
 
     ///////////////////////Blurred Scene///////////////////////////////
-    //First we downsample the scene
-    {
-      magnet::GL::Texture2D& tex = *_lightBuffer.getColorTexture();
-      tex.bind(0);
+    if (_bloomEnable)
+      {
+	magnet::GL::Texture2D& tex = *_lightBuffer.getColorTexture();
+	tex.bind(0);
       
-      _blurTarget1.attach();
-      _downsampleShader.attach();
-      _downsampleShader["inputTex"] = 0;
-      _downsampleShader["downscale"] = GLfloat(4.0);
-      std::tr1::array<GLfloat, 2> oldInvDimensions = {{1.0 / tex.getWidth(), 
-						       1.0 / tex.getHeight()}};
-      _downsampleShader["oldInvDimensions"] = oldInvDimensions;
-      std::tr1::array<GLint,2> oldDimensions = {{tex.getWidth(), tex.getHeight()}};
-      _downsampleShader["oldDimensions"] = oldDimensions;
-      _downsampleShader.invoke();
-      _downsampleShader.detach();
-      _blurTarget1.detach();
+	_blurTarget1.attach();
+	_downsampleShader.attach();
+	_downsampleShader["inputTex"] = 0;
+	_downsampleShader["downscale"] = GLfloat(4.0);
+	std::tr1::array<GLfloat, 2> oldInvDimensions = {{1.0 / tex.getWidth(), 
+							 1.0 / tex.getHeight()}};
+	_downsampleShader["oldInvDimensions"] = oldInvDimensions;
+	std::tr1::array<GLint,2> oldDimensions = {{tex.getWidth(), tex.getHeight()}};
+	_downsampleShader["oldDimensions"] = oldDimensions;
+	_downsampleShader.invoke();
+	_downsampleShader.detach();
+	_blurTarget1.detach();
 
 
-      _blurShader.attach();
-      _blurShader["colorTex"] = 0;
-      std::tr1::array<GLfloat, 2> invDim = {{1.0 / (tex.getWidth() / 4),
-					     1.0 / (tex.getHeight() / 4)}};
-      _blurShader["invDim"] = invDim;
+	_blurShader.attach();
+	_blurShader["colorTex"] = 0;
+	std::tr1::array<GLfloat, 2> invDim = {{1.0 / (tex.getWidth() / 4),
+					       1.0 / (tex.getHeight() / 4)}};
+	_blurShader["invDim"] = invDim;
 
-      for (size_t passes(0); passes < 1; ++passes)
-	{
-	  _blurTarget1.getColorTexture()->bind(0);
-	  _blurTarget2.attach();
-	  _blurShader["direction"] = 0;	 
-	  _blurShader.invoke();
-	  _blurShader.detach();	  
-	  _blurTarget2.detach();
+	for (size_t passes(0); passes < 1; ++passes)
+	  {
+	    _blurTarget1.getColorTexture()->bind(0);
+	    _blurTarget2.attach();
+	    _blurShader["direction"] = 0;	 
+	    _blurShader.invoke();
+	    _blurShader.detach();	  
+	    _blurTarget2.detach();
 	  
-	  _blurTarget2.getColorTexture()->bind(0);
-	  _blurTarget1.attach();
-	  _blurShader.attach();
-	  _blurShader["direction"] = 1;
-	  _blurShader.invoke();
-	  _blurTarget1.detach();
-	}
-      _blurShader.detach();
-    }
+	    _blurTarget2.getColorTexture()->bind(0);
+	    _blurTarget1.attach();
+	    _blurShader.attach();
+	    _blurShader["direction"] = 1;
+	    _blurShader.invoke();
+	    _blurTarget1.detach();
+	  }
+	_blurShader.detach();
+      }
 
     ///////////////////////Tone Mapping///////////////////////////
-
     fbo.attach();
     _lightBuffer.getColorTexture()->bind(0);
     _luminanceBuffer.getColorTexture()->bind(1);
-    _blurTarget1.getColorTexture()->bind(2);
+    if (_bloomEnable)
+      _blurTarget1.getColorTexture()->bind(2);
     _toneMapShader.attach();
     _toneMapShader["color_tex"] = 0;
     _toneMapShader["logLuma"] = 1;
     _toneMapShader["bloom_tex"] = 2;
-    _toneMapShader["bloomStrength"] = GLfloat(_bloomStrength);
+    _toneMapShader["bloom_enable"] = _bloomEnable;
+    _toneMapShader["bloomCompression"] = GLfloat(_bloomCompression);
     _toneMapShader["bloomCutoff"] = GLfloat(_bloomCutoff);
+    _toneMapShader["Lwhite_bloom"] = GLfloat(_bloomSaturation);
     _toneMapShader["scene_key"] = GLfloat(_exposure);
     _toneMapShader.invoke();
     _toneMapShader.detach();
@@ -1873,19 +1876,32 @@ namespace coil {
 
     {
       Gtk::Entry* entry;
-      _refXml->get_widget("BloomCutoffEntry", entry);
+      _refXml->get_widget("BloomSaturationEntry", entry);
       magnet::gtk::forceNumericEntry(*entry);
       try {
-	_bloomCutoff = boost::lexical_cast<double>(entry->get_text());
+	_bloomSaturation = boost::lexical_cast<double>(entry->get_text());
       } catch(...) {}
     }
 
     {
       Gtk::Entry* entry;
-      _refXml->get_widget("BloomStrengthEntry", entry);
+      _refXml->get_widget("BloomCutoffEntry", entry);
       magnet::gtk::forceNumericEntry(*entry);
       try {
-	_bloomStrength = boost::lexical_cast<double>(entry->get_text());
+	_bloomCutoff = boost::lexical_cast<double>(entry->get_text());
+      } catch(...) {}
+
+      Gtk::CheckButton* btn;
+      _refXml->get_widget("bloomEnable", btn);
+      _bloomEnable = btn->get_active();
+    }
+
+    {
+      Gtk::Entry* entry;
+      _refXml->get_widget("BloomCompressionEntry", entry);
+      magnet::gtk::forceNumericEntry(*entry);
+      try {
+	_bloomCompression = boost::lexical_cast<double>(entry->get_text());
       } catch(...) {}
     }
 
