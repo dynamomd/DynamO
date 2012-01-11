@@ -179,7 +179,7 @@ namespace coil {
     bool _stereoMode;
     double _ambientIntensity;
     std::tr1::array<GLfloat, 3> _backColor;
-    float _exposure;
+    float _sceneKey;
 
     bool _bloomEnable;
     float _bloomCompression;

@@ -629,7 +629,7 @@ The scene key for an average outdoor photograph on photographic paper is 0.18, h
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkEntry" id="ExposureEntry">
+                                      <object class="GtkEntry" id="SceneKeyEntry">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="invisible_char">●</property>

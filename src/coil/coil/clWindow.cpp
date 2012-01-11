@@ -95,9 +95,6 @@ namespace coil {
     _filterEnable(true),
     _stereoMode(false),
     _ambientIntensity(0.01),
-    //This value of the exposure is actually the subjective midde
-    //brightness (18% reflectance) of photographic paper
-    _exposure(0.18),
     _snapshot_counter(0),
     _samples(1),
     _dynamo(dynamo)
@@ -307,12 +304,6 @@ namespace coil {
       
       _aasamples->signal_changed()
 	.connect(sigc::mem_fun(this, &CLGLWindow::AAsamplechangeCallback));
-
-      {
-	Gtk::Entry* exposureEntry;
-	_refXml->get_widget("ExposureEntry", exposureEntry);
-	exposureEntry->set_text(boost::lexical_cast<std::string>(_exposure));
-      }
       
       {
 	Gtk::Entry* AmbientLightIntensity;
@@ -1225,7 +1216,7 @@ namespace coil {
     _toneMapShader["bloomCompression"] = GLfloat(_bloomCompression);
     _toneMapShader["bloomCutoff"] = GLfloat(_bloomCutoff);
     _toneMapShader["Lwhite_bloom"] = GLfloat(_bloomSaturation);
-    _toneMapShader["scene_key"] = GLfloat(_exposure);
+    _toneMapShader["scene_key"] = GLfloat(_sceneKey);
     _toneMapShader.invoke();
     _toneMapShader.detach();
     fbo.detach();
@@ -1866,11 +1857,11 @@ namespace coil {
     }    
 
     {
-      Gtk::Entry* exposureEntry;
-      _refXml->get_widget("ExposureEntry", exposureEntry);
-      magnet::gtk::forceNumericEntry(*exposureEntry);
+      Gtk::Entry* entry;
+      _refXml->get_widget("SceneKeyEntry", entry);
+      magnet::gtk::forceNumericEntry(*entry);
       try {
-	_exposure = boost::lexical_cast<double>(exposureEntry->get_text());
+	_sceneKey = boost::lexical_cast<double>(entry->get_text());
       } catch(...) {}
     }
 
