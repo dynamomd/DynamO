@@ -30,6 +30,7 @@
 #include <magnet/GL/shader/simple_render.hpp>
 #include <magnet/GL/shader/copy.hpp>
 #include <magnet/GL/shader/downsampler.hpp>
+#include <magnet/GL/objects/textbox.hpp>
 #include <coil/filters/filter.hpp>
 #include <coil/RenderObj/RenderObj.hpp>
 #include <coil/coilMaster.hpp>
@@ -113,6 +114,10 @@ namespace coil {
     //Frame buffers to flip flop between
     magnet::GL::FBO _filterTarget1;
     magnet::GL::FBO _filterTarget2;
+
+    //For object selection
+    uint32_t _selectedObject;
+    magnet::GL::objects::TextSurface _cursor;
 
     void CallBackSpecialUpFunc(int key, int x, int y) {}
     void CallBackSpecialFunc(int key, int x, int y) {} 

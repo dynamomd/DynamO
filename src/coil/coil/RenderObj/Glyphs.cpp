@@ -370,7 +370,9 @@ namespace coil {
   }
 
   void 
-  Glyphs::pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, uint32_t& offset)
+  Glyphs::pickingRender(magnet::GL::FBO& fbo, 
+			const magnet::GL::Camera& cam, 
+			const uint32_t offset)
   {
     _primitiveVertices.getContext()->resetInstanceTransform();
 
@@ -397,7 +399,6 @@ namespace coil {
 	      colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 0, true);
 	      _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
 	      _sphereShader.detach();
-	      offset += _N;
 	      return;
 	    }
 	}
@@ -415,17 +416,5 @@ namespace coil {
     _orientSel->bindAttribute(magnet::GL::Context::instanceOrientationAttrIndex, 1);
     colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 1, true); 
     Instanced::glRender();
-    offset += _N;
-  }
-
-  void 
-  Glyphs::finishPicking(uint32_t& offset, const uint32_t val)
-  {
-    bool picked = (val >= offset) && ((val - offset) < _N);
-    if (picked)
-      {
-	_ds.glyphClicked(val - offset);
-      }
-    offset += _N;
   }
 }

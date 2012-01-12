@@ -76,6 +76,7 @@ namespace coil {
 			 double updateIntervalValue,
 			 bool dynamo
 			 ):
+    _selectedObject(0),
     _systemQueue(new magnet::thread::TaskQueue),
     _updateIntervalValue(updateIntervalValue),
     keyState(DEFAULT),
@@ -732,8 +733,8 @@ namespace coil {
 	_shadowBuffer.attachTexture(depthTexture);
       }
     }
-
-
+    
+    _cursor.init(600, 600);
 
       //Now init the render objects  
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
@@ -812,6 +813,8 @@ namespace coil {
     _copyShader.deinit();
     _luminanceShader.deinit();
     _luminanceMipMapShader.deinit();
+
+    _cursor.deinit();
     ///////////////////Finally, unregister with COIL
     CoilRegister::getCoilInstance().unregisterWindow(this);
   }
@@ -1296,6 +1299,35 @@ namespace coil {
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       (*iPtr)->interfaceRender(_camera);
 
+    //Draw the cursor
+    if (_selectedObject)
+      {
+	uint32_t offset = 1;
+	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator
+	       iPtr = _renderObjsTree._renderObjects.begin();
+	     iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
+	  {
+	    const uint32_t n_objects = (*iPtr)->pickableObjectCount();
+	    
+	    if ((_selectedObject >= offset) && (_selectedObject - offset) < n_objects)
+	      { //Found the corresponding render object that has been selected.
+		std::tr1::array<GLfloat, 4> vec 
+		  = (*iPtr)->getCursorPosition(_selectedObject - offset);
+		vec = camera.getProjectionMatrix() * (camera.getViewMatrix() * vec);
+		_cursor.setPosition((0.5 + 0.5 * vec[0] / vec[3]) * camera.getWidth(), 
+				    (0.5 - 0.5 * vec[1] / vec[3]) * camera.getHeight());
+
+		_cursor.clear();
+		_cursor << (*iPtr)->getCursorText(_selectedObject - offset);
+		//Render the overlay
+		_cursor.glRender();
+		break;
+	      }
+	    
+	    offset += n_objects;
+	  }
+      }
+    
     _simpleRenderShader.detach();
     lastFBO->detach();
 
@@ -1323,10 +1355,11 @@ namespace coil {
     _camera.setHeightWidth(h, w);
     //Update the viewport
     _lightBuffer.resize(w, h);
-    _renderTarget.resize(w, h);  
-    _Gbuffer.resize(w, h);  
+    _renderTarget.resize(w, h);
+    _Gbuffer.resize(w, h);
     _filterTarget1.resize(w, h);
     _filterTarget2.resize(w, h);
+    _cursor.resize(w, h);
     _blurTarget1.resize(w / 4, h / 4);
     _blurTarget2.resize(w / 4, h / 4);
     _luminanceBuffer.resize(w, h);
@@ -1745,30 +1778,33 @@ namespace coil {
     //Flush the OpenCL queue, so GL can use the buffers
     getGLContext()->getCLCommandQueue().finish();
     
-    //Perform unique coloring of screen objects
-    uint32_t offset = 0;
+    //Perform unique coloring of screen objects, note that the value 0 is no object picked
+    uint32_t offset = 1;
     //Now render the scene
     //Enter the render ticks for all objects
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator 
 	   iPtr = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-      if ((*iPtr)->visible())
-	(*iPtr)->pickingRender(_renderTarget, _camera, offset);
+      {
+	const uint32_t n_objects = (*iPtr)->pickableObjectCount();
+	
+	//If there are pickable objects and they are visible, then render them.
+	if (n_objects)
+	  {
+	    (*iPtr)->pickingRender(_renderTarget, _camera, offset);
+	    offset += n_objects;
+	  }
+      }
 
     unsigned char pixel[4];  
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);  
     glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);    
     _renderTarget.detach();
-
+    
     //Now let the objects know what was picked
-    const cl_uint objID = pixel[0] + 256 * (pixel[1] + 256 * (pixel[2] + 256 * pixel[3]));
-    offset = 0;
-    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr
-	   = _renderObjsTree._renderObjects.begin();
-	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-      if ((*iPtr)->visible())
-	(*iPtr)->finishPicking(offset, objID);
+    _selectedObject = pixel[0] 
+      + 256 * (pixel[1] + 256 * (pixel[2] + 256 * pixel[3]));
   }
 
   void CLGLWindow::selectRObjCallback() 

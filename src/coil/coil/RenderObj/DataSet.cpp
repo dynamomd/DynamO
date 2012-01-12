@@ -77,7 +77,6 @@ namespace coil {
 	 iPtr != _children.end(); ++iPtr)
       (*iPtr)->init(systemQueue);
     
-    _overlay.init(600, 600);
     //We don't initialise the attributes, as they're initialised on access
     _context = magnet::GL::Context::getContext();
   }
@@ -224,7 +223,8 @@ namespace coil {
 	    (*iter)[_attrcolumns->max] = "N/A";
 	  }
       }      
-    _positionSel->buildEntries("Position Attribute:", *this, 3, 3, Attribute::COORDINATE, 0,
+    _positionSel->buildEntries("Position Attribute:", *this, 3, 3, 
+			       Attribute::COORDINATE, 0,
 			       Attribute::DEFAULT_GLYPH_POSITION);
   }
 
@@ -236,56 +236,45 @@ namespace coil {
     _attrcolumns.reset();
     _attrview.reset();
     _attrtreestore.reset();
-    for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
-	 iPtr != _children.end(); ++iPtr)
+    for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr 
+	   = _children.begin(); iPtr != _children.end(); ++iPtr)
       (*iPtr)->deinit();
 
     for (iterator iPtr = begin(); iPtr != end(); ++iPtr)
       iPtr->second->deinit();
 
     _context.reset();
-    _overlay.deinit();
     RenderObj::deinit();
   }
-
-  void 
-  DataSet::interfaceRender(const magnet::GL::Camera& camera)
-  {
-    if (_selectedGlyph >= 0)
-      {
-	//Resize the overlay if needed
-	_overlay.resize(camera.getWidth(), camera.getHeight());
-
-	{ //Glyph position calculation
-	  std::vector<GLfloat> pos = _positionSel->getValue(_selectedGlyph);
-	  pos.resize(3, 0);
-	  std::tr1::array<GLfloat, 4> vec = {{pos[0], pos[1], pos[2], 1.0}};
-	  vec = camera.getViewMatrix() * vec;
-	  vec = camera.getProjectionMatrix() * vec;
-	
-	  _overlay.setPosition((0.5 + 0.5 * vec[0] / vec[3]) * camera.getWidth(), 
-			       (0.5 - 0.5 * vec[1] / vec[3]) * camera.getHeight());
-	}
-
-	//Generate the text for the overlay
-	_overlay.clear();    
-	for (const_iterator iPtr = begin(); iPtr != end();)
-	  {
-	    size_t comps = iPtr->second->components();
-	    _overlay << iPtr->first << ":"; 
-	
-	    for (size_t i(0); i < comps; ++i)
-	      _overlay << " " << (*(iPtr->second))[_selectedGlyph * comps + i];
-	    if (++iPtr != end())
-	      _overlay << "\n";
-	  }
-
-	//Render the overlay
-	_overlay.glRender();
-      }
-  }
   
-  magnet::GL::Buffer<GLfloat>& 
+  magnet::GL::Buffer<GLfloat>&
   DataSet::getPositionBuffer()
   { return _positionSel->getBuffer(); }
+
+  std::string
+  DataSet::getCursorText(uint32_t objID)
+  {
+    std::ostringstream os;
+    for (const_iterator iPtr = begin(); iPtr != end();)
+      {
+	size_t comps = iPtr->second->components();
+	os << iPtr->first << ":"; 
+	
+	for (size_t i(0); i < comps; ++i)
+	  os << " " << (*(iPtr->second))[objID * comps + i];
+	if (++iPtr != end())
+	  os << "\n";
+      }
+
+    return os.str();
+  }
+
+  std::tr1::array<GLfloat, 4>
+  DataSet::getCursorPosition(uint32_t objID)
+  {
+    std::vector<GLfloat> pos = _positionSel->getValue(objID);
+    pos.resize(3, 0);
+    std::tr1::array<GLfloat, 4> vec = {{pos[0], pos[1], pos[2], 1.0}};
+    return vec;
+  }
 }

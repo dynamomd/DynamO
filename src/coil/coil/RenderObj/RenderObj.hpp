@@ -147,33 +147,29 @@ namespace coil {
       being rendered to.
       
       \param cam The active camera for the render.
-
-      \sa initPicking()
      */
-    virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, uint32_t& offset) {}
+    virtual void pickingRender(magnet::GL::FBO& fbo, 
+			       const magnet::GL::Camera& cam, 
+			       const uint32_t offset) 
+    {}
 
-
-    /*! \brief The cleanup and callback phase of the picking render.
+    /*! \brief The number of objects available for picking rendering.
       
-      In this stage of the picking process, the objects can clean up
-      any resources allocated in \ref initPicking() and also can
-      determine if they were the object selected. 
-      
-      \param offset This value is identical to the value passed in
-      \ref initPicking(), and must also be incremented by the number
-      of pickable objects rendered by this RenderObj before this
-      function returns..
-
-      \param val This is the unique ID of the object selected. If this
-      lies in the range of [offset, offset + "no. of pickable
-      objects"), then an object was picked from this RenderObj, and
-      some appropriate callback should be performed.
-      
-      \sa initPicking()
+      This should return 0 if no objects would be rendered in a call
+      to \ref pickingRender (i.e., the object is invisible).
      */
-    virtual void finishPicking(uint32_t& offset, const uint32_t val) {}
+    virtual uint32_t pickableObjectCount() { return 0; }
 
-    
+    virtual std::string getCursorText(uint32_t objID)
+    {
+      M_throw() << "This object is not pickable";
+    }
+
+    virtual std::tr1::array<GLfloat, 4> getCursorPosition(uint32_t objID)
+    {
+      M_throw() << "This object is not pickable";
+    }
+
     /*! \brief Callback for when the RenderObj is to make its Gtk
         controls visible.
 	
@@ -281,6 +277,8 @@ namespace coil {
     std::vector<std::tr1::shared_ptr<RenderObj> > _renderObjects;
 
   protected:
+    
+
     int _obj_col, _visible_col, _shadow_col;
 
     bool button_press(GdkEventButton*);

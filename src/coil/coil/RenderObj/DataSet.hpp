@@ -18,7 +18,6 @@
 #pragma once
 #include <coil/RenderObj/RenderObj.hpp>
 #include <coil/RenderObj/Attribute.hpp>
-#include <magnet/GL/objects/textbox.hpp>
 #include <magnet/GL/buffer.hpp>
 #include <magnet/gtk/numericEntry.hpp>
 #include <magnet/gtk/colorMapSelector.hpp>
@@ -54,8 +53,7 @@ namespace coil {
   public:
     DataSet(std::string name, size_t N): 
       RenderObj(name), 
-      _N(N),
-      _selectedGlyph(-1)
+      _N(N)
     {}
     
     virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
@@ -134,32 +132,37 @@ namespace coil {
     magnet::GL::Context::ContextPtr getContext()
     { return _context; }
     
-    virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, uint32_t& offset)
+
+    virtual uint32_t pickableObjectCount()
     {
+      if (!visible()) return 0;
+
+      uint32_t max = 0;
       for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
 	   iPtr != _children.end(); ++iPtr)
-	if ((*iPtr)->visible())
+	max = std::max((*iPtr)->pickableObjectCount(), max);
+
+      return max;
+    }
+
+    virtual void pickingRender(magnet::GL::FBO& fbo, 
+			       const magnet::GL::Camera& cam, 
+			       const uint32_t offset)
+    {
+      for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator 
+	     iPtr = _children.begin(); iPtr != _children.end(); ++iPtr)
+	if ((*iPtr)->pickableObjectCount())
 	  (*iPtr)->pickingRender(fbo, cam, offset);
     }
-
-    virtual void finishPicking(uint32_t& offset, const uint32_t val)
-    {
-      _selectedGlyph = -1;
-      for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
-	   iPtr != _children.end(); ++iPtr)
-	if ((*iPtr)->visible())
-	  (*iPtr)->finishPicking(offset, val);
-    }
-
-    inline void glyphClicked(size_t id)
-    { _selectedGlyph = id; }
-
-    virtual void interfaceRender(const magnet::GL::Camera&);
 
     magnet::GL::Buffer<GLfloat>& getPositionBuffer();
 
     void addGlyphs();
-    
+        
+    virtual std::string getCursorText(uint32_t objID);
+
+    virtual std::tr1::array<GLfloat, 4> getCursorPosition(uint32_t objID);
+
   protected:
     void deleteChildWorker(DataSetChild* child);
 
@@ -172,8 +175,6 @@ namespace coil {
     std::auto_ptr<Gtk::VBox> _gtkOptList;
     size_t _N;
     std::vector<std::tr1::shared_ptr<DataSetChild> > _children;
-    magnet::GL::objects::TextSurface _overlay;
-    int _selectedGlyph;
     std::tr1::shared_ptr<AttributeSelector> _positionSel;
 
     void initGtk();

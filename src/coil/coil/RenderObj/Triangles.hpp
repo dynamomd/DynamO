@@ -42,8 +42,7 @@ namespace coil {
 
     virtual void showControls(Gtk::ScrolledWindow* win);
 
-    virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, uint32_t& offset);
-    virtual void finishPicking(uint32_t& offset, const uint32_t val);
+    virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, const uint32_t offset);
 
     const magnet::GL::Context::ContextPtr& getContext() const { return _posBuff.getContext(); }
 
