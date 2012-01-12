@@ -84,7 +84,24 @@ namespace coil {
       return magnet::math::Vector(lightPos_eyespace[0], lightPos_eyespace[1], 
 				  lightPos_eyespace[2]);
     }
+
+    virtual uint32_t pickableObjectCount()
+    { return visible(); }
+
+    virtual void pickingRender(magnet::GL::FBO& fbo,
+			       const magnet::GL::Camera& cam, 
+			       const uint32_t offset);
     
+    virtual std::string getCursorText(uint32_t objID)
+    { return _name; }
+
+    virtual std::tr1::array<GLfloat, 4> getCursorPosition(uint32_t objID)
+    {
+      magnet::math::Vector loc = getEyeLocationObjSpace();
+      std::tr1::array<GLfloat, 4> vec = {{loc[0], loc[1], loc[2], 1.0}};
+      return vec;
+    }
+
   protected:
     void initGTK();
     void guiUpdate();

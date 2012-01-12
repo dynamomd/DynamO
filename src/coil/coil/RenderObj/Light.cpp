@@ -48,7 +48,6 @@ namespace coil {
 
     _sphereShader.build();
 
-
     magnet::math::Vector loc = getEyeLocationObjSpace();
     GLfloat pos[3] = {loc[0], loc[1], loc[2]};
     std::vector<GLfloat> position(pos, pos + 3);
@@ -97,7 +96,6 @@ namespace coil {
 
 	if (_context->testExtension("GL_ARB_sample_shading"))
 	  glDisable(GL_SAMPLE_SHADING);
-
       }
   }
 
@@ -194,6 +192,38 @@ namespace coil {
     _optList->unparent();
     win->add(*_optList);
     win->show();
+  }
+
+  void 
+  RLight::pickingRender(magnet::GL::FBO& fbo, 
+			const magnet::GL::Camera& cam, 
+			const uint32_t offset)
+  {
+    if (!_visible) return;
+    
+    using namespace magnet::GL;
+
+    magnet::math::Vector loc = getEyeLocationObjSpace();
+    GLfloat pos[3] = {loc[0], loc[1], loc[2]};
+    std::vector<GLfloat> position(pos, pos + 3);
+    _glposition.init(position);
+    
+    _context->cleanupAttributeArrays();
+    //Set the normals to zero so it is fully illuminated
+    _context->setAttribute(Context::instanceScaleAttrIndex, 0.05, 0.05, 0.05, 1);
+    
+    _context->setAttribute(Context::vertexColorAttrIndex, 
+			   (offset % 256) / 255.0, 
+			   ((offset / 256) % 256) / 255.0, 
+			   (((offset / 256) / 256) % 256) / 255.0, 
+			   ((((offset / 256) / 256) / 256) % 256) / 255.0);
+    
+    _sphereShader.attach();
+    _sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
+    _sphereShader["ViewMatrix"] = cam.getViewMatrix();
+    _sphereShader["global_scale"] = GLfloat(1.0);
+    _glposition.drawArray(magnet::GL::element_type::POINTS, 3);
+    _sphereShader.detach();
   }
 
   void 

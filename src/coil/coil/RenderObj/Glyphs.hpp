@@ -49,6 +49,7 @@ namespace coil {
     virtual void pickingRender(magnet::GL::FBO& fbo,
 			       const magnet::GL::Camera& cam, 
 			       const uint32_t offset);
+
   protected:
     void glyph_type_changed();
     void guiUpdate();
