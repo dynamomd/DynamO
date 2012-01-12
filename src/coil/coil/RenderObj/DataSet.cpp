@@ -22,49 +22,6 @@ extern const guint8 DataSet_Icon[];
 extern const size_t DataSet_Icon_size;
 
 namespace coil {  
-  AttributeSelector::AttributeSelector(bool enableDataFiltering):
-    _lastAttribute(NULL),
-    _lastAttributeDataCount(-1),
-    _lastComponentSelected(-1),
-    _components(0),
-    _enableDataFiltering(enableDataFiltering)
-  {
-    pack_start(_selectorRow, false, false, 5);
-    _selectorRow.show();
-    //Label
-    _label.show();
-    _selectorRow.pack_start(_label, false, false, 5);
-    _context = magnet::GL::Context::getContext();
-    //combo box
-    _model = Gtk::ListStore::create(_modelColumns);
-    _comboBox.set_model(_model);      
-    _comboBox.pack_start(_modelColumns.m_name);
-    _comboBox.show();
-    _selectorRow.pack_start(_comboBox, false, false, 5);
-      
-    _selectorRow.pack_start(_componentSelect, false, false, 5);
-      
-    _singleValueLabel.show();
-    _singleValueLabel.set_text("Value:");
-    _singleValueLabel.set_alignment(1.0, 0.5);
-
-    _selectorRow.pack_start(_singleValueLabel, true, true, 5);
-    for (size_t i(0); i < 4; ++i)
-      {
-	_selectorRow.pack_start(_scalarvalues[i], false, false, 0);
-	_scalarvalues[i].signal_changed()
-	  .connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, _scalarvalues[i]));
-	_scalarvalues[i].set_text("1.0");
-	_scalarvalues[i].set_max_length(0);
-	_scalarvalues[i].set_width_chars(5);	  
-      }
-
-    show();
-
-    _comboBox.signal_changed()
-      .connect(sigc::mem_fun(this, &AttributeSelector::updateGui));
-  }
-
   AttributeColorSelector::AttributeColorSelector():
     AttributeSelector(true),
     _autoScaling("Autoscale to data range"),

@@ -130,6 +130,9 @@ namespace coil {
     {
       _context->queueTask(magnet::function::Task::makeTask(&DataSet::deleteChildWorker, this, child));
     }
+
+    magnet::GL::Context::ContextPtr getContext()
+    { return _context; }
     
     virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, uint32_t& offset)
     {
@@ -154,6 +157,8 @@ namespace coil {
     virtual void interfaceRender(const magnet::GL::Camera&);
 
     magnet::GL::Buffer<GLfloat>& getPositionBuffer();
+
+    void addGlyphs();
     
   protected:
     void deleteChildWorker(DataSetChild* child);
@@ -174,7 +179,6 @@ namespace coil {
     void initGtk();
     void rebuildGui();
 
-    void addGlyphs();
 
     struct ModelColumns : Gtk::TreeModelColumnRecord
     {

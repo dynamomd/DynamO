@@ -98,6 +98,8 @@ namespace dynamo {
 	}
       (*_renderData)["ID"].flagNewData();
     }
+
+    _renderData->getContext()->queueTask(magnet::function::Task::makeTask(&coil::DataSet::addGlyphs, _renderData.get()));
   }
 
   void
