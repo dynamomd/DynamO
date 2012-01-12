@@ -65,11 +65,13 @@ extern const size_t camnegy_size;
 extern const guint8 camnegz[];
 extern const size_t camnegz_size;
 
-extern const guint8 cammode_rotate[];
-extern const size_t cammode_rotate_size;
-
+extern const guint8 cammode_rotate_world[];
+extern const size_t cammode_rotate_world_size;
+extern const guint8 cammode_rotate_cursor[];
+extern const size_t cammode_rotate_cursor_size;
 extern const guint8 cammode_fps[];
 extern const size_t cammode_fps_size;
+
 
 namespace coil {
   CLGLWindow::CLGLWindow(std::string title,
@@ -854,12 +856,37 @@ namespace coil {
 //	}
 //    }
 
+    _camera.setRotatePoint(magnet::math::Vector(0,0,0));
+
+    if (_selectedObject)
+      {
+	uint32_t offset = 1;
+	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator
+	       iPtr = _renderObjsTree._renderObjects.begin();
+	     iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
+	  {
+	    const uint32_t n_objects = (*iPtr)->pickableObjectCount();
+	    
+	    if ((_selectedObject >= offset) && (_selectedObject - offset) < n_objects)
+	      { //Found the corresponding render object that has been selected.
+		std::tr1::array<GLfloat, 4> vec 
+		  = (*iPtr)->getCursorPosition(_selectedObject - offset);
+		
+		_camera.setRotatePoint(magnet::math::Vector(vec[0], vec[1], vec[2]));
+		break;
+	      }
+	    
+	    offset += n_objects;
+	  }
+      }
+
     //Run every objects OpenCL stage
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       (*iPtr)->clTick(_camera);
 
     //Camera Positioning
+    
 
     float moveAmp  = (_currFrameTime - _lastFrameTime) * _moveSensitivity;      
     float forward  = moveAmp * ( keyStates[static_cast<size_t>('w')] 
@@ -878,29 +905,29 @@ namespace coil {
     ////////////Lighting shadow map creation////////////////////
     //This stage only needs to be performed once per frame
 
-//    if (_shadowMapping)
-//      {
-//	_VSMShader.attach();
-//
-//	//Render each light's shadow map
-//	_VSMShader["ProjectionMatrix"] = _light0.getProjectionMatrix();
-//	_VSMShader["ViewMatrix"] = _light0.getViewMatrix();	  
-//	_light0.shadowFBO().attach();
-//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//	
-//	//Enter the render ticks for all objects
-//	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
-//	     iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-//	  if ((*iPtr)->shadowCasting() && (*iPtr)->visible())
-//	    (*iPtr)->glRender(_light0.shadowFBO(), _light0, RenderObj::SHADOW);
-//	
-//	_light0.shadowFBO().detach();
-//	/////////////MIPMAPPED shadow maps don't seem to work
-//	//_light0.shadowTex()->genMipmaps();
-//	_light0.shadowTex()->bind(7);
-//	
-//	_VSMShader.detach();
-//      }
+    //    if (_shadowMapping)
+    //      {
+    //	_VSMShader.attach();
+    //
+    //	//Render each light's shadow map
+    //	_VSMShader["ProjectionMatrix"] = _light0.getProjectionMatrix();
+    //	_VSMShader["ViewMatrix"] = _light0.getViewMatrix();	  
+    //	_light0.shadowFBO().attach();
+    //	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //	
+    //	//Enter the render ticks for all objects
+    //	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
+    //	     iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
+    //	  if ((*iPtr)->shadowCasting() && (*iPtr)->visible())
+    //	    (*iPtr)->glRender(_light0.shadowFBO(), _light0, RenderObj::SHADOW);
+    //	
+    //	_light0.shadowFBO().detach();
+    //	/////////////MIPMAPPED shadow maps don't seem to work
+    //	//_light0.shadowTex()->genMipmaps();
+    //	_light0.shadowTex()->bind(7);
+    //	
+    //	_VSMShader.detach();
+    //      }
     
     ////////3D or Stereo rendering image composition//////////
 
@@ -1847,6 +1874,9 @@ namespace coil {
 	_camera.setMode(magnet::GL::Camera::ROTATE_WORLD);
 	break;
       case magnet::GL::Camera::ROTATE_WORLD:
+	_camera.setMode(magnet::GL::Camera::ROTATE_POINT);
+	break;
+      case magnet::GL::Camera::ROTATE_POINT:
 	_camera.setMode(magnet::GL::Camera::ROTATE_CAMERA);
 	break;
       default:
@@ -1874,7 +1904,10 @@ namespace coil {
 	  icon->set(Gdk::Pixbuf::create_from_inline(cammode_fps_size, cammode_fps));
 	  break;
 	case magnet::GL::Camera::ROTATE_WORLD:
-	  icon->set(Gdk::Pixbuf::create_from_inline(cammode_rotate_size, cammode_rotate));
+	  icon->set(Gdk::Pixbuf::create_from_inline(cammode_rotate_world_size, cammode_rotate_world));
+	  break;
+	case magnet::GL::Camera::ROTATE_POINT:
+	  icon->set(Gdk::Pixbuf::create_from_inline(cammode_rotate_cursor_size, cammode_rotate_cursor));
 	  break;
 	default:
 	  M_throw() << "Cannot find the appropriate icon for the camera mode";

@@ -37,7 +37,8 @@ namespace magnet {
       enum Camera_Mode
 	{
 	  ROTATE_CAMERA,
-	  ROTATE_WORLD
+	  ROTATE_WORLD,
+	  ROTATE_POINT
 	};
 
       /*! \brief The constructor.
@@ -66,6 +67,7 @@ namespace magnet {
 	_tiltrotation(0),
 	_position(position),
 	_up(up),
+	_rotatePoint(0,0,0),
 	_zNearDist(zNearDist),
 	_zFarDist(zFarDist),
 	_eyeLocation(0, 0, 1),
@@ -119,6 +121,11 @@ namespace magnet {
 	_panrotation = -(180.0f / M_PI) * std::acos(directionInXZplane | math::Vector(0,0,-1));
 	if (((math::Vector(0,0,-1) ^ directionInXZplane) | _up) < 0)
 	  _panrotation = -_panrotation;
+      }
+
+      inline void setRotatePoint(math::Vector vec)
+      {
+	_rotatePoint = vec;
       }
 
       /*! \brief Change the field of vision of the camera.
@@ -206,7 +213,29 @@ namespace magnet {
 		  _position = Rodrigues(M_PI * (diffY / 180.0f) * rotationAxis) * _position;
 		}
 
-	      lookAt(math::Vector(0,0,0));
+	      lookAt(math::Vector(0, 0, 0));
+	      break;
+	    }
+	  case ROTATE_POINT:
+	    {
+	      math::Vector offset = _position - _rotatePoint;
+
+	      if (diffX)
+		offset = Rodrigues(_up * (M_PI * diffX / 180.0f)) * offset;
+
+	      //We prevent flickering at the top of the arc by never
+	      //going more than a degree near it.
+	      if (diffY && ((_tiltrotation + diffY) < 89) && ((_tiltrotation + diffY) > -89))
+		{
+		  math::Vector rotationAxis =  offset ^ _up;
+		  double norm = rotationAxis.nrm();
+		  rotationAxis /= (norm != 0.0) ? norm : 1.0;
+		  offset = Rodrigues(M_PI * (diffY / 180.0f) * rotationAxis) * offset;
+		}
+
+	      _position = offset + _rotatePoint;
+
+	      lookAt(_rotatePoint);
 	      break;
 	    }
 	  default:
@@ -258,6 +287,7 @@ namespace magnet {
 	  case ROTATE_CAMERA:
 	    _position += Transformation * math::Vector(sideways,0,-forward) + math::Vector(0,vertical,0);	    
 	    break;
+	  case ROTATE_POINT:
 	  case ROTATE_WORLD:
 	    _position += Transformation * math::Vector(0,0,-forward);
 	    mouseMovement(sideways, vertical);
@@ -432,6 +462,7 @@ namespace magnet {
       float _tiltrotation;
       math::Vector _position;
       math::Vector _up;
+      math::Vector _rotatePoint;
       
       GLfloat _zNearDist;
       GLfloat _zFarDist;
