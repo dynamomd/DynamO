@@ -895,7 +895,7 @@ namespace coil {
 				 - keyStates[static_cast<size_t>('a')]);
     float vertical = moveAmp * ( keyStates[static_cast<size_t>('q')] 
 				 - keyStates[static_cast<size_t>('z')]);
-    _camera.CameraUpdate(forward, sideways, vertical);
+    _camera.movement(0, 0, forward, sideways, vertical);
 
     guiUpdateCallback(); //We frequently ping the gui update     
 
@@ -1474,7 +1474,7 @@ namespace coil {
     switch (keyState)
       {
       case LEFTMOUSE:
-	_camera.mouseMovement(diffX, diffY);
+	_camera.movement(diffX, diffY, 0, 0, 0);
       case RIGHTMOUSE:
       case MIDDLEMOUSE:
       default:

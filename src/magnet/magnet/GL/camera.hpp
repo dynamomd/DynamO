@@ -20,6 +20,7 @@
 #include <magnet/GL/matrix.hpp>
 #include <magnet/clamp.hpp>
 #include <magnet/exception.hpp>
+#include <iostream>
 
 namespace magnet {
   namespace GL {
@@ -65,7 +66,7 @@ namespace magnet {
 	_width(width),
 	_panrotation(180),
 	_tiltrotation(0),
-	_position(position),
+	_nearPlanePosition(position),
 	_up(up),
 	_rotatePoint(0,0,0),
 	_zNearDist(zNearDist),
@@ -90,9 +91,24 @@ namespace magnet {
 
       inline void lookAt(math::Vector lookAtPoint)
       {
-	//Now rotate about the up vector, we do tilt seperately
-	math::Vector directionNorm = (lookAtPoint - _position);
+	//Generate the direction from the near plane to the object
+	math::Vector directionNorm = (lookAtPoint - _nearPlanePosition);
 	directionNorm /= directionNorm.nrm();
+
+	//Now generate the direction from the eye to the near plane
+	math::Matrix viewTransformation 
+	    = Rodrigues(- _up * (_panrotation * M_PI/180))
+	    * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
+	math::Vector eyeToPlane = viewTransformation * _eyeLocation;
+
+	//Now generate the eye to the object vector
+	math::Vector eyeToObject = (lookAtPoint - (eyeToPlane + _nearPlanePosition));
+	
+
+	//If the object lies between the eye and the plane, flip the direction
+	if (((eyeToPlane | directionNorm) >= 0) && ((eyeToObject | directionNorm) <= 0))
+	  directionNorm = -directionNorm;
+
 	double upprojection = (directionNorm | _up);
 
 	if (upprojection == 1)
@@ -125,6 +141,9 @@ namespace magnet {
 
       inline void setRotatePoint(math::Vector vec)
       {
+	if (_camMode == ROTATE_POINT)
+	  _nearPlanePosition += vec - _rotatePoint;
+
 	_rotatePoint = vec;
       }
 
@@ -149,7 +168,7 @@ namespace magnet {
 	      = Rodrigues(-_up * (_panrotation * M_PI/180))
 	      * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
 	    
-	    _position -= viewTransformation * eyeLocationChange;	
+	    _nearPlanePosition -= viewTransformation * eyeLocationChange;	
 	  }
 
 	_eyeLocation += eyeLocationChange;
@@ -175,42 +194,64 @@ namespace magnet {
       inline double getFOVY() const
       { return 2 * std::atan2(0.5f * (_pixelPitch * _width / _simLength),  _eyeLocation[2]) * (180.0f / M_PI); }
 
-      /*! \brief Converts the motion of the mouse into a motion of the
-        camera.
-       
-        \param diffX The amount the mouse has moved in the x direction, in pixels.
-        \param diffY The amount the mouse has moved in the y direction, in pixels.
+      /*! \brief Converts some inputted motion (e.g., by the mouse or keyboard) into a
+        motion of the camera.
+
+
+	All parameters may be negative or positive, as the sign
+	defines the direction of the rotation/movement. Their name
+	hints at what action they may do, depending on the camera mode
+	(\ref _camMode).
        */
-      inline void mouseMovement(float diffX, float diffY)
+      inline void movement(float rotationX, float rotationY, float forwards, float sideways, float upwards)
       {
+	//Build a matrix to rotate from camera to world
+	math::Matrix Transformation = Rodrigues(-_up * (_panrotation * M_PI / 180.0))
+	  * Rodrigues(math::Vector(- _tiltrotation * M_PI / 180.0, 0, 0));
+	
+	if ((_camMode == ROTATE_POINT) || (_camMode == ROTATE_WORLD))
+	  {
+	    if (forwards)
+	      _nearPlanePosition += Transformation * math::Vector(0, 0, -forwards);
+	    
+	    rotationX -= sideways;
+	    rotationY += upwards;
+	  }
+
 	switch (_camMode)
 	  {
 	  case ROTATE_CAMERA:
-	    { //The camera is rotated and an additional movement is
+	    { 
+	      if (sideways || forwards)
+		_nearPlanePosition += Transformation * math::Vector(sideways, 0, -forwards);
+	      
+	      _nearPlanePosition += math::Vector(0, upwards, 0);
+
+	      //The camera is rotated and an additional movement is
 	      //added to make it appear to rotate around the eye
 	      //position
 	      //Calculate the current camera position
 	      math::Vector cameraLocationOld(getEyeLocationObjSpace());
-	      _panrotation += diffX;
-	      _tiltrotation = magnet::clamp(diffY + _tiltrotation, -90.0f, 90.0f);
+	      _panrotation += rotationX;
+	      _tiltrotation = magnet::clamp(rotationY + _tiltrotation, -90.0f, 90.0f);
 	      math::Vector cameraLocationNew(getEyeLocationObjSpace());
 
-	      _position -= cameraLocationNew - cameraLocationOld;
+	      _nearPlanePosition -= cameraLocationNew - cameraLocationOld;
 	      break;
 	    }
 	  case ROTATE_WORLD:
 	    {
-	      if (diffX)
-		_position = Rodrigues(_up * (M_PI * diffX / 180.0f)) * _position;
+	      if (rotationX)
+		_nearPlanePosition = Rodrigues(- _up * (M_PI * rotationX / 180.0f)) * _nearPlanePosition;
 
 	      //We prevent flickering at the top of the arc by never
 	      //going more than a degree near it.
-	      if (diffY && ((_tiltrotation + diffY) < 89) && ((_tiltrotation + diffY) > -89))
+	      if (rotationY && ((_tiltrotation + rotationY) < 89) && ((_tiltrotation + rotationY) > -89))
 		{
-		  math::Vector rotationAxis =  _position ^ _up;
+		  math::Vector rotationAxis =  _nearPlanePosition ^ _up;
 		  double norm = rotationAxis.nrm();
 		  rotationAxis /= (norm != 0.0) ? norm : 1.0;
-		  _position = Rodrigues(M_PI * (diffY / 180.0f) * rotationAxis) * _position;
+		  _nearPlanePosition = Rodrigues(M_PI * (rotationY / 180.0f) * rotationAxis) * _nearPlanePosition;
 		}
 
 	      lookAt(math::Vector(0, 0, 0));
@@ -218,22 +259,24 @@ namespace magnet {
 	    }
 	  case ROTATE_POINT:
 	    {
-	      math::Vector offset = _position - _rotatePoint;
+	      lookAt(_rotatePoint);
 
-	      if (diffX)
-		offset = Rodrigues(_up * (M_PI * diffX / 180.0f)) * offset;
+	      math::Vector offset = _nearPlanePosition - _rotatePoint;
+
+	      if (rotationX)
+		offset = Rodrigues(- _up * (M_PI * rotationX / 180.0f)) * offset;
 
 	      //We prevent flickering at the top of the arc by never
 	      //going more than a degree near it.
-	      if (diffY && ((_tiltrotation + diffY) < 89) && ((_tiltrotation + diffY) > -89))
+	      if (rotationY && ((_tiltrotation + rotationY) < 89) && ((_tiltrotation + rotationY) > -89))
 		{
 		  math::Vector rotationAxis =  offset ^ _up;
 		  double norm = rotationAxis.nrm();
 		  rotationAxis /= (norm != 0.0) ? norm : 1.0;
-		  offset = Rodrigues(M_PI * (diffY / 180.0f) * rotationAxis) * offset;
+		  offset = Rodrigues(M_PI * (rotationY / 180.0f) * rotationAxis) * offset;
 		}
 
-	      _position = offset + _rotatePoint;
+	      _nearPlanePosition = offset + _rotatePoint;
 
 	      lookAt(_rotatePoint);
 	      break;
@@ -253,14 +296,14 @@ namespace magnet {
 	  {
 	  case ROTATE_CAMERA:
 	    { 
-	      lookAt(_position + axis);
+	      lookAt(_nearPlanePosition + axis);
 	      break;
 	    }
 	  case ROTATE_WORLD:
 	    {
-	      double origin_distance = _position.nrm();
+	      double origin_distance = _nearPlanePosition.nrm();
 	      
-	      _position = - axis * origin_distance;
+	      _nearPlanePosition = - axis * origin_distance;
 	      lookAt(math::Vector(0,0,0));
 	      break;
 	    }
@@ -270,33 +313,6 @@ namespace magnet {
 
       }
 
-      /*! \brief Converts a forward/sideways/vertical motion (e.g.,
-        obtained from keypresses) into a motion of the camera.
-       
-        \param diffX The amount the mouse has moved in the x direction, in pixels.
-        \param diffY The amount the mouse has moved in the y direction, in pixels.
-       */
-      inline void CameraUpdate(float forward = 0, float sideways = 0, float vertical = 0)
-      {
-	//Build a matrix to rotate from camera to world
-	math::Matrix Transformation = Rodrigues(-_up * (_panrotation * M_PI / 180.0))
-	  * Rodrigues(math::Vector(- _tiltrotation * M_PI / 180.0, 0, 0));
-	
-	switch (_camMode)
-	  {
-	  case ROTATE_CAMERA:
-	    _position += Transformation * math::Vector(sideways,0,-forward) + math::Vector(0,vertical,0);	    
-	    break;
-	  case ROTATE_POINT:
-	  case ROTATE_WORLD:
-	    _position += Transformation * math::Vector(0,0,-forward);
-	    mouseMovement(sideways, vertical);
-	    break;
-	  default:
-	    M_throw() << "Bad camera mode";
-	  }
-      }
-      
       /*! \brief Get the modelview matrix.
        
         \param offset This is an offset in camera coordinates to apply
@@ -312,7 +328,7 @@ namespace magnet {
 	    = Rodrigues(- _up * (_panrotation * M_PI/180))
 	    * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
 	
-	math::Vector cameraLocation((viewTransformation * _eyeLocation) + _position);
+	math::Vector cameraLocation((viewTransformation * _eyeLocation) + _nearPlanePosition);
 
 	//Setup the view matrix
 	return GLMatrix::rotate(_tiltrotation, math::Vector(1,0,0))
@@ -390,7 +406,7 @@ namespace magnet {
       inline const float& getTilt() const { return _tiltrotation; }
 
       //! \brief Get the position of the viewing plane (effectively the camera position)
-      inline const math::Vector& getViewPlanePosition() const { return _position; } 
+      inline const math::Vector& getViewPlanePosition() const { return _nearPlanePosition; } 
 
       /*! \brief Fetch the location of the users eyes, in object space
         coordinates.
@@ -407,7 +423,7 @@ namespace magnet {
 	  = Rodrigues(- _up * (_panrotation * M_PI/180))
 	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
 
-	return (viewTransformation * _eyeLocation) + _position;
+	return (viewTransformation * _eyeLocation) + _nearPlanePosition;
       }
 
       //! \brief Set the height and width of the screen in pixels.
@@ -460,7 +476,7 @@ namespace magnet {
       size_t _height, _width;
       float _panrotation;
       float _tiltrotation;
-      math::Vector _position;
+      math::Vector _nearPlanePosition;
       math::Vector _up;
       math::Vector _rotatePoint;
       
