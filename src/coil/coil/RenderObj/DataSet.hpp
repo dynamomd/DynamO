@@ -137,22 +137,28 @@ namespace coil {
     {
       if (!visible()) return 0;
 
-      uint32_t max = 0;
+      uint32_t sum = 0;
       for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
 	   iPtr != _children.end(); ++iPtr)
-	max = std::max((*iPtr)->pickableObjectCount(), max);
+	sum += (*iPtr)->pickableObjectCount();
 
-      return max;
+      return sum;
     }
 
     virtual void pickingRender(magnet::GL::FBO& fbo, 
 			       const magnet::GL::Camera& cam, 
 			       const uint32_t offset)
     {
+      uint32_t obj_offset = offset;
       for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator 
 	     iPtr = _children.begin(); iPtr != _children.end(); ++iPtr)
-	if ((*iPtr)->pickableObjectCount())
-	  (*iPtr)->pickingRender(fbo, cam, offset);
+	{
+	  uint32_t objs = (*iPtr)->pickableObjectCount();
+	  if (objs)
+	    (*iPtr)->pickingRender(fbo, cam, obj_offset);
+
+	  obj_offset += objs;
+	}
     }
 
     magnet::GL::Buffer<GLfloat>& getPositionBuffer();
