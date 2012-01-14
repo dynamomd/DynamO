@@ -160,6 +160,9 @@ namespace coil {
      */
     virtual uint32_t pickableObjectCount() { return 0; }
 
+    virtual RenderObj* getPickedObject(uint32_t objID)
+    { return this; }
+
     virtual std::string getCursorText(uint32_t objID)
     {
       M_throw() << "This object is not pickable";

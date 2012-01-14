@@ -1792,6 +1792,35 @@ namespace coil {
     aboutWindow->show();
   }
 
+
+  namespace {
+    struct IterFinder
+    {
+      IterFinder(RenderObj* selected, Gtk::TreeModelColumn<RenderObj*> col):
+	_selected(selected),
+	_col(col)
+      {}
+
+      bool check(const Gtk::TreeModel::iterator& iter)
+      {
+	RenderObj* obj = (*iter)[_col];
+
+	if (obj==_selected)
+	  {
+	    _iter = iter;
+	    return true;
+	  }
+
+	return false;
+      }
+
+
+      Gtk::TreeModel::iterator _iter;
+      RenderObj* _selected;
+      Gtk::TreeModelColumn<RenderObj*> _col;
+    };
+  }
+
   void
   CLGLWindow::performPicking(int x, int y)
   {
@@ -1832,6 +1861,36 @@ namespace coil {
     //Now let the objects know what was picked
     _selectedObject = pixel[0] 
       + 256 * (pixel[1] + 256 * (pixel[2] + 256 * pixel[3]));
+
+    //Highlight this object in the treeview.
+
+    RenderObj* picked_obj = NULL;
+
+    offset = 1;
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator 
+	   iPtr = _renderObjsTree._renderObjects.begin();
+	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
+      { 
+	const uint32_t n_objects = (*iPtr)->pickableObjectCount();
+	
+	if ((_selectedObject >= offset) && (_selectedObject - offset) < n_objects)
+	  {
+	    picked_obj = (*iPtr)->getPickedObject(_selectedObject - offset);
+	    break;
+	  }
+	offset += n_objects;
+      }
+
+
+    if (picked_obj)
+      {
+	IterFinder finder(picked_obj, _renderObjsTree._columns->m_obj);
+
+	_renderObjsTree._store->foreach_iter(sigc::mem_fun(&finder, &IterFinder::check));
+
+	if (finder._iter)
+	  _renderObjsTree._view->get_selection()->select(finder._iter);
+      }
   }
 
   void CLGLWindow::selectRObjCallback() 
@@ -1845,7 +1904,7 @@ namespace coil {
     _refXml->get_widget("ObjectOptions", win);
 
     win->remove(); //Clear the current object controls
-    if(iter)
+    if (iter)
       {
 	//Load the controls for the window
 	RenderObj* obj = (*iter)[_renderObjsTree._columns->m_obj];

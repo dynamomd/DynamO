@@ -161,6 +161,24 @@ namespace coil {
 	}
     }
 
+    RenderObj* getPickedObject(uint32_t objID)
+    { 
+      uint32_t obj_offset = 0;
+
+      for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator 
+	     iPtr = _children.begin(); iPtr != _children.end(); ++iPtr)
+	{
+	  const uint32_t n_objects = (*iPtr)->pickableObjectCount();
+	  
+	  if ((objID >= obj_offset) && (objID - obj_offset) < n_objects)
+	    return (*iPtr)->getPickedObject(objID - obj_offset);
+
+	  obj_offset += n_objects;
+	}
+
+      return NULL;
+    }
+
     magnet::GL::Buffer<GLfloat>& getPositionBuffer();
 
     void addGlyphs();
