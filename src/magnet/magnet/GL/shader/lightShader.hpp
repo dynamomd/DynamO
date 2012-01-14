@@ -43,6 +43,7 @@ uniform sampler2DMS normalTex;
 uniform sampler2DMS positionTex;
 uniform vec3 lightPosition;
 uniform vec3 backColor;
+uniform vec3 lightColor;
 uniform float ambientLight;
 uniform float lightIntensity;
 uniform float lightAttenuation;
@@ -50,7 +51,7 @@ uniform float lightSpecularExponent;
 uniform float lightSpecularFactor;
 uniform int samples;
 
-float calcLighting(vec3 position, vec3 normal)
+vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
 {  
   vec3 lightVector = lightPosition - position;
   float lightDistance = length(lightVector);
@@ -80,7 +81,9 @@ float calcLighting(vec3 position, vec3 normal)
   
   float diffuse = smoothstep(-0.5, 1.0, lightNormDot);
 
-  return intensity * (specular + diffuse);
+  return intensity 
+    * (specular * lightColor
+       + diffuse * diffuseColor * lightColor);
 }
 
 void main()
@@ -99,8 +102,8 @@ void main()
 	  vec3 normal = texelFetch(normalTex, ivec2(gl_FragCoord.xy), sample_id).rgb;
 	  //Eye space position of the vertex
 	  vec3 position = texelFetch(positionTex, ivec2(gl_FragCoord.xy), sample_id).xyz;
-	  color_sum += color.rgb
-	    * (ambientLight + calcLighting(position, normal));
+	  color_sum += ambientLight 
+	    + calcLighting(position, normal, color.rgb);
 	}
       else
 	color_sum += backColor * ambientLight;

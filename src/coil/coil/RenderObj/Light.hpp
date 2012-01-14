@@ -38,7 +38,11 @@ namespace coil {
       Camera(1,1,position, lookAtPoint, fovY, zNearDist, zFarDist, up),
       _intensity(1), 
       _attenuation(0.5), _specularExponent(96),
-      _specularFactor(1) {}
+      _specularFactor(1) 
+    {
+      std::tr1::array<GLfloat, 3> tmp = {{1.0, 1.0, 1.0}};
+      _color = tmp;
+    }
   
     virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
     virtual void deinit();
@@ -55,6 +59,8 @@ namespace coil {
     float getAttenuation() const { return _attenuation; }
     float getSpecularExponent() const { return _specularExponent; }
     float getSpecularFactor() const { return _specularFactor; }
+
+    const std::tr1::array<GLfloat, 3>& getColor() { return _color; }
 
     /*! \brief Load the specified OpenGL texture matrix with the
       projection required for shadow mapping.
@@ -111,11 +117,13 @@ namespace coil {
     //GTK gui stuff
     std::auto_ptr<Gtk::VBox> _optList;
     std::auto_ptr<Gtk::Entry> _intensityEntry;
+    std::auto_ptr<Gtk::ColorButton> _lightColor;
     std::auto_ptr<Gtk::Entry> _attenuationEntry;
     std::auto_ptr<Gtk::Entry> _specularExponentEntry;
     std::auto_ptr<Gtk::Entry> _specularFactorEntry;
     
     float _intensity, _attenuation, _specularExponent, _specularFactor;
+    std::tr1::array<GLfloat, 3> _color;
 
     magnet::GL::shader::SphereShader<true> _sphereShader;
     magnet::GL::Buffer<GLfloat> _glposition;

@@ -110,7 +110,7 @@ namespace coil {
       box->show();
       
       {
-	Gtk::Label* label = manage(new Gtk::Label("Intensity", 0.95, 0.5));
+	Gtk::Label* label = manage(new Gtk::Label("Intensity", 0.99, 0.5));
 	box->pack_start(*label, true, true); 
 	label->show();
       }
@@ -125,7 +125,19 @@ namespace coil {
       _intensityEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
 
       {
-	Gtk::Label* label = manage(new Gtk::Label("Attenuation", 0.95, 0.5));
+	_lightColor.reset(new Gtk::ColorButton);
+	_lightColor->set_use_alpha(false);
+	Gdk::Color color;
+	color.set_rgb(_color[0] * G_MAXUSHORT, _color[1] * G_MAXUSHORT, _color[2] * G_MAXUSHORT);
+	_lightColor->set_color(color);
+	box->pack_start(*_lightColor, false, false);
+	_lightColor->show();
+
+	_lightColor->signal_color_set().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
+      }
+
+      {
+	Gtk::Label* label = manage(new Gtk::Label("Attenuation", 0.99, 0.5));
 	box->pack_start(*label, true, true);
 	label->show();
       }
@@ -233,5 +245,10 @@ namespace coil {
     try { _attenuation = boost::lexical_cast<float>(_attenuationEntry->get_text()); } catch (...) {}
     try { _specularExponent = boost::lexical_cast<float>(_specularExponentEntry->get_text()); } catch (...) {}
     try { _specularFactor = boost::lexical_cast<float>(_specularFactorEntry->get_text()); } catch (...) {}
+
+    Gdk::Color color = _lightColor->get_color();
+    _color[0] = GLfloat(color.get_red()) / G_MAXUSHORT;
+    _color[1] = GLfloat(color.get_green()) / G_MAXUSHORT;
+    _color[2] = GLfloat(color.get_blue()) / G_MAXUSHORT;
   }
 }
