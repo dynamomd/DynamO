@@ -264,7 +264,7 @@ namespace magnet {
 
 	      //We prevent flickering at the top of the arc by never
 	      //going more than a degree near it.
-	      if (rotationY && ((_tiltrotation + rotationY) < 89) && ((_tiltrotation + rotationY) > -89))
+	      if (rotationY)
 		{
 		  math::Vector rotationAxis =  offset ^ _up;
 		  double norm = rotationAxis.nrm();
