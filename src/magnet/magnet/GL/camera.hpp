@@ -59,7 +59,7 @@ namespace magnet {
 		    math::Vector position = math::Vector(1,1,1), 
 		    math::Vector lookAtPoint = math::Vector(0,0,0),
 		    GLfloat fovY = 60.0f,
-		    GLfloat zNearDist = 0.01f, GLfloat zFarDist = 20.0f,
+		    GLfloat zNearDist = 0.001f, GLfloat zFarDist = 100.0f,
 		    math::Vector up = math::Vector(0,1,0)
 		    ):
 	_height(height),
@@ -212,12 +212,21 @@ namespace magnet {
 	if ((_camMode == ROTATE_POINT) || (_camMode == ROTATE_WORLD))
 	  {
 	    if (forwards)
-	      _nearPlanePosition += Transformation * math::Vector(0, 0, -forwards);
+	      {
+		//Test if the forward motion will take the eyePosition passed the viewing point, if so, don't move.
+		math::Vector focus = math::Vector(0,0,0);
+		if (_camMode == ROTATE_POINT)
+		  focus = _rotatePoint;
+		
+		if (math::Vector(getEyeLocationObjSpace() - focus).nrm() > forwards)
+		  _nearPlanePosition += Transformation * math::Vector(0, 0, -forwards);
+	      }
 	    
-	    rotationX -= sideways;
-	    rotationY += upwards;
+	    rotationX -= 10 * sideways;
+	    rotationY += 10 * upwards;
 	  }
 
+	math::Vector focus = math::Vector(0,0,0);
 	switch (_camMode)
 	  {
 	  case ROTATE_CAMERA:
@@ -239,29 +248,16 @@ namespace magnet {
 	      _nearPlanePosition -= cameraLocationNew - cameraLocationOld;
 	      break;
 	    }
+	  case ROTATE_POINT:
+	    focus = _rotatePoint;
 	  case ROTATE_WORLD:
 	    {
-	      if (rotationX)
-		_nearPlanePosition = Rodrigues(- _up * (M_PI * rotationX / 180.0f)) * _nearPlanePosition;
+	      lookAt(focus);
 
-	      //We prevent flickering at the top of the arc by never
-	      //going more than a degree near it.
-	      if (rotationY && ((_tiltrotation + rotationY) < 89) && ((_tiltrotation + rotationY) > -89))
-		{
-		  math::Vector rotationAxis =  _nearPlanePosition ^ _up;
-		  double norm = rotationAxis.nrm();
-		  rotationAxis /= (norm != 0.0) ? norm : 1.0;
-		  _nearPlanePosition = Rodrigues(M_PI * (rotationY / 180.0f) * rotationAxis) * _nearPlanePosition;
-		}
+	      math::Vector offset = _nearPlanePosition - focus;
 
-	      lookAt(math::Vector(0, 0, 0));
-	      break;
-	    }
-	  case ROTATE_POINT:
-	    {
-	      lookAt(_rotatePoint);
-
-	      math::Vector offset = _nearPlanePosition - _rotatePoint;
+	      //We need to store the normal and restore it later.
+	      double offset_length = offset.nrm();
 
 	      if (rotationX)
 		offset = Rodrigues(- _up * (M_PI * rotationX / 180.0f)) * offset;
@@ -276,9 +272,11 @@ namespace magnet {
 		  offset = Rodrigues(M_PI * (rotationY / 180.0f) * rotationAxis) * offset;
 		}
 
-	      _nearPlanePosition = offset + _rotatePoint;
+	      offset *= offset_length / double(offset.nrm());
 
-	      lookAt(_rotatePoint);
+	      _nearPlanePosition = offset + focus;
+
+	      lookAt(focus);
 	      break;
 	    }
 	  default:

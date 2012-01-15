@@ -150,6 +150,7 @@ namespace coil {
 			       const uint32_t offset)
     {
       uint32_t obj_offset = offset;
+      
       for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator 
 	     iPtr = _children.begin(); iPtr != _children.end(); ++iPtr)
 	{
