@@ -560,8 +560,8 @@ namespace coil {
     //First render object is the ground
     std::tr1::shared_ptr<RenderObj> groundObj
       (new RFunction((size_t)64,
-		     Vector(-5, -0.6, -5),
-		     Vector(10,0,0), Vector(0,0,10), Vector(0,1,0), //Axis of the function, x,y,z
+		     Vector(-50, -0.6, -50),
+		     Vector(100,0,0), Vector(0,0,100), Vector(0,1,0), //Axis of the function, x,y,z
 		     -1, -1,//Start point of the functions evaluation (x,y)
 		     1, 1,//Range of the function to evaluate (xrange,yrange
 		     false, //Render a set of Axis as well?
