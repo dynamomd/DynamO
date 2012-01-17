@@ -153,7 +153,7 @@ namespace coil {
 	for (size_t j = 0; j < comps; ++j)
 	  {
 	    _minVals[j] = std::min(_minVals[j], (*this)[i * comps + j]);
-	    _maxVals[j] = std::max(_minVals[j], (*this)[i * comps + j]);
+	    _maxVals[j] = std::max(_maxVals[j], (*this)[i * comps + j]);
 	  }
     }
 
