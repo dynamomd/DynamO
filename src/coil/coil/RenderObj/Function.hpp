@@ -52,6 +52,8 @@ namespace coil {
 
     virtual void clTick(const magnet::GL::Camera&) { clTick(); }
 
+    virtual Glib::RefPtr<Gdk::Pixbuf> getIcon();
+
   protected:
     void clTick();
     std::string genKernelSrc();

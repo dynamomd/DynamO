@@ -19,7 +19,17 @@
 #include <iostream>
 #include <coil/glprimatives/arrow.hpp>
 
+extern const guint8 Function_Icon[];
+extern const size_t Function_Icon_size;
+
 namespace coil {
+  Glib::RefPtr<Gdk::Pixbuf> 
+  RFunction::getIcon()
+  {
+    return Gdk::Pixbuf::create_from_inline(Function_Icon_size, Function_Icon);
+  }
+
+
   RFunction::RFunction(size_t N, Vector origin, Vector axis1,
 		       Vector axis2, Vector axis3, cl_float functionOriginX,
 		       cl_float functionOriginY, cl_float functionRangeX, 
