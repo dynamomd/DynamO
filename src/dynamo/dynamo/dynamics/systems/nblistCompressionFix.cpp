@@ -94,7 +94,7 @@ namespace dynamo {
 	 << "\nNColl = " << Sim->eventCount
 	 << "\nSys t = " << Sim->dSysTime / Sim->dynamics.units().unitTime() << std::endl;
   
-    nblist.setMaxInteractionRange(nblist.getMaxSupportedInteractionLength());
+    nblist.setMaxInteractionRange(nblist.getMaxSupportedInteractionLength() * 1.1);
   
     dt = (nblist.getMaxSupportedInteractionLength()
 	  / initialSupportedRange - 1.0) / growthRate - Sim->dSysTime;
