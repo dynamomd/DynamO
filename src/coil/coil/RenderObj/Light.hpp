@@ -121,6 +121,9 @@ namespace coil {
     std::auto_ptr<Gtk::Entry> _attenuationEntry;
     std::auto_ptr<Gtk::Entry> _specularExponentEntry;
     std::auto_ptr<Gtk::Entry> _specularFactorEntry;
+    std::auto_ptr<Gtk::Entry> _positionXEntry;
+    std::auto_ptr<Gtk::Entry> _positionYEntry;
+    std::auto_ptr<Gtk::Entry> _positionZEntry;
     
     float _intensity, _attenuation, _specularExponent, _specularFactor;
     std::tr1::array<GLfloat, 3> _color;

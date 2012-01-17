@@ -190,6 +190,43 @@ namespace coil {
       _optList->pack_start(*box, false, false);
     }
 
+    { //Specular
+      Gtk::HBox* box = manage(new Gtk::HBox);
+      box->show();
+
+      {
+	Gtk::Label* label = manage(new Gtk::Label("Position", 0.95, 0.5));
+	box->pack_start(*label, true, true); 
+	label->show();
+      }
+
+      _positionXEntry.reset(new Gtk::Entry);
+      box->pack_start(*_positionXEntry, false, false);
+      _positionXEntry->show();
+      _positionXEntry->set_width_chars(7);
+      _positionXEntry->set_text(boost::lexical_cast<std::string>(getEyeLocationObjSpace()[0]));
+      _positionXEntry->signal_changed().connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_specularFactorEntry));
+      _positionXEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
+
+      _positionYEntry.reset(new Gtk::Entry);
+      box->pack_start(*_positionYEntry, false, false);
+      _positionYEntry->show();
+      _positionYEntry->set_width_chars(7);
+      _positionYEntry->set_text(boost::lexical_cast<std::string>(getEyeLocationObjSpace()[1]));
+      _positionYEntry->signal_changed().connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_specularFactorEntry));
+      _positionYEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
+
+      _positionZEntry.reset(new Gtk::Entry);
+      box->pack_start(*_positionZEntry, false, false);
+      _positionZEntry->show();
+      _positionZEntry->set_width_chars(7);
+      _positionZEntry->set_text(boost::lexical_cast<std::string>(getEyeLocationObjSpace()[2]));
+      _positionZEntry->signal_changed().connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_specularFactorEntry));
+      _positionZEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
+
+      _optList->pack_start(*box, false, false);
+    }
+
     _optList->show();
 
     guiUpdate();
