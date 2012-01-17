@@ -106,11 +106,10 @@ namespace coil {
 
     { //Intensity
       Gtk::HBox* box = manage(new Gtk::HBox);
-      box->set_homogeneous(true);
       box->show();
       
       {
-	Gtk::Label* label = manage(new Gtk::Label("Intensity", 0.99, 0.5));
+	Gtk::Label* label = manage(new Gtk::Label("Intensity and Color", 0.95, 0.5));
 	box->pack_start(*label, true, true); 
 	label->show();
       }
@@ -137,7 +136,7 @@ namespace coil {
       }
 
       {
-	Gtk::Label* label = manage(new Gtk::Label("Attenuation", 0.99, 0.5));
+	Gtk::Label* label = manage(new Gtk::Label("Attenuation", 0.95, 0.5));
 	box->pack_start(*label, true, true);
 	label->show();
       }
@@ -156,7 +155,6 @@ namespace coil {
 
     { //Specular
       Gtk::HBox* box = manage(new Gtk::HBox);
-      box->set_homogeneous(true);
       box->show();
 
       {
