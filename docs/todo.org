@@ -13,6 +13,7 @@
 **** TODO Coil: Make coil scale independent.
 **** TODO Coil: Make a generic render object container class.
 **** TODO Coil: Make a GL engine to put into magnet.
+**** TODO Check the version of Gtkmm, glut and any other dependent library.
 **** TODO Add rendering of light sources (crepuscular rays too?).
 **** TODO Cube shadow map lights.
 **** TODO Make the viewing grid have a scalable box size.
