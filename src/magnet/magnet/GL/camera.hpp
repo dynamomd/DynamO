@@ -262,13 +262,21 @@ namespace magnet {
 	      if (rotationX)
 		offset = Rodrigues(- _up * (M_PI * rotationX / 180.0f)) * offset;
 
-	      //We prevent flickering at the top of the arc by never
-	      //going more than a degree near it.
 	      if (rotationY)
 		{
-		  math::Vector rotationAxis =  offset ^ _up;
+
+		  //We prevent the following command from returning
+		  //bad axis by always using lookAt first, then
+		  //getCameraUp().
+		  math::Vector rotationAxis =  offset ^ getCameraUp();
 		  double norm = rotationAxis.nrm();
-		  rotationAxis /= (norm != 0.0) ? norm : 1.0;
+
+#ifdef MAGNET_DEBUG
+		  if (norm == 0)
+		    M_throw() << "Bad normal on a camera rotation axis";
+#endif
+
+		  rotationAxis /= norm;
 		  offset = Rodrigues(M_PI * (rotationY / 180.0f) * rotationAxis) * offset;
 		}
 
