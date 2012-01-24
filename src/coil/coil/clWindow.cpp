@@ -690,13 +690,12 @@ namespace coil {
       {
 	std::tr1::shared_ptr<magnet::GL::Texture2D> 
 	  colorTexture(new magnet::GL::Texture2D);
-
 	colorTexture->init(_camera.getWidth()/2, _camera.getHeight()/2, GL_RGB16F);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	_lightBuffer.init();
-	_lightBuffer.attachTexture(colorTexture, 0);
+	_hdrBuffer.init();
+	_hdrBuffer.attachTexture(colorTexture, 0);
       }
       
       {
@@ -797,7 +796,7 @@ namespace coil {
 
     _renderTarget.deinit();
     _Gbuffer.deinit();
-    _lightBuffer.deinit();
+    _hdrBuffer.deinit();
     _luminanceBuffer.deinit();
     _shadowBuffer.deinit();
 	
@@ -1089,7 +1088,7 @@ namespace coil {
     _Gbuffer.getColorTexture(2)->bind(2);
     _Gbuffer.getDepthTexture()->bind(3);
 
-    _lightBuffer.attach();
+    _hdrBuffer.attach();
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     //Additive blending of all of the lights contributions
@@ -1124,12 +1123,12 @@ namespace coil {
 	}
     
     _pointLightShader.detach();
-    _lightBuffer.detach();
+    _hdrBuffer.detach();
     glDisable(GL_BLEND);
 
     ///////////////////////Luminance Sampling//////////////////////
     //The light buffer is bound to texture unit 0 for the tone mapping too
-    _lightBuffer.getColorTexture()->bind(0);
+    _hdrBuffer.getColorTexture()->bind(0);
 
     _luminanceBuffer.attach();
     _luminanceShader.attach();
@@ -1191,7 +1190,7 @@ namespace coil {
     ///////////////////////Blurred Scene///////////////////////////////
     if (_bloomEnable)
       {
-	magnet::GL::Texture2D& tex = *_lightBuffer.getColorTexture();
+	magnet::GL::Texture2D& tex = *_hdrBuffer.getColorTexture();
 	tex.bind(0);
       
 	_blurTarget1.attach();
@@ -1235,7 +1234,7 @@ namespace coil {
 
     ///////////////////////Tone Mapping///////////////////////////
     fbo.attach();
-    _lightBuffer.getColorTexture()->bind(0);
+    _hdrBuffer.getColorTexture()->bind(0);
     _luminanceBuffer.getColorTexture()->bind(1);
     if (_bloomEnable)
       _blurTarget1.getColorTexture()->bind(2);
@@ -1382,7 +1381,7 @@ namespace coil {
 
     _camera.setHeightWidth(h, w);
     //Update the viewport
-    _lightBuffer.resize(w, h);
+    _hdrBuffer.resize(w, h);
     _renderTarget.resize(w, h);
     _Gbuffer.resize(w, h);
     _filterTarget1.resize(w, h);

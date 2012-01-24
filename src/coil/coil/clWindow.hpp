@@ -102,7 +102,7 @@ namespace coil {
     //Primary render target, or the render target for the left eye.
     magnet::GL::FBO _renderTarget;
     magnet::GL::FBO _Gbuffer;
-    magnet::GL::FBO _lightBuffer;
+    magnet::GL::FBO _hdrBuffer;
     magnet::GL::FBO _luminanceBuffer;
     magnet::GL::FBO _shadowBuffer;
 
