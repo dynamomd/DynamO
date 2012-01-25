@@ -140,7 +140,7 @@ namespace coil {
 
     void CameraSetup();
 
-    void drawScene(magnet::GL::FBO&, magnet::GL::Camera&);
+    void drawScene(magnet::GL::Camera&);
 
     enum KeyStateType
       {

@@ -674,7 +674,6 @@ namespace coil {
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	//We use a shared depth/stencil buffer for the deferred and forward shading passes
 	std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
 	depthTexture->init(_camera.getWidth(), _camera.getHeight(), 
 			   GL_DEPTH_COMPONENT);
@@ -690,12 +689,13 @@ namespace coil {
       {
 	std::tr1::shared_ptr<magnet::GL::Texture2D> 
 	  colorTexture(new magnet::GL::Texture2D);
-	colorTexture->init(_camera.getWidth()/2, _camera.getHeight()/2, GL_RGB16F);
+	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB16F);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	_hdrBuffer.init();
 	_hdrBuffer.attachTexture(colorTexture, 0);
+	_hdrBuffer.attachTexture(_renderTarget.getDepthTexture());
       }
       
       {
@@ -944,7 +944,7 @@ namespace coil {
     //Bind to the multisample buffer
     if (!_stereoMode)
       {
-	drawScene(_renderTarget, _camera);
+	drawScene(_camera);
 	_renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
       }
     else
@@ -962,7 +962,7 @@ namespace coil {
 	  {
 	  case 0: //Analygraph Red-Cyan
 	    _camera.setEyeLocation(currentEyePos + eyeDisplacement);
-	    drawScene(_renderTarget, _camera);
+	    drawScene(_camera);
 	    _renderTarget.getColorTexture(0)->bind(0);
 	    _copyShader.attach();
 	    _copyShader["u_Texture0"] = 0;
@@ -978,7 +978,7 @@ namespace coil {
 	    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
 	    _camera.setEyeLocation(currentEyePos - eyeDisplacement);
-	    drawScene(_renderTarget, _camera);
+	    drawScene(_camera);
 	    _renderTarget.getColorTexture(0)->bind(0);
 	    _copyShader.attach();
 	    glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
@@ -988,23 +988,23 @@ namespace coil {
 	    break;
 	  case 1:
 	    _camera.setEyeLocation(currentEyePos - eyeDisplacement);
-	    drawScene(_renderTarget, _camera);
+	    drawScene(_camera);
 	    _renderTarget.blitToScreen(_camera.getWidth() / 2, 
 				       _camera.getHeight(), 0, 0, GL_LINEAR);
 
 	    _camera.setEyeLocation(currentEyePos + eyeDisplacement);
-	    drawScene(_renderTarget, _camera);
+	    drawScene(_camera);
 	    _renderTarget.blitToScreen(_camera.getWidth() / 2, _camera.getHeight(),
 				       _camera.getWidth() / 2, 0, GL_LINEAR);	    
 	    break;
 	  case 2:
 	    _camera.setEyeLocation(currentEyePos + eyeDisplacement);
-	    drawScene(_renderTarget, _camera);
+	    drawScene(_camera);
 	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight()  /2,
 				       0, 0, GL_LINEAR);
 
 	    _camera.setEyeLocation(currentEyePos - eyeDisplacement);
-	    drawScene(_renderTarget, _camera);
+	    drawScene(_camera);
 	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight() / 2,
 				       0, _camera.getHeight() / 2, GL_LINEAR);
 	    break;
@@ -1052,7 +1052,7 @@ namespace coil {
   }
 
   void 
-  CLGLWindow::drawScene(magnet::GL::FBO& fbo, magnet::GL::Camera& camera)
+  CLGLWindow::drawScene(magnet::GL::Camera& camera)
   {
     //We perform a deffered shading pass followed by a forward shading
     //pass for objects which cannot be deferred, like volumes etc.
@@ -1075,7 +1075,7 @@ namespace coil {
 	   = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       if ((*iPtr)->visible()) 
-	(*iPtr)->glRender(fbo, camera, RenderObj::DEFAULT);
+	(*iPtr)->glRender(_renderTarget, camera, RenderObj::DEFAULT);
 
     _renderShader.detach();
     _Gbuffer.detach();
@@ -1233,7 +1233,7 @@ namespace coil {
       }
 
     ///////////////////////Tone Mapping///////////////////////////
-    fbo.attach();
+    _renderTarget.attach();
     _hdrBuffer.getColorTexture()->bind(0);
     _luminanceBuffer.getColorTexture()->bind(1);
     if (_bloomEnable)
@@ -1249,7 +1249,7 @@ namespace coil {
     _toneMapShader["scene_key"] = GLfloat(_sceneKey);
     _toneMapShader.invoke();
     _toneMapShader.detach();
-    fbo.detach();
+    _renderTarget.detach();
     ///////////////////////Forward Shading Pass /////////////////
 
 //    //Enter the forward render ticks for all objects
@@ -1257,18 +1257,18 @@ namespace coil {
 //	   = _renderObjsTree._renderObjects.begin();
 //	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
 //      if ((*iPtr)->visible())
-//	(*iPtr)->forwardRender(fbo, camera, , RenderObj::DEFAULT);
-//    fbo.detach();
+//	(*iPtr)->forwardRender(_renderTarget, camera, , RenderObj::DEFAULT);
+//    _renderTarget.detach();
     //////////////////////FILTERING////////////
     //Attempt to perform some filtering
 
     bool FBOalternate = false;
-    magnet::GL::FBO* lastFBO = &fbo;
+    magnet::GL::FBO* lastFBO = &_renderTarget;
     
     if (_filterEnable)
       {
        	//Bind the original image to texture unit 0
-       	fbo.getColorTexture(0)->bind(0);	
+       	_renderTarget.getColorTexture(0)->bind(0);	
        	//Now bind the texture which has the normals unit 1
        	_Gbuffer.getColorTexture(1)->bind(1);
        	//Positional information is attached to unit 2
@@ -1362,10 +1362,10 @@ namespace coil {
 
     //Check if we actually did something and copy the data to the
     //output FBO if needed
-    if (lastFBO != &fbo)
+    if (lastFBO != &_renderTarget)
       {
 	lastFBO->attach();
-	fbo.getColorTexture(0)->bind(0);
+	_renderTarget.getColorTexture(0)->bind(0);
 	glActiveTextureARB(GL_TEXTURE0);
 	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _camera.getWidth(), 
 			    _camera.getHeight());
