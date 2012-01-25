@@ -1065,6 +1065,9 @@ namespace coil {
     //the target fbo
     _Gbuffer.attach();
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     _renderShader.attach();
     _renderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
@@ -1079,7 +1082,6 @@ namespace coil {
 
     _renderShader.detach();
     _Gbuffer.detach();
-    glDisable(GL_DEPTH_TEST);
     
     ///////////////////////Lighting pass////////////////////////
     //Here we calculate the lighting of every pixel in the scene
@@ -1090,7 +1092,9 @@ namespace coil {
 
     _hdrBuffer.attach();
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDepthMask(GL_FALSE);
+    glDisable(GL_DEPTH_TEST);
     //Additive blending of all of the lights contributions
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE);
@@ -1110,6 +1114,7 @@ namespace coil {
 	{
 	  std::tr1::shared_ptr<RLight> light 
 	    = std::tr1::dynamic_pointer_cast<RLight>(*iPtr);
+
 	  _pointLightShader["ambientLight"] = ambient;
 	  _pointLightShader["backColor"] = _backColor;
 	  _pointLightShader["lightColor"] = light->getColor();
@@ -1123,11 +1128,42 @@ namespace coil {
 	}
     
     _pointLightShader.detach();
-    _hdrBuffer.detach();
-    glDisable(GL_BLEND);
+
+    ///////////////////////Forward Shading Pass /////////////////
+    std::tr1::shared_ptr<RLight> _fwdRenderLight;
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
+	   = _renderObjsTree._renderObjects.begin();
+	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
+      if (std::tr1::dynamic_pointer_cast<RLight>(*iPtr))
+	{
+	  _fwdRenderLight = std::tr1::dynamic_pointer_cast<RLight>(*iPtr);
+	  break;
+	}
+
+    glDepthMask(GL_TRUE);
+    glEnable(GL_DEPTH_TEST);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    if (_fwdRenderLight)
+      {
+	//Enter the forward render ticks for all objects
+	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
+	       = _renderObjsTree._renderObjects.begin();
+	     iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
+	  if ((*iPtr)->visible())
+	    (*iPtr)->forwardRender(_hdrBuffer, camera, *_fwdRenderLight, 
+				   RenderObj::DEFAULT);
+	
+	_hdrBuffer.detach();
+      }
+
 
     ///////////////////////Luminance Sampling//////////////////////
     //The light buffer is bound to texture unit 0 for the tone mapping too
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(GL_FALSE);
+    glDisable(GL_BLEND);
+
     _hdrBuffer.getColorTexture()->bind(0);
 
     _luminanceBuffer.attach();
@@ -1250,15 +1286,7 @@ namespace coil {
     _toneMapShader.invoke();
     _toneMapShader.detach();
     _renderTarget.detach();
-    ///////////////////////Forward Shading Pass /////////////////
 
-//    //Enter the forward render ticks for all objects
-//    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
-//	   = _renderObjsTree._renderObjects.begin();
-//	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-//      if ((*iPtr)->visible())
-//	(*iPtr)->forwardRender(_renderTarget, camera, , RenderObj::DEFAULT);
-//    _renderTarget.detach();
     //////////////////////FILTERING////////////
     //Attempt to perform some filtering
 
