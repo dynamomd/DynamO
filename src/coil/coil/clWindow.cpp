@@ -665,6 +665,7 @@ namespace coil {
     _luminanceShader.build();
     _luminanceMipMapShader.build();
     _toneMapShader.build();
+    _depthResolverShader.build();
 
     {
       {
@@ -806,6 +807,7 @@ namespace coil {
     _blurTarget2.deinit();
     _renderShader.deinit();
     _toneMapShader.deinit();
+    _depthResolverShader.deinit();
     _pointLightShader.deinit();	
     _VSMShader.deinit();
     _simpleRenderShader.deinit();
@@ -1141,28 +1143,32 @@ namespace coil {
 	}
 
     glDepthMask(GL_TRUE);
+    glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
+    _depthResolverShader.attach();
+    _depthResolverShader["depthTex"] = 3;
+    _depthResolverShader["samples"] = GLint(_samples);
+    _depthResolverShader.invoke();
+    _depthResolverShader.detach();
+
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    //Enter the forward render ticks for all objects
     if (_fwdRenderLight)
-      {
-	//Enter the forward render ticks for all objects
-	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
-	       = _renderObjsTree._renderObjects.begin();
-	     iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-	  if ((*iPtr)->visible())
-	    (*iPtr)->forwardRender(_hdrBuffer, camera, *_fwdRenderLight, 
-				   RenderObj::DEFAULT);
-	
-	_hdrBuffer.detach();
-      }
-
-
+      for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
+	     = _renderObjsTree._renderObjects.begin();
+	   iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
+	if ((*iPtr)->visible())
+	  (*iPtr)->forwardRender(_hdrBuffer, camera, *_fwdRenderLight, 
+				 RenderObj::DEFAULT);
+    
+    _hdrBuffer.detach();	
     ///////////////////////Luminance Sampling//////////////////////
     //The light buffer is bound to texture unit 0 for the tone mapping too
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
-    glDisable(GL_BLEND);
 
     _hdrBuffer.getColorTexture()->bind(0);
 

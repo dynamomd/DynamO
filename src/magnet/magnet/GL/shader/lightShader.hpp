@@ -33,7 +33,6 @@ namespace magnet {
 	{
 	  return "#version 330\n"
 	    STRINGIFY(
-//Normalized position on the screen
 layout (location = 0) out vec4 color_out;
 
 //Standard G-buffer data
