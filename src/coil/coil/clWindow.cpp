@@ -1211,6 +1211,14 @@ namespace coil {
       _luminanceBuffer.detach();
     }
 
+    std::vector<GLfloat> data;
+    _luminanceBuffer.getColorTexture()->writeto(data, _luminanceBuffer.getColorTexture()->calcMipmapLevels() - 1);
+    std::cerr << "\nSize of mipmap = " << data.size()
+	      << "\nElements are \n";
+    for (size_t i(0); i < data.size(); ++i)
+      std::cerr << data[i] << " ";
+    std::cerr << "\n";
+
     ///////////////////////Blurred Scene///////////////////////////////
     if (_bloomEnable)
       {
