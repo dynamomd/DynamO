@@ -675,16 +675,8 @@ namespace coil {
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
-	depthTexture->init(_camera.getWidth(), _camera.getHeight(), 
-			   GL_DEPTH_COMPONENT);
-	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-      
 	_renderTarget.init();
 	_renderTarget.attachTexture(colorTexture, 0);
-	_renderTarget.attachTexture(depthTexture);
       }
 
       {
@@ -694,9 +686,15 @@ namespace coil {
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
+	std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
+	depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);
+	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+
 	_hdrBuffer.init();
 	_hdrBuffer.attachTexture(colorTexture, 0);
-	_hdrBuffer.attachTexture(_renderTarget.getDepthTexture());
+	_hdrBuffer.attachTexture(depthTexture);
       }
       
       {
@@ -1092,14 +1090,31 @@ namespace coil {
     _Gbuffer.getColorTexture(2)->bind(2);
     _Gbuffer.getDepthTexture()->bind(3);
 
+    //First, set up the buffers for rendering
     _hdrBuffer.attach();
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glDepthMask(GL_FALSE);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    //Now we need to populate the depth buffer
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glDisable(GL_DEPTH_TEST);
+    _depthResolverShader.attach();
+    _depthResolverShader["posTex"] = 2;
+    _depthResolverShader["samples"] = GLint(_samples);
+    _depthResolverShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
+    _depthResolverShader["ViewMatrix"] = _camera.getViewMatrix();
+    _depthResolverShader.invoke();
+    _depthResolverShader.detach();
+    glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+
     //Additive blending of all of the lights contributions
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE);
+    //Disable writing to the depth buffer
+    glDepthMask(GL_FALSE);
+
+    //For now, we haven't optimised the light calculations, so disable
+    //the depth test.
 
     _pointLightShader.attach();
     _pointLightShader["colorTex"] = 0;
@@ -1142,17 +1157,9 @@ namespace coil {
 	  break;
 	}
 
-    glDepthMask(GL_TRUE);
-    glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
-    _depthResolverShader.attach();
-    _depthResolverShader["depthTex"] = 3;
-    _depthResolverShader["samples"] = GLint(_samples);
-    _depthResolverShader.invoke();
-    _depthResolverShader.detach();
-
     glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
     glEnable(GL_BLEND);
-    glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     //Enter the forward render ticks for all objects

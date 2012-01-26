@@ -34,8 +34,10 @@ namespace magnet {
 	  return "#version 330\n"
 	    STRINGIFY(
 layout (location = 0) out vec4 color_out;
-uniform sampler2DMS depthTex;
+uniform sampler2DMS posTex;
 uniform int samples;
+uniform mat4 ViewMatrix;
+uniform mat4 ProjectionMatrix;
 
 void main()
 {
@@ -43,11 +45,16 @@ void main()
   float out_depth = 1.0;
   for (int sample_id = 0; sample_id < samples; sample_id++)
     {
-      out_depth = min(texelFetch(depthTex, ivec2(gl_FragCoord.xy), sample_id).r, 
-		      out_depth);
+      vec4 pos = vec4(texelFetch(posTex, ivec2(gl_FragCoord.xy), sample_id).xyz,
+		      1.0);
+      pos = ViewMatrix * pos;
+      pos = ProjectionMatrix * pos;
+      pos = pos / pos.w;
+      
+      out_depth = min((pos.z + 1.0) / 2.0, out_depth);
     }
   
-  gl_FragDepth = 0.5;//out_depth;
+  gl_FragDepth = out_depth;
 
   color_out = vec4(1.0);
 });
