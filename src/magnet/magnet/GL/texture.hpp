@@ -166,7 +166,19 @@ namespace magnet {
 	  glGetTexImage(_texType, lvl, type, GL_UNSIGNED_BYTE, &data[0]);
 	}
 
-	virtual size_t getPixelCount(size_t level = 0) = 0;
+	virtual GLint getPixelCount(GLint level = 0) const = 0;
+	
+	inline GLint calcMipmapLevels() const
+	{
+	  GLint max = getMaxDimension();
+	  GLint logMax = 1;
+
+	  max >>= 1;
+	  while (max) { max >>= 1; ++logMax; }	
+	  return logMax;
+	}
+
+	virtual GLint getMaxDimension() const = 0;
 
       protected:
       
@@ -256,14 +268,12 @@ namespace magnet {
     public:
       Texture1D(): TextureBasic(GL_TEXTURE_1D) {}
       
-      size_t getPixelCount(size_t level = 0)
+      GLint getPixelCount(GLint lvl = 0) const
       {
-	size_t dividor = 1;
-	for (size_t i = 0; i < level; ++i)
-	  dividor *= 2;
-
-	return _width / dividor;
+	return getWidth(lvl);
       }
+      
+      GLint getMaxDimension() const { return _width; }
 
       /*! \brief Initializes a 1D texture.
        *
@@ -352,8 +362,7 @@ namespace magnet {
 			pixelformat, GL_FLOAT, &data[0]);
       }
 
-
-      inline const GLint& getWidth() const { return _width; }
+      inline const GLint getWidth(GLint lvl = 0) const { return _width / (1 << lvl); }
     private:
       
       GLint _width;
@@ -367,14 +376,12 @@ namespace magnet {
     public:
       Texture2D(): TextureBasic(GL_TEXTURE_2D) {}
       
-      size_t getPixelCount(size_t level = 0)
+      GLint getPixelCount(GLint lvl = 0) const
       {
-	size_t dividor = 1;
-	for (size_t i = 0; i < level; ++i)
-	  dividor *= 2;
-
-	return (_width / dividor) * (_height / dividor);
+	return getWidth(lvl) * getHeight(lvl);
       }
+
+      GLint getMaxDimension() const { return std::max(_width, _height); }
 
       /*! \brief Initializes a 2D texture.
        *
@@ -489,8 +496,8 @@ namespace magnet {
 			pixelformat, safeType(_internalFormat), data);
       }
 
-      inline const GLint& getWidth() const { return _width; }
-      inline const GLint& getHeight() const { return _height; }
+      inline const GLint getWidth(GLint lvl = 0) const { return _width / (1 << lvl); }
+      inline const GLint getHeight(GLint lvl = 0) const { return _height / (1 << lvl); }
     private:
       friend class Texture2DMultisampled;
       Texture2D(GLenum type): TextureBasic(type) {}
@@ -547,9 +554,6 @@ namespace magnet {
 				_width, _height, _fixedSampleLocations); 
       }
 
-      inline const GLint& getWidth() const { return _width; }
-      inline const GLint& getHeight() const { return _height; }
-
       inline virtual void subImage(const std::vector<uint8_t>& data, GLenum pixelformat,
 			   GLint xoffset = 0, GLint yoffset = 0, GLint width = -1, 
 			   GLint height = -1, GLint level = 0)
@@ -578,15 +582,13 @@ namespace magnet {
     public:
       Texture3D(): TextureBasic(GL_TEXTURE_3D) {}
 
-      size_t getPixelCount(size_t level = 0)
+      GLint getPixelCount(GLint lvl = 0) const
       {
-	size_t dividor = 1;
-	for (size_t i = 0; i < level; ++i)
-	  dividor *= 2;
-
-	return (_width / dividor) * (_height / dividor)  * (_depth / dividor);
+	return getWidth(lvl) * getHeight(lvl) * getDepth(lvl);
       }
       
+      GLint getMaxDimension() const { return std::max(std::max(_width, _height), _depth); }
+
       /*! \brief Initializes a 3D texture.
        *
        * \param width The width of the texture in pixels.
@@ -675,9 +677,9 @@ namespace magnet {
 			pixelformat, safeType(_internalFormat), &data[0]);
       }
 
-      inline const GLint& getWidth() const { return _width; }
-      inline const GLint& getHeight() const { return _height; }
-      inline const GLint& getDepth() const { return _depth; }
+      inline const GLint getWidth(GLint lvl = 0) const { return _width / (1 << lvl); }
+      inline const GLint getHeight(GLint lvl = 0) const { return _height / (1 << lvl); }
+      inline const GLint getDepth(GLint lvl = 0) const { return _depth / (1 << lvl); }
 
     private:
       

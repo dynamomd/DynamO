@@ -1167,7 +1167,7 @@ namespace coil {
       magnet::GL::Texture2D& tex = *_luminanceBuffer.getColorTexture();
       GLsizei currentWidth = tex.getWidth();
       GLsizei currentHeight = tex.getHeight();
-      int numLevels = 1 + int(floorf(log2f(fmaxf(currentWidth, currentHeight))));
+      GLint numLevels = tex.calcMipmapLevels();
 
       //Ensure the luminance buffer is both attached and its color
       //texture bound
