@@ -670,20 +670,14 @@ namespace coil {
     {
       {
 	//Build the main/left-eye render buffer
-	std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+	std::tr1::shared_ptr<magnet::GL::Texture2D> 
+	  colorTexture(new magnet::GL::Texture2D);
 	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
-	depthTexture->init(_camera.getWidth(), _camera.getHeight(), GL_DEPTH_COMPONENT);
-	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-
 	_renderTarget.init();
 	_renderTarget.attachTexture(colorTexture, 0);
-	_renderTarget.attachTexture(depthTexture);
       }
 
       {
@@ -693,9 +687,17 @@ namespace coil {
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
+	std::tr1::shared_ptr<magnet::GL::Texture2D> 
+	  depthTexture(new magnet::GL::Texture2D);
+	depthTexture->init(_camera.getWidth(), _camera.getHeight(), 
+			   GL_DEPTH_COMPONENT);
+	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+
 	_hdrBuffer.init();
 	_hdrBuffer.attachTexture(colorTexture, 0);
-	_hdrBuffer.attachTexture(_renderTarget.getDepthTexture());
+	_hdrBuffer.attachTexture(depthTexture);
       }
       
       {
