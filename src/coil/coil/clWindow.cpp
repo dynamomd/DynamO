@@ -712,29 +712,6 @@ namespace coil {
 	_luminanceBuffer.init();
 	_luminanceBuffer.attachTexture(colorTexture, 0);
       }
-
-      {
-	//Build depth buffer
-	std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
-	depthTexture->init(1024, 1024, GL_DEPTH_COMPONENT);
-	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-	
-	//Build color texture
-	std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-	colorTexture->init(1024, 1024, GL_RG32F);
-	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	
-	_shadowBuffer.init();
-	_shadowBuffer.attachTexture(colorTexture, 0);
-	_shadowBuffer.attachTexture(depthTexture);
-      }
     }
     
     _cursor.init(600, 600);
@@ -800,7 +777,6 @@ namespace coil {
     _Gbuffer.deinit();
     _hdrBuffer.deinit();
     _luminanceBuffer.deinit();
-    _shadowBuffer.deinit();
 	
     _filterTarget1.deinit();
     _filterTarget2.deinit();
@@ -1069,7 +1045,6 @@ namespace coil {
     _Gbuffer.attach();
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_TRUE);
     glDisable(GL_BLEND);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     _renderShader.attach();
@@ -1091,30 +1066,29 @@ namespace coil {
     _Gbuffer.getColorTexture(0)->bind(0);
     _Gbuffer.getColorTexture(1)->bind(1);
     _Gbuffer.getColorTexture(2)->bind(2);
-    _Gbuffer.getDepthTexture()->bind(3);
 
     //First, set up the buffers for rendering
     _hdrBuffer.attach();
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDisable(GL_DEPTH_TEST);
 
     //Now we need to populate the depth buffer
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    glDisable(GL_DEPTH_TEST);
-    _depthResolverShader.attach();
-    _depthResolverShader["posTex"] = 2;
-    _depthResolverShader["samples"] = GLint(_samples);
-    _depthResolverShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
-    _depthResolverShader["ViewMatrix"] = _camera.getViewMatrix();
-    _depthResolverShader.invoke();
-    _depthResolverShader.detach();
-    glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+//    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+//    _depthResolverShader.attach();
+//    _depthResolverShader["posTex"] = 2;
+//    _depthResolverShader["samples"] = GLint(_samples);
+//    _depthResolverShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
+//    _depthResolverShader["ViewMatrix"] = _camera.getViewMatrix();
+//    _depthResolverShader.invoke();
+//    _depthResolverShader.detach();
+//    glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+//    glDepthMask(GL_FALSE);
 
     //Additive blending of all of the lights contributions
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE);
     //Disable writing to the depth buffer
-    glDepthMask(GL_FALSE);
 
     //For now, we haven't optimised the light calculations, so disable
     //the depth test.
@@ -1123,7 +1097,6 @@ namespace coil {
     _pointLightShader["colorTex"] = 0;
     _pointLightShader["normalTex"] = 1;
     _pointLightShader["positionTex"] = 2;
-    _pointLightShader["depthTex"] = 3;
     _pointLightShader["samples"] = GLint(_samples);
     GLfloat ambient = _ambientIntensity;
 
@@ -1161,7 +1134,6 @@ namespace coil {
 	}
 
     glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_TRUE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -1178,7 +1150,7 @@ namespace coil {
     ///////////////////////Luminance Sampling//////////////////////
     //The light buffer is bound to texture unit 0 for the tone mapping too
     glDisable(GL_DEPTH_TEST);
-    glDepthMask(GL_FALSE);
+    //glDepthMask(GL_FALSE);
 
     _hdrBuffer.getColorTexture()->bind(0);
 
