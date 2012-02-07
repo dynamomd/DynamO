@@ -1192,11 +1192,8 @@ namespace coil {
 				    tex.getGLType(), tex.getGLHandle(), i);
 
 	  //Now generate the mipmap level using a shader
-	  std::tr1::array<GLfloat, 2> oldInvDimensions = {{1.0 / oldWidth, 
-							   1.0 / oldHeight}};
-	  _luminanceMipMapShader["oldInvDimensions"] = oldInvDimensions;
-	  std::tr1::array<GLint,2> oldDimensions = {{oldWidth, oldHeight}};
-	  _luminanceMipMapShader["oldDimensions"] = oldDimensions;
+	  std::tr1::array<GLint,2> oldSize = {{oldWidth, oldHeight}};
+	  _luminanceMipMapShader["oldSize"] = oldSize;
 	  _luminanceMipMapShader.invoke();
 	}
 
@@ -1211,13 +1208,13 @@ namespace coil {
       _luminanceBuffer.detach();
     }
 
-    std::vector<GLfloat> data;
-    _luminanceBuffer.getColorTexture()->writeto(data, _luminanceBuffer.getColorTexture()->calcMipmapLevels() - 1);
-    std::cerr << "\nSize of mipmap = " << data.size()
-	      << "\nElements are \n";
-    for (size_t i(0); i < data.size(); ++i)
-      std::cerr << data[i] << " ";
-    std::cerr << "\n";
+//    std::vector<GLfloat> data;
+//    _luminanceBuffer.getColorTexture()->writeto(data, _luminanceBuffer.getColorTexture()->calcMipmapLevels() - 1);
+//    std::cerr << "\nSize of mipmap = " << data.size()
+//	      << "\nElements are \n";
+//    for (size_t i(0); i < data.size(); ++i)
+//      std::cerr << data[i] << " ";
+//    std::cerr << "\n";
 
     ///////////////////////Blurred Scene///////////////////////////////
     if (_bloomEnable)
