@@ -159,7 +159,7 @@ void main()
   //The luminance data sampled from the smallest mipmap (1x1). This
   //holds the average logarithm of the scene luminance in the red
   //channel and the maximum scene luminance in the green channel.
-  vec3 luma_data = textureLod(logLuma, vec2(0.5, 0.5), 100.0).rgb;
+  vec3 luma_data = texelFetch(logLuma, ivec2(0, 0), 0).rgb;
 
   //Convert the average logarithm of the scene luminance into the
   //inverse geometric mean of the luminance. We use the inverse to

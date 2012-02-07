@@ -707,10 +707,21 @@ namespace coil {
 	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB16F);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	colorTexture->genMipmaps(); //Ensure the mipmap chain is built/available for writing into
 
-	_luminanceBuffer.init();
-	_luminanceBuffer.attachTexture(colorTexture, 0);
+	_luminanceBuffer1.init();
+	_luminanceBuffer1.attachTexture(colorTexture, 0);
+      }
+
+      {
+	std::tr1::shared_ptr<magnet::GL::Texture2D> 
+	  colorTexture(new magnet::GL::Texture2D);
+	
+	colorTexture->init(_camera.getWidth()/2, _camera.getHeight()/2, GL_RGB16F);
+	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	_luminanceBuffer2.init();
+	_luminanceBuffer2.attachTexture(colorTexture, 0);
       }
     }
     
@@ -776,7 +787,8 @@ namespace coil {
     _renderTarget.deinit();
     _Gbuffer.deinit();
     _hdrBuffer.deinit();
-    _luminanceBuffer.deinit();
+    _luminanceBuffer1.deinit();
+    _luminanceBuffer2.deinit();
 	
     _filterTarget1.deinit();
     _filterTarget2.deinit();
@@ -994,6 +1006,7 @@ namespace coil {
 	_camera.setEyeLocation(currentEyePos);
       }
 
+    _luminanceBuffer1.blitToScreen(_camera.getWidth(), _camera.getHeight());	    
     getGLContext()->swapBuffers();
 
     //Check if we're recording and then check that if we're
@@ -1150,66 +1163,55 @@ namespace coil {
     ///////////////////////Luminance Sampling//////////////////////
     //The light buffer is bound to texture unit 0 for the tone mapping too
     glDisable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
     //glDepthMask(GL_FALSE);
 
     _hdrBuffer.getColorTexture()->bind(0);
 
-    _luminanceBuffer.attach();
+    _luminanceBuffer1.attach();
     _luminanceShader.attach();
     _luminanceShader["colorTex"] = 0;
     _luminanceShader.invoke();
     _luminanceShader.detach();
-    _luminanceBuffer.detach();
+    _luminanceBuffer1.detach();
+
+    magnet::GL::FBO* luminanceSource = &_luminanceBuffer1;
+    magnet::GL::FBO* luminanceDestination = &_luminanceBuffer2;
 
     //Now we need to generate the mipmaps containing the scene
     //average, minimum and maximum luminances
     {
-      magnet::GL::Texture2D& tex = *_luminanceBuffer.getColorTexture();
-      GLsizei currentWidth = tex.getWidth();
-      GLsizei currentHeight = tex.getHeight();
-      GLint numLevels = tex.calcMipmapLevels();
-
-      //Ensure the luminance buffer is both attached and its color
-      //texture bound
-      _luminanceBuffer.attach();
-      tex.bind(0);
+      GLsizei currentWidth = _luminanceBuffer1.getColorTexture()->getWidth();
+      GLsizei currentHeight = _luminanceBuffer1.getColorTexture()->getHeight();
+      GLint numLevels = _luminanceBuffer1.getColorTexture()->calcMipmapLevels();
 
       //Attach the mipmapping shader
       _luminanceMipMapShader.attach();
-      _luminanceMipMapShader["inputTex"] = 0;
       for (int i=1; i < numLevels; ++i)
 	{
-	  GLsizei oldWidth = currentWidth;
-	  GLsizei oldHeight = currentHeight;
+	  luminanceDestination->attach();
+	  luminanceSource->getColorTexture()->bind(0);
+	  _luminanceMipMapShader["inputTex"] = 0;
+
+	  std::tr1::array<GLint,2> oldSize = {{currentWidth, currentHeight}};
+	  _luminanceMipMapShader["oldSize"] = oldSize;
+
 	  //Halve the size of the textures, ensuring they never drop below 1
 	  currentWidth /= 2; currentWidth += !currentWidth;
 	  currentHeight /= 2; currentHeight += !currentHeight;
 	  _glContext->setViewport(0, 0, currentWidth, currentHeight);
 
-	  tex.parameter(GL_TEXTURE_BASE_LEVEL, i - 1);
-	  tex.parameter(GL_TEXTURE_MAX_LEVEL, i - 1);
-	  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
-				    tex.getGLType(), tex.getGLHandle(), i);
-
 	  //Now generate the mipmap level using a shader
-	  std::tr1::array<GLint,2> oldSize = {{oldWidth, oldHeight}};
-	  _luminanceMipMapShader["oldSize"] = oldSize;
 	  _luminanceMipMapShader.invoke();
+
+	  luminanceDestination->detach();
+	  std::swap(luminanceSource, luminanceDestination);
 	}
-
-      //Rebind mipmap 0 to the framebuffer
-      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
-				tex.getGLType(), tex.getGLHandle(), 0);
-      _glContext->setViewport(0, 0, tex.getWidth(), tex.getHeight());
-
-      tex.parameter(GL_TEXTURE_BASE_LEVEL, 0);
-      tex.parameter(GL_TEXTURE_MAX_LEVEL, numLevels - 1);
       _luminanceMipMapShader.detach();
-      _luminanceBuffer.detach();
     }
 
 //    std::vector<GLfloat> data;
-//    _luminanceBuffer.getColorTexture()->writeto(data, _luminanceBuffer.getColorTexture()->calcMipmapLevels() - 1);
+//    _luminanceDestination.getColorTexture()->writeto(data, _luminanceBuffer.getColorTexture()->calcMipmapLevels() - 1);
 //    std::cerr << "\nSize of mipmap = " << data.size()
 //	      << "\nElements are \n";
 //    for (size_t i(0); i < data.size(); ++i)
@@ -1264,7 +1266,7 @@ namespace coil {
     ///////////////////////Tone Mapping///////////////////////////
     _renderTarget.attach();
     _hdrBuffer.getColorTexture()->bind(0);
-    _luminanceBuffer.getColorTexture()->bind(1);
+    luminanceSource->getColorTexture()->bind(1);
     if (_bloomEnable)
       _blurTarget1.getColorTexture()->bind(2);
     _toneMapShader.attach();
@@ -1410,8 +1412,8 @@ namespace coil {
     _cursor.resize(w, h);
     _blurTarget1.resize(w / 4, h / 4);
     _blurTarget2.resize(w / 4, h / 4);
-    _luminanceBuffer.resize(w, h);
-    _luminanceBuffer.getColorTexture(0)->genMipmaps();
+    _luminanceBuffer1.resize(w, h);
+    _luminanceBuffer2.resize(w/2, h/2);
     std::ostringstream os;
     os << "Coil visualizer (" << w << "," << h << ")";
     setWindowtitle(os.str());

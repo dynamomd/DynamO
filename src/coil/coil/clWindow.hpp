@@ -105,7 +105,8 @@ namespace coil {
     magnet::GL::FBO _renderTarget;
     magnet::GL::FBO _Gbuffer;
     magnet::GL::FBO _hdrBuffer;
-    magnet::GL::FBO _luminanceBuffer;
+    magnet::GL::FBO _luminanceBuffer1;
+    magnet::GL::FBO _luminanceBuffer2;
 
     //Blur Targets
     magnet::GL::FBO _blurTarget1;
