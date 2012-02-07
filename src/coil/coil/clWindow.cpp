@@ -705,7 +705,7 @@ namespace coil {
 	  colorTexture(new magnet::GL::Texture2D);
 	
 	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB16F);
-	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	_luminanceBuffer1.init();
@@ -717,7 +717,7 @@ namespace coil {
 	  colorTexture(new magnet::GL::Texture2D);
 	
 	colorTexture->init(_camera.getWidth()/2, _camera.getHeight()/2, GL_RGB16F);
-	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	_luminanceBuffer2.init();
@@ -1006,7 +1006,6 @@ namespace coil {
 	_camera.setEyeLocation(currentEyePos);
       }
 
-    _luminanceBuffer1.blitToScreen(_camera.getWidth(), _camera.getHeight());	    
     getGLContext()->swapBuffers();
 
     //Check if we're recording and then check that if we're

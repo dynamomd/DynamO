@@ -107,7 +107,7 @@ void main()
   if (extraXSamples && extraYSamples)
     combine(texelFetch(inputTex, oldPixelOrigin + ivec2(2,2), 0));
 
-  L_out = textureOffset(inputTex, vec2(0.5, 0.5), ivec2(0,0));//output_frag();
+  L_out = output_frag();
 });
 	}
       };
