@@ -1226,7 +1226,7 @@ namespace coil {
 	_blurTarget1.attach();
 	_downsampleShader.attach();
 	_downsampleShader["inputTex"] = 0;
-	_downsampleShader["downscale"] = GLfloat(4.0);
+	_downsampleShader["downscale"] = GLint(4);
 	std::tr1::array<GLfloat, 2> oldInvDimensions = {{1.0 / tex.getWidth(), 
 							 1.0 / tex.getHeight()}};
 	_downsampleShader["oldInvDimensions"] = oldInvDimensions;

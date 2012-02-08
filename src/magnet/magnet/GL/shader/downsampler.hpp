@@ -71,6 +71,7 @@ vec4 output_frag()
 layout (location = 0) out vec4 L_out;
 uniform sampler2D inputTex;
 uniform ivec2 oldSize;
+uniform int downscale = 2;
 ) 
 	    + glsl_operation() 
 	    + STRINGIFY(
@@ -79,33 +80,34 @@ void main()
   //This is the texture coordinates of the center of the lower left
   //pixel to be sampled. This is the "origin" pixel and we are going
   //to sum up the pixels above and to the right of this pixel.
-  ivec2 oldPixelOrigin = 2 * ivec2(gl_FragCoord.xy);
+  ivec2 oldPixelOrigin = downscale * ivec2(gl_FragCoord.xy);
 
+  int step = downscale / 2;
   //First sample the standard 2x2 grid of pixels
-  combine(texelFetch(inputTex, oldPixelOrigin + ivec2(0,0), 0));
-  combine(texelFetch(inputTex, oldPixelOrigin + ivec2(0,1), 0));
-  combine(texelFetch(inputTex, oldPixelOrigin + ivec2(1,0), 0));
-  combine(texelFetch(inputTex, oldPixelOrigin + ivec2(1,1), 0));
+  combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(0,0), 0));
+  combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(0,1), 0));
+  combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(1,0), 0));
+  combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(1,1), 0));
 
   //Now determine if we need to add extra samples in case of
   //non-power of two textures
-  bool extraXSamples = oldPixelOrigin.x + 3 == oldSize.x;
-  bool extraYSamples = oldPixelOrigin.y + 3 == oldSize.y;
+  bool extraXSamples = oldPixelOrigin.x + downscale == oldSize.x - 1;
+  bool extraYSamples = oldPixelOrigin.y + downscale == oldSize.y - 1;
   
   if (extraXSamples)
     {
-      combine(texelFetch(inputTex, oldPixelOrigin + ivec2(2,0), 0));
-      combine(texelFetch(inputTex, oldPixelOrigin + ivec2(2,1), 0));
+      combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(2,0), 0));
+      combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(2,1), 0));
     }
     
   if (extraYSamples)
     {
-      combine(texelFetch(inputTex, oldPixelOrigin + ivec2(0,2), 0));
-      combine(texelFetch(inputTex, oldPixelOrigin + ivec2(1,2), 0));
+      combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(0,2), 0));
+      combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(1,2), 0));
     }
   
   if (extraXSamples && extraYSamples)
-    combine(texelFetch(inputTex, oldPixelOrigin + ivec2(2,2), 0));
+    combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(2,2), 0));
 
   L_out = output_frag();
 });
