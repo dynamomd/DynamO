@@ -199,9 +199,14 @@ void main()
       norm /= sqrt(sqrnormlength);
       if (sqrnormlength < 0.01)
 	norm = lastnorm; 
+
       //Store the current normal
       lastnorm = norm;
       
+      //Now rotate the normal to the correct orientation for the view
+      //position
+      norm = (ViewMatrix * vec4(norm, 0.0)).xyz;
+	
       vec4 src = vec4(0.0, 0.0, 0.0, 0.0);
       float delta = sample.a - lastsamplea;
       vec4 transfer = texture(IntTransferTexture, sample.a);
