@@ -212,6 +212,15 @@ namespace magnet {
 	    {
 	    case GL_DEPTH24_STENCIL8:
 	      return GL_UNSIGNED_INT_24_8;
+	    case GL_R16F:
+	    case GL_RG16F:
+	    case GL_RGB16F:
+	    case GL_RGBA16F:
+	    case GL_R32F:
+	    case GL_RG32F:
+	    case GL_RGB32F:
+	    case GL_RGBA32F:
+	      return GL_FLOAT;
 	    default:
 	      return GL_UNSIGNED_BYTE;
 	    }
@@ -337,7 +346,7 @@ namespace magnet {
 
 	bind(0);
 	glTexSubImage1D(_texType, level, xoffset, width,
-			pixelformat, safeType(_internalFormat), &data[0]);
+			pixelformat, GL_UNSIGNED_INT, &data[0]);
       }
 
       /*! \brief Fills a section of the texture with the passed data
