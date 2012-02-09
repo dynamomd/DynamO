@@ -195,7 +195,10 @@ void main()
 //      //Sort out the normal data
       vec3 norm = sample.xyz * 2.0 - 1.0;
       //Test if we've got a bad normal and need to reuse the old one
-      if (dot(norm,norm) < 0.2) norm = lastnorm; 
+      float sqrnormlength = dot(norm,norm);
+      norm /= sqrt(sqrnormlength);
+      if (sqrnormlength < 0.01)
+	norm = lastnorm; 
       //Store the current normal
       lastnorm = norm;
       
@@ -224,7 +227,7 @@ void main()
       ////////////Lighting calculations
       //We perform all the calculations in the model (untransformed)
       //space.
-      src.rgb = calcLighting(rayPos, normalize(norm), src.rgb);
+      src.rgb = calcLighting(rayPos, norm, src.rgb);
       ///////////Front to back blending
       src.rgb *= src.a;
       color = (1.0 - color.a) * src + color;
