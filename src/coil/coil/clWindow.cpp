@@ -1083,27 +1083,27 @@ namespace coil {
     _hdrBuffer.attach();
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glDisable(GL_DEPTH_TEST);
+    //We need the depth test on, to enable writes to the depth buffer
+    glEnable(GL_DEPTH_TEST);
 
-    //Now we need to populate the depth buffer
-//    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-//    _depthResolverShader.attach();
-//    _depthResolverShader["posTex"] = 2;
-//    _depthResolverShader["samples"] = GLint(_samples);
-//    _depthResolverShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
-//    _depthResolverShader["ViewMatrix"] = _camera.getViewMatrix();
-//    _depthResolverShader.invoke();
-//    _depthResolverShader.detach();
-//    glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
-//    glDepthMask(GL_FALSE);
+    //Now we need to populate the depth buffer, but nothing needs to
+    //go in the color buffer
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    _depthResolverShader.attach();
+    _depthResolverShader["posTex"] = 2;
+    _depthResolverShader["samples"] = GLint(_samples);
+    _depthResolverShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
+    _depthResolverShader["ViewMatrix"] = _camera.getViewMatrix();
+    _depthResolverShader.invoke();
+    _depthResolverShader.detach();
+    glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
 
     //Additive blending of all of the lights contributions
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE);
-    //Disable writing to the depth buffer
-
-    //For now, we haven't optimised the light calculations, so disable
-    //the depth test.
+    //Now disable writing or testing of the depth buffer
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(GL_FALSE);
 
     _pointLightShader.attach();
     _pointLightShader["colorTex"] = 0;
@@ -1145,8 +1145,9 @@ namespace coil {
 	  break;
 	}
 
-    glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     //Enter the forward render ticks for all objects
@@ -1163,7 +1164,6 @@ namespace coil {
     //The light buffer is bound to texture unit 0 for the tone mapping too
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
-    //glDepthMask(GL_FALSE);
 
     _hdrBuffer.getColorTexture()->bind(0);
 
