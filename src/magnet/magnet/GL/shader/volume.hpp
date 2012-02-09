@@ -66,14 +66,11 @@ uniform vec2 WindowSize;
 uniform vec3 RayOrigin;
 
 //The light's position in model space (untransformed)
-uniform vec3 LightPosition;
 uniform sampler1D TransferTexture;
 uniform sampler1D IntTransferTexture;
 uniform sampler2D DepthTexture;
 uniform sampler3D DataTexture;
 uniform float StepSize;
-uniform float DiffusiveLighting;
-uniform float SpecularLighting;
 uniform float DitherRay;
 
 uniform mat4 ProjectionMatrix;
@@ -93,17 +90,49 @@ float recalcZCoord(float zoverw)
     / (zFarDist + zNearDist - (2.0 * zoverw - 1.0) * (zFarDist - zNearDist));
 }
 
-float ztodepthbuf(float zoverw)
-{
+uniform vec3 lightPosition;
+uniform vec3 lightColor;
+uniform float ambientLight;
+uniform float lightIntensity;
+uniform float lightAttenuation;
+uniform float lightSpecularExponent;
+uniform float lightSpecularFactor;
 
-  float A = ProjectionMatrix[2].z;
-  float B = ProjectionMatrix[3].z;
-  float zNearDist =  -B / (1.0 - A);
-  float zFarDist = B / (1.0 + A);
+vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
+{  
+  vec3 lightVector = lightPosition - position;
+  float lightDistance = length(lightVector);
+  vec3 lightDirection = lightVector * (1.0 / lightDistance);
+ 
+  //if the normal has a zero length, illuminate it as though it was
+  //fully lit
+  float normal_length = length(normal);
+  normal = (normal_length == 0) ?  lightDirection : normal / normal_length;
+ 
+  //Camera position relative to the pixel location
+  vec3 eyeVector = -position;
+  vec3 eyeDirection = normalize(eyeVector);
 
-  return (2.0 * zNearDist * zFarDist) 
-    / (zFarDist + zNearDist - (2.0 * zoverw - 1.0) * (zFarDist - zNearDist));
+  float lightNormDot = dot(normal, lightDirection);
+  //Light attenuation
+  float intensity = lightIntensity / (1.0 + lightAttenuation * lightDistance * lightDistance);
+
+  /////////////////////////////
+  //Blinn Phong lighting calculation
+  /////////////////////////////
+
+  vec3 ReflectedRay = reflect(-lightDirection, normal);
+  //Specular
+  float specular = lightSpecularFactor * float(lightNormDot > 0.0)
+    * pow(max(dot(ReflectedRay, eyeDirection), 0.0), lightSpecularExponent);
+  
+  float diffuse = smoothstep(-0.5, 1.0, lightNormDot);
+
+  return intensity 
+    * (specular * lightColor
+       + diffuse * diffuseColor * lightColor);
 }
+
 
 void main()
 {
@@ -142,11 +171,6 @@ void main()
   float bufferDepth = texture(DepthTexture, gl_FragCoord.xy / WindowSize.xy).r;
   float depth = recalcZCoord(bufferDepth);
   if (tfar > depth) tfar = depth;
-  
-  //This value is used to ensure that changing the step size does not
-  //change the visualization as the alphas are renormalized using it.
-  //For more information see the loop below where it is used
-  const float baseStepSize = 0.01;
   
   //We need to calculate the ray's starting position. We add a random
   //fraction of the stepsize to the original starting point to dither
@@ -200,28 +224,7 @@ void main()
       ////////////Lighting calculations
       //We perform all the calculations in the model (untransformed)
       //space.
-      vec3 lightDir = normalize(LightPosition - rayPos);
-      float lightNormDot = dot(normalize(norm), lightDir);
-      
-      //Diffuse lighting
-      float diffTerm =  max(0.5 * lightNormDot + 0.5, 0.5);
-      //Quadratic falloff of the diffusive term
-      diffTerm *= diffTerm;
-  
-      //We either use diffusive lighting plus an ambient, or if its
-      //disabled (DiffusiveLighting = 0), we just use the original
-      //color.
-      vec3 ambient = vec3(0.1,0.1,0.1);
-      src.rgb *= DiffusiveLighting * (diffTerm + ambient) + (1.0 - DiffusiveLighting);
-      
-      //Specular lighting term
-      //This is enabled if (SpecularLighting == 1)
-      vec3 ReflectedRay = reflect(lightDir, norm);
-      src.rgb += SpecularLighting
-  	* float(lightNormDot > 0) //Test to ensure that specular is only
-  	//applied to front facing voxels
-  	* vec3(1.0,1.0,1.0) * pow(max(dot(ReflectedRay, rayDirection), 0.0), 96.0);
-      
+      src.rgb = calcLighting(rayPos, normalize(norm), src.rgb);
       ///////////Front to back blending
       src.rgb *= src.a;
       color = (1.0 - color.a) * src + color;

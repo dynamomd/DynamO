@@ -16,6 +16,7 @@
 */
 
 #include <coil/RenderObj/Volume.hpp>
+#include <coil/RenderObj/Light.hpp>
 #include <coil/glprimatives/arrow.hpp>
 #include <coil/RenderObj/console.hpp>
 #include <magnet/gtk/numericEntry.hpp>
@@ -198,7 +199,7 @@ namespace coil {
   void 
   RVolume::forwardRender(magnet::GL::FBO& fbo,
 			 const magnet::GL::Camera& camera,
-			 const magnet::GL::Camera& light,
+			 const RLight& light,
 			 RenderMode mode)
   {
     if (!_visible || !_data.isValid()) return;
@@ -227,12 +228,17 @@ namespace coil {
     _shader["DepthTexture"] = 0;
     _shader["DataTexture"] = 1;
     _shader["StepSize"] = _stepSizeVal;
-    _shader["DiffusiveLighting"] = GLfloat(_diffusiveLighting->get_value());
-    _shader["SpecularLighting"] = GLfloat(_specularLighting->get_value());
+
+    _shader["lightColor"] = light.getColor();
+    _shader["lightAttenuation"] = light.getAttenuation();
+    _shader["lightSpecularExponent"] = light.getSpecularExponent();
+    _shader["lightSpecularFactor"] = light.getSpecularFactor();
+    _shader["lightIntensity"] = light.getIntensity();
+    _shader["lightPosition"] = light.getEyespacePosition(camera);
+
     _shader["DitherRay"] = GLfloat(_ditherRay->get_value());
     _shader["TransferTexture"] = 2;
     _shader["IntTransferTexture"] = 3;
-    _shader["LightPosition"] = light.getEyeLocationObjSpace();
     
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);

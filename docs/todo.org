@@ -46,6 +46,7 @@
 **** DONE Bugfix Coil: Fixed the bilateral blur filter.
 **** DONE Bugfix Coil: Fixed the rendering on NVIDIA drivers.
 **** DONE Magnet: Upgraded all shaders to GLSL 330.
+**** TODO Coil: Fix bloom with a black background.
 **** TODO Coil: Fix the volume renderer in the new pipeline.
 **** TODO Coil: Fix the DOF filter and the SSAO filter, as multisampling has changed them.
 **** TODO Coil: Fix the incorrect calculation of the camera position, due to the head position not being added on. This is breaking lots of calculations (e.g. SSAO).

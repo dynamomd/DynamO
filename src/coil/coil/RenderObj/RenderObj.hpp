@@ -27,6 +27,8 @@ namespace Gtk { class ScrolledWindow; }
 namespace coil {
   class RenderObjectsGtkTreeView;
 
+  class RLight;
+
   /*! \brief The base class for all renderable objects in the system.
     
     Any object which represents a 3D object or a 2D interface object
@@ -104,7 +106,7 @@ namespace coil {
      */
     virtual void forwardRender(magnet::GL::FBO& fbo, 
 			       const magnet::GL::Camera& cam,
-			       const magnet::GL::Camera& light,
+			       const RLight& light,
 			       RenderMode mode) 
     {}
 

@@ -60,7 +60,7 @@ namespace coil {
     float getSpecularExponent() const { return _specularExponent; }
     float getSpecularFactor() const { return _specularFactor; }
 
-    const std::tr1::array<GLfloat, 3>& getColor() { return _color; }
+    const std::tr1::array<GLfloat, 3>& getColor() const { return _color; }
 
     /*! \brief Load the specified OpenGL texture matrix with the
       projection required for shadow mapping.

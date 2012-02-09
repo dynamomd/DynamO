@@ -36,7 +36,7 @@ namespace coil {
     virtual void deinit();
     virtual void forwardRender(magnet::GL::FBO& fbo,
 			       const magnet::GL::Camera& cam,
-			       const magnet::GL::Camera& light,
+			       const RLight& light,
 			       RenderMode mode);
 
     virtual void clTick(const magnet::GL::Camera&) {}

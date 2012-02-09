@@ -432,6 +432,16 @@ namespace magnet {
 	return (viewTransformation * _eyeLocation) + _nearPlanePosition;
       }
 
+      inline void
+      setEyeLocationObjSpace(math::Vector Vec)
+      {
+	math::Matrix viewTransformation
+	  = Rodrigues(- _up * (_panrotation * M_PI/180))
+	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
+	
+	_nearPlanePosition = Vec - (viewTransformation * _eyeLocation);
+      }
+
       //! \brief Set the height and width of the screen in pixels.
       inline void setHeightWidth(size_t height, size_t width)
       { _height = height; _width = width; }
