@@ -36,7 +36,6 @@ namespace magnet {
 layout (location = 0) out vec4 color_out;
 uniform sampler2DMS posTex;
 uniform int samples;
-uniform mat4 ViewMatrix;
 uniform mat4 ProjectionMatrix;
 
 void main()
@@ -45,13 +44,12 @@ void main()
   float out_depth = 1.0;
   for (int sample_id = 0; sample_id < samples; sample_id++)
     {
-      vec4 pos = vec4(texelFetch(posTex, ivec2(gl_FragCoord.xy), sample_id).xyz,
-		      1.0);
-      pos = ViewMatrix * pos;
-      pos = ProjectionMatrix * pos;
-      pos = pos / pos.w;
+      //Fetch the eye-space position
+      vec3 eye_pos = texelFetch(posTex, ivec2(gl_FragCoord.xy), 0/*sample_id*/).xyz;
+      vec4 clip_pos = ProjectionMatrix * vec4(eye_pos, 1.0);
+      vec3 device_pos = clip_pos.xyz / clip_pos.w;
       
-      out_depth = min((pos.z + 1.0) / 2.0, out_depth);
+      out_depth = min((device_pos.z + 1.0) / 2.0, out_depth);
     }
   
   gl_FragDepth = out_depth;

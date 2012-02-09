@@ -220,7 +220,12 @@ namespace magnet {
 	    case GL_RG32F:
 	    case GL_RGB32F:
 	    case GL_RGBA32F:
+	    case GL_DEPTH_COMPONENT:
 	      return GL_FLOAT;
+	    case GL_DEPTH_COMPONENT16:
+	    case GL_DEPTH_COMPONENT24:
+	    case GL_DEPTH_COMPONENT32:
+	      return GL_UNSIGNED_INT;
 	    default:
 	      return GL_UNSIGNED_BYTE;
 	    }

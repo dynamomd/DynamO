@@ -1093,7 +1093,6 @@ namespace coil {
     _depthResolverShader["posTex"] = 2;
     _depthResolverShader["samples"] = GLint(_samples);
     _depthResolverShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
-    _depthResolverShader["ViewMatrix"] = _camera.getViewMatrix();
     _depthResolverShader.invoke();
     _depthResolverShader.detach();
     glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
@@ -1101,6 +1100,7 @@ namespace coil {
     //Additive blending of all of the lights contributions
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE);
+
     //Now disable writing or testing of the depth buffer
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
