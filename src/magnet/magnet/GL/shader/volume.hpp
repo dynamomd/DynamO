@@ -126,12 +126,11 @@ vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
   float specular = lightSpecularFactor * float(lightNormDot > 0.0)
     * pow(max(dot(ReflectedRay, eyeDirection), 0.0), lightSpecularExponent);
   
-  float diffuse = smoothstep(-0.5, 1.0, lightNormDot);
+  float diffuse = smoothstep(-1.1, 1.0, lightNormDot);
 
-  return diffuse * diffuseColor * lightColor;
-//  return intensity 
-//    * (specular * lightColor
-//       + diffuse * diffuseColor * lightColor);
+  return intensity 
+    * (specular * lightColor
+       + diffuse * diffuseColor * lightColor);
 }
 
 
