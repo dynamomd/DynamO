@@ -253,6 +253,7 @@ namespace coil {
 
     //Before we render, we need the current depth buffer for depth testing.
     _currentDepthFBO.resize(fbo.getWidth(), fbo.getHeight());
+
     fbo.detach();
     fbo.copyto(_currentDepthFBO, GL_DEPTH_BUFFER_BIT);
     fbo.attach();

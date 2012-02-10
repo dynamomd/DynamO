@@ -312,12 +312,9 @@ namespace magnet {
 	_width = width; _internalFormat = internalformat;
 	TextureBasic::init();
 	bind(0);
-	glTexImage1D(_texType, 0, _internalFormat, 
-		     _width,
-		     //Border is off
-		     0,
-		     //The following values are not used as no data is
-		     //passed here, use subImage for that.
+	glTexImage1D(_texType, 0, _internalFormat, _width,
+		     0, //Border is off
+		     //The following values are not used (except by GL debug tools)
 		     safeFormat(), safeType(), NULL);
       }
 
@@ -336,8 +333,7 @@ namespace magnet {
 	bind(0);
 	glTexImage1D(_texType, 0, _internalFormat, _width,
 		     0,//Border is off
-		     //The following values are not used as no data is
-		     //passed here, use subImage for that.
+		     //The following values are not used (except by GL debug tools)
 		     safeFormat(), safeType(), NULL); 
       }
 
@@ -423,8 +419,7 @@ namespace magnet {
 	
 	glTexImage2D(_texType, 0, _internalFormat, _width, _height,
 		     0, //Border is off
-		     //The following values are not used as no data is
-		     //passed here, use subImage for that.
+		     //The following values are not used (except by GL debug tools)
 		     safeFormat(), safeType(), NULL); 
       }
       
@@ -442,8 +437,7 @@ namespace magnet {
 	bind(0);
 	glTexImage2D(_texType, 0, _internalFormat, _width, _height,
 		     0, //Border is off
-		     //The following values are not used as no data is
-		     //passed here, use subImage for that.
+		     //The following values are not used (except by GL debug tools)
 		     safeFormat(), safeType(), NULL); 	
       }
 
@@ -629,10 +623,8 @@ namespace magnet {
 
 	glTexImage3D(_texType, 0, _internalFormat, 
 		     _width, _height, _depth, 
-		     //Border is off
-		     0,
-		     //The following values are not used as no data is
-		     //passed here, use subImage for that.
+		     0,//Border is off
+		     //The following values are not used (except by GL debug tools)
 		     safeFormat(), safeType(), NULL); 
       }
 
@@ -651,10 +643,8 @@ namespace magnet {
 	bind(0);
 	glTexImage3D(_texType, 0, _internalFormat,
 		     _width, _height, _depth, 
-		     //Border is off
-		     0,
-		     //The following values are not used as no data is
-		     //passed here, use subImage for that.
+		     0,//Border is off
+		     //The following values are not used (except by GL debug tools)
 		     safeFormat(), safeType(), NULL);
       }
 

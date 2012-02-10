@@ -73,7 +73,7 @@ namespace magnet {
        * \param width The new width of the FBO in pixels.
        * \param height The new height of the FBO in pixels.
        */
-      inline void resize(GLsizei width, GLsizei height)
+      inline void resize(const GLsizei width, const GLsizei height)
       {
 	if (!_context)
 	  M_throw() << "Cannot resize an uninitialized FBO";
@@ -220,6 +220,7 @@ namespace magnet {
 			  | GL_DEPTH_BUFFER_BIT)
       {
 	validate();
+	other.validate();
 	//First blit between the two FBO's
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, _FBO);
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, other._FBO);
