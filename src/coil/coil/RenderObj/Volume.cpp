@@ -80,32 +80,32 @@ namespace coil {
   RVolume::loadRawFileWorker(std::string filename, std::tr1::array<size_t,3> dim, 
 			     size_t bytes)
   {
-//    std::ifstream file(filename.c_str(), std::ifstream::binary);
-//    std::vector<GLubyte> inbuffer(dim[0] * dim[1] * dim[2]);
-//    
-//    switch (bytes)
-//      {
-//      case 1:
-//	{
-//	  //file.read(reinterpret_cast<char*>(&inbuffer[0]), inbuffer.size());
-//	  //if (file.fail()) M_throw() << "Failed to load the texture from the file";
-//	}
-//	break;
-//      case 2:
-//	{
-//	  std::vector<uint16_t> tempBuffer(dim[0] * dim[1] * dim[2]);
-//	  file.read(reinterpret_cast<char*>(&tempBuffer[0]), 2 * tempBuffer.size());
-//	  if (file.fail()) M_throw() << "Failed to load the texture from the file";
-//	  for (size_t i(0); i < tempBuffer.size(); ++i)
-//	    inbuffer[i] = uint8_t(tempBuffer[i] >> 8);
-//	}
-//	break;
-//      default:
-//	M_throw() << "Cannot load at that bit depth yet";
-//      }
-//
-    loadSphereTestPattern();
-    //loadData(inbuffer, dim[0], dim[1], dim[2]);
+    std::ifstream file(filename.c_str(), std::ifstream::binary);
+    std::vector<GLubyte> inbuffer(dim[0] * dim[1] * dim[2]);
+    
+    switch (bytes)
+      {
+      case 1:
+	{
+	  //file.read(reinterpret_cast<char*>(&inbuffer[0]), inbuffer.size());
+	  //if (file.fail()) M_throw() << "Failed to load the texture from the file";
+	}
+	break;
+      case 2:
+	{
+	  std::vector<uint16_t> tempBuffer(dim[0] * dim[1] * dim[2]);
+	  file.read(reinterpret_cast<char*>(&tempBuffer[0]), 2 * tempBuffer.size());
+	  if (file.fail()) M_throw() << "Failed to load the texture from the file";
+	  for (size_t i(0); i < tempBuffer.size(); ++i)
+	    inbuffer[i] = uint8_t(tempBuffer[i] >> 8);
+	}
+	break;
+      default:
+	M_throw() << "Cannot load at that bit depth yet";
+      }
+
+    //loadSphereTestPattern();
+    loadData(inbuffer, dim[0], dim[1], dim[2]);
   }
 
   void
@@ -220,9 +220,7 @@ namespace coil {
 	    voldata[4 * coord + 2] = uint8_t((grad[2] * 0.5 + 0.5) * 255);
 	    
 	    GLubyte val = inbuffer[coordCalc(x, y, z, width, height, depth)];
-	    voldata[4 * coord + 3] 
-	      = val;
-
+	    voldata[4 * coord + 3] = val;
 	    histogram[val] += 1;
 	  }
     
