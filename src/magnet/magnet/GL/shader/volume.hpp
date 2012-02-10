@@ -108,28 +108,27 @@ vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
   //not lit
   float normal_length = length(normal);
   normal = (normal_length == 0) ?  -lightDirection : normal / normal_length;
-// 
-//  //Camera position relative to the pixel location
-//  vec3 eyeVector = -position;
-//  vec3 eyeDirection = normalize(eyeVector);
-//
-  float lightNormDot = dot(normal, lightDirection);
-//  //Light attenuation
-  float intensity = lightIntensity / (1.0 + lightAttenuation * lightDistance * lightDistance);
-//
-//  /////////////////////////////
-//  //Blinn Phong lighting calculation
-//  /////////////////////////////
-//
-//  vec3 ReflectedRay = reflect(-lightDirection, normal);
-//  //Specular
-//  float specular = lightSpecularFactor * float(lightNormDot > 0.0)
-//    * pow(max(dot(ReflectedRay, eyeDirection), 0.0), lightSpecularExponent);
-//  
-  float diffuse = smoothstep(-0.5, 1.0, lightNormDot);
-  float specular = 0.0;
+ 
+  //Camera position relative to the pixel location
+  vec3 eyeVector = -position;
+  vec3 eyeDirection = normalize(eyeVector);
 
-  return abs(normal);
+  float lightNormDot = dot(normal, lightDirection);
+  //Light attenuation
+  float intensity = lightIntensity / (1.0 + lightAttenuation * lightDistance * lightDistance);
+
+  /////////////////////////////
+  //Blinn Phong lighting calculation
+  /////////////////////////////
+
+  vec3 ReflectedRay = reflect(-lightDirection, normal);
+  //Specular
+  float specular = lightSpecularFactor * float(lightNormDot > 0.0)
+    * pow(max(dot(ReflectedRay, eyeDirection), 0.0), lightSpecularExponent);
+  
+  float diffuse = smoothstep(-0.5, 1.0, lightNormDot);
+
+  return diffuse * diffuseColor * lightColor;
 //  return intensity 
 //    * (specular * lightColor
 //       + diffuse * diffuseColor * lightColor);
@@ -205,7 +204,7 @@ void main()
 
       //Store the current normal
       lastnorm = norm;      	
-      //norm = (ViewMatrix * vec4(norm, 0.0)).xyz;
+      norm = (ViewMatrix * vec4(norm, 0.0)).xyz;
 
       vec4 src = vec4(0.0, 0.0, 0.0, 0.0);
       float delta = sample.a - lastsamplea;
@@ -230,8 +229,7 @@ void main()
       lastsamplea = sample.a;
 
       ////////////Lighting calculations
-      //We perform all the calculations in the model (untransformed)
-      //space.
+      //We perform all the calculations in the eye space
       src.rgb = calcLighting((ViewMatrix * vec4(rayPos,1.0)).xyz, norm, src.rgb);
       ///////////Front to back blending
       src.rgb *= src.a;
