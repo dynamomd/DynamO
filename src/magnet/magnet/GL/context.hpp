@@ -31,6 +31,7 @@
 #include <magnet/GL/matrix.hpp>
 #include <magnet/function/delegate.hpp>
 #include <tr1/memory>
+#include <set>
 #include <map>
 #include <iostream>
 
@@ -352,16 +353,14 @@ namespace magnet {
 
       bool testExtension(std::string extension)
       {
-	size_t numExtensions = detail::glGet<GL_NUM_EXTENSIONS>();
-	for (size_t i(0); i < numExtensions; ++i)
+	if (_extensions.empty())
 	  {
-	    std::string ext(reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i)));
-	    
-	    if (ext.compare(extension) == 0)
-	      return true;
+	    size_t numExtensions = detail::glGet<GL_NUM_EXTENSIONS>();
+	    for (size_t i(0); i < numExtensions; ++i)
+	      _extensions.insert(std::string(reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i))));
 	  }
 
-	return false;
+	return _extensions.find(extension) != _extensions.end();
       }
 
     protected:
@@ -387,6 +386,8 @@ namespace magnet {
       cl::CommandQueue _clcommandQ;
       //! \brief Flag set if the OpenCL state has been initialised.
       bool _clInitialised;
+
+      std::set<std::string> _extensions;
 
       friend class shader::detail::Shader;
 

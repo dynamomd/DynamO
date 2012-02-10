@@ -185,9 +185,9 @@ namespace magnet {
 	/*! \brief Function which returns an appropriate format
 	  parameter given a set internalformat.
 	 */
-	static GLenum safeFormat(GLint internalformat)
+	GLenum safeFormat() const
 	{
-	  switch (internalformat)
+	  switch (_internalFormat)
 	    {
 	    case GL_DEPTH24_STENCIL8:
 	    case GL_DEPTH32F_STENCIL8:
@@ -199,16 +199,24 @@ namespace magnet {
 	    case GL_DEPTH_COMPONENT32F:
 	      return GL_DEPTH_COMPONENT;
 	    default:
-	      return GL_RGB;
+	      switch (components())
+		{
+		case 1: return GL_RED;
+		case 2: return GL_RG;
+		case 3: return GL_RGB;
+		case 4: return GL_RGBA;
+		default:
+		  M_throw() << "Unknown number of components";
+		}
 	    }
 	}
 
 	/*! \brief Function which returns an appropriate pixel data
 	 * type given a set internalformat.
 	 */
-	static GLenum safeType(GLint internalformat)
+	GLenum safeType() const
 	{
-	  switch (internalformat)
+	  switch (_internalFormat)
 	    {
 	    case GL_DEPTH24_STENCIL8:
 	      return GL_UNSIGNED_INT_24_8;
@@ -231,7 +239,7 @@ namespace magnet {
 	    }
 	}
       
-	size_t components()
+	size_t components() const
 	{
 	  switch (_internalFormat)
 	    {
@@ -244,22 +252,27 @@ namespace magnet {
 	    case GL_LUMINANCE:
 	    case GL_INTENSITY:
 	    case GL_R:	
+	    case GL_RED:
+	    case GL_R8:
 	    case GL_R16F:
 	    case GL_R32F:
 	      return 1;
 	    case 2:
 	    case GL_RG:	
+	    case GL_RG8:
 	    case GL_RG16F:
 	    case GL_RG32F:
 	    case GL_COMPRESSED_LUMINANCE_ALPHA:
 	      return 2;
 	    case 3:
-	    case GL_RGB:	
+	    case GL_RGB:
+	    case GL_RGB8:
 	    case GL_RGB16F:
 	    case GL_RGB32F:
 	      return 3;
 	    case 4:
 	    case GL_RGBA:	
+	    case GL_RGBA8:
 	    case GL_RGBA16F:
 	    case GL_RGBA32F:
 	      return 4;
@@ -299,17 +312,13 @@ namespace magnet {
 	_width = width; _internalFormat = internalformat;
 	TextureBasic::init();
 	bind(0);
-	parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-
 	glTexImage1D(_texType, 0, _internalFormat, 
 		     _width,
 		     //Border is off
 		     0,
 		     //The following values are not used as no data is
 		     //passed here, use subImage for that.
-		     safeFormat(_internalFormat), safeType(_internalFormat), NULL); 
+		     safeFormat(), safeType(), NULL);
       }
 
       /*! \brief Resize the texture.
@@ -329,7 +338,7 @@ namespace magnet {
 		     0,//Border is off
 		     //The following values are not used as no data is
 		     //passed here, use subImage for that.
-		     safeFormat(_internalFormat), safeType(_internalFormat), NULL); 
+		     safeFormat(), safeType(), NULL); 
       }
 
       /*! \brief Fills a section of the texture with the passed data
@@ -416,7 +425,7 @@ namespace magnet {
 		     0, //Border is off
 		     //The following values are not used as no data is
 		     //passed here, use subImage for that.
-		     safeFormat(_internalFormat), safeType(_internalFormat), NULL); 
+		     safeFormat(), safeType(), NULL); 
       }
       
       /*! \brief Resize the texture.
@@ -435,7 +444,7 @@ namespace magnet {
 		     0, //Border is off
 		     //The following values are not used as no data is
 		     //passed here, use subImage for that.
-		     safeFormat(_internalFormat), safeType(_internalFormat), NULL); 	
+		     safeFormat(), safeType(), NULL); 	
       }
 
       /*! \brief Fills a section of the texture with the passed data
@@ -463,7 +472,7 @@ namespace magnet {
 
 	bind(0);
 	glTexSubImage2D(_texType, level, xoffset, yoffset, width, height,
-			pixelformat, safeType(_internalFormat), &data[0]);
+			pixelformat, safeType(), &data[0]);
       }
 
       /*! \brief Fills a section of the texture with the passed data
@@ -507,7 +516,7 @@ namespace magnet {
 
 	bind(0);
 	glTexSubImage2D(_texType, level, xoffset, yoffset, width, height,
-			pixelformat, safeType(_internalFormat), data);
+			pixelformat, safeType(), data);
       }
 
       inline const GLint getWidth(GLint lvl = 0) const { return _width / (1 << lvl); }
@@ -618,19 +627,13 @@ namespace magnet {
 	TextureBasic::init();
 	bind(0);
 
-	parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	parameter(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
 	glTexImage3D(_texType, 0, _internalFormat, 
 		     _width, _height, _depth, 
 		     //Border is off
 		     0,
 		     //The following values are not used as no data is
 		     //passed here, use subImage for that.
-		     safeFormat(_internalFormat), safeType(_internalFormat), NULL); 
+		     safeFormat(), safeType(), NULL); 
       }
 
       /*! \brief Resize the texture.
@@ -652,7 +655,7 @@ namespace magnet {
 		     0,
 		     //The following values are not used as no data is
 		     //passed here, use subImage for that.
-		     safeFormat(_internalFormat), safeType(_internalFormat), NULL);
+		     safeFormat(), safeType(), NULL);
       }
 
       /*! \brief Fills a section of the texture with the passed data
@@ -688,7 +691,7 @@ namespace magnet {
 
 	bind(0);
 	glTexSubImage3D(_texType, level, xoffset, yoffset, zoffset, width, height, depth,
-			pixelformat, safeType(_internalFormat), &data[0]);
+			pixelformat, safeType(), &data[0]);
       }
 
       inline const GLint getWidth(GLint lvl = 0) const { return _width / (1 << lvl); }

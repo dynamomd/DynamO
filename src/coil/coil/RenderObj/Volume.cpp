@@ -45,13 +45,11 @@ namespace coil {
     _transferFuncTexture.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     _transferFuncTexture.parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     _transferFuncTexture.parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    _transferFuncTexture.parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     _preintTransferFuncTexture.init(256, GL_RGBA16F);
     _preintTransferFuncTexture.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     _preintTransferFuncTexture.parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     _preintTransferFuncTexture.parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    _preintTransferFuncTexture.parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     //Resize the copy FBO
     //Build depth buffer
@@ -166,6 +164,11 @@ namespace coil {
     }
 
     _data.init(size, size, size);
+    _data.parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    _data.parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    _data.parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    _data.parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    _data.parameter(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     _data.subImage(voldata, GL_RGBA);
 	
   }
