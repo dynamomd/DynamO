@@ -129,9 +129,10 @@ vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
   float diffuse = smoothstep(-0.5, 1.0, lightNormDot);
   float specular = 0.0;
 
-  return intensity 
-    * (specular * lightColor
-       + diffuse * diffuseColor * lightColor);
+  return normal;
+//  return intensity 
+//    * (specular * lightColor
+//       + diffuse * diffuseColor * lightColor);
 }
 
 
@@ -203,7 +204,7 @@ void main()
 
       //Store the current normal
       lastnorm = norm;      	
-      norm = (ViewMatrix * vec4(norm, 0.0)).xyz;
+      //norm = (ViewMatrix * vec4(norm, 0.0)).xyz;
 
       vec4 src = vec4(0.0, 0.0, 0.0, 0.0);
       float delta = sample.a - lastsamplea;

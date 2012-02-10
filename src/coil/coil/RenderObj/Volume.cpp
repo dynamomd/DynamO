@@ -143,9 +143,9 @@ namespace coil {
 	    grad /= nrm;
 	    
 	    size_t coord = x + size * (y + size * z);
-	    voldata[4 * coord + 0] = 0;//uint8_t((grad[0] * 0.5 + 0.5) * 255);
-	    voldata[4 * coord + 1] = 255;//uint8_t((grad[1] * 0.5 + 0.5) * 255);
-	    voldata[4 * coord + 2] = 0;//uint8_t((grad[2] * 0.5 + 0.5) * 255);
+	    voldata[4 * coord + 0] = uint8_t((grad[0] * 0.5 + 0.5) * 255);
+	    voldata[4 * coord + 1] = uint8_t((grad[1] * 0.5 + 0.5) * 255);
+	    voldata[4 * coord + 2] = uint8_t((grad[2] * 0.5 + 0.5) * 255);
 	    
 	    voldata[4 * coord + 3] = inbuffer[coord];
 
