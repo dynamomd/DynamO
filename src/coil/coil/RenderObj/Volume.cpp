@@ -106,7 +106,8 @@ namespace coil {
 	M_throw() << "Cannot load at that bit depth yet";
       }
 
-    loadData(inbuffer, dim[0], dim[1], dim[2]);
+    loadSphereTestPattern();
+    //loadData(inbuffer, dim[0], dim[1], dim[2]);
   }
 
   void
@@ -126,7 +127,47 @@ namespace coil {
 			 + std::pow(z - size / 2.0, 2))
 	       < 122.0) ? 255.0 : 0;
     
-    loadData(inbuffer, size, size, size);
+    //loadData(inbuffer, size, size, size);
+    
+    std::vector<GLubyte> voldata(4 * size * size * size);
+    std::vector<float>& histogram = _transferFunction->getHistogram();
+    histogram = std::vector<float>(256, 0);
+    for (int z(0); z < int(size); ++z)
+      for (int y(0); y < int(size); ++y)
+	for (int x(0); x < int(size); ++x)
+	  {
+	    //Do a central difference scheme
+	    Vector grad(x - size / 2, y - size / 2, z - size / 2);
+	    
+	    float nrm = grad.nrm();
+	    grad /= nrm;
+	    
+	    size_t coord = x + size * (y + size * z);
+	    voldata[4 * coord + 0] = 0;//uint8_t((grad[0] * 0.5 + 0.5) * 255);
+	    voldata[4 * coord + 1] = 255;//uint8_t((grad[1] * 0.5 + 0.5) * 255);
+	    voldata[4 * coord + 2] = 0;//uint8_t((grad[2] * 0.5 + 0.5) * 255);
+	    
+	    voldata[4 * coord + 3] = inbuffer[coord];
+
+	    histogram[inbuffer[coord]] += 1;
+	  }
+    
+    {
+      float logMaxVal = std::log(*std::max_element(histogram.begin(), histogram.end()));
+      float logMinVal = std::log(std::max(*std::min_element(histogram.begin(), histogram.end()), 1.0f));
+      float normalization = 1.0 / (logMaxVal - logMinVal);
+
+      for (std::vector<float>::iterator iPtr = histogram.begin();
+	   iPtr != histogram.end(); ++iPtr)
+	{
+	  if (*iPtr == 0) *iPtr = 1.0;
+	  *iPtr = (std::log(*iPtr) - logMinVal) * normalization;
+	}
+    }
+
+    _data.init(size, size, size);
+    _data.subImage(voldata, GL_RGBA);
+	
   }
 
   namespace {
@@ -147,7 +188,7 @@ namespace coil {
     
     std::vector<float>& histogram = _transferFunction->getHistogram();
     histogram = std::vector<float>(256, 0);
-    
+
     for (int z(0); z < int(depth); ++z)
       for (int y(0); y < int(height); ++y)
 	for (int x(0); x < int(width); ++x)
@@ -155,14 +196,17 @@ namespace coil {
 	    Vector sample1(inbuffer[coordCalc(x - 1, y, z, width, height, depth)],
 			   inbuffer[coordCalc(x, y - 1, z, width, height, depth)],
 			   inbuffer[coordCalc(x, y, z - 1, width, height, depth)]);
+
+	    Vector sample2(inbuffer[coordCalc(x, y, z, width, height, depth)],
+			   inbuffer[coordCalc(x, y, z, width, height, depth)],
+			   inbuffer[coordCalc(x, y, z, width, height, depth)]);
 	    
-	    Vector sample2(inbuffer[coordCalc(x + 1, y, z, width, height, depth)],
+	    Vector sample3(inbuffer[coordCalc(x + 1, y, z, width, height, depth)],
 			   inbuffer[coordCalc(x, y + 1, z, width, height, depth)],
 			   inbuffer[coordCalc(x, y, z + 1, width, height, depth)]);
 	    
-	    //Note, we store the negative gradient (we point down
-	    //the slope)
-	    Vector grad = sample1 - sample2;
+	    //Do a central difference scheme
+	    Vector grad = sample1 - 2 * sample2 + sample3;
 	    
 	    float nrm = grad.nrm();
 	    if (nrm > 0) grad /= nrm;
@@ -219,7 +263,7 @@ namespace coil {
     _shader.attach();
     _shader["ProjectionMatrix"] = camera.getProjectionMatrix();
     _shader["ViewMatrix"] = camera.getViewMatrix();
-    _shader["FocalLength"] = GLfloat(1.0f / std::tan(camera.getFOVY() * (M_PI / 360.0f)));
+    _shader["FocalLength"] = GLfloat(1.0 / std::tan(camera.getFOVY() * (M_PI / 360.0)));
     { 
       std::tr1::array<GLfloat,2> winsize = {{camera.getWidth(), camera.getHeight()}};
       _shader["WindowSize"] = winsize;
