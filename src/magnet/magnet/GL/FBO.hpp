@@ -224,9 +224,11 @@ namespace magnet {
 	//First blit between the two FBO's
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, _FBO);
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, other._FBO);
-	glBlitFramebufferEXT(0, 0, getWidth(), getHeight(), 0, 0, 
-			     other.getWidth(), other.getHeight(), opts, GL_NEAREST);
-	
+
+	glBlitFramebufferEXT(0, 0,       getWidth(),       getHeight(), 
+			     0, 0, other.getWidth(), other.getHeight(),
+			     opts, GL_NEAREST);
+
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, 0);
       }
