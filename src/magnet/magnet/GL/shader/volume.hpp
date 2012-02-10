@@ -196,6 +196,7 @@ void main()
   
 //      //Sort out the normal data
       vec3 norm = sample.xyz * 2.0 - 1.0;
+      norm = normalize(rayPos);
       //Test if we've got a bad normal and need to reuse the old one
       float sqrnormlength = dot(norm,norm);
       norm /= sqrt(sqrnormlength);

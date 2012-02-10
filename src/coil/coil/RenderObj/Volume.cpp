@@ -54,7 +54,6 @@ namespace coil {
     _preintTransferFuncTexture.parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     //Resize the copy FBO
-    _currentDepthFBO.init();
     //Build depth buffer
     std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
     depthTexture->init(128, 128, GL_DEPTH_COMPONENT);
@@ -63,6 +62,7 @@ namespace coil {
     depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+    _currentDepthFBO.init();
     _currentDepthFBO.attachTexture(depthTexture);
 
     initGTK();
@@ -82,30 +82,30 @@ namespace coil {
   RVolume::loadRawFileWorker(std::string filename, std::tr1::array<size_t,3> dim, 
 			     size_t bytes)
   {
-    std::ifstream file(filename.c_str(), std::ifstream::binary);
-    std::vector<GLubyte> inbuffer(dim[0] * dim[1] * dim[2]);
-    
-    switch (bytes)
-      {
-      case 1:
-	{
-	  file.read(reinterpret_cast<char*>(&inbuffer[0]), inbuffer.size());
-	  if (file.fail()) M_throw() << "Failed to load the texture from the file";
-	}
-	break;
-      case 2:
-	{
-	  std::vector<uint16_t> tempBuffer(dim[0] * dim[1] * dim[2]);
-	  file.read(reinterpret_cast<char*>(&tempBuffer[0]), 2 * tempBuffer.size());
-	  if (file.fail()) M_throw() << "Failed to load the texture from the file";
-	  for (size_t i(0); i < tempBuffer.size(); ++i)
-	    inbuffer[i] = uint8_t(tempBuffer[i] >> 8);
-	}
-	break;
-      default:
-	M_throw() << "Cannot load at that bit depth yet";
-      }
-
+//    std::ifstream file(filename.c_str(), std::ifstream::binary);
+//    std::vector<GLubyte> inbuffer(dim[0] * dim[1] * dim[2]);
+//    
+//    switch (bytes)
+//      {
+//      case 1:
+//	{
+//	  //file.read(reinterpret_cast<char*>(&inbuffer[0]), inbuffer.size());
+//	  //if (file.fail()) M_throw() << "Failed to load the texture from the file";
+//	}
+//	break;
+//      case 2:
+//	{
+//	  std::vector<uint16_t> tempBuffer(dim[0] * dim[1] * dim[2]);
+//	  file.read(reinterpret_cast<char*>(&tempBuffer[0]), 2 * tempBuffer.size());
+//	  if (file.fail()) M_throw() << "Failed to load the texture from the file";
+//	  for (size_t i(0); i < tempBuffer.size(); ++i)
+//	    inbuffer[i] = uint8_t(tempBuffer[i] >> 8);
+//	}
+//	break;
+//      default:
+//	M_throw() << "Cannot load at that bit depth yet";
+//      }
+//
     loadSphereTestPattern();
     //loadData(inbuffer, dim[0], dim[1], dim[2]);
   }
