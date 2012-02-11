@@ -105,8 +105,8 @@ namespace coil {
       }
 
     //Debug loading of data
-    //loadSphereTestPattern();
-    loadData(inbuffer, dim[0], dim[1], dim[2]);
+    loadSphereTestPattern();
+    //loadData(inbuffer, dim[0], dim[1], dim[2]);
   }
 
   void

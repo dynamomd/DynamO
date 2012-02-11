@@ -49,8 +49,7 @@
 **** DONE Magnet: Upgraded all shaders to GLSL 330.
 **** TODO Coil: Fix bloom with a black background.
 **** TODO Coil: Fix the volume renderer in the new pipeline.
-     Fix the calculation of the forward rendering depth buffers and
-     correct the normal calculation, as it appears to be terrible.
+     Correct the normal calculation, as it appears to be terrible.
 **** TODO Coil: Fix the DOF filter and the SSAO filter, as multisampling has changed them.
 **** TODO Coil: Fix the incorrect calculation of the camera position, due to the head position not being added on. This is breaking lots of calculations (e.g. SSAO).
 **** TODO DynamO: Check that the PBC sentinel is correctly working for 2 particles, it seems something else is doing the updates (the synchroniser?).

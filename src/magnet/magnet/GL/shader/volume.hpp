@@ -192,9 +192,8 @@ void main()
       //Grab the volume sample
       vec4 sample = texture(DataTexture, (rayPos + 1.0) * 0.5);
   
-//      //Sort out the normal data
+      //Sort out the normal data
       vec3 norm = sample.xyz * 2.0 - 1.0;
-      norm = normalize(rayPos);
       //Test if we've got a bad normal and need to reuse the old one
       float sqrnormlength = dot(norm,norm);
       norm /= sqrt(sqrnormlength);
@@ -219,7 +218,7 @@ void main()
       else
 	{
 	  /*Pre-Integrated color calc*/
-	  float opacity = 1.0 - exp( - deltaT * StepSize / delta);	  
+	  float opacity = 1.0 - exp( - deltaT * StepSize / delta);
 	  vec3 color = abs(deltaK) / (abs(deltaT) + 1.0e-10);
 	  src = vec4(color, opacity);
 	}
