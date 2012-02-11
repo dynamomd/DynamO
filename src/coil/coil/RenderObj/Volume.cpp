@@ -104,8 +104,9 @@ namespace coil {
 	M_throw() << "Cannot load at that bit depth yet";
       }
 
-    loadSphereTestPattern();
-    //loadData(inbuffer, dim[0], dim[1], dim[2]);
+    //Debug loading of data
+    //loadSphereTestPattern();
+    loadData(inbuffer, dim[0], dim[1], dim[2]);
   }
 
   void
@@ -125,51 +126,7 @@ namespace coil {
 			 + std::pow(z - size / 2.0, 2))
 	       < 122.0) ? 255.0 : 0;
     
-    //loadData(inbuffer, size, size, size);
-    
-    std::vector<GLubyte> voldata(4 * size * size * size);
-    std::vector<float>& histogram = _transferFunction->getHistogram();
-    histogram = std::vector<float>(256, 0);
-    for (int z(0); z < int(size); ++z)
-      for (int y(0); y < int(size); ++y)
-	for (int x(0); x < int(size); ++x)
-	  {
-	    //Do a central difference scheme
-	    Vector grad(x - size / 2, y - size / 2, z - size / 2);
-	    
-	    float nrm = grad.nrm();
-	    grad /= nrm;
-	    
-	    size_t coord = x + size * (y + size * z);
-	    voldata[4 * coord + 0] = uint8_t((grad[0] * 0.5 + 0.5) * 255);
-	    voldata[4 * coord + 1] = uint8_t((grad[1] * 0.5 + 0.5) * 255);
-	    voldata[4 * coord + 2] = uint8_t((grad[2] * 0.5 + 0.5) * 255);
-	    
-	    voldata[4 * coord + 3] = inbuffer[coord];
-
-	    histogram[inbuffer[coord]] += 1;
-	  }
-    
-    {
-      float logMaxVal = std::log(*std::max_element(histogram.begin(), histogram.end()));
-      float logMinVal = std::log(std::max(*std::min_element(histogram.begin(), histogram.end()), 1.0f));
-      float normalization = 1.0 / (logMaxVal - logMinVal);
-
-      for (std::vector<float>::iterator iPtr = histogram.begin();
-	   iPtr != histogram.end(); ++iPtr)
-	{
-	  if (*iPtr == 0) *iPtr = 1.0;
-	  *iPtr = (std::log(*iPtr) - logMinVal) * normalization;
-	}
-    }
-
-    _data.init(size, size, size);
-    _data.parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    _data.parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    _data.parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    _data.parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    _data.parameter(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    _data.subImage(voldata, GL_RGBA);
+    loadData(inbuffer, size, size, size);
   }
 
   namespace {
@@ -212,7 +169,7 @@ namespace coil {
 	    
 	    float nrm = grad.nrm();
 	    if (nrm > 0) grad /= nrm;
-	    
+
 	    size_t coord = x + width * (y + height * z);
 	    voldata[4 * coord + 0] = uint8_t((grad[0] * 0.5 + 0.5) * 255);
 	    voldata[4 * coord + 1] = uint8_t((grad[1] * 0.5 + 0.5) * 255);
@@ -237,6 +194,11 @@ namespace coil {
     }
 
     _data.init(width, height, depth);
+    _data.parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    _data.parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    _data.parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    _data.parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    _data.parameter(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     _data.subImage(voldata, GL_RGBA);
   }
   
