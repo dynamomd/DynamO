@@ -105,8 +105,9 @@ namespace coil {
       }
 
     //Debug loading of data
-    loadSphereTestPattern();
-    //loadData(inbuffer, dim[0], dim[1], dim[2]);
+    //loadSphereTestPattern();
+
+    loadData(inbuffer, dim[0], dim[1], dim[2]);
   }
 
   void
@@ -121,10 +122,10 @@ namespace coil {
       for (size_t y(0); y < size; ++y)
         for (size_t x(0); x < size; ++x)
           inbuffer[x + size * (y + size * z)] 
-	    = (std::sqrt(std::pow(x - size / 2.0, 2) 
+	    = std::sqrt(std::pow(x - size / 2.0, 2)
 			 + std::pow(y - size / 2.0, 2) 
 			 + std::pow(z - size / 2.0, 2))
-	       < 122.0) ? 255.0 : 0;
+	    ;
     
     loadData(inbuffer, size, size, size);
   }
@@ -156,16 +157,12 @@ namespace coil {
 			   inbuffer[coordCalc(x, y - 1, z, width, height, depth)],
 			   inbuffer[coordCalc(x, y, z - 1, width, height, depth)]);
 
-	    Vector sample2(inbuffer[coordCalc(x, y, z, width, height, depth)],
-			   inbuffer[coordCalc(x, y, z, width, height, depth)],
-			   inbuffer[coordCalc(x, y, z, width, height, depth)]);
-	    
-	    Vector sample3(inbuffer[coordCalc(x + 1, y, z, width, height, depth)],
+	    Vector sample2(inbuffer[coordCalc(x + 1, y, z, width, height, depth)],
 			   inbuffer[coordCalc(x, y + 1, z, width, height, depth)],
 			   inbuffer[coordCalc(x, y, z + 1, width, height, depth)]);
 	    
 	    //Do a central difference scheme
-	    Vector grad = sample1 - 2 * sample2 + sample3;
+	    Vector grad = sample1 - sample2;
 	    
 	    float nrm = grad.nrm();
 	    if (nrm > 0) grad /= nrm;

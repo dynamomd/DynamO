@@ -126,7 +126,7 @@ vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
   float specular = lightSpecularFactor * float(lightNormDot > 0.0)
     * pow(max(dot(ReflectedRay, eyeDirection), 0.0), lightSpecularExponent);
   
-  float diffuse = smoothstep(-1.1, 1.0, lightNormDot);
+  float diffuse = smoothstep(-1.0, 1.0, lightNormDot);
 
   return intensity 
     * (specular * lightColor
@@ -181,13 +181,19 @@ void main()
   //The color accumulation variable
   vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
   
-  //Start the sampling by initialising the ray variables
-  float lastsamplea = 0.0;
+  //Start the sampling by initialising the ray variables. We take the
+  //first sample ready to integrate to the next sample
+  vec4 first_sample = texture(DataTexture, (rayPos + 1.0) * 0.5);
+
+  float lastsamplea = first_sample.a;
   vec4 lastTransfer = texture(IntTransferTexture, lastsamplea);
-  vec3 lastnorm = vec3(0.0, 0.0, 0.0); 
-  
+  vec3 lastnorm = first_sample.xyz * 2.0 - 1.0; 
+  float lastnorm_length = length(lastnorm);
+  lastnorm = (lastnorm_length == 0) ? -rayDirection : lastnorm / lastnorm_length;
+  rayPos += rayDirection * StepSize;
+
   for (float length = tfar - tnear; length > 0.0; 
-       length -= StepSize, rayPos.xyz += rayDirection * StepSize)
+       length -= StepSize, rayPos += rayDirection * StepSize)
     {
       //Grab the volume sample
       vec4 sample = texture(DataTexture, (rayPos + 1.0) * 0.5);
