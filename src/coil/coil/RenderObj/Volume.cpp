@@ -24,7 +24,16 @@
 #include <boost/lexical_cast.hpp>
 #include <fstream>
 
+extern const guint8 Volume_Icon[];
+extern const size_t Volume_Icon_size;
+
 namespace coil {
+  Glib::RefPtr<Gdk::Pixbuf> 
+  RVolume::getIcon()
+  {
+    return Gdk::Pixbuf::create_from_inline(Volume_Icon_size, Volume_Icon);
+  }
+
   void 
   RVolume::deinit()
   {

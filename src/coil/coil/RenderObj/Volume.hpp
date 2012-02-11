@@ -18,7 +18,7 @@
 
 #include <gtkmm.h>
 
-#include "RenderObj.hpp"
+#include <coil/RenderObj/RenderObj.hpp>
 #include <magnet/gtk/transferFunction.hpp>
 #include <magnet/GL/texture.hpp>
 #include <magnet/GL/shader/volume.hpp>
@@ -45,6 +45,10 @@ namespace coil {
 
     void loadRawFile(std::string filename, size_t width, size_t height, 
 		     size_t depth, size_t bytes);
+
+    /*! \brief Return the icon used for the object in the render view.
+     */
+    virtual Glib::RefPtr<Gdk::Pixbuf> getIcon();
 
   protected:
     void loadRawFileWorker(std::string filename, std::tr1::array<size_t, 3> dim, 
