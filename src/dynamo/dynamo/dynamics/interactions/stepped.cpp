@@ -345,10 +345,20 @@ namespace dynamo {
   {
     const_cmap_it capstat = getCMap_it(part1,part2);
 
-    if (captureTest(part1,part2) != capstat->second)
-      derr << "Particle " << part1.getID() << " and Particle " << part2.getID()
-	   << "\nFailing as captureTest gives " << captureTest(part1,part2)
-	   << "\nAnd recorded value is " << capstat->second << std::endl;
+    int val = captureTest(part1,part2);
+
+    if (capstat == captureMap.end())
+      {
+	if (val != 0)
+	  derr << "Particle " << part1.getID() << " and Particle " << part2.getID()
+	       << "\nFailing as captureTest gives " << val
+	       << "\nAnd recorded value is NO CAPTURE";
+      }
+    else
+      if (val != capstat->second)
+	derr << "Particle " << part1.getID() << " and Particle " << part2.getID()
+	     << "\nFailing as captureTest gives " << val
+	     << "\nAnd recorded value is " << capstat->second << std::endl;
   }
   
   void 
