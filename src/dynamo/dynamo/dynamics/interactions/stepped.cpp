@@ -139,10 +139,18 @@ namespace dynamo {
   
     double r = rij.nrm();
 
-    for (size_t i(0); i < steps.size(); ++i)
-      if (r > steps[i].first * _unitLength->getMaxValue()) return i;
+    //Uncaptured value
+    size_t retval = 0;
 
-    return steps.size() - 1;
+    //Check when it is less
+    for (size_t i(0); i < steps.size(); ++i)
+      {
+	if (r > steps[i].first * _unitLength->getMaxValue()) 
+	  break;
+	retval = i+1;
+      }
+
+    return retval;
   }
 
   double 

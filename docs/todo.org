@@ -50,6 +50,7 @@
 **** TODO Coil: Fix bloom with a black background.
 **** TODO Coil: Fix the DOF filter and the SSAO filter, as multisampling has changed them.
 **** TODO Coil: Fix the incorrect calculation of the camera position, due to the head position not being added on. This is breaking lots of calculations (e.g. SSAO).
+**** TODO Coil: Fix the cursor texture blitting, when the screen is being resized.
 **** TODO DynamO: Check that the PBC sentinel is correctly working for 2 particles, it seems something else is doing the updates (the synchroniser?).
 **** TODO DynamO: Add the gravity version of the sphere-sphere-out test. Fix and check that the umbrella implementation is general.
 **** TODO DynamO: Remove the requirement of a statically linked bzip2 or zlib library

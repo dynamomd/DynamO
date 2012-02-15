@@ -88,7 +88,7 @@ namespace dynamo {
 	       iPtr2 != particleList.end(); iPtr2++)
 	    {
 	      int capval = captureTest(*iPtr,*iPtr2);
-	      if (captureTest(*iPtr,*iPtr2))
+	      if (capval)
 		captureMap[cMapKey(iPtr->getID(), iPtr2->getID())] 
 		  = capval; 
 	    }

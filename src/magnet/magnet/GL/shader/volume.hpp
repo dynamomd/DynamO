@@ -197,19 +197,6 @@ void main()
     {
       //Grab the volume sample
       vec4 sample = texture(DataTexture, (rayPos + 1.0) * 0.5);
-  
-      //Sort out the normal data
-      vec3 norm = sample.xyz * 2.0 - 1.0;
-      //Test if we've got a bad normal and need to reuse the old one
-      float sqrnormlength = dot(norm,norm);
-      norm /= sqrt(sqrnormlength);
-      if (sqrnormlength < 0.01)
-	norm = lastnorm; 
-
-      //Store the current normal
-      lastnorm = norm;      	
-      norm = (ViewMatrix * vec4(norm, 0.0)).xyz;
-
       vec4 src = vec4(0.0, 0.0, 0.0, 0.0);
       float delta = sample.a - lastsamplea;
       vec4 transfer = texture(IntTransferTexture, sample.a);
@@ -233,8 +220,20 @@ void main()
       lastsamplea = sample.a;
 
       ////////////Lighting calculations
-      //We perform all the calculations in the eye space
+      //We perform all the calculations in the eye space, The normal
+      //from the previous step is used, as it is the normal in the
+      //direction the ray entered the volume.
+      vec3 norm = (ViewMatrix * vec4(lastnorm, 0.0)).xyz;      
       src.rgb = calcLighting((ViewMatrix * vec4(rayPos,1.0)).xyz, norm, src.rgb);
+
+      //Update the lastnormal with the new normal, if it is valid
+      norm = sample.xyz * 2.0 - 1.0;
+      //Test if we've got a bad normal and need to reuse the old one
+      float sqrnormlength = dot(norm,norm);
+      norm /= sqrt(sqrnormlength);
+      if (sqrnormlength >= 0.01)
+	lastnorm = norm;
+
       ///////////Front to back blending
       src.rgb *= src.a;
       color = (1.0 - color.a) * src + color;

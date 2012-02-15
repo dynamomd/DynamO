@@ -114,9 +114,9 @@ namespace coil {
       }
 
     //Debug loading of data
-    loadSphereTestPattern();
+    //loadSphereTestPattern();
 
-    //loadData(inbuffer, dim[0], dim[1], dim[2]);
+    loadData(inbuffer, dim[0], dim[1], dim[2]);
   }
 
   void
@@ -171,7 +171,7 @@ namespace coil {
 			   inbuffer[coordCalc(x, y, z + 1, width, height, depth)]);
 	    
 	    //Do a central difference scheme
-	    Vector grad = sample1 - sample2;
+	    Vector grad = sample2 - sample1;
 	    
 	    float nrm = grad.nrm();
 	    if (nrm > 0) grad /= nrm;
