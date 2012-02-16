@@ -226,6 +226,8 @@ namespace dynamo {
       return testGeneratePlugin<OPMSDOrientationalCorrelator>(Sim, XML);
     else if (!Name.compare("ChatteringCorrelator"))
       return testGeneratePlugin<OPChatteringCorrelator>(Sim, XML);
+    else if (!Name.compare("OrientationalOrder"))
+      return testGeneratePlugin<OPOrientationalOrder>(Sim, XML);
     else
       M_throw() << Name << ", Unknown type of OutputPlugin encountered";
   }

@@ -574,37 +574,38 @@ namespace dynamo {
 					  const double& deltaKE, 
 					  const double& d2) const = 0;
 
-    /* \brief Reassigns the velocity componets of a particle from a
-     * Gaussian.
-     *
-     * Used to thermostat particles.
-     *
-     * \param part The particle to reassign the velocities of.
-     * \param sqrtT The square root of the temperature.
-     * \return The event data
-     *
-     * \bug Does this work for arbitrary mass particles.
+    /*! \brief Reassigns the velocity componets of a particle from a
+      Gaussian.
+      
+      Used to thermostat particles.
+     
+      \param part The particle to reassign the velocities of.
+      \param sqrtT The square root of the temperature.
+
+      \param dimensions This sets how many dimensions the thermostat
+      should be applied in (1=x, 2=x&y, 3=x&y&z).
+
+      \return The event data
+     
+      \bug Does this work for arbitrary mass particles.
      */
     virtual ParticleEventData randomGaussianEvent(const Particle& part, 
-						  const double& sqrtT) const = 0;
+						  const double& sqrtT,
+						  const size_t dimensions) const = 0;
 
     /*! \brief An XML output operator for the class. Calls the virtual
-     * OutputXML member function.
+      OutputXML member function.
      */
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Liouvillean&);
 
-    /*! \brief This is called by each particle to request any extra data
-     *   the liouvillean is holding and wants to store in the particles XML.
-     */
-
     /*! \brief Instantiates and loads Liovillean classes from an XML
-     * entry.
+      entry.
      */
     static shared_ptr<Liouvillean> getClass(const magnet::xml::Node& ,dynamo::SimData*);
     
     /*! \brief Free streams all particles up to the current time.
-     * 
-     * This synchronises all the delayed states of the particles
+      
+      This synchronises all the delayed states of the particles
      */
     void updateAllParticles() const
     {

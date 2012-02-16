@@ -44,6 +44,7 @@ namespace dynamo {
     mutable double meanFreeTime;
     double Temp, sqrtTemp;
     bool tune;
+    size_t dimensions;
     double setPoint;
     mutable unsigned long long eventCount;
     mutable unsigned long long lastlNColl;

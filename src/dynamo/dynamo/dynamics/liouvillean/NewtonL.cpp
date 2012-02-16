@@ -102,8 +102,14 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  LNewtonian::randomGaussianEvent(const Particle& part, const double& sqrtT) const
+  LNewtonian::randomGaussianEvent(const Particle& part, const double& sqrtT, 
+				  const size_t dimensions) const
   {
+#ifdef DYNAMO_DEBUG
+    if (dimensions > NDIM)
+      M_throw() << "Number of dimensions passed larger than NDIM!";
+#endif
+
     //See http://mathworld.wolfram.com/SpherePointPicking.html
 
     if (hasOrientationData())
@@ -120,7 +126,7 @@ namespace dynamo {
     double factor = sqrtT / std::sqrt(mass);
 
     //Assign the new velocities
-    for (size_t iDim = 0; iDim < NDIM; iDim++)
+    for (size_t iDim = 0; iDim < dimensions; iDim++)
       const_cast<Particle&>(part).getVelocity()[iDim] 
 	= Sim->normal_sampler() * factor;
 

@@ -36,3 +36,4 @@
 #include <dynamo/outputplugins/tickerproperty/SCparameter.hpp>
 #include <dynamo/outputplugins/tickerproperty/plateMotion.hpp>
 #include <dynamo/outputplugins/tickerproperty/msdOrientationalCorrelator.hpp>
+#include <dynamo/outputplugins/tickerproperty/OrientationalOrder.hpp>

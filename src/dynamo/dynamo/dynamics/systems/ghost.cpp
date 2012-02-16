@@ -43,6 +43,7 @@ namespace dynamo {
     Temp(Sim->dynamics.units().unitEnergy()),
     sqrtTemp(std::sqrt(Sim->dynamics.units().unitEnergy())),
     tune(false),
+    dimensions(NDIM),
     setPoint(0.05),
     eventCount(0),
     lastlNColl(0),
@@ -59,6 +60,7 @@ namespace dynamo {
     meanFreeTime(mft),
     Temp(t),
     tune(true),
+    dimensions(NDIM),
     setPoint(0.05),
     eventCount(0),
     lastlNColl(0),
@@ -111,7 +113,7 @@ namespace dynamo {
 
     //Run the collision and catch the data
     NEventData SDat(Sim->dynamics.getLiouvillean().randomGaussianEvent
-		    (part, sqrtTemp));
+		    (part, sqrtTemp, dimensions));
   
     Sim->signalParticleUpdate(SDat);
 
@@ -141,6 +143,9 @@ namespace dynamo {
       meanFreeTime = XML.getAttribute("MFT").as<double>() * Sim->dynamics.units().unitTime();
       Temp = XML.getAttribute("Temperature").as<double>() * Sim->dynamics.units().unitEnergy();
       sysName = XML.getAttribute("Name");
+
+      if (XML.hasAttribute("Dimensions"))
+	dimensions = XML.getAttribute("Dimensions").as<size_t>();
 
       if (XML.hasAttribute("SetFrequency") && XML.hasAttribute("SetPoint"))
 	{
@@ -173,6 +178,9 @@ namespace dynamo {
       XML << magnet::xml::attr("SetPoint") << setPoint
 	  << magnet::xml::attr("SetFrequency") << setFrequency;
   
+    if (dimensions != NDIM)
+      XML << magnet::xml::attr("Dimensions") << dimensions;
+
     XML << range
 	<< magnet::xml::endtag("System");
   }
