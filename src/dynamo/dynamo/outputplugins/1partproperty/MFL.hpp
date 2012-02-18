@@ -42,7 +42,7 @@ namespace dynamo {
 
     std::vector<double> lastTime;
 
-    std::vector<magnet::math::Histogram> data;
+    std::vector<magnet::math::Histogram<> > data;
 
     double binwidth;
   };

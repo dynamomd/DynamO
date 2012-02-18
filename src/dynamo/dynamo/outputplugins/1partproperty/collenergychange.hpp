@@ -48,7 +48,7 @@ namespace dynamo {
 
     static double KEBinWidth;
 
-    struct histogram: public magnet::math::Histogram
+    struct histogram: public magnet::math::Histogram<>
     {
       histogram(): Histogram(OPCollEnergyChange::KEBinWidth) {}
     };
@@ -57,7 +57,7 @@ namespace dynamo {
 
     std::map<mapkey, histogram> collisionKE;
 
-    std::vector<magnet::math::Histogram> data;
-    magnet::math::Histogram specialhist;
+    std::vector<magnet::math::Histogram<> > data;
+    magnet::math::Histogram<> specialhist;
   };
 }

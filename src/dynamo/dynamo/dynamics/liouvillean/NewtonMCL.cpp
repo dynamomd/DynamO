@@ -73,12 +73,21 @@ namespace dynamo {
   void 
   LNewtonianMC::outputXML(magnet::xml::XmlStream& XML) const
   {
-    double step = EnergyPotentialStep;
     boost::unordered_map<int, double> wout = _W;
 
     try {
-      wout = Sim->getOutputPlugin<OPIntEnergyHist>()->getImprovedW();
-      step = Sim->getOutputPlugin<OPIntEnergyHist>()->getBinWidth();
+      double pluginBinWidth = Sim->getOutputPlugin<OPIntEnergyHist>()->getBinWidth();
+
+      if (pluginBinWidth != EnergyPotentialStep)
+	derr << "WARNING! Multicanonical simulations can only improve the MC potential"
+	     << "when the IntEnergyHist bin width (" 
+	     << pluginBinWidth * Sim->dynamics.units().unitEnergy()
+	     << ") and the MC potential bin widths("
+	     << EnergyPotentialStep * Sim->dynamics.units().unitEnergy()
+	     << ") match!\nCannot improve potential, preserving old potential."
+	  ;
+      else
+	wout = Sim->getOutputPlugin<OPIntEnergyHist>()->getImprovedW();
     } catch (std::exception&)
       {}
 
@@ -86,21 +95,16 @@ namespace dynamo {
 	<< "NewtonianMC"
 	<< magnet::xml::tag("PotentialDeformation")
 	<< magnet::xml::attr("EnergyStep")
-	<< step * Sim->dynamics.units().unitEnergy();
+	<< EnergyPotentialStep * Sim->dynamics.units().unitEnergy();
 
-    typedef std::pair<const double,double> locpair;
+    typedef std::pair<const int, double> locpair;
 
     BOOST_FOREACH(const locpair& val, wout)
-      {
-	double key = val.first * EnergyPotentialStep 
-	  * Sim->dynamics.units().unitEnergy();
-      
-	XML << magnet::xml::tag("W")
-	    << magnet::xml::attr("Energy") << key
-	    << magnet::xml::attr("Value") << val.second
-	    << magnet::xml::attr("OldValue") << W(key)
-	    << magnet::xml::endtag("W");
-      }
+      XML << magnet::xml::tag("W")
+	  << magnet::xml::attr("Energy")
+	  << val.first * EnergyPotentialStep * Sim->dynamics.units().unitEnergy()
+	  << magnet::xml::attr("Value") << val.second
+	  << magnet::xml::endtag("W");
     
     XML << magnet::xml::endtag("PotentialDeformation");
   }

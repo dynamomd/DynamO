@@ -39,7 +39,7 @@ namespace dynamo {
 
     virtual void stream(const double&) {}  
 
-    magnet::math::Histogram freetimehist;
+    magnet::math::Histogram<> freetimehist;
     std::vector<std::vector<double> > lastColl;
   };
 }

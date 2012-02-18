@@ -61,9 +61,9 @@ namespace dynamo {
     struct CTCdata
     {
       const TChain* chainPtr;
-      std::vector<magnet::math::Histogram> gyrationRadii;
-      std::vector<magnet::math::Histogram> nematicOrder;
-      magnet::math::Histogram cubaticOrder;    
+      std::vector<magnet::math::Histogram<> > gyrationRadii;
+      std::vector<magnet::math::Histogram<> > nematicOrder;
+      magnet::math::Histogram<> cubaticOrder;    
 
       CTCdata(const TChain* ptr, double binwidth1, double binwidth2, double binwidth3):
 	chainPtr(ptr),
@@ -71,8 +71,8 @@ namespace dynamo {
       {
 	for (size_t i = 0; i < NDIM; i++)
 	  {
-	    gyrationRadii.push_back(magnet::math::Histogram(binwidth1));
-	    nematicOrder.push_back(magnet::math::Histogram(binwidth2));
+	    gyrationRadii.push_back(magnet::math::Histogram<>(binwidth1));
+	    nematicOrder.push_back(magnet::math::Histogram<>(binwidth2));
 	  }
       }
 

@@ -61,9 +61,9 @@ namespace dynamo {
     dout << "Bin width set to " << binWidth << std::endl;
 
     data.resize(Sim->dynamics.getSpecies().size(), 
-		magnet::math::Histogram(Sim->dynamics.units().unitEnergy() * binWidth));
+		magnet::math::Histogram<>(Sim->dynamics.units().unitEnergy() * binWidth));
 
-    specialhist = magnet::math::Histogram(Sim->dynamics.units().unitEnergy() * binWidth);
+    specialhist = magnet::math::Histogram<>(Sim->dynamics.units().unitEnergy() * binWidth);
   }
 
   void 

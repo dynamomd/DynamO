@@ -40,7 +40,7 @@ namespace dynamo {
 
   protected:
     double binWidth;
-    std::vector<magnet::math::Histogram> data[NDIM];
+    std::vector<magnet::math::Histogram<> > data[NDIM];
 
     shared_ptr<const OPKEnergy> _ptrOPEnergy;
   };

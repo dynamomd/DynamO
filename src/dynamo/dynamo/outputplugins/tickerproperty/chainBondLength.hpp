@@ -42,7 +42,7 @@ namespace dynamo {
     {
       Cdata(size_t chainID, size_t CL);
       const size_t chainID;
-      std::vector<magnet::math::Histogram> BondLengths;
+      std::vector<magnet::math::Histogram<> > BondLengths;
     };
 
     std::list<Cdata> chains;

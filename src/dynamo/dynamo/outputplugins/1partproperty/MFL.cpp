@@ -52,7 +52,7 @@ namespace dynamo {
   {
     lastTime.resize(Sim->N, 0.0);
     data.resize(Sim->dynamics.getSpecies().size(), 
-		magnet::math::Histogram(Sim->dynamics.units().unitLength() * binwidth));
+		magnet::math::Histogram<>(Sim->dynamics.units().unitLength() * binwidth));
   }
 
   void 

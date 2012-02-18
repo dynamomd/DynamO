@@ -37,7 +37,7 @@ namespace dynamo {
 
     virtual void stream(const double&) {}
 
-    magnet::math::HistogramWeighted hist;
+    magnet::math::HistogramWeighted<> hist;
     std::vector<std::pair<double,double> > chatterTracker;
   };
 }

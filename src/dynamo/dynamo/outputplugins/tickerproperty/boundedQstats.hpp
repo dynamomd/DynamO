@@ -36,6 +36,6 @@ namespace dynamo {
   
   protected:
   
-    magnet::math::Histogram treeSize;  
+    magnet::math::Histogram<> treeSize;  
   };
 }

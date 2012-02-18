@@ -52,7 +52,7 @@ namespace dynamo {
 
     typedef std::pair<classKey, EEventType> eventKey;
   
-    std::map<eventKey, magnet::math::Histogram> distList;
+    std::map<eventKey, magnet::math::Histogram<> > distList;
   
     double binwidth;
   };

@@ -62,7 +62,7 @@ namespace dynamo {
       double getAvg() const
       { return accRdotV / count; }
 
-      magnet::math::Histogram costheta;
+      magnet::math::Histogram<> costheta;
     };
   
     typedef boost::tuple<EEventType, classKey, size_t, size_t> mapKey;

@@ -40,7 +40,7 @@ namespace magnet {
      * \tparam T The type stored by the FuzzyArray.
      * \tparam Container The underlying container used in the FuzzyArray.
      */
-    template<class T, bool shiftBin = true, class Container = std::map<long, T> >
+    template<class T, bool shiftBin = false, class Container = std::map<long, T> >
     class FuzzyArray : public Container
     {
     public:

@@ -57,10 +57,10 @@ namespace dynamo {
     lastTime.resize(Sim->N, 
 		    boost::circular_buffer<double>(collisionHistoryLength, 0.0));
   
-    std::vector<magnet::math::Histogram> vecTemp;
+    std::vector<magnet::math::Histogram<> > vecTemp;
   
     vecTemp.resize(collisionHistoryLength, 
-		   magnet::math::Histogram(Sim->dynamics.units().unitTime() * binwidth));
+		   magnet::math::Histogram<>(Sim->dynamics.units().unitTime() * binwidth));
   
     data.resize(Sim->dynamics.getSpecies().size(), vecTemp);
   }

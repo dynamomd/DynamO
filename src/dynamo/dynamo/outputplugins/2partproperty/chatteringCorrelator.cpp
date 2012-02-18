@@ -32,7 +32,7 @@ namespace dynamo {
     chatterTracker.resize(Sim->N, std::pair<double,double>(0,0));
 
     //Histogram in mean free times
-    hist = magnet::math::HistogramWeighted(1);
+    hist = magnet::math::HistogramWeighted<>(1);
   }
 
   void

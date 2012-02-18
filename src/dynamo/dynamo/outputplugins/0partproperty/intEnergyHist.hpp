@@ -44,7 +44,7 @@ namespace dynamo {
     inline double getBinWidth() const { return intEnergyHist.getBinWidth(); }
   protected:
 
-    magnet::math::HistogramWeighted intEnergyHist;
+    magnet::math::HistogramWeighted<> intEnergyHist;
     shared_ptr<const OPUEnergy> ptrOPEnergy;
     double weight;
     double binwidth;

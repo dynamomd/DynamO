@@ -114,7 +114,7 @@ struct SimData
 	     node.valid(); ++node)
 	  {
 	    double energy = node.getAttribute("Energy").as<double>();
-	    double Wval = node.getAttribute("OldValue").as<double>();
+	    double Wval = node.getAttribute("Value").as<double>();
 	    if (Wval) _W[lrint(energy / binWidth)] = Wval;
 	  }
       }

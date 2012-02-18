@@ -44,7 +44,7 @@ namespace dynamo {
     {
       Cdata(size_t, size_t, double);
       const size_t chainID;
-      std::vector<magnet::math::Histogram> BondCorrelations;
+      std::vector<magnet::math::Histogram<> > BondCorrelations;
       std::vector<double> BondCorrelationsAvg;
       std::vector<size_t> BondCorrelationsSamples;
     };

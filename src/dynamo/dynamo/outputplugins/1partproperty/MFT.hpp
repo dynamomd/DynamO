@@ -48,6 +48,6 @@ namespace dynamo {
     std::vector<boost::circular_buffer<double> > lastTime;
 
     //! A histogram for each species
-    std::vector<std::vector<magnet::math::Histogram> > data;
+    std::vector<std::vector<magnet::math::Histogram<> > > data;
   };
 }

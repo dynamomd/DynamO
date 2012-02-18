@@ -48,12 +48,12 @@ namespace dynamo {
     {
       mapdata() 
       {
-	angles[0] = magnet::math::Histogram(0.01);
-	angles[1] = magnet::math::Histogram(0.01);
-	angles[2] = magnet::math::Histogram(0.01);
+	angles[0] = magnet::math::Histogram<>(0.01);
+	angles[1] = magnet::math::Histogram<>(0.01);
+	angles[2] = magnet::math::Histogram<>(0.01);
       }
     
-      magnet::math::Histogram angles[3];
+      magnet::math::Histogram<> angles[3];
     };
   
     typedef std::pair<EEventType, classKey> mapKey;
