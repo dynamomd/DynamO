@@ -41,30 +41,32 @@ namespace dynamo {
       M_throw() << "Attempting to load NewtonianMC from " 
 		<< XML.getAttribute("Type")
 		<< " entry";
+
+    if (dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()) == NULL)
+      M_throw() << "Multi-canonical simulations require an NVT ensemble";
+
     try 
       {     
+      
+      
 	if (XML.hasNode("PotentialDeformation"))
-	  if (XML.getNode("PotentialDeformation").hasAttribute("EnergyStep"))
+	  {
 	    EnergyPotentialStep 
-	      = XML.getNode("PotentialDeformation").getAttribute("EnergyStep").as<double>();
-      
-	EnergyPotentialStep /= Sim->dynamics.units().unitEnergy();
-      
-	if (dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()) == NULL)
-	  M_throw() << "Multi-canonical simulations require an NVT ensemble";
+	      = XML.getNode("PotentialDeformation").getAttribute("EnergyStep").as<double>()
+	      / Sim->dynamics.units().unitEnergy();
 
-	if (XML.hasNode("PotentialDeformation"))
-	  for (magnet::xml::Node node = XML.getNode("PotentialDeformation").fastGetNode("W"); 
-	       node.valid(); ++node)
-	    {
-	      double energy = node.getAttribute("Energy").as<double>() / Sim->dynamics.units().unitEnergy();	    
-	      double Wval = node.getAttribute("Value").as<double>();
-	    
-	      //Here, the Wval needs to be multiplied by kT to turn it
-	      //into an Energy, but the Ensemble is not yet initialised,
-	      //we must do this conversion later, when we actually use the W val.
-	      _W[lrint(energy / EnergyPotentialStep)] = Wval;
-	    }
+	    for (magnet::xml::Node node = XML.getNode("PotentialDeformation").fastGetNode("W"); 
+		 node.valid(); ++node)
+	      {
+		double energy = node.getAttribute("Energy").as<double>() / Sim->dynamics.units().unitEnergy();	    
+		double Wval = node.getAttribute("Value").as<double>();
+		
+		//Here, the Wval needs to be multiplied by kT to turn it
+		//into an Energy, but the Ensemble is not yet initialised,
+		//we must do this conversion later, when we actually use the W val.
+		_W[lrint(energy / EnergyPotentialStep)] = Wval;
+	      }
+	  }
       }
     catch (boost::bad_lexical_cast &)
       { M_throw() << "Failed a lexical cast in LNewtonianMC"; }
