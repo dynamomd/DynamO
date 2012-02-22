@@ -50,7 +50,7 @@ namespace dynamo {
 
     struct histogram: public magnet::math::Histogram<>
     {
-      histogram(): Histogram(OPCollEnergyChange::KEBinWidth) {}
+      histogram(): magnet::math::Histogram<>(OPCollEnergyChange::KEBinWidth) {}
     };
 
     typedef boost::tuple<size_t, size_t, EEventType> mapkey;

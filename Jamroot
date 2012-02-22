@@ -16,6 +16,9 @@
 
 ##########################################################################
 #Location of the boost build root directory
+
+using gcc : 4.4 : g++-4.4.5 ;
+
 path-constant BOOST_ROOT : src/boost/tools/build/v2 ;
 path-constant BUILD_DIR_PATH : ./build-dir ;
 path-constant LIB_INSTALL_PATH : ./lib ;
