@@ -16,6 +16,7 @@
 */
  
 #include <dynamo/coordinator/engine/engine.hpp>
+#include <dynamo/coordinator/engine/replexer.hpp>
 #include <dynamo/inputplugins/compression.hpp>
 #include <dynamo/dynamics/systems/tHalt.hpp>
 #include <dynamo/dynamics/systems/schedMaintainer.hpp>
@@ -39,7 +40,7 @@ namespace dynamo {
       ("print-coll,p", boost::program_options::value<unsigned long long>()->default_value(100000), 
        "Default No. of collisions between periodic screen output")
       ("random-seed,s", boost::program_options::value<unsigned int>(),
-       "Random seed for generator (To make the simulation reproduceable - Not for production use!)")
+       "Random seed for generator (To make the simulation reproduceable - Only for debugging!)")
       ("ticker-period,t",boost::program_options::value<double>(), 
        "Time between data collections. Defaults to the system MFT or 1 if no MFT available")
 #ifdef DYNAMO_visualizer    
@@ -49,8 +50,9 @@ namespace dynamo {
       ("equilibrate,E", "Turns off most output for a fast silent run")
       ("load-plugin,L", boost::program_options::value<std::vector<std::string> >(), 
        "Additional individual plugins to load")
-      ("halt-time,h", boost::program_options::value<double>(),
-       "Halt the system at this time")
+      ("sim-end-time,f", boost::program_options::value<double>()->default_value(std::numeric_limits<double>::max(), "no limit"), 
+       "Simulation end time (Note, In replica exchange, each systems end time is scaled by"
+       "(T_cold/T_i)^{1/2}, see replex-interval)")
       ("scheduler-maintainance,m", boost::program_options::value<double>(),
        "Rebuild the scheduler periodically, for systems where we've not built "
        "the scheduler correctly")
@@ -83,6 +85,8 @@ namespace dynamo {
   }
 
 
+  class EReplicaExchangeSimulation;
+
   void 
   Engine::setupSim(Simulation& Sim, const std::string filename)
   {
@@ -100,8 +104,8 @@ namespace dynamo {
     else
       Sim.setnPrint(vm["ncoll"].as<unsigned long long>());
     
-    if (vm.count("halt-time"))
-      Sim.addSystem(shared_ptr<System>(new SystHalt(&Sim, vm["halt-time"].as<double>(), "SystemHaltEvent")));
+    if (vm.count("sim-end-time") && (dynamic_cast<const EReplicaExchangeSimulation*>(this) == NULL))
+      Sim.addSystem(shared_ptr<System>(new SystHalt(&Sim, vm["sim-end-time"].as<double>(), "SystemStopEvent")));
 
     if (vm.count("scheduler-maintainance"))
       Sim.addSystem(shared_ptr<System>(new SysSchedMaintainer(&Sim, vm["scheduler-maintainance"].as<double>(), "SchedulerRebuilder")));

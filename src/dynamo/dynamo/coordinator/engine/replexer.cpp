@@ -35,9 +35,6 @@ namespace dynamo {
       ropts("REplica EXchange Engine Options (--engine=2)");
 
     ropts.add_options()
-      ("sim-end-time,f", boost::program_options::value<double>()->default_value(std::numeric_limits<double>::max(), "no limit"), 
-       "Simulation end time (Note, each systems end time is scaled by"
-       "(T_cold/T_i)^{1/2}, see replex-interval)")
       ("replex-interval,i", boost::program_options::value<double>()->default_value(1.0), 
        "Interval between attempting swaps on the coldest temperature. Every"
        "other systems exchange interval is scaled by (T_cold/T_i)^{1/2} to try"
