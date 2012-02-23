@@ -180,14 +180,13 @@ namespace dynamo
 	<< magnet::xml::attr("nCollPrint") << eventPrintInterval;
 
     //Allow this block to fail if need be
-    try {
-      double mft = getOutputPlugin<OPMisc>()->getMFT();
-      if (!std::isinf(mft))
-	XML << magnet::xml::attr("lastMFT")
-	    << mft;
-    }
-    catch (std::exception&)
-      {}
+    if (getOutputPlugin<OPMisc>())
+      {
+	double mft = getOutputPlugin<OPMisc>()->getMFT();
+	if (!std::isinf(mft))
+	  XML << magnet::xml::attr("lastMFT")
+	      << mft;
+      }
 
     XML << magnet::xml::endtag("Trajectory")
 	<< *ensemble

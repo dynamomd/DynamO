@@ -93,8 +93,7 @@ namespace dynamo
 	if (std::tr1::dynamic_pointer_cast<const T>(plugin))
 	  return std::tr1::static_pointer_cast<const T>(plugin);
       
-      M_throw() << "The output plugin " << (typeid(T).name()) 
-		<< " is required, please add it";
+      return shared_ptr<const T>();
     }
 
     /*! \brief Finds a plugin of the given type using RTTI.
