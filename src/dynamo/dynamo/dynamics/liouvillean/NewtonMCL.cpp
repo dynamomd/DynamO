@@ -87,7 +87,7 @@ namespace dynamo {
 	     << ") and the MC potential bin widths("
 	     << EnergyPotentialStep * Sim->dynamics.units().unitEnergy()
 	     << ") match!\nCannot improve potential, preserving old potential."
-	  ;
+	     << std::endl;
       else
 	wout = Sim->getOutputPlugin<OPIntEnergyHist>()->getImprovedW();
     } catch (std::exception&)
