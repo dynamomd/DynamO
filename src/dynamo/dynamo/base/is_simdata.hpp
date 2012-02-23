@@ -109,9 +109,8 @@ namespace dynamo
 		    outputPlugins)
 	if (std::tr1::dynamic_pointer_cast<T>(plugin))
 	  return std::tr1::static_pointer_cast<T>(plugin);
-      
-      M_throw() << "The output plugin " << (typeid(T).name()) 
-		<< " is required, please add it";
+
+      return shared_ptr<T>();
     }    
 
     //! Loads a Simulation from the passed XML file.

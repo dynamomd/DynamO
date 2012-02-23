@@ -33,7 +33,8 @@ namespace dynamo {
   void 
   OPVACF::initialise()
   {
-    Sim->getOutputPlugin<OPMisc>();
+    if (!(Sim->getOutputPlugin<OPMisc>()))
+      M_throw() << "VACF requires Misc output plugin!";
 
     dt = getdt();
 

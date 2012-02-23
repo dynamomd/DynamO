@@ -180,8 +180,10 @@ namespace dynamo {
     species1 = Sim->dynamics.getSpecies(species1name).getID();
     species2 = Sim->dynamics.getSpecies(species2name).getID();
 
-    Sim->getOutputPlugin<OPKEnergy>();
-    Sim->getOutputPlugin<OPMisc>();
+    if (!(Sim->getOutputPlugin<OPMisc>()))
+      M_throw() << "MutualDiffusionGK requires Misc output plugin!";
+    if (!(Sim->getOutputPlugin<OPKEnergy>()))
+      M_throw() << "MutualDiffusionGK requires KEnergy output plugin!";
   
     accG.resize(CorrelatorLength, Vector  (0,0,0));
     G.resize(CorrelatorLength, Vector (0,0,0));

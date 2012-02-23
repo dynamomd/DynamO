@@ -36,7 +36,8 @@ namespace dynamo {
   void
   OPSelfDiffusionOrientationalGK::initialise()
   {
-    Sim->getOutputPlugin<OPMisc>();
+    if (!(Sim->getOutputPlugin<OPMisc>()))
+      M_throw() << "SelfDiffusionOrientationalGK requires Misc output plugin!";
 
     dt = getdt();
 

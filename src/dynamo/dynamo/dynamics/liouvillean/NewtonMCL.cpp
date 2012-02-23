@@ -77,22 +77,24 @@ namespace dynamo {
   {
     boost::unordered_map<int, double> wout = _W;
 
-    try {
-      double pluginBinWidth = Sim->getOutputPlugin<OPIntEnergyHist>()->getBinWidth();
+    shared_ptr<OPIntEnergyHist> intEnergyHist = Sim->getOutputPlugin<OPIntEnergyHist>();
 
-      if (pluginBinWidth != EnergyPotentialStep)
-	derr << "WARNING! Multicanonical simulations can only improve the MC potential"
-	     << "when the IntEnergyHist bin width (" 
-	     << pluginBinWidth * Sim->dynamics.units().unitEnergy()
-	     << ") and the MC potential bin widths("
-	     << EnergyPotentialStep * Sim->dynamics.units().unitEnergy()
-	     << ") match!\nCannot improve potential, preserving old potential."
-	     << std::endl;
-      else
-	wout = Sim->getOutputPlugin<OPIntEnergyHist>()->getImprovedW();
-    } catch (std::exception&)
-      {}
+    if (intEnergyHist)
+      {
+	double pluginBinWidth = intEnergyHist->getBinWidth();
 
+	if (pluginBinWidth != EnergyPotentialStep)
+	  derr << "WARNING! Multicanonical simulations can only improve the MC potential"
+	       << "when the IntEnergyHist bin width (" 
+	       << pluginBinWidth * Sim->dynamics.units().unitEnergy()
+	       << ") and the MC potential bin widths("
+	       << EnergyPotentialStep * Sim->dynamics.units().unitEnergy()
+	       << ") match!\nCannot improve potential, preserving old potential."
+	       << std::endl;
+	else
+	  wout = intEnergyHist->getImprovedW();
+      }
+	
     XML << magnet::xml::attr("Type")
 	<< "NewtonianMC"
 	<< magnet::xml::tag("PotentialDeformation")

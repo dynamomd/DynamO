@@ -36,6 +36,9 @@ namespace dynamo {
     //Load the diffusion class
     ptrOPMSD = Sim->getOutputPlugin<OPMSD>();
 
+    if (!ptrOPMSD)
+      M_throw() << "Periodic MSD plugin requires MSD plugin!";
+
     //Now cache a local list of the topology
     BOOST_FOREACH(const shared_ptr<Topology>& topo, Sim->dynamics.getTopology())
       {

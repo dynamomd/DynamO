@@ -96,6 +96,9 @@ namespace dynamo {
 	std::vector<unsigned long>(length, 0))
        );
 
+    if (!(Sim->getOutputPlugin<OPUEnergy>()))
+      M_throw() << "Radial Distribution requires UEnergy plugin";
+
     ticker();
   }
 

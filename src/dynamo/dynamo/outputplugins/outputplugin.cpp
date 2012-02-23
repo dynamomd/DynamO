@@ -101,13 +101,9 @@ namespace dynamo {
     template<class T> shared_ptr<dynamo::OutputPlugin>
     testGeneratePlugin(const dynamo::SimData* Sim, const magnet::xml::Node& XML)
     {
-      try {
-	Sim->getOutputPlugin<T>();
-      } catch (std::exception&)
-	{
-	  return shared_ptr<dynamo::OutputPlugin>(new T(Sim, XML));
-	}
-      
+      if (!(Sim->getOutputPlugin<T>()))
+	return shared_ptr<dynamo::OutputPlugin>(new T(Sim, XML));
+
       //It's already in the simulation
       M_throw() << "Plugin is already loaded";
     }

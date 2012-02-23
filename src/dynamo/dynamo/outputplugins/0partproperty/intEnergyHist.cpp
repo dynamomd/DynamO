@@ -53,6 +53,7 @@ namespace dynamo {
   OPIntEnergyHist::initialise() 
   {
     ptrOPEnergy = Sim->getOutputPlugin<OPUEnergy>();
+    if (!ptrOPEnergy) M_throw() << "IntEnergyHist requires UEnergy plugin!";
     intEnergyHist = magnet::math::HistogramWeighted<>(binwidth * Sim->dynamics.units().unitEnergy());
   }
 

@@ -81,7 +81,8 @@ namespace dynamo {
   void 
   OPViscosityCollisionalE::initialise()
   {
-    Sim->getOutputPlugin<OPMisc>();
+    if (!(Sim->getOutputPlugin<OPMisc>()))
+      M_throw() << "ViscosityCollisionalE requires Misc output plugin!";
   
     if (dt == 0.0)
       {

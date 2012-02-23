@@ -88,8 +88,11 @@ namespace dynamo {
 
     G.resize(CorrelatorLength, Vector (0,0,0));
     accG2.resize(CorrelatorLength, Vector (0,0,0));
-    Sim->getOutputPlugin<OPMisc>();
-    Sim->getOutputPlugin<OPKEnergy>();
+
+    if (!(Sim->getOutputPlugin<OPMisc>()))
+      M_throw() << "ThermalDiffusionE requires Misc output plugin!";
+    if (!(Sim->getOutputPlugin<OPKEnergy>()))
+      M_throw() << "ThermalDiffusionE requires KEnergy output plugin!";
   
     accG2.resize(CorrelatorLength, Vector (0,0,0));
     Gsp1.resize(CorrelatorLength, Vector (0,0,0));

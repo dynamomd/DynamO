@@ -49,6 +49,9 @@ namespace dynamo {
   {
     _ptrOPEnergy = Sim->getOutputPlugin<OPKEnergy>();
 
+    if (!_ptrOPEnergy)
+      M_throw() << "VelDist requires UEnergy plugin";
+
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       data[iDim].resize(Sim->dynamics.getSpecies().size(), 
 			magnet::math::Histogram<>(Sim->dynamics.units().unitVelocity() 

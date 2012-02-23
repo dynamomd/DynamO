@@ -87,8 +87,10 @@ namespace dynamo {
   void 
   OPViscosityE::initialise()
   {
-    Sim->getOutputPlugin<OPKEnergy>();
-    Sim->getOutputPlugin<OPMisc>();
+    if (!(Sim->getOutputPlugin<OPMisc>()))
+      M_throw() << "ViscosityE requires Misc output plugin!";
+    if (!(Sim->getOutputPlugin<OPKEnergy>()))
+      M_throw() << "ViscosityE requires KEnergy output plugin!";
   
     if (dt == 0.0)
       {

@@ -70,8 +70,10 @@ namespace dynamo {
   {
     G.resize(CorrelatorLength, Vector (0,0,0));
     accG2.resize(CorrelatorLength, Vector (0,0,0));
-    Sim->getOutputPlugin<OPMisc>();
-    Sim->getOutputPlugin<OPKEnergy>();
+    if (!(Sim->getOutputPlugin<OPMisc>()))
+      M_throw() << "ThermalConductivityE requires Misc output plugin!";
+    if (!(Sim->getOutputPlugin<OPKEnergy>()))
+      M_throw() << "ThermalConductivityE requires KEnergy output plugin!";
   
     if (dynamic_cast<const dynamo::EnsembleNVE* >(Sim->ensemble.get()) == NULL)
       M_throw() << "WARNING: This is only valid in the microcanonical"
