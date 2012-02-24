@@ -111,16 +111,16 @@ namespace dynamo {
       if (std::abs(sample_energy - Sim->getOutputPlugin<OPUEnergy>()->getSimU())
 	  > sample_energy_bin_width * 0.5)
 	return;
-
-    dout << "Sampling rad as energy is " 
-	 << Sim->getOutputPlugin<OPUEnergy>()->getSimU()
-      / Sim->dynamics.units().unitEnergy()
-	 << " sample_energy is "
-	 << sample_energy / Sim->dynamics.units().unitEnergy()
-	 << " and sample_energy_bin_width is "
-	 << sample_energy_bin_width / Sim->dynamics.units().unitEnergy()
-	 << std::endl;
-
+      else
+	dout << "Sampling rad as energy is " 
+	     << Sim->getOutputPlugin<OPUEnergy>()->getSimU()
+	  / Sim->dynamics.units().unitEnergy()
+	     << " sample_energy is "
+	     << sample_energy / Sim->dynamics.units().unitEnergy()
+	     << " and sample_energy_bin_width is "
+	     << sample_energy_bin_width / Sim->dynamics.units().unitEnergy()
+	     << std::endl;
+    
     ++sampleCount;
   
     BOOST_FOREACH(const shared_ptr<Species>& sp1, Sim->dynamics.getSpecies())

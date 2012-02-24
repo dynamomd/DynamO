@@ -143,17 +143,25 @@ namespace dynamo {
 	    BOOST_FOREACH(MagVec& vec, bonds)
 	      {
 		vec /= vec.nrm();
-		ComplexNum ang1(vec[0], vec[1]);
-		ComplexNum ang2 = ang1 * ang1;
-		sum += ang2 * ang2 * ang2;
+		
+		double angle;
+		if (vec[0] != 0)
+		  angle = atan(vec[1]/vec[0]);
+		else
+		  if (vec[1] > 0)
+		    angle = M_PI / 2;
+		  else
+		    angle = - M_PI / 2;
+		
+		if (vec[0] < 0) angle += M_PI;
+
+		sum += std::exp(ComplexNum(0, 6 * angle));
 	      }
 	    
 	    ++count;
 	  }
       }
-    sum /= 6.0 * count;
-
-    _history.push_back(sum);
+    _history.push_back(sum / ComplexNum(0, 6.0 * count));
   }
 
   void 
