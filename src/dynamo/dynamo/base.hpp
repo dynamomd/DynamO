@@ -21,6 +21,8 @@
 #include <magnet/exception.hpp>
 #include <tr1/memory>
 #include <iostream>
+#include <iomanip>
+#include <limits>
 
 namespace dynamo
 {
@@ -48,7 +50,11 @@ namespace dynamo
 	   + magnet::console::red_fg() 
 	   + aName + ": " + magnet::console::reset(), std::cerr),
       name(aName)
-    {};
+    {
+      //Reasonable precision for output
+      dout << std::setprecision(std::numeric_limits<float>::digits10);
+      derr << std::setprecision(std::numeric_limits<float>::digits10);
+    }
     
   protected:
     /*! \brief A std::cout style output stream. 

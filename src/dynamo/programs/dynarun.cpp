@@ -26,7 +26,6 @@
 #include <magnet/arg_share.hpp>
 #include <boost/program_options.hpp>
 #include <iostream>
-#include <iomanip>
 #include <cstdio>
 #include <signal.h>
 
@@ -52,9 +51,6 @@ int main(int argc, char *argv[])
 	    << "under certain conditions. See the licence you obtained with\n"
 	    << "the code\n"
 	       "Git Checkout Hash " << STR(GITHASH) << "\n\n";
-
-  //Reasonable precision for periodic output
-  std::cout << std::setprecision(std::numeric_limits<float>::digits10);
 
   /*! \brief The programs single instantiation of the simulation control class.
    */

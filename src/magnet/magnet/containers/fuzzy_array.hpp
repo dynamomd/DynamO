@@ -63,7 +63,7 @@ namespace magnet {
 	\param binwidth The width of a single bin.
        */
       FuzzyArray(double binwidth = 1):
-	_binWidth(binWidth),
+	_binWidth(binwidth),
 	_invBinWidth(1 / binwidth)
       {}
       
