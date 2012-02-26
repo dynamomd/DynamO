@@ -197,7 +197,7 @@ namespace dynamo {
 
     status = PRODUCTION;
 
-    size_t lastprint = eventCount + eventPrintInterval;
+    size_t nextPrint = eventCount + eventPrintInterval;
 
     for (; eventCount < endEventCount;)
       try
@@ -205,16 +205,13 @@ namespace dynamo {
 	  ptrScheduler->runNextEvent();
 	
 	  //Periodic work
-	  if ((eventCount > lastprint)
-	      && !silentMode
-	      && outputPlugins.size())
+	  if ((eventCount >= nextPrint) && !silentMode && outputPlugins.size())
 	    {
 	      //Print the screen data plugins
-	      BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, 
-			    outputPlugins)
+	      BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)
 		Ptr->periodicOutput();
-
-	      lastprint = eventCount + eventPrintInterval;
+	      
+	      nextPrint = eventCount + eventPrintInterval;
 	      std::cout << std::endl;
 	    }
 	}

@@ -20,6 +20,7 @@
 **** TODO Write up the image distance class.
 **** TODO Look at CL/GL synchronisation objects for coil.
 **** TODO Enable light calculation optimisations.
+**** TODO Look at a way of setting default workable parameters for mode 19.
 *** DynamO 1.3
 **** DONE DynamO: 2D systems are now officially *supported* in DynamO, although they're not optimal.
 **** DONE DynamO: Up to 50% faster in polydisperse systems thanks to a new cache friendly nblist implementation.
