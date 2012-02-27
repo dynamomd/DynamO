@@ -47,9 +47,9 @@
             <property name="can_focus">False</property>
             <child>
               <object class="GtkMenuItem" id="menuitem1">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="use_action_appearance">False</property>
                 <property name="right_justified">True</property>
                 <property name="label" translatable="yes">_Help</property>
                 <property name="use_underline">True</property>
@@ -60,9 +60,9 @@
                     <child>
                       <object class="GtkImageMenuItem" id="aboutItem">
                         <property name="label">gtk-about</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="right_justified">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
@@ -99,6 +99,7 @@
                         <property name="can_focus">False</property>
                         <child>
                           <object class="GtkToggleButton" id="SimRunButton">
+                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -123,6 +124,7 @@
                         </child>
                         <child>
                           <object class="GtkButton" id="SimSnapshot">
+                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -148,6 +150,7 @@
                         </child>
                         <child>
                           <object class="GtkToggleButton" id="SimRecordButton">
+                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -214,6 +217,7 @@
                         <property name="can_focus">False</property>
                         <child>
                           <object class="GtkButton" id="CamPlusXbtn">
+                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -235,6 +239,7 @@
                         </child>
                         <child>
                           <object class="GtkButton" id="CamNegXbtn">
+                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -255,6 +260,7 @@
                         </child>
                         <child>
                           <object class="GtkButton" id="CamPlusYbtn">
+                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -275,6 +281,7 @@
                         </child>
                         <child>
                           <object class="GtkButton" id="CamNegYbtn">
+                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -295,6 +302,7 @@
                         </child>
                         <child>
                           <object class="GtkButton" id="CamPlusZbtn">
+                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -315,6 +323,7 @@
                         </child>
                         <child>
                           <object class="GtkButton" id="CamNegZbtn">
+                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -335,6 +344,7 @@
                         </child>
                         <child>
                           <object class="GtkButton" id="CamMode">
+                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -392,6 +402,7 @@
                     <child>
                       <object class="GtkToggleButton" id="FPSLimit">
                         <property name="label" translatable="yes">FPS Limit</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -458,6 +469,7 @@
                     <child>
                       <object class="GtkToggleButton" id="SimLockButton">
                         <property name="label" translatable="yes">Update Lock</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -908,6 +920,7 @@ The &lt;b&gt;bloom compression&lt;/b&gt; controls the shape of the curve up to t
                     </child>
                     <child type="label">
                       <object class="GtkCheckButton" id="bloomEnable">
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -1026,6 +1039,7 @@ The &lt;b&gt;bloom compression&lt;/b&gt; controls the shape of the curve up to t
                                     <property name="can_focus">False</property>
                                     <child>
                                       <object class="GtkButton" id="filterUp">
+                                        <property name="use_action_appearance">False</property>
                                         <property name="visible">True</property>
                                         <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
@@ -1048,6 +1062,7 @@ The &lt;b&gt;bloom compression&lt;/b&gt; controls the shape of the curve up to t
                                     </child>
                                     <child>
                                       <object class="GtkButton" id="filterDelete">
+                                        <property name="use_action_appearance">False</property>
                                         <property name="visible">True</property>
                                         <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
@@ -1070,6 +1085,7 @@ The &lt;b&gt;bloom compression&lt;/b&gt; controls the shape of the curve up to t
                                     </child>
                                     <child>
                                       <object class="GtkButton" id="filterDown">
+                                        <property name="use_action_appearance">False</property>
                                         <property name="visible">True</property>
                                         <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
@@ -1092,6 +1108,7 @@ The &lt;b&gt;bloom compression&lt;/b&gt; controls the shape of the curve up to t
                                     </child>
                                     <child>
                                       <object class="GtkButton" id="filterClear">
+                                        <property name="use_action_appearance">False</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
@@ -1113,6 +1130,7 @@ The &lt;b&gt;bloom compression&lt;/b&gt; controls the shape of the curve up to t
                                     </child>
                                     <child>
                                       <object class="GtkToggleButton" id="filterActive">
+                                        <property name="use_action_appearance">False</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
@@ -1162,6 +1180,7 @@ The &lt;b&gt;bloom compression&lt;/b&gt; controls the shape of the curve up to t
                                 </child>
                                 <child>
                                   <object class="GtkButton" id="filterAdd">
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
@@ -1230,6 +1249,7 @@ The &lt;b&gt;bloom compression&lt;/b&gt; controls the shape of the curve up to t
                     </child>
                     <child type="label">
                       <object class="GtkCheckButton" id="filterEnable">
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -1315,12 +1335,13 @@ The &lt;b&gt;bloom compression&lt;/b&gt; controls the shape of the curve up to t
                             </child>
                             <child>
                               <object class="GtkColorButton" id="BackColor">
+                                <property name="use_action_appearance">False</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
                                 <property name="use_action_appearance">False</property>
                                 <property name="title" translatable="yes">Back Color</property>
-                                <property name="color">#df93df93df93</property>
+                                <property name="color">#ffffffffffff</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1556,6 +1577,7 @@ The &lt;b&gt;bloom compression&lt;/b&gt; controls the shape of the curve up to t
                         <child>
                           <object class="GtkButton" id="HeadTrackReset">
                             <property name="label" translatable="yes">Reset</property>
+                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -1603,6 +1625,7 @@ The &lt;b&gt;bloom compression&lt;/b&gt; controls the shape of the curve up to t
                     <child>
                       <object class="GtkCheckButton" id="StereoModeEnable">
                         <property name="label" translatable="yes">Stereo Vison Enable</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -1667,6 +1690,7 @@ The &lt;b&gt;bloom compression&lt;/b&gt; controls the shape of the curve up to t
                             <child>
                               <object class="GtkButton" id="wiiConnectBtn">
                                 <property name="label" translatable="yes">Connect WiiMote</property>
+                                <property name="use_action_appearance">False</property>
                                 <property name="visible">True</property>
                                 <property name="sensitive">False</property>
                                 <property name="can_focus">True</property>
@@ -1706,6 +1730,7 @@ The &lt;b&gt;bloom compression&lt;/b&gt; controls the shape of the curve up to t
                             <child>
                               <object class="GtkButton" id="wiiCalibrate">
                                 <property name="label" translatable="yes">Calibrate WiiMote</property>
+                                <property name="use_action_appearance">False</property>
                                 <property name="visible">True</property>
                                 <property name="sensitive">False</property>
                                 <property name="can_focus">True</property>
@@ -1810,6 +1835,7 @@ The &lt;b&gt;bloom compression&lt;/b&gt; controls the shape of the curve up to t
                             <child type="label">
                               <object class="GtkCheckButton" id="wiiHeadTracking">
                                 <property name="label" translatable="yes">Head Tracking</property>
+                                <property name="use_action_appearance">False</property>
                                 <property name="visible">True</property>
                                 <property name="sensitive">False</property>
                                 <property name="can_focus">True</property>
@@ -1898,6 +1924,7 @@ The &lt;b&gt;bloom compression&lt;/b&gt; controls the shape of the curve up to t
                     <child>
                       <object class="GtkCheckButton" id="forceParticleSync">
                         <property name="label" translatable="yes">Force particle sync on draw</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>

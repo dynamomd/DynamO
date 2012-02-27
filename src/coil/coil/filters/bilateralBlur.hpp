@@ -19,9 +19,9 @@
 
 #include <gtkmm.h>
 #include <magnet/GL/shader/bilateralblur.hpp>
-#include "filter.hpp"
+#include <coil/filters/filter.hpp>
 
-namespace coil 
+namespace coil
 {
   class BilateralBlurWrapper: public Filter
   {
@@ -36,13 +36,13 @@ namespace coil
 
   protected:
     magnet::GL::shader::BilateralBlur _filter;
-    GLuint _radius;
+    GLint _radius;
     GLfloat _zdiff;
 
     void settingsCallback();
 
     Gtk::HScale _radiusSlider;
-    Gtk::HScale _zdiffSlider;
+    Gtk::Entry _zdiffEntry;
     Gtk::HBox _optlist;
   };
 }

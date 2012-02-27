@@ -18,7 +18,7 @@
 #pragma once
 
 #include <gtkmm.h>
-#include "filter.hpp"
+#include <coil/filters/filter.hpp>
 
 namespace coil 
 {

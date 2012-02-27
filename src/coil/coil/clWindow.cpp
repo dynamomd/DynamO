@@ -1290,10 +1290,14 @@ namespace coil {
     if (_filterEnable)
       {
        	//Bind the original image to texture unit 0
-       	_renderTarget.getColorTexture(0)->bind(0);	
-       	//Now bind the texture which has the normals unit 1
+       	_renderTarget.getColorTexture(0)->bind(0);
+
+	//We can attach the GBuffer textures, for the normals and the
+	//positions.
+	//
+       	//Normals unit 1
        	_Gbuffer.getColorTexture(1)->bind(1);
-       	//Positional information is attached to unit 2
+       	//Screen space positions 2
        	_Gbuffer.getColorTexture(2)->bind(2);
          
        	for (Gtk::TreeModel::iterator iPtr = _filterStore->children().begin();

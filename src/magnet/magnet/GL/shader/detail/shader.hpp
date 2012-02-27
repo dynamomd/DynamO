@@ -158,7 +158,13 @@ namespace magnet {
 	    //If this uniform does not exist in the code, don't ever
 	    //try to assign it
 	    if (_uniformHandle == -1) return false;
+	    
+	    //If we're in debug mode we always reset the value of the uniform
+#ifndef MAGNET_DEBUG
+	    //Check if the value is already set to the new value
 	    if (*this == val) return false;
+#endif
+	    
 	    _data = boost::any(val);
 	    return true;
 	  }
@@ -303,7 +309,12 @@ namespace magnet {
 	    std::tr1::unordered_map<std::string, ShaderUniformValue>::iterator it 
 	      = _uniformCache.find(uniformName);
 
+	    //In non-debug mode, we cache the uniform address,
+	    //otherwise we always redetermine it in case a program
+	    //like gDebugger has changed it.
+#ifndef MAGNET_DEBUG
 	    if (it != _uniformCache.end()) return it->second;
+#endif
 
 	    GLint uniformHandle = glGetUniformLocationARB(_programHandle, uniformName.c_str());
 #ifdef MAGNET_DEBUG

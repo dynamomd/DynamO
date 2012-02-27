@@ -16,6 +16,7 @@
 */
 
 #include <coil/filters/bilateralBlur.hpp>
+#include <magnet/gtk/numericEntry.hpp>
 
 namespace coil 
 {
@@ -25,7 +26,7 @@ namespace coil
 
   BilateralBlurWrapper::BilateralBlurWrapper():
     _radius(1),
-    _zdiff(0.0005)
+    _zdiff(0.01)
   {
     _filter.build(); 
 
@@ -43,7 +44,7 @@ namespace coil
     {
       Gtk::VBox* sliderVbox = manage(new Gtk::VBox);
       sliderVbox->add(_radiusSlider);
-      sliderVbox->add(_zdiffSlider);
+      sliderVbox->add(_zdiffEntry);
       _optlist.add(*sliderVbox);
       sliderVbox->show();
     }
@@ -57,13 +58,15 @@ namespace coil
       .connect(sigc::mem_fun(this, &BilateralBlurWrapper::settingsCallback));
     _radiusSlider.show();
 
-    _zdiffSlider.set_increments(0.0001,0.0001);
-    _zdiffSlider.set_range(0.0001, 0.5);
-    _zdiffSlider.set_digits(6);
-    _zdiffSlider.set_value(_zdiff); 
-    _zdiffSlider.signal_value_changed()
-      .connect(sigc::mem_fun(this, &BilateralBlurWrapper::settingsCallback));
-    _zdiffSlider.show();
+    _zdiffEntry.set_text(boost::lexical_cast<std::string>(_zdiff));
+
+    _zdiffEntry.signal_changed()
+      .connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, _zdiffEntry));
+
+    _zdiffEntry.signal_activate()
+	.connect(sigc::mem_fun(this, &BilateralBlurWrapper::settingsCallback));      
+
+    _zdiffEntry.show();
   }
 
   void BilateralBlurWrapper::showControls(Gtk::ScrolledWindow* start)
@@ -76,18 +79,19 @@ namespace coil
   void BilateralBlurWrapper::settingsCallback()
   {
     _radius = _radiusSlider.get_value();
-    _zdiff = _zdiffSlider.get_value();
+
+    try {
+      _zdiff = boost::lexical_cast<double>(_zdiffEntry.get_text());
+    } catch (...) {}
   }
 
   void BilateralBlurWrapper::invoke(GLint colorTextureUnit, 
 				    size_t width, size_t height,
 				    const magnet::GL::Camera& vp) 
   {
-    std::tr1::array<GLfloat, 2> val = {{GLfloat(_radius) / width, 
-					GLfloat(_radius) / height}};
     _filter.attach();
-    _filter["scale"] = val;
     _filter["totStrength"] = _zdiff;
+    _filter["radius"] = _radius;
     _filter["ImageTex"] = colorTextureUnit;
     _filter["EyePosTex"] = 3;
     _filter.invoke();

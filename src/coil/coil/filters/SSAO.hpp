@@ -16,7 +16,7 @@
 */
 
 #pragma once
-#include "filter.hpp"
+#include <coil/filters/filter.hpp>
 #include <magnet/GL/shader/SSAO.hpp>
 
 namespace coil 

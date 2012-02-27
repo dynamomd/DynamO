@@ -16,8 +16,9 @@
 */
 
 #pragma once
-#include "filter.hpp"
+#include <coil/filters/filter.hpp>
 #include <magnet/GL/shader/DOF.hpp>
+#include <magnet/gtk/numericEntry.hpp>
 
 namespace coil 
 {
@@ -25,7 +26,7 @@ namespace coil
   {
   public:
     DOFFilter():
-      _focalLength(0.25f), _focalWidth(0.01f)
+      _focalLength(0.0f), _focalWidth(1.5f)
     { 
       _filter.build();
       
@@ -48,20 +49,23 @@ namespace coil
 	sliderVbox->show();
       }
       _optlist.show();
-      
-      _focalLengthSlider.set_range(0, 1);
-      _focalLengthSlider.set_increments(0.01,0.001);
-      _focalLengthSlider.set_digits(4);
-      _focalLengthSlider.set_value(_focalLength);
-      _focalLengthSlider.signal_value_changed().connect(sigc::mem_fun(this, &DOFFilter::settingsCallback));
+
+      _focalLengthSlider.set_text("0.0");
+      _focalWidthSlider.set_text(boost::lexical_cast<std::string>(_focalWidth));
+
       _focalLengthSlider.show();
-      
-      _focalWidthSlider.set_range(0, 1);
-      _focalWidthSlider.set_increments(0.001,0.001);
-      _focalWidthSlider.set_digits(4);
-      _focalWidthSlider.set_value(_focalWidth); 
-      _focalWidthSlider.signal_value_changed().connect(sigc::mem_fun(this, &DOFFilter::settingsCallback));
       _focalWidthSlider.show();
+      
+      _focalLengthSlider.signal_changed()
+	.connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, _focalLengthSlider));
+
+      _focalWidthSlider.signal_changed()
+	.connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, _focalWidthSlider));
+
+      _focalLengthSlider.signal_activate()
+	.connect(sigc::mem_fun(this, &DOFFilter::settingsCallback));      
+      _focalWidthSlider.signal_activate()
+	.connect(sigc::mem_fun(this, &DOFFilter::settingsCallback));
     }
 
     inline virtual size_t type_id() { return detail::filterEnum<DOFFilter>::val; }
@@ -88,16 +92,20 @@ namespace coil
   protected:
     magnet::GL::shader::DOFShader _filter;
 
-    Gtk::HScale _focalLengthSlider;
-    Gtk::HScale _focalWidthSlider;
+    Gtk::Entry _focalLengthSlider;
+    Gtk::Entry _focalWidthSlider;
     Gtk::HBox _optlist;
 
     GLfloat _focalLength, _focalWidth;
 
     void settingsCallback()
     {
-      _focalLength = _focalLengthSlider.get_value();
-      _focalWidth = _focalWidthSlider.get_value();
+      try {
+	_focalLength = boost::lexical_cast<double>(_focalLengthSlider.get_text());
+      } catch (...) {}
+      try {
+	_focalWidth = boost::lexical_cast<double>(_focalWidthSlider.get_text());
+      } catch (...) {}
     }
   };
 }

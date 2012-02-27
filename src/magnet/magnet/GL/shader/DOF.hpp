@@ -48,7 +48,7 @@ namespace magnet {
 	    STRINGIFY(
 uniform sampler2D u_Texture0; //Blurred image
 uniform sampler2D u_Texture1; //Original
-uniform sampler2D u_Texture2; //Position Buffer
+uniform sampler2DMS u_Texture2; //Position Buffer
 uniform float focalDistance;
 uniform float focalRange;
 uniform float nearDist;
@@ -59,14 +59,14 @@ layout (location = 0) out vec4 color_out;
 
 void main(void)
 {
-  float fcldist = focalDistance;
-  if (fcldist == 0) //Automatic mode
-    fcldist = texture(u_Texture2, vec2(0.5, 0.5)).z;
+  float fcldist = -focalDistance;
+  if (focalDistance == 0) //Automatic mode
+    fcldist = texelFetch(u_Texture2, textureSize(u_Texture2) / 2, 0).z;
   
   vec4 original = texture(u_Texture1, screenCoord);
   vec4 blurred = texture(u_Texture0, screenCoord);
   
-  float depth = texture(u_Texture2, screenCoord).z;
+  float depth = texelFetch(u_Texture2, ivec2(gl_FragCoord.xy), 0).z;
   float blur = clamp(abs(depth - fcldist) / focalRange, 0.0, 1.0);
   
   color_out = original + blur * (blurred - original);

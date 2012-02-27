@@ -37,13 +37,12 @@ namespace magnet {
 	  return "#version 330\n"
 	    STRINGIFY(
 uniform sampler2D ImageTex; //input
-uniform sampler2D EyePosTex;
-uniform vec2 scale;
+uniform sampler2DMS EyePosTex;
 uniform float totStrength;
 uniform float nearDist;
 uniform float farDist;
+uniform int radius;
 
-smooth in vec2 screenCoord;
 layout (location = 0) out vec4 color_out;
 
 const float weight[5] = float[5](0.05496597,0.24581,0.4076311347,0.24581,0.05496597);
@@ -52,7 +51,7 @@ float sampleWeight(int i, int j) { return weight[i] * weight[j]; }
 
 void main(void)
 {
-  float currentPixelDepth = texture(EyePosTex, screenCoord).z;
+  float currentPixelDepth = texelFetch(EyePosTex, ivec2(gl_FragCoord.xy),0).z;
   
   vec3 accum = vec3(0, 0, 0);
   float totalWeight = 0.0;
@@ -60,12 +59,12 @@ void main(void)
   for (int x = 0; x < 5; ++x)
     for (int y = 0; y < 5; ++y)
       {
-	vec2 sampleLoc = screenCoord + vec2((x - 2) * scale.x, (y - 2) * scale.y);
-	float sampleDepth = texture(EyePosTex, sampleLoc).z;
+	ivec2 sample_coords = ivec2(gl_FragCoord.xy) + ivec2(x - 2, y - 2) * radius;
+	float sampleDepth = texelFetch(EyePosTex, sample_coords, 0).z;
 	
 	float Zdifference = abs(currentPixelDepth - sampleDepth);
 	float sampleweight = (1.0 - step(totStrength, Zdifference)) * sampleWeight(x,y);
-	accum += sampleweight * texture(ImageTex, sampleLoc).rgb;
+	accum += sampleweight * texelFetch(ImageTex, sample_coords, 0).rgb;
 	totalWeight += sampleweight;
       }
   
