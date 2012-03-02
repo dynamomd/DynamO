@@ -157,14 +157,15 @@ namespace coil {
     try
       { _program.build(std::vector<cl::Device>(1, context->getCLDevice())); }
     catch(cl::Error& err) 
-      {    
+      {
 	std::string msg 
 	  = _program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(context->getCLDevice());
       
-	std::cout << "Compilation failed for device " 
+	M_throw() << "Compilation failed for device " 
 		  << context->getCLDevice().getInfo<CL_DEVICE_NAME>()
-		  << "\nBuild Log:" << msg;
-	throw;
+		  << "\nBuild Log:" << msg
+		  << "\nKernel Src:\n" << _kernelsrc
+	  ;
       }
   
     _kernel = cl::Kernel(_program, "FunctionRenderKernel");
@@ -246,61 +247,57 @@ namespace coil {
 #define STRINGIFY(A) #A
 
     return std::string(STRINGIFY(
+__kernel void
+FunctionRenderKernel(__global float * positions,
+		     __global uchar4 * colors,
+		     __global float * normals,
+		     float t,
+		     float2 functionOrigin,
+		     float2 functionRange,
+		     float4 axis1,
+		     float4 axis2,
+		     float4 axis3,
+		     float4 origin,
+		     uint N, float A)
+{
+  positions += 3 * get_global_id(0);
+  normals += 3 * get_global_id(0);
+  colors += get_global_id(0);
 
-				 __kernel void
-				 FunctionRenderKernel(__global float * positions,
-						      __global uchar4 * colors,
-						      __global float * normals,
-						      float t,
-						      float2 functionOrigin,
-						      float2 functionRange,
-						      float4 axis1,
-						      float4 axis2,
-						      float4 axis3,
-						      float4 origin,
-						      uint N, float A)
-				 {
-				   positions += 3 * get_global_id(0);
-				   normals += 3 * get_global_id(0);
-				   colors += get_global_id(0);
+  float2 normPos = (float2)(get_global_id(0) % N, get_global_id(0) / N);
+  normPos /= N;
 
-				   float2 normPos = (float2)(get_global_id(0) % N, get_global_id(0) / N);
-				   normPos /= N;
+  float2 pos = normPos * functionRange + functionOrigin;
 
-				   float2 pos = normPos * functionRange + functionOrigin;
-
-				   float f; 
-				   )) + _function + std::string(STRINGIFY(
+  float f; 
+  )) + _function + std::string(STRINGIFY(
+  float4 vertexPosition = normPos.x * axis1 + normPos.y * axis2 + f * axis3 + origin;
   
-									  float4 vertexPosition = normPos.x * axis1 + normPos.y * axis2 + f * axis3 + origin;
+  positions[0] = vertexPosition.x;
+  positions[1] = vertexPosition.y;
+  positions[2] = vertexPosition.z;
 
-									  positions[0] = vertexPosition.x;
-									  positions[1] = vertexPosition.y;
-									  positions[2] = vertexPosition.z;
+  float4 normal;
+  )) + _normalCalc + std::string(STRINGIFY(
+  normal *= (float4)(functionRange * length(axis3) , 1.0f / length(axis3), 0);
+  
+  float4 rotatedNormal 
+  = normalize(normal.x * axis1 +
+	      normal.y * axis2 +
+	      normal.z * axis3
+	      );
 
-									  float4 normal;
-									  )) + _normalCalc + std::string(STRINGIFY(
-														   normal *= (float4)(functionRange * length(axis3) , 1.0f / length(axis3), 0);
-
-														   float4 rotatedNormal 
-														   = normalize(normal.x * axis1 +
-															       normal.y * axis2 +
-															       normal.z * axis3
-															       );
-
-														   normals[0] = rotatedNormal.x;
-														   normals[1] = rotatedNormal.y;
-														   normals[2] = rotatedNormal.z;
-
-														   )) + _colorCalc + std::string(STRINGIFY(
-																			   }
-
-																		 __kernel void
-																		 FunctionPickKernel(__global uint * colors, uint offset)
-																		 {
-																		   colors[get_global_id(0)] = get_global_id(0) + offset;
-																		 }
-																		 ));
+  normals[0] = rotatedNormal.x;
+  normals[1] = rotatedNormal.y;
+  normals[2] = rotatedNormal.z;
+  )) + _colorCalc + std::string(STRINGIFY(
+  }					
+__kernel void
+FunctionPickKernel(__global uint * colors, uint offset)
+{
+  colors[get_global_id(0)] = get_global_id(0) + offset;
+}
+  ));
   }
 
 //  void 
