@@ -18,6 +18,9 @@
 #include "Function.hpp"
 #include <iostream>
 #include <coil/glprimatives/arrow.hpp>
+#include <magnet/string/formatcode.hpp>
+#include <magnet/string/line_number.hpp>
+
 
 extern const guint8 Function_Icon[];
 extern const size_t Function_Icon_size;
@@ -146,7 +149,7 @@ namespace coil {
 
     magnet::GL::Context::ContextPtr context = magnet::GL::Context::getContext();
   
-    _kernelsrc = genKernelSrc();
+    _kernelsrc = magnet::string::format_code(genKernelSrc());
 
     cl::Program::Sources kernelSource;
 
@@ -163,8 +166,8 @@ namespace coil {
       
 	M_throw() << "Compilation failed for device " 
 		  << context->getCLDevice().getInfo<CL_DEVICE_NAME>()
-		  << "\nBuild Log:" << msg
-		  << "\nKernel Src:\n" << _kernelsrc
+		  << "\nBuild Log:\n" << msg
+		  << "\nProgram Src:\n" << magnet::string::add_line_numbers(_kernelsrc)
 	  ;
       }
   

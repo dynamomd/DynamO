@@ -18,7 +18,7 @@
 
 #include <magnet/CL/detail/extension_wrangler.hpp>
 #include <magnet/string/formatcode.hpp>
-#include <string>
+#include <magnet/string/line_number.hpp>
 
 namespace magnet {
   namespace CL {
@@ -76,7 +76,9 @@ namespace magnet {
 	    
 	      M_throw() << "Compilation failed for device " 
 			<< devices[dev].getInfo<CL_DEVICE_NAME>()
-			<< "\nBuild Log:\n" << msg;
+			<< "\nBuild Log:\n" << msg
+			<< "\nProgram Src:\n" << magnet::string::add_line_numbers(_kernelSrc)
+		;
 	    }
 	  }
 	}
