@@ -21,47 +21,54 @@
 namespace magnet {
   namespace string {
     /*! \brief Line wraps a string in a neat way.
-     *
-     * This function will wrap lines before they overflow
-     *
-     * \param in The string to be wrapped.
-     * \param linelength The length of the line in characters.
-     * \tparam hyphenate_long_words If true, any word longer than a line will be broken using hyphens
-     * \returns The wrapped form of the in string.
+     
+      This function will wrap lines before they overflow
+     
+      \param in The string to be wrapped.
+      \param linelength The length of the line in characters.
+      \tparam hyphenate_long_words If true, any word longer than a line will be broken using hyphens
+      \returns The wrapped form of the in string.
      */
     template<bool hyphenate_long_words>
     inline std::string linewrap(std::string in, size_t linelength)
     {
-      std::string::size_type linestart = -1, wordstart = -1;
+      //The position of the newline or space character before the
+      //current word
+      std::string::size_type linestart = -1;
 
+      //The position of the newline or space character before the
+      //current line
+      std::string::size_type wordstart = -1;
+
+      //Loop over the string, character by character
       for (std::string::size_type curchar = 0; curchar <= in.size(); ++curchar)
-	if ((in[curchar] == ' ')
-	    || (curchar == in.size()))
+	//Are we at the end of a word?
+	if ((in[curchar] == ' ') || (curchar == in.size()))
 	  {
 	    //Will this word take the line length over its maximum?
 	    if (curchar - linestart > linelength)
 	      {
-		//Check we can actually do a line break
+		//Check if we can insert a line break before the current word.
 		if (linestart != wordstart)
 		  {
 		    in[wordstart] = '\n';
 		    linestart = wordstart;
 		  }
-
-		if (hyphenate_long_words)
-		  while (curchar - linestart > linelength)
-		    {
+		
+		//Now check if we need to break the current word up (and hyphenate it)
+		while (curchar - linestart > linelength)
+		  {
+		    if (hyphenate_long_words)
 		      in.insert(linestart + linelength, std::string("\n-"));
-		      linestart = linestart + linelength;
-		      curchar += 2;
-		    }
-		else
-		  if (curchar - linestart > linelength)
-		    {
-		      in[curchar] = '\n';
-		      linestart = curchar;
-		    }
+		    else
+		      in.insert(linestart + linelength, std::string("\n"));
+		    
+		    linestart = linestart + linelength;
+		    curchar += 1 + hyphenate_long_words;
+		  }
 	      }
+	    
+	    //Mark the start of the next word
 	    wordstart = curchar;
 	  }
 	else if (in[curchar] == '\n')

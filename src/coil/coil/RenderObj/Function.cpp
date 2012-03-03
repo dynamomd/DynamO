@@ -48,9 +48,7 @@ namespace coil {
     _axis3(axis3),
     _drawAxis(drawAxis),
     _staticShape(staticShape),
-    _function(function),
-    _normalCalc(normalCalc),
-    _colorCalc(colorCalc)    
+    _program(function, normalCalc, colorCalc)
   {
     //Copy to the cl types
     for (size_t i(0); i < 3; ++i)
@@ -146,33 +144,12 @@ namespace coil {
 	}
       setGLElements(ElementData);
     }
-
     magnet::GL::Context::ContextPtr context = magnet::GL::Context::getContext();
-  
-    _kernelsrc = magnet::string::format_code(genKernelSrc());
 
-    cl::Program::Sources kernelSource;
-
-    kernelSource.push_back(std::pair<const char*, ::size_t>(_kernelsrc.c_str(), _kernelsrc.size()));
-  
-    _program = cl::Program(context->getCLContext(), kernelSource);
-
-    try
-      { _program.build(std::vector<cl::Device>(1, context->getCLDevice())); }
-    catch(cl::Error& err) 
-      {
-	std::string msg 
-	  = _program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(context->getCLDevice());
-      
-	M_throw() << "Compilation failed for device " 
-		  << context->getCLDevice().getInfo<CL_DEVICE_NAME>()
-		  << "\nBuild Log:\n" << msg
-		  << "\nProgram Src:\n" << magnet::string::add_line_numbers(_kernelsrc)
-	  ;
-      }
-  
-    _kernel = cl::Kernel(_program, "FunctionRenderKernel");
-    _pickKernel = cl::Kernel(_program, "FunctionPickKernel");
+    _program.build(context->getCLCommandQueue(), 
+		   context->getCLContext());
+    _kernel = _program["FunctionRenderKernel"];
+    _pickKernel = _program["FunctionPickKernel"];
     const size_t workgroupSize = 256;
   
     //N is a multiple of 16, so a workgroup size of 256 is always good
@@ -241,66 +218,6 @@ namespace coil {
 	coil::glprimatives::drawArrow(_origin, _origin + _axis2);
 	coil::glprimatives::drawArrow(_origin, _origin + _axis3);
       }
-  }
-
-  std::string
-  RFunction::genKernelSrc()
-  {
-
-#define STRINGIFY(A) #A
-
-    return std::string(STRINGIFY(
-__kernel void
-FunctionRenderKernel(__global float * positions,
-		     __global uchar4 * colors,
-		     __global float * normals,
-		     float t,
-		     float2 functionOrigin,
-		     float2 functionRange,
-		     float4 axis1,
-		     float4 axis2,
-		     float4 axis3,
-		     float4 origin,
-		     uint N, float A)
-{
-  positions += 3 * get_global_id(0);
-  normals += 3 * get_global_id(0);
-  colors += get_global_id(0);
-
-  float2 normPos = (float2)(get_global_id(0) % N, get_global_id(0) / N);
-  normPos /= N;
-
-  float2 pos = normPos * functionRange + functionOrigin;
-
-  float f; 
-  )) + _function + std::string(STRINGIFY(
-  float4 vertexPosition = normPos.x * axis1 + normPos.y * axis2 + f * axis3 + origin;
-  
-  positions[0] = vertexPosition.x;
-  positions[1] = vertexPosition.y;
-  positions[2] = vertexPosition.z;
-
-  float4 normal;
-  )) + _normalCalc + std::string(STRINGIFY(
-  normal *= (float4)(functionRange * length(axis3) , 1.0f / length(axis3), 0);
-  
-  float4 rotatedNormal 
-  = normalize(normal.x * axis1 +
-	      normal.y * axis2 +
-	      normal.z * axis3
-	      );
-
-  normals[0] = rotatedNormal.x;
-  normals[1] = rotatedNormal.y;
-  normals[2] = rotatedNormal.z;
-  )) + _colorCalc + std::string(STRINGIFY(
-  }					
-__kernel void
-FunctionPickKernel(__global uint * colors, uint offset)
-{
-  colors[get_global_id(0)] = get_global_id(0) + offset;
-}
-  ));
   }
 
 //  void 
