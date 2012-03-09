@@ -33,6 +33,7 @@
 **** DONE DynamO: Alter the functions in dynamics that add/get/set objects and take/return a pointer to return shared_ptr's (search for uses of shared_ptr's get() function).
 **** DONE DynamO: Change the loadClass XML functions to return shared_ptr's.
 **** DONE DynamO: SLLOD dynamics have been removed, they are unmaintained and unused. Shearing is still available, just not in transformed co-ordinates.
+**** DONE DynamO: Changed the default settings of the histogram reweighting program so that the results are accurate by default! Previously, the results coming out of dynahist_rw could be quite innaccurate unless --min-err=1e-16 was set.
 **** DONE Coil: By default, spheres are ray-traced using geometry and fragment shaders to allow rendering of millions of perfectly spherical particles.
 **** DONE Coil: Cleaned up the stereo (3D) vision mode, so it's possible for 3D TV's to use it as well as red-cyan glasses.
 **** DONE Coil: There is now a separate Volume rendering visualisation executable to allow direct visualisation of volume data.
@@ -174,5 +175,6 @@
     - [X] Implement a stepped interaction potential
 *** DONE Implement Parallel Hard Cubes		:ARCHIVE:
     CLOSED: [2009-06-10 Wed 07:58]    
+    
     
     
