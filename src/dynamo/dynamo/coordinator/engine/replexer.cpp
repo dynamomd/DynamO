@@ -266,9 +266,8 @@ namespace dynamo {
 	std::cout << std::setw(9)
 		  << Simulations[dat.second.simID].getEnsemble()->getReducedEnsembleVals()[2] 
 		  << " " << std::setw(4)
-		  << dat.second.simID;
-      
-	std::cout << " " << std::setw(8)
+		  << dat.second.simID
+		  << " " << std::setw(8)
 		  << Simulations[dat.second.simID].getnColl()/1000 << "k" 
 		  << " " << std::setw(9)
 		  << ( static_cast<double>(dat.second.swaps) / dat.second.attempts)
@@ -283,14 +282,6 @@ namespace dynamo {
 		  << " "
 		  << (SimDirection[dat.second.simID] < 0 ? "\\/" : "  ")
 		  << "\n";
-	if (++outputCount > 30)
-	  {
-	    outputCount = 0;
-	    std::cin.clear();
-	    std::cout << "\nPress enter to continue\n";
-	    std::cin.ignore(1,0);
-	    std::cin.clear();
-	  }
       }
   }
 

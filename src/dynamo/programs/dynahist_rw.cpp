@@ -587,7 +587,7 @@ main(int argc, char *argv[])
       ("alpha", po::value<long double>()->default_value(1), "A fraction of the difference between the old and new logZ's to use, use to stop divergence")
       ("NSteps,N", po::value<size_t>()->default_value(10), "Number of steps to take before testing the error and spitting out the current vals")
       ("load-logZ", po::value<std::string>(), "Loads the logZ's from a previous run, note! It does this by ordering the temperatures and adding in order, do not change anything you do!")
-      ("min-err", po::value<long double>()->default_value(1.0e-5), "The minium error allowed before the loop terminates")
+      ("min-err", po::value<long double>()->default_value(1.0e-16), "The minium error allowed before the loop terminates")
       ;
 
     boost::program_options::positional_options_description p;
