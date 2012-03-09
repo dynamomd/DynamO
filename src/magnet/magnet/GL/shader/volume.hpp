@@ -71,7 +71,7 @@ uniform sampler1D IntTransferTexture;
 uniform sampler2D DepthTexture;
 uniform sampler3D DataTexture;
 uniform float StepSize;
-uniform float DitherRay;
+uniform int DitherRay;
 
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
@@ -175,8 +175,12 @@ void main()
   //We need to calculate the ray's starting position. We add a random
   //fraction of the stepsize to the original starting point to dither
   //the output
-  float random = DitherRay * fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453); 
-  vec3 rayPos = RayOrigin + rayDirection * (tnear + StepSize * random);
+  float starting_offset = tnear; 
+
+  if (DitherRay != 0)
+    starting_offset += StepSize * fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453);
+
+  vec3 rayPos = RayOrigin + rayDirection * starting_offset;
   
   //The color accumulation variable
   vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
@@ -187,7 +191,7 @@ void main()
 
   float lastsamplea = first_sample.a;
   vec4 lastTransfer = texture(IntTransferTexture, lastsamplea);
-  vec3 lastnorm = first_sample.xyz * 2.0 - 1.0; 
+  vec3 lastnorm = first_sample.xyz * 2.0 - vec3(1.0);
   float lastnorm_length = length(lastnorm);
   lastnorm = (lastnorm_length == 0) ? -rayDirection : lastnorm / lastnorm_length;
   rayPos += rayDirection * StepSize;
@@ -227,7 +231,7 @@ void main()
       src.rgb = calcLighting((ViewMatrix * vec4(rayPos,1.0)).xyz, norm, src.rgb);
 
       //Update the lastnormal with the new normal, if it is valid
-      norm = sample.xyz * 2.0 - 1.0;
+      norm = sample.xyz * 2.0 - vec3(1.0);
       //Test if we've got a bad normal and need to reuse the old one
       float sqrnormlength = dot(norm,norm);
       norm /= sqrt(sqrnormlength);

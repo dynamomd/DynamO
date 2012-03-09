@@ -171,7 +171,7 @@ namespace coil {
 			   inbuffer[coordCalc(x, y, z + 1, width, height, depth)]);
 	    
 	    //Do a central difference scheme
-	    Vector grad = sample2 - sample1;
+	    Vector grad = sample1 - sample2;
 	    
 	    float nrm = grad.nrm();
 	    if (nrm > 0) grad /= nrm;
@@ -200,8 +200,8 @@ namespace coil {
     }
 
     _data.init(width, height, depth);
-    _data.parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    _data.parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    _data.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    _data.parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     _data.parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     _data.parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     _data.parameter(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
@@ -249,7 +249,7 @@ namespace coil {
     _shader["lightIntensity"] = light.getIntensity();
     _shader["lightPosition"] = light.getEyespacePosition(camera);
 
-    _shader["DitherRay"] = GLfloat(_ditherRay->get_value());
+    _shader["DitherRay"] = GLint(_ditherRay->get_active());
     _shader["TransferTexture"] = 2;
     _shader["IntTransferTexture"] = 3;
     
@@ -336,16 +336,18 @@ namespace coil {
       _optList->add(*box); box->show();
     }
 
-    {//Ray Dithering
-      Gtk::HBox* box = manage(new Gtk::HBox);	
-      Gtk::Label* label = manage(new Gtk::Label("Ray Dithering"));
-      box->pack_start(*label, false, false); label->show();
-      _ditherRay.reset(new Gtk::HScale);
-      box->pack_end(*_ditherRay, true, true);
-      _ditherRay->set_range(0, 1);
-      _ditherRay->set_digits(3);
+    {//Ray Dithering and filtering
+      Gtk::HBox* box = manage(new Gtk::HBox);
+      _ditherRay.reset(new Gtk::CheckButton("Dither"));
+      _filterData.reset(new Gtk::CheckButton("Filter Data"));
+      
+      _ditherRay->set_active(false);
       _ditherRay->show();
-      _ditherRay->set_value(1.0);
+      _filterData->set_active(true);
+      _filterData->show();
+
+      box->pack_end(*_ditherRay, true, true);
+      box->pack_end(*_filterData, true, true);
       _optList->add(*box); box->show();
     }
     
@@ -354,6 +356,9 @@ namespace coil {
     _stepSize->signal_changed()
       .connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_stepSize));
     _stepSize->signal_activate().connect(sigc::mem_fun(*this, &RVolume::guiUpdate));
+
+    _filterData->signal_toggled()
+      .connect(sigc::mem_fun(*this, &RVolume::guiUpdate));
 
     guiUpdate();
   }
@@ -374,5 +379,17 @@ namespace coil {
     if (val.empty()) {val = "0.01"; _stepSize->set_text("0.01"); }
     
     _stepSizeVal = boost::lexical_cast<double>(val);
+
+    if (_filterData->get_active())
+      {
+	_data.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	_data.parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      }
+    else
+      {
+	_data.parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	_data.parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      }
+    
   }
 }

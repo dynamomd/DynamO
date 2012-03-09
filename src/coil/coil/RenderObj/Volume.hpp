@@ -77,7 +77,8 @@ namespace coil {
     std::auto_ptr<Gtk::Entry> _stepSize;
     std::auto_ptr<Gtk::HScale> _diffusiveLighting;
     std::auto_ptr<Gtk::HScale> _specularLighting;
-    std::auto_ptr<Gtk::HScale> _ditherRay;
+    std::auto_ptr<Gtk::CheckButton> _ditherRay;
+    std::auto_ptr<Gtk::CheckButton> _filterData;
     std::auto_ptr<magnet::gtk::TransferFunction> _transferFunction;
     GLfloat _stepSizeVal;
   };
