@@ -33,33 +33,34 @@ namespace magnet {
       namespace detail {
 	class Shader;
 	/*! \brief This class is used to store the assigned value of a
-	 * shader uniform and facilitate updating or retrieving shader uniform values.
-	 *
-	 * The stored value is used to optimise redundant assignments
-	 * of shader uniforms and to allow fast, type-safe access to
-	 * the currently assigned uniform value.
-	 *
-	 * As shader uniforms may have several types, we must store
-	 * the type information ourselves. All standard uniform types
-	 * passed to a shader can be reduced into either an array of
-	 * GLfloat's or GLint's. This class reduces the data to a
-	 * std::tr1::array of floats or ints and places the data in a
-	 * boost::any containter.
-	 *
-	 * This class is returned from \ref Shader::operator[]() calls
-	 * to handle type based assignments of the shader.
-	 *
-	 * Please do not copy, reference or store this class in any
-	 * way, it does not track the currently bound program object
-	 * and so it should only be returned as a temporary from the
-	 * \ref Shader::operator[]() calls.
+	  shader uniform and facilitate updating or retrieving shader
+	  uniform values.
+	 
+	  The stored value is used to optimise redundant assignments
+	  of shader uniforms and to allow fast, type-safe access to
+	  the currently assigned uniform value.
+	 
+	  As shader uniforms may have several types, we must store the
+	  type information ourselves. All standard uniform types
+	  passed to a shader can be reduced into either an array of
+	  GLfloat's or GLint's. This class reduces the data to a
+	  std::tr1::array of floats or ints and places the data in a
+	  boost::any containter.
+	 
+	  This class is returned from \ref Shader::operator[]() calls
+	  to handle type based assignments of the shader.
+	 
+	  Please do not copy, reference or store this class in any
+	  way, it does not track the currently bound program object
+	  and so it should only be returned as a temporary from the
+	  \ref Shader::operator[]() calls.
 	 */
 	class ShaderUniformValue
 	{
 	  friend class Shader;
 	  /*! \brief Set the uniform handle corresponding to this class.
-	   *
-	   * Only the Shader is allowed to update this value.
+	   
+	    Only the Shader is allowed to update this value.
 	   */
 	  inline void setHandle(GLint uniformHandle) { _uniformHandle = uniformHandle; }
 	public:	 
@@ -75,13 +76,13 @@ namespace magnet {
 	  }
 
 	  /*! \brief Retrieve the current value of the uniform.
-	   *
-	   * This function can only return std::tr1::array types! All
-	   * values passed to the shader are converted to either
-	   * std::tr1::array<GLfloat,X> or std::tr1::array<GLint,X>
-	   * (where X is the number of elements) before being passed
-	   * to this class. So you must fetch them back in exactly this
-	   * form.
+	   
+	    This function can only return std::tr1::array types! All
+	    values passed to the shader are converted to either
+	    std::tr1::array<GLfloat,X> or std::tr1::array<GLint,X>
+	    (where X is the number of elements) before being passed to
+	    this class. So you must fetch them back in exactly this
+	    form.
 	   */
 	  template<class T> const T as()
 	  {
@@ -146,11 +147,11 @@ namespace magnet {
 
 	private:
 	  /*! \brief Returns true if (val != current value), and
-	   * updates the cached value of the uniform.
-	   *
-	   * This function is used to test if an update of the uniform
-	   * is actually required, and if it is it updates the cached
-	   * value before returning true.
+	    updates the cached value of the uniform.
+	   
+	    This function is used to test if an update of the uniform
+	    is actually required, and if it is it updates the cached
+	    value before returning true.
 	   */
 	  template<class T> 
 	  bool test_assign(const T& val)
@@ -174,36 +175,36 @@ namespace magnet {
 	};
 
 	/*! \brief A OpenGL shader object.
-	 *
-	 * This class maintains the GL objects associated to a
-	 * complete shader program, including the vertex, fragment and
-	 * geometry shaders. After the shaders have been \ref built(),
-	 * the shader can be \ref attach() ed, or \ref deinit() ed to
-	 * release the associated GL resources.
-	 *
-	 * The shader source can be changed at any point, and if the
-	 * shader is already built, it will be recompiled.
-	 *
-	 * The shader performs some cacheing of the uniform locations
-	 * and the uniform values, so you may redundantly assign
-	 * values to the shader uniforms without an additional OpenGL
-	 * library call cost.
-	 *
-	 *
-	 * There are several default bindings for attributes in the
-	 * shader. These default bindings (indices from 0 to 6) may be
-	 * used by your shader, but be warned that they are used by
-	 * the GL Context as aliases for some common state variables.
-	 *
-	 * The table of indices is as follows:
-	 * \li "vPosition" = \ref Context::vertexPositionAttrIndex
-	 * \li "vColor" = \ref Context::vertexColorAttrIndex
-	 * \li "vNormal" = \ref Context::vertexNormalAttrIndex
-	 * \li "iOrigin" = \ref Context::instanceOriginAttrIndex
-	 * \li "iOrientation" = \ref Context::instanceOrientationAttrIndex
-	 * \li "iScale" = \ref Context::instanceScaleAttrIndex
-	 * \li "vTexCoord" = \ref Context::vertexTexCoordAttrIndex
-	 *
+	 
+	  This class maintains the GL objects associated to a
+	  complete shader program, including the vertex, fragment and
+	  geometry shaders. After the shaders have been \ref built(),
+	  the shader can be \ref attach() ed, or \ref deinit() ed to
+	  release the associated GL resources.
+	 
+	  The shader source can be changed at any point, and if the
+	  shader is already built, it will be recompiled.
+	 
+	  The shader performs some cacheing of the uniform locations
+	  and the uniform values, so you may redundantly assign
+	  values to the shader uniforms without an additional OpenGL
+	  library call cost.
+	 
+	 
+	  There are several default bindings for attributes in the
+	  shader. These default bindings (indices from 0 to 6) may be
+	  used by your shader, but be warned that they are used by
+	  the GL Context as aliases for some common state variables.
+	 
+	  The table of indices is as follows:
+	  \li "vPosition" = \ref Context::vertexPositionAttrIndex
+	  \li "vColor" = \ref Context::vertexColorAttrIndex
+	  \li "vNormal" = \ref Context::vertexNormalAttrIndex
+	  \li "iOrigin" = \ref Context::instanceOriginAttrIndex
+	  \li "iOrientation" = \ref Context::instanceOrientationAttrIndex
+	  \li "iScale" = \ref Context::instanceScaleAttrIndex
+	  \li "vTexCoord" = \ref Context::vertexTexCoordAttrIndex
+	 
 	 */
 	class Shader 
 	{
@@ -222,30 +223,18 @@ namespace magnet {
 	  inline void deinit()
 	  {
 	    if (_built)
-	      {
-		glDeleteProgram(_programHandle);
-		if (!(_vertexShaderCode.empty()))
-		  glDeleteShader(_vertexShaderHandle);
-		if (!(_fragmentShaderCode.empty()))
-		  glDeleteShader(_fragmentShaderHandle);
+	      glDeleteProgram(_programHandle);
 
-		if (!(_geometryShaderCode.empty()))
-		  glDeleteShader(_geometryShaderHandle);
-	      }
-
-	    _vertexShaderCode.clear();
-	    _fragmentShaderCode.clear();
-	    _geometryShaderCode.clear();
 	    _uniformCache.clear();
 	    _built = false;
 	    _context.reset();
 	  }
 
 	  /*! \brief Attach the shader, so it is used for the next
-	   * rendering of OpenGL objects.
-	   *
-	   * This function optimises away redundant attach() calls,
-	   * and updates the GL Context to mark the shader as attached.
+	    rendering of OpenGL objects.
+	   
+	    This function optimises away redundant attach() calls, and
+	    updates the GL Context to mark the shader as attached.
 	   */
 	  inline void attach() 
 	  {
@@ -272,32 +261,32 @@ namespace magnet {
 	  }
 
 	  /*! \brief Used to set and retrieve values of \ref Shader
-           *   uniforms (AKA shader arguments).
-	   *
-	   * This function lets you assign values to uniforms easily:
-	   * \code Shader A;
-	   * A.build();
-	   * //Assign a single integer uniform value
-	   * A["intShaderVariable"] = 1;
-	   * //Assign a vec3 uniform
-	   * std::tr1::array<GLfloat,3> vec3val
-	   * A["vec3ShaderVariable"] = vec3val; 
-	   * \endcode
-	   *
-	   * You may also retrieve the value of uniforms:
-	   * \code
-	   * std::tr1::array<GLint, 1> value = A["ShaderVariable"].as<std::tr1::array<GLint, 1> >();
-	   * std::tr1::array<GLfloat, 3> value = A["vec3ShaderVariable"].as<std::tr1::array<GLfloat, 3> >(); 
-	   * \endcode
-	   *
-	   * Due to the way the cached value is stored, ALL variable types
-	   * must be returned using the above format (wrapped in a std::tr1::array).
-	   *
-	   * \param uniformName The name of the uniform to assign a
-	   * value to.
-	   *
-	   * \return A ShaderUniformValue object representing a
-	   * uniform.
+              uniforms (AKA shader arguments).
+	   
+	    This function lets you assign values to uniforms easily:
+	    \code Shader A;
+	    A.build();
+	    //Assign a single integer uniform value
+	    A["intShaderVariable"] = 1;
+	    //Assign a vec3 uniform
+	    std::tr1::array<GLfloat,3> vec3val
+	    A["vec3ShaderVariable"] = vec3val; 
+	    \endcode
+	   
+	    You may also retrieve the value of uniforms:
+	    \code
+	    std::tr1::array<GLint, 1> value = A["ShaderVariable"].as<std::tr1::array<GLint, 1> >();
+	    std::tr1::array<GLfloat, 3> value = A["vec3ShaderVariable"].as<std::tr1::array<GLfloat, 3> >(); 
+	    \endcode
+	   
+	    Due to the way the cached value is stored, ALL variable types
+	    must be returned using the above format (wrapped in a std::tr1::array).
+	   
+	    \param uniformName The name of the uniform to assign a
+	    value to.
+	   
+	    \return A ShaderUniformValue object representing a
+	    uniform.
 	   */
 	  inline ShaderUniformValue& operator[](const std::string& uniformName)
 	  {
@@ -329,10 +318,10 @@ namespace magnet {
 
 	  /*! \brief Builds the shader and allocates the associated
 	    OpenGL objects.
-	    *
-	    * This function will throw an exception if compilation
-	    * fails.
-	    */
+	    
+	    This function will throw an exception if compilation
+	    fails.
+	  */
 	  inline void build()
 	  {
 	    _context = Context::getContext();
@@ -359,7 +348,8 @@ namespace magnet {
 		  M_throw() << "GL-Context " << _context 
 			    << ": Critical OpenGL dependency: Vertex shaders are not supported";
 
-		if (!(_vertexShaderHandle = glCreateShaderObjectARB(GL_VERTEX_SHADER)))
+		GLhandleARB _vertexShaderHandle = glCreateShaderObjectARB(GL_VERTEX_SHADER);
+		if (!_vertexShaderHandle)
 		  M_throw() << "Failed to create vertex shader handle";
 		const GLcharARB* src = _vertexShaderCode.c_str();
 		glShaderSourceARB(_vertexShaderHandle, 1, &src, NULL);	 
@@ -373,6 +363,7 @@ namespace magnet {
 			    << "\n";
 
 		glAttachObjectARB(_programHandle,_vertexShaderHandle);
+		glDeleteShader(_vertexShaderHandle);
 	      }
 
 	    //Fragment shader
@@ -386,8 +377,11 @@ namespace magnet {
 		  M_throw() << "GL-Context " << _context 
 			    << ": Critical OpenGL dependency: Fragment shaders are not supported";
 
-		if (!(_fragmentShaderHandle = glCreateShaderObjectARB(GL_FRAGMENT_SHADER)))
+		GLhandleARB _fragmentShaderHandle = glCreateShaderObjectARB(GL_FRAGMENT_SHADER);
+
+		if (!_fragmentShaderHandle)
 		  M_throw() << "Failed to create fragment shader handle";
+
 		const GLcharARB* src = _fragmentShaderCode.c_str();
 		glShaderSourceARB(_fragmentShaderHandle, 1, &src, NULL);
 		glCompileShaderARB(_fragmentShaderHandle);	  
@@ -400,6 +394,7 @@ namespace magnet {
 			    << "\n";
 
 		glAttachObjectARB(_programHandle,_fragmentShaderHandle);
+		glDeleteShader(_fragmentShaderHandle);
 	      }
 
 	    //Geometry shader
@@ -408,7 +403,9 @@ namespace magnet {
 		if (!_context->testExtension("GL_EXT_geometry_shader4"))
 		  M_throw() << "Geometry shaders are not supported by your OpenGL driver.";
 
-		if (!(_geometryShaderHandle = glCreateShaderObjectARB(GL_GEOMETRY_SHADER_EXT)))
+		GLhandleARB _geometryShaderHandle = glCreateShaderObjectARB(GL_GEOMETRY_SHADER_EXT);
+
+		if (!_geometryShaderHandle)
 		  M_throw() << "Failed to create geometry shader handle";
 		const GLcharARB* src = _geometryShaderCode.c_str();
 		glShaderSourceARB(_geometryShaderHandle, 1, &src, NULL);
@@ -422,6 +419,7 @@ namespace magnet {
 			    << "\n";
 
 		glAttachObjectARB(_programHandle, _geometryShaderHandle);
+		glDeleteShader(_geometryShaderHandle);
 	      }
 	    
 	    //Bind the default shader variables to the indices
@@ -438,9 +436,9 @@ namespace magnet {
 	  { return _vertexShaderCode; }
 
 	  /*! \brief Set vertex shader source code.
-	   *
-	   * If the shader has already been built, this will force a
-	   * recompilation of all the shaders source
+	    
+	    If the shader has already been built, this will force a
+	    recompilation of all the shaders source
 	   */
 	  void setVertexShaderSource(std::string src)
 	  { _vertexShaderCode = src; if (_built) { deinit(); build(); } }
@@ -450,9 +448,9 @@ namespace magnet {
 	  { return _fragmentShaderCode; }
 
 	  /*! \brief Set fragment shader source code.
-	   *
-	   * If the shader has already been built, this will force a
-	   * recompilation of all the shaders source
+	   
+	    If the shader has already been built, this will force a
+	    recompilation of all the shaders source
 	   */
 	  void setFragmentShaderSource(std::string src)
 	  { _fragmentShaderCode = src; if (_built) { deinit(); build(); } }
@@ -462,17 +460,14 @@ namespace magnet {
 	  { return _geometryShaderCode; }
 
 	  /*! \brief Set fragment shader source code.
-	   *
-	   * If the shader has already been built, this will force a
-	   * recompilation of all the shaders source
+	   
+	    If the shader has already been built, this will force a
+	    recompilation of all the shaders source
 	   */
 	  void setGeometryShaderSource(std::string src)
 	  { _geometryShaderCode = src; if (_built) { deinit(); build(); } }
 
 	protected:
-	  GLhandleARB _vertexShaderHandle;
-	  GLhandleARB _fragmentShaderHandle;
-	  GLhandleARB _geometryShaderHandle;
 	  GLhandleARB _programHandle;
 	  bool _built;
 	  Context::ContextPtr _context;
@@ -484,31 +479,31 @@ namespace magnet {
 	  std::tr1::unordered_map<std::string, ShaderUniformValue> _uniformCache;
 
 	  /*! \brief Specifies the initial source of the geometry
-	   * shader.
-	   *
-	   * Derived \ref Shader classes only need to override this if
-	   * they want to specify a geometry shader.
+	    shader.
+	   
+	    Derived \ref Shader classes only need to override this if
+	    they want to specify a geometry shader.
 	   */
 	  virtual std::string initGeometryShaderSource() { return ""; }
 	  
 	  /*! \brief Specifies the initial source of the vertex
-	   * shader.
-	   *
-	   * Derived \ref Shader classes only need to override this if
-	   * they want a non-trivial vertex shader.
+	    shader.
+	   
+	    Derived \ref Shader classes only need to override this if
+	    they want a non-trivial vertex shader.
 	   */
 	  virtual std::string initVertexShaderSource() { return ""; }
 
 	  /*! \brief Specifies the initial source of the fragment
-	   * shader.
-	   *
-	   * Every derived \ref Shader class needs to override this
-	   * and specify the fragment shader.
+	    shader.
+	   
+	    Every derived \ref Shader class needs to override this and
+	    specify the fragment shader.
 	   */
 	  virtual std::string initFragmentShaderSource() { return ""; }
 	
 	  /*! \brief Fetches the build log for the passed shader
-	   * handle.
+	    handle.
 	   */
 	  inline std::string getShaderBuildlog(GLhandleARB shaderHandle)
 	  {
