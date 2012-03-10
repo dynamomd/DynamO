@@ -26,3 +26,6 @@ explicit test ;
 install install-headers
       : [ glob CL/*.h CL/*.hpp ]
       : <location>$(INCLUDE_INSTALL_PATH) <install-source-root>./ ;
+
+exe lsCL : programs/lscl.cpp OpenCL
+    	 : <tag>@tags.exe-naming <location>$(BIN_INSTALL_PATH) ;
