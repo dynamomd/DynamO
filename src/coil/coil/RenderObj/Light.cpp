@@ -241,8 +241,7 @@ namespace coil {
   }
 
   void 
-  RLight::pickingRender(magnet::GL::FBO& fbo, 
-			const magnet::GL::Camera& cam, 
+  RLight::pickingRender(const magnet::GL::Camera& cam, 
 			const uint32_t offset)
   {
     if (!_visible) return;

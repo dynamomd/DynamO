@@ -370,8 +370,7 @@ namespace coil {
   }
 
   void 
-  Glyphs::pickingRender(magnet::GL::FBO& fbo, 
-			const magnet::GL::Camera& cam, 
+  Glyphs::pickingRender(const magnet::GL::Camera& cam, 
 			const uint32_t offset)
   {
     _primitiveVertices.getContext()->resetInstanceTransform();

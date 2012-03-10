@@ -145,8 +145,7 @@ namespace coil {
       return sum;
     }
 
-    virtual void pickingRender(magnet::GL::FBO& fbo, 
-			       const magnet::GL::Camera& cam, 
+    virtual void pickingRender(const magnet::GL::Camera& cam, 
 			       const uint32_t offset)
     {
       uint32_t obj_offset = offset;
@@ -156,7 +155,7 @@ namespace coil {
 	{
 	  uint32_t objs = (*iPtr)->pickableObjectCount();
 	  if (objs)
-	    (*iPtr)->pickingRender(fbo, cam, obj_offset);
+	    (*iPtr)->pickingRender(cam, obj_offset);
 
 	  obj_offset += objs;
 	}

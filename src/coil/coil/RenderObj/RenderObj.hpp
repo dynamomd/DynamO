@@ -142,13 +142,9 @@ namespace coil {
       objects drawn in the \ref pickingRender() function before
       initPicking returns.
 
-      \param fbo The target framebuffer object which the scene is
-      being rendered to.
-      
       \param cam The active camera for the render.
      */
-    virtual void pickingRender(magnet::GL::FBO& fbo, 
-			       const magnet::GL::Camera& cam, 
+    virtual void pickingRender(const magnet::GL::Camera& cam, 
 			       const uint32_t offset) 
     {}
 

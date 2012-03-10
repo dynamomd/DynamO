@@ -125,7 +125,7 @@ FunctionPickKernel(__global uint * colors, uint offset)
     inline void setStaticShape(bool val) { _staticShape = val; }
 
     // Cannot do picking for functions, as the triangle mesh will interpolate colors and screw it all up!
-//    virtual void pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, uint32_t& offset);
+//    virtual void pickingRender(const magnet::GL::Camera& cam, uint32_t& offset);
 //    virtual bool finishPicking(uint32_t& offset, const uint32_t val);
 
     void setConstantA(cl_float val) { _A = val; }

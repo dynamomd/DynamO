@@ -93,8 +93,7 @@ namespace coil {
     virtual uint32_t pickableObjectCount()
     { return visible(); }
 
-    virtual void pickingRender(magnet::GL::FBO& fbo,
-			       const magnet::GL::Camera& cam, 
+    virtual void pickingRender(const magnet::GL::Camera& cam, 
 			       const uint32_t offset);
     
     virtual std::string getCursorText(uint32_t objID)

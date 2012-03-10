@@ -255,7 +255,7 @@ namespace coil {
   }
 
   void 
-  RTriangles::pickingRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, const uint32_t offset)
+  RTriangles::pickingRender(const magnet::GL::Camera& cam, const uint32_t offset)
   {
     size_t N = (_posBuff.size() / 3);
 

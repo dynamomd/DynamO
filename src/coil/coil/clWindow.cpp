@@ -1873,7 +1873,7 @@ namespace coil {
 	//If there are pickable objects and they are visible, then render them.
 	if (n_objects)
 	  {
-	    (*iPtr)->pickingRender(_renderTarget, _camera, offset);
+	    (*iPtr)->pickingRender(_camera, offset);
 	    offset += n_objects;
 	  }
       }
