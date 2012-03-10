@@ -676,8 +676,17 @@ namespace coil {
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+	std::tr1::shared_ptr<magnet::GL::Texture2D> 
+	  depthTexture(new magnet::GL::Texture2D);
+	depthTexture->init(_camera.getWidth(), _camera.getHeight(), 
+			   GL_DEPTH_COMPONENT);
+	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+
 	_renderTarget.init();
 	_renderTarget.attachTexture(colorTexture, 0);
+	_renderTarget.attachTexture(depthTexture);
       }
 
       {
@@ -1884,8 +1893,9 @@ namespace coil {
     glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);    
     _renderTarget.detach();
     
-    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
-    getGLContext()->swapBuffers();
+    //For debugging the picking render
+    //_renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
+    //getGLContext()->swapBuffers();
 
     //Now let the objects know what was picked
     _selectedObject = pixel[0] 
