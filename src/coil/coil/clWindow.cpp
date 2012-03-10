@@ -909,7 +909,7 @@ namespace coil {
     //	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
     //	     iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
     //	  if ((*iPtr)->shadowCasting() && (*iPtr)->visible())
-    //	    (*iPtr)->glRender(_light0.shadowFBO(), _light0, RenderObj::SHADOW);
+    //	    (*iPtr)->glRender(_light0, RenderObj::SHADOW);
     //	
     //	_light0.shadowFBO().detach();
     //	/////////////MIPMAPPED shadow maps don't seem to work
@@ -1068,7 +1068,7 @@ namespace coil {
 	   = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       if ((*iPtr)->visible()) 
-	(*iPtr)->glRender(_renderTarget, camera, RenderObj::DEFAULT);
+	(*iPtr)->glRender(camera, RenderObj::DEFAULT);
 
     _renderShader.detach();
     _Gbuffer.detach();
@@ -1884,6 +1884,9 @@ namespace coil {
     glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);    
     _renderTarget.detach();
     
+    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
+    getGLContext()->swapBuffers();
+
     //Now let the objects know what was picked
     _selectedObject = pixel[0] 
       + 256 * (pixel[1] + 256 * (pixel[2] + 256 * pixel[3]));

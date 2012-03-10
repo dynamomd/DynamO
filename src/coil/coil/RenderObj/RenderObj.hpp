@@ -88,12 +88,9 @@ namespace coil {
     /*! \brief Called when the RenderObject must be drawn in the
 	OpenGL scene using deferred shading.
 	
-	\param fbo The target framebuffer object which the scene is
-	being rendered to.
-	
 	\param cam The active camera for the render.
      */
-    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode)
+    virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode)
     {}
     
     /*! \brief Called when the RenderObject must be drawn in the

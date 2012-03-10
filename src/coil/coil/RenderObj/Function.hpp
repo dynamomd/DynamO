@@ -119,7 +119,7 @@ FunctionPickKernel(__global uint * colors, uint offset)
 
     virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
 
-    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode = DEFAULT);
+    virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode = DEFAULT);
 
     inline void setDrawAxis(bool val) { _drawAxis = val; }
     inline void setStaticShape(bool val) { _staticShape = val; }

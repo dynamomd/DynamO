@@ -86,7 +86,7 @@ namespace coil {
       }    
   }
 
-  void Console::glRender(magnet::GL::FBO&, const magnet::GL::Camera& camera, RenderMode mode)
+  void Console::glRender(const magnet::GL::Camera& camera, RenderMode mode)
   {
 
     if (_showGrid->get_active())

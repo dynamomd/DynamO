@@ -28,7 +28,7 @@ namespace coil {
   }
 
   void 
-  Glyphs::glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode) 
+  Glyphs::glRender(const magnet::GL::Camera& cam, RenderMode mode) 
   {    
     _primitiveVertices.getContext()->resetInstanceTransform();
 

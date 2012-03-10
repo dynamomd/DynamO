@@ -33,7 +33,7 @@ namespace coil {
 
     inline virtual void clTick(const magnet::GL::Camera& cam) {}
 
-    virtual void glRender(magnet::GL::FBO&, const magnet::GL::Camera&, RenderMode);
+    virtual void glRender(const magnet::GL::Camera&, RenderMode);
     
     virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>&);
     

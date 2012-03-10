@@ -93,12 +93,12 @@ namespace coil {
 	(*iPtr)->clTick(cam);
     }
 
-    virtual void glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode = DEFAULT)
+    virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode = DEFAULT)
     {
       for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
 	   iPtr != _children.end(); ++iPtr)
 	if ((*iPtr)->visible() && (!(mode & SHADOW) || (*iPtr)->shadowCasting()))
-	  (*iPtr)->glRender(fbo, cam, mode);
+	  (*iPtr)->glRender(cam, mode);
       
       for (iterator iPtr = begin(); iPtr != end(); ++iPtr)
 	iPtr->second->renderComplete();

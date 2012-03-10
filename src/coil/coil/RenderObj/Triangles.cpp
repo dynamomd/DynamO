@@ -30,7 +30,7 @@ namespace coil {
   { deinit(); }
 
   void 
-  RTriangles::glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode)
+  RTriangles::glRender(const magnet::GL::Camera& cam, RenderMode mode)
   {
     if (!_visible) return;
 
@@ -276,7 +276,7 @@ namespace coil {
       }
 
     _pickingRenderMode = true;
-    RTriangles::glRender(fbo, cam, PICKING_PASS);
+    RTriangles::glRender(cam, PICKING_PASS);
     _pickingRenderMode = false;
   }
 }

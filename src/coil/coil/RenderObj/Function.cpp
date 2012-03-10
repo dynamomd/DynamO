@@ -207,9 +207,9 @@ namespace coil {
   }
 
   void 
-  RFunction::glRender(magnet::GL::FBO& fbo, const magnet::GL::Camera& cam, RenderMode mode)
+  RFunction::glRender(const magnet::GL::Camera& cam, RenderMode mode)
   {
-    RTriangles::glRender(fbo, cam, mode);
+    RTriangles::glRender(cam, mode);
 
     //Draw the axis of the plotted function
     if (_drawAxis && _visible)

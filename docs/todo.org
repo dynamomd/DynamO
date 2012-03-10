@@ -34,6 +34,7 @@
 **** TODO DynamO: Optimized triangle meshes by inserting them into the neighbor lists.
 **** TODO DynamO: Make a test for an invalid state in locals, globals and interactions (for particle insertion).
 **** TODO DynamO: Auto detect the ensemble, users shouldn't have to specify it.
+**** TODO DynamO: Put all of the cheap/free simulation data calculations into the misc output plugin, so that they don't have to be loaded and people have an interesting default output.xml.bz2.
 *** DynamO 1.3
 **** DONE DynamO: 2D systems are now officially *supported* in DynamO, although they're not optimal.
 **** DONE DynamO: Up to 50% faster in polydisperse systems thanks to a new cache friendly nblist implementation.
@@ -69,6 +70,7 @@
 **** TODO DynamO: Check that the PBC sentinel is correctly working for 2 particles, it seems something else is doing the updates (the synchroniser?).
 **** TODO DynamO: Add the gravity version of the sphere-sphere-out test. Fix and check that the umbrella implementation is general.
 **** TODO DynamO: Make compression work with polydisperse walls.
+**** TODO DynamO: Fix picking when multiple species are present.
 **** TODO Work on Sebastians project.
 *** DynamO 1.2							    :ARCHIVE:
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
