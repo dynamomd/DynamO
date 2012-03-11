@@ -557,24 +557,6 @@ namespace coil {
       _renderObjsTree._renderObjects.push_back(light);
     }
   
-    //First render object is the ground
-    std::tr1::shared_ptr<RenderObj> groundObj
-      (new RFunction((size_t)64,
-		     Vector(-50, -0.6, -50),
-		     Vector(100,0,0), Vector(0,0,100), Vector(0,1,0), //Axis of the function, x,y,z
-		     -1, -1,//Start point of the functions evaluation (x,y)
-		     1, 1,//Range of the function to evaluate (xrange,yrange
-		     false, //Render a set of Axis as well?
-		     true, //Is the shape static, i.e. is there no time dependence
-		     "Ground",
-		     "f=0;\n",
-		     "normal = (float4)(0,0,1,0);\n",
-		     "colors[0] = (uchar4)(255,255,255,255);"
-		     ));
-
-    _renderObjsTree._renderObjects.push_back(groundObj);
-
-    //Second render object is the console
     _consoleID = _renderObjsTree._renderObjects.size();
     std::tr1::array<GLfloat, 3> textcolor  = {{0.5, 0.5, 0.5}};
     std::tr1::shared_ptr<RenderObj> consoleObj(new Console(textcolor)); 
@@ -828,35 +810,8 @@ namespace coil {
     //Setup the timings
     int _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
 
-    //Prepare for the OpenCL ticks
-    glFinish();
-//    {
-//      //Add the sync and flush it into the device
-//      GLsync waitFence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-//      glFlush();
-//
-//      //Now wait on the sync
-//      for (;;)
-//	{
-//	  switch (glClientWaitSync(waitFence, 0, 100))
-//	    {
-//	    case GL_TIMEOUT_EXPIRED:
-//	      //We are still waiting, perform some Gtk tasks
-//	      //Gtk::Main::iteration(false);
-//	      continue; //test again
-//	    case GL_WAIT_FAILED:
-//	      M_throw() << "Failed to sync the OpenGL queue";
-//	    case GL_CONDITION_SATISFIED:
-//	    case GL_ALREADY_SIGNALED:
-//	      //These cases indicate the sync has occurred
-//	      break;
-//	    }
-//	  break;
-//	}
-//    }
-
     _camera.setRotatePoint(magnet::math::Vector(0,0,0));
-
+    
     if (_selectedObject)
       {
 	uint32_t offset = 1;
@@ -879,14 +834,7 @@ namespace coil {
 	  }
       }
 
-    //Run every objects OpenCL stage
-    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
-	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-      (*iPtr)->clTick(_camera);
-
     //Camera Positioning
-    
-
     float moveAmp  = (_currFrameTime - _lastFrameTime) * _moveSensitivity;      
     float forward  = moveAmp * ( keyStates[static_cast<size_t>('w')] 
 				 - keyStates[static_cast<size_t>('s')]);
@@ -898,9 +846,6 @@ namespace coil {
 
     guiUpdateCallback(); //We frequently ping the gui update     
 
-    //Flush the OpenCL queue, so GL can use the buffers
-    getGLContext()->getCLCommandQueue().finish();
-  
     ////////////Lighting shadow map creation////////////////////
     //This stage only needs to be performed once per frame
 
@@ -1236,11 +1181,8 @@ namespace coil {
 	_downsampleShader.attach();
 	_downsampleShader["inputTex"] = 0;
 	_downsampleShader["downscale"] = GLint(4);
-	std::tr1::array<GLfloat, 2> oldInvDimensions = {{1.0 / tex.getWidth(), 
-							 1.0 / tex.getHeight()}};
-	_downsampleShader["oldInvDimensions"] = oldInvDimensions;
-	std::tr1::array<GLint,2> oldDimensions = {{tex.getWidth(), tex.getHeight()}};
-	_downsampleShader["oldDimensions"] = oldDimensions;
+	std::tr1::array<GLint,2> oldSize = {{tex.getWidth(), tex.getHeight()}};
+	_downsampleShader["oldSize"] = oldSize;
 	_downsampleShader.invoke();
 	_downsampleShader.detach();
 	_blurTarget1.detach();

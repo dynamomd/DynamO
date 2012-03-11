@@ -50,8 +50,6 @@ namespace coil {
     virtual void glRender(const magnet::GL::Camera& cam, 
 			  RenderMode mode);
 
-    virtual void clTick(const magnet::GL::Camera&) {}
-
     virtual void showControls(Gtk::ScrolledWindow* win);
 
     float getIntensity() const { return _intensity; }

@@ -86,13 +86,6 @@ namespace coil {
 
     /**@}*/
         
-    virtual void clTick(const magnet::GL::Camera& cam)
-    {
-      for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
-	   iPtr != _children.end(); ++iPtr)
-	(*iPtr)->clTick(cam);
-    }
-
     virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode = DEFAULT)
     {
       for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();

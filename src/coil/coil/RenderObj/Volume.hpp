@@ -39,8 +39,6 @@ namespace coil {
 			       const RLight& light,
 			       RenderMode mode);
 
-    virtual void clTick(const magnet::GL::Camera&) {}
-
     virtual void showControls(Gtk::ScrolledWindow* win);
 
     void loadRawFile(std::string filename, size_t width, size_t height, 

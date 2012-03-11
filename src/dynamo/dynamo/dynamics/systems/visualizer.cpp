@@ -67,10 +67,7 @@ namespace dynamo {
   
     _lastUpdate = boost::posix_time::microsec_clock::local_time();
 
-    dout << "Visualizer initialised\nOpenCL Plaftorm:" 
-	 << _window->getGLContext()->getCLPlatform().getInfo<CL_PLATFORM_NAME>()
-	 << "\nOpenCL Device:" 
-	 << _window->getGLContext()->getCLDevice().getInfo<CL_DEVICE_NAME>() << std::endl;
+    dout << "Visualizer initialised" << std::endl;
   }
 
   void

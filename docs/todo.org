@@ -5,23 +5,9 @@
 
 * Code improvements
 ** Version Milestones
-*** DynamO 1.4
+*** DynamO Future
 **** TODO Dynamo: Make the output plugins much, much much, simpler. Put energy and everything else on by default.
-**** TODO Coil: Replace freeglut with your own implementation to fix the whole debacle of GL context management and deleting resources. 
-***** TODO Coil: Fix the dummy vertex array object mess.
-**** TODO Coil: State change tracking for glEnable/Disable.
-**** TODO Coil: State change tracking for glBlendFunc.
-**** TODO Coil: Make coil scale independent.
-**** TODO Coil: Make a generic render object container class.
-**** TODO Coil: Make a GL engine to put into magnet.
-**** TODO Check the version of Gtkmm, glut and any other dependent library.
-**** TODO Add rendering of light sources (crepuscular rays too?).
-**** TODO Cube shadow map lights.
-**** TODO Make the viewing grid have a scalable box size.
-**** TODO Write up the image distance class.
-**** TODO Look at CL/GL synchronisation objects for coil.
-**** TODO Enable light calculation optimisations.
-**** TODO Look at a way of setting default workable parameters for mode 19.
+**** TODO DynamO: Look at a way of setting default workable parameters for mode 19.
 **** TODO DynamO: Remove the Dynamics class and move its functions into the SimData class.
 **** TODO DynamO: Remove the Dynamics tags in the config.
 **** TODO DynamO: Rename the Liouvillean to Dynamics.
@@ -35,8 +21,24 @@
 **** TODO DynamO: Make a test for an invalid state in locals, globals and interactions (for particle insertion).
 **** TODO DynamO: Auto detect the ensemble, users shouldn't have to specify it.
 **** TODO DynamO: Put all of the cheap/free simulation data calculations into the misc output plugin, so that they don't have to be loaded and people have an interesting default output.xml.bz2.
+**** TODO Coil: Replace freeglut with your own implementation to fix the whole debacle of GL context management and deleting resources. 
+***** TODO Coil: Fix the dummy vertex array object mess.
+**** TODO Coil: State change tracking for glEnable/Disable.
+**** TODO Coil: State change tracking for glBlendFunc.
+**** TODO Coil: Make coil scale independent.
+**** TODO Coil: Make a generic render object container class.
+**** TODO Coil: Make a GL engine to put into magnet.
+**** TODO Coil: Make functions ray-tracable and not require OpenCL.
+**** TODO Coil: Work on ray-tracable connectivity glyphs.
+**** TODO Coil: crepuscular rays.
+**** TODO Coil: Cube shadow map lights.
+**** TODO Coil: Make the viewing grid have a scalable box size.
+**** TODO Coil: Look at CL/GL synchronisation objects for coil, fix the lack of a glFinish or clFinish!
+**** TODO Check the version of Gtkmm, glut and any other dependent library.
+**** TODO Write up the image distance class.
 *** DynamO 1.3
 **** DONE DynamO: 2D systems are now officially *supported* in DynamO, although they're not optimal.
+**** DONE DynamO/Coil: Visualisation no longer requires an OpenCL compatible graphics card! However, you do still need an OpenCL library installed.
 **** DONE DynamO: Up to 50% faster in polydisperse systems thanks to a new cache friendly nblist implementation.
 **** DONE DynamO: All particle positions are now shuffled for mixture systems in dynamod to enable faster equilibration.
 **** DONE DynamO: Removed all deprecated Clone functions for copying of classes in the code.
@@ -66,6 +68,7 @@
 **** TODO Coil: Fix resizing the display on AMD hardware.
 **** TODO Coil: Fix the Bilateral blur filter, or at least make it work well with SSAO
 **** TODO Coil: Fix the incorrect calculation of the camera position, due to the head position not being added on. This is breaking lots of calculations (e.g. SSAO at close range, possibly the volume rendering flicker).
+**** TODO Coil: Remove the requirement to pass the frequency to the visualiser.
 **** TODO DynamO: Confirm that the tutorials are up to date on the removal of the -h tag.
 **** TODO DynamO: Check that the PBC sentinel is correctly working for 2 particles, it seems something else is doing the updates (the synchroniser?).
 **** TODO DynamO: Add the gravity version of the sphere-sphere-out test. Fix and check that the umbrella implementation is general.

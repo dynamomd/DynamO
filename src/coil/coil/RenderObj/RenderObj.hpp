@@ -78,13 +78,6 @@ namespace coil {
      */
     virtual void deinit() {}
     
-    /*! \brief Called to perform any OpenCL calls before the OpenGL
-        part of the render loop.
-	
-	\param cam The camera used for the next \ref glRender call.
-     */
-    virtual void clTick(const magnet::GL::Camera& cam) = 0;
-
     /*! \brief Called when the RenderObject must be drawn in the
 	OpenGL scene using deferred shading.
 	

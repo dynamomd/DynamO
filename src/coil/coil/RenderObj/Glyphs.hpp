@@ -31,8 +31,6 @@ namespace coil {
   public:
     inline Glyphs(std::string name, DataSet& ds): DataSetChild(name, ds), _scale(1) {}
 
-    inline virtual void clTick(const magnet::GL::Camera& cam) {}
-
     virtual void glRender(const magnet::GL::Camera&, RenderMode);
     
     virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>&);

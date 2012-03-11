@@ -130,8 +130,6 @@ FunctionPickKernel(__global uint * colors, uint offset)
 
     void setConstantA(cl_float val) { _A = val; }
 
-    virtual void clTick(const magnet::GL::Camera&) { clTick(); }
-
     virtual Glib::RefPtr<Gdk::Pixbuf> getIcon();
 
   protected:
