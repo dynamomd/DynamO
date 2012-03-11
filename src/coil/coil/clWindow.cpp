@@ -97,7 +97,7 @@ namespace coil {
     _fpsLimitValue(35),
     _filterEnable(true),
     _stereoMode(false),
-    _ambientIntensity(0.01),
+    _ambientIntensity(0.1),
     _snapshot_counter(0),
     _samples(1),
     _dynamo(dynamo)
@@ -961,6 +961,7 @@ namespace coil {
       }
 
     getGLContext()->swapBuffers();
+    glFinish();
 
     //Check if we're recording and then check that if we're
     //framelocking, check that new data is available

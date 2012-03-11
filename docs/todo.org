@@ -59,7 +59,8 @@
 **** DONE Coil: Added some sharpen and hi-pass filters to the screen space effects.
 **** DONE Coil: Added High-Dynamic-Range lighting and gamma correction.
 **** DONE Coil: Now it is easy to use multiple light sources in the render scene.
-**** DONE Coil: Bloom effect added
+**** DONE Coil: HDR Bloom effects can now be enabled.
+**** DONE Coil: Remove the requirement to pass the frequency to the visualiser, it guesses at one MFT for each particle.
 **** DONE Bugfix Coil: Corrected the shadow mapping calculation and removed the noise.
 **** DONE Bugfix Coil: Fix light placement relative to camera.
 **** DONE Bugfix Coil: Fixed the bilateral blur filter.
@@ -68,13 +69,11 @@
 **** TODO Coil: Fix resizing the display on AMD hardware.
 **** TODO Coil: Fix the Bilateral blur filter, or at least make it work well with SSAO
 **** TODO Coil: Fix the incorrect calculation of the camera position, due to the head position not being added on. This is breaking lots of calculations (e.g. SSAO at close range, possibly the volume rendering flicker).
-**** TODO Coil: Remove the requirement to pass the frequency to the visualiser.
 **** TODO DynamO: Fix compression, it seems to jam on binary systems.
 **** TODO DynamO: Confirm that the tutorials are up to date on the removal of the -h tag.
 **** TODO DynamO: Check that the PBC sentinel is correctly working for 2 particles, it seems something else is doing the updates (the synchroniser?).
 **** TODO DynamO: Add the gravity version of the sphere-sphere-out test. Fix and check that the umbrella implementation is general.
 **** TODO DynamO: Make compression work with polydisperse walls.
-**** TODO Work on Sebastians project.
 *** DynamO 1.2							    :ARCHIVE:
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
 **** DONE *BUGFIX* Fixed the widespread improper use of the XML test functions, causing errors instead of warnings.

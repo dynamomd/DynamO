@@ -44,7 +44,7 @@ namespace dynamo {
       ("ticker-period,t",boost::program_options::value<double>(), 
        "Time between data collections. Defaults to the system MFT or 1 if no MFT available")
 #ifdef DYNAMO_visualizer    
-      ("visualizer,V", boost::program_options::value<double>(), 
+      ("visualizer,V", 
        "Enables the visualizer and sets the initial update frequency")
 #endif
       ("equilibrate,E", "Turns off most output for a fast silent run")
@@ -112,8 +112,8 @@ namespace dynamo {
 
 #ifdef DYNAMO_visualizer
     if (vm.count("visualizer"))
-      Sim.addSystem(shared_ptr<System>(new SVisualizer(&Sim, filename, vm["visualizer"].as<double>())));
-#endif  
+      Sim.addSystem(shared_ptr<System>(new SVisualizer(&Sim, filename, Sim.lastRunMFT)));
+#endif
 
     if (vm.count("snapshot"))
       Sim.addSystem(shared_ptr<System>(new SSnapshot(&Sim, vm["snapshot"].as<double>(), "SnapshotEvent")));

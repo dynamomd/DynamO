@@ -646,7 +646,7 @@ The scene key for an average outdoor photograph on photographic paper is 0.18, h
                                         <property name="can_focus">True</property>
                                         <property name="invisible_char">●</property>
                                         <property name="width_chars">12</property>
-                                        <property name="text" translatable="yes">0.18</property>
+                                        <property name="text" translatable="yes">0.15</property>
                                         <property name="invisible_char_set">True</property>
                                       </object>
                                       <packing>

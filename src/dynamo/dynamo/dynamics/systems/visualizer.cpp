@@ -36,7 +36,7 @@ namespace dynamo {
   SVisualizer::SVisualizer(dynamo::SimData* nSim, std::string nName, double tickFreq):
     System(nSim)
   {
-    _updateTime = tickFreq * Sim->dynamics.units().unitTime();
+    _updateTime = (tickFreq + (tickFreq == 0)) * Sim->dynamics.units().unitTime();
     dt = -HUGE_VAL;//We want to ensure we get at least one update before
     //anything occurs in the system
   
