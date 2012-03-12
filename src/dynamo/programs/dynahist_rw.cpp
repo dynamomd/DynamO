@@ -47,7 +47,7 @@ const size_t NGamma = 1;
 
 //Set in the main function
 static long double alpha;
-static long double minErr;
+static long double minErr = 1e-16;
 static size_t NStepsPerStep = 0;
 static boost::program_options::variables_map vm;
 
@@ -587,7 +587,6 @@ main(int argc, char *argv[])
       ("alpha", po::value<long double>()->default_value(1), "A fraction of the difference between the old and new logZ's to use, use to stop divergence")
       ("NSteps,N", po::value<size_t>()->default_value(10), "Number of steps to take before testing the error and spitting out the current vals")
       ("load-logZ", po::value<std::string>(), "Loads the logZ's from a previous run, note! It does this by ordering the temperatures and adding in order, do not change anything you do!")
-      ("min-err", po::value<long double>()->default_value(1.0e-16), "The minium error allowed before the loop terminates")
       ;
 
     boost::program_options::positional_options_description p;
@@ -606,7 +605,6 @@ main(int argc, char *argv[])
 
     alpha = vm["alpha"].as<long double>();
     NStepsPerStep = vm["NSteps"].as<size_t>();
-    minErr = vm["min-err"].as<long double>();
 
     //Data load
     BOOST_FOREACH(std::string fileName, vm["data-file"].as<std::vector<std::string> >())
