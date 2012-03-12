@@ -78,6 +78,10 @@ namespace magnet {
 	    spline[channel].setLowBC(math::Spline::FIXED_1ST_DERIV_BC, 0);
 	    spline[channel].setHighBC(math::Spline::FIXED_1ST_DERIV_BC, 0);
 	  }
+
+	for (size_t channel(0); channel < 3; ++channel)
+	  spline[channel].setType(math::Spline::LINEAR);
+
       }
       
       void addKnot(double x, double h, double s, double v, double a)
