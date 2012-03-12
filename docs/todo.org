@@ -69,9 +69,7 @@
 **** TODO Coil: Fix resizing the display on AMD hardware.
 **** TODO Coil: Fix the Bilateral blur filter, or at least make it work well with SSAO
 **** TODO Coil: Fix the incorrect calculation of the camera position, due to the head position not being added on. This is breaking lots of calculations (e.g. SSAO at close range, possibly the volume rendering flicker).
-**** TODO DynamO: Fix compression, it seems to jam on binary systems.
 **** TODO DynamO: Confirm that the tutorials are up to date on the removal of the -h tag.
-**** TODO DynamO: Check that the PBC sentinel is correctly working for 2 particles, it seems something else is doing the updates (the synchroniser?).
 **** TODO DynamO: Add the gravity version of the sphere-sphere-out test. Fix and check that the umbrella implementation is general.
 **** TODO DynamO: Make compression work with polydisperse walls.
 *** DynamO 1.2							    :ARCHIVE:
