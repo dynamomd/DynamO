@@ -764,10 +764,6 @@ namespace coil {
     _refXml.reset(); //Destroy GTK instance
     _aasamples.reset();
 
-    /////////////////OpenCL
-
-    getGLContext()->getCLCommandQueue().finish();
-
     ///////////////////OpenGL
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)

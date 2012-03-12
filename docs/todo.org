@@ -72,6 +72,7 @@
 **** TODO DynamO: Confirm that the tutorials are up to date on the removal of the -h tag.
 **** TODO DynamO: Add the gravity version of the sphere-sphere-out test. Fix and check that the umbrella implementation is general.
 **** TODO DynamO: Make compression work with polydisperse walls.
+**** TODO DynamO: Fix the incorrect GitHash being set in the executable.
 *** DynamO 1.2							    :ARCHIVE:
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
 **** DONE *BUGFIX* Fixed the widespread improper use of the XML test functions, causing errors instead of warnings.
