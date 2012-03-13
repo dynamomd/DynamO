@@ -39,18 +39,12 @@
  */
 int main(int argc, char *argv[])
 {
-  //The following macro converts the GITHASH define to a C style
-  //string, the boost build system won't let us define strings on the
-  //command line.
-#define VALUE_TO_STRING(val) #val
-#define STR(val) VALUE_TO_STRING(val)
   //Output the program licence
   std::cout << "dynarun  Copyright (C) 2011  Marcus N Campbell Bannerman\n"
 	    << "This program comes with ABSOLUTELY NO WARRANTY.\n"
 	    << "This is free software, and you are welcome to redistribute it\n"
 	    << "under certain conditions. See the licence you obtained with\n"
-	    << "the code\n"
-	       "Git Checkout Hash " << STR(GITHASH) << "\n\n";
+	    << "the code\n";
 
   /*! \brief The programs single instantiation of the simulation control class.
    */

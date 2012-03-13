@@ -16,7 +16,6 @@
 
 import feature ;
 import ../magnet/jam/builddep ;
-import ../magnet/jam/git ;
 import ../magnet/jam/tags ;
 
 lib gslcblas ;
@@ -60,18 +59,17 @@ rule critical_dependencies ( )
 { return [ check-target-builds dynamoDependencies "DynamO dependencies" :  : <build>no ] ; }
 
 exe dynarun : programs/dynarun.cpp dynamo_core 
-    : [ git.defines ] <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
+    : <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 exe dynareplex_opt : programs/dynareplex_opt.cpp /boost//program_options
-    : [ git.defines ] <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
+    : <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 exe dynahist_rw : programs/dynahist_rw.cpp dynamo_core 
-    : [ git.defines ] <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
+    : <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 exe dynamod : programs/dynamod.cpp dynamo_core 
-    : [ git.defines ] <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
+    : <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 
 explicit dynamod dynahist_rw dynareplex_opt dynarun dynamo_core visualizer test ;
-always   dynamod dynahist_rw dynareplex_opt dynarun ;
 
 install install-dynamo
-	: dynarun dynahist_rw dynamod 
+	: dynarun  dynahist_rw dynamod 
 	: <location>$(BIN_INSTALL_PATH) <dynamo-buildable>no:<build>no
 	;
