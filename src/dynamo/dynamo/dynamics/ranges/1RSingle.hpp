@@ -17,21 +17,33 @@
 
 #pragma once
 #include <dynamo/dynamics/ranges/1range.hpp>
-#include <magnet/exception.hpp>
+#include <dynamo/simulation/particle.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
 namespace dynamo {
   class RSingle: public Range
   {
   public:
-    RSingle(const magnet::xml::Node&);
+    RSingle(const magnet::xml::Node& XML) 
+    { operator<<(XML); }
 
     RSingle():ID(0) {}
 
-    virtual bool isInRange(const Particle &) const;
+    virtual bool isInRange(const Particle &part) const
+    { return part.getID() == ID; }
 
-    //The data output classes
-    virtual void operator<<(const magnet::xml::Node&);
-  
+    virtual void operator<<(const magnet::xml::Node& XML)
+    {
+      if (strcmp(XML.getAttribute("Range"),"Single"))
+	M_throw() << "Attempting to load RSingle from non single";
+      try {
+	ID = XML.getAttribute("ID").as<size_t>();
+      }
+      catch (boost::bad_lexical_cast &)
+	{ M_throw() << "Failed a lexical cast in RRange"; }
+    }
+
     virtual unsigned long size() const { return 1; };
 
     virtual iterator begin() const { return Range::iterator(ID, this); }
@@ -52,7 +64,11 @@ namespace dynamo {
   protected:
     virtual const unsigned long& getIteratorID(const unsigned long &i) const { return i; }
 
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void outputXML(magnet::xml::XmlStream& XML) const
+    {
+      XML << magnet::xml::attr("Range") << "Single"
+	  << magnet::xml::attr("ID") << ID;
+    }
 
     unsigned long ID;
   };

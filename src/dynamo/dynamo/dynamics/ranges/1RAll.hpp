@@ -19,6 +19,8 @@
 
 #include <dynamo/dynamics/ranges/1range.hpp>
 #include <dynamo/base/is_simdata.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
 namespace dynamo {
   class RAll: public Range, public dynamo::SimBase_const
@@ -27,13 +29,18 @@ namespace dynamo {
     RAll(const dynamo::SimData* SimDat):
       SimBase_const(SimDat,"RAll"){}
 
-    RAll(const magnet::xml::Node&, const dynamo::SimData*);
+    RAll(const magnet::xml::Node& XML, const dynamo::SimData* SimDat):
+      SimBase_const(SimDat, "RAll")
+    { operator<<(XML); }
 
     virtual bool isInRange(const Particle&) const
     { return true; }
 
-    //The data output classes
-    virtual void operator<<(const magnet::xml::Node&);
+    void operator<<(const magnet::xml::Node& XML)
+    {
+      if (strcmp(XML.getAttribute("Range"),"All"))
+	M_throw() << "Attempting to load RAll from non All type";
+    }
 
     virtual unsigned long size() const { return Sim->particleList.size(); }
 
@@ -56,6 +63,7 @@ namespace dynamo {
 
     virtual const unsigned long& getIteratorID(const unsigned long &i) const { return i; }
 
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+    void outputXML(magnet::xml::XmlStream& XML) const
+    { XML << magnet::xml::attr("Range") << "All"; }
   };
 }

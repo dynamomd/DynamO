@@ -76,12 +76,7 @@ namespace dynamo {
 
 	doc.parseData();
 
-	magnet::xml::Node xSubNode = doc.getNode("dynamoconfig").getNode("ParticleData");
-      
-	if (xSubNode.hasAttribute("AttachedBinary")
-	    && (std::toupper(xSubNode.getAttribute("AttachedBinary")[0]) == 'Y'))
-	  M_throw() << "This packer only works on XML config files without binary data,"
-		    << " please convert to plain xml using \"dynamod --text\"";
+	magnet::xml::Node xSubNode = doc.getNode("DynamOConfig").getNode("ParticleData");
       
 	for (magnet::xml::Node node = xSubNode.fastGetNode("Pt");
 	     node.valid(); ++node)

@@ -18,6 +18,8 @@
 #pragma once
 #include <dynamo/dynamics/ranges/1range.hpp>
 #include <dynamo/base/is_simdata.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
 namespace dynamo {
   class RNone: public Range
@@ -25,13 +27,17 @@ namespace dynamo {
   public:
     RNone() {}
 
-    RNone(const magnet::xml::Node&);
+    RNone(const magnet::xml::Node& XML)
+    { operator<<(XML); }
 
     virtual bool isInRange(const Particle&) const
     { return false; }
 
-    //The data output classes
-    virtual void operator<<(const magnet::xml::Node&);
+    virtual void operator<<(const magnet::xml::Node& XML)
+    {
+      if (strcmp(XML.getAttribute("Range"),"None"))
+	M_throw() << "Attempting to load RNone from non None type";
+    }
 
     virtual unsigned long size() const { return 0; }
 
@@ -54,6 +60,7 @@ namespace dynamo {
     virtual const unsigned long& getIteratorID(const unsigned long &i) const 
     { M_throw() << "Nothing here!"; }
 
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void outputXML(magnet::xml::XmlStream& XML) const
+    { XML << magnet::xml::attr("Range") << "All"; }
   };
 }
