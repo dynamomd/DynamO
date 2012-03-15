@@ -17,22 +17,75 @@
 
 #pragma once
 #include <dynamo/dynamics/ranges/2range.hpp>
-#include <cstring>
+#include <dynamo/simulation/particle.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
 namespace dynamo {
   class C2RChainEnds:public C2Range
   {
   public:
-    C2RChainEnds(const magnet::xml::Node&, const dynamo::SimData*);
+    C2RChainEnds(const magnet::xml::Node& XML, const dynamo::SimData*):
+      rangeStart(0),rangeEnd(0), interval(0) 
+    { 
+      if (strcmp(XML.getAttribute("Range"),"ChainEnds"))
+	M_throw() << "Attempting to load a ChainEnds from a "
+		  << XML.getAttribute("Range");
+      
+      rangeStart = XML.getAttribute("Start").as<size_t>();
+      rangeEnd = XML.getAttribute("End").as<size_t>();
+      interval = XML.getAttribute("Interval").as<size_t>();
 
-    C2RChainEnds(size_t, size_t, size_t);
+      //Guarrantee that they are ordered
+      if (rangeStart > rangeEnd) std::swap(rangeStart, rangeEnd);
   
-    virtual bool isInRange(const Particle&, const Particle&) const;
-  
-    virtual void operator<<(const magnet::xml::Node&);
+      if ((rangeEnd - rangeStart + 1) % interval)
+	M_throw() << "Length of range does not split into an integer"
+		  << " number of intervals";
+    }
+
+
+    C2RChainEnds(size_t r1, size_t r2, size_t l):
+      rangeStart(r1),rangeEnd(r2), interval(l) 
+    {
+      //Guarrantee that they are ordered
+      if (rangeStart > rangeEnd)
+	std::swap(rangeStart, rangeEnd);
+
+      if ((rangeEnd - rangeStart + 1) % interval)
+	M_throw() << "Length of range does not split into an integer"
+		  << " number of intervals";
+    }
+
+    virtual bool isInRange(const Particle&p1, const Particle&p2) const
+    {
+      if (p1.getID() > p2.getID())
+	return ((p1.getID() <= rangeEnd) && (p2.getID() >= rangeStart)
+		&& !((p2.getID() - rangeStart) % interval)
+		&& (p1.getID() - p2.getID() == interval - 1));
+      else
+	return ((p2.getID() <= rangeEnd) && (p1.getID() >= rangeStart)
+		&& !((p1.getID() - rangeStart) % interval)
+		&& (p2.getID() - p1.getID() == interval - 1));
+    }
+
+    virtual void operator<<(const magnet::xml::Node&)
+    {
+      M_throw() << "Due to problems with RAll C2RChainEnds operator<<"
+	" cannot work for this class";
+    }
   
   protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void outputXML(magnet::xml::XmlStream& XML) const
+    {
+      XML << magnet::xml::attr("Range") << "ChainEnds" 
+	  << magnet::xml::attr("Start")
+	  << rangeStart
+	  << magnet::xml::attr("End")
+	  << rangeEnd
+	  << magnet::xml::attr("Interval")
+	  << interval;
+    }
 
     size_t rangeStart;
     size_t rangeEnd;

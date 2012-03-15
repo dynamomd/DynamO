@@ -22,16 +22,24 @@ namespace dynamo {
   class C2RAll:public C2Range
   {
   public:
-    C2RAll(const magnet::xml::Node&, const dynamo::SimData*);
+    C2RAll(const magnet::xml::Node& XML, const dynamo::SimData*)
+    { 
+      if (strcmp(XML.getAttribute("Range"),"2All"))
+	M_throw() << "Attempting to load a 2All from a non 2All";
+    }
 
     C2RAll() {}
-  
+
+    virtual void operator<<(const magnet::xml::Node&)
+    {
+      M_throw() << "Due to problems with RAll C2RAll operator<< cannot work for this class";
+    }
+      
     virtual bool isInRange(const Particle&, const Particle&) const
     { return true; }
-  
-    virtual void operator<<(const magnet::xml::Node&);
-  
+    
   protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void outputXML(magnet::xml::XmlStream& XML) const
+    { XML << magnet::xml::attr("Range") << "2All"; }
   };
 }

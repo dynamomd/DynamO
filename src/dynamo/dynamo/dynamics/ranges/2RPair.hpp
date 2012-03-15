@@ -23,16 +23,42 @@ namespace dynamo {
   class C2RPair:public C2Range
   {
   public:
-    C2RPair(const magnet::xml::Node&, const dynamo::SimData*);
-
     C2RPair(Range* r1, Range* r2 ):range1(r1), range2(r2) {}
+
+    C2RPair(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
+    { 
+      if (strcmp(XML.getAttribute("Range"), "Pair"))
+	M_throw() << "Attempting to load a pair from a non pair";
   
-    virtual bool isInRange(const Particle&, const Particle&) const;
-  
-    virtual void operator<<(const magnet::xml::Node&);
-  
+      range1 = shared_ptr<Range>(Range::getClass(XML.getNode("Range1"), Sim));
+      range2 = shared_ptr<Range>(Range::getClass(XML.getNode("Range2"), Sim));
+    }
+
+    virtual bool isInRange(const Particle&p1, const Particle&p2) const
+    {
+      if ((range1->isInRange(p1) && range2->isInRange(p2))
+	  || (range1->isInRange(p2) && range2->isInRange(p1)))
+	return true;
+      return false;
+    }
+
+    virtual void operator<<(const magnet::xml::Node&)
+    {
+      M_throw() << "Due to problems with RAll C2RPair operator<< cannot work for this class";
+    }
+
   protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+
+    virtual void outputXML(magnet::xml::XmlStream& XML) const
+    {
+      XML << magnet::xml::attr("Range") << "Pair" 
+	  << magnet::xml::tag("Range1")
+	  << range1
+	  << magnet::xml::endtag("Range1")
+	  << magnet::xml::tag("Range2")
+	  << range2
+	  << magnet::xml::endtag("Range2");
+    }
 
     shared_ptr<Range> range1;
     shared_ptr<Range> range2;

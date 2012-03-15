@@ -18,23 +18,43 @@
 #pragma once
 #include <dynamo/dynamics/ranges/1range.hpp>
 #include <dynamo/dynamics/ranges/2range.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
 namespace dynamo {
   class C2RSingle:public C2Range
   {
   public:
-    C2RSingle(const magnet::xml::Node&, const dynamo::SimData*);
-
     C2RSingle(Range* r1):range(r1) {}
   
-    virtual bool isInRange(const Particle&, const Particle&) const;
+    C2RSingle(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
+    { 
+      if (strcmp(XML.getAttribute("Range"),"2Single"))
+	M_throw() << "Attempting to load a 2Single from a non pair";
   
-    virtual void operator<<(const magnet::xml::Node&);
+      range = shared_ptr<Range>(Range::getClass(XML.getNode("SingleRange"), Sim));
+    }
+
+    virtual bool isInRange(const Particle&p1, const Particle&p2) const
+    {
+      return (range->isInRange(p1) && range->isInRange(p2));
+    }
+
+    virtual void operator<<(const magnet::xml::Node&)
+    {
+      M_throw() << "Due to problems with C2RSingle operator<< cannot work for this class";
+    }
   
     const shared_ptr<Range>& getRange() const { return range; }
 
   protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void outputXML(magnet::xml::XmlStream& XML) const
+    {
+      XML << magnet::xml::attr("Range") << "2Single" 
+	  << magnet::xml::tag("SingleRange")
+	  << range
+	  << magnet::xml::endtag("SingleRange");
+    }
 
     shared_ptr<Range> range;
   };

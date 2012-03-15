@@ -258,9 +258,7 @@ namespace dynamo {
     std::cout << "Replica Exchange, ReplexSwap No." << replexSwapCalls 
 	      << ", Round Trips " << round_trips
 	      << "\n        T   ID     NColl   A-Ratio     Swaps    UpSims     DownSims\n";
-  
 
-    size_t outputCount(0);
     BOOST_FOREACH(const replexPair& dat, temperatureList)
       {       
 	std::cout << std::setw(9)

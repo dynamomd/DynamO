@@ -22,16 +22,22 @@ namespace dynamo {
   class C2RNone:public C2Range
   {
   public:
-    C2RNone(const magnet::xml::Node&, const dynamo::SimData*);
-
     C2RNone() {}
+
+    C2RNone(const magnet::xml::Node& XML, const dynamo::SimData*)
+    { 
+      if (strcmp(XML.getAttribute("Range"),"2None"))
+	M_throw() << "Attempting to load a 2None from a non 2None";
+    }
+    
+    virtual void operator<<(const magnet::xml::Node&)
+    { M_throw() << "Due to problems with RAll C2RNone operator<< cannot work for this class"; }
   
     virtual bool isInRange(const Particle&, const Particle&) const
     { return false; }
   
-    virtual void operator<<(const magnet::xml::Node&);
-  
   protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void outputXML(magnet::xml::XmlStream& XML) const
+    { XML << magnet::xml::attr("Range") << "2None"; }
   };
 }

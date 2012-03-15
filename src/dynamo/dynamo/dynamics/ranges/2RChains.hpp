@@ -22,17 +22,51 @@ namespace dynamo {
   class C2RChains:public C2Range
   {
   public:
-    C2RChains(const magnet::xml::Node&, const dynamo::SimData*);
+    C2RChains(unsigned long r1, unsigned long r2, unsigned long r3):
+      range1(r1),range2(r2),interval(r3) 
+    {
+      if ((r2-r1 + 1) % r3)
+	M_throw() << "Range of C2RChains does not split evenly into interval";
+    }
 
-    //Start, End, Interval
-    C2RChains(unsigned long, unsigned long, unsigned long);
+    C2RChains(const magnet::xml::Node& XML, const dynamo::SimData*):
+      range1(0),range2(0), interval(0)
+    { 
+      if (strcmp(XML.getAttribute("Range"),"Chains"))
+	M_throw() << "Attempting to load a chains from a non chains";
   
-    virtual bool isInRange(const Particle&, const Particle&) const;
-  
-    virtual void operator<<(const magnet::xml::Node&);
+      range1 = XML.getAttribute("Start").as<unsigned long>();
+      range2 = XML.getAttribute("End").as<unsigned long>();
+      interval = XML.getAttribute("Interval").as<unsigned long>();
+      if ((range2-range1 + 1) % interval)
+	M_throw() << "Range of C2RChains does not split evenly into interval";
+
+    }
+
+    virtual bool isInRange(const Particle&p1, const Particle&p2) const
+    {
+      size_t a = std::min(p1.getID(), p2.getID()), b = std::max(p1.getID(), p2.getID());
+      return (b - a == 1)
+	&& ((a >= range1) && (b <= range2))
+	&& (((a  - range1) / interval) == ((b  - range1) / interval));
+    }
+
+    virtual void operator<<(const magnet::xml::Node&)
+    {
+      M_throw() << "Due to problems with RAll C2RChains::operator<< cannot work for this class";
+    }
   
   protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const;
+    virtual void outputXML(magnet::xml::XmlStream& XML) const
+    {
+      XML << magnet::xml::attr("Range") << "Chains" 
+	  << magnet::xml::attr("Start")
+	  << range1
+	  << magnet::xml::attr("End")
+	  << range2
+	  << magnet::xml::attr("Interval")
+	  << interval;
+    }
 
     unsigned long range1;
     unsigned long range2;
