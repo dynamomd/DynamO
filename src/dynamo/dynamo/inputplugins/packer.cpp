@@ -479,7 +479,7 @@ namespace dynamo {
 	    (shared_ptr<Interaction>
 	     (new ISquareBond(Sim, sigmin * diamScale,
 			      sigmax / sigmin, 1.0,
-			      new C2RChain(0, latticeSites.size()-1),
+			      new C2RChains(0, latticeSites.size()-1, latticeSites.size()),
 			      "Bonds")));
 	
 	  if (vm.count("s1"))
@@ -783,7 +783,7 @@ namespace dynamo {
 	  Sim->dynamics.addInteraction
 	    (shared_ptr<Interaction>
 	     (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0,
-			      new C2RChain(0, latticeSites.size()-1), "Bonds")));
+			      new C2RChains(0, latticeSites.size()-1, latticeSites.size()), "Bonds")));
 	     
 	  Sim->dynamics.addInteraction
 	    (shared_ptr<Interaction>
@@ -937,8 +937,8 @@ namespace dynamo {
 	    (shared_ptr<Interaction>
 	     (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0,
 			      (vm.count("b1"))
-			      ? static_cast<C2Range*>(new C2RChain(0, latticeSites.size()-1))
-			      : static_cast<C2Range*>(new C2RRing(0, latticeSites.size()-1)),
+			      ? static_cast<C2Range*>(new C2RChains(0, latticeSites.size()-1, latticeSites.size()))
+			      : static_cast<C2Range*>(new C2RRings(0, latticeSites.size()-1, latticeSites.size())),
 			      "Bonds")));
 
 	  if (lambda >= 1.0)
@@ -2594,7 +2594,7 @@ namespace dynamo {
 	  Sim->dynamics.addInteraction
 	    (shared_ptr<Interaction>
 	     (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0, 
-			      new C2RChain(0, latticeSites.size()-1), "Bonds")));
+			      new C2RChains(0, latticeSites.size()-1, latticeSites.size()), "Bonds")));
 	
 	
 	  {

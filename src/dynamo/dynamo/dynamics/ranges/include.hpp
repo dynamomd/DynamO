@@ -24,11 +24,9 @@
 #include <dynamo/dynamics/ranges/2RPair.hpp>
 #include <dynamo/dynamics/ranges/2RRangeList.hpp>
 #include <dynamo/dynamics/ranges/2RSingle.hpp>
-#include <dynamo/dynamics/ranges/2RChain.hpp>
 #include <dynamo/dynamics/ranges/2RChains.hpp>
 #include <dynamo/dynamics/ranges/2RChainGroups.hpp>
 #include <dynamo/dynamics/ranges/2RIntraChains.hpp>
-#include <dynamo/dynamics/ranges/2RRing.hpp>
 #include <dynamo/dynamics/ranges/2RRings.hpp>
 #include <dynamo/dynamics/ranges/2RAll.hpp>
 #include <dynamo/dynamics/ranges/2RNone.hpp>

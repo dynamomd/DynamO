@@ -62,8 +62,6 @@ namespace dynamo {
       return new C2RSingle(XML,Sim);
     else if (!strcmp(XML.getAttribute("Range"),"RangeList"))
       return new C2RRangeList(XML,Sim);
-    else if (!strcmp(XML.getAttribute("Range"),"Chain"))
-      return new C2RChain(XML,Sim);
     else if (!strcmp(XML.getAttribute("Range"),"Chains"))
       return new C2RChains(XML,Sim);              
     else if (!strcmp(XML.getAttribute("Range"),"ChainGroups"))
@@ -72,8 +70,6 @@ namespace dynamo {
       return new C2RChainEnds(XML,Sim);
     else if (!strcmp(XML.getAttribute("Range"),"IntraChains"))
       return new C2RIntraChains(XML,Sim);              
-    else if (!strcmp(XML.getAttribute("Range"),"Ring"))
-      return new C2RRing(XML,Sim);
     else if (!strcmp(XML.getAttribute("Range"),"Rings"))
       return new C2RRings(XML,Sim);
     else if (!strcmp(XML.getAttribute("Range"),"2All"))
