@@ -73,8 +73,6 @@ namespace coil {
     //GTK gui stuff
     std::auto_ptr<Gtk::VBox> _optList;
     std::auto_ptr<Gtk::Entry> _stepSize;
-    std::auto_ptr<Gtk::HScale> _diffusiveLighting;
-    std::auto_ptr<Gtk::HScale> _specularLighting;
     std::auto_ptr<Gtk::CheckButton> _ditherRay;
     std::auto_ptr<Gtk::CheckButton> _filterData;
     std::auto_ptr<magnet::gtk::TransferFunction> _transferFunction;

@@ -310,38 +310,12 @@ namespace coil {
       _optList->add(*box); box->show();
     }
 
-    {//Diffusive lighting
-      Gtk::HBox* box = manage(new Gtk::HBox);	
-      Gtk::Label* label = manage(new Gtk::Label("Diffuse Lighting"));
-      box->pack_start(*label, false, false); label->show();
-      _diffusiveLighting.reset(new Gtk::HScale);
-      box->pack_end(*_diffusiveLighting, true, true);
-      _diffusiveLighting->set_range(0,2);
-      _diffusiveLighting->set_digits(3);
-      _diffusiveLighting->show();      
-      _diffusiveLighting->set_value(1.0);
-      _optList->add(*box); box->show();
-    }
-
-    {//Specular lighting
-      Gtk::HBox* box = manage(new Gtk::HBox);	
-      Gtk::Label* label = manage(new Gtk::Label("Specular Lighting"));
-      box->pack_start(*label, false, false); label->show();
-      _specularLighting.reset(new Gtk::HScale);
-      box->pack_end(*_specularLighting, true, true);
-      _specularLighting->set_range(0,2);
-      _specularLighting->set_digits(3);
-      _specularLighting->show();      
-      _specularLighting->set_value(1.0);
-      _optList->add(*box); box->show();
-    }
-
     {//Ray Dithering and filtering
       Gtk::HBox* box = manage(new Gtk::HBox);
       _ditherRay.reset(new Gtk::CheckButton("Dither"));
       _filterData.reset(new Gtk::CheckButton("Filter Data"));
       
-      _ditherRay->set_active(false);
+      _ditherRay->set_active(true);
       _ditherRay->show();
       _filterData->set_active(true);
       _filterData->show();
@@ -389,7 +363,6 @@ namespace coil {
       {
 	_data.parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	_data.parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      }
-    
+      }    
   }
 }
