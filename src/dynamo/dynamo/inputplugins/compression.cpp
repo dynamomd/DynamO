@@ -91,10 +91,6 @@ namespace dynamo {
     Sim->_properties.rescaleUnit(Property::Units::T, rescale_factor);
 
     Sim->dynamics.getLiouvilleanPtr() = oldLio;
-  
-    Sim->ssHistory << "\nCompression dynamics run"
-		   << "\nEnd packing fraction" 
-		   << Sim->dynamics.getPackingFraction();
   }
 
   void

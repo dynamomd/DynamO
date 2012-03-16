@@ -109,12 +109,10 @@ namespace dynamo
   
     //Don't fail if the MFT is not valid
     try {
-      if (subNode.getNode("Trajectory").hasAttribute("lastMFT"))
-	lastRunMFT = subNode.getNode("Trajectory").getAttribute("lastMFT").as<double>();
+      if (subNode.hasAttribute("lastMFT"))
+	lastRunMFT = subNode.getAttribute("lastMFT").as<double>();
     } catch (std::exception&)
       {}
-
-    ssHistory << subNode.getNode("History");
 
     ensemble = dynamo::Ensemble::getClass(subNode.getNode("Ensemble"), this);
 
@@ -174,11 +172,8 @@ namespace dynamo
 	<< std::setprecision(std::numeric_limits<double>::digits10 - 1 - round)
 	<< magnet::xml::prolog() << magnet::xml::tag("DynamOconfig")
 	<< magnet::xml::attr("version") << configFileVersion
-	<< magnet::xml::tag("Simulation")
-	<< magnet::xml::tag("Trajectory")
-	<< magnet::xml::attr("Coll") << endEventCount
-	<< magnet::xml::attr("nCollPrint") << eventPrintInterval;
-
+	<< magnet::xml::tag("Simulation");
+    
     //Allow this block to fail if need be
     if (getOutputPlugin<OPMisc>())
       {
@@ -188,16 +183,11 @@ namespace dynamo
 	      << mft;
       }
 
-    XML << magnet::xml::endtag("Trajectory")
-	<< *ensemble
+    XML	<< *ensemble
 	<< magnet::xml::tag("Scheduler")
 	<< *ptrScheduler
 	<< magnet::xml::endtag("Scheduler")
-	<< magnet::xml::tag("History") 
-	<< magnet::xml::chardata()
-	<< ssHistory.str()
-	<< "\nRun for " << eventCount << " collisions"
-	<< magnet::xml::endtag("History") << magnet::xml::endtag("Simulation")
+	<< magnet::xml::endtag("Simulation")
 	<< dynamics
 	<< _properties;
 

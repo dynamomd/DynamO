@@ -169,9 +169,6 @@ namespace dynamo
     /*! \brief The Particle's of the system. */
     std::vector<Particle> particleList;  
     
-    /*! \brief A log of the previous simulation history. */
-    std::ostringstream ssHistory;
-
     /*! \brief A ptr to the Scheduler of the system. */
     shared_ptr<Scheduler> ptrScheduler;
 

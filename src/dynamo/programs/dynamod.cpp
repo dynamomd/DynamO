@@ -212,11 +212,6 @@ main(int argc, char *argv[])
 	dynamo::InputPlugin(&sim, "Vel-Component-Zeroer")
 	  .zeroVelComp(vm["zero-vel"].as<size_t>());
 
-
-      //Write out now we've changed the system
-      sim.getHistory() << "configmod run as so\n";
-      for (int i = 0; i< argc; i++)
-	sim.getHistory() << argv[i] << " ";
       sim.writeXMLfile(vm["out-config-file"].as<string>(), 
 		       !vm.count("unwrapped"), vm.count("round"));
     }

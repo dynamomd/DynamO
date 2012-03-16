@@ -122,13 +122,6 @@ namespace dynamo {
     inline shared_ptr<dynamo::Ensemble>& getEnsemble() 
     { return ensemble; }
   
-    //! Get the std::ostringstream storing the Simulation history.
-    //!
-    //! This is used to add more lines to the Simulation's history,
-    //! adding notes on what was done to create or run the Simulation.
-    std::ostringstream &getHistory()
-    { return ssHistory; }
-
     //! Get the number of Events executed.
     //! \sa getSysTime
     inline const unsigned long long &getnColl() const 
