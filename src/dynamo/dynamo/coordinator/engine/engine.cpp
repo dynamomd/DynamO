@@ -21,7 +21,6 @@
 #include <dynamo/dynamics/systems/tHalt.hpp>
 #include <dynamo/dynamics/systems/schedMaintainer.hpp>
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
-#include <dynamo/outputplugins/general/reverseEvents.hpp>
 #include <dynamo/dynamics/systems/visualizer.hpp>
 #include <dynamo/dynamics/systems/snapshot.hpp>
 #include <limits>
@@ -124,8 +123,6 @@ namespace dynamo {
 		      vm["load-plugin"].as<std::vector<std::string> >())
 	  Sim.addOutputPlugin(tmpString);
       }
-  
-    Sim.addOutputPlugin("ReverseEventsCheck");
   
     if (!vm.count("equilibrate"))
       //Just add the bare minimum outputplugin

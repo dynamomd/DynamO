@@ -17,5 +17,4 @@
 
 #include <dynamo/outputplugins/general/replexTrace.hpp>
 #include <dynamo/outputplugins/general/colldistcheck.hpp>
-#include <dynamo/outputplugins/general/reverseEvents.hpp>
 #include <dynamo/outputplugins/general/trajectory.hpp>

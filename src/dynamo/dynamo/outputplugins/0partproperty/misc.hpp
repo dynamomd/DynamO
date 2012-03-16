@@ -58,5 +58,6 @@ namespace dynamo {
     unsigned long dualEvents;  
     unsigned long singleEvents;
     unsigned long oldcoll;
+    size_t _reverseEvents;
   };
 }

@@ -158,8 +158,6 @@ namespace dynamo {
       return testGeneratePlugin<OPTrajectory>(Sim, XML);
     else if (!Name.compare("ChainBondLength"))
       return testGeneratePlugin<OPChainBondLength>(Sim, XML);
-    else if (!Name.compare("ReverseEventsCheck"))
-      return testGeneratePlugin<OPReverseEventsCheck>(Sim, XML);
     else if (!Name.compare("VACF"))
       return testGeneratePlugin<OPVACF>(Sim,XML);
     else if (!Name.compare("ViscosityE"))

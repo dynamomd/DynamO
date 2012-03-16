@@ -30,7 +30,8 @@ namespace dynamo {
     oldSysTime(0),
     dualEvents(0),
     singleEvents(0),
-    oldcoll(0)
+    oldcoll(0),
+    _reverseEvents(0)
   {}
 
   void
@@ -86,31 +87,35 @@ namespace dynamo {
   }
 
   void
-  OPMisc::eventUpdate(const IntEvent&, const PairEventData&)
+  OPMisc::eventUpdate(const IntEvent& eevent, const PairEventData&)
   {
     ++dualEvents;
+    _reverseEvents += (eevent.getdt() < 0);
   }
 
   void
-  OPMisc::eventUpdate(const GlobalEvent&, const NEventData& NDat)
+  OPMisc::eventUpdate(const GlobalEvent& eevent, const NEventData& NDat)
   {
     dualEvents += NDat.L2partChanges.size();
     singleEvents += NDat.L1partChanges.size();
+    _reverseEvents += (eevent.getdt() < 0);
   }
 
   void
-  OPMisc::eventUpdate(const LocalEvent&, const NEventData& NDat)
+  OPMisc::eventUpdate(const LocalEvent& eevent, const NEventData& NDat)
   {
     dualEvents += NDat.L2partChanges.size();
     singleEvents += NDat.L1partChanges.size();
+    _reverseEvents += (eevent.getdt() < 0);
   }
 
   void
   OPMisc::eventUpdate(const System&, const NEventData& NDat,
-		      const double&)
+		      const double& dt)
   {
     dualEvents += NDat.L2partChanges.size();
     singleEvents += NDat.L1partChanges.size();
+    _reverseEvents += (dt < 0);
   }
 
   double
@@ -202,9 +207,9 @@ namespace dynamo {
 	<< magnet::xml::attr("SimTimePerSec") << getSimTimePerSecond()
 	<< magnet::xml::endtag("Timing")
 
-	<< magnet::xml::tag("SystemBoxLength")
+	<< magnet::xml::tag("PrimaryImageSimulationSize")
 	<< Sim->primaryCellSize / Sim->dynamics.units().unitLength()
-	<< magnet::xml::endtag("SystemBoxLength");
+	<< magnet::xml::endtag("PrimaryImageSimulationSize");
 
     Vector sumMV(0, 0, 0);
     //Determine the system momentum
@@ -218,6 +223,9 @@ namespace dynamo {
 	<< magnet::xml::attr("val")
 	<< getMFT()
 	<< magnet::xml::endtag("totMeanFreeTime")
+	<< magnet::xml::tag("NegativeTimeEvents")
+	<< magnet::xml::attr("Count") << _reverseEvents
+	<< magnet::xml::endtag("NegativeTimeEvents")
 	<< magnet::xml::endtag("Misc");
   }
 
@@ -255,13 +263,8 @@ namespace dynamo {
       }
 
     I_Pcout() << ", Events " << (Sim->eventCount+1)/1000 << "k, t "
-	      << Sim->dSysTime/Sim->dynamics.units().unitTime() << ", <t_2> "
-	      <<   Sim->dSysTime * static_cast<double>(Sim->N)
-      /(Sim->dynamics.units().unitTime() * 2.0 * static_cast<double>(dualEvents))
-	      << ", <t_tot> "
-	      <<   Sim->dSysTime * static_cast<double>(Sim->N)
-      / (Sim->dynamics.units().unitTime() * (2.0 * static_cast<double>(dualEvents)
-					     + static_cast<double>(singleEvents)))
+	      << Sim->dSysTime/Sim->dynamics.units().unitTime() 
+	      << ", <Mean Free Time> " <<  getMFT()
 	      << ", ";
 
     oldSysTime = Sim->dSysTime;
