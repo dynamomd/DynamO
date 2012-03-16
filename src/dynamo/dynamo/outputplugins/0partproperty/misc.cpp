@@ -35,15 +35,18 @@ namespace dynamo {
     InitialKE(0.0),
     KEacc(0.0),
     KEsqAcc(0.0),
-    KECurrent(0.0)
+    KECurrent(0.0),
+    intECurrent(0.0),
+    intEsqAcc(0.0),
+    intEAcc(0.0)
   {}
 
   void
   OPMisc::changeSystem(OutputPlugin* misc2)
   {
     std::swap(Sim, static_cast<OPMisc*>(misc2)->Sim);
-
     std::swap(KECurrent, static_cast<OPMisc*>(misc2)->KECurrent);
+    std::swap(intECurrent, static_cast<OPMisc*>(misc2)->intECurrent);
   }
 
   void
@@ -80,11 +83,21 @@ namespace dynamo {
     return 2.0 * KECurrent / (Sim->N * Sim->dynamics.getLiouvillean().getParticleDOF());
   }
 
+  double 
+  OPMisc::getMeanUConfigurational() const
+  { 
+    return intEAcc / Sim->dSysTime; 
+  }
+
+  double 
+  OPMisc::getMeanSqrUConfigurational() const
+  { return intEsqAcc / Sim->dSysTime; }
 
   void
   OPMisc::initialise()
   {
     InitialKE = KECurrent = Sim->dynamics.getLiouvillean().getSystemKineticEnergy();
+    intECurrent = Sim->dynamics.calcInternalEnergy();
 
     dout << "Particle Count " << Sim->N
 	 << "\nSim Unit Length " << Sim->dynamics.units().unitLength()
@@ -133,7 +146,11 @@ namespace dynamo {
 
     KEacc += KECurrent * eevent.getdt();
     KEsqAcc += KECurrent * KECurrent * eevent.getdt();
+    intEAcc += intECurrent * eevent.getdt();
+    intEsqAcc += intECurrent * intECurrent * eevent.getdt();
+
     KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
+    intECurrent += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
   }
 
   void
@@ -145,12 +162,20 @@ namespace dynamo {
 
     KEacc += KECurrent * eevent.getdt();
     KEsqAcc += KECurrent * KECurrent * eevent.getdt();
+    intEAcc += intECurrent * eevent.getdt();
+    intEsqAcc += intECurrent * intECurrent * eevent.getdt();
 
     BOOST_FOREACH(const ParticleEventData& PDat, NDat.L1partChanges)
-      KECurrent += PDat.getDeltaKE();
+      {
+	KECurrent += PDat.getDeltaKE();
+	intECurrent += PDat.getDeltaU();
+      }
     
     BOOST_FOREACH(const PairEventData& PDat, NDat.L2partChanges)
-      KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
+      {
+	KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
+	intECurrent += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
+      }
   }
 
   void
@@ -162,12 +187,20 @@ namespace dynamo {
 
     KEacc += KECurrent * eevent.getdt();
     KEsqAcc += KECurrent * KECurrent * eevent.getdt();
+    intEAcc += intECurrent * eevent.getdt();
+    intEsqAcc += intECurrent * intECurrent * eevent.getdt();
 
     BOOST_FOREACH(const ParticleEventData& PDat, NDat.L1partChanges)
-      KECurrent += PDat.getDeltaKE();
+      {
+	KECurrent += PDat.getDeltaKE();
+	intECurrent += PDat.getDeltaU();
+      }
     
     BOOST_FOREACH(const PairEventData& PDat, NDat.L2partChanges)
-      KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
+      {
+	KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
+	intECurrent += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
+      }
   }
 
   void
@@ -180,12 +213,20 @@ namespace dynamo {
 
     KEacc += KECurrent * dt;
     KEsqAcc += KECurrent * KECurrent * dt;
+    intEAcc += intECurrent * dt;
+    intEsqAcc += intECurrent * intECurrent * dt;
 
     BOOST_FOREACH(const ParticleEventData& PDat, NDat.L1partChanges)
-      KECurrent += PDat.getDeltaKE();
+      {
+	KECurrent += PDat.getDeltaKE();
+	intECurrent += PDat.getDeltaU();
+      }
     
     BOOST_FOREACH(const PairEventData& PDat, NDat.L2partChanges)
-      KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
+      {
+	KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
+	intECurrent += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
+      }
   }
 
   double
@@ -268,6 +309,19 @@ namespace dynamo {
 	<< magnet::xml::attr("MeanSqr") << getMeanSqrkT() / (Sim->dynamics.units().unitEnergy() * Sim->dynamics.units().unitEnergy())
 	<< magnet::xml::attr("Current") << getCurrentkT() / Sim->dynamics.units().unitEnergy()
 	<< magnet::xml::endtag("Temperature")
+
+	<< magnet::xml::tag("UConfigurational")
+	<< magnet::xml::attr("Mean") << getMeanUConfigurational() / Sim->dynamics.units().unitEnergy()
+	<< magnet::xml::attr("MeanSqr") << getMeanSqrUConfigurational() / (Sim->dynamics.units().unitEnergy() * Sim->dynamics.units().unitEnergy())
+	<< magnet::xml::attr("Current") << intECurrent / Sim->dynamics.units().unitEnergy()
+	<< magnet::xml::endtag("UConfigurational")
+
+	<< magnet::xml::tag("ResidualHeatCapacity")
+	<< magnet::xml::attr("Value") 
+	<< (getMeanSqrUConfigurational() - getMeanUConfigurational() * getMeanUConfigurational())
+      / (getMeankT() * getMeankT())
+	<< magnet::xml::endtag("ResidualHeatCapacity")
+
 
 	<< magnet::xml::tag("Duration")
 	<< magnet::xml::attr("Events") << Sim->eventCount

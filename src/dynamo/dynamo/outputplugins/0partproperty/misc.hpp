@@ -54,6 +54,8 @@ namespace dynamo {
     double getMeanSqrkT() const;
     double getCurrentkT() const;
 
+    double getMeanUConfigurational() const;
+    double getMeanSqrUConfigurational() const;
 
   protected:    
     
@@ -72,5 +74,8 @@ namespace dynamo {
     double KEsqAcc;
     double KECurrent;  
 
+    double intECurrent;
+    double intEsqAcc;
+    double intEAcc;
   };
 }
