@@ -31,20 +31,60 @@ namespace dynamo {
     dualEvents(0),
     singleEvents(0),
     oldcoll(0),
-    _reverseEvents(0)
+    _reverseEvents(0),
+    InitialKE(0.0),
+    KEacc(0.0),
+    KEsqAcc(0.0),
+    KECurrent(0.0)
   {}
 
   void
   OPMisc::changeSystem(OutputPlugin* misc2)
   {
     std::swap(Sim, static_cast<OPMisc*>(misc2)->Sim);
+
+    std::swap(KECurrent, static_cast<OPMisc*>(misc2)->KECurrent);
   }
+
+  void
+  OPMisc::temperatureRescale(const double& scale)
+  { KECurrent *= scale; }
+
+  double 
+  OPMisc::getMeankT() const
+  {
+    if (KEacc == 0) return getCurrentkT();
+
+    return 2.0 * KEacc / (Sim->dSysTime * Sim->N * Sim->dynamics.getLiouvillean().getParticleDOF());
+  }
+
+  double 
+  OPMisc::getMeanSqrkT() const
+  {
+    if (KEsqAcc == 0) 
+      return 4.0 * KECurrent * KECurrent
+	/ (Sim->N * Sim->N
+	   * Sim->dynamics.getLiouvillean().getParticleDOF()
+	   * Sim->dynamics.getLiouvillean().getParticleDOF());
+    
+    return 4.0 * KEsqAcc 
+	/ (Sim->dSysTime
+	   * Sim->N * Sim->N
+	   * Sim->dynamics.getLiouvillean().getParticleDOF()
+	   * Sim->dynamics.getLiouvillean().getParticleDOF());
+  }
+
+  double 
+  OPMisc::getCurrentkT() const
+  {
+    return 2.0 * KECurrent / (Sim->N * Sim->dynamics.getLiouvillean().getParticleDOF());
+  }
+
 
   void
   OPMisc::initialise()
   {
-    double kt = Sim->dynamics.getLiouvillean().getkT();
-
+    InitialKE = KECurrent = Sim->dynamics.getLiouvillean().getSystemKineticEnergy();
 
     dout << "Particle Count " << Sim->N
 	 << "\nSim Unit Length " << Sim->dynamics.units().unitLength()
@@ -52,8 +92,7 @@ namespace dynamo {
 	 << "\nDensity " << Sim->dynamics.getNumberDensity()
       * Sim->dynamics.units().unitVolume()
 	 << "\nPacking Fraction " << Sim->dynamics.getPackingFraction()
-	 << "\nSim Temperature " << kt
-	 << "\nReduced Temperature " << kt / Sim->dynamics.units().unitEnergy() << std::endl;
+	 << "\nTemperature " << getCurrentkT() / Sim->dynamics.units().unitEnergy() << std::endl;
 
     dout << "No. of Species " << Sim->dynamics.getSpecies().size()
 	 << "\nSimulation box length <x y z> < ";
@@ -87,10 +126,14 @@ namespace dynamo {
   }
 
   void
-  OPMisc::eventUpdate(const IntEvent& eevent, const PairEventData&)
+  OPMisc::eventUpdate(const IntEvent& eevent, const PairEventData& PDat)
   {
     ++dualEvents;
     _reverseEvents += (eevent.getdt() < 0);
+
+    KEacc += KECurrent * eevent.getdt();
+    KEsqAcc += KECurrent * KECurrent * eevent.getdt();
+    KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
   }
 
   void
@@ -99,6 +142,15 @@ namespace dynamo {
     dualEvents += NDat.L2partChanges.size();
     singleEvents += NDat.L1partChanges.size();
     _reverseEvents += (eevent.getdt() < 0);
+
+    KEacc += KECurrent * eevent.getdt();
+    KEsqAcc += KECurrent * KECurrent * eevent.getdt();
+
+    BOOST_FOREACH(const ParticleEventData& PDat, NDat.L1partChanges)
+      KECurrent += PDat.getDeltaKE();
+    
+    BOOST_FOREACH(const PairEventData& PDat, NDat.L2partChanges)
+      KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
   }
 
   void
@@ -107,6 +159,15 @@ namespace dynamo {
     dualEvents += NDat.L2partChanges.size();
     singleEvents += NDat.L1partChanges.size();
     _reverseEvents += (eevent.getdt() < 0);
+
+    KEacc += KECurrent * eevent.getdt();
+    KEsqAcc += KECurrent * KECurrent * eevent.getdt();
+
+    BOOST_FOREACH(const ParticleEventData& PDat, NDat.L1partChanges)
+      KECurrent += PDat.getDeltaKE();
+    
+    BOOST_FOREACH(const PairEventData& PDat, NDat.L2partChanges)
+      KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
   }
 
   void
@@ -116,6 +177,15 @@ namespace dynamo {
     dualEvents += NDat.L2partChanges.size();
     singleEvents += NDat.L1partChanges.size();
     _reverseEvents += (dt < 0);
+
+    KEacc += KECurrent * dt;
+    KEsqAcc += KECurrent * KECurrent * dt;
+
+    BOOST_FOREACH(const ParticleEventData& PDat, NDat.L1partChanges)
+      KECurrent += PDat.getDeltaKE();
+    
+    BOOST_FOREACH(const PairEventData& PDat, NDat.L2partChanges)
+      KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
   }
 
   double
@@ -192,6 +262,12 @@ namespace dynamo {
 	<< magnet::xml::tag("ParticleCount")
 	<< magnet::xml::attr("val") << Sim->N
 	<< magnet::xml::endtag("ParticleCount")
+
+	<< magnet::xml::tag("Temperature")
+	<< magnet::xml::attr("Mean") << getMeankT() / Sim->dynamics.units().unitEnergy()
+	<< magnet::xml::attr("MeanSqr") << getMeanSqrkT() / (Sim->dynamics.units().unitEnergy() * Sim->dynamics.units().unitEnergy())
+	<< magnet::xml::attr("Current") << getCurrentkT() / Sim->dynamics.units().unitEnergy()
+	<< magnet::xml::endtag("Temperature")
 
 	<< magnet::xml::tag("Duration")
 	<< magnet::xml::attr("Events") << Sim->eventCount

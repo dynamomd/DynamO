@@ -48,6 +48,13 @@ namespace dynamo {
     double getEventsPerSecond() const;
     double getSimTimePerSecond() const;
 
+    void temperatureRescale(const double&);
+
+    double getMeankT() const;
+    double getMeanSqrkT() const;
+    double getCurrentkT() const;
+
+
   protected:    
     
     std::time_t tstartTime;
@@ -59,5 +66,11 @@ namespace dynamo {
     unsigned long singleEvents;
     unsigned long oldcoll;
     size_t _reverseEvents;
+
+    double InitialKE;
+    double KEacc;
+    double KEsqAcc;
+    double KECurrent;  
+
   };
 }
