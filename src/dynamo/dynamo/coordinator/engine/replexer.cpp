@@ -424,7 +424,7 @@ namespace dynamo {
   {
     start_Time = boost::posix_time::second_clock::local_time();
 
-    while ((Simulations[0].getSysTime() < replicaEndTime) && (Simulations[0].getnColl() < vm["ncoll"].as<unsigned long long>()))
+    while ((Simulations[0].getSysTime() < replicaEndTime) && (Simulations[0].getnColl() < vm["events"].as<unsigned long long>()))
       {
 	if (peekMode)
 	  {
@@ -433,7 +433,7 @@ namespace dynamo {
 	    size_t i = 0;
 	    BOOST_FOREACH(replexPair p1, temperatureList)
 	      {
-		Simulations[p1.second.simID].setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
+		Simulations[p1.second.simID].setTrajectoryLength(vm["events"].as<unsigned long long>());
 		Simulations[p1.second.simID].outputData((magnet::string::search_replace(std::string("peek.data.%ID.xml.bz2"), 
 											"%ID", boost::lexical_cast<std::string>(i++))));
 	      }
@@ -506,7 +506,7 @@ namespace dynamo {
 		Simulations[i].ptrScheduler->rebuildSystemEvents();
 
 		//Reset the max collisions
-		Simulations[i].setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
+		Simulations[i].setTrajectoryLength(vm["events"].as<unsigned long long>());
 	      }
 	  }
       }
@@ -522,7 +522,7 @@ namespace dynamo {
     BOOST_FOREACH(replexPair p1, temperatureList)
       {
 	TtoID << p1.second.realTemperature << " " << i << "\n";
-	Simulations[p1.second.simID].setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
+	Simulations[p1.second.simID].setTrajectoryLength(vm["events"].as<unsigned long long>());
 	Simulations[p1.second.simID].writeXMLfile(magnet::string::search_replace(configFormat, "%ID", boost::lexical_cast<std::string>(i++)), 
 						  !vm.count("unwrapped"));
       }

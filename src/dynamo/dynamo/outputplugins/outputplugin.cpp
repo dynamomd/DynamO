@@ -118,8 +118,6 @@ namespace dynamo {
       return testGeneratePlugin<OPMSD>(Sim, XML);
     else if (!Name.compare("PeriodicMSD"))
       return testGeneratePlugin<OPPeriodicMSD>(Sim, XML);
-    else if (!Name.compare("EstTime"))
-      return testGeneratePlugin<OPETA>(Sim, XML);
     else if (!Name.compare("ReplexTrace"))
       return testGeneratePlugin<OPReplexTrace>(Sim, XML);
     else if (!Name.compare("IntEnergyHist"))
@@ -146,8 +144,6 @@ namespace dynamo {
       return testGeneratePlugin<OPRdotV>(Sim, XML);
     else if (!Name.compare("Momentum"))
       return testGeneratePlugin<OPMomentum>(Sim, XML);
-    else if (!Name.compare("QMGA"))
-      return testGeneratePlugin<OPQMGA>(Sim, XML);
     else if (!Name.compare("VTK"))
       return testGeneratePlugin<OPVTK>(Sim, XML);
     else if (!Name.compare("ContactMap"))

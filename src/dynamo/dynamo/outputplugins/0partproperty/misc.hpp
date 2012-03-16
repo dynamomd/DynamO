@@ -45,7 +45,11 @@ namespace dynamo {
   
     void changeSystem(OutputPlugin*);
 
-  protected:
+    double getEventsPerSecond() const;
+    double getSimTimePerSecond() const;
+
+  protected:    
+    
     std::time_t tstartTime;
     timespec acc_tstartTime;
 

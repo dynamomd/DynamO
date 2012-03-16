@@ -17,8 +17,6 @@
 
 #include <dynamo/outputplugins/0partproperty/collMatrix.hpp>
 #include <dynamo/outputplugins/0partproperty/msd.hpp>
-#include <dynamo/outputplugins/0partproperty/eta.hpp>
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
-#include <dynamo/outputplugins/0partproperty/qmga.hpp>
 #include <dynamo/outputplugins/0partproperty/intEnergyHist.hpp>
 #include <dynamo/outputplugins/0partproperty/msdOrientational.hpp>

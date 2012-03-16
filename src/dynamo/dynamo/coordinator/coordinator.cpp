@@ -135,7 +135,7 @@ namespace dynamo {
     if (vm.count("help") || (argc==1)) 
       {
 	std::cout << "Usage : dynarun <OPTION>...<config-file(s)>\n"
-		  << "Loads a configuration file, calculates the trajectory of the system using the specified engine and" 
+		  << "Loads a configuration file, calculates the dynamics of the system using the specified engine and" 
 		  << "outputs any collected data, including a the final configuration file.\n"
 		  << basicOpts << "\n"
 		  << detailedEngineOpts << "\n";
@@ -210,10 +210,9 @@ namespace dynamo {
   void 
   Coordinator::runSimulation()
   {
-    //Only Run if there are collisions to run
-    if (vm["ncoll"].as<unsigned long long>())
+    //Only run if there are collisions to run
+    if (vm["events"].as<unsigned long long>())
       _engine->runSimulation();
-
   }
 
   void 
@@ -228,7 +227,7 @@ namespace dynamo {
     _engine->finaliseRun();
 
     //Only output if there are collisions to run
-    if (vm["ncoll"].as<unsigned long long>())
+    if (vm["events"].as<unsigned long long>())
       _engine->outputConfigs();
   }
 }

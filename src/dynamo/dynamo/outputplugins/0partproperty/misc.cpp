@@ -122,6 +122,30 @@ namespace dynamo {
 	   + static_cast<double>(singleEvents)));
   }
 
+  double 
+  OPMisc::getEventsPerSecond() const
+  {
+    timespec acc_tendTime;
+    clock_gettime(CLOCK_MONOTONIC, &acc_tendTime);
+    
+    double duration = double(acc_tendTime.tv_sec) - double(acc_tstartTime.tv_sec)
+      + 1e-9 * (double(acc_tendTime.tv_nsec) - double(acc_tstartTime.tv_nsec));
+
+    return Sim->eventCount / duration;
+  }
+
+  double 
+  OPMisc::getSimTimePerSecond() const
+  {
+    timespec acc_tendTime;
+    clock_gettime(CLOCK_MONOTONIC, &acc_tendTime);
+    
+    double duration = double(acc_tendTime.tv_sec) - double(acc_tstartTime.tv_sec)
+      + 1e-9 * (double(acc_tendTime.tv_nsec) - double(acc_tstartTime.tv_nsec));
+
+    return Sim->dSysTime / (duration * Sim->dynamics.units().unitTime());
+  }
+
 
   void
   OPMisc::output(magnet::xml::XmlStream &XML)
@@ -137,20 +161,10 @@ namespace dynamo {
     //A hack to remove the newline character at the end
     eTime[eTime.size()-1] = ' ';
 
-    timespec acc_tendTime;
-    clock_gettime(CLOCK_MONOTONIC, &acc_tendTime);
-
-    double duration = double(acc_tendTime.tv_sec) - double(acc_tstartTime.tv_sec)
-      + 1e-9 * (double(acc_tendTime.tv_nsec) - double(acc_tstartTime.tv_nsec));
-
-    double collpersec = static_cast<double>(Sim->eventCount) / duration;
-
     dout << "Ended on " << eTime
 	 << "\nTotal Collisions Executed " << Sim->eventCount
-	 << "\nAvg Coll/s " << collpersec
-	 << "\nSim time per second "
-	 << Sim->dSysTime 
-      / (Sim->dynamics.units().unitTime() * duration) 
+	 << "\nAvg Events/s " << getEventsPerSecond()
+	 << "\nSim time per second " << getSimTimePerSecond()
 	 << std::endl;
 
     XML << magnet::xml::tag("Misc")
@@ -158,7 +172,7 @@ namespace dynamo {
 	<< magnet::xml::attr("MaxKiloBytes") << magnet::process_mem_usage()
 	<< magnet::xml::endtag("Memusage")
 	<< magnet::xml::tag("Density")
-	<< magnet::xml::attr("val") 
+	<< magnet::xml::attr("val")
 	<< Sim->dynamics.getNumberDensity() * Sim->dynamics.units().unitVolume()
 	<< magnet::xml::endtag("Density")
 
@@ -174,51 +188,26 @@ namespace dynamo {
 	<< magnet::xml::attr("val") << Sim->N
 	<< magnet::xml::endtag("ParticleCount")
 
-	<< magnet::xml::tag("SimLength")
-	<< magnet::xml::attr("Collisions") << Sim->eventCount
+	<< magnet::xml::tag("Duration")
+	<< magnet::xml::attr("Events") << Sim->eventCount
 	<< magnet::xml::attr("OneParticleEvents") << singleEvents
 	<< magnet::xml::attr("TwoParticleEvents") << dualEvents
 	<< magnet::xml::attr("Time") << Sim->dSysTime / Sim->dynamics.units().unitTime()
-	<< magnet::xml::endtag("SimLength")
-
-	<< magnet::xml::tag("Timing")
-
-	<< magnet::xml::tag("Start")
-	<< magnet::xml::attr("val") << sTime
-	<< magnet::xml::endtag("Start")
-
-	<< magnet::xml::tag("End")
-	<< magnet::xml::attr("val") << eTime
-	<< magnet::xml::endtag("End")
-
-	<< magnet::xml::tag("Duration")
-	<< magnet::xml::attr("val")
-	<< duration
 	<< magnet::xml::endtag("Duration")
 
-	<< magnet::xml::tag("CollPerSec")
-	<< magnet::xml::attr("val") << collpersec
-	<< magnet::xml::attr("CondorWarning") << std::string("true")
-	<< magnet::xml::endtag("CollPerSec")
-
+	<< magnet::xml::tag("Timing")
+	<< magnet::xml::attr("Start") << sTime
+	<< magnet::xml::attr("End") << eTime
+	<< magnet::xml::attr("EventsPerSec") << getEventsPerSecond()
+	<< magnet::xml::attr("SimTimePerSec") << getSimTimePerSecond()
 	<< magnet::xml::endtag("Timing")
+
 	<< magnet::xml::tag("SystemBoxLength")
-	<< magnet::xml::attr("val")
-	<< 1.0/Sim->dynamics.units().unitLength();
-
-    char name[2] = "x";
-    for (size_t iDim = 0; iDim < NDIM; iDim++)
-      {
-	name[0] = 'x' + iDim;
-	XML << magnet::xml::tag(name) << magnet::xml::attr("val")
-	    << Sim->primaryCellSize[iDim]/Sim->dynamics.units().unitLength()
-	    << magnet::xml::endtag(name);
-      }
-
-    XML << magnet::xml::endtag("SystemBoxLength");
+	<< Sim->primaryCellSize / Sim->dynamics.units().unitLength()
+	<< magnet::xml::endtag("SystemBoxLength");
 
     Vector sumMV(0, 0, 0);
-    //Determine the discrepancy VECTOR
+    //Determine the system momentum
     BOOST_FOREACH( const Particle & Part, Sim->particleList)
       sumMV += Part.getVelocity() * Sim->dynamics.getSpecies(Part).getMass(Part.getID());
 
@@ -228,11 +217,7 @@ namespace dynamo {
 	<< magnet::xml::tag("totMeanFreeTime")
 	<< magnet::xml::attr("val")
 	<< getMFT()
-	<< magnet::xml::endtag("totMeanFreeTime");
-
-    XML << magnet::xml::tag("MemoryUsage")
-	<< magnet::xml::attr("ResidentSet") << magnet::process_mem_usage()
-	<< magnet::xml::endtag("MemoryUsage")
+	<< magnet::xml::endtag("totMeanFreeTime")
 	<< magnet::xml::endtag("Misc");
   }
 
@@ -246,9 +231,30 @@ namespace dynamo {
     localtime_r (&rawtime, &timeInfo);
 
     char dateString[12] = "";
-    strftime(dateString, 12, "%a %H:%M |", &timeInfo);
+    strftime(dateString, 12, "%a %H:%M", &timeInfo);
 
-    I_Pcout() << dateString << " NColls " << (Sim->eventCount+1)/1000 << "k, t "
+    //Output the date
+    I_Pcout() << dateString;
+
+    //Output when the simulation will end
+    if (Sim->endEventCount != std::numeric_limits<unsigned long long>::max())
+      {
+	size_t seconds_remaining = (Sim->endEventCount - Sim->eventCount) / getEventsPerSecond() + 0.5;
+	size_t ETA_hours = seconds_remaining / 3600;
+	size_t ETA_mins = (seconds_remaining / 60) % 60;
+	size_t ETA_secs = seconds_remaining % 60;
+
+	I_Pcout() << ", ETA ";
+	if (ETA_hours)
+	  I_Pcout() << ETA_hours << "hr ";
+	  
+	if (ETA_mins)
+	  I_Pcout() << ETA_mins << "min ";
+
+	I_Pcout() << ETA_secs << "s";
+      }
+
+    I_Pcout() << ", Events " << (Sim->eventCount+1)/1000 << "k, t "
 	      << Sim->dSysTime/Sim->dynamics.units().unitTime() << ", <t_2> "
 	      <<   Sim->dSysTime * static_cast<double>(Sim->N)
       /(Sim->dynamics.units().unitTime() * 2.0 * static_cast<double>(dualEvents))

@@ -34,11 +34,11 @@ namespace dynamo {
     boost::program_options::options_description simopts("Common Engine Options");
 
     simopts.add_options()
-      ("ncoll,c", boost::program_options::value<unsigned long long>()
+      ("events,c", boost::program_options::value<unsigned long long>()
        ->default_value(std::numeric_limits<unsigned long long>::max(), "no-limit"),
-       "No. of collisions in a trajectory")
-      ("print-coll,p", boost::program_options::value<unsigned long long>()->default_value(100000), 
-       "Default No. of collisions between periodic screen output")
+       "No. of events to run the simulation for.")
+      ("print-events,p", boost::program_options::value<unsigned long long>()->default_value(100000), 
+       "No. of events between periodic screen output.")
       ("random-seed,s", boost::program_options::value<unsigned int>(),
        "Random seed for generator (To make the simulation reproduceable - Only for debugging!)")
       ("ticker-period,t",boost::program_options::value<double>(), 
@@ -96,13 +96,13 @@ namespace dynamo {
     ////////////////////////Simulation Initialisation!!!!!!!!!!!!!
     //Now load the config
     Sim.loadXMLfile(filename.c_str());
-    Sim.setTrajectoryLength(vm["ncoll"].as<unsigned long long>());
+    Sim.setTrajectoryLength(vm["events"].as<unsigned long long>());
   
-    if (vm["ncoll"].as<unsigned long long>() 
-	> vm["print-coll"].as<unsigned long long>())
-      Sim.setnPrint(vm["print-coll"].as<unsigned long long>());
+    if (vm["events"].as<unsigned long long>() 
+	> vm["print-events"].as<unsigned long long>())
+      Sim.setnPrint(vm["print-events"].as<unsigned long long>());
     else
-      Sim.setnPrint(vm["ncoll"].as<unsigned long long>());
+      Sim.setnPrint(vm["events"].as<unsigned long long>());
     
     if (vm.count("sim-end-time") && (dynamic_cast<const EReplicaExchangeSimulation*>(this) == NULL))
       Sim.addSystem(shared_ptr<System>(new SystHalt(&Sim, vm["sim-end-time"].as<double>(), "SystemStopEvent")));
