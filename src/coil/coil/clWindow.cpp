@@ -1805,9 +1805,6 @@ namespace coil {
     _renderTarget.attach();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    //Flush the OpenCL queue, so GL can use the buffers
-    getGLContext()->getCLCommandQueue().finish();
-    
     //Perform unique coloring of screen objects, note that the value 0 is no object picked
     uint32_t offset = 1;
     //Now render the scene
