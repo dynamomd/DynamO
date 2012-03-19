@@ -57,11 +57,11 @@ alias thread-test : threadpool_test ;
 
 unit-test cubic-test : tests/cubic_test.cpp magnet ;
 
-unit-test quartic-test : tests/cubic_test.cpp magnet ;
+unit-test quartic-test : tests/quartic_test.cpp magnet ;
 
 unit-test vector-test : tests/vector_test.cpp magnet ;
 
-unit-test spline-test : tests/splinetest.cpp magnet ;
+unit-test spline-test : tests/splinetest.cpp /opencl//opencl magnet ;
 
 unit-test dilate-test : tests/dilate_test.cpp magnet ;
 

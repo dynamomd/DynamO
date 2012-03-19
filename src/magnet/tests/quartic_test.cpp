@@ -90,7 +90,7 @@ int main()
 	      std::cout << roots[i] << ",";
 
 	    double rts[4];
-	    int origrootcount = quartic(a,b,c,d,rts);
+	    size_t origrootcount = size_t(quartic(a,b,c,d,rts));
 	    std::sort(rts, rts+4);
 	    std::cout << "\n Original found " << origrootcount << ", roots = ";
 	    for (size_t i = 0; i < origrootcount; ++i)
@@ -239,7 +239,7 @@ int main()
 	      std::cout << roots[i] << ",";
 
 	    double rts[4];
-	    int origrootcount = quartic(a,b,c,d,rts);
+	    size_t origrootcount = size_t(quartic(a,b,c,d,rts));
 	    std::sort(rts, rts+4);
 	    std::cout << "\n Original found " << origrootcount << ", roots = ";
 	    for (size_t i = 0; i < origrootcount; ++i)
@@ -379,7 +379,7 @@ int main()
 	      std::cout << roots[i] << ",";
 
 	    double rts[4];
-	    int origrootcount = quartic(a,b,c,d,rts);
+	    size_t origrootcount = size_t(quartic(a,b,c,d,rts));
 	    std::sort(rts, rts+4);
 	    std::cout << "\n Original found " << origrootcount << ", roots = ";
 	    for (size_t i = 0; i < origrootcount; ++i)

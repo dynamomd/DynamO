@@ -41,7 +41,8 @@ namespace magnet {
       double ainv2;
       double d4;
       double yinv2;
-      double v1[4],v2[4],v3[4];
+      double v1[4] = {0,0,0,0},
+	v2[4] = {0,0,0,0},v3[4]={0,0,0,0};
       double p,q,r;
       double y;
       double e,f,esq,fsq,ef;

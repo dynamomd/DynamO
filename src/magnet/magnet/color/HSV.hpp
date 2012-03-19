@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include <CL/cl.hpp>
 #include <cmath>
 #include <magnet/clamp.hpp>
 #include <magnet/exception.hpp>

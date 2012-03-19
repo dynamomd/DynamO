@@ -36,7 +36,8 @@ namespace magnet {
 	}
 
       int j, n4[4];
-      double v1[4],v2[4],v3[4];
+      double v1[4] = {0,0,0,0},
+	v2[4] = {0,0,0,0},v3[4]={0,0,0,0};
       double k,y;
       double p,q,r;
       double e0,e1,e2;

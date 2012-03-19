@@ -22,6 +22,7 @@
 #include <magnet/exception.hpp>
 #include <magnet/color/HSV.hpp>
 #include <cmath>
+#include <tr1/array>
 #include <stdint.h>
 
 namespace magnet {

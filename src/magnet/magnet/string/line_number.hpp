@@ -18,6 +18,7 @@
 #pragma once
 #include <magnet/string/searchreplace.hpp>
 #include <iomanip>
+#include <algorithm>
 
 namespace magnet {
   namespace string {

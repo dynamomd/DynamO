@@ -31,7 +31,8 @@ namespace magnet {
       double worst3[3];
       double y,g,gg,h,hh,gdis,gdisrt,hdis,hdisrt,g1,g2,h1,h2;
       double bmy,gerr,herr,y4,bmysq;
-      double v1[4],v2[4],v3[4];
+      double v1[4] = {0,0,0,0},
+	v2[4] = {0,0,0,0},v3[4]={0,0,0,0};
       double hmax,gmax;
       double qrts[4][3];        /* quartic roots for each cubic root */
 
