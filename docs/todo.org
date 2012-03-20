@@ -13,7 +13,7 @@
 **** TODO DynamO: Rename the Liouvillean to Dynamics.
 **** TODO DynamO: Remove the requirement of a statically linked bzip2 or zlib library.
 **** TODO DynamO: Remove the const casting in the liouvillean, and interactions to make dynamo const correct.
-**** TODO DynamO: Rewrite the range classes.
+**** TODO DynamO: Rewrite the range classes, make rings/chains take a single range too.
 **** TODO DynamO: Alter the change system functions to take sharedptrs.
 **** TODO DynamO: Collapse the schedulers to just the complex scheduler.
 **** TODO DynamO: Make the complex scheduler the default scheduler!
@@ -39,6 +39,7 @@
 **** TODO Write up the image distance class.
 *** DynamO 1.3
 **** DONE DynamO: 2D systems are now officially *supported* in DynamO, although they're not optimal.
+**** DONE DynamO: Packing of systems into systems is now easy to perform.
 **** DONE DynamO: An estimate of the remaining time left for the simulation is now outputted on the screen.
 **** DONE DynamO/Coil: Visualisation no longer requires an OpenCL compatible graphics card! However, you do still need an OpenCL library installed.
 **** DONE DynamO: Up to 50% faster in polydisperse systems thanks to a new cache friendly nblist implementation.
