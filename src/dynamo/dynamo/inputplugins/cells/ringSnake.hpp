@@ -80,8 +80,10 @@ namespace dynamo {
         
       std::vector<Vector  > retval;
       BOOST_FOREACH(const Vector & vec, localsites)
-	BOOST_FOREACH(const Vector & vec2, uc->placeObjects(vec))
-        retval.push_back(vec2);
+	{
+	  const std::vector<Vector>& newsites = uc->placeObjects(vec);
+	  retval.insert(retval.end(), newsites.begin(), newsites.end());
+	}
 
       return retval;    
     }

@@ -43,8 +43,8 @@ namespace dynamo {
 	{ 
 	  tmp[0] = (double(iStep) - (double(walklength) * 0.5)) * walklength;
 	
-	  BOOST_FOREACH(const Vector & vec, uc->placeObjects(tmp + centre))
-	    retval.push_back(vec);
+	  const std::vector<Vector>& newsites = uc->placeObjects(tmp + centre);
+	  retval.insert(retval.end(), newsites.begin(), newsites.end());
 	}
 
       return retval;

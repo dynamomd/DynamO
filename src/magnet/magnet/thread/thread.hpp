@@ -29,7 +29,7 @@ namespace magnet {
     public:
       Thread():_task(NULL), _joinable(false) {}
       
-      ~Thread() 
+      virtual ~Thread() 
       { if (_joinable) join(); }
       
       Thread(function::Task* task):

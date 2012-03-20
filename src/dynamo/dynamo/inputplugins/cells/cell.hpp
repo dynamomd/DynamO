@@ -34,7 +34,8 @@ namespace dynamo {
     boost::scoped_ptr<UCell> uc;
   };
 
-  //A simple terminator, used to place a particle at this point
+  /*! \brief A simple terminator, used to place a particle at this
+      point*/
   class UParticle: public UCell
   {
   public:
@@ -43,11 +44,48 @@ namespace dynamo {
     //Terminate initialisation
     virtual void initialise() {}
 
-    virtual std::vector<Vector  > placeObjects(const Vector & centre)
+    virtual std::vector<Vector  > placeObjects(const Vector & center)
     {
       std::vector<Vector  > retval;
-      retval.push_back(centre);
+      retval.push_back(center);
       return retval;
     }
+  };
+
+  /*! \brief A simple terminator, used to place a particle at this
+      point*/
+  class UList: public UCell
+  {
+  public:
+    UList(const std::vector<Vector>& list, double scale, UCell* nextCell): 
+      UCell(nextCell), 
+      _list(list) 
+    {
+      //Center the list of positions
+      
+      Vector center(0,0,0);
+      BOOST_FOREACH(const Vector& vec, _list)
+	center += vec;
+      
+      center /= _list.size();
+
+      BOOST_FOREACH(Vector& vec, _list)
+	vec = scale * (vec - center);
+    }
+
+    virtual std::vector<Vector  > placeObjects(const Vector & center)
+    {
+      std::vector<Vector> retval;
+
+      BOOST_FOREACH(const Vector& vec, _list)
+	{
+	  const std::vector<Vector>& newsites = uc->placeObjects(vec + center);
+	  retval.insert(retval.end(), newsites.begin(), newsites.end());
+	}
+
+      return retval;
+    }
+
+    std::vector<Vector> _list;
   };
 }

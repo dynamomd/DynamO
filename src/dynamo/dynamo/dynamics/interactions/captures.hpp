@@ -25,16 +25,19 @@
 
 namespace dynamo {
   /*! \brief A general interface for \ref Interaction classes with
-   *  states for the particle pairs.
-   *
-   * This class is a general interface to Interaction classes that allow
-   * particles to "capture" each other and store some state. The state
-   * might be the internal energy between particle pairs (e.g.,
-   * \ref ISquareWell), or it might be used to track if the particles are
-   * within each others bounding sphere (e.g., \ref ILines). */
+     states for the particle pairs.
+   
+    This class is a general interface to Interaction classes that
+    allow particles to "capture" each other and store some state. The
+    state might be the internal energy between particle pairs (e.g.,
+    \ref ISquareWell), or it might be used to track if the particles
+    are within each others bounding sphere (e.g., \ref ILines).
+  */
   class ICapture
   {
   public:
+    ICapture(): noXmlLoad(true) {}
+
     //! \brief Returns the number of particles that are captured in some way
     virtual size_t getTotalCaptureCount() const = 0;
   
@@ -44,12 +47,19 @@ namespace dynamo {
     //! \brief Returns the total internal energy stored in this Interaction.
     virtual double getInternalEnergy() const = 0;
 
+    /*! \brief This function tells an uninitialised capture map to
+        forget the data loaded from the xml file.
+     */
+    void forgetXMLCaptureMap() { noXmlLoad = true; }
+    
   protected:
+    bool noXmlLoad;
+
     /*! \brief A key used to represent two particles.
-     *
-     * This key sorts the particle ID's into ascending order. This way
-     * the keys can be compared and symmetric keys will compare equal.
-     * \code assert(cMapKey(a,b) == cMapKey(b,a)); \endcode
+     
+      This key sorts the particle ID's into ascending order. This way
+      the keys can be compared and symmetric keys will compare equal.
+      \code assert(cMapKey(a,b) == cMapKey(b,a)); \endcode
      */
     struct cMapKey: public std::pair<size_t,size_t>
     {
@@ -66,16 +76,15 @@ namespace dynamo {
   };
 
   /*! \brief This base class is for Interaction classes which only
-   * "capture" particle pairs in one state.
-   *
-   * There is only one state a pair of particles can be in, either
-   * captured or not.  This can be contrasted with IMultiCapture where
-   * a pair of particles may be in a range of captured states.
+    "capture" particle pairs in one state.
+   
+    There is only one state a pair of particles can be in, either
+    captured or not.  This can be contrasted with IMultiCapture where
+    a pair of particles may be in a range of captured states.
    */
   class ISingleCapture: public ICapture
   {
   public:
-    ISingleCapture():noXmlLoad(true) {}
 
     size_t getTotalCaptureCount() const { return captureMap.size(); }
   
@@ -87,14 +96,12 @@ namespace dynamo {
     mutable std::tr1::unordered_set<cMapKey > captureMap;
 
     /*! \brief Test if two particles should be "captured".
-     *
-     * This function should provide a test of the particles current
-     * position and velocity to determine if they're captured. Used in
-     * rebuilding the captureMap.
-     */
+    
+    This function should provide a test of the particles current
+    position and velocity to determine if they're captured. Used in
+    rebuilding the captureMap.
+    */
     virtual bool captureTest(const Particle&, const Particle&) const = 0;
-
-    bool noXmlLoad;
 
     void initCaptureMap(const std::vector<Particle>& particleList);
 
@@ -143,8 +150,6 @@ namespace dynamo {
   class IMultiCapture: public ICapture
   {
   public:
-    IMultiCapture(): noXmlLoad(true) {}
-
     size_t getTotalCaptureCount() const { return captureMap.size(); }
   
     virtual bool isCaptured(const Particle& p1, const Particle& p2) const
@@ -159,8 +164,6 @@ namespace dynamo {
     mutable captureMapType captureMap;
 
     virtual int captureTest(const Particle&, const Particle&) const = 0;
-
-    bool noXmlLoad;
 
     void initCaptureMap(const std::vector<Particle>& particleList);
 

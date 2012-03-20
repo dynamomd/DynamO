@@ -75,7 +75,7 @@ namespace dynamo {
 
     virtual std::vector<Vector  > placeObjects(const Vector & centre)
     {
-      std::vector<Vector>  retval, initval(uc->placeObjects(centre));
+      std::vector<Vector> retval, initval(uc->placeObjects(centre));
     
       std::cout << "\nCUTriangleIntersect :Checking spheres\n";
       std::cout.flush();

@@ -53,8 +53,8 @@ namespace dynamo {
 	  for (size_t iDim = 0; iDim < NDIM; iDim++)
 	    position[iDim] += cellWidth[iDim]/2.0;
 	
-	  BOOST_FOREACH(const Vector & vec, uc->placeObjects(position))
-	    retval.push_back(vec);
+	  const std::vector<Vector>& newsites = uc->placeObjects(position);
+	  retval.insert(retval.end(), newsites.begin(), newsites.end());
 	
 	  //Now update the displacement vector
 	  iterVec[0]++;

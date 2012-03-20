@@ -95,6 +95,7 @@ namespace dynamo {
     ////////////////////////Simulation Initialisation!!!!!!!!!!!!!
     //Now load the config
     Sim.loadXMLfile(filename.c_str());
+    Sim.configLoaded();
     Sim.setTrajectoryLength(vm["events"].as<unsigned long long>());
   
     if (vm["events"].as<unsigned long long>() 

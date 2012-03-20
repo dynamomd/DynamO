@@ -108,18 +108,20 @@ namespace dynamo {
     //A test to ensure we only sample at a target energy (if
     //specified)
     if (sample_energy_bin_width)
-      if (std::abs(sample_energy - Sim->getOutputPlugin<OPUEnergy>()->getSimU())
-	  > sample_energy_bin_width * 0.5)
-	return;
-      else
-	dout << "Sampling rad as energy is " 
-	     << Sim->getOutputPlugin<OPUEnergy>()->getSimU()
-	  / Sim->dynamics.units().unitEnergy()
-	     << " sample_energy is "
-	     << sample_energy / Sim->dynamics.units().unitEnergy()
-	     << " and sample_energy_bin_width is "
-	     << sample_energy_bin_width / Sim->dynamics.units().unitEnergy()
-	     << std::endl;
+      {
+	if (std::abs(sample_energy - Sim->getOutputPlugin<OPUEnergy>()->getSimU())
+	    > sample_energy_bin_width * 0.5)
+	  return;
+	else
+	  dout << "Sampling rad as energy is " 
+	       << Sim->getOutputPlugin<OPUEnergy>()->getSimU()
+	    / Sim->dynamics.units().unitEnergy()
+	       << " sample_energy is "
+	       << sample_energy / Sim->dynamics.units().unitEnergy()
+	       << " and sample_energy_bin_width is "
+	       << sample_energy_bin_width / Sim->dynamics.units().unitEnergy()
+	       << std::endl;
+      }
     
     ++sampleCount;
   

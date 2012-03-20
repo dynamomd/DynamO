@@ -39,6 +39,8 @@ namespace magnet {
     class Task //: public magnet::memory::PoolAllocated
     {
     public:
+      virtual ~Task() {}
+
       /*! \brief This function is overridden to call the stored
 	Delegate with the stored arguments. */
       virtual void operator()() =0; 

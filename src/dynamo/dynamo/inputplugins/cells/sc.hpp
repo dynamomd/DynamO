@@ -50,8 +50,8 @@ namespace dynamo {
 		position[iDim] = cellWidth[iDim] * (iterVec[iDim] + 0.5) - 0.5 * dimensions[iDim] + centre[iDim];
 
 	      //Get the next unit cells positions and push them to your list
-	      BOOST_FOREACH(const Vector & vec, uc->placeObjects(position))
-		retval.push_back(vec);
+	      const std::vector<Vector>& newsites = uc->placeObjects(position);
+	      retval.insert(retval.end(), newsites.begin(), newsites.end());
 	    }
     
       return retval;

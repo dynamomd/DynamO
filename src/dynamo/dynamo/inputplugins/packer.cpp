@@ -462,18 +462,9 @@ namespace dynamo {
 
 	  //Set up the system now
 
-	  if (chainlength > 49)
-	    {
-	      Sim->ptrScheduler 
-		= shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
-
-	      Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
-	    }
-	  else
-	      Sim->ptrScheduler 
-		= shared_ptr<SDumb>(new SDumb(Sim, new DefaultSorter(Sim)));
-
-	  Sim->dynamics.applyBC<BCNone>();
+	  Sim->ptrScheduler 
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  Sim->dynamics.addInteraction
 	    (shared_ptr<Interaction>
@@ -581,16 +572,15 @@ namespace dynamo {
 	  if (vm.count("s1"))
 	    fileName = vm["s1"].as<std::string>();
 
-	  UCell* tmpPtr;
+	  //Just load the existing configuration
+	  Sim->loadXMLfile(fileName);
 
-	  //Figure out how many particles are in a single unit
-	  tmpPtr = new CUFile(Vector (1,1,1), fileName, new UParticle());
-	  tmpPtr->initialise();
-	  size_t NUnit = tmpPtr->placeObjects(Vector(0,0,0)).size();
-	  delete tmpPtr;
+	  //Now read the positions that were entered in
+
+	  size_t NUnit = Sim->particleList.size();
 
 	  //Figure out how many units there are
-	  tmpPtr = standardPackingHelper(new UParticle());
+	  UCell* tmpPtr = standardPackingHelper(new UParticle());
 	  tmpPtr->initialise();
 	  size_t NUnitSites = tmpPtr->placeObjects(Vector(0,0,0)).size();
 	  delete tmpPtr;
@@ -598,48 +588,43 @@ namespace dynamo {
 	  double diamScale = pow(vm["density"].as<double>()
 				 / (NUnitSites * NUnit), double(1.0 / 3.0));
 
-	  dout << "Lengthscale = " << diamScale << std::endl;
 
+	  //Now set the size of the system
+	  Sim->primaryCellSize = Vector(1,1,1) / diamScale;
+	  if (vm.count("rectangular-box"))
+	    Sim->primaryCellSize = getNormalisedCellDimensions() / diamScale;
+
+	  {
+	    std::vector<Vector> positions;
+	    BOOST_FOREACH(const Particle& p, Sim->particleList)
+	      positions.push_back(p.getPosition());
+	    tmpPtr = new UList(positions, diamScale, new UParticle());
+	  }
+
+	  //Delete any loaded capture maps
+	  BOOST_FOREACH(const shared_ptr<Interaction>& ptr, 
+			Sim->dynamics.getInteractions())
+	    if (std::tr1::dynamic_pointer_cast<ICapture>(ptr))
+	      std::tr1::dynamic_pointer_cast<ICapture>(ptr)->forgetXMLCaptureMap();
+	  
 	  //Use the mirror unit cell if needed
 	  if (vm.count("f1"))
-	    tmpPtr = new CUMirror(vm["f1"].as<double>(),
-				  new CUFile(Vector (diamScale,diamScale,diamScale),
-					     fileName, new UParticle()));
-	  else
-	    tmpPtr = new CUFile(Vector (diamScale,diamScale,diamScale), fileName, new UParticle());
+	    tmpPtr = new CUMirror(vm["f1"].as<double>(), tmpPtr);
 
 	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(tmpPtr));
 	  packptr->initialise();
 
-	  std::vector<Vector  >
-	    latticeSites(packptr->placeObjects(Vector (0,0,0)));
-
-	  //New scheduler and global
-	  Sim->ptrScheduler
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELBoundedPQ<>(Sim)));
-	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList")));
-
-	  Sim->dynamics.addInteraction
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, diamScale, 1.0,
-			      new C2RAll(), "Bulk")));
-
-	  Sim->dynamics.addSpecies(shared_ptr<Species>
-				   (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0,
-						"Bulk")));
-
-	  Sim->dynamics.units().setUnitLength(diamScale);
-	  //Set the unit energy to 1 (assuming the unit of mass is 1);
-	  Sim->dynamics.units().setUnitTime(diamScale); 
+	  std::vector<Vector>
+	    latticeSites(packptr->placeObjects(Vector(0,0,0)));
 
 	  unsigned long nParticles = 0;
+	  Sim->particleList.clear();
 	  Sim->particleList.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
 	    Sim->particleList.push_back
-	    (Particle(position, getRandVelVec() * Sim->dynamics.units().unitVelocity(),
+	    (Particle(position / diamScale, 
+		      getRandVelVec() * Sim->dynamics.units().unitVelocity(),
 		      nParticles++));
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
 	}
       case 4:
@@ -775,10 +760,9 @@ namespace dynamo {
 	    (sysPack.placeObjects(Vector (0,0,0)));
 
 	  //Set up the system now
-	  Sim->ptrScheduler
-	    = shared_ptr<SDumb>(new SDumb(Sim, new FELBoundedPQ<>(Sim)));
-
-	  Sim->dynamics.applyBC<BCNone>();
+	  Sim->ptrScheduler 
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  Sim->dynamics.addInteraction
 	    (shared_ptr<Interaction>
@@ -1108,20 +1092,10 @@ namespace dynamo {
 	    {
 	      M_throw() << "Unable to simulate systems where box volume is <= (2L)^3";
 	    }
-	  else if (vm["density"].as<double>() * 30.0 > vm["NCells"].as<unsigned long>())
-	    {
-	      // Choose the dumb scheduler if the system volume is roughly smaller than (3L)^3
-	      dout << "Dumb scheduler selected due to density/particle ratio" << std::endl;
-	      Sim->ptrScheduler
-		= shared_ptr<SDumb>(new SDumb(Sim, new DefaultSorter(Sim)));
-	    }
-	  else
-	    {
-	      dout << "Neighbour List scheduler selected" << std::endl;
-	      Sim->ptrScheduler 
-		= shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
-	      Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
-	    }
+
+	  Sim->ptrScheduler 
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0;
 
@@ -2578,18 +2552,10 @@ namespace dynamo {
 
 	  //Set up the system now
 
-	  if (chainlength > 49)
-	    {
-	      Sim->ptrScheduler 
-		= shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
-
-	      Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
-	    }
-	  else
-	    Sim->ptrScheduler 
-	      = shared_ptr<SDumb>(new SDumb(Sim, new DefaultSorter(Sim)));
-
-	  Sim->dynamics.applyBC<BCNone>();
+	  Sim->ptrScheduler 
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	  
+	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  Sim->dynamics.addInteraction
 	    (shared_ptr<Interaction>

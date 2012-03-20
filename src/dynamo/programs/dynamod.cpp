@@ -142,7 +142,10 @@ main(int argc, char *argv[])
 	  sim.configLoaded();
 	}
       else
-	sim.loadXMLfile(vm["config-file"].as<string>());
+	{
+	  sim.loadXMLfile(vm["config-file"].as<string>());
+	  sim.configLoaded();
+	}
   
       sim.setTrajectoryLength(0);
 

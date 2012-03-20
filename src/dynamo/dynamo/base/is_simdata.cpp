@@ -133,8 +133,6 @@ namespace dynamo
 
     _properties.rescaleUnit(Property::Units::M, 
 			    dynamics.units().unitMass());
-
-    status = CONFIG_LOADED;
   }
 
   void
