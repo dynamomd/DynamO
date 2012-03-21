@@ -1223,7 +1223,7 @@ namespace coil {
     _toneMapShader["bloom_enable"] = _bloomEnable;
     _toneMapShader["bloomCompression"] = GLfloat(_bloomCompression);
     _toneMapShader["bloomCutoff"] = GLfloat(_bloomCutoff);
-    _toneMapShader["Lwhite_bloom"] = GLfloat(_bloomSaturation);
+    _toneMapShader["Lwhite"] = GLfloat(_bloomSaturation);
     _toneMapShader["scene_key"] = GLfloat(_sceneKey);
     _toneMapShader.invoke();
     _toneMapShader.detach();

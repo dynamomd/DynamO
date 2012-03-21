@@ -69,9 +69,10 @@ void toneMapLuminance(inout float L,
 {
   //Map average luminance to the middlegrey zone by scaling pixel luminance
   float Lp = L * scene_key * inv_avg_luma;
+  float Lpwhite = Lwhite * scene_key * inv_avg_luma;
   //Compress the luminance in [0,\infty) to [0,1)
   //This is Reinhard's modified mapping with controlled burnout
-  L = Lp * (1.0 + Lp / (Lwhite * Lwhite)) / (1.0 + Lp);
+  L = Lp * (1.0 + Lp / (Lpwhite * Lpwhite)) / (1.0 + Lp);
 }
 
 void toneMapLuminance(inout float L,
@@ -83,9 +84,10 @@ void toneMapLuminance(inout float L,
 {
   //Map average luminance to the middlegrey zone by scaling pixel luminance
   float Lp = L * scene_key * inv_avg_luma;
+  float Lpwhite = Lwhite * scene_key * inv_avg_luma;
   //Compress the luminance in [0,\infty) to [0,1)
   //This is Reinhard's modified mapping with controlled burnout
-  L = max(Lp * (1.0 + Lp / (Lwhite * Lwhite)) - cutout, 0.0) / (O + Lp);
+  L = max(Lp * (1.0 + Lp / (Lpwhite * Lpwhite)) - cutout, 0.0) / (O + Lp);
 }
 
 vec3 toneMapRGB(vec3 RGB, float scene_key, 
@@ -149,7 +151,6 @@ uniform sampler2D logLuma;
 uniform float scene_key;
 
 flat out float inv_log_avg_luma;
-flat out float LWhite;
 flat out float frag_scene_key;
 smooth out vec2 screenCoord;
 
@@ -170,16 +171,14 @@ void main()
   float Lmin = luma_data.b;
   float invlogavgluma = 1.0 / Lavg;
   inv_log_avg_luma = invlogavgluma;
-  
   frag_scene_key = scene_key;
-  LWhite = luma_data.g * scene_key * invlogavgluma;
 
   //This automatic scene parameter determination was taken from
   //"Parameter Estimation for Photographic Tone Reproduction" by Erik
   //Reinhard.
   //It doesn't work too well for my scene.
   //frag_scene_key = 0.18 * pow(4.0, (2.0 * log2(Lavg) - log2(luma_data.g) - log2(luma_data.b)) / (log2(luma_data.g) - log2(luma_data.b)));
-  //LWhite = 1.5 * pow(2.0, log2(Lmax) - log2(Lmin) - 5.0);
+  //Lwhite = 1.5 * pow(2.0, log2(Lmax) - log2(Lmin) - 5.0);
 
   //Here we draw a fullscreen triangle and allow the GPU to scissor to
   //the screen. This prevents the difficult interpolation of the
@@ -214,10 +213,9 @@ uniform sampler2D bloom_tex;
 uniform bool bloom_enable;
 uniform float bloomCompression;
 uniform float bloomCutoff;
-uniform float Lwhite_bloom = 4.0;
+uniform float Lwhite;
 
 flat in float inv_log_avg_luma;
-flat in float LWhite;
 flat in float frag_scene_key;
 smooth in vec2 screenCoord;
 
@@ -226,7 +224,7 @@ void main()
 {
   //Grab the scene color and tone map it
   vec3 scene_RGB = texelFetch(color_tex, ivec2(gl_FragCoord.xy), 0).rgb;
-  vec3 tonemapped_RGB = toneMapRGB(scene_RGB, frag_scene_key, inv_log_avg_luma, LWhite);
+  vec3 tonemapped_RGB = toneMapRGB(scene_RGB, frag_scene_key, inv_log_avg_luma, Lwhite);
 
   //Test if bloom is enabled
   if (bloom_enable)
@@ -234,7 +232,7 @@ void main()
       //Grab the blurred color, and tonemap the bloom/glare
       vec3 bloom_Yxy = RGBtoYxy(texture(bloom_tex, screenCoord, 0).rgb);
       toneMapLuminance(bloom_Yxy.r, frag_scene_key, inv_log_avg_luma, 
-		       Lwhite_bloom, bloomCutoff, 1.0 / (bloomCompression + 1.0e-8));
+		       Lwhite, bloomCutoff, 1.0 / (bloomCompression + 1.0e-8));
       tonemapped_RGB += YxytoRGB(bloom_Yxy);
     }
 
