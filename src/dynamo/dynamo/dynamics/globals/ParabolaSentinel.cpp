@@ -20,6 +20,7 @@
 #include <dynamo/dynamics/NparticleEventData.hpp>
 #include <dynamo/base/is_simdata.hpp>
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <magnet/xmlreader.hpp>
 
