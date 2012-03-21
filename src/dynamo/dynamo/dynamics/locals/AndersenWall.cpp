@@ -23,6 +23,7 @@
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <dynamo/dynamics/units/units.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/overlap/cube_plane.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <boost/lexical_cast.hpp>

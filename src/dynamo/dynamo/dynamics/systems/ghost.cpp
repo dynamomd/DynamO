@@ -25,6 +25,7 @@
 #include <dynamo/dynamics/ranges/include.hpp>
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/outputplugins/outputplugin.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/random/uniform_int.hpp>

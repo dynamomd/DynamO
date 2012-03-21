@@ -21,6 +21,7 @@
 #include <dynamo/dynamics/NparticleEventData.hpp>
 #include <dynamo/dynamics/units/units.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/outputplugins/outputplugin.hpp>
 
 namespace dynamo {
   LCylinder::LCylinder(dynamo::SimData* nSim, double ne, Vector  nnorm, 

@@ -19,7 +19,6 @@
 
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/simulation/particle.hpp>
-#include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/simulation/ensemble.hpp>
 #include <dynamo/simulation/property.hpp>
 #include <magnet/function/delegate.hpp>
@@ -30,12 +29,11 @@
 #include <boost/signals2.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <vector>
-#include <list>
 
 namespace dynamo
 {  
   class Scheduler;
-  class Particle;
+  class Ensemble;
   class OutputPlugin;
 
   //! \brief Holds the different phases of the simulation initialisation

@@ -25,6 +25,7 @@
 #include <dynamo/dynamics/ranges/include.hpp>
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>

@@ -22,6 +22,7 @@
 #include <dynamo/dynamics/NparticleEventData.hpp>
 #include <dynamo/dynamics/units/units.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/overlap/cube_plane.hpp>
 
 namespace dynamo {

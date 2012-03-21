@@ -25,6 +25,7 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/dynamics/units/units.hpp>
 #include <dynamo/dynamics/globals/neighbourList.hpp>
+#include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/xmlreader.hpp>
 
 #ifdef DYNAMO_DEBUG 

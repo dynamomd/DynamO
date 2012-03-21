@@ -25,6 +25,7 @@
 #include <dynamo/dynamics/locals/local.hpp>
 #include <dynamo/dynamics/BC/LEBC.hpp>
 #include <dynamo/dynamics/liouvillean/NewtonianGravityL.hpp>
+#include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/simulation/particle.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/math/special_functions/pow.hpp>

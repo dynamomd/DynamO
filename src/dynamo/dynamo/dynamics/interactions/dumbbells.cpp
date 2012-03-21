@@ -26,6 +26,7 @@
 #include <dynamo/dynamics/ranges/1range.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/dynamics/NparticleEventData.hpp>
+#include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cmath>
