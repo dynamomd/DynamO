@@ -40,7 +40,6 @@ uniform sampler2DMS colorTex;
 uniform sampler2DMS normalTex;
 uniform sampler2DMS positionTex;
 uniform vec3 lightPosition;
-uniform vec3 backColor;
 uniform vec3 lightColor;
 uniform float ambientLight;
 uniform float lightIntensity;
@@ -87,27 +86,27 @@ vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
 void main()
 {
   //Now calculate the color from the samples
-  vec3 color_sum = vec3(0.0, 0.0, 0.0);
+  vec4 color_sum = vec4(0.0);
   
   for (int sample_id = 0; sample_id < samples; sample_id++)
     {
       vec4 color = texelFetch(colorTex, ivec2(gl_FragCoord.xy), sample_id).rgba;
 
-      //If Alpha is zero, this is a skybox pixel and it should be ignored
+      //If alpha is zero, this is an empty pixel, and should not
+      //contribute to the tone mapping
       if (color.a != 0)
 	{
-	  //Eye space normal of the vertex
+	  //Eye space normal and position
 	  vec3 normal = texelFetch(normalTex, ivec2(gl_FragCoord.xy), sample_id).rgb;
-	  //Eye space position of the vertex
 	  vec3 position = texelFetch(positionTex, ivec2(gl_FragCoord.xy), sample_id).xyz;
-	  color_sum += ambientLight 
-	    + calcLighting(position, normal, color.rgb);
+	  color_sum.rgb += ambientLight + calcLighting(position, normal, color.rgb);
+	  color_sum.rgba += 1.0;
 	}
-      else
-	color_sum += backColor * ambientLight;
     }
-  
-  color_out = vec4(color_sum / samples, 1.0);
+ 
+  //We write out the HDR color here, along with the occupancy
+  //(fraction of drawn pixels) in the alpha channel.
+  color_out = color_sum / float(samples);
 });
 	}
       };

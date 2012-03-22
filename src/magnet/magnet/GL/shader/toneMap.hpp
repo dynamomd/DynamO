@@ -160,13 +160,13 @@ void main()
   //The luminance data sampled from the smallest mipmap (1x1). This
   //holds the average logarithm of the scene luminance in the red
   //channel and the maximum scene luminance in the green channel.
-  vec3 luma_data = texelFetch(logLuma, ivec2(0, 0), 0).rgb;
+  vec4 luma_data = texelFetch(logLuma, ivec2(0, 0), 0);
 
   //Convert the average logarithm of the scene luminance into the
   //inverse geometric mean of the luminance. We use the inverse to
   //save doing a division in the fragment shader.
 
-  float Lavg = exp(luma_data.r);
+  float Lavg = exp(luma_data.r / luma_data.a);
   float Lmax = luma_data.g;
   float Lmin = luma_data.b;
   float invlogavgluma = 1.0 / Lavg;
@@ -223,8 +223,10 @@ smooth in vec2 screenCoord;
 void main()
 {
   //Grab the scene color and tone map it
-  vec3 scene_RGB = texelFetch(color_tex, ivec2(gl_FragCoord.xy), 0).rgb;
-  vec3 tonemapped_RGB = toneMapRGB(scene_RGB, frag_scene_key, inv_log_avg_luma, Lwhite);
+  vec4 scene_color = texelFetch(color_tex, ivec2(gl_FragCoord.xy), 0);
+  vec4 final_color = vec4(0.0);
+  if (scene_color.a != 0.0)
+    final_color += vec4(toneMapRGB(scene_color.rgb, frag_scene_key, inv_log_avg_luma, Lwhite), scene_color.a);
 
   //Test if bloom is enabled
   if (bloom_enable)
@@ -233,12 +235,12 @@ void main()
       vec3 bloom_Yxy = RGBtoYxy(texture(bloom_tex, screenCoord, 0).rgb);
       toneMapLuminance(bloom_Yxy.r, frag_scene_key, inv_log_avg_luma, 
 		       Lwhite, bloomCutoff, 1.0 / (bloomCompression + 1.0e-8));
-      tonemapped_RGB += YxytoRGB(bloom_Yxy);
+      final_color.rgb += YxytoRGB(bloom_Yxy);
+      final_color.a = 1.0;
     }
 
-  //Finally, gamma correct the image
-  vec3 gamma_RGB = gammaRGBCorrection(tonemapped_RGB);
-  color_out = vec4(gamma_RGB, 1.0);
+  //Finally, gamma correct the image and output
+  color_out = vec4(gammaRGBCorrection(final_color.rgb), final_color.a);
 });
 	}
       };

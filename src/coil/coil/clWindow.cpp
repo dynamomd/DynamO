@@ -674,7 +674,7 @@ namespace coil {
       {
 	std::tr1::shared_ptr<magnet::GL::Texture2D> 
 	  colorTexture(new magnet::GL::Texture2D);
-	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB16F);
+	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -695,7 +695,7 @@ namespace coil {
 	std::tr1::shared_ptr<magnet::GL::Texture2D> 
 	  colorTexture(new magnet::GL::Texture2D);
 	
-	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGB16F);
+	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -707,7 +707,7 @@ namespace coil {
 	std::tr1::shared_ptr<magnet::GL::Texture2D> 
 	  colorTexture(new magnet::GL::Texture2D);
 	
-	colorTexture->init(_camera.getWidth()/2, _camera.getHeight()/2, GL_RGB16F);
+	colorTexture->init(_camera.getWidth()/2, _camera.getHeight()/2, GL_RGBA16F);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -1072,7 +1072,6 @@ namespace coil {
 	    = std::tr1::dynamic_pointer_cast<RLight>(*iPtr);
 
 	  _pointLightShader["ambientLight"] = ambient;
-	  _pointLightShader["backColor"] = _backColor;
 	  _pointLightShader["lightColor"] = light->getColor();
 	  _pointLightShader["lightAttenuation"] = light->getAttenuation();
 	  _pointLightShader["lightSpecularExponent"] = light->getSpecularExponent();
@@ -1129,7 +1128,7 @@ namespace coil {
     magnet::GL::FBO* luminanceDestination = &_luminanceBuffer2;
 
     //Now we need to generate the mipmaps containing the scene
-    //average, minimum and maximum luminances
+    //average, minimum and maximum luminances.
     {
       GLsizei currentWidth = _luminanceBuffer1.getColorTexture()->getWidth();
       GLsizei currentHeight = _luminanceBuffer1.getColorTexture()->getHeight();

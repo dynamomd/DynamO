@@ -40,10 +40,10 @@ uniform sampler2D colorTex;
 
 void main()
 {
-  vec4 color = texture(colorTex, screenCoord).rgba;
+  vec4 color = texture(colorTex, screenCoord);
   float L = dot(color.rgb, vec3(0.265068,  0.67023428, 0.06409157));
-  //Prevent negative logarithms
-  L_out = vec4(log(max(10.0e-8, L)), L, L, 1.0);
+  //Prevent logarithms of zero, store the log(L), max L, min L, weight/alpha
+  L_out = vec4(log(max(10.0e-50, L)), L, L, color.a);
 });
 	}
       };
@@ -54,34 +54,28 @@ void main()
 	virtual std::string glsl_operation()
 	{
 	  return STRINGIFY(
-vec3 data = vec3(0.0);
-float divider = 0.0;
+vec4 data = vec4(0.0);
 
 void combine(in vec4 sample)
 {
-  //If this is the first sample, just copy the min max values.
-  if (divider == 0)
+  if (sample.a != 0.0)
     {
-      data.r = 0.0;
-      data.g = sample.g;
-      data.b = sample.b;
+      //If this is the first sample, just copy the min max values.
+      if (data.a == 0.0)
+	data.gb = sample.gb;
+
+      //Store the value for averaging
+      data.r += sample.r;
+      //Store the maximum value
+      data.g = max(sample.g, data.g);
+      //Store the maximum value
+      data.b = min(sample.b, data.b);
+      //Add on the alpha/weight of this sample
+      data.a += sample.a;
     }
-
-  //Store the value for averaging
-  data.r += sample.r;
-  divider += 1.0;
-
-  //Store the maximum value
-  data.g = max(sample.g, data.g);
-
-  //Store the maximum value
-  data.b = min(sample.b, data.b);
 }
 
-vec4 output_frag()
-{
-  return vec4(data.r / divider, data.g, data.b, 1.0);
-}
+vec4 output_frag() { return data; }
 );
 	}
       };
