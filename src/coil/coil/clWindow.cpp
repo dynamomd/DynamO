@@ -961,8 +961,10 @@ namespace coil {
 
     //Check if we're recording and then check that if we're
     //framelocking, check that new data is available
-    if ((_snapshot || _record) && (!_simframelock || _newData))
+    if (_snapshot 
+	|| ((_record) && (!_simframelock || _newData)))
       {
+	_snapshot = false;
 	_newData = false;
 	
 	std::vector<uint8_t> pixels;
@@ -977,15 +979,11 @@ namespace coil {
 	  path = fileChooser->get_filename();
 	}
 	
-	if (_record || _snapshot)
-	  {
-	    _snapshot = false;
-	    std::ostringstream filename;
-	    filename << std::setw(6) <<  std::setfill('0') << std::right << std::dec << _snapshot_counter++;
-	    
-	    magnet::image::writePNGFile(path + "/" + filename.str() +".png", pixels, 
-					_camera.getWidth(), _camera.getHeight(), 4, 1, true, true);
-	  }
+	std::ostringstream filename;
+	filename << std::setw(6) <<  std::setfill('0') << std::right << std::dec << _snapshot_counter++;
+	
+	magnet::image::writePNGFile(path + "/" + filename.str() +".png", pixels, 
+				    _camera.getWidth(), _camera.getHeight(), 4, 1, true, true);
       }
 
     ++_frameCounter; 
@@ -1048,9 +1046,10 @@ namespace coil {
     _depthResolverShader.detach();
     glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
 
-    //Additive blending of all of the lights contributions
+    //Additive blending of all of the lights contributions, except for
+    //the alpha values
     glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ONE);
+    glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
 
     //Now disable writing or testing of the depth buffer
     glDisable(GL_DEPTH_TEST);
@@ -1061,6 +1060,7 @@ namespace coil {
     _pointLightShader["normalTex"] = 1;
     _pointLightShader["positionTex"] = 2;
     _pointLightShader["samples"] = GLint(_samples);
+
     GLfloat ambient = _ambientIntensity;
 
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 

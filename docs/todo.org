@@ -14,6 +14,7 @@
 **** TODO DynamO: Remove the requirement of a statically linked bzip2 or zlib library.
 **** TODO DynamO: Remove the const casting in the liouvillean, and interactions to make dynamo const correct.
 **** TODO DynamO: Rewrite the range classes, make rings/chains take a single range too.
+**** TODO DynamO: Either remove correlators from DynamO, or fix them so that short correlators don't output NaN's!
 **** TODO DynamO: Alter the change system functions to take sharedptrs.
 **** TODO DynamO: Collapse the schedulers to just the complex scheduler.
 **** TODO DynamO: Make the complex scheduler the default scheduler!
