@@ -214,6 +214,7 @@ uniform bool bloom_enable;
 uniform float bloomCompression;
 uniform float bloomCutoff;
 uniform float Lwhite;
+uniform vec3 background_color;
 
 flat in float inv_log_avg_luma;
 flat in float frag_scene_key;
@@ -222,25 +223,33 @@ smooth in vec2 screenCoord;
 //Taken from http://www.gamedev.net/topic/407348-reinhards-tone-mapping-operator/
 void main()
 {
+  vec4 final_color = vec4(background_color, 0.0);
+
   //Grab the scene color and tone map it
   vec4 scene_color = texelFetch(color_tex, ivec2(gl_FragCoord.xy), 0);
-  vec4 final_color = vec4(0.0);
   if (scene_color.a != 0.0)
-    final_color += vec4(toneMapRGB(scene_color.rgb, frag_scene_key, inv_log_avg_luma, Lwhite), scene_color.a);
+    final_color = vec4(mix(final_color.rgb, toneMapRGB(scene_color.rgb, 
+						       frag_scene_key, 
+						       inv_log_avg_luma, 
+						       Lwhite),
+			   scene_color.a),
+		       scene_color.a);
 
   //Test if bloom is enabled
   if (bloom_enable)
     {
       //Grab the blurred color, and tonemap the bloom/glare
-      vec3 bloom_Yxy = RGBtoYxy(texture(bloom_tex, screenCoord, 0).rgb);
+      vec3 bloom_RGB = texture(bloom_tex, screenCoord, 0).rgb;
+      vec3 bloom_Yxy = RGBtoYxy(bloom_RGB);
       toneMapLuminance(bloom_Yxy.r, frag_scene_key, inv_log_avg_luma, 
 		       Lwhite, bloomCutoff, 1.0 / (bloomCompression + 1.0e-8));
-      final_color.rgb += YxytoRGB(bloom_Yxy);
-      final_color.a = 1.0;
+      bloom_RGB = YxytoRGB(bloom_Yxy);
+      
+      final_color.rgb += bloom_RGB;
     }
 
   //Finally, gamma correct the image and output
-  color_out = vec4(gammaRGBCorrection(final_color.rgb), final_color.a);
+  color_out = final_color;
 });
 	}
       };

@@ -1224,6 +1224,7 @@ namespace coil {
     _toneMapShader["bloomCutoff"] = GLfloat(_bloomCutoff);
     _toneMapShader["Lwhite"] = GLfloat(_bloomSaturation);
     _toneMapShader["scene_key"] = GLfloat(_sceneKey);
+    _toneMapShader["background_color"] = _backColor;
     _toneMapShader.invoke();
     _toneMapShader.detach();
     _renderTarget.detach();
