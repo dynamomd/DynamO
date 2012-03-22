@@ -166,7 +166,7 @@ void main()
   //inverse geometric mean of the luminance. We use the inverse to
   //save doing a division in the fragment shader.
 
-  float Lavg = exp(luma_data.r / luma_data.a);
+  float Lavg = exp(luma_data.r);
   float Lmax = luma_data.g;
   float Lmin = luma_data.b;
   float invlogavgluma = 1.0 / Lavg;
@@ -228,12 +228,7 @@ void main()
   //Grab the scene color and tone map it
   vec4 scene_color = texelFetch(color_tex, ivec2(gl_FragCoord.xy), 0);
   if (scene_color.a != 0.0)
-    final_color = vec4(mix(final_color.rgb, toneMapRGB(scene_color.rgb, 
-						       frag_scene_key, 
-						       inv_log_avg_luma, 
-						       Lwhite),
-			   scene_color.a),
-		       scene_color.a);
+    final_color = vec4(mix(final_color.rgb, toneMapRGB(scene_color.rgb, frag_scene_key, inv_log_avg_luma, Lwhite), scene_color.a), scene_color.a);
 
   //Test if bloom is enabled
   if (bloom_enable)
@@ -244,8 +239,7 @@ void main()
       toneMapLuminance(bloom_Yxy.r, frag_scene_key, inv_log_avg_luma, 
 		       Lwhite, bloomCutoff, 1.0 / (bloomCompression + 1.0e-8));
       bloom_RGB = YxytoRGB(bloom_Yxy);
-      
-      final_color.rgb += bloom_RGB;
+      final_color.rgb += max(vec3(0.0), bloom_RGB);
     }
 
   //Finally, gamma correct the image and output

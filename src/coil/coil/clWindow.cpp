@@ -1044,7 +1044,7 @@ namespace coil {
     _depthResolverShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
     _depthResolverShader.invoke();
     _depthResolverShader.detach();
-    glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
     //Additive blending of all of the lights contributions, except for
     //the alpha values
