@@ -695,7 +695,7 @@ namespace coil {
 	std::tr1::shared_ptr<magnet::GL::Texture2D> 
 	  colorTexture(new magnet::GL::Texture2D);
 	
-	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F);
+	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA32F);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -707,7 +707,7 @@ namespace coil {
 	std::tr1::shared_ptr<magnet::GL::Texture2D> 
 	  colorTexture(new magnet::GL::Texture2D);
 	
-	colorTexture->init(_camera.getWidth()/2, _camera.getHeight()/2, GL_RGBA16F);
+	colorTexture->init(_camera.getWidth()/2, _camera.getHeight()/2, GL_RGBA32F);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 

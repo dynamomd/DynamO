@@ -43,7 +43,6 @@ void main()
   vec4 color = texture(colorTex, screenCoord);
   float L = dot(color.rgb, vec3(0.265068,  0.67023428, 0.06409157));
   //Prevent logarithms of zero, store the log(L), max L, min L, weight/alpha
-  //The min value that can be represented by a half precision float is 
   L_out = vec4(log(max(1.0e-5, L)), L, L, color.a);
 });
 	}
@@ -65,19 +64,23 @@ void combine(in vec4 sample)
       if (data.a == 0.0)
 	data.gb = sample.gb;
 
-      //Store the value for averaging
-      data.a += sample.a;
+      //Store the value for averaging, weighted by the rendered
+      //fragment count
       data.r += sample.r * sample.a;
       //Store the maximum value
       data.g = max(sample.g, data.g);
       //Store the maximum value
       data.b = min(sample.b, data.b);
-      //Add on the alpha/weight of this sample
+      //Add on the fragment count of this sample
       data.a += sample.a;
     }
 }
 
-vec4 output_frag() { return vec4(data.r / (data.a + 1e-5), data.gba); }
+vec4 output_frag() { 
+  if (data.a != 0.0) 
+    data.r /= data.a;
+  return data; 
+}
 );
 	}
       };
