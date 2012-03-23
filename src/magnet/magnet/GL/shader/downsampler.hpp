@@ -89,25 +89,25 @@ void main()
   combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(1,0), 0));
   combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(1,1), 0));
 
-//  //Now determine if we need to add extra samples in case of
-//  //non-power of two textures
-//  bool extraXSamples = oldPixelOrigin.x + downscale == oldSize.x - 1;
-//  bool extraYSamples = oldPixelOrigin.y + downscale == oldSize.y - 1;
-//  
-//  if (extraXSamples)
-//    {
-//      combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(2,0), 0));
-//      combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(2,1), 0));
-//    }
-//    
-//  if (extraYSamples)
-//    {
-//      combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(0,2), 0));
-//      combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(1,2), 0));
-//    }
-//  
-//  if (extraXSamples && extraYSamples)
-//    combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(2,2), 0));
+  //Now determine if we need to add extra samples in case of
+  //non-power of two textures
+  bool extraXSamples = oldPixelOrigin.x + downscale == oldSize.x - 1;
+  bool extraYSamples = oldPixelOrigin.y + downscale == oldSize.y - 1;
+  
+  if (extraXSamples)
+    {
+      combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(2,0), 0));
+      combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(2,1), 0));
+    }
+    
+  if (extraYSamples)
+    {
+      combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(0,2), 0));
+      combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(1,2), 0));
+    }
+  
+  if (extraXSamples && extraYSamples)
+    combine(texelFetch(inputTex, oldPixelOrigin + step * ivec2(2,2), 0));
 
   L_out = output_frag();
 });

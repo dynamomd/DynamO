@@ -99,7 +99,7 @@ void main()
 	  //Eye space normal and position
 	  vec3 normal = texelFetch(normalTex, ivec2(gl_FragCoord.xy), sample_id).rgb;
 	  vec3 position = texelFetch(positionTex, ivec2(gl_FragCoord.xy), sample_id).xyz;
-	  color_sum.rgb += ambientLight + calcLighting(position, normal, color.rgb);
+	  color_sum.rgb += ambientLight * color.rgb + calcLighting(position, normal, color.rgb);
 	  color_sum.a += 1.0;
 	}
     }

@@ -43,7 +43,11 @@ void main()
   vec4 color = texture(colorTex, screenCoord);
   float L = dot(color.rgb, vec3(0.265068,  0.67023428, 0.06409157));
   //Prevent logarithms of zero, store the log(L), max L, min L, weight/alpha
-  L_out = vec4(log(max(1.0e-5, L)), L, L, color.a);
+  L_out = vec4(log(max(1.0e-5, L)), L, L, color.a/10000.0);
+  //The weight is divided by 10000.0 to use most of the range of the
+  //exponent in the half-precision floating point format. (there may
+  //be more than 65504 fragments in an image, but this is the max
+  //16-bit floating point value. The smallest floating point value is 2^{-14}
 });
 	}
       };

@@ -695,7 +695,7 @@ namespace coil {
 	std::tr1::shared_ptr<magnet::GL::Texture2D> 
 	  colorTexture(new magnet::GL::Texture2D);
 	
-	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA32F);
+	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -707,7 +707,7 @@ namespace coil {
 	std::tr1::shared_ptr<magnet::GL::Texture2D> 
 	  colorTexture(new magnet::GL::Texture2D);
 	
-	colorTexture->init(_camera.getWidth()/2, _camera.getHeight()/2, GL_RGBA32F);
+	colorTexture->init(_camera.getWidth()/2, _camera.getHeight()/2, GL_RGBA16F);
 	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -1124,6 +1124,28 @@ namespace coil {
     _luminanceShader.detach();
     _luminanceBuffer1.detach();
 
+//    std::vector<GLfloat> data;
+//    _luminanceBuffer1.getColorTexture()->writeto(data);
+//
+//    double avg = 0, max = data[1], min = data[2], count = 0;
+//    for (size_t i(0); i < data.size() / 4; ++i)
+//      {
+//	if (data[4*i+3])
+//	  {
+//	    if (!count)
+//	      { max = data[4*i+1]; min = data[4*i+2]; }
+//	    
+//	    avg += data[4*i+0] * data[4*i+3];
+//	    max = std::max(double(data[4*i+1]), max);
+//	    min = std::min(double(data[4*i+2]), min);
+//	    count += data[4*i+3];
+//	  }
+//      }
+//
+//    avg /= count;
+//    std::cout << "Luminance Avg="<< avg << ", max=" << max << ", min=" << min << ", count=" << count * 10000.0 << "\n";
+      
+
     magnet::GL::FBO* luminanceSource = &_luminanceBuffer1;
     magnet::GL::FBO* luminanceDestination = &_luminanceBuffer2;
 
@@ -1159,13 +1181,8 @@ namespace coil {
       _luminanceMipMapShader.detach();
     }
 
-//    std::vector<GLfloat> data;
-//    _luminanceDestination.getColorTexture()->writeto(data, _luminanceBuffer.getColorTexture()->calcMipmapLevels() - 1);
-//    std::cerr << "\nSize of mipmap = " << data.size()
-//	      << "\nElements are \n";
-//    for (size_t i(0); i < data.size(); ++i)
-//      std::cerr << data[i] << " ";
-//    std::cerr << "\n";
+//    luminanceSource->getColorTexture()->writeto(data);
+//    std::cout << "GLluma    Avg="<< data[0] << ", max=" << data[1] << ", min=" << data[2] << ", count=" << data[3] * 10000.0 << "\n";
 
     ///////////////////////Blurred Scene///////////////////////////////
     if (_bloomEnable)
@@ -1222,7 +1239,7 @@ namespace coil {
     _toneMapShader["bloom_enable"] = _bloomEnable;
     _toneMapShader["bloomCompression"] = GLfloat(_bloomCompression);
     _toneMapShader["bloomCutoff"] = GLfloat(_bloomCutoff);
-    _toneMapShader["Lwhite"] = GLfloat(_bloomSaturation);
+    _toneMapShader["Lpwhite"] = GLfloat(_bloomSaturation);
     _toneMapShader["scene_key"] = GLfloat(_sceneKey);
     _toneMapShader["background_color"] = _backColor;
     _toneMapShader.invoke();

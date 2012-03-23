@@ -65,11 +65,10 @@ vec3 YxytoRGB(vec3 Yxy)
 void toneMapLuminance(inout float L,
 		      float scene_key, 
 		      float inv_avg_luma, 
-		      float Lwhite)
+		      float Lpwhite)
 {
   //Map average luminance to the middlegrey zone by scaling pixel luminance
   float Lp = L * scene_key * inv_avg_luma;
-  float Lpwhite = Lwhite * scene_key * inv_avg_luma;
   //Compress the luminance in [0,\infty) to [0,1)
   //This is Reinhard's modified mapping with controlled burnout
   L = Lp * (1.0 + Lp / (Lpwhite * Lpwhite)) / (1.0 + Lp);
@@ -78,13 +77,12 @@ void toneMapLuminance(inout float L,
 void toneMapLuminance(inout float L,
 		      float scene_key, 
 		      float inv_avg_luma, 
-		      float Lwhite,
+		      float Lpwhite,
 		      float cutout,
 		      float O)
 {
   //Map average luminance to the middlegrey zone by scaling pixel luminance
   float Lp = L * scene_key * inv_avg_luma;
-  float Lpwhite = Lwhite * scene_key * inv_avg_luma;
   //Compress the luminance in [0,\infty) to [0,1)
   //This is Reinhard's modified mapping with controlled burnout
   L = max(Lp * (1.0 + Lp / (Lpwhite * Lpwhite)) - cutout, 0.0) / (O + Lp);
@@ -92,10 +90,10 @@ void toneMapLuminance(inout float L,
 
 vec3 toneMapRGB(vec3 RGB, float scene_key, 
 		float inv_avg_luma, 
-		float Lwhite)
+		float Lpwhite)
 {
   vec3 Yxy = RGBtoYxy(RGB);
-  toneMapLuminance(Yxy.r, scene_key, inv_avg_luma, Lwhite);
+  toneMapLuminance(Yxy.r, scene_key, inv_avg_luma, Lpwhite);
   return YxytoRGB(Yxy);
 }
 
@@ -213,8 +211,8 @@ uniform sampler2D bloom_tex;
 uniform bool bloom_enable;
 uniform float bloomCompression;
 uniform float bloomCutoff;
-uniform float Lwhite;
 uniform vec3 background_color;
+uniform float Lpwhite;
 
 flat in float inv_log_avg_luma;
 flat in float frag_scene_key;
@@ -228,7 +226,7 @@ void main()
   //Grab the scene color and tone map it
   vec4 scene_color = texelFetch(color_tex, ivec2(gl_FragCoord.xy), 0);
   if (scene_color.a != 0.0)
-    final_color = vec4(mix(final_color.rgb, toneMapRGB(scene_color.rgb, frag_scene_key, inv_log_avg_luma, Lwhite), scene_color.a), scene_color.a);
+    final_color = vec4(mix(final_color.rgb, toneMapRGB(scene_color.rgb, frag_scene_key, inv_log_avg_luma, Lpwhite), scene_color.a), scene_color.a);
 
   //Test if bloom is enabled
   if (bloom_enable)
@@ -237,13 +235,14 @@ void main()
       vec3 bloom_RGB = texture(bloom_tex, screenCoord, 0).rgb;
       vec3 bloom_Yxy = RGBtoYxy(bloom_RGB);
       toneMapLuminance(bloom_Yxy.r, frag_scene_key, inv_log_avg_luma, 
-		       Lwhite, bloomCutoff, 1.0 / (bloomCompression + 1.0e-8));
+		       Lpwhite, bloomCutoff, 1.0 / (bloomCompression + 1.0e-8));
       bloom_RGB = YxytoRGB(bloom_Yxy);
       final_color.rgb += max(vec3(0.0), bloom_RGB);
     }
 
   //Finally, gamma correct the image and output
-  color_out = final_color;
+  color_out = vec4(final_color.rgb, final_color.a);
+
 });
 	}
       };
