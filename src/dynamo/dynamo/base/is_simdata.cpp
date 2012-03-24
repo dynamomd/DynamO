@@ -48,13 +48,12 @@ namespace dynamo
     primaryCellSize(1,1,1),
     ranGenerator(static_cast<unsigned>(std::time(0))),
     normal_sampler(ranGenerator, boost::normal_distribution<double>()),
-    uniform_sampler(ranGenerator),
+    uniform_sampler(ranGenerator, boost::uniform_01<double>()),
     lastRunMFT(0.0),
     simID(0),
     replexExchangeNumber(0),
     status(START)
-  {
-  }
+  {}
 
   SimData::~SimData() {}
 

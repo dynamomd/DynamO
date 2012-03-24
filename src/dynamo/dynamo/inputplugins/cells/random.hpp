@@ -23,7 +23,7 @@ namespace dynamo {
   struct CURandom: public UCell
   {
     CURandom(size_t nN, Vector  ndimensions, 
-	     boost::uniform_01<dynamo::baseRNG, double>& RNG,
+	     boost::variate_generator<dynamo::baseRNG&, boost::uniform_01<double> >& RNG,
 	     UCell* nextCell):
       UCell(nextCell),
       N(nN),
@@ -32,8 +32,8 @@ namespace dynamo {
     {}
 
     size_t N;
-    Vector  dimensions;
-    boost::uniform_01<dynamo::baseRNG, double>& uniform_sampler;
+    Vector dimensions;
+    boost::variate_generator<dynamo::baseRNG&, boost::uniform_01<double> >& uniform_sampler;
 
     virtual std::vector<Vector  > placeObjects(const Vector & centre)
     {

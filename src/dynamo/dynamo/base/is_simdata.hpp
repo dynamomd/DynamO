@@ -188,8 +188,7 @@ namespace dynamo
     mutable baseRNG ranGenerator;
 
     mutable boost::variate_generator<dynamo::baseRNG&, boost::normal_distribution<double> > normal_sampler;
-
-    mutable boost::uniform_01<dynamo::baseRNG, double> uniform_sampler;  
+    mutable boost::variate_generator<dynamo::baseRNG&, boost::uniform_01<double> > uniform_sampler;
 
     /*! \brief The collection of OutputPlugin's operating on this system.
      */
