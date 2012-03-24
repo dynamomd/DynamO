@@ -47,6 +47,7 @@ namespace dynamo {
     std::swap(Sim, static_cast<OPMisc*>(misc2)->Sim);
     std::swap(KECurrent, static_cast<OPMisc*>(misc2)->KECurrent);
     std::swap(intECurrent, static_cast<OPMisc*>(misc2)->intECurrent);
+    std::swap(curr_kineticP, static_cast<OPMisc*>(misc2)->curr_kineticP);
   }
 
   void
@@ -128,6 +129,17 @@ namespace dynamo {
       dout  << sumMV[iDim] / Sim->dynamics.units().unitMomentum() << " ";
     dout << ">" << std::endl;
 
+    cumulative_kineticP.zero();
+    collisionalP.zero();
+    curr_kineticP.zero();
+    
+    BOOST_FOREACH(const Particle& part, Sim->particleList)
+      {
+	curr_kineticP 
+	  += Sim->dynamics.getSpecies(part).getMass(part.getID())
+	  * Dyadic(part.getVelocity(),part.getVelocity());
+      }
+
     std::time(&tstartTime);
 
     clock_gettime(CLOCK_MONOTONIC, &acc_tstartTime);
@@ -141,92 +153,77 @@ namespace dynamo {
   void
   OPMisc::eventUpdate(const IntEvent& eevent, const PairEventData& PDat)
   {
-    ++dualEvents;
-    _reverseEvents += (eevent.getdt() < 0);
-
-    KEacc += KECurrent * eevent.getdt();
-    KEsqAcc += KECurrent * KECurrent * eevent.getdt();
-    intEAcc += intECurrent * eevent.getdt();
-    intEsqAcc += intECurrent * intECurrent * eevent.getdt();
-
-    KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
-    intECurrent += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
+    stream(eevent.getdt());
+    eventUpdate(PDat);
   }
 
   void
   OPMisc::eventUpdate(const GlobalEvent& eevent, const NEventData& NDat)
   {
-    dualEvents += NDat.L2partChanges.size();
-    singleEvents += NDat.L1partChanges.size();
-    _reverseEvents += (eevent.getdt() < 0);
-
-    KEacc += KECurrent * eevent.getdt();
-    KEsqAcc += KECurrent * KECurrent * eevent.getdt();
-    intEAcc += intECurrent * eevent.getdt();
-    intEsqAcc += intECurrent * intECurrent * eevent.getdt();
-
-    BOOST_FOREACH(const ParticleEventData& PDat, NDat.L1partChanges)
-      {
-	KECurrent += PDat.getDeltaKE();
-	intECurrent += PDat.getDeltaU();
-      }
-    
-    BOOST_FOREACH(const PairEventData& PDat, NDat.L2partChanges)
-      {
-	KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
-	intECurrent += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
-      }
+    stream(eevent.getdt());
+    eventUpdate(NDat);
   }
 
   void
   OPMisc::eventUpdate(const LocalEvent& eevent, const NEventData& NDat)
   {
-    dualEvents += NDat.L2partChanges.size();
-    singleEvents += NDat.L1partChanges.size();
-    _reverseEvents += (eevent.getdt() < 0);
-
-    KEacc += KECurrent * eevent.getdt();
-    KEsqAcc += KECurrent * KECurrent * eevent.getdt();
-    intEAcc += intECurrent * eevent.getdt();
-    intEsqAcc += intECurrent * intECurrent * eevent.getdt();
-
-    BOOST_FOREACH(const ParticleEventData& PDat, NDat.L1partChanges)
-      {
-	KECurrent += PDat.getDeltaKE();
-	intECurrent += PDat.getDeltaU();
-      }
-    
-    BOOST_FOREACH(const PairEventData& PDat, NDat.L2partChanges)
-      {
-	KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
-	intECurrent += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
-      }
+    stream(eevent.getdt());
+    eventUpdate(NDat);
   }
 
   void
   OPMisc::eventUpdate(const System&, const NEventData& NDat,
 		      const double& dt)
   {
-    dualEvents += NDat.L2partChanges.size();
-    singleEvents += NDat.L1partChanges.size();
-    _reverseEvents += (dt < 0);
+    stream(dt);
+    eventUpdate(NDat);
+  }
 
+  void
+  OPMisc::stream(double dt)
+  {
+    _reverseEvents += (dt < 0);
     KEacc += KECurrent * dt;
     KEsqAcc += KECurrent * KECurrent * dt;
     intEAcc += intECurrent * dt;
     intEsqAcc += intECurrent * intECurrent * dt;
+    cumulative_kineticP += curr_kineticP * dt;
+  }
+
+  void OPMisc::eventUpdate(const NEventData& NDat)
+  {
+    singleEvents += NDat.L1partChanges.size();
 
     BOOST_FOREACH(const ParticleEventData& PDat, NDat.L1partChanges)
       {
 	KECurrent += PDat.getDeltaKE();
 	intECurrent += PDat.getDeltaU();
+
+	curr_kineticP
+	  += PDat.getSpecies().getMass(PDat.getParticle().getID())
+	  * (Dyadic(PDat.getParticle().getVelocity(), PDat.getParticle().getVelocity())
+	     - Dyadic(PDat.getOldVel(), PDat.getOldVel()));
       }
-    
+
     BOOST_FOREACH(const PairEventData& PDat, NDat.L2partChanges)
-      {
-	KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
-	intECurrent += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
-      }
+      eventUpdate(PDat);
+  }
+
+  void OPMisc::eventUpdate(const PairEventData& PDat)
+  {
+    ++dualEvents;
+    KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
+    intECurrent += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
+    collisionalP += Dyadic(PDat.particle1_.getDeltaP(), PDat.rij);
+
+    curr_kineticP 
+      += PDat.particle1_.getSpecies().getMass(PDat.particle1_.getParticle().getID())
+      * (Dyadic(PDat.particle1_.getParticle().getVelocity(), PDat.particle1_.getParticle().getVelocity())
+	 - Dyadic(PDat.particle1_.getOldVel(), PDat.particle1_.getOldVel()))
+      + PDat.particle2_.getSpecies().getMass(PDat.particle2_.getParticle().getID())
+      * (Dyadic(PDat.particle2_.getParticle().getVelocity(), PDat.particle2_.getParticle().getVelocity())
+	 - Dyadic(PDat.particle2_.getOldVel(), PDat.particle2_.getOldVel()))
+      ;
   }
 
   double
@@ -284,9 +281,6 @@ namespace dynamo {
 	 << std::endl;
 
     XML << magnet::xml::tag("Misc")
-	<< magnet::xml::tag("Memusage")
-	<< magnet::xml::attr("MaxKiloBytes") << magnet::process_mem_usage()
-	<< magnet::xml::endtag("Memusage")
 	<< magnet::xml::tag("Density")
 	<< magnet::xml::attr("val")
 	<< Sim->dynamics.getNumberDensity() * Sim->dynamics.units().unitVolume()
@@ -321,8 +315,23 @@ namespace dynamo {
 	<< (getMeanSqrUConfigurational() - getMeanUConfigurational() * getMeanUConfigurational())
       / (getMeankT() * getMeankT())
 	<< magnet::xml::endtag("ResidualHeatCapacity")
+	<< magnet::xml::tag("Pressure")
+	<< magnet::xml::attr("Avg") << (cumulative_kineticP.tr() + collisionalP.tr())
+	    / (3.0 * Sim->dSysTime * Sim->dynamics.getSimVolume() / Sim->dynamics.units().unitPressure())
+	<< magnet::xml::tag("Tensor") << magnet::xml::chardata()
+      ;
 
-
+    for (size_t iDim = 0; iDim < NDIM; ++iDim)
+      {
+	for (size_t jDim = 0; jDim < NDIM; ++jDim)
+	  XML << (cumulative_kineticP(iDim, jDim) + collisionalP(iDim, jDim))
+	    / (Sim->dSysTime * Sim->dynamics.getSimVolume() / Sim->dynamics.units().unitPressure())
+	      << " ";
+	XML << "\n";
+      }
+    
+    XML << magnet::xml::endtag("Tensor")
+	<< magnet::xml::endtag("Pressure")
 	<< magnet::xml::tag("Duration")
 	<< magnet::xml::attr("Events") << Sim->eventCount
 	<< magnet::xml::attr("OneParticleEvents") << singleEvents
@@ -356,6 +365,9 @@ namespace dynamo {
 	<< magnet::xml::tag("NegativeTimeEvents")
 	<< magnet::xml::attr("Count") << _reverseEvents
 	<< magnet::xml::endtag("NegativeTimeEvents")
+	<< magnet::xml::tag("Memusage")
+	<< magnet::xml::attr("MaxKiloBytes") << magnet::process_mem_usage()
+	<< magnet::xml::endtag("Memusage")
 	<< magnet::xml::endtag("Misc");
   }
 

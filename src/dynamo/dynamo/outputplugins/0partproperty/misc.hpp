@@ -17,6 +17,7 @@
 
 #pragma once
 #include <dynamo/outputplugins/outputplugin.hpp>
+#include <magnet/math/matrix.hpp>
 #include <ctime>
 #include <time.h>
 
@@ -57,8 +58,12 @@ namespace dynamo {
     double getMeanUConfigurational() const;
     double getMeanSqrUConfigurational() const;
 
-  protected:    
-    
+  protected:
+
+    void stream(double dt);
+    void eventUpdate(const NEventData&);
+    void eventUpdate(const PairEventData&);
+
     std::time_t tstartTime;
     timespec acc_tstartTime;
 
@@ -72,10 +77,14 @@ namespace dynamo {
     double InitialKE;
     double KEacc;
     double KEsqAcc;
-    double KECurrent;  
+    double KECurrent;
 
     double intECurrent;
     double intEsqAcc;
     double intEAcc;
+
+    Matrix curr_kineticP;
+    Matrix cumulative_kineticP;
+    Matrix collisionalP;
   };
 }
