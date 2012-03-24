@@ -73,7 +73,6 @@
 **** TODO DynamO: Check that the uniform_01 distribution is not copying the random number generator! (remove all distributions and construct them in-place.
 **** TODO Coil: Fix resizing the volume render window. It appears to break the render.
 **** TODO Coil: Fix the Bilateral blur filter, or at least make it work well with SSAO.
-**** TODO Coil: Fix the awful HDR tonemapping.
 **** TODO DynamO: Confirm that the tutorials are up to date on the removal of the -h tag.
 **** TODO Coil: Fix resizing the display on AMD hardware.
 **** TODO Coil: Fix the incorrect calculation of the camera position, due to the head position not being added on. This is breaking lots of calculations (e.g. SSAO at close range, possibly the volume rendering flicker).
