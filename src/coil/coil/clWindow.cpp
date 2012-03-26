@@ -1480,6 +1480,9 @@ namespace coil {
   CLGLWindow::CallBackKeyboardFunc(unsigned char key, int x, int y)
   {
     keyStates[std::tolower(key)] = true;
+    
+    if (std::tolower(key) == 'f')
+      glutFullScreenToggle();
   }
 
   void 

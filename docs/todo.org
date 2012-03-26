@@ -54,6 +54,7 @@
 **** DONE DynamO/Coil: Remove the requirement to pass the frequency to the visualiser, it guesses at one MFT for each particle.
 **** DONE Coil: Moved to a combined deferred/forward rendering pipline which greatly improves rendering performance and flexibility.
 **** DONE Coil: Added High-Dynamic-Range (HDR) lighting and gamma correction.
+**** DONE Coil: Added a fullscreen mode, toggled with f.
 **** DONE Coil: With HDR, Bloom effects can now be enabled to simulate over-exposure.
 **** DONE Coil: Sphere glyphs used to render particles are ray-traced! This allows the rendering of millions of perfectly spherical particles.
 **** DONE Coil: Cleaned up the stereo (3D) vision mode, so it's possible for 3D TV's to use it as well as red-cyan glasses.
