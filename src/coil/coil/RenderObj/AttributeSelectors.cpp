@@ -16,8 +16,25 @@
 */
 
 #include <coil/RenderObj/AttributeSelectors.hpp>
+#include <coil/RenderObj/AttributeColorSelector.hpp>
 
 namespace coil {  
+  AttributeColorSelector::AttributeColorSelector():
+    AttributeSelector(true),
+    _autoScaling("Autoscale to data range"),
+    _lastColorMap(-1)
+  {
+    pack_start(_colorMapSelector, false, false, 5);
+    pack_start(_autoScaling, false, false, 5);
+    _autoScaling.set_active(true);
+    _autoScaling.show();
+    
+    _colorMapSelector.signal_changed()
+      .connect(sigc::mem_fun(*this, &AttributeColorSelector::colorMapChanged));
+    _autoScaling.signal_toggled()
+      .connect(sigc::mem_fun(*this, &AttributeColorSelector::colorMapChanged));
+  }
+
   AttributeSelector::AttributeSelector(bool enableDataFiltering):
     _lastAttribute(NULL),
     _lastAttributeDataCount(-1),

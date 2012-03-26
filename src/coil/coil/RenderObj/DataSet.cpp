@@ -22,22 +22,6 @@ extern const guint8 DataSet_Icon[];
 extern const size_t DataSet_Icon_size;
 
 namespace coil {  
-  AttributeColorSelector::AttributeColorSelector():
-    AttributeSelector(true),
-    _autoScaling("Autoscale to data range"),
-    _lastColorMap(-1)
-  {
-    pack_start(_colorMapSelector, false, false, 5);
-    pack_start(_autoScaling, false, false, 5);
-    _autoScaling.show();
-    
-    _colorMapSelector.signal_changed()
-      .connect(sigc::mem_fun(*this, &AttributeColorSelector::colorMapChanged));
-    _autoScaling.signal_toggled()
-      .connect(sigc::mem_fun(*this, &AttributeColorSelector::colorMapChanged));
-  }
-
-
   Glib::RefPtr<Gdk::Pixbuf> 
   DataSet::getIcon()
   {
