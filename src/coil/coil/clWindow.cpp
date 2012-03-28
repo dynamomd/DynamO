@@ -902,7 +902,7 @@ namespace coil {
 	switch(mode)
 	  {
 	  case 0: //Analygraph Red-Cyan
-	    _camera.setEyeLocation(currentEyePos + eyeDisplacement);
+	    _camera.setEyeLocation(currentEyePos - eyeDisplacement);
 	    drawScene(_camera);
 	    _renderTarget.getColorTexture(0)->bind(0);
 	    _copyShader.attach();
@@ -918,7 +918,7 @@ namespace coil {
 	    _copyShader.detach();
 	    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-	    _camera.setEyeLocation(currentEyePos - eyeDisplacement);
+	    _camera.setEyeLocation(currentEyePos + eyeDisplacement);
 	    drawScene(_camera);
 	    _renderTarget.getColorTexture(0)->bind(0);
 	    _copyShader.attach();
