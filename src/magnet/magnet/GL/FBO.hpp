@@ -87,11 +87,11 @@ namespace magnet {
 	  for (size_t attachment(0); attachment < _colorTextures.size(); ++attachment)
 	    if (_colorTextures[attachment])
 	      if ((_colorTextures[attachment]->getWidth() != width)
-		  && (_colorTextures[attachment]->getHeight() != height))
+		  || (_colorTextures[attachment]->getHeight() != height))
 		{ no_op = false; break; }
 	  if (_depthTexture)
-	    if ((_depthTexture->getWidth() != width)
-		&& (_depthTexture->getHeight() != height))
+	    if ((_depthTexture->getWidth() != width) 
+		|| (_depthTexture->getHeight() != height))
 	      no_op = false;
 	  
 	  if (no_op) return;
