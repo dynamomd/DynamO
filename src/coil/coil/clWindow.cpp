@@ -1370,6 +1370,9 @@ namespace coil {
   {
     if (!CoilRegister::getCoilInstance().isRunning() || !_readyFlag) return;
 
+    //We cannot resize a window 
+    if ((w < 4) || (h < 4)) return;
+
     _camera.setHeightWidth(h, w);
     //Update the viewport
     _hdrBuffer.resize(w, h);

@@ -309,6 +309,9 @@ namespace magnet {
        */
       inline void init(size_t width, GLint internalformat = GL_RGBA8)
       {
+	if (!width)
+	  M_throw() << "Trying to create a texture with dimensions of (" << width << ")";
+
 	_width = width; _internalFormat = internalformat;
 	TextureBasic::init();
 	bind(0);
@@ -322,6 +325,9 @@ namespace magnet {
        */
       inline void resize(GLint width)
       {
+	if (!width)
+	  M_throw() << "Trying to resize a texture to dimensions of (" << width << ")";
+
 	//Skip identity operations
 	if (width == _width) return;
 
@@ -410,6 +416,9 @@ namespace magnet {
        */
       inline virtual void init(size_t width, size_t height, GLint internalformat = GL_RGBA8)
       {
+	if ((!width) || (!height))
+	  M_throw() << "Trying to create a texture with dimensions of (" << width << "x" << height << ")";
+
 	_width = width; 
 	_height = height; 
 	_internalFormat = internalformat;
@@ -427,6 +436,9 @@ namespace magnet {
        */
       inline virtual void resize(GLint width, GLint height)
       {
+	if (!width || !height)
+	  M_throw() << "Trying to resize a texture to dimensions of (" << width << "x" << height << ")";
+
 	//Skip identity operations
 	if ((width == _width) && (height == _height)) return;
 
@@ -544,6 +556,9 @@ namespace magnet {
        */
       inline virtual void init(size_t width, size_t height, GLint internalformat = GL_RGBA8)
       {
+	if ((!width) || (!height))
+	  M_throw() << "Trying to create a texture with dimensions of (" << width << "x" << height << ")";
+
 	_width = width; 
 	_height = height; 
 	_internalFormat = internalformat;
@@ -560,6 +575,9 @@ namespace magnet {
       inline virtual void resize(GLint width, GLint height)
       {
 	//Skip identity operations
+	if (!width || !height)
+	  M_throw() << "Trying to resize a texture to dimensions of (" << width << "x" << height << ")";
+
 	if ((width == _width) && (height == _height)) return;
 	if (!_width) M_throw() << "Cannot resize an uninitialised texture";
 
@@ -616,6 +634,9 @@ namespace magnet {
       inline void init(size_t width, size_t height, size_t depth, 
 		       GLint internalformat = GL_RGBA8)
       {
+	if ((!width) || (!height) || (!depth))
+	  M_throw() << "Trying to create a texture with dimensions of (" << width << "x" << height << "x" << depth << ")";
+
 	_width = width; _height = height; _depth = depth;
 	_internalFormat = internalformat;
 	TextureBasic::init();
@@ -632,6 +653,9 @@ namespace magnet {
        */
       inline void resize(GLint width, GLint height, GLint depth)
       {
+	if ((!width) || (!height) || (!depth))
+	  M_throw() << "Trying to resize a texture to dimensions of (" << width << "x" << height << "x" << depth << ")";
+
 	//Skip identity operations
 	if ((width == _width) && (height == _height) && (depth == _depth))
 	  return;
