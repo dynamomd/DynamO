@@ -40,6 +40,7 @@ namespace magnet {
 	{
 	  if (_valid) M_throw() << "Already init()ed!";
 	  glGenTextures(1, &_handle);
+	  detail::errorCheck();
 	  _valid = true;
 	}
 
@@ -50,6 +51,7 @@ namespace magnet {
 	  if (_valid)
 	    {
 	      glDeleteTextures(1, &_handle);
+	      detail::errorCheck();
 	      _valid = false;
 	    }
 	}
@@ -66,7 +68,9 @@ namespace magnet {
 	inline void bind(int unit) const
 	{
 	  glActiveTextureARB(GL_TEXTURE0 + unit);
+	  detail::errorCheck();
 	  glBindTexture(_texType, _handle);
+	  detail::errorCheck();
 	}
 
 	inline void genMipmaps()
@@ -84,20 +88,28 @@ namespace magnet {
 	}
 
 	/*! \brief Sets an integer parameter of the texture.
-	 *
-	 * \param paramname The name of the parameter to set.
-	 * \param param The value of the parameter.
-	 */
+	 
+	  \param paramname The name of the parameter to set.
+	  \param param The value of the parameter.
+	*/
 	inline void parameter(GLenum paramname, GLint param)
-	{ bind(0); glTexParameteri(_texType, paramname, param); }
+	{ 
+	  bind(0); 
+	  glTexParameteri(_texType, paramname, param);
+	  detail::errorCheck();
+	}
 
 	/*! \brief Sets a float parameter of the texture.
-	 *
-	 * \param paramname The name of the parameter to set.
-	 * \param param The value of the parameter.
+	 
+	  \param paramname The name of the parameter to set.
+	  \param param The value of the parameter.
 	 */
 	inline void parameter(GLenum paramname, GLfloat param)
-	{ bind(0); glTexParameterf(_texType, paramname, param); }
+	{ 
+	  bind(0); 
+	  glTexParameterf(_texType, paramname, param);
+	  detail::errorCheck();
+	}
 
 	/*! \brief Tests if the texture has been allocated. */
 	inline bool isValid() const { return _valid; }
@@ -139,6 +151,7 @@ namespace magnet {
 	    }
 
 	  glGetTexImage(_texType, lvl, type, GL_FLOAT, &data[0]);
+	  detail::errorCheck();
 	}
 	
 	/*! \brief Copy the contents of the texture to a floating point array.
@@ -164,6 +177,7 @@ namespace magnet {
 	    }
 
 	  glGetTexImage(_texType, lvl, type, GL_UNSIGNED_BYTE, &data[0]);
+	  detail::errorCheck();
 	}
 
 	virtual GLint getPixelCount(GLint level = 0) const = 0;
@@ -319,6 +333,7 @@ namespace magnet {
 		     0, //Border is off
 		     //The following values are not used (except by GL debug tools)
 		     safeFormat(), safeType(), NULL);
+	detail::errorCheck();
       }
 
       /*! \brief Resize the texture.
@@ -340,7 +355,8 @@ namespace magnet {
 	glTexImage1D(_texType, 0, _internalFormat, _width,
 		     0,//Border is off
 		     //The following values are not used (except by GL debug tools)
-		     safeFormat(), safeType(), NULL); 
+		     safeFormat(), safeType(), NULL);
+	detail::errorCheck();
       }
 
       /*! \brief Fills a section of the texture with the passed data
@@ -363,6 +379,7 @@ namespace magnet {
 	bind(0);
 	glTexSubImage1D(_texType, level, xoffset, width,
 			pixelformat, GL_UNSIGNED_INT, &data[0]);
+	detail::errorCheck();
       }
 
       /*! \brief Fills a section of the texture with the passed data
@@ -385,6 +402,7 @@ namespace magnet {
 	bind(0);
 	glTexSubImage1D(_texType, level, xoffset, width,
 			pixelformat, GL_FLOAT, &data[0]);
+	detail::errorCheck();
       }
 
       inline const GLint getWidth(GLint lvl = 0) const { return _width / (1 << lvl); }
@@ -429,7 +447,8 @@ namespace magnet {
 	glTexImage2D(_texType, 0, _internalFormat, _width, _height,
 		     0, //Border is off
 		     //The following values are not used (except by GL debug tools)
-		     safeFormat(), safeType(), NULL); 
+		     safeFormat(), safeType(), NULL);
+	detail::errorCheck();
       }
       
       /*! \brief Resize the texture.
@@ -450,7 +469,8 @@ namespace magnet {
 	glTexImage2D(_texType, 0, _internalFormat, _width, _height,
 		     0, //Border is off
 		     //The following values are not used (except by GL debug tools)
-		     safeFormat(), safeType(), NULL); 	
+		     safeFormat(), safeType(), NULL);
+	detail::errorCheck();
       }
 
       /*! \brief Fills a section of the texture with the passed data
@@ -479,6 +499,7 @@ namespace magnet {
 	bind(0);
 	glTexSubImage2D(_texType, level, xoffset, yoffset, width, height,
 			pixelformat, safeType(), &data[0]);
+	detail::errorCheck();
       }
 
       /*! \brief Fills a section of the texture with the passed data
@@ -507,6 +528,7 @@ namespace magnet {
 	bind(0);
 	glTexSubImage2D(_texType, level, xoffset, yoffset, width, height,
 			pixelformat, GL_FLOAT, &data[0]);
+	detail::errorCheck();
       }
 
 
@@ -523,6 +545,7 @@ namespace magnet {
 	bind(0);
 	glTexSubImage2D(_texType, level, xoffset, yoffset, width, height,
 			pixelformat, safeType(), data);
+	detail::errorCheck();
       }
 
       inline const GLint getWidth(GLint lvl = 0) const { return _width / (1 << lvl); }
@@ -568,6 +591,7 @@ namespace magnet {
 	
 	glTexImage2DMultisample(_texType, _samples, _internalFormat, 
 				_width, _height, _fixedSampleLocations);
+	detail::errorCheck();
       }
       
       /*! \brief Resize the texture.
@@ -586,7 +610,8 @@ namespace magnet {
 	bind(0);
 
 	glTexImage2DMultisample(_texType, _samples, _internalFormat, 
-				_width, _height, _fixedSampleLocations); 
+				_width, _height, _fixedSampleLocations);
+	detail::errorCheck();
       }
 
       inline virtual void subImage(const std::vector<uint8_t>& data, GLenum pixelformat,
@@ -646,7 +671,8 @@ namespace magnet {
 		     _width, _height, _depth, 
 		     0,//Border is off
 		     //The following values are not used (except by GL debug tools)
-		     safeFormat(), safeType(), NULL); 
+		     safeFormat(), safeType(), NULL);
+	detail::errorCheck();
       }
 
       /*! \brief Resize the texture.
@@ -670,6 +696,7 @@ namespace magnet {
 		     0,//Border is off
 		     //The following values are not used (except by GL debug tools)
 		     safeFormat(), safeType(), NULL);
+	detail::errorCheck();
       }
 
       /*! \brief Fills a section of the texture with the passed data
@@ -706,6 +733,7 @@ namespace magnet {
 	bind(0);
 	glTexSubImage3D(_texType, level, xoffset, yoffset, zoffset, width, height, depth,
 			pixelformat, safeType(), &data[0]);
+	detail::errorCheck();
       }
 
       inline const GLint getWidth(GLint lvl = 0) const { return _width / (1 << lvl); }

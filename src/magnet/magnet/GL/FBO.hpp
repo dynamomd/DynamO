@@ -57,6 +57,7 @@ namespace magnet {
 	_context = Context::getContext();
 
 	glGenFramebuffersEXT(1, &_FBO);
+	detail::errorCheck();
 	//Here we only allocate enough texture pointers for the maximum
 	//allowed drawable buffers!
 	_colorTextures.resize(detail::glGet<GL_MAX_DRAW_BUFFERS>());
@@ -133,11 +134,15 @@ namespace magnet {
 	  M_throw() << "The GL_EXT_framebuffer_blit extension is not supported!"
 		    << " Cannot blit!";
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, _FBO);
+	detail::errorCheck();
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, 0);
+	detail::errorCheck();
 	glBlitFramebufferEXT(0, 0, getWidth(), getHeight(), screenx, screeny, 
 			     screenwidth + screenx, screenheight + screeny, 
 			     mask, filter);
+	detail::errorCheck();
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
+	detail::errorCheck();
       }
 
       inline virtual ~FBO() { deinit(); }
@@ -150,7 +155,10 @@ namespace magnet {
 	_depthTexture.reset();
 	
 	if (_context)
-	  glDeleteFramebuffersEXT(1, &_FBO);
+	  {
+	    glDeleteFramebuffersEXT(1, &_FBO);
+	    detail::errorCheck();
+	  }
 
 	_context.reset();
 	_validated = false;
@@ -161,6 +169,7 @@ namespace magnet {
       {
 	validate();
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
+	detail::errorCheck();
 	_context->setViewport(0, 0, getWidth(), getHeight());
 
 	std::vector<GLenum> states(_colorTextures.size(), GL_NONE);
@@ -169,6 +178,7 @@ namespace magnet {
 	    states[attachment] = GL_COLOR_ATTACHMENT0_EXT + attachment;
 
 	glDrawBuffers(states.size(), &states[0]);
+	detail::errorCheck();
       }
 
       /*! \brief Restores the screen FBO as the current render target. */
@@ -179,6 +189,7 @@ namespace magnet {
 	  M_throw() << "Cannot detach() an uninitialised FBO";
 
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	detail::errorCheck();
 	//No need to reset the draw states, glDrawBuffers is not valid
 	//for the default framebuffer.
       }
@@ -223,14 +234,19 @@ namespace magnet {
 	other.validate();
 	//First blit between the two FBO's
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, _FBO);
+	detail::errorCheck();
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, other._FBO);
+	detail::errorCheck();
 
 	glBlitFramebufferEXT(0, 0,       getWidth(),       getHeight(), 
 			     0, 0, other.getWidth(), other.getHeight(),
 			     opts, GL_NEAREST);
+	detail::errorCheck();
 
 	glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
+	detail::errorCheck();
 	glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, 0);
+	detail::errorCheck();
       }
 
       
@@ -295,6 +311,7 @@ namespace magnet {
       void checkStatus()
       {
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
+	detail::errorCheck();
 
 	// check FBO status
 	GLenum FBOstatus = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
@@ -335,21 +352,31 @@ namespace magnet {
 	if(!_validated)
 	  {
 	    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
+	    detail::errorCheck();
 
 	    //Bind the textures, or unbind the unbound textures ready for the completeness test
 	    if (_depthTexture)
 	      {
 		if ((_depthTexture->getInternalFormat() == GL_DEPTH24_STENCIL8)
 		    || (_depthTexture->getInternalFormat() == GL_DEPTH32F_STENCIL8))
-		  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_STENCIL_ATTACHMENT, 
-					    _depthTexture->getGLType(), _depthTexture->getGLHandle(), 0);	  
+		  {
+		    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_STENCIL_ATTACHMENT, 
+					      _depthTexture->getGLType(), _depthTexture->getGLHandle(), 0);
+		    detail::errorCheck();
+		  }
 		else
-		  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
-					    _depthTexture->getGLType(), _depthTexture->getGLHandle(), 0);
+		  {
+		    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
+					      _depthTexture->getGLType(), _depthTexture->getGLHandle(), 0);
+		    detail::errorCheck();
+		  }
 	      }
 	    else
-	      glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
-					GL_TEXTURE_2D, 0, 0);
+	      {
+		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, 
+					  GL_TEXTURE_2D, 0, 0);
+		detail::errorCheck();
+	      }
 
 	    
 	    std::vector<GLenum> states(_colorTextures.size(), GL_NONE);
@@ -360,13 +387,18 @@ namespace magnet {
 		  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + attachment, 
 					    _colorTextures[attachment]->getGLType(), 
 					    _colorTextures[attachment]->getGLHandle(), 0);
+		  detail::errorCheck();
 		  states[attachment] = GL_COLOR_ATTACHMENT0_EXT + attachment;
 		}
 	      else
-		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + attachment, GL_TEXTURE_2D, 
-					  0, 0);
+		{
+		  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + attachment, GL_TEXTURE_2D, 
+					    0, 0);
+		  detail::errorCheck();
+		}
 
 	    glDrawBuffers(states.size(), &states[0]);
+	    detail::errorCheck();
 	    checkStatus();
 	    _validated = true;
 	  }

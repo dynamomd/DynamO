@@ -16,6 +16,7 @@
  */
 #pragma once
 #include <tr1/array>
+#include <magnet/GL/detail/error_check.hpp>
 
 namespace magnet {
   namespace GL {
@@ -51,16 +52,16 @@ namespace magnet {
 #undef GL_GET_ENUM_TYPE_TRAIT_FACTORY
 
       inline void glGetWorker(GLenum val, GLboolean* ptr)
-      { glGetBooleanv(val, ptr); }
+      { glGetBooleanv(val, ptr); errorCheck(); }
 
       inline void glGetWorker(GLenum val, GLdouble* ptr)
-      { glGetDoublev(val, ptr); }
+      { glGetDoublev(val, ptr); errorCheck(); }
 
       inline void glGetWorker(GLenum val, GLfloat* ptr)
-      { glGetFloatv(val, ptr); }
+      { glGetFloatv(val, ptr); errorCheck(); }
 
       inline void glGetWorker(GLenum val, GLint* ptr)
-      { glGetIntegerv(val, ptr); }
+      { glGetIntegerv(val, ptr); errorCheck(); }
 
 #endif
 
