@@ -300,13 +300,13 @@ namespace magnet {
 	    if (_context->_shaderStack.back() != this)
 	      M_throw() << "You must attach() a shader before you can change/read its uniform's values";
 
-	    std::tr1::unordered_map<std::string, ShaderUniformValue>::iterator it 
-	      = _uniformCache.find(uniformName);
-
 	    //In non-debug mode, we cache the uniform address,
 	    //otherwise we always redetermine it in case a program
 	    //like gDebugger has changed it.
 #ifndef MAGNET_DEBUG
+	    std::tr1::unordered_map<std::string, ShaderUniformValue>::iterator it 
+	      = _uniformCache.find(uniformName);
+
 	    if (it != _uniformCache.end()) return it->second;
 #endif
 

@@ -90,6 +90,7 @@ namespace magnet {
 	      if ((_colorTextures[attachment]->getWidth() != width)
 		  || (_colorTextures[attachment]->getHeight() != height))
 		{ no_op = false; break; }
+
 	  if (_depthTexture)
 	    if ((_depthTexture->getWidth() != width) 
 		|| (_depthTexture->getHeight() != height))

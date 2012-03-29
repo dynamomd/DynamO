@@ -226,7 +226,7 @@ namespace magnet {
 	}
 
 	/*! \brief Function which returns an appropriate pixel data
-	 * type given a set internalformat.
+	  type given a set internalformat.
 	 */
 	GLenum safeType() const
 	{
@@ -317,9 +317,9 @@ namespace magnet {
       GLint getMaxDimension() const { return _width; }
 
       /*! \brief Initializes a 1D texture.
-       *
-       * \param width The width of the texture in pixels.
-       * \param internalformat The underlying format of the texture.
+       
+        \param width The width of the texture in pixels.
+        \param internalformat The underlying format of the texture.
        */
       inline void init(size_t width, GLint internalformat = GL_RGBA8)
       {
@@ -327,6 +327,7 @@ namespace magnet {
 	  M_throw() << "Trying to create a texture with dimensions of (" << width << ")";
 
 	_width = width; _internalFormat = internalformat;
+	deinit();
 	TextureBasic::init();
 	bind(0);
 	glTexImage1D(_texType, 0, _internalFormat, _width,
@@ -349,23 +350,18 @@ namespace magnet {
 	if (!_width)
 	  M_throw() << "Cannot resize an uninitialised texture";
 
-	_width = width;
-
-	bind(0);
-	glTexImage1D(_texType, 0, _internalFormat, _width,
-		     0,//Border is off
-		     //The following values are not used (except by GL debug tools)
-		     safeFormat(), safeType(), NULL);
-	detail::errorCheck();
+	//Recreating the whole texture is the only "resize" operation
+	//that is portable
+	init(width, _internalFormat);
       }
-
+      
       /*! \brief Fills a section of the texture with the passed data
-       *
-       * \param data The pixel data to fill the texture with.
-       * \param pixelformat The format of the pixel data.
-       * \param xoffset The starting x position of the texture to write to.
-       * \param width The amount of pixels to write.
-       * \param level The texture mipmap level to write to.
+       
+        \param data The pixel data to fill the texture with.
+        \param pixelformat The format of the pixel data.
+        \param xoffset The starting x position of the texture to write to.
+        \param width The amount of pixels to write.
+        \param level The texture mipmap level to write to.
        */
       inline void subImage(const std::vector<uint8_t>& data, GLenum pixelformat,
 			   GLint xoffset = 0, GLint width = -1, GLint level = 0)
@@ -427,10 +423,10 @@ namespace magnet {
       GLint getMaxDimension() const { return std::max(_width, _height); }
 
       /*! \brief Initializes a 2D texture.
-       *
-       * \param width The width of the texture in pixels.
-       * \param height The height of the texture in pixels.
-       * \param internalformat The underlying format of the texture.
+       
+        \param width The width of the texture in pixels.
+        \param height The height of the texture in pixels.
+        \param internalformat The underlying format of the texture.
        */
       inline virtual void init(size_t width, size_t height, GLint internalformat = GL_RGBA8)
       {
@@ -441,6 +437,7 @@ namespace magnet {
 	_height = height; 
 	_internalFormat = internalformat;
 
+	deinit();
 	TextureBasic::init();
 	bind(0);
 	
@@ -463,25 +460,20 @@ namespace magnet {
 
 	if (!_width) M_throw() << "Cannot resize an uninitialised texture";
 
-	_width = width; 
-	_height = height;
-	bind(0);
-	glTexImage2D(_texType, 0, _internalFormat, _width, _height,
-		     0, //Border is off
-		     //The following values are not used (except by GL debug tools)
-		     safeFormat(), safeType(), NULL);
-	detail::errorCheck();
+	//Recreating the whole texture is the only "resize" operation
+	//that is portable
+	init(width, height, _internalFormat);
       }
 
       /*! \brief Fills a section of the texture with the passed data
-       *
-       * \param data The pixel data to fill the texture with.
-       * \param pixelformat The format of the pixel data.
-       * \param xoffset The starting x position of the texture to write to.
-       * \param yoffset The starting y position of the texture to write to.
-       * \param width The amount of pixels to write in the x direction.
-       * \param height The amount of pixels to write in the y direction.
-       * \param level The texture mipmap level to write to.
+       
+        \param data The pixel data to fill the texture with.
+        \param pixelformat The format of the pixel data.
+        \param xoffset The starting x position of the texture to write to.
+        \param yoffset The starting y position of the texture to write to.
+        \param width The amount of pixels to write in the x direction.
+        \param height The amount of pixels to write in the y direction.
+        \param level The texture mipmap level to write to.
        */
       inline virtual void subImage(const std::vector<uint8_t>& data, GLenum pixelformat,
 				   GLint xoffset = 0, GLint yoffset = 0, GLint width = -1, 
@@ -503,14 +495,14 @@ namespace magnet {
       }
 
       /*! \brief Fills a section of the texture with the passed data
-       *
-       * \param data The pixel data to fill the texture with.
-       * \param pixelformat The format of the pixel data.
-       * \param xoffset The starting x position of the texture to write to.
-       * \param yoffset The starting y position of the texture to write to.
-       * \param width The amount of pixels to write in the x direction.
-       * \param height The amount of pixels to write in the y direction.
-       * \param level The texture mipmap level to write to.
+       
+        \param data The pixel data to fill the texture with.
+        \param pixelformat The format of the pixel data.
+        \param xoffset The starting x position of the texture to write to.
+        \param yoffset The starting y position of the texture to write to.
+        \param width The amount of pixels to write in the x direction.
+        \param height The amount of pixels to write in the y direction.
+        \param level The texture mipmap level to write to.
        */
       inline virtual void subImage(const std::vector<GLfloat>& data, GLenum pixelformat,
 				   GLint xoffset = 0, GLint yoffset = 0, GLint width = -1, 
@@ -586,6 +578,7 @@ namespace magnet {
 	_height = height; 
 	_internalFormat = internalformat;
 
+	deinit();
 	TextureBasic::init();
 	bind(0);
 	
@@ -605,13 +598,9 @@ namespace magnet {
 	if ((width == _width) && (height == _height)) return;
 	if (!_width) M_throw() << "Cannot resize an uninitialised texture";
 
-	_width = width; 
-	_height = height;
-	bind(0);
-
-	glTexImage2DMultisample(_texType, _samples, _internalFormat, 
-				_width, _height, _fixedSampleLocations);
-	detail::errorCheck();
+	//Recreating the whole texture is the only "resize" operation
+	//that is portable
+	init(width, height, _internalFormat);
       }
 
       inline virtual void subImage(const std::vector<uint8_t>& data, GLenum pixelformat,
@@ -650,11 +639,11 @@ namespace magnet {
       GLint getMaxDimension() const { return std::max(std::max(_width, _height), _depth); }
 
       /*! \brief Initializes a 3D texture.
-       *
-       * \param width The width of the texture in pixels.
-       * \param height The height of the texture in pixels.
-       * \param depth The depth of the texture in pixels.
-       * \param internalformat The underlying format of the texture.
+       
+        \param width The width of the texture in pixels.
+        \param height The height of the texture in pixels.
+        \param depth The depth of the texture in pixels.
+        \param internalformat The underlying format of the texture.
        */
       inline void init(size_t width, size_t height, size_t depth, 
 		       GLint internalformat = GL_RGBA8)
@@ -664,6 +653,7 @@ namespace magnet {
 
 	_width = width; _height = height; _depth = depth;
 	_internalFormat = internalformat;
+	deinit();
 	TextureBasic::init();
 	bind(0);
 
@@ -688,28 +678,22 @@ namespace magnet {
 
 	if (!_width) M_throw() << "Cannot resize an uninitialised texture";
 
-	_width = width; _height = height; _depth = depth;
-
-	bind(0);
-	glTexImage3D(_texType, 0, _internalFormat,
-		     _width, _height, _depth, 
-		     0,//Border is off
-		     //The following values are not used (except by GL debug tools)
-		     safeFormat(), safeType(), NULL);
-	detail::errorCheck();
+	//Recreating the whole texture is the only "resize" operation
+	//that is portable
+	init(width, height, depth, _internalFormat);
       }
 
       /*! \brief Fills a section of the texture with the passed data
-       *
-       * \param data The pixel data to fill the texture with.
-       * \param pixelformat The format of the pixel data.
-       * \param xoffset The starting x position of the texture to write to.
-       * \param yoffset The starting y position of the texture to write to.
-       * \param zoffset The starting z position of the texture to write to.
-       * \param width The amount of pixels to write in the x direction.
-       * \param height The amount of pixels to write in the y direction.
-       * \param depth The amount of pixels to write in the z direction.
-       * \param level The texture mipmap level to write to.
+       
+        \param data The pixel data to fill the texture with.
+        \param pixelformat The format of the pixel data.
+        \param xoffset The starting x position of the texture to write to.
+        \param yoffset The starting y position of the texture to write to.
+        \param zoffset The starting z position of the texture to write to.
+        \param width The amount of pixels to write in the x direction.
+        \param height The amount of pixels to write in the y direction.
+        \param depth The amount of pixels to write in the z direction.
+        \param level The texture mipmap level to write to.
        */
       inline void subImage(const std::vector<GLubyte>& data, GLenum pixelformat,
 			   GLint xoffset = 0, GLint yoffset = 0, GLint zoffset = 0,
