@@ -587,7 +587,13 @@ namespace magnet {
 	    std::cerr << "Unknown(" << severity; break;
 	  }
 
-	std::cerr << ", ID=" << id << ", Message=\""<< message << "\"\n";
+	std::cerr << ", ID=" << id << ", Message=\"";
+	if (length == -1)
+	  std::cerr << message;
+	else
+	  std::cerr << std::string(message, message + length);
+	  
+	std::cerr << "\"\n";
       }
 
       /*! \brief Initializes the OpenGL context and state tracking.
