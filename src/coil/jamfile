@@ -74,7 +74,7 @@ install install-exe
 	;
 
 install install-libs
-	: coil coil/<link>static
+	: coil/<link>static
 	: <location>$(LIB_INSTALL_PATH) <coil-buildable>no:<build>no
 	;	
 
