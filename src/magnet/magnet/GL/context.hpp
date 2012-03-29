@@ -530,6 +530,66 @@ namespace magnet {
 	return true;
       }
 
+      static void DebugCallback(unsigned int source, unsigned int type,
+				unsigned int id, unsigned int severity,
+				int length, const char* message, void* userParam)
+      {
+	std::cerr << "GLError: Source=";
+	switch (source)
+	  {
+	  case GL_DEBUG_SOURCE_API_ARB:
+	    std::cerr << "OpenGL"; break;
+	  case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB:
+	    std::cerr << "Window System"; break;
+	  case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB:
+	    std::cerr << "Shader Compiler"; break;
+	  case GL_DEBUG_SOURCE_THIRD_PARTY_ARB:
+	    std::cerr << "Third Party"; break;
+	  case GL_DEBUG_SOURCE_APPLICATION_ARB:
+	    std::cerr << "Application"; break;
+	  case GL_DEBUG_SOURCE_OTHER_ARB:
+	    std::cerr << "Other"; break;
+	  default:
+	    std::cerr << "Unknown(" << source << ")"; break;
+	  }
+	
+	std::cerr << ", Type=";
+
+	switch (type)
+	  {
+	  case GL_DEBUG_TYPE_ERROR_ARB:
+	    std::cerr << "Error"; break;
+	  case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB:
+	    std::cerr << "Deprecated behavior"; break;
+	  case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB:
+	    std::cerr << "Undefined behavior"; break;
+	  case GL_DEBUG_TYPE_PORTABILITY_ARB:
+	    std::cerr << "Portability"; break;
+	  case GL_DEBUG_TYPE_PERFORMANCE_ARB:
+	    std::cerr << "Performance"; break;
+	  case GL_DEBUG_TYPE_OTHER_ARB:
+	    std::cerr << "Other"; break;
+	  default:
+	    std::cerr << "Unknown(" << type << ")"; break;
+	  }
+
+	std::cerr << ", Severity=";
+
+	switch (severity)
+	  {
+	  case GL_DEBUG_SEVERITY_HIGH_ARB:
+	    std::cerr << "High"; break;
+	  case GL_DEBUG_SEVERITY_MEDIUM_ARB:
+	    std::cerr << "Medium"; break;
+	  case GL_DEBUG_SEVERITY_LOW_ARB:
+	    std::cerr << "Low"; break;
+	  default:
+	    std::cerr << "Unknown(" << severity; break;
+	  }
+
+	std::cerr << ", ID=" << id << ", Message=\""<< message << "\"\n";
+      }
+
       /*! \brief Initializes the OpenGL context and state tracking.
        */
       inline void init()
@@ -554,23 +614,13 @@ namespace magnet {
 		  << ": OpenGL version " 
 		  << detail::glGet<GL_MAJOR_VERSION>() << "."
 		  << detail::glGet<GL_MINOR_VERSION>() << std::endl;	
-	
-	if (!testExtension("GL_EXT_framebuffer_object"))
-	  M_throw() << "GL-Context " << _context 
-		    << ": Critical OpenGL dependency: Frame buffers are not supported";
-    
-	if (!testExtension("GL_ARB_vertex_buffer_object"))
-	  M_throw() << "GL-Context " << _context 
-		    << ": Critical OpenGL dependency: Vertex buffer objects are not supported";
-    
-	if (!testExtension("GL_ARB_depth_texture"))
-	  M_throw() << "GL-Context " << _context 
-		    << ": Critical OpenGL dependency: GL_ARB_depth_texture not supported";
-
-	if (!testExtension("GL_ARB_instanced_arrays"))
-	  M_throw() << "GL-Context " << _context 
-		    << ": Critical OpenGL dependency: GL_ARB_instanced_arrays not supported";
-
+#ifdef MAGNET_DEBUG
+	if (testExtension("GL_ARB_debug_output"))
+	  {
+	    glDebugMessageCallbackARB(&Context::DebugCallback, NULL);
+	    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+	  }
+#endif
 	///////Variable initialisation ///////////////////////////
 	_viewMatrix = GLMatrix::identity();
 	_projectionMatrix = GLMatrix::identity();
