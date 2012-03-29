@@ -22,6 +22,7 @@
 #include <magnet/gtk/transferFunction.hpp>
 #include <magnet/GL/texture.hpp>
 #include <magnet/GL/shader/volume.hpp>
+#include <magnet/GL/shader/detail/ssshader.hpp>
 #include <magnet/GL/objects/cube.hpp>
 #include <memory>
 #include <tr1/array>
@@ -29,6 +30,23 @@
 namespace coil {
   class RVolume : public RenderObj
   {
+    class DepthCopyShader: public magnet::GL::shader::detail::SSShader
+    {
+    public:
+#define STRINGIFY(A) #A
+      virtual std::string initFragmentShaderSource()
+      {
+	return "#version 330\n"
+	  STRINGIFY(
+uniform sampler2D depthTex;
+void main()
+{
+  gl_FragDepth=texelFetch(depthTex, ivec2(gl_FragCoord.xy), 0).r;
+});
+      }
+#undef STRINGIFY
+  };
+
   public:
     RVolume(std::string name): RenderObj(name), _stepSizeVal(0.01) {}
   
@@ -65,7 +83,8 @@ namespace coil {
     magnet::GL::shader::VolumeShader _shader;
     magnet::GL::objects::Cube _cube;
     magnet::GL::FBO _currentDepthFBO;
-
+    DepthCopyShader _depthCopyShader;
+    
     magnet::GL::Texture3D _data;
     magnet::GL::Texture1D _transferFuncTexture;
     magnet::GL::Texture1D _preintTransferFuncTexture;

@@ -355,9 +355,14 @@ namespace magnet {
 	    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, _FBO);
 	    detail::errorCheck();
 
+	    GLint width(0), height(0); 
+
 	    //Bind the textures, or unbind the unbound textures ready for the completeness test
 	    if (_depthTexture)
 	      {
+		width = _depthTexture->getWidth();
+		height = _depthTexture->getHeight();
+
 		if ((_depthTexture->getInternalFormat() == GL_DEPTH24_STENCIL8)
 		    || (_depthTexture->getInternalFormat() == GL_DEPTH32F_STENCIL8))
 		  {
@@ -385,6 +390,16 @@ namespace magnet {
 	    for (size_t attachment(0); attachment < _colorTextures.size(); ++attachment)
 	      if (_colorTextures[attachment])
 		{
+		  if (!width)
+		    {
+		      width = _colorTextures[attachment]->getWidth();
+		      height = _colorTextures[attachment]->getHeight();
+		    }
+		  
+		  if ((width != _colorTextures[attachment]->getWidth())
+		      || (height != _colorTextures[attachment]->getHeight()))
+		    M_throw() << "Size mismatch in the textures bound to the FBO";
+
 		  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT + attachment, 
 					    _colorTextures[attachment]->getGLType(), 
 					    _colorTextures[attachment]->getGLHandle(), 0);

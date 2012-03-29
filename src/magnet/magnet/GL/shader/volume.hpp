@@ -159,7 +159,7 @@ void main()
   
   //If the viewpoint is penetrating the volume, make sure to only cast the ray
   //from the eye position, not behind it
-  if (tnear < 0.0) tnear = 0.0;
+  tnear = max(0.0, tnear);
   
   //Now work out when the ray will leave the volume
   vec3 tmax = max(ttop, tbot); //Distant planes
@@ -168,9 +168,9 @@ void main()
   
   //Check what the screen depth is to make sure we don't sample the
   //volume past any standard GL objects
-  float bufferDepth = texture(DepthTexture, gl_FragCoord.xy / WindowSize.xy).r;
+  float bufferDepth = texelFetch(DepthTexture, ivec2(gl_FragCoord.xy), 0).r;
   float depth = recalcZCoord(bufferDepth);
-  if (tfar > depth) tfar = depth;
+  tfar = min(depth, tfar);
   
   //We need to calculate the ray's starting position. We add a random
   //fraction of the stepsize to the original starting point to dither

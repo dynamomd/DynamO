@@ -41,6 +41,7 @@ namespace coil {
     _data.deinit();
     _transferFuncTexture.deinit();
     _shader.deinit();
+    _depthCopyShader.deinit();
     _cube.deinit();
   }
 
@@ -49,6 +50,7 @@ namespace coil {
   {
     RenderObj::init(systemQueue);
     _shader.build();
+    _depthCopyShader.build();
     _cube.init();
     _transferFuncTexture.init(256, GL_RGBA16F);
     _transferFuncTexture.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -63,7 +65,7 @@ namespace coil {
     //Resize the copy FBO
     //Build depth buffer
     std::tr1::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
-    depthTexture->init(128, 128, GL_DEPTH_COMPONENT);
+    depthTexture->init(800, 600, GL_DEPTH_COMPONENT);
     depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -216,11 +218,17 @@ namespace coil {
   {
     if (!_visible || !_data.isValid()) return;
 
-    //Before we render, we need the current depth buffer for depth testing.
-    _currentDepthFBO.resize(fbo.getWidth(), fbo.getHeight());
-
+    //Before we render, we need the current depth buffer so we can test against it
     fbo.detach();
-    fbo.copyto(_currentDepthFBO, GL_DEPTH_BUFFER_BIT);
+    _currentDepthFBO.resize(fbo.getWidth(), fbo.getHeight());
+    _currentDepthFBO.attach();
+    glClear(GL_DEPTH_BUFFER_BIT);
+    _depthCopyShader.attach();
+    fbo.getDepthTexture()->bind(0);
+    _depthCopyShader["depthTex"] = 0;
+    _depthCopyShader.invoke();
+    _depthCopyShader.detach();
+    _currentDepthFBO.detach();
     fbo.attach();
 
     //Now bind this copied depth texture to texture unit 0
