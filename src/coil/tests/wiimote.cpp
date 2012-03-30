@@ -21,5 +21,6 @@
 int main(int argc, char *argv[])
 {
   //Something to mean it has to dynamically link
-  cwiid_open(BDADDR_ANY, CWIID_FLAG_CONTINUOUS | CWIID_FLAG_NONBLOCK);
+  bdaddr_t bt_address_any = {{0,0,0,0,0,0}};
+  cwiid_open(&bt_address_any, CWIID_FLAG_CONTINUOUS | CWIID_FLAG_NONBLOCK);
 }

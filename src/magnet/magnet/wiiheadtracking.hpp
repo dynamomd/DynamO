@@ -55,11 +55,12 @@ namespace magnet {
       return _singleton;
     }
 
-    inline bool connect(bdaddr_t* bt_address = BDADDR_ANY)
+    inline bool connect()
     {
       if (m_wiimote) return true;
 
-      m_wiimote = cwiid_open(bt_address, CWIID_FLAG_MESG_IFC);
+      bdaddr_t bt_address = {{0,0,0,0,0,0}};
+      m_wiimote = cwiid_open(&bt_address, CWIID_FLAG_MESG_IFC);
   
       if (!m_wiimote) return false;//Couldn't connect
 
