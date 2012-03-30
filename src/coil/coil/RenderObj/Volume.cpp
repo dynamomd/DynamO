@@ -219,17 +219,17 @@ namespace coil {
     if (!_visible || !_data.isValid()) return;
 
     //Before we render, we need the current depth buffer so we can test against it
-    fbo.detach();
-    _currentDepthFBO.resize(fbo.getWidth(), fbo.getHeight());
-    _currentDepthFBO.attach();
-    glClear(GL_DEPTH_BUFFER_BIT);
-    _depthCopyShader.attach();
-    fbo.getDepthTexture()->bind(0);
-    _depthCopyShader["depthTex"] = 0;
-    _depthCopyShader.invoke();
-    _depthCopyShader.detach();
-    _currentDepthFBO.detach();
-    fbo.attach();
+//    fbo.detach();
+//    _currentDepthFBO.resize(fbo.getWidth(), fbo.getHeight());
+//    _currentDepthFBO.attach();
+//    glClear(GL_DEPTH_BUFFER_BIT);
+//    _depthCopyShader.attach();
+//    fbo.getDepthTexture()->bind(0);
+//    _depthCopyShader["depthTex"] = 0;
+//    _depthCopyShader.invoke();
+//    _depthCopyShader.detach();
+//    _currentDepthFBO.detach();
+//    fbo.attach();
 
     //Now bind this copied depth texture to texture unit 0
     _currentDepthFBO.getDepthTexture()->bind(0);

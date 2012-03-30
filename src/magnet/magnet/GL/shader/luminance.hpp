@@ -40,7 +40,7 @@ uniform sampler2D colorTex;
 
 void main()
 {
-  vec4 color = texture(colorTex, screenCoord);
+  vec4 color = texelFetch(colorTex, ivec2(gl_FragCoord.xy), 0);
   float L = dot(color.rgb, vec3(0.265068,  0.67023428, 0.06409157));
   //Prevent logarithms of zero, store the log(L), max L, min L, weight/alpha
   L_out = vec4(log(max(1.0e-5, L)), L, L, color.a/10000.0);

@@ -337,24 +337,6 @@ namespace magnet {
 	detail::errorCheck();
       }
 
-      /*! \brief Resize the texture.
-       */
-      inline void resize(GLint width)
-      {
-	if (!width)
-	  M_throw() << "Trying to resize a texture to dimensions of (" << width << ")";
-
-	//Skip identity operations
-	if (width == _width) return;
-
-	if (!_width)
-	  M_throw() << "Cannot resize an uninitialised texture";
-
-	//Recreating the whole texture is the only "resize" operation
-	//that is portable
-	init(width, _internalFormat);
-      }
-      
       /*! \brief Fills a section of the texture with the passed data
        
         \param data The pixel data to fill the texture with.
@@ -448,23 +430,6 @@ namespace magnet {
 	detail::errorCheck();
       }
       
-      /*! \brief Resize the texture.
-       */
-      inline virtual void resize(GLint width, GLint height)
-      {
-	if (!width || !height)
-	  M_throw() << "Trying to resize a texture to dimensions of (" << width << "x" << height << ")";
-
-	//Skip identity operations
-	if ((width == _width) && (height == _height)) return;
-
-	if (!_width) M_throw() << "Cannot resize an uninitialised texture";
-
-	//Recreating the whole texture is the only "resize" operation
-	//that is portable
-	init(width, height, _internalFormat);
-      }
-
       /*! \brief Fills a section of the texture with the passed data
        
         \param data The pixel data to fill the texture with.
@@ -587,22 +552,6 @@ namespace magnet {
 	detail::errorCheck();
       }
       
-      /*! \brief Resize the texture.
-       */
-      inline virtual void resize(GLint width, GLint height)
-      {
-	//Skip identity operations
-	if (!width || !height)
-	  M_throw() << "Trying to resize a texture to dimensions of (" << width << "x" << height << ")";
-
-	if ((width == _width) && (height == _height)) return;
-	if (!_width) M_throw() << "Cannot resize an uninitialised texture";
-
-	//Recreating the whole texture is the only "resize" operation
-	//that is portable
-	init(width, height, _internalFormat);
-      }
-
       inline virtual void subImage(const std::vector<uint8_t>& data, GLenum pixelformat,
 			   GLint xoffset = 0, GLint yoffset = 0, GLint width = -1, 
 			   GLint height = -1, GLint level = 0)
@@ -663,24 +612,6 @@ namespace magnet {
 		     //The following values are not used (except by GL debug tools)
 		     safeFormat(), safeType(), NULL);
 	detail::errorCheck();
-      }
-
-      /*! \brief Resize the texture.
-       */
-      inline void resize(GLint width, GLint height, GLint depth)
-      {
-	if ((!width) || (!height) || (!depth))
-	  M_throw() << "Trying to resize a texture to dimensions of (" << width << "x" << height << "x" << depth << ")";
-
-	//Skip identity operations
-	if ((width == _width) && (height == _height) && (depth == _depth))
-	  return;
-
-	if (!_width) M_throw() << "Cannot resize an uninitialised texture";
-
-	//Recreating the whole texture is the only "resize" operation
-	//that is portable
-	init(width, height, depth, _internalFormat);
       }
 
       /*! \brief Fills a section of the texture with the passed data

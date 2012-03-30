@@ -303,7 +303,6 @@ namespace coil {
       Gtk::Box* AAsamplebox;
       _refXml->get_widget("AAbox", AAsamplebox);
       AAsamplebox->pack_start(*_aasamples, false, false);      
-      AAsamplechangeCallback();
       
       _aasamples->signal_changed()
 	.connect(sigc::mem_fun(this, &CLGLWindow::AAsamplechangeCallback));
@@ -563,10 +562,9 @@ namespace coil {
     _renderObjsTree._renderObjects.push_back(consoleObj);
 
     glutInitContextVersion(3, 3);
+    glutInitContextProfile(GLUT_CORE_PROFILE);
 #ifdef MAGNET_DEBUG
-    glutInitContextFlags(GLUT_CORE_PROFILE | GLUT_DEBUG);
-#else
-    glutInitContextFlags(GLUT_CORE_PROFILE);
+    glutInitContextFlags(GLUT_DEBUG);
 #endif
     glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE | GLUT_ALPHA);
     glutInitWindowSize(800, 600);
@@ -588,55 +586,6 @@ namespace coil {
     _lastUpdateTime = _lastFrameTime = _FPStime = glutGet(GLUT_ELAPSED_TIME);
     _frameRenderTime = 0;
 
-    {
-      std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      
-      _filterTarget1.init();
-      _filterTarget1.attachTexture(colorTexture, 0);
-    }
-
-    {
-      std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      
-      _filterTarget2.init();
-      _filterTarget2.attachTexture(colorTexture, 0);
-    }
-
-    {
-      std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth() / 4, _camera.getHeight() / 4, GL_RGB16F);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      
-      _blurTarget1.init();
-      _blurTarget1.attachTexture(colorTexture, 0);
-    }
-
-    {
-      std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(_camera.getWidth() / 4, _camera.getHeight() / 4, GL_RGB16F);
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      
-      _blurTarget2.init();
-      _blurTarget2.attachTexture(colorTexture, 0);
-    }
-
-
     _renderShader.build();
     _copyShader.build();
     _downsampleShader.build();
@@ -648,73 +597,6 @@ namespace coil {
     _luminanceMipMapShader.build();
     _toneMapShader.build();
     _depthResolverShader.build();
-
-    {
-      {
-	//Build the main/left-eye render buffer
-	std::tr1::shared_ptr<magnet::GL::Texture2D> 
-	  colorTexture(new magnet::GL::Texture2D);
-	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
-	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	std::tr1::shared_ptr<magnet::GL::Texture2D> 
-	  depthTexture(new magnet::GL::Texture2D);
-	depthTexture->init(_camera.getWidth(), _camera.getHeight(), 
-			   GL_DEPTH_COMPONENT);
-	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-
-	_renderTarget.init();
-	_renderTarget.attachTexture(colorTexture, 0);
-	_renderTarget.attachTexture(depthTexture);
-      }
-
-      {
-	std::tr1::shared_ptr<magnet::GL::Texture2D> 
-	  colorTexture(new magnet::GL::Texture2D);
-	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F);
-	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	std::tr1::shared_ptr<magnet::GL::Texture2D> 
-	  depthTexture(new magnet::GL::Texture2D);
-	depthTexture->init(_camera.getWidth(), _camera.getHeight(), 
-			   GL_DEPTH_COMPONENT);
-	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-
-	_hdrBuffer.init();
-	_hdrBuffer.attachTexture(colorTexture, 0);
-	_hdrBuffer.attachTexture(depthTexture);
-      }
-      
-      {
-	std::tr1::shared_ptr<magnet::GL::Texture2D> 
-	  colorTexture(new magnet::GL::Texture2D);
-	
-	colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F);
-	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	_luminanceBuffer1.init();
-	_luminanceBuffer1.attachTexture(colorTexture, 0);
-      }
-
-      {
-	std::tr1::shared_ptr<magnet::GL::Texture2D> 
-	  colorTexture(new magnet::GL::Texture2D);
-	
-	colorTexture->init(_camera.getWidth()/2, _camera.getHeight()/2, GL_RGBA16F);
-	colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	_luminanceBuffer2.init();
-	_luminanceBuffer2.attachTexture(colorTexture, 0);
-      }
-    }
     
     _cursor.init(600, 600);
 
@@ -1375,16 +1257,122 @@ namespace coil {
 
     _camera.setHeightWidth(h, w);
     //Update the viewport
-    _hdrBuffer.resize(w, h);
-    _renderTarget.resize(w, h);
-    _Gbuffer.resize(w, h);
-    _filterTarget1.resize(w, h);
-    _filterTarget2.resize(w, h);
+
+    {
+      std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
+      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      
+      _filterTarget1.init();
+      _filterTarget1.attachTexture(colorTexture, 0);
+    }
+
+    {
+      std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
+      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      
+      _filterTarget2.init();
+      _filterTarget2.attachTexture(colorTexture, 0);
+    }
+
+    {
+      std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+      colorTexture->init(_camera.getWidth() / 4, _camera.getHeight() / 4, GL_RGB16F);
+      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      
+      _blurTarget1.init();
+      _blurTarget1.attachTexture(colorTexture, 0);
+    }
+
+    {
+      std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+      colorTexture->init(_camera.getWidth() / 4, _camera.getHeight() / 4, GL_RGB16F);
+      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      
+      _blurTarget2.init();
+      _blurTarget2.attachTexture(colorTexture, 0);
+    }
+
+    {
+      //Build the main/left-eye render buffer
+      std::tr1::shared_ptr<magnet::GL::Texture2D> 
+	colorTexture(new magnet::GL::Texture2D);
+      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA);
+      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+      std::tr1::shared_ptr<magnet::GL::Texture2D> 
+	depthTexture(new magnet::GL::Texture2D);
+      depthTexture->init(_camera.getWidth(), _camera.getHeight(), 
+			 GL_DEPTH_COMPONENT);
+      depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+
+      _renderTarget.init();
+      _renderTarget.attachTexture(colorTexture, 0);
+      _renderTarget.attachTexture(depthTexture);
+    }
+
+    {
+      std::tr1::shared_ptr<magnet::GL::Texture2D> 
+	colorTexture(new magnet::GL::Texture2D);
+      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F);
+      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+      std::tr1::shared_ptr<magnet::GL::Texture2D> 
+	depthTexture(new magnet::GL::Texture2D);
+      depthTexture->init(_camera.getWidth(), _camera.getHeight(), 
+			 GL_DEPTH_COMPONENT);
+      depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+
+      _hdrBuffer.init();
+      _hdrBuffer.attachTexture(colorTexture, 0);
+      _hdrBuffer.attachTexture(depthTexture);
+    }
+      
+    {
+      std::tr1::shared_ptr<magnet::GL::Texture2D> 
+	colorTexture(new magnet::GL::Texture2D);
+	
+      colorTexture->init(_camera.getWidth(), _camera.getHeight(), GL_RGBA16F);
+      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+      _luminanceBuffer1.init();
+      _luminanceBuffer1.attachTexture(colorTexture, 0);
+    }
+
+    {
+      std::tr1::shared_ptr<magnet::GL::Texture2D> 
+	colorTexture(new magnet::GL::Texture2D);
+	
+      colorTexture->init(_camera.getWidth()/2, _camera.getHeight()/2, GL_RGBA16F);
+      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+      _luminanceBuffer2.init();
+      _luminanceBuffer2.attachTexture(colorTexture, 0);
+    }
+    AAsamplechangeCallback();
+
     _cursor.resize(w, h);
-    _blurTarget1.resize(w / 4, h / 4);
-    _blurTarget2.resize(w / 4, h / 4);
-    _luminanceBuffer1.resize(w, h);
-    _luminanceBuffer2.resize(w/2, h/2);
     std::ostringstream os;
     os << "Coil visualizer (" << w << "," << h << ")";
     setWindowtitle(os.str());
@@ -2272,7 +2260,8 @@ namespace coil {
   void 
   CLGLWindow::AAsamplechangeCallback()
   {
-    _samples = boost::lexical_cast<size_t>(_aasamples->get_active_text());
+    if (_aasamples.get() != 0)
+      _samples = boost::lexical_cast<size_t>(_aasamples->get_active_text());
 
     //Build G buffer      
     std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2DMultisampled(_samples));

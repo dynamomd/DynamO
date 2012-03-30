@@ -62,62 +62,7 @@ namespace magnet {
 	//allowed drawable buffers!
 	_colorTextures.resize(detail::glGet<GL_MAX_DRAW_BUFFERS>());
 	_validated = false;
-      }
-      
-      /*! \brief Resizes the FBO
-       * 
-       * If the FBO has been initialized, this will resize the FBO by
-       * first deinit()ializing the FBO and re-init()ializing with the
-       * correct size. Just resizing the textures does not play well
-       * with all GPU's.
-       *
-       * \param width The new width of the FBO in pixels.
-       * \param height The new height of the FBO in pixels.
-       */
-      inline void resize(const GLsizei width, const GLsizei height)
-      {
-	if (!_context)
-	  M_throw() << "Cannot resize an uninitialized FBO";
-
-	//We don't check if the FBO is validated as textures might be
-	//shared between multiple FBO's. We should resize if *any* of
-	//the bound textures of this FBO do not match the new size.
-	{
-	  //Check if the resize is a no_op
-	  size_t no_op = true;
-	  for (size_t attachment(0); attachment < _colorTextures.size(); ++attachment)
-	    if (_colorTextures[attachment])
-	      if ((_colorTextures[attachment]->getWidth() != width)
-		  || (_colorTextures[attachment]->getHeight() != height))
-		{ no_op = false; break; }
-
-	  if (_depthTexture)
-	    if ((_depthTexture->getWidth() != width) 
-		|| (_depthTexture->getHeight() != height))
-	      no_op = false;
-	  
-	  if (no_op) return;
-	}
-
-	std::vector<std::tr1::shared_ptr<Texture2D> > colorTextures = _colorTextures;
-	std::tr1::shared_ptr<Texture2D> depthTexture = _depthTexture;
-
-	deinit();
-	init();
-
-	for (size_t attachment(0); attachment < colorTextures.size(); ++attachment)
-	  if (colorTextures[attachment]) 
-	    { 
-	      colorTextures[attachment]->resize(width, height); 
-	      attachTexture(colorTextures[attachment], attachment);
-	    }
-
-	if (depthTexture)
-	  {
-	    depthTexture->resize(width, height);
-	    attachTexture(depthTexture);
-	  }
-      }
+      }      
 
       /*! \brief Renders the contents of the FBO to the real screen FBO.
        * 
