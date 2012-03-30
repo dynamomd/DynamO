@@ -658,11 +658,11 @@ namespace coil {
     _hdrBuffer.deinit();
     _luminanceBuffer1.deinit();
     _luminanceBuffer2.deinit();
-	
     _filterTarget1.deinit();
     _filterTarget2.deinit();
     _blurTarget1.deinit();
     _blurTarget2.deinit();
+
     _renderShader.deinit();
     _toneMapShader.deinit();
     _depthResolverShader.deinit();
@@ -1256,7 +1256,16 @@ namespace coil {
     if ((w < 4) || (h < 4)) return;
 
     _camera.setHeightWidth(h, w);
-    //Update the viewport
+
+    _renderTarget.deinit();
+    _Gbuffer.deinit();
+    _hdrBuffer.deinit();
+    _luminanceBuffer1.deinit();
+    _luminanceBuffer2.deinit();
+    _filterTarget1.deinit();
+    _filterTarget2.deinit();
+    _blurTarget1.deinit();
+    _blurTarget2.deinit();
 
     {
       std::tr1::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
