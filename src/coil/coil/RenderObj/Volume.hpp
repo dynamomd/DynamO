@@ -55,6 +55,7 @@ void main()
     virtual void forwardRender(magnet::GL::FBO& fbo,
 			       const magnet::GL::Camera& cam,
 			       const RLight& light,
+			       GLfloat ambient,
 			       RenderMode mode);
 
     virtual void showControls(Gtk::ScrolledWindow* win);

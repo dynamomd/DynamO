@@ -988,8 +988,7 @@ namespace coil {
 	     = _renderObjsTree._renderObjects.begin();
 	   iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
 	if ((*iPtr)->visible())
-	  (*iPtr)->forwardRender(_hdrBuffer, camera, *_fwdRenderLight, 
-				 RenderObj::DEFAULT);
+	  (*iPtr)->forwardRender(_hdrBuffer, camera, *_fwdRenderLight, _ambientIntensity, RenderObj::DEFAULT);
     
     _hdrBuffer.detach();	
     ///////////////////////Luminance Sampling//////////////////////

@@ -130,7 +130,8 @@ vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
 
   return intensity 
     * (specular * lightColor
-       + diffuse * diffuseColor * lightColor);
+       + diffuse * diffuseColor * lightColor)
+    + ambientLight * diffuseColor;
 }
 
 

@@ -214,6 +214,7 @@ namespace coil {
   RVolume::forwardRender(magnet::GL::FBO& fbo,
 			 const magnet::GL::Camera& camera,
 			 const RLight& light,
+			 GLfloat ambient,
 			 RenderMode mode)
   {
     if (!_visible || !_data.isValid()) return;
@@ -254,28 +255,28 @@ namespace coil {
     _preintTransferFuncTexture.bind(3);
 
     _shader.attach();
-    _shader["ProjectionMatrix"] = camera.getProjectionMatrix();
-    _shader["ViewMatrix"] = camera.getViewMatrix();
     _shader["FocalLength"] = GLfloat(1.0 / std::tan(camera.getFOVY() * (M_PI / 360.0)));
     { 
       std::tr1::array<GLfloat,2> winsize = {{camera.getWidth(), camera.getHeight()}};
       _shader["WindowSize"] = winsize;
     }
     _shader["RayOrigin"] = camera.getEyeLocationObjSpace();
+    _shader["TransferTexture"] = 2;
+    _shader["IntTransferTexture"] = 3;
     _shader["DepthTexture"] = 0;
     _shader["DataTexture"] = 1;
     _shader["StepSize"] = _stepSizeVal;
+    _shader["DitherRay"] = GLint(_ditherRay->get_active());
+    _shader["ProjectionMatrix"] = camera.getProjectionMatrix();
+    _shader["ViewMatrix"] = camera.getViewMatrix();
 
+    _shader["lightPosition"] = light.getEyespacePosition(camera);
     _shader["lightColor"] = light.getColor();
+    _shader["ambientLight"] = ambient;
+    _shader["lightIntensity"] = light.getIntensity();
     _shader["lightAttenuation"] = light.getAttenuation();
     _shader["lightSpecularExponent"] = light.getSpecularExponent();
     _shader["lightSpecularFactor"] = light.getSpecularFactor();
-    _shader["lightIntensity"] = light.getIntensity();
-    _shader["lightPosition"] = light.getEyespacePosition(camera);
-
-    _shader["DitherRay"] = GLint(_ditherRay->get_active());
-    _shader["TransferTexture"] = 2;
-    _shader["IntTransferTexture"] = 3;
     
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
