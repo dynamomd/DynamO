@@ -86,19 +86,12 @@ namespace dynamo {
   OPMutualDiffusionGK::stream(const double edt)
   {
     //Now test if we've gone over the step time
-    if (currentdt + edt >= dt)
+    currentdt += edt;
+    while (currentdt >= dt)
       {
 	newG();
-	currentdt += edt - dt;
-      
-	while (currentdt >= dt)
-	  {
-	    currentdt -= dt;
-	    newG();
-	  }
+	currentdt -= dt;
       }
-    else
-      currentdt += edt;    
   }
 
   void 
@@ -273,7 +266,7 @@ namespace dynamo {
 	notReady = false;
       }
 
-    accPass ();
+    accPass();
   }
 
   void 

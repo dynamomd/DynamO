@@ -26,7 +26,6 @@
 #include <dynamo/schedulers/sorters/event.hpp>
 #include <dynamo/dynamics/liouvillean/shapes/oscillatingplate.hpp>
 #include <dynamo/outputplugins/1partproperty/uenergy.hpp>
-#include <dynamo/outputplugins/0partproperty/intEnergyHist.hpp>
 #include <dynamo/dynamics/units/units.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -47,8 +46,6 @@ namespace dynamo {
 
     try 
       {     
-      
-      
 	if (XML.hasNode("PotentialDeformation"))
 	  {
 	    EnergyPotentialStep 
@@ -77,24 +74,6 @@ namespace dynamo {
   {
     boost::unordered_map<int, double> wout = _W;
 
-    shared_ptr<OPIntEnergyHist> intEnergyHist = Sim->getOutputPlugin<OPIntEnergyHist>();
-
-    if (intEnergyHist)
-      {
-	double pluginBinWidth = intEnergyHist->getBinWidth();
-
-	if (pluginBinWidth != EnergyPotentialStep)
-	  derr << "WARNING! Multicanonical simulations can only improve the MC potential"
-	       << "when the IntEnergyHist bin width (" 
-	       << pluginBinWidth * Sim->dynamics.units().unitEnergy()
-	       << ") and the MC potential bin widths("
-	       << EnergyPotentialStep * Sim->dynamics.units().unitEnergy()
-	       << ") match!\nCannot improve potential, preserving old potential."
-	       << std::endl;
-	else
-	  wout = intEnergyHist->getImprovedW();
-      }
-	
     XML << magnet::xml::attr("Type")
 	<< "NewtonianMC"
 	<< magnet::xml::tag("PotentialDeformation")
