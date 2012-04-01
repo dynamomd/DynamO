@@ -119,6 +119,7 @@ namespace coil
     glBindTexture(GL_TEXTURE_2D, _randomTexture);
 
     _filter.attach();
+
     _filter["radius"] = _radius;
     _filter["totStrength"] = _totStrength;
     _filter["depthDropoff"] = _dropoff;
@@ -126,6 +127,9 @@ namespace coil
     _filter["NormalsTex"] = 1;
     _filter["EyePosTex"] = 2;
     _filter["rnm"] = 7;
+    _filter["ProjectionMatrix"] = vp.getProjectionMatrix();
+    _filter["ViewMatrix"] = vp.getViewMatrix();
+
     _filter.invoke();
     _filter.detach();
   }

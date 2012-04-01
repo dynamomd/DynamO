@@ -43,8 +43,9 @@ uniform float radius;
 uniform float totStrength;
 uniform float depthDropoff;
 uniform float offset;
-uniform float nearDist;
-uniform float farDist;
+
+uniform mat4 ProjectionMatrix;
+uniform mat4 ViewMatrix;
 
 const float invSamples = 1.0 / 10.0;
 
@@ -69,42 +70,50 @@ void main(void)
   vec3 fres = normalize(2.0 * texture(rnm, screenCoord * offset).xyz - vec3(1.0));
     
   ivec2 pixelcoord = ivec2(textureSize(EyePosTex) * screenCoord);
-  float currentPixelDepth = -texelFetch(EyePosTex, pixelcoord, 0).z;
-  
-  // current fragment coords in screen space
-  vec3 ep = vec3(screenCoord, currentPixelDepth);
-  // get the normal of current fragment
+  vec3 currentPixelPos = texelFetch(EyePosTex, pixelcoord, 0).xyz; 
+  vec3 currentPixelNorm = normalize(2.0 * texelFetch(NormalsTex, pixelcoord, 0).xyz - 1.0);
 
-  vec3 norm = normalize(2.0 * texelFetch(NormalsTex, pixelcoord, 0).xyz - 1.0);
-  
-  float bl = 0.0;
-  float radD = radius / currentPixelDepth;
-  
-  //vec3 ray, se, occNorm;
-  float occluderDepth;
+  float occlusion = 0.0;
   for(int i = 0; i < 10; ++i)
     {
-      // get a vector (randomized inside of a sphere with radius 1.0) from a texture and reflect it
-      vec3 ray = radD * reflect(pSphere[i],fres);
+      //Get a vector (randomized inside of a sphere with radius 1.0)
+      //from a texture and reflect it through the random vector.
+      vec3 ray = radius * reflect(pSphere[i], fres);
       
-      // get the depth of the occluder fragment
-      vec2 occluderLoc = ep.xy + sign(dot(ray,norm) ) * ray.xy;
-      ivec2 occluderPixel = ivec2(textureSize(EyePosTex) * occluderLoc);
-      vec4 occluderFragment = texelFetch(NormalsTex, occluderPixel, 0);
-      float occluderDepth = -texelFetch(EyePosTex, occluderPixel, 0).z;
+      //Calculate the eye space location of the sample, we make sure
+      //the sample is in the correct hemisphere around the normal
+      //using the sign function.
+      vec3 sampleEyeSpaceLocation =  currentPixelPos + sign(dot(ray, currentPixelNorm)) * ray;
 
-      // if d (depth difference) is negative = occluder is behind current fragment
-      float d = currentPixelDepth - occluderDepth;
+      //Convert it to clip space
+      vec4 sampleLocation = ProjectionMatrix * (ViewMatrix * vec4(sampleEyeSpaceLocation, 1.0));
       
-      vec3 occluderNorm = normalize(occluderFragment.xyz * 2.0 - 1.0);
-      float occluderDot = dot(occluderNorm, norm);
+      //Convert to normalised device coordinates
+      sampleLocation.xyz *= (1.0 / sampleLocation.w);
       
-      bl += max(0.0, 0.9 - occluderDot) * step(0.0, d) * step(0.0, depthDropoff - d);
+      //Change to normalised screen coordinates
+      sampleLocation.xyz = 0.5 * sampleLocation.xyz + vec3(1.0);
+
+      //Now fetch the scenes normal and position at the screen
+      //position of the sample. 
+      ivec2 samplecoord = ivec2(textureSize(EyePosTex) * sampleLocation.xy);
+      vec3 occluderLocation = texelFetch(EyePosTex, samplecoord, 0).xyz;
+      vec3 occluderNormal = normalize(texelFetch(NormalsTex, samplecoord, 0).xyz * 2.0 - vec3(1.0));
+
+      //The z coordinate is increasing as objects get farther away, so
+      //if the zdiff is negative the sample is behind the occluder.
+      float zdiff =  occluderLocation.z - sampleEyeSpaceLocation.z;
+
+      //The curvature of the local surroundings is also important
+      float occluderDot = dot(occluderNormal, currentPixelNorm);
+      
+      occlusion += step(0.0, -zdiff);
+      //occlusion += max(0.0, 0.9 - occluderDot) * step(0.0, zdiff) * step(0.0, depthDropoff - zdiff);
     }
 
-  float val = clamp(1.0 - totStrength * bl * invSamples, 0.0, 1.0);
+  float val = clamp(1.0 - totStrength * occlusion * invSamples, 0.0, 1.0);
 
-  color_out = vec4(val, val, val, 1.0);
+  color_out = vec4(vec3(val), 1.0);
 });
 	}
       };

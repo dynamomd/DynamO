@@ -39,7 +39,10 @@
 **** TODO Coil: Cube shadow map lights.
 **** TODO Coil: Make the viewing grid have a scalable box size.
 **** TODO Coil: Look at CL/GL synchronisation objects for coil, fix the lack of a glFinish or clFinish!
-**** TODO Check the version of Gtkmm, glut and any other dependent library.
+**** TODO Coil: Fix the Bilateral blur filter, or at least make it work well with SSAO.
+**** TODO Coil: Fix the incorrect calculation of the camera position, due to the head position not being added on. This is breaking lots of calculations (e.g. SSAO at close range, possibly the volume rendering flicker).
+
+**** TODO Check the version of Gtkmm, glut and any other dependent library on compile.
 **** TODO Write up the image distance class.
 *** DynamO 1.3
 **** DONE DynamO: 2D systems are now officially *supported* in DynamO, although they're not optimal.
@@ -75,9 +78,6 @@
 **** DONE Bugfix Coil: Fixed the bilateral blur filter.
 **** DONE Bugfix Coil: Fixed many bugs which only appear when resizing the display.
 **** DONE Magnet: Upgraded all shaders to GLSL 330.
-**** TODO Coil: Fix the Bilateral blur filter, or at least make it work well with SSAO.
-**** TODO Coil: Fix the incorrect calculation of the camera position, due to the head position not being added on. This is breaking lots of calculations (e.g. SSAO at close range, possibly the volume rendering flicker).
-
 **** TODO DynamO: Confirm that the tutorials are up to date on the removal of the -h tag.
 **** TODO DynamO: Make compression work with polydisperse walls.
 *** DynamO 1.2							    :ARCHIVE:
