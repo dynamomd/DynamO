@@ -191,7 +191,8 @@ namespace dynamo {
       {
 	double mass = Sim->dynamics.getSpecies(part).getMass(part.getID());
 	sysMom += part.getVelocity() * mass;
-      
+	sysMass += mass;
+
 	if (Sim->dynamics.getSpecies()[species1]->isSpecies(part))
 	  {
 	    delGsp1 += part.getVelocity() * mass;

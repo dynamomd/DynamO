@@ -24,6 +24,8 @@
 **** TODO DynamO: Auto detect the ensemble, users shouldn't have to specify it.
 **** TODO DynamO: Put all of the cheap/free simulation data calculations into the misc output plugin, so that they don't have to be loaded and people have an interesting default output.xml.bz2.
 **** TODO DynamO: Add the gravity version of the sphere-sphere-out test. Fix and check that the umbrella implementation is general.
+**** TODO DynamO: Add a average and current system momentum to the misc output plugin (replace the mutual diffusion correlators calculation of it, and anyone elses).
+**** TODO DynamO: Find out why the replica exchange Cv can be negative, averaging error?
 **** TODO Coil: Replace freeglut with your own implementation to fix the whole debacle of GL context management and deleting resources. 
 ***** TODO Coil: Fix the dummy vertex array object mess.
 **** TODO Coil: State change tracking for glEnable/Disable.
@@ -53,6 +55,7 @@
 **** DONE DynamO: Change the loadClass XML functions to return shared_ptr's.
 **** DONE Bugfix DynamO: Changed the default settings of the histogram reweighting program so that the results are accurate by default! Previously, the results coming out of dynahist_rw could be quite innaccurate unless --min-err=1e-16 was set.
 **** DONE Bugfix DynamO: The uniform_01 distribution had its own copy of the random number generator. It is unlikely that this affected any results, but it is not good practice.
+**** DONE Bugfix DynamO: The Green-Kubo Mutual diffusion correlator now works (instead of just outputting NaN/inf).
 **** DONE DynamO/Coil: Remove the requirement to pass the frequency to the visualiser, it guesses at one MFT for each particle.
 **** DONE Coil: Moved to a combined deferred/forward rendering pipline which greatly improves rendering performance and flexibility.
 **** DONE Coil: Added High-Dynamic-Range (HDR) lighting and gamma correction.
@@ -77,7 +80,6 @@
 
 **** TODO DynamO: Confirm that the tutorials are up to date on the removal of the -h tag.
 **** TODO DynamO: Make compression work with polydisperse walls.
-**** TODO DynamO: The Green-Kubo Mutual diffusion correlator is currently broken.
 *** DynamO 1.2							    :ARCHIVE:
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
 **** DONE *BUGFIX* Fixed the widespread improper use of the XML test functions, causing errors instead of warnings.
@@ -183,6 +185,7 @@
     - [X] Implement a stepped interaction potential
 *** DONE Implement Parallel Hard Cubes		:ARCHIVE:
     CLOSED: [2009-06-10 Wed 07:58]    
+    
     
     
     
