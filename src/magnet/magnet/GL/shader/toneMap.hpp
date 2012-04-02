@@ -173,8 +173,8 @@ void main()
   inv_log_avg_luma = invlogavgluma;
 
   //Direct pass through of scene parameters
-  //frag_scene_key = scene_key;
-  //frag_Lpwhite = Lpwhite;
+  frag_scene_key = scene_key;
+  frag_Lpwhite = Lpwhite;
 
   //This automatic scene parameter determination was taken from
   //"Parameter Estimation for Photographic Tone Reproduction" by Erik
