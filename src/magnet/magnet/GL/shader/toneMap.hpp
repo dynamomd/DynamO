@@ -147,9 +147,11 @@ layout(max_vertices = 3) out;
 
 uniform sampler2D logLuma;
 uniform float scene_key;
+uniform float Lpwhite;
 
 flat out float inv_log_avg_luma;
 flat out float frag_scene_key;
+flat out float frag_Lpwhite;
 smooth out vec2 screenCoord;
 
 
@@ -169,14 +171,16 @@ void main()
   float Lmin = luma_data.b;
   float invlogavgluma = 1.0 / Lavg;
   inv_log_avg_luma = invlogavgluma;
-  frag_scene_key = scene_key;
+
+  //Direct pass through of scene parameters
+  //frag_scene_key = scene_key;
+  //frag_Lpwhite = Lpwhite;
 
   //This automatic scene parameter determination was taken from
   //"Parameter Estimation for Photographic Tone Reproduction" by Erik
   //Reinhard.
-  //It doesn't work too well for my scene.
-  //frag_scene_key = 0.18 * pow(4.0, (2.0 * log2(Lavg) - log2(luma_data.g) - log2(luma_data.b)) / (log2(luma_data.g) - log2(luma_data.b)));
-  //Lwhite = 1.5 * pow(2.0, log2(Lmax) - log2(Lmin) - 5.0);
+  //frag_scene_key = 0.18 * pow(4.0, (2.0 * log2(Lavg) - log2(Lmin) - log2(Lmax)) / (log2(Lmax) - log2(Lmin)));
+  //frag_Lpwhite = 1.5 * pow(2.0, log2(Lmax) - log2(Lmin) - 5.0);
 
   //Here we draw a fullscreen triangle and allow the GPU to scissor to
   //the screen. This prevents the difficult interpolation of the
@@ -212,10 +216,10 @@ uniform bool bloom_enable;
 uniform float bloomCompression;
 uniform float bloomCutoff;
 uniform vec3 background_color;
-uniform float Lpwhite;
 
 flat in float inv_log_avg_luma;
 flat in float frag_scene_key;
+flat in float frag_Lpwhite;
 smooth in vec2 screenCoord;
 
 //Taken from http://www.gamedev.net/topic/407348-reinhards-tone-mapping-operator/
@@ -226,7 +230,7 @@ void main()
   //Grab the scene color and tone map it
   vec4 scene_color = texelFetch(color_tex, ivec2(gl_FragCoord.xy), 0);
   if (scene_color.a != 0.0)
-    final_color = vec4(mix(final_color.rgb, toneMapRGB(scene_color.rgb, frag_scene_key, inv_log_avg_luma, Lpwhite), scene_color.a), scene_color.a);
+    final_color = vec4(mix(final_color.rgb, toneMapRGB(scene_color.rgb, frag_scene_key, inv_log_avg_luma, frag_Lpwhite), scene_color.a), scene_color.a);
 
   //Test if bloom is enabled
   if (bloom_enable)
@@ -235,7 +239,7 @@ void main()
       vec3 bloom_RGB = texture(bloom_tex, screenCoord, 0).rgb;
       vec3 bloom_Yxy = RGBtoYxy(bloom_RGB);
       toneMapLuminance(bloom_Yxy.r, frag_scene_key, inv_log_avg_luma, 
-		       Lpwhite, bloomCutoff, 1.0 / (bloomCompression + 1.0e-8));
+		       frag_Lpwhite, bloomCutoff, 1.0 / (bloomCompression + 1.0e-8));
       bloom_RGB = YxytoRGB(bloom_Yxy);
       final_color.rgb += max(vec3(0.0), bloom_RGB);
     }
