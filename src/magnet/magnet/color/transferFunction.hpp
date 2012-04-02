@@ -80,7 +80,7 @@ namespace magnet {
 	    spline[channel].setHighBC(math::Spline::FIXED_1ST_DERIV_BC, 0);
 	  }
 
-	for (size_t channel(0); channel < 3; ++channel)
+	for (size_t channel(0); channel < 4; ++channel)
 	  spline[channel].setType(math::Spline::LINEAR);
 
       }
