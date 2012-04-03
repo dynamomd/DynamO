@@ -11,6 +11,7 @@
 **** TODO DynamO: Look at a way of setting default workable parameters for mode 19.
 **** TODO DynamO: Remove the Dynamics class and move its functions into the SimData class.
 **** TODO DynamO: Remove the Dynamics tags in the config.
+**** TODO DynamO: Check that the sentinel is correct in compressing systems.
 **** TODO DynamO: Rename the Liouvillean to Dynamics.
 **** TODO DynamO: Remove the requirement of a statically linked bzip2 or zlib library.
 **** TODO DynamO: Remove the const casting in the liouvillean, and interactions to make dynamo const correct.
