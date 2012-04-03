@@ -157,6 +157,29 @@ function wallsw_bailout {
     exit 1 
 }
 
+
+function Ring_compressiontest { 
+    ./dynamod -m 7 --f3 0 &> run.log
+    ./dynamod -m 3 --s1 config.out.xml.bz2 --i1 1 -C 4 -d 0.01 -o tmp.xml.bz2 &> run.log
+    bzcat tmp.xml.bz2 | xmlstarlet ed -u '//Interaction[@Type="SquareBond"]/@End' -v 2559 | bzip2 > config.out.xml.bz2
+    ./dynarun --engine 3 --target-pack-frac 0.5 config.out.xml.bz2 &> run2.log
+
+    #Check for errors
+    > error.log
+    ./dynamod --check config.out.xml.bz2 > run.log 2> error.log
+
+    echo -n "Ring polymer compression -: "
+    if [ -s error.log ]; then
+	echo "FAILED: Check error.log for the overlaps!"
+	exit 1;
+    else
+	echo "PASSED"
+    fi
+
+    #Cleanup 
+    rm -Rf config.out.xml.bz2 output.xml.bz2 tmp.xml.bz2 run.log error.log
+    }
+
 function wallsw {
 #Just tests the square shoulder interaction between two walls
     bzcat wallsw.xml.bz2 | \
@@ -665,6 +688,7 @@ wallsw "NeighbourList"
 
 echo ""
 echo "ENGINE TESTING"
+echo "COMPRESSION"
 echo "Testing local events (walls) and square wells with a " \
     "Null compression"
 wallsw "NeighbourList" "--engine 3 --growth-rate 0.0"
@@ -672,12 +696,12 @@ echo "Testing compression of hard spheres"
 HS_compressiontest "NeighbourList"
 echo "Testing compression in the prescence of infinitely heavy particles"
 HeavySphereCompressionTest
+echo "Testing compression of polymers (very sensitive to errors in the algorithm)"
+Ring_compressiontest
 
+echo "REPLICA EXCHANGE"
 echo "Testing replica exchange of hard spheres"
 HS_replex_test "NeighbourList"
-
-echo ""
-echo "THREADING TESTING"
-echo "Testing replica exchange with 3 threads"
+echo "Testing replica exchange of hard spheres with 3 threads"
 HS_replex_test "NeighbourList" "-N3"
 
