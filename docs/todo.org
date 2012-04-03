@@ -7,7 +7,8 @@
 ** Version Milestones
 *** DynamO Future
 **** DONE Bugfix Coil: Corrected the shadow mapping calculation and removed the noise.
-**** TODO Dynamo: Make the output plugins much, much much, simpler. Put energy and everything else on by default.
+**** TODO DynamO: Replace Andersen class in the ghost file with a more sensible name like thermostat.
+**** TODO DynamO: Make the output plugins much, much much, simpler. Put energy and everything else on by default.
 **** TODO DynamO: Look at a way of setting default workable parameters for mode 19.
 **** TODO DynamO: Remove the Dynamics class and move its functions into the SimData class.
 **** TODO DynamO: Remove the Dynamics tags in the config.
