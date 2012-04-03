@@ -56,6 +56,7 @@
 **** DONE DynamO: Removed all deprecated Clone functions for copying of classes in the code.
 **** DONE DynamO: Alter the functions in dynamics that add/get/set objects and take/return a pointer to return shared_ptr's (search for uses of shared_ptr's get() function).
 **** DONE DynamO: Change the loadClass XML functions to return shared_ptr's.
+**** DONE Bugfix DynamO: Found the neighbourlists were not being correctly reinitialised, causing slowdowns and possible hangs in compressing systems.
 **** DONE Bugfix DynamO: Changed the default settings of the histogram reweighting program so that the results are accurate by default! Previously, the results coming out of dynahist_rw could be quite innaccurate unless --min-err=1e-16 was set.
 **** DONE Bugfix DynamO: The uniform_01 distribution had its own copy of the random number generator. It is unlikely that this affected any results, but it is not good practice.
 **** DONE Bugfix DynamO: The Green-Kubo Mutual diffusion correlator now works (instead of just outputting NaN/inf).

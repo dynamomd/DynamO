@@ -290,6 +290,8 @@ namespace dynamo {
   GCells::addCells(double maxdiam)
   {
     cells.clear();
+    list.clear();
+    partCellData.clear();
     NCells = 1;
 
     for (size_t iDim = 0; iDim < NDIM; iDim++)
