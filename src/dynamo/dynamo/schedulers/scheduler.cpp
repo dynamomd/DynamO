@@ -158,6 +158,14 @@ namespace dynamo {
     sorter->clearPEL(part.getID());
   }
 
+  void 
+  Scheduler::stream(const double& dt)
+  {
+    Sim->dSysTime += dt;	
+    sorter->stream(dt);
+    Sim->dynamics.stream(dt);
+  }
+
   void
   Scheduler::runNextEvent()
   {
@@ -294,13 +302,8 @@ namespace dynamo {
 		    << "  Type " << Event.getType();
 #endif
 
-	  Sim->dSysTime += Event.getdt();
-	
 	  stream(Event.getdt());
-	
-	  //dynamics must be updated first
-	  Sim->dynamics.stream(Event.getdt());
-	
+		
 	  Event.addTime(Sim->freestreamAcc);
 
 	  Sim->freestreamAcc = 0;
@@ -369,12 +372,7 @@ namespace dynamo {
 		      << iEvent.stringData(Sim);
 #endif
 	
-	  Sim->dSysTime += iEvent.getdt();
-	
 	  stream(iEvent.getdt());
-	
-	  //dynamics must be updated first
-	  Sim->dynamics.stream(iEvent.getdt());
 	
 	  iEvent.addTime(Sim->freestreamAcc);
 	  Sim->freestreamAcc = 0;
@@ -395,12 +393,9 @@ namespace dynamo {
 	  //This is a special type which requires that the system is
 	  //moved forward to the current time and the events for this
 	  //particle recalculated.
-
 	  double dt = sorter->next_dt();
 	  size_t ID = sorter->next_ID();
-	  Sim->dSysTime += dt;
-	  Sim->ptrScheduler->stream(dt);
-	  Sim->dynamics.stream(dt);
+	  stream(dt);
 	  Sim->freestreamAcc += dt;
 	  this->fullUpdate(Sim->particleList[ID]);
 	  break;

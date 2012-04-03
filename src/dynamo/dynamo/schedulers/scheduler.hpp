@@ -79,7 +79,7 @@ namespace dynamo {
 
     void pushEvent(const Particle&, const Event&);
   
-    void stream(const double& dt) {  sorter->stream(dt); }
+    void stream(const double& dt);
   
     void runNextEvent();
 
