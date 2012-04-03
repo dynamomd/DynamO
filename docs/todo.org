@@ -6,7 +6,8 @@
 * Code improvements
 ** Version Milestones
 *** DynamO Future
-**** DONE Bugfix Coil: Corrected the shadow mapping calculation and removed the noise.
+**** TODO DynamO: Make compression work with polydisperse walls.
+**** TODO Bugfix Coil: Corrected the shadow mapping calculation and removed the noise.
 **** TODO DynamO: Replace Andersen class in the ghost file with a more sensible name like thermostat.
 **** TODO DynamO: Make the output plugins much, much much, simpler. Put energy and everything else on by default.
 **** TODO DynamO: Look at a way of setting default workable parameters for mode 19.
@@ -83,7 +84,6 @@
 **** DONE Bugfix Coil: Fixed many bugs which only appear when resizing the display.
 **** DONE Magnet: Upgraded all shaders to GLSL 330.
 **** TODO DynamO: Confirm that the tutorials are up to date on the removal of the -h tag.
-**** TODO DynamO: Make compression work with polydisperse walls.
 *** DynamO 1.2							    :ARCHIVE:
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
 **** DONE *BUGFIX* Fixed the widespread improper use of the XML test functions, causing errors instead of warnings.
@@ -141,28 +141,6 @@
 **** DONE Update the tutorials.
 *** DynamO 1.0 							    :ARCHIVE:
     First major release of DynamO.
-** Major Changes
-*** Optimise the insertion of locals into neighbour lists
-    - [ ] Cylinders can be inserted, just write the overlap test
-    - [ ] Oscillating plates????
-*** Coordinate Transformation Layer
-    Write a transformation layer for the liouvillean which wraps the
-    sim coordinates and allows simulations in arbitrary coordinate
-    systems.
-  - [ ] Mark or generalise the output plugins that cannot be used in
-    the co-ordinate transform.
-  - [ ] Make SLLOD coordinates work.
-*** Multi dimensional sims
-** Minor changes 
-   - [ ] Make the sims run at a simulation temperature of 1 when in NVT ensemble
-   - [-] Clean up the coordinator class
-    - [X] Move the replex and standard runs into a class Engine
-    - [ ] Split the replexer somehow and remove the ugly switch cases for speed
-    - [ ] Add a Coordinator output plugin scheme
-   - [ ] Compressibility <N^2>-<N>^2 for large HS sims
-   - [-] Stop the use of pointers in output sims for the benefit of Replexing
-    - [X] Add id numbers to every interaction
-    - [-] Change the output plugins to use the id numbers and get rid of RTTI
 ** Done/Not needed 						       :ARCHIVE:
   - [X] Cells smaller than required plus overlinking may be quicker
     with lightweight transitions
