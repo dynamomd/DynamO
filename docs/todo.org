@@ -27,6 +27,7 @@
 **** TODO DynamO: Add the gravity version of the sphere-sphere-out test. Fix and check that the umbrella implementation is general.
 **** TODO DynamO: Add a average and current system momentum to the misc output plugin (replace the mutual diffusion correlators calculation of it, and anyone elses).
 **** TODO DynamO: Find out why the replica exchange Cv can be negative, averaging error?
+**** TODO DynamO: Remove the unusual replica exchange modes and simplify to just one. Also put the up and down swap ratios in the data.
 **** TODO Coil: Replace freeglut with your own implementation to fix the whole debacle of GL context management and deleting resources. 
 ***** TODO Coil: Fix the dummy vertex array object mess.
 **** TODO Coil: State change tracking for glEnable/Disable.

@@ -51,6 +51,9 @@ static long double minErr = 1e-16;
 static size_t NStepsPerStep = 0;
 static boost::program_options::variables_map vm;
 
+long double betaMax;
+long double betaMin;
+
 struct SimData;
 
 std::vector<SimData> SimulationData;
@@ -476,8 +479,7 @@ void outputMoments()
 
   size_t steps = 100 * (SimulationData.size()-1) + 1;
 
-  //long double stepsize = (SimulationData.front().gamma[0] - SimulationData.back().gamma[0]) / 1000;
-long double stepsize = (SimulationData.front().gamma[0] - SimulationData.back().gamma[0]) / steps;
+  long double stepsize = (betaMax - betaMin) / steps;
 
   std::vector<std::pair<double,double> > Cv;
   {
@@ -491,7 +493,7 @@ long double stepsize = (SimulationData.front().gamma[0] - SimulationData.back().
     
     for (size_t step = 0; step <= steps; step++)
       {
-	long double Beta = SimulationData.back().gamma[0] + step * stepsize;
+	long double Beta = betaMin + step * stepsize;
 
 	//Calc Z
 	long double Z = 0.0;
@@ -580,7 +582,8 @@ main(int argc, char *argv[])
       ("data-file", po::value<std::vector<std::string> >(), "Specify a config file to load, or just list them on the command line")
       ("alpha", po::value<long double>()->default_value(1), "A fraction of the difference between the old and new logZ's to use, use to stop divergence")
       ("NSteps,N", po::value<size_t>()->default_value(10), "Number of steps to take before testing the error and spitting out the current vals")
-      ("load-logZ", po::value<std::string>(), "Loads the logZ's from a previous run, note! It does this by ordering the temperatures and adding in order, do not change anything you do!")
+      ("Tmin", po::value<double>(), "Set the coldest temperature to output calculated data for (Cv.out, Energy.out) etc. If unset this defaults to the temperature of the coldest simulation.")
+      ("Tmax", po::value<double>(), "Set the hottest temperature to output calculated data for (Cv.out, Energy.out) etc. If unset this defaults to the temperature of the hottest simulation.")
       ;
 
     boost::program_options::positional_options_description p;
@@ -613,27 +616,27 @@ main(int argc, char *argv[])
     //Sort by temperature
     std::sort(SimulationData.begin(), SimulationData.end());
 
+    //Save the temperature range
+    betaMax = SimulationData.front().gamma[0];
+    if (vm.count("Tmin"))
+      {
+	if (vm["Tmin"].as<double>() <= 0)
+	  M_throw() << "Tmin must be positive and non-zero";
+	betaMax = - 1.0 / vm["Tmin"].as<double>();
+      }
+
+    betaMin = SimulationData.back().gamma[0];
+    if (vm.count("Tmin"))
+      {
+	if (vm["Tmax"].as<double>() <= 0)
+	  M_throw() << "Tmin must be positive and non-zero";
+	betaMin = - 1.0 / vm["Tmax"].as<double>();
+      }
+
     //Output ordered sims
     std::cout << "##################################################\n";
     BOOST_FOREACH(const SimData& dat, SimulationData)
       std::cout << dat.fileName << " NData = " << dat.data.size() << " gamma[0] = " << dat.gamma[0] << "\n";
-
-    if (vm.count("load-logZ"))
-      {
-	std::fstream logZin(vm["load-logZ"].as<std::string>().c_str(), std::ios::in);
-
-	long double tmp;
-
-	BOOST_FOREACH(SimData& dat, SimulationData)
-	  {
-	    logZin >> tmp;
-	    logZin >> tmp;
-	    dat.logZ = tmp;
-	    dat.new_logZ = tmp;
-	  }
-	logZin.close();
-
-      }
 
     solveWeightsPiecemeal();
     
