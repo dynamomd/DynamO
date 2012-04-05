@@ -967,15 +967,14 @@ namespace coil {
     _pointLightShader.detach();
 
     ///////////////////////Forward Shading Pass /////////////////
-    std::tr1::shared_ptr<RLight> _fwdRenderLight;
+    std::vector<std::tr1::shared_ptr<RLight> > lights;
+    
+
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
 	   = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       if (std::tr1::dynamic_pointer_cast<RLight>(*iPtr))
-	{
-	  _fwdRenderLight = std::tr1::dynamic_pointer_cast<RLight>(*iPtr);
-	  break;
-	}
+	lights.push_back(std::tr1::dynamic_pointer_cast<RLight>(*iPtr));
 
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -983,12 +982,12 @@ namespace coil {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     //Enter the forward render ticks for all objects
-    if (_fwdRenderLight)
-      for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
-	     = _renderObjsTree._renderObjects.begin();
-	   iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-	if ((*iPtr)->visible())
-	  (*iPtr)->forwardRender(_hdrBuffer, camera, *_fwdRenderLight, _ambientIntensity, RenderObj::DEFAULT);
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
+	   = _renderObjsTree._renderObjects.begin();
+	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
+      if ((*iPtr)->visible())
+	(*iPtr)->forwardRender(_hdrBuffer, camera, lights, 
+			       _ambientIntensity, RenderObj::DEFAULT);
     
     _hdrBuffer.detach();	
     ///////////////////////Luminance Sampling//////////////////////

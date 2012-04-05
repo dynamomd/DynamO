@@ -96,7 +96,7 @@ namespace coil {
      */
     virtual void forwardRender(magnet::GL::FBO& fbo, 
 			       const magnet::GL::Camera& cam,
-			       const RLight& light,
+			       std::vector<std::tr1::shared_ptr<RLight> >& lights,
 			       GLfloat ambientLight,
 			       RenderMode mode) 
     {}

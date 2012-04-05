@@ -213,11 +213,12 @@ namespace coil {
   void 
   RVolume::forwardRender(magnet::GL::FBO& fbo,
 			 const magnet::GL::Camera& camera,
-			 const RLight& light,
+			 std::vector<std::tr1::shared_ptr<RLight> >& lights,
 			 GLfloat ambient,
 			 RenderMode mode)
   {
     if (!_visible || !_data.isValid()) return;
+    if (lights.empty()) return;
 
     //Before we render, we need the current depth buffer so we can test against it
     fbo.detach();
@@ -270,13 +271,13 @@ namespace coil {
     _shader["ProjectionMatrix"] = camera.getProjectionMatrix();
     _shader["ViewMatrix"] = camera.getViewMatrix();
 
-    _shader["lightPosition"] = light.getEyespacePosition(camera);
-    _shader["lightColor"] = light.getColor();
+    _shader["lightPosition"] = lights.front()->getEyespacePosition(camera);
+    _shader["lightColor"] = lights.front()->getColor();
     _shader["ambientLight"] = ambient;
-    _shader["lightIntensity"] = light.getIntensity();
-    _shader["lightAttenuation"] = light.getAttenuation();
-    _shader["lightSpecularExponent"] = light.getSpecularExponent();
-    _shader["lightSpecularFactor"] = light.getSpecularFactor();
+    _shader["lightIntensity"] = lights.front()->getIntensity();
+    _shader["lightAttenuation"] = lights.front()->getAttenuation();
+    _shader["lightSpecularExponent"] = lights.front()->getSpecularExponent();
+    _shader["lightSpecularFactor"] = lights.front()->getSpecularFactor();
     
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
