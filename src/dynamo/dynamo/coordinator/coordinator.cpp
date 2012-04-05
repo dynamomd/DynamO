@@ -99,7 +99,7 @@ namespace dynamo {
     systemopts.add_options()
       ("help", "Produces this message")
       ("n-threads,N", po::value<unsigned int>(),
-       "Number of _threads to spawn for concurrent processing. (Only utilised by certain engine/sim configurations)")
+       "Number of threads to spawn for concurrent processing. (Only utilised by certain engine/sim configurations)")
       ("out-config-file,o", po::value<std::string>(),
        "Default config output file,(config.%ID.end.xml.bz2)")
       ("out-data-file", po::value<std::string>(),
@@ -185,8 +185,8 @@ namespace dynamo {
 	sigaction (SIGUSR2, &new_action, NULL);
     }
 
-    if (vm.count("n-_threads"))
-      _threads.setThreadCount(vm["n-_threads"].as<unsigned int>());
+    if (vm.count("n-threads"))
+      _threads.setThreadCount(vm["n-threads"].as<unsigned int>());
 
     switch (vm["engine"].as<size_t>())
       {
