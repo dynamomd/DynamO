@@ -34,6 +34,7 @@
 ***** TODO Coil: Fix the dummy vertex array object mess.
 **** TODO Coil: State change tracking for glEnable/Disable.
 **** TODO Coil: State change tracking for glBlendFunc.
+**** TODO Coil: Multiple lights in forward rendering.
 **** TODO Coil: Make coil scale independent.
 **** TODO Coil: Make a generic render object container class.
 **** TODO Coil: Make a GL engine to put into magnet.
