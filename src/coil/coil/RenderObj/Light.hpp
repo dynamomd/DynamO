@@ -57,6 +57,8 @@ namespace coil {
     float getSpecularExponent() const { return _specularExponent; }
     float getSpecularFactor() const { return _specularFactor; }
 
+    virtual bool deletable() { return true; }
+
     virtual void dragCallback(Vector cursorPos);
 
     const std::tr1::array<GLfloat, 3>& getColor() const { return _color; }

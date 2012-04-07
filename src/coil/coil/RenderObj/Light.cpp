@@ -75,7 +75,7 @@ namespace coil {
 	_context->cleanupAttributeArrays();
 	//Set the normals to zero so it is fully illuminated
 	_context->setAttribute(Context::instanceScaleAttrIndex, 0.05, 0.05, 0.05, 1);
-	_context->setAttribute(Context::vertexColorAttrIndex, 1, 1, 1, 1);
+	_context->setAttribute(Context::vertexColorAttrIndex, _color[0], _color[1], _color[2], 1);
 	
 	if (_context->testExtension("GL_ARB_sample_shading"))
 	  {
