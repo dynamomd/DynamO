@@ -257,6 +257,8 @@ namespace coil {
 
     void AAsamplechangeCallback();
 
+    void addLightCallback();
+
     void cameraModeCallback();
     void runCallback(); 
 

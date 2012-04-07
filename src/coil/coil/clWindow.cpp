@@ -72,6 +72,8 @@ extern const size_t cammode_rotate_cursor_size;
 extern const guint8 cammode_fps[];
 extern const size_t cammode_fps_size;
 
+extern const guint8 addLight_Icon[];
+extern const size_t addLight_Icon_size;
 
 namespace coil {
   CLGLWindow::CLGLWindow(std::string title,
@@ -185,6 +187,7 @@ namespace coil {
     setIcon(_refXml, "CamNegYimg", camnegy_size, camnegy);
     setIcon(_refXml, "CamNegZimg", camnegz_size, camnegz);
     setIcon(_refXml, "aboutSplashImage", coilsplash_size, coilsplash);
+    setIcon(_refXml, "addLightImage", addLight_Icon_size, addLight_Icon);
 
     {
       Gtk::Button* button;
@@ -223,6 +226,16 @@ namespace coil {
       button->signal_clicked()
 	.connect(sigc::mem_fun(*this, &CLGLWindow::cameraModeCallback));
     }
+
+    {
+      Gtk::Button* button;    
+      _refXml->get_widget("addLightButton", button); 
+      
+      button->signal_clicked()
+	.connect(sigc::mem_fun(*this, &CLGLWindow::addLightCallback));
+    }
+    
+
 
     ///////Register the about button
     {
@@ -539,7 +552,7 @@ namespace coil {
     if (_readyFlag) return;
     
     {
-      std::tr1::shared_ptr<RLight> light(new RLight("Light 1",
+      std::tr1::shared_ptr<RLight> light(new RLight("Light",
 							   Vector(-0.8f,  0.8f, 0.8f),//Position
 							   Vector(0.0f, 0.0f, 0.0f),//Lookat
 							   75.0f//Beam angle
@@ -548,7 +561,7 @@ namespace coil {
     }
 
     {
-      std::tr1::shared_ptr<RLight> light(new RLight("Light 2",
+      std::tr1::shared_ptr<RLight> light(new RLight("Light",
 							   Vector(0.8f,  0.8f, -0.8f),//Position
 							   Vector(0.0f, 0.0f, 0.0f),//Lookat
 							   75.0f//Beam angle
@@ -1926,6 +1939,19 @@ namespace coil {
       default:
 	M_throw() << "Cannot change camera mode as it's in an unknown mode";
       }
+  }
+
+  void
+  CLGLWindow::addLightCallback()
+  {
+    std::tr1::shared_ptr<RLight> light(new RLight("Light",
+						  Vector(0, 0, 0),
+						  Vector(0, -1, 0),//Lookat
+						  75.0f//Beam angle
+						  ));
+    _renderObjsTree._renderObjects.push_back(light);
+    _renderObjsTree._renderObjects.back()->init(_systemQueue);
+    _renderObjsTree.buildRenderView();
   }
 
   void

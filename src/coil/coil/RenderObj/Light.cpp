@@ -74,7 +74,7 @@ namespace coil {
 
 	_context->cleanupAttributeArrays();
 	//Set the normals to zero so it is fully illuminated
-	_context->setAttribute(Context::instanceScaleAttrIndex, 0.05, 0.05, 0.05, 1);
+	_context->setAttribute(Context::instanceScaleAttrIndex, _size, _size, _size, 1);
 	_context->setAttribute(Context::vertexColorAttrIndex, _color[0], _color[1], _color[2], 1);
 	
 	if (_context->testExtension("GL_ARB_sample_shading"))
@@ -103,12 +103,12 @@ namespace coil {
   {
     _optList.reset(new Gtk::VBox);
 
-    { //Intensity
+    { //Intensity and color
       Gtk::HBox* box = manage(new Gtk::HBox);
       box->show();
       
       {
-	Gtk::Label* label = manage(new Gtk::Label("Intensity and Color", 0.95, 0.5));
+	Gtk::Label* label = manage(new Gtk::Label("Intensity", 0.95, 0.5));
 	box->pack_start(*label, true, true); 
 	label->show();
       }
@@ -123,6 +123,12 @@ namespace coil {
       _intensityEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
 
       {
+	Gtk::Label* label = manage(new Gtk::Label("Color", 0.95, 0.5));
+	box->pack_start(*label, true, true); 
+	label->show();
+      }
+
+      {
 	_lightColor.reset(new Gtk::ColorButton);
 	_lightColor->set_use_alpha(false);
 	Gdk::Color color;
@@ -130,24 +136,9 @@ namespace coil {
 	_lightColor->set_color(color);
 	box->pack_start(*_lightColor, false, false);
 	_lightColor->show();
-
+	_lightColor->set_size_request(60, -1);
 	_lightColor->signal_color_set().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
       }
-
-      {
-	Gtk::Label* label = manage(new Gtk::Label("Attenuation", 0.95, 0.5));
-	box->pack_start(*label, true, true);
-	label->show();
-      }
-
-      _attenuationEntry.reset(new Gtk::Entry);
-      box->pack_start(*_attenuationEntry, false, false);
-      _attenuationEntry->show(); _attenuationEntry->set_width_chars(7);
-      _attenuationEntry->set_text(boost::lexical_cast<std::string>(_attenuation));
-
-      _attenuationEntry->signal_changed()
-	.connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_attenuationEntry));
-      _attenuationEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
 
       _optList->pack_start(*box, false, false); 
     }
@@ -189,7 +180,29 @@ namespace coil {
       _optList->pack_start(*box, false, false);
     }
 
-    { //Specular
+    {//Attenuation
+      Gtk::HBox* box = manage(new Gtk::HBox);
+      box->show();
+
+      {
+	Gtk::Label* label = manage(new Gtk::Label("Attenuation", 0.95, 0.5));
+	box->pack_start(*label, true, true);
+	label->show();
+      }
+
+      _attenuationEntry.reset(new Gtk::Entry);
+      box->pack_start(*_attenuationEntry, false, false);
+      _attenuationEntry->show(); _attenuationEntry->set_width_chars(7);
+      _attenuationEntry->set_text(boost::lexical_cast<std::string>(_attenuation));
+
+      _attenuationEntry->signal_changed()
+	.connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_attenuationEntry));
+      _attenuationEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
+
+      _optList->pack_start(*box, false, false);
+    }
+
+    { //Position
       Gtk::HBox* box = manage(new Gtk::HBox);
       box->show();
 
@@ -202,7 +215,7 @@ namespace coil {
       _positionXEntry.reset(new Gtk::Entry);
       box->pack_start(*_positionXEntry, false, false);
       _positionXEntry->show();
-      _positionXEntry->set_width_chars(7);
+      _positionXEntry->set_width_chars(8);
       _positionXEntry->set_text(boost::lexical_cast<std::string>(getEyeLocationObjSpace()[0]));
       _positionXEntry->signal_changed().connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_specularFactorEntry));
       _positionXEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
@@ -210,7 +223,7 @@ namespace coil {
       _positionYEntry.reset(new Gtk::Entry);
       box->pack_start(*_positionYEntry, false, false);
       _positionYEntry->show();
-      _positionYEntry->set_width_chars(7);
+      _positionYEntry->set_width_chars(8);
       _positionYEntry->set_text(boost::lexical_cast<std::string>(getEyeLocationObjSpace()[1]));
       _positionYEntry->signal_changed().connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_specularFactorEntry));
       _positionYEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
@@ -218,10 +231,31 @@ namespace coil {
       _positionZEntry.reset(new Gtk::Entry);
       box->pack_start(*_positionZEntry, false, false);
       _positionZEntry->show();
-      _positionZEntry->set_width_chars(7);
+      _positionZEntry->set_width_chars(8);
       _positionZEntry->set_text(boost::lexical_cast<std::string>(getEyeLocationObjSpace()[2]));
       _positionZEntry->signal_changed().connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_specularFactorEntry));
       _positionZEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
+
+      _optList->pack_start(*box, false, false);
+    }
+
+    { //Light size
+      Gtk::HBox* box = manage(new Gtk::HBox);
+      box->show();
+
+      {
+	Gtk::Label* label = manage(new Gtk::Label("Size", 0.95, 0.5));
+	box->pack_start(*label, true, true); 
+	label->show();
+      }
+
+      _sizeEntry.reset(new Gtk::Entry);
+      box->pack_start(*_sizeEntry, false, false);
+      _sizeEntry->show();
+      _sizeEntry->set_width_chars(8);
+      _sizeEntry->set_text(boost::lexical_cast<std::string>(_size));
+      _sizeEntry->signal_changed().connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_specularFactorEntry));
+      _sizeEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
 
       _optList->pack_start(*box, false, false);
     }
@@ -287,6 +321,7 @@ namespace coil {
     try { _attenuation = boost::lexical_cast<float>(_attenuationEntry->get_text()); } catch (...) {}
     try { _specularExponent = boost::lexical_cast<float>(_specularExponentEntry->get_text()); } catch (...) {}
     try { _specularFactor = boost::lexical_cast<float>(_specularFactorEntry->get_text()); } catch (...) {}
+    try { _size = boost::lexical_cast<float>(_sizeEntry->get_text()); } catch (...) {}
 
     Gdk::Color color = _lightColor->get_color();
     _color[0] = GLfloat(color.get_red()) / G_MAXUSHORT;

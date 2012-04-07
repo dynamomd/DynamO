@@ -38,7 +38,8 @@ namespace coil {
       Camera(1,1,position, lookAtPoint, fovY, zNearDist, zFarDist, up),
       _intensity(1), 
       _attenuation(0.5), _specularExponent(96),
-      _specularFactor(1) 
+      _specularFactor(1),
+      _size(0.05)
     {
       std::tr1::array<GLfloat, 3> tmp = {{1.0, 1.0, 1.0}};
       _color = tmp;
@@ -123,9 +124,11 @@ namespace coil {
     std::auto_ptr<Gtk::Entry> _specularFactorEntry;
     std::auto_ptr<Gtk::Entry> _positionXEntry;
     std::auto_ptr<Gtk::Entry> _positionYEntry;
-    std::auto_ptr<Gtk::Entry> _positionZEntry;
-    
+    std::auto_ptr<Gtk::Entry> _positionZEntry;    
+    std::auto_ptr<Gtk::Entry> _sizeEntry;
+
     float _intensity, _attenuation, _specularExponent, _specularFactor;
+    GLfloat _size;
     std::tr1::array<GLfloat, 3> _color;
 
     magnet::GL::shader::SphereShader<true> _sphereShader;

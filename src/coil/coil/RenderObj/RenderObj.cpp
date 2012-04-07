@@ -166,6 +166,23 @@ namespace coil {
 		else if (clm->get_title() == "Delete")
 		  {
 		    RenderObj* obj = (*iter)[_columns->m_obj];
+
+		    //Start by searching the top level for the object to delete
+		    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjects.begin();
+			 iPtr != _renderObjects.end(); ++iPtr)
+		      if (obj == iPtr->get())
+			{
+			  //Found it
+			  if ((*iPtr)->deletable())
+			    {
+			      (*iPtr)->deinit();
+			      _renderObjects.erase(iPtr);
+			      buildRenderView();
+			    }
+			  return false;
+			}
+
+		    //Ok, just notify the object it is to be deleted.
 		    obj->request_delete();
 		  }
 	      }
