@@ -449,7 +449,7 @@ namespace dynamo {
 
 	  //Sit the particles 95% away of max distance from each other
 	  //to help with seriously overlapping wells
-	  double diamScale = 1.0 / chainlength;
+	  double diamScale = 1.0 / (4.0 * std::max(1.0, std::sqrt(chainlength)) * std::max(lambda * sigma, sigmax));
 
 	  CURandWalk sysPack(chainlength, (sigmin + 0.95 * (sigmax - sigmin))
 			     * diamScale, sigma * diamScale, new UParticle());
@@ -457,8 +457,7 @@ namespace dynamo {
 	  sysPack.initialise();
 
 	  //Drop them in the middle of the sim
-	  std::vector<Vector  > latticeSites(sysPack.placeObjects
-					     (Vector (0,0,0)));
+	  std::vector<Vector> latticeSites(sysPack.placeObjects(Vector(0,0,0)));
 
 	  //Set up the system now
 
