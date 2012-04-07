@@ -81,7 +81,7 @@ namespace coil {
     _selectedObjectID(0),
     _systemQueue(new magnet::thread::TaskQueue),
     _updateIntervalValue(updateIntervalValue),
-    keyState(DEFAULT),
+    _mouseState(DEFAULT),
     windowTitle(title),
     _frameCounter(0),
     _updateCounter(0),
@@ -1371,10 +1371,10 @@ namespace coil {
 	    _oldMouseX = x;
 	    _oldMouseY = y;
 	  
-	    keyState |= LEFTMOUSE;
+	    _mouseState |= LEFTMOUSE;
 	  }
 	else
-	  keyState &= ~LEFTMOUSE;
+	  _mouseState &= ~LEFTMOUSE;
 	break;
       case GLUT_RIGHT_BUTTON:
 	if (state == GLUT_DOWN)
@@ -1382,13 +1382,13 @@ namespace coil {
 	    _oldMouseX = x;
 	    _oldMouseY = y;
 	  
-	    keyState |= RIGHTMOUSE;
+	    _mouseState |= RIGHTMOUSE;
 
 	    //Now perform a picking selection
 	    performPicking(x,y);
 	  }
 	else
-	  keyState &= ~RIGHTMOUSE;
+	  _mouseState &= ~RIGHTMOUSE;
 	break;
       case GLUT_MIDDLE_BUTTON:
 	if (state == GLUT_DOWN)
@@ -1396,10 +1396,10 @@ namespace coil {
 	    _oldMouseX = x;
 	    _oldMouseY = y;
 	  
-	    keyState |= MIDDLEMOUSE;
+	    _mouseState |= MIDDLEMOUSE;
 	  }
 	else
-	  keyState &= ~MIDDLEMOUSE;
+	  _mouseState &= ~MIDDLEMOUSE;
 	break;
       case 3:
 	if (state == GLUT_UP) _moveSensitivity *= 1.1;
@@ -1427,15 +1427,44 @@ namespace coil {
     float diffY = (y-_oldMouseY) * _mouseSensitivity;
     float diffX = (x-_oldMouseX) * _mouseSensitivity;
 
-    switch (keyState)
-      {
-      case LEFTMOUSE:
-	_camera.movement(diffX, diffY, 0, 0, 0);
-      case RIGHTMOUSE:
-      case MIDDLEMOUSE:
-      default:
-	{}
-      }
+    if (_mouseState & LEFTMOUSE)
+      _camera.movement(diffX, diffY, 0, 0, 0);
+
+    if (_mouseState & RIGHTMOUSE)
+      if (_selectedObject)
+	{
+
+	  //We need to calculate the ray from the camera
+	  std::tr1::array<GLfloat, 4> n = {{(2.0 * x) / _camera.getWidth() - 1.0,
+					    1.0 - (2.0 * y) / _camera.getHeight(),
+					    0.0,
+					    1.0}};
+	  
+	  std::tr1::array<GLfloat, 4> v = _camera.getProjectionMatrix().inverse() * n;
+	  
+	  for (size_t i(0); i < 4; ++i) v[i] /= v[3];
+	  
+	  std::tr1::array<GLfloat, 4> w = _camera.getViewMatrix().inverse() * v;
+	  
+	  magnet::math::Vector ray (w[0], w[1], w[2]);
+
+	  const magnet::math::Vector campos = _camera.getEyeLocationObjSpace();
+	  ray -= campos;
+
+	  //We're dragging a selected object (the picking occurs on right mouse button down). Calculate the current position of the cursor
+	  std::tr1::array<GLfloat, 4> vec = _selectedObject->getCursorPosition(_selectedObjectID);
+	  const magnet::math::Vector origin(vec[0], vec[1], vec[2]);
+	  const magnet::math::Vector camdir = _camera.getCameraDirection();
+	  const magnet::math::Vector rij = origin - campos;
+	  double obj_distance = (rij | camdir) / camdir.nrm();
+	  
+	  double ray_distance = (ray | camdir) / camdir.nrm();
+	  
+	  //std::cerr << "Moving from <" << vec[0] << "," << vec[1] << "," << vec[2] << ">\n";
+	  ray *= obj_distance / ray_distance;
+	  const magnet::math::Vector cursor_pos = campos + ray;
+	  //std::cerr << "         to <" << cursor_pos[0] << "," << cursor_pos[1] << "," << cursor_pos[2] << ">\n";	  
+	}
   
     _oldMouseX = x;
     _oldMouseY = y;

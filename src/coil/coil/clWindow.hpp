@@ -158,7 +158,7 @@ namespace coil {
 	MIDDLEMOUSE = 4
       };
 
-    int keyState;
+    int _mouseState;
   
     std::string windowTitle;
     bool FPSmode;
