@@ -259,6 +259,8 @@ namespace coil {
 
     void addLightCallback();
 
+    void addFunctionCallback();
+
     void cameraModeCallback();
     void runCallback(); 
 

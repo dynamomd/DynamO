@@ -104,17 +104,17 @@ FunctionPickKernel(__global uint * colors, uint offset)
     };
 
   public:
-    RFunction(size_t N, Vector origin, Vector axis1,
-	      Vector axis2, Vector axis3,
-	      cl_float functionOriginX, 
-	      cl_float functionOriginY,
-	      cl_float functionRangeX,
-	      cl_float functionRangeY,
-	      bool drawAxis,
-	      bool staticShape,
-	      std::string name,
-	      std::string function = "f = pos.x * pos.y * native_sin(t);\n",
-	      std::string normalCalc = "normal = normalize((float4)(pos.y * native_sin(t), pos.x * native_sin(t),1,0));\n",
+    RFunction(std::string name,
+	      size_t N = 10, Vector origin = Vector(-10,-1.0,-10), Vector axis1 = Vector(20,0,0),
+	      Vector axis2 = Vector(0,0,20), Vector axis3 = Vector(0,1,0),
+	      cl_float functionOriginX = 1.0,
+	      cl_float functionOriginY = 1.0,
+	      cl_float functionRangeX = 1.0,
+	      cl_float functionRangeY = 1.0,
+	      bool drawAxis = false,
+	      bool staticShape = true,
+	      std::string function = "f = 0.0 /*pos.x * pos.y * native_sin(t)*/;\n",
+	      std::string normalCalc = "normal = normalize((float4)(0.0, 0.0, 1.0, 0.0));\n",
 	      std::string colorCalc = "\n");
 
     virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
@@ -131,6 +131,8 @@ FunctionPickKernel(__global uint * colors, uint offset)
     void setConstantA(cl_float val) { _A = val; }
 
     virtual Glib::RefPtr<Gdk::Pixbuf> getIcon();
+
+    virtual bool deletable() { return false; }
 
   protected:
     void clTick();

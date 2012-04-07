@@ -75,6 +75,9 @@ extern const size_t cammode_fps_size;
 extern const guint8 addLight_Icon[];
 extern const size_t addLight_Icon_size;
 
+extern const guint8 addFunction_Icon[];
+extern const size_t addFunction_Icon_size;
+
 namespace coil {
   CLGLWindow::CLGLWindow(std::string title,
 			 double updateIntervalValue,
@@ -188,6 +191,7 @@ namespace coil {
     setIcon(_refXml, "CamNegZimg", camnegz_size, camnegz);
     setIcon(_refXml, "aboutSplashImage", coilsplash_size, coilsplash);
     setIcon(_refXml, "addLightImage", addLight_Icon_size, addLight_Icon);
+    setIcon(_refXml, "addFunctionImage", addFunction_Icon_size, addFunction_Icon);
 
     {
       Gtk::Button* button;
@@ -235,7 +239,13 @@ namespace coil {
 	.connect(sigc::mem_fun(*this, &CLGLWindow::addLightCallback));
     }
     
-
+    {
+      Gtk::Button* button;    
+      _refXml->get_widget("addFunctionButton", button); 
+      
+      button->signal_clicked()
+	.connect(sigc::mem_fun(*this, &CLGLWindow::addFunctionCallback));
+    }
 
     ///////Register the about button
     {
@@ -1950,6 +1960,15 @@ namespace coil {
 						  75.0f//Beam angle
 						  ));
     _renderObjsTree._renderObjects.push_back(light);
+    _renderObjsTree._renderObjects.back()->init(_systemQueue);
+    _renderObjsTree.buildRenderView();
+  }
+
+  void
+  CLGLWindow::addFunctionCallback()
+  {
+    std::tr1::shared_ptr<RFunction> function(new RFunction("Function"));
+    _renderObjsTree._renderObjects.push_back(function);
     _renderObjsTree._renderObjects.back()->init(_systemQueue);
     _renderObjsTree.buildRenderView();
   }

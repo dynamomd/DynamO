@@ -33,11 +33,11 @@ namespace coil {
   }
 
 
-  RFunction::RFunction(size_t N, Vector origin, Vector axis1,
+  RFunction::RFunction(std::string name,
+		       size_t N, Vector origin, Vector axis1,
 		       Vector axis2, Vector axis3, cl_float functionOriginX,
 		       cl_float functionOriginY, cl_float functionRangeX, 
 		       cl_float functionRangeY, bool drawAxis, bool staticShape,
-		       std::string name,
 		       std::string function,
 		       std::string normalCalc,
 		       std::string colorCalc):

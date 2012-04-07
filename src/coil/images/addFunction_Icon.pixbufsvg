@@ -16,7 +16,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.2 r9819"
-   sodipodi:docname="Function_Icon.pixbufsvg">
+   sodipodi:docname="addFunction_Icon.pixbufsvg">
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -143,7 +143,7 @@
        fx="18.247652"
        fy="1038.6395"
        r="12.5"
-       gradientTransform="matrix(0.39326859,0.15156839,-0.28116298,0.72952263,303.7079,281.02821)"
+       gradientTransform="matrix(0.39326859,0.15156839,-0.28116298,0.72952263,300.31504,281.02821)"
        gradientUnits="userSpaceOnUse" />
   </defs>
   <metadata
@@ -163,6 +163,12 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-1028.3622)">
+    <path
+       style="fill:url(#radialGradient4251);fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 24.607143,1044.3622 c 0,0 -2.74312,-0.444 -4,-1 -2.198219,-0.9724 -3.596299,-4 -6,-4 -2.403701,0 -3.77927,3.0801 -6.0000001,4 -1.570293,0.6504 -5,1 -5,1 l -3.00000004,5 c 0,0 3.34361754,-0.2924 5.00000004,-0.5536 2.016814,-0.318 3.959599,-1.1583 6.0000001,-1.2321 2.015757,-0.073 4.018313,0.4095 6,0.7857 1.350256,0.2563 4,1 4,1 z"
+       id="path3439"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="caaaccaaacc" />
     <g
        id="g3366"
        transform="matrix(0.98051989,0,0,0.98051989,-219.92271,904.55245)"
@@ -263,10 +269,16 @@
       </g>
     </g>
     <path
-       style="fill:url(#radialGradient4251);stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
-       d="m 28,1044.3622 c 0,0 -2.74312,-0.444 -4,-1 -2.198219,-0.9724 -3.596299,-4 -6,-4 -2.403701,0 -3.77927,3.0801 -6,4 -1.570293,0.6504 -5,1 -5,1 l -3,5 c 0,0 3.3436175,-0.2924 5,-0.5536 2.016814,-0.318 3.959599,-1.1583 6,-1.2321 2.015757,-0.073 4.018313,0.4095 6,0.7857 1.350256,0.2563 4,1 4,1 z"
-       id="path3439"
+       style="font-size:medium;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:normal;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.2;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
+       d="m 24,1042.3622 0,9 2,0 0,-9 z"
+       id="path3837-7"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="caaaccaaacc" />
+       sodipodi:nodetypes="ccccc" />
+    <path
+       style="font-size:medium;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:normal;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.2;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
+       d="m 29.5,1045.8622 -9,0 0,2 9,0 z"
+       id="path3837-7-9"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccc" />
   </g>
 </svg>

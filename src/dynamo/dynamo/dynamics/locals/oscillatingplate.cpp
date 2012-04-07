@@ -216,11 +216,10 @@ namespace dynamo {
 	axis1 *= Sim->primaryCellSize[1] * lengthRescale / axis1.nrm();
 	axis2 *= Sim->primaryCellSize[2] * lengthRescale / axis2.nrm();
 
-	_renderObj.reset(new coil::RFunction(10, 
+	_renderObj.reset(new coil::RFunction("Oscillating wall", 10, 
 					     rw0 - 0.5 * (axis1 + axis2), 
 					     axis1, axis2, axis3,
 					     0, 0, 1, 1, true, false,
-					     "Oscillating wall",
 					     "f = A;",
 					     "normal = -(float4)(" + os.str() + ");"
 					     ));
