@@ -118,7 +118,13 @@ namespace coil {
     magnet::GL::FBO _filterTarget2;
 
     //For object selection
-    uint32_t _selectedObject;
+    /*! \brief If valid, the render object which is currently
+        selected. */
+    std::tr1::shared_ptr<RenderObj> _selectedObject;
+    /*! \brief If \ref _selectedObject is valid, this holds the id of
+      the object within \ref _selectedObject which has been
+      selected. */
+    uint32_t _selectedObjectID;
     magnet::GL::objects::TextSurface _cursor;
 
     void CallBackSpecialUpFunc(int key, int x, int y) {}

@@ -78,7 +78,7 @@ namespace coil {
 			 double updateIntervalValue,
 			 bool dynamo
 			 ):
-    _selectedObject(0),
+    _selectedObjectID(0),
     _systemQueue(new magnet::thread::TaskQueue),
     _updateIntervalValue(updateIntervalValue),
     keyState(DEFAULT),
@@ -692,24 +692,8 @@ namespace coil {
     
     if (_selectedObject)
       {
-	uint32_t offset = 1;
-	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator
-	       iPtr = _renderObjsTree._renderObjects.begin();
-	     iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-	  {
-	    const uint32_t n_objects = (*iPtr)->pickableObjectCount();
-	    
-	    if ((_selectedObject >= offset) && (_selectedObject - offset) < n_objects)
-	      { //Found the corresponding render object that has been selected.
-		std::tr1::array<GLfloat, 4> vec 
-		  = (*iPtr)->getCursorPosition(_selectedObject - offset);
-		
-		_camera.setRotatePoint(magnet::math::Vector(vec[0], vec[1], vec[2]));
-		break;
-	      }
-	    
-	    offset += n_objects;
-	  }
+	std::tr1::array<GLfloat, 4> vec = _selectedObject->getCursorPosition(_selectedObjectID);
+	_camera.setRotatePoint(magnet::math::Vector(vec[0], vec[1], vec[2]));
       }
 
     //Camera Positioning
@@ -1197,33 +1181,16 @@ namespace coil {
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       (*iPtr)->interfaceRender(_camera);
 
-    //Draw the cursor
+    //Draw the cursor if an object is selected
     if (_selectedObject)
       {
-	uint32_t offset = 1;
-	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator
-	       iPtr = _renderObjsTree._renderObjects.begin();
-	     iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-	  {
-	    const uint32_t n_objects = (*iPtr)->pickableObjectCount();
-	    
-	    if ((_selectedObject >= offset) && (_selectedObject - offset) < n_objects)
-	      { //Found the corresponding render object that has been selected.
-		std::tr1::array<GLfloat, 4> vec 
-		  = (*iPtr)->getCursorPosition(_selectedObject - offset);
-		vec = camera.getProjectionMatrix() * (camera.getViewMatrix() * vec);
-		_cursor.setPosition((0.5 + 0.5 * vec[0] / vec[3]) * camera.getWidth(),
-				    (0.5 - 0.5 * vec[1] / vec[3]) * camera.getHeight());
-
-		_cursor.clear();
-		_cursor << (*iPtr)->getCursorText(_selectedObject - offset);
-		//Render the overlay
-		_cursor.glRender();
-		break;
-	      }
-	    
-	    offset += n_objects;
-	  }
+	std::tr1::array<GLfloat, 4> vec = _selectedObject->getCursorPosition(_selectedObjectID);
+	vec = camera.getProjectionMatrix() * (camera.getViewMatrix() * vec);
+	_cursor.setPosition((0.5 + 0.5 * vec[0] / vec[3]) * camera.getWidth(),
+			    (0.5 - 0.5 * vec[1] / vec[3]) * camera.getHeight());
+	_cursor.clear();
+	_cursor << _selectedObject->getCursorText(_selectedObjectID);
+	_cursor.glRender();
       }
     
     _simpleRenderShader.detach();
@@ -1788,7 +1755,7 @@ namespace coil {
   namespace {
     struct IterFinder
     {
-      IterFinder(RenderObj* selected, Gtk::TreeModelColumn<RenderObj*> col):
+      IterFinder(std::tr1::shared_ptr<RenderObj> selected, Gtk::TreeModelColumn<RenderObj*> col):
 	_selected(selected),
 	_col(col)
       {}
@@ -1797,7 +1764,7 @@ namespace coil {
       {
 	RenderObj* obj = (*iter)[_col];
 
-	if (obj==_selected)
+	if (obj==_selected.get())
 	  {
 	    _iter = iter;
 	    return true;
@@ -1806,9 +1773,8 @@ namespace coil {
 	return false;
       }
 
-
       Gtk::TreeModel::iterator _iter;
-      RenderObj* _selected;
+      std::tr1::shared_ptr<RenderObj> _selected;
       Gtk::TreeModelColumn<RenderObj*> _col;
     };
   }
@@ -1852,12 +1818,9 @@ namespace coil {
     //getGLContext()->swapBuffers();
 
     //Now let the objects know what was picked
-    _selectedObject = pixel[0] 
+    _selectedObject.reset();
+    size_t _selectedObjectGlobalID = pixel[0] 
       + 256 * (pixel[1] + 256 * (pixel[2] + 256 * pixel[3]));
-
-    //Highlight this object in the treeview.
-
-    RenderObj* picked_obj = NULL;
 
     offset = 1;
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator 
@@ -1866,18 +1829,19 @@ namespace coil {
       { 
 	const uint32_t n_objects = (*iPtr)->pickableObjectCount();
 	
-	if ((_selectedObject >= offset) && (_selectedObject - offset) < n_objects)
+	if ((_selectedObjectGlobalID >= offset) && (_selectedObjectGlobalID - offset) < n_objects)
 	  {
-	    picked_obj = (*iPtr)->getPickedObject(_selectedObject - offset);
+	    _selectedObjectID = _selectedObjectGlobalID - offset;
+	    _selectedObject = (*iPtr)->getPickedObject(_selectedObjectID, *iPtr);
 	    break;
 	  }
 	offset += n_objects;
       }
 
 
-    if (picked_obj)
+    if (_selectedObject)
       {
-	IterFinder finder(picked_obj, _renderObjsTree._columns->m_obj);
+	IterFinder finder(_selectedObject, _renderObjsTree._columns->m_obj);
 
 	_renderObjsTree._store->foreach_iter(sigc::mem_fun(&finder, &IterFinder::check));
 

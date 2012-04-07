@@ -51,6 +51,14 @@ namespace coil {
 	}
   }
 
+  std::tr1::array<GLfloat, 4> 
+  DataSetChild::getCursorPosition(uint32_t objID)
+  { return _ds.getCursorPosition(objID); }
+
+  std::string 
+  DataSetChild::getCursorText(uint32_t objID)
+  { return _ds.getCursorText(objID); }
+
   void 
   DataSet::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
   {

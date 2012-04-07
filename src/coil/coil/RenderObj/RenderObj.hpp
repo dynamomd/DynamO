@@ -149,8 +149,20 @@ namespace coil {
      */
     virtual uint32_t pickableObjectCount() { return 0; }
 
-    virtual RenderObj* getPickedObject(uint32_t objID)
-    { return this; }
+
+    /*! \brief this Render object has been selected/picked. Return a
+        pointer to the actual object selected.
+	
+	By default the 
+
+	\param objID An ID number of the object selected in the
+	picking.  
+	
+	\param my_ptr A shared pointer of *this object.
+     */
+    virtual std::tr1::shared_ptr<RenderObj> 
+    getPickedObject(uint32_t objID, const std::tr1::shared_ptr<RenderObj>& my_ptr)
+    { return my_ptr; }
 
     virtual std::string getCursorText(uint32_t objID)
     {

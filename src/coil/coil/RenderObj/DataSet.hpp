@@ -39,6 +39,10 @@ namespace coil {
     /*! \brief Called when the object should be deleted. */
     virtual void request_delete();
 
+    virtual std::tr1::array<GLfloat, 4> getCursorPosition(uint32_t objID);
+
+    virtual std::string getCursorText(uint32_t objID);
+
   protected:
 
     DataSet& _ds;
@@ -154,7 +158,8 @@ namespace coil {
 	}
     }
 
-    RenderObj* getPickedObject(uint32_t objID)
+    virtual bool
+    isPickedObject(uint32_t objID, const std::tr1::shared_ptr<RenderObj>& my_ptr)
     { 
       uint32_t obj_offset = 0;
 
@@ -164,12 +169,12 @@ namespace coil {
 	  const uint32_t n_objects = (*iPtr)->pickableObjectCount();
 	  
 	  if ((objID >= obj_offset) && (objID - obj_offset) < n_objects)
-	    return (*iPtr)->getPickedObject(objID - obj_offset);
+	    return (*iPtr)->getPickedObject(objID - obj_offset, *iPtr);
 
 	  obj_offset += n_objects;
 	}
 
-      return NULL;
+      return my_ptr;
     }
 
     magnet::GL::Buffer<GLfloat>& getPositionBuffer();
