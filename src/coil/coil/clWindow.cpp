@@ -1460,10 +1460,9 @@ namespace coil {
 	  
 	  double ray_distance = (ray | camdir) / camdir.nrm();
 	  
-	  //std::cerr << "Moving from <" << vec[0] << "," << vec[1] << "," << vec[2] << ">\n";
 	  ray *= obj_distance / ray_distance;
 	  const magnet::math::Vector cursor_pos = campos + ray;
-	  //std::cerr << "         to <" << cursor_pos[0] << "," << cursor_pos[1] << "," << cursor_pos[2] << ">\n";	  
+	  _selectedObject->dragCallback(cursor_pos);
 	}
   
     _oldMouseX = x;

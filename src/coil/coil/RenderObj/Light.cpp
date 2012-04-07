@@ -272,6 +272,15 @@ namespace coil {
   }
 
   void 
+  RLight::dragCallback(Vector cursorPos)
+  {
+    _positionXEntry->set_text(boost::lexical_cast<std::string>(cursorPos[0]));
+    _positionYEntry->set_text(boost::lexical_cast<std::string>(cursorPos[1]));
+    _positionZEntry->set_text(boost::lexical_cast<std::string>(cursorPos[2]));
+    guiUpdate();
+  }
+
+  void 
   RLight::guiUpdate()
   {
     try { _intensity = boost::lexical_cast<float>(_intensityEntry->get_text()); } catch (...) {}

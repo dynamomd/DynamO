@@ -174,6 +174,8 @@ namespace coil {
       M_throw() << "This object is not pickable";
     }
 
+    virtual void dragCallback(Vector cursorPos) {}
+
     /*! \brief Callback for when the RenderObj is to make its Gtk
         controls visible.
 	

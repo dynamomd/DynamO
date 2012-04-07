@@ -55,6 +55,7 @@
 **** DONE Bugfix DynamO: Found the neighbourlists were not being correctly reinitialised, causing slowdowns and possible hangs in compressing systems (huge speed boost in compression).
 **** DONE Bugfix DynamO: Multi-core parallel tempering is now actually in parallel. Since Oct 2009 the code actually has been executing in serial.
 **** DONE Coil: Added a fullscreen mode, toggled with the f key.
+**** DONE Coil: Objects can now be dragged, for example, the lights can be repositioned using the mouse.
 **** DONE DynamO: Packing of systems into systems is now easy to perform.
 **** DONE DynamO: An estimate of the remaining time left for the simulation is now outputted on the screen.
 **** DONE DynamO: Up to 50% faster in polydisperse systems thanks to a new cache friendly nblist implementation.
@@ -63,6 +64,7 @@
 **** DONE DynamO: Removed all deprecated Clone functions for copying of classes in the code.
 **** DONE DynamO: Alter the functions in dynamics that add/get/set objects and take/return a pointer to return shared_ptr's (search for uses of shared_ptr's get() function).
 **** DONE DynamO: Change the loadClass XML functions to return shared_ptr's.
+**** DONE DynamO: Improved the sizing of systems when dropping random polymers (dynamod -m2).
 **** DONE Bugfix DynamO: Changed the default settings of the histogram reweighting program so that the results are accurate by default! Previously, the results coming out of dynahist_rw could be quite innaccurate unless --min-err=1e-16 was set.
 **** DONE Bugfix DynamO: The uniform_01 distribution had its own copy of the random number generator. It is unlikely that this affected any results, but it is not good practice.
 **** DONE Bugfix DynamO: The Green-Kubo Mutual diffusion correlator now works (instead of just outputting NaN/inf).
