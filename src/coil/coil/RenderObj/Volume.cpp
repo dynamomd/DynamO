@@ -255,6 +255,8 @@ namespace coil {
     _transferFuncTexture.bind(2);
     _preintTransferFuncTexture.bind(3);
 
+    _shader.defines("MyDefine") = "TEST";
+
     _shader.attach();
     _shader["FocalLength"] = GLfloat(1.0 / std::tan(camera.getFOVY() * (M_PI / 360.0)));
     { 

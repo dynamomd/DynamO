@@ -174,6 +174,41 @@ namespace magnet {
 	  boost::any _data;
 	};
 
+	/*! \brief An object to store the values of defines.
+	 */
+	class ShaderDefineValue
+	{
+	  std::string _value;
+	  bool _needsRecompilation;
+
+	  friend class Shader;
+
+	  bool checkForRecompilation()
+	  { 
+	    bool retval = _needsRecompilation;
+	    _needsRecompilation = false;
+	    return retval;
+	  }
+
+	public:
+	  ShaderDefineValue(): _needsRecompilation(false) {}
+
+	  /*! \brief Test the current value of the define.*/
+	  template<class T>
+	  bool operator==(const T& val) const
+	  { return !_value.compare(boost::lexical_cast<std::string>(val)); }
+
+	  template<class T>
+	  inline void operator=(const T& val)
+	  { 
+	    if (*this == val) return;
+	    _value = boost::lexical_cast<std::string>(val);
+	    _needsRecompilation = true;
+	  }
+
+	  operator std::string() const { return _value; }
+	};
+
 	/*! \brief A OpenGL shader object.
 	 
 	  This class maintains the GL objects associated to a
@@ -242,6 +277,19 @@ namespace magnet {
 	  inline void attach() 
 	  {
 	    if (!_built) M_throw() << "Cannot attach a Shader which has not been built()";
+
+	    typedef std::tr1::unordered_map<std::string, ShaderDefineValue>::iterator it;
+	    bool rebuild = false;
+	    for (it iPtr = _defineCache.begin(); iPtr != _defineCache.end(); ++iPtr)
+	      if (iPtr->second.checkForRecompilation())
+		rebuild = true;
+
+	    if (rebuild)
+	      {
+		deinit();
+		build();
+	      }
+	    
 	    _context->_shaderStack.push_back(this);
 
 	    glUseProgramObjectARB(_programHandle);
@@ -322,6 +370,18 @@ namespace magnet {
 	    return _uniformCache[uniformName];
 	  }
 
+	  /*! \brief Used to set and retrieve values of \ref Shader
+	    defines.
+	    
+	    \param defineName The name of the define to assign a value
+	    to.
+	    
+	    \return A ShaderUniformValue object representing a
+	    uniform.
+	  */
+	  inline ShaderDefineValue& defines(const std::string& defineName)
+	  { return _defineCache[defineName]; }
+
 	  /*! \brief Builds the shader and allocates the associated
 	    OpenGL objects.
 	    
@@ -332,11 +392,11 @@ namespace magnet {
 	  {
 	    _context = Context::getContext();
 
-	    if (_vertexShaderCode.empty()) 
+	    if (_vertexShaderCode.empty())
 	      _vertexShaderCode = magnet::string::format_code(initVertexShaderSource());
-	    if (_fragmentShaderCode.empty()) 
+	    if (_fragmentShaderCode.empty())
 	      _fragmentShaderCode = magnet::string::format_code(initFragmentShaderSource());
-	    if (_geometryShaderCode.empty()) 
+	    if (_geometryShaderCode.empty())
 	      _geometryShaderCode = magnet::string::format_code(initGeometryShaderSource());
 	  
 	    GLint result;
@@ -344,6 +404,8 @@ namespace magnet {
 	    _programHandle = glCreateProgramObjectARB();
 	    GL::detail::errorCheck();
 
+	    std::string defines = genDefines();
+	    
 	    //Vertex shader
 	    if (!_vertexShaderCode.empty())
 	      {
@@ -359,8 +421,8 @@ namespace magnet {
 		GL::detail::errorCheck();
 		if (!_vertexShaderHandle)
 		  M_throw() << "Failed to create vertex shader handle";
-		const GLcharARB* src = _vertexShaderCode.c_str();
-		glShaderSourceARB(_vertexShaderHandle, 1, &src, NULL);	 
+		const GLcharARB* src[2] = {defines.c_str(), _vertexShaderCode.c_str()};
+		glShaderSourceARB(_vertexShaderHandle, 2, src, NULL);	 
 		GL::detail::errorCheck();
 		glCompileShaderARB(_vertexShaderHandle);	  
 		GL::detail::errorCheck();
@@ -396,8 +458,8 @@ namespace magnet {
 		if (!_fragmentShaderHandle)
 		  M_throw() << "Failed to create fragment shader handle";
 
-		const GLcharARB* src = _fragmentShaderCode.c_str();
-		glShaderSourceARB(_fragmentShaderHandle, 1, &src, NULL);
+		const GLcharARB* src[2] = {defines.c_str(), _fragmentShaderCode.c_str()};
+		glShaderSourceARB(_fragmentShaderHandle, 2, src, NULL);
 		GL::detail::errorCheck();
 		glCompileShaderARB(_fragmentShaderHandle);
 		GL::detail::errorCheck();
@@ -427,8 +489,8 @@ namespace magnet {
 
 		if (!_geometryShaderHandle)
 		  M_throw() << "Failed to create geometry shader handle";
-		const GLcharARB* src = _geometryShaderCode.c_str();
-		glShaderSourceARB(_geometryShaderHandle, 1, &src, NULL);
+		const GLcharARB* src[2] = {defines.c_str(), _geometryShaderCode.c_str()};
+		glShaderSourceARB(_geometryShaderHandle, 2, src, NULL);
 		GL::detail::errorCheck();
 		glCompileShaderARB(_geometryShaderHandle);
 		GL::detail::errorCheck();
@@ -503,6 +565,18 @@ namespace magnet {
 	  std::string _geometryShaderCode;
 
 	  std::tr1::unordered_map<std::string, ShaderUniformValue> _uniformCache;
+	  std::tr1::unordered_map<std::string, ShaderDefineValue> _defineCache;
+
+	  std::string genDefines()
+	  {
+	    std::ostringstream os;
+
+	    typedef std::tr1::unordered_map<std::string, ShaderDefineValue>::iterator it;
+	    for (it iPtr = _defineCache.begin(); iPtr != _defineCache.end(); ++iPtr)
+	      os << "#define " << iPtr->first << " " << std::string(iPtr->second) << "\n";
+
+	    return os.str();
+	  }
 
 	  /*! \brief Specifies the initial source of the geometry
 	    shader.
