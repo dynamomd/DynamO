@@ -1456,14 +1456,17 @@ namespace coil {
     if (_mouseState & RIGHTMOUSE)
       if (_selectedObject)
 	{
-	  const magnet::math::Vector campos = _camera.getEyeLocationObjSpace();
-	  magnet::math::Vector ray = _camera.unprojectToPosition(x, y, 0.0);
-	  ray -= campos;
+	  //Get the direction of the mouse from the camera position.
+	  magnet::math::Vector ray = _camera.unprojectToDirection(x, y);
 
-	  //We're dragging a selected object (the picking occurs on right mouse button down). Calculate the current position of the cursor
-	  std::tr1::array<GLfloat, 4> vec = _selectedObject->getCursorPosition(_selectedObjectID);
+	  //We're dragging a selected object (the picking occurs on
+	  //right mouse button down). Calculate the current position
+	  //of the cursor
+	  std::tr1::array<GLfloat, 4> vec 
+	    = _selectedObject->getCursorPosition(_selectedObjectID);
 	  const magnet::math::Vector origin(vec[0], vec[1], vec[2]);
 	  const magnet::math::Vector camdir = _camera.getCameraDirection();
+	  const magnet::math::Vector campos = _camera.getEyeLocationObjSpace();
 	  const magnet::math::Vector rij = origin - campos;
 	  double obj_distance = (rij | camdir) / camdir.nrm();
 	  
