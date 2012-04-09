@@ -488,6 +488,27 @@ namespace magnet {
 
       void setMode(Camera_Mode val) { _camMode = val; }
 
+      /*! \brief Used to convert mouse positions (including depth
+          information) into a 3D position.
+       */
+      math::Vector unprojectToPosition(int windowx, int windowy, GLfloat depth)
+      {
+	//We need to calculate the ray from the camera
+	std::tr1::array<GLfloat, 4> n = {{(2.0 * windowx) / getWidth() - 1.0,
+					  1.0 - (2.0 * windowy) / getHeight(),
+					  depth, 1.0}};
+	//Unproject from NDC to camera coords
+	std::tr1::array<GLfloat, 4> v = getProjectionMatrix().inverse() * n;
+	
+	//Perform the w divide
+	for (size_t i(0); i < 4; ++i) v[i] /= v[3];
+	
+	//Unproject from camera to object space
+	std::tr1::array<GLfloat, 4> w = getViewMatrix().inverse() * v;
+	
+	return magnet::math::Vector(w[0], w[1], w[2]);
+      }
+
     protected:
       size_t _height, _width;
       float _panrotation;

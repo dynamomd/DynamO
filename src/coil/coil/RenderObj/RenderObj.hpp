@@ -164,17 +164,44 @@ namespace coil {
     getPickedObject(uint32_t objID, const std::tr1::shared_ptr<RenderObj>& my_ptr)
     { return my_ptr; }
 
+    
+    /*! \brief Get the text to be displayed about the picked object.
+
+	\param objID The object ID which was picked, returned from a
+	picking render.
+	
+	\sa pickingRender()
+     */
     virtual std::string getCursorText(uint32_t objID)
     {
       M_throw() << "This object is not pickable";
     }
 
+    /*! \brief Get the object space coordinates of the picked part of
+        this RenderObject.
+
+	\param objID The object ID which was picked, returned from a
+	picking render.
+	
+	\sa pickingRender()
+     */
     virtual std::tr1::array<GLfloat, 4> getCursorPosition(uint32_t objID)
     {
       M_throw() << "This object is not pickable";
     }
 
-    virtual void dragCallback(Vector cursorPos) {}
+    /*! \brief Used to notify the RenderObject that it has been
+        dragged by the user.
+
+	\param cursorPos The cursors current position in Object space
+	(3D untransformed coordinates).
+       
+	\param objID The object ID which was dragged, returned from a
+	picking render.
+
+	\sa pickingRender()
+     */
+    virtual void dragCallback(Vector cursorPos, uint32_t objID) {}
 
     /*! \brief Callback for when the RenderObj is to make its Gtk
         controls visible.

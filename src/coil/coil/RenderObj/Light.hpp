@@ -60,7 +60,7 @@ namespace coil {
 
     virtual bool deletable() { return true; }
 
-    virtual void dragCallback(Vector cursorPos);
+    virtual void dragCallback(Vector cursorPos, uint32_t objID);
 
     const std::tr1::array<GLfloat, 3>& getColor() const { return _color; }
 

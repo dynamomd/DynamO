@@ -306,7 +306,7 @@ namespace coil {
   }
 
   void 
-  RLight::dragCallback(Vector cursorPos)
+  RLight::dragCallback(Vector cursorPos, uint32_t objID)
   {
     _positionXEntry->set_text(boost::lexical_cast<std::string>(cursorPos[0]));
     _positionYEntry->set_text(boost::lexical_cast<std::string>(cursorPos[1]));

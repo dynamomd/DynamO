@@ -1456,22 +1456,8 @@ namespace coil {
     if (_mouseState & RIGHTMOUSE)
       if (_selectedObject)
 	{
-
-	  //We need to calculate the ray from the camera
-	  std::tr1::array<GLfloat, 4> n = {{(2.0 * x) / _camera.getWidth() - 1.0,
-					    1.0 - (2.0 * y) / _camera.getHeight(),
-					    0.0,
-					    1.0}};
-	  
-	  std::tr1::array<GLfloat, 4> v = _camera.getProjectionMatrix().inverse() * n;
-	  
-	  for (size_t i(0); i < 4; ++i) v[i] /= v[3];
-	  
-	  std::tr1::array<GLfloat, 4> w = _camera.getViewMatrix().inverse() * v;
-	  
-	  magnet::math::Vector ray (w[0], w[1], w[2]);
-
 	  const magnet::math::Vector campos = _camera.getEyeLocationObjSpace();
+	  magnet::math::Vector ray = _camera.unprojectToPosition(x, y, 0.0);
 	  ray -= campos;
 
 	  //We're dragging a selected object (the picking occurs on right mouse button down). Calculate the current position of the cursor
@@ -1485,7 +1471,7 @@ namespace coil {
 	  
 	  ray *= obj_distance / ray_distance;
 	  const magnet::math::Vector cursor_pos = campos + ray;
-	  _selectedObject->dragCallback(cursor_pos);
+	  _selectedObject->dragCallback(cursor_pos, _selectedObjectID);
 	}
   
     _oldMouseX = x;
