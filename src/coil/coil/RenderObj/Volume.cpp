@@ -258,11 +258,25 @@ namespace coil {
 
     _shader.defines("LIGHT_COUNT") = lights.size();
 
+    _shader.attach();
+
     std::vector<Vector> light_positions;
     std::vector<Vector> light_color;
-    std::vector<Vector> light_data;
+    std::vector<Vector> light_factors;
+    for (std::vector<std::tr1::shared_ptr<RLight> >::const_iterator 
+	   iPtr = lights.begin(); iPtr != lights.end(); ++iPtr)
+      {
+	light_positions.push_back((*iPtr)->getEyespacePosition(camera));
+	light_color.push_back(Vector((*iPtr)->getLightColor()));
+	light_factors.push_back(Vector((*iPtr)->getAttenuation(), 
+				       (*iPtr)->getSpecularExponent(),
+				       (*iPtr)->getSpecularFactor()));
+      }
 
-    _shader.attach();
+    _shader["lightPosition"] = light_positions;
+    _shader["lightColor"] = light_color;
+    _shader["lightFactors"] = light_factors;
+  
     _shader["FocalLength"] = GLfloat(1.0 / std::tan(camera.getFOVY() * (M_PI / 360.0)));
     { 
       std::tr1::array<GLfloat,2> winsize = {{camera.getWidth(), camera.getHeight()}};
@@ -278,12 +292,7 @@ namespace coil {
     _shader["ProjectionMatrix"] = camera.getProjectionMatrix();
     _shader["ViewMatrix"] = camera.getViewMatrix();
 
-    _shader["lightPosition"] = lights.front()->getEyespacePosition(camera);
-    _shader["lightColor"] = lights.front()->getLightColor();
     _shader["ambientLight"] = ambient;
-    _shader["lightAttenuation"] = lights.front()->getAttenuation();
-    _shader["lightSpecularExponent"] = lights.front()->getSpecularExponent();
-    _shader["lightSpecularFactor"] = lights.front()->getSpecularFactor();
     
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);

@@ -58,24 +58,23 @@ vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
   float normal_length = length(normal);
   normal = (normal_length == 0) ?  lightDirection : normal / normal_length;
  
-  //Camera position relative to the pixel location
-  vec3 eyeVector = -position;
-  vec3 eyeDirection = normalize(eyeVector);
-
   float lightNormDot = dot(normal, lightDirection);
-  //Light attenuation
-  float decay_factor = 1.0 / (1.0 + lightAttenuation * lightDistance * lightDistance);
 
   /////////////////////////////
   //Blinn Phong lighting calculation
   /////////////////////////////
 
   vec3 ReflectedRay = reflect(-lightDirection, normal);
+
+  vec3 eyeDirection = normalize(-position);
   //Specular
   float specular = lightSpecularFactor * float(lightNormDot > 0.0)
     * pow(max(dot(ReflectedRay, eyeDirection), 0.0), lightSpecularExponent);
   
   float diffuse = smoothstep(-0.5, 1.0, lightNormDot);
+
+  //Light attenuation
+  float decay_factor = 1.0 / (1.0 + lightAttenuation * lightDistance * lightDistance);
 
   return decay_factor * lightColor * (specular + diffuse * diffuseColor);
 }

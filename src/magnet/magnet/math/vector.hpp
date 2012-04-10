@@ -19,6 +19,7 @@
 
 #include <cmath>
 #include <algorithm>
+#include <tr1/array>
 #include <stddef.h>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -68,6 +69,11 @@ namespace magnet {
 
       inline VectorExpression (double a, double b, double c)
 	: x(a), y(b), z(c) {}
+
+      template<class T>
+      inline VectorExpression(const std::tr1::array<T, 3>& vec):
+	x(vec[0]), y(vec[1]), z(vec[2])	
+      {}
 
       // constuctor from a vector expression
       template<class A,int B,class C> 

@@ -483,7 +483,7 @@ namespace magnet {
 		  M_throw() << "Vertex shader compilation failed, build log follows\n"
 			    << getShaderBuildlog(_vertexShaderHandle)
 			    << "\n Source code:\n"
-			    << magnet::string::add_line_numbers(_vertexShaderCode)
+			    << magnet::string::add_line_numbers(defines + _vertexShaderCode)
 			    << "\n";
 
 		glAttachObjectARB(_programHandle,_vertexShaderHandle);
@@ -520,7 +520,7 @@ namespace magnet {
 		  M_throw() << "Fragment shader compilation failed, build log follows\n"
 			    << getShaderBuildlog(_fragmentShaderHandle)
 			    << "\n Source code:\n"
-			    << magnet::string::add_line_numbers(_fragmentShaderCode)
+			    << magnet::string::add_line_numbers(defines + _fragmentShaderCode)
 			    << "\n";
 
 		glAttachObjectARB(_programHandle,_fragmentShaderHandle);
@@ -551,7 +551,7 @@ namespace magnet {
 		  M_throw() << "Geometry shader compilation failed, build log follows\n"
 			    << getShaderBuildlog(_geometryShaderHandle)
 			    << "\n Source code:\n"
-			    << magnet::string::add_line_numbers(_geometryShaderCode)
+			    << magnet::string::add_line_numbers(defines + _geometryShaderCode)
 			    << "\n";
 
 		glAttachObjectARB(_programHandle, _geometryShaderHandle);

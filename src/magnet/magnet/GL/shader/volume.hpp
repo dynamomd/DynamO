@@ -90,45 +90,48 @@ float recalcZCoord(float zoverw)
     / (zFarDist + zNearDist - (2.0 * zoverw - 1.0) * (zFarDist - zNearDist));
 }
 
-uniform vec3 lightPosition;
-uniform vec3 lightColor;
 uniform float ambientLight;
-uniform float lightAttenuation;
-uniform float lightSpecularExponent;
-uniform float lightSpecularFactor;
+
+uniform vec3 lightPosition[LIGHT_COUNT];
+uniform vec3 lightColor[LIGHT_COUNT];
+uniform vec3 lightFactors[LIGHT_COUNT]; //(Attenuation, SpecularExponent, SpecularFactor)
 
 vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
-{  
-  vec3 lightVector = lightPosition - position;
-  float lightDistance = length(lightVector);
-  vec3 lightDirection = lightVector * (1.0 / lightDistance);
- 
-  //if the normal has a zero length, illuminate it as though it was
-  //not lit
-  float normal_length = length(normal);
-  normal = (normal_length == 0) ?  -lightDirection : normal / normal_length;
- 
-  //Camera position relative to the pixel location
-  vec3 eyeVector = -position;
-  vec3 eyeDirection = normalize(eyeVector);
+{
+  vec3 returnval = ambientLight * diffuseColor;
 
-  float lightNormDot = dot(normal, lightDirection);
-  //Light attenuation
-  float decay_factor = 1.0 / (1.0 + lightAttenuation * lightDistance * lightDistance);
+  for (int lightID = 0; lightID < LIGHT_COUNT; ++lightID)
+    {
+      vec3 lightVector = lightPosition[lightID] - position;
+      float lightDistance = length(lightVector);
+      vec3 lightDirection = lightVector * (1.0 / lightDistance);
+      
+      //if the normal has a zero length, illuminate it as though it was
+      //not lit
+      float normal_length = length(normal);
+      normal = (normal_length == 0) ?  -lightDirection : normal / normal_length;
+      
+      float lightNormDot = dot(normal, lightDirection);
+      
+      /////////////////////////////
+      //Blinn Phong lighting calculation
+      /////////////////////////////
+      
+      vec3 ReflectedRay = reflect(-lightDirection, normal);
+      vec3 eyeDirection = normalize(-position);
+      //Specular
+      float specular = lightFactors[lightID].z * float(lightNormDot > 0.0)
+	* pow(max(dot(ReflectedRay, eyeDirection), 0.0), lightFactors[lightID].y);
+      
+      float diffuse = smoothstep(-1.0, 1.0, lightNormDot);
+      
+      //Light attenuation
+      float decay_factor = 1.0 / (1.0 + lightFactors[lightID].x * lightDistance * lightDistance);
+      
+      returnval += decay_factor * lightColor[lightID] * (specular + diffuse * diffuseColor);
+    }
 
-  /////////////////////////////
-  //Blinn Phong lighting calculation
-  /////////////////////////////
-
-  vec3 ReflectedRay = reflect(-lightDirection, normal);
-  //Specular
-  float specular = lightSpecularFactor * float(lightNormDot > 0.0)
-    * pow(max(dot(ReflectedRay, eyeDirection), 0.0), lightSpecularExponent);
-  
-  float diffuse = smoothstep(-1.0, 1.0, lightNormDot);
-
-  return decay_factor * lightColor * (specular + diffuse * diffuseColor)
-    + ambientLight * diffuseColor;
+  return returnval;
 }
 
 
