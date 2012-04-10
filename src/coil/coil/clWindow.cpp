@@ -961,11 +961,10 @@ namespace coil {
 	    = std::tr1::dynamic_pointer_cast<RLight>(*iPtr);
 
 	  _pointLightShader["ambientLight"] = ambient;
-	  _pointLightShader["lightColor"] = light->getColor();
+	  _pointLightShader["lightColor"] = light->getLightColor();
 	  _pointLightShader["lightAttenuation"] = light->getAttenuation();
 	  _pointLightShader["lightSpecularExponent"] = light->getSpecularExponent();
 	  _pointLightShader["lightSpecularFactor"] = light->getSpecularFactor();
-	  _pointLightShader["lightIntensity"] = light->getIntensity();
 	  _pointLightShader["lightPosition"] = light->getEyespacePosition(camera);
 	  _pointLightShader.invoke();
 	  ambient = 0;

@@ -153,17 +153,21 @@ namespace magnet {
 	      }
 	  }
 
-	  template<class T>
-	  inline void array(size_t components, const std::vector<T>& val)
+	  inline void operator=(const std::vector<math::Vector>& val)
 	  {
 	    if (val.empty())
 	      M_throw() << "Cannot assign a uniform from an empty vector";
-
-	    if (val.size() % components)
-	      M_throw() << "Cannot assign a uniform from a vector without the correct number of components";
-
-	    if (test_assign(val)) uniform(components, val.size() / components, &val[0]);
+	    
+	    std::vector<GLfloat> data;
+	    data.resize(val.size()*3);
+	    
+	    for (size_t i(0); i < val.size(); ++i)
+	      for (size_t j(0); j < 3; ++j)
+		data[i * 3 + j] = val[i][j];
+	    
+	    if (test_assign(val)) uniform(3, val.size(), &data[0]);
 	  }
+
 	  /**@}*/
 
 	private:

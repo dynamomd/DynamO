@@ -42,7 +42,6 @@ uniform sampler2DMS positionTex;
 uniform vec3 lightPosition;
 uniform vec3 lightColor;
 uniform float ambientLight;
-uniform float lightIntensity;
 uniform float lightAttenuation;
 uniform float lightSpecularExponent;
 uniform float lightSpecularFactor;
@@ -65,7 +64,7 @@ vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
 
   float lightNormDot = dot(normal, lightDirection);
   //Light attenuation
-  float intensity = lightIntensity / (1.0 + lightAttenuation * lightDistance * lightDistance);
+  float decay_factor = 1.0 / (1.0 + lightAttenuation * lightDistance * lightDistance);
 
   /////////////////////////////
   //Blinn Phong lighting calculation
@@ -78,9 +77,7 @@ vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
   
   float diffuse = smoothstep(-0.5, 1.0, lightNormDot);
 
-  return intensity 
-    * (specular * lightColor
-       + diffuse * diffuseColor * lightColor);
+  return decay_factor * lightColor * (specular + diffuse * diffuseColor);
 }
 
 void main()

@@ -258,6 +258,10 @@ namespace coil {
 
     _shader.defines("LIGHT_COUNT") = lights.size();
 
+    std::vector<Vector> light_positions;
+    std::vector<Vector> light_color;
+    std::vector<Vector> light_data;
+
     _shader.attach();
     _shader["FocalLength"] = GLfloat(1.0 / std::tan(camera.getFOVY() * (M_PI / 360.0)));
     { 
@@ -275,9 +279,8 @@ namespace coil {
     _shader["ViewMatrix"] = camera.getViewMatrix();
 
     _shader["lightPosition"] = lights.front()->getEyespacePosition(camera);
-    _shader["lightColor"] = lights.front()->getColor();
+    _shader["lightColor"] = lights.front()->getLightColor();
     _shader["ambientLight"] = ambient;
-    _shader["lightIntensity"] = lights.front()->getIntensity();
     _shader["lightAttenuation"] = lights.front()->getAttenuation();
     _shader["lightSpecularExponent"] = lights.front()->getSpecularExponent();
     _shader["lightSpecularFactor"] = lights.front()->getSpecularFactor();

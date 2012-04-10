@@ -63,6 +63,13 @@ namespace coil {
     virtual void dragCallback(Vector cursorPos, uint32_t objID);
 
     const std::tr1::array<GLfloat, 3>& getColor() const { return _color; }
+    std::tr1::array<GLfloat, 3> getLightColor() const 
+    { 
+      std::tr1::array<GLfloat, 3> retval = {{_color[0] * _intensity,
+					     _color[1] * _intensity,
+					     _color[2] * _intensity}};
+      return retval;
+    }
 
     /*! \brief Load the specified OpenGL texture matrix with the
       projection required for shadow mapping.
