@@ -40,7 +40,9 @@ namespace magnet {
     const double anglePerPixel =  WiiFOVX / double(CWIID_IR_X_MAX);  
     //Distance between the two IR sources being tracked (in cm)
     const double IRPointSeparation = 15.3;
+#ifndef MAGNET_DEBUG
     void cwiid_err_hidden(struct wiimote*, const char*, va_list) {}
+#endif
   }
 
   /*! \brief A class to facilitate head tracking using the cwiid

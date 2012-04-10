@@ -35,7 +35,8 @@ namespace coil {
     class AxisText : public magnet::GL::objects::CairoSurface
     {
     public:
-      inline void init() { CairoSurface::init(100,100,0); }
+      inline void init(size_t width = 100, size_t height = 100, size_t alpha_testing = 0) 
+      { CairoSurface::init(100,100,0); }
 
       inline void glRender(const magnet::GL::GLMatrix& viewProjection)
       {

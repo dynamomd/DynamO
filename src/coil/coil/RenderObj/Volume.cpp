@@ -49,6 +49,7 @@ namespace coil {
   RVolume::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue) 
   {
     RenderObj::init(systemQueue);
+    _shader.defines("LIGHT_COUNT") = 1;
     _shader.build();
     _depthCopyShader.build();
     _cube.init();
@@ -255,7 +256,7 @@ namespace coil {
     _transferFuncTexture.bind(2);
     _preintTransferFuncTexture.bind(3);
 
-    _shader.defines("MyDefine") = "TEST";
+    _shader.defines("LIGHT_COUNT") = lights.size();
 
     _shader.attach();
     _shader["FocalLength"] = GLfloat(1.0 / std::tan(camera.getFOVY() * (M_PI / 360.0)));

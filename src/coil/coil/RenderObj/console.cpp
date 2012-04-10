@@ -58,10 +58,8 @@ namespace coil {
 	std::tr1::array<GLint, 4> oldviewport = context->getViewport();
 	context->setViewport(0,0,100,100);
     
-	std::tr1::array<GLfloat, 16> oldproj 
-	  = context->getAttachedShader()["ProjectionMatrix"].as<std::tr1::array<GLfloat, 16> >();
-	std::tr1::array<GLfloat, 16> oldview 
-	  = context->getAttachedShader()["ViewMatrix"].as<std::tr1::array<GLfloat, 16> >();
+	GLMatrix oldproj = context->getAttachedShader()["ProjectionMatrix"].as<GLMatrix>();
+	GLMatrix oldview = context->getAttachedShader()["ViewMatrix"].as<GLMatrix>();
 	
 	GLMatrix viewMatrix 
 	  = GLMatrix::translate(0, 0, -(nearPlane + axisScale))

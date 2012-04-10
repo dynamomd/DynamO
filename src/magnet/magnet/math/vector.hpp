@@ -97,6 +97,14 @@ namespace magnet {
       inline double& operator()(int i) { return *(&x+i); }// return element i
       inline const double& operator()(int i) const { return *(&x+i); }// return element i
 
+      inline bool operator==(const VectorExpression<>& ovec) const
+      {
+	for (size_t i(0); i < 3; ++i)
+	  if (operator()(i) != ovec(i))
+	    return false;
+	return true;
+      }
+
       inline double& operator[](int i) { return *(&x+i); }// return element i
       inline const double& operator[](int i) const { return *(&x+i); };
 

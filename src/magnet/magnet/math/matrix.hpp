@@ -100,10 +100,19 @@ namespace magnet {
       inline double& operator() (int i) { return *(&xx+i); }  
       inline const double& operator() (int i) const { return *(&xx+i); }  
 
+      inline bool operator==(const MatrixExpression& omat) const
+      {
+	for (size_t i(0); i < 9; ++i)
+	  if (operator()(i) != omat(i))
+	    return false;
+
+	return true;
+      }
+
       inline VectorExpression<MatrixExpression<>,ops::RowOp,Base> row(int i);// return i-th row   
   
       inline VectorExpression<MatrixExpression<>,ops::ColumnOp,Base> column(int j); // return j-th column
-  
+
       // set the elements of a row equal to those of a vector
       template<class A, int B, class C> inline 
       void setRow(const int i, const VectorExpression<A,B,C> &e)

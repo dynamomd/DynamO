@@ -16,6 +16,7 @@
  */
 #pragma once
 #include <magnet/GL/context.hpp>
+#include <magnet/GL/matrix.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/string/formatcode.hpp>
 #include <magnet/string/line_number.hpp>
@@ -91,61 +92,107 @@ namespace magnet {
 	    return boost::any_cast<T>(_data);
 	  }
 
-	  /** @name Assignment operators for the Uniform's value. */
-	  /**@{*/
-	  inline void operator=(const GLfloat& val)
-	  { std::tr1::array<GLfloat,1> val2 = {{val}}; operator=(val2); }
-	  
 	  inline void operator=(const GLint& val)
-	  { std::tr1::array<GLint,1> val2 = {{val}}; operator=(val2); }
+	  { if (test_assign(val)) uniform(1, 1, &val); }
 
-	  inline void operator=(const math::Vector& vec)
+	  inline void operator=(const GLfloat& val)
+	  { if (test_assign(val)) uniform(1, 1, &val); }
+
+	  inline void operator=(const std::tr1::array<GLfloat, 1>& val)
+	  { if (test_assign(val)) uniform(1, 1, &(val[0])); }
+
+	  inline void operator=(const std::tr1::array<GLfloat, 2>& val)
+	  { if (test_assign(val)) uniform(2, 1,&(val[0])); }
+
+	  inline void operator=(const std::tr1::array<GLfloat, 3>& val)
+	  { if (test_assign(val)) uniform(3, 1,&(val[0])); }
+
+	  inline void operator=(const std::tr1::array<GLfloat, 4>& val)
+	  { if (test_assign(val)) uniform(4, 1,&(val[0])); }
+
+	  inline void operator=(const std::tr1::array<GLint, 1>& val)
+	  { if (test_assign(val)) uniform(1, 1,&(val[0])); }
+
+	  inline void operator=(const std::tr1::array<GLint, 2>& val)
+	  { if (test_assign(val)) uniform(2, 1,&(val[0])); }
+
+	  inline void operator=(const std::tr1::array<GLint, 3>& val)
+	  { if (test_assign(val)) uniform(3, 1,&(val[0])); }
+
+	  inline void operator=(const std::tr1::array<GLint, 4>& val)
+	  { if (test_assign(val)) uniform(4, 1,&(val[0])); }
+
+	  inline void operator=(const GLMatrix& val)
 	  { 
-	    std::tr1::array<GLfloat, 3> val = {{vec[0], vec[1], vec[2]}}; 
-	    operator=(val); 
+	    if (test_assign(val)) 
+	      { 
+		glUniformMatrix4fv(_uniformHandle, 1, GL_FALSE, &(val[0])); 
+		GL::detail::errorCheck(); 
+	      }
 	  }
-
+	
 	  inline void operator=(const math::Matrix& mat)
 	  { 
 	    std::tr1::array<GLfloat, 9> val;
 	    for (size_t i(0); i < 3 * 3; ++i)
 	      val[i] = mat(i);
-	    operator=(val);
-	  }
 	  
-	  inline void operator=(const std::tr1::array<GLfloat, 1>& val)
-	  { if (test_assign(val)) glUniform1f(_uniformHandle, val[0]); GL::detail::errorCheck(); }
+	    if (test_assign(mat))
+	      { 
+		glUniformMatrix3fv(_uniformHandle, 1, GL_FALSE, &(val[0])); 
+		GL::detail::errorCheck(); 
+	      }
+	  }
 
-	  inline void operator=(const std::tr1::array<GLfloat, 2>& val)
-	  { if (test_assign(val)) glUniform2fv(_uniformHandle, 1, &(val[0])); GL::detail::errorCheck(); }
+	  inline void operator=(const math::Vector& vec)
+	  { 
+	    if (test_assign(vec))
+	      {
+		std::tr1::array<GLfloat, 3> val = {{vec[0], vec[1], vec[2]}};
+		uniform(3, 1, &(val[0]));
+	      }
+	  }
 
-	  inline void operator=(const std::tr1::array<GLfloat, 3>& val)
-	  { if (test_assign(val)) glUniform3fv(_uniformHandle, 1, &(val[0])); GL::detail::errorCheck(); }
+	  template<class T>
+	  inline void array(size_t components, const std::vector<T>& val)
+	  {
+	    if (val.empty())
+	      M_throw() << "Cannot assign a uniform from an empty vector";
 
-	  inline void operator=(const std::tr1::array<GLfloat, 4>& val)
-	  { if (test_assign(val)) glUniform4fv(_uniformHandle, 1, &(val[0])); GL::detail::errorCheck(); }
+	    if (val.size() % components)
+	      M_throw() << "Cannot assign a uniform from a vector without the correct number of components";
 
-	  inline void operator=(const std::tr1::array<GLint,   1>& val)
-	  { if (test_assign(val)) glUniform1i(_uniformHandle, val[0]); GL::detail::errorCheck(); }
-
-	  inline void operator=(const std::tr1::array<GLint,   2>& val)
-	  { if (test_assign(val)) glUniform2iv(_uniformHandle, 1, &(val[0])); GL::detail::errorCheck(); }
-
-	  inline void operator=(const std::tr1::array<GLint,   3>& val)
-	  { if (test_assign(val)) glUniform3iv(_uniformHandle, 1, &(val[0])); GL::detail::errorCheck(); }
-
-	  inline void operator=(const std::tr1::array<GLint,   4>& val)
-	  { if (test_assign(val)) glUniform4iv(_uniformHandle, 1, &(val[0])); GL::detail::errorCheck(); }
-
-	  inline void operator=(const std::tr1::array<GLfloat, 9>& val)
-	  { if (test_assign(val)) glUniformMatrix3fv(_uniformHandle, 1, GL_FALSE, &(val[0])); GL::detail::errorCheck(); }
-
-	  inline void operator=(const std::tr1::array<GLfloat, 16>& val)
-	  { if (test_assign(val)) glUniformMatrix4fv(_uniformHandle, 1, GL_FALSE, &(val[0])); GL::detail::errorCheck(); }
-
+	    if (test_assign(val)) uniform(components, val.size() / components, &val[0]);
+	  }
 	  /**@}*/
 
 	private:
+	  inline void uniform(size_t width, size_t count, const GLfloat* val) 
+	  { 
+	    switch (width)
+	      {
+	      case 1: glUniform1fv(_uniformHandle, count, val); break;
+	      case 2: glUniform2fv(_uniformHandle, count, val); break;
+	      case 3: glUniform3fv(_uniformHandle, count, val); break;
+	      case 4: glUniform4fv(_uniformHandle, count, val); break;
+	      default: M_throw() << "Invalid uniform width";
+	      }
+	    GL::detail::errorCheck(); 
+	  }
+
+	  inline void uniform(size_t width, size_t count, const GLint* val)
+	  { 
+	    switch (width)
+	      {
+	      case 1: glUniform1iv(_uniformHandle, count, val); break;
+	      case 2: glUniform2iv(_uniformHandle, count, val); break;
+	      case 3: glUniform3iv(_uniformHandle, count, val); break;
+	      case 4: glUniform4iv(_uniformHandle, count, val); break;
+	      default: M_throw() << "Invalid uniform width";
+	      }
+	    GL::detail::errorCheck(); 
+	  }
+
 	  /*! \brief Returns true if (val != current value), and
 	    updates the cached value of the uniform.
 	   

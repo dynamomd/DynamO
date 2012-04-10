@@ -121,12 +121,8 @@ namespace dynamo {
   EnsembleNVT::exchangeProbability(const Ensemble& oE) const
   {
 #ifdef DYNAMO_DEBUG
-    try {
-      dynamic_cast<const EnsembleNVT&>(oE);
-    } catch (std::bad_cast)
-      {
-	M_throw() << "The ensembles types differ";
-      }    
+    if (dynamic_cast<const EnsembleNVT*>(&oE) == NULL)
+      M_throw() << "The ensembles types differ";
 #endif
 
     //Must use static cast to allow access to protected members
