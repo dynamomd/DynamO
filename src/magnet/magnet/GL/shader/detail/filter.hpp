@@ -76,7 +76,7 @@ namespace magnet {
 	    std::ostringstream data;
 	    data << GLfloat(_stencilwidth);
 	  
-	    return std::string("#version 330\n#define stencilwidth ") + data.str() + "\n"
+	    return std::string("#define stencilwidth ") + data.str() + "\n"
 STRINGIFY(
 uniform vec2 u_Scale;
 uniform float weights[stencilwidth * stencilwidth];

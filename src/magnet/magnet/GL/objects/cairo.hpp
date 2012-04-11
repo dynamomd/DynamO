@@ -70,8 +70,7 @@ namespace magnet {
 #define STRINGIFY(A) #A
 	  virtual std::string initVertexShaderSource()
 	  { 
-	    return "#version 330\n"
-	      STRINGIFY(
+	    return STRINGIFY(
 layout (location = 1) in vec4 vColor;
 
 out vec4 color;
@@ -84,8 +83,7 @@ void main()
 	  virtual std::string initGeometryShaderSource()
 	  {
 	    std::ostringstream os;
-	    os << "#version 330\n"
-	       << "const int ALPHA_TESTING = " << _alpha_testing << ";"
+	    os << "const int ALPHA_TESTING = " << _alpha_testing << ";"
 	       << STRINGIFY(
 layout(points) in;
 layout(triangle_strip) out;
@@ -130,8 +128,7 @@ void main()
 	  virtual std::string initFragmentShaderSource()
 	  {
 	    std::ostringstream os;
-	    os << "#version 330\n"
-	       << "const int ALPHA_TESTING = " << _alpha_testing << ";"
+	    os << "const int ALPHA_TESTING = " << _alpha_testing << ";"
 	       << STRINGIFY(
 uniform sampler2D cairoTexture;
 smooth in vec2 texCoord;

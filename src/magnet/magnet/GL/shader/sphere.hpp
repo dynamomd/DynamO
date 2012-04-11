@@ -56,8 +56,7 @@ namespace magnet {
       public:
 	virtual std::string initVertexShaderSource()
 	{
-	  return "#version 330\n" 
-	    STRINGIFY(
+	  return STRINGIFY(
 uniform mat4 ViewMatrix;
 uniform float global_scale;
 
@@ -78,7 +77,7 @@ void main()
 	
 	virtual std::string initGeometryShaderSource()
 	{
-	  return std::string("#version 330\nconst bool unshaded = ")
+	  return std::string("const bool unshaded = ")
 	    + (unshaded ? std::string("true;\n") : std::string("false;\n"))
 	    + STRINGIFY(
 uniform mat4 ProjectionMatrix;
@@ -128,7 +127,7 @@ void main()
 
 	virtual std::string initFragmentShaderSource()
 	{
-	  return std::string("#version 330\nconst bool unshaded = ")
+	  return std::string("const bool unshaded = ")
 	    + (unshaded ? std::string("true;\n") : std::string("false;\n"))
 	    + STRINGIFY(
 uniform mat4 ProjectionMatrix;
@@ -180,8 +179,7 @@ void main()
       {
 	virtual std::string initFragmentShaderSource()
 	{
-	  return "#version 330\n"
-	    STRINGIFY(
+	  return STRINGIFY(
 uniform mat4 ProjectionMatrix;
 
 flat in float frag_radius;

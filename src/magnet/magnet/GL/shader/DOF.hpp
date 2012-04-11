@@ -44,8 +44,7 @@ namespace magnet {
 	/*! \brief The actual DOF filter. */
 	virtual std::string initFragmentShaderSource()
 	{
-	  return "#version 330\n"
-	    STRINGIFY(
+	  return STRINGIFY(
 uniform sampler2D u_Texture0; //Blurred image
 uniform sampler2D u_Texture1; //Original
 uniform sampler2DMS u_Texture2; //Position Buffer

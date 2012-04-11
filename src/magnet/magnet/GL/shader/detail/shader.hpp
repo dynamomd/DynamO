@@ -621,6 +621,7 @@ namespace magnet {
 	  std::string genDefines()
 	  {
 	    std::ostringstream os;
+	    os << "#version 330\n";
 
 	    typedef std::tr1::unordered_map<std::string, ShaderDefineValue>::iterator it;
 	    for (it iPtr = _defineCache.begin(); iPtr != _defineCache.end(); ++iPtr)

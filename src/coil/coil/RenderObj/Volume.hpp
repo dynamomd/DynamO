@@ -36,8 +36,7 @@ namespace coil {
 #define STRINGIFY(A) #A
       virtual std::string initFragmentShaderSource()
       {
-	return "#version 330\n"
-	  STRINGIFY(
+	return STRINGIFY(
 uniform sampler2D depthTex;
 void main()
 {

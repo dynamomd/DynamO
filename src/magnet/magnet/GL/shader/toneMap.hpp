@@ -139,8 +139,7 @@ vec3 gammaRGBCorrection(vec3 RGB)
       {
       public:
 	virtual std::string initGeometryShaderSource()
-	{ return "#version 330\n"
-	    STRINGIFY(
+	{ return STRINGIFY(
 layout(points) in;
 layout(triangle_strip) out;
 layout(max_vertices = 3) out;
@@ -203,8 +202,7 @@ void main()
 
 	virtual std::string initFragmentShaderSource()
 	{
-	  return std::string("#version 330\n") 
-	    + detail::common_glsl_color_functions() 
+	  return detail::common_glsl_color_functions() 
 	    + STRINGIFY(
 layout (location = 0) out vec4 color_out;
 

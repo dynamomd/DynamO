@@ -66,8 +66,7 @@ vec4 output_frag()
 
 	virtual std::string initFragmentShaderSource()
 	{
-	  return std::string("#version 330\n") +
-	    STRINGIFY(
+	  return STRINGIFY(
 layout (location = 0) out vec4 L_out;
 uniform sampler2D inputTex;
 uniform ivec2 oldSize;

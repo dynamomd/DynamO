@@ -34,8 +34,7 @@ namespace magnet {
       public:
 	virtual std::string initFragmentShaderSource()
 	{
-	  return "#version 330\n"
-	    STRINGIFY(
+	  return STRINGIFY(
 uniform sampler2DMS NormalsTex;
 uniform sampler2DMS EyePosTex;
 uniform sampler2D rnm;

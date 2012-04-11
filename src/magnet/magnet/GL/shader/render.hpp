@@ -31,8 +31,7 @@ namespace magnet {
       public:
 	virtual std::string initVertexShaderSource()
 	{
-	  return "#version 330\n"
-	    STRINGIFY(
+	  return STRINGIFY(
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
 
@@ -70,8 +69,7 @@ void main()
 	
 	virtual std::string initFragmentShaderSource()
 	{
-	  return "#version 330\n"
-	    STRINGIFY(
+	  return STRINGIFY(
 flat in vec4 color;
 smooth in vec3 normal;
 smooth in vec3 position;

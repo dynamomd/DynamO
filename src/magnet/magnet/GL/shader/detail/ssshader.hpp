@@ -52,13 +52,11 @@ namespace magnet {
 	    All work is carried out in the Geometry shader.
 	   */
 	  virtual std::string initVertexShaderSource()
-	  { return "#version 330\n void main() {}"; }
+	  { return "void main() {}"; }
 
 	virtual std::string initGeometryShaderSource()
 	{
-	  return
-	    "#version 330\n"
-	    STRINGIFY(
+	  return STRINGIFY(
 layout(points) in;
 layout(triangle_strip) out;
 layout(max_vertices = 3) out;
