@@ -47,6 +47,9 @@ namespace dynamo {
 	M_throw() << "Failed a lexical cast in CTopology";
       }
     
+    if (!XML.hasNode("Molecule"))
+      M_throw() << "Cannot load a Topology which has no molecules!";
+
     for (magnet::xml::Node node = XML.fastGetNode("Molecule"); node.valid(); ++node)
       ranges.push_back(shared_ptr<Range>(Range::getClass(node, Sim)));
   }
