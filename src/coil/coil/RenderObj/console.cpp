@@ -93,7 +93,7 @@ namespace coil {
 	const Context::ContextPtr& context = _axis.getContext();
 
 	GLMatrix old_model_view
-	  = context->getAttachedShader()["ViewMatrix"].as<std::tr1::array<GLfloat, 16> >();
+	  = context->getAttachedShader()["ViewMatrix"].as<GLMatrix>();
 
 	context->getAttachedShader()["ViewMatrix"]
 	  = old_model_view
@@ -142,26 +142,20 @@ namespace coil {
   Console::initGTK()
   {
     _optList.reset(new Gtk::VBox);//The Vbox of options   
-
     {
       _showGrid.reset(new Gtk::CheckButton("Show viewing grid"));
       _showGrid->set_active(false);
-      _optList->add(*_showGrid); _showGrid->show();
-    }
-
-    {
-      _showConsole.reset(new Gtk::CheckButton("Show console"));
-      _showConsole->set_active(false);
-      _showConsole->set_sensitive(false);
-      _optList->add(*_showConsole); _showConsole->show();
+      _optList->pack_start(*_showGrid,false,false); 
+      _showGrid->show();
     }
 
     {
       _showAxis.reset(new Gtk::CheckButton("Show axis"));
       _showAxis->set_active(true);
-      _optList->add(*_showAxis); _showAxis->show();
+      _optList->pack_start(*_showAxis, false, false); 
+      _showAxis->show();
     }
-
+    
     _optList->show();
     guiUpdate();
   }

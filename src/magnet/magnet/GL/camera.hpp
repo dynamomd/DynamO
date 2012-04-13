@@ -56,8 +56,8 @@ namespace magnet {
       //We need a default constructor as viewPorts may be created without GL being initialized
       inline Camera(size_t height = 600, 
 		    size_t width = 800,
-		    math::Vector position = math::Vector(1,1,1), 
-		    math::Vector lookAtPoint = math::Vector(0,0,0),
+		    math::Vector position = math::Vector(0,0,-5), 
+		    math::Vector lookAtPoint = math::Vector(0,0,1),
 		    GLfloat fovY = 60.0f,
 		    GLfloat zNearDist = 0.001f, GLfloat zFarDist = 100.0f,
 		    math::Vector up = math::Vector(0,1,0)
@@ -66,27 +66,25 @@ namespace magnet {
 	_width(width),
 	_panrotation(180),
 	_tiltrotation(0),
-	_nearPlanePosition(position),
+	_nearPlanePosition(0,0,0),
 	_up(up),
 	_rotatePoint(0,0,0),
 	_zNearDist(zNearDist),
 	_zFarDist(zFarDist),
-	_eyeLocation(0, 0, 1),
 	_simLength(25),
-	_pixelPitch(0.025), //Measured from my screen
-	_camMode(ROTATE_CAMERA)
+	_pixelPitch(0.05), //Measured from my screen
+	_camMode(ROTATE_WORLD)
       {
 	up /= up.nrm();
 
 	if (_zNearDist > _zFarDist) 
 	  M_throw() << "zNearDist > _zFarDist!";
 
-	lookAt(lookAtPoint);
 
-	//We use the field of vision and the width of the screen in
-	//simulation units to calculate how far back the eye should
-	//be at the start
-	setFOVY(fovY);
+	//We assume the user is around about 70cm from the screen
+	setEyeLocation(math::Vector(0, 0, 70));
+	setEyeLocationObjSpace(position);
+	//lookAt(lookAtPoint);
       }
 
       inline void lookAt(math::Vector lookAtPoint)

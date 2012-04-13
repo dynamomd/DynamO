@@ -108,7 +108,6 @@ namespace coil {
 
     std::auto_ptr<Gtk::VBox> _optList; 
     std::auto_ptr<Gtk::CheckButton> _showGrid;
-    std::auto_ptr<Gtk::CheckButton> _showConsole;
     std::auto_ptr<Gtk::CheckButton> _showAxis;
   };
 }

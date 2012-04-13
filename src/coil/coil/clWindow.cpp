@@ -2320,7 +2320,7 @@ namespace coil {
   void 
   CLGLWindow::HeadReset()
   {
-    _camera.setEyeLocation(Vector(0, 0, _camera.getEyeLocation()[2]));
-    _camera.setFOVY(60.f, false);
+    //Assume the user is around 70cm from the screen
+    _camera.setEyeLocation(Vector(0, 0, 70));
   }
 }
