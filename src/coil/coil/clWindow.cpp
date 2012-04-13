@@ -102,7 +102,7 @@ namespace coil {
     _fpsLimitValue(35),
     _filterEnable(true),
     _stereoMode(false),
-    _ambientIntensity(0.1),
+    _ambientIntensity(0.05),
     _snapshot_counter(0),
     _samples(1),
     _dynamo(dynamo)
@@ -563,19 +563,19 @@ namespace coil {
     
     {
       std::tr1::shared_ptr<RLight> light(new RLight("Light",
-							   Vector(-0.8f,  0.8f, 0.8f),//Position
-							   Vector(0.0f, 0.0f, 0.0f),//Lookat
-							   75.0f//Beam angle
-							   ));
+						    Vector(-0.8f,  0.8f, 0.8f),//Position
+						    Vector(0.0f, 0.0f, 0.0f),//Lookat
+						    75.0f//Beam angle
+						    ));
       _renderObjsTree._renderObjects.push_back(light);
     }
 
     {
       std::tr1::shared_ptr<RLight> light(new RLight("Light",
-							   Vector(0.8f,  0.8f, -0.8f),//Position
-							   Vector(0.0f, 0.0f, 0.0f),//Lookat
-							   75.0f//Beam angle
-							   ));
+						    Vector(0.8f,  0.8f, -0.8f),//Position
+						    Vector(0.0f, 0.0f, 0.0f),//Lookat
+						    75.0f//Beam angle
+						    ));
       _renderObjsTree._renderObjects.push_back(light);
     }
   
@@ -861,6 +861,8 @@ namespace coil {
 	//Read the pixels into our container
 	_renderTarget.getColorTexture()->writeto(pixels);
 	
+	//Now we subtract the background color from pixels with a
+
 	std::string path;
 	{
 	  Gtk::FileChooserButton* fileChooser;

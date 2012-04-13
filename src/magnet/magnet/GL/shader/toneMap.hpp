@@ -243,7 +243,7 @@ void main()
     }
 
   //Finally, gamma correct the image and output
-  color_out = vec4(final_color.rgb, final_color.a);
+  color_out = vec4(gammaRGBCorrection(final_color.rgb), final_color.a);
 
 });
 	}

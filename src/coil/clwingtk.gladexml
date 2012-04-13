@@ -714,7 +714,7 @@ The scene key for an average outdoor photograph on photographic paper is 0.18, h
                                         <property name="can_focus">True</property>
                                         <property name="invisible_char">●</property>
                                         <property name="width_chars">12</property>
-                                        <property name="text" translatable="yes">0.5</property>
+                                        <property name="text" translatable="yes">0.18</property>
                                         <property name="invisible_char_set">True</property>
                                       </object>
                                       <packing>
@@ -1348,7 +1348,6 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                                 <property name="can_focus">True</property>
                                 <property name="invisible_char">●</property>
                                 <property name="width_chars">12</property>
-                                <property name="text" translatable="yes">0.2</property>
                                 <property name="xalign">0.0099999997764825821</property>
                                 <property name="invisible_char_set">True</property>
                               </object>
