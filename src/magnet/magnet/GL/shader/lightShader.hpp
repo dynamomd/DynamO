@@ -73,7 +73,7 @@ vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
   float diffuse = smoothstep(-0.5, 1.0, lightNormDot);
 
   //Light attenuation
-  float decay_factor = 1.0 / (1.0 + lightAttenuation * lightDistance * lightDistance);
+  float decay_factor = 1.0 / (lightAttenuation * lightDistance * lightDistance);
 
   return decay_factor * lightColor * (specular + diffuse * diffuseColor);
 }
