@@ -323,27 +323,40 @@ namespace magnet {
 
       }
 
-      /*! \brief Get the modelview matrix.
-       
-        \param offset This is an offset in camera coordinates to apply
-        to the eye location. It's primary use is to calculate the
-        perspective shift for the left and right eye in Analygraph
-        rendering.
-       */
-      inline const GLMatrix getViewMatrix() const 
-      { 
+      /*! \brief Get the modelview matrix. */
+      inline GLMatrix getViewMatrix() const 
+      {
 	//Add in the movement of the eye and the movement of the
 	//camera
 	math::Matrix viewTransformation 
-	    = Rodrigues(- _up * (_panrotation * M_PI/180))
-	    * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
+	  = Rodrigues(- _up * (_panrotation * M_PI/180))
+	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
 	
 	math::Vector cameraLocation((viewTransformation * _eyeLocation) + _nearPlanePosition);
 
 	//Setup the view matrix
-	return GLMatrix::rotate(_tiltrotation, math::Vector(1,0,0))
-	  * GLMatrix::rotate(_panrotation, _up)
+	return getViewRotationMatrix()
 	  * GLMatrix::translate(-cameraLocation);
+      }
+
+      /*! \brief Generate a matrix that locates objects at the near
+          ViewPlane (for rendering 3D objects attached to the
+          screen). 
+      */
+      inline GLMatrix getViewPlaneMatrix() const
+      {
+	return getViewMatrix()
+	  * GLMatrix::translate(_nearPlanePosition)
+	  * GLMatrix::rotate(-_panrotation, _up)
+	  * GLMatrix::rotate(-_tiltrotation, math::Vector(1, 0, 0));
+      }
+
+      /*! \brief Get the rotation part of the getViewMatrix().
+       */
+      inline GLMatrix getViewRotationMatrix() const 
+      { 
+	return GLMatrix::rotate(_tiltrotation, math::Vector(1,0,0))
+	  * GLMatrix::rotate(_panrotation, _up);
       }
 
       /*! \brief Get the projection matrix.
@@ -357,7 +370,7 @@ namespace magnet {
 	camera. See \ref GLMatrix::frustrum() for more information as
 	the parameter is directly passed to that function.
        */
-      inline const GLMatrix getProjectionMatrix(GLfloat zoffset = 0) const 
+      inline GLMatrix getProjectionMatrix(GLfloat zoffset = 0) const 
       { 
 	//We will move the camera to the location of the eye in sim
 	//space. So we must create a viewing frustrum which, in real
@@ -393,7 +406,7 @@ namespace magnet {
         perspective shift for the left and right eye in Analygraph
         rendering.
        */
-      inline const math::Matrix getNormalMatrix() const 
+      inline math::Matrix getNormalMatrix() const 
       { return Inverse(math::Matrix(getViewMatrix())); }
 
       //! \brief Returns the screen's width (in simulation units).
@@ -409,15 +422,6 @@ namespace magnet {
       //! \brief Get the distance to the far clipping plane
       inline const GLfloat& getZFar() const { return _zFarDist; }
 
-      //! \brief Get the pan angle of the camera in degrees
-      inline const float& getPan() const { return _panrotation; }
-
-      //! \brief Get the tilt angle of the camera in degrees
-      inline const float& getTilt() const { return _tiltrotation; }
-
-      //! \brief Get the position of the viewing plane (effectively the camera position)
-      inline const math::Vector& getViewPlanePosition() const { return _nearPlanePosition; } 
-
       /*! \brief Fetch the location of the users eyes, in object space
         coordinates.
         
@@ -426,7 +430,7 @@ namespace magnet {
         location (relative to the viewing plane/screen) onto the
         current position.
        */
-      inline const math::Vector 
+      inline math::Vector 
       getEyeLocationObjSpace() const 
       { 
 	math::Matrix viewTransformation 

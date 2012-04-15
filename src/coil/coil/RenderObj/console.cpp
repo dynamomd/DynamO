@@ -63,8 +63,7 @@ namespace coil {
 	
 	GLMatrix viewMatrix 
 	  = GLMatrix::translate(0, 0, -(nearPlane + axisScale))
-	  * GLMatrix::rotate(camera.getTilt(), Vector(1, 0, 0))
-	  * GLMatrix::rotate(camera.getPan(), Vector(0, 1, 0))
+	  * camera.getViewRotationMatrix()
 	  * GLMatrix::scale(axisScale, axisScale, axisScale);
 
 	GLMatrix projectionMatrix
@@ -86,7 +85,6 @@ namespace coil {
 
   void Console::glRender(const magnet::GL::Camera& camera, RenderMode mode)
   {
-
     if (_showGrid->get_active())
       {
 	using namespace magnet::GL;
@@ -95,11 +93,7 @@ namespace coil {
 	GLMatrix old_model_view
 	  = context->getAttachedShader()["ViewMatrix"].as<GLMatrix>();
 
-	context->getAttachedShader()["ViewMatrix"]
-	  = old_model_view
-	  * GLMatrix::translate(camera.getViewPlanePosition())
-	  * GLMatrix::rotate(-camera.getPan(), Vector(0, 1, 0))
-	  * GLMatrix::rotate(-camera.getTilt(), Vector(1, 0, 0));
+	context->getAttachedShader()["ViewMatrix"] = camera.getViewPlaneMatrix();
 
 	context->color(1,1,1,1);
 	//Back face
