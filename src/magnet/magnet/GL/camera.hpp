@@ -83,44 +83,35 @@ namespace magnet {
 
 	//We assume the user is around about 70cm from the screen
 	setEyeLocation(math::Vector(0, 0, 70));
-	setEyeLocationObjSpace(position);
-	//lookAt(lookAtPoint);
+	setPosition(position);
+	lookAt(lookAtPoint);
       }
 
       inline void lookAt(math::Vector lookAtPoint)
       {
 	//Generate the direction from the near plane to the object
-	math::Vector directionNorm = (lookAtPoint - _nearPlanePosition);
-	directionNorm /= directionNorm.nrm();
-
-	//Now generate the direction from the eye to the near plane
-	math::Matrix viewTransformation 
-	    = Rodrigues(- _up * (_panrotation * M_PI/180))
-	    * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
-	math::Vector eyeToPlane = viewTransformation * _eyeLocation;
-
-	//Now generate the eye to the object vector
-	math::Vector eyeToObject = (lookAtPoint - (eyeToPlane + _nearPlanePosition));
+	const math::Vector oldEyePosition = getPosition();
+	math::Vector directionNorm = lookAtPoint - oldEyePosition;
 	
-
-	//If the object lies between the eye and the plane, flip the direction
-	if (((eyeToPlane | directionNorm) >= 0) && ((eyeToObject | directionNorm) <= 0))
-	  directionNorm = -directionNorm;
+	{
+	  double directionLength = directionNorm.nrm();
+	  if (directionLength == 0) return;
+	  directionNorm /= directionLength;
+	}
 
 	double upprojection = (directionNorm | _up);
 
 	if (upprojection == 1)
 	  {
 	    _tiltrotation = -90;
-	    _panrotation = 0;
 	    return;
 	  }
 	else if (upprojection == -1)
 	  {
 	    _tiltrotation = 90;
-	    _panrotation = 0;	    
 	    return;
 	  }
+
 	math::Vector directionInXZplane = directionNorm - upprojection * _up;
 	directionInXZplane /= (directionInXZplane.nrm() != 0) ? directionInXZplane.nrm() : 0;
 
@@ -135,12 +126,17 @@ namespace magnet {
 	_panrotation = -(180.0f / M_PI) * std::acos(std::min(directionInXZplane | math::Vector(0,0,-1), 1.0));
 	if (((math::Vector(0,0,-1) ^ directionInXZplane) | _up) < 0)
 	  _panrotation = -_panrotation;
+	
+	setPosition(oldEyePosition);
+      }
 
-#ifdef MAGNET_DEBUG
-	if (std::isnan(_tiltrotation)) M_throw() << "Tilt Rotation is Nan\n" 
-						 << "Tilt acos arg is " <<  (directionInXZplane | directionNorm);
-	if (std::isnan(_panrotation)) M_throw() << "Pan Rotation is Nan";
-#endif
+      inline void setPosition(math::Vector newposition)
+      {
+	math::Matrix viewTransformation 
+	  = Rodrigues(- _up * (_panrotation * M_PI/180))
+	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
+	
+	_nearPlanePosition = newposition - (viewTransformation * _eyeLocation);
       }
 
       inline void setRotatePoint(math::Vector vec)
@@ -222,7 +218,7 @@ namespace magnet {
 		if (_camMode == ROTATE_POINT)
 		  focus = _rotatePoint;
 		
-		if (math::Vector(getEyeLocationObjSpace() - focus).nrm() > forwards)
+		if (math::Vector(getPosition() - focus).nrm() > forwards)
 		  _nearPlanePosition += Transformation * math::Vector(0, 0, -forwards);
 	      }
 	    
@@ -244,10 +240,10 @@ namespace magnet {
 	      //added to make it appear to rotate around the eye
 	      //position
 	      //Calculate the current camera position
-	      math::Vector cameraLocationOld(getEyeLocationObjSpace());
+	      math::Vector cameraLocationOld(getPosition());
 	      _panrotation += rotationX;
 	      _tiltrotation = magnet::clamp(rotationY + _tiltrotation, -90.0f, 90.0f);
-	      math::Vector cameraLocationNew(getEyeLocationObjSpace());
+	      math::Vector cameraLocationNew(getPosition());
 
 	      _nearPlanePosition -= cameraLocationNew - cameraLocationOld;
 	      break;
@@ -257,8 +253,7 @@ namespace magnet {
 	  case ROTATE_WORLD:
 	    {
 	      lookAt(focus);
-
-	      math::Vector offset = _nearPlanePosition - focus;
+	      math::Vector offset =  getPosition() - focus;
 
 	      //We need to store the normal and restore it later.
 	      double offset_length = offset.nrm();
@@ -286,8 +281,7 @@ namespace magnet {
 
 	      offset *= offset_length / double(offset.nrm());
 
-	      _nearPlanePosition = offset + focus;
-
+	      setPosition(offset + focus);
 	      lookAt(focus);
 	      break;
 	    }
@@ -302,19 +296,21 @@ namespace magnet {
        */
       inline void setViewAxis(math::Vector axis)
       {
+	math::Vector focus(0,0,0);
 	switch (_camMode)
 	  {
 	  case ROTATE_CAMERA:
 	    { 
-	      lookAt(_nearPlanePosition + axis);
+	      lookAt(getPosition() + axis);
 	      break;
 	    }
+	  case ROTATE_POINT:
+	    focus = _rotatePoint;
 	  case ROTATE_WORLD:
 	    {
-	      double origin_distance = _nearPlanePosition.nrm();
-	      
-	      _nearPlanePosition = - axis * origin_distance;
-	      lookAt(math::Vector(0,0,0));
+	      double focus_distance = (getPosition() - focus).nrm();
+	      setPosition(focus - focus_distance * axis);
+	      lookAt(focus);
 	      break;
 	    }
 	  default:
@@ -430,24 +426,13 @@ namespace magnet {
         location (relative to the viewing plane/screen) onto the
         current position.
        */
-      inline math::Vector 
-      getEyeLocationObjSpace() const 
+      inline math::Vector getPosition() const 
       { 
 	math::Matrix viewTransformation 
 	  = Rodrigues(- _up * (_panrotation * M_PI/180))
 	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
 
 	return (viewTransformation * _eyeLocation) + _nearPlanePosition;
-      }
-
-      inline void
-      setEyeLocationObjSpace(math::Vector Vec)
-      {
-	math::Matrix viewTransformation
-	  = Rodrigues(- _up * (_panrotation * M_PI/180))
-	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
-	
-	_nearPlanePosition = Vec - (viewTransformation * _eyeLocation);
       }
 
       //! \brief Set the height and width of the screen in pixels.

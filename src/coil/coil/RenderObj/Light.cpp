@@ -48,7 +48,7 @@ namespace coil {
 
     _sphereShader.build();
 
-    magnet::math::Vector loc = getEyeLocationObjSpace();
+    magnet::math::Vector loc = getPosition();
     GLfloat pos[3] = {loc[0], loc[1], loc[2]};
     std::vector<GLfloat> position(pos, pos + 3);
     _glposition.init(position);
@@ -67,7 +67,7 @@ namespace coil {
 
     if (mode & RenderObj::COLOR)
       {
-	magnet::math::Vector loc = getEyeLocationObjSpace();
+	magnet::math::Vector loc = getPosition();
 	GLfloat pos[3] = {loc[0], loc[1], loc[2]};
 	std::vector<GLfloat> position(pos, pos + 3);
 	_glposition.init(position);
@@ -195,7 +195,7 @@ namespace coil {
       box->pack_start(*_positionXEntry, false, false);
       _positionXEntry->show();
       _positionXEntry->set_width_chars(8);
-      _positionXEntry->set_text(boost::lexical_cast<std::string>(getEyeLocationObjSpace()[0]));
+      _positionXEntry->set_text(boost::lexical_cast<std::string>(getPosition()[0]));
       _positionXEntry->signal_changed().connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_specularFactorEntry));
       _positionXEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
 
@@ -203,7 +203,7 @@ namespace coil {
       box->pack_start(*_positionYEntry, false, false);
       _positionYEntry->show();
       _positionYEntry->set_width_chars(8);
-      _positionYEntry->set_text(boost::lexical_cast<std::string>(getEyeLocationObjSpace()[1]));
+      _positionYEntry->set_text(boost::lexical_cast<std::string>(getPosition()[1]));
       _positionYEntry->signal_changed().connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_specularFactorEntry));
       _positionYEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
 
@@ -211,7 +211,7 @@ namespace coil {
       box->pack_start(*_positionZEntry, false, false);
       _positionZEntry->show();
       _positionZEntry->set_width_chars(8);
-      _positionZEntry->set_text(boost::lexical_cast<std::string>(getEyeLocationObjSpace()[2]));
+      _positionZEntry->set_text(boost::lexical_cast<std::string>(getPosition()[2]));
       _positionZEntry->signal_changed().connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_specularFactorEntry));
       _positionZEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
 
@@ -261,7 +261,7 @@ namespace coil {
     
     using namespace magnet::GL;
 
-    magnet::math::Vector loc = getEyeLocationObjSpace();
+    magnet::math::Vector loc = getPosition();
     GLfloat pos[3] = {loc[0], loc[1], loc[2]};
     std::vector<GLfloat> position(pos, pos + 3);
     _glposition.init(position);
@@ -311,7 +311,7 @@ namespace coil {
       vec[0] = boost::lexical_cast<float>(_positionXEntry->get_text());
       vec[1] = boost::lexical_cast<float>(_positionYEntry->get_text());
       vec[2] = boost::lexical_cast<float>(_positionZEntry->get_text());
-      setEyeLocationObjSpace(vec);
+      setPosition(vec);
     } catch (...) {}
   }
 }

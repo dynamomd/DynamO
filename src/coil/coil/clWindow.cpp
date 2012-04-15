@@ -1460,7 +1460,7 @@ namespace coil {
 	    = _selectedObject->getCursorPosition(_selectedObjectID);
 	  const magnet::math::Vector origin(vec[0], vec[1], vec[2]);
 	  const magnet::math::Vector camdir = _camera.getCameraDirection();
-	  const magnet::math::Vector campos = _camera.getEyeLocationObjSpace();
+	  const magnet::math::Vector campos = _camera.getPosition();
 	  const magnet::math::Vector rij = origin - campos;
 	  double obj_distance = (rij | camdir) / camdir.nrm();
 	  
@@ -2186,7 +2186,7 @@ namespace coil {
     }
 #endif
 
-    magnet::math::Vector pos = _camera.getEyeLocationObjSpace();
+    magnet::math::Vector pos = _camera.getPosition();
     std::ostringstream os;
     os << "Coil visualizer (" << _camera.getWidth() << "," << _camera.getHeight() << "), Camera Pos (" << pos[0] << "," << pos[1] << "," << pos[2] << ")";
     setWindowtitle(os.str());

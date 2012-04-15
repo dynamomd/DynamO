@@ -282,7 +282,7 @@ namespace coil {
       std::tr1::array<GLfloat,2> winsize = {{camera.getWidth(), camera.getHeight()}};
       _shader["WindowSize"] = winsize;
     }
-    _shader["RayOrigin"] = camera.getEyeLocationObjSpace();
+    _shader["RayOrigin"] = camera.getPosition();
     _shader["TransferTexture"] = 2;
     _shader["IntTransferTexture"] = 3;
     _shader["DepthTexture"] = 0;
