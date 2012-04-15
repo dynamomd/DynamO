@@ -180,27 +180,6 @@ namespace coil {
       _optList->pack_start(*box, false, false);
     }
 
-    {//Attenuation
-      Gtk::HBox* box = manage(new Gtk::HBox);
-      box->show();
-
-      {
-	Gtk::Label* label = manage(new Gtk::Label("Attenuation", 0.95, 0.5));
-	box->pack_start(*label, true, true);
-	label->show();
-      }
-
-      _attenuationEntry.reset(new Gtk::Entry);
-      box->pack_start(*_attenuationEntry, false, false);
-      _attenuationEntry->show(); _attenuationEntry->set_width_chars(7);
-      _attenuationEntry->set_text(boost::lexical_cast<std::string>(_attenuation));
-
-      _attenuationEntry->signal_changed()
-	.connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_attenuationEntry));
-      _attenuationEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
-
-      _optList->pack_start(*box, false, false);
-    }
 
     { //Position
       Gtk::HBox* box = manage(new Gtk::HBox);
@@ -318,7 +297,6 @@ namespace coil {
   RLight::guiUpdate()
   {
     try { _intensity = boost::lexical_cast<float>(_intensityEntry->get_text()); } catch (...) {}
-    try { _attenuation = boost::lexical_cast<float>(_attenuationEntry->get_text()); } catch (...) {}
     try { _specularExponent = boost::lexical_cast<float>(_specularExponentEntry->get_text()); } catch (...) {}
     try { _specularFactor = boost::lexical_cast<float>(_specularFactorEntry->get_text()); } catch (...) {}
     try { _size = boost::lexical_cast<float>(_sizeEntry->get_text()); } catch (...) {}

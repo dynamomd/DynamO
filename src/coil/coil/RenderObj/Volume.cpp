@@ -268,7 +268,7 @@ namespace coil {
       {
 	light_positions.push_back((*iPtr)->getEyespacePosition(camera));
 	light_color.push_back(Vector((*iPtr)->getLightColor()));
-	light_factors.push_back(Vector((*iPtr)->getAttenuation(), 
+	light_factors.push_back(Vector(0.0, 
 				       (*iPtr)->getSpecularExponent(),
 				       (*iPtr)->getSpecularFactor()));
       }

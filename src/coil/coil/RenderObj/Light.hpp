@@ -37,7 +37,7 @@ namespace coil {
       RenderObj(name), 
       Camera(1,1,position, lookAtPoint, fovY, zNearDist, zFarDist, up),
       _intensity(1), 
-      _attenuation(3), _specularExponent(96),
+      _specularExponent(96),
       _specularFactor(1),
       _size(0.05)
     {
@@ -54,7 +54,6 @@ namespace coil {
     virtual void showControls(Gtk::ScrolledWindow* win);
 
     float getIntensity() const { return _intensity; }
-    float getAttenuation() const { return _attenuation; }
     float getSpecularExponent() const { return _specularExponent; }
     float getSpecularFactor() const { return _specularFactor; }
 
@@ -126,7 +125,6 @@ namespace coil {
     std::auto_ptr<Gtk::VBox> _optList;
     std::auto_ptr<Gtk::Entry> _intensityEntry;
     std::auto_ptr<Gtk::ColorButton> _lightColor;
-    std::auto_ptr<Gtk::Entry> _attenuationEntry;
     std::auto_ptr<Gtk::Entry> _specularExponentEntry;
     std::auto_ptr<Gtk::Entry> _specularFactorEntry;
     std::auto_ptr<Gtk::Entry> _positionXEntry;
@@ -134,7 +132,7 @@ namespace coil {
     std::auto_ptr<Gtk::Entry> _positionZEntry;    
     std::auto_ptr<Gtk::Entry> _sizeEntry;
 
-    float _intensity, _attenuation, _specularExponent, _specularFactor;
+    float _intensity, _specularExponent, _specularFactor;
     GLfloat _size;
     std::tr1::array<GLfloat, 3> _color;
 

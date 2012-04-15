@@ -964,7 +964,6 @@ namespace coil {
 
 	  _pointLightShader["ambientLight"] = ambient;
 	  _pointLightShader["lightColor"] = light->getLightColor();
-	  _pointLightShader["lightAttenuation"] = light->getAttenuation();
 	  _pointLightShader["lightSpecularExponent"] = light->getSpecularExponent();
 	  _pointLightShader["lightSpecularFactor"] = light->getSpecularFactor();
 	  _pointLightShader["lightPosition"] = light->getEyespacePosition(camera);
