@@ -8,6 +8,8 @@
 *** DynamO Future
 **** TODO DynamO: Make compression work with polydisperse walls.
 **** TODO Coil: Reimplement shadow mapping.
+**** TODO Coil: Reimplement bloom.
+**** TODO Coil: Reimplement DOF.
 **** TODO DynamO: Replace Andersen class in the ghost file with a more sensible name like thermostat.
 **** TODO DynamO: Make the output plugins much simpler. Put energy and everything else on by default.
 **** TODO DynamO: Look at a way of setting default workable parameters for mode 19.
@@ -92,7 +94,7 @@
 **** TODO Coil: Fix the rotation of the camera objects freaking out at the peak.
 **** TODO Magnet: Fix the camera lookAt code which is messing with the camera's actual position.
 **** TODO DynamO: Allow replica exchanges in collisions.
-**** TODO Coil: Subtract the background color before saving to png.
+**** TODO Coil: Subtract the background color before saving to png (or renormalise the color).
 *** DynamO 1.2							    :ARCHIVE:
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
 **** DONE *BUGFIX* Fixed the widespread improper use of the XML test functions, causing errors instead of warnings.

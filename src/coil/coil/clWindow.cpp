@@ -1068,9 +1068,6 @@ namespace coil {
       _luminanceMipMapShader.detach();
     }
 
-//    luminanceSource->getColorTexture()->writeto(data);
-//    std::cout << "GLluma    Avg="<< data[0] << ", max=" << data[1] << ", min=" << data[2] << ", count=" << data[3] * 10000.0 << "\n";
-
     ///////////////////////Blurred Scene///////////////////////////////
     if (_bloomEnable)
       {
@@ -1370,9 +1367,6 @@ namespace coil {
     AAsamplechangeCallback();
 
     _cursor.resize(w, h);
-    std::ostringstream os;
-    os << "Coil visualizer (" << w << "," << h << ")";
-    setWindowtitle(os.str());
   }
 
   void 
@@ -2190,7 +2184,12 @@ namespace coil {
 	  wiiHeadTrack->set_sensitive(false);
 	}
     }
-#endif  
+#endif
+
+    magnet::math::Vector pos = _camera.getEyeLocationObjSpace();
+    std::ostringstream os;
+    os << "Coil visualizer (" << _camera.getWidth() << "," << _camera.getHeight() << "), Camera Pos (" << pos[0] << "," << pos[1] << "," << pos[2] << ")";
+    setWindowtitle(os.str());
   }
 
 
