@@ -244,21 +244,16 @@ namespace magnet {
 	  {
 	  case ROTATE_CAMERA:
 	    { 
-	      if (sideways || forwards)
-		_nearPlanePosition += Transformation * math::Vector(sideways, 0, -forwards);
-	      
-	      _nearPlanePosition += math::Vector(0, upwards, 0);
+	      //Move the camera
+	      math::Vector newposition = getPosition() 
+		+ math::Vector(0, upwards, 0) 
+		+ Transformation * math::Vector(sideways, 0, -forwards);
 
-	      //The camera is rotated and an additional movement is
-	      //added to make it appear to rotate around the eye
-	      //position
-	      //Calculate the current camera position
-	      math::Vector cameraLocationOld(getPosition());
+	      //This rotates the camera about the head/eye position of
+	      //the user.
 	      _panrotation += rotationX;
 	      _tiltrotation = magnet::clamp(rotationY + _tiltrotation, -90.0f, 90.0f);
-	      math::Vector cameraLocationNew(getPosition());
-
-	      _nearPlanePosition -= cameraLocationNew - cameraLocationOld;
+	      setPosition(newposition);
 	      break;
 	    }
 	  case ROTATE_POINT:
