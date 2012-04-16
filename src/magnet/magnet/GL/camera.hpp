@@ -101,20 +101,21 @@ namespace magnet {
 
 	double upprojection = (directionNorm | _up);
 
-	if (upprojection == 1)
+	if (upprojection == 1.0)
 	  {
 	    _tiltrotation = -90;
 	    setPosition(oldEyePosition);
 	    return;
 	  }
-	else if (upprojection == -1)
+	else if (upprojection == -1.0)
 	  {
 	    _tiltrotation = 90;
-	    setPosition(oldEyePosition);	
+	    setPosition(oldEyePosition);
 	    return;
 	  }
 
 	math::Vector directionInXZplane = directionNorm - upprojection * _up;
+
 	directionInXZplane /= (directionInXZplane.nrm() != 0) ? directionInXZplane.nrm() : 0;
 
 	math::Vector rotationAxis = _up ^ directionInXZplane;
@@ -126,9 +127,10 @@ namespace magnet {
 	  _tiltrotation = -_tiltrotation;
 
 	_panrotation = -(180.0f / M_PI) * std::acos(std::min(directionInXZplane | math::Vector(0,0,-1), 1.0));
+	
 	if (((math::Vector(0,0,-1) ^ directionInXZplane) | _up) < 0)
 	  _panrotation = -_panrotation;
-	
+
 	setPosition(oldEyePosition);
       }
 
@@ -267,8 +269,13 @@ namespace magnet {
 	      double offset_length = offset.nrm();
 
 	      if (rotationX)
-		offset = Rodrigues(- _up * (M_PI * rotationX / 180.0f)) * offset;
-
+		{
+		  if ((_tiltrotation > 89.9f) ||  (_tiltrotation < -89.9f))
+		    _panrotation += rotationX;
+		  else
+		    offset = Rodrigues(- _up * (M_PI * rotationX / 180.0f)) * offset;
+		}
+		  
 	      if (rotationY)
 		{
 
@@ -282,6 +289,10 @@ namespace magnet {
 		  if (norm == 0)
 		    M_throw() << "Bad normal on a camera rotation axis";
 #endif
+		  
+		  //Limit the y rotation to stop the camera over arcing past the poles
+		  rotationY += std::min(89.9f - _tiltrotation - rotationY, 0.0f);
+		  rotationY -= std::min(_tiltrotation + rotationY + 89.9f, 0.0f);
 
 		  rotationAxis /= norm;
 		  offset = Rodrigues(M_PI * (rotationY / 180.0f) * rotationAxis) * offset;

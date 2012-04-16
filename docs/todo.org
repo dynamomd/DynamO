@@ -10,6 +10,7 @@
 **** TODO Coil: Reimplement shadow mapping.
 **** TODO Coil: Reimplement bloom.
 **** TODO Coil: Reimplement DOF.
+**** TODO Magnet: Checkout always performing a copy on assign with the vector classes.
 **** TODO DynamO: Replace Andersen class in the ghost file with a more sensible name like thermostat.
 **** TODO DynamO: Make the output plugins much simpler. Put energy and everything else on by default.
 **** TODO DynamO: Look at a way of setting default workable parameters for mode 19.
@@ -91,8 +92,7 @@
 **** DONE Bugfix Coil: Fixed many bugs which only appear when resizing the display.
 **** DONE Magnet: Upgraded all shaders to GLSL 330.
 **** TODO DynamO: Confirm that the tutorials are up to date on the removal of the -h tag.
-**** TODO Coil: Fix the rotation of the camera objects freaking out at the peak and head tracking.
-**** TODO Magnet: Fix the camera lookAt code which is messing with the camera's actual position.
+**** TODO Coil: Fix head tracking.
 **** TODO DynamO: Allow replica exchanges in collisions.
 **** TODO Coil: Subtract the background color before saving to png (or renormalise the color).
 *** DynamO 1.2							    :ARCHIVE:

@@ -719,6 +719,7 @@ namespace coil {
 	  std::tr1::array<GLfloat, 4> vec = _selectedObject->getCursorPosition(_selectedObjectID);
 	  cam_focus = magnet::math::Vector(vec[0], vec[1], vec[2]);
 	}
+      
       _camera.setRotatePoint(cam_focus);
     }
 
@@ -1885,6 +1886,9 @@ namespace coil {
 	if (finder._iter)
 	  _renderObjsTree._view->get_selection()->select(finder._iter);
       }
+    else
+      if (_camera.getMode() == magnet::GL::Camera::ROTATE_POINT)
+	_camera.setMode(magnet::GL::Camera::ROTATE_CAMERA);
   }
 
   void CLGLWindow::selectRObjCallback() 
@@ -1927,7 +1931,10 @@ namespace coil {
 	_camera.setMode(magnet::GL::Camera::ROTATE_WORLD);
 	break;
       case magnet::GL::Camera::ROTATE_WORLD:
-	_camera.setMode(magnet::GL::Camera::ROTATE_POINT);
+	if (_selectedObject)
+	  _camera.setMode(magnet::GL::Camera::ROTATE_POINT);
+	else
+	  _camera.setMode(magnet::GL::Camera::ROTATE_CAMERA);
 	break;
       case magnet::GL::Camera::ROTATE_POINT:
 	_camera.setMode(magnet::GL::Camera::ROTATE_CAMERA);
