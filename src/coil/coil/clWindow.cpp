@@ -711,13 +711,16 @@ namespace coil {
     //Setup the timings
     int _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
 
-    _camera.setRotatePoint(magnet::math::Vector(0,0,0));
-    
-    if (_selectedObject)
-      {
-	std::tr1::array<GLfloat, 4> vec = _selectedObject->getCursorPosition(_selectedObjectID);
-	_camera.setRotatePoint(magnet::math::Vector(vec[0], vec[1], vec[2]));
-      }
+    { 
+      magnet::math::Vector cam_focus(0, 0, 0);
+
+      if (_selectedObject)
+	{
+	  std::tr1::array<GLfloat, 4> vec = _selectedObject->getCursorPosition(_selectedObjectID);
+	  cam_focus = magnet::math::Vector(vec[0], vec[1], vec[2]);
+	}
+      _camera.setRotatePoint(cam_focus);
+    }
 
     //Camera Positioning
     float moveAmp  = (_currFrameTime - _lastFrameTime) * _moveSensitivity;      

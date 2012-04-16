@@ -111,6 +111,9 @@ namespace magnet {
 	return true;
       }
 
+      inline bool operator!=(const VectorExpression<>& ovec) const
+      {	return !operator==(ovec); }
+
       inline double& operator[](int i) { return *(&x+i); }// return element i
       inline const double& operator[](int i) const { return *(&x+i); };
 
@@ -140,6 +143,13 @@ namespace magnet {
 
       // passive access to the elements through eval
       template<int I> inline double eval() const;// template evaluation
+      
+      std::string toString() const
+      {
+	std::ostringstream os;
+	os << "<" << x << "," << y << "," << z << ">";
+	return os.str();
+      }
     };
 
     template <> inline double VectorExpression<>::eval<0>() const { return x; }

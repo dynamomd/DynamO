@@ -104,11 +104,13 @@ namespace magnet {
 	if (upprojection == 1)
 	  {
 	    _tiltrotation = -90;
+	    setPosition(oldEyePosition);
 	    return;
 	  }
 	else if (upprojection == -1)
 	  {
 	    _tiltrotation = 90;
+	    setPosition(oldEyePosition);	
 	    return;
 	  }
 
@@ -141,10 +143,21 @@ namespace magnet {
 
       inline void setRotatePoint(math::Vector vec)
       {
-	if (_camMode == ROTATE_POINT)
-	  _nearPlanePosition += vec - _rotatePoint;
+	if (_rotatePoint == vec) return;
 
 	_rotatePoint = vec;
+
+	switch (_camMode)
+	  {
+	  case ROTATE_POINT:
+	  case ROTATE_WORLD:
+	    lookAt(_rotatePoint);
+	    break;
+	  case ROTATE_CAMERA:
+	    break;
+	  default:
+	    M_throw() << "Unknown camera mode";
+	  }
       }
 
       /*! \brief Change the field of vision of the camera.
@@ -280,7 +293,7 @@ namespace magnet {
 		}
 
 	      offset *= offset_length / double(offset.nrm());
-
+	      
 	      setPosition(offset + focus);
 	      lookAt(focus);
 	      break;
@@ -316,7 +329,6 @@ namespace magnet {
 	  default:
 	    M_throw() << "Bad camera mode";
 	  }
-
       }
 
       /*! \brief Get the modelview matrix. */
