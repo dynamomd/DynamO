@@ -10,7 +10,8 @@
 **** TODO Coil: Reimplement shadow mapping.
 **** TODO Coil: Reimplement bloom.
 **** TODO Coil: Reimplement DOF.
-**** TODO Magnet: Checkout always performing a copy on assign with the vector classes.
+**** TODO Magnet: Checkout the performance cost of always performing a copy on assign with the vector classes, as it might make for much more readable code.
+**** TODO Magnet: Move to quaternions for camera tracking.
 **** TODO DynamO: Replace Andersen class in the ghost file with a more sensible name like thermostat.
 **** TODO DynamO: Make the output plugins much simpler. Put energy and everything else on by default.
 **** TODO DynamO: Look at a way of setting default workable parameters for mode 19.
