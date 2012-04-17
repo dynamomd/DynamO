@@ -54,7 +54,6 @@
 
 **** TODO General: Check the version of Gtkmm, glut and any other dependent library on compile.
 **** TODO General: Write up the image distance class.
-**** TODO Coil: Try and think of a way to subtract the background color before saving to png (could use floating point math to avoid precision loss?).
 *** DynamO 1.3
 **** DONE DynamO: 2D systems are now officially *supported* in DynamO, although they're not optimal.
 **** DONE DynamO/Coil: Visualisation no longer requires an OpenCL compatible graphics card! However, you do still need an OpenCL library installed.

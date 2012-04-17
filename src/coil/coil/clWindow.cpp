@@ -865,6 +865,13 @@ namespace coil {
 	//Read the pixels into our container
 	_renderTarget.getColorTexture()->writeto(pixels);
 	
+	//Chop off the alpha channel to save bandwidth
+	for (size_t i(0); i < _camera.getWidth() * _camera.getHeight(); ++i)
+	  for (size_t component(0); component < 3; ++component)
+	    pixels[3*i + component] = pixels[4 * i + component];
+	
+	pixels.resize(_camera.getWidth() * _camera.getHeight() * 3);
+
 	std::string path;
 	{
 	  Gtk::FileChooserButton* fileChooser;
@@ -876,7 +883,7 @@ namespace coil {
 	filename << std::setw(6) <<  std::setfill('0') << std::right << std::dec << _snapshot_counter++;
 	
 	magnet::image::writePNGFile(path + "/" + filename.str() +".png", pixels, 
-				    _camera.getWidth(), _camera.getHeight(), 4, 1, true, true);
+				    _camera.getWidth(), _camera.getHeight(), 3, 1, true, true);
       }
 
     ++_frameCounter; 
