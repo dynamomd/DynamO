@@ -865,8 +865,6 @@ namespace coil {
 	//Read the pixels into our container
 	_renderTarget.getColorTexture()->writeto(pixels);
 	
-	//Now we subtract the background color from pixels with a
-
 	std::string path;
 	{
 	  Gtk::FileChooserButton* fileChooser;
