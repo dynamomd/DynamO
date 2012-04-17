@@ -21,6 +21,7 @@
 #include <magnet/static_assert.hpp>
 #include <magnet/GL/shader/render.hpp>
 #include <magnet/GL/shader/lightShader.hpp>
+#include <magnet/GL/shader/ambientLight.hpp>
 #include <magnet/GL/shader/luminance.hpp>
 #include <magnet/GL/shader/blur.hpp>
 #include <magnet/GL/shader/toneMap.hpp>
@@ -91,6 +92,7 @@ namespace coil {
 
     magnet::GL::shader::RenderShader _renderShader;
     magnet::GL::shader::PointLightShader _pointLightShader;
+    magnet::GL::shader::AmbientLightShader _ambientLightShader;
     magnet::GL::shader::VSMShader _VSMShader;
     magnet::GL::shader::SimpleRenderShader _simpleRenderShader;
     magnet::GL::shader::LuminanceShader _luminanceShader;

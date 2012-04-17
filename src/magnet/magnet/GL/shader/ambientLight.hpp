@@ -26,7 +26,7 @@ namespace magnet {
 	This class performs the lighting calculations for the current
 	scene.
        */
-      class PointLightShader: public detail::SSShader
+      class AmbientLightShader: public detail::SSShader
       {
       public:
 	virtual std::string initFragmentShaderSource()
@@ -38,43 +38,8 @@ layout (location = 0) out vec4 color_out;
 uniform sampler2DMS colorTex;
 uniform sampler2DMS normalTex;
 uniform sampler2DMS positionTex;
-uniform vec3 lightPosition;
-uniform vec3 lightColor;
-uniform float lightSpecularExponent;
-uniform float lightSpecularFactor;
 uniform int samples;
-
-vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
-{  
-  vec3 lightVector = lightPosition - position;
-  float lightDistance = length(lightVector);
-  vec3 lightDirection = lightVector * (1.0 / lightDistance);
- 
-  //if the normal has a zero length, illuminate it as though it was
-  //fully lit
-  float normal_length = length(normal);
-  normal = (normal_length == 0) ?  lightDirection : normal / normal_length;
- 
-  float lightNormDot = dot(normal, lightDirection);
-
-  /////////////////////////////
-  //Blinn Phong lighting calculation
-  /////////////////////////////
-
-  vec3 ReflectedRay = reflect(-lightDirection, normal);
-
-  vec3 eyeDirection = normalize(-position);
-  //Specular
-  float specular = lightSpecularFactor * float(lightNormDot > 0.0)
-    * pow(max(dot(ReflectedRay, eyeDirection), 0.0), lightSpecularExponent);
-  
-  float diffuse = smoothstep(-0.5, 1.0, lightNormDot);
-
-  //Light attenuation
-  float decay_factor = 1.0 / (lightDistance * lightDistance);
-
-  return decay_factor * lightColor * (specular + diffuse * diffuseColor);
-}
+uniform float ambientLight;
 
 void main()
 {
@@ -89,10 +54,7 @@ void main()
       //contribute to the tone mapping
       if (color.a != 0)
 	{
-	  //Eye space normal and position
-	  vec3 normal = texelFetch(normalTex, ivec2(gl_FragCoord.xy), sample_id).rgb;
-	  vec3 position = texelFetch(positionTex, ivec2(gl_FragCoord.xy), sample_id).xyz;
-	  color_sum.rgb += calcLighting(position, normal, color.rgb);
+	  color_sum.rgb += ambientLight * color.rgb;
 	  color_sum.a += 1.0;
 	}
     }

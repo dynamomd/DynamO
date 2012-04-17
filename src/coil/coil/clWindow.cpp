@@ -614,6 +614,7 @@ namespace coil {
     _downsampleShader.build();
     _blurShader.build();
     _pointLightShader.build();
+    _ambientLightShader.build();
     _VSMShader.build();
     _simpleRenderShader.build();
     _luminanceShader.build();
@@ -690,6 +691,7 @@ namespace coil {
     _toneMapShader.deinit();
     _depthResolverShader.deinit();
     _pointLightShader.deinit();	
+    _ambientLightShader.deinit();
     _VSMShader.deinit();
     _simpleRenderShader.deinit();
     _downsampleShader.deinit();
@@ -955,13 +957,21 @@ namespace coil {
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
 
+    
+    _ambientLightShader.attach();
+    _ambientLightShader["colorTex"] = 0;
+    _ambientLightShader["normalTex"] = 1;
+    _ambientLightShader["positionTex"] = 2;
+    _ambientLightShader["samples"] = GLint(_samples);
+    _ambientLightShader["ambientLight"] = GLfloat(_ambientIntensity);
+    _ambientLightShader.invoke();
+    _ambientLightShader.detach();
+
     _pointLightShader.attach();
     _pointLightShader["colorTex"] = 0;
     _pointLightShader["normalTex"] = 1;
     _pointLightShader["positionTex"] = 2;
     _pointLightShader["samples"] = GLint(_samples);
-
-    GLfloat ambient = _ambientIntensity;
 
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
 	   = _renderObjsTree._renderObjects.begin();
@@ -971,13 +981,11 @@ namespace coil {
 	  std::tr1::shared_ptr<RLight> light 
 	    = std::tr1::dynamic_pointer_cast<RLight>(*iPtr);
 
-	  _pointLightShader["ambientLight"] = ambient;
 	  _pointLightShader["lightColor"] = light->getLightColor();
 	  _pointLightShader["lightSpecularExponent"] = light->getSpecularExponent();
 	  _pointLightShader["lightSpecularFactor"] = light->getSpecularFactor();
 	  _pointLightShader["lightPosition"] = light->getEyespacePosition(camera);
 	  _pointLightShader.invoke();
-	  ambient = 0;
 	}
     
     _pointLightShader.detach();

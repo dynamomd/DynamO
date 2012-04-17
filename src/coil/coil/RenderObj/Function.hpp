@@ -132,7 +132,7 @@ FunctionPickKernel(__global uint * colors, uint offset)
 
     virtual Glib::RefPtr<Gdk::Pixbuf> getIcon();
 
-    virtual bool deletable() { return false; }
+    virtual bool deletable() { return true; }
 
   protected:
     void clTick();
