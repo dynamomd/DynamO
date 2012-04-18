@@ -55,8 +55,6 @@ namespace dynamo
     status(START)
   {}
 
-  SimData::~SimData() {}
-
   void
   SimData::loadXMLfile(std::string fileName)
   {

@@ -50,16 +50,16 @@ namespace dynamo
   typedef boost::mt19937 baseRNG;
   
   /*! \brief Fundamental collection of the Simulation data.
-   *
-   * This struct contains all the data belonging to a single
-   * Simulation. It has been abstracted away from the Simulation
-   * class so that every class can contain a pointer to this datatype
-   * without knowing the Simulation class and causing a circular
-   * reference/dependency.
-   *
-   * A pointer to this class has been incorporated in the base classes
-   * SimBase and SimBase_Const which also provide some general
-   * std::cout formatting.
+   
+    This struct contains all the data belonging to a single
+    Simulation. It has been abstracted away from the Simulation
+    class so that every class can contain a pointer to this datatype
+    without knowing the Simulation class and causing a circular
+    reference/dependency.
+   
+    A pointer to this class has been incorporated in the base classes
+    SimBase and SimBase_Const which also provide some general
+    std::cout formatting.
    */
   class SimData : public dynamo::Base
   {
@@ -71,17 +71,10 @@ namespace dynamo
     /*! \brief Significant default value initialisation.
      */
     SimData();
-
-    /*! \brief Handles deleting the Scheduler pointer
-     *
-     * \bug Make the Scheduler handled by a smrtPlugPtr, and make the
-     * Scheduler class copyable.
-     */
-    ~SimData();
     
     /*! \brief Adds an output plugin of the type T.
-     *
-     * Throws an exception if there's already the same plugin loaded.
+     
+      Throws an exception if there's already the same plugin loaded.
      */
     template<class T>
     shared_ptr<const T> getOutputPlugin() const
@@ -95,9 +88,9 @@ namespace dynamo
     }
 
     /*! \brief Finds a plugin of the given type using RTTI.
-     *
-     * Shouldn't use this frequently as its expensive, throws an
-     * exception if it can't find the plugin.
+     
+      Shouldn't use this frequently as its expensive, throws an
+      exception if it can't find the plugin.
      */
     template<class T>
     shared_ptr<T> getOutputPlugin()
@@ -110,41 +103,46 @@ namespace dynamo
       return shared_ptr<T>();
     }    
 
-    //! Loads a Simulation from the passed XML file.
-    //! \param filename The path to the XML file to load. The filename must
-    //! end in either ".xml" for uncompressed xml files or ".bz2" for
-    //! bzip2 compressed configuration files.
+    /*! \brief Loads a Simulation from the passed XML file.
+
+      \param filename The path to the XML file to load. The filename
+     must end in either ".xml" for uncompressed xml files or ".bz2"
+     for bzip2 compressed configuration files.
+    */
     void loadXMLfile(std::string filename);
     
-    //! Writes the Simulation configuration to a file at the passed path.
-    //! \param filename The path to the XML file to write (this file
-    //! will either be created or overwritten). The filename must end in
-    //! either ".xml" for uncompressed xml files or ".bz2" for bzip2
-    //! compressed configuration files.
-    //! \param round If true, the data in the XML file will be written
-    //! out at 2 s.f. lower precision to round all the values. This is
-    //! used in the test harness to remove rounding error ready for a
-    //! comparison to a "correct" configuration file.
+    /*! \brief Writes the Simulation configuration to a file at the passed path.
+
+      \param filename The path to the XML file to write (this file
+      will either be created or overwritten). The filename must end in
+      either ".xml" for uncompressed xml files or ".bz2" for bzip2
+      compressed configuration files.
+
+      \param round If true, the data in the XML file will be written
+      out at 2 s.f. lower precision to round all the values. This is
+      used in the test harness to remove rounding error ready for a
+      comparison to a "correct" configuration file.
+    */
     void writeXMLfile(std::string filename, bool applyBC = true, bool round = false);
 
     /*! \brief The Ensemble of the Simulation. */
     shared_ptr<Ensemble> ensemble;
 
     /*! \brief The current system time of the simulation. 
-     * 
-     * This class is long double to reduce roundoff error as this gets
-     * very large compared to an events delta t.
+      
+      This class is long double to reduce roundoff error as this gets
+      very large compared to an events delta t.
      */
     long double dSysTime;
 
 
     /*! \brief This accumilator holds the time steps taken in between
-     *  updating the outputplugins.
-     *
-     *  The idea is that outputplugins are only updated on events. but
-     *  virtual events sometimes must stream the system. So we
-     *  accumilate the time delta here and add it to the time we send
-     *  to output plugins.
+       updating the outputplugins.
+     
+       The idea is that outputplugins are only updated on events. but
+       virtual events sometimes must stream the system. So we
+       accumilate the time delta here and add it to the time we send
+       to output plugins.
      */
     double freestreamAcc;
     
@@ -177,9 +175,9 @@ namespace dynamo
     PropertyStore _properties;
 
     /*! \brief A vector of the ratio's of the simulation box/images sides.
-     *
-     * At least one ratio must be 1 as this is assumed when using the
-     * ratio. i.e. it is normalised.
+     
+      At least one ratio must be 1 as this is assumed when using the
+      ratio. i.e. it is normalised.
      */
     Vector  primaryCellSize;
 
@@ -195,23 +193,23 @@ namespace dynamo
     std::vector<shared_ptr<OutputPlugin> > outputPlugins; 
 
     /*! \brief The mean free time of the previous simulation run
-     *
-     * This is zero in the case that there is no previous simulation
-     * data and is already in the units of the simulation once loaded
+     
+      This is zero in the case that there is no previous simulation
+      data and is already in the units of the simulation once loaded
      */
     double lastRunMFT;
 
     /*! \brief This is just the ID number of the Simulation when
-     *  multiple are being run at once.
-     *
-     * This is used in the EReplicaExchangeSimulation engine.
+       multiple are being run at once.
+     
+      This is used in the EReplicaExchangeSimulation engine.
      */
     size_t simID;
     
     /*! \brief This is the number of replica exchange attempts
-     *  performed in the current simulation.
-     *
-     * This is used in the EReplicaExchangeSimulation engine.
+       performed in the current simulation.
+     
+      This is used in the EReplicaExchangeSimulation engine.
      */
     size_t replexExchangeNumber;
 
@@ -225,7 +223,8 @@ namespace dynamo
     { _particleUpdateNotify.push_back(func); }
 
     /*! \brief Call all registered functions requiring a callback on
-        particle changes.*/
+        particle changes.
+    */
     void signalParticleUpdate(const NEventData&) const;
 
     void replexerSwap(SimData&);

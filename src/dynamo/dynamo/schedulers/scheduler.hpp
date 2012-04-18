@@ -113,6 +113,8 @@ namespace dynamo {
     typedef magnet::function::Delegate1<const size_t&, void> nbHoodFunc2;
     virtual void getParticleNeighbourhood(const Vector&, const nbHoodFunc2&) const = 0;
     
+    const std::vector<size_t>& getEventCounts() const { return eventCount; }
+
   protected:
     /*! \brief Performs the lazy deletion algorithm to find the next
      * valid event in the queue.
@@ -124,7 +126,7 @@ namespace dynamo {
     void lazyDeletionCleanup();
 
     mutable shared_ptr<FEL> sorter;
-    mutable std::vector<unsigned long> eventCount;
+    mutable std::vector<size_t> eventCount;
   
     size_t _interactionRejectionCounter;
     size_t _localRejectionCounter;

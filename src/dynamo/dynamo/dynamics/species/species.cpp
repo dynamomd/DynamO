@@ -21,6 +21,7 @@
 # include <coil/RenderObj/DataSet.hpp>
 # include <dynamo/dynamics/interactions/representations/spherical.hpp>
 # include <dynamo/dynamics/liouvillean/CompressionL.hpp>
+# include <dynamo/schedulers/scheduler.hpp>
 #endif
 
 #include <magnet/xmlreader.hpp>
@@ -71,6 +72,7 @@ namespace dynamo {
     _renderData->addAttribute("Velocity", coil::Attribute::INTENSIVE, 3);
     _renderData->addAttribute("Radii", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_SCALING, 1);
     _renderData->addAttribute("Mass", coil::Attribute::EXTENSIVE, 1);
+    _renderData->addAttribute("Event Count", coil::Attribute::EXTENSIVE, 1);
 
     { 
       size_t nsph = dynamic_cast<const SphericalRepresentation&>(*getIntPtr()).spheresPerParticle();    
@@ -125,7 +127,9 @@ namespace dynamo {
     std::vector<GLfloat>& posdata = (*_renderData)["Positions"];
     std::vector<GLfloat>& veldata = (*_renderData)["Velocity"];
     std::vector<GLfloat>& radii = (*_renderData)["Radii"];
-
+    std::vector<GLfloat>& eventCounts = (*_renderData)["Event Count"];
+    const std::vector<size_t>& simEventCounts = Sim->ptrScheduler->getEventCounts();
+    
     size_t sphID(0);
     BOOST_FOREACH(unsigned long ID, *range)
       {
@@ -142,12 +146,17 @@ namespace dynamo {
 	  
 	    radii[nsph * sphID + s] = 0.5 * rfactor * data.getDiameter(ID, s);
 	  }
+
+	eventCounts[sphID] = 0;
+	if (!simEventCounts.empty())
+	  eventCounts[sphID] = simEventCounts[ID];
 	++sphID;
       }
 
     (*_renderData)["Positions"].flagNewData();
     (*_renderData)["Velocity"].flagNewData();
     (*_renderData)["Radii"].flagNewData();
+    (*_renderData)["Event Count"].flagNewData();
   }
 #endif
 }

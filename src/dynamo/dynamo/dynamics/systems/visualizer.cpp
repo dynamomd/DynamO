@@ -36,10 +36,14 @@ namespace dynamo {
   SVisualizer::SVisualizer(dynamo::SimData* nSim, std::string nName, double tickFreq):
     System(nSim)
   {
+    //Convert to output units of time
+    tickFreq /= Sim->dynamics.units().unitTime();
+    //Stop zero tick times 
     tickFreq += (tickFreq == 0);
-    _updateTime = tickFreq* Sim->dynamics.units().unitTime();
-    dt = -HUGE_VAL;//We want to ensure we get at least one update before
-    //anything occurs in the system
+
+    //We want to ensure we get at least one update before anything
+    //occurs in the system.
+    dt = -HUGE_VAL;
   
     sysName = "Visualizer";
 
@@ -74,18 +78,17 @@ namespace dynamo {
   void
   SVisualizer::runEvent() const
   {
-    _updateTime = _window->getUpdateInterval();
+    //Dont rewind in time, the -HUGE_VAL time is only used to ensure
+    //the event takes place before any event, including negative time events.
     if (dt == -HUGE_VAL) dt = 0;
   
-    double locdt = dt;
-    dt += _updateTime;
-
     //Actually move forward the system time
-    Sim->dSysTime += locdt;
-    Sim->ptrScheduler->stream(locdt);      
+    Sim->dSysTime += dt;
+    Sim->ptrScheduler->stream(dt);
     //dynamics must be updated first
-    Sim->dynamics.stream(locdt);
-    locdt += Sim->freestreamAcc;
+    Sim->dynamics.stream(dt);
+
+    double locdt = dt + Sim->freestreamAcc;
     Sim->freestreamAcc = 0;
 
     if (_window->dynamoParticleSync())
@@ -94,8 +97,10 @@ namespace dynamo {
     BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(*this, NEventData(), locdt);
   
-    _window->simupdateTick(Sim->dSysTime);
+    _window->simupdateTick(Sim->dSysTime / Sim->dynamics.units().unitTime());
 
+    //Now that the update has been performed, set up the next "tick"
+    dt = _window->getUpdateInterval() * Sim->dynamics.units().unitTime();
     _lastUpdate = boost::posix_time::microsec_clock::local_time();
   }
 
