@@ -24,10 +24,10 @@ namespace magnet {
   namespace GL {
     namespace shader {
       /*! \brief A shader for ray-tracing cubic volumes.
-       *
-       * This shader will render a volume data set in one pass. For
-       * more information on the method please see
-       * https://www.marcusbannerman.co.uk/index.php/home/42-articles/97-vol-render-optimizations.html
+       
+        This shader will render a volume data set in one pass. For
+        more information on the method please see
+        https://www.marcusbannerman.co.uk/index.php/home/42-articles/97-vol-render-optimizations.html
        */
       class VolumeShader: public detail::Shader
       {
@@ -42,18 +42,19 @@ layout (location = 3) in vec4 iOrigin;
 layout (location = 4) in vec4 iOrientation;
 layout (location = 5) in vec4 iScale;
 
+smooth out vec3 frag_worldpos;
+
 vec3 qrot(vec4 q, vec3 v)
 { return v + 2.0 * cross(cross(v,q.xyz) + q.w * v, q.xyz); } 
 
 void main()
 { 
   vec3 scale = iScale.xyz + vec3(equal(iScale.xyz, vec3(0.0))) * iScale.x;
-  vec4 vVertex
-    = ViewMatrix
-    * vec4(qrot(iOrientation, vPosition.xyz * scale) + iOrigin.xyz, 1.0);
-
-  gl_Position = ProjectionMatrix * vVertex; }
-); 
+  vec4 worldpos = vec4(qrot(iOrientation, vPosition.xyz * scale) + iOrigin.xyz, 1.0);
+  frag_worldpos = worldpos.xyz;
+  vec4 vVertex = ViewMatrix * worldpos;
+  gl_Position = ProjectionMatrix * vVertex; 
+}); 
 	}
 
 	virtual std::string initFragmentShaderSource()
@@ -73,6 +74,8 @@ uniform int DitherRay;
 
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
+
+smooth in vec3 frag_worldpos;
 
 layout (location = 0) out vec4 color_out;
 
@@ -136,12 +139,7 @@ vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
 void main()
 {
   //Calculate the ray direction using viewport information
-  vec3 rayDirection;
-  rayDirection.x = 2.0 * gl_FragCoord.x / WindowSize.x - 1.0;
-  rayDirection.y = 2.0 * gl_FragCoord.y / WindowSize.y - 1.0;
-  rayDirection.y *= WindowSize.y / WindowSize.x;
-  rayDirection.z = -FocalLength;
-  rayDirection = (vec4(rayDirection, 0.0) * ViewMatrix).xyz;
+  vec3 rayDirection = frag_worldpos - RayOrigin;
   rayDirection = normalize(rayDirection);
   
   //Cube ray intersection test
