@@ -713,6 +713,7 @@ namespace coil {
     //Setup the timings
     int _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
 
+    ////////////CAMERA UPDATES
     { 
       magnet::math::Vector cam_focus(0, 0, 0);
 
@@ -725,7 +726,6 @@ namespace coil {
       _camera.setRotatePoint(cam_focus);
     }
 
-    //Camera Positioning
     float moveAmp  = (_currFrameTime - _lastFrameTime) * _moveSensitivity;      
     float forward  = moveAmp * ( keyStates[static_cast<size_t>('w')] 
 				 - keyStates[static_cast<size_t>('s')]);
@@ -735,11 +735,13 @@ namespace coil {
 				 - keyStates[static_cast<size_t>('z')]);
     _camera.movement(0, 0, forward, sideways, vertical);
 
-    guiUpdateCallback(); //We frequently ping the gui update     
+    
+    ////////////GUI UPDATES
+    //We frequently ping the gui update
+    guiUpdateCallback();
 
     ////////////Lighting shadow map creation////////////////////
     //This stage only needs to be performed once per frame
-
     //    if (_shadowMapping)
     //      {
     //	_VSMShader.attach();
@@ -764,7 +766,12 @@ namespace coil {
     //	_VSMShader.detach();
     //      }
     
-    ////////3D or Stereo rendering image composition//////////
+    ////////All of the camera movement and orientation has been
+    ////////calculated with a certain fixed head position, now we
+    ////////actually perform the rendering with adjustments for the 
+    
+    const Vector oldHeadPosition = _camera.getEyeLocation();
+    Vector headPosition = oldHeadPosition;
 
 #ifdef COIL_wiimote
     //Run an update if the wiiMote was connected
@@ -772,23 +779,24 @@ namespace coil {
       {
 	Gtk::CheckButton* wiiHeadTrack;
 	_refXml->get_widget("wiiHeadTracking", wiiHeadTrack);
+	
 	if (wiiHeadTrack->get_active())
-	  _camera.setEyeLocation((magnet::TrackWiimote::getInstance()).getHeadPosition());
+	  headPosition = magnet::TrackWiimote::getInstance().getHeadPosition();
       }
 #endif
 
     //Bind to the multisample buffer
     if (!_stereoMode)
       {
+	_camera.setEyeLocation(headPosition);
 	drawScene(_camera);
 	_renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
+	_camera.setEyeLocation(oldHeadPosition);
       }
     else
       {
 	const double eyedist = 6.5;
 	Vector eyeDisplacement(0.5 * eyedist, 0, 0);
-
-	Vector currentEyePos = _camera.getEyeLocation();
 
 	Gtk::ComboBox* stereoMode;
 	_refXml->get_widget("StereoMode", stereoMode);
@@ -797,7 +805,7 @@ namespace coil {
 	switch(mode)
 	  {
 	  case 0: //Analygraph Red-Cyan
-	    _camera.setEyeLocation(currentEyePos - eyeDisplacement);
+	    _camera.setEyeLocation(headPosition - eyeDisplacement);
 	    drawScene(_camera);
 	    _renderTarget.getColorTexture(0)->bind(0);
 	    _copyShader.attach();
@@ -813,7 +821,7 @@ namespace coil {
 	    _copyShader.detach();
 	    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-	    _camera.setEyeLocation(currentEyePos + eyeDisplacement);
+	    _camera.setEyeLocation(headPosition + eyeDisplacement);
 	    drawScene(_camera);
 	    _renderTarget.getColorTexture(0)->bind(0);
 	    _copyShader.attach();
@@ -823,23 +831,23 @@ namespace coil {
 	    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	    break;
 	  case 1:
-	    _camera.setEyeLocation(currentEyePos - eyeDisplacement);
+	    _camera.setEyeLocation(headPosition - eyeDisplacement);
 	    drawScene(_camera);
 	    _renderTarget.blitToScreen(_camera.getWidth() / 2, 
 				       _camera.getHeight(), 0, 0, GL_LINEAR);
 
-	    _camera.setEyeLocation(currentEyePos + eyeDisplacement);
+	    _camera.setEyeLocation(headPosition + eyeDisplacement);
 	    drawScene(_camera);
 	    _renderTarget.blitToScreen(_camera.getWidth() / 2, _camera.getHeight(),
 				       _camera.getWidth() / 2, 0, GL_LINEAR);	    
 	    break;
 	  case 2:
-	    _camera.setEyeLocation(currentEyePos + eyeDisplacement);
+	    _camera.setEyeLocation(headPosition + eyeDisplacement);
 	    drawScene(_camera);
 	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight()  /2,
 				       0, 0, GL_LINEAR);
 
-	    _camera.setEyeLocation(currentEyePos - eyeDisplacement);
+	    _camera.setEyeLocation(headPosition - eyeDisplacement);
 	    drawScene(_camera);
 	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight() / 2,
 				       0, _camera.getHeight() / 2, GL_LINEAR);
@@ -848,7 +856,7 @@ namespace coil {
 	    M_throw() << "Unknown stereo render mode";
 	  }
 	//Reset the eye position
-	_camera.setEyeLocation(currentEyePos);
+	_camera.setEyeLocation(oldHeadPosition);
       }
 
     getGLContext()->swapBuffers();
