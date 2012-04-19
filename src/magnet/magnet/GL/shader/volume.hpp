@@ -97,6 +97,10 @@ uniform vec3 lightPosition[LIGHT_COUNT];
 uniform vec3 lightColor[LIGHT_COUNT];
 uniform vec3 lightFactors[LIGHT_COUNT]; //(UNUSED, SpecularExponent, SpecularFactor)
 
+uniform vec3 volumeMin;
+uniform vec3 volumeMax;
+uniform vec3 invVolumeDimensions;
+
 vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
 {
   vec3 returnval = ambientLight * diffuseColor;
@@ -144,10 +148,8 @@ void main()
   
   //Cube ray intersection test
   vec3 invR = 1.0 / rayDirection;
-  vec3 boxMin = vec3(-1.0,-1.0,-1.0);
-  vec3 boxMax = vec3( 1.0, 1.0, 1.0);
-  vec3 tbot = invR * (boxMin - RayOrigin);
-  vec3 ttop = invR * (boxMax - RayOrigin);
+  vec3 tbot = invR * (volumeMin - RayOrigin);
+  vec3 ttop = invR * (volumeMax - RayOrigin);
   
   //Now sort all elements of tbot and ttop to find the two min and max elements
   vec3 tmin = min(ttop, tbot); //Closest planes
@@ -191,19 +193,23 @@ void main()
   vec3 lastnorm = first_sample.xyz * 2.0 - vec3(1.0);
   float lastnorm_length = length(lastnorm);
   lastnorm = (lastnorm_length == 0) ? -rayDirection : lastnorm / lastnorm_length;
-  rayPos += rayDirection * StepSize;
 
-  for (float length = tfar - tnear; length > 0.0; 
-       length -= StepSize, rayPos += rayDirection * StepSize)
+  //Make this into the ray position step vector
+  rayDirection *= StepSize;
+
+  rayPos += rayDirection;
+
+  for (float length = tfar - tnear; length > 0.0;
+       length -= StepSize, rayPos += rayDirection)
     {
       //Grab the volume sample
-      vec4 sample = texture(DataTexture, (rayPos + 1.0) * 0.5);
-      vec4 src = vec4(0.0, 0.0, 0.0, 0.0);
+      vec4 sample = texture(DataTexture, (rayPos - volumeMin) * invVolumeDimensions);
       float delta = sample.a - lastsamplea;
       vec4 transfer = texture(IntTransferTexture, sample.a);
       float deltaT = transfer.a - lastTransfer.a;
       vec3 deltaK = transfer.rgb - lastTransfer.rgb;
 
+      vec4 src;
       if (delta == 0.0)
 	{ //Special case where the integration breaks down, just use the constant val.
 	  src = texture(TransferTexture, sample.a);

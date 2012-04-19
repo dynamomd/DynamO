@@ -46,7 +46,7 @@ namespace coil {
   }
 
   void 
-  RVolume::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue) 
+  RVolume::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
   {
     RenderObj::init(systemQueue);
     _shader.defines("LIGHT_COUNT") = 1;
@@ -158,6 +158,12 @@ namespace coil {
   {
     std::vector<GLubyte> voldata(4 * width * height * depth);
     
+//    size_t maxdim = std::max(width, std::max(height, depth));
+//
+//    _dimensions = Vector(double(width) / maxdim, 
+//			 double(height) / maxdim, 
+//			 double(depth) / maxdim);
+
     std::vector<float>& histogram = _transferFunction->getHistogram();
     histogram = std::vector<float>(256, 0);
 
@@ -292,6 +298,16 @@ namespace coil {
     _shader["ProjectionMatrix"] = camera.getProjectionMatrix();
     _shader["ViewMatrix"] = camera.getViewMatrix();
 
+    Vector volumeMin = double(-0.5) * _dimensions;
+    Vector volumeMax = double(+0.5) * _dimensions;
+
+    Vector invVolumeDimensions = Vector(1 / (volumeMax[0] - volumeMin[0]),
+					1 / (volumeMax[1] - volumeMin[1]),
+					1 / (volumeMax[2] - volumeMin[2]));
+
+    _shader["volumeMin"] = volumeMin;
+    _shader["volumeMax"] = volumeMax;
+    _shader["invVolumeDimensions"] = invVolumeDimensions;
     _shader["ambientLight"] = ambient;
     
     glEnable(GL_CULL_FACE);
@@ -300,6 +316,10 @@ namespace coil {
     glDisable(GL_DEPTH_TEST);
 
     _currentDepthFBO.getContext().cleanupAttributeArrays();
+    _currentDepthFBO.getContext().setAttribute(magnet::GL::Context::instanceScaleAttrIndex, 
+					       _dimensions[0],
+					       _dimensions[1],
+					       _dimensions[2], 1);
     _cube.glRender();
     _shader.detach();
 

@@ -47,7 +47,7 @@ void main()
   };
 
   public:
-    RVolume(std::string name): RenderObj(name), _stepSizeVal(0.01) {}
+    RVolume(std::string name): RenderObj(name), _stepSizeVal(0.01), _dimensions(1,1,1) {}
   
     virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
     virtual void deinit();
@@ -96,5 +96,6 @@ void main()
     std::auto_ptr<Gtk::CheckButton> _filterData;
     std::auto_ptr<magnet::gtk::TransferFunction> _transferFunction;
     GLfloat _stepSizeVal;
+    Vector _dimensions;
   };
 }
