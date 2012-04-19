@@ -2112,16 +2112,29 @@ namespace coil {
       Gtk::Entry* simunits;
       _refXml->get_widget("SimLengthUnits", simunits);
       std::string val = simunits->get_text();
-      if (val.empty()) {val = "50"; simunits->set_text("50"); }
-      _camera.setSimUnitLength(boost::lexical_cast<double>(val));
+      double setval = 0.0;
+      try {
+	setval = boost::lexical_cast<double>(val);
+      } catch (...) {}
+
+      if (setval <= 0) setval = 25;
+
+      _camera.setSimUnitLength(setval);
     }
 
     {
       Gtk::Entry* pixelPitch;
       _refXml->get_widget("pixelPitch", pixelPitch);
       std::string val = pixelPitch->get_text();
-      if (val.empty()) {val = "0.25"; pixelPitch->set_text("0.25"); }
-      _camera.setPixelPitch(boost::lexical_cast<double>(val) / 10);
+
+      double setval = 0.0;
+      try {
+	setval = boost::lexical_cast<double>(val);
+      } catch (...) {}
+
+      if (setval <= 0) setval = 0.25;
+
+      _camera.setPixelPitch(setval / 10);
     }
 
     {
