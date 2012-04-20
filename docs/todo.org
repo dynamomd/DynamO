@@ -9,13 +9,18 @@
 **** TODO DynamO: Make compression work with polydisperse walls.
 **** TODO DynamO: Allow replica exchanges in collisions.
 **** TODO Coil: Correct the effect of the projection Matrix on the volume render, as this is breaking 3D modes.
+**** TODO Coil: Make the volume render images locatable anywhere in space to allow conversions from datasets to volumes.
+**** TODO Coil: Make coil scale independent.
+**** TODO Coil: Add a "line" primitive to Coil, for bonds.
 **** TODO Coil: Reimplement shadow mapping.
 **** TODO Coil: Reimplement bloom.
 **** TODO Coil: Reimplement DOF.
+**** TODO Coil: Reimplement SSAO.
 **** TODO Magnet: Checkout the performance cost of always performing a copy on assign with the vector classes, as it might make for much more readable code.
 **** TODO Magnet: Move to quaternions for camera tracking.
 **** TODO DynamO: Replace Andersen class in the ghost file with a more sensible name like thermostat.
 **** TODO DynamO: Make the output plugins much simpler. Put energy and everything else on by default.
+**** TODO DynamO: Put all of the cheap/free simulation data calculations into the misc output plugin, so that they don't have to be loaded and people have an interesting default output.xml.bz2.
 **** TODO DynamO: Look at a way of setting default workable parameters for mode 19.
 **** TODO DynamO: Remove the Dynamics class and move its functions into the SimData class.
 **** TODO DynamO: Remove the Dynamics tags in the config.
@@ -31,7 +36,6 @@
 **** TODO DynamO: Optimized triangle meshes by inserting them into the neighbor lists.
 **** TODO DynamO: Make a test for an invalid state in locals, globals and interactions (for particle insertion).
 **** TODO DynamO: Auto detect the ensemble, users shouldn't have to specify it.
-**** TODO DynamO: Put all of the cheap/free simulation data calculations into the misc output plugin, so that they don't have to be loaded and people have an interesting default output.xml.bz2.
 **** TODO DynamO: Add the gravity version of the sphere-sphere-out test. Fix and check that the umbrella implementation is general.
 **** TODO DynamO: Add a average and current system momentum to the misc output plugin (replace the mutual diffusion correlators calculation of it, and anyone elses).
 **** TODO DynamO: Find out why the replica exchange Cv can be negative, averaging error?
@@ -42,18 +46,11 @@
 ***** TODO Coil: Fix the dummy vertex array object mess.
 **** TODO Coil: State change tracking for glEnable/Disable.
 **** TODO Coil: State change tracking for glBlendFunc.
-**** TODO Coil: Add a ambient light shader, perhaps have SSAO on in this?
-**** TODO Coil: Make coil scale independent.
 **** TODO Coil: Make a generic render object container class (which is a render object), sort out object deletion or just fully separate the GTK and render interfaces.
 **** TODO Coil: Make a GL engine to put into magnet.
-**** TODO Coil: Work on ray-tracable connectivity glyphs.
 **** TODO Coil: crepuscular rays.
-**** TODO Coil: Cube shadow map lights.
 **** TODO Coil: Make the viewing grid have a scalable box size.
 **** TODO Coil: Look at CL/GL synchronisation objects for coil.
-**** TODO Coil: Fix the Bilateral blur filter, or at least make it work well with SSAO.
-**** TODO Coil: Fix the incorrect calculation of the camera position, due to the head position not being added on. This is breaking lots of calculations (e.g. SSAO at close range, possibly the volume rendering flicker).
-
 **** TODO General: Check the version of Gtkmm, glut and any other dependent library on compile.
 **** TODO General: Write up the image distance class.
 *** DynamO 1.3
