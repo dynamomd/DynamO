@@ -98,8 +98,6 @@ namespace dynamo {
 
     void addInteractionEvent(const Particle&, const size_t&) const;
     
-    void addInteractionEventInit(const Particle&, const size_t&) const;
-
     void addLocalEvent(const Particle&, const size_t&) const;
 
     typedef magnet::function::Delegate2<const Particle&, const size_t&, void> nbHoodFunc;

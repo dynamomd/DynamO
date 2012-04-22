@@ -257,24 +257,16 @@ namespace dynamo {
 	      || ((Event.getdt() > sorter->next_dt()) 
 		  && (++_interactionRejectionCounter < rejectionLimit)))
 	    {
-#ifdef DYNAMO_DEBUG
-	      derr << "Event " << Sim->eventCount << ":" << Event.getType()
-		   << ",dt=" << Event.getdt() << ">nextdt=" << sorter->next_dt()
-		   << ",p1=" << p1.getID() << ",p2=" << p2.getID() << std::endl;
-#endif		
 	      this->fullUpdate(p1, p2);
 	      return;
 	    }
-	
-#ifdef DYNAMO_DEBUG
-	  if (Event.getdt() < 0)
-	    derr << "Negative time " << Event.getdt() << std::endl;
-#endif
 
 	  //Reset the rejection watchdog, we will run an interaction event now
 	  _interactionRejectionCounter = 0;
 		
 #ifdef DYNAMO_DEBUG
+	  if (Event.getdt() < 0)
+	    derr << "Negative time " << Event.getdt() << std::endl;
 
 	  if (boost::math::isnan(Event.getdt()))
 	    M_throw() << "A NAN Interaction collision time has been found"
@@ -336,23 +328,13 @@ namespace dynamo {
 	  Sim->dynamics.getLiouvillean().updateParticle(part);
 	  LocalEvent iEvent(Sim->dynamics.getLocals()[localID]->getEvent(part));
 
-	  if (iEvent.getType() == NONE)
-	    {
-#ifdef DYNAMO_DEBUG
-	      derr << "Local event found not to occur [" << part.getID()
-		   << "] (possible glancing/tenuous event canceled due to numerical error)" << std::endl;
-#endif		
-	      this->fullUpdate(part);
-	      return;
-	    }
-	
 	  double next_dt = sorter->next_dt();
 
-	  if ((iEvent.getdt() > next_dt) && (++_localRejectionCounter < rejectionLimit))
+	  //Check the recalculated event is valid and not later than
+	  //the next event in the queue
+	  if ((iEvent.getType() == NONE)
+	      || ((iEvent.getdt() > next_dt) && (++_localRejectionCounter < rejectionLimit)))
 	    {
-#ifdef DYNAMO_DEBUG 
-	      derr << "Recalculated LOCAL event time is greater than the next event time, recalculating" << std::endl;
-#endif
 	      this->fullUpdate(part);
 	      return;
 	    }
@@ -429,41 +411,6 @@ namespace dynamo {
 
     if (eevent.getType() != NONE)
       sorter->push(Event(eevent, eventCount[id]), part.getID());
-  }
-
-  void 
-  Scheduler::addInteractionEventInit(const Particle& part, 
-				      const size_t& id) const
-  {
-    if (part.getID() == id) return;
-
-    //We'll be smart about memory and try to add events evenly on
-    //initialisation to all particles
-    //
-    //This is achieved by only allowing one particle to store the
-    //event. But we can't just use sorting (e.g., part.getID() < id) to
-    //discriminate which particle gets the event as, on regular
-    //lattices, particle 0 will get all of the events for all the
-    //particles in its neighborhood!
-    //
-    //We can mix this up a little, by also testing for odd and evenness
-    //and using this to switch which particles are chosen
-
-    size_t val = (part.getID() % 2) + 2 * (id % 2);
-    switch (val)//part-id
-      {
-      case 0: //even-even (accept half)
-	if (part.getID() > id) return;      
-	break;
-      case 1: //odd-even (accept)
-	break;
-      case 2: //even-odd (reject)
-	return;
-      case 3: //odd-odd (accept half)
-	if (part.getID() < id) return;      
-      }
-
-    addInteractionEvent(part, id);
   }
 
   void 
