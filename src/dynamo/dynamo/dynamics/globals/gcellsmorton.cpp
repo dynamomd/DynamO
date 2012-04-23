@@ -214,16 +214,17 @@ namespace dynamo {
       magnet::math::MortonNumber<3> newNBCellv(oldCell);
       magnet::math::MortonNumber<3> endCellv(endCell);
     
-      std::cerr << "\nCGWall sysdt " 
-		<< Sim->dSysTime / Sim->dynamics.units().unitTime()
-		<< "  WALL ID "
-		<< part.getID()
-		<< "  from <" 
-		<< newNBCellv.data[0].getRealVal() << "," << newNBCellv.data[1].getRealVal() 
-		<< "," << newNBCellv.data[2].getRealVal()
-		<< "> to <" 
-		<< endCellv.data[0].getRealVal() << "," << endCellv.data[1].getRealVal() 
-		<< "," << endCellv.data[2].getRealVal();
+      dout << "CellEvent: t=" 
+	   << Sim->dSysTime / Sim->dynamics.units().unitTime()
+	   << " ID "
+	   << part.getID()
+	   << "  from <" 
+	   << newNBCellv[0].getRealValue() << "," << newNBCellv[1].getRealValue() 
+	   << "," << newNBCellv[2].getRealValue()
+	   << "> to <" 
+	   << endCellv[0].getRealValue() << "," << endCellv[1].getRealValue() 
+	   << "," << endCellv[2].getRealValue() << ">"
+	   << std::endl;
     }
 #endif
   }
@@ -355,9 +356,19 @@ namespace dynamo {
 	const Particle& p = Sim->particleList[id];
 	Sim->dynamics.getLiouvillean().updateParticle(p); 
 	addToCell(id);
+#ifdef DYNAMO_WallCollDebug
+	boost::unordered_map<size_t, size_t>::iterator it = partCellData.find(id);
+	magnet::math::MortonNumber<3> currentCell(it->second);
+	
+	dout << "Added particle ID=" << id << " to cell <"
+	     << currentCell[0].getRealValue() 
+	     << "," << currentCell[1].getRealValue()
+	     << "," << currentCell[2].getRealValue()
+	     << ">" << std::endl;
+#endif
       }
 
-    dout << "\nCell loading " << float(partCellData.size()) / NCells 
+    dout << "Cell loading " << float(partCellData.size()) / NCells 
 	 << std::endl;
   }
 

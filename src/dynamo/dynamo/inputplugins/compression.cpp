@@ -69,6 +69,10 @@ namespace dynamo {
 
     if (std::tr1::dynamic_pointer_cast<SNeighbourList>(Sim->ptrScheduler))
       {
+	BOOST_FOREACH(shared_ptr<System>& ptr, Sim->dynamics.getSystemEvents())
+	  if (std::tr1::dynamic_pointer_cast<SysNBListCompressionFix>(ptr))
+	    static_cast<SysNBListCompressionFix&>(*ptr).fixNBlistForOutput();
+
 	BOOST_FOREACH(shared_ptr<Global>& ptr, Sim->dynamics.getGlobals())
 	  if (std::tr1::dynamic_pointer_cast<GNeighbourList>(ptr))
 	    //Rebulid the collision scheduler without the overlapping cells!

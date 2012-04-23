@@ -8,6 +8,7 @@
 *** DynamO Future
 **** TODO DynamO: Make compression work with polydisperse walls.
 **** TODO DynamO: Allow replica exchanges in collisions.
+**** TODO DynamO: Currently, if we have square well chains, all of the linked monomers also appear in the capture map! This will artificially increase the energy of the base configuration, we need to check that the capture interaction is the valid interaction for the pair tested.
 **** TODO Coil: Correct the effect of the projection Matrix on the volume render, as this is breaking 3D modes.
 **** TODO Coil: Make the volume render images locatable anywhere in space to allow conversions from datasets to volumes.
 **** TODO Coil: Make coil scale independent.
@@ -16,6 +17,8 @@
 **** TODO Coil: Reimplement bloom.
 **** TODO Coil: Reimplement DOF.
 **** TODO Coil: Reimplement SSAO.
+**** TODO DynamO: Move the morton ordered container out to its own type, and generalise the neighbour list further.
+**** TODO DynamO: Rename gcellsmorton.hpp/cpp.
 **** TODO Magnet: Checkout the performance cost of always performing a copy on assign with the vector classes, as it might make for much more readable code.
 **** TODO Magnet: Move to quaternions for camera tracking.
 **** TODO DynamO: Replace Andersen class in the ghost file with a more sensible name like thermostat.
@@ -58,6 +61,7 @@
 **** DONE DynamO/Coil: Visualisation no longer requires an OpenCL compatible graphics card! However, you do still need an OpenCL library installed.
 **** DONE Bugfix DynamO: Found the neighbourlists were not being correctly reinitialised, causing slowdowns and possible hangs in compressing systems (huge speed boost in compression).
 **** DONE Bugfix DynamO: Multi-core parallel tempering is now actually in parallel. Since Oct 2009 the code actually has been executing in serial.
+**** DONE Bugfix DynamO: Fixed a rare bug in compressing systems, where neighbourlists would be incorrectly sized after a compression.
 **** DONE Coil: Added a fullscreen mode, toggled with the f key.
 **** DONE Coil: Objects can now be dragged, for example, the lights can be repositioned using the mouse.
 **** DONE DynamO: Packing of systems into systems is now easy to perform.

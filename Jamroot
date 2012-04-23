@@ -33,7 +33,11 @@ path-constant INCLUDE_INSTALL_PATH : ./include ;
 #<define>_GLIBCPP_DEBUG_PEDANTIC <define>_GLIBCPP_DEBUG
 #<define>_GLIBCPP_CONCEPT_CHECKS
 
-variant fulldebug : debug : <define>_GLIBCXX_DEBUG  <define>DYNAMO_DEBUG  <define>DYNAMO_CollDebug <define>DYNAMO_WallCollDebug <cxxflags>-fstack-protector-all <define>DYNAMO_OverlapTesting ;
+variant fulldebug : debug 
+	: <define>_GLIBCXX_DEBUG
+	<define>DYNAMO_DEBUG <define>DYNAMO_CollDebug
+	<define>DYNAMO_WallCollDebug <cxxflags>-fstack-protector-all
+	<define>DYNAMO_OverlapTesting ;
 
 # The valgrind variant is useful for code analysis in tools like
 # valgrind. It merely turns debug symbols on.

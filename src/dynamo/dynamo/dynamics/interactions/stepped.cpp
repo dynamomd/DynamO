@@ -240,12 +240,12 @@ namespace dynamo {
 		{
 #ifdef DYNAMO_OverlapTesting
 		  //Check that there is no overlap 
-		  if (Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d2))
+		  if (Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d*d))
 		    M_throw() << "Overlapping particles found" 
 			      << ", particle1 " << p1.getID() 
 			      << ", particle2 " 
 			      << p2.getID() << "\nOverlap = " 
-			      << Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d2)
+			      << Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d*d)
 		      / Sim->dynamics.units().unitLength();
 #endif
 	      

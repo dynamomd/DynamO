@@ -99,4 +99,14 @@ namespace dynamo {
     dt = (nblist.getMaxSupportedInteractionLength()
 	  / initialSupportedRange - 1.0) / growthRate - Sim->dSysTime;
   }
+
+  void 
+  SysNBListCompressionFix::fixNBlistForOutput()
+  {
+    GNeighbourList& nblist(dynamic_cast<GNeighbourList&>
+			   (*Sim->dynamics.getGlobals()[cellID]));
+
+    nblist.setMaxInteractionRange(initialSupportedRange * (1.0 + growthRate * Sim->dSysTime));
+  }
+
 }

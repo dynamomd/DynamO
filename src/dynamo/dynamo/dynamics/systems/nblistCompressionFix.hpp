@@ -29,6 +29,8 @@ namespace dynamo {
     virtual void initialise(size_t);
   
     virtual void operator<<(const magnet::xml::Node&) {}
+    
+    void fixNBlistForOutput();
   
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const {}

@@ -128,7 +128,6 @@ namespace dynamo {
   ISquareWell::getEvent(const Particle &p1, 
 			const Particle &p2) const 
   {
-  
 #ifdef DYNAMO_DEBUG
     if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
       M_throw() << "Particle 1 is not up to date";

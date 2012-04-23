@@ -267,16 +267,17 @@ namespace dynamo {
       magnet::math::MortonNumber<3> newNBCellv(oldCell);
       magnet::math::MortonNumber<3> endCellv(endCell);
     
-      std::cerr << "\nCGWall sysdt " 
-		<< Sim->dSysTime / Sim->dynamics.units().unitTime()
-		<< "  WALL ID "
-		<< part.getID()
-		<< "  from <" 
-		<< newNBCellv.data[0].getRealVal() << "," << newNBCellv.data[1].getRealVal() 
-		<< "," << newNBCellv.data[2].getRealVal()
-		<< "> to <" 
-		<< endCellv.data[0].getRealVal() << "," << endCellv.data[1].getRealVal() 
-		<< "," << endCellv.data[2].getRealVal();
+      dout << "CellEvent: sysdt " 
+	   << Sim->dSysTime / Sim->dynamics.units().unitTime()
+	   << " ID "
+	   << part.getID()
+	   << "  from <" 
+	   << newNBCellv[0].getRealValue() << "," << newNBCellv[1].getRealValue() 
+	   << "," << newNBCellv[2].getRealValue()
+	   << "> to <" 
+	   << endCellv[0].getRealValue() << "," << endCellv[1].getRealValue()
+	   << "," << endCellv[2].getRealValue() << ">"
+	   << std::endl;
     }
 #endif
   }

@@ -178,7 +178,69 @@ function Ring_compressiontest {
 
     #Cleanup 
     rm -Rf config.out.xml.bz2 output.xml.bz2 tmp.xml.bz2 run.log error.log
-    }
+}
+
+function SWpolymer_compressiontest {
+    Nc=2
+    C=8
+    Mode=2
+    T=1.3
+    compress_density=0.1
+    density=0.3
+    N=$((Nc*((4/(2**Mode))*(C**3))))
+
+    ./dynamod -m 7 --i1 $((Nc/2)) --f3 1.5 --b1 -o config.polymer.xml.bz2  &> run.log
+
+    if [ $(echo "$density <= $compress_density" |bc) -eq 1 ]; then
+    #If the density is lower than the compress_density, just directly make the big system
+	./dynamod -m 3 -T $T -r $T --i1 $Mode --b1 --s1 config.polymer.xml.bz2 -d $density -C $C -o config.tmp2.xml.bz2 &>> run.log
+	bzcat config.tmp2.xml.bz2 | xmlstarlet ed -u '//Interaction[1]/@End' -v $((N-1)) | bzip2 > config.tmp.xml.bz2
+    else
+    #We have to compress as the density is too high
+	./dynamod -m 3 --i1 $Mode --b1 --s1 config.polymer.xml.bz2 -d $compress_density -C $C -o config.tmp2.xml.bz2 &>> run.log
+	bzcat config.tmp2.xml.bz2 | xmlstarlet ed -u '//Interaction[1]/@End' -v $((N-1)) | bzip2 > config.packed.xml.bz2
+	./dynarun config.packed.xml.bz2 --engine 3 --target-density $density -o config.compressed.xml.bz2 &>> run.log
+	./dynamod config.compressed.xml.bz2 -r $T -T $T -Z -o config.rescaled.xml.bz2 &>> run.log
+	cp config.rescaled.xml.bz2 config.tmp.xml.bz2
+    fi
+
+    #Finally, fix the definitions of the structures in the config file
+    bzcat config.tmp.xml.bz2 | xmlstarlet ed -d '//Molecule' > config.tmp.xml
+    rm config.tmp.xml.bz2
+    for start in $(seq 0 $Nc $((N-1))); do
+	cat config.tmp.xml | xmlstarlet ed \
+            -s '//Structure' -t elem -n "Molecule" -v " " \
+            -s '//Molecule[last()]' -t attr -n "Range" -v "Ranged" \
+            -s '//Molecule[last()]' -t attr -n "Start" -v $start \
+            -s '//Molecule[last()]' -t attr -n "End" -v $((start+Nc-1)) \
+            > config.tmp2.xml
+	mv config.tmp2.xml config.tmp.xml
+    done
+    bzip2 config.tmp.xml
+    mv config.tmp.xml.bz2 config.start.xml.bz2
+
+
+    ./dynarun config.start.xml.bz2 -c 300000 &>> run.log
+    MFT="0.0220444033732851"
+
+    if [ -e output.xml.bz2 ]; then
+	if [ $(bzcat output.xml.bz2 \
+	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
+	    | gawk '{var=($1-'$MFT')/'$MFT'; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
+	    echo "SWpolymer -: FAILED, Measured MFT =" $(bzcat output.xml.bz2 \
+		| $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val') \
+		", expected MFT =" $MFT
+	    exit 1
+	else
+	    echo "SWpolymer -: PASSED, Measured MFT =" $(bzcat output.xml.bz2 \
+		| $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val') \
+		", expected MFT =" $MFT
+	fi
+    else
+	echo "Error, no output.0.xml.bz2 in SWpolymer test"
+	exit 1
+    fi
+}
 
 function wallsw {
 #Just tests the square shoulder interaction between two walls
@@ -698,10 +760,11 @@ echo "Testing compression in the prescence of infinitely heavy particles"
 HeavySphereCompressionTest
 echo "Testing compression of polymers (very sensitive to errors in the algorithm)"
 Ring_compressiontest
+echo "Packing of a square well polymer into a larger system, and compressing the system"
+SWpolymer_compressiontest
 
 echo "REPLICA EXCHANGE"
 echo "Testing replica exchange of hard spheres"
 HS_replex_test "NeighbourList"
 echo "Testing replica exchange of hard spheres with 3 threads"
 HS_replex_test "NeighbourList" "-N3"
-
