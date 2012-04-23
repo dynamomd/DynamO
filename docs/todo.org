@@ -96,6 +96,7 @@
 **** DONE Bugfix Coil: Fixed many bugs which only appear when resizing the display.
 **** DONE Magnet: Upgraded all shaders to GLSL 330.
 **** TODO DynamO: Confirm that the tutorials are up to date on the removal of the -h tag.
+**** TODO DynamO: Check the neighbourlist size on initialisation to make sure its valid.
 *** DynamO 1.2							    :ARCHIVE:
 **** DONE *BUGFIX* Fixed the build system failing when trying to build two variants at once.
 **** DONE *BUGFIX* Fixed the widespread improper use of the XML test functions, causing errors instead of warnings.
