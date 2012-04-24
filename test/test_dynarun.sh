@@ -189,18 +189,20 @@ function SWpolymer_compressiontest {
     density=0.3
     N=$((Nc*((4/(2**Mode))*(C**3))))
 
-    ./dynamod -m 7 --i1 $((Nc/2)) --f3 1.5 --b1 -o config.polymer.xml.bz2  &> run.log
+
+    RANDOM_SEED="-s 1234"
+    ./dynamod $RANDOM_SEED -m 7 --i1 $((Nc/2)) --f3 1.5 --b1 -o config.polymer.xml.bz2 -s1  &> run.log
 
     if [ $(echo "$density <= $compress_density" |bc) -eq 1 ]; then
     #If the density is lower than the compress_density, just directly make the big system
-	./dynamod -m 3 -T $T -r $T --i1 $Mode --b1 --s1 config.polymer.xml.bz2 -d $density -C $C -o config.tmp2.xml.bz2 &>> run.log
+	./dynamod $RANDOM_SEED -m 3 -T $T -r $T --i1 $Mode --b1 --s1 config.polymer.xml.bz2 -d $density -C $C -o config.tmp2.xml.bz2 &>> run.log
 	bzcat config.tmp2.xml.bz2 | xmlstarlet ed -u '//Interaction[1]/@End' -v $((N-1)) | bzip2 > config.tmp.xml.bz2
     else
     #We have to compress as the density is too high
-	./dynamod -m 3 --i1 $Mode --b1 --s1 config.polymer.xml.bz2 -d $compress_density -C $C -o config.tmp2.xml.bz2 &>> run.log
+	./dynamod $RANDOM_SEED -m 3 --i1 $Mode --b1 --s1 config.polymer.xml.bz2 -d $compress_density -C $C -o config.tmp2.xml.bz2 &>> run.log
 	bzcat config.tmp2.xml.bz2 | xmlstarlet ed -u '//Interaction[1]/@End' -v $((N-1)) | bzip2 > config.packed.xml.bz2
-	./dynarun config.packed.xml.bz2 --engine 3 --target-density $density -o config.compressed.xml.bz2 &>> run.log
-	./dynamod config.compressed.xml.bz2 -r $T -T $T -Z -o config.rescaled.xml.bz2 &>> run.log
+	./dynarun $RANDOM_SEED config.packed.xml.bz2 --engine 3 --target-density $density -o config.compressed.xml.bz2 &>> run.log
+	./dynamod $RANDOM_SEED config.compressed.xml.bz2 -r $T -T $T -Z -o config.rescaled.xml.bz2 &>> run.log
 	cp config.rescaled.xml.bz2 config.tmp.xml.bz2
     fi
 
@@ -220,7 +222,7 @@ function SWpolymer_compressiontest {
     mv config.tmp.xml.bz2 config.start.xml.bz2
 
 
-    ./dynarun config.start.xml.bz2 -c 300000 &>> run.log
+    ./dynarun $RANDOM_SEED config.start.xml.bz2 -c 300000 &>> run.log
     MFT="0.0220444033732851"
 
     if [ -e output.xml.bz2 ]; then
