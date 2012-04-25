@@ -191,7 +191,7 @@ function SWpolymer_compressiontest {
 
 
     RANDOM_SEED="-s 1234"
-    ./dynamod $RANDOM_SEED -m 7 --i1 $((Nc/2)) --f3 1.5 --b1 -o config.polymer.xml.bz2 -s1  &> run.log
+    ./dynamod $RANDOM_SEED -m 7 --i1 $((Nc/2)) --f3 1.5 --b1 -o config.polymer.xml.bz2 &> run.log
 
     if [ $(echo "$density <= $compress_density" |bc) -eq 1 ]; then
     #If the density is lower than the compress_density, just directly make the big system
