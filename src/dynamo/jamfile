@@ -18,19 +18,22 @@ import feature ;
 import ../magnet/jam/builddep ;
 import ../magnet/jam/tags ;
 
+lib z : : <link>static ;
+lib bz2 : : <link>static ;
+
 lib gslcblas ;
 lib gsl : gslcblas : <name>gsl ;
 exe gsltest : tests/gsltest.cpp gsl ;
-exe zlibtest : tests/zlibtest.cpp ;
-exe bzip2test : tests/bzip2test.cpp ;
+exe zlibtest : tests/zlibtest.cpp z ;
+exe bzip2test : tests/bzip2test.cpp bz2 ;
 
 SHELL "touch src/dynamo/tests/* " ;
 
 project	: requirements
           #This creates a feature coil-integration, which can be set
           #on the command line or auto-detected using the passed target
-	  [ builddep.set-feature-on-build dynamo-zlib : zlibtest : "DynamO: zlib" ]
-	  [ builddep.set-feature-on-build dynamo-bzip2 : bzip2test : "DynamO: bzip2" ]
+	  [ builddep.set-feature-on-build dynamo-zlib : zlibtest : "DynamO: Static zlib library" ]
+	  [ builddep.set-feature-on-build dynamo-bzip2 : bzip2test : "DynamO: Static bzip2 library" ]
 	  [ builddep.set-feature-on-build coil-integration : /coil//coilDependencies : "DynamO-Coil Integration" ]
 	  [ builddep.combine-features dynamo-buildable : dynamo-zlib dynamo-bzip2 ]
 	: default-build release

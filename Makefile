@@ -5,13 +5,13 @@ BOOST_DL="http://sourceforge.net/projects/boost/files/boost/1.47.0/boost_1_47_0.
 BJAM="./src/boost/bjam"
 
 all : build_deps
-	$(BJAM) -j4 install
+	$(BJAM) install
 
 debug : build_deps
-	$(BJAM) -j4 debug
+	$(BJAM) debug
 
 test : build_deps
-	$(BJAM) -j4 test
+	$(BJAM) test
 
 docs :
 	doxygen
@@ -32,5 +32,6 @@ install: build_deps all
 distclean: build_deps
 	rm -Rf build-dir
 	rm -Rf src/boost
+
 
 .PHONY : build_deps all install distclean test docs
