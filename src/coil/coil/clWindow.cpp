@@ -968,8 +968,6 @@ namespace coil {
     
     _ambientLightShader.attach();
     _ambientLightShader["colorTex"] = 0;
-    _ambientLightShader["normalTex"] = 1;
-    _ambientLightShader["positionTex"] = 2;
     _ambientLightShader["samples"] = GLint(_samples);
     _ambientLightShader["ambientLight"] = GLfloat(_ambientIntensity);
     _ambientLightShader.invoke();

@@ -36,8 +36,6 @@ layout (location = 0) out vec4 color_out;
 
 //Standard G-buffer data
 uniform sampler2DMS colorTex;
-uniform sampler2DMS normalTex;
-uniform sampler2DMS positionTex;
 uniform int samples;
 uniform float ambientLight;
 
