@@ -58,13 +58,9 @@ namespace coil {
 	  Zx = 0.5 + 0.5 * vec[0] / vec[3];
 	  Zy = 0.5 - 0.5 * vec[1] / vec[3];
 	}
-	CairoSurface::redraw();
-	CairoSurface::glRender();
-      }
 
-    protected:
-      virtual void drawCommands() 
-      {
+	CairoSurface::clear();
+	_cairoContext->save();
 	_cairoContext->scale(_width,_height);
 	_cairoContext->set_font_size(0.2);
 
@@ -77,6 +73,9 @@ namespace coil {
 	_cairoContext->set_source_rgba(0.1, 0.1, 1.0, 1);
 	_cairoContext->move_to(Zx,Zy);
 	_cairoContext->show_text("Z");
+	_cairoContext->restore();
+	CairoSurface::syncCairoGL();
+	CairoSurface::glRender();
       }
 
       GLfloat Xx,Xy,Yx,Yy,Zx,Zy;

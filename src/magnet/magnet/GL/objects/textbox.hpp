@@ -75,7 +75,22 @@ namespace magnet {
 	{
 	  if (_os.str().empty()) return;
 
-	  if (!_valid) { redraw(); _valid = true; }
+	  if (!_valid) 
+	    { 
+	      CairoSurface::clear();
+	      _cairoContext->save();
+	      const double padding = 5;
+		
+	      drawCursor(_pos[0], _pos[1], padding);
+	      _cairoContext->set_line_width(2.0);
+	      _cairoContext->set_source_rgba(0, 0, 0, 1);
+	      _cairoContext->stroke();
+		
+	      drawTextBox(_pos[0] + padding, _pos[1] + padding, _os.str(), padding);
+	      _cairoContext->restore();
+	      CairoSurface::syncCairoGL();
+	      _valid = true; 
+	    }
 
 	  CairoSurface::glRender(projection, modelview);
 	}
@@ -92,18 +107,6 @@ namespace magnet {
 	std::ostringstream _os;
 	bool _valid;
 	double _pos[2];
-
-	virtual void drawCommands()
-	{
-	  const double padding = 5;
-
-	  drawCursor(_pos[0], _pos[1], padding);
-	  _cairoContext->set_line_width(2.0);
-	  _cairoContext->set_source_rgba(0, 0, 0, 1);
-	  _cairoContext->stroke();
-
-	  drawTextBox(_pos[0] + padding, _pos[1] + padding, _os.str(), padding);
-	}
 
 	void drawCursor(double x, double y, double size, double spins_per_sec = 0.3)
 	{

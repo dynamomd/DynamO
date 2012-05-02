@@ -217,13 +217,11 @@ void main()
 	  _cairoContext = Cairo::Context::create(_cairoSurface);
 	  _pango = Pango::Layout::create(_cairoContext);
 	  Pango::FontDescription font("sans 12");
-	  _pango->set_font_description(font);	 
+	  _pango->set_font_description(font);
+	  _cairoContext->save();
 	}
 	
-	/*! \brief Forces the underlying Cairo scene to be rerendered
-	 * and the texture to be updated.
-	 */
-	void redraw()
+	void clear()
 	{
 	  //Clear the surface
 	  _cairoContext->save();
@@ -234,10 +232,12 @@ void main()
 	  //The draw alpha must be >0 for the alpha masking effect
 	  _cairoContext->set_operator(Cairo::OPERATOR_OVER);
 	  _cairoContext->set_source_rgba(1, 1, 1, 1);
-	  
-	  drawCommands();
 	  _cairoContext->restore();
-	  
+	}
+	
+	/* \brief Copies the cairo image to the OpenGL texture. */
+	void syncCairoGL()
+	{
 	  //Send the cairo surface to the GL texture
 	  if (_alpha_testing)
 	    {
@@ -259,11 +259,10 @@ void main()
 	    }
 	  else
 	    _surface.subImage(_cairoSurface->get_data(), GL_BGRA, _width, _height);
-	  
 	}
 	
 	/*! \brief Renders the Cairo scene.
-	 
+	  
 	  The position, orientation and size of the scene can be
 	  controlled through the \ref Shader instance attributes.  Or
 	  alternately through the passed modelview and projection
@@ -284,7 +283,6 @@ void main()
 	}
 
       protected:
-	virtual void drawCommands() = 0;
 
 	Texture2D _surface;
 	size_t _width;
