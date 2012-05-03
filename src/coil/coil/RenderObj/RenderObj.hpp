@@ -24,6 +24,8 @@
 
 namespace Gtk { class ScrolledWindow; }
 
+namespace magnet { namespace GL { namespace objects { class CairoSurface; }}}
+
 namespace coil {
   class RenderObjectsGtkTreeView;
 
@@ -104,7 +106,8 @@ namespace coil {
     /*! \brief Called when the RenderObject should draw its 2D interface controls.
 	\param camera The active camera for the render.
      */
-    virtual void interfaceRender(const magnet::GL::Camera& camera) {}
+    virtual void interfaceRender(const magnet::GL::Camera& camera, 
+				 magnet::GL::objects::CairoSurface& cairo) {}
 
 
     /*! \brief The render phase of the picking render.

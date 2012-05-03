@@ -18,6 +18,7 @@
 #include <coil/RenderObj/console.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/clamp.hpp>
+#include <magnet/GL/objects/cairo.hpp>
 #include <coil/glprimatives/arrow.hpp>
 
 extern const unsigned char _binary_coilfont_ttf_start[];
@@ -32,12 +33,11 @@ namespace coil {
 
     _axis.init();
     _grid.init(10,10);
-    _cairoOverlay.init();
     initGTK();
   }
 
   void 
-  Console::interfaceRender(const magnet::GL::Camera& camera)
+  Console::interfaceRender(const magnet::GL::Camera& camera, magnet::GL::objects::CairoSurface& cairo)
   {
     //Only draw if the console has something in it or if it's visible
     if (!_visible) return;
@@ -49,6 +49,59 @@ namespace coil {
 
     if (_showAxis->get_active())
       {
+	//Lets try to render an Axis with the rotation of the
+
+//	    class AxisText : public magnet::GL::objects::CairoSurface
+//    {
+//    public:
+//      inline void init(size_t width = 100, size_t height = 100, size_t alpha_testing = 0) 
+//      { CairoSurface::init(100,100,0); }
+//
+//      inline void glRender(const magnet::GL::GLMatrix& viewProjection)
+//      {
+//	{
+//	  std::tr1::array<GLfloat, 4> vec = {{0.55,-0.4,-0.4,1.0}};
+//	  vec = viewProjection * vec;
+//	  Xx = 0.5 + 0.5 * vec[0] / vec[3];
+//	  Xy = 0.5 - 0.5 * vec[1] / vec[3];
+//	}
+//	{
+//	  std::tr1::array<GLfloat, 4> vec = {{-0.4,0.55,-0.4,1.0}};
+//	  vec = viewProjection * vec;
+//	  Yx = 0.5 + 0.5 * vec[0] / vec[3];
+//	  Yy = 0.5 - 0.5 * vec[1] / vec[3];
+//	}
+//	{
+//	  std::tr1::array<GLfloat, 4> vec = {{-0.4,-0.4,0.55,1.0}};
+//	  vec = viewProjection * vec;
+//	  Zx = 0.5 + 0.5 * vec[0] / vec[3];
+//	  Zy = 0.5 - 0.5 * vec[1] / vec[3];
+//	}
+//
+//	CairoSurface::clear();
+//	_cairoContext->save();
+//	_cairoContext->scale(_width,_height);
+//	_cairoContext->set_font_size(0.2);
+//
+//	_cairoContext->set_source_rgba(1.0, 0.1, 0.1, 1);
+//	_cairoContext->move_to(Xx,Xy);
+//	_cairoContext->show_text("X");
+//	_cairoContext->set_source_rgba(0.1, 1.0, 0.1, 1);
+//	_cairoContext->move_to(Yx,Yy);
+//	_cairoContext->show_text("Y");
+//	_cairoContext->set_source_rgba(0.1, 0.1, 1.0, 1);
+//	_cairoContext->move_to(Zx,Zy);
+//	_cairoContext->show_text("Z");
+//	_cairoContext->restore();
+//	CairoSurface::syncCairoGL();
+//	CairoSurface::glRender();
+//      }
+//
+//      GLfloat Xx,Xy,Yx,Yy,Zx,Zy;
+//    };
+
+
+	
 	/////////////////RENDER THE AXIS//////////////////////////////////////////////
 
 	const GLdouble nearPlane = 0.1,
@@ -74,8 +127,6 @@ namespace coil {
 
 	context->color(0.5f,0.5f,0.5f,0.8f);
 	_axis.glRender();
-
-	_cairoOverlay.glRender(projectionMatrix * viewMatrix);
 
 	context->setViewport(oldviewport);
 	context->getAttachedShader()["ProjectionMatrix"] = oldproj;

@@ -127,7 +127,7 @@ namespace coil {
       the object within \ref _selectedObject which has been
       selected. */
     uint32_t _selectedObjectID;
-    magnet::GL::objects::CairoSurface _cario_screen;
+    magnet::GL::objects::CairoSurface _cairo_screen;
 
     void CallBackSpecialUpFunc(int key, int x, int y) {}
     void CallBackSpecialFunc(int key, int x, int y) {} 

@@ -622,7 +622,7 @@ namespace coil {
     _toneMapShader.build();
     _depthResolverShader.build();
     
-    _cario_screen.init(600, 600);
+    _cairo_screen.init(600, 600);
 
       //Now init the render objects  
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
@@ -700,7 +700,7 @@ namespace coil {
     _luminanceShader.deinit();
     _luminanceMipMapShader.deinit();
 
-    _cario_screen.deinit();
+    _cairo_screen.deinit();
     ///////////////////Finally, unregister with COIL
     CoilRegister::getCoilInstance().unregisterWindow(this);
   }
@@ -1220,9 +1220,11 @@ namespace coil {
 
 
     //Enter the interface draw for all objects
+    _cairo_screen.clear();
+
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-      (*iPtr)->interfaceRender(_camera);
+      (*iPtr)->interfaceRender(_camera, _cairo_screen);
 
     //Draw the cursor if an object is selected
     if (_selectedObject)
@@ -1234,14 +1236,14 @@ namespace coil {
 	double x = (0.5 + 0.5 * vec[0]) * camera.getWidth(), 
 	  y = (0.5 - 0.5 * vec[1]) * camera.getHeight();
 
-	_cario_screen.clear();
-	_cario_screen.drawCursor(x, y, 5);
-	_cario_screen.drawTextBox(x + 5, y + 5, 
+	_cairo_screen.drawCursor(x, y, 5);
+	_cairo_screen.drawTextBox(x + 5, y + 5, 
 				  _selectedObject->getCursorText(_selectedObjectID), 
 				  5);
-	_cario_screen.syncCairoGL();
-	_cario_screen.glRender();
       }
+
+    _cairo_screen.syncCairoGL();
+    _cairo_screen.glRender();
     
     _simpleRenderShader.detach();
     lastFBO->detach();
@@ -1396,7 +1398,7 @@ namespace coil {
     }
     AAsamplechangeCallback();
 
-    _cario_screen.resize(w, h);
+    _cairo_screen.resize(w, h);
   }
 
   void 
