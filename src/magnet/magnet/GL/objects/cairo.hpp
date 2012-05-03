@@ -282,8 +282,6 @@ void main()
 	  _shader.detach();
 	}
 
-      protected:
-
 	void drawCursor(double x, double y, double size, double spins_per_sec = 0.3)
 	{
 	  std::clock_t time = std::clock();
@@ -296,6 +294,9 @@ void main()
 	  _cairoContext->move_to(+ 0.5 * size, - 2   * size);
 	  _cairoContext->line_to(+ 0.5 * size, - 0.5 * size);
 	  _cairoContext->line_to(+ 2   * size, - 0.5 * size);
+	  _cairoContext->set_line_width(2.0);
+	  _cairoContext->set_source_rgba(0, 0, 0, 1);
+	  _cairoContext->stroke();
 	  _cairoContext->restore();
 	}
 
@@ -303,6 +304,7 @@ void main()
 			 float bgR = 0.5, float bgG = 0.70588, float bgB = 0.94118, float bgA = 0.7,
 			 float fgR = 0.0, float fgG = 0.0, float fgB = 0.0, float fgA = 1.0)
 	{
+	  _cairoContext->save();
 	  _pango->set_text(text.c_str());
 	  //Fetch the text dimensions, use pango's built in extents
 	  //calculator as it is very fast
@@ -341,7 +343,10 @@ void main()
 	  _cairoContext->set_source_rgba(fgR, fgG, fgB, fgA);
 	  _cairoContext->move_to(topleft[0] + padding, topleft[1] + padding);
 	  _pango->show_in_cairo_context(_cairoContext);
+	  _cairoContext->restore();
 	}
+
+      protected:
 
 	Texture2D _surface;
 	size_t _width;

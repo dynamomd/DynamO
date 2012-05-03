@@ -32,7 +32,7 @@
 #include <magnet/GL/shader/simple_render.hpp>
 #include <magnet/GL/shader/copy.hpp>
 #include <magnet/GL/shader/downsampler.hpp>
-#include <magnet/GL/objects/textbox.hpp>
+#include <magnet/GL/objects/cairo.hpp>
 #include <coil/filters/filter.hpp>
 #include <coil/RenderObj/RenderObj.hpp>
 #include <coil/coilMaster.hpp>
@@ -127,7 +127,7 @@ namespace coil {
       the object within \ref _selectedObject which has been
       selected. */
     uint32_t _selectedObjectID;
-    magnet::GL::objects::TextSurface _cursor;
+    magnet::GL::objects::CairoSurface _cario_screen;
 
     void CallBackSpecialUpFunc(int key, int x, int y) {}
     void CallBackSpecialFunc(int key, int x, int y) {} 
