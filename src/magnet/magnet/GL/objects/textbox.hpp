@@ -28,7 +28,7 @@ namespace magnet {
       class TextSurface: public CairoSurface
       {
       public:
-	TextSurface(): _valid(false) {}
+	TextSurface(): _valid(false) { _pos[0] = 0; _pos[1] = 0; }
 	
 	/*! \brief Output operator for the text box.
 	 */
@@ -38,13 +38,6 @@ namespace magnet {
 	  _os << value;
 	  _valid = false;
 	  return *this;
-	}
-
-	virtual void init(size_t width, size_t height, size_t alpha_testing = 0)
-	{
-	  CairoSurface::init(width, height, alpha_testing);
-	  _pos[0] = 0.5 * _width;
-	  _pos[1] = 0.5 * _height;
 	}
 
 	virtual void deinit()
@@ -107,63 +100,6 @@ namespace magnet {
 	std::ostringstream _os;
 	bool _valid;
 	double _pos[2];
-
-	void drawCursor(double x, double y, double size, double spins_per_sec = 0.3)
-	{
-	  std::clock_t time = std::clock();
-	  _cairoContext->save();
-	  _cairoContext->translate(x, y);
-	  _cairoContext->rotate(2 * M_PI * spins_per_sec * time / double(CLOCKS_PER_SEC));
-	  _cairoContext->move_to(- 2   * size, + 0.5 * size);
-	  _cairoContext->line_to(- 0.5 * size, + 0.5 * size);
-	  _cairoContext->line_to(- 0.5 * size, + 2   * size);	  
-	  _cairoContext->move_to(+ 0.5 * size, - 2   * size);
-	  _cairoContext->line_to(+ 0.5 * size, - 0.5 * size);
-	  _cairoContext->line_to(+ 2   * size, - 0.5 * size);
-	  _cairoContext->restore();
-	}
-
-	void drawTextBox(double x, double y, std::string text, double padding = 5)
-	{
-	  _pango->set_text(text.c_str());
-	  //Fetch the text dimensions, use pango's built in extents
-	  //calculator as it is very fast
-	  double topleft[2] = {x, y};
-	  int pango_width, pango_height;
-	  _pango->get_size(pango_width, pango_height);
-	  double bottomright[2];
-	  bottomright[0] = topleft[0] + double(pango_width) / Pango::SCALE + 2 * padding;
-	  bottomright[1] = topleft[1] + double(pango_height) / Pango::SCALE + 2 * padding;
-
-	  //Make sure the box doesn't overlap the sides. The left hand
-	  //side takes priority over the right
-	  double dimensions[2] = {_width, _height};
-	  for (size_t i(0); i < 2; ++i)
-	    {
-	      //right/bottom edge
-	      double shift = std::min(0.0, dimensions[i] - bottomright[i]);
-	      topleft[i] += shift;
-	      bottomright[i] += shift;
-	      //left/top edge
-	      shift = std::max(-topleft[i], 0.0);
-	      topleft[i] += shift;
-	      bottomright[i] += shift;
-	    }
-	  
-	  //Background box
-	  _cairoContext->begin_new_path();
-	  _cairoContext->rectangle(topleft[0], topleft[1], 
-	  			   bottomright[0] - topleft[0],
-	  			   bottomright[1] - topleft[1]);
-	  
-	  _cairoContext->set_source_rgba(0.5, 0.70588, 0.94118, 0.7);
-	  _cairoContext->fill();
-	  
-	  //Main text
-	  _cairoContext->set_source_rgba(0, 0, 0, 1);
-	  _cairoContext->move_to(topleft[0] + padding, topleft[1] + padding);
-	  _pango->show_in_cairo_context(_cairoContext);
-	}
       };
     }
   }

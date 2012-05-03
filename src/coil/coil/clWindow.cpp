@@ -1229,8 +1229,11 @@ namespace coil {
       {
 	std::tr1::array<GLfloat, 4> vec = _selectedObject->getCursorPosition(_selectedObjectID);
 	vec = camera.getProjectionMatrix() * (camera.getViewMatrix() * vec);
-	_cursor.setPosition((0.5 + 0.5 * vec[0] / vec[3]) * camera.getWidth(),
-			    (0.5 - 0.5 * vec[1] / vec[3]) * camera.getHeight());
+	for (size_t i(0); i < 3; ++i)
+	  vec[i] /= vec[3];
+
+	_cursor.setPosition((0.5 + 0.5 * vec[0]) * camera.getWidth(),
+			    (0.5 - 0.5 * vec[1]) * camera.getHeight());
 	_cursor.clear();
 	_cursor << _selectedObject->getCursorText(_selectedObjectID);
 	_cursor.glRender();
