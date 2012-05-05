@@ -1230,14 +1230,9 @@ namespace coil {
     if (_selectedObject)
       {
 	std::tr1::array<GLfloat, 4> vec = _selectedObject->getCursorPosition(_selectedObjectID);
-	vec = camera.getProjectionMatrix() * (camera.getViewMatrix() * vec);
-	for (size_t i(0); i < 3; ++i)
-	  vec[i] /= vec[3];
-	double x = (0.5 + 0.5 * vec[0]) * camera.getWidth(), 
-	  y = (0.5 - 0.5 * vec[1]) * camera.getHeight();
-
-	_cairo_screen.drawCursor(x, y, 5);
-	_cairo_screen.drawTextBox(x + 5, y + 5, 
+	vec = camera.project(Vector(vec[0], vec[1], vec[2]));
+	_cairo_screen.drawCursor(vec[0], vec[1], 5);
+	_cairo_screen.drawTextBox(vec[0] + 5, vec[1] + 5, 
 				  _selectedObject->getCursorText(_selectedObjectID), 
 				  5);
       }

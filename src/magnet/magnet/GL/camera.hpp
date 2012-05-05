@@ -499,10 +499,31 @@ namespace magnet {
 
       void setMode(Camera_Mode val) { _camMode = val; }
 
+      /*! \brief Used to convert world positions to screen coordinates (pixels).
+	
+	This returns y coordinates in the format that cairo and other
+	image programs expect (inverted compared to OpenGL).
+	
+	\return An array containing the x and y pixel locations,
+	followed by the depth and w value.
+       */
+      std::tr1::array<GLfloat, 4> project(math::Vector invec) const
+      {
+	std::tr1::array<GLfloat, 4> vec = {{invec[0], invec[1], invec[2], 1.0}};
+	vec = getProjectionMatrix() * (getViewMatrix() * vec);
+	
+	for (size_t i(0); i < 3; ++i)
+	  vec[i] /= std::abs(vec[3]);
+	
+	vec[0] = (0.5 + 0.5 * vec[0]) * getWidth();
+	vec[1] = (0.5 - 0.5 * vec[1]) * getHeight();
+	return  vec;
+      }
+
       /*! \brief Used to convert mouse positions (including depth
           information) into a 3D position.
        */
-      math::Vector unprojectToPosition(int windowx, int windowy, GLfloat depth)
+      math::Vector unprojectToPosition(int windowx, int windowy, GLfloat depth) const
       {
 	//We need to calculate the ray from the camera
 	std::tr1::array<GLfloat, 4> n = {{(2.0 * windowx) / getWidth() - 1.0,
@@ -523,7 +544,7 @@ namespace magnet {
       /*! \brief Used to convert mouse positions (including depth
           information) into a 3D position.
        */
-      math::Vector unprojectToDirection(int windowx, int windowy)
+      math::Vector unprojectToDirection(int windowx, int windowy) const
       {
 	//We need to calculate the ray from the camera
 	std::tr1::array<GLfloat, 4> n = {{(2.0 * windowx) / getWidth() - 1.0,

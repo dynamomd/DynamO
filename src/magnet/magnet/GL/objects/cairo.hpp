@@ -301,7 +301,7 @@ void main()
 	}
 
 	void drawTextBox(double x, double y, std::string text, double padding = 5,
-			 float bgR = 0.5, float bgG = 0.70588, float bgB = 0.94118, float bgA = 0.7,
+			 float bgR = 1.0, float bgG = 1.0, float bgB = 1.0, float bgA = 0.7,
 			 float fgR = 0.0, float fgG = 0.0, float fgB = 0.0, float fgA = 1.0)
 	{
 	  _cairoContext->save();
@@ -345,6 +345,8 @@ void main()
 	  _pango->show_in_cairo_context(_cairoContext);
 	  _cairoContext->restore();
 	}
+
+	Cairo::Context& getContext() { return *(_cairoContext.operator->()); }
 
       protected:
 

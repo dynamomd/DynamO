@@ -49,56 +49,78 @@ namespace coil {
 
     if (_showAxis->get_active())
       {
+	{
+	  cairo.getContext().save();
+	  
+	  std::tr1::array<GLfloat, 4> O = camera.project(Vector(-0.5,-0.5,-0.5));
+	  std::tr1::array<GLfloat, 4> X = camera.project(Vector( 0.5,-0.5,-0.5));
+	  std::tr1::array<GLfloat, 4> Y = camera.project(Vector(-0.5, 0.5,-0.5));
+	  std::tr1::array<GLfloat, 4> Z = camera.project(Vector(-0.5,-0.5, 0.5));
+	  
+	  cairo.getContext().set_line_width(2);
+	  cairo.getContext().set_font_size(0.2);;
+
+	  cairo.getContext().move_to(O[0], O[1]);
+	  cairo.getContext().line_to(X[0], X[1]);
+	  cairo.getContext().move_to(O[0], O[1]);
+	  cairo.getContext().line_to(Y[0], Y[1]);
+	  cairo.getContext().move_to(O[0], O[1]);
+	  cairo.getContext().line_to(Z[0], Z[1]);
+	  cairo.getContext().set_source_rgba(1, 1, 1, 1);
+	  cairo.getContext().stroke();
+	  cairo.getContext().restore();
+	}
+
 	//Lets try to render an Axis with the rotation of the
 
-//	    class AxisText : public magnet::GL::objects::CairoSurface
-//    {
-//    public:
-//      inline void init(size_t width = 100, size_t height = 100, size_t alpha_testing = 0) 
-//      { CairoSurface::init(100,100,0); }
-//
-//      inline void glRender(const magnet::GL::GLMatrix& viewProjection)
-//      {
-//	{
-//	  std::tr1::array<GLfloat, 4> vec = {{0.55,-0.4,-0.4,1.0}};
-//	  vec = viewProjection * vec;
-//	  Xx = 0.5 + 0.5 * vec[0] / vec[3];
-//	  Xy = 0.5 - 0.5 * vec[1] / vec[3];
-//	}
-//	{
-//	  std::tr1::array<GLfloat, 4> vec = {{-0.4,0.55,-0.4,1.0}};
-//	  vec = viewProjection * vec;
-//	  Yx = 0.5 + 0.5 * vec[0] / vec[3];
-//	  Yy = 0.5 - 0.5 * vec[1] / vec[3];
-//	}
-//	{
-//	  std::tr1::array<GLfloat, 4> vec = {{-0.4,-0.4,0.55,1.0}};
-//	  vec = viewProjection * vec;
-//	  Zx = 0.5 + 0.5 * vec[0] / vec[3];
-//	  Zy = 0.5 - 0.5 * vec[1] / vec[3];
-//	}
-//
-//	CairoSurface::clear();
-//	_cairoContext->save();
-//	_cairoContext->scale(_width,_height);
-//	_cairoContext->set_font_size(0.2);
-//
-//	_cairoContext->set_source_rgba(1.0, 0.1, 0.1, 1);
-//	_cairoContext->move_to(Xx,Xy);
-//	_cairoContext->show_text("X");
-//	_cairoContext->set_source_rgba(0.1, 1.0, 0.1, 1);
-//	_cairoContext->move_to(Yx,Yy);
-//	_cairoContext->show_text("Y");
-//	_cairoContext->set_source_rgba(0.1, 0.1, 1.0, 1);
-//	_cairoContext->move_to(Zx,Zy);
-//	_cairoContext->show_text("Z");
-//	_cairoContext->restore();
-//	CairoSurface::syncCairoGL();
-//	CairoSurface::glRender();
-//      }
-//
-//      GLfloat Xx,Xy,Yx,Yy,Zx,Zy;
-//    };
+	//	    class AxisText : public magnet::GL::objects::CairoSurface
+	//    {
+	//    public:
+	//      inline void init(size_t width = 100, size_t height = 100, size_t alpha_testing = 0) 
+	//      { CairoSurface::init(100,100,0); }
+	//
+	//      inline void glRender(const magnet::GL::GLMatrix& viewProjection)
+	//      {
+	//	{
+	//	  std::tr1::array<GLfloat, 4> vec = {{0.55,-0.4,-0.4,1.0}};
+	//	  vec = viewProjection * vec;
+	//	  Xx = 0.5 + 0.5 * vec[0] / vec[3];
+	//	  Xy = 0.5 - 0.5 * vec[1] / vec[3];
+	//	}
+	//	{
+	//	  std::tr1::array<GLfloat, 4> vec = {{-0.4,0.55,-0.4,1.0}};
+	//	  vec = viewProjection * vec;
+	//	  Yx = 0.5 + 0.5 * vec[0] / vec[3];
+	//	  Yy = 0.5 - 0.5 * vec[1] / vec[3];
+	//	}
+	//	{
+	//	  std::tr1::array<GLfloat, 4> vec = {{-0.4,-0.4,0.55,1.0}};
+	//	  vec = viewProjection * vec;
+	//	  Zx = 0.5 + 0.5 * vec[0] / vec[3];
+	//	  Zy = 0.5 - 0.5 * vec[1] / vec[3];
+	//	}
+	//
+	//	CairoSurface::clear();
+	//	_cairoContext->save();
+	//	_cairoContext->scale(_width,_height);
+	//	_cairoContext->set_font_size(0.2);
+	//
+	//	_cairoContext->set_source_rgba(1.0, 0.1, 0.1, 1);
+	//	_cairoContext->move_to(Xx,Xy);
+	//	_cairoContext->show_text("X");
+	//	_cairoContext->set_source_rgba(0.1, 1.0, 0.1, 1);
+	//	_cairoContext->move_to(Yx,Yy);
+	//	_cairoContext->show_text("Y");
+	//	_cairoContext->set_source_rgba(0.1, 0.1, 1.0, 1);
+	//	_cairoContext->move_to(Zx,Zy);
+	//	_cairoContext->show_text("Z");
+	//	_cairoContext->restore();
+	//	CairoSurface::syncCairoGL();
+	//	CairoSurface::glRender();
+	//      }
+	//
+	//      GLfloat Xx,Xy,Yx,Yy,Zx,Zy;
+	//    };
 
 
 	
@@ -150,33 +172,33 @@ namespace coil {
 	//Back face
 	context->setAttribute(Context::instanceOriginAttrIndex, 0, 0, -camera.getScreenPlaneWidth(), 0);
 	context->setAttribute(Context::instanceScaleAttrIndex,
-			     camera.getScreenPlaneWidth(),
-			     camera.getScreenPlaneHeight(), 1);
+			      camera.getScreenPlaneWidth(),
+			      camera.getScreenPlaneHeight(), 1);
 	_grid.glRender();
 
 	//Sides
 	context->setAttribute(Context::instanceOriginAttrIndex, 
-			     0.5 * camera.getScreenPlaneWidth(), 0, 
-			     -0.5 * camera.getScreenPlaneWidth(), 0);
+			      0.5 * camera.getScreenPlaneWidth(), 0, 
+			      -0.5 * camera.getScreenPlaneWidth(), 0);
 	context->rotation(M_PI / 2, Vector(0, 1, 0));
   	_grid.glRender(); //Right side
 	context->setAttribute(Context::instanceOriginAttrIndex, 
-			     -0.5 * camera.getScreenPlaneWidth(), 0, 
-			     -0.5 * camera.getScreenPlaneWidth(), 0);
+			      -0.5 * camera.getScreenPlaneWidth(), 0, 
+			      -0.5 * camera.getScreenPlaneWidth(), 0);
   	_grid.glRender(); //Left side
 
 	//Top and bottom
 	context->rotation(M_PI / 2, Vector(1, 0, 0));
 	context->setAttribute(Context::instanceScaleAttrIndex,
-			     camera.getScreenPlaneWidth(),
-			     camera.getScreenPlaneWidth(), 1);
+			      camera.getScreenPlaneWidth(),
+			      camera.getScreenPlaneWidth(), 1);
 	context->setAttribute(Context::instanceOriginAttrIndex, 0,
-			     -0.5 * camera.getScreenPlaneHeight(), 
-			     -0.5 * camera.getScreenPlaneWidth(), 0);
+			      -0.5 * camera.getScreenPlaneHeight(), 
+			      -0.5 * camera.getScreenPlaneWidth(), 0);
 	_grid.glRender();//bottom
 	context->setAttribute(Context::instanceOriginAttrIndex, 0,
-			     0.5 * camera.getScreenPlaneHeight(), 
-			     -0.5 * camera.getScreenPlaneWidth(), 0);
+			      0.5 * camera.getScreenPlaneHeight(), 
+			      -0.5 * camera.getScreenPlaneWidth(), 0);
 	_grid.glRender();//top
 	context->getAttachedShader()["ViewMatrix"] = old_model_view;
       }
