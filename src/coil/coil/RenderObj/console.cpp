@@ -31,9 +31,30 @@ namespace coil {
     RenderObj::init(systemQueue);
     _glutLastTime = glutGet(GLUT_ELAPSED_TIME);
 
-    _axis.init();
     _grid.init(10,10);
     initGTK();
+  }
+
+  namespace{
+    void local_move_to(magnet::GL::objects::CairoSurface& cairo, 
+		       magnet::GL::GLMatrix projViewMatrix, 
+		       float x, float y, float z)
+      {
+	std::tr1::array<GLfloat, 4> vec = {{x,y,z,1.0}};
+	vec = projViewMatrix * vec;
+	cairo.getContext().move_to(0.5 + 0.5 * vec[0] / vec[3],
+				   0.5 - 0.5 * vec[1] / vec[3]);
+      }
+
+    void local_line_to(magnet::GL::objects::CairoSurface& cairo, 
+		       magnet::GL::GLMatrix projViewMatrix, 
+		       float x, float y, float z)
+      {
+	std::tr1::array<GLfloat, 4> vec = {{x,y,z,1.0}};
+	vec = projViewMatrix * vec;
+	cairo.getContext().line_to(0.5 + 0.5 * vec[0] / vec[3],
+				   0.5 - 0.5 * vec[1] / vec[3]);
+      }
   }
 
   void 
@@ -42,117 +63,59 @@ namespace coil {
     //Only draw if the console has something in it or if it's visible
     if (!_visible) return;
 
-    using namespace magnet::GL;
-    const Context::ContextPtr& context = _axis.getContext();
-    //Draw the console in orthograpic projection
-    context->cleanupAttributeArrays();
-
     if (_showAxis->get_active())
       {
-	{
-	  cairo.getContext().save();
-	  
-	  std::tr1::array<GLfloat, 4> O = camera.project(Vector(-0.5,-0.5,-0.5));
-	  std::tr1::array<GLfloat, 4> X = camera.project(Vector( 0.5,-0.5,-0.5));
-	  std::tr1::array<GLfloat, 4> Y = camera.project(Vector(-0.5, 0.5,-0.5));
-	  std::tr1::array<GLfloat, 4> Z = camera.project(Vector(-0.5,-0.5, 0.5));
-	  
-	  cairo.getContext().set_line_width(2);
-	  cairo.getContext().set_font_size(0.2);;
-
-	  cairo.getContext().move_to(O[0], O[1]);
-	  cairo.getContext().line_to(X[0], X[1]);
-	  cairo.getContext().move_to(O[0], O[1]);
-	  cairo.getContext().line_to(Y[0], Y[1]);
-	  cairo.getContext().move_to(O[0], O[1]);
-	  cairo.getContext().line_to(Z[0], Z[1]);
-	  cairo.getContext().set_source_rgba(1, 1, 1, 1);
-	  cairo.getContext().stroke();
-	  cairo.getContext().restore();
-	}
-
-	//Lets try to render an Axis with the rotation of the
-
-	//	    class AxisText : public magnet::GL::objects::CairoSurface
-	//    {
-	//    public:
-	//      inline void init(size_t width = 100, size_t height = 100, size_t alpha_testing = 0) 
-	//      { CairoSurface::init(100,100,0); }
-	//
-	//      inline void glRender(const magnet::GL::GLMatrix& viewProjection)
-	//      {
-	//	{
-	//	  std::tr1::array<GLfloat, 4> vec = {{0.55,-0.4,-0.4,1.0}};
-	//	  vec = viewProjection * vec;
-	//	  Xx = 0.5 + 0.5 * vec[0] / vec[3];
-	//	  Xy = 0.5 - 0.5 * vec[1] / vec[3];
-	//	}
-	//	{
-	//	  std::tr1::array<GLfloat, 4> vec = {{-0.4,0.55,-0.4,1.0}};
-	//	  vec = viewProjection * vec;
-	//	  Yx = 0.5 + 0.5 * vec[0] / vec[3];
-	//	  Yy = 0.5 - 0.5 * vec[1] / vec[3];
-	//	}
-	//	{
-	//	  std::tr1::array<GLfloat, 4> vec = {{-0.4,-0.4,0.55,1.0}};
-	//	  vec = viewProjection * vec;
-	//	  Zx = 0.5 + 0.5 * vec[0] / vec[3];
-	//	  Zy = 0.5 - 0.5 * vec[1] / vec[3];
-	//	}
-	//
-	//	CairoSurface::clear();
-	//	_cairoContext->save();
-	//	_cairoContext->scale(_width,_height);
-	//	_cairoContext->set_font_size(0.2);
-	//
-	//	_cairoContext->set_source_rgba(1.0, 0.1, 0.1, 1);
-	//	_cairoContext->move_to(Xx,Xy);
-	//	_cairoContext->show_text("X");
-	//	_cairoContext->set_source_rgba(0.1, 1.0, 0.1, 1);
-	//	_cairoContext->move_to(Yx,Yy);
-	//	_cairoContext->show_text("Y");
-	//	_cairoContext->set_source_rgba(0.1, 0.1, 1.0, 1);
-	//	_cairoContext->move_to(Zx,Zy);
-	//	_cairoContext->show_text("Z");
-	//	_cairoContext->restore();
-	//	CairoSurface::syncCairoGL();
-	//	CairoSurface::glRender();
-	//      }
-	//
-	//      GLfloat Xx,Xy,Yx,Yy,Zx,Zy;
-	//    };
-
-
-	
-	/////////////////RENDER THE AXIS//////////////////////////////////////////////
-
 	const GLdouble nearPlane = 0.1,
 	  axisScale = 0.09;
-    
-	//The axis is in a little 100x100 pixel area in the lower left
-	std::tr1::array<GLint, 4> oldviewport = context->getViewport();
-	context->setViewport(0,0,100,100);
-    
-	GLMatrix oldproj = context->getAttachedShader()["ProjectionMatrix"].as<GLMatrix>();
-	GLMatrix oldview = context->getAttachedShader()["ViewMatrix"].as<GLMatrix>();
-	
-	GLMatrix viewMatrix 
-	  = GLMatrix::translate(0, 0, -(nearPlane + axisScale))
+
+	cairo.getContext().save();
+	  
+	magnet::GL::GLMatrix projViewMatrix
+	  = magnet::GL::GLMatrix::perspective(45, 1, nearPlane, 1000)
+	  * magnet::GL::GLMatrix::translate(0, 0, -(nearPlane + axisScale))
 	  * camera.getViewRotationMatrix()
-	  * GLMatrix::scale(axisScale, axisScale, axisScale);
+	  * magnet::GL::GLMatrix::scale(axisScale, axisScale, axisScale);
 
-	GLMatrix projectionMatrix
-	  = GLMatrix::perspective(45, 1, nearPlane, 1000);
+	//Scale to a 100x100 box
+	cairo.getContext().translate(0, camera.getHeight()-100);
+	cairo.getContext().scale(100, 100);
 
-	context->getAttachedShader()["ViewMatrix"]  = viewMatrix;
-	context->getAttachedShader()["ProjectionMatrix"] = projectionMatrix;
+	cairo.getContext().set_line_width(0.02);
+	cairo.getContext().set_font_size(0.2);
 
-	context->color(0.5f,0.5f,0.5f,0.8f);
-	_axis.glRender();
+	local_move_to(cairo, projViewMatrix, -0.5, -0.5, -0.5);
+	local_line_to(cairo, projViewMatrix, +0.5, -0.5, -0.5);
+	local_line_to(cairo, projViewMatrix, +0.25, -0.25, -0.5);
+	local_move_to(cairo, projViewMatrix, +0.5, -0.5, -0.5);
+	local_line_to(cairo, projViewMatrix, +0.25, -0.5, -0.25);
+	cairo.getContext().set_source_rgba(1, 0.5, 0.5, 1);
+	cairo.getContext().stroke();
 
-	context->setViewport(oldviewport);
-	context->getAttachedShader()["ProjectionMatrix"] = oldproj;
-	context->getAttachedShader()["ViewMatrix"] = oldview;
+	local_move_to(cairo, projViewMatrix, -0.5, -0.5, -0.5);
+	local_line_to(cairo, projViewMatrix, -0.5, +0.5, -0.5);
+	local_line_to(cairo, projViewMatrix, -0.25, +0.25, -0.5);
+	local_move_to(cairo, projViewMatrix, -0.5, +0.5, -0.5);
+	local_line_to(cairo, projViewMatrix, -0.5, +0.25, -0.25);
+	cairo.getContext().set_source_rgba(0.5, 1, 0.5, 1);
+	cairo.getContext().stroke();
+
+	local_move_to(cairo, projViewMatrix, -0.5, -0.5, -0.5);
+	local_line_to(cairo, projViewMatrix, -0.5, -0.5, +0.5);
+	local_line_to(cairo, projViewMatrix, -0.25, -0.5, +0.25);
+	local_move_to(cairo, projViewMatrix, -0.5, -0.5, +0.5);
+	local_line_to(cairo, projViewMatrix, -0.5, -0.25, +0.25);
+	cairo.getContext().set_source_rgba(0.5, 0.5, 1, 1);
+	cairo.getContext().stroke();
+
+	cairo.getContext().set_source_rgba(1, 1, 1, 1);
+	local_move_to(cairo, projViewMatrix, +0.5, -0.5, -0.5);
+	cairo.getContext().show_text("X");
+	local_move_to(cairo, projViewMatrix, -0.5, +0.5, -0.5);
+	cairo.getContext().show_text("Y");
+	local_move_to(cairo, projViewMatrix, -0.5, -0.5, +0.5);
+	cairo.getContext().show_text("Z");
+
+	cairo.getContext().restore();
       }    
   }
 
@@ -161,7 +124,7 @@ namespace coil {
     if (_showGrid->get_active())
       {
 	using namespace magnet::GL;
-	const Context::ContextPtr& context = _axis.getContext();
+	const Context::ContextPtr& context = magnet::GL::Context::getContext();
 
 	GLMatrix old_model_view
 	  = context->getAttachedShader()["ViewMatrix"].as<GLMatrix>();
