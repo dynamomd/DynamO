@@ -68,7 +68,7 @@ vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
   float specular = lightSpecularFactor * float(lightNormDot > 0.0)
     * pow(max(dot(ReflectedRay, eyeDirection), 0.0), lightSpecularExponent);
   
-  float diffuse = smoothstep(0.0, 1.0, lightNormDot);
+  float diffuse = clamp(lightNormDot, 0.0, 1.0);
 
   //Light attenuation
   float decay_factor = 1.0 / (lightDistance * lightDistance);

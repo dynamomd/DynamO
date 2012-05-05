@@ -39,7 +39,7 @@ namespace coil {
       _intensity(1), 
       _specularExponent(96),
       _specularFactor(1),
-      _size(0.05)
+      _size(0.015)
     {
       std::tr1::array<GLfloat, 3> tmp = {{1.0, 1.0, 1.0}};
       _color = tmp;
