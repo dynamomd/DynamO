@@ -20,6 +20,7 @@
 #include <coil/RenderObj/console.hpp>
 #include <magnet/gtk/numericEntry.hpp>
 #include <magnet/clamp.hpp>
+#include <magnet/GL/objects/cairo.hpp>
 #include <boost/lexical_cast.hpp>
 #include <fstream>
 
@@ -27,7 +28,7 @@ extern const guint8 Light_Icon[];
 extern const size_t Light_Icon_size;
 
 namespace coil {
-  Glib::RefPtr<Gdk::Pixbuf> 
+  Glib::RefPtr<Gdk::Pixbuf>
   RLight::getIcon()
   {
     return Gdk::Pixbuf::create_from_inline(Light_Icon_size, Light_Icon);
@@ -55,6 +56,23 @@ namespace coil {
 
     _context = magnet::GL::Context::getContext();
     initGTK();
+  }
+
+  void 
+  RLight::interfaceRender(const magnet::GL::Camera& camera, magnet::GL::objects::CairoSurface& cairo)
+  {
+    cairo.getContext()->save();
+
+    std::tr1::array<GLfloat, 4> pos =  camera.project(getPosition());
+
+    Glib::RefPtr<Gdk::Pixbuf> icon = getIcon();
+  
+    Gdk::Cairo::set_source_pixbuf(cairo.getContext(), getIcon(), 
+				  pos[0] - icon->get_width()/2,
+				  pos[1] - icon->get_height()/2);
+    cairo.getContext()->paint();
+
+    cairo.getContext()->restore();
   }
 
   void 

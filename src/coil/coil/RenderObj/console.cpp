@@ -42,7 +42,7 @@ namespace coil {
       {
 	std::tr1::array<GLfloat, 4> vec = {{x,y,z,1.0}};
 	vec = projViewMatrix * vec;
-	cairo.getContext().move_to(0.5 + 0.5 * vec[0] / vec[3],
+	cairo.getContext()->move_to(0.5 + 0.5 * vec[0] / vec[3],
 				   0.5 - 0.5 * vec[1] / vec[3]);
       }
 
@@ -52,7 +52,7 @@ namespace coil {
       {
 	std::tr1::array<GLfloat, 4> vec = {{x,y,z,1.0}};
 	vec = projViewMatrix * vec;
-	cairo.getContext().line_to(0.5 + 0.5 * vec[0] / vec[3],
+	cairo.getContext()->line_to(0.5 + 0.5 * vec[0] / vec[3],
 				   0.5 - 0.5 * vec[1] / vec[3]);
       }
   }
@@ -68,7 +68,7 @@ namespace coil {
 	const GLdouble nearPlane = 0.1,
 	  axisScale = 0.09;
 
-	cairo.getContext().save();
+	cairo.getContext()->save();
 	  
 	magnet::GL::GLMatrix projViewMatrix
 	  = magnet::GL::GLMatrix::perspective(45, 1, nearPlane, 1000)
@@ -77,45 +77,49 @@ namespace coil {
 	  * magnet::GL::GLMatrix::scale(axisScale, axisScale, axisScale);
 
 	//Scale to a 100x100 box
-	cairo.getContext().translate(0, camera.getHeight()-100);
-	cairo.getContext().scale(100, 100);
+	cairo.getContext()->translate(0, camera.getHeight()-100);
+	cairo.getContext()->scale(100, 100);
 
-	cairo.getContext().set_line_width(0.02);
-	cairo.getContext().set_font_size(0.2);
+	cairo.getContext()->rectangle(0,0,1,1);
+	cairo.getContext()->set_source_rgba(0.5, 0.5, 0.5, 0.5);
+	cairo.getContext()->fill();
+
+	cairo.getContext()->set_line_width(0.02);
+	cairo.getContext()->set_font_size(0.2);
 
 	local_move_to(cairo, projViewMatrix, -0.5, -0.5, -0.5);
 	local_line_to(cairo, projViewMatrix, +0.5, -0.5, -0.5);
 	local_line_to(cairo, projViewMatrix, +0.25, -0.25, -0.5);
 	local_move_to(cairo, projViewMatrix, +0.5, -0.5, -0.5);
 	local_line_to(cairo, projViewMatrix, +0.25, -0.5, -0.25);
-	cairo.getContext().set_source_rgba(1, 0.5, 0.5, 1);
-	cairo.getContext().stroke();
+	cairo.getContext()->set_source_rgba(1, 0.3, 0.3, 1);
+	cairo.getContext()->stroke();
 
 	local_move_to(cairo, projViewMatrix, -0.5, -0.5, -0.5);
 	local_line_to(cairo, projViewMatrix, -0.5, +0.5, -0.5);
 	local_line_to(cairo, projViewMatrix, -0.25, +0.25, -0.5);
 	local_move_to(cairo, projViewMatrix, -0.5, +0.5, -0.5);
 	local_line_to(cairo, projViewMatrix, -0.5, +0.25, -0.25);
-	cairo.getContext().set_source_rgba(0.5, 1, 0.5, 1);
-	cairo.getContext().stroke();
+	cairo.getContext()->set_source_rgba(0.3, 1, 0.3, 1);
+	cairo.getContext()->stroke();
 
 	local_move_to(cairo, projViewMatrix, -0.5, -0.5, -0.5);
 	local_line_to(cairo, projViewMatrix, -0.5, -0.5, +0.5);
 	local_line_to(cairo, projViewMatrix, -0.25, -0.5, +0.25);
 	local_move_to(cairo, projViewMatrix, -0.5, -0.5, +0.5);
 	local_line_to(cairo, projViewMatrix, -0.5, -0.25, +0.25);
-	cairo.getContext().set_source_rgba(0.5, 0.5, 1, 1);
-	cairo.getContext().stroke();
+	cairo.getContext()->set_source_rgba(0.3, 0.3, 1, 1);
+	cairo.getContext()->stroke();
 
-	cairo.getContext().set_source_rgba(1, 1, 1, 1);
+	cairo.getContext()->set_source_rgba(1, 1, 1, 1);
 	local_move_to(cairo, projViewMatrix, +0.5, -0.5, -0.5);
-	cairo.getContext().show_text("X");
+	cairo.getContext()->show_text("X");
 	local_move_to(cairo, projViewMatrix, -0.5, +0.5, -0.5);
-	cairo.getContext().show_text("Y");
+	cairo.getContext()->show_text("Y");
 	local_move_to(cairo, projViewMatrix, -0.5, -0.5, +0.5);
-	cairo.getContext().show_text("Z");
+	cairo.getContext()->show_text("Z");
 
-	cairo.getContext().restore();
+	cairo.getContext()->restore();
       }    
   }
 

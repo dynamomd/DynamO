@@ -346,7 +346,7 @@ void main()
 	  _cairoContext->restore();
 	}
 
-	Cairo::Context& getContext() { return *(_cairoContext.operator->()); }
+	const Cairo::RefPtr<Cairo::Context>& getContext() { return _cairoContext; }
 
       protected:
 

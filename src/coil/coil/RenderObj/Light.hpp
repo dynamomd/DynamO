@@ -51,6 +51,8 @@ namespace coil {
     virtual void glRender(const magnet::GL::Camera& cam, 
 			  RenderMode mode);
 
+    virtual void interfaceRender(const magnet::GL::Camera& camera, magnet::GL::objects::CairoSurface& cairo);
+
     virtual void showControls(Gtk::ScrolledWindow* win);
 
     float getIntensity() const { return _intensity; }
