@@ -80,11 +80,7 @@ namespace coil {
 	cairo.getContext()->translate(0, camera.getHeight()-100);
 	cairo.getContext()->scale(100, 100);
 
-	cairo.getContext()->rectangle(0,0,1,1);
-	cairo.getContext()->set_source_rgba(0.5, 0.5, 0.5, 0.5);
-	cairo.getContext()->fill();
-
-	cairo.getContext()->set_line_width(0.02);
+	cairo.getContext()->set_line_width(0.015);
 	cairo.getContext()->set_font_size(0.2);
 
 	local_move_to(cairo, projViewMatrix, -0.5, -0.5, -0.5);
@@ -111,16 +107,16 @@ namespace coil {
 	cairo.getContext()->set_source_rgba(0.3, 0.3, 1, 1);
 	cairo.getContext()->stroke();
 
-	cairo.getContext()->set_source_rgba(1, 1, 1, 1);
-	local_move_to(cairo, projViewMatrix, +0.5, -0.5, -0.5);
+	cairo.getContext()->set_source_rgba(0.3, 0.3, 0.3, 1);
+	local_move_to(cairo, projViewMatrix, +0.5, -0.35, -0.35);
 	cairo.getContext()->show_text("X");
-	local_move_to(cairo, projViewMatrix, -0.5, +0.5, -0.5);
+	local_move_to(cairo, projViewMatrix, -0.35, +0.5, -0.35);
 	cairo.getContext()->show_text("Y");
-	local_move_to(cairo, projViewMatrix, -0.5, -0.5, +0.5);
+	local_move_to(cairo, projViewMatrix, -0.35, -0.35, +0.5);
 	cairo.getContext()->show_text("Z");
 
 	cairo.getContext()->restore();
-      }    
+      }
   }
 
   void Console::glRender(const magnet::GL::Camera& camera, RenderMode mode)
