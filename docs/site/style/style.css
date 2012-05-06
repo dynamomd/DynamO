@@ -1,0 +1,6 @@
+.Header { width: 100%; padding: 15px; }
+.logo { }
+.footer { width: 100%; text-align:right; }
+.leftmenu { width:100px; float: left; padding:15px;}
+.leftmenuitem { width:100px; float: left; border: 1px solid; text-align: center}
+.page { width:100%; padding: 15px; }
