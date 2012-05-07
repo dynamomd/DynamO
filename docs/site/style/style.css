@@ -1,4 +1,4 @@
-.Header { width: 100%; padding: 15px; }
+.Header { width: 100%; padding: 15px; float:right; }
 .logo { }
 .footer { width: 100%; text-align:right; }
 .leftmenu { width:100px; float: left; padding:15px;}
