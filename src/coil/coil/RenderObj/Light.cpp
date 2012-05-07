@@ -61,6 +61,8 @@ namespace coil {
   void 
   RLight::interfaceRender(const magnet::GL::Camera& camera, magnet::GL::objects::CairoSurface& cairo)
   {
+    if (!_visible) return;
+    
     cairo.getContext()->save();
 
     std::tr1::array<GLfloat, 4> pos =  camera.project(getPosition());

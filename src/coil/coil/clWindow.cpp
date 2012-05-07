@@ -562,8 +562,8 @@ namespace coil {
     if (_readyFlag) return;
     
     {
-      std::tr1::shared_ptr<RLight> light(new RLight("Light",
-						    Vector(-0.8f,  0.8f, 0.8f),//Position
+      std::tr1::shared_ptr<RLight> light(new RLight("Light 1",
+						    Vector(-0.8f,  0.8f, -0.8f),//Position
 						    Vector(0.0f, 0.0f, 0.0f),//Lookat
 						    75.0f//Beam angle
 						    ));
@@ -571,8 +571,17 @@ namespace coil {
     }
 
     {
-      std::tr1::shared_ptr<RLight> light(new RLight("Light",
+      std::tr1::shared_ptr<RLight> light(new RLight("Light 2",
 						    Vector(0.8f,  0.8f, -0.8f),//Position
+						    Vector(0.0f, 0.0f, 0.0f),//Lookat
+						    75.0f//Beam angle
+						    ));
+      _renderObjsTree._renderObjects.push_back(light);
+    }
+
+    {
+      std::tr1::shared_ptr<RLight> light(new RLight("Light 3",
+						    Vector(0.0f,  0.8f, 0.8f),//Position
 						    Vector(0.0f, 0.0f, 0.0f),//Lookat
 						    75.0f//Beam angle
 						    ));
