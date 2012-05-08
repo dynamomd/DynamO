@@ -31,12 +31,12 @@
       Copyright &copy; 2012 
       <a href="http://validator.w3.org/check?uri=referer">
 	<img style="border:0;width:88px;height:31px"
-	     src="http://www.w3.org/Icons/valid-xhtml11-blue" 
+	     src="images/valid-xhtml11-blue.png"
 	     alt="Valid XHTML 1.1" />
       </a>
       <a href="http://jigsaw.w3.org/css-validator/check/referer">
 	<img style="border:0;width:88px;height:31px"
-             src="http://jigsaw.w3.org/css-validator/images/vcss-blue"
+             src="images/vcss-blue.png"
              alt="Valid CSS!" />
       </a>
     </div>
