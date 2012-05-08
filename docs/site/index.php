@@ -21,46 +21,50 @@
     </script>
   </head>
   <body>
-    <div id="wrapper">
+    <div id="wrapper" style="position:relative;">
       <div class="header">
-	<a href="/"><img src="images/sitelogo.png" alt="dynamomd.org" class="logo" /></a>
+	<div style="position:absolute; top:0px; left:15px; width:15px; height:115px;">
+	  <div class="sprite" style="width:15px; height:15px; position:absolute; top:0;"></div>
+	  <div style="height:85px; margin-top:15px; margin-bottom:15px; background: #ffffff; "></div>
+	  <div class="sprite" style="width:15px; height:15px; position:absolute; bottom:0px; background-position: 0px -15px;"></div>
+	</div>
+
+	<a href="">
+	  <div id="headermiddle" style="margin-left:30px; height:115px; background: no-repeat #ffffff url(images/sitelogo.png); margin-right:30px;">
+	  </div>
+	</a>
+	<div style="position:absolute; top:0px; right: 15px; width:15px; height:115px;">
+	  <div class="sprite" style="width:15px; height:15px; background-position: -15px 0px;"></div>
+	  <div style="width:15px; height:85px; background:#ffffff; "></div>
+	  <div class="sprite" style="width:15px; height:15px; background-position: -15px -15px;"></div>
+	</div>
       </div>
-      <div id="leftmenu">Left Menu</div>
-      <div id="content">Lorem Ipsum is simply dummy text of the
-      printing and typesetting industry. Lorem Ipsum has been the
-      industry's standard dummy text ever since the 1500s, when an
-      unknown printer took a galley of type and scrambled it to make a
-      type specimen book. It has survived not only five centuries, but
-      also the leap into electronic typesetting, remaining essentially
-      unchanged. It was popularised in the 1960s with the release of
-      Letraset sheets containing Lorem Ipsum passages, and more
-      recently with desktop publishing software like Aldus PageMaker
-      including versions of Lorem Ipsum.<br/>  Lorem Ipsum is simply
-      dummy text of the printing and typesetting industry. Lorem Ipsum
-      has been the industry's standard dummy text ever since the
-      1500s, when an unknown printer took a galley of type and
-      scrambled it to make a type specimen book. It has survived not
-      only five centuries, but also the leap into electronic
-      typesetting, remaining essentially unchanged. It was popularised
-      in the 1960s with the release of Letraset sheets containing
-      Lorem Ipsum passages, and more recently with desktop publishing
-      software like Aldus PageMaker including versions of Lorem
-      Ipsum.<br/>  Lorem Ipsum is simply dummy text of the printing
-      and typesetting industry. Lorem Ipsum has been the industry's
-      standard dummy text ever since the 1500s, when an unknown
-      printer took a galley of type and scrambled it to make a type
-      specimen book. It has survived not only five centuries, but also
-      the leap into electronic typesetting, remaining essentially
-      unchanged. It was popularised in the 1960s with the release of
-      Letraset sheets containing Lorem Ipsum passages, and more
-      recently with desktop publishing software like Aldus PageMaker
-      including versions of Lorem Ipsum.</div>
+      <div style="width:100%; height: 30px;"></div>
+      <div id="leftmenu" style="background:#ffffff; position:absolute; left:0; margin-left:30px; width:150px;">Left Menu</div>
+      <div id="content" style=" padding-left:200px;">
+	<div style="background:#ffffff; height:200px;"></div>
+      </div>
       <div id="wrapperfooterpad"></div>
     </div>
     <div id="footer">
-      Copyright &copy; 2012 
-      <a href="http://validator.w3.org/check?uri=referer" class="footerlogo" style="background: url('images/valid-xhtml11-blue.png')"></a>
-      <a href="http://jigsaw.w3.org/css-validator/check/referer" class="footerlogo" style="background: url('images/vcss-blue.png')"></a>
+      
+      <div style="position:absolute; top:0px; left:15px; width:15px; height:100%;">
+	<div class="sprite" style="width:15px; height:15px; position:absolute; top:0;"></div>
+	<div style="height:5px; margin-top:15px; margin-bottom:15px; background: #ffffff; "></div>
+	<div class="sprite" style="width:15px; height:15px; position:absolute; bottom:0px; background-position: 0px -15px;"></div>
+      </div>
+
+      <div style="margin-left:30px; margin-right:30px; background:#ffffff; height:35px;">
+	Copyright &copy; 2012
+	<a href="http://validator.w3.org/check?uri=referer" class="footerlogo" style="background: url('images/valid-xhtml11-blue.png'); float:right;"></a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer" class="footerlogo" style="background: url('images/vcss-blue.png'); float:right;"></a>
+      </div>
+
+      <div style="position:absolute; top:0px; right: 15px; width:15px;">
+	<div class="sprite" style="width:15px; height:15px; background-position: -15px 0px;"></div>
+	<div style="width:15px; height:5px; background:#ffffff; "></div>
+	<div class="sprite" style="width:15px; height:15px; background-position: -15px -15px;"></div>
+      </div>
     </div>
   </body>
 </html>

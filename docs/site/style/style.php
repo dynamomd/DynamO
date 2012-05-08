@@ -4,20 +4,21 @@ $footerheight = "35px";
 
 /* Main html element styles */
 html { height: 100%; }
-body { margin: 0; padding: 0; height: 100%; background: #e7f4fe; }
+/*#e4f4ff*/
+body { margin: 0; padding: 0; height: 100%; background: #000000; }
 
 /* Floating footer code */
 #wrapper { min-height:100%; overflow-y:visible; }
 #wrapperfooterpad { height:<?php echo $footerheight; ?>; width:100%; clear:both; }
 
-#leftmenu { width:20%; min-height:100%; float:left; display:block; }
-#content { width:80%; display:block; float:left; }
+#leftmenu {  }
+#content { }
 
-#footer { 
-    text-align:right;
+#footer {
     height:<?php echo $footerheight; ?>; 
     margin-top:-<?php echo $footerheight; ?>;
-/*    background: url("../images/footerback.png") repeat-x scroll 0 0 transparent;*/
+    position:relative;
 }
 
-.footerlogo { display: block; float: right; border:0; width:88px; height:31px }
+.footerlogo { border:0; width:88px; height:31px }
+.sprite { background-image: url(../images/csssprites.png); }
