@@ -22,8 +22,23 @@
   </head>
   <body>
     <div id="content">
+      <div class="header">
+	<a href="/"><img src="images/sitelogo.png" alt="dynamomd.org" class="logo" /></a>
+      </div>
       <div id="contentfooterpad"></div>
     </div>
-    <div id="footer">Copyright &copy; 2012</div>
+    <div id="footer">
+      Copyright &copy; 2012 
+      <a href="http://validator.w3.org/check?uri=referer">
+	<img style="border:0;width:88px;height:31px"
+	     src="http://www.w3.org/Icons/valid-xhtml11-blue" 
+	     alt="Valid XHTML 1.1" />
+      </a>
+      <a href="http://jigsaw.w3.org/css-validator/check/referer">
+	<img style="border:0;width:88px;height:31px"
+             src="http://jigsaw.w3.org/css-validator/images/vcss-blue"
+             alt="Valid CSS!" />
+      </a>
+    </div>
   </body>
 </html>
