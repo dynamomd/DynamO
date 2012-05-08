@@ -21,24 +21,46 @@
     </script>
   </head>
   <body>
-    <div id="content">
+    <div id="wrapper">
       <div class="header">
 	<a href="/"><img src="images/sitelogo.png" alt="dynamomd.org" class="logo" /></a>
       </div>
-      <div id="contentfooterpad"></div>
+      <div id="leftmenu">Left Menu</div>
+      <div id="content">Lorem Ipsum is simply dummy text of the
+      printing and typesetting industry. Lorem Ipsum has been the
+      industry's standard dummy text ever since the 1500s, when an
+      unknown printer took a galley of type and scrambled it to make a
+      type specimen book. It has survived not only five centuries, but
+      also the leap into electronic typesetting, remaining essentially
+      unchanged. It was popularised in the 1960s with the release of
+      Letraset sheets containing Lorem Ipsum passages, and more
+      recently with desktop publishing software like Aldus PageMaker
+      including versions of Lorem Ipsum.<br/>  Lorem Ipsum is simply
+      dummy text of the printing and typesetting industry. Lorem Ipsum
+      has been the industry's standard dummy text ever since the
+      1500s, when an unknown printer took a galley of type and
+      scrambled it to make a type specimen book. It has survived not
+      only five centuries, but also the leap into electronic
+      typesetting, remaining essentially unchanged. It was popularised
+      in the 1960s with the release of Letraset sheets containing
+      Lorem Ipsum passages, and more recently with desktop publishing
+      software like Aldus PageMaker including versions of Lorem
+      Ipsum.<br/>  Lorem Ipsum is simply dummy text of the printing
+      and typesetting industry. Lorem Ipsum has been the industry's
+      standard dummy text ever since the 1500s, when an unknown
+      printer took a galley of type and scrambled it to make a type
+      specimen book. It has survived not only five centuries, but also
+      the leap into electronic typesetting, remaining essentially
+      unchanged. It was popularised in the 1960s with the release of
+      Letraset sheets containing Lorem Ipsum passages, and more
+      recently with desktop publishing software like Aldus PageMaker
+      including versions of Lorem Ipsum.</div>
+      <div id="wrapperfooterpad"></div>
     </div>
     <div id="footer">
       Copyright &copy; 2012 
-      <a href="http://validator.w3.org/check?uri=referer">
-	<img style="border:0;width:88px;height:31px"
-	     src="images/valid-xhtml11-blue.png"
-	     alt="Valid XHTML 1.1" />
-      </a>
-      <a href="http://jigsaw.w3.org/css-validator/check/referer">
-	<img style="border:0;width:88px;height:31px"
-             src="images/vcss-blue.png"
-             alt="Valid CSS!" />
-      </a>
+      <a href="http://validator.w3.org/check?uri=referer" class="footerlogo" style="background: url('images/valid-xhtml11-blue.png')"></a>
+      <a href="http://jigsaw.w3.org/css-validator/check/referer" class="footerlogo" style="background: url('images/vcss-blue.png')"></a>
     </div>
   </body>
 </html>
