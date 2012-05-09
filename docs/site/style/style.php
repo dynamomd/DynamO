@@ -1,5 +1,4 @@
 <?php header("Content-type: text/css"); 
-$footerheight = "31px";
 $pagebg = "#b0d0ff";
 ?>
 
@@ -10,7 +9,8 @@ body { margin: 0; padding: 0; height: 100%; background: <?php echo $pagebg; ?>; 
 
 /* Floating footer code */
 #wrapper { min-height:100%; overflow-y:visible; position:relative; }
-#wrapperfooterpad { height:<?php echo $footerheight; ?>; width:100%; margin-bottom:10px; clear:both; }
+
+#wrapperfooterpad { height:46px; width:100%; margin-bottom:10px; clear:both; }
 
 #header { position:relative; padding-left:30px; padding-right:30px; height:115px;}
 #sitelogo { background-repeat:no-repeat; background-image:url(../images/sitelogo.png); background-position: 20px 0; }
@@ -18,8 +18,8 @@ body { margin: 0; padding: 0; height: 100%; background: <?php echo $pagebg; ?>; 
 #headercontentspacing { height: 15px; clear: both; }
 
 #footer {
-    height:<?php echo $footerheight; ?>; 
-    margin-top:-<?php echo $footerheight; ?>;
+    height:31px; 
+    margin-top:-46px;
     position:relative;
 }
 

@@ -22,6 +22,7 @@
   </head>
   <body>
     <div id="wrapper">
+      <div style="height:15px;"></div>
       <!-- HEADER AND LOGO -->
       <div id="header">
 	<div class="borderleft">
