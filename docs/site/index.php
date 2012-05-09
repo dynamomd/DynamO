@@ -30,7 +30,8 @@
 	  <div class="verticalborder"></div>
 	  <div class="bottomleftcornerborder sprite"></div>
 	</div>
-	<a href="" class="bordercentre" style="background-repeat:no-repeat; background-image:url(images/sitelogo.png);"></a>
+	<a href="" id="sitelogo" class="bordercentre">
+	</a>
 	<div class="borderright">
 	  <div class="toprightcornerborder sprite"></div>
 	  <div class="verticalborder"></div>
@@ -38,12 +39,17 @@
 	</div>
       </div>
 
-
       <!-- MENU AND CONTENT -->
       <div style="clear:both; width:100%; height: 30px;"></div>
-      <div id="leftmenu" style="background:#ffffff; position:absolute; left:0; margin-left:30px; width:150px;">Left Menu</div>
-      <div id="content" style=" padding-left:200px;">
-	<div style="background:#ffffff; height:200px;"></div>
+
+      <div id="content" style="padding-left:250px; padding-right:15px; position:relative;">
+	<div class="topleftcornerborder sprite"></div> <div class="toprightcornerborder sprite" style="right:15px;"></div>
+	<div style="height:15px;padding-left:15px; padding-right:15px;"><div style="background-color:#ffffff; height:15px;"></div></div>
+	<div style="background-color:#ffffff;padding-left:15px; padding-right:15px;">
+	  Test content<br/>More test
+	</div>
+	<div class="bottomleftcornerborder sprite"></div> <div class="bottomrightcornerborder sprite" style="right:15px;"></div>
+	<div style="height:15px;padding-left:15px; padding-right:15px;"><div style="background-color:#ffffff; height:15px;"></div></div>
       </div>
       <div id="wrapperfooterpad"></div>
     </div>
@@ -56,9 +62,9 @@
 	<div class="bottomleftcornerborder sprite"></div>
       </div>
       <div class="bordercentre">
-	Copyright &copy; 2012
-	<a href="http://validator.w3.org/check?uri=referer" class="footerlogo" style="background: url('images/valid-xhtml11-blue.png'); float:right;"></a>
-	<a href="http://jigsaw.w3.org/css-validator/check/referer" class="footerlogo" style="background: url('images/vcss-blue.png'); float:right;"></a>
+	<div style="padding-top:6px; ">Copyright &copy; 2012</div>
+	<a href="http://validator.w3.org/check?uri=referer" class="w3footerlogo" style="background: url('images/valid-xhtml11-blue.png'); right:0; top:0;"></a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer" class="w3footerlogo" style="background: url('images/vcss-blue.png'); right:93px; top:0;"></a>
       </div>
       <div class="borderright">
 	<div class="toprightcornerborder sprite"></div>
