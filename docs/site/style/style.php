@@ -10,20 +10,20 @@ body { margin: 0; padding: 0; height: 100%; background: <?php echo $pagebg; ?>; 
 /* Floating footer code */
 #wrapper { min-height:100%; overflow-y:visible; position:relative; }
 
-#wrapperfooterpad { height:46px; width:100%; margin-bottom:10px; clear:both; }
+#wrapperfooterpad { height:55px; width:100%; margin-bottom:10px; clear:both; }
 
-#header { position:relative; padding-left:30px; padding-right:30px; height:115px;}
-#sitelogo { background-repeat:no-repeat; background-image:url(../images/sitelogo.png); background-position: 20px 0; }
+#header { position:relative; padding-left:30px; padding-right:30px; height:145px;}
+#sitelogo { background-repeat:no-repeat; background-image:url(../images/sitelogo.png); background-position: 15px 15px; }
 
 #headercontentspacing { height: 15px; clear: both; }
 
 #footer {
-    height:31px; 
-    margin-top:-46px;
+    height:40px; 
+    margin-top:-55px;
     position:relative;
 }
 
-.w3footerlogo { border:0; width:88px; height:31px; position:absolute; top:0; }
+.w3footerlogo { border:0; width:88px; height:31px; position:absolute; top:5px; }
 .sprite { background-image: url(../images/csssprites.png); } 
 
 #leftmenu { width:200px;float:left; margin-left:15px; position:relative; }

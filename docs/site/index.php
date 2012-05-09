@@ -78,7 +78,7 @@
 	<div class="bottomleftcornerborder sprite"></div>
       </div>
       <div class="bordercentre">
-	<div style="padding-top:6px; ">Copyright &copy; 2008-<?php date_default_timezone_set('Europe/London'); echo date("Y"); ?></div>
+	<div style="padding-top:10px; ">Copyright &copy; 2008-<?php date_default_timezone_set('Europe/London'); echo date("Y"); ?></div>
 	<a href="http://validator.w3.org/check?uri=referer" class="w3footerlogo" style="background: url('images/valid-xhtml11-blue.png'); right:0;"></a>
 	<a href="http://jigsaw.w3.org/css-validator/check/referer" class="w3footerlogo" style="background: url('images/vcss-blue.png'); right:93px;"></a>
       </div>
