@@ -37,7 +37,11 @@ body { margin: 0; padding: 0; height: 100%; background: <?php echo $pagebg; ?>; 
 }
 #leftmenu a:hover { background-color:#eeeeee; }
 
+
 #contentwrapper { margin-left:230px; margin-right:15px; position:relative; }
+
+#pagetitle { padding-left:15px; background-color:#eeeeee;}
+
 #content { background-color:#ffffff; padding-left:15px; padding-right:15px; }
 
 /*     Styling of the round edged boxes       */

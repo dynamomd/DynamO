@@ -1,3 +1,13 @@
+<?php
+$pagetitle="Page Title";
+$content="Test content<br/>More test content<br/>
+	  Test content<br/>More test content<br/>
+	  Test content<br/>More test content<br/>
+	  Test content<br/>More test content<br/>
+	  Test content<br/>More test content<br/>
+"
+?>
+
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -5,8 +15,8 @@
     <meta name="description" content="DynamO Event Driven Simulation Package" />
     <meta name="keywords" content="DynamO, Event Driven Simulation, hard sphere, square well" />
     <meta name="author" content="Marcus Bannerman" />
-    <link rel="stylesheet" type="text/css" href="style/style.php" />
-    <link rel="icon" type="image/png" href="images/favicon.png" />
+    <link rel="stylesheet" type="text/css" href="/style/style.php" />
+    <link rel="icon" type="image/png" href="/images/favicon.png" />
     <title>DynamO Simulation Package</title>
     <script type="text/javascript">
       var _gaq = _gaq || [];
@@ -56,13 +66,8 @@
 	<div class="topleftcornerborder sprite"></div> 
 	<div class="toprightcornerborder sprite"></div>
 	<div class="horizontalborder"></div>
-	<div id="content">
-	  Test content<br/>More test content<br/>
-	  Test content<br/>More test content<br/>
-	  Test content<br/>More test content<br/>
-	  Test content<br/>More test content<br/>
-	  Test content<br/>More test content<br/>
-	</div>
+	<div id="pagetitle"><?php echo $pagetitle; ?></div>
+	<div id="content"><?php echo $content; ?></div>
 	<div class="bottomleftcornerborder sprite"></div> 
 	<div class="bottomrightcornerborder sprite"></div>
 	<div class="horizontalborder"></div>
@@ -79,8 +84,8 @@
       </div>
       <div class="bordercentre">
 	<div style="padding-top:10px; ">Copyright &copy; 2008-<?php date_default_timezone_set('Europe/London'); echo date("Y"); ?></div>
-	<a href="http://validator.w3.org/check?uri=referer" class="w3footerlogo" style="background: url('images/valid-xhtml11-blue.png'); right:0;"></a>
-	<a href="http://jigsaw.w3.org/css-validator/check/referer" class="w3footerlogo" style="background: url('images/vcss-blue.png'); right:93px;"></a>
+	<a href="http://validator.w3.org/check?uri=referer" class="w3footerlogo" style="background: url('/images/valid-xhtml11-blue.png'); right:0;"></a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer" class="w3footerlogo" style="background: url('/images/vcss-blue.png'); right:93px;"></a>
       </div>
       <div class="borderright">
 	<div class="toprightcornerborder sprite"></div>
