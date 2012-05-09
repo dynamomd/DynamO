@@ -1,11 +1,18 @@
 <?php
-$pagetitle="Page Title";
-$content="Test content<br/>More test content<br/>
-	  Test content<br/>More test content<br/>
-	  Test content<br/>More test content<br/>
-	  Test content<br/>More test content<br/>
-	  Test content<br/>More test content<br/>
-"
+/* Set the default page accessed when someone opens this file*/
+$page="frontpage";
+
+/* Check if there is a page to be loaded */
+if (isset($_GET["page"]))
+{ $page = htmlspecialchars($_GET["page"]); }
+
+/*Test that the requested page exists.*/
+if (!file_exists($page.".php"))
+{ $page="404"; }
+
+/*Load the page*/
+$in_template=1;
+include_once($page.".php");
 ?>
 
 <?xml version="1.0" encoding="UTF-8"?>
