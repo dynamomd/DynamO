@@ -21,8 +21,7 @@
     </script>
   </head>
   <body>
-    <div id="wrapper" style="position:relative;">
-
+    <div id="wrapper">
       <!-- HEADER AND LOGO -->
       <div id="header">
 	<div class="borderleft">
@@ -30,47 +29,46 @@
 	  <div class="verticalborder"></div>
 	  <div class="bottomleftcornerborder sprite"></div>
 	</div>
-	<a href="" id="sitelogo" class="bordercentre">
-	</a>
+	<a href="" id="sitelogo" class="bordercentre"></a>
 	<div class="borderright">
 	  <div class="toprightcornerborder sprite"></div>
 	  <div class="verticalborder"></div>
 	  <div class="bottomrightcornerborder sprite"></div>
 	</div>
       </div>
-
       <div id="headercontentspacing"></div>
-
       <!-- MENU -->
-      <div id="leftmenu" style="width:200px;float:left; margin-left:15px; position:relative; ">
-	<div class="topleftcornerborder sprite"></div> <div class="toprightcornerborder sprite" style="right:0;"></div>
-	<div style="height:15px;padding-left:15px; padding-right:15px;"><div style="background-color:#ffffff; height:15px;"></div></div>
-	<div style="background-color:#ffffff;padding-left:15px; padding-right:15px;">
-	  Menu Item<br/>Menu Item<br/>
-	</div>
-	<div class="bottomleftcornerborder sprite"></div> <div class="bottomrightcornerborder sprite" style="right:0;"></div>
-	<div style="height:15px;padding-left:15px; padding-right:15px;"><div style="background-color:#ffffff; height:15px;"></div></div>
+      <div id="leftmenu">
+	<div class="topleftcornerborder sprite"></div> 
+	<div class="toprightcornerborder sprite"></div>
+	<div class="horizontalborder"></div>
+	<a href="">Home</a>
+	<a href="">Download</a>
+	<a href="">Documentation</a>
+	<a href="">Changelog</a>
+	<div class="bottomleftcornerborder sprite"></div>
+	<div class="bottomrightcornerborder sprite"></div>
+	<div class="horizontalborder"></div>
       </div>
-
       <!-- CONTENT -->
-      <div id="content" style="padding-left:230px; padding-right:15px; position:relative;">
-	<div class="topleftcornerborder sprite"></div> <div class="toprightcornerborder sprite" style="right:15px;"></div>
-	<div style="height:15px;padding-left:15px; padding-right:15px;"><div style="background-color:#ffffff; height:15px;"></div></div>
-	<div style="background-color:#ffffff;padding-left:15px; padding-right:15px;">
-	  Test content<br/>More test<br/>
-	  Test content<br/>More test<br/>
-	  Test content<br/>More test<br/>
-	  Test content<br/>More test<br/>
-	  Test content<br/>More test<br/>
+      <div id="contentwrapper">
+	<div class="topleftcornerborder sprite"></div> 
+	<div class="toprightcornerborder sprite"></div>
+	<div class="horizontalborder"></div>
+	<div id="content">
+	  Test content<br/>More test content<br/>
+	  Test content<br/>More test content<br/>
+	  Test content<br/>More test content<br/>
+	  Test content<br/>More test content<br/>
+	  Test content<br/>More test content<br/>
 	</div>
-	<div class="bottomleftcornerborder sprite"></div> <div class="bottomrightcornerborder sprite" style="right:15px;"></div>
-	<div style="height:15px;padding-left:15px; padding-right:15px;"><div style="background-color:#ffffff; height:15px;"></div></div>
+	<div class="bottomleftcornerborder sprite"></div> 
+	<div class="bottomrightcornerborder sprite"></div>
+	<div class="horizontalborder"></div>
       </div>
-
       <!-- A DIV TO STOP THE FOOTER OVERLAPPING THE CONTENT -->
       <div id="wrapperfooterpad"></div>
     </div>
-
     <!-- FOOTER -->
     <div id="footer">
       <div class="borderleft">
@@ -79,9 +77,9 @@
 	<div class="bottomleftcornerborder sprite"></div>
       </div>
       <div class="bordercentre">
-	<div style="padding-top:6px; ">Copyright &copy; 2012</div>
-	<a href="http://validator.w3.org/check?uri=referer" class="w3footerlogo" style="background: url('images/valid-xhtml11-blue.png'); right:0; top:0;"></a>
-	<a href="http://jigsaw.w3.org/css-validator/check/referer" class="w3footerlogo" style="background: url('images/vcss-blue.png'); right:93px; top:0;"></a>
+	<div style="padding-top:6px; ">Copyright &copy; 2008-<?php date_default_timezone_set('Europe/London'); echo date("Y"); ?></div>
+	<a href="http://validator.w3.org/check?uri=referer" class="w3footerlogo" style="background: url('images/valid-xhtml11-blue.png'); right:0;"></a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer" class="w3footerlogo" style="background: url('images/vcss-blue.png'); right:93px;"></a>
       </div>
       <div class="borderright">
 	<div class="toprightcornerborder sprite"></div>
