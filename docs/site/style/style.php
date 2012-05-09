@@ -1,18 +1,21 @@
 <?php header("Content-type: text/css"); 
 $footerheight = "31px";
+$pagebg = "#b0d0ff";
 ?>
 
 /* Main html element styles */
 html { height: 100%; }
 /*#e4f4ff*/
-body { margin: 0; padding: 0; height: 100%; background: #000000; }
+body { margin: 0; padding: 0; height: 100%; background: <?php echo $pagebg; ?>; }
 
 /* Floating footer code */
 #wrapper { min-height:100%; overflow-y:visible; }
 #wrapperfooterpad { height:<?php echo $footerheight; ?>; width:100%; margin-bottom:10px; clear:both; }
 
 #header { position:relative; padding-left:30px; padding-right:30px; height:115px;}
-#sitelogo { background-repeat:no-repeat; background-image:url(../images/sitelogo.png); background-position: 50px 0; }
+#sitelogo { background-repeat:no-repeat; background-image:url(../images/sitelogo.png); background-position: 20px 0; }
+
+#headercontentspacing { height: 15px; clear: both; }
 
 #footer {
     height:<?php echo $footerheight; ?>; 

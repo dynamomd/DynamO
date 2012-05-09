@@ -39,18 +39,35 @@
 	</div>
       </div>
 
-      <!-- MENU AND CONTENT -->
-      <div style="clear:both; width:100%; height: 30px;"></div>
+      <div id="headercontentspacing"></div>
 
-      <div id="content" style="padding-left:250px; padding-right:15px; position:relative;">
+      <!-- MENU -->
+      <div id="leftmenu" style="width:200px;float:left; margin-left:15px; position:relative; ">
+	<div class="topleftcornerborder sprite"></div> <div class="toprightcornerborder sprite" style="right:0;"></div>
+	<div style="height:15px;padding-left:15px; padding-right:15px;"><div style="background-color:#ffffff; height:15px;"></div></div>
+	<div style="background-color:#ffffff;padding-left:15px; padding-right:15px;">
+	  Menu Item<br/>Menu Item<br/>
+	</div>
+	<div class="bottomleftcornerborder sprite"></div> <div class="bottomrightcornerborder sprite" style="right:0;"></div>
+	<div style="height:15px;padding-left:15px; padding-right:15px;"><div style="background-color:#ffffff; height:15px;"></div></div>
+      </div>
+
+      <!-- CONTENT -->
+      <div id="content" style="padding-left:230px; padding-right:15px; position:relative;">
 	<div class="topleftcornerborder sprite"></div> <div class="toprightcornerborder sprite" style="right:15px;"></div>
 	<div style="height:15px;padding-left:15px; padding-right:15px;"><div style="background-color:#ffffff; height:15px;"></div></div>
 	<div style="background-color:#ffffff;padding-left:15px; padding-right:15px;">
-	  Test content<br/>More test
+	  Test content<br/>More test<br/>
+	  Test content<br/>More test<br/>
+	  Test content<br/>More test<br/>
+	  Test content<br/>More test<br/>
+	  Test content<br/>More test<br/>
 	</div>
 	<div class="bottomleftcornerborder sprite"></div> <div class="bottomrightcornerborder sprite" style="right:15px;"></div>
 	<div style="height:15px;padding-left:15px; padding-right:15px;"><div style="background-color:#ffffff; height:15px;"></div></div>
       </div>
+
+      <!-- A DIV TO STOP THE FOOTER OVERLAPPING THE CONTENT -->
       <div id="wrapperfooterpad"></div>
     </div>
 
