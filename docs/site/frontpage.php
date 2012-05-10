@@ -6,7 +6,7 @@ if (!isset($in_template))
     return;
   }
 
-$pagetitle="On the frontpage!";
+$pagetitle="Welcome";
 $content="Test content<br/>More test content<br/>
 	  Test content<br/>More test content<br/>
 	  Test content<br/>More test content<br/>

@@ -40,9 +40,9 @@ body { margin: 0; padding: 0; height: 100%; background: <?php echo $pagebg; ?>; 
 
 #contentwrapper { margin-left:230px; margin-right:15px; position:relative; }
 
-#pagetitle { padding-left:15px; background-color:#eeeeee;}
+#pagetitle { position:absolute; top:0px; padding-left:15px;}
 
-#content { background-color:#ffffff; padding-left:15px; padding-right:15px; }
+#content { background-color:#ffffff; padding-left:15px; padding-right:15px; padding-top:10px; padding-bottom:10px;}
 
 /*     Styling of the round edged boxes       */
 .borderleft { left:15px; position:absolute; top:0px; width:15px; height:100%; }

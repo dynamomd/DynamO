@@ -6,6 +6,6 @@ if (!isset($in_template))
     return;
   }
 
-$pagetitle="Error 404";
+$pagetitle="404 Error";
 $content="Could not find the page you were looking for!";
 ?>
