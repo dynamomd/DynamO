@@ -6,16 +6,10 @@ if (!isset($in_template))
     return;
   }
 
-$pagetitle="News";
+$pagetitle="Download";
 ob_start();
    ?>
-
 <!--- Page Begin --->
-Test content<br/>More test content<br/>
-Test content<br/>More test content<br/>
-Test content<br/>More test content<br/>
-Test content<br/>More test content<br/>
-Test content<br/>More test content<br/>
+<h1 style="text-align:center;">Download</h1>
 <!--- Page End --->
-
 <?php $content = ob_get_clean(); ?>
