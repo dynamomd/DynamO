@@ -29,12 +29,9 @@ body { margin: 0; padding: 0; height: 100%; background: <?php echo $sitebg; ?>; 
 
 #leftmenu { width:200px;float:left; margin-left:15px; position:relative; }
 
-a {
+#leftmenu a { 
     color:#000000; 
     text-decoration: none; 
-}
-
-#leftmenu a { 
     line-height:30px; 
     display:block; 
     padding-left:16px; 
