@@ -7,5 +7,9 @@ if (!isset($in_template))
   }
 
 $pagetitle="404 Error";
-$content="Could not find the page you were looking for!";
-?>
+ob_start();
+   ?>
+<!--- Page Begin --->
+Could not find the page you were looking for!
+<!--- Page End --->
+<?php $content = ob_get_clean(); ?>

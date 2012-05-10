@@ -7,10 +7,15 @@ if (!isset($in_template))
   }
 
 $pagetitle="Welcome";
-$content="Test content<br/>More test content<br/>
-	  Test content<br/>More test content<br/>
-	  Test content<br/>More test content<br/>
-	  Test content<br/>More test content<br/>
-	  Test content<br/>More test content<br/>
-"
-?>
+ob_start();
+   ?>
+
+<!--- Page Begin --->
+Test content<br/>More test content<br/>
+Test content<br/>More test content<br/>
+Test content<br/>More test content<br/>
+Test content<br/>More test content<br/>
+Test content<br/>More test content<br/>
+<!--- Page End --->
+
+<?php $content = ob_get_clean(); ?>
