@@ -1,11 +1,12 @@
 <?php header("Content-type: text/css"); 
-$pagebg = "#b0d0ff";
+$sitebg = "#b0d0ff";
+$pagebg = "#ffffff";
 ?>
 
 /* Main html element styles */
 html { height: 100%; }
 /*#e4f4ff*/
-body { margin: 0; padding: 0; height: 100%; background: <?php echo $pagebg; ?>; }
+body { margin: 0; padding: 0; height: 100%; background: <?php echo $sitebg; ?>; }
 
 /* Floating footer code */
 #wrapper { min-height:100%; overflow-y:visible; position:relative; }
@@ -33,24 +34,24 @@ body { margin: 0; padding: 0; height: 100%; background: <?php echo $pagebg; ?>; 
     text-decoration: none; 
     display:block; 
     padding-left:16px; 
-    background-color:#ffffff; 
+    background-color:<?php echo $pagebg; ?>; 
 }
 #leftmenu a:hover { background-color:#eeeeee; }
 
 
 #contentwrapper { margin-left:230px; margin-right:15px; position:relative; }
 
-#pagetitle { position:absolute; top:0px; padding-left:15px;}
+#pagetitle { position:absolute; font-weight:bold; top:2px; padding-left:15px;}
 
-#content { background-color:#ffffff; padding-left:15px; padding-right:15px; padding-top:10px; padding-bottom:10px;}
+#content { background-color:<?php echo $pagebg; ?>; padding-left:15px; padding-right:15px; padding-top:10px; padding-bottom:10px;}
 
 /*     Styling of the round edged boxes       */
 .borderleft { left:15px; position:absolute; top:0px; width:15px; height:100%; }
 .borderright { right:15px; position:absolute; top:0px; width:15px; height:100%; }
-.bordercentre { background-color:#ffffff; position:absolute; left:30px; right:30px; bottom:0; top:0;}
+.bordercentre { background-color:<?php echo $pagebg; ?>; position:absolute; left:30px; right:30px; bottom:0; top:0;}
 .topleftcornerborder { width:15px; height:15px; position:absolute; top:0; left:0; background-position: 0px 0px; }
 .bottomleftcornerborder { width:15px; height:15px; position:absolute; bottom:0; left:0; background-position: 0px -15px; }
 .toprightcornerborder { width:15px; height:15px; position:absolute; top:0; right:0; background-position: -15px 0px; }
 .bottomrightcornerborder { width:15px; height:15px; position:absolute; bottom:0; right:0; background-position: -15px -15px; }
-.verticalborder { background: #ffffff; position:absolute; top:15px; bottom:15px;left:0px; right:0px; }
-.horizontalborder { background: #ffffff; height:15px; margin-left:15px; margin-right:15px; }
+.verticalborder { background: <?php echo $pagebg; ?>; position:absolute; top:15px; bottom:15px;left:0px; right:0px; }
+.horizontalborder { background: <?php echo $pagebg; ?>; height:15px; margin-left:15px; margin-right:15px; }

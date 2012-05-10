@@ -7,12 +7,12 @@ if (isset($_GET["page"]))
 { $page = htmlspecialchars($_GET["page"]); }
 
 /*Test that the requested page exists.*/
-if (!file_exists($page.".php"))
+if (!file_exists("pages/".$page.".php"))
 { $page="404"; }
 
 /*Load the page*/
 $in_template=1;
-include_once($page.".php");
+include_once("pages/".$page.".php");
 ?>
 
 <?xml version="1.0" encoding="UTF-8"?>
@@ -60,10 +60,10 @@ include_once($page.".php");
 	<div class="topleftcornerborder sprite"></div> 
 	<div class="toprightcornerborder sprite"></div>
 	<div class="horizontalborder"></div>
-	<a href="">Home</a>
-	<a href="">Download</a>
-	<a href="">Documentation</a>
-	<a href="">Changelog</a>
+	<a href="/index.php/">News</a>
+	<a href="/index.php/download">Download</a>
+	<a href="/index.php/documentation">Documentation</a>
+	<a href="/index.php/features">Features</a>
 	<div class="bottomleftcornerborder sprite"></div>
 	<div class="bottomrightcornerborder sprite"></div>
 	<div class="horizontalborder"></div>
