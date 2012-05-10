@@ -47,7 +47,7 @@ include_once("pages/".$page.".php");
 	  <div class="verticalborder"></div>
 	  <div class="bottomleftcornerborder sprite"></div>
 	</div>
-	<a href="" id="sitelogo" class="bordercentre"></a>
+	<a href="/" id="sitelogo" class="bordercentre"></a>
 	<div class="borderright">
 	  <div class="toprightcornerborder sprite"></div>
 	  <div class="verticalborder"></div>
@@ -60,7 +60,7 @@ include_once("pages/".$page.".php");
 	<div class="topleftcornerborder sprite"></div> 
 	<div class="toprightcornerborder sprite"></div>
 	<div class="horizontalborder"></div>
-	<a href="/index.php/">News</a>
+	<a href="/index.php/news">News</a>
 	<a href="/index.php/download">Download</a>
 	<a href="/index.php/documentation">Documentation</a>
 	<a href="/index.php/features">Features</a>
@@ -90,7 +90,7 @@ include_once("pages/".$page.".php");
 	<div class="bottomleftcornerborder sprite"></div>
       </div>
       <div class="bordercentre">
-	<div style="padding-top:10px; ">Copyright &copy; 2008-<?php date_default_timezone_set('Europe/London'); echo date("Y"); ?></div>
+	<p>Copyright &copy; 2008-<?php date_default_timezone_set('Europe/London'); echo date("Y"); ?></p>
 	<a href="http://validator.w3.org/check?uri=referer" class="w3footerlogo" style="background: url('/images/valid-xhtml11-blue.png'); right:0;"></a>
 	<a href="http://jigsaw.w3.org/css-validator/check/referer" class="w3footerlogo" style="background: url('/images/vcss-blue.png'); right:93px;"></a>
       </div>

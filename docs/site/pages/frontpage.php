@@ -6,16 +6,24 @@ if (!isset($in_template))
     return;
   }
 
-$pagetitle="News";
+$pagetitle="Welcome";
 ob_start();
    ?>
 
 <!--- Page Begin --->
-Test content<br/>More test content<br/>
-Test content<br/>More test content<br/>
-Test content<br/>More test content<br/>
-Test content<br/>More test content<br/>
-Test content<br/>More test content<br/>
 <!--- Page End --->
 
-<?php $content = ob_get_clean(); ?>
+<?php 
+ //Look in the news directory and create a date sorted list of the news items
+ $file_array=array();
+ foreach (glob('pages/news/*.html') as $filename)
+ {
+    $file_array[filectime($filename)]=basename($filename); // or just $filename
+ }
+ ksort($file_array);
+
+ if (!empty($file_array))
+ { include('pages/news/'.current($file_array)); }
+
+ $content = ob_get_clean(); 
+?>

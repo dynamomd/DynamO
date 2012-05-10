@@ -28,10 +28,14 @@ body { margin: 0; padding: 0; height: 100%; background: <?php echo $sitebg; ?>; 
 .sprite { background-image: url(../images/csssprites.png); } 
 
 #leftmenu { width:200px;float:left; margin-left:15px; position:relative; }
-#leftmenu a { 
-    line-height:29px; 
+
+a {
     color:#000000; 
     text-decoration: none; 
+}
+
+#leftmenu a { 
+    line-height:30px; 
     display:block; 
     padding-left:16px; 
     background-color:<?php echo $pagebg; ?>; 
@@ -49,9 +53,22 @@ body { margin: 0; padding: 0; height: 100%; background: <?php echo $sitebg; ?>; 
 .borderleft { left:15px; position:absolute; top:0px; width:15px; height:100%; }
 .borderright { right:15px; position:absolute; top:0px; width:15px; height:100%; }
 .bordercentre { background-color:<?php echo $pagebg; ?>; position:absolute; left:30px; right:30px; bottom:0; top:0;}
-.topleftcornerborder { width:15px; height:15px; position:absolute; top:0; left:0; background-position: 0px 0px; }
-.bottomleftcornerborder { width:15px; height:15px; position:absolute; bottom:0; left:0; background-position: 0px -15px; }
-.toprightcornerborder { width:15px; height:15px; position:absolute; top:0; right:0; background-position: -15px 0px; }
-.bottomrightcornerborder { width:15px; height:15px; position:absolute; bottom:0; right:0; background-position: -15px -15px; }
 .verticalborder { background: <?php echo $pagebg; ?>; position:absolute; top:15px; bottom:15px;left:0px; right:0px; }
 .horizontalborder { background: <?php echo $pagebg; ?>; height:15px; margin-left:15px; margin-right:15px; }
+
+.topleftcornerborder { background-image: url(../images/csssprites.png); width:15px; height:15px; position:absolute; top:0; left:0; background-position: 0 0; }
+.bottomleftcornerborder { background-image: url(../images/csssprites.png); width:15px; height:15px; position:absolute; bottom:0; left:0; background-position: 0 -15px; }
+.toprightcornerborder { background-image: url(../images/csssprites.png); width:15px; height:15px; position:absolute; top:0; right:0; background-position: -15px 0; }
+.bottomrightcornerborder { background-image: url(../images/csssprites.png); width:15px; height:15px; position:absolute; bottom:0; right:0; background-position: -15px -15px; }
+
+/* Button */
+.button { display:inline-block; position:relative; padding-left:15px; padding-right:15px; height:30px; }
+.button .center { background-color: #d4e6ff; height:30px; line-height:30px; }
+.button .left { background-image: url(../images/csssprites.png); width:15px; height:30px; position:absolute; top:0; left:0; background-position: -35px 0; }
+.button .right { background-image: url(../images/csssprites.png); width:15px; height:30px; position:absolute; bottom:0; right:0; background-position: -50px 0; }
+
+.button:hover .center { background-color: #b0d0ff; }
+.button:hover .left { background-position: -70px 0; }
+.button:hover .right { background-position: -85px 0; }
+
+.bordercentre p { padding:0; margin:0; line-height:40px; }

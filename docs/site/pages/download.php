@@ -10,6 +10,14 @@ $pagetitle="Download";
 ob_start();
    ?>
 <!--- Page Begin --->
-<h1 style="text-align:center;">Download</h1>
+<h1>Download</h1>
+
+<a class="button" href="https://github.com/toastedcrumpets/DynamO">
+  <div class="left"></div>
+  <div class="center">
+  Download
+  </div>
+  <div class="right"></div>
+</a>
 <!--- Page End --->
 <?php $content = ob_get_clean(); ?>
