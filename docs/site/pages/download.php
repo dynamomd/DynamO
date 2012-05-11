@@ -9,11 +9,11 @@ if (!isset($in_template))
 $pagetitle="Download";
 ob_start();
    ?>
-<!--- Page Begin --->
+<!-- Page Begin -->
 <h1>Download</h1>
 
 <a class="button" href="https://github.com/toastedcrumpets/DynamO">
   <div class="left"></div><div class="center">Download</div><div class="right"></div>
 </a>
-<!--- Page End --->
+<!-- Page End -->
 <?php $content = ob_get_clean(); ?>

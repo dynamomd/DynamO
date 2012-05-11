@@ -9,9 +9,9 @@ if (!isset($in_template))
 $pagetitle="404 Error";
 ob_start();
    ?>
-<!--- Page Begin --->
+<!-- Page Begin -->
 <h1 style="text-align:center;">Could not find the page you were looking for!</h1>
 <div style="text-align:center;">Please use the menu to the left or your browsers back button to return to the site.</div>
 
-<!--- Page End --->
+<!-- Page End -->
 <?php $content = ob_get_clean(); ?>

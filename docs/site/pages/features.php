@@ -9,7 +9,7 @@
    $pagetitle="Features";
    ob_start();
    ?>
-<!--- Page Begin --->
+<!-- Page Begin -->
 <h1>Simple Systems</h1>
 <div class="figure" style="width:365px;">
   <iframe style="height:225px;" src="http://www.youtube-nocookie.com/embed/VGSY6DNrrxk?rel=0" frameborder="0" allowfullscreen></iframe>
@@ -98,5 +98,5 @@
     state of the polymer.
   </li>
 </ul>
-<!--- Page End --->
+<!-- Page End -->
 <?php $content = ob_get_clean(); ?>
