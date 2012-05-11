@@ -21,7 +21,6 @@ body {
 }
 
 #wrapperfooterpad { 
-    pointer-events:none; /*To stop the padding overlapping with the menu*/
     height:55px; 
     width:100%; 
     margin-bottom:10px; 
@@ -68,7 +67,8 @@ body {
 #leftmenu { 
     width:200px; 
     margin-left:15px; 
-    position:absolute; 
+    float:left;
+    position:relative;
 }
 
 #leftmenu a { 
@@ -77,7 +77,7 @@ body {
     line-height:30px; 
     display:block; 
     padding-left:16px; 
-    background-color:<?php echo $pagebg; ?>; 
+    background-color:<?php echo $pagebg; ?>;
 }
 
 #leftmenu a:hover { 
@@ -87,8 +87,8 @@ body {
 
 #contentwrapper { 
     margin-left:230px; 
-    margin-right:15px; 
-    position:relative; 
+    margin-right:15px;
+    position:relative;
 }
 
 #pagetitle { 
