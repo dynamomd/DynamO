@@ -10,7 +10,7 @@ $pagetitle="Documentation";
 ob_start();
    ?>
 <!--- Page Begin --->
-<h1 style="text-align:center;">Documentation</h1>
+<h1>Documentation</h1>
 
 <!--- Page End --->
 <?php $content = ob_get_clean(); ?>
