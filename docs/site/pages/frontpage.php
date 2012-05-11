@@ -23,15 +23,10 @@ implement the latest in event-driven algorithms. Take a look at the
 <h1>Latest News</h1>
 <?php 
  //Look in the news directory and create a date sorted list of the news items
- $file_array=array();
- foreach (glob('pages/news/*.html') as $filename)
- {
-    $file_array[filectime($filename)]=basename($filename); // or just $filename
- }
- krsort($file_array);
+ $file_array=glob('pages/news/*.html');
+ rsort($file_array);
 
  if (!empty($file_array))
- { include('pages/news/'.current($file_array)); }
-
+ { include(current($file_array)); }
  $content = ob_get_clean(); 
 ?>

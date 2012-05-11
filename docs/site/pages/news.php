@@ -9,18 +9,9 @@ if (!isset($in_template))
 $pagetitle="News";
 
 //Look in the news directory and create a date sorted list of the news items
-$file_array=array();
-foreach (glob('pages/news/*.html') as $filename)
-{
-   $file_array[filectime($filename)]=basename($filename); // or just $filename
-}
-krsort($file_array);
-
-//Now output the news items in order
+$file_array=glob('pages/news/*.html');
+rsort($file_array);
 ob_start();
-foreach ($file_array as $filename)
-{
-   include('pages/news/'.$filename);
-}
+foreach ($file_array as $filename) { echo "<hr />"; include($filename); }
 $content = ob_get_clean();
 ?>
