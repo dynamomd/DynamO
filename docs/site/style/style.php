@@ -106,6 +106,8 @@ body {
     padding-bottom:10px;
 }
 
+.code { background-color:#ddeeff; font-family:monospace; padding:5px; }
+
 /*     Styling of the round edged boxes       */
 .borderleft { left:15px; position:absolute; top:0px; width:15px; height:100%; }
 .borderright { right:15px; position:absolute; top:0px; width:15px; height:100%; }

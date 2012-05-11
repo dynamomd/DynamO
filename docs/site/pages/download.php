@@ -29,22 +29,48 @@ repository</a>.</p>
 
 <p> Just use the following git command in your terminal:</p> 
 
-<div style="background-color:#ddeeff; font-family:monospace; padding:5px;">git
-clone https://github.com/toastedcrumpets/DynamO.git
+<div class="code"> git clone
+https://github.com/toastedcrumpets/DynamO.git
 </div>
 
 <p>This will create a folder called <em>DynamO</em> in the working
-directory. If you have trouble using Git, you can directly download a
-zip file of the latest sources using the links below.  <h1>Alternative
-Source Code Downloads</h1>
+directory.</p>
+<p>
+  You can now pick which branch or version of DynamO you'd like. There
+  are several available, but the default <strong>master</strong>
+  branch is probably the most popular. There are three main branches
+  available:
+</p>
+<ul>
+    <li>
+      <strong>master:</strong> This is the stable development branch,
+      code should compile and run without errors but new features may
+      be a little buggy.
+    </li>
+    <li>
+      <strong>dynamo-1-2:</strong> This is the most recent stable
+      release, the code is as stable as possible but may be up three
+      months behind in features.
+    </li>
+    <li>
+      <strong>experimental:</strong> This is where new patches and
+      features are born. Probably a bit unstable and buggy, but very
+      fresh! Not really meant for the public, but its been made
+      available to let others track or join in the development
+      process.
+    </li>
+</ul>
+<p>If you decide you want something other than the default branch
+(master), just check it out using the following command:</p>
+<div class="code">git checkout dynamo-1-2</div>
 
+<h1>Alternative Source Code Downloads</h1>
 <p>
   It is recommended that you use the git to download the source code
   whenever possible. However, incase there is any problem accessing
   git on your computer, you may download a copy of the sources using
   the links below.
 </p>
-
 <table border="0" cellpadding="5px" style="margin-left:auto; margin-right:auto; text-align:center;">
   <tr>
     <td>
