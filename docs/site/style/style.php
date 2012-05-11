@@ -16,16 +16,17 @@ body {
 /* Floating footer code */
 #wrapper { 
     min-height:100%; 
+    min-width:600px;
     overflow-y:visible; 
     position:relative; 
 }
 
 #wrapperfooterpad { 
     height:55px; 
-    width:100%; 
     margin-bottom:10px; 
     clear:both; 
-    position:relative; 
+    position:relative;
+    margin-left:190px; 
 }
 
 #header { 
@@ -65,10 +66,9 @@ body {
 }
 
 #leftmenu { 
-    width:200px; 
+    width:160px; 
     margin-left:15px; 
-    float:left;
-    position:relative;
+    position:absolute;
 }
 
 #leftmenu a { 
@@ -86,7 +86,7 @@ body {
 
 
 #contentwrapper { 
-    margin-left:230px; 
+    margin-left:190px; 
     margin-right:15px;
     position:relative;
 }
