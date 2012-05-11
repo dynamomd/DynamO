@@ -11,6 +11,11 @@ ob_start();
    ?>
 <!-- Page Begin -->
 
+<p>Currently DynamO will only run on <strong>Gnu/Linux</strong> based
+systems (e.g., Ubuntu/Gentoo/RedHat), and you will need to compile the
+code yourself. Please take a look at the tutorial on compiling and
+installing DynamO.</p>
+
 <p>DynamO is an open-source and free (as in free speech) code. There
 are several ways you can obtain a copy of the source code and these
 are listed below.</p>
@@ -40,35 +45,29 @@ Source Code Downloads</h1>
   the links below.
 </p>
 
-<table border="0" padding="1">
+<table border="0" cellpadding="5px" style="margin-left:auto; margin-right:auto; text-align:center;">
   <tr>
     <td>
       <a class="button" href="https://github.com/toastedcrumpets/DynamO/zipball/master">
-	<div class="left"></div><div class="center">Download</div><div class="right"></div>
+	<div class="left"></div><div class="center">Download Latest Development Branch</div><div class="right"></div>
       </a>
     </td>
-    <td>Latest Development Branch</td>
   </tr>
   <tr>
     <td>
       <a class="button" href="https://github.com/toastedcrumpets/DynamO/zipball/dynamo-1-3">
-	<div class="left"></div><div class="center">Download</div><div class="right"></div>
+	<div class="left"></div><div class="center">Download Stable Version 1.3 </div><div class="right"></div>
       </a>
     </td>
-    <td>Version 1.3 Stable Code</td>
   </tr>
   <tr>
     <td>
       <a class="button" href="https://github.com/toastedcrumpets/DynamO/zipball/dynamo-1-2">
-	<div class="left"></div><div class="center">Download</div><div class="right"></div>
+	<div class="left"></div><div class="center">Download Stable Version 1.2</div><div class="right"></div>
       </a>
     </td>
-    <td>Version 1.2 Stable Code</td>
   </tr>
-</table>
-
-<h1>Ubuntu/Gentoo packages</h1>
-There are no live packages built yet for the latest version of the code.
+</table> 
 
 <!-- Page End -->
 <?php $content = ob_get_clean(); ?>
