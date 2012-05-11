@@ -9,8 +9,9 @@ if (!isset($in_template))
 $pagetitle="Documentation";
 ob_start();
    ?>
-<!-- Page Begin -->
-<h1>Documentation</h1>
+<h1>Tutorials</h1>
+
+<h1>Source Code</h1>
 
 <!-- Page End -->
 <?php $content = ob_get_clean(); ?>

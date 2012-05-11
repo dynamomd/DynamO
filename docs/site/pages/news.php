@@ -14,7 +14,7 @@ foreach (glob('pages/news/*.html') as $filename)
 {
    $file_array[filectime($filename)]=basename($filename); // or just $filename
 }
-ksort($file_array);
+krsort($file_array);
 
 //Now output the news items in order
 ob_start();

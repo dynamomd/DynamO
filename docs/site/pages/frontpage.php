@@ -28,7 +28,7 @@ implement the latest in event-driven algorithms. Take a look at the
  {
     $file_array[filectime($filename)]=basename($filename); // or just $filename
  }
- ksort($file_array);
+ krsort($file_array);
 
  if (!empty($file_array))
  { include('pages/news/'.current($file_array)); }
