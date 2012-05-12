@@ -70,7 +70,7 @@ out float radius;
 void main()
 {
   color = vColor;
-  radius = iScale.x * global_scale;
+  radius = iScale.x * global_scale * 0.5;
   gl_Position = ViewMatrix * vec4(vPosition.xyz, 1.0);
 });
 	}

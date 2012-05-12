@@ -68,9 +68,9 @@ namespace dynamo {
   void
   Species::initDataSet() const
   {
-    _renderData->addAttribute("Positions", coil::Attribute::COORDINATE | coil::Attribute::DEFAULT_GLYPH_POSITION, 3);
+    _renderData->addAttribute("Position", coil::Attribute::COORDINATE | coil::Attribute::DEFAULT_GLYPH_POSITION, 3);
     _renderData->addAttribute("Velocity", coil::Attribute::INTENSIVE, 3);
-    _renderData->addAttribute("Radii", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_SCALING, 1);
+    _renderData->addAttribute("Diameter", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_SCALING, 1);
     _renderData->addAttribute("Mass", coil::Attribute::EXTENSIVE, 1);
     _renderData->addAttribute("Event Count", coil::Attribute::EXTENSIVE, 1);
 
@@ -124,9 +124,9 @@ namespace dynamo {
 
     size_t nsph = data.spheresPerParticle();
 
-    std::vector<GLfloat>& posdata = (*_renderData)["Positions"];
+    std::vector<GLfloat>& posdata = (*_renderData)["Position"];
     std::vector<GLfloat>& veldata = (*_renderData)["Velocity"];
-    std::vector<GLfloat>& radii = (*_renderData)["Radii"];
+    std::vector<GLfloat>& diameters = (*_renderData)["Diameter"];
     std::vector<GLfloat>& eventCounts = (*_renderData)["Event Count"];
     const std::vector<size_t>& simEventCounts = Sim->ptrScheduler->getEventCounts();
     
@@ -144,7 +144,7 @@ namespace dynamo {
 	    for (size_t i(0); i < NDIM; ++i)
 	      veldata[3 * (nsph * sphID + s) + i] = vel[i] * lengthRescale;
 	  
-	    radii[nsph * sphID + s] = 0.5 * rfactor * data.getDiameter(ID, s);
+	    diameters[nsph * sphID + s] = rfactor * data.getDiameter(ID, s);
 	  }
 
 	eventCounts[sphID] = 0;
@@ -153,9 +153,9 @@ namespace dynamo {
 	++sphID;
       }
 
-    (*_renderData)["Positions"].flagNewData();
+    (*_renderData)["Position"].flagNewData();
     (*_renderData)["Velocity"].flagNewData();
-    (*_renderData)["Radii"].flagNewData();
+    (*_renderData)["Diameter"].flagNewData();
     (*_renderData)["Event Count"].flagNewData();
   }
 #endif

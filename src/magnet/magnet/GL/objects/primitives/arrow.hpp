@@ -48,42 +48,42 @@ namespace magnet {
 		//Add the point vertex for the arrow
 		vertices.push_back(0); 
 		vertices.push_back(0); 
-		vertices.push_back(1);
+		vertices.push_back(0.5);
 		
 		//Head cone vertex
 		vertices.push_back(x);
 		vertices.push_back(y);
-		vertices.push_back(1 - head_length_ratio);
+		vertices.push_back(0.5 - head_length_ratio);
 
 		//Head-cylinder vertex
 		vertices.push_back(x * body_radius_ratio);
 		vertices.push_back(y * body_radius_ratio);
-		vertices.push_back(1 - head_length_ratio);
+		vertices.push_back(0.5 - head_length_ratio);
 
 		//tail-cylinder vertex
 		vertices.push_back(x * body_radius_ratio);
 		vertices.push_back(y * body_radius_ratio);
-		vertices.push_back(0);
+		vertices.push_back(-0.5);
 
 		//end-cylinder vertex
 		vertices.push_back(x * body_radius_ratio);
 		vertices.push_back(y * body_radius_ratio);
-		vertices.push_back(0);
+		vertices.push_back(-0.5);
 
 		//end-cylinder center vertex
 		vertices.push_back(0);
 		vertices.push_back(0);
-		vertices.push_back(0);
+		vertices.push_back(-0.5);
 
 		//Cone-cylinder outer vertex
 		vertices.push_back(x);
 		vertices.push_back(y);
-		vertices.push_back(1 - head_length_ratio);
+		vertices.push_back(0.5 - head_length_ratio);
 
 		//Cone-cylinder inner vertex
 		vertices.push_back(x * body_radius_ratio);
 		vertices.push_back(y * body_radius_ratio);
-		vertices.push_back(1 - head_length_ratio);
+		vertices.push_back(0.5 - head_length_ratio);
 
 	      }
 

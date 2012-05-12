@@ -27,6 +27,19 @@ namespace coil {
     return Gdk::Pixbuf::create_from_inline(Glyphs_Icon_size, Glyphs_Icon);
   }
 
+  magnet::GL::element_type::Enum  
+  Glyphs::getElementType()
+  { 
+    switch (_glyphType->get_active_row_number())
+      {
+      case 3: //Lines
+	return magnet::GL::element_type::LINES;
+      default:
+	return magnet::GL::element_type::TRIANGLES;
+      }
+  }
+
+
   void 
   Glyphs::glRender(const magnet::GL::Camera& cam, RenderMode mode) 
   {    
@@ -80,6 +93,7 @@ namespace coil {
 	break;
       case 1: //Arrows
       case 2: //Cylinder
+      case 3: //Lines
       default:
 	break;
       }
@@ -155,6 +169,7 @@ namespace coil {
       _glyphType->append_text("Sphere");      
       _glyphType->append_text("Arrows");
       _glyphType->append_text("Cylinder");
+      _glyphType->append_text("Lines");
       _glyphType->set_active(0);
 
       _glyphBox->pack_start(*_glyphType, false, false, 5);
@@ -239,6 +254,7 @@ namespace coil {
   {
     _glyphRaytrace->set_sensitive(false);
     _glyphRaytrace->set_active(false);
+    _glyphLOD->set_sensitive(true);
 
     switch (_glyphType->get_active_row_number())
       {
@@ -257,6 +273,9 @@ namespace coil {
       case 2: //Cylinder
 	_glyphLOD->get_adjustment()->configure(6.0, 6.0, 32.0, 1.0, 5.0, 0.0);
 	break;
+      case 3: //Lines
+	_glyphLOD->set_sensitive(false);
+	break;
       default:
 	break;
       }
@@ -269,7 +288,6 @@ namespace coil {
   Glyphs::guiUpdate()
   {
     magnet::gtk::forceNumericEntry(*_scaleFactor);
-    _glyphLOD->set_sensitive(true);
     try {
       _scale = boost::lexical_cast<double>(_scaleFactor->get_text());
     } catch (...) {}
@@ -277,13 +295,14 @@ namespace coil {
     switch (_glyphType->get_active_row_number())
       {
       case 0: //Spheres
+	_glyphLOD->set_sensitive(true);
 	if (_raytraceable)
 	  if (_glyphRaytrace->get_active())
 	    _glyphLOD->set_sensitive(false);
 	break;
       case 1: //Arrows
       case 2: //Cylinder
-	break;
+      case 3: //Lines
       default:
 	break;
       }
@@ -313,6 +332,11 @@ namespace coil {
       case 2: //Cylinder
 	vertices = magnet::GL::objects::primitives::Cylinder::getVertices(LOD);
 	break;
+      case 3: //Lines
+	vertices.clear();
+	vertices.push_back(0); vertices.push_back(0); vertices.push_back(0.5);
+	vertices.push_back(0); vertices.push_back(0); vertices.push_back(-0.5);
+	break;
       default:
 	M_throw() << "Unrecognised glyph type";
       }
@@ -341,6 +365,13 @@ namespace coil {
 	return magnet::GL::objects::primitives::Arrow::getNormals(LOD);
       case 2: //Cylinder
 	return magnet::GL::objects::primitives::Cylinder::getNormals(LOD);
+      case 3: //Lines (Normals are 0's to stop them being shaded)
+	{
+	  std::vector<GLfloat> normals;
+	  normals.push_back(0); normals.push_back(0); normals.push_back(0);
+	  normals.push_back(0); normals.push_back(0); normals.push_back(0);
+	  return normals;
+	}
       default:
 	M_throw() << "Unrecognised glyph type";
       }
@@ -364,6 +395,12 @@ namespace coil {
 	return magnet::GL::objects::primitives::Arrow::getIndices(LOD);
       case 2: //Cylinder
 	return magnet::GL::objects::primitives::Cylinder::getIndices(LOD);
+      case 3: //Lines
+	{
+	  std::vector<GLuint> indices;
+	  indices.push_back(0); indices.push_back(1);
+	  return indices;
+	}
       default:
 	M_throw() << "Unrecognised glyph type";
       }
@@ -404,6 +441,7 @@ namespace coil {
 	break;
       case 1: //Arrows
       case 2: //Cylinder
+      case 3: //Lines
       default:
 	break;
       }

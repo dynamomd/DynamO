@@ -51,8 +51,7 @@ namespace coil {
     void glyph_type_changed();
     void guiUpdate();
 
-    inline virtual magnet::GL::element_type::Enum  getElementType()
-    { return magnet::GL::element_type::TRIANGLES; }
+    virtual magnet::GL::element_type::Enum  getElementType();
     
     virtual std::vector<GLfloat> getPrimitiveVertices();   
     virtual std::vector<GLfloat> getPrimitiveNormals();

@@ -134,7 +134,7 @@ namespace magnet {
 	    for (size_t i(0); i < order; ++i)
 	      refine();
   
-	    //Renormalize to the volume of a sphere with radius 1!
+	    //Renormalize to the volume of a sphere with a diameter of 1!
 	    double spherevol = 4.0 * M_PI / 3.0;
 
 	    //Now calculate the current volume
@@ -161,7 +161,7 @@ namespace magnet {
 	    //Calculate the ratio of the two volumes
 	    volumeSum /= 6;
 
-	    double lengthscale = std::pow(spherevol / volumeSum, 1.0 / 3.0);
+	    double lengthscale = 0.5 * std::pow(spherevol / volumeSum, 1.0 / 3.0);
 
 	    for (int i(0); i < n_vertices; ++i)
 	      for (size_t j(0); j < 3; ++j)

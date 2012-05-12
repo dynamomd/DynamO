@@ -42,7 +42,7 @@ namespace magnet {
 	      {
 		vertices[3 * vert + 0] = 0.5f * std::sin((vert / 2) * 2.0f * M_PI / LOD);
 		vertices[3 * vert + 1] = 0.5f * std::cos((vert / 2) * 2.0f * M_PI / LOD);
-		vertices[3 * vert + 2] = vert % 2;
+		vertices[3 * vert + 2] = (vert % 2 - 0.5);
 	      }
 	    return vertices;
 	  }
