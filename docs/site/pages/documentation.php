@@ -46,12 +46,6 @@ ob_start();
     </td>
   </tr>
 </table> 
-<p>
-  If what you need to simulate is not covered in the tutorials, but is
-  listed in the <a href="/index.php/features">features</a>, please
-  feel free to ask the developers for some advice.
-</p>
-
 
 <h1>Support</h1>
 
