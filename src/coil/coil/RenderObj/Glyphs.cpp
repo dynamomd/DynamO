@@ -16,6 +16,10 @@
 */
 
 #include <coil/RenderObj/Glyphs.hpp>
+#include <magnet/GL/objects/primitives/sphere.hpp>
+#include <magnet/GL/objects/primitives/cylinder.hpp>
+#include <magnet/GL/objects/primitives/arrow.hpp>
+#include <magnet/GL/objects/primitives/cube.hpp>
 
 extern const guint8 Glyphs_Icon[];
 extern const size_t Glyphs_Icon_size;
@@ -94,6 +98,7 @@ namespace coil {
       case 1: //Arrows
       case 2: //Cylinder
       case 3: //Lines
+      case 4: //Cubes
       default:
 	break;
       }
@@ -167,9 +172,10 @@ namespace coil {
       _glyphType->show();
 
       _glyphType->append_text("Sphere");      
-      _glyphType->append_text("Arrows");
+      _glyphType->append_text("Arrow");
       _glyphType->append_text("Cylinder");
-      _glyphType->append_text("Lines");
+      _glyphType->append_text("Line");
+      _glyphType->append_text("Cube");
       _glyphType->set_active(0);
 
       _glyphBox->pack_start(*_glyphType, false, false, 5);
@@ -274,6 +280,7 @@ namespace coil {
 	_glyphLOD->get_adjustment()->configure(6.0, 6.0, 32.0, 1.0, 5.0, 0.0);
 	break;
       case 3: //Lines
+      case 4: //Cubes
 	_glyphLOD->set_sensitive(false);
 	break;
       default:
@@ -303,6 +310,7 @@ namespace coil {
       case 1: //Arrows
       case 2: //Cylinder
       case 3: //Lines
+      case 4: //Cubes
       default:
 	break;
       }
@@ -336,6 +344,9 @@ namespace coil {
 	vertices.clear();
 	vertices.push_back(0); vertices.push_back(0); vertices.push_back(0.5);
 	vertices.push_back(0); vertices.push_back(0); vertices.push_back(-0.5);
+	break;
+      case 4: //Cubes
+	vertices = magnet::GL::objects::primitives::Cube::getVertices();
 	break;
       default:
 	M_throw() << "Unrecognised glyph type";
@@ -372,6 +383,8 @@ namespace coil {
 	  normals.push_back(0); normals.push_back(0); normals.push_back(0);
 	  return normals;
 	}
+      case 4: //Cube
+	return magnet::GL::objects::primitives::Cube::getNormals();
       default:
 	M_throw() << "Unrecognised glyph type";
       }
@@ -401,6 +414,8 @@ namespace coil {
 	  indices.push_back(0); indices.push_back(1);
 	  return indices;
 	}
+      case 4: //Cube
+	return magnet::GL::objects::primitives::Cube::getIndices();
       default:
 	M_throw() << "Unrecognised glyph type";
       }
@@ -442,6 +457,7 @@ namespace coil {
       case 1: //Arrows
       case 2: //Cylinder
       case 3: //Lines
+      case 4: //Cube
       default:
 	break;
       }
