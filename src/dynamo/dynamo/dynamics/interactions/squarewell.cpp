@@ -71,9 +71,12 @@ namespace dynamo {
       }
   }
 
-  double 
-  ISquareWell::getGlyphDiameter(size_t ID, size_t subID) const
-  { return _diameter->getProperty(ID); }
+  Vector
+  ISquareWell::getGlyphSize(size_t ID, size_t subID) const 
+  { 
+    double diam = _diameter->getProperty(ID);
+    return Vector(diam, diam, diam); 
+  }
 
   Vector 
   ISquareWell::getGlyphPosition(size_t ID, size_t subID) const

@@ -242,8 +242,8 @@ namespace coil {
 	if (ptr->components() > 3)
 	  _componentSelect.append_text("W");
 	  
-	//Default to coloring using the magnitude
-	_componentSelect.set_active(1);
+	//Default to coloring using the raw values
+	_componentSelect.set_active(0);
       }
 
     for (size_t i(0); i < _components; ++i)

@@ -70,7 +70,7 @@ namespace dynamo {
   {
     _renderData->addAttribute("Position", coil::Attribute::COORDINATE | coil::Attribute::DEFAULT_GLYPH_POSITION, 3);
     _renderData->addAttribute("Velocity", coil::Attribute::INTENSIVE, 3);
-    _renderData->addAttribute("Diameter", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_SCALING, 1);
+    _renderData->addAttribute("Size", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_SCALING, 3);
     _renderData->addAttribute("Mass", coil::Attribute::EXTENSIVE, 1);
     _renderData->addAttribute("Event Count", coil::Attribute::EXTENSIVE, 1);
 
@@ -126,11 +126,11 @@ namespace dynamo {
 
     std::vector<GLfloat>& posdata = (*_renderData)["Position"];
     std::vector<GLfloat>& veldata = (*_renderData)["Velocity"];
-    std::vector<GLfloat>& diameters = (*_renderData)["Diameter"];
+    std::vector<GLfloat>& sizes = (*_renderData)["Size"];
     std::vector<GLfloat>& eventCounts = (*_renderData)["Event Count"];
     const std::vector<size_t>& simEventCounts = Sim->ptrScheduler->getEventCounts();
     
-    size_t sphID(0);
+    size_t glyphID(0);
     BOOST_FOREACH(unsigned long ID, *range)
       {
 	Vector vel = Sim->particleList[ID].getVelocity();
@@ -139,23 +139,25 @@ namespace dynamo {
 	    Vector pos = data.getGlyphPosition(ID, s);
 	  
 	    for (size_t i(0); i < NDIM; ++i)
-	      posdata[3 * (nsph * sphID + s) + i] = pos[i] * lengthRescale;
+	      posdata[3 * (nsph * glyphID + s) + i] = pos[i] * lengthRescale;
 
 	    for (size_t i(0); i < NDIM; ++i)
-	      veldata[3 * (nsph * sphID + s) + i] = vel[i] * lengthRescale;
-	  
-	    diameters[nsph * sphID + s] = rfactor * data.getGlyphDiameter(ID, s);
+	      veldata[3 * (nsph * glyphID + s) + i] = vel[i] * lengthRescale;
+
+	    Vector psize = rfactor * data.getGlyphSize(ID, s);
+	    for (size_t i(0); i < NDIM; ++i)
+	      sizes[3 * (nsph * glyphID + s) + i] = psize[i];
 	  }
 
-	eventCounts[sphID] = 0;
+	eventCounts[glyphID] = 0;
 	if (!simEventCounts.empty())
-	  eventCounts[sphID] = simEventCounts[ID];
-	++sphID;
+	  eventCounts[glyphID] = simEventCounts[ID];
+	++glyphID;
       }
 
     (*_renderData)["Position"].flagNewData();
     (*_renderData)["Velocity"].flagNewData();
-    (*_renderData)["Diameter"].flagNewData();
+    (*_renderData)["Size"].flagNewData();
     (*_renderData)["Event Count"].flagNewData();
   }
 #endif

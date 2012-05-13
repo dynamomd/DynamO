@@ -78,9 +78,12 @@ namespace dynamo {
     return diam * diam * diam * M_PI / 6.0; 
   }
 
-  double 
-  IRoughHardSphere::getGlyphDiameter(size_t ID, size_t subID) const
-  { return _diameter->getProperty(ID); }
+  Vector 
+  IRoughHardSphere::getGlyphSize(size_t ID, size_t subID) const
+  { 
+    double diam = _diameter->getProperty(ID);
+    return Vector(diam, diam, diam); 
+  }
 
   Vector 
   IRoughHardSphere::getGlyphPosition(size_t ID, size_t subID) const

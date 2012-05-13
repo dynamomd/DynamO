@@ -76,9 +76,12 @@ namespace dynamo  {
   IDumbbells::maxIntDist() const 
   { return _length->getMaxValue() + _diameter->getMaxValue(); }
 
-  double 
-  IDumbbells::getGlyphDiameter(size_t ID, size_t subID) const
-  { return _diameter->getProperty(ID); }
+  Vector
+  IDumbbells::getGlyphSize(size_t ID, size_t subID) const
+  { 
+    double diam = _diameter->getProperty(ID);
+    return Vector(diam, diam, diam); 
+  }
 
   Vector 
   IDumbbells::getGlyphPosition(size_t ID, size_t subID) const

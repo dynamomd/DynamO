@@ -102,9 +102,12 @@ namespace dynamo {
     return (M_PI / 6) * diam * diam * diam; 
   }
 
-  double 
-  IStepped::getGlyphDiameter(size_t ID, size_t subID) const
-  { return steps.back().first * _unitLength->getProperty(ID); }
+  Vector
+  IStepped::getGlyphSize(size_t ID, size_t subID) const
+  { 
+    double diam = steps.back().first * _unitLength->getProperty(ID);
+    return Vector(diam, diam, diam);
+  }
 
   Vector 
   IStepped::getGlyphPosition(size_t ID, size_t subID) const

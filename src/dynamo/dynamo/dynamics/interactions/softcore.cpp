@@ -72,9 +72,12 @@ namespace dynamo {
     ISingleCapture::initCaptureMap(Sim->particleList);
   }
 
-  double 
-  ISoftCore::getGlyphDiameter(size_t ID, size_t subID) const
-  { return _diameter->getProperty(ID); }
+  Vector
+  ISoftCore::getGlyphSize(size_t ID, size_t subID) const
+  { 
+    double diam = _diameter->getProperty(ID);
+    return Vector(diam, diam, diam); 
+  }
 
   Vector 
   ISoftCore::getGlyphPosition(size_t ID, size_t subID) const

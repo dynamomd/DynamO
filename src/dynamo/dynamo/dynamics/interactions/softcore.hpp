@@ -37,7 +37,7 @@ namespace dynamo {
     ISoftCore(const magnet::xml::Node&, dynamo::SimData*);
   
     virtual size_t glyphsPerParticle() const { return 1; }
-    virtual double getGlyphDiameter(size_t ID, size_t subID) const;
+    virtual Vector getGlyphSize(size_t ID, size_t subID) const;
     virtual Vector getGlyphPosition(size_t ID, size_t subID) const;
 
     void operator<<(const magnet::xml::Node&);

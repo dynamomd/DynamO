@@ -92,6 +92,13 @@ namespace coil {
     inline virtual void updateGui()
     {
       AttributeSelector::updateGui();
+
+      if (!singleValueMode() && _enableDataFiltering)
+	{
+	  //Default to coloring using the raw values
+	  _componentSelect.set_active(1);
+	}
+
       if (singleValueMode())
 	{
 	  _colorMapSelector.hide();
