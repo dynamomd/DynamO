@@ -1231,6 +1231,7 @@ namespace coil {
     //Enter the interface draw for all objects
     _cairo_screen.clear();
 
+    _glContext->cleanupAttributeArrays();
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       (*iPtr)->interfaceRender(_camera, _cairo_screen);
