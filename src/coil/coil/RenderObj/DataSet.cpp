@@ -53,7 +53,9 @@ namespace coil {
 
   std::tr1::array<GLfloat, 4> 
   DataSetChild::getCursorPosition(uint32_t objID)
-  { return _ds.getCursorPosition(objID); }
+  {
+    return _ds.getCursorPosition(objID); 
+  }
 
   std::string 
   DataSetChild::getCursorText(uint32_t objID)
@@ -241,7 +243,9 @@ namespace coil {
   
   magnet::GL::Buffer<GLfloat>&
   DataSet::getPositionBuffer()
-  { return _positionSel->getBuffer(); }
+  { 
+    return _positionSel->getBuffer(); 
+  }
 
   std::string
   DataSet::getCursorText(uint32_t objID)

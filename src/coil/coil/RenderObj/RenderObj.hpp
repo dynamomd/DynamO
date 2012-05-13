@@ -159,12 +159,13 @@ namespace coil {
 	By default the 
 
 	\param objID An ID number of the object selected in the
-	picking.  
+	picking. This is to be adjusted by the selected object, so
+	that it is in the range the selected object expects.
 	
 	\param my_ptr A shared pointer of *this object.
      */
     virtual std::tr1::shared_ptr<RenderObj> 
-    getPickedObject(uint32_t objID, const std::tr1::shared_ptr<RenderObj>& my_ptr)
+    getPickedObject(uint32_t& objID, const std::tr1::shared_ptr<RenderObj>& my_ptr)
     { return my_ptr; }
 
     

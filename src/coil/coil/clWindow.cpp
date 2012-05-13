@@ -1909,7 +1909,6 @@ namespace coil {
 	offset += n_objects;
       }
 
-
     if (_selectedObject)
       {
 	IterFinder finder(_selectedObject, _renderObjsTree._columns->m_obj);

@@ -158,8 +158,8 @@ namespace coil {
 	}
     }
 
-    virtual bool
-    isPickedObject(uint32_t objID, const std::tr1::shared_ptr<RenderObj>& my_ptr)
+    virtual std::tr1::shared_ptr<RenderObj>
+    getPickedObject(uint32_t& objID, const std::tr1::shared_ptr<RenderObj>& my_ptr)
     { 
       uint32_t obj_offset = 0;
 
@@ -169,12 +169,15 @@ namespace coil {
 	  const uint32_t n_objects = (*iPtr)->pickableObjectCount();
 	  
 	  if ((objID >= obj_offset) && (objID - obj_offset) < n_objects)
-	    return (*iPtr)->getPickedObject(objID - obj_offset, *iPtr);
+	    {
+	      objID -= obj_offset;
+	      return (*iPtr)->getPickedObject(objID, *iPtr);
+	    }
 
 	  obj_offset += n_objects;
 	}
 
-      return my_ptr;
+      M_throw() << "The selected object was not drawn by this RenderObj";
     }
 
     magnet::GL::Buffer<GLfloat>& getPositionBuffer();
