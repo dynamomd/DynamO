@@ -18,11 +18,11 @@
 #pragma once
 
 #include <dynamo/dynamics/interactions/interaction.hpp>
-#include <dynamo/dynamics/interactions/representations/spherical.hpp>
+#include <dynamo/dynamics/interactions/glyphrepresentation.hpp>
 #include <dynamo/base/is_simdata.hpp>
 
 namespace dynamo {
-  class IRoughHardSphere: public Interaction, public SphericalRepresentation
+  class IRoughHardSphere: public Interaction, public GlyphRepresentation
   {
   public:
     template<class T1, class T2, class T3>
@@ -39,9 +39,9 @@ namespace dynamo {
 
     IRoughHardSphere(const magnet::xml::Node&, dynamo::SimData*);
 
-    virtual size_t spheresPerParticle() const { return 1; }
-    virtual double getDiameter(size_t ID, size_t subID) const;
-    virtual Vector getPosition(size_t ID, size_t subID) const;
+    virtual size_t glyphsPerParticle() const { return 1; }
+    virtual double getGlyphDiameter(size_t ID, size_t subID) const;
+    virtual Vector getGlyphPosition(size_t ID, size_t subID) const;
 
     void operator<<(const magnet::xml::Node&);
 

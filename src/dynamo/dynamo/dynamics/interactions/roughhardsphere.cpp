@@ -79,11 +79,11 @@ namespace dynamo {
   }
 
   double 
-  IRoughHardSphere::getDiameter(size_t ID, size_t subID) const
+  IRoughHardSphere::getGlyphDiameter(size_t ID, size_t subID) const
   { return _diameter->getProperty(ID); }
 
   Vector 
-  IRoughHardSphere::getPosition(size_t ID, size_t subID) const
+  IRoughHardSphere::getGlyphPosition(size_t ID, size_t subID) const
   { 
     Vector retval = Sim->particleList[ID].getPosition();
     Sim->dynamics.BCs().applyBC(retval);

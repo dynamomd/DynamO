@@ -18,11 +18,11 @@
 #pragma once
 
 #include <dynamo/dynamics/interactions/captures.hpp>
-#include <dynamo/dynamics/interactions/representations/spherical.hpp>
+#include <dynamo/dynamics/interactions/glyphrepresentation.hpp>
 #include <dynamo/base/is_simdata.hpp>
 
 namespace dynamo {
-  class ISquareWell: public ISingleCapture, public Interaction, public SphericalRepresentation
+  class ISquareWell: public ISingleCapture, public Interaction, public GlyphRepresentation
   {
   public:
     template<class T1, class T2, class T3, class T4>
@@ -45,9 +45,9 @@ namespace dynamo {
   
     void operator<<(const magnet::xml::Node&);
 
-    virtual size_t spheresPerParticle() const { return 1; }
-    virtual double getDiameter(size_t ID, size_t subID) const;
-    virtual Vector getPosition(size_t ID, size_t subID) const;
+    virtual size_t glyphsPerParticle() const { return 1; }
+    virtual double getGlyphDiameter(size_t ID, size_t subID) const;
+    virtual Vector getGlyphPosition(size_t ID, size_t subID) const;
 
     virtual double getExcludedVolume(size_t) const;
 

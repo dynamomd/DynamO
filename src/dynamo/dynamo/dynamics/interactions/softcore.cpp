@@ -73,11 +73,11 @@ namespace dynamo {
   }
 
   double 
-  ISoftCore::getDiameter(size_t ID, size_t subID) const
+  ISoftCore::getGlyphDiameter(size_t ID, size_t subID) const
   { return _diameter->getProperty(ID); }
 
   Vector 
-  ISoftCore::getPosition(size_t ID, size_t subID) const
+  ISoftCore::getGlyphPosition(size_t ID, size_t subID) const
   { 
     Vector retval = Sim->particleList[ID].getPosition();
     Sim->dynamics.BCs().applyBC(retval);

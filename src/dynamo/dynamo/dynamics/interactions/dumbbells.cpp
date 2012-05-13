@@ -77,11 +77,11 @@ namespace dynamo  {
   { return _length->getMaxValue() + _diameter->getMaxValue(); }
 
   double 
-  IDumbbells::getDiameter(size_t ID, size_t subID) const
+  IDumbbells::getGlyphDiameter(size_t ID, size_t subID) const
   { return _diameter->getProperty(ID); }
 
   Vector 
-  IDumbbells::getPosition(size_t ID, size_t subID) const
+  IDumbbells::getGlyphPosition(size_t ID, size_t subID) const
   {
     Vector retval = Sim->particleList[ID].getPosition();
     Sim->dynamics.BCs().applyBC(retval);

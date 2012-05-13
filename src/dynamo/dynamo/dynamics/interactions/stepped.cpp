@@ -103,11 +103,11 @@ namespace dynamo {
   }
 
   double 
-  IStepped::getDiameter(size_t ID, size_t subID) const
+  IStepped::getGlyphDiameter(size_t ID, size_t subID) const
   { return steps.back().first * _unitLength->getProperty(ID); }
 
   Vector 
-  IStepped::getPosition(size_t ID, size_t subID) const
+  IStepped::getGlyphPosition(size_t ID, size_t subID) const
   { 
     Vector retval = Sim->particleList[ID].getPosition();
     Sim->dynamics.BCs().applyBC(retval);

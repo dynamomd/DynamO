@@ -19,7 +19,7 @@
 
 #ifdef DYNAMO_visualizer
 # include <coil/RenderObj/DataSet.hpp>
-# include <dynamo/dynamics/interactions/representations/spherical.hpp>
+# include <dynamo/dynamics/interactions/glyphrepresentation.hpp>
 # include <dynamo/dynamics/liouvillean/CompressionL.hpp>
 # include <dynamo/schedulers/scheduler.hpp>
 #endif
@@ -54,12 +54,12 @@ namespace dynamo {
   shared_ptr<coil::DataSet>
   Species::createDataSet() const
   {
-    if (dynamic_cast<const SphericalRepresentation*>(getIntPtr()) == NULL)
+    if (dynamic_cast<const GlyphRepresentation*>(getIntPtr()) == NULL)
       M_throw() << "The interaction " << getIntPtr()->getName() 
-		<< " is not able to be drawn using spheres, and yet it is used in the species " << getName()
+		<< " is not able to be drawn by the visualiser, and yet it is used in the species " << getName()
 		<< " as the representative interaction.";
   
-    size_t nsph = dynamic_cast<const SphericalRepresentation&>(*getIntPtr()).spheresPerParticle();
+    size_t nsph = dynamic_cast<const GlyphRepresentation&>(*getIntPtr()).glyphsPerParticle();
 
     _renderData.reset(new coil::DataSet("Species: " + spName, nsph * range->size()));
     return _renderData;
@@ -75,7 +75,7 @@ namespace dynamo {
     _renderData->addAttribute("Event Count", coil::Attribute::EXTENSIVE, 1);
 
     { 
-      size_t nsph = dynamic_cast<const SphericalRepresentation&>(*getIntPtr()).spheresPerParticle();    
+      size_t nsph = dynamic_cast<const GlyphRepresentation&>(*getIntPtr()).glyphsPerParticle();    
       std::vector<GLfloat>& mass = (*_renderData)["Mass"];
       size_t sphID(0);
       BOOST_FOREACH(unsigned long ID, *range)
@@ -89,7 +89,7 @@ namespace dynamo {
 
     _renderData->addAttribute("ID", coil::Attribute::INTENSIVE, 1);
     { 
-      size_t nsph = dynamic_cast<const SphericalRepresentation&>(*getIntPtr()).spheresPerParticle();    
+      size_t nsph = dynamic_cast<const GlyphRepresentation&>(*getIntPtr()).glyphsPerParticle();    
       std::vector<GLfloat>& mass = (*_renderData)["ID"];
       size_t sphID(0);
       BOOST_FOREACH(unsigned long ID, *range)
@@ -119,10 +119,10 @@ namespace dynamo {
     if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
       rfactor *= (1 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime);
   
-    const SphericalRepresentation& data
-      = dynamic_cast<const SphericalRepresentation&>(*getIntPtr());
+    const GlyphRepresentation& data
+      = dynamic_cast<const GlyphRepresentation&>(*getIntPtr());
 
-    size_t nsph = data.spheresPerParticle();
+    size_t nsph = data.glyphsPerParticle();
 
     std::vector<GLfloat>& posdata = (*_renderData)["Position"];
     std::vector<GLfloat>& veldata = (*_renderData)["Velocity"];
@@ -136,7 +136,7 @@ namespace dynamo {
 	Vector vel = Sim->particleList[ID].getVelocity();
 	for (size_t s(0); s < nsph; ++s)
 	  {
-	    Vector pos = data.getPosition(ID, s);
+	    Vector pos = data.getGlyphPosition(ID, s);
 	  
 	    for (size_t i(0); i < NDIM; ++i)
 	      posdata[3 * (nsph * sphID + s) + i] = pos[i] * lengthRescale;
@@ -144,7 +144,7 @@ namespace dynamo {
 	    for (size_t i(0); i < NDIM; ++i)
 	      veldata[3 * (nsph * sphID + s) + i] = vel[i] * lengthRescale;
 	  
-	    diameters[nsph * sphID + s] = rfactor * data.getDiameter(ID, s);
+	    diameters[nsph * sphID + s] = rfactor * data.getGlyphDiameter(ID, s);
 	  }
 
 	eventCounts[sphID] = 0;

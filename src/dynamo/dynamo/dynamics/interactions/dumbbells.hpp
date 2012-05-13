@@ -20,10 +20,10 @@
 #include <dynamo/dynamics/interactions/captures.hpp>
 #include <dynamo/dynamics/interactions/interaction.hpp>
 #include <dynamo/base/is_simdata.hpp>
-#include <dynamo/dynamics/interactions/representations/spherical.hpp>
+#include <dynamo/dynamics/interactions/glyphrepresentation.hpp>
 
 namespace dynamo {
-  class IDumbbells: public ISingleCapture, public Interaction, public SphericalRepresentation
+  class IDumbbells: public ISingleCapture, public Interaction, public GlyphRepresentation
   {
   public:
     template<class T1, class T2, class T3>
@@ -40,9 +40,9 @@ namespace dynamo {
       intName = name;
     }
 
-    virtual size_t spheresPerParticle() const { return 2; }
-    virtual double getDiameter(size_t ID, size_t subID) const;
-    virtual Vector getPosition(size_t ID, size_t subID) const;
+    virtual size_t glyphsPerParticle() const { return 2; }
+    virtual double getGlyphDiameter(size_t ID, size_t subID) const;
+    virtual Vector getGlyphPosition(size_t ID, size_t subID) const;
 
     IDumbbells(const magnet::xml::Node&, dynamo::SimData*);
 
