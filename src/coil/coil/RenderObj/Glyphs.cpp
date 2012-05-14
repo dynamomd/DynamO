@@ -240,7 +240,8 @@ namespace coil {
 
     _orientSel.reset(new AttributeOrientationSelector);
     _orientSel->buildEntries("Orientation Data Field:", _ds, 3, 4, 
-			     Attribute::INTENSIVE | Attribute::EXTENSIVE, 4);
+			     Attribute::INTENSIVE | Attribute::EXTENSIVE, 4,
+			     Attribute::DEFAULT_GLYPH_ORIENTATION);
     _gtkOptList->pack_start(*_orientSel, false, false);
 
     glyph_type_changed();

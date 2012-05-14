@@ -75,6 +75,12 @@ namespace dynamo {
     _renderData->addAttribute("Mass", coil::Attribute::EXTENSIVE, 1);
     _renderData->addAttribute("Event Count", coil::Attribute::EXTENSIVE, 1);
 
+    if (Sim->dynamics.getLiouvillean().hasOrientationData())
+      {
+	_renderData->addAttribute("Orientation", coil::Attribute::EXTENSIVE | coil::Attribute::DEFAULT_GLYPH_ORIENTATION, 3);
+	_renderData->addAttribute("Angular Velocity", coil::Attribute::EXTENSIVE, 3);
+      }
+
     { 
       size_t nsph = dynamic_cast<const GlyphRepresentation&>(*getIntPtr()).glyphsPerParticle();    
       std::vector<GLfloat>& mass = (*_renderData)["Mass"];
@@ -123,8 +129,7 @@ namespace dynamo {
     const GlyphRepresentation& data
       = dynamic_cast<const GlyphRepresentation&>(*getIntPtr());
 
-    size_t nsph = data.glyphsPerParticle();
-
+    const size_t nsph = data.glyphsPerParticle();
     std::vector<GLfloat>& posdata = (*_renderData)["Position"];
     std::vector<GLfloat>& veldata = (*_renderData)["Velocity"];
     std::vector<GLfloat>& sizes = (*_renderData)["Size"];
@@ -154,6 +159,28 @@ namespace dynamo {
 	if (!simEventCounts.empty())
 	  eventCounts[glyphID] = simEventCounts[ID];
 	++glyphID;
+      }
+
+    if (Sim->dynamics.getLiouvillean().hasOrientationData())
+      {
+	std::vector<GLfloat>& orientationdata = (*_renderData)["Orientation"];
+	std::vector<GLfloat>& angularvdata = (*_renderData)["Angular Velocity"];
+	size_t glyphID(0);
+	const std::vector<Liouvillean::rotData>& data = Sim->dynamics.getLiouvillean().getCompleteRotData();
+	BOOST_FOREACH(unsigned long ID, *range)
+	  {
+	    for (size_t s(0); s < nsph; ++s)
+	      {
+		for (size_t i(0); i < NDIM; ++i)
+		  {
+		    orientationdata[3 * (nsph * glyphID + s) + i] = data[ID].orientation[i];
+		    angularvdata[3 * (nsph * glyphID + s) + i] = data[ID].angularVelocity[i];
+		  }
+	      }
+	    ++glyphID;
+	  }
+	(*_renderData)["Angular Velocity"].flagNewData();
+	(*_renderData)["Orientation"].flagNewData();
       }
 
     (*_renderData)["Position"].flagNewData();

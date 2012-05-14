@@ -48,6 +48,7 @@ namespace coil {
       
       DEFAULT_GLYPH_POSITION = 1 << 3, //!< This flag marks that the attribute should be used as the initial position value for a glyph.
       DEFAULT_GLYPH_SCALING  = 1 << 4, //!< This flag marks that the attribute should be used as the initial scaling field for a glyph.
+      DEFAULT_GLYPH_ORIENTATION  = 1 << 5 //!< This flag marks that the attribute should be used as the initial orientation for a glyph
     };
 
     inline Attribute(size_t N, int type, size_t components, 
