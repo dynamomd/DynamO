@@ -154,7 +154,7 @@ namespace coil {
   {    
     if (!_context) M_throw() << "Cannot add glyphs before the Dataset is initialised";
    
-    std::tr1::shared_ptr<Glyphs> glyph(new Glyphs("Glyphs", *this));
+    std::tr1::shared_ptr<Glyphs> glyph(new Glyphs("Glyphs", *this, _defaultGlyphType));
     _children.push_back(glyph); 
     _children.back()->init(_systemQueue);
 

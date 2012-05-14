@@ -44,6 +44,19 @@ namespace dynamo {
     ID=nID; 
   }
 
+  Vector IParallelCubes::getGlyphSize(size_t ID, size_t subID) const
+  {
+    double l = _diameter->getProperty(ID);
+    return Vector(l, l, l);
+  }
+
+  Vector IParallelCubes::getGlyphPosition(size_t ID, size_t subID) const
+  {
+    Vector retval = Sim->particleList[ID].getPosition();
+    Sim->dynamics.BCs().applyBC(retval);
+    return retval;
+  }
+
   void 
   IParallelCubes::operator<<(const magnet::xml::Node& XML)
   { 

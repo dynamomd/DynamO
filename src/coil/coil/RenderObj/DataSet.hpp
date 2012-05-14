@@ -55,9 +55,10 @@ namespace coil {
   class DataSet: public RenderObj, public std::map<std::string, std::tr1::shared_ptr<Attribute> >
   {
   public:
-    DataSet(std::string name, size_t N): 
+    DataSet(std::string name, size_t N, int defaultGlyphType = 0): 
       RenderObj(name), 
-      _N(N)
+      _N(N),
+      _defaultGlyphType(defaultGlyphType)
     {}
     
     virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
@@ -201,6 +202,8 @@ namespace coil {
     size_t _N;
     std::vector<std::tr1::shared_ptr<DataSetChild> > _children;
     std::tr1::shared_ptr<AttributeSelector> _positionSel;
+
+    int _defaultGlyphType;
 
     void initGtk();
     void rebuildGui();

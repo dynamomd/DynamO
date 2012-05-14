@@ -22,11 +22,20 @@
 #include <magnet/GL/shader/sphere.hpp>
 
 
-namespace coil {  
+namespace coil {
   class Glyphs : public DataSetChild, public magnet::GL::objects::Instanced
   {
+    enum GLYPH_TYPE
+      {
+	SPHERE_GLYPH=0,
+	ARROW_GLYPH=1,
+	CYLINDER_GLYPH=2,
+	LINE_GLYPH=3,
+	CUBE_GLYPH=4
+      };
+
   public:
-    inline Glyphs(std::string name, DataSet& ds): DataSetChild(name, ds), _scale(1) {}
+    inline Glyphs(std::string name, DataSet& ds, int initGlyphType = 0): DataSetChild(name, ds), _scale(1), _initGlyphType(initGlyphType) {}
 
     virtual void glRender(const magnet::GL::Camera&, RenderMode);
     
@@ -70,6 +79,7 @@ namespace coil {
     bool _raytraceable;
     bool _GL_ARB_sample_shading;
     float _scale;
+    int _initGlyphType;
     magnet::GL::Context::ContextPtr _context;
     magnet::GL::shader::SphereShader<false> _sphereShader;
     magnet::GL::shader::SphereVSMShader<false> _sphereVSMShader;

@@ -33,7 +33,6 @@ namespace magnet {
       \param T The origin of the ray relative to the cube center.
       \param D The direction/velocity of the ray.
       \param C The dimensions of the cube.
-      \tparam BFC Enable back-face-culling, where rays can only hit the outside of the object (rays originating inside the object can escape)
       \return The time until the intersection, or HUGE_VAL if no intersection.
     */
     inline double ray_AAcube_bfc(const math::Vector& T,

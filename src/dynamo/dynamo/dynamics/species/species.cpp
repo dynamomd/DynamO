@@ -59,9 +59,10 @@ namespace dynamo {
 		<< " is not able to be drawn by the visualiser, and yet it is used in the species " << getName()
 		<< " as the representative interaction.";
   
-    size_t nsph = dynamic_cast<const GlyphRepresentation&>(*getIntPtr()).glyphsPerParticle();
-
-    _renderData.reset(new coil::DataSet("Species: " + spName, nsph * range->size()));
+    const GlyphRepresentation& representation = dynamic_cast<const GlyphRepresentation&>(*getIntPtr());
+    size_t nsph = representation.glyphsPerParticle();
+    
+    _renderData.reset(new coil::DataSet("Species: " + spName, nsph * range->size(), representation.getDefaultGlyphType()));
     return _renderData;
   }
 
@@ -100,7 +101,7 @@ namespace dynamo {
 	}
       (*_renderData)["ID"].flagNewData();
     }
-
+    
     _renderData->getContext()->queueTask(magnet::function::Task::makeTask(&coil::DataSet::addGlyphs, _renderData.get()));
   }
 

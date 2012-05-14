@@ -46,6 +46,20 @@ namespace dynamo {
     ISingleCapture::initCaptureMap(Sim->particleList);
   }
 
+  Vector ILines::getGlyphSize(size_t ID, size_t subID) const
+  {
+    double l = _length->getProperty(ID);
+    return Vector(l, l, l);
+  }
+
+  Vector ILines::getGlyphPosition(size_t ID, size_t subID) const
+  {
+    Vector retval = Sim->particleList[ID].getPosition();
+    Sim->dynamics.BCs().applyBC(retval);
+    return retval;
+  }
+
+
   void 
   ILines::operator<<(const magnet::xml::Node& XML)
   { 

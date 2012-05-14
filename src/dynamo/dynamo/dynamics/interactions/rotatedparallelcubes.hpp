@@ -17,11 +17,12 @@
 
 #pragma once
 #include <dynamo/dynamics/interactions/interaction.hpp>
+#include <dynamo/dynamics/interactions/glyphrepresentation.hpp>
 #include <dynamo/base/is_simdata.hpp>
 #include <magnet/math/matrix.hpp>
 
 namespace dynamo {
-  class IParallelCubes: public Interaction
+  class IParallelCubes: public Interaction, public GlyphRepresentation
   {
   public:
     template<class T1, class T2>
@@ -37,6 +38,11 @@ namespace dynamo {
     }
 
     IParallelCubes(const magnet::xml::Node&, dynamo::SimData*);
+
+    virtual size_t glyphsPerParticle() const { return 1; }
+    virtual Vector getGlyphSize(size_t ID, size_t subID) const;
+    virtual Vector getGlyphPosition(size_t ID, size_t subID) const;
+    virtual GLYPH_TYPE getDefaultGlyphType() const { return CUBE_GLYPH; }
 
     void operator<<(const magnet::xml::Node&);
 

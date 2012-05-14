@@ -19,9 +19,10 @@
 
 #include <dynamo/dynamics/interactions/captures.hpp>
 #include <dynamo/base/is_simdata.hpp>
+#include <dynamo/dynamics/interactions/glyphrepresentation.hpp>
 
 namespace dynamo {
-  class ILines: public ISingleCapture, public Interaction
+  class ILines: public ISingleCapture, public GlyphRepresentation, public Interaction
   {
   public:
     template<class T1, class T2>
@@ -34,6 +35,11 @@ namespace dynamo {
     {
       intName = name;
     }
+
+    virtual size_t glyphsPerParticle() const { return 1; }
+    virtual Vector getGlyphSize(size_t ID, size_t subID) const;
+    virtual Vector getGlyphPosition(size_t ID, size_t subID) const;
+    virtual GLYPH_TYPE getDefaultGlyphType() const { return LINE_GLYPH; }
 
     ILines(const magnet::xml::Node&, dynamo::SimData*);
 

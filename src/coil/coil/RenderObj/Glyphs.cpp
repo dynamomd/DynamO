@@ -36,7 +36,7 @@ namespace coil {
   { 
     switch (_glyphType->get_active_row_number())
       {
-      case 3: //Lines
+      case LINE_GLYPH:
 	return magnet::GL::element_type::LINES;
       default:
 	return magnet::GL::element_type::TRIANGLES;
@@ -51,7 +51,7 @@ namespace coil {
 
     switch (_glyphType->get_active_row_number())
       {
-      case 0: //Spheres
+      case SPHERE_GLYPH:
 	{
 	  if (_raytraceable && _glyphRaytrace->get_active())
 	    {
@@ -95,10 +95,10 @@ namespace coil {
 	    }
 	}
 	break;
-      case 1: //Arrows
-      case 2: //Cylinder
-      case 3: //Lines
-      case 4: //Cubes
+      case ARROW_GLYPH:
+      case CYLINDER_GLYPH:
+      case LINE_GLYPH:
+      case CUBE_GLYPH:
       default:
 	break;
       }
@@ -176,11 +176,9 @@ namespace coil {
       _glyphType->append_text("Cylinder");
       _glyphType->append_text("Line");
       _glyphType->append_text("Cube");
-      _glyphType->set_active(0);
+      _glyphType->set_active(_initGlyphType);
 
       _glyphBox->pack_start(*_glyphType, false, false, 5);
-      _glyphType->signal_changed()
-	.connect(sigc::mem_fun(*this, &Glyphs::glyph_type_changed));
     }
     
     {
@@ -189,8 +187,6 @@ namespace coil {
 	_glyphRaytrace->show();
       _glyphRaytrace->set_active(_raytraceable);
       _glyphRaytrace->set_sensitive(_raytraceable);
-      _glyphRaytrace->signal_toggled()
-	.connect(sigc::mem_fun(this, &Glyphs::guiUpdate));
       _glyphBox->pack_start(*_glyphRaytrace, false, false, 5);
     }
 
@@ -198,9 +194,6 @@ namespace coil {
       _glyphLOD.reset(new Gtk::SpinButton(1.0, 0)); _glyphLOD->show();
       _glyphLOD->set_numeric(true);
       _glyphBox->pack_end(*_glyphLOD, false, false, 5);
-      _glyphLOD->signal_value_changed()
-	.connect(sigc::mem_fun(*this, &Glyphs::guiUpdate));
-
       Gtk::Label* label = Gtk::manage(new Gtk::Label("Level of Detail")); label->show();
       _glyphBox->pack_end(*label, false, false, 5);
     }
@@ -231,8 +224,6 @@ namespace coil {
     _scaleFactor->set_text("1.0");
     _scaleFactor->set_width_chars(5);
 
-    _scaleFactor->signal_changed()
-      .connect(sigc::mem_fun(*this, &Glyphs::guiUpdate));
 
     separator = Gtk::manage(new Gtk::HSeparator); 
     separator->show(); 
@@ -253,6 +244,15 @@ namespace coil {
     _gtkOptList->pack_start(*_orientSel, false, false);
 
     glyph_type_changed();
+
+    _glyphRaytrace->signal_toggled()
+      .connect(sigc::mem_fun(this, &Glyphs::guiUpdate));
+    _glyphLOD->signal_value_changed()
+      .connect(sigc::mem_fun(*this, &Glyphs::guiUpdate));
+    _glyphType->signal_changed()
+      .connect(sigc::mem_fun(*this, &Glyphs::glyph_type_changed));
+    _scaleFactor->signal_changed()
+      .connect(sigc::mem_fun(*this, &Glyphs::guiUpdate));
   }
 
   void 
@@ -264,7 +264,7 @@ namespace coil {
 
     switch (_glyphType->get_active_row_number())
       {
-      case 0: //Spheres
+      case SPHERE_GLYPH:
 	{	  
 	  if (_raytraceable)
 	    {
@@ -275,12 +275,12 @@ namespace coil {
 	  _glyphLOD->get_adjustment()->configure(1, 0.0, 4.0, 1.0, 1.0, 0.0);
 	}
 	break;
-      case 1: //Arrows
-      case 2: //Cylinder
+      case ARROW_GLYPH:
+      case CYLINDER_GLYPH:
 	_glyphLOD->get_adjustment()->configure(6.0, 6.0, 32.0, 1.0, 5.0, 0.0);
 	break;
-      case 3: //Lines
-      case 4: //Cubes
+      case LINE_GLYPH:
+      case CUBE_GLYPH:
 	_glyphLOD->set_sensitive(false);
 	break;
       default:
@@ -301,16 +301,16 @@ namespace coil {
 
     switch (_glyphType->get_active_row_number())
       {
-      case 0: //Spheres
+      case SPHERE_GLYPH:
 	_glyphLOD->set_sensitive(true);
 	if (_raytraceable)
 	  if (_glyphRaytrace->get_active())
 	    _glyphLOD->set_sensitive(false);
 	break;
-      case 1: //Arrows
-      case 2: //Cylinder
-      case 3: //Lines
-      case 4: //Cubes
+      case ARROW_GLYPH:
+      case CYLINDER_GLYPH:
+      case LINE_GLYPH:
+      case CUBE_GLYPH:
       default:
 	break;
       }
@@ -328,24 +328,24 @@ namespace coil {
 
     switch (type)
       {
-      case 0: //Spheres
+      case SPHERE_GLYPH:
 	{
 	  magnet::GL::objects::primitives::Sphere sph(magnet::GL::objects::primitives::Sphere::icosahedron, LOD);
 	  vertices = std::vector<GLfloat>(sph.getVertices(), sph.getVertices() + sph.getVertexCount() * 3);
 	  break;
 	}
-      case 1: //Arrows
+      case ARROW_GLYPH:
 	vertices = magnet::GL::objects::primitives::Arrow::getVertices(LOD);
 	break;
-      case 2: //Cylinder
+      case CYLINDER_GLYPH:
 	vertices = magnet::GL::objects::primitives::Cylinder::getVertices(LOD);
 	break;
-      case 3: //Lines
+      case LINE_GLYPH:
 	vertices.clear();
 	vertices.push_back(0); vertices.push_back(0); vertices.push_back(0.5);
 	vertices.push_back(0); vertices.push_back(0); vertices.push_back(-0.5);
 	break;
-      case 4: //Cubes
+      case CUBE_GLYPH:
 	vertices = magnet::GL::objects::primitives::Cube::getVertices();
 	break;
       default:
@@ -367,23 +367,24 @@ namespace coil {
 
     switch (type)
       {
-      case 0: //Spheres
+      case SPHERE_GLYPH:
 	{
 	  magnet::GL::objects::primitives::Sphere sph(magnet::GL::objects::primitives::Sphere::icosahedron, LOD);
 	  return std::vector<GLfloat>(sph.getVertices(), sph.getVertices() + sph.getVertexCount() * 3);
 	}
-      case 1: //Arrows
+      case ARROW_GLYPH:
 	return magnet::GL::objects::primitives::Arrow::getNormals(LOD);
-      case 2: //Cylinder
+      case CYLINDER_GLYPH:
 	return magnet::GL::objects::primitives::Cylinder::getNormals(LOD);
-      case 3: //Lines (Normals are 0's to stop them being shaded)
+      case LINE_GLYPH: 
 	{
+	  //(Normals are 0's to stop them being shaded)
 	  std::vector<GLfloat> normals;
 	  normals.push_back(0); normals.push_back(0); normals.push_back(0);
 	  normals.push_back(0); normals.push_back(0); normals.push_back(0);
 	  return normals;
 	}
-      case 4: //Cube
+      case CUBE_GLYPH: //Cube
 	return magnet::GL::objects::primitives::Cube::getNormals();
       default:
 	M_throw() << "Unrecognised glyph type";
@@ -398,23 +399,23 @@ namespace coil {
 
     switch (type)
       {
-      case 0: //Spheres
+      case SPHERE_GLYPH:
 	{
 	  magnet::GL::objects::primitives::Sphere 
 	    sph(magnet::GL::objects::primitives::Sphere::icosahedron, LOD);
 	  return std::vector<GLuint>(sph.getFaces(), sph.getFaces() + sph.getFaceCount() * 3);
 	}
-      case 1: //Arrows
+      case ARROW_GLYPH:
 	return magnet::GL::objects::primitives::Arrow::getIndices(LOD);
-      case 2: //Cylinder
+      case CYLINDER_GLYPH:
 	return magnet::GL::objects::primitives::Cylinder::getIndices(LOD);
-      case 3: //Lines
+      case LINE_GLYPH:
 	{
 	  std::vector<GLuint> indices;
 	  indices.push_back(0); indices.push_back(1);
 	  return indices;
 	}
-      case 4: //Cube
+      case CUBE_GLYPH:
 	return magnet::GL::objects::primitives::Cube::getIndices();
       default:
 	M_throw() << "Unrecognised glyph type";
@@ -438,7 +439,7 @@ namespace coil {
 
     switch (_glyphType->get_active_row_number())
       {
-      case 0: //Spheres
+      case SPHERE_GLYPH:
 	{
 	  if (_raytraceable && _glyphRaytrace->get_active())
 	    {
@@ -454,10 +455,10 @@ namespace coil {
 	    }
 	}
 	break;
-      case 1: //Arrows
-      case 2: //Cylinder
-      case 3: //Lines
-      case 4: //Cube
+      case ARROW_GLYPH:
+      case CYLINDER_GLYPH:
+      case LINE_GLYPH:
+      case CUBE_GLYPH:
       default:
 	break;
       }

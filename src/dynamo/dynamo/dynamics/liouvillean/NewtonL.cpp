@@ -49,7 +49,7 @@ namespace dynamo {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
     Sim->dynamics.BCs().applyBC(r12, v12);
-    return magnet::intersection::ray_AAcube_bfc(r12, v12, Vector(d, d, d));
+    return magnet::intersection::ray_AAcube_bfc(r12, v12, 2 * Vector(d, d, d));
   }
 
   bool 
@@ -58,7 +58,7 @@ namespace dynamo {
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Sim->dynamics.BCs().applyBC(r12);
-    return magnet::overlap::point_cube(r12, Vector(2*d, 2*d, 2*d));
+    return magnet::overlap::point_cube(r12, 2 * Vector(d, d, d));
   }
 
   double
