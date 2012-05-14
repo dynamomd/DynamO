@@ -21,9 +21,6 @@ import ../magnet/jam/tags ;
 lib z : : <link>static ;
 lib bz2 : : <link>static ;
 
-lib gslcblas ;
-lib gsl : gslcblas : <name>gsl ;
-exe gsltest : tests/gsltest.cpp gsl ;
 exe zlibtest : tests/zlibtest.cpp z ;
 exe bzip2test : tests/bzip2test.cpp bz2 ;
 
@@ -49,7 +46,6 @@ lib dynamo_core : [ glob-tree *.cpp : programs tests ]
       /boost//program_options rt 
     : <include>include <include>. <dynamo-buildable>no:<build>no
       <variant>debug:<define>DYNAMO_DEBUG <link>static
-     [ check-target-builds gsltest "DynamO: GSL (RadiusGyration)" : <source>gsl <define>DYNAMO_GSL : ]
       <coil-integration>yes:<source>/coil//coil/<link>static
       <coil-integration>yes:<define>DYNAMO_visualizer
     : : <include>include 

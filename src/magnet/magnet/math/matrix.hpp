@@ -17,6 +17,7 @@
 
 #pragma once
 #include <magnet/math/vector.hpp>
+#include <magnet/math/detail/eigenval.hpp>
 
 namespace magnet {
   namespace math {
@@ -39,6 +40,36 @@ namespace magnet {
 	yx(d), yy(e), yz(f),
 	zx(g), zy(h), zz(i)
       {}
+      
+      std::pair<std::tr1::array<Vector, 3>, std::tr1::array<double, 3> > 
+      symmetric_eigen_decomposition() const
+      {
+#ifdef MAGNET_DEBUG
+	for (int i = 0; i < 3; i++)
+	  for (int j = 0; j < 3; j++)
+	    if (operator()(i,j) != operator()(i,j))
+	      M_throw() << "Cannot perform an eigen decomposition of a matrix which is not symmetric using this function!";
+#endif
+
+	double V[3][3];
+	double d[3];
+	double e[3];
+	for (int i = 0; i < 3; i++)
+	  for (int j = 0; j < 3; j++)
+	    V[i][j] = operator()(i,j);
+	
+	detail::tred2(V, d, e);
+	detail::tql2(V, d, e);
+
+	std::tr1::array<double, 3> eigenvals = {{d[0], d[1], d[2]}};
+	std::tr1::array<Vector, 3> eigenvecs 
+	  = {{Vector(V[0][0], V[1][0], V[2][0]),
+	      Vector(V[0][1], V[1][1], V[2][1]),
+	      Vector(V[0][2], V[1][2], V[2][2])}};
+	//Now output the eigenvectors and eigenvalues
+	return std::make_pair(eigenvecs, eigenvals);
+      }
+
 
       template<class A,int B,class C>
       inline MatrixExpression(const MatrixExpression<A,B,C>&e):

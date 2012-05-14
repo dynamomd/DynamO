@@ -17,8 +17,6 @@
 
 #pragma once
 
-#ifdef DYNAMO_GSL
-
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <magnet/math/histogram.hpp>
 
@@ -52,7 +50,6 @@ namespace dynamo {
     static molGyrationDat getGyrationEigenSystem(const shared_ptr<Range>&, const dynamo::SimData*);
 
     static Vector  NematicOrderParameter(const std::list<Vector  >&);
-    static double CubaticOrderParameter(const std::list<Vector  >&);
 
     virtual void operator<<(const magnet::xml::Node&);
   
@@ -63,11 +60,9 @@ namespace dynamo {
       const TChain* chainPtr;
       std::vector<magnet::math::Histogram<> > gyrationRadii;
       std::vector<magnet::math::Histogram<> > nematicOrder;
-      magnet::math::Histogram<> cubaticOrder;    
 
       CTCdata(const TChain* ptr, double binwidth1, double binwidth2, double binwidth3):
-	chainPtr(ptr),
-	cubaticOrder(binwidth3)
+	chainPtr(ptr)
       {
 	for (size_t i = 0; i < NDIM; i++)
 	  {
@@ -83,5 +78,3 @@ namespace dynamo {
     double binwidth1, binwidth2, binwidth3;  
   };
 }
-
-#endif

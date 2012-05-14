@@ -122,10 +122,8 @@ namespace dynamo {
       return testGeneratePlugin<OPReplexTrace>(Sim, XML);
     else if (!Name.compare("IntEnergyHist"))
       return testGeneratePlugin<OPIntEnergyHist>(Sim, XML);
-#ifdef DYNAMO_GSL
     else if (!Name.compare("RadiusGyration"))
       return testGeneratePlugin<OPRGyration>(Sim, XML);
-#endif
     else if (!Name.compare("Torsion"))
       return testGeneratePlugin<OPCTorsion>(Sim, XML);
     else if (!Name.compare("Streamticker"))
