@@ -15,6 +15,16 @@ of the DynamO simulation package. It is recommended that you build
 your own version of DynamO to keep up with the rapid code development
 and to ensure compatibility with your system.</p>
 <h2>Step 0: Build Requirements</h2>
+<p>Currently DynamO will only run on <strong>Gnu/Linux</strong> based
+systems (e.g., Ubuntu/Gentoo/RedHat). You will need to be familiar
+with how to install programs on whichever distribution of Linux you
+are using before you will be able to setup DynamO. </p>
+<p>DynamO, like many Linux programs, is driven through a Command-Line
+Interface (CLI). To be able to use DynamO, you will need to be
+familiar with the terminal of your Linux distribution. Take a look
+at <a href="https://help.ubuntu.com/community/UsingTheTerminal">this
+link</a> to learn more about the terminal and how it works if you are
+at all unsure what this means.</p>
 <p>Before you can build DynamO, you will need several programs and
 libraries installed. There are also several optional libraries which,
 if they're installed, will activate extra features. </p>
@@ -26,7 +36,7 @@ if they're installed, will activate extra features. </p>
     is compressed for efficiency using these libraries.
     <br/>(<strong>Ubuntu Packages</strong>: libbz2-dev
     zlib1g-dev).<br />You will need the static version of these two
-    libraries (this can cause a problem on Suse linux).
+    libraries (this can be a problem on Suse linux).
   </li>
 </ul>
 <h3>Visualisation Requirements (Optional)</h3>
@@ -96,14 +106,13 @@ build.</p>
   <p>..These dependencies add extra functionality and are
     optional..<br /> - Coil: libCwiid Wii-mote support (Optional) :
     yes</p>
-  <p>- DynamO: GSL (RadiusGyration) : yes</p>
 </div>
 <p>
   If you are missing static versions of <strong>bzip2</strong>
   or <strong>zlib</strong>, then DynamO won't build at all. If you are
   missing any of Coil's dependencies [DynamO-Coil Integration
   : <strong>no</strong>] DynamO will still build, but without the
-  visualizer.The other libraries (CWiid and GSL) are optional and just
+  visualizer support.The other libraries (CWiid) are optional and just
   add extra functionality.
 </p>
 <p>

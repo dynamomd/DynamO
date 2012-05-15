@@ -10,15 +10,9 @@ $pagetitle="Download";
 ob_start();
    ?>
 <!-- Page Begin -->
-
-<p>Currently DynamO will only run on <strong>Gnu/Linux</strong> based
-systems (e.g., Ubuntu/Gentoo/RedHat), and you will need to compile the
-code yourself. Please take a look at the tutorial on compiling and
-installing DynamO.</p>
-
-<p>DynamO is an open-source and free (as in free speech) code. There
-are several ways you can obtain a copy of the source code and these
-are listed below.</p>
+<p>DynamO is an open-source and free code, made available under
+version 3 of the GPL licence. There are several ways you can obtain a
+copy of the source code and these are listed below.</p>
 
 <h1>Git Access to the Source</h1> 
 
