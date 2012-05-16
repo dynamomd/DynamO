@@ -23,6 +23,8 @@
 
 #include <magnet/GL/context.hpp>
 
+#include <magnet/image/videoEncoder.hpp>
+
 #include <magnet/image/PNG.hpp>
 #include <magnet/image/bitmap.hpp>
 #include <magnet/function/task.hpp>
@@ -104,6 +106,7 @@ namespace coil {
     _stereoMode(false),
     _ambientIntensity(0.05),
     _snapshot_counter(0),
+    _video_counter(0),
     _samples(1),
     _dynamo(dynamo)
   {
@@ -281,6 +284,11 @@ namespace coil {
     {///////Recording button
       Gtk::ToggleButton* recordButton;
       _refXml->get_widget("SimRecordButton", recordButton);
+
+#ifndef MAGNET_FFMPEG_SUPPORT
+      recordButton->set_sensitive(false);
+#endif
+
       recordButton->signal_toggled()
 	.connect(sigc::mem_fun(this, &CLGLWindow::recordCallback));
     }
@@ -710,6 +718,7 @@ namespace coil {
     _luminanceMipMapShader.deinit();
 
     _cairo_screen.deinit();
+    _encoder.reset();
     ///////////////////Finally, unregister with COIL
     CoilRegister::getCoilInstance().unregisterWindow(this);
   }
@@ -875,10 +884,7 @@ namespace coil {
     //framelocking, check that new data is available
     if (_snapshot 
 	|| ((_record) && (!_simframelock || _newData)))
-      {
-	_snapshot = false;
-	_newData = false;
-	
+      {	
 	std::vector<uint8_t> pixels;
 	pixels.resize(_camera.getWidth() * _camera.getHeight() * 4);
 	//Read the pixels into our container
@@ -901,8 +907,14 @@ namespace coil {
 	std::ostringstream filename;
 	filename << std::setw(6) <<  std::setfill('0') << std::right << std::dec << _snapshot_counter++;
 	
-	magnet::image::writePNGFile(path + "/" + filename.str() +".png", pixels, 
-				    _camera.getWidth(), _camera.getHeight(), 3, 1, true, true);
+	if (_snapshot)
+	  magnet::image::writePNGFile(path + "/" + filename.str() +".png", pixels, 
+				      _camera.getWidth(), _camera.getHeight(), 3, 1, true, true);
+	
+	if (_record) _encoder->addFrame(pixels);
+
+	_snapshot = false;
+	_newData = false;
       }
 
     ++_frameCounter; 
@@ -1610,7 +1622,35 @@ namespace coil {
     Gtk::ToggleButton* recordButton;
     _refXml->get_widget("SimRecordButton", recordButton);
 
+
+    if (_encoder.get() == NULL) 
+      _encoder.reset(new magnet::image::VideoEncoder);
+    
+
+    if (_record != recordButton->get_active())
+      {//The record button has been toggled
+	if (!_record)
+	  {
+	    std::string path;
+	    {
+	      Gtk::FileChooserButton* fileChooser;
+	      _refXml->get_widget("snapshotDirectory", fileChooser);
+	      path = fileChooser->get_filename();
+	    }
+	
+	    std::ostringstream counterstr;
+	    counterstr << std::setw(6) <<  std::setfill('0') << std::right << std::dec << _video_counter++;
+	    std::string filename =  path + "/" + counterstr.str() +".mpg";
+	    
+	    _encoder->open(filename, _camera.getWidth(), _camera.getHeight());
+	  }
+	else
+	  _encoder->close();
+      }
+      
+
     _record = recordButton->get_active();  
+
   }
 
   void 

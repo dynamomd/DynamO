@@ -40,6 +40,12 @@
 #include <vector>
 #include <memory>
 
+namespace magnet {
+  namespace image {
+    class VideoEncoder;
+  }
+}
+
 namespace coil {
   class CLGLWindow : public CoilWindow
   {
@@ -202,6 +208,7 @@ namespace coil {
     float _bloomSaturation;
 
     size_t _snapshot_counter;
+    size_t _video_counter;
     size_t _samples;
 
     /////////GTK members
@@ -278,5 +285,6 @@ namespace coil {
     bool _particleSync;
     volatile bool _newData;
     std::auto_ptr<Gtk::ComboBoxText> _aasamples;
+    std::auto_ptr<magnet::image::VideoEncoder> _encoder;
   };
 }

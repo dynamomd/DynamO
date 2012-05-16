@@ -11,7 +11,8 @@ int main(int argc, char **argv)
   size_t height = 1023;
   size_t size = width * height;
 
-  VideoEncoder encoder(filename, width, height);
+  magnet::image::VideoEncoder encoder;
+  encoder.open(filename, width, height);
 
   /* Allocate the RGB image in advance */
   std::vector<uint8_t> rgb_buf(size * 3);
