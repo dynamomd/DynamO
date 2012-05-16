@@ -15,13 +15,7 @@ ob_start();
   set of tutorials on the basic topics. Please click on any of the
   links below to take a look
 </p>
-<table border="0" cellpadding="5px" style="margin-left:auto; margin-right:auto; text-align:center;">
-  <tr>
-    <td>
-      <?php button("Tutorial 1: Compiling DynamO from Source","/index.php/tutorial1");?>
-    </td>
-  </tr>
-</table> 
+<div style="text-align:center;"><?php button("Tutorial 1: Compiling DynamO from Source","/index.php/tutorial1");?></div>
 <p>
   If what you need to simulate is not covered in the tutorials, but is
   listed in the <a href="/index.php/features">features</a>, please
@@ -35,12 +29,7 @@ ob_start();
   partially documented using Doxygen and a up to date version is
   available at the link below.
 </p>
-<table border="0" cellpadding="5px" style="margin-left:auto; margin-right:auto; text-align:center;">
-  <tr>
-    <td>
-      <?php button("DynamO API Documentation","/doxygen");?>
-    </td>
-  </tr>
+<div style="text-align:center;"><?php button("DynamO API Documentation","/doxygen");?></div>
 </table> 
 
 <h1>Support</h1> 

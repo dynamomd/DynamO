@@ -65,23 +65,10 @@ directory.</p>
   git on your computer, you may download a copy of the sources using
   the links below.
 </p>
-<table border="0" cellpadding="5px" style="margin-left:auto; margin-right:auto; text-align:center;">
-  <tr>
-    <td>
-      <?php button("Download Latest Development Branch","https://github.com/toastedcrumpets/DynamO/zipball/master");?>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <?php button("Download Stable Version 1.3","https://github.com/toastedcrumpets/DynamO/zipball/dynamo-1-3");?>
-    </td>
-  </tr>
-  <tr>
-    <td>
-    <?php button("Download Stable Version 1.2","https://github.com/toastedcrumpets/DynamO/zipball/dynamo-1-2");?>
-    </td>
-  </tr>
-</table> 
+
+<div style="text-align:center; padding: 5px;"><?php button("Download Latest Development Branch","https://github.com/toastedcrumpets/DynamO/zipball/master");?></div>
+<div style="text-align:center; padding: 5px;"><?php button("Download Stable Version 1.3","https://github.com/toastedcrumpets/DynamO/zipball/dynamo-1-3");?></div>
+<div style="text-align:center; padding: 5px;"><?php button("Download Stable Version 1.2","https://github.com/toastedcrumpets/DynamO/zipball/dynamo-1-2");?></div>
 
 <!-- Page End -->
 <?php $content = ob_get_clean(); ?>

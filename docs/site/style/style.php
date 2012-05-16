@@ -1,6 +1,10 @@
 <?php header("Content-type: text/css"); 
-$sitebg = "#b0d0ff";
+$sitebg = "#b7c7c8";
 $pagebg = "#ffffff";
+$leftmenuhovercolor = "#eeeeee";
+$codebg = "#ccdddd";
+$inactivebutton = "#ccdddd";
+$hoverbutton = "#bbcccc";
 ?>
 
 /* Main html element styles */
@@ -10,7 +14,7 @@ body {
     margin: 0; 
     padding: 0; 
     height: 100%; 
-    background: <?php echo $sitebg; ?>; 
+    background-color:<?php echo $sitebg; ?>; 
 }
 
 /* Floating footer code */
@@ -81,7 +85,7 @@ body {
 }
 
 #leftmenu a:hover { 
-    background-color:#eeeeee; 
+    background-color:<?php echo $leftmenuhovercolor;?>; 
 }
 
 
@@ -106,7 +110,7 @@ body {
     padding-bottom:10px;
 }
 
-.code { background-color:#ddeeff; font-family:monospace; padding:5px; }
+.code { background-color:<?php echo $codebg;?>; font-family:monospace; padding:5px; }
 
 /*     Styling of the round edged boxes       */
 .borderleft { left:15px; position:absolute; top:0px; width:15px; height:100%; }
@@ -121,13 +125,13 @@ body {
 .bottomrightcornerborder { background-image: url(../images/csssprites.png); width:15px; height:15px; position:absolute; bottom:0; right:0; background-position: -15px -15px; }
 
 /* Button */
-.button { position:relative; padding-left:15px; padding-right:15px; height:30px; }
+.button { position:relative; padding-left:15px; padding-right:15px; height:30px; display:inline-block; }
 .button span { position:absolute; width:100%; height:100%; top:0; left:0; z-index:1; }
-.button .center { background-color: #d4e6ff; height:30px; line-height:30px; }
+.button .center { background-color: <?php echo $inactivebutton;?>; height:30px; line-height:30px; display:inline-block; }
 .button .left { background-image: url(../images/csssprites.png); width:15px; height:30px; position:absolute; top:0; left:0; background-position: -35px 0; }
 .button .right { background-image: url(../images/csssprites.png); width:15px; height:30px; position:absolute; bottom:0; right:0; background-position: -50px 0; }
 
-.button:hover .center { background-color: #b0d0ff; }
+.button:hover .center { background-color: <?php echo $hoverbutton;?>; }
 .button:hover .left { background-position: -70px 0; }
 .button:hover .right { background-position: -85px 0; }
 

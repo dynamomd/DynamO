@@ -27,16 +27,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
-     inkscape:cx="66.041162"
-     inkscape:cy="14.453852"
+     inkscape:zoom="5.6"
+     inkscape:cx="62.535394"
+     inkscape:cy="10.915692"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
-     inkscape:window-width="1630"
+     inkscape:window-width="1272"
      inkscape:window-height="773"
-     inkscape:window-x="0"
-     inkscape:window-y="1"
+     inkscape:window-x="1268"
+     inkscape:window-y="182"
      inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
@@ -71,27 +71,27 @@
        sodipodi:cy="5"
        sodipodi:rx="5"
        sodipodi:ry="5"
-       d="M 10,5 A 5,5 0 1 1 0,5 5,5 0 1 1 10,5 z"
+       d="M 10,5 C 10,7.7614237 7.7614237,10 5,10 2.2385763,10 0,7.7614237 0,5 0,2.2385763 2.2385763,0 5,0 c 2.7614237,0 5,2.2385763 5,5 z"
        transform="matrix(3,0,0,3,0,1022.3622)" />
     <path
        sodipodi:type="arc"
-       style="color:#000000;fill:#d4e6ff;fill-opacity:1;stroke:none;stroke-width:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       style="color:#000000;fill:#ccdddd;fill-opacity:1;stroke:none;stroke-width:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
        id="path3797-2"
        sodipodi:cx="5"
        sodipodi:cy="5"
        sodipodi:rx="5"
        sodipodi:ry="5"
-       d="M 10,5 A 5,5 0 1 1 0,5 5,5 0 1 1 10,5 z"
+       d="M 10,5 C 10,7.7614237 7.7614237,10 5,10 2.2385763,10 0,7.7614237 0,5 0,2.2385763 2.2385763,0 5,0 c 2.7614237,0 5,2.2385763 5,5 z"
        transform="matrix(3,0,0,3,35,1022.3622)" />
     <path
        sodipodi:type="arc"
-       style="color:#000000;fill:#b0d0ff;fill-opacity:1;stroke:none;stroke-width:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       style="color:#000000;fill:#bbcccc;fill-opacity:1;stroke:none;stroke-width:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
        id="path3797-2-9"
        sodipodi:cx="5"
        sodipodi:cy="5"
        sodipodi:rx="5"
        sodipodi:ry="5"
-       d="M 10,5 A 5,5 0 1 1 0,5 5,5 0 1 1 10,5 z"
+       d="M 10,5 C 10,7.7614237 7.7614237,10 5,10 2.2385763,10 0,7.7614237 0,5 0,2.2385763 2.2385763,0 5,0 c 2.7614237,0 5,2.2385763 5,5 z"
        transform="matrix(3,0,0,3,70,1022.3622)" />
   </g>
 </svg>
