@@ -1,4 +1,16 @@
 <?php
+function button($text, $link)
+{
+?>
+<div class="button" >
+  <div class="left"></div>
+  <a href=<?php echo $link;?> ><span></span></a>
+  <div class="center"><?php echo $text;?></div>
+  <div class="right"></div>
+</div>
+<?php
+}
+
 /* Set the default page accessed when someone opens this file*/
 $page="frontpage";
 
@@ -13,6 +25,7 @@ if (!file_exists("pages/".$page.".php"))
 /*Load the page*/
 $in_template=1;
 include_once("pages/".$page.".php");
+
 ?>
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">

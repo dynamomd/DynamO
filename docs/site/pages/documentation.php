@@ -18,9 +18,7 @@ ob_start();
 <table border="0" cellpadding="5px" style="margin-left:auto; margin-right:auto; text-align:center;">
   <tr>
     <td>
-      <a class="button" href="/index.php/tutorial1">
-	<div class="left"></div><div class="center">Tutorial 1: Compiling DynamO from Source</div><div class="right"></div>
-      </a>
+      <?php button("Tutorial 1: Compiling DynamO from Source","/index.php/tutorial1");?>
     </td>
   </tr>
 </table> 
@@ -40,9 +38,7 @@ ob_start();
 <table border="0" cellpadding="5px" style="margin-left:auto; margin-right:auto; text-align:center;">
   <tr>
     <td>
-      <a class="button" href="/doxygen">
-	<div class="left"></div><div class="center">DynamO API Documentation</div><div class="right"></div>
-      </a>
+      <?php button("DynamO API Documentation","/doxygen");?>
     </td>
   </tr>
 </table> 

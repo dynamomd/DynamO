@@ -121,7 +121,8 @@ body {
 .bottomrightcornerborder { background-image: url(../images/csssprites.png); width:15px; height:15px; position:absolute; bottom:0; right:0; background-position: -15px -15px; }
 
 /* Button */
-.button { color:#000000; text-decoration:none; display:inline-block; position:relative; padding-left:15px; padding-right:15px; height:30px; }
+.button { position:relative; padding-left:15px; padding-right:15px; height:30px; }
+.button span { position:absolute; width:100%; height:100%; top:0; left:0; z-index:1; }
 .button .center { background-color: #d4e6ff; height:30px; line-height:30px; }
 .button .left { background-image: url(../images/csssprites.png); width:15px; height:30px; position:absolute; top:0; left:0; background-position: -35px 0; }
 .button .right { background-image: url(../images/csssprites.png); width:15px; height:30px; position:absolute; bottom:0; right:0; background-position: -50px 0; }

@@ -68,23 +68,17 @@ directory.</p>
 <table border="0" cellpadding="5px" style="margin-left:auto; margin-right:auto; text-align:center;">
   <tr>
     <td>
-      <a class="button" href="https://github.com/toastedcrumpets/DynamO/zipball/master">
-	<div class="left"></div><div class="center">Download Latest Development Branch</div><div class="right"></div>
-      </a>
+      <?php button("Download Latest Development Branch","https://github.com/toastedcrumpets/DynamO/zipball/master");?>
     </td>
   </tr>
   <tr>
     <td>
-      <a class="button" href="https://github.com/toastedcrumpets/DynamO/zipball/dynamo-1-3">
-	<div class="left"></div><div class="center">Download Stable Version 1.3 </div><div class="right"></div>
-      </a>
+      <?php button("Download Stable Version 1.3","https://github.com/toastedcrumpets/DynamO/zipball/dynamo-1-3");?>
     </td>
   </tr>
   <tr>
     <td>
-      <a class="button" href="https://github.com/toastedcrumpets/DynamO/zipball/dynamo-1-2">
-	<div class="left"></div><div class="center">Download Stable Version 1.2</div><div class="right"></div>
-      </a>
+    <?php button("Download Stable Version 1.2","https://github.com/toastedcrumpets/DynamO/zipball/dynamo-1-2");?>
     </td>
   </tr>
 </table> 
