@@ -19,32 +19,21 @@
  */
 
 /* Compile this with the following code
-   
-   FFMPEG_LIBS="libavdevice libavformat libavfilter libavcodec libswscale libavutil"; g++ encoding-example.c  $(pkg-config  --cflags $FFMPEG_LIBS) $(pkg-config --libs $FFMPEG_LIBS) -I ~/dynamo/src/magnet/ -O3
+   g++ ffmpeg-example.c  $(pkg-config  --cflags libavcodec) $(pkg-config --libs libavcodec) -I ~/dynamo/src/magnet/ -O3
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <magnet/exception.hpp>
 
-#ifdef HAVE_AV_CONFIG_H
-#undef HAVE_AV_CONFIG_H
-#endif
-
+extern "C" {
 #ifndef INT64_C
 #define INT64_C(c) (c ## LL)
 #define UINT64_C(c) (c ## ULL)
 #endif
-
-extern "C" {
 #include "libavcodec/avcodec.h"
-#include "libavutil/mathematics.h"
 }
-
-#include <magnet/exception.hpp>
 
 class VideoEncoder
 {
@@ -71,38 +60,30 @@ public:
     AVCodec* _codec = avcodec_find_encoder(CODEC_ID_H264);
     if (!_codec) M_throw() << "Could not find the MPEG2 video codec";
 
-    _context = avcodec_alloc_context();
-    /* put sample parameters */
+    _context = avcodec_alloc_context3(_codec);
+
+    //Codec parameters -> Move to the dictionary approach sometime
     _context->bit_rate = 400000;
-    /* resolution must be a multiple of two */
     _context->width = _videoWidth;
     _context->height = _videoHeight;
-    /* frames per second */
     _context->time_base= (AVRational){1,_fps};
-    //_context->gop_size = _fps; /* emit one intra frame every second */
-    //_context->max_b_frames=100;
     _context->pix_fmt = PIX_FMT_YUV420P;
-    //_context->profile = FF_PROFILE_H264_HIGH;
-    //_context->profile = FF_PROFILE_H264_BASELINE;
-    //_context->compression_level = 10;
-    //_context->level = 10;
-    //_context->global_quality = 0;
-
     _context->max_b_frames=0;
     _context->profile= FF_PROFILE_H264_BASELINE;
     _context->level = 10;
-    _context->gop_size = 25;
+    _context->gop_size = _fps;
     _context->max_qdiff = 4;
     _context->qmin = 10;
     _context->qmax=51;
     _context->qcompress=0.6;
     _context->keyint_min=10;
     _context->trellis=0;
-    _context->weighted_p_pred = 2;
     
-    if (avcodec_open(_context, _codec) < 0) 
-      M_throw() << "Could not open the MPEG1 video codec context";
+    if (avcodec_open2(_context, _codec, NULL) < 0) 
+      M_throw() << "Could not open the video codec context";
 
+    //Setup the frame/picture descriptor, this holds pointers to the
+    //various channel data and spacings.
     _picture = avcodec_alloc_frame();
     _pictureBuffer.resize((size * 3) / 2);
     _picture->data[0] = &(_pictureBuffer[0]);
@@ -171,7 +152,7 @@ public:
     _outputBuffer[0] = 0x00;
     _outputBuffer[1] = 0x00;
     _outputBuffer[2] = 0x01;
-    _outputBuffer[3] = 0xb7;
+    _outputBuffer[3] = 0xb7; 
     _outputFile.write(reinterpret_cast<const char*>(&(_outputBuffer[0])), 4);
     _outputFile.close();
 
@@ -196,7 +177,7 @@ private:
   size_t _fps;
 
   struct LibavcodecInitialiser
-  { LibavcodecInitialiser() { avcodec_init(); avcodec_register_all(); } };
+  { LibavcodecInitialiser() { avcodec_register_all(); } };
     
   static LibavcodecInitialiser& initialiseLibrary()
   {
@@ -206,9 +187,9 @@ private:
 
 };
 
-
-static void video_encode_example(const char *filename)
+int main(int argc, char **argv)
 {
+  const char *filename = "/tmp/test.mpg";
   size_t width = 1023;
   size_t height = 1023;
   size_t size = width * height;
@@ -232,19 +213,6 @@ static void video_encode_example(const char *filename)
     }
   
   encoder.close();
-}
 
-int main(int argc, char **argv)
-{
-    const char *filename;
-
-    /* must be called before using avcodec lib */
-    avcodec_init();
-
-    /* register all the codecs */
-    avcodec_register_all();
-
-    video_encode_example("/tmp/test.mpg");
-
-    return 0;
+  return 0;
 }

@@ -13,11 +13,12 @@ ob_start();
 <!-- Page Begin -->
 
 <p>DynamO is a free, open-source, event-driven particle simulator.</p>
-<p>It can be used to simulate a wide range of particle models, from hard
-spheres, to square-wells and stepped potentials, thin needles and
-more. From molecular dynamics to granular dynamics, DynamO attempts to
-implement the latest in event-driven algorithms. Take a look at the
-<a href="/index.php/features">features</a> to see if DynamO does what you need.</p>
+<p>It can be used to simulate a wide range of particle models, from
+hard spheres, to square-wells and stepped potentials, thin needles and
+more. From molecular dynamics to granular dynamics, DynamO implements
+the latest in event-driven algorithms. Take a look at the <a
+href="/index.php/features">features</a> to see if DynamO does what you
+need.</p>
 
 <!-- Page End -->
 <h1>Latest News</h1>
