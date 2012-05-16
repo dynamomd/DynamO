@@ -1,28 +1,25 @@
-/*
- * Copyright (c) 2001 Fabrice Bellard
- *
- * This file is part of FFmpeg.
- *
- * FFmpeg is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * FFmpeg is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with FFmpeg; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- */
+/*  dynamo:- Event driven molecular dynamics simulator 
+    http://www.marcusbannerman.co.uk/dynamo
+    Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+    Copyright (C) 2011  Severin Strobl <-->
 
-/* Compile this with the following code
-   g++ ffmpeg-example.c  $(pkg-config  --cflags libavcodec) $(pkg-config --libs libavcodec) -I ~/dynamo/src/magnet/ -O3
- */
+    This program is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    version 3 as published by the Free Software Foundation.
 
-#include <iostream>
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#pragma once
+
+#ifdef MAGNET_FFMPEG_SUPPORT
+
 #include <fstream>
 #include <vector>
 #include <magnet/exception.hpp>
@@ -186,33 +183,4 @@ private:
   }
 
 };
-
-int main(int argc, char **argv)
-{
-  const char *filename = "/tmp/test.mpg";
-  size_t width = 1023;
-  size_t height = 1023;
-  size_t size = width * height;
-
-  VideoEncoder encoder(filename, width, height);
-
-  /* Allocate the RGB image in advance */
-  std::vector<uint8_t> rgb_buf(size * 3);
-  
-  /* encode 3 seconds of video */
-  for(int i=0; i<75; ++i) 
-    {
-      for(int y=0; y < height; y++)
-	for(int x=0; x< width; x++)
-	  {
-	    rgb_buf[3*(x + width * y) + 0] = 10*i; //R
-	    rgb_buf[3*(x + width * y) + 1] = 51*i; //G
-	    rgb_buf[3*(x + width * y) + 2] = std::min(x,y); //B
-	  }
-      encoder.addFrame(rgb_buf);
-    }
-  
-  encoder.close();
-
-  return 0;
-}
+#endif

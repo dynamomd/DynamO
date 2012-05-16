@@ -14,10 +14,21 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import ./jam/builddep ;
+
+alias libavcodec : : : : <define>MAGNET_FFMPEG_SUPPORT <linkflags>"`pkg-config libavcodec --libs`" <cflags>"`pkg-config libavcodec --cflags`" ; 
+exe ffmpeg_test : tests/ffmpeg_test.cpp libavcodec : <include>. ;
+
+project	: requirements
+	[ builddep.set-feature-on-build magnet-FFMPEG : ffmpeg_test : "Magnet: Compatible FFMPEG installation (video encoding support)" ]
+	: default-build release
+	: build-dir $(BUILD_DIR_PATH)
+	;
+
 lib dl : : <link>shared ;
 
 alias magnet : dl
-      : <include>. 
+      : <include>. <magnet-FFMPEG>yes:<source>libavcodec
       : : <include>. <variant>debug:<define>MAGNET_DEBUG <variant>debug:<linkflags>-rdynamic <variant>fulldebug:<define>MAGNET_DEBUG <variant>fulldebug:<linkflags>-rdynamic 
       ;
 
@@ -25,7 +36,6 @@ install install-magnet
       : [ glob magnet/*.hpp magnet/*/*.hpp magnet/*/*/*.hpp magnet/*/*/*/*.hpp magnet/*/*/*/*/*.hpp ]
       : <location>$(INCLUDE_INSTALL_PATH) <install-source-root>./ ;
       
-
 ##################### TESTS ######################
 using testing ;
 
