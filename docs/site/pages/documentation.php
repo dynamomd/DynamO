@@ -43,7 +43,11 @@ ob_start();
   </tr>
 </table> 
 
-<h1>Support</h1>
+<h1>Support</h1> 
 
+<p>If you have a problem and cannot find the answer in the
+documentation, you can email your queries to the following
+address:</p>
+<p style="text-align:center;">support@dynamomd.org</p>
 <!-- Page End -->
 <?php $content = ob_get_clean(); ?>
