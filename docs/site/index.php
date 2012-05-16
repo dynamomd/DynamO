@@ -4,7 +4,7 @@ function button($text, $link)
 ?>
 <div class="button" >
   <div class="left"></div>
-  <a href=<?php echo $link;?> ><span></span></a>
+  <a href="<?php echo $link;?>" ><span></span></a>
   <div class="center"><?php echo $text;?></div>
   <div class="right"></div>
 </div>
