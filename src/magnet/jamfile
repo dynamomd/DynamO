@@ -16,7 +16,7 @@
 
 import ./jam/builddep ;
 
-alias libavcodec : : : : <define>MAGNET_FFMPEG_SUPPORT <linkflags>"`pkg-config libavcodec --libs`" <cflags>"`pkg-config libavcodec --cflags`" ; 
+alias libavcodec : : : : <define>MAGNET_FFMPEG_SUPPORT <linkflags>"`pkg-config libavcodec libavutil --libs`" <cflags>"`pkg-config libavcodec libavutil --cflags`" ; 
 exe ffmpeg_test : tests/ffmpeg_test.cpp libavcodec : <include>. ;
 
 lib dl : : <link>shared ;
