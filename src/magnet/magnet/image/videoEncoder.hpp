@@ -20,6 +20,7 @@
 
 #ifdef MAGNET_FFMPEG_SUPPORT
 
+#include <iostream>
 #include <fstream>
 #include <vector>
 #include <magnet/exception.hpp>
@@ -62,8 +63,19 @@ namespace magnet {
 
 	initialiseLibrary();
 
+	bool h264 = true;
 	AVCodec* _codec = avcodec_find_encoder(CODEC_ID_H264);
-	if (!_codec) M_throw() << "Could not find the MPEG2 video codec";
+	if (!_codec) 
+	  {
+	    h264 = false;
+	    std::cerr << "\nWARNING: Cannot open the H264 codec (try installing libx264), falling back to the MPEG2 codec.\n";
+	    _codec = avcodec_find_encoder(CODEC_ID_MPEG2VIDEO);
+	    if (!_codec) 
+	      {
+		std::cerr << "\nWARNING: Cannot open a MPEG2 codec! On a very bad day we drop to MPEG1.\n";
+		_codec = avcodec_find_encoder(CODEC_ID_MPEG1VIDEO);
+	      }
+	  }
 
 	_context = avcodec_alloc_context3(_codec);
 
@@ -73,16 +85,19 @@ namespace magnet {
 	_context->height = _videoHeight;
 	_context->time_base= (AVRational){1,_fps};
 	_context->pix_fmt = PIX_FMT_YUV420P;
-	_context->max_b_frames=0;
-	_context->profile= FF_PROFILE_H264_BASELINE;
-	_context->level = 10;
-	_context->gop_size = _fps;
-	_context->max_qdiff = 4;
-	_context->qmin = 10;
-	_context->qmax=51;
-	_context->qcompress=0.6;
-	_context->keyint_min=10;
-	_context->trellis=0;
+	if (h264)
+	  {
+	    _context->max_b_frames=0;
+	    _context->profile= FF_PROFILE_H264_BASELINE;
+	    _context->level = 10;
+	    _context->gop_size = _fps;
+	    _context->max_qdiff = 4;
+	    _context->qmin = 10;
+	    _context->qmax=51;
+	    _context->qcompress=0.6;
+	    _context->keyint_min=10;
+	    _context->trellis=0;
+	  }
     
 	if (avcodec_open2(_context, _codec, NULL) < 0) 
 	  M_throw() << "Could not open the video codec context";
