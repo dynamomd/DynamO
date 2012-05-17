@@ -46,7 +46,7 @@ namespace magnet {
 	if (_outputFile.is_open())
 	  M_throw() << "Trying to open a video file when one is already being outputted!";
     
-      	_outputBufferSize = 100000;
+      	_outputBufferSize = 500000;
 	_frameCounter = 0;
 	_fps = fps;
 	_inputWidth = width;
@@ -80,11 +80,14 @@ namespace magnet {
 	_context = avcodec_alloc_context3(_codec);
 
 	//Codec parameters -> Move to the dictionary approach sometime
-	_context->bit_rate = 400000;
+	_context->bit_rate = 500000;
 	_context->width = _videoWidth;
 	_context->height = _videoHeight;
 	_context->time_base= (AVRational){1,_fps};
 	_context->pix_fmt = PIX_FMT_YUV420P;
+	//Make the buffer and rates as large as needed
+	_context->rc_max_rate = 0;
+	_context->rc_buffer_size = 0;
 	if (h264)
 	  {
 	    _context->max_b_frames=0;
