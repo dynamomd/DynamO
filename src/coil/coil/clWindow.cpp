@@ -910,9 +910,10 @@ namespace coil {
 	if (_snapshot)
 	  magnet::image::writePNGFile(path + "/" + filename.str() +".png", pixels, 
 				      _camera.getWidth(), _camera.getHeight(), 3, 1, true, true);
-	
-	if (_record) _encoder->addFrame(pixels);
 
+#ifdef MAGNET_FFMPEG_SUPPORT	
+	if (_record) _encoder->addFrame(pixels, true);
+#endif
 	_snapshot = false;
 	_newData = false;
       }
@@ -1622,7 +1623,7 @@ namespace coil {
     Gtk::ToggleButton* recordButton;
     _refXml->get_widget("SimRecordButton", recordButton);
 
-
+#ifdef MAGNET_FFMPEG_SUPPORT
     if (_encoder.get() == NULL) 
       _encoder.reset(new magnet::image::VideoEncoder);
     
@@ -1647,7 +1648,7 @@ namespace coil {
 	else
 	  _encoder->close();
       }
-      
+#endif
 
     _record = recordButton->get_active();  
 

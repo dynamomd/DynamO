@@ -45,6 +45,7 @@ namespace magnet {
 	if (_outputFile.is_open())
 	  M_throw() << "Trying to open a video file when one is already being outputted!";
     
+      	_outputBufferSize = 100000;
 	_frameCounter = 0;
 	_fps = fps;
 	_inputWidth = width;
@@ -89,7 +90,9 @@ namespace magnet {
 	//Setup the frame/picture descriptor, this holds pointers to the
 	//various channel data and spacings.
 	_picture = avcodec_alloc_frame();
-	_pictureBuffer.resize((size * 3) / 2);
+	//We use malloc for good reason, the library may realloc any
+	//time it likes! (the picture should stay the same though)
+	_pictureBuffer = reinterpret_cast<uint8_t*>(malloc((size * 3) / 2));
 	_picture->data[0] = &(_pictureBuffer[0]);
 	_picture->data[1] = _picture->data[0] + size;
 	_picture->data[2] = _picture->data[1] + size / 4;
@@ -98,14 +101,15 @@ namespace magnet {
 	_picture->linesize[2] = _videoWidth / 2;
     
 	//Allocate a reasonably large buffer for the output packets
-	_outputBuffer.resize(100000);
+	//We use malloc for good reason, the library may realloc any time it likes!
+	_outputBuffer = reinterpret_cast<uint8_t*>(malloc(_outputBufferSize));
     
 	_outputFile.open(filename.c_str(), std::ios_base::out | std::ios_base::binary  | std::ios_base::binary);
 	if (!_outputFile.is_open())  
 	  M_throw() << "Could not open the movie file for output";
       }
 
-      void addFrame(const std::vector<uint8_t>& RGB24Frame)
+      void addFrame(const std::vector<uint8_t>& RGB24Frame, bool flipY=false)
       {
 	if (RGB24Frame.size() < 3 * _inputWidth * _videoHeight) 
 	  M_throw() << "The image is too small for the video size!";
@@ -120,7 +124,7 @@ namespace magnet {
 	  for (int j = 0; j < _context->height; j++)
 	    for (int k = 0; k < _context->width; k++)
 	      {
-		size_t s = (k + j * _inputWidth) * 3;
+		size_t s = (k + (flipY ? (_context->height - j - 1) : j) * _inputWidth) * 3;
 
 		_pictureBuffer[i] = (uint8_t)((66 * RGB24Frame[s+0] + 129*RGB24Frame[s+1] + 25*RGB24Frame[s+2] + 128) >> 8) + 16;
 	      
@@ -137,7 +141,8 @@ namespace magnet {
 	_picture->pts = (1000 * 90 / _fps) * _frameCounter++;
 
 	/* encode the image and write out any data returned from the encoder */
-	int out_size = avcodec_encode_video(_context, &(_outputBuffer[0]), _outputBuffer.size(), _picture);
+	int out_size = avcodec_encode_video(_context, &(_outputBuffer[0]), _outputBufferSize, _picture);
+	if (out_size < 0) M_throw() << "Failed to encode a frame of video";
 	_outputFile.write(reinterpret_cast<const char*>(&(_outputBuffer[0])), out_size);
       }
 
@@ -147,7 +152,7 @@ namespace magnet {
 
 	/* get the delayed frames */
 	int out_size;
-	while(out_size = avcodec_encode_video(_context, &(_outputBuffer[0]), _outputBuffer.size(), NULL))
+	while((out_size = avcodec_encode_video(_context, &(_outputBuffer[0]), _outputBufferSize, NULL)))
 	  _outputFile.write(reinterpret_cast<const char*>(&(_outputBuffer[0])), out_size);
 
 	/* add sequence end code to have a real mpeg file */
@@ -161,8 +166,8 @@ namespace magnet {
 	avcodec_close(_context);
 	av_free(_context);
 	av_free(_picture);
-	_outputBuffer.clear();
-	_pictureBuffer.clear();
+	free(_outputBuffer);
+	free(_pictureBuffer);
       }
 
   
@@ -170,8 +175,9 @@ namespace magnet {
       AVCodecContext* _context;
       AVFrame* _picture;
       std::ofstream _outputFile;
-      std::vector<uint8_t> _outputBuffer;
-      std::vector<uint8_t> _pictureBuffer;
+      uint8_t* _outputBuffer;
+      size_t _outputBufferSize;
+      uint8_t* _pictureBuffer;
 
       size_t _videoWidth, _videoHeight;
       size_t _inputWidth;
