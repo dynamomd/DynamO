@@ -61,6 +61,10 @@ if they're installed, will activate extra features. </p>
       Packages</strong>: either fglrx-dev (AMD) or nvidia-dev
       (NVidia)).
     </li>
+    <li>
+      <a href="http://ffmpeg.org/">libavcodec</a> Allows you to record visualisations directly to a movie file.
+      <br/> (<strong>Ubuntu Package</strong>: libavcodec-dev)
+    </li>
 </ul>
 <h2>Step 1: Download the Source Code</h2>
 <p> Use the menu link to the left to download a copy of DynamO. Once
@@ -91,29 +95,31 @@ build.</p>
 </p>
 <div class="code">
   <p>Performing configuration checks</p>
-  <p>- DynamO: Static bzip2 library : yes<br /> - DynamO: Static zlib library : yes</p>
-  <p>..These dependencies below are for coil/visualisation
-    only..<br /> - Coil:
+  <p><strong>..The dependencies below are required to build DynamO..</strong><br />
+    - DynamO: Static bzip2 library : yes<br /> - DynamO: Static zlib library : yes</p>
+  <p><strong>..The dependencies below are for coil/visualisation
+    only..</strong><br /> - Coil:
     Gtkmm&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     : yes<br /> - Coil: OpenCL
-    lib&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : yes<br />
-    - Coil:
+    lib&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : yes<br /> -
+    Coil:
     GLEW&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     : yes<br /> - Coil:
     GLUT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    : yes</p>
+    : yes
   <p>- DynamO-Coil Integration&nbsp; : yes</p>
-  <p>..These dependencies add extra functionality and are
-    optional..<br /> - Coil: libCwiid Wii-mote support (Optional) :
-    yes</p>
+  <p><strong>..The dependencies below add extra functionality to the
+    visualizer and are optional..</strong><br /> - Coil: libCwiid
+    Wii-mote support (Optional) : yes<br /> - Magnet: libavcodec
+    (video encoding support, may also be packaged with FFMPEG) :
+    yes</p></p>
 </div>
 <p>
   If you are missing static versions of <strong>bzip2</strong>
   or <strong>zlib</strong>, then DynamO won't build at all. If you are
   missing any of Coil's dependencies [DynamO-Coil Integration
   : <strong>no</strong>] DynamO will still build, but without the
-  visualizer support.The other libraries (CWiid) are optional and just
-  add extra functionality.
+  visualizer support. 
 </p>
 <p>
   If you still have errors, take a look at the
@@ -126,12 +132,13 @@ build.</p>
   called <em><strong>dynamod</strong></em>
   and <em><strong>dynarun</strong></em>, should be in the <em>bin</em>
   directory. You can run these programs from there, or copy them to
-  some convenient place. 
+  some convenient place. For example, you can look at the help page of
+  dynamod by running the following command from the <em>DynamO</em> directory.:
 </p>
+<div class="code">./bin/dynamod --help</div>
 <p>
    You can also install the exectuables into your /usr/bin directory
-  (although its not recommended as they will not be correctly managed
-  by your system) using the following command.
+  (although its not recommended) using the following command.
 </p>
 <div class="code">sudo make install</div>
 <p>Congratulations! You now have a working installation of DynamO.</p>
@@ -142,9 +149,10 @@ build.</p>
 </p>
 <div class="code">git pull</div>
 <p>
-  Then just run <em>"make"</em> again (and "<em>sudo make
-  install"</em> if needed) to build new executables with the latest
-  changes.
+  Then just run <em>"make"</em> again:</p>
+  <div class="code">make</div> 
+<p>(and "<em>sudo make install"</em> if you previously installed it) to build
+new executables with the latest changes.
 </p>
 <h2>Appendix A: Building Executables for Debugging</h2>
 <p>If you're having some trouble with DynamO, you can build a debug
