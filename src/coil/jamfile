@@ -46,7 +46,7 @@ project	: requirements
 	  [ builddep.set-feature-on-build coil-GLEW : GLEWtest : "Coil: GLEW" ]
 	  [ builddep.set-feature-on-build coil-OpenCL : /opencl//test : "Coil: OpenCL lib" ]
 	  [ builddep.set-feature-on-build coil-Gtkmm : gtkmmtest : "Coil: Gtkmm" ]
-	  [ builddep.set-feature-on-build magnet-FFMPEG : /magnet//ffmpeg_test : "Magnet: Compatible FFMPEG installation (video encoding support)" ]
+	  [ builddep.set-feature-on-build magnet-FFMPEG : /magnet//ffmpeg_test : "Magnet: libavcodec (video encoding support, may also be packaged with FFMPEG)" ]
 	  [ builddep.combine-features coil-buildable : coil-GLUT coil-GLEW coil-OpenCL coil-Gtkmm ]
 	: default-build release
 	: build-dir $(BUILD_DIR_PATH)
