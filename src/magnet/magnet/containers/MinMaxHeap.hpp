@@ -1,5 +1,5 @@
 /*  dynamo:- Event driven molecular dynamics simulator 
-    http://www.marcusbannerman.co.uk/dynamo
+    http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
     Copyright (C) 2008  Todd Wease <->
 
