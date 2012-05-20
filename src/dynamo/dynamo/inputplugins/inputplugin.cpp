@@ -24,7 +24,7 @@
 #include <dynamo/dynamics/ranges/include.hpp>
 #include <dynamo/dynamics/BC/include.hpp>
 #include <dynamo/dynamics/liouvillean/include.hpp>
-#include <dynamo/dynamics/systems/ghost.hpp>
+#include <dynamo/dynamics/systems/andersenThermostat.hpp>
 #include <dynamo/base/is_simdata.hpp>
 #include <dynamo/dynamics/topology/include.hpp>
 #include <boost/random/normal_distribution.hpp>

@@ -17,7 +17,7 @@
 
 #include <dynamo/coordinator/engine/replexer.hpp>
 #include <dynamo/dynamics/systems/tHalt.hpp>
-#include <dynamo/dynamics/systems/ghost.hpp>
+#include <dynamo/dynamics/systems/andersenThermostat.hpp>
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/outputplugins/1partproperty/uenergy.hpp>

@@ -16,7 +16,7 @@
 */
 
 #include <dynamo/dynamics/systems/system.hpp>
-#include <dynamo/dynamics/systems/ghost.hpp>
+#include <dynamo/dynamics/systems/andersenThermostat.hpp>
 #include <dynamo/dynamics/systems/rescale.hpp>
 #include <dynamo/dynamics/systems/DSMCspheres.hpp>
 #include <dynamo/dynamics/systems/RingDSMC.hpp>

@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/dynamics/systems/ghost.hpp>
+#include <dynamo/dynamics/systems/andersenThermostat.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/dynamics/units/units.hpp>
 #include <dynamo/dynamics/BC/BC.hpp>

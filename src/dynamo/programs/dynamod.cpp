@@ -28,7 +28,7 @@ namespace po = boost::program_options;
 #include <dynamo/simulation/simulation.hpp>
 #include <dynamo/dynamics/BC/include.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
-#include <dynamo/dynamics/systems/ghost.hpp>
+#include <dynamo/dynamics/systems/andersenThermostat.hpp>
 #include <dynamo/schedulers/include.hpp>
 #include <dynamo/inputplugins/include.hpp>
 #include <magnet/exception.hpp>

@@ -9,7 +9,6 @@
 **** TODO DynamO: Make compression work with polydisperse walls.
 **** TODO DynamO: Allow replica exchanges in collisions.
 **** TODO DynamO: Currently, if we have square well chains, all of the linked monomers also appear in the capture map! This will artificially increase the energy of the base configuration, we need to check that the capture interaction is the valid interaction for the pair tested.
-**** TODO Coil: Correct the effect of the projection Matrix on the volume render, as this is breaking 3D modes.
 **** TODO Coil: Make the volume render images locatable anywhere in space to allow conversions from datasets to volumes.
 **** TODO Coil: Make coil scale independent.
 **** TODO Coil: Reimplement shadow mapping.
@@ -19,7 +18,6 @@
 **** TODO DynamO: Move the morton ordered container out to its own type, and generalise the neighbour list further.
 **** TODO Magnet: Checkout the performance cost of always performing a copy on assign with the vector classes, as it might make for much more readable code.
 **** TODO Magnet: Move to quaternions for camera tracking.
-**** TODO DynamO: Replace Andersen class in the ghost file with a more sensible name like thermostat.
 **** TODO DynamO: Make the output plugins much simpler. Put energy and everything else on by default.
 **** TODO DynamO: Put all of the cheap/free simulation data calculations into the misc output plugin, so that they don't have to be loaded and people have an interesting default output.xml.bz2.
 **** TODO DynamO: Look at a way of setting default workable parameters for mode 19.

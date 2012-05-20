@@ -16,7 +16,7 @@
 */
 
 #include <dynamo/simulation/ensemble.hpp>
-#include <dynamo/dynamics/systems/ghost.hpp>
+#include <dynamo/dynamics/systems/andersenThermostat.hpp>
 #include <dynamo/dynamics/liouvillean/CompressionL.hpp>
 #include <dynamo/dynamics/BC/LEBC.hpp>
 #include <dynamo/outputplugins/1partproperty/uenergy.hpp>
