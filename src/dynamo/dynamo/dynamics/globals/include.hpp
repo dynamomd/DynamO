@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/dynamics/globals/gcellsmorton.hpp>
-#include <dynamo/dynamics/globals/gcellsShearing.hpp>
+#include <dynamo/dynamics/globals/cells.hpp>
+#include <dynamo/dynamics/globals/cellsShearing.hpp>
 #include <dynamo/dynamics/globals/PBCSentinel.hpp>
 #include <dynamo/dynamics/globals/ParabolaSentinel.hpp>
 #include <dynamo/dynamics/globals/socells.hpp>

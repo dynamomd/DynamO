@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/dynamics/globals/gcellsShearing.hpp>
+#include <dynamo/dynamics/globals/cellsShearing.hpp>
 #include <dynamo/dynamics/globals/globEvent.hpp>
 #include <dynamo/dynamics/NparticleEventData.hpp>
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>

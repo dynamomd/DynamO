@@ -16,7 +16,7 @@
 */
 
 #pragma once
-#include <dynamo/dynamics/globals/gcellsmorton.hpp>
+#include <dynamo/dynamics/globals/cells.hpp>
 #include <dynamo/dynamics/ranges/1range.hpp>
 
 namespace dynamo {

@@ -12,13 +12,11 @@
 **** TODO Coil: Correct the effect of the projection Matrix on the volume render, as this is breaking 3D modes.
 **** TODO Coil: Make the volume render images locatable anywhere in space to allow conversions from datasets to volumes.
 **** TODO Coil: Make coil scale independent.
-**** TODO Coil: Add a "line" primitive to Coil, for bonds.
 **** TODO Coil: Reimplement shadow mapping.
 **** TODO Coil: Reimplement bloom.
 **** TODO Coil: Reimplement DOF.
 **** TODO Coil: Reimplement SSAO.
 **** TODO DynamO: Move the morton ordered container out to its own type, and generalise the neighbour list further.
-**** TODO DynamO: Rename gcellsmorton.hpp/cpp.
 **** TODO Magnet: Checkout the performance cost of always performing a copy on assign with the vector classes, as it might make for much more readable code.
 **** TODO Magnet: Move to quaternions for camera tracking.
 **** TODO DynamO: Replace Andersen class in the ghost file with a more sensible name like thermostat.
@@ -44,7 +42,6 @@
 **** TODO DynamO: Find out why the replica exchange Cv can be negative, averaging error?
 **** TODO DynamO: Remove the unusual replica exchange modes and simplify to just one. Also put the up and down swap ratios in the data.
 **** TODO DynamO: Make the capture maps initialise using the neighbourlist (blocking on generalised scheduler).
-**** TODO Coil: Make the shader/sphere,shader/detail/filter, and object/cairo shader use the new defines interface.
 **** TODO Coil: Replace freeglut with your own implementation to fix the whole debacle of GL context management and deleting resources. 
 ***** TODO Coil: Fix the dummy vertex array object mess.
 **** TODO Coil: State change tracking for glEnable/Disable.
