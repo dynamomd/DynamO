@@ -45,10 +45,7 @@ namespace magnet {
 	 */
 	class CairoShader: public GL::shader::detail::Shader
 	{
-	  size_t _alpha_testing;
 	public:
-	  CairoShader(): _alpha_testing(0) {}
-
 	  /*! \brief Builds the shader and sets the draw mode.
 	   
 	    \param alpha_testing Controls the mode of the shader,
@@ -63,7 +60,7 @@ namespace magnet {
 	   */
 	  void build(size_t alpha_testing)
 	  {
-	    _alpha_testing = alpha_testing;
+	    defines("ALPHA_TESTING") = alpha_testing;
 	    Shader::build();
 	  }
 
@@ -82,9 +79,7 @@ void main()
 
 	  virtual std::string initGeometryShaderSource()
 	  {
-	    std::ostringstream os;
-	    os << "const int ALPHA_TESTING = " << _alpha_testing << ";"
-	       << STRINGIFY(
+	    return STRINGIFY(
 layout(points) in;
 layout(triangle_strip) out;
 layout(max_vertices = 4) out;
@@ -122,14 +117,11 @@ void main()
 
   EndPrimitive();
 });
-	    return os.str();
 	  }
 	
 	  virtual std::string initFragmentShaderSource()
 	  {
-	    std::ostringstream os;
-	    os << "const int ALPHA_TESTING = " << _alpha_testing << ";"
-	       << STRINGIFY(
+	    return STRINGIFY(
 uniform sampler2D cairoTexture;
 smooth in vec2 texCoord;
 flat in vec4 frag_color;
@@ -150,7 +142,6 @@ void main()
       color_out = sample;
     }
 }); 
-	    return os.str();
 	  }
 	};
 

@@ -81,7 +81,7 @@ namespace coil {
     float _scale;
     int _initGlyphType;
     magnet::GL::Context::ContextPtr _context;
-    magnet::GL::shader::SphereShader<false> _sphereShader;
-    magnet::GL::shader::SphereVSMShader<false> _sphereVSMShader;
+    magnet::GL::shader::SphereShader _sphereShader;
+    magnet::GL::shader::SphereVSMShader _sphereVSMShader;
  };
 }

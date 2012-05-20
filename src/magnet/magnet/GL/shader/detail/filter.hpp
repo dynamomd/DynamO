@@ -55,7 +55,7 @@ namespace magnet {
 	   */
 	  void build(int stencilwidth)
 	  {
-	    _stencilwidth = stencilwidth;
+	    defines("stencilwidth") = stencilwidth;
 
 	    SSShader::build();
 	    //Get the shader args
@@ -72,12 +72,7 @@ namespace magnet {
 	   */
 	  virtual std::string initFragmentShaderSource()
 	  {
-	    //Simple writethrough fragment shader
-	    std::ostringstream data;
-	    data << GLfloat(_stencilwidth);
-	  
-	    return std::string("#define stencilwidth ") + data.str() + "\n"
-STRINGIFY(
+	    return STRINGIFY(
 uniform vec2 u_Scale;
 uniform float weights[stencilwidth * stencilwidth];
 uniform sampler2D u_Texture0;

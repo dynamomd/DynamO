@@ -46,6 +46,8 @@ namespace coil {
   RLight::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue) 
   {
     RenderObj::init(systemQueue);
+    
+    _sphereShader.defines("unshaded") = "true";
 
     _sphereShader.build();
 

@@ -138,7 +138,7 @@ namespace coil {
     GLfloat _size;
     std::tr1::array<GLfloat, 3> _color;
 
-    magnet::GL::shader::SphereShader<true> _sphereShader;
+    magnet::GL::shader::SphereShader _sphereShader;
     magnet::GL::Buffer<GLfloat> _glposition;
     magnet::GL::Context::ContextPtr _context;
   };

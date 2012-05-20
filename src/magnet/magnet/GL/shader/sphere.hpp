@@ -50,10 +50,14 @@ namespace magnet {
 	  http://www.arcsynthesis.org/gltut/index.html in the chapter
 	  on lies and IMPOSTORS.
        */
-      template<bool unshaded = false>
       class SphereShader: public detail::Shader
       {
       public:
+	SphereShader()
+	{ 
+	  defines("unshaded") = "false";
+	}
+
 	virtual std::string initVertexShaderSource()
 	{
 	  return STRINGIFY(
@@ -77,9 +81,7 @@ void main()
 	
 	virtual std::string initGeometryShaderSource()
 	{
-	  return std::string("const bool unshaded = ")
-	    + (unshaded ? std::string("true;\n") : std::string("false;\n"))
-	    + STRINGIFY(
+	  return STRINGIFY(
 uniform mat4 ProjectionMatrix;
 
 layout(points) in;
@@ -127,9 +129,7 @@ void main()
 
 	virtual std::string initFragmentShaderSource()
 	{
-	  return std::string("const bool unshaded = ")
-	    + (unshaded ? std::string("true;\n") : std::string("false;\n"))
-	    + STRINGIFY(
+	  return STRINGIFY(
 uniform mat4 ProjectionMatrix;
 
 flat in vec4 vert_color;
@@ -174,8 +174,7 @@ void main()
       /*! \brief A variant of the SphereShader used for variance
           shadow mapping.
        */
-      template<bool unshaded>
-      class SphereVSMShader: public SphereShader<unshaded>
+      class SphereVSMShader: public SphereShader
       {
 	virtual std::string initFragmentShaderSource()
 	{
