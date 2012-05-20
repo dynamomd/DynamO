@@ -102,7 +102,7 @@ namespace dynamo {
   ISquareWell::initialise(size_t nID)
   {
     ID = nID;
-    ISingleCapture::initCaptureMap(Sim->particleList);
+    ISingleCapture::initCaptureMap();
   }
 
   bool 

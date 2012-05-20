@@ -55,9 +55,15 @@ namespace dynamo {
 
     //! \brief Add a pair of particles to the capture map.
     virtual void addToCaptureMap(const Particle& p1, const Particle& p2) const = 0;
+
+    void initCaptureMap();
+
+    virtual void clear() const = 0;
     
   protected:
     bool noXmlLoad;
+
+    virtual void testAddToCaptureMap(const Particle& p1, const size_t& p2) const = 0;
 
     /*! \brief A key used to represent two particles.
      
@@ -96,6 +102,8 @@ namespace dynamo {
     virtual bool isCaptured(const Particle& p1, const Particle& p2) const
     { return captureMap.count(cMapKey(p1.getID(), p2.getID())); }
 
+    virtual void clear() const { captureMap.clear(); }
+
   protected:
 
     mutable std::tr1::unordered_set<cMapKey > captureMap;
@@ -107,8 +115,6 @@ namespace dynamo {
       rebuilding the captureMap.
     */
     virtual bool captureTest(const Particle&, const Particle&) const = 0;
-
-    void initCaptureMap(const std::vector<Particle>& particleList);
 
     /*! \brief Function to load the capture map. 
      
@@ -124,7 +130,7 @@ namespace dynamo {
      */
     void outputCaptureMap(magnet::xml::XmlStream&) const;
 
-    void testAddToCaptureMap(const Particle& p1, const size_t& p2) const;
+    virtual void testAddToCaptureMap(const Particle& p1, const size_t& p2) const;
 
     //! \brief Add a pair of particles to the capture map
     void addToCaptureMap(const Particle& p1, const Particle& p2) const
@@ -164,6 +170,8 @@ namespace dynamo {
     virtual bool isCaptured(const Particle& p1, const Particle& p2) const
     { return captureMap.count(cMapKey(p1.getID(), p2.getID())); }
 
+    virtual void clear() const { captureMap.clear(); }
+
   protected:
   
     typedef std::tr1::unordered_map<cMapKey, int, boost::hash<cMapKey> > captureMapType;
@@ -173,8 +181,6 @@ namespace dynamo {
     mutable captureMapType captureMap;
 
     virtual int captureTest(const Particle&, const Particle&) const = 0;
-
-    void initCaptureMap(const std::vector<Particle>& particleList);
 
     void loadCaptureMap(const magnet::xml::Node&);
 
@@ -196,7 +202,7 @@ namespace dynamo {
     //! \brief Add a pair of particles to the capture map
     void addToCaptureMap(const Particle& p1, const size_t& p2) const;
 
-    void testAddToCaptureMap(const Particle& p1, const size_t& p2) const;
+    virtual void testAddToCaptureMap(const Particle& p1, const size_t& p2) const;
 
     inline void delFromCaptureMap(const Particle& p1, const Particle& p2) const
     {

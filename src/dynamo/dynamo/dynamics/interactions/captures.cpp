@@ -17,6 +17,7 @@
 
 #include <dynamo/dynamics/interactions/captures.hpp>
 #include <dynamo/simulation/particle.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/base/is_simdata.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -30,20 +31,20 @@ namespace dynamo {
       addToCaptureMap(p1, Sim->particleList[p2]);
   }   
 
+
   void 
-  ISingleCapture::initCaptureMap(const std::vector<Particle>& particleList)
+  ICapture::initCaptureMap()
   {
     //If not loaded or invalidated
     if (noXmlLoad)
-      {
-	captureMap.clear();
-      
-	for (std::vector<Particle>::const_iterator iPtr
-	       = particleList.begin();
-	     iPtr != particleList.end(); iPtr++)
-	  for (std::vector<Particle>::const_iterator iPtr2 = iPtr + 1;
-	       iPtr2 != particleList.end(); iPtr2++)
-	    testAddToCaptureMap(*iPtr,iPtr2->getID());
+      {      
+	clear();
+
+	for (std::vector<Particle>::const_iterator iPtr1 = Sim->particleList.begin();
+	     iPtr1 != Sim->particleList.end(); iPtr1++)
+	  for (std::vector<Particle>::const_iterator iPtr2 = iPtr1+1;
+	       iPtr2 != Sim->particleList.end(); iPtr2++)
+	    testAddToCaptureMap(*iPtr1, iPtr2->getID());
       }
   }
 
@@ -53,7 +54,7 @@ namespace dynamo {
     if (XML.hasNode("CaptureMap"))
       {
 	noXmlLoad = false;
-	captureMap.clear();
+	clear();
 
 	for (magnet::xml::Node node = XML.getNode("CaptureMap").fastGetNode("Pair");
 	     node.valid(); ++node)
@@ -87,29 +88,12 @@ namespace dynamo {
   }
 
   void 
-  IMultiCapture::initCaptureMap(const std::vector<Particle>& particleList)
-  {
-    //If not loaded or invalidated
-    if (noXmlLoad)
-      {      
-	captureMap.clear();
-      
-	for (std::vector<Particle>::const_iterator iPtr 
-	       = particleList.begin();
-	     iPtr != particleList.end(); iPtr++)
-	  for (std::vector<Particle>::const_iterator iPtr2 = iPtr + 1;
-	       iPtr2 != particleList.end(); iPtr2++)
-	    testAddToCaptureMap(*iPtr, iPtr2->getID());
-      }
-  }
-
-  void 
   IMultiCapture::loadCaptureMap(const magnet::xml::Node& XML)
   {
     if (XML.hasNode("CaptureMap"))
       {
 	noXmlLoad = false;
-	captureMap.clear();
+	clear();
 
 	for (magnet::xml::Node node = XML.getNode("CaptureMap").fastGetNode("Pair");
 	     node.valid(); ++node)

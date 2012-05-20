@@ -279,27 +279,34 @@ namespace dynamo {
 
     p_liouvillean->initialise();
 
-    size_t ID=0;
+    {
+      size_t ID=0;
+      //Must be initialised before globals. Neighbour lists are
+      //implemented as globals and must initialise where locals are and their ID.
+      BOOST_FOREACH(shared_ptr<Local>& ptr, locals)
+	ptr->initialise(ID++);
+    }
 
-    BOOST_FOREACH(shared_ptr<Interaction>& ptr, interactions)
-      ptr->initialise(ID++);
+    {
+      size_t ID=0;
+      
+      BOOST_FOREACH(shared_ptr<Global>& ptr, globals)
+	ptr->initialise(ID++);
+    }
 
-    ID=0;
+    {
+      size_t ID=0;
+      
+      BOOST_FOREACH(shared_ptr<Interaction>& ptr, interactions)
+	ptr->initialise(ID++);
+    }
 
-    //Must be initialised before globals. Neighbour lists are
-    //implemented as globals and must initialise where locals are and their ID.
-    BOOST_FOREACH(shared_ptr<Local>& ptr, locals)
-      ptr->initialise(ID++);
+    {
+      size_t ID=0;
 
-    ID=0;
-
-    BOOST_FOREACH(shared_ptr<Global>& ptr, globals)
-      ptr->initialise(ID++);
-
-    ID=0;
-
-    BOOST_FOREACH(shared_ptr<System>& ptr, systems)
-      ptr->initialise(ID++);
+      BOOST_FOREACH(shared_ptr<System>& ptr, systems)
+	ptr->initialise(ID++);
+    }
   }
 
   const shared_ptr<Interaction>&

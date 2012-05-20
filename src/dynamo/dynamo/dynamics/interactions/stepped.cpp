@@ -125,7 +125,7 @@ namespace dynamo {
   IStepped::initialise(size_t nID)
   {
     ID = nID;
-    IMultiCapture::initCaptureMap(Sim->particleList);
+    IMultiCapture::initCaptureMap();
   
     dout << "Buckets in captureMap " << captureMap.bucket_count()
 	 << "\nMax bucket count " << captureMap.max_bucket_count()

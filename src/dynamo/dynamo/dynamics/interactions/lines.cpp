@@ -42,8 +42,7 @@ namespace dynamo {
   ILines::initialise(size_t nID)
   {
     ID = nID; 
-  
-    ISingleCapture::initCaptureMap(Sim->particleList);
+    ISingleCapture::initCaptureMap();
   }
 
   Vector ILines::getGlyphSize(size_t ID, size_t subID) const
