@@ -36,7 +36,7 @@
 
 namespace dynamo {
   ISquareWell::ISquareWell(const magnet::xml::Node& XML, dynamo::SimData* tmp):
-    Interaction(tmp, NULL) //A temporary value!
+    ISingleCapture(tmp, NULL) //A temporary value!
   {
     operator<<(XML);
   }

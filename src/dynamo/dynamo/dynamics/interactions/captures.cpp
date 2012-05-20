@@ -24,6 +24,13 @@
 
 namespace dynamo {
   void 
+  ISingleCapture::testAddToCaptureMap(const Particle& p1, const size_t& p2) const
+  {
+    if (captureTest(p1, Sim->particleList[p2]))
+      addToCaptureMap(p1, Sim->particleList[p2]);
+  }   
+
+  void 
   ISingleCapture::initCaptureMap(const std::vector<Particle>& particleList)
   {
     //If not loaded or invalidated
@@ -36,8 +43,7 @@ namespace dynamo {
 	     iPtr != particleList.end(); iPtr++)
 	  for (std::vector<Particle>::const_iterator iPtr2 = iPtr + 1;
 	       iPtr2 != particleList.end(); iPtr2++)
-	    if (captureTest(*iPtr,*iPtr2))
-	      addToCaptureMap(*iPtr, *iPtr2);
+	    testAddToCaptureMap(*iPtr,iPtr2->getID());
       }
   }
 
@@ -74,6 +80,13 @@ namespace dynamo {
   //////////////////////////////////////////////////////
 
   void 
+  IMultiCapture::testAddToCaptureMap(const Particle& p1, const size_t& p2) const
+  {
+    int capval = captureTest(p1, Sim->particleList[p2]);
+    if (capval) captureMap[cMapKey(p1.getID(), p2)] = capval; 
+  }
+
+  void 
   IMultiCapture::initCaptureMap(const std::vector<Particle>& particleList)
   {
     //If not loaded or invalidated
@@ -83,15 +96,10 @@ namespace dynamo {
       
 	for (std::vector<Particle>::const_iterator iPtr 
 	       = particleList.begin();
-	     iPtr != particleList.end(); iPtr++) 
+	     iPtr != particleList.end(); iPtr++)
 	  for (std::vector<Particle>::const_iterator iPtr2 = iPtr + 1;
 	       iPtr2 != particleList.end(); iPtr2++)
-	    {
-	      int capval = captureTest(*iPtr,*iPtr2);
-	      if (capval)
-		captureMap[cMapKey(iPtr->getID(), iPtr2->getID())] 
-		  = capval; 
-	    }
+	    testAddToCaptureMap(*iPtr, iPtr2->getID());
       }
   }
 

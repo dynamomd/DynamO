@@ -22,12 +22,12 @@
 #include <dynamo/base/is_simdata.hpp>
 
 namespace dynamo {
-  class ISoftCore: public ISingleCapture, public Interaction, public GlyphRepresentation
+  class ISoftCore: public ISingleCapture, public GlyphRepresentation
   {
   public:
     template<class T1, class T2>
     ISoftCore(dynamo::SimData* tmp, T1 d, T2 wd, C2Range* nR, std::string name):
-      Interaction(tmp,nR),
+      ISingleCapture(tmp,nR),
       _diameter(Sim->_properties.getProperty
 		(d, Property::Units::Length())),
       _wellDepth(Sim->_properties.getProperty

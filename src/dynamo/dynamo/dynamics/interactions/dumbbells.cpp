@@ -34,7 +34,7 @@
 
 namespace dynamo  {
   IDumbbells::IDumbbells(const magnet::xml::Node& XML, dynamo::SimData* tmp):
-    Interaction(tmp, NULL)
+    ISingleCapture(tmp, NULL)
   {
     operator<<(XML);
   }

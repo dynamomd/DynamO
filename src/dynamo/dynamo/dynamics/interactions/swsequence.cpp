@@ -36,7 +36,7 @@
 
 namespace dynamo {
   ISWSequence::ISWSequence(const magnet::xml::Node& XML, dynamo::SimData* tmp):
-    Interaction(tmp, NULL), //A temporary value!
+    ISingleCapture(tmp, NULL), //A temporary value!
     _unitEnergy(Sim->_properties.getProperty
 		(1.0, Property::Units::Energy()))
   { operator<<(XML); }

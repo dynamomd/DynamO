@@ -23,7 +23,7 @@
 #include <vector>
 
 namespace dynamo {
-  class IStepped: public IMultiCapture, public GlyphRepresentation, public Interaction
+  class IStepped: public IMultiCapture, public GlyphRepresentation
   {
   public:
     typedef std::pair<double,double> steppair;

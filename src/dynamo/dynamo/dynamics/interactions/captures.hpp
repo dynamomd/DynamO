@@ -18,6 +18,7 @@
 #pragma once
 
 #include <dynamo/simulation/particle.hpp>
+#include <dynamo/dynamics/interactions/interaction.hpp>
 #include <magnet/exception.hpp>
 #include <boost/tr1/unordered_set.hpp>
 #include <boost/tr1/unordered_map.hpp>
@@ -33,10 +34,10 @@ namespace dynamo {
     \ref ISquareWell), or it might be used to track if the particles
     are within each others bounding sphere (e.g., \ref ILines).
   */
-  class ICapture
+  class ICapture: public Interaction
   {
   public:
-    ICapture(): noXmlLoad(true) {}
+    ICapture(dynamo::SimData* sim, C2Range* range): Interaction(sim, range), noXmlLoad(true) {}
 
     //! \brief Returns the number of particles that are captured in some way
     virtual size_t getTotalCaptureCount() const = 0;
@@ -51,6 +52,9 @@ namespace dynamo {
         forget the data loaded from the xml file.
      */
     void forgetXMLCaptureMap() { noXmlLoad = true; }
+
+    //! \brief Add a pair of particles to the capture map.
+    virtual void addToCaptureMap(const Particle& p1, const Particle& p2) const = 0;
     
   protected:
     bool noXmlLoad;
@@ -85,6 +89,7 @@ namespace dynamo {
   class ISingleCapture: public ICapture
   {
   public:
+    ISingleCapture(dynamo::SimData* sim, C2Range* range): ICapture(sim, range) {}
 
     size_t getTotalCaptureCount() const { return captureMap.size(); }
   
@@ -97,33 +102,35 @@ namespace dynamo {
 
     /*! \brief Test if two particles should be "captured".
     
-    This function should provide a test of the particles current
-    position and velocity to determine if they're captured. Used in
-    rebuilding the captureMap.
+      This function should provide a test of the particles current
+      position and velocity to determine if they're captured. Used in
+      rebuilding the captureMap.
     */
     virtual bool captureTest(const Particle&, const Particle&) const = 0;
 
     void initCaptureMap(const std::vector<Particle>& particleList);
 
     /*! \brief Function to load the capture map. 
-     *
-     * Should be called by the derived classes
-     * Interaction::operator<<(const magnet::xml::Node&) function.
+     
+      Should be called by the derived classes
+      Interaction::operator<<(const magnet::xml::Node&) function.
      */
     void loadCaptureMap(const magnet::xml::Node&);
 
     /*! \brief Function to write out the capture map. 
-     *
-     * Should be called by the derived classes Interaction::outputXML()
-     * function.
+     
+      Should be called by the derived classes Interaction::outputXML()
+      function.
      */
     void outputCaptureMap(magnet::xml::XmlStream&) const;
 
-    //! \brief Add a pair of particles to the capture map.
+    void testAddToCaptureMap(const Particle& p1, const size_t& p2) const;
+
+    //! \brief Add a pair of particles to the capture map
     void addToCaptureMap(const Particle& p1, const Particle& p2) const
     {
 #ifdef DYNAMO_DEBUG
-      if  (captureMap.count(cMapKey(p1.getID(), p2.getID())))
+      if (captureMap.count(cMapKey(p1.getID(), p2.getID())))
 	M_throw() << "Insert found " << std::min(p1.getID(), p2.getID())
 		  << " and " << std::max(p1.getID(), p2.getID()) << " in the capture map";
 #endif
@@ -150,6 +157,8 @@ namespace dynamo {
   class IMultiCapture: public ICapture
   {
   public:
+    IMultiCapture(dynamo::SimData* sim, C2Range* range): ICapture(sim, range) {}
+
     size_t getTotalCaptureCount() const { return captureMap.size(); }
   
     virtual bool isCaptured(const Particle& p1, const Particle& p2) const
@@ -183,6 +192,11 @@ namespace dynamo {
     
       captureMap[cMapKey(p1.getID(), p2.getID())] = 1;
     }
+
+    //! \brief Add a pair of particles to the capture map
+    void addToCaptureMap(const Particle& p1, const size_t& p2) const;
+
+    void testAddToCaptureMap(const Particle& p1, const size_t& p2) const;
 
     inline void delFromCaptureMap(const Particle& p1, const Particle& p2) const
     {

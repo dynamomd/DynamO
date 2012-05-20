@@ -23,13 +23,13 @@
 #include <dynamo/dynamics/interactions/glyphrepresentation.hpp>
 
 namespace dynamo {
-  class IDumbbells: public ISingleCapture, public Interaction, public GlyphRepresentation
+  class IDumbbells: public ISingleCapture, public GlyphRepresentation
   {
   public:
     template<class T1, class T2, class T3>
     IDumbbells(dynamo::SimData* tmp, T1 l, T2 e, T3 d, C2Range* nR, 
 	       std::string name):
-      Interaction(tmp, nR),
+      ISingleCapture(tmp, nR),
       _length(Sim->_properties.getProperty
 	      (l, Property::Units::Length())),
       _diameter(Sim->_properties.getProperty

@@ -39,7 +39,7 @@ namespace dynamo {
   IStepped::IStepped(dynamo::SimData* tmp, 
 		     const std::vector<steppair>& vec, C2Range* nR,
 		     std::string name):
-    Interaction(tmp,nR),
+    IMultiCapture(tmp,nR),
     _unitLength(Sim->_properties.getProperty
 		(Sim->dynamics.units().unitLength(), 
 		 Property::Units::Length())),
@@ -50,7 +50,7 @@ namespace dynamo {
   { intName = name; }
 
   IStepped::IStepped(const magnet::xml::Node& XML, dynamo::SimData* tmp):
-    Interaction(tmp, NULL), //A temporary value!
+    IMultiCapture(tmp, NULL), //A temporary value!
     _unitLength(Sim->_properties.getProperty
 		(Sim->dynamics.units().unitLength(), 
 		 Property::Units::Length())),

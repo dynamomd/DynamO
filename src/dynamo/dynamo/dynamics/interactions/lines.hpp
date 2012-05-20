@@ -22,12 +22,12 @@
 #include <dynamo/dynamics/interactions/glyphrepresentation.hpp>
 
 namespace dynamo {
-  class ILines: public ISingleCapture, public GlyphRepresentation, public Interaction
+  class ILines: public ISingleCapture, public GlyphRepresentation
   {
   public:
     template<class T1, class T2>
     ILines(dynamo::SimData* tmp, T1 l, T2 e, C2Range* nR, std::string name):
-      Interaction(tmp, nR),
+      ISingleCapture(tmp, nR),
       _length(Sim->_properties.getProperty
 	      (l, Property::Units::Length())),
       _e(Sim->_properties.getProperty

@@ -24,13 +24,13 @@
 #include <set>
 
 namespace dynamo {
-  class ISWSequence: public ISingleCapture, public Interaction, public GlyphRepresentation
+  class ISWSequence: public ISingleCapture, public GlyphRepresentation
   {
   public:
     template<class T1, class T2, class T3>
     ISWSequence(dynamo::SimData* tmp, T1 d, T2 l, T3 e, 
 		std::vector<size_t> seq, C2Range* nR, std::string name):
-      Interaction(tmp,nR),
+      ISingleCapture(tmp,nR),
       _diameter(Sim->_properties.getProperty
 		(d, Property::Units::Length())),
       _lambda(Sim->_properties.getProperty

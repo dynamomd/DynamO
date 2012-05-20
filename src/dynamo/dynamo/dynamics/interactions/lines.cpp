@@ -33,7 +33,7 @@
 
 namespace dynamo {
   ILines::ILines(const magnet::xml::Node& XML, dynamo::SimData* tmp):
-    Interaction(tmp, NULL)
+    ISingleCapture(tmp, NULL)
   {
     operator<<(XML);
   }
