@@ -73,7 +73,7 @@ namespace dynamo {
 
 
   void
-  LOscillatingPlate::runEvent(const Particle& part, const LocalEvent& iEvent) const
+  LOscillatingPlate::runEvent(Particle& part, const LocalEvent& iEvent) const
   {
     ++Sim->eventCount;
   

@@ -85,7 +85,7 @@ namespace dynamo {
 			   const double dist
 			   ) const;
 
-    virtual ParticleEventData runWallCollision(const Particle&, 
+    virtual ParticleEventData runWallCollision(Particle&, 
 					       const Vector &,
 					       const double&
 					       ) const;

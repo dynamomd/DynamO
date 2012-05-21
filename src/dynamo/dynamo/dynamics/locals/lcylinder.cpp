@@ -56,7 +56,7 @@ namespace dynamo {
   }
 
   void
-  LCylinder::runEvent(const Particle& part, const LocalEvent& iEvent) const
+  LCylinder::runEvent(Particle& part, const LocalEvent& iEvent) const
   {
     ++Sim->eventCount;
 

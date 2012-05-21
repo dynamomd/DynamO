@@ -68,7 +68,7 @@ namespace dynamo {
   }
 
   void 
-  GPBCSentinel::runEvent(const Particle& part, const double dt) const
+  GPBCSentinel::runEvent(Particle& part, const double dt) const
   {
     M_throw() << "Virtual Event types are handled by the Scheduler,"
 	      << " this function should never be called";

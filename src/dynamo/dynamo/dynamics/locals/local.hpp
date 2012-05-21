@@ -51,7 +51,7 @@ namespace dynamo {
 
     virtual LocalEvent getEvent(const Particle&) const = 0;
 
-    virtual void runEvent(const Particle&, const LocalEvent&) const = 0;
+    virtual void runEvent(Particle&, const LocalEvent&) const = 0;
   
     virtual bool isInCell(const Vector &, const Vector &) const = 0;
 

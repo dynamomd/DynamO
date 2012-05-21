@@ -64,7 +64,7 @@ namespace dynamo {
   }
 
   void
-  LAndersenWall::runEvent(const Particle& part, const LocalEvent& iEvent) const
+  LAndersenWall::runEvent(Particle& part, const LocalEvent& iEvent) const
   {
     ++Sim->eventCount;
   

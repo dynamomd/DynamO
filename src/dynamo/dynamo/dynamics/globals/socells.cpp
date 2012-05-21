@@ -94,7 +94,7 @@ namespace dynamo {
   }
 
   void
-  GSOCells::runEvent(const Particle& part, const double) const
+  GSOCells::runEvent(Particle& part, const double) const
   {
     Sim->dynamics.getLiouvillean().updateParticle(part);
 

@@ -59,7 +59,7 @@ namespace dynamo {
   }
 
   void
-  LRoughWall::runEvent(const Particle& part, const LocalEvent& iEvent) const
+  LRoughWall::runEvent(Particle& part, const LocalEvent& iEvent) const
   {
     ++Sim->eventCount;
 

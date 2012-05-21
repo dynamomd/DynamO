@@ -459,7 +459,7 @@ namespace dynamo {
      * \param vNorm Normal of the wall (\f$ vNorm \cdot v_1\f$ must be negative).
      * \return The data for the collision.
      */
-    virtual ParticleEventData runWallCollision(const Particle& part, 
+    virtual ParticleEventData runWallCollision(Particle& part, 
 					       const Vector & vNorm,
 					       const double& e
 					       ) const = 0;
@@ -475,7 +475,7 @@ namespace dynamo {
      * \param sqrtT Square root of the Temperature of wall.
      * \param vNorm Normal of the wall (\f$ vNorm \cdot v_1 \f$ must be negative).
      */    
-    virtual ParticleEventData runAndersenWallCollision(const Particle& part, 
+    virtual ParticleEventData runAndersenWallCollision(Particle& part, 
 						       const Vector & vNorm,
 						       const double& sqrtT
 						       ) const = 0;
@@ -589,7 +589,7 @@ namespace dynamo {
      
       \bug Does this work for arbitrary mass particles.
      */
-    virtual ParticleEventData randomGaussianEvent(const Particle& part, 
+    virtual ParticleEventData randomGaussianEvent(Particle& part, 
 						  const double& sqrtT,
 						  const size_t dimensions) const = 0;
 

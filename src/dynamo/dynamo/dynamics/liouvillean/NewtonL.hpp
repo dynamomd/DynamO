@@ -117,17 +117,17 @@ namespace dynamo {
 						     const double&
 						     ) const;
 
-    virtual ParticleEventData runWallCollision(const Particle&, 
+    virtual ParticleEventData runWallCollision(Particle&, 
 					       const Vector &,
 					       const double&
 					       ) const;
 
-    virtual ParticleEventData runAndersenWallCollision(const Particle&, 
+    virtual ParticleEventData runAndersenWallCollision(Particle&, 
 						       const Vector &,
 						       const double& T
 						       ) const;
 
-    virtual ParticleEventData randomGaussianEvent(const Particle&, const double&, 
+    virtual ParticleEventData randomGaussianEvent(Particle&, const double&, 
 						  const size_t) const;
 
     //Structure dynamics

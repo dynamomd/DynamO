@@ -64,7 +64,7 @@ namespace dynamo {
   }
 
   void
-  LDblWall::runEvent(const Particle& part, const LocalEvent& iEvent) const
+  LDblWall::runEvent(Particle& part, const LocalEvent& iEvent) const
   {
     ++Sim->eventCount;
 

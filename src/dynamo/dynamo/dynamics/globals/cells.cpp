@@ -106,7 +106,7 @@ namespace dynamo {
   }
 
   void
-  GCells::runEvent(const Particle& part, const double) const
+  GCells::runEvent(Particle& part, const double) const
   {
     //Despite the system not being streamed this must be done.  This is
     //because the scheduler and all interactions, locals and systems

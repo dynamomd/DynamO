@@ -58,7 +58,7 @@ namespace dynamo {
   }
 
   void
-  LTriangleMesh::runEvent(const Particle& part, const LocalEvent& iEvent) const
+  LTriangleMesh::runEvent(Particle& part, const LocalEvent& iEvent) const
   { 
     ++Sim->eventCount;
   

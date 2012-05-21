@@ -86,7 +86,7 @@ namespace dynamo {
   }
 
   void 
-  GCellsShearing::runEvent(const Particle& part, const double) const
+  GCellsShearing::runEvent(Particle& part, const double) const
   {
     Sim->dynamics.getLiouvillean().updateParticle(part);
 

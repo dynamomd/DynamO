@@ -657,8 +657,8 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  LNewtonianGravity::runWallCollision(const Particle &part, 
-				      const Vector  &vNorm,
+  LNewtonianGravity::runWallCollision(Particle &part, 
+				      const Vector& vNorm,
 				      const double& e
 				      ) const
   {

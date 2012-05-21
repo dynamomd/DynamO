@@ -103,7 +103,7 @@ namespace dynamo {
   }
 
   void 
-  GWaker::runEvent(const Particle& part, const double dt) const
+  GWaker::runEvent(Particle& part, const double dt) const
   {
     GlobalEvent iEvent(getEvent(part));
     iEvent.setdt(dt); //We only trust the schedulers time, as we don't

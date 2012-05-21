@@ -315,7 +315,7 @@ namespace dynamo {
 	}
       case LOCAL:
 	{
-	  const Particle& part(Sim->particleList[sorter->next_ID()]);
+	  Particle& part(Sim->particleList[sorter->next_ID()]);
 
 	  //Copy the FEL event
 	  size_t localID = sorter->next_p2();

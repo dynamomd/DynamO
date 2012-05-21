@@ -102,7 +102,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  LNewtonian::randomGaussianEvent(const Particle& part, const double& sqrtT, 
+  LNewtonian::randomGaussianEvent(Particle& part, const double& sqrtT, 
 				  const size_t dimensions) const
   {
 #ifdef DYNAMO_DEBUG
@@ -127,8 +127,7 @@ namespace dynamo {
 
     //Assign the new velocities
     for (size_t iDim = 0; iDim < dimensions; iDim++)
-      const_cast<Particle&>(part).getVelocity()[iDim] 
-	= Sim->normal_sampler() * factor;
+      part.getVelocity()[iDim] = Sim->normal_sampler() * factor;
 
     tmpDat.setDeltaKE(0.5 * mass * (part.getVelocity().nrm2() - tmpDat.getOldVel().nrm2()));
   
@@ -241,7 +240,7 @@ namespace dynamo {
 
 
   ParticleEventData 
-  LNewtonian::runWallCollision(const Particle &part, 
+  LNewtonian::runWallCollision(Particle& part, 
 			       const Vector  &vNorm,
 			       const double& e
 			       ) const
@@ -250,18 +249,16 @@ namespace dynamo {
 
     ParticleEventData retVal(part, Sim->dynamics.getSpecies(part), WALL);
   
-    const_cast<Particle&>(part).getVelocity()
-      -= (1+e) * (vNorm | part.getVelocity()) * vNorm;
+    part.getVelocity() -= (1+e) * (vNorm | part.getVelocity()) * vNorm;
   
     retVal.setDeltaKE(0.5 * retVal.getSpecies().getMass(part.getID())
 		      * (part.getVelocity().nrm2() 
 			 - retVal.getOldVel().nrm2()));
-  
     return retVal; 
   }
 
   ParticleEventData 
-  LNewtonian::runAndersenWallCollision(const Particle& part, 
+  LNewtonian::runAndersenWallCollision(Particle& part, 
 				       const Vector & vNorm,
 				       const double& sqrtT
 				       ) const
@@ -279,10 +276,9 @@ namespace dynamo {
     double mass = Sim->dynamics.getSpecies(part).getMass(part.getID());
 
     for (size_t iDim = 0; iDim < NDIM; iDim++)
-      const_cast<Particle&>(part).getVelocity()[iDim] 
-	= Sim->normal_sampler() * sqrtT / std::sqrt(mass);
+      part.getVelocity()[iDim] = Sim->normal_sampler() * sqrtT / std::sqrt(mass);
   
-    const_cast<Particle&>(part).getVelocity() 
+    part.getVelocity() 
       //This first line adds a component in the direction of the normal
       += vNorm * (sqrtT * sqrt(-2.0*log(1.0-Sim->uniform_sampler()) / mass)
 		  //This removes the original normal component

@@ -54,7 +54,7 @@ namespace dynamo {
   }
 
   void 
-  GParabolaSentinel::runEvent(const Particle& part, const double) const
+  GParabolaSentinel::runEvent(Particle& part, const double) const
   {
     Sim->dynamics.getLiouvillean().updateParticle(part);
 
