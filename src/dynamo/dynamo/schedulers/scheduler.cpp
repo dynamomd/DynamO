@@ -68,7 +68,7 @@ namespace dynamo {
     eventCount.clear();
     eventCount.resize(Sim->N+1, 0);
 
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
+    BOOST_FOREACH(Particle& part, Sim->particleList)
       addEvents(part);
   
     sorter->init();
@@ -78,7 +78,7 @@ namespace dynamo {
 
 
   void 
-  Scheduler::addEvents(const Particle& part)
+  Scheduler::addEvents(Particle& part)
   {  
     Sim->dynamics.getLiouvillean().updateParticle(part);
 
@@ -235,8 +235,8 @@ namespace dynamo {
       {
       case INTERACTION:
 	{
-	  const Particle& p1(Sim->particleList[sorter->next_ID()]);
-	  const Particle& p2(Sim->particleList[sorter->next_p2()]);
+	  Particle& p1(Sim->particleList[sorter->next_ID()]);
+	  Particle& p2(Sim->particleList[sorter->next_p2()]);
 
 	  //Ready the next event in the FEL
 	  sorter->popNextEvent();
@@ -404,14 +404,15 @@ namespace dynamo {
 				 const size_t& id) const
   {
     if (part.getID() == id) return;
-    const Particle& part2(Sim->particleList[id]);
+    Particle& part1(Sim->particleList[part.getID()]);
+    Particle& part2(Sim->particleList[id]);
 
     Sim->dynamics.getLiouvillean().updateParticle(part2);
 
-    const IntEvent& eevent(Sim->dynamics.getEvent(part, part2));
+    const IntEvent& eevent(Sim->dynamics.getEvent(part1, part2));
 
     if (eevent.getType() != NONE)
-      sorter->push(Event(eevent, eventCount[id]), part.getID());
+      sorter->push(Event(eevent, eventCount[id]), part1.getID());
   }
 
   void 

@@ -26,7 +26,6 @@
 **** TODO DynamO: Check that the sentinel is correct in compressing systems.
 **** TODO DynamO: Rename the Liouvillean to Dynamics.
 **** TODO DynamO: Remove the requirement of a statically linked bzip2 or zlib library.
-**** TODO DynamO: Remove the const casting in the liouvillean, and interactions to make dynamo const correct.
 **** TODO DynamO: Rewrite the range classes, make rings/chains take a single range too.
 **** TODO DynamO: Either remove correlators from DynamO, or fix them so that short correlators don't output NaN's!
 **** TODO DynamO: Alter the change system functions to take sharedptrs.
@@ -66,6 +65,7 @@
 **** DONE DynamO: All particle positions are now shuffled for mixture systems in dynamod to enable faster equilibration.
 **** DONE DynamO: Removed all deprecated Clone functions for copying of classes in the code.
 **** DONE DynamO: Alter the functions in dynamics that add/get/set objects and take/return a pointer to return shared_ptr's (search for uses of shared_ptr's get() function).
+**** DONE DynamO: Removed the const casting in the liouvillean, and interactions to make dynamo const correct.
 **** DONE DynamO: Change the loadClass XML functions to return shared_ptr's.
 **** DONE DynamO: Improved the sizing of systems when dropping random polymers (dynamod -m2).
 **** DONE Bugfix DynamO: Changed the default settings of the histogram reweighting program so that the results are accurate by default! Previously, the results coming out of dynahist_rw could be quite innaccurate unless --min-err=1e-16 was set.

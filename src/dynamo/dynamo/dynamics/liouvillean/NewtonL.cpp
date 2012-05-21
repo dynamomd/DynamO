@@ -365,13 +365,11 @@ namespace dynamo {
   }
 
   bool 
-  LNewtonian::DSMCSpheresTest(const Particle& p1, 
-			      const Particle& p2, 
-			      double& maxprob,
-			      const double& factor,
+  LNewtonian::DSMCSpheresTest(Particle& p1, Particle& p2, 
+			      double& maxprob, const double& factor,
 			      Vector rij) const
   {
-    updateParticlePair(p1, p2);
+    updateParticlePair(Sim->particleList[p1.getID()], Sim->particleList[p2.getID()]);
 
     Vector vij = p1.getVelocity() - p2.getVelocity();
     Sim->dynamics.BCs().applyBC(rij, vij);
@@ -391,12 +389,9 @@ namespace dynamo {
   }
 
   PairEventData
-  LNewtonian::DSMCSpheresRun(const Particle& p1, 
-			     const Particle& p2, 
-			     const double& e,
-			     Vector rij) const
+  LNewtonian::DSMCSpheresRun(Particle& p1, Particle& p2, const double& e, Vector rij) const
   {
-    updateParticlePair(p1, p2);  
+    updateParticlePair(Sim->particleList[p1.getID()], Sim->particleList[p2.getID()]);
 
     Vector vij = p1.getVelocity() - p2.getVelocity();
     Sim->dynamics.BCs().applyBC(rij, vij);
@@ -418,8 +413,8 @@ namespace dynamo {
     retVal.dP = rij * ((1.0 + e) * mu * rvdot / rij.nrm2());  
 
     //This function must edit particles so it overrides the const!
-    const_cast<Particle&>(p1).getVelocity() -= retVal.dP / p1Mass;
-    const_cast<Particle&>(p2).getVelocity() += retVal.dP / p2Mass;
+    p1.getVelocity() -= retVal.dP / p1Mass;
+    p2.getVelocity() += retVal.dP / p2Mass;
 
     retVal.particle1_.setDeltaKE(0.5 * p1Mass * (p1.getVelocity().nrm2() 
 						 - retVal.particle1_.getOldVel().nrm2()));
@@ -433,8 +428,8 @@ namespace dynamo {
   LNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e,
 				const double&, const EEventType& eType) const
   {
-    const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
-    const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
+    Particle& particle1 = Sim->particleList[event.getParticle1ID()];
+    Particle& particle2 = Sim->particleList[event.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);  
 
@@ -456,7 +451,7 @@ namespace dynamo {
       {
 	retVal.dP = p2Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());  
 	//This function must edit particles so it overrides the const!
-	const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+	particle2.getVelocity() += retVal.dP / p2Mass;
       }
     else 
       if ((p1Mass != 0) && (p2Mass == 0))
@@ -464,7 +459,7 @@ namespace dynamo {
 	{
 	  retVal.dP = p1Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());
 	  //This function must edit particles so it overrides the const!
-	  const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+	  particle1.getVelocity() -= retVal.dP / p1Mass;
 	}
       else
 	{
@@ -478,8 +473,8 @@ namespace dynamo {
 	  retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
 
 	  //This function must edit particles so it overrides the const!
-	  const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-	  const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+	  particle1.getVelocity() -= retVal.dP / p1Mass;
+	  particle2.getVelocity() += retVal.dP / p2Mass;
 
 	  //If both particles have infinite mass we pretend no momentum was transferred
 	  retVal.dP *= !isInfInf;
@@ -503,8 +498,8 @@ namespace dynamo {
 			       const double&,
 			       const EEventType& eType) const
   {
-    const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
-    const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
+    Particle& particle1 = Sim->particleList[event.getParticle1ID()];
+    Particle& particle2 = Sim->particleList[event.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);
 
@@ -536,8 +531,8 @@ namespace dynamo {
     retVal.dP = collvec * (1.0 + e) * mu * (collvec | retVal.vijold);  
 
     //This function must edit particles so it overrides the const!
-    const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-    const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+    particle1.getVelocity() -= retVal.dP / p1Mass;
+    particle2.getVelocity() += retVal.dP / p2Mass;
 
     retVal.particle1_.setDeltaKE(0.5 * p1Mass * (particle1.getVelocity().nrm2() 
 						 - retVal.particle1_.getOldVel().nrm2()));
@@ -608,13 +603,11 @@ namespace dynamo {
     NEventData retVal;
     BOOST_FOREACH(const size_t& ID, range1)
       {
-	ParticleEventData tmpval
-	  (Sim->particleList[ID],
-	   Sim->dynamics.getSpecies(Sim->particleList[ID]),
-	   eType);
+	ParticleEventData tmpval(Sim->particleList[ID],
+				 Sim->dynamics.getSpecies(Sim->particleList[ID]),
+				 eType);
 
-	const_cast<Particle&>(tmpval.getParticle()).getVelocity()
-	  -= dP / structmass1;
+	Sim->particleList[ID].getVelocity() -= dP / structmass1;
       
 	tmpval.setDeltaKE(0.5 * tmpval.getSpecies().getMass(ID)
 			  * (tmpval.getParticle().getVelocity().nrm2() 
@@ -630,8 +623,7 @@ namespace dynamo {
 	   Sim->dynamics.getSpecies(Sim->particleList[ID]),
 	   eType);
 
-	const_cast<Particle&>(tmpval.getParticle()).getVelocity()
-	  += dP / structmass2;
+	Sim->particleList[ID].getVelocity() += dP / structmass2;
       
 	tmpval.setDeltaKE(0.5 * tmpval.getSpecies().getMass(ID)
 			  * (tmpval.getParticle().getVelocity().nrm2() 
@@ -729,8 +721,7 @@ namespace dynamo {
 	   Sim->dynamics.getSpecies(Sim->particleList[ID]),
 	   eType);
 
-	const_cast<Particle&>(tmpval.getParticle()).getVelocity()
-	  -= dP / structmass1;
+	Sim->particleList[ID].getVelocity() -= dP / structmass1;
       
 	tmpval.setDeltaKE(0.5 * tmpval.getSpecies().getMass(ID)
 			  * (tmpval.getParticle().getVelocity().nrm2() 
@@ -746,8 +737,7 @@ namespace dynamo {
 	   Sim->dynamics.getSpecies(Sim->particleList[ID]),
 	   eType);
 
-	const_cast<Particle&>(tmpval.getParticle()).getVelocity()
-	  += dP / structmass2;
+	Sim->particleList[ID].getVelocity() += dP / structmass2;
       
 	tmpval.setDeltaKE(0.5 * tmpval.getSpecies().getMass(ID)
 			  * (tmpval.getParticle().getVelocity().nrm2() 
@@ -763,8 +753,8 @@ namespace dynamo {
   LNewtonian::SphereWellEvent(const IntEvent& event, const double& deltaKE, 
 			      const double &) const
   {
-    const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
-    const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
+    Particle& particle1 = Sim->particleList[event.getParticle1ID()];
+    Particle& particle2 = Sim->particleList[event.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);  
 
@@ -825,8 +815,8 @@ namespace dynamo {
 #endif
   
     //This function must edit particles so it overrides the const!
-    const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-    const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+    particle1.getVelocity() -= retVal.dP / p1Mass;
+    particle2.getVelocity() += retVal.dP / p2Mass;
   
     retVal.particle1_.setDeltaKE(0.5 * p1Mass
 				 * (particle1.getVelocity().nrm2() 
@@ -1077,7 +1067,7 @@ namespace dynamo {
 
   ParticleEventData 
   LNewtonian::runOscilatingPlate
-  (const Particle& part, const Vector& rw0, const Vector& nhat, double& delta, 
+  (Particle& part, const Vector& rw0, const Vector& nhat, double& delta, 
    const double& omega0, const double& sigma, const double& mass, const double& e, 
    double& t, bool strongPlate) const
   {
@@ -1177,7 +1167,7 @@ namespace dynamo {
 
     Vector delP =  nhat * mu * (1.0 + inelas) * rvdot;
 
-    const_cast<Particle&>(part).getVelocity() -=  delP / pmass;
+    part.getVelocity() -=  delP / pmass;
 
     retVal.setDeltaKE(0.5 * pmass
 		      * (part.getVelocity().nrm2() 
@@ -1235,7 +1225,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  LNewtonian::runCylinderWallCollision(const Particle& part, 
+  LNewtonian::runCylinderWallCollision(Particle& part, 
 				       const Vector& origin,
 				       const Vector& vNorm,
 				       const double& e
@@ -1253,8 +1243,7 @@ namespace dynamo {
 
     rij /= rij.nrm();
 
-    const_cast<Particle&>(part).getVelocity()
-      -= (1+e) * (rij | part.getVelocity()) * rij;
+    part.getVelocity() -= (1+e) * (rij | part.getVelocity()) * rij;
   
     retVal.setDeltaKE(0.5 * retVal.getSpecies().getMass(part.getID())
 		      * (part.getVelocity().nrm2() 
@@ -1264,7 +1253,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  LNewtonian::runSphereWallCollision(const Particle& part, 
+  LNewtonian::runSphereWallCollision(Particle& part, 
 				     const Vector& origin,
 				     const double& e
 				     ) const
@@ -1279,8 +1268,7 @@ namespace dynamo {
 
     rij /= rij.nrm();
 
-    const_cast<Particle&>(part).getVelocity()
-      -= (1+e) * (rij | part.getVelocity()) * rij;
+    part.getVelocity() -= (1+e) * (rij | part.getVelocity()) * rij;
   
     retVal.setDeltaKE(0.5 * retVal.getSpecies().getMass(part.getID())
 		      * (part.getVelocity().nrm2() 
@@ -1344,8 +1332,8 @@ namespace dynamo {
       M_throw() << "Cannot use this function without orientational data";
 #endif
 
-    const Particle& particle1 = Sim->particleList[eevent.getParticle1ID()];
-    const Particle& particle2 = Sim->particleList[eevent.getParticle2ID()];
+    Particle& particle1 = Sim->particleList[eevent.getParticle1ID()];
+    Particle& particle2 = Sim->particleList[eevent.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);  
 
@@ -1386,8 +1374,8 @@ namespace dynamo {
       * (((vr | uPerp) * (1.0 + elasticity))
 	 / ((2.0 / mass) + ((cp.first * cp.first + cp.second * cp.second) / inertia)));
   
-    const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / mass;
-    const_cast<Particle&>(particle2).getVelocity() += retVal.dP / mass;
+    particle1.getVelocity() -= retVal.dP / mass;
+    particle2.getVelocity() += retVal.dP / mass;
 
     orientationData[particle1.getID()].angularVelocity 
       -= (cp.first / inertia) * (fL.getu1() ^ retVal.dP);
@@ -1515,8 +1503,8 @@ namespace dynamo {
       M_throw() << "Cannot use this function without orientational data";
 #endif
 
-    const Particle& particle1 = Sim->particleList[eevent.getParticle1ID()];
-    const Particle& particle2 = Sim->particleList[eevent.getParticle2ID()];
+    Particle& particle1 = Sim->particleList[eevent.getParticle1ID()];
+    Particle& particle2 = Sim->particleList[eevent.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);  
 
@@ -1617,8 +1605,8 @@ namespace dynamo {
 	 << "\ndv at contact " << velContact.nrm()
 	 << std::endl;
  
-    const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / (2 * mass);
-    const_cast<Particle&>(particle2).getVelocity() += retVal.dP / (2 * mass);
+    particle1.getVelocity() -= retVal.dP / (2 * mass);
+    particle2.getVelocity() += retVal.dP / (2 * mass);
  
 
     //Matrix coordinate transformation
@@ -1690,8 +1678,8 @@ namespace dynamo {
       M_throw() << "Cannot use this function without orientational data";
 #endif
 
-    const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
-    const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
+    Particle& particle1 = Sim->particleList[event.getParticle1ID()];
+    Particle& particle2 = Sim->particleList[event.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);  
 
@@ -1729,8 +1717,8 @@ namespace dynamo {
     double KE2before = getParticleKineticEnergy(particle2);
 
     //This function must edit particles so it overrides the const!
-    const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-    const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+    particle1.getVelocity() -= retVal.dP / p1Mass;
+    particle2.getVelocity() += retVal.dP / p2Mass;
 
     Vector angularVchange = (1-et) / (std::sqrt(d2) * (Jbar+1)) * (eijn ^ gijt);
  
@@ -1746,7 +1734,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  LNewtonian::runRoughWallCollision(const Particle& part, 
+  LNewtonian::runRoughWallCollision(Particle& part, 
 				    const Vector & vNorm,
 				    const double& e,
 				    const double& et,
@@ -1774,8 +1762,7 @@ namespace dynamo {
   
     Vector gijt = (vNorm ^ gij) ^ vNorm;
   
-    const_cast<Particle&>(part).getVelocity()
-      -= (1+e) * (vNorm | part.getVelocity()) * vNorm
+    part.getVelocity() -= (1+e) * (vNorm | part.getVelocity()) * vNorm
       + (Jbar * (1-et) / (Jbar + 1)) * gijt;
 
     Vector angularVchange = (1-et) / (r * (Jbar+1)) * (vNorm ^ gijt);

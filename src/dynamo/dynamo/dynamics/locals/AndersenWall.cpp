@@ -68,9 +68,8 @@ namespace dynamo {
   {
     ++Sim->eventCount;
   
-    NEventData EDat
-      (Sim->dynamics.getLiouvillean().runAndersenWallCollision
-       (part, vNorm, sqrtT));
+    NEventData EDat(Sim->dynamics.getLiouvillean().runAndersenWallCollision
+		    (part, vNorm, sqrtT));
   
     Sim->signalParticleUpdate(EDat);
   

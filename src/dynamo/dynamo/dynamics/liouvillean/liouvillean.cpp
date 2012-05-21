@@ -263,7 +263,7 @@ namespace dynamo {
 
   ParticleEventData 
   Liouvillean::runOscilatingPlate
-  (const Particle& part, const Vector& rw0, const Vector& nhat, double& delta, 
+  (Particle& part, const Vector& rw0, const Vector& nhat, double& delta, 
    const double& omega0, const double& sigma, const double& mass, const double& e,
    double& t, bool strongPlate) const
   {
@@ -282,7 +282,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  Liouvillean::runCylinderWallCollision(const Particle&, 
+  Liouvillean::runCylinderWallCollision(Particle&, 
 					const Vector &,
 					const Vector &,
 					const double&
@@ -292,7 +292,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  Liouvillean::runSphereWallCollision(const Particle&, 
+  Liouvillean::runSphereWallCollision(Particle&, 
 				      const Vector &,
 				      const double&
 				      ) const
@@ -312,7 +312,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  Liouvillean::runRoughWallCollision(const Particle& part, 
+  Liouvillean::runRoughWallCollision(Particle& part, 
 				     const Vector & vNorm,
 				     const double& e,
 				     const double& et,

@@ -294,7 +294,7 @@ namespace dynamo {
 			   const double& t, bool lastPart) const;
 
     virtual ParticleEventData runOscilatingPlate
-    (const Particle& part, const Vector& rw0, const Vector& nhat, double& delta, 
+    (Particle& part, const Vector& rw0, const Vector& nhat, double& delta, 
      const double& omega0, const double& sigma, const double& mass, const double& e, 
      double& t, bool strongPlate = false) const;
 
@@ -337,7 +337,7 @@ namespace dynamo {
      * \param passed A bit to set if the parabola is already over.
      * \return Time of the event.
      */    
-    virtual void enforceParabola(const Particle&) const
+    virtual void enforceParabola(Particle&) const
     { 
       M_throw() << "This is not needed for this type of Liouvillean";
     }
@@ -434,7 +434,7 @@ namespace dynamo {
      * \param e Elasticity of wall.
      * \return The data for the collision.
      */
-    virtual ParticleEventData runCylinderWallCollision(const Particle& part, 
+    virtual ParticleEventData runCylinderWallCollision(Particle& part, 
 						       const Vector & origin,
 						       const Vector & norm,
 						       const double& e
@@ -447,7 +447,7 @@ namespace dynamo {
      * \param e Elasticity of wall.
      * \return The data for the collision.
      */
-    virtual ParticleEventData runSphereWallCollision(const Particle& part, 
+    virtual ParticleEventData runSphereWallCollision(Particle& part, 
 						     const Vector & origin,
 						     const double& e
 						     ) const;
@@ -536,12 +536,9 @@ namespace dynamo {
       \param rij The vector seperating the two particles.
       \return Whether the collision occurs
      */  
-    virtual bool DSMCSpheresTest(const Particle& p1,
-				 const Particle& p2,
-				 double& maxprob,
-				 const double& factor,
-				 Vector rij
-				 ) const = 0;
+    virtual bool DSMCSpheresTest(Particle& p1, Particle& p2,
+				 double& maxprob, const double& factor,
+				 Vector rij) const = 0;
   
     /*! \brief Performs a hard sphere collision between the two
       particles according to the ESMC (Enskog DSMC)
@@ -552,8 +549,7 @@ namespace dynamo {
       \param rij The vector separating the two particles.
       \return Data on the collision
      */  
-    virtual PairEventData DSMCSpheresRun(const Particle& p1,
-					 const Particle& p2,
+    virtual PairEventData DSMCSpheresRun(Particle& p1, Particle& p2,
 					 const double& e,
 					 Vector rij
 					 ) const = 0;
@@ -611,16 +607,14 @@ namespace dynamo {
     {
       //May as well take this opportunity to reset the streaming
       //Note: the Replexing coordinator RELIES on this behaviour!
-      BOOST_FOREACH(const Particle& part, Sim->particleList)
+      BOOST_FOREACH(Particle& part, Sim->particleList)
 	{
-	  streamParticle(const_cast<Particle&>(part), 
-			 part.getPecTime() + partPecTime);
-	
-	  const_cast<Particle&>(part).getPecTime() = 0;
+	  streamParticle(part, part.getPecTime() + partPecTime);
+	  part.getPecTime() = 0;
 	}
 
-      const_cast<double&>(partPecTime) = 0;
-      const_cast<size_t&>(streamCount) = 0;
+      partPecTime = 0;
+      streamCount = 0;
     }
 
     /*! \brief Free streams a particle up to the current time.
@@ -628,12 +622,10 @@ namespace dynamo {
      * This synchronises the delayed states of the particle.
      * \param part Particle to syncronise.
      */
-    inline void updateParticle(const Particle& part) const
+    inline void updateParticle(Particle& part) const
     {
-      streamParticle(const_cast<Particle&>(part), 
-		     part.getPecTime() + partPecTime);
-
-      const_cast<Particle&>(part).getPecTime() = -partPecTime;
+      streamParticle(part, part.getPecTime() + partPecTime);
+      part.getPecTime() = -partPecTime;
     }
 
     inline bool isUpToDate(const Particle& part) const
@@ -649,7 +641,7 @@ namespace dynamo {
      * \param p1 A Particle to syncronise.
      * \param p2 A Particle to syncronise.
      */
-    inline void updateParticlePair(const Particle& p1, const Particle& p2) const
+    inline void updateParticlePair(Particle& p1, Particle& p2) const
     {
       //This is slow but sure, other stuff like reverse streaming, and
       //partial streaming are faster but work only for some collision
@@ -691,7 +683,7 @@ namespace dynamo {
      * \param vNorm Normal of the wall (\f$ vNorm \cdot v_1\f$ must be negative).
      * \return The data for the collision.
      */
-    virtual ParticleEventData runRoughWallCollision(const Particle& part, 
+    virtual ParticleEventData runRoughWallCollision(Particle& part, 
 						    const Vector & vNorm,
 						    const double& e,
 						    const double& et,
@@ -737,20 +729,19 @@ namespace dynamo {
       See GCellsShearing, this just over advances the particle to find
       its future position in boundary changes.
     */
-    inline void advanceUpdateParticle(const Particle& part, const double& dt) const
+    inline void advanceUpdateParticle(Particle& part, double& dt) const
     {
-      streamParticle(const_cast<Particle&>(part), 
-		     dt + partPecTime + part.getPecTime());
+      streamParticle(part, dt + partPecTime + part.getPecTime());
 
-      const_cast<Particle&>(part).getPecTime() = - dt - partPecTime;
+      part.getPecTime() = - dt - partPecTime;
     }
   
     /*! \brief The time by which the delayed state differs from the actual.*/
-    double partPecTime;
+    mutable double partPecTime;
 
     /*! \brief How many time increments have occured since the last
       system syncronise.*/
-    size_t streamCount;
+    mutable size_t streamCount;
 
     /*! \brief How often the system peculiar times should be syncronised.*/
     size_t streamFreq;

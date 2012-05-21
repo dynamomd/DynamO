@@ -148,7 +148,7 @@ namespace dynamo {
   }
 
   void
-  ISoftCore::runEvent(const Particle& p1, const Particle& p2, const IntEvent& iEvent) const
+  ISoftCore::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
   {
     ++Sim->eventCount;
 

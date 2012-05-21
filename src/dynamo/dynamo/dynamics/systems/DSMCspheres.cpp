@@ -107,14 +107,14 @@ namespace dynamo {
 
     for (size_t n = 0; n < nmax; ++n)
       {
-	const Particle& p1(Sim->particleList[*(range1->begin() + id1sampler())]);
+	Particle& p1(Sim->particleList[*(range1->begin() + id1sampler())]);
       
 	size_t p2id = *(range2->begin() + id2sampler());
       
 	while (p2id == p1.getID())
 	  p2id = *(range2->begin()+id2sampler());
       
-	const Particle& p2(Sim->particleList[p2id]);
+	Particle& p2(Sim->particleList[p2id]);
       
 	Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
       
@@ -168,14 +168,14 @@ namespace dynamo {
 	//Just do some quick testing to get an estimate
 	for (size_t n = 0; n < 1000; ++n)
 	  {
-	    const Particle& p1(Sim->particleList[*(range1->begin() + id1sampler())]);
+	    Particle& p1(Sim->particleList[*(range1->begin() + id1sampler())]);
 	  
 	    size_t p2id = *(range2->begin() + id2sampler());
 	  
 	    while (p2id == p1.getID())
 	      p2id = *(range2->begin()+id2sampler());
 	  
-	    const Particle& p2(Sim->particleList[p2id]);
+	    Particle& p2(Sim->particleList[p2id]);
 	  
 	    Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
 	  

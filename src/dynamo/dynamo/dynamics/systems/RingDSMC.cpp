@@ -108,8 +108,8 @@ namespace dynamo {
       for (size_t n = 0; n < nmax; ++n)
 	{
 	  size_t pairID(id1sampler());
-	  const Particle& p1(Sim->particleList[*(range1->begin() + 2 * pairID)]);
-	  const Particle& p2(Sim->particleList[*(range1->begin() + 2 * pairID + 1)]);
+	  Particle& p1(Sim->particleList[*(range1->begin() + 2 * pairID)]);
+	  Particle& p2(Sim->particleList[*(range1->begin() + 2 * pairID + 1)]);
 	
 	  Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
 	
@@ -150,7 +150,7 @@ namespace dynamo {
     
       for (size_t n = 0; n < nmax; ++n)
 	{
-	  const Particle& p1(Sim->particleList[*(range1->begin() + id1sampler())]);
+	  Particle& p1(Sim->particleList[*(range1->begin() + id1sampler())]);
 	
 	  size_t secondID(id1sampler());
 	
@@ -160,7 +160,7 @@ namespace dynamo {
 		     : ((secondID+1) == p1.getID())))
 	    secondID = id1sampler();
 	
-	  const Particle& p2(Sim->particleList[*(range1->begin() + secondID)]);
+	  Particle& p2(Sim->particleList[*(range1->begin() + secondID)]);
 	
 	  Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
 	
@@ -219,8 +219,8 @@ namespace dynamo {
 	for (size_t n = 0; n < 1000; ++n)
 	  {
 	    size_t pairID(id1sampler());
-	    const Particle& p1(Sim->particleList[*(range1->begin() + 2 * pairID)]);
-	    const Particle& p2(Sim->particleList[*(range1->begin() + 2 * pairID + 1)]);
+	    Particle& p1(Sim->particleList[*(range1->begin() + 2 * pairID)]);
+	    Particle& p2(Sim->particleList[*(range1->begin() + 2 * pairID + 1)]);
 	  
 	    Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
 	  
@@ -243,7 +243,7 @@ namespace dynamo {
 	//Just do some quick testing to get an estimate
 	for (size_t n = 0; n < 1000; ++n)
 	  {
-	    const Particle& p1(Sim->particleList[*(range1->begin() + id1sampler())]);
+	    Particle& p1(Sim->particleList[*(range1->begin() + id1sampler())]);
 
 	    size_t secondID(id1sampler());
 
@@ -253,7 +253,7 @@ namespace dynamo {
 		       : ((secondID+1) == p1.getID())))
 	      secondID = id1sampler();
 
-	    const Particle& p2(Sim->particleList[*(range1->begin() + secondID)]);
+	    Particle& p2(Sim->particleList[*(range1->begin() + secondID)]);
 	  
 	    Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
 	  

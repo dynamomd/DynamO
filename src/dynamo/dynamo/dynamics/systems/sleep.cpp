@@ -257,7 +257,7 @@ namespace dynamo {
     typedef std::map<size_t, Vector>::value_type locPair;
     BOOST_FOREACH(const locPair& p, stateChange)
       {
-	const Particle& part = Sim->particleList[p.first];
+	Particle& part = Sim->particleList[p.first];
 	Sim->dynamics.getLiouvillean().updateParticle(part);
       
 #ifdef DYNAMO_DEBUG 
@@ -288,14 +288,14 @@ namespace dynamo {
 	switch (type)
 	  {
 	  case SLEEP:
-	    const_cast<Particle&>(part).clearState(Particle::DYNAMIC);
+	    part.clearState(Particle::DYNAMIC);
 	  case RESLEEP:
-	    const_cast<Particle&>(part).getVelocity() = Vector(0,0,0);
+	    part.getVelocity() = Vector(0,0,0);
 	    break;
 	  case CORRECT:
-	    const_cast<Particle&>(part).getVelocity() += stateChange[part.getID()];
+	    part.getVelocity() += stateChange[part.getID()];
 	  case WAKEUP:
-	    const_cast<Particle&>(part).setState(Particle::DYNAMIC);
+	    part.setState(Particle::DYNAMIC);
 	    break;
 	  default:
 	    M_throw() << "Bad event type!";
@@ -314,7 +314,7 @@ namespace dynamo {
     Sim->signalParticleUpdate(SDat);
 
     BOOST_FOREACH(const ParticleEventData& PDat, SDat.L1partChanges)
-      Sim->ptrScheduler->fullUpdate(PDat.getParticle());
+      Sim->ptrScheduler->fullUpdate(Sim->particleList[PDat.getParticle().getID()]);
   
     locdt += Sim->freestreamAcc;
 

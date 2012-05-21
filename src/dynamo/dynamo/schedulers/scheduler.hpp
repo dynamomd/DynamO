@@ -42,7 +42,7 @@ namespace dynamo {
   
     /*! \brief Retest for events for a single particle.
      */
-    void fullUpdate(const Particle& part)
+    inline void fullUpdate(Particle& part)
     {
       invalidateEvents(part);
       addEvents(part);
@@ -63,7 +63,7 @@ namespace dynamo {
       sorter, we will enter a loop which has to be broken by the
       _interactionRejectionCounter logic.
     */
-    inline void fullUpdate(const Particle& p1, const Particle& p2)
+    inline void fullUpdate(Particle& p1, Particle& p2)
     {
       fullUpdate(p1);
       fullUpdate(p2);
@@ -71,7 +71,7 @@ namespace dynamo {
 
     void invalidateEvents(const Particle&);
 
-    void addEvents(const Particle&);
+    void addEvents(Particle&);
 
     void sort(const Particle&);
 

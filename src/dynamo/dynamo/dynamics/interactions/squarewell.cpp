@@ -206,9 +206,7 @@ namespace dynamo {
   }
 
   void
-  ISquareWell::runEvent(const Particle& p1, 
-			const Particle& p2,
-			const IntEvent& iEvent) const
+  ISquareWell::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
   {
     ++Sim->eventCount;
 

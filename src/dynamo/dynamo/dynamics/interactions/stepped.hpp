@@ -51,8 +51,7 @@ namespace dynamo {
 
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
   
-    virtual void runEvent(const Particle&, const Particle&, 
-			  const IntEvent&) const;
+    virtual void runEvent(Particle&, Particle&, const IntEvent&) const;
   
     virtual void outputXML(magnet::xml::XmlStream&) const;
 

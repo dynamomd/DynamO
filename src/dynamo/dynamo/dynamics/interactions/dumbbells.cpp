@@ -161,9 +161,7 @@ namespace dynamo  {
   }
 
   void
-  IDumbbells::runEvent(const Particle& p1, 
-		       const Particle& p2,
-		       const IntEvent& iEvent) const
+  IDumbbells::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
   {
     double d = (_diameter->getProperty(p1.getID())
 		+ _diameter->getProperty(p2.getID())) * 0.5;

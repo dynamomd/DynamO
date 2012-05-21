@@ -69,7 +69,7 @@ namespace dynamo {
 			   const double& t, bool) const;
 
     virtual ParticleEventData runOscilatingPlate
-    (const Particle& part, const Vector& rw0, const Vector& nhat, double& delta, 
+    (Particle& part, const Vector& rw0, const Vector& nhat, double& delta, 
      const double& omega0, const double& sigma, const double& mass, const double& e, 
      double& t, bool strongPlate) const;
 
@@ -79,11 +79,10 @@ namespace dynamo {
 					    const double&, 
 					    const EEventType& eType) const;
 
-    virtual bool DSMCSpheresTest(const Particle&, const Particle&,
+    virtual bool DSMCSpheresTest(Particle&, Particle&,
 				 double&, const double&, Vector) const;
 
-    virtual PairEventData DSMCSpheresRun(const Particle&, const Particle&, 
-					 const double&, Vector) const;
+    virtual PairEventData DSMCSpheresRun(Particle&, Particle&, const double&, Vector) const;
   
     virtual PairEventData SphereWellEvent(const IntEvent&, const double&, 
 					  const double&) const;
@@ -106,13 +105,13 @@ namespace dynamo {
 					    const double&
 					    ) const;
 
-    virtual ParticleEventData runCylinderWallCollision(const Particle&, 
+    virtual ParticleEventData runCylinderWallCollision(Particle&, 
 						       const Vector &,
 						       const Vector &,
 						       const double&
 						       ) const;
 
-    virtual ParticleEventData runSphereWallCollision(const Particle&, 
+    virtual ParticleEventData runSphereWallCollision(Particle&, 
 						     const Vector &,
 						     const double&
 						     ) const;
@@ -157,7 +156,7 @@ namespace dynamo {
 					   const EEventType& eType = CORE
 					   ) const;
 
-    virtual ParticleEventData runRoughWallCollision(const Particle& part, 
+    virtual ParticleEventData runRoughWallCollision(Particle& part, 
 						    const Vector & vNorm,
 						    const double& e,
 						    const double& et,

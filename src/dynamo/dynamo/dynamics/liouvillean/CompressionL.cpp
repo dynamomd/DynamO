@@ -104,8 +104,8 @@ namespace dynamo {
   PairEventData 
   LCompression::SmoothSpheresColl(const IntEvent& event, const double& e, const double& d2, const EEventType& eType) const
   {
-    const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
-    const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
+    Particle& particle1 = Sim->particleList[event.getParticle1ID()];
+    Particle& particle2 = Sim->particleList[event.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);  
 
@@ -126,14 +126,12 @@ namespace dynamo {
     if ((p1Mass == 0) && (p2Mass != 0))
       {
 	retVal.dP = p2Mass * retVal.rij * ((1.0 + e) * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
-	//This function must edit particles so it overrides the const!
-	const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+	particle2.getVelocity() += retVal.dP / p2Mass;
       }
     else if ((p2Mass == 0) && (p1Mass != 0))
       {
 	retVal.dP = p1Mass * retVal.rij * ((1.0 + e) * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
-	//This function must edit particles so it overrides the const!
-	const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
+	particle1.getVelocity() -= retVal.dP / p1Mass;
       }
     else
       {
@@ -144,9 +142,8 @@ namespace dynamo {
 
 	retVal.dP = retVal.rij * ((1.0 + e) * mu * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
 
-	//This function must edit particles so it overrides the const!
-	const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / (p1Mass + isInfInf);
-	const_cast<Particle&>(particle2).getVelocity() += retVal.dP / (p2Mass + isInfInf);
+	particle1.getVelocity() -= retVal.dP / (p1Mass + isInfInf);
+	particle2.getVelocity() += retVal.dP / (p2Mass + isInfInf);
 
 	//If both particles have infinite mass we pretend no momentum was transferred
 	retVal.dP *= !isInfInf;
@@ -167,8 +164,8 @@ namespace dynamo {
   PairEventData 
   LCompression::SphereWellEvent(const IntEvent& event, const double& deltaKE, const double& d2) const
   {
-    const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
-    const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
+    Particle& particle1 = Sim->particleList[event.getParticle1ID()];
+    Particle& particle2 = Sim->particleList[event.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);  
   
@@ -240,8 +237,8 @@ namespace dynamo {
 #endif
   
     //This function must edit particles so it overrides the const!
-    const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-    const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+    particle1.getVelocity() -= retVal.dP / p1Mass;
+    particle2.getVelocity() += retVal.dP / p2Mass;
   
     retVal.particle1_.setDeltaKE(0.5 * p1Mass
 				 * (particle1.getVelocity().nrm2() 

@@ -303,9 +303,7 @@ namespace dynamo {
   }
 
   void
-  ISWSequence::runEvent(const Particle& p1,
-			const Particle& p2,
-			const IntEvent& iEvent) const
+  ISWSequence::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
   {  
     ++Sim->eventCount;
 

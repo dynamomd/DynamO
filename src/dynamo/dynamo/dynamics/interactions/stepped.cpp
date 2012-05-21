@@ -268,9 +268,7 @@ namespace dynamo {
   }
 
   void
-  IStepped::runEvent(const Particle& p1, 
-		     const Particle& p2,
-		     const IntEvent& iEvent) const
+  IStepped::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
   {
     ++Sim->eventCount;
 

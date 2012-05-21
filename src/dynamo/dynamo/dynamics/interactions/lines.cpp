@@ -134,9 +134,7 @@ namespace dynamo {
   }
 
   void
-  ILines::runEvent(const Particle& p1, 
-		   const Particle& p2,
-		   const IntEvent& iEvent) const
+  ILines::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
   {
     switch (iEvent.getType())
       {

@@ -68,7 +68,7 @@ namespace dynamo {
 			      const Particle &) const = 0;
 
     //! Run the dynamics of an event that is occuring now.
-    virtual void runEvent(const Particle&, const Particle&, const IntEvent&) const = 0;
+    virtual void runEvent(Particle&, Particle&, const IntEvent&) const = 0;
 
     //! Return the maximum distance at which two particles may interact using this Interaction.
     //!

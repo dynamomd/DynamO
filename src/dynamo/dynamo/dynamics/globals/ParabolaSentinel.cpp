@@ -46,7 +46,7 @@ namespace dynamo {
   GlobalEvent 
   GParabolaSentinel::getEvent(const Particle& part) const
   {
-    Sim->dynamics.getLiouvillean().updateParticle(part);
+    Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[part.getID()]);
 
     return GlobalEvent(part, Sim->dynamics.getLiouvillean()
 		       .getParabolaSentinelTime(part), 

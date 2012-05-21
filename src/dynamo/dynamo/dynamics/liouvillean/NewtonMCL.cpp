@@ -112,8 +112,8 @@ namespace dynamo {
   LNewtonianMC::SphereWellEvent(const IntEvent& event, const double& deltaKE, 
 				const double &) const
   {
-    const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
-    const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
+    Particle& particle1 = Sim->particleList[event.getParticle1ID()];
+    Particle& particle2 = Sim->particleList[event.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);  
 
@@ -178,8 +178,8 @@ namespace dynamo {
 #endif
   
     //This function must edit particles so it overrides the const!
-    const_cast<Particle&>(particle1).getVelocity() -= retVal.dP / p1Mass;
-    const_cast<Particle&>(particle2).getVelocity() += retVal.dP / p2Mass;
+    particle1.getVelocity() -= retVal.dP / p1Mass;
+    particle2.getVelocity() += retVal.dP / p2Mass;
   
     retVal.particle1_.setDeltaKE(0.5 * p1Mass * (particle1.getVelocity().nrm2() 
 						 - retVal.particle1_.getOldVel().nrm2()));

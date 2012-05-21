@@ -61,7 +61,7 @@ namespace dynamo {
 
     virtual double getParabolaSentinelTime(const Particle&) const;
 
-    virtual void enforceParabola(const Particle&) const;
+    virtual void enforceParabola(Particle&) const;
 
     virtual double getWallCollision(const Particle&, 
 				    const Vector &, 

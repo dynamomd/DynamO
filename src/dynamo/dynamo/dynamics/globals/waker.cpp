@@ -145,8 +145,8 @@ namespace dynamo {
     Vector newVel(Sim->normal_sampler(),Sim->normal_sampler(),Sim->normal_sampler());
     newVel *= _wakeVelocity / newVel.nrm();
       
-    const_cast<Particle&>(part).getVelocity() = newVel;
-    const_cast<Particle&>(part).setState(Particle::DYNAMIC);
+    part.getVelocity() = newVel;
+    part.setState(Particle::DYNAMIC);
       
     EDat.setDeltaKE(0.5 * EDat.getSpecies().getMass(part.getID())
 		    * (part.getVelocity().nrm2() 

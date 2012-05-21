@@ -477,8 +477,8 @@ namespace dynamo {
   LNewtonianGravity::SmoothSpheresColl(const IntEvent& event, const double& ne,
 				       const double& d2, const EEventType& eType) const
   {
-    const Particle& particle1 = Sim->particleList[event.getParticle1ID()];
-    const Particle& particle2 = Sim->particleList[event.getParticle2ID()];
+    Particle& particle1 = Sim->particleList[event.getParticle1ID()];
+    Particle& particle2 = Sim->particleList[event.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);  
 
@@ -553,7 +553,7 @@ namespace dynamo {
   }
 
   void 
-  LNewtonianGravity::enforceParabola(const Particle& part) const
+  LNewtonianGravity::enforceParabola(Particle& part) const
   {
     updateParticle(part);
     Vector pos(part.getPosition()), vel(part.getVelocity());
@@ -577,7 +577,7 @@ namespace dynamo {
     if (dim >= NDIM) M_throw() << "Could not find a dimension to enforce the parabola in!";
 #endif
 
-    const_cast<Particle&>(part).getVelocity()[dim] = 0;
+    part.getVelocity()[dim] = 0;
   }
 
   std::pair<double, Liouvillean::TriangleIntersectingPart>
