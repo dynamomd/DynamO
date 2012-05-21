@@ -1,7 +1,8 @@
 #A simple wrapper Makefile around the boost build system, also downloads and unpacks boost if required.
-BOOST_DIR=boost_1_47_0
-BOOST_FILE=$(BOOST_DIR).tar.bz2
-BOOST_DL="http://sourceforge.net/projects/boost/files/boost/1.47.0/boost_1_47_0.tar.bz2"
+BOOST_VER=1.49.0
+BOOST_DIR="boost_"$(subst .,_,$(BOOST_VER))
+BOOST_FILE=$(BOOST_DIR)".tar.bz2"
+BOOST_DL="http://sourceforge.net/projects/boost/files/boost/"$(BOOST_VER)"/"$(BOOST_FILE)
 BJAM="./src/boost/bjam"
 
 all : build_deps
