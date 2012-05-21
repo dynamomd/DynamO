@@ -282,12 +282,6 @@ namespace coil {
     _shader["lightPosition"] = light_positions;
     _shader["lightColor"] = light_color;
     _shader["lightFactors"] = light_factors;
-  
-    _shader["FocalLength"] = GLfloat(1.0 / std::tan(camera.getFOVY() * (M_PI / 360.0)));
-    { 
-      std::tr1::array<GLfloat,2> winsize = {{camera.getWidth(), camera.getHeight()}};
-      _shader["WindowSize"] = winsize;
-    }
     _shader["RayOrigin"] = camera.getPosition();
     _shader["TransferTexture"] = 2;
     _shader["IntTransferTexture"] = 3;
@@ -310,10 +304,11 @@ namespace coil {
     _shader["invVolumeDimensions"] = invVolumeDimensions;
     _shader["ambientLight"] = ambient;
     
-    glEnable(GL_CULL_FACE);
+    _currentDepthFBO.getContext().setCullFace(true);
+    _currentDepthFBO.getContext().setDepthTest(false);
     glCullFace(GL_FRONT);
     glDepthMask(GL_FALSE);
-    glDisable(GL_DEPTH_TEST);
+
 
     _currentDepthFBO.getContext().cleanupAttributeArrays();
     _currentDepthFBO.getContext().setAttribute(magnet::GL::Context::instanceScaleAttrIndex, 
@@ -323,9 +318,9 @@ namespace coil {
     _cube.glRender();
     _shader.detach();
 
-    glEnable(GL_DEPTH_TEST);
+    _currentDepthFBO.getContext().setDepthTest(true);
+    _currentDepthFBO.getContext().setCullFace(false);
     glDepthMask(GL_TRUE);
-    glDisable(GL_CULL_FACE);
   }
 
   void 

@@ -101,10 +101,7 @@ namespace coil {
 	
 	if (_context->testExtension("GL_ARB_sample_shading"))
 	  {
-#ifndef GL_SAMPLE_SHADING
-# define GL_SAMPLE_SHADING GL_SAMPLE_SHADING_ARB
-#endif
-	    glEnable(GL_SAMPLE_SHADING);
+	    _context->setSampleShading(true);
 	    glMinSampleShadingARB(1.0);
 	  }
 
@@ -116,7 +113,7 @@ namespace coil {
 	_sphereShader.detach();
 
 	if (_context->testExtension("GL_ARB_sample_shading"))
-	  glDisable(GL_SAMPLE_SHADING);
+	  _context->setSampleShading(false);
       }
   }
 

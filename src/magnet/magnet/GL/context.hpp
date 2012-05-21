@@ -377,7 +377,40 @@ namespace magnet {
 	return _extensions.find(extension) != _extensions.end();
       }
 
+      inline void setBlend(bool newstate) { testAndSetState(newstate, _blend, GL_BLEND); }
+      inline void setAlphaTest(bool newstate) { testAndSetState(newstate, _alphaTest, GL_ALPHA_TEST); }
+      inline void setDepthTest(bool newstate) { testAndSetState(newstate, _depthTest, GL_DEPTH_TEST); }
+      inline void setCullFace(bool newstate) { testAndSetState(newstate, _cullFace, GL_CULL_FACE); }
+
+#ifndef GL_SAMPLE_SHADING
+# define GL_SAMPLE_SHADING GL_SAMPLE_SHADING_ARB
+#endif
+      inline void setSampleShading(bool newstate) { testAndSetState(newstate, _sampleShading, GL_SAMPLE_SHADING); }
+
     protected:
+      inline void testAndSetState(const bool newstate, bool& oldstate, const GLenum cap)
+      {
+#ifdef MAGNET_DEBUG
+	if (glIsEnabled(cap) != oldstate)
+	  M_throw() << "Something is altering the GL state outside of Magnet!";
+#endif
+
+	if (newstate==oldstate) return;
+
+	if (newstate) 
+	  glEnable(cap);
+	else 
+	  glDisable(cap);
+	oldstate = newstate;
+      }
+
+      /*! \brief State tracking variable for blending */
+      bool _blend;
+      bool _alphaTest;
+      bool _depthTest;
+      bool _cullFace;
+      bool _sampleShading;
+
 
       /*! \brief A dummy vertex array object (VAO).
 	
@@ -654,7 +687,14 @@ namespace magnet {
       /////////////////////////////////////////////////////
 
       //! \brief Only allow \ref getContext() to instantiate Context objects.
-      Context(): _clInitialised(false) {}
+      Context(): 
+	_blend(false),
+	_alphaTest(false),
+	_depthTest(false),
+	_cullFace(false),
+	_sampleShading(false),
+	_clInitialised(false)
+      {}
 
       //! \brief The system-dependent handle to the GL context.
       ContextKey _context;

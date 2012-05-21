@@ -41,7 +41,6 @@
 **** TODO DynamO: Make the capture maps initialise using the neighbourlist (blocking on generalised scheduler).
 **** TODO Coil: Replace freeglut with your own implementation to fix the whole debacle of GL context management and deleting resources. 
 ***** TODO Coil: Fix the dummy vertex array object mess.
-**** TODO Coil: State change tracking for glEnable/Disable.
 **** TODO Coil: State change tracking for glBlendFunc.
 **** TODO Coil: Make a generic render object container class (which is a render object), sort out object deletion or just fully separate the GTK and render interfaces.
 **** TODO Coil: Make a GL engine to put into magnet.

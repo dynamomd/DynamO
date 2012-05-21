@@ -77,7 +77,6 @@ namespace coil {
     std::auto_ptr<Gtk::Entry> _scaleFactor;
     
     bool _raytraceable;
-    bool _GL_ARB_sample_shading;
     float _scale;
     int _initGlyphType;
     magnet::GL::Context::ContextPtr _context;

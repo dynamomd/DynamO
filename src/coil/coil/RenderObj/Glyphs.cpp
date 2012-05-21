@@ -55,12 +55,9 @@ namespace coil {
 	{
 	  if (_raytraceable && _glyphRaytrace->get_active())
 	    {
-	      if (_GL_ARB_sample_shading)
+	      if (_context->testExtension("GL_ARB_sample_shading"))
 		{
-#ifndef GL_SAMPLE_SHADING
-# define GL_SAMPLE_SHADING GL_SAMPLE_SHADING_ARB
-#endif
-		  glEnable(GL_SAMPLE_SHADING);
+		  _primitiveVertices.getContext()->setSampleShading(true);
 		  glMinSampleShadingARB(1.0);
 		}
 
@@ -88,9 +85,8 @@ namespace coil {
 		  _sphereShader.detach();
 		}
 
-	      if (_GL_ARB_sample_shading)
-		glDisable(GL_SAMPLE_SHADING);
-	      
+	      if (_context->testExtension("GL_ARB_sample_shading"))
+		_primitiveVertices.getContext()->setSampleShading(false);
 	      return;
 	    }
 	}
@@ -155,8 +151,6 @@ namespace coil {
     
     _context = magnet::GL::Context::getContext();
     _raytraceable = _context->testExtension("GL_EXT_geometry_shader4");
-
-    _GL_ARB_sample_shading = _context->testExtension("GL_ARB_sample_shading");
 
     if (_raytraceable) 
       {

@@ -60,8 +60,6 @@ void main()
 	virtual std::string initFragmentShaderSource()
 	{
 	  return STRINGIFY(
-uniform float FocalLength;
-uniform vec2 WindowSize;
 uniform vec3 RayOrigin;
 
 //The light's position in model space (untransformed)

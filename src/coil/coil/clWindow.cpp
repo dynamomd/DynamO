@@ -615,7 +615,7 @@ namespace coil {
     _glContext = magnet::GL::Context::getContext();
 
     glDepthFunc(GL_LEQUAL);
-    glEnable(GL_DEPTH_TEST);
+    _glContext->setDepthTest(true);
 
     //Setup the viewport
     CallBackReshapeFunc(800, 600);
@@ -937,8 +937,8 @@ namespace coil {
     //the target fbo
     _Gbuffer.attach();
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
-    glEnable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
+    _glContext->setDepthTest(true);
+    _glContext->setBlend(false);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     _renderShader.attach();
     _renderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
@@ -965,7 +965,7 @@ namespace coil {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //We need the depth test on, to enable writes to the depth buffer
-    glEnable(GL_DEPTH_TEST);
+    _glContext->setDepthTest(true);
 
     //Now we need to populate the depth buffer, but nothing needs to
     //go in the color buffer
@@ -980,11 +980,11 @@ namespace coil {
 
     //Additive blending of all of the lights contributions, except for
     //the alpha values
-    glEnable(GL_BLEND);
+    _glContext->setBlend(true);
     glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ONE, GL_ZERO);
 
     //Now disable writing or testing of the depth buffer
-    glDisable(GL_DEPTH_TEST);
+    _glContext->setDepthTest(false);
     glDepthMask(GL_FALSE);
 
     
@@ -1028,8 +1028,8 @@ namespace coil {
       if (std::tr1::dynamic_pointer_cast<RLight>(*iPtr))
 	lights.push_back(std::tr1::dynamic_pointer_cast<RLight>(*iPtr));
 
-    glEnable(GL_BLEND);
-    glEnable(GL_DEPTH_TEST);
+    _glContext->setBlend(true);
+    _glContext->setDepthTest(true);
     glDepthMask(GL_TRUE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -1044,8 +1044,8 @@ namespace coil {
     _hdrBuffer.detach();	
     ///////////////////////Luminance Sampling//////////////////////
     //The light buffer is bound to texture unit 0 for the tone mapping too
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
+    _glContext->setDepthTest(false);
+    _glContext->setBlend(false);
 
     _hdrBuffer.getColorTexture()->bind(0);
 
@@ -1232,7 +1232,7 @@ namespace coil {
        
     //////////////Interface draw////////////////////////
     //We need alpha blending for the overlays
-    glEnable(GL_BLEND);
+    _glContext->setBlend(true);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     lastFBO->attach();
@@ -1266,7 +1266,7 @@ namespace coil {
     _simpleRenderShader.detach();
     lastFBO->detach();
 
-    glDisable(GL_BLEND);
+    _glContext->setBlend(false);
 
     //Check if we actually did something and copy the data to the
     //output FBO if needed
@@ -1280,7 +1280,7 @@ namespace coil {
 	lastFBO->detach();
       }
 
-    glEnable(GL_DEPTH_TEST);   
+    _glContext->setDepthTest(true);   
   }
 
   void CLGLWindow::CallBackReshapeFunc(int w, int h)
