@@ -20,7 +20,7 @@ import ../magnet/jam/tags ;
 
 lib bz2 : : <link>shared ;
 
-obj iostream_bzip2_support : ../boost/libs/iostreams/src/bzip2.cpp bz2 ;
+obj iostream_bzip2_support : ../boost/libs/iostreams/src/bzip2.cpp bz2 : <include>../boost/ ;
 
 exe bzip2test : tests/bzip2test.cpp bz2 ;
 
