@@ -36,10 +36,10 @@ namespace coil {
       
       headaxis *= 0.15 * arrowAxis.nrm() / headaxisnorm;
       
-      GLfloat A[]={a.x, a.y, a.z},
-	B[]={b.x, b.y, b.z},
-	  C[]={headpoint.x + headaxis.x, headpoint.y + headaxis.y, headpoint.z + headaxis.z},
-	    D[]={headpoint.x - headaxis.x, headpoint.y - headaxis.y, headpoint.z - headaxis.z};
+      GLfloat A[]={a(0), a(1), a(2)},
+	B[]={b(0), b(1), b(2)},
+	  C[]={headpoint(0) + headaxis(0), headpoint(1) + headaxis(1), headpoint(2) + headaxis(2)},
+	    D[]={headpoint(0) - headaxis(0), headpoint(1) - headaxis(1), headpoint(2) - headaxis(2)};
 	    
 	    glBegin (GL_LINES);
 	    glVertex3fv (A);

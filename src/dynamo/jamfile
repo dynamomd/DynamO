@@ -18,10 +18,10 @@ import feature ;
 import ../magnet/jam/builddep ;
 import ../magnet/jam/tags ;
 
-lib z : : <link>static ;
-lib bz2 : : <link>static ;
+lib bz2 : : <link>shared ;
 
-exe zlibtest : tests/zlibtest.cpp z ;
+obj iostream_bzip2_support : ../boost/libs/iostreams/src/bzip2.cpp : <include>../boost/ : : <source>bz2 ;
+
 exe bzip2test : tests/bzip2test.cpp bz2 ;
 
 SHELL "touch src/dynamo/tests/* " ;
@@ -29,10 +29,9 @@ SHELL "touch src/dynamo/tests/* " ;
 project	: requirements
           #This creates a feature coil-integration, which can be set
           #on the command line or auto-detected using the passed target
-	  [ builddep.set-feature-on-build dynamo-zlib : zlibtest : "DynamO: Static zlib library" ]
-	  [ builddep.set-feature-on-build dynamo-bzip2 : bzip2test : "DynamO: Static bzip2 library" ]
+	  [ builddep.set-feature-on-build dynamo-bzip2 : bzip2test : "DynamO: bzip2 library" ]
 	  [ builddep.set-feature-on-build coil-integration : /coil//coilDependencies : "DynamO-Coil Integration" ]
-	  [ builddep.combine-features dynamo-buildable : dynamo-zlib dynamo-bzip2 ]
+	  [ builddep.combine-features dynamo-buildable : dynamo-bzip2 ]
 	: default-build release
 	: build-dir $(BUILD_DIR_PATH)
 	;
@@ -42,8 +41,8 @@ lib rt : : <link>shared ;
 exe dynamoDependencies : tests/buildreq.cpp : <dynamo-buildable>no:<define>BUILDFAIL ;
 
 lib dynamo_core : [ glob-tree *.cpp : programs tests ]
-      /magnet//magnet /boost//iostreams /boost//filesystem
-      /boost//program_options rt 
+      /magnet//magnet /boost//filesystem
+      /boost//program_options rt iostream_bzip2_support
     : <include>include <include>. <dynamo-buildable>no:<build>no
       <variant>debug:<define>DYNAMO_DEBUG <link>static
       <coil-integration>yes:<source>/coil//coil/<link>static

@@ -282,9 +282,14 @@ namespace magnet {
     template<class A,int B,class C>
     inline MatrixExpression<>& MatrixExpression<>:: operator=(const MatrixExpression<A,B,C> &e)
     {
-      xx = e.eval<0,0>(); xy = e.eval<0,1>(); xz = e.eval<0,2>();
-      yx = e.eval<1,0>(); yy = e.eval<1,1>(); yz = e.eval<1,2>();
-      zx = e.eval<2,0>(); zy = e.eval<2,1>(); zz = e.eval<2,2>();
+      double newvals[3][3] 
+	= {{e.eval<0,0>(), e.eval<0,1>(), e.eval<0,2>()},
+	   {e.eval<1,0>(), e.eval<1,1>(), e.eval<1,2>()},
+	   {e.eval<2,0>(), e.eval<2,1>(), e.eval<2,2>()}};
+
+      xx = newvals[0][0]; xy = newvals[0][1]; xz = newvals[0][2];
+      yx = newvals[1][0]; yy = newvals[1][1]; yz = newvals[1][2];
+      zx = newvals[2][0]; zy = newvals[2][1]; zz = newvals[2][2];
       return *this;
     }
 
@@ -308,41 +313,19 @@ namespace magnet {
     // add-to assignment from an expression
     template<class A,int B,class C>
     inline MatrixExpression<>& MatrixExpression<>:: operator+=(const MatrixExpression<A,B,C> &e)
-    {
-      xx += e.eval<0,0>(); xy += e.eval<0,1>(); xz += e.eval<0,2>();
-      yx += e.eval<1,0>(); yy += e.eval<1,1>(); yz += e.eval<1,2>();
-      zx += e.eval<2,0>(); zy += e.eval<2,1>(); zz += e.eval<2,2>();
-      return *this;
-    }
+    { return (*this = *this + e); }
   
     // subtract-from assignment from an expression
     template<class A,int B,class C>
     inline MatrixExpression<>& MatrixExpression<>:: operator-=(const MatrixExpression<A,B,C> &e)
-    {
-      xx -= e.eval<0,0>(); xy -= e.eval<0,1>(); xz -= e.eval<0,2>();
-      yx -= e.eval<1,0>(); yy -= e.eval<1,1>(); yz -= e.eval<1,2>();
-      zx -= e.eval<2,0>(); zy -= e.eval<2,1>(); zz -= e.eval<2,2>();
-      return *this;
-    }
+    { return (*this = *this - e); }
 
     // multiply-by-matrix assignment from an expression
     template<class A,int B,class C>
     inline MatrixExpression<>& MatrixExpression<>::operator*=(const MatrixExpression<A,B,C> & m)
     {
-      MatrixExpression<> rhs(m);
-      double x = xx, y = xy;
-      xx *= rhs.xx; xx += y*rhs.yx+xz*rhs.zx;
-      xy *= rhs.yy; xy += x*rhs.xy+xz*rhs.zy;
-      xz *= rhs.zz; xz += x*rhs.xz+ y*rhs.yz;
-      x = yx; y = yy;
-      yx *= rhs.xx; yx += y*rhs.yx+yz*rhs.zx;
-      yy *= rhs.yy; yy += x*rhs.xy+yz*rhs.zy;
-      yz *= rhs.zz; yz += x*rhs.xz+ y*rhs.yz;
-      x = zx; y = zy;
-      zx *= rhs.xx; zx += y*rhs.yx+zz*rhs.zx;
-      zy *= rhs.yy; zy += x*rhs.xy+zz*rhs.zy;
-      zz *= rhs.zz; zz += x*rhs.xz+ y*rhs.yz;
-      return *this;
+      MatrixExpression<> rhs(*this * m);
+      return (*this = rhs);
     }
 
 
@@ -1030,9 +1013,9 @@ namespace magnet {
       if (theta != 0) {
 	double s(std::sin(theta)), c(std::cos(theta));
 	double inrm = 1/theta;
-	double wx = V.x*inrm;
-	double wy = V.y*inrm;
-	double wz = V.z*inrm;
+	double wx = V(0)*inrm;
+	double wy = V(1)*inrm;
+	double wz = V(2)*inrm;
 	double oneminusc = 1-c;
 	double wxwy1mc = wx*wy*oneminusc;
 	double wxwz1mc = wx*wz*oneminusc;
