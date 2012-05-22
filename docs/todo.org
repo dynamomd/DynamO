@@ -25,7 +25,6 @@
 **** TODO DynamO: Remove the Dynamics tags in the config.
 **** TODO DynamO: Check that the sentinel is correct in compressing systems.
 **** TODO DynamO: Rename the Liouvillean to Dynamics.
-**** TODO DynamO: Remove the requirement of a statically linked bzip2 or zlib library.
 **** TODO DynamO: Rewrite the range classes, make rings/chains take a single range too.
 **** TODO DynamO: Either remove correlators from DynamO, or fix them so that short correlators don't output NaN's!
 **** TODO DynamO: Alter the change system functions to take sharedptrs.
@@ -52,6 +51,7 @@
 *** DynamO 1.3
 **** DONE DynamO: 2D systems are now officially supported/maintained in DynamO.
 **** DONE DynamO/Coil: Visualisation no longer requires an OpenCL compatible graphics card! However, you do still need an OpenCL library installed.
+**** DONE DynamO: Removed the requirement of a statically linked bzip2 or zlib library.
 **** DONE Bugfix DynamO: Found the neighbourlists were not being correctly reinitialised, causing slowdowns and possible hangs in compressing systems (huge speed boost in compression).
 **** DONE Bugfix DynamO: Multi-core parallel tempering is now actually in parallel. Until now the code actually has been executing in serial.
 **** DONE Bugfix DynamO: Fixed a rare bug in compressing systems, where neighbourlists would be incorrectly sized after a compression.
