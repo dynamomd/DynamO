@@ -16,7 +16,6 @@
 **** TODO Coil: Reimplement DOF.
 **** TODO Coil: Reimplement SSAO.
 **** TODO DynamO: Move the morton ordered container out to its own type, and generalise the neighbour list further.
-**** TODO Magnet: Checkout the performance cost of always performing a copy on assign with the vector classes, as it might make for much more readable code.
 **** TODO Magnet: Move to quaternions for camera tracking.
 **** TODO DynamO: Make the output plugins much simpler. Put energy and everything else on by default.
 **** TODO DynamO: Put all of the cheap/free simulation data calculations into the misc output plugin, so that they don't have to be loaded and people have an interesting default output.xml.bz2.

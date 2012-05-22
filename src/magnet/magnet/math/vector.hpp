@@ -61,47 +61,59 @@ namespace magnet {
     class VectorExpression<>
     {
     public:
-      double x;                                  // elements of the vector
-      double y;
-      double z;
+      double _data[3];// elements of the vector
 
       inline VectorExpression<>() {}             // default constructor
 
       inline VectorExpression (double a, double b, double c)
-	: x(a), y(b), z(c) {}
+      { operator()(0) = a; operator()(1) = b; operator()(2) = c; }
 
       template<class T>
-      inline VectorExpression(const std::tr1::array<T, 3>& vec):
-	x(vec[0]), y(vec[1]), z(vec[2])	
-      {}
+      inline VectorExpression(const std::tr1::array<T, 3>& vec)
+      { for (size_t i(0); i < 3; ++i) operator()(i) = vec[i]; }
 
-      // constuctor from a vector expression
+      /*! \brief Constuctor from a vector expression.
+       */
       template<class A,int B,class C> 
-      inline VectorExpression(const VectorExpression<A, B, C> &e):
-	x(e.eval<0>()),
-	y(e.eval<1>()),
-	z(e.eval<2>())
-      {}
+      inline VectorExpression(const VectorExpression<A, B, C> &e)
+      { for (size_t i(0); i < 3; ++i) operator()(i) = e(i); }
 
       // assign zero to all elements
-      inline void zero() { x = y = z = 0;}
+      inline void zero() 
+      { 
+	for (size_t i(0); i < 3; ++i) 
+	  operator()(i) = 0;
+      }
 
-      inline double nrm2() const { return x*x+y*y+z*z; }
+      inline double nrm2() const 
+      { 
+	double sum(0);
+	for (size_t i(0); i < 3; ++i) 
+	  sum += operator()(i) * operator()(i);
+	return sum; 
+      }
       inline double nrm() const
       {
 	double biggest = maxElement();
+	double sqrbiggest = biggest * biggest;
+	double invsqrbiggest = 1.0 / sqrbiggest;
 	if (biggest!=0)
-	  return biggest * (double)(std::sqrt(SQR(x/biggest)
-					      +SQR(y/biggest)
-					      +SQR(z/biggest)));
+	  {
+	    double sum(0);
+	    for (size_t i(0); i < 3; ++i) 
+	      sum += invsqrbiggest * operator()(i) * operator()(i);
+	    return biggest * std::sqrt(sum);
+	  }
 	else
 	  return 0;
       }
 
-      inline double maxElement() const { return std::max(std::max(std::abs(x), std::abs(y)), std::abs(z)); }
+      inline double maxElement() const { return std::max(std::max(std::abs(_data[0]), std::abs(_data[1])), std::abs(_data[2])); }
 
-      inline double& operator()(int i) { return *(&x+i); }// return element i
-      inline const double& operator()(int i) const { return *(&x+i); }// return element i
+      inline double& operator()(size_t i) { return _data[i]; }
+      inline const double& operator()(size_t i) const { return _data[i]; }
+      inline double& operator[](size_t i) { return operator()(i); }
+      inline const double& operator[](size_t i) const { return operator()(i); }
 
       inline bool operator==(const VectorExpression<>& ovec) const
       {
@@ -114,47 +126,55 @@ namespace magnet {
       inline bool operator!=(const VectorExpression<>& ovec) const
       {	return !operator==(ovec); }
 
-      inline double& operator[](int i) { return *(&x+i); }// return element i
-      inline const double& operator[](int i) const { return *(&x+i); };
 
-      // assignment from an expression
-      template<class A,int B,class C> 
+      /*! \brief Assignment of vector from a vector expression.
+       */
+      template<class A,int B,class C>
       inline VectorExpression<>& operator=(const VectorExpression<A,B,C> &e)
-      { x = e.eval<0>(); y = e.eval<1>(); z = e.eval<2>(); return *this; }
+      { 
+	/* 
+	   Here, we take a copy of the expression result to stop
+	   expressions with *this vector on the RHS from having a race
+	   condition.
+	 */
+	double newvals[3] = {e.eval<0>(), e.eval<1>(), e.eval<2>()};
+
+	for (size_t i(0); i < 3; ++i) operator()(i) = newvals[i];
+	return *this; 
+      }
   
       // addto-assignment from an expression
       template<class A,int B,class C> 
       inline VectorExpression<>& operator+=(const VectorExpression<A,B,C> &e)
-      { x += e.eval<0>(); y += e.eval<1>(); z += e.eval<2>(); return *this; }
+      { return (*this = *this + e); }
 
 
       // subtract-from assignment from an expression
-      template<class A,int B,class C>
+      template<class A,int B,class C> 
       inline VectorExpression<>& operator-=(const VectorExpression<A,B,C> &e)
-      { x -= e.eval<0>(); y -= e.eval<1>(); z -= e.eval<2>(); return *this; }
+      { return (*this = *this - e); }
 
       // multiply-by assignment from an expression
       inline VectorExpression<>& operator*=(const double d)
-      { x *= d; y *= d; z *= d; return *this; }
+      { 
+	for (size_t i(0); i < 3; ++i) operator()(i) *= d;
+	return *this; 
+      }
   
       // divide-by assignment from an expression
       inline VectorExpression<>& operator/=(const double d)
-      { x /= d; y /= d; z /= d; return *this; }
+      { return (*this *= (1.0/d)); }
 
       // passive access to the elements through eval
-      template<int I> inline double eval() const;// template evaluation
+      template<int I> inline double eval() const { return _data[I]; }
       
       std::string toString() const
       {
 	std::ostringstream os;
-	os << "<" << x << "," << y << "," << z << ">";
+	os << "<" << _data[0] << "," << _data[1] << "," << _data[2] << ">";
 	return os.str();
       }
     };
-
-    template <> inline double VectorExpression<>::eval<0>() const { return x; }
-    template <> inline double VectorExpression<>::eval<1>() const { return y; }
-    template <> inline double VectorExpression<>::eval<2>() const { return z; }
 
     // definition of vector-matrix operations:
 
@@ -177,11 +197,7 @@ namespace magnet {
       double x=eval<0>();				\
       double y=eval<1>();				\
       double z=eval<2>();				\
-      double biggest=x<0?-x:x;				\
-      double absval=y<0?-y:y;				\
-      if (absval>biggest) biggest=absval;		\
-      absval=z<0?-z:z;					\
-      if (absval>biggest) biggest=absval;		\
+      double biggest= std::max(std::max(std::abs(x), std::abs(y)), std::abs(z)); \
       if (biggest!=0)					\
 	return biggest*(double)(sqrt(SQR(x/biggest)	\
 				     +SQR(y/biggest)	\
