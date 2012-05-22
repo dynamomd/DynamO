@@ -30,7 +30,7 @@ install: build_deps all
 	if [ -d ./lib ]; then mkdir -p $(DESTDIR)/usr/lib/; cp -R lib/* $(DESTDIR)/usr/lib/; fi
 	if [ -d ./include ]; then mkdir -p $(DESTDIR)/usr/include/; cp -R include/* $(DESTDIR)/usr/include/; fi
 
-distclean: build_deps
+distclean:
 	rm -Rf build-dir
 	rm -Rf src/boost
 
