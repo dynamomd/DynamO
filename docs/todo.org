@@ -21,9 +21,8 @@
 **** TODO DynamO: Put all of the cheap/free simulation data calculations into the misc output plugin, so that they don't have to be loaded and people have an interesting default output.xml.bz2.
 **** TODO DynamO: Look at a way of setting default workable parameters for mode 19.
 **** TODO DynamO: Remove the Dynamics class and move its functions into the SimData class.
-**** TODO DynamO: Remove the Dynamics tags in the config.
+**** TODO DynamO: Rename the Liouvillean Class to Dynamics.
 **** TODO DynamO: Check that the sentinel is correct in compressing systems.
-**** TODO DynamO: Rename the Liouvillean to Dynamics.
 **** TODO DynamO: Rewrite the range classes, make rings/chains take a single range too.
 **** TODO DynamO: Either remove correlators from DynamO, or fix them so that short correlators don't output NaN's!
 **** TODO DynamO: Alter the change system functions to take sharedptrs.
@@ -48,6 +47,7 @@
 **** TODO General: Check the version of Gtkmm, glut and any other dependent library on compile.
 **** TODO General: Write up the image distance class.
 *** DynamO 1.3
+**** DONE DynamO: The file format has been changed to get rid of the dynamics tag, and rename the Liouvillean tag to Dynamics instead (you will need to regenerate your config files).
 **** DONE DynamO: 2D systems are now officially supported/maintained in DynamO.
 **** DONE DynamO/Coil: Visualisation no longer requires an OpenCL compatible graphics card! However, you do still need an OpenCL library installed.
 **** DONE DynamO: Removed the requirement of a statically linked bzip2 or zlib library.

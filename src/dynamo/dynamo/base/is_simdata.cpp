@@ -31,7 +31,7 @@
 #include <iomanip>
 
 //! The configuration file version, a version mismatch prevents an XML file load.
-const char configFileVersion[] = "1.4.0";
+static const std::string configFileVersion("1.5.0");
 
 namespace dynamo
 {
@@ -102,20 +102,20 @@ namespace dynamo
 	  ;
     }
 
-    Node subNode= mainNode.getNode("Simulation");
+    Node simNode= mainNode.getNode("Simulation");
   
     //Don't fail if the MFT is not valid
     try {
-      if (subNode.hasAttribute("lastMFT"))
-	lastRunMFT = subNode.getAttribute("lastMFT").as<double>();
+      if (simNode.hasAttribute("lastMFT"))
+	lastRunMFT = simNode.getAttribute("lastMFT").as<double>();
     } catch (std::exception&)
       {}
 
-    ensemble = dynamo::Ensemble::getClass(subNode.getNode("Ensemble"), this);
+    ensemble = dynamo::Ensemble::getClass(simNode.getNode("Ensemble"), this);
 
     _properties << mainNode;
-    dynamics << mainNode;
-    ptrScheduler = Scheduler::getClass(subNode.getNode("Scheduler"), this);
+    dynamics << simNode;
+    ptrScheduler = Scheduler::getClass(simNode.getNode("Scheduler"), this);
 
     dynamics.getLiouvillean().loadParticleXMLData(mainNode);
   
@@ -182,8 +182,8 @@ namespace dynamo
 	<< magnet::xml::tag("Scheduler")
 	<< *ptrScheduler
 	<< magnet::xml::endtag("Scheduler")
-	<< magnet::xml::endtag("Simulation")
 	<< dynamics
+	<< magnet::xml::endtag("Simulation")
 	<< _properties;
 
     dynamics.getLiouvillean().outputParticleXMLData(XML, applyBC);

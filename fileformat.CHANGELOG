@@ -4,6 +4,10 @@ the file format is in use in the opening tag, e.g.,
 <DYNAMOconfig version="1.X.X">
 This file details the changes, and how to upgrade an old configuration.
 
+v1.5.0 - Removed the dynamics wrapper tags, so the dynamics class can
+         be removed at a later date, and renamed the liouvillean to
+         dynamics.
+
 v1.4.0 - Major overhaul of the XML file format. Binary sections
          disabled. Particle properties added. Aspect ratio and units
          removed, replaced with Simulation size tag. BoundedPQMinMax
