@@ -406,35 +406,31 @@ namespace dynamo {
   void
   Dynamics::operator<<(const magnet::xml::Node& XML)
   {
-    dout << "Loading dynamics from XML" << std::endl;
-  
-    magnet::xml::Node xDynamics = XML.getNode("Dynamics");
-
     //Load the Primary cell's size
-    Sim->primaryCellSize << xDynamics.getNode("SimulationSize");
+    Sim->primaryCellSize << XML.getNode("SimulationSize");
     Sim->primaryCellSize /= Sim->dynamics.units().unitLength();
 
     //Now load the BC
-    p_BC = BoundaryCondition::getClass(xDynamics.getNode("BC"), Sim);
+    p_BC = BoundaryCondition::getClass(XML.getNode("BC"), Sim);
   
-    if (xDynamics.hasNode("Topology"))
+    if (XML.hasNode("Topology"))
       {
 	size_t i(0);
-	for (magnet::xml::Node node = xDynamics.getNode("Topology").fastGetNode("Structure");
+	for (magnet::xml::Node node = XML.getNode("Topology").fastGetNode("Structure");
 	     node.valid(); ++node, ++i)
 	  topology.push_back(Topology::getClass(node, Sim, i));
       }
   
     { 
       size_t i(0);
-      for (magnet::xml::Node node = xDynamics.getNode("Genus").fastGetNode("Species");
+      for (magnet::xml::Node node = XML.getNode("Genus").fastGetNode("Species");
 	   node.valid(); ++node, ++i)
 	species.push_back(Species::getClass(node, Sim, i));
     }
 
-    p_liouvillean = Liouvillean::getClass(xDynamics.getNode("Liouvillean"), Sim);
+    p_liouvillean = Liouvillean::getClass(XML.getNode("Dynamics"), Sim);
   
-    for (magnet::xml::Node node = xDynamics.getNode("Interactions").fastGetNode("Interaction");
+    for (magnet::xml::Node node = XML.getNode("Interactions").fastGetNode("Interaction");
 	 node.valid(); ++node)
       interactions.push_back(Interaction::getClass(node, Sim));
   
@@ -447,18 +443,18 @@ namespace dynamo {
 	  break;
 	}
   
-    if (xDynamics.hasNode("Globals"))
-      for (magnet::xml::Node node = xDynamics.getNode("Globals").fastGetNode("Global"); 
+    if (XML.hasNode("Globals"))
+      for (magnet::xml::Node node = XML.getNode("Globals").fastGetNode("Global"); 
 	   node.valid(); ++node)
 	globals.push_back(Global::getClass(node, Sim));
 
-    if (xDynamics.hasNode("Locals"))
-      for (magnet::xml::Node node = xDynamics.getNode("Locals").fastGetNode("Local"); 
+    if (XML.hasNode("Locals"))
+      for (magnet::xml::Node node = XML.getNode("Locals").fastGetNode("Local"); 
 	   node.valid(); ++node)
 	locals.push_back(Local::getClass(node, Sim));
   
-    if (xDynamics.hasNode("SystemEvents"))
-      for (magnet::xml::Node node = xDynamics.getNode("SystemEvents").fastGetNode("System"); 
+    if (XML.hasNode("SystemEvents"))
+      for (magnet::xml::Node node = XML.getNode("SystemEvents").fastGetNode("System"); 
 	   node.valid(); ++node)
 	systems.push_back(System::getClass(node, Sim));
   }
@@ -466,8 +462,7 @@ namespace dynamo {
   void
   Dynamics::outputXML(magnet::xml::XmlStream &XML) const
   {
-    XML << magnet::xml::tag("Dynamics")
-	<< magnet::xml::tag("SimulationSize")
+    XML << magnet::xml::tag("SimulationSize")
 	<< Sim->primaryCellSize / Sim->dynamics.units().unitLength()
 	<< magnet::xml::endtag("SimulationSize")
 	<< magnet::xml::tag("BC")
@@ -517,9 +512,8 @@ namespace dynamo {
 	  << magnet::xml::endtag("Interaction");
   
     XML << magnet::xml::endtag("Interactions")
-	<< magnet::xml::tag("Liouvillean")
+	<< magnet::xml::tag("Dynamics")
 	<< *p_liouvillean
-	<< magnet::xml::endtag("Liouvillean")
 	<< magnet::xml::endtag("Dynamics");
   }
 

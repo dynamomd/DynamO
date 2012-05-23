@@ -1,7 +1,6 @@
 /*  dynamo:- Event driven molecular dynamics simulator 
     http://www.dynamomd.org
-    Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
-    Copyright (C) 2011  Severin Strobl <-->
+    Copyright (C) 2012  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
     This program is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -46,7 +45,7 @@ namespace magnet {
 	if (_outputFile.is_open())
 	  M_throw() << "Trying to open a video file when one is already being outputted!";
     
-      	_outputBufferSize = 500000;
+      	_outputBufferSize = 10000000;
 	_frameCounter = 0;
 	_fps = fps;
 	_inputWidth = width;
