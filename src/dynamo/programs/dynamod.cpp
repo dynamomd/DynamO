@@ -47,11 +47,11 @@ main(int argc, char *argv[])
   try 
     {
       po::options_description allopts("General Options"), loadopts("Load Config File Options"),
-	hiddenopts("Packing Mode Options (description of each for each mode is given by --packer-mode-help)"),
+	hiddenopts,
 	helpOpts;
 
       allopts.add_options()
-	("help,h", "Produces this message OR if --packer-mode/-m is set, it lists the specific options available for that packer mode.")
+	("help,h", "Produces this message OR if --pack-mode/-m is set, it lists the specific options available for that packer mode.")
 	("out-config-file,o", 
 	 po::value<string>()->default_value("config.out.xml.bz2"), 
 	 "Configuration output file.")
@@ -101,6 +101,18 @@ main(int argc, char *argv[])
 	("f5", po::value<double>(), "double option five.")
 	("f6", po::value<double>(), "double option six.")
 	("f7", po::value<double>(), "double option seven.")
+	("NCells,C", po::value<unsigned long>()->default_value(7),
+	 "Default number of unit cells per dimension, used for crystal packing of particles.")
+	("xcell,x", po::value<unsigned long>(),
+	 "Number of unit cells in the x dimension.")
+	("ycell,y", po::value<unsigned long>(),
+	 "Number of unit cells in the y dimension.")
+	("zcell,z", po::value<unsigned long>(),
+	 "Number of unit cells in the z dimension.")
+	("rectangular-box", "Force the simulation box to be deformed so "
+	 "that the x,y,z cells also specify the box aspect ratio.")
+	("density,d", po::value<double>()->default_value(0.5),
+	 "System number density.")
 	;
 
       allopts.add(hiddenopts);
@@ -113,11 +125,11 @@ main(int argc, char *argv[])
 		options(allopts).positional(p).run(), vm);
       po::notify(vm);
       
-      if ((!vm.count("packer-mode")
+      if ((!vm.count("pack-mode")
 	   && (vm.count("help") || !vm.count("config-file"))))
 	{
 	  cout << "Usage : dynamod <OPTIONS>...[CONFIG FILE]\n"
-	       << " Either modifies a config file (if a file name is passed as an argument) OR generates a new config file depending on the packing mode (if --packer-mode/-m is used).\n" 
+	       << " Either modifies a config file (if a file name is passed as an argument) OR generates a new config file depending on the packing mode (if --pack-mode/-m is used).\n" 
 	       << helpOpts;
 	  return 1;
 	}
@@ -133,8 +145,8 @@ main(int argc, char *argv[])
 	  plug.initialise();
 
 	  //We don't zero momentum and rescale for certain packer modes
-	  if ((vm["packer-mode"].as<size_t>() != 23)
-	      && (vm["packer-mode"].as<size_t>() != 25))
+	  if ((vm["pack-mode"].as<size_t>() != 23)
+	      && (vm["pack-mode"].as<size_t>() != 25))
 	    {
 	      dynamo::InputPlugin(&sim, "Rescaler").zeroMomentum();
 	      dynamo::InputPlugin(&sim, "Rescaler").rescaleVels(1.0);
