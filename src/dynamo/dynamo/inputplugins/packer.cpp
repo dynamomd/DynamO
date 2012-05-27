@@ -77,53 +77,38 @@ namespace dynamo {
   {
     po::options_description retval("Packer options");
 
-    const char* packerOpts =
-      "Chooses the system to pack (construct)"
-      "\nPacker Modes:"
-      "\n0:  Monocomponent hard spheres"
-      "\n1:  Mono/Multi-component square wells"
-      "\n2:  Random walk of an isolated attractive polymer"
-      "\n3:  Load a config and pack it, you will need to reset the interactions etc."
-      "\n4:  Monocomponent (in)elastic hard spheres in LEBC (shearing)"
-      "\n5:  Walk an isolated spiral/helix"
-      "\n6:  Monocomponent hard spheres confined by two walls, aspect ratio is set by the number of cells"
-      "\n7:  Ring/Linear polymer, dropped as a straight rod"
-      "\n8:  Binary Hard Spheres"
-      "\n9:  Hard needle system"
-      "\n10: Monocomponent hard spheres using DSMC interactions"
-      "\n11: (DEPRECATED) Monocomponent hard spheres sheared using DSMC interactions"
-      "\n12: Binary hard spheres using DSMC interactions"
-      "\n13: Crystal pack of sheared lines"
-      "\n14: Packing of spheres and linear rods made from stiff polymers"
-      "\n15: Monocomponent hard-parallel cubes"
-      "\n16: Stepped Potential"
-      "\n17: Monocomponent hard spheres using Ring DSMC interactions"
-      "\n18: (DEPRECATED) Monocomponent sheared hard spheres using Ring DSMC interactions"
-      "\n19: Oscillating plates bounding a system"
-      "\n20: Load a set of triangles and plate it with spheres"
-      "\n21: Pack a cylinder with spheres"
-      "\n22: Infinite system with spheres falling onto a plate with gravity"
-      "\n23: Funnel test for static spheres in gravity"
-      "\n24: Random walk of an isolated MJ model polymer"
-      "\n25: Funnel and cup simulation (with sleepy particles)"
-      "\n26: Polydisperse (Gaussian) hard spheres in LEBC (shearing)"
-      ;
-
     retval.add_options()
-      ("packer-mode,m", po::value<size_t>(), packerOpts)
-      ("NCells,C", po::value<unsigned long>()->default_value(7),
-       "Default number of unit cells per dimension, used for crystal packing of particles.")
-      ("xcell,x", po::value<unsigned long>(),
-       "Number of unit cells in the x dimension.")
-      ("ycell,y", po::value<unsigned long>(),
-       "Number of unit cells in the y dimension.")
-      ("zcell,z", po::value<unsigned long>(),
-       "Number of unit cells in the z dimension.")
-      ("rectangular-box", "Force the simulation box to be deformed so "
-       "that the x,y,z cells also specify the box aspect ratio.")
-      ("density,d", po::value<double>()->default_value(0.5),
-       "System number density.")
-      ;
+      ("pack-mode,m", po::value<size_t>(),
+       "Chooses the system to pack (construct)"
+       "\nPacker Modes:"
+       "\n0:  Monocomponent hard spheres"
+       "\n1:  Mono/Multi-component square wells"
+       "\n2:  Random walk of an isolated attractive polymer"
+       "\n3:  Load a config and pack it, you will need to reset the interactions etc."
+       "\n4:  Monocomponent (in)elastic hard spheres in LEBC (shearing)"
+       "\n5:  Walk an isolated spiral/helix"
+       "\n6:  Monocomponent hard spheres confined by two walls, aspect ratio is set by the number of cells"
+       "\n7:  Ring/Linear polymer, dropped as a straight rod"
+       "\n8:  Binary Hard Spheres"
+       "\n9:  Hard needle system"
+       "\n10: Monocomponent hard spheres using DSMC interactions"
+       "\n11: (DEPRECATED) Monocomponent hard spheres sheared using DSMC interactions"
+       "\n12: Binary hard spheres using DSMC interactions"
+       "\n13: Crystal pack of sheared lines"
+       "\n14: Packing of spheres and linear rods made from stiff polymers"
+       "\n15: Monocomponent hard-parallel cubes"
+       "\n16: Stepped Potential"
+       "\n17: Monocomponent hard spheres using Ring DSMC interactions"
+       "\n18: (DEPRECATED) Monocomponent sheared hard spheres using Ring DSMC interactions"
+       "\n19: Oscillating plates bounding a system"
+       "\n20: Load a set of triangles and plate it with spheres"
+       "\n21: Pack a cylinder with spheres"
+       "\n22: Infinite system with spheres falling onto a plate with gravity"
+       "\n23: Funnel test for static spheres in gravity"
+       "\n24: Random walk of an isolated MJ model polymer"
+       "\n25: Funnel and cup simulation (with sleepy particles)"
+       "\n26: Polydisperse (Gaussian) hard spheres in LEBC (shearing)"
+       );
 
     return retval;
   }
@@ -136,18 +121,27 @@ namespace dynamo {
     //Set the default Boundary Conditions
     Sim->dynamics.applyBC<BCPeriodic>();
 
-    switch (vm["packer-mode"].as<size_t>())
+    std::string defaultOptionText = 
+      " Options\n"
+      "  -C [ --NCells ] arg (=7)    Set the default number of lattice unit-cells in each direction.\n"
+      "  -x [ --xcell ] arg          Number of unit-cells in the x dimension.\n"
+      "  -y [ --ycell ] arg          Number of unit-cells in the y dimension.\n"
+      "  -z [ --zcell ] arg          Number of unit-cells in the z dimension.\n"
+      "  --rectangular-box           Set the simulation box to be rectangular so that the x,y,z cells also specify the simulation aspect ratio.\n"
+      "  -d [ --density ] arg (=0.5) System density.\n"
+      "  --i1 arg (=FCC)             Lattice type (0=FCC, 1=BCC, 2=SC)\n";
+
+    switch (vm["pack-mode"].as<size_t>())
       {
       case 0:
 	{
 	  if (vm.count("help"))
 	    {
 	      std::cout<<
-		"Mode specific options:\n"
-		"  0:  Monocomponent hard spheres\n"
-		"       --f1 : Sets the elasticity of the hard spheres\n"
-		"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-		"       --i2 : Adds a temperature rescale event every x events\n";
+		"\nMode 0: Monocomponent hard spheres\n"
+		       << defaultOptionText << 
+		"  --i2 arg (disabled)         Adds a temperature rescale event every x events\n"
+		"  --f1 arg (=1.0)             Sets the elasticity of the hard spheres\n";
 	      exit(1);
 	    }
 	  //Pack of hard spheres
@@ -235,13 +229,11 @@ namespace dynamo {
 	  if (vm.count("help"))
 	    {
 	      std::cout<<
-		"Mode specific options:\n"
-		"  1:  Mono/Multi-component square wells\n"
-		"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-		"       --f1 : Lambda [1.5] (well width factor)\n"
-		"       --f2 : Well Depth (negative for square shoulders) [1]\n"
-		"       --s1 : Instead of f1 and f2, you can specify a multicomponent system using this option.\n"
-		"              Write \"diameter(d),lambda(l),mass(m),welldepth(e),molefrac(x):d,l,m,e,x[:...]\"\n";
+		"\nMode 1: Mono/Multi-component square wells\n"
+		       << defaultOptionText << 
+		"  --f1 arg (=1.5)             Well width factor (also known as lambda)\n"
+		"  --f2 arg (=1)               Well Depth (negative values create square shoulders)\n"
+		"  --s1 arg (monocomponent)    Instead of f1 and f2, you can specify a multicomponent system using this option. You need to pass the the parameters for each species as follows --s1 \"diameter(d),lambda(l),mass(m),welldepth(e),molefrac(x):d,l,m,e,x[:...]\"\n";
 	      exit(1);
 	    }
 	  //Pack of square well molecules
@@ -417,14 +409,13 @@ namespace dynamo {
 	  if (vm.count("help"))
 	    {
 	      std::cout<<
-		"Mode specific options:\n"
-		"  2:  Random walk of an isolated attractive polymer\n"
-		"       --i1 : Chain length [20]\n"
-		"       --f1 : Diameter [1.6]\n"
-		"       --f2 : Well width factor [1.5]\n"
-		"       --f3 : Bond inner core [0.9]\n"
-		"       --f4 : Bond outer well [1.1]\n"
-		"       --s1 : HP sequence to use (eg 0001010) [defaults to homopolymer if unset]\n";
+		"\nMode 2: Create an isolated, homo or HP polymer using a random self-avoiding walk\n"
+		"  --i1 arg (=20)              Chain length (No. of monomers)\n"
+		"  --f1 arg (=1.6)             Monomer diameter\n"
+		"  --f2 arg (=1.5)             Monomer well width factor (also called lambda)\n"
+		"  --f3 arg (=0.9)             Bond inner core\n"
+		"  --f4 arg (=1.1)             Bond outer well\n"
+		"  --s1 arg (homopolymer)      HP sequence to use (eg 0001010), defaults to homopolymer if unset\n";
 	      exit(1);
 	    }
 	  //Random walk an isolated attractive homopolymer
@@ -557,19 +548,21 @@ namespace dynamo {
 	  if (vm.count("help"))
 	    {
 	      std::cout<<
-		"Mode specific options:\n"
-		"  3:  Load a config and pack it, you will need to reset the interactions etc.\n"
-		"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-		"       --f1 : Chiral fraction (0-1) [Unloaded]\n"
-		"       --s1 : File to load and use as unit cell [config.out.xml.bz2]\n";
+		"\nMode 3: Takes an existing configuration and packs images of it on a lattice (useful for packing polymers and other complex molecules)\n"
+		"        BE WARNED: It is very easy to produce overlaps with this mode if the density is too high!"
+		       << defaultOptionText <<
+		"  --s1 arg                    Filename of the configuration to use as the image\n"
+		"  --f1 arg (=0)               Fraction of images that are mirrored before placement (from 0.0 to 1.0)\n";
 	      exit(1);
 	    }
 	  //This packs a system using a file for the unit cell, the
 	  //density should just be adjusted by hand
-	  std::string fileName("config.out.xml.bz2");
+	  std::string fileName;
 
-	  if (vm.count("s1"))
-	    fileName = vm["s1"].as<std::string>();
+	  if (!vm.count("s1"))
+	    M_throw() << "You must specify the config file to pack using the --s1 option!";
+
+	  fileName = vm["s1"].as<std::string>();
 
 	  //Just load the existing configuration
 	  Sim->loadXMLfile(fileName);
@@ -607,8 +600,13 @@ namespace dynamo {
 	      std::tr1::dynamic_pointer_cast<ICapture>(ptr)->forgetXMLCaptureMap();
 	  
 	  //Use the mirror unit cell if needed
-	  if (vm.count("f1"))
-	    tmpPtr = new CUMirror(vm["f1"].as<double>(), tmpPtr);
+	  if (vm.count("f1") && (vm["f1"].as<double>() != 0))
+	    {
+	      if ((vm["f1"].as<double>() < 0) || (vm["f1"].as<double>() > 1))
+		M_throw() << "You must specify a chiral fraction between 0.0 and 1.0";
+	      
+	      tmpPtr = new CUMirror(vm["f1"].as<double>(), tmpPtr);
+	    }
 
 	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(tmpPtr));
 	  packptr->initialise();
@@ -631,10 +629,9 @@ namespace dynamo {
 	  if (vm.count("help"))
 	    {
 	      std::cout<<
-		"Mode specific options:\n"
-		"  4:  Monocomponent (in)elastic hard spheres in LEBC (shearing)\n"
-		"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-		"       --f1 : Inelasticity [1.0]\n";
+		"\nMode 4: Monocomponent (in)elastic hard spheres in LEBC (shearing)\n"
+		       << defaultOptionText << 
+		"  --f1 arg (=1.0)             Sets the elasticity of the hard spheres\n";
 	      exit(1);
 	    }
 	  //FCC simple cubic pack of hard spheres with inelasticity and shearing
@@ -701,15 +698,15 @@ namespace dynamo {
 	  if (vm.count("help"))
 	    {
 	      std::cout<<
-		"Mode specific options:\n"
-		"  5:  Walk an isolated spiral/helix\n"
-		"       --i1 : Chain length [20]\n"
-		"       --i2 : Ring length (atoms in one spiral turn)[9]\n"
-		"       --f1 : Diameter [1.6]\n"
-		"       --f2 : Well width factor [1.5]\n"
-		"       --f3 : Bond inner core (>0) [0.9]\n"
-		"       --f4 : Bond outer well (>0) [1.1]\n"
-		"       --f5 : Tightness of the helix, 0 is max closeness (0-1) [0.05]\n";
+		"\nMode 5: Create an isolated, homopolymer using a spiraling walk\n"
+		"\nMode 2: Random walk of an isolated  attractive or HP polymer\n"
+		"  --i1 arg (=20)              Chain length (No. of monomers)\n"
+		"  --i2 arg (=9)               Ring length (monomers in one turn of the spiral)\n"
+		"  --f1 arg (=1.6)             Monomer diameter\n"
+		"  --f2 arg (=1.5)             Monomer well width factor (also called lambda)\n"
+		"  --f3 arg (=0.9)             Bond inner core\n"
+		"  --f4 arg (=1.1)             Bond outer well\n"
+		"  --f5 arg (=0.05)            Relative tightness of the helix (0 is as close as possible, 1 is as far apart as possible)\n";
 	      exit(1);
 	    }
 	  //Helix/spiral layout of molecules
