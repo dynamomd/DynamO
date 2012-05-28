@@ -5,6 +5,14 @@
 
 * Code improvements
 ** Version Milestones
+*** Tutorials
+**** Editing the configuration file, Sheared inelastic hard spheres.
+     Talk about extending to any system you like, how you need to edit
+     the file and take bits from the examples for this.
+**** Compression and packing of polymers.
+**** Advanced data collection, Binary hard spheres.
+**** (Appendix) How to read the configuration files in scripts or C++
+**** (Appendix) How to use the visualiser (Video)
 *** DynamO Future
 **** TODO DynamO: Make compression work with polydisperse walls.
 **** TODO DynamO: Allow replica exchanges in collisions.
