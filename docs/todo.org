@@ -14,46 +14,51 @@
 **** (Appendix) How to read the configuration files in scripts or C++
 **** (Appendix) How to use the visualiser (Video)
 *** DynamO Future
+**** TODO DynamO: Replica exchange cleanup
+***** TODO DynamO: Allow replica exchanges in collisions.
+***** TODO DynamO: Remove the unusual replica exchange modes and simplify to just one. Also put the up and down swap ratios in the data.
+***** TODO DynamO: Find out why the replica exchange Cv can be negative, averaging error?
 **** TODO DynamO: Make compression work with polydisperse walls.
-**** TODO DynamO: Allow replica exchanges in collisions.
 **** TODO DynamO: Currently, if we have square well chains, all of the linked monomers also appear in the capture map! This will artificially increase the energy of the base configuration, we need to check that the capture interaction is the valid interaction for the pair tested.
 **** TODO Coil: Make the volume render images locatable anywhere in space to allow conversions from datasets to volumes.
 **** TODO Coil: Make coil scale independent.
-**** TODO Coil: Reimplement shadow mapping.
-**** TODO Coil: Reimplement bloom.
-**** TODO Coil: Reimplement DOF.
-**** TODO Coil: Reimplement SSAO.
+**** TODO Coil: Visual Effects Improvement
+***** TODO Coil: crepuscular rays.
+***** TODO Coil: Make the viewing grid have a scalable box size.
+***** TODO Coil: Reimplement shadow mapping.
+***** TODO Coil: Reimplement bloom.
+***** TODO Coil: Reimplement DOF.
+***** TODO Coil: Reimplement SSAO.
 **** TODO DynamO: Move the morton ordered container out to its own type, and generalise the neighbour list further.
-**** TODO Magnet: Move to quaternions for camera tracking.
-**** TODO DynamO: Make the output plugins much simpler. Put energy and everything else on by default.
-**** TODO DynamO: Put all of the cheap/free simulation data calculations into the misc output plugin, so that they don't have to be loaded and people have an interesting default output.xml.bz2.
-**** TODO DynamO: Look at a way of setting default workable parameters for mode 19.
-**** TODO DynamO: Remove the Dynamics class and move its functions into the SimData class.
-**** TODO DynamO: Rename the Liouvillean Class to Dynamics.
+**** TODO DynamO: Revisit all of the old output plugins.
+***** TODO DynamO: Add a average and current system momentum to the misc output plugin (replace the mutual diffusion correlators calculation of it, and anyone elses).
+***** TODO DynamO: Either remove correlators from DynamO, or fix them so that short correlators don't output NaN's!
+***** TODO DynamO: Make the output plugins much simpler.
+***** TODO DynamO: Put all of the cheap/free simulation data calculations into the misc output plugin, so that they don't have to be loaded and people have an interesting default output.xml.bz2.
+***** TODO DynamO: Remove the KEnergy and UEnergy plugins, convert dynahistrw and other scripts to this new format.
+**** TODO DynamO: Look at a way of setting default workable parameters for packing mode 19.
+**** TODO DynamO: Removal of the Dynamics class
+***** TODO DynamO: Remove the Dynamics class and move its functions into the SimData class.
+***** TODO DynamO: Rename the Liouvillean Class to Dynamics.
 **** TODO DynamO: Check that the sentinel is correct in compressing systems.
 **** TODO DynamO: Rewrite the range classes, make rings/chains take a single range too.
-**** TODO DynamO: Either remove correlators from DynamO, or fix them so that short correlators don't output NaN's!
 **** TODO DynamO: Alter the change system functions to take sharedptrs.
-**** TODO DynamO: Collapse the schedulers to just the complex scheduler.
-**** TODO DynamO: Make the complex scheduler the default scheduler!
-**** TODO DynamO: Optimized triangle meshes by inserting them into the neighbor lists.
+**** TODO DynanO: Scheduler Rewrite
+***** TODO DynamO: Collapse the schedulers to just the complex scheduler.
+***** TODO DynamO: Make the complex scheduler the default scheduler!
+**** TODO DynamO: Triangle Meshes
+***** TODO Optimize triangle meshes (a new neighbour list?).
+***** TODO Make test cases for the triangle.
 **** TODO DynamO: Make a test for an invalid state in locals, globals and interactions (for particle insertion).
 **** TODO DynamO: Auto detect the ensemble, users shouldn't have to specify it.
 **** TODO DynamO: Add the gravity version of the sphere-sphere-out test. Fix and check that the umbrella implementation is general.
-**** TODO DynamO: Add a average and current system momentum to the misc output plugin (replace the mutual diffusion correlators calculation of it, and anyone elses).
-**** TODO DynamO: Find out why the replica exchange Cv can be negative, averaging error?
-**** TODO DynamO: Remove the unusual replica exchange modes and simplify to just one. Also put the up and down swap ratios in the data.
-**** TODO DynamO: Make the capture maps initialise using the neighbourlist (blocking on generalised scheduler).
-**** TODO Coil: Replace freeglut with your own implementation to fix the whole debacle of GL context management and deleting resources. 
+**** TODO Coil: Code cleanups
+***** TODO Coil: Replace freeglut with your own implementation to fix the whole debacle of GL context management and deleting resources. 
 ***** TODO Coil: Fix the dummy vertex array object mess.
-**** TODO Coil: State change tracking for glBlendFunc.
-**** TODO Coil: Make a generic render object container class (which is a render object), sort out object deletion or just fully separate the GTK and render interfaces.
-**** TODO Coil: Make a GL engine to put into magnet.
-**** TODO Coil: crepuscular rays.
-**** TODO Coil: Make the viewing grid have a scalable box size.
-**** TODO Coil: Look at CL/GL synchronisation objects for coil.
-**** TODO General: Check the version of Gtkmm, glut and any other dependent library on compile.
-**** TODO General: Write up the image distance class.
+***** TODO Coil: State change tracking for glBlendFunc.
+***** TODO Coil: Make a generic render object container class (which is a render object), sort out object deletion or just fully separate the GTK and render interfaces.
+***** TODO Coil: Make a GL engine to put into magnet.
+***** TODO Coil: Look at CL/GL synchronisation objects for coil.
 *** DynamO 1.3
 **** DONE DynamO: The file format has been changed to get rid of the dynamics tag, and rename the Liouvillean tag to Dynamics instead (you will need to regenerate your config files).
 **** DONE DynamO: 2D systems are now officially supported/maintained in DynamO.
