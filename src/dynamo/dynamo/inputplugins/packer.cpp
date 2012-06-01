@@ -3345,6 +3345,32 @@ namespace dynamo {
 	  double particleDiam = pow(simVol * vm["density"].as<double>()
 				    / latticeSites.size(), double(1.0 / 3.0));
 
+	  if (vm.count("rectangular-box") && (vm.count("i1") && vm["i1"].as<size_t>() == 2))
+	    {
+	      std::tr1::array<long, 3> cells = getCells();
+	      if ((cells[0] == 1) || (cells[1] == 1) || (cells[2] == 1))
+		{
+		  derr << "Warning! Now assuming that you're trying to set up a 2D simulation!\n"
+		    "I'm going to temporarily calculate the density by the 2D definition!" << std::endl;
+		
+		  size_t dimension;
+		  if (cells[0] == 1)
+		    dimension = 0;
+		  if (cells[1] == 1)
+		    dimension = 1;
+		  if (cells[2] == 1)
+		    dimension = 2;
+
+		  particleDiam = std::sqrt(simVol * vm["density"].as<double>()
+					   / (Sim->primaryCellSize[dimension] * latticeSites.size()));		
+		
+		  dout << "I'm changing what looks like the unused box dimension (" 
+		       << dimension << ") to the smallest value allowed by the neighbourlist implementation (slightly more than 4 particle diameters)" << std::endl;
+
+		  Sim->primaryCellSize[dimension] = 4.0000001 * particleDiam;
+		}
+	    }
+
 	  double elasticity = 1.0;
 
 	  if (vm.count("f1"))
