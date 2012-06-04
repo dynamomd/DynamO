@@ -72,9 +72,7 @@ namespace dynamo
      */
     SimData();
     
-    /*! \brief Adds an output plugin of the type T.
-     
-      Throws an exception if there's already the same plugin loaded.
+    /*! \brief Finds a plugin of the given type using RTTI.
      */
     template<class T>
     shared_ptr<const T> getOutputPlugin() const
@@ -88,9 +86,6 @@ namespace dynamo
     }
 
     /*! \brief Finds a plugin of the given type using RTTI.
-     
-      Shouldn't use this frequently as its expensive, throws an
-      exception if it can't find the plugin.
      */
     template<class T>
     shared_ptr<T> getOutputPlugin()

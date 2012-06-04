@@ -166,7 +166,7 @@ namespace dynamo {
 	BOOST_FOREACH(const locpair& p1, liouvillean.getMap())
 	  XML << magnet::xml::tag("W")
 	      << magnet::xml::attr("Energy")
-	      << p1.first * intEnergyHist.getBinWidth() * Sim->dynamics.units().unitEnergy()
+	      << p1.first * liouvillean.getEnergyStep() * Sim->dynamics.units().unitEnergy()
 	      << magnet::xml::attr("Value") << p1.second
 	      << magnet::xml::endtag("W");
 	

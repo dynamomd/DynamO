@@ -97,6 +97,11 @@ namespace dynamo {
   void LNewtonianMC::initialise()
   {
     LNewtonian::initialise();
+    
+    //Confirm that the energy output plugin is available
+    
+    if (!(Sim->getOutputPlugin<OPUEnergy>()))
+      M_throw() << "Multicanonical dynamics requires the UEnergy plugin";
   }
 
 
