@@ -143,7 +143,8 @@ namespace dynamo {
   
     if (dynamics.BCTypeTest<BCPeriodic>()
 	|| dynamics.BCTypeTest<BCPeriodicExceptX>()
-	|| dynamics.BCTypeTest<BCPeriodicXOnly>())
+	|| dynamics.BCTypeTest<BCPeriodicXOnly>()
+	|| dynamics.BCTypeTest<BCLeesEdwards>())
       dynamics.addGlobal(shared_ptr<Global>(new GPBCSentinel(this, "PBCSentinel")));
 
     BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)
