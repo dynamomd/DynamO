@@ -64,7 +64,12 @@ namespace dynamo {
     SeqSelect(false),
     nSims(0),
     peekMode(false)
-  {}
+  {
+    if (vm["events"].as<unsigned long long>() != std::numeric_limits<unsigned long long>::max())
+      M_throw() << "You cannot use collisions to control a replica exchange simulation\n"
+		<< "See the following DynamO issue: https://github.com/toastedcrumpets/DynamO/issues/new\n";
+  }
+
 
   void
   EReplicaExchangeSimulation::initialisation()
