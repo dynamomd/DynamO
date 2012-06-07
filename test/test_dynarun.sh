@@ -52,11 +52,11 @@ function HS_replex_test {
     done
 
     #Equilibration
-    time ./dynarun --engine 2 $2 -c 10000000000 -i 10 -f 100 \
+    time ./dynarun --engine 2 $2 -i 10 -f 100 \
 	config.*.start.xml.bz2 > /dev/null
     
     #Production
-    time ./dynarun --engine 2 $2 -c 10000000000 -i 10 -f 200 \
+    time ./dynarun --engine 2 $2 -i 10 -f 200 \
 	-L KEnergy config.*.end.xml.bz2 > /dev/null
 
     if [ ! -e "output.0.xml.bz2" ]; then
