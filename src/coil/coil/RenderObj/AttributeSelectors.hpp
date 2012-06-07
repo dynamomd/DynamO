@@ -39,12 +39,14 @@ namespace coil {
 
     magnet::GL::Buffer<GLfloat>& getBuffer();
 
+    size_t getComponentCount();
+
     virtual void bindAttribute(size_t attrnum, size_t divisor = 1)
     {
       if (singleValueMode())
 	setConstantAttribute(attrnum);
       else
-	getBuffer().attachToAttribute(attrnum, 1, divisor);
+	getBuffer().attachToAttribute(attrnum, getComponentCount(), divisor);
     }
 
     virtual std::vector<GLfloat> getValue(size_t id)
