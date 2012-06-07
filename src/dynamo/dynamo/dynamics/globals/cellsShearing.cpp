@@ -223,7 +223,7 @@ namespace dynamo {
 	  dim2 = (cellDirection + 2) % 3;
 
 	newNBCell[dim1] += cellCount[dim1] - overlink;
-	newNBCell[dim2] += cellCount[dim1] - overlink;
+	newNBCell[dim2] += cellCount[dim2] - overlink;
   
 	size_t walkLength = 2 * overlink + 1;
 
