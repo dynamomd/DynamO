@@ -38,7 +38,7 @@ namespace magnet {
     class VideoEncoder
     {
     public:
-      ~VideoEncoder() { close(); }
+      ~VideoEncoder(): _h264(true) { close(); }
 
       void open(std::string filename, const size_t width, const size_t height, size_t fps = 25)
       {
@@ -62,11 +62,10 @@ namespace magnet {
 
 	initialiseLibrary();
 
-	bool h264 = true;
 	AVCodec* _codec = avcodec_find_encoder(CODEC_ID_H264);
 	if (!_codec) 
 	  {
-	    h264 = false;
+	    _h264 = false;
 	    std::cerr << "\nWARNING: Cannot open the H264 codec (try installing libx264), falling back to the MPEG2 codec.\n";
 	    _codec = avcodec_find_encoder(CODEC_ID_MPEG2VIDEO);
 	    if (!_codec) 
@@ -82,12 +81,13 @@ namespace magnet {
 	_context->bit_rate = 500000;
 	_context->width = _videoWidth;
 	_context->height = _videoHeight;
-	_context->time_base= (AVRational){1,_fps};
+	_context->time_base.num = 1;
+	_context->time_base.den = _fps;
 	_context->pix_fmt = PIX_FMT_YUV420P;
 	//Make the buffer and rates as large as needed
 	_context->rc_max_rate = 0;
 	_context->rc_buffer_size = 0;
-	if (h264)
+	if (_h264)
 	  {
 	    _context->max_b_frames=0;
 	    _context->profile= FF_PROFILE_H264_BASELINE;
@@ -155,7 +155,8 @@ namespace magnet {
 	}
 
 	/* Set the presentation time correctly, to remove the warning */
-	_picture->pts = (1000 * 90 / _fps) * _frameCounter++;
+	if (_h264)
+	  _picture->pts = (90000 / _fps) * (_frameCounter++);
 
 	/* encode the image and write out any data returned from the encoder */
 	int out_size = avcodec_encode_video(_context, &(_outputBuffer[0]), _outputBufferSize, _picture);
@@ -200,6 +201,7 @@ namespace magnet {
       size_t _inputWidth;
       size_t _frameCounter;
       size_t _fps;
+      bool _h264;
 
       struct LibavcodecInitialiser
       { LibavcodecInitialiser() { avcodec_register_all(); } };
