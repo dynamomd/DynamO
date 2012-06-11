@@ -34,11 +34,13 @@ extern "C" {
 
 namespace magnet {
   namespace image {
-
-    class VideoEncoder
+    /* \brief A simple class to encode RGB video from OpenGL using the
+       FFMPEG library.
+     */
+    class VideoEncoderFFMPEG
     {
     public:
-      ~VideoEncoder(): _h264(true) { close(); }
+      ~VideoEncoderFFMPEG() { close(); }
 
       void open(std::string filename, const size_t width, const size_t height, size_t fps = 25)
       {
@@ -62,6 +64,7 @@ namespace magnet {
 
 	initialiseLibrary();
 
+	_h264 = true;
 	AVCodec* _codec = avcodec_find_encoder(CODEC_ID_H264);
 	if (!_codec) 
 	  {

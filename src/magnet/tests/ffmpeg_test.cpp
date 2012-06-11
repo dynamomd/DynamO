@@ -2,7 +2,7 @@
    g++ ffmpeg-example.c  $(pkg-config  --cflags libavcodec) $(pkg-config --libs libavcodec) -I ~/dynamo/src/magnet/ -O3
 */
 
-#include <magnet/image/videoEncoder.hpp>
+#include <magnet/image/videoEncoderFFMPEG.hpp>
 
 int main(int argc, char **argv)
 {
@@ -11,7 +11,7 @@ int main(int argc, char **argv)
   size_t height = 1023;
   size_t size = width * height;
 
-  magnet::image::VideoEncoder encoder;
+  magnet::image::VideoEncoderFFMPEG encoder;
   encoder.open(filename, width, height);
 
   /* Allocate the RGB image in advance */

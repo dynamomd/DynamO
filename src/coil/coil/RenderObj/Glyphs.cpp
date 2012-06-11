@@ -441,7 +441,7 @@ namespace coil {
       colors.resize(4 * _N);
       for (uint32_t i(0); i < _N; ++i)
 	*reinterpret_cast<uint32_t*>(&(colors[4 * i])) = offset + i;
-      colorbuf = colors;
+      colorbuf.init(colors);
     }
 
     switch (_glyphType->get_active_row_number())
