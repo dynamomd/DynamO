@@ -23,7 +23,7 @@
 
 #include <magnet/GL/context.hpp>
 
-#include <magnet/image/videoEncoder.hpp>
+#include <magnet/image/videoEncoderFFMPEG.hpp>
 
 #include <magnet/image/PNG.hpp>
 #include <magnet/image/bitmap.hpp>
@@ -101,7 +101,7 @@ namespace coil {
     _record(false),
     _PNGFileFormat(true),
     _fpsLimit(true),
-    _fpsLimitValue(35),
+    _fpsLimitValue(25),
     _filterEnable(true),
     _stereoMode(false),
     _ambientIntensity(0.05),
@@ -1625,7 +1625,7 @@ namespace coil {
 
 #ifdef MAGNET_FFMPEG_SUPPORT
     if (_encoder.get() == NULL) 
-      _encoder.reset(new magnet::image::VideoEncoder);
+      _encoder.reset(new magnet::image::VideoEncoderFFMPEG);
     
 
     if (_record != recordButton->get_active())

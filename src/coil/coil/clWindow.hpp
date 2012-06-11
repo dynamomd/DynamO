@@ -42,7 +42,7 @@
 
 namespace magnet {
   namespace image {
-    class VideoEncoder;
+    class VideoEncoderFFMPEG;
   }
 }
 
@@ -285,6 +285,6 @@ namespace coil {
     bool _particleSync;
     volatile bool _newData;
     std::auto_ptr<Gtk::ComboBoxText> _aasamples;
-    std::auto_ptr<magnet::image::VideoEncoder> _encoder;
+    std::auto_ptr<magnet::image::VideoEncoderFFMPEG> _encoder;
   };
 }
