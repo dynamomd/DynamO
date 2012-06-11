@@ -105,13 +105,18 @@ namespace coil {
     _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 1);
     _orientSel->bindAttribute(magnet::GL::Context::instanceOrientationAttrIndex, 1);
     _colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 1);
-    Instanced::glRender();
+    _primitiveVertices.attachToVertex();
+    _primitiveNormals.attachToNormal();
+    _primitiveIndices.drawInstancedElements(getElementType(), _N);
   }
 
   void 
   Glyphs::deinit()
   {
-    Instanced::deinit();
+    _N = 0;
+    _primitiveVertices.deinit();
+    _primitiveNormals.deinit();
+    _primitiveIndices.deinit();
     RenderObj::deinit();
     _sphereShader.deinit();
     _sphereVSMShader.deinit();
@@ -309,8 +314,15 @@ namespace coil {
       default:
 	break;
       }
-
-    Instanced::init(_ds.size());
+    
+    //No need to deinitialise, we'll just initialise over the top of the old data
+    //deinit(); 
+    _N = _ds.size();
+    
+    //Load the primitive data into the VBO's
+    _primitiveVertices.init(getPrimitiveVertices(), magnet::GL::buffer_usage::STATIC_DRAW);
+    _primitiveNormals.init(getPrimitiveNormals(), magnet::GL::buffer_usage::STATIC_DRAW);
+    _primitiveIndices.init(getPrimitiveIndicies(), magnet::GL::buffer_usage::STATIC_DRAW);
   }
 
   std::vector<GLfloat> 
@@ -464,6 +476,8 @@ namespace coil {
     _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 1);
     _orientSel->bindAttribute(magnet::GL::Context::instanceOrientationAttrIndex, 1);
     colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 1, true); 
-    Instanced::glRender();
+    _primitiveVertices.attachToVertex();
+    _primitiveNormals.attachToNormal();
+    _primitiveIndices.drawInstancedElements(getElementType(), _N);
   }
 }

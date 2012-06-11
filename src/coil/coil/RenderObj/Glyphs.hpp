@@ -18,12 +18,11 @@
 #include <coil/RenderObj/DataSet.hpp>
 #include <coil/RenderObj/AttributeColorSelector.hpp>
 #include <coil/RenderObj/AttributeOrientationSelector.hpp>
-#include <magnet/GL/objects/instanced.hpp>
 #include <magnet/GL/shader/sphere.hpp>
-
+#include <magnet/GL/buffer.hpp>
 
 namespace coil {
-  class Glyphs : public DataSetChild, public magnet::GL::objects::Instanced
+  class Glyphs : public DataSetChild
   {
     enum GLYPH_TYPE
       {
@@ -35,7 +34,9 @@ namespace coil {
       };
 
   public:
-    inline Glyphs(std::string name, DataSet& ds, int initGlyphType = 0): DataSetChild(name, ds), _scale(1), _initGlyphType(initGlyphType) {}
+    inline Glyphs(std::string name, DataSet& ds, int initGlyphType = 0): DataSetChild(name, ds), _N(0), _scale(1), _initGlyphType(initGlyphType) {}
+
+    inline ~Glyphs() { deinit(); }
 
     virtual void glRender(const magnet::GL::Camera&, RenderMode);
     
@@ -59,9 +60,13 @@ namespace coil {
 
     virtual magnet::GL::element_type::Enum  getElementType();
     
-    virtual std::vector<GLfloat> getPrimitiveVertices();   
-    virtual std::vector<GLfloat> getPrimitiveNormals();
-    virtual std::vector<GLuint>  getPrimitiveIndicies();
+    std::vector<GLfloat> getPrimitiveVertices();   
+    std::vector<GLfloat> getPrimitiveNormals();
+    std::vector<GLuint>  getPrimitiveIndicies();
+
+    magnet::GL::Buffer<GLfloat> _primitiveVertices;
+    magnet::GL::Buffer<GLfloat> _primitiveNormals;
+    magnet::GL::Buffer<GLuint>  _primitiveIndices;
 
     std::auto_ptr<Gtk::VBox> _gtkOptList;
     std::auto_ptr<AttributeSelector> _scaleSel; 
@@ -77,6 +82,7 @@ namespace coil {
     std::auto_ptr<Gtk::Entry> _scaleFactor;
     
     bool _raytraceable;
+    size_t _N;
     float _scale;
     int _initGlyphType;
     magnet::GL::Context::ContextPtr _context;
