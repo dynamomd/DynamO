@@ -33,6 +33,9 @@ namespace coil {
       .connect(sigc::mem_fun(*this, &AttributeColorSelector::colorMapChanged));
     _autoScaling.signal_toggled()
       .connect(sigc::mem_fun(*this, &AttributeColorSelector::colorMapChanged));
+
+    _componentSelect.signal_changed()
+      .connect(sigc::mem_fun(this, &AttributeColorSelector::updateComponent));
   }
 
   AttributeSelector::AttributeSelector(bool enableDataFiltering):
@@ -163,7 +166,7 @@ namespace coil {
 	  
 	std::vector<GLfloat> scalardata;
 	generateFilteredData(scalardata, ptr, _lastComponentSelected);
-	_filteredData = scalardata;
+	_filteredData.init(scalardata);
       }
       
     return _filteredData;

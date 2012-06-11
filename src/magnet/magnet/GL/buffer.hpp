@@ -47,7 +47,7 @@ namespace magnet {
 
       /*! \brief Initialises the Buffer object with the passed data
        
-         This will create the underlying OpenGL buffer, and load it
+	This will create the underlying OpenGL buffer, and load it
          with the contents of data.
        
         \param data A vector containing the data to be loaded to the
@@ -60,17 +60,17 @@ namespace magnet {
       { init(data.size(), usage, &data[0]); }
 
       /*! \brief Initialises the Buffer object.
-       *
-       *  This will create the underlying OpenGL buffer, and load it
-       *  with the contents of data passed.
-       *
-       * \param size The number of elements in the buffer.
-       *
-       * \param usage The expected host memory access pattern, used to
-       * optimise performance.
-       *
-       * \param ptr A pointer to data to fill the buffer with. If it
-       * is set to NULL, no data is loaded.
+       
+         This will create the underlying OpenGL buffer, and load it
+         with the contents of data passed.
+       
+        \param size The number of elements in the buffer.
+       
+        \param usage The expected host memory access pattern, used to
+        optimise performance.
+       
+        \param ptr A pointer to data to fill the buffer with. If it
+        is set to NULL, no data is loaded.
        */
       inline void init(size_t size, buffer_usage::Enum usage = buffer_usage::DYNAMIC_DRAW, const T* ptr = NULL)
       {
@@ -88,16 +88,6 @@ namespace magnet {
 	bind(buffer_targets::ARRAY);
 	glBufferData(buffer_targets::ARRAY, _size * sizeof(T), ptr, usage);
       }
-
-      /*! \brief Helper function to re-initialize the buffer with data
-       * from a std::vector.
-       */
-      inline Buffer<T>& operator=(const std::vector<T>& data) 
-      { 
-	init(data);
-	return *this; 
-      }
-
 
       //! \brief Attach the Buffer to a OpenGL target
       inline void bind(buffer_targets::Enum target) const 
@@ -127,7 +117,7 @@ namespace magnet {
       }
 
       /*! \brief Destroys any OpenGL resources associated with this
-       * object.
+        object.
        */
       inline void deinit() 
       {
@@ -147,7 +137,7 @@ namespace magnet {
       inline bool empty() const { return !_size; }
 
       /*!\brief Returns the size in bytes of the allocated buffer, or
-       * 0 if not allocated.
+        0 if not allocated.
        */
       inline size_t byte_size() const { return _size * sizeof(T); }
 
@@ -173,7 +163,7 @@ namespace magnet {
       }
 
       /*! \brief Draw all the elements in the current buffer multiple
-       * times using instancing.
+        times using instancing.
        */
       inline void drawInstancedElements(element_type::Enum type, size_t instances)
       { 
@@ -188,7 +178,7 @@ namespace magnet {
       }
 
       /*! \brief Draw all vertices in this array, without using
-       * indexing.
+        indexing.
        */
       inline void drawArray(element_type::Enum type, GLuint vertex_size = 3)
       { 
@@ -197,54 +187,54 @@ namespace magnet {
       }
 
       /*! \brief Attaches the buffer to the vertex pointer of the GL
-       * state.
-       *
-       * \param vertex_size The number of buffer elements per vertex.
+        state.
+       
+        \param vertex_size The number of buffer elements per vertex.
        */
       inline void attachToVertex(GLuint vertex_size = 3) 
       { attachToAttribute(Context::vertexPositionAttrIndex, vertex_size); }
 
       /*! \brief Attaches the buffer to the color pointer of the GL
-       * state.
-       *
-       * \param color_size The number of buffer elements (colors) per
-       * vertex.
+        state.
+       
+        \param color_size The number of buffer elements (colors) per
+        vertex.
        */
       inline void attachToColor(GLuint color_size = 4) 
       { attachToAttribute(Context::vertexColorAttrIndex, color_size, 0, true); }
 
       /*! \brief Attaches the buffer to the normal pointer of the GL
-       * state.
+        state.
        */
       inline void attachToNormal()
       { attachToAttribute(Context::vertexNormalAttrIndex, 3); }
 
       /*! \brief Attaches the buffer to the instance origin pointer of the GL
-       * state.
+        state.
        */
       inline void attachToInstanceOrigin()
       { attachToAttribute(Context::instanceOriginAttrIndex, 3, 1); }
 
       /*! \brief Attaches the buffer to the instance orientation pointer of the GL
-       * state.
+        state.
        */
       inline void attachToInstanceOrientation()
       { attachToAttribute(Context::instanceOrientationAttrIndex, 4, 1); }
 
       /*! \brief Attaches the buffer to the instance orientation pointer of the GL
-       * state.
+        state.
        */
       inline void attachToInstanceScale()
       { attachToAttribute(Context::instanceScaleAttrIndex, 3, 1); }
 
       /*! \brief Attaches the buffer to the texture coordinate pointer
-       * of the GL state.
+        of the GL state.
        */
       inline void attachToTexCoords()
       { attachToAttribute(Context::vertexTexCoordAttrIndex, 2, 0); }
 
       /*! \brief Attaches the buffer to a vertex attribute pointer
-       * state.
+        state.
        */
       inline void attachToAttribute(size_t attrnum, size_t components, size_t divisor = 0, bool normalise = false)
       {
@@ -258,11 +248,11 @@ namespace magnet {
       }
 
       /*! \brief Returns an OpenCL representation of this GL buffer.
-       *
-       * This increments an internal counter, and every \ref
-       * acquireCLObject() must be matched by a call to \ref
-       * releaseCLObject()! before the next GL render using this
-       * buffer!
+       
+        This increments an internal counter, and every \ref
+        acquireCLObject() must be matched by a call to \ref
+        releaseCLObject()! before the next GL render using this
+        buffer!
        */
       inline const ::cl::BufferGL& acquireCLObject()
       { 
@@ -286,10 +276,10 @@ namespace magnet {
       }
 
       /*! \brief Releases the OpenCL representation of this GL buffer.
-       *
-       * This only releases the OpenCL representation if the \ref
-       * releaseCLObject() calls match the number of \ref
-       * acquireCLObject() calls.
+       
+        This only releases the OpenCL representation if the \ref
+        releaseCLObject() calls match the number of \ref
+        acquireCLObject() calls.
        */
       inline void releaseCLObject()
       { 

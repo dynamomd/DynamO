@@ -99,7 +99,12 @@ namespace coil {
 	  _componentSelect.set_active(1);
 	}
 
-      if (singleValueMode())
+      updateComponent();
+    }
+
+    void updateComponent()
+    {
+      if (singleValueMode() || (_componentSelect.get_active_row_number() == 0))
 	{
 	  _colorMapSelector.hide();
 	  _autoScaling.hide();
@@ -108,7 +113,7 @@ namespace coil {
 	{
 	  _colorMapSelector.show();
 	  _autoScaling.show();
-	}
+	}      
     }
 
     magnet::gtk::ColorMapSelector _colorMapSelector;
