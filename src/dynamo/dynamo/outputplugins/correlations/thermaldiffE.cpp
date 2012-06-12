@@ -79,7 +79,7 @@ namespace dynamo {
   void 
   OPThermalDiffusionE::initialise()
   {
-    species1 = Sim->dynamics.getSpecies(species1name).getID();
+    species1 = Sim->species[species1name].getID();
 
     if (dynamic_cast<const dynamo::EnsembleNVE* >(Sim->ensemble.get()) == NULL)
       M_throw() << "WARNING: This is only valid in the microcanonical"
@@ -107,7 +107,7 @@ namespace dynamo {
       }
   
     double sysMass = 0;
-    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->species)
       BOOST_FOREACH(const size_t ID, *(sp->getRange()))
       sysMass += sp->getMass(ID);
 
@@ -115,13 +115,13 @@ namespace dynamo {
     double speciesMass = 0;
     BOOST_FOREACH(const Particle& part, Sim->particleList)
       {
-	double mass = Sim->dynamics.getSpecies(part).getMass(part.getID());
+	double mass = Sim->species[part].getMass(part.getID());
 
 	constDelG += part.getVelocity() * mass
 	  * Sim->dynamics.getLiouvillean().getParticleKineticEnergy(part);
 	sysMom += part.getVelocity() * mass;
       
-	if (Sim->dynamics.getSpecies(part).getID() == species1)
+	if (Sim->species[part].getID() == species1)
 	  {
 	    constDelGsp1 += part.getVelocity();
 	    speciesMass += mass;

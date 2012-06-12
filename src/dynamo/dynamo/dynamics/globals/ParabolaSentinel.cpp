@@ -87,7 +87,7 @@ namespace dynamo {
   
     Sim->freestreamAcc = 0;
 
-    NEventData EDat(ParticleEventData(part, Sim->dynamics.getSpecies(part), VIRTUAL_PARABOLA));
+    NEventData EDat(ParticleEventData(part, Sim->species[part], VIRTUAL_PARABOLA));
 
     Sim->signalParticleUpdate(EDat);
 

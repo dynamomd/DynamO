@@ -59,43 +59,11 @@ namespace dynamo {
     M_throw() << "Could not find the topology " << name;
   }
 
-  const Species& 
-  Dynamics::getSpecies(const Particle& p1) const 
-  {
-    BOOST_FOREACH(const shared_ptr<Species>& ptr, species)
-      if (ptr->isSpecies(p1))
-	return *ptr;
-  
-    M_throw() << "Could not find the requested species"
-	      << "\nID = " << p1.getID();
-  }
-
-
   magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
 				     const Dynamics& g)
   {
     g.outputXML(XML);
     return XML;
-  }
-
-  const Species& 
-  Dynamics::getSpecies(std::string name) const
-  {
-    BOOST_FOREACH(const shared_ptr<Species>& ptr, species)
-      if (ptr->getName() == name)
-	return *ptr;
-  
-    M_throw() << "Could not find the " << name << " species"; 
-  }
-
-  Species& 
-  Dynamics::getSpecies(std::string name)
-  {
-    BOOST_FOREACH(shared_ptr<Species>& ptr, species)
-      if (ptr->getName() == name)
-	return *ptr;
-  
-    M_throw() << "Could not find the " << name << " species"; 
   }
 
   shared_ptr<System>&
@@ -178,25 +146,6 @@ namespace dynamo {
     M_throw() << "Could not find interaction plugin";
   }
 
-  void 
-  Dynamics::addSpecies(shared_ptr<Species> sp)
-  {
-    if (Sim->status >= INITIALISED)
-      M_throw() << "Cannot add species after simulation initialisation";
-
-    species.push_back(sp);
-
-    BOOST_FOREACH(shared_ptr<Interaction>& intPtr, interactions)
-      if (intPtr->isInteraction(*sp))
-	{
-	  sp->setIntPtr(intPtr.get());
-	  return;
-	}
-
-    M_throw() << "Could not find the interaction for the species \"" 
-	      << sp->getName() << "\"";
-  }
-
   void Dynamics::addGlobal(shared_ptr<Global> ptr)
   {
     if (!ptr) M_throw() << "Cannot add an unset Global";
@@ -242,41 +191,6 @@ namespace dynamo {
   void 
   Dynamics::initialise()
   {
-    BOOST_FOREACH(shared_ptr<Species>& ptr, species)
-      ptr->initialise();
-  
-    unsigned int count = 0;
-    //Now confirm that every species has only one species type!
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
-      {
-	BOOST_FOREACH(shared_ptr<Species>& ptr, species)
-	  if (ptr->isSpecies(part)) { count++; break; }
-      
-	if (count < 1)
-	  M_throw() << "Particle ID=" << part.getID() << " has no species";
-
-	if (count > 1)
-	  M_throw() << "Particle ID=" << part.getID() << " has more than one species";
-	count = 0;
-      }
-
-    //Now confirm that there are not more counts from each species than there are particles
-    {
-      unsigned long tot = 0;
-      BOOST_FOREACH(shared_ptr<Species>& ptr, species)
-	tot += ptr->getCount();
-    
-      if (tot < Sim->N)
-	M_throw() << "The particle count according to the species definition is too low\n"
-		  << "discrepancy = " << tot - Sim->N
-		  << "\nN = " << Sim->N;
-    
-      if (tot > Sim->N)
-	M_throw() << "The particle count according to the species definition is too high\n"
-		  << "discrepancy = " << tot - Sim->N
-		  << "\nN = " << Sim->N;
-    }
-
     p_liouvillean->initialise();
 
     {
@@ -370,7 +284,7 @@ namespace dynamo {
   {
     double volume = 0.0;
   
-    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->species)
       BOOST_FOREACH(const size_t& ID, *(sp->getRange()))
       volume += sp->getIntPtr()->getExcludedVolume(ID);
   
@@ -389,7 +303,7 @@ namespace dynamo {
       {
 	Vector  pos(Part.getPosition()), vel(Part.getVelocity());
 	BCs().applyBC(pos,vel);
-	double mass = getSpecies(Part).getMass(Part.getID());
+	double mass = Sim->species[Part].getMass(Part.getID());
 	//Note we sum the negatives!
 	sumMV -= vel * mass;
 	sumMass += mass;
@@ -406,10 +320,6 @@ namespace dynamo {
   void
   Dynamics::operator<<(const magnet::xml::Node& XML)
   {
-    //Load the Primary cell's size
-    Sim->primaryCellSize << XML.getNode("SimulationSize");
-    Sim->primaryCellSize /= Sim->dynamics.units().unitLength();
-
     //Now load the BC
     p_BC = BoundaryCondition::getClass(XML.getNode("BC"), Sim);
   
@@ -421,13 +331,6 @@ namespace dynamo {
 	  topology.push_back(Topology::getClass(node, Sim, i));
       }
   
-    { 
-      size_t i(0);
-      for (magnet::xml::Node node = XML.getNode("Genus").fastGetNode("Species");
-	   node.valid(); ++node, ++i)
-	species.push_back(Species::getClass(node, Sim, i));
-    }
-
     p_liouvillean = Liouvillean::getClass(XML.getNode("Dynamics"), Sim);
   
     for (magnet::xml::Node node = XML.getNode("Interactions").fastGetNode("Interaction");
@@ -435,7 +338,7 @@ namespace dynamo {
       interactions.push_back(Interaction::getClass(node, Sim));
   
     //Link the species and interactions
-    BOOST_FOREACH(shared_ptr<Species>& sp , species)
+    BOOST_FOREACH(shared_ptr<Species>& sp , Sim->species)
       BOOST_FOREACH(shared_ptr<Interaction>& intPtr , interactions)
       if (intPtr->isInteraction(*sp))
 	{
@@ -462,20 +365,10 @@ namespace dynamo {
   void
   Dynamics::outputXML(magnet::xml::XmlStream &XML) const
   {
-    XML << magnet::xml::tag("SimulationSize")
-	<< Sim->primaryCellSize / Sim->dynamics.units().unitLength()
-	<< magnet::xml::endtag("SimulationSize")
+    XML 
 	<< magnet::xml::tag("BC")
 	<< *p_BC
 	<< magnet::xml::endtag("BC")
-	<< magnet::xml::tag("Genus");
-  
-    BOOST_FOREACH(const shared_ptr<Species>& ptr, species)
-      XML << magnet::xml::tag("Species")
-	  << *ptr
-	  << magnet::xml::endtag("Species");
-  
-    XML << magnet::xml::endtag("Genus")
 	<< magnet::xml::tag("Topology");
   
     BOOST_FOREACH(const shared_ptr<Topology>& ptr, topology)

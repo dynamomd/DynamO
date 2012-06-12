@@ -167,7 +167,7 @@ namespace dynamo {
   
     dout << "Initialising the dynamics" << std::endl;
 
-    dynamics.initialise();
+    SimData::initialise();
 
     ensemble->initialise();
     

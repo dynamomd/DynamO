@@ -105,7 +105,7 @@ namespace dynamo {
 	for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	  constDelG[iDim][jDim] 
 	    += part.getVelocity()[iDim] * part.getVelocity()[jDim]
-	    * Sim->dynamics.getSpecies(part).getMass(part.getID());
+	    * Sim->species[part].getMass(part.getID());
 
     dout << "dt set to " << dt / Sim->dynamics.units().unitTime() << std::endl;
   }

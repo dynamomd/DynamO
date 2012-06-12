@@ -62,7 +62,7 @@ namespace dynamo {
     vecTemp.resize(collisionHistoryLength, 
 		   magnet::math::Histogram<>(Sim->dynamics.units().unitTime() * binwidth));
   
-    data.resize(Sim->dynamics.getSpecies().size(), vecTemp);
+    data.resize(Sim->species.size(), vecTemp);
   }
 
   void 
@@ -90,7 +90,7 @@ namespace dynamo {
       {
 	XML << magnet::xml::tag("Species")
 	    << magnet::xml::attr("Name")
-	    << Sim->dynamics.getSpecies()[id]->getName();
+	    << Sim->species[id]->getName();
       
 	for (size_t collN = 0; collN < collisionHistoryLength; ++collN)
 	  {

@@ -123,8 +123,8 @@ namespace dynamo {
     updateParticlePair(particle1, particle2);  
 
     PairEventData retVal(particle1, particle2,
-			 Sim->dynamics.getSpecies(particle1),
-			 Sim->dynamics.getSpecies(particle2),
+			 Sim->species[particle1],
+			 Sim->species[particle2],
 			 event.getType());
     
     Sim->dynamics.BCs().applyBC(retVal.rij,retVal.vijold);

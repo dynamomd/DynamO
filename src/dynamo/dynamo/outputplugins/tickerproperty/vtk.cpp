@@ -255,7 +255,7 @@ namespace dynamo {
 	    //Samples
 	    ++SampleCounter[id];
 	  
-	    double mass = Sim->dynamics.getSpecies(Part).getMass(Part.getID());
+	    double mass = Sim->species[Part].getMass(Part.getID());
 
 	    //Velocity Vectors
 	    Momentum[id] += velocity * mass;

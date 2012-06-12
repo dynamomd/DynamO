@@ -36,7 +36,7 @@ namespace dynamo {
     accMomsq = Vector (0,0,0);
     sysMom = Vector (0,0,0);
 
-    BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->species)
       BOOST_FOREACH(const size_t& ID, *spec->getRange())
       sysMom += spec->getMass(ID) * Sim->particleList[ID].getVelocity();
   }

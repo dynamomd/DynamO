@@ -140,7 +140,7 @@ namespace dynamo {
     iEvent.addTime(Sim->freestreamAcc);      
     Sim->freestreamAcc = 0;
 
-    ParticleEventData EDat(part, Sim->dynamics.getSpecies(part), iEvent.getType());
+    ParticleEventData EDat(part, Sim->species[part], iEvent.getType());
       
     Vector newVel(Sim->normal_sampler(),Sim->normal_sampler(),Sim->normal_sampler());
     newVel *= _wakeVelocity / newVel.nrm();

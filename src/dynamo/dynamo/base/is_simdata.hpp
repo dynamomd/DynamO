@@ -34,6 +34,7 @@ namespace dynamo
 {  
   class Scheduler;
   class Ensemble;
+  class Species;
   class OutputPlugin;
 
   //! \brief Holds the different phases of the simulation initialisation
@@ -47,6 +48,7 @@ namespace dynamo
       ERROR         = 4  /*!< The simulation has failed. */
     } ESimulationStatus;
 
+  
   typedef boost::mt19937 baseRNG;
   
   /*! \brief Fundamental collection of the Simulation data.
@@ -66,12 +68,45 @@ namespace dynamo
   protected:
     typedef magnet::function::Delegate1
     <const NEventData&, void> particleUpdateFunc;
-    
+
+    template <class T>
+    struct Container: public std::vector<shared_ptr<T> >
+    {
+      using std::vector<shared_ptr<T> >::operator[];
+
+      T& operator[](const std::string name) {
+	BOOST_FOREACH(const shared_ptr<T>& ptr, *this)
+	  if (ptr->getName() == name) return *ptr;
+	
+	M_throw() << "Could not find the \"" << name << "\" object";
+      }
+
+      const T& operator[](const std::string name) const {
+	BOOST_FOREACH(const shared_ptr<T>& ptr, *this)
+	  if (ptr->getName() == name) return *ptr;
+	
+	M_throw() << "Could not find the \"" << name << "\" object";
+      }
+    };
+
+    /*! \brief A class which allows easy selection of Species.
+    */
+    struct SpeciesContainer: public Container<Species>
+    {
+      using Container<Species>::operator[];
+      const Species& operator[](const Particle& p1) const;
+    };
+
   public:
     /*! \brief Significant default value initialisation.
      */
     SimData();
     
+    void initialise();
+
+    SpeciesContainer species;
+    void addSpecies(shared_ptr<Species>);
+
     /*! \brief Finds a plugin of the given type using RTTI.
      */
     template<class T>

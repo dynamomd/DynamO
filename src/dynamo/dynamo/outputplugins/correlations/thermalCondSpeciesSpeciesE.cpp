@@ -65,7 +65,7 @@ namespace dynamo {
   void 
   OPThermalConductivitySpeciesSpeciesE::initialise()
   {
-    size_t Nsp(Sim->dynamics.getSpecies().size());
+    size_t Nsp(Sim->species.size());
   
     constDelG.resize(Nsp, Vector (0,0,0));
   
@@ -95,7 +95,7 @@ namespace dynamo {
       }
   
     //Sum up the constant Del G.
-    BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->species)
       BOOST_FOREACH(const size_t& id, *spec->getRange())
       {
 	const Particle& part(Sim->particleList[id]);
@@ -132,7 +132,7 @@ namespace dynamo {
   
     double factor = rescaleFactor();
 
-    size_t Nsp(Sim->dynamics.getSpecies().size());
+    size_t Nsp(Sim->species.size());
   
     for (size_t id1(0); id1 < Nsp; ++id1)
       for (size_t id2(0); id2 < Nsp; ++id2)      
@@ -163,7 +163,7 @@ namespace dynamo {
   void 
   OPThermalConductivitySpeciesSpeciesE::stream(const double& edt)
   {
-    size_t Nsp(Sim->dynamics.getSpecies().size());
+    size_t Nsp(Sim->species.size());
   
     //Now test if we've gone over the step time
     if (currentdt + edt >= dt)
@@ -256,7 +256,7 @@ namespace dynamo {
   {
     //This ensures the list stays at accumilator size
   
-    size_t Nsp(Sim->dynamics.getSpecies().size());
+    size_t Nsp(Sim->species.size());
   
     for (size_t id(0); id < Nsp; ++id)
       G[id].push_front(delG[id]);
@@ -277,7 +277,7 @@ namespace dynamo {
   {
     ++count;
 
-    size_t Nsp(Sim->dynamics.getSpecies().size());
+    size_t Nsp(Sim->species.size());
   
     for (size_t id1(0); id1 < Nsp; ++id1)
       for (size_t id2(0); id2 < Nsp; ++id2)
@@ -324,11 +324,11 @@ namespace dynamo {
     double p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle1_.getParticle());
     double p2E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle2_.getParticle());
   
-    constDelG[Sim->dynamics.getSpecies(PDat.particle1_.getParticle()).getID()]
+    constDelG[Sim->species[PDat.particle1_.getParticle()].getID()]
       += PDat.particle1_.getParticle().getVelocity() * p1E
       - PDat.particle1_.getOldVel() * (p1E - PDat.particle1_.getDeltaKE());
   
-    constDelG[Sim->dynamics.getSpecies(PDat.particle2_.getParticle()).getID()]
+    constDelG[Sim->species[PDat.particle2_.getParticle()].getID()]
       += PDat.particle2_.getParticle().getVelocity() * p2E
       - PDat.particle2_.getOldVel() * (p2E - PDat.particle2_.getDeltaKE());
   }

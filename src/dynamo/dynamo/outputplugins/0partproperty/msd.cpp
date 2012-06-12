@@ -48,7 +48,7 @@ namespace dynamo {
   
     XML << magnet::xml::tag("MSD");
   
-    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->species)
       {
 	double MSD(calcMSD(*(sp->getRange())));
       
@@ -106,7 +106,7 @@ namespace dynamo {
 	double totmass = 0.0;
 	BOOST_FOREACH(const unsigned long& ID, *molRange)
 	  {
-	    double pmass = Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass(ID);
+	    double pmass = Sim->species[Sim->particleList[ID]].getMass(ID);
 
 	    totmass += pmass;
 	    currPos += Sim->particleList[ID].getPosition() * pmass;

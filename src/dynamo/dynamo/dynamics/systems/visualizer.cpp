@@ -50,7 +50,7 @@ namespace dynamo {
     //Build a window, ready to display it
     _window.reset(new coil::CLGLWindow("Visualizer : " + nName, tickFreq, true));
   
-    BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->species)
       _window->addRenderObj(spec->createDataSet());
 
     BOOST_FOREACH(shared_ptr<Local>& local, Sim->dynamics.getLocals())
@@ -63,7 +63,7 @@ namespace dynamo {
 
     _coil.getInstance().addWindow(_window);
 
-    BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->species)
       {
 	spec->initDataSet();
 	_window->signal_data_update().connect(boost::bind(&Species::updateRenderData, spec.get()));

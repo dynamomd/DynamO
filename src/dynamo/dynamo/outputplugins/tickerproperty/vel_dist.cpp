@@ -53,7 +53,7 @@ namespace dynamo {
       M_throw() << "VelDist requires UEnergy plugin";
 
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
-      data[iDim].resize(Sim->dynamics.getSpecies().size(), 
+      data[iDim].resize(Sim->species.size(), 
 			magnet::math::Histogram<>(Sim->dynamics.units().unitVelocity() 
 				     * binWidth));
   }
@@ -64,7 +64,7 @@ namespace dynamo {
     double factor = std::sqrt(Sim->dynamics.units().unitMass() 
 			      / _ptrOPEnergy->getCurrentkT());
 
-    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->species)
       BOOST_FOREACH(const size_t& ID, *sp->getRange())
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	data[iDim][sp->getID()]
@@ -76,11 +76,11 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("VelDist");
   
-    for (size_t id = 0; id < Sim->dynamics.getSpecies().size(); ++id)
+    for (size_t id = 0; id < Sim->species.size(); ++id)
       {
 	XML << magnet::xml::tag("Species")
 	    << magnet::xml::attr("Name")
-	    << Sim->dynamics.getSpecies()[id]->getName();
+	    << Sim->species[id]->getName();
      
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  {

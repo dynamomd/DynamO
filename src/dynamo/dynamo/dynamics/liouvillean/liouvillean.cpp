@@ -56,12 +56,12 @@ namespace dynamo {
       {
 	double sumEnergy(0.0);
 	BOOST_FOREACH(const Particle& part, Sim->particleList)  
-	  sumEnergy += Sim->dynamics.getSpecies(part).getScalarMomentOfInertia(part.getID())
+	  sumEnergy += Sim->species[part].getScalarMomentOfInertia(part.getID())
 	  * orientationData[part.getID()].angularVelocity.nrm2();
       
 	//Check if any of the species are overridden
 	bool hasInertia(false);
-	BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->dynamics.getSpecies())
+	BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->species)
 	  if (std::tr1::dynamic_pointer_cast<SpInertia>(spec))
 	    hasInertia = true;
 
@@ -196,15 +196,15 @@ namespace dynamo {
 	const BCLeesEdwards& bc = static_cast<const BCLeesEdwards&>(Sim->dynamics.BCs());
 
 	energy += bc.getPeculiarVelocity(part).nrm2()
-	  * Sim->dynamics.getSpecies(part).getMass(part.getID());
+	  * Sim->species[part].getMass(part.getID());
       }
     else
       energy += part.getVelocity().nrm2()
-	* Sim->dynamics.getSpecies(part).getMass(part.getID());
+	* Sim->species[part].getMass(part.getID());
   
     if (hasOrientationData())
       energy += orientationData[part.getID()].angularVelocity.nrm2()
-	* Sim->dynamics.getSpecies(part).getScalarMomentOfInertia(part.getID());
+	* Sim->species[part].getScalarMomentOfInertia(part.getID());
 
     return 0.5 * energy;
   }
@@ -380,7 +380,7 @@ namespace dynamo {
     BOOST_FOREACH(size_t ID, particles)
       {
 	const Particle& part = Sim->particleList[ID];
-	double mass = Sim->dynamics.getSpecies(part).getMass(ID);
+	double mass = Sim->species[part].getMass(ID);
 
 	//Take everything relative to the first particle's position to
 	//minimise issues with PBC wrapping the particles.

@@ -90,9 +90,9 @@ namespace dynamo {
   OPRadialDistribution::initialise()
   {
     data.resize
-      (Sim->dynamics.getSpecies().size(),
+      (Sim->species.size(),
        std::vector<std::vector<unsigned long> >
-       (Sim->dynamics.getSpecies().size(),
+       (Sim->species.size(),
 	std::vector<unsigned long>(length, 0))
        );
 
@@ -125,8 +125,8 @@ namespace dynamo {
     
     ++sampleCount;
   
-    BOOST_FOREACH(const shared_ptr<Species>& sp1, Sim->dynamics.getSpecies())
-      BOOST_FOREACH(const shared_ptr<Species>& sp2, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& sp1, Sim->species)
+      BOOST_FOREACH(const shared_ptr<Species>& sp2, Sim->species)
       BOOST_FOREACH(const size_t& p1, *sp1->getRange())
       BOOST_FOREACH(const size_t& p2, *sp2->getRange())
       {
@@ -150,8 +150,8 @@ namespace dynamo {
 	<< sampleCount;
 
   
-    BOOST_FOREACH(const shared_ptr<Species>& sp1, Sim->dynamics.getSpecies())
-      BOOST_FOREACH(const shared_ptr<Species>& sp2, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& sp1, Sim->species)
+      BOOST_FOREACH(const shared_ptr<Species>& sp2, Sim->species)
       {
 	double density = sp2->getCount() / Sim->dynamics.getSimVolume();
 

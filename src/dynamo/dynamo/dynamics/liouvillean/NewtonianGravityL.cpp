@@ -120,7 +120,7 @@ namespace dynamo {
     BOOST_FOREACH(const size_t ID, p1)
       {
 	const Particle& part = Sim->particleList[ID];       
-	double mass = Sim->dynamics.getSpecies(part).getMass(ID);
+	double mass = Sim->species[part].getMass(ID);
 
 	if (part.testState(Particle::DYNAMIC))
 	  accel1sum += mass;
@@ -134,7 +134,7 @@ namespace dynamo {
     BOOST_FOREACH(const size_t ID, p2)
       {
 	const Particle& part = Sim->particleList[ID];       
-	double mass = Sim->dynamics.getSpecies(part).getMass(ID);
+	double mass = Sim->species[part].getMass(ID);
 
 	if (part.testState(Particle::DYNAMIC))
 	  accel2sum += mass;
@@ -182,7 +182,7 @@ namespace dynamo {
     BOOST_FOREACH(const size_t ID, p1)
       {
 	const Particle& part = Sim->particleList[ID];       
-	double mass = Sim->dynamics.getSpecies(part).getMass(ID);
+	double mass = Sim->species[part].getMass(ID);
 
 	if (part.testState(Particle::DYNAMIC))
 	  accel1sum += mass;
@@ -196,7 +196,7 @@ namespace dynamo {
     BOOST_FOREACH(const size_t ID, p2)
       {
 	const Particle& part = Sim->particleList[ID];       
-	double mass = Sim->dynamics.getSpecies(part).getMass(ID);
+	double mass = Sim->species[part].getMass(ID);
 
 	if (part.testState(Particle::DYNAMIC))
 	  accel2sum += mass;

@@ -20,6 +20,7 @@
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/dynamics/systems/system.hpp>
+#include <dynamo/dynamics/species/species.hpp>
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/device/file.hpp>
@@ -54,6 +55,77 @@ namespace dynamo
     replexExchangeNumber(0),
     status(START)
   {}
+
+  void
+  SimData::initialise()
+  {
+    BOOST_FOREACH(shared_ptr<Species>& ptr, species)
+      ptr->initialise();
+
+    unsigned int count = 0;
+    //Now confirm that every species has only one species type!
+    BOOST_FOREACH(const Particle& part, particleList)
+      {
+	BOOST_FOREACH(shared_ptr<Species>& ptr, species)
+	  if (ptr->isSpecies(part)) { count++; break; }
+	
+	if (count < 1)
+	  M_throw() << "Particle ID=" << part.getID() << " has no species";
+	
+	if (count > 1)
+	  M_throw() << "Particle ID=" << part.getID() << " has more than one species";
+	count = 0;
+      }
+    
+    //Now confirm that there are not more counts from each species
+    //than there are particles
+    {
+      unsigned long tot = 0;
+      BOOST_FOREACH(shared_ptr<Species>& ptr, species)
+	tot += ptr->getCount();
+    
+      if (tot < N)
+	M_throw() << "The particle count according to the species definition is too low\n"
+		  << "discrepancy = " << tot - N
+		  << "\nN = " << N;
+    
+      if (tot > N)
+	M_throw() << "The particle count according to the species definition is too high\n"
+		  << "discrepancy = " << tot - N
+		  << "\nN = " << N;
+    }
+
+    dynamics.initialise();
+  }
+
+  const Species& 
+  SimData::SpeciesContainer::operator[](const Particle& p1) const 
+  {
+    BOOST_FOREACH(const shared_ptr<Species>& ptr, *this)
+      if (ptr->isSpecies(p1)) return *ptr;
+    
+    M_throw() << "Could not find the species corresponding to particle ID=" 
+	      << p1.getID(); 
+  }
+
+  void SimData::addSpecies(shared_ptr<Species> sp)
+  {
+    if (status >= INITIALISED)
+      M_throw() << "Cannot add species after simulation initialisation";
+
+    species.push_back(sp);
+
+    BOOST_FOREACH(shared_ptr<Interaction>& intPtr, dynamics.getInteractions())
+      if (intPtr->isInteraction(*sp))
+	{
+	  sp->setIntPtr(intPtr.get());
+	  return;
+	}
+
+    M_throw() << "Could not find the interaction for the species \"" 
+	      << sp->getName() << "\"";
+  }
+
 
   void
   SimData::loadXMLfile(std::string fileName)
@@ -114,6 +186,18 @@ namespace dynamo
     ensemble = dynamo::Ensemble::getClass(simNode.getNode("Ensemble"), this);
 
     _properties << mainNode;
+
+    //Load the Primary cell's size
+    primaryCellSize << simNode.getNode("SimulationSize");
+    primaryCellSize /= dynamics.units().unitLength();
+
+    { 
+      size_t i(0);
+      for (magnet::xml::Node node = simNode.getNode("Genus").fastGetNode("Species");
+	   node.valid(); ++node, ++i)
+	species.push_back(Species::getClass(node, this, i));
+    }
+    
     dynamics << simNode;
     ptrScheduler = Scheduler::getClass(simNode.getNode("Scheduler"), this);
 
@@ -182,6 +266,17 @@ namespace dynamo
 	<< magnet::xml::tag("Scheduler")
 	<< *ptrScheduler
 	<< magnet::xml::endtag("Scheduler")
+	<< magnet::xml::tag("SimulationSize")
+	<< primaryCellSize / dynamics.units().unitLength()
+	<< magnet::xml::endtag("SimulationSize")
+      	<< magnet::xml::tag("Genus");
+  
+    BOOST_FOREACH(const shared_ptr<Species>& ptr, species)
+      XML << magnet::xml::tag("Species")
+	  << *ptr
+	  << magnet::xml::endtag("Species");
+  
+    XML << magnet::xml::endtag("Genus")
 	<< dynamics
 	<< magnet::xml::endtag("Simulation")
 	<< _properties;

@@ -51,7 +51,7 @@ namespace dynamo {
   OPMFL::initialise()
   {
     lastTime.resize(Sim->N, 0.0);
-    data.resize(Sim->dynamics.getSpecies().size(), 
+    data.resize(Sim->species.size(), 
 		magnet::math::Histogram<>(Sim->dynamics.units().unitLength() * binwidth));
   }
 
@@ -79,7 +79,7 @@ namespace dynamo {
       {
 	XML << magnet::xml::tag("Species")
 	    << magnet::xml::attr("Name")
-	    << Sim->dynamics.getSpecies()[id]->getName();
+	    << Sim->species[id]->getName();
 
 	data[id].outputHistogram(XML, 1.0 / Sim->dynamics.units().unitLength());
       

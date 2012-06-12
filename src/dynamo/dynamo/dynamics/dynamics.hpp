@@ -32,7 +32,6 @@ namespace magnet {
 namespace dynamo {
   class BoundaryCondition;
   class Particle;
-  class Species;
   class GlobalEvent;
   class Global;
   class Local;
@@ -63,13 +62,10 @@ namespace dynamo {
     inline shared_ptr<Interaction> addInteraction(shared_ptr<Interaction> ptr)
     { interactions.push_back(ptr); return interactions.back(); }
 
-    void addSpecies(shared_ptr<Species>);  
     void addGlobal(shared_ptr<Global> ptr);
     void addLocal(shared_ptr<Local> ptr);
     void addSystem(shared_ptr<System> ptr);
     void addStructure(shared_ptr<Topology> ptr);
-
-    const Species& getSpecies(const Particle&) const;
   
     const shared_ptr<Interaction>& 
     getInteraction(const Particle&, const Particle&) const; 
@@ -140,10 +136,6 @@ namespace dynamo {
     shared_ptr<Local>& getLocal(std::string);
     const shared_ptr<Local>& getLocal(std::string) const;
 
-    const std::vector<shared_ptr<Species> >& getSpecies() const { return species; }
-    const Species& getSpecies(std::string) const;
-    Species& getSpecies(std::string);
-
     std::vector<shared_ptr<Topology> >& getTopology() { return topology; }
     const std::vector<shared_ptr<Topology> >& getTopology() const { return topology; }
 
@@ -207,7 +199,6 @@ namespace dynamo {
     std::vector<shared_ptr<Local> > locals;
     std::vector<shared_ptr<System> > systems;
     std::vector<shared_ptr<Topology> > topology;
-    std::vector<shared_ptr<Species> > species;
     shared_ptr<BoundaryCondition> p_BC;
     shared_ptr<Liouvillean> p_liouvillean;
     Units _units;

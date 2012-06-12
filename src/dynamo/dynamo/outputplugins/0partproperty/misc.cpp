@@ -108,7 +108,7 @@ namespace dynamo {
 	 << "\nPacking Fraction " << Sim->dynamics.getPackingFraction()
 	 << "\nTemperature " << getCurrentkT() / Sim->dynamics.units().unitEnergy() << std::endl;
 
-    dout << "No. of Species " << Sim->dynamics.getSpecies().size()
+    dout << "No. of Species " << Sim->species.size()
 	 << "\nSimulation box length <x y z> < ";
     for (size_t iDim = 0; iDim < NDIM; iDim++)
       dout  << Sim->primaryCellSize[iDim]/Sim->dynamics.units().unitLength() << " ";
@@ -121,7 +121,7 @@ namespace dynamo {
       {
 	Vector  pos(Part.getPosition()), vel(Part.getVelocity());
 	Sim->dynamics.BCs().applyBC(pos, vel);
-	sumMV += vel * Sim->dynamics.getSpecies(Part).getMass(Part.getID());
+	sumMV += vel * Sim->species[Part].getMass(Part.getID());
       }
 
     dout << "Total momentum <x,y,z> <";
@@ -136,7 +136,7 @@ namespace dynamo {
     BOOST_FOREACH(const Particle& part, Sim->particleList)
       {
 	curr_kineticP 
-	  += Sim->dynamics.getSpecies(part).getMass(part.getID())
+	  += Sim->species[part].getMass(part.getID())
 	  * Dyadic(part.getVelocity(),part.getVelocity());
       }
 
@@ -291,7 +291,7 @@ namespace dynamo {
 	<< magnet::xml::endtag("PackingFraction")
 
 	<< magnet::xml::tag("SpeciesCount")
-	<< magnet::xml::attr("val") << Sim->dynamics.getSpecies().size()
+	<< magnet::xml::attr("val") << Sim->species.size()
 	<< magnet::xml::endtag("SpeciesCount")
 
 	<< magnet::xml::tag("ParticleCount")
@@ -353,7 +353,7 @@ namespace dynamo {
     Vector sumMV(0, 0, 0);
     //Determine the system momentum
     BOOST_FOREACH( const Particle & Part, Sim->particleList)
-      sumMV += Part.getVelocity() * Sim->dynamics.getSpecies(Part).getMass(Part.getID());
+      sumMV += Part.getVelocity() * Sim->species[Part].getMass(Part.getID());
 
     XML << magnet::xml::tag("Total_momentum")
 	<< sumMV / Sim->dynamics.units().unitMomentum()

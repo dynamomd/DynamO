@@ -55,7 +55,7 @@ namespace dynamo {
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	  localE[iDim][jDim] += part.getVelocity()[iDim] * part.getVelocity()[jDim]
-	    * Sim->dynamics.getSpecies(part).getMass(part.getID());
+	    * Sim->species[part].getMass(part.getID());
 
     //Try and stop round off error this way
     for (size_t iDim = 0; iDim < NDIM; ++iDim)

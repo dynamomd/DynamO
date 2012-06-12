@@ -64,7 +64,7 @@ namespace dynamo {
     BOOST_FOREACH(const Particle& part, Sim->particleList)
       posHistory[part.getID()].push_front(part.getPosition());
 
-    speciesData.resize(Sim->dynamics.getSpecies().size(), 
+    speciesData.resize(Sim->species.size(), 
 		       std::vector<double>(length, 0.0));
 
     structData.resize(Sim->dynamics.getTopology().size(), 
@@ -93,7 +93,7 @@ namespace dynamo {
   {
     ++ticksTaken;
   
-    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->species)
       BOOST_FOREACH(const size_t& ID, *sp->getRange())
       for (size_t step(1); step < length; ++step)
 	speciesData[sp->getID()][step]
@@ -107,7 +107,7 @@ namespace dynamo {
 
 	BOOST_FOREACH(const size_t& ID, *range)
 	  {
-	    double mass = Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass(ID);
+	    double mass = Sim->species[Sim->particleList[ID]].getMass(ID);
 	    molCOM += posHistory[ID][0] * mass;
 	    molMass += mass;
 	  }
@@ -120,7 +120,7 @@ namespace dynamo {
 	  
 	    BOOST_FOREACH(const size_t& ID, *range)
 	      molCOM2 += posHistory[ID][step] 
-	      * Sim->dynamics.getSpecies(Sim->particleList[ID]).getMass(ID);
+	      * Sim->species[Sim->particleList[ID]].getMass(ID);
 	  
 	    molCOM2 /= molMass;
 	  
@@ -139,7 +139,7 @@ namespace dynamo {
       (*Sim->dynamics.getSystem("SystemTicker")).getPeriod()
       / Sim->dynamics.units().unitTime();
   
-    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->species)
       {
 	XML << magnet::xml::tag("Species")
 	    << magnet::xml::attr("Name")

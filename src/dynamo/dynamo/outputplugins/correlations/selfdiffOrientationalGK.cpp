@@ -46,8 +46,8 @@ namespace dynamo {
 
     G.resize(Sim->N, boost::circular_buffer<VUpair> (CorrelatorLength, VUpair(Vector(0,0,0), Vector(0,0,0) )));
 
-    accG2_parallel.resize(Sim->dynamics.getSpecies().size());
-    accG2_perp.resize(Sim->dynamics.getSpecies().size());
+    accG2_parallel.resize(Sim->species.size());
+    accG2_perp.resize(Sim->species.size());
 
     BOOST_FOREACH(std::vector<double>& listref_parallel, accG2_parallel)
       {
@@ -249,11 +249,11 @@ namespace dynamo {
     for (size_t i = 0; i < accG2_perp.size(); ++i)
       {
 	// Common headers
-	double specCount = Sim->dynamics.getSpecies()[i]->getCount();
+	double specCount = Sim->species[i]->getCount();
 
 	XML << magnet::xml::tag("Correlator")
 	    << magnet::xml::attr("name") << "SelfDiffusionOrientationalGK"
-	    << magnet::xml::attr("species") << Sim->dynamics.getSpecies()[i]->getName()
+	    << magnet::xml::attr("species") << Sim->species[i]->getName()
 	    << magnet::xml::attr("size") << accG2_perp.size()
 	    << magnet::xml::attr("dt") << dt / Sim->dynamics.units().unitTime()
 	    << magnet::xml::attr("LengthInMFT") << dt * accG2_perp[i].size() / Sim->getOutputPlugin<OPMisc>()->getMFT()
@@ -338,7 +338,7 @@ namespace dynamo {
   {
     ++count;
 
-    BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->species)
       {
 	BOOST_FOREACH(const size_t& ID, *spec->getRange())
 	  {

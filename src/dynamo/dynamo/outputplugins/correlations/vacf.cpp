@@ -40,7 +40,7 @@ namespace dynamo {
 
     G.resize(Sim->N, boost::circular_buffer<Vector  >(CorrelatorLength, Vector(0,0,0)));
 
-    accG2.resize(Sim->dynamics.getSpecies().size());
+    accG2.resize(Sim->species.size());
 
     BOOST_FOREACH(std::vector<Vector  >& listref, accG2)
       listref.resize(CorrelatorLength, Vector (0,0,0));
@@ -211,7 +211,7 @@ namespace dynamo {
 
     for (size_t i = 0; i < accG2.size(); ++i)
       {
-	double specCount = Sim->dynamics.getSpecies()[i]->getCount();
+	double specCount = Sim->species[i]->getCount();
 
 	Vector  acc = 0.5*(accG2[i].front() + accG2[i].back());
       
@@ -222,7 +222,7 @@ namespace dynamo {
 
 	XML << magnet::xml::tag("Correlator")
 	    << magnet::xml::attr("name") << "VACF"
-	    << magnet::xml::attr("species") << Sim->dynamics.getSpecies()[i]->getName()
+	    << magnet::xml::attr("species") << Sim->species[i]->getName()
 	    << magnet::xml::attr("size") << accG2.size()
 	    << magnet::xml::attr("dt") << dt / Sim->dynamics.units().unitTime()
 	    << magnet::xml::attr("LengthInMFT") << dt * accG2[i].size() 
@@ -265,7 +265,7 @@ namespace dynamo {
   {
     ++count;
   
-    BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->dynamics.getSpecies())
+    BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->species)
       BOOST_FOREACH(const size_t& ID, *spec->getRange())
       for (size_t j = 0; j < CorrelatorLength; ++j)
 	for (size_t iDim(0); iDim < NDIM; ++iDim)

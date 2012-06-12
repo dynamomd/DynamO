@@ -60,7 +60,7 @@ namespace dynamo {
   {
     dout << "Bin width set to " << binWidth << std::endl;
 
-    data.resize(Sim->dynamics.getSpecies().size(), 
+    data.resize(Sim->species.size(), 
 		magnet::math::Histogram<>(Sim->dynamics.units().unitEnergy() * binWidth));
 
     specialhist = magnet::math::Histogram<>(Sim->dynamics.units().unitEnergy() * binWidth);
@@ -115,7 +115,7 @@ namespace dynamo {
       {
 	XML << magnet::xml::tag("Species")
 	    << magnet::xml::attr("Name")
-	    << Sim->dynamics.getSpecies()[id]->getName();
+	    << Sim->species[id]->getName();
 
 	data[id].outputHistogram(XML, 1.0 / Sim->dynamics.units().unitEnergy());
 
@@ -126,9 +126,9 @@ namespace dynamo {
     BOOST_FOREACH(const locpair& pdat, collisionKE)
       {
 	XML << magnet::xml::tag("Energy_On_Collision")
-	    << magnet::xml::attr("Species") << Sim->dynamics.getSpecies()[pdat.first.get<0>()]->getName()
+	    << magnet::xml::attr("Species") << Sim->species[pdat.first.get<0>()]->getName()
 	    << magnet::xml::attr("EventPartnerSpecies")
-	    << Sim->dynamics.getSpecies()[pdat.first.get<1>()]->getName()
+	    << Sim->species[pdat.first.get<1>()]->getName()
 	    << magnet::xml::attr("EventType") 
 	    << pdat.first.get<2>();
       

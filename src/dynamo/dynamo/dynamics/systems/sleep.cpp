@@ -179,8 +179,8 @@ namespace dynamo {
 	//If the static particle sleeps
 	if ((sleepCondition(sp, g)))
 	  {
-	    double massRatio = Sim->dynamics.getSpecies(sp).getMass(sp.getID()) 
-	      / Sim->dynamics.getSpecies(dp).getMass(dp.getID());
+	    double massRatio = Sim->species[sp].getMass(sp.getID()) 
+	      / Sim->species[dp].getMass(dp.getID());
 
 	    stateChange[sp.getID()] = Vector(0,0,0);
 	    stateChange[dp.getID()] = -sp.getVelocity() * massRatio;
@@ -200,7 +200,7 @@ namespace dynamo {
 	    //(in comparison to the other components). This means the
 	    //particle will just keep having an event, we sleep it
 	    //instead.
-	    if ((pdat.dP.nrm() / Sim->dynamics.getSpecies(dp).getMass(dp.getID())) 
+	    if ((pdat.dP.nrm() / Sim->species[dp].getMass(dp.getID())) 
 		< _sleepVelocity)
 	      {
 		stateChange[dp.getID()] = Vector(0,0,0);
@@ -283,7 +283,7 @@ namespace dynamo {
 	      type = WAKEUP;
 	  }
 
-	ParticleEventData EDat(part, Sim->dynamics.getSpecies(part), type);
+	ParticleEventData EDat(part, Sim->species[part], type);
 
 	switch (type)
 	  {
