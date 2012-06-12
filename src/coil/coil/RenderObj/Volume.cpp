@@ -19,6 +19,7 @@
 #include <coil/RenderObj/Light.hpp>
 #include <coil/glprimatives/arrow.hpp>
 #include <coil/RenderObj/console.hpp>
+#include <magnet/GL/objects/primitives/cube.hpp>
 #include <magnet/gtk/numericEntry.hpp>
 #include <magnet/clamp.hpp>
 #include <boost/lexical_cast.hpp>
@@ -42,7 +43,7 @@ namespace coil {
     _transferFuncTexture.deinit();
     _shader.deinit();
     _depthCopyShader.deinit();
-    _cube.deinit();
+    _cubeVertices.deinit();
   }
 
   void 
@@ -52,7 +53,7 @@ namespace coil {
     _shader.defines("LIGHT_COUNT") = 1;
     _shader.build();
     _depthCopyShader.build();
-    _cube.init();
+    _cubeVertices.init(magnet::GL::objects::primitives::Cube::getVertices());
     _transferFuncTexture.init(256, GL_RGBA16F);
     _transferFuncTexture.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     _transferFuncTexture.parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -315,7 +316,8 @@ namespace coil {
 					       _dimensions[0],
 					       _dimensions[1],
 					       _dimensions[2], 1);
-    _cube.glRender();
+
+    _cubeVertices.drawArray(magnet::GL::element_type::TRIANGLES);
     _shader.detach();
 
     _currentDepthFBO.getContext().setDepthTest(true);

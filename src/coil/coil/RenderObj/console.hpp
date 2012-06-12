@@ -18,8 +18,8 @@
 #pragma once
 
 #include <gtkmm.h>
+#include <magnet/GL/buffer.hpp>
 #include <coil/RenderObj/RenderObj.hpp>
-#include <magnet/GL/objects/grid.hpp>
 #include <tr1/array>
 #include <memory>
 #include <sstream>
@@ -40,7 +40,7 @@ namespace coil {
 
     void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
     void showControls(Gtk::ScrolledWindow* win);
-    void deinit() { _grid.deinit(); }
+    void deinit() { _gridVertices.deinit(); }
     void glRender(const magnet::GL::Camera& cam, RenderMode mode);
     
   private:
@@ -49,7 +49,7 @@ namespace coil {
 
     int _glutLastTime;
 
-    magnet::GL::objects::Grid _grid;
+    magnet::GL::Buffer<GLfloat> _gridVertices;
 
     std::auto_ptr<Gtk::VBox> _optList; 
     std::auto_ptr<Gtk::CheckButton> _showGrid;

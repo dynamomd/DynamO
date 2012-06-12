@@ -41,10 +41,10 @@ namespace magnet {
 	inline void deinit() { _vertexData.deinit(); _xGridLines = _yGridLines = 0; }
 
 	/*! \brief Sets up the vertex buffer objects for the regular
-	 * grid.
-	 *
-	 * \param xlines The number of grid lines in the x dimension.
-	 * \param ylines The number of grid lines in the y dimension.
+	  grid.
+	 
+	  \param xlines The number of grid lines in the x dimension.
+	  \param ylines The number of grid lines in the y dimension.
 	 */
 	inline void init(size_t xlines, size_t ylines)
 	{
@@ -77,9 +77,9 @@ namespace magnet {
 	}
 
 	/*! \brief Attaches the vertex buffer and renders the regular grid.
-	 *
-	 * The color of the grid should be set before calling this
-	 * function.
+	 
+	  The color of the grid should be set before calling this
+	  function.
 	 */
 	inline void glRender()
 	{

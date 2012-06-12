@@ -16,12 +16,6 @@
 */
 #pragma once
 #include <vector>
-#include <cmath>
-
-#include <string.h>
-#include <stdlib.h>
-#include <magnet/math/vector.hpp>
-#include <magnet/exception.hpp>
 
 namespace magnet {
   namespace GL {
@@ -29,6 +23,19 @@ namespace magnet {
       namespace primitives {
 	/*! \brief This class contains functions which generate the
             vertex data for an OpenGL cube.
+
+	    An alternative render setup for a cube is the following,
+	    but its use will generate incorrect face normals.
+
+	  GLfloat vertices[] = {-0.5,-0.5,-0.5,  0.5,-0.5,-0.5,  0.5, 0.5,-0.5, -0.5, 0.5,-0.5,
+				-0.5,-0.5, 0.5, -0.5, 0.5, 0.5,  0.5, 0.5, 0.5,  0.5,-0.5, 0.5};
+	  GLuint elements[] = {3,2,1, 1,0,3, 
+			       6,7,1, 1,2,6, 
+			       5,4,7, 7,6,5, 
+			       3,0,4, 4,5,3, 
+			       6,2,3, 3,5,6, 
+			       7,4,0, 0,1,7 };
+
 	 */
 	class Cube
 	{

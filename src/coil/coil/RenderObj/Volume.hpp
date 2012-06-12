@@ -21,9 +21,9 @@
 #include <coil/RenderObj/RenderObj.hpp>
 #include <magnet/gtk/transferFunction.hpp>
 #include <magnet/GL/texture.hpp>
+#include <magnet/GL/buffer.hpp>
 #include <magnet/GL/shader/volume.hpp>
 #include <magnet/GL/shader/detail/ssshader.hpp>
-#include <magnet/GL/objects/cube.hpp>
 #include <memory>
 #include <tr1/array>
 
@@ -81,7 +81,7 @@ void main()
     void transferFunctionUpdated();
 
     magnet::GL::shader::VolumeShader _shader;
-    magnet::GL::objects::Cube _cube;
+    magnet::GL::Buffer<GLfloat> _cubeVertices;
     magnet::GL::FBO _currentDepthFBO;
     DepthCopyShader _depthCopyShader;
     
