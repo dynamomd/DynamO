@@ -41,7 +41,7 @@ namespace dynamo {
   OPChainBondLength::initialise()
   {
     BOOST_FOREACH(const shared_ptr<Topology>& plugPtr, 
-		  Sim->dynamics.getTopology())
+		  Sim->topology)
       if (std::tr1::dynamic_pointer_cast<TChain>(plugPtr))
 	chains.push_back(Cdata(plugPtr->getID(), plugPtr->getMolecules().front()->size()));
   }
@@ -57,7 +57,7 @@ namespace dynamo {
   {
     BOOST_FOREACH(Cdata& dat, chains)
       BOOST_FOREACH(const shared_ptr<Range>& range, 
-		    Sim->dynamics.getTopology()[dat.chainID]->getMolecules())
+		    Sim->topology[dat.chainID]->getMolecules())
       if (range->size() > 2)
 	//Walk the polymer
 	for (size_t j = 0; j < range->size()-1; ++j)
@@ -75,9 +75,9 @@ namespace dynamo {
       {
 	XML << magnet::xml::tag("Chain")
 	    << magnet::xml::attr("Name") 
-	    << Sim->dynamics.getTopology()[dat.chainID]->getName();
+	    << Sim->topology[dat.chainID]->getName();
             
-	size_t Nc = Sim->dynamics.getTopology()[dat.chainID]
+	size_t Nc = Sim->topology[dat.chainID]
 	  ->getMolecules().front()->size() - 1;
       
 	for (size_t i = 0; i < Nc; ++i)

@@ -60,7 +60,7 @@ namespace dynamo {
   void 
   OPRGyration::initialise()
   {
-    BOOST_FOREACH(const shared_ptr<Topology>& plugPtr, Sim->dynamics.getTopology())
+    BOOST_FOREACH(const shared_ptr<Topology>& plugPtr, Sim->topology)
       if (std::tr1::dynamic_pointer_cast<TChain>(plugPtr))
 	chains.push_back(CTCdata(static_cast<const TChain*>(plugPtr.get()), 
 				 binwidth1 * Sim->dynamics.units().unitArea(), binwidth2, binwidth3));

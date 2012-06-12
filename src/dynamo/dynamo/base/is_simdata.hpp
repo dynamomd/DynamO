@@ -36,6 +36,7 @@ namespace dynamo
   class Ensemble;
   class Species;
   class BoundaryCondition;
+  class Topology;
   class Liouvillean;
   class OutputPlugin;
 
@@ -113,6 +114,8 @@ namespace dynamo
     shared_ptr<BoundaryCondition> BCs;
     
     shared_ptr<Liouvillean> liouvillean;
+
+    Container<Topology> topology;
 
     /*! \brief Finds a plugin of the given type using RTTI.
      */
@@ -249,7 +252,6 @@ namespace dynamo
       This is used in the EReplicaExchangeSimulation engine.
      */
     size_t replexExchangeNumber;
-
 
     /*! \brief The current phase of the Simulation.
      */

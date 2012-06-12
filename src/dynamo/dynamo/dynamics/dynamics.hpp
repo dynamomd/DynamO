@@ -37,7 +37,6 @@ namespace dynamo {
   class Local;
   class LocalEvent;
   class System;
-  class Topology;
   class Particle;
   class NEventData;
   class PairEventData;
@@ -59,7 +58,6 @@ namespace dynamo {
     void addGlobal(shared_ptr<Global> ptr);
     void addLocal(shared_ptr<Local> ptr);
     void addSystem(shared_ptr<System> ptr);
-    void addStructure(shared_ptr<Topology> ptr);
   
     const shared_ptr<Interaction>& 
     getInteraction(const Particle&, const Particle&) const; 
@@ -130,13 +128,6 @@ namespace dynamo {
     shared_ptr<Local>& getLocal(std::string);
     const shared_ptr<Local>& getLocal(std::string) const;
 
-    std::vector<shared_ptr<Topology> >& getTopology() { return topology; }
-    const std::vector<shared_ptr<Topology> >& getTopology() const { return topology; }
-
-    shared_ptr<Topology>& getTopology(std::string);
-
-    const shared_ptr<Topology>& getTopology(std::string) const;
-
     std::vector<shared_ptr<System> >& getSystemEvents() { return systems; }
     const std::vector<shared_ptr<System> >& getSystemEvents() const { return systems; }
     const shared_ptr<System>& getSystem(std::string) const;
@@ -165,7 +156,6 @@ namespace dynamo {
     std::vector<shared_ptr<Global> > globals;
     std::vector<shared_ptr<Local> > locals;
     std::vector<shared_ptr<System> > systems;
-    std::vector<shared_ptr<Topology> > topology;
     Units _units;
   };
 }

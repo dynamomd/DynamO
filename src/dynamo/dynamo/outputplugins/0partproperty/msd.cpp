@@ -60,11 +60,11 @@ namespace dynamo {
 	    << magnet::xml::endtag("Species");
       }
 
-    if (!Sim->dynamics.getTopology().empty())
+    if (!Sim->topology.empty())
       {
 	XML << magnet::xml::tag("Structures");
 
-	BOOST_FOREACH(const shared_ptr<Topology>& topo, Sim->dynamics.getTopology())
+	BOOST_FOREACH(const shared_ptr<Topology>& topo, Sim->topology)
 	  {
 	    double MSD(calcStructMSD(*topo));
 

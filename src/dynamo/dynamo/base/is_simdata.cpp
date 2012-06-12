@@ -21,6 +21,7 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/dynamics/systems/system.hpp>
 #include <dynamo/dynamics/species/species.hpp>
+#include <dynamo/dynamics/topology/topology.hpp>
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/device/file.hpp>
@@ -205,6 +206,14 @@ namespace dynamo
 
     liouvillean = Liouvillean::getClass(simNode.getNode("Dynamics"), this);
 
+    if (simNode.hasNode("Topology"))
+      {
+	size_t i(0);
+	for (magnet::xml::Node node = simNode.getNode("Topology").fastGetNode("Structure");
+	     node.valid(); ++node, ++i)
+	  topology.push_back(Topology::getClass(node, this, i));
+      }
+
     dynamics << simNode;
     ptrScheduler = Scheduler::getClass(simNode.getNode("Scheduler"), this);
 
@@ -287,6 +296,14 @@ namespace dynamo
       	<< magnet::xml::tag("BC")
 	<< *BCs
 	<< magnet::xml::endtag("BC")
+	<< magnet::xml::tag("Topology");
+  
+    BOOST_FOREACH(const shared_ptr<Topology>& ptr, topology)
+      XML << magnet::xml::tag("Structure")
+	  << *ptr
+	  << magnet::xml::endtag("Structure");
+    
+    XML << magnet::xml::endtag("Topology")
 	<< dynamics
       	<< magnet::xml::tag("Dynamics")
 	<< *liouvillean

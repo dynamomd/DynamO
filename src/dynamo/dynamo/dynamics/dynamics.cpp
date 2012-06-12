@@ -39,26 +39,6 @@ namespace dynamo {
 
   Dynamics::~Dynamics() {}
 
-  shared_ptr<Topology>& 
-  Dynamics::getTopology(std::string name)
-  {
-    BOOST_FOREACH(shared_ptr<Topology>& sysPtr, topology)
-      if (sysPtr->getName() == name)
-	return sysPtr;
-  
-    M_throw() << "Could not find the topology " << name;
-  }
-
-  const shared_ptr<Topology>& 
-  Dynamics::getTopology(std::string name) const
-  {
-    BOOST_FOREACH(const shared_ptr<Topology>& sysPtr, topology)
-      if (sysPtr->getName() == name)
-	return sysPtr;
-  
-    M_throw() << "Could not find the topology " << name;
-  }
-
   magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
 				     const Dynamics& g)
   {
@@ -169,15 +149,7 @@ namespace dynamo {
       M_throw() << "Cannot add system events at this time, system is initialised";
     systems.push_back(ptr); 
   }
-  
-  void Dynamics::addStructure(shared_ptr<Topology> ptr)
-  { 
-    if (!ptr) M_throw() << "Cannot add an unset Topology";
-    if (Sim->status >= INITIALISED)
-      M_throw() << "Cannot add structure after simulation initialisation";
-    topology.push_back(ptr);
-  }
-  
+    
   void 
   Dynamics::addSystemTicker()
   {
@@ -312,14 +284,6 @@ namespace dynamo {
   void
   Dynamics::operator<<(const magnet::xml::Node& XML)
   {
-    if (XML.hasNode("Topology"))
-      {
-	size_t i(0);
-	for (magnet::xml::Node node = XML.getNode("Topology").fastGetNode("Structure");
-	     node.valid(); ++node, ++i)
-	  topology.push_back(Topology::getClass(node, Sim, i));
-      }
-    
     for (magnet::xml::Node node = XML.getNode("Interactions").fastGetNode("Interaction");
 	 node.valid(); ++node)
       interactions.push_back(Interaction::getClass(node, Sim));
@@ -352,15 +316,7 @@ namespace dynamo {
   void
   Dynamics::outputXML(magnet::xml::XmlStream &XML) const
   {
-    XML << magnet::xml::tag("Topology");
-  
-    BOOST_FOREACH(const shared_ptr<Topology>& ptr, topology)
-      XML << magnet::xml::tag("Structure")
-	  << *ptr
-	  << magnet::xml::endtag("Structure");
-  
-    XML << magnet::xml::endtag("Topology")
-	<< magnet::xml::tag("SystemEvents");
+    XML << magnet::xml::tag("SystemEvents");
   
     BOOST_FOREACH(const shared_ptr<System>& ptr, systems)
       XML << *ptr;

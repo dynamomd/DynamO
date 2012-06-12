@@ -42,7 +42,7 @@ namespace dynamo {
   void 
   OPCContactMap::initialise()
   {
-    BOOST_FOREACH(const shared_ptr<Topology>& plugPtr, Sim->dynamics.getTopology())
+    BOOST_FOREACH(const shared_ptr<Topology>& plugPtr, Sim->topology)
       if (std::tr1::dynamic_pointer_cast<TChain>(plugPtr))
 	chains.push_back(Cdata(static_cast<const TChain*>(plugPtr.get()), 
 			       plugPtr->getMolecules().front()->size()));
@@ -56,9 +56,8 @@ namespace dynamo {
     BOOST_FOREACH(Cdata& dat, chains)
       {
 	try {
-	  const Topology* tmpPtr = Sim->dynamics.getTopology(dat.chainPtr->getName()).get();
-	  dat.chainPtr = dynamic_cast<const TChain*>(tmpPtr);
-	} catch (std::exception&)
+	  dat.chainPtr = &dynamic_cast<const TChain&>(Sim->topology[dat.chainPtr->getName()]);
+	} catch (...)
 	  {
 	    M_throw() << "On changing the system OPCContactMap could not find the topology \"" 
 		      << dat.chainPtr->getName() << "\"\n in the new system";

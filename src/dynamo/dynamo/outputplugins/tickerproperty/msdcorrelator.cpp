@@ -67,7 +67,7 @@ namespace dynamo {
     speciesData.resize(Sim->species.size(), 
 		       std::vector<double>(length, 0.0));
 
-    structData.resize(Sim->dynamics.getTopology().size(), 
+    structData.resize(Sim->topology.size(), 
 		      std::vector<double>(length, 0.0));
   }
 
@@ -99,7 +99,7 @@ namespace dynamo {
 	speciesData[sp->getID()][step]
 	  += (posHistory[ID][step] - posHistory[ID][0]).nrm2();
   
-    BOOST_FOREACH(const shared_ptr<Topology>& topo, Sim->dynamics.getTopology())
+    BOOST_FOREACH(const shared_ptr<Topology>& topo, Sim->topology)
       BOOST_FOREACH(const shared_ptr<Range>& range, topo->getMolecules())
       {
 	Vector  molCOM(0,0,0);
@@ -161,7 +161,7 @@ namespace dynamo {
 	<< magnet::xml::tag("Topology");
   
     BOOST_FOREACH(const shared_ptr<Topology>& topo, 
-		  Sim->dynamics.getTopology())
+		  Sim->topology)
       {
 	XML << magnet::xml::tag("Structure")
 	    << magnet::xml::attr("Name")

@@ -40,7 +40,7 @@ namespace dynamo {
       M_throw() << "Periodic MSD plugin requires MSD plugin!";
 
     //Now cache a local list of the topology
-    BOOST_FOREACH(const shared_ptr<Topology>& topo, Sim->dynamics.getTopology())
+    BOOST_FOREACH(const shared_ptr<Topology>& topo, Sim->topology)
       {
 	localpair2 tmpPair;
 	tmpPair.first = topo.get();

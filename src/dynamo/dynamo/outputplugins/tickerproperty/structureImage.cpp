@@ -66,13 +66,13 @@ namespace dynamo {
 	 << " snapshots"<< std::endl;
 
 
-    id = Sim->dynamics.getTopology().size();
+    id = Sim->topology.size();
   
-    BOOST_FOREACH(const shared_ptr<Topology>& ptr, Sim->dynamics.getTopology())
+    BOOST_FOREACH(const shared_ptr<Topology>& ptr, Sim->topology)
       if (boost::iequals(structureName, ptr->getName()))
 	id = ptr->getID();
   
-    if (id == Sim->dynamics.getTopology().size())
+    if (id == Sim->topology.size())
       M_throw() << "Could not find a structure named " << structureName << " in the simulation";
   
     imagelist.clear();
@@ -98,7 +98,7 @@ namespace dynamo {
   void
   OPStructureImaging::printImage()
   {
-    BOOST_FOREACH(const shared_ptr<Range>& prange, Sim->dynamics.getTopology()[id]->getMolecules())
+    BOOST_FOREACH(const shared_ptr<Range>& prange, Sim->topology[id]->getMolecules())
       {
 	std::vector<Vector  > atomDescription;
 

@@ -528,9 +528,9 @@ namespace dynamo {
 	  //Set the unit energy to 1 (assuming the unit of mass is 1);
 	  Sim->dynamics.units().setUnitTime(diamScale); 
 
-	  Sim->dynamics.addStructure(shared_ptr<Topology>(new TChain(Sim, 1, "HelixPolymer")));
+	  Sim->topology.push_back(shared_ptr<Topology>(new TChain(Sim, 1, "HelixPolymer")));
 
-	  Sim->dynamics.getTopology().back()->addMolecule(new RAll(Sim));
+	  Sim->topology.back()->addMolecule(new RAll(Sim));
 
 	  unsigned long nParticles = 0;
 
@@ -778,9 +778,9 @@ namespace dynamo {
 	  //Set the unit energy to 1 (assuming the unit of mass is 1);
 	  Sim->dynamics.units().setUnitTime(diamScale); 
 
-	  Sim->dynamics.addStructure(shared_ptr<Topology>(new TChain(Sim, 1, "HelixPolymer")));
+	  Sim->topology.push_back(shared_ptr<Topology>(new TChain(Sim, 1, "HelixPolymer")));
 
-	  Sim->dynamics.getTopology().back()->addMolecule(new RAll(Sim));
+	  Sim->topology.back()->addMolecule(new RAll(Sim));
 
 	  unsigned long nParticles = 0;
 
@@ -948,9 +948,9 @@ namespace dynamo {
 				   (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0,
 						"Bulk")));
 
-	  Sim->dynamics.addStructure(shared_ptr<Topology>(new TChain(Sim, 1, "Ring")));
+	  Sim->topology.push_back(shared_ptr<Topology>(new TChain(Sim, 1, "Ring")));
 
-	  Sim->dynamics.getTopology().back()->addMolecule(new RAll(Sim));
+	  Sim->topology.back()->addMolecule(new RAll(Sim));
 
 	  unsigned long nParticles = 0;
 
@@ -3039,9 +3039,9 @@ namespace dynamo {
 	  //Set the unit energy to 1 (assuming the unit of mass is 1);
 	  Sim->dynamics.units().setUnitTime(diamScale); 
 
-	  Sim->dynamics.addStructure(shared_ptr<Topology>(new TChain(Sim, 1, "HelixPolymer")));
+	  Sim->topology.push_back(shared_ptr<Topology>(new TChain(Sim, 1, "HelixPolymer")));
 
-	  Sim->dynamics.getTopology().back()->addMolecule(new RAll(Sim));
+	  Sim->topology.back()->addMolecule(new RAll(Sim));
 
 	  unsigned long nParticles = 0;
 
