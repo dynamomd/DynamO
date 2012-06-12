@@ -53,7 +53,7 @@ namespace dynamo {
     if (part.getID() == lastID) return LocalEvent(part, HUGE_VAL, NONE, *this);
   
     Vector rij = part.getPosition() - vPosition;
-    Sim->dynamics.BCs().applyBC(rij);
+    Sim->BCs->applyBC(rij);
 
     Vector norm(vNorm);
     if ((norm | rij) < 0)
@@ -71,7 +71,7 @@ namespace dynamo {
     Vector norm = vNorm;
 
     Vector rij = part.getPosition() - vPosition;
-    Sim->dynamics.BCs().applyBC(rij);
+    Sim->BCs->applyBC(rij);
   
     if ((norm | rij) < 0)
       norm *= -1;

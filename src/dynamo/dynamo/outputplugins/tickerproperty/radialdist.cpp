@@ -133,7 +133,7 @@ namespace dynamo {
 	Vector  rij = Sim->particleList[p1].getPosition()
 	  - Sim->particleList[p2].getPosition();
 	
-	Sim->dynamics.BCs().applyBC(rij);
+	Sim->BCs->applyBC(rij);
 	
 	size_t i = (long) (((rij.nrm())/binWidth) + 0.5);
 	

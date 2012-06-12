@@ -120,7 +120,7 @@ namespace dynamo {
     BOOST_FOREACH( const Particle & Part, Sim->particleList)
       {
 	Vector  pos(Part.getPosition()), vel(Part.getVelocity());
-	Sim->dynamics.BCs().applyBC(pos, vel);
+	Sim->BCs->applyBC(pos, vel);
 	sumMV += vel * Sim->species[Part].getMass(Part.getID());
       }
 

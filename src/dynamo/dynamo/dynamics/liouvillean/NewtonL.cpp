@@ -48,7 +48,7 @@ namespace dynamo {
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
-    Sim->dynamics.BCs().applyBC(r12, v12);
+    Sim->BCs->applyBC(r12, v12);
     return magnet::intersection::ray_AAcube_bfc(r12, v12, 2 * Vector(d, d, d));
   }
 
@@ -57,7 +57,7 @@ namespace dynamo {
 			  const double d) const
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
-    Sim->dynamics.BCs().applyBC(r12);
+    Sim->BCs->applyBC(r12);
     return magnet::overlap::point_cube(r12, 2 * Vector(d, d, d));
   }
 
@@ -66,7 +66,7 @@ namespace dynamo {
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
-    Sim->dynamics.BCs().applyBC(r12, v12);
+    Sim->BCs->applyBC(r12, v12);
     return magnet::intersection::ray_sphere_bfc(r12, v12, d);
   }
 
@@ -77,7 +77,7 @@ namespace dynamo {
     std::pair<Vector, Vector> r2data = getCOMPosVel(p2);
     Vector r12 = r1data.first - r2data.first;
     Vector v12 = r1data.second - r2data.second;
-    Sim->dynamics.BCs().applyBC(r12, v12);
+    Sim->BCs->applyBC(r12, v12);
     return magnet::intersection::ray_sphere_bfc(r12, v12, d);
   }
   
@@ -86,7 +86,7 @@ namespace dynamo {
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
-    Sim->dynamics.BCs().applyBC(r12, v12);
+    Sim->BCs->applyBC(r12, v12);
     return magnet::intersection::ray_inv_sphere_bfc<true>(r12, v12, d);
   }
 
@@ -97,7 +97,7 @@ namespace dynamo {
     std::pair<Vector, Vector> r2data = getCOMPosVel(p2);
     Vector r12 = r1data.first - r2data.first;
     Vector v12 = r1data.second - r2data.second;
-    Sim->dynamics.BCs().applyBC(r12, v12);
+    Sim->BCs->applyBC(r12, v12);
     return magnet::intersection::ray_inv_sphere_bfc<true>(r12, v12, d);
   }
 
@@ -162,7 +162,7 @@ namespace dynamo {
     Vector  rij = part.getPosition() - wallLoc,
       vel = part.getVelocity();
 
-    Sim->dynamics.BCs().applyBC(rij, vel);
+    Sim->BCs->applyBC(rij, vel);
 
     return magnet::intersection::ray_plane<true>(rij, vel, wallNorm);
   }
@@ -180,7 +180,7 @@ namespace dynamo {
     Vector T = part.getPosition() - A;
     //The ray direction
     Vector D = part.getVelocity();
-    Sim->dynamics.BCs().applyBC(T, D);
+    Sim->BCs->applyBC(T, D);
 
     //The edge vectors
     Vector E1 = B - A;
@@ -296,7 +296,7 @@ namespace dynamo {
   {
     Vector  rpos(part.getPosition() - origin);
     Vector  vel(part.getVelocity());
-    Sim->dynamics.BCs().applyBC(rpos, vel);
+    Sim->BCs->applyBC(rpos, vel);
   
 #ifdef DYNAMO_DEBUG
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -331,7 +331,7 @@ namespace dynamo {
     Vector  rpos(part.getPosition() - origin);
     Vector  vel(part.getVelocity());
 
-    Sim->dynamics.BCs().applyBC(rpos, vel);
+    Sim->BCs->applyBC(rpos, vel);
 
     int retVal(0);
     double time(HUGE_VAL);
@@ -372,9 +372,9 @@ namespace dynamo {
     updateParticlePair(Sim->particleList[p1.getID()], Sim->particleList[p2.getID()]);
 
     Vector vij = p1.getVelocity() - p2.getVelocity();
-    Sim->dynamics.BCs().applyBC(rij, vij);
+    Sim->BCs->applyBC(rij, vij);
 
-    //Sim->dynamics.BCs().applyBC(pdat.rij, pdat.vij);
+    //Sim->BCs->applyBC(pdat.rij, pdat.vij);
     double rvdot = (rij | vij);
   
     if (rvdot > 0)
@@ -394,7 +394,7 @@ namespace dynamo {
     updateParticlePair(Sim->particleList[p1.getID()], Sim->particleList[p2.getID()]);
 
     Vector vij = p1.getVelocity() - p2.getVelocity();
-    Sim->dynamics.BCs().applyBC(rij, vij);
+    Sim->BCs->applyBC(rij, vij);
 
     double rvdot = (rij | vij);
 
@@ -438,7 +438,7 @@ namespace dynamo {
 			 Sim->species[particle2],
 			 eType);
     
-    Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
+    Sim->BCs->applyBC(retVal.rij, retVal.vijold);
   
     double p1Mass = retVal.particle1_.getSpecies().getMass(particle1.getID()); 
     double p2Mass = retVal.particle2_.getSpecies().getMass(particle2.getID());
@@ -508,7 +508,7 @@ namespace dynamo {
 			 Sim->species[particle2],
 			 eType);
     
-    Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
+    Sim->BCs->applyBC(retVal.rij, retVal.vijold);
   
     size_t dim(0);
    
@@ -561,7 +561,7 @@ namespace dynamo {
 	Vector pos(Sim->particleList[ID].getPosition()),
 	  vel(Sim->particleList[ID].getVelocity());
 
-	Sim->dynamics.BCs().applyBC(pos, vel);
+	Sim->BCs->applyBC(pos, vel);
 
 	COMVel1 += vel * mass;
 
@@ -578,7 +578,7 @@ namespace dynamo {
 	Vector pos(Sim->particleList[ID].getPosition()),
 	  vel(Sim->particleList[ID].getVelocity());
 
-	Sim->dynamics.BCs().applyBC(pos, vel);
+	Sim->BCs->applyBC(pos, vel);
 
 	COMVel2 += vel * mass;      
 
@@ -592,7 +592,7 @@ namespace dynamo {
     COMPos2 /= structmass2;
   
     Vector  rij = COMPos1 - COMPos2, vij = COMVel1 - COMVel2;
-    Sim->dynamics.BCs().applyBC(rij, vij);
+    Sim->BCs->applyBC(rij, vij);
     double rvdot = (rij | vij);
 
     double mu = structmass1 * structmass2 / (structmass1 + structmass2);
@@ -653,7 +653,7 @@ namespace dynamo {
 	Vector pos(Sim->particleList[ID].getPosition()),
 	  vel(Sim->particleList[ID].getVelocity());
       
-	Sim->dynamics.BCs().applyBC(pos, vel);
+	Sim->BCs->applyBC(pos, vel);
 
 	COMVel1 += vel * mass;
 
@@ -671,7 +671,7 @@ namespace dynamo {
 	Vector pos(Sim->particleList[ID].getPosition()),
 	  vel(Sim->particleList[ID].getVelocity());
 
-	Sim->dynamics.BCs().applyBC(pos, vel);
+	Sim->BCs->applyBC(pos, vel);
 	COMVel2 += vel * mass;
 	COMPos2 += pos * mass;
       }
@@ -683,7 +683,7 @@ namespace dynamo {
     COMPos2 /= structmass2;
   
     Vector  rij = COMPos1 - COMPos2, vij = COMVel1 - COMVel2;
-    Sim->dynamics.BCs().applyBC(rij, vij);
+    Sim->BCs->applyBC(rij, vij);
     double rvdot = (rij | vij);
 
     double mu = structmass1 * structmass2 / (structmass1 + structmass2);
@@ -763,7 +763,7 @@ namespace dynamo {
 			 Sim->species[particle2],
 			 event.getType());
     
-    Sim->dynamics.BCs().applyBC(retVal.rij,retVal.vijold);
+    Sim->BCs->applyBC(retVal.rij,retVal.vijold);
   
     retVal.rvdot = (retVal.rij | retVal.vijold);
   
@@ -846,7 +846,7 @@ namespace dynamo {
 
     Vector pos(part.getPosition()), vel(part.getVelocity());
 
-    Sim->dynamics.BCs().applyBC(pos, vel);
+    Sim->BCs->applyBC(pos, vel);
 
     double retval = HUGE_VAL;
 
@@ -874,7 +874,7 @@ namespace dynamo {
 #endif
   
     Vector pos(part.getPosition() - nrw0), vel(part.getVelocity());
-    Sim->dynamics.BCs().applyBC(pos, vel);
+    Sim->BCs->applyBC(pos, vel);
 
     double t_high;
     double surfaceOffset = pos | nhat;
@@ -1083,7 +1083,7 @@ namespace dynamo {
 
     Vector pos(part.getPosition() - fL.wallPosition()), vel(part.getVelocity());
 
-    Sim->dynamics.BCs().applyBC(pos, vel);
+    Sim->BCs->applyBC(pos, vel);
   
     double pmass = retVal.getSpecies().getMass(part.getID());
     double mu = (pmass * mass) / (mass + pmass);
@@ -1206,7 +1206,7 @@ namespace dynamo {
     Vector  rij = part.getPosition() - wallLoc,
       vel = part.getVelocity();
 
-    Sim->dynamics.BCs().applyBC(rij, vel);
+    Sim->BCs->applyBC(rij, vel);
 
     rij -= Vector((rij | wallNorm) * wallNorm);
 
@@ -1237,7 +1237,7 @@ namespace dynamo {
   
     Vector rij =  origin - part.getPosition();
 
-    Sim->dynamics.BCs().applyBC(rij);
+    Sim->BCs->applyBC(rij);
 
     rij -= Vector((rij | vNorm) * vNorm);
 
@@ -1264,7 +1264,7 @@ namespace dynamo {
   
     Vector rij =  origin - part.getPosition();
 
-    Sim->dynamics.BCs().applyBC(rij);
+    Sim->BCs->applyBC(rij);
 
     rij /= rij.nrm();
 
@@ -1294,7 +1294,7 @@ namespace dynamo {
 
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
-    Sim->dynamics.BCs().applyBC(r12, v12);
+    Sim->BCs->applyBC(r12, v12);
 
     double t_low = 0.0;
   
@@ -1342,7 +1342,7 @@ namespace dynamo {
 			 Sim->species[particle2],
 			 CORE);
   
-    Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
+    Sim->BCs->applyBC(retVal.rij, retVal.vijold);
 
     retVal.rvdot = (retVal.rij | retVal.vijold);
 
@@ -1398,7 +1398,7 @@ namespace dynamo {
 			    const double& d) const
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
-    Sim->dynamics.BCs().applyBC(r12);
+    Sim->BCs->applyBC(r12);
 
     return std::sqrt(std::max(d * d - (r12 | r12), 0.0));
   }
@@ -1423,7 +1423,7 @@ namespace dynamo {
 
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
-    Sim->dynamics.BCs().applyBC(r12, v12);
+    Sim->BCs->applyBC(r12, v12);
 
     double t_low = 0.0;
     double t_high = t_h_init;
@@ -1513,7 +1513,7 @@ namespace dynamo {
 			 Sim->species[particle2],
 			 CORE);
   
-    Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
+    Sim->BCs->applyBC(retVal.rij, retVal.vijold);
 
     retVal.rvdot = (retVal.rij | retVal.vijold);
     dout << "Two sphere collision\n" << std::endl;
@@ -1688,7 +1688,7 @@ namespace dynamo {
 			 Sim->species[particle2],
 			 eType);
     
-    Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
+    Sim->BCs->applyBC(retVal.rij, retVal.vijold);
   
     double p1Mass = retVal.particle1_.getSpecies().getMass(particle1.getID()); 
     double p2Mass = retVal.particle2_.getSpecies().getMass(particle2.getID());

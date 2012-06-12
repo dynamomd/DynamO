@@ -129,7 +129,7 @@ namespace dynamo {
       {
 	Vector pos(part.getPosition()), vel(part.getVelocity());
 	double pmass(Sim->species[part].getMass(part.getID()));
-	Sim->dynamics.BCs().applyBC(pos, vel);
+	Sim->BCs->applyBC(pos, vel);
 	momentum += vel * pmass;
 	sqmom += (vel | vel) * (pmass * pmass);
 	com += pos * pmass;

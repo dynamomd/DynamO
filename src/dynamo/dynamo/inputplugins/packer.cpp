@@ -119,7 +119,7 @@ namespace dynamo {
     //Set the default liouvillean
     Sim->dynamics.setLiouvillean(shared_ptr<Liouvillean>(new LNewtonian(Sim)));
     //Set the default Boundary Conditions
-    Sim->dynamics.applyBC<BCPeriodic>();
+    Sim->BCs = shared_ptr<BoundaryCondition>(new BCPeriodic(Sim));
 
     std::string defaultOptionText = 
       " Options\n"
@@ -665,7 +665,7 @@ namespace dynamo {
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELBoundedPQ<>(Sim)));
 	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
 
-	  Sim->dynamics.applyBC<BCLeesEdwards>();
+	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCLeesEdwards(Sim));
 	  const double shearRate = 1;
 
 	  Sim->dynamics.addInteraction
@@ -810,7 +810,7 @@ namespace dynamo {
 
 	  Sim->primaryCellSize = getNormalisedCellDimensions();
 	  //Cut off the x periodic boundaries
-	  Sim->dynamics.applyBC<BCPeriodicExceptX>();
+	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCPeriodicExceptX(Sim));
 	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  double simVol = 1.0;
@@ -1429,7 +1429,7 @@ namespace dynamo {
 	  std::vector<Vector  >
 	    latticeSites(packroutine.placeObjects(Vector (0,0,0)));
 
-	  Sim->dynamics.applyBC<BCLeesEdwards>();
+	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCLeesEdwards(Sim));
 
 	  double particleDiam = pow(vm["density"].as<double>()
 				    / latticeSites.size(), double(1.0 / 3.0));
@@ -2060,7 +2060,7 @@ namespace dynamo {
 	  std::vector<Vector>
 	    latticeSites(packptr->placeObjects(particleCOM));
 
-	  Sim->dynamics.applyBC<BCNone>();
+	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCNone(Sim));
 	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  double simVol = 1.0;
@@ -2264,7 +2264,7 @@ namespace dynamo {
 	  //Shrink the box a little more
 	  boxlimit *= 0.9;
 
-	  Sim->dynamics.applyBC<BCPeriodicXOnly>();
+	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCPeriodicXOnly(Sim));
 	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  double particleDiam 
@@ -2319,7 +2319,7 @@ namespace dynamo {
 	    latticeSites(packptr->placeObjects(Vector(0,0,0)));
 
 	  Sim->primaryCellSize = getNormalisedCellDimensions();
-	  Sim->dynamics.applyBC<BCNone>();
+	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCNone(Sim));
 	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  double simVol = 1.0;
@@ -3381,7 +3381,7 @@ namespace dynamo {
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELBoundedPQ<>(Sim)));
 	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
 
-	  Sim->dynamics.applyBC<BCLeesEdwards>();
+	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCLeesEdwards(Sim));
 	  const double shearRate(1);
 
 	  shared_ptr<ParticleProperty> D(new ParticleProperty(latticeSites.size(), 

@@ -83,7 +83,7 @@ namespace dynamo {
   ISoftCore::getGlyphPosition(size_t ID, size_t subID) const
   { 
     Vector retval = Sim->particleList[ID].getPosition();
-    Sim->dynamics.BCs().applyBC(retval);
+    Sim->BCs->applyBC(retval);
     return retval;
   }
 
@@ -207,7 +207,7 @@ namespace dynamo {
   ISoftCore::checkOverlaps(const Particle& part1, const Particle& part2) const
   {
     Vector  rij = part1.getPosition() - part2.getPosition();
-    Sim->dynamics.BCs().applyBC(rij);
+    Sim->BCs->applyBC(rij);
     double r2 = rij.nrm2();
 
     double d2 = (_diameter->getProperty(part1.getID())

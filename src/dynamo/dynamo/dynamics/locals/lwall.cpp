@@ -127,7 +127,7 @@ namespace dynamo {
   LWall::checkOverlaps(const Particle& p1) const
   {
     Vector pos(p1.getPosition() - vPosition);
-    Sim->dynamics.BCs().applyBC(pos);
+    Sim->BCs->applyBC(pos);
 
     double r = (pos | vNorm);
   

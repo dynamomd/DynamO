@@ -223,7 +223,7 @@ namespace dynamo {
     size_t retval(0);
     size_t factor(1);
   
-    Sim->dynamics.BCs().applyBC(pos);
+    Sim->BCs->applyBC(pos);
 
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       {
@@ -248,7 +248,7 @@ namespace dynamo {
 	    Vector  position = Part.getPosition(),
 	      velocity = Part.getVelocity();
 	  
-	    Sim->dynamics.BCs().applyBC(position, velocity);
+	    Sim->BCs->applyBC(position, velocity);
 	  
 	    size_t id(getCellID(position));
 	  

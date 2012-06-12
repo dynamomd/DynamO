@@ -101,7 +101,7 @@ namespace dynamo {
 
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
-    Sim->dynamics.BCs().applyBC(r12, v12);
+    Sim->BCs->applyBC(r12, v12);
 
     //One particle feels gravity and the other does not. Here we get the
     //sign right on the acceleration g12
@@ -148,7 +148,7 @@ namespace dynamo {
     Vector r12 = r1data.first - r2data.first;
     Vector v12 = r1data.second - r2data.second;
     Vector a12 = g * (accel1sum - accel2sum);
-    Sim->dynamics.BCs().applyBC(r12, v12);
+    Sim->BCs->applyBC(r12, v12);
     return magnet::intersection::parabola_sphere_bfc(r12, v12, a12, d);
   }
   
@@ -163,7 +163,7 @@ namespace dynamo {
 
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
-    Sim->dynamics.BCs().applyBC(r12, v12);
+    Sim->BCs->applyBC(r12, v12);
 
     //One particle feels gravity and the other does not. Here we get the
     //sign right on the acceleration g12
@@ -210,7 +210,7 @@ namespace dynamo {
     Vector r12 = r1data.first - r2data.first;
     Vector v12 = r1data.second - r2data.second;
     Vector a12 = g * (accel1sum - accel2sum);
-    Sim->dynamics.BCs().applyBC(r12, v12);
+    Sim->BCs->applyBC(r12, v12);
 
     M_throw() << "Not implemented yet";
     //return magnet::intersection::parabola_inv_sphere_bfc(r12, v12, a12, d);
@@ -225,7 +225,7 @@ namespace dynamo {
     Vector  rij = part.getPosition() - wallLoc,
       vij = part.getVelocity();
 
-    Sim->dynamics.BCs().applyBC(rij, vij);
+    Sim->BCs->applyBC(rij, vij);
 
     return magnet::intersection::parabola_plane_bfc(rij, vij, g * part.testState(Particle::DYNAMIC), wallNorm);
   }
@@ -237,7 +237,7 @@ namespace dynamo {
   {
     Vector rpos(part.getPosition() - origin);
     Vector vel(part.getVelocity());
-    Sim->dynamics.BCs().applyBC(rpos, vel);
+    Sim->BCs->applyBC(rpos, vel);
   
 #ifdef DYNAMO_DEBUG
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -312,7 +312,7 @@ namespace dynamo {
     Vector  rpos(part.getPosition() - origin);
     Vector  vel(part.getVelocity());
 
-    Sim->dynamics.BCs().applyBC(rpos, vel);
+    Sim->BCs->applyBC(rpos, vel);
 
     int retVal(0);
     double time(HUGE_VAL);
@@ -412,7 +412,7 @@ namespace dynamo {
 
     Vector pos(part.getPosition()), vel(part.getVelocity());
 
-    Sim->dynamics.BCs().applyBC(pos, vel);
+    Sim->BCs->applyBC(pos, vel);
 
     double retval = HUGE_VAL;
 
@@ -485,7 +485,7 @@ namespace dynamo {
     Vector rij = particle1.getPosition() - particle2.getPosition(),
       vij = particle1.getVelocity() - particle2.getVelocity();
 
-    Sim->dynamics.BCs().applyBC(rij, vij);
+    Sim->BCs->applyBC(rij, vij);
 
 
     //Check if two particles are collapsing
@@ -538,7 +538,7 @@ namespace dynamo {
     if (!part.testState(Particle::DYNAMIC)) return HUGE_VAL; //Particle is not dynamic (does not feel gravity)
 
     Vector pos(part.getPosition()), vel(part.getVelocity());  
-    Sim->dynamics.BCs().applyBC(pos, vel);
+    Sim->BCs->applyBC(pos, vel);
   
     //We return the time of the next turning point, per dimension
     double time = HUGE_VAL;
@@ -557,7 +557,7 @@ namespace dynamo {
   {
     updateParticle(part);
     Vector pos(part.getPosition()), vel(part.getVelocity());
-    Sim->dynamics.BCs().applyBC(pos, vel);
+    Sim->BCs->applyBC(pos, vel);
 
     //Find the dimension that is closest to 
     size_t dim = NDIM;
@@ -597,7 +597,7 @@ namespace dynamo {
     Vector T = part.getPosition() - A;
     //The ray direction
     Vector D = part.getVelocity();
-    Sim->dynamics.BCs().applyBC(T, D);
+    Sim->BCs->applyBC(T, D);
 
     //The edge vectors
     Vector E1 = B - A;

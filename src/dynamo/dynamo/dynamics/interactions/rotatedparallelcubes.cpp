@@ -53,7 +53,7 @@ namespace dynamo {
   Vector IParallelCubes::getGlyphPosition(size_t ID, size_t subID) const
   {
     Vector retval = Sim->particleList[ID].getPosition();
-    Sim->dynamics.BCs().applyBC(retval);
+    Sim->BCs->applyBC(retval);
     return retval;
   }
 
@@ -166,7 +166,7 @@ namespace dynamo {
   IParallelCubes::checkOverlaps(const Particle& part1, const Particle& part2) const
   {
     Vector  rij = part1.getPosition() - part2.getPosition();  
-    Sim->dynamics.BCs().applyBC(rij); 
+    Sim->BCs->applyBC(rij); 
 
     double d = (_diameter->getProperty(part1.getID())
 		+ _diameter->getProperty(part2.getID())) * 0.5;

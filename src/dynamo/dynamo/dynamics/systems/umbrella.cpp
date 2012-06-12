@@ -155,7 +155,7 @@ namespace dynamo {
     std::pair<Vector, Vector> r1data = Sim->dynamics.getLiouvillean().getCOMPosVel(*range1);
     std::pair<Vector, Vector> r2data = Sim->dynamics.getLiouvillean().getCOMPosVel(*range2);
     Vector r12 = r1data.first - r2data.first;
-    Sim->dynamics.BCs().applyBC(r12);
+    Sim->BCs->applyBC(r12);
 
     double r = r12.nrm();
     

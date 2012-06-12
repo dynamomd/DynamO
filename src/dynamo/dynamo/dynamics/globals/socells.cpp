@@ -137,7 +137,7 @@ namespace dynamo {
 
     Vector pos(part.getPosition()), vel(part.getVelocity());
 
-    Sim->dynamics.BCs().applyBC(pos, vel);
+    Sim->BCs->applyBC(pos, vel);
 
     vNorm[cellDirection] = (cellDirectionInt > 0) ? -1 : +1; 
     

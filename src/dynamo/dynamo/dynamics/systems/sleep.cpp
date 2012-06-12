@@ -115,7 +115,7 @@ namespace dynamo {
   SSleep::sleepCondition(const Particle& part, const Vector& g, const Vector& vel)
   {
     Vector diff(part.getPosition() - _lastData[part.getID()].first);
-    Sim->dynamics.BCs().applyBC(diff);
+    Sim->BCs->applyBC(diff);
   
     double gnrm = g.nrm();
 

@@ -64,7 +64,7 @@ namespace dynamo {
       - Sim->particleList[id2].getVelocity();
   
 
-    Sim->dynamics.BCs().applyBC(rij, vij);
+    Sim->BCs->applyBC(rij, vij);
   
     rij /= Sim->dynamics.units().unitLength();
     vij /= Sim->dynamics.units().unitVelocity();

@@ -127,7 +127,7 @@ namespace dynamo {
 			 Sim->species[particle2],
 			 event.getType());
     
-    Sim->dynamics.BCs().applyBC(retVal.rij,retVal.vijold);
+    Sim->BCs->applyBC(retVal.rij,retVal.vijold);
   
     retVal.rvdot = (retVal.rij | retVal.vijold);
   

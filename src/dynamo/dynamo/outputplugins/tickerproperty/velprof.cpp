@@ -53,7 +53,7 @@ namespace dynamo {
 	Vector  pos(part.getPosition());
 	Vector  vel(part.getVelocity());
 
-	Sim->dynamics.BCs().applyBC(pos, vel);
+	Sim->BCs->applyBC(pos, vel);
 
 	pos += Sim->primaryCellSize / 2.0;
 

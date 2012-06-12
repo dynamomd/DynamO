@@ -169,7 +169,7 @@ namespace dynamo {
   {
     if (part.getID() == ID) return;
     Vector rij = part.getPosition() - Sim->particleList[ID].getPosition();
-    Sim->dynamics.BCs().applyBC(rij);
+    Sim->BCs->applyBC(rij);
   
     double norm = rij.nrm();
     if (norm <= rg)

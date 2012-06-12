@@ -54,7 +54,7 @@ namespace dynamo {
   Vector ILines::getGlyphPosition(size_t ID, size_t subID) const
   {
     Vector retval = Sim->particleList[ID].getPosition();
-    Sim->dynamics.BCs().applyBC(retval);
+    Sim->BCs->applyBC(retval);
     return retval;
   }
 

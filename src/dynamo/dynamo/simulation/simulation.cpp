@@ -141,10 +141,10 @@ namespace dynamo {
   
     bool needTicker = false;
   
-    if (dynamics.BCTypeTest<BCPeriodic>()
-	|| dynamics.BCTypeTest<BCPeriodicExceptX>()
-	|| dynamics.BCTypeTest<BCPeriodicXOnly>()
-	|| dynamics.BCTypeTest<BCLeesEdwards>())
+    if (std::tr1::dynamic_pointer_cast<BCPeriodic>(BCs)
+	|| std::tr1::dynamic_pointer_cast<BCPeriodicExceptX>(BCs)
+	|| std::tr1::dynamic_pointer_cast<BCPeriodicXOnly>(BCs)
+	|| std::tr1::dynamic_pointer_cast<BCLeesEdwards>(BCs))
       dynamics.addGlobal(shared_ptr<Global>(new GPBCSentinel(this, "PBCSentinel")));
 
     BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)

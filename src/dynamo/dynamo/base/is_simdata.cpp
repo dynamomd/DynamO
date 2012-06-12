@@ -29,6 +29,7 @@
 #include <boost/iostreams/chain.hpp>
 #include <boost/iostreams/device/back_inserter.hpp>
 #include <boost/iostreams/copy.hpp>
+#include <dynamo/dynamics/BC/BC.hpp>
 #include <iomanip>
 
 //! The configuration file version, a version mismatch prevents an XML file load.
@@ -198,6 +199,8 @@ namespace dynamo
 	species.push_back(Species::getClass(node, this, i));
     }
     
+    BCs = BoundaryCondition::getClass(simNode.getNode("BC"), this);
+
     dynamics << simNode;
     ptrScheduler = Scheduler::getClass(simNode.getNode("Scheduler"), this);
 
@@ -277,6 +280,9 @@ namespace dynamo
 	  << magnet::xml::endtag("Species");
   
     XML << magnet::xml::endtag("Genus")
+      	<< magnet::xml::tag("BC")
+	<< *BCs
+	<< magnet::xml::endtag("BC")
 	<< dynamics
 	<< magnet::xml::endtag("Simulation")
 	<< _properties;

@@ -52,8 +52,8 @@ namespace dynamo {
   GCellsShearing::initialise(size_t nID)
   {
     ID=nID;
-   
-    if (!(Sim->dynamics.BCTypeTest<BCLeesEdwards>()))
+
+    if (!std::tr1::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
       derr << "You should not use the shearing neighbour list"
 	   << " in a system without Lees Edwards BC's" << std::endl;
 
@@ -127,7 +127,7 @@ namespace dynamo {
 
 	//Determine the x position (in cell coords) of the particle and
 	//add it to the endCellID
-	Sim->dynamics.BCs().applyBC(tmpPos, dt);
+	Sim->BCs->applyBC(tmpPos, dt);
       
 	endCell[0] = getCellID(tmpPos)[0];
 

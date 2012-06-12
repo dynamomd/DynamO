@@ -155,12 +155,12 @@ namespace dynamo {
   void
   EnsembleNVShear::initialise()
   {
-    if (!(Sim->dynamics.BCTypeTest<BCLeesEdwards>()))
+    if (!(std::tr1::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs)))
       M_throw() << "A shearing ensemble requires Lees-Edwards Boundary Conditions";
 
     EnsembleVals[0] = Sim->particleList.size();
     EnsembleVals[1] = Sim->primaryCellSize[0] * Sim->primaryCellSize[1] * Sim->primaryCellSize[2];
-    EnsembleVals[2] = static_cast<const BCLeesEdwards&>(Sim->dynamics.BCs()).getShearRate();
+    EnsembleVals[2] = static_cast<const BCLeesEdwards&>(*Sim->BCs).getShearRate();
 
     dout << "NVShear Ensemble initialised\nN=" << EnsembleVals[0]
 	     << "\nV=" << EnsembleVals[1] / Sim->dynamics.units().unitVolume()

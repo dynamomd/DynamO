@@ -394,7 +394,7 @@ namespace dynamo {
   magnet::math::MortonNumber<3>
   GCells::getCellID(Vector pos) const
   {
-    Sim->dynamics.BCs().applyBC(pos);
+    Sim->BCs->applyBC(pos);
 
     magnet::math::MortonNumber<3> retval;
 

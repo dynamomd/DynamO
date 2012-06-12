@@ -30,8 +30,8 @@ namespace magnet {
 }
 
 namespace dynamo {
-  class BoundaryCondition;
   class Particle;
+  class BoundaryCondition;
   class GlobalEvent;
   class Global;
   class Local;
@@ -51,8 +51,6 @@ namespace dynamo {
     Dynamics(dynamo::SimData*);
 
     Dynamics(const magnet::xml::Node& XML, dynamo::SimData*);
-
-    explicit Dynamics(const Dynamics &);
 
     ~Dynamics();
   
@@ -156,9 +154,6 @@ namespace dynamo {
 
     inline Units& units() { return _units; }
   
-    inline const BoundaryCondition& BCs() const 
-    { return *p_BC; }
-
     inline const Liouvillean& getLiouvillean() const
     { return *p_liouvillean; }
 
@@ -172,19 +167,6 @@ namespace dynamo {
     inline bool liouvilleanTypeTest() const
     { return std::tr1::dynamic_pointer_cast<T>(p_liouvillean); }
 
-    template<class T>
-    inline bool BCTypeTest() const
-    { return std::tr1::dynamic_pointer_cast<T>(p_BC); }
-
-    //templates
-    template<class T> void applyBC()
-    {
-      if (p_BC)
-	dout << "Warning, resetting the BC's" << std::endl;
-      
-      p_BC = shared_ptr<BoundaryCondition>(new T(Sim));
-    }
-
     double getSimVolume() const;
 
     double getNumberDensity() const;
@@ -192,6 +174,8 @@ namespace dynamo {
     double getPackingFraction() const;
 
   protected:
+    Dynamics(const Dynamics &dyn);
+
     void outputXML(magnet::xml::XmlStream &) const;
 
     std::vector<shared_ptr<Interaction> > interactions;
@@ -199,7 +183,6 @@ namespace dynamo {
     std::vector<shared_ptr<Local> > locals;
     std::vector<shared_ptr<System> > systems;
     std::vector<shared_ptr<Topology> > topology;
-    shared_ptr<BoundaryCondition> p_BC;
     shared_ptr<Liouvillean> p_liouvillean;
     Units _units;
   };

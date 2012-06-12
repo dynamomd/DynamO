@@ -35,6 +35,7 @@ namespace dynamo
   class Scheduler;
   class Ensemble;
   class Species;
+  class BoundaryCondition;
   class OutputPlugin;
 
   //! \brief Holds the different phases of the simulation initialisation
@@ -104,8 +105,12 @@ namespace dynamo
     
     void initialise();
 
+    
     SpeciesContainer species;
     void addSpecies(shared_ptr<Species>);
+
+    shared_ptr<BoundaryCondition> BCs;
+    
 
     /*! \brief Finds a plugin of the given type using RTTI.
      */

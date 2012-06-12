@@ -116,7 +116,7 @@ namespace dynamo {
 	    const Particle& part(Sim->particleList[pid]);
 	    Vector  rij = part.getPosition() - lastpos;
 	    lastpos = part.getPosition();
-	    Sim->dynamics.BCs().applyBC(rij);
+	    Sim->BCs->applyBC(rij);
 	  
 	    sumrij += rij;
 	  

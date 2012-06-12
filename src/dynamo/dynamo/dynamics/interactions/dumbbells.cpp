@@ -86,7 +86,7 @@ namespace dynamo  {
   IDumbbells::getGlyphPosition(size_t ID, size_t subID) const
   {
     Vector retval = Sim->particleList[ID].getPosition();
-    Sim->dynamics.BCs().applyBC(retval);
+    Sim->BCs->applyBC(retval);
 
     double l = _length->getProperty(ID);
     //Flip the direction depending on if the ID is odd or even

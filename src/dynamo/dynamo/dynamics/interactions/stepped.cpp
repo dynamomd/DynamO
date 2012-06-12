@@ -113,7 +113,7 @@ namespace dynamo {
   IStepped::getGlyphPosition(size_t ID, size_t subID) const
   { 
     Vector retval = Sim->particleList[ID].getPosition();
-    Sim->dynamics.BCs().applyBC(retval);
+    Sim->BCs->applyBC(retval);
     return retval;
   }
 
@@ -139,7 +139,7 @@ namespace dynamo {
     if (&(*(Sim->dynamics.getInteraction(p1, p2))) != this) return false;
   
     Vector  rij = p1.getPosition() - p2.getPosition();
-    Sim->dynamics.BCs().applyBC(rij);
+    Sim->BCs->applyBC(rij);
   
     double r = rij.nrm();
 

@@ -233,16 +233,10 @@ namespace dynamo {
     M_throw() << "Could not find the interaction requested";
   }
 
-  Dynamics::Dynamics(const Dynamics &dyn):
-    SimBase(dyn),
-    p_BC(dyn.p_BC), 
-    _units(dyn._units)
-  {}
-
   void 
   Dynamics::stream(const double& dt)
   {
-    p_BC->update(dt);
+    Sim->BCs->update(dt);
 
     p_liouvillean->stream(dt);
 
@@ -302,7 +296,7 @@ namespace dynamo {
     BOOST_FOREACH(Particle & Part, Sim->particleList)
       {
 	Vector  pos(Part.getPosition()), vel(Part.getVelocity());
-	BCs().applyBC(pos,vel);
+	Sim->BCs->applyBC(pos,vel);
 	double mass = Sim->species[Part].getMass(Part.getID());
 	//Note we sum the negatives!
 	sumMV -= vel * mass;
@@ -320,9 +314,6 @@ namespace dynamo {
   void
   Dynamics::operator<<(const magnet::xml::Node& XML)
   {
-    //Now load the BC
-    p_BC = BoundaryCondition::getClass(XML.getNode("BC"), Sim);
-  
     if (XML.hasNode("Topology"))
       {
 	size_t i(0);
@@ -365,11 +356,7 @@ namespace dynamo {
   void
   Dynamics::outputXML(magnet::xml::XmlStream &XML) const
   {
-    XML 
-	<< magnet::xml::tag("BC")
-	<< *p_BC
-	<< magnet::xml::endtag("BC")
-	<< magnet::xml::tag("Topology");
+    XML << magnet::xml::tag("Topology");
   
     BOOST_FOREACH(const shared_ptr<Topology>& ptr, topology)
       XML << magnet::xml::tag("Structure")

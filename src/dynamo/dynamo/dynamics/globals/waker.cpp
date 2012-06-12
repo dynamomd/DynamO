@@ -181,7 +181,7 @@ namespace dynamo {
   GWaker::nblistCallback(const Particle& part, const size_t& oid) const
   {
     Vector sep = part.getPosition() - Sim->particleList[oid].getPosition();
-    Sim->dynamics.BCs().applyBC(sep);
+    Sim->BCs->applyBC(sep);
     if (sep.nrm() < 2.01 * Sim->dynamics.units().unitLength())
       ++_neighbors;
   }

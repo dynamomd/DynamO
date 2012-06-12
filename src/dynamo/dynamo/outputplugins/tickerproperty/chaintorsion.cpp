@@ -39,7 +39,7 @@ namespace dynamo {
 	chains.push_back(CTCdata(static_cast<const TChain*>(plugPtr.get()), 
 				 0.005, 0.005, 0.01));
 
-    if (!Sim->dynamics.BCTypeTest<BCNone>())
+    if (!std::tr1::dynamic_pointer_cast<BCNone>(Sim->BCs))
       M_throw() << "Can only use this plugin with Null BC's"
 		<< "\nPositions must be unwrapped";
   }

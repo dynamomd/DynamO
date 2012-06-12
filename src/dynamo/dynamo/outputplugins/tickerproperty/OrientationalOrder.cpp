@@ -131,7 +131,7 @@ namespace dynamo {
 	    BOOST_FOREACH(const size_t& id2, nbs._neighbours)
 	      {
 		Vector bond = Sim->particleList[id2].getPosition() - part.getPosition();
-		Sim->dynamics.BCs().applyBC(bond);
+		Sim->BCs->applyBC(bond);
 		bonds.push_back(bond);
 	      }
 	    std::sort(bonds.begin(), bonds.end());

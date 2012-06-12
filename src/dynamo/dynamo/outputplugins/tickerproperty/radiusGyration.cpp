@@ -111,7 +111,7 @@ namespace dynamo {
 	Vector currRelPos = Sim->particleList[*iPtr].getPosition() 
 	  - Sim->particleList[*(iPtr - 1)].getPosition();
 
-	Sim->dynamics.BCs().applyBC(currRelPos);
+	Sim->BCs->applyBC(currRelPos);
 
 	relVecs.push_back(currRelPos + relVecs.back());
 

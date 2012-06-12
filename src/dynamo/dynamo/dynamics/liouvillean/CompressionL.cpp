@@ -35,7 +35,7 @@ namespace dynamo {
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
-    Sim->dynamics.BCs().applyBC(r12, v12);
+    Sim->BCs->applyBC(r12, v12);
     double rvdot = r12 | v12;
     double r2 = r12 | r12;
     double v2 = v12 | v12;
@@ -62,7 +62,7 @@ namespace dynamo {
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
-    Sim->dynamics.BCs().applyBC(r12, v12);
+    Sim->BCs->applyBC(r12, v12);
     double rvdot = r12 | v12;
     double r2 = r12 | r12;
     double v2 = v12 | v12;
@@ -93,7 +93,7 @@ namespace dynamo {
 			      const double& d) const
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
-    Sim->dynamics.BCs().applyBC(r12);
+    Sim->BCs->applyBC(r12);
 
     double currd2 = d * d * (1 + 2.0 * Sim->dSysTime * growthRate 
 			     + pow(Sim->dSysTime * growthRate, 2));
@@ -114,7 +114,7 @@ namespace dynamo {
 			 Sim->species[particle2],
 			 eType);
 
-    Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
+    Sim->BCs->applyBC(retVal.rij, retVal.vijold);
     
     double p1Mass = retVal.particle1_.getSpecies().getMass(particle1.getID()); 
     double p2Mass = retVal.particle2_.getSpecies().getMass(particle2.getID()); 
@@ -174,7 +174,7 @@ namespace dynamo {
 			 Sim->species[particle2],
 			 event.getType());
     
-    Sim->dynamics.BCs().applyBC(retVal.rij, retVal.vijold);
+    Sim->BCs->applyBC(retVal.rij, retVal.vijold);
     
     double p1Mass = retVal.particle1_.getSpecies().getMass(particle1.getID());
     double p2Mass = retVal.particle2_.getSpecies().getMass(particle2.getID());
@@ -269,7 +269,7 @@ namespace dynamo {
 
     Vector  pos(part.getPosition()), vel(part.getVelocity());
 
-    Sim->dynamics.BCs().applyBC(pos, vel);
+    Sim->BCs->applyBC(pos, vel);
 
     double retval = (0.5 * Sim->primaryCellSize[0] - lMax) / (fabs(vel[0]) + lMax * growthRate);
 

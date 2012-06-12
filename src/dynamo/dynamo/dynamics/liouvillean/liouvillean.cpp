@@ -164,7 +164,7 @@ namespace dynamo {
       {
 	Particle tmp(Sim->particleList[i]);
 	if (applyBC) 
-	  Sim->dynamics.BCs().applyBC(tmp.getPosition(), tmp.getVelocity());
+	  Sim->BCs->applyBC(tmp.getPosition(), tmp.getVelocity());
       
 	tmp.getVelocity() *= (1.0 / Sim->dynamics.units().unitVelocity());
 	tmp.getPosition() *= (1.0 / Sim->dynamics.units().unitLength());
@@ -191,9 +191,9 @@ namespace dynamo {
   Liouvillean::getParticleKineticEnergy(const Particle& part) const
   {
     double energy(0);
-    if (Sim->dynamics.BCTypeTest<BCLeesEdwards>())
+    if (std::tr1::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
       {
-	const BCLeesEdwards& bc = static_cast<const BCLeesEdwards&>(Sim->dynamics.BCs());
+	const BCLeesEdwards& bc = static_cast<const BCLeesEdwards&>(*Sim->BCs);
 
 	energy += bc.getPeculiarVelocity(part).nrm2()
 	  * Sim->species[part].getMass(part.getID());
@@ -225,9 +225,9 @@ namespace dynamo {
   {
     double scalefactor(sqrt(scale));
 
-    if (Sim->dynamics.BCTypeTest<BCLeesEdwards>())
+    if (std::tr1::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
       {
-	const BCLeesEdwards& bc = static_cast<const BCLeesEdwards&>(Sim->dynamics.BCs());
+	const BCLeesEdwards& bc = static_cast<const BCLeesEdwards&>(*Sim->BCs);
 
 	BOOST_FOREACH(Particle& part, Sim->particleList)
 	  part.getVelocity() = Vector(bc.getPeculiarVelocity(part) * scalefactor
@@ -386,7 +386,7 @@ namespace dynamo {
 	//minimise issues with PBC wrapping the particles.
 	Vector r12 = part.getPosition() - pos0;
 	Vector v12 = part.getVelocity() - vel0;
-	Sim->dynamics.BCs().applyBC(r12, v12);
+	Sim->BCs->applyBC(r12, v12);
 
 	pos += mass * r12;
 	vel += mass * v12;

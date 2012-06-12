@@ -174,7 +174,7 @@ namespace dynamo {
 	for (size_t ID(0); ID < Sim->N; ++ID)
 	  {
 	    Vector pos = Sim->particleList[ID].getPosition() - offset;
-	    Sim->dynamics.BCs().applyBC(pos);
+	    Sim->BCs->applyBC(pos);
 	    //The plus two is the header offset
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
 	      coords[ID * NDIM + iDim + (HEADERSIZE / sizeof(float))] = coeff * pos[iDim];
@@ -218,7 +218,7 @@ namespace dynamo {
     BOOST_FOREACH (const Particle& part, Sim->particleList)
       {
 	tmpVec = part.getPosition();
-	Sim->dynamics.BCs().applyBC(tmpVec);
+	Sim->BCs->applyBC(tmpVec);
 	of << "C ";
 	for (size_t iDim = 0; iDim < NDIM; iDim++)
 	  of << tmpVec[iDim] * 3.4 
