@@ -80,6 +80,14 @@ extern const size_t addLight_Icon_size;
 extern const guint8 addFunction_Icon[];
 extern const size_t addFunction_Icon_size;
 
+namespace {
+  void resizeGlutWindow(int width, int height)
+  {
+    glutReshapeWindow(width, height);
+    glutPostRedisplay();
+  }
+}
+
 namespace coil {
   CLGLWindow::CLGLWindow(std::string title,
 			 double updateIntervalValue,
@@ -250,15 +258,59 @@ namespace coil {
 	.connect(sigc::mem_fun(*this, &CLGLWindow::addFunctionCallback));
     }
 
-    ///////Register the about button
+    ///////Create a top menu
     {
-      Gtk::ImageMenuItem* aboutButton;
-      _refXml->get_widget("aboutItem", aboutButton);
+      Glib::RefPtr<Gtk::UIManager> m_refUIManager;
+      Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup = Gtk::ActionGroup::create();
 
-      aboutButton->signal_activate()
-	.connect(sigc::mem_fun(this, &CLGLWindow::aboutCallback));
-    }
-  
+      m_refActionGroup->add(Gtk::Action::create("ViewMenu", "View"));
+      m_refActionGroup->add(Gtk::Action::create("HelpMenu", "Help"));
+      m_refActionGroup->add(Gtk::Action::create("AboutItem", "About"), sigc::mem_fun(this, &CLGLWindow::aboutCallback));
+      m_refActionGroup->add(Gtk::Action::create("ResizeMenu", "Resize render window"));
+      m_refActionGroup->add(Gtk::Action::create("800by600", " 800x600"), sigc::bind(&resizeGlutWindow, 800, 600));
+      m_refActionGroup->add(Gtk::Action::create("1024by768", " 1024x768"), sigc::bind(&resizeGlutWindow, 1024, 768));
+      m_refActionGroup->add(Gtk::Action::create("1280by720", " 1280x720"), sigc::bind(&resizeGlutWindow, 1280, 720));
+      m_refActionGroup->add(Gtk::Action::create("1920by1080", " 1920x1080"), sigc::bind(&resizeGlutWindow, 1920, 1080));
+
+
+      m_refUIManager = Gtk::UIManager::create();
+      m_refUIManager->insert_action_group(m_refActionGroup);
+
+      Glib::ustring ui_info = 
+        "<ui>"
+        "  <menubar name='MenuBar'>"
+        "    <menu action='ViewMenu'>"
+        "      <menu action='ResizeMenu'>"
+	"        <menuitem action='800by600' />"
+	"        <menuitem action='1024by768' />"
+	"        <menuitem action='1280by720' />"
+	"        <menuitem action='1920by1080' />"
+        "      </menu>"
+        "    </menu>"
+	"    <menu action='HelpMenu'>"
+        "      <menuitem action='AboutItem' />"
+	"    </menu>"
+        "  </menubar>"
+        "</ui>";
+
+      try
+	{
+	  m_refUIManager->add_ui_from_string(ui_info);
+	}
+      catch(const Glib::Error& ex)
+	{
+	  std::cerr << "building menus failed: " <<  ex.what();
+	}
+
+      Gtk::Widget* pMenubar = m_refUIManager->get_widget("/MenuBar");
+
+      Gtk::VBox* pagebox;
+      _refXml->get_widget("PageBox", pagebox);
+
+      pagebox->pack_start(*pMenubar, Gtk::PACK_SHRINK);
+      pagebox->reorder_child(*pMenubar, 0);
+      pagebox->show_all_children();
+    }  
 
     {////////Simulation run control
       Gtk::ToggleButton* togButton;
