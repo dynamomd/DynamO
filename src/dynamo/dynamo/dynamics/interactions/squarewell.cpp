@@ -117,14 +117,14 @@ namespace dynamo {
 		+ _lambda->getProperty(p2.getID())) * 0.5;
 
 #ifdef DYNAMO_DEBUG
-    if (Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d))
+    if (Sim->liouvillean->sphereOverlap(p1, p2, d))
       derr << "Warning! Two particles might be overlapping"
-	   << "Overlap is " << Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d) 
+	   << "Overlap is " << Sim->liouvillean->sphereOverlap(p1, p2, d) 
 	/ Sim->dynamics.units().unitLength()
 	   << "\nd = " << d / Sim->dynamics.units().unitLength() << std::endl;
 #endif
  
-    return Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, l * d);
+    return Sim->liouvillean->sphereOverlap(p1, p2, l * d);
   }
 
   IntEvent
@@ -132,10 +132,10 @@ namespace dynamo {
 			const Particle &p2) const 
   {
 #ifdef DYNAMO_DEBUG
-    if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
+    if (!Sim->liouvillean->isUpToDate(p1))
       M_throw() << "Particle 1 is not up to date";
   
-    if (!Sim->dynamics.getLiouvillean().isUpToDate(p2))
+    if (!Sim->liouvillean->isUpToDate(p2))
       M_throw() << "Particle 2 is not up to date";
 
     if (p1 == p2)
@@ -152,12 +152,11 @@ namespace dynamo {
 
     if (isCaptured(p1, p2))
       {
-	double dt = Sim->dynamics.getLiouvillean()
-	  .SphereSphereInRoot(p1, p2, d);
+	double dt = Sim->liouvillean->SphereSphereInRoot(p1, p2, d);
 	if (dt != HUGE_VAL)
 	  {
 #ifdef DYNAMO_OverlapTesting
-	if (Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d))
+	if (Sim->liouvillean->sphereOverlap(p1, p2, d))
 	  M_throw() << "Overlapping particles found"
 		    << ", particle1 " << p1.getID()
 		    << ", particle2 " << p2.getID()
@@ -169,31 +168,30 @@ namespace dynamo {
 	    retval = IntEvent(p1, p2, dt, CORE, *this);
 	  }
 
-	dt = Sim->dynamics.getLiouvillean().SphereSphereOutRoot(p1, p2, l * d);
+	dt = Sim->liouvillean->SphereSphereOutRoot(p1, p2, l * d);
 	if (retval.getdt() > dt)
 	    retval = IntEvent(p1, p2, dt, WELL_OUT, *this);
       }
     else
       {
-	double dt = Sim->dynamics.getLiouvillean()
-	  .SphereSphereInRoot(p1, p2, l * d);
+	double dt = Sim->liouvillean->SphereSphereInRoot(p1, p2, l * d);
 
       if (dt != HUGE_VAL)
 	{
 #ifdef DYNAMO_OverlapTesting
-	  if (Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, l * d))
+	  if (Sim->liouvillean->sphereOverlap(p1, p2, l * d))
 	    {
-	      if (Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d))
+	      if (Sim->liouvillean->sphereOverlap(p1, p2, d))
 		M_throw() << "Overlapping cores (but not registerd as captured) particles found in square well" 
 			  << "\nparticle1 " << p1.getID() << ", particle2 " 
 			  << p2.getID() << "\nOverlap = " 
-			  << Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d)
+			  << Sim->liouvillean->sphereOverlap(p1, p2, d)
 		  / Sim->dynamics.units().unitLength();
 	      else
 		M_throw() << "Overlapping wells (but not registerd as captured) particles found" 
 			  << "\nparticle1 " << p1.getID() << ", particle2 " 
 			  << p2.getID() << "\nOverlap = " 
-			  << Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, l * d)
+			  << Sim->liouvillean->sphereOverlap(p1, p2, l * d)
 		  / Sim->dynamics.units().unitLength();
 	      
 	    }
@@ -227,7 +225,7 @@ namespace dynamo {
       {
       case CORE:
 	{
-	  PairEventData retVal(Sim->dynamics.getLiouvillean().SmoothSpheresColl(iEvent, e, d2, CORE));
+	  PairEventData retVal(Sim->liouvillean->SmoothSpheresColl(iEvent, e, d2, CORE));
 	  Sim->signalParticleUpdate(retVal);
 	
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
@@ -239,8 +237,7 @@ namespace dynamo {
 	}
       case WELL_IN:
 	{
-	  PairEventData retVal(Sim->dynamics.getLiouvillean()
-			       .SphereWellEvent(iEvent, wd, ld2));
+	  PairEventData retVal(Sim->liouvillean->SphereWellEvent(iEvent, wd, ld2));
 	
 	  if (retVal.getType() != BOUNCE)
 	    addToCaptureMap(p1, p2);      
@@ -256,8 +253,7 @@ namespace dynamo {
 	}
       case WELL_OUT:
 	{
-	  PairEventData retVal(Sim->dynamics.getLiouvillean()
-			       .SphereWellEvent(iEvent, -wd, ld2));
+	  PairEventData retVal(Sim->liouvillean->SphereWellEvent(iEvent, -wd, ld2));
 	
 	  if (retVal.getType() != BOUNCE)
 	    removeFromCaptureMap(p1, p2);      

@@ -113,7 +113,7 @@ namespace dynamo {
     Particle& part(Sim->particleList[*(range->begin()+step)]);
 
     //Run the collision and catch the data
-    NEventData SDat(Sim->dynamics.getLiouvillean().randomGaussianEvent
+    NEventData SDat(Sim->liouvillean->randomGaussianEvent
 		    (part, sqrtTemp, dimensions));
   
     Sim->signalParticleUpdate(SDat);

@@ -41,7 +41,7 @@ namespace dynamo {
 
     dt = getdt();
 
-    if (!(Sim->dynamics.getLiouvillean().hasOrientationData()))
+    if (!(Sim->liouvillean->hasOrientationData()))
       M_throw() << "There is no orientation data available.";
 
     G.resize(Sim->N, boost::circular_buffer<VUpair> (CorrelatorLength, VUpair(Vector(0,0,0), Vector(0,0,0) )));
@@ -144,13 +144,13 @@ namespace dynamo {
   {
     for (size_t i = 0; i < Sim->N; ++i)
       {
-	const Liouvillean::rotData& rdat(Sim->dynamics.getLiouvillean().getRotData(Sim->particleList[i]));
+	const Liouvillean::rotData& rdat(Sim->liouvillean->getRotData(Sim->particleList[i]));
 	G[i].push_front(VUpair(Sim->particleList[i].getVelocity(), rdat.orientation));
       }
 
     //Now correct the fact that the wrong velocity and orientation have been pushed
-    const Liouvillean::rotData& fetchpart(Sim->dynamics.getLiouvillean()
-					  .getRotData(Sim->particleList[PDat.getParticle().getID()]));
+    const Liouvillean::rotData& fetchpart(Sim->liouvillean
+					  ->getRotData(Sim->particleList[PDat.getParticle().getID()]));
     G[PDat.getParticle().getID()].front() = VUpair(PDat.getOldVel(), fetchpart.orientation);
 
     //This ensures the list gets to accumilator size
@@ -172,15 +172,15 @@ namespace dynamo {
   {
     for (size_t i = 0; i < Sim->N; ++i)
       {
-	const Liouvillean::rotData& rdat(Sim->dynamics.getLiouvillean().getRotData(Sim->particleList[i]));
+	const Liouvillean::rotData& rdat(Sim->liouvillean->getRotData(Sim->particleList[i]));
 	G[i].push_front(VUpair(Sim->particleList[i].getVelocity(), rdat.orientation));
       }
 
     //Now correct the fact that the wrong velocities and orientations have been pushed
-    const Liouvillean::rotData& fetch1(Sim->dynamics.getLiouvillean()
-				       .getRotData(Sim->particleList[PDat.particle1_.getParticle().getID()]));
-    const Liouvillean::rotData& fetch2(Sim->dynamics.getLiouvillean()
-				       .getRotData(Sim->particleList[PDat.particle2_.getParticle().getID()]));
+    const Liouvillean::rotData& fetch1(Sim->liouvillean
+				       ->getRotData(Sim->particleList[PDat.particle1_.getParticle().getID()]));
+    const Liouvillean::rotData& fetch2(Sim->liouvillean
+				       ->getRotData(Sim->particleList[PDat.particle2_.getParticle().getID()]));
 
     G[PDat.particle1_.getParticle().getID()].front() = VUpair(PDat.particle1_.getOldVel(), fetch1.orientation);
     G[PDat.particle2_.getParticle().getID()].front() = VUpair(PDat.particle2_.getOldVel(), fetch2.orientation);
@@ -205,22 +205,22 @@ namespace dynamo {
     //This ensures the list stays at accumilator size
     for (size_t i = 0; i < Sim->N; ++i)
       {
-	const Liouvillean::rotData& rdat(Sim->dynamics.getLiouvillean().getRotData(Sim->particleList[i]));
+	const Liouvillean::rotData& rdat(Sim->liouvillean->getRotData(Sim->particleList[i]));
 	G[i].push_front(VUpair(Sim->particleList[i].getVelocity(), rdat.orientation));
       }
 
     //Go back and fix the pushes
     BOOST_FOREACH(const ParticleEventData&PDat2, PDat.L1partChanges)
       {
-	const Liouvillean::rotData& fetchpart(Sim->dynamics.getLiouvillean()
-					      .getRotData(Sim->particleList[PDat2.getParticle().getID()]));
+	const Liouvillean::rotData& fetchpart(Sim->liouvillean
+					      ->getRotData(Sim->particleList[PDat2.getParticle().getID()]));
 	G[PDat2.getParticle().getID()].front() = VUpair(PDat2.getOldVel(), fetchpart.orientation);
       }
 
     BOOST_FOREACH(const PairEventData& PDat2, PDat.L2partChanges)
       {
-	const Liouvillean::rotData& fetch1(Sim->dynamics.getLiouvillean().getRotData(Sim->particleList[PDat2.particle1_.getParticle().getID()]));
-	const Liouvillean::rotData& fetch2(Sim->dynamics.getLiouvillean().getRotData(Sim->particleList[PDat2.particle2_.getParticle().getID()]));
+	const Liouvillean::rotData& fetch1(Sim->liouvillean->getRotData(Sim->particleList[PDat2.particle1_.getParticle().getID()]));
+	const Liouvillean::rotData& fetch2(Sim->liouvillean->getRotData(Sim->particleList[PDat2.particle2_.getParticle().getID()]));
 
 	G[PDat2.particle1_.getParticle().getID()].front() = VUpair(PDat2.particle1_.getOldVel(), fetch1.orientation);
 	G[PDat2.particle2_.getParticle().getID()].front() = VUpair(PDat2.particle2_.getOldVel(), fetch2.orientation);
@@ -324,7 +324,7 @@ namespace dynamo {
 	  }
 	else
 	  {
-	    return 10.0 / (((double) CorrelatorLength)*sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
+	    return 10.0 / (((double) CorrelatorLength)*sqrt(Sim->liouvillean->getkT()) * CorrelatorLength);
 	  }
       }
     else

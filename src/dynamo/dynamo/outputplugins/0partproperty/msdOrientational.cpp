@@ -39,7 +39,7 @@ namespace dynamo {
     initialConfiguration.clear();
     initialConfiguration.resize(Sim->N);
 
-    const std::vector<Liouvillean::rotData>& rdat(Sim->dynamics.getLiouvillean().getCompleteRotData());
+    const std::vector<Liouvillean::rotData>& rdat(Sim->liouvillean->getCompleteRotData());
 
     for (size_t ID = 0; ID < Sim->N; ++ID)
       {
@@ -89,7 +89,7 @@ namespace dynamo {
     msdCalcReturn MSR;
 
     //Required to get the correct results
-    Sim->dynamics.getLiouvillean().updateAllParticles();
+    Sim->liouvillean->updateAllParticles();
 
     double 	acc_perp(0.0), acc_parallel(0.0), longitudinal_projection(0.0),
       acc_rotational_legendre1(0.0), acc_rotational_legendre2(0.0),
@@ -97,7 +97,7 @@ namespace dynamo {
 
     Vector displacement_term(0,0,0);
 
-    const std::vector<Liouvillean::rotData>& latest_rdat(Sim->dynamics.getLiouvillean().getCompleteRotData());
+    const std::vector<Liouvillean::rotData>& latest_rdat(Sim->liouvillean->getCompleteRotData());
 
     BOOST_FOREACH(const Particle& part, Sim->particleList)
       {

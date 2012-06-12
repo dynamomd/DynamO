@@ -56,11 +56,11 @@ namespace dynamo {
   LAndersenWall::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
-    if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
+    if (!Sim->liouvillean->isUpToDate(part))
       M_throw() << "Particle is not up to date";
 #endif
 
-    return LocalEvent(part, Sim->dynamics.getLiouvillean().getWallCollision(part, vPosition, vNorm), WALL, *this);
+    return LocalEvent(part, Sim->liouvillean->getWallCollision(part, vPosition, vNorm), WALL, *this);
   }
 
   void
@@ -68,7 +68,7 @@ namespace dynamo {
   {
     ++Sim->eventCount;
   
-    NEventData EDat(Sim->dynamics.getLiouvillean().runAndersenWallCollision
+    NEventData EDat(Sim->liouvillean->runAndersenWallCollision
 		    (part, vNorm, sqrtT));
   
     Sim->signalParticleUpdate(EDat);

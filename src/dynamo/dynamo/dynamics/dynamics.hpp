@@ -39,7 +39,6 @@ namespace dynamo {
   class System;
   class Topology;
   class Particle;
-  class Liouvillean;
   class NEventData;
   class PairEventData;
   class ParticleEventData;
@@ -54,9 +53,6 @@ namespace dynamo {
 
     ~Dynamics();
   
-    inline void setLiouvillean(shared_ptr<Liouvillean> ptr)
-    { p_liouvillean = ptr; }
-
     inline shared_ptr<Interaction> addInteraction(shared_ptr<Interaction> ptr)
     { interactions.push_back(ptr); return interactions.back(); }
 
@@ -154,19 +150,6 @@ namespace dynamo {
 
     inline Units& units() { return _units; }
   
-    inline const Liouvillean& getLiouvillean() const
-    { return *p_liouvillean; }
-
-    inline  Liouvillean& getLiouvillean()
-    { return *p_liouvillean; }
-
-    inline  shared_ptr<Liouvillean>& getLiouvilleanPtr()
-    { return p_liouvillean; }
-
-    template<class T>
-    inline bool liouvilleanTypeTest() const
-    { return std::tr1::dynamic_pointer_cast<T>(p_liouvillean); }
-
     double getSimVolume() const;
 
     double getNumberDensity() const;
@@ -183,7 +166,6 @@ namespace dynamo {
     std::vector<shared_ptr<Local> > locals;
     std::vector<shared_ptr<System> > systems;
     std::vector<shared_ptr<Topology> > topology;
-    shared_ptr<Liouvillean> p_liouvillean;
     Units _units;
   };
 }

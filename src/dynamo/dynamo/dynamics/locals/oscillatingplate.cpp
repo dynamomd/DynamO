@@ -49,7 +49,7 @@ namespace dynamo {
   LOscillatingPlate::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
-    if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
+    if (!Sim->liouvillean->isUpToDate(part))
       M_throw() << "Particle is not up to date";
 #endif
 
@@ -58,7 +58,7 @@ namespace dynamo {
     double reducedt = Sim->dSysTime 
       - 2.0 * M_PI * int(Sim->dSysTime * omega0 / (2.0*M_PI)) / omega0;
 
-    std::pair<bool, double> eventData = Sim->dynamics.getLiouvillean().getPointPlateCollision
+    std::pair<bool, double> eventData = Sim->liouvillean->getPointPlateCollision
       (part, rw0, nhat, delta, omega0, sigma, reducedt + timeshift, 
        false);
 
@@ -78,7 +78,7 @@ namespace dynamo {
     ++Sim->eventCount;
   
     //Run the collision and catch the data
-    NEventData EDat(Sim->dynamics.getLiouvillean().runOscilatingPlate
+    NEventData EDat(Sim->liouvillean->runOscilatingPlate
 		    (part, rw0, nhat, delta, omega0, sigma, mass, 
 		     e, timeshift, strongPlate));
 

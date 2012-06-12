@@ -85,7 +85,7 @@ namespace dynamo {
   
     ++Sim->eventCount;
     
-    double currentkT(Sim->dynamics.getLiouvillean().getkT()
+    double currentkT(Sim->liouvillean->getkT()
 		     / Sim->dynamics.units().unitEnergy());
 
     dout << "Rescaling kT " << currentkT 
@@ -97,8 +97,8 @@ namespace dynamo {
       BOOST_FOREACH(const unsigned long& partID, *species->getRange())
       SDat.L1partChanges.push_back(ParticleEventData(Sim->particleList[partID], *species, RESCALE));
 
-    Sim->dynamics.getLiouvillean().updateAllParticles();
-    Sim->dynamics.getLiouvillean().rescaleSystemKineticEnergy(_kT / currentkT);
+    Sim->liouvillean->updateAllParticles();
+    Sim->liouvillean->rescaleSystemKineticEnergy(_kT / currentkT);
 
     RealTime += (Sim->dSysTime - LastTime) / std::exp(0.5 * scaleFactor);
 

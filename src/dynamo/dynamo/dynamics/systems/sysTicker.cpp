@@ -67,7 +67,7 @@ namespace dynamo {
     Sim->freestreamAcc = 0;
 
     //This is done here as most ticker properties require it
-    Sim->dynamics.getLiouvillean().updateAllParticles();
+    Sim->liouvillean->updateAllParticles();
 
     BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
       {

@@ -34,7 +34,7 @@ namespace dynamo {
   LTriangleMesh::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
-    if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
+    if (!Sim->liouvillean->isUpToDate(part))
       M_throw() << "Particle is not up to date";
 #endif
 
@@ -45,8 +45,7 @@ namespace dynamo {
 
     for (size_t id(0); id < _elements.size(); ++id)
       {
-	std::pair<double, size_t> t = Sim->dynamics.getLiouvillean()
-	  .getSphereTriangleEvent(part,
+	std::pair<double, size_t> t = Sim->liouvillean->getSphereTriangleEvent(part,
 				  _vertices[_elements[id].get<0>()],
 				  _vertices[_elements[id].get<1>()],
 				  _vertices[_elements[id].get<2>()],
@@ -139,7 +138,7 @@ namespace dynamo {
 	M_throw() << "Unhandled triangle sphere intersection type encountered";
       }
 
-    NEventData EDat(Sim->dynamics.getLiouvillean().runWallCollision
+    NEventData EDat(Sim->liouvillean->runWallCollision
 		    (part, normal, _e->getProperty(part.getID())));
 
     Sim->signalParticleUpdate(EDat);

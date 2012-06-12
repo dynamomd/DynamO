@@ -61,7 +61,7 @@ namespace dynamo {
   {
     EnsembleVals[0] = Sim->particleList.size();
     EnsembleVals[1] = Sim->primaryCellSize[0] * Sim->primaryCellSize[1] * Sim->primaryCellSize[2];
-    EnsembleVals[2] = Sim->dynamics.calcInternalEnergy() + Sim->dynamics.getLiouvillean().getSystemKineticEnergy();
+    EnsembleVals[2] = Sim->dynamics.calcInternalEnergy() + Sim->liouvillean->getSystemKineticEnergy();
 
     dout << "NVE Ensemble initialised\nN=" << EnsembleVals[0]
 	     << "\nV=" << EnsembleVals[1] / Sim->dynamics.units().unitVolume()
@@ -137,16 +137,16 @@ namespace dynamo {
     //This is -\Delta in the Sugita_Okamoto paper
     double factor = (E1 - E2) * (beta1 - beta2);
     
-    if (Sim->dynamics.liouvilleanTypeTest<LNewtonianMC>())
+    if (std::tr1::dynamic_pointer_cast<LNewtonianMC>(Sim->liouvillean))
       {
-	factor += static_cast<const LNewtonianMC&>(Sim->dynamics.getLiouvillean()).W(E1);
-	factor -= static_cast<const LNewtonianMC&>(Sim->dynamics.getLiouvillean()).W(E2);
+	factor += static_cast<const LNewtonianMC&>(*Sim->liouvillean).W(E1);
+	factor -= static_cast<const LNewtonianMC&>(*Sim->liouvillean).W(E2);
       }
 
-    if (ensemble2.Sim->dynamics.liouvilleanTypeTest<LNewtonianMC>())
+    if (std::tr1::dynamic_pointer_cast<LNewtonianMC>(ensemble2.Sim->liouvillean))
       {
-	factor += static_cast<const LNewtonianMC&>(ensemble2.Sim->dynamics.getLiouvillean()).W(E2);
-	factor -= static_cast<const LNewtonianMC&>(ensemble2.Sim->dynamics.getLiouvillean()).W(E1);
+	factor += static_cast<const LNewtonianMC&>(*ensemble2.Sim->liouvillean).W(E2);
+	factor -= static_cast<const LNewtonianMC&>(*ensemble2.Sim->liouvillean).W(E1);
       }
 
     return std::exp(factor);
@@ -183,11 +183,11 @@ namespace dynamo {
   {
     EnsembleVals[0] = Sim->particleList.size();
     EnsembleVals[1] = Sim->dynamics.calcInternalEnergy() 
-      + Sim->dynamics.getLiouvillean().getSystemKineticEnergy();
+      + Sim->liouvillean->getSystemKineticEnergy();
     
     try {
       EnsembleVals[2] = dynamic_cast<const LCompression&>
-	(Sim->dynamics.getLiouvillean()).getGrowthRate();
+	(*Sim->liouvillean).getGrowthRate();
     }
     catch (std::exception&)
       {
@@ -233,7 +233,7 @@ namespace dynamo {
     
     try {
       EnsembleVals[2] = dynamic_cast<const LCompression&>
-	(Sim->dynamics.getLiouvillean()).getGrowthRate();
+	(*Sim->liouvillean).getGrowthRate();
     }
     catch (std::exception&)
       {

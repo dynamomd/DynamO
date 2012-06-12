@@ -91,13 +91,13 @@ namespace dynamo {
     collisionKE[mapkey(PDat.particle1_.getSpecies().getID(), 
 		       PDat.particle2_.getSpecies().getID(), 
 		       PDat.getType())]
-      .addVal(Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle1_.getParticle())
+      .addVal(Sim->liouvillean->getParticleKineticEnergy(PDat.particle1_.getParticle())
 	      -PDat.particle1_.getDeltaKE());
 
     collisionKE[mapkey(PDat.particle2_.getSpecies().getID(), 
 		       PDat.particle1_.getSpecies().getID(), 
 		       PDat.getType())]
-      .addVal(Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle2_.getParticle())
+      .addVal(Sim->liouvillean->getParticleKineticEnergy(PDat.particle2_.getParticle())
 	      -PDat.particle2_.getDeltaKE());
   }
 

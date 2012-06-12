@@ -125,7 +125,7 @@ namespace dynamo {
   
     Sim->dynamics.stream(iEvent.getdt());
 
-    Sim->dynamics.getLiouvillean().updateParticle(part);
+    Sim->liouvillean->updateParticle(part);
 
     //Here is where the particle goes to sleep or wakes
     ++Sim->eventCount;

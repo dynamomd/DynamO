@@ -111,21 +111,21 @@ namespace dynamo {
 	  Particle& p1(Sim->particleList[*(range1->begin() + 2 * pairID)]);
 	  Particle& p2(Sim->particleList[*(range1->begin() + 2 * pairID + 1)]);
 	
-	  Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
+	  Sim->liouvillean->updateParticlePair(p1, p2);
 	
 	  Vector rij;
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
 	    rij[iDim] = Sim->normal_sampler();
 	  rij *= diameter / rij.nrm();
 	
-	  if (Sim->dynamics.getLiouvillean().DSMCSpheresTest
+	  if (Sim->liouvillean->DSMCSpheresTest
 	      (p1, p2, maxprob12, factor12, rij))
 	    {
 	      ++Sim->eventCount;
 	      ++n12;
 
 	      const PairEventData 
-		SDat(Sim->dynamics.getLiouvillean().DSMCSpheresRun(p1, p2, e, rij));
+		SDat(Sim->liouvillean->DSMCSpheresRun(p1, p2, e, rij));
 	    
 	      Sim->signalParticleUpdate(SDat);
 	    
@@ -162,7 +162,7 @@ namespace dynamo {
 	
 	  Particle& p2(Sim->particleList[*(range1->begin() + secondID)]);
 	
-	  Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
+	  Sim->liouvillean->updateParticlePair(p1, p2);
 	
 	  Vector rij;
 	  for (size_t iDim(0); iDim < NDIM; ++iDim)
@@ -170,14 +170,14 @@ namespace dynamo {
 	
 	  rij *= diameter / rij.nrm();
 	
-	  if (Sim->dynamics.getLiouvillean().DSMCSpheresTest
+	  if (Sim->liouvillean->DSMCSpheresTest
 	      (p1, p2, maxprob13, factor13, rij))
 	    {
 	      ++Sim->eventCount;
 	      ++n13;
 
 	      const PairEventData
-		SDat(Sim->dynamics.getLiouvillean().DSMCSpheresRun(p1, p2, e, rij));
+		SDat(Sim->liouvillean->DSMCSpheresRun(p1, p2, e, rij));
 
 	      Sim->signalParticleUpdate(SDat);
 	    
@@ -222,14 +222,13 @@ namespace dynamo {
 	    Particle& p1(Sim->particleList[*(range1->begin() + 2 * pairID)]);
 	    Particle& p2(Sim->particleList[*(range1->begin() + 2 * pairID + 1)]);
 	  
-	    Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
+	    Sim->liouvillean->updateParticlePair(p1, p2);
 	  
 	    Vector rij;
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
 	      rij[iDim] = Sim->normal_sampler();
 	    rij *= diameter / rij.nrm();
-	    Sim->dynamics.getLiouvillean()
-	      .DSMCSpheresTest(p1, p2, maxprob12, factor12, rij);
+	    Sim->liouvillean->DSMCSpheresTest(p1, p2, maxprob12, factor12, rij);
 	  }
       }
 
@@ -255,15 +254,14 @@ namespace dynamo {
 
 	    Particle& p2(Sim->particleList[*(range1->begin() + secondID)]);
 	  
-	    Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);
+	    Sim->liouvillean->updateParticlePair(p1, p2);
 	  
 	    Vector rij;
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
 	      rij[iDim] = Sim->normal_sampler();
 	    rij *= diameter / rij.nrm();
 	  
-	    Sim->dynamics.getLiouvillean()
-	      .DSMCSpheresTest(p1, p2, maxprob13, factor13, rij);
+	    Sim->liouvillean->DSMCSpheresTest(p1, p2, maxprob13, factor13, rij);
 	  }
       }
 

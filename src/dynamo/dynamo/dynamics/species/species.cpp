@@ -75,7 +75,7 @@ namespace dynamo {
     _renderData->addAttribute("Mass", coil::Attribute::EXTENSIVE, 1);
     _renderData->addAttribute("Event Count", coil::Attribute::EXTENSIVE, 1);
 
-    if (Sim->dynamics.getLiouvillean().hasOrientationData())
+    if (Sim->liouvillean->hasOrientationData())
       {
 	_renderData->addAttribute("Orientation", coil::Attribute::EXTENSIVE | coil::Attribute::DEFAULT_GLYPH_ORIENTATION, 3);
 	_renderData->addAttribute("Angular Velocity", coil::Attribute::EXTENSIVE, 3);
@@ -123,8 +123,8 @@ namespace dynamo {
   
     //Check if the system is compressing and adjust the radius scaling factor
     float rfactor = lengthRescale;
-    if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
-      rfactor *= (1 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime);
+    if (std::tr1::dynamic_pointer_cast<LCompression>(Sim->liouvillean))
+      rfactor *= (1 + static_cast<const LCompression&>(*Sim->liouvillean).getGrowthRate() * Sim->dSysTime);
   
     const GlyphRepresentation& data
       = dynamic_cast<const GlyphRepresentation&>(*getIntPtr());
@@ -161,12 +161,12 @@ namespace dynamo {
 	++glyphID;
       }
 
-    if (Sim->dynamics.getLiouvillean().hasOrientationData())
+    if (Sim->liouvillean->hasOrientationData())
       {
 	std::vector<GLfloat>& orientationdata = (*_renderData)["Orientation"];
 	std::vector<GLfloat>& angularvdata = (*_renderData)["Angular Velocity"];
 	size_t glyphID(0);
-	const std::vector<Liouvillean::rotData>& data = Sim->dynamics.getLiouvillean().getCompleteRotData();
+	const std::vector<Liouvillean::rotData>& data = Sim->liouvillean->getCompleteRotData();
 	BOOST_FOREACH(unsigned long ID, *range)
 	  {
 	    for (size_t s(0); s < nsph; ++s)

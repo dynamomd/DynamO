@@ -66,14 +66,14 @@ namespace dynamo {
   GSOCells::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
-    if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
+    if (!Sim->liouvillean->isUpToDate(part))
       M_throw() << "Particle is not up to date";
 #endif
 
     //This 
-    //Sim->dynamics.getLiouvillean().updateParticle(part);
+    //Sim->liouvillean->updateParticle(part);
     //is not required as we compensate for the delay using 
-    //Sim->dynamics.getLiouvillean().getParticleDelay(part)
+    //Sim->liouvillean->getParticleDelay(part)
 
     Vector CellOrigin;
     size_t ID(part.getID());
@@ -85,18 +85,18 @@ namespace dynamo {
       }
 
     return GlobalEvent(part,
-		       Sim->dynamics.getLiouvillean().
+		       Sim->liouvillean->
 		       getSquareCellCollision2
 		       (part, CellOrigin,
 			cellDimension)
-		       -Sim->dynamics.getLiouvillean().getParticleDelay(part),
+		       -Sim->liouvillean->getParticleDelay(part),
 		       CELL, *this);
   }
 
   void
   GSOCells::runEvent(Particle& part, const double) const
   {
-    Sim->dynamics.getLiouvillean().updateParticle(part);
+    Sim->liouvillean->updateParticle(part);
 
     Vector CellOrigin;
     size_t ID(part.getID());
@@ -108,7 +108,7 @@ namespace dynamo {
       }
   
     //Determine the cell transition direction, its saved
-    int cellDirectionInt(Sim->dynamics.getLiouvillean().
+    int cellDirectionInt(Sim->liouvillean->
 			 getSquareCellCollision3
 			 (part, CellOrigin, 
 			  cellDimension));
@@ -142,7 +142,7 @@ namespace dynamo {
     vNorm[cellDirection] = (cellDirectionInt > 0) ? -1 : +1; 
     
     //Run the collision and catch the data
-    NEventData EDat(Sim->dynamics.getLiouvillean().runWallCollision
+    NEventData EDat(Sim->liouvillean->runWallCollision
 		    (part, vNorm, 1.0));
 
     Sim->signalParticleUpdate(EDat);
@@ -170,7 +170,7 @@ namespace dynamo {
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       cellDimension[iDim] = Sim->primaryCellSize[iDim] / cuberootN;
 
-    if (Sim->dynamics.liouvilleanTypeTest<LNewtonianGravity>())
+    if (std::tr1::dynamic_pointer_cast<const LNewtonianGravity>(Sim->liouvillean))
       dout << "Warning, in order for SingleOccupancyCells to work in gravity\n"
 	   << "You must add the ParabolaSentinel Global event." << std::endl;
 

@@ -91,7 +91,7 @@ namespace dynamo {
 	  dt = Sim->lastRunMFT * 50.0 / CorrelatorLength;
 	else
 	  dt = 10.0 / (((double) CorrelatorLength) 
-		       * sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
+		       * sqrt(Sim->liouvillean->getkT()) * CorrelatorLength);
       }
   
     //Sum up the constant Del G.
@@ -100,7 +100,7 @@ namespace dynamo {
       {
 	const Particle& part(Sim->particleList[id]);
 	constDelG[spec->getID()] += part.getVelocity() 
-	  * Sim->dynamics.getLiouvillean().getParticleKineticEnergy(part);
+	  * Sim->liouvillean->getParticleKineticEnergy(part);
       }
   
     dout << "dt set to " << dt / Sim->dynamics.units().unitTime() << std::endl;
@@ -312,7 +312,7 @@ namespace dynamo {
   void 
   OPThermalConductivitySpeciesSpeciesE::updateConstDelG(const ParticleEventData& PDat)
   {
-    double p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
+    double p1E = Sim->liouvillean->getParticleKineticEnergy(PDat.getParticle());
   
     constDelG[PDat.getSpecies().getID()] += PDat.getParticle().getVelocity() * p1E 
       - PDat.getOldVel() * (p1E - PDat.getDeltaKE());
@@ -321,8 +321,8 @@ namespace dynamo {
   void 
   OPThermalConductivitySpeciesSpeciesE::updateConstDelG(const PairEventData& PDat)
   {
-    double p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle1_.getParticle());
-    double p2E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.particle2_.getParticle());
+    double p1E = Sim->liouvillean->getParticleKineticEnergy(PDat.particle1_.getParticle());
+    double p2E = Sim->liouvillean->getParticleKineticEnergy(PDat.particle2_.getParticle());
   
     constDelG[Sim->species[PDat.particle1_.getParticle()].getID()]
       += PDat.particle1_.getParticle().getVelocity() * p1E

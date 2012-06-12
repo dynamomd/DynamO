@@ -88,10 +88,10 @@ namespace dynamo {
     ++Sim->eventCount;
 
     BOOST_FOREACH(const size_t& id, *range1)
-      Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[id]);
+      Sim->liouvillean->updateParticle(Sim->particleList[id]);
   
     BOOST_FOREACH(const size_t& id, *range2)
-      Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[id]);
+      Sim->liouvillean->updateParticle(Sim->particleList[id]);
   
     bool kedown(false); //Will kinetic energy go down?
 
@@ -119,7 +119,7 @@ namespace dynamo {
     
     EEventType etype(NONE);
 
-    NEventData SDat(Sim->dynamics.getLiouvillean().multibdyWellEvent
+    NEventData SDat(Sim->liouvillean->multibdyWellEvent
 		    (*range1, *range2, 0.0, (kedown) ? -delU : delU, etype));
 
     if (etype != BOUNCE)
@@ -145,15 +145,15 @@ namespace dynamo {
     ID = nID;
 
     BOOST_FOREACH(const size_t& id, *range1)
-      Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[id]);
+      Sim->liouvillean->updateParticle(Sim->particleList[id]);
   
     BOOST_FOREACH(const size_t& id, *range2)
-      Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[id]);
+      Sim->liouvillean->updateParticle(Sim->particleList[id]);
   
     ulevelcenter = int( - a * b * b / delU);
     
-    std::pair<Vector, Vector> r1data = Sim->dynamics.getLiouvillean().getCOMPosVel(*range1);
-    std::pair<Vector, Vector> r2data = Sim->dynamics.getLiouvillean().getCOMPosVel(*range2);
+    std::pair<Vector, Vector> r1data = Sim->liouvillean->getCOMPosVel(*range1);
+    std::pair<Vector, Vector> r2data = Sim->liouvillean->getCOMPosVel(*range2);
     Vector r12 = r1data.first - r2data.first;
     Sim->BCs->applyBC(r12);
 
@@ -176,10 +176,10 @@ namespace dynamo {
   SysUmbrella::recalculateTime()
   {
     BOOST_FOREACH(const size_t& id, *range1)
-      Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[id]);
+      Sim->liouvillean->updateParticle(Sim->particleList[id]);
   
     BOOST_FOREACH(const size_t& id, *range2)
-      Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[id]);
+      Sim->liouvillean->updateParticle(Sim->particleList[id]);
   
     double R_max, R_min;
 
@@ -193,8 +193,7 @@ namespace dynamo {
 	if (b==0)//Allow a double width well if b==0
 	  R_max = b + sqrt((ulevel + 1 * delU) / a);
       
-	dt = Sim->dynamics.getLiouvillean()
-	  .SphereSphereOutRoot(*range1, *range2, R_max);
+	dt = Sim->liouvillean->SphereSphereOutRoot(*range1, *range2, R_max);
 	
 	if (dt != HUGE_VAL)
 	  type = WELL_OUT;
@@ -223,8 +222,7 @@ namespace dynamo {
 	R_max = b + sqrt(((ulevel + 1) * delU) / a);
       }
 
-    dt = Sim->dynamics.getLiouvillean()
-      .SphereSphereInRoot(*range1, *range2, R_min);
+    dt = Sim->liouvillean->SphereSphereInRoot(*range1, *range2, R_min);
     
     if (dt != HUGE_VAL)
       {
@@ -232,8 +230,7 @@ namespace dynamo {
 	return;
       }
 
-    dt = Sim->dynamics.getLiouvillean()
-      .SphereSphereOutRoot(*range1, *range2, R_max);
+    dt = Sim->liouvillean->SphereSphereOutRoot(*range1, *range2, R_max);
 
     if (dt != HUGE_VAL)
       {

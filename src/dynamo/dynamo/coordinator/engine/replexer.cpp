@@ -94,8 +94,8 @@ namespace dynamo {
 
     //Ensure the types of the simulation Liouvilleans match
     for (size_t i(1); i < nSims; ++i)
-      if (typeid(Simulations[i].dynamics.getLiouvillean())
-	  != typeid(Simulations[0].dynamics.getLiouvillean()))
+      if (typeid(*Simulations[i].liouvillean)
+	  != typeid(*Simulations[0].liouvillean))
 	M_throw() << vm["config-file"].as<std::vector<std::string> >()[i]
 		  << " does not have the same Liouvillean type as "
 		  << vm["config-file"].as<std::vector<std::string> >()[0];

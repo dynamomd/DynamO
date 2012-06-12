@@ -46,17 +46,17 @@ namespace dynamo {
   GlobalEvent 
   GParabolaSentinel::getEvent(const Particle& part) const
   {
-    Sim->dynamics.getLiouvillean().updateParticle(Sim->particleList[part.getID()]);
+    Sim->liouvillean->updateParticle(Sim->particleList[part.getID()]);
 
-    return GlobalEvent(part, Sim->dynamics.getLiouvillean()
-		       .getParabolaSentinelTime(part), 
+    return GlobalEvent(part, Sim->liouvillean
+		       ->getParabolaSentinelTime(part), 
 		       VIRTUAL_PARABOLA, *this);
   }
 
   void 
   GParabolaSentinel::runEvent(Particle& part, const double) const
   {
-    Sim->dynamics.getLiouvillean().updateParticle(part);
+    Sim->liouvillean->updateParticle(part);
 
     GlobalEvent iEvent(getEvent(part));
 
@@ -80,7 +80,7 @@ namespace dynamo {
   
     Sim->dynamics.stream(iEvent.getdt());
 
-    Sim->dynamics.getLiouvillean().enforceParabola(part);
+    Sim->liouvillean->enforceParabola(part);
   
 #ifdef DYNAMO_DEBUG
     iEvent.addTime(Sim->freestreamAcc);

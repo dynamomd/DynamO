@@ -160,7 +160,7 @@ namespace dynamo {
 	const Particle& sp = p1.testState(Particle::DYNAMIC) ? p2 : p1;
 
 	//Other variables
-	Vector g(static_cast<const LNewtonianGravity&>(Sim->dynamics.getLiouvillean()).getGravityVector());
+	Vector g(static_cast<const LNewtonianGravity&>(*Sim->liouvillean).getGravityVector());
 
 	if (!_range->isInRange(sp))  //DP-FC
 	  {
@@ -258,7 +258,7 @@ namespace dynamo {
     BOOST_FOREACH(const locPair& p, stateChange)
       {
 	Particle& part = Sim->particleList[p.first];
-	Sim->dynamics.getLiouvillean().updateParticle(part);
+	Sim->liouvillean->updateParticle(part);
       
 #ifdef DYNAMO_DEBUG 
 	if (stateChange.find(part.getID()) == stateChange.end())

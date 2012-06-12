@@ -68,7 +68,7 @@ namespace dynamo {
 
     currCorrLength = 1.0;
 
-    const std::vector<Liouvillean::rotData>& initial_rdat(Sim->dynamics.getLiouvillean().getCompleteRotData());
+    const std::vector<Liouvillean::rotData>& initial_rdat(Sim->liouvillean->getCompleteRotData());
 
     BOOST_FOREACH(const Particle& part, Sim->particleList)
       {
@@ -79,7 +79,7 @@ namespace dynamo {
   void
   OPMSDOrientationalCorrelator::ticker()
   {
-    const std::vector<Liouvillean::rotData>& current_rdat(Sim->dynamics.getLiouvillean().getCompleteRotData());
+    const std::vector<Liouvillean::rotData>& current_rdat(Sim->liouvillean->getCompleteRotData());
     BOOST_FOREACH(const Particle& part, Sim->particleList)
       {
 	historicalData[part.getID()].push_front(RUpair(part.getPosition(), current_rdat[part.getID()].orientation));

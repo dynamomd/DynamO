@@ -94,10 +94,10 @@ namespace dynamo {
   boost::unordered_map<int, double>
   OPIntEnergyHist::getImprovedW() const
   {
-    if (!(Sim->dynamics.liouvilleanTypeTest<LNewtonianMC>()))
+    if (!std::tr1::dynamic_pointer_cast<const LNewtonianMC>(Sim->liouvillean))
       M_throw() << "Cannot improve an non-Multicanonical Liouvillean";
 
-    const LNewtonianMC& liouvillean = static_cast<const LNewtonianMC&>(Sim->dynamics.getLiouvillean());
+  const LNewtonianMC& liouvillean = static_cast<const LNewtonianMC&>(*Sim->liouvillean);
 
     if (liouvillean.getEnergyStep() != intEnergyHist.getBinWidth())
       M_throw() << "Cannot improve the W potential when there is a mismatch between the"
@@ -148,10 +148,10 @@ namespace dynamo {
   
     intEnergyHist.outputClearHistogram(XML, Sim->dynamics.units().unitEnergy());
   
-    if (Sim->dynamics.liouvilleanTypeTest<LNewtonianMC>())
+    if (!std::tr1::dynamic_pointer_cast<const LNewtonianMC>(Sim->liouvillean))
       {
 	dout << "Detected a Multi-canonical Liouvillean, outputting w parameters" << std::endl;
-	const LNewtonianMC& liouvillean(static_cast<const LNewtonianMC&>(Sim->dynamics.getLiouvillean()));
+	const LNewtonianMC& liouvillean(static_cast<const LNewtonianMC&>(*Sim->liouvillean));
 	
 #ifdef DYNAMO_DEBUG      
 	if (!dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()))

@@ -97,10 +97,10 @@ namespace dynamo {
   IRoughHardSphere::getEvent(const Particle& p1, const Particle& p2) const 
   { 
 #ifdef DYNAMO_DEBUG
-    if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
+    if (!Sim->liouvillean->isUpToDate(p1))
       M_throw() << "Particle 1 is not up to date";
   
-    if (!Sim->dynamics.getLiouvillean().isUpToDate(p2))
+    if (!Sim->liouvillean->isUpToDate(p2))
       M_throw() << "Particle 2 is not up to date";
 #endif
 
@@ -112,11 +112,11 @@ namespace dynamo {
     double d = (_diameter->getProperty(p1.getID())
 		+ _diameter->getProperty(p2.getID())) * 0.5;
 
-    double dt = Sim->dynamics.getLiouvillean().SphereSphereInRoot(p1, p2, d);
+    double dt = Sim->liouvillean->SphereSphereInRoot(p1, p2, d);
     if (dt != HUGE_VAL)
       {
 #ifdef DYNAMO_OverlapTesting
-	if (Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d))
+	if (Sim->liouvillean->sphereOverlap(p1, p2, d))
 	  M_throw() << "Overlapping particles found"
 		    << ", particle1 " << p1.getID()
 		    << ", particle2 " << p2.getID()
@@ -149,7 +149,7 @@ namespace dynamo {
 
     //Run the collision and catch the data
     PairEventData EDat
-      (Sim->dynamics.getLiouvillean().RoughSpheresColl(iEvent, e, et, d2)); 
+      (Sim->liouvillean->RoughSpheresColl(iEvent, e, et, d2)); 
 
     Sim->signalParticleUpdate(EDat);
 

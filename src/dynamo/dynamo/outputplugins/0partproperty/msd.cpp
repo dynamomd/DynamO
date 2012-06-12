@@ -44,7 +44,7 @@ namespace dynamo {
   OPMSD::output(magnet::xml::XmlStream &XML)
   {
     //Required to get the correct results
-    Sim->dynamics.getLiouvillean().updateAllParticles();
+    Sim->liouvillean->updateAllParticles();
   
     XML << magnet::xml::tag("MSD");
   
@@ -97,7 +97,7 @@ namespace dynamo {
   OPMSD::calcStructMSD(const Topology& Itop) const
   {
     //Required to get the correct results
-    Sim->dynamics.getLiouvillean().updateAllParticles();
+    Sim->liouvillean->updateAllParticles();
 
     double acc = 0.0;
     BOOST_FOREACH(const shared_ptr<Range>& molRange, Itop.getMolecules())

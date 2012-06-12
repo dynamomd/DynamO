@@ -59,7 +59,7 @@ namespace dynamo {
   {
     if (KEacc == 0) return getCurrentkT();
 
-    return 2.0 * KEacc / (Sim->dSysTime * Sim->N * Sim->dynamics.getLiouvillean().getParticleDOF());
+    return 2.0 * KEacc / (Sim->dSysTime * Sim->N * Sim->liouvillean->getParticleDOF());
   }
 
   double 
@@ -68,20 +68,20 @@ namespace dynamo {
     if (KEsqAcc == 0) 
       return 4.0 * KECurrent * KECurrent
 	/ (Sim->N * Sim->N
-	   * Sim->dynamics.getLiouvillean().getParticleDOF()
-	   * Sim->dynamics.getLiouvillean().getParticleDOF());
+	   * Sim->liouvillean->getParticleDOF()
+	   * Sim->liouvillean->getParticleDOF());
     
     return 4.0 * KEsqAcc 
 	/ (Sim->dSysTime
 	   * Sim->N * Sim->N
-	   * Sim->dynamics.getLiouvillean().getParticleDOF()
-	   * Sim->dynamics.getLiouvillean().getParticleDOF());
+	   * Sim->liouvillean->getParticleDOF()
+	   * Sim->liouvillean->getParticleDOF());
   }
 
   double 
   OPMisc::getCurrentkT() const
   {
-    return 2.0 * KECurrent / (Sim->N * Sim->dynamics.getLiouvillean().getParticleDOF());
+    return 2.0 * KECurrent / (Sim->N * Sim->liouvillean->getParticleDOF());
   }
 
   double 
@@ -97,7 +97,7 @@ namespace dynamo {
   void
   OPMisc::initialise()
   {
-    InitialKE = KECurrent = Sim->dynamics.getLiouvillean().getSystemKineticEnergy();
+    InitialKE = KECurrent = Sim->liouvillean->getSystemKineticEnergy();
     intECurrent = Sim->dynamics.calcInternalEnergy();
 
     dout << "Particle Count " << Sim->N

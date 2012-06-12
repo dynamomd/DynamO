@@ -80,7 +80,7 @@ namespace dynamo {
   void 
   Scheduler::addEvents(Particle& part)
   {  
-    Sim->dynamics.getLiouvillean().updateParticle(part);
+    Sim->liouvillean->updateParticle(part);
 
     //Add the global events
     BOOST_FOREACH(const shared_ptr<Global>& glob, Sim->dynamics.getGlobals())
@@ -245,7 +245,7 @@ namespace dynamo {
 	  lazyDeletionCleanup();
 
 	  //Now recalculate the FEL event
-	  Sim->dynamics.getLiouvillean().updateParticlePair(p1, p2);       
+	  Sim->liouvillean->updateParticlePair(p1, p2);       
 	  IntEvent Event(Sim->dynamics.getEvent(p1, p2));
 	
 #ifdef DYNAMO_DEBUG
@@ -326,7 +326,7 @@ namespace dynamo {
 	  sorter->sort();
 	  lazyDeletionCleanup();
 
-	  Sim->dynamics.getLiouvillean().updateParticle(part);
+	  Sim->liouvillean->updateParticle(part);
 	  LocalEvent iEvent(Sim->dynamics.getLocals()[localID]->getEvent(part));
 
 	  double next_dt = sorter->next_dt();
@@ -407,7 +407,7 @@ namespace dynamo {
     Particle& part1(Sim->particleList[part.getID()]);
     Particle& part2(Sim->particleList[id]);
 
-    Sim->dynamics.getLiouvillean().updateParticle(part2);
+    Sim->liouvillean->updateParticle(part2);
 
     const IntEvent& eevent(Sim->dynamics.getEvent(part1, part2));
 

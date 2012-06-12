@@ -51,7 +51,7 @@ namespace dynamo {
   void
   OPKEnergy::initialise()
   {
-    InitialKE = KECurrent = Sim->dynamics.getLiouvillean().getSystemKineticEnergy();
+    InitialKE = KECurrent = Sim->liouvillean->getSystemKineticEnergy();
   }
 
   double
@@ -63,14 +63,14 @@ namespace dynamo {
   double
   OPKEnergy::getAvgkT() const
   {
-    return 2.0 * KEacc / (Sim->dSysTime * Sim->N * Sim->dynamics.getLiouvillean().getParticleDOF());
+    return 2.0 * KEacc / (Sim->dSysTime * Sim->N * Sim->liouvillean->getParticleDOF());
   }
 
   double
   OPKEnergy::getAvgSqTheta() const
   {
     return 2.0 * KEsqAcc / (Sim->dSysTime * Sim->N
-			    * Sim->dynamics.getLiouvillean().getParticleDOF()
+			    * Sim->liouvillean->getParticleDOF()
 			    * Sim->dynamics.units().unitEnergy()
 			    * Sim->dynamics.units().unitEnergy());
   }
@@ -104,8 +104,8 @@ namespace dynamo {
     XML << magnet::xml::tag("KEnergy")
 	<< magnet::xml::tag("T") << magnet::xml::attr("val") << getAvgTheta()
 	<< magnet::xml::attr("current")
-	<< (2.0 * Sim->dynamics.getLiouvillean().getSystemKineticEnergy()
-	    / (Sim->dynamics.getLiouvillean().getParticleDOF() * Sim->N * Sim->dynamics.units().unitEnergy()))
+	<< (2.0 * Sim->liouvillean->getSystemKineticEnergy()
+	    / (Sim->liouvillean->getParticleDOF() * Sim->N * Sim->dynamics.units().unitEnergy()))
 	<< magnet::xml::endtag("T")
 	<< magnet::xml::tag("T2") << magnet::xml::attr("val") << getAvgSqTheta()
 	<< magnet::xml::endtag("T2")
@@ -126,7 +126,7 @@ namespace dynamo {
 
 
     I_Pcout() << "T "
-	      <<  2.0 * KECurrent / (Sim->N * Sim->dynamics.getLiouvillean().getParticleDOF()
+	      <<  2.0 * KECurrent / (Sim->N * Sim->liouvillean->getParticleDOF()
 				     * Sim->dynamics.units().unitEnergy())
 	      << ", <T> " << getAvgTheta() << ", <PwrLoss> " << powerloss << ", ";
   }

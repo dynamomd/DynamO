@@ -96,7 +96,7 @@ namespace dynamo {
     double d = (_diameter->getProperty(p1.getID())
 		 + _diameter->getProperty(p2.getID())) * 0.5;
 
-    return Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d);
+    return Sim->liouvillean->sphereOverlap(p1, p2, d);
   }
 
   IntEvent 
@@ -104,10 +104,10 @@ namespace dynamo {
 		      const Particle &p2) const 
   {
 #ifdef DYNAMO_DEBUG
-    if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
+    if (!Sim->liouvillean->isUpToDate(p1))
       M_throw() << "Particle 1 is not up to date";
   
-    if (!Sim->dynamics.getLiouvillean().isUpToDate(p2))
+    if (!Sim->liouvillean->isUpToDate(p2))
       M_throw() << "Particle 2 is not up to date";
 
     if (p1 == p2)
@@ -119,18 +119,17 @@ namespace dynamo {
 
     if (isCaptured(p1, p2)) 
       {
-	double dt = Sim->dynamics.getLiouvillean().SphereSphereOutRoot(p1, p2, d);
+	double dt = Sim->liouvillean->SphereSphereOutRoot(p1, p2, d);
 	if (dt != HUGE_VAL)
 	  return IntEvent(p1, p2, dt, WELL_OUT, *this);
       }
     else
       {
-	double dt = Sim->dynamics.getLiouvillean()
-	  .SphereSphereInRoot(p1, p2, d);
+	double dt = Sim->liouvillean->SphereSphereInRoot(p1, p2, d);
 	if (dt != HUGE_VAL) 
 	  {
 #ifdef DYNAMO_OverlapTesting
-	if (Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, d))
+	if (Sim->liouvillean->sphereOverlap(p1, p2, d))
 	  M_throw() << "Overlapping particles found"
 		    << ", particle1 " << p1.getID()
 		    << ", particle2 " << p2.getID()
@@ -163,8 +162,7 @@ namespace dynamo {
       {
       case WELL_IN:
 	{
-	  PairEventData retVal(Sim->dynamics.getLiouvillean()
-			       .SphereWellEvent(iEvent, wd, d2));
+	  PairEventData retVal(Sim->liouvillean->SphereWellEvent(iEvent, wd, d2));
 	
 	  if (retVal.getType() != BOUNCE)
 	    addToCaptureMap(p1, p2);      
@@ -181,8 +179,7 @@ namespace dynamo {
 	}
       case WELL_OUT:
 	{
-	  PairEventData retVal(Sim->dynamics.getLiouvillean()
-			       .SphereWellEvent(iEvent, -wd, d2));
+	  PairEventData retVal(Sim->liouvillean->SphereWellEvent(iEvent, -wd, d2));
 	
 	  if (retVal.getType() != BOUNCE)
 	    removeFromCaptureMap(p1, p2);      

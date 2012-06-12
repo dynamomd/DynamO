@@ -49,14 +49,14 @@ namespace dynamo {
     dout << "Backing up old liouvillean" << std::endl;
 
     //Required to reset the dynamics
-    Sim->dynamics.getLiouvillean().updateAllParticles();
+    Sim->liouvillean->updateAllParticles();
 
-    oldLio = Sim->dynamics.getLiouvilleanPtr();
+    oldLio = Sim->liouvillean;
 
     dout << "Loading compression liouvillean" << std::endl;
-    Sim->dynamics.setLiouvillean(shared_ptr<dynamo::Liouvillean>
-				 (new LCompression(Sim, growthRate 
-						   / Sim->dynamics.units().unitTime())));
+    Sim->liouvillean 
+      = shared_ptr<dynamo::Liouvillean>
+      (new LCompression(Sim, growthRate / Sim->dynamics.units().unitTime()));
   }
 
   void
@@ -65,7 +65,7 @@ namespace dynamo {
     dout << "Restoring original liouvillean" << std::endl;
 
     //Required to finish off the compression dynamics
-    Sim->dynamics.getLiouvillean().updateAllParticles();
+    Sim->liouvillean->updateAllParticles();
 
     if (std::tr1::dynamic_pointer_cast<SNeighbourList>(Sim->ptrScheduler))
       {
@@ -94,7 +94,7 @@ namespace dynamo {
     Sim->_properties.rescaleUnit(Property::Units::L, rescale_factor);
     Sim->_properties.rescaleUnit(Property::Units::T, rescale_factor);
 
-    Sim->dynamics.getLiouvilleanPtr() = oldLio;
+    Sim->liouvillean = oldLio;
   }
 
   void

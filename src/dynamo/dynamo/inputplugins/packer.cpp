@@ -117,7 +117,7 @@ namespace dynamo {
   IPPacker::initialise()
   {
     //Set the default liouvillean
-    Sim->dynamics.setLiouvillean(shared_ptr<Liouvillean>(new LNewtonian(Sim)));
+    Sim->liouvillean = shared_ptr<Liouvillean>(new LNewtonian(Sim));
     //Set the default Boundary Conditions
     Sim->BCs = shared_ptr<BoundaryCondition>(new BCPeriodic(Sim));
 
@@ -1116,8 +1116,7 @@ namespace dynamo {
 						 nParticles++));
 
 	  const double length = 1;
-	  Sim->dynamics.getLiouvillean()
-	    .initOrientations(std::sqrt(12.0/ (length * length)));
+	  Sim->liouvillean->initOrientations(std::sqrt(12.0/ (length * length)));
 
 	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
@@ -1459,8 +1458,7 @@ namespace dynamo {
 						 nParticles++));
 
 	  const double length = 1;
-	  Sim->dynamics.getLiouvillean()
-	    .initOrientations(std::sqrt(12.0/ (length * length)));
+	  Sim->liouvillean->initOrientations(std::sqrt(12.0/ (length * length)));
 
 	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
@@ -2336,8 +2334,8 @@ namespace dynamo {
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
 
-	  Sim->dynamics.setLiouvillean(shared_ptr<Liouvillean>
-				       (new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0))));
+	  Sim->liouvillean = shared_ptr<Liouvillean>
+	    (new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0)));
 
 	  double elasticity = 1.0;
 
@@ -2418,8 +2416,8 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELCBT(Sim)));
 
-	  Sim->dynamics.setLiouvillean(shared_ptr<Liouvillean>
-				       (new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0), elasticV * Sim->dynamics.units().unitVelocity())));
+	  Sim->liouvillean = shared_ptr<Liouvillean>
+	    (new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0), elasticV * Sim->dynamics.units().unitVelocity()));
 
 	  Sim->dynamics.addInteraction
 	    (shared_ptr<Interaction>
@@ -3108,10 +3106,10 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELCBT(Sim)));
 
-	  Sim->dynamics.setLiouvillean(shared_ptr<Liouvillean>
-				       (new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0),
-							      elasticV * Sim->dynamics.units().unitVelocity(),
-							      tc * Sim->dynamics.units().unitTime())));
+	  Sim->liouvillean = shared_ptr<Liouvillean>
+	    (new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0),
+				   elasticV * Sim->dynamics.units().unitVelocity(),
+				   tc * Sim->dynamics.units().unitTime()));
 
 	  ///Now build our funnel, so we know how many particles it takes
 	  std::vector<Vector> funnelSites;

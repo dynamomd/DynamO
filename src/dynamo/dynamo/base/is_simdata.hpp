@@ -36,6 +36,7 @@ namespace dynamo
   class Ensemble;
   class Species;
   class BoundaryCondition;
+  class Liouvillean;
   class OutputPlugin;
 
   //! \brief Holds the different phases of the simulation initialisation
@@ -111,6 +112,7 @@ namespace dynamo
 
     shared_ptr<BoundaryCondition> BCs;
     
+    shared_ptr<Liouvillean> liouvillean;
 
     /*! \brief Finds a plugin of the given type using RTTI.
      */

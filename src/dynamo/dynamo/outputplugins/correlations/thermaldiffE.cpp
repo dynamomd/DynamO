@@ -103,7 +103,7 @@ namespace dynamo {
 	  dt = Sim->lastRunMFT * 50.0 / CorrelatorLength;
 	else
 	  dt = 10.0 / (((double) CorrelatorLength) 
-		       * sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
+		       * sqrt(Sim->liouvillean->getkT()) * CorrelatorLength);
       }
   
     double sysMass = 0;
@@ -118,7 +118,7 @@ namespace dynamo {
 	double mass = Sim->species[part].getMass(part.getID());
 
 	constDelG += part.getVelocity() * mass
-	  * Sim->dynamics.getLiouvillean().getParticleKineticEnergy(part);
+	  * Sim->liouvillean->getParticleKineticEnergy(part);
 	sysMom += part.getVelocity() * mass;
       
 	if (Sim->species[part].getID() == species1)
@@ -259,7 +259,7 @@ namespace dynamo {
   void 
   OPThermalDiffusionE::updateConstDelG(const ParticleEventData& PDat) 
   {
-    double p1E = Sim->dynamics.getLiouvillean().getParticleKineticEnergy(PDat.getParticle());
+    double p1E = Sim->liouvillean->getParticleKineticEnergy(PDat.getParticle());
   
     constDelG += PDat.getParticle().getVelocity() * p1E 
       - PDat.getOldVel() * (p1E - PDat.getDeltaKE());

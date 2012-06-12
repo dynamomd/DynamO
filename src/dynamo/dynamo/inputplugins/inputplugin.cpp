@@ -41,12 +41,12 @@ namespace dynamo {
   {
     dout << "WARNING Rescaling kT to " << val << std::endl;
   
-    double currentkT(Sim->dynamics.getLiouvillean().getkT()
+    double currentkT(Sim->liouvillean->getkT()
 		     / Sim->dynamics.units().unitEnergy());
 
     dout << "Current kT " << currentkT << std::endl;
 
-    Sim->dynamics.getLiouvillean().rescaleSystemKineticEnergy(val/ currentkT);
+    Sim->liouvillean->rescaleSystemKineticEnergy(val/ currentkT);
   }
 
   void 

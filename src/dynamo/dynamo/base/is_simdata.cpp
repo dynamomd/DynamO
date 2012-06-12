@@ -96,6 +96,8 @@ namespace dynamo
 		  << "\nN = " << N;
     }
 
+    liouvillean->initialise();
+
     dynamics.initialise();
   }
 
@@ -201,10 +203,12 @@ namespace dynamo
     
     BCs = BoundaryCondition::getClass(simNode.getNode("BC"), this);
 
+    liouvillean = Liouvillean::getClass(simNode.getNode("Dynamics"), this);
+
     dynamics << simNode;
     ptrScheduler = Scheduler::getClass(simNode.getNode("Scheduler"), this);
 
-    dynamics.getLiouvillean().loadParticleXMLData(mainNode);
+    liouvillean->loadParticleXMLData(mainNode);
   
     //Fixes or conversions once system is loaded
     lastRunMFT *= dynamics.units().unitTime();
@@ -236,7 +240,7 @@ namespace dynamo
     magnet::xml::XmlStream XML(coutputFile);
     XML.setFormatXML(true);
 
-    dynamics.getLiouvillean().updateAllParticles();
+    liouvillean->updateAllParticles();
 
     //Rescale the properties to the configuration file units
     _properties.rescaleUnit(Property::Units::L, 
@@ -284,10 +288,13 @@ namespace dynamo
 	<< *BCs
 	<< magnet::xml::endtag("BC")
 	<< dynamics
+      	<< magnet::xml::tag("Dynamics")
+	<< *liouvillean
+	<< magnet::xml::endtag("Dynamics")
 	<< magnet::xml::endtag("Simulation")
 	<< _properties;
 
-    dynamics.getLiouvillean().outputParticleXMLData(XML, applyBC);
+    liouvillean->outputParticleXMLData(XML, applyBC);
 
     XML << magnet::xml::endtag("DynamOconfig");
 
@@ -316,8 +323,8 @@ namespace dynamo
   SimData::replexerSwap(SimData& other)
   {
     //Get all particles up to date and zero the pecTimes
-    dynamics.getLiouvillean().updateAllParticles();
-    other.dynamics.getLiouvillean().updateAllParticles();
+    liouvillean->updateAllParticles();
+    other.liouvillean->updateAllParticles();
       
     std::swap(dSysTime, other.dSysTime);
     std::swap(eventCount, other.eventCount);
@@ -331,7 +338,7 @@ namespace dynamo
     BOOST_FOREACH(shared_ptr<System>& aPtr, other.dynamics.getSystemEvents())
       aPtr->changeSystem(&other);
 
-    dynamics.getLiouvillean().swapSystem(other.dynamics.getLiouvillean());
+    liouvillean->swapSystem(*other.liouvillean);
 
     //Rescale the velocities 
     double scale1(sqrt(other.ensemble->getEnsembleVals()[2]

@@ -62,8 +62,8 @@ namespace dynamo {
   GlobalEvent 
   GPBCSentinel::getEvent(const Particle& part) const
   {
-    return GlobalEvent(part, Sim->dynamics.getLiouvillean()
-		       .getPBCSentinelTime(part, maxintdist),
+    return GlobalEvent(part, Sim->liouvillean
+		       ->getPBCSentinelTime(part, maxintdist),
 		       VIRTUAL, *this);
   }
 

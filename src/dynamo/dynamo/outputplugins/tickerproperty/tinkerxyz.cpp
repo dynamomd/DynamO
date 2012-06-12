@@ -164,8 +164,8 @@ namespace dynamo {
       {
 	double coeff = 3.4 / Sim->dynamics.units().unitLength();
       
-	if (Sim->dynamics.liouvilleanTypeTest<LCompression>())
-	  coeff /= 1.0 + static_cast<const LCompression&>(Sim->dynamics.getLiouvillean()).getGrowthRate() * Sim->dSysTime;
+	if (std::tr1::dynamic_pointer_cast<LCompression>(Sim->liouvillean))
+	  coeff /= 1.0 + static_cast<const LCompression&>(*Sim->liouvillean).getGrowthRate() * Sim->dSysTime;
 
 	Vector offset(0,0,0);
 	if (P1track)

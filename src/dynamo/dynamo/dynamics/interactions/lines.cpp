@@ -90,10 +90,10 @@ namespace dynamo {
   ILines::getEvent(const Particle &p1, const Particle &p2) const
   {
 #ifdef DYNAMO_DEBUG
-    if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
+    if (!Sim->liouvillean->isUpToDate(p1))
       M_throw() << "Particle 1 is not up to date";
   
-    if (!Sim->dynamics.getLiouvillean().isUpToDate(p2))
+    if (!Sim->liouvillean->isUpToDate(p2))
       M_throw() << "Particle 2 is not up to date";
 
     if (p1 == p2)
@@ -106,9 +106,9 @@ namespace dynamo {
     if (isCaptured(p1, p2))
       {
 	//Run this to determine when the spheres no longer intersect
-	double dt = Sim->dynamics.getLiouvillean().SphereSphereOutRoot(p1, p2, l);
+	double dt = Sim->liouvillean->SphereSphereOutRoot(p1, p2, l);
       
-	std::pair<bool, double> colltime = Sim->dynamics.getLiouvillean().getLineLineCollision(l, p1, p2, dt);
+	std::pair<bool, double> colltime = Sim->liouvillean->getLineLineCollision(l, p1, p2, dt);
 
 	if (colltime.second == HUGE_VAL)
 	  return IntEvent(p1, p2, dt, WELL_OUT, *this);
@@ -124,8 +124,7 @@ namespace dynamo {
       }
     else 
       {
-	double dt = Sim->dynamics.getLiouvillean()
-	  .SphereSphereInRoot(p1, p2, l);
+	double dt = Sim->liouvillean->SphereSphereInRoot(p1, p2, l);
 	if (dt != HUGE_VAL)
 	  return IntEvent(p1, p2, dt, WELL_IN, *this);
       }
@@ -146,7 +145,7 @@ namespace dynamo {
 		      + _e->getProperty(p2.getID())) * 0.5;
 	  double l = (_length->getProperty(p1.getID())
 		      + _length->getProperty(p2.getID())) * 0.5;
-	  PairEventData retval(Sim->dynamics.getLiouvillean().runLineLineCollision
+	  PairEventData retval(Sim->liouvillean->runLineLineCollision
 			       (iEvent, e, l));
 
 	  Sim->signalParticleUpdate(retval);
@@ -208,7 +207,7 @@ namespace dynamo {
     double l = (_length->getProperty(p1.getID())
 		+ _length->getProperty(p2.getID())) * 0.5;
 
-    return Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, l);
+    return Sim->liouvillean->sphereOverlap(p1, p2, l);
   }
 }
 

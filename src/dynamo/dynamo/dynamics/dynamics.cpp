@@ -191,8 +191,6 @@ namespace dynamo {
   void 
   Dynamics::initialise()
   {
-    p_liouvillean->initialise();
-
     {
       size_t ID=0;
       //Must be initialised before globals. Neighbour lists are
@@ -238,7 +236,7 @@ namespace dynamo {
   {
     Sim->BCs->update(dt);
 
-    p_liouvillean->stream(dt);
+    Sim->liouvillean->stream(dt);
 
     BOOST_FOREACH(shared_ptr<System>& ptr, systems)
       ptr->stream(dt);
@@ -321,9 +319,7 @@ namespace dynamo {
 	     node.valid(); ++node, ++i)
 	  topology.push_back(Topology::getClass(node, Sim, i));
       }
-  
-    p_liouvillean = Liouvillean::getClass(XML.getNode("Dynamics"), Sim);
-  
+    
     for (magnet::xml::Node node = XML.getNode("Interactions").fastGetNode("Interaction");
 	 node.valid(); ++node)
       interactions.push_back(Interaction::getClass(node, Sim));
@@ -391,10 +387,7 @@ namespace dynamo {
 	  << *ptr
 	  << magnet::xml::endtag("Interaction");
   
-    XML << magnet::xml::endtag("Interactions")
-	<< magnet::xml::tag("Dynamics")
-	<< *p_liouvillean
-	<< magnet::xml::endtag("Dynamics");
+    XML << magnet::xml::endtag("Interactions");
   }
 
   double 
@@ -409,11 +402,10 @@ namespace dynamo {
     return maxval;
   }
 
-
   void 
   Dynamics::SystemOverlapTest()
   {
-    p_liouvillean->updateAllParticles();
+    Sim->liouvillean->updateAllParticles();
 
     std::vector<Particle>::const_iterator iPtr1, iPtr2;
   

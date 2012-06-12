@@ -92,8 +92,7 @@ namespace dynamo  {
     //Flip the direction depending on if the ID is odd or even
     l *=  0.5 * (1 - int(2 * (subID % 2)));
 
-    retval += Sim->dynamics.getLiouvillean()
-      .getRotData(Sim->particleList[ID]).orientation * l;
+    retval += Sim->liouvillean->getRotData(Sim->particleList[ID]).orientation * l;
 
     return retval;
   }
@@ -121,10 +120,10 @@ namespace dynamo  {
 		       const Particle &p2) const 
   {
 #ifdef DYNAMO_DEBUG
-    if (!Sim->dynamics.getLiouvillean().isUpToDate(p1))
+    if (!Sim->liouvillean->isUpToDate(p1))
       M_throw() << "Particle 1 is not up to date";
   
-    if (!Sim->dynamics.getLiouvillean().isUpToDate(p2))
+    if (!Sim->liouvillean->isUpToDate(p2))
       M_throw() << "Particle 2 is not up to date";
 
     if (p1 == p2)
@@ -140,10 +139,9 @@ namespace dynamo  {
     if (isCaptured(p1, p2)) 
       {
 	//Run this to determine when the spheres no longer intersect
-	double dt = Sim->dynamics.getLiouvillean().SphereSphereOutRoot(p1, p2, l + d);
+	double dt = Sim->liouvillean->SphereSphereOutRoot(p1, p2, l + d);
 
-	double dt_offcenter = Sim->dynamics.getLiouvillean()
-	  .getOffCenterSphereOffCenterSphereCollision(l, d, p1, p2, dt);
+	double dt_offcenter = Sim->liouvillean->getOffCenterSphereOffCenterSphereCollision(l, d, p1, p2, dt);
 
 	if (dt_offcenter < dt)
 	  return IntEvent(p1, p2, dt_offcenter, CORE, *this);
@@ -151,8 +149,7 @@ namespace dynamo  {
 	return IntEvent(p1, p2, dt, WELL_OUT, *this);
       }
   
-    double dt = Sim->dynamics.getLiouvillean()
-      .SphereSphereInRoot(p1, p2, l + d);
+    double dt = Sim->liouvillean->SphereSphereInRoot(p1, p2, l + d);
     
     if (dt != HUGE_VAL)
       return IntEvent(p1, p2, dt, WELL_IN, *this);
@@ -178,8 +175,7 @@ namespace dynamo  {
 	{
 	  ++Sim->eventCount;
 	  //We have a line interaction! Run it
-	  PairEventData retval(Sim->dynamics.getLiouvillean()
-			       .runOffCenterSphereOffCenterSphereCollision
+	  PairEventData retval(Sim->liouvillean->runOffCenterSphereOffCenterSphereCollision
 			       (iEvent, e, l, d));
 
 	  Sim->signalParticleUpdate(retval);
@@ -245,7 +241,7 @@ namespace dynamo  {
     double l = (_length->getProperty(p1.getID())
 		+ _length->getProperty(p2.getID())) * 0.5;
 
-    return Sim->dynamics.getLiouvillean().sphereOverlap(p1, p2, l + d);
+    return Sim->liouvillean->sphereOverlap(p1, p2, l + d);
   }
 
   void

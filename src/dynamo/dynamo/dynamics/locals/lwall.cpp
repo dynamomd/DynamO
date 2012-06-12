@@ -36,13 +36,13 @@ namespace dynamo {
   LWall::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
-    if (!Sim->dynamics.getLiouvillean().isUpToDate(part))
+    if (!Sim->liouvillean->isUpToDate(part))
       M_throw() << "Particle is not up to date";
 #endif
 
     double colldist = 0.5 * _diameter->getProperty(part.getID());
 
-    return LocalEvent(part, Sim->dynamics.getLiouvillean().getWallCollision
+    return LocalEvent(part, Sim->liouvillean->getWallCollision
 		      (part, vPosition + vNorm * colldist, vNorm), WALL, *this);
   }
 
@@ -53,7 +53,7 @@ namespace dynamo {
 
     //Run the collision and catch the data
 
-    NEventData EDat(Sim->dynamics.getLiouvillean().runWallCollision
+    NEventData EDat(Sim->liouvillean->runWallCollision
 		    (part, vNorm, _e->getProperty(part.getID())));
 
     Sim->signalParticleUpdate(EDat);

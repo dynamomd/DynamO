@@ -254,7 +254,7 @@ namespace dynamo {
 	if (Sim->lastRunMFT != 0.0)
 	  return Sim->lastRunMFT * 50.0 / CorrelatorLength;
 	else
-	  return 10.0 / (((double) CorrelatorLength)*sqrt(Sim->dynamics.getLiouvillean().getkT()) * CorrelatorLength);
+	  return 10.0 / (((double) CorrelatorLength)*sqrt(Sim->liouvillean->getkT()) * CorrelatorLength);
       }
     else 
       return dt;
