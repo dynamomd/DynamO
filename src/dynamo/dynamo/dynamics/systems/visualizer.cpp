@@ -86,7 +86,7 @@ namespace dynamo {
     Sim->dSysTime += dt;
     Sim->ptrScheduler->stream(dt);
     //dynamics must be updated first
-    Sim->dynamics.stream(dt);
+    Sim->stream(dt);
 
     double locdt = dt + Sim->freestreamAcc;
     Sim->freestreamAcc = 0;

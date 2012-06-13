@@ -123,7 +123,7 @@ namespace dynamo {
     
     Sim->ptrScheduler->stream(iEvent.getdt());
   
-    Sim->dynamics.stream(iEvent.getdt());
+    Sim->stream(iEvent.getdt());
 
     Sim->liouvillean->updateParticle(part);
 

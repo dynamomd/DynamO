@@ -148,6 +148,17 @@ namespace dynamo
     M_throw() << "Could not find the right interaction to test for";
   }
 
+  void 
+  SimData::stream(const double dt)
+  {
+    BCs->update(dt);
+
+    liouvillean->stream(dt);
+
+    BOOST_FOREACH(shared_ptr<System>& ptr, systems)
+      ptr->stream(dt);
+  }
+
   double 
   SimData::getLongestInteraction() const
   {

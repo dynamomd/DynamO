@@ -98,7 +98,7 @@ namespace dynamo {
     
     Sim->ptrScheduler->stream(locdt);
   
-    Sim->dynamics.stream(locdt);
+    Sim->stream(locdt);
 
     locdt +=  Sim->freestreamAcc;
     Sim->freestreamAcc = 0;

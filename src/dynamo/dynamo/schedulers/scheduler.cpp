@@ -292,7 +292,7 @@ namespace dynamo {
 	  stream(Event.getdt());
 	
 	  //dynamics must be updated first
-	  Sim->dynamics.stream(Event.getdt());
+	  Sim->stream(Event.getdt());
 	
 	  Event.addTime(Sim->freestreamAcc);
 
@@ -357,7 +357,7 @@ namespace dynamo {
 	  stream(iEvent.getdt());
 	
 	  //dynamics must be updated first
-	  Sim->dynamics.stream(iEvent.getdt());
+	  Sim->stream(iEvent.getdt());
 	
 	  iEvent.addTime(Sim->freestreamAcc);
 	  Sim->freestreamAcc = 0;
@@ -383,7 +383,7 @@ namespace dynamo {
 	  size_t ID = sorter->next_ID();
 	  Sim->dSysTime += dt;
 	  stream(dt);
-	  Sim->dynamics.stream(dt);
+	  Sim->stream(dt);
 	  Sim->freestreamAcc += dt;
 	  this->fullUpdate(Sim->particleList[ID]);
 	  break;

@@ -43,18 +43,6 @@ namespace dynamo {
     Sim->systems.push_back(shared_ptr<System>(new SysTicker(Sim, Sim->lastRunMFT, "SystemTicker")));
   }
 
-  void 
-  Dynamics::stream(const double& dt)
-  {
-    Sim->BCs->update(dt);
-
-    Sim->liouvillean->stream(dt);
-
-    BOOST_FOREACH(shared_ptr<System>& ptr, Sim->systems)
-      ptr->stream(dt);
-  }
-
-
   double
   Dynamics::calcInternalEnergy() const
   {

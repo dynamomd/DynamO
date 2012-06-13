@@ -133,6 +133,8 @@ namespace dynamo
     
     Container<System> systems;
 
+    void stream(const double);
+
     /*! \brief Finds a plugin of the given type using RTTI.
      */
     template<class T>

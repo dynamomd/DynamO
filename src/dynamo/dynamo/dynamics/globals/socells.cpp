@@ -131,7 +131,7 @@ namespace dynamo {
     
     Sim->ptrScheduler->stream(iEvent.getdt());
   
-    Sim->dynamics.stream(iEvent.getdt());
+    Sim->stream(iEvent.getdt());
 
     Vector vNorm(0,0,0);
 

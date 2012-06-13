@@ -42,8 +42,6 @@ namespace dynamo {
     //Constructors
     Dynamics(dynamo::SimData*);
   
-    void stream(const double&);
-  
     /*! \brief Sets the Centre of Mass (COM) velocity of the system 
      * 
      *  The COM momentum of the system is

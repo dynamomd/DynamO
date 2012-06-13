@@ -65,7 +65,7 @@ namespace dynamo {
     Sim->ptrScheduler->stream(locdt);
   
     //dynamics must be updated first
-    Sim->dynamics.stream(locdt);
+    Sim->stream(locdt);
   
     dt += _period;
   
