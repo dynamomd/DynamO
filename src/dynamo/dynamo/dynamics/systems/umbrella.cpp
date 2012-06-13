@@ -274,13 +274,13 @@ namespace dynamo {
       sysName = XML.getAttribute("Name");
 
       a = XML.getAttribute("a").as<double>()
-	* Sim->dynamics.units().unitEnergy() 
-	/ Sim->dynamics.units().unitArea();
+	* Sim->units.unitEnergy() 
+	/ Sim->units.unitArea();
 
       b = XML.getAttribute("b").as<double>()
-	* Sim->dynamics.units().unitLength();
+	* Sim->units.unitLength();
 
-      delU = XML.getAttribute("delU").as<double>() * Sim->dynamics.units().unitEnergy();
+      delU = XML.getAttribute("delU").as<double>() * Sim->units.unitEnergy();
       range1 = shared_ptr<Range>(Range::getClass(XML.getNode("Range1"), Sim));
       range2 = shared_ptr<Range>(Range::getClass(XML.getNode("Range2"), Sim));
     
@@ -300,10 +300,10 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("System")
 	<< magnet::xml::attr("Type") << "Umbrella"
-	<< magnet::xml::attr("a") << a * Sim->dynamics.units().unitArea() 
-      / Sim->dynamics.units().unitEnergy()
-	<< magnet::xml::attr("b") << b / Sim->dynamics.units().unitLength()
-	<< magnet::xml::attr("delU") << delU / Sim->dynamics.units().unitEnergy()
+	<< magnet::xml::attr("a") << a * Sim->units.unitArea() 
+      / Sim->units.unitEnergy()
+	<< magnet::xml::attr("b") << b / Sim->units.unitLength()
+	<< magnet::xml::attr("delU") << delU / Sim->units.unitEnergy()
 	<< magnet::xml::attr("currentulevel") << ulevel
 	<< magnet::xml::attr("Name") << sysName
 	<< magnet::xml::tag("Range1")

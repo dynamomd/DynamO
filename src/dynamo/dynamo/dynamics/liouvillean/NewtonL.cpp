@@ -962,11 +962,11 @@ namespace dynamo {
 	     << " may be outside/heading out of the plates"
 	     << "\nerror = "
 	     << (fabs(surfaceOffset - (nhat | fL.wallPosition())) - Sigma) 
-	  / Sim->dynamics.units().unitLength()
+	  / Sim->units.unitLength()
 	     << "\n Root1 = " 
-	     << root1.second / Sim->dynamics.units().unitTime()
+	     << root1.second / Sim->units.unitTime()
 	     << "\n Root2 = " 
-	     << root2.second / Sim->dynamics.units().unitTime() << std::endl;
+	     << root2.second / Sim->units.unitTime() << std::endl;
 #endif
       
 	//If the particle is going out of bounds, collide now

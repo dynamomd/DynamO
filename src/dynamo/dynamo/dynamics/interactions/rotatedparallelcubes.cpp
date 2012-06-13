@@ -120,7 +120,7 @@ namespace dynamo {
 		    << ", particle1 " << p1.getID() << ", particle2 " 
 		    << p2.getID() << "\nOverlap = " 
 		    << Sim->liouvillean->cubeOverlap(p1, p2, d)
-	    / Sim->dynamics.units().unitLength();
+	    / Sim->units.unitLength();
 #endif
 
 	return IntEvent(p1, p2, dt, CORE, *this);
@@ -174,9 +174,9 @@ namespace dynamo {
     if ((rij | rij) < d * d)
       derr << "Possible overlap occured in diagnostics\n ID1=" << part1.getID() 
 	   << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-	   << (rij | rij) / pow(Sim->dynamics.units().unitLength(), 2)
+	   << (rij | rij) / pow(Sim->units.unitLength(), 2)
 	   << "\nd^2=" 
-	   << d * d / pow(Sim->dynamics.units().unitLength(), 2) << std::endl;
+	   << d * d / pow(Sim->units.unitLength(), 2) << std::endl;
   }
 }
 

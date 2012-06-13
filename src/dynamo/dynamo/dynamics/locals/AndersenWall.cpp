@@ -100,13 +100,13 @@ namespace dynamo {
     try {
     
       sqrtT = sqrt(XML.getAttribute("Temperature").as<double>() 
-		   * Sim->dynamics.units().unitEnergy());
+		   * Sim->units.unitEnergy());
 
       localName = XML.getAttribute("Name");
       vNorm << XML.getNode("Norm");
       vNorm /= vNorm.nrm();
       vPosition << XML.getNode("Origin");
-      vPosition *= Sim->dynamics.units().unitLength();
+      vPosition *= Sim->units.unitLength();
 
     } 
     catch (boost::bad_lexical_cast &)
@@ -121,13 +121,13 @@ namespace dynamo {
     XML << magnet::xml::attr("Type") << "AndersenWall"
 	<< magnet::xml::attr("Name") << localName
 	<< magnet::xml::attr("Temperature") << sqrtT * sqrtT 
-      / Sim->dynamics.units().unitEnergy()
+      / Sim->units.unitEnergy()
 	<< range
 	<< magnet::xml::tag("Norm")
 	<< vNorm
 	<< magnet::xml::endtag("Norm")
 	<< magnet::xml::tag("Origin")
-	<< vPosition / Sim->dynamics.units().unitLength()
+	<< vPosition / Sim->units.unitLength()
 	<< magnet::xml::endtag("Origin");
   }
 }

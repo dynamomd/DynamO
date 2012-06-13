@@ -50,11 +50,11 @@ namespace dynamo {
 	  CorrelatorLength = XML.getAttribute("Length").as<size_t>();
       
 	if (XML.hasAttribute("dt"))
-	  dt = Sim->dynamics.units().unitTime() * 
+	  dt = Sim->units.unitTime() * 
 	    XML.getAttribute("dt").as<double>();
       
 	if (XML.hasAttribute("t"))
-	  dt = Sim->dynamics.units().unitTime() * 
+	  dt = Sim->units.unitTime() * 
 	    XML.getAttribute("t").as<double>() / CorrelatorLength;
       }
     catch (boost::bad_lexical_cast &)
@@ -157,9 +157,9 @@ namespace dynamo {
   double 
   OPMutualDiffusionE::rescaleFactor()
   {
-    return 0.5 / (Sim->dynamics.units().unitTime()
-		  * Sim->dynamics.units().unitMutualDiffusion()
-		  * count * Sim->dynamics.getSimVolume()
+    return 0.5 / (Sim->units.unitTime()
+		  * Sim->units.unitMutualDiffusion()
+		  * count * Sim->getSimVolume()
 		  * Sim->getOutputPlugin<OPKEnergy>()->getAvgkT());
   }
 
@@ -171,7 +171,7 @@ namespace dynamo {
     XML << magnet::xml::tag("EinsteinCorrelator")
 	<< magnet::xml::attr("name") << name
 	<< magnet::xml::attr("size") << accG.size()
-	<< magnet::xml::attr("dt") << dt / Sim->dynamics.units().unitTime()
+	<< magnet::xml::attr("dt") << dt / Sim->units.unitTime()
 	<< magnet::xml::attr("LengthInMFT") << dt * accG.size() 
       / Sim->getOutputPlugin<OPMisc>()->getMFT()
 	<< magnet::xml::attr("simFactor") << factor
@@ -180,7 +180,7 @@ namespace dynamo {
     
     for (size_t i = 0; i < accG.size(); i++)
       {
-	XML << (i + 1) * dt / Sim->dynamics.units().unitTime();
+	XML << (i + 1) * dt / Sim->units.unitTime();
 	for (size_t j = 0; j < NDIM; j++)
 	  XML << "\t" << accG[i][j] * factor;
 	XML << "\n";
@@ -236,7 +236,7 @@ namespace dynamo {
     massFracSp1 /= sysMass; 
     massFracSp2 /= sysMass;
 
-    dout << "dt set to " << dt / Sim->dynamics.units().unitTime() << std::endl;
+    dout << "dt set to " << dt / Sim->units.unitTime() << std::endl;
   }
 
   std::list<Vector  > 

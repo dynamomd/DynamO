@@ -147,7 +147,7 @@ namespace dynamo {
 	    << magnet::xml::attr("Percent") << 100.0 * ((double) ele.second.count) 
 	  / ((double) totalCount)
 	    << magnet::xml::attr("mft") << ele.second.totalTime
-	  / (Sim->dynamics.units().unitTime() * ((double) ele.second.count))
+	  / (Sim->units.unitTime() * ((double) ele.second.count))
 	    << magnet::xml::endtag("Count");
       
 	//Add the total count
@@ -174,7 +174,7 @@ namespace dynamo {
 	  << magnet::xml::attr("Count") << mp1.second.first + initialCounter[mp1.first]
 	  << magnet::xml::attr("EventMeanFreeTime")
 	  << Sim->dSysTime / ((mp1.second.first + initialCounter[mp1.first])
-			      * Sim->dynamics.units().unitTime())
+			      * Sim->units.unitTime())
 	  << magnet::xml::endtag("TotCount");
   
     XML << magnet::xml::endtag("Totals")

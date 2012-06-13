@@ -74,7 +74,7 @@ namespace dynamo {
 	    << magnet::xml::chardata();
       
 	BOOST_FOREACH(const localpair& dat, speciesData[sp->getID()])
-	  XML << dat.first / Sim->dynamics.units().unitTime() << " " 
+	  XML << dat.first / Sim->units.unitTime() << " " 
 	      << dat.second << "\n";
 
 	XML << magnet::xml::tag("Species");
@@ -89,7 +89,7 @@ namespace dynamo {
 		<< magnet::xml::chardata();
 	  
 	    BOOST_FOREACH(const localpair& myp, dat.second)
-	      XML << myp.first / Sim->dynamics.units().unitTime() << " " << myp.second << "\n";
+	      XML << myp.first / Sim->units.unitTime() << " " << myp.second << "\n";
 	  
 	    XML << magnet::xml::endtag("Structure");	
 	  }

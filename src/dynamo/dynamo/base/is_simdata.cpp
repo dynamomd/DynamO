@@ -19,7 +19,7 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
-#include <dynamo/dynamics/systems/system.hpp>
+#include <dynamo/dynamics/systems/sysTicker.hpp>
 #include <dynamo/dynamics/locals/local.hpp>
 #include <dynamo/dynamics/species/species.hpp>
 #include <dynamo/dynamics/topology/topology.hpp>
@@ -272,7 +272,7 @@ namespace dynamo
 
     //Load the Primary cell's size
     primaryCellSize << simNode.getNode("SimulationSize");
-    primaryCellSize /= dynamics.units().unitLength();
+    primaryCellSize /= units.unitLength();
 
     { 
       size_t i(0);
@@ -326,16 +326,16 @@ namespace dynamo
     liouvillean->loadParticleXMLData(mainNode);
   
     //Fixes or conversions once system is loaded
-    lastRunMFT *= dynamics.units().unitTime();
+    lastRunMFT *= units.unitTime();
     //Scale the loaded properties to the simulation units
     _properties.rescaleUnit(Property::Units::L, 
-			    dynamics.units().unitLength());
+			    units.unitLength());
 
     _properties.rescaleUnit(Property::Units::T, 
-			    dynamics.units().unitTime());
+			    units.unitTime());
 
     _properties.rescaleUnit(Property::Units::M, 
-			    dynamics.units().unitMass());
+			    units.unitMass());
   }
 
   void
@@ -359,13 +359,13 @@ namespace dynamo
 
     //Rescale the properties to the configuration file units
     _properties.rescaleUnit(Property::Units::L, 
-			    1.0 / dynamics.units().unitLength());
+			    1.0 / units.unitLength());
 
     _properties.rescaleUnit(Property::Units::T, 
-			    1.0 / dynamics.units().unitTime());
+			    1.0 / units.unitTime());
 
     _properties.rescaleUnit(Property::Units::M, 
-			    1.0 / dynamics.units().unitMass());
+			    1.0 / units.unitMass());
 
     XML << std::scientific
       //This has a minus one due to the digit in front of the decimal
@@ -389,7 +389,7 @@ namespace dynamo
 	<< *ptrScheduler
 	<< magnet::xml::endtag("Scheduler")
 	<< magnet::xml::tag("SimulationSize")
-	<< primaryCellSize / dynamics.units().unitLength()
+	<< primaryCellSize / units.unitLength()
 	<< magnet::xml::endtag("SimulationSize")
       	<< magnet::xml::tag("Genus");
   
@@ -452,13 +452,13 @@ namespace dynamo
 
     //Rescale the properties back to the simulation units
     _properties.rescaleUnit(Property::Units::L, 
-			    dynamics.units().unitLength());
+			    units.unitLength());
 
     _properties.rescaleUnit(Property::Units::T, 
-			    dynamics.units().unitTime());
+			    units.unitTime());
 
     _properties.rescaleUnit(Property::Units::M, 
-			    dynamics.units().unitMass());
+			    units.unitMass());
   }
   
   void 
@@ -541,4 +541,97 @@ namespace dynamo
     //This is swapped last as things need it for calcs
     ensemble->swap(*other.ensemble);
   }
+
+  double
+  SimData::calcInternalEnergy() const
+  {
+    double intECurrent = 0.0;
+
+    BOOST_FOREACH(const shared_ptr<Interaction> & plugptr, interactions)
+      intECurrent += plugptr->getInternalEnergy();
+
+    return intECurrent;
+  }
+
+  void 
+  SimData::setCOMVelocity(const Vector COMVelocity)
+  {  
+    Vector sumMV(0,0,0);
+ 
+    long double sumMass(0);
+
+    //Determine the discrepancy VECTOR
+    BOOST_FOREACH(Particle & Part, particleList)
+      {
+	Vector  pos(Part.getPosition()), vel(Part.getVelocity());
+	BCs->applyBC(pos,vel);
+	double mass = species[Part].getMass(Part.getID());
+	//Note we sum the negatives!
+	sumMV -= vel * mass;
+	sumMass += mass;
+      }
+  
+    sumMV /= sumMass;
+  
+    sumMV += COMVelocity;
+
+    BOOST_FOREACH(Particle & Part, particleList)
+      Part.getVelocity() =  Part.getVelocity() + sumMV;
+  }
+
+  void 
+  SimData::addSystemTicker()
+  {
+    BOOST_FOREACH(shared_ptr<System>& ptr, systems)
+      if (ptr->getName() == "SystemTicker")
+	M_throw() << "System Ticker already exists";
+  
+    systems.push_back(shared_ptr<System>(new SysTicker(this, lastRunMFT, "SystemTicker")));
+  }
+
+  double
+  SimData::getSimVolume() const
+  { 
+    double vol = 1.0;
+    for (size_t iDim = 0; iDim < NDIM; iDim++)
+      vol *= primaryCellSize[iDim];
+    return vol;
+  }
+
+
+  double
+  SimData::getNumberDensity() const
+  {
+    return N / getSimVolume();
+  }
+
+  double 
+  SimData::getPackingFraction() const
+  {
+    double volume = 0.0;
+  
+    BOOST_FOREACH(const shared_ptr<Species>& sp, species)
+      BOOST_FOREACH(const size_t& ID, *(sp->getRange()))
+      volume += sp->getIntPtr()->getExcludedVolume(ID);
+  
+    return  volume / getSimVolume();
+  }
+
+  void
+  SimData::SystemOverlapTest()
+  {
+    liouvillean->updateAllParticles();
+
+    std::vector<Particle>::const_iterator iPtr1, iPtr2;
+  
+    for (iPtr1 = particleList.begin(); iPtr1 != particleList.end(); ++iPtr1)
+      for (iPtr2 = iPtr1 + 1; iPtr2 != particleList.end(); ++iPtr2)    
+	getInteraction(*iPtr1, *iPtr2)->checkOverlaps(*iPtr1, *iPtr2);
+
+    BOOST_FOREACH(const Particle& part, particleList)
+      BOOST_FOREACH(const shared_ptr<Local>& lcl, locals)
+      if (lcl->isInteraction(part))
+	lcl->checkOverlaps(part);
+  }
+
 }

@@ -36,7 +36,7 @@ namespace dynamo {
   void 
   OPVelProfile::initialise()
   {    
-    binWidth *= Sim->dynamics.units().unitLength();
+    binWidth *= Sim->units.unitLength();
   
     vx.resize(static_cast<size_t>(Sim->primaryCellSize[1]/binWidth)+1,
 	      std::vector<std::pair<size_t, double> >
@@ -78,11 +78,11 @@ namespace dynamo {
     for (size_t y = 0; y < nybins; ++y)
       {
 	for (size_t z = 0; z < nzbins; ++z)
-	  XML << y * binWidth / Sim->dynamics.units().unitLength()
-	      << " " << z * binWidth / Sim->dynamics.units().unitLength()
+	  XML << y * binWidth / Sim->units.unitLength()
+	      << " " << z * binWidth / Sim->units.unitLength()
 	      << " "
 	      << ((vx[y][z].first) ? (vx[y][z].second / vx[y][z].first) 
-		  / Sim->dynamics.units().unitVelocity() : 0)
+		  / Sim->units.unitVelocity() : 0)
 	      << "\n";
 
 	XML << "\n";

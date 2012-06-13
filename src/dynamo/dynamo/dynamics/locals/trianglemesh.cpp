@@ -185,7 +185,7 @@ namespace dynamo {
 	    if (is.eof()) M_throw() << "The vertex coordinates is not a multiple of 3";
 
 	    is >> tmp[2];	  
-	    _vertices.push_back(tmp * Sim->dynamics.units().unitLength());
+	    _vertices.push_back(tmp * Sim->units.unitLength());
 	  }
       }
 
@@ -240,9 +240,9 @@ namespace dynamo {
 
     XML << magnet::xml::tag("Vertices") << magnet::xml::chardata();
     BOOST_FOREACH(Vector vert, _vertices)
-      XML << vert[0] / Sim->dynamics.units().unitLength() << " " 
-	  << vert[1] / Sim->dynamics.units().unitLength() << " "
-	  << vert[2] / Sim->dynamics.units().unitLength() << "\n";
+      XML << vert[0] / Sim->units.unitLength() << " " 
+	  << vert[1] / Sim->units.unitLength() << " "
+	  << vert[2] / Sim->units.unitLength() << "\n";
     XML << magnet::xml::endtag("Vertices");
 
     XML << magnet::xml::tag("Elements") << magnet::xml::chardata();

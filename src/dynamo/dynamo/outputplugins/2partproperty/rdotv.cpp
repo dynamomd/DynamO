@@ -156,9 +156,9 @@ namespace dynamo {
 	    << magnet::xml::attr("Species2")
 	    << Sim->species[pair1.first.get<3>()]->getName()
 	    << magnet::xml::attr("RijdotDeltaMomentum") << pair1.second.getAvg()
-	  / (Sim->dynamics.units().unitVelocity() 
-	     * Sim->dynamics.units().unitLength()
-	     * Sim->dynamics.units().unitMass());
+	  / (Sim->units.unitVelocity() 
+	     * Sim->units.unitLength()
+	     * Sim->units.unitMass());
       
 	pair1.second.costheta.outputHistogram(XML, 1.0);
       

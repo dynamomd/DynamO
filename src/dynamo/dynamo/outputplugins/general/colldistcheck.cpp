@@ -61,7 +61,7 @@ namespace dynamo {
 			   eevent.getType());
   
     if (distList.find(locPair) == distList.end())
-      distList[locPair] = magnet::math::Histogram<>(binwidth * Sim->dynamics.units().unitLength());
+      distList[locPair] = magnet::math::Histogram<>(binwidth * Sim->units.unitLength());
  
     distList[locPair].addVal(PDat.rij.nrm());
   }
@@ -75,7 +75,7 @@ namespace dynamo {
   
     if ((!PDat.L2partChanges.empty()) 
 	&& (distList.find(locPair) == distList.end()))
-      distList[locPair] = magnet::math::Histogram<>(binwidth * Sim->dynamics.units().unitLength());
+      distList[locPair] = magnet::math::Histogram<>(binwidth * Sim->units.unitLength());
   
     BOOST_FOREACH(const PairEventData& dat, PDat.L2partChanges)
       distList[locPair].addVal(dat.rij.nrm());
@@ -90,7 +90,7 @@ namespace dynamo {
   
     if ((!PDat.L2partChanges.empty()) 
 	&& (distList.find(locPair) == distList.end()))
-      distList[locPair] = magnet::math::Histogram<>(binwidth * Sim->dynamics.units().unitLength());
+      distList[locPair] = magnet::math::Histogram<>(binwidth * Sim->units.unitLength());
   
     BOOST_FOREACH(const PairEventData& dat, PDat.L2partChanges)
       distList[locPair].addVal(dat.rij.nrm());
@@ -104,7 +104,7 @@ namespace dynamo {
   
     if ((!PDat.L2partChanges.empty())
 	&& (distList.find(locPair) == distList.end()))
-      distList[locPair] = magnet::math::Histogram<>(binwidth * Sim->dynamics.units().unitLength());
+      distList[locPair] = magnet::math::Histogram<>(binwidth * Sim->units.unitLength());
   
     BOOST_FOREACH(const PairEventData& dat, PDat.L2partChanges)
       distList[locPair].addVal(dat.rij.nrm());
@@ -127,7 +127,7 @@ namespace dynamo {
 	    << magnet::xml::attr("EventType") 
 	    << p.first.second;
 
-	p.second.outputHistogram(XML, 1.0 / Sim->dynamics.units().unitLength());
+	p.second.outputHistogram(XML, 1.0 / Sim->units.unitLength());
       
 	XML << magnet::xml::endtag("Distance");
       }

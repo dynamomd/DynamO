@@ -155,7 +155,7 @@ namespace dynamo {
 	    XML << magnet::xml::tag("Atom")
 		<< magnet::xml::attr("ID")
 		<< id++
-		<< (vec2 / Sim->dynamics.units().unitLength())
+		<< (vec2 / Sim->units.unitLength())
 		<< magnet::xml::endtag("Atom");
 	  }
 	  

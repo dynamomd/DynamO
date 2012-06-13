@@ -40,7 +40,7 @@ namespace dynamo {
     std::vector<double> vals(NDIM, 0);
 
     for (size_t i(0); i < NDIM; ++i)
-      vals[i] = pDat.rij[i] * pDat.rij[i] / Sim->dynamics.units().unitArea();
+      vals[i] = pDat.rij[i] * pDat.rij[i] / Sim->units.unitArea();
 
     std::sort(vals.begin(), vals.end());
   
@@ -58,7 +58,7 @@ namespace dynamo {
 	std::vector<double> vals(NDIM, 0);
       
 	for (size_t i(0); i < NDIM; ++i)
-	  vals[i] = pDat.rij[i] * pDat.rij[i] / Sim->dynamics.units().unitArea();
+	  vals[i] = pDat.rij[i] * pDat.rij[i] / Sim->units.unitArea();
       
 	std::sort(vals.begin(), vals.end());
       
@@ -78,7 +78,7 @@ namespace dynamo {
 	std::vector<double> vals(NDIM, 0);
       
 	for (size_t i(0); i < NDIM; ++i)
-	  vals[i] = pDat.rij[i] * pDat.rij[i] / Sim->dynamics.units().unitArea();
+	  vals[i] = pDat.rij[i] * pDat.rij[i] / Sim->units.unitArea();
       
 	std::sort(vals.begin(), vals.end());
       
@@ -98,7 +98,7 @@ namespace dynamo {
 	std::vector<double> vals(NDIM, 0);
       
 	for (size_t i(0); i < NDIM; ++i)
-	  vals[i] = pDat.rij[i] * pDat.rij[i] / Sim->dynamics.units().unitArea();
+	  vals[i] = pDat.rij[i] * pDat.rij[i] / Sim->units.unitArea();
       
 	std::sort(vals.begin(), vals.end());
 

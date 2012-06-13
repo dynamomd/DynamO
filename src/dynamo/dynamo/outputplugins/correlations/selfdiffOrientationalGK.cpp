@@ -59,7 +59,7 @@ namespace dynamo {
 	listref_perp.resize(CorrelatorLength, 0);
       }
 
-    dout << "dt set to " << dt / Sim->dynamics.units().unitTime() << std::endl;
+    dout << "dt set to " << dt / Sim->units.unitTime() << std::endl;
   }
 
   void
@@ -71,10 +71,10 @@ namespace dynamo {
 	  CorrelatorLength = XML.getAttribute("Length").as<size_t>();
 
 	if (XML.hasAttribute("dt"))
-	  dt = XML.getAttribute("dt").as<double>() * Sim->dynamics.units().unitTime();
+	  dt = XML.getAttribute("dt").as<double>() * Sim->units.unitTime();
 
 	if (XML.hasAttribute("t"))
-	  dt = XML.getAttribute("t").as<double>() * Sim->dynamics.units().unitTime() 
+	  dt = XML.getAttribute("t").as<double>() * Sim->units.unitTime() 
 	    / CorrelatorLength;
       }
     catch (boost::bad_lexical_cast &)
@@ -243,7 +243,7 @@ namespace dynamo {
   void
   OPSelfDiffusionOrientationalGK::output(magnet::xml::XmlStream& XML)
   {
-    double factor = Sim->dynamics.units().unitTime() / (Sim->dynamics.units().unitDiffusion() * count);
+    double factor = Sim->units.unitTime() / (Sim->units.unitDiffusion() * count);
 
     // Counting over the PERPENDICULAR vector - both should be same size anyway
     for (size_t i = 0; i < accG2_perp.size(); ++i)
@@ -255,7 +255,7 @@ namespace dynamo {
 	    << magnet::xml::attr("name") << "SelfDiffusionOrientationalGK"
 	    << magnet::xml::attr("species") << Sim->species[i]->getName()
 	    << magnet::xml::attr("size") << accG2_perp.size()
-	    << magnet::xml::attr("dt") << dt / Sim->dynamics.units().unitTime()
+	    << magnet::xml::attr("dt") << dt / Sim->units.unitTime()
 	    << magnet::xml::attr("LengthInMFT") << dt * accG2_perp[i].size() / Sim->getOutputPlugin<OPMisc>()->getMFT()
 	    << magnet::xml::attr("simFactor") << factor / specCount
 	    << magnet::xml::attr("SampleCount") << count;
@@ -267,7 +267,7 @@ namespace dynamo {
 	for (size_t j = 1; j < accG2_perp[i].size() - 1; ++j)
 	  { acc_perp += accG2_perp[i][j];}
 
-	acc_perp *= factor * dt / (Sim->dynamics.units().unitTime() * specCount);
+	acc_perp *= factor * dt / (Sim->units.unitTime() * specCount);
 
 	XML << magnet::xml::tag("Component")
 	    << magnet::xml::attr("Type") << "Perpendicular"
@@ -278,7 +278,7 @@ namespace dynamo {
 
 	for (size_t j = 0; j < accG2_perp[i].size(); ++j)
 	  {
-	    XML << j * dt / Sim->dynamics.units().unitTime()
+	    XML << j * dt / Sim->units.unitTime()
 		<< "\t" << accG2_perp[i][j] * factor / specCount << "\n";
 	  }
 
@@ -292,7 +292,7 @@ namespace dynamo {
 	    acc_parallel += accG2_parallel[i][j];
 	  }
 
-	acc_parallel *= factor * dt / (Sim->dynamics.units().unitTime() * specCount);
+	acc_parallel *= factor * dt / (Sim->units.unitTime() * specCount);
 
 	XML << magnet::xml::tag("Component")
 	    << magnet::xml::attr("Type") << "Parallel"
@@ -303,7 +303,7 @@ namespace dynamo {
 
 	for (size_t j = 0; j < accG2_parallel[i].size(); ++j)
 	  {
-	    XML << j * dt / Sim->dynamics.units().unitTime()
+	    XML << j * dt / Sim->units.unitTime()
 		<< "\t" << accG2_parallel[i][j] * factor / specCount << "\n";
 	  }
 

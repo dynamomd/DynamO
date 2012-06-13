@@ -42,20 +42,20 @@ namespace dynamo {
   void
   OPUEnergy::initialise()
   {
-    intECurrent = Sim->dynamics.calcInternalEnergy();
+    intECurrent = Sim->calcInternalEnergy();
   }
 
   double 
   OPUEnergy::getAvgSqU() const
   { 
     return intEsqAcc / ( Sim->dSysTime 
-			 * pow(Sim->dynamics.units().unitEnergy(), 2)); 
+			 * pow(Sim->units.unitEnergy(), 2)); 
   }
 
   double 
   OPUEnergy::getAvgU() const
   { 
-    return intEAcc / ( Sim->dSysTime * Sim->dynamics.units().unitEnergy()); 
+    return intEAcc / ( Sim->dSysTime * Sim->units.unitEnergy()); 
   }
 
   void 
@@ -86,7 +86,7 @@ namespace dynamo {
 	<< magnet::xml::attr("Avg") << getAvgU()
 	<< magnet::xml::attr("SquareAvg") << getAvgSqU()
 	<< magnet::xml::attr("Current") << intECurrent
-      / Sim->dynamics.units().unitEnergy()
+      / Sim->units.unitEnergy()
 	<< magnet::xml::endtag("InternalEnergy")
 	<< magnet::xml::endtag("CEnergy");
   }
@@ -94,6 +94,6 @@ namespace dynamo {
   void
   OPUEnergy::periodicOutput()
   {
-    I_Pcout() << "U " << intECurrent / Sim->dynamics.units().unitEnergy() << ", ";
+    I_Pcout() << "U " << intECurrent / Sim->units.unitEnergy() << ", ";
   }
 }

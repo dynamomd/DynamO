@@ -137,7 +137,7 @@ namespace dynamo {
   
     double dt = dynamic_cast<const SysTicker&>
       (Sim->systems["SystemTicker"]).getPeriod()
-      / Sim->dynamics.units().unitTime();
+      / Sim->units.unitTime();
   
     BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->species)
       {
@@ -151,7 +151,7 @@ namespace dynamo {
 	      << speciesData[sp->getID()][step] 
 	    / (static_cast<double>(ticksTaken) 
 	       * static_cast<double>(sp->getCount())
-	       * Sim->dynamics.units().unitArea())
+	       * Sim->units.unitArea())
 	      << "\n";
       
 	XML << magnet::xml::endtag("Species");
@@ -173,7 +173,7 @@ namespace dynamo {
 	      << structData[topo->getID()][step]
 	    / (static_cast<double>(ticksTaken) 
 	       * static_cast<double>(topo->getMolecules().size())
-	       * Sim->dynamics.units().unitArea())
+	       * Sim->units.unitArea())
 	      << "\n";
 	
 	XML << magnet::xml::endtag("Structure");

@@ -46,7 +46,7 @@ namespace dynamo {
 
       if (XML.hasAttribute("KEBinWidth"))
 	KEBinWidth = XML.getAttribute("KEBinWidth").as<double>();
-      KEBinWidth *= Sim->dynamics.units().unitEnergy();
+      KEBinWidth *= Sim->units.unitEnergy();
     }
     catch (std::exception& excep)
       {
@@ -61,9 +61,9 @@ namespace dynamo {
     dout << "Bin width set to " << binWidth << std::endl;
 
     data.resize(Sim->species.size(), 
-		magnet::math::Histogram<>(Sim->dynamics.units().unitEnergy() * binWidth));
+		magnet::math::Histogram<>(Sim->units.unitEnergy() * binWidth));
 
-    specialhist = magnet::math::Histogram<>(Sim->dynamics.units().unitEnergy() * binWidth);
+    specialhist = magnet::math::Histogram<>(Sim->units.unitEnergy() * binWidth);
   }
 
   void 
@@ -107,7 +107,7 @@ namespace dynamo {
     XML << magnet::xml::tag("CollEnergyChange")
 	<< magnet::xml::tag("PairCalc");
 
-    specialhist.outputHistogram(XML, 1.0 / Sim->dynamics.units().unitEnergy());
+    specialhist.outputHistogram(XML, 1.0 / Sim->units.unitEnergy());
 
     XML << magnet::xml::endtag("PairCalc");
 
@@ -117,7 +117,7 @@ namespace dynamo {
 	    << magnet::xml::attr("Name")
 	    << Sim->species[id]->getName();
 
-	data[id].outputHistogram(XML, 1.0 / Sim->dynamics.units().unitEnergy());
+	data[id].outputHistogram(XML, 1.0 / Sim->units.unitEnergy());
 
 	XML << magnet::xml::endtag("Species");
       }
@@ -132,7 +132,7 @@ namespace dynamo {
 	    << magnet::xml::attr("EventType") 
 	    << pdat.first.get<2>();
       
-	pdat.second.outputHistogram(XML, 1.0 / Sim->dynamics.units().unitEnergy());      
+	pdat.second.outputHistogram(XML, 1.0 / Sim->units.unitEnergy());      
 
 	XML << magnet::xml::endtag("Energy_On_Collision");
       }

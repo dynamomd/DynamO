@@ -57,27 +57,27 @@ namespace dynamo {
 	<< magnet::xml::tag("Perpendicular")
 	<< magnet::xml::attr("val") << MSDOrientational.perpendicular
 	<< magnet::xml::attr("diffusionCoeff")
-	<< MSDOrientational.perpendicular * Sim->dynamics.units().unitTime() / Sim->dSysTime
+	<< MSDOrientational.perpendicular * Sim->units.unitTime() / Sim->dSysTime
 	<< magnet::xml::endtag("Perpendicular")
 
 	<< magnet::xml::tag("Parallel")
 	<< magnet::xml::attr("val") << MSDOrientational.parallel
 	<< magnet::xml::attr("diffusionCoeff")
-	<< MSDOrientational.parallel * Sim->dynamics.units().unitTime() / Sim->dSysTime
+	<< MSDOrientational.parallel * Sim->units.unitTime() / Sim->dSysTime
 	<< magnet::xml::endtag("Parallel")
 
 	<< magnet::xml::tag("Rotational")
 	<< magnet::xml::attr("method") << "LegendrePolynomial1"
 	<< magnet::xml::attr("val") << MSDOrientational.rotational_legendre1
 	<< magnet::xml::attr("diffusionCoeff")
-	<< MSDOrientational.rotational_legendre1 * Sim->dynamics.units().unitTime() / Sim->dSysTime
+	<< MSDOrientational.rotational_legendre1 * Sim->units.unitTime() / Sim->dSysTime
 	<< magnet::xml::endtag("Rotational")
 
 	<< magnet::xml::tag("Rotational")
 	<< magnet::xml::attr("method") << "LegendrePolynomial2"
 	<< magnet::xml::attr("val") << MSDOrientational.rotational_legendre2
 	<< magnet::xml::attr("diffusionCoeff")
-	<< MSDOrientational.rotational_legendre2 * Sim->dynamics.units().unitTime() / Sim->dSysTime
+	<< MSDOrientational.rotational_legendre2 * Sim->units.unitTime() / Sim->dSysTime
 	<< magnet::xml::endtag("Rotational")
 
 	<< magnet::xml::endtag("MSDOrientational");
@@ -112,8 +112,8 @@ namespace dynamo {
       }
 
     // In the N-dimensional case, the parallel component is 1-dimensonal and the perpendicular (N-1)
-    acc_perp /= (initialConfiguration.size() * 2.0 * (NDIM - 1) * Sim->dynamics.units().unitArea());
-    acc_parallel /= (initialConfiguration.size() * 2.0 * Sim->dynamics.units().unitArea());
+    acc_perp /= (initialConfiguration.size() * 2.0 * (NDIM - 1) * Sim->units.unitArea());
+    acc_parallel /= (initialConfiguration.size() * 2.0 * Sim->units.unitArea());
 
     // Rotational forms by Magda, Davis and Tirrell
     // <P1(cos(theta))> = exp[-2 D t]

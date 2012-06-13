@@ -93,8 +93,8 @@ namespace dynamo {
     if (Sim->liouvillean->sphereOverlap(p1, p2, d))
       derr << "Warning! Two particles might be overlapping"
 	   << "Overlap is " << Sim->liouvillean->sphereOverlap(p1, p2, d) 
-	/ Sim->dynamics.units().unitLength()
-	   << "\nd = " << d / Sim->dynamics.units().unitLength() << std::endl;
+	/ Sim->units.unitLength()
+	   << "\nd = " << d / Sim->units.unitLength() << std::endl;
 #endif
  
     return Sim->liouvillean->sphereOverlap(p1, p2, l * d);
@@ -119,16 +119,16 @@ namespace dynamo {
     if (r2 < d2)
       derr << "Possible bonded overlap occured in diagnostics\n ID1=" << part1.getID() 
 	   << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-	   << r2 / pow(Sim->dynamics.units().unitLength(),2)
+	   << r2 / pow(Sim->units.unitLength(),2)
 	   << "\nd^2=" 
-	   << d2 / pow(Sim->dynamics.units().unitLength(),2) << std::endl;
+	   << d2 / pow(Sim->units.unitLength(),2) << std::endl;
   
     if (r2 > ld2)
       derr << "Possible escaped bonded pair in diagnostics\n ID1=" << part1.getID() 
 	   << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-	   << r2 / pow(Sim->dynamics.units().unitLength(),2)
+	   << r2 / pow(Sim->units.unitLength(),2)
 	   << "\n(lambda * d)^2=" 
-	   << ld2 / pow(Sim->dynamics.units().unitLength(),2) << std::endl;
+	   << ld2 / pow(Sim->units.unitLength(),2) << std::endl;
   }
 
   IntEvent 
@@ -164,7 +164,7 @@ namespace dynamo {
 		    << "\nOverlap = " 
 		    << Sim->dynamics.getLiouvillean()
 	    .sphereOverlap(p1, p2, d)
-	    / Sim->dynamics.units().unitLength();
+	    / Sim->units.unitLength();
 #endif
 	retval = IntEvent(p1, p2, dt, CORE, *this);
       }

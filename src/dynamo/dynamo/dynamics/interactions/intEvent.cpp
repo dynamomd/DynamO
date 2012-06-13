@@ -41,7 +41,7 @@ namespace dynamo {
   IntEvent::stringData(const dynamo::SimData* Sim) const
   {
     std::ostringstream tmpstring;
-    tmpstring << "dt :" << dt / Sim->dynamics.units().unitTime()
+    tmpstring << "dt :" << dt / Sim->units.unitTime()
 	      << "\nType :" << CType
 	      << "\nP1 :" << particle1;
 

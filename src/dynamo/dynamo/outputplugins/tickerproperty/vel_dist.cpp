@@ -54,14 +54,14 @@ namespace dynamo {
 
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       data[iDim].resize(Sim->species.size(), 
-			magnet::math::Histogram<>(Sim->dynamics.units().unitVelocity() 
+			magnet::math::Histogram<>(Sim->units.unitVelocity() 
 				     * binWidth));
   }
 
   void 
   OPVelDist::ticker()
   {
-    double factor = std::sqrt(Sim->dynamics.units().unitMass() 
+    double factor = std::sqrt(Sim->units.unitMass() 
 			      / _ptrOPEnergy->getCurrentkT());
 
     BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->species)

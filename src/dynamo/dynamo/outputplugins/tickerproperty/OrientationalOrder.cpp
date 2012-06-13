@@ -49,10 +49,10 @@ namespace dynamo {
 	M_throw() << "Failed a lexical cast in OPOrientationalOrder";
       }
 
-    _rg *= Sim->dynamics.units().unitLength();
+    _rg *= Sim->units.unitLength();
 
     dout << "Cut off radius set to " 
-	 << _rg / Sim->dynamics.units().unitLength() << std::endl;
+	 << _rg / Sim->units.unitLength() << std::endl;
   }
 
 
@@ -76,7 +76,7 @@ namespace dynamo {
 
     if (_nblistID == std::numeric_limits<size_t>::max())
       M_throw() << "There is not a suitable neighbourlist for the cut-off radius selected."
-	"\nR_g = " << _rg / Sim->dynamics.units().unitLength();
+	"\nR_g = " << _rg / Sim->units.unitLength();
 
     ticker();
   }

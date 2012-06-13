@@ -51,11 +51,11 @@ namespace dynamo {
 	  CorrelatorLength = XML.getAttribute("Length").as<size_t>();
       
 	if (XML.hasAttribute("dt"))
-	  dt = Sim->dynamics.units().unitTime() * 
+	  dt = Sim->units.unitTime() * 
 	    XML.getAttribute("dt").as<double>();
       
 	if (XML.hasAttribute("t"))
-	  dt = Sim->dynamics.units().unitTime() * 
+	  dt = Sim->units.unitTime() * 
 	    XML.getAttribute("t").as<double>() / CorrelatorLength;
       }
     catch (boost::bad_lexical_cast &)
@@ -93,19 +93,19 @@ namespace dynamo {
     BOOST_FOREACH(const Particle& part, Sim->particleList)
       constDelG += part.getVelocity () * Sim->liouvillean->getParticleKineticEnergy(part);
   
-    dout << "dt set to " << dt / Sim->dynamics.units().unitTime() << std::endl;
+    dout << "dt set to " << dt / Sim->units.unitTime() << std::endl;
   }
 
   double 
   OPThermalConductivityE::rescaleFactor() 
   { 
-    return Sim->dynamics.units().unitk() 
+    return Sim->units.unitk() 
       /(//This next line should be 1 however we have scaled the
 	//correlator time as well
-	Sim->dynamics.units().unitTime() 
-	* Sim->dynamics.units().unitThermalCond() * 2.0 
+	Sim->units.unitTime() 
+	* Sim->units.unitThermalCond() * 2.0 
 	* count * pow(Sim->getOutputPlugin<OPKEnergy>()->getAvgkT(), 2)
-	* Sim->dynamics.getSimVolume());
+	* Sim->getSimVolume());
   }
 
   void 
@@ -114,7 +114,7 @@ namespace dynamo {
     XML << magnet::xml::tag("EinsteinCorrelator")
 	<< magnet::xml::attr("name") << name
 	<< magnet::xml::attr("size") << accG2.size()
-	<< magnet::xml::attr("dt") << dt/Sim->dynamics.units().unitTime()
+	<< magnet::xml::attr("dt") << dt/Sim->units.unitTime()
 	<< magnet::xml::attr("LengthInMFT") << dt * accG2.size()
       / Sim->getOutputPlugin<OPMisc>()->getMFT()
 	<< magnet::xml::attr("simFactor") << rescaleFactor()
@@ -125,7 +125,7 @@ namespace dynamo {
   
     for (unsigned int i = 0; i < accG2.size(); i++)
       {
-	XML   << (1+i) * dt / Sim->dynamics.units().unitTime()
+	XML   << (1+i) * dt / Sim->units.unitTime()
 	      << "\t ";
       
 	for (size_t j=0;j<NDIM;j++)

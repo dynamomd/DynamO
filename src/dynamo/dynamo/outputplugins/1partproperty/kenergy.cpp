@@ -57,7 +57,7 @@ namespace dynamo {
   double
   OPKEnergy::getAvgTheta() const
   {
-    return getAvgkT() / Sim->dynamics.units().unitEnergy();
+    return getAvgkT() / Sim->units.unitEnergy();
   }
 
   double
@@ -71,8 +71,8 @@ namespace dynamo {
   {
     return 2.0 * KEsqAcc / (Sim->dSysTime * Sim->N
 			    * Sim->liouvillean->getParticleDOF()
-			    * Sim->dynamics.units().unitEnergy()
-			    * Sim->dynamics.units().unitEnergy());
+			    * Sim->units.unitEnergy()
+			    * Sim->units.unitEnergy());
   }
 
   void
@@ -97,15 +97,15 @@ namespace dynamo {
   void
   OPKEnergy::output(magnet::xml::XmlStream &XML)
   {
-    double powerloss = (InitialKE - KECurrent) * Sim->dynamics.units().unitLength()
-      * pow(Sim->dynamics.units().unitTime(),3)
-      / (Sim->dynamics.units().unitMass() * Sim->dSysTime * Sim->dynamics.getSimVolume());
+    double powerloss = (InitialKE - KECurrent) * Sim->units.unitLength()
+      * pow(Sim->units.unitTime(),3)
+      / (Sim->units.unitMass() * Sim->dSysTime * Sim->getSimVolume());
 
     XML << magnet::xml::tag("KEnergy")
 	<< magnet::xml::tag("T") << magnet::xml::attr("val") << getAvgTheta()
 	<< magnet::xml::attr("current")
 	<< (2.0 * Sim->liouvillean->getSystemKineticEnergy()
-	    / (Sim->liouvillean->getParticleDOF() * Sim->N * Sim->dynamics.units().unitEnergy()))
+	    / (Sim->liouvillean->getParticleDOF() * Sim->N * Sim->units.unitEnergy()))
 	<< magnet::xml::endtag("T")
 	<< magnet::xml::tag("T2") << magnet::xml::attr("val") << getAvgSqTheta()
 	<< magnet::xml::endtag("T2")
@@ -120,14 +120,14 @@ namespace dynamo {
   void
   OPKEnergy::periodicOutput()
   {
-    double powerloss = (InitialKE - KECurrent) * Sim->dynamics.units().unitLength()
-      * pow(Sim->dynamics.units().unitTime(),3)
-      / (Sim->dynamics.units().unitMass() * Sim->dSysTime * Sim->dynamics.getSimVolume());
+    double powerloss = (InitialKE - KECurrent) * Sim->units.unitLength()
+      * pow(Sim->units.unitTime(),3)
+      / (Sim->units.unitMass() * Sim->dSysTime * Sim->getSimVolume());
 
 
     I_Pcout() << "T "
 	      <<  2.0 * KECurrent / (Sim->N * Sim->liouvillean->getParticleDOF()
-				     * Sim->dynamics.units().unitEnergy())
+				     * Sim->units.unitEnergy())
 	      << ", <T> " << getAvgTheta() << ", <PwrLoss> " << powerloss << ", ";
   }
 }

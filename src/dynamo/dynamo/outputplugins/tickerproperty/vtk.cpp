@@ -98,13 +98,13 @@ namespace dynamo {
 	  
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
 	      XML << (Sim->primaryCellSize[iDim] * (-0.5))
-		/ Sim->dynamics.units().unitLength()
+		/ Sim->units.unitLength()
 		  << " ";
 	  
 	    XML << magnet::xml::attr("Spacing");
 	  
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
-	      XML << binWidth[iDim] / Sim->dynamics.units().unitLength() << " ";
+	      XML << binWidth[iDim] / Sim->units.unitLength() << " ";
 	  
 	    XML << magnet::xml::tag("Piece")
 		<< magnet::xml::attr("Extent");
@@ -165,7 +165,7 @@ namespace dynamo {
   
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       {
-	binWidth[iDim] *= Sim->dynamics.units().unitLength();
+	binWidth[iDim] *= Sim->units.unitLength();
       
 	if (binWidth[iDim] > 0.5 * Sim->primaryCellSize[iDim])
 	  M_throw() << "Your bin width is too large for the " << iDim 
@@ -209,7 +209,7 @@ namespace dynamo {
       
 	for (size_t iDim(0); iDim < NDIM; ++iDim)
 	  tmp +=boost::lexical_cast<std::string>
-	    (binWidth[iDim]/Sim->dynamics.units().unitLength()) + " ";
+	    (binWidth[iDim]/Sim->units.unitLength()) + " ";
       
 	dout << "Bin width " << tmp << ">" << std::endl;  
       } 
@@ -297,9 +297,9 @@ namespace dynamo {
 	  << magnet::xml::chardata();
       
 	BOOST_FOREACH(const Particle& part, Sim->particleList)
-	  XML << part.getPosition()[0] / Sim->dynamics.units().unitLength() << " "
-	      << part.getPosition()[1] / Sim->dynamics.units().unitLength() << " "
-	      << part.getPosition()[2] / Sim->dynamics.units().unitLength() << "\n";
+	  XML << part.getPosition()[0] / Sim->units.unitLength() << " "
+	      << part.getPosition()[1] / Sim->units.unitLength() << " "
+	      << part.getPosition()[2] / Sim->units.unitLength() << "\n";
       
 	XML << magnet::xml::endtag("DataArray")
 	    << magnet::xml::endtag("Points")
@@ -336,9 +336,9 @@ namespace dynamo {
 	    << magnet::xml::chardata();
     
 	BOOST_FOREACH(const Particle& part, Sim->particleList)
-	  XML << part.getVelocity()[0] / Sim->dynamics.units().unitVelocity() << " "
-	      << part.getVelocity()[1] / Sim->dynamics.units().unitVelocity() << " "
-	      << part.getVelocity()[2] / Sim->dynamics.units().unitVelocity() << "\n";
+	  XML << part.getVelocity()[0] / Sim->units.unitVelocity() << " "
+	      << part.getVelocity()[1] / Sim->units.unitVelocity() << " "
+	      << part.getVelocity()[2] / Sim->units.unitVelocity() << "\n";
     
 	XML << magnet::xml::endtag("DataArray");
 
@@ -370,13 +370,13 @@ namespace dynamo {
 
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       XML << (Sim->primaryCellSize[iDim] * (-0.5))
-	/ Sim->dynamics.units().unitLength()
+	/ Sim->units.unitLength()
 	  << " ";
   
     XML << magnet::xml::attr("Spacing");
   
     for (size_t iDim(0); iDim < NDIM; ++iDim)
-      XML << binWidth[iDim] / Sim->dynamics.units().unitLength() << " ";
+      XML << binWidth[iDim] / Sim->units.unitLength() << " ";
   
     XML << magnet::xml::tag("Piece")
 	<< magnet::xml::attr("Extent");
@@ -413,7 +413,7 @@ namespace dynamo {
 	  //Nans are not tolerated by paraview
 	  if (SampleCounter[id])	  
 	    XML << Momentum[id][iDim] 
-	      / (SampleCounter[id] * Sim->dynamics.units().unitMomentum());
+	      / (SampleCounter[id] * Sim->units.unitMomentum());
 	  else
 	    XML << 0.0;
       }
@@ -432,7 +432,7 @@ namespace dynamo {
       //Nans are not tolerated by paraview
       if (SampleCounter[id])
 	XML << mVsquared[id] * 0.5 
-	  / (SampleCounter[id] * Sim->dynamics.units().unitEnergy());
+	  / (SampleCounter[id] * Sim->units.unitEnergy());
       else
 	XML << 0.0;
 

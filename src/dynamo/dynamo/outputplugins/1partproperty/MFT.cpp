@@ -60,7 +60,7 @@ namespace dynamo {
     std::vector<magnet::math::Histogram<> > vecTemp;
   
     vecTemp.resize(collisionHistoryLength, 
-		   magnet::math::Histogram<>(Sim->dynamics.units().unitTime() * binwidth));
+		   magnet::math::Histogram<>(Sim->units.unitTime() * binwidth));
   
     data.resize(Sim->species.size(), vecTemp);
   }
@@ -98,7 +98,7 @@ namespace dynamo {
 		<< magnet::xml::attr("val") << collN + 1;
 	  
 	    data[id][collN].outputHistogram
-	      (XML, 1.0 / Sim->dynamics.units().unitTime());
+	      (XML, 1.0 / Sim->units.unitTime());
 	  
 	    XML << magnet::xml::endtag("Collisions");
 	  }

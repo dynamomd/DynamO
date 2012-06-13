@@ -49,11 +49,11 @@ namespace dynamo {
 	  CorrelatorLength = XML.getAttribute("Length").as<size_t>();
       
 	if (XML.hasAttribute("dt"))
-	  dt = Sim->dynamics.units().unitTime() * 
+	  dt = Sim->units.unitTime() * 
 	    XML.getAttribute("dt").as<double>();
       
 	if (XML.hasAttribute("t"))
-	  dt = Sim->dynamics.units().unitTime() * 
+	  dt = Sim->units.unitTime() * 
 	    XML.getAttribute("t").as<double>() / CorrelatorLength;
       }
     catch (boost::bad_lexical_cast &)
@@ -125,8 +125,8 @@ namespace dynamo {
   double 
   OPMutualDiffusionGK::rescaleFactor()
   {
-    return 1.0 / (Sim->dynamics.units().unitMutualDiffusion()
-		  * count * Sim->dynamics.getSimVolume()
+    return 1.0 / (Sim->units.unitMutualDiffusion()
+		  * count * Sim->getSimVolume()
 		  * Sim->getOutputPlugin<OPKEnergy>()->getAvgkT());
   }
 
@@ -140,12 +140,12 @@ namespace dynamo {
     for (unsigned int i = 1; i < accG.size()-1; i++)
       acc += accG[i];
 
-    acc *= factor * dt / Sim->dynamics.units().unitTime();
+    acc *= factor * dt / Sim->units.unitTime();
 
     XML << magnet::xml::tag("Correlator")
 	<< magnet::xml::attr("name") << name
 	<< magnet::xml::attr("size") << accG.size()
-	<< magnet::xml::attr("dt") << dt / Sim->dynamics.units().unitTime()
+	<< magnet::xml::attr("dt") << dt / Sim->units.unitTime()
 	<< magnet::xml::attr("LengthInMFT") << dt * accG.size() 
       / Sim->getOutputPlugin<OPMisc>()->getMFT()
 	<< magnet::xml::attr("simFactor") << factor
@@ -157,7 +157,7 @@ namespace dynamo {
     //GK correlators start at 0
     for (size_t i = 0; i < accG.size(); i++)
       {
-	XML << i * dt / Sim->dynamics.units().unitTime();
+	XML << i * dt / Sim->units.unitTime();
 	for (size_t j = 0; j < NDIM; j++)
 	  XML << "\t" << accG[i][j] * factor;
 	XML << "\n";
@@ -209,7 +209,7 @@ namespace dynamo {
     massFracSp1 /= sysMass; 
     massFracSp2 /= sysMass; 
 
-    dout << "dt set to " << dt / Sim->dynamics.units().unitTime() << std::endl;
+    dout << "dt set to " << dt / Sim->units.unitTime() << std::endl;
   }
 
   std::list<Vector  > 

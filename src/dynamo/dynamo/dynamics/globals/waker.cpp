@@ -80,10 +80,10 @@ namespace dynamo {
     try {
       globName = XML.getAttribute("Name");
 
-      _wakeTime = XML.getAttribute("WakeTime").as<double>() * Sim->dynamics.units().unitTime();
+      _wakeTime = XML.getAttribute("WakeTime").as<double>() * Sim->units.unitTime();
 
       _wakeVelocity = XML.getAttribute("WakeVelocity").as<double>() 
-	* Sim->dynamics.units().unitVelocity();
+	* Sim->units.unitVelocity();
 
       _nblistName = XML.getAttribute("NBList");
     }
@@ -170,8 +170,8 @@ namespace dynamo {
     XML << magnet::xml::tag("Global")
 	<< magnet::xml::attr("Type") << "Waker"
 	<< magnet::xml::attr("Name") << globName
-	<< magnet::xml::attr("WakeVelocity") << _wakeVelocity / Sim->dynamics.units().unitVelocity()
-	<< magnet::xml::attr("WakeTime") << _wakeTime / Sim->dynamics.units().unitTime()
+	<< magnet::xml::attr("WakeVelocity") << _wakeVelocity / Sim->units.unitVelocity()
+	<< magnet::xml::attr("WakeTime") << _wakeTime / Sim->units.unitTime()
 	<< magnet::xml::attr("NBList") << _nblistName
 	<< range
 	<< magnet::xml::endtag("Global");
@@ -182,7 +182,7 @@ namespace dynamo {
   {
     Vector sep = part.getPosition() - Sim->particleList[oid].getPosition();
     Sim->BCs->applyBC(sep);
-    if (sep.nrm() < 2.01 * Sim->dynamics.units().unitLength())
+    if (sep.nrm() < 2.01 * Sim->units.unitLength())
       ++_neighbors;
   }
 }

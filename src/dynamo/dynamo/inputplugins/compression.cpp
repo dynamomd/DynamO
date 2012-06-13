@@ -56,7 +56,7 @@ namespace dynamo {
     dout << "Loading compression liouvillean" << std::endl;
     Sim->liouvillean 
       = shared_ptr<dynamo::Liouvillean>
-      (new LCompression(Sim, growthRate / Sim->dynamics.units().unitTime()));
+      (new LCompression(Sim, growthRate / Sim->units.unitTime()));
   }
 
   void
@@ -81,16 +81,16 @@ namespace dynamo {
     else
       dout << "No cellular device to fix" << std::endl;
 
-    double rescale_factor = 1.0 + Sim->dSysTime * growthRate / Sim->dynamics.units().unitTime();
+    double rescale_factor = 1.0 + Sim->dSysTime * growthRate / Sim->units.unitTime();
 
     // The length scale is rescaled as the particles have grown. We want
     // that if a particle had a radius of 1 before the compression, it
     // will have a radius of 1 after the compression (but the simulation
     // volume will be less).
-    Sim->dynamics.units().rescaleLength(rescale_factor);
+    Sim->units.rescaleLength(rescale_factor);
     // The time scale is also rescaled, so that the energy and velocity
     // scales are unchanged.
-    Sim->dynamics.units().rescaleTime(rescale_factor);
+    Sim->units.rescaleTime(rescale_factor);
     Sim->_properties.rescaleUnit(Property::Units::L, rescale_factor);
     Sim->_properties.rescaleUnit(Property::Units::T, rescale_factor);
 
@@ -114,7 +114,7 @@ namespace dynamo {
 	    Sim->systems.push_back
 	      (shared_ptr<System>
 	       (new SysNBListCompressionFix(Sim, growthRate 
-					   / Sim->dynamics.units().unitTime(),
+					   / Sim->units.unitTime(),
 					   i)));
 	  }
       }
@@ -125,7 +125,7 @@ namespace dynamo {
   {
     dout << "Limiting maximum packing fraction to " << targetp << std::endl;
   
-    double packfrac = Sim->dynamics.getPackingFraction();
+    double packfrac = Sim->getPackingFraction();
   
     if (targetp < packfrac)
       M_throw() << "Target packing fraction is lower than current!";
@@ -141,8 +141,8 @@ namespace dynamo {
   {
     dout << "Limiting maximum density to " << targetrho << std::endl;
   
-    double molVol = (Sim->dynamics.getPackingFraction() * Sim->dynamics.getSimVolume())
-      / (Sim->N * Sim->dynamics.units().unitVolume());
+    double molVol = (Sim->getPackingFraction() * Sim->getSimVolume())
+      / (Sim->N * Sim->units.unitVolume());
 
     dout << "Corresponding packing fraction for that density is "
 	 << molVol * targetrho << std::endl;

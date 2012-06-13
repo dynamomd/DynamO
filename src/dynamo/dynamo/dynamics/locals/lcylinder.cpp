@@ -93,7 +93,7 @@ namespace dynamo {
     try {
       e = XML.getAttribute("Elasticity").as<double>();
 
-      radius = XML.getAttribute("Radius").as<double>() * Sim->dynamics.units().unitLength();
+      radius = XML.getAttribute("Radius").as<double>() * Sim->units.unitLength();
 
       render = XML.getAttribute("Render").as<bool>();
       magnet::xml::Node xBrowseNode = XML.getNode("Norm");
@@ -102,7 +102,7 @@ namespace dynamo {
       vNorm /= vNorm.nrm();
       xBrowseNode = XML.getNode("Origin");
       vPosition << xBrowseNode;
-      vPosition *= Sim->dynamics.units().unitLength();
+      vPosition *= Sim->units.unitLength();
     } 
     catch (boost::bad_lexical_cast &)
       {
@@ -116,14 +116,14 @@ namespace dynamo {
     XML << magnet::xml::attr("Type") << "CylinderWall" 
 	<< magnet::xml::attr("Name") << localName
 	<< magnet::xml::attr("Elasticity") << e
-	<< magnet::xml::attr("Radius") << radius / Sim->dynamics.units().unitLength()
+	<< magnet::xml::attr("Radius") << radius / Sim->units.unitLength()
 	<< magnet::xml::attr("Render") << render
 	<< range
 	<< magnet::xml::tag("Norm")
 	<< vNorm
 	<< magnet::xml::endtag("Norm")
 	<< magnet::xml::tag("Origin")
-	<< vPosition / Sim->dynamics.units().unitLength()
+	<< vPosition / Sim->units.unitLength()
 	<< magnet::xml::endtag("Origin");
   }
 }

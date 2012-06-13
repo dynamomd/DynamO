@@ -58,14 +58,14 @@ namespace dynamo {
     dout << "Compression Hack Loaded"
 	 << "\nFor global " << nblist.getName()
 	 << "\nCompression rate = " 
-	 << growthRate / Sim->dynamics.units().unitTime()
+	 << growthRate / Sim->units.unitTime()
 	 << "\nSim Units compression rate = " << growthRate
 	 << "\nMax length of interaction = " 
-	 << nblist.getMaxSupportedInteractionLength() / Sim->dynamics.units().unitLength()
+	 << nblist.getMaxSupportedInteractionLength() / Sim->units.unitLength()
 	 << "\nMaximum supported length = "
-	 << nblist.getMaxSupportedInteractionLength() / Sim->dynamics.units().unitLength()
+	 << nblist.getMaxSupportedInteractionLength() / Sim->units.unitLength()
 	 << "\nFirst halt scheduled for " 
-	 << dt / Sim->dynamics.units().unitTime() << std::endl;
+	 << dt / Sim->units.unitTime() << std::endl;
   }
 
   void
@@ -92,7 +92,7 @@ namespace dynamo {
   
     dout << "Rebuilding the neighbour list named " << nblist.getName()
 	 << "\nNColl = " << Sim->eventCount
-	 << "\nSys t = " << Sim->dSysTime / Sim->dynamics.units().unitTime() << std::endl;
+	 << "\nSys t = " << Sim->dSysTime / Sim->units.unitTime() << std::endl;
   
     nblist.setMaxInteractionRange(nblist.getMaxSupportedInteractionLength() * 1.1);
   

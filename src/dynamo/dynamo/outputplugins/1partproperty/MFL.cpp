@@ -52,7 +52,7 @@ namespace dynamo {
   {
     lastTime.resize(Sim->N, 0.0);
     data.resize(Sim->species.size(), 
-		magnet::math::Histogram<>(Sim->dynamics.units().unitLength() * binwidth));
+		magnet::math::Histogram<>(Sim->units.unitLength() * binwidth));
   }
 
   void 
@@ -81,7 +81,7 @@ namespace dynamo {
 	    << magnet::xml::attr("Name")
 	    << Sim->species[id]->getName();
 
-	data[id].outputHistogram(XML, 1.0 / Sim->dynamics.units().unitLength());
+	data[id].outputHistogram(XML, 1.0 / Sim->units.unitLength());
       
 	XML << magnet::xml::endtag("Species");
       }

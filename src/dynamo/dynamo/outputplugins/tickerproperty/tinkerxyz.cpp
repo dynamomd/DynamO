@@ -162,7 +162,7 @@ namespace dynamo {
 
     if (clientsock)
       {
-	double coeff = 3.4 / Sim->dynamics.units().unitLength();
+	double coeff = 3.4 / Sim->units.unitLength();
       
 	if (std::tr1::dynamic_pointer_cast<LCompression>(Sim->liouvillean))
 	  coeff /= 1.0 + static_cast<const LCompression&>(*Sim->liouvillean).getGrowthRate() * Sim->dSysTime;
@@ -210,7 +210,7 @@ namespace dynamo {
       M_throw() << "Could not open file for writing";
 
     of << Sim->N << "\ndynamo Tinker TXYZ file, t = " 
-       << Sim->dSysTime / Sim->dynamics.units().unitLength() 
+       << Sim->dSysTime / Sim->units.unitLength() 
        << ", NOTE: All units here have been scaled by 3.4 "
       "(the van-der-Walls radius of Carbon!)\n";
 
@@ -222,7 +222,7 @@ namespace dynamo {
 	of << "C ";
 	for (size_t iDim = 0; iDim < NDIM; iDim++)
 	  of << tmpVec[iDim] * 3.4 
-	    / Sim->dynamics.units().unitLength() << " ";
+	    / Sim->units.unitLength() << " ";
 	of << "\n";
       }
   }

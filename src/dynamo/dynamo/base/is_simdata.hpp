@@ -135,6 +135,41 @@ namespace dynamo
 
     void stream(const double);
 
+    double calcInternalEnergy() const;
+
+    /*! \brief Sets the Centre of Mass (COM) velocity of the system 
+     * 
+     *  The COM momentum of the system is
+     * \f[ \bm{P}_{system} = \sum_i m_i \bm{v}_i \f]
+     * 
+     * We want to first remove any motion of the system, so we subtract
+     * the COM momentum based on the mass of each particle (E.g. \f$ m_i
+     * / \sum_j m_j\f$). This has two nice effects, first, particles
+     * store their velocities, not their momentums so we convert by
+     * dividing by \f$m_i\f$ which gives 
+     *
+     * \f[ \bm{v}_i \to \bm{v}_i -
+     * (\sum_i m_i \bm{v}_i) / \sum_i m_i \f] 
+     *
+     * So relative velocities are preserved as the subtraction is a
+     * constant for all particles. Also we can now just add the offset to give
+     *
+     * \f[ \bm{v}_i \to \bm{v}_i -(\sum_i m_i \bm{v}_i) / \sum_i m_i  + \bm{V}_{COM}\f]  
+     *
+     * \param COMVelocity The target velocity for the COM of the system.
+     */  
+    void setCOMVelocity(const Vector COMVelocity = Vector(0,0,0));
+
+    void SystemOverlapTest();
+
+    void addSystemTicker();
+    
+    double getSimVolume() const;
+    
+    double getNumberDensity() const;
+    
+    double getPackingFraction() const;
+
     /*! \brief Finds a plugin of the given type using RTTI.
      */
     template<class T>
@@ -274,6 +309,8 @@ namespace dynamo
     /*! \brief The current phase of the Simulation.
      */
     ESimulationStatus status;
+
+    Units units;
 
     /*! \brief Register a callback for particle changes.*/
     void registerParticleUpdateFunc(const particleUpdateFunc& func) const

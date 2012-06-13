@@ -29,7 +29,7 @@ namespace dynamo {
   SystHalt::SystHalt(dynamo::SimData* nSim, double ndt, std::string nName):
     System(nSim)
   {
-    dt = ndt * Sim->dynamics.units().unitTime();
+    dt = ndt * Sim->units.unitTime();
 
     sysName = nName;
 
@@ -67,11 +67,11 @@ namespace dynamo {
 
   void 
   SystHalt::setdt(double ndt)
-  { dt = ndt * Sim->dynamics.units().unitTime(); }
+  { dt = ndt * Sim->units.unitTime(); }
 
   void 
   SystHalt::increasedt(double ndt)
   { 
-    dt += ndt * Sim->dynamics.units().unitTime(); 
+    dt += ndt * Sim->units.unitTime(); 
   }
 }

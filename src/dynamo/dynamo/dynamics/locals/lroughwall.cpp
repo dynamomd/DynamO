@@ -96,7 +96,7 @@ namespace dynamo {
     try {
       e = XML.getAttribute("Elasticity").as<double>();
       et = XML.getAttribute("TangentialElasticity").as<double>();
-      r = XML.getAttribute("Radius").as<double>() * Sim->dynamics.units().unitLength();
+      r = XML.getAttribute("Radius").as<double>() * Sim->units.unitLength();
       render = XML.getAttribute("Render").as<double>();
       localName = XML.getAttribute("Name");
 
@@ -104,7 +104,7 @@ namespace dynamo {
       vNorm /= vNorm.nrm();
 
       vPosition << XML.getNode("Origin");
-      vPosition *= Sim->dynamics.units().unitLength();
+      vPosition *= Sim->units.unitLength();
     } 
     catch (boost::bad_lexical_cast &)
       {
@@ -119,14 +119,14 @@ namespace dynamo {
 	<< magnet::xml::attr("Name") << localName
 	<< magnet::xml::attr("Elasticity") << e
 	<< magnet::xml::attr("TangentialElasticity") << et
-	<< magnet::xml::attr("Radius") << r / Sim->dynamics.units().unitLength()
+	<< magnet::xml::attr("Radius") << r / Sim->units.unitLength()
 	<< magnet::xml::attr("Render") << render
 	<< range
 	<< magnet::xml::tag("Norm")
 	<< vNorm
 	<< magnet::xml::endtag("Norm")
 	<< magnet::xml::tag("Origin")
-	<< vPosition / Sim->dynamics.units().unitLength()
+	<< vPosition / Sim->units.unitLength()
 	<< magnet::xml::endtag("Origin");
   }
 
@@ -139,7 +139,7 @@ namespace dynamo {
     double r = (pos | vNorm);
   
     if (r < 0)
-      dout << "Possible overlap of " << r / Sim->dynamics.units().unitLength() << " for particle " << p1.getID()
+      dout << "Possible overlap of " << r / Sim->units.unitLength() << " for particle " << p1.getID()
 	   << "\nWall Pos is [" 
 	   << vPosition[0] << "," << vPosition[1] << "," << vPosition[2] 
 	   << "] and Normal is [" 

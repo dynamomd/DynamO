@@ -42,7 +42,7 @@ namespace dynamo {
     dout << "WARNING Rescaling kT to " << val << std::endl;
   
     double currentkT(Sim->liouvillean->getkT()
-		     / Sim->dynamics.units().unitEnergy());
+		     / Sim->units.unitEnergy());
 
     dout << "Current kT " << currentkT << std::endl;
 
@@ -58,7 +58,7 @@ namespace dynamo {
       derr << "Refusing to set momentum for a " 
 	   << Sim->N << " particle system" << std::endl;
     else
-      Sim->dynamics.setCOMVelocity(vel);  
+      Sim->setCOMVelocity(vel);  
   }
 
 
@@ -71,7 +71,7 @@ namespace dynamo {
       derr << "Refusing to zero momentum for a " 
 	   << Sim->N << " particle system" << std::endl;
     else
-      Sim->dynamics.setCOMVelocity();
+      Sim->setCOMVelocity();
   }
 
   void 

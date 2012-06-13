@@ -66,8 +66,8 @@ namespace dynamo {
 
     Sim->BCs->applyBC(rij, vij);
   
-    rij /= Sim->dynamics.units().unitLength();
-    vij /= Sim->dynamics.units().unitVelocity();
+    rij /= Sim->units.unitLength();
+    vij /= Sim->units.unitVelocity();
 
     logfile << " p1 " << std::setw(5) << id1
 	    << " p2 " << std::setw(5) << id2
@@ -93,8 +93,8 @@ namespace dynamo {
     logfile << std::setw(8) << Sim->eventCount
 	    << " INTERACTION " << eevent.getInteractionID()
 	    << " TYPE " << eevent.getType()
-	    << " t " << std::setw(5) << Sim->dSysTime / Sim->dynamics.units().unitTime() 
-	    << " dt " << std::setw(5) << eevent.getdt() / Sim->dynamics.units().unitTime();
+	    << " t " << std::setw(5) << Sim->dSysTime / Sim->units.unitTime() 
+	    << " dt " << std::setw(5) << eevent.getdt() / Sim->units.unitTime();
 
     logfile << " deltaP1 < ";
     for (size_t iDim(0); iDim < NDIM; ++iDim)
@@ -117,8 +117,8 @@ namespace dynamo {
     logfile << std::setw(8) << Sim->eventCount
 	    << " GLOBAL " << eevent.getGlobalID()
 	    << " TYPE " << eevent.getType()
-	    << " t " << Sim->dSysTime / Sim->dynamics.units().unitTime() 
-	    << " dt " << eevent.getdt() / Sim->dynamics.units().unitTime()
+	    << " t " << Sim->dSysTime / Sim->units.unitTime() 
+	    << " dt " << eevent.getdt() / Sim->units.unitTime()
 	    << "\n";
 
     BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
@@ -143,8 +143,8 @@ namespace dynamo {
     logfile << std::setw(8) << Sim->eventCount 
 	    << " LOCAL " << eevent.getLocalID()
 	    << " TYPE " << eevent.getType()
-	    << " t " << Sim->dSysTime / Sim->dynamics.units().unitTime() 
-	    << " dt " << eevent.getdt() / Sim->dynamics.units().unitTime()
+	    << " t " << Sim->dSysTime / Sim->units.unitTime() 
+	    << " dt " << eevent.getdt() / Sim->units.unitTime()
 	    << "\n";
 
     BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
@@ -178,8 +178,8 @@ namespace dynamo {
     logfile << std::setw(8) << Sim->eventCount
 	    << " SYSTEM " << sys.getID()
 	    << " TYPE " << sys.getType()
-	    << " t " << Sim->dSysTime / Sim->dynamics.units().unitTime() 
-	    << " dt " << dt / Sim->dynamics.units().unitTime()
+	    << " t " << Sim->dSysTime / Sim->units.unitTime() 
+	    << " dt " << dt / Sim->units.unitTime()
 	    << "\n";
 
     BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
@@ -191,7 +191,7 @@ namespace dynamo {
 	for (size_t iDim(0); iDim < NDIM; ++iDim)
 	  logfile << std::setw(7) << std::scientific
 		  << pData.getParticle().getVelocity()[iDim]
-	    / Sim->dynamics.units().unitVelocity() << ",";
+	    / Sim->units.unitVelocity() << ",";
       
 	logfile << "]\n";
       }

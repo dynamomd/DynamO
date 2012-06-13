@@ -131,11 +131,11 @@ namespace dynamo {
 	    << magnet::xml::attr("Name") << getName(ele.first.first, Sim)
 	    << magnet::xml::attr("Event") << ele.first.second
 	    << magnet::xml::attr("EnergyLossRate") 
-	    << ele.second.energyLoss * Sim->dynamics.units().unitTime()
-	  / (Sim->dSysTime * Sim->dynamics.units().unitEnergy())
+	    << ele.second.energyLoss * Sim->units.unitTime()
+	  / (Sim->dSysTime * Sim->units.unitEnergy())
 	    << magnet::xml::tag("MomentumChangeRate") 
-	    << ele.second.momentumChange * Sim->dynamics.units().unitTime()
-	  / (Sim->dSysTime * Sim->dynamics.units().unitMomentum())
+	    << ele.second.momentumChange * Sim->units.unitTime()
+	  / (Sim->dSysTime * Sim->units.unitMomentum())
 	    << magnet::xml::endtag("MomentumChangeRate") 
 	    << magnet::xml::endtag("Count");
       }

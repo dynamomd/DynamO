@@ -38,7 +38,7 @@ namespace dynamo {
     if (nPeriod <= 0.0)
       nPeriod = 1.0;
 
-    nPeriod *= Sim->dynamics.units().unitTime();
+    nPeriod *= Sim->units.unitTime();
 
     dt = nPeriod;
     _period = nPeriod;
@@ -46,7 +46,7 @@ namespace dynamo {
     sysName = nName;
 
     dout << "Snapshot set for a peroid of " 
-	 << _period / Sim->dynamics.units().unitTime() << std::endl;
+	 << _period / Sim->units.unitTime() << std::endl;
   }
 
   void
@@ -89,20 +89,20 @@ namespace dynamo {
   void 
   SSnapshot::setdt(double ndt)
   { 
-    dt = ndt * Sim->dynamics.units().unitTime(); 
+    dt = ndt * Sim->units.unitTime(); 
   }
 
   void 
   SSnapshot::increasedt(double ndt)
   { 
-    dt += ndt * Sim->dynamics.units().unitTime(); 
+    dt += ndt * Sim->units.unitTime(); 
   }
 
   void 
   SSnapshot::setTickerPeriod(const double& nP)
   { 
     dout << "Setting system ticker period to " 
-	 << nP / Sim->dynamics.units().unitTime() << std::endl;
+	 << nP / Sim->units.unitTime() << std::endl;
 
     _period = nP; 
 

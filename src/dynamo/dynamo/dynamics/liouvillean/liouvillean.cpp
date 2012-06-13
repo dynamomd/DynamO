@@ -68,7 +68,7 @@ namespace dynamo {
 	if (!hasInertia)
 	  M_throw() << "No species have inertia, yet the particles have orientational degrees of freedom set!";
 
-	sumEnergy *= 0.5 / Sim->dynamics.units().unitEnergy();
+	sumEnergy *= 0.5 / Sim->units.unitEnergy();
   
 	dout << "System Rotational Energy " << sumEnergy
 	     << "\nRotational kT " << sumEnergy / Sim->N << std::endl;
@@ -116,8 +116,8 @@ namespace dynamo {
 	  outofsequence = true;
       
 	Particle part(node, Sim->particleList.size());
-	part.getVelocity() *= Sim->dynamics.units().unitVelocity();
-	part.getPosition() *= Sim->dynamics.units().unitLength();
+	part.getVelocity() *= Sim->units.unitVelocity();
+	part.getPosition() *= Sim->units.unitLength();
 	Sim->particleList.push_back(part);
       }
 
@@ -166,8 +166,8 @@ namespace dynamo {
 	if (applyBC) 
 	  Sim->BCs->applyBC(tmp.getPosition(), tmp.getVelocity());
       
-	tmp.getVelocity() *= (1.0 / Sim->dynamics.units().unitVelocity());
-	tmp.getPosition() *= (1.0 / Sim->dynamics.units().unitLength());
+	tmp.getVelocity() *= (1.0 / Sim->units.unitVelocity());
+	tmp.getPosition() *= (1.0 / Sim->units.unitLength());
       
 	XML << magnet::xml::tag("Pt");
 	Sim->_properties.outputParticleXMLData(XML, i);

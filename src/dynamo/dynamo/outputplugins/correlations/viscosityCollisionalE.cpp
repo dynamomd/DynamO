@@ -62,14 +62,14 @@ namespace dynamo {
 	  CorrelatorLength = XML.getAttribute("Length").as<size_t>();
 
 	if (XML.hasAttribute("dt"))
-	  dt = Sim->dynamics.units().unitTime() * 
+	  dt = Sim->units.unitTime() * 
 	    XML.getAttribute("dt").as<double>();
 
 	if (XML.hasAttribute("dtfactor"))
 	  dtfactor = XML.getAttribute("dtfactor").as<double>();
       
 	if (XML.hasAttribute("t"))
-	  dt = Sim->dynamics.units().unitTime() * 
+	  dt = Sim->units.unitTime() * 
 	    XML.getAttribute("t").as<double>() / CorrelatorLength;
       }
     catch (boost::bad_lexical_cast &)
@@ -92,7 +92,7 @@ namespace dynamo {
 	  dt = 10.0 / (((double) CorrelatorLength) * sqrt(Sim->liouvillean->getkT()) * CorrelatorLength);
       }
 
-    dout << "dt set to " << dt / Sim->dynamics.units().unitTime() << std::endl;
+    dout << "dt set to " << dt / Sim->units.unitTime() << std::endl;
   }
 
   void 
@@ -200,16 +200,16 @@ namespace dynamo {
   OPViscosityCollisionalE::output(magnet::xml::XmlStream &XML)
   {
     double rescaleFactor = 1.0
-      / (Sim->dynamics.units().unitTime() 
+      / (Sim->units.unitTime() 
 	 //This line should be 1 however we have scaled the correlator time as well
-	 * Sim->dynamics.units().unitViscosity() * 2.0 
+	 * Sim->units.unitViscosity() * 2.0 
 	 //Count has been taken out due to the extra averaging of the constant piece 
-	 * Sim->dynamics.getSimVolume());
+	 * Sim->getSimVolume());
   
     XML << magnet::xml::tag("EinsteinCorrelator")
 	<< magnet::xml::attr("name") << "ViscosityTimesT"
 	<< magnet::xml::attr("size") << accG2.size()
-	<< magnet::xml::attr("dt") << dt / Sim->dynamics.units().unitTime()
+	<< magnet::xml::attr("dt") << dt / Sim->units.unitTime()
 	<< magnet::xml::attr("LengthInMFT") << dt * accG2.size() / (Sim->getOutputPlugin<OPMisc>())->getMFT()
 	<< magnet::xml::attr("simFactor") << rescaleFactor
 	<< magnet::xml::attr("SampleCount") << count
@@ -233,7 +233,7 @@ namespace dynamo {
 	{
 	  traceAverage[iDim][jDim] = avgTrace[iDim][jDim] / (((double) G.size()) + ((double) count));
 	
-	  P[iDim][jDim] = traceAverage[iDim][jDim] / (dt * Sim->dynamics.getSimVolume());
+	  P[iDim][jDim] = traceAverage[iDim][jDim] / (dt * Sim->getSimVolume());
 	}
   
     XML << magnet::xml::tag("Pressure");
@@ -248,7 +248,7 @@ namespace dynamo {
 	  {
 	    std::string name = std::string("d") + boost::lexical_cast<std::string>(jDim);	  
 	    XML << magnet::xml::attr(name.c_str())
-		<< P[iDim][jDim] / Sim->dynamics.units().unitPressure();
+		<< P[iDim][jDim] / Sim->units.unitPressure();
 	  }
       
 	XML << magnet::xml::endtag(name.c_str());
@@ -262,14 +262,14 @@ namespace dynamo {
   
     XML << magnet::xml::tag("PressureVals")
 	<< magnet::xml::attr("AvgPressure")
-	<< AvgPressure / (NDIM * Sim->dynamics.units().unitPressure())
+	<< AvgPressure / (NDIM * Sim->units.unitPressure())
 	<< magnet::xml::endtag("PressureVals");
   
     XML << magnet::xml::chardata();
   
     for (unsigned int i = 0; i < accG2.size(); i++)
       {
-	XML << (i+1) * dt / Sim->dynamics.units().unitTime();
+	XML << (i+1) * dt / Sim->units.unitTime();
 	for (size_t j = 0; j < NDIM; j++)
 	  for (size_t k = 0; k < NDIM; k++)
 	    if (k==j)

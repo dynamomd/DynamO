@@ -41,10 +41,10 @@ namespace dynamo {
 		     std::string name):
     IMultiCapture(tmp,nR),
     _unitLength(Sim->_properties.getProperty
-		(Sim->dynamics.units().unitLength(), 
+		(Sim->units.unitLength(), 
 		 Property::Units::Length())),
     _unitEnergy(Sim->_properties.getProperty
-		(Sim->dynamics.units().unitEnergy(), 
+		(Sim->units.unitEnergy(), 
 		 Property::Units::Energy())),
     steps(vec)
   { intName = name; }
@@ -52,10 +52,10 @@ namespace dynamo {
   IStepped::IStepped(const magnet::xml::Node& XML, dynamo::SimData* tmp):
     IMultiCapture(tmp, NULL), //A temporary value!
     _unitLength(Sim->_properties.getProperty
-		(Sim->dynamics.units().unitLength(), 
+		(Sim->units.unitLength(), 
 		 Property::Units::Length())),
     _unitEnergy(Sim->_properties.getProperty
-		(Sim->dynamics.units().unitEnergy(), 
+		(Sim->units.unitEnergy(), 
 		 Property::Units::Energy()))
   {
     operator<<(XML);
@@ -223,7 +223,7 @@ namespace dynamo {
 			<< ", particle2 " << p2.getID() 
 			<< "\nOverlap = " 
 			<< Sim->liouvillean->sphereOverlap(p1, p2, d)
-		/ Sim->dynamics.units().unitLength();
+		/ Sim->units.unitLength();
 #endif
 	  
 	    retval = IntEvent(p1, p2, dt, WELL_IN, *this);
@@ -249,7 +249,7 @@ namespace dynamo {
 			      << ", particle2 " 
 			      << p2.getID() << "\nOverlap = " 
 			      << Sim->liouvillean->sphereOverlap(p1, p2, d*d)
-		      / Sim->dynamics.units().unitLength();
+		      / Sim->units.unitLength();
 #endif
 	      
 		  retval = IntEvent(p1, p2, dt, WELL_IN , *this);

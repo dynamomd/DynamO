@@ -28,9 +28,9 @@
 namespace dynamo {
   SysSchedMaintainer::SysSchedMaintainer(dynamo::SimData* nSim, double ndt, std::string nName):
     System(nSim),
-    periodt(ndt * nSim->dynamics.units().unitTime())
+    periodt(ndt * nSim->units.unitTime())
   {
-    dt = ndt * Sim->dynamics.units().unitTime();
+    dt = ndt * Sim->units.unitTime();
     sysName = nName;
 
     dout << "Periodic scheduler rebuild set for dt=" 
@@ -67,11 +67,11 @@ namespace dynamo {
 
   void 
   SysSchedMaintainer::setdt(double ndt)
-  { dt = ndt * Sim->dynamics.units().unitTime(); }
+  { dt = ndt * Sim->units.unitTime(); }
 
   void 
   SysSchedMaintainer::increasedt(double ndt)
   { 
-    dt += ndt * Sim->dynamics.units().unitTime(); 
+    dt += ndt * Sim->units.unitTime(); 
   }
 }

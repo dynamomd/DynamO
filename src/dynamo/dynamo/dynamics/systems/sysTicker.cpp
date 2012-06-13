@@ -32,7 +32,7 @@ namespace dynamo {
     System(nSim)
   {
     if (nPeriod <= 0.0)
-      nPeriod = Sim->dynamics.units().unitTime();
+      nPeriod = Sim->units.unitTime();
 
     dt = nPeriod;
     period = nPeriod;
@@ -40,7 +40,7 @@ namespace dynamo {
     sysName = nName;
 
     dout << "System ticker set for a peroid of " 
-	 << nPeriod / Sim->dynamics.units().unitTime() << std::endl;
+	 << nPeriod / Sim->units.unitTime() << std::endl;
   }
 
   void
@@ -86,20 +86,20 @@ namespace dynamo {
   void 
   SysTicker::setdt(double ndt)
   { 
-    dt = ndt * Sim->dynamics.units().unitTime(); 
+    dt = ndt * Sim->units.unitTime(); 
   }
 
   void 
   SysTicker::increasedt(double ndt)
   { 
-    dt += ndt * Sim->dynamics.units().unitTime(); 
+    dt += ndt * Sim->units.unitTime(); 
   }
 
   void 
   SysTicker::setTickerPeriod(const double& nP)
   { 
     dout << "Setting system ticker period to " 
-	 << nP / Sim->dynamics.units().unitTime() << std::endl;
+	 << nP / Sim->units.unitTime() << std::endl;
 
     period = nP; 
 

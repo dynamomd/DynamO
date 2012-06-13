@@ -279,7 +279,7 @@ namespace dynamo {
 	
 	  //Debug section
 #ifdef DYNAMO_CollDebug
-	  dout << "Interaction at t=" << (Event.getdt() + Sim->dSysTime) / Sim->dynamics.units().unitTime()
+	  dout << "Interaction at t=" << (Event.getdt() + Sim->dSysTime) / Sim->units.unitTime()
 	       << "  ID1 " << ((p2.getID() < p2.getID()) ? p1.getID() : p2.getID())
 	       << "  ID2 " << ((p2.getID() < p2.getID()) ? p2.getID() : p1.getID())
 	       << "  dt " << Event.getdt()

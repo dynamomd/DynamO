@@ -37,7 +37,7 @@ namespace dynamo {
     System(nSim)
   {
     //Convert to output units of time
-    tickFreq /= Sim->dynamics.units().unitTime();
+    tickFreq /= Sim->units.unitTime();
     //Stop zero tick times 
     tickFreq += (tickFreq == 0);
 
@@ -97,10 +97,10 @@ namespace dynamo {
     BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(*this, NEventData(), locdt);
   
-    _window->simupdateTick(Sim->dSysTime / Sim->dynamics.units().unitTime());
+    _window->simupdateTick(Sim->dSysTime / Sim->units.unitTime());
 
     //Now that the update has been performed, set up the next "tick"
-    dt = _window->getUpdateInterval() * Sim->dynamics.units().unitTime();
+    dt = _window->getUpdateInterval() * Sim->units.unitTime();
     _lastUpdate = boost::posix_time::microsec_clock::local_time();
   }
 

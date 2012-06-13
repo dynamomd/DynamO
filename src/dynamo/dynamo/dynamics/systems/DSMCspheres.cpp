@@ -151,7 +151,7 @@ namespace dynamo {
 
     factor = 4.0 * range2->size()
       * diameter * M_PI * chi * tstep 
-      / Sim->dynamics.getSimVolume();
+      / Sim->getSimVolume();
   
     if (maxprob == 0.0)
       {
@@ -207,10 +207,10 @@ namespace dynamo {
       M_throw() << "Attempting to load DSMCSpheres from a " << XML.getAttribute("Type") <<  " entry"; 
   
     try {
-      tstep = XML.getAttribute("tStep").as<double>() * Sim->dynamics.units().unitTime();
+      tstep = XML.getAttribute("tStep").as<double>() * Sim->units.unitTime();
       chi = XML.getAttribute("Chi").as<double>();
       sysName = XML.getAttribute("Name");
-      diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
+      diameter = XML.getAttribute("Diameter").as<double>() * Sim->units.unitLength();
       e = XML.getAttribute("Inelasticity").as<double>();
       d2 = diameter * diameter;
       range1 = shared_ptr<Range>(Range::getClass(XML.getNode("Range1"), Sim));
@@ -229,9 +229,9 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("System")
 	<< magnet::xml::attr("Type") << "DSMCSpheres"
-	<< magnet::xml::attr("tStep") << tstep / Sim->dynamics.units().unitTime()
+	<< magnet::xml::attr("tStep") << tstep / Sim->units.unitTime()
 	<< magnet::xml::attr("Chi") << chi
-	<< magnet::xml::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
+	<< magnet::xml::attr("Diameter") << diameter / Sim->units.unitLength()
 	<< magnet::xml::attr("Inelasticity") << e
 	<< magnet::xml::attr("Name") << sysName
 	<< magnet::xml::attr("MaxProbability") << maxprob

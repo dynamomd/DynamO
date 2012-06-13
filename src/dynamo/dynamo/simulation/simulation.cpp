@@ -49,7 +49,7 @@ namespace dynamo {
     if (ptr == NULL)
       M_throw() << "Could not find system ticker (maybe not required?)";
 
-    ptr->setTickerPeriod(nP * dynamics.units().unitTime());
+    ptr->setTickerPeriod(nP * units.unitTime());
   }
 
   void 
@@ -154,8 +154,7 @@ namespace dynamo {
 	  break;
 	}
 
-    if (needTicker)
-      dynamics.addSystemTicker();
+    if (needTicker) addSystemTicker();
 
     if (status != CONFIG_LOADED)
       M_throw() << "Sim initialised at wrong time";
@@ -264,11 +263,11 @@ namespace dynamo {
 
   long double 
   Simulation::getSysTime()
-  { return dSysTime / dynamics.units().unitTime(); }
+  { return dSysTime / units.unitTime(); }
 
   void
   Simulation::checkSystem()
   {
-    dynamics.SystemOverlapTest();
+    SystemOverlapTest();
   }
 }

@@ -61,11 +61,11 @@ namespace dynamo {
   {
     EnsembleVals[0] = Sim->particleList.size();
     EnsembleVals[1] = Sim->primaryCellSize[0] * Sim->primaryCellSize[1] * Sim->primaryCellSize[2];
-    EnsembleVals[2] = Sim->dynamics.calcInternalEnergy() + Sim->liouvillean->getSystemKineticEnergy();
+    EnsembleVals[2] = Sim->calcInternalEnergy() + Sim->liouvillean->getSystemKineticEnergy();
 
     dout << "NVE Ensemble initialised\nN=" << EnsembleVals[0]
-	     << "\nV=" << EnsembleVals[1] / Sim->dynamics.units().unitVolume()
-	     << "\nE=" << EnsembleVals[2] / Sim->dynamics.units().unitEnergy() << std::endl;
+	     << "\nV=" << EnsembleVals[1] / Sim->units.unitVolume()
+	     << "\nE=" << EnsembleVals[2] / Sim->units.unitEnergy() << std::endl;
   }
 
   std::tr1::array<double,3> 
@@ -73,8 +73,8 @@ namespace dynamo {
   {
     std::tr1::array<double,3> retval;
     retval[0] = EnsembleVals[0];
-    retval[1] = EnsembleVals[1] / Sim->dynamics.units().unitVolume();
-    retval[2] = EnsembleVals[2] / Sim->dynamics.units().unitEnergy();
+    retval[1] = EnsembleVals[1] / Sim->units.unitVolume();
+    retval[2] = EnsembleVals[2] / Sim->units.unitEnergy();
 
     return retval;
   }
@@ -83,7 +83,7 @@ namespace dynamo {
   EnsembleNVT::initialise()
   {
     EnsembleVals[0] = Sim->particleList.size();
-    EnsembleVals[1] = Sim->dynamics.units().unitVolume();
+    EnsembleVals[1] = Sim->units.unitVolume();
 
     try {
       thermostat = &Sim->systems["Thermostat"];
@@ -102,8 +102,8 @@ namespace dynamo {
     EnsembleVals[2] = static_cast<const SysAndersen*>(thermostat)->getTemperature();
     
     dout << "NVT Ensemble initialised\nN=" << EnsembleVals[0]
-	     << "\nV=" << EnsembleVals[1] / Sim->dynamics.units().unitVolume()
-	     << "\nT=" << EnsembleVals[2] / Sim->dynamics.units().unitEnergy() << std::endl;
+	     << "\nV=" << EnsembleVals[1] / Sim->units.unitVolume()
+	     << "\nT=" << EnsembleVals[2] / Sim->units.unitEnergy() << std::endl;
   }
 
   std::tr1::array<double,3> 
@@ -111,8 +111,8 @@ namespace dynamo {
   {
     std::tr1::array<double,3> retval;
     retval[0] = EnsembleVals[0];
-    retval[1] = EnsembleVals[1] / Sim->dynamics.units().unitVolume();
-    retval[2] = EnsembleVals[2] / Sim->dynamics.units().unitEnergy();
+    retval[1] = EnsembleVals[1] / Sim->units.unitVolume();
+    retval[2] = EnsembleVals[2] / Sim->units.unitEnergy();
 
     return retval;
   }
@@ -163,8 +163,8 @@ namespace dynamo {
     EnsembleVals[2] = static_cast<const BCLeesEdwards&>(*Sim->BCs).getShearRate();
 
     dout << "NVShear Ensemble initialised\nN=" << EnsembleVals[0]
-	     << "\nV=" << EnsembleVals[1] / Sim->dynamics.units().unitVolume()
-	     << "\nGamma=" << EnsembleVals[2] * Sim->dynamics.units().unitTime() << std::endl;
+	     << "\nV=" << EnsembleVals[1] / Sim->units.unitVolume()
+	     << "\nGamma=" << EnsembleVals[2] * Sim->units.unitTime() << std::endl;
   }
 
   std::tr1::array<double,3> 
@@ -172,8 +172,8 @@ namespace dynamo {
   {
     std::tr1::array<double,3> retval;
     retval[0] = EnsembleVals[0];
-    retval[1] = EnsembleVals[1] / Sim->dynamics.units().unitVolume();
-    retval[2] = EnsembleVals[2] * Sim->dynamics.units().unitTime();
+    retval[1] = EnsembleVals[1] / Sim->units.unitVolume();
+    retval[2] = EnsembleVals[2] * Sim->units.unitTime();
 
     return retval;
   }
@@ -182,7 +182,7 @@ namespace dynamo {
   EnsembleNECompression::initialise()
   {
     EnsembleVals[0] = Sim->particleList.size();
-    EnsembleVals[1] = Sim->dynamics.calcInternalEnergy() 
+    EnsembleVals[1] = Sim->calcInternalEnergy() 
       + Sim->liouvillean->getSystemKineticEnergy();
     
     try {
@@ -195,8 +195,8 @@ namespace dynamo {
       }
 
     dout << "NECompression Ensemble initialised\nN=" << EnsembleVals[0]
-	     << "\nE=" << EnsembleVals[1] / Sim->dynamics.units().unitEnergy()
-	     << "\nGamma=" << EnsembleVals[2] * Sim->dynamics.units().unitTime() << std::endl;
+	     << "\nE=" << EnsembleVals[1] / Sim->units.unitEnergy()
+	     << "\nGamma=" << EnsembleVals[2] * Sim->units.unitTime() << std::endl;
   }
 
   std::tr1::array<double,3> 
@@ -204,8 +204,8 @@ namespace dynamo {
   {
     std::tr1::array<double,3> retval;
     retval[0] = EnsembleVals[0];
-    retval[1] = EnsembleVals[1] / Sim->dynamics.units().unitEnergy();
-    retval[2] = EnsembleVals[2] * Sim->dynamics.units().unitTime();
+    retval[1] = EnsembleVals[1] / Sim->units.unitEnergy();
+    retval[2] = EnsembleVals[2] * Sim->units.unitTime();
 
     return retval;
   }
@@ -241,8 +241,8 @@ namespace dynamo {
       }
 
     dout << "NTCompression Ensemble initialised\nN=" << EnsembleVals[0]
-	     << "\nT=" << EnsembleVals[1] / Sim->dynamics.units().unitEnergy()
-	     << "\nGamma=" << EnsembleVals[2] * Sim->dynamics.units().unitTime() << std::endl;
+	     << "\nT=" << EnsembleVals[1] / Sim->units.unitEnergy()
+	     << "\nGamma=" << EnsembleVals[2] * Sim->units.unitTime() << std::endl;
   }
 
   std::tr1::array<double,3> 
@@ -250,8 +250,8 @@ namespace dynamo {
   {
     std::tr1::array<double,3> retval;
     retval[0] = EnsembleVals[0];
-    retval[1] = EnsembleVals[1] / Sim->dynamics.units().unitEnergy();
-    retval[2] = EnsembleVals[2] * Sim->dynamics.units().unitTime();
+    retval[1] = EnsembleVals[1] / Sim->units.unitEnergy();
+    retval[2] = EnsembleVals[2] * Sim->units.unitTime();
 
     return retval;
   }

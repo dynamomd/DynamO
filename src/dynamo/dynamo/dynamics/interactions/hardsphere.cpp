@@ -118,7 +118,7 @@ namespace dynamo {
 		    << "\nOverlap = " 
 		    << Sim->dynamics.getLiouvillean()
 	    .sphereOverlap(p1, p2, d)
-	    / Sim->dynamics.units().unitLength();
+	    / Sim->units.unitLength();
 #endif
 
 	return IntEvent(p1, p2, dt, CORE, *this);
@@ -175,8 +175,8 @@ namespace dynamo {
       derr << std::setprecision(std::numeric_limits<float>::digits10)
 	   << "Possible overlap occured in diagnostics\n ID1=" << part1.getID() 
 	   << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-	   << (rij | rij) / pow(Sim->dynamics.units().unitLength(),2)
+	   << (rij | rij) / pow(Sim->units.unitLength(),2)
 	   << "\nd^2=" 
-	   << d2 / pow(Sim->dynamics.units().unitLength(),2) << std::endl;
+	   << d2 / pow(Sim->units.unitLength(),2) << std::endl;
   }
 }

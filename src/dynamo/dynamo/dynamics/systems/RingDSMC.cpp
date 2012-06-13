@@ -202,11 +202,11 @@ namespace dynamo {
 
     factor12 = range1->size()
       * diameter * M_PI * chi12 * tstep 
-      / Sim->dynamics.getSimVolume();
+      / Sim->getSimVolume();
   
     factor13 = range1->size()
       * diameter * M_PI * chi13 * tstep 
-      / Sim->dynamics.getSimVolume();
+      / Sim->getSimVolume();
   
     if (maxprob12 == 0.0)
       { 
@@ -294,11 +294,11 @@ namespace dynamo {
 		<< XML.getAttribute("Type") <<  " entry"; 
   
     try {
-      tstep = XML.getAttribute("tStep").as<double>() * Sim->dynamics.units().unitTime();    
+      tstep = XML.getAttribute("tStep").as<double>() * Sim->units.unitTime();    
       chi12 = XML.getAttribute("Chi12").as<double>();
       chi13 = XML.getAttribute("Chi13").as<double>();
       sysName = XML.getAttribute("Name");
-      diameter = XML.getAttribute("Diameter").as<double>() * Sim->dynamics.units().unitLength();
+      diameter = XML.getAttribute("Diameter").as<double>() * Sim->units.unitLength();
       e = XML.getAttribute("Inelasticity").as<double>();
       d2 = diameter * diameter;
       range1 = shared_ptr<Range>(Range::getClass(XML.getNode("Range1"), Sim));
@@ -326,10 +326,10 @@ namespace dynamo {
 
     XML << magnet::xml::tag("System")
 	<< magnet::xml::attr("Type") << "RingDSMC"
-	<< magnet::xml::attr("tStep") << tstep / Sim->dynamics.units().unitTime()
+	<< magnet::xml::attr("tStep") << tstep / Sim->units.unitTime()
 	<< magnet::xml::attr("Chi12") << chi12
 	<< magnet::xml::attr("Chi13") << chi13
-	<< magnet::xml::attr("Diameter") << diameter / Sim->dynamics.units().unitLength()
+	<< magnet::xml::attr("Diameter") << diameter / Sim->units.unitLength()
 	<< magnet::xml::attr("Inelasticity") << e
 	<< magnet::xml::attr("Name") << sysName
 	<< magnet::xml::attr("MaxProbability12") << maxprob12

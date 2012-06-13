@@ -83,9 +83,9 @@ namespace dynamo {
     try {
       sysName = XML.getAttribute("Name");
     
-      _sleepVelocity = XML.getAttribute("SleepV").as<double>() * Sim->dynamics.units().unitVelocity();
-      _sleepDistance = Sim->dynamics.units().unitLength() * 0.01;
-      _sleepTime = Sim->dynamics.units().unitTime() * 0.0001;
+      _sleepVelocity = XML.getAttribute("SleepV").as<double>() * Sim->units.unitVelocity();
+      _sleepDistance = Sim->units.unitLength() * 0.01;
+      _sleepTime = Sim->units.unitTime() * 0.0001;
       _range = shared_ptr<Range>(Range::getClass(XML, Sim));
     }
     catch (boost::bad_lexical_cast &)
@@ -98,7 +98,7 @@ namespace dynamo {
     XML << magnet::xml::tag("System")
 	<< magnet::xml::attr("Type") << "Sleep"
 	<< magnet::xml::attr("Name") << sysName
-	<< magnet::xml::attr("SleepV") << _sleepVelocity / Sim->dynamics.units().unitVelocity()
+	<< magnet::xml::attr("SleepV") << _sleepVelocity / Sim->units.unitVelocity()
 	<< _range
 	<< magnet::xml::endtag("System");
   }

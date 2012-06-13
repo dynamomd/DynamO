@@ -62,7 +62,7 @@ namespace dynamo {
 
       if (XML.hasAttribute("NeighbourhoodRange"))
 	_maxInteractionRange = XML.getAttribute("NeighbourhoodRange").as<double>()
-	  * Sim->dynamics.units().unitLength();
+	  * Sim->units.unitLength();
 
       if (XML.hasAttribute("Oversize"))
 	_oversizeCells = XML.getAttribute("Oversize").as<double>();
@@ -215,7 +215,7 @@ namespace dynamo {
       magnet::math::MortonNumber<3> endCellv(endCell);
     
       dout << "CellEvent: t=" 
-	   << Sim->dSysTime / Sim->dynamics.units().unitTime()
+	   << Sim->dSysTime / Sim->units.unitTime()
 	   << " ID "
 	   << part.getID()
 	   << "  from <" 
@@ -274,7 +274,7 @@ namespace dynamo {
 	<< magnet::xml::attr("Type") << type
 	<< magnet::xml::attr("Name") << globName
 	<< magnet::xml::attr("NeighbourhoodRange") 
-	<< _maxInteractionRange / Sim->dynamics.units().unitLength();
+	<< _maxInteractionRange / Sim->units.unitLength();
 
     if (overlink > 1)   XML << magnet::xml::attr("OverLink") << overlink;
     if (_oversizeCells != 1.0) XML << magnet::xml::attr("Oversize") << _oversizeCells;
@@ -320,21 +320,21 @@ namespace dynamo {
     dout << "Cells <x,y,z> " << cellCount[0] << ","
 	 << cellCount[1] << "," << cellCount[2]
 	 << "\nCell Offset "
-	 << cellOffset[0] / Sim->dynamics.units().unitLength() << ","
-	 << cellOffset[1] / Sim->dynamics.units().unitLength() << ","
-	 << cellOffset[2] / Sim->dynamics.units().unitLength()
+	 << cellOffset[0] / Sim->units.unitLength() << ","
+	 << cellOffset[1] / Sim->units.unitLength() << ","
+	 << cellOffset[2] / Sim->units.unitLength()
 	 << "\nCells Dimension " 
-	 << cellDimension[0] / Sim->dynamics.units().unitLength()
+	 << cellDimension[0] / Sim->units.unitLength()
 	 << ","
-	 << cellDimension[1] / Sim->dynamics.units().unitLength()
+	 << cellDimension[1] / Sim->units.unitLength()
 	 << "," 
-	 << cellDimension[2] / Sim->dynamics.units().unitLength()
+	 << cellDimension[2] / Sim->units.unitLength()
 	 << "\nLattice spacing " 
-	 << cellLatticeWidth[0] / Sim->dynamics.units().unitLength()
+	 << cellLatticeWidth[0] / Sim->units.unitLength()
 	 << ","
-	 << cellLatticeWidth[1] / Sim->dynamics.units().unitLength()
+	 << cellLatticeWidth[1] / Sim->units.unitLength()
 	 << "," 
-	 << cellLatticeWidth[2] / Sim->dynamics.units().unitLength()
+	 << cellLatticeWidth[2] / Sim->units.unitLength()
 	 << std::endl;
 
     //Find the required size of the morton array

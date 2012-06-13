@@ -79,7 +79,7 @@ namespace dynamo {
 
     XML << magnet::xml::tag("CollisionCorrelator");
   
-    freetimehist.outputHistogram(XML, 1.0/Sim->dynamics.units().unitTime());
+    freetimehist.outputHistogram(XML, 1.0/Sim->units.unitTime());
 
     XML << magnet::xml::endtag("CollisionCorrelator");
   }

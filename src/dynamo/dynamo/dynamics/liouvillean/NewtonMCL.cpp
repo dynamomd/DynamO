@@ -50,12 +50,12 @@ namespace dynamo {
 	  {
 	    EnergyPotentialStep 
 	      = XML.getNode("PotentialDeformation").getAttribute("EnergyStep").as<double>()
-	      / Sim->dynamics.units().unitEnergy();
+	      / Sim->units.unitEnergy();
 
 	    for (magnet::xml::Node node = XML.getNode("PotentialDeformation").fastGetNode("W"); 
 		 node.valid(); ++node)
 	      {
-		double energy = node.getAttribute("Energy").as<double>() / Sim->dynamics.units().unitEnergy();	    
+		double energy = node.getAttribute("Energy").as<double>() / Sim->units.unitEnergy();	    
 		double Wval = node.getAttribute("Value").as<double>();
 		
 		//Here, the Wval needs to be multiplied by kT to turn it
@@ -78,14 +78,14 @@ namespace dynamo {
 	<< "NewtonianMC"
 	<< magnet::xml::tag("PotentialDeformation")
 	<< magnet::xml::attr("EnergyStep")
-	<< EnergyPotentialStep * Sim->dynamics.units().unitEnergy();
+	<< EnergyPotentialStep * Sim->units.unitEnergy();
 
     typedef std::pair<const int, double> locpair;
 
     BOOST_FOREACH(const locpair& val, wout)
       XML << magnet::xml::tag("W")
 	  << magnet::xml::attr("Energy")
-	  << val.first * EnergyPotentialStep * Sim->dynamics.units().unitEnergy()
+	  << val.first * EnergyPotentialStep * Sim->units.unitEnergy()
 	  << magnet::xml::attr("Value") << val.second
 	  << magnet::xml::endtag("W");
     

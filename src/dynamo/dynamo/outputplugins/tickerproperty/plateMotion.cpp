@@ -137,30 +137,30 @@ namespace dynamo {
 	partEnergy += pmass * vel.nrm2();
       }
   
-    com /= (mass * Sim->dynamics.units().unitLength());
-    Vector comvel = momentum / (mass * Sim->dynamics.units().unitVelocity());
+    com /= (mass * Sim->units.unitLength());
+    Vector comvel = momentum / (mass * Sim->units.unitVelocity());
   
     partEnergy *= 0.5;
 
     const LOscillatingPlate& plate(*static_cast<const LOscillatingPlate*>(Sim->locals[plateID].get()));
 
-    Vector platePos = (plate.getPosition() - plate.getCentre()) / Sim->dynamics.units().unitLength();
+    Vector platePos = (plate.getPosition() - plate.getCentre()) / Sim->units.unitLength();
 
-    Vector plateSpeed = plate.getVelocity() / Sim->dynamics.units().unitVelocity();
+    Vector plateSpeed = plate.getVelocity() / Sim->units.unitVelocity();
 
-    momentumChange /= Sim->dynamics.units().unitMomentum();
+    momentumChange /= Sim->units.unitMomentum();
 
-    logfile << Sim->dSysTime / Sim->dynamics.units().unitTime()
+    logfile << Sim->dSysTime / Sim->units.unitTime()
 	    << " " << momentumChange[0] << " " << momentumChange[1] << " " << momentumChange[2]
 	    << " " << platePos[0] << " " << platePos[1] << " " << platePos[2] 
 	    << " " << com[0] << " " << com[1] << " " << com[2]
 	    << " " << comvel[0] << " " << comvel[1] << " " << comvel[2]
 	    << " " << plateSpeed[0] << " " << plateSpeed[1] << " " << plateSpeed[2]
-	    << " " << (sqmom - ((momentum | momentum) / Sim->N)) / (Sim->N * pow(Sim->dynamics.units().unitMomentum(),2))
-	    << " " << plate.getPlateEnergy() / Sim->dynamics.units().unitEnergy()
-	    << " " << partEnergy / Sim->dynamics.units().unitEnergy() 
-	    << " " << (plate.getPlateEnergy() + partEnergy) / Sim->dynamics.units().unitEnergy()
-	    << " " << partpartEnergyLoss / Sim->dynamics.units().unitEnergy()
+	    << " " << (sqmom - ((momentum | momentum) / Sim->N)) / (Sim->N * pow(Sim->units.unitMomentum(),2))
+	    << " " << plate.getPlateEnergy() / Sim->units.unitEnergy()
+	    << " " << partEnergy / Sim->units.unitEnergy() 
+	    << " " << (plate.getPlateEnergy() + partEnergy) / Sim->units.unitEnergy()
+	    << " " << partpartEnergyLoss / Sim->units.unitEnergy()
 	    << "\n";
   
     momentumChange = Vector(0, 0, 0);
@@ -192,21 +192,21 @@ namespace dynamo {
 			  std::ios::out | std::ios::trunc);
       
 	  size_t step(0);
-	  double deltat(getTickerTime() / Sim->dynamics.units().unitTime());
+	  double deltat(getTickerTime() / Sim->units.unitTime());
 	  double sum = localEnergyLoss[ID].first;
 	  BOOST_FOREACH(const double& val, localEnergyLoss[ID].second)
 	    {
 	      sum += val;
 	      of << deltat * (step++) << " " 
-		 << val / Sim->dynamics.units().unitEnergy() 
+		 << val / Sim->units.unitEnergy() 
 		 << "\n";
 	    }
 
 	  XML << magnet::xml::tag("Plate")
 	      << magnet::xml::attr("ID") << ID
 	      << magnet::xml::attr("PowerLossRate") 
-	      << (sum * Sim->dynamics.units().unitTime() 
-		  / (Sim->dSysTime * Sim->dynamics.units().unitEnergy()))
+	      << (sum * Sim->units.unitTime() 
+		  / (Sim->dSysTime * Sim->units.unitEnergy()))
 	      << magnet::xml::endtag("Plate");
 	}
 	{
@@ -215,10 +215,10 @@ namespace dynamo {
 			  std::ios::out | std::ios::trunc);
 	
 	  size_t step(0);
-	  double deltat(getTickerTime() / Sim->dynamics.units().unitTime());
+	  double deltat(getTickerTime() / Sim->units.unitTime());
 	
 	  BOOST_FOREACH(const double& val, localEnergyFlux[ID].second)
-	    of << deltat * (step++) << " " << val / (deltat * Sim->dynamics.units().unitEnergy()) << "\n";
+	    of << deltat * (step++) << " " << val / (deltat * Sim->units.unitEnergy()) << "\n";
 	}
       }
     XML << magnet::xml::endtag("PlateMotion");

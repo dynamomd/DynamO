@@ -45,7 +45,7 @@ namespace dynamo {
     BOOST_FOREACH(std::vector<Vector  >& listref, accG2)
       listref.resize(CorrelatorLength, Vector (0,0,0));
 
-    dout << "dt set to " << dt / Sim->dynamics.units().unitTime() << std::endl;
+    dout << "dt set to " << dt / Sim->units.unitTime() << std::endl;
   }
 
   void 
@@ -57,10 +57,10 @@ namespace dynamo {
 	  CorrelatorLength = XML.getAttribute("Length").as<size_t>();
 
 	if (XML.hasAttribute("dt"))
-	  dt = XML.getAttribute("dt").as<double>() * Sim->dynamics.units().unitTime();
+	  dt = XML.getAttribute("dt").as<double>() * Sim->units.unitTime();
 
 	if (XML.hasAttribute("t"))
-	  dt = XML.getAttribute("t").as<double>() * Sim->dynamics.units().unitTime()
+	  dt = XML.getAttribute("t").as<double>() * Sim->units.unitTime()
 	    / CorrelatorLength;
       }
     catch (boost::bad_lexical_cast &)
@@ -206,8 +206,8 @@ namespace dynamo {
   void 
   OPVACF::output(magnet::xml::XmlStream& XML)
   {
-    double factor = Sim->dynamics.units().unitTime() 
-      / (Sim->dynamics.units().unitDiffusion() * count);
+    double factor = Sim->units.unitTime() 
+      / (Sim->units.unitDiffusion() * count);
 
     for (size_t i = 0; i < accG2.size(); ++i)
       {
@@ -218,13 +218,13 @@ namespace dynamo {
 	for (size_t j = 1; j < accG2[i].size() - 1; ++j)
 	  acc += accG2[i][j];
       
-	acc *= factor * dt / (Sim->dynamics.units().unitTime() * specCount);
+	acc *= factor * dt / (Sim->units.unitTime() * specCount);
 
 	XML << magnet::xml::tag("Correlator")
 	    << magnet::xml::attr("name") << "VACF"
 	    << magnet::xml::attr("species") << Sim->species[i]->getName()
 	    << magnet::xml::attr("size") << accG2.size()
-	    << magnet::xml::attr("dt") << dt / Sim->dynamics.units().unitTime()
+	    << magnet::xml::attr("dt") << dt / Sim->units.unitTime()
 	    << magnet::xml::attr("LengthInMFT") << dt * accG2[i].size() 
 	  / Sim->getOutputPlugin<OPMisc>()->getMFT()
 	    << magnet::xml::attr("simFactor") << factor / specCount
@@ -235,7 +235,7 @@ namespace dynamo {
             
 	for (size_t j = 0; j < accG2[i].size(); ++j)
 	  {
-	    XML << j * dt / Sim->dynamics.units().unitTime();
+	    XML << j * dt / Sim->units.unitTime();
 	    for (size_t iDim = 0; iDim < NDIM; iDim++)
 	      XML << "\t" << accG2[i][j][iDim] * factor / specCount;
 	    XML << "\n";

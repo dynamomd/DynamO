@@ -98,20 +98,20 @@ namespace dynamo {
   OPMisc::initialise()
   {
     InitialKE = KECurrent = Sim->liouvillean->getSystemKineticEnergy();
-    intECurrent = Sim->dynamics.calcInternalEnergy();
+    intECurrent = Sim->calcInternalEnergy();
 
     dout << "Particle Count " << Sim->N
-	 << "\nSim Unit Length " << Sim->dynamics.units().unitLength()
-	 << "\nSim Unit Time " << Sim->dynamics.units().unitTime()
-	 << "\nDensity " << Sim->dynamics.getNumberDensity()
-      * Sim->dynamics.units().unitVolume()
-	 << "\nPacking Fraction " << Sim->dynamics.getPackingFraction()
-	 << "\nTemperature " << getCurrentkT() / Sim->dynamics.units().unitEnergy() << std::endl;
+	 << "\nSim Unit Length " << Sim->units.unitLength()
+	 << "\nSim Unit Time " << Sim->units.unitTime()
+	 << "\nDensity " << Sim->getNumberDensity()
+      * Sim->units.unitVolume()
+	 << "\nPacking Fraction " << Sim->getPackingFraction()
+	 << "\nTemperature " << getCurrentkT() / Sim->units.unitEnergy() << std::endl;
 
     dout << "No. of Species " << Sim->species.size()
 	 << "\nSimulation box length <x y z> < ";
     for (size_t iDim = 0; iDim < NDIM; iDim++)
-      dout  << Sim->primaryCellSize[iDim]/Sim->dynamics.units().unitLength() << " ";
+      dout  << Sim->primaryCellSize[iDim]/Sim->units.unitLength() << " ";
     dout << ">" << std::endl;
 
     Vector sumMV (0,0,0);
@@ -126,7 +126,7 @@ namespace dynamo {
 
     dout << "Total momentum <x,y,z> <";
     for (size_t iDim = 0; iDim < NDIM; iDim++)
-      dout  << sumMV[iDim] / Sim->dynamics.units().unitMomentum() << " ";
+      dout  << sumMV[iDim] / Sim->units.unitMomentum() << " ";
     dout << ">" << std::endl;
 
     cumulative_kineticP.zero();
@@ -230,7 +230,7 @@ namespace dynamo {
   OPMisc::getMFT() const
   {
     return Sim->dSysTime * static_cast<double>(Sim->N)
-      /(Sim->dynamics.units().unitTime()
+      /(Sim->units.unitTime()
 	* ((2.0 * static_cast<double>(dualEvents))
 	   + static_cast<double>(singleEvents)));
   }
@@ -256,7 +256,7 @@ namespace dynamo {
     double duration = double(acc_tendTime.tv_sec) - double(acc_tstartTime.tv_sec)
       + 1e-9 * (double(acc_tendTime.tv_nsec) - double(acc_tstartTime.tv_nsec));
 
-    return Sim->dSysTime / (duration * Sim->dynamics.units().unitTime());
+    return Sim->dSysTime / (duration * Sim->units.unitTime());
   }
 
 
@@ -283,11 +283,11 @@ namespace dynamo {
     XML << magnet::xml::tag("Misc")
 	<< magnet::xml::tag("Density")
 	<< magnet::xml::attr("val")
-	<< Sim->dynamics.getNumberDensity() * Sim->dynamics.units().unitVolume()
+	<< Sim->getNumberDensity() * Sim->units.unitVolume()
 	<< magnet::xml::endtag("Density")
 
 	<< magnet::xml::tag("PackingFraction")
-	<< magnet::xml::attr("val") << Sim->dynamics.getPackingFraction()
+	<< magnet::xml::attr("val") << Sim->getPackingFraction()
 	<< magnet::xml::endtag("PackingFraction")
 
 	<< magnet::xml::tag("SpeciesCount")
@@ -299,15 +299,15 @@ namespace dynamo {
 	<< magnet::xml::endtag("ParticleCount")
 
 	<< magnet::xml::tag("Temperature")
-	<< magnet::xml::attr("Mean") << getMeankT() / Sim->dynamics.units().unitEnergy()
-	<< magnet::xml::attr("MeanSqr") << getMeanSqrkT() / (Sim->dynamics.units().unitEnergy() * Sim->dynamics.units().unitEnergy())
-	<< magnet::xml::attr("Current") << getCurrentkT() / Sim->dynamics.units().unitEnergy()
+	<< magnet::xml::attr("Mean") << getMeankT() / Sim->units.unitEnergy()
+	<< magnet::xml::attr("MeanSqr") << getMeanSqrkT() / (Sim->units.unitEnergy() * Sim->units.unitEnergy())
+	<< magnet::xml::attr("Current") << getCurrentkT() / Sim->units.unitEnergy()
 	<< magnet::xml::endtag("Temperature")
 
 	<< magnet::xml::tag("UConfigurational")
-	<< magnet::xml::attr("Mean") << getMeanUConfigurational() / Sim->dynamics.units().unitEnergy()
-	<< magnet::xml::attr("MeanSqr") << getMeanSqrUConfigurational() / (Sim->dynamics.units().unitEnergy() * Sim->dynamics.units().unitEnergy())
-	<< magnet::xml::attr("Current") << intECurrent / Sim->dynamics.units().unitEnergy()
+	<< magnet::xml::attr("Mean") << getMeanUConfigurational() / Sim->units.unitEnergy()
+	<< magnet::xml::attr("MeanSqr") << getMeanSqrUConfigurational() / (Sim->units.unitEnergy() * Sim->units.unitEnergy())
+	<< magnet::xml::attr("Current") << intECurrent / Sim->units.unitEnergy()
 	<< magnet::xml::endtag("UConfigurational")
 
 	<< magnet::xml::tag("ResidualHeatCapacity")
@@ -317,7 +317,7 @@ namespace dynamo {
 	<< magnet::xml::endtag("ResidualHeatCapacity")
 	<< magnet::xml::tag("Pressure")
 	<< magnet::xml::attr("Avg") << (cumulative_kineticP.tr() + collisionalP.tr())
-	    / (3.0 * Sim->dSysTime * Sim->dynamics.getSimVolume() / Sim->dynamics.units().unitPressure())
+	    / (3.0 * Sim->dSysTime * Sim->getSimVolume() / Sim->units.unitPressure())
 	<< magnet::xml::tag("Tensor") << magnet::xml::chardata()
       ;
 
@@ -325,7 +325,7 @@ namespace dynamo {
       {
 	for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	  XML << (cumulative_kineticP(iDim, jDim) + collisionalP(iDim, jDim))
-	    / (Sim->dSysTime * Sim->dynamics.getSimVolume() / Sim->dynamics.units().unitPressure())
+	    / (Sim->dSysTime * Sim->getSimVolume() / Sim->units.unitPressure())
 	      << " ";
 	XML << "\n";
       }
@@ -336,7 +336,7 @@ namespace dynamo {
 	<< magnet::xml::attr("Events") << Sim->eventCount
 	<< magnet::xml::attr("OneParticleEvents") << singleEvents
 	<< magnet::xml::attr("TwoParticleEvents") << dualEvents
-	<< magnet::xml::attr("Time") << Sim->dSysTime / Sim->dynamics.units().unitTime()
+	<< magnet::xml::attr("Time") << Sim->dSysTime / Sim->units.unitTime()
 	<< magnet::xml::endtag("Duration")
 
 	<< magnet::xml::tag("Timing")
@@ -347,7 +347,7 @@ namespace dynamo {
 	<< magnet::xml::endtag("Timing")
 
 	<< magnet::xml::tag("PrimaryImageSimulationSize")
-	<< Sim->primaryCellSize / Sim->dynamics.units().unitLength()
+	<< Sim->primaryCellSize / Sim->units.unitLength()
 	<< magnet::xml::endtag("PrimaryImageSimulationSize");
 
     Vector sumMV(0, 0, 0);
@@ -356,7 +356,7 @@ namespace dynamo {
       sumMV += Part.getVelocity() * Sim->species[Part].getMass(Part.getID());
 
     XML << magnet::xml::tag("Total_momentum")
-	<< sumMV / Sim->dynamics.units().unitMomentum()
+	<< sumMV / Sim->units.unitMomentum()
 	<< magnet::xml::endtag("Total_momentum")
 	<< magnet::xml::tag("totMeanFreeTime")
 	<< magnet::xml::attr("val")
@@ -405,7 +405,7 @@ namespace dynamo {
       }
 
     I_Pcout() << ", Events " << (Sim->eventCount+1)/1000 << "k, t "
-	      << Sim->dSysTime/Sim->dynamics.units().unitTime() 
+	      << Sim->dSysTime/Sim->units.unitTime() 
 	      << ", <Mean Free Time> " <<  getMFT()
 	      << ", ";
 

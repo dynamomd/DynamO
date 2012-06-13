@@ -53,15 +53,15 @@ namespace dynamo {
       {
 	if (XML.hasAttribute("ElasticV"))
 	  elasticV = XML.getAttribute("ElasticV").as<double>()
-	    * Sim->dynamics.units().unitVelocity();
+	    * Sim->units.unitVelocity();
 
 	if (XML.hasAttribute("tc"))
 	  {
-	    _tc = XML.getAttribute("tc").as<double>() * Sim->dynamics.units().unitTime();
+	    _tc = XML.getAttribute("tc").as<double>() * Sim->units.unitTime();
 
 	    if (_tc <= 0) 
 	      M_throw() << "tc must be positive! (tc = " 
-			<< _tc/ Sim->dynamics.units().unitTime() << ")";
+			<< _tc/ Sim->units.unitTime() << ")";
 	  }
 
 	g << XML.getNode("g");
@@ -71,7 +71,7 @@ namespace dynamo {
 	M_throw() << "Failed a lexical cast in LNewtonianGravity";
       }
   
-    g *= Sim->dynamics.units().unitAcceleration();
+    g *= Sim->units.unitAcceleration();
   }
 
   LNewtonianGravity::LNewtonianGravity(dynamo::SimData* tmp, Vector gravity, double eV, double tc):
@@ -392,12 +392,12 @@ namespace dynamo {
 	<< "NewtonianGravity";
 
     if (elasticV)
-      XML << magnet::xml::attr("ElasticV") << elasticV / Sim->dynamics.units().unitVelocity();
+      XML << magnet::xml::attr("ElasticV") << elasticV / Sim->units.unitVelocity();
 
     if (_tc > 0)
-      XML << magnet::xml::attr("tc") << _tc / Sim->dynamics.units().unitTime();
+      XML << magnet::xml::attr("tc") << _tc / Sim->units.unitTime();
 
-    XML << magnet::xml::tag("g") << g / Sim->dynamics.units().unitAcceleration() << magnet::xml::endtag("g");
+    XML << magnet::xml::tag("g") << g / Sim->units.unitAcceleration() << magnet::xml::endtag("g");
   }
 
   double 

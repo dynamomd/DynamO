@@ -63,11 +63,11 @@ namespace dynamo {
 	  CorrelatorLength = XML.getAttribute("Length").as<size_t>();
       
 	if (XML.hasAttribute("dt"))
-	  dt = Sim->dynamics.units().unitTime() * 
+	  dt = Sim->units.unitTime() * 
 	    XML.getAttribute("dt").as<double>();
       
 	if (XML.hasAttribute("t"))
-	  dt = Sim->dynamics.units().unitTime() * 
+	  dt = Sim->units.unitTime() * 
 	    XML.getAttribute("t").as<double>() / CorrelatorLength;
       }
     catch (boost::bad_lexical_cast &)
@@ -129,7 +129,7 @@ namespace dynamo {
       }
 
     massFracSp1 = speciesMass / sysMass;
-    dout << "dt set to " << dt / Sim->dynamics.units().unitTime() << std::endl;
+    dout << "dt set to " << dt / Sim->units.unitTime() << std::endl;
   }
 
   inline void 
@@ -138,7 +138,7 @@ namespace dynamo {
     XML << magnet::xml::tag("EinsteinCorrelator")
 	<< magnet::xml::attr("name") << name
 	<< magnet::xml::attr("size") << accG2.size()
-	<< magnet::xml::attr("dt") << dt/Sim->dynamics.units().unitTime()
+	<< magnet::xml::attr("dt") << dt/Sim->units.unitTime()
 	<< magnet::xml::attr("LengthInMFT") 
 	<< dt * accG2.size() / Sim->getOutputPlugin<OPMisc>()->getMFT()
 	<< magnet::xml::attr("simFactor") << rescaleFactor()
@@ -149,7 +149,7 @@ namespace dynamo {
   
     for (size_t i = 0; i < accG2.size(); ++i)
       {
-	XML   << (1+i) * dt / Sim->dynamics.units().unitTime()
+	XML   << (1+i) * dt / Sim->units.unitTime()
 	      << "\t ";
       
 	for (size_t j=0;j<NDIM;j++)
@@ -166,12 +166,12 @@ namespace dynamo {
   OPThermalDiffusionE::rescaleFactor() 
   { 
     return 1.0
-      / (Sim->dynamics.units().unitTime() 
+      / (Sim->units.unitTime() 
 	 // /\ /\ This line should be 1 however we have scaled the
 	 //correlator time as well
-	 * Sim->dynamics.units().unitThermalDiffusion() * 2.0 
+	 * Sim->units.unitThermalDiffusion() * 2.0 
 	 * count * Sim->getOutputPlugin<OPKEnergy>()->getAvgkT()
-	 * Sim->dynamics.getSimVolume());
+	 * Sim->getSimVolume());
   }
 
   void 

@@ -49,7 +49,7 @@ namespace dynamo {
       M_throw() << "Failed, N does not have an integer cube root!";
 
     dout << "Max wavelength is "
-	 << 1.0 / (maxWaveNumber * Sim->dynamics.units().unitLength()) << std::endl;
+	 << 1.0 / (maxWaveNumber * Sim->units.unitLength()) << std::endl;
 
     maxWaveNumber *= 2;
 
@@ -95,7 +95,7 @@ namespace dynamo {
   
     for (size_t k(0); k <= maxWaveNumber; ++k)
       {
-	XML << k * Sim->dynamics.units().unitLength() << " "
+	XML << k * Sim->units.unitLength() << " "
 	    << runningsum[k] / (static_cast<double>(count) * Sim->N) 
 	    << "\n";
       }

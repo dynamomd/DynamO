@@ -61,13 +61,13 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("Momentum")
 	<< magnet::xml::tag("Current")
-	<< sysMom / Sim->dynamics.units().unitMomentum()
+	<< sysMom / Sim->units.unitMomentum()
 	<< magnet::xml::endtag("Current")
 	<< magnet::xml::tag("Avg") 
-	<< accMom / (Sim->dSysTime * Sim->dynamics.units().unitMomentum())
+	<< accMom / (Sim->dSysTime * Sim->units.unitMomentum())
 	<< magnet::xml::endtag("Avg")    
 	<< magnet::xml::tag("SqAvg") 
-	<< accMomsq / (Sim->dSysTime * Sim->dynamics.units().unitMomentum() * Sim->dynamics.units().unitMomentum())
+	<< accMomsq / (Sim->dSysTime * Sim->units.unitMomentum() * Sim->units.unitMomentum())
 	<< magnet::xml::endtag("SqAvg")
 	<< magnet::xml::endtag("Momentum");
   }

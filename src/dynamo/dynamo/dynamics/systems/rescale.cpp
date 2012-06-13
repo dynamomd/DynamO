@@ -86,10 +86,10 @@ namespace dynamo {
     ++Sim->eventCount;
     
     double currentkT(Sim->liouvillean->getkT()
-		     / Sim->dynamics.units().unitEnergy());
+		     / Sim->units.unitEnergy());
 
     dout << "Rescaling kT " << currentkT 
-	 << " To " << _kT / Sim->dynamics.units().unitEnergy() <<  std::endl;
+	 << " To " << _kT / Sim->units.unitEnergy() <<  std::endl;
 
     NEventData SDat;
 
@@ -155,12 +155,12 @@ namespace dynamo {
       if (XML.hasAttribute("kT"))
 	_kT = XML.getAttribute("kT").as<double>();
     
-      _kT *= Sim->dynamics.units().unitEnergy();
+      _kT *= Sim->units.unitEnergy();
 
       if (XML.hasAttribute("TimeStep"))
 	_timestep = XML.getAttribute("TimeStep").as<double>();
 
-      _timestep *= Sim->dynamics.units().unitTime();
+      _timestep *= Sim->units.unitTime();
 
       sysName = XML.getAttribute("Name");
     }
@@ -175,14 +175,14 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("System")
 	<< magnet::xml::attr("Type") << "Rescale"
-	<< magnet::xml::attr("kT") << _kT / Sim->dynamics.units().unitEnergy()
+	<< magnet::xml::attr("kT") << _kT / Sim->units.unitEnergy()
 	<< magnet::xml::attr("Name") << sysName;
   
     if (_frequency != std::numeric_limits<size_t>::max())
       XML << magnet::xml::attr("Freq") << _frequency;
 
     if (_timestep != HUGE_VAL)
-      XML << magnet::xml::attr("TimeStep") << _timestep / Sim->dynamics.units().unitTime();
+      XML << magnet::xml::attr("TimeStep") << _timestep / Sim->units.unitTime();
 
     XML<< magnet::xml::endtag("System");
   }

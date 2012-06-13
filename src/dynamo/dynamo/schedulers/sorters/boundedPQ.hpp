@@ -238,7 +238,7 @@ namespace dynamo {
       if (!quiet)
 	dout << "Length of linear list = " << nlists
 	     << "Scale factor = " 
-	     << scale * Sim->dynamics.units().unitTime() 
+	     << scale * Sim->units.unitTime() 
 	     << std::endl;
 
       linearLists.resize(nlists+1, -1); /*+1 for overflow, -1 for

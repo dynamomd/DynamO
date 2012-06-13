@@ -46,7 +46,7 @@ namespace dynamo {
       if (XML.hasAttribute("binWidth"))
 	binWidth = XML.getAttribute("binWidth").as<double>();
 
-      binWidth *= Sim->dynamics.units().unitLength();
+      binWidth *= Sim->units.unitLength();
     
       if (XML.hasAttribute("length"))
 	length = XML.getAttribute("length").as<size_t>();
@@ -67,16 +67,16 @@ namespace dynamo {
 	{
 	  sample_energy 
 	    = XML.getAttribute("SampleEnergy").as<double>() 
-	    * Sim->dynamics.units().unitEnergy();
+	    * Sim->units.unitEnergy();
 
-	  sample_energy_bin_width = 1 / Sim->dynamics.units().unitEnergy();
+	  sample_energy_bin_width = 1 / Sim->units.unitEnergy();
 	  if (XML.hasAttribute("SampleEnergyWidth"))
 	    sample_energy_bin_width
 	      = XML.getAttribute("SampleEnergyWidth").as<double>()
-	      * Sim->dynamics.units().unitEnergy();
+	      * Sim->units.unitEnergy();
 	}
       
-      dout << "Binwidth = " << binWidth / Sim->dynamics.units().unitLength()
+      dout << "Binwidth = " << binWidth / Sim->units.unitLength()
 	   << "\nLength = " << length << std::endl;
     }
     catch (std::exception& excep)
@@ -115,11 +115,11 @@ namespace dynamo {
 	else
 	  dout << "Sampling rad as energy is " 
 	       << Sim->getOutputPlugin<OPUEnergy>()->getSimU()
-	    / Sim->dynamics.units().unitEnergy()
+	    / Sim->units.unitEnergy()
 	       << " sample_energy is "
-	       << sample_energy / Sim->dynamics.units().unitEnergy()
+	       << sample_energy / Sim->units.unitEnergy()
 	       << " and sample_energy_bin_width is "
-	       << sample_energy_bin_width / Sim->dynamics.units().unitEnergy()
+	       << sample_energy_bin_width / Sim->units.unitEnergy()
 	       << std::endl;
       }
     
@@ -153,7 +153,7 @@ namespace dynamo {
     BOOST_FOREACH(const shared_ptr<Species>& sp1, Sim->species)
       BOOST_FOREACH(const shared_ptr<Species>& sp2, Sim->species)
       {
-	double density = sp2->getCount() / Sim->dynamics.getSimVolume();
+	double density = sp2->getCount() / Sim->getSimVolume();
 
 	unsigned long originsTaken = sampleCount * sp1->getCount();
 
@@ -175,7 +175,7 @@ namespace dynamo {
 	    double GR = static_cast<double>(data[sp1->getID()][sp2->getID()][i])
 	      / (density * originsTaken * volshell);
 
-	    XML << radius / Sim->dynamics.units().unitLength() << " " 
+	    XML << radius / Sim->units.unitLength() << " " 
 		<< GR << "\n";
 	  }
 

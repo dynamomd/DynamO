@@ -41,8 +41,8 @@ namespace dynamo {
   SysAndersen::SysAndersen(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
     System(tmp),
     meanFreeTime(100000),
-    Temp(Sim->dynamics.units().unitEnergy()),
-    sqrtTemp(std::sqrt(Sim->dynamics.units().unitEnergy())),
+    Temp(Sim->units.unitEnergy()),
+    sqrtTemp(std::sqrt(Sim->units.unitEnergy())),
     tune(false),
     dimensions(NDIM),
     setPoint(0.05),
@@ -141,8 +141,8 @@ namespace dynamo {
       M_throw() << "Attempting to load Andersen from non Andersen entry"; 
   
     try {
-      meanFreeTime = XML.getAttribute("MFT").as<double>() * Sim->dynamics.units().unitTime();
-      Temp = XML.getAttribute("Temperature").as<double>() * Sim->dynamics.units().unitEnergy();
+      meanFreeTime = XML.getAttribute("MFT").as<double>() * Sim->units.unitTime();
+      Temp = XML.getAttribute("Temperature").as<double>() * Sim->units.unitEnergy();
       sysName = XML.getAttribute("Name");
 
       if (XML.hasAttribute("Dimensions"))
@@ -171,9 +171,9 @@ namespace dynamo {
 	<< magnet::xml::attr("Name") << sysName
 	<< magnet::xml::attr("MFT") << meanFreeTime
       * Sim->N
-      / Sim->dynamics.units().unitTime()
+      / Sim->units.unitTime()
 	<< magnet::xml::attr("Temperature") << Temp 
-      / Sim->dynamics.units().unitEnergy();
+      / Sim->units.unitEnergy();
   
     if (tune)
       XML << magnet::xml::attr("SetPoint") << setPoint
@@ -195,13 +195,13 @@ namespace dynamo {
   double 
   SysAndersen::getReducedTemperature() const
   {
-    return Temp / Sim->dynamics.units().unitEnergy();
+    return Temp / Sim->units.unitEnergy();
   }
 
 
   void 
   SysAndersen::setReducedTemperature(double nT)
   {
-    Temp = nT * Sim->dynamics.units().unitEnergy(); 
+    Temp = nT * Sim->units.unitEnergy(); 
   }
 }

@@ -99,7 +99,7 @@ namespace dynamo {
       vNorm /= vNorm.nrm();
       xBrowseNode = XML.getNode("Origin");
       vPosition << xBrowseNode;
-      vPosition *= Sim->dynamics.units().unitLength();
+      vPosition *= Sim->units.unitLength();
     }
     catch (boost::bad_lexical_cast &)
       {
@@ -119,7 +119,7 @@ namespace dynamo {
 	<< vNorm
 	<< magnet::xml::endtag("Norm")
 	<< magnet::xml::tag("Origin")
-	<< vPosition / Sim->dynamics.units().unitLength()
+	<< vPosition / Sim->units.unitLength()
 	<< magnet::xml::endtag("Origin");
   }
 
@@ -132,7 +132,7 @@ namespace dynamo {
     double r = (pos | vNorm);
   
     if (r < 0)
-      dout << "Possible overlap of " << r / Sim->dynamics.units().unitLength() << " for particle " << p1.getID()
+      dout << "Possible overlap of " << r / Sim->units.unitLength() << " for particle " << p1.getID()
 	   << "\nWall Pos is [" 
 	   << vPosition[0] << "," << vPosition[1] << "," << vPosition[2] 
 	   << "] and Normal is [" 

@@ -54,7 +54,7 @@ namespace dynamo {
   {
     ptrOPEnergy = Sim->getOutputPlugin<OPUEnergy>();
     if (!ptrOPEnergy) M_throw() << "IntEnergyHist requires UEnergy plugin!";
-    intEnergyHist = magnet::math::HistogramWeighted<>(binwidth * Sim->dynamics.units().unitEnergy());
+    intEnergyHist = magnet::math::HistogramWeighted<>(binwidth * Sim->units.unitEnergy());
   }
 
   void 
@@ -112,7 +112,7 @@ namespace dynamo {
 	
 	double Pc = static_cast<double>(p1.second)
 	  / (intEnergyHist.getBinWidth() * intEnergyHist.getSampleCount()
-	     * Sim->dynamics.units().unitEnergy());
+	     * Sim->units.unitEnergy());
 
 	//We only try to optimize parts of the histogram with greater
 	//than 1% probability
@@ -146,7 +146,7 @@ namespace dynamo {
       XML << magnet::xml::attr("T") 
 	  << static_cast<const dynamo::EnsembleNVT&>(*(Sim->ensemble)).getReducedEnsembleVals()[2];
   
-    intEnergyHist.outputClearHistogram(XML, Sim->dynamics.units().unitEnergy());
+    intEnergyHist.outputClearHistogram(XML, Sim->units.unitEnergy());
   
     if (!std::tr1::dynamic_pointer_cast<const LNewtonianMC>(Sim->liouvillean))
       {
@@ -160,13 +160,13 @@ namespace dynamo {
 	
 	XML << magnet::xml::tag("PotentialDeformation")
 	    << magnet::xml::attr("EnergyStep")
-	    << liouvillean.getEnergyStep() * Sim->dynamics.units().unitEnergy();
+	    << liouvillean.getEnergyStep() * Sim->units.unitEnergy();
 	
 	typedef std::pair<const int, double> locpair;
 	BOOST_FOREACH(const locpair& p1, liouvillean.getMap())
 	  XML << magnet::xml::tag("W")
 	      << magnet::xml::attr("Energy")
-	      << p1.first * liouvillean.getEnergyStep() * Sim->dynamics.units().unitEnergy()
+	      << p1.first * liouvillean.getEnergyStep() * Sim->units.unitEnergy()
 	      << magnet::xml::attr("Value") << p1.second
 	      << magnet::xml::endtag("W");
 	

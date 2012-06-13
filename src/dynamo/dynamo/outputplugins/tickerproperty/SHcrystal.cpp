@@ -53,11 +53,11 @@ namespace dynamo {
 	M_throw() << "Failed a lexical cast in OPSHCrystal";
       }
 
-    rg *= Sim->dynamics.units().unitLength();
+    rg *= Sim->units.unitLength();
 
 
     dout << "Cut off radius of " 
-	 << rg / Sim->dynamics.units().unitLength() << std::endl;
+	 << rg / Sim->units.unitLength() << std::endl;
   }
 
 
@@ -80,7 +80,7 @@ namespace dynamo {
 
     if (nblistID == std::numeric_limits<size_t>::max())
       M_throw() << "There is not a suitable neighbourlist for the cut-off radius selected."
-	"\nR_g = " << rg / Sim->dynamics.units().unitLength();
+	"\nR_g = " << rg / Sim->units.unitLength();
 
     globalcoeff.resize(maxl);
     for (size_t l=0; l < maxl; ++l)

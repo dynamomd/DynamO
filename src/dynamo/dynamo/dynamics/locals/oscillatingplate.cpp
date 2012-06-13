@@ -120,16 +120,16 @@ namespace dynamo {
       nhat /= nhat.nrm();
 
       rw0 << XML.getNode("Origin");
-      rw0 *= Sim->dynamics.units().unitLength();
+      rw0 *= Sim->units.unitLength();
 
       if (XML.hasAttribute("StrongPlate"))
 	strongPlate = XML.getAttribute("StrongPlate").as<double>();
 
-      omega0 = XML.getAttribute("Omega0").as<double>() / Sim->dynamics.units().unitTime();
-      sigma = XML.getAttribute("Sigma").as<double>() * Sim->dynamics.units().unitLength();
-      delta = XML.getAttribute("Delta").as<double>() * Sim->dynamics.units().unitLength();
-      mass = XML.getAttribute("Mass").as<double>()  * Sim->dynamics.units().unitMass();
-      timeshift = XML.getAttribute("TimeShift").as<double>() * Sim->dynamics.units().unitTime();
+      omega0 = XML.getAttribute("Omega0").as<double>() / Sim->units.unitTime();
+      sigma = XML.getAttribute("Sigma").as<double>() * Sim->units.unitLength();
+      delta = XML.getAttribute("Delta").as<double>() * Sim->units.unitLength();
+      mass = XML.getAttribute("Mass").as<double>()  * Sim->units.unitMass();
+      timeshift = XML.getAttribute("TimeShift").as<double>() * Sim->units.unitTime();
 
       localName = XML.getAttribute("Name");
     } 
@@ -149,18 +149,18 @@ namespace dynamo {
     XML << magnet::xml::attr("Type") << "OscillatingPlate" 
 	<< magnet::xml::attr("Name") << localName
 	<< magnet::xml::attr("Elasticity") << e
-	<< magnet::xml::attr("Omega0") << omega0 * Sim->dynamics.units().unitTime()
-	<< magnet::xml::attr("Sigma") << sigma / Sim->dynamics.units().unitLength()
-	<< magnet::xml::attr("Delta") << delta / Sim->dynamics.units().unitLength()
-	<< magnet::xml::attr("Mass") << mass / Sim->dynamics.units().unitMass()
-	<< magnet::xml::attr("TimeShift") << tmp / Sim->dynamics.units().unitTime()
+	<< magnet::xml::attr("Omega0") << omega0 * Sim->units.unitTime()
+	<< magnet::xml::attr("Sigma") << sigma / Sim->units.unitLength()
+	<< magnet::xml::attr("Delta") << delta / Sim->units.unitLength()
+	<< magnet::xml::attr("Mass") << mass / Sim->units.unitMass()
+	<< magnet::xml::attr("TimeShift") << tmp / Sim->units.unitTime()
 	<< magnet::xml::attr("StrongPlate") << strongPlate
 	<< range
 	<< magnet::xml::tag("Norm")
 	<< nhat
 	<< magnet::xml::endtag("Norm")
 	<< magnet::xml::tag("Origin")
-	<< rw0 / Sim->dynamics.units().unitLength()
+	<< rw0 / Sim->units.unitLength()
 	<< magnet::xml::endtag("Origin");
 
   }
@@ -235,7 +235,7 @@ namespace dynamo {
 
     if (_renderObj)
       _renderObj->setConstantA((delta * std::cos(omega0 * (Sim->dSysTime + timeshift)) 
-				- (sigma + 0.5 * Sim->dynamics.units().unitLength())) *  lengthRescale);
+				- (sigma + 0.5 * Sim->units.unitLength())) *  lengthRescale);
   }
 #endif
 }

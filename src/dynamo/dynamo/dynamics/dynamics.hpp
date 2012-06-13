@@ -41,53 +41,8 @@ namespace dynamo {
   public:
     //Constructors
     Dynamics(dynamo::SimData*);
-  
-    /*! \brief Sets the Centre of Mass (COM) velocity of the system 
-     * 
-     *  The COM momentum of the system is
-     * \f[ \bm{P}_{system} = \sum_i m_i \bm{v}_i \f]
-     * 
-     * We want to first remove any motion of the system, so we subtract
-     * the COM momentum based on the mass of each particle (E.g. \f$ m_i
-     * / \sum_j m_j\f$). This has two nice effects, first, particles
-     * store their velocities, not their momentums so we convert by
-     * dividing by \f$m_i\f$ which gives 
-     *
-     * \f[ \bm{v}_i \to \bm{v}_i -
-     * (\sum_i m_i \bm{v}_i) / \sum_i m_i \f] 
-     *
-     * So relative velocities are preserved as the subtraction is a
-     * constant for all particles. Also we can now just add the offset to give
-     *
-     * \f[ \bm{v}_i \to \bm{v}_i -(\sum_i m_i \bm{v}_i) / \sum_i m_i  + \bm{V}_{COM}\f]  
-     *
-     * \param COMVelocity The target velocity for the COM of the system.
-     */  
-    void setCOMVelocity(const Vector COMVelocity = Vector(0,0,0));
-
-    void SystemOverlapTest();
-  
-    double calcInternalEnergy() const;
-
-    shared_ptr<Interaction>& getInteraction(std::string);
-    const shared_ptr<Interaction>& getInteraction(std::string) const;
-
-    void addSystemTicker();
-  
-    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Dynamics&);
-
-    inline const Units& units() const { return _units; }
-
-    inline Units& units() { return _units; }
-  
-    double getSimVolume() const;
-
-    double getNumberDensity() const;
-  
-    double getPackingFraction() const;
-
+    
   protected:
     Dynamics(const Dynamics &dyn);
-    Units _units;
   };
 }

@@ -81,7 +81,7 @@ namespace dynamo {
 	  ->getMolecules().front()->size() - 1;
       
 	for (size_t i = 0; i < Nc; ++i)
-	  dat.BondLengths[i].outputHistogram(XML, 1.0/Sim->dynamics.units().unitLength());
+	  dat.BondLengths[i].outputHistogram(XML, 1.0/Sim->units.unitLength());
       
 	XML << magnet::xml::endtag("Chain");
       }

@@ -129,7 +129,7 @@ namespace dynamo {
     // Begin XML output
     XML << magnet::xml::tag("MSDOrientationalCorrelator");
 
-    double dt = dynamic_cast<const SysTicker&>(Sim->systems["SystemTicker"]).getPeriod() / Sim->dynamics.units().unitTime();
+    double dt = dynamic_cast<const SysTicker&>(Sim->systems["SystemTicker"]).getPeriod() / Sim->units.unitTime();
 
     XML << magnet::xml::tag("Component")
 	<< magnet::xml::attr("Type") << "Parallel"
@@ -138,7 +138,7 @@ namespace dynamo {
     for (size_t step(0); step < length; ++step)
       {
 	XML << dt * step << "\t"
-	    << stepped_data_parallel[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N) * Sim->dynamics.units().unitArea())
+	    << stepped_data_parallel[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N) * Sim->units.unitArea())
 	    << "\n";
       }
 
@@ -151,7 +151,7 @@ namespace dynamo {
     for (size_t step(0); step < length; ++step)
       {
 	XML << dt * step << "\t"
-	    << stepped_data_perpendicular[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N) * Sim->dynamics.units().unitArea())
+	    << stepped_data_perpendicular[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N) * Sim->units.unitArea())
 	    << "\n";
       }
 

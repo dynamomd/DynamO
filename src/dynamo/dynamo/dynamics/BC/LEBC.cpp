@@ -42,15 +42,15 @@ namespace dynamo {
     dout << "Lee's Edwards BC loaded\n"
 	 << "DXD = " << _dxd
 	 << "Shear Rate = " 
-	 << _shearRate * Sim->dynamics.units().unitTime() << std::endl;
+	 << _shearRate * Sim->units.unitTime() << std::endl;
   }
 
   void 
   BCLeesEdwards::outputXML(magnet::xml::XmlStream &XML) const
   {
     XML << magnet::xml::attr("Type") << "LE"
-	<< magnet::xml::attr("DXD") << _dxd / Sim->dynamics.units().unitLength()
-	<< magnet::xml::attr("Rate") << _shearRate * Sim->dynamics.units().unitTime();
+	<< magnet::xml::attr("DXD") << _dxd / Sim->units.unitLength()
+	<< magnet::xml::attr("Rate") << _shearRate * Sim->units.unitTime();
   }
 
   void 
@@ -60,11 +60,11 @@ namespace dynamo {
       {
 	if (XML.hasAttribute("DXD"))
 	  _dxd = XML.getAttribute("DXD").as<double>();
-	_dxd *= Sim->dynamics.units().unitLength();
+	_dxd *= Sim->units.unitLength();
       
 	if (XML.hasAttribute("Rate"))
 	  _shearRate = XML.getAttribute("Rate").as<double>();      
-	_shearRate /= Sim->dynamics.units().unitTime();
+	_shearRate /= Sim->units.unitTime();
       }
     catch (boost::bad_lexical_cast &)
       { M_throw() << "Failed a lexical cast in LEBC"; }
