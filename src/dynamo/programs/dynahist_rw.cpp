@@ -54,13 +54,13 @@ static boost::program_options::variables_map vm;
 long double betaMax;
 long double betaMin;
 
-struct Simulation;
+struct SimulationData;
 
-std::vector<Simulation> SimulationData;
+std::vector<SimulationData> SimulationDataData;
 
-struct Simulation
+struct SimulationData
 {
-  Simulation(std::string nfn):fileName(nfn), logZ(0.0), new_logZ(0.0), refZ(false)
+  SimulationData(std::string nfn):fileName(nfn), logZ(0.0), new_logZ(0.0), refZ(false)
   {
     using namespace magnet::xml;
 
@@ -146,10 +146,10 @@ struct Simulation
       }
   }
   
-  bool operator<(const Simulation& d2) const
+  bool operator<(const SimulationData& d2) const
   { return gamma[0] < d2.gamma[0]; }
 
-  bool operator>(const Simulation& d2) const
+  bool operator>(const SimulationData& d2) const
   { return gamma[0] > d2.gamma[0]; }
 
   std::string fileName;
@@ -178,10 +178,10 @@ struct Simulation
     long double sum1 = 0.0;
     
     //If top = 0, then use all systems
-    if (top == 0) top = SimulationData.size() - 1;
+    if (top == 0) top = SimulationDataData.size() - 1;
 
     for (size_t i(bottom); i <= top; ++i)
-      BOOST_FOREACH(const histogramEntry& simdat, SimulationData[i].data)
+      BOOST_FOREACH(const histogramEntry& simdat, SimulationDataData[i].data)
 	{
 	  long double sum2 = 0.0;
 
@@ -194,12 +194,12 @@ struct Simulation
 		M_throw() << "For multiple gamma reweighting, one must be designated as E and used in the W lookup";
 
 	      { const int i = 0;
-		dot += (SimulationData[j].gamma[i] - gamma[i]) * simdat.X[i]
-		  + SimulationData[j].W(simdat.X[i]) - W(simdat.X[i]);
+		dot += (SimulationDataData[j].gamma[i] - gamma[i]) * simdat.X[i]
+		  + SimulationDataData[j].W(simdat.X[i]) - W(simdat.X[i]);
 	      }
 
 	      //This is Z^{-1} \exp[(\gamma_i- \gamma) \cdot X + W_i(X) - W(X)]
-	      sum2 += exp(dot - SimulationData[j].logZ);
+	      sum2 += exp(dot - SimulationDataData[j].logZ);
 	    }
 	  
 	  //simdat.Probability is H(X,\gamma), in the input H is
@@ -256,8 +256,8 @@ struct ldbl
   operator const long double&() const { return val; }
 };
 
-typedef std::pair<Simulation::histogramEntry::Xtype, ldbl> densOStatesPair;
-typedef std::map<Simulation::histogramEntry::Xtype, ldbl> densOStatesMap;
+typedef std::pair<SimulationData::histogramEntry::Xtype, ldbl> densOStatesPair;
+typedef std::map<SimulationData::histogramEntry::Xtype, ldbl> densOStatesMap;
 typedef std::vector<densOStatesPair> densOStatesType;
 densOStatesType densOStates;
   
@@ -266,7 +266,7 @@ void
 solveWeightsInRange(size_t bottom = 0, size_t top = 0)
 {
   //If top = 0, then use all systems
-  if (top == 0) top = SimulationData.size() - 1;
+  if (top == 0) top = SimulationDataData.size() - 1;
 
   double err = 0.0;
 
@@ -275,25 +275,25 @@ solveWeightsInRange(size_t bottom = 0, size_t top = 0)
       for (size_t i = NStepsPerStep; i != 0; --i)
 	{
 	  for (size_t i(bottom); i <= top; ++i)
-	    SimulationData[i].recalc_newlogZ(bottom, top);
+	    SimulationDataData[i].recalc_newlogZ(bottom, top);
 	  
 	  for (size_t i(bottom); i <= top; ++i)
-	    SimulationData[i].iterate_logZ();
+	    SimulationDataData[i].iterate_logZ();
 	}
 
       //Now the error checking run
       err = 0.0;
       for (size_t i(bottom); i <= top; ++i)
 	{
-	  SimulationData[i].recalc_newlogZ(bottom, top);
+	  SimulationDataData[i].recalc_newlogZ(bottom, top);
 	  
-	  if (SimulationData[i].calc_error() > err)
-	    err = SimulationData[i].calc_error();
+	  if (SimulationDataData[i].calc_error() > err)
+	    err = SimulationDataData[i].calc_error();
 	}
 
       //May as well use this as an iteration too
       for (size_t i(bottom); i <= top; ++i)
-	SimulationData[i].iterate_logZ();
+	SimulationDataData[i].iterate_logZ();
 
       printf("\r%E", err);
       fflush(stdout);
@@ -309,43 +309,43 @@ solveWeightsPiecemeal()
 
   size_t startingPieceSize = 5;
 
-  size_t stoppingPieceSize = SimulationData.size() / 2 + 1;
+  size_t stoppingPieceSize = SimulationDataData.size() / 2 + 1;
   
-  if (startingPieceSize > SimulationData.size()) startingPieceSize = SimulationData.size();
+  if (startingPieceSize > SimulationDataData.size()) startingPieceSize = SimulationDataData.size();
 
   for (size_t pieceSize = startingPieceSize; pieceSize < stoppingPieceSize; pieceSize += 5)
     {
-      BOOST_FOREACH(Simulation& simdat, SimulationData)
+      BOOST_FOREACH(SimulationData& simdat, SimulationDataData)
 	simdat.refZ = false;
 
       //Set the first system as the reference point
-      SimulationData.front().refZ = true;
+      SimulationDataData.front().refZ = true;
       
       std::cout << "\rSolving 0 to " << pieceSize << ", Long iteration step\n";
       //Now solve the first piece.
       solveWeightsInRange(0, pieceSize);
       
-      for (size_t bottom(1), top(pieceSize + 1); top < SimulationData.size(); ++bottom, ++top)
+      for (size_t bottom(1), top(pieceSize + 1); top < SimulationDataData.size(); ++bottom, ++top)
 	{
 	  //Freeze the lower half of the last set of systems 
 	  
 	  //This is required for the first iterations but only one system
 	  //is frozen per further iteration
 	  for (size_t i = bottom-1; i < bottom + (top-bottom)/2; ++i )
-	    SimulationData[i].refZ = true;
+	    SimulationDataData[i].refZ = true;
 	  
 	  std::cout << "\rSolving " << bottom << " to " << top << "\n";
 	  solveWeightsInRange(bottom, top);
 	}
     }
   
-  BOOST_FOREACH(Simulation& simdat, SimulationData)
+  BOOST_FOREACH(SimulationData& simdat, SimulationDataData)
     simdat.refZ = false;
 
   //Set the first system as the reference point
-  SimulationData.front().refZ = true;
+  SimulationDataData.front().refZ = true;
 
-  std::cout << "\rFinal Solution step 0 to " << SimulationData.size()-1 << "\n";
+  std::cout << "\rFinal Solution step 0 to " << SimulationDataData.size()-1 << "\n";
   solveWeightsInRange();
 
   std::cout << "\nIteration complete\n";
@@ -361,8 +361,8 @@ void calcDensityOfStates()
   std::cout << "Density of states\n";
 
   //Sum up the histogram entries for each value of X
-  BOOST_FOREACH(const Simulation& dat, SimulationData)
-    BOOST_FOREACH(const Simulation::histogramEntry& simdat, dat.data)
+  BOOST_FOREACH(const SimulationData& dat, SimulationDataData)
+    BOOST_FOREACH(const SimulationData::histogramEntry& simdat, dat.data)
     accumilator[simdat.X] += simdat.Probability;
 
   //For each X, calculate the density of states
@@ -370,7 +370,7 @@ void calcDensityOfStates()
     {
       //First work out the divisor
       long double sum = 0.0;
-      BOOST_FOREACH(const Simulation& dat2, SimulationData)
+      BOOST_FOREACH(const SimulationData& dat2, SimulationDataData)
 	{
 	  long double tmp = 0;
 
@@ -417,7 +417,7 @@ void outputLogZ()
 
   of << std::setprecision(std::numeric_limits<long double>::digits10);
 
-  BOOST_FOREACH(const Simulation& dat, SimulationData)
+  BOOST_FOREACH(const SimulationData& dat, SimulationDataData)
     of << dat.gamma[0] << " " << dat.logZ << "\n";
 
   of.close();
@@ -429,7 +429,7 @@ void outputMoments()
   std::cout << "Calculating  moments\n";
   typedef std::pair<long double, long double> localpair;
   
-  BOOST_FOREACH(const Simulation& dat, SimulationData)
+  BOOST_FOREACH(const SimulationData& dat, SimulationDataData)
     {
       std::cout << "Writing " + (dat.fileName + std::string(".ReweightedEnergyHist"))
 		<< "\n";
@@ -473,11 +473,11 @@ void outputMoments()
 	  for (size_t i(0); i < NGamma; ++i)
 	    Eof << dat2.first[i] << " ";
 
-	  Eof << (std::exp(std::log(dat2.second) + tmp - Z) / Norm) / SimulationData.front().binWidth << "\n";
+	  Eof << (std::exp(std::log(dat2.second) + tmp - Z) / Norm) / SimulationDataData.front().binWidth << "\n";
 	}
     }
 
-  size_t steps = 100 * (SimulationData.size()-1) + 1;
+  size_t steps = 100 * (SimulationDataData.size()-1) + 1;
 
   long double stepsize = (betaMax - betaMin) / steps;
 
@@ -605,19 +605,19 @@ main(int argc, char *argv[])
 
     //Data load
     BOOST_FOREACH(std::string fileName, vm["data-file"].as<std::vector<std::string> >())
-      SimulationData.push_back(Simulation(fileName));
+      SimulationDataData.push_back(SimulationData(fileName));
 
-    BOOST_FOREACH(const Simulation& dat, SimulationData)
-      if (dat.binWidth != SimulationData.front().binWidth)
+    BOOST_FOREACH(const SimulationData& dat, SimulationDataData)
+      if (dat.binWidth != SimulationDataData.front().binWidth)
 	{
 	  std::cout << "Not all of the output files have the same bin width for the internal energy histograms!\n Aborting\n\n";
 	  return 1;
 	}
     //Sort by temperature
-    std::sort(SimulationData.begin(), SimulationData.end());
+    std::sort(SimulationDataData.begin(), SimulationDataData.end());
 
     //Save the temperature range
-    betaMax = SimulationData.front().gamma[0];
+    betaMax = SimulationDataData.front().gamma[0];
     if (vm.count("Tmin"))
       {
 	if (vm["Tmin"].as<double>() <= 0)
@@ -625,7 +625,7 @@ main(int argc, char *argv[])
 	betaMax = - 1.0 / vm["Tmin"].as<double>();
       }
 
-    betaMin = SimulationData.back().gamma[0];
+    betaMin = SimulationDataData.back().gamma[0];
     if (vm.count("Tmin"))
       {
 	if (vm["Tmax"].as<double>() <= 0)
@@ -635,13 +635,13 @@ main(int argc, char *argv[])
 
     //Output ordered sims
     std::cout << "##################################################\n";
-    BOOST_FOREACH(const Simulation& dat, SimulationData)
+    BOOST_FOREACH(const SimulationData& dat, SimulationDataData)
       std::cout << dat.fileName << " NData = " << dat.data.size() << " gamma[0] = " << dat.gamma[0] << "\n";
 
     solveWeightsPiecemeal();
     
     std::cout << "##################################################\n";
-    BOOST_FOREACH(const Simulation& dat, SimulationData)
+    BOOST_FOREACH(const SimulationData& dat, SimulationDataData)
       std::cout << dat.fileName << " logZ = " << dat.logZ << "\n";
 
     //Now start the fun
