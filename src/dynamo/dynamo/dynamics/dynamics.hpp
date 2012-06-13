@@ -31,7 +31,6 @@ namespace magnet {
 namespace dynamo {
   class Particle;
   class BoundaryCondition;
-  class System;
   class Particle;
   class NEventData;
   class PairEventData;
@@ -42,19 +41,9 @@ namespace dynamo {
   public:
     //Constructors
     Dynamics(dynamo::SimData*);
-
-    Dynamics(const magnet::xml::Node& XML, dynamo::SimData*);
-
-    ~Dynamics();
   
-    void addSystem(shared_ptr<System> ptr);
-    
     void stream(const double&);
   
-    void operator<<(const magnet::xml::Node&);
-
-    void initialise();
-    
     /*! \brief Sets the Centre of Mass (COM) velocity of the system 
      * 
      *  The COM momentum of the system is
@@ -85,11 +74,6 @@ namespace dynamo {
     shared_ptr<Interaction>& getInteraction(std::string);
     const shared_ptr<Interaction>& getInteraction(std::string) const;
 
-    std::vector<shared_ptr<System> >& getSystemEvents() { return systems; }
-    const std::vector<shared_ptr<System> >& getSystemEvents() const { return systems; }
-    const shared_ptr<System>& getSystem(std::string) const;
-    shared_ptr<System>& getSystem(std::string);
-
     void addSystemTicker();
   
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Dynamics&);
@@ -106,10 +90,6 @@ namespace dynamo {
 
   protected:
     Dynamics(const Dynamics &dyn);
-
-    void outputXML(magnet::xml::XmlStream &) const;
-
-    std::vector<shared_ptr<System> > systems;
     Units _units;
   };
 }

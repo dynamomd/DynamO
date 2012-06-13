@@ -136,7 +136,7 @@ namespace dynamo {
 	<< magnet::xml::tag("Particles");
   
     double dt = dynamic_cast<const SysTicker&>
-      (*Sim->dynamics.getSystem("SystemTicker")).getPeriod()
+      (Sim->systems["SystemTicker"]).getPeriod()
       / Sim->dynamics.units().unitTime();
   
     BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->species)

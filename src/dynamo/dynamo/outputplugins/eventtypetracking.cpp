@@ -32,7 +32,7 @@ namespace dynamo {
 	  return Sim->globals[key.first]->getName();
 	  break;
 	case SYSTEM:
-	  return Sim->dynamics.getSystemEvents()[key.first]->getName();
+	  return Sim->systems[key.first]->getName();
 	  break;
 	case LOCAL:
 	  return Sim->locals[key.first]->getName();

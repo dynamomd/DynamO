@@ -124,7 +124,12 @@ namespace dynamo
 	ptr->initialise(ID++);
     }
 
-    dynamics.initialise();
+    {
+      size_t ID=0;
+      
+      BOOST_FOREACH(shared_ptr<System>& ptr, systems)
+	ptr->initialise(ID++);
+    }
   }
 
   IntEvent 
@@ -300,7 +305,10 @@ namespace dynamo
 	   node.valid(); ++node)
 	globals.push_back(Global::getClass(node, this));
 
-    dynamics << simNode;
+    if (simNode.hasNode("SystemEvents"))
+      for (magnet::xml::Node node = simNode.getNode("SystemEvents").fastGetNode("System"); 
+	   node.valid(); ++node)
+	systems.push_back(System::getClass(node, this));
 
     ptrScheduler = Scheduler::getClass(simNode.getNode("Scheduler"), this);
 
@@ -413,7 +421,12 @@ namespace dynamo
       XML << *ptr;
     
     XML << magnet::xml::endtag("Globals")
-	<< dynamics
+	<< magnet::xml::tag("SystemEvents");
+    
+    BOOST_FOREACH(const shared_ptr<System>& ptr, systems)
+      XML << *ptr;
+  
+    XML << magnet::xml::endtag("SystemEvents")
       	<< magnet::xml::tag("Dynamics")
 	<< *liouvillean
 	<< magnet::xml::endtag("Dynamics")
@@ -456,12 +469,12 @@ namespace dynamo
     std::swap(eventCount, other.eventCount);
     std::swap(_particleUpdateNotify, other._particleUpdateNotify);
     
-    dynamics.getSystemEvents().swap(other.dynamics.getSystemEvents());
+    systems.swap(other.systems);
 
-    BOOST_FOREACH(shared_ptr<System>& aPtr, dynamics.getSystemEvents())
+    BOOST_FOREACH(shared_ptr<System>& aPtr, systems)
       aPtr->changeSystem(this);
 
-    BOOST_FOREACH(shared_ptr<System>& aPtr, other.dynamics.getSystemEvents())
+    BOOST_FOREACH(shared_ptr<System>& aPtr, other.systems)
       aPtr->changeSystem(&other);
 
     liouvillean->swapSystem(*other.liouvillean);

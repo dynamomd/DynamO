@@ -51,7 +51,7 @@ namespace dynamo {
   {
     dout << "Reinitialising on collision " << Sim->eventCount << std::endl;
 
-    if (Sim->dynamics.getSystemEvents().empty())
+    if (Sim->systems.empty())
       M_throw() << "A SystemOnlyScheduler used when there are no system events?";
   
     sorter->clear();
@@ -68,7 +68,7 @@ namespace dynamo {
 #ifdef DYNAMO_DEBUG
     initialise();
 #else
-    if (Sim->dynamics.getSystemEvents().empty())
+    if (Sim->systems.empty())
       M_throw() << "A SystemOnlyScheduler used when there are no system events?";
   
     sorter->clear();

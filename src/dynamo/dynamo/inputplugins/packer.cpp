@@ -220,7 +220,7 @@ namespace dynamo {
 	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	
 	  if (vm.count("i2"))
-	    Sim->dynamics.addSystem(shared_ptr<System>(new SysRescale(Sim, vm["i2"].as<size_t>(), "RescalerEvent")));
+	    Sim->systems.push_back(shared_ptr<System>(new SysRescale(Sim, vm["i2"].as<size_t>(), "RescalerEvent")));
 
 	  break;
 	}
@@ -1176,7 +1176,7 @@ namespace dynamo {
 	    / (4.0 * std::sqrt(M_PI) * vm["density"].as<double>() * chi);
 
 	  //No thermostat added yet
-	  Sim->dynamics.addSystem
+	  Sim->systems.push_back
 	    (shared_ptr<System>
 	     (new SysDSMCSpheres(Sim, particleDiam,
 				 2.0 * tij / latticeSites.size(), chi, 1.0,
@@ -1366,21 +1366,21 @@ namespace dynamo {
 			      new C2RSingle(new RRange(nA, latticeSites.size()-1)),
 			      "BBInt")));
 
-	  Sim->dynamics.addSystem
+	  Sim->systems.push_back
 	    (shared_ptr<System>
 	     (new SysDSMCSpheres(Sim, particleDiam,
 				 tAA / (2.0 * nA), chiAA, 1.0,
 				 "AADSMC", new RRange(0, nA - 1),
 				 new RRange(0, nA - 1))));
 
-	  Sim->dynamics.addSystem
+	  Sim->systems.push_back
 	    (shared_ptr<System>
 	     (new SysDSMCSpheres(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam,
 				 tAB / (2.0 * nA), chiAB, 1.0,
 				 "ABDSMC", new RRange(0, nA-1),
 				 new RRange(nA, latticeSites.size()-1))));
 
-	  Sim->dynamics.addSystem
+	  Sim->systems.push_back
 	    (shared_ptr<System>
 	     (new SysDSMCSpheres(Sim, sizeRatio * particleDiam,
 				 tBB / (2.0 * (latticeSites.size() - nA)), chiBB, 1.0,
@@ -1929,7 +1929,7 @@ namespace dynamo {
 
 
 	  //No thermostat added yet
-	  Sim->dynamics.addSystem
+	  Sim->systems.push_back
 	    (shared_ptr<System>
 	     (new SysRingDSMC(Sim, particleDiam,
 			      2.0 * tij / latticeSites.size(), chi12, chi13, 1.0,
@@ -3262,7 +3262,7 @@ namespace dynamo {
 
 	  if (sleepV)
 	    {
-	      Sim->dynamics.addSystem
+	      Sim->systems.push_back
 		(shared_ptr<System>(new SSleep(Sim, "Sleeper",
 					       new RRange(funnelSites.size(),
 							  funnelSites.size()

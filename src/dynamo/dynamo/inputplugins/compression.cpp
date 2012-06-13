@@ -69,7 +69,7 @@ namespace dynamo {
 
     if (std::tr1::dynamic_pointer_cast<SNeighbourList>(Sim->ptrScheduler))
       {
-	BOOST_FOREACH(shared_ptr<System>& ptr, Sim->dynamics.getSystemEvents())
+	BOOST_FOREACH(shared_ptr<System>& ptr, Sim->systems)
 	  if (std::tr1::dynamic_pointer_cast<SysNBListCompressionFix>(ptr))
 	    static_cast<SysNBListCompressionFix&>(*ptr).fixNBlistForOutput();
 
@@ -111,7 +111,7 @@ namespace dynamo {
 	    static_cast<GNeighbourList&>(*Sim->globals[i]).setCellOverlap(false);
 	    
 	    //Add the system watcher
-	    Sim->dynamics.addSystem
+	    Sim->systems.push_back
 	      (shared_ptr<System>
 	       (new SysNBListCompressionFix(Sim, growthRate 
 					   / Sim->dynamics.units().unitTime(),
@@ -130,7 +130,7 @@ namespace dynamo {
     if (targetp < packfrac)
       M_throw() << "Target packing fraction is lower than current!";
   
-    Sim->dynamics.addSystem
+    Sim->systems.push_back
       (shared_ptr<System>
        (new SystHalt(Sim, (pow(targetp / packfrac, 1.0/3.0) - 1.0) / growthRate, 
 		    "CompresionLimiter")));

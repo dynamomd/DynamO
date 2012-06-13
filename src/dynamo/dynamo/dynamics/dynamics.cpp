@@ -33,66 +33,14 @@ namespace dynamo {
     SimBase(tmp, "Dynamics")
   {}
 
-  Dynamics::Dynamics(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
-    SimBase(tmp, "Dynamics")
-  { operator<<(XML); }
-
-  Dynamics::~Dynamics() {}
-
-  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
-				     const Dynamics& g)
-  {
-    g.outputXML(XML);
-    return XML;
-  }
-
-  shared_ptr<System>&
-  Dynamics::getSystem(std::string name)
-  {
-    BOOST_FOREACH(shared_ptr<System>& sysPtr, systems)
-      if (sysPtr->getName() == name) 
-	return sysPtr;
-  
-    M_throw() << "Could not find system plugin called " << name;
-  }
-
-  const shared_ptr<System>&
-  Dynamics::getSystem(std::string name) const
-  {
-    BOOST_FOREACH(const shared_ptr<System>& sysPtr, systems)
-      if (sysPtr->getName() == name)
-	return sysPtr;
-  
-    M_throw() << "Could not find system plugin called " << name;
-  }
-
-  void Dynamics::addSystem(shared_ptr<System> ptr)
-  {
-    if (!ptr) M_throw() << "Cannot add an unset System";
-    if (Sim->status >= INITIALISED)
-      M_throw() << "Cannot add system events at this time, system is initialised";
-    systems.push_back(ptr); 
-  }
-    
   void 
   Dynamics::addSystemTicker()
   {
-    BOOST_FOREACH(shared_ptr<System>& ptr, systems)
+    BOOST_FOREACH(shared_ptr<System>& ptr, Sim->systems)
       if (ptr->getName() == "SystemTicker")
 	M_throw() << "System Ticker already exists";
   
-    addSystem(shared_ptr<System>(new SysTicker(Sim, Sim->lastRunMFT, "SystemTicker")));
-  }
-
-  void 
-  Dynamics::initialise()
-  {
-    {
-      size_t ID=0;
-
-      BOOST_FOREACH(shared_ptr<System>& ptr, systems)
-	ptr->initialise(ID++);
-    }
+    Sim->systems.push_back(shared_ptr<System>(new SysTicker(Sim, Sim->lastRunMFT, "SystemTicker")));
   }
 
   void 
@@ -102,7 +50,7 @@ namespace dynamo {
 
     Sim->liouvillean->stream(dt);
 
-    BOOST_FOREACH(shared_ptr<System>& ptr, systems)
+    BOOST_FOREACH(shared_ptr<System>& ptr, Sim->systems)
       ptr->stream(dt);
   }
 
@@ -171,26 +119,6 @@ namespace dynamo {
 
     BOOST_FOREACH(Particle & Part, Sim->particleList)
       Part.getVelocity() =  Part.getVelocity() + sumMV;
-  }
-
-  void
-  Dynamics::operator<<(const magnet::xml::Node& XML)
-  {  
-    if (XML.hasNode("SystemEvents"))
-      for (magnet::xml::Node node = XML.getNode("SystemEvents").fastGetNode("System"); 
-	   node.valid(); ++node)
-	systems.push_back(System::getClass(node, Sim));
-  }
-
-  void
-  Dynamics::outputXML(magnet::xml::XmlStream &XML) const
-  {
-    XML << magnet::xml::tag("SystemEvents");
-  
-    BOOST_FOREACH(const shared_ptr<System>& ptr, systems)
-      XML << *ptr;
-  
-    XML << magnet::xml::endtag("SystemEvents");
   }
 
   void 

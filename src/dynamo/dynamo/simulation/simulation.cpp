@@ -66,7 +66,7 @@ namespace dynamo {
   System* 
   Simulation::getSystem(std::string name)
   {
-    BOOST_FOREACH(shared_ptr<System>& sysPtr, dynamics.getSystemEvents())
+    BOOST_FOREACH(shared_ptr<System>& sysPtr, systems)
       if (sysPtr->getName() == name)
 	return sysPtr.get();
   
@@ -76,7 +76,7 @@ namespace dynamo {
   void 
   Simulation::addSystem(shared_ptr<System> tmp)
   {
-    dynamics.addSystem(tmp);
+    systems.push_back(tmp);
   }
 
   void 

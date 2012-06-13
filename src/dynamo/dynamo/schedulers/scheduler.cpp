@@ -125,7 +125,7 @@ namespace dynamo {
     sorter->clearPEL(Sim->N);
 
     BOOST_FOREACH(const shared_ptr<System>& sysptr, 
-		  Sim->dynamics.getSystemEvents())
+		  Sim->systems)
       sorter->push(Event(sysptr->getdt(), SYSTEM, sysptr->getID(), 0), Sim->N);
 
     sorter->update(Sim->N);
@@ -367,7 +367,7 @@ namespace dynamo {
 	}
       case SYSTEM:
 	{
-	  Sim->dynamics.getSystemEvents()[sorter->next_p2()]
+	  Sim->systems[sorter->next_p2()]
 	    ->runEvent();
 	  //This saves the system events rebuilding themselves
 	  rebuildSystemEvents();

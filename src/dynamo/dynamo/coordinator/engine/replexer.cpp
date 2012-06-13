@@ -116,7 +116,7 @@ namespace dynamo {
     for (unsigned int i = 0; i < nSims; i++)
       {
 	bool didWork = false;
-	BOOST_FOREACH(shared_ptr<System>& sysPtr1, Simulations[i].dynamics.getSystemEvents())
+	BOOST_FOREACH(shared_ptr<System>& sysPtr1, Simulations[i].systems)
 	  if (sysPtr1->getName() == "Thermostat")
 	    {
 	      if (dynamic_cast<SysAndersen*>(sysPtr1.get()) == NULL)

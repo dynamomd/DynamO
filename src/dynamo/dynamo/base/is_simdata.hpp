@@ -42,6 +42,7 @@ namespace dynamo
   class LocalEvent;
   class Global;
   class GlobalEvent;
+  class System;
   class OutputPlugin;
 
   //! \brief Holds the different phases of the simulation initialisation
@@ -129,6 +130,8 @@ namespace dynamo
     Container<Local> locals;
 
     Container<Global> globals;
+    
+    Container<System> systems;
 
     /*! \brief Finds a plugin of the given type using RTTI.
      */
