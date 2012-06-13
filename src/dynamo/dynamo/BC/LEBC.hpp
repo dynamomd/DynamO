@@ -33,9 +33,9 @@ namespace dynamo {
   class BCLeesEdwards: public BoundaryCondition
   {
   public:
-    BCLeesEdwards(const dynamo::SimData*);
+    BCLeesEdwards(const dynamo::Simulation*);
 
-    BCLeesEdwards(const magnet::xml::Node&, const dynamo::SimData*);
+    BCLeesEdwards(const magnet::xml::Node&, const dynamo::Simulation*);
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
 

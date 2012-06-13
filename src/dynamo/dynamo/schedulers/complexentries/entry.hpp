@@ -29,7 +29,7 @@ namespace dynamo {
   class SCEntry: public dynamo::SimBase
   {
   public:
-    SCEntry(dynamo::SimData* const, const char *);
+    SCEntry(dynamo::Simulation* const, const char *);
   
     virtual ~SCEntry() {};
 
@@ -37,7 +37,7 @@ namespace dynamo {
   
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const SCEntry&);
 
-    static SCEntry* getClass(const magnet::xml::Node&, dynamo::SimData* const);
+    static SCEntry* getClass(const magnet::xml::Node&, dynamo::Simulation* const);
  
     virtual void operator<<(const magnet::xml::Node&) = 0;
 

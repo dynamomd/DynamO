@@ -26,7 +26,7 @@
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-  OPThermalConductivityE::OPThermalConductivityE(const dynamo::SimData* tmp,
+  OPThermalConductivityE::OPThermalConductivityE(const dynamo::Simulation* tmp,
 						 const magnet::xml::Node& XML):
     OutputPlugin(tmp,"ThermalConductivityE"),
     G(100),

@@ -16,17 +16,17 @@
 */
 
 #include <dynamo/schedulers/sorters/include.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  FEL::FEL(const dynamo::SimData* const& SD, const char *aName):
+  FEL::FEL(const dynamo::Simulation* const& SD, const char *aName):
     SimBase_const(SD, aName)
   {}
 
   shared_ptr<FEL>
-  FEL::getClass(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
+  FEL::getClass(const magnet::xml::Node& XML, const dynamo::Simulation* Sim)
   {
     if (std::string(XML.getAttribute("Type")) == FELBoundedPQName<PELHeap>::name())
       return shared_ptr<FEL>(new FELBoundedPQ<>(Sim));

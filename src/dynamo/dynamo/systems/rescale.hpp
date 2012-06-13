@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/systems/system.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/ranges/1range.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_real.hpp>
@@ -35,8 +35,8 @@ namespace dynamo {
   class SysRescale: public System
   {
   public:
-    SysRescale(const magnet::xml::Node& XML, dynamo::SimData*);
-    SysRescale(dynamo::SimData*, size_t frequency, std::string name, double kT = 1);
+    SysRescale(const magnet::xml::Node& XML, dynamo::Simulation*);
+    SysRescale(dynamo::Simulation*, size_t frequency, std::string name, double kT = 1);
 
     virtual void runEvent() const;
 

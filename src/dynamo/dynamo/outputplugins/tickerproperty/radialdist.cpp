@@ -24,7 +24,7 @@
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-  OPRadialDistribution::OPRadialDistribution(const dynamo::SimData* tmp, 
+  OPRadialDistribution::OPRadialDistribution(const dynamo::Simulation* tmp, 
 					     const magnet::xml::Node& XML):
     OPTicker(tmp,"RadialDistribution"),
     binWidth(0.1),

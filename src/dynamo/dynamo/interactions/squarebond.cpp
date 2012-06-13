@@ -25,7 +25,7 @@
 #include <dynamo/species/species.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
@@ -35,7 +35,7 @@
 #include <iomanip>
 
 namespace dynamo {
-  ISquareBond::ISquareBond(const magnet::xml::Node& XML, dynamo::SimData* tmp):
+  ISquareBond::ISquareBond(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
     Interaction(tmp,NULL) //A temporary value!
   { operator<<(XML); }
 	    

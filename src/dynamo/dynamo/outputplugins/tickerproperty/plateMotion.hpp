@@ -24,7 +24,7 @@ namespace dynamo {
   class OPPlateMotion: public OPTicker
   {
   public:
-    OPPlateMotion(const dynamo::SimData*, const magnet::xml::Node&);
+    OPPlateMotion(const dynamo::Simulation*, const magnet::xml::Node&);
 
     OPPlateMotion(const OPPlateMotion&);
   

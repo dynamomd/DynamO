@@ -25,7 +25,7 @@ namespace dynamo {
   class OPChatteringCorrelator: public OP2PP
   {
   public:
-    OPChatteringCorrelator(const dynamo::SimData*, const magnet::xml::Node&);
+    OPChatteringCorrelator(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 

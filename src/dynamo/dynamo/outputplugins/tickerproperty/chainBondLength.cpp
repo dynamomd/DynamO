@@ -18,7 +18,7 @@
 #include <dynamo/outputplugins/tickerproperty/chainBondLength.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/ranges/1range.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/topology/include.hpp>
 #include <dynamo/interactions/captures.hpp>
@@ -33,7 +33,7 @@ namespace dynamo {
     BondLengths.resize(CL-1, magnet::math::Histogram<>(0.0001));
   }
 
-  OPChainBondLength::OPChainBondLength(const dynamo::SimData* tmp, const magnet::xml::Node&):
+  OPChainBondLength::OPChainBondLength(const dynamo::Simulation* tmp, const magnet::xml::Node&):
     OPTicker(tmp,"ChainBondLength")
   {}
 

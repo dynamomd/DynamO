@@ -24,7 +24,7 @@
 #include <dynamo/outputplugins/outputplugin.hpp>
 
 namespace dynamo {
-  LCylinder::LCylinder(dynamo::SimData* nSim, double ne, Vector  nnorm, 
+  LCylinder::LCylinder(dynamo::Simulation* nSim, double ne, Vector  nnorm, 
 			 Vector  norigin, double nr, std::string nname, 
 			 Range* nRange, bool nrender):
     Local(nRange, nSim, "CylinderWall"),
@@ -37,7 +37,7 @@ namespace dynamo {
     localName = nname;
   }
 
-  LCylinder::LCylinder(const magnet::xml::Node& XML, dynamo::SimData* tmp):
+  LCylinder::LCylinder(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
     Local(tmp, "CylinderWall")
   {
     operator<<(XML);

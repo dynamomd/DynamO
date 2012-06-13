@@ -18,7 +18,7 @@
 #include <dynamo/globals/ParabolaSentinel.hpp>
 #include <dynamo/globals/globEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
@@ -30,7 +30,7 @@
 
 namespace dynamo {
 
-  GParabolaSentinel::GParabolaSentinel(dynamo::SimData* nSim, const std::string& name):
+  GParabolaSentinel::GParabolaSentinel(dynamo::Simulation* nSim, const std::string& name):
     Global(nSim, "ParabolaSentinel")
   {
     globName = name;

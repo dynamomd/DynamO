@@ -16,7 +16,7 @@
 */
 
 #include <dynamo/outputplugins/1partproperty/eventEffects.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/interactions/include.hpp>
 #include <dynamo/outputplugins/1partproperty/kenergy.hpp>
@@ -25,7 +25,7 @@
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-  OPEventEffects::OPEventEffects(const dynamo::SimData* tmp, const magnet::xml::Node&):
+  OPEventEffects::OPEventEffects(const dynamo::Simulation* tmp, const magnet::xml::Node&):
     OutputPlugin(tmp,"EventEffects")
   {}
 

@@ -20,7 +20,7 @@
 #include <dynamo/schedulers/sorters/sorter.hpp>
 #include <dynamo/schedulers/sorters/heapPEL.hpp>
 #include <dynamo/units/units.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <boost/static_assert.hpp>
 #include <magnet/exception.hpp>
 #include <string>
@@ -91,7 +91,7 @@ namespace dynamo {
     size_t exceptionCount;
 
   public:  
-    FELBoundedPQ(const dynamo::SimData* const& SD):
+    FELBoundedPQ(const dynamo::Simulation* const& SD):
       FEL(SD, "BoundedPQ"),
       exceptionCount(0) 
     {}

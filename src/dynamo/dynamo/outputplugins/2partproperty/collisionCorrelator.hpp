@@ -25,7 +25,7 @@ namespace dynamo {
   class OPCollisionCorrelator: public OP2PP
   {
   public:
-    OPCollisionCorrelator(const dynamo::SimData*, const magnet::xml::Node&);
+    OPCollisionCorrelator(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 

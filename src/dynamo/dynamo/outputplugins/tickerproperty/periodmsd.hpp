@@ -24,7 +24,7 @@ namespace dynamo {
   class OPPeriodicMSD: public OPTicker
   {
   public:
-    OPPeriodicMSD(const dynamo::SimData*, const magnet::xml::Node&);
+    OPPeriodicMSD(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 

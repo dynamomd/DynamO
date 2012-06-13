@@ -22,7 +22,7 @@ namespace dynamo {
   class LCompression: public LNewtonian
   {
   public:
-    LCompression(dynamo::SimData*, double);
+    LCompression(dynamo::Simulation*, double);
 
     virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const;
     virtual double SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const;  

@@ -16,14 +16,14 @@
 */
 
 #include <dynamo/outputplugins/tickerproperty/boundedQstats.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/schedulers/sorters/boundedPQ.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  OPBoundedQStats::OPBoundedQStats(const dynamo::SimData* tmp, 
+  OPBoundedQStats::OPBoundedQStats(const dynamo::Simulation* tmp, 
 				   const magnet::xml::Node&):
     OPTicker(tmp,"BoundedPQstats"),
     treeSize(1)

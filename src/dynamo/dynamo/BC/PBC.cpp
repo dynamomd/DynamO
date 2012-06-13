@@ -16,11 +16,11 @@
 */
 
 #include <dynamo/BC/PBC.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  BCPeriodic::BCPeriodic(const dynamo::SimData* tmp):
+  BCPeriodic::BCPeriodic(const dynamo::Simulation* tmp):
     BoundaryCondition(tmp, "RPBC")
   {
     Sim = tmp;
@@ -60,7 +60,7 @@ namespace dynamo {
   BCPeriodic::operator<<(const magnet::xml::Node&) 
   {}
 
-  BCPeriodicExceptX::BCPeriodicExceptX(const dynamo::SimData* tmp):
+  BCPeriodicExceptX::BCPeriodicExceptX(const dynamo::Simulation* tmp):
     BoundaryCondition(tmp, "NoXPBC")
   { Sim = tmp; }
 
@@ -112,7 +112,7 @@ namespace dynamo {
     pos[0] = x;
   }
 
-  BCPeriodicXOnly::BCPeriodicXOnly(const dynamo::SimData* tmp):
+  BCPeriodicXOnly::BCPeriodicXOnly(const dynamo::Simulation* tmp):
     BoundaryCondition(tmp, "NoXPBC")
   {
     Sim = tmp;

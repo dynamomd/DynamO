@@ -21,7 +21,7 @@
 
 namespace dynamo {
   Range* 
-  Range::getClass(const magnet::xml::Node& XML, const dynamo::SimData * Sim)
+  Range::getClass(const magnet::xml::Node& XML, const dynamo::Simulation * Sim)
   {
     if (!strcmp(XML.getAttribute("Range"),"All"))
       return new RAll(XML, Sim);
@@ -52,7 +52,7 @@ namespace dynamo {
   }
 
   C2Range*
-  C2Range::getClass(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
+  C2Range::getClass(const magnet::xml::Node& XML, const dynamo::Simulation* Sim)
   {
     if (!strcmp(XML.getAttribute("Range"),"Pair"))
       return new C2RPair(XML, Sim);

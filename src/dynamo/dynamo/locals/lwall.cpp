@@ -26,7 +26,7 @@
 #include <magnet/overlap/cube_plane.hpp>
 
 namespace dynamo {
-  LWall::LWall(const magnet::xml::Node& XML, dynamo::SimData* tmp):
+  LWall::LWall(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
     Local(tmp, "LocalWall")
   {
     operator<<(XML);

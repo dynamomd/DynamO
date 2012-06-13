@@ -16,7 +16,7 @@
 */
 
 #include <dynamo/systems/snapshot.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
@@ -29,7 +29,7 @@
 #endif
 
 namespace dynamo {
-  SSnapshot::SSnapshot(dynamo::SimData* nSim, double nPeriod, std::string nName):
+  SSnapshot::SSnapshot(dynamo::Simulation* nSim, double nPeriod, std::string nName):
     System(nSim),
     _applyBC(false),
     _saveCounter(0)

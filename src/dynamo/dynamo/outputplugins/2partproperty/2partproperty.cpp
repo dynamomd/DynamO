@@ -20,7 +20,7 @@
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-  OP2PP::OP2PP(const dynamo::SimData* t1,const char *t2):
+  OP2PP::OP2PP(const dynamo::Simulation* t1,const char *t2):
     OutputPlugin(t1,t2)
   {}
 

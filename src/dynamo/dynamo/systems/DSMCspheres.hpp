@@ -17,16 +17,16 @@
 
 #pragma once
 #include <dynamo/systems/system.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/ranges/1range.hpp>
 
 namespace dynamo {
   class SysDSMCSpheres: public System
   {
   public:
-    SysDSMCSpheres(const magnet::xml::Node& XML, dynamo::SimData*);
+    SysDSMCSpheres(const magnet::xml::Node& XML, dynamo::Simulation*);
 
-    SysDSMCSpheres(dynamo::SimData*, double, double, double, double, std::string, Range*, Range*);
+    SysDSMCSpheres(dynamo::Simulation*, double, double, double, double, std::string, Range*, Range*);
   
     virtual void runEvent() const;
 

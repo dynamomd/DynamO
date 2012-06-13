@@ -15,13 +15,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <dynamo/outputplugins/eventtypetracking.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/include.hpp>
 
 namespace dynamo {
   namespace EventTypeTracking {
 
-    std::string getName(const classKey& key, const dynamo::SimData* Sim)
+    std::string getName(const classKey& key, const dynamo::Simulation* Sim)
     {
       switch (key.second)
 	{

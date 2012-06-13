@@ -24,7 +24,7 @@ namespace dynamo {
   class OPChainBondLength: public OPTicker
   {
   public:
-    OPChainBondLength(const dynamo::SimData*, const magnet::xml::Node&);
+    OPChainBondLength(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 

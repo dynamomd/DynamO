@@ -19,7 +19,7 @@
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/units/units.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/ranges/1range.hpp>
@@ -32,7 +32,7 @@
 #include <iomanip>
 
 namespace dynamo {
-  ILines::ILines(const magnet::xml::Node& XML, dynamo::SimData* tmp):
+  ILines::ILines(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
     ISingleCapture(tmp, NULL)
   {
     operator<<(XML);

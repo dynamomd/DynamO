@@ -38,7 +38,7 @@
 
 namespace dynamo {
 
-  SysUmbrella::SysUmbrella(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
+  SysUmbrella::SysUmbrella(const magnet::xml::Node& XML, dynamo::Simulation* tmp): 
     System(tmp),
     a(1.0),
     b(1.0),
@@ -52,7 +52,7 @@ namespace dynamo {
     type = UMBRELLA;
   }
 
-  SysUmbrella::SysUmbrella(dynamo::SimData* nSim, double na, double nb, double ndelu, 
+  SysUmbrella::SysUmbrella(dynamo::Simulation* nSim, double na, double nb, double ndelu, 
 			 std::string nName, Range* r1, Range* r2):
     System(nSim),
     a(na),

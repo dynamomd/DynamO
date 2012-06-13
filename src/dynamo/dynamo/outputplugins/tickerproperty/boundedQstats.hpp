@@ -24,7 +24,7 @@ namespace dynamo {
   class OPBoundedQStats: public OPTicker
   {
   public:
-    OPBoundedQStats(const dynamo::SimData*, const magnet::xml::Node&);
+    OPBoundedQStats(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 

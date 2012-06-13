@@ -22,7 +22,7 @@
 
 namespace dynamo
 {
-  class SimData;
+  class Simulation;
   class Interaction;
   class GlobalEvent;
   class System;
@@ -34,7 +34,7 @@ namespace dynamo
     //! Keeps the type of event (interaction etc) and the ID num
     typedef std::pair<size_t, EEventType> classKey;
 
-    std::string getName(const classKey&, const dynamo::SimData*);
+    std::string getName(const classKey&, const dynamo::Simulation*);
 
     classKey getClassKey(const IntEvent&);
 

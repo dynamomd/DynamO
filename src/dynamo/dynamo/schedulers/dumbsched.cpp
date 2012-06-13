@@ -22,7 +22,7 @@
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/BC/LEBC.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/globals/globEvent.hpp>
 #include <dynamo/systems/system.hpp>
 #include <dynamo/globals/global.hpp>
@@ -34,14 +34,14 @@
 #include <cmath> //for huge val
 
 namespace dynamo {
-  SDumb::SDumb(const magnet::xml::Node& XML, dynamo::SimData* const Sim):
+  SDumb::SDumb(const magnet::xml::Node& XML, dynamo::Simulation* const Sim):
     Scheduler(Sim,"DumbScheduler", NULL)
   { 
     dout << "Dumb Scheduler Algorithmn" << std::endl;
     operator<<(XML);
   }
 
-  SDumb::SDumb(dynamo::SimData* const Sim, FEL* ns):
+  SDumb::SDumb(dynamo::Simulation* const Sim, FEL* ns):
     Scheduler(Sim,"DumbScheduler", ns)
   { dout << "Dumb Scheduler Algorithmn" << std::endl; }
 

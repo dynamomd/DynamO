@@ -27,7 +27,7 @@ namespace magnet { namespace xml { class Node; class XmlStream; } }
 namespace dynamo
 {
   class IntEvent;
-  class SimData;
+  class Simulation;
 
   /*! \brief The base class for the Boundary Conditions of the simulation.
    *
@@ -44,11 +44,11 @@ namespace dynamo
   public:
     /*! \brief Just the constructor
      *
-     * \param SD The SimData pointer.
+     * \param SD The Simulation pointer.
      * \param aName The name of the overall class.
      * \param aColor The colour of the class output.
      */
-    BoundaryCondition(const dynamo::SimData* const SD, const char *aName):
+    BoundaryCondition(const dynamo::Simulation* const SD, const char *aName):
       SimBase_const(SD, aName)
     {}
 
@@ -100,7 +100,7 @@ namespace dynamo
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const BoundaryCondition&);
 
     /*! \brief The class loader for boundary conditions. */
-    static shared_ptr<BoundaryCondition> getClass(const magnet::xml::Node&, dynamo::SimData*);
+    static shared_ptr<BoundaryCondition> getClass(const magnet::xml::Node&, dynamo::Simulation*);
 
   protected:
     /*! \brief The XML output for a BoundaryCondition class*/

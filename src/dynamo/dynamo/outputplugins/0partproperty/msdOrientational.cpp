@@ -17,7 +17,7 @@
 
 #include <dynamo/outputplugins/0partproperty/msdOrientational.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <boost/foreach.hpp>
 #include <boost/math/special_functions/legendre.hpp>
@@ -25,7 +25,7 @@
 #include <vector>
 
 namespace dynamo {
-  OPMSDOrientational::OPMSDOrientational(const dynamo::SimData* tmp, 
+  OPMSDOrientational::OPMSDOrientational(const dynamo::Simulation* tmp, 
 					 const magnet::xml::Node&):
     OutputPlugin(tmp,"MSDOrientational")
   {}

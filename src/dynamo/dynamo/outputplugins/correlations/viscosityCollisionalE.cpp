@@ -23,7 +23,7 @@
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-  OPViscosityCollisionalE::OPViscosityCollisionalE(const dynamo::SimData* tmp, 
+  OPViscosityCollisionalE::OPViscosityCollisionalE(const dynamo::Simulation* tmp, 
 						   const magnet::xml::Node& XML):
     OutputPlugin(tmp,"ViscosityCollisionalE", 60),
     count(0),

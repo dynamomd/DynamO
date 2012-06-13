@@ -18,7 +18,7 @@
 #pragma once
 
 #include <dynamo/ranges/1range.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
@@ -26,10 +26,10 @@ namespace dynamo {
   class RAll: public Range, public dynamo::SimBase_const
   {
   public:
-    RAll(const dynamo::SimData* SimDat):
+    RAll(const dynamo::Simulation* SimDat):
       SimBase_const(SimDat,"RAll"){}
 
-    RAll(const magnet::xml::Node& XML, const dynamo::SimData* SimDat):
+    RAll(const magnet::xml::Node& XML, const dynamo::Simulation* SimDat):
       SimBase_const(SimDat, "RAll")
     { operator<<(XML); }
 

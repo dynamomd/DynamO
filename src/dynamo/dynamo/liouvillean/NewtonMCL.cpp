@@ -21,7 +21,7 @@
 #include <dynamo/NparticleEventData.hpp>
 
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/schedulers/sorters/event.hpp>
 #include <dynamo/liouvillean/shapes/oscillatingplate.hpp>
@@ -32,7 +32,7 @@
 #include <boost/math/special_functions/fpclassify.hpp>
 
 namespace dynamo {
-  LNewtonianMC::LNewtonianMC(dynamo::SimData* tmp, const magnet::xml::Node& XML):
+  LNewtonianMC::LNewtonianMC(dynamo::Simulation* tmp, const magnet::xml::Node& XML):
     LNewtonian(tmp),
     EnergyPotentialStep(1)
   {

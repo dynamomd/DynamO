@@ -24,7 +24,7 @@
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-  OPVelDist::OPVelDist(const dynamo::SimData* tmp, 
+  OPVelDist::OPVelDist(const dynamo::Simulation* tmp, 
 		       const magnet::xml::Node& XML):
     OPTicker(tmp,"VelDist"),
     binWidth(0.01)

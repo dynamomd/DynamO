@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/systems/system.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/ranges/1range.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_real.hpp>
@@ -26,9 +26,9 @@ namespace dynamo {
   class SysRingDSMC: public System
   {
   public:
-    SysRingDSMC(const magnet::xml::Node& XML, dynamo::SimData*);
+    SysRingDSMC(const magnet::xml::Node& XML, dynamo::Simulation*);
 
-    SysRingDSMC(dynamo::SimData*, double, double, double, double, double, std::string, Range*);
+    SysRingDSMC(dynamo::Simulation*, double, double, double, double, double, std::string, Range*);
   
     virtual void runEvent() const;
 

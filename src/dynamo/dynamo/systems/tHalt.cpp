@@ -16,7 +16,7 @@
 */
 
 #include <dynamo/systems/tHalt.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
@@ -26,7 +26,7 @@
 #endif
 
 namespace dynamo {
-  SystHalt::SystHalt(dynamo::SimData* nSim, double ndt, std::string nName):
+  SystHalt::SystHalt(dynamo::Simulation* nSim, double ndt, std::string nName):
     System(nSim)
   {
     dt = ndt * Sim->units.unitTime();

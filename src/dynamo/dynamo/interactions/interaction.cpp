@@ -19,12 +19,12 @@
 #include <dynamo/interactions/include.hpp>
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/species/species.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cstring>
 
 namespace dynamo {
-  Interaction::Interaction(dynamo::SimData* tmp, C2Range* nR):
+  Interaction::Interaction(dynamo::Simulation* tmp, C2Range* nR):
     SimBase(tmp, "Interaction"),
     range(nR)
   {}
@@ -62,7 +62,7 @@ namespace dynamo {
   { return range; }
 
   shared_ptr<Interaction>
-  Interaction::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
+  Interaction::getClass(const magnet::xml::Node& XML, dynamo::Simulation* Sim)
   {
     if (!std::strcmp(XML.getAttribute("Type"),"HardSphere"))
       return shared_ptr<Interaction>(new IHardSphere(XML, Sim));

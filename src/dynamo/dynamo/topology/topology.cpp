@@ -19,7 +19,7 @@
 #include <dynamo/ranges/1range.hpp>
 #include <dynamo/ranges/1RAll.hpp>
 #include <dynamo/particle.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/topology/include.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -27,7 +27,7 @@
 
 namespace dynamo {
 
-  Topology::Topology(dynamo::SimData* tmp, size_t nID):
+  Topology::Topology(dynamo::Simulation* tmp, size_t nID):
     SimBase_const(tmp, "Species"),
     ID(nID)
   { }
@@ -66,7 +66,7 @@ namespace dynamo {
 
 
   shared_ptr<Topology>
-  Topology::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim, size_t ID)
+  Topology::getClass(const magnet::xml::Node& XML, dynamo::Simulation* Sim, size_t ID)
   {
     if (!strcmp(XML.getAttribute("Type"),"Chain"))
       return shared_ptr<Topology>(new TChain(XML, Sim, ID));

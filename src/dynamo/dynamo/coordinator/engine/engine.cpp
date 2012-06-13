@@ -87,7 +87,7 @@ namespace dynamo {
   class EReplicaExchangeSimulation;
 
   void 
-  Engine::setupSim(SimData& Sim, const std::string filename)
+  Engine::setupSim(Simulation& Sim, const std::string filename)
   {
     if (vm.count("random-seed"))
       Sim.ranGenerator.seed(vm["random-seed"].as<unsigned int>());

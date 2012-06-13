@@ -19,14 +19,14 @@
 
 #include <dynamo/interactions/interaction.hpp>
 #include <dynamo/interactions/glyphrepresentation.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 
 namespace dynamo {
   class IRoughHardSphere: public Interaction, public GlyphRepresentation
   {
   public:
     template<class T1, class T2, class T3>
-    IRoughHardSphere(dynamo::SimData* tmp, T1 d, T2 e, T3 et, C2Range* nR,
+    IRoughHardSphere(dynamo::Simulation* tmp, T1 d, T2 e, T3 et, C2Range* nR,
 		     std::string name):
       Interaction(tmp, nR),
       _diameter(Sim->_properties.getProperty
@@ -37,7 +37,7 @@ namespace dynamo {
 	  (et, Property::Units::Dimensionless()))
     { intName = name; }
 
-    IRoughHardSphere(const magnet::xml::Node&, dynamo::SimData*);
+    IRoughHardSphere(const magnet::xml::Node&, dynamo::Simulation*);
 
     virtual size_t glyphsPerParticle() const { return 1; }
     virtual Vector getGlyphSize(size_t ID, size_t subID) const;

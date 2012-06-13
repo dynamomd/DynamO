@@ -23,7 +23,7 @@ namespace dynamo {
   class OPVelProfile: public OPTicker
   {
   public:
-    OPVelProfile(const dynamo::SimData*, const magnet::xml::Node&);
+    OPVelProfile(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 

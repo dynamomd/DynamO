@@ -16,7 +16,7 @@
 */
 
 #include <dynamo/systems/sysTicker.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
@@ -28,7 +28,7 @@
 #endif
 
 namespace dynamo {
-  SysTicker::SysTicker(dynamo::SimData* nSim, double nPeriod, std::string nName):
+  SysTicker::SysTicker(dynamo::Simulation* nSim, double nPeriod, std::string nName):
     System(nSim)
   {
     if (nPeriod <= 0.0)

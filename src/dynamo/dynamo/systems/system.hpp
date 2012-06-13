@@ -28,7 +28,7 @@ namespace dynamo {
   class System: public dynamo::SimBase
   {
   public:
-    System(dynamo::SimData*);
+    System(dynamo::Simulation*);
   
     virtual ~System() {}
 
@@ -50,7 +50,7 @@ namespace dynamo {
   
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const System&);
   
-    static shared_ptr<System> getClass(const magnet::xml::Node&, dynamo::SimData*);
+    static shared_ptr<System> getClass(const magnet::xml::Node&, dynamo::Simulation*);
   
     void setName(const std::string& tmp) { sysName = tmp; }
 
@@ -58,7 +58,7 @@ namespace dynamo {
 
     EEventType getType() const { return type; }
 
-    virtual void changeSystem(dynamo::SimData* ptr) { Sim = ptr; }
+    virtual void changeSystem(dynamo::Simulation* ptr) { Sim = ptr; }
 
     inline const size_t& getID() const { return ID; }
 

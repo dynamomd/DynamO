@@ -17,7 +17,7 @@
 
 #include <dynamo/species/fixedCollider.hpp>
 #include <boost/foreach.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {

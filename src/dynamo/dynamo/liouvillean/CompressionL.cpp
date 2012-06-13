@@ -20,13 +20,13 @@
 #include <dynamo/2particleEventData.hpp>
 
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  LCompression::LCompression(dynamo::SimData* tmp, double GR):
+  LCompression::LCompression(dynamo::Simulation* tmp, double GR):
     LNewtonian(tmp),
     growthRate(GR) {}
 

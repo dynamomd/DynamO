@@ -18,7 +18,7 @@
 #include <dynamo/locals/AndersenWall.hpp>
 #include <dynamo/locals/localEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/particle.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/units/units.hpp>
@@ -34,14 +34,14 @@
 #include <cmath>
 
 namespace dynamo {
-  LAndersenWall::LAndersenWall(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
+  LAndersenWall::LAndersenWall(const magnet::xml::Node& XML, dynamo::Simulation* ptrSim):
     Local(ptrSim, "GlobalAndersenWall"),
     sqrtT(1.0)
   {
     operator<<(XML);
   }
 
-  LAndersenWall::LAndersenWall(dynamo::SimData* nSim, double nsqrtT,
+  LAndersenWall::LAndersenWall(dynamo::Simulation* nSim, double nsqrtT,
 				 Vector  nnorm, Vector norigin, 
 				 std::string nname, Range* nRange):
     Local(nRange, nSim, "AndersenWall"),

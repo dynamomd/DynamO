@@ -18,12 +18,12 @@
 #include <dynamo/schedulers/complexentries/nblistentry.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/globals/neighbourList.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  SCENBList::SCENBList(const magnet::xml::Node& XML, dynamo::SimData* const nSim):
+  SCENBList::SCENBList(const magnet::xml::Node& XML, dynamo::Simulation* const nSim):
     SCEntry(nSim, "ComplexNBlistEntry"),
     nblistID(std::numeric_limits<size_t>::max())
   {

@@ -41,9 +41,9 @@ namespace dynamo {
   class Local: public dynamo::SimBase
   {
   public:
-    Local(dynamo::SimData*, const char *);
+    Local(dynamo::Simulation*, const char *);
 
-    Local(Range*, dynamo::SimData*, const char *);
+    Local(Range*, dynamo::Simulation*, const char *);
   
     virtual ~Local() {}
 
@@ -59,7 +59,7 @@ namespace dynamo {
 
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Local&);
 
-    static shared_ptr<Local> getClass(const magnet::xml::Node&, dynamo::SimData*);
+    static shared_ptr<Local> getClass(const magnet::xml::Node&, dynamo::Simulation*);
 
     virtual void operator<<(const magnet::xml::Node&) = 0;
 

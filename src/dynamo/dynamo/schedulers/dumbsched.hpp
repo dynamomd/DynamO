@@ -22,9 +22,9 @@ namespace dynamo {
   class SDumb: public Scheduler
   {
   public:
-    SDumb(const magnet::xml::Node&, dynamo::SimData* const);
+    SDumb(const magnet::xml::Node&, dynamo::Simulation* const);
 
-    SDumb(dynamo::SimData* const, FEL*);
+    SDumb(dynamo::Simulation* const, FEL*);
 
     virtual void getParticleNeighbourhood(const Particle&,
 					  const nbHoodFunc&) const;

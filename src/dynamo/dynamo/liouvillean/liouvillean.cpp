@@ -17,7 +17,7 @@
 
 #include <dynamo/liouvillean/include.hpp>
 #include <dynamo/species/inertia.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/BC/LEBC.hpp>
@@ -33,7 +33,7 @@ namespace dynamo {
   }
 
   shared_ptr<Liouvillean>
-  Liouvillean::getClass(const magnet::xml::Node& XML, dynamo::SimData* tmp)
+  Liouvillean::getClass(const magnet::xml::Node& XML, dynamo::Simulation* tmp)
   {
     if (!strcmp(XML.getAttribute("Type"),"Newtonian"))
       return shared_ptr<Liouvillean>(new LNewtonian(tmp));

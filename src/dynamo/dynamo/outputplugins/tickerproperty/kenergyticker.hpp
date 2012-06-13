@@ -25,7 +25,7 @@ namespace dynamo {
   class OPKEnergyTicker: public OPTicker
   {
   public:
-    OPKEnergyTicker(const dynamo::SimData*, const magnet::xml::Node&);
+    OPKEnergyTicker(const dynamo::Simulation*, const magnet::xml::Node&);
 
     typedef std::tr1::array<double, NDIM> col;
     typedef std::tr1::array<col, NDIM> matrix;

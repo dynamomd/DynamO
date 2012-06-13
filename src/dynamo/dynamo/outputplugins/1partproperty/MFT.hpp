@@ -25,7 +25,7 @@ namespace dynamo {
   class OPMFT: public OP1PP
   {
   public:
-    OPMFT(const dynamo::SimData*, const magnet::xml::Node&);
+    OPMFT(const dynamo::Simulation*, const magnet::xml::Node&);
 
     void A1ParticleChange(const ParticleEventData&);
 

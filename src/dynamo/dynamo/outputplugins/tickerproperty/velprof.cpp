@@ -17,13 +17,13 @@
 
 #include <dynamo/outputplugins/tickerproperty/velprof.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <fstream>
 
 namespace dynamo {
-  OPVelProfile::OPVelProfile(const dynamo::SimData* tmp, 
+  OPVelProfile::OPVelProfile(const dynamo::Simulation* tmp, 
 			     const magnet::xml::Node&):
     OPTicker(tmp,"VelProfile"),
     samplesTaken(0),

@@ -17,12 +17,12 @@
 
 #include <dynamo/outputplugins/tickerproperty/overlap.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-  OPOverlapTest::OPOverlapTest(const dynamo::SimData* tmp, 
+  OPOverlapTest::OPOverlapTest(const dynamo::Simulation* tmp, 
 			       const magnet::xml::Node&):
     OPTicker(tmp,"OverlapTester")
   {}

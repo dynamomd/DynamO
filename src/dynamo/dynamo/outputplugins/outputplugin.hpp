@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/base.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 
 namespace xml { class XmlStream; }
 namespace magnet { namespace xml { class Node; } }
@@ -34,7 +34,7 @@ namespace dynamo {
   class OutputPlugin: public dynamo::SimBase_const
   {
   public:
-    OutputPlugin(const dynamo::SimData*, const char*, unsigned char order=100);
+    OutputPlugin(const dynamo::Simulation*, const char*, unsigned char order=100);
   
     inline virtual ~OutputPlugin() {}
   
@@ -52,8 +52,8 @@ namespace dynamo {
   
     virtual void periodicOutput();
   
-    static shared_ptr<OutputPlugin> getPlugin(const magnet::xml::Node&, const dynamo::SimData*);
-    static shared_ptr<OutputPlugin> getPlugin(const std::string, const dynamo::SimData*);
+    static shared_ptr<OutputPlugin> getPlugin(const magnet::xml::Node&, const dynamo::Simulation*);
+    static shared_ptr<OutputPlugin> getPlugin(const std::string, const dynamo::Simulation*);
   
     inline bool operator<(const OutputPlugin& OP) const
     { return updateOrder < OP.updateOrder; }

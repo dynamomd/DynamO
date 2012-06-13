@@ -17,13 +17,13 @@
 
 #include <dynamo/outputplugins/0partproperty/msd.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  OPMSD::OPMSD(const dynamo::SimData* tmp, const magnet::xml::Node&):
+  OPMSD::OPMSD(const dynamo::Simulation* tmp, const magnet::xml::Node&):
     OutputPlugin(tmp,"MSD")
   {}
 

@@ -22,7 +22,7 @@
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/BC/LEBC.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/globals/globEvent.hpp>
 #include <dynamo/systems/system.hpp>
 #include <dynamo/globals/global.hpp>
@@ -35,14 +35,14 @@
 
 namespace dynamo {
   SSystemOnly::SSystemOnly(const magnet::xml::Node& XML, 
-			     dynamo::SimData* const Sim):
+			     dynamo::Simulation* const Sim):
     Scheduler(Sim,"SystemOnlyScheduler", NULL)
   { 
     dout << "System Events Only Scheduler Algorithmn" << std::endl;
     operator<<(XML);
   }
 
-  SSystemOnly::SSystemOnly(dynamo::SimData* const Sim, FEL* ns):
+  SSystemOnly::SSystemOnly(dynamo::Simulation* const Sim, FEL* ns):
     Scheduler(Sim,"SystemOnlyScheduler", ns)
   { dout << "System Events Only Scheduler Algorithmn" << std::endl; }
 

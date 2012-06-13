@@ -27,7 +27,7 @@
 
 namespace dynamo {
   shared_ptr<Ensemble>
-  Ensemble::getClass(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
+  Ensemble::getClass(const magnet::xml::Node& XML, const dynamo::Simulation* Sim)
   {
     if (!strcmp(XML.getAttribute("Type"), "NVT"))
       return shared_ptr<Ensemble>(new EnsembleNVT(Sim));

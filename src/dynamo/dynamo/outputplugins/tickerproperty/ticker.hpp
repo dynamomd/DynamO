@@ -29,7 +29,7 @@ namespace dynamo {
   class OPTicker: public OutputPlugin
   {
   public:
-    OPTicker(const dynamo::SimData*, const char*);
+    OPTicker(const dynamo::Simulation*, const char*);
 
     //Non virtual to warn if you use them,
     void eventUpdate(const IntEvent&, const PairEventData&) {}

@@ -19,13 +19,13 @@
 #include <dynamo/interactions/captures.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/interactions/intEvent.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <cmath>
 
 namespace dynamo {
-  OPUEnergy::OPUEnergy(const dynamo::SimData* tmp, const magnet::xml::Node&):
+  OPUEnergy::OPUEnergy(const dynamo::Simulation* tmp, const magnet::xml::Node&):
     OP1PP(tmp,"UEnergy", 250),
     intECurrent(0.0),
     intEsqAcc(0.0),

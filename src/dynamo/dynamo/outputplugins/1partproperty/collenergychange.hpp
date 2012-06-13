@@ -28,7 +28,7 @@ namespace dynamo {
   class OPCollEnergyChange: public OP1PP
   {
   public:
-    OPCollEnergyChange(const dynamo::SimData*, const magnet::xml::Node&);
+    OPCollEnergyChange(const dynamo::Simulation*, const magnet::xml::Node&);
 
     void A1ParticleChange(const ParticleEventData&);
 

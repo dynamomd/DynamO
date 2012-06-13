@@ -26,7 +26,7 @@ namespace dynamo {
   class C2RChainGroups:public C2Range
   {
   public:
-    C2RChainGroups(const magnet::xml::Node& XML, const dynamo::SimData*):
+    C2RChainGroups(const magnet::xml::Node& XML, const dynamo::Simulation*):
       range1(0),range2(0), length(0) 
     { 
       if (strcmp(XML.getAttribute("Range"),"ChainGroups"))

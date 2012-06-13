@@ -25,7 +25,7 @@ namespace dynamo {
   public:
     C2RPair(Range* r1, Range* r2 ):range1(r1), range2(r2) {}
 
-    C2RPair(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
+    C2RPair(const magnet::xml::Node& XML, const dynamo::Simulation* Sim)
     { 
       if (strcmp(XML.getAttribute("Range"), "Pair"))
 	M_throw() << "Attempting to load a pair from a non pair";

@@ -26,7 +26,7 @@ namespace dynamo {
   class BCPeriodic: public BoundaryCondition
   {
   public:
-    BCPeriodic(const dynamo::SimData*);
+    BCPeriodic(const dynamo::Simulation*);
 
     virtual void applyBC(Vector &) const;
   
@@ -47,7 +47,7 @@ namespace dynamo {
   class BCPeriodicExceptX: public BoundaryCondition
   {
   public:
-    BCPeriodicExceptX(const dynamo::SimData*);
+    BCPeriodicExceptX(const dynamo::Simulation*);
 
     virtual void applyBC(Vector& pos) const;
   
@@ -69,7 +69,7 @@ namespace dynamo {
   class BCPeriodicXOnly: public BoundaryCondition
   {
   public:
-    BCPeriodicXOnly(const dynamo::SimData*);
+    BCPeriodicXOnly(const dynamo::Simulation*);
 
     virtual void applyBC(Vector& pos) const;
   

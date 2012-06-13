@@ -36,7 +36,7 @@
 #endif
 
 namespace dynamo {
-  SysDSMCSpheres::SysDSMCSpheres(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
+  SysDSMCSpheres::SysDSMCSpheres(const magnet::xml::Node& XML, dynamo::Simulation* tmp): 
     System(tmp),
     maxprob(0.0)
   {
@@ -45,7 +45,7 @@ namespace dynamo {
     type = DSMC;
   }
 
-  SysDSMCSpheres::SysDSMCSpheres(dynamo::SimData* nSim, double nd, double ntstp, double nChi, 
+  SysDSMCSpheres::SysDSMCSpheres(dynamo::Simulation* nSim, double nd, double ntstp, double nChi, 
 			       double ne, std::string nName, Range* r1, Range* r2):
     System(nSim),
     tstep(ntstp),

@@ -17,7 +17,7 @@
 
 #include <dynamo/outputplugins/tickerproperty/periodmsd.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/outputplugins/0partproperty/msd.hpp>
 #include <dynamo/ranges/1RAll.hpp>
@@ -26,7 +26,7 @@
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  OPPeriodicMSD::OPPeriodicMSD(const dynamo::SimData* tmp, const magnet::xml::Node&):
+  OPPeriodicMSD::OPPeriodicMSD(const dynamo::Simulation* tmp, const magnet::xml::Node&):
     OPTicker(tmp,"PeriodicMSD")
   {}
 

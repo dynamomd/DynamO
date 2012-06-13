@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <boost/program_options.hpp>
 #include <boost/scoped_array.hpp>
 
@@ -65,7 +65,7 @@ namespace dynamo {
      * 
      * This function should at the very least call in the following order
      * - preSimInit()
-     * - setupSim(SimData &, const std::string) for every SimData class
+     * - setupSim(Simulation &, const std::string) for every Simulation class
      * - postSimInit()
      *
      */
@@ -136,15 +136,15 @@ namespace dynamo {
 
     /*! \brief Code common to loading a Simulation from a config file.
      *
-     * \param Sim SimData to set up.
+     * \param Sim Simulation to set up.
      * \param inFile Name of configuration file to load.
      */
-    virtual void setupSim(SimData & Sim, const std::string inFile);
+    virtual void setupSim(Simulation & Sim, const std::string inFile);
 
-    /*! \brief Once the SimData is loaded and initialised you may
+    /*! \brief Once the Simulation is loaded and initialised you may
      * need to alter it/load plugins/initialise some Engine datastruct.
      */
-    virtual void postSimInit(SimData&) {}
+    virtual void postSimInit(Simulation&) {}
 
     /*! \brief A reference to the Coordinators parsed command line variables.
      */

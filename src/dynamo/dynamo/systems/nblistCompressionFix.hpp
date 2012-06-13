@@ -22,7 +22,7 @@ namespace dynamo {
   class SysNBListCompressionFix: public System
   {
   public:
-    SysNBListCompressionFix(dynamo::SimData*, double, size_t);
+    SysNBListCompressionFix(dynamo::Simulation*, double, size_t);
   
     virtual void runEvent() const;
 

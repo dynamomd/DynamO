@@ -26,7 +26,7 @@
 #include <iomanip>
 
 namespace dynamo {
-  OPTrajectory::OPTrajectory(const dynamo::SimData* t1, const magnet::xml::Node&):
+  OPTrajectory::OPTrajectory(const dynamo::Simulation* t1, const magnet::xml::Node&):
     OutputPlugin(t1,"Trajectory")
   {}
 

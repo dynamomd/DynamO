@@ -22,7 +22,7 @@ namespace dynamo {
   class SystHalt: public System
   {
   public:
-    SystHalt(dynamo::SimData*, double, std::string);
+    SystHalt(dynamo::Simulation*, double, std::string);
   
     virtual void runEvent() const;
 

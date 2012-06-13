@@ -22,9 +22,9 @@ namespace dynamo {
   class TChain: public Topology
   {
   public:  
-    TChain(const magnet::xml::Node&, dynamo::SimData*, unsigned int ID);
+    TChain(const magnet::xml::Node&, dynamo::Simulation*, unsigned int ID);
 
-    TChain(dynamo::SimData*, unsigned int ID, std::string);
+    TChain(dynamo::Simulation*, unsigned int ID, std::string);
 
     virtual ~TChain() {}
   

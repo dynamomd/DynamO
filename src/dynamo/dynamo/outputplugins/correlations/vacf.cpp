@@ -18,7 +18,7 @@
 #include <dynamo/outputplugins/correlations/vacf.hpp>
 
 namespace dynamo {
-  OPVACF::OPVACF(const dynamo::SimData* tmp,const magnet::xml::Node& XML):
+  OPVACF::OPVACF(const dynamo::Simulation* tmp,const magnet::xml::Node& XML):
     OutputPlugin(tmp, "VACF", 60), //Note the sort order set later
     count(0),
     dt(0),

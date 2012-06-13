@@ -21,7 +21,7 @@
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
 
 namespace dynamo {
-  OPMutualDiffusionGK::OPMutualDiffusionGK(const dynamo::SimData* tmp, 
+  OPMutualDiffusionGK::OPMutualDiffusionGK(const dynamo::Simulation* tmp, 
 					   const magnet::xml::Node& XML):
     OutputPlugin(tmp, "MutualDiffusionGK", 60), //Note the sort order set later
     count(0),

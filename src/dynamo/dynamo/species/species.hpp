@@ -19,7 +19,7 @@
 
 #include <dynamo/base.hpp>
 #include <dynamo/ranges/1range.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <string>
 
 namespace magnet { namespace xml { class Node; } }
@@ -54,7 +54,7 @@ namespace dynamo {
 
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Species&);
   
-    static shared_ptr<Species> getClass(const magnet::xml::Node&, dynamo::SimData*, size_t);
+    static shared_ptr<Species> getClass(const magnet::xml::Node&, dynamo::Simulation*, size_t);
 
 #ifdef DYNAMO_visualizer
     virtual shared_ptr<coil::DataSet> createDataSet() const;
@@ -67,7 +67,7 @@ namespace dynamo {
 
   protected:
     template<class T1>
-    Species(dynamo::SimData* tmp, std::string name, 
+    Species(dynamo::Simulation* tmp, std::string name, 
 	    Range* nr, T1 mass, std::string nName, 
 	    unsigned int nID, std::string nIName):
       SimBase(tmp, name),

@@ -17,7 +17,7 @@
 
 #include <dynamo/outputplugins/1partproperty/collenergychange.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 
 #include <dynamo/species/species.hpp>
 #include <dynamo/1particleEventData.hpp>
@@ -31,7 +31,7 @@ namespace dynamo {
   double OPCollEnergyChange::KEBinWidth = 0.01;
 
 
-  OPCollEnergyChange::OPCollEnergyChange(const dynamo::SimData* tmp, 
+  OPCollEnergyChange::OPCollEnergyChange(const dynamo::Simulation* tmp, 
 					 const magnet::xml::Node&XML):
     OP1PP(tmp,"CollEnergyChange", 250),
     binWidth(0.001)

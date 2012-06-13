@@ -23,7 +23,7 @@ namespace dynamo {
   class OPOrientationalOrder: public OPTicker
   {
   public:
-    OPOrientationalOrder(const dynamo::SimData*, const magnet::xml::Node&);
+    OPOrientationalOrder(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 

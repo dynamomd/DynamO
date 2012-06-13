@@ -72,7 +72,7 @@ namespace dynamo {
     /*! \brief Use the IPCompression plugins to switch to compression
      * dynamics.
      */
-    virtual void setupSim(SimData&, const std::string);
+    virtual void setupSim(Simulation&, const std::string);
 
     /*! \brief A single IPCompression plugin to manipulate the Simulation.
      */

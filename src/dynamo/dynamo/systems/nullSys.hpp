@@ -25,7 +25,7 @@ namespace dynamo {
   class SysNull: public System
   {
   public:
-    SysNull(dynamo::SimData* tmp): System(tmp) 
+    SysNull(dynamo::Simulation* tmp): System(tmp) 
     {  sysName = "NULL"; }
   
     virtual void stream(double) {}

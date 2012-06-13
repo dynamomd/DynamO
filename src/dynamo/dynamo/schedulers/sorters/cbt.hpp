@@ -37,7 +37,7 @@ namespace dynamo {
     double pecTime;
 
   public:  
-    FELCBT(const dynamo::SimData* const& SD):
+    FELCBT(const dynamo::Simulation* const& SD):
       FEL(SD, "CBT")
     {}
 

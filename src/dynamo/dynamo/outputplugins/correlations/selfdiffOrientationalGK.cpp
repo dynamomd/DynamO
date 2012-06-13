@@ -20,7 +20,7 @@
 #include <magnet/math/matrix.hpp>
 
 namespace dynamo {
-  OPSelfDiffusionOrientationalGK::OPSelfDiffusionOrientationalGK(const dynamo::SimData* tmp,
+  OPSelfDiffusionOrientationalGK::OPSelfDiffusionOrientationalGK(const dynamo::Simulation* tmp,
 								 const magnet::xml::Node& XML):
     OutputPlugin(tmp, "SelfDiffusionOrientationalGK", 60), //Note the sort order set later
     count(0),

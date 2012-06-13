@@ -32,7 +32,7 @@ namespace dynamo {
   class IPPacker: public dynamo::SimBase
   {
   public:
-    IPPacker(po::variables_map&, dynamo::SimData* tmp);
+    IPPacker(po::variables_map&, dynamo::Simulation* tmp);
 
     void initialise();
 

@@ -50,8 +50,8 @@ namespace dynamo {
   class GCells: public GNeighbourList
   {
   public:
-    GCells(const magnet::xml::Node&, dynamo::SimData*);
-    GCells(SimData*, const std::string&, size_t overlink = 1);
+    GCells(const magnet::xml::Node&, dynamo::Simulation*);
+    GCells(Simulation*, const std::string&, size_t overlink = 1);
 
     virtual ~GCells() {}
 

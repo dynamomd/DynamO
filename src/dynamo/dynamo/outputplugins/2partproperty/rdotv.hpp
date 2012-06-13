@@ -29,7 +29,7 @@ namespace dynamo {
   class OPRdotV: public OutputPlugin
   {
   public:
-    OPRdotV(const dynamo::SimData*, const magnet::xml::Node&);
+    OPRdotV(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
   

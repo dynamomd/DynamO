@@ -23,7 +23,7 @@ namespace dynamo {
   class OPMutualDiffusionE: public OutputPlugin
   {
   public:
-    OPMutualDiffusionE(const dynamo::SimData*, const magnet::xml::Node&);
+    OPMutualDiffusionE(const dynamo::Simulation*, const magnet::xml::Node&);
   
     virtual void operator<<(const magnet::xml::Node&);
 

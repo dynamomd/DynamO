@@ -23,7 +23,7 @@ namespace dynamo {
   class OPMSDOrientational: public OutputPlugin
   {
   public:
-    OPMSDOrientational(const dynamo::SimData*, const magnet::xml::Node&);
+    OPMSDOrientational(const dynamo::Simulation*, const magnet::xml::Node&);
     ~OPMSDOrientational();
 
     virtual void initialise();

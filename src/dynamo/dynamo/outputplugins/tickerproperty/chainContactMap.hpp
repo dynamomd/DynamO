@@ -27,7 +27,7 @@ namespace dynamo {
   class OPCContactMap: public OPTicker
   {
   public:
-    OPCContactMap(const dynamo::SimData*, const magnet::xml::Node&);
+    OPCContactMap(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 

@@ -17,7 +17,7 @@
 
 #include <dynamo/outputplugins/tickerproperty/plateMotion.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/interactions/squarebond.hpp>
 #include <dynamo/ranges/2RList.hpp>
@@ -28,7 +28,7 @@
 #include <fstream>
 
 namespace dynamo {
-  OPPlateMotion::OPPlateMotion(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
+  OPPlateMotion::OPPlateMotion(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):
     OPTicker(tmp,"PlateMotion"),
     partpartEnergyLoss(0),
     oldPlateEnergy(0)

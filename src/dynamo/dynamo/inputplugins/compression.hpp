@@ -42,7 +42,7 @@ namespace dynamo {
      * \param sim The Simulation this plugin is in control of
      * \param cr The compression rate of the Simulation.
      */
-    IPCompression(dynamo::SimData* sim, double cr);
+    IPCompression(dynamo::Simulation* sim, double cr);
 
     /*! \brief Stores the old CLiovillean and installs the LCompression.
      */  

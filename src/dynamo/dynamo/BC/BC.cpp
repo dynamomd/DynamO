@@ -32,7 +32,7 @@ namespace dynamo {
   namespace{typedef shared_ptr<BoundaryCondition> retptr;}
 
   retptr
-  BoundaryCondition::getClass(const magnet::xml::Node& XML, dynamo::SimData* tmp)
+  BoundaryCondition::getClass(const magnet::xml::Node& XML, dynamo::Simulation* tmp)
   {
     if (!std::strcmp(XML.getAttribute("Type"),"None")
 	|| !std::strcmp(XML.getAttribute("Type"),"Null"))

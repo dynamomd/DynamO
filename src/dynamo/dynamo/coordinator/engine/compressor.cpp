@@ -56,7 +56,7 @@ namespace dynamo {
   }
 
   void 
-  ECompressingSimulation::setupSim(SimData& Sim, const std::string filename)
+  ECompressingSimulation::setupSim(Simulation& Sim, const std::string filename)
   {
     ESingleSimulation::setupSim(Sim,filename);
   

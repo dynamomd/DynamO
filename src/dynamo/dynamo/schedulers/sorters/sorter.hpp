@@ -35,7 +35,7 @@ namespace dynamo {
   class FEL: public dynamo::SimBase_const
   {
   public:
-    FEL(const dynamo::SimData* const& SD, const char *aName);
+    FEL(const dynamo::Simulation* const& SD, const char *aName);
 
     virtual ~FEL() {}
     virtual size_t size()                              const = 0;
@@ -69,7 +69,7 @@ namespace dynamo {
     virtual Event   copyNextEvent() const               = 0;
 
     static shared_ptr<FEL>
-    getClass(const magnet::xml::Node&, const dynamo::SimData*);
+    getClass(const magnet::xml::Node&, const dynamo::Simulation*);
 
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const FEL&);
 

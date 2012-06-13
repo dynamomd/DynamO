@@ -30,7 +30,7 @@
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  GCellsShearing::GCellsShearing(dynamo::SimData* nSim, 
+  GCellsShearing::GCellsShearing(dynamo::Simulation* nSim, 
 				 const std::string& globalname):
     GCells(nSim, globalname)
   {
@@ -39,7 +39,7 @@ namespace dynamo {
   }
 
   GCellsShearing::GCellsShearing(const magnet::xml::Node& XML, 
-				 dynamo::SimData* ptrSim):
+				 dynamo::Simulation* ptrSim):
     GCells(ptrSim, "Unknown")
   {
     operator<<(XML);

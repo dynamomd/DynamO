@@ -20,7 +20,7 @@
 #include <dynamo/globals/globEvent.hpp>
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/NparticleEventData.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/units/units.hpp>
@@ -33,7 +33,7 @@
 #endif
 
 namespace dynamo {
-  GWaker::GWaker(dynamo::SimData* nSim, const std::string& name, Range* range, 
+  GWaker::GWaker(dynamo::Simulation* nSim, const std::string& name, Range* range, 
 		 const double wt,const double wv, std::string nblist):
     Global(nSim, "GWaker", range),
     _wakeTime(wt),
@@ -44,7 +44,7 @@ namespace dynamo {
     dout << "GWaker Loaded" << std::endl;
   }
 
-  GWaker::GWaker(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
+  GWaker::GWaker(const magnet::xml::Node& XML, dynamo::Simulation* ptrSim):
     Global(ptrSim, "GWaker")
   {
     operator<<(XML);

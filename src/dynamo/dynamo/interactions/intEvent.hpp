@@ -27,7 +27,7 @@ struct XMLNode;
 
 class Interaction;
 namespace dynamo {
-  class SimData;
+  class Simulation;
 }
 
 namespace xml
@@ -103,7 +103,7 @@ namespace dynamo {
   
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const IntEvent&);
 
-    std::string stringData(const dynamo::SimData*) const;
+    std::string stringData(const dynamo::Simulation*) const;
   
     inline void setType(EEventType a) const
     { 

@@ -25,7 +25,7 @@ namespace magnet { namespace xml { class Node; class XmlStream; } }
 
 namespace dynamo { 
   using std::tr1::shared_ptr;
-  class SimData; 
+  class Simulation; 
   class Particle;
 
   class Range
@@ -84,7 +84,7 @@ namespace dynamo {
 
     virtual unsigned long at(unsigned long) const = 0;
 
-    static Range* getClass(const magnet::xml::Node&, const dynamo::SimData * Sim);
+    static Range* getClass(const magnet::xml::Node&, const dynamo::Simulation * Sim);
 
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Range&);
 

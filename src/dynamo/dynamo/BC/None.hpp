@@ -28,7 +28,7 @@ namespace dynamo {
   class BCNone: virtual public BoundaryCondition
   {
   public:
-    BCNone(const dynamo::SimData*);
+    BCNone(const dynamo::Simulation*);
   
     virtual ~BCNone();
     

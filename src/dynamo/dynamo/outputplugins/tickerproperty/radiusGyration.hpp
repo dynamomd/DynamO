@@ -28,7 +28,7 @@ namespace dynamo {
   class OPRGyration: public OPTicker
   {
   public:
-    OPRGyration(const dynamo::SimData*, const magnet::xml::Node&);
+    OPRGyration(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 
@@ -47,7 +47,7 @@ namespace dynamo {
       Vector  MassCentre;
     };
   
-    static molGyrationDat getGyrationEigenSystem(const shared_ptr<Range>&, const dynamo::SimData*);
+    static molGyrationDat getGyrationEigenSystem(const shared_ptr<Range>&, const dynamo::Simulation*);
 
     static Vector  NematicOrderParameter(const std::list<Vector  >&);
 

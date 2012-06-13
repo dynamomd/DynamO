@@ -26,7 +26,7 @@
 
 
 namespace dynamo {
-  LTriangleMesh::LTriangleMesh(const magnet::xml::Node& XML, dynamo::SimData* tmp):
+  LTriangleMesh::LTriangleMesh(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
     Local(tmp, "LocalWall")
   { operator<<(XML); }
 

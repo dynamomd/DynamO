@@ -27,7 +27,7 @@ namespace dynamo {
   public:
     C2RSingle(Range* r1):range(r1) {}
   
-    C2RSingle(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
+    C2RSingle(const magnet::xml::Node& XML, const dynamo::Simulation* Sim)
     { 
       if (strcmp(XML.getAttribute("Range"),"2Single"))
 	M_throw() << "Attempting to load a 2Single from a non pair";

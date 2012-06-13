@@ -19,14 +19,14 @@
 
 #include <dynamo/interactions/captures.hpp>
 #include <dynamo/interactions/glyphrepresentation.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 
 namespace dynamo {
   class ISquareWell: public ISingleCapture, public GlyphRepresentation
   {
   public:
     template<class T1, class T2, class T3, class T4>
-    ISquareWell(dynamo::SimData* tmp, T1 d, T2 l, 
+    ISquareWell(dynamo::Simulation* tmp, T1 d, T2 l, 
 		T3 wd, T4 e, C2Range* nR, std::string name):
       ISingleCapture(tmp,nR),
       _diameter(Sim->_properties.getProperty
@@ -41,7 +41,7 @@ namespace dynamo {
       intName = name;
     }
 
-    ISquareWell(const magnet::xml::Node&, dynamo::SimData*);
+    ISquareWell(const magnet::xml::Node&, dynamo::Simulation*);
   
     void operator<<(const magnet::xml::Node&);
 

@@ -18,14 +18,14 @@
 #pragma once
 
 #include <dynamo/interactions/interaction.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 
 namespace dynamo {
   class ISquareBond: public Interaction
   {
   public:
     template<class T1, class T2, class T3>
-    ISquareBond(dynamo::SimData* tmp, T1 d, T2 l, T3 e, C2Range* nR,
+    ISquareBond(dynamo::Simulation* tmp, T1 d, T2 l, T3 e, C2Range* nR,
 		std::string name):
       Interaction(tmp, nR),
       _diameter(Sim->_properties.getProperty
@@ -38,7 +38,7 @@ namespace dynamo {
       intName = name;
     }
 
-    ISquareBond(const magnet::xml::Node&, dynamo::SimData*);
+    ISquareBond(const magnet::xml::Node&, dynamo::Simulation*);
 
     void operator<<(const magnet::xml::Node&);
 

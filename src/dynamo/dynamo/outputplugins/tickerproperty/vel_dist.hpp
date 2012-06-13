@@ -26,7 +26,7 @@ namespace dynamo {
   class OPVelDist: public OPTicker
   {
   public:
-    OPVelDist(const dynamo::SimData*, const magnet::xml::Node&);
+    OPVelDist(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 

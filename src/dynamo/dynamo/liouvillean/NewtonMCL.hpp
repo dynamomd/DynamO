@@ -58,7 +58,7 @@ namespace dynamo {
   class LNewtonianMC: public LNewtonian
   {
   public:
-    LNewtonianMC(dynamo::SimData* tmp, const magnet::xml::Node&);
+    LNewtonianMC(dynamo::Simulation* tmp, const magnet::xml::Node&);
 
     //Pair particle dynamics
     virtual PairEventData SphereWellEvent(const IntEvent&, const double&, 

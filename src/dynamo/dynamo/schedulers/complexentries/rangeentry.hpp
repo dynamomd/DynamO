@@ -22,7 +22,7 @@ namespace dynamo {
   class SCERange: public SCEntry
   {
   public:
-    SCERange(const magnet::xml::Node&, dynamo::SimData* const);
+    SCERange(const magnet::xml::Node&, dynamo::Simulation* const);
   
     virtual void operator<<(const magnet::xml::Node&);
 

@@ -18,7 +18,7 @@
 #include <dynamo/outputplugins/tickerproperty/chainContactMap.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/ranges/1range.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/topology/include.hpp>
 #include <dynamo/interactions/captures.hpp>
 #include <boost/foreach.hpp>
@@ -35,7 +35,7 @@ namespace dynamo {
       array[i] = 0;
   }
 
-  OPCContactMap::OPCContactMap(const dynamo::SimData* tmp, const magnet::xml::Node&):
+  OPCContactMap::OPCContactMap(const dynamo::Simulation* tmp, const magnet::xml::Node&):
     OPTicker(tmp,"ContactMap")
   {}
 

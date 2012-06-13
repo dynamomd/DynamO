@@ -24,7 +24,7 @@ namespace dynamo {
   public:
     C2RNone() {}
 
-    C2RNone(const magnet::xml::Node& XML, const dynamo::SimData*)
+    C2RNone(const magnet::xml::Node& XML, const dynamo::Simulation*)
     { 
       if (strcmp(XML.getAttribute("Range"),"2None"))
 	M_throw() << "Attempting to load a 2None from a non 2None";

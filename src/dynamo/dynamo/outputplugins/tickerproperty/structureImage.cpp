@@ -18,7 +18,7 @@
 #include <dynamo/outputplugins/tickerproperty/structureImage.hpp>
 #include <dynamo/outputplugins/tickerproperty/radiusGyration.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/interactions/squarebond.hpp>
 #include <dynamo/ranges/2RList.hpp>
@@ -30,7 +30,7 @@
 #include <fstream>
 
 namespace dynamo {
-  OPStructureImaging::OPStructureImaging(const dynamo::SimData* tmp, 
+  OPStructureImaging::OPStructureImaging(const dynamo::Simulation* tmp, 
 					 const magnet::xml::Node& XML):
     OPTicker(tmp,"StructureImaging"),
     id(0),

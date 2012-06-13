@@ -16,7 +16,7 @@
 */
 
 #include <dynamo/outputplugins/1partproperty/MFL.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 
 #include <dynamo/species/species.hpp>
 #include <dynamo/1particleEventData.hpp>
@@ -26,7 +26,7 @@
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-  OPMFL::OPMFL(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
+  OPMFL::OPMFL(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):
     OP1PP(tmp,"MeanFreeLength", 250),
     binwidth(0.01)
   {

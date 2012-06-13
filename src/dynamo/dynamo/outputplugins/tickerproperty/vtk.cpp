@@ -17,7 +17,7 @@
 
 #include <dynamo/outputplugins/tickerproperty/vtk.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/systems/rescale.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -27,7 +27,7 @@
 #include <iomanip>
 
 namespace dynamo {
-  OPVTK::OPVTK(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
+  OPVTK::OPVTK(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):
     OPTicker(tmp,"VTK"),
     binWidth(1,1,1),
     imageCounter(0),

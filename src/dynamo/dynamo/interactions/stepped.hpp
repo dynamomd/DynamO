@@ -19,7 +19,7 @@
 
 #include <dynamo/interactions/captures.hpp>
 #include <dynamo/interactions/glyphrepresentation.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <vector>
 
 namespace dynamo {
@@ -28,10 +28,10 @@ namespace dynamo {
   public:
     typedef std::pair<double,double> steppair;
 
-    IStepped(dynamo::SimData*, const std::vector<steppair>&,
+    IStepped(dynamo::Simulation*, const std::vector<steppair>&,
 	     C2Range*, std::string name);
 
-    IStepped(const magnet::xml::Node&, dynamo::SimData*);
+    IStepped(const magnet::xml::Node&, dynamo::Simulation*);
   
     void operator<<(const magnet::xml::Node&);
 

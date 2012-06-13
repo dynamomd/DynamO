@@ -23,7 +23,7 @@ namespace dynamo {
   class OPMSD: public OutputPlugin
   {
   public:
-    OPMSD(const dynamo::SimData*, const magnet::xml::Node&);
+    OPMSD(const dynamo::Simulation*, const magnet::xml::Node&);
     ~OPMSD();
 
     virtual void initialise();

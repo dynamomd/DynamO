@@ -29,7 +29,7 @@ namespace dynamo {
   class OPEventEffects: public OutputPlugin
   {
   public:
-    OPEventEffects(const dynamo::SimData*, const magnet::xml::Node&);
+    OPEventEffects(const dynamo::Simulation*, const magnet::xml::Node&);
     ~OPEventEffects();
 
     virtual void initialise();

@@ -38,7 +38,7 @@
 
 namespace dynamo {
 
-  SysAndersen::SysAndersen(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
+  SysAndersen::SysAndersen(const magnet::xml::Node& XML, dynamo::Simulation* tmp): 
     System(tmp),
     meanFreeTime(100000),
     Temp(Sim->units.unitEnergy()),
@@ -55,7 +55,7 @@ namespace dynamo {
     type = GAUSSIAN;
   }
 
-  SysAndersen::SysAndersen(dynamo::SimData* nSim, double mft, double t, 
+  SysAndersen::SysAndersen(dynamo::Simulation* nSim, double mft, double t, 
 		       std::string nName):
     System(nSim),
     meanFreeTime(mft),

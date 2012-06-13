@@ -27,7 +27,7 @@ namespace dynamo {
   class OPTinkerXYZ: public OPTicker
   {
   public:
-    OPTinkerXYZ(const dynamo::SimData*, const magnet::xml::Node&);
+    OPTinkerXYZ(const dynamo::Simulation*, const magnet::xml::Node&);
     ~OPTinkerXYZ();
 
     virtual void initialise();

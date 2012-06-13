@@ -21,7 +21,7 @@
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  OPCollisionCorrelator::OPCollisionCorrelator(const dynamo::SimData* t1,
+  OPCollisionCorrelator::OPCollisionCorrelator(const dynamo::Simulation* t1,
 					       const magnet::xml::Node& XML):
     OP2PP(t1,"CollisionCorrelator")
   { operator<<(XML); }

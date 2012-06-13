@@ -20,7 +20,7 @@
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  SCERange::SCERange(const magnet::xml::Node& XML, dynamo::SimData* const nSim):
+  SCERange::SCERange(const magnet::xml::Node& XML, dynamo::Simulation* const nSim):
     SCEntry(nSim, "ParticleRange")
   { operator<<(XML); }
 

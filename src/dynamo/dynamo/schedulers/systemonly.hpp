@@ -22,9 +22,9 @@ namespace dynamo {
   class SSystemOnly: public Scheduler
   {
   public:
-    SSystemOnly(const magnet::xml::Node&, dynamo::SimData* const);
+    SSystemOnly(const magnet::xml::Node&, dynamo::Simulation* const);
 
-    SSystemOnly(dynamo::SimData* const, FEL*);
+    SSystemOnly(dynamo::Simulation* const, FEL*);
 
     virtual void rebuildList();
 

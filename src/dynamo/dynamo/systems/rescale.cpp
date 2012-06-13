@@ -32,7 +32,7 @@
 #include <fstream>
 
 namespace dynamo {
-  SysRescale::SysRescale(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
+  SysRescale::SysRescale(const magnet::xml::Node& XML, dynamo::Simulation* tmp): 
     System(tmp),
     _frequency(std::numeric_limits<size_t>::max()),
     _kT(1),
@@ -47,7 +47,7 @@ namespace dynamo {
     dout << "Velocity Rescaler Loaded" << std::endl;
   }
 
-  SysRescale::SysRescale(dynamo::SimData* tmp, size_t frequency, std::string name, double kT):
+  SysRescale::SysRescale(dynamo::Simulation* tmp, size_t frequency, std::string name, double kT):
     System(tmp),
     _frequency(frequency),
     _kT(kT),

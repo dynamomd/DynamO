@@ -27,7 +27,7 @@ namespace dynamo {
   class SVisualizer: public System
   {
   public:
-    SVisualizer(dynamo::SimData*, std::string, double);
+    SVisualizer(dynamo::Simulation*, std::string, double);
   
     virtual void runEvent() const;
 

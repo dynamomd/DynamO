@@ -54,13 +54,13 @@ static boost::program_options::variables_map vm;
 long double betaMax;
 long double betaMin;
 
-struct SimData;
+struct Simulation;
 
-std::vector<SimData> SimulationData;
+std::vector<Simulation> SimulationData;
 
-struct SimData
+struct Simulation
 {
-  SimData(std::string nfn):fileName(nfn), logZ(0.0), new_logZ(0.0), refZ(false)
+  Simulation(std::string nfn):fileName(nfn), logZ(0.0), new_logZ(0.0), refZ(false)
   {
     using namespace magnet::xml;
 
@@ -146,10 +146,10 @@ struct SimData
       }
   }
   
-  bool operator<(const SimData& d2) const
+  bool operator<(const Simulation& d2) const
   { return gamma[0] < d2.gamma[0]; }
 
-  bool operator>(const SimData& d2) const
+  bool operator>(const Simulation& d2) const
   { return gamma[0] > d2.gamma[0]; }
 
   std::string fileName;
@@ -256,8 +256,8 @@ struct ldbl
   operator const long double&() const { return val; }
 };
 
-typedef std::pair<SimData::histogramEntry::Xtype, ldbl> densOStatesPair;
-typedef std::map<SimData::histogramEntry::Xtype, ldbl> densOStatesMap;
+typedef std::pair<Simulation::histogramEntry::Xtype, ldbl> densOStatesPair;
+typedef std::map<Simulation::histogramEntry::Xtype, ldbl> densOStatesMap;
 typedef std::vector<densOStatesPair> densOStatesType;
 densOStatesType densOStates;
   
@@ -315,7 +315,7 @@ solveWeightsPiecemeal()
 
   for (size_t pieceSize = startingPieceSize; pieceSize < stoppingPieceSize; pieceSize += 5)
     {
-      BOOST_FOREACH(SimData& simdat, SimulationData)
+      BOOST_FOREACH(Simulation& simdat, SimulationData)
 	simdat.refZ = false;
 
       //Set the first system as the reference point
@@ -339,7 +339,7 @@ solveWeightsPiecemeal()
 	}
     }
   
-  BOOST_FOREACH(SimData& simdat, SimulationData)
+  BOOST_FOREACH(Simulation& simdat, SimulationData)
     simdat.refZ = false;
 
   //Set the first system as the reference point
@@ -361,8 +361,8 @@ void calcDensityOfStates()
   std::cout << "Density of states\n";
 
   //Sum up the histogram entries for each value of X
-  BOOST_FOREACH(const SimData& dat, SimulationData)
-    BOOST_FOREACH(const SimData::histogramEntry& simdat, dat.data)
+  BOOST_FOREACH(const Simulation& dat, SimulationData)
+    BOOST_FOREACH(const Simulation::histogramEntry& simdat, dat.data)
     accumilator[simdat.X] += simdat.Probability;
 
   //For each X, calculate the density of states
@@ -370,7 +370,7 @@ void calcDensityOfStates()
     {
       //First work out the divisor
       long double sum = 0.0;
-      BOOST_FOREACH(const SimData& dat2, SimulationData)
+      BOOST_FOREACH(const Simulation& dat2, SimulationData)
 	{
 	  long double tmp = 0;
 
@@ -417,7 +417,7 @@ void outputLogZ()
 
   of << std::setprecision(std::numeric_limits<long double>::digits10);
 
-  BOOST_FOREACH(const SimData& dat, SimulationData)
+  BOOST_FOREACH(const Simulation& dat, SimulationData)
     of << dat.gamma[0] << " " << dat.logZ << "\n";
 
   of.close();
@@ -429,7 +429,7 @@ void outputMoments()
   std::cout << "Calculating  moments\n";
   typedef std::pair<long double, long double> localpair;
   
-  BOOST_FOREACH(const SimData& dat, SimulationData)
+  BOOST_FOREACH(const Simulation& dat, SimulationData)
     {
       std::cout << "Writing " + (dat.fileName + std::string(".ReweightedEnergyHist"))
 		<< "\n";
@@ -605,9 +605,9 @@ main(int argc, char *argv[])
 
     //Data load
     BOOST_FOREACH(std::string fileName, vm["data-file"].as<std::vector<std::string> >())
-      SimulationData.push_back(SimData(fileName));
+      SimulationData.push_back(Simulation(fileName));
 
-    BOOST_FOREACH(const SimData& dat, SimulationData)
+    BOOST_FOREACH(const Simulation& dat, SimulationData)
       if (dat.binWidth != SimulationData.front().binWidth)
 	{
 	  std::cout << "Not all of the output files have the same bin width for the internal energy histograms!\n Aborting\n\n";
@@ -635,13 +635,13 @@ main(int argc, char *argv[])
 
     //Output ordered sims
     std::cout << "##################################################\n";
-    BOOST_FOREACH(const SimData& dat, SimulationData)
+    BOOST_FOREACH(const Simulation& dat, SimulationData)
       std::cout << dat.fileName << " NData = " << dat.data.size() << " gamma[0] = " << dat.gamma[0] << "\n";
 
     solveWeightsPiecemeal();
     
     std::cout << "##################################################\n";
-    BOOST_FOREACH(const SimData& dat, SimulationData)
+    BOOST_FOREACH(const Simulation& dat, SimulationData)
       std::cout << dat.fileName << " logZ = " << dat.logZ << "\n";
 
     //Now start the fun

@@ -17,13 +17,13 @@
 
 #include <dynamo/BC/LEBC.hpp>
 #include <dynamo/interactions/intEvent.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cmath>
 
 namespace dynamo {
-  BCLeesEdwards::BCLeesEdwards(const dynamo::SimData* tmp):
+  BCLeesEdwards::BCLeesEdwards(const dynamo::Simulation* tmp):
     BoundaryCondition(tmp, "LEBC"),
     _dxd(0) ,
     _shearRate(1)
@@ -33,7 +33,7 @@ namespace dynamo {
   }
 
   BCLeesEdwards::BCLeesEdwards(const magnet::xml::Node& XML, 
-			       const dynamo::SimData* tmp):
+			       const dynamo::Simulation* tmp):
     BoundaryCondition(tmp, "LEBC"),
     _dxd(0) 
   {

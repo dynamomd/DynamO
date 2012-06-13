@@ -21,7 +21,7 @@
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  OPChatteringCorrelator::OPChatteringCorrelator(const dynamo::SimData* t1,
+  OPChatteringCorrelator::OPChatteringCorrelator(const dynamo::Simulation* t1,
 						 const magnet::xml::Node& XML):
     OP2PP(t1,"ChatteringCorrelator") {}
 

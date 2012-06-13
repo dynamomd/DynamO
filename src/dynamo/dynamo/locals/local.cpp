@@ -24,12 +24,12 @@
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  Local::Local(dynamo::SimData* tmp, const char *name):
+  Local::Local(dynamo::Simulation* tmp, const char *name):
     SimBase(tmp,name),
     range(new RAll(tmp))
   {}
 
-  Local::Local(Range* nR, dynamo::SimData* tmp, const char *name):
+  Local::Local(Range* nR, dynamo::Simulation* tmp, const char *name):
     SimBase(tmp, name),
     range(nR)
   {}
@@ -48,7 +48,7 @@ namespace dynamo {
   }
 
   shared_ptr<Local> 
-  Local::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
+  Local::getClass(const magnet::xml::Node& XML, dynamo::Simulation* Sim)
   {
     if (!strcmp(XML.getAttribute("Type"),"Wall"))
       return shared_ptr<Local>(new LWall(XML, Sim));

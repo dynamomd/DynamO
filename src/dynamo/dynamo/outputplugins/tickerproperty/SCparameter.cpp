@@ -27,7 +27,7 @@
 #include <limits>
 
 namespace dynamo {
-  OPSCParameter::OPSCParameter(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
+  OPSCParameter::OPSCParameter(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):
     OPTicker(tmp,"SCParameter"),
     maxWaveNumber(0),
     count(0),

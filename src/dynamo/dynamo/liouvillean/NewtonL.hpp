@@ -32,7 +32,7 @@ namespace dynamo {
   class LNewtonian: public Liouvillean
   {
   public:
-    LNewtonian(dynamo::SimData*);
+    LNewtonian(dynamo::Simulation*);
 
     //Pair particle dynamics
     virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const;

@@ -22,7 +22,7 @@
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  OPKEnergyTicker::OPKEnergyTicker(const dynamo::SimData* tmp, 
+  OPKEnergyTicker::OPKEnergyTicker(const dynamo::Simulation* tmp, 
 				   const magnet::xml::Node& XML):
     OPTicker(tmp,"KEnergyTicker"),
     count(0)

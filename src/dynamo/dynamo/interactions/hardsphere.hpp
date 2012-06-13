@@ -18,7 +18,7 @@
 #pragma once
 
 #include <dynamo/interactions/interaction.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/interactions/glyphrepresentation.hpp>
 
 namespace dynamo {
@@ -26,7 +26,7 @@ namespace dynamo {
   {
   public:
     template<class T1, class T2>
-    IHardSphere(dynamo::SimData* tmp, T1 d, T2 e, C2Range* nR, 
+    IHardSphere(dynamo::Simulation* tmp, T1 d, T2 e, C2Range* nR, 
 		std::string name):
       Interaction(tmp, nR),
       _diameter(Sim->_properties.getProperty
@@ -37,7 +37,7 @@ namespace dynamo {
       intName = name;
     }
 
-    IHardSphere(const magnet::xml::Node&, dynamo::SimData*);
+    IHardSphere(const magnet::xml::Node&, dynamo::Simulation*);
 
     void operator<<(const magnet::xml::Node&);
 

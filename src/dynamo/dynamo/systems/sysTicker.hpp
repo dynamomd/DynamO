@@ -22,7 +22,7 @@ namespace dynamo {
   class SysTicker: public System
   {
   public:
-    SysTicker(dynamo::SimData*, double, std::string);
+    SysTicker(dynamo::Simulation*, double, std::string);
   
     virtual void runEvent() const;
 

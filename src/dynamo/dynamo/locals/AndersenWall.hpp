@@ -23,9 +23,9 @@ namespace dynamo {
   class LAndersenWall: public Local
   {
   public:
-    LAndersenWall(const magnet::xml::Node&, dynamo::SimData*);
+    LAndersenWall(const magnet::xml::Node&, dynamo::Simulation*);
 
-    LAndersenWall(dynamo::SimData*, double, Vector , Vector , 
+    LAndersenWall(dynamo::Simulation*, double, Vector , Vector , 
 		   std::string, Range*);
 
     virtual ~LAndersenWall() {}

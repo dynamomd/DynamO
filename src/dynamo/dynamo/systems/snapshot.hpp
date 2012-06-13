@@ -23,7 +23,7 @@ namespace dynamo {
   class SSnapshot: public System
   {
   public:
-    SSnapshot(dynamo::SimData*, double, std::string);
+    SSnapshot(dynamo::Simulation*, double, std::string);
   
     virtual void runEvent() const;
 

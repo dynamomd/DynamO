@@ -20,7 +20,7 @@
 #include <dynamo/include.hpp>
 
 namespace dynamo {
-  OPCollTicker::OPCollTicker(const dynamo::SimData* t1,const char *t2, unsigned char order):
+  OPCollTicker::OPCollTicker(const dynamo::Simulation* t1,const char *t2, unsigned char order):
     OutputPlugin(t1,t2,order)
   {}
 

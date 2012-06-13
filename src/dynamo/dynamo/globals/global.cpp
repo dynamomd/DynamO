@@ -24,7 +24,7 @@
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  Global::Global(dynamo::SimData* tmp, std::string name, Range* nR):
+  Global::Global(dynamo::Simulation* tmp, std::string name, Range* nR):
     SimBase(tmp, name),
     range(nR ? nR : new RAll(tmp))
   {}
@@ -42,7 +42,7 @@ namespace dynamo {
   }
 
   shared_ptr<Global>
-  Global::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
+  Global::getClass(const magnet::xml::Node& XML, dynamo::Simulation* Sim)
   {
     if (!strcmp(XML.getAttribute("Type"),"Cells2")
 	|| !strcmp(XML.getAttribute("Type"),"Cells")

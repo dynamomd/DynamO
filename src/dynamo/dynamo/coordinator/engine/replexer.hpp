@@ -158,7 +158,7 @@ namespace dynamo {
 
     /*! \brief The array of Simulations being run.
      */
-    boost::scoped_array<SimData> Simulations;
+    boost::scoped_array<Simulation> Simulations;
   
     /*! \brief The system time to end the Simulations at
      */
@@ -224,7 +224,7 @@ namespace dynamo {
      * Ensures the systems are in the right Ensemble, have a thermostat,
      * etc.
      */
-    virtual void setupSim(SimData&, const std::string);
+    virtual void setupSim(Simulation&, const std::string);
 
     //Replica Exchange attempt code
 

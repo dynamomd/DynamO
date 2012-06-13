@@ -22,7 +22,7 @@
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-  OPCollDistCheck::OPCollDistCheck(const dynamo::SimData* t1, 
+  OPCollDistCheck::OPCollDistCheck(const dynamo::Simulation* t1, 
 				   const magnet::xml::Node& XML):
     OutputPlugin(t1,"CollDistCheck"),
     binwidth(0.01)

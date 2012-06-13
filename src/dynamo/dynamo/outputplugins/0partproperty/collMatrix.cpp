@@ -16,7 +16,7 @@
 */
 
 #include <dynamo/outputplugins/0partproperty/collMatrix.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/interactions/include.hpp>
 #include <dynamo/outputplugins/1partproperty/kenergy.hpp>
@@ -24,7 +24,7 @@
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  OPCollMatrix::OPCollMatrix(const dynamo::SimData* tmp, const magnet::xml::Node&):
+  OPCollMatrix::OPCollMatrix(const dynamo::Simulation* tmp, const magnet::xml::Node&):
     OutputPlugin(tmp,"CollisionMatrix"),
     totalCount(0)
   {

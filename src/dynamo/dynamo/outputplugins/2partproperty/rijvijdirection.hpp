@@ -27,7 +27,7 @@ namespace dynamo {
   class OPRijVij: public OutputPlugin
   {
   public:
-    OPRijVij(const dynamo::SimData*, const magnet::xml::Node&);
+    OPRijVij(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
   

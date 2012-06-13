@@ -23,8 +23,8 @@ namespace dynamo {
   class LDblWall: public Local
   {
   public:
-    LDblWall(const magnet::xml::Node&, dynamo::SimData*);
-    LDblWall(dynamo::SimData*, double, Vector , Vector , 
+    LDblWall(const magnet::xml::Node&, dynamo::Simulation*);
+    LDblWall(dynamo::Simulation*, double, Vector , Vector , 
 	      std::string, Range*);
 
     virtual ~LDblWall() {}

@@ -20,12 +20,12 @@
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  SCEntry::SCEntry(dynamo::SimData* const tmp, const char *aName):
+  SCEntry::SCEntry(dynamo::Simulation* const tmp, const char *aName):
     SimBase(tmp, aName)
   {}
 
   SCEntry* 
-  SCEntry::getClass(const magnet::xml::Node& XML, dynamo::SimData* const Sim)
+  SCEntry::getClass(const magnet::xml::Node& XML, dynamo::Simulation* const Sim)
   {
     if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
       return new SCENBList(XML, Sim);

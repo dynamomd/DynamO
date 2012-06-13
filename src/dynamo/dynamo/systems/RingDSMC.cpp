@@ -36,7 +36,7 @@
 #endif
 
 namespace dynamo {
-  SysRingDSMC::SysRingDSMC(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
+  SysRingDSMC::SysRingDSMC(const magnet::xml::Node& XML, dynamo::Simulation* tmp): 
     System(tmp),
     uniformRand(Sim->ranGenerator, boost::uniform_real<>(0,1)),
     maxprob12(0.0),
@@ -47,7 +47,7 @@ namespace dynamo {
     type = DSMC;
   }
 
-  SysRingDSMC::SysRingDSMC(dynamo::SimData* nSim, double nd, double ntstp, double nChi1, double nChi2,
+  SysRingDSMC::SysRingDSMC(dynamo::Simulation* nSim, double nd, double ntstp, double nChi1, double nChi2,
 			 double ne, std::string nName, Range* r1):
     System(nSim),
     uniformRand(Sim->ranGenerator,boost::uniform_real<>(0,1)),

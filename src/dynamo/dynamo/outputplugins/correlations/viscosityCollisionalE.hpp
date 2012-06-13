@@ -27,7 +27,7 @@ namespace dynamo {
     typedef std::tr1::array<col, NDIM> matrix;
   
   public:
-    OPViscosityCollisionalE(const dynamo::SimData*, const magnet::xml::Node& XML);
+    OPViscosityCollisionalE(const dynamo::Simulation*, const magnet::xml::Node& XML);
 
     virtual void initialise();
 

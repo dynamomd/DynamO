@@ -23,7 +23,7 @@ namespace dynamo {
   class OPThermalConductivitySpeciesSpeciesE: public OutputPlugin
   {
   public:
-    OPThermalConductivitySpeciesSpeciesE(const dynamo::SimData*, 
+    OPThermalConductivitySpeciesSpeciesE(const dynamo::Simulation*, 
 					 const magnet::xml::Node&);
 
     virtual void initialise();

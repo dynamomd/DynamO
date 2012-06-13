@@ -25,7 +25,7 @@ namespace dynamo {
   class C2RChainEnds:public C2Range
   {
   public:
-    C2RChainEnds(const magnet::xml::Node& XML, const dynamo::SimData*):
+    C2RChainEnds(const magnet::xml::Node& XML, const dynamo::Simulation*):
       rangeStart(0),rangeEnd(0), interval(0) 
     { 
       if (strcmp(XML.getAttribute("Range"),"ChainEnds"))

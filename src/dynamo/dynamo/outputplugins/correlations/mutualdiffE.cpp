@@ -21,7 +21,7 @@
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
 
 namespace dynamo {
-  OPMutualDiffusionE::OPMutualDiffusionE(const dynamo::SimData* tmp, 
+  OPMutualDiffusionE::OPMutualDiffusionE(const dynamo::Simulation* tmp, 
 					 const magnet::xml::Node& XML):
     OutputPlugin(tmp, "MutualDiffusionE", 60), //Note the sort order set later
     count(0),

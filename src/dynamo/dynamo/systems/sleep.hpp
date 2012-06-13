@@ -19,7 +19,7 @@
 #pragma once
 
 #include <dynamo/systems/system.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/ranges/1range.hpp>
 #include <map>
 
@@ -27,9 +27,9 @@ namespace dynamo {
   class SSleep: public System
   {
   public:
-    SSleep(const magnet::xml::Node& XML, dynamo::SimData*);
+    SSleep(const magnet::xml::Node& XML, dynamo::Simulation*);
 
-    SSleep(dynamo::SimData*, std::string, Range*, double);
+    SSleep(dynamo::Simulation*, std::string, Range*, double);
   
     virtual void runEvent() const;
 

@@ -225,7 +225,7 @@ namespace dynamo {
       M_throw() << "Multiple configs loaded, but format string for output"
 	" file doesnt contain %ID";  
   
-    Simulations.reset(new SimData[nSims]);
+    Simulations.reset(new Simulation[nSims]);
 
     //We set this straight away
     for (size_t id(0); id < nSims; ++id)
@@ -250,7 +250,7 @@ namespace dynamo {
   }
 
   void 
-  EReplicaExchangeSimulation::setupSim(SimData& Sim, const std::string filename)
+  EReplicaExchangeSimulation::setupSim(Simulation& Sim, const std::string filename)
   {
     Engine::setupSim(Sim, filename);
 
@@ -407,8 +407,8 @@ namespace dynamo {
   void 
   EReplicaExchangeSimulation::AttemptSwap(const unsigned int sim1ID, const unsigned int sim2ID)
   {
-    SimData& sim1 = Simulations[temperatureList[sim1ID].second.simID];
-    SimData& sim2 = Simulations[temperatureList[sim2ID].second.simID];
+    Simulation& sim1 = Simulations[temperatureList[sim1ID].second.simID];
+    Simulation& sim2 = Simulations[temperatureList[sim2ID].second.simID];
 
     temperatureList[sim1ID].second.attempts++;
     temperatureList[sim2ID].second.attempts++;
@@ -484,8 +484,8 @@ namespace dynamo {
 	    std::vector<magnet::function::Task*> tasks(nSims, NULL);
 	  
 	    for (size_t i(0); i < nSims; ++i)
-	      tasks[i] = magnet::function::Task::makeTask(&SimData::runSimulation, 
-							  &static_cast<SimData&>(Simulations[i]), true);
+	      tasks[i] = magnet::function::Task::makeTask(&Simulation::runSimulation, 
+							  &static_cast<Simulation&>(Simulations[i]), true);
 
 	    threads.queueTasks(tasks);
 	    threads.wait();//This syncs the systems for the replica exchange

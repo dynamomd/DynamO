@@ -17,7 +17,7 @@
 
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/particle.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/units/units.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <cmath>
@@ -38,7 +38,7 @@ namespace dynamo {
   }
 
   std::string 
-  IntEvent::stringData(const dynamo::SimData* Sim) const
+  IntEvent::stringData(const dynamo::Simulation* Sim) const
   {
     std::ostringstream tmpstring;
     tmpstring << "dt :" << dt / Sim->units.unitTime()

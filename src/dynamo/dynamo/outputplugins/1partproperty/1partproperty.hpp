@@ -22,7 +22,7 @@ namespace dynamo {
   class OP1PP: public OutputPlugin
   {
   public:
-    OP1PP(const dynamo::SimData*, const char*, unsigned char order = 100);
+    OP1PP(const dynamo::Simulation*, const char*, unsigned char order = 100);
 
     virtual void eventUpdate(const IntEvent&, const PairEventData&);
 

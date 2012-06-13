@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/globals/global.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 
 #include <boost/function.hpp>
 #include <magnet/function/delegate.hpp>
@@ -84,7 +84,7 @@ namespace dynamo {
     };
 
   public:
-    GNeighbourList(dynamo::SimData* a, const char *b): 
+    GNeighbourList(dynamo::Simulation* a, const char *b): 
       Global(a, b),
       _initialised(false),
       _maxInteractionRange(0),

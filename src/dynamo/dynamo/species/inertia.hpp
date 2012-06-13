@@ -24,13 +24,13 @@ namespace dynamo {
   class SpInertia: public SpPoint
   {
   public:
-    SpInertia(dynamo::SimData* sim, Range* r, 
+    SpInertia(dynamo::Simulation* sim, Range* r, 
 	      double nMass, std::string nName,
 	      unsigned int ID, std::string nIName="Bulk"):
       SpPoint(sim, r, nMass, nName, ID, nIName)
     {}
 
-    SpInertia(const magnet::xml::Node& XML, dynamo::SimData* Sim, unsigned int ID):
+    SpInertia(const magnet::xml::Node& XML, dynamo::Simulation* Sim, unsigned int ID):
       SpPoint(XML,Sim,ID)
     {}
   };

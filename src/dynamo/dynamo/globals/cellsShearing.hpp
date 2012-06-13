@@ -23,9 +23,9 @@ namespace dynamo {
   class GCellsShearing: public GCells
   {
   public:
-    GCellsShearing(const magnet::xml::Node&, dynamo::SimData*);
+    GCellsShearing(const magnet::xml::Node&, dynamo::Simulation*);
   
-    GCellsShearing(dynamo::SimData*, const std::string&);
+    GCellsShearing(dynamo::Simulation*, const std::string&);
   
     virtual ~GCellsShearing() {}
 

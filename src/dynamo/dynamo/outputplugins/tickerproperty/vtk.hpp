@@ -21,7 +21,7 @@ namespace dynamo {
   class OPVTK: public OPTicker
   {
   public:
-    OPVTK(const dynamo::SimData*, const magnet::xml::Node&);
+    OPVTK(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 

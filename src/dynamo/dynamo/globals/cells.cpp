@@ -30,7 +30,7 @@
 #include <cstdio>
 
 namespace dynamo {
-  GCells::GCells(dynamo::SimData* nSim, const std::string& name, size_t overlink):
+  GCells::GCells(dynamo::Simulation* nSim, const std::string& name, size_t overlink):
     GNeighbourList(nSim, "MortonCellNeighbourList"),
     cellDimension(1,1,1),
     _oversizeCells(1.0),
@@ -41,7 +41,7 @@ namespace dynamo {
     dout << "Cells Loaded" << std::endl;
   }
 
-  GCells::GCells(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
+  GCells::GCells(const magnet::xml::Node& XML, dynamo::Simulation* ptrSim):
     GNeighbourList(ptrSim, "MortonCellNeighbourList"),
     cellDimension(1,1,1),
     _oversizeCells(1.0),

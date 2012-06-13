@@ -22,7 +22,7 @@ namespace dynamo {
   class OP2PP: public OutputPlugin
   {
   public:
-    OP2PP(const dynamo::SimData*, const char*);
+    OP2PP(const dynamo::Simulation*, const char*);
 
     virtual void eventUpdate(const IntEvent&, const PairEventData&);
 

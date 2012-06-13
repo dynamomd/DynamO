@@ -16,7 +16,7 @@
 */
 
 #include <dynamo/systems/schedMaintainer.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/units/units.hpp>
@@ -26,7 +26,7 @@
 #endif
 
 namespace dynamo {
-  SysSchedMaintainer::SysSchedMaintainer(dynamo::SimData* nSim, double ndt, std::string nName):
+  SysSchedMaintainer::SysSchedMaintainer(dynamo::Simulation* nSim, double ndt, std::string nName):
     System(nSim),
     periodt(ndt * nSim->units.unitTime())
   {

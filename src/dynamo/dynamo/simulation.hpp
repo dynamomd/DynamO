@@ -77,7 +77,7 @@ namespace dynamo
     SimBase and SimBase_Const which also provide some general
     std::cout formatting.
    */
-  class SimData : public dynamo::Base
+  class Simulation : public dynamo::Base
   {
   protected:
     typedef magnet::function::Delegate1
@@ -114,9 +114,9 @@ namespace dynamo
   public:
     /*! \brief Significant default value initialisation.
      */
-    SimData();
+    Simulation();
     
-    /*! \brief Initialise the entire Simulation and the SimData struct.
+    /*! \brief Initialise the entire Simulation and the Simulation struct.
      
       Most classes will have an initialisation function and its up to
       this function to call them all and in the right order.
@@ -369,7 +369,7 @@ namespace dynamo
     */
     void signalParticleUpdate(const NEventData&) const;
 
-    void replexerSwap(SimData&);
+    void replexerSwap(Simulation&);
     
     boost::signals2::signal<void (size_t)>& particle_added_signal()
     { return _particleAddedToSim; }

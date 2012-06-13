@@ -23,7 +23,7 @@ namespace dynamo {
   class InputPlugin: public dynamo::SimBase
   {
   public:
-    InputPlugin(dynamo::SimData*, const char *aName);
+    InputPlugin(dynamo::Simulation*, const char *aName);
 
     virtual ~InputPlugin() {};
 

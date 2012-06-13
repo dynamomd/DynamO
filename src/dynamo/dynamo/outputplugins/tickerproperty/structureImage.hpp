@@ -22,7 +22,7 @@ namespace dynamo {
   class OPStructureImaging: public OPTicker
   {
   public:
-    OPStructureImaging(const dynamo::SimData*, const magnet::xml::Node&);
+    OPStructureImaging(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 

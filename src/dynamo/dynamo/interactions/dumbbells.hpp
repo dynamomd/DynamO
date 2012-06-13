@@ -19,7 +19,7 @@
 
 #include <dynamo/interactions/captures.hpp>
 #include <dynamo/interactions/interaction.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/interactions/glyphrepresentation.hpp>
 
 namespace dynamo {
@@ -27,7 +27,7 @@ namespace dynamo {
   {
   public:
     template<class T1, class T2, class T3>
-    IDumbbells(dynamo::SimData* tmp, T1 l, T2 e, T3 d, C2Range* nR, 
+    IDumbbells(dynamo::Simulation* tmp, T1 l, T2 e, T3 d, C2Range* nR, 
 	       std::string name):
       ISingleCapture(tmp, nR),
       _length(Sim->_properties.getProperty
@@ -44,7 +44,7 @@ namespace dynamo {
     virtual Vector getGlyphSize(size_t ID, size_t subID) const;
     virtual Vector getGlyphPosition(size_t ID, size_t subID) const;
 
-    IDumbbells(const magnet::xml::Node&, dynamo::SimData*);
+    IDumbbells(const magnet::xml::Node&, dynamo::Simulation*);
 
     void operator<<(const magnet::xml::Node&);
   

@@ -18,7 +18,7 @@
 #include <dynamo/outputplugins/tickerproperty/chaintorsion.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/ranges/1range.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/topology/include.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/BC/None.hpp>
@@ -27,7 +27,7 @@
 #include <vector>
 
 namespace dynamo {
-  OPCTorsion::OPCTorsion(const dynamo::SimData* tmp, const magnet::xml::Node&):
+  OPCTorsion::OPCTorsion(const dynamo::Simulation* tmp, const magnet::xml::Node&):
     OPTicker(tmp,"Torsion")
   {}
 

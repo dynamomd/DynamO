@@ -26,7 +26,7 @@ namespace xml
   class XmlStream;
 }
 namespace dynamo {
-  class SimData;
+  class Simulation;
   class IntEvent;
   class Local;
 
@@ -66,7 +66,7 @@ namespace dynamo {
   
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const LocalEvent&);
 
-    std::string stringData(const dynamo::SimData*) const;
+    std::string stringData(const dynamo::Simulation*) const;
 
     const size_t& getLocalID() const { return localID; }
 

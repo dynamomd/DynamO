@@ -25,7 +25,7 @@ namespace dynamo {
   class OPCTorsion: public OPTicker
   {
   public:
-    OPCTorsion(const dynamo::SimData*, const magnet::xml::Node&);
+    OPCTorsion(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 

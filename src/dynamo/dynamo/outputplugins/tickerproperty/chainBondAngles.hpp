@@ -24,7 +24,7 @@ namespace dynamo {
   class OPChainBondAngles: public OPTicker
   {
   public:
-    OPChainBondAngles(const dynamo::SimData*, const magnet::xml::Node&);
+    OPChainBondAngles(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 

@@ -37,7 +37,7 @@
 #endif
 
 namespace dynamo {
-  GSOCells::GSOCells(dynamo::SimData* nSim, const std::string& name):
+  GSOCells::GSOCells(dynamo::Simulation* nSim, const std::string& name):
     Global(nSim, "SingleOccupancyCells"),
     cellDimension(1,1,1),
     cuberootN(0)
@@ -46,7 +46,7 @@ namespace dynamo {
     dout << "Single occupancy cells loaded" << std::endl;
   }
 
-  GSOCells::GSOCells(const magnet::xml::Node&XML, dynamo::SimData* ptrSim):
+  GSOCells::GSOCells(const magnet::xml::Node&XML, dynamo::Simulation* ptrSim):
     Global(ptrSim, "SingleOccupancyCells"),
     cellDimension(1,1,1),
     cuberootN(0)

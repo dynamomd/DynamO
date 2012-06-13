@@ -22,7 +22,7 @@ namespace dynamo {
   class SCENBList: public SCEntry
   {
   public:
-    SCENBList(const magnet::xml::Node&, dynamo::SimData* const);
+    SCENBList(const magnet::xml::Node&, dynamo::Simulation* const);
   
     virtual void initialise();
 

@@ -24,9 +24,9 @@ namespace dynamo {
   class SComplex: public Scheduler
   {
   public:
-    SComplex(const magnet::xml::Node&, dynamo::SimData* const);
+    SComplex(const magnet::xml::Node&, dynamo::Simulation* const);
 
-    SComplex(dynamo::SimData* const, FEL*);
+    SComplex(dynamo::Simulation* const, FEL*);
 
     virtual void initialise();
 

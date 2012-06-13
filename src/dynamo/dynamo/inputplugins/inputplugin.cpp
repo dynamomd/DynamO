@@ -25,14 +25,14 @@
 #include <dynamo/BC/include.hpp>
 #include <dynamo/liouvillean/include.hpp>
 #include <dynamo/systems/andersenThermostat.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/topology/include.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-  InputPlugin::InputPlugin(dynamo::SimData* tmp, const char *aName):
+  InputPlugin::InputPlugin(dynamo::Simulation* tmp, const char *aName):
     SimBase(tmp, aName)
   {}
 

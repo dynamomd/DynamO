@@ -28,9 +28,9 @@ namespace dynamo {
   class C2RRangeList:public C2Range, dynamo::SimBase_const
   {
   public:
-    C2RRangeList(const dynamo::SimData* nSim):SimBase_const(nSim,"C2RRangeList") {}
+    C2RRangeList(const dynamo::Simulation* nSim):SimBase_const(nSim,"C2RRangeList") {}
 
-    C2RRangeList(const magnet::xml::Node& XML, const dynamo::SimData* nSim):
+    C2RRangeList(const magnet::xml::Node& XML, const dynamo::Simulation* nSim):
       SimBase_const(nSim, "C2RRangeList")
     { operator<<(XML); }
     

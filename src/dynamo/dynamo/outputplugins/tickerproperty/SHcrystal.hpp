@@ -23,7 +23,7 @@ namespace dynamo {
   class OPSHCrystal: public OPTicker
   {
   public:
-    OPSHCrystal(const dynamo::SimData*, const magnet::xml::Node&);
+    OPSHCrystal(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 
@@ -49,14 +49,14 @@ namespace dynamo {
 
     struct sphericalsum
     {
-      sphericalsum(const dynamo::SimData * const, 
+      sphericalsum(const dynamo::Simulation * const, 
 		   const double&, const size_t&);
     
       void operator()(const Particle&, const size_t&) const;
     
       void clear();
 
-      const dynamo::SimData* const Sim;
+      const dynamo::Simulation* const Sim;
       const double rg;
       const size_t maxl;
       mutable size_t count;

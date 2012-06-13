@@ -28,7 +28,7 @@ namespace xml
 }
 
 namespace dynamo {
-  class SimData;
+  class Simulation;
   class IntEvent;
   class Global;
   
@@ -71,7 +71,7 @@ namespace dynamo {
   
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const GlobalEvent&);
 
-    std::string stringData(const dynamo::SimData*) const;
+    std::string stringData(const dynamo::Simulation*) const;
 
     const size_t& getGlobalID() const { return globalID; } 
 

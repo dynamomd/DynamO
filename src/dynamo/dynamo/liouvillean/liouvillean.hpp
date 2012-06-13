@@ -20,7 +20,7 @@
 #include <dynamo/base.hpp>
 #include <dynamo/eventtypes.hpp>
 #include <dynamo/particle.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <magnet/math/matrix.hpp>
 
 namespace xml { class XmlStream; }
@@ -62,7 +62,7 @@ namespace dynamo {
       Vector  angularVelocity;
     };
 
-    Liouvillean(dynamo::SimData* tmp):
+    Liouvillean(dynamo::Simulation* tmp):
       SimBase(tmp, "Liouvillean"),
       partPecTime(0.0),
       streamCount(0),
@@ -597,7 +597,7 @@ namespace dynamo {
     /*! \brief Instantiates and loads Liovillean classes from an XML
       entry.
      */
-    static shared_ptr<Liouvillean> getClass(const magnet::xml::Node& ,dynamo::SimData*);
+    static shared_ptr<Liouvillean> getClass(const magnet::xml::Node& ,dynamo::Simulation*);
     
     /*! \brief Free streams all particles up to the current time.
       

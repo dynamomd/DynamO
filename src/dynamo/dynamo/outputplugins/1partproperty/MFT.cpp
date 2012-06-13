@@ -16,7 +16,7 @@
 */
 
 #include <dynamo/outputplugins/1partproperty/MFT.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 
 #include <dynamo/species/species.hpp>
 #include <dynamo/1particleEventData.hpp>
@@ -26,7 +26,7 @@
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-  OPMFT::OPMFT(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
+  OPMFT::OPMFT(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):
     OP1PP(tmp,"MeanFreeLength", 250),
     collisionHistoryLength(10),
     binwidth(0.01)

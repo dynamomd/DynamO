@@ -32,7 +32,7 @@ namespace dynamo {
   private:
   
   public:
-    OPCollMatrix(const dynamo::SimData*, const magnet::xml::Node&);
+    OPCollMatrix(const dynamo::Simulation*, const magnet::xml::Node&);
     ~OPCollMatrix();
 
     virtual void initialise();

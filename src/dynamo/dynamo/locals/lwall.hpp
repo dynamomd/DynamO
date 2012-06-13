@@ -17,16 +17,16 @@
 
 #pragma once
 #include <dynamo/locals/local.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 
 namespace dynamo {
   class LWall: public Local
   {
   public:
-    LWall(const magnet::xml::Node&, dynamo::SimData*);
+    LWall(const magnet::xml::Node&, dynamo::Simulation*);
 
     template<class T1, class T2>
-    LWall(dynamo::SimData* nSim, T1 e, T2 d, Vector nnorm,
+    LWall(dynamo::Simulation* nSim, T1 e, T2 d, Vector nnorm,
 	  Vector  norigin, std::string nname, Range* nRange):
       Local(nRange, nSim, "LocalWall"),
       vNorm(nnorm),

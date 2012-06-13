@@ -23,9 +23,9 @@ namespace dynamo {
   class GSOCells: public Global
   {
   public:
-    GSOCells(const magnet::xml::Node&, dynamo::SimData*);
+    GSOCells(const magnet::xml::Node&, dynamo::Simulation*);
 
-    GSOCells(dynamo::SimData*, const std::string&);
+    GSOCells(dynamo::Simulation*, const std::string&);
 
     virtual ~GSOCells() {}
 

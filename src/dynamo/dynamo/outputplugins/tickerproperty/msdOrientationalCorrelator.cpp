@@ -17,7 +17,7 @@
 
 #include <dynamo/outputplugins/tickerproperty/msdOrientationalCorrelator.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/systems/sysTicker.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -26,7 +26,7 @@
 #include <boost/math/special_functions/legendre.hpp>
 
 namespace dynamo {
-  OPMSDOrientationalCorrelator::OPMSDOrientationalCorrelator(const dynamo::SimData* tmp,
+  OPMSDOrientationalCorrelator::OPMSDOrientationalCorrelator(const dynamo::Simulation* tmp,
 							     const magnet::xml::Node& XML):
     OPTicker(tmp,"MSDOrientationalCorrelator"),
     length(50),

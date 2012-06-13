@@ -22,8 +22,8 @@ namespace dynamo {
   class LRoughWall: public Local
   {
   public:
-    LRoughWall(const magnet::xml::Node&, dynamo::SimData*);
-    LRoughWall(dynamo::SimData*, double, double, double, Vector , Vector , 
+    LRoughWall(const magnet::xml::Node&, dynamo::Simulation*);
+    LRoughWall(dynamo::Simulation*, double, double, double, Vector , Vector , 
 	       std::string, Range*, bool nrender = true);
 
     virtual ~LRoughWall() {}

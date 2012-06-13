@@ -20,7 +20,7 @@
 #include <dynamo/particle.hpp>
 
 #include <dynamo/liouvillean/liouvillean.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/systems/system.hpp>
 #include <dynamo/globals/global.hpp>
 #include <dynamo/globals/globEvent.hpp>
@@ -74,14 +74,14 @@ namespace dynamo {
     XML << magnet::xml::endtag("Entries");
   }
 
-  SComplex::SComplex(const magnet::xml::Node& XML, dynamo::SimData* const Sim):
+  SComplex::SComplex(const magnet::xml::Node& XML, dynamo::Simulation* const Sim):
     Scheduler(Sim,"ComplexScheduler", NULL)
   { 
     dout << "Complex Scheduler Algorithmn Loaded" << std::endl;
     operator<<(XML);
   }
 
-  SComplex::SComplex(dynamo::SimData* const Sim, FEL* ns):
+  SComplex::SComplex(dynamo::Simulation* const Sim, FEL* ns):
     Scheduler(Sim,"ComplexScheduler", ns)
   { dout << "Complex Scheduler Algorithmn Loaded" << std::endl; }
 

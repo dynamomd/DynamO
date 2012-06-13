@@ -18,7 +18,7 @@
 #include <dynamo/outputplugins/0partproperty/intEnergyHist.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/liouvillean/NewtonMCL.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/outputplugins/1partproperty/uenergy.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -26,7 +26,7 @@
 #include <fstream>
 
 namespace dynamo {
-  OPIntEnergyHist::OPIntEnergyHist(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
+  OPIntEnergyHist::OPIntEnergyHist(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):
     OPCollTicker(tmp,"InternalEnergyHistogram", 10),//Before OPEnergy
     intEnergyHist(1.0),
     weight(0.0),

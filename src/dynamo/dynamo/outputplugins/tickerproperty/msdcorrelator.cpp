@@ -17,7 +17,7 @@
 
 #include <dynamo/outputplugins/tickerproperty/msdcorrelator.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/outputplugins/0partproperty/msd.hpp>
 #include <dynamo/systems/sysTicker.hpp>
@@ -26,7 +26,7 @@
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-  OPMSDCorrelator::OPMSDCorrelator(const dynamo::SimData* tmp, 
+  OPMSDCorrelator::OPMSDCorrelator(const dynamo::Simulation* tmp, 
 				   const magnet::xml::Node& XML):
     OPTicker(tmp,"MSDCorrelator"),
     length(20),

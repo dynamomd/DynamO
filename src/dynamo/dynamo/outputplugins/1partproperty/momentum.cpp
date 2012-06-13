@@ -19,12 +19,12 @@
 #include <dynamo/interactions/captures.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/interactions/intEvent.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <boost/foreach.hpp>
 #include <cmath>
 
 namespace dynamo {
-  OPMomentum::OPMomentum(const dynamo::SimData* tmp, const magnet::xml::Node&):
+  OPMomentum::OPMomentum(const dynamo::Simulation* tmp, const magnet::xml::Node&):
     OP1PP(tmp,"Momentum", 250),
     accMom(0,0,0), accMomsq(0,0,0), sysMom(0,0,0)
   {}

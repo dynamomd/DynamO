@@ -27,7 +27,7 @@ namespace dynamo {
   class OPCubeComp: public OutputPlugin
   {
   public:
-    OPCubeComp(const dynamo::SimData*, const magnet::xml::Node&);
+    OPCubeComp(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
   

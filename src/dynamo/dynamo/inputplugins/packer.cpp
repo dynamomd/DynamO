@@ -17,7 +17,7 @@
 
 #include <dynamo/inputplugins/packer.hpp>
 #include <dynamo/particle.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/inputplugins/cells/include.hpp>
 #include <dynamo/particle.hpp>
 #include <dynamo/schedulers/include.hpp>
@@ -30,7 +30,7 @@
 #include <dynamo/BC/include.hpp>
 #include <dynamo/liouvillean/include.hpp>
 #include <dynamo/systems/andersenThermostat.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/topology/include.hpp>
 #include <dynamo/ensemble.hpp>
 #include <dynamo/locals/include.hpp>
@@ -62,7 +62,7 @@ namespace dynamo {
     };
   }
 
-  IPPacker::IPPacker(po::variables_map& vm2, dynamo::SimData* tmp):
+  IPPacker::IPPacker(po::variables_map& vm2, dynamo::Simulation* tmp):
     SimBase(tmp, "SysPacker"),
     vm(vm2)
   {}

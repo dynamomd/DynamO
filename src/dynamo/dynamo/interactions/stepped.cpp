@@ -25,7 +25,7 @@
 #include <dynamo/species/species.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
@@ -36,7 +36,7 @@
 #include <iomanip>
 
 namespace dynamo {
-  IStepped::IStepped(dynamo::SimData* tmp, 
+  IStepped::IStepped(dynamo::Simulation* tmp, 
 		     const std::vector<steppair>& vec, C2Range* nR,
 		     std::string name):
     IMultiCapture(tmp,nR),
@@ -49,7 +49,7 @@ namespace dynamo {
     steps(vec)
   { intName = name; }
 
-  IStepped::IStepped(const magnet::xml::Node& XML, dynamo::SimData* tmp):
+  IStepped::IStepped(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
     IMultiCapture(tmp, NULL), //A temporary value!
     _unitLength(Sim->_properties.getProperty
 		(Sim->units.unitLength(), 

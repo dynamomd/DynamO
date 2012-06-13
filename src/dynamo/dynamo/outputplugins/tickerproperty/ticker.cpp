@@ -22,7 +22,7 @@
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-  OPTicker::OPTicker(const dynamo::SimData* t1,const char *t2):
+  OPTicker::OPTicker(const dynamo::Simulation* t1,const char *t2):
     OutputPlugin(t1,t2)
   {}
 

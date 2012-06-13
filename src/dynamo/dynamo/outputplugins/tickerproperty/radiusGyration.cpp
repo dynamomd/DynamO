@@ -18,7 +18,7 @@
 #include <dynamo/outputplugins/tickerproperty/radiusGyration.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/ranges/1range.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/topology/include.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -29,7 +29,7 @@
 #include <cmath>
 
 namespace dynamo {
-  OPRGyration::OPRGyration(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
+  OPRGyration::OPRGyration(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):
     OPTicker(tmp,"GyrationRadius"),
     binwidth1(0.01),
     binwidth2(0.001),
@@ -92,7 +92,7 @@ namespace dynamo {
   }
 
   OPRGyration::molGyrationDat
-  OPRGyration::getGyrationEigenSystem(const shared_ptr<Range>& range, const dynamo::SimData* Sim)
+  OPRGyration::getGyrationEigenSystem(const shared_ptr<Range>& range, const dynamo::Simulation* Sim)
   {
     //Determine the centre of mass. Watch for periodic images
     Vector  tmpVec;  

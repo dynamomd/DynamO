@@ -18,7 +18,7 @@
 #include <dynamo/globals/PBCSentinel.hpp>
 #include <dynamo/globals/globEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <magnet/xmlreader.hpp>
@@ -28,7 +28,7 @@
 #endif
 
 namespace dynamo {
-  GPBCSentinel::GPBCSentinel(dynamo::SimData* nSim, const std::string& name):
+  GPBCSentinel::GPBCSentinel(dynamo::Simulation* nSim, const std::string& name):
     Global(nSim, "PBCSentinel"),
     maxintdist(0)
   {
@@ -36,7 +36,7 @@ namespace dynamo {
     dout << "PBCSentinel Loaded" << std::endl;
   }
 
-  GPBCSentinel::GPBCSentinel(const magnet::xml::Node& XML, dynamo::SimData* ptrSim):
+  GPBCSentinel::GPBCSentinel(const magnet::xml::Node& XML, dynamo::Simulation* ptrSim):
     Global(ptrSim, "PBCSentinel"),
     maxintdist(0)
   {

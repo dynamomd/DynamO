@@ -18,13 +18,13 @@
 
 #include <dynamo/outputplugins/2partproperty/rijvijdirection.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/outputplugins/0partproperty/collMatrix.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  OPRijVij::OPRijVij(const dynamo::SimData* tmp, const magnet::xml::Node&):
+  OPRijVij::OPRijVij(const dynamo::Simulation* tmp, const magnet::xml::Node&):
     OutputPlugin(tmp, "RdotV")
   {}
 

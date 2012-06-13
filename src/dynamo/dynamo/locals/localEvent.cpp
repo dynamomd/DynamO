@@ -18,7 +18,7 @@
 #include <dynamo/locals/localEvent.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/particle.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/interactions/intEvent.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -46,7 +46,7 @@ namespace dynamo {
   }
 
   std::string 
-  LocalEvent::stringData(const dynamo::SimData* Sim) const
+  LocalEvent::stringData(const dynamo::Simulation* Sim) const
   {
     std::ostringstream tmpstring;
     tmpstring << "dt :" << dt / Sim->units.unitTime()

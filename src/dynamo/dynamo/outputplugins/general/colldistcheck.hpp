@@ -29,7 +29,7 @@ namespace dynamo {
   class OPCollDistCheck: public OutputPlugin
   {
   public:
-    OPCollDistCheck(const dynamo::SimData*, 
+    OPCollDistCheck(const dynamo::Simulation*, 
 		    const magnet::xml::Node&);
 
     ~OPCollDistCheck();

@@ -19,7 +19,7 @@
 #include <dynamo/particle.hpp>
 #include <dynamo/BC/BC.hpp>
 
-#include <dynamo/liouvillean/../../../simdata.hpp>
+#include <dynamo/liouvillean/../../../simulation.hpp>
 #include <dynamo/liouvillean/shape.hpp>
 
 namespace dynamo {

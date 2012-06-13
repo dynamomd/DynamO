@@ -18,7 +18,7 @@
 #include <dynamo/interactions/captures.hpp>
 #include <dynamo/particle.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>

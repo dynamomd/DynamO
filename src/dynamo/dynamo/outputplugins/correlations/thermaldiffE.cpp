@@ -24,7 +24,7 @@
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-  OPThermalDiffusionE::OPThermalDiffusionE(const dynamo::SimData* tmp,
+  OPThermalDiffusionE::OPThermalDiffusionE(const dynamo::Simulation* tmp,
 					   const magnet::xml::Node& XML):
     OutputPlugin(tmp,"ThermalDiffusionE", 60),
     G(100),

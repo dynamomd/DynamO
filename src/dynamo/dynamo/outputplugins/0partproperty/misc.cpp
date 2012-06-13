@@ -17,7 +17,7 @@
 
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <magnet/memUsage.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <boost/foreach.hpp>
@@ -25,7 +25,7 @@
 #include <ctime>
 
 namespace dynamo {
-  OPMisc::OPMisc(const dynamo::SimData* tmp, const magnet::xml::Node&):
+  OPMisc::OPMisc(const dynamo::Simulation* tmp, const magnet::xml::Node&):
     OutputPlugin(tmp,"Misc",0),
     oldSysTime(0),
     dualEvents(0),

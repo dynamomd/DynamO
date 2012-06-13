@@ -31,7 +31,7 @@ namespace dynamo {
   Species::~Species() {}
 
   shared_ptr<Species>
-  Species::getClass(const magnet::xml::Node& XML, dynamo::SimData* tmp, size_t nID)
+  Species::getClass(const magnet::xml::Node& XML, dynamo::Simulation* tmp, size_t nID)
   {
     if (!std::strcmp(XML.getAttribute("Type"), "Point"))
       return shared_ptr<Species>(new SpPoint(XML, tmp, nID));

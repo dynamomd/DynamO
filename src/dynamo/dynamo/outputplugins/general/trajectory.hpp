@@ -23,7 +23,7 @@ namespace dynamo {
   class OPTrajectory: public OutputPlugin
   {
   public:
-    OPTrajectory(const dynamo::SimData*, const magnet::xml::Node&);
+    OPTrajectory(const dynamo::Simulation*, const magnet::xml::Node&);
 
     OPTrajectory(const OPTrajectory&);
   

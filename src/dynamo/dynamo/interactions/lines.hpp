@@ -18,7 +18,7 @@
 #pragma once
 
 #include <dynamo/interactions/captures.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/interactions/glyphrepresentation.hpp>
 
 namespace dynamo {
@@ -26,7 +26,7 @@ namespace dynamo {
   {
   public:
     template<class T1, class T2>
-    ILines(dynamo::SimData* tmp, T1 l, T2 e, C2Range* nR, std::string name):
+    ILines(dynamo::Simulation* tmp, T1 l, T2 e, C2Range* nR, std::string name):
       ISingleCapture(tmp, nR),
       _length(Sim->_properties.getProperty
 	      (l, Property::Units::Length())),
@@ -41,7 +41,7 @@ namespace dynamo {
     virtual Vector getGlyphPosition(size_t ID, size_t subID) const;
     virtual GLYPH_TYPE getDefaultGlyphType() const { return LINE_GLYPH; }
 
-    ILines(const magnet::xml::Node&, dynamo::SimData*);
+    ILines(const magnet::xml::Node&, dynamo::Simulation*);
 
     void operator<<(const magnet::xml::Node&);
 

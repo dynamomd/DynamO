@@ -28,7 +28,7 @@ namespace dynamo
 {
   using std::tr1::shared_ptr;
 
-  class SimData;
+  class Simulation;
 
   /*! \brief Provides some basic IO functionality to a derived class.
    * 
@@ -112,9 +112,9 @@ namespace dynamo
   };
 
   /*! \brief A Base class which contains a writable pointer to a
-   * SimData structure.
+   * Simulation structure.
    *
-   * This class must be able to change the SimData struct it points
+   * This class must be able to change the Simulation struct it points
    * to.
    */
   class SimBase: public Base
@@ -122,10 +122,10 @@ namespace dynamo
   public:
     /*! \brief Constructor
      *
-     * \param SD Pointer to the SimData class.
+     * \param SD Pointer to the Simulation class.
      * \param aName The name of the class deriving from this class.
      */
-    SimBase(SimData* const SD,
+    SimBase(Simulation* const SD,
 	    const std::string aName):
       Base(aName),
       Sim(SD)
@@ -138,24 +138,24 @@ namespace dynamo
     SimBase() { M_throw() << "Calling the default constructor!"; }
 
     /*! \brief A writable pointer to a simulations data.*/
-    SimData* Sim;
+    Simulation* Sim;
   };
   
   /*! \brief Similar to the SimBase class except it contains a const
-   * pointer to a SimData class.
+   * pointer to a Simulation class.
    *
-   * This class must be able to change the SimData struct it points to.
+   * This class must be able to change the Simulation struct it points to.
    */
   class SimBase_const: public Base
   {
   public:
     /*! \brief Constructor
      *
-     * \param SD Const pointer to the SimData struct
+     * \param SD Const pointer to the Simulation struct
      * \param aName The name of the class deriving from this
      * \param aColor The colour of the output from this class.
      */
-    SimBase_const(const SimData* const SD, const std::string aName):
+    SimBase_const(const Simulation* const SD, const std::string aName):
       Base(aName),
       Sim(SD)
     {};
@@ -166,8 +166,8 @@ namespace dynamo
     //! constructor.
     SimBase_const() { M_throw() << "Calling the default constructor!"; }
 
-    /*! \brief A const pointer to a SimData class.*/
-    const SimData* Sim;
+    /*! \brief A const pointer to a Simulation class.*/
+    const Simulation* Sim;
   };
 
 }

@@ -24,12 +24,12 @@ namespace dynamo {
   class SpFixedCollider:public SpPoint
   {
   public:  
-    SpFixedCollider(dynamo::SimData* sim, Range* r, std::string nName, 
+    SpFixedCollider(dynamo::Simulation* sim, Range* r, std::string nName, 
 		    unsigned int ID, std::string nIName="Bulk"):
       SpPoint(sim, r, 0, nName, ID, nIName)
     { name = "SpFixedCollider"; }
   
-    SpFixedCollider(const magnet::xml::Node& XML, dynamo::SimData* nSim, unsigned int nID):
+    SpFixedCollider(const magnet::xml::Node& XML, dynamo::Simulation* nSim, unsigned int nID):
       SpPoint(nSim, NULL, 0, "", nID,"")
     { name = "SpFixedCollider"; operator<<(XML); }
   

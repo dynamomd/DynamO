@@ -25,7 +25,7 @@
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/liouvillean/CompressionL.hpp>
 #include <dynamo/units/units.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/schedulers/neighbourlist.hpp>
 #include <dynamo/systems/nblistCompressionFix.hpp>
 #include <dynamo/systems/tHalt.hpp>
@@ -35,7 +35,7 @@
 
 namespace dynamo {
 
-  IPCompression::IPCompression(dynamo::SimData* tmp, double GR): 
+  IPCompression::IPCompression(dynamo::Simulation* tmp, double GR): 
     InputPlugin(tmp, "CompressionPlugin"),
     growthRate(GR)
   {

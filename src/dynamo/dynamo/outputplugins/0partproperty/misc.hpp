@@ -25,7 +25,7 @@ namespace dynamo {
   class OPMisc: public OutputPlugin
   {
   public:
-    OPMisc(const dynamo::SimData*, const magnet::xml::Node&);
+    OPMisc(const dynamo::Simulation*, const magnet::xml::Node&);
   
     virtual void initialise();
   

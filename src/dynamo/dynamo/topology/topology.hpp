@@ -45,7 +45,7 @@ namespace dynamo {
     const std::string& getName() const
     { return spName; }
   
-    static shared_ptr<Topology> getClass(const magnet::xml::Node& ,dynamo::SimData*, size_t);
+    static shared_ptr<Topology> getClass(const magnet::xml::Node& ,dynamo::Simulation*, size_t);
 
     inline void addMolecule(Range* ptr)
     { ranges.push_back(shared_ptr<Range>(ptr)); }
@@ -56,7 +56,7 @@ namespace dynamo {
     inline size_t getMoleculeCount() const { return ranges.size(); }
 
   protected:
-    Topology(dynamo::SimData*, size_t ID);
+    Topology(dynamo::Simulation*, size_t ID);
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
   

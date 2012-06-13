@@ -22,7 +22,7 @@ namespace dynamo {
   class OPKEnergy: public OP1PP
   {
   public:
-    OPKEnergy(const dynamo::SimData*, const magnet::xml::Node&);
+    OPKEnergy(const dynamo::Simulation*, const magnet::xml::Node&);
 
     void A1ParticleChange(const ParticleEventData&);
 

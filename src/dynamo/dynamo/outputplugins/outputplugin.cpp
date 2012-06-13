@@ -26,7 +26,7 @@
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-  OutputPlugin::OutputPlugin(const dynamo::SimData* tmp, const char *aName, unsigned char order):
+  OutputPlugin::OutputPlugin(const dynamo::Simulation* tmp, const char *aName, unsigned char order):
     SimBase_const(tmp, aName),
     updateOrder(order)
   {
@@ -48,7 +48,7 @@ namespace dynamo {
   }
 
   shared_ptr<OutputPlugin>
-  OutputPlugin::getPlugin(std::string Details, const dynamo::SimData* Sim)
+  OutputPlugin::getPlugin(std::string Details, const dynamo::Simulation* Sim)
   {
     typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 
@@ -99,7 +99,7 @@ namespace dynamo {
   
   namespace {
     template<class T> shared_ptr<dynamo::OutputPlugin>
-    testGeneratePlugin(const dynamo::SimData* Sim, const magnet::xml::Node& XML)
+    testGeneratePlugin(const dynamo::Simulation* Sim, const magnet::xml::Node& XML)
     {
       if (!(Sim->getOutputPlugin<T>()))
 	return shared_ptr<dynamo::OutputPlugin>(new T(Sim, XML));
@@ -110,7 +110,7 @@ namespace dynamo {
   }
 
   shared_ptr<OutputPlugin>
-  OutputPlugin::getPlugin(const magnet::xml::Node& XML, const dynamo::SimData* Sim)
+  OutputPlugin::getPlugin(const magnet::xml::Node& XML, const dynamo::Simulation* Sim)
   {
     std::string Name(XML.getAttribute("Type"));
 

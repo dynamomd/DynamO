@@ -19,7 +19,7 @@
 #include <dynamo/particle.hpp>
 #include <dynamo/BC/BC.hpp>
 
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/liouvillean/shapes/shape.hpp>
 #include <iomanip>
 

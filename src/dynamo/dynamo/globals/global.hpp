@@ -44,7 +44,7 @@ namespace dynamo {
      * \param range The range of particles for which this interaction is
      * valid (the default value of NULL indicates all particles are valid).
      */
-    Global(dynamo::SimData* sim, std::string name, Range* range = NULL);
+    Global(dynamo::Simulation* sim, std::string name, Range* range = NULL);
   
     /*! \brief Returns true if the Global applies to the passed
      * particle.
@@ -76,7 +76,7 @@ namespace dynamo {
     /*! \brief Constructs a derived Global class according to the passed
      * XML Node.
      */
-    static shared_ptr<Global> getClass(const magnet::xml::Node&, dynamo::SimData*);
+    static shared_ptr<Global> getClass(const magnet::xml::Node&, dynamo::Simulation*);
 
     /*! \brief Loads a derived class from a passed XML Node.
      */

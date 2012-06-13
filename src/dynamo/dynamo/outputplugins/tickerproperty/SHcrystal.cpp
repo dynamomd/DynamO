@@ -29,7 +29,7 @@
 #include <limits>
 
 namespace dynamo {
-  OPSHCrystal::OPSHCrystal(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
+  OPSHCrystal::OPSHCrystal(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):
     OPTicker(tmp,"SHCrystal"), rg(1.2), maxl(7),
     nblistID(std::numeric_limits<size_t>::max()),
     count(0)
@@ -155,7 +155,7 @@ namespace dynamo {
   }
 
   OPSHCrystal::sphericalsum::sphericalsum
-  (const dynamo::SimData * const nSim, const double& nrg, const size_t& nl):
+  (const dynamo::Simulation * const nSim, const double& nrg, const size_t& nl):
     Sim(nSim), rg(nrg), maxl(nl), count(0)
   {
     coeffsum.resize(maxl);

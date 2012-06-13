@@ -23,7 +23,7 @@
 #include <tr1/array>
 
 namespace dynamo {
-  OPReplexTrace::OPReplexTrace(const dynamo::SimData* t1, const magnet::xml::Node&):
+  OPReplexTrace::OPReplexTrace(const dynamo::Simulation* t1, const magnet::xml::Node&):
     OutputPlugin(t1,"ReplexTrace")
   {}
 

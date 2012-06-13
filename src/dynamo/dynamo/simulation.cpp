@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
@@ -44,7 +44,7 @@ static const std::string configFileVersion("1.5.0");
 
 namespace dynamo
 {
-  SimData::SimData():
+  Simulation::Simulation():
     Base("Simulation"),
     dSysTime(0.0),
     freestreamAcc(0.0),
@@ -80,7 +80,7 @@ namespace dynamo
   }
 
   void
-  SimData::initialise()
+  Simulation::initialise()
   {
     if (status != CONFIG_LOADED)
       M_throw() << "Sim initialised at wrong time";
@@ -186,7 +186,7 @@ namespace dynamo
   }
 
   IntEvent 
-  SimData::getEvent(const Particle& p1, const Particle& p2) const
+  Simulation::getEvent(const Particle& p1, const Particle& p2) const
   {
     BOOST_FOREACH(const shared_ptr<Interaction>& ptr, interactions)
       if (ptr->isInteraction(p1,p2))
@@ -202,7 +202,7 @@ namespace dynamo
   }
 
   void 
-  SimData::stream(const double dt)
+  Simulation::stream(const double dt)
   {
     BCs->update(dt);
 
@@ -213,7 +213,7 @@ namespace dynamo
   }
 
   double 
-  SimData::getLongestInteraction() const
+  Simulation::getLongestInteraction() const
   {
     double maxval = 0.0;
 
@@ -225,7 +225,7 @@ namespace dynamo
   }
 
   const shared_ptr<Interaction>&
-  SimData::getInteraction(const Particle& p1, const Particle& p2) const 
+  Simulation::getInteraction(const Particle& p1, const Particle& p2) const 
   {
     BOOST_FOREACH(const shared_ptr<Interaction>& ptr, interactions)
       if (ptr->isInteraction(p1,p2))
@@ -235,7 +235,7 @@ namespace dynamo
   }
 
   const Species& 
-  SimData::SpeciesContainer::operator[](const Particle& p1) const 
+  Simulation::SpeciesContainer::operator[](const Particle& p1) const 
   {
     BOOST_FOREACH(const shared_ptr<Species>& ptr, *this)
       if (ptr->isSpecies(p1)) return *ptr;
@@ -244,7 +244,7 @@ namespace dynamo
 	      << p1.getID(); 
   }
 
-  void SimData::addSpecies(shared_ptr<Species> sp)
+  void Simulation::addSpecies(shared_ptr<Species> sp)
   {
     if (status >= INITIALISED)
       M_throw() << "Cannot add species after simulation initialisation";
@@ -264,7 +264,7 @@ namespace dynamo
 
 
   void
-  SimData::loadXMLfile(std::string fileName)
+  Simulation::loadXMLfile(std::string fileName)
   {
     if (status != START)
       M_throw() << "Loading config at wrong time, status = " << status;
@@ -392,7 +392,7 @@ namespace dynamo
   }
 
   void
-  SimData::writeXMLfile(std::string fileName, bool applyBC, bool round)
+  Simulation::writeXMLfile(std::string fileName, bool applyBC, bool round)
   {
     if (status < INITIALISED || status == ERROR)
       M_throw() << "Cannot write out configuration in this state";
@@ -515,7 +515,7 @@ namespace dynamo
   }
   
   void 
-  SimData::signalParticleUpdate
+  Simulation::signalParticleUpdate
   (const NEventData& pdat) const
   {
     BOOST_FOREACH(const particleUpdateFunc& func, _particleUpdateNotify)
@@ -523,7 +523,7 @@ namespace dynamo
   }
 
   void 
-  SimData::replexerSwap(SimData& other)
+  Simulation::replexerSwap(Simulation& other)
   {
     //Get all particles up to date and zero the pecTimes
     liouvillean->updateAllParticles();
@@ -596,7 +596,7 @@ namespace dynamo
   }
 
   double
-  SimData::calcInternalEnergy() const
+  Simulation::calcInternalEnergy() const
   {
     double intECurrent = 0.0;
 
@@ -607,7 +607,7 @@ namespace dynamo
   }
 
   void 
-  SimData::setCOMVelocity(const Vector COMVelocity)
+  Simulation::setCOMVelocity(const Vector COMVelocity)
   {  
     Vector sumMV(0,0,0);
  
@@ -633,7 +633,7 @@ namespace dynamo
   }
 
   void 
-  SimData::addSystemTicker()
+  Simulation::addSystemTicker()
   {
     BOOST_FOREACH(shared_ptr<System>& ptr, systems)
       if (ptr->getName() == "SystemTicker")
@@ -643,7 +643,7 @@ namespace dynamo
   }
 
   double
-  SimData::getSimVolume() const
+  Simulation::getSimVolume() const
   { 
     double vol = 1.0;
     for (size_t iDim = 0; iDim < NDIM; iDim++)
@@ -653,13 +653,13 @@ namespace dynamo
 
 
   double
-  SimData::getNumberDensity() const
+  Simulation::getNumberDensity() const
   {
     return N / getSimVolume();
   }
 
   double 
-  SimData::getPackingFraction() const
+  Simulation::getPackingFraction() const
   {
     double volume = 0.0;
   
@@ -671,7 +671,7 @@ namespace dynamo
   }
 
   void
-  SimData::checkSystem()
+  Simulation::checkSystem()
   {
     liouvillean->updateAllParticles();
 
@@ -688,7 +688,7 @@ namespace dynamo
   }
 
   void
-  SimData::outputData(std::string filename)
+  Simulation::outputData(std::string filename)
   {
     if (status < INITIALISED || status == ERROR)
       M_throw() << "Cannot output data when not initialised!";
@@ -717,7 +717,7 @@ namespace dynamo
   }
 
   void 
-  SimData::setTickerPeriod(double nP)
+  Simulation::setTickerPeriod(double nP)
   {
     SysTicker* ptr = dynamic_cast<SysTicker*>(&systems["SystemTicker"]);
     if (ptr == NULL)
@@ -727,7 +727,7 @@ namespace dynamo
   }
 
   void 
-  SimData::scaleTickerPeriod(double nP)
+  Simulation::scaleTickerPeriod(double nP)
   {
     SysTicker* ptr = dynamic_cast<SysTicker*>(&systems["SystemTicker"]);
 
@@ -738,7 +738,7 @@ namespace dynamo
   }
 
   void 
-  SimData::addOutputPlugin(std::string Name)
+  Simulation::addOutputPlugin(std::string Name)
   {
     if (status >= INITIALISED)
       M_throw() << "Cannot add plugins now";
@@ -750,11 +750,11 @@ namespace dynamo
   }
 
   void 
-  SimData::simShutdown()
+  Simulation::simShutdown()
   { nextPrintEvent = endEventCount = eventCount; }
 
   void
-  SimData::runSimulation(bool silentMode)
+  Simulation::runSimulation(bool silentMode)
   {
     if (status != INITIALISED && status != PRODUCTION)
       M_throw() << "Bad state for runSimulation()";

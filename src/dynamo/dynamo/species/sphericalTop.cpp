@@ -17,12 +17,12 @@
 
 #include <dynamo/species/sphericalTop.hpp>
 #include <dynamo/units/units.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  SpSphericalTop::SpSphericalTop(dynamo::SimData* tmp, Range* nr, double nMass, 
+  SpSphericalTop::SpSphericalTop(dynamo::Simulation* tmp, Range* nr, double nMass, 
 				 std::string nName, unsigned int nID, double inertiaConst,
 				 std::string nIName):
     SpInertia(tmp, nr, nMass, nName, nID, nIName),
@@ -31,7 +31,7 @@ namespace dynamo {
     spName = "SpSphericalTop";
   }
 
-  SpSphericalTop::SpSphericalTop(const magnet::xml::Node& XML, dynamo::SimData* Sim, 
+  SpSphericalTop::SpSphericalTop(const magnet::xml::Node& XML, dynamo::Simulation* Sim, 
 				 unsigned int nID):
     SpInertia(XML, Sim, nID)
   { operator<<(XML); }

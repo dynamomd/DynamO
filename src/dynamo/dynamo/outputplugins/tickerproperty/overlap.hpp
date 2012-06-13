@@ -23,7 +23,7 @@ namespace dynamo {
   class OPOverlapTest: public OPTicker
   {
   public:
-    OPOverlapTest(const dynamo::SimData*, const magnet::xml::Node&);
+    OPOverlapTest(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 

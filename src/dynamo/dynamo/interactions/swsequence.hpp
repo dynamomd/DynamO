@@ -18,7 +18,7 @@
 #pragma once
 
 #include <dynamo/interactions/captures.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/interactions/glyphrepresentation.hpp>
 #include <vector>
 #include <set>
@@ -28,7 +28,7 @@ namespace dynamo {
   {
   public:
     template<class T1, class T2, class T3>
-    ISWSequence(dynamo::SimData* tmp, T1 d, T2 l, T3 e, 
+    ISWSequence(dynamo::Simulation* tmp, T1 d, T2 l, T3 e, 
 		std::vector<size_t> seq, C2Range* nR, std::string name):
       ISingleCapture(tmp,nR),
       _diameter(Sim->_properties.getProperty
@@ -55,7 +55,7 @@ namespace dynamo {
 	vec.resize(letters.size(), 0.0);
     }
 
-    ISWSequence(const magnet::xml::Node&, dynamo::SimData*);
+    ISWSequence(const magnet::xml::Node&, dynamo::Simulation*);
   
     void operator<<(const magnet::xml::Node&);
 

@@ -24,7 +24,7 @@ namespace dynamo {
   class OPMFL: public OP1PP
   {
   public:
-    OPMFL(const dynamo::SimData*, const magnet::xml::Node&);
+    OPMFL(const dynamo::Simulation*, const magnet::xml::Node&);
 
     void A1ParticleChange(const ParticleEventData&);
 

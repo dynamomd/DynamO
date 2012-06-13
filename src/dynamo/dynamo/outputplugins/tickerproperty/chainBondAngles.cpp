@@ -18,7 +18,7 @@
 #include <dynamo/outputplugins/tickerproperty/chainBondAngles.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/ranges/1range.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/topology/include.hpp>
 #include <dynamo/interactions/captures.hpp>
@@ -36,7 +36,7 @@ namespace dynamo {
     BondCorrelationsSamples.resize(CL-2, 0);
   }
 
-  OPChainBondAngles::OPChainBondAngles(const dynamo::SimData* tmp, 
+  OPChainBondAngles::OPChainBondAngles(const dynamo::Simulation* tmp, 
 				       const magnet::xml::Node& XML):
     OPTicker(tmp,"ChainBondAngles"),
     binwidth(0.0001)

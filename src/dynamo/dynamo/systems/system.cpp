@@ -50,7 +50,7 @@ namespace dynamo {
   }
 
 
-  System::System(dynamo::SimData* tmp):
+  System::System(dynamo::Simulation* tmp):
     SimBase(tmp, "SystemInteraction"),
     dt(HUGE_VAL)
   {
@@ -65,7 +65,7 @@ namespace dynamo {
   }
 
   shared_ptr<System>
-  System::getClass(const magnet::xml::Node& XML, dynamo::SimData* Sim)
+  System::getClass(const magnet::xml::Node& XML, dynamo::Simulation* Sim)
   {
     if (!strcmp(XML.getAttribute("Type"),"Andersen"))
       return shared_ptr<System>(new SysAndersen(XML,Sim));

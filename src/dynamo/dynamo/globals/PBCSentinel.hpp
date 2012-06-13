@@ -36,9 +36,9 @@ namespace dynamo {
   class GPBCSentinel: public Global
   {
   public:
-    GPBCSentinel(const magnet::xml::Node&, dynamo::SimData*);
+    GPBCSentinel(const magnet::xml::Node&, dynamo::Simulation*);
 
-    GPBCSentinel(dynamo::SimData*, const std::string&);
+    GPBCSentinel(dynamo::Simulation*, const std::string&);
   
     virtual ~GPBCSentinel() {}
 

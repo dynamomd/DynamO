@@ -31,12 +31,12 @@ namespace dynamo {
   {
   public:
     template<class T1>
-    SpPoint(dynamo::SimData* sim, Range* r, T1 nmass, std::string nName,
+    SpPoint(dynamo::Simulation* sim, Range* r, T1 nmass, std::string nName,
 	    unsigned int ID, std::string nIName="Bulk"):
       Species(sim, "SpPoint", r, nmass, nName, ID, nIName)
     {}
   
-    SpPoint(const magnet::xml::Node& XML, dynamo::SimData* nSim, unsigned int nID):
+    SpPoint(const magnet::xml::Node& XML, dynamo::Simulation* nSim, unsigned int nID):
       Species(nSim, "", NULL, 0, "", nID,"")
     { operator<<(XML); }
 

@@ -23,7 +23,7 @@ namespace dynamo {
   class OPSCParameter: public OPTicker
   {
   public:
-    OPSCParameter(const dynamo::SimData*, const magnet::xml::Node&);
+    OPSCParameter(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 

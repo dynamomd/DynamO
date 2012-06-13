@@ -25,7 +25,7 @@ namespace dynamo {
   class OPMSDCorrelator: public OPTicker
   {
   public:
-    OPMSDCorrelator(const dynamo::SimData*, const magnet::xml::Node&);
+    OPMSDCorrelator(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 

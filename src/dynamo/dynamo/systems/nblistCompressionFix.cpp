@@ -19,7 +19,7 @@
 
 #include <dynamo/units/units.hpp>
 #include <dynamo/globals/neighbourList.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 
@@ -28,7 +28,7 @@
 #endif
 
 namespace dynamo {
-  SysNBListCompressionFix::SysNBListCompressionFix(dynamo::SimData* nSim, double nGR, size_t nblistID):
+  SysNBListCompressionFix::SysNBListCompressionFix(dynamo::Simulation* nSim, double nGR, size_t nblistID):
     System(nSim),
     growthRate(nGR),
     cellID(nblistID)

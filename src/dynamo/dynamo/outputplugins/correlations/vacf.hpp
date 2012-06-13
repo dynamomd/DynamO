@@ -18,7 +18,7 @@
 #pragma once
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <dynamo/outputplugins/1partproperty/kenergy.hpp>
 #include <boost/circular_buffer.hpp>
@@ -30,7 +30,7 @@ namespace dynamo {
   class OPVACF: public OutputPlugin
   {
   public:
-    OPVACF(const dynamo::SimData*, const magnet::xml::Node&);
+    OPVACF(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void operator<<(const magnet::xml::Node&);
 

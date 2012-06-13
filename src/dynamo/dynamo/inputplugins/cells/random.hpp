@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/inputplugins/cells/cell.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 
 namespace dynamo {
   struct CURandom: public UCell

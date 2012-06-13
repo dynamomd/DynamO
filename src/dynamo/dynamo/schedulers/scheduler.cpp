@@ -23,7 +23,7 @@
 #include <dynamo/locals/local.hpp>
 #include <dynamo/systems/system.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/units/units.hpp>
 
 #ifdef DYNAMO_DEBUG
@@ -36,7 +36,7 @@
 #include <boost/math/special_functions/fpclassify.hpp>
 
 namespace dynamo {
-  Scheduler::Scheduler(dynamo::SimData* const tmp, const char * aName,
+  Scheduler::Scheduler(dynamo::Simulation* const tmp, const char * aName,
 			 FEL* nS):
     SimBase(tmp, aName),
     sorter(nS),
@@ -97,7 +97,7 @@ namespace dynamo {
   }
 
   shared_ptr<Scheduler>
-  Scheduler::getClass(const magnet::xml::Node& XML, dynamo::SimData* const Sim)
+  Scheduler::getClass(const magnet::xml::Node& XML, dynamo::Simulation* const Sim)
   {
     if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
       return shared_ptr<Scheduler>(new SNeighbourList(XML, Sim));

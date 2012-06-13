@@ -18,7 +18,7 @@
 #pragma once
 #include <dynamo/locals/local.hpp>
 #include <dynamo/coilRenderObj.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <vector>
 
@@ -30,10 +30,10 @@ namespace dynamo {
   class LTriangleMesh: public Local, public CoilRenderObj
   {
   public:
-    LTriangleMesh(const magnet::xml::Node&, dynamo::SimData*);
+    LTriangleMesh(const magnet::xml::Node&, dynamo::Simulation*);
 
     template<class T1, class T2>
-    LTriangleMesh(dynamo::SimData* nSim, T1 e, T2 d, std::string name, Range* nRange):
+    LTriangleMesh(dynamo::Simulation* nSim, T1 e, T2 d, std::string name, Range* nRange):
       Local(nRange, nSim, "LocalWall"),
       _e(Sim->_properties.getProperty
 	 (e, Property::Units::Dimensionless())),

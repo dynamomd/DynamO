@@ -22,7 +22,7 @@
 #include <dynamo/NparticleEventData.hpp>
 
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/schedulers/sorters/event.hpp>
 #include <dynamo/liouvillean/shapes/oscillatingplate.hpp>
@@ -134,7 +134,7 @@ namespace dynamo {
     return tmpDat;
   }
 
-  LNewtonian::LNewtonian(dynamo::SimData* tmp):
+  LNewtonian::LNewtonian(dynamo::Simulation* tmp):
     Liouvillean(tmp),
     lastAbsoluteClock(-1),
     lastCollParticle1(0),

@@ -18,7 +18,7 @@
 #include <dynamo/outputplugins/tickerproperty/tinkerxyz.hpp>
 #include <dynamo/outputplugins/tickerproperty/radiusGyration.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/interactions/squarebond.hpp>
 #include <dynamo/ranges/2RList.hpp>
@@ -34,7 +34,7 @@
 namespace dynamo {
   static const size_t HEADERSIZE = 8;
 
-  OPTinkerXYZ::OPTinkerXYZ(const dynamo::SimData* tmp, const magnet::xml::Node& XML):
+  OPTinkerXYZ::OPTinkerXYZ(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):
     OPTicker(tmp,"TinkerXYZ"),
     frameCount(0),
     fileOutput(true),

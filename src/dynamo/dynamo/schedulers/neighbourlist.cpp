@@ -20,7 +20,7 @@
 #include <dynamo/particle.hpp>
 
 #include <dynamo/liouvillean/liouvillean.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/systems/system.hpp>
 #include <dynamo/globals/global.hpp>
 #include <dynamo/globals/globEvent.hpp>
@@ -76,14 +76,14 @@ namespace dynamo {
   }
 
   SNeighbourList::SNeighbourList(const magnet::xml::Node& XML, 
-				   dynamo::SimData* const Sim):
+				   dynamo::Simulation* const Sim):
     Scheduler(Sim,"NeighbourListScheduler", NULL)
   { 
     dout << "Neighbour List Scheduler Algorithmn Loaded" << std::endl;
     operator<<(XML);
   }
 
-  SNeighbourList::SNeighbourList(dynamo::SimData* const Sim, FEL* ns):
+  SNeighbourList::SNeighbourList(dynamo::Simulation* const Sim, FEL* ns):
     Scheduler(Sim,"NeighbourListScheduler", ns)
   { dout << "Neighbour List Scheduler Algorithmn Loaded" << std::endl; }
 

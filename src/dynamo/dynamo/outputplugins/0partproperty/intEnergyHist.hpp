@@ -26,7 +26,7 @@ namespace dynamo {
   class OPIntEnergyHist: public OPCollTicker
   {
   public:
-    OPIntEnergyHist(const dynamo::SimData*, const magnet::xml::Node&);
+    OPIntEnergyHist(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 

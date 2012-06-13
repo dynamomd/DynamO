@@ -38,7 +38,7 @@
 #endif
 
 namespace dynamo {
-  SSleep::SSleep(const magnet::xml::Node& XML, dynamo::SimData* tmp): 
+  SSleep::SSleep(const magnet::xml::Node& XML, dynamo::Simulation* tmp): 
     System(tmp)
   {
     dt = HUGE_VAL;
@@ -46,7 +46,7 @@ namespace dynamo {
     type = SLEEP;
   }
 
-  SSleep::SSleep(dynamo::SimData* nSim, std::string nName, Range* r1, double sleepV):
+  SSleep::SSleep(dynamo::Simulation* nSim, std::string nName, Range* r1, double sleepV):
     System(nSim),
     _range(r1),
     _sleepVelocity(sleepV)

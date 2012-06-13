@@ -24,7 +24,7 @@ namespace dynamo {
   class OPThermalDiffusionE: public OutputPlugin
   {
   public:
-    OPThermalDiffusionE(const dynamo::SimData*, const magnet::xml::Node&);
+    OPThermalDiffusionE(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 

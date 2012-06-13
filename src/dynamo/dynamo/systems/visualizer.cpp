@@ -20,7 +20,7 @@
 #include <dynamo/systems/visualizer.hpp>
 #include <dynamo/liouvillean/CompressionL.hpp>
 #include <dynamo/coilRenderObj.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
@@ -33,7 +33,7 @@
 #include <algorithm>
 
 namespace dynamo {
-  SVisualizer::SVisualizer(dynamo::SimData* nSim, std::string nName, double tickFreq):
+  SVisualizer::SVisualizer(dynamo::Simulation* nSim, std::string nName, double tickFreq):
     System(nSim)
   {
     //Convert to output units of time

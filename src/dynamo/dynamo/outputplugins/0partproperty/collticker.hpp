@@ -22,7 +22,7 @@ namespace dynamo {
   class OPCollTicker: public OutputPlugin
   {
   public:
-    OPCollTicker(const dynamo::SimData*, const char*, unsigned char order=100);
+    OPCollTicker(const dynamo::Simulation*, const char*, unsigned char order=100);
 
     virtual void eventUpdate(const IntEvent&, const PairEventData&);
 

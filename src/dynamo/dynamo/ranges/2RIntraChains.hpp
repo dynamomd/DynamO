@@ -33,7 +33,7 @@ namespace dynamo {
 	M_throw() << "Range of C2RIntraChains does not split evenly into interval";
     }
     
-    C2RIntraChains(const magnet::xml::Node& XML, const dynamo::SimData*):
+    C2RIntraChains(const magnet::xml::Node& XML, const dynamo::Simulation*):
       range1(0),range2(0), interval(0)
     { 
       if (strcmp(XML.getAttribute("Range"),"IntraChains"))

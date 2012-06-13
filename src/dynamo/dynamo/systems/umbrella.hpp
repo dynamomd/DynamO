@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/systems/system.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/ranges/1range.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_real.hpp>
@@ -26,9 +26,9 @@ namespace dynamo {
   class SysUmbrella: public System
   {
   public:
-    SysUmbrella(const magnet::xml::Node& XML, dynamo::SimData*);
+    SysUmbrella(const magnet::xml::Node& XML, dynamo::Simulation*);
 
-    SysUmbrella(dynamo::SimData*, double, double, double, std::string, Range*, Range*);
+    SysUmbrella(dynamo::Simulation*, double, double, double, std::string, Range*, Range*);
   
     virtual void runEvent() const;
 

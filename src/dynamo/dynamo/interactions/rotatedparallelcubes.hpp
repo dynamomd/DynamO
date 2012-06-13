@@ -18,7 +18,7 @@
 #pragma once
 #include <dynamo/interactions/interaction.hpp>
 #include <dynamo/interactions/glyphrepresentation.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <magnet/math/matrix.hpp>
 
 namespace dynamo {
@@ -26,7 +26,7 @@ namespace dynamo {
   {
   public:
     template<class T1, class T2>
-    IParallelCubes(dynamo::SimData* tmp, T1 d, T2 e, C2Range* nR, 
+    IParallelCubes(dynamo::Simulation* tmp, T1 d, T2 e, C2Range* nR, 
 		   std::string name):
       Interaction(tmp, nR),
       _diameter(Sim->_properties.getProperty
@@ -37,7 +37,7 @@ namespace dynamo {
       intName = name;
     }
 
-    IParallelCubes(const magnet::xml::Node&, dynamo::SimData*);
+    IParallelCubes(const magnet::xml::Node&, dynamo::Simulation*);
 
     virtual size_t glyphsPerParticle() const { return 1; }
     virtual Vector getGlyphSize(size_t ID, size_t subID) const;

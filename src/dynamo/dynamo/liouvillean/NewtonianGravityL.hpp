@@ -26,9 +26,9 @@ namespace dynamo {
   class LNewtonianGravity: public LNewtonian
   {
   public:
-    LNewtonianGravity(dynamo::SimData*, const magnet::xml::Node&);
+    LNewtonianGravity(dynamo::Simulation*, const magnet::xml::Node&);
 
-    LNewtonianGravity(dynamo::SimData* tmp, Vector gravity, double eV = 0, double tc = -HUGE_VAL);
+    LNewtonianGravity(dynamo::Simulation* tmp, Vector gravity, double eV = 0, double tc = -HUGE_VAL);
 
     void initialise();
 

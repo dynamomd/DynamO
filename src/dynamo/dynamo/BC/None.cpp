@@ -19,7 +19,7 @@
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  BCNone::BCNone(const dynamo::SimData* Sim):
+  BCNone::BCNone(const dynamo::Simulation* Sim):
     BoundaryCondition(Sim, "NullBC")
   { dout << "No boundary condition loaded" << std::endl; }
 

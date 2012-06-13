@@ -23,7 +23,7 @@ namespace dynamo {
   class SysSchedMaintainer: public System
   {
   public:
-    SysSchedMaintainer(dynamo::SimData*, double, std::string);
+    SysSchedMaintainer(dynamo::Simulation*, double, std::string);
   
     virtual void runEvent() const;
 

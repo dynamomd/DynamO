@@ -21,7 +21,7 @@
 #include <dynamo/NparticleEventData.hpp>
 
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/simdata.hpp>
+#include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/schedulers/sorters/event.hpp>
 #include <dynamo/liouvillean/shapes/oscillatingplate.hpp>
@@ -39,7 +39,7 @@
 #include <algorithm>
 
 namespace dynamo {
-  LNewtonianGravity::LNewtonianGravity(dynamo::SimData* tmp, const magnet::xml::Node& XML):
+  LNewtonianGravity::LNewtonianGravity(dynamo::Simulation* tmp, const magnet::xml::Node& XML):
     LNewtonian(tmp),
     elasticV(0),
     g(0, -1, 0),
@@ -74,7 +74,7 @@ namespace dynamo {
     g *= Sim->units.unitAcceleration();
   }
 
-  LNewtonianGravity::LNewtonianGravity(dynamo::SimData* tmp, Vector gravity, double eV, double tc):
+  LNewtonianGravity::LNewtonianGravity(dynamo::Simulation* tmp, Vector gravity, double eV, double tc):
     LNewtonian(tmp), 
     elasticV(eV),
     g(gravity),

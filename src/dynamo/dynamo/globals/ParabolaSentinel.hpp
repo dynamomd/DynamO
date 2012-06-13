@@ -23,7 +23,7 @@ namespace dynamo {
   class GParabolaSentinel: public Global
   {
   public:
-    GParabolaSentinel(dynamo::SimData*, const std::string&);
+    GParabolaSentinel(dynamo::Simulation*, const std::string&);
   
     virtual ~GParabolaSentinel() {}
 

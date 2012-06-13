@@ -24,7 +24,7 @@ namespace dynamo {
   class OPRadialDistribution: public OPTicker
   {
   public:
-    OPRadialDistribution(const dynamo::SimData*, 
+    OPRadialDistribution(const dynamo::Simulation*, 
 			 const magnet::xml::Node&);
 
     virtual void initialise();

@@ -22,7 +22,7 @@ namespace dynamo {
   class OPMomentum: public OP1PP
   {
   public:
-    OPMomentum(const dynamo::SimData*, const magnet::xml::Node&);
+    OPMomentum(const dynamo::Simulation*, const magnet::xml::Node&);
 
     void A1ParticleChange(const ParticleEventData&);
 

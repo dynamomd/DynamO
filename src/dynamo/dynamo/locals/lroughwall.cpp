@@ -26,7 +26,7 @@
 #include <magnet/overlap/cube_plane.hpp>
 
 namespace dynamo {
-  LRoughWall::LRoughWall(dynamo::SimData* nSim, double ne, double net, double nr, Vector  nnorm, 
+  LRoughWall::LRoughWall(dynamo::Simulation* nSim, double ne, double net, double nr, Vector  nnorm, 
 			 Vector  norigin, std::string nname, 
 			 Range* nRange, bool nrender):
     Local(nRange, nSim, "LocalRoughWall"),
@@ -40,7 +40,7 @@ namespace dynamo {
     localName = nname;
   }
 
-  LRoughWall::LRoughWall(const magnet::xml::Node& XML, dynamo::SimData* tmp):
+  LRoughWall::LRoughWall(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
     Local(tmp, "LocalRoughWall")
   {
     operator<<(XML);

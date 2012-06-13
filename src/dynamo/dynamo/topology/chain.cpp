@@ -20,7 +20,7 @@
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  TChain::TChain(const magnet::xml::Node& XML, dynamo::SimData* Sim, unsigned int ID):
+  TChain::TChain(const magnet::xml::Node& XML, dynamo::Simulation* Sim, unsigned int ID):
     Topology(Sim, ID)
   {
     Topology::operator<<(XML);
@@ -32,7 +32,7 @@ namespace dynamo {
 		  << spName << "\"";
   }
 
-  TChain::TChain(dynamo::SimData* Sim, unsigned int ID, std::string nName):
+  TChain::TChain(dynamo::Simulation* Sim, unsigned int ID, std::string nName):
     Topology(Sim,ID)
   {
     spName = nName;

@@ -20,7 +20,7 @@
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-  OP1PP::OP1PP(const dynamo::SimData* t1,const char *t2, unsigned char order):
+  OP1PP::OP1PP(const dynamo::Simulation* t1,const char *t2, unsigned char order):
     OutputPlugin(t1, t2, order)
   {}
 

@@ -24,7 +24,7 @@
 #include <dynamo/outputplugins/outputplugin.hpp>
 
 namespace dynamo {
-  LOscillatingPlate::LOscillatingPlate(dynamo::SimData* nSim,
+  LOscillatingPlate::LOscillatingPlate(dynamo::Simulation* nSim,
 					 Vector nrw0, Vector nnhat,
 					 double nomega0, double nsigma, double ne,
 					 double ndelta, double nmass, std::string nname, 
@@ -38,7 +38,7 @@ namespace dynamo {
     localName = nname;
   }
 
-  LOscillatingPlate::LOscillatingPlate(const magnet::xml::Node& XML, dynamo::SimData* tmp):
+  LOscillatingPlate::LOscillatingPlate(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
     Local(tmp, "OscillatingPlate"),
     lastID(std::numeric_limits<size_t>::max()), lastdSysTime(HUGE_VAL)
   {

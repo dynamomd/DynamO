@@ -22,7 +22,7 @@ namespace dynamo {
   class OPStreamTicker: public OPTicker
   {
   public:
-    OPStreamTicker(const dynamo::SimData*, const magnet::xml::Node&);
+    OPStreamTicker(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise() {}
 

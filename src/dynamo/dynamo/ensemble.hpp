@@ -22,7 +22,7 @@ namespace magnet { namespace xml { class Node; class XmlStream; } }
 
 namespace dynamo {
   class System;
-  class SimData;
+  class Simulation;
 
   /*! \brief This class specifies the simulation ensemble that the
    * simulation is being performed in.
@@ -32,7 +32,7 @@ namespace dynamo {
   class Ensemble : public SimBase_const
   {
   public:
-    Ensemble(const SimData* const& SD, const char *aName):
+    Ensemble(const Simulation* const& SD, const char *aName):
       SimBase_const(SD, aName) {}
     
     virtual ~Ensemble() {}
@@ -43,7 +43,7 @@ namespace dynamo {
     //! \param Sim A pointer to the simulation data this Ensemble is valid for.
     static shared_ptr<Ensemble> 
     getClass(const magnet::xml::Node& XML, 
-	     const dynamo::SimData* Sim);
+	     const dynamo::Simulation* Sim);
 
     //! Helper function which generates an Ensemble XML tag.
     //! \sa getName
@@ -83,7 +83,7 @@ namespace dynamo {
   class EnsembleNVE           : public Ensemble 
   {
   public:
-    EnsembleNVE(const dynamo::SimData* SD): 
+    EnsembleNVE(const dynamo::Simulation* SD): 
       Ensemble(SD, "EnsembleNVE") {}
 
     virtual void initialise();
@@ -102,7 +102,7 @@ namespace dynamo {
   class EnsembleNVT           : public Ensemble 
   {
   public:
-    EnsembleNVT(const dynamo::SimData* SD): 
+    EnsembleNVT(const dynamo::Simulation* SD): 
       Ensemble(SD, "EnsembleNVT") {}
 
     virtual void initialise();
@@ -123,7 +123,7 @@ namespace dynamo {
   class EnsembleNVShear       : public Ensemble 
   {
   public:
-    EnsembleNVShear(const dynamo::SimData* SD): 
+    EnsembleNVShear(const dynamo::Simulation* SD): 
       Ensemble(SD, "EnsembleNVShear") {}
 
     virtual void initialise();
@@ -139,7 +139,7 @@ namespace dynamo {
   class EnsembleNECompression : public Ensemble 
   {
   public:
-    EnsembleNECompression(const dynamo::SimData* SD): 
+    EnsembleNECompression(const dynamo::Simulation* SD): 
       Ensemble(SD, "EnsembleNECompression") {}
 
     virtual void initialise();
@@ -158,7 +158,7 @@ namespace dynamo {
   class EnsembleNTCompression : public Ensemble 
   {
   public:
-    EnsembleNTCompression(const dynamo::SimData* SD): 
+    EnsembleNTCompression(const dynamo::Simulation* SD): 
       Ensemble(SD, "EnsembleNTCompression") {}
 
     virtual void initialise();

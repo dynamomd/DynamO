@@ -18,7 +18,7 @@
 #include <dynamo/outputplugins/tickerproperty/streamticker.hpp>
 
 namespace dynamo {
-  OPStreamTicker::OPStreamTicker(const dynamo::SimData* tmp, const magnet::xml::Node&):
+  OPStreamTicker::OPStreamTicker(const dynamo::Simulation* tmp, const magnet::xml::Node&):
     OPTicker(tmp,"StreamTicker")
   {}
 

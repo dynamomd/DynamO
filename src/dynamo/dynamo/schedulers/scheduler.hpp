@@ -32,7 +32,7 @@ namespace dynamo {
   class Scheduler: public dynamo::SimBase
   {
   public:
-    Scheduler(dynamo::SimData* const, const char *, FEL*);
+    Scheduler(dynamo::Simulation* const, const char *, FEL*);
   
     virtual ~Scheduler() = 0;
 
@@ -86,7 +86,7 @@ namespace dynamo {
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Scheduler&);
 
     static shared_ptr<Scheduler>
-    getClass(const magnet::xml::Node&, dynamo::SimData* const);
+    getClass(const magnet::xml::Node&, dynamo::Simulation* const);
 
     virtual void operator<<(const magnet::xml::Node&);
   

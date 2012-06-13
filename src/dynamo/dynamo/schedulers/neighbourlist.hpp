@@ -22,9 +22,9 @@ namespace dynamo {
   class SNeighbourList: public Scheduler
   {
   public:
-    SNeighbourList(const magnet::xml::Node&, dynamo::SimData* const);
+    SNeighbourList(const magnet::xml::Node&, dynamo::Simulation* const);
 
-    SNeighbourList(dynamo::SimData* const, FEL*);
+    SNeighbourList(dynamo::Simulation* const, FEL*);
 
     virtual void initialise();
 
