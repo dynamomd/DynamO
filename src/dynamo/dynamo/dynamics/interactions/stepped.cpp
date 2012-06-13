@@ -136,7 +136,7 @@ namespace dynamo {
   int 
   IStepped::captureTest(const Particle& p1, const Particle& p2) const
   {
-    if (&(*(Sim->dynamics.getInteraction(p1, p2))) != this) return false;
+    if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
   
     Vector  rij = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(rij);

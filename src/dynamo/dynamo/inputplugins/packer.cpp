@@ -201,7 +201,7 @@ namespace dynamo {
 	  if (vm.count("f1"))
 	    elasticity =  vm["f1"].as<double>();
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, particleDiam, elasticity, new C2RAll(), "Bulk")));
 
@@ -279,7 +279,7 @@ namespace dynamo {
 	      if (vm.count("f2"))
 		wellDepth = vm["f2"].as<double>();
 	    
-	      Sim->dynamics.addInteraction
+	      Sim->interactions.push_back
 		(shared_ptr<Interaction>
 		 (new ISquareWell(Sim, particleDiam,
 				  lambda, wellDepth, 1.0,
@@ -369,7 +369,7 @@ namespace dynamo {
 		      const speciesData& spdat2 = speciesList[spID2];
 		      std::string sp2Name = "A";
 		      sp2Name[0] += spID2;
-		      Sim->dynamics.addInteraction
+		      Sim->interactions.push_back
 			(shared_ptr<Interaction>
 			 (new ISquareWell(Sim, 0.5 * particleDiam 
 					  * (spdat1.diameter + spdat2.diameter),
@@ -456,7 +456,7 @@ namespace dynamo {
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new ISquareBond(Sim, sigmin * diamScale,
 			      sigmax / sigmin, 1.0,
@@ -487,14 +487,13 @@ namespace dynamo {
 
 	      if (has1 && has0)
 		{
-		  Sim->dynamics.addInteraction
+		  Sim->interactions.push_back
 		    (shared_ptr<Interaction>
 		     (new ISWSequence(Sim, sigma * diamScale, lambda, 1.0,
 				      seq, new C2RAll(), "Bulk")));
 		
 		  ISWSequence& interaction
-		    (dynamic_cast<ISWSequence&>
-		     (*(Sim->dynamics.getInteraction("Bulk"))));
+		    (dynamic_cast<ISWSequence&>(Sim->interactions["Bulk"]));
 		  interaction.getAlphabet().at(0).at(0) = 1.0;
 		
 		  interaction.getAlphabet().at(1).at(0) = 0.5;
@@ -502,18 +501,18 @@ namespace dynamo {
 		  interaction.getAlphabet().at(0).at(1) = 0.5;
 		}
 	      else if (has0 && !has1)
-		Sim->dynamics.addInteraction
+		Sim->interactions.push_back
 		  (shared_ptr<Interaction>
 		   (new ISquareWell(Sim, sigma * diamScale,
 				    lambda, 1.0, 1.0, new C2RAll(), "Bulk")));
 	      else if (has1 && !has0)
-		Sim->dynamics.addInteraction
+		Sim->interactions.push_back
 		  (shared_ptr<Interaction>
 		   (new IHardSphere(Sim, sigma * diamScale, 1.0,
 				    new C2RAll(), "Bulk")));
 	    }
 	  else
-	    Sim->dynamics.addInteraction
+	    Sim->interactions.push_back
 	      (shared_ptr<Interaction>
 	       (new ISquareWell(Sim, sigma * diamScale,
 				lambda, 1.0,
@@ -595,7 +594,7 @@ namespace dynamo {
 
 	  //Delete any loaded capture maps
 	  BOOST_FOREACH(const shared_ptr<Interaction>& ptr, 
-			Sim->dynamics.getInteractions())
+			Sim->interactions)
 	    if (std::tr1::dynamic_pointer_cast<ICapture>(ptr))
 	      std::tr1::dynamic_pointer_cast<ICapture>(ptr)->forgetXMLCaptureMap();
 	  
@@ -668,7 +667,7 @@ namespace dynamo {
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCLeesEdwards(Sim));
 	  const double shearRate = 1;
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, particleDiam, alpha,
 			      new C2RAll(), "Bulk")));
@@ -760,12 +759,12 @@ namespace dynamo {
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0,
 			      new C2RChains(0, latticeSites.size()-1, latticeSites.size()), "Bonds")));
 	     
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new ISquareWell(Sim, sigma * diamScale, lambda, 1.0,
 			      1.0, new C2RAll(),"Bulk")));
@@ -841,7 +840,7 @@ namespace dynamo {
 					 Vector(Sim->primaryCellSize[0] / 2, 0, 0),
 					 "HighWall", new RAll(Sim))));
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, particleDiam, elasticity,
 			      new C2RAll(), "Bulk")));
@@ -913,7 +912,7 @@ namespace dynamo {
 
 	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0,
 			      (vm.count("b1"))
@@ -927,7 +926,7 @@ namespace dynamo {
 	      //Set the unit energy to 1 (assuming the unit of mass is 1);
 	      Sim->dynamics.units().setUnitTime(diamScale); 
 
-	      Sim->dynamics.addInteraction
+	      Sim->interactions.push_back
 		(shared_ptr<Interaction>
 		 (new ISquareWell(Sim, sigma * diamScale,
 				  lambda, 1.0, 1.0,
@@ -937,7 +936,7 @@ namespace dynamo {
 	    {
 	      Sim->dynamics.units().setUnitLength(diamScale);
 
-	      Sim->dynamics.addInteraction
+	      Sim->interactions.push_back
 		(shared_ptr<Interaction>
 		 (new IHardSphere(Sim, diamScale, 1.0,
 				  new C2RAll(), "Bulk")));
@@ -1018,12 +1017,12 @@ namespace dynamo {
 
 	  size_t nA = static_cast<size_t>(molFrac * latticeSites.size());
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, particleDiam, 1.0,
 			      new C2RSingle(new RRange(0, nA - 1)), "AAInt")));
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam,
 			      1.0,
@@ -1031,7 +1030,7 @@ namespace dynamo {
 					  new RRange(nA, latticeSites.size()-1)),
 			      "ABInt")));
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, sizeRatio * particleDiam, 1.0,
 			      new C2RAll(), "BBInt")));
@@ -1095,7 +1094,7 @@ namespace dynamo {
 
 	  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0;
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new ILines(Sim, particleDiam, elasticity,
 			 new C2RAll(), "Bulk")));
@@ -1157,11 +1156,11 @@ namespace dynamo {
 	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new FELCBT(Sim)));
 
 	  //This is to stop interactions being used for these particles
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>(new INull(Sim, new C2RAll(), "Catchall")));
 
 	  //This is to provide data on the particles
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, particleDiam, 1.0, new C2RAll(), "Bulk")));
 
@@ -1252,7 +1251,7 @@ namespace dynamo {
 	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new FELCBT(Sim)));
 
 	  //This is to stop interactions being used for these particles
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>(new INull(Sim, new C2RAll(), "Catchall")));
 
 	  size_t nA = static_cast<size_t>(molFrac * latticeSites.size());
@@ -1355,13 +1354,13 @@ namespace dynamo {
 	       * sizeRatio * sizeRatio);
 
 	  //This is to provide data on the particles
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, particleDiam, 1.0,
 			      new C2RSingle(new RRange(0, nA - 1)),
 			      "AAInt")));
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, sizeRatio * particleDiam, 1.0,
 			      new C2RSingle(new RRange(nA, latticeSites.size()-1)),
@@ -1441,7 +1440,7 @@ namespace dynamo {
 
 	  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0 ;
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>(new ILines(Sim, particleDiam, elasticity,
 						new C2RAll(), "Bulk")));
 
@@ -1534,13 +1533,13 @@ namespace dynamo {
 
 	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList")));
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, particleDiam, 1.0,
 			      new C2RSingle(new RRange(0, nPartA - 1)),
 			      "AAInt")));
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, (particleDiam + particleDiamB) / 2.0,
 			      1.0,
@@ -1549,21 +1548,21 @@ namespace dynamo {
 			       new RRange(nPartA, latticeSites.size()-1)),
 			      "ABInt")));
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new ISquareBond(Sim, 0.9 * particleDiamB, 1.1 / 0.9, 1.0,
 			      new C2RChains(nPartA, latticeSites.size() - 1,
 					    chainlength), "Bonds")));
 
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, (chainlength - 1) * particleDiamB, 1.0,
 			      new C2RChainEnds
 			      (nPartA, latticeSites.size() - 1,
 			       chainlength), "RodEnds")));
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, particleDiamB, 1.0,
 			      new C2RAll(), "BBInt")));
@@ -1651,7 +1650,7 @@ namespace dynamo {
 						    "Wall3", new RAll(Sim))));
 	    }
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IParallelCubes(Sim, particleDiam, 1.0, new C2RAll(), "Bulk")));
 
@@ -1841,7 +1840,7 @@ namespace dynamo {
 	      oldr = p.first;
 	    }
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IStepped(Sim, diamvec, new C2RAll(), "Bulk")));
 
@@ -1897,11 +1896,11 @@ namespace dynamo {
 	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new FELCBT(Sim)));
 
 	  //This is to stop interactions being used for these particles
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>(new INull(Sim, new C2RAll(), "Catchall")));
 
 	  //This is to provide data on the particles
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, particleDiam, 1.0, new C2RAll(), "Bulk")));
 
@@ -2072,7 +2071,7 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, particleDiam, ParticleInelas, new C2RAll(), "Bulk")));
 
@@ -2186,7 +2185,7 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, particleDiam, 1.0, new C2RAll(), "Bulk")));
 
@@ -2279,7 +2278,7 @@ namespace dynamo {
 						 new RAll(Sim), true)));
 
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, particleDiam, 1.0, new C2RAll(), "Bulk")));
 
@@ -2342,7 +2341,7 @@ namespace dynamo {
 	  if (vm.count("f1"))
 	    elasticity =  vm["f1"].as<double>();
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, particleDiam, elasticity, new C2RAll(), "Bulk")));
 	
@@ -2419,7 +2418,7 @@ namespace dynamo {
 	  Sim->liouvillean = shared_ptr<Liouvillean>
 	    (new LNewtonianGravity(Sim, Vector(0,-Sim->dynamics.units().unitAcceleration(),0), elasticV * Sim->dynamics.units().unitVelocity()));
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, particleDiam, elasticity, new C2RAll(), "Bulk")));
 	
@@ -2551,7 +2550,7 @@ namespace dynamo {
 	  
 	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0, 
 			      new C2RChains(0, latticeSites.size()-1, latticeSites.size()), "Bonds")));
@@ -2994,14 +2993,13 @@ namespace dynamo {
 	      std::cout << i << "  " << seq[i] << std::endl;
 	    }
 
-	    Sim->dynamics.addInteraction
+	    Sim->interactions.push_back
 	      (shared_ptr<Interaction>
 	       (new ISWSequence(Sim, sigma * diamScale, lambda, 1.0,
 				seq, new C2RAll(), "Bulk")));
 		
 	    ISWSequence& interaction
-	      (dynamic_cast<ISWSequence&>
-	       (*(Sim->dynamics.getInteraction("Bulk"))));
+	      (dynamic_cast<ISWSequence&>(Sim->interactions["Bulk"]));
 
 	    //	    interaction.getAlphabet().at(0).at(0) = 1.0;
 	    //	    interaction.getAlphabet().at(1).at(0) = 0.5;
@@ -3249,7 +3247,7 @@ namespace dynamo {
 	  //	  }
 	  //	}
 	
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, particleDiam * 2.0, elasticity,
 			      new C2RAll(), "Bulk")));
@@ -3414,7 +3412,7 @@ namespace dynamo {
 	      M->getProperty(i) = mass;
 	    }
 	
-	  Sim->dynamics.addInteraction
+	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, "D", elasticity, new C2RAll(), "Bulk")));
 

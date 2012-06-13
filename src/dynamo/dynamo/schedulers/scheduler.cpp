@@ -246,7 +246,7 @@ namespace dynamo {
 
 	  //Now recalculate the FEL event
 	  Sim->liouvillean->updateParticlePair(p1, p2);       
-	  IntEvent Event(Sim->dynamics.getEvent(p1, p2));
+	  IntEvent Event(Sim->getEvent(p1, p2));
 	
 #ifdef DYNAMO_DEBUG
 	  if (sorter->nextPELEmpty())
@@ -298,7 +298,7 @@ namespace dynamo {
 
 	  Sim->freestreamAcc = 0;
 
-	  Sim->dynamics.getInteractions()[Event.getInteractionID()]
+	  Sim->interactions[Event.getInteractionID()]
 	    ->runEvent(p1,p2,Event);
 
 	  break;
@@ -409,7 +409,7 @@ namespace dynamo {
 
     Sim->liouvillean->updateParticle(part2);
 
-    const IntEvent& eevent(Sim->dynamics.getEvent(part1, part2));
+    const IntEvent& eevent(Sim->getEvent(part1, part2));
 
     if (eevent.getType() != NONE)
       sorter->push(Event(eevent, eventCount[id]), part1.getID());

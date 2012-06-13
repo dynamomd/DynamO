@@ -50,7 +50,7 @@ namespace dynamo {
   {
     ID=nID;
   
-    maxintdist = Sim->dynamics.getLongestInteraction();
+    maxintdist = Sim->getLongestInteraction();
   }
 
   void 

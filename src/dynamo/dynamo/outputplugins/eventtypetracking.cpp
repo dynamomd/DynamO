@@ -26,7 +26,7 @@ namespace dynamo {
       switch (key.second)
 	{
 	case INTERACTION:
-	  return Sim->dynamics.getInteractions()[key.first]->getName();
+	  return Sim->interactions[key.first]->getName();
 	  break;
 	case GLOBAL:
 	  return Sim->dynamics.getGlobals()[key.first]->getName();

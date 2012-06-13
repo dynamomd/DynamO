@@ -117,6 +117,11 @@ namespace dynamo
 
     Container<Topology> topology;
 
+    Container<Interaction> interactions;
+    const shared_ptr<Interaction>& getInteraction(const Particle& p1, const Particle& p2) const;
+    IntEvent getEvent(const Particle& p1, const Particle& p2) const;
+    double getLongestInteraction() const;
+
     /*! \brief Finds a plugin of the given type using RTTI.
      */
     template<class T>

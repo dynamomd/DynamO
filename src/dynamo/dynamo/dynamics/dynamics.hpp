@@ -17,7 +17,6 @@
 
 #pragma once
 
-#include <dynamo/dynamics/interactions/interaction.hpp>
 #include <dynamo/dynamics/interactions/intEvent.hpp>
 #include <dynamo/dynamics/units/units.hpp>
 #include <boost/foreach.hpp>
@@ -52,39 +51,16 @@ namespace dynamo {
 
     ~Dynamics();
   
-    inline shared_ptr<Interaction> addInteraction(shared_ptr<Interaction> ptr)
-    { interactions.push_back(ptr); return interactions.back(); }
-
     void addGlobal(shared_ptr<Global> ptr);
     void addLocal(shared_ptr<Local> ptr);
     void addSystem(shared_ptr<System> ptr);
-  
-    const shared_ptr<Interaction>& 
-    getInteraction(const Particle&, const Particle&) const; 
-  
+    
     void stream(const double&);
   
-    inline IntEvent getEvent(const Particle& p1, const Particle& p2) const
-    {
-      BOOST_FOREACH(const shared_ptr<Interaction>& ptr, interactions)
-	if (ptr->isInteraction(p1,p2))
-	  {
-#ifdef dynamo_UpdateCollDebug
-	    std::cerr << "\nGOT INTERACTION P1 = " << p1.getID() << " P2 = " 
-		      << p2.getID() << " NAME = " << typeid(*(ptr.get())).name();
-#endif
-	    return ptr->getEvent(p1,p2);
-	  }
-    
-      M_throw() << "Could not find the right interaction to test for";
-    }
-
     void operator<<(const magnet::xml::Node&);
 
     void initialise();
-  
-    double getLongestInteraction() const;
-  
+    
     /*! \brief Sets the Centre of Mass (COM) velocity of the system 
      * 
      *  The COM momentum of the system is
@@ -111,9 +87,6 @@ namespace dynamo {
     void SystemOverlapTest();
   
     double calcInternalEnergy() const;
-
-    std::vector<shared_ptr<Interaction> >& getInteractions() { return interactions; }
-    const std::vector<shared_ptr<Interaction> >& getInteractions() const { return interactions; }
 
     shared_ptr<Interaction>& getInteraction(std::string);
     const shared_ptr<Interaction>& getInteraction(std::string) const;
@@ -152,7 +125,6 @@ namespace dynamo {
 
     void outputXML(magnet::xml::XmlStream &) const;
 
-    std::vector<shared_ptr<Interaction> > interactions;
     std::vector<shared_ptr<Global> > globals;
     std::vector<shared_ptr<Local> > locals;
     std::vector<shared_ptr<System> > systems;

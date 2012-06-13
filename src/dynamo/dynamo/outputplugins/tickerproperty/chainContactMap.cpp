@@ -83,7 +83,7 @@ namespace dynamo {
 	      {
 		const Particle& part2 = Sim->particleList[(*range)[j]];
 
-		BOOST_FOREACH(const shared_ptr<Interaction>& ptr, Sim->dynamics.getInteractions())
+		BOOST_FOREACH(const shared_ptr<Interaction>& ptr, Sim->interactions)
 		  if (ptr->isInteraction(part1,part2))
 		    if (std::tr1::dynamic_pointer_cast<ICapture>(ptr))
 		      if (dynamic_cast<const ICapture*>(ptr.get())->isCaptured(part1,part2))

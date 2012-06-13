@@ -22,6 +22,7 @@
 #include <dynamo/dynamics/systems/system.hpp>
 #include <dynamo/dynamics/species/species.hpp>
 #include <dynamo/dynamics/topology/topology.hpp>
+#include <dynamo/dynamics/interactions/interaction.hpp>
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/device/file.hpp>
@@ -99,7 +100,52 @@ namespace dynamo
 
     liouvillean->initialise();
 
+    {
+      size_t ID=0;
+      
+      BOOST_FOREACH(shared_ptr<Interaction>& ptr, interactions)
+	ptr->initialise(ID++);
+    }
+
     dynamics.initialise();
+  }
+
+  IntEvent 
+  SimData::getEvent(const Particle& p1, const Particle& p2) const
+  {
+    BOOST_FOREACH(const shared_ptr<Interaction>& ptr, interactions)
+      if (ptr->isInteraction(p1,p2))
+	{
+#ifdef dynamo_UpdateCollDebug
+	  std::cerr << "\nGOT INTERACTION P1 = " << p1.getID() << " P2 = " 
+		    << p2.getID() << " NAME = " << typeid(*(ptr.get())).name();
+#endif
+	  return ptr->getEvent(p1,p2);
+	}
+    
+    M_throw() << "Could not find the right interaction to test for";
+  }
+
+  double 
+  SimData::getLongestInteraction() const
+  {
+    double maxval = 0.0;
+
+    BOOST_FOREACH(const shared_ptr<Interaction>& ptr, interactions)
+      if (ptr->maxIntDist() > maxval)
+	maxval = ptr->maxIntDist();
+
+    return maxval;
+  }
+
+  const shared_ptr<Interaction>&
+  SimData::getInteraction(const Particle& p1, const Particle& p2) const 
+  {
+    BOOST_FOREACH(const shared_ptr<Interaction>& ptr, interactions)
+      if (ptr->isInteraction(p1,p2))
+	return ptr;
+  
+    M_throw() << "Could not find the interaction requested";
   }
 
   const Species& 
@@ -119,7 +165,7 @@ namespace dynamo
 
     species.push_back(sp);
 
-    BOOST_FOREACH(shared_ptr<Interaction>& intPtr, dynamics.getInteractions())
+    BOOST_FOREACH(shared_ptr<Interaction>& intPtr, interactions)
       if (intPtr->isInteraction(*sp))
 	{
 	  sp->setIntPtr(intPtr.get());
@@ -214,6 +260,19 @@ namespace dynamo
 	  topology.push_back(Topology::getClass(node, this, i));
       }
 
+    for (magnet::xml::Node node = simNode.getNode("Interactions").fastGetNode("Interaction");
+	 node.valid(); ++node)
+      interactions.push_back(Interaction::getClass(node, this));
+
+    //Link the species and interactions
+    BOOST_FOREACH(shared_ptr<Species>& sp , species)
+      BOOST_FOREACH(shared_ptr<Interaction>& intPtr, interactions)
+      if (intPtr->isInteraction(*sp))
+	{
+	  sp->setIntPtr(intPtr.get());
+	  break;
+	}
+
     dynamics << simNode;
     ptrScheduler = Scheduler::getClass(simNode.getNode("Scheduler"), this);
 
@@ -304,6 +363,14 @@ namespace dynamo
 	  << magnet::xml::endtag("Structure");
     
     XML << magnet::xml::endtag("Topology")
+	<< magnet::xml::tag("Interactions");
+  
+    BOOST_FOREACH(const shared_ptr<Interaction>& ptr, interactions)
+      XML << magnet::xml::tag("Interaction")
+	  << *ptr
+	  << magnet::xml::endtag("Interaction");
+  
+    XML << magnet::xml::endtag("Interactions")
 	<< dynamics
       	<< magnet::xml::tag("Dynamics")
 	<< *liouvillean

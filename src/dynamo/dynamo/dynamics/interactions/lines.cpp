@@ -202,7 +202,7 @@ namespace dynamo {
   bool 
   ILines::captureTest(const Particle& p1, const Particle& p2) const
   {
-    if (&(*(Sim->dynamics.getInteraction(p1, p2))) != this) return false;
+    if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
 
     double l = (_length->getProperty(p1.getID())
 		+ _length->getProperty(p2.getID())) * 0.5;

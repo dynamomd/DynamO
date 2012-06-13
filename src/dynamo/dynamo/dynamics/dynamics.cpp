@@ -106,26 +106,6 @@ namespace dynamo {
     M_throw() << "Could not find local plugin";
   }
 
-  shared_ptr<Interaction>&
-  Dynamics::getInteraction(std::string name)
-  {
-    BOOST_FOREACH(shared_ptr<Interaction>& sysPtr, interactions)
-      if (sysPtr->getName() == name)
-	return sysPtr;
-  
-    M_throw() << "Could not find interaction plugin";
-  }
-
-  const shared_ptr<Interaction>&
-  Dynamics::getInteraction(std::string name) const
-  {
-    BOOST_FOREACH(const shared_ptr<Interaction>& sysPtr, interactions)
-      if (sysPtr->getName() == name)
-	return sysPtr;
-  
-    M_throw() << "Could not find interaction plugin";
-  }
-
   void Dynamics::addGlobal(shared_ptr<Global> ptr)
   {
     if (!ptr) M_throw() << "Cannot add an unset Global";
@@ -180,27 +160,10 @@ namespace dynamo {
 
     {
       size_t ID=0;
-      
-      BOOST_FOREACH(shared_ptr<Interaction>& ptr, interactions)
-	ptr->initialise(ID++);
-    }
-
-    {
-      size_t ID=0;
 
       BOOST_FOREACH(shared_ptr<System>& ptr, systems)
 	ptr->initialise(ID++);
     }
-  }
-
-  const shared_ptr<Interaction>&
-  Dynamics::getInteraction(const Particle& p1, const Particle& p2) const 
-  {
-    BOOST_FOREACH(const shared_ptr<Interaction>& ptr, interactions)
-      if (ptr->isInteraction(p1,p2))
-	return ptr;
-  
-    M_throw() << "Could not find the interaction requested";
   }
 
   void 
@@ -221,7 +184,7 @@ namespace dynamo {
     double intECurrent = 0.0;
 
     BOOST_FOREACH(const shared_ptr<Interaction> & plugptr, 
-		  Sim->dynamics.getInteractions())
+		  Sim->interactions)
       intECurrent += plugptr->getInternalEnergy();
 
     return intECurrent;
@@ -283,20 +246,7 @@ namespace dynamo {
 
   void
   Dynamics::operator<<(const magnet::xml::Node& XML)
-  {
-    for (magnet::xml::Node node = XML.getNode("Interactions").fastGetNode("Interaction");
-	 node.valid(); ++node)
-      interactions.push_back(Interaction::getClass(node, Sim));
-  
-    //Link the species and interactions
-    BOOST_FOREACH(shared_ptr<Species>& sp , Sim->species)
-      BOOST_FOREACH(shared_ptr<Interaction>& intPtr , interactions)
-      if (intPtr->isInteraction(*sp))
-	{
-	  sp->setIntPtr(intPtr.get());
-	  break;
-	}
-  
+  {  
     if (XML.hasNode("Globals"))
       for (magnet::xml::Node node = XML.getNode("Globals").fastGetNode("Global"); 
 	   node.valid(); ++node)
@@ -335,27 +285,7 @@ namespace dynamo {
 	  << *ptr
 	  << magnet::xml::endtag("Local");
   
-    XML << magnet::xml::endtag("Locals")
-	<< magnet::xml::tag("Interactions");
-  
-    BOOST_FOREACH(const shared_ptr<Interaction>& ptr, interactions)
-      XML << magnet::xml::tag("Interaction")
-	  << *ptr
-	  << magnet::xml::endtag("Interaction");
-  
-    XML << magnet::xml::endtag("Interactions");
-  }
-
-  double 
-  Dynamics::getLongestInteraction() const
-  {
-    double maxval = 0.0;
-
-    BOOST_FOREACH(const shared_ptr<Interaction>& ptr, interactions)
-      if (ptr->maxIntDist() > maxval)
-	maxval = ptr->maxIntDist();
-
-    return maxval;
+    XML << magnet::xml::endtag("Locals");
   }
 
   void 
@@ -367,7 +297,7 @@ namespace dynamo {
   
     for (iPtr1 = Sim->particleList.begin(); iPtr1 != Sim->particleList.end(); ++iPtr1)
       for (iPtr2 = iPtr1 + 1; iPtr2 != Sim->particleList.end(); ++iPtr2)    
-	getInteraction(*iPtr1, *iPtr2)->checkOverlaps(*iPtr1, *iPtr2);
+	Sim->getInteraction(*iPtr1, *iPtr2)->checkOverlaps(*iPtr1, *iPtr2);
 
     BOOST_FOREACH(const Particle& part, Sim->particleList)
       BOOST_FOREACH(const shared_ptr<Local>& lcl, locals)

@@ -68,11 +68,11 @@ namespace dynamo {
     GNeighbourList& nblist = static_cast<GNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID]);
 
     if (nblist.getMaxSupportedInteractionLength() 
-	< Sim->dynamics.getLongestInteraction())
+	< Sim->getLongestInteraction())
       M_throw() << "Neighbourlist supports too small interaction distances! Supported distance is " 
 		<< nblist.getMaxSupportedInteractionLength() / Sim->dynamics.units().unitLength() 
 		<< " but the longest interaction distance is " 
-		<< Sim->dynamics.getLongestInteraction() / Sim->dynamics.units().unitLength();
+		<< Sim->getLongestInteraction() / Sim->dynamics.units().unitLength();
 
     nblist.markAsUsedInScheduler();
 

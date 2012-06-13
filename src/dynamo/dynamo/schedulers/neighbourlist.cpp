@@ -54,11 +54,11 @@ namespace dynamo {
       M_throw() << "The Global named SchedulerNBList is not a neighbour list!";
 
     if (nblist->getMaxSupportedInteractionLength() 
-	< Sim->dynamics.getLongestInteraction())
+	< Sim->getLongestInteraction())
       M_throw() << "Neighbourlist supports too small interaction distances! Supported distance is " 
 		<< nblist->getMaxSupportedInteractionLength() / Sim->dynamics.units().unitLength() 
 		<< " but the longest interaction distance is " 
-		<< Sim->dynamics.getLongestInteraction() / Sim->dynamics.units().unitLength();
+		<< Sim->getLongestInteraction() / Sim->dynamics.units().unitLength();
 
     nblist->markAsUsedInScheduler();
     nblist->ConnectSigNewNeighbourNotify<Scheduler>(&Scheduler::addInteractionEvent, this);

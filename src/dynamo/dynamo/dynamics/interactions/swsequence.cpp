@@ -204,7 +204,7 @@ namespace dynamo {
   bool 
   ISWSequence::captureTest(const Particle& p1, const Particle& p2) const
   {
-    if (&(*(Sim->dynamics.getInteraction(p1, p2))) != this) return false;
+    if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
 
     double d = (_diameter->getProperty(p1.getID())
 		+ _diameter->getProperty(p2.getID())) * 0.5;

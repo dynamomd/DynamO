@@ -198,7 +198,7 @@ namespace dynamo {
     virtual void reinitialise()
     {
       if (!_maxInteractionRange)
-	_maxInteractionRange = Sim->dynamics.getLongestInteraction();
+	_maxInteractionRange = Sim->getLongestInteraction();
 
       _initialised = true;
     }
