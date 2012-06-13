@@ -105,18 +105,18 @@ namespace dynamo {
       Sim.setnPrint(vm["events"].as<unsigned long long>());
     
     if (vm.count("sim-end-time") && (dynamic_cast<const EReplicaExchangeSimulation*>(this) == NULL))
-      Sim.addSystem(shared_ptr<System>(new SystHalt(&Sim, vm["sim-end-time"].as<double>(), "SystemStopEvent")));
+      Sim.systems.push_back(shared_ptr<System>(new SystHalt(&Sim, vm["sim-end-time"].as<double>(), "SystemStopEvent")));
 
     if (vm.count("scheduler-maintainance"))
-      Sim.addSystem(shared_ptr<System>(new SysSchedMaintainer(&Sim, vm["scheduler-maintainance"].as<double>(), "SchedulerRebuilder")));
+      Sim.systems.push_back(shared_ptr<System>(new SysSchedMaintainer(&Sim, vm["scheduler-maintainance"].as<double>(), "SchedulerRebuilder")));
 
 #ifdef DYNAMO_visualizer
     if (vm.count("visualizer"))
-      Sim.addSystem(shared_ptr<System>(new SVisualizer(&Sim, filename, Sim.lastRunMFT)));
+      Sim.systems.push_back(shared_ptr<System>(new SVisualizer(&Sim, filename, Sim.lastRunMFT)));
 #endif
 
     if (vm.count("snapshot"))
-      Sim.addSystem(shared_ptr<System>(new SSnapshot(&Sim, vm["snapshot"].as<double>(), "SnapshotEvent")));
+      Sim.systems.push_back(shared_ptr<System>(new SSnapshot(&Sim, vm["snapshot"].as<double>(), "SnapshotEvent")));
 
     if (vm.count("load-plugin"))
       {

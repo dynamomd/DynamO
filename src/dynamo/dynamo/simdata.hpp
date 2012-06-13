@@ -119,8 +119,12 @@ namespace dynamo
      */
     SimData();
     
+    /*! \brief Initialise the entire Simulation and the SimData struct.
+     *
+     * Most classes will have an initialisation function and its up to
+     * this function to call them all and in the right order.
+     */
     void initialise();
-
     
     SpeciesContainer species;
     void addSpecies(shared_ptr<Species>);
@@ -147,29 +151,29 @@ namespace dynamo
     double calcInternalEnergy() const;
 
     /*! \brief Sets the Centre of Mass (COM) velocity of the system 
-     * 
-     *  The COM momentum of the system is
-     * \f[ \bm{P}_{system} = \sum_i m_i \bm{v}_i \f]
-     * 
-     * We want to first remove any motion of the system, so we subtract
-     * the COM momentum based on the mass of each particle (E.g. \f$ m_i
-     * / \sum_j m_j\f$). This has two nice effects, first, particles
-     * store their velocities, not their momentums so we convert by
-     * dividing by \f$m_i\f$ which gives 
-     *
-     * \f[ \bm{v}_i \to \bm{v}_i -
-     * (\sum_i m_i \bm{v}_i) / \sum_i m_i \f] 
-     *
-     * So relative velocities are preserved as the subtraction is a
-     * constant for all particles. Also we can now just add the offset to give
-     *
-     * \f[ \bm{v}_i \to \bm{v}_i -(\sum_i m_i \bm{v}_i) / \sum_i m_i  + \bm{V}_{COM}\f]  
-     *
-     * \param COMVelocity The target velocity for the COM of the system.
+      
+       The COM momentum of the system is
+      \f[ \bm{P}_{system} = \sum_i m_i \bm{v}_i \f]
+      
+      We want to first remove any motion of the system, so we subtract
+      the COM momentum based on the mass of each particle (E.g. \f$ m_i
+      / \sum_j m_j\f$). This has two nice effects, first, particles
+      store their velocities, not their momentums so we convert by
+      dividing by \f$m_i\f$ which gives
+
+      \f[ \bm{v}_i \to \bm{v}_i -
+      (\sum_i m_i \bm{v}_i) / \sum_i m_i \f] 
+     
+      So relative velocities are preserved as the subtraction is a
+      constant for all particles. Also we can now just add the offset to give
+     
+      \f[ \bm{v}_i \to \bm{v}_i -(\sum_i m_i \bm{v}_i) / \sum_i m_i  + \bm{V}_{COM}\f]
+     
+      \param COMVelocity The target velocity for the COM of the system.
      */  
     void setCOMVelocity(const Vector COMVelocity = Vector(0,0,0));
 
-    void SystemOverlapTest();
+    void checkSystem();
 
     void addSystemTicker();
     

@@ -41,13 +41,6 @@ namespace dynamo {
   class Simulation: public dynamo::SimData
   {
   public:
-    /*! \brief Initialise the entire Simulation and the SimData struct.
-     *
-     * Most classes will have an initialisation function and its up to
-     * this function to call them all and in the right order.
-     */
-    void initialise();
-
     //! Main loop for the Simulation
     //! \param silentMode If true, the periodic output of the simulation is supressed. 
     void runSimulation(bool silentMode = false);
@@ -84,53 +77,9 @@ namespace dynamo {
     //! \sa dynamo::SimData::ranGenerator
     void setRandSeed(unsigned int);
 
-    //! Allows the Coordinator class to add System events to the
-    //! Simulation.
-    //!
-    //! This is only allowed before the simulation is initialised.
-    void addSystem(shared_ptr<System>);
-
-    //! Sets the ID of the simulation.
-    //!
-    //! This is used when running multiple simulations concurrently, and
-    //! a ID is used to distinguish between them.
-    //! \sa EReplicaExchangeSimulation
-    //! \sa getSimID
-    void setSimID(const size_t& n) { simID = n; }
-
-    //! Returns the ID of the simulation.
-    //! \sa setSimID
-    size_t getSimID() { return simID; }
-
-    //! Allows a Engine or the Coordinator class to access a named
-    //! System event.
-    //!
-    //! This function is used by Engine classes like the
-    //! EReplicaExchangeSimulation class to fetch System events like the
-    //! Thermostat (e.g. SysAndersen).
-    System* getSystem(std::string);
-
     //! Get the current time of the Simulation.
     //! \sa getnColl
     long double getSysTime();
-
-    //! Get the Ensemble of the Simulation.
-    inline const shared_ptr<dynamo::Ensemble>& getEnsemble() const 
-    { return ensemble; }
-
-    //! Get the Ensemble of the Simulation.
-    inline shared_ptr<dynamo::Ensemble>& getEnsemble() 
-    { return ensemble; }
-  
-    //! Get the number of Events executed.
-    //! \sa getSysTime
-    inline const unsigned long long &getnColl() const 
-    { return eventCount; }
-
-    //! Get the state of the Simulation.
-    //! \sa ESimulationStatus
-    inline const ESimulationStatus& getStatus() const
-    { return status; }
   
     //! Allows a Engine or the Coordinator class to add an OutputPlugin
     //! to the Simulation.
@@ -144,13 +93,5 @@ namespace dynamo {
 
     //! Scales the frequency of the SysTicker event by the passed factor.
     void scaleTickerPeriod(double);
-  
-    /*! \brief An expensive sanity check for the system.
-     *
-     * Ensures that the system configuration is valid, and no overlaps
-     * exist.
-     */
-    void checkSystem();
-  private:
   };
 }

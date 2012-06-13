@@ -19,16 +19,13 @@
 #include <dynamo/include.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/BC/include.hpp>
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/systems/system.hpp>
 #include <dynamo/NparticleEventData.hpp>
-#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <dynamo/systems/sysTicker.hpp>
 #include <dynamo/globals/ParabolaSentinel.hpp>
-#include <dynamo/globals/PBCSentinel.hpp>
 #include <magnet/exception.hpp>
 #include <boost/foreach.hpp>
 #include <iomanip>
@@ -45,7 +42,7 @@ namespace dynamo {
   void 
   Simulation::setTickerPeriod(double nP)
   {
-    SysTicker* ptr = dynamic_cast<SysTicker*>(getSystem("SystemTicker"));
+    SysTicker* ptr = dynamic_cast<SysTicker*>(&systems["SystemTicker"]);
     if (ptr == NULL)
       M_throw() << "Could not find system ticker (maybe not required?)";
 
@@ -55,28 +52,12 @@ namespace dynamo {
   void 
   Simulation::scaleTickerPeriod(double nP)
   {
-    SysTicker* ptr = dynamic_cast<SysTicker*>(getSystem("SystemTicker"));
+    SysTicker* ptr = dynamic_cast<SysTicker*>(&systems["SystemTicker"]);
 
     if (ptr == NULL)
       M_throw() << "Could not find system ticker (maybe not required?)";
 
     ptr->setTickerPeriod(nP * ptr->getPeriod());
-  }
-
-  System* 
-  Simulation::getSystem(std::string name)
-  {
-    BOOST_FOREACH(shared_ptr<System>& sysPtr, systems)
-      if (sysPtr->getName() == name)
-	return sysPtr.get();
-  
-    return NULL;
-  }
-
-  void 
-  Simulation::addSystem(shared_ptr<System> tmp)
-  {
-    systems.push_back(tmp);
   }
 
   void 
@@ -111,82 +92,6 @@ namespace dynamo {
   { 
     //dout << "Trajectory length set to " << newMaxColl << " collisions" << std::endl;
     endEventCount = newMaxColl; 
-  }
-
-  namespace {
-    /*! \brief Hidden functor used for sorting containers of
-        shared_ptr's holiding OutputPlugin classes.
-     */
-    struct OutputPluginSort: std::binary_function<const shared_ptr<OutputPlugin>&, 
-						  const shared_ptr<OutputPlugin>&,
-						  bool>
-    {
-      bool operator()(const shared_ptr<OutputPlugin>& lhs, 
-		      const shared_ptr<OutputPlugin>& rhs)
-      {
-	return (*lhs) < (*rhs);
-      }
-    };
-  }
-
-  void
-  Simulation::initialise()
-  {
-    dout << "Sorting the Output Plugins" << std::endl;
-
-    //This sorting must be done according to the derived plugins sort
-    //operators.
-
-    std::sort(outputPlugins.begin(), outputPlugins.end(), OutputPluginSort());
-  
-    bool needTicker = false;
-  
-    if (std::tr1::dynamic_pointer_cast<BCPeriodic>(BCs)
-	|| std::tr1::dynamic_pointer_cast<BCPeriodicExceptX>(BCs)
-	|| std::tr1::dynamic_pointer_cast<BCPeriodicXOnly>(BCs)
-	|| std::tr1::dynamic_pointer_cast<BCLeesEdwards>(BCs))
-      globals.push_back(shared_ptr<Global>(new GPBCSentinel(this, "PBCSentinel")));
-
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)
-      if (std::tr1::dynamic_pointer_cast<OPTicker>(Ptr))
-	{
-	  needTicker = true; 
-	  break;
-	}
-
-    if (needTicker) addSystemTicker();
-
-    if (status != CONFIG_LOADED)
-      M_throw() << "Sim initialised at wrong time";
-
-    dout << "Initialising Components" << std::endl;  
-
-    if (ptrScheduler == NULL)
-      M_throw() << "The scheduler has not been set!";      
-  
-    dout << "Initialising the dynamics" << std::endl;
-
-    SimData::initialise();
-
-    ensemble->initialise();
-    
-    std::cout.flush();
-
-    if (endEventCount) //Only initialise the scheduler if we're simulating
-      {
-	dout << "Initialising the scheduler" << std::endl;
-	ptrScheduler->initialise();
-      }
-    else
-      dout << "Skipping initialisation of the Scheduler" << std::endl;
-  
-    dout << "Initialising the output plugins" << std::endl;
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)
-      Ptr->initialise();
-
-    dout << "System initialised" << std::endl;
-
-    status = INITIALISED;
   }
 
   void
@@ -264,10 +169,4 @@ namespace dynamo {
   long double 
   Simulation::getSysTime()
   { return dSysTime / units.unitTime(); }
-
-  void
-  Simulation::checkSystem()
-  {
-    SystemOverlapTest();
-  }
 }

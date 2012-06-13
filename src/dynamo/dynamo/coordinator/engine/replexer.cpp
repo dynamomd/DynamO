@@ -88,7 +88,7 @@ namespace dynamo {
 
     //Ensure we are in the right ensemble for all simulations
     for (size_t i = nSims; i != 0;)
-      if (dynamic_cast<const dynamo::EnsembleNVT* >(Simulations[--i].getEnsemble().get()) == NULL)
+      if (dynamic_cast<const dynamo::EnsembleNVT* >(Simulations[--i].ensemble.get()) == NULL)
 	M_throw() << vm["config-file"].as<std::vector<std::string> >()[i]
 		  << " does not have an NVT ensemble";
 
@@ -101,10 +101,13 @@ namespace dynamo {
 		  << vm["config-file"].as<std::vector<std::string> >()[0];
 
     //Test a thermostat is available
-    for (unsigned int i = 0; i < nSims; i++)
-      if (Simulations[i].getSystem("Thermostat") == NULL)
+    for (size_t i = 0; i < nSims; i++)
+      try {
+	Simulations[i].systems["Thermostat"];
+      } catch (...) {
 	M_throw() << "Could not find the Thermostat for system " << i 
 		  << "\nFilename " << vm["config-file"].as<std::vector<std::string> >()[i];
+      }
   
     //Set up the replex organisation
     temperatureList.clear();
@@ -124,8 +127,8 @@ namespace dynamo {
 	    
 	      temperatureList.push_back
 		(replexPair
-		 (Simulations[i].getEnsemble()->getEnsembleVals()[2], 
-		  simData(i,Simulations[i].getEnsemble()->getReducedEnsembleVals()[2])));
+		 (Simulations[i].ensemble->getEnsembleVals()[2], 
+		  simData(i,Simulations[i].ensemble->getReducedEnsembleVals()[2])));
 	    
 	      didWork = true;
 	      break;
@@ -156,7 +159,7 @@ namespace dynamo {
 	{
 	  double tFactor 
 	    = std::sqrt(temperatureList.begin()->second.realTemperature
-			/ Simulations[i].getEnsemble()->getReducedEnsembleVals()[2]); 
+			/ Simulations[i].ensemble->getReducedEnsembleVals()[2]); 
 	  Simulations[i].setTickerPeriod(vm["ticker-period"].as<double>() * tFactor);
 	}
   }
@@ -252,7 +255,7 @@ namespace dynamo {
     Engine::setupSim(Sim, filename);
 
     //Add the halt time, set to zero so a replica exchange occurrs immediately
-    Sim.addSystem(shared_ptr<System>(new SystHalt(&Sim, 0, "ReplexHalt")));
+    Sim.systems.push_back(shared_ptr<System>(new SystHalt(&Sim, 0, "ReplexHalt")));
 
     Sim.addOutputPlugin("UEnergy");
   }
@@ -267,11 +270,11 @@ namespace dynamo {
     BOOST_FOREACH(const replexPair& dat, temperatureList)
       {       
 	std::cout << std::setw(9)
-		  << Simulations[dat.second.simID].getEnsemble()->getReducedEnsembleVals()[2] 
+		  << Simulations[dat.second.simID].ensemble->getReducedEnsembleVals()[2] 
 		  << " " << std::setw(4)
 		  << dat.second.simID
 		  << " " << std::setw(8)
-		  << Simulations[dat.second.simID].getnColl()/1000 << "k" 
+		  << Simulations[dat.second.simID].eventCount/1000 << "k" 
 		  << " " << std::setw(9)
 		  << ( static_cast<double>(dat.second.swaps) / dat.second.attempts)
 		  << " " << std::setw(9)
@@ -412,7 +415,7 @@ namespace dynamo {
     
     //No need to check sign, it will just accept the move anyway due to
     //the [0,1) limits of the random number generator
-    if (sim1.getEnsemble()->exchangeProbability(*sim2.getEnsemble())
+    if (sim1.ensemble->exchangeProbability(*sim2.ensemble)
 	> boost::uniform_01<dynamo::baseRNG, double>(sim1.ranGenerator)())
       {
 	sim1.replexerSwap(sim2);
@@ -429,7 +432,7 @@ namespace dynamo {
   {
     start_Time = boost::posix_time::second_clock::local_time();
 
-    while ((Simulations[0].getSysTime() < replicaEndTime) && (Simulations[0].getnColl() < vm["events"].as<unsigned long long>()))
+    while ((Simulations[0].getSysTime() < replicaEndTime) && (Simulations[0].eventCount < vm["events"].as<unsigned long long>()))
       {
 	if (peekMode)
 	  {
@@ -495,7 +498,7 @@ namespace dynamo {
 	      {
 		//Reset the stop event
 		SystHalt* tmpRef = dynamic_cast<SystHalt*>
-		  (Simulations[--i].getSystem("ReplexHalt"));
+		  (&Simulations[--i].systems["ReplexHalt"]);
 		      
 #ifdef DYNAMO_DEBUG
 		if (tmpRef == NULL)
@@ -504,7 +507,7 @@ namespace dynamo {
 		//Each simulations exchange time is inversly proportional to its temperature
 		double tFactor 
 		  = std::sqrt(temperatureList.begin()->second.realTemperature
-			      / Simulations[i].getEnsemble()->getReducedEnsembleVals()[2]); 
+			      / Simulations[i].ensemble->getReducedEnsembleVals()[2]); 
 
 		tmpRef->increasedt(vm["replex-interval"].as<double>() * tFactor);
 

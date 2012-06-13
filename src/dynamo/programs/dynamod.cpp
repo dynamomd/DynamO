@@ -163,21 +163,24 @@ main(int argc, char *argv[])
 
       if (vm.count("thermostat"))
 	{
-	  dynamo::System* thermostat = sim.getSystem("Thermostat");
-	  if (thermostat == NULL)
-	    {
-	      sim.addSystem(dynamo::shared_ptr<dynamo::System>
-			    (new dynamo::SysAndersen(&sim, 1.0, 1.0, "Thermostat")));
-	      thermostat = sim.getSystem("Thermostat");
-	    }
+	  //Locate or create a "Thermostat" System interaction
+	  try {
+	    sim.systems["Thermostat"];
+	  } catch (...) {
+	    sim.systems.push_back(dynamo::shared_ptr<dynamo::System>
+				  (new dynamo::SysAndersen(&sim, 1.0, 1.0, "Thermostat")));
+	  }
 
-	  if (dynamic_cast<const dynamo::SysAndersen*>(thermostat) == NULL)
-	    M_throw() << "Could not upcast thermostat to Andersens";
-	  
-	  static_cast<dynamo::SysAndersen*>(thermostat)->setReducedTemperature(vm["thermostat"].as<double>());
-	  
+	  //Check it is a thermostat type, and set the temperature
+	  try {
+	    dynamo::SysAndersen& thermostat = dynamic_cast<dynamo::SysAndersen&>(sim.systems["Thermostat"]);
+	    thermostat.setReducedTemperature(vm["thermostat"].as<double>());
+	  } catch (...) {
+	    M_throw() << "Could not upcast System event named \"Thermostat\" to SysAndersen";
+	  }
+
 	  //Install a NVT Ensemble
-	  sim.getEnsemble().reset(new dynamo::EnsembleNVT(&sim));
+	  sim.ensemble.reset(new dynamo::EnsembleNVT(&sim));
 	}
 
       sim.initialise();      

@@ -19,6 +19,8 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <dynamo/BC/include.hpp>
 #include <dynamo/systems/sysTicker.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/species/species.hpp>
@@ -26,6 +28,7 @@
 #include <dynamo/globals/global.hpp>
 #include <dynamo/interactions/interaction.hpp>
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
+#include <dynamo/globals/PBCSentinel.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
@@ -60,9 +63,46 @@ namespace dynamo
     status(START)
   {}
 
+  namespace {
+    /*! \brief Hidden functor used for sorting containers of
+        shared_ptr's holiding OutputPlugin classes.
+     */
+    struct OutputPluginSort: std::binary_function<const shared_ptr<OutputPlugin>&, 
+						  const shared_ptr<OutputPlugin>&,
+						  bool>
+    {
+      bool operator()(const shared_ptr<OutputPlugin>& lhs, 
+		      const shared_ptr<OutputPlugin>& rhs)
+      {
+	return (*lhs) < (*rhs);
+      }
+    };
+  }
+
   void
   SimData::initialise()
   {
+    if (status != CONFIG_LOADED)
+      M_throw() << "Sim initialised at wrong time";
+
+    //This sorting must be done according to the derived plugins sort
+    //operators.
+
+    std::sort(outputPlugins.begin(), outputPlugins.end(), OutputPluginSort());
+  
+    if (std::tr1::dynamic_pointer_cast<BCPeriodic>(BCs)
+	|| std::tr1::dynamic_pointer_cast<BCPeriodicExceptX>(BCs)
+	|| std::tr1::dynamic_pointer_cast<BCPeriodicXOnly>(BCs)
+	|| std::tr1::dynamic_pointer_cast<BCLeesEdwards>(BCs))
+      globals.push_back(shared_ptr<Global>(new GPBCSentinel(this, "PBCSentinel")));
+
+    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)
+      if (std::tr1::dynamic_pointer_cast<OPTicker>(Ptr))
+	{
+	  addSystemTicker();
+	  break;
+	}
+
     BOOST_FOREACH(shared_ptr<Species>& ptr, species)
       ptr->initialise();
 
@@ -129,6 +169,20 @@ namespace dynamo
       BOOST_FOREACH(shared_ptr<System>& ptr, systems)
 	ptr->initialise(ID++);
     }
+
+    ensemble->initialise();
+
+    if (ptrScheduler == NULL)
+      M_throw() << "The scheduler has not been set!";      
+
+    if (endEventCount) 
+      //Only initialise the scheduler if we're simulating
+      ptrScheduler->initialise();
+
+    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)
+      Ptr->initialise();
+
+    status = INITIALISED;	
   }
 
   IntEvent 
@@ -617,7 +671,7 @@ namespace dynamo
   }
 
   void
-  SimData::SystemOverlapTest()
+  SimData::checkSystem()
   {
     liouvillean->updateAllParticles();
 
