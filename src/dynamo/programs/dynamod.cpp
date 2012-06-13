@@ -25,14 +25,14 @@ using namespace std;
 using namespace boost;
 namespace po = boost::program_options;
 
-#include <dynamo/simulation.hpp>
+#include <dynamo/simdata.hpp>
 #include <dynamo/BC/include.hpp>
 
 #include <dynamo/systems/andersenThermostat.hpp>
 #include <dynamo/schedulers/include.hpp>
 #include <dynamo/inputplugins/include.hpp>
 #include <magnet/exception.hpp>
-dynamo::Simulation sim;
+dynamo::SimData sim;
 
 int
 main(int argc, char *argv[])

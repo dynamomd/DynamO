@@ -77,7 +77,7 @@ namespace dynamo {
   protected:
     /*! \brief The single instance of a Simulation required.
      */
-    Simulation simulation;
+    SimData simulation;
   
     /*! \brief If this is true, the Simulation's end time will be reset
      * and the ESingleSimulation run loop in runSimulation() will be repeated.

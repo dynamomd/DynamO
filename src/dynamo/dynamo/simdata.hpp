@@ -71,11 +71,8 @@ namespace dynamo
   /*! \brief Fundamental collection of the Simulation data.
    
     This struct contains all the data belonging to a single
-    Simulation. It has been abstracted away from the Simulation
-    class so that every class can contain a pointer to this datatype
-    without knowing the Simulation class and causing a circular
-    reference/dependency.
-   
+    Simulation.
+    
     A pointer to this class has been incorporated in the base classes
     SimBase and SimBase_Const which also provide some general
     std::cout formatting.
@@ -120,9 +117,9 @@ namespace dynamo
     SimData();
     
     /*! \brief Initialise the entire Simulation and the SimData struct.
-     *
-     * Most classes will have an initialisation function and its up to
-     * this function to call them all and in the right order.
+     
+      Most classes will have an initialisation function and its up to
+      this function to call them all and in the right order.
      */
     void initialise();
     
