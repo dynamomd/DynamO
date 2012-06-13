@@ -16,17 +16,17 @@
 */
 
 #include <dynamo/inputplugins/inputplugin.hpp>
-#include <dynamo/simulation/particle.hpp>
+#include <dynamo/particle.hpp>
 #include <dynamo/schedulers/include.hpp>
 
-#include <dynamo/dynamics/species/species.hpp>
-#include <dynamo/dynamics/interactions/include.hpp>
-#include <dynamo/dynamics/ranges/include.hpp>
-#include <dynamo/dynamics/BC/include.hpp>
-#include <dynamo/dynamics/liouvillean/include.hpp>
-#include <dynamo/dynamics/systems/andersenThermostat.hpp>
-#include <dynamo/base/is_simdata.hpp>
-#include <dynamo/dynamics/topology/include.hpp>
+#include <dynamo/species/species.hpp>
+#include <dynamo/interactions/include.hpp>
+#include <dynamo/ranges/include.hpp>
+#include <dynamo/BC/include.hpp>
+#include <dynamo/liouvillean/include.hpp>
+#include <dynamo/systems/andersenThermostat.hpp>
+#include <dynamo/simdata.hpp>
+#include <dynamo/topology/include.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/foreach.hpp>

@@ -16,12 +16,12 @@
 */
 
 #include <dynamo/outputplugins/tickerproperty/chaintorsion.hpp>
-#include <dynamo/dynamics/include.hpp>
-#include <dynamo/dynamics/ranges/1range.hpp>
-#include <dynamo/base/is_simdata.hpp>
-#include <dynamo/dynamics/topology/include.hpp>
-#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
-#include <dynamo/dynamics/BC/None.hpp>
+#include <dynamo/include.hpp>
+#include <dynamo/ranges/1range.hpp>
+#include <dynamo/simdata.hpp>
+#include <dynamo/topology/include.hpp>
+#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/BC/None.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <vector>

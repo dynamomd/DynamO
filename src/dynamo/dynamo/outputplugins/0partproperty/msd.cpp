@@ -16,9 +16,9 @@
 */
 
 #include <dynamo/outputplugins/0partproperty/msd.hpp>
-#include <dynamo/dynamics/include.hpp>
-#include <dynamo/base/is_simdata.hpp>
-#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/include.hpp>
+#include <dynamo/simdata.hpp>
+#include <dynamo/liouvillean/liouvillean.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 

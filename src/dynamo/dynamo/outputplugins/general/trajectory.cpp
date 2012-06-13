@@ -16,13 +16,13 @@
 */
 #include <dynamo/outputplugins/general/trajectory.hpp>
 
-#include <dynamo/dynamics/units/units.hpp>
-#include <dynamo/dynamics/globals/globEvent.hpp>
-#include <dynamo/dynamics/interactions/intEvent.hpp>
-#include <dynamo/dynamics/locals/localEvent.hpp>
-#include <dynamo/dynamics/NparticleEventData.hpp>
-#include <dynamo/dynamics/systems/system.hpp>
-#include <dynamo/dynamics/BC/BC.hpp>
+#include <dynamo/units/units.hpp>
+#include <dynamo/globals/globEvent.hpp>
+#include <dynamo/interactions/intEvent.hpp>
+#include <dynamo/locals/localEvent.hpp>
+#include <dynamo/NparticleEventData.hpp>
+#include <dynamo/systems/system.hpp>
+#include <dynamo/BC/BC.hpp>
 #include <iomanip>
 
 namespace dynamo {

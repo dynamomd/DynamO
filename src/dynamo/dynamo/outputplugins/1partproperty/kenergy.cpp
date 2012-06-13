@@ -16,10 +16,10 @@
 */
 
 #include <dynamo/outputplugins/1partproperty/kenergy.hpp>
-#include <dynamo/dynamics/interactions/captures.hpp>
-#include <dynamo/dynamics/include.hpp>
-#include <dynamo/dynamics/interactions/intEvent.hpp>
-#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/interactions/captures.hpp>
+#include <dynamo/include.hpp>
+#include <dynamo/interactions/intEvent.hpp>
+#include <dynamo/simdata.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <cmath>

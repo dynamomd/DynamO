@@ -18,7 +18,7 @@
 #pragma once
 #include <dynamo/schedulers/sorters/event.hpp>
 #include <dynamo/base.hpp>
-#include <dynamo/dynamics/eventtypes.hpp>
+#include <dynamo/eventtypes.hpp>
 
 namespace magnet { namespace xml { class Node; } } 
 namespace xml { class XmlStream; } 

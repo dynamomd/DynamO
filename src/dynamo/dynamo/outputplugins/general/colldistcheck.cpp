@@ -16,7 +16,7 @@
 */
 
 #include <dynamo/outputplugins/general/colldistcheck.hpp>
-#include <dynamo/dynamics/include.hpp>
+#include <dynamo/include.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>

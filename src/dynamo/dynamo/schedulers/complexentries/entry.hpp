@@ -17,8 +17,8 @@
 
 #pragma once
 #include <dynamo/base.hpp>
-#include <dynamo/dynamics/ranges/1range.hpp>
-#include <dynamo/dynamics/globals/neighbourList.hpp>
+#include <dynamo/ranges/1range.hpp>
+#include <dynamo/globals/neighbourList.hpp>
 
 namespace magnet { namespace xml { class Node; } }
 namespace xml { class XmlStream; }

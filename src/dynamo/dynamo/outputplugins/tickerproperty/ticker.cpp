@@ -17,8 +17,8 @@
 */
 
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
-#include <dynamo/dynamics/include.hpp>
-#include <dynamo/dynamics/systems/sysTicker.hpp>
+#include <dynamo/include.hpp>
+#include <dynamo/systems/sysTicker.hpp>
 #include <boost/foreach.hpp>
 
 namespace dynamo {

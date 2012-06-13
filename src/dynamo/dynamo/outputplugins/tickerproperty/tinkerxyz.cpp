@@ -17,13 +17,13 @@
 
 #include <dynamo/outputplugins/tickerproperty/tinkerxyz.hpp>
 #include <dynamo/outputplugins/tickerproperty/radiusGyration.hpp>
-#include <dynamo/dynamics/include.hpp>
-#include <dynamo/base/is_simdata.hpp>
-#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
-#include <dynamo/dynamics/interactions/squarebond.hpp>
-#include <dynamo/dynamics/ranges/2RList.hpp>
-#include <dynamo/dynamics/topology/chain.hpp>
-#include <dynamo/dynamics/liouvillean/CompressionL.hpp>
+#include <dynamo/include.hpp>
+#include <dynamo/simdata.hpp>
+#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/interactions/squarebond.hpp>
+#include <dynamo/ranges/2RList.hpp>
+#include <dynamo/topology/chain.hpp>
+#include <dynamo/liouvillean/CompressionL.hpp>
 #include <dynamo/outputplugins/tickerproperty/vmd_imd/vmdsock.h>
 #include <dynamo/outputplugins/tickerproperty/vmd_imd/imd.h>
 #include <magnet/xmlwriter.hpp>

@@ -18,11 +18,11 @@
 #include <dynamo/coordinator/engine/engine.hpp>
 #include <dynamo/coordinator/engine/replexer.hpp>
 #include <dynamo/inputplugins/compression.hpp>
-#include <dynamo/dynamics/systems/tHalt.hpp>
-#include <dynamo/dynamics/systems/schedMaintainer.hpp>
+#include <dynamo/systems/tHalt.hpp>
+#include <dynamo/systems/schedMaintainer.hpp>
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
-#include <dynamo/dynamics/systems/visualizer.hpp>
-#include <dynamo/dynamics/systems/snapshot.hpp>
+#include <dynamo/systems/visualizer.hpp>
+#include <dynamo/systems/snapshot.hpp>
 #include <limits>
 
 

@@ -16,9 +16,9 @@
 */
 
 #include <dynamo/outputplugins/tickerproperty/OrientationalOrder.hpp>
-#include <dynamo/dynamics/globals/neighbourList.hpp>
-#include <dynamo/dynamics/units/units.hpp>
-#include <dynamo/dynamics/BC/BC.hpp>
+#include <dynamo/globals/neighbourList.hpp>
+#include <dynamo/units/units.hpp>
+#include <dynamo/BC/BC.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>

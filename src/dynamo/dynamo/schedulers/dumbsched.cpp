@@ -16,20 +16,20 @@
 */
 
 #include <dynamo/schedulers/dumbsched.hpp>
-#include <dynamo/dynamics/interactions/intEvent.hpp>
-#include <dynamo/simulation/particle.hpp>
+#include <dynamo/interactions/intEvent.hpp>
+#include <dynamo/particle.hpp>
 
-#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
-#include <dynamo/dynamics/BC/BC.hpp>
-#include <dynamo/dynamics/BC/LEBC.hpp>
-#include <dynamo/base/is_simdata.hpp>
-#include <dynamo/dynamics/globals/globEvent.hpp>
-#include <dynamo/dynamics/systems/system.hpp>
-#include <dynamo/dynamics/globals/global.hpp>
-#include <dynamo/dynamics/globals/globEvent.hpp>
-#include <dynamo/dynamics/globals/neighbourList.hpp>
-#include <dynamo/dynamics/locals/local.hpp>
-#include <dynamo/dynamics/locals/localEvent.hpp>
+#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/BC/BC.hpp>
+#include <dynamo/BC/LEBC.hpp>
+#include <dynamo/simdata.hpp>
+#include <dynamo/globals/globEvent.hpp>
+#include <dynamo/systems/system.hpp>
+#include <dynamo/globals/global.hpp>
+#include <dynamo/globals/globEvent.hpp>
+#include <dynamo/globals/neighbourList.hpp>
+#include <dynamo/locals/local.hpp>
+#include <dynamo/locals/localEvent.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cmath> //for huge val
 

@@ -16,13 +16,13 @@
 */
 
 #include <dynamo/outputplugins/1partproperty/collenergychange.hpp>
-#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
-#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/simdata.hpp>
 
-#include <dynamo/dynamics/species/species.hpp>
-#include <dynamo/dynamics/1particleEventData.hpp>
-#include <dynamo/dynamics/2particleEventData.hpp>
-#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/species/species.hpp>
+#include <dynamo/1particleEventData.hpp>
+#include <dynamo/2particleEventData.hpp>
+#include <dynamo/units/units.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>

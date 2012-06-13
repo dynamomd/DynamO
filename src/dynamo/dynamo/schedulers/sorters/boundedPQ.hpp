@@ -19,8 +19,8 @@
 #include <dynamo/schedulers/sorters/event.hpp>
 #include <dynamo/schedulers/sorters/sorter.hpp>
 #include <dynamo/schedulers/sorters/heapPEL.hpp>
-#include <dynamo/dynamics/units/units.hpp>
-#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/units/units.hpp>
+#include <dynamo/simdata.hpp>
 #include <boost/static_assert.hpp>
 #include <magnet/exception.hpp>
 #include <string>

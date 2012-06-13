@@ -16,11 +16,11 @@
 */
 
 #pragma once
-#include <dynamo/dynamics/eventtypes.hpp>
-#include <dynamo/dynamics/interactions/intEvent.hpp>
-#include <dynamo/dynamics/globals/globEvent.hpp>
-#include <dynamo/dynamics/locals/localEvent.hpp>
-#include <dynamo/dynamics/globals/global.hpp>
+#include <dynamo/eventtypes.hpp>
+#include <dynamo/interactions/intEvent.hpp>
+#include <dynamo/globals/globEvent.hpp>
+#include <dynamo/locals/localEvent.hpp>
+#include <dynamo/globals/global.hpp>
 #include <boost/foreach.hpp>
 #include <algorithm>
 

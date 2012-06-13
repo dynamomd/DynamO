@@ -16,7 +16,7 @@
 */
 
 #pragma once
-#include <dynamo/dynamics/eventtypes.hpp>
+#include <dynamo/eventtypes.hpp>
 #include <utility>
 #include <string>
 

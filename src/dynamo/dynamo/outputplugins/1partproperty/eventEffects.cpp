@@ -16,9 +16,9 @@
 */
 
 #include <dynamo/outputplugins/1partproperty/eventEffects.hpp>
-#include <dynamo/base/is_simdata.hpp>
-#include <dynamo/dynamics/include.hpp>
-#include <dynamo/dynamics/interactions/include.hpp>
+#include <dynamo/simdata.hpp>
+#include <dynamo/include.hpp>
+#include <dynamo/interactions/include.hpp>
 #include <dynamo/outputplugins/1partproperty/kenergy.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>

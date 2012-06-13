@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include <dynamo/simulation/simulation.hpp>
+#include <dynamo/simulation.hpp>
 #include <boost/program_options.hpp>
 #include <boost/scoped_array.hpp>
 

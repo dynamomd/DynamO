@@ -16,7 +16,7 @@
 */
 
 #pragma once
-#include <dynamo/dynamics/eventtypes.hpp>
+#include <dynamo/eventtypes.hpp>
 #include <dynamo/outputplugins/1partproperty/1partproperty.hpp>
 #include <magnet/math/histogram.hpp>
 #include <boost/tuple/tuple.hpp>

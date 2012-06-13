@@ -17,8 +17,8 @@
 
 #include <dynamo/outputplugins/include.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
-#include <dynamo/dynamics/include.hpp>
-#include <dynamo/simulation/particle.hpp>
+#include <dynamo/include.hpp>
+#include <dynamo/particle.hpp>
 #include <dynamo/outputplugins/correlations/include.hpp>
 #include <dynamo/outputplugins/general/include.hpp>
 #include <magnet/xmlreader.hpp>

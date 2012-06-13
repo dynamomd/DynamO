@@ -16,8 +16,8 @@
 */
 
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
-#include <dynamo/dynamics/include.hpp>
-#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/include.hpp>
+#include <dynamo/simdata.hpp>
 #include <magnet/memUsage.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <boost/foreach.hpp>

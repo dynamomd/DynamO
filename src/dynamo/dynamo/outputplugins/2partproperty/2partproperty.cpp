@@ -16,7 +16,7 @@
 */
 
 #include <dynamo/outputplugins/2partproperty/2partproperty.hpp>
-#include <dynamo/dynamics/include.hpp>
+#include <dynamo/include.hpp>
 #include <boost/foreach.hpp>
 
 namespace dynamo {

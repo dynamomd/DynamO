@@ -17,8 +17,8 @@
 
 
 #include <dynamo/outputplugins/2partproperty/cubecomponents.hpp>
-#include <dynamo/dynamics/include.hpp>
-#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/include.hpp>
+#include <dynamo/simdata.hpp>
 #include <dynamo/outputplugins/0partproperty/collMatrix.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>

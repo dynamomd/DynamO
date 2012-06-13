@@ -17,12 +17,12 @@
 
 #include <dynamo/outputplugins/tickerproperty/structureImage.hpp>
 #include <dynamo/outputplugins/tickerproperty/radiusGyration.hpp>
-#include <dynamo/dynamics/include.hpp>
-#include <dynamo/base/is_simdata.hpp>
-#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
-#include <dynamo/dynamics/interactions/squarebond.hpp>
-#include <dynamo/dynamics/ranges/2RList.hpp>
-#include <dynamo/dynamics/topology/chain.hpp>
+#include <dynamo/include.hpp>
+#include <dynamo/simdata.hpp>
+#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/interactions/squarebond.hpp>
+#include <dynamo/ranges/2RList.hpp>
+#include <dynamo/topology/chain.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/algorithm/string.hpp>

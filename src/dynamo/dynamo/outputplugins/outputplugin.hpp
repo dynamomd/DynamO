@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/base.hpp>
-#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/simdata.hpp>
 
 namespace xml { class XmlStream; }
 namespace magnet { namespace xml { class Node; } }

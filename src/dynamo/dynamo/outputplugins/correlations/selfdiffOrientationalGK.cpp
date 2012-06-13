@@ -16,7 +16,7 @@
 */
 
 #include <dynamo/outputplugins/correlations/selfdiffOrientationalGK.hpp>
-#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/liouvillean/liouvillean.hpp>
 #include <magnet/math/matrix.hpp>
 
 namespace dynamo {

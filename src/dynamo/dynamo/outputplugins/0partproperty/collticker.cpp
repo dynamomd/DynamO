@@ -17,7 +17,7 @@
 
 #include <dynamo/outputplugins/0partproperty/collticker.hpp>
 #include <boost/foreach.hpp>
-#include <dynamo/dynamics/include.hpp>
+#include <dynamo/include.hpp>
 
 namespace dynamo {
   OPCollTicker::OPCollTicker(const dynamo::SimData* t1,const char *t2, unsigned char order):

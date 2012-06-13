@@ -16,28 +16,28 @@
 */
 
 #include <dynamo/inputplugins/packer.hpp>
-#include <dynamo/simulation/particle.hpp>
-#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/particle.hpp>
+#include <dynamo/simdata.hpp>
 #include <dynamo/inputplugins/cells/include.hpp>
-#include <dynamo/simulation/particle.hpp>
+#include <dynamo/particle.hpp>
 #include <dynamo/schedulers/include.hpp>
 #include <dynamo/schedulers/sorters/include.hpp>
 
-#include <dynamo/dynamics/species/include.hpp>
-#include <dynamo/dynamics/globals/include.hpp>
-#include <dynamo/dynamics/interactions/include.hpp>
-#include <dynamo/dynamics/ranges/include.hpp>
-#include <dynamo/dynamics/BC/include.hpp>
-#include <dynamo/dynamics/liouvillean/include.hpp>
-#include <dynamo/dynamics/systems/andersenThermostat.hpp>
-#include <dynamo/base/is_simdata.hpp>
-#include <dynamo/dynamics/topology/include.hpp>
-#include <dynamo/simulation/ensemble.hpp>
-#include <dynamo/dynamics/locals/include.hpp>
-#include <dynamo/dynamics/systems/DSMCspheres.hpp>
-#include <dynamo/dynamics/systems/RingDSMC.hpp>
-#include <dynamo/dynamics/systems/rescale.hpp>
-#include <dynamo/dynamics/systems/sleep.hpp>
+#include <dynamo/species/include.hpp>
+#include <dynamo/globals/include.hpp>
+#include <dynamo/interactions/include.hpp>
+#include <dynamo/ranges/include.hpp>
+#include <dynamo/BC/include.hpp>
+#include <dynamo/liouvillean/include.hpp>
+#include <dynamo/systems/andersenThermostat.hpp>
+#include <dynamo/simdata.hpp>
+#include <dynamo/topology/include.hpp>
+#include <dynamo/ensemble.hpp>
+#include <dynamo/locals/include.hpp>
+#include <dynamo/systems/DSMCspheres.hpp>
+#include <dynamo/systems/RingDSMC.hpp>
+#include <dynamo/systems/rescale.hpp>
+#include <dynamo/systems/sleep.hpp>
 #include <magnet/math/matrix.hpp>
 #include <magnet/exception.hpp>
 #include <boost/random/lognormal_distribution.hpp>

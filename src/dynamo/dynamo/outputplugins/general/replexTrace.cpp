@@ -16,7 +16,7 @@
 */
 
 #include "replexTrace.hpp"
-#include "../../dynamics/include.hpp"
+#include "../../include.hpp"
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <sstream>

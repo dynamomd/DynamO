@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/outputplugins/outputplugin.hpp>
-#include <dynamo/dynamics/eventtypes.hpp>
+#include <dynamo/eventtypes.hpp>
 #include <dynamo/outputplugins/eventtypetracking.hpp>
 #include <map>
 

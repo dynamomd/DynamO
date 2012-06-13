@@ -16,10 +16,10 @@
 */
 
 #include <dynamo/outputplugins/tickerproperty/vtk.hpp>
-#include <dynamo/dynamics/include.hpp>
-#include <dynamo/base/is_simdata.hpp>
-#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
-#include <dynamo/dynamics/systems/rescale.hpp>
+#include <dynamo/include.hpp>
+#include <dynamo/simdata.hpp>
+#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/systems/rescale.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>

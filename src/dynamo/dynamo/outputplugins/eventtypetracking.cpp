@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <dynamo/outputplugins/eventtypetracking.hpp>
-#include <dynamo/base/is_simdata.hpp>
-#include <dynamo/dynamics/include.hpp>
+#include <dynamo/simdata.hpp>
+#include <dynamo/include.hpp>
 
 namespace dynamo {
   namespace EventTypeTracking {

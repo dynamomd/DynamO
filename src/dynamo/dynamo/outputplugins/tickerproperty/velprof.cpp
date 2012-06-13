@@ -16,8 +16,8 @@
 */
 
 #include <dynamo/outputplugins/tickerproperty/velprof.hpp>
-#include <dynamo/dynamics/include.hpp>
-#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/include.hpp>
+#include <dynamo/simdata.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <fstream>

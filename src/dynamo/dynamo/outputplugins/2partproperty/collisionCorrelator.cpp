@@ -16,8 +16,8 @@
 */
 
 #include <dynamo/outputplugins/2partproperty/collisionCorrelator.hpp>
-#include <dynamo/dynamics/2particleEventData.hpp>
-#include <dynamo/dynamics/include.hpp>
+#include <dynamo/2particleEventData.hpp>
+#include <dynamo/include.hpp>
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {

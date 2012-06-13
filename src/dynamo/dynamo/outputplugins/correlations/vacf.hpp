@@ -17,8 +17,8 @@
 
 #pragma once
 #include <dynamo/outputplugins/outputplugin.hpp>
-#include <dynamo/dynamics/include.hpp>
-#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/include.hpp>
+#include <dynamo/simdata.hpp>
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <dynamo/outputplugins/1partproperty/kenergy.hpp>
 #include <boost/circular_buffer.hpp>

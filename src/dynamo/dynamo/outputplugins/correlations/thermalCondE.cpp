@@ -16,10 +16,10 @@
 */
 
 #include <dynamo/outputplugins/correlations/thermalCondE.hpp>
-#include <dynamo/dynamics/include.hpp>
-#include <dynamo/dynamics/interactions/intEvent.hpp>
+#include <dynamo/include.hpp>
+#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/outputplugins/1partproperty/kenergy.hpp>
-#include <dynamo/simulation/ensemble.hpp>
+#include <dynamo/ensemble.hpp>
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>

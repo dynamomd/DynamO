@@ -16,7 +16,7 @@
 */
 
 #include <dynamo/outputplugins/correlations/viscosityE.hpp>
-#include <dynamo/dynamics/include.hpp>
+#include <dynamo/include.hpp>
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <dynamo/outputplugins/1partproperty/kenergy.hpp>
 #include <boost/foreach.hpp>

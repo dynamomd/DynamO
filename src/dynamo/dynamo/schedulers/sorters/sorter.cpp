@@ -16,7 +16,7 @@
 */
 
 #include <dynamo/schedulers/sorters/include.hpp>
-#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/simdata.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 

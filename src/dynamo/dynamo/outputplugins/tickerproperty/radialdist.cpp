@@ -17,8 +17,8 @@
 
 #include <dynamo/outputplugins/tickerproperty/radialdist.hpp>
 #include <dynamo/outputplugins/1partproperty/uenergy.hpp>
-#include <dynamo/dynamics/include.hpp>
-#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/include.hpp>
+#include <dynamo/liouvillean/liouvillean.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>

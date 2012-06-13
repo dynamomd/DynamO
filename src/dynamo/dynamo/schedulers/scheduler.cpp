@@ -17,18 +17,18 @@
 
 #include <dynamo/schedulers/include.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
-#include <dynamo/dynamics/interactions/intEvent.hpp>
-#include <dynamo/dynamics/globals/global.hpp>
-#include <dynamo/dynamics/globals/globEvent.hpp>
-#include <dynamo/dynamics/locals/local.hpp>
-#include <dynamo/dynamics/systems/system.hpp>
-#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
-#include <dynamo/base/is_simdata.hpp>
-#include <dynamo/dynamics/units/units.hpp>
+#include <dynamo/interactions/intEvent.hpp>
+#include <dynamo/globals/global.hpp>
+#include <dynamo/globals/globEvent.hpp>
+#include <dynamo/locals/local.hpp>
+#include <dynamo/systems/system.hpp>
+#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/simdata.hpp>
+#include <dynamo/units/units.hpp>
 
 #ifdef DYNAMO_DEBUG
-#include <dynamo/dynamics/globals/neighbourList.hpp>
-#include <dynamo/dynamics/NparticleEventData.hpp>
+#include <dynamo/globals/neighbourList.hpp>
+#include <dynamo/NparticleEventData.hpp>
 #endif
 
 #include <magnet/xmlwriter.hpp>

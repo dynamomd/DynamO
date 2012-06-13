@@ -17,8 +17,8 @@
 
 #include <dynamo/schedulers/complexentries/nblistentry.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
-#include <dynamo/dynamics/globals/neighbourList.hpp>
-#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/globals/neighbourList.hpp>
+#include <dynamo/simdata.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 

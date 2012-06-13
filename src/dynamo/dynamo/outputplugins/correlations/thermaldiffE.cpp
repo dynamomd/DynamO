@@ -16,8 +16,8 @@
 */
 
 #include <dynamo/outputplugins/correlations/thermaldiffE.hpp>
-#include <dynamo/dynamics/include.hpp>
-#include <dynamo/dynamics/interactions/intEvent.hpp>
+#include <dynamo/include.hpp>
+#include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/outputplugins/1partproperty/kenergy.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>

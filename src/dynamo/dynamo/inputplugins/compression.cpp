@@ -16,21 +16,21 @@
 */
 
 #include <dynamo/inputplugins/compression.hpp>
-#include <dynamo/simulation/particle.hpp>
+#include <dynamo/particle.hpp>
 
-#include <dynamo/dynamics/interactions/squarebond.hpp>
-#include <dynamo/dynamics/interactions/squarewell.hpp>
-#include <dynamo/dynamics/interactions/hardsphere.hpp>
-#include <dynamo/dynamics/ranges/include.hpp>
-#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
-#include <dynamo/dynamics/liouvillean/CompressionL.hpp>
-#include <dynamo/dynamics/units/units.hpp>
-#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/interactions/squarebond.hpp>
+#include <dynamo/interactions/squarewell.hpp>
+#include <dynamo/interactions/hardsphere.hpp>
+#include <dynamo/ranges/include.hpp>
+#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/liouvillean/CompressionL.hpp>
+#include <dynamo/units/units.hpp>
+#include <dynamo/simdata.hpp>
 #include <dynamo/schedulers/neighbourlist.hpp>
-#include <dynamo/dynamics/systems/nblistCompressionFix.hpp>
-#include <dynamo/dynamics/systems/tHalt.hpp>
-#include <dynamo/dynamics/species/species.hpp>
-#include <dynamo/dynamics/globals/neighbourList.hpp>
+#include <dynamo/systems/nblistCompressionFix.hpp>
+#include <dynamo/systems/tHalt.hpp>
+#include <dynamo/species/species.hpp>
+#include <dynamo/globals/neighbourList.hpp>
 #include <boost/foreach.hpp>
 
 namespace dynamo {

@@ -18,8 +18,8 @@
 #pragma once
 #include <dynamo/base.hpp>
 #include <dynamo/schedulers/sorters/sorter.hpp>
-#include <dynamo/dynamics/interactions/intEvent.hpp>
-#include <dynamo/dynamics/globals/globEvent.hpp>
+#include <dynamo/interactions/intEvent.hpp>
+#include <dynamo/globals/globEvent.hpp>
 #include <magnet/function/delegate.hpp>
 #include <vector>
 

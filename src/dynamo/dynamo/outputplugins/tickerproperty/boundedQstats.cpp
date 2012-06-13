@@ -16,7 +16,7 @@
 */
 
 #include <dynamo/outputplugins/tickerproperty/boundedQstats.hpp>
-#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/simdata.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/schedulers/sorters/boundedPQ.hpp>
 #include <boost/foreach.hpp>

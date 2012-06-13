@@ -16,11 +16,11 @@
 */
 
 #include <dynamo/outputplugins/tickerproperty/periodmsd.hpp>
-#include <dynamo/dynamics/include.hpp>
-#include <dynamo/base/is_simdata.hpp>
-#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/include.hpp>
+#include <dynamo/simdata.hpp>
+#include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/outputplugins/0partproperty/msd.hpp>
-#include <dynamo/dynamics/ranges/1RAll.hpp>
+#include <dynamo/ranges/1RAll.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/math/ctime_pow.hpp>
 #include <magnet/xmlwriter.hpp>

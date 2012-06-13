@@ -16,9 +16,9 @@
 */
 
 #include <dynamo/outputplugins/0partproperty/intEnergyHist.hpp>
-#include <dynamo/dynamics/include.hpp>
-#include <dynamo/dynamics/liouvillean/NewtonMCL.hpp>
-#include <dynamo/base/is_simdata.hpp>
+#include <dynamo/include.hpp>
+#include <dynamo/liouvillean/NewtonMCL.hpp>
+#include <dynamo/simdata.hpp>
 #include <dynamo/outputplugins/1partproperty/uenergy.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>

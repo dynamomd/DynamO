@@ -16,11 +16,11 @@
 */
 
 #include <dynamo/outputplugins/tickerproperty/msdcorrelator.hpp>
-#include <dynamo/dynamics/include.hpp>
-#include <dynamo/base/is_simdata.hpp>
-#include <dynamo/dynamics/liouvillean/liouvillean.hpp>
+#include <dynamo/include.hpp>
+#include <dynamo/simdata.hpp>
+#include <dynamo/liouvillean/liouvillean.hpp>
 #include <dynamo/outputplugins/0partproperty/msd.hpp>
-#include <dynamo/dynamics/systems/sysTicker.hpp>
+#include <dynamo/systems/sysTicker.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
