@@ -327,7 +327,7 @@ namespace dynamo {
 	  lazyDeletionCleanup();
 
 	  Sim->liouvillean->updateParticle(part);
-	  LocalEvent iEvent(Sim->dynamics.getLocals()[localID]->getEvent(part));
+	  LocalEvent iEvent(Sim->locals[localID]->getEvent(part));
 
 	  double next_dt = sorter->next_dt();
 
@@ -362,7 +362,7 @@ namespace dynamo {
 	  iEvent.addTime(Sim->freestreamAcc);
 	  Sim->freestreamAcc = 0;
 
-	  Sim->dynamics.getLocals()[localID]->runEvent(part, iEvent);	  
+	  Sim->locals[localID]->runEvent(part, iEvent);	  
 	  break;
 	}
       case SYSTEM:
@@ -419,8 +419,8 @@ namespace dynamo {
   Scheduler::addLocalEvent(const Particle& part, 
 			   const size_t& id) const
   {
-    if (Sim->dynamics.getLocals()[id]->isInteraction(part))
-      sorter->push(Sim->dynamics.getLocals()[id]->getEvent(part), part.getID());  
+    if (Sim->locals[id]->isInteraction(part))
+      sorter->push(Sim->locals[id]->getEvent(part), part.getID());  
   }
 
   void 

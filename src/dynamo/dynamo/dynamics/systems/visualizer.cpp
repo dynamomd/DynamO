@@ -53,7 +53,7 @@ namespace dynamo {
     BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->species)
       _window->addRenderObj(spec->createDataSet());
 
-    BOOST_FOREACH(shared_ptr<Local>& local, Sim->dynamics.getLocals())
+    BOOST_FOREACH(shared_ptr<Local>& local, Sim->locals)
       {
 	CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*local));
 

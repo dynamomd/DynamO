@@ -66,7 +66,7 @@ namespace dynamo {
   SDumb::getLocalNeighbourhood(const Particle& part, 
 				       const nbHoodFunc& func) const
   {
-    BOOST_FOREACH(const shared_ptr<Local>& local, Sim->dynamics.getLocals())
+    BOOST_FOREACH(const shared_ptr<Local>& local, Sim->locals)
       func(part, local->getID());
   }
 

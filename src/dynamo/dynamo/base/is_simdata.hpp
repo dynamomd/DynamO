@@ -38,6 +38,8 @@ namespace dynamo
   class BoundaryCondition;
   class Topology;
   class Liouvillean;
+  class Local;
+  class LocalEvent;
   class OutputPlugin;
 
   //! \brief Holds the different phases of the simulation initialisation
@@ -121,6 +123,8 @@ namespace dynamo
     const shared_ptr<Interaction>& getInteraction(const Particle& p1, const Particle& p2) const;
     IntEvent getEvent(const Particle& p1, const Particle& p2) const;
     double getLongestInteraction() const;
+
+    Container<Local> locals;
 
     /*! \brief Finds a plugin of the given type using RTTI.
      */

@@ -20,6 +20,7 @@
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/dynamics/systems/system.hpp>
+#include <dynamo/dynamics/locals/local.hpp>
 #include <dynamo/dynamics/species/species.hpp>
 #include <dynamo/dynamics/topology/topology.hpp>
 #include <dynamo/dynamics/interactions/interaction.hpp>
@@ -104,6 +105,14 @@ namespace dynamo
       size_t ID=0;
       
       BOOST_FOREACH(shared_ptr<Interaction>& ptr, interactions)
+	ptr->initialise(ID++);
+    }
+
+    {
+      size_t ID=0;
+      //Must be initialised before globals. Neighbour lists are
+      //implemented as globals and must initialise where locals are and their ID.
+      BOOST_FOREACH(shared_ptr<Local>& ptr, locals)
 	ptr->initialise(ID++);
     }
 
@@ -273,6 +282,11 @@ namespace dynamo
 	  break;
 	}
 
+    if (simNode.hasNode("Locals"))
+      for (magnet::xml::Node node = simNode.getNode("Locals").fastGetNode("Local"); 
+	   node.valid(); ++node)
+	locals.push_back(Local::getClass(node, this));
+
     dynamics << simNode;
     ptrScheduler = Scheduler::getClass(simNode.getNode("Scheduler"), this);
 
@@ -371,6 +385,14 @@ namespace dynamo
 	  << magnet::xml::endtag("Interaction");
   
     XML << magnet::xml::endtag("Interactions")
+	<< magnet::xml::tag("Locals");
+    
+    BOOST_FOREACH(const shared_ptr<Local>& ptr, locals)
+      XML << magnet::xml::tag("Local")
+	  << *ptr
+	  << magnet::xml::endtag("Local");
+    
+    XML << magnet::xml::endtag("Locals")
 	<< dynamics
       	<< magnet::xml::tag("Dynamics")
 	<< *liouvillean

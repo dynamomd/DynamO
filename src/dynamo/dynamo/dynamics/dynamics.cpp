@@ -86,26 +86,6 @@ namespace dynamo {
     M_throw() << "Could not find global plugin";
   }
 
-  shared_ptr<Local>&
-  Dynamics::getLocal(std::string name)
-  {
-    BOOST_FOREACH(shared_ptr<Local>& sysPtr, locals)
-      if (sysPtr->getName() == name)
-	return sysPtr;
-  
-    M_throw() << "Could not find local plugin";
-  }
-
-  const shared_ptr<Local>&
-  Dynamics::getLocal(std::string name) const
-  {
-    BOOST_FOREACH(const shared_ptr<Local>& sysPtr, locals)
-      if (sysPtr->getName() == name)
-	return sysPtr;
-  
-    M_throw() << "Could not find local plugin";
-  }
-
   void Dynamics::addGlobal(shared_ptr<Global> ptr)
   {
     if (!ptr) M_throw() << "Cannot add an unset Global";
@@ -113,15 +93,7 @@ namespace dynamo {
       M_throw() << "Cannot add global events after simulation initialisation";
     globals.push_back(ptr);
   }
-  
-  void Dynamics::addLocal(shared_ptr<Local> ptr)
-  {
-    if (!ptr) M_throw() << "Cannot add an unset Local";
-    if (Sim->status >= INITIALISED)
-      M_throw() << "Cannot add local events after simulation initialisation";
-    locals.push_back(ptr);
-  }
-  
+    
   void Dynamics::addSystem(shared_ptr<System> ptr)
   {
     if (!ptr) M_throw() << "Cannot add an unset System";
@@ -143,14 +115,6 @@ namespace dynamo {
   void 
   Dynamics::initialise()
   {
-    {
-      size_t ID=0;
-      //Must be initialised before globals. Neighbour lists are
-      //implemented as globals and must initialise where locals are and their ID.
-      BOOST_FOREACH(shared_ptr<Local>& ptr, locals)
-	ptr->initialise(ID++);
-    }
-
     {
       size_t ID=0;
       
@@ -251,11 +215,6 @@ namespace dynamo {
       for (magnet::xml::Node node = XML.getNode("Globals").fastGetNode("Global"); 
 	   node.valid(); ++node)
 	globals.push_back(Global::getClass(node, Sim));
-
-    if (XML.hasNode("Locals"))
-      for (magnet::xml::Node node = XML.getNode("Locals").fastGetNode("Local"); 
-	   node.valid(); ++node)
-	locals.push_back(Local::getClass(node, Sim));
   
     if (XML.hasNode("SystemEvents"))
       for (magnet::xml::Node node = XML.getNode("SystemEvents").fastGetNode("System"); 
@@ -277,15 +236,7 @@ namespace dynamo {
     BOOST_FOREACH(const shared_ptr<Global>& ptr, globals)
       XML << *ptr;
   
-    XML << magnet::xml::endtag("Globals")
-	<< magnet::xml::tag("Locals");
-  
-    BOOST_FOREACH(const shared_ptr<Local>& ptr, locals)
-      XML << magnet::xml::tag("Local")
-	  << *ptr
-	  << magnet::xml::endtag("Local");
-  
-    XML << magnet::xml::endtag("Locals");
+    XML << magnet::xml::endtag("Globals");
   }
 
   void 
@@ -300,9 +251,8 @@ namespace dynamo {
 	Sim->getInteraction(*iPtr1, *iPtr2)->checkOverlaps(*iPtr1, *iPtr2);
 
     BOOST_FOREACH(const Particle& part, Sim->particleList)
-      BOOST_FOREACH(const shared_ptr<Local>& lcl, locals)
+      BOOST_FOREACH(const shared_ptr<Local>& lcl, Sim->locals)
       if (lcl->isInteraction(part))
 	lcl->checkOverlaps(part);
-    
   }
 }

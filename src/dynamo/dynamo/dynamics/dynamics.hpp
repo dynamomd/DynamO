@@ -33,8 +33,6 @@ namespace dynamo {
   class BoundaryCondition;
   class GlobalEvent;
   class Global;
-  class Local;
-  class LocalEvent;
   class System;
   class Particle;
   class NEventData;
@@ -52,7 +50,6 @@ namespace dynamo {
     ~Dynamics();
   
     void addGlobal(shared_ptr<Global> ptr);
-    void addLocal(shared_ptr<Local> ptr);
     void addSystem(shared_ptr<System> ptr);
     
     void stream(const double&);
@@ -96,11 +93,6 @@ namespace dynamo {
     shared_ptr<Global>& getGlobal(std::string);
     const shared_ptr<Global>& getGlobal(std::string) const;
 
-    std::vector<shared_ptr<Local> >& getLocals() { return locals; }
-    const std::vector<shared_ptr<Local> >& getLocals() const { return locals; }
-    shared_ptr<Local>& getLocal(std::string);
-    const shared_ptr<Local>& getLocal(std::string) const;
-
     std::vector<shared_ptr<System> >& getSystemEvents() { return systems; }
     const std::vector<shared_ptr<System> >& getSystemEvents() const { return systems; }
     const shared_ptr<System>& getSystem(std::string) const;
@@ -126,7 +118,6 @@ namespace dynamo {
     void outputXML(magnet::xml::XmlStream &) const;
 
     std::vector<shared_ptr<Global> > globals;
-    std::vector<shared_ptr<Local> > locals;
     std::vector<shared_ptr<System> > systems;
     Units _units;
   };

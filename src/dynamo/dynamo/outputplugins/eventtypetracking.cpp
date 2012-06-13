@@ -35,7 +35,7 @@ namespace dynamo {
 	  return Sim->dynamics.getSystemEvents()[key.first]->getName();
 	  break;
 	case LOCAL:
-	  return Sim->dynamics.getLocals()[key.first]->getName();
+	  return Sim->locals[key.first]->getName();
 	  break;
 	default:
 	  M_throw() << "Collision matrix found an unknown event class";
