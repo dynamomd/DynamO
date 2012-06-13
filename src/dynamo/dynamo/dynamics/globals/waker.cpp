@@ -58,7 +58,7 @@ namespace dynamo {
     ID=nID;
 
     try {
-      _NBListID = Sim->dynamics.getGlobal(_nblistName)->getID();
+      _NBListID = Sim->globals[_nblistName].getID();
     }
     catch(std::exception& cxp)
       {
@@ -67,7 +67,7 @@ namespace dynamo {
 		  << cxp.what();
       }
   
-    if (!std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->dynamics.getGlobals()[_NBListID]))
+    if (!std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->globals[_NBListID]))
       M_throw() << "The Global named SchedulerNBList is not a neighbour list!";
 
   }

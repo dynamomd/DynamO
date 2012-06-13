@@ -66,34 +66,6 @@ namespace dynamo {
     M_throw() << "Could not find system plugin called " << name;
   }
 
-  shared_ptr<Global>&
-  Dynamics::getGlobal(std::string name)
-  {
-    BOOST_FOREACH(shared_ptr<Global>& sysPtr, globals)
-      if (sysPtr->getName() == name)
-	return sysPtr;
-  
-    M_throw() << "Could not find global plugin";
-  }
-
-  const shared_ptr<Global>&
-  Dynamics::getGlobal(std::string name) const
-  {
-    BOOST_FOREACH(const shared_ptr<Global>& sysPtr, globals)
-      if (sysPtr->getName() == name)
-	return sysPtr;
-  
-    M_throw() << "Could not find global plugin";
-  }
-
-  void Dynamics::addGlobal(shared_ptr<Global> ptr)
-  {
-    if (!ptr) M_throw() << "Cannot add an unset Global";
-    if (Sim->status >= INITIALISED)
-      M_throw() << "Cannot add global events after simulation initialisation";
-    globals.push_back(ptr);
-  }
-    
   void Dynamics::addSystem(shared_ptr<System> ptr)
   {
     if (!ptr) M_throw() << "Cannot add an unset System";
@@ -115,13 +87,6 @@ namespace dynamo {
   void 
   Dynamics::initialise()
   {
-    {
-      size_t ID=0;
-      
-      BOOST_FOREACH(shared_ptr<Global>& ptr, globals)
-	ptr->initialise(ID++);
-    }
-
     {
       size_t ID=0;
 
@@ -211,11 +176,6 @@ namespace dynamo {
   void
   Dynamics::operator<<(const magnet::xml::Node& XML)
   {  
-    if (XML.hasNode("Globals"))
-      for (magnet::xml::Node node = XML.getNode("Globals").fastGetNode("Global"); 
-	   node.valid(); ++node)
-	globals.push_back(Global::getClass(node, Sim));
-  
     if (XML.hasNode("SystemEvents"))
       for (magnet::xml::Node node = XML.getNode("SystemEvents").fastGetNode("System"); 
 	   node.valid(); ++node)
@@ -230,13 +190,7 @@ namespace dynamo {
     BOOST_FOREACH(const shared_ptr<System>& ptr, systems)
       XML << *ptr;
   
-    XML << magnet::xml::endtag("SystemEvents")
-	<< magnet::xml::tag("Globals");
-  
-    BOOST_FOREACH(const shared_ptr<Global>& ptr, globals)
-      XML << *ptr;
-  
-    XML << magnet::xml::endtag("Globals");
+    XML << magnet::xml::endtag("SystemEvents");
   }
 
   void 

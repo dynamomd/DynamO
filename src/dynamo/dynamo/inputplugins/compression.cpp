@@ -73,7 +73,7 @@ namespace dynamo {
 	  if (std::tr1::dynamic_pointer_cast<SysNBListCompressionFix>(ptr))
 	    static_cast<SysNBListCompressionFix&>(*ptr).fixNBlistForOutput();
 
-	BOOST_FOREACH(shared_ptr<Global>& ptr, Sim->dynamics.getGlobals())
+	BOOST_FOREACH(shared_ptr<Global>& ptr, Sim->globals)
 	  if (std::tr1::dynamic_pointer_cast<GNeighbourList>(ptr))
 	    //Rebulid the collision scheduler without the overlapping cells!
 	    static_cast<GNeighbourList&>(*ptr).setCellOverlap(true);
@@ -100,15 +100,15 @@ namespace dynamo {
   void
   IPCompression::CellSchedulerHack()
   {
-    for (size_t i(0); i < Sim->dynamics.getGlobals().size(); ++i)
+    for (size_t i(0); i < Sim->globals.size(); ++i)
       {      
-	if (std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->dynamics.getGlobals()[i]))
+	if (std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->globals[i]))
 	  {
 	    //Rebulid the collision scheduler without the overlapping
 	    //cells, otherwise cells are always rebuilt as they overlap
 	    //such that the maximum supported interaction distance is
 	    //equal to the current maximum interaction distance.
-	    static_cast<GNeighbourList&>(*Sim->dynamics.getGlobals()[i]).setCellOverlap(false);
+	    static_cast<GNeighbourList&>(*Sim->globals[i]).setCellOverlap(false);
 	    
 	    //Add the system watcher
 	    Sim->dynamics.addSystem

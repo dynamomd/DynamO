@@ -29,7 +29,7 @@ namespace dynamo {
 	  return Sim->interactions[key.first]->getName();
 	  break;
 	case GLOBAL:
-	  return Sim->dynamics.getGlobals()[key.first]->getName();
+	  return Sim->globals[key.first]->getName();
 	  break;
 	case SYSTEM:
 	  return Sim->dynamics.getSystemEvents()[key.first]->getName();

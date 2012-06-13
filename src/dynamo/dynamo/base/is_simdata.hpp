@@ -40,6 +40,8 @@ namespace dynamo
   class Liouvillean;
   class Local;
   class LocalEvent;
+  class Global;
+  class GlobalEvent;
   class OutputPlugin;
 
   //! \brief Holds the different phases of the simulation initialisation
@@ -125,6 +127,8 @@ namespace dynamo
     double getLongestInteraction() const;
 
     Container<Local> locals;
+
+    Container<Global> globals;
 
     /*! \brief Finds a plugin of the given type using RTTI.
      */

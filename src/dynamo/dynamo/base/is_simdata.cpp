@@ -23,6 +23,7 @@
 #include <dynamo/dynamics/locals/local.hpp>
 #include <dynamo/dynamics/species/species.hpp>
 #include <dynamo/dynamics/topology/topology.hpp>
+#include <dynamo/dynamics/globals/global.hpp>
 #include <dynamo/dynamics/interactions/interaction.hpp>
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <boost/filesystem.hpp>
@@ -113,6 +114,13 @@ namespace dynamo
       //Must be initialised before globals. Neighbour lists are
       //implemented as globals and must initialise where locals are and their ID.
       BOOST_FOREACH(shared_ptr<Local>& ptr, locals)
+	ptr->initialise(ID++);
+    }
+
+    {
+      size_t ID=0;
+      
+      BOOST_FOREACH(shared_ptr<Global>& ptr, globals)
 	ptr->initialise(ID++);
     }
 
@@ -287,7 +295,13 @@ namespace dynamo
 	   node.valid(); ++node)
 	locals.push_back(Local::getClass(node, this));
 
+    if (simNode.hasNode("Globals"))
+      for (magnet::xml::Node node = simNode.getNode("Globals").fastGetNode("Global"); 
+	   node.valid(); ++node)
+	globals.push_back(Global::getClass(node, this));
+
     dynamics << simNode;
+
     ptrScheduler = Scheduler::getClass(simNode.getNode("Scheduler"), this);
 
     liouvillean->loadParticleXMLData(mainNode);
@@ -393,6 +407,12 @@ namespace dynamo
 	  << magnet::xml::endtag("Local");
     
     XML << magnet::xml::endtag("Locals")
+      	<< magnet::xml::tag("Globals");
+    
+    BOOST_FOREACH(const shared_ptr<Global>& ptr, globals)
+      XML << *ptr;
+    
+    XML << magnet::xml::endtag("Globals")
 	<< dynamics
       	<< magnet::xml::tag("Dynamics")
 	<< *liouvillean

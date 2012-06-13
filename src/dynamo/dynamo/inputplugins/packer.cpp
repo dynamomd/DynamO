@@ -155,7 +155,7 @@ namespace dynamo {
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
 
-	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
+	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 
 	  double simVol = 1.0;
@@ -263,7 +263,7 @@ namespace dynamo {
 	  //New scheduler and global
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
-	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList")));
+	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList")));
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
 	  //Set the unit energy to 1 (assuming the unit of mass is 1);
@@ -454,7 +454,7 @@ namespace dynamo {
 
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
-	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
+	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
@@ -662,7 +662,7 @@ namespace dynamo {
 	  //Set up a standard simulation
 	  Sim->ptrScheduler
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELBoundedPQ<>(Sim)));
-	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
+	  Sim->globals.push_back(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
 
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCLeesEdwards(Sim));
 	  const double shearRate = 1;
@@ -757,7 +757,7 @@ namespace dynamo {
 	  //Set up the system now
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
-	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
+	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
@@ -810,7 +810,7 @@ namespace dynamo {
 	  Sim->primaryCellSize = getNormalisedCellDimensions();
 	  //Cut off the x periodic boundaries
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCPeriodicExceptX(Sim));
-	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
+	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  double simVol = 1.0;
 
@@ -910,7 +910,7 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
-	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
+	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
@@ -1012,7 +1012,7 @@ namespace dynamo {
 	  Sim->ptrScheduler
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
-	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList")));
+	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList")));
 
 
 	  size_t nA = static_cast<size_t>(molFrac * latticeSites.size());
@@ -1090,7 +1090,7 @@ namespace dynamo {
 
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
-	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
+	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0;
 
@@ -1436,7 +1436,7 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
-	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
+	  Sim->globals.push_back(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
 
 	  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0 ;
 
@@ -1531,7 +1531,7 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 
-	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList")));
+	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList")));
 
 	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
@@ -1629,10 +1629,10 @@ namespace dynamo {
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
-	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
+	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  if (vm.count("b1"))
-	    Sim->dynamics.addGlobal(shared_ptr<Global>(new GSOCells(Sim,"SOCells")));
+	    Sim->globals.push_back(shared_ptr<Global>(new GSOCells(Sim,"SOCells")));
 
 	  if (vm.count("b2"))
 	    {
@@ -1778,7 +1778,7 @@ namespace dynamo {
 	    if (vm.count("i2"))
 	      overlink = vm["i2"].as<size_t>();
 
-	    Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList", overlink)));
+	    Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList", overlink)));
 	  }
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
@@ -2058,7 +2058,7 @@ namespace dynamo {
 	    latticeSites(packptr->placeObjects(particleCOM));
 
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCNone(Sim));
-	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
+	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  double simVol = 1.0;
 
@@ -2152,10 +2152,10 @@ namespace dynamo {
 	  if (vm.count("rectangular-box"))
 	    {
 	      Sim->primaryCellSize = getNormalisedCellDimensions();
-	      Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
+	      Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 	    }
 	  else
-	    Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
+	    Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  double simVol = 1.0;
 
@@ -2262,7 +2262,7 @@ namespace dynamo {
 	  boxlimit *= 0.9;
 
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCPeriodicXOnly(Sim));
-	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
+	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  double particleDiam 
 	    = pow(vm["density"].as<double>() / latticeSites.size(), double(1.0 / 3.0))
@@ -2317,7 +2317,7 @@ namespace dynamo {
 
 	  Sim->primaryCellSize = getNormalisedCellDimensions();
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCNone(Sim));
-	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
+	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  double simVol = 1.0;
 
@@ -2408,7 +2408,7 @@ namespace dynamo {
 	  double particleDiam = std::min(1 / (2 * R + 1), 1 / (H + 1));
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
-	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
+	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 	
 
 	  //Set up a standard simulation
@@ -2548,7 +2548,7 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
 	  
-	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
+	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
@@ -3097,7 +3097,7 @@ namespace dynamo {
 	  double particleDiam = (2 * Rmax) / l;
 
 	  Sim->dynamics.units().setUnitLength(particleDiam);
-	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
+	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 	
 
 	  //Set up a standard simulation
@@ -3270,7 +3270,7 @@ namespace dynamo {
 					       sleepV * Sim->dynamics.units().unitVelocity())));
 	      
 	      if (wakeTime)
-		Sim->dynamics.addGlobal
+		Sim->globals.push_back
 		  (shared_ptr<Global>(new GWaker(Sim, "Waker",
 						 new RRange(funnelSites.size(),
 							    funnelSites.size()
@@ -3375,7 +3375,7 @@ namespace dynamo {
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELBoundedPQ<>(Sim)));
-	  Sim->dynamics.addGlobal(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
+	  Sim->globals.push_back(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
 
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCLeesEdwards(Sim));
 	  const double shearRate(1);

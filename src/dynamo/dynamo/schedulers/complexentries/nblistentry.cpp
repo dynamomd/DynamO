@@ -53,7 +53,7 @@ namespace dynamo {
   SCENBList::initialise()
   {
     try {
-      nblistID = Sim->dynamics.getGlobal(name)->getID();
+      nblistID = Sim->globals[name].getID();
     }
     catch (std::exception& cep)
       {
@@ -62,10 +62,10 @@ namespace dynamo {
 		  << "\n" << cep.what();
       }
 
-    if (!std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->dynamics.getGlobals()[nblistID]))
+    if (!std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->globals[nblistID]))
       M_throw() << "Global named " << name << " is not a GNeighbourList";
   
-    GNeighbourList& nblist = static_cast<GNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID]);
+    GNeighbourList& nblist = static_cast<GNeighbourList&>(*Sim->globals[nblistID]);
 
     if (nblist.getMaxSupportedInteractionLength() 
 	< Sim->getLongestInteraction())
@@ -91,7 +91,7 @@ namespace dynamo {
 		<< part.getID() << ") yet it is being used anyway!";
 #endif
 
-    static_cast<const GNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID])
+    static_cast<const GNeighbourList&>(*Sim->globals[nblistID])
       .getParticleNeighbourhood(part, func);
   }
 
@@ -99,7 +99,7 @@ namespace dynamo {
   SCENBList::getParticleNeighbourhood(const Vector& vec, 
 				       const GNeighbourList::nbHoodFunc2& func) const
   {
-    static_cast<const GNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID])
+    static_cast<const GNeighbourList&>(*Sim->globals[nblistID])
       .getParticleNeighbourhood(vec, func);
   }
 
@@ -114,7 +114,7 @@ namespace dynamo {
 		<< part.getID() << ") yet it is being used anyway!";
 #endif
 
-    static_cast<const GNeighbourList&>(*Sim->dynamics.getGlobals()[nblistID])
+    static_cast<const GNeighbourList&>(*Sim->globals[nblistID])
       .getLocalNeighbourhood(part, func);
   }
 

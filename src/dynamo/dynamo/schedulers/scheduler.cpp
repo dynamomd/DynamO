@@ -83,7 +83,7 @@ namespace dynamo {
     Sim->liouvillean->updateParticle(part);
 
     //Add the global events
-    BOOST_FOREACH(const shared_ptr<Global>& glob, Sim->dynamics.getGlobals())
+    BOOST_FOREACH(const shared_ptr<Global>& glob, Sim->globals)
       if (glob->isInteraction(part))
 	sorter->push(glob->getEvent(part), part.getID());
   
@@ -309,7 +309,7 @@ namespace dynamo {
 	  //optimise this (they dont need it).
 
 	  //We also don't recheck Global events! (Check, some events might rely on this behavior)
-	  Sim->dynamics.getGlobals()[sorter->next_p2()]
+	  Sim->globals[sorter->next_p2()]
 	    ->runEvent(Sim->particleList[sorter->next_ID()], sorter->next_dt());       	
 	  break;	           
 	}

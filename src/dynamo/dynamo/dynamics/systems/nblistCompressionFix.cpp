@@ -36,7 +36,7 @@ namespace dynamo {
     sysName = "GlobalCellsCompressionHack";
     type = NON_EVENT;
 
-    if (!std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->dynamics.getGlobals()[cellID]))
+    if (!std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->globals[cellID]))
       M_throw() << "The ID passed to SysNBListCompressionFix isn't a GNeighbourList";
   }
 
@@ -45,10 +45,10 @@ namespace dynamo {
   {
     ID = nID;
 
-    if (!std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->dynamics.getGlobals()[cellID]))
+    if (!std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->globals[cellID]))
       M_throw() << "Have the globals been shuffled? The cellID is no longer a GNeighbourList.";
   
-    GNeighbourList& nblist(dynamic_cast<GNeighbourList&>(*Sim->dynamics.getGlobals()[cellID]));
+    GNeighbourList& nblist(dynamic_cast<GNeighbourList&>(*Sim->globals[cellID]));
 
     initialSupportedRange = nblist.getMaxInteractionRange();
       
@@ -88,7 +88,7 @@ namespace dynamo {
     Sim->freestreamAcc += locdt;
 
     GNeighbourList& nblist(dynamic_cast<GNeighbourList&>
-			   (*Sim->dynamics.getGlobals()[cellID]));
+			   (*Sim->globals[cellID]));
   
     dout << "Rebuilding the neighbour list named " << nblist.getName()
 	 << "\nNColl = " << Sim->eventCount
@@ -104,7 +104,7 @@ namespace dynamo {
   SysNBListCompressionFix::fixNBlistForOutput()
   {
     GNeighbourList& nblist(dynamic_cast<GNeighbourList&>
-			   (*Sim->dynamics.getGlobals()[cellID]));
+			   (*Sim->globals[cellID]));
 
     nblist.setMaxInteractionRange(initialSupportedRange * (1.0 + growthRate * Sim->dSysTime));
   }

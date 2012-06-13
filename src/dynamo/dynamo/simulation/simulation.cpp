@@ -145,7 +145,7 @@ namespace dynamo {
 	|| std::tr1::dynamic_pointer_cast<BCPeriodicExceptX>(BCs)
 	|| std::tr1::dynamic_pointer_cast<BCPeriodicXOnly>(BCs)
 	|| std::tr1::dynamic_pointer_cast<BCLeesEdwards>(BCs))
-      dynamics.addGlobal(shared_ptr<Global>(new GPBCSentinel(this, "PBCSentinel")));
+      globals.push_back(shared_ptr<Global>(new GPBCSentinel(this, "PBCSentinel")));
 
     BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)
       if (std::tr1::dynamic_pointer_cast<OPTicker>(Ptr))
