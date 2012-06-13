@@ -17,5 +17,5 @@
 
 #include <dynamo/dynamics/newtonian.hpp>
 #include <dynamo/dynamics/compression.hpp>
-#include <dynamo/dynamics/gravityL.hpp>
+#include <dynamo/dynamics/gravity.hpp>
 #include <dynamo/dynamics/multicanonical.hpp>

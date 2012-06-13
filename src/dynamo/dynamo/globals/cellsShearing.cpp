@@ -26,7 +26,6 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/BC/LEBC.hpp>
-#include <dynamo/dynamics/gravityL.hpp>
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {

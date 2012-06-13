@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/dynamics/gravityL.hpp>
+#include <dynamo/dynamics/gravity.hpp>
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/NparticleEventData.hpp>

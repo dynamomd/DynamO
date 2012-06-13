@@ -65,6 +65,9 @@ namespace magnet {
 
       inline VectorExpression<>() {}             // default constructor
 
+      // passive access to the elements through eval
+      template<int I> inline double eval() const { return _data[I]; }
+
       inline VectorExpression (double a, double b, double c)
       { operator()(0) = a; operator()(1) = b; operator()(2) = c; }
 
@@ -164,9 +167,6 @@ namespace magnet {
       // divide-by assignment from an expression
       inline VectorExpression<>& operator/=(const double d)
       { return (*this *= (1.0/d)); }
-
-      // passive access to the elements through eval
-      template<int I> inline double eval() const { return _data[I]; }
       
       std::string toString() const
       {

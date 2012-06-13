@@ -55,8 +55,6 @@
 **** TODO DynamO: Add the gravity version of the sphere-sphere-out test. Fix and check that the umbrella implementation is general.
 **** TODO Coil: Code cleanups
 ***** TODO Coil: Replace freeglut with your own implementation to fix the whole debacle of GL context management and deleting resources. 
-***** TODO Coil: Fix the dummy vertex array object mess.
-***** TODO Coil: State change tracking for glBlendFunc.
 ***** TODO Coil: Make a generic render object container class (which is a render object), sort out object deletion or just fully separate the GTK and render interfaces.
 ***** TODO Coil: Make a GL engine to put into magnet.
 ***** TODO Coil: Look at CL/GL synchronisation objects for coil.

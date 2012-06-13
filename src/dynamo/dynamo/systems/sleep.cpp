@@ -24,7 +24,7 @@
 #include <dynamo/species/species.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/ranges/include.hpp>
-#include <dynamo/dynamics/gravityL.hpp>
+#include <dynamo/dynamics/gravity.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/xmlwriter.hpp>

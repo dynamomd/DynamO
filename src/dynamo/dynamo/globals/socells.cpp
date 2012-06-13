@@ -24,7 +24,7 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/BC/LEBC.hpp>
-#include <dynamo/dynamics/gravityL.hpp>
+#include <dynamo/dynamics/gravity.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/particle.hpp>
 #include <boost/static_assert.hpp>
