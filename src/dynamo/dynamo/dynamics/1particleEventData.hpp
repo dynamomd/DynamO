@@ -17,6 +17,7 @@
 
 #pragma once
 #include <dynamo/dynamics/species/species.hpp>
+#include <dynamo/dynamics/eventtypes.hpp>
 #include <dynamo/simulation/particle.hpp>
 
 namespace dynamo {

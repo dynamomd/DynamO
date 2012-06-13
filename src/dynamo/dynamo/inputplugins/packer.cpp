@@ -22,7 +22,7 @@
 #include <dynamo/simulation/particle.hpp>
 #include <dynamo/schedulers/include.hpp>
 #include <dynamo/schedulers/sorters/include.hpp>
-#include <dynamo/dynamics/dynamics.hpp>
+
 #include <dynamo/dynamics/species/include.hpp>
 #include <dynamo/dynamics/globals/include.hpp>
 #include <dynamo/dynamics/interactions/include.hpp>

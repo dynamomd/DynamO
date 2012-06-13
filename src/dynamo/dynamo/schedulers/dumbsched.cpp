@@ -18,7 +18,7 @@
 #include <dynamo/schedulers/dumbsched.hpp>
 #include <dynamo/dynamics/interactions/intEvent.hpp>
 #include <dynamo/simulation/particle.hpp>
-#include <dynamo/dynamics/dynamics.hpp>
+
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <dynamo/dynamics/BC/BC.hpp>
 #include <dynamo/dynamics/BC/LEBC.hpp>

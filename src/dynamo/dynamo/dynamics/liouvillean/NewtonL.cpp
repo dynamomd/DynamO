@@ -20,7 +20,7 @@
 #include <dynamo/dynamics/interactions/intEvent.hpp>
 #include <dynamo/dynamics/2particleEventData.hpp>
 #include <dynamo/dynamics/NparticleEventData.hpp>
-#include <dynamo/dynamics/dynamics.hpp>
+
 #include <dynamo/dynamics/BC/BC.hpp>
 #include <dynamo/base/is_simdata.hpp>
 #include <dynamo/dynamics/species/species.hpp>

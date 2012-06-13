@@ -17,7 +17,7 @@
 
 #include <dynamo/dynamics/interactions/swsequence.hpp>
 #include <dynamo/dynamics/BC/BC.hpp>
-#include <dynamo/dynamics/dynamics.hpp>
+
 #include <dynamo/dynamics/units/units.hpp>
 #include <dynamo/dynamics/globals/global.hpp>
 #include <dynamo/simulation/particle.hpp>

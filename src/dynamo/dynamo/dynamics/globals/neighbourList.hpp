@@ -18,7 +18,7 @@
 #pragma once
 #include <dynamo/dynamics/globals/global.hpp>
 #include <dynamo/base/is_simdata.hpp>
-#include <dynamo/dynamics/dynamics.hpp>
+
 #include <boost/function.hpp>
 #include <magnet/function/delegate.hpp>
 #include <magnet/math/vector.hpp>

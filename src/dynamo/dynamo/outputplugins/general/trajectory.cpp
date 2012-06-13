@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <dynamo/outputplugins/general/trajectory.hpp>
-#include <dynamo/dynamics/dynamics.hpp>
+
 #include <dynamo/dynamics/units/units.hpp>
 #include <dynamo/dynamics/globals/globEvent.hpp>
 #include <dynamo/dynamics/interactions/intEvent.hpp>

@@ -18,7 +18,7 @@
 #include <dynamo/schedulers/neighbourlist.hpp>
 #include <dynamo/dynamics/interactions/intEvent.hpp>
 #include <dynamo/simulation/particle.hpp>
-#include <dynamo/dynamics/dynamics.hpp>
+
 #include <dynamo/dynamics/liouvillean/liouvillean.hpp>
 #include <dynamo/base/is_simdata.hpp>
 #include <dynamo/dynamics/systems/system.hpp>

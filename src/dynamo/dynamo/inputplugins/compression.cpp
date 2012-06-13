@@ -17,7 +17,7 @@
 
 #include <dynamo/inputplugins/compression.hpp>
 #include <dynamo/simulation/particle.hpp>
-#include <dynamo/dynamics/dynamics.hpp>
+
 #include <dynamo/dynamics/interactions/squarebond.hpp>
 #include <dynamo/dynamics/interactions/squarewell.hpp>
 #include <dynamo/dynamics/interactions/hardsphere.hpp>

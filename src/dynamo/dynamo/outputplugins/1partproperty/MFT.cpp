@@ -17,7 +17,7 @@
 
 #include <dynamo/outputplugins/1partproperty/MFT.hpp>
 #include <dynamo/base/is_simdata.hpp>
-#include <dynamo/dynamics/dynamics.hpp>
+
 #include <dynamo/dynamics/species/species.hpp>
 #include <dynamo/dynamics/1particleEventData.hpp>
 #include <dynamo/dynamics/units/units.hpp>

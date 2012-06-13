@@ -24,7 +24,7 @@
 #include <dynamo/dynamics/locals/localEvent.hpp>
 #include <dynamo/dynamics/species/species.hpp>
 #include <dynamo/dynamics/BC/BC.hpp>
-#include <dynamo/dynamics/dynamics.hpp>
+
 #include <dynamo/dynamics/systems/system.hpp>
 #include <dynamo/dynamics/NparticleEventData.hpp>
 #include <dynamo/dynamics/topology/topology.hpp>

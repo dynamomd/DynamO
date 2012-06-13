@@ -17,7 +17,7 @@
 */
 
 #include <dynamo/dynamics/systems/sleep.hpp>
-#include <dynamo/dynamics/dynamics.hpp>
+
 #include <dynamo/dynamics/units/units.hpp>
 #include <dynamo/dynamics/BC/BC.hpp>
 #include <dynamo/simulation/particle.hpp>

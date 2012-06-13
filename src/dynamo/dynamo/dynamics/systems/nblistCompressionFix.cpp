@@ -16,7 +16,7 @@
 */
 
 #include <dynamo/dynamics/systems/nblistCompressionFix.hpp>
-#include <dynamo/dynamics/dynamics.hpp>
+
 #include <dynamo/dynamics/units/units.hpp>
 #include <dynamo/dynamics/globals/neighbourList.hpp>
 #include <dynamo/base/is_simdata.hpp>

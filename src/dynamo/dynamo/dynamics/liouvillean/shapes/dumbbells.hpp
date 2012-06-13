@@ -18,7 +18,7 @@
 #pragma once
 #include <dynamo/simulation/particle.hpp>
 #include <dynamo/dynamics/BC/BC.hpp>
-#include <dynamo/dynamics/dynamics.hpp>
+
 #include <dynamo/base/is_simdata.hpp>
 #include <dynamo/dynamics/liouvillean/shapes/shape.hpp>
 #include <iomanip>

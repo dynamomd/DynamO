@@ -17,10 +17,10 @@
 
 #pragma once
 
-#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/simulation/particle.hpp>
 #include <dynamo/simulation/ensemble.hpp>
 #include <dynamo/simulation/property.hpp>
+#include <dynamo/dynamics/units/units.hpp>
 #include <magnet/function/delegate.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/variate_generator.hpp>
@@ -33,17 +33,27 @@
 namespace dynamo
 {  
   class Scheduler;
+  class OutputPlugin;
   class Ensemble;
   class Species;
   class BoundaryCondition;
   class Topology;
   class Liouvillean;
+  class Interaction;
+  class IntEvent;
   class Local;
   class LocalEvent;
   class Global;
   class GlobalEvent;
   class System;
-  class OutputPlugin;
+
+  class NEventData;
+  class PairEventData;
+  class ParticleEventData;
+
+  class Range;
+  class C2Range;
+
 
   //! \brief Holds the different phases of the simulation initialisation
   typedef enum 
@@ -55,7 +65,6 @@ namespace dynamo
       PRODUCTION    = 3, /*!< The simulation has already begun. */
       ERROR         = 4  /*!< The simulation has failed. */
     } ESimulationStatus;
-
   
   typedef boost::mt19937 baseRNG;
   
@@ -260,9 +269,6 @@ namespace dynamo
     
     /*! \brief A ptr to the Scheduler of the system. */
     shared_ptr<Scheduler> ptrScheduler;
-
-    /*! \brief The Dynamics of the system. */
-    Dynamics dynamics;
     
     /*! The property store, a list of properties the particles have. */
     PropertyStore _properties;

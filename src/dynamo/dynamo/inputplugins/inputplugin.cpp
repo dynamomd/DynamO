@@ -18,7 +18,7 @@
 #include <dynamo/inputplugins/inputplugin.hpp>
 #include <dynamo/simulation/particle.hpp>
 #include <dynamo/schedulers/include.hpp>
-#include <dynamo/dynamics/dynamics.hpp>
+
 #include <dynamo/dynamics/species/species.hpp>
 #include <dynamo/dynamics/interactions/include.hpp>
 #include <dynamo/dynamics/ranges/include.hpp>

@@ -50,7 +50,6 @@ namespace dynamo
     eventPrintInterval(50000),
     nextPrintEvent(0),
     N(0),
-    dynamics(this),
     primaryCellSize(1,1,1),
     ranGenerator(static_cast<unsigned>(std::time(0))),
     normal_sampler(ranGenerator, boost::normal_distribution<double>()),
