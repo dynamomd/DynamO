@@ -143,7 +143,7 @@ main(int argc, char *argv[])
 	{
 	  dynamo::IPPacker plug(vm, &sim);
 	  plug.initialise();
-
+	  
 	  //We don't zero momentum and rescale for certain packer modes
 	  if ((vm["pack-mode"].as<size_t>() != 23)
 	      && (vm["pack-mode"].as<size_t>() != 25))
@@ -151,14 +151,11 @@ main(int argc, char *argv[])
 	      dynamo::InputPlugin(&sim, "Rescaler").zeroMomentum();
 	      dynamo::InputPlugin(&sim, "Rescaler").rescaleVels(1.0);
 	    }
-	  sim.configLoaded();
 	}
       else
-	{
-	  sim.loadXMLfile(vm["config-file"].as<string>());
-	  sim.configLoaded();
-	}
-  
+	sim.loadXMLfile(vm["config-file"].as<string>());
+
+      sim.status = CONFIG_LOADED;      
       sim.endEventCount = 0;
 
       if (vm.count("thermostat"))

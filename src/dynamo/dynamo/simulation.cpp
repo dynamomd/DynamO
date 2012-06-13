@@ -109,16 +109,6 @@ namespace dynamo {
 	}
   }
 
-  void 
-  Simulation::configLoaded()
-  {
-    //Handled by an input plugin
-    if (status != START)
-      M_throw() << "Loading config at wrong time";
-  
-    status = CONFIG_LOADED;
-  }
-
   void
   Simulation::outputData(std::string filename)
   {
@@ -147,8 +137,4 @@ namespace dynamo {
 
     dout << "Output written to " << filename << std::endl;
   }
-
-  long double 
-  Simulation::getSysTime()
-  { return dSysTime / units.unitTime(); }
 }

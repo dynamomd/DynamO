@@ -52,20 +52,10 @@ namespace dynamo {
     //! compressed configuration files.
     void outputData(std::string filename = "output.xml.bz2");
 
-    //! Used by dynamod to inform the Simulation that the configuration
-    //! of the simulation is complete. This updates the Simulation
-    //! status.
-    //! \sa getStatus()
-    void configLoaded();
-
     //! This function makes the Simulation exit the runSimulation loop
     //! at the next opportunity. Used when forcing the simulation to
     //! stop.
     void simShutdown();
-
-    //! Get the current time of the Simulation.
-    //! \sa getnColl
-    long double getSysTime();
   
     //! Allows a Engine or the Coordinator class to add an OutputPlugin
     //! to the Simulation.
