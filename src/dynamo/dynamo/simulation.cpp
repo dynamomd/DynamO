@@ -73,26 +73,8 @@ namespace dynamo {
   }
 
   void 
-  Simulation::setRandSeed(unsigned int x)
-  { ranGenerator.seed(x); }
-
-  void 
-  Simulation::setnPrint(unsigned long long newnPrint)
-  { 
-    dout << "Periodic output length set to " << newnPrint << " collisions" << std::endl;
-    eventPrintInterval = newnPrint; 
-  }
-
-  void 
   Simulation::simShutdown()
   { nextPrintEvent = endEventCount = eventCount; }
-
-  void 
-  Simulation::setTrajectoryLength(unsigned long long newMaxColl)
-  { 
-    //dout << "Trajectory length set to " << newMaxColl << " collisions" << std::endl;
-    endEventCount = newMaxColl; 
-  }
 
   void
   Simulation::runSimulation(bool silentMode)
@@ -104,7 +86,7 @@ namespace dynamo {
 
     size_t nextPrint = eventCount + eventPrintInterval;
 
-    for (; eventCount < endEventCount;)
+    while (eventCount < endEventCount)
       try
 	{
 	  ptrScheduler->runNextEvent();

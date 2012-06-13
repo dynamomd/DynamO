@@ -90,19 +90,19 @@ namespace dynamo {
   Engine::setupSim(Simulation& Sim, const std::string filename)
   {
     if (vm.count("random-seed"))
-      Sim.setRandSeed(vm["random-seed"].as<unsigned int>());
+      Sim.ranGenerator.seed(vm["random-seed"].as<unsigned int>());
   
     ////////////////////////Simulation Initialisation!!!!!!!!!!!!!
     //Now load the config
     Sim.loadXMLfile(filename.c_str());
     Sim.configLoaded();
-    Sim.setTrajectoryLength(vm["events"].as<unsigned long long>());
+    Sim.endEventCount = vm["events"].as<unsigned long long>();
   
     if (vm["events"].as<unsigned long long>() 
 	> vm["print-events"].as<unsigned long long>())
-      Sim.setnPrint(vm["print-events"].as<unsigned long long>());
+      Sim.eventPrintInterval = vm["print-events"].as<unsigned long long>();
     else
-      Sim.setnPrint(vm["events"].as<unsigned long long>());
+      Sim.eventPrintInterval = vm["events"].as<unsigned long long>();
     
     if (vm.count("sim-end-time") && (dynamic_cast<const EReplicaExchangeSimulation*>(this) == NULL))
       Sim.systems.push_back(shared_ptr<System>(new SystHalt(&Sim, vm["sim-end-time"].as<double>(), "SystemStopEvent")));

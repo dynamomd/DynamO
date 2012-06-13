@@ -63,20 +63,6 @@ namespace dynamo {
     //! stop.
     void simShutdown();
 
-    //! Sets how many events the Simulation loop should run for.
-    //! \sa runSimulation
-    void setTrajectoryLength(unsigned long long);
-
-    //! Sets how many events should occur between outputting the
-    //! Simulation state on the screen.
-    //! \sa runSimulation
-    void setnPrint(unsigned long long);
-
-    //! Sets the random seed used by the Simulation random number
-    //! generator.
-    //! \sa dynamo::SimData::ranGenerator
-    void setRandSeed(unsigned int);
-
     //! Get the current time of the Simulation.
     //! \sa getnColl
     long double getSysTime();

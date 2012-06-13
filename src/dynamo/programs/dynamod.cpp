@@ -135,7 +135,7 @@ main(int argc, char *argv[])
 	}
 
       if (vm.count("random-seed"))
-	sim.setRandSeed(vm["random-seed"].as<unsigned int>());
+	sim.ranGenerator.seed(vm["random-seed"].as<unsigned int>());
       
       ////////////////////////Simulation Initialisation!!!!!!!!!!!!!
       //Now load the config
@@ -159,7 +159,7 @@ main(int argc, char *argv[])
 	  sim.configLoaded();
 	}
   
-      sim.setTrajectoryLength(0);
+      sim.endEventCount = 0;
 
       if (vm.count("thermostat"))
 	{

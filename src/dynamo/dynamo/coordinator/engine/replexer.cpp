@@ -441,7 +441,7 @@ namespace dynamo {
 	    size_t i = 0;
 	    BOOST_FOREACH(replexPair p1, temperatureList)
 	      {
-		Simulations[p1.second.simID].setTrajectoryLength(vm["events"].as<unsigned long long>());
+		Simulations[p1.second.simID].endEventCount = vm["events"].as<unsigned long long>();
 		Simulations[p1.second.simID].outputData((magnet::string::search_replace(std::string("peek.data.%ID.xml.bz2"), 
 											"%ID", boost::lexical_cast<std::string>(i++))));
 	      }
@@ -514,7 +514,7 @@ namespace dynamo {
 		Simulations[i].ptrScheduler->rebuildSystemEvents();
 
 		//Reset the max collisions
-		Simulations[i].setTrajectoryLength(vm["events"].as<unsigned long long>());
+		Simulations[i].endEventCount = vm["events"].as<unsigned long long>();
 	      }
 	  }
       }
@@ -530,7 +530,7 @@ namespace dynamo {
     BOOST_FOREACH(replexPair p1, temperatureList)
       {
 	TtoID << p1.second.realTemperature << " " << i << "\n";
-	Simulations[p1.second.simID].setTrajectoryLength(vm["events"].as<unsigned long long>());
+	Simulations[p1.second.simID].endEventCount = vm["events"].as<unsigned long long>();
 	Simulations[p1.second.simID].writeXMLfile(magnet::string::search_replace(configFormat, "%ID", boost::lexical_cast<std::string>(i++)), 
 						  !vm.count("unwrapped"));
       }
