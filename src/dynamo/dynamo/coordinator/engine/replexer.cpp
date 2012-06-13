@@ -484,8 +484,8 @@ namespace dynamo {
 	    std::vector<magnet::function::Task*> tasks(nSims, NULL);
 	  
 	    for (size_t i(0); i < nSims; ++i)
-	      tasks[i] = magnet::function::Task::makeTask(&Simulation::runSimulation, 
-							  &(Simulations[i]), true);
+	      tasks[i] = magnet::function::Task::makeTask(&SimData::runSimulation, 
+							  &static_cast<SimData&>(Simulations[i]), true);
 
 	    threads.queueTasks(tasks);
 	    threads.wait();//This syncs the systems for the replica exchange

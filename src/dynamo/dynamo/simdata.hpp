@@ -209,6 +209,16 @@ namespace dynamo
       return shared_ptr<T>();
     }    
 
+    /*! Writes the results of the Simulation to a file at the passed
+        path.
+    
+      \param filename The path to the XML file to write (this file
+      will either be created or overwritten). The filename must end in
+      either ".xml" for uncompressed xml files or ".bz2" for bzip2
+      compressed configuration files.
+    */
+    void outputData(std::string filename = "output.xml.bz2");
+
     /*! \brief Loads a Simulation from the passed XML file.
 
       \param filename The path to the XML file to load. The filename
@@ -233,6 +243,37 @@ namespace dynamo
 
     /*! \brief The Ensemble of the Simulation. */
     shared_ptr<Ensemble> ensemble;
+
+
+    /*! \brief Main loop for the Simulation.
+      
+      \param silentMode If true, the periodic output of the simulation
+      is supressed.
+    */
+    void runSimulation(bool silentMode = false);
+  
+    /*! This function makes the Simulation exit the runSimulation loop
+      at the next opportunity.
+      
+      Used when forcing the simulation to stop.
+    */
+    void simShutdown();
+  
+    /*! Allows a Engine or the Coordinator class to add an
+     OutputPlugin to the Simulation.
+     
+     \param pluginDescriptor A string identifying a type of
+     OutputPlugin to load and the values of any options to be
+     parsed. E.g., "Plugin:OptA=1,OptB=2"
+    */
+    void addOutputPlugin(std::string pluginDescriptor);
+  
+    //! Sets the frequency of the SysTicker event.
+    void setTickerPeriod(double);
+
+    //! Scales the frequency of the SysTicker event by the passed factor.
+    void scaleTickerPeriod(double);
+
 
     /*! \brief The current system time of the simulation. 
       
