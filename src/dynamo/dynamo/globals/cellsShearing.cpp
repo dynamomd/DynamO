@@ -18,7 +18,7 @@
 #include <dynamo/globals/cellsShearing.hpp>
 #include <dynamo/globals/globEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/ranges/1RAll.hpp>
 #include <dynamo/ranges/1RNone.hpp>
@@ -26,7 +26,7 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/BC/LEBC.hpp>
-#include <dynamo/liouvillean/NewtonianGravityL.hpp>
+#include <dynamo/dynamics/gravityL.hpp>
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
@@ -70,32 +70,32 @@ namespace dynamo {
   GCellsShearing::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
-    if (!Sim->liouvillean->isUpToDate(part))
+    if (!Sim->dynamics->isUpToDate(part))
       M_throw() << "Particle is not up to date";
 #endif
 
     //We do not inherit GCells get Event as the calcPosition thing done
     //for infinite systems is breaking it for shearing for some reason.
     return GlobalEvent(part,
-		       Sim->liouvillean->
+		       Sim->dynamics->
 		       getSquareCellCollision2
 		       (part, calcPosition(partCellData[part.getID()]), 
 			cellDimension)
-		       - Sim->liouvillean->getParticleDelay(part),
+		       - Sim->dynamics->getParticleDelay(part),
 		       CELL, *this);
   }
 
   void 
   GCellsShearing::runEvent(Particle& part, const double) const
   {
-    Sim->liouvillean->updateParticle(part);
+    Sim->dynamics->updateParticle(part);
 
     size_t oldCell(partCellData[part.getID()]);
     magnet::math::MortonNumber<3> oldCellCoords(oldCell);
     Vector oldCellPosition(calcPosition(oldCellCoords));
 
     //Determine the cell transition direction, its saved
-    int cellDirectionInt(Sim->liouvillean->
+    int cellDirectionInt(Sim->dynamics->
 			 getSquareCellCollision3(part, oldCellPosition, cellDimension));
   
     size_t cellDirection = abs(cellDirectionInt) - 1;
@@ -113,13 +113,13 @@ namespace dynamo {
 	//Remove the old x contribution
 	//Calculate the final x value
 	//Time till transition, assumes the particle is up to date
-	double dt = Sim->liouvillean->getSquareCellCollision2(part, oldCellPosition, cellDimension);
+	double dt = Sim->dynamics->getSquareCellCollision2(part, oldCellPosition, cellDimension);
      
 	//Predict the position of the particle in the x dimension
-	Sim->liouvillean->advanceUpdateParticle(part, dt);
+	Sim->dynamics->advanceUpdateParticle(part, dt);
 	Vector tmpPos = part.getPosition();
 	//This rewinds the particle again
-	Sim->liouvillean->updateParticle(part);
+	Sim->dynamics->updateParticle(part);
 
 	//Adding this extra half cell ensures we get into the next
 	//simulation image, to calculate the position of the new cell

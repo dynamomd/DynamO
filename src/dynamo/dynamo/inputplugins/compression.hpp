@@ -22,14 +22,14 @@
 #include <dynamo/inputplugins/inputplugin.hpp>
 
 namespace dynamo {
-  class Liouvillean;
+  class Dynamics;
 
   /*! \brief A plugin to change a simulation to compression dynamics and
    * back again.
    * 
    * This class came about as when a simulation is being compressed its
-   * dynamics, or more specifically its Liouvillean, is replaced with
-   * the LCompression liouvilean. This stores the old liouvillean and
+   * dynamics, or more specifically its Dynamics, is replaced with
+   * the DynCompression liouvilean. This stores the old dynamics and
    * also provides several helpful plugins to hack parts of the system
    * into co-operating with the compression like the cellular scheduler.
    */
@@ -44,11 +44,11 @@ namespace dynamo {
      */
     IPCompression(dynamo::Simulation* sim, double cr);
 
-    /*! \brief Stores the old CLiovillean and installs the LCompression.
+    /*! \brief Stores the old CLiovillean and installs the DynCompression.
      */  
     void MakeGrowth();
   
-    /*! \brief Restores the old Liouvillean stored in oldLio.
+    /*! \brief Restores the old Dynamics stored in oldLio.
      */
     void RestoreSystem();  
 
@@ -76,9 +76,9 @@ namespace dynamo {
      */
     double growthRate;
   
-    /*! \brief The old Liouvillean of the simulation.
+    /*! \brief The old Dynamics of the simulation.
      */
-    shared_ptr<Liouvillean> oldLio;
+    shared_ptr<Dynamics> oldLio;
   
     /*! \brief Stores a cell overlap parameter of the cellular scheduler
      * to be restored later.

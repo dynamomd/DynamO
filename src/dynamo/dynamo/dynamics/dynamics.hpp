@@ -45,7 +45,7 @@ namespace dynamo {
    * This class also has the delayed states algorithm implemented by
    * default. This can be overridden if required.
    *
-   * The bulk of the code is implemented in the LNewtonian class.
+   * The bulk of the code is implemented in the DynNewtonian class.
    *
    * Before using any functions in this class you must updateParticle
    * first with the exception of the getSquareCell events! This is to
@@ -53,7 +53,7 @@ namespace dynamo {
    * particles being tested.
    */
 
-  class Liouvillean: public SimBase
+  class Dynamics: public SimBase
   {
   public:  
     struct rotData
@@ -62,22 +62,22 @@ namespace dynamo {
       Vector  angularVelocity;
     };
 
-    Liouvillean(dynamo::Simulation* tmp):
-      SimBase(tmp, "Liouvillean"),
+    Dynamics(dynamo::Simulation* tmp):
+      SimBase(tmp, "Dynamics"),
       partPecTime(0.0),
       streamCount(0),
       streamFreq(1)
     {};
 
-    virtual ~Liouvillean() {}
+    virtual ~Dynamics() {}
   
     virtual void initialise();
 
     /*! \brief Called when a replica exchange move is being performed on the system.
      *
-     * \param oLiouvillean the Liouvillean of the other system in the exchange move.
+     * \param oDynamics the Dynamics of the other system in the exchange move.
      */
-    virtual void swapSystem(Liouvillean& oLiouvillean) {}
+    virtual void swapSystem(Dynamics& oDynamics) {}
 
     /*! \brief Parses the XML data to see if it can load XML particle
      * data or if it needs to decode the binary data. Then loads the
@@ -326,7 +326,7 @@ namespace dynamo {
      */    
     virtual double getParabolaSentinelTime(const Particle& p1) const
     { 
-      M_throw() << "This is not needed for this type of Liouvillean";
+      M_throw() << "This is not needed for this type of Dynamics";
     }
 
     /*! \brief Calculates when a particle has peaked in its parabola to
@@ -339,7 +339,7 @@ namespace dynamo {
      */    
     virtual void enforceParabola(Particle&) const
     { 
-      M_throw() << "This is not needed for this type of Liouvillean";
+      M_throw() << "This is not needed for this type of Dynamics";
     }
 
     /*! \brief Runs a line line collision event
@@ -592,12 +592,12 @@ namespace dynamo {
     /*! \brief An XML output operator for the class. Calls the virtual
       OutputXML member function.
      */
-    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Liouvillean&);
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Dynamics&);
 
     /*! \brief Instantiates and loads Liovillean classes from an XML
       entry.
      */
-    static shared_ptr<Liouvillean> getClass(const magnet::xml::Node& ,dynamo::Simulation*);
+    static shared_ptr<Dynamics> getClass(const magnet::xml::Node& ,dynamo::Simulation*);
     
     /*! \brief Free streams all particles up to the current time.
       
@@ -696,7 +696,7 @@ namespace dynamo {
     const std::vector<rotData>& getCompleteRotData() const
     { return orientationData; }
 
-    /*! \brief Used to test if the liouvillean has orientation data
+    /*! \brief Used to test if the dynamics has orientation data
        available.
      */
     inline bool hasOrientationData() const { return orientationData.size(); }
@@ -746,7 +746,7 @@ namespace dynamo {
     /*! \brief How often the system peculiar times should be syncronised.*/
     size_t streamFreq;
   
-    /*! \brief Writes out the liouvilleans data to XML. */
+    /*! \brief Writes out the dynamicss data to XML. */
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
     /*! \brief Moves the particles data along in time. */

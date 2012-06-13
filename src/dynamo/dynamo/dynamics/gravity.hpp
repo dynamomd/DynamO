@@ -17,18 +17,18 @@
 
 #pragma once
 
-#include <dynamo/liouvillean/NewtonL.hpp>
+#include <dynamo/dynamics/newtonian.hpp>
 
 namespace dynamo {
-  /*! \brief A Liouvillean which implements standard Newtonian dynamics
+  /*! \brief A Dynamics which implements standard Newtonian dynamics
     with an additional constant force vector.
   */
-  class LNewtonianGravity: public LNewtonian
+  class Dyngravity: public DynNewtonian
   {
   public:
-    LNewtonianGravity(dynamo::Simulation*, const magnet::xml::Node&);
+    Dyngravity(dynamo::Simulation*, const magnet::xml::Node&);
 
-    LNewtonianGravity(dynamo::Simulation* tmp, Vector gravity, double eV = 0, double tc = -HUGE_VAL);
+    Dyngravity(dynamo::Simulation* tmp, Vector gravity, double eV = 0, double tc = -HUGE_VAL);
 
     void initialise();
 
@@ -77,7 +77,7 @@ namespace dynamo {
 					    const double&, 
 					    const EEventType& eType) const;
 
-    virtual std::pair<double, Liouvillean::TriangleIntersectingPart> 
+    virtual std::pair<double, Dynamics::TriangleIntersectingPart> 
     getSphereTriangleEvent(const Particle& part, 
 			   const Vector & A, 
 			   const Vector & B, 

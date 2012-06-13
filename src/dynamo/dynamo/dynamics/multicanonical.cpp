@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/liouvillean/NewtonMCL.hpp>
+#include <dynamo/dynamics/multicanonical.hpp>
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/NparticleEventData.hpp>
@@ -24,7 +24,7 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/schedulers/sorters/event.hpp>
-#include <dynamo/liouvillean/shapes/oscillatingplate.hpp>
+#include <dynamo/dynamics/shapes/oscillatingplate.hpp>
 #include <dynamo/outputplugins/1partproperty/uenergy.hpp>
 #include <dynamo/units/units.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -32,8 +32,8 @@
 #include <boost/math/special_functions/fpclassify.hpp>
 
 namespace dynamo {
-  LNewtonianMC::LNewtonianMC(dynamo::Simulation* tmp, const magnet::xml::Node& XML):
-    LNewtonian(tmp),
+  DynNewtonianMC::DynNewtonianMC(dynamo::Simulation* tmp, const magnet::xml::Node& XML):
+    DynNewtonian(tmp),
     EnergyPotentialStep(1)
   {
     if (strcmp(XML.getAttribute("Type"),"NewtonianMC"))
@@ -66,11 +66,11 @@ namespace dynamo {
 	  }
       }
     catch (boost::bad_lexical_cast &)
-      { M_throw() << "Failed a lexical cast in LNewtonianMC"; }
+      { M_throw() << "Failed a lexical cast in DynNewtonianMC"; }
   }
 
   void 
-  LNewtonianMC::outputXML(magnet::xml::XmlStream& XML) const
+  DynNewtonianMC::outputXML(magnet::xml::XmlStream& XML) const
   {
     boost::unordered_map<int, double> wout = _W;
 
@@ -94,9 +94,9 @@ namespace dynamo {
 
 
 
-  void LNewtonianMC::initialise()
+  void DynNewtonianMC::initialise()
   {
-    LNewtonian::initialise();
+    DynNewtonian::initialise();
     
     //Confirm that the energy output plugin is available
     
@@ -106,7 +106,7 @@ namespace dynamo {
 
 
   NEventData 
-  LNewtonianMC::multibdyWellEvent(const Range& range1, const Range& range2, 
+  DynNewtonianMC::multibdyWellEvent(const Range& range1, const Range& range2, 
 				  const double&, const double& deltaKE, 
 				  EEventType& eType) const
   {
@@ -114,7 +114,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  LNewtonianMC::SphereWellEvent(const IntEvent& event, const double& deltaKE, 
+  DynNewtonianMC::SphereWellEvent(const IntEvent& event, const double& deltaKE, 
 				const double &) const
   {
     Particle& particle1 = Sim->particleList[event.getParticle1ID()];
@@ -196,14 +196,14 @@ namespace dynamo {
   }
 
   void 
-  LNewtonianMC::swapSystem(Liouvillean& oLiouvillean)
+  DynNewtonianMC::swapSystem(Dynamics& oDynamics)
   {
 #ifdef DYNAMO_DEBUG
-    if (dynamic_cast<const LNewtonianMC*>(&oLiouvillean) == NULL)
-      M_throw() << "Trying to swap Liouvilleans with different derived types!";
+    if (dynamic_cast<const DynNewtonianMC*>(&oDynamics) == NULL)
+      M_throw() << "Trying to swap Dynamicss with different derived types!";
 #endif
 
-    LNewtonianMC& ol(static_cast<LNewtonianMC&>(oLiouvillean));
+    DynNewtonianMC& ol(static_cast<DynNewtonianMC&>(oDynamics));
 
     std::swap(EnergyPotentialStep, ol.EnergyPotentialStep);
     std::swap(_W, ol._W);

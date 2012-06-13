@@ -17,7 +17,7 @@
 
 #include <dynamo/simulation.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <dynamo/BC/include.hpp>
@@ -139,7 +139,7 @@ namespace dynamo
 		  << "\nN = " << N;
     }
 
-    liouvillean->initialise();
+    dynamics->initialise();
 
     {
       size_t ID=0;
@@ -206,7 +206,7 @@ namespace dynamo
   {
     BCs->update(dt);
 
-    liouvillean->stream(dt);
+    dynamics->stream(dt);
 
     BOOST_FOREACH(shared_ptr<System>& ptr, systems)
       ptr->stream(dt);
@@ -336,7 +336,7 @@ namespace dynamo
     
     BCs = BoundaryCondition::getClass(simNode.getNode("BC"), this);
 
-    liouvillean = Liouvillean::getClass(simNode.getNode("Dynamics"), this);
+    dynamics = Dynamics::getClass(simNode.getNode("Dynamics"), this);
 
     if (simNode.hasNode("Topology"))
       {
@@ -376,7 +376,7 @@ namespace dynamo
 
     ptrScheduler = Scheduler::getClass(simNode.getNode("Scheduler"), this);
 
-    liouvillean->loadParticleXMLData(mainNode);
+    dynamics->loadParticleXMLData(mainNode);
   
     //Fixes or conversions once system is loaded
     lastRunMFT *= units.unitTime();
@@ -408,7 +408,7 @@ namespace dynamo
     magnet::xml::XmlStream XML(coutputFile);
     XML.setFormatXML(true);
 
-    liouvillean->updateAllParticles();
+    dynamics->updateAllParticles();
 
     //Rescale the properties to the configuration file units
     _properties.rescaleUnit(Property::Units::L, 
@@ -492,12 +492,12 @@ namespace dynamo
   
     XML << magnet::xml::endtag("SystemEvents")
       	<< magnet::xml::tag("Dynamics")
-	<< *liouvillean
+	<< *dynamics
 	<< magnet::xml::endtag("Dynamics")
 	<< magnet::xml::endtag("Simulation")
 	<< _properties;
 
-    liouvillean->outputParticleXMLData(XML, applyBC);
+    dynamics->outputParticleXMLData(XML, applyBC);
 
     XML << magnet::xml::endtag("DynamOconfig");
 
@@ -526,8 +526,8 @@ namespace dynamo
   Simulation::replexerSwap(Simulation& other)
   {
     //Get all particles up to date and zero the pecTimes
-    liouvillean->updateAllParticles();
-    other.liouvillean->updateAllParticles();
+    dynamics->updateAllParticles();
+    other.dynamics->updateAllParticles();
       
     std::swap(dSysTime, other.dSysTime);
     std::swap(eventCount, other.eventCount);
@@ -541,7 +541,7 @@ namespace dynamo
     BOOST_FOREACH(shared_ptr<System>& aPtr, other.systems)
       aPtr->changeSystem(&other);
 
-    liouvillean->swapSystem(*other.liouvillean);
+    dynamics->swapSystem(*other.dynamics);
 
     //Rescale the velocities 
     double scale1(sqrt(other.ensemble->getEnsembleVals()[2]
@@ -673,7 +673,7 @@ namespace dynamo
   void
   Simulation::checkSystem()
   {
-    liouvillean->updateAllParticles();
+    dynamics->updateAllParticles();
 
     std::vector<Particle>::const_iterator iPtr1, iPtr2;
   

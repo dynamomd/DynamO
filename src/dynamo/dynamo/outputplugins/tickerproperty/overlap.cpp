@@ -18,7 +18,7 @@
 #include <dynamo/outputplugins/tickerproperty/overlap.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <boost/foreach.hpp>
 
 namespace dynamo {

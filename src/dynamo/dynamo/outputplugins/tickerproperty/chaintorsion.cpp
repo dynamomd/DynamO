@@ -20,7 +20,7 @@
 #include <dynamo/ranges/1range.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/topology/include.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/BC/None.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>

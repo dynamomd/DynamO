@@ -20,7 +20,7 @@
 #include <dynamo/BC/BC.hpp>
 
 #include <dynamo/simulation.hpp>
-#include <dynamo/liouvillean/shapes/shape.hpp>
+#include <dynamo/dynamics/shapes/shape.hpp>
 #include <limits>
 
 namespace dynamo {

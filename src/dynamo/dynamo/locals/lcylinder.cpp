@@ -16,7 +16,7 @@
 */
 
 #include <dynamo/locals/lcylinder.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/locals/localEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/units/units.hpp>
@@ -47,11 +47,11 @@ namespace dynamo {
   LCylinder::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
-    if (!Sim->liouvillean->isUpToDate(part))
+    if (!Sim->dynamics->isUpToDate(part))
       M_throw() << "Particle is not up to date";
 #endif
 
-    return LocalEvent(part, Sim->liouvillean->getCylinderWallCollision
+    return LocalEvent(part, Sim->dynamics->getCylinderWallCollision
 		      (part, vPosition, vNorm, radius), WALL, *this);
   }
 
@@ -61,7 +61,7 @@ namespace dynamo {
     ++Sim->eventCount;
 
     //Run the collision and catch the data
-    NEventData EDat(Sim->liouvillean->runCylinderWallCollision
+    NEventData EDat(Sim->dynamics->runCylinderWallCollision
 		    (part, vPosition, vNorm, e));
 
     Sim->signalParticleUpdate(EDat);

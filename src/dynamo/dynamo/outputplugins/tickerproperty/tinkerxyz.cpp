@@ -19,11 +19,11 @@
 #include <dynamo/outputplugins/tickerproperty/radiusGyration.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/interactions/squarebond.hpp>
 #include <dynamo/ranges/2RList.hpp>
 #include <dynamo/topology/chain.hpp>
-#include <dynamo/liouvillean/CompressionL.hpp>
+#include <dynamo/dynamics/compression.hpp>
 #include <dynamo/outputplugins/tickerproperty/vmd_imd/vmdsock.h>
 #include <dynamo/outputplugins/tickerproperty/vmd_imd/imd.h>
 #include <magnet/xmlwriter.hpp>
@@ -164,8 +164,8 @@ namespace dynamo {
       {
 	double coeff = 3.4 / Sim->units.unitLength();
       
-	if (std::tr1::dynamic_pointer_cast<LCompression>(Sim->liouvillean))
-	  coeff /= 1.0 + static_cast<const LCompression&>(*Sim->liouvillean).getGrowthRate() * Sim->dSysTime;
+	if (std::tr1::dynamic_pointer_cast<DynCompression>(Sim->dynamics))
+	  coeff /= 1.0 + static_cast<const DynCompression&>(*Sim->dynamics).getGrowthRate() * Sim->dSysTime;
 
 	Vector offset(0,0,0);
 	if (P1track)

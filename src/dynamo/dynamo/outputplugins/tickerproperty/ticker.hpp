@@ -22,8 +22,8 @@ namespace dynamo {
   /*! \brief An output plugin marker class for periodically 'ticked'
    * plugins, ticked by the SysTicker class.
    *
-   * This class doesn't require any Liouvillean::updateParticle or
-   * Liouvillean::updateAllParticles as this is done in the SysTicker
+   * This class doesn't require any Dynamics::updateParticle or
+   * Dynamics::updateAllParticles as this is done in the SysTicker
    * class. This is optimal as most ticker plugins need it anyway
    */
   class OPTicker: public OutputPlugin

@@ -17,7 +17,7 @@
 
 #include <dynamo/interactions/roughhardsphere.hpp>
 #include <dynamo/interactions/intEvent.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/2particleEventData.hpp>
@@ -25,7 +25,7 @@
 #include <dynamo/ranges/1range.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/NparticleEventData.hpp>
-#include <dynamo/liouvillean/CompressionL.hpp>
+#include <dynamo/dynamics/compression.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -97,10 +97,10 @@ namespace dynamo {
   IRoughHardSphere::getEvent(const Particle& p1, const Particle& p2) const 
   { 
 #ifdef DYNAMO_DEBUG
-    if (!Sim->liouvillean->isUpToDate(p1))
+    if (!Sim->dynamics->isUpToDate(p1))
       M_throw() << "Particle 1 is not up to date";
   
-    if (!Sim->liouvillean->isUpToDate(p2))
+    if (!Sim->dynamics->isUpToDate(p2))
       M_throw() << "Particle 2 is not up to date";
 #endif
 
@@ -112,16 +112,16 @@ namespace dynamo {
     double d = (_diameter->getProperty(p1.getID())
 		+ _diameter->getProperty(p2.getID())) * 0.5;
 
-    double dt = Sim->liouvillean->SphereSphereInRoot(p1, p2, d);
+    double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
     if (dt != HUGE_VAL)
       {
 #ifdef DYNAMO_OverlapTesting
-	if (Sim->liouvillean->sphereOverlap(p1, p2, d))
+	if (Sim->dynamics->sphereOverlap(p1, p2, d))
 	  M_throw() << "Overlapping particles found"
 		    << ", particle1 " << p1.getID()
 		    << ", particle2 " << p2.getID()
 		    << "\nOverlap = " 
-		    << Sim->dynamics.getLiouvillean()
+		    << Sim->dynamics.getDynamics()
 	    .sphereOverlap(p1, p2, d)
 	    / Sim->units.unitLength();
 #endif
@@ -149,7 +149,7 @@ namespace dynamo {
 
     //Run the collision and catch the data
     PairEventData EDat
-      (Sim->liouvillean->RoughSpheresColl(iEvent, e, et, d2)); 
+      (Sim->dynamics->RoughSpheresColl(iEvent, e, et, d2)); 
 
     Sim->signalParticleUpdate(EDat);
 

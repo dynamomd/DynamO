@@ -23,7 +23,7 @@
 #include <dynamo/species/species.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/ranges/include.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -116,7 +116,7 @@ namespace dynamo {
       
 	Particle& p2(Sim->particleList[p2id]);
       
-	Sim->liouvillean->updateParticlePair(p1, p2);
+	Sim->dynamics->updateParticlePair(p1, p2);
       
 	Vector rij;
 	for (size_t iDim(0); iDim < NDIM; ++iDim)
@@ -124,13 +124,13 @@ namespace dynamo {
       
 	rij *= diameter / rij.nrm();
       
-	if (Sim->liouvillean->DSMCSpheresTest
+	if (Sim->dynamics->DSMCSpheresTest
 	    (p1, p2, maxprob, factor, rij))
 	  {
 	    ++Sim->eventCount;
 	 
 	    const PairEventData
-	      SDat(Sim->liouvillean->DSMCSpheresRun(p1, p2, e, rij));
+	      SDat(Sim->dynamics->DSMCSpheresRun(p1, p2, e, rij));
 
 	    Sim->signalParticleUpdate(SDat);
   
@@ -177,7 +177,7 @@ namespace dynamo {
 	  
 	    Particle& p2(Sim->particleList[p2id]);
 	  
-	    Sim->liouvillean->updateParticlePair(p1, p2);
+	    Sim->dynamics->updateParticlePair(p1, p2);
 	  
 	    Vector rij;
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
@@ -185,7 +185,7 @@ namespace dynamo {
 	
 	    rij *= diameter / rij.nrm();
 	  
-	    Sim->liouvillean->DSMCSpheresTest(p1, p2, maxprob, factor, rij);
+	    Sim->dynamics->DSMCSpheresTest(p1, p2, maxprob, factor, rij);
 	  }
       }
 

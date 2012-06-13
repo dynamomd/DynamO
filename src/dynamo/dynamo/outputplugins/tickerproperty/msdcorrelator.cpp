@@ -18,7 +18,7 @@
 #include <dynamo/outputplugins/tickerproperty/msdcorrelator.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/outputplugins/0partproperty/msd.hpp>
 #include <dynamo/systems/sysTicker.hpp>
 #include <magnet/xmlwriter.hpp>

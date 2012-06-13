@@ -17,7 +17,7 @@
 
 #include <dynamo/locals/ldblwall.hpp>
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/locals/localEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/units/units.hpp>
@@ -46,7 +46,7 @@ namespace dynamo {
   LDblWall::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
-    if (!Sim->liouvillean->isUpToDate(part))
+    if (!Sim->dynamics->isUpToDate(part))
       M_throw() << "Particle is not up to date";
 #endif
 
@@ -59,7 +59,7 @@ namespace dynamo {
     if ((norm | rij) < 0)
       norm *= -1;
 
-    return LocalEvent(part, Sim->liouvillean->getWallCollision
+    return LocalEvent(part, Sim->dynamics->getWallCollision
 		      (part, vPosition, norm), WALL, *this);
   }
 
@@ -77,7 +77,7 @@ namespace dynamo {
       norm *= -1;
 
     //Run the collision and catch the data
-    NEventData EDat(Sim->liouvillean->runWallCollision
+    NEventData EDat(Sim->dynamics->runWallCollision
 		    (part, norm, e));
 
     Sim->signalParticleUpdate(EDat);

@@ -17,7 +17,7 @@
 
 #include <dynamo/outputplugins/0partproperty/intEnergyHist.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/liouvillean/NewtonMCL.hpp>
+#include <dynamo/dynamics/multicanonical.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/outputplugins/1partproperty/uenergy.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -94,12 +94,12 @@ namespace dynamo {
   boost::unordered_map<int, double>
   OPIntEnergyHist::getImprovedW() const
   {
-    if (!std::tr1::dynamic_pointer_cast<const LNewtonianMC>(Sim->liouvillean))
-      M_throw() << "Cannot improve an non-Multicanonical Liouvillean";
+    if (!std::tr1::dynamic_pointer_cast<const DynNewtonianMC>(Sim->dynamics))
+      M_throw() << "Cannot improve an non-Multicanonical Dynamics";
 
-  const LNewtonianMC& liouvillean = static_cast<const LNewtonianMC&>(*Sim->liouvillean);
+  const DynNewtonianMC& dynamics = static_cast<const DynNewtonianMC&>(*Sim->dynamics);
 
-    if (liouvillean.getEnergyStep() != intEnergyHist.getBinWidth())
+    if (dynamics.getEnergyStep() != intEnergyHist.getBinWidth())
       M_throw() << "Cannot improve the W potential when there is a mismatch between the"
 		<< " internal energy histogram and MC potential bin widths.";
 
@@ -118,7 +118,7 @@ namespace dynamo {
 	//than 1% probability
 	if (Pc > 0.01)
 	  retval[lrint(E / intEnergyHist.getBinWidth())]
-	    = liouvillean.W(E) + std::log(Pc);
+	    = dynamics.W(E) + std::log(Pc);
       }
   
     //Now center the energy warps about 0 to not cause funny changes in the tails.
@@ -148,10 +148,10 @@ namespace dynamo {
   
     intEnergyHist.outputClearHistogram(XML, Sim->units.unitEnergy());
   
-    if (!std::tr1::dynamic_pointer_cast<const LNewtonianMC>(Sim->liouvillean))
+    if (!std::tr1::dynamic_pointer_cast<const DynNewtonianMC>(Sim->dynamics))
       {
-	dout << "Detected a Multi-canonical Liouvillean, outputting w parameters" << std::endl;
-	const LNewtonianMC& liouvillean(static_cast<const LNewtonianMC&>(*Sim->liouvillean));
+	dout << "Detected a Multi-canonical Dynamics, outputting w parameters" << std::endl;
+	const DynNewtonianMC& dynamics(static_cast<const DynNewtonianMC&>(*Sim->dynamics));
 	
 #ifdef DYNAMO_DEBUG      
 	if (!dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()))
@@ -160,13 +160,13 @@ namespace dynamo {
 	
 	XML << magnet::xml::tag("PotentialDeformation")
 	    << magnet::xml::attr("EnergyStep")
-	    << liouvillean.getEnergyStep() * Sim->units.unitEnergy();
+	    << dynamics.getEnergyStep() * Sim->units.unitEnergy();
 	
 	typedef std::pair<const int, double> locpair;
-	BOOST_FOREACH(const locpair& p1, liouvillean.getMap())
+	BOOST_FOREACH(const locpair& p1, dynamics.getMap())
 	  XML << magnet::xml::tag("W")
 	      << magnet::xml::attr("Energy")
-	      << p1.first * liouvillean.getEnergyStep() * Sim->units.unitEnergy()
+	      << p1.first * dynamics.getEnergyStep() * Sim->units.unitEnergy()
 	      << magnet::xml::attr("Value") << p1.second
 	      << magnet::xml::endtag("W");
 	

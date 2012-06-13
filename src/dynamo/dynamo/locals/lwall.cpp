@@ -17,7 +17,7 @@
 
 #include <dynamo/locals/lwall.hpp>
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/locals/localEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/units/units.hpp>
@@ -36,13 +36,13 @@ namespace dynamo {
   LWall::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
-    if (!Sim->liouvillean->isUpToDate(part))
+    if (!Sim->dynamics->isUpToDate(part))
       M_throw() << "Particle is not up to date";
 #endif
 
     double colldist = 0.5 * _diameter->getProperty(part.getID());
 
-    return LocalEvent(part, Sim->liouvillean->getWallCollision
+    return LocalEvent(part, Sim->dynamics->getWallCollision
 		      (part, vPosition + vNorm * colldist, vNorm), WALL, *this);
   }
 
@@ -53,7 +53,7 @@ namespace dynamo {
 
     //Run the collision and catch the data
 
-    NEventData EDat(Sim->liouvillean->runWallCollision
+    NEventData EDat(Sim->dynamics->runWallCollision
 		    (part, vNorm, _e->getProperty(part.getID())));
 
     Sim->signalParticleUpdate(EDat);

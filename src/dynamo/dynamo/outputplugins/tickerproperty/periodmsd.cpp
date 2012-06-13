@@ -18,7 +18,7 @@
 #include <dynamo/outputplugins/tickerproperty/periodmsd.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/outputplugins/0partproperty/msd.hpp>
 #include <dynamo/ranges/1RAll.hpp>
 #include <boost/foreach.hpp>

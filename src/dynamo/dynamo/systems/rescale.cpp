@@ -23,7 +23,7 @@
 #include <dynamo/species/species.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/ranges/include.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <boost/foreach.hpp>
@@ -85,7 +85,7 @@ namespace dynamo {
   
     ++Sim->eventCount;
     
-    double currentkT(Sim->liouvillean->getkT()
+    double currentkT(Sim->dynamics->getkT()
 		     / Sim->units.unitEnergy());
 
     dout << "Rescaling kT " << currentkT 
@@ -97,8 +97,8 @@ namespace dynamo {
       BOOST_FOREACH(const unsigned long& partID, *species->getRange())
       SDat.L1partChanges.push_back(ParticleEventData(Sim->particleList[partID], *species, RESCALE));
 
-    Sim->liouvillean->updateAllParticles();
-    Sim->liouvillean->rescaleSystemKineticEnergy(_kT / currentkT);
+    Sim->dynamics->updateAllParticles();
+    Sim->dynamics->rescaleSystemKineticEnergy(_kT / currentkT);
 
     RealTime += (Sim->dSysTime - LastTime) / std::exp(0.5 * scaleFactor);
 

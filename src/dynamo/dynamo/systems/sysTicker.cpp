@@ -18,7 +18,7 @@
 #include <dynamo/systems/sysTicker.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/NparticleEventData.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
@@ -67,7 +67,7 @@ namespace dynamo {
     Sim->freestreamAcc = 0;
 
     //This is done here as most ticker properties require it
-    Sim->liouvillean->updateAllParticles();
+    Sim->dynamics->updateAllParticles();
 
     BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
       {

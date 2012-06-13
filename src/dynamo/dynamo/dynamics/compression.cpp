@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/liouvillean/CompressionL.hpp>
+#include <dynamo/dynamics/compression.hpp>
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/2particleEventData.hpp>
 
@@ -26,12 +26,12 @@
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  LCompression::LCompression(dynamo::Simulation* tmp, double GR):
-    LNewtonian(tmp),
+  DynCompression::DynCompression(dynamo::Simulation* tmp, double GR):
+    DynNewtonian(tmp),
     growthRate(GR) {}
 
   double 
-  LCompression::SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const
+  DynCompression::SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
@@ -58,7 +58,7 @@ namespace dynamo {
   }
   
   double 
-  LCompression::SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const
+  DynCompression::SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
@@ -89,7 +89,7 @@ namespace dynamo {
   }
 
   double
-  LCompression::sphereOverlap(const Particle& p1, const Particle& p2,
+  DynCompression::sphereOverlap(const Particle& p1, const Particle& p2,
 			      const double& d) const
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
@@ -102,7 +102,7 @@ namespace dynamo {
 
 
   PairEventData 
-  LCompression::SmoothSpheresColl(const IntEvent& event, const double& e, const double& d2, const EEventType& eType) const
+  DynCompression::SmoothSpheresColl(const IntEvent& event, const double& e, const double& d2, const EEventType& eType) const
   {
     Particle& particle1 = Sim->particleList[event.getParticle1ID()];
     Particle& particle2 = Sim->particleList[event.getParticle2ID()];
@@ -162,7 +162,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  LCompression::SphereWellEvent(const IntEvent& event, const double& deltaKE, const double& d2) const
+  DynCompression::SphereWellEvent(const IntEvent& event, const double& deltaKE, const double& d2) const
   {
     Particle& particle1 = Sim->particleList[event.getParticle1ID()];
     Particle& particle2 = Sim->particleList[event.getParticle2ID()];
@@ -252,14 +252,14 @@ namespace dynamo {
   }
 
   void 
-  LCompression::outputXML(magnet::xml::XmlStream& XML) const
+  DynCompression::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Type") 
 	<< "Compression";
   }
 
   double 
-  LCompression::getPBCSentinelTime(const Particle& part,
+  DynCompression::getPBCSentinelTime(const Particle& part,
 				   const double& lMax) const
   {
 #ifdef DYNAMO_DEBUG
@@ -285,7 +285,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  LCompression::parallelCubeColl(const IntEvent&,
+  DynCompression::parallelCubeColl(const IntEvent&,
 				 const double&, const double&,
 				 const EEventType&) const
   { M_throw() << "Not Implemented"; }

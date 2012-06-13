@@ -18,7 +18,7 @@
 #include <dynamo/coordinator/engine/replexer.hpp>
 #include <dynamo/systems/tHalt.hpp>
 #include <dynamo/systems/andersenThermostat.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/outputplugins/1partproperty/uenergy.hpp>
 #include <magnet/thread/threadpool.hpp>
@@ -92,12 +92,12 @@ namespace dynamo {
 	M_throw() << vm["config-file"].as<std::vector<std::string> >()[i]
 		  << " does not have an NVT ensemble";
 
-    //Ensure the types of the simulation Liouvilleans match
+    //Ensure the types of the simulation Dynamicss match
     for (size_t i(1); i < nSims; ++i)
-      if (typeid(*Simulations[i].liouvillean)
-	  != typeid(*Simulations[0].liouvillean))
+      if (typeid(*Simulations[i].dynamics)
+	  != typeid(*Simulations[0].dynamics))
 	M_throw() << vm["config-file"].as<std::vector<std::string> >()[i]
-		  << " does not have the same Liouvillean type as "
+		  << " does not have the same Dynamics type as "
 		  << vm["config-file"].as<std::vector<std::string> >()[0];
 
     //Test a thermostat is available

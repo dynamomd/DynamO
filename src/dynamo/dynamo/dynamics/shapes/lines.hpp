@@ -1,6 +1,6 @@
 /*  dynamo:- Event driven molecular dynamics simulator 
     http://www.dynamomd.org
-    Copyright (C) 2010  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+    Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
     This program is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -19,17 +19,20 @@
 #include <dynamo/particle.hpp>
 #include <dynamo/BC/BC.hpp>
 
-#include <dynamo/liouvillean/../../../simulation.hpp>
-#include <dynamo/liouvillean/shape.hpp>
+#include <dynamo/simulation.hpp>
+#include <dynamo/dynamics/shapes/shape.hpp>
+#include <magnet/math/matrix.hpp>
 
 namespace dynamo {
-  class SFCapsules : public ShapeFunc {
+  class SFLines : public ShapeFunc {
   public:
-    SFCapsules(const Vector& nr12, const Vector& nv12,
-		  const Vector& nw1, const Vector& nw2, 
-		  const Vector& nu1, const Vector& nu2):
+    SFLines(const Vector& nr12, const Vector& nv12,
+	       const Vector& nw1, const Vector& nw2, 
+	       const Vector& nu1, const Vector& nu2,
+	       const double& length):
       w1(nw1), w2(nw2), u1(nu1), u2(nu2),
-      w12(nw1-nw2), r12(nr12), v12(nv12)
+      w12(nw1 - nw2), r12(nr12), v12(nv12),
+      _length(length)
     {}
 
     void stream(const double& dt)
@@ -41,45 +44,52 @@ namespace dynamo {
   
     std::pair<double, double> getCollisionPoints() const
     {
-      M_throw() << "Don't use!";
+      double rijdotui = (r12 | u1);
+      double rijdotuj = (r12 | u2);
+      double uidotuj = (u1 | u2);
+
+      return std::make_pair(- (rijdotui - (rijdotuj * uidotuj)) / (1.0 - uidotuj*uidotuj),
+			    (rijdotuj - (rijdotui * uidotuj)) / (1.0 - uidotuj*uidotuj));
     }
-  
-    //Distance between 2 particles
+
     double F_zeroDeriv() const
-    // For the moment we will assume only one sided dumbbell
-    // so the equation get simpler.
-    { return (r12 + (u1 + u2) * L * 0.5).nrm2()  - Diameter * Diameter;}
-			      
+    { return ((u1 ^ u2) | r12); }
 
     double F_firstDeriv() const
     {    
-      // Simply chain rule
-      return 2.0* (r12 + (u1 + u2) * L * 0.5 ) | (v12 + ((w1 ^ u1) + (w2 ^ u2)) * L * 0.5);
+      return ((u1 | r12) * (w12 | u2)) 
+	+ ((u2 | r12) * (w12 | u1)) 
+	- ((w12 | r12) * (u1 | u2)) 
+	+ (((u1 ^ u2) | v12));
     }
 
-    double F_firstDeriv_max(const double& length) const
-    { 
-      return  2 * (3 * L + Diameter) * (v12.nrm() + (w1.nrm() + w2.nrm()) * L / 2);
-    }
+    double F_firstDeriv_max() const
+    { return _length * w12.nrm() + v12.nrm(); }
 
     double F_secondDeriv() const
     {
-      return 2.0* ((r12 + u1*L/2.0 + u2*L/2.0)|(- w1.nrm()*w1.nrm()*u1*L/2.0 - w2.nrm()*w2.nrm()*u2*L/2.0 ) 
-		   + (v12 + w1^u1*L/2.0 + w2^u2*L/2.0)|(v12 + w1^u1*L/2.0 + w2^u2*L/2.0)) ;
+      return 2.0 
+	* (((u1 | v12) * (w12 | u2)) 
+	   + ((u2 | v12) * (w12 | u1))
+	   - ((u1 | u2) * (w12 | v12)))
+	- ((w12 | r12) * (w12 | (u1 ^ u2))) 
+	+ ((u1 | r12) * (u2 | (w1 ^ w2))) 
+	+ ((u2 | r12) * (u1 | (w1 ^ w2)))
+	+ ((w12 | u1) * (r12 | (w2 ^ u2)))
+	+ ((w12 | u2) * (r12 | (w1 ^ u1))); 
     }
 
-    double F_secondDeriv_max(const double& length) const
+    double F_secondDeriv_max() const
     {
-      return 2.0* ((2*L)*(+ w1.nrm()*w1.nrm()*L/2.0 + w2.nrm()*w2.nrm()*L/2.0 ) + 
-		   (v12.nrm() + w1.nrm()*L/2.0 + w2.nrm()*L/2.0)*(v12.nrm() + w1.nrm()*L/2.0 + w2.nrm()*L/2.0));
+      return w12.nrm() 
+	* ((2 * v12.nrm()) + (_length * (w1.nrm() + w2.nrm())));
     }
 
-    std::pair<double, double> discIntersectionWindow(const double& length) const
+    std::pair<double, double> discIntersectionWindow() const
     {
-      //I think this remains the same exept the length goes to lenght + diameter 
       Vector  Ahat = w1 / w1.nrm();
       double dotproduct = (w1 | w2) / (w2.nrm() * w1.nrm());
-      double signChangeTerm = (length / 2.0 + r) * sqrt(1.0 - pow(dotproduct, 2.0));
+      double signChangeTerm = (_length / 2.0) * sqrt(1.0 - pow(dotproduct, 2.0));
     
       std::pair<double,double> 
 	retVal(((-1.0 * (r12 | Ahat)) - signChangeTerm) / (v12 | Ahat),
@@ -98,11 +108,11 @@ namespace dynamo {
     const Vector& getr12() const { return r12; }
     const Vector& getv12() const { return v12; }
 
-    virtual bool test_root(const double& length) const
+    virtual bool test_root() const
     {
-      double cp = getCollisionPoints();
+      std::pair<double,double> cp = getCollisionPoints();
     
-      return  fabs(cp) < 1e-16 ;
+      return (fabs(cp.first) < _length / 2.0 && fabs(cp.second) < _length / 2.0);
     }
   
   private:
@@ -113,5 +123,7 @@ namespace dynamo {
     Vector w12;
     Vector r12;
     Vector v12;
+
+    const double _length;
   };
 }

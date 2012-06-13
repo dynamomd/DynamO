@@ -17,7 +17,7 @@
 
 #include <dynamo/outputplugins/tickerproperty/vel_dist.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/outputplugins/1partproperty/kenergy.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>

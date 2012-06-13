@@ -18,13 +18,13 @@
 #include <dynamo/globals/cells.hpp>
 #include <dynamo/globals/globEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/ranges/1RAll.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/BC/LEBC.hpp>
-#include <dynamo/liouvillean/NewtonianGravityL.hpp>
+#include <dynamo/dynamics/gravityL.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cstdio>
@@ -85,22 +85,22 @@ namespace dynamo {
   GCells::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
-    if (!Sim->liouvillean->isUpToDate(part))
+    if (!Sim->dynamics->isUpToDate(part))
       M_throw() << "Particle is not up to date";
 #endif
 
     //This 
-    //Sim->liouvillean->updateParticle(part);
+    //Sim->dynamics->updateParticle(part);
     //is not required as we compensate for the delay using 
-    //Sim->liouvillean->getParticleDelay(part)
+    //Sim->dynamics->getParticleDelay(part)
   
     return GlobalEvent(part,
-		       Sim->liouvillean->
+		       Sim->dynamics->
 		       getSquareCellCollision2
 		       (part, 
 			calcPosition(partCellData[part.getID()], part), 
 			cellDimension)
-		       -Sim->liouvillean->getParticleDelay(part),
+		       -Sim->dynamics->getParticleDelay(part),
 		       CELL, *this);
 
   }
@@ -111,7 +111,7 @@ namespace dynamo {
     //Despite the system not being streamed this must be done.  This is
     //because the scheduler and all interactions, locals and systems
     //expect the particle to be up to date.
-    Sim->liouvillean->updateParticle(part);
+    Sim->dynamics->updateParticle(part);
 
     boost::unordered_map<size_t, size_t>::iterator it = partCellData.find(part.getID());
 
@@ -120,7 +120,7 @@ namespace dynamo {
     size_t endCell;
 
     //Determine the cell transition direction, its saved
-    int cellDirectionInt(Sim->liouvillean->
+    int cellDirectionInt(Sim->dynamics->
 			 getSquareCellCollision3
 			 (part, calcPosition(oldCell, part), cellDimension));
   
@@ -348,13 +348,13 @@ namespace dynamo {
   
     //Add the particles section
     //Required so particles find the right owning cell
-    Sim->liouvillean->updateAllParticles();
+    Sim->dynamics->updateAllParticles();
   
     ////Add all the particles 
     BOOST_FOREACH(const size_t& id, *range)
       {
 	Particle& p = Sim->particleList[id];
-	Sim->liouvillean->updateParticle(p); 
+	Sim->dynamics->updateParticle(p); 
 	addToCell(id);
 #ifdef DYNAMO_WallCollDebug
 	boost::unordered_map<size_t, size_t>::iterator it = partCellData.find(id);

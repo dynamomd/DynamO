@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

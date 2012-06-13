@@ -89,7 +89,7 @@ namespace dynamo {
 	if (Sim->lastRunMFT != 0.0)
 	  dt = Sim->lastRunMFT * 0.5 * dtfactor;
 	else
-	  dt = 10.0 / (((double) CorrelatorLength) * sqrt(Sim->liouvillean->getkT()) * CorrelatorLength);
+	  dt = 10.0 / (((double) CorrelatorLength) * sqrt(Sim->dynamics->getkT()) * CorrelatorLength);
       }
 
     dout << "dt set to " << dt / Sim->units.unitTime() << std::endl;

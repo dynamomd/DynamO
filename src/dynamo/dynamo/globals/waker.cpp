@@ -21,7 +21,7 @@
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/globals/neighbourList.hpp>
@@ -125,7 +125,7 @@ namespace dynamo {
   
     Sim->stream(iEvent.getdt());
 
-    Sim->liouvillean->updateParticle(part);
+    Sim->dynamics->updateParticle(part);
 
     //Here is where the particle goes to sleep or wakes
     ++Sim->eventCount;

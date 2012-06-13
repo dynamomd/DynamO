@@ -24,11 +24,11 @@
 
 namespace dynamo {
   /*! \brief This Engine compresses a configuration using the
-   * LCompression Liouvillean.
+   * DynCompression Dynamics.
    *
    * This is essentially a ESingleSimulation but with some extra steps to load
-   * the compression Liouvillean at the start and then to restore the
-   * old Liouvillean at the end.
+   * the compression Dynamics at the start and then to restore the
+   * old Dynamics at the end.
    */
   class ECompressingSimulation: public ESingleSimulation
   {
@@ -45,7 +45,7 @@ namespace dynamo {
      */
     virtual ~ECompressingSimulation() {}
 
-    /*! \brief Load the original Liouvillean before outputing the
+    /*! \brief Load the original Dynamics before outputing the
      * configurations.
      * 
      * This is one of the few classes that does need to finalise before

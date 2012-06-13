@@ -16,13 +16,13 @@
 */
 
 #pragma once
-#include <dynamo/liouvillean/NewtonL.hpp>
+#include <dynamo/dynamics/newtonian.hpp>
 
 namespace dynamo {
-  class LCompression: public LNewtonian
+  class DynCompression: public DynNewtonian
   {
   public:
-    LCompression(dynamo::Simulation*, double);
+    DynCompression(dynamo::Simulation*, double);
 
     virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const;
     virtual double SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const;  

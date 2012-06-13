@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/liouvillean/NewtonianGravityL.hpp>
+#include <dynamo/dynamics/gravityL.hpp>
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/NparticleEventData.hpp>
@@ -24,7 +24,7 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/schedulers/sorters/event.hpp>
-#include <dynamo/liouvillean/shapes/oscillatingplate.hpp>
+#include <dynamo/dynamics/shapes/oscillatingplate.hpp>
 #include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/globals/ParabolaSentinel.hpp>
 #include <dynamo/units/units.hpp>
@@ -39,14 +39,14 @@
 #include <algorithm>
 
 namespace dynamo {
-  LNewtonianGravity::LNewtonianGravity(dynamo::Simulation* tmp, const magnet::xml::Node& XML):
-    LNewtonian(tmp),
+  Dyngravity::Dyngravity(dynamo::Simulation* tmp, const magnet::xml::Node& XML):
+    DynNewtonian(tmp),
     elasticV(0),
     g(0, -1, 0),
     _tc(-HUGE_VAL)
   {
-    if (strcmp(XML.getAttribute("Type"), "NewtonianGravity"))
-      M_throw() << "Attempting to load NewtonianGravity from "
+    if (strcmp(XML.getAttribute("Type"), "gravity"))
+      M_throw() << "Attempting to load gravity from "
 		<< XML.getAttribute("Type")
 		<< " entry";
     try 
@@ -68,21 +68,21 @@ namespace dynamo {
       }
     catch (boost::bad_lexical_cast &)
       {
-	M_throw() << "Failed a lexical cast in LNewtonianGravity";
+	M_throw() << "Failed a lexical cast in Dyngravity";
       }
   
     g *= Sim->units.unitAcceleration();
   }
 
-  LNewtonianGravity::LNewtonianGravity(dynamo::Simulation* tmp, Vector gravity, double eV, double tc):
-    LNewtonian(tmp), 
+  Dyngravity::Dyngravity(dynamo::Simulation* tmp, Vector gravity, double eV, double tc):
+    DynNewtonian(tmp), 
     elasticV(eV),
     g(gravity),
     _tc(tc)
   {}
 
   void
-  LNewtonianGravity::streamParticle(Particle &particle, const double &dt) const
+  Dyngravity::streamParticle(Particle &particle, const double &dt) const
   {
     bool isDynamic = particle.testState(Particle::DYNAMIC);
     particle.getPosition() += dt * (particle.getVelocity() + 0.5 * dt * g * isDynamic);
@@ -90,14 +90,14 @@ namespace dynamo {
   }
 
   double
-  LNewtonianGravity::SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const
+  Dyngravity::SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const
   {
     bool p1Dynamic = p1.testState(Particle::DYNAMIC);
     bool p2Dynamic = p2.testState(Particle::DYNAMIC);
     
     //If both particles feel gravity, or both don't, the root finding is the same.
     if (p1Dynamic == p2Dynamic)
-      return LNewtonian::SphereSphereInRoot(p1, p2, d);
+      return DynNewtonian::SphereSphereInRoot(p1, p2, d);
 
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
@@ -113,7 +113,7 @@ namespace dynamo {
   }
 
   double
-  LNewtonianGravity::SphereSphereInRoot(const Range& p1, const Range& p2, double d) const
+  Dyngravity::SphereSphereInRoot(const Range& p1, const Range& p2, double d) const
   {
     double accel1sum = 0;
     double mass1 = 0;
@@ -153,13 +153,13 @@ namespace dynamo {
   }
   
   double
-  LNewtonianGravity::SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const
+  Dyngravity::SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const
   {
     bool p1Dynamic = p1.testState(Particle::DYNAMIC);
     bool p2Dynamic = p2.testState(Particle::DYNAMIC);
 
     if (p1Dynamic == p2Dynamic)
-      return LNewtonian::SphereSphereOutRoot(p1, p2, d);
+      return DynNewtonian::SphereSphereOutRoot(p1, p2, d);
 
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
@@ -175,7 +175,7 @@ namespace dynamo {
   }
 
   double
-  LNewtonianGravity::SphereSphereOutRoot(const Range& p1, const Range& p2, double d) const
+  Dyngravity::SphereSphereOutRoot(const Range& p1, const Range& p2, double d) const
   {
     double accel1sum = 0;
     double mass1 = 0;
@@ -218,7 +218,7 @@ namespace dynamo {
 
 
   double 
-  LNewtonianGravity::getWallCollision(const Particle &part, 
+  Dyngravity::getWallCollision(const Particle &part, 
 				      const Vector  &wallLoc, 
 				      const Vector  &wallNorm) const
   {
@@ -231,7 +231,7 @@ namespace dynamo {
   }
 
   double
-  LNewtonianGravity::getSquareCellCollision2(const Particle& part, 
+  Dyngravity::getSquareCellCollision2(const Particle& part, 
 					     const Vector & origin, 
 					     const Vector & width) const
   {
@@ -305,7 +305,7 @@ namespace dynamo {
   }
 
   int
-  LNewtonianGravity::getSquareCellCollision3(const Particle& part, 
+  Dyngravity::getSquareCellCollision3(const Particle& part, 
 					     const Vector & origin, 
 					     const Vector & width) const
   {
@@ -386,10 +386,10 @@ namespace dynamo {
   }
 
   void 
-  LNewtonianGravity::outputXML(magnet::xml::XmlStream& XML) const
+  Dyngravity::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Type") 
-	<< "NewtonianGravity";
+	<< "gravity";
 
     if (elasticV)
       XML << magnet::xml::attr("ElasticV") << elasticV / Sim->units.unitVelocity();
@@ -401,14 +401,14 @@ namespace dynamo {
   }
 
   double 
-  LNewtonianGravity::getPBCSentinelTime(const Particle& part, const double& lMax) const
+  Dyngravity::getPBCSentinelTime(const Particle& part, const double& lMax) const
   {
 #ifdef DYNAMO_DEBUG
     if (!isUpToDate(part))
       M_throw() << "Particle is not up to date";
 #endif
 
-    if (!part.testState(Particle::DYNAMIC)) return LNewtonian::getPBCSentinelTime(part, lMax);
+    if (!part.testState(Particle::DYNAMIC)) return DynNewtonian::getPBCSentinelTime(part, lMax);
 
     Vector pos(part.getPosition()), vel(part.getVelocity());
 
@@ -448,7 +448,7 @@ namespace dynamo {
   }
 
   std::pair<bool,double>
-  LNewtonianGravity::getPointPlateCollision(const Particle& part, const Vector& nrw0,
+  Dyngravity::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 					    const Vector& nhat, const double& Delta,
 					    const double& Omega, const double& Sigma,
 					    const double& t, bool lastpart) const
@@ -457,10 +457,10 @@ namespace dynamo {
   }
 
   void
-  LNewtonianGravity::initialise()
+  Dyngravity::initialise()
   {
     if (_tc > 0) _tcList.resize(Sim->N, -HUGE_VAL);
-    LNewtonian::initialise();
+    DynNewtonian::initialise();
 
     //Now add the parabola sentinel if there are cell neighbor lists in
     //use.
@@ -474,7 +474,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  LNewtonianGravity::SmoothSpheresColl(const IntEvent& event, const double& ne,
+  Dyngravity::SmoothSpheresColl(const IntEvent& event, const double& ne,
 				       const double& d2, const EEventType& eType) const
   {
     Particle& particle1 = Sim->particleList[event.getParticle1ID()];
@@ -514,12 +514,12 @@ namespace dynamo {
 	_tcList[particle2.getID()] = Sim->dSysTime;
       }
 
-    return LNewtonian::SmoothSpheresColl(event, e, d2, eType);
+    return DynNewtonian::SmoothSpheresColl(event, e, d2, eType);
   }
 
 
   double 
-  LNewtonianGravity::getCylinderWallCollision(const Particle& part, 
+  Dyngravity::getCylinderWallCollision(const Particle& part, 
 					      const Vector& wallLoc, 
 					      const Vector& wallNorm,
 					      const double& radius) const
@@ -528,7 +528,7 @@ namespace dynamo {
   }
 
   double 
-  LNewtonianGravity::getParabolaSentinelTime(const Particle& part) const
+  Dyngravity::getParabolaSentinelTime(const Particle& part) const
   {
 #ifdef DYNAMO_DEBUG
     if (!isUpToDate(part))
@@ -553,7 +553,7 @@ namespace dynamo {
   }
 
   void 
-  LNewtonianGravity::enforceParabola(Particle& part) const
+  Dyngravity::enforceParabola(Particle& part) const
   {
     updateParticle(part);
     Vector pos(part.getPosition()), vel(part.getVelocity());
@@ -580,8 +580,8 @@ namespace dynamo {
     part.getVelocity()[dim] = 0;
   }
 
-  std::pair<double, Liouvillean::TriangleIntersectingPart>
-  LNewtonianGravity::getSphereTriangleEvent(const Particle& part, 
+  std::pair<double, Dynamics::TriangleIntersectingPart>
+  Dyngravity::getSphereTriangleEvent(const Particle& part, 
 					    const Vector & A, 
 					    const Vector & B, 
 					    const Vector & C,
@@ -590,9 +590,9 @@ namespace dynamo {
   {
     //If the particle doesn't feel gravity, fall back to the standard function
     if (!part.testState(Particle::DYNAMIC)) 
-      return LNewtonian::getSphereTriangleEvent(part, A, B, C, dist);
+      return DynNewtonian::getSphereTriangleEvent(part, A, B, C, dist);
 
-    typedef std::pair<double, Liouvillean::TriangleIntersectingPart> RetType;
+    typedef std::pair<double, Dynamics::TriangleIntersectingPart> RetType;
     //The Origin, relative to the first vertex
     Vector T = part.getPosition() - A;
     //The ray direction
@@ -657,7 +657,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  LNewtonianGravity::runWallCollision(Particle &part, 
+  Dyngravity::runWallCollision(Particle &part, 
 				      const Vector& vNorm,
 				      const double& e
 				      ) const
@@ -676,7 +676,7 @@ namespace dynamo {
 	_tcList[part.getID()] = Sim->dSysTime;
       }
 
-    return LNewtonian::runWallCollision(part, vNorm, e_val);
+    return DynNewtonian::runWallCollision(part, vNorm, e_val);
   }
 }
 

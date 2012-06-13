@@ -50,7 +50,7 @@ namespace dynamo {
 
    \warning You must only perform high level calculations here. All
    actual collision testing should use the "primative" functions
-   defined in the Liouvillean class. This allows an interaction to be
+   defined in the Dynamics class. This allows an interaction to be
    easily ported to alternative dynamics (like compression or
    gravity).
   */

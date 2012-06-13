@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/liouvillean/NewtonL.hpp>
+#include <dynamo/dynamics/newtonian.hpp>
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/NparticleEventData.hpp>
@@ -25,9 +25,9 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/schedulers/sorters/event.hpp>
-#include <dynamo/liouvillean/shapes/oscillatingplate.hpp>
-#include <dynamo/liouvillean/shapes/lines.hpp>
-#include <dynamo/liouvillean/shapes/dumbbells.hpp>
+#include <dynamo/dynamics/shapes/oscillatingplate.hpp>
+#include <dynamo/dynamics/shapes/lines.hpp>
+#include <dynamo/dynamics/shapes/dumbbells.hpp>
 #include <dynamo/units/units.hpp>
 #include <magnet/math/frenkelroot.hpp>
 #include <magnet/overlap/point_prism.hpp>
@@ -43,7 +43,7 @@
 
 namespace dynamo {
   double
-  LNewtonian::CubeCubeInRoot(const Particle& p1, const Particle& p2, 
+  DynNewtonian::CubeCubeInRoot(const Particle& p1, const Particle& p2, 
 			     double d) const 
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
@@ -53,7 +53,7 @@ namespace dynamo {
   }
 
   bool 
-  LNewtonian::cubeOverlap(const Particle& p1, const Particle& p2, 
+  DynNewtonian::cubeOverlap(const Particle& p1, const Particle& p2, 
 			  const double d) const
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
@@ -62,7 +62,7 @@ namespace dynamo {
   }
 
   double
-  LNewtonian::SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const
+  DynNewtonian::SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
@@ -71,7 +71,7 @@ namespace dynamo {
   }
 
   double
-  LNewtonian::SphereSphereInRoot(const Range& p1, const Range& p2, double d) const
+  DynNewtonian::SphereSphereInRoot(const Range& p1, const Range& p2, double d) const
   {
     std::pair<Vector, Vector> r1data = getCOMPosVel(p1);
     std::pair<Vector, Vector> r2data = getCOMPosVel(p2);
@@ -82,7 +82,7 @@ namespace dynamo {
   }
   
   double
-  LNewtonian::SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const
+  DynNewtonian::SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
@@ -91,7 +91,7 @@ namespace dynamo {
   }
 
   double
-  LNewtonian::SphereSphereOutRoot(const Range& p1, const Range& p2, double d) const
+  DynNewtonian::SphereSphereOutRoot(const Range& p1, const Range& p2, double d) const
   {
     std::pair<Vector, Vector> r1data = getCOMPosVel(p1);
     std::pair<Vector, Vector> r2data = getCOMPosVel(p2);
@@ -102,7 +102,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  LNewtonian::randomGaussianEvent(Particle& part, const double& sqrtT, 
+  DynNewtonian::randomGaussianEvent(Particle& part, const double& sqrtT, 
 				  const size_t dimensions) const
   {
 #ifdef DYNAMO_DEBUG
@@ -134,15 +134,15 @@ namespace dynamo {
     return tmpDat;
   }
 
-  LNewtonian::LNewtonian(dynamo::Simulation* tmp):
-    Liouvillean(tmp),
+  DynNewtonian::DynNewtonian(dynamo::Simulation* tmp):
+    Dynamics(tmp),
     lastAbsoluteClock(-1),
     lastCollParticle1(0),
     lastCollParticle2(0)  
   {}
 
   void
-  LNewtonian::streamParticle(Particle &particle, const double &dt) const
+  DynNewtonian::streamParticle(Particle &particle, const double &dt) const
   {
     particle.getPosition() += particle.getVelocity() * dt;
 
@@ -155,7 +155,7 @@ namespace dynamo {
   }
 
   double 
-  LNewtonian::getWallCollision(const Particle& part, 
+  DynNewtonian::getWallCollision(const Particle& part, 
 			       const Vector& wallLoc, 
 			       const Vector& wallNorm) const
   {
@@ -167,15 +167,15 @@ namespace dynamo {
     return magnet::intersection::ray_plane<true>(rij, vel, wallNorm);
   }
 
-  std::pair<double, Liouvillean::TriangleIntersectingPart>
-  LNewtonian::getSphereTriangleEvent(const Particle& part, 
+  std::pair<double, Dynamics::TriangleIntersectingPart>
+  DynNewtonian::getSphereTriangleEvent(const Particle& part, 
 				     const Vector & A, 
 				     const Vector & B, 
 				     const Vector & C,
 				     const double dist
 				     ) const
   {
-    typedef std::pair<double, Liouvillean::TriangleIntersectingPart> RetType;
+    typedef std::pair<double, Dynamics::TriangleIntersectingPart> RetType;
     //The Origin, relative to the first vertex
     Vector T = part.getPosition() - A;
     //The ray direction
@@ -240,7 +240,7 @@ namespace dynamo {
 
 
   ParticleEventData 
-  LNewtonian::runWallCollision(Particle& part, 
+  DynNewtonian::runWallCollision(Particle& part, 
 			       const Vector  &vNorm,
 			       const double& e
 			       ) const
@@ -258,7 +258,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  LNewtonian::runAndersenWallCollision(Particle& part, 
+  DynNewtonian::runAndersenWallCollision(Particle& part, 
 				       const Vector & vNorm,
 				       const double& sqrtT
 				       ) const
@@ -290,7 +290,7 @@ namespace dynamo {
   }
 
   double
-  LNewtonian::getSquareCellCollision2(const Particle& part, 
+  DynNewtonian::getSquareCellCollision2(const Particle& part, 
 				      const Vector & origin, 
 				      const Vector & width) const
   {
@@ -324,7 +324,7 @@ namespace dynamo {
   }
 
   int
-  LNewtonian::getSquareCellCollision3(const Particle& part, 
+  DynNewtonian::getSquareCellCollision3(const Particle& part, 
 				      const Vector & origin, 
 				      const Vector & width) const
   {
@@ -365,7 +365,7 @@ namespace dynamo {
   }
 
   bool 
-  LNewtonian::DSMCSpheresTest(Particle& p1, Particle& p2, 
+  DynNewtonian::DSMCSpheresTest(Particle& p1, Particle& p2, 
 			      double& maxprob, const double& factor,
 			      Vector rij) const
   {
@@ -389,7 +389,7 @@ namespace dynamo {
   }
 
   PairEventData
-  LNewtonian::DSMCSpheresRun(Particle& p1, Particle& p2, const double& e, Vector rij) const
+  DynNewtonian::DSMCSpheresRun(Particle& p1, Particle& p2, const double& e, Vector rij) const
   {
     updateParticlePair(Sim->particleList[p1.getID()], Sim->particleList[p2.getID()]);
 
@@ -425,7 +425,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  LNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e,
+  DynNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e,
 				const double&, const EEventType& eType) const
   {
     Particle& particle1 = Sim->particleList[event.getParticle1ID()];
@@ -494,7 +494,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  LNewtonian::parallelCubeColl(const IntEvent& event, const double& e,
+  DynNewtonian::parallelCubeColl(const IntEvent& event, const double& e,
 			       const double&,
 			       const EEventType& eType) const
   {
@@ -544,7 +544,7 @@ namespace dynamo {
   }
 
   NEventData 
-  LNewtonian::multibdyCollision(const Range& range1, const Range& range2, 
+  DynNewtonian::multibdyCollision(const Range& range1, const Range& range2, 
 				const double&, const EEventType& eType) const
   {
     Vector COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
@@ -636,7 +636,7 @@ namespace dynamo {
   }
 
   NEventData 
-  LNewtonian::multibdyWellEvent(const Range& range1, const Range& range2, 
+  DynNewtonian::multibdyWellEvent(const Range& range1, const Range& range2, 
 				const double&, const double& deltaKE, EEventType& eType) const
   {
     Vector  COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
@@ -750,7 +750,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  LNewtonian::SphereWellEvent(const IntEvent& event, const double& deltaKE, 
+  DynNewtonian::SphereWellEvent(const IntEvent& event, const double& deltaKE, 
 			      const double &) const
   {
     Particle& particle1 = Sim->particleList[event.getParticle1ID()];
@@ -830,14 +830,14 @@ namespace dynamo {
   }
 
   void 
-  LNewtonian::outputXML(magnet::xml::XmlStream& XML) const
+  DynNewtonian::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Type") 
 	<< "Newtonian";
   }
 
   double 
-  LNewtonian::getPBCSentinelTime(const Particle& part, const double& lMax) const
+  DynNewtonian::getPBCSentinelTime(const Particle& part, const double& lMax) const
   {
 #ifdef DYNAMO_DEBUG
     if (!isUpToDate(part))
@@ -863,7 +863,7 @@ namespace dynamo {
   }
 
   std::pair<bool,double>
-  LNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
+  DynNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 				     const Vector& nhat, const double& Delta,
 				     const double& Omega, const double& Sigma,
 				     const double& t, bool lastpart) const
@@ -1066,7 +1066,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  LNewtonian::runOscilatingPlate
+  DynNewtonian::runOscilatingPlate
   (Particle& part, const Vector& rw0, const Vector& nhat, double& delta, 
    const double& omega0, const double& sigma, const double& mass, const double& e, 
    double& t, bool strongPlate) const
@@ -1198,7 +1198,7 @@ namespace dynamo {
   }
 
   double 
-  LNewtonian::getCylinderWallCollision(const Particle& part, 
+  DynNewtonian::getCylinderWallCollision(const Particle& part, 
 				       const Vector& wallLoc, 
 				       const Vector& wallNorm,
 				       const double& radius) const
@@ -1225,7 +1225,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  LNewtonian::runCylinderWallCollision(Particle& part, 
+  DynNewtonian::runCylinderWallCollision(Particle& part, 
 				       const Vector& origin,
 				       const Vector& vNorm,
 				       const double& e
@@ -1253,7 +1253,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  LNewtonian::runSphereWallCollision(Particle& part, 
+  DynNewtonian::runSphereWallCollision(Particle& part, 
 				     const Vector& origin,
 				     const double& e
 				     ) const
@@ -1278,7 +1278,7 @@ namespace dynamo {
   }
 
   std::pair<bool, double> 
-  LNewtonian::getLineLineCollision(const double length, const Particle& p1, const Particle& p2,
+  DynNewtonian::getLineLineCollision(const double length, const Particle& p1, const Particle& p2,
 				   double t_high) const
   {  
 #ifdef DYNAMO_DEBUG
@@ -1325,7 +1325,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  LNewtonian::runLineLineCollision(const IntEvent& eevent, const double& elasticity, const double& length) const
+  DynNewtonian::runLineLineCollision(const IntEvent& eevent, const double& elasticity, const double& length) const
   {
 #ifdef DYNAMO_DEBUG
     if (!hasOrientationData())
@@ -1394,7 +1394,7 @@ namespace dynamo {
   }
 
   double 
-  LNewtonian::sphereOverlap(const Particle& p1, const Particle& p2, 
+  DynNewtonian::sphereOverlap(const Particle& p1, const Particle& p2, 
 			    const double& d) const
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
@@ -1405,7 +1405,7 @@ namespace dynamo {
 
   //Here starts my code for offCenterSpheres :P
   bool 
-  LNewtonian::getOffCenterSphereOffCenterSphereCollision(const double length,  const double diameter, 
+  DynNewtonian::getOffCenterSphereOffCenterSphereCollision(const double length,  const double diameter, 
 							 const Particle& p1, const Particle& p2, 
 							 const double t_h_init) const
 
@@ -1495,7 +1495,7 @@ namespace dynamo {
   }
   
   PairEventData 
-  LNewtonian::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, const double& elasticity, const double& length,const double& diameter) const
+  DynNewtonian::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, const double& elasticity, const double& length,const double& diameter) const
 
   {
 #ifdef DYNAMO_DEBUG
@@ -1666,7 +1666,7 @@ namespace dynamo {
   //Here ends offCenterSpheres
 
   PairEventData 
-  LNewtonian::RoughSpheresColl(const IntEvent& event, 
+  DynNewtonian::RoughSpheresColl(const IntEvent& event, 
 			       const double& e, 
 			       const double& et, 
 			       const double& d2, 
@@ -1734,7 +1734,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  LNewtonian::runRoughWallCollision(Particle& part, 
+  DynNewtonian::runRoughWallCollision(Particle& part, 
 				    const Vector & vNorm,
 				    const double& e,
 				    const double& et,

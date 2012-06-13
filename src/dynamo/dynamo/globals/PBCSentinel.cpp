@@ -19,7 +19,7 @@
 #include <dynamo/globals/globEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <magnet/xmlreader.hpp>
 
@@ -62,7 +62,7 @@ namespace dynamo {
   GlobalEvent 
   GPBCSentinel::getEvent(const Particle& part) const
   {
-    return GlobalEvent(part, Sim->liouvillean
+    return GlobalEvent(part, Sim->dynamics
 		       ->getPBCSentinelTime(part, maxintdist),
 		       VIRTUAL, *this);
   }

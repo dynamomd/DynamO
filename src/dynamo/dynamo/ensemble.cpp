@@ -17,10 +17,10 @@
 
 #include <dynamo/ensemble.hpp>
 #include <dynamo/systems/andersenThermostat.hpp>
-#include <dynamo/liouvillean/CompressionL.hpp>
+#include <dynamo/dynamics/compression.hpp>
 #include <dynamo/BC/LEBC.hpp>
 #include <dynamo/outputplugins/1partproperty/uenergy.hpp>
-#include <dynamo/liouvillean/NewtonMCL.hpp>
+#include <dynamo/dynamics/multicanonical.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -61,7 +61,7 @@ namespace dynamo {
   {
     EnsembleVals[0] = Sim->particleList.size();
     EnsembleVals[1] = Sim->primaryCellSize[0] * Sim->primaryCellSize[1] * Sim->primaryCellSize[2];
-    EnsembleVals[2] = Sim->calcInternalEnergy() + Sim->liouvillean->getSystemKineticEnergy();
+    EnsembleVals[2] = Sim->calcInternalEnergy() + Sim->dynamics->getSystemKineticEnergy();
 
     dout << "NVE Ensemble initialised\nN=" << EnsembleVals[0]
 	     << "\nV=" << EnsembleVals[1] / Sim->units.unitVolume()
@@ -137,16 +137,16 @@ namespace dynamo {
     //This is -\Delta in the Sugita_Okamoto paper
     double factor = (E1 - E2) * (beta1 - beta2);
     
-    if (std::tr1::dynamic_pointer_cast<LNewtonianMC>(Sim->liouvillean))
+    if (std::tr1::dynamic_pointer_cast<DynNewtonianMC>(Sim->dynamics))
       {
-	factor += static_cast<const LNewtonianMC&>(*Sim->liouvillean).W(E1);
-	factor -= static_cast<const LNewtonianMC&>(*Sim->liouvillean).W(E2);
+	factor += static_cast<const DynNewtonianMC&>(*Sim->dynamics).W(E1);
+	factor -= static_cast<const DynNewtonianMC&>(*Sim->dynamics).W(E2);
       }
 
-    if (std::tr1::dynamic_pointer_cast<LNewtonianMC>(ensemble2.Sim->liouvillean))
+    if (std::tr1::dynamic_pointer_cast<DynNewtonianMC>(ensemble2.Sim->dynamics))
       {
-	factor += static_cast<const LNewtonianMC&>(*ensemble2.Sim->liouvillean).W(E2);
-	factor -= static_cast<const LNewtonianMC&>(*ensemble2.Sim->liouvillean).W(E1);
+	factor += static_cast<const DynNewtonianMC&>(*ensemble2.Sim->dynamics).W(E2);
+	factor -= static_cast<const DynNewtonianMC&>(*ensemble2.Sim->dynamics).W(E1);
       }
 
     return std::exp(factor);
@@ -183,15 +183,15 @@ namespace dynamo {
   {
     EnsembleVals[0] = Sim->particleList.size();
     EnsembleVals[1] = Sim->calcInternalEnergy() 
-      + Sim->liouvillean->getSystemKineticEnergy();
+      + Sim->dynamics->getSystemKineticEnergy();
     
     try {
-      EnsembleVals[2] = dynamic_cast<const LCompression&>
-	(*Sim->liouvillean).getGrowthRate();
+      EnsembleVals[2] = dynamic_cast<const DynCompression&>
+	(*Sim->dynamics).getGrowthRate();
     }
     catch (std::exception&)
       {
-	M_throw() << "Compression ensemble requires the use of compression liouvillean";
+	M_throw() << "Compression ensemble requires the use of compression dynamics";
       }
 
     dout << "NECompression Ensemble initialised\nN=" << EnsembleVals[0]
@@ -232,12 +232,12 @@ namespace dynamo {
       (thermostat)->getTemperature();
     
     try {
-      EnsembleVals[2] = dynamic_cast<const LCompression&>
-	(*Sim->liouvillean).getGrowthRate();
+      EnsembleVals[2] = dynamic_cast<const DynCompression&>
+	(*Sim->dynamics).getGrowthRate();
     }
     catch (std::exception&)
       {
-	M_throw() << "Compression ensemble requires the use of compression liouvillean";
+	M_throw() << "Compression ensemble requires the use of compression dynamics";
       }
 
     dout << "NTCompression Ensemble initialised\nN=" << EnsembleVals[0]

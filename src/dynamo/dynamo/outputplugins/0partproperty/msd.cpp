@@ -18,7 +18,7 @@
 #include <dynamo/outputplugins/0partproperty/msd.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 
@@ -44,7 +44,7 @@ namespace dynamo {
   OPMSD::output(magnet::xml::XmlStream &XML)
   {
     //Required to get the correct results
-    Sim->liouvillean->updateAllParticles();
+    Sim->dynamics->updateAllParticles();
   
     XML << magnet::xml::tag("MSD");
   
@@ -97,7 +97,7 @@ namespace dynamo {
   OPMSD::calcStructMSD(const Topology& Itop) const
   {
     //Required to get the correct results
-    Sim->liouvillean->updateAllParticles();
+    Sim->dynamics->updateAllParticles();
 
     double acc = 0.0;
     BOOST_FOREACH(const shared_ptr<Range>& molRange, Itop.getMolecules())

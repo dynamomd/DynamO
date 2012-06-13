@@ -19,7 +19,7 @@
 #include <dynamo/include.hpp>
 #include <dynamo/ranges/1range.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/topology/include.hpp>
 #include <dynamo/interactions/captures.hpp>
 #include <boost/foreach.hpp>

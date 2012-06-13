@@ -75,7 +75,7 @@ namespace dynamo {
      *
      * This is if the engine needs to change its state before shutting
      * down.  
-     * E.g. the ECompressingSimulation needs to change the Liouvillean
+     * E.g. the ECompressingSimulation needs to change the Dynamics
      * back to the old one.
      */
     virtual void finaliseRun() = 0;

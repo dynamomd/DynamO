@@ -20,7 +20,7 @@
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/particle.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
@@ -56,11 +56,11 @@ namespace dynamo {
   LAndersenWall::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
-    if (!Sim->liouvillean->isUpToDate(part))
+    if (!Sim->dynamics->isUpToDate(part))
       M_throw() << "Particle is not up to date";
 #endif
 
-    return LocalEvent(part, Sim->liouvillean->getWallCollision(part, vPosition, vNorm), WALL, *this);
+    return LocalEvent(part, Sim->dynamics->getWallCollision(part, vPosition, vNorm), WALL, *this);
   }
 
   void
@@ -68,7 +68,7 @@ namespace dynamo {
   {
     ++Sim->eventCount;
   
-    NEventData EDat(Sim->liouvillean->runAndersenWallCollision
+    NEventData EDat(Sim->dynamics->runAndersenWallCollision
 		    (part, vNorm, sqrtT));
   
     Sim->signalParticleUpdate(EDat);

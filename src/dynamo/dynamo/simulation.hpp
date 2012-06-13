@@ -38,7 +38,7 @@ namespace dynamo
   class Species;
   class BoundaryCondition;
   class Topology;
-  class Liouvillean;
+  class Dynamics;
   class Interaction;
   class IntEvent;
   class Local;
@@ -128,7 +128,7 @@ namespace dynamo
 
     shared_ptr<BoundaryCondition> BCs;
     
-    shared_ptr<Liouvillean> liouvillean;
+    shared_ptr<Dynamics> dynamics;
 
     Container<Topology> topology;
 

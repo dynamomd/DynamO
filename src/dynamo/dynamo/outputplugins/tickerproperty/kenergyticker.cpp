@@ -17,7 +17,7 @@
 
 #include <dynamo/outputplugins/tickerproperty/kenergyticker.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 

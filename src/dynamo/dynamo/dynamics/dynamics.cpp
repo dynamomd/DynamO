@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/liouvillean/include.hpp>
+#include <dynamo/dynamics/include.hpp>
 #include <dynamo/species/inertia.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/2particleEventData.hpp>
@@ -26,29 +26,29 @@
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Liouvillean& g)
+  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Dynamics& g)
   {
     g.outputXML(XML);
     return XML;
   }
 
-  shared_ptr<Liouvillean>
-  Liouvillean::getClass(const magnet::xml::Node& XML, dynamo::Simulation* tmp)
+  shared_ptr<Dynamics>
+  Dynamics::getClass(const magnet::xml::Node& XML, dynamo::Simulation* tmp)
   {
     if (!strcmp(XML.getAttribute("Type"),"Newtonian"))
-      return shared_ptr<Liouvillean>(new LNewtonian(tmp));
-    if (!strcmp(XML.getAttribute("Type"),"NewtonianGravity"))
-      return shared_ptr<Liouvillean>(new LNewtonianGravity(tmp, XML));
+      return shared_ptr<Dynamics>(new DynNewtonian(tmp));
+    if (!strcmp(XML.getAttribute("Type"),"gravity"))
+      return shared_ptr<Dynamics>(new Dyngravity(tmp, XML));
     else if (!strcmp(XML.getAttribute("Type"),"NewtonianMC"))
-      return shared_ptr<Liouvillean>(new LNewtonianMC(tmp, XML));
+      return shared_ptr<Dynamics>(new DynNewtonianMC(tmp, XML));
     else 
       M_throw() << XML.getAttribute("Type")
-		<< ", Unknown type of Liouvillean encountered";
+		<< ", Unknown type of Dynamics encountered";
   }
 
 
   void 
-  Liouvillean::initialise()
+  Dynamics::initialise()
   {
     streamFreq = 10 * Sim->N;
     
@@ -76,33 +76,33 @@ namespace dynamo {
   }
 
   PairEventData 
-  Liouvillean::runLineLineCollision(const IntEvent&,
+  Dynamics::runLineLineCollision(const IntEvent&,
 				    const double&, const double&) const
-  { M_throw() << "Not implemented for this Liouvillean."; }
+  { M_throw() << "Not implemented for this Dynamics."; }
 
   std::pair<bool, double>
-  Liouvillean::getLineLineCollision(const double, 
+  Dynamics::getLineLineCollision(const double, 
 				    const Particle&, const Particle&,
 				    double) const
-  { M_throw() << "Not implemented for this Liouvillean."; }
+  { M_throw() << "Not implemented for this Dynamics."; }
 
   PairEventData 
-  Liouvillean::runOffCenterSphereOffCenterSphereCollision(const IntEvent&,
+  Dynamics::runOffCenterSphereOffCenterSphereCollision(const IntEvent&,
 							  const double&, const double&,const double&) const
-  { M_throw() << "Not implemented for this Liouvillean."; }
+  { M_throw() << "Not implemented for this Dynamics."; }
 
   bool
-  Liouvillean::getOffCenterSphereOffCenterSphereCollision(const double, const double,  
+  Dynamics::getOffCenterSphereOffCenterSphereCollision(const double, const double,  
 							  const Particle&, const Particle&,
 							  const double) const
-  { M_throw() << "Not implemented for this Liouvillean."; }
+  { M_throw() << "Not implemented for this Dynamics."; }
 
   double 
-  Liouvillean::getPBCSentinelTime(const Particle&, const double&) const
-  { M_throw() << "Not implemented for this Liouvillean."; }
+  Dynamics::getPBCSentinelTime(const Particle&, const double&) const
+  { M_throw() << "Not implemented for this Dynamics."; }
 
   void 
-  Liouvillean::loadParticleXMLData(const magnet::xml::Node& XML)
+  Dynamics::loadParticleXMLData(const magnet::xml::Node& XML)
   {
     dout << "Loading Particle Data" << std::endl;
 
@@ -153,7 +153,7 @@ namespace dynamo {
   }
 
   void 
-  Liouvillean::outputParticleXMLData(magnet::xml::XmlStream& XML, bool applyBC) const
+  Dynamics::outputParticleXMLData(magnet::xml::XmlStream& XML, bool applyBC) const
   {
     XML << magnet::xml::tag("ParticleData");
   
@@ -188,7 +188,7 @@ namespace dynamo {
   }
 
   double 
-  Liouvillean::getParticleKineticEnergy(const Particle& part) const
+  Dynamics::getParticleKineticEnergy(const Particle& part) const
   {
     double energy(0);
     if (std::tr1::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
@@ -210,7 +210,7 @@ namespace dynamo {
   }
 
   double 
-  Liouvillean::getSystemKineticEnergy() const
+  Dynamics::getSystemKineticEnergy() const
   {
     double sumEnergy(0);
 
@@ -221,7 +221,7 @@ namespace dynamo {
   }
 
   void
-  Liouvillean::rescaleSystemKineticEnergy(const double& scale)
+  Dynamics::rescaleSystemKineticEnergy(const double& scale)
   {
     double scalefactor(sqrt(scale));
 
@@ -246,14 +246,14 @@ namespace dynamo {
   }
 
   PairEventData 
-  Liouvillean::parallelCubeColl(const IntEvent& event, 
+  Dynamics::parallelCubeColl(const IntEvent& event, 
 				const double& e, 
 				const double& d,
 				const EEventType& eType) const
   { M_throw() << "Not Implemented"; }
 
   std::pair<bool,double>
-  Liouvillean::getPointPlateCollision(const Particle& np1, const Vector& nrw0,
+  Dynamics::getPointPlateCollision(const Particle& np1, const Vector& nrw0,
 				      const Vector& nhat, const double& Delta,
 				      const double& Omega, const double& Sigma,
 				      const double& t, bool) const
@@ -262,7 +262,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  Liouvillean::runOscilatingPlate
+  Dynamics::runOscilatingPlate
   (Particle& part, const Vector& rw0, const Vector& nhat, double& delta, 
    const double& omega0, const double& sigma, const double& mass, const double& e,
    double& t, bool strongPlate) const
@@ -272,7 +272,7 @@ namespace dynamo {
 
 
   double 
-  Liouvillean::getCylinderWallCollision(const Particle& part, 
+  Dynamics::getCylinderWallCollision(const Particle& part, 
 					const Vector& origin, 
 					const Vector& norm,
 					const double&
@@ -282,7 +282,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  Liouvillean::runCylinderWallCollision(Particle&, 
+  Dynamics::runCylinderWallCollision(Particle&, 
 					const Vector &,
 					const Vector &,
 					const double&
@@ -292,7 +292,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  Liouvillean::runSphereWallCollision(Particle&, 
+  Dynamics::runSphereWallCollision(Particle&, 
 				      const Vector &,
 				      const double&
 				      ) const
@@ -301,7 +301,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  Liouvillean::RoughSpheresColl(const IntEvent& event, 
+  Dynamics::RoughSpheresColl(const IntEvent& event, 
 				const double& e, 
 				const double& et, 
 				const double& d2, 
@@ -312,7 +312,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  Liouvillean::runRoughWallCollision(Particle& part, 
+  Dynamics::runRoughWallCollision(Particle& part, 
 				     const Vector & vNorm,
 				     const double& e,
 				     const double& et,
@@ -323,7 +323,7 @@ namespace dynamo {
   }
 
   void 
-  Liouvillean::initOrientations(double ToI)
+  Dynamics::initOrientations(double ToI)
   {
     orientationData.resize(Sim->particleList.size());
   
@@ -352,8 +352,8 @@ namespace dynamo {
       }
   }
 
-  std::pair<double, Liouvillean::TriangleIntersectingPart> 
-  Liouvillean::getSphereTriangleEvent(const Particle& part, 
+  std::pair<double, Dynamics::TriangleIntersectingPart> 
+  Dynamics::getSphereTriangleEvent(const Particle& part, 
 				      const Vector & A, 
 				      const Vector & B, 
 				      const Vector & C,
@@ -364,7 +364,7 @@ namespace dynamo {
   }
 
   std::pair<Vector, Vector> 
-  Liouvillean::getCOMPosVel(const Range& particles) const
+  Dynamics::getCOMPosVel(const Range& particles) const
   {
     if (particles.empty())
       M_throw() << "Cannot calculate the COM position and velocity from an empty Range";

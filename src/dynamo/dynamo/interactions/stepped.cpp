@@ -24,7 +24,7 @@
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/2particleEventData.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/NparticleEventData.hpp>
@@ -192,10 +192,10 @@ namespace dynamo {
   {
   
 #ifdef DYNAMO_DEBUG
-    if (!Sim->liouvillean->isUpToDate(p1))
+    if (!Sim->dynamics->isUpToDate(p1))
       M_throw() << "Particle 1 is not up to date";
   
-    if (!Sim->liouvillean->isUpToDate(p2))
+    if (!Sim->dynamics->isUpToDate(p2))
       M_throw() << "Particle 2 is not up to date";
 
     if (p1 == p2)
@@ -210,19 +210,19 @@ namespace dynamo {
       {
 	double d = steps.front().first * _unitLength->getMaxValue();
 	double dt 
-	  = Sim->liouvillean->SphereSphereInRoot(p1, p2, d);
+	  = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 
 	//Not captured, test for capture
 	if (dt != HUGE_VAL)
 	  {
 #ifdef DYNAMO_OverlapTesting
 	    //Check that there is no overlap 
-	    if (Sim->liouvillean->sphereOverlap(p1, p2, d))
+	    if (Sim->dynamics->sphereOverlap(p1, p2, d))
 	      M_throw() << "Overlapping particles found" 
 			<< ", particle1 " << p1.getID() 
 			<< ", particle2 " << p2.getID() 
 			<< "\nOverlap = " 
-			<< Sim->liouvillean->sphereOverlap(p1, p2, d)
+			<< Sim->dynamics->sphereOverlap(p1, p2, d)
 		/ Sim->units.unitLength();
 #endif
 	  
@@ -236,19 +236,19 @@ namespace dynamo {
 	if (capstat->second < static_cast<int>(steps.size()))
 	  {
 	    double d = steps[capstat->second].first * _unitLength->getMaxValue();
-	    double dt = Sim->liouvillean->SphereSphereInRoot
+	    double dt = Sim->dynamics->SphereSphereInRoot
 	      (p1, p2, d);
 	    
 	      if (dt != HUGE_VAL)
 		{
 #ifdef DYNAMO_OverlapTesting
 		  //Check that there is no overlap 
-		  if (Sim->liouvillean->sphereOverlap(p1, p2, d*d))
+		  if (Sim->dynamics->sphereOverlap(p1, p2, d*d))
 		    M_throw() << "Overlapping particles found" 
 			      << ", particle1 " << p1.getID() 
 			      << ", particle2 " 
 			      << p2.getID() << "\nOverlap = " 
-			      << Sim->liouvillean->sphereOverlap(p1, p2, d*d)
+			      << Sim->dynamics->sphereOverlap(p1, p2, d*d)
 		      / Sim->units.unitLength();
 #endif
 	      
@@ -258,7 +258,7 @@ namespace dynamo {
 
 	{//Now test for the outward step
 	  double d = steps[capstat->second-1].first * _unitLength->getMaxValue();
-	  double dt = Sim->liouvillean->SphereSphereOutRoot(p1, p2, d);
+	  double dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, d);
 	  if (retval.getdt() > dt)
 	      retval = IntEvent(p1, p2, dt, WELL_OUT, *this);
 	}
@@ -285,7 +285,7 @@ namespace dynamo {
 	    dE -= steps[capstat->second - 2].second;
 	  dE *= _unitEnergy->getMaxValue();
 
-	  PairEventData retVal(Sim->liouvillean->SphereWellEvent
+	  PairEventData retVal(Sim->dynamics->SphereWellEvent
 			       (iEvent, dE, d2));
 	
 	  if (retVal.getType() != BOUNCE)
@@ -321,7 +321,7 @@ namespace dynamo {
 	  dE *= _unitEnergy->getMaxValue();
 
 
-	  PairEventData retVal = Sim->liouvillean->SphereWellEvent(iEvent, -dE, d2);
+	  PairEventData retVal = Sim->dynamics->SphereWellEvent(iEvent, -dE, d2);
 	
 	  if (retVal.getType() != BOUNCE)
 	    ++(capstat->second);

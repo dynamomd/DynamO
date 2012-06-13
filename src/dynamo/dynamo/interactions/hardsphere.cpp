@@ -17,7 +17,7 @@
 
 #include <dynamo/interactions/hardsphere.hpp>
 #include <dynamo/interactions/intEvent.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/2particleEventData.hpp>
@@ -25,7 +25,7 @@
 #include <dynamo/ranges/1range.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/NparticleEventData.hpp>
-#include <dynamo/liouvillean/CompressionL.hpp>
+#include <dynamo/dynamics/compression.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -93,11 +93,11 @@ namespace dynamo {
   IHardSphere::getEvent(const Particle &p1, const Particle &p2) const 
   { 
 #ifdef DYNAMO_DEBUG
-    if (!Sim->liouvillean->isUpToDate(p1))
-      M_throw() << "Particle 1 is not up to date: ID1=" << p1.getID() << ", ID2=" << p2.getID() << ", delay1=" << Sim->liouvillean->getParticleDelay(p1);
+    if (!Sim->dynamics->isUpToDate(p1))
+      M_throw() << "Particle 1 is not up to date: ID1=" << p1.getID() << ", ID2=" << p2.getID() << ", delay1=" << Sim->dynamics->getParticleDelay(p1);
   
-    if (!Sim->liouvillean->isUpToDate(p2))
-      M_throw() << "Particle 2 is not up to date: ID1=" << p1.getID() << ", ID2=" << p2.getID() << ", delay2=" << Sim->liouvillean->getParticleDelay(p2);
+    if (!Sim->dynamics->isUpToDate(p2))
+      M_throw() << "Particle 2 is not up to date: ID1=" << p1.getID() << ", ID2=" << p2.getID() << ", delay2=" << Sim->dynamics->getParticleDelay(p2);
 
     if (p1 == p2)
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
@@ -106,17 +106,17 @@ namespace dynamo {
     double d = (_diameter->getProperty(p1.getID())
 		 + _diameter->getProperty(p2.getID())) * 0.5;
 
-    double dt = Sim->liouvillean->SphereSphereInRoot(p1, p2, d);
+    double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 
     if (dt != HUGE_VAL)
       {
 #ifdef DYNAMO_OverlapTesting
-	if (Sim->liouvillean->sphereOverlap(p1, p2, d))
+	if (Sim->dynamics->sphereOverlap(p1, p2, d))
 	  M_throw() << "Overlapping particles found"
 		    << ", particle1 " << p1.getID()
 		    << ", particle2 " << p2.getID()
 		    << "\nOverlap = " 
-		    << Sim->dynamics.getLiouvillean()
+		    << Sim->dynamics.getDynamics()
 	    .sphereOverlap(p1, p2, d)
 	    / Sim->units.unitLength();
 #endif
@@ -140,7 +140,7 @@ namespace dynamo {
 		+ _e->getProperty(p2.getID())) * 0.5;
 
     PairEventData EDat
-      (Sim->liouvillean->SmoothSpheresColl(iEvent, e, d2)); 
+      (Sim->dynamics->SmoothSpheresColl(iEvent, e, d2)); 
 
     Sim->signalParticleUpdate(EDat);
 

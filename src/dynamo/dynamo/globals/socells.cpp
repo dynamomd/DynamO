@@ -18,13 +18,13 @@
 #include <dynamo/globals/socells.hpp>
 #include <dynamo/globals/globEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/ranges/1RAll.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/BC/LEBC.hpp>
-#include <dynamo/liouvillean/NewtonianGravityL.hpp>
+#include <dynamo/dynamics/gravityL.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/particle.hpp>
 #include <boost/static_assert.hpp>
@@ -66,14 +66,14 @@ namespace dynamo {
   GSOCells::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
-    if (!Sim->liouvillean->isUpToDate(part))
+    if (!Sim->dynamics->isUpToDate(part))
       M_throw() << "Particle is not up to date";
 #endif
 
     //This 
-    //Sim->liouvillean->updateParticle(part);
+    //Sim->dynamics->updateParticle(part);
     //is not required as we compensate for the delay using 
-    //Sim->liouvillean->getParticleDelay(part)
+    //Sim->dynamics->getParticleDelay(part)
 
     Vector CellOrigin;
     size_t ID(part.getID());
@@ -85,18 +85,18 @@ namespace dynamo {
       }
 
     return GlobalEvent(part,
-		       Sim->liouvillean->
+		       Sim->dynamics->
 		       getSquareCellCollision2
 		       (part, CellOrigin,
 			cellDimension)
-		       -Sim->liouvillean->getParticleDelay(part),
+		       -Sim->dynamics->getParticleDelay(part),
 		       CELL, *this);
   }
 
   void
   GSOCells::runEvent(Particle& part, const double) const
   {
-    Sim->liouvillean->updateParticle(part);
+    Sim->dynamics->updateParticle(part);
 
     Vector CellOrigin;
     size_t ID(part.getID());
@@ -108,7 +108,7 @@ namespace dynamo {
       }
   
     //Determine the cell transition direction, its saved
-    int cellDirectionInt(Sim->liouvillean->
+    int cellDirectionInt(Sim->dynamics->
 			 getSquareCellCollision3
 			 (part, CellOrigin, 
 			  cellDimension));
@@ -142,7 +142,7 @@ namespace dynamo {
     vNorm[cellDirection] = (cellDirectionInt > 0) ? -1 : +1; 
     
     //Run the collision and catch the data
-    NEventData EDat(Sim->liouvillean->runWallCollision
+    NEventData EDat(Sim->dynamics->runWallCollision
 		    (part, vNorm, 1.0));
 
     Sim->signalParticleUpdate(EDat);
@@ -170,7 +170,7 @@ namespace dynamo {
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       cellDimension[iDim] = Sim->primaryCellSize[iDim] / cuberootN;
 
-    if (std::tr1::dynamic_pointer_cast<const LNewtonianGravity>(Sim->liouvillean))
+    if (std::tr1::dynamic_pointer_cast<const Dyngravity>(Sim->dynamics))
       dout << "Warning, in order for SingleOccupancyCells to work in gravity\n"
 	   << "You must add the ParabolaSentinel Global event." << std::endl;
 

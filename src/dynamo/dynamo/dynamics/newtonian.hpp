@@ -17,22 +17,22 @@
 */
 
 #pragma once
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 
 namespace dynamo {
-  /*! \brief A Liouvillean which implements standard Newtonian dynamics.
+  /*! \brief A Dynamics which implements standard Newtonian dynamics.
    * 
-   *  This Liouvillean provides the dynamics of a system particles
+   *  This Dynamics provides the dynamics of a system particles
    *  evolving only under interparticle Interaction(s) and Local or
    *  Global forces. More complex systems are available as derivations
-   *  of this liouvillean, such as a Liouvillean including a constant
-   *  gravity force (LNewtonianGravity), or a Liouvillean specialized
-   *  for multicanonical simulations (LNewtonianMC). 
+   *  of this dynamics, such as a Dynamics including a constant
+   *  gravity force (Dyngravity), or a Dynamics specialized
+   *  for multicanonical simulations (DynNewtonianMC). 
    */
-  class LNewtonian: public Liouvillean
+  class DynNewtonian: public Dynamics
   {
   public:
-    LNewtonian(dynamo::Simulation*);
+    DynNewtonian(dynamo::Simulation*);
 
     //Pair particle dynamics
     virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const;
@@ -91,7 +91,7 @@ namespace dynamo {
 				    const Vector &, 
 				    const Vector &) const;
 
-    virtual std::pair<double, Liouvillean::TriangleIntersectingPart> 
+    virtual std::pair<double, Dynamics::TriangleIntersectingPart> 
     getSphereTriangleEvent(const Particle& part, 
 			   const Vector & A, 
 			   const Vector & B, 

@@ -24,7 +24,7 @@
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/2particleEventData.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/NparticleEventData.hpp>
@@ -90,14 +90,14 @@ namespace dynamo {
 		+ _lambda->getProperty(p2.getID())) * 0.5;
   
 #ifdef DYNAMO_DEBUG
-    if (Sim->liouvillean->sphereOverlap(p1, p2, d))
+    if (Sim->dynamics->sphereOverlap(p1, p2, d))
       derr << "Warning! Two particles might be overlapping"
-	   << "Overlap is " << Sim->liouvillean->sphereOverlap(p1, p2, d) 
+	   << "Overlap is " << Sim->dynamics->sphereOverlap(p1, p2, d) 
 	/ Sim->units.unitLength()
 	   << "\nd = " << d / Sim->units.unitLength() << std::endl;
 #endif
  
-    return Sim->liouvillean->sphereOverlap(p1, p2, l * d);
+    return Sim->dynamics->sphereOverlap(p1, p2, l * d);
   }
 
   void
@@ -136,10 +136,10 @@ namespace dynamo {
 			const Particle &p2) const 
   {    
 #ifdef DYNAMO_DEBUG
-    if (!Sim->liouvillean->isUpToDate(p1))
+    if (!Sim->dynamics->isUpToDate(p1))
       M_throw() << "Particle 1 is not up to date";
   
-    if (!Sim->liouvillean->isUpToDate(p2))
+    if (!Sim->dynamics->isUpToDate(p2))
       M_throw() << "Particle 2 is not up to date";
 
     if (p1 == p2)
@@ -153,23 +153,23 @@ namespace dynamo {
 
     IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
 
-    double dt = Sim->liouvillean->SphereSphereInRoot(p1, p2, d);
+    double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
     if (dt != HUGE_VAL)
       {
 #ifdef DYNAMO_OverlapTesting
-	if (Sim->liouvillean->sphereOverlap(p1, p2, d))
+	if (Sim->dynamics->sphereOverlap(p1, p2, d))
 	  M_throw() << "Overlapping particles found"
 		    << ", particle1 " << p1.getID()
 		    << ", particle2 " << p2.getID()
 		    << "\nOverlap = " 
-		    << Sim->dynamics.getLiouvillean()
+		    << Sim->dynamics.getDynamics()
 	    .sphereOverlap(p1, p2, d)
 	    / Sim->units.unitLength();
 #endif
 	retval = IntEvent(p1, p2, dt, CORE, *this);
       }
 
-    dt = Sim->liouvillean->SphereSphereOutRoot(p1, p2, l * d);
+    dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, l * d);
     if (retval.getdt() > dt)
       retval = IntEvent(p1, p2, dt, BOUNCE, *this);
   
@@ -193,7 +193,7 @@ namespace dynamo {
     double e = (_e->getProperty(p1.getID())
 		+ _e->getProperty(p2.getID())) * 0.5;
 
-    PairEventData EDat(Sim->liouvillean->SmoothSpheresColl
+    PairEventData EDat(Sim->dynamics->SmoothSpheresColl
 		       (iEvent, e, d2, iEvent.getType()));
 
     Sim->signalParticleUpdate(EDat);

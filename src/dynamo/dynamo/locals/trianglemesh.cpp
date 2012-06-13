@@ -17,7 +17,7 @@
 
 #include <dynamo/locals/trianglemesh.hpp>
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/locals/localEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/units/units.hpp>
@@ -34,7 +34,7 @@ namespace dynamo {
   LTriangleMesh::getEvent(const Particle& part) const
   {
 #ifdef ISSS_DEBUG
-    if (!Sim->liouvillean->isUpToDate(part))
+    if (!Sim->dynamics->isUpToDate(part))
       M_throw() << "Particle is not up to date";
 #endif
 
@@ -45,7 +45,7 @@ namespace dynamo {
 
     for (size_t id(0); id < _elements.size(); ++id)
       {
-	std::pair<double, size_t> t = Sim->liouvillean->getSphereTriangleEvent(part,
+	std::pair<double, size_t> t = Sim->dynamics->getSphereTriangleEvent(part,
 				  _vertices[_elements[id].get<0>()],
 				  _vertices[_elements[id].get<1>()],
 				  _vertices[_elements[id].get<2>()],
@@ -61,8 +61,8 @@ namespace dynamo {
   { 
     ++Sim->eventCount;
   
-    const size_t triangleID = iEvent.getExtraData() / Liouvillean::T_COUNT;
-    const size_t trianglepart = iEvent.getExtraData() % Liouvillean::T_COUNT;
+    const size_t triangleID = iEvent.getExtraData() / Dynamics::T_COUNT;
+    const size_t trianglepart = iEvent.getExtraData() % Dynamics::T_COUNT;
 
     const TriangleElements& elem = _elements[triangleID];
   
@@ -74,34 +74,34 @@ namespace dynamo {
     Vector normal;
     switch (trianglepart)
       {
-      case Liouvillean::T_FACE:
+      case Dynamics::T_FACE:
 	{
 	  normal = (B - A) ^ (C - B);
 	  normal /= normal.nrm();
 	  break;
 	}
-      case Liouvillean::T_A_CORNER: 
+      case Dynamics::T_A_CORNER: 
 	{ 
 	  normal = part.getPosition() - A; 
 	  Sim->BCs->applyBC(normal);
 	  normal /= normal.nrm();
 	  break; 
 	}
-      case Liouvillean::T_B_CORNER: 
+      case Dynamics::T_B_CORNER: 
 	{ 
 	  normal = part.getPosition() - B; 
 	  Sim->BCs->applyBC(normal);
 	  normal /= normal.nrm();
 	  break; 
 	}
-      case Liouvillean::T_C_CORNER: 
+      case Dynamics::T_C_CORNER: 
 	{ 
 	  normal = part.getPosition() - C; 
 	  Sim->BCs->applyBC(normal);
 	  normal /= normal.nrm();
 	  break; 
 	}
-      case Liouvillean::T_AB_EDGE:
+      case Dynamics::T_AB_EDGE:
 	{
 	  Vector edge = B - A;
 	  edge /= edge.nrm();
@@ -112,7 +112,7 @@ namespace dynamo {
 	  normal /= normal.nrm();
 	  break; 	
 	}
-      case Liouvillean::T_AC_EDGE:
+      case Dynamics::T_AC_EDGE:
 	{
 	  Vector edge = C - A;
 	  edge /= edge.nrm();
@@ -123,7 +123,7 @@ namespace dynamo {
 	  normal /= normal.nrm();
 	  break; 	
 	}
-      case Liouvillean::T_BC_EDGE:
+      case Dynamics::T_BC_EDGE:
 	{
 	  Vector edge = B - C;
 	  edge /= edge.nrm();
@@ -138,7 +138,7 @@ namespace dynamo {
 	M_throw() << "Unhandled triangle sphere intersection type encountered";
       }
 
-    NEventData EDat(Sim->liouvillean->runWallCollision
+    NEventData EDat(Sim->dynamics->runWallCollision
 		    (part, normal, _e->getProperty(part.getID())));
 
     Sim->signalParticleUpdate(EDat);

@@ -24,7 +24,7 @@
 #include <dynamo/species/species.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/ranges/include.hpp>
-#include <dynamo/liouvillean/NewtonianGravityL.hpp>
+#include <dynamo/dynamics/gravityL.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -160,7 +160,7 @@ namespace dynamo {
 	const Particle& sp = p1.testState(Particle::DYNAMIC) ? p2 : p1;
 
 	//Other variables
-	Vector g(static_cast<const LNewtonianGravity&>(*Sim->liouvillean).getGravityVector());
+	Vector g(static_cast<const Dyngravity&>(*Sim->dynamics).getGravityVector());
 
 	if (!_range->isInRange(sp))  //DP-FC
 	  {
@@ -258,7 +258,7 @@ namespace dynamo {
     BOOST_FOREACH(const locPair& p, stateChange)
       {
 	Particle& part = Sim->particleList[p.first];
-	Sim->liouvillean->updateParticle(part);
+	Sim->dynamics->updateParticle(part);
       
 #ifdef DYNAMO_DEBUG 
 	if (stateChange.find(part.getID()) == stateChange.end())

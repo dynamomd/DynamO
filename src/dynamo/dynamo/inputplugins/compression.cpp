@@ -22,8 +22,8 @@
 #include <dynamo/interactions/squarewell.hpp>
 #include <dynamo/interactions/hardsphere.hpp>
 #include <dynamo/ranges/include.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
-#include <dynamo/liouvillean/CompressionL.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/dynamics/compression.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/schedulers/neighbourlist.hpp>
@@ -46,26 +46,26 @@ namespace dynamo {
   void 
   IPCompression::MakeGrowth()
   {
-    dout << "Backing up old liouvillean" << std::endl;
+    dout << "Backing up old dynamics" << std::endl;
 
     //Required to reset the dynamics
-    Sim->liouvillean->updateAllParticles();
+    Sim->dynamics->updateAllParticles();
 
-    oldLio = Sim->liouvillean;
+    oldLio = Sim->dynamics;
 
-    dout << "Loading compression liouvillean" << std::endl;
-    Sim->liouvillean 
-      = shared_ptr<dynamo::Liouvillean>
-      (new LCompression(Sim, growthRate / Sim->units.unitTime()));
+    dout << "Loading compression dynamics" << std::endl;
+    Sim->dynamics 
+      = shared_ptr<dynamo::Dynamics>
+      (new DynCompression(Sim, growthRate / Sim->units.unitTime()));
   }
 
   void
   IPCompression::RestoreSystem()
   {
-    dout << "Restoring original liouvillean" << std::endl;
+    dout << "Restoring original dynamics" << std::endl;
 
     //Required to finish off the compression dynamics
-    Sim->liouvillean->updateAllParticles();
+    Sim->dynamics->updateAllParticles();
 
     if (std::tr1::dynamic_pointer_cast<SNeighbourList>(Sim->ptrScheduler))
       {
@@ -94,7 +94,7 @@ namespace dynamo {
     Sim->_properties.rescaleUnit(Property::Units::L, rescale_factor);
     Sim->_properties.rescaleUnit(Property::Units::T, rescale_factor);
 
-    Sim->liouvillean = oldLio;
+    Sim->dynamics = oldLio;
   }
 
   void

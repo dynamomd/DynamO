@@ -18,7 +18,7 @@
 #include <dynamo/outputplugins/tickerproperty/msdOrientationalCorrelator.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/systems/sysTicker.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -68,7 +68,7 @@ namespace dynamo {
 
     currCorrLength = 1.0;
 
-    const std::vector<Liouvillean::rotData>& initial_rdat(Sim->liouvillean->getCompleteRotData());
+    const std::vector<Dynamics::rotData>& initial_rdat(Sim->dynamics->getCompleteRotData());
 
     BOOST_FOREACH(const Particle& part, Sim->particleList)
       {
@@ -79,7 +79,7 @@ namespace dynamo {
   void
   OPMSDOrientationalCorrelator::ticker()
   {
-    const std::vector<Liouvillean::rotData>& current_rdat(Sim->liouvillean->getCompleteRotData());
+    const std::vector<Dynamics::rotData>& current_rdat(Sim->dynamics->getCompleteRotData());
     BOOST_FOREACH(const Particle& part, Sim->particleList)
       {
 	historicalData[part.getID()].push_front(RUpair(part.getPosition(), current_rdat[part.getID()].orientation));

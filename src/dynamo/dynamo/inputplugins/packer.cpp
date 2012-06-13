@@ -28,7 +28,7 @@
 #include <dynamo/interactions/include.hpp>
 #include <dynamo/ranges/include.hpp>
 #include <dynamo/BC/include.hpp>
-#include <dynamo/liouvillean/include.hpp>
+#include <dynamo/dynamics/include.hpp>
 #include <dynamo/systems/andersenThermostat.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/topology/include.hpp>
@@ -116,8 +116,8 @@ namespace dynamo {
   void
   IPPacker::initialise()
   {
-    //Set the default liouvillean
-    Sim->liouvillean = shared_ptr<Liouvillean>(new LNewtonian(Sim));
+    //Set the default dynamics
+    Sim->dynamics = shared_ptr<Dynamics>(new DynNewtonian(Sim));
     //Set the default Boundary Conditions
     Sim->BCs = shared_ptr<BoundaryCondition>(new BCPeriodic(Sim));
 
@@ -1115,7 +1115,7 @@ namespace dynamo {
 						 nParticles++));
 
 	  const double length = 1;
-	  Sim->liouvillean->initOrientations(std::sqrt(12.0/ (length * length)));
+	  Sim->dynamics->initOrientations(std::sqrt(12.0/ (length * length)));
 
 	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
@@ -1457,7 +1457,7 @@ namespace dynamo {
 						 nParticles++));
 
 	  const double length = 1;
-	  Sim->liouvillean->initOrientations(std::sqrt(12.0/ (length * length)));
+	  Sim->dynamics->initOrientations(std::sqrt(12.0/ (length * length)));
 
 	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
@@ -2333,8 +2333,8 @@ namespace dynamo {
 
 	  Sim->units.setUnitLength(particleDiam);
 
-	  Sim->liouvillean = shared_ptr<Liouvillean>
-	    (new LNewtonianGravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0)));
+	  Sim->dynamics = shared_ptr<Dynamics>
+	    (new Dyngravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0)));
 
 	  double elasticity = 1.0;
 
@@ -2415,8 +2415,8 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELCBT(Sim)));
 
-	  Sim->liouvillean = shared_ptr<Liouvillean>
-	    (new LNewtonianGravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0), elasticV * Sim->units.unitVelocity()));
+	  Sim->dynamics = shared_ptr<Dynamics>
+	    (new Dyngravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0), elasticV * Sim->units.unitVelocity()));
 
 	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
@@ -3104,8 +3104,8 @@ namespace dynamo {
 	  Sim->ptrScheduler 
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELCBT(Sim)));
 
-	  Sim->liouvillean = shared_ptr<Liouvillean>
-	    (new LNewtonianGravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0),
+	  Sim->dynamics = shared_ptr<Dynamics>
+	    (new Dyngravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0),
 				   elasticV * Sim->units.unitVelocity(),
 				   tc * Sim->units.unitTime()));
 

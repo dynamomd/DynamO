@@ -18,11 +18,11 @@
 #ifdef DYNAMO_visualizer
 
 #include <dynamo/systems/visualizer.hpp>
-#include <dynamo/liouvillean/CompressionL.hpp>
+#include <dynamo/dynamics/compression.hpp>
 #include <dynamo/coilRenderObj.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/NparticleEventData.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
@@ -92,7 +92,7 @@ namespace dynamo {
     Sim->freestreamAcc = 0;
 
     if (_window->dynamoParticleSync())
-      Sim->liouvillean->updateAllParticles();
+      Sim->dynamics->updateAllParticles();
 
     BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(*this, NEventData(), locdt);

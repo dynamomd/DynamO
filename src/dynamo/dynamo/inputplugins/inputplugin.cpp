@@ -23,7 +23,7 @@
 #include <dynamo/interactions/include.hpp>
 #include <dynamo/ranges/include.hpp>
 #include <dynamo/BC/include.hpp>
-#include <dynamo/liouvillean/include.hpp>
+#include <dynamo/dynamics/include.hpp>
 #include <dynamo/systems/andersenThermostat.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/topology/include.hpp>
@@ -41,12 +41,12 @@ namespace dynamo {
   {
     dout << "WARNING Rescaling kT to " << val << std::endl;
   
-    double currentkT(Sim->liouvillean->getkT()
+    double currentkT(Sim->dynamics->getkT()
 		     / Sim->units.unitEnergy());
 
     dout << "Current kT " << currentkT << std::endl;
 
-    Sim->liouvillean->rescaleSystemKineticEnergy(val/ currentkT);
+    Sim->dynamics->rescaleSystemKineticEnergy(val/ currentkT);
   }
 
   void 

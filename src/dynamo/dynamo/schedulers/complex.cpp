@@ -19,7 +19,7 @@
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/particle.hpp>
 
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/systems/system.hpp>
 #include <dynamo/globals/global.hpp>

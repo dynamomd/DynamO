@@ -129,7 +129,7 @@ namespace dynamo {
   OPRdotV::periodicOutput()
   {
     double P = 1 + _periodicRdotV 
-      / (3 * Sim->N * (Sim->dSysTime - _periodict) * Sim->liouvillean->getkT());
+      / (3 * Sim->N * (Sim->dSysTime - _periodict) * Sim->dynamics->getkT());
 
     I_Pcout() << "P* " << P << ", ";
 

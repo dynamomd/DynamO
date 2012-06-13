@@ -19,7 +19,7 @@
 #include <dynamo/globals/globEvent.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <magnet/xmlreader.hpp>
@@ -46,9 +46,9 @@ namespace dynamo {
   GlobalEvent 
   GParabolaSentinel::getEvent(const Particle& part) const
   {
-    Sim->liouvillean->updateParticle(Sim->particleList[part.getID()]);
+    Sim->dynamics->updateParticle(Sim->particleList[part.getID()]);
 
-    return GlobalEvent(part, Sim->liouvillean
+    return GlobalEvent(part, Sim->dynamics
 		       ->getParabolaSentinelTime(part), 
 		       VIRTUAL_PARABOLA, *this);
   }
@@ -56,7 +56,7 @@ namespace dynamo {
   void 
   GParabolaSentinel::runEvent(Particle& part, const double) const
   {
-    Sim->liouvillean->updateParticle(part);
+    Sim->dynamics->updateParticle(part);
 
     GlobalEvent iEvent(getEvent(part));
 
@@ -80,7 +80,7 @@ namespace dynamo {
   
     Sim->stream(iEvent.getdt());
 
-    Sim->liouvillean->enforceParabola(part);
+    Sim->dynamics->enforceParabola(part);
   
 #ifdef DYNAMO_DEBUG
     iEvent.addTime(Sim->freestreamAcc);

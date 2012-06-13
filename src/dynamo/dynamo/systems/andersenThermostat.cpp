@@ -23,7 +23,7 @@
 #include <dynamo/species/species.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/ranges/include.hpp>
-#include <dynamo/liouvillean/liouvillean.hpp>
+#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <boost/foreach.hpp>
@@ -113,7 +113,7 @@ namespace dynamo {
     Particle& part(Sim->particleList[*(range->begin()+step)]);
 
     //Run the collision and catch the data
-    NEventData SDat(Sim->liouvillean->randomGaussianEvent
+    NEventData SDat(Sim->dynamics->randomGaussianEvent
 		    (part, sqrtTemp, dimensions));
   
     Sim->signalParticleUpdate(SDat);
