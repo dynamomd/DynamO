@@ -41,7 +41,7 @@ namespace dynamo {
       return shared_ptr<Dynamics>(new DynGravity(tmp, XML));
     else if (!strcmp(XML.getAttribute("Type"),"NewtonianMC"))
       return shared_ptr<Dynamics>(new DynNewtonianMC(tmp, XML));
-    else 
+    else
       M_throw() << XML.getAttribute("Type")
 		<< ", Unknown type of Dynamics encountered";
   }
