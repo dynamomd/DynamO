@@ -170,7 +170,7 @@ namespace dynamo {
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       cellDimension[iDim] = Sim->primaryCellSize[iDim] / cuberootN;
 
-    if (std::tr1::dynamic_pointer_cast<const Dyngravity>(Sim->dynamics))
+    if (std::tr1::dynamic_pointer_cast<const DynGravity>(Sim->dynamics))
       dout << "Warning, in order for SingleOccupancyCells to work in gravity\n"
 	   << "You must add the ParabolaSentinel Global event." << std::endl;
 

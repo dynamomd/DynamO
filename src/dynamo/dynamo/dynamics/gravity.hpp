@@ -23,12 +23,12 @@ namespace dynamo {
   /*! \brief A Dynamics which implements standard Newtonian dynamics
     with an additional constant force vector.
   */
-  class Dyngravity: public DynNewtonian
+  class DynGravity: public DynNewtonian
   {
   public:
-    Dyngravity(dynamo::Simulation*, const magnet::xml::Node&);
+    DynGravity(dynamo::Simulation*, const magnet::xml::Node&);
 
-    Dyngravity(dynamo::Simulation* tmp, Vector gravity, double eV = 0, double tc = -HUGE_VAL);
+    DynGravity(dynamo::Simulation* tmp, Vector gravity, double eV = 0, double tc = -HUGE_VAL);
 
     void initialise();
 

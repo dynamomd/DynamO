@@ -39,7 +39,7 @@
 #include <algorithm>
 
 namespace dynamo {
-  Dyngravity::Dyngravity(dynamo::Simulation* tmp, const magnet::xml::Node& XML):
+  DynGravity::DynGravity(dynamo::Simulation* tmp, const magnet::xml::Node& XML):
     DynNewtonian(tmp),
     elasticV(0),
     g(0, -1, 0),
@@ -68,13 +68,13 @@ namespace dynamo {
       }
     catch (boost::bad_lexical_cast &)
       {
-	M_throw() << "Failed a lexical cast in Dyngravity";
+	M_throw() << "Failed a lexical cast in DynGravity";
       }
   
     g *= Sim->units.unitAcceleration();
   }
 
-  Dyngravity::Dyngravity(dynamo::Simulation* tmp, Vector gravity, double eV, double tc):
+  DynGravity::DynGravity(dynamo::Simulation* tmp, Vector gravity, double eV, double tc):
     DynNewtonian(tmp), 
     elasticV(eV),
     g(gravity),
@@ -82,7 +82,7 @@ namespace dynamo {
   {}
 
   void
-  Dyngravity::streamParticle(Particle &particle, const double &dt) const
+  DynGravity::streamParticle(Particle &particle, const double &dt) const
   {
     bool isDynamic = particle.testState(Particle::DYNAMIC);
     particle.getPosition() += dt * (particle.getVelocity() + 0.5 * dt * g * isDynamic);
@@ -90,7 +90,7 @@ namespace dynamo {
   }
 
   double
-  Dyngravity::SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const
+  DynGravity::SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const
   {
     bool p1Dynamic = p1.testState(Particle::DYNAMIC);
     bool p2Dynamic = p2.testState(Particle::DYNAMIC);
@@ -113,7 +113,7 @@ namespace dynamo {
   }
 
   double
-  Dyngravity::SphereSphereInRoot(const Range& p1, const Range& p2, double d) const
+  DynGravity::SphereSphereInRoot(const Range& p1, const Range& p2, double d) const
   {
     double accel1sum = 0;
     double mass1 = 0;
@@ -153,7 +153,7 @@ namespace dynamo {
   }
   
   double
-  Dyngravity::SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const
+  DynGravity::SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const
   {
     bool p1Dynamic = p1.testState(Particle::DYNAMIC);
     bool p2Dynamic = p2.testState(Particle::DYNAMIC);
@@ -175,7 +175,7 @@ namespace dynamo {
   }
 
   double
-  Dyngravity::SphereSphereOutRoot(const Range& p1, const Range& p2, double d) const
+  DynGravity::SphereSphereOutRoot(const Range& p1, const Range& p2, double d) const
   {
     double accel1sum = 0;
     double mass1 = 0;
@@ -218,7 +218,7 @@ namespace dynamo {
 
 
   double 
-  Dyngravity::getWallCollision(const Particle &part, 
+  DynGravity::getWallCollision(const Particle &part, 
 				      const Vector  &wallLoc, 
 				      const Vector  &wallNorm) const
   {
@@ -231,7 +231,7 @@ namespace dynamo {
   }
 
   double
-  Dyngravity::getSquareCellCollision2(const Particle& part, 
+  DynGravity::getSquareCellCollision2(const Particle& part, 
 					     const Vector & origin, 
 					     const Vector & width) const
   {
@@ -305,7 +305,7 @@ namespace dynamo {
   }
 
   int
-  Dyngravity::getSquareCellCollision3(const Particle& part, 
+  DynGravity::getSquareCellCollision3(const Particle& part, 
 					     const Vector & origin, 
 					     const Vector & width) const
   {
@@ -386,7 +386,7 @@ namespace dynamo {
   }
 
   void 
-  Dyngravity::outputXML(magnet::xml::XmlStream& XML) const
+  DynGravity::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Type") 
 	<< "gravity";
@@ -401,7 +401,7 @@ namespace dynamo {
   }
 
   double 
-  Dyngravity::getPBCSentinelTime(const Particle& part, const double& lMax) const
+  DynGravity::getPBCSentinelTime(const Particle& part, const double& lMax) const
   {
 #ifdef DYNAMO_DEBUG
     if (!isUpToDate(part))
@@ -448,7 +448,7 @@ namespace dynamo {
   }
 
   std::pair<bool,double>
-  Dyngravity::getPointPlateCollision(const Particle& part, const Vector& nrw0,
+  DynGravity::getPointPlateCollision(const Particle& part, const Vector& nrw0,
 					    const Vector& nhat, const double& Delta,
 					    const double& Omega, const double& Sigma,
 					    const double& t, bool lastpart) const
@@ -457,7 +457,7 @@ namespace dynamo {
   }
 
   void
-  Dyngravity::initialise()
+  DynGravity::initialise()
   {
     if (_tc > 0) _tcList.resize(Sim->N, -HUGE_VAL);
     DynNewtonian::initialise();
@@ -474,7 +474,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  Dyngravity::SmoothSpheresColl(const IntEvent& event, const double& ne,
+  DynGravity::SmoothSpheresColl(const IntEvent& event, const double& ne,
 				       const double& d2, const EEventType& eType) const
   {
     Particle& particle1 = Sim->particleList[event.getParticle1ID()];
@@ -519,7 +519,7 @@ namespace dynamo {
 
 
   double 
-  Dyngravity::getCylinderWallCollision(const Particle& part, 
+  DynGravity::getCylinderWallCollision(const Particle& part, 
 					      const Vector& wallLoc, 
 					      const Vector& wallNorm,
 					      const double& radius) const
@@ -528,7 +528,7 @@ namespace dynamo {
   }
 
   double 
-  Dyngravity::getParabolaSentinelTime(const Particle& part) const
+  DynGravity::getParabolaSentinelTime(const Particle& part) const
   {
 #ifdef DYNAMO_DEBUG
     if (!isUpToDate(part))
@@ -553,7 +553,7 @@ namespace dynamo {
   }
 
   void 
-  Dyngravity::enforceParabola(Particle& part) const
+  DynGravity::enforceParabola(Particle& part) const
   {
     updateParticle(part);
     Vector pos(part.getPosition()), vel(part.getVelocity());
@@ -581,7 +581,7 @@ namespace dynamo {
   }
 
   std::pair<double, Dynamics::TriangleIntersectingPart>
-  Dyngravity::getSphereTriangleEvent(const Particle& part, 
+  DynGravity::getSphereTriangleEvent(const Particle& part, 
 					    const Vector & A, 
 					    const Vector & B, 
 					    const Vector & C,
@@ -657,7 +657,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  Dyngravity::runWallCollision(Particle &part, 
+  DynGravity::runWallCollision(Particle &part, 
 				      const Vector& vNorm,
 				      const double& e
 				      ) const

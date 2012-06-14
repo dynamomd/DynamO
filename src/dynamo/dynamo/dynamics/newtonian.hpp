@@ -26,7 +26,7 @@ namespace dynamo {
    *  evolving only under interparticle Interaction(s) and Local or
    *  Global forces. More complex systems are available as derivations
    *  of this dynamics, such as a Dynamics including a constant
-   *  gravity force (Dyngravity), or a Dynamics specialized
+   *  gravity force (DynGravity), or a Dynamics specialized
    *  for multicanonical simulations (DynNewtonianMC). 
    */
   class DynNewtonian: public Dynamics

@@ -2334,7 +2334,7 @@ namespace dynamo {
 	  Sim->units.setUnitLength(particleDiam);
 
 	  Sim->dynamics = shared_ptr<Dynamics>
-	    (new Dyngravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0)));
+	    (new DynGravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0)));
 
 	  double elasticity = 1.0;
 
@@ -2416,7 +2416,7 @@ namespace dynamo {
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELCBT(Sim)));
 
 	  Sim->dynamics = shared_ptr<Dynamics>
-	    (new Dyngravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0), elasticV * Sim->units.unitVelocity()));
+	    (new DynGravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0), elasticV * Sim->units.unitVelocity()));
 
 	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
@@ -3105,7 +3105,7 @@ namespace dynamo {
 	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELCBT(Sim)));
 
 	  Sim->dynamics = shared_ptr<Dynamics>
-	    (new Dyngravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0),
+	    (new DynGravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0),
 				   elasticV * Sim->units.unitVelocity(),
 				   tc * Sim->units.unitTime()));
 

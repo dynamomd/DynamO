@@ -37,8 +37,8 @@ namespace dynamo {
   {
     if (!strcmp(XML.getAttribute("Type"),"Newtonian"))
       return shared_ptr<Dynamics>(new DynNewtonian(tmp));
-    if (!strcmp(XML.getAttribute("Type"),"gravity"))
-      return shared_ptr<Dynamics>(new Dyngravity(tmp, XML));
+    if (!strcmp(XML.getAttribute("Type"),"NewtonianGravity"))
+      return shared_ptr<Dynamics>(new DynGravity(tmp, XML));
     else if (!strcmp(XML.getAttribute("Type"),"NewtonianMC"))
       return shared_ptr<Dynamics>(new DynNewtonianMC(tmp, XML));
     else 

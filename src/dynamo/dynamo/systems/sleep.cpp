@@ -160,7 +160,7 @@ namespace dynamo {
 	const Particle& sp = p1.testState(Particle::DYNAMIC) ? p2 : p1;
 
 	//Other variables
-	Vector g(static_cast<const Dyngravity&>(*Sim->dynamics).getGravityVector());
+	Vector g(static_cast<const DynGravity&>(*Sim->dynamics).getGravityVector());
 
 	if (!_range->isInRange(sp))  //DP-FC
 	  {

@@ -105,7 +105,7 @@ namespace dynamo {
     //! \brief The possible State flags of the Particle, these states may be combined.
     typedef enum {
       DEFAULT = 0x01 | 0x02,//!< The default flags for the Particle's State.
-      DYNAMIC = 0x01, //!< For the Dyngravity Dynamics it Enables/Disables the gravity force for acting on this Particle.
+      DYNAMIC = 0x01, //!< For the DynGravity Dynamics it Enables/Disables the gravity force for acting on this Particle.
       ALIVE = 0x02 //!< Flags if the particle is actually in the Simulation.
     } State;
   
