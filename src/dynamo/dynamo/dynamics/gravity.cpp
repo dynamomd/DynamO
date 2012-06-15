@@ -389,7 +389,7 @@ namespace dynamo {
   DynGravity::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Type") 
-	<< "gravity";
+	<< "NewtonianGravity";
 
     if (elasticV)
       XML << magnet::xml::attr("ElasticV") << elasticV / Sim->units.unitVelocity();
