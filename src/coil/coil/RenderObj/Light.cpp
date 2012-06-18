@@ -109,7 +109,7 @@ namespace coil {
 	_sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
 	_sphereShader["ViewMatrix"] = cam.getViewMatrix();
 	_sphereShader["global_scale"] = GLfloat(1.0);
-	_glposition.drawArray(magnet::GL::element_type::POINTS, 3);
+	_glposition.drawArray(magnet::GL::element_type::POINTS);
 	_sphereShader.detach();
 
 	if (_context->testExtension("GL_ARB_sample_shading"))
@@ -299,7 +299,7 @@ namespace coil {
     _sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
     _sphereShader["ViewMatrix"] = cam.getViewMatrix();
     _sphereShader["global_scale"] = GLfloat(1.0);
-    _glposition.drawArray(magnet::GL::element_type::POINTS, 3);
+    _glposition.drawArray(magnet::GL::element_type::POINTS);
     _sphereShader.detach();
   }
 

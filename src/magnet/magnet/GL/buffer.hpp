@@ -58,12 +58,7 @@ namespace magnet {
         optimise performance.
        */
       inline void init(const std::vector<T>& data, size_t components, buffer_usage::Enum usage = buffer_usage::DYNAMIC_DRAW)
-      { 
-	if (data.size() % components)
-	  M_throw() << "Trying to initialises buffer without a whole number of elements.";
-
-	init(data.size(), components, &data[0], usage); 
-      }
+      { init(data.size(), components, &data[0], usage); }
 
       /*! \brief Initialises the Buffer object.
        
@@ -71,7 +66,11 @@ namespace magnet {
          with the contents of data passed.
        
         \param size The number of elements in the buffer.
-       
+	
+	\param components The number of elements that make up a single
+	value in the buffer. E.g. a position will typically have 3
+	components and a color 4.
+
         \param usage The expected host memory access pattern, used to
         optimise performance.
        
@@ -82,8 +81,11 @@ namespace magnet {
       {
 	if (size == 0)
 	  M_throw() << "Cannot initialise GL::Buffer with 0 data!";
-
 	
+	if (size % components)
+	  M_throw() << "Can't initialise buffer without a whole number of elements.";
+
+	_components = components;
 
 	//On the first initialisation
 	if (empty())
@@ -188,68 +190,63 @@ namespace magnet {
       /*! \brief Draw all vertices in this array, without using
         indexing.
        */
-      inline void drawArray(element_type::Enum type, GLuint vertex_size = 3)
+      inline void drawArray(element_type::Enum type)
       { 
-	attachToVertex(vertex_size);
-	glDrawArrays(type, 0, size() / vertex_size);
+	attachToVertex();
+	glDrawArrays(type, 0, size() / _components);
       }
 
       /*! \brief Attaches the buffer to the vertex pointer of the GL
         state.
-       
-        \param vertex_size The number of buffer elements per vertex.
        */
-      inline void attachToVertex(GLuint vertex_size = 3) 
-      { attachToAttribute(Context::vertexPositionAttrIndex, vertex_size); }
+      inline void attachToVertex() 
+      { attachToAttribute(Context::vertexPositionAttrIndex); }
 
       /*! \brief Attaches the buffer to the color pointer of the GL
         state.
-       
-        \param color_size The number of buffer elements (colors) per
-        vertex.
-       */
-      inline void attachToColor(GLuint color_size = 4) 
-      { attachToAttribute(Context::vertexColorAttrIndex, color_size, 0, true); }
+      */
+      inline void attachToColor() 
+      { attachToAttribute(Context::vertexColorAttrIndex, 0, true); }
 
       /*! \brief Attaches the buffer to the normal pointer of the GL
         state.
        */
       inline void attachToNormal()
-      { attachToAttribute(Context::vertexNormalAttrIndex, 3); }
+      { attachToAttribute(Context::vertexNormalAttrIndex); }
 
       /*! \brief Attaches the buffer to the instance origin pointer of the GL
         state.
        */
       inline void attachToInstanceOrigin()
-      { attachToAttribute(Context::instanceOriginAttrIndex, 3, 1); }
+      { attachToAttribute(Context::instanceOriginAttrIndex, 1); }
 
       /*! \brief Attaches the buffer to the instance orientation pointer of the GL
         state.
        */
       inline void attachToInstanceOrientation()
-      { attachToAttribute(Context::instanceOrientationAttrIndex, 4, 1); }
+      { attachToAttribute(Context::instanceOrientationAttrIndex, 1); }
 
       /*! \brief Attaches the buffer to the instance orientation pointer of the GL
         state.
        */
       inline void attachToInstanceScale()
-      { attachToAttribute(Context::instanceScaleAttrIndex, 3, 1); }
+      { attachToAttribute(Context::instanceScaleAttrIndex, 1); }
 
       /*! \brief Attaches the buffer to the texture coordinate pointer
         of the GL state.
        */
       inline void attachToTexCoords()
-      { attachToAttribute(Context::vertexTexCoordAttrIndex, 2, 0); }
+      { attachToAttribute(Context::vertexTexCoordAttrIndex, 0); }
 
       /*! \brief Attaches the buffer to a vertex attribute pointer
         state.
        */
-      inline void attachToAttribute(size_t attrnum, size_t components, size_t divisor = 0, bool normalise = false)
+      inline void attachToAttribute(size_t attrnum, size_t divisor = 0, bool normalise = false)
       {
 	initTest();
 	bind(buffer_targets::ARRAY);	
-	glVertexAttribPointer(attrnum, components, detail::c_type_to_gl_enum<T>::val,
-			      (normalise ? GL_TRUE : GL_FALSE), components * sizeof(T), 0);
+	glVertexAttribPointer(attrnum, _components, detail::c_type_to_gl_enum<T>::val,
+			      (normalise ? GL_TRUE : GL_FALSE), _components * sizeof(T), 0);
 
 	_context->setAttributeDivisor(attrnum, divisor);
 	_context->enableAttributeArray(attrnum);

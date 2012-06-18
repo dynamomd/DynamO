@@ -116,7 +116,7 @@ namespace coil {
 	  _filteredData.unmap();
 	}
 
-      _filteredData.attachToAttribute(attrnum, 4, divisor);
+      _filteredData.attachToAttribute(attrnum, divisor);
     }
   };
 }

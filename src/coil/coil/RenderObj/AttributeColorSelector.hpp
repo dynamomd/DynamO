@@ -82,7 +82,7 @@ namespace coil {
 	      _lastColorMap = _colorMapSelector.getMode();
 	    }
 
-	  _filteredData.attachToAttribute(attrnum, 4, divisor);
+	  _filteredData.attachToAttribute(attrnum, divisor);
 	}
     }
 

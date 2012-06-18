@@ -68,7 +68,7 @@ namespace coil {
 		  _sphereVSMShader["ViewMatrix"] = cam.getViewMatrix();
 		  _sphereVSMShader["global_scale"] = _scale;
 		  _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
-		  _colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 0);;
+		  _colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 0);
 		  _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
 		  _sphereVSMShader.detach();
 
@@ -80,7 +80,7 @@ namespace coil {
 		  _sphereShader["ViewMatrix"] = cam.getViewMatrix();
 		  _sphereShader["global_scale"] = _scale;
 		  _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
-		  _colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 0);;
+		  _colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 0);
 		  _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
 		  _sphereShader.detach();
 		}
@@ -101,7 +101,7 @@ namespace coil {
     
     if (!_primitiveVertices.size()) return;
     
-    _ds.getPositionBuffer().attachToAttribute(magnet::GL::Context::instanceOriginAttrIndex, 3, 1);
+    _ds.getPositionBuffer().attachToAttribute(magnet::GL::Context::instanceOriginAttrIndex, 1);
     _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 1);
     _orientSel->bindAttribute(magnet::GL::Context::instanceOrientationAttrIndex, 1);
     _colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 1);
@@ -435,7 +435,7 @@ namespace coil {
   {
     _primitiveVertices.getContext()->resetInstanceTransform();
 
-    magnet::GL::Buffer<GLubyte> colorbuf;    
+    magnet::GL::Buffer<GLubyte> colorbuf;
     {//Send unique color id's to colorbuf
       std::vector<GLubyte> colors;
       colors.resize(4 * _N);
@@ -455,7 +455,7 @@ namespace coil {
 	      _sphereShader["ViewMatrix"] = cam.getViewMatrix();
 	      _sphereShader["global_scale"] = _scale;
 	      _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
-	      colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 0, true);
+	      colorbuf.attachToColor();
 	      _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
 	      _sphereShader.detach();
 	      return;
@@ -471,11 +471,11 @@ namespace coil {
       }
     
     if (!_primitiveVertices.size()) return;
-    
-    _ds.getPositionBuffer().attachToAttribute(magnet::GL::Context::instanceOriginAttrIndex, 3, 1);
+
+    _ds.getPositionBuffer().attachToAttribute(magnet::GL::Context::instanceOriginAttrIndex, 1);
     _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 1);
     _orientSel->bindAttribute(magnet::GL::Context::instanceOrientationAttrIndex, 1);
-    colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 4, 1, true); 
+    colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 1, true);
     _primitiveVertices.attachToVertex();
     _primitiveNormals.attachToNormal();
     _primitiveIndices.drawInstancedElements(getElementType(), _N);

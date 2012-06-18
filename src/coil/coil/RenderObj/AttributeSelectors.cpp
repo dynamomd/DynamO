@@ -125,22 +125,6 @@ namespace coil {
     _comboBox.set_active(selected);
   }
 
-  size_t 
-  AttributeSelector::getComponentCount()
-  {
-    if (singleValueMode())
-      return 4;
-
-    Gtk::TreeModel::iterator iter = _comboBox.get_active();
-    std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
- 
-    if ((!_componentSelect.get_visible())
-	|| (_componentSelect.get_active_row_number() == 0))
-      return ptr->components();
-
-    return 1;
-  }
-  
   magnet::GL::Buffer<GLfloat>& 
   AttributeSelector::getBuffer()
   {
