@@ -54,7 +54,7 @@ namespace coil {
     magnet::math::Vector loc = getPosition();
     GLfloat pos[3] = {loc[0], loc[1], loc[2]};
     std::vector<GLfloat> position(pos, pos + 3);
-    _glposition.init(position);
+    _glposition.init(position, 3);
 
     _context = magnet::GL::Context::getContext();
     initGTK();
@@ -92,7 +92,7 @@ namespace coil {
 	magnet::math::Vector loc = getPosition();
 	GLfloat pos[3] = {loc[0], loc[1], loc[2]};
 	std::vector<GLfloat> position(pos, pos + 3);
-	_glposition.init(position);
+	_glposition.init(position, 3);
 
 	_context->cleanupAttributeArrays();
 	//Set the normals to zero so it is fully illuminated
@@ -283,7 +283,7 @@ namespace coil {
     magnet::math::Vector loc = getPosition();
     GLfloat pos[3] = {loc[0], loc[1], loc[2]};
     std::vector<GLfloat> position(pos, pos + 3);
-    _glposition.init(position);
+    _glposition.init(position, 3);
     
     _context->cleanupAttributeArrays();
     //Set the normals to zero so it is fully illuminated

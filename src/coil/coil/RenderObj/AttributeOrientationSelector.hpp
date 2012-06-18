@@ -59,7 +59,7 @@ namespace coil {
 	  _lastAttributeDataCount = ptr->getUpdateCount();
       
 	  const size_t elements = ptr->num_elements();
-	  _filteredData.init(4 * elements);
+	  _filteredData.init(4 * elements, 4);
 	  const std::vector<GLfloat>& attrdata = *ptr;
 	  GLfloat* glptr = _filteredData.map();
 	  

@@ -38,9 +38,10 @@ namespace magnet {
     {
     public:
       inline Buffer(): 
-	_size(0), 
+	_size(0),
+	_components(0),
 	_cl_handle_init(false), 
-	_cl_buffer_acquired(0) 
+	_cl_buffer_acquired(0)
       {}
 
       inline ~Buffer() { deinit(); }
@@ -56,8 +57,13 @@ namespace magnet {
         \param usage The expected host memory access pattern, used to
         optimise performance.
        */
-      inline void init(const std::vector<T>& data, buffer_usage::Enum usage = buffer_usage::DYNAMIC_DRAW)
-      { init(data.size(), usage, &data[0]); }
+      inline void init(const std::vector<T>& data, size_t components, buffer_usage::Enum usage = buffer_usage::DYNAMIC_DRAW)
+      { 
+	if (data.size() % components)
+	  M_throw() << "Trying to initialises buffer without a whole number of elements.";
+
+	init(data.size(), components, &data[0], usage); 
+      }
 
       /*! \brief Initialises the Buffer object.
        
@@ -72,10 +78,12 @@ namespace magnet {
         \param ptr A pointer to data to fill the buffer with. If it
         is set to NULL, no data is loaded.
        */
-      inline void init(size_t size, buffer_usage::Enum usage = buffer_usage::DYNAMIC_DRAW, const T* ptr = NULL)
+      inline void init(size_t size, size_t components, const T* ptr = NULL,  buffer_usage::Enum usage = buffer_usage::DYNAMIC_DRAW)
       {
 	if (size == 0)
 	  M_throw() << "Cannot initialise GL::Buffer with 0 data!";
+
+	
 
 	//On the first initialisation
 	if (empty())
@@ -304,6 +312,7 @@ namespace magnet {
       inline void initTest() const { if (empty()) M_throw() << "Buffer is not initialized!"; }
 
       size_t _size;
+      size_t _components;
       GLuint _buffer;
       Context::ContextPtr _context;
       ::cl::BufferGL _cl_handle;

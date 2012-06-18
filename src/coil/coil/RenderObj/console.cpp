@@ -32,7 +32,7 @@ namespace coil {
     RenderObj::init(systemQueue);
     _glutLastTime = glutGet(GLUT_ELAPSED_TIME);
 
-    _gridVertices.init(magnet::GL::objects::primitives::Grid::getVertices(10, 10));
+    _gridVertices.init(magnet::GL::objects::primitives::Grid::getVertices(10, 10), 3);
     initGTK();
   }
 

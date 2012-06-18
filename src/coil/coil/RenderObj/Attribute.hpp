@@ -142,12 +142,12 @@ namespace coil {
      */
     void initGLData()
     { 
-      _glData.init(*this);
+      size_t comps = components();
+      _glData.init(*this, comps);
       //Increase the updates counter
       ++_dataUpdates;
 
       //Also generate any statistics we report on the OpenGL data
-      size_t comps = components();
       _minVals = std::vector<GLfloat>(begin(), begin() + components());
       _maxVals = std::vector<GLfloat>(begin(), begin() + components());
       for (size_t i = 1; i < num_elements(); ++i)

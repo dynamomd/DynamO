@@ -320,9 +320,9 @@ namespace coil {
     _N = _ds.size();
     
     //Load the primitive data into the VBO's
-    _primitiveVertices.init(getPrimitiveVertices(), magnet::GL::buffer_usage::STATIC_DRAW);
-    _primitiveNormals.init(getPrimitiveNormals(), magnet::GL::buffer_usage::STATIC_DRAW);
-    _primitiveIndices.init(getPrimitiveIndicies(), magnet::GL::buffer_usage::STATIC_DRAW);
+    _primitiveVertices.init(getPrimitiveVertices(), 3, magnet::GL::buffer_usage::STATIC_DRAW);
+    _primitiveNormals.init(getPrimitiveNormals(), 3, magnet::GL::buffer_usage::STATIC_DRAW);
+    _primitiveIndices.init(getPrimitiveIndicies(), 3, magnet::GL::buffer_usage::STATIC_DRAW);
   }
 
   std::vector<GLfloat> 
@@ -441,7 +441,7 @@ namespace coil {
       colors.resize(4 * _N);
       for (uint32_t i(0); i < _N; ++i)
 	*reinterpret_cast<uint32_t*>(&(colors[4 * i])) = offset + i;
-      colorbuf.init(colors);
+      colorbuf.init(colors, 4);
     }
 
     switch (_glyphType->get_active_row_number())

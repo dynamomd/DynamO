@@ -53,7 +53,7 @@ namespace coil {
     _shader.defines("LIGHT_COUNT") = 1;
     _shader.build();
     _depthCopyShader.build();
-    _cubeVertices.init(magnet::GL::objects::primitives::Cube::getVertices());
+    _cubeVertices.init(magnet::GL::objects::primitives::Cube::getVertices(), 3);
     _transferFuncTexture.init(256, GL_RGBA16F);
     _transferFuncTexture.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     _transferFuncTexture.parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);

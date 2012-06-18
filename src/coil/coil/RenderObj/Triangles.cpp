@@ -71,7 +71,7 @@ namespace coil {
       if ((VertexColor.size() / 4) != (_posBuff.size() / 3))
 	throw std::runtime_error("VertexColor.size() / 4 != posBuffSize/3");
 
-    _colBuff.init(VertexColor, magnet::GL::buffer_usage::STREAM_DRAW);
+    _colBuff.init(VertexColor, 4, magnet::GL::buffer_usage::STREAM_DRAW);
   }
 
   void 
@@ -91,7 +91,7 @@ namespace coil {
       if (_normBuff.size() != VertexPos.size())
 	throw std::runtime_error("VertexPos.size() != normBuffSize!");
 
-    _posBuff.init(VertexPos, magnet::GL::buffer_usage::STREAM_DRAW);
+    _posBuff.init(VertexPos, 3, magnet::GL::buffer_usage::STREAM_DRAW);
   }
 
   void 
@@ -107,7 +107,7 @@ namespace coil {
       if (VertexNormals.size() != _posBuff.size())
 	throw std::runtime_error("VertexNormals.size() != posBuffsize!");
 
-    _normBuff.init(VertexNormals);
+    _normBuff.init(VertexNormals, 3);
   }
 
   void 
@@ -119,7 +119,7 @@ namespace coil {
     if (Elements.size() % 3) 
       throw std::runtime_error("Elements.size() is not a multiple of 3!");
 
-    _elementBuff.init(Elements);
+    _elementBuff.init(Elements, 3);
   }
 
   void 
@@ -231,7 +231,7 @@ namespace coil {
 		  line_elements.push_back(iPtr->second);
 		}
 
-	      _specialElementBuff.init(line_elements);
+	      _specialElementBuff.init(line_elements, 2);
 
 	      _elementBuff.unmap();
 	      break;
@@ -244,7 +244,7 @@ namespace coil {
 	      for (size_t i(0); i < point_elements.size(); ++i)
 		point_elements[i] = i;
 
-	      _specialElementBuff.init(point_elements);
+	      _specialElementBuff.init(point_elements, 1);
 	      break;
 	    }
 	  default:
@@ -272,7 +272,7 @@ namespace coil {
 	    vertexColors.push_back((i >> 24) & 0xFF);
 	  }
       
-	_pickingColorBuff.init(vertexColors, magnet::GL::buffer_usage::STREAM_DRAW);
+	_pickingColorBuff.init(vertexColors, 4, magnet::GL::buffer_usage::STREAM_DRAW);
       }
 
     _pickingRenderMode = true;

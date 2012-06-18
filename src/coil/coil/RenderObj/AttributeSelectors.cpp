@@ -166,7 +166,7 @@ namespace coil {
 	  
 	std::vector<GLfloat> scalardata;
 	generateFilteredData(scalardata, ptr, _lastComponentSelected);
-	_filteredData.init(scalardata);
+	_filteredData.init(scalardata, 1);
       }
       
     return _filteredData;
