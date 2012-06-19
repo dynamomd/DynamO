@@ -203,7 +203,6 @@ namespace dynamo {
   
     BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(iEvent,EDat);
-
   }
     
   void 

@@ -678,7 +678,7 @@ namespace dynamo
     std::vector<Particle>::const_iterator iPtr1, iPtr2;
   
     for (iPtr1 = particleList.begin(); iPtr1 != particleList.end(); ++iPtr1)
-      for (iPtr2 = iPtr1 + 1; iPtr2 != particleList.end(); ++iPtr2)    
+      for (iPtr2 = iPtr1 + 1; iPtr2 != particleList.end(); ++iPtr2)
 	getInteraction(*iPtr1, *iPtr2)->checkOverlaps(*iPtr1, *iPtr2);
 
     BOOST_FOREACH(const Particle& part, particleList)
