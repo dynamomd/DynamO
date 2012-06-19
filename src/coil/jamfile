@@ -43,7 +43,7 @@ project	: requirements
           #on the command line or auto-detected using the passed target
 	  [ builddep.set-feature-on-build coil-cwiid : cwiidtest : "Coil: libCwiid Wii-mote support (Optional)" ]
 	  [ builddep.set-feature-on-build coil-GLUT : gluttest : "Coil: GLUT" ]
-	  [ builddep.set-feature-on-build coil-GLEW : GLEWtest : "Coil: GLEW" ]
+	  [ builddep.set-feature-on-build coil-GLEW : GLEWtest : "Coil: GLEW (v1.6+)" ]
 	  [ builddep.set-feature-on-build coil-OpenCL : /opencl//test : "Coil: OpenCL lib" ]
 	  [ builddep.set-feature-on-build coil-Gtkmm : gtkmmtest : "Coil: Gtkmm" ]
 	  [ builddep.set-feature-on-build magnet-FFMPEG : /magnet//ffmpeg_test : "Magnet: libavcodec (video encoding support)" ]
