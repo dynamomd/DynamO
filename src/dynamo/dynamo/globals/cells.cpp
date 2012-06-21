@@ -302,6 +302,9 @@ namespace dynamo {
 	if (cellCount[iDim] < 4)
 	  M_throw() << "Not enough neighbour list cells in the" << char('x'+iDim) 
 		    << " dimension, need at least 4. "
+		    << "\n Maximum interaction distance is " << maxdiam / Sim->units.unitLength()
+		    << " and the simulation box has a width of " << Sim->primaryCellSize[iDim] / Sim->units.unitLength()
+		    << " in the " << char('x'+iDim) << " direction.\n"
 		    << "Your simulation box is too small in this dimension to use "
 		    << "Neighbourlists. If this cannot be changed, you can try "
 		    << "using a Dumb scheduler and deleting the Neighbourlist, "

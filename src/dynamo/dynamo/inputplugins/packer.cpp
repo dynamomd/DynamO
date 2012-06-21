@@ -2530,10 +2530,19 @@ namespace dynamo {
 	  if (vm.count("f4"))
 	    sigmax = vm["f4"].as<double>();
 
+	  //We need a box which is at least 4 times the maximum
+	  //interaction distance for the neighbourlist to function.
+	  double length1 = 4 * std::max(sigma * lambda, sigmax);
+	  //We also would want at least a big enough neighbourlist to
+	  //encompass the fully stretched out chain without wrapping
+	  //it around	  
+	  double length2 = chainlength * sigmax + sigma * lambda;
+
+	  //And we double it just to be sure
+	  double diamScale = 1.0 / (2 * std::max(length1, length2));
+
 	  //Sit the particles 95% away of max distance from each other
 	  //to help with seriously overlapping wells
-	  double diamScale = 1.0 / chainlength;
-
 	  CURandWalk sysPack(chainlength, (sigmin + 0.95 * (sigmax - sigmin))
 			     * diamScale, sigma * diamScale, new UParticle());
 
