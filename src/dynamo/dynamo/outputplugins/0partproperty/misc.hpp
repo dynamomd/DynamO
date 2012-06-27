@@ -82,6 +82,8 @@ namespace dynamo {
     double intECurrent;
     double intEsqAcc;
     double intEAcc;
+    
+    double intEMax, intEMin, KEMax, KEMin;
 
     Matrix curr_kineticP;
     Matrix cumulative_kineticP;
