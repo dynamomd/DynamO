@@ -42,7 +42,7 @@ namespace dynamo {
   void
   OPUEnergy::initialise()
   {
-    intECurrent = Sim->calcInternalEnergy();
+    minE = maxE = intECurrent = Sim->calcInternalEnergy();
   }
 
   double 
@@ -62,6 +62,8 @@ namespace dynamo {
   OPUEnergy::A1ParticleChange(const ParticleEventData& PDat)
   {
     intECurrent += PDat.getDeltaU();
+    minE = std::min(minE, intECurrent);
+    maxE = std::max(maxE, intECurrent);
   }
 
   void 
@@ -69,6 +71,8 @@ namespace dynamo {
   {
     intECurrent += PDat.particle1_.getDeltaU()
       + PDat.particle2_.getDeltaU();
+    minE = std::min(minE, intECurrent);
+    maxE = std::max(maxE, intECurrent);
   }
 
   void 
@@ -86,6 +90,10 @@ namespace dynamo {
 	<< magnet::xml::attr("Avg") << getAvgU()
 	<< magnet::xml::attr("SquareAvg") << getAvgSqU()
 	<< magnet::xml::attr("Current") << intECurrent
+      / Sim->units.unitEnergy()
+	<< magnet::xml::attr("Max") << maxE
+      / Sim->units.unitEnergy()
+	<< magnet::xml::attr("Min") << minE
       / Sim->units.unitEnergy()
 	<< magnet::xml::endtag("InternalEnergy")
 	<< magnet::xml::endtag("CEnergy");

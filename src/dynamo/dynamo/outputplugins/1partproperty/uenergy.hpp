@@ -49,5 +49,8 @@ namespace dynamo {
     double intECurrent;
     double intEsqAcc;
     double intEAcc;
+
+    double minE;
+    double maxE;
   };
 }
