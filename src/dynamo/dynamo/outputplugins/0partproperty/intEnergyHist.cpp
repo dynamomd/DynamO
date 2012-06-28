@@ -142,21 +142,16 @@ namespace dynamo {
     XML << magnet::xml::tag("EnergyHist")
 	<< magnet::xml::attr("BinWidth") << binwidth;
 
-    if (dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()) != NULL)
+    if (std::tr1::dynamic_pointer_cast<const dynamo::EnsembleNVT>(Sim->ensemble))
       XML << magnet::xml::attr("T") 
 	  << static_cast<const dynamo::EnsembleNVT&>(*(Sim->ensemble)).getReducedEnsembleVals()[2];
   
     intEnergyHist.outputClearHistogram(XML, Sim->units.unitEnergy());
   
-    if (!std::tr1::dynamic_pointer_cast<const DynNewtonianMC>(Sim->dynamics))
+    if (std::tr1::dynamic_pointer_cast<const DynNewtonianMC>(Sim->dynamics))
       {
 	dout << "Detected a Multi-canonical Dynamics, outputting w parameters" << std::endl;
 	const DynNewtonianMC& dynamics(static_cast<const DynNewtonianMC&>(*Sim->dynamics));
-	
-#ifdef DYNAMO_DEBUG      
-	if (!dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()))
-	  M_throw() << "Multi-canonical simulations require an NVT ensemble";
-#endif
 	
 	XML << magnet::xml::tag("PotentialDeformation")
 	    << magnet::xml::attr("EnergyStep")

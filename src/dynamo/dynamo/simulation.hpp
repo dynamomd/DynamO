@@ -34,7 +34,6 @@ namespace dynamo
 {  
   class Scheduler;
   class OutputPlugin;
-  class Ensemble;
   class Species;
   class BoundaryCondition;
   class Topology;
