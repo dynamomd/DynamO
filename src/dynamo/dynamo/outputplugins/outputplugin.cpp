@@ -172,8 +172,6 @@ namespace dynamo {
       return testGeneratePlugin<OPMutualDiffusionE>(Sim, XML);
     else if (!Name.compare("ThermalDiffusionE"))
       return testGeneratePlugin<OPThermalDiffusionE>(Sim, XML);
-    else if (!Name.compare("MFL"))
-      return testGeneratePlugin<OPMFL>(Sim, XML);
     else if (!Name.compare("MFT"))
       return testGeneratePlugin<OPMFT>(Sim, XML);
     else if (!Name.compare("CollEnergyChange"))
