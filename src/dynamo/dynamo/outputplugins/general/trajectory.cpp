@@ -122,15 +122,15 @@ namespace dynamo {
 	    << "\n";
 
     BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
-      logfile << "    1PEvent p1 " << pData.getParticle().getID()
+      logfile << "    1PEvent p1 " << pData.getParticleID()
 	      << "\n";
   
     BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
       {
 	logfile << "    2PEvent";
 
-	printData(pData.particle1_.getParticle().getID(),
-		  pData.particle2_.getParticle().getID());
+	printData(pData.particle1_.getParticleID(),
+		  pData.particle2_.getParticleID());
 
 	logfile << "\n";
       }
@@ -149,11 +149,12 @@ namespace dynamo {
 
     BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
       {
-	logfile << "    1PEvent p1 " << pData.getParticle().getID()
+	logfile << "    1PEvent p1 " << pData.getParticleID()
 		<< " delP1 < ";
 
-	Vector delP = pData.getDeltaP();
-      
+	const Particle& part = Sim->particleList[pData.getParticleID()];
+	Vector delP = Sim->species[pData.getSpeciesID()]->getMass(part.getID()) * (part.getVelocity() - pData.getOldVel());
+
 	for (size_t iDim(0); iDim < NDIM; ++iDim)
 	  logfile << delP[iDim] << " ";
       
@@ -164,8 +165,8 @@ namespace dynamo {
       {
 	logfile << "    2PEvent";
       
-	printData(pData.particle1_.getParticle().getID(),
-		  pData.particle2_.getParticle().getID());
+	printData(pData.particle1_.getParticleID(),
+		  pData.particle2_.getParticleID());
       
 	logfile << "\n";
       }
@@ -185,12 +186,12 @@ namespace dynamo {
     BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
       {
 	logfile << "    1PEvent " << pData.getType() 
-		<< " p1 " << pData.getParticle().getID()
+		<< " p1 " << pData.getParticleID()
 		<< " post-vel [";
 
 	for (size_t iDim(0); iDim < NDIM; ++iDim)
 	  logfile << std::setw(7) << std::scientific
-		  << pData.getParticle().getVelocity()[iDim]
+		  << Sim->particleList[pData.getParticleID()].getVelocity()[iDim]
 	    / Sim->units.unitVelocity() << ",";
       
 	logfile << "]\n";
@@ -200,8 +201,8 @@ namespace dynamo {
       {
 	logfile << "    2PEvent";
       
-	printData(pData.particle1_.getParticle().getID(),
-		  pData.particle2_.getParticle().getID());
+	printData(pData.particle1_.getParticleID(),
+		  pData.particle2_.getParticleID());
       
 	logfile << "\n";
       }

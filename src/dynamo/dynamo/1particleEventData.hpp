@@ -24,24 +24,27 @@ namespace dynamo {
   class ParticleEventData
   {
   public:
-    ParticleEventData(const Particle& part, const Species& sp, 
+    ParticleEventData() {}
+
+    ParticleEventData(const Particle& part, const Species& sp,
 		      EEventType eType):
-      particle_(part), oldVelVec(part.getVelocity()),
-      species_(sp), Type_(eType), 
+      particleID(part.getID()), 
+      oldVelVec(part.getVelocity()),
+      speciesID(sp.getID()), Type_(eType), 
       deltaU(0.0), deltaKE(0.0)
     {}
 
-    inline const Particle& getParticle() const
-    { return particle_; }
+    inline size_t getParticleID() const
+    { return particleID; }
   
-    inline const Vector & getOldVel() const
+    inline Vector getOldVel() const
     { return oldVelVec; }
 
-    inline Vector  getOldPosition() const
+    inline Vector getOldPosition() const
     { M_throw() << "Not yet Implemented"; }
 
-    inline const Species& getSpecies() const
-    { return species_; }
+    inline size_t getSpeciesID() const
+    { return speciesID; }
 
     inline void setType(EEventType nType)
     { Type_ = nType; }
@@ -61,13 +64,10 @@ namespace dynamo {
     inline EEventType getType() const
     { return Type_; }
   
-    Vector  getDeltaP() const
-    { return species_.getMass(particle_.getID()) * (particle_.getVelocity() - oldVelVec); }
-
   private:
-    const Particle& particle_;
-    const Vector  oldVelVec;
-    const Species& species_;
+    size_t particleID;
+    Vector  oldVelVec;
+    size_t speciesID;
     EEventType Type_;
     double deltaU;
     double deltaKE;

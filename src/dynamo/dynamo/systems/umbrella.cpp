@@ -129,7 +129,7 @@ namespace dynamo {
   
     //Only 1ParticleEvents occur
     BOOST_FOREACH(const ParticleEventData& PDat, SDat.L1partChanges)
-      Sim->ptrScheduler->fullUpdate(Sim->particleList[PDat.getParticle().getID()]);
+      Sim->ptrScheduler->fullUpdate(Sim->particleList[PDat.getParticleID()]);
   
     locdt += Sim->freestreamAcc;
 
@@ -243,8 +243,8 @@ namespace dynamo {
   SysUmbrella::particlesUpdated(const NEventData& PDat)
   {
     BOOST_FOREACH(const ParticleEventData& pdat, PDat.L1partChanges)
-      if (range1->isInRange(pdat.getParticle())
-	  || range2->isInRange(pdat.getParticle()))
+      if (range1->isInRange(Sim->particleList[pdat.getParticleID()])
+	  || range2->isInRange(Sim->particleList[pdat.getParticleID()]))
 	{
 	  recalculateTime();
 	  Sim->ptrScheduler->rebuildSystemEvents();
@@ -252,10 +252,10 @@ namespace dynamo {
 	}
 
     BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
-      if (range1->isInRange(pdat.particle1_.getParticle())
-	  || range2->isInRange(pdat.particle1_.getParticle())
-	  || range1->isInRange(pdat.particle2_.getParticle())
-	  || range2->isInRange(pdat.particle2_.getParticle()))
+      if (range1->isInRange(Sim->particleList[pdat.particle1_.getParticleID()])
+	  || range2->isInRange(Sim->particleList[pdat.particle1_.getParticleID()])
+	  || range1->isInRange(Sim->particleList[pdat.particle2_.getParticleID()])
+	  || range2->isInRange(Sim->particleList[pdat.particle2_.getParticleID()]))
 	{
 	  recalculateTime();
 	  Sim->ptrScheduler->rebuildSystemEvents();

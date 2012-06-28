@@ -88,7 +88,7 @@ namespace dynamo {
       BOOST_FOREACH(unsigned long ID, *range)
 	{
 	  for (size_t s(0); s < nsph; ++s)
-	    mass[nsph * sphID + s] = Sim->species[Sim->particleList[ID]].getMass(ID);
+	    mass[nsph * sphID + s] = Sim->species[Sim->particleList[ID]]->getMass(ID);
 	  ++sphID;
 	}
       (*_renderData)["Mass"].flagNewData();

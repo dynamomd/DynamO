@@ -44,7 +44,12 @@ namespace dynamo {
   void 
   OPMomentum::A1ParticleChange(const ParticleEventData& PDat)
   {
-    sysMom += PDat.getDeltaP();
+    const Particle& p1 = Sim->particleList[PDat.getParticleID()];
+    const Species& sp1 = *Sim->species[PDat.getSpeciesID()];
+    
+    Vector dP = sp1.getMass(p1.getID()) * (p1.getVelocity() - PDat.getOldVel());
+
+    sysMom += dP;
   }
 
   void 

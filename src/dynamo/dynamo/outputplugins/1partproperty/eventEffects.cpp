@@ -52,9 +52,15 @@ namespace dynamo {
   OPEventEffects::eventUpdate(const GlobalEvent& globEvent, const NEventData& SDat)
   {
     BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
-      newEvent(globEvent.getType(),getClassKey(globEvent),
-	       pData.getDeltaKE(),
-	       pData.getDeltaP());
+      {
+	const Particle& p1 = Sim->particleList[pData.getParticleID()];
+	const Species& sp1 = *Sim->species[pData.getSpeciesID()];
+	
+	Vector dP = sp1.getMass(p1.getID()) * (p1.getVelocity() - pData.getOldVel());
+
+	newEvent(globEvent.getType(),getClassKey(globEvent),
+		 pData.getDeltaKE(), dP);
+      }
   
     BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
       {
@@ -72,9 +78,15 @@ namespace dynamo {
   OPEventEffects::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
   {
     BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
-      newEvent(localEvent.getType(),getClassKey(localEvent),
-	       pData.getDeltaKE(),
-	       pData.getDeltaP());
+      {
+	const Particle& p1 = Sim->particleList[pData.getParticleID()];
+	const Species& sp1 = *Sim->species[pData.getSpeciesID()];
+	
+	Vector dP = sp1.getMass(p1.getID()) * (p1.getVelocity() - pData.getOldVel());
+	
+	newEvent(localEvent.getType(),getClassKey(localEvent),
+		 pData.getDeltaKE(), dP);
+      }
   
     BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
       {
@@ -92,9 +104,15 @@ namespace dynamo {
   OPEventEffects::eventUpdate(const System& sysEvent, const NEventData& SDat, const double&)
   {
     BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
-      newEvent(sysEvent.getType(),getClassKey(sysEvent),
-	       pData.getDeltaKE(),
-	       pData.getDeltaP());
+      {
+	const Particle& p1 = Sim->particleList[pData.getParticleID()];
+	const Species& sp1 = *Sim->species[pData.getSpeciesID()];
+	
+	Vector dP = sp1.getMass(p1.getID()) * (p1.getVelocity() - pData.getOldVel());
+	
+	newEvent(sysEvent.getType(),getClassKey(sysEvent),
+		 pData.getDeltaKE(), dP);
+      }
   
     BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
       {

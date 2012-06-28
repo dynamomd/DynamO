@@ -18,5 +18,4 @@
 #include <dynamo/outputplugins/correlations/include.hpp>
 #include <dynamo/outputplugins/0partproperty/include.hpp>
 #include <dynamo/outputplugins/1partproperty/include.hpp>
-#include <dynamo/outputplugins/2partproperty/include.hpp>
 #include <dynamo/outputplugins/tickerproperty/include.hpp>

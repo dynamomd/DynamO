@@ -134,16 +134,10 @@ namespace dynamo {
       return testGeneratePlugin<OPUEnergy>(Sim, XML);
     else if (!Name.compare("Misc"))
       return testGeneratePlugin<OPMisc>(Sim, XML);
-    else if (!Name.compare("TinkerXYZ") || !Name.compare("VMD"))
-      return testGeneratePlugin<OPTinkerXYZ>(Sim, XML);
     else if (!Name.compare("CollisionMatrix"))
       return testGeneratePlugin<OPCollMatrix>(Sim, XML);
-    else if (!Name.compare("RdotV"))
-      return testGeneratePlugin<OPRdotV>(Sim, XML);
     else if (!Name.compare("Momentum"))
       return testGeneratePlugin<OPMomentum>(Sim, XML);
-    else if (!Name.compare("VTK"))
-      return testGeneratePlugin<OPVTK>(Sim, XML);
     else if (!Name.compare("ContactMap"))
       return testGeneratePlugin<OPCContactMap>(Sim, XML);
     else if (!Name.compare("OverlapTester"))
@@ -182,14 +176,10 @@ namespace dynamo {
       return testGeneratePlugin<OPVelProfile>(Sim, XML);
     else if (!Name.compare("RadialDistribution"))
       return testGeneratePlugin<OPRadialDistribution>(Sim, XML);
-    else if (!Name.compare("CollisionCorrelators"))
-      return testGeneratePlugin<OPCollisionCorrelator>(Sim, XML);
     else if (!Name.compare("BoundedPQStats"))
       return testGeneratePlugin<OPBoundedQStats>(Sim, XML);
     else if (!Name.compare("MSDCorrelator"))
       return testGeneratePlugin<OPMSDCorrelator>(Sim, XML);
-    else if (!Name.compare("RijVijComponents"))
-      return testGeneratePlugin<OPRijVij>(Sim, XML);
     else if (!Name.compare("KEnergyTicker"))
       return testGeneratePlugin<OPKEnergyTicker>(Sim, XML);
     else if (!Name.compare("StructureImage"))
@@ -200,8 +190,6 @@ namespace dynamo {
       return testGeneratePlugin<OPSHCrystal>(Sim, XML);
     else if (!Name.compare("SCParameter"))
       return testGeneratePlugin<OPSCParameter>(Sim, XML);
-    else if (!Name.compare("CubeComponents"))
-      return testGeneratePlugin<OPCubeComp>(Sim, XML);
     else if (!Name.compare("PlateMotion"))
       return testGeneratePlugin<OPPlateMotion>(Sim, XML);
     else if (!Name.compare("SelfDiffusionOrientationalGK"))
@@ -210,8 +198,6 @@ namespace dynamo {
       return testGeneratePlugin<OPMSDOrientational>(Sim, XML);
     else if (!Name.compare("MSDOrientationalCorrelator"))
       return testGeneratePlugin<OPMSDOrientationalCorrelator>(Sim, XML);
-    else if (!Name.compare("ChatteringCorrelator"))
-      return testGeneratePlugin<OPChatteringCorrelator>(Sim, XML);
     else if (!Name.compare("OrientationalOrder"))
       return testGeneratePlugin<OPOrientationalOrder>(Sim, XML);
     else

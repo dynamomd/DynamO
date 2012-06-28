@@ -30,7 +30,7 @@ namespace dynamo {
   OPTicker::getTickerTime() const
   {
     try {
-      return dynamic_cast<const SysTicker&>(Sim->systems["SystemTicker"]).getPeriod();
+      return std::tr1::dynamic_pointer_cast<SysTicker>(Sim->systems["SystemTicker"])->getPeriod();
     } catch (const std::bad_cast&)
       {
 	M_throw() << "Could not upcast the SystemTicker system event to SysTicker, have you named a system as SystemTicker?";

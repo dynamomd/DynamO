@@ -56,7 +56,7 @@ namespace dynamo {
     BOOST_FOREACH(Cdata& dat, chains)
       {
 	try {
-	  dat.chainPtr = &dynamic_cast<const TChain&>(Sim->topology[dat.chainPtr->getName()]);
+	  dat.chainPtr = &dynamic_cast<const TChain&>(*Sim->topology[dat.chainPtr->getName()]);
 	} catch (...)
 	  {
 	    M_throw() << "On changing the system OPCContactMap could not find the topology \"" 

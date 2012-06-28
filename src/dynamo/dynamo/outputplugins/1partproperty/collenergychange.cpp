@@ -69,35 +69,34 @@ namespace dynamo {
   void 
   OPCollEnergyChange::A1ParticleChange(const ParticleEventData& PDat)
   {
-    data[PDat.getSpecies().getID()]
-      .addVal(PDat.getDeltaKE());
+    data[PDat.getSpeciesID()].addVal(PDat.getDeltaKE());
   }
 
   void 
   OPCollEnergyChange::A2ParticleChange(const PairEventData& PDat)
   {
-    data[PDat.particle1_.getSpecies().getID()]
-      .addVal(PDat.particle1_.getDeltaKE());
+    data[PDat.particle1_.getSpeciesID()].addVal(PDat.particle1_.getDeltaKE());
+    data[PDat.particle2_.getSpeciesID()].addVal(PDat.particle2_.getDeltaKE());
 
-    data[PDat.particle2_.getSpecies().getID()]
-      .addVal(PDat.particle2_.getDeltaKE());
+    const Particle& p1 = Sim->particleList[PDat.particle1_.getParticleID()];
+    const Particle& p2 = Sim->particleList[PDat.particle2_.getParticleID()];
 
-    double p1Mass = PDat.particle1_.getSpecies().getMass(PDat.particle1_.getParticle().getID()); 
-    double p2Mass = PDat.particle2_.getSpecies().getMass(PDat.particle2_.getParticle().getID());
+    double p1Mass = Sim->species[PDat.particle1_.getSpeciesID()]->getMass(p1.getID()); 
+    double p2Mass = Sim->species[PDat.particle2_.getSpeciesID()]->getMass(p2.getID());
     double mu = p1Mass * p2Mass / (p1Mass + p2Mass);
 
     specialhist.addVal((PDat.dP.nrm2() / (2.0 * mu)) - (PDat.vijold | PDat.dP));
 
-    collisionKE[mapkey(PDat.particle1_.getSpecies().getID(), 
-		       PDat.particle2_.getSpecies().getID(), 
+    collisionKE[mapkey(PDat.particle1_.getSpeciesID(), 
+		       PDat.particle2_.getSpeciesID(), 
 		       PDat.getType())]
-      .addVal(Sim->dynamics->getParticleKineticEnergy(PDat.particle1_.getParticle())
+      .addVal(Sim->dynamics->getParticleKineticEnergy(p1)
 	      -PDat.particle1_.getDeltaKE());
 
-    collisionKE[mapkey(PDat.particle2_.getSpecies().getID(), 
-		       PDat.particle1_.getSpecies().getID(), 
+    collisionKE[mapkey(PDat.particle2_.getSpeciesID(), 
+		       PDat.particle1_.getSpeciesID(), 
 		       PDat.getType())]
-      .addVal(Sim->dynamics->getParticleKineticEnergy(PDat.particle2_.getParticle())
+      .addVal(Sim->dynamics->getParticleKineticEnergy(p2)
 	      -PDat.particle2_.getDeltaKE());
   }
 

@@ -24,6 +24,8 @@ namespace dynamo {
   class PairEventData
   {
   public:
+    PairEventData() {}
+
     PairEventData(const Particle& part1,
 		  const Particle& part2,
 		  const Species& sp1,

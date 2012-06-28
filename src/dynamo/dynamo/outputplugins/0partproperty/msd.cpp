@@ -106,7 +106,7 @@ namespace dynamo {
 	double totmass = 0.0;
 	BOOST_FOREACH(const unsigned long& ID, *molRange)
 	  {
-	    double pmass = Sim->species[Sim->particleList[ID]].getMass(ID);
+	    double pmass = Sim->species[Sim->particleList[ID]]->getMass(ID);
 
 	    totmass += pmass;
 	    currPos += Sim->particleList[ID].getPosition() * pmass;

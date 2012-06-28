@@ -17,7 +17,6 @@
 
 #include <dynamo/outputplugins/tickerproperty/chaintorsion.hpp>
 #include <dynamo/outputplugins/tickerproperty/radiusGyration.hpp>
-#include <dynamo/outputplugins/tickerproperty/tinkerxyz.hpp>
 #include <dynamo/outputplugins/tickerproperty/chainContactMap.hpp>
 #include <dynamo/outputplugins/tickerproperty/overlap.hpp>
 #include <dynamo/outputplugins/tickerproperty/periodmsd.hpp>
@@ -26,7 +25,6 @@
 #include <dynamo/outputplugins/tickerproperty/vel_dist.hpp>
 #include <dynamo/outputplugins/tickerproperty/radialdist.hpp>
 #include <dynamo/outputplugins/tickerproperty/velprof.hpp>
-#include <dynamo/outputplugins/tickerproperty/vtk.hpp>
 #include <dynamo/outputplugins/tickerproperty/msdcorrelator.hpp>
 #include <dynamo/outputplugins/tickerproperty/kenergyticker.hpp>
 #include <dynamo/outputplugins/tickerproperty/structureImage.hpp>

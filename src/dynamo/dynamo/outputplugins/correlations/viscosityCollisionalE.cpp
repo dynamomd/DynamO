@@ -181,19 +181,21 @@ namespace dynamo {
   void
   OPViscosityCollisionalE::impulseDelG(const PairEventData& colldat)
   {
+    const Particle& p1 = Sim->particleList[colldat.particle1_.getParticleID()];
+    const Species& sp1 = *Sim->species[colldat.particle1_.getSpeciesID()];
+
+    Vector dP = sp1.getMass(p1.getID()) * (p1.getVelocity() - colldat.particle1_.getOldVel());
+
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       for (size_t jDim = 0; jDim < NDIM; ++jDim)
-	delG[iDim][jDim] += colldat.particle1_.getDeltaP()[iDim] * colldat.rij[jDim];
+	delG[iDim][jDim] += dP[iDim] * colldat.rij[jDim];
   }
 
   void
   OPViscosityCollisionalE::impulseDelG(const NEventData& ndat) 
   { 
     BOOST_FOREACH(const PairEventData& dat, ndat.L2partChanges)
-      for (size_t iDim(0); iDim < NDIM; ++iDim)
-	for (size_t jDim(0); jDim < NDIM; ++jDim)
-	  delG[iDim][jDim] += dat.particle1_.getDeltaP()[iDim] 
-	    * dat.rij[jDim];
+      impulseDelG(dat);
   }
 
   inline void 

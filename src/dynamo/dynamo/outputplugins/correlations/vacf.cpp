@@ -132,7 +132,7 @@ namespace dynamo {
       G[i].push_front(Sim->particleList[i].getVelocity());	      
   
     //Now correct the fact that the wrong velocity has been pushed
-    G[PDat.getParticle().getID()].front() = PDat.getOldVel();
+    G[PDat.getParticleID()].front() = PDat.getOldVel();
 
     //This ensures the list gets to accumilator size
     if (notReady)
@@ -153,10 +153,10 @@ namespace dynamo {
       G[i].push_front(Sim->particleList[i].getVelocity());	      
   
     //Now correct the fact that the wrong velocity has been pushed
-    G[PDat.particle1_.getParticle().getID()].front() 
+    G[PDat.particle1_.getParticleID()].front() 
       = PDat.particle1_.getOldVel();
 
-    G[PDat.particle2_.getParticle().getID()].front() 
+    G[PDat.particle2_.getParticleID()].front() 
       = PDat.particle2_.getOldVel();
 
     //This ensures the list gets to accumilator size
@@ -180,14 +180,14 @@ namespace dynamo {
   
     //Go back and fix the pushes
     BOOST_FOREACH(const ParticleEventData&PDat2, PDat.L1partChanges)
-      G[PDat2.getParticle().getID()].front() = PDat2.getOldVel();		
+      G[PDat2.getParticleID()].front() = PDat2.getOldVel();		
   
     BOOST_FOREACH(const PairEventData& PDat2, PDat.L2partChanges)
       {
-	G[PDat2.particle1_.getParticle().getID()].front() 
+	G[PDat2.particle1_.getParticleID()].front() 
 	  = PDat2.particle1_.getOldVel();
 
-	G[PDat2.particle2_.getParticle().getID()].front() 
+	G[PDat2.particle2_.getParticleID()].front() 
 	  = PDat2.particle2_.getOldVel();
       }
 

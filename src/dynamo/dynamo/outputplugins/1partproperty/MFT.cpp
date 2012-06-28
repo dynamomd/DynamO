@@ -71,14 +71,14 @@ namespace dynamo {
     //We ignore stuff that hasn't had an event yet
 
     for (size_t collN = 0; collN < collisionHistoryLength; ++collN)
-      if (lastTime[PDat.getParticle().getID()][collN] != 0.0)
+      if (lastTime[PDat.getParticleID()][collN] != 0.0)
 	{
-	  data[PDat.getSpecies().getID()][collN]
+	  data[PDat.getSpeciesID()][collN]
 	    .addVal(Sim->dSysTime 
-		    - lastTime[PDat.getParticle().getID()][collN]);
+		    - lastTime[PDat.getParticleID()][collN]);
 	}
   
-    lastTime[PDat.getParticle().getID()].push_front(Sim->dSysTime);
+    lastTime[PDat.getParticleID()].push_front(Sim->dSysTime);
   }
 
   void

@@ -147,11 +147,14 @@ namespace dynamo {
   void 
   OPThermalConductivityE::updateConstDelG(const PairEventData& PDat)
   {
-    double p1E = Sim->dynamics->getParticleKineticEnergy(PDat.particle1_.getParticle());
-    double p2E = Sim->dynamics->getParticleKineticEnergy(PDat.particle2_.getParticle());
+    const Particle& p1 = Sim->particleList[PDat.particle1_.getParticleID()];
+    const Particle& p2 = Sim->particleList[PDat.particle2_.getParticleID()];
+    
+    double p1E = Sim->dynamics->getParticleKineticEnergy(p1);
+    double p2E = Sim->dynamics->getParticleKineticEnergy(p2);
   
-    constDelG += PDat.particle1_.getParticle().getVelocity() * p1E 
-      + PDat.particle2_.getParticle().getVelocity() * p2E
+    constDelG += p1.getVelocity() * p1E 
+      + p2.getVelocity() * p2E
       - PDat.particle1_.getOldVel() * (p1E - PDat.particle1_.getDeltaKE())
       - PDat.particle2_.getOldVel() * (p2E - PDat.particle2_.getDeltaKE());
   }
@@ -277,9 +280,9 @@ namespace dynamo {
   void 
   OPThermalConductivityE::updateConstDelG(const ParticleEventData& PDat)
   {
-    double p1E = Sim->dynamics->getParticleKineticEnergy(PDat.getParticle());
+    double p1E = Sim->dynamics->getParticleKineticEnergy(Sim->particleList[PDat.getParticleID()]);
   
-    constDelG += PDat.getParticle().getVelocity() * p1E 
+    constDelG += Sim->particleList[PDat.getParticleID()].getVelocity() * p1E 
       - PDat.getOldVel() * (p1E - PDat.getDeltaKE());
   }
 }

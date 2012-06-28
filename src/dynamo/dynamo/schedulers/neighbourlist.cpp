@@ -37,7 +37,7 @@ namespace dynamo {
   SNeighbourList::initialise()
   {
     try {
-      NBListID = Sim->globals["SchedulerNBList"].getID();
+      NBListID = Sim->globals["SchedulerNBList"]->getID();
     }
     catch(std::exception& cxp)
       {

@@ -86,7 +86,7 @@ namespace dynamo {
     EnsembleVals[1] = Sim->units.unitVolume();
 
     try {
-      thermostat = &Sim->systems["Thermostat"];
+      thermostat = Sim->systems["Thermostat"];
     } catch (std::exception & err)
       {
 	M_throw() << "Could not find the Thermostat in NVT system\n"
@@ -94,12 +94,12 @@ namespace dynamo {
       }
     
     //Only one kind of thermostat so far!
-    if (dynamic_cast<const SysAndersen*>(thermostat) == NULL)
+    if (!std::tr1::dynamic_pointer_cast<SysAndersen>(thermostat))
       {
 	M_throw() << "Could not upcast thermostat to Andersens";
       }    
     
-    EnsembleVals[2] = static_cast<const SysAndersen*>(thermostat)->getTemperature();
+    EnsembleVals[2] = std::tr1::dynamic_pointer_cast<SysAndersen>(thermostat)->getTemperature();
     
     dout << "NVT Ensemble initialised\nN=" << EnsembleVals[0]
 	     << "\nV=" << EnsembleVals[1] / Sim->units.unitVolume()
@@ -216,19 +216,19 @@ namespace dynamo {
     EnsembleVals[0] = Sim->particleList.size();
 
     try {
-      thermostat = &Sim->systems["Thermostat"];
+      thermostat = Sim->systems["Thermostat"];
     } catch (std::exception&)
       {
 	M_throw() << "Could not find the Thermostat in NVT system";
       }
     
     //Only one kind of thermostat so far!
-    if (dynamic_cast<const SysAndersen*>(thermostat) == NULL)
+    if (!std::tr1::dynamic_pointer_cast<SysAndersen>(thermostat))
       {
 	M_throw() << "Could not upcast thermostat to Andersens";
       }
     
-    EnsembleVals[1] = static_cast<const SysAndersen*>
+    EnsembleVals[1] = std::tr1::dynamic_pointer_cast<SysAndersen>
       (thermostat)->getTemperature();
     
     try {

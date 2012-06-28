@@ -129,7 +129,7 @@ namespace dynamo {
     // Begin XML output
     XML << magnet::xml::tag("MSDOrientationalCorrelator");
 
-    double dt = dynamic_cast<const SysTicker&>(Sim->systems["SystemTicker"]).getPeriod() / Sim->units.unitTime();
+    double dt = dynamic_cast<const SysTicker&>(*Sim->systems["SystemTicker"]).getPeriod() / Sim->units.unitTime();
 
     XML << magnet::xml::tag("Component")
 	<< magnet::xml::attr("Type") << "Parallel"

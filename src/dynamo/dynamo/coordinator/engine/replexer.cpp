@@ -499,11 +499,11 @@ namespace dynamo {
 	    for (size_t i = nSims; i != 0;)
 	      {
 		//Reset the stop event
-		SystHalt* tmpRef = dynamic_cast<SystHalt*>
-		  (&Simulations[--i].systems["ReplexHalt"]);
-		      
+		shared_ptr<SystHalt> tmpRef = std::tr1::dynamic_pointer_cast<SystHalt>
+		  (Simulations[--i].systems["ReplexHalt"]);
+		
 #ifdef DYNAMO_DEBUG
-		if (tmpRef == NULL)
+		if (!tmpRef)
 		  M_throw() << "Could not find the time halt event error";
 #endif			
 		//Each simulations exchange time is inversly proportional to its temperature

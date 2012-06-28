@@ -29,6 +29,8 @@ namespace dynamo {
   F(CORE, /*!< Hard core collision*/ )					\
   F(WELL_IN, /*!< Well Event where spheres are heading toward each other*/ ) \
   F(WELL_OUT, /*!< Well Event where spheres are heading away from each other*/ ) \
+  F(NBHOOD_IN, /*!< Event where particles enter a neighbourhood*/ )	\
+  F(NBHOOD_OUT, /*!< Event where particles leave a neighbourhood*/ )	\
   F(WELL_KEUP, /*!< Well event where Kinetic Energy increases*/ )	\
   F(WELL_KEDOWN, /*!< Well event where Kinetic Energy decreases*/ )	\
   F(BOUNCE, /*!< CORE event due to energetic constraints*/ )		\
@@ -41,13 +43,13 @@ namespace dynamo {
   F(NON_EVENT, /*!< Anything that is not part of the system dynamics*/ ) \
   F(RESCALE, /*!< A rescaling of the system energy*/ )			\
   F(VIRTUAL, /*!< Fake events that cause a particle to free stream*/ )	\
-  F(VIRTUAL_PARABOLA, /*!< Fake event used to track when a particle goes through its parabola. Needed to keep the dynamics deterministic.*/ )	\
+  F(VIRTUAL_PARABOLA, /*!< Fake event used to track when a particle goes through its parabola. Needed to keep the dynamics deterministic.*/ ) \
   F(SLEEP, /*!< Event to transition a particle from dynamic to static*/ ) \
   F(RESLEEP, /*!< Event to zero a sleeping particles velocity after being hit*/ ) \
   F(WAKEUP, /*!< Event to transition a particle from static to dynamic*/ ) \
-  F(RELOCATE, /*!< An event where the particles may have their velocity AND position changed*/ )	   \
+  F(RELOCATE, /*!< An event where the particles may have their velocity AND position changed*/ ) \
   F(CORRECT, /*!< An event used to correct a previous event*/ )		
-
+  
 #define buildEnum(VAL,COMMENT)			\
   VAL, COMMENT
 

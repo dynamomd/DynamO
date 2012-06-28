@@ -79,7 +79,7 @@ namespace dynamo {
   void 
   OPThermalDiffusionE::initialise()
   {
-    species1 = Sim->species[species1name].getID();
+    species1 = Sim->species[species1name]->getID();
 
     if (dynamic_cast<const dynamo::EnsembleNVE* >(Sim->ensemble.get()) == NULL)
       M_throw() << "WARNING: This is only valid in the microcanonical"
@@ -115,13 +115,13 @@ namespace dynamo {
     double speciesMass = 0;
     BOOST_FOREACH(const Particle& part, Sim->particleList)
       {
-	double mass = Sim->species[part].getMass(part.getID());
+	double mass = Sim->species[part]->getMass(part.getID());
 
 	constDelG += part.getVelocity() * mass
 	  * Sim->dynamics->getParticleKineticEnergy(part);
 	sysMom += part.getVelocity() * mass;
       
-	if (Sim->species[part].getID() == species1)
+	if (Sim->species[part]->getID() == species1)
 	  {
 	    constDelGsp1 += part.getVelocity();
 	    speciesMass += mass;
@@ -259,15 +259,20 @@ namespace dynamo {
   void 
   OPThermalDiffusionE::updateConstDelG(const ParticleEventData& PDat) 
   {
-    double p1E = Sim->dynamics->getParticleKineticEnergy(PDat.getParticle());
+    const Particle& p1 = Sim->particleList[PDat.getParticleID()];
+    const Species& sp1 = *Sim->species[PDat.getSpeciesID()];
+
+    double p1E = Sim->dynamics->getParticleKineticEnergy(p1);
   
-    constDelG += PDat.getParticle().getVelocity() * p1E 
+    Vector dP = sp1.getMass(p1.getID()) * (p1.getVelocity() - PDat.getOldVel());
+
+    constDelG += p1.getVelocity() * p1E 
       - PDat.getOldVel() * (p1E - PDat.getDeltaKE());
 
-    sysMom += PDat.getDeltaP();
+    sysMom += dP;
   
-    if (PDat.getSpecies().getID() == species1)
-      constDelGsp1 += PDat.getDeltaP();
+    if (sp1.getID() == species1)
+      constDelGsp1 += dP;
   }
 
   void 

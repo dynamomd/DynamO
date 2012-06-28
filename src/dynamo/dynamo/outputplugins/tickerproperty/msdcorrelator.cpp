@@ -107,7 +107,7 @@ namespace dynamo {
 
 	BOOST_FOREACH(const size_t& ID, *range)
 	  {
-	    double mass = Sim->species[Sim->particleList[ID]].getMass(ID);
+	    double mass = Sim->species[Sim->particleList[ID]]->getMass(ID);
 	    molCOM += posHistory[ID][0] * mass;
 	    molMass += mass;
 	  }
@@ -120,7 +120,7 @@ namespace dynamo {
 	  
 	    BOOST_FOREACH(const size_t& ID, *range)
 	      molCOM2 += posHistory[ID][step] 
-	      * Sim->species[Sim->particleList[ID]].getMass(ID);
+	      * Sim->species[Sim->particleList[ID]]->getMass(ID);
 	  
 	    molCOM2 /= molMass;
 	  
@@ -136,7 +136,7 @@ namespace dynamo {
 	<< magnet::xml::tag("Particles");
   
     double dt = dynamic_cast<const SysTicker&>
-      (Sim->systems["SystemTicker"]).getPeriod()
+      (*Sim->systems["SystemTicker"]).getPeriod()
       / Sim->units.unitTime();
   
     BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->species)

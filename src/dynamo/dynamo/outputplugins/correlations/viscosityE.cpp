@@ -105,7 +105,7 @@ namespace dynamo {
 	for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	  constDelG[iDim][jDim] 
 	    += part.getVelocity()[iDim] * part.getVelocity()[jDim]
-	    * Sim->species[part].getMass(part.getID());
+	    * Sim->species[part]->getMass(part.getID());
 
     dout << "dt set to " << dt / Sim->units.unitTime() << std::endl;
   }
@@ -210,19 +210,21 @@ namespace dynamo {
   void
   OPViscosityE::impulseDelG(const PairEventData& colldat)
   {
+    const Particle& p1 = Sim->particleList[colldat.particle1_.getParticleID()];
+    const Species& sp1 = *Sim->species[colldat.particle1_.getSpeciesID()];
+
+    Vector dP = sp1.getMass(p1.getID()) * (p1.getVelocity() - colldat.particle1_.getOldVel());
+
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       for (size_t jDim = 0; jDim < NDIM; ++jDim)
-	delG[iDim][jDim] += colldat.particle1_.getDeltaP()[iDim] * colldat.rij[jDim];
+	delG[iDim][jDim] += dP[iDim] * colldat.rij[jDim];
   }
 
   void
   OPViscosityE::impulseDelG(const NEventData& ndat) 
   { 
     BOOST_FOREACH(const PairEventData& dat, ndat.L2partChanges)
-      for (size_t iDim(0); iDim < NDIM; ++iDim)
-	for (size_t jDim(0); jDim < NDIM; ++jDim)
-	  delG[iDim][jDim] += dat.particle1_.getDeltaP()[iDim] 
-	    * dat.rij[jDim];
+      impulseDelG(dat);
   }
 
   inline void 
@@ -313,31 +315,22 @@ namespace dynamo {
   void 
   OPViscosityE::updateConstDelG(const PairEventData& PDat)
   {
-    for (size_t iDim = 0; iDim < NDIM; ++iDim)
-      for (size_t jDim = 0; jDim < NDIM; ++jDim)
-	constDelG[iDim][jDim] += 
-	  (PDat.particle1_.getParticle().getVelocity()[iDim]
-	   * PDat.particle1_.getParticle().getVelocity()[jDim]
-	   - PDat.particle1_.getOldVel()[iDim]
-	   * PDat.particle1_.getOldVel()[jDim])
-	  * PDat.particle1_.getSpecies().getMass(PDat.particle1_.getParticle().getID())
-	  + (PDat.particle2_.getParticle().getVelocity()[iDim]
-	     * PDat.particle2_.getParticle().getVelocity()[jDim]
-	     - PDat.particle2_.getOldVel()[iDim]
-	     * PDat.particle2_.getOldVel()[jDim])
-	  * PDat.particle2_.getSpecies().getMass(PDat.particle2_.getParticle().getID());
+    updateConstDelG(PDat.particle1_);
+    updateConstDelG(PDat.particle2_);
   }
 
   void 
   OPViscosityE::updateConstDelG(const ParticleEventData& PDat)
   {
+    const Particle& p1 = Sim->particleList[PDat.getParticleID()];
+    const Species& sp1 = *Sim->species[PDat.getSpeciesID()];
+
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	constDelG[iDim][jDim] += 
-	  (PDat.getParticle().getVelocity()[iDim]
-	   * PDat.getParticle().getVelocity()[jDim]
+	  (p1.getVelocity()[iDim] * p1.getVelocity()[jDim]
 	   - PDat.getOldVel()[iDim] * PDat.getOldVel()[jDim]
-	   ) * PDat.getSpecies().getMass(PDat.getParticle().getID());
+	   ) * sp1.getMass(p1.getID());
   }
 
   void 

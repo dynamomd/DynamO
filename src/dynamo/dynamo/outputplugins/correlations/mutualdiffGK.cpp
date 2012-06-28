@@ -170,8 +170,8 @@ namespace dynamo {
   void 
   OPMutualDiffusionGK::initialise()
   {
-    species1 = Sim->species[species1name].getID();
-    species2 = Sim->species[species2name].getID();
+    species1 = Sim->species[species1name]->getID();
+    species2 = Sim->species[species2name]->getID();
 
     if (!(Sim->getOutputPlugin<OPMisc>()))
       M_throw() << "MutualDiffusionGK requires Misc output plugin!";
@@ -189,7 +189,7 @@ namespace dynamo {
 
     BOOST_FOREACH(const Particle& part, Sim->particleList)
       {
-	double mass = Sim->species[part].getMass(part.getID());
+	double mass = Sim->species[part]->getMass(part.getID());
 	sysMom += part.getVelocity() * mass;
 	sysMass += mass;
 
@@ -233,13 +233,18 @@ namespace dynamo {
   void 
   OPMutualDiffusionGK::updateDelG(const ParticleEventData& PDat) 
   {
-    sysMom += PDat.getDeltaP();
+    const Particle& p1 = Sim->particleList[PDat.getParticleID()];
+    const Species& sp1 = *Sim->species[PDat.getSpeciesID()];
+    
+    Vector dP = sp1.getMass(p1.getID()) * (p1.getVelocity() - PDat.getOldVel());
+
+    sysMom += dP;
   
-    if (PDat.getSpecies().getID() == species1)
-      delGsp1 += PDat.getDeltaP();
+    if (PDat.getSpeciesID() == species1)
+      delGsp1 += dP;
   
-    if (PDat.getSpecies().getID() == species2)
-      delGsp2 += PDat.getDeltaP();
+    if (PDat.getSpeciesID() == species2)
+      delGsp2 += dP;
   
   }
 

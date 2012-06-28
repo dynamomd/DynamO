@@ -58,7 +58,7 @@ namespace dynamo {
     ID=nID;
 
     try {
-      _NBListID = Sim->globals[_nblistName].getID();
+      _NBListID = Sim->globals[_nblistName]->getID();
     }
     catch(std::exception& cxp)
       {
@@ -140,7 +140,7 @@ namespace dynamo {
     iEvent.addTime(Sim->freestreamAcc);      
     Sim->freestreamAcc = 0;
 
-    ParticleEventData EDat(part, Sim->species[part], iEvent.getType());
+    ParticleEventData EDat(part, *Sim->species[part], iEvent.getType());
       
     Vector newVel(Sim->normal_sampler(),Sim->normal_sampler(),Sim->normal_sampler());
     newVel *= _wakeVelocity / newVel.nrm();
@@ -148,7 +148,7 @@ namespace dynamo {
     part.getVelocity() = newVel;
     part.setState(Particle::DYNAMIC);
       
-    EDat.setDeltaKE(0.5 * EDat.getSpecies().getMass(part.getID())
+    EDat.setDeltaKE(0.5 * Sim->species[EDat.getSpeciesID()]->getMass(part.getID())
 		    * (part.getVelocity().nrm2() 
 		       - EDat.getOldVel().nrm2()));
       

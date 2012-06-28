@@ -493,7 +493,7 @@ namespace dynamo {
 				      seq, new C2RAll(), "Bulk")));
 		
 		  ISWSequence& interaction
-		    (dynamic_cast<ISWSequence&>(Sim->interactions["Bulk"]));
+		    (dynamic_cast<ISWSequence&>(*Sim->interactions["Bulk"]));
 		  interaction.getAlphabet().at(0).at(0) = 1.0;
 		
 		  interaction.getAlphabet().at(1).at(0) = 0.5;
@@ -3008,7 +3008,7 @@ namespace dynamo {
 				seq, new C2RAll(), "Bulk")));
 		
 	    ISWSequence& interaction
-	      (dynamic_cast<ISWSequence&>(Sim->interactions["Bulk"]));
+	      (dynamic_cast<ISWSequence&>(*Sim->interactions["Bulk"]));
 
 	    //	    interaction.getAlphabet().at(0).at(0) = 1.0;
 	    //	    interaction.getAlphabet().at(1).at(0) = 0.5;

@@ -130,8 +130,8 @@ namespace dynamo {
   {
     BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
       {
-	const Particle& p1 = pdat.particle1_.getParticle();
-	const Particle& p2 = pdat.particle2_.getParticle();
+	const Particle& p1 = Sim->particleList[pdat.particle1_.getParticleID()];
+	const Particle& p2 = Sim->particleList[pdat.particle2_.getParticleID()];
       
 	//FC = Fixed collider, DP = Dynamic particle, SP = Static
 	//particle, ODP = other dynamic particle, OSP = other static
@@ -179,8 +179,8 @@ namespace dynamo {
 	//If the static particle sleeps
 	if ((sleepCondition(sp, g)))
 	  {
-	    double massRatio = Sim->species[sp].getMass(sp.getID()) 
-	      / Sim->species[dp].getMass(dp.getID());
+	    double massRatio = Sim->species[sp]->getMass(sp.getID()) 
+	      / Sim->species[dp]->getMass(dp.getID());
 
 	    stateChange[sp.getID()] = Vector(0,0,0);
 	    stateChange[dp.getID()] = -sp.getVelocity() * massRatio;
@@ -200,7 +200,7 @@ namespace dynamo {
 	    //(in comparison to the other components). This means the
 	    //particle will just keep having an event, we sleep it
 	    //instead.
-	    if ((pdat.dP.nrm() / Sim->species[dp].getMass(dp.getID())) 
+	    if ((pdat.dP.nrm() / Sim->species[dp]->getMass(dp.getID())) 
 		< _sleepVelocity)
 	      {
 		stateChange[dp.getID()] = Vector(0,0,0);
@@ -216,13 +216,13 @@ namespace dynamo {
 
     BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
       {
-	const Particle& p1 = pdat.particle1_.getParticle();
-	_lastData[p1.getID()].first = p1.getPosition();
-	_lastData[p1.getID()].second = Sim->dSysTime;
+	const size_t& p1 = pdat.particle1_.getParticleID();
+	_lastData[p1].first = Sim->particleList[p1].getPosition();
+	_lastData[p1].second = Sim->dSysTime;
 
-	const Particle& p2 = pdat.particle2_.getParticle();
-	_lastData[p2.getID()].first = p2.getPosition();
-	_lastData[p2.getID()].second = Sim->dSysTime;
+	const size_t& p2 = pdat.particle2_.getParticleID();
+	_lastData[p2].first = Sim->particleList[p2].getPosition();
+	_lastData[p2].second = Sim->dSysTime;
       }
 
     if (!stateChange.empty())
@@ -283,7 +283,7 @@ namespace dynamo {
 	      type = WAKEUP;
 	  }
 
-	ParticleEventData EDat(part, Sim->species[part], type);
+	ParticleEventData EDat(part, *Sim->species[part], type);
 
 	switch (type)
 	  {
@@ -301,7 +301,7 @@ namespace dynamo {
 	    M_throw() << "Bad event type!";
 	  }
 	  
-	EDat.setDeltaKE(0.5 * EDat.getSpecies().getMass(part.getID())
+	EDat.setDeltaKE(0.5 * Sim->species[EDat.getSpeciesID()]->getMass(part.getID())
 			* (part.getVelocity().nrm2() 
 			   - EDat.getOldVel().nrm2()));
 
@@ -314,7 +314,7 @@ namespace dynamo {
     Sim->signalParticleUpdate(SDat);
 
     BOOST_FOREACH(const ParticleEventData& PDat, SDat.L1partChanges)
-      Sim->ptrScheduler->fullUpdate(Sim->particleList[PDat.getParticle().getID()]);
+      Sim->ptrScheduler->fullUpdate(Sim->particleList[PDat.getParticleID()]);
   
     locdt += Sim->freestreamAcc;
 

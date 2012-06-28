@@ -83,8 +83,8 @@ namespace dynamo {
     double totmass = 0.0;
     BOOST_FOREACH(Particle& part, Sim->particleList)  
       {
-	totmass += Sim->species[part].getMass(part.getID());
-	com += part.getPosition() * Sim->species[part].getMass(part.getID());
+	totmass += Sim->species[part]->getMass(part.getID());
+	com += part.getPosition() * Sim->species[part]->getMass(part.getID());
       }
     com /= totmass;
   

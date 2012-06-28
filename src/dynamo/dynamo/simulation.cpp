@@ -234,11 +234,11 @@ namespace dynamo
     M_throw() << "Could not find the interaction requested";
   }
 
-  const Species& 
+  const shared_ptr<Species>& 
   Simulation::SpeciesContainer::operator[](const Particle& p1) const 
   {
     BOOST_FOREACH(const shared_ptr<Species>& ptr, *this)
-      if (ptr->isSpecies(p1)) return *ptr;
+      if (ptr->isSpecies(p1)) return ptr;
     
     M_throw() << "Could not find the species corresponding to particle ID=" 
 	      << p1.getID(); 
@@ -618,7 +618,7 @@ namespace dynamo
       {
 	Vector  pos(Part.getPosition()), vel(Part.getVelocity());
 	BCs->applyBC(pos,vel);
-	double mass = species[Part].getMass(Part.getID());
+	double mass = species[Part]->getMass(Part.getID());
 	//Note we sum the negatives!
 	sumMV -= vel * mass;
 	sumMass += mass;
@@ -719,8 +719,8 @@ namespace dynamo
   void 
   Simulation::setTickerPeriod(double nP)
   {
-    SysTicker* ptr = dynamic_cast<SysTicker*>(&systems["SystemTicker"]);
-    if (ptr == NULL)
+    shared_ptr<SysTicker> ptr = std::tr1::dynamic_pointer_cast<SysTicker>(systems["SystemTicker"]);
+    if (!ptr)
       M_throw() << "Could not find system ticker (maybe not required?)";
 
     ptr->setTickerPeriod(nP * units.unitTime());
@@ -729,9 +729,8 @@ namespace dynamo
   void 
   Simulation::scaleTickerPeriod(double nP)
   {
-    SysTicker* ptr = dynamic_cast<SysTicker*>(&systems["SystemTicker"]);
-
-    if (ptr == NULL)
+    shared_ptr<SysTicker> ptr = std::tr1::dynamic_pointer_cast<SysTicker>(systems["SystemTicker"]);
+    if (!ptr)
       M_throw() << "Could not find system ticker (maybe not required?)";
 
     ptr->setTickerPeriod(nP * ptr->getPeriod());

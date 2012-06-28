@@ -54,15 +54,15 @@ namespace dynamo {
   OPCollMatrix::eventUpdate(const GlobalEvent& globEvent, const NEventData& SDat)
   {
     BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
-      newEvent(pData.getParticle().getID(), pData.getType(), 
+      newEvent(pData.getParticleID(), pData.getType(), 
 	       getClassKey(globEvent));  
   
     BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
       {
-	newEvent(pData.particle1_.getParticle().getID(), 
+	newEvent(pData.particle1_.getParticleID(), 
 		 pData.getType(), getClassKey(globEvent));
 
-	newEvent(pData.particle2_.getParticle().getID(), 
+	newEvent(pData.particle2_.getParticleID(), 
 		 pData.getType(), getClassKey(globEvent));
       }
   }
@@ -71,15 +71,15 @@ namespace dynamo {
   OPCollMatrix::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
   {
     BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
-      newEvent(pData.getParticle().getID(), 
+      newEvent(pData.getParticleID(), 
 	       pData.getType(), getClassKey(localEvent));  
   
     BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
       {
-	newEvent(pData.particle1_.getParticle().getID(), 
+	newEvent(pData.particle1_.getParticleID(), 
 		 pData.getType(), getClassKey(localEvent));
 
-	newEvent(pData.particle2_.getParticle().getID(),
+	newEvent(pData.particle2_.getParticleID(),
 		 pData.getType(), getClassKey(localEvent));
       }
   }
@@ -88,14 +88,14 @@ namespace dynamo {
   OPCollMatrix::eventUpdate(const System& sysEvent, const NEventData& SDat, const double&)
   {
     BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
-      newEvent(pData.getParticle().getID(), pData.getType(), getClassKey(sysEvent));
+      newEvent(pData.getParticleID(), pData.getType(), getClassKey(sysEvent));
   
     BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
       {
-	newEvent(pData.particle1_.getParticle().getID(), 
+	newEvent(pData.particle1_.getParticleID(), 
 		 pData.getType(), getClassKey(sysEvent));
 
-	newEvent(pData.particle2_.getParticle().getID(), 
+	newEvent(pData.particle2_.getParticleID(), 
 		 pData.getType(), getClassKey(sysEvent));  
       } 
   }

@@ -85,18 +85,19 @@ namespace dynamo
     template <class T>
     struct Container: public std::vector<shared_ptr<T> >
     {
-      using std::vector<shared_ptr<T> >::operator[];
+      typedef std::vector<shared_ptr<T> > Base;
+      using Base::operator[];
 
-      T& operator[](const std::string name) {
-	BOOST_FOREACH(const shared_ptr<T>& ptr, *this)
-	  if (ptr->getName() == name) return *ptr;
+      shared_ptr<T>& operator[](const std::string name) {
+	BOOST_FOREACH(shared_ptr<T>& ptr, *this)
+	  if (ptr->getName() == name) return ptr;
 	
 	M_throw() << "Could not find the \"" << name << "\" object";
       }
 
-      const T& operator[](const std::string name) const {
+      const shared_ptr<T>& operator[](const std::string name) const {
 	BOOST_FOREACH(const shared_ptr<T>& ptr, *this)
-	  if (ptr->getName() == name) return *ptr;
+	  if (ptr->getName() == name) return ptr;
 	
 	M_throw() << "Could not find the \"" << name << "\" object";
       }
@@ -106,8 +107,10 @@ namespace dynamo
     */
     struct SpeciesContainer: public Container<Species>
     {
-      using Container<Species>::operator[];
-      const Species& operator[](const Particle& p1) const;
+      typedef Container<Species> Base;
+      using Base::operator[];
+
+      const shared_ptr<Species>& operator[](const Particle& p1) const;
     };
 
   public:

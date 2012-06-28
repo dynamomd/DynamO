@@ -120,7 +120,7 @@ namespace dynamo {
 	  
 	    sumrij += rij;
 	  
-	    double pmass = Sim->species[part].getMass(pid);
+	    double pmass = Sim->species[part]->getMass(pid);
 	    sysMass += pmass;
 	    masspos += sumrij * pmass;
 	  

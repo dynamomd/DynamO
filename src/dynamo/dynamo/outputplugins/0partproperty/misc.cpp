@@ -122,7 +122,7 @@ namespace dynamo {
       {
 	Vector  pos(Part.getPosition()), vel(Part.getVelocity());
 	Sim->BCs->applyBC(pos, vel);
-	sumMV += vel * Sim->species[Part].getMass(Part.getID());
+	sumMV += vel * Sim->species[Part]->getMass(Part.getID());
       }
 
     dout << "Total momentum <x,y,z> <";
@@ -137,7 +137,7 @@ namespace dynamo {
     BOOST_FOREACH(const Particle& part, Sim->particleList)
       {
 	curr_kineticP 
-	  += Sim->species[part].getMass(part.getID())
+	  += Sim->species[part]->getMass(part.getID())
 	  * Dyadic(part.getVelocity(),part.getVelocity());
       }
 
@@ -197,12 +197,14 @@ namespace dynamo {
 
     BOOST_FOREACH(const ParticleEventData& PDat, NDat.L1partChanges)
       {
+	const Particle& part = Sim->particleList[PDat.getParticleID()];
+
 	KECurrent += PDat.getDeltaKE();
 	intECurrent += PDat.getDeltaU();
 
 	curr_kineticP
-	  += PDat.getSpecies().getMass(PDat.getParticle().getID())
-	  * (Dyadic(PDat.getParticle().getVelocity(), PDat.getParticle().getVelocity())
+	  += Sim->species[PDat.getSpeciesID()]->getMass(part.getID())
+	  * (Dyadic(part.getVelocity(), part.getVelocity())
 	     - Dyadic(PDat.getOldVel(), PDat.getOldVel()));
       }
 
@@ -220,14 +222,22 @@ namespace dynamo {
     ++dualEvents;
     KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
     intECurrent += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
-    collisionalP += Dyadic(PDat.particle1_.getDeltaP(), PDat.rij);
+
+    const Particle& part1 = Sim->particleList[PDat.particle1_.getParticleID()];
+    const Particle& part2 = Sim->particleList[PDat.particle2_.getParticleID()];
+    const Species& sp1 = *Sim->species[PDat.particle1_.getSpeciesID()];
+    const Species& sp2 = *Sim->species[PDat.particle2_.getSpeciesID()];
+    
+    Vector delP = sp1.getMass(part1.getID()) * (part1.getVelocity() - PDat.particle1_.getOldVel());
+
+    collisionalP += Dyadic(delP, PDat.rij);
 
     curr_kineticP 
-      += PDat.particle1_.getSpecies().getMass(PDat.particle1_.getParticle().getID())
-      * (Dyadic(PDat.particle1_.getParticle().getVelocity(), PDat.particle1_.getParticle().getVelocity())
+      += sp1.getMass(part1.getID())
+      * (Dyadic(part1.getVelocity(), part1.getVelocity())
 	 - Dyadic(PDat.particle1_.getOldVel(), PDat.particle1_.getOldVel()))
-      + PDat.particle2_.getSpecies().getMass(PDat.particle2_.getParticle().getID())
-      * (Dyadic(PDat.particle2_.getParticle().getVelocity(), PDat.particle2_.getParticle().getVelocity())
+      + sp2.getMass(part2.getID())
+      * (Dyadic(part2.getVelocity(), part2.getVelocity())
 	 - Dyadic(PDat.particle2_.getOldVel(), PDat.particle2_.getOldVel()))
       ;
 
@@ -368,7 +378,7 @@ namespace dynamo {
     Vector sumMV(0, 0, 0);
     //Determine the system momentum
     BOOST_FOREACH( const Particle & Part, Sim->particleList)
-      sumMV += Part.getVelocity() * Sim->species[Part].getMass(Part.getID());
+      sumMV += Part.getVelocity() * Sim->species[Part]->getMass(Part.getID());
 
     XML << magnet::xml::tag("Total_momentum")
 	<< sumMV / Sim->units.unitMomentum()

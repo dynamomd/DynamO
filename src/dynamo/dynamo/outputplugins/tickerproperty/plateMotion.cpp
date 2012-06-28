@@ -51,7 +51,7 @@ namespace dynamo {
   OPPlateMotion::initialise()
   {
     try {
-      plateID = Sim->locals[plateName].getID();
+      plateID = Sim->locals[plateName]->getID();
     } catch(...)
       {
 	M_throw() << "Could not find the PlateName specified. You said " << plateName;
@@ -98,7 +98,14 @@ namespace dynamo {
     oldPlateEnergy = newPlateEnergy;
 
     BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
-      momentumChange += pData.getDeltaP();
+      {
+	const Particle& p1 = Sim->particleList[pData.getParticleID()];
+	const Species& sp1 = *Sim->species[pData.getSpeciesID()];
+	
+	Vector dP = sp1.getMass(p1.getID()) * (p1.getVelocity() - pData.getOldVel());
+
+	momentumChange += dP;
+      }
   }
 
   void 
@@ -128,7 +135,7 @@ namespace dynamo {
     BOOST_FOREACH(const Particle& part, Sim->particleList)
       {
 	Vector pos(part.getPosition()), vel(part.getVelocity());
-	double pmass(Sim->species[part].getMass(part.getID()));
+	double pmass(Sim->species[part]->getMass(part.getID()));
 	Sim->BCs->applyBC(pos, vel);
 	momentum += vel * pmass;
 	sqmom += (vel | vel) * (pmass * pmass);

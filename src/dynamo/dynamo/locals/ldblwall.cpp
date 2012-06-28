@@ -115,15 +115,15 @@ namespace dynamo {
     if (lastID == std::numeric_limits<size_t>::max()) return;
 
     BOOST_FOREACH(const ParticleEventData& pdat, PDat.L1partChanges)
-      if (pdat.getParticle().getID() == lastID)
+      if (pdat.getParticleID() == lastID)
 	{
 	  lastID = std::numeric_limits<size_t>::max();
 	  return;
 	}
   
     BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
-      if (pdat.particle1_.getParticle().getID() == lastID 
-	  || pdat.particle2_.getParticle().getID() == lastID)
+      if (pdat.particle1_.getParticleID() == lastID 
+	  || pdat.particle2_.getParticleID() == lastID)
 	{
 	  lastID = std::numeric_limits<size_t>::max();
 	  return;

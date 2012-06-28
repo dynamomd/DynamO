@@ -110,7 +110,7 @@ namespace dynamo {
   
     //Only 1ParticleEvents occur
     BOOST_FOREACH(const ParticleEventData& PDat, SDat.L1partChanges)
-      Sim->ptrScheduler->fullUpdate(Sim->particleList[PDat.getParticle().getID()]);
+      Sim->ptrScheduler->fullUpdate(Sim->particleList[PDat.getParticleID()]);
   
     locdt += Sim->freestreamAcc;
 

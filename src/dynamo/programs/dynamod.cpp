@@ -170,7 +170,7 @@ main(int argc, char *argv[])
 
 	  //Check it is a thermostat type, and set the temperature
 	  try {
-	    dynamo::SysAndersen& thermostat = dynamic_cast<dynamo::SysAndersen&>(sim.systems["Thermostat"]);
+	    dynamo::SysAndersen& thermostat = dynamic_cast<dynamo::SysAndersen&>(*sim.systems["Thermostat"]);
 	    thermostat.setReducedTemperature(vm["thermostat"].as<double>());
 	  } catch (...) {
 	    M_throw() << "Could not upcast System event named \"Thermostat\" to SysAndersen";

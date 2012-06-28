@@ -53,7 +53,7 @@ namespace dynamo {
   SCENBList::initialise()
   {
     try {
-      nblistID = Sim->globals[name].getID();
+      nblistID = Sim->globals[name]->getID();
     }
     catch (std::exception& cep)
       {
