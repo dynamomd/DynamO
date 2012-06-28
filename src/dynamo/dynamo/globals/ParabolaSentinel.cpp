@@ -82,7 +82,6 @@ namespace dynamo {
 
     Sim->dynamics->enforceParabola(part);
   
-#ifdef DYNAMO_DEBUG
     iEvent.addTime(Sim->freestreamAcc);
   
     Sim->freestreamAcc = 0;
@@ -93,9 +92,6 @@ namespace dynamo {
 
     BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, EDat);
-#else
-    Sim->freestreamAcc += iEvent.getdt();
-#endif
 
     Sim->ptrScheduler->fullUpdate(part);
   }

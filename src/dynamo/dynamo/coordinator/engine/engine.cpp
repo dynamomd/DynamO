@@ -19,7 +19,6 @@
 #include <dynamo/coordinator/engine/replexer.hpp>
 #include <dynamo/inputplugins/compression.hpp>
 #include <dynamo/systems/tHalt.hpp>
-#include <dynamo/systems/schedMaintainer.hpp>
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <dynamo/systems/visualizer.hpp>
 #include <dynamo/systems/snapshot.hpp>
@@ -52,9 +51,6 @@ namespace dynamo {
       ("sim-end-time,f", boost::program_options::value<double>()->default_value(std::numeric_limits<double>::max(), "no limit"), 
        "Simulation end time (Note, In replica exchange, each systems end time is scaled by"
        "(T_cold/T_i)^{1/2}, see replex-interval)")
-      ("scheduler-maintainance,m", boost::program_options::value<double>(),
-       "Rebuild the scheduler periodically, for systems where we've not built "
-       "the scheduler correctly")
       ("unwrapped", "Don't apply the boundary conditions of the system when writing out the particle positions.")
       ("snapshot", boost::program_options::value<double>(),
        "Sets the system time inbetween saving snapshots of the system.")
@@ -107,9 +103,6 @@ namespace dynamo {
     
     if (vm.count("sim-end-time") && (dynamic_cast<const EReplicaExchangeSimulation*>(this) == NULL))
       Sim.systems.push_back(shared_ptr<System>(new SystHalt(&Sim, vm["sim-end-time"].as<double>(), "SystemStopEvent")));
-
-    if (vm.count("scheduler-maintainance"))
-      Sim.systems.push_back(shared_ptr<System>(new SysSchedMaintainer(&Sim, vm["scheduler-maintainance"].as<double>(), "SchedulerRebuilder")));
 
 #ifdef DYNAMO_visualizer
     if (vm.count("visualizer"))
