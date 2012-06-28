@@ -87,9 +87,6 @@ namespace dynamo {
 
     dt = tstep;
 
-    locdt += Sim->freestreamAcc;
-    Sim->freestreamAcc = 0;
-
     BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(*this, NEventData(), locdt);
 

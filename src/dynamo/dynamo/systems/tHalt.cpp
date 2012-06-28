@@ -36,6 +36,8 @@ namespace dynamo {
 
     dout << "System halt set for " 
 	 << ndt << std::endl;
+
+    type = VIRTUAL;
   }
 
   void
@@ -59,9 +61,6 @@ namespace dynamo {
 
     Sim->signalParticleUpdate(SDat);
     
-    locdt += Sim->freestreamAcc;
-    Sim->freestreamAcc = 0;
-
     BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(*this, SDat, locdt); 
   

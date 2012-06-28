@@ -135,9 +135,6 @@ namespace dynamo {
     //Add the interaction events
     Sim->ptrScheduler->getParticleNeighbourhood(part, magnet::function::MakeDelegate(this, &GWaker::nblistCallback));
   
-    iEvent.addTime(Sim->freestreamAcc);      
-    Sim->freestreamAcc = 0;
-
     ParticleEventData EDat(part, *Sim->species[part], iEvent.getType());
       
     Vector newVel(Sim->normal_sampler(),Sim->normal_sampler(),Sim->normal_sampler());

@@ -120,7 +120,7 @@ namespace dynamo {
 	  return IntEvent(p1, p2, colltime.second, CORE, *this);
 	else
 	  //Its a virtual event, we need to recalculate in a bit
-	  return IntEvent(p1, p2, colltime.second, RECALCULATE, *this);
+	  return IntEvent(p1, p2, colltime.second, VIRTUAL, *this);
       }
     else 
       {
@@ -161,6 +161,12 @@ namespace dynamo {
       case NBHOOD_OUT:
 	{
 	  removeFromCaptureMap(p1, p2);
+	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
+	  iEvent.setType(VIRTUAL);
+	  break;
+	}
+      case VIRTUAL:
+	{
 	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
 	  iEvent.setType(VIRTUAL);
 	  break;

@@ -21,6 +21,7 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/xmlreader.hpp>
 
 #ifdef DYNAMO_DEBUG 
@@ -64,13 +65,27 @@ namespace dynamo {
   {
     return GlobalEvent(part, Sim->dynamics
 		       ->getPBCSentinelTime(part, maxintdist),
-		       RECALCULATE, *this);
+		       VIRTUAL, *this);
   }
 
   void 
   GPBCSentinel::runEvent(Particle& part, const double dt) const
   {
-    M_throw() << "Virtual Event types are handled by the Scheduler,"
-	      << " this function should never be called";
+    GlobalEvent iEvent(part, dt, VIRTUAL, *this);
+
+    Sim->dSysTime += iEvent.getdt();
+    
+    Sim->ptrScheduler->stream(iEvent.getdt());
+  
+    Sim->stream(iEvent.getdt());
+
+    NEventData EDat(ParticleEventData(part, *Sim->species[part], VIRTUAL));
+
+    Sim->signalParticleUpdate(EDat);
+
+    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+      Ptr->eventUpdate(iEvent, EDat);
+
+    Sim->ptrScheduler->fullUpdate(part);
   }
 }

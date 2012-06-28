@@ -22,6 +22,7 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/outputplugins/outputplugin.hpp>
 
 #ifdef DYNAMO_DEBUG 
 #include <boost/math/special_functions/fpclassify.hpp>
@@ -85,8 +86,6 @@ namespace dynamo {
     //dynamics must be updated first
     Sim->stream(locdt);
 
-    Sim->freestreamAcc += locdt;
-
     GNeighbourList& nblist(dynamic_cast<GNeighbourList&>
 			   (*Sim->globals[cellID]));
   
@@ -98,6 +97,13 @@ namespace dynamo {
   
     dt = (nblist.getMaxSupportedInteractionLength()
 	  / initialSupportedRange - 1.0) / growthRate - Sim->dSysTime;
+
+    NEventData SDat;
+
+    Sim->signalParticleUpdate(SDat);
+    
+    BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+      Ptr->eventUpdate(*this, SDat, locdt); 
   }
 
   void 

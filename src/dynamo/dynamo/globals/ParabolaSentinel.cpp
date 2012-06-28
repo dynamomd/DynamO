@@ -86,10 +86,6 @@ namespace dynamo {
 
     Sim->dynamics->enforceParabola(part);
   
-    iEvent.addTime(Sim->freestreamAcc);
-  
-    Sim->freestreamAcc = 0;
-
     Sim->signalParticleUpdate(EDat);
 
     BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)

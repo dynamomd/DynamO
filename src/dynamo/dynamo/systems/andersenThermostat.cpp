@@ -100,9 +100,6 @@ namespace dynamo {
   
     Sim->stream(locdt);
 
-    locdt +=  Sim->freestreamAcc;
-    Sim->freestreamAcc = 0;
-
     dt = getGhostt();
 
     unsigned int step = boost::variate_generator

@@ -18,6 +18,7 @@
 ***** DONE DynamO: Remove the Dynamics class and move its functions into the SimData class.
 ***** DONE DynamO: Rename the Liouvillean Class to Dynamics.
 ***** DONE DynamO: Combine the SimData and Simulation classes.
+**** TODO DynamO: The oscillating plate interaction is a mess, and uses RECALCULATE events, when it should not.
 **** TODO DynamO: Replica exchange cleanup
 ***** TODO DynamO: Allow replica exchanges in collisions.
 ***** TODO DynamO: Remove the unusual replica exchange modes and simplify to just one. Also put the up and down swap ratios in the data.

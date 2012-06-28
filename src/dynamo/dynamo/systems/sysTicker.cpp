@@ -63,9 +63,6 @@ namespace dynamo {
   
     dt += period;
   
-    locdt += Sim->freestreamAcc;
-    Sim->freestreamAcc = 0;
-
     //This is done here as most ticker properties require it
     Sim->dynamics->updateAllParticles();
 

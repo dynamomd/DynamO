@@ -80,9 +80,6 @@ namespace dynamo {
 
     dt = tstep;
 
-    locdt +=  Sim->freestreamAcc;
-    Sim->freestreamAcc = 0;
-
     boost::variate_generator
       <dynamo::baseRNG&, boost::uniform_int<size_t> >
       id1sampler(Sim->ranGenerator, 

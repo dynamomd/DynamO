@@ -280,17 +280,6 @@ namespace dynamo
       very large compared to an events delta t.
      */
     long double dSysTime;
-
-
-    /*! \brief This accumilator holds the time steps taken in between
-       updating the outputplugins.
-     
-       The idea is that outputplugins are only updated on events. but
-       virtual events sometimes must stream the system. So we
-       accumilate the time delta here and add it to the time we send
-       to output plugins.
-     */
-    double freestreamAcc;
     
     /*! \brief Number of events executed.*/
     unsigned long long eventCount;

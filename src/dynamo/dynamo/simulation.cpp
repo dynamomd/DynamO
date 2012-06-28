@@ -47,7 +47,6 @@ namespace dynamo
   Simulation::Simulation():
     Base("Simulation"),
     dSysTime(0.0),
-    freestreamAcc(0.0),
     eventCount(0),
     endEventCount(100000),
     eventPrintInterval(50000),

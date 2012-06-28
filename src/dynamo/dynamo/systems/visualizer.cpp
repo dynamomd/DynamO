@@ -88,14 +88,11 @@ namespace dynamo {
     //dynamics must be updated first
     Sim->stream(dt);
 
-    double locdt = dt + Sim->freestreamAcc;
-    Sim->freestreamAcc = 0;
-
     if (_window->dynamoParticleSync())
       Sim->dynamics->updateAllParticles();
 
     BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
-      Ptr->eventUpdate(*this, NEventData(), locdt);
+      Ptr->eventUpdate(*this, NEventData(), dt);
   
     _window->simupdateTick(Sim->dSysTime / Sim->units.unitTime());
 

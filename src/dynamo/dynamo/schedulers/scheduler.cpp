@@ -294,10 +294,6 @@ namespace dynamo {
 	  //dynamics must be updated first
 	  Sim->stream(Event.getdt());
 	
-	  Event.addTime(Sim->freestreamAcc);
-
-	  Sim->freestreamAcc = 0;
-
 	  Sim->interactions[Event.getInteractionID()]
 	    ->runEvent(p1,p2,Event);
 
@@ -359,9 +355,6 @@ namespace dynamo {
 	  //dynamics must be updated first
 	  Sim->stream(iEvent.getdt());
 	
-	  iEvent.addTime(Sim->freestreamAcc);
-	  Sim->freestreamAcc = 0;
-
 	  Sim->locals[localID]->runEvent(part, iEvent);	  
 	  break;
 	}
@@ -375,16 +368,9 @@ namespace dynamo {
 	}
       case RECALCULATE:
 	{
-	  //This is a special type which requires that the system is
-	  //moved forward to the current time and the events for this
-	  //particle recalculated.
-
-	  double dt = sorter->next_dt();
+	  //This is a special event type which requires that the
+	  // events for this particle recalculated.
 	  size_t ID = sorter->next_ID();
-	  Sim->dSysTime += dt;
-	  stream(dt);
-	  Sim->stream(dt);
-	  Sim->freestreamAcc += dt;
 	  this->fullUpdate(Sim->particles[ID]);
 	  break;
 	}
