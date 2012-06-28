@@ -27,12 +27,41 @@
 
 namespace dynamo {
   OPIntEnergyHist::OPIntEnergyHist(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):
-    OPCollTicker(tmp,"InternalEnergyHistogram", 10),//Before OPEnergy
+    OutputPlugin(tmp,"InternalEnergyHistogram", 10),//Before OPEnergy
     intEnergyHist(1.0),
     weight(0.0),
     binwidth(1.0)
   {
     operator<<(XML);
+  }
+
+  void 
+  OPIntEnergyHist::eventUpdate(const IntEvent &event, 
+			    const PairEventData &) 
+  {
+    stream(event.getdt());
+    ticker();
+  }
+
+  void 
+  OPIntEnergyHist::eventUpdate(const GlobalEvent &event, const NEventData&) 
+  {
+    stream(event.getdt());
+    ticker();
+  }
+
+  void 
+  OPIntEnergyHist::eventUpdate(const LocalEvent &event, const NEventData&) 
+  {
+    stream(event.getdt());
+    ticker();
+  }
+
+  void 
+  OPIntEnergyHist::eventUpdate(const System&, const NEventData&, const double& dt)
+  {
+    stream(dt);
+    ticker();
   }
 
   void 

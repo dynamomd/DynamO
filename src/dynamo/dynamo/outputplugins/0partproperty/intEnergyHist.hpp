@@ -16,23 +16,27 @@
 */
 
 #pragma once
-#include <dynamo/outputplugins/0partproperty/collticker.hpp>
+#include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/math/histogram.hpp>
 #include <boost/unordered_map.hpp>
 
 namespace dynamo {
   class OPUEnergy;
 
-  class OPIntEnergyHist: public OPCollTicker
+  class OPIntEnergyHist: public OutputPlugin
   {
   public:
     OPIntEnergyHist(const dynamo::Simulation*, const magnet::xml::Node&);
 
     virtual void initialise();
 
-    virtual void stream(double);
+    virtual void eventUpdate(const IntEvent&, const PairEventData&);
 
-    virtual void ticker();
+    virtual void eventUpdate(const GlobalEvent&, const NEventData&);
+
+    virtual void eventUpdate(const LocalEvent&, const NEventData&);
+
+    virtual void eventUpdate(const System&, const NEventData&, const double&);
 
     virtual void output(magnet::xml::XmlStream&);
 
@@ -43,6 +47,9 @@ namespace dynamo {
     boost::unordered_map<int, double> getImprovedW() const;
     inline double getBinWidth() const { return intEnergyHist.getBinWidth(); }
   protected:
+    void stream(double);
+
+    void ticker();
 
     magnet::math::HistogramWeighted<> intEnergyHist;
     shared_ptr<const OPUEnergy> ptrOPEnergy;
