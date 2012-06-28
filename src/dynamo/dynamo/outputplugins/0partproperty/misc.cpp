@@ -195,7 +195,7 @@ namespace dynamo {
   {
     BOOST_FOREACH(const ParticleEventData& PDat, NDat.L1partChanges)
       {
-	++singleEvents;
+        singleEvents += (PDat.getType() != VIRTUAL);
 	const Particle& part = Sim->particles[PDat.getParticleID()];
 	
 	KECurrent += PDat.getDeltaKE();
@@ -218,9 +218,7 @@ namespace dynamo {
 
   void OPMisc::eventUpdate(const PairEventData& PDat)
   {
-    if ((PDat.getType() != NBHOOD_IN)
-	&& (PDat.getType() != NBHOOD_OUT))
-      ++dualEvents;
+    dualEvents += (PDat.getType() != VIRTUAL);
 
     KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
     intECurrent += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();

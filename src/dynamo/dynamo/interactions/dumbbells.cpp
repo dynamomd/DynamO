@@ -193,12 +193,14 @@ namespace dynamo  {
 	{
 	  addToCaptureMap(p1, p2);
 	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], NBHOOD_IN);
+	  iEvent.setType(VIRTUAL);
 	  break;
 	}
       case NBHOOD_OUT:
 	{
 	  removeFromCaptureMap(p1, p2);
 	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], NBHOOD_OUT);
+	  iEvent.setType(VIRTUAL);
 	  break;
 	}
       default:

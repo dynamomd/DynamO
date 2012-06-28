@@ -135,8 +135,6 @@ namespace dynamo {
     //Add the interaction events
     Sim->ptrScheduler->getParticleNeighbourhood(part, magnet::function::MakeDelegate(this, &GWaker::nblistCallback));
   
-    //  if (_neighbors < 10)
-    //    {
     iEvent.addTime(Sim->freestreamAcc);      
     Sim->freestreamAcc = 0;
 
@@ -156,9 +154,6 @@ namespace dynamo {
       
     BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, EDat);
-    //    }
-    //  else
-    //    Sim->freestreamAcc += iEvent.getdt();
 
     //Now we're past the event, update the scheduler and plugins
     Sim->ptrScheduler->fullUpdate(part);

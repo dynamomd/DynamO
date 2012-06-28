@@ -20,6 +20,7 @@
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/outputplugins/outputplugin.hpp>
 
 #ifdef DYNAMO_DEBUG 
 #include <boost/math/special_functions/fpclassify.hpp>
@@ -54,7 +55,15 @@ namespace dynamo {
     //dynamics must be updated first
     Sim->stream(locdt);
 
-    Sim->freestreamAcc += locdt;
+    NEventData SDat;
+
+    Sim->signalParticleUpdate(SDat);
+    
+    locdt += Sim->freestreamAcc;
+    Sim->freestreamAcc = 0;
+
+    BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+      Ptr->eventUpdate(*this, SDat, locdt); 
   
     Sim->nextPrintEvent = Sim->endEventCount = Sim->eventCount;
   }

@@ -101,7 +101,7 @@ namespace dynamo {
     Sim->dynamics->rescaleSystemKineticEnergy(_kT / currentkT);
 
     RealTime += (Sim->dSysTime - LastTime) / std::exp(0.5 * scaleFactor);
-
+    
     LastTime = Sim->dSysTime;
 
     scaleFactor += std::log(currentkT);

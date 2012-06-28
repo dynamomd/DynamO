@@ -60,6 +60,8 @@ namespace dynamo {
 
     GlobalEvent iEvent(getEvent(part));
 
+    iEvent.setType(VIRTUAL);
+
     if (iEvent.getdt() == HUGE_VAL)
       {
 	//We've numerically drifted slightly passed the parabola, so
@@ -80,13 +82,13 @@ namespace dynamo {
   
     Sim->stream(iEvent.getdt());
 
+    NEventData EDat(ParticleEventData(part, *Sim->species[part], VIRTUAL));
+
     Sim->dynamics->enforceParabola(part);
   
     iEvent.addTime(Sim->freestreamAcc);
   
     Sim->freestreamAcc = 0;
-
-    NEventData EDat(ParticleEventData(part, *Sim->species[part], RECALCULATE_PARABOLA));
 
     Sim->signalParticleUpdate(EDat);
 
