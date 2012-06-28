@@ -86,6 +86,8 @@ namespace magnet {
 	  break;
 	case Controller::Tag:
 	  closeTagStart();
+	  for (size_t i(0); i < tags.size(); ++i)
+	    s << "  ";
 	  s << '<' << controller.str;
 	  tags.push(controller.str);
 	  state = stateTag;
@@ -195,7 +197,11 @@ namespace magnet {
     
 	while (tags.size() > 0 && !brk) {
 	  if (stateNone == state)
-	    s << "</" << tags.top() << ">\n";
+	    {
+	      for (size_t i(1); i < tags.size(); ++i)
+		s << "  ";
+	      s << "</" << tags.top() << ">\n";
+	    }
 	  else {
 	    closeTagStart(true);
 	    state = stateNone;
