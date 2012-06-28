@@ -146,13 +146,13 @@ namespace dynamo  {
 	if (dt_offcenter < dt)
 	  return IntEvent(p1, p2, dt_offcenter, CORE, *this);
       
-	return IntEvent(p1, p2, dt, WELL_OUT, *this);
+	return IntEvent(p1, p2, dt, NBHOOD_OUT, *this);
       }
   
     double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, l + d);
     
     if (dt != HUGE_VAL)
-      return IntEvent(p1, p2, dt, WELL_IN, *this);
+      return IntEvent(p1, p2, dt, NBHOOD_IN, *this);
   
     return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
   }
@@ -169,14 +169,15 @@ namespace dynamo  {
     double e = (_e->getProperty(p1.getID())
 		+ _e->getProperty(p2.getID())) * 0.5;
 
+    PairEventData retval;
+
     switch (iEvent.getType())
       {
       case CORE:
 	{
 	  ++Sim->eventCount;
 	  //We have a line interaction! Run it
-	  PairEventData retval(Sim->dynamics->runOffCenterSphereOffCenterSphereCollision
-			       (iEvent, e, l, d));
+	  retval = Sim->dynamics->runOffCenterSphereOffCenterSphereCollision(iEvent, e, l, d);
 
 	  Sim->signalParticleUpdate(retval);
 	
@@ -188,33 +189,28 @@ namespace dynamo  {
 
 	  break;
 	}
-      case WELL_IN:
+      case NBHOOD_IN:
 	{
 	  addToCaptureMap(p1, p2);
-
-	  //Unfortunately we cannot be smart as this well event may have
-	  //been pushed into both particles update lists, therefore we
-	  //must do a full update
-	  Sim->ptrScheduler->fullUpdate(p1, p2);
-
-	  Sim->freestreamAcc += iEvent.getdt();
+	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], NBHOOD_IN);
 	  break;
 	}
-      case WELL_OUT:
+      case NBHOOD_OUT:
 	{
 	  removeFromCaptureMap(p1, p2);
-
-	  //Unfortunately we cannot be smart as this well event may have
-	  //been pushed into both particles update lists, therefore we
-	  //must do a full update
-	  Sim->ptrScheduler->fullUpdate(p1, p2);
-
-	  Sim->freestreamAcc += iEvent.getdt();
+	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], NBHOOD_OUT);
 	  break;
 	}
       default:
 	M_throw() << "Unknown collision type";
       }
+
+    Sim->signalParticleUpdate(retval);
+    
+    Sim->ptrScheduler->fullUpdate(p1, p2);
+    
+    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+      Ptr->eventUpdate(iEvent, retval);
   }
    
   void 

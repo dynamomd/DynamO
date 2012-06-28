@@ -193,15 +193,14 @@ namespace dynamo {
 
   void OPMisc::eventUpdate(const NEventData& NDat)
   {
-    singleEvents += NDat.L1partChanges.size();
-
     BOOST_FOREACH(const ParticleEventData& PDat, NDat.L1partChanges)
       {
+	++singleEvents;
 	const Particle& part = Sim->particleList[PDat.getParticleID()];
-
+	
 	KECurrent += PDat.getDeltaKE();
 	intECurrent += PDat.getDeltaU();
-
+	
 	curr_kineticP
 	  += Sim->species[PDat.getSpeciesID()]->getMass(part.getID())
 	  * (Dyadic(part.getVelocity(), part.getVelocity())
@@ -219,7 +218,10 @@ namespace dynamo {
 
   void OPMisc::eventUpdate(const PairEventData& PDat)
   {
-    ++dualEvents;
+    if ((PDat.getType() != NBHOOD_IN)
+	&& (PDat.getType() != NBHOOD_OUT))
+      ++dualEvents;
+
     KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
     intECurrent += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
 
