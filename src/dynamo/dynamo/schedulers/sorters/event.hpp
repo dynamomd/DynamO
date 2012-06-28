@@ -31,8 +31,8 @@ namespace dynamo {
       This conversion is lossy, so events need to be recalculated if
       they are to be exectuted. 
 
-      The VIRTUAL event type is special. If any IntEvent, GlobalEvent
-      or LocalEvent has a type VIRTUAL, it is carried through. VIRTUAL
+      The RECALCULATE event type is special. If any IntEvent, GlobalEvent
+      or LocalEvent has a type RECALCULATE, it is carried through. RECALCULATE
       events cause the system to be moved forward in time and the
       events for the particle are recalculated. This can all be
       handled by the scheduler.
@@ -61,7 +61,7 @@ namespace dynamo {
       type(INTERACTION),
       p2(coll.getParticle2ID())
     {
-      if (coll.getType() == VIRTUAL) type = VIRTUAL;
+      if (coll.getType() == RECALCULATE) type = RECALCULATE;
     }
 
     inline Event(const GlobalEvent& coll) throw():
@@ -69,7 +69,7 @@ namespace dynamo {
       type(GLOBAL),
       p2(coll.getGlobalID())
     {
-      if (coll.getType() == VIRTUAL) type = VIRTUAL;
+      if (coll.getType() == RECALCULATE) type = RECALCULATE;
     }
 
     inline Event(const LocalEvent& coll) throw():
@@ -77,7 +77,7 @@ namespace dynamo {
       type(LOCAL),
       p2(coll.getLocalID())
     {
-      if (coll.getType() == VIRTUAL) type = VIRTUAL;
+      if (coll.getType() == RECALCULATE) type = RECALCULATE;
     }
 
     inline bool operator< (const Event& ip) const throw()

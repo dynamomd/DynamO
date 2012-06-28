@@ -50,7 +50,7 @@ namespace dynamo {
 
     return GlobalEvent(part, Sim->dynamics
 		       ->getParabolaSentinelTime(part), 
-		       VIRTUAL_PARABOLA, *this);
+		       RECALCULATE_PARABOLA, *this);
   }
 
   void 
@@ -87,7 +87,7 @@ namespace dynamo {
   
     Sim->freestreamAcc = 0;
 
-    NEventData EDat(ParticleEventData(part, Sim->species[part], VIRTUAL_PARABOLA));
+    NEventData EDat(ParticleEventData(part, Sim->species[part], RECALCULATE_PARABOLA));
 
     Sim->signalParticleUpdate(EDat);
 

@@ -373,7 +373,7 @@ namespace dynamo {
 	  rebuildSystemEvents();
 	  break;
 	}
-      case VIRTUAL:
+      case RECALCULATE:
 	{
 	  //This is a special type which requires that the system is
 	  //moved forward to the current time and the events for this

@@ -64,7 +64,7 @@ namespace dynamo {
   {
     return GlobalEvent(part, Sim->dynamics
 		       ->getPBCSentinelTime(part, maxintdist),
-		       VIRTUAL, *this);
+		       RECALCULATE, *this);
   }
 
   void 

@@ -43,7 +43,7 @@ namespace dynamo {
     { 
       if (empty()) return;
       
-      _event.type = VIRTUAL; //Force a recalculation for any further events
+      _event.type = RECALCULATE; //Force a recalculation for any further events
     }
 
     inline void clear() { _event.dt = HUGE_VAL; _event.type = NONE; }

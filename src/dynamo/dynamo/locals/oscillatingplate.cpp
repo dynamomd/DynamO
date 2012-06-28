@@ -62,7 +62,7 @@ namespace dynamo {
       (part, rw0, nhat, delta, omega0, sigma, reducedt + timeshift, 
        false);
 
-    EEventType type = (eventData.first) ? WALL : VIRTUAL ;
+    EEventType type = (eventData.first) ? WALL : RECALCULATE ;
 
     if (eventData.second == HUGE_VAL)
       type = NONE;

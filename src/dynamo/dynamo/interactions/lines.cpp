@@ -120,7 +120,7 @@ namespace dynamo {
 	  return IntEvent(p1, p2, colltime.second, CORE, *this);
 	else
 	  //Its a virtual event, we need to recalculate in a bit
-	  return IntEvent(p1, p2, colltime.second, VIRTUAL, *this);
+	  return IntEvent(p1, p2, colltime.second, RECALCULATE, *this);
       }
     else 
       {
