@@ -62,8 +62,8 @@ namespace dynamo {
 	//Walk the polymer
 	for (size_t j = 0; j < range->size()-1; ++j)
 	  dat.BondLengths[j].addVal
-	    ((Sim->particleList[(*range)[j+1]].getPosition()
-	      - Sim->particleList[(*range)[j]].getPosition()).nrm());
+	    ((Sim->particles[(*range)[j+1]].getPosition()
+	      - Sim->particles[(*range)[j]].getPosition()).nrm());
   }
 
   void 

@@ -98,14 +98,14 @@ namespace dynamo {
 	    //Calc first and second derivatives
 	    for (Range::iterator it = range->begin() + 1; it != range->end() - 1; it++)
 	      {
-		tmp = 0.5 * (Sim->particleList[*(it+1)].getPosition()
-			     - Sim->particleList[*(it-1)].getPosition());
+		tmp = 0.5 * (Sim->particles[*(it+1)].getPosition()
+			     - Sim->particles[*(it-1)].getPosition());
 
 		dr1.push_back(tmp);
 	      
-		tmp = Sim->particleList[*(it+1)].getPosition() 
-		  - (2.0 * Sim->particleList[*it].getPosition())
-		  + Sim->particleList[*(it-1)].getPosition();
+		tmp = Sim->particles[*(it+1)].getPosition() 
+		  - (2.0 * Sim->particles[*it].getPosition())
+		  + Sim->particles[*(it-1)].getPosition();
 	      
 		dr2.push_back(tmp);
 	      
@@ -150,12 +150,12 @@ namespace dynamo {
 			{
 			  //We have three points, calculate the lengths
 			  //of the triangle sides
-			  double a = (Sim->particleList[*it1].getPosition() 
-				      - Sim->particleList[*it2].getPosition()).nrm(),
-			    b = (Sim->particleList[*(range->begin()+2+i)].getPosition() 
-				 - Sim->particleList[*it2].getPosition()).nrm(),
-			    c = (Sim->particleList[*it1].getPosition() 
-				 - Sim->particleList[*(range->begin()+2+i)].getPosition()).nrm();
+			  double a = (Sim->particles[*it1].getPosition() 
+				      - Sim->particles[*it2].getPosition()).nrm(),
+			    b = (Sim->particles[*(range->begin()+2+i)].getPosition() 
+				 - Sim->particles[*it2].getPosition()).nrm(),
+			    c = (Sim->particles[*it1].getPosition() 
+				 - Sim->particles[*(range->begin()+2+i)].getPosition()).nrm();
 
 			  //Now calc the area of the triangle
 			  double s = (a + b + c) / 2.0;

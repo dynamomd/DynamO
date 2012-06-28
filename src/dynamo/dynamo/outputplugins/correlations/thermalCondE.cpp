@@ -90,7 +90,7 @@ namespace dynamo {
       }
   
     //Sum up the constant Del G.
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
+    BOOST_FOREACH(const Particle& part, Sim->particles)
       constDelG += part.getVelocity () * Sim->dynamics->getParticleKineticEnergy(part);
   
     dout << "dt set to " << dt / Sim->units.unitTime() << std::endl;
@@ -147,8 +147,8 @@ namespace dynamo {
   void 
   OPThermalConductivityE::updateConstDelG(const PairEventData& PDat)
   {
-    const Particle& p1 = Sim->particleList[PDat.particle1_.getParticleID()];
-    const Particle& p2 = Sim->particleList[PDat.particle2_.getParticleID()];
+    const Particle& p1 = Sim->particles[PDat.particle1_.getParticleID()];
+    const Particle& p2 = Sim->particles[PDat.particle2_.getParticleID()];
     
     double p1E = Sim->dynamics->getParticleKineticEnergy(p1);
     double p2E = Sim->dynamics->getParticleKineticEnergy(p2);
@@ -280,9 +280,9 @@ namespace dynamo {
   void 
   OPThermalConductivityE::updateConstDelG(const ParticleEventData& PDat)
   {
-    double p1E = Sim->dynamics->getParticleKineticEnergy(Sim->particleList[PDat.getParticleID()]);
+    double p1E = Sim->dynamics->getParticleKineticEnergy(Sim->particles[PDat.getParticleID()]);
   
-    constDelG += Sim->particleList[PDat.getParticleID()].getVelocity() * p1E 
+    constDelG += Sim->particles[PDat.getParticleID()].getVelocity() * p1E 
       - PDat.getOldVel() * (p1E - PDat.getDeltaKE());
   }
 }

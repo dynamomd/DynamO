@@ -144,12 +144,12 @@ namespace dynamo {
   {
     for (size_t i = 0; i < Sim->N; ++i)
       {
-	const Dynamics::rotData& rdat(Sim->dynamics->getRotData(Sim->particleList[i]));
-	G[i].push_front(VUpair(Sim->particleList[i].getVelocity(), rdat.orientation));
+	const Dynamics::rotData& rdat(Sim->dynamics->getRotData(Sim->particles[i]));
+	G[i].push_front(VUpair(Sim->particles[i].getVelocity(), rdat.orientation));
       }
 
     //Now correct the fact that the wrong velocity and orientation have been pushed
-    const Dynamics::rotData& fetchpart(Sim->dynamics->getRotData(Sim->particleList[PDat.getParticleID()]));
+    const Dynamics::rotData& fetchpart(Sim->dynamics->getRotData(Sim->particles[PDat.getParticleID()]));
     G[PDat.getParticleID()].front() = VUpair(PDat.getOldVel(), fetchpart.orientation);
 
     //This ensures the list gets to accumilator size
@@ -171,15 +171,15 @@ namespace dynamo {
   {
     for (size_t i = 0; i < Sim->N; ++i)
       {
-	const Dynamics::rotData& rdat(Sim->dynamics->getRotData(Sim->particleList[i]));
-	G[i].push_front(VUpair(Sim->particleList[i].getVelocity(), rdat.orientation));
+	const Dynamics::rotData& rdat(Sim->dynamics->getRotData(Sim->particles[i]));
+	G[i].push_front(VUpair(Sim->particles[i].getVelocity(), rdat.orientation));
       }
 
     //Now correct the fact that the wrong velocities and orientations have been pushed
     const Dynamics::rotData& fetch1(Sim->dynamics
-				       ->getRotData(Sim->particleList[PDat.particle1_.getParticleID()]));
+				       ->getRotData(Sim->particles[PDat.particle1_.getParticleID()]));
     const Dynamics::rotData& fetch2(Sim->dynamics
-				       ->getRotData(Sim->particleList[PDat.particle2_.getParticleID()]));
+				       ->getRotData(Sim->particles[PDat.particle2_.getParticleID()]));
 
     G[PDat.particle1_.getParticleID()].front() = VUpair(PDat.particle1_.getOldVel(), fetch1.orientation);
     G[PDat.particle2_.getParticleID()].front() = VUpair(PDat.particle2_.getOldVel(), fetch2.orientation);
@@ -204,22 +204,22 @@ namespace dynamo {
     //This ensures the list stays at accumilator size
     for (size_t i = 0; i < Sim->N; ++i)
       {
-	const Dynamics::rotData& rdat(Sim->dynamics->getRotData(Sim->particleList[i]));
-	G[i].push_front(VUpair(Sim->particleList[i].getVelocity(), rdat.orientation));
+	const Dynamics::rotData& rdat(Sim->dynamics->getRotData(Sim->particles[i]));
+	G[i].push_front(VUpair(Sim->particles[i].getVelocity(), rdat.orientation));
       }
 
     //Go back and fix the pushes
     BOOST_FOREACH(const ParticleEventData&PDat2, PDat.L1partChanges)
       {
 	const Dynamics::rotData& fetchpart(Sim->dynamics
-					   ->getRotData(Sim->particleList[PDat2.getParticleID()]));
+					   ->getRotData(Sim->particles[PDat2.getParticleID()]));
 	G[PDat2.getParticleID()].front() = VUpair(PDat2.getOldVel(), fetchpart.orientation);
       }
 
     BOOST_FOREACH(const PairEventData& PDat2, PDat.L2partChanges)
       {
-	const Dynamics::rotData& fetch1(Sim->dynamics->getRotData(Sim->particleList[PDat2.particle1_.getParticleID()]));
-	const Dynamics::rotData& fetch2(Sim->dynamics->getRotData(Sim->particleList[PDat2.particle2_.getParticleID()]));
+	const Dynamics::rotData& fetch1(Sim->dynamics->getRotData(Sim->particles[PDat2.particle1_.getParticleID()]));
+	const Dynamics::rotData& fetch2(Sim->dynamics->getRotData(Sim->particles[PDat2.particle2_.getParticleID()]));
 
 	G[PDat2.particle1_.getParticleID()].front() = VUpair(PDat2.particle1_.getOldVel(), fetch1.orientation);
 	G[PDat2.particle2_.getParticleID()].front() = VUpair(PDat2.particle2_.getOldVel(), fetch2.orientation);

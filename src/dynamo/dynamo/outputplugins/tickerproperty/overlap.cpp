@@ -45,10 +45,10 @@ namespace dynamo {
   void 
   OPOverlapTest::ticker()
   {
-    for (std::vector<Particle>::const_iterator iPtr = Sim->particleList.begin();
-	 iPtr != Sim->particleList.end(); ++iPtr)
+    for (std::vector<Particle>::const_iterator iPtr = Sim->particles.begin();
+	 iPtr != Sim->particles.end(); ++iPtr)
       for (std::vector<Particle>::const_iterator jPtr = iPtr + 1;
-	   jPtr != Sim->particleList.end(); ++jPtr)
+	   jPtr != Sim->particles.end(); ++jPtr)
 	Sim->getInteraction(*iPtr, *jPtr)->checkOverlaps(*iPtr, *jPtr);
   }
 }

@@ -113,7 +113,7 @@ namespace dynamo {
 
     //Sum up the constant Del G and the mass fraction of the species
     double speciesMass = 0;
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
+    BOOST_FOREACH(const Particle& part, Sim->particles)
       {
 	double mass = Sim->species[part]->getMass(part.getID());
 
@@ -259,7 +259,7 @@ namespace dynamo {
   void 
   OPThermalDiffusionE::updateConstDelG(const ParticleEventData& PDat) 
   {
-    const Particle& p1 = Sim->particleList[PDat.getParticleID()];
+    const Particle& p1 = Sim->particles[PDat.getParticleID()];
     const Species& sp1 = *Sim->species[PDat.getSpeciesID()];
 
     double p1E = Sim->dynamics->getParticleKineticEnergy(p1);

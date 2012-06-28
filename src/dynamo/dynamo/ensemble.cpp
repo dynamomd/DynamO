@@ -59,7 +59,7 @@ namespace dynamo {
   void
   EnsembleNVE::initialise()
   {
-    EnsembleVals[0] = Sim->particleList.size();
+    EnsembleVals[0] = Sim->particles.size();
     EnsembleVals[1] = Sim->primaryCellSize[0] * Sim->primaryCellSize[1] * Sim->primaryCellSize[2];
     EnsembleVals[2] = Sim->calcInternalEnergy() + Sim->dynamics->getSystemKineticEnergy();
 
@@ -82,7 +82,7 @@ namespace dynamo {
   void
   EnsembleNVT::initialise()
   {
-    EnsembleVals[0] = Sim->particleList.size();
+    EnsembleVals[0] = Sim->particles.size();
     EnsembleVals[1] = Sim->units.unitVolume();
 
     try {
@@ -158,7 +158,7 @@ namespace dynamo {
     if (!(std::tr1::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs)))
       M_throw() << "A shearing ensemble requires Lees-Edwards Boundary Conditions";
 
-    EnsembleVals[0] = Sim->particleList.size();
+    EnsembleVals[0] = Sim->particles.size();
     EnsembleVals[1] = Sim->primaryCellSize[0] * Sim->primaryCellSize[1] * Sim->primaryCellSize[2];
     EnsembleVals[2] = static_cast<const BCLeesEdwards&>(*Sim->BCs).getShearRate();
 
@@ -181,7 +181,7 @@ namespace dynamo {
   void
   EnsembleNECompression::initialise()
   {
-    EnsembleVals[0] = Sim->particleList.size();
+    EnsembleVals[0] = Sim->particles.size();
     EnsembleVals[1] = Sim->calcInternalEnergy() 
       + Sim->dynamics->getSystemKineticEnergy();
     
@@ -213,7 +213,7 @@ namespace dynamo {
   void
   EnsembleNTCompression::initialise()
   {
-    EnsembleVals[0] = Sim->particleList.size();
+    EnsembleVals[0] = Sim->particles.size();
 
     try {
       thermostat = Sim->systems["Thermostat"];

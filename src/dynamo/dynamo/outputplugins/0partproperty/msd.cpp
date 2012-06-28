@@ -37,7 +37,7 @@ namespace dynamo {
     initPos.resize(Sim->N);
   
     for (size_t ID = 0; ID < Sim->N; ++ID)
-      initPos[ID] = Sim->particleList[ID].getPosition();
+      initPos[ID] = Sim->particles[ID].getPosition();
   }
 
   void
@@ -88,7 +88,7 @@ namespace dynamo {
     double acc = 0.0;
 
     BOOST_FOREACH(const size_t ID, range)
-      acc += (Sim->particleList[ID].getPosition() - initPos[ID]).nrm2();
+      acc += (Sim->particles[ID].getPosition() - initPos[ID]).nrm2();
   
     return acc / (range.size() * Sim->units.unitArea());
   }
@@ -106,10 +106,10 @@ namespace dynamo {
 	double totmass = 0.0;
 	BOOST_FOREACH(const unsigned long& ID, *molRange)
 	  {
-	    double pmass = Sim->species[Sim->particleList[ID]]->getMass(ID);
+	    double pmass = Sim->species[Sim->particles[ID]]->getMass(ID);
 
 	    totmass += pmass;
-	    currPos += Sim->particleList[ID].getPosition() * pmass;
+	    currPos += Sim->particles[ID].getPosition() * pmass;
 	    origPos += initPos[ID] * pmass;
 	  }
       

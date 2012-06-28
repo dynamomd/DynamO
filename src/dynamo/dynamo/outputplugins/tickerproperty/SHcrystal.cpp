@@ -94,7 +94,7 @@ namespace dynamo {
   {
     sphericalsum ssum(Sim, rg, maxl);
   
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
+    BOOST_FOREACH(const Particle& part, Sim->particles)
       {
 	static_cast<const GNeighbourList*>
 	  (Sim->globals[nblistID].get())
@@ -168,7 +168,7 @@ namespace dynamo {
     (const Particle& part, const size_t& ID) const
   {
     if (part.getID() == ID) return;
-    Vector rij = part.getPosition() - Sim->particleList[ID].getPosition();
+    Vector rij = part.getPosition() - Sim->particles[ID].getPosition();
     Sim->BCs->applyBC(rij);
   
     double norm = rij.nrm();

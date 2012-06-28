@@ -78,8 +78,8 @@ namespace dynamo {
     data[PDat.particle1_.getSpeciesID()].addVal(PDat.particle1_.getDeltaKE());
     data[PDat.particle2_.getSpeciesID()].addVal(PDat.particle2_.getDeltaKE());
 
-    const Particle& p1 = Sim->particleList[PDat.particle1_.getParticleID()];
-    const Particle& p2 = Sim->particleList[PDat.particle2_.getParticleID()];
+    const Particle& p1 = Sim->particles[PDat.particle1_.getParticleID()];
+    const Particle& p2 = Sim->particles[PDat.particle2_.getParticleID()];
 
     double p1Mass = Sim->species[PDat.particle1_.getSpeciesID()]->getMass(p1.getID()); 
     double p2Mass = Sim->species[PDat.particle2_.getSpeciesID()]->getMass(p2.getID());

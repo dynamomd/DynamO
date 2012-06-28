@@ -43,7 +43,7 @@ namespace dynamo {
 
     for (size_t ID = 0; ID < Sim->N; ++ID)
       {
-	initialConfiguration[ID] = RUpair(Sim->particleList[ID].getPosition(), rdat[ID].orientation);
+	initialConfiguration[ID] = RUpair(Sim->particles[ID].getPosition(), rdat[ID].orientation);
       }
   }
 
@@ -99,7 +99,7 @@ namespace dynamo {
 
     const std::vector<Dynamics::rotData>& latest_rdat(Sim->dynamics->getCompleteRotData());
 
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
+    BOOST_FOREACH(const Particle& part, Sim->particles)
       {
 	displacement_term = part.getPosition() - initialConfiguration[part.getID()].first;
 	longitudinal_projection = (displacement_term | initialConfiguration[part.getID()].second);

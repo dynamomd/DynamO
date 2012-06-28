@@ -212,9 +212,9 @@ namespace dynamo {
 	  Sim->units.setUnitLength(particleDiam);
 
 	  unsigned long nParticles = 0;
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 
 	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
@@ -396,9 +396,9 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 
 	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
@@ -533,9 +533,9 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back
+	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 
 	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
@@ -568,7 +568,7 @@ namespace dynamo {
 
 	  //Now read the positions that were entered in
 
-	  size_t NUnit = Sim->particleList.size();
+	  size_t NUnit = Sim->particles.size();
 
 	  //Figure out how many units there are
 	  UCell* tmpPtr = standardPackingHelper(new UParticle());
@@ -587,7 +587,7 @@ namespace dynamo {
 
 	  {
 	    std::vector<Vector> positions;
-	    BOOST_FOREACH(const Particle& p, Sim->particleList)
+	    BOOST_FOREACH(const Particle& p, Sim->particles)
 	      positions.push_back(p.getPosition());
 	    tmpPtr = new UList(positions, diamScale, new UParticle());
 	  }
@@ -614,10 +614,10 @@ namespace dynamo {
 	    latticeSites(packptr->placeObjects(Vector(0,0,0)));
 
 	  unsigned long nParticles = 0;
-	  Sim->particleList.clear();
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.clear();
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back
+	    Sim->particles.push_back
 	    (Particle(position / diamScale, 
 		      getRandVelVec() * Sim->units.unitVelocity(),
 		      nParticles++));
@@ -679,14 +679,14 @@ namespace dynamo {
 	  Sim->units.setUnitLength(particleDiam);
 
 	  unsigned long nParticles = 0;
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back
+	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 
 	  //Insert a linear profile, zero momentum then add a vel gradient
 	  Sim->setCOMVelocity();
-	  BOOST_FOREACH(Particle& part, Sim->particleList)
+	  BOOST_FOREACH(Particle& part, Sim->particles)
 	    part.getVelocity()[0] += part.getPosition()[1] * shearRate;
 
 	  Sim->ensemble.reset(new dynamo::EnsembleNVShear(Sim));
@@ -783,9 +783,9 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 
 	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
@@ -849,9 +849,9 @@ namespace dynamo {
 			  (new SpPoint(Sim, new RAll(Sim), 1.0, "Bulk", 0, "Bulk")));
 
 	  unsigned long nParticles = 0;
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 
 	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
@@ -953,9 +953,9 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 
 	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
@@ -1046,9 +1046,9 @@ namespace dynamo {
 	  Sim->units.setUnitLength(particleDiam);
 
 	  unsigned long nParticles = 0;
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back
+	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 		      nParticles++));
 
@@ -1109,9 +1109,9 @@ namespace dynamo {
 	  Sim->units.setUnitLength(particleDiam);
 
 	  unsigned long nParticles = 0;
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 
 	  const double length = 1;
@@ -1187,9 +1187,9 @@ namespace dynamo {
 				       "Bulk")));
 
 	  unsigned long nParticles = 0;
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back
+	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 		      nParticles++));
 
@@ -1397,9 +1397,9 @@ namespace dynamo {
 				       massFrac, "B", 0, "BBInt")));
 
 	  unsigned long nParticles = 0;
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back
+	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 		      nParticles++));
 
@@ -1451,9 +1451,9 @@ namespace dynamo {
 	  Sim->units.setUnitLength(particleDiam);
 
 	  unsigned long nParticles = 0;
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 
 	  const double length = 1;
@@ -1578,9 +1578,9 @@ namespace dynamo {
 	  Sim->units.setUnitLength(particleDiam);
 
 	  unsigned long nParticles = 0;
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back
+	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 		      nParticles++));
 
@@ -1661,9 +1661,9 @@ namespace dynamo {
 	  Sim->units.setUnitLength(particleDiam);
 
 	  size_t nParticles = 0;
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back
+	    Sim->particles.push_back
 	    (Particle(position,
 		      Vector(Sim->units.unitVelocity(),
 			     Sim->units.unitVelocity(),
@@ -1682,7 +1682,7 @@ namespace dynamo {
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
 	      wobblespacing[iDim] = (Sim->primaryCellSize[iDim] - particleDiam * tmp[iDim]) / tmp[iDim];
 
-	    BOOST_FOREACH(Particle& part, Sim->particleList)
+	    BOOST_FOREACH(Particle& part, Sim->particles)
 	      for (size_t iDim(0); iDim < NDIM; ++iDim)
 		part.getPosition()[iDim] += unisampler() * wobblespacing[iDim];
 	  }
@@ -1699,10 +1699,10 @@ namespace dynamo {
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
 	      for (size_t i(0); i < nParticles / 2; ++i)
 		{
-		  while (Sim->particleList[ID].getVelocity()[iDim] < 0)
+		  while (Sim->particles[ID].getVelocity()[iDim] < 0)
 		    ID = rangen();
 
-		  Sim->particleList[ID].getVelocity()[iDim]
+		  Sim->particles[ID].getVelocity()[iDim]
 		    = -Sim->units.unitVelocity();
 		}
 	  }
@@ -1849,9 +1849,9 @@ namespace dynamo {
 				       "Bulk")));
 
 	  unsigned long nParticles = 0;
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 
 	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
@@ -1940,9 +1940,9 @@ namespace dynamo {
 				       "Bulk")));
 
 	  unsigned long nParticles = 0;
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back
+	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 		      nParticles++));
 
@@ -2107,12 +2107,12 @@ namespace dynamo {
 	    maxPart = latticeSites.size();
 
 	  unsigned long nParticles = 0;
-	  Sim->particleList.reserve(maxPart);
+	  Sim->particles.reserve(maxPart);
 
 	  std::sort(latticeSites.begin(), latticeSites.end(), mySortPredictate);
 
 	  for (size_t i(0); i < maxPart; ++i)
-	    Sim->particleList.push_back
+	    Sim->particles.push_back
 	      (Particle(latticeSites[i], 
 			getRandVelVec() * Sim->units.unitVelocity(),
 			nParticles++));
@@ -2196,9 +2196,9 @@ namespace dynamo {
 	  Sim->units.setUnitLength(particleDiam);
 
 	  unsigned long nParticles = 0;
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back(Particle(position, getRandVelVec()
+	    Sim->particles.push_back(Particle(position, getRandVelVec()
 						 * Sim->units.unitVelocity(),
 						 nParticles++));
 
@@ -2289,9 +2289,9 @@ namespace dynamo {
 	  Sim->units.setUnitLength(particleDiam);
 
 	  unsigned long nParticles = 0;
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back(Particle(position * boxlimit, getRandVelVec() * Sim->units.unitVelocity(),
+	    Sim->particles.push_back(Particle(position * boxlimit, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 
 	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
@@ -2359,9 +2359,9 @@ namespace dynamo {
 					   "GroundPlate", new RAll(Sim))));
 	
 	  unsigned long nParticles = 0;
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back(Particle(0.999 * position, getRandVelVec() * Sim->units.unitVelocity(),
+	    Sim->particles.push_back(Particle(0.999 * position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 	
 	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
@@ -2479,16 +2479,16 @@ namespace dynamo {
 				       1.0, "Bulk", 0, "Bulk")));
 
 	  unsigned long nParticles = 0;
-	  Sim->particleList.reserve(funnelSites.size() + dynamicSites.size());
+	  Sim->particles.reserve(funnelSites.size() + dynamicSites.size());
 
 	  BOOST_FOREACH(const Vector & position, funnelSites)
-	    Sim->particleList.push_back(Particle(position, Vector(0, 0, 0), nParticles++));
+	    Sim->particles.push_back(Particle(position, Vector(0, 0, 0), nParticles++));
 
 	  BOOST_FOREACH(const Vector & position, dynamicSites)
 	    {
 	      Vector vel = getRandVelVec() * Sim->units.unitVelocity();
 	      if (vel[1] > 0) vel[1] = -vel[1];//So particles don't fly out of the hopper
-	      Sim->particleList.push_back(Particle(position, vel, nParticles++));
+	      Sim->particles.push_back(Particle(position, vel, nParticles++));
 	    }
 
 	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
@@ -3052,9 +3052,9 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back
+	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 
 	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
@@ -3290,16 +3290,16 @@ namespace dynamo {
 	    }
 
 	  unsigned long nParticles = 0;
-	  Sim->particleList.reserve(funnelSites.size() + dynamicSites.size());
+	  Sim->particles.reserve(funnelSites.size() + dynamicSites.size());
 
 	  BOOST_FOREACH(const Vector & position, funnelSites)
-	    Sim->particleList.push_back(Particle(position, Vector(0, 0, 0), nParticles++));
+	    Sim->particles.push_back(Particle(position, Vector(0, 0, 0), nParticles++));
 
 	  BOOST_FOREACH(const Vector & position, dynamicSites)
 	    {
 	      Vector vel = 0.001 * getRandVelVec() * Sim->units.unitVelocity();
 	      if (vel[1] > 0) vel[1] = -vel[1];//So particles don't fly out of the hopper
-	      Sim->particleList.push_back(Particle(position, vel, nParticles++));
+	      Sim->particles.push_back(Particle(position, vel, nParticles++));
 	    }
 
 	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
@@ -3431,14 +3431,14 @@ namespace dynamo {
 	  Sim->units.setUnitLength(particleDiam);
 
 	  unsigned long nParticles = 0;
-	  Sim->particleList.reserve(latticeSites.size());
+	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particleList.push_back
+	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 
 	  //Insert a linear profile, zero momentum then add a vel gradient
 	  Sim->setCOMVelocity();
-	  BOOST_FOREACH(Particle& part, Sim->particleList)
+	  BOOST_FOREACH(Particle& part, Sim->particles)
 	    part.getVelocity()[0] += part.getPosition()[1] * shearRate;
 
 	  Sim->ensemble.reset(new dynamo::EnsembleNVShear(Sim));
@@ -3448,7 +3448,7 @@ namespace dynamo {
 	M_throw() << "Did not recognise the packer mode you wanted";
       }
 
-    Sim->N = Sim->particleList.size();
+    Sim->N = Sim->particles.size();
   }
 
   Vector

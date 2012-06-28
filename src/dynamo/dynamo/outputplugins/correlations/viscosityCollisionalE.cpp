@@ -181,7 +181,7 @@ namespace dynamo {
   void
   OPViscosityCollisionalE::impulseDelG(const PairEventData& colldat)
   {
-    const Particle& p1 = Sim->particleList[colldat.particle1_.getParticleID()];
+    const Particle& p1 = Sim->particles[colldat.particle1_.getParticleID()];
     const Species& sp1 = *Sim->species[colldat.particle1_.getSpeciesID()];
 
     Vector dP = sp1.getMass(p1.getID()) * (p1.getVelocity() - colldat.particle1_.getOldVel());

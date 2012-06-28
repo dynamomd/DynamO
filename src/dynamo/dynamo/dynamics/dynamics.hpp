@@ -108,7 +108,7 @@ namespace dynamo {
 
     /*! \brief Calculates the thermal temperature of the system.
      */
-    inline double getkT() const { return 2.0 * getSystemKineticEnergy() / (Sim->particleList.size() * static_cast<double>(this->getParticleDOF())); }
+    inline double getkT() const { return 2.0 * getSystemKineticEnergy() / (Sim->particles.size() * static_cast<double>(this->getParticleDOF())); }
 
     /*! \brief Rescales the kinetic energy of the system by a factor.
      */
@@ -607,7 +607,7 @@ namespace dynamo {
     {
       //May as well take this opportunity to reset the streaming
       //Note: the Replexing coordinator RELIES on this behaviour!
-      BOOST_FOREACH(Particle& part, Sim->particleList)
+      BOOST_FOREACH(Particle& part, Sim->particles)
 	{
 	  streamParticle(part, part.getPecTime() + partPecTime);
 	  part.getPecTime() = 0;
@@ -666,7 +666,7 @@ namespace dynamo {
       //Keep the magnitude of the partPecTime boundedx
       if (++streamCount == streamFreq)
 	{
-	  BOOST_FOREACH(Particle& part, Sim->particleList)
+	  BOOST_FOREACH(Particle& part, Sim->particles)
 	    part.getPecTime() += partPecTime;
 
 	  partPecTime = 0;

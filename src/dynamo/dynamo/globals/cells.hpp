@@ -123,7 +123,7 @@ namespace dynamo {
     void addLocalEvents();
 
     inline void addToCell(size_t ID)
-    { addToCell(ID, getCellID(Sim->particleList[ID].getPosition()).getMortonNum()); }
+    { addToCell(ID, getCellID(Sim->particles[ID].getPosition()).getMortonNum()); }
 
     inline void addToCell(size_t ID, size_t cellID) const
     {

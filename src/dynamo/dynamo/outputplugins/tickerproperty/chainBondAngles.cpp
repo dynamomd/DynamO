@@ -85,15 +85,15 @@ namespace dynamo {
 	  //Walk the polymer
 	  for (size_t j = 0; j < range->size()-2; ++j)
 	    {
-	      Vector  bond1 = Sim->particleList[(*range)[j+1]].getPosition()
-		- Sim->particleList[(*range)[j]].getPosition();
+	      Vector  bond1 = Sim->particles[(*range)[j+1]].getPosition()
+		- Sim->particles[(*range)[j]].getPosition();
 
 	      bond1 /= bond1.nrm();
 
 	      for (size_t i = j+2; i < range->size(); ++i)
 		{
-		  Vector  bond2 = Sim->particleList[(*range)[i]].getPosition()
-		    -Sim->particleList[(*range)[i-1]].getPosition();
+		  Vector  bond2 = Sim->particles[(*range)[i]].getPosition()
+		    -Sim->particles[(*range)[i-1]].getPosition();
 		
 		  bond2 /= bond2.nrm();
 		

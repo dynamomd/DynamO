@@ -58,7 +58,7 @@ namespace dynamo {
   SDumb::getParticleNeighbourhood(const Particle& part,
 				  const nbHoodFunc& func) const
   {
-    BOOST_FOREACH(const Particle& op, Sim->particleList)
+    BOOST_FOREACH(const Particle& op, Sim->particles)
       if (op != part) func(part, op.getID());
   }
     
@@ -73,7 +73,7 @@ namespace dynamo {
   void 
   SDumb::getParticleNeighbourhood(const Vector& vec, const nbHoodFunc2& func) const
   {
-    BOOST_FOREACH(const Particle& op, Sim->particleList)
+    BOOST_FOREACH(const Particle& op, Sim->particles)
       func(op.getID());
   }
 }

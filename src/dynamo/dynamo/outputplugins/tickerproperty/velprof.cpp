@@ -48,7 +48,7 @@ namespace dynamo {
   void 
   OPVelProfile::ticker()
   {
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
+    BOOST_FOREACH(const Particle& part, Sim->particles)
       {
 	Vector  pos(part.getPosition());
 	Vector  vel(part.getVelocity());

@@ -88,7 +88,7 @@ namespace dynamo {
       BOOST_FOREACH(unsigned long ID, *range)
 	{
 	  for (size_t s(0); s < nsph; ++s)
-	    mass[nsph * sphID + s] = Sim->species[Sim->particleList[ID]]->getMass(ID);
+	    mass[nsph * sphID + s] = Sim->species[Sim->particles[ID]]->getMass(ID);
 	  ++sphID;
 	}
       (*_renderData)["Mass"].flagNewData();
@@ -139,7 +139,7 @@ namespace dynamo {
     size_t glyphID(0);
     BOOST_FOREACH(unsigned long ID, *range)
       {
-	Vector vel = Sim->particleList[ID].getVelocity();
+	Vector vel = Sim->particles[ID].getVelocity();
 	for (size_t s(0); s < nsph; ++s)
 	  {
 	    Vector pos = data.getGlyphPosition(ID, s);

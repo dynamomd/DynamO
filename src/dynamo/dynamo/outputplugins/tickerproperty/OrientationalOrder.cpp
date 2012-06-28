@@ -115,7 +115,7 @@ namespace dynamo {
   {
     size_t count(0);
     ComplexNum sum(0,0);
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
+    BOOST_FOREACH(const Particle& part, Sim->particles)
       {
 	Neighbours nbs;
 	
@@ -130,7 +130,7 @@ namespace dynamo {
 	    std::vector<MagVec> bonds;
 	    BOOST_FOREACH(const size_t& id2, nbs._neighbours)
 	      {
-		Vector bond = Sim->particleList[id2].getPosition() - part.getPosition();
+		Vector bond = Sim->particles[id2].getPosition() - part.getPosition();
 		Sim->BCs->applyBC(bond);
 		bonds.push_back(bond);
 	      }

@@ -36,8 +36,8 @@ namespace dynamo {
   bool 
   Interaction::isInteraction(const IntEvent &coll) const
   { 
-    return isInteraction(Sim->particleList[coll.getParticle1ID()],
-			 Sim->particleList[coll.getParticle2ID()]); 
+    return isInteraction(Sim->particles[coll.getParticle1ID()],
+			 Sim->particles[coll.getParticle2ID()]); 
   }
 
   bool 

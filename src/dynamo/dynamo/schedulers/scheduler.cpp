@@ -68,7 +68,7 @@ namespace dynamo {
     eventCount.clear();
     eventCount.resize(Sim->N+1, 0);
 
-    BOOST_FOREACH(Particle& part, Sim->particleList)
+    BOOST_FOREACH(Particle& part, Sim->particles)
       addEvents(part);
   
     sorter->init();
@@ -235,8 +235,8 @@ namespace dynamo {
       {
       case INTERACTION:
 	{
-	  Particle& p1(Sim->particleList[sorter->next_ID()]);
-	  Particle& p2(Sim->particleList[sorter->next_p2()]);
+	  Particle& p1(Sim->particles[sorter->next_ID()]);
+	  Particle& p2(Sim->particles[sorter->next_p2()]);
 
 	  //Ready the next event in the FEL
 	  sorter->popNextEvent();
@@ -310,12 +310,12 @@ namespace dynamo {
 
 	  //We also don't recheck Global events! (Check, some events might rely on this behavior)
 	  Sim->globals[sorter->next_p2()]
-	    ->runEvent(Sim->particleList[sorter->next_ID()], sorter->next_dt());       	
+	    ->runEvent(Sim->particles[sorter->next_ID()], sorter->next_dt());       	
 	  break;	           
 	}
       case LOCAL:
 	{
-	  Particle& part(Sim->particleList[sorter->next_ID()]);
+	  Particle& part(Sim->particles[sorter->next_ID()]);
 
 	  //Copy the FEL event
 	  size_t localID = sorter->next_p2();
@@ -385,7 +385,7 @@ namespace dynamo {
 	  stream(dt);
 	  Sim->stream(dt);
 	  Sim->freestreamAcc += dt;
-	  this->fullUpdate(Sim->particleList[ID]);
+	  this->fullUpdate(Sim->particles[ID]);
 	  break;
 	}
       case NONE:
@@ -404,8 +404,8 @@ namespace dynamo {
 				 const size_t& id) const
   {
     if (part.getID() == id) return;
-    Particle& part1(Sim->particleList[part.getID()]);
-    Particle& part2(Sim->particleList[id]);
+    Particle& part1(Sim->particles[part.getID()]);
+    Particle& part2(Sim->particles[id]);
 
     Sim->dynamics->updateParticle(part2);
 

@@ -119,7 +119,7 @@ namespace dynamo {
     double mass1 = 0;
     BOOST_FOREACH(const size_t ID, p1)
       {
-	const Particle& part = Sim->particleList[ID];       
+	const Particle& part = Sim->particles[ID];       
 	double mass = Sim->species[part]->getMass(ID);
 
 	if (part.testState(Particle::DYNAMIC))
@@ -133,7 +133,7 @@ namespace dynamo {
     double mass2 = 0;
     BOOST_FOREACH(const size_t ID, p2)
       {
-	const Particle& part = Sim->particleList[ID];       
+	const Particle& part = Sim->particles[ID];       
 	double mass = Sim->species[part]->getMass(ID);
 
 	if (part.testState(Particle::DYNAMIC))
@@ -181,7 +181,7 @@ namespace dynamo {
     double mass1 = 0;
     BOOST_FOREACH(const size_t ID, p1)
       {
-	const Particle& part = Sim->particleList[ID];       
+	const Particle& part = Sim->particles[ID];       
 	double mass = Sim->species[part]->getMass(ID);
 
 	if (part.testState(Particle::DYNAMIC))
@@ -195,7 +195,7 @@ namespace dynamo {
     double mass2 = 0;
     BOOST_FOREACH(const size_t ID, p2)
       {
-	const Particle& part = Sim->particleList[ID];       
+	const Particle& part = Sim->particles[ID];       
 	double mass = Sim->species[part]->getMass(ID);
 
 	if (part.testState(Particle::DYNAMIC))
@@ -477,8 +477,8 @@ namespace dynamo {
   DynGravity::SmoothSpheresColl(const IntEvent& event, const double& ne,
 				       const double& d2, const EEventType& eType) const
   {
-    Particle& particle1 = Sim->particleList[event.getParticle1ID()];
-    Particle& particle2 = Sim->particleList[event.getParticle2ID()];
+    Particle& particle1 = Sim->particles[event.getParticle1ID()];
+    Particle& particle2 = Sim->particles[event.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);  
 

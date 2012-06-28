@@ -98,7 +98,7 @@ namespace dynamo {
     BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->species)
       BOOST_FOREACH(const size_t& id, *spec->getRange())
       {
-	const Particle& part(Sim->particleList[id]);
+	const Particle& part(Sim->particles[id]);
 	constDelG[spec->getID()] += part.getVelocity() 
 	  * Sim->dynamics->getParticleKineticEnergy(part);
       }
@@ -312,7 +312,7 @@ namespace dynamo {
   void 
   OPThermalConductivitySpeciesSpeciesE::updateConstDelG(const ParticleEventData& PDat)
   {
-    const Particle& p1 = Sim->particleList[PDat.getParticleID()];
+    const Particle& p1 = Sim->particles[PDat.getParticleID()];
 
     double p1E = Sim->dynamics->getParticleKineticEnergy(p1);
   

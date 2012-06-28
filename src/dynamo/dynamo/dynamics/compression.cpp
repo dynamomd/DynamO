@@ -104,8 +104,8 @@ namespace dynamo {
   PairEventData 
   DynCompression::SmoothSpheresColl(const IntEvent& event, const double& e, const double& d2, const EEventType& eType) const
   {
-    Particle& particle1 = Sim->particleList[event.getParticle1ID()];
-    Particle& particle2 = Sim->particleList[event.getParticle2ID()];
+    Particle& particle1 = Sim->particles[event.getParticle1ID()];
+    Particle& particle2 = Sim->particles[event.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);  
 
@@ -164,8 +164,8 @@ namespace dynamo {
   PairEventData 
   DynCompression::SphereWellEvent(const IntEvent& event, const double& deltaKE, const double& d2) const
   {
-    Particle& particle1 = Sim->particleList[event.getParticle1ID()];
-    Particle& particle2 = Sim->particleList[event.getParticle2ID()];
+    Particle& particle1 = Sim->particles[event.getParticle1ID()];
+    Particle& particle2 = Sim->particles[event.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);  
   

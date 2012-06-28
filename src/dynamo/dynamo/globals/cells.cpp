@@ -355,7 +355,7 @@ namespace dynamo {
     ////Add all the particles 
     BOOST_FOREACH(const size_t& id, *range)
       {
-	Particle& p = Sim->particleList[id];
+	Particle& p = Sim->particles[id];
 	Sim->dynamics->updateParticle(p); 
 	addToCell(id);
 #ifdef DYNAMO_WallCollDebug

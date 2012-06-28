@@ -58,10 +58,10 @@ namespace dynamo {
     size_t id2 = ((p1 > p2) 
 		  ? p1 : p2);
 
-    Vector  rij = Sim->particleList[id1].getPosition()
-      - Sim->particleList[id2].getPosition(),
-      vij = Sim->particleList[id1].getVelocity()
-      - Sim->particleList[id2].getVelocity();
+    Vector  rij = Sim->particles[id1].getPosition()
+      - Sim->particles[id2].getPosition(),
+      vij = Sim->particles[id1].getVelocity()
+      - Sim->particles[id2].getVelocity();
   
 
     Sim->BCs->applyBC(rij, vij);
@@ -152,7 +152,7 @@ namespace dynamo {
 	logfile << "    1PEvent p1 " << pData.getParticleID()
 		<< " delP1 < ";
 
-	const Particle& part = Sim->particleList[pData.getParticleID()];
+	const Particle& part = Sim->particles[pData.getParticleID()];
 	Vector delP = Sim->species[pData.getSpeciesID()]->getMass(part.getID()) * (part.getVelocity() - pData.getOldVel());
 
 	for (size_t iDim(0); iDim < NDIM; ++iDim)
@@ -191,7 +191,7 @@ namespace dynamo {
 
 	for (size_t iDim(0); iDim < NDIM; ++iDim)
 	  logfile << std::setw(7) << std::scientific
-		  << Sim->particleList[pData.getParticleID()].getVelocity()[iDim]
+		  << Sim->particles[pData.getParticleID()].getVelocity()[iDim]
 	    / Sim->units.unitVelocity() << ",";
       
 	logfile << "]\n";

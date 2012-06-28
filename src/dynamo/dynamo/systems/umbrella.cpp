@@ -88,10 +88,10 @@ namespace dynamo {
     ++Sim->eventCount;
 
     BOOST_FOREACH(const size_t& id, *range1)
-      Sim->dynamics->updateParticle(Sim->particleList[id]);
+      Sim->dynamics->updateParticle(Sim->particles[id]);
   
     BOOST_FOREACH(const size_t& id, *range2)
-      Sim->dynamics->updateParticle(Sim->particleList[id]);
+      Sim->dynamics->updateParticle(Sim->particles[id]);
   
     bool kedown(false); //Will kinetic energy go down?
 
@@ -129,7 +129,7 @@ namespace dynamo {
   
     //Only 1ParticleEvents occur
     BOOST_FOREACH(const ParticleEventData& PDat, SDat.L1partChanges)
-      Sim->ptrScheduler->fullUpdate(Sim->particleList[PDat.getParticleID()]);
+      Sim->ptrScheduler->fullUpdate(Sim->particles[PDat.getParticleID()]);
   
     locdt += Sim->freestreamAcc;
 
@@ -145,10 +145,10 @@ namespace dynamo {
     ID = nID;
 
     BOOST_FOREACH(const size_t& id, *range1)
-      Sim->dynamics->updateParticle(Sim->particleList[id]);
+      Sim->dynamics->updateParticle(Sim->particles[id]);
   
     BOOST_FOREACH(const size_t& id, *range2)
-      Sim->dynamics->updateParticle(Sim->particleList[id]);
+      Sim->dynamics->updateParticle(Sim->particles[id]);
   
     ulevelcenter = int( - a * b * b / delU);
     
@@ -176,10 +176,10 @@ namespace dynamo {
   SysUmbrella::recalculateTime()
   {
     BOOST_FOREACH(const size_t& id, *range1)
-      Sim->dynamics->updateParticle(Sim->particleList[id]);
+      Sim->dynamics->updateParticle(Sim->particles[id]);
   
     BOOST_FOREACH(const size_t& id, *range2)
-      Sim->dynamics->updateParticle(Sim->particleList[id]);
+      Sim->dynamics->updateParticle(Sim->particles[id]);
   
     double R_max, R_min;
 
@@ -243,8 +243,8 @@ namespace dynamo {
   SysUmbrella::particlesUpdated(const NEventData& PDat)
   {
     BOOST_FOREACH(const ParticleEventData& pdat, PDat.L1partChanges)
-      if (range1->isInRange(Sim->particleList[pdat.getParticleID()])
-	  || range2->isInRange(Sim->particleList[pdat.getParticleID()]))
+      if (range1->isInRange(Sim->particles[pdat.getParticleID()])
+	  || range2->isInRange(Sim->particles[pdat.getParticleID()]))
 	{
 	  recalculateTime();
 	  Sim->ptrScheduler->rebuildSystemEvents();
@@ -252,10 +252,10 @@ namespace dynamo {
 	}
 
     BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
-      if (range1->isInRange(Sim->particleList[pdat.particle1_.getParticleID()])
-	  || range2->isInRange(Sim->particleList[pdat.particle1_.getParticleID()])
-	  || range1->isInRange(Sim->particleList[pdat.particle2_.getParticleID()])
-	  || range2->isInRange(Sim->particleList[pdat.particle2_.getParticleID()]))
+      if (range1->isInRange(Sim->particles[pdat.particle1_.getParticleID()])
+	  || range2->isInRange(Sim->particles[pdat.particle1_.getParticleID()])
+	  || range1->isInRange(Sim->particles[pdat.particle2_.getParticleID()])
+	  || range2->isInRange(Sim->particles[pdat.particle2_.getParticleID()]))
 	{
 	  recalculateTime();
 	  Sim->ptrScheduler->rebuildSystemEvents();

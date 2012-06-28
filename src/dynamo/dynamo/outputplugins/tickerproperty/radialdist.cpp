@@ -130,8 +130,8 @@ namespace dynamo {
       BOOST_FOREACH(const size_t& p1, *sp1->getRange())
       BOOST_FOREACH(const size_t& p2, *sp2->getRange())
       {
-	Vector  rij = Sim->particleList[p1].getPosition()
-	  - Sim->particleList[p2].getPosition();
+	Vector  rij = Sim->particles[p1].getPosition()
+	  - Sim->particles[p2].getPosition();
 	
 	Sim->BCs->applyBC(rij);
 	

@@ -117,8 +117,8 @@ namespace dynamo {
   DynNewtonianMC::SphereWellEvent(const IntEvent& event, const double& deltaKE, 
 				const double &) const
   {
-    Particle& particle1 = Sim->particleList[event.getParticle1ID()];
-    Particle& particle2 = Sim->particleList[event.getParticle2ID()];
+    Particle& particle1 = Sim->particles[event.getParticle1ID()];
+    Particle& particle2 = Sim->particles[event.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);  
 

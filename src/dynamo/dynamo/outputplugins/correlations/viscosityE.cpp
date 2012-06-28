@@ -100,7 +100,7 @@ namespace dynamo {
 	  dt = 10.0 / (((double) CorrelatorLength) * sqrt(Sim->dynamics->getkT()) * CorrelatorLength);
       }
 
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
+    BOOST_FOREACH(const Particle& part, Sim->particles)
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	  constDelG[iDim][jDim] 
@@ -210,7 +210,7 @@ namespace dynamo {
   void
   OPViscosityE::impulseDelG(const PairEventData& colldat)
   {
-    const Particle& p1 = Sim->particleList[colldat.particle1_.getParticleID()];
+    const Particle& p1 = Sim->particles[colldat.particle1_.getParticleID()];
     const Species& sp1 = *Sim->species[colldat.particle1_.getSpeciesID()];
 
     Vector dP = sp1.getMass(p1.getID()) * (p1.getVelocity() - colldat.particle1_.getOldVel());
@@ -322,7 +322,7 @@ namespace dynamo {
   void 
   OPViscosityE::updateConstDelG(const ParticleEventData& PDat)
   {
-    const Particle& p1 = Sim->particleList[PDat.getParticleID()];
+    const Particle& p1 = Sim->particles[PDat.getParticleID()];
     const Species& sp1 = *Sim->species[PDat.getSpeciesID()];
 
     for (size_t iDim = 0; iDim < NDIM; ++iDim)

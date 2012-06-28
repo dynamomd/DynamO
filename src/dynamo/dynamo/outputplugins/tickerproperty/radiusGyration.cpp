@@ -100,7 +100,7 @@ namespace dynamo {
     molGyrationDat retVal;
     retVal.MassCentre = Vector (0,0,0);
 
-    double totmass = Sim->species[Sim->particleList[*(range->begin())]]->getMass(*(range->begin()));
+    double totmass = Sim->species[Sim->particles[*(range->begin())]]->getMass(*(range->begin()));
     std::vector<Vector> relVecs;
     relVecs.reserve(range->size());
     relVecs.push_back(Vector(0,0,0));
@@ -108,14 +108,14 @@ namespace dynamo {
     //Walk along the chain
     for (Range::iterator iPtr = range->begin()+1; iPtr != range->end(); iPtr++)
       {
-	Vector currRelPos = Sim->particleList[*iPtr].getPosition() 
-	  - Sim->particleList[*(iPtr - 1)].getPosition();
+	Vector currRelPos = Sim->particles[*iPtr].getPosition() 
+	  - Sim->particles[*(iPtr - 1)].getPosition();
 
 	Sim->BCs->applyBC(currRelPos);
 
 	relVecs.push_back(currRelPos + relVecs.back());
 
-	double mass = Sim->species[Sim->particleList[*iPtr]]->getMass(*iPtr);
+	double mass = Sim->species[Sim->particles[*iPtr]]->getMass(*iPtr);
 
 	retVal.MassCentre += relVecs.back() * mass;
 	totmass += mass;
@@ -145,7 +145,7 @@ namespace dynamo {
 	  retVal.EigenVec[i][j] = result.first[i][j];
       }
 
-    retVal.MassCentre += Sim->particleList[*(range->begin())].getPosition();
+    retVal.MassCentre += Sim->particles[*(range->begin())].getPosition();
 
     return retVal;
   }

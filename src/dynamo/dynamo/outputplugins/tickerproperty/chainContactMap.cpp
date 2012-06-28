@@ -77,11 +77,11 @@ namespace dynamo {
 	dat.counter++;
 	for (unsigned long i = 0; i < dat.chainlength; i++)
 	  {
-	    const Particle& part1 = Sim->particleList[(*range)[i]];
+	    const Particle& part1 = Sim->particles[(*range)[i]];
 	 
 	    for (unsigned long j = i+1; j < dat.chainlength; j++)
 	      {
-		const Particle& part2 = Sim->particleList[(*range)[j]];
+		const Particle& part2 = Sim->particles[(*range)[j]];
 
 		BOOST_FOREACH(const shared_ptr<Interaction>& ptr, Sim->interactions)
 		  if (ptr->isInteraction(part1,part2))

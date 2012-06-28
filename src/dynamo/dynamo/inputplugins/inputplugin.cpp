@@ -81,21 +81,21 @@ namespace dynamo {
   
     Vector com(0,0,0);  
     double totmass = 0.0;
-    BOOST_FOREACH(Particle& part, Sim->particleList)  
+    BOOST_FOREACH(Particle& part, Sim->particles)  
       {
 	totmass += Sim->species[part]->getMass(part.getID());
 	com += part.getPosition() * Sim->species[part]->getMass(part.getID());
       }
     com /= totmass;
   
-    BOOST_FOREACH(Particle& part, Sim->particleList)
+    BOOST_FOREACH(Particle& part, Sim->particles)
       part.getPosition() -= com;
   }
 
   void 
   InputPlugin::mirrorDirection(unsigned int iDim)
   {
-    BOOST_FOREACH(Particle& part, Sim->particleList)  
+    BOOST_FOREACH(Particle& part, Sim->particles)  
       {
 	part.getVelocity()[iDim] *= -1.0;
 	part.getPosition()[iDim] *= -1.0;
@@ -106,7 +106,7 @@ namespace dynamo {
   InputPlugin::zeroVelComp(size_t iDim)
   {
     dout << "Zeroing the " << iDim << " dimension velocities" << std::endl;
-    BOOST_FOREACH(Particle& part, Sim->particleList)
+    BOOST_FOREACH(Particle& part, Sim->particles)
       part.getVelocity()[iDim] = 0.0;
   }
 }

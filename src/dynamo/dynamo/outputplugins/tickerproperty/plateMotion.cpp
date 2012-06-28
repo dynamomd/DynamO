@@ -99,7 +99,7 @@ namespace dynamo {
 
     BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
       {
-	const Particle& p1 = Sim->particleList[pData.getParticleID()];
+	const Particle& p1 = Sim->particles[pData.getParticleID()];
 	const Species& sp1 = *Sim->species[pData.getSpeciesID()];
 	
 	Vector dP = sp1.getMass(p1.getID()) * (p1.getVelocity() - pData.getOldVel());
@@ -132,7 +132,7 @@ namespace dynamo {
     double partEnergy(0.0);
 
     double mass(0);
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
+    BOOST_FOREACH(const Particle& part, Sim->particles)
       {
 	Vector pos(part.getPosition()), vel(part.getVelocity());
 	double pmass(Sim->species[part]->getMass(part.getID()));

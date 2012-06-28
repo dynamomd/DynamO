@@ -70,7 +70,7 @@ namespace dynamo {
 
     const std::vector<Dynamics::rotData>& initial_rdat(Sim->dynamics->getCompleteRotData());
 
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
+    BOOST_FOREACH(const Particle& part, Sim->particles)
       {
 	historicalData[part.getID()].push_front(RUpair(part.getPosition(), initial_rdat[part.getID()].orientation));
       }
@@ -80,7 +80,7 @@ namespace dynamo {
   OPMSDOrientationalCorrelator::ticker()
   {
     const std::vector<Dynamics::rotData>& current_rdat(Sim->dynamics->getCompleteRotData());
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
+    BOOST_FOREACH(const Particle& part, Sim->particles)
       {
 	historicalData[part.getID()].push_front(RUpair(part.getPosition(), current_rdat[part.getID()].orientation));
       }
@@ -106,7 +106,7 @@ namespace dynamo {
     double longitudinal_projection(0.0), cos_theta(0.0);
     Vector displacement_term(0,0,0);
 
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
+    BOOST_FOREACH(const Particle& part, Sim->particles)
       {
 	for (size_t step(1); step < length; ++step)
 	  {

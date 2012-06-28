@@ -67,7 +67,7 @@ namespace dynamo {
       {
 	std::complex<double> sum(0, 0);
 
-	BOOST_FOREACH(const Particle& part, Sim->particleList)
+	BOOST_FOREACH(const Particle& part, Sim->particles)
 	  {
 	    double psum(0);
 	  

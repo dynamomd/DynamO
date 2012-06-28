@@ -102,7 +102,7 @@ namespace dynamo {
       {
 	std::vector<Vector  > atomDescription;
 
-	Vector  lastpos(Sim->particleList[*prange->begin()].getPosition());
+	Vector  lastpos(Sim->particles[*prange->begin()].getPosition());
       
 	Vector  masspos(0,0,0);
 
@@ -113,7 +113,7 @@ namespace dynamo {
 	BOOST_FOREACH(const size_t& pid, *prange)
 	  {
 	    //This is all to make sure we walk along the structure
-	    const Particle& part(Sim->particleList[pid]);
+	    const Particle& part(Sim->particles[pid]);
 	    Vector  rij = part.getPosition() - lastpos;
 	    lastpos = part.getPosition();
 	    Sim->BCs->applyBC(rij);

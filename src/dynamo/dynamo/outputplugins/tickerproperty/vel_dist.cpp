@@ -68,7 +68,7 @@ namespace dynamo {
       BOOST_FOREACH(const size_t& ID, *sp->getRange())
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	data[iDim][sp->getID()]
-	  .addVal(Sim->particleList[ID].getVelocity()[iDim] * factor);
+	  .addVal(Sim->particles[ID].getVelocity()[iDim] * factor);
   }
 
   void

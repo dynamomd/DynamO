@@ -66,7 +66,7 @@ namespace dynamo {
     recalculateTime();
 
     _lastData.resize(Sim->N);
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
+    BOOST_FOREACH(const Particle& part, Sim->particles)
       {
 	_lastData[part.getID()].first = part.getPosition();
 	_lastData[part.getID()].second = - HUGE_VAL;
@@ -130,8 +130,8 @@ namespace dynamo {
   {
     BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
       {
-	const Particle& p1 = Sim->particleList[pdat.particle1_.getParticleID()];
-	const Particle& p2 = Sim->particleList[pdat.particle2_.getParticleID()];
+	const Particle& p1 = Sim->particles[pdat.particle1_.getParticleID()];
+	const Particle& p2 = Sim->particles[pdat.particle2_.getParticleID()];
       
 	//FC = Fixed collider, DP = Dynamic particle, SP = Static
 	//particle, ODP = other dynamic particle, OSP = other static
@@ -217,11 +217,11 @@ namespace dynamo {
     BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
       {
 	const size_t& p1 = pdat.particle1_.getParticleID();
-	_lastData[p1].first = Sim->particleList[p1].getPosition();
+	_lastData[p1].first = Sim->particles[p1].getPosition();
 	_lastData[p1].second = Sim->dSysTime;
 
 	const size_t& p2 = pdat.particle2_.getParticleID();
-	_lastData[p2].first = Sim->particleList[p2].getPosition();
+	_lastData[p2].first = Sim->particles[p2].getPosition();
 	_lastData[p2].second = Sim->dSysTime;
       }
 
@@ -257,7 +257,7 @@ namespace dynamo {
     typedef std::map<size_t, Vector>::value_type locPair;
     BOOST_FOREACH(const locPair& p, stateChange)
       {
-	Particle& part = Sim->particleList[p.first];
+	Particle& part = Sim->particles[p.first];
 	Sim->dynamics->updateParticle(part);
       
 #ifdef DYNAMO_DEBUG 
@@ -314,7 +314,7 @@ namespace dynamo {
     Sim->signalParticleUpdate(SDat);
 
     BOOST_FOREACH(const ParticleEventData& PDat, SDat.L1partChanges)
-      Sim->ptrScheduler->fullUpdate(Sim->particleList[PDat.getParticleID()]);
+      Sim->ptrScheduler->fullUpdate(Sim->particles[PDat.getParticleID()]);
   
     locdt += Sim->freestreamAcc;
 

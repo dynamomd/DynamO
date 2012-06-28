@@ -82,7 +82,7 @@ namespace dynamo {
   Vector 
   ISoftCore::getGlyphPosition(size_t ID, size_t subID) const
   { 
-    Vector retval = Sim->particleList[ID].getPosition();
+    Vector retval = Sim->particles[ID].getPosition();
     Sim->BCs->applyBC(retval);
     return retval;
   }

@@ -55,7 +55,7 @@ namespace dynamo {
     if (hasOrientationData())
       {
 	double sumEnergy(0.0);
-	BOOST_FOREACH(const Particle& part, Sim->particleList)  
+	BOOST_FOREACH(const Particle& part, Sim->particles)  
 	  sumEnergy += Sim->species[part]->getScalarMomentOfInertia(part.getID())
 	  * orientationData[part.getID()].angularVelocity.nrm2();
       
@@ -112,13 +112,13 @@ namespace dynamo {
 	 node.valid(); ++node)
       {
 	if (!node.hasAttribute("ID")
-	    || node.getAttribute("ID").as<size_t>() != Sim->particleList.size())
+	    || node.getAttribute("ID").as<size_t>() != Sim->particles.size())
 	  outofsequence = true;
       
-	Particle part(node, Sim->particleList.size());
+	Particle part(node, Sim->particles.size());
 	part.getVelocity() *= Sim->units.unitVelocity();
 	part.getPosition() *= Sim->units.unitLength();
-	Sim->particleList.push_back(part);
+	Sim->particles.push_back(part);
       }
 
     if (outofsequence)
@@ -126,7 +126,7 @@ namespace dynamo {
 	   << "This can result in incorrect capture map loads etc.\n"
 	   << "Erase any capture maps in the configuration file so they are regenerated." << std::endl;
 
-    Sim->N = Sim->particleList.size();
+    Sim->N = Sim->particles.size();
 
     dout << "Particle count " << Sim->N << std::endl;
 
@@ -162,7 +162,7 @@ namespace dynamo {
 
     for (size_t i = 0; i < Sim->N; ++i)
       {
-	Particle tmp(Sim->particleList[i]);
+	Particle tmp(Sim->particles[i]);
 	if (applyBC) 
 	  Sim->BCs->applyBC(tmp.getPosition(), tmp.getVelocity());
       
@@ -214,7 +214,7 @@ namespace dynamo {
   {
     double sumEnergy(0);
 
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
+    BOOST_FOREACH(const Particle& part, Sim->particles)
       sumEnergy += getParticleKineticEnergy(part);
 
     return sumEnergy;
@@ -229,7 +229,7 @@ namespace dynamo {
       {
 	const BCLeesEdwards& bc = static_cast<const BCLeesEdwards&>(*Sim->BCs);
 
-	BOOST_FOREACH(Particle& part, Sim->particleList)
+	BOOST_FOREACH(Particle& part, Sim->particles)
 	  part.getVelocity() = Vector(bc.getPeculiarVelocity(part) * scalefactor
 				      + bc.getStreamVelocity(part));
       }
@@ -237,7 +237,7 @@ namespace dynamo {
       {
 	double scalefactor(sqrt(scale));
       
-	BOOST_FOREACH(Particle& part, Sim->particleList)
+	BOOST_FOREACH(Particle& part, Sim->particles)
 	  part.getVelocity() *= scalefactor;
       }
 
@@ -325,7 +325,7 @@ namespace dynamo {
   void 
   Dynamics::initOrientations(double ToI)
   {
-    orientationData.resize(Sim->particleList.size());
+    orientationData.resize(Sim->particles.size());
   
     dout << "Initialising the line orientations" << std::endl;
 
@@ -333,7 +333,7 @@ namespace dynamo {
 
     Vector angVelCrossing;
 
-    for (size_t i = 0; i < Sim->particleList.size(); ++i)
+    for (size_t i = 0; i < Sim->particles.size(); ++i)
       {
 	//Assign the new velocities
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -372,14 +372,14 @@ namespace dynamo {
     Vector pos = Vector(0,0,0), 
       vel = Vector(0,0,0);
 
-    Vector pos0 = Sim->particleList[*(particles.begin())].getPosition(), 
-      vel0 = Sim->particleList[*(particles.begin())].getVelocity();
+    Vector pos0 = Sim->particles[*(particles.begin())].getPosition(), 
+      vel0 = Sim->particles[*(particles.begin())].getVelocity();
 
     double totMass = 0;
 
     BOOST_FOREACH(size_t ID, particles)
       {
-	const Particle& part = Sim->particleList[ID];
+	const Particle& part = Sim->particles[ID];
 	double mass = Sim->species[part]->getMass(ID);
 
 	//Take everything relative to the first particle's position to

@@ -214,7 +214,7 @@ namespace dynamo {
     massFracSp1 = 0;
     massFracSp2 = 0;
 
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
+    BOOST_FOREACH(const Particle& part, Sim->particles)
       {
 	double mass = Sim->species[part]->getMass(part.getID());
 	sysMass += mass;
@@ -260,7 +260,7 @@ namespace dynamo {
   void 
   OPMutualDiffusionE::updateDelG(const ParticleEventData& PDat) 
   {
-    const Particle& p1 = Sim->particleList[PDat.getParticleID()];
+    const Particle& p1 = Sim->particles[PDat.getParticleID()];
     const Species& sp1 = *Sim->species[PDat.getSpeciesID()];
 
     Vector dP = sp1.getMass(p1.getID()) * (p1.getVelocity() - PDat.getOldVel());

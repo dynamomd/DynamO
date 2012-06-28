@@ -118,7 +118,7 @@ namespace dynamo {
     Vector sumMV (0,0,0);
 
     //Determine the discrepancy VECTOR
-    BOOST_FOREACH( const Particle & Part, Sim->particleList)
+    BOOST_FOREACH( const Particle & Part, Sim->particles)
       {
 	Vector  pos(Part.getPosition()), vel(Part.getVelocity());
 	Sim->BCs->applyBC(pos, vel);
@@ -134,7 +134,7 @@ namespace dynamo {
     collisionalP.zero();
     curr_kineticP.zero();
     
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
+    BOOST_FOREACH(const Particle& part, Sim->particles)
       {
 	curr_kineticP 
 	  += Sim->species[part]->getMass(part.getID())
@@ -196,7 +196,7 @@ namespace dynamo {
     BOOST_FOREACH(const ParticleEventData& PDat, NDat.L1partChanges)
       {
 	++singleEvents;
-	const Particle& part = Sim->particleList[PDat.getParticleID()];
+	const Particle& part = Sim->particles[PDat.getParticleID()];
 	
 	KECurrent += PDat.getDeltaKE();
 	intECurrent += PDat.getDeltaU();
@@ -225,8 +225,8 @@ namespace dynamo {
     KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
     intECurrent += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
 
-    const Particle& part1 = Sim->particleList[PDat.particle1_.getParticleID()];
-    const Particle& part2 = Sim->particleList[PDat.particle2_.getParticleID()];
+    const Particle& part1 = Sim->particles[PDat.particle1_.getParticleID()];
+    const Particle& part2 = Sim->particles[PDat.particle2_.getParticleID()];
     const Species& sp1 = *Sim->species[PDat.particle1_.getSpeciesID()];
     const Species& sp2 = *Sim->species[PDat.particle2_.getSpeciesID()];
     
@@ -379,7 +379,7 @@ namespace dynamo {
 
     Vector sumMV(0, 0, 0);
     //Determine the system momentum
-    BOOST_FOREACH( const Particle & Part, Sim->particleList)
+    BOOST_FOREACH( const Particle & Part, Sim->particles)
       sumMV += Part.getVelocity() * Sim->species[Part]->getMass(Part.getID());
 
     XML << magnet::xml::tag("Total_momentum")

@@ -42,18 +42,18 @@ namespace dynamo {
 	M_throw() << "Attempting to load RAll from non All type";
     }
 
-    virtual unsigned long size() const { return Sim->particleList.size(); }
+    virtual unsigned long size() const { return Sim->particles.size(); }
 
     virtual iterator begin() const { return Range::iterator(0, this); }
 
-    virtual iterator end() const { return Range::iterator(Sim->particleList.size(), this); }
+    virtual iterator end() const { return Range::iterator(Sim->particles.size(), this); }
 
     virtual unsigned long operator[](unsigned long i) const  
     { return i; }
 
     virtual unsigned long at(unsigned long i) const 
     { 
-      if (i >= Sim->particleList.size())
+      if (i >= Sim->particles.size())
 	M_throw() << "Bad array access value in range.at()";
 
       return i;

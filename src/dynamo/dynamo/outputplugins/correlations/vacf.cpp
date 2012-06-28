@@ -129,7 +129,7 @@ namespace dynamo {
   OPVACF::newG(const ParticleEventData& PDat)
   {
     for (size_t i = 0; i < Sim->N; ++i)
-      G[i].push_front(Sim->particleList[i].getVelocity());	      
+      G[i].push_front(Sim->particles[i].getVelocity());	      
   
     //Now correct the fact that the wrong velocity has been pushed
     G[PDat.getParticleID()].front() = PDat.getOldVel();
@@ -150,7 +150,7 @@ namespace dynamo {
   OPVACF::newG(const PairEventData& PDat)
   {
     for (size_t i = 0; i < Sim->N; ++i)
-      G[i].push_front(Sim->particleList[i].getVelocity());	      
+      G[i].push_front(Sim->particles[i].getVelocity());	      
   
     //Now correct the fact that the wrong velocity has been pushed
     G[PDat.particle1_.getParticleID()].front() 
@@ -176,7 +176,7 @@ namespace dynamo {
   {  
     //This ensures the list stays at accumilator size
     for (size_t i = 0; i < Sim->N; ++i)
-      G[i].push_front(Sim->particleList[i].getVelocity());
+      G[i].push_front(Sim->particles[i].getVelocity());
   
     //Go back and fix the pushes
     BOOST_FOREACH(const ParticleEventData&PDat2, PDat.L1partChanges)

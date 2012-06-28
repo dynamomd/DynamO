@@ -27,8 +27,8 @@ namespace dynamo {
   void 
   ISingleCapture::testAddToCaptureMap(const Particle& p1, const size_t& p2) const
   {
-    if (captureTest(p1, Sim->particleList[p2]))
-      addToCaptureMap(p1, Sim->particleList[p2]);
+    if (captureTest(p1, Sim->particles[p2]))
+      addToCaptureMap(p1, Sim->particles[p2]);
   }   
 
 
@@ -40,10 +40,10 @@ namespace dynamo {
       {      
 	clear();
 
-	for (std::vector<Particle>::const_iterator iPtr1 = Sim->particleList.begin();
-	     iPtr1 != Sim->particleList.end(); iPtr1++)
+	for (std::vector<Particle>::const_iterator iPtr1 = Sim->particles.begin();
+	     iPtr1 != Sim->particles.end(); iPtr1++)
 	  for (std::vector<Particle>::const_iterator iPtr2 = iPtr1+1;
-	       iPtr2 != Sim->particleList.end(); iPtr2++)
+	       iPtr2 != Sim->particles.end(); iPtr2++)
 	    testAddToCaptureMap(*iPtr1, iPtr2->getID());
       }
   }
@@ -83,7 +83,7 @@ namespace dynamo {
   void 
   IMultiCapture::testAddToCaptureMap(const Particle& p1, const size_t& p2) const
   {
-    int capval = captureTest(p1, Sim->particleList[p2]);
+    int capval = captureTest(p1, Sim->particles[p2]);
     if (capval) captureMap[cMapKey(p1.getID(), p2)] = capval; 
   }
 

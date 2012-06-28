@@ -61,7 +61,7 @@ namespace dynamo {
 
     currCorrLength=1;
 
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
+    BOOST_FOREACH(const Particle& part, Sim->particles)
       posHistory[part.getID()].push_front(part.getPosition());
 
     speciesData.resize(Sim->species.size(), 
@@ -74,7 +74,7 @@ namespace dynamo {
   void 
   OPMSDCorrelator::ticker()
   {
-    BOOST_FOREACH(const Particle& part, Sim->particleList)
+    BOOST_FOREACH(const Particle& part, Sim->particles)
       posHistory[part.getID()].push_front(part.getPosition());
   
     if (notReady)
@@ -107,7 +107,7 @@ namespace dynamo {
 
 	BOOST_FOREACH(const size_t& ID, *range)
 	  {
-	    double mass = Sim->species[Sim->particleList[ID]]->getMass(ID);
+	    double mass = Sim->species[Sim->particles[ID]]->getMass(ID);
 	    molCOM += posHistory[ID][0] * mass;
 	    molMass += mass;
 	  }
@@ -120,7 +120,7 @@ namespace dynamo {
 	  
 	    BOOST_FOREACH(const size_t& ID, *range)
 	      molCOM2 += posHistory[ID][step] 
-	      * Sim->species[Sim->particleList[ID]]->getMass(ID);
+	      * Sim->species[Sim->particles[ID]]->getMass(ID);
 	  
 	    molCOM2 /= molMass;
 	  

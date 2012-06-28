@@ -110,7 +110,7 @@ namespace dynamo {
       (Sim->ranGenerator, 
        boost::uniform_int<unsigned int>(0, range->size() - 1))();
 
-    Particle& part(Sim->particleList[*(range->begin()+step)]);
+    Particle& part(Sim->particles[*(range->begin()+step)]);
 
     //Run the collision and catch the data
     NEventData SDat(Sim->dynamics->randomGaussianEvent

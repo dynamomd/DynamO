@@ -95,7 +95,7 @@ namespace dynamo {
 
     BOOST_FOREACH(const shared_ptr<Species>& species, Sim->species)
       BOOST_FOREACH(const unsigned long& partID, *species->getRange())
-      SDat.L1partChanges.push_back(ParticleEventData(Sim->particleList[partID], *species, RESCALE));
+      SDat.L1partChanges.push_back(ParticleEventData(Sim->particles[partID], *species, RESCALE));
 
     Sim->dynamics->updateAllParticles();
     Sim->dynamics->rescaleSystemKineticEnergy(_kT / currentkT);
@@ -110,7 +110,7 @@ namespace dynamo {
   
     //Only 1ParticleEvents occur
     BOOST_FOREACH(const ParticleEventData& PDat, SDat.L1partChanges)
-      Sim->ptrScheduler->fullUpdate(Sim->particleList[PDat.getParticleID()]);
+      Sim->ptrScheduler->fullUpdate(Sim->particles[PDat.getParticleID()]);
   
     locdt += Sim->freestreamAcc;
 

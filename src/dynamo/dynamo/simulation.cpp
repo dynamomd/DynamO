@@ -108,7 +108,7 @@ namespace dynamo
 
     unsigned int count = 0;
     //Now confirm that every species has only one species type!
-    BOOST_FOREACH(const Particle& part, particleList)
+    BOOST_FOREACH(const Particle& part, particles)
       {
 	BOOST_FOREACH(shared_ptr<Species>& ptr, species)
 	  if (ptr->isSpecies(part)) { count++; break; }
@@ -547,14 +547,14 @@ namespace dynamo
     double scale1(sqrt(other.ensemble->getEnsembleVals()[2]
 		       / ensemble->getEnsembleVals()[2]));
     
-    BOOST_FOREACH(Particle& part, particleList)
+    BOOST_FOREACH(Particle& part, particles)
       part.getVelocity() *= scale1;
     
     other.ptrScheduler->rescaleTimes(scale1);
     
     double scale2(1.0 / scale1);
 
-    BOOST_FOREACH(Particle& part, other.particleList)
+    BOOST_FOREACH(Particle& part, other.particles)
       part.getVelocity() *= scale2;
     
     ptrScheduler->rescaleTimes(scale2);
@@ -614,7 +614,7 @@ namespace dynamo
     long double sumMass(0);
 
     //Determine the discrepancy VECTOR
-    BOOST_FOREACH(Particle & Part, particleList)
+    BOOST_FOREACH(Particle & Part, particles)
       {
 	Vector  pos(Part.getPosition()), vel(Part.getVelocity());
 	BCs->applyBC(pos,vel);
@@ -628,7 +628,7 @@ namespace dynamo
   
     sumMV += COMVelocity;
 
-    BOOST_FOREACH(Particle & Part, particleList)
+    BOOST_FOREACH(Particle & Part, particles)
       Part.getVelocity() =  Part.getVelocity() + sumMV;
   }
 
@@ -677,11 +677,11 @@ namespace dynamo
 
     std::vector<Particle>::const_iterator iPtr1, iPtr2;
   
-    for (iPtr1 = particleList.begin(); iPtr1 != particleList.end(); ++iPtr1)
-      for (iPtr2 = iPtr1 + 1; iPtr2 != particleList.end(); ++iPtr2)
+    for (iPtr1 = particles.begin(); iPtr1 != particles.end(); ++iPtr1)
+      for (iPtr2 = iPtr1 + 1; iPtr2 != particles.end(); ++iPtr2)
 	getInteraction(*iPtr1, *iPtr2)->checkOverlaps(*iPtr1, *iPtr2);
 
-    BOOST_FOREACH(const Particle& part, particleList)
+    BOOST_FOREACH(const Particle& part, particles)
       BOOST_FOREACH(const shared_ptr<Local>& lcl, locals)
       if (lcl->isInteraction(part))
 	lcl->checkOverlaps(part);

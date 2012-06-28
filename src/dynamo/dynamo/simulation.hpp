@@ -309,7 +309,7 @@ namespace dynamo
     unsigned long N;
     
     /*! \brief The Particle's of the system. */
-    std::vector<Particle> particleList;  
+    std::vector<Particle> particles;  
     
     /*! \brief A ptr to the Scheduler of the system. */
     shared_ptr<Scheduler> ptrScheduler;

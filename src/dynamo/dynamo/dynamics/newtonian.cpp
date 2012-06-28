@@ -369,7 +369,7 @@ namespace dynamo {
 			      double& maxprob, const double& factor,
 			      Vector rij) const
   {
-    updateParticlePair(Sim->particleList[p1.getID()], Sim->particleList[p2.getID()]);
+    updateParticlePair(Sim->particles[p1.getID()], Sim->particles[p2.getID()]);
 
     Vector vij = p1.getVelocity() - p2.getVelocity();
     Sim->BCs->applyBC(rij, vij);
@@ -391,7 +391,7 @@ namespace dynamo {
   PairEventData
   DynNewtonian::DSMCSpheresRun(Particle& p1, Particle& p2, const double& e, Vector rij) const
   {
-    updateParticlePair(Sim->particleList[p1.getID()], Sim->particleList[p2.getID()]);
+    updateParticlePair(Sim->particles[p1.getID()], Sim->particles[p2.getID()]);
 
     Vector vij = p1.getVelocity() - p2.getVelocity();
     Sim->BCs->applyBC(rij, vij);
@@ -428,8 +428,8 @@ namespace dynamo {
   DynNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e,
 				const double&, const EEventType& eType) const
   {
-    Particle& particle1 = Sim->particleList[event.getParticle1ID()];
-    Particle& particle2 = Sim->particleList[event.getParticle2ID()];
+    Particle& particle1 = Sim->particles[event.getParticle1ID()];
+    Particle& particle2 = Sim->particles[event.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);  
 
@@ -498,8 +498,8 @@ namespace dynamo {
 			       const double&,
 			       const EEventType& eType) const
   {
-    Particle& particle1 = Sim->particleList[event.getParticle1ID()];
-    Particle& particle2 = Sim->particleList[event.getParticle2ID()];
+    Particle& particle1 = Sim->particles[event.getParticle1ID()];
+    Particle& particle2 = Sim->particles[event.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);
 
@@ -553,13 +553,13 @@ namespace dynamo {
   
     BOOST_FOREACH(const size_t& ID, range1)
       {
-	updateParticle(Sim->particleList[ID]);
+	updateParticle(Sim->particles[ID]);
       
-	double mass = Sim->species[Sim->particleList[ID]]->getMass(ID);
+	double mass = Sim->species[Sim->particles[ID]]->getMass(ID);
 	structmass1 += mass;
       
-	Vector pos(Sim->particleList[ID].getPosition()),
-	  vel(Sim->particleList[ID].getVelocity());
+	Vector pos(Sim->particles[ID].getPosition()),
+	  vel(Sim->particles[ID].getVelocity());
 
 	Sim->BCs->applyBC(pos, vel);
 
@@ -570,13 +570,13 @@ namespace dynamo {
   
     BOOST_FOREACH(const size_t& ID, range2)
       {
-	updateParticle(Sim->particleList[ID]);
+	updateParticle(Sim->particles[ID]);
 
-	double mass = Sim->species[Sim->particleList[ID]]->getMass(ID);
+	double mass = Sim->species[Sim->particles[ID]]->getMass(ID);
 	structmass2 += mass;
       
-	Vector pos(Sim->particleList[ID].getPosition()),
-	  vel(Sim->particleList[ID].getVelocity());
+	Vector pos(Sim->particles[ID].getPosition()),
+	  vel(Sim->particles[ID].getVelocity());
 
 	Sim->BCs->applyBC(pos, vel);
 
@@ -603,14 +603,14 @@ namespace dynamo {
     NEventData retVal;
     BOOST_FOREACH(const size_t& ID, range1)
       {
-	ParticleEventData tmpval(Sim->particleList[ID],
-				 *Sim->species[Sim->particleList[ID]],
+	ParticleEventData tmpval(Sim->particles[ID],
+				 *Sim->species[Sim->particles[ID]],
 				 eType);
 
-	Sim->particleList[ID].getVelocity() -= dP / structmass1;
+	Sim->particles[ID].getVelocity() -= dP / structmass1;
       
 	tmpval.setDeltaKE(0.5 * Sim->species[tmpval.getSpeciesID()]->getMass(ID)
-			  * (Sim->particleList[ID].getVelocity().nrm2() 
+			  * (Sim->particles[ID].getVelocity().nrm2() 
 			     - tmpval.getOldVel().nrm2()));
       
 	retVal.L1partChanges.push_back(tmpval);
@@ -619,14 +619,14 @@ namespace dynamo {
     BOOST_FOREACH(const size_t& ID, range2)
       {
 	ParticleEventData tmpval
-	  (Sim->particleList[ID],
-	   *Sim->species[Sim->particleList[ID]],
+	  (Sim->particles[ID],
+	   *Sim->species[Sim->particles[ID]],
 	   eType);
 
-	Sim->particleList[ID].getVelocity() += dP / structmass2;
+	Sim->particles[ID].getVelocity() += dP / structmass2;
       
 	tmpval.setDeltaKE(0.5 * Sim->species[tmpval.getSpeciesID()]->getMass(ID)
-			  * (Sim->particleList[ID].getVelocity().nrm2() 
+			  * (Sim->particles[ID].getVelocity().nrm2() 
 			     - tmpval.getOldVel().nrm2()));
   
 	retVal.L1partChanges.push_back(tmpval);
@@ -645,13 +645,13 @@ namespace dynamo {
   
     BOOST_FOREACH(const size_t& ID, range1)
       {
-	updateParticle(Sim->particleList[ID]);
-	double mass = Sim->species[Sim->particleList[ID]]->getMass(ID);
+	updateParticle(Sim->particles[ID]);
+	double mass = Sim->species[Sim->particles[ID]]->getMass(ID);
 
 	structmass1 += mass;
 
-	Vector pos(Sim->particleList[ID].getPosition()),
-	  vel(Sim->particleList[ID].getVelocity());
+	Vector pos(Sim->particles[ID].getPosition()),
+	  vel(Sim->particles[ID].getVelocity());
       
 	Sim->BCs->applyBC(pos, vel);
 
@@ -662,14 +662,14 @@ namespace dynamo {
   
     BOOST_FOREACH(const size_t& ID, range2)
       {
-	updateParticle(Sim->particleList[ID]);
+	updateParticle(Sim->particles[ID]);
 
-	double mass = Sim->species[Sim->particleList[ID]]->getMass(ID);
+	double mass = Sim->species[Sim->particles[ID]]->getMass(ID);
       
 	structmass2 += mass;
       
-	Vector pos(Sim->particleList[ID].getPosition()),
-	  vel(Sim->particleList[ID].getVelocity());
+	Vector pos(Sim->particles[ID].getPosition()),
+	  vel(Sim->particles[ID].getVelocity());
 
 	Sim->BCs->applyBC(pos, vel);
 	COMVel2 += vel * mass;
@@ -717,14 +717,14 @@ namespace dynamo {
     BOOST_FOREACH(const size_t& ID, range1)
       {
 	ParticleEventData tmpval
-	  (Sim->particleList[ID],
-	   *Sim->species[Sim->particleList[ID]],
+	  (Sim->particles[ID],
+	   *Sim->species[Sim->particles[ID]],
 	   eType);
 
-	Sim->particleList[ID].getVelocity() -= dP / structmass1;
+	Sim->particles[ID].getVelocity() -= dP / structmass1;
       
 	tmpval.setDeltaKE(0.5 * Sim->species[tmpval.getSpeciesID()]->getMass(ID)
-			  * (Sim->particleList[ID].getVelocity().nrm2() 
+			  * (Sim->particles[ID].getVelocity().nrm2() 
 			     - tmpval.getOldVel().nrm2()));
         
 	retVal.L1partChanges.push_back(tmpval);
@@ -733,14 +733,14 @@ namespace dynamo {
     BOOST_FOREACH(const size_t& ID, range2)
       {
 	ParticleEventData tmpval
-	  (Sim->particleList[ID],
-	   *Sim->species[Sim->particleList[ID]],
+	  (Sim->particles[ID],
+	   *Sim->species[Sim->particles[ID]],
 	   eType);
 
-	Sim->particleList[ID].getVelocity() += dP / structmass2;
+	Sim->particles[ID].getVelocity() += dP / structmass2;
       
 	tmpval.setDeltaKE(0.5 * Sim->species[tmpval.getSpeciesID()]->getMass(ID)
-			  * (Sim->particleList[ID].getVelocity().nrm2() 
+			  * (Sim->particles[ID].getVelocity().nrm2() 
 			     - tmpval.getOldVel().nrm2()));
       
 	retVal.L1partChanges.push_back(tmpval);
@@ -753,8 +753,8 @@ namespace dynamo {
   DynNewtonian::SphereWellEvent(const IntEvent& event, const double& deltaKE, 
 			      const double &) const
   {
-    Particle& particle1 = Sim->particleList[event.getParticle1ID()];
-    Particle& particle2 = Sim->particleList[event.getParticle2ID()];
+    Particle& particle1 = Sim->particles[event.getParticle1ID()];
+    Particle& particle2 = Sim->particles[event.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);  
 
@@ -1332,8 +1332,8 @@ namespace dynamo {
       M_throw() << "Cannot use this function without orientational data";
 #endif
 
-    Particle& particle1 = Sim->particleList[eevent.getParticle1ID()];
-    Particle& particle2 = Sim->particleList[eevent.getParticle2ID()];
+    Particle& particle1 = Sim->particles[eevent.getParticle1ID()];
+    Particle& particle2 = Sim->particles[eevent.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);  
 
@@ -1503,8 +1503,8 @@ namespace dynamo {
       M_throw() << "Cannot use this function without orientational data";
 #endif
 
-    Particle& particle1 = Sim->particleList[eevent.getParticle1ID()];
-    Particle& particle2 = Sim->particleList[eevent.getParticle2ID()];
+    Particle& particle1 = Sim->particles[eevent.getParticle1ID()];
+    Particle& particle2 = Sim->particles[eevent.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);  
 
@@ -1678,8 +1678,8 @@ namespace dynamo {
       M_throw() << "Cannot use this function without orientational data";
 #endif
 
-    Particle& particle1 = Sim->particleList[event.getParticle1ID()];
-    Particle& particle2 = Sim->particleList[event.getParticle2ID()];
+    Particle& particle1 = Sim->particles[event.getParticle1ID()];
+    Particle& particle2 = Sim->particles[event.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);  
 

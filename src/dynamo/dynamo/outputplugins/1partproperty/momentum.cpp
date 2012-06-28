@@ -38,13 +38,13 @@ namespace dynamo {
 
     BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->species)
       BOOST_FOREACH(const size_t& ID, *spec->getRange())
-      sysMom += spec->getMass(ID) * Sim->particleList[ID].getVelocity();
+      sysMom += spec->getMass(ID) * Sim->particles[ID].getVelocity();
   }
 
   void 
   OPMomentum::A1ParticleChange(const ParticleEventData& PDat)
   {
-    const Particle& p1 = Sim->particleList[PDat.getParticleID()];
+    const Particle& p1 = Sim->particles[PDat.getParticleID()];
     const Species& sp1 = *Sim->species[PDat.getSpeciesID()];
     
     Vector dP = sp1.getMass(p1.getID()) * (p1.getVelocity() - PDat.getOldVel());
