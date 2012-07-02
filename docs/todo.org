@@ -13,11 +13,14 @@
 **** Advanced data collection, Binary hard spheres.
 **** (Appendix) How to read the configuration files in scripts or C++
 **** (Appendix) How to use the visualiser (Video)
-*** DynamO 1.4
+*** DynamO Future
 **** DONE DynamO: Removal of the Dynamics and SimData classes
 ***** DONE DynamO: Remove the Dynamics class and move its functions into the SimData class.
 ***** DONE DynamO: Rename the Liouvillean Class to Dynamics.
 ***** DONE DynamO: Combine the SimData and Simulation classes.
+**** DONE DynamO: Make a special MAX value for the Neighbourhood range.
+**** TODO DynamO: Get rid of globals and locals, move to 1 particle and 2 particle events.
+**** TODO DynamO: Make an inelasticity of 0 work. 
 **** TODO DynamO: The oscillating plate interaction is a mess, and uses RECALCULATE events, when it should not.
 **** TODO DynamO: Replica exchange cleanup
 ***** TODO DynamO: Allow replica exchanges in collisions.
