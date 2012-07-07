@@ -63,7 +63,7 @@ namespace magnet {
     public:
       double _data[3];// elements of the vector
 
-      inline VectorExpression<>() {}             // default constructor
+      inline VectorExpression<>() { _data[0] = _data[1] = _data[2] = 0; }
 
       // passive access to the elements through eval
       template<int I> inline double eval() const { return _data[I]; }

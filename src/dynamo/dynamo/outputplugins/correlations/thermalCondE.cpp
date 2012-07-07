@@ -89,10 +89,14 @@ namespace dynamo {
 		       * sqrt(Sim->dynamics->getkT()) * CorrelatorLength);
       }
   
+    _correlator.resize(dt, CorrelatorLength);
+
     //Sum up the constant Del G.
     BOOST_FOREACH(const Particle& part, Sim->particles)
       constDelG += part.getVelocity () * Sim->dynamics->getParticleKineticEnergy(part);
   
+    _correlator.setFreeStreamValue(constDelG);
+
     dout << "dt set to " << dt / Sim->units.unitTime() << std::endl;
   }
 
@@ -135,6 +139,24 @@ namespace dynamo {
 	XML << "\n";
       }
   
+    XML << magnet::xml::tag("NewCorrelator")
+	<< magnet::xml::chardata();
+
+    std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>::Data>
+      data = _correlator.getAveragedCorrelator();
+
+    double inv_units = Sim->units.unitk() 
+      / ( Sim->units.unitTime() * Sim->units.unitThermalCond() * 2.0 
+	  * pow(Sim->getOutputPlugin<OPKEnergy>()->getAvgkT(), 2) * Sim->getSimVolume());
+
+    XML << "0 0 0 0 0\n";
+    for (size_t i(0); i < data.size(); ++i)
+      XML << data[i].time / Sim->units.unitTime() << " "
+	  << data[i].sample_count << " "
+	  << data[i].value[0] * inv_units << " "
+	  << data[i].value[1] * inv_units << " "
+	  << data[i].value[2] * inv_units << "\n";
+
     XML << magnet::xml::endtag("EinsteinCorrelator");
   }
 
@@ -157,11 +179,15 @@ namespace dynamo {
       + p2.getVelocity() * p2E
       - PDat.particle1_.getOldVel() * (p1E - PDat.particle1_.getDeltaKE())
       - PDat.particle2_.getOldVel() * (p2E - PDat.particle2_.getDeltaKE());
+
+    _correlator.setFreeStreamValue(constDelG);
   }
 
   void 
   OPThermalConductivityE::stream(const double& edt)
   {
+    _correlator.freeStream(edt);
+    
     //Now test if we've gone over the step time
     if (currentdt + edt >= dt)
       {
@@ -191,8 +217,11 @@ namespace dynamo {
 				      const NEventData& PDat) 
   {
     stream(iEvent.getdt());
+    _correlator.addImpulse(impulseDelG(PDat));
     delG += impulseDelG(PDat);
     updateConstDelG(PDat);
+    _correlator.setFreeStreamValue(constDelG, constDelG);
+
   }
 
   void 
@@ -200,6 +229,7 @@ namespace dynamo {
 				      const NEventData& PDat) 
   {
     stream(iEvent.getdt());
+    _correlator.addImpulse(impulseDelG(PDat));
     delG += impulseDelG(PDat);
     updateConstDelG(PDat);
   }
@@ -210,6 +240,7 @@ namespace dynamo {
 				      const double& edt) 
   { 
     stream(edt);
+    _correlator.addImpulse(impulseDelG(PDat));
     delG += impulseDelG(PDat);
     updateConstDelG(PDat);
   }
@@ -219,6 +250,7 @@ namespace dynamo {
 				      const PairEventData& PDat)
   {
     stream(iEvent.getdt());
+    _correlator.addImpulse(impulseDelG(PDat));
     delG += impulseDelG(PDat);
     updateConstDelG(PDat);
   }
@@ -276,7 +308,7 @@ namespace dynamo {
     BOOST_FOREACH(const PairEventData& dat, ndat.L2partChanges)
       updateConstDelG(dat);
   }
-1
+
   void 
   OPThermalConductivityE::updateConstDelG(const ParticleEventData& PDat)
   {

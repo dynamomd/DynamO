@@ -17,6 +17,7 @@
 
 #pragma once
 #include <dynamo/outputplugins/outputplugin.hpp>
+#include <magnet/math/correlators.hpp>
 #include <boost/circular_buffer.hpp>
 
 namespace dynamo {
@@ -40,6 +41,8 @@ namespace dynamo {
     virtual void operator<<(const magnet::xml::Node&);
 
   protected:
+    magnet::math::LogarithmicTimeCorrelator<Vector> _correlator;
+
     boost::circular_buffer<Vector  > G;
     std::vector<Vector  > accG2;
     size_t count;
