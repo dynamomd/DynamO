@@ -276,7 +276,7 @@ namespace dynamo {
     BOOST_FOREACH(const PairEventData& dat, ndat.L2partChanges)
       updateConstDelG(dat);
   }
-
+1
   void 
   OPThermalConductivityE::updateConstDelG(const ParticleEventData& PDat)
   {
