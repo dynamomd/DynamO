@@ -27,18 +27,9 @@
 namespace dynamo {
   OPMisc::OPMisc(const dynamo::Simulation* tmp, const magnet::xml::Node&):
     OutputPlugin(tmp,"Misc",0),
-    oldSysTime(0),
     dualEvents(0),
     singleEvents(0),
-    oldcoll(0),
-    _reverseEvents(0),
-    InitialKE(0.0),
-    KEacc(0.0),
-    KEsqAcc(0.0),
-    KECurrent(0.0),
-    intECurrent(0.0),
-    intEsqAcc(0.0),
-    intEAcc(0.0)
+    _reverseEvents(0)
   {}
 
   void
@@ -49,8 +40,6 @@ namespace dynamo {
     _internalE.swapCurrentValues(op._internalE);
 
     std::swap(Sim, op.Sim);
-    std::swap(KECurrent, op.KECurrent);
-    std::swap(intECurrent, op.intECurrent);
     std::swap(curr_kineticP, op.curr_kineticP);
   }
 
@@ -63,49 +52,37 @@ namespace dynamo {
   double 
   OPMisc::getMeankT() const
   {
-    if (KEacc == 0) return getCurrentkT();
-
-    return 2.0 * KEacc / (Sim->dSysTime * Sim->N * Sim->dynamics->getParticleDOF());
+    return 2.0 * _KE.mean() / (Sim->N * Sim->dynamics->getParticleDOF());
   }
 
   double 
   OPMisc::getMeanSqrkT() const
   {
-    if (KEsqAcc == 0) 
-      return 4.0 * KECurrent * KECurrent
-	/ (Sim->N * Sim->N
-	   * Sim->dynamics->getParticleDOF()
-	   * Sim->dynamics->getParticleDOF());
-    
-    return 4.0 * KEsqAcc 
-	/ (Sim->dSysTime
-	   * Sim->N * Sim->N
-	   * Sim->dynamics->getParticleDOF()
-	   * Sim->dynamics->getParticleDOF());
+    return 4.0 * _KE.meanSqr()
+      / (Sim->N * Sim->N * Sim->dynamics->getParticleDOF()
+	 * Sim->dynamics->getParticleDOF());
   }
 
   double 
   OPMisc::getCurrentkT() const
   {
-    return 2.0 * KECurrent / (Sim->N * Sim->dynamics->getParticleDOF());
+    return 2.0 * _KE.current() / (Sim->N * Sim->dynamics->getParticleDOF());
   }
 
   double 
   OPMisc::getMeanUConfigurational() const
   { 
-    return intEAcc / Sim->dSysTime; 
+    return _internalE.mean(); 
   }
 
   double 
   OPMisc::getMeanSqrUConfigurational() const
-  { return intEsqAcc / Sim->dSysTime; }
+  { return _internalE.meanSqr(); }
 
   void
   OPMisc::initialise()
   {
-    KEMax = KEMin = InitialKE = KECurrent = Sim->dynamics->getSystemKineticEnergy();
-    intEMax = intEMin = intECurrent = Sim->calcInternalEnergy();
-	_KE = Sim->dynamics->getSystemKineticEnergy();
+    _KE = Sim->dynamics->getSystemKineticEnergy();
     _internalE = Sim->calcInternalEnergy();
 
     dout << "Particle Count " << Sim->N
@@ -191,10 +168,6 @@ namespace dynamo {
   OPMisc::stream(double dt)
   {
     _reverseEvents += (dt < 0);
-    KEacc += KECurrent * dt;
-    KEsqAcc += KECurrent * KECurrent * dt;
-    intEAcc += intECurrent * dt;
-    intEsqAcc += intECurrent * intECurrent * dt;
     _KE.stream(dt);
     _internalE.stream(dt);
     cumulative_kineticP += curr_kineticP * dt;
@@ -207,8 +180,6 @@ namespace dynamo {
         singleEvents += (PDat.getType() != VIRTUAL);
 	const Particle& part = Sim->particles[PDat.getParticleID()];
 	
-	KECurrent += PDat.getDeltaKE();
-	intECurrent += PDat.getDeltaU();
 	_KE += PDat.getDeltaKE();
 	_internalE += PDat.getDeltaU();
 	
@@ -220,19 +191,12 @@ namespace dynamo {
 
     BOOST_FOREACH(const PairEventData& PDat, NDat.L2partChanges)
       eventUpdate(PDat);
-
-    KEMin = std::min(KECurrent, KEMin);
-    KEMax = std::max(KECurrent, KEMax);
-    intEMin = std::min(intECurrent, intEMin);
-    intEMax = std::max(intECurrent, intEMax);
   }
 
   void OPMisc::eventUpdate(const PairEventData& PDat)
   {
     dualEvents += (PDat.getType() != VIRTUAL);
 
-    KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
-    intECurrent += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
     _KE += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
     _internalE += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
 
@@ -253,11 +217,6 @@ namespace dynamo {
       * (Dyadic(part2.getVelocity(), part2.getVelocity())
 	 - Dyadic(PDat.particle2_.getOldVel(), PDat.particle2_.getOldVel()))
       ;
-
-    KEMin = std::min(KECurrent, KEMin);
-    KEMax = std::max(KECurrent, KEMax);
-    intEMin = std::min(intECurrent, intEMin);
-    intEMax = std::max(intECurrent, intEMax);
   }
 
   double
@@ -336,16 +295,16 @@ namespace dynamo {
 	<< magnet::xml::attr("Mean") << getMeankT() / Sim->units.unitEnergy()
 	<< magnet::xml::attr("MeanSqr") << getMeanSqrkT() / (Sim->units.unitEnergy() * Sim->units.unitEnergy())
 	<< magnet::xml::attr("Current") << getCurrentkT() / Sim->units.unitEnergy()
-	<< magnet::xml::attr("Min") << 2.0 * KEMin / (Sim->N * Sim->dynamics->getParticleDOF() * Sim->units.unitEnergy())
-	<< magnet::xml::attr("Max") << 2.0 * KEMax / (Sim->N * Sim->dynamics->getParticleDOF() * Sim->units.unitEnergy())
+	<< magnet::xml::attr("Min") << 2.0 * _KE.min() / (Sim->N * Sim->dynamics->getParticleDOF() * Sim->units.unitEnergy())
+	<< magnet::xml::attr("Max") << 2.0 * _KE.max() / (Sim->N * Sim->dynamics->getParticleDOF() * Sim->units.unitEnergy())
 	<< magnet::xml::endtag("Temperature")
 
 	<< magnet::xml::tag("UConfigurational")
 	<< magnet::xml::attr("Mean") << getMeanUConfigurational() / Sim->units.unitEnergy()
 	<< magnet::xml::attr("MeanSqr") << getMeanSqrUConfigurational() / (Sim->units.unitEnergy() * Sim->units.unitEnergy())
-	<< magnet::xml::attr("Current") << intECurrent / Sim->units.unitEnergy()
-	<< magnet::xml::attr("Min") << intEMin / Sim->units.unitEnergy()
-	<< magnet::xml::attr("Max") << intEMax / Sim->units.unitEnergy()
+	<< magnet::xml::attr("Current") << _internalE.current() / Sim->units.unitEnergy()
+	<< magnet::xml::attr("Min") << _internalE.min() / Sim->units.unitEnergy()
+	<< magnet::xml::attr("Max") << _internalE.max() / Sim->units.unitEnergy()
 	<< magnet::xml::endtag("UConfigurational")
 
 	<< magnet::xml::tag("ResidualHeatCapacity")
@@ -446,8 +405,5 @@ namespace dynamo {
 	      << Sim->dSysTime/Sim->units.unitTime() 
 	      << ", <Mean Free Time> " <<  getMFT()
 	      << ", ";
-
-    oldSysTime = Sim->dSysTime;
-    oldcoll = Sim->eventCount;
   }
 }

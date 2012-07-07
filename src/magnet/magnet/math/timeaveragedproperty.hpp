@@ -69,17 +69,15 @@ namespace magnet {
 
       double time() const { return _zero_moment; }
 
-      double mean() const { return _first_moment / _zero_moment; }
+      double mean() const { return (_zero_moment == 0) ? current() : (_first_moment / _zero_moment); }
 
-      double meanSqr() const { return _second_moment / _zero_moment; }
+      double meanSqr() const { return (_zero_moment == 0) ? (current() * current()) : (_second_moment / _zero_moment); }
 
       double min() const { return _min; }
 
       double max() const { return _max; }
       
       double current() const { return _current_value; }
-
-      bool empty() const { return _zero_moment; }
 
     protected:
       double _current_value;

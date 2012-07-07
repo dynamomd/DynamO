@@ -18,7 +18,6 @@
 #pragma once
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/math/matrix.hpp>
-#include <magnet/math/correlators.hpp>
 #include <magnet/math/timeaveragedproperty.hpp>
 #include <ctime>
 #include <time.h>
@@ -69,30 +68,15 @@ namespace dynamo {
     std::time_t tstartTime;
     timespec acc_tstartTime;
 
-    double oldSysTime;
-
     unsigned long dualEvents;  
     unsigned long singleEvents;
-    unsigned long oldcoll;
     size_t _reverseEvents;
 
-    double InitialKE;
-    double KEacc;
-    double KEsqAcc;
-    double KECurrent;
-
-    double intECurrent;
-    double intEsqAcc;
-    double intEAcc;
     magnet::math::TimeAveragedProperty _KE;
     magnet::math::TimeAveragedProperty _internalE;
     
-    double intEMax, intEMin, KEMax, KEMin;
-
     Matrix curr_kineticP;
     Matrix cumulative_kineticP;
     Matrix collisionalP;
-
-    magnet::math::LogarithmicTimeCorrelator<Vector> _thermalConductivityCorrelator;
   };
 }
