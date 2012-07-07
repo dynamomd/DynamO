@@ -157,14 +157,32 @@ namespace magnet {
       }
     };
 
-    /*! \brief A modification of the Correlator class to perform the
-        integration of the
+    /*! \brief A modification of the Correlator class for integrating
+        a piecewise constant rate of change of \f$W^{(1)}\f$ and
+        \f$W^{(2)}\f$.
+
+	This form of the Correlator is useful in event driven
+	simulations as the microscopic fluxes only change on
+	events. Therefore, we can integrate the free streaming
+	contributions (and sum up the impulsive contributions)
      */
     template<class T>
     class TimeCorrelator: protected Correlator<T>
     {
       typedef Correlator<T> Base;
     public:
+      /*! \brief Constructor allowing the setting of the sample_time
+          and the length of correlator.
+
+	  The sample time is used to set how long the impulsive and
+	  free streaming contributions are integrated over before
+	  being push()ed to the base Correlator class.
+
+	  \param sample_time The time between samples of the correlator.
+	  \param length The number of samples to perform the correlation over.
+
+	  \sa Correlator
+       */
       TimeCorrelator(double sample_time, size_t length): 
 	Base(length),
 	_sample_time(sample_time)
@@ -175,17 +193,29 @@ namespace magnet {
 	clear(); 
       }
 
-      void addImpulse(const T& val1, const T& val2)
+      /*! \brief Add an impulsive contribution to the accumulating
+        \f$W^{(1)}\f$ and \f$W^{(2)}\f$ terms.
+      */
+      void addImpulse(const T& W1, const T& W2)
       {
-	_W_sums.first += val1; 
-	_W_sums.second += val2;
+	_W_sums.first += W1; 
+	_W_sums.second += W2;
       }
 
-      void setFreeStreamValue(const T& val1, const T& val2)
+      /*! \brief Set the free streaming contributions to \f$W^{(1)}\f$
+          and \f$W^{(2)}\f$.
+
+	  These values are integrated during freeStream()ing.
+      */
+      void setFreeStreamValue(const T& W1, const T& W2)
       {
-	_freestream_values = std::pair<T,T>(val1,val2);
+	_freestream_values = std::pair<T,T>(W1,W2);
       }
 
+      /*! \brief Integrate the free streaming contributions to
+          \f$W^{(1)}\f$ and \f$W^{(2)}\f$, and create new samples as
+          needed.
+      */
       void freeStream(double dt)
       {
 	while ((_current_time + dt) >= _sample_time)
@@ -205,6 +235,9 @@ namespace magnet {
 	_current_time += dt;
       }
 
+      /*! \brief Remove all collected data so far, but keep the
+          _sample_time and correlator length.
+       */
       void clear()
       {
 	Base::clear();
@@ -217,6 +250,9 @@ namespace magnet {
       using Base::getAveragedCorrelator;
       using Base::getSampleCount;
 
+      /*! \brief Returns the time between samples used in the
+          correlator.
+       */
       double getSampleTime() const { return _sample_time; }
 
     protected:
@@ -226,12 +262,37 @@ namespace magnet {
       double _current_time;
     };
 
+    /*! \brief An extension of the TimeCorrelator class allowing full
+        resolution of the correlation functions during a simulation.
+
+	The main problem of collecting Correlators is that you need to
+	pick a fixed sample_time and correlator length. You can't
+	allow your correlator length to be too large as it would
+	consume memory and make performing a correlation pass() too
+	slow. You also cannot use large/small sample_times as you want
+	to capture all relaxation times to ensure you are reaching the
+	hydrodynamic limit.
+
+	This class dynamically adds more correlators at exponentially
+	growing sample_times to ensure that all time scales are
+	monitored without a great computational or memory overhead.
+     */
     template<class T>
     class LogarithmicTimeCorrelator
     {
       typedef TimeCorrelator<T> Correlator;
       typedef std::vector<Correlator> Container;
     public:
+      /*! \brief Resets the TimeCorrelator before data collection.
+	
+	\param sample_time See \ref TimeCorrelator for this parameter.
+	
+	\param length See \ref Correlator for this parameter.
+	
+	\param scaling This parameter controls how exponentially fast
+	the correlators grow. By default, the correlators double in
+	sample_time whenever a new one is added.
+       */
       void resize(double sample_time, size_t length, size_t scaling = 2)
       {
 	_sample_time = sample_time;
@@ -248,8 +309,10 @@ namespace magnet {
 	_correlators.clear();
       }
 
+      /*! \brief See \ref TimeCorrelator::addImpulse(). */
       void addImpulse(const T& val) { addImpulse(val, val); }
 
+      /*! \brief See \ref TimeCorrelator::addImpulse(). */
       void addImpulse(const T& val1, const T& val2)
       {
 	_impulse_sum.first += val1; 
@@ -259,8 +322,10 @@ namespace magnet {
 	  correlator.addImpulse(val1, val2);
       }
 
+      /*! \brief See \ref TimeCorrelator::setFreeStreamValue(). */
       void setFreeStreamValue(const T& val) { setFreeStreamValue(val, val); }
 
+      /*! \brief See \ref TimeCorrelator::setFreeStreamValue(). */
       void setFreeStreamValue(const T& val1, const T& val2)
       {
 	_freestream_values = std::pair<T,T>(val1, val2);
@@ -269,6 +334,7 @@ namespace magnet {
 	  correlator.setFreeStreamValue(val1, val2);
       }
 
+      /*! \brief See \ref TimeCorrelator::freeStream(). */
       void freeStream(const double dt)
       {
 	//Check if we need to add a new correlator
@@ -300,6 +366,9 @@ namespace magnet {
 	_current_time += dt;
       }
 
+      /*! \brief The returned data type for the
+          getAveragedCorrelator() function.
+       */
       struct Data
       {
 	Data(double t, size_t sc, T v): time(t), sample_count(sc), value(v) {}
@@ -309,6 +378,14 @@ namespace magnet {
 	T value;
       };
 
+      /*! \brief A method to calculate and combine the average
+          correlators from all of the contained generated Correlator
+          classes.
+	  
+	  The first correlator (one with the smallest _sample_time) is
+	  outputted in its entirety, followed by the non-overlapping
+	  parts of every other correlator.
+       */
       std::vector<Data> getAveragedCorrelator()
       {
 	std::vector<Data> avg_correlator;

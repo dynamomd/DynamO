@@ -45,6 +45,9 @@ namespace dynamo {
   OPMisc::changeSystem(OutputPlugin* misc2)
   {
     OPMisc& op = static_cast<OPMisc&>(*misc2);
+    _KE.swapCurrentValues(op._KE);
+    _internalE.swapCurrentValues(op._internalE);
+
     std::swap(Sim, op.Sim);
     std::swap(KECurrent, op.KECurrent);
     std::swap(intECurrent, op.intECurrent);
@@ -53,7 +56,9 @@ namespace dynamo {
 
   void
   OPMisc::temperatureRescale(const double& scale)
-  { KECurrent *= scale; }
+  { 
+    _KE  = _KE.current() * scale;
+  }
 
   double 
   OPMisc::getMeankT() const
@@ -100,6 +105,8 @@ namespace dynamo {
   {
     KEMax = KEMin = InitialKE = KECurrent = Sim->dynamics->getSystemKineticEnergy();
     intEMax = intEMin = intECurrent = Sim->calcInternalEnergy();
+	_KE = Sim->dynamics->getSystemKineticEnergy();
+    _internalE = Sim->calcInternalEnergy();
 
     dout << "Particle Count " << Sim->N
 	 << "\nSim Unit Length " << Sim->units.unitLength()
@@ -188,6 +195,8 @@ namespace dynamo {
     KEsqAcc += KECurrent * KECurrent * dt;
     intEAcc += intECurrent * dt;
     intEsqAcc += intECurrent * intECurrent * dt;
+    _KE.stream(dt);
+    _internalE.stream(dt);
     cumulative_kineticP += curr_kineticP * dt;
   }
 
@@ -200,6 +209,8 @@ namespace dynamo {
 	
 	KECurrent += PDat.getDeltaKE();
 	intECurrent += PDat.getDeltaU();
+	_KE += PDat.getDeltaKE();
+	_internalE += PDat.getDeltaU();
 	
 	curr_kineticP
 	  += Sim->species[PDat.getSpeciesID()]->getMass(part.getID())
@@ -222,6 +233,8 @@ namespace dynamo {
 
     KECurrent += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
     intECurrent += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
+    _KE += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
+    _internalE += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
 
     const Particle& part1 = Sim->particles[PDat.particle1_.getParticleID()];
     const Particle& part2 = Sim->particles[PDat.particle2_.getParticleID()];
