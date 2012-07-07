@@ -19,6 +19,7 @@
 #include <boost/circular_buffer.hpp>
 #include <vector>
 #include <utility>
+#include <exception>
 
 namespace magnet {
   namespace math {
@@ -143,7 +144,15 @@ namespace magnet {
     {
       typedef Correlator<T> Base;
     public:
-      TimeCorrelator(double sample_time, size_t length): Base(length), _sample_time(sample_time) { clear(); }
+      TimeCorrelator(double sample_time, size_t length): 
+	Base(length)
+      { 
+	if (sample_time <= 0)
+	  throw std::runtime_error("TimeCorrelator requires a positive, non-zero sample time");
+	clear(); 
+	//Has to come after the clear
+	_sample_time = sample_time;
+      }
 
       void addImpulse(const T& val1, const T& val2)
       {
@@ -153,17 +162,16 @@ namespace magnet {
 
       void setFreeStreamValue(const T& val1, const T& val2)
       {
-	_freestream_values.first = val1;
-	_freestream_values.second = val2;
+	_freestream_values = std::pair<T,T>(val1,val2);
       }
 
       void freeStream(double dt)
       {
-	while (_current_time + dt > _sample_time)
+	while ((_current_time + dt) >= _sample_time)
 	  {
 	    const double deltat = _sample_time - _current_time;
 	    _W_sums.first += _freestream_values.first * deltat;
-	    _W_sums.second += _freestream_values.first * deltat;
+	    _W_sums.second += _freestream_values.second * deltat;
 	    Base::push(_W_sums.first, _W_sums.second);
 
 	    _W_sums.first = _W_sums.second = _current_time = 0;
@@ -171,7 +179,7 @@ namespace magnet {
 	  }
 
 	_W_sums.first += _freestream_values.first * dt;
-	_W_sums.second += _freestream_values.first * dt;
+	_W_sums.second += _freestream_values.second * dt;
 	_current_time += dt;
       }
 
@@ -180,7 +188,8 @@ namespace magnet {
 	Base::clear();
 	_freestream_values = std::pair<T,T>();
 	_W_sums = std::pair<T,T>();
-	_sample_time = _current_time;
+	_sample_time = _current_time = 0;
+	
       }
 
       using Base::getAveragedCorrelator;
