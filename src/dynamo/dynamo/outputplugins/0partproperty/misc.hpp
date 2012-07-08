@@ -68,15 +68,16 @@ namespace dynamo {
     std::time_t tstartTime;
     timespec acc_tstartTime;
 
-    unsigned long dualEvents;  
-    unsigned long singleEvents;
+    unsigned long _dualEvents;  
+    unsigned long _singleEvents;
+    unsigned long _virtualEvents;    
     size_t _reverseEvents;
 
-    magnet::math::TimeAveragedProperty _KE;
-    magnet::math::TimeAveragedProperty _internalE;
-    
-    Matrix curr_kineticP;
-    Matrix cumulative_kineticP;
+    magnet::math::TimeAveragedProperty<double> _KE;
+    magnet::math::TimeAveragedProperty<double> _internalE;
+    magnet::math::TimeAveragedProperty<Vector> _sysMomentum;
+    magnet::math::TimeAveragedProperty<Matrix> _kineticP;
+
     Matrix collisionalP;
   };
 }

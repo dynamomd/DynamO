@@ -27,8 +27,9 @@
 namespace dynamo {
   OPMisc::OPMisc(const dynamo::Simulation* tmp, const magnet::xml::Node&):
     OutputPlugin(tmp,"Misc",0),
-    dualEvents(0),
-    singleEvents(0),
+    _dualEvents(0),
+    _singleEvents(0),
+    _virtualEvents(0),
     _reverseEvents(0)
   {}
 
@@ -38,9 +39,9 @@ namespace dynamo {
     OPMisc& op = static_cast<OPMisc&>(*misc2);
     _KE.swapCurrentValues(op._KE);
     _internalE.swapCurrentValues(op._internalE);
+    _kineticP.swapCurrentValues(op._kineticP);
 
     std::swap(Sim, op.Sim);
-    std::swap(curr_kineticP, op.curr_kineticP);
   }
 
   void
@@ -82,8 +83,8 @@ namespace dynamo {
   void
   OPMisc::initialise()
   {
-    _KE = Sim->dynamics->getSystemKineticEnergy();
-    _internalE = Sim->calcInternalEnergy();
+    _KE.init(Sim->dynamics->getSystemKineticEnergy());
+    _internalE.init(Sim->calcInternalEnergy());
 
     dout << "Particle Count " << Sim->N
 	 << "\nSim Unit Length " << Sim->units.unitLength()
@@ -96,34 +97,29 @@ namespace dynamo {
     dout << "No. of Species " << Sim->species.size()
 	 << "\nSimulation box length <x y z> < ";
     for (size_t iDim = 0; iDim < NDIM; iDim++)
-      dout  << Sim->primaryCellSize[iDim]/Sim->units.unitLength() << " ";
+      dout  << Sim->primaryCellSize[iDim] / Sim->units.unitLength() << " ";
     dout << ">" << std::endl;
 
-    Vector sumMV (0,0,0);
-
-    //Determine the discrepancy VECTOR
-    BOOST_FOREACH( const Particle & Part, Sim->particles)
-      {
-	Vector  pos(Part.getPosition()), vel(Part.getVelocity());
-	Sim->BCs->applyBC(pos, vel);
-	sumMV += vel * Sim->species[Part]->getMass(Part.getID());
-      }
-
-    dout << "Total momentum <x,y,z> <";
-    for (size_t iDim = 0; iDim < NDIM; iDim++)
-      dout  << sumMV[iDim] / Sim->units.unitMomentum() << " ";
-    dout << ">" << std::endl;
-
-    cumulative_kineticP.zero();
     collisionalP.zero();
-    curr_kineticP.zero();
-    
+
+    Matrix kineticPinit;
+    kineticPinit.zero();
+
+    Vector sysMomentum(0,0,0);
     BOOST_FOREACH(const Particle& part, Sim->particles)
       {
-	curr_kineticP 
-	  += Sim->species[part]->getMass(part.getID())
-	  * Dyadic(part.getVelocity(),part.getVelocity());
+	double mass = Sim->species[part]->getMass(part.getID());
+	kineticPinit += mass * Dyadic(part.getVelocity(),part.getVelocity());
+	sysMomentum += mass * part.getVelocity();
       }
+
+    _kineticP.init(kineticPinit);
+    _sysMomentum.init(sysMomentum);
+
+    dout << "Total momentum <x,y,z> < ";
+    for (size_t iDim = 0; iDim < NDIM; iDim++)
+      dout  << sysMomentum[iDim] / Sim->units.unitMomentum() << " ";
+    dout << ">" << std::endl;
 
     std::time(&tstartTime);
 
@@ -170,23 +166,28 @@ namespace dynamo {
     _reverseEvents += (dt < 0);
     _KE.stream(dt);
     _internalE.stream(dt);
-    cumulative_kineticP += curr_kineticP * dt;
+    _kineticP.stream(dt);
+    _sysMomentum.stream(dt);
   }
 
   void OPMisc::eventUpdate(const NEventData& NDat)
   {
     BOOST_FOREACH(const ParticleEventData& PDat, NDat.L1partChanges)
       {
-        singleEvents += (PDat.getType() != VIRTUAL);
+        _singleEvents += (PDat.getType() != VIRTUAL);
+	_virtualEvents += (PDat.getType() == VIRTUAL);
 	const Particle& part = Sim->particles[PDat.getParticleID()];
 	
 	_KE += PDat.getDeltaKE();
 	_internalE += PDat.getDeltaU();
 	
-	curr_kineticP
-	  += Sim->species[PDat.getSpeciesID()]->getMass(part.getID())
+	double mass = Sim->species[PDat.getSpeciesID()]->getMass(part.getID());
+	_kineticP
+	  += mass
 	  * (Dyadic(part.getVelocity(), part.getVelocity())
 	     - Dyadic(PDat.getOldVel(), PDat.getOldVel()));
+
+	_sysMomentum += mass * (part.getVelocity() - PDat.getOldVel());
       }
 
     BOOST_FOREACH(const PairEventData& PDat, NDat.L2partChanges)
@@ -195,7 +196,8 @@ namespace dynamo {
 
   void OPMisc::eventUpdate(const PairEventData& PDat)
   {
-    dualEvents += (PDat.getType() != VIRTUAL);
+    _dualEvents += (PDat.getType() != VIRTUAL);
+    _virtualEvents += (PDat.getType() == VIRTUAL);
 
     _KE += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
     _internalE += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
@@ -209,7 +211,7 @@ namespace dynamo {
 
     collisionalP += Dyadic(delP, PDat.rij);
 
-    curr_kineticP 
+    _kineticP
       += sp1.getMass(part1.getID())
       * (Dyadic(part1.getVelocity(), part1.getVelocity())
 	 - Dyadic(PDat.particle1_.getOldVel(), PDat.particle1_.getOldVel()))
@@ -224,8 +226,8 @@ namespace dynamo {
   {
     return Sim->dSysTime * static_cast<double>(Sim->N)
       /(Sim->units.unitTime()
-	* ((2.0 * static_cast<double>(dualEvents))
-	   + static_cast<double>(singleEvents)));
+	* ((2.0 * static_cast<double>(_dualEvents))
+	   + static_cast<double>(_singleEvents)));
   }
 
   double 
@@ -291,6 +293,19 @@ namespace dynamo {
 	<< magnet::xml::attr("val") << Sim->N
 	<< magnet::xml::endtag("ParticleCount")
 
+	<< magnet::xml::tag("SystemMomentum")
+	<< magnet::xml::tag("Current")
+	<< magnet::xml::attr("x") << _sysMomentum.current()[0] / Sim->units.unitMomentum()
+	<< magnet::xml::attr("y") << _sysMomentum.current()[1] / Sim->units.unitMomentum()
+	<< magnet::xml::attr("z") << _sysMomentum.current()[2] / Sim->units.unitMomentum()
+	<< magnet::xml::endtag("Current")
+	<< magnet::xml::tag("Average")
+	<< magnet::xml::attr("x") << _sysMomentum.mean()[0] / Sim->units.unitMomentum()
+	<< magnet::xml::attr("y") << _sysMomentum.mean()[1] / Sim->units.unitMomentum()
+	<< magnet::xml::attr("z") << _sysMomentum.mean()[2] / Sim->units.unitMomentum()
+	<< magnet::xml::endtag("Average")
+	<< magnet::xml::endtag("SystemMomentum")
+
 	<< magnet::xml::tag("Temperature")
 	<< magnet::xml::attr("Mean") << getMeankT() / Sim->units.unitEnergy()
 	<< magnet::xml::attr("MeanSqr") << getMeanSqrkT() / (Sim->units.unitEnergy() * Sim->units.unitEnergy())
@@ -313,16 +328,16 @@ namespace dynamo {
       / (getMeankT() * getMeankT())
 	<< magnet::xml::endtag("ResidualHeatCapacity")
 	<< magnet::xml::tag("Pressure")
-	<< magnet::xml::attr("Avg") << (cumulative_kineticP.tr() + collisionalP.tr())
-	    / (3.0 * Sim->dSysTime * Sim->getSimVolume() / Sim->units.unitPressure())
+	<< magnet::xml::attr("Avg") << (_kineticP.mean().tr() + collisionalP.tr() / Sim->dSysTime)
+	    / (3.0 * Sim->getSimVolume() / Sim->units.unitPressure())
 	<< magnet::xml::tag("Tensor") << magnet::xml::chardata()
       ;
 
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       {
 	for (size_t jDim = 0; jDim < NDIM; ++jDim)
-	  XML << (cumulative_kineticP(iDim, jDim) + collisionalP(iDim, jDim))
-	    / (Sim->dSysTime * Sim->getSimVolume() / Sim->units.unitPressure())
+	  XML << (_kineticP.mean()(iDim, jDim) + collisionalP(iDim, jDim) / Sim->dSysTime)
+	    / (Sim->getSimVolume() / Sim->units.unitPressure())
 	      << " ";
 	XML << "\n";
       }
@@ -331,8 +346,9 @@ namespace dynamo {
 	<< magnet::xml::endtag("Pressure")
 	<< magnet::xml::tag("Duration")
 	<< magnet::xml::attr("Events") << Sim->eventCount
-	<< magnet::xml::attr("OneParticleEvents") << singleEvents
-	<< magnet::xml::attr("TwoParticleEvents") << dualEvents
+	<< magnet::xml::attr("OneParticleEvents") << _singleEvents
+	<< magnet::xml::attr("TwoParticleEvents") << _dualEvents
+	<< magnet::xml::attr("VirtualEvents") << _virtualEvents
 	<< magnet::xml::attr("Time") << Sim->dSysTime / Sim->units.unitTime()
 	<< magnet::xml::endtag("Duration")
 

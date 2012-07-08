@@ -34,58 +34,62 @@ namespace magnet {
 	these properties. This class calculates the mean, square mean,
 	minimum and maximum of a given property.
      */
+    template<class T>
     class TimeAveragedProperty
     {
     public:
       TimeAveragedProperty():
-	_current_value(0),
+	_current_value(T()),
 	_zero_moment(0),
-	_first_moment(0),
-	_second_moment(0),
-	_min(HUGE_VAL),
-	_max(-HUGE_VAL)
+	_first_moment(T()),
+	_second_moment(T()),
+	_min(T()),
+	_max(T())
       {}
 
       void swapCurrentValues(TimeAveragedProperty& op)
       { std::swap(_current_value, op._current_value); }
-	
-      TimeAveragedProperty& operator=(double value)
+
+      void init(const T& value)
+      { _current_value = _min = _max = value; }
+      
+      TimeAveragedProperty& operator=(const T& value)
       { 
 	_current_value = value; 
-	_min = std::min(_current_value, _min);
-	_max = std::max(_current_value, _max);
+	_min = elementwiseMin(_current_value, _min);
+	_max = elementwiseMax(_current_value, _max);
 	return *this;
       }
 
-      TimeAveragedProperty& operator+=(double change)
+      TimeAveragedProperty& operator+=(const T& change)
       { return operator=(_current_value + change); }
 
       void stream(double dt)
       {
 	_zero_moment += dt;
 	_first_moment += dt * _current_value;
-	_second_moment += dt * _current_value * _current_value;
+	_second_moment += dt * elementwiseMultiply(_current_value, _current_value);
       }
 
       double time() const { return _zero_moment; }
 
-      double mean() const { return (_zero_moment == 0) ? current() : (_first_moment / _zero_moment); }
+      T mean() const { return (_zero_moment == 0) ? current() : (_first_moment / _zero_moment); }
 
-      double meanSqr() const { return (_zero_moment == 0) ? (current() * current()) : (_second_moment / _zero_moment); }
+      T meanSqr() const { return (_zero_moment == 0) ? (current() * current()) : (_second_moment / _zero_moment); }
 
-      double min() const { return _min; }
+      T min() const { return _min; }
 
-      double max() const { return _max; }
+      T max() const { return _max; }
       
-      double current() const { return _current_value; }
+      T current() const { return _current_value; }
 
     protected:
-      double _current_value;
+      T _current_value;
       double _zero_moment;
-      double _first_moment;
-      double _second_moment;
-      double _min;
-      double _max;
+      T _first_moment;
+      T _second_moment;
+      T _min;
+      T _max;
     };
   }
 }

@@ -554,6 +554,39 @@ namespace magnet {
 
       return data;
     }
+
+    template<class T>
+    inline T elementwiseMultiply(const T& A, const T& B)
+    { return A * B; }
+    
+    template<>
+    inline Vector elementwiseMultiply<Vector>(const Vector& A, const Vector& B)
+    { return Vector(A[0] * B[0], A[1] * B[1], A[2] * B[2]); }
+    
+    template<class T>
+    inline T elementwiseAdd(const T& A, const T& B)
+    { return A + B; }
+    
+    template<>
+    inline Vector elementwiseAdd<Vector>(const Vector& A, const Vector& B)
+    { return Vector(A[0] + B[0], A[1] + B[1], A[2] + B[2]); }
+
+    template<class T>
+    inline T elementwiseMin(const T& A, const T& B)
+    { return std::min(A, B); }
+
+    template<>
+    inline Vector elementwiseMin<Vector>(const Vector& A, const Vector& B)
+    { return Vector(std::min(A[0], B[0]), std::min(A[1], B[1]), std::min(A[2], B[2])); }
+
+    template<class T>
+    inline T elementwiseMax(const T& A, const T& B)
+    { return std::max(A, B); }
+
+    template<>
+    inline Vector elementwiseMax<Vector>(const Vector& A, const Vector& B)
+    { return Vector(std::max(A[0], B[0]), std::max(A[1], B[1]), std::max(A[2], B[2])); }
+
   }
 }
 

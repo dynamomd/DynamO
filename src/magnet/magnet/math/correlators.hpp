@@ -25,17 +25,7 @@
 #include <tr1/tuple>
 
 namespace magnet {
-  namespace math {
-    namespace {
-      template<class T>
-      T correlatorOp(const T& A, const T& B)
-      { return A * B; }
-
-      template<>
-      Vector correlatorOp<Vector>(const Vector& A, const Vector& B)
-      { return Vector(A[0] * B[0], A[1] * B[1], A[2] * B[2]); }
-    }
-    
+  namespace math {    
     /*! \brief A class for taking the Einstein correlation of a series of
       values.
 
@@ -152,7 +142,7 @@ namespace magnet {
 	  {
 	    sum.first += _sample_history[i].first;
 	    sum.second += _sample_history[i].second;
-	    _correlator[i] += correlatorOp(sum.first, sum.second);
+	    _correlator[i] += elementwiseMultiply(sum.first, sum.second);
 	  }
       }
     };
