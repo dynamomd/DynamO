@@ -73,7 +73,7 @@ namespace dynamo {
   {
     GlobalEvent iEvent(part, dt, VIRTUAL, *this);
 
-    Sim->dSysTime += iEvent.getdt();
+    Sim->systemTime += iEvent.getdt();
     
     Sim->ptrScheduler->stream(iEvent.getdt());
   

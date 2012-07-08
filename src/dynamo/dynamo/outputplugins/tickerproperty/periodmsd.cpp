@@ -56,10 +56,10 @@ namespace dynamo {
   OPPeriodicMSD::ticker()
   {
     BOOST_FOREACH(localpair2& dat, structResults)
-      dat.second.push_back(std::make_pair(Sim->dSysTime, ptrOPMSD->calcStructMSD(*dat.first)));
+      dat.second.push_back(std::make_pair(Sim->systemTime, ptrOPMSD->calcStructMSD(*dat.first)));
 
     BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->species)
-      speciesData[sp->getID()].push_back(std::make_pair(Sim->dSysTime, ptrOPMSD->calcMSD(*(sp->getRange()))));
+      speciesData[sp->getID()].push_back(std::make_pair(Sim->systemTime, ptrOPMSD->calcMSD(*(sp->getRange()))));
   }
 
   void

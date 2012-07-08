@@ -54,7 +54,7 @@ namespace dynamo {
     initialSupportedRange = nblist.getMaxInteractionRange();
       
     dt = (nblist.getMaxSupportedInteractionLength() / initialSupportedRange - 1.0) 
-      / growthRate - Sim->dSysTime;
+      / growthRate - Sim->systemTime;
 
     dout << "Compression Hack Loaded"
 	 << "\nFor global " << nblist.getName()
@@ -79,7 +79,7 @@ namespace dynamo {
       M_throw() << "A NAN system event time has been found";
 #endif
   
-    Sim->dSysTime += locdt;
+    Sim->systemTime += locdt;
   
     Sim->ptrScheduler->stream(locdt);
   
@@ -91,12 +91,12 @@ namespace dynamo {
   
     dout << "Rebuilding the neighbour list named " << nblist.getName()
 	 << "\nNColl = " << Sim->eventCount
-	 << "\nSys t = " << Sim->dSysTime / Sim->units.unitTime() << std::endl;
+	 << "\nSys t = " << Sim->systemTime / Sim->units.unitTime() << std::endl;
   
     nblist.setMaxInteractionRange(nblist.getMaxSupportedInteractionLength() * 1.1);
   
     dt = (nblist.getMaxSupportedInteractionLength()
-	  / initialSupportedRange - 1.0) / growthRate - Sim->dSysTime;
+	  / initialSupportedRange - 1.0) / growthRate - Sim->systemTime;
 
     NEventData SDat;
 
@@ -112,7 +112,7 @@ namespace dynamo {
     GNeighbourList& nblist(dynamic_cast<GNeighbourList&>
 			   (*Sim->globals[cellID]));
 
-    nblist.setMaxInteractionRange(initialSupportedRange * (1.0 + growthRate * Sim->dSysTime));
+    nblist.setMaxInteractionRange(initialSupportedRange * (1.0 + growthRate * Sim->systemTime));
   }
 
 }

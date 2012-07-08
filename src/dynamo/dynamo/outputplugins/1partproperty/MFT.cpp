@@ -74,11 +74,11 @@ namespace dynamo {
       if (lastTime[PDat.getParticleID()][collN] != 0.0)
 	{
 	  data[PDat.getSpeciesID()][collN]
-	    .addVal(Sim->dSysTime 
+	    .addVal(Sim->systemTime 
 		    - lastTime[PDat.getParticleID()][collN]);
 	}
   
-    lastTime[PDat.getParticleID()].push_front(Sim->dSysTime);
+    lastTime[PDat.getParticleID()].push_front(Sim->systemTime);
   }
 
   void

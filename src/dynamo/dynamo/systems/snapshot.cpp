@@ -60,7 +60,7 @@ namespace dynamo {
 #endif
     
 
-    Sim->dSysTime += locdt;
+    Sim->systemTime += locdt;
 
     Sim->ptrScheduler->stream(locdt);
   

@@ -157,7 +157,7 @@ namespace dynamo {
 
     momentumChange /= Sim->units.unitMomentum();
 
-    logfile << Sim->dSysTime / Sim->units.unitTime()
+    logfile << Sim->systemTime / Sim->units.unitTime()
 	    << " " << momentumChange[0] << " " << momentumChange[1] << " " << momentumChange[2]
 	    << " " << platePos[0] << " " << platePos[1] << " " << platePos[2] 
 	    << " " << com[0] << " " << com[1] << " " << com[2]
@@ -213,7 +213,7 @@ namespace dynamo {
 	      << magnet::xml::attr("ID") << ID
 	      << magnet::xml::attr("PowerLossRate") 
 	      << (sum * Sim->units.unitTime() 
-		  / (Sim->dSysTime * Sim->units.unitEnergy()))
+		  / (Sim->systemTime * Sim->units.unitEnergy()))
 	      << magnet::xml::endtag("Plate");
 	}
 	{

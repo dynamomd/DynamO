@@ -56,7 +56,7 @@ namespace dynamo {
 	    << magnet::xml::attr("Name") << sp->getName()
 	    << magnet::xml::attr("val") << MSD
 	    << magnet::xml::attr("diffusionCoeff") 
-	    << MSD * Sim->units.unitTime() / (2 * NDIM * Sim->dSysTime)
+	    << MSD * Sim->units.unitTime() / (2 * NDIM * Sim->systemTime)
 	    << magnet::xml::endtag("Species");
       }
 
@@ -72,7 +72,7 @@ namespace dynamo {
 		<< magnet::xml::attr("Name") << topo->getName()
 		<< magnet::xml::attr("val") << MSD
 		<< magnet::xml::attr("diffusionCoeff") 
-		<< MSD * Sim->units.unitTime() / (2 * NDIM * Sim->dSysTime)
+		<< MSD * Sim->units.unitTime() / (2 * NDIM * Sim->systemTime)
 		<< magnet::xml::endtag("Structure");
 	  }
 

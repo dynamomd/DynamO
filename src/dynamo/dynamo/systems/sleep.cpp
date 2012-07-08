@@ -121,7 +121,7 @@ namespace dynamo {
 
     return (gnrm != 0)
       && (diff.nrm() < _sleepDistance)
-      && ((Sim->dSysTime - _lastData[part.getID()].second) < _sleepTime)
+      && ((Sim->systemTime - _lastData[part.getID()].second) < _sleepTime)
       && (((part.getVelocity() + vel) | (g / gnrm)) < _sleepVelocity);
   }
 
@@ -218,11 +218,11 @@ namespace dynamo {
       {
 	const size_t& p1 = pdat.particle1_.getParticleID();
 	_lastData[p1].first = Sim->particles[p1].getPosition();
-	_lastData[p1].second = Sim->dSysTime;
+	_lastData[p1].second = Sim->systemTime;
 
 	const size_t& p2 = pdat.particle2_.getParticleID();
 	_lastData[p2].first = Sim->particles[p2].getPosition();
-	_lastData[p2].second = Sim->dSysTime;
+	_lastData[p2].second = Sim->systemTime;
       }
 
     if (!stateChange.empty())
@@ -244,7 +244,7 @@ namespace dynamo {
       M_throw() << "A NAN system event time has been found";
 #endif
   
-    Sim->dSysTime += locdt;
+    Sim->systemTime += locdt;
     Sim->ptrScheduler->stream(locdt);
   
     //dynamics must be updated first

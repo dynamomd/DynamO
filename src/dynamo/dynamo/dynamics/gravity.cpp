@@ -506,12 +506,12 @@ namespace dynamo {
     //Now the tc model;
     if (_tc > 0)
       {
-	if ((Sim->dSysTime - _tcList[particle1.getID()] < _tc)
-	    || (Sim->dSysTime - _tcList[particle2.getID()] < _tc))
+	if ((Sim->systemTime - _tcList[particle1.getID()] < _tc)
+	    || (Sim->systemTime - _tcList[particle2.getID()] < _tc))
 	  e = 1.0;
       
-	_tcList[particle1.getID()] = Sim->dSysTime;
-	_tcList[particle2.getID()] = Sim->dSysTime;
+	_tcList[particle1.getID()] = Sim->systemTime;
+	_tcList[particle2.getID()] = Sim->systemTime;
       }
 
     return DynNewtonian::SmoothSpheresColl(event, e, d2, eType);
@@ -670,10 +670,10 @@ namespace dynamo {
     //Now the tc model;
     if (_tc > 0)
       {
-	if ((Sim->dSysTime - _tcList[part.getID()] < _tc))
+	if ((Sim->systemTime - _tcList[part.getID()] < _tc))
 	  e_val = 1;
       
-	_tcList[part.getID()] = Sim->dSysTime;
+	_tcList[part.getID()] = Sim->systemTime;
       }
 
     return DynNewtonian::runWallCollision(part, vNorm, e_val);

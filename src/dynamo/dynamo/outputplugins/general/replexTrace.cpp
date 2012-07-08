@@ -55,7 +55,7 @@ namespace dynamo {
     std::ostringstream op;
 
     op << Sim->replexExchangeNumber << " "
-       << Sim->dSysTime / Sim->units.unitTime() << " "
+       << Sim->systemTime / Sim->units.unitTime() << " "
        << ensembleVals[0] << " " 
        << ensembleVals[1] << " " 
        << ensembleVals[2] << "\n";

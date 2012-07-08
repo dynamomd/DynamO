@@ -63,13 +63,13 @@ namespace dynamo {
   double
   OPKEnergy::getAvgkT() const
   {
-    return 2.0 * KEacc / (Sim->dSysTime * Sim->N * Sim->dynamics->getParticleDOF());
+    return 2.0 * KEacc / (Sim->systemTime * Sim->N * Sim->dynamics->getParticleDOF());
   }
 
   double
   OPKEnergy::getAvgSqTheta() const
   {
-    return 2.0 * KEsqAcc / (Sim->dSysTime * Sim->N
+    return 2.0 * KEsqAcc / (Sim->systemTime * Sim->N
 			    * Sim->dynamics->getParticleDOF()
 			    * Sim->units.unitEnergy()
 			    * Sim->units.unitEnergy());
@@ -99,7 +99,7 @@ namespace dynamo {
   {
     double powerloss = (InitialKE - KECurrent) * Sim->units.unitLength()
       * pow(Sim->units.unitTime(),3)
-      / (Sim->units.unitMass() * Sim->dSysTime * Sim->getSimVolume());
+      / (Sim->units.unitMass() * Sim->systemTime * Sim->getSimVolume());
 
     XML << magnet::xml::tag("KEnergy")
 	<< magnet::xml::tag("T") << magnet::xml::attr("val") << getAvgTheta()
@@ -122,7 +122,7 @@ namespace dynamo {
   {
     double powerloss = (InitialKE - KECurrent) * Sim->units.unitLength()
       * pow(Sim->units.unitTime(),3)
-      / (Sim->units.unitMass() * Sim->dSysTime * Sim->getSimVolume());
+      / (Sim->units.unitMass() * Sim->systemTime * Sim->getSimVolume());
 
 
     I_Pcout() << "T "

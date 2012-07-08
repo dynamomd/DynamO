@@ -33,7 +33,7 @@ namespace dynamo {
   void 
   OPCollMatrix::initialise()
   {
-    lastEvent.resize(Sim->N, lastEventData(Sim->dSysTime, eventKey(classKey(0, NONE), NONE)));
+    lastEvent.resize(Sim->N, lastEventData(Sim->systemTime, eventKey(classKey(0, NONE), NONE)));
   }
 
   OPCollMatrix::~OPCollMatrix()
@@ -108,14 +108,14 @@ namespace dynamo {
       {
 	counterData& refCount = counters[counterKey(eventKey(ck,etype), lastEvent[part].second)];
       
-	refCount.totalTime += Sim->dSysTime - lastEvent[part].first;
+	refCount.totalTime += Sim->systemTime - lastEvent[part].first;
 	++(refCount.count);
 	++(totalCount);
       }
     else
       ++initialCounter[eventKey(ck,etype)];
 
-    lastEvent[part].first = Sim->dSysTime;
+    lastEvent[part].first = Sim->systemTime;
     lastEvent[part].second = eventKey(ck, etype);
   }
 
@@ -173,7 +173,7 @@ namespace dynamo {
       / (((double) totalCount) + ((double) initialsum))
 	  << magnet::xml::attr("Count") << mp1.second.first + initialCounter[mp1.first]
 	  << magnet::xml::attr("EventMeanFreeTime")
-	  << Sim->dSysTime / ((mp1.second.first + initialCounter[mp1.first])
+	  << Sim->systemTime / ((mp1.second.first + initialCounter[mp1.first])
 			      * Sim->units.unitTime())
 	  << magnet::xml::endtag("TotCount");
   

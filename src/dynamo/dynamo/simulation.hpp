@@ -279,7 +279,7 @@ namespace dynamo
       This class is long double to reduce roundoff error as this gets
       very large compared to an events delta t.
      */
-    long double dSysTime;
+    long double systemTime;
     
     /*! \brief Number of events executed.*/
     unsigned long long eventCount;

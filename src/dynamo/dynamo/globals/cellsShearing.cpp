@@ -267,7 +267,7 @@ namespace dynamo {
       magnet::math::MortonNumber<3> endCellv(endCell);
     
       dout << "CellEvent: sysdt " 
-	   << Sim->dSysTime / Sim->units.unitTime()
+	   << Sim->systemTime / Sim->units.unitTime()
 	   << " ID "
 	   << part.getID()
 	   << "  from <" 

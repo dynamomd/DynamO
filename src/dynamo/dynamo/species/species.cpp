@@ -124,7 +124,7 @@ namespace dynamo {
     //Check if the system is compressing and adjust the radius scaling factor
     float rfactor = lengthRescale;
     if (std::tr1::dynamic_pointer_cast<DynCompression>(Sim->dynamics))
-      rfactor *= (1 + static_cast<const DynCompression&>(*Sim->dynamics).getGrowthRate() * Sim->dSysTime);
+      rfactor *= (1 + static_cast<const DynCompression&>(*Sim->dynamics).getGrowthRate() * Sim->systemTime);
   
     const GlyphRepresentation& data
       = dynamic_cast<const GlyphRepresentation&>(*getIntPtr());

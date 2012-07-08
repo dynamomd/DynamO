@@ -74,6 +74,6 @@ namespace dynamo {
     double mass;
     mutable double timeshift;
     mutable size_t lastID;
-    mutable long double lastdSysTime;
+    mutable long double lastsystemTime;
   };
 }

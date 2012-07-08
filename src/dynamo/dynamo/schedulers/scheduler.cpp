@@ -279,7 +279,7 @@ namespace dynamo {
 	
 	  //Debug section
 #ifdef DYNAMO_CollDebug
-	  dout << "Interaction at t=" << (Event.getdt() + Sim->dSysTime) / Sim->units.unitTime()
+	  dout << "Interaction at t=" << (Event.getdt() + Sim->systemTime) / Sim->units.unitTime()
 	       << "  ID1 " << ((p2.getID() < p2.getID()) ? p1.getID() : p2.getID())
 	       << "  ID2 " << ((p2.getID() < p2.getID()) ? p2.getID() : p1.getID())
 	       << "  dt " << Event.getdt()
@@ -287,7 +287,7 @@ namespace dynamo {
 	       << std::endl;
 #endif
 
-	  Sim->dSysTime += Event.getdt();
+	  Sim->systemTime += Event.getdt();
 	
 	  stream(Event.getdt());
 	
@@ -348,7 +348,7 @@ namespace dynamo {
 		      << iEvent.stringData(Sim);
 #endif
 	
-	  Sim->dSysTime += iEvent.getdt();
+	  Sim->systemTime += iEvent.getdt();
 	
 	  stream(iEvent.getdt());
 	

@@ -127,7 +127,7 @@ namespace dynamo {
 		<< iEvent.stringData(Sim);
 #endif
 
-    Sim->dSysTime += iEvent.getdt();
+    Sim->systemTime += iEvent.getdt();
     
     Sim->ptrScheduler->stream(iEvent.getdt());
   

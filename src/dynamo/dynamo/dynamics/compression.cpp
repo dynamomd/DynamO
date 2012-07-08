@@ -42,14 +42,14 @@ namespace dynamo {
     double d2 = d * d;
     
     double b = rvdot - d2 
-      * (growthRate * growthRate * Sim->dSysTime + growthRate);
+      * (growthRate * growthRate * Sim->systemTime + growthRate);
   
     if (b >= 0.0) return HUGE_VAL;
 
 
     double a = v2 - growthRate * growthRate * d2;
-    double c = r2 - d2 * (1.0 + growthRate * Sim->dSysTime 
-			  * (2.0 + growthRate * Sim->dSysTime));
+    double c = r2 - d2 * (1.0 + growthRate * Sim->systemTime 
+			  * (2.0 + growthRate * Sim->systemTime));
     double arg = (b * b) - a * c;
     
     if (arg < 0.0) return HUGE_VAL;
@@ -70,9 +70,9 @@ namespace dynamo {
 
     double a = v2 - growthRate * growthRate * d2;
     double b = rvdot - d2 * (growthRate * growthRate 
-				 * Sim->dSysTime + growthRate);
-    double c = d2 * (1.0 + growthRate * Sim->dSysTime 
-		     * (2.0 + growthRate * Sim->dSysTime)) - r2;
+				 * Sim->systemTime + growthRate);
+    double c = d2 * (1.0 + growthRate * Sim->systemTime 
+		     * (2.0 + growthRate * Sim->systemTime)) - r2;
 
     double arg = (b * b) + a * c;
   
@@ -95,8 +95,8 @@ namespace dynamo {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(r12);
 
-    double currd2 = d * d * (1 + 2.0 * Sim->dSysTime * growthRate 
-			     + pow(Sim->dSysTime * growthRate, 2));
+    double currd2 = d * d * (1 + 2.0 * Sim->systemTime * growthRate 
+			     + pow(Sim->systemTime * growthRate, 2));
     return std::sqrt(std::max(currd2 - (r12 | r12), 0.0));
   }
 

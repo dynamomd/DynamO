@@ -81,7 +81,7 @@ namespace dynamo {
     else
       dout << "No cellular device to fix" << std::endl;
 
-    double rescale_factor = 1.0 + Sim->dSysTime * growthRate / Sim->units.unitTime();
+    double rescale_factor = 1.0 + Sim->systemTime * growthRate / Sim->units.unitTime();
 
     // The length scale is rescaled as the particles have grown. We want
     // that if a particle had a radius of 1 before the compression, it

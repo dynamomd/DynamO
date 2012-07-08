@@ -83,7 +83,7 @@ namespace dynamo {
     if (dt == -HUGE_VAL) dt = 0;
   
     //Actually move forward the system time
-    Sim->dSysTime += dt;
+    Sim->systemTime += dt;
     Sim->ptrScheduler->stream(dt);
     //dynamics must be updated first
     Sim->stream(dt);
@@ -94,7 +94,7 @@ namespace dynamo {
     BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(*this, NEventData(), dt);
   
-    _window->simupdateTick(Sim->dSysTime / Sim->units.unitTime());
+    _window->simupdateTick(Sim->systemTime / Sim->units.unitTime());
 
     //Now that the update has been performed, set up the next "tick"
     dt = _window->getUpdateInterval() * Sim->units.unitTime();

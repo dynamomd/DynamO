@@ -48,14 +48,14 @@ namespace dynamo {
   double 
   OPUEnergy::getAvgSqU() const
   { 
-    return intEsqAcc / ( Sim->dSysTime 
+    return intEsqAcc / ( Sim->systemTime 
 			 * pow(Sim->units.unitEnergy(), 2)); 
   }
 
   double 
   OPUEnergy::getAvgU() const
   { 
-    return intEAcc / ( Sim->dSysTime * Sim->units.unitEnergy()); 
+    return intEAcc / ( Sim->systemTime * Sim->units.unitEnergy()); 
   }
 
   void 

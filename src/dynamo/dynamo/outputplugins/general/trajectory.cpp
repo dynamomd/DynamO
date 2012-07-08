@@ -93,7 +93,7 @@ namespace dynamo {
     logfile << std::setw(8) << Sim->eventCount
 	    << " INTERACTION " << eevent.getInteractionID()
 	    << " TYPE " << eevent.getType()
-	    << " t " << std::setw(5) << Sim->dSysTime / Sim->units.unitTime() 
+	    << " t " << std::setw(5) << Sim->systemTime / Sim->units.unitTime() 
 	    << " dt " << std::setw(5) << eevent.getdt() / Sim->units.unitTime();
 
     logfile << " deltaP1 < ";
@@ -117,7 +117,7 @@ namespace dynamo {
     logfile << std::setw(8) << Sim->eventCount
 	    << " GLOBAL " << eevent.getGlobalID()
 	    << " TYPE " << eevent.getType()
-	    << " t " << Sim->dSysTime / Sim->units.unitTime() 
+	    << " t " << Sim->systemTime / Sim->units.unitTime() 
 	    << " dt " << eevent.getdt() / Sim->units.unitTime()
 	    << "\n";
 
@@ -143,7 +143,7 @@ namespace dynamo {
     logfile << std::setw(8) << Sim->eventCount 
 	    << " LOCAL " << eevent.getLocalID()
 	    << " TYPE " << eevent.getType()
-	    << " t " << Sim->dSysTime / Sim->units.unitTime() 
+	    << " t " << Sim->systemTime / Sim->units.unitTime() 
 	    << " dt " << eevent.getdt() / Sim->units.unitTime()
 	    << "\n";
 
@@ -179,7 +179,7 @@ namespace dynamo {
     logfile << std::setw(8) << Sim->eventCount
 	    << " SYSTEM " << sys.getID()
 	    << " TYPE " << sys.getType()
-	    << " t " << Sim->dSysTime / Sim->units.unitTime() 
+	    << " t " << Sim->systemTime / Sim->units.unitTime() 
 	    << " dt " << dt / Sim->units.unitTime()
 	    << "\n";
 

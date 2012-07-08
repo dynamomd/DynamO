@@ -488,7 +488,7 @@ namespace dynamo {
 
     lastCollParticle1 = particle1.getID();
     lastCollParticle2 = particle2.getID();
-    lastAbsoluteClock = Sim->dSysTime;
+    lastAbsoluteClock = Sim->systemTime;
 
     return retVal;
   }
@@ -991,7 +991,7 @@ namespace dynamo {
 	      double flt_high2(ftmp2.F_zeroDeriv());
 	    
 	      derr << "****Forcing collision"
-		   << "\ndSysTime = " << Sim->dSysTime
+		   << "\nsystemTime = " << Sim->systemTime
 		   << "\nlNColl = " << Sim->eventCount
 		   << "\nlast part = " << (lastpart ? (std::string("True")) : (std::string("False")))
 		   << "\nVel = " << part.getVelocity()[0]
@@ -1020,7 +1020,7 @@ namespace dynamo {
 		   << " * x - "
 		   << Delta 
 		   << " * cos(("
-		   << t + Sim->dSysTime << "+ x) * "
+		   << t + Sim->systemTime << "+ x) * "
 		   << Omega << ") - "
 		   << Sigma
 		   << " << std::endl; set xrange[0:" << t_high << "]; plot f(x)";
@@ -1077,7 +1077,7 @@ namespace dynamo {
     ParticleEventData retVal(part, *Sim->species[part], WALL);
 
     SFOscillatingPlate fL(part.getVelocity(), nhat, part.getPosition(),
-			     t + Sim->dSysTime, delta, omega0, sigma);
+			     t + Sim->systemTime, delta, omega0, sigma);
 
     //Should force the particle to the plate surface
 
@@ -1091,7 +1091,7 @@ namespace dynamo {
     Vector vwall(fL.wallVelocity());
 
     //  derr << "Running event for part " << part.getID() <<
-    //	   "\ndSysTime = " << Sim->dSysTime << "\nlNColl = " <<
+    //	   "\nsystemTime = " << Sim->systemTime << "\nlNColl = " <<
     //	   Sim->lNColl << "\nVel = " << part.getVelocity()[0] <<
     //	   "\nPos = " << part.getPosition()[0] << "\nVwall[0] = " <<
     //	   fL.wallVelocity()[0] << "\nRwall[0] = " <<
@@ -1115,7 +1115,7 @@ namespace dynamo {
 	derr <<"Particle " << part.getID()
 	     << ", is pulling on the oscillating plate!"
 	     << "\nRunning event for part " << part.getID()
-	     << "\ndSysTime = " << Sim->dSysTime
+	     << "\nsystemTime = " << Sim->systemTime
 	     << "\nlNColl = " << Sim->eventCount
 	     << "\nVel = " << part.getVelocity()[0]
 	     << "\nPos = " << part.getPosition()[0]
@@ -1136,7 +1136,7 @@ namespace dynamo {
 	     << " * x - "
 	     << delta
 	     << " * cos(("
-	     << t + Sim->dSysTime << "+ x) * "
+	     << t + Sim->systemTime << "+ x) * "
 	     << omega0 << ") - "
 	     << sigma << std::endl;
       
@@ -1178,17 +1178,17 @@ namespace dynamo {
 
     double numerator = -nhat | ((delP / mass) + vwall);
 
-    double reducedt = Sim->dSysTime 
-      - 2.0 * M_PI * int(Sim->dSysTime * omega0 / (2.0*M_PI)) / omega0;
+    double reducedt = Sim->systemTime 
+      - 2.0 * M_PI * int(Sim->systemTime * omega0 / (2.0*M_PI)) / omega0;
   
     double denominator = omega0 * delta * std::cos(omega0 * (reducedt + t));
   
 
     double newt = std::atan2(numerator, denominator)/ omega0 
-      - Sim->dSysTime;
+      - Sim->systemTime;
   
-    delta *= std::cos(omega0 * (Sim->dSysTime + t)) 
-      / std::cos(omega0 * (Sim->dSysTime + newt));
+    delta *= std::cos(omega0 * (Sim->systemTime + t)) 
+      / std::cos(omega0 * (Sim->systemTime + newt));
   
     t = newt;
 
@@ -1307,7 +1307,7 @@ namespace dynamo {
   
     if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
 	 || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
-	&& Sim->dSysTime == lastAbsoluteClock)
+	&& Sim->systemTime == lastAbsoluteClock)
       //Shift the lower bound up so we don't find the same root again
       t_low += fabs(2.0 * fL.F_firstDeriv())
 	/ fL.F_secondDeriv_max();
@@ -1388,7 +1388,7 @@ namespace dynamo {
 
     lastCollParticle1 = particle1.getID();
     lastCollParticle2 = particle2.getID();
-    lastAbsoluteClock = Sim->dSysTime;
+    lastAbsoluteClock = Sim->systemTime;
 
     return retVal;
   }
@@ -1437,7 +1437,7 @@ namespace dynamo {
   
     if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
 	 || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
-	&& Sim->dSysTime == lastAbsoluteClock)
+	&& Sim->systemTime == lastAbsoluteClock)
       //Shift the lower bound up so we don't find the same root again
       t_low += fabs(2.0 * fL1.F_firstDeriv())
 	/ fL1.F_secondDeriv_max();
@@ -1454,7 +1454,7 @@ namespace dynamo {
   
     if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
 	 || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
-	&& Sim->dSysTime == lastAbsoluteClock)
+	&& Sim->systemTime == lastAbsoluteClock)
       t_low += fabs(2.0 * fL2.F_firstDeriv())
 	/ fL2.F_secondDeriv_max();
   
@@ -1468,7 +1468,7 @@ namespace dynamo {
   
     if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
 	 || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
-	&& Sim->dSysTime == lastAbsoluteClock)
+	&& Sim->systemTime == lastAbsoluteClock)
       t_low += fabs(2.0 * fL3.F_firstDeriv())
 	/ fL3.F_secondDeriv_max();
   
@@ -1482,7 +1482,7 @@ namespace dynamo {
   
     if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
 	 || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
-	&& Sim->dSysTime == lastAbsoluteClock)
+	&& Sim->systemTime == lastAbsoluteClock)
       t_low += fabs(2.0 * fL4.F_firstDeriv())
 	/ fL4.F_secondDeriv_max();
   
@@ -1659,7 +1659,7 @@ namespace dynamo {
     //I_cout()<<"delta energy  " <<  getParticleKineticEnergy(particle2) - KE2before;
     lastCollParticle1 = particle1.getID();
     lastCollParticle2 = particle2.getID();
-    lastAbsoluteClock = Sim->dSysTime;
+    lastAbsoluteClock = Sim->systemTime;
 
     return retVal;
   }

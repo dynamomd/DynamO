@@ -76,7 +76,7 @@ namespace dynamo {
   {
     double locdt = dt;
 
-    Sim->dSysTime += locdt;
+    Sim->systemTime += locdt;
   
     Sim->ptrScheduler->stream(locdt);
   
@@ -100,9 +100,9 @@ namespace dynamo {
     Sim->dynamics->updateAllParticles();
     Sim->dynamics->rescaleSystemKineticEnergy(_kT / currentkT);
 
-    RealTime += (Sim->dSysTime - LastTime) / std::exp(0.5 * scaleFactor);
+    RealTime += (Sim->systemTime - LastTime) / std::exp(0.5 * scaleFactor);
     
-    LastTime = Sim->dSysTime;
+    LastTime = Sim->systemTime;
 
     scaleFactor += std::log(currentkT);
 

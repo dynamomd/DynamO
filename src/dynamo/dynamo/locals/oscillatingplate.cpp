@@ -33,14 +33,14 @@ namespace dynamo {
     strongPlate(nstrongPlate),
     rw0(nrw0), nhat(nnhat), omega0(nomega0), sigma(nsigma), 
     e(ne), delta(ndelta), mass(nmass), timeshift(0), 
-    lastID(std::numeric_limits<size_t>::max()), lastdSysTime(HUGE_VAL)
+    lastID(std::numeric_limits<size_t>::max()), lastsystemTime(HUGE_VAL)
   {
     localName = nname;
   }
 
   LOscillatingPlate::LOscillatingPlate(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
     Local(tmp, "OscillatingPlate"),
-    lastID(std::numeric_limits<size_t>::max()), lastdSysTime(HUGE_VAL)
+    lastID(std::numeric_limits<size_t>::max()), lastsystemTime(HUGE_VAL)
   {
     operator<<(XML);
   }
@@ -53,10 +53,10 @@ namespace dynamo {
       M_throw() << "Particle is not up to date";
 #endif
 
-    //bool caution = ((part.getID() == lastID) && (lastdSysTime == Sim->dSysTime));
+    //bool caution = ((part.getID() == lastID) && (lastsystemTime == Sim->systemTime));
 
-    double reducedt = Sim->dSysTime 
-      - 2.0 * M_PI * int(Sim->dSysTime * omega0 / (2.0*M_PI)) / omega0;
+    double reducedt = Sim->systemTime 
+      - 2.0 * M_PI * int(Sim->systemTime * omega0 / (2.0*M_PI)) / omega0;
 
     std::pair<bool, double> eventData = Sim->dynamics->getPointPlateCollision
       (part, rw0, nhat, delta, omega0, sigma, reducedt + timeshift, 
@@ -82,7 +82,7 @@ namespace dynamo {
 		    (part, rw0, nhat, delta, omega0, sigma, mass, 
 		     e, timeshift, strongPlate));
 
-    lastdSysTime = Sim->dSysTime;
+    lastsystemTime = Sim->systemTime;
     lastID = part.getID();
 
     Sim->signalParticleUpdate(EDat);
@@ -142,7 +142,7 @@ namespace dynamo {
   void 
   LOscillatingPlate::outputXML(magnet::xml::XmlStream& XML) const
   {
-    double tmp = Sim->dSysTime + timeshift;
+    double tmp = Sim->systemTime + timeshift;
 
     tmp -= 2.0 * M_PI * int(tmp * omega0 / (2.0 * M_PI) ) / omega0;
 
@@ -168,21 +168,21 @@ namespace dynamo {
   Vector
   LOscillatingPlate::getPosition() const
   {
-    return nhat * (delta * std::cos(omega0 * (Sim->dSysTime + timeshift))) + rw0;
+    return nhat * (delta * std::cos(omega0 * (Sim->systemTime + timeshift))) + rw0;
   }
 
   Vector
   LOscillatingPlate::getVelocity() const
   {
-    return - nhat * (delta * omega0 * std::sin(omega0 * (Sim->dSysTime + timeshift)));
+    return - nhat * (delta * omega0 * std::sin(omega0 * (Sim->systemTime + timeshift)));
   }
 
   double 
   LOscillatingPlate::getPlateEnergy() const
   {
     return 0.5 * mass 
-      * (std::pow(omega0 * delta * std::cos(omega0 * (Sim->dSysTime + timeshift)), 2)
-	 +  std::pow(omega0 * delta * std::sin(omega0 * (Sim->dSysTime + timeshift)), 2));
+      * (std::pow(omega0 * delta * std::cos(omega0 * (Sim->systemTime + timeshift)), 2)
+	 +  std::pow(omega0 * delta * std::sin(omega0 * (Sim->systemTime + timeshift)), 2));
   }
 
 #ifdef DYNAMO_visualizer
@@ -234,7 +234,7 @@ namespace dynamo {
     const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
 
     if (_renderObj)
-      _renderObj->setConstantA((delta * std::cos(omega0 * (Sim->dSysTime + timeshift)) 
+      _renderObj->setConstantA((delta * std::cos(omega0 * (Sim->systemTime + timeshift)) 
 				- (sigma + 0.5 * Sim->units.unitLength())) *  lengthRescale);
   }
 #endif

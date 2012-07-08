@@ -432,7 +432,7 @@ namespace dynamo {
   {
     start_Time = boost::posix_time::second_clock::local_time();
 
-    while (((Simulations[0].dSysTime / Simulations[0].units.unitTime()) 
+    while (((Simulations[0].systemTime / Simulations[0].units.unitTime()) 
 	    < replicaEndTime) 
 	   && (Simulations[0].eventCount < vm["events"].as<unsigned long long>()))
       {

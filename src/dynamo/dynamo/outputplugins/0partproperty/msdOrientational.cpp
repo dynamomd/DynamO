@@ -57,27 +57,27 @@ namespace dynamo {
 	<< magnet::xml::tag("Perpendicular")
 	<< magnet::xml::attr("val") << MSDOrientational.perpendicular
 	<< magnet::xml::attr("diffusionCoeff")
-	<< MSDOrientational.perpendicular * Sim->units.unitTime() / Sim->dSysTime
+	<< MSDOrientational.perpendicular * Sim->units.unitTime() / Sim->systemTime
 	<< magnet::xml::endtag("Perpendicular")
 
 	<< magnet::xml::tag("Parallel")
 	<< magnet::xml::attr("val") << MSDOrientational.parallel
 	<< magnet::xml::attr("diffusionCoeff")
-	<< MSDOrientational.parallel * Sim->units.unitTime() / Sim->dSysTime
+	<< MSDOrientational.parallel * Sim->units.unitTime() / Sim->systemTime
 	<< magnet::xml::endtag("Parallel")
 
 	<< magnet::xml::tag("Rotational")
 	<< magnet::xml::attr("method") << "LegendrePolynomial1"
 	<< magnet::xml::attr("val") << MSDOrientational.rotational_legendre1
 	<< magnet::xml::attr("diffusionCoeff")
-	<< MSDOrientational.rotational_legendre1 * Sim->units.unitTime() / Sim->dSysTime
+	<< MSDOrientational.rotational_legendre1 * Sim->units.unitTime() / Sim->systemTime
 	<< magnet::xml::endtag("Rotational")
 
 	<< magnet::xml::tag("Rotational")
 	<< magnet::xml::attr("method") << "LegendrePolynomial2"
 	<< magnet::xml::attr("val") << MSDOrientational.rotational_legendre2
 	<< magnet::xml::attr("diffusionCoeff")
-	<< MSDOrientational.rotational_legendre2 * Sim->units.unitTime() / Sim->dSysTime
+	<< MSDOrientational.rotational_legendre2 * Sim->units.unitTime() / Sim->systemTime
 	<< magnet::xml::endtag("Rotational")
 
 	<< magnet::xml::endtag("MSDOrientational");

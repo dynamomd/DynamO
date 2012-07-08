@@ -224,7 +224,7 @@ namespace dynamo {
   double
   OPMisc::getMFT() const
   {
-    return Sim->dSysTime * static_cast<double>(Sim->N)
+    return Sim->systemTime * static_cast<double>(Sim->N)
       /(Sim->units.unitTime()
 	* ((2.0 * static_cast<double>(_dualEvents))
 	   + static_cast<double>(_singleEvents)));
@@ -251,7 +251,7 @@ namespace dynamo {
     double duration = double(acc_tendTime.tv_sec) - double(acc_tstartTime.tv_sec)
       + 1e-9 * (double(acc_tendTime.tv_nsec) - double(acc_tstartTime.tv_nsec));
 
-    return Sim->dSysTime / (duration * Sim->units.unitTime());
+    return Sim->systemTime / (duration * Sim->units.unitTime());
   }
 
 
@@ -328,7 +328,7 @@ namespace dynamo {
       / (getMeankT() * getMeankT())
 	<< magnet::xml::endtag("ResidualHeatCapacity")
 	<< magnet::xml::tag("Pressure")
-	<< magnet::xml::attr("Avg") << (_kineticP.mean().tr() + collisionalP.tr() / Sim->dSysTime)
+	<< magnet::xml::attr("Avg") << (_kineticP.mean().tr() + collisionalP.tr() / Sim->systemTime)
 	    / (3.0 * Sim->getSimVolume() / Sim->units.unitPressure())
 	<< magnet::xml::tag("Tensor") << magnet::xml::chardata()
       ;
@@ -336,7 +336,7 @@ namespace dynamo {
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       {
 	for (size_t jDim = 0; jDim < NDIM; ++jDim)
-	  XML << (_kineticP.mean()(iDim, jDim) + collisionalP(iDim, jDim) / Sim->dSysTime)
+	  XML << (_kineticP.mean()(iDim, jDim) + collisionalP(iDim, jDim) / Sim->systemTime)
 	    / (Sim->getSimVolume() / Sim->units.unitPressure())
 	      << " ";
 	XML << "\n";
@@ -349,7 +349,7 @@ namespace dynamo {
 	<< magnet::xml::attr("OneParticleEvents") << _singleEvents
 	<< magnet::xml::attr("TwoParticleEvents") << _dualEvents
 	<< magnet::xml::attr("VirtualEvents") << _virtualEvents
-	<< magnet::xml::attr("Time") << Sim->dSysTime / Sim->units.unitTime()
+	<< magnet::xml::attr("Time") << Sim->systemTime / Sim->units.unitTime()
 	<< magnet::xml::endtag("Duration")
 
 	<< magnet::xml::tag("Timing")
@@ -418,7 +418,7 @@ namespace dynamo {
       }
 
     I_Pcout() << ", Events " << (Sim->eventCount+1)/1000 << "k, t "
-	      << Sim->dSysTime/Sim->units.unitTime() 
+	      << Sim->systemTime/Sim->units.unitTime() 
 	      << ", <Mean Free Time> " <<  getMFT()
 	      << ", ";
   }
