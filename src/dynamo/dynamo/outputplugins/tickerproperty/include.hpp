@@ -28,7 +28,6 @@
 #include <dynamo/outputplugins/tickerproperty/msdcorrelator.hpp>
 #include <dynamo/outputplugins/tickerproperty/kenergyticker.hpp>
 #include <dynamo/outputplugins/tickerproperty/structureImage.hpp>
-#include <dynamo/outputplugins/tickerproperty/streamticker.hpp>
 #include <dynamo/outputplugins/tickerproperty/boundedQstats.hpp>
 #include <dynamo/outputplugins/tickerproperty/SHcrystal.hpp>
 #include <dynamo/outputplugins/tickerproperty/SCparameter.hpp>

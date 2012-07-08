@@ -126,8 +126,6 @@ namespace dynamo {
       return testGeneratePlugin<OPRGyration>(Sim, XML);
     else if (!Name.compare("Torsion"))
       return testGeneratePlugin<OPCTorsion>(Sim, XML);
-    else if (!Name.compare("Streamticker"))
-      return testGeneratePlugin<OPStreamTicker>(Sim, XML);
     else if (!Name.compare("KEnergy"))
       return testGeneratePlugin<OPKEnergy>(Sim, XML);
     else if (!Name.compare("UEnergy"))
