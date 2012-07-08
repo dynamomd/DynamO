@@ -136,8 +136,6 @@ namespace dynamo {
       return testGeneratePlugin<OPMisc>(Sim, XML);
     else if (!Name.compare("CollisionMatrix"))
       return testGeneratePlugin<OPCollMatrix>(Sim, XML);
-    else if (!Name.compare("Momentum"))
-      return testGeneratePlugin<OPMomentum>(Sim, XML);
     else if (!Name.compare("ContactMap"))
       return testGeneratePlugin<OPCContactMap>(Sim, XML);
     else if (!Name.compare("OverlapTester"))
