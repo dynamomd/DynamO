@@ -419,14 +419,14 @@ namespace dynamo {
 	  * std::pow(getMeankT(), 2) * Sim->getSimVolume());
 
     XML << "0 0 0 0 0\n";
-    for (size_t i(0); i < data.size(); ++i)
-      XML << data[i].time / Sim->units.unitTime() << " "
-	  << data[i].sample_count << " "
-	  << data[i].value[0] * inv_units << " "
-	  << data[i].value[1] * inv_units << " "
-	  << data[i].value[2] * inv_units << "\n";
+    for (size_t i(0); i < thermaldata.size(); ++i)
+      XML << thermaldata[i].time / Sim->units.unitTime() << " "
+	  << thermaldata[i].sample_count << " "
+	  << thermaldata[i].value[0] * inv_units << " "
+	  << thermaldata[i].value[1] * inv_units << " "
+	  << thermaldata[i].value[2] * inv_units << "\n";
 
-    XML << magnet::xml::endtag("ThermalConductivityCorrelator");
+    XML << magnet::xml::endtag("ThermalConductivityCorrelator")
 	<< magnet::xml::endtag("Misc");
   }
 
