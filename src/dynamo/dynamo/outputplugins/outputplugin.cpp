@@ -150,12 +150,6 @@ namespace dynamo {
       return testGeneratePlugin<OPVACF>(Sim,XML);
     else if (!Name.compare("ViscosityE"))
       return testGeneratePlugin<OPViscosityE>(Sim, XML);
-    else if (!Name.compare("ViscosityCollisionalE"))
-      return testGeneratePlugin<OPViscosityCollisionalE>(Sim, XML);
-    else if (!Name.compare("ThermalConductivityE"))
-      return testGeneratePlugin<OPThermalConductivityE>(Sim, XML);
-    else if (!Name.compare("ThermalConductivitySpeciesSpeciesE"))
-      return testGeneratePlugin<OPThermalConductivitySpeciesSpeciesE>(Sim, XML);
     else if (!Name.compare("MutualDiffusionGK"))
       return testGeneratePlugin<OPMutualDiffusionGK>(Sim, XML);
     else if (!Name.compare("MutualDiffusionE"))

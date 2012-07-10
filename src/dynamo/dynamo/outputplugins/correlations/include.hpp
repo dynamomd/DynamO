@@ -16,10 +16,7 @@
 */
 #include <dynamo/outputplugins/correlations/vacf.hpp>
 #include <dynamo/outputplugins/correlations/viscosityE.hpp>
-#include <dynamo/outputplugins/correlations/viscosityCollisionalE.hpp>
-#include <dynamo/outputplugins/correlations/thermalCondE.hpp>
 #include <dynamo/outputplugins/correlations/mutualdiffGK.hpp>
 #include <dynamo/outputplugins/correlations/mutualdiffE.hpp>
 #include <dynamo/outputplugins/correlations/thermaldiffE.hpp>
-#include <dynamo/outputplugins/correlations/thermalCondSpeciesSpeciesE.hpp>
 #include <dynamo/outputplugins/correlations/selfdiffOrientationalGK.hpp>

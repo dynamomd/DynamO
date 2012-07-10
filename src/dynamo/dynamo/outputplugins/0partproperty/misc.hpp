@@ -80,6 +80,7 @@ namespace dynamo {
     magnet::math::TimeAveragedProperty<Matrix> _kineticP;
 
     magnet::math::LogarithmicTimeCorrelator<Vector> _thermalConductivity;
+    magnet::math::LogarithmicTimeCorrelator<Matrix> _viscosity;
     
     Matrix collisionalP;
   };
