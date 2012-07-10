@@ -312,6 +312,10 @@ namespace magnet {
 	  correlator.addImpulse(val1, val2);
       }
 
+      const T& getFreeStreamValue() const { return _freestream_values.first; }
+
+      const std::pair<T,T>& getFreeStreamValues() const { return _freestream_values; }
+
       /*! \brief See \ref TimeCorrelator::setFreeStreamValue(). */
       void setFreeStreamValue(const T& val) { setFreeStreamValue(val, val); }
 

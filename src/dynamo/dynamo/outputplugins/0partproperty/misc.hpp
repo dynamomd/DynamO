@@ -19,6 +19,7 @@
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/math/matrix.hpp>
 #include <magnet/math/timeaveragedproperty.hpp>
+#include <magnet/math/correlators.hpp>
 #include <ctime>
 #include <time.h>
 
@@ -78,6 +79,8 @@ namespace dynamo {
     magnet::math::TimeAveragedProperty<Vector> _sysMomentum;
     magnet::math::TimeAveragedProperty<Matrix> _kineticP;
 
+    magnet::math::LogarithmicTimeCorrelator<Vector> _thermalConductivity;
+    
     Matrix collisionalP;
   };
 }

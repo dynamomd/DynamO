@@ -107,15 +107,25 @@ namespace dynamo {
     kineticPinit.zero();
 
     Vector sysMomentum(0,0,0);
+    Vector thermalConductivityFS(0,0,0);
     BOOST_FOREACH(const Particle& part, Sim->particles)
       {
 	double mass = Sim->species[part]->getMass(part.getID());
 	kineticPinit += mass * Dyadic(part.getVelocity(),part.getVelocity());
 	sysMomentum += mass * part.getVelocity();
+	thermalConductivityFS += part.getVelocity () * Sim->dynamics->getParticleKineticEnergy(part);
       }
 
     _kineticP.init(kineticPinit);
     _sysMomentum.init(sysMomentum);
+
+    //Set up the correlators
+    double correlator_dt = Sim->lastRunMFT / 8;
+    if (correlator_dt == 0.0)
+      correlator_dt = 1.0 / sqrt(getCurrentkT());
+    
+    _thermalConductivity.resize(correlator_dt, 10);
+    _thermalConductivity.setFreeStreamValue(thermalConductivityFS);
 
     dout << "Total momentum <x,y,z> < ";
     for (size_t iDim = 0; iDim < NDIM; iDim++)
@@ -169,6 +179,7 @@ namespace dynamo {
     _internalE.stream(dt);
     _kineticP.stream(dt);
     _sysMomentum.stream(dt);
+    _thermalConductivity.freeStream(dt);
   }
 
   void OPMisc::eventUpdate(const NEventData& NDat)
@@ -178,6 +189,7 @@ namespace dynamo {
         _singleEvents += (PDat.getType() != VIRTUAL);
 	_virtualEvents += (PDat.getType() == VIRTUAL);
 	const Particle& part = Sim->particles[PDat.getParticleID()];
+	const double p1E = Sim->dynamics->getParticleKineticEnergy(Sim->particles[PDat.getParticleID()]);
 	
 	_KE += PDat.getDeltaKE();
 	_internalE += PDat.getDeltaU();
@@ -189,6 +201,11 @@ namespace dynamo {
 	     - Dyadic(PDat.getOldVel(), PDat.getOldVel()));
 
 	_sysMomentum += mass * (part.getVelocity() - PDat.getOldVel());
+
+	_thermalConductivity.setFreeStreamValue
+	  (_thermalConductivity.getFreeStreamValue() 
+	   + part.getVelocity() * p1E
+	   - PDat.getOldVel() * (p1E - PDat.getDeltaKE()));
       }
 
     BOOST_FOREACH(const PairEventData& PDat, NDat.L2partChanges)
@@ -207,6 +224,8 @@ namespace dynamo {
     const Particle& part2 = Sim->particles[PDat.particle2_.getParticleID()];
     const Species& sp1 = *Sim->species[PDat.particle1_.getSpeciesID()];
     const Species& sp2 = *Sim->species[PDat.particle2_.getSpeciesID()];
+    const double p1E = Sim->dynamics->getParticleKineticEnergy(part1);
+    const double p2E = Sim->dynamics->getParticleKineticEnergy(part2);
     
     Vector delP = sp1.getMass(part1.getID()) * (part1.getVelocity() - PDat.particle1_.getOldVel());
 
@@ -218,8 +237,15 @@ namespace dynamo {
 	 - Dyadic(PDat.particle1_.getOldVel(), PDat.particle1_.getOldVel()))
       + sp2.getMass(part2.getID())
       * (Dyadic(part2.getVelocity(), part2.getVelocity())
-	 - Dyadic(PDat.particle2_.getOldVel(), PDat.particle2_.getOldVel()))
-      ;
+	 - Dyadic(PDat.particle2_.getOldVel(), PDat.particle2_.getOldVel()));
+
+    _thermalConductivity.addImpulse(PDat.rij * PDat.particle1_.getDeltaKE());
+
+    _thermalConductivity.setFreeStreamValue
+      (_thermalConductivity.getFreeStreamValue() 
+       + part1.getVelocity() * p1E + part2.getVelocity() * p2E
+       - PDat.particle1_.getOldVel() * (p1E - PDat.particle1_.getDeltaKE())
+       - PDat.particle2_.getOldVel() * (p2E - PDat.particle2_.getDeltaKE()));
   }
 
   double
@@ -382,6 +408,25 @@ namespace dynamo {
 	<< magnet::xml::tag("Memusage")
 	<< magnet::xml::attr("MaxKiloBytes") << magnet::process_mem_usage()
 	<< magnet::xml::endtag("Memusage")
+	<< magnet::xml::tag("ThermalConductivityCorrelator")
+	<< magnet::xml::chardata();
+
+    std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>::Data>
+      thermaldata = _thermalConductivity.getAveragedCorrelator();
+    
+    double inv_units = Sim->units.unitk()
+      / ( Sim->units.unitTime() * Sim->units.unitThermalCond() * 2.0 
+	  * std::pow(getMeankT(), 2) * Sim->getSimVolume());
+
+    XML << "0 0 0 0 0\n";
+    for (size_t i(0); i < data.size(); ++i)
+      XML << data[i].time / Sim->units.unitTime() << " "
+	  << data[i].sample_count << " "
+	  << data[i].value[0] * inv_units << " "
+	  << data[i].value[1] * inv_units << " "
+	  << data[i].value[2] * inv_units << "\n";
+
+    XML << magnet::xml::endtag("ThermalConductivityCorrelator");
 	<< magnet::xml::endtag("Misc");
   }
 
