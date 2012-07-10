@@ -20,6 +20,7 @@
 #include <dynamo/simulation.hpp>
 #include <magnet/memUsage.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <dynamo/systems/tHalt.hpp>
 #include <boost/foreach.hpp>
 #include <sys/time.h>
 #include <ctime>
@@ -399,10 +400,31 @@ namespace dynamo {
     //Output the date
     I_Pcout() << dateString;
 
-    //Output when the simulation will end
+    //Calculate the ETA of the simulation, and take care with overflows and the like
+    double _earliest_end_time = HUGE_VAL;
+    BOOST_FOREACH(const std::tr1::shared_ptr<System>& sysPtr, Sim->systems)
+      if (std::tr1::dynamic_pointer_cast<SystHalt>(sysPtr))
+	_earliest_end_time = std::min(_earliest_end_time, sysPtr->getdt());
+
+    double time_seconds_remaining = _earliest_end_time 
+      / (getSimTimePerSecond() * Sim->units.unitTime());
+
+    size_t seconds_remaining = time_seconds_remaining;
+    
+    if (time_seconds_remaining > std::numeric_limits<size_t>::max())
+      seconds_remaining = std::numeric_limits<size_t>::max();
+
     if (Sim->endEventCount != std::numeric_limits<unsigned long long>::max())
       {
-	size_t seconds_remaining = (Sim->endEventCount - Sim->eventCount) / getEventsPerSecond() + 0.5;
+	double event_seconds_remaining = (Sim->endEventCount - Sim->eventCount) / getEventsPerSecond() + 0.5;
+	
+	if (event_seconds_remaining < std::numeric_limits<size_t>::max())
+	  seconds_remaining = std::min(seconds_remaining, size_t(event_seconds_remaining));
+
+      }
+  
+    if (seconds_remaining != std::numeric_limits<size_t>::max())
+      {
 	size_t ETA_hours = seconds_remaining / 3600;
 	size_t ETA_mins = (seconds_remaining / 60) % 60;
 	size_t ETA_secs = seconds_remaining % 60;
