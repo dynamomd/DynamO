@@ -304,7 +304,10 @@ namespace dynamo {
 	 << "\nSim time per second " << getSimTimePerSecond()
 	 << std::endl;
 
-    const double simVol = Sim->getSimVolume();
+    const double V = Sim->getSimVolume();
+
+    const Matrix P = (_kineticP.mean() + collisionalP / Sim->systemTime) 
+      / V;
 
     XML << magnet::xml::tag("Misc")
 	<< magnet::xml::tag("Density")
@@ -359,13 +362,9 @@ namespace dynamo {
       / (getMeankT() * getMeankT())
 	<< magnet::xml::endtag("ResidualHeatCapacity")
 	<< magnet::xml::tag("Pressure")
-	<< magnet::xml::attr("Avg") << (_kineticP.mean().tr() + collisionalP.tr() / Sim->systemTime)
-	    / (3.0 * simVol / Sim->units.unitPressure())
+	<< magnet::xml::attr("Avg") << P.tr() / (3.0 * Sim->units.unitPressure())
 	<< magnet::xml::tag("Tensor") << magnet::xml::chardata()
       ;
-
-    Matrix P = (_kineticP.mean() + collisionalP / Sim->systemTime) 
-      / simVol;
     
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       {
@@ -413,7 +412,7 @@ namespace dynamo {
     
       double inv_units = Sim->units.unitk()
 	/ ( Sim->units.unitTime() * Sim->units.unitThermalCond() * 2.0 
-	    * std::pow(getMeankT(), 2) * simVol);
+	    * std::pow(getMeankT(), 2) * V);
 
       XML << "0 0 0 0 0\n";
       for (size_t i(0); i < data.size(); ++i)
@@ -434,7 +433,7 @@ namespace dynamo {
       
       double inv_units = 1.0
 	/ (Sim->units.unitTime() * Sim->units.unitViscosity() * 2.0 * getMeankT()
-	   * simVol);
+	   * V);
 
       XML << "0 0 0 0 0 0 0 0 0 0 0\n";
       for (size_t i(0); i < data.size(); ++i)
@@ -444,7 +443,7 @@ namespace dynamo {
 	  
 	  for (size_t j(0); j < 3; ++j)
 	    for (size_t k(0); k < 3; ++k)
-	      XML << (data[i].value(j,k) - data[i].time * P(j, k) * P(j, k) * simVol * simVol) * inv_units << " ";
+	      XML << (data[i].value(j,k) - std::pow(data[i].time * P(j, k) * V, 2)) * inv_units << " ";
 	  XML << "\n";
 	}
     }

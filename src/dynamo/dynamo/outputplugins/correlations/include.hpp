@@ -15,7 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <dynamo/outputplugins/correlations/vacf.hpp>
-#include <dynamo/outputplugins/correlations/viscosityE.hpp>
 #include <dynamo/outputplugins/correlations/mutualdiffGK.hpp>
 #include <dynamo/outputplugins/correlations/mutualdiffE.hpp>
 #include <dynamo/outputplugins/correlations/thermaldiffE.hpp>
