@@ -1124,16 +1124,6 @@ namespace magnet {
     }
     
     template<>
-    inline Matrix elementwiseAdd<Matrix>(const Matrix& A, const Matrix& B)
-    { 
-      Matrix retval;
-      for (size_t i(0); i < 3; ++i)
-	for (size_t j(0); j < 3; ++j)
-	  retval(i,j) = A(i,j) + B(i, j);
-      return retval;
-    }
-
-    template<>
     inline Matrix elementwiseMin<Matrix>(const Matrix& A, const Matrix& B)
     { 
       Matrix retval;
