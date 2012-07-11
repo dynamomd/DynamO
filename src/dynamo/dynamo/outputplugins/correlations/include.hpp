@@ -17,5 +17,4 @@
 #include <dynamo/outputplugins/correlations/vacf.hpp>
 #include <dynamo/outputplugins/correlations/mutualdiffGK.hpp>
 #include <dynamo/outputplugins/correlations/mutualdiffE.hpp>
-#include <dynamo/outputplugins/correlations/thermaldiffE.hpp>
 #include <dynamo/outputplugins/correlations/selfdiffOrientationalGK.hpp>

@@ -102,14 +102,30 @@ namespace dynamo {
     dout << ">" << std::endl;
 
     Matrix kineticP;
-    Vector sysMomentum(0,0,0);
     Vector thermalConductivityFS(0,0,0);
+    _speciesMomenta.clear();
+    _speciesMomenta.resize(Sim->species.size());
+    _speciesMasses.clear();
+    _speciesMasses.resize(Sim->species.size());
+
     BOOST_FOREACH(const Particle& part, Sim->particles)
       {
-	double mass = Sim->species[part]->getMass(part.getID());
+	const Species& sp = *(Sim->species[part]);
+	const double mass = sp.getMass(part.getID());
+
 	kineticP += mass * Dyadic(part.getVelocity(),part.getVelocity());
-	sysMomentum += mass * part.getVelocity();
-	thermalConductivityFS += part.getVelocity () * Sim->dynamics->getParticleKineticEnergy(part);
+	_speciesMasses[sp.getID()] += mass;
+	_speciesMomenta[sp.getID()] += mass * part.getVelocity();
+	thermalConductivityFS 
+	  += part.getVelocity() * Sim->dynamics->getParticleKineticEnergy(part);
+      }
+
+    Vector sysMomentum(0,0,0);
+    _systemMass = 0;
+    for (size_t i(0); i < Sim->species.size(); ++i)
+      {
+	sysMomentum += _speciesMomenta[i];
+	_systemMass += _speciesMasses[i];
       }
 
     _kineticP.init(kineticP);
@@ -119,15 +135,27 @@ namespace dynamo {
     double correlator_dt = Sim->lastRunMFT / 8;
     if (correlator_dt == 0.0)
       correlator_dt = 1.0 / sqrt(getCurrentkT());
-    
+
     _thermalConductivity.resize(correlator_dt, 10);
     _thermalConductivity.setFreeStreamValue(thermalConductivityFS);
+
     _viscosity.resize(correlator_dt, 10);
     _viscosity.setFreeStreamValue(kineticP);
     
-    dout << "Total momentum <x,y,z> < ";
+    _thermalDiffusion.resize(Sim->species.size());
+    for (size_t spid1(0); spid1 < Sim->species.size(); ++spid1)
+      {
+	_thermalDiffusion[spid1].resize(correlator_dt, 10);
+	_thermalDiffusion[spid1]
+	  .setFreeStreamValue(thermalConductivityFS, 
+			      _speciesMomenta[spid1]
+			      - (_speciesMasses[spid1] / _systemMass)
+			      * _sysMomentum.current());
+      }
+
+    dout << "Total momentum < ";
     for (size_t iDim = 0; iDim < NDIM; iDim++)
-      dout  << sysMomentum[iDim] / Sim->units.unitMomentum() << " ";
+      dout  << _sysMomentum.current()[iDim] / Sim->units.unitMomentum() << " ";
     dout << ">" << std::endl;
 
     std::time(&tstartTime);
@@ -179,33 +207,43 @@ namespace dynamo {
     _sysMomentum.stream(dt);
     _thermalConductivity.freeStream(dt);
     _viscosity.freeStream(dt);
+    for (size_t spid1(0); spid1 < Sim->species.size(); ++spid1)
+      _thermalDiffusion[spid1].freeStream(dt);
   }
 
   void OPMisc::eventUpdate(const NEventData& NDat)
   {
+    Vector thermalDel(0,0,0);
     BOOST_FOREACH(const ParticleEventData& PDat, NDat.L1partChanges)
       {
         _singleEvents += (PDat.getType() != VIRTUAL);
 	_virtualEvents += (PDat.getType() == VIRTUAL);
 	const Particle& part = Sim->particles[PDat.getParticleID()];
 	const double p1E = Sim->dynamics->getParticleKineticEnergy(Sim->particles[PDat.getParticleID()]);
-	
+	const Species& species = *Sim->species[PDat.getSpeciesID()];
+	double mass = species.getMass(part.getID());
+	Vector delP1 = mass * (part.getVelocity() - PDat.getOldVel());
+
 	_KE += PDat.getDeltaKE();
 	_internalE += PDat.getDeltaU();
 	
-	double mass = Sim->species[PDat.getSpeciesID()]->getMass(part.getID());
-	_kineticP
-	  += mass
-	  * (Dyadic(part.getVelocity(), part.getVelocity())
-	     - Dyadic(PDat.getOldVel(), PDat.getOldVel()));
+	_kineticP += mass * (Dyadic(part.getVelocity(), part.getVelocity())
+			     - Dyadic(PDat.getOldVel(), PDat.getOldVel()));
 
-	_sysMomentum += mass * (part.getVelocity() - PDat.getOldVel());
+	_sysMomentum += delP1;
+	_speciesMomenta[species.getID()] += delP1;
 
-	_thermalConductivity.setFreeStreamValue
-	  (_thermalConductivity.getFreeStreamValue() 
-	   + part.getVelocity() * p1E
-	   - PDat.getOldVel() * (p1E - PDat.getDeltaKE()));
+	thermalDel += part.getVelocity() * p1E
+	  - PDat.getOldVel() * (p1E - PDat.getDeltaKE());
       }
+
+    _thermalConductivity.setFreeStreamValue
+      (_thermalConductivity.getFreeStreamValue() + thermalDel);
+
+    for (size_t spid1(0); spid1 < Sim->species.size(); ++spid1)
+      _thermalDiffusion[spid1]
+	.setFreeStreamValue(_thermalConductivity.getFreeStreamValue(),
+			    _speciesMomenta[spid1] - _sysMomentum.current() * (_speciesMasses[spid1] / _systemMass));
 
     BOOST_FOREACH(const PairEventData& PDat, NDat.L2partChanges)
       eventUpdate(PDat);
@@ -241,13 +279,27 @@ namespace dynamo {
     _viscosity.addImpulse(magnet::math::Dyadic(delP, PDat.rij));
     _viscosity.setFreeStreamValue(_kineticP.current());
 
-    _thermalConductivity.addImpulse(PDat.rij * PDat.particle1_.getDeltaKE());
+    _speciesMomenta[sp1.getID()] += delP;
+    _speciesMomenta[sp2.getID()] -= delP;
+
+    Vector thermalImpulse = PDat.rij * PDat.particle1_.getDeltaKE();
+    _thermalConductivity.addImpulse(thermalImpulse);
+    for (size_t spid1(0); spid1 < Sim->species.size(); ++spid1)
+      _thermalDiffusion[spid1].addImpulse(thermalImpulse, Vector(0,0,0));
 
     _thermalConductivity.setFreeStreamValue
       (_thermalConductivity.getFreeStreamValue() 
        + part1.getVelocity() * p1E + part2.getVelocity() * p2E
        - PDat.particle1_.getOldVel() * (p1E - PDat.particle1_.getDeltaKE())
        - PDat.particle2_.getOldVel() * (p2E - PDat.particle2_.getDeltaKE()));
+
+    _thermalDiffusion[sp1.getID()]
+      .setFreeStreamValue(_thermalConductivity.getFreeStreamValue(),
+			  _speciesMomenta[sp1.getID()] - _sysMomentum.current() * (_speciesMasses[sp1.getID()] / _systemMass));
+
+    _thermalDiffusion[sp2.getID()]
+      .setFreeStreamValue(_thermalConductivity.getFreeStreamValue(),
+			  _speciesMomenta[sp2.getID()] - _sysMomentum.current() * (_speciesMasses[sp2.getID()] / _systemMass));
   }
 
   double
@@ -448,7 +500,38 @@ namespace dynamo {
 	}
     }
 
-    XML << magnet::xml::endtag("ViscosityCorrelator")
+    XML << magnet::xml::endtag("ViscosityCorrelator");
+
+
+    XML << magnet::xml::tag("ThermalDiffusionCorrelator");
+
+    for (size_t i(0); i < Sim->species.size(); ++i)
+      {
+	XML << magnet::xml::tag("Species")
+	    << magnet::xml::attr("Name") << Sim->species[i]->getName()
+	    << magnet::xml::chardata();
+	
+	std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>::Data>
+	  data = _thermalDiffusion[i].getAveragedCorrelator();
+	
+	double inv_units = 1.0
+	  / (Sim->units.unitTime() * Sim->units.unitThermalDiffusion() * 2.0 * getMeankT() * V);
+	
+	XML << "0 0 0 0 0\n";
+	for (size_t i(0); i < data.size(); ++i)
+	  {
+	    XML << data[i].time / Sim->units.unitTime() << " "
+		<< data[i].sample_count << " ";
+	    
+	    for (size_t j(0); j < 3; ++j)
+	      XML << data[i].value[j] * inv_units << " ";
+	    XML << "\n";
+	  }
+	
+	XML << magnet::xml::endtag("Species");
+      }
+
+    XML << magnet::xml::endtag("ThermalDiffusionCorrelator")
 	<< magnet::xml::endtag("Misc");
   }
 

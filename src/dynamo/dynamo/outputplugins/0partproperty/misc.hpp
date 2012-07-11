@@ -81,7 +81,13 @@ namespace dynamo {
 
     magnet::math::LogarithmicTimeCorrelator<Vector> _thermalConductivity;
     magnet::math::LogarithmicTimeCorrelator<Matrix> _viscosity;
+
+    std::vector<magnet::math::LogarithmicTimeCorrelator<Vector> > _thermalDiffusion;
     
+    std::vector<double> _speciesMasses;
+    std::vector<Vector> _speciesMomenta;
+    double _systemMass;
+
     Matrix collisionalP;
   };
 }
