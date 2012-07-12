@@ -113,7 +113,7 @@ namespace dynamo {
 	const Species& sp = *(Sim->species[part]);
 	const double mass = sp.getMass(part.getID());
 
-	kineticP += mass * Dyadic(part.getVelocity(),part.getVelocity());
+	kineticP += mass * Dyadic(part.getVelocity(), part.getVelocity());
 	_speciesMasses[sp.getID()] += mass;
 	_speciesMomenta[sp.getID()] += mass * part.getVelocity();
 	thermalConductivityFS 
@@ -143,14 +143,23 @@ namespace dynamo {
     _viscosity.setFreeStreamValue(kineticP);
     
     _thermalDiffusion.resize(Sim->species.size());
+    _mutualDiffusion.resize(Sim->species.size() * Sim->species.size());
     for (size_t spid1(0); spid1 < Sim->species.size(); ++spid1)
       {
 	_thermalDiffusion[spid1].resize(correlator_dt, 10);
 	_thermalDiffusion[spid1]
-	  .setFreeStreamValue(thermalConductivityFS, 
+	  .setFreeStreamValue(thermalConductivityFS,
 			      _speciesMomenta[spid1]
 			      - (_speciesMasses[spid1] / _systemMass)
 			      * _sysMomentum.current());
+	
+	for (size_t spid2(spid1); spid2 < Sim->species.size(); ++spid2)
+	  {
+	    _mutualDiffusion[spid1 * Sim->species.size() + spid2].resize(correlator_dt, 10);
+	    _mutualDiffusion[spid1 * Sim->species.size() + spid2].setFreeStreamValue
+	      (_speciesMomenta[spid1] - (_speciesMasses[spid1] / _systemMass) * _sysMomentum.current(),
+	       _speciesMomenta[spid2] - (_speciesMasses[spid2] / _systemMass) * _sysMomentum.current());
+	  }
       }
 
     dout << "Total momentum < ";
@@ -208,21 +217,27 @@ namespace dynamo {
     _thermalConductivity.freeStream(dt);
     _viscosity.freeStream(dt);
     for (size_t spid1(0); spid1 < Sim->species.size(); ++spid1)
-      _thermalDiffusion[spid1].freeStream(dt);
+      {
+	_thermalDiffusion[spid1].freeStream(dt);
+	for (size_t spid2(spid1); spid2 < Sim->species.size(); ++spid2)
+	  _mutualDiffusion[spid1 * Sim->species.size() + spid2].freeStream(dt);
+      }
   }
 
   void OPMisc::eventUpdate(const NEventData& NDat)
   {
     Vector thermalDel(0,0,0);
+
     BOOST_FOREACH(const ParticleEventData& PDat, NDat.L1partChanges)
       {
-        _singleEvents += (PDat.getType() != VIRTUAL);
-	_virtualEvents += (PDat.getType() == VIRTUAL);
 	const Particle& part = Sim->particles[PDat.getParticleID()];
 	const double p1E = Sim->dynamics->getParticleKineticEnergy(Sim->particles[PDat.getParticleID()]);
 	const Species& species = *Sim->species[PDat.getSpeciesID()];
 	double mass = species.getMass(part.getID());
 	Vector delP1 = mass * (part.getVelocity() - PDat.getOldVel());
+
+        _singleEvents += (PDat.getType() != VIRTUAL);
+	_virtualEvents += (PDat.getType() == VIRTUAL);
 
 	_KE += PDat.getDeltaKE();
 	_internalE += PDat.getDeltaU();
@@ -237,69 +252,64 @@ namespace dynamo {
 	  - PDat.getOldVel() * (p1E - PDat.getDeltaKE());
       }
 
+    BOOST_FOREACH(const PairEventData& PDat, NDat.L2partChanges)
+      {
+	_KE += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
+	_internalE += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
+
+	_dualEvents += (PDat.getType() != VIRTUAL);
+	_virtualEvents += (PDat.getType() == VIRTUAL);
+
+	const Particle& part1 = Sim->particles[PDat.particle1_.getParticleID()];
+	const Particle& part2 = Sim->particles[PDat.particle2_.getParticleID()];
+	const Species& sp1 = *Sim->species[PDat.particle1_.getSpeciesID()];
+	const Species& sp2 = *Sim->species[PDat.particle2_.getSpeciesID()];
+	const double p1E = Sim->dynamics->getParticleKineticEnergy(part1);
+	const double p2E = Sim->dynamics->getParticleKineticEnergy(part2);
+	const double mass1 = sp1.getMass(part1.getID());
+	const double mass2 = sp2.getMass(part2.getID());
+
+	Vector delP = mass1 * (part1.getVelocity() - PDat.particle1_.getOldVel());
+
+	collisionalP += magnet::math::Dyadic(PDat.rij, delP);
+
+	_kineticP
+	  += mass1 * (Dyadic(part1.getVelocity(), part1.getVelocity())
+		      - Dyadic(PDat.particle1_.getOldVel(), PDat.particle1_.getOldVel()))
+	  + mass2 * (Dyadic(part2.getVelocity(), part2.getVelocity())
+		     - Dyadic(PDat.particle2_.getOldVel(), PDat.particle2_.getOldVel()));
+
+	_viscosity.addImpulse(magnet::math::Dyadic(PDat.rij, delP));
+
+	_speciesMomenta[sp1.getID()] += delP;
+	_speciesMomenta[sp2.getID()] -= delP;
+
+	Vector thermalImpulse = PDat.rij * PDat.particle1_.getDeltaKE();
+	_thermalConductivity.addImpulse(thermalImpulse);
+	for (size_t spid1(0); spid1 < Sim->species.size(); ++spid1)
+	  _thermalDiffusion[spid1].addImpulse(thermalImpulse, Vector(0,0,0));
+
+	thermalDel += part1.getVelocity() * p1E + part2.getVelocity() * p2E
+	  - PDat.particle1_.getOldVel() * (p1E - PDat.particle1_.getDeltaKE())
+	  - PDat.particle2_.getOldVel() * (p2E - PDat.particle2_.getDeltaKE());
+      }
+
     _thermalConductivity.setFreeStreamValue
       (_thermalConductivity.getFreeStreamValue() + thermalDel);
 
-    for (size_t spid1(0); spid1 < Sim->species.size(); ++spid1)
-      _thermalDiffusion[spid1]
-	.setFreeStreamValue(_thermalConductivity.getFreeStreamValue(),
-			    _speciesMomenta[spid1] - _sysMomentum.current() * (_speciesMasses[spid1] / _systemMass));
-
-    BOOST_FOREACH(const PairEventData& PDat, NDat.L2partChanges)
-      eventUpdate(PDat);
-  }
-
-  void OPMisc::eventUpdate(const PairEventData& PDat)
-  {
-    _dualEvents += (PDat.getType() != VIRTUAL);
-    _virtualEvents += (PDat.getType() == VIRTUAL);
-
-    _KE += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
-    _internalE += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
-
-    const Particle& part1 = Sim->particles[PDat.particle1_.getParticleID()];
-    const Particle& part2 = Sim->particles[PDat.particle2_.getParticleID()];
-    const Species& sp1 = *Sim->species[PDat.particle1_.getSpeciesID()];
-    const Species& sp2 = *Sim->species[PDat.particle2_.getSpeciesID()];
-    const double p1E = Sim->dynamics->getParticleKineticEnergy(part1);
-    const double p2E = Sim->dynamics->getParticleKineticEnergy(part2);
-    const double mass1 = sp1.getMass(part1.getID());
-    const double mass2 = sp2.getMass(part2.getID());
-
-    Vector delP = mass1 * (part1.getVelocity() - PDat.particle1_.getOldVel());
-
-    collisionalP += Dyadic(delP, PDat.rij);
-
-    _kineticP
-      += mass1 * (Dyadic(part1.getVelocity(), part1.getVelocity())
-		  - Dyadic(PDat.particle1_.getOldVel(), PDat.particle1_.getOldVel()))
-      + mass2 * (Dyadic(part2.getVelocity(), part2.getVelocity())
-		 - Dyadic(PDat.particle2_.getOldVel(), PDat.particle2_.getOldVel()));
-
-    _viscosity.addImpulse(magnet::math::Dyadic(delP, PDat.rij));
     _viscosity.setFreeStreamValue(_kineticP.current());
 
-    _speciesMomenta[sp1.getID()] += delP;
-    _speciesMomenta[sp2.getID()] -= delP;
-
-    Vector thermalImpulse = PDat.rij * PDat.particle1_.getDeltaKE();
-    _thermalConductivity.addImpulse(thermalImpulse);
     for (size_t spid1(0); spid1 < Sim->species.size(); ++spid1)
-      _thermalDiffusion[spid1].addImpulse(thermalImpulse, Vector(0,0,0));
+      {
+	_thermalDiffusion[spid1]
+	  .setFreeStreamValue(_thermalConductivity.getFreeStreamValue(),
+			      _speciesMomenta[spid1] - _sysMomentum.current() * (_speciesMasses[spid1] / _systemMass));
 
-    _thermalConductivity.setFreeStreamValue
-      (_thermalConductivity.getFreeStreamValue() 
-       + part1.getVelocity() * p1E + part2.getVelocity() * p2E
-       - PDat.particle1_.getOldVel() * (p1E - PDat.particle1_.getDeltaKE())
-       - PDat.particle2_.getOldVel() * (p2E - PDat.particle2_.getDeltaKE()));
-
-    _thermalDiffusion[sp1.getID()]
-      .setFreeStreamValue(_thermalConductivity.getFreeStreamValue(),
-			  _speciesMomenta[sp1.getID()] - _sysMomentum.current() * (_speciesMasses[sp1.getID()] / _systemMass));
-
-    _thermalDiffusion[sp2.getID()]
-      .setFreeStreamValue(_thermalConductivity.getFreeStreamValue(),
-			  _speciesMomenta[sp2.getID()] - _sysMomentum.current() * (_speciesMasses[sp2.getID()] / _systemMass));
+	for (size_t spid2(spid1); spid2 < Sim->species.size(); ++spid2)
+	  _mutualDiffusion[spid1 * Sim->species.size() + spid2].setFreeStreamValue
+	    (_speciesMomenta[spid1] - (_speciesMasses[spid1] / _systemMass) * _sysMomentum.current(),
+	     _speciesMomenta[spid2] - (_speciesMasses[spid2] / _systemMass) * _sysMomentum.current());
+      }
   }
 
   double
@@ -455,7 +465,8 @@ namespace dynamo {
 	<< magnet::xml::tag("Memusage")
 	<< magnet::xml::attr("MaxKiloBytes") << magnet::process_mem_usage()
 	<< magnet::xml::endtag("Memusage")
-	<< magnet::xml::tag("ThermalConductivityCorrelator")
+	<< magnet::xml::tag("ThermalConductivity")
+	<< magnet::xml::tag("Correlator")
 	<< magnet::xml::chardata();
 
     {
@@ -475,8 +486,10 @@ namespace dynamo {
 	    << data[i].value[2] * inv_units << "\n";
     }
 
-    XML << magnet::xml::endtag("ThermalConductivityCorrelator")
-	<< magnet::xml::tag("ViscosityCorrelator")
+    XML << magnet::xml::endtag("Correlator")
+	<< magnet::xml::endtag("ThermalConductivity")
+	<< magnet::xml::tag("Viscosity")
+	<< magnet::xml::tag("Correlator")
 	<< magnet::xml::chardata();
 
     {
@@ -500,15 +513,14 @@ namespace dynamo {
 	}
     }
 
-    XML << magnet::xml::endtag("ViscosityCorrelator");
-
-
-    XML << magnet::xml::tag("ThermalDiffusionCorrelator");
+    XML << magnet::xml::endtag("Correlator")
+	<< magnet::xml::endtag("Viscosity")
+	<< magnet::xml::tag("ThermalDiffusion");
 
     for (size_t i(0); i < Sim->species.size(); ++i)
       {
-	XML << magnet::xml::tag("Species")
-	    << magnet::xml::attr("Name") << Sim->species[i]->getName()
+	XML << magnet::xml::tag("Correlator")
+	    << magnet::xml::attr("Species") << Sim->species[i]->getName()
 	    << magnet::xml::chardata();
 	
 	std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>::Data>
@@ -528,10 +540,41 @@ namespace dynamo {
 	    XML << "\n";
 	  }
 	
-	XML << magnet::xml::endtag("Species");
+	XML << magnet::xml::endtag("Correlator");
       }
 
-    XML << magnet::xml::endtag("ThermalDiffusionCorrelator")
+    XML << magnet::xml::endtag("ThermalDiffusion")
+	<< magnet::xml::tag("MutualDiffusion");
+
+    for (size_t i(0); i < Sim->species.size(); ++i)
+      for (size_t j(i); j < Sim->species.size(); ++j)
+      {
+	XML << magnet::xml::tag("Correlator")
+	    << magnet::xml::attr("Species1") << Sim->species[i]->getName()
+	    << magnet::xml::attr("Species2") << Sim->species[j]->getName()
+	    << magnet::xml::chardata();
+	
+	std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>::Data>
+	  data = _mutualDiffusion[i * Sim->species.size() + j].getAveragedCorrelator();
+	
+	double inv_units = 1.0
+	  / (Sim->units.unitTime() * Sim->units.unitMutualDiffusion() * 2.0 * getMeankT() * V);
+	
+	XML << "0 0 0 0 0\n";
+	for (size_t i(0); i < data.size(); ++i)
+	  {
+	    XML << data[i].time / Sim->units.unitTime() << " "
+		<< data[i].sample_count << " ";
+	    
+	    for (size_t j(0); j < 3; ++j)
+	      XML << data[i].value[j] * inv_units << " ";
+	    XML << "\n";
+	  }
+	
+	XML << magnet::xml::endtag("Correlator");
+      }
+
+    XML << magnet::xml::endtag("MutualDiffusion")
 	<< magnet::xml::endtag("Misc");
   }
 

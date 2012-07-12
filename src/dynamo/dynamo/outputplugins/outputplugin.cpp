@@ -15,12 +15,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/outputplugins/include.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
+#include <dynamo/outputplugins/general/include.hpp>
+#include <dynamo/outputplugins/0partproperty/include.hpp>
+#include <dynamo/outputplugins/1partproperty/include.hpp>
+#include <dynamo/outputplugins/tickerproperty/include.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/particle.hpp>
-#include <dynamo/outputplugins/correlations/include.hpp>
-#include <dynamo/outputplugins/general/include.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>
@@ -146,12 +147,6 @@ namespace dynamo {
       return testGeneratePlugin<OPTrajectory>(Sim, XML);
     else if (!Name.compare("ChainBondLength"))
       return testGeneratePlugin<OPChainBondLength>(Sim, XML);
-    else if (!Name.compare("VACF"))
-      return testGeneratePlugin<OPVACF>(Sim,XML);
-    else if (!Name.compare("MutualDiffusionGK"))
-      return testGeneratePlugin<OPMutualDiffusionGK>(Sim, XML);
-    else if (!Name.compare("MutualDiffusionE"))
-      return testGeneratePlugin<OPMutualDiffusionE>(Sim, XML);
     else if (!Name.compare("MFT"))
       return testGeneratePlugin<OPMFT>(Sim, XML);
     else if (!Name.compare("CollEnergyChange"))
@@ -178,8 +173,6 @@ namespace dynamo {
       return testGeneratePlugin<OPSCParameter>(Sim, XML);
     else if (!Name.compare("PlateMotion"))
       return testGeneratePlugin<OPPlateMotion>(Sim, XML);
-    else if (!Name.compare("SelfDiffusionOrientationalGK"))
-      return testGeneratePlugin<OPSelfDiffusionOrientationalGK>(Sim, XML);
     else if (!Name.compare("MSDOrientational"))
       return testGeneratePlugin<OPMSDOrientational>(Sim, XML);
     else if (!Name.compare("MSDOrientationalCorrelator"))
