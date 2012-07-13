@@ -1,0 +1,54 @@
+#!/usr/bin/python
+import os
+from lxml import etree
+import sys
+
+#Function to load a (possibly compressed) xml file.
+def loadXMLFile(filename):
+    if (os.path.splitext(filename)[1][1:].strip() == "bz2"):
+        import bz2
+        f = bz2.BZ2File(filename)
+        doc = etree.parse(f)
+        f.close()
+        return doc
+    else:
+        return etree.parse(filename)
+
+#Command line argument parsing
+from optparse import OptionParser
+parser = OptionParser()
+parser.add_option("-i", "--input", dest="datafile", default="output.xml.bz2",
+                  help="Load the simulation data from FILE", metavar="FILE")
+parser.add_option("-c", "--cutoff-time", dest="cutofftime", type="float", default=1e300,
+                  help="The TIME beyond which data from the correlators are discarded.", metavar="TIME", )
+parser.add_option("-s", "--start-time", dest="starttime",
+                  help="The amount of TIME to discard data at the start of the correlator.", 
+                  type="float", default=0, metavar="TIME")
+
+(options, args) = parser.parse_args()
+
+#The program proper
+XMLDoc = loadXMLFile(options.datafile)
+RootElement=XMLDoc.getroot()
+
+def parseToArray(starttime, endtime, transportproperty):
+    data = []
+    for line in RootElement.xpath("//"+transportproperty+"/Correlator")[0].text.strip().split("\n"):
+        dataline = map(float, line.split())
+        if (len(dataline) > 1) and (dataline[0] > starttime) and (dataline[0] < endtime):
+            data.append(dataline)
+    return data
+
+def fitData(datacolumns, data):
+    import numpy as np
+    xvalues = [line[0] for line in data]
+    average = 0
+    for column in datacolumns:
+        yvalues = [line[column] for line in data]
+        average += np.polyfit(xvalues, yvalues, 1)[0]
+    return average / len(datacolumns)
+ 
+print "Thermal Conductivity = ",fitData([2, 3, 4], parseToArray(options.starttime, options.cutofftime, "ThermalConductivity"))
+print "Viscosity = ",fitData([3, 4, 5], parseToArray(options.starttime, options.cutofftime, "Viscosity"))
+
+#print parseToArray(options.starttime, options.cutofftime, "ThermalConductivity")
