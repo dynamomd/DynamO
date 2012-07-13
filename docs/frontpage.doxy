@@ -10,12 +10,7 @@
   - dynahist_rw (dynahist_rw.cpp) - Used to perform histogram
   reweighting on the output from a replica exchange/ parallel tempering
   Simulation (see the simulation engine EReplicaExchangeSimulation).
- 
-  - dynareplex_opt (dynareplex_opt.cpp) - This is an
-  implementation of the replica exchange optimisation described by
-  Katzgraber et
-  al. (http://dx.doi.org/10.1088/1742-5468/2006/03/P03018).
- 
+  
   \note To learn how to use these executables, see the tutorial section of the DynamO site, or just run "dyna*** --help" on the command line.
  
   Unfortunately doxygen doesn't support multiple programs in one

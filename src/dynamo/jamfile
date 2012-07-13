@@ -58,14 +58,12 @@ rule critical_dependencies ( )
 
 exe dynarun : programs/dynarun.cpp dynamo_core 
     : <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
-exe dynareplex_opt : programs/dynareplex_opt.cpp /boost//program_options
-    : <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 exe dynahist_rw : programs/dynahist_rw.cpp dynamo_core 
     : <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 exe dynamod : programs/dynamod.cpp dynamo_core 
     : <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 
-explicit dynamod dynahist_rw dynareplex_opt dynarun dynamo_core visualizer test ;
+explicit dynamod dynahist_rw dynarun dynamo_core visualizer test ;
 
 install install-dynamo
 	: dynarun  dynahist_rw dynamod 
