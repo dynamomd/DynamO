@@ -20,7 +20,6 @@
 #include <dynamo/systems/andersenThermostat.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
-#include <dynamo/outputplugins/1partproperty/uenergy.hpp>
 #include <magnet/thread/threadpool.hpp>
 #include <magnet/string/searchreplace.hpp>
 #include <boost/random/uniform_int.hpp>
@@ -256,8 +255,6 @@ namespace dynamo {
 
     //Add the halt time, set to zero so a replica exchange occurrs immediately
     Sim.systems.push_back(shared_ptr<System>(new SystHalt(&Sim, 0, "ReplexHalt")));
-
-    Sim.addOutputPlugin("UEnergy");
   }
 
   void 

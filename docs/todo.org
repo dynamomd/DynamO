@@ -41,10 +41,10 @@
 **** TODO DynamO: Move the morton ordered container out to its own type, and generalise the neighbour list further.
 **** TODO DynamO: Revisit all of the old output plugins.
 ***** TODO DynamO: Add a average and current system momentum to the misc output plugin (replace the mutual diffusion correlators calculation of it, and anyone elses).
-***** TODO DynamO: Either remove correlators from DynamO, or fix them so that short correlators don't output NaN's!
+***** DONE DynamO: Either remove correlators from DynamO, or fix them so that short correlators don't output NaN's!
 ***** TODO DynamO: Make the output plugins much simpler.
-***** TODO DynamO: Put all of the cheap/free simulation data calculations into the misc output plugin, so that they don't have to be loaded and people have an interesting default output.xml.bz2.
-***** TODO DynamO: Remove the KEnergy and UEnergy plugins, convert dynahistrw and other scripts to this new format.
+***** DONE DynamO: Put all of the cheap/free simulation data calculations into the misc output plugin, so that they don't have to be loaded and people have an interesting default output.xml.bz2.
+***** DONE DynamO: Remove the KEnergy and UEnergy plugins, convert dynahistrw and other scripts to this new format.
 **** TODO DynamO: Look at a way of setting default workable parameters for packing mode 19.
 **** TODO DynamO: Check that the sentinel is correct in compressing systems.
 **** TODO DynamO: Rewrite the range classes, make rings/chains take a single range too.

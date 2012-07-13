@@ -59,6 +59,7 @@ namespace dynamo {
 
     double getMeanUConfigurational() const;
     double getMeanSqrUConfigurational() const;
+    inline double getConfigurationalU() const { return _internalE.current(); }
 
   protected:
 

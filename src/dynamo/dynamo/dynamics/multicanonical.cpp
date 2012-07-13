@@ -25,7 +25,7 @@
 #include <dynamo/species/species.hpp>
 #include <dynamo/schedulers/sorters/event.hpp>
 #include <dynamo/dynamics/shapes/oscillatingplate.hpp>
-#include <dynamo/outputplugins/1partproperty/uenergy.hpp>
+#include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <dynamo/units/units.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -100,8 +100,8 @@ namespace dynamo {
     
     //Confirm that the energy output plugin is available
     
-    if (!(Sim->getOutputPlugin<OPUEnergy>()))
-      M_throw() << "Multicanonical dynamics requires the UEnergy plugin";
+    if (!(Sim->getOutputPlugin<OPMisc>()))
+      M_throw() << "Multicanonical dynamics requires the Misc plugin";
   }
 
 
@@ -136,7 +136,7 @@ namespace dynamo {
     double mu = p1Mass * p2Mass / (p1Mass + p2Mass);  
     double R2 = retVal.rij.nrm2();
 
-    double CurrentE = Sim->getOutputPlugin<OPUEnergy>()->getSimU();
+    double CurrentE = Sim->getOutputPlugin<OPMisc>()->getConfigurationalU();
 
     //Calculate the deformed energy change of the system (the one used in the dynamics)
     double MCDeltaKE = deltaKE;

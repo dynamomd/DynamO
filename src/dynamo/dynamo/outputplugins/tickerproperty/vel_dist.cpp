@@ -18,7 +18,7 @@
 #include <dynamo/outputplugins/tickerproperty/vel_dist.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
-#include <dynamo/outputplugins/1partproperty/kenergy.hpp>
+#include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
@@ -47,10 +47,8 @@ namespace dynamo {
   void 
   OPVelDist::initialise()
   {
-    _ptrOPEnergy = Sim->getOutputPlugin<OPKEnergy>();
-
-    if (!_ptrOPEnergy)
-      M_throw() << "VelDist requires UEnergy plugin";
+    if (!Sim->getOutputPlugin<OPMisc>())
+      M_throw() << "VelDist requires the Misc output plugin";
 
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       data[iDim].resize(Sim->species.size(), 
@@ -61,19 +59,18 @@ namespace dynamo {
   void 
   OPVelDist::ticker()
   {
-    double factor = std::sqrt(Sim->units.unitMass() 
-			      / _ptrOPEnergy->getCurrentkT());
-
     BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->species)
       BOOST_FOREACH(const size_t& ID, *sp->getRange())
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	data[iDim][sp->getID()]
-	  .addVal(Sim->particles[ID].getVelocity()[iDim] * factor);
+	  .addVal(Sim->particles[ID].getVelocity()[iDim]);
   }
 
   void
   OPVelDist::output(magnet::xml::XmlStream& XML)
   {
+    double factor = std::sqrt(Sim->units.unitMass() / Sim->getOutputPlugin<OPMisc>()->getMeankT());
+
     XML << magnet::xml::tag("VelDist");
   
     for (size_t id = 0; id < Sim->species.size(); ++id)
@@ -88,7 +85,7 @@ namespace dynamo {
 		<< magnet::xml::attr("val")
 		<< iDim;
 	  
-	    data[iDim][id].outputHistogram(XML, 1.0);
+	    data[iDim][id].outputHistogram(XML, factor);
 	  
 	    XML << magnet::xml::endtag("Dimension");
 	  }

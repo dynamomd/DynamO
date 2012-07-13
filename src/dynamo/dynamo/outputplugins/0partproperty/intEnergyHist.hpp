@@ -21,7 +21,7 @@
 #include <boost/unordered_map.hpp>
 
 namespace dynamo {
-  class OPUEnergy;
+  class OPMisc;
 
   class OPIntEnergyHist: public OutputPlugin
   {
@@ -52,7 +52,7 @@ namespace dynamo {
     void ticker();
 
     magnet::math::HistogramWeighted<> intEnergyHist;
-    shared_ptr<const OPUEnergy> ptrOPEnergy;
+    shared_ptr<const OPMisc> _ptrOPMisc;
     double weight;
     double binwidth;
 

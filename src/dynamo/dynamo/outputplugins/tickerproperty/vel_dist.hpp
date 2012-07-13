@@ -21,8 +21,6 @@
 #include <magnet/math/histogram.hpp>
 
 namespace dynamo {
-  class OPKEnergy;
-
   class OPVelDist: public OPTicker
   {
   public:
@@ -41,7 +39,5 @@ namespace dynamo {
   protected:
     double binWidth;
     std::vector<magnet::math::Histogram<> > data[NDIM];
-
-    shared_ptr<const OPKEnergy> _ptrOPEnergy;
   };
 }

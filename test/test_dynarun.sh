@@ -56,8 +56,7 @@ function HS_replex_test {
 	config.*.start.xml.bz2 > /dev/null
     
     #Production
-    time ./dynarun --engine 2 $2 -i 10 -f 200 \
-	-L KEnergy config.*.end.xml.bz2 > /dev/null
+    time ./dynarun --engine 2 $2 -i 10 -f 200 config.*.end.xml.bz2 > /dev/null
 
     if [ ! -e "output.0.xml.bz2" ]; then
 	echo "$1 HS1 Replica Exchange -: FAILED Could not find output.0.xml.bz2"
@@ -380,11 +379,11 @@ function ThermostatTest {
     ./dynamod -m 0 -r 0.1 -T 1.0 -o tmp.xml.bz2 &> run.log    
     ./dynarun -c 100000 tmp.xml.bz2 >> run.log 2>&1
     ./dynarun -c 100000 config.out.xml.bz2 >> run.log 2>&1
-    ./dynarun -c 500000 config.out.xml.bz2 -L KEnergy >> run.log 2>&1
+    ./dynarun -c 500000 config.out.xml.bz2 >> run.log 2>&1
     
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
-	    | $Xml sel -t -v '/OutputData/KEnergy/T/@val' \
+	    | $Xml sel -t -v '/OutputData/Misc/Temperature/@mean' \
 	    | gawk '{printf "%.1f",$1}') != "1.0" ]; then
 	    echo "Thermostat -: FAILED"
 	    exit 1

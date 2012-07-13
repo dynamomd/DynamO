@@ -19,7 +19,7 @@
 #include <dynamo/systems/andersenThermostat.hpp>
 #include <dynamo/dynamics/compression.hpp>
 #include <dynamo/BC/LEBC.hpp>
-#include <dynamo/outputplugins/1partproperty/uenergy.hpp>
+#include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <dynamo/dynamics/multicanonical.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -130,9 +130,9 @@ namespace dynamo {
     const EnsembleNVT& ensemble2(static_cast<const EnsembleNVT&>(oE));
 
     double beta1 = 1 / EnsembleVals[2];
-    double E1 = Sim->getOutputPlugin<OPUEnergy>()->getSimU();
+    double E1 = Sim->getOutputPlugin<OPMisc>()->getConfigurationalU();
     double beta2 = 1 / ensemble2.getEnsembleVals()[2];
-    double E2 = ensemble2.Sim->getOutputPlugin<OPUEnergy>()->getSimU();
+    double E2 = ensemble2.Sim->getOutputPlugin<OPMisc>()->getConfigurationalU();
     
     //This is -\Delta in the Sugita_Okamoto paper
     double factor = (E1 - E2) * (beta1 - beta2);

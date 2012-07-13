@@ -15,8 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/outputplugins/1partproperty/kenergy.hpp>
-#include <dynamo/outputplugins/1partproperty/uenergy.hpp>
 #include <dynamo/outputplugins/1partproperty/MFT.hpp>
 #include <dynamo/outputplugins/1partproperty/collenergychange.hpp>
 #include <dynamo/outputplugins/1partproperty/eventEffects.hpp>

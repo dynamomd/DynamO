@@ -19,7 +19,7 @@
 #include <dynamo/include.hpp>
 #include <dynamo/dynamics/multicanonical.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/outputplugins/1partproperty/uenergy.hpp>
+#include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
@@ -81,8 +81,8 @@ namespace dynamo {
   void 
   OPIntEnergyHist::initialise() 
   {
-    ptrOPEnergy = Sim->getOutputPlugin<OPUEnergy>();
-    if (!ptrOPEnergy) M_throw() << "IntEnergyHist requires UEnergy plugin!";
+    _ptrOPMisc = Sim->getOutputPlugin<OPMisc>();
+    if (!_ptrOPMisc) M_throw() << "IntEnergyHist requires Misc plugin!";
     intEnergyHist = magnet::math::HistogramWeighted<>(binwidth * Sim->units.unitEnergy());
   }
 
@@ -90,17 +90,17 @@ namespace dynamo {
   OPIntEnergyHist::changeSystem(OutputPlugin* EHist2)
   {
     //Add the current data
-    intEnergyHist.addVal(ptrOPEnergy->getSimU(), weight);
+    intEnergyHist.addVal(_ptrOPMisc->getConfigurationalU(), weight);
     //Same for the other histogram
     static_cast<OPIntEnergyHist*>(EHist2)->intEnergyHist.addVal
-      (static_cast<OPIntEnergyHist*>(EHist2)->ptrOPEnergy->getSimU(), 
+      (static_cast<OPIntEnergyHist*>(EHist2)->_ptrOPMisc->getConfigurationalU(), 
        static_cast<OPIntEnergyHist*>(EHist2)->weight);
 
     //Now swap over the data
     std::swap(Sim, static_cast<OPIntEnergyHist*>(EHist2)->Sim);
 
     //NEVER SWAP THE PLUGIN POINTERS! they don't change
-    //std::swap(ptrOPEnergy, static_cast<OPIntEnergyHist*>(EHist2)->ptrOPEnergy);
+    //std::swap(_ptrOPMisc, static_cast<OPIntEnergyHist*>(EHist2)->_ptrOPMisc);
 
     //Reset the weighting
     weight = 0.0;
@@ -116,7 +116,7 @@ namespace dynamo {
   void 
   OPIntEnergyHist::ticker()
   {
-    intEnergyHist.addVal(ptrOPEnergy->getSimU(), weight);
+    intEnergyHist.addVal(_ptrOPMisc->getConfigurationalU(), weight);
     weight = 0.0;
   }
 

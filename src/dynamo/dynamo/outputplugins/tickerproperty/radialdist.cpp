@@ -16,7 +16,7 @@
 */
 
 #include <dynamo/outputplugins/tickerproperty/radialdist.hpp>
-#include <dynamo/outputplugins/1partproperty/uenergy.hpp>
+#include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -96,8 +96,8 @@ namespace dynamo {
 	std::vector<unsigned long>(length, 0))
        );
 
-    if (!(Sim->getOutputPlugin<OPUEnergy>()))
-      M_throw() << "Radial Distribution requires UEnergy plugin";
+    if (!(Sim->getOutputPlugin<OPMisc>()))
+      M_throw() << "Radial Distribution requires the Misc output plugin";
 
     ticker();
   }
@@ -109,12 +109,12 @@ namespace dynamo {
     //specified)
     if (sample_energy_bin_width)
       {
-	if (std::abs(sample_energy - Sim->getOutputPlugin<OPUEnergy>()->getSimU())
+	if (std::abs(sample_energy - Sim->getOutputPlugin<OPMisc>()->getConfigurationalU())
 	    > sample_energy_bin_width * 0.5)
 	  return;
 	else
 	  dout << "Sampling rad as energy is " 
-	       << Sim->getOutputPlugin<OPUEnergy>()->getSimU()
+	       << Sim->getOutputPlugin<OPMisc>()->getConfigurationalU()
 	    / Sim->units.unitEnergy()
 	       << " sample_energy is "
 	       << sample_energy / Sim->units.unitEnergy()
