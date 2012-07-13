@@ -31,8 +31,7 @@ install: build_deps all
 	if [ -d ./include ]; then mkdir -p $(DESTDIR)/usr/include/; cp -R include/* $(DESTDIR)/usr/include/; fi
 
 distclean:
-	rm -Rf build-dir
-	rm -Rf src/boost
+	rm -Rf build-dir src/boost lib/ include/ bin/dynarun bin/dynamod bin/dynahist_rw
 
 
 .PHONY : build_deps all install distclean test docs
