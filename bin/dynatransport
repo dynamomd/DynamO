@@ -2,6 +2,7 @@
 import os
 from lxml import etree
 import sys
+import math
 
 #Function to load a (possibly compressed) xml file.
 def loadXMLFile(filename):
@@ -25,30 +26,56 @@ parser.add_option("-s", "--start-time", dest="starttime",
                   help="The amount of TIME to discard data at the start of the correlator.", 
                   type="float", default=0, metavar="TIME")
 
+parser.add_option("-v", "--view-fit", action="store_true", default=False,
+                  dest="plot", help="View the fits of the correlators")
+
 (options, args) = parser.parse_args()
 
 #The program proper
 XMLDoc = loadXMLFile(options.datafile)
 RootElement=XMLDoc.getroot()
 
-def parseToArray(starttime, endtime, transportproperty):
+def parseToArray(starttime, endtime, text):
     data = []
-    for line in RootElement.xpath("//"+transportproperty+"/Correlator")[0].text.strip().split("\n"):
+    for line in text.strip().split("\n"):
         dataline = map(float, line.split())
         if (len(dataline) > 1) and (dataline[0] > starttime) and (dataline[0] < endtime):
             data.append(dataline)
     return data
 
+def statistics(data):
+    average = 0
+    sqraverage = 0
+    averageoffset = 0
+    for element in data:
+        averageoffset += element[1]
+        average += element[0]
+        sqraverage += element[0] * element[0]
+    return [average / len(data),  math.sqrt((sqraverage / len(data)) - (average / len(data)) * (average / len(data))), averageoffset / len(data)]
+
 def fitData(datacolumns, data):
     import numpy as np
     xvalues = [line[0] for line in data]
-    average = 0
-    for column in datacolumns:
-        yvalues = [line[column] for line in data]
-        average += np.polyfit(xvalues, yvalues, 1)[0]
-    return average / len(datacolumns)
- 
-print "Thermal Conductivity = ",fitData([2, 3, 4], parseToArray(options.starttime, options.cutofftime, "ThermalConductivity"))
-print "Viscosity = ",fitData([3, 4, 5], parseToArray(options.starttime, options.cutofftime, "Viscosity"))
+    return statistics([np.polyfit(xvalues, [line[column] for line in data], 1) for column in datacolumns])
 
-#print parseToArray(options.starttime, options.cutofftime, "ThermalConductivity")
+    
+for xmlelement in RootElement.xpath("//Viscosity/Correlator"):
+    data = parseToArray(options.starttime, options.cutofftime, xmlelement.text)
+    result = fitData([3, 4, 5], data)
+    print "L_{\\nu,\\nu}= ",result[0],result[1],result[2]
+
+for xmlelement in RootElement.xpath("//ThermalConductivity/Correlator"):
+    data = parseToArray(options.starttime, options.cutofftime, xmlelement.text)
+    result = fitData([2, 3, 4], data)
+    print "L_{\\lambda,\\lambda}= ",result[0],result[1],result[2]
+
+for xmlelement in RootElement.xpath("//ThermalDiffusion/Correlator"):
+    data = parseToArray(options.starttime, options.cutofftime, xmlelement.text)
+    result = fitData([2, 3, 4], data)
+    print "L_{\\lambda,"+xmlelement.get("Species")+"}= ",result[0],result[1],result[2]
+
+for xmlelement in RootElement.xpath("//MutualDiffusion/Correlator"):
+    data = parseToArray(options.starttime, options.cutofftime, xmlelement.text)
+    result = fitData([2, 3, 4], data)
+    print "L_{"+xmlelement.get("Species1")+","+xmlelement.get("Species2")+"}= ",result[0],result[1],result[2]
+
