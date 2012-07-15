@@ -3,6 +3,7 @@ import os
 from lxml import etree
 import sys
 import math
+import matplotlib.pyplot as plt
 
 #Function to load a (possibly compressed) xml file.
 def loadXMLFile(filename):
@@ -35,11 +36,11 @@ parser.add_option("-v", "--view-fit", action="store_true", default=False,
 XMLDoc = loadXMLFile(options.datafile)
 RootElement=XMLDoc.getroot()
 
-def parseToArray(starttime, endtime, text):
+def parseToArray(text):
     data = []
     for line in text.strip().split("\n"):
         dataline = map(float, line.split())
-        if (len(dataline) > 1) and (dataline[0] > starttime) and (dataline[0] < endtime):
+        if (len(dataline) > 1) and (dataline[0] > options.starttime) and (dataline[0] < options.cutofftime):
             data.append(dataline)
     return data
 
@@ -56,26 +57,27 @@ def statistics(data):
 def fitData(datacolumns, data):
     import numpy as np
     xvalues = [line[0] for line in data]
-    return statistics([np.polyfit(xvalues, [line[column] for line in data], 1) for column in datacolumns])
+    returnval = statistics([np.polyfit(xvalues, [line[column] for line in data], 1) for column in datacolumns])
+    if (options.plot):
+        for column in datacolumns:
+            plt.plot(xvalues, [line[column] for line in data], 'x')
+        plt.plot([xvalues[0], xvalues[-1]], [xvalues[0]*returnval[0] + returnval[2], xvalues[-1]*returnval[0] + returnval[2]])
+        plt.show()
+    return returnval
 
-    
+def worker(columns, text, title):
+    plt.title("$"+title+"$")
+    result = fitData(columns, parseToArray(text))
+    print title,"=",result[0],result[1],result[2]
+
 for xmlelement in RootElement.xpath("//Viscosity/Correlator"):
-    data = parseToArray(options.starttime, options.cutofftime, xmlelement.text)
-    result = fitData([3, 4, 5], data)
-    print "L_{\\nu,\\nu}= ",result[0],result[1],result[2]
+    worker([3, 4, 5], xmlelement.text, "L_{\\eta,\\eta}")
 
 for xmlelement in RootElement.xpath("//ThermalConductivity/Correlator"):
-    data = parseToArray(options.starttime, options.cutofftime, xmlelement.text)
-    result = fitData([2, 3, 4], data)
-    print "L_{\\lambda,\\lambda}= ",result[0],result[1],result[2]
+    worker([2, 3, 4], xmlelement.text, "L_{\\lambda,\\lambda}")
 
 for xmlelement in RootElement.xpath("//ThermalDiffusion/Correlator"):
-    data = parseToArray(options.starttime, options.cutofftime, xmlelement.text)
-    result = fitData([2, 3, 4], data)
-    print "L_{\\lambda,"+xmlelement.get("Species")+"}= ",result[0],result[1],result[2]
+    worker([2, 3, 4], xmlelement.text, "L_{\\lambda,"+xmlelement.get("Species")+"}")
 
 for xmlelement in RootElement.xpath("//MutualDiffusion/Correlator"):
-    data = parseToArray(options.starttime, options.cutofftime, xmlelement.text)
-    result = fitData([2, 3, 4], data)
-    print "L_{"+xmlelement.get("Species1")+","+xmlelement.get("Species2")+"}= ",result[0],result[1],result[2]
-
+    worker([2, 3, 4], xmlelement.text, "L_{"+xmlelement.get("Species1")+","+xmlelement.get("Species2")+"}")
