@@ -17,6 +17,7 @@
 
 #pragma once
 #include <dynamo/outputplugins/outputplugin.hpp>
+#include <dynamo/outputplugins/eventtypetracking.hpp>
 #include <magnet/math/matrix.hpp>
 #include <magnet/math/timeaveragedproperty.hpp>
 #include <magnet/math/correlators.hpp>
@@ -24,8 +25,11 @@
 #include <time.h>
 
 namespace dynamo {
+  using namespace EventTypeTracking;
+
   class OPMisc: public OutputPlugin
   {
+
   public:
     OPMisc(const dynamo::Simulation*, const magnet::xml::Node&);
   
@@ -62,6 +66,10 @@ namespace dynamo {
     inline double getConfigurationalU() const { return _internalE.current(); }
 
   protected:
+    void newEvent(const size_t&, const EEventType&, const classKey&);
+  
+    typedef std::pair<classKey, EEventType> EventKey;
+    std::map<EventKey, size_t> _counters;
 
     void stream(double dt);
     void eventUpdate(const NEventData&);

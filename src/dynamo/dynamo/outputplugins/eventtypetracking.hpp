@@ -36,6 +36,8 @@ namespace dynamo
 
     std::string getName(const classKey&, const dynamo::Simulation*);
 
+    std::string getClass(const classKey&);
+
     classKey getClassKey(const IntEvent&);
 
     classKey getClassKey(const System&);

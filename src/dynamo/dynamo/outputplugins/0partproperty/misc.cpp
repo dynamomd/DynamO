@@ -182,6 +182,9 @@ namespace dynamo {
   {
     stream(eevent.getdt());
     eventUpdate(PDat);
+
+    newEvent(eevent.getParticle1ID(), eevent.getType(), getClassKey(eevent));
+    newEvent(eevent.getParticle2ID(), eevent.getType(), getClassKey(eevent));
   }
 
   void
@@ -189,6 +192,15 @@ namespace dynamo {
   {
     stream(eevent.getdt());
     eventUpdate(NDat);
+
+    BOOST_FOREACH(const ParticleEventData& pData, NDat.L1partChanges)
+      newEvent(pData.getParticleID(), pData.getType(), getClassKey(eevent));
+
+    BOOST_FOREACH(const PairEventData& pData, NDat.L2partChanges)
+      {
+	newEvent(pData.particle1_.getParticleID(), pData.getType(), getClassKey(eevent));
+	newEvent(pData.particle2_.getParticleID(), pData.getType(), getClassKey(eevent));
+      }
   }
 
   void
@@ -196,14 +208,31 @@ namespace dynamo {
   {
     stream(eevent.getdt());
     eventUpdate(NDat);
+
+    BOOST_FOREACH(const ParticleEventData& pData, NDat.L1partChanges)
+      newEvent(pData.getParticleID(), pData.getType(), getClassKey(eevent));
+
+    BOOST_FOREACH(const PairEventData& pData, NDat.L2partChanges)
+      {
+	newEvent(pData.particle1_.getParticleID(), pData.getType(), getClassKey(eevent));
+	newEvent(pData.particle2_.getParticleID(), pData.getType(), getClassKey(eevent));
+      }
   }
 
   void
-  OPMisc::eventUpdate(const System&, const NEventData& NDat,
-		      const double& dt)
+  OPMisc::eventUpdate(const System& eevent, const NEventData& NDat, const double& dt)
   {
     stream(dt);
     eventUpdate(NDat);
+
+    BOOST_FOREACH(const ParticleEventData& pData, NDat.L1partChanges)
+      newEvent(pData.getParticleID(), pData.getType(), getClassKey(eevent));
+
+    BOOST_FOREACH(const PairEventData& pData, NDat.L2partChanges)
+      {
+	newEvent(pData.particle1_.getParticleID(), pData.getType(), getClassKey(eevent));
+	newEvent(pData.particle2_.getParticleID(), pData.getType(), getClassKey(eevent));
+      }
   }
 
   void
@@ -345,6 +374,11 @@ namespace dynamo {
     return Sim->systemTime / (duration * Sim->units.unitTime());
   }
 
+  void
+  OPMisc::newEvent(const size_t& part, const EEventType& etype, const classKey& ck)
+  {
+    ++_counters[EventKey(ck, etype)];
+  }
 
   void
   OPMisc::output(magnet::xml::XmlStream &XML)
@@ -444,7 +478,18 @@ namespace dynamo {
 	<< magnet::xml::attr("VirtualEvents") << _virtualEvents
 	<< magnet::xml::attr("Time") << Sim->systemTime / Sim->units.unitTime()
 	<< magnet::xml::endtag("Duration")
-
+	<< magnet::xml::tag("EventCounters");
+  
+    typedef std::pair<EventKey, size_t> mappair;
+    BOOST_FOREACH(const mappair& mp1, _counters)
+      XML << magnet::xml::tag("Entry")
+	  << magnet::xml::attr("Type") << getClass(mp1.first.first)
+	  << magnet::xml::attr("Name") << getName(mp1.first.first, Sim)
+	  << magnet::xml::attr("Event") << mp1.first.second
+	  << magnet::xml::attr("Count") << mp1.second
+	  << magnet::xml::endtag("Entry");
+  
+    XML << magnet::xml::endtag("EventCounters")
 	<< magnet::xml::tag("Timing")
 	<< magnet::xml::attr("Start") << sTime
 	<< magnet::xml::attr("End") << eTime

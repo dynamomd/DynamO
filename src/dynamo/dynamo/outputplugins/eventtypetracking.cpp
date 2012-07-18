@@ -42,6 +42,19 @@ namespace dynamo {
 	}
     }
 
+    std::string getClass(const classKey& key)
+    {
+      switch (key.second)
+	{
+	case INTERACTION: return "Interaction";
+	case GLOBAL: return "Global";
+	case SYSTEM: return "System";
+	case LOCAL: return "Local";
+	default:
+	  M_throw() << "Collision matrix found an unknown event class";
+	}
+    }
+
     classKey getClassKey(const IntEvent& i)
     {
       return classKey(i.getInteractionID(), INTERACTION);
