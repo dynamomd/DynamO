@@ -76,4 +76,4 @@ alias lsCL : /opencl//lsCL ;
 
 alias coilparticletest : /coil//coilparticletest ;
 
-explicit install test coilparticletest ;
+explicit install test coilparticletest lsCL ;

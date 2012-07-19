@@ -140,7 +140,7 @@ namespace magnet {
 	   expressions with *this vector on the RHS from having a race
 	   condition.
 	 */
-	double newvals[3] = {e.eval<0>(), e.eval<1>(), e.eval<2>()};
+	double newvals[3] = {e.template eval<0>(), e.template eval<1>(), e.template eval<2>()};
 
 	for (size_t i(0); i < 3; ++i) operator()(i) = newvals[i];
 	return *this; 
@@ -230,7 +230,7 @@ namespace magnet {
       // define what this operation evaluates to
       template<int I> inline double eval() const
       { 
-	return a->eval<I>() + b->eval<I>(); 
+	return a->template eval<I>() + b->template eval<I>(); 
       }
 
       // constructor
@@ -263,7 +263,7 @@ namespace magnet {
       // define what this operation evaluates to
       template <int I> inline double eval() const
       { 
-	return a->eval<I>() - b->eval<I>(); 
+	return a->template eval<I>() - b->template eval<I>(); 
       }
 
       // constructor
@@ -300,11 +300,11 @@ namespace magnet {
 	// despite its looks, a switch statement is actually quite efficient
 	switch (I) {
 	case 0:
-	  return a->eval<1>() * b->eval<2>() - a->eval<2>() * b->eval<1>();
+	  return a->template eval<1>() * b->template eval<2>() - a->template eval<2>() * b->template eval<1>();
 	case 1:
-	  return a->eval<2>() * b->eval<0>() - a->eval<0>() * b->eval<2>();
+	  return a->template eval<2>() * b->template eval<0>() - a->template eval<0>() * b->template eval<2>();
 	case 2:
-	  return a->eval<0>() * b->eval<1>() - a->eval<1>() * b->eval<0>();
+	  return a->template eval<0>() * b->template eval<1>() - a->template eval<1>() * b->template eval<0>();
 	default: 
 	  return 0; //should not happen
 	}
@@ -339,7 +339,7 @@ namespace magnet {
       // define what this operation evaluates to
       template <int I> inline double eval() const
       { 
-	return a->eval<I>() * b; 
+	return a->template eval<I>() * b; 
       }
 
       // optimize a second multiplication with a double
@@ -397,7 +397,7 @@ namespace magnet {
       // define what this operation evaluates to
       template <int I> inline double eval() const
       {
-	return  - a->eval<I>();
+	return  - a->template eval<I>();
       }
 
       // constructor

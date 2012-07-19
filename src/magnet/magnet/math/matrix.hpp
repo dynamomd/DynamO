@@ -77,9 +77,9 @@ namespace magnet {
 
       template<class A,int B,class C>
       inline MatrixExpression(const MatrixExpression<A,B,C>&e):
-	xx(e.eval<0,0>()), xy(e.eval<0,1>()), xz(e.eval<0,2>()),
-	yx(e.eval<1,0>()), yy(e.eval<1,1>()), yz(e.eval<1,2>()),
-	zx(e.eval<2,0>()), zy(e.eval<2,1>()), zz(e.eval<2,2>())
+	xx(e.template eval<0,0>()), xy(e.template eval<0,1>()), xz(e.template eval<0,2>()),
+	yx(e.template eval<1,0>()), yy(e.template eval<1,1>()), yz(e.template eval<1,2>()),
+	zx(e.template eval<2,0>()), zy(e.template eval<2,1>()), zz(e.template eval<2,2>())
       {}
 
       // set all elements to zero
@@ -153,9 +153,9 @@ namespace magnet {
       void setRow(const int i, const VectorExpression<A,B,C> &e)
       {
 	switch(i) {
-	case 0: xx = e.eval<0>(); xy = e.eval<1>(); xz = e.eval<2>(); break;
-	case 1: yx = e.eval<0>(); yy = e.eval<1>(); yz = e.eval<2>(); break;
-	case 2: zx = e.eval<0>(); zy = e.eval<1>(); zz = e.eval<2>(); break;
+	case 0: xx = e.template eval<0>(); xy = e.template eval<1>(); xz = e.template eval<2>(); break;
+	case 1: yx = e.template eval<0>(); yy = e.template eval<1>(); yz = e.template eval<2>(); break;
+	case 2: zx = e.template eval<0>(); zy = e.template eval<1>(); zz = e.template eval<2>(); break;
 	}
       }
 
@@ -164,9 +164,9 @@ namespace magnet {
       void setColumn(const int j, const VectorExpression<A,B,C>&e)
       {
 	switch(j) {
-	case 0: xx = e.eval<0>(); yx = e.eval<1>(); zx = e.eval<2>(); break;
-	case 1: xy = e.eval<0>(); yy = e.eval<1>(); zy = e.eval<2>(); break;
-	case 2: xz = e.eval<0>(); yz = e.eval<1>(); zz = e.eval<2>(); break;
+	case 0: xx = e.template eval<0>(); yx = e.template eval<1>(); zx = e.template eval<2>(); break;
+	case 1: xy = e.template eval<0>(); yy = e.template eval<1>(); zy = e.template eval<2>(); break;
+	case 2: xz = e.template eval<0>(); yz = e.template eval<1>(); zz = e.template eval<2>(); break;
 	}
       }
 
@@ -287,9 +287,9 @@ namespace magnet {
     inline MatrixExpression<>& MatrixExpression<>:: operator=(const MatrixExpression<A,B,C> &e)
     {
       double newvals[3][3] 
-	= {{e.eval<0,0>(), e.eval<0,1>(), e.eval<0,2>()},
-	   {e.eval<1,0>(), e.eval<1,1>(), e.eval<1,2>()},
-	   {e.eval<2,0>(), e.eval<2,1>(), e.eval<2,2>()}};
+	= {{e.template eval<0,0>(), e.template eval<0,1>(), e.template eval<0,2>()},
+	   {e.template eval<1,0>(), e.template eval<1,1>(), e.template eval<1,2>()},
+	   {e.template eval<2,0>(), e.template eval<2,1>(), e.template eval<2,2>()}};
 
       xx = newvals[0][0]; xy = newvals[0][1]; xz = newvals[0][2];
       yx = newvals[1][0]; yy = newvals[1][1]; yz = newvals[1][2];
@@ -463,7 +463,7 @@ namespace magnet {
       // define what this operation evaluates to  
       template <int I, int J> inline double eval() const
       { 
-	return a->eval<I,J>() + b->eval<I,J>(); 
+	return a->template eval<I,J>() + b->template eval<I,J>(); 
       }
 
       // constructor
@@ -507,7 +507,7 @@ namespace magnet {
       // define what this operation evaluates to  
       template <int I, int J> inline double eval() const
       { 
-	return a->eval<I,J>() - b->eval<I,J>(); 
+	return a->template eval<I,J>() - b->template eval<I,J>(); 
       }
 
       // constructor
@@ -555,7 +555,7 @@ namespace magnet {
 
       // define what this operation evaluates to  
       template <int I, int J> inline double eval() const
-      { return a->eval<I,J>() * b; }
+      { return a->template eval<I,J>() * b; }
 
       inline MatrixExpression & operator* (double c)
       {
@@ -612,9 +612,9 @@ namespace magnet {
       // define what this operation evaluates to  
       template <int I, int J> inline double eval() const
       {
-	return  a->eval<I,0>() * b->eval<0,J>()
-          + a->eval<I,1>() * b->eval<1,J>()
-          + a->eval<I,2>() * b->eval<2,J>();
+	return  a->template eval<I,0>() * b->template eval<0,J>()
+          + a->template eval<I,1>() * b->template eval<1,J>()
+          + a->template eval<I,2>() * b->template eval<2,J>();
       }
 
       // constructor
@@ -655,7 +655,7 @@ namespace magnet {
       // define what this operation evaluates to  
       template <int I, int J> inline double eval() const
       {
-	return  - a->eval<I,J>;
+	return  - a->template eval<I,J>;
       }
 
       // constructor
@@ -695,7 +695,7 @@ namespace magnet {
       // define what this operation evaluates to  
       template <int I, int J> inline double eval() const
       {
-	return  a->eval<J,I>();
+	return  a->template eval<J,I>();
       }
 
       // constructor
@@ -737,7 +737,7 @@ namespace magnet {
       // define what this operation evaluates to  
       template <int I, int J> inline double eval() const
       {
-	return a->eval<I>() * b->eval<J>();
+	return a->template eval<I>() * b->template eval<J>();
       }
 
       // constructor
@@ -771,9 +771,9 @@ namespace magnet {
       template <const int J> inline double eval() const
       {
 	switch(i) {
-	case 0: return a->eval<0,J>();
-	case 1: return a->eval<1,J>();
-	case 2: return a->eval<2,J>();
+	case 0: return a->template eval<0,J>();
+	case 1: return a->template eval<1,J>();
+	case 2: return a->template eval<2,J>();
 	default: 
 	  return 0; // should never happen
 	}
@@ -810,9 +810,9 @@ namespace magnet {
       template <const int I> inline double eval() const
       {
 	switch(j) {
-	case 0: return a->eval<I,0>();
-	case 1: return a->eval<I,1>();
-	case 2: return a->eval<I,2>();
+	case 0: return a->template eval<I,0>();
+	case 1: return a->template eval<I,1>();
+	case 2: return a->template eval<I,2>();
 	default: 
 	  return 0; // should never happen
 	}
@@ -850,9 +850,9 @@ namespace magnet {
       // define what this operation evaluates to  
       template <int I> inline double eval() const
       {
-	return  a->eval<I,0>() * b->eval<0>()
-          + a->eval<I,1>() * b->eval<1>()
-          + a->eval<I,2>() * b->eval<2>();
+	return  a->template eval<I,0>() * b->template eval<0>()
+          + a->template eval<I,1>() * b->template eval<1>()
+          + a->template eval<I,2>() * b->template eval<2>();
       }
 
       // constructor
