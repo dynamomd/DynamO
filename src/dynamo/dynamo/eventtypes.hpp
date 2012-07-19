@@ -17,6 +17,7 @@
 
 #pragma once
 #include <ostream>
+#include <magnet/exception.hpp>
 
 namespace dynamo {
 #define ETYPE_ENUM_FACTORY(F)						\
