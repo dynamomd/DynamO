@@ -72,7 +72,7 @@ alias install : /dynamo//install-dynamo /coil//install-coil /magnet//install-mag
 
 alias test : /magnet//test ;
 
-alias lsCL : /opencl//lsCL ;
+alias lsCL : /opencl//install-lsCL ;
 
 alias coilparticletest : /coil//coilparticletest ;
 

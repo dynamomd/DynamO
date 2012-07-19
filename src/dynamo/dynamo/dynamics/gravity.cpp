@@ -209,10 +209,10 @@ namespace dynamo {
     std::pair<Vector, Vector> r2data = getCOMPosVel(p2);
     Vector r12 = r1data.first - r2data.first;
     Vector v12 = r1data.second - r2data.second;
-    Vector a12 = g * (accel1sum - accel2sum);
     Sim->BCs->applyBC(r12, v12);
 
     M_throw() << "Not implemented yet";
+    //Vector a12 = g * (accel1sum - accel2sum);
     //return magnet::intersection::parabola_inv_sphere_bfc(r12, v12, a12, d);
   }
 

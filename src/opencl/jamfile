@@ -28,4 +28,6 @@ install install-headers
       : <location>$(INCLUDE_INSTALL_PATH) <install-source-root>./ ;
 
 exe lsCL : programs/lscl.cpp OpenCL
-    	 : <tag>@tags.exe-naming <location>$(BIN_INSTALL_PATH) ;
+    	 : <tag>@tags.exe-naming ;
+
+install install-lsCL : lsCL : <location>$(BIN_INSTALL_PATH) ;
