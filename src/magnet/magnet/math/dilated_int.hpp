@@ -353,7 +353,7 @@ namespace magnet {
 	throw std::out_of_range("Cannot dilate such a large value");
 #endif
       return dilatedinteger::dilate<d>::eval(val);
-    };
+    }
 
     /*! \brief A function to dilate an integer value.
      *
@@ -369,7 +369,7 @@ namespace magnet {
 	throw std::out_of_range("Cannot undilate such a large value");
 #endif
       return dilatedinteger::undilate<d>::eval(val);
-    };
+    }
 
 
     /*! \brief A helper class which allows mathematics to be performed

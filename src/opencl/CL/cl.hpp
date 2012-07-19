@@ -941,9 +941,9 @@ struct param_traits<detail:: token,param_name>       \
     typedef T param_type;                            \
 };
 
-__PARAM_NAME_INFO_1_0(__DECLARE_PARAM_TRAITS);
+__PARAM_NAME_INFO_1_0(__DECLARE_PARAM_TRAITS)
 #if defined(CL_VERSION_1_1)
-__PARAM_NAME_INFO_1_1(__DECLARE_PARAM_TRAITS);
+__PARAM_NAME_INFO_1_1(__DECLARE_PARAM_TRAITS)
 #endif // CL_VERSION_1_1
 
 #if defined(USE_CL_DEVICE_FISSION)

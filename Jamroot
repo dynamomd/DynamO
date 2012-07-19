@@ -55,6 +55,7 @@ project	: requirements
           <toolset>clang:<cflags>-Wno-mismatched-tags
           <toolset>clang:<cflags>-Wno-ambiguous-member-template
 	  <variant>release:<define>NDEBUG
+	  <cflags>-pedantic
 	: default-build release
 	: build-dir $(BUILD_DIR_PATH)
 	;
