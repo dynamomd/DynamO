@@ -383,7 +383,7 @@ function ThermostatTest {
     
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
-	    | $Xml sel -t -v '/OutputData/Misc/Temperature/@mean' \
+	    | $Xml sel -t -v '/OutputData/Misc/Temperature/@Mean' \
 	    | gawk '{printf "%.1f",$1}') != "1.0" ]; then
 	    echo "Thermostat -: FAILED"
 	    exit 1
