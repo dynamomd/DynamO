@@ -211,8 +211,7 @@ namespace dynamo {
   Coordinator::runSimulation()
   {
     //Only run if there are collisions to run
-    if (vm["events"].as<unsigned long long>())
-      _engine->runSimulation();
+    if (vm["events"].as<size_t>()) _engine->runSimulation();
   }
 
   void 
@@ -227,7 +226,6 @@ namespace dynamo {
     _engine->finaliseRun();
 
     //Only output if there are collisions to run
-    if (vm["events"].as<unsigned long long>())
-      _engine->outputConfigs();
+    if (vm["events"].as<size_t>()) _engine->outputConfigs();
   }
 }

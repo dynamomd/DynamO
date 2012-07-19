@@ -148,7 +148,7 @@ namespace dynamo {
       if (XML.hasAttribute("SetFrequency") && XML.hasAttribute("SetPoint"))
 	{
 	  tune = true;
-	  setFrequency = XML.getAttribute("SetFrequency").as<unsigned long long>();
+	  setFrequency = XML.getAttribute("SetFrequency").as<size_t>();
 	  setPoint = boost::lexical_cast<double>(XML.getAttribute("SetPoint"));
 	}
 

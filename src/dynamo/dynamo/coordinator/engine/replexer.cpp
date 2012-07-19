@@ -64,7 +64,7 @@ namespace dynamo {
     nSims(0),
     peekMode(false)
   {
-    if (vm["events"].as<unsigned long long>() != std::numeric_limits<unsigned long long>::max())
+    if (vm["events"].as<size_t>() != std::numeric_limits<size_t>::max())
       M_throw() << "You cannot use collisions to control a replica exchange simulation\n"
 		<< "See the following DynamO issue: https://github.com/toastedcrumpets/DynamO/issues/7\n";
   }
@@ -431,7 +431,7 @@ namespace dynamo {
 
     while (((Simulations[0].systemTime / Simulations[0].units.unitTime()) 
 	    < replicaEndTime) 
-	   && (Simulations[0].eventCount < vm["events"].as<unsigned long long>()))
+	   && (Simulations[0].eventCount < vm["events"].as<size_t>()))
       {
 	if (peekMode)
 	  {
@@ -440,7 +440,7 @@ namespace dynamo {
 	    size_t i = 0;
 	    BOOST_FOREACH(replexPair p1, temperatureList)
 	      {
-		Simulations[p1.second.simID].endEventCount = vm["events"].as<unsigned long long>();
+		Simulations[p1.second.simID].endEventCount = vm["events"].as<size_t>();
 		Simulations[p1.second.simID].outputData((magnet::string::search_replace(std::string("peek.data.%ID.xml.bz2"), 
 											"%ID", boost::lexical_cast<std::string>(i++))));
 	      }
@@ -513,7 +513,7 @@ namespace dynamo {
 		Simulations[i].ptrScheduler->rebuildSystemEvents();
 
 		//Reset the max collisions
-		Simulations[i].endEventCount = vm["events"].as<unsigned long long>();
+		Simulations[i].endEventCount = vm["events"].as<size_t>();
 	      }
 	  }
       }
@@ -529,7 +529,7 @@ namespace dynamo {
     BOOST_FOREACH(replexPair p1, temperatureList)
       {
 	TtoID << p1.second.realTemperature << " " << i << "\n";
-	Simulations[p1.second.simID].endEventCount = vm["events"].as<unsigned long long>();
+	Simulations[p1.second.simID].endEventCount = vm["events"].as<size_t>();
 	Simulations[p1.second.simID].writeXMLfile(magnet::string::search_replace(configFormat, "%ID", boost::lexical_cast<std::string>(i++)), 
 						  !vm.count("unwrapped"));
       }

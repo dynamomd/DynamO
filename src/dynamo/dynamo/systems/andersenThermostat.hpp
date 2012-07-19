@@ -46,9 +46,9 @@ namespace dynamo {
     bool tune;
     size_t dimensions;
     double setPoint;
-    mutable unsigned long long eventCount;
-    mutable unsigned long long lastlNColl;
-    unsigned long long setFrequency;
+    mutable size_t eventCount;
+    mutable size_t lastlNColl;
+    size_t setFrequency;
 
     double getGhostt() const;
   

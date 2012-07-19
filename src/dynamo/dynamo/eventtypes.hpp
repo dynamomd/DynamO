@@ -20,55 +20,56 @@
 
 namespace dynamo {
 #define ETYPE_ENUM_FACTORY(F)						\
-  F(NONE, /*!< No collision occurs*/ )					\
-  F(CELL, /*!< Marks cell transitions*/ )				\
-  F(GLOBAL, /*!< Marks all global events*/ )				\
-  F(INTERACTION, /*!< Marks Interaction events*/ )			\
-  F(SYSTEM, /*!< Marks System events*/ )				\
-  F(LOCAL, /*!< Marks Local events*/ )					\
-  F(CORE, /*!< Hard core collision*/ )					\
-  F(WELL_IN, /*!< Well Event where spheres are heading toward each other*/ ) \
-  F(WELL_OUT, /*!< Well Event where spheres are heading away from each other*/ ) \
-  F(NBHOOD_IN, /*!< Event where particles enter a neighbourhood*/ )	\
-  F(NBHOOD_OUT, /*!< Event where particles leave a neighbourhood*/ )	\
-  F(WELL_KEUP, /*!< Well event where Kinetic Energy increases*/ )	\
-  F(WELL_KEDOWN, /*!< Well event where Kinetic Energy decreases*/ )	\
-  F(BOUNCE, /*!< CORE event due to energetic constraints*/ )		\
-  F(WALL, /*!< Wall or other obstacle event*/ )				\
-  F(GAUSSIAN, /*!< Reassignment from a gaussian Andersen thermostat*/ ) \
-  F(DSMC, /*!< DSMC event*/ )						\
-  F(UMBRELLA, /*!< Umbrella potential event*/ )				\
-  F(HALT, /*!< Call to halt the system*/ )				\
-  F(STREAM, /*!< Call to free stream the system an amount*/ )		\
-  F(NON_EVENT, /*!< Anything that is not part of the system dynamics*/ ) \
-  F(RESCALE, /*!< A rescaling of the system energy*/ )			\
-  F(RECALCULATE, /*!< Fake events that cause a particle to free stream*/ )	\
-  F(RECALCULATE_PARABOLA, /*!< Fake event used to track when a particle goes through its parabola. Needed to keep the dynamics deterministic.*/ ) \
-  F(VIRTUAL, /*< Passed to output plugins to let them know that this event is not a true event.*/ ) \
-  F(SLEEP, /*!< Event to transition a particle from dynamic to static*/ ) \
-  F(RESLEEP, /*!< Event to zero a sleeping particles velocity after being hit*/ ) \
-  F(WAKEUP, /*!< Event to transition a particle from static to dynamic*/ ) \
-  F(RELOCATE, /*!< An event where the particles may have their velocity AND position changed*/ ) \
-  F(CORRECT, /*!< An event used to correct a previous event*/ )		
+  F(NONE) /*!< No collision occurs*/ 					\
+  F(CELL) /*!< Marks cell transitions */ 				\
+  F(GLOBAL)  /*!< Marks all global events*/ 				\
+  F(INTERACTION) /*!< Marks Interaction events*/ 			\
+  F(SYSTEM) /*!< Marks System events*/ 				\
+  F(LOCAL)  /*!< Marks Local events*/ 				\
+  F(CORE) /*!< Hard core collision*/					\
+  F(WELL_IN) /*!< Well Event where spheres are heading toward each other*/ \
+  F(WELL_OUT) /*!< Well Event where spheres are heading away from each other*/ \
+  F(NBHOOD_IN)  /*!< Event where particles enter a neighbourhood*/ 	\
+  F(NBHOOD_OUT) /*!< Event where particles leave a neighbourhood*/	\
+  F(WELL_KEUP) /*!< Well event where Kinetic Energy increases*/ 	\
+  F(WELL_KEDOWN) /*!< Well event where Kinetic Energy decreases*/	\
+  F(BOUNCE) /*!< CORE event due to energetic constraints*/		\
+  F(WALL) /*!< Wall or other obstacle event*/				\
+  F(GAUSSIAN) /*!< Reassignment from a gaussian Andersen thermostat*/	\
+  F(DSMC) /*!< DSMC event*/						\
+  F(UMBRELLA) /*!< Umbrella potential event*/				\
+  F(HALT) /*!< Call to halt the system*/				\
+  F(STREAM) /*!< Call to free stream the system an amount*/		\
+  F(NON_EVENT) /*!< Anything that is not part of the system dynamics*/ \
+  F(RESCALE) /*!< A rescaling of the system energy*/  		\
+  F(RECALCULATE) /*!< Fake events that cause a particle to free stream*/ \
+  F(RECALCULATE_PARABOLA) /*!< Fake event used to track when a particle goes through its parabola. Needed to keep the dynamics deterministic.*/ \
+  F(VIRTUAL) /*< Passed to output plugins to let them know that this event is not a true event.*/ \
+  F(SLEEP) /*!< Event to transition a particle from dynamic to static*/ \
+  F(RESLEEP) /*!< Event to zero a sleeping particles velocity after being hit*/ \
+  F(WAKEUP) /*!< Event to transition a particle from static to dynamic*/ \
+  F(RELOCATE) /*!< An event where the particles may have their velocity AND position changed*/ \
+  F(CORRECT) /*!< An event used to correct a previous event*/
   
-#define buildEnum(VAL,COMMENT)			\
-  VAL, COMMENT
+#define buildEnum(VAL) VAL,
+#define printEnum(VAL) case VAL: return os << #VAL;
 
   typedef enum {
     ETYPE_ENUM_FACTORY(buildEnum)
+    FINAL_ENUM_TO_CATCH_THE_COMMA
   } EEventType; 
-
-#define printEnum(VAL,COMMENT)			\
-  case VAL: return os << #VAL;
 
   inline std::ostream& operator<<(std::ostream& os, EEventType etype)
   {
     switch (etype)
       {
 	ETYPE_ENUM_FACTORY(printEnum)
-	  }
+      case FINAL_ENUM_TO_CATCH_THE_COMMA:
+      default:
+	break;
+      }
 
-    return os << "Failed to find a name for the Event Type! Memory corruption?";
+    M_throw() << "Failed to find a name for the Event Type! The value must be uninitialised or memory is being corrupted somehow.";
   }
 
 #undef ETYPE_ENUM_FACTORY

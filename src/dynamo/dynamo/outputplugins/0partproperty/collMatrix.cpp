@@ -125,7 +125,7 @@ namespace dynamo {
     XML << magnet::xml::tag("CollCounters") 
 	<< magnet::xml::tag("TransitionMatrix");
   
-    std::map<eventKey, std::pair<unsigned long long, double> > totmap;
+    std::map<eventKey, std::pair<size_t, double> > totmap;
   
     typedef std::pair<const counterKey, counterData> locPair;
   
@@ -160,7 +160,7 @@ namespace dynamo {
     XML << magnet::xml::endtag("TransitionMatrix")
 	<< magnet::xml::tag("Totals");
   
-    typedef std::pair<eventKey, std::pair<unsigned long long, double> > mappair;
+    typedef std::pair<eventKey, std::pair<size_t, double> > mappair;
   
     BOOST_FOREACH(const mappair& mp1, totmap)
       XML << magnet::xml::tag("TotCount")

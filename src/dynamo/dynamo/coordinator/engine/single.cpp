@@ -39,7 +39,7 @@ namespace dynamo {
 	{
 	  if (peekMode)
 	    {
-	      simulation.endEventCount = vm["events"].as<unsigned long long>();
+	      simulation.endEventCount = vm["events"].as<size_t>();
 	      simulation.outputData("peek.data.xml.bz2");
 	      peekMode = false;
 	    }

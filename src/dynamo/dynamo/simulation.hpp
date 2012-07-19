@@ -282,20 +282,20 @@ namespace dynamo
     long double systemTime;
     
     /*! \brief Number of events executed.*/
-    unsigned long long eventCount;
+    size_t eventCount;
 
     /*! \brief Maximum number of events to execute.*/
-    unsigned long long endEventCount;
+    size_t endEventCount;
 
     /*! \brief How many events between periodic output/sampling*/
-    unsigned long long eventPrintInterval;
+    size_t eventPrintInterval;
     
     /*! \brief Speeds the Simulation loop by being the next periodic
         output collision number.*/
-    unsigned long long nextPrintEvent;
+    size_t nextPrintEvent;
 
     /*! \brief Number of Particle's in the system. */
-    unsigned long N;
+    size_t N;
     
     /*! \brief The Particle's of the system. */
     std::vector<Particle> particles;  

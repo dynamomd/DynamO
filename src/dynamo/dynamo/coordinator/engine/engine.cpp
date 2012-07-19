@@ -32,10 +32,10 @@ namespace dynamo {
     boost::program_options::options_description simopts("Common Engine Options");
 
     simopts.add_options()
-      ("events,c", boost::program_options::value<unsigned long long>()
-       ->default_value(std::numeric_limits<unsigned long long>::max(), "no-limit"),
+      ("events,c", boost::program_options::value<size_t>()
+       ->default_value(std::numeric_limits<size_t>::max(), "no-limit"),
        "No. of events to run the simulation for.")
-      ("print-events,p", boost::program_options::value<unsigned long long>()->default_value(100000), 
+      ("print-events,p", boost::program_options::value<size_t>()->default_value(100000), 
        "No. of events between periodic screen output.")
       ("random-seed,s", boost::program_options::value<unsigned int>(),
        "Random seed for generator (To make the simulation reproduceable - Only for debugging!)")
@@ -93,13 +93,13 @@ namespace dynamo {
     Sim.loadXMLfile(filename.c_str());
     
     Sim.status = CONFIG_LOADED;
-    Sim.endEventCount = vm["events"].as<unsigned long long>();
+    Sim.endEventCount = vm["events"].as<size_t>();
   
-    if (vm["events"].as<unsigned long long>() 
-	> vm["print-events"].as<unsigned long long>())
-      Sim.eventPrintInterval = vm["print-events"].as<unsigned long long>();
+    if (vm["events"].as<size_t>() 
+	> vm["print-events"].as<size_t>())
+      Sim.eventPrintInterval = vm["print-events"].as<size_t>();
     else
-      Sim.eventPrintInterval = vm["events"].as<unsigned long long>();
+      Sim.eventPrintInterval = vm["events"].as<size_t>();
     
     if (vm.count("sim-end-time") && (dynamic_cast<const EReplicaExchangeSimulation*>(this) == NULL))
       Sim.systems.push_back(shared_ptr<System>(new SystHalt(&Sim, vm["sim-end-time"].as<double>(), "SystemStopEvent")));

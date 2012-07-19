@@ -30,7 +30,7 @@ namespace magnet {
   namespace math {
     namespace {
       template<typename T> inline T SQR(T a) { return a * a; }
-    };
+    }
 
     // list of operators that can act of Vectors and/or Matrices
     namespace ops {

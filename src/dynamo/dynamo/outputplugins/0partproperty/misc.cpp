@@ -652,7 +652,7 @@ namespace dynamo {
     if (time_seconds_remaining > std::numeric_limits<size_t>::max())
       seconds_remaining = std::numeric_limits<size_t>::max();
 
-    if (Sim->endEventCount != std::numeric_limits<unsigned long long>::max())
+    if (Sim->endEventCount != std::numeric_limits<size_t>::max())
       {
 	double event_seconds_remaining = (Sim->endEventCount - Sim->eventCount) / getEventsPerSecond() + 0.5;
 	
