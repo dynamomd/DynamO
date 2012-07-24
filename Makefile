@@ -1,9 +1,9 @@
 #A simple wrapper Makefile around the boost build system, also downloads and unpacks boost if required.
 BOOST_VER=1.50.0
-BOOST_DIR="boost_"$(subst .,_,$(BOOST_VER))
-BOOST_FILE=$(BOOST_DIR)".tar.bz2"
-BOOST_DL="http://sourceforge.net/projects/boost/files/boost/"$(BOOST_VER)"/"$(BOOST_FILE)
-BJAM="./src/boost/bjam"
+BOOST_DIR=boost_$(subst .,_,$(BOOST_VER))
+BOOST_FILE=$(BOOST_DIR).tar.bz2
+BOOST_DL=http://sourceforge.net/projects/boost/files/boost/$(BOOST_VER)/$(BOOST_FILE)
+BJAM=./src/boost/bjam
 
 all : build_deps
 	$(BJAM) install
@@ -22,7 +22,7 @@ clean: build_deps
 
 #Make sure we've downloaded boost and built the bjam executable inside
 build_deps:
-	if [ ! -d ./src/boost ]; then wget $(BOOST_DL) && tar xf $(BOOST_FILE) && rm $(BOOST_FILE) && mv $(BOOST_DIR) src/boost; fi
+	if [ ! -d ./src/boost ]; then curl -L -o $(BOOST_FILE) $(BOOST_DL) && tar xf $(BOOST_FILE) && rm $(BOOST_FILE) && mv $(BOOST_DIR) src/boost; fi
 	if [ ! -x $(BJAM) ]; then cd src/boost; ./bootstrap.sh; fi
 
 install: build_deps all

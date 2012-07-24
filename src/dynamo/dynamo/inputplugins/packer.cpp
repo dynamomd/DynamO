@@ -698,7 +698,6 @@ namespace dynamo {
 	    {
 	      std::cout<<
 		"\nMode 5: Create an isolated, homopolymer using a spiraling walk\n"
-		"\nMode 2: Random walk of an isolated  attractive or HP polymer\n"
 		"  --i1 arg (=20)              Chain length (No. of monomers)\n"
 		"  --i2 arg (=9)               Ring length (monomers in one turn of the spiral)\n"
 		"  --f1 arg (=1.6)             Monomer diameter\n"
