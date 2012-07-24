@@ -482,7 +482,7 @@ namespace coil {
 	  simunits->set_text(os.str());
 
 	  simunits->signal_changed()
-	    .connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *simunits));
+	    .connect(sigc::bind(&magnet::gtk::forceNumericEntry, simunits));
 	  simunits->signal_activate()
 	    .connect(sigc::mem_fun(*this, &CLGLWindow::guiUpdateCallback));
 	}
@@ -496,7 +496,7 @@ namespace coil {
 	  pixelPitch->set_text(os.str());
 
 	  pixelPitch->signal_changed()
-	    .connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *pixelPitch));
+	    .connect(sigc::bind(&magnet::gtk::forceNumericEntry, pixelPitch));
 	  pixelPitch->signal_activate()
 	    .connect(sigc::mem_fun(*this, &CLGLWindow::guiUpdateCallback));
 	}
@@ -2135,7 +2135,7 @@ namespace coil {
     {
       Gtk::Entry* entry;
       _refXml->get_widget("SceneKeyEntry", entry);
-      magnet::gtk::forceNumericEntry(*entry);
+      magnet::gtk::forceNumericEntry(entry);
       try {
 	_sceneKey = boost::lexical_cast<double>(entry->get_text());
       } catch(...) {}
@@ -2144,7 +2144,7 @@ namespace coil {
     {
       Gtk::Entry* entry;
       _refXml->get_widget("BloomSaturationEntry", entry);
-      magnet::gtk::forceNumericEntry(*entry);
+      magnet::gtk::forceNumericEntry(entry);
       try {
 	_bloomSaturation = boost::lexical_cast<double>(entry->get_text());
       } catch(...) {}
@@ -2153,7 +2153,7 @@ namespace coil {
     {
       Gtk::Entry* entry;
       _refXml->get_widget("BloomCutoffEntry", entry);
-      magnet::gtk::forceNumericEntry(*entry);
+      magnet::gtk::forceNumericEntry(entry);
       try {
 	_bloomCutoff = boost::lexical_cast<double>(entry->get_text());
       } catch(...) {}
@@ -2166,7 +2166,7 @@ namespace coil {
     {
       Gtk::Entry* entry;
       _refXml->get_widget("BloomCompressionEntry", entry);
-      magnet::gtk::forceNumericEntry(*entry);
+      magnet::gtk::forceNumericEntry(entry);
       try {
 	_bloomCompression = boost::lexical_cast<double>(entry->get_text());
       } catch(...) {}
@@ -2175,7 +2175,7 @@ namespace coil {
     {
       Gtk::Entry* ambientIntensityEntry;
       _refXml->get_widget("AmbientLightIntensity", ambientIntensityEntry);
-      magnet::gtk::forceNumericEntry(*ambientIntensityEntry);
+      magnet::gtk::forceNumericEntry(ambientIntensityEntry);
       try {
 	_ambientIntensity
 	  = boost::lexical_cast<double>(ambientIntensityEntry->get_text());
@@ -2193,7 +2193,7 @@ namespace coil {
       Gtk::Entry* updateFreq;
       _refXml->get_widget("updateFreq", updateFreq);
     
-      magnet::gtk::forceNumericEntry(*updateFreq);
+      magnet::gtk::forceNumericEntry(updateFreq);
       if (updateFreq->get_text()[0] == '-')
 	{
 	  std::string value(updateFreq->get_text());

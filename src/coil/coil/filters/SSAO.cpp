@@ -96,9 +96,9 @@ namespace coil
   void 
   SSAOWrapper::settingsCallback()
   {
-    magnet::gtk::forceNumericEntry(_radiusSlider);
-    magnet::gtk::forceNumericEntry(_totStrengthSlider);
-    magnet::gtk::forceNumericEntry(_dropoffSlider);
+    magnet::gtk::forceNumericEntry(&_radiusSlider);
+    magnet::gtk::forceNumericEntry(&_totStrengthSlider);
+    magnet::gtk::forceNumericEntry(&_dropoffSlider);
 
     try { _radius = boost::lexical_cast<float>(_radiusSlider.get_text()); } catch (...) {};
     try { _totStrength = boost::lexical_cast<float>(_totStrengthSlider.get_text()); } catch (...) {};

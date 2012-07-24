@@ -149,9 +149,9 @@ namespace magnet {
 
       void on_limits_changed()
       {
-	magnet::gtk::forceNumericEntry(_minValue);
+	magnet::gtk::forceNumericEntry(&_minValue);
 	try { _min = boost::lexical_cast<GLfloat>(_minValue.get_text()); } catch(...) {}
-	magnet::gtk::forceNumericEntry(_maxValue);
+	magnet::gtk::forceNumericEntry(&_maxValue);
 	try { 
 	  float max = boost::lexical_cast<GLfloat>(_maxValue.get_text()); 
 	  float range = max - _min;

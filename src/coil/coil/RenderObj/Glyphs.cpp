@@ -294,7 +294,7 @@ namespace coil {
   void 
   Glyphs::guiUpdate()
   {
-    magnet::gtk::forceNumericEntry(*_scaleFactor);
+    magnet::gtk::forceNumericEntry(_scaleFactor.get());
     try {
       _scale = boost::lexical_cast<double>(_scaleFactor->get_text());
     } catch (...) {}

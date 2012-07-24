@@ -280,10 +280,12 @@ namespace dynamo {
       if (node.hasNode("Properties"))
 	for (magnet::xml::Node propNode = node.getNode("Properties").fastGetNode("Property");
 	     propNode.valid(); ++propNode)
-	  if (!std::string("PerParticle").compare(propNode.getAttribute("Type")))
-	    _namedProperties.push_back(Value(new ParticleProperty(propNode)));
-	  else
-	    M_throw() << "Unsupported Property type, " << propNode.getAttribute("Type");
+	  {
+	    if (!std::string("PerParticle").compare(propNode.getAttribute("Type")))
+	      _namedProperties.push_back(Value(new ParticleProperty(propNode)));
+	    else
+	      M_throw() << "Unsupported Property type, " << propNode.getAttribute("Type");
+	  }
     
       return *this;
     }

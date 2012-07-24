@@ -57,10 +57,10 @@ namespace coil
       _focalWidthSlider.show();
       
       _focalLengthSlider.signal_changed()
-	.connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, _focalLengthSlider));
+	.connect(sigc::bind(&magnet::gtk::forceNumericEntry, &_focalLengthSlider));
 
       _focalWidthSlider.signal_changed()
-	.connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, _focalWidthSlider));
+	.connect(sigc::bind(&magnet::gtk::forceNumericEntry, &_focalWidthSlider));
 
       _focalLengthSlider.signal_activate()
 	.connect(sigc::mem_fun(this, &DOFFilter::settingsCallback));      

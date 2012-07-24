@@ -61,7 +61,7 @@ namespace coil
     _zdiffEntry.set_text(boost::lexical_cast<std::string>(_zdiff));
 
     _zdiffEntry.signal_changed()
-      .connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, _zdiffEntry));
+      .connect(sigc::bind(&magnet::gtk::forceNumericEntry, &_zdiffEntry));
 
     _zdiffEntry.signal_activate()
 	.connect(sigc::mem_fun(this, &BilateralBlurWrapper::settingsCallback));      

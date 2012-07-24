@@ -29,12 +29,12 @@ namespace magnet {
      to be a sequence of digits, possibly split by one decimal point.
 
      An example use is \code
-     entry.signal_changed().connect(sigc::bind<Gtk::Entry&>(&magnet::Gtk::forceNumericEntry,
-     entry)); \endcode
+     entry.signal_changed().connect(sigc::bind<Gtk::Entry*>(&magnet::Gtk::forceNumericEntry,
+     &entry)); \endcode
     */
-    inline void forceNumericEntry(::Gtk::Entry& textfield)
+    inline void forceNumericEntry(::Gtk::Entry* textfield)
     {
-      std::string value = textfield.get_text();
+      std::string value = textfield->get_text();
       
       bool hasPoint = false;
       bool hasExponent = false;
@@ -64,7 +64,7 @@ namespace magnet {
       
       if (value[0] == '.') value.erase(value.begin());
 
-      textfield.set_text(value);
+      textfield->set_text(value);
     }
   }
 }

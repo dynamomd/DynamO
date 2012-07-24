@@ -69,7 +69,7 @@ namespace coil {
       {
 	_selectorRow.pack_start(_scalarvalues[i], false, false, 0);
 	_scalarvalues[i].signal_changed()
-	  .connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, _scalarvalues[i]));
+	  .connect(sigc::bind(&magnet::gtk::forceNumericEntry, _scalarvalues + i));
 	_scalarvalues[i].set_text("1.0");
 	_scalarvalues[i].set_max_length(0);
 	_scalarvalues[i].set_width_chars(5);	  

@@ -19,6 +19,7 @@
 ***** DONE DynamO: Rename the Liouvillean Class to Dynamics.
 ***** DONE DynamO: Combine the SimData and Simulation classes.
 **** DONE DynamO: Make a special MAX value for the Neighbourhood range.
+**** TODO DynamO: Remove all usages of auto_ptr's
 **** TODO DynamO: Move to pugixml, and add the github submodule.
 **** TODO DynamO: Get rid of globals and locals, move to 1 particle and 2 particle events.
 **** TODO DynamO: Make an inelasticity of 0 work. 

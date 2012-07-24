@@ -138,7 +138,7 @@ namespace coil {
       _intensityEntry->set_text(boost::lexical_cast<std::string>(_intensity));
 
       _intensityEntry->signal_changed()
-	.connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_intensityEntry));
+	.connect(sigc::bind(&magnet::gtk::forceNumericEntry, _intensityEntry.get()));
       _intensityEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
 
       {
@@ -178,7 +178,7 @@ namespace coil {
       _specularExponentEntry->set_text(boost::lexical_cast<std::string>(_specularExponent));
 
       _specularExponentEntry->signal_changed()
-	.connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_specularExponentEntry));
+	.connect(sigc::bind(&magnet::gtk::forceNumericEntry, _specularExponentEntry.get()));
       _specularExponentEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
 
       {
@@ -193,7 +193,7 @@ namespace coil {
       _specularFactorEntry->set_text(boost::lexical_cast<std::string>(_specularFactor));
 
       _specularFactorEntry->signal_changed()
-	.connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_specularFactorEntry));
+	.connect(sigc::bind(&magnet::gtk::forceNumericEntry, _specularFactorEntry.get()));
       _specularFactorEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
 
       _optList->pack_start(*box, false, false);
@@ -215,7 +215,7 @@ namespace coil {
       _positionXEntry->show();
       _positionXEntry->set_width_chars(8);
       _positionXEntry->set_text(boost::lexical_cast<std::string>(getPosition()[0]));
-      _positionXEntry->signal_changed().connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_specularFactorEntry));
+      _positionXEntry->signal_changed().connect(sigc::bind(&magnet::gtk::forceNumericEntry, _positionXEntry.get()));
       _positionXEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
 
       _positionYEntry.reset(new Gtk::Entry);
@@ -223,7 +223,7 @@ namespace coil {
       _positionYEntry->show();
       _positionYEntry->set_width_chars(8);
       _positionYEntry->set_text(boost::lexical_cast<std::string>(getPosition()[1]));
-      _positionYEntry->signal_changed().connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_specularFactorEntry));
+      _positionYEntry->signal_changed().connect(sigc::bind(&magnet::gtk::forceNumericEntry, _positionYEntry.get()));
       _positionYEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
 
       _positionZEntry.reset(new Gtk::Entry);
@@ -231,7 +231,7 @@ namespace coil {
       _positionZEntry->show();
       _positionZEntry->set_width_chars(8);
       _positionZEntry->set_text(boost::lexical_cast<std::string>(getPosition()[2]));
-      _positionZEntry->signal_changed().connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_specularFactorEntry));
+      _positionZEntry->signal_changed().connect(sigc::bind(&magnet::gtk::forceNumericEntry, _positionZEntry.get()));
       _positionZEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
 
       _optList->pack_start(*box, false, false);
@@ -252,7 +252,7 @@ namespace coil {
       _sizeEntry->show();
       _sizeEntry->set_width_chars(8);
       _sizeEntry->set_text(boost::lexical_cast<std::string>(_size));
-      _sizeEntry->signal_changed().connect(sigc::bind<Gtk::Entry&>(&magnet::gtk::forceNumericEntry, *_specularFactorEntry));
+      _sizeEntry->signal_changed().connect(sigc::bind(&magnet::gtk::forceNumericEntry, _sizeEntry.get()));
       _sizeEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
 
       _optList->pack_start(*box, false, false);

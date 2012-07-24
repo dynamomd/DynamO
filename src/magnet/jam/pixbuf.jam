@@ -24,6 +24,6 @@ generators.register-standard pixbuf.pixbufify-svg : PXBUFSVG : C ;
 actions pixbufify-svg
 {
  echo "#include <gdk-pixbuf/gdk-pixdata.h>" > $(<)
- "gdk-pixbuf-csource" --extern --raw --name $(>:B) $(>)  >> $(<)
+ "gdk-pixbuf-csource" --extern --name $(>:B) $(>)  >> $(<)
  echo "const size_t" $(>:B)_size "= sizeof("$(>:B)");"  >> $(<)
 }
