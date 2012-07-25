@@ -679,7 +679,8 @@ namespace dynamo {
 
     I_Pcout() << ", Events " << (Sim->eventCount+1)/1000 << "k, t "
 	      << Sim->systemTime/Sim->units.unitTime() 
-	      << ", <Mean Free Time> " <<  getMFT()
-	      << ", ";
+	      << ", <MFT> " <<  getMFT()
+	      << ", <T> " << getMeankT() / Sim->units.unitEnergy()
+	      << ", U " << _internalE.current() / Sim->units.unitEnergy();
   }
 }
