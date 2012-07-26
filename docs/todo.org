@@ -27,7 +27,7 @@
 **** TODO DynamO: Replica exchange cleanup
 ***** TODO DynamO: Allow replica exchanges in collisions.
 ***** TODO DynamO: Remove the unusual replica exchange modes and simplify to just one. Also put the up and down swap ratios in the data.
-***** TODO DynamO: Find out why the replica exchange Cv can be negative, averaging error?
+***** DONE DynamO: Find out why the replica exchange Cv can be negative, averaging error?
 **** TODO DynamO: Make compression work with polydisperse walls.
 **** TODO DynamO: Currently, if we have square well chains, all of the linked monomers also appear in the capture map! This will artificially increase the energy of the base configuration, we need to check that the capture interaction is the valid interaction for the pair tested.
 **** TODO Coil: Make the volume render images locatable anywhere in space to allow conversions from datasets to volumes.
@@ -40,10 +40,10 @@
 ***** TODO Coil: Reimplement DOF.
 ***** TODO Coil: Reimplement SSAO.
 **** TODO DynamO: Move the morton ordered container out to its own type, and generalise the neighbour list further.
-**** TODO DynamO: Revisit all of the old output plugins.
-***** TODO DynamO: Add a average and current system momentum to the misc output plugin (replace the mutual diffusion correlators calculation of it, and anyone elses).
+**** DONE DynamO: Revisit all of the old output plugins.
+***** DONE DynamO: Add a average and current system momentum to the misc output plugin (replace the mutual diffusion correlators calculation of it, and anyone elses).
 ***** DONE DynamO: Either remove correlators from DynamO, or fix them so that short correlators don't output NaN's!
-***** TODO DynamO: Make the output plugins much simpler.
+***** DONE DynamO: Make the output plugins much simpler.
 ***** DONE DynamO: Put all of the cheap/free simulation data calculations into the misc output plugin, so that they don't have to be loaded and people have an interesting default output.xml.bz2.
 ***** DONE DynamO: Remove the KEnergy and UEnergy plugins, convert dynahistrw and other scripts to this new format.
 **** TODO DynamO: Look at a way of setting default workable parameters for packing mode 19.
