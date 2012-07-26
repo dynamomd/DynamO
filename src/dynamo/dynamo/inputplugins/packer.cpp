@@ -971,7 +971,7 @@ namespace dynamo {
 		"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 		"       --f1 : Size Ratio (B/A), must be (0,1] [0.1]\n"
 		"       --f2 : Mass Ratio (B/A) [0.001]\n"
-		"       --f3 : Mol Fraction of large system (A) [0.95]\n";
+		"       --i2 : Number of large particles [100]\n";
 	      exit(1);
 	    }
 	  //Pack the system, determine the number of particles
@@ -983,7 +983,8 @@ namespace dynamo {
 	  std::vector<Vector  >
 	    latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
-	  double molFrac = 0.01, massFrac = 0.001, sizeRatio = 0.1;
+	  double massFrac = 0.001, sizeRatio = 0.1;
+	  size_t Na=100;
 
 	  if (vm.count("f1"))
 	    sizeRatio = vm["f1"].as<double>();
@@ -991,8 +992,8 @@ namespace dynamo {
 	  if (vm.count("f2"))
 	    massFrac = vm["f2"].as<double>();
 
-	  if (vm.count("f3"))
-	    molFrac = vm["f3"].as<double>();
+	  if (vm.count("i2"))
+	    Na = vm["i2"].as<size_t>();
 
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
@@ -1013,20 +1014,20 @@ namespace dynamo {
 
 	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList")));
 
-
-	  size_t nA = static_cast<size_t>(molFrac * latticeSites.size());
+	  if (Na > latticeSites.size())
+	    M_throw() << "Too many large particles for the selected packing";
 
 	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, particleDiam, 1.0,
-			      new C2RSingle(new RRange(0, nA - 1)), "AAInt")));
+			      new C2RSingle(new RRange(0, Na - 1)), "AAInt")));
 
 	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new IHardSphere(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam,
 			      1.0,
-			      new C2RPair(new RRange(0, nA - 1),
-					  new RRange(nA, latticeSites.size()-1)),
+			      new C2RPair(new RRange(0, Na - 1),
+					  new RRange(Na, latticeSites.size()-1)),
 			      "ABInt")));
 
 	  Sim->interactions.push_back
@@ -1035,11 +1036,11 @@ namespace dynamo {
 			      new C2RAll(), "BBInt")));
 	     
 	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new RRange(0, nA - 1), 1.0, "A", 0,
+			  (new SpPoint(Sim, new RRange(0, Na - 1), 1.0, "A", 0,
 				       "AAInt")));
 
 	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new RRange(nA, latticeSites.size()-1),
+			  (new SpPoint(Sim, new RRange(Na, latticeSites.size()-1),
 				       massFrac, "B", 0, "BBInt")));
 
 	  Sim->units.setUnitLength(particleDiam);
