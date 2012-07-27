@@ -91,6 +91,7 @@ namespace {
 namespace coil {
   CLGLWindow::CLGLWindow(std::string title,
 			 double updateIntervalValue,
+			 double scale,
 			 bool dynamo
 			 ):
     _selectedObjectID(0),

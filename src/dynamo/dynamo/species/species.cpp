@@ -88,7 +88,7 @@ namespace dynamo {
       BOOST_FOREACH(unsigned long ID, *range)
 	{
 	  for (size_t s(0); s < nsph; ++s)
-	    mass[nsph * sphID + s] = Sim->species[Sim->particles[ID]]->getMass(ID);
+	    mass[nsph * sphID + s] = Sim->species[Sim->particles[ID]]->getMass(ID) / Sim->units.unitMass();
 	  ++sphID;
 	}
       (*_renderData)["Mass"].flagNewData();
@@ -118,11 +118,8 @@ namespace dynamo {
       M_throw() << "Updating before the render object has been fetched";
   
     ///////////////////////POSITION DATA UPDATE
-    //Divide by the maximum box length, to have a natural scale for the visualizer
-    const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
-  
     //Check if the system is compressing and adjust the radius scaling factor
-    float rfactor = lengthRescale;
+    float rfactor = 1.0;
     if (std::tr1::dynamic_pointer_cast<DynCompression>(Sim->dynamics))
       rfactor *= (1 + static_cast<const DynCompression&>(*Sim->dynamics).getGrowthRate() * Sim->systemTime);
   
@@ -139,18 +136,18 @@ namespace dynamo {
     size_t glyphID(0);
     BOOST_FOREACH(unsigned long ID, *range)
       {
-	Vector vel = Sim->particles[ID].getVelocity();
+	Vector vel = Sim->particles[ID].getVelocity() / Sim->units.unitVelocity();
 	for (size_t s(0); s < nsph; ++s)
 	  {
-	    Vector pos = data.getGlyphPosition(ID, s);
+	    Vector pos = data.getGlyphPosition(ID, s) / Sim->units.unitLength();
 	  
 	    for (size_t i(0); i < NDIM; ++i)
-	      posdata[3 * (nsph * glyphID + s) + i] = pos[i] * lengthRescale;
+	      posdata[3 * (nsph * glyphID + s) + i] = pos[i];
 
 	    for (size_t i(0); i < NDIM; ++i)
-	      veldata[3 * (nsph * glyphID + s) + i] = vel[i] * lengthRescale;
+	      veldata[3 * (nsph * glyphID + s) + i] = vel[i];
 
-	    Vector psize = rfactor * data.getGlyphSize(ID, s);
+	    Vector psize = rfactor * data.getGlyphSize(ID, s) / Sim->units.unitLength();
 	    for (size_t i(0); i < NDIM; ++i)
 	      sizes[3 * (nsph * glyphID + s) + i] = psize[i];
 	  }
@@ -174,7 +171,7 @@ namespace dynamo {
 		for (size_t i(0); i < NDIM; ++i)
 		  {
 		    orientationdata[3 * (nsph * glyphID + s) + i] = data[ID].orientation[i];
-		    angularvdata[3 * (nsph * glyphID + s) + i] = data[ID].angularVelocity[i];
+		    angularvdata[3 * (nsph * glyphID + s) + i] = data[ID].angularVelocity[i] * Sim->units.unitTime();
 		  }
 	      }
 	    ++glyphID;

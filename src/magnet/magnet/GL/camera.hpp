@@ -87,6 +87,11 @@ namespace magnet {
 	lookAt(lookAtPoint);
       }
 
+      std::pair<double, double> getWindowDimensions() const
+      {
+	return std::pair<double, double>(_width * _simLength / _pixelPitch, _height * _simLength / _pixelPitch);
+      }
+
       inline void lookAt(math::Vector lookAtPoint)
       {
 	//Generate the direction from the near plane to the object
