@@ -53,11 +53,12 @@ def statistics(data):
         sqraverage += element[0] * element[0]
     return [average / len(data),  math.sqrt((sqraverage / len(data)) - (average / len(data)) * (average / len(data))), averageoffset / len(data)]
 
-def fitData(datacolumns, data):
+def fitData(datacolumns, data, title):
     import numpy as np
     xvalues = [line[0] for line in data]
     returnval = statistics([np.polyfit(xvalues, [line[column] for line in data], 1) for column in datacolumns])
     if (options.plot):
+        plt.title("$"+title+"$")
         import matplotlib.pyplot as plt
         for column in datacolumns:
             plt.plot(xvalues, [line[column] for line in data], 'x')
@@ -66,8 +67,7 @@ def fitData(datacolumns, data):
     return returnval
 
 def worker(columns, text, title):
-    plt.title("$"+title+"$")
-    result = fitData(columns, parseToArray(text))
+    result = fitData(columns, parseToArray(text), title)
     print title,"=",result[0],result[1],result[2]
 
 for xmlelement in RootElement.xpath("//Viscosity/Correlator"):
