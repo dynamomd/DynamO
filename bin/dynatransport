@@ -18,8 +18,8 @@ def loadXMLFile(filename):
 #Command line argument parsing
 from optparse import OptionParser
 parser = OptionParser()
-parser.add_option("-i", "--input", dest="datafile", default="output.xml.bz2",
-                  help="Load the simulation data from FILE", metavar="FILE")
+parser.add_option("-i", "--input", dest="datafile",
+                  help="Load the simulation data from FILE, also can be a position argument", metavar="FILE")
 parser.add_option("-c", "--cutoff-time", dest="cutofftime", type="float", default=1e300,
                   help="The TIME beyond which data from the correlators are discarded.", metavar="TIME", )
 parser.add_option("-s", "--start-time", dest="starttime",
@@ -31,7 +31,17 @@ parser.add_option("-v", "--view-fit", action="store_true", default=False,
 
 (options, args) = parser.parse_args()
 
-#The program proper
+#Sort out the data file option
+if options.datafile == None:
+    if len(args) != 1:
+        print "Need to supply an input file using either an -i FILE or just FILE"
+        sys.exit()
+    options.datafile=args[0]
+
+if not os.path.exists(options.datafile):
+    print "Could not find the passed datafile! ("+options.datafile+")"
+    sys.exit()
+
 XMLDoc = loadXMLFile(options.datafile)
 RootElement=XMLDoc.getroot()
 
