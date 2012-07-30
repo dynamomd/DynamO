@@ -25,11 +25,11 @@
 namespace magnet {
   namespace GL {
     /*! \brief An object to track the camera state.
-     *
-     * This class can perform all the calculations required for
-     * setting up the projection and modelview matricies of the
-     * camera. There is also support for eye tracking calculations
-     * using the \ref _eyeLocation \ref math::Vector.
+     
+      This class can perform all the calculations required for setting
+      up the projection and modelview matricies of the camera. There
+      is also support for eye tracking calculations using the \ref
+      _eyeLocation \ref math::Vector.
      */
     class Camera
     {
@@ -43,15 +43,15 @@ namespace magnet {
 	};
 
       /*! \brief The constructor.
-       * 
-       * \param height The height of the viewport, in pixels.
-       * \param width The width of the viewport, in pixels.
-       * \param position The position of the screen (effectively the camera), in simulation coordinates.
-       * \param lookAtPoint The location the camera is initially focussed on.
-       * \param fovY The field of vision of the camera.
-       * \param zNearDist The distance to the near clipping plane.
-       * \param zFarDist The distance to the far clipping plane.
-       * \param up A vector describing the up direction of the camera.
+	
+        \param height The height of the viewport, in pixels.
+        \param width The width of the viewport, in pixels.
+        \param position The position of the screen (effectively the camera), in simulation coordinates.
+        \param lookAtPoint The location the camera is initially focussed on.
+        \param fovY The field of vision of the camera.
+        \param zNearDist The distance to the near clipping plane, in cm.
+        \param zFarDist The distance to the far clipping plane, in cm.
+        \param up A vector describing the up direction of the camera.
        */
       //We need a default constructor as viewPorts may be created without GL being initialized
       inline Camera(size_t height = 600, 
@@ -59,7 +59,8 @@ namespace magnet {
 		    math::Vector position = math::Vector(0,0,-5), 
 		    math::Vector lookAtPoint = math::Vector(0,0,1),
 		    GLfloat fovY = 60.0f,
-		    GLfloat zNearDist = 0.001f, GLfloat zFarDist = 100.0f,
+		    GLfloat zNearDist = 30.0f, 
+		    GLfloat zFarDist = 10000.0f,
 		    math::Vector up = math::Vector(0,1,0)
 		    ):
 	_height(height),
@@ -85,6 +86,13 @@ namespace magnet {
 	setEyeLocation(math::Vector(0, 0, 70));
 	setPosition(position);
 	lookAt(lookAtPoint);
+      }
+
+      inline void setRenderScale(double newscale)
+      {
+	std::cout << "Near distance is " << _zNearDist * newscale << "cm\n";
+	std::cout << "Far distance is " << _zFarDist * newscale << "cm\n";
+	//_simLength = newscale;
       }
 
       std::pair<double, double> getWindowDimensions() const
@@ -145,7 +153,7 @@ namespace magnet {
 	  = Rodrigues(- _up * (_panrotation * M_PI/180))
 	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
 	
-	_nearPlanePosition = newposition - (viewTransformation * _eyeLocation);
+	_nearPlanePosition = newposition - (viewTransformation * _eyeLocation / _simLength);
       }
 
       inline void setRotatePoint(math::Vector vec)
@@ -180,7 +188,7 @@ namespace magnet {
 	//compensate this motion
 	math::Vector eyeLocationChange = math::Vector(0, 0, 0.5f * (_pixelPitch * _width / _simLength) 
 					   / std::tan((fovY / 180.0f) * M_PI / 2) 
-					   - _eyeLocation[2]);
+					   - _eyeLocation[2] / _simLength);
 
 	if (compensate)
 	  {
@@ -188,10 +196,10 @@ namespace magnet {
 	      = Rodrigues(-_up * (_panrotation * M_PI/180))
 	      * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
 	    
-	    _nearPlanePosition -= viewTransformation * eyeLocationChange;	
+	    _nearPlanePosition -= viewTransformation * eyeLocationChange;
 	  }
 
-	_eyeLocation += eyeLocationChange;
+	_eyeLocation += eyeLocationChange * _simLength;
       }
       
       /*! \brief Sets the eye location.
@@ -200,7 +208,7 @@ namespace magnet {
         center of the near viewing plane (in cm).
        */
       inline void setEyeLocation(math::Vector eye)
-      { _eyeLocation = eye / _simLength; }
+      { _eyeLocation = eye; }
 
       /*! \brief Gets the eye location (in cm).
        
@@ -208,11 +216,11 @@ namespace magnet {
         the near viewing plane (in cm).
        */
       inline const math::Vector getEyeLocation() const
-      { return _eyeLocation * _simLength; }
+      { return _eyeLocation; }
 
       /*! \brief Returns the current field of vision of the camera */
       inline double getFOVY() const
-      { return 2 * std::atan2(0.5f * (_pixelPitch * _width / _simLength),  _eyeLocation[2]) * (180.0f / M_PI); }
+      { return 2 * std::atan2(0.5f * (_pixelPitch * _width / _simLength),  _eyeLocation[2] / _simLength) * (180.0f / M_PI); }
 
       /*! \brief Converts some inputted motion (e.g., by the mouse or keyboard) into a
         motion of the camera.
@@ -351,7 +359,7 @@ namespace magnet {
 	  = Rodrigues(- _up * (_panrotation * M_PI/180))
 	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
 	
-	math::Vector cameraLocation((viewTransformation * _eyeLocation) + _nearPlanePosition);
+	math::Vector cameraLocation((viewTransformation * _eyeLocation / _simLength) + _nearPlanePosition);
 
 	//Setup the view matrix
 	return getViewRotationMatrix()
@@ -412,8 +420,8 @@ namespace magnet {
 				  (+0.5f * getScreenPlaneWidth()  - _eyeLocation[0]) * _zNearDist / _eyeLocation[2],// right
 				  (-0.5f * getScreenPlaneHeight() - _eyeLocation[1]) * _zNearDist / _eyeLocation[2],// bottom 
 				  (+0.5f * getScreenPlaneHeight() - _eyeLocation[1]) * _zNearDist / _eyeLocation[2],// top
-				  _zNearDist,//Near distance
-				  _zFarDist,//Far distance
+				  _zNearDist / _simLength,//Near distance
+				  _zFarDist / _simLength,//Far distance
 				  zoffset
 				  );
       }
@@ -455,7 +463,7 @@ namespace magnet {
 	  = Rodrigues(- _up * (_panrotation * M_PI/180))
 	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
 
-	return (viewTransformation * _eyeLocation) + _nearPlanePosition;
+	return (viewTransformation * _eyeLocation / _simLength) + _nearPlanePosition;
       }
 
       //! \brief Set the height and width of the screen in pixels.

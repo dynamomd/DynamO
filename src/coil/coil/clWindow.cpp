@@ -123,6 +123,8 @@ namespace coil {
       _backColor[i] = 1.0;
 
     for (size_t i(0); i < 256; ++i) keyStates[i] = false;
+
+    _camera.setRenderScale(scale);
   }
 
   CLGLWindow::~CLGLWindow() {}
