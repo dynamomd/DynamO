@@ -19,6 +19,13 @@
 ***** DONE DynamO: Rename the Liouvillean Class to Dynamics.
 ***** DONE DynamO: Combine the SimData and Simulation classes.
 **** DONE DynamO: Make a special MAX value for the Neighbourhood range.
+**** DONE DynamO: Revisit all of the old output plugins.
+***** DONE DynamO: Add a average and current system momentum to the misc output plugin (replace the mutual diffusion correlators calculation of it, and anyone elses).
+***** DONE DynamO: Either remove correlators from DynamO, or fix them so that short correlators don't output NaN's!
+***** DONE DynamO: Make the output plugins much simpler.
+***** DONE DynamO: Put all of the cheap/free simulation data calculations into the misc output plugin, so that they don't have to be loaded and people have an interesting default output.xml.bz2.
+***** DONE DynamO: Remove the KEnergy and UEnergy plugins, convert dynahistrw and other scripts to this new format.
+**** DONE Coil: Make coil scale independent.
 **** TODO DynamO: Remove all usages of auto_ptr's
 **** TODO DynamO: Move to pugixml, and add the github submodule.
 **** TODO DynamO: Get rid of globals and locals, move to 1 particle and 2 particle events.
@@ -31,7 +38,6 @@
 **** TODO DynamO: Make compression work with polydisperse walls.
 **** TODO DynamO: Currently, if we have square well chains, all of the linked monomers also appear in the capture map! This will artificially increase the energy of the base configuration, we need to check that the capture interaction is the valid interaction for the pair tested.
 **** TODO Coil: Make the volume render images locatable anywhere in space to allow conversions from datasets to volumes.
-**** TODO Coil: Make coil scale independent.
 **** TODO Coil: Visual Effects Improvement
 ***** TODO Coil: crepuscular rays.
 ***** TODO Coil: Make the viewing grid have a scalable box size.
@@ -40,12 +46,6 @@
 ***** TODO Coil: Reimplement DOF.
 ***** TODO Coil: Reimplement SSAO.
 **** TODO DynamO: Move the morton ordered container out to its own type, and generalise the neighbour list further.
-**** DONE DynamO: Revisit all of the old output plugins.
-***** DONE DynamO: Add a average and current system momentum to the misc output plugin (replace the mutual diffusion correlators calculation of it, and anyone elses).
-***** DONE DynamO: Either remove correlators from DynamO, or fix them so that short correlators don't output NaN's!
-***** DONE DynamO: Make the output plugins much simpler.
-***** DONE DynamO: Put all of the cheap/free simulation data calculations into the misc output plugin, so that they don't have to be loaded and people have an interesting default output.xml.bz2.
-***** DONE DynamO: Remove the KEnergy and UEnergy plugins, convert dynahistrw and other scripts to this new format.
 **** TODO DynamO: Look at a way of setting default workable parameters for packing mode 19.
 **** TODO DynamO: Check that the sentinel is correct in compressing systems.
 **** TODO DynamO: Rewrite the range classes, make rings/chains take a single range too.
