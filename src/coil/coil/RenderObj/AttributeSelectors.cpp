@@ -208,6 +208,45 @@ namespace coil {
     _context->setAttribute(attr, val[0], val[1], val[2], val[3]);
   }
 
+
+  std::vector<GLfloat>
+  AttributeSelector::getMin()
+  {
+    if (singleValueMode())
+      {
+	std::vector<GLfloat> _retVal(4);
+	for (size_t i(0); i < 4; ++i)
+	  try {
+	    _retVal[i] = boost::lexical_cast<double>(_scalarvalues[i].get_text());
+	  } catch (...) {}
+	
+	return _retVal;
+      }
+    
+    Gtk::TreeModel::iterator iter = _comboBox.get_active();
+    if (!iter) return std::vector<GLfloat>();
+    
+    std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
+    if (!ptr) return std::vector<GLfloat>();
+        
+    return ptr->minVals();
+  }
+
+  std::vector<GLfloat>
+  AttributeSelector::getMax()
+  {
+    if (singleValueMode())
+      return getMin();
+
+    Gtk::TreeModel::iterator iter = _comboBox.get_active();
+    if (!iter) return std::vector<GLfloat>();
+    
+    std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
+    if (!ptr) return std::vector<GLfloat>();
+        
+    return ptr->maxVals();
+  }
+
   void 
   AttributeSelector::updateGui()
   {

@@ -52,9 +52,11 @@ project	: requirements
           #<toolset>clang:<cflags>-Wno-ambiguous-member-template
 	  <variant>release:<define>NDEBUG
 	  ####Compile flags for testing ansi and pedantic
-	  #<toolset>clang:<cflags>-Wno-overlength-strings
-	  #<toolset>gcc:<cflags>-Wno-overlength-strings
-	  #<cflags>-ansi <cflags>-pedantic
+	  <toolset>clang:<cflags>-Wno-overlength-strings
+	  <toolset>clang:<cflags>-Wno-mismatched-tags
+	  <toolset>clang:<cflags>-Wno-newline-eof
+	  <toolset>gcc:<cflags>-Wno-overlength-strings
+	  <cflags>-ansi <cflags>-pedantic
 	: default-build release
 	: build-dir $(BUILD_DIR_PATH)
 	;

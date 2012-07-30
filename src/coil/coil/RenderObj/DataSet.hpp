@@ -181,6 +181,9 @@ namespace coil {
       M_throw() << "The selected object was not drawn by this RenderObj";
     }
 
+    virtual magnet::math::Vector getDimensions() const;
+    virtual magnet::math::Vector getCentre() const;
+
     magnet::GL::Buffer<GLfloat>& getPositionBuffer();
 
     void addGlyphs();

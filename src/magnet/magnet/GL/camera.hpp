@@ -26,6 +26,27 @@ namespace magnet {
   namespace GL {
     /*! \brief An object to track the camera state.
      
+      An OpenGL camera is a mapping between the object space (rendered
+      object's natural coordinate system) and the screen space.
+
+      We take this natural connection a little further and extend it
+      from the screen space to the real space, as we would like to do
+      interactive things like head tracking. 
+
+      It actually turns out to be very convenient to define certain
+      properties in terms of real space. For example, the near (\ref
+      _zNearDist) and far (\ref _zFarDist) clipping planes can be
+      defined once in real space and they don't have to be readjusted
+      for different scenes. Its very natural to say that I don't want
+      objects to appear closer to my eye than 8cm, and I would like to
+      see all objects up to a distance of 10m.
+
+      We need a length scale conversion (or zoom) factor for the
+      conversion between the two spaces. This is provided by \ref
+      _simLength. We also need to know the size of a single pixel on
+      the screen to be able to accurately render objects, given by the
+      pixel pitch (\ref _pixelPitch).
+
       This class can perform all the calculations required for setting
       up the projection and modelview matricies of the camera. There
       is also support for eye tracking calculations using the \ref
@@ -48,7 +69,6 @@ namespace magnet {
         \param width The width of the viewport, in pixels.
         \param position The position of the screen (effectively the camera), in simulation coordinates.
         \param lookAtPoint The location the camera is initially focussed on.
-        \param fovY The field of vision of the camera.
         \param zNearDist The distance to the near clipping plane, in cm.
         \param zFarDist The distance to the far clipping plane, in cm.
         \param up A vector describing the up direction of the camera.
@@ -57,12 +77,11 @@ namespace magnet {
       inline Camera(size_t height = 600, 
 		    size_t width = 800,
 		    math::Vector position = math::Vector(0,0,-5), 
-		    math::Vector lookAtPoint = math::Vector(0,0,1),
-		    GLfloat fovY = 60.0f,
-		    GLfloat zNearDist = 30.0f, 
+		    math::Vector lookAtPoint = math::Vector(0,0,0),
+		    GLfloat zNearDist = 8.0f, 
 		    GLfloat zFarDist = 10000.0f,
-		    math::Vector up = math::Vector(0,1,0)
-		    ):
+		    math::Vector up = math::Vector(0,1,0),
+		    GLfloat simLength = 25.0f):
 	_height(height),
 	_width(width),
 	_panrotation(180),
@@ -72,7 +91,7 @@ namespace magnet {
 	_rotatePoint(0,0,0),
 	_zNearDist(zNearDist),
 	_zFarDist(zFarDist),
-	_simLength(25),
+	_simLength(simLength),
 	_pixelPitch(0.05), //Measured from my screen
 	_camMode(ROTATE_WORLD)
       {
@@ -89,16 +108,10 @@ namespace magnet {
       }
 
       inline void setRenderScale(double newscale)
-      {
-	std::cout << "Near distance is " << _zNearDist * newscale << "cm\n";
-	std::cout << "Far distance is " << _zFarDist * newscale << "cm\n";
-	//_simLength = newscale;
-      }
+      { _simLength = newscale; }
 
-      std::pair<double, double> getWindowDimensions() const
-      {
-	return std::pair<double, double>(_width * _simLength / _pixelPitch, _height * _simLength / _pixelPitch);
-      }
+      inline GLfloat getRenderScale() const
+      { return _simLength; }
 
       inline void lookAt(math::Vector lookAtPoint)
       {
@@ -175,33 +188,6 @@ namespace magnet {
 	  }
       }
 
-      /*! \brief Change the field of vision of the camera.
-       
-        \param fovY The field of vision in degrees.
-        \param compensate Counter the movement of the eye position
-        by moving the viewing plane position.
-       */
-      inline void setFOVY(double fovY, bool compensate = true) 
-      {
-	//When the FOV is adjusted, we move the eye position away
-	//from the view plane, but we adjust the viewplane position to
-	//compensate this motion
-	math::Vector eyeLocationChange = math::Vector(0, 0, 0.5f * (_pixelPitch * _width / _simLength) 
-					   / std::tan((fovY / 180.0f) * M_PI / 2) 
-					   - _eyeLocation[2] / _simLength);
-
-	if (compensate)
-	  {
-	    math::Matrix viewTransformation 
-	      = Rodrigues(-_up * (_panrotation * M_PI/180))
-	      * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
-	    
-	    _nearPlanePosition -= viewTransformation * eyeLocationChange;
-	  }
-
-	_eyeLocation += eyeLocationChange * _simLength;
-      }
-      
       /*! \brief Sets the eye location.
        
         \param eye The position of the viewers eye, relative to the
@@ -218,13 +204,8 @@ namespace magnet {
       inline const math::Vector getEyeLocation() const
       { return _eyeLocation; }
 
-      /*! \brief Returns the current field of vision of the camera */
-      inline double getFOVY() const
-      { return 2 * std::atan2(0.5f * (_pixelPitch * _width / _simLength),  _eyeLocation[2] / _simLength) * (180.0f / M_PI); }
-
       /*! \brief Converts some inputted motion (e.g., by the mouse or keyboard) into a
         motion of the camera.
-
 
 	All parameters may be negative or positive, as the sign
 	defines the direction of the rotation/movement. Their name
@@ -233,6 +214,10 @@ namespace magnet {
        */
       inline void movement(float rotationX, float rotationY, float forwards, float sideways, float upwards)
       {
+	forwards /= _simLength;
+	sideways /= _simLength;
+	upwards /= _simLength;
+
 	//Build a matrix to rotate from camera to world
 	math::Matrix Transformation = Rodrigues(-_up * (_panrotation * M_PI / 180.0))
 	  * Rodrigues(math::Vector(- _tiltrotation * M_PI / 180.0, 0, 0));
@@ -446,6 +431,7 @@ namespace magnet {
 
       //! \brief Get the distance to the near clipping plane
       inline const GLfloat& getZNear() const { return _zNearDist; }
+      
       //! \brief Get the distance to the far clipping plane
       inline const GLfloat& getZFar() const { return _zFarDist; }
 
@@ -498,13 +484,9 @@ namespace magnet {
       //! \brief Get the width of the screen, in pixels.
       inline const size_t& getWidth() const { return _width; }
       
-      /*! \brief Gets the simulation unit length (in cm). */
-      inline const double& getSimUnitLength() const { return _simLength; }
-      /*! \brief Sets the simulation unit length (in cm). */
-      inline void setSimUnitLength(double val)  { _simLength = val; }
-
       /*! \brief Gets the pixel "diameter" in cm. */
       inline const double& getPixelPitch() const { return _pixelPitch; }
+
       /*! \brief Sets the pixel "diameter" in cm. */
       inline void setPixelPitch(double val)  { _pixelPitch = val; }
 
@@ -582,18 +564,25 @@ namespace magnet {
       }
 
     protected:
+
       size_t _height, _width;
       float _panrotation;
       float _tiltrotation;
       math::Vector _nearPlanePosition;
       math::Vector _up;
       math::Vector _rotatePoint;
-      
+
+      //! \brief Distance to the near clipping plane, in cm.
       GLfloat _zNearDist;
+      //! \brief Distance to the far clipping plane, in cm.
       GLfloat _zFarDist;
+
+      /*! \brief The location of the viewers eye, relative to the
+	screen, in cm.
+      */
       math::Vector _eyeLocation;
       
-      //! \brief One simulation length in cm (real units)
+      //! \brief One simulation length in cm.
       double _simLength;
 
       //! \brief The diameter of a pixel, in cm

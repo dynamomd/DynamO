@@ -273,4 +273,30 @@ namespace coil {
     std::tr1::array<GLfloat, 4> vec = {{pos[0], pos[1], pos[2], 1.0}};
     return vec;
   }
+
+  magnet::math::Vector 
+  DataSet::getDimensions() const
+  {
+    std::vector<GLfloat> mins = _positionSel->getMin();
+    std::vector<GLfloat> maxs = _positionSel->getMax();
+    
+    magnet::math::Vector retVal(0,0,0);
+    for (size_t i(0); (i < maxs.size()) && (i < mins.size()); ++i)
+      retVal[i] = maxs[i] - mins[i];
+    
+    return retVal;
+  }
+
+  magnet::math::Vector 
+  DataSet::getCentre() const
+  {
+    std::vector<GLfloat> mins = _positionSel->getMin();
+    std::vector<GLfloat> maxs = _positionSel->getMax();
+    
+    magnet::math::Vector retVal(0,0,0);
+    for (size_t i(0); (i < maxs.size()) && (i < mins.size()) && (i < 3); ++i)
+      retVal[i] = (maxs[i] + mins[i]) * 0.5;
+    
+    return retVal;
+  }
 }

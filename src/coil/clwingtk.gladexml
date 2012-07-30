@@ -117,8 +117,7 @@
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="has_tooltip">True</property>
-                            <property name="tooltip_markup" translatable="yes">Record a continuous series of snapshots </property>
-                            <property name="tooltip_text" translatable="yes">Record a continuous series of snapshots </property>
+                            <property name="tooltip_text" translatable="yes">Record a video of the current scene.</property>
                             <property name="use_action_appearance">False</property>
                             <child>
                               <object class="GtkImage" id="image5">
@@ -140,6 +139,7 @@
                           <object class="GtkFileChooserButton" id="snapshotDirectory">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="tooltip_text" translatable="yes">Select the directory to save the snapshots or videos in.</property>
                             <property name="action">select-folder</property>
                             <property name="title" translatable="yes">Select a directory for saving snapshots</property>
                           </object>
@@ -183,6 +183,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Align camera down the +x axis.</property>
                             <property name="use_action_appearance">False</property>
                             <property name="yalign">0.50999999046325684</property>
                             <child>
@@ -205,6 +206,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Align camera down the -x axis.</property>
                             <property name="use_action_appearance">False</property>
                             <child>
                               <object class="GtkImage" id="CamNegXimg">
@@ -226,6 +228,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Align camera down the +y axis.</property>
                             <property name="use_action_appearance">False</property>
                             <child>
                               <object class="GtkImage" id="CamPlusYimg">
@@ -247,6 +250,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Align camera down the -y axis.</property>
                             <property name="use_action_appearance">False</property>
                             <child>
                               <object class="GtkImage" id="CamNegYimg">
@@ -268,6 +272,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Align camera down the +z axis.</property>
                             <property name="use_action_appearance">False</property>
                             <child>
                               <object class="GtkImage" id="CamPlusZimg">
@@ -289,6 +294,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Align camera down the -z axis.</property>
                             <property name="use_action_appearance">False</property>
                             <child>
                               <object class="GtkImage" id="CamNegZimg">
@@ -305,11 +311,36 @@
                           </packing>
                         </child>
                         <child>
+                          <object class="GtkButton" id="CamRescalebtn">
+                            <property name="use_action_appearance">False</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Automatically rescale the camera to better fit the scene.</property>
+                            <property name="use_action_appearance">False</property>
+                            <child>
+                              <object class="GtkImage" id="CamRescaleimg">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="stock">gtk-missing-image</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="padding">5</property>
+                            <property name="pack_type">end</property>
+                            <property name="position">6</property>
+                          </packing>
+                        </child>
+                        <child>
                           <object class="GtkButton" id="CamMode">
                             <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Switch the camera mode, from rotate the system to First-Person-Shooter. If an object is selected, you can also select the track object mode.</property>
                             <property name="use_action_appearance">False</property>
                             <child>
                               <object class="GtkImage" id="CamModeimg">
@@ -323,7 +354,7 @@
                             <property name="expand">False</property>
                             <property name="fill">True</property>
                             <property name="padding">5</property>
-                            <property name="position">6</property>
+                            <property name="position">8</property>
                           </packing>
                         </child>
                       </object>
@@ -419,6 +450,7 @@
                       <object class="GtkEntry" id="updateFreq">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="tooltip_text" translatable="yes">Set how frequently the simulation should update the render data.</property>
                         <property name="invisible_char">●</property>
                         <property name="width_chars">9</property>
                       </object>
@@ -437,7 +469,9 @@
                         <property name="receives_default">True</property>
                         <property name="has_tooltip">True</property>
                         <property name="tooltip_markup" translatable="yes">Forces the simulator to wait for the visualizer (useful for rendering movies)</property>
-                        <property name="tooltip_text" translatable="yes">Forces the simulator to wait for the visualizer (useful for rendering movies)</property>
+                        <property name="tooltip_text" translatable="yes">Forces the simulator to only progress once the render is complete. 
+This forces the simulation to slow down to the FPS of the renderer. 
+It is very useful to do this when trying to record a video at a constant simulation pace.</property>
                         <property name="use_action_appearance">False</property>
                       </object>
                       <packing>
@@ -831,7 +865,7 @@ Large values will disable the bloom effect.</property>
                                         <property name="can_focus">True</property>
                                         <property name="invisible_char">●</property>
                                         <property name="width_chars">12</property>
-                                        <property name="text" translatable="yes">0.5</property>
+                                        <property name="text" translatable="yes">1.0</property>
                                         <property name="invisible_char_set">True</property>
                                       </object>
                                       <packing>
@@ -889,7 +923,7 @@ Low values cause faster ramp up, and high values cause a softer glow.</property>
                                         <property name="can_focus">True</property>
                                         <property name="invisible_char">●</property>
                                         <property name="width_chars">12</property>
-                                        <property name="text" translatable="yes">1</property>
+                                        <property name="text" translatable="yes">0.01</property>
                                         <property name="shadow_type">none</property>
                                         <property name="invisible_char_set">True</property>
                                       </object>

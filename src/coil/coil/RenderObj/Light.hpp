@@ -31,15 +31,16 @@ namespace coil {
   {
   public:
     RLight(std::string name, magnet::math::Vector position, 
-	   magnet::math::Vector lookAtPoint, GLfloat fovY = 45.0f,
-	   GLfloat zNearDist = 0.05f, GLfloat zFarDist = 10.0f,
-	   magnet::math::Vector up = magnet::math::Vector(0,1,0)): 
-      RenderObj(name), 
-      Camera(1,1,position, lookAtPoint, fovY, zNearDist, zFarDist, up),
-      _intensity(1), 
+	   magnet::math::Vector lookAtPoint,
+	   GLfloat zNearDist = 8.0f, GLfloat zFarDist = 10000.0f,
+	   magnet::math::Vector up = magnet::math::Vector(0,1,0),
+	   GLfloat simLength = 25.0f, GLfloat size = 1.0): 
+      RenderObj(name),
+      Camera(1,1,position, lookAtPoint, zNearDist, zFarDist, up, simLength),
+      _intensity(100 / simLength),
       _specularExponent(96),
       _specularFactor(1),
-      _size(0.015)
+      _size(size / simLength)
     {
       std::tr1::array<GLfloat, 3> tmp = {{1.0, 1.0, 1.0}};
       _color = tmp;

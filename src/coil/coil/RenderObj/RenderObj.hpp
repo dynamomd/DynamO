@@ -249,6 +249,9 @@ namespace coil {
     inline void setVisible(bool val = true) { _visible = val; }
     inline bool visible() const { return _visible; }
 
+    virtual magnet::math::Vector getDimensions() const { return magnet::math::Vector(0,0,0); }
+    virtual magnet::math::Vector getCentre() const { return magnet::math::Vector(0,0,0); }
+
     /*! \brief Sets the object's shadow casting.
 
       If this object is set to not cast shadows, it will not have \ref

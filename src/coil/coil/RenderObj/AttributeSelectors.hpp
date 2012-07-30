@@ -63,6 +63,9 @@ namespace coil {
       return retval;
     }
 
+    virtual std::vector<GLfloat> getMin();
+    virtual std::vector<GLfloat> getMax();
+
     ModelColumns _modelColumns;
     Gtk::ComboBox _comboBox;
     Gtk::ComboBoxText _componentSelect;

@@ -286,8 +286,7 @@ namespace coil {
     _glposition.init(position, 3);
     
     _context->cleanupAttributeArrays();
-    //Set the normals to zero so it is fully illuminated
-    _context->setAttribute(Context::instanceScaleAttrIndex, 0.05, 0.05, 0.05, 1);
+    _context->setAttribute(Context::instanceScaleAttrIndex, _size, _size, _size, 1);
     
     _context->setAttribute(Context::vertexColorAttrIndex, 
 			   (offset % 256) / 255.0, 

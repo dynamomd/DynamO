@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 	voldata(new coil::RVolume(vm["data-file"].as<std::string>()));
 
       std::tr1::shared_ptr<coil::CLGLWindow> 
-	window(new coil::CLGLWindow("Coil Volume Renderer : ", 1.0, 1.0));
+	window(new coil::CLGLWindow("Coil Volume Renderer : ", 1.0, 25.0 / 1.0));
 
       window->addRenderObj(voldata);
       

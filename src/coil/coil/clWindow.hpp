@@ -92,6 +92,7 @@ namespace coil {
     boost::signals2::signal<void ()>& signal_data_update() { return _updateDataSignal; }
 
   protected:
+    CLGLWindow(const CLGLWindow&);
     boost::signals2::signal<void ()> _updateDataSignal;
     
     void setLabelText(Gtk::Label*, std::string);
@@ -272,6 +273,8 @@ namespace coil {
 
     void cameraModeCallback();
     void runCallback(); 
+
+    void rescaleCameraCallback();
 
     //Generic Value update callback
     void guiUpdateCallback();

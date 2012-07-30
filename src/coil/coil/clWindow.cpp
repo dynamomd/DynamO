@@ -74,6 +74,9 @@ extern const size_t cammode_rotate_cursor_size;
 extern const guint8 cammode_fps[];
 extern const size_t cammode_fps_size;
 
+extern const guint8 camrescale[];
+extern const size_t camrescale_size;
+
 extern const guint8 addLight_Icon[];
 extern const size_t addLight_Icon_size;
 
@@ -102,7 +105,7 @@ namespace coil {
     _frameCounter(0),
     _updateCounter(0),
     _mouseSensitivity(0.3),
-    _moveSensitivity(0.001),
+    _moveSensitivity(0.01),
     _specialKeys(0),
     _simrun(false),
     _simframelock(false),
@@ -203,6 +206,7 @@ namespace coil {
     setIcon(_refXml, "CamNegXimg", camnegx_size, camnegx);
     setIcon(_refXml, "CamNegYimg", camnegy_size, camnegy);
     setIcon(_refXml, "CamNegZimg", camnegz_size, camnegz);
+    setIcon(_refXml, "CamRescaleimg", camrescale_size, camrescale);
     setIcon(_refXml, "aboutSplashImage", coilsplash_size, coilsplash);
     setIcon(_refXml, "addLightImage", addLight_Icon_size, addLight_Icon);
     setIcon(_refXml, "addFunctionImage", addFunction_Icon_size, addFunction_Icon);
@@ -234,8 +238,10 @@ namespace coil {
       _refXml->get_widget("CamNegZbtn", button);
       button->signal_clicked()
 	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector(0,0,-1)));
-    }
 
+      _refXml->get_widget("CamRescalebtn", button);
+      button->signal_clicked().connect(sigc::mem_fun(*this, &CLGLWindow::rescaleCameraCallback));
+    }
 
     {
       Gtk::Button* button;    
@@ -481,7 +487,7 @@ namespace coil {
 	  _refXml->get_widget("SimLengthUnits", simunits);
 
 	  std::ostringstream os;
-	  os << _camera.getSimUnitLength();
+	  os << _camera.getRenderScale();
 	  simunits->set_text(os.str());
 
 	  simunits->signal_changed()
@@ -626,27 +632,27 @@ namespace coil {
     
     {
       std::tr1::shared_ptr<RLight> light(new RLight("Light 1",
-						    Vector(-0.8f,  0.8f, -0.8f),//Position
+						    Vector(-25.0f,  25.0f, -25.0f) / _camera.getRenderScale(),//Position
 						    Vector(0.0f, 0.0f, 0.0f),//Lookat
-						    75.0f//Beam angle
+						    30.0, 10000.0f, magnet::math::Vector(0,1,0), _camera.getRenderScale()
 						    ));
       _renderObjsTree._renderObjects.push_back(light);
     }
 
     {
       std::tr1::shared_ptr<RLight> light(new RLight("Light 2",
-						    Vector(0.8f,  0.8f, -0.8f),//Position
+						    Vector(25.0f,  25.0f, -25.0f) / _camera.getRenderScale(),//Position
 						    Vector(0.0f, 0.0f, 0.0f),//Lookat
-						    75.0f//Beam angle
+						    30.0, 10000.0f, magnet::math::Vector(0,1,0), _camera.getRenderScale()
 						    ));
       _renderObjsTree._renderObjects.push_back(light);
     }
 
     {
       std::tr1::shared_ptr<RLight> light(new RLight("Light 3",
-						    Vector(0.0f,  0.8f, 0.8f),//Position
+						    Vector(0.0f,  25.0f, 25.0f) / _camera.getRenderScale(),//Position
 						    Vector(0.0f, 0.0f, 0.0f),//Lookat
-						    75.0f//Beam angle
+						    30.0, 10000.0f, magnet::math::Vector(0,1,0), _camera.getRenderScale()
 						    ));
       _renderObjsTree._renderObjects.push_back(light);
     }
@@ -799,15 +805,12 @@ namespace coil {
       _camera.setRotatePoint(cam_focus);
     }
 
-    float moveAmp  = (_currFrameTime - _lastFrameTime) * _moveSensitivity;      
-    float forward  = moveAmp * ( keyStates[static_cast<size_t>('w')] 
-				 - keyStates[static_cast<size_t>('s')]);
-    float sideways = moveAmp * ( keyStates[static_cast<size_t>('d')] 
-				 - keyStates[static_cast<size_t>('a')]);
-    float vertical = moveAmp * ( keyStates[static_cast<size_t>('q')] 
-				 - keyStates[static_cast<size_t>('z')]);
-    _camera.movement(0, 0, forward, sideways, vertical);
+    float moveAmp  = (_currFrameTime - _lastFrameTime) * _moveSensitivity;
 
+    float forward  = moveAmp * (keyStates[static_cast<size_t>('w')] - keyStates[static_cast<size_t>('s')]);
+    float sideways = moveAmp * (keyStates[static_cast<size_t>('d')] - keyStates[static_cast<size_t>('a')]);
+    float vertical =  moveAmp * (keyStates[static_cast<size_t>('q')] - keyStates[static_cast<size_t>('z')]);
+    _camera.movement(0, 0, forward, sideways, vertical);
     
     ////////////GUI UPDATES
     //We frequently ping the gui update
@@ -2226,7 +2229,7 @@ namespace coil {
 
       if (setval <= 0) setval = 25;
 
-      _camera.setSimUnitLength(setval);
+      _camera.setRenderScale(setval);
     }
 
     {
@@ -2466,6 +2469,43 @@ namespace coil {
     _Gbuffer.attachTexture(normalTexture, 1);
     _Gbuffer.attachTexture(posTexture, 2);
     _Gbuffer.attachTexture(depthTexture);
+  }
+  
+  void 
+  CLGLWindow::rescaleCameraCallback()
+  {
+    double maxdim = 0;
+    magnet::math::Vector centre;
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
+	   = _renderObjsTree._renderObjects.begin();
+	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
+      {
+	magnet::math::Vector dims = (*iPtr)->getDimensions();
+	magnet::math::Vector current_centre = (*iPtr)->getCentre();
+	double largest_dim = std::max(dims[0], std::max(dims[1], dims[2]));
+	
+	if (largest_dim > maxdim)
+	  {
+	    maxdim = largest_dim;
+	    centre = current_centre;
+	  }
+      }
+
+    double newScale = 25.0 / maxdim;
+
+    _camera.setRenderScale(newScale);
+
+    {
+      Gtk::Entry* simunits;
+      _refXml->get_widget("SimLengthUnits", simunits);
+      
+      std::ostringstream os;
+      os << _camera.getRenderScale();
+      simunits->set_text(os.str());
+    }
+
+    _camera.setPosition(magnet::math::Vector(0,0,-5) * 25 / newScale + centre);
+    _camera.lookAt(centre);
   }
 
   void 
