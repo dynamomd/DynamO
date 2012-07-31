@@ -311,6 +311,14 @@ namespace coil {
     guiUpdate();
   }
 
+  void
+  RLight::setSize(double val)
+  {
+    _sizeEntry->set_text(boost::lexical_cast<std::string>(val));
+    _size = val;
+  }
+  
+
   void 
   RLight::guiUpdate()
   {

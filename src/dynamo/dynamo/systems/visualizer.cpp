@@ -48,10 +48,7 @@ namespace dynamo {
     sysName = "Visualizer";
 
     //Build a window, ready to display it
-
-    double scale = std::max(Sim->primaryCellSize[0], std::max(Sim->primaryCellSize[1], Sim->primaryCellSize[2]));
-    
-    _window.reset(new coil::CLGLWindow("Visualizer : " + nName, tickFreq, 25 / scale, true));
+    _window.reset(new coil::CLGLWindow("Visualizer : " + nName, tickFreq, true));
   
     BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->species)
       _window->addRenderObj(spec->createDataSet());

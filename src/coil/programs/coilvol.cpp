@@ -64,22 +64,21 @@ int main(int argc, char *argv[])
 	  return 1;
 	}
       
-      
       magnet::ArgShare::getInstance().setArgs(argc, argv);
       
       coil::CoilRegister coil;
             
-      std::tr1::shared_ptr<coil::RVolume> 
+      std::tr1::shared_ptr<coil::RVolume>
 	voldata(new coil::RVolume(vm["data-file"].as<std::string>()));
 
-      std::tr1::shared_ptr<coil::CLGLWindow> 
-	window(new coil::CLGLWindow("Coil Volume Renderer : ", 1.0, 25.0 / 1.0));
+      std::tr1::shared_ptr<coil::CLGLWindow>
+	window(new coil::CLGLWindow("Coil Volume Renderer : ", 1.0));
 
       window->addRenderObj(voldata);
       
       coil.getInstance().addWindow(window);
 
-      voldata->loadRawFile(vm["data-file"].as<std::string>(), 
+      voldata->loadRawFile(vm["data-file"].as<std::string>(),
 			   vm["x-elements"].as<size_t>(),
 			   vm["y-elements"].as<size_t>(),
 			   vm["z-elements"].as<size_t>(),

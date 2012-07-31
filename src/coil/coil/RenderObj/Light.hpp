@@ -118,6 +118,8 @@ namespace coil {
       return vec;
     }
 
+    void setSize(double val);
+
   protected:
     void initGTK();
     void guiUpdate();

@@ -94,7 +94,6 @@ namespace {
 namespace coil {
   CLGLWindow::CLGLWindow(std::string title,
 			 double updateIntervalValue,
-			 double scale,
 			 bool dynamo
 			 ):
     _selectedObjectID(0),
@@ -126,8 +125,6 @@ namespace coil {
       _backColor[i] = 1.0;
 
     for (size_t i(0); i < 256; ++i) keyStates[i] = false;
-
-    _camera.setRenderScale(scale);
   }
 
   CLGLWindow::~CLGLWindow() {}
@@ -2492,7 +2489,10 @@ namespace coil {
       }
 
     double newScale = 25.0 / maxdim;
-
+    const size_t width(_camera.getWidth()), height(_camera.getHeight());
+    
+    //Try to reset the camera, in-case its dissappeared to nan or inf.
+    _camera = magnet::GL::Camera(height, width);
     _camera.setRenderScale(newScale);
 
     {
@@ -2506,6 +2506,36 @@ namespace coil {
 
     _camera.setPosition(magnet::math::Vector(0,0,-5) * 25 / newScale + centre);
     _camera.lookAt(centre);
+
+    //Regenerate the lighting for the scene
+    size_t lightCount(0);
+    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
+	   = _renderObjsTree._renderObjects.begin();
+	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
+      {
+	std::tr1::shared_ptr<RLight> ptr 
+	  = std::tr1::dynamic_pointer_cast<RLight>(*iPtr);
+	if (ptr)
+	  {
+	    ptr->setSize(1.0 / newScale);
+	    switch (lightCount)
+	      {
+	      case 0:
+		ptr->setPosition(magnet::math::Vector(-15.0f,  15.0f, -15.0f) / _camera.getRenderScale());
+		++lightCount;
+		break;
+	      case 1:
+		ptr->setPosition(magnet::math::Vector(15.0f,  15.0f, -15.0f) / _camera.getRenderScale());
+		++lightCount;
+		break;
+	      case 2:
+		ptr->setPosition(magnet::math::Vector(0.0f,  15.0f, 15.0f) / _camera.getRenderScale());
+		++lightCount;
+		break;
+	      default: break;
+	      }
+	  }
+      }
   }
 
   void 

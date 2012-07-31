@@ -50,8 +50,7 @@ namespace coil {
   class CLGLWindow : public CoilWindow
   {
   public:
-    CLGLWindow(std::string title, double updateIntervalValue, double scale, 
-	       bool dynamo = false);
+    CLGLWindow(std::string title, double updateIntervalValue, bool dynamo = false);
 
     ~CLGLWindow();
   

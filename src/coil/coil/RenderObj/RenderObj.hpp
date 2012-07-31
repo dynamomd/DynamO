@@ -316,6 +316,8 @@ namespace coil {
 
     std::vector<std::tr1::shared_ptr<RenderObj> > _renderObjects;
 
+    void delete_obj(RenderObj*);
+
   protected:
     
 
