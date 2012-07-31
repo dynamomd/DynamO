@@ -472,7 +472,7 @@ function BinarySphereTest {
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
 	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-	    | gawk '{var=($1-0.00922057)/0.00922057; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
+	    | gawk '{var=($1-0.0098213311089127)/0.0098213311089127; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
 	    echo "BinarySphereTest -: FAILED"
 	    exit 1
 	else
