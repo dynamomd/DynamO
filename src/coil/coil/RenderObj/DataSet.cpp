@@ -255,10 +255,11 @@ namespace coil {
     for (const_iterator iPtr = begin(); iPtr != end();)
       {
 	size_t comps = iPtr->second->components();
-	os << iPtr->first << ":"; 
+	os << iPtr->first << " <"; 
 	
-	for (size_t i(0); i < comps; ++i)
-	  os << " " << (*(iPtr->second))[objID * comps + i];
+	for (size_t i(0); i < comps-1; ++i)
+	  os << (*(iPtr->second))[objID * comps + i] << ", ";
+	os << (*(iPtr->second))[(objID + 1) * comps - 1] << ">";
 	if (++iPtr != end())
 	  os << "\n";
       }
