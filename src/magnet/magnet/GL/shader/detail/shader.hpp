@@ -560,6 +560,16 @@ namespace magnet {
 		GL::detail::errorCheck();
 	      }
 	    
+	    if (!_tfVaryings.empty())
+	      {
+		std::vector<const char*> _varyingcstrings(_tfVaryings.size());
+
+		for (size_t i(0); i < _tfVaryings.size(); ++i)
+		  _varyingcstrings[i] = _tfVaryings[i].c_str();
+
+		glTransformFeedbackVaryings(_programHandle, _varyingcstrings.size(), &_varyingcstrings[0], GL_INTERLEAVED_ATTRIBS);
+	      }
+
 	    //Bind the default shader variables to the indices
 	    //specified in the \ref Context class.
 	    glLinkProgramARB(_programHandle);
@@ -614,6 +624,9 @@ namespace magnet {
 	  std::string _vertexShaderCode;
 	  std::string _fragmentShaderCode;
 	  std::string _geometryShaderCode;
+
+	  //! \brief The transform feedback varyings of the shader
+	  std::vector<std::string> _tfVaryings;
 
 	  std::tr1::unordered_map<std::string, ShaderUniformValue> _uniformCache;
 	  std::tr1::unordered_map<std::string, ShaderDefineValue> _defineCache;
