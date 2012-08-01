@@ -318,8 +318,6 @@ namespace dynamo
     } catch (std::exception&)
       {}
 
-    ensemble = dynamo::Ensemble::getClass(simNode.getNode("Ensemble"), this);
-
     _properties << mainNode;
 
     //Load the Primary cell's size
@@ -388,6 +386,8 @@ namespace dynamo
 
     _properties.rescaleUnit(Property::Units::M, 
 			    units.unitMass());
+
+    ensemble = dynamo::Ensemble::loadEnsemble(*this);
   }
 
   void
@@ -436,8 +436,7 @@ namespace dynamo
 	      << mft;
       }
 
-    XML	<< *ensemble
-	<< magnet::xml::tag("Scheduler")
+    XML << magnet::xml::tag("Scheduler")
 	<< *ptrScheduler
 	<< magnet::xml::endtag("Scheduler")
 	<< magnet::xml::tag("SimulationSize")

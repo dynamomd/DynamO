@@ -217,8 +217,6 @@ namespace dynamo {
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
-	
 	  if (vm.count("i2"))
 	    Sim->systems.push_back(shared_ptr<System>(new SysRescale(Sim, vm["i2"].as<size_t>(), "RescalerEvent")));
 
@@ -400,8 +398,6 @@ namespace dynamo {
 	  BOOST_FOREACH(const Vector & position, latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
 	}
       case 2:
@@ -537,9 +533,6 @@ namespace dynamo {
 	  BOOST_FOREACH(const Vector & position, latticeSites)
 	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
-
 	  break;
 	}
       case 3:
@@ -688,8 +681,6 @@ namespace dynamo {
 	  Sim->setCOMVelocity();
 	  BOOST_FOREACH(Particle& part, Sim->particles)
 	    part.getVelocity()[0] += part.getPosition()[1] * shearRate;
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVShear(Sim));
 	  break;
 	}
       case 5:
@@ -786,8 +777,6 @@ namespace dynamo {
 	  BOOST_FOREACH(const Vector & position, latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
 	}
       case 6:
@@ -852,9 +841,6 @@ namespace dynamo {
 	  BOOST_FOREACH(const Vector & position, latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
-
 	  break;
 	}
       case 7:
@@ -956,8 +942,6 @@ namespace dynamo {
 	  BOOST_FOREACH(const Vector & position, latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
 	}
       case 8:
@@ -1051,8 +1035,6 @@ namespace dynamo {
 	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 		      nParticles++));
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
 	}
       case 9:
@@ -1116,8 +1098,6 @@ namespace dynamo {
 
 	  const double length = 1;
 	  Sim->dynamics->initOrientations(std::sqrt(12.0/ (length * length)));
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
 	}
       case 10:
@@ -1192,8 +1172,6 @@ namespace dynamo {
 	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 		      nParticles++));
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
 	}
       case 11:
@@ -1402,8 +1380,6 @@ namespace dynamo {
 	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 		      nParticles++));
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
 	}
       case 13:
@@ -1458,8 +1434,6 @@ namespace dynamo {
 
 	  const double length = 1;
 	  Sim->dynamics->initOrientations(std::sqrt(12.0/ (length * length)));
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
 	}
       case 14:
@@ -1583,8 +1557,6 @@ namespace dynamo {
 	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 		      nParticles++));
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
 	}
       case 15:
@@ -1706,7 +1678,6 @@ namespace dynamo {
 		    = -Sim->units.unitVelocity();
 		}
 	  }
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
 	}
       case 16:
@@ -1853,8 +1824,6 @@ namespace dynamo {
 	  BOOST_FOREACH(const Vector & position, latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
 	}
       case 17:
@@ -1945,8 +1914,6 @@ namespace dynamo {
 	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 		      nParticles++));
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
 	}
       case 18:
@@ -2127,8 +2094,6 @@ namespace dynamo {
 				    0.5 * L / boxL, PlateInelas, Delta / boxL, 
 				    MassRatio * nParticles, "Plate1", 
 				    new RAll(Sim), 0.0, strongPlate)));
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
 	}
       case 20:
@@ -2201,8 +2166,6 @@ namespace dynamo {
 	    Sim->particles.push_back(Particle(position, getRandVelVec()
 						 * Sim->units.unitVelocity(),
 						 nParticles++));
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
 	}
       case 21:
@@ -2293,8 +2256,6 @@ namespace dynamo {
 	  BOOST_FOREACH(const Vector & position, latticeSites)
 	    Sim->particles.push_back(Particle(position * boxlimit, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
 	}
       case 22:
@@ -2363,9 +2324,6 @@ namespace dynamo {
 	  BOOST_FOREACH(const Vector & position, latticeSites)
 	    Sim->particles.push_back(Particle(0.999 * position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
-	
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
-	
 	  break;
 	}
       case 23:
@@ -2490,8 +2448,6 @@ namespace dynamo {
 	      if (vel[1] > 0) vel[1] = -vel[1];//So particles don't fly out of the hopper
 	      Sim->particles.push_back(Particle(position, vel, nParticles++));
 	    }
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
 	}
       case 24:
@@ -3056,9 +3012,6 @@ namespace dynamo {
 	  BOOST_FOREACH(const Vector & position, latticeSites)
 	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
-
 	  break;
 	}
       case 25:
@@ -3301,8 +3254,6 @@ namespace dynamo {
 	      if (vel[1] > 0) vel[1] = -vel[1];//So particles don't fly out of the hopper
 	      Sim->particles.push_back(Particle(position, vel, nParticles++));
 	    }
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVE(Sim));
 	  break;
 	}
       case 26:
@@ -3440,15 +3391,13 @@ namespace dynamo {
 	  Sim->setCOMVelocity();
 	  BOOST_FOREACH(Particle& part, Sim->particles)
 	    part.getVelocity()[0] += part.getPosition()[1] * shearRate;
-
-	  Sim->ensemble.reset(new dynamo::EnsembleNVShear(Sim));
 	  break;
 	}
       default:
 	M_throw() << "Did not recognise the packer mode you wanted";
       }
-
     Sim->N = Sim->particles.size();
+    Sim->ensemble = dynamo::Ensemble::loadEnsemble(*Sim);
   }
 
   Vector

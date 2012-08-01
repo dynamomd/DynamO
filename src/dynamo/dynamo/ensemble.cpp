@@ -18,7 +18,7 @@
 #include <dynamo/ensemble.hpp>
 #include <dynamo/systems/andersenThermostat.hpp>
 #include <dynamo/dynamics/compression.hpp>
-#include <dynamo/BC/LEBC.hpp>
+#include <dynamo/BC/PBC.hpp>
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <dynamo/dynamics/multicanonical.hpp>
 #include <magnet/exception.hpp>
@@ -27,33 +27,28 @@
 
 namespace dynamo {
   shared_ptr<Ensemble>
-  Ensemble::getClass(const magnet::xml::Node& XML, const dynamo::Simulation* Sim)
+  Ensemble::loadEnsemble(const dynamo::Simulation& Sim)
   {
-    if (!strcmp(XML.getAttribute("Type"), "NVT"))
-      return shared_ptr<Ensemble>(new EnsembleNVT(Sim));
-    else if (!strcmp(XML.getAttribute("Type"), "NVE"))
-      return shared_ptr<Ensemble>(new EnsembleNVE(Sim));
-    else if (!strcmp(XML.getAttribute("Type"), "NVShear"))
-      return shared_ptr<Ensemble>(new EnsembleNVShear(Sim));
-    else if (!strcmp(XML.getAttribute("Type"), "NECompression"))
-      return shared_ptr<Ensemble>(new EnsembleNECompression(Sim));
-    else if (!strcmp(XML.getAttribute("Type"), "NTCompression"))
-      return shared_ptr<Ensemble>(new EnsembleNTCompression(Sim));
-    else
-      M_throw() << "Cannot correctly identify the ensemble";
-  }
+    bool hasThermostat = false; 
 
-  double 
-  Ensemble::exchangeProbability(const Ensemble&) const
-  { M_throw() << "Exchange move not written for this Ensemble"; }
-
-  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
-			      const Ensemble& g)
-  {
-    XML << magnet::xml::tag("Ensemble")
-	<< magnet::xml::attr("Type") << g.getName()
-	<< magnet::xml::endtag("Ensemble");
-    return XML;
+    try {
+      hasThermostat = std::tr1::dynamic_pointer_cast<SysAndersen>(Sim.systems["Thermostat"]); 
+    } catch (std::exception & err) {}
+    
+    bool periodic = std::tr1::dynamic_pointer_cast<BCPeriodic>(Sim.BCs);
+    
+    if (periodic)
+      {
+	if (hasThermostat)
+	  return shared_ptr<Ensemble>(new EnsembleNVT(&Sim));
+	
+	
+	
+	return shared_ptr<Ensemble>(new EnsembleNVE(&Sim));
+      }
+    
+    //Return the default unknown ensemble
+    return shared_ptr<Ensemble>(new Ensemble(&Sim));
   }
 
   void
@@ -151,109 +146,4 @@ namespace dynamo {
 
     return std::exp(factor);
   }
-
-  void
-  EnsembleNVShear::initialise()
-  {
-    if (!(std::tr1::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs)))
-      M_throw() << "A shearing ensemble requires Lees-Edwards Boundary Conditions";
-
-    EnsembleVals[0] = Sim->particles.size();
-    EnsembleVals[1] = Sim->primaryCellSize[0] * Sim->primaryCellSize[1] * Sim->primaryCellSize[2];
-    EnsembleVals[2] = static_cast<const BCLeesEdwards&>(*Sim->BCs).getShearRate();
-
-    dout << "NVShear Ensemble initialised\nN=" << EnsembleVals[0]
-	     << "\nV=" << EnsembleVals[1] / Sim->units.unitVolume()
-	     << "\nGamma=" << EnsembleVals[2] * Sim->units.unitTime() << std::endl;
-  }
-
-  std::tr1::array<double,3> 
-  EnsembleNVShear::getReducedEnsembleVals() const
-  {
-    std::tr1::array<double,3> retval;
-    retval[0] = EnsembleVals[0];
-    retval[1] = EnsembleVals[1] / Sim->units.unitVolume();
-    retval[2] = EnsembleVals[2] * Sim->units.unitTime();
-
-    return retval;
-  }
-
-  void
-  EnsembleNECompression::initialise()
-  {
-    EnsembleVals[0] = Sim->particles.size();
-    EnsembleVals[1] = Sim->calcInternalEnergy() 
-      + Sim->dynamics->getSystemKineticEnergy();
-    
-    try {
-      EnsembleVals[2] = dynamic_cast<const DynCompression&>
-	(*Sim->dynamics).getGrowthRate();
-    }
-    catch (std::exception&)
-      {
-	M_throw() << "Compression ensemble requires the use of compression dynamics";
-      }
-
-    dout << "NECompression Ensemble initialised\nN=" << EnsembleVals[0]
-	     << "\nE=" << EnsembleVals[1] / Sim->units.unitEnergy()
-	     << "\nGamma=" << EnsembleVals[2] * Sim->units.unitTime() << std::endl;
-  }
-
-  std::tr1::array<double,3> 
-  EnsembleNECompression::getReducedEnsembleVals() const
-  {
-    std::tr1::array<double,3> retval;
-    retval[0] = EnsembleVals[0];
-    retval[1] = EnsembleVals[1] / Sim->units.unitEnergy();
-    retval[2] = EnsembleVals[2] * Sim->units.unitTime();
-
-    return retval;
-  }
-
-  void
-  EnsembleNTCompression::initialise()
-  {
-    EnsembleVals[0] = Sim->particles.size();
-
-    try {
-      thermostat = Sim->systems["Thermostat"];
-    } catch (std::exception&)
-      {
-	M_throw() << "Could not find the Thermostat in NVT system";
-      }
-    
-    //Only one kind of thermostat so far!
-    if (!std::tr1::dynamic_pointer_cast<SysAndersen>(thermostat))
-      {
-	M_throw() << "Could not upcast thermostat to Andersens";
-      }
-    
-    EnsembleVals[1] = std::tr1::dynamic_pointer_cast<SysAndersen>
-      (thermostat)->getTemperature();
-    
-    try {
-      EnsembleVals[2] = dynamic_cast<const DynCompression&>
-	(*Sim->dynamics).getGrowthRate();
-    }
-    catch (std::exception&)
-      {
-	M_throw() << "Compression ensemble requires the use of compression dynamics";
-      }
-
-    dout << "NTCompression Ensemble initialised\nN=" << EnsembleVals[0]
-	     << "\nT=" << EnsembleVals[1] / Sim->units.unitEnergy()
-	     << "\nGamma=" << EnsembleVals[2] * Sim->units.unitTime() << std::endl;
-  }
-
-  std::tr1::array<double,3> 
-  EnsembleNTCompression::getReducedEnsembleVals() const
-  {
-    std::tr1::array<double,3> retval;
-    retval[0] = EnsembleVals[0];
-    retval[1] = EnsembleVals[1] / Sim->units.unitEnergy();
-    retval[2] = EnsembleVals[2] * Sim->units.unitTime();
-
-    return retval;
-  }
-
 }

@@ -27,49 +27,44 @@ namespace dynamo {
   /*! \brief This class specifies the simulation ensemble that the
     simulation is being performed in.
    
-    This is the abstract base class defining the Ensemble interface.
+    Sometimes, it is required to check the ensemble of the
+    simulation. i.e. in replica exchange, we need to know if we're in
+    the NVT ensemble, as this is the only time we can use the
+    boltzmann relationship to calculate the exchange
+    probability. Also, some plugins (thermal conductivity) are only
+    valid in the NVE ensemble.
+
+    The Ensemble for the simulated system is detected by the \ref
+    Ensemble::loadEnsemble() function. Only the NVT and NVE Ensembles
+    are defined, as these are the special cases we currently need to
+    distinguish. More specialisations will be added as needed.
    */
   class Ensemble : public SimBase_const
   {
   public:
-    Ensemble(const Simulation* const& SD, const char *aName):
+    Ensemble(const Simulation* const& SD, const char *aName = "Ensemble"):
       SimBase_const(SD, aName) {}
     
     virtual ~Ensemble() {}
 
-    /*! \brief Used to load an xml tag corresponding to an Ensemble and
-      generate the correct derived Ensemble type.
+    /*! \brief Used to determine what ensemble is correct for the
+        current simulation.
       
-      \param XML The XML node containing the type of the Ensemble
-      \param Sim A pointer to the simulation data this Ensemble is valid for.
+      \param Sim A reference to the simulation data to detect the
+      Ensemble for.
     */
-    static shared_ptr<Ensemble> 
-    getClass(const magnet::xml::Node& XML, 
-	     const dynamo::Simulation* Sim);
-
-    /*! \brief Helper function which generates an Ensemble XML tag.
-      \sa getName
-    */
-    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Ensemble&);
-    
-    /*! \brief This function returns a string corresponding to the
-     type of Ensemble.
-
-     This name is used to load the Ensemble again from the config
-     file.
-    */
-    virtual std::string getName() const = 0;
+    static shared_ptr<Ensemble> loadEnsemble(const dynamo::Simulation& Sim);
 
     /*! \brief Called to generate and store the Ensemble variables.
      */
-    virtual void initialise() = 0;
+    virtual void initialise() { dout << "Undefined Ensemble type."; }
 
     /*! \brief Returns an array containing the control values of the Ensemble
      (e.g., NVE) in the units of the output.
 
      \sa getEnsembleVals
     */
-    virtual std::tr1::array<double,3> getReducedEnsembleVals() const = 0;
+    virtual std::tr1::array<double,3> getReducedEnsembleVals() const { M_throw() << "Undefined Ensemble"; }
     
     /*! \brief Swaps the underlying ensemble control values.
       
@@ -80,13 +75,13 @@ namespace dynamo {
     /*! \brief Calculates the probability of carrying out a replica exchange
       move between this Ensemble and another.
     */
-    virtual double exchangeProbability(const Ensemble&) const;
+    virtual double exchangeProbability(const Ensemble&) const { M_throw() << "Undefined in this Ensemble"; }
     
     /*! Returns an array containing the ensemble values in simulation units.
     
       \sa getReducedEnsembleVals
     */
-    const std::tr1::array<double,3>& getEnsembleVals() const { return EnsembleVals; }
+    virtual const std::tr1::array<double,3>& getEnsembleVals() const { M_throw() << "Undefined Ensemble"; }
 
   protected:
     std::tr1::array<double,3> EnsembleVals;
@@ -104,9 +99,8 @@ namespace dynamo {
     virtual void initialise();
 
     virtual std::tr1::array<double,3> getReducedEnsembleVals() const;
-
-    virtual std::string getName() const
-    { return std::string("NVE"); }
+    
+    virtual const std::tr1::array<double,3>& getEnsembleVals() const { return EnsembleVals; }
   };
 
   /*! \brief An Ensemble where N (no. of particles), V (simulation
@@ -125,67 +119,9 @@ namespace dynamo {
 
     virtual std::tr1::array<double,3> getReducedEnsembleVals() const;
 
-    virtual std::string getName() const
-    { return std::string("NVT"); }
-
     virtual double exchangeProbability(const Ensemble&) const;
 
-  protected:
-    shared_ptr<System> thermostat;
-  };
-
-  /*! \brief An Ensemble where N (no. of particles), V (simulation volume),
-    and shear rate are held constant.
-  */
-  class EnsembleNVShear       : public Ensemble 
-  {
-  public:
-    EnsembleNVShear(const dynamo::Simulation* SD): 
-      Ensemble(SD, "EnsembleNVShear") {}
-
-    virtual void initialise();
-
-    virtual std::tr1::array<double,3> getReducedEnsembleVals() const;
-
-    virtual std::string getName() const
-    { return std::string("NVShear"); }
-  };
-
-  /*! \brief An Ensemble where N (no. of particles), E (total energy),
-    and isotropic compression rate are held constant.
-  */
-  class EnsembleNECompression : public Ensemble 
-  {
-  public:
-    EnsembleNECompression(const dynamo::Simulation* SD): 
-      Ensemble(SD, "EnsembleNECompression") {}
-
-    virtual void initialise();
-
-    virtual std::tr1::array<double,3> getReducedEnsembleVals() const;
-
-    virtual std::string getName() const
-    { return std::string("NECompression"); }
-  };
-
-  /*! \brief An Ensemble where N (no. of particles), T (Temperature),
-    and isotropic compression rate are held constant.
-   
-    This class also stores a pointer to the thermostat used to hold
-    the temperature constant.
-  */
-  class EnsembleNTCompression : public Ensemble 
-  {
-  public:
-    EnsembleNTCompression(const dynamo::Simulation* SD): 
-      Ensemble(SD, "EnsembleNTCompression") {}
-
-    virtual void initialise();
-
-    virtual std::tr1::array<double,3> getReducedEnsembleVals() const;
-
-    virtual std::string getName() const
-    { return std::string("NTCompression"); }
+    virtual const std::tr1::array<double,3>& getEnsembleVals() const { return EnsembleVals; }
 
   protected:
     shared_ptr<System> thermostat;
