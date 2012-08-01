@@ -100,6 +100,8 @@ namespace coil {
       
       for (iterator iPtr = begin(); iPtr != end(); ++iPtr)
 	iPtr->second->renderComplete();
+
+      rebuildGui();
     }
     
     virtual Gtk::TreeModel::iterator addViewRows(RenderObjectsGtkTreeView& view, Gtk::TreeModel::iterator& iter)
@@ -210,7 +212,6 @@ namespace coil {
 
     void initGtk();
     void rebuildGui();
-
 
     struct ModelColumns : Gtk::TreeModelColumnRecord
     {

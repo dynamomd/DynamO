@@ -2480,13 +2480,16 @@ namespace coil {
 	magnet::math::Vector dims = (*iPtr)->getDimensions();
 	magnet::math::Vector current_centre = (*iPtr)->getCentre();
 	double largest_dim = std::max(dims[0], std::max(dims[1], dims[2]));
-	
+
 	if (largest_dim > maxdim)
 	  {
 	    maxdim = largest_dim;
 	    centre = current_centre;
 	  }
       }
+    
+    //Catch the exceptional case where there is nothing rendered
+    if (maxdim == 0) maxdim = 1.0;
 
     double newScale = 25.0 / maxdim;
     const size_t width(_camera.getWidth()), height(_camera.getHeight());

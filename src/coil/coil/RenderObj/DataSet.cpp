@@ -216,7 +216,8 @@ namespace coil {
 	    (*iter)[_attrcolumns->min] = "N/A";
 	    (*iter)[_attrcolumns->max] = "N/A";
 	  }
-      }      
+      }
+
     _positionSel->buildEntries("Position Attribute:", *this, 3, 3, 
 			       Attribute::COORDINATE, 0,
 			       Attribute::DEFAULT_GLYPH_POSITION);
