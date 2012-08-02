@@ -56,7 +56,7 @@ project	: requirements
 	  <toolset>clang:<cflags>-Wno-mismatched-tags
 	  <toolset>clang:<cflags>-Wno-newline-eof
 	  <toolset>gcc:<cflags>-Wno-overlength-strings
-	  <cflags>-ansi <cflags>-pedantic
+	  #<cflags>-ansi <cflags>-pedantic
 	: default-build release
 	: build-dir $(BUILD_DIR_PATH)
 	;
