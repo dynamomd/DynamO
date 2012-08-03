@@ -73,6 +73,8 @@ namespace coil {
       return retval;
     }
 
+    void setPosition(magnet::math::Vector newposition);
+
     /*! \brief Load the specified OpenGL texture matrix with the
       projection required for shadow mapping.
       
@@ -119,6 +121,8 @@ namespace coil {
     }
 
     void setSize(double val);
+
+    GLfloat getSize() const { return _size; }
 
   protected:
     void initGTK();

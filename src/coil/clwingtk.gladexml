@@ -311,25 +311,23 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton" id="CamRescalebtn">
+                          <object class="GtkToggleButton" id="CamRescalebtn">
                             <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="tooltip_text" translatable="yes">Automatically rescale the camera to better fit the scene.</property>
                             <property name="use_action_appearance">False</property>
                             <child>
                               <object class="GtkImage" id="CamRescaleimg">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="stock">gtk-missing-image</property>
+                                <property name="stock">gtk-file</property>
                               </object>
                             </child>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="padding">5</property>
+                            <property name="fill">True</property>
                             <property name="pack_type">end</property>
                             <property name="position">6</property>
                           </packing>

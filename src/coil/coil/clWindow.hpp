@@ -286,6 +286,9 @@ namespace coil {
     bool _dynamo;
     bool _particleSync;
     volatile bool _newData;
+    magnet::math::Vector _cameraFocus;
+    enum CAM_MODE { ROTATE_WORLD, ROTATE_POINT, ROTATE_CAMERA};
+    CAM_MODE _cameraMode;
     std::auto_ptr<Gtk::ComboBoxText> _aasamples;
     std::auto_ptr<magnet::image::VideoEncoderFFMPEG> _encoder;
   };

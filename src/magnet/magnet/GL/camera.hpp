@@ -59,7 +59,6 @@ namespace magnet {
       enum Camera_Mode
 	{
 	  ROTATE_CAMERA,
-	  ROTATE_WORLD,
 	  ROTATE_POINT
 	};
 
@@ -93,7 +92,7 @@ namespace magnet {
 	_zFarDist(zFarDist),
 	_simLength(simLength),
 	_pixelPitch(0.05), //Measured from my screen
-	_camMode(ROTATE_WORLD)
+	_camMode(ROTATE_POINT)
       {
 	up /= up.nrm();
 
@@ -172,13 +171,14 @@ namespace magnet {
       inline void setRotatePoint(math::Vector vec)
       {
 	if (_rotatePoint == vec) return;
-
+	
+	math::Vector shift = vec - _rotatePoint;
 	_rotatePoint = vec;
 
 	switch (_camMode)
 	  {
 	  case ROTATE_POINT:
-	  case ROTATE_WORLD:
+	    _nearPlanePosition += shift;
 	    lookAt(_rotatePoint);
 	    break;
 	  case ROTATE_CAMERA:
@@ -186,6 +186,7 @@ namespace magnet {
 	  default:
 	    M_throw() << "Unknown camera mode";
 	  }
+
       }
 
       /*! \brief Sets the eye location.
@@ -222,7 +223,7 @@ namespace magnet {
 	math::Matrix Transformation = Rodrigues(-_up * (_panrotation * M_PI / 180.0))
 	  * Rodrigues(math::Vector(- _tiltrotation * M_PI / 180.0, 0, 0));
 	
-	if ((_camMode == ROTATE_POINT) || (_camMode == ROTATE_WORLD))
+	if (_camMode == ROTATE_POINT)
 	  {
 	    if (forwards)
 	      {
@@ -239,7 +240,6 @@ namespace magnet {
 	    rotationY += 10 * upwards;
 	  }
 
-	math::Vector focus = math::Vector(0,0,0);
 	switch (_camMode)
 	  {
 	  case ROTATE_CAMERA:
@@ -257,11 +257,9 @@ namespace magnet {
 	      break;
 	    }
 	  case ROTATE_POINT:
-	    focus = _rotatePoint;
-	  case ROTATE_WORLD:
 	    {
-	      lookAt(focus);
-	      math::Vector offset =  getPosition() - focus;
+	      lookAt(_rotatePoint);
+	      math::Vector offset =  getPosition() - _rotatePoint;
 
 	      //We need to store the normal and restore it later.
 	      double offset_length = offset.nrm();
@@ -298,8 +296,8 @@ namespace magnet {
 
 	      offset *= offset_length / double(offset.nrm());
 	      
-	      setPosition(offset + focus);
-	      lookAt(focus);
+	      setPosition(offset + _rotatePoint);
+	      lookAt(_rotatePoint);
 	      break;
 	    }
 	  default:
@@ -313,7 +311,6 @@ namespace magnet {
        */
       inline void setViewAxis(math::Vector axis)
       {
-	math::Vector focus(0,0,0);
 	switch (_camMode)
 	  {
 	  case ROTATE_CAMERA:
@@ -322,12 +319,10 @@ namespace magnet {
 	      break;
 	    }
 	  case ROTATE_POINT:
-	    focus = _rotatePoint;
-	  case ROTATE_WORLD:
 	    {
-	      double focus_distance = (getPosition() - focus).nrm();
-	      setPosition(focus - focus_distance * axis);
-	      lookAt(focus);
+	      double focus_distance = (getPosition() - _rotatePoint).nrm();
+	      setPosition(_rotatePoint - focus_distance * axis);
+	      lookAt(_rotatePoint);
 	      break;
 	    }
 	  default:

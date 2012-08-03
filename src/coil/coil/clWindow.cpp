@@ -119,7 +119,8 @@ namespace coil {
     _snapshot_counter(0),
     _video_counter(0),
     _samples(1),
-    _dynamo(dynamo)
+    _dynamo(dynamo),
+    _cameraMode(ROTATE_WORLD)
   {
     for (size_t i(0); i < 3; ++i)
       _backColor[i] = 1.0;
@@ -235,9 +236,6 @@ namespace coil {
       _refXml->get_widget("CamNegZbtn", button);
       button->signal_clicked()
 	.connect(sigc::bind(sigc::mem_fun(_camera, &magnet::GL::Camera::setViewAxis), magnet::math::Vector(0,0,-1)));
-
-      _refXml->get_widget("CamRescalebtn", button);
-      button->signal_clicked().connect(sigc::mem_fun(*this, &CLGLWindow::rescaleCameraCallback));
     }
 
     {
@@ -790,17 +788,19 @@ namespace coil {
     int _currFrameTime = glutGet(GLUT_ELAPSED_TIME);
 
     ////////////CAMERA UPDATES
-    { 
-      magnet::math::Vector cam_focus(0, 0, 0);
-
-      if (_selectedObject)
-	{
-	  std::tr1::array<GLfloat, 4> vec = _selectedObject->getCursorPosition(_selectedObjectID);
-	  cam_focus = magnet::math::Vector(vec[0], vec[1], vec[2]);
-	}
-      
-      _camera.setRotatePoint(cam_focus);
+    {
+      Gtk::ToggleButton* button;
+      _refXml->get_widget("CamRescalebtn", button);
+      if (button->get_active())
+	rescaleCameraCallback();
     }
+
+    _camera.setRotatePoint(_cameraFocus);
+    if (_selectedObject && (_cameraMode == ROTATE_POINT))
+      {
+	std::tr1::array<GLfloat, 4> vec = _selectedObject->getCursorPosition(_selectedObjectID);
+	_camera.setRotatePoint(magnet::math::Vector(vec[0], vec[1], vec[2]));
+      }
 
     float moveAmp  = (_currFrameTime - _lastFrameTime) * _moveSensitivity;
 
@@ -2015,8 +2015,8 @@ namespace coil {
 	  _renderObjsTree._view->get_selection()->select(finder._iter);
       }
     else
-      if (_camera.getMode() == magnet::GL::Camera::ROTATE_POINT)
-	_camera.setMode(magnet::GL::Camera::ROTATE_CAMERA);
+      if (_cameraMode == ROTATE_POINT)
+	_cameraMode = ROTATE_CAMERA;
   }
 
   void CLGLWindow::selectRObjCallback() 
@@ -2053,18 +2053,21 @@ namespace coil {
   void
   CLGLWindow::cameraModeCallback()
   {
-    switch (_camera.getMode())
+    switch (_cameraMode)
       {
-      case magnet::GL::Camera::ROTATE_CAMERA:
-	_camera.setMode(magnet::GL::Camera::ROTATE_WORLD);
+      case ROTATE_CAMERA:
+	_cameraMode = ROTATE_WORLD;
+	_camera.setMode(magnet::GL::Camera::ROTATE_POINT);
 	break;
-      case magnet::GL::Camera::ROTATE_WORLD:
+      case ROTATE_WORLD:
 	if (_selectedObject)
-	  _camera.setMode(magnet::GL::Camera::ROTATE_POINT);
-	else
-	  _camera.setMode(magnet::GL::Camera::ROTATE_CAMERA);
-	break;
-      case magnet::GL::Camera::ROTATE_POINT:
+	  {
+	    _cameraMode = ROTATE_POINT;
+	    _camera.setMode(magnet::GL::Camera::ROTATE_POINT);
+	    break;
+	  }
+      case ROTATE_POINT:
+	_cameraMode = ROTATE_CAMERA;
 	_camera.setMode(magnet::GL::Camera::ROTATE_CAMERA);
 	break;
       default:
@@ -2108,15 +2111,15 @@ namespace coil {
       Gtk::Image* icon;
       _refXml->get_widget("CamModeimg", icon);
 
-      switch (_camera.getMode())
+      switch (_cameraMode)
 	{
-	case magnet::GL::Camera::ROTATE_CAMERA:
+	case ROTATE_CAMERA:
 	  icon->set(Gdk::Pixbuf::create_from_inline(cammode_fps_size, cammode_fps));
 	  break;
-	case magnet::GL::Camera::ROTATE_WORLD:
+	case ROTATE_WORLD:
 	  icon->set(Gdk::Pixbuf::create_from_inline(cammode_rotate_world_size, cammode_rotate_world));
 	  break;
-	case magnet::GL::Camera::ROTATE_POINT:
+	case ROTATE_POINT:
 	  icon->set(Gdk::Pixbuf::create_from_inline(cammode_rotate_cursor_size, cammode_rotate_cursor));
 	  break;
 	default:
@@ -2491,12 +2494,18 @@ namespace coil {
     //Catch the exceptional case where there is nothing rendered
     if (maxdim == 0) maxdim = 1.0;
 
+    double oldScale = _camera.getRenderScale();
     double newScale = 25.0 / maxdim;
-    const size_t width(_camera.getWidth()), height(_camera.getHeight());
+    magnet::math::Vector shift = centre - _cameraFocus;
     
     //Try to reset the camera, in-case its dissappeared to nan or inf.
-    _camera = magnet::GL::Camera(height, width);
+    _camera.setPosition(_camera.getPosition() * oldScale / newScale + shift);
     _camera.setRenderScale(newScale);
+
+    _cameraFocus = centre;
+    _cameraMode = ROTATE_WORLD;
+    _camera.setMode(magnet::GL::Camera::ROTATE_POINT);
+
 
     {
       Gtk::Entry* simunits;
@@ -2507,11 +2516,7 @@ namespace coil {
       simunits->set_text(os.str());
     }
 
-    _camera.setPosition(magnet::math::Vector(0,0,-5) * 25 / newScale + centre);
-    _camera.lookAt(centre);
-
-    //Regenerate the lighting for the scene
-    size_t lightCount(0);
+    //Shift the lighting for the scene
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
 	   = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
@@ -2520,23 +2525,8 @@ namespace coil {
 	  = std::tr1::dynamic_pointer_cast<RLight>(*iPtr);
 	if (ptr)
 	  {
-	    ptr->setSize(1.0 / newScale);
-	    switch (lightCount)
-	      {
-	      case 0:
-		ptr->setPosition(magnet::math::Vector(-15.0f,  15.0f, -15.0f) / _camera.getRenderScale());
-		++lightCount;
-		break;
-	      case 1:
-		ptr->setPosition(magnet::math::Vector(15.0f,  15.0f, -15.0f) / _camera.getRenderScale());
-		++lightCount;
-		break;
-	      case 2:
-		ptr->setPosition(magnet::math::Vector(0.0f,  15.0f, 15.0f) / _camera.getRenderScale());
-		++lightCount;
-		break;
-	      default: break;
-	      }
+	    ptr->setSize(ptr->getSize() * oldScale / newScale);
+	    ptr->setPosition(ptr->getPosition() * oldScale / newScale +shift);
 	  }
       }
   }

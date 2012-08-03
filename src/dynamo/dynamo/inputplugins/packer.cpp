@@ -527,6 +527,8 @@ namespace dynamo {
 
 	  Sim->topology.back()->addMolecule(new RAll(Sim));
 
+	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCNone(Sim));
+
 	  unsigned long nParticles = 0;
 
 	  Sim->particles.reserve(latticeSites.size());
@@ -935,6 +937,8 @@ namespace dynamo {
 	  Sim->topology.push_back(shared_ptr<Topology>(new TChain(Sim, 1, "Ring")));
 
 	  Sim->topology.back()->addMolecule(new RAll(Sim));
+
+	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCNone(Sim));
 
 	  unsigned long nParticles = 0;
 
@@ -3007,6 +3011,8 @@ namespace dynamo {
 	  Sim->topology.back()->addMolecule(new RAll(Sim));
 
 	  unsigned long nParticles = 0;
+
+	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCNone(Sim));
 
 	  Sim->particles.reserve(latticeSites.size());
 	  BOOST_FOREACH(const Vector & position, latticeSites)

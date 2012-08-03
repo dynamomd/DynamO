@@ -318,6 +318,14 @@ namespace coil {
     _size = val;
   }
   
+  void 
+  RLight::setPosition(magnet::math::Vector newposition)
+  {
+    _positionXEntry->set_text(boost::lexical_cast<std::string>(newposition[0]));
+    _positionYEntry->set_text(boost::lexical_cast<std::string>(newposition[1]));
+    _positionZEntry->set_text(boost::lexical_cast<std::string>(newposition[2]));
+    magnet::GL::Camera::setPosition(newposition);
+  }
 
   void 
   RLight::guiUpdate()
@@ -337,7 +345,7 @@ namespace coil {
       vec[0] = boost::lexical_cast<float>(_positionXEntry->get_text());
       vec[1] = boost::lexical_cast<float>(_positionYEntry->get_text());
       vec[2] = boost::lexical_cast<float>(_positionZEntry->get_text());
-      setPosition(vec);
+      magnet::GL::Camera::setPosition(vec);
     } catch (...) {}
   }
 }
