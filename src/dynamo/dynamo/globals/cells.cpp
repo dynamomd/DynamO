@@ -27,6 +27,8 @@
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cstdio>
+#include <set>
+#include <algorithm>
 
 namespace dynamo {
   GCells::GCells(dynamo::Simulation* nSim, const std::string& name, size_t overlink):
@@ -299,17 +301,9 @@ namespace dynamo {
 	cellCount[iDim] = int(Sim->primaryCellSize[iDim] 
 			      / (maxdiam * (1.0 + 10 * std::numeric_limits<double>::epsilon())));
       
-	if (cellCount[iDim] < 4)
-	  M_throw() << "Not enough neighbour list cells in the" << char('x'+iDim) 
-		    << " dimension, need at least 4. "
-		    << "\n Maximum interaction distance is " << maxdiam / Sim->units.unitLength()
-		    << " and the simulation box has a width of " << Sim->primaryCellSize[iDim] / Sim->units.unitLength()
-		    << " in the " << char('x'+iDim) << " direction.\n"
-		    << "Your simulation box is too small in this dimension to use "
-		    << "Neighbourlists. If this cannot be changed, you can try "
-		    << "using a Dumb scheduler and deleting the Neighbourlist, "
-		    << "but this may make the simulation much slower.";
-      
+	if (cellCount[iDim] < 2 * overlink + 1)
+	  cellCount[iDim] = 2 * overlink + 1;
+	
 	NCells *= cellCount[iDim];
       
 	dilatedCellMax[iDim] = cellCount[iDim] - 1;
@@ -412,8 +406,6 @@ namespace dynamo {
     return retval;
   }
 
-
-
   void 
   GCells::getParticleNeighbourhood(const Particle& part,
 				   const nbHoodFunc& func) const
@@ -425,30 +417,21 @@ namespace dynamo {
       zero_coords[iDim] = (particle_cell_coords[iDim].getRealValue() + cellCount[iDim] - overlink)
 	% cellCount[iDim];
 
-    magnet::math::MortonNumber<3> max_coords;
-    for (size_t iDim(0); iDim < NDIM; ++iDim)
-      max_coords[iDim] = (particle_cell_coords[iDim].getRealValue() + overlink + 1)
-	% cellCount[iDim];
-
     magnet::math::MortonNumber<3> coords(zero_coords);
-
-    while (coords[2] != max_coords[2])
+    for (size_t x(0); x < 2 * overlink + 1; ++x)
       {
-	BOOST_FOREACH(const size_t& next, list[coords.getMortonNum()])
-	  func(part, next);
-      
-	++coords[0];
-	if (coords[0] > dilatedCellMax[0]) coords[0] = 0;
-	if (coords[0] != max_coords[0]) continue;
-      
-	++coords[1];
-	coords[0] = zero_coords[0];
-	if (coords[1] > dilatedCellMax[1]) coords[1] = 0;
-	if (coords[1] != max_coords[1]) continue;
-      
-	++coords[2];
-	coords[1] = zero_coords[1];
-	if (coords[2] > dilatedCellMax[2]) coords[2] = 0;
+	coords[0] = (zero_coords[0].getRealValue() + x) % cellCount[0];
+	for (size_t y(0); y < 2 * overlink + 1; ++y)
+	  {
+	    coords[1] = (zero_coords[1].getRealValue() + y) % cellCount[1];
+	    for (size_t z(0); z < 2 * overlink + 1; ++z)
+	      {
+		coords[2] = (zero_coords[2].getRealValue() + z) % cellCount[2];
+
+		BOOST_FOREACH(const size_t& next, list[coords.getMortonNum()])
+		  func(part, next);
+	      }
+	  }
       }
   }
 
@@ -456,37 +439,28 @@ namespace dynamo {
   GCells::getParticleNeighbourhood(const Vector& vec,
 				   const nbHoodFunc2& func) const
   {
+    const magnet::math::MortonNumber<3> particle_cell_coords(getCellID(vec));
     
-    const magnet::math::MortonNumber<3> particle_cell_coords = getCellID(vec);
-
     magnet::math::MortonNumber<3> zero_coords;
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       zero_coords[iDim] = (particle_cell_coords[iDim].getRealValue() + cellCount[iDim] - overlink)
 	% cellCount[iDim];
 
-    magnet::math::MortonNumber<3> max_coords;
-    for (size_t iDim(0); iDim < NDIM; ++iDim)
-      max_coords[iDim] = (particle_cell_coords[iDim].getRealValue() + overlink + 1)
-	% cellCount[iDim];
-
     magnet::math::MortonNumber<3> coords(zero_coords);
-    while (coords[2] != max_coords[2])
+    for (size_t x(0); x < 2 * overlink + 1; ++x)
       {
-	BOOST_FOREACH(const size_t& next, list[coords.getMortonNum()])
-	  func(next);
-      
-	++coords[0];
-	if (coords[0] > dilatedCellMax[0]) coords[0] = 0;
-	if (coords[0] != max_coords[0]) continue;
-      
-	++coords[1];
-	coords[0] = zero_coords[0];
-	if (coords[1] > dilatedCellMax[1]) coords[1] = 0;
-	if (coords[1] != max_coords[1]) continue;
-      
-	++coords[2];
-	coords[1] = zero_coords[1];
-	if (coords[2] > dilatedCellMax[2]) coords[2] = 0;
+	coords[0] = (zero_coords[0].getRealValue() + x) % cellCount[0];
+	for (size_t y(0); y < 2 * overlink + 1; ++y)
+	  {
+	    coords[1] = (zero_coords[1].getRealValue() + y) % cellCount[1];
+	    for (size_t z(0); z < 2 * overlink + 1; ++z)
+	      {
+		coords[2] = (zero_coords[2].getRealValue() + z) % cellCount[2];
+
+		BOOST_FOREACH(const size_t& next, list[coords.getMortonNum()])
+		  func(next);
+	      }
+	  }
       }
   }
 
