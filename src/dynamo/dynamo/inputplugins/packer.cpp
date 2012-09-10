@@ -560,9 +560,8 @@ namespace dynamo {
 
 	  //Just load the existing configuration
 	  Sim->loadXMLfile(fileName);
-
+	  
 	  //Now read the positions that were entered in
-
 	  size_t NUnit = Sim->particles.size();
 
 	  //Figure out how many units there are

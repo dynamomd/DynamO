@@ -160,7 +160,7 @@ function wallsw_bailout {
 function Ring_compressiontest { 
     ./dynamod -m 7 --f3 0 &> run.log
     ./dynamod -m 3 --s1 config.out.xml.bz2 --i1 1 -C 4 -d 0.01 -o tmp.xml.bz2 &> run.log
-    bzcat tmp.xml.bz2 | xmlstarlet ed -u '//Interaction[@Type="SquareBond"]/@End' -v 2559 | bzip2 > config.out.xml.bz2
+    bzcat tmp.xml.bz2 | xmlstarlet ed -u '//Interaction[@Type="SquareBond"]/@End' -v 2559 -u '//BC/@Type' -v "PBC" | bzip2 > config.out.xml.bz2
     ./dynarun --engine 3 --target-pack-frac 0.5 config.out.xml.bz2 &> run2.log
 
     #Check for errors
@@ -195,11 +195,11 @@ function SWpolymer_compressiontest {
     if [ $(echo "$density <= $compress_density" |bc) -eq 1 ]; then
     #If the density is lower than the compress_density, just directly make the big system
 	./dynamod $RANDOM_SEED -m 3 -T $T -r $T --i1 $Mode --b1 --s1 config.polymer.xml.bz2 -d $density -C $C -o config.tmp2.xml.bz2 &>> run.log
-	bzcat config.tmp2.xml.bz2 | xmlstarlet ed -u '//Interaction[1]/@End' -v $((N-1)) | bzip2 > config.tmp.xml.bz2
+	bzcat config.tmp2.xml.bz2 | xmlstarlet ed -u '//Interaction[1]/@End' -v $((N-1)) -u '//BC/@Type' -v "PBC" | bzip2 > config.tmp.xml.bz2
     else
     #We have to compress as the density is too high
 	./dynamod $RANDOM_SEED -m 3 --i1 $Mode --b1 --s1 config.polymer.xml.bz2 -d $compress_density -C $C -o config.tmp2.xml.bz2 &>> run.log
-	bzcat config.tmp2.xml.bz2 | xmlstarlet ed -u '//Interaction[1]/@End' -v $((N-1)) | bzip2 > config.packed.xml.bz2
+	bzcat config.tmp2.xml.bz2 | xmlstarlet ed -u '//Interaction[1]/@End' -v $((N-1)) -u '//BC/@Type' -v "PBC" | bzip2 > config.packed.xml.bz2
 	./dynarun $RANDOM_SEED config.packed.xml.bz2 --engine 3 --target-density $density -o config.compressed.xml.bz2 &>> run.log
 	./dynamod $RANDOM_SEED config.compressed.xml.bz2 -r $T -T $T -Z -o config.rescaled.xml.bz2 &>> run.log
 	cp config.rescaled.xml.bz2 config.tmp.xml.bz2
