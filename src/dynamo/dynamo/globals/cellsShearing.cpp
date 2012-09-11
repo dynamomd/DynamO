@@ -308,10 +308,10 @@ namespace dynamo {
 	cellCoords[0] = 0;
 	//Get the correct y-side (its the opposite to the particles current side)
 	cellCoords[1] = (cellCoords[1] > 0) ? 0 : dilatedCellMax[1];  
-	////Move a single cell down in Z
-	cellCoords[2] = (cellCoords[2].getRealValue() + cellCount[2] - 1) % cellCount[2];
+	////Move the overlink across
+	cellCoords[2] = (cellCoords[2].getRealValue() + cellCount[2] - overlink) % cellCount[2];
 	
-	for (size_t i(0); i < 3; ++i)
+	for (size_t i(0); i < 2 * overlink + 1; ++i)
 	  {
 	    cellCoords[2] %= cellCount[2];
 	    
@@ -346,10 +346,10 @@ namespace dynamo {
     cellCoords[0] = 0;
     //Get the correct y-side (its the opposite to the particles current side)
     cellCoords[1] = (cellCoords[1] > 0) ? 0 : dilatedCellMax[1];  
-    ////Move a single cell down in Z
-    cellCoords[2] = (cellCoords[2].getRealValue() + cellCount[2] - 1) % cellCount[2];
+    ////Move te overlink across
+    cellCoords[2] = (cellCoords[2].getRealValue() + cellCount[2] - overlink) % cellCount[2];
 
-    for (size_t i(0); i < 3; ++i)
+    for (size_t i(0); i < 2 * overlink + 1; ++i)
       {
 	cellCoords[2] %= cellCount[2];
 

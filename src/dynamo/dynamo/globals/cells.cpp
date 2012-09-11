@@ -32,7 +32,7 @@
 
 namespace dynamo {
   GCells::GCells(dynamo::Simulation* nSim, const std::string& name, size_t overlink):
-    GNeighbourList(nSim, "MortonCellNeighbourList"),
+    GNeighbourList(nSim, "CellNeighbourList"),
     cellDimension(1,1,1),
     _oversizeCells(1.0),
     NCells(0),
@@ -43,7 +43,7 @@ namespace dynamo {
   }
 
   GCells::GCells(const magnet::xml::Node& XML, dynamo::Simulation* ptrSim):
-    GNeighbourList(ptrSim, "MortonCellNeighbourList"),
+    GNeighbourList(ptrSim, "CellNeighbourList"),
     cellDimension(1,1,1),
     _oversizeCells(1.0),
     NCells(0),
@@ -172,16 +172,14 @@ namespace dynamo {
     newNBCell[dim1] += cellCount[dim1] - overlink;
     newNBCell[dim2] += cellCount[dim2] - overlink;
 
-    size_t walkLength = 2 * overlink + 1;
-
     const magnet::math::DilatedInteger<3> saved_coord(newNBCell[dim1]);
 
     //We now have the lowest cell coord, or corner of the cells to update
-    for (size_t iDim(0); iDim < walkLength; ++iDim)
+    for (size_t iDim(0); iDim < 2 * overlink + 1; ++iDim)
       {
 	newNBCell[dim2] %= cellCount[dim2];
 
-	for (size_t jDim(0); jDim < walkLength; ++jDim)
+	for (size_t jDim(0); jDim < 2 * overlink + 1; ++jDim)
 	  {
 	    newNBCell[dim1] %= cellCount[dim1];
 	    
@@ -331,7 +329,12 @@ namespace dynamo {
 	 << cellLatticeWidth[1] / Sim->units.unitLength()
 	 << "," 
 	 << cellLatticeWidth[2] / Sim->units.unitLength()
+	 << "\nRequested supported length " << maxdiam / Sim->units.unitLength()
+	 << "\nSupported length           " << getMaxSupportedInteractionLength() / Sim->units.unitLength()
 	 << std::endl;
+
+    if (getMaxSupportedInteractionLength() < maxdiam)
+      M_throw() << "The system size is too small to support the range of interactions specified (i.e. the system is smaller than the interaction diameter of one particle).";
 
     //Find the required size of the morton array
     magnet::math::MortonNumber<3> coords(cellCount[0], cellCount[1], cellCount[2]);
@@ -475,17 +478,23 @@ namespace dynamo {
   double 
   GCells::getMaxSupportedInteractionLength() const
   {
-    size_t minDiam = 0;
+    double retval(HUGE_VAL);
 
-    //As the lambda or overlap is relative to the cellDimension we just
-    //find the minimum cell width
+    for (size_t i = 0; i < NDIM; ++i)
+      {
+	double supported_length = cellLatticeWidth[i]
+	  + lambda * (cellLatticeWidth[i] - cellDimension[i]);
 
-    for (size_t i = 1; i < NDIM; ++i)
-      if (cellDimension[i] < cellDimension[minDiam])
-	minDiam = i;
+	//Test if, in this dimension, one neighbourhood of cells spans
+	//the system. If so, the maximum interaction supported is the
+	//system width.
+	if (cellCount[i] == 2 * overlink + 1)
+	  supported_length = Sim->primaryCellSize[i];
 
-    return cellLatticeWidth[minDiam] 
-      + lambda * (cellLatticeWidth[minDiam] - cellDimension[minDiam]);
+	retval = std::min(retval, supported_length);
+      }
+
+    return retval;
   }
 
   Vector 
