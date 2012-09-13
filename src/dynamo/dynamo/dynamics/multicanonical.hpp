@@ -70,19 +70,19 @@ namespace dynamo {
     virtual void initialise();
 
     /*! \brief Returns the \f$W(E)\f$ function.
-     *
-     * The lookup is performed by taking the system energy, E, and
-     * calculating the key like so:
-     *
-     * \f[\textrm{key}= \textrm{int}\left[E / \Delta E\right]\f]
-     *
-     * where \f$ \Delta E\f$ is the energy step returned from
-     * getEnergyStep().
+     
+      The lookup is performed by taking the system energy, E, and
+      calculating the key like so:
+     
+      \f[\textrm{key}= \textrm{int}\left[E / \Delta E\right]\f]
+     
+      where \f$ \Delta E\f$ is the energy step returned from
+      getEnergyStep().
      */
     inline const boost::unordered_map<int, double>& getMap() const { return _W; }
 
     /*! \brief Returns \f$ \Delta E\f$.
-     *  \sa getMap()
+       \sa getMap()
      */
     inline const double& getEnergyStep() const { return EnergyPotentialStep; }
 
