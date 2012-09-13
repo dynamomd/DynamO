@@ -19,39 +19,33 @@
 #include <dynamo/dynamics/newtonian.hpp>
 
 namespace dynamo {
+  /*! \brief A dynamics class used when the system is compressing (all
+      particles are increasing in size).
+    
+      Although the compression dynamics are implemented through the
+      particles increasing in size, they also correspond to an
+      isotropic compaction of space if you change the
+      reference-frame/length-scale so that a particle diameter remains
+      1.
+   */
   class DynCompression: public DynNewtonian
   {
   public:
     DynCompression(dynamo::Simulation*, double);
-
     virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const;
     virtual double SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const;  
-    virtual double sphereOverlap(const Particle& p1, const Particle& p2,
-				 const double& d) const;
-
+    virtual double sphereOverlap(const Particle& p1, const Particle& p2, const double& d) const;
     virtual PairEventData SmoothSpheresColl(const IntEvent&, const double&, const double&, const EEventType&) const;
-
     virtual PairEventData SphereWellEvent(const IntEvent&, const double&, const double&) const;
-  
-    double getGrowthRate() const { return growthRate; }
-
+    inline double getGrowthRate() const { return growthRate; }
+    virtual double getPlaneEvent(const Particle&, const Vector &, const Vector &, double) const;
+    virtual ParticleEventData runPlaneEvent(Particle&, const Vector &, double, double) const;
     virtual double getPBCSentinelTime(const Particle&, const double&) const;
-
-    virtual double CubeCubeInRoot(const Particle& p1, const Particle& p2, 
-				  double d) const 
-    { M_throw() << "Not Implemented"; }
-
-    virtual bool cubeOverlap(const Particle& p1, const Particle& p2, 
-			     const double d) const 
-    { M_throw() << "Not Implemented"; }
-
-    virtual PairEventData parallelCubeColl(const IntEvent& event,
-					   const double& e, const double& d,
-					   const EEventType& eType = CORE) const;
-  
+    virtual double CubeCubeInRoot(const Particle& p1, const Particle& p2, double d) const { M_throw() << "Not Implemented"; }
+    virtual bool cubeOverlap(const Particle& p1, const Particle& p2, const double d) const { M_throw() << "Not Implemented"; }
+    virtual PairEventData parallelCubeColl(const IntEvent& event, const double& e, const double& d, const EEventType& eType = CORE) const;
   protected:
-    virtual void outputXML(magnet::xml::XmlStream& ) const;
-  
+    virtual void outputXML(magnet::xml::XmlStream&) const;
     double growthRate;
   };
 }

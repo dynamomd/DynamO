@@ -17,6 +17,7 @@
 
 #pragma once
 #include <dynamo/locals/local.hpp>
+#include <dynamo/property.hpp>
 #include <vector>
 
 namespace dynamo {
@@ -24,8 +25,7 @@ namespace dynamo {
   {
   public:
     LDblWall(const magnet::xml::Node&, dynamo::Simulation*);
-    LDblWall(dynamo::Simulation*, double, Vector , Vector , 
-	      std::string, Range*);
+    LDblWall(dynamo::Simulation*, double, Vector , Vector , std::string, double, Range*);
 
     virtual ~LDblWall() {}
 
@@ -47,6 +47,7 @@ namespace dynamo {
     Vector  vNorm;
     Vector  vPosition;
     double e;
+    shared_ptr<Property> _diameter;
     mutable size_t lastID;
   };
 }

@@ -80,12 +80,6 @@ namespace dynamo {
   }
 
   void 
-  LCylinder::initialise(size_t nID)
-  {
-    ID = nID;
-  }
-
-  void 
   LCylinder::operator<<(const magnet::xml::Node& XML)
   {
     range = shared_ptr<Range>(Range::getClass(XML,Sim));

@@ -60,13 +60,8 @@ namespace dynamo {
   public:
     DynNewtonianMC(dynamo::Simulation* tmp, const magnet::xml::Node&);
 
-    //Pair particle dynamics
-    virtual PairEventData SphereWellEvent(const IntEvent&, const double&, 
-					  const double&) const;
-    virtual NEventData multibdyWellEvent(const Range&, const Range&, 
-					 const double&, const double&, 
-					 EEventType&) const;
-
+    virtual PairEventData SphereWellEvent(const IntEvent&, const double&, const double&) const;
+    virtual NEventData multibdyWellEvent(const Range&, const Range&, const double&, const double&, EEventType&) const;
     virtual void initialise();
 
     /*! \brief Returns the \f$W(E)\f$ function.
@@ -101,10 +96,7 @@ namespace dynamo {
 
   protected:
     virtual void outputXML(magnet::xml::XmlStream& ) const;
-
     boost::unordered_map<int, double> _W; 
-
     double EnergyPotentialStep;
-  
   };
 }

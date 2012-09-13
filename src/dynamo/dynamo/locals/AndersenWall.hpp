@@ -17,6 +17,7 @@
 
 #pragma once
 #include <dynamo/locals/local.hpp>
+#include <dynamo/property.hpp>
 #include <magnet/math/vector.hpp>
 
 namespace dynamo {
@@ -26,15 +27,13 @@ namespace dynamo {
     LAndersenWall(const magnet::xml::Node&, dynamo::Simulation*);
 
     LAndersenWall(dynamo::Simulation*, double, Vector , Vector , 
-		   std::string, Range*);
+		  std::string, double, Range*);
 
     virtual ~LAndersenWall() {}
 
     virtual LocalEvent getEvent(const Particle &) const;
 
     virtual void runEvent(Particle&, const LocalEvent&) const;
-
-    virtual void initialise(size_t);
 
     virtual void operator<<(const magnet::xml::Node&);
 
@@ -46,5 +45,6 @@ namespace dynamo {
     Vector  vNorm;
     Vector  vPosition;
     double sqrtT;
+    shared_ptr<Property> _diameter;
   };
 }

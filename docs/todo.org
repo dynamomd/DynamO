@@ -59,6 +59,7 @@
 **** TODO DynamO: Triangle Meshes
 ***** TODO Optimize triangle meshes (a new neighbour list?).
 ***** TODO Make test cases for the triangle.
+***** TODO Add diameters to the triangles.
 **** TODO DynamO: Make a test for an invalid state in locals, globals and interactions (for particle insertion).
 **** TODO DynamO: Auto detect the ensemble, users shouldn't have to specify it.
 **** TODO DynamO: Add the gravity version of the sphere-sphere-out test. Fix and check that the umbrella implementation is general.

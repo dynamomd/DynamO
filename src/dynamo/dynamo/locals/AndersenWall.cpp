@@ -41,16 +41,13 @@ namespace dynamo {
     operator<<(XML);
   }
 
-  LAndersenWall::LAndersenWall(dynamo::Simulation* nSim, double nsqrtT,
-				 Vector  nnorm, Vector norigin, 
-				 std::string nname, Range* nRange):
+  LAndersenWall::LAndersenWall(dynamo::Simulation* nSim, double nsqrtT, Vector  nnorm, Vector norigin, std::string nname, double diameter, Range* nRange):
     Local(nRange, nSim, "AndersenWall"),
     vNorm(nnorm),
     vPosition(norigin),
-    sqrtT(nsqrtT)
-  {
-    localName = nname;
-  }
+    sqrtT(nsqrtT),
+    _diameter(Sim->_properties.getProperty(diameter, Property::Units::Length()))
+  { localName = nname; }
 
   LocalEvent 
   LAndersenWall::getEvent(const Particle& part) const
@@ -59,8 +56,10 @@ namespace dynamo {
     if (!Sim->dynamics->isUpToDate(part))
       M_throw() << "Particle is not up to date";
 #endif
+    
+    double colldist = 0.5 * _diameter->getProperty(part.getID());
 
-    return LocalEvent(part, Sim->dynamics->getWallCollision(part, vPosition, vNorm), WALL, *this);
+    return LocalEvent(part, Sim->dynamics->getPlaneEvent(part, vPosition, vNorm, colldist), WALL, *this);
   }
 
   void
@@ -80,16 +79,9 @@ namespace dynamo {
   }
 
   bool 
-  LAndersenWall::isInCell(const Vector & Origin, 
-			   const Vector & CellDim) const
+  LAndersenWall::isInCell(const Vector & Origin, const Vector & CellDim) const
   {
     return magnet::overlap::cube_plane(Origin, CellDim, vPosition, vNorm);
-  }
-
-  void 
-  LAndersenWall::initialise(size_t nID)
-  {
-    ID = nID;
   }
 
   void 
@@ -98,10 +90,9 @@ namespace dynamo {
     range = shared_ptr<Range>(Range::getClass(XML,Sim));
   
     try {
-    
       sqrtT = sqrt(XML.getAttribute("Temperature").as<double>() 
 		   * Sim->units.unitEnergy());
-
+      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
       localName = XML.getAttribute("Name");
       vNorm << XML.getNode("Norm");
       vNorm /= vNorm.nrm();
@@ -120,6 +111,7 @@ namespace dynamo {
   {
     XML << magnet::xml::attr("Type") << "AndersenWall"
 	<< magnet::xml::attr("Name") << localName
+	<< magnet::xml::attr("Diameter") << _diameter->getName()
 	<< magnet::xml::attr("Temperature") << sqrtT * sqrtT 
       / Sim->units.unitEnergy()
 	<< range

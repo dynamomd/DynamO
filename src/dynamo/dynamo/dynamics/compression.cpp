@@ -23,6 +23,7 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
+#include <magnet/intersection/ray_plane.hpp>
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
@@ -57,6 +58,33 @@ namespace dynamo {
     return  c / (sqrt(arg) - b);
   }
   
+  double 
+  DynCompression::getPlaneEvent(const Particle& part, const Vector & origin, const Vector & norm, double diameter) const
+  {
+    Vector rij = part.getPosition() - (origin + norm * diameter * (1.0 + growthRate * Sim->systemTime)),
+      vij = part.getVelocity() - norm * diameter * growthRate;
+
+    Sim->BCs->applyBC(rij, vij);
+
+    return magnet::intersection::ray_plane<true>(rij, vij, norm);
+  }
+
+  ParticleEventData 
+  DynCompression::runPlaneEvent(Particle& part, const Vector& vNorm, const double e, const double diameter) const
+  {
+    updateParticle(part);
+
+    ParticleEventData retVal(part, *Sim->species[part], WALL);
+  
+    Vector vij = part.getVelocity() - vNorm * diameter * growthRate;
+
+    part.getVelocity() -= (1+e) * (vNorm | vij) * vNorm;
+  
+    retVal.setDeltaKE(0.5 * Sim->species[retVal.getSpeciesID()]->getMass(part.getID())
+		      * (part.getVelocity().nrm2() - retVal.getOldVel().nrm2()));
+    return retVal; 
+  }
+
   double 
   DynCompression::SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const
   {

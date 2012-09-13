@@ -142,8 +142,7 @@ namespace dynamo {
     vNorm[cellDirection] = (cellDirectionInt > 0) ? -1 : +1; 
     
     //Run the collision and catch the data
-    NEventData EDat(Sim->dynamics->runWallCollision
-		    (part, vNorm, 1.0));
+    NEventData EDat(Sim->dynamics->runPlaneEvent(part, vNorm, 1.0, 0.0));
 
     Sim->signalParticleUpdate(EDat);
 

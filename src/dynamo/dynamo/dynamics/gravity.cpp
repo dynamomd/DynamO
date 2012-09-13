@@ -218,11 +218,12 @@ namespace dynamo {
 
 
   double 
-  DynGravity::getWallCollision(const Particle &part, 
-				      const Vector  &wallLoc, 
-				      const Vector  &wallNorm) const
+  DynGravity::getPlaneEvent(const Particle& part, 
+			    const Vector& wallLoc, 
+			    const Vector& wallNorm,
+			    double diameter) const
   {
-    Vector  rij = part.getPosition() - wallLoc,
+    Vector rij = part.getPosition() - (wallLoc + wallNorm * diameter),
       vij = part.getVelocity();
 
     Sim->BCs->applyBC(rij, vij);
@@ -657,10 +658,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  DynGravity::runWallCollision(Particle &part, 
-				      const Vector& vNorm,
-				      const double& e
-				      ) const
+  DynGravity::runPlaneEvent(Particle &part, const Vector& vNorm, const double& e, double diameter) const
   {
     updateParticle(part);
 
@@ -676,7 +674,7 @@ namespace dynamo {
 	_tcList[part.getID()] = Sim->systemTime;
       }
 
-    return DynNewtonian::runWallCollision(part, vNorm, e_val);
+    return DynNewtonian::runPlaneEvent(part, vNorm, e_val, diameter);
   }
 }
 

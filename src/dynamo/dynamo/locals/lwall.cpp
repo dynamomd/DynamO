@@ -42,8 +42,7 @@ namespace dynamo {
 
     double colldist = 0.5 * _diameter->getProperty(part.getID());
 
-    return LocalEvent(part, Sim->dynamics->getWallCollision
-		      (part, vPosition + vNorm * colldist, vNorm), WALL, *this);
+    return LocalEvent(part, Sim->dynamics->getPlaneEvent(part, vPosition, vNorm, colldist), WALL, *this);
   }
 
   void
@@ -53,8 +52,7 @@ namespace dynamo {
 
     //Run the collision and catch the data
 
-    NEventData EDat(Sim->dynamics->runWallCollision
-		    (part, vNorm, _e->getProperty(part.getID())));
+    NEventData EDat(Sim->dynamics->runPlaneEvent(part, vNorm, _e->getProperty(part.getID()), _diameter->getProperty(part.getID())));
 
     Sim->signalParticleUpdate(EDat);
 
@@ -77,21 +75,13 @@ namespace dynamo {
   }
 
   void 
-  LWall::initialise(size_t nID)
-  {
-    ID = nID;
-  }
-
-  void 
   LWall::operator<<(const magnet::xml::Node& XML)
   {
     range = shared_ptr<Range>(Range::getClass(XML,Sim));
   
     try {
-      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
-					       Property::Units::Length());
-      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-					Property::Units::Dimensionless());
+      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
+      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
     
       magnet::xml::Node xBrowseNode = XML.getNode("Norm");
       localName = XML.getAttribute("Name");

@@ -55,7 +55,7 @@ namespace dynamo {
   
     virtual bool isInCell(const Vector &, const Vector &) const = 0;
 
-    virtual void initialise(size_t) = 0;
+    virtual void initialise(size_t nID)  { ID = nID; }
 
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Local&);
 

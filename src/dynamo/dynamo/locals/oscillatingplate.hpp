@@ -40,8 +40,6 @@ namespace dynamo {
   
     virtual bool isInCell(const Vector &, const Vector &) const;
 
-    virtual void initialise(size_t);
-
     virtual void operator<<(const magnet::xml::Node&);
 
     Vector getPosition() const;

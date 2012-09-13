@@ -54,8 +54,7 @@ namespace dynamo {
       M_throw() << "Particle is not up to date";
 #endif
 
-    return LocalEvent(part, Sim->dynamics->getWallCollision
-		      (part, vPosition, vNorm), WALL, *this);
+    return LocalEvent(part, Sim->dynamics->getPlaneEvent(part, vPosition, vNorm, r), WALL, *this);
   }
 
   void
@@ -80,12 +79,6 @@ namespace dynamo {
   LRoughWall::isInCell(const Vector & Origin, const Vector& CellDim) const
   {
     return magnet::overlap::cube_plane(Origin, CellDim, vPosition, vNorm);
-  }
-
-  void 
-  LRoughWall::initialise(size_t nID)
-  {
-    ID = nID;
   }
 
   void 

@@ -31,10 +31,8 @@ namespace dynamo {
       Local(nRange, nSim, "LocalWall"),
       vNorm(nnorm),
       vPosition(norigin),
-      _diameter(Sim->_properties.getProperty
-		(d, Property::Units::Length())),
-      _e(Sim->_properties.getProperty
-	 (e, Property::Units::Dimensionless()))
+      _diameter(Sim->_properties.getProperty(d, Property::Units::Length())),
+      _e(Sim->_properties.getProperty(e, Property::Units::Dimensionless()))
     { localName = nname; }
 
     virtual ~LWall() {}
@@ -44,8 +42,6 @@ namespace dynamo {
     virtual void runEvent(Particle&, const LocalEvent&) const;
   
     virtual bool isInCell(const Vector &, const Vector &) const;
-
-    virtual void initialise(size_t);
 
     virtual void operator<<(const magnet::xml::Node&);
 

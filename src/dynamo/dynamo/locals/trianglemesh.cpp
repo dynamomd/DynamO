@@ -138,8 +138,7 @@ namespace dynamo {
 	M_throw() << "Unhandled triangle sphere intersection type encountered";
       }
 
-    NEventData EDat(Sim->dynamics->runWallCollision
-		    (part, normal, _e->getProperty(part.getID())));
+    NEventData EDat(Sim->dynamics->runPlaneEvent(part, normal, _e->getProperty(part.getID()), 0.0));
 
     Sim->signalParticleUpdate(EDat);
 
@@ -153,10 +152,6 @@ namespace dynamo {
   bool 
   LTriangleMesh::isInCell(const Vector & Origin, const Vector& CellDim) const
   { return true; }
-
-  void 
-  LTriangleMesh::initialise(size_t nID)
-  { ID = nID; }
 
   void 
   LTriangleMesh::operator<<(const magnet::xml::Node& XML)

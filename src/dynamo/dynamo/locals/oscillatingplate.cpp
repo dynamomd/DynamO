@@ -104,12 +104,6 @@ namespace dynamo {
   }
 
   void 
-  LOscillatingPlate::initialise(size_t nID)
-  {
-    ID = nID;
-  }
-
-  void 
   LOscillatingPlate::operator<<(const magnet::xml::Node& XML)
   {
     range = shared_ptr<Range>(Range::getClass(XML,Sim));

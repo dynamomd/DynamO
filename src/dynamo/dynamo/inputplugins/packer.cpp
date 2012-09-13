@@ -1611,18 +1611,9 @@ namespace dynamo {
 
 	  if (vm.count("b2"))
 	    {
-	      Sim->locals.push_back(shared_ptr<Local>
-				    (new LDblWall(Sim, 1.0, Vector(1,0,0),
-						  Vector(0,0,0),
-						  "Wall1", new RAll(Sim))));
-	      Sim->locals.push_back(shared_ptr<Local>
-				    (new LDblWall(Sim, 1.0, Vector(0,1,0),
-						  Vector(0,0,0),
-						  "Wall2", new RAll(Sim))));
-	      Sim->locals.push_back(shared_ptr<Local>
-				    (new LDblWall(Sim, 1.0, Vector(0,0,1),
-						  Vector(0,0,0),
-						  "Wall3", new RAll(Sim))));
+	      Sim->locals.push_back(shared_ptr<Local>(new LDblWall(Sim, 1.0, Vector(1,0,0), Vector(0,0,0), "Wall1", 1.0, new RAll(Sim))));
+	      Sim->locals.push_back(shared_ptr<Local>(new LDblWall(Sim, 1.0, Vector(0,1,0), Vector(0,0,0), "Wall2", 1.0, new RAll(Sim))));
+	      Sim->locals.push_back(shared_ptr<Local>(new LDblWall(Sim, 1.0, Vector(0,0,1), Vector(0,0,0), "Wall3", 1.0, new RAll(Sim))));
 	    }
 
 	  Sim->interactions.push_back

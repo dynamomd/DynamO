@@ -155,11 +155,9 @@ namespace dynamo {
   }
 
   double 
-  DynNewtonian::getWallCollision(const Particle& part, 
-			       const Vector& wallLoc, 
-			       const Vector& wallNorm) const
+  DynNewtonian::getPlaneEvent(const Particle& part, const Vector& wallLoc, const Vector& wallNorm, double diameter) const
   {
-    Vector  rij = part.getPosition() - wallLoc,
+    Vector rij = part.getPosition() - (wallLoc + wallNorm * diameter),
       vel = part.getVelocity();
 
     Sim->BCs->applyBC(rij, vel);
@@ -168,12 +166,7 @@ namespace dynamo {
   }
 
   std::pair<double, Dynamics::TriangleIntersectingPart>
-  DynNewtonian::getSphereTriangleEvent(const Particle& part, 
-				     const Vector & A, 
-				     const Vector & B, 
-				     const Vector & C,
-				     const double dist
-				     ) const
+  DynNewtonian::getSphereTriangleEvent(const Particle& part, const Vector & A, const Vector & B, const Vector & C, const double dist) const
   {
     typedef std::pair<double, Dynamics::TriangleIntersectingPart> RetType;
     //The Origin, relative to the first vertex
@@ -238,12 +231,8 @@ namespace dynamo {
     return retval;
   }
 
-
   ParticleEventData 
-  DynNewtonian::runWallCollision(Particle& part, 
-			       const Vector  &vNorm,
-			       const double& e
-			       ) const
+  DynNewtonian::runPlaneEvent(Particle& part, const Vector& vNorm, const double e, const double diameter) const
   {
     updateParticle(part);
 
@@ -252,16 +241,12 @@ namespace dynamo {
     part.getVelocity() -= (1+e) * (vNorm | part.getVelocity()) * vNorm;
   
     retVal.setDeltaKE(0.5 * Sim->species[retVal.getSpeciesID()]->getMass(part.getID())
-		      * (part.getVelocity().nrm2() 
-			 - retVal.getOldVel().nrm2()));
+		      * (part.getVelocity().nrm2() - retVal.getOldVel().nrm2()));
     return retVal; 
   }
 
   ParticleEventData 
-  DynNewtonian::runAndersenWallCollision(Particle& part, 
-				       const Vector & vNorm,
-				       const double& sqrtT
-				       ) const
+  DynNewtonian::runAndersenWallCollision(Particle& part, const Vector & vNorm, const double& sqrtT) const
   {  
     updateParticle(part);
 
@@ -290,9 +275,7 @@ namespace dynamo {
   }
 
   double
-  DynNewtonian::getSquareCellCollision2(const Particle& part, 
-				      const Vector & origin, 
-				      const Vector & width) const
+  DynNewtonian::getSquareCellCollision2(const Particle& part, const Vector & origin, const Vector & width) const
   {
     Vector  rpos(part.getPosition() - origin);
     Vector  vel(part.getVelocity());
@@ -324,9 +307,7 @@ namespace dynamo {
   }
 
   int
-  DynNewtonian::getSquareCellCollision3(const Particle& part, 
-				      const Vector & origin, 
-				      const Vector & width) const
+  DynNewtonian::getSquareCellCollision3(const Particle& part, const Vector & origin, const Vector & width) const
   {
     Vector  rpos(part.getPosition() - origin);
     Vector  vel(part.getVelocity());
@@ -365,9 +346,7 @@ namespace dynamo {
   }
 
   bool 
-  DynNewtonian::DSMCSpheresTest(Particle& p1, Particle& p2, 
-			      double& maxprob, const double& factor,
-			      Vector rij) const
+  DynNewtonian::DSMCSpheresTest(Particle& p1, Particle& p2, double& maxprob, const double& factor, Vector rij) const
   {
     updateParticlePair(Sim->particles[p1.getID()], Sim->particles[p2.getID()]);
 
@@ -425,8 +404,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  DynNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e,
-				const double&, const EEventType& eType) const
+  DynNewtonian::SmoothSpheresColl(const IntEvent& event, const double& e, const double&, const EEventType& eType) const
   {
     Particle& particle1 = Sim->particles[event.getParticle1ID()];
     Particle& particle2 = Sim->particles[event.getParticle2ID()];
@@ -494,9 +472,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  DynNewtonian::parallelCubeColl(const IntEvent& event, const double& e,
-			       const double&,
-			       const EEventType& eType) const
+  DynNewtonian::parallelCubeColl(const IntEvent& event, const double& e, const double&, const EEventType& eType) const
   {
     Particle& particle1 = Sim->particles[event.getParticle1ID()];
     Particle& particle2 = Sim->particles[event.getParticle2ID()];
@@ -544,8 +520,7 @@ namespace dynamo {
   }
 
   NEventData 
-  DynNewtonian::multibdyCollision(const Range& range1, const Range& range2, 
-				const double&, const EEventType& eType) const
+  DynNewtonian::multibdyCollision(const Range& range1, const Range& range2, const double&, const EEventType& eType) const
   {
     Vector COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
   
@@ -636,8 +611,7 @@ namespace dynamo {
   }
 
   NEventData 
-  DynNewtonian::multibdyWellEvent(const Range& range1, const Range& range2, 
-				const double&, const double& deltaKE, EEventType& eType) const
+  DynNewtonian::multibdyWellEvent(const Range& range1, const Range& range2, const double&, const double& deltaKE, EEventType& eType) const
   {
     Vector  COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
   
@@ -750,8 +724,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  DynNewtonian::SphereWellEvent(const IntEvent& event, const double& deltaKE, 
-			      const double &) const
+  DynNewtonian::SphereWellEvent(const IntEvent& event, const double& deltaKE, const double &) const
   {
     Particle& particle1 = Sim->particles[event.getParticle1ID()];
     Particle& particle2 = Sim->particles[event.getParticle2ID()];
@@ -863,10 +836,7 @@ namespace dynamo {
   }
 
   std::pair<bool,double>
-  DynNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0,
-				     const Vector& nhat, const double& Delta,
-				     const double& Omega, const double& Sigma,
-				     const double& t, bool lastpart) const
+  DynNewtonian::getPointPlateCollision(const Particle& part, const Vector& nrw0, const Vector& nhat, const double& Delta, const double& Omega, const double& Sigma, const double& t, bool lastpart) const
   {
 #ifdef DYNAMO_DEBUG
     if (!isUpToDate(part))
@@ -1066,10 +1036,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  DynNewtonian::runOscilatingPlate
-  (Particle& part, const Vector& rw0, const Vector& nhat, double& delta, 
-   const double& omega0, const double& sigma, const double& mass, const double& e, 
-   double& t, bool strongPlate) const
+  DynNewtonian::runOscilatingPlate(Particle& part, const Vector& rw0, const Vector& nhat, double& delta, const double& omega0, const double& sigma, const double& mass, const double& e, double& t, bool strongPlate) const
   {
     std::cout.flush();
     updateParticle(part);
@@ -1198,10 +1165,7 @@ namespace dynamo {
   }
 
   double 
-  DynNewtonian::getCylinderWallCollision(const Particle& part, 
-				       const Vector& wallLoc, 
-				       const Vector& wallNorm,
-				       const double& radius) const
+  DynNewtonian::getCylinderWallCollision(const Particle& part, const Vector& wallLoc, const Vector& wallNorm, const double& radius) const
   {
     Vector  rij = part.getPosition() - wallLoc,
       vel = part.getVelocity();
@@ -1225,11 +1189,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  DynNewtonian::runCylinderWallCollision(Particle& part, 
-				       const Vector& origin,
-				       const Vector& vNorm,
-				       const double& e
-				       ) const
+  DynNewtonian::runCylinderWallCollision(Particle& part, const Vector& origin, const Vector& vNorm, const double& e) const
   {
     updateParticle(part);
 
@@ -1253,10 +1213,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  DynNewtonian::runSphereWallCollision(Particle& part, 
-				     const Vector& origin,
-				     const double& e
-				     ) const
+  DynNewtonian::runSphereWallCollision(Particle& part, const Vector& origin, const double& e) const
   {
     updateParticle(part);
 
@@ -1278,8 +1235,7 @@ namespace dynamo {
   }
 
   std::pair<bool, double> 
-  DynNewtonian::getLineLineCollision(const double length, const Particle& p1, const Particle& p2,
-				   double t_high) const
+  DynNewtonian::getLineLineCollision(const double length, const Particle& p1, const Particle& p2, double t_high) const
   {  
 #ifdef DYNAMO_DEBUG
     if (!hasOrientationData())
@@ -1394,8 +1350,7 @@ namespace dynamo {
   }
 
   double 
-  DynNewtonian::sphereOverlap(const Particle& p1, const Particle& p2, 
-			    const double& d) const
+  DynNewtonian::sphereOverlap(const Particle& p1, const Particle& p2, const double& d) const
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(r12);
@@ -1405,10 +1360,7 @@ namespace dynamo {
 
   //Here starts my code for offCenterSpheres :P
   bool 
-  DynNewtonian::getOffCenterSphereOffCenterSphereCollision(const double length,  const double diameter, 
-							 const Particle& p1, const Particle& p2, 
-							 const double t_h_init) const
-
+  DynNewtonian::getOffCenterSphereOffCenterSphereCollision(const double length,  const double diameter, const Particle& p1, const Particle& p2, const double t_h_init) const
   {  
 #ifdef DYNAMO_DEBUG
     if (!hasOrientationData())
@@ -1496,7 +1448,6 @@ namespace dynamo {
   
   PairEventData 
   DynNewtonian::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, const double& elasticity, const double& length,const double& diameter) const
-
   {
 #ifdef DYNAMO_DEBUG
     if (!hasOrientationData())
@@ -1666,12 +1617,7 @@ namespace dynamo {
   //Here ends offCenterSpheres
 
   PairEventData 
-  DynNewtonian::RoughSpheresColl(const IntEvent& event, 
-			       const double& e, 
-			       const double& et, 
-			       const double& d2, 
-			       const EEventType& eType
-			       ) const
+  DynNewtonian::RoughSpheresColl(const IntEvent& event, const double& e, const double& et, const double& d2, const EEventType& eType) const
   {
 #ifdef DYNAMO_DEBUG
     if (!hasOrientationData())
@@ -1734,12 +1680,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  DynNewtonian::runRoughWallCollision(Particle& part, 
-				    const Vector & vNorm,
-				    const double& e,
-				    const double& et,
-				    const double& r
-				    ) const
+  DynNewtonian::runRoughWallCollision(Particle& part, const Vector & vNorm, const double& e, const double& et, const double& r) const
   {
 #ifdef DYNAMO_DEBUG
     if (!hasOrientationData())

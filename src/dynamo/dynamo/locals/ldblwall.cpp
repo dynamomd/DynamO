@@ -27,11 +27,12 @@
 
 namespace dynamo {
   LDblWall::LDblWall(dynamo::Simulation* nSim, double ne, Vector  nnorm, 
-		       Vector  norigin, std::string nname, Range* nRange):
+		     Vector  norigin, std::string nname, double diameter, Range* nRange):
     Local(nRange, nSim, "LocalWall"),
     vNorm(nnorm),
     vPosition(norigin),
-    e(ne)
+    e(ne),
+    _diameter(Sim->_properties.getProperty(diameter, Property::Units::Length()))
   {
     localName = nname;
   }
@@ -59,8 +60,9 @@ namespace dynamo {
     if ((norm | rij) < 0)
       norm *= -1;
 
-    return LocalEvent(part, Sim->dynamics->getWallCollision
-		      (part, vPosition, norm), WALL, *this);
+    double colldist = 0.5 * _diameter->getProperty(part.getID());
+
+    return LocalEvent(part, Sim->dynamics->getPlaneEvent(part, vPosition, norm, colldist), WALL, *this);
   }
 
   void
@@ -77,8 +79,9 @@ namespace dynamo {
       norm *= -1;
 
     //Run the collision and catch the data
-    NEventData EDat(Sim->dynamics->runWallCollision
-		    (part, norm, e));
+    double colldist = 0.5 * _diameter->getProperty(part.getID());
+
+    NEventData EDat(Sim->dynamics->runPlaneEvent(part, norm, e, colldist));
 
     Sim->signalParticleUpdate(EDat);
 
@@ -101,12 +104,12 @@ namespace dynamo {
   void 
   LDblWall::initialise(size_t nID)
   {
-    ID = nID;
+    Local::initialise(nID);
+
     lastID = std::numeric_limits<size_t>::max();
 
     Sim->registerParticleUpdateFunc
       (magnet::function::MakeDelegate(this, &LDblWall::particleUpdate));
-
   }
 
   void
@@ -137,6 +140,7 @@ namespace dynamo {
   
     try {
       e = XML.getAttribute("Elasticity").as<double>();
+      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
       magnet::xml::Node xBrowseNode = XML.getNode("Norm");
       localName = XML.getAttribute("Name");
       vNorm << xBrowseNode;
@@ -157,6 +161,7 @@ namespace dynamo {
     XML << magnet::xml::attr("Type") << "DoubleWall" 
 	<< magnet::xml::attr("Name") << localName
 	<< magnet::xml::attr("Elasticity") << e
+	<< magnet::xml::attr("Diameter") << _diameter->getName()
 	<< range
 	<< magnet::xml::tag("Norm")
 	<< vNorm

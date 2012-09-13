@@ -365,16 +365,16 @@ namespace dynamo {
 
     /*! \brief Determines when the particle center will hit a wall.
      
-     
       \param part The particle to test.
       \param origin A point the wall passes through.
       \param norm The normal vector to the wall surface.
+      \param diameter The collision diameter, or the distance at which the particle interacts with the plane.
       \return The time till collision.
      */    
-    virtual double getWallCollision(const Particle& part, 
-				    const Vector & origin, 
-				    const Vector & norm
-				    ) const = 0;
+    virtual double getPlaneEvent(const Particle& part, 
+				 const Vector & origin, 
+				 const Vector & norm,
+				 double diameter) const = 0;
 
     typedef enum {
       T_FACE = 0,
@@ -460,11 +460,13 @@ namespace dynamo {
       \param part The particle that is colliding with the wall.
       \param e Elasticity of wall.
       \param vNorm Normal of the wall (\f$ vNorm \cdot v_1\f$ must be negative).
+      \param diameter The interaction diameter of the particle with the plane.
       \return The data for the collision.
      */
-    virtual ParticleEventData runWallCollision(Particle& part, 
+    virtual ParticleEventData runPlaneEvent(Particle& part, 
 					       const Vector & vNorm,
-					       const double& e
+					       const double e,
+					       double diameter
 					       ) const = 0;
 
     /*! \brief Collides a particle with an Andersen thermostat wall.
