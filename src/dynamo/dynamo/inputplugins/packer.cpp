@@ -33,7 +33,9 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/topology/include.hpp>
 #include <dynamo/ensemble.hpp>
-#include <dynamo/locals/include.hpp>
+#include <dynamo/locals/lwall.hpp>
+#include <dynamo/locals/oscillatingplate.hpp>
+#include <dynamo/locals/lcylinder.hpp>
 #include <dynamo/systems/DSMCspheres.hpp>
 #include <dynamo/systems/RingDSMC.hpp>
 #include <dynamo/systems/rescale.hpp>
@@ -1571,8 +1573,7 @@ namespace dynamo {
 		"Mode specific options:\n"
 		"  15: Monocomponent hard-parallel cubes\n"
 		"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-		"       --b1 : If set it enables the single occupancy model\n"
-		"       --b2 : If set it bounds the system with mirrors\n";
+		"       --b1 : If set it enables the single occupancy model\n";
 	      exit(1);
 	    }
 	  //Pack the system, determine the number of particles
@@ -1608,13 +1609,6 @@ namespace dynamo {
 
 	  if (vm.count("b1"))
 	    Sim->globals.push_back(shared_ptr<Global>(new GSOCells(Sim,"SOCells")));
-
-	  if (vm.count("b2"))
-	    {
-	      Sim->locals.push_back(shared_ptr<Local>(new LDblWall(Sim, 1.0, Vector(1,0,0), Vector(0,0,0), "Wall1", 1.0, new RAll(Sim))));
-	      Sim->locals.push_back(shared_ptr<Local>(new LDblWall(Sim, 1.0, Vector(0,1,0), Vector(0,0,0), "Wall2", 1.0, new RAll(Sim))));
-	      Sim->locals.push_back(shared_ptr<Local>(new LDblWall(Sim, 1.0, Vector(0,0,1), Vector(0,0,0), "Wall3", 1.0, new RAll(Sim))));
-	    }
 
 	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>

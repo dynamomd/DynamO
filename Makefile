@@ -27,7 +27,7 @@ clean:
 #Make sure we've downloaded boost and built the bjam executable inside
 build_deps:
 	echo "### Testing if the boost sources have been downloaded:"
-	if [ ! -d ./src/boost ]; then echo "### Boost sources are missing, downloading boost sources:"; curl -L -o $(BOOST_FILE) $(BOOST_DL); echo "### Extracting boost sources"; tar xf $(BOOST_FILE) && rm $(BOOST_FILE) && mv $(BOOST_DIR) src/boost; else echo "### Boost sources already downloaded"; fi
+	if [ ! -d ./src/boost ]; then echo "### Boost sources are missing, downloading boost sources:"; curl -L -o $(BOOST_FILE) $(BOOST_DL) || wget $(BOOST_DL); echo "### Extracting boost sources"; tar xf $(BOOST_FILE) && rm $(BOOST_FILE) && mv $(BOOST_DIR) src/boost; else echo "### Boost sources already downloaded"; fi
 	if [ ! -d ./src/boost ]; then echo "### Failed to setup the boost sources"; fi
 
 	echo "### Testing if the build system has been setup"

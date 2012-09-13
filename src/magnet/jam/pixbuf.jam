@@ -16,10 +16,10 @@
 
 ######This bit registers a convertor for pixbufsvg files
 import type ;
-type.register PXBUFSVG : pixbufsvg ;
+type.register SVG : svg ;
 
 import generators ;
-generators.register-standard pixbuf.pixbufify-svg : PXBUFSVG : C ;
+generators.register-standard pixbuf.pixbufify-svg : SVG : C ;
 
 actions pixbufify-svg
 {

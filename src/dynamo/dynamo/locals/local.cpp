@@ -15,9 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/locals/include.hpp>
-#include <dynamo/locals/local.hpp>
-#include <dynamo/particle.hpp>
+#include <dynamo/locals/lwall.hpp>
+#include <dynamo/locals/AndersenWall.hpp>
+#include <dynamo/locals/oscillatingplate.hpp>
+#include <dynamo/locals/lcylinder.hpp>
+#include <dynamo/locals/lroughwall.hpp>
+#include <dynamo/locals/trianglemesh.hpp>
 #include <dynamo/locals/localEvent.hpp>
 #include <dynamo/ranges/1RAll.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -58,8 +61,6 @@ namespace dynamo {
       return shared_ptr<Local>(new LTriangleMesh(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"AndersenWall"))
       return shared_ptr<Local>(new LAndersenWall(XML, Sim));
-    else if (!strcmp(XML.getAttribute("Type"),"DoubleWall"))
-      return shared_ptr<Local>(new LDblWall(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"OscillatingPlate"))
       return shared_ptr<Local>(new LOscillatingPlate(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"CylinderWall"))
