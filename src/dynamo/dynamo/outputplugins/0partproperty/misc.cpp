@@ -402,6 +402,8 @@ namespace dynamo {
 
     const double V = Sim->getSimVolume();
 
+    const Matrix collP = collisionalP / (V * Sim->systemTime);
+    
     const Matrix P = (_kineticP.mean() + collisionalP / Sim->systemTime) 
       / V;
 
@@ -470,6 +472,17 @@ namespace dynamo {
       }
     
     XML << magnet::xml::endtag("Tensor")
+	<< magnet::xml::tag("InteractionContribution") << magnet::xml::chardata()
+      ;
+    
+    for (size_t iDim = 0; iDim < NDIM; ++iDim)
+      {
+	for (size_t jDim = 0; jDim < NDIM; ++jDim)
+	  XML << collP(iDim, jDim) / Sim->units.unitPressure() << " ";
+	XML << "\n";
+      }
+    
+    XML << magnet::xml::endtag("InteractionContribution")
 	<< magnet::xml::endtag("Pressure")
 	<< magnet::xml::tag("Duration")
 	<< magnet::xml::attr("Events") << Sim->eventCount
