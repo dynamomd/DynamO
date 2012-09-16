@@ -75,7 +75,7 @@ namespace dynamo {
     BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(*this, NEventData(), locdt);
   
-    std::string filename = magnet::string::search_replace("Snapshot.%i.xml.bz2", "%i", boost::lexical_cast<std::string>(_saveCounter++));
+    std::string filename = magnet::string::search_replace("Snapshot.%i.xml.bz2", "%i", boost::lexical_cast<std::string>(_saveCounter));
     Sim->writeXMLfile(filename, _applyBC);
     
     filename = magnet::string::search_replace("Snapshot.output.%i.xml.bz2", "%i", boost::lexical_cast<std::string>(_saveCounter++));
