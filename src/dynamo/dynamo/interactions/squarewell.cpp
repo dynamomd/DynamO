@@ -67,7 +67,7 @@ namespace dynamo {
     }
     catch (boost::bad_lexical_cast &)
       {
-	M_throw() << "Failed a lexical cast in CISquareWell";
+	M_throw() << "Failed a lexical cast in ISquareWell";
       }
   }
 

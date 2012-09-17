@@ -70,6 +70,9 @@ namespace dynamo {
     virtual double getInternalEnergy(const Particle&, const Particle&) const;
 
   protected:
+    ISquareWell(dynamo::Simulation* tmp, C2Range* nR):
+      ISingleCapture(tmp,nR) {}
+
     shared_ptr<Property> _diameter;
     shared_ptr<Property> _lambda;
     shared_ptr<Property> _wellDepth;

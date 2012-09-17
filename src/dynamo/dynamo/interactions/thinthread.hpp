@@ -15,15 +15,28 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/interactions/hardsphere.hpp>
-#include <dynamo/interactions/roughhardsphere.hpp>
+#pragma once
+
 #include <dynamo/interactions/squarewell.hpp>
-#include <dynamo/interactions/thinthread.hpp>
-#include <dynamo/interactions/swsequence.hpp>
-#include <dynamo/interactions/squarebond.hpp>
-#include <dynamo/interactions/softcore.hpp>
-#include <dynamo/interactions/nullInteraction.hpp>
-#include <dynamo/interactions/lines.hpp>
-#include <dynamo/interactions/rotatedparallelcubes.hpp>
-#include <dynamo/interactions/stepped.hpp>
-#include <dynamo/interactions/dumbbells.hpp>
+
+namespace dynamo {
+  class IThinThread: public ISquareWell
+  {
+  public:
+    IThinThread(const magnet::xml::Node&, dynamo::Simulation*);
+  
+    void operator<<(const magnet::xml::Node&);
+
+    virtual void checkOverlaps(const Particle&, const Particle&) const;
+
+    /*! \brief This capture test returns false as (initially) there are no bridges.
+     */
+    virtual bool captureTest(const Particle&, const Particle&) const { return false; }
+
+    virtual IntEvent getEvent(const Particle&, const Particle&) const;
+  
+    virtual void runEvent(Particle&, Particle&, const IntEvent&) const;
+  
+    virtual void outputXML(magnet::xml::XmlStream&) const;
+  };
+}
