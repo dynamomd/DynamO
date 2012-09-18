@@ -129,7 +129,7 @@ namespace dynamo {
 			<< Sim->dynamics->sphereOverlap(p1, p2, d)
 		/ Sim->units.unitLength();
 #endif
-	    retval = IntEvent(p1, p2, dt, WELL_IN, *this);
+	    retval = IntEvent(p1, p2, dt, CORE, *this);
 	  }
       }
 
@@ -159,28 +159,21 @@ namespace dynamo {
       case CORE:
 	{
 	  PairEventData retVal(Sim->dynamics->SmoothSpheresColl(iEvent, e, d2, CORE));
+
+	  IntEvent event(iEvent);
+	  if (!isCaptured(p1, p2))
+	    {
+	      event.setType(WELL_IN);
+	      retVal.setType(WELL_IN);
+	      addToCaptureMap(p1, p2);
+	    }
+
 	  Sim->signalParticleUpdate(retVal);
 	
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
 	
 	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
-	    Ptr->eventUpdate(iEvent, retVal);
-
-	  break;
-	}
-      case WELL_IN:
-	{
-	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, 0, d2));
-	
-	  if (retVal.getType() != BOUNCE)
-	    addToCaptureMap(p1, p2);      
-	
-	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	  Sim->signalParticleUpdate(retVal);
-	
-	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
-	    Ptr->eventUpdate(iEvent, retVal);
-
+	    Ptr->eventUpdate(event, retVal);
 
 	  break;
 	}
