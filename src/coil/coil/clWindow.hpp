@@ -57,6 +57,7 @@ namespace coil {
     virtual void CallBackDisplayFunc();
     virtual bool CallBackIdleFunc();
 
+    void resizeRender(int w, int h);
     void CallBackReshapeFunc(int w, int h);    
 
     const std::string& getWindowTitle() const { return windowTitle; }

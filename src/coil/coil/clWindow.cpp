@@ -624,7 +624,6 @@ namespace coil {
     magnet::thread::ScopedLock lock(_destroyLock);
 
     if (_readyFlag) return;
-    _readyFlag = true;
   
     {
       std::tr1::shared_ptr<RLight> light(new RLight("Light 1",
@@ -675,8 +674,8 @@ namespace coil {
     _glContext->setDepthTest(true);
 
     //Setup the viewport
-    CallBackReshapeFunc(800, 600);
-
+    resizeRender(800, 600);
+ 
     //Setup the keyboard controls
     glutIgnoreKeyRepeat(1);
 
@@ -710,6 +709,8 @@ namespace coil {
 	M_throw() << "An exception was thrown while initialising GTK\n"
 		  << err.what() << "\n";
       }
+
+    _readyFlag = true;
   }
 
   void
@@ -1335,11 +1336,15 @@ namespace coil {
   {
     if (!CoilRegister::getCoilInstance().isRunning() || !_readyFlag) return;
 
+    resizeRender(w, h);
+  }
+
+  void CLGLWindow::resizeRender(int w, int h)
+  {
     //We cannot resize a window 
     if ((w < 4) || (h < 4)) return;
 
     _camera.setHeightWidth(h, w);
-
     _renderTarget.deinit();
     _Gbuffer.deinit();
     _hdrBuffer.deinit();
