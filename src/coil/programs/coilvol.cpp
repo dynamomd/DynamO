@@ -78,11 +78,7 @@ int main(int argc, char *argv[])
       
       coil.getInstance().addWindow(window);
 
-      voldata->loadRawFile(vm["data-file"].as<std::string>(),
-			   vm["x-elements"].as<size_t>(),
-			   vm["y-elements"].as<size_t>(),
-			   vm["z-elements"].as<size_t>(),
-			   vm["data-size"].as<size_t>());
+      voldata->loadRawFile(vm["data-file"].as<std::string>(), vm["x-elements"].as<size_t>(), vm["y-elements"].as<size_t>(), vm["z-elements"].as<size_t>(), vm["data-size"].as<size_t>());
       
       while (true) { window->simupdateTick(0); }
     }
