@@ -43,7 +43,7 @@ namespace coil
 #undef COMBO_BOX_GEN_FUNC
 
     
-    filterSelectBox->set_active(0);
+    //filterSelectBox->set_active(0);
     filterSelectBox->pack_start(getSelectColumnsInstance().m_col_name);
   }
   

@@ -882,12 +882,6 @@ namespace coil {
 	    _renderTarget.getColorTexture(0)->bind(0);
 	    _copyShader.attach();
 	    _copyShader["u_Texture0"] = 0;
-	    { 
-	      std::tr1::array<GLfloat, 2> arg 
-		= {{GLfloat(1) / _camera.getWidth(), 
-		    GLfloat(1) / _camera.getHeight()}};
-	      _copyShader["u_Scale"] = arg;
-	    }
 	    glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
 	    _copyShader.invoke(); 
 	    _copyShader.detach();
