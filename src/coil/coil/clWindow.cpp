@@ -624,7 +624,8 @@ namespace coil {
     magnet::thread::ScopedLock lock(_destroyLock);
 
     if (_readyFlag) return;
-    
+    _readyFlag = true;
+  
     {
       std::tr1::shared_ptr<RLight> light(new RLight("Light 1",
 						    Vector(-25.0f,  25.0f, -25.0f) / _camera.getRenderScale(),//Position
@@ -709,8 +710,6 @@ namespace coil {
 	M_throw() << "An exception was thrown while initialising GTK\n"
 		  << err.what() << "\n";
       }
-
-    _readyFlag = true;
   }
 
   void

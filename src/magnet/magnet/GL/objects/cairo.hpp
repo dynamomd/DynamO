@@ -148,6 +148,8 @@ void main()
 #undef STRINGIFY
 	
       public:
+	CairoSurface() { _alpha_testing = 0; }
+	
 	//! \brief Destructor
 	inline ~CairoSurface() { deinit(); }
 
