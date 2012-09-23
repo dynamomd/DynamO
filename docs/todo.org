@@ -30,6 +30,7 @@
 ***** DONE DynamO: Put all of the cheap/free simulation data calculations into the misc output plugin, so that they don't have to be loaded and people have an interesting default output.xml.bz2.
 ***** DONE DynamO: Remove the KEnergy and UEnergy plugins, convert dynahistrw and other scripts to this new format.
 **** DONE Coil: Make coil scale independent.
+**** DONE Coil: Fixed segfaults on Ubuntu systems.
 **** TODO DynamO: Move to pugixml, and add the github submodule.
 **** TODO DynamO: Get rid of globals and locals, move to 1 particle and 2 particle events.
 **** TODO DynamO: Make an inelasticity of 0 work. 
