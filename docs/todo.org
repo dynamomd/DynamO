@@ -31,7 +31,7 @@
 ***** DONE DynamO: Remove the KEnergy and UEnergy plugins, convert dynahistrw and other scripts to this new format.
 **** DONE Coil: Make coil scale independent.
 **** DONE Coil: Fixed segfaults on Ubuntu systems.
-**** TODO Magnet: Change strerror to wrap strerror_r
+**** DONE Magnet: Change strerror to wrap strerror_r
 **** TODO DynamO: Move to pugixml, and add the github submodule.
 **** TODO DynamO: Get rid of globals and locals, move to 1 particle and 2 particle events.
 **** TODO DynamO: Make an inelasticity of 0 work. 
