@@ -16,8 +16,8 @@
 */
 
 #pragma once
-#include <errno.h>
-#include <string.h>
+#include <cerrno>
+#include <cstring>
 #include <magnet/exception.hpp>
 #include <sstream>
 
