@@ -257,7 +257,7 @@ namespace dynamo
       \param silentMode If true, the periodic output of the simulation
       is supressed.
     */
-    void runSimulation(bool silentMode = false)
+    inline void runSimulation(bool silentMode = false)
     {
       while (runSimulationStep(silentMode)) {}
     }

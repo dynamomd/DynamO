@@ -21,8 +21,8 @@
 #include <magnet/math/matrix.hpp>
 #include <magnet/math/timeaveragedproperty.hpp>
 #include <magnet/math/correlators.hpp>
+#include <map>
 #include <ctime>
-#include <time.h>
 
 namespace dynamo {
   using namespace EventTypeTracking;

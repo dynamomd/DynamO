@@ -55,6 +55,8 @@ namespace dynamo {
 		  simulation.outputData("peek.data.xml.bz2");
 		  break;
 		}	      
+
+	      _SIGINT = false;
 	      {
 		struct sigaction new_action;
 		new_action.sa_handler = dynamo::Coordinator::signal_handler;

@@ -18,6 +18,8 @@
 #pragma once
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <boost/circular_buffer.hpp>
+#include <magnet/math/vector.hpp>
+#include <vector>
 
 namespace dynamo {
   class OPMSDOrientationalCorrelator: public OPTicker

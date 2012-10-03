@@ -19,6 +19,7 @@
 
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <magnet/math/histogram.hpp>
+#include <magnet/math/vector.hpp>
 #include <tr1/array>
 
 namespace dynamo {

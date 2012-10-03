@@ -481,6 +481,7 @@ namespace dynamo {
 		  }
 		}
 	      
+	      _SIGINT = false;
 	      {
 		struct sigaction new_action;
 		new_action.sa_handler = Coordinator::signal_handler;

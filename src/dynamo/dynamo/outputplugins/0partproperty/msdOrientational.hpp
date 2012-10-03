@@ -17,6 +17,7 @@
 
 #pragma once
 #include <dynamo/outputplugins/outputplugin.hpp>
+#include <magnet/math/vector.hpp>
 #include <vector>
 
 namespace dynamo {

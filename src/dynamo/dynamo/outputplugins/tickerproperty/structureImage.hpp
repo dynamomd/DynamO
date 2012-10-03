@@ -17,6 +17,8 @@
 
 #pragma once
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <magnet/math/vector.hpp>
+#include <vector>
 
 namespace dynamo {
   class OPStructureImaging: public OPTicker

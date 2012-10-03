@@ -17,10 +17,8 @@
 
 #pragma once
 #include <dynamo/base.hpp>
-#include <dynamo/simulation.hpp>
 
-namespace xml { class XmlStream; }
-namespace magnet { namespace xml { class Node; } }
+namespace magnet { namespace xml { class Node; class XmlStream; } }
 
 namespace dynamo {
   class IntEvent;
@@ -30,6 +28,8 @@ namespace dynamo {
   class ParticleEventData;
   class NEventData;
   class System;
+  class LocalEvent;
+  class Range;
 
   class OutputPlugin: public dynamo::SimBase_const
   {

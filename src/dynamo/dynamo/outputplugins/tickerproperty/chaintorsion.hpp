@@ -18,6 +18,7 @@
 #pragma once
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <magnet/math/histogram.hpp>
+#include <list>
 
 namespace dynamo {
   class TChain;

@@ -19,6 +19,7 @@
 
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <magnet/math/histogram.hpp>
+#include <vector>
 
 namespace dynamo {
   class OPRadialDistribution: public OPTicker

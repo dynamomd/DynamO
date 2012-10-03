@@ -19,6 +19,7 @@
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/eventtypes.hpp>
 #include <dynamo/outputplugins/eventtypetracking.hpp>
+#include <magnet/math/vector.hpp>
 #include <map>
 
 namespace dynamo {

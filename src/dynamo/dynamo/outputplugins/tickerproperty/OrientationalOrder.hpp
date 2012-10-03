@@ -17,7 +17,9 @@
 
 #pragma once
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <magnet/math/vector.hpp>
 #include <complex>
+#include <vector>
 
 namespace dynamo {
   class OPOrientationalOrder: public OPTicker

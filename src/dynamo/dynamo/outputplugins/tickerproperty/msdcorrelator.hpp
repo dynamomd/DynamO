@@ -18,6 +18,8 @@
 #pragma once
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <boost/circular_buffer.hpp>
+#include <magnet/math/vector.hpp>
+#include <vector>
 
 namespace dynamo {
   class OPMSD;
@@ -39,7 +41,7 @@ namespace dynamo {
 
     void accPass();
 
-    std::vector<boost::circular_buffer<Vector  > > posHistory;
+    std::vector<boost::circular_buffer<Vector> > posHistory;
     std::vector<std::vector<double> > speciesData;
     std::vector<std::vector<double> > structData;
     size_t length;

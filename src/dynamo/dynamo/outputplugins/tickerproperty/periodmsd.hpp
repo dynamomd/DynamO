@@ -17,9 +17,12 @@
 
 #pragma once
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <vector>
+#include <list>
 
 namespace dynamo {
   class OPMSD;
+  class Topology;
 
   class OPPeriodicMSD: public OPTicker
   {

@@ -16,10 +16,13 @@
 */
 
 #pragma once
-#include <dynamo/outputplugins/outputplugin.hpp>
 #include <vector>
+#include <magnet/math/vector.hpp>
+#include <dynamo/outputplugins/outputplugin.hpp>
 
 namespace dynamo {
+  class Topology;
+
   class OPMSD: public OutputPlugin
   {
   public:

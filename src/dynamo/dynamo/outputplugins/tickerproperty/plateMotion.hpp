@@ -17,6 +17,7 @@
 
 #pragma once
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
+#include <magnet/math/vector.hpp>
 #include <fstream>
 #include <vector>
 
