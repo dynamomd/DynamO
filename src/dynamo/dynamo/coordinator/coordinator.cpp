@@ -24,13 +24,13 @@
 #include <cstdio>
 
 namespace dynamo {
-  Coordinator* Coordinator::_signal_handler = NULL;
-
   void 
   Coordinator::signal_handler(int sigtype)
   {
+    struct sigaction _old_SIGINT_handler;
+
     //Restore the old method
-    sigaction (SIGINT, &(_signal_handler->_old_SIGINT_handler), NULL);
+    sigaction(SIGINT, &(Coordinator::get()._old_SIGINT_handler), NULL);
 
     switch (sigtype)
       {
@@ -39,7 +39,7 @@ namespace dynamo {
 	return;
       case SIGUSR2:
 	//Just try and shutdown before we're (kill -9)ed
-	_signal_handler->_engine->forceShutdown();
+	Coordinator::get()_engine->forceShutdown();
 	return;
       case SIGINT:
 	{
@@ -57,7 +57,7 @@ namespace dynamo {
 	    {
 	    case 's':
 	    case 'S':
-	      _signal_handler->_engine->forceShutdown();
+	      Coordinator::get()_engine->forceShutdown();
 	      break;
 	      //	  case 'e':
 	      //	  case 'E':
@@ -68,11 +68,11 @@ namespace dynamo {
 	      //	    break;
 	    case 'p':
 	    case 'P':
-	      _signal_handler->_engine->peekData();
+	      Coordinator::get()_engine->peekData();
 	      break;
 	    case 'd':
 	    case 'D':
-	      _signal_handler->_engine->printStatus();
+	      Coordinator::get()_engine->printStatus();
 	      break;
 	    }
 	  break;

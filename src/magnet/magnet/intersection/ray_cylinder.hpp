@@ -37,7 +37,6 @@ namespace magnet {
 
      \return The time until the intersection, or HUGE_VAL if no intersection.
     */
-    template<bool always_intersect>
     inline double ray_inv_cylinder_bfc(math::Vector T, 
 				       math::Vector D, 
 				       const math::Vector& A, 
@@ -47,7 +46,7 @@ namespace magnet {
       T -= math::Vector((T | A) * A);
       D -= math::Vector((D | A) * A);
 
-      return ray_inv_sphere_bfc<always_intersect>(T, D, r);
+      return ray_inv_sphere_bfc(T, D, r);
     }
 
 

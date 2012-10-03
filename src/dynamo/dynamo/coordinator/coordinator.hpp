@@ -31,36 +31,49 @@
 namespace dynamo {
 
   /*! \brief The main class for the dynarun program.
-   *
-   * This class is responsible for sorting out the correct simulation Engine to 
-   * run and initialising computational node specific objects like the 
-   * ThreadPool.
+   
+    This class is responsible for sorting out the correct simulation Engine to 
+    run and initialising computational node specific objects like the 
+    ThreadPool.
    */
   class Coordinator
   {
   private:
-  public:
+
     /*! \brief The default constructor.
-     *
-     * Only the Engine smart pointer needs to be set to null to ease debugging.
+
+      This constructor is hidden as part of the singleton nature of
+      this coordinator (i.e., there can only ever be one coordinator
+      in a single program).
      */
     Coordinator() {}
 
+  public:
+
+    /*! \brief This is how the singleton Coordinator class is
+        accessed.
+     */
+    static Coordinator& get() 
+    { 
+      static Coordinator _coordinator;
+      return _coordinator; 
+    }
+
     /*! \brief Parses the command line options, including any engine specific options.
-     *
-     * This function must know how to get the command line options for
-     * all available engines. 
-     *
-     * \return The parsed options vm is returned in case the owning
-     * class/function needs to inspect them.
-     *
-     * \param argc The number of command line arguments.
-     * \param argv A pointer to the array of command line arguments.
+     
+      This function must know how to get the command line options for
+      all available engines. 
+     
+      \return The parsed options vm is returned in case the owning
+      class/function needs to inspect them.
+     
+      \param argc The number of command line arguments.
+      \param argv A pointer to the array of command line arguments.
      */
     boost::program_options::variables_map& parseOptions(int argc, char* argv[]);
 
     /*! \brief Creates the specified Engine according to the command
-     *   line options and initialises it.
+      line options and initialises it.
      */
     void initialise();
 
@@ -69,9 +82,9 @@ namespace dynamo {
     void runSimulation();
 
     /*! \brief Outputs any simulation data collected using Engine::outputData().
-     *
-     * In the future this will also output any data collected on the engine or 
-     * system state, i.e. the mpi subsystem.
+     
+      In the future this will also output any data collected on the engine or 
+      system state, i.e. the mpi subsystem.
      */ 
     void outputData();
   
@@ -81,22 +94,22 @@ namespace dynamo {
     void outputConfigs();
 
     /*! \brief The signal handler for the dynarun.
-     *
-     * The purpose of this function is to respond to singals
-     * gracefully. If the user presses Ctrl-c they will be presented with a menu
-     * describing the options available.
-     *
-     * When the program is run in a batch control system like PBS or SGE
-     * and the job approaches its time limits the queuing system sends
-     * SIGUSR1 and SIGUSR2 shortly before to allow the program to
-     * gracefully exit. We catch these signals and shutdown as quickly
-     * as possible.
+     
+      The purpose of this function is to respond to singals
+      gracefully. If the user presses Ctrl-c they will be presented with a menu
+      describing the options available.
+     
+      When the program is run in a batch control system like PBS or SGE
+      and the job approaches its time limits the queuing system sends
+      SIGUSR1 and SIGUSR2 shortly before to allow the program to
+      gracefully exit. We catch these signals and shutdown as quickly
+      as possible.
      */
     static void signal_handler(int);
 
   private:
     /*! \brief Contains the parsed command line options, engines carry references
-     * to these values.
+      to these values.
      */
     boost::program_options::variables_map vm;
 
@@ -104,14 +117,12 @@ namespace dynamo {
      */
     shared_ptr<Engine> _engine;
 
-    /*! \brief A thread pool to utilise multiple cores on the computational node.
-     *
-     * This ThreadPool is used/referenced by all code in a single dynarun process.
-     */
+    /*! \brief A thread pool to utilise multiple cores on the
+      computational node.
+      
+      This ThreadPool is used/referenced by all code in a single
+      dynarun process.
+    */
     magnet::thread::ThreadPool _threads;
-
-    static Coordinator* _signal_handler;
-
-    struct sigaction _old_SIGINT_handler;
   };
 }

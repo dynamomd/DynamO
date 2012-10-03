@@ -70,13 +70,12 @@ namespace magnet {
 
      \return The time until the intersection, or HUGE_VAL if no intersection.
     */
-    template<bool always_intersect>
     inline double ray_inv_rod_bfc(math::Vector T, 
 				  math::Vector D, 
 				  const math::Vector& A,
 				  const double r)
     {
-      double t = ray_inv_cylinder_bfc<always_intersect>(T, D, A / A.nrm(), r);
+      double t = ray_inv_cylinder_bfc(T, D, A / A.nrm(), r);
 
       M_throw() << "Confirm that this function is correct";
 

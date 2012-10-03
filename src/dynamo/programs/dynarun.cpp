@@ -15,12 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*! \file dynarun.cpp 
- *
- * \brief Contains the main() function for dynarun
- *
- * Although this contains the main() function, most of the behaviour peculiar
- * to dynarun is carried out by the Coordinator class.
- */
+ 
+  \brief Contains the main() function for dynarun
+ 
+  Although this contains the main() function, most of the behaviour peculiar
+  to dynarun is carried out by the Coordinator class.
+*/
 
 #include <dynamo/coordinator/coordinator.hpp>
 #include <magnet/arg_share.hpp>
@@ -30,13 +30,13 @@
 #include <signal.h>
 
 /*! \brief Starting point for the dynarun program.
- *
- * This merely boots the Coordinator class. The Coordinator class is
- * the true "main" function for the simulations.
- *
- * \param argc The number of command line arguments.
- * \param argv A pointer to the array of command line arguments.
- */
+ 
+  This merely boots the Coordinator class. The Coordinator class is
+  the true "main" function for the simulations.
+ 
+  \param argc The number of command line arguments.
+  \param argv A pointer to the array of command line arguments.
+*/
 int main(int argc, char *argv[])
 {
   //Output the program licence
@@ -45,10 +45,6 @@ int main(int argc, char *argv[])
 	    << "This is free software, and you are welcome to redistribute it\n"
 	    << "under certain conditions. See the licence you obtained with\n"
 	    << "the code\n";
-
-  /*! \brief The programs single instantiation of the simulation control class.
-   */
-  dynamo::Coordinator coord;
 
   //Run the simulation
   try 
@@ -65,16 +61,12 @@ int main(int argc, char *argv[])
 	    break;
 	  }
 
-      coord.parseOptions(args,argv);
-
-      coord.initialise();
+      dynamo::Coordinator::get().parseOptions(args,argv);
+      dynamo::Coordinator::get().initialise();
+      dynamo::Coordinator::get().runSimulation();
+      dynamo::Coordinator::get().outputData();
+      dynamo::Coordinator::get().outputConfigs();
       
-      coord.runSimulation();
-
-      coord.outputData();
-
-      coord.outputConfigs();
-
       return 0;
     }
   catch (std::exception& cep)

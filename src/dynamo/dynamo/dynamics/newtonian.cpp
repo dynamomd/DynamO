@@ -87,7 +87,7 @@ namespace dynamo {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
     Sim->BCs->applyBC(r12, v12);
-    return magnet::intersection::ray_inv_sphere_bfc<true>(r12, v12, d);
+    return magnet::intersection::ray_inv_sphere_bfc(r12, v12, d);
   }
 
   double
@@ -98,7 +98,7 @@ namespace dynamo {
     Vector r12 = r1data.first - r2data.first;
     Vector v12 = r1data.second - r2data.second;
     Sim->BCs->applyBC(r12, v12);
-    return magnet::intersection::ray_inv_sphere_bfc<true>(r12, v12, d);
+    return magnet::intersection::ray_inv_sphere_bfc(r12, v12, d);
   }
 
   ParticleEventData 

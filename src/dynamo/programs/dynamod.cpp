@@ -32,7 +32,6 @@ namespace po = boost::program_options;
 #include <dynamo/schedulers/include.hpp>
 #include <dynamo/inputplugins/include.hpp>
 #include <magnet/exception.hpp>
-dynamo::Simulation sim;
 
 int
 main(int argc, char *argv[])
@@ -133,6 +132,8 @@ main(int argc, char *argv[])
 	       << helpOpts;
 	  return 1;
 	}
+
+      dynamo::Simulation sim;
 
       if (vm.count("random-seed"))
 	sim.ranGenerator.seed(vm["random-seed"].as<unsigned int>());

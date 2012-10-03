@@ -40,7 +40,7 @@ namespace magnet {
       
       if (arg < 0) return HUGE_VAL;
 
-      return  - c / (TD - std::sqrt(arg));
+      return  std::max(0.0, - c / (TD - std::sqrt(arg)));
     }
 
     /*! \brief A ray-inverse_sphere intersection test with backface culling.
@@ -59,32 +59,24 @@ namespace magnet {
       
       \return The time until the intersection, or HUGE_VAL if no intersection.
     */
-    template<bool always_intersect>
     inline double ray_inv_sphere_bfc(const math::Vector& T,
 				     const math::Vector& D,
 				     const double& r)
     {
-      double D2 = D.nrm2();
+      double D2 = D.nrm2();      
+      double TD = T | D;
+      double c = (T.nrm2() - r * r);
+      double arg = TD * TD - D2 * c;
 
       if (D2 == 0) return HUGE_VAL;
-      
-      double TD = T | D;
-      double arg = TD * TD - D2 * (T.nrm2() - r * r);
 
-      if (always_intersect)
-	{
-	  //Never allow a ray to escape a sphere interaction.
-	  if (arg < 0) 
-	    {
-	      //The ray never passes through the sphere, return the
-	      //time when it is closest to the sphere surface
-	      return - TD / D2;
-	    }
-	}
-      else
-	if (arg < 0) return HUGE_VAL;
-
-      return (std::sqrt(arg) - TD) / D2;
+      //Never allow a ray to escape a sphere interaction.
+      if (arg >= 0)
+	return std::max(0.0, (std::sqrt(arg) - TD) / D2);
+	
+      //The ray never passes through the sphere, return the
+      //time when it is closest to the sphere surface
+      return std::max(0.0, - TD / D2);
     }
 
   }
