@@ -49,14 +49,6 @@ namespace dynamo {
      */
     virtual ~EReplicaExchangeSimulation() {}
   
-    /*! \brief Print the replica exchange status of the simulations.
-     *
-     * This outputs information on replica exchanges, acceptance ratio
-     * and system diffusion rates to the screen so the system can be
-     * inspected to see if its been run long enough.
-     */
-    virtual void printStatus();
-  
     /*! \brief Run the Simulation's and periodically attempt a replica echange.
      */
     virtual void runSimulation();
@@ -66,22 +58,6 @@ namespace dynamo {
      */
     virtual void initialisation();
   
-    /*! \brief Flag every Simulation to end now and set the main loop
-     * to terminate.
-     *
-     * This is called by an interrupt in a threaded environment. It may
-     * be completely unsafe.
-     */
-    virtual void forceShutdown();
-
-    /*! \brief Set the system to output its current data at the next
-     * available instance.
-     * 
-     * This is called by an interrupt in a threaded environment. It may
-     * be completely unsafe.
-     */
-    virtual void peekData();
-
     /*! \brief No finalisation is required in this engine.
      */
     virtual void finaliseRun() {}
@@ -211,10 +187,6 @@ namespace dynamo {
      */
     unsigned int nSims;
   
-    /*! \brief If its true the EReplicaExchangeSimulation loop will restart after outputting data.
-     */
-    bool peekMode;
-
     /*! \brief Initialises this class ready for the replica exchange.
      */
     virtual void preSimInit();

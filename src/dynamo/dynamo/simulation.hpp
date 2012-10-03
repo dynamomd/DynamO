@@ -243,13 +243,24 @@ namespace dynamo
     /*! \brief The Ensemble of the Simulation. */
     shared_ptr<Ensemble> ensemble;
 
+    /*! \brief Main loop for the Simulation.
+      
+      \param silentMode If true, the periodic output of the simulation
+      is supressed.
+      
+      \return Returns false if the simulation has run out of steps
+    */
+    bool runSimulationStep(bool silentMode = false);
 
     /*! \brief Main loop for the Simulation.
       
       \param silentMode If true, the periodic output of the simulation
       is supressed.
     */
-    void runSimulation(bool silentMode = false);
+    void runSimulation(bool silentMode = false)
+    {
+      while (runSimulationStep(silentMode)) {}
+    }
   
     /*! This function makes the Simulation exit the runSimulation loop
       at the next opportunity.
@@ -372,6 +383,8 @@ namespace dynamo
     mutable std::vector<particleUpdateFunc> _particleUpdateNotify;
     mutable boost::signals2::signal<void (size_t)> _particleAddedToSim;
     mutable boost::signals2::signal<void (size_t)> _particleRemovedFromSim;
+
+    size_t _nextPrint;
   };
 
 }

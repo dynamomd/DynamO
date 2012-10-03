@@ -80,21 +80,6 @@ namespace dynamo {
      */
     virtual void finaliseRun() = 0;
 
-    /*! \brief Try to shut the engine down prematurely due to an
-     * interrupt being called.
-     *
-     * This function must be safe to call during an interrupt.
-     */
-    virtual void forceShutdown() = 0;
-
-    /*! \brief Called when the user requests the status of the currently
-     * running engine.
-     *
-     * Output minimal data that you would like to track here.
-     * This function must be safe to call during an interrupt.
-     */
-    virtual void printStatus() = 0;
-
     /*! \brief The main simulation "loop"/call for the engine
      *
      * Some engines like the EReplicaExchangeSimulation require a loop and it will be
@@ -106,11 +91,6 @@ namespace dynamo {
      * Simulation's and the Engine.
      */
     virtual void outputData() = 0;
-
-    /*! \brief Instruct the system to output its data using outputData()
-     * at the next available point, for mid simulation previews.
-     */
-    virtual void peekData() = 0;
 
     /*! \brief Output the configurations of the Simulation's and Engine
      * so the run can be continued.
@@ -129,6 +109,8 @@ namespace dynamo {
      */
     static void getCommonOptions(boost::program_options::options_description& od);
   
+    void sigint() { _SIGINT = true; }
+
   protected:
     /*! \brief Code common to most engines pre simulation initialisation.
      */
@@ -152,7 +134,7 @@ namespace dynamo {
     
     std::string configFormat;
     std::string outputFormat;
-
+    bool _SIGINT;
     magnet::thread::ThreadPool& threads;
   };
 }

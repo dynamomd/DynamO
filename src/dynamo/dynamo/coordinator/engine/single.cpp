@@ -15,38 +15,55 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <signal.h>
+#include <dynamo/coordinator/coordinator.hpp>
 #include <dynamo/coordinator/engine/single.hpp>
 
 namespace dynamo {
   ESingleSimulation::ESingleSimulation(const boost::program_options::variables_map& nVM, 
 				       magnet::thread::ThreadPool& tp):
-    Engine(nVM, "config.out.xml.bz2", "output.xml.bz2", tp),
-    peekMode(false)
+    Engine(nVM, "config.out.xml.bz2", "output.xml.bz2", tp)
   {}
-
-  void 
-  ESingleSimulation::peekData()
-  {
-    peekMode = true;
-    simulation.simShutdown();
-  }
 
   void
   ESingleSimulation::runSimulation()
   {
     try {
-      do
+      while (true)
 	{
-	  if (peekMode)
+	  if (!simulation.runSimulationStep()) break;
+	  if (_SIGINT)
 	    {
-	      simulation.endEventCount = vm["events"].as<size_t>();
-	      simulation.outputData("peek.data.xml.bz2");
-	      peekMode = false;
+	      //Clear the writes to screen
+	      std::cout.flush();
+	      std::cerr << "\n<S>hutdown or <P>eek at data output:";
+	      
+	      char c;
+	      //Clear the input buffer
+	      std::cin.clear();
+	      setvbuf(stdin, NULL, _IONBF, 0);
+	      c=getchar();
+	      setvbuf(stdin, NULL, _IOLBF, 0);
+	      switch (c)
+		{
+		case 's':
+		case 'S':
+		  simulation.simShutdown();
+		  break;
+		case 'p':
+		case 'P':
+		  simulation.outputData("peek.data.xml.bz2");
+		  break;
+		}	      
+	      {
+		struct sigaction new_action;
+		new_action.sa_handler = dynamo::Coordinator::signal_handler;
+		sigemptyset(&new_action.sa_mask);
+		new_action.sa_flags = 0;
+		sigaction(SIGINT, &new_action, NULL);
+	      }
 	    }
-	
-	  simulation.runSimulation();
 	}
-      while (peekMode);
     }
     catch (std::exception& cep)
       {
@@ -91,11 +108,5 @@ namespace dynamo {
   ESingleSimulation::outputConfigs()
   {
     simulation.writeXMLfile(configFormat.c_str(), !vm.count("unwrapped"));
-  }
-
-  void 
-  ESingleSimulation::forceShutdown()
-  {
-    simulation.simShutdown();
   }
 }

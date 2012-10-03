@@ -66,6 +66,7 @@ namespace dynamo {
     vm(nvm),
     configFormat(configFile),
     outputFormat(outputFile),
+    _SIGINT(FALSE),
     threads(tp)
   {}
 
@@ -78,7 +79,6 @@ namespace dynamo {
     if (vm.count("out-data-file"))
       outputFormat = vm["out-data-file"].as<std::string>();
   }
-
 
   class EReplicaExchangeSimulation;
 

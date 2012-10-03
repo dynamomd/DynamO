@@ -26,7 +26,6 @@
 #include <magnet/thread/threadpool.hpp>
 #include <boost/program_options.hpp>
 #include <vector>
-#include <signal.h>
 
 namespace dynamo {
 

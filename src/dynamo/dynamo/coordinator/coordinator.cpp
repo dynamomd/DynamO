@@ -22,68 +22,29 @@
 #include <dynamo/coordinator/coordinator.hpp>
 #include <dynamo/coordinator/engine/include.hpp>
 #include <cstdio>
+#include <signal.h>
 
 namespace dynamo {
   void 
   Coordinator::signal_handler(int sigtype)
   {
-    struct sigaction _old_SIGINT_handler;
-
-    //Restore the old method
-    sigaction(SIGINT, &(Coordinator::get()._old_SIGINT_handler), NULL);
-
     switch (sigtype)
       {
-      case SIGUSR1:
-	//About to be stopped, fine by me, no mpi etc concerns yet
-	return;
-      case SIGUSR2:
-	//Just try and shutdown before we're (kill -9)ed
-	Coordinator::get()_engine->forceShutdown();
-	return;
       case SIGINT:
 	{
-	  //Clear the writes to screen
-	  std::cout.flush();
-	  std::cerr << "\n<S>hutdown, <D>ata or <P>eek at data output:";
+	  {
+	    //Disable this signal handler for any further SIGINT's, to
+	    //let people kill the program with a double ctrl-c.
+	    struct sigaction default_action;
+	    default_action.sa_handler = SIG_DFL;
+	    sigemptyset(&default_action.sa_mask);
+	    default_action.sa_flags = SA_RESETHAND;
+	    sigaction(SIGINT, &default_action, NULL);
+	  }
 
-	  char c;
-	  //Clear the input buffer
-	  std::cin.clear();
-	  setvbuf(stdin, NULL, _IONBF, 0);
-	  c=getchar();
-	  setvbuf(stdin, NULL, _IOLBF, 0);
-	  switch (c)
-	    {
-	    case 's':
-	    case 'S':
-	      Coordinator::get()_engine->forceShutdown();
-	      break;
-	      //	  case 'e':
-	      //	  case 'E':
-	      //	    if (_threads.getThreadCount())
-	      //	      std::cerr << "Cannot <E>xit when threaded, causes program to hang. Try shutting down.";
-	      //	    else
-	      //	      exit(1);
-	      //	    break;
-	    case 'p':
-	    case 'P':
-	      Coordinator::get()_engine->peekData();
-	      break;
-	    case 'd':
-	    case 'D':
-	      Coordinator::get()_engine->printStatus();
-	      break;
-	    }
-	  break;
+	  Coordinator::get()._engine->sigint();
 	}
       }
-
-    struct sigaction new_action;
-    new_action.sa_handler = Coordinator::signal_handler;
-    sigemptyset(&new_action.sa_mask);
-    new_action.sa_flags = 0;
-    sigaction (SIGINT, &new_action, NULL);
   }
 
   boost::program_options::variables_map& 
@@ -155,34 +116,17 @@ namespace dynamo {
     //Register the signal handlers so we can respond to
     //attempts/warnings that the program will be killed
     {
-      if (_signal_handler != NULL)
-	M_throw() << "Can only have one instance of the Coordinator!";
-    
-      _signal_handler = this;
-    
-      //Build the handler response
+      //Build the new handler response
       struct sigaction new_action;
       new_action.sa_handler = Coordinator::signal_handler;
       sigemptyset(&new_action.sa_mask);
       new_action.sa_flags = 0;
     
       //This is for Ctrl-c events
-      sigaction (SIGINT, NULL, &_old_SIGINT_handler);
-      if (_old_SIGINT_handler.sa_handler != SIG_IGN)
-	sigaction (SIGINT, &new_action, NULL);
-    
       struct sigaction old_action;
-      //Sun Grid Engine sends this before a SIGSTOP if -notify is passed
-      //to qsub
-      sigaction (SIGUSR1, NULL, &old_action);
+      sigaction (SIGINT, NULL, &old_action);
       if (old_action.sa_handler != SIG_IGN)
-	sigaction (SIGUSR1, &new_action, NULL);
-    
-      //Sun Grid Engine sends this before a SIGKILL if -notify is passed
-      //to qsub
-      sigaction (SIGUSR2, NULL, &old_action);
-      if (old_action.sa_handler != SIG_IGN)
-	sigaction (SIGUSR2, &new_action, NULL);
+	sigaction (SIGINT, &new_action, NULL);
     }
 
     if (vm.count("n-threads"))

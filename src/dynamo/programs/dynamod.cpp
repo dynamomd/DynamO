@@ -14,24 +14,18 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <iostream>
-#include <cstdio>
-#include <signal.h>
-#include <boost/program_options.hpp>
-#include <boost/tokenizer.hpp>
-#include <boost/lexical_cast.hpp>
-
-using namespace std;
-using namespace boost;
-namespace po = boost::program_options;
 
 #include <dynamo/simulation.hpp>
 #include <dynamo/BC/include.hpp>
-
 #include <dynamo/systems/andersenThermostat.hpp>
 #include <dynamo/schedulers/include.hpp>
 #include <dynamo/inputplugins/include.hpp>
 #include <magnet/exception.hpp>
+#include <boost/program_options.hpp>
+#include <boost/tokenizer.hpp>
+#include <boost/lexical_cast.hpp>
+
+namespace po = boost::program_options;
 
 int
 main(int argc, char *argv[])
@@ -41,6 +35,8 @@ main(int argc, char *argv[])
 	    << "This is free software, and you are welcome to redistribute it\n"
 	    << "under certain conditions. See the licence you obtained with\n"
 	    << "the code\n";
+
+  dynamo::Simulation sim;
 
   ////////////////////////PROGRAM OPTIONS!!!!!!!!!!!!!!!!!!!!!!!
   try 
@@ -132,8 +128,6 @@ main(int argc, char *argv[])
 	       << helpOpts;
 	  return 1;
 	}
-
-      dynamo::Simulation sim;
 
       if (vm.count("random-seed"))
 	sim.ranGenerator.seed(vm["random-seed"].as<unsigned int>());

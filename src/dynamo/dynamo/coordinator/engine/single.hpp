@@ -39,12 +39,7 @@ namespace dynamo {
 
     /*! \brief Trivial virtual destructor */
     virtual ~ESingleSimulation() {}
-  
-    /*! \brief There is no status to be printed other than what the
-     * Simulation outputs.
-     */
-    virtual void printStatus() {}
-  
+    
     /*! \brief Just runs the Simulation::runSimulation() loop and
      * provides a peek functionality.
      */
@@ -62,26 +57,13 @@ namespace dynamo {
      */
     virtual void finaliseRun() {}
 
-    /*! \brief Just wraps the Simulation::simShutdown() function.
-     */
-    virtual void forceShutdown();
-
     /*! \brief Performs the minimum steps to initialise a simulation.
      */
     virtual void initialisation();
-
-    /*! \brief Triggers the peek mode in the loop.
-     */
-    virtual void peekData();
 
   protected:
     /*! \brief The single instance of a Simulation required.
      */
     Simulation simulation;
-  
-    /*! \brief If this is true, the Simulation's end time will be reset
-     * and the ESingleSimulation run loop in runSimulation() will be repeated.
-     */
-    bool peekMode; 
   };
 }

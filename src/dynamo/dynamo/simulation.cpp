@@ -181,7 +181,8 @@ namespace dynamo
     BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)
       Ptr->initialise();
 
-    status = INITIALISED;	
+    _nextPrint = eventCount + eventPrintInterval;
+    status = INITIALISED;
   }
 
   IntEvent 
@@ -750,37 +751,35 @@ namespace dynamo
   Simulation::simShutdown()
   { nextPrintEvent = endEventCount = eventCount; }
 
-  void
-  Simulation::runSimulation(bool silentMode)
+  bool
+  Simulation::runSimulationStep(bool silentMode)
   {
     if (status != INITIALISED && status != PRODUCTION)
       M_throw() << "Bad state for runSimulation()";
 
     status = PRODUCTION;
 
-    size_t nextPrint = eventCount + eventPrintInterval;
-
-    while (eventCount < endEventCount)
-      try
-	{
-	  ptrScheduler->runNextEvent();
+    try
+      {
+	ptrScheduler->runNextEvent();
 	
-	  //Periodic work
-	  if ((eventCount >= nextPrint) && !silentMode && outputPlugins.size())
-	    {
-	      //Print the screen data plugins
-	      BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)
-		Ptr->periodicOutput();
-	      
-	      nextPrint = eventCount + eventPrintInterval;
-	      std::cout << std::endl;
-	    }
-	}
-      catch (std::exception &cep)
-	{
-	  M_throw() << "\nWhile executing event "
-		    << eventCount << cep.what();
-	}
-  }
+	//Periodic work
+	if ((eventCount >= _nextPrint) && !silentMode && outputPlugins.size())
+	  {
+	    //Print the screen data plugins
+	    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)
+	      Ptr->periodicOutput();
+	    
+	    _nextPrint = eventCount + eventPrintInterval;
+	    std::cout << std::endl;
+	  }
+      }
+    catch (std::exception &cep)
+      {
+	M_throw() << "Exception caught while executing event " 
+		  << eventCount << cep.what();
+      }
 
+    return (eventCount < endEventCount);
+  }
 }
