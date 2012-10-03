@@ -90,9 +90,6 @@ namespace dynamo {
 
       if (!(nUpdate % streamFreq))
 	{
-#ifdef dynamo_UpdateCollDebug
-	  std::cerr << "PecTime Stream occuring";
-#endif
 	  BOOST_FOREACH(PELHeap& pDat, Min)
 	    BOOST_FOREACH(Event& event, pDat)
 	    event.dt -= pecTime;

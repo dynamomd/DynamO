@@ -408,24 +408,21 @@ namespace dynamo {
 
     inline void orderNextEvent()
     {
-      while(NP==0)/*if priority queue exhausted*/
+      while(NP==0)
 	{
-#ifdef dynamo_UpdateCollDebug
-	  std::cerr << "\nQueue exhausted";
-#endif
-	  /* change current index */
+	  /*The current priority queue is exhausted, move on to the
+	    next one*/
+
+	  /* change current calendar "date" */
 	  if(++currentIndex==nlists)
 	    {
-	      //This is where we've wrapped all the way around
-	      //Need to do lots here to maintain the list
+	      /* We've reached the last "date" in the calendar.
+	       Reset the index (wrap the date).*/
 	      currentIndex=0;
 
 	      //Stream every event by the list width!
 	      BOOST_FOREACH(eventQEntry& dat, Min)
 		dat.data.stream(listWidth);
-#ifdef dynamo_UpdateCollDebug
-	      std::cerr << "\nPecTime Stream occuring";
-#endif
 	      //update the peculiar time
 	      pecTime -= listWidth;
 

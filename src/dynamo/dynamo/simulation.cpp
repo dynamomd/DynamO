@@ -190,13 +190,7 @@ namespace dynamo
   {
     BOOST_FOREACH(const shared_ptr<Interaction>& ptr, interactions)
       if (ptr->isInteraction(p1,p2))
-	{
-#ifdef dynamo_UpdateCollDebug
-	  std::cerr << "\nGOT INTERACTION P1 = " << p1.getID() << " P2 = " 
-		    << p2.getID() << " NAME = " << typeid(*(ptr.get())).name();
-#endif
-	  return ptr->getEvent(p1,p2);
-	}
+	return ptr->getEvent(p1,p2);
     
     M_throw() << "Could not find the right interaction to test for";
   }
