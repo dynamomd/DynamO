@@ -32,9 +32,12 @@ namespace dynamo {
   {
     class RangeIterator
     {
-    public:
+      friend class Range;
+
       RangeIterator(unsigned long nPos, const Range* nRangePtr):
 	pos(nPos), rangePtr(nRangePtr) {}
+
+    public:
 
       inline bool operator==(const RangeIterator& nIT) const
       { return nIT.pos == pos; }
@@ -49,22 +52,22 @@ namespace dynamo {
       { return RangeIterator(pos-i, rangePtr); }
     
       inline RangeIterator& operator++()
-      { pos++; return *this; }
+      { ++pos; return *this; }
 
       inline RangeIterator& operator++(int)
-      { pos++; return *this; }
+      { ++pos; return *this; }
 
-      inline const unsigned long& operator*() const
-      { return rangePtr->getIteratorID(pos); }
+      inline size_t operator*() const
+      { return (*rangePtr)[pos]; }
 
-      typedef unsigned long difference_type;
-      typedef const unsigned long& value_type;
-      typedef const unsigned long& reference;
-      typedef const unsigned long* pointer;
+      typedef size_t difference_type;
+      typedef size_t value_type;
+      typedef size_t reference;
+      typedef size_t* pointer;
       typedef std::bidirectional_iterator_tag iterator_category;
 
     private:
-      unsigned long pos;
+      size_t pos;
       const Range* rangePtr;
     };
 
@@ -88,11 +91,8 @@ namespace dynamo {
 
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Range&);
 
-    virtual iterator begin() const = 0;
-
-    virtual iterator end() const = 0;
-
-    virtual const unsigned long& getIteratorID(const unsigned long &) const =0;// { return i; }
+    iterator begin() const { return Range::iterator(0, this); }
+    iterator end() const { return Range::iterator(size(), this); }
 
     inline bool empty() const { return begin() == end(); }
 

@@ -35,6 +35,8 @@ namespace dynamo {
 
     virtual void runEvent(Particle&, const double) const;
 
+    virtual RList getParticleNeighbours(const Particle&) const;
+
     virtual void getParticleNeighbourhood(const Particle&,
 					  const nbHoodFunc&) const;
 

@@ -364,4 +364,10 @@ namespace dynamo {
 	cellCoords[0] = 0;
       }
   }
+
+  RList
+  GCellsShearing::getParticleNeighbours(const Particle& part) const
+  {
+    M_throw() << "Not implemented!";
+  }
 }

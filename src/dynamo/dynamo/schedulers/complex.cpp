@@ -25,6 +25,7 @@
 #include <dynamo/globals/global.hpp>
 #include <dynamo/globals/globEvent.hpp>
 #include <dynamo/globals/neighbourList.hpp>
+#include <dynamo/ranges/1RAll.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/locals/localEvent.hpp>
 #include <dynamo/schedulers/complexentries/include.hpp>
@@ -109,5 +110,11 @@ namespace dynamo {
     BOOST_FOREACH(const shared_ptr<SCEntry>& ent, entries)
       if (ent->isApplicable(part))
 	ent->getLocalNeighbourhood(part, func);
+  }
+
+  std::auto_ptr<Range>
+  SComplex::getParticleNeighbours(const Particle&) const
+  {
+    M_throw() << "Not implemented";
   }
 }

@@ -91,9 +91,9 @@ namespace dynamo {
     getLocalNeighbourhood
       (part, magnet::function::MakeDelegate(this, &Scheduler::addLocalEvent));
 
-    //Add the interaction events
-    getParticleNeighbourhood
-      (part, magnet::function::MakeDelegate(this, &Scheduler::addInteractionEvent));
+    std::auto_ptr<Range> neighbours(getParticleNeighbours(part));
+    BOOST_FOREACH(const size_t id2, *neighbours)
+      addInteractionEvent(part, id2);
   }
 
   shared_ptr<Scheduler>

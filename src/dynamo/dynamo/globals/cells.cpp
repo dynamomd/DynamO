@@ -24,6 +24,7 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/BC/LEBC.hpp>
+#include <dynamo/ranges/1RList.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cstdio>
@@ -407,6 +408,46 @@ namespace dynamo {
       }
 
     return retval;
+  }
+
+  RList
+  GCells::getParticleNeighbours(const Particle& part) const
+  {
+    const magnet::math::MortonNumber<3> particle_cell_coords(partCellData[part.getID()]);
+
+    magnet::math::MortonNumber<3> zero_coords;
+    for (size_t iDim(0); iDim < NDIM; ++iDim)
+      zero_coords[iDim] = (particle_cell_coords[iDim].getRealValue() + cellCount[iDim] - overlink)
+	% cellCount[iDim];
+    
+    RList retval;
+    //This initial reserve greatly speeds up the later inserts
+    retval.getContainer().reserve(32);
+
+    magnet::math::MortonNumber<3> coords(zero_coords);
+    for (size_t x(0); x < 2 * overlink + 1; ++x)
+      {
+	coords[0] = (zero_coords[0].getRealValue() + x) % cellCount[0];
+	for (size_t y(0); y < 2 * overlink + 1; ++y)
+	  {
+	    coords[1] = (zero_coords[1].getRealValue() + y) % cellCount[1];
+	    for (size_t z(0); z < 2 * overlink + 1; ++z)
+	      {
+		coords[2] = (zero_coords[2].getRealValue() + z) % cellCount[2];
+
+		const std::vector<size_t>&  nlist = list[coords.getMortonNum()];
+		retval.getContainer().insert(retval.getContainer().end(), nlist.begin(), nlist.end());
+	      }
+	  }
+      }
+
+    return retval;
+  }
+
+  RList
+  GCells::getParticleLocals(const Particle& part) const
+  {
+    return RList(cells[partCellData[part.getID()]]);
   }
 
   void 

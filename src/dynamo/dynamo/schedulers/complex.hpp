@@ -32,6 +32,8 @@ namespace dynamo {
 
     virtual void operator<<(const magnet::xml::Node&);
     
+    virtual std::auto_ptr<Range> getParticleNeighbours(const Particle&) const;
+
     virtual void getParticleNeighbourhood(const Particle&,
 					  const nbHoodFunc&) const;
     

@@ -30,6 +30,8 @@ namespace dynamo {
 
     virtual void initialise();
 
+    virtual std::auto_ptr<Range> getParticleNeighbours(const Particle&) const;
+
     virtual void getParticleNeighbourhood(const Particle&,
 					  const nbHoodFunc&) const 
     {}

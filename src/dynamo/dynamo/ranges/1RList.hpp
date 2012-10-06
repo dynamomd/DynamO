@@ -31,6 +31,11 @@ namespace dynamo {
     RList(const magnet::xml::Node& XML) 
     { operator<<(XML); }
 
+    template<class T>
+    RList(const std::vector<T>& data):
+      IDs(data)
+    {}
+
     RList() {}
 
     virtual bool isInRange(const Particle &part) const
@@ -49,26 +54,23 @@ namespace dynamo {
       try {
     
 	for (magnet::xml::Node node = XML.fastGetNode("ID"); node.valid(); ++node)
-	  IDs.push_back(node.getAttribute("val").as<unsigned long>());
+	  IDs.push_back(node.getAttribute("val").as<size_t>());
       }
       catch (boost::bad_lexical_cast &)
 	{
 	  M_throw() << "Failed a lexical cast in RList";
 	}
     }
+
+    std::vector<size_t>& getContainer() { return IDs; }
     
-    virtual unsigned long size() const { return IDs.size(); };
-
-    virtual iterator begin() const { return Range::iterator(0, this); }
-
-    virtual iterator end() const { return Range::iterator(IDs.size(), this); }
+    virtual unsigned long size() const { return IDs.size(); }
 
     virtual unsigned long operator[](unsigned long i) const { return IDs[i]; }
 
     virtual unsigned long at(unsigned long i) const { return IDs.at(i); }
 
   protected:
-    virtual const unsigned long& getIteratorID(const unsigned long &i) const { return IDs[i]; }
 
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {
@@ -77,6 +79,6 @@ namespace dynamo {
 	XML << magnet::xml::tag("ID") << magnet::xml::attr("val") << ID << magnet::xml::endtag("ID");
     }
 
-    std::vector<unsigned long> IDs;
+    std::vector<size_t> IDs;
   };
 }

@@ -46,10 +46,6 @@ namespace dynamo {
 
     virtual unsigned long size() const { return 1; };
 
-    virtual iterator begin() const { return Range::iterator(ID, this); }
-
-    virtual iterator end() const { return Range::iterator(ID+1, this); }
-
     virtual unsigned long operator[](unsigned long) const  
     { return ID; }
 
@@ -62,7 +58,6 @@ namespace dynamo {
     }
   
   protected:
-    virtual const unsigned long& getIteratorID(const unsigned long &i) const { return i; }
 
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {

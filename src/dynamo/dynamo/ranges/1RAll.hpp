@@ -44,10 +44,6 @@ namespace dynamo {
 
     virtual unsigned long size() const { return Sim->particles.size(); }
 
-    virtual iterator begin() const { return Range::iterator(0, this); }
-
-    virtual iterator end() const { return Range::iterator(Sim->particles.size(), this); }
-
     virtual unsigned long operator[](unsigned long i) const  
     { return i; }
 
@@ -60,8 +56,6 @@ namespace dynamo {
     }
 
   protected:
-
-    virtual const unsigned long& getIteratorID(const unsigned long &i) const { return i; }
 
     void outputXML(magnet::xml::XmlStream& XML) const
     { XML << magnet::xml::attr("Range") << "All"; }

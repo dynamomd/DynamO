@@ -18,7 +18,6 @@
 #include <dynamo/schedulers/neighbourlist.hpp>
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/particle.hpp>
-
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/systems/system.hpp>
@@ -27,6 +26,7 @@
 #include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/locals/localEvent.hpp>
+#include <dynamo/ranges/1RAll.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/bind.hpp>
 #include <boost/progress.hpp>
@@ -86,6 +86,22 @@ namespace dynamo {
   SNeighbourList::SNeighbourList(dynamo::Simulation* const Sim, FEL* ns):
     Scheduler(Sim,"NeighbourListScheduler", ns)
   { dout << "Neighbour List Scheduler Algorithmn Loaded" << std::endl; }
+
+  std::auto_ptr<Range>
+  SNeighbourList::getParticleNeighbours(const Particle& part) const
+  {
+#ifdef DYNAMO_DEBUG
+    if (!std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->globals[NBListID]))
+      M_throw() << "Not a GNeighbourList!";
+#endif
+
+    //Grab a reference to the neighbour list
+    const GNeighbourList& nblist(*static_cast<const GNeighbourList*>
+				 (Sim->globals[NBListID]
+				  .get()));
+  
+    return std::auto_ptr<Range>(new RList(nblist.getParticleNeighbours(part)));
+  }
 
   void 
   SNeighbourList::getParticleNeighbourhood(const Particle& part,

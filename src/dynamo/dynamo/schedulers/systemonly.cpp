@@ -17,19 +17,8 @@
 
 #include <dynamo/schedulers/systemonly.hpp>
 #include <dynamo/interactions/intEvent.hpp>
-#include <dynamo/particle.hpp>
-
-#include <dynamo/dynamics/dynamics.hpp>
-#include <dynamo/BC/BC.hpp>
-#include <dynamo/BC/LEBC.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/globals/globEvent.hpp>
-#include <dynamo/systems/system.hpp>
-#include <dynamo/globals/global.hpp>
-#include <dynamo/globals/globEvent.hpp>
-#include <dynamo/globals/neighbourList.hpp>
-#include <dynamo/locals/local.hpp>
-#include <dynamo/locals/localEvent.hpp>
+#include <dynamo/ranges/1RNone.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cmath> //for huge val
 
@@ -87,5 +76,11 @@ namespace dynamo {
 	<< magnet::xml::tag("Sorter")
 	<< *sorter
 	<< magnet::xml::endtag("Sorter");
+  }
+
+  std::auto_ptr<Range>
+  SSystemOnly::getParticleNeighbours(const Particle&) const
+  {
+    return std::auto_ptr<Range>(new RNone());
   }
 }

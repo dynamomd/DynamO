@@ -21,6 +21,8 @@
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/globals/globEvent.hpp>
 #include <magnet/function/delegate.hpp>
+#include <dynamo/ranges/1RList.hpp>
+#include <memory>
 #include <vector>
 
 namespace magnet { namespace xml { class Node; } }
@@ -101,6 +103,8 @@ namespace dynamo {
     void addLocalEvent(const Particle&, const size_t&) const;
 
     typedef magnet::function::Delegate2<const Particle&, const size_t&, void> nbHoodFunc;
+
+    virtual std::auto_ptr<Range> getParticleNeighbours(const Particle&) const = 0;
 
     virtual void getParticleNeighbourhood(const Particle&,
 					  const nbHoodFunc&) const = 0;

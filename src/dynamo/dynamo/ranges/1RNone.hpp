@@ -41,10 +41,6 @@ namespace dynamo {
 
     virtual unsigned long size() const { return 0; }
 
-    virtual iterator begin() const { return Range::iterator(0, this); }
-
-    virtual iterator end() const { return Range::iterator(0, this); }
-
     virtual unsigned long operator[](unsigned long i) const  
     {
       M_throw() << "Nothing to access";
@@ -56,9 +52,6 @@ namespace dynamo {
     }
 
   protected:
-
-    virtual const unsigned long& getIteratorID(const unsigned long &i) const 
-    { M_throw() << "Nothing here!"; }
 
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     { XML << magnet::xml::attr("Range") << "All"; }

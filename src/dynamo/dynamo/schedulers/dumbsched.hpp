@@ -26,6 +26,8 @@ namespace dynamo {
 
     SDumb(dynamo::Simulation* const, FEL*);
 
+    virtual std::auto_ptr<Range> getParticleNeighbours(const Particle&) const;
+
     virtual void getParticleNeighbourhood(const Particle&,
 					  const nbHoodFunc&) const;
     

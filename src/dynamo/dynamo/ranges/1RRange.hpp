@@ -50,10 +50,6 @@ namespace dynamo {
     unsigned long getStart() { return startID; }
     unsigned long getEnd() { return endID; }
   
-    virtual iterator begin() const { return Range::iterator(startID, this); }
-
-    virtual iterator end() const { return Range::iterator(endID+1, this); }
-
     virtual unsigned long operator[](unsigned long i) const  
     { return startID + i; }
 
@@ -72,8 +68,6 @@ namespace dynamo {
 	  << magnet::xml::attr("Start") << startID
 	  << magnet::xml::attr("End") << endID;
     }
-
-    virtual const unsigned long& getIteratorID(const unsigned long &i) const { return i; }
 
     unsigned long startID;
     unsigned long endID;

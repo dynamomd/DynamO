@@ -18,10 +18,11 @@
 #pragma once
 #include <dynamo/globals/global.hpp>
 #include <dynamo/simulation.hpp>
-
+#include <dynamo/ranges/1RList.hpp>
 #include <boost/function.hpp>
 #include <magnet/function/delegate.hpp>
 #include <magnet/math/vector.hpp>
+#include <memory>
 #include <vector>
 
 namespace dynamo {
@@ -92,10 +93,13 @@ namespace dynamo {
       lambda(0.9)
     {}
 
+    virtual RList getParticleNeighbours(const Particle&) const = 0;
+    virtual RList getParticleLocals(const Particle&) const = 0;
+
     virtual void getParticleNeighbourhood(const Particle&, 
 					  const nbHoodFunc&) const = 0;
 
-    virtual void getParticleNeighbourhood(const Vector&, 
+    virtual void getParticleNeighbourhood(const Vector&,
 					  const nbHoodFunc2&) const = 0;
     
     virtual void getLocalNeighbourhood(const Particle&, 
