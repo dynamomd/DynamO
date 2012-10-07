@@ -46,6 +46,7 @@ namespace dynamo {
     void getExtraLEParticleNeighbourhood(const Particle& part,
 					 const nbHoodFunc& func) const;
 
+    std::vector<size_t> getAdditionalLEParticleNeighbourhood(const Particle& part) const;
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;
   };
