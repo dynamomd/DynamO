@@ -20,6 +20,7 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/ranges/1RAll.hpp>
+#include <dynamo/ranges/1RRange.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cmath> //for huge val
 
@@ -50,26 +51,15 @@ namespace dynamo {
     return std::auto_ptr<Range>(new RAll(Sim));
   }
 
-  void 
-  SDumb::getParticleNeighbourhood(const Particle& part,
-				  const nbHoodFunc& func) const
+  std::auto_ptr<Range>
+  SDumb::getParticleNeighbours(const Vector&) const
   {
-    BOOST_FOREACH(const Particle& op, Sim->particles)
-      if (op != part) func(part, op.getID());
-  }
-    
-  void 
-  SDumb::getLocalNeighbourhood(const Particle& part, 
-				       const nbHoodFunc& func) const
-  {
-    BOOST_FOREACH(const shared_ptr<Local>& local, Sim->locals)
-      func(part, local->getID());
+    return std::auto_ptr<Range>(new RAll(Sim));
   }
 
-  void 
-  SDumb::getParticleNeighbourhood(const Vector& vec, const nbHoodFunc2& func) const
+  std::auto_ptr<Range>
+  SDumb::getParticleLocals(const Particle&) const
   {
-    BOOST_FOREACH(const Particle& op, Sim->particles)
-      func(op.getID());
+    return std::auto_ptr<Range>(new RRange(0, Sim->locals.size()));
   }
 }

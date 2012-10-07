@@ -133,7 +133,9 @@ namespace dynamo {
     _neighbors = 0;
 
     //Add the interaction events
-    Sim->ptrScheduler->getParticleNeighbourhood(part, magnet::function::MakeDelegate(this, &GWaker::nblistCallback));
+    std::auto_ptr<Range> ids(Sim->ptrScheduler->getParticleNeighbours(part));
+    BOOST_FOREACH(const size_t& id1, *ids)
+      nblistCallback(part, id1);
   
     ParticleEventData EDat(part, *Sim->species[part], iEvent.getType());
       

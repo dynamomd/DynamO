@@ -91,16 +91,16 @@ namespace dynamo {
 		<< part.getID() << ") yet it is being used anyway!";
 #endif
 
-    static_cast<const GNeighbourList&>(*Sim->globals[nblistID])
-      .getParticleNeighbourhood(part, func);
+//    static_cast<const GNeighbourList&>(*Sim->globals[nblistID])
+//      .getParticleNeighbourhood(part, func);
   }
 
   void 
   SCENBList::getParticleNeighbourhood(const Vector& vec, 
 				       const GNeighbourList::nbHoodFunc2& func) const
   {
-    static_cast<const GNeighbourList&>(*Sim->globals[nblistID])
-      .getParticleNeighbourhood(vec, func);
+    //    static_cast<const GNeighbourList&>(*Sim->globals[nblistID])
+    //      .getParticleNeighbourhood(vec, func);
   }
 
   void 
@@ -114,8 +114,8 @@ namespace dynamo {
 		<< part.getID() << ") yet it is being used anyway!";
 #endif
 
-    static_cast<const GNeighbourList&>(*Sim->globals[nblistID])
-      .getLocalNeighbourhood(part, func);
+//    static_cast<const GNeighbourList&>(*Sim->globals[nblistID])
+//      .getLocalNeighbourhood(part, func);
   }
 
 

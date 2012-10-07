@@ -27,10 +27,10 @@ namespace dynamo {
     RRange(const magnet::xml::Node& XML) 
     { operator<<(XML); }
     
-    RRange(unsigned int s, unsigned int e):startID(s),endID(e) {}
+    RRange(unsigned int s, unsigned int e):startID(s), endID(e) {}
 
     virtual bool isInRange(const Particle& part) const
-    { return (part.getID() >= startID) && (part.getID() <= endID); }
+    { return (part.getID() >= startID) && (part.getID() < endID); }
 
     virtual void operator<<(const magnet::xml::Node& XML)
     {
@@ -39,23 +39,20 @@ namespace dynamo {
       
       try {
 	startID = XML.getAttribute("Start").as<unsigned long>();
-	endID = XML.getAttribute("End").as<unsigned long>();
+	endID = XML.getAttribute("End").as<unsigned long>() + 1;
       }
       catch (boost::bad_lexical_cast &)
 	{ M_throw() << "Failed a lexical cast in RRange"; }
     }
   
-    virtual unsigned long size() const { return (endID - startID + 1); };
+    virtual unsigned long size() const { return endID - startID; };
 
-    unsigned long getStart() { return startID; }
-    unsigned long getEnd() { return endID; }
-  
     virtual unsigned long operator[](unsigned long i) const  
     { return startID + i; }
 
     virtual unsigned long at(unsigned long i) const 
     { 
-      if (i > endID - startID)
+      if (i >= endID - startID)
 	M_throw() << "Bad array access value in range.at()";
     
       return startID + i;
@@ -66,7 +63,7 @@ namespace dynamo {
     {
       XML << magnet::xml::attr("Range") << "Ranged"
 	  << magnet::xml::attr("Start") << startID
-	  << magnet::xml::attr("End") << endID;
+	  << magnet::xml::attr("End") << endID - 1;
     }
 
     unsigned long startID;

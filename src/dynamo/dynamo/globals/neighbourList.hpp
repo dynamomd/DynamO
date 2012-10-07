@@ -97,15 +97,6 @@ namespace dynamo {
     virtual RList getParticleNeighbours(const Vector&) const = 0;
     virtual RList getParticleLocals(const Particle&) const = 0;
 
-    virtual void getParticleNeighbourhood(const Particle&, 
-					  const nbHoodFunc&) const = 0;
-
-    virtual void getParticleNeighbourhood(const Vector&,
-					  const nbHoodFunc2&) const = 0;
-    
-    virtual void getLocalNeighbourhood(const Particle&, 
-				       const nbHoodFunc&) const = 0;
-
     template<class T> size_t
     ConnectSigCellChangeNotify
     (void (T::*func)(const Particle&, const size_t&)const , const T* tp) const 

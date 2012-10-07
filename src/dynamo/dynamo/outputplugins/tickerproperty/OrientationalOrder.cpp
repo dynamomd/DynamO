@@ -16,9 +16,10 @@
 */
 
 #include <dynamo/outputplugins/tickerproperty/OrientationalOrder.hpp>
-#include <dynamo/globals/neighbourList.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/BC/BC.hpp>
+#include <dynamo/simulation.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -30,8 +31,7 @@ namespace dynamo {
   OPOrientationalOrder::OPOrientationalOrder(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):
     OPTicker(tmp,"OrientationalOrder"), 
     _axis(1,0,0),
-    _rg(1),
-    _nblistID(std::numeric_limits<size_t>::max())
+    _rg(1)
   {
     operator<<(XML);
   }
@@ -59,25 +59,6 @@ namespace dynamo {
   void 
   OPOrientationalOrder::initialise() 
   { 
-    double smallestlength = HUGE_VAL;
-
-    BOOST_FOREACH(const shared_ptr<Global>& pGlob, Sim->globals)
-      if (std::tr1::dynamic_pointer_cast<GNeighbourList>(pGlob))
-	{
-	  const double l(static_cast<const GNeighbourList*>(pGlob.get())
-			 ->getMaxSupportedInteractionLength());
-	  if ((l >= _rg) && (l < smallestlength))
-	    {
-	      //this neighbourlist is better suited
-	      smallestlength = l;
-	      _nblistID = pGlob->getID();
-	    }
-	}
-
-    if (_nblistID == std::numeric_limits<size_t>::max())
-      M_throw() << "There is not a suitable neighbourlist for the cut-off radius selected."
-	"\nR_g = " << _rg / Sim->units.unitLength();
-
     ticker();
   }
 
@@ -119,11 +100,9 @@ namespace dynamo {
       {
 	Neighbours nbs;
 	
-	static_cast<const GNeighbourList*>
-	  (Sim->globals[_nblistID].get())
-	  ->getParticleNeighbourhood
-	  (part, magnet::function::MakeDelegate
-	   (&nbs, &Neighbours::addNeighbour));
+	std::auto_ptr<Range> ids(Sim->ptrScheduler->getParticleNeighbours(part));
+	BOOST_FOREACH(const size_t& id1, *ids)
+	  nbs.addNeighbour(part, id1);
 	
 	if (nbs._neighbours.size() >= 6)
 	  {

@@ -66,15 +66,6 @@ namespace dynamo {
     virtual RList getParticleNeighbours(const Particle&) const;
     virtual RList getParticleNeighbours(const Vector&) const;
     virtual RList getParticleLocals(const Particle&) const;
-
-    virtual void getParticleNeighbourhood(const Particle&, 
-					  const nbHoodFunc&) const;
-
-    virtual void getParticleNeighbourhood(const Vector&, 
-					  const nbHoodFunc2&) const;
-
-    virtual void getLocalNeighbourhood(const Particle&, 
-				       const nbHoodFunc&) const;
     
     virtual void operator<<(const magnet::xml::Node&);
 

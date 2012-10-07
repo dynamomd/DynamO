@@ -88,11 +88,14 @@ namespace dynamo {
 	sorter->push(glob->getEvent(part), part.getID());
   
     //Add the local cell events
-    getLocalNeighbourhood
-      (part, magnet::function::MakeDelegate(this, &Scheduler::addLocalEvent));
+    std::auto_ptr<Range> ids(getParticleLocals(part));
+    
+    BOOST_FOREACH(const size_t id2, *ids)
+      addLocalEvent(part, id2);
 
-    std::auto_ptr<Range> neighbours(getParticleNeighbours(part));
-    BOOST_FOREACH(const size_t id2, *neighbours)
+    //Now add the interaction events
+    ids = getParticleNeighbours(part);
+    BOOST_FOREACH(const size_t id2, *ids)
       addInteractionEvent(part, id2);
   }
 
@@ -406,7 +409,7 @@ namespace dynamo {
 			   const size_t& id) const
   {
     if (Sim->locals[id]->isInteraction(part))
-      sorter->push(Sim->locals[id]->getEvent(part), part.getID());  
+      sorter->push(Sim->locals[id]->getEvent(part), part.getID());
   }
 
   void 

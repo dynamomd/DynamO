@@ -38,15 +38,6 @@ namespace dynamo {
     virtual RList getParticleNeighbours(const Particle&) const;
     virtual RList getParticleNeighbours(const Vector&) const;
 
-    virtual void getParticleNeighbourhood(const Particle&,
-					  const nbHoodFunc&) const;
-
-    virtual void getParticleNeighbourhood(const Vector&, 
-					  const nbHoodFunc2&) const;
-
-    void getExtraLEParticleNeighbourhood(const Particle& part,
-					 const nbHoodFunc& func) const;
-
   protected:
     RList getParticleNeighbours(const magnet::math::MortonNumber<3>&) const;
     std::vector<size_t> getAdditionalLEParticleNeighbourhood(const Particle&) const;

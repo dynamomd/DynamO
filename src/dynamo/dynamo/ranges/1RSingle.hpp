@@ -41,7 +41,7 @@ namespace dynamo {
 	ID = XML.getAttribute("ID").as<size_t>();
       }
       catch (boost::bad_lexical_cast &)
-	{ M_throw() << "Failed a lexical cast in RRange"; }
+	{ M_throw() << "Failed a lexical cast in RSingle"; }
     }
 
     virtual unsigned long size() const { return 1; };

@@ -102,18 +102,9 @@ namespace dynamo {
     
     void addLocalEvent(const Particle&, const size_t&) const;
 
-    typedef magnet::function::Delegate2<const Particle&, const size_t&, void> nbHoodFunc;
-
     virtual std::auto_ptr<Range> getParticleNeighbours(const Particle&) const = 0;
-
-    virtual void getParticleNeighbourhood(const Particle&,
-					  const nbHoodFunc&) const = 0;
-
-    virtual void getLocalNeighbourhood(const Particle&, 
-				       const nbHoodFunc&) const = 0;
-
-    typedef magnet::function::Delegate1<const size_t&, void> nbHoodFunc2;
-    virtual void getParticleNeighbourhood(const Vector&, const nbHoodFunc2&) const = 0;
+    virtual std::auto_ptr<Range> getParticleNeighbours(const Vector&) const = 0;
+    virtual std::auto_ptr<Range> getParticleLocals(const Particle&) const = 0;
     
     const std::vector<size_t>& getEventCounts() const { return eventCount; }
 

@@ -86,35 +86,29 @@ namespace dynamo {
     Scheduler(Sim,"ComplexScheduler", ns)
   { dout << "Complex Scheduler Algorithmn Loaded" << std::endl; }
 
-  void 
-  SComplex::getParticleNeighbourhood(const Particle& part,
-				     const nbHoodFunc& func) const
-  {
-    BOOST_FOREACH(const shared_ptr<SCEntry>& ent, entries)
-      if (ent->isApplicable(part))
-	ent->getParticleNeighbourhood(part, func);
-  }
-
-  void 
-  SComplex::getParticleNeighbourhood(const Vector& vec,
-				     const nbHoodFunc2& func) const
-  {
-    BOOST_FOREACH(const shared_ptr<SCEntry>& ent, entries)
-	ent->getParticleNeighbourhood(vec, func);
-  }
-    
-  void 
-  SComplex::getLocalNeighbourhood(const Particle& part, 
-				  const nbHoodFunc& func) const
-  {
-    BOOST_FOREACH(const shared_ptr<SCEntry>& ent, entries)
-      if (ent->isApplicable(part))
-	ent->getLocalNeighbourhood(part, func);
-  }
-
-  std::auto_ptr<Range>
-  SComplex::getParticleNeighbours(const Particle&) const
-  {
-    M_throw() << "Not implemented";
-  }
+//  void 
+//  SComplex::getParticleNeighbourhood(const Particle& part,
+//				     const nbHoodFunc& func) const
+//  {
+//    BOOST_FOREACH(const shared_ptr<SCEntry>& ent, entries)
+//      if (ent->isApplicable(part))
+//	ent->getParticleNeighbourhood(part, func);
+//  }
+//
+//  void 
+//  SComplex::getParticleNeighbourhood(const Vector& vec,
+//				     const nbHoodFunc2& func) const
+//  {
+//    BOOST_FOREACH(const shared_ptr<SCEntry>& ent, entries)
+//	ent->getParticleNeighbourhood(vec, func);
+//  }
+//    
+//  void 
+//  SComplex::getLocalNeighbourhood(const Particle& part, 
+//				  const nbHoodFunc& func) const
+//  {
+//    BOOST_FOREACH(const shared_ptr<SCEntry>& ent, entries)
+//      if (ent->isApplicable(part))
+//	ent->getLocalNeighbourhood(part, func);
+//  }
 }

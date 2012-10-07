@@ -83,4 +83,16 @@ namespace dynamo {
   {
     return std::auto_ptr<Range>(new RNone());
   }
+
+  std::auto_ptr<Range>
+  SSystemOnly::getParticleNeighbours(const Vector&) const
+  {
+    return std::auto_ptr<Range>(new RNone());
+  }
+
+  std::auto_ptr<Range>
+  SSystemOnly::getParticleLocals(const Particle&) const
+  {
+    return std::auto_ptr<Range>(new RNone());
+  }
 }

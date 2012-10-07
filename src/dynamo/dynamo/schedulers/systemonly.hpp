@@ -31,18 +31,8 @@ namespace dynamo {
     virtual void initialise();
 
     virtual std::auto_ptr<Range> getParticleNeighbours(const Particle&) const;
-
-    virtual void getParticleNeighbourhood(const Particle&,
-					  const nbHoodFunc&) const 
-    {}
-
-    virtual void getParticleNeighbourhood(const Vector&, 
-					  const nbHoodFunc2&) const
-    {}
-    
-    virtual void getLocalNeighbourhood(const Particle&, 
-				       const nbHoodFunc&) const
-    {}
+    virtual std::auto_ptr<Range> getParticleNeighbours(const Vector&) const;
+    virtual std::auto_ptr<Range> getParticleLocals(const Particle&) const;
 
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;

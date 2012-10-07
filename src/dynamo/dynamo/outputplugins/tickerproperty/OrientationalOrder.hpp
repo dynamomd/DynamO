@@ -43,6 +43,5 @@ namespace dynamo {
     std::vector<ComplexNum> _history;
     Vector _axis;
     double _rg;
-    size_t _nblistID;
   };
 }

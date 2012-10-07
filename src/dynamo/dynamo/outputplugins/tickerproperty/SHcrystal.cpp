@@ -16,6 +16,7 @@
 */
 
 #include <dynamo/outputplugins/tickerproperty/SHcrystal.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/BC/BC.hpp>
@@ -96,10 +97,9 @@ namespace dynamo {
   
     BOOST_FOREACH(const Particle& part, Sim->particles)
       {
-	static_cast<const GNeighbourList*>
-	  (Sim->globals[nblistID].get())
-	  ->getParticleNeighbourhood
-	  (part, magnet::function::MakeDelegate(&ssum, &sphericalsum::operator()));
+	std::auto_ptr<Range> ids(Sim->ptrScheduler->getParticleNeighbours(part));
+	BOOST_FOREACH(const size_t& id1, *ids)
+	  ssum(part, id1);
       
 	for (size_t l(0); l < maxl; ++l)
 	  for (int m(-l); m <= static_cast<int>(l); ++m)

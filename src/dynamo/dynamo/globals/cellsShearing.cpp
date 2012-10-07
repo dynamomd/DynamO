@@ -141,11 +141,15 @@ namespace dynamo {
 	//neighbours and the extra LE neighbourhood strip but its a lot
 	//of code
 	if (isUsedInScheduler)
-	  getParticleNeighbourhood(part, magnet::function::MakeDelegate(&(*Sim->ptrScheduler), 
-									&Scheduler::addInteractionEvent));
-      
-	BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
-	  getParticleNeighbourhood(part, nbs.second);
+	  {
+	    BOOST_FOREACH(const size_t& id2, getParticleNeighbours(part))
+	      {
+		Sim->ptrScheduler->addInteractionEvent(part, id2);
+
+		BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
+		  nbs.second(part, id2);
+	      }
+	  }
       }
     else if ((cellDirection == 1) &&
 	     (oldCellCoords[1] == ((cellDirectionInt < 0) ? 1 : (cellCount[1] - 2))))
@@ -287,54 +291,6 @@ namespace dynamo {
 #endif
   }
 
-  void
-  GCellsShearing::getParticleNeighbourhood(const Particle& part,
-					   const nbHoodFunc& func) const
-  {
-    GCells::getParticleNeighbourhood(part, func);
-  
-    size_t cell(partCellData[part.getID()]);
-    magnet::math::MortonNumber<3> cellCoords(cell);
-
-    if ((cellCoords[1] == 0) || (cellCoords[1] == dilatedCellMax[1]))
-      getExtraLEParticleNeighbourhood(part, func);
-  }
-
-  void 
-  GCellsShearing::getParticleNeighbourhood(const Vector& vec,
-					   const nbHoodFunc2& func) const
-  {
-    GCells::getParticleNeighbourhood(vec, func);
-  
-    magnet::math::MortonNumber<3> cellCoords = getCellID(vec);
-
-    if ((cellCoords[1] == 0) || (cellCoords[1] == dilatedCellMax[1]))
-      {
-	//Move to the bottom of x
-	cellCoords[0] = 0;
-	//Get the correct y-side (its the opposite to the particles current side)
-	cellCoords[1] = (cellCoords[1] > 0) ? 0 : dilatedCellMax[1];  
-	////Move the overlink across
-	cellCoords[2] = (cellCoords[2].getRealValue() + cellCount[2] - overlink) % cellCount[2];
-	
-	for (size_t i(0); i < 2 * overlink + 1; ++i)
-	  {
-	    cellCoords[2] %= cellCount[2];
-	    
-	    for (size_t j(0); j < cellCount[0]; ++j)
-	      {
-		
-		BOOST_FOREACH(const size_t& next, list[cellCoords.getMortonNum()])
-		  func(next);
-		
-		++cellCoords[0];
-	      }
-	    ++cellCoords[2];
-	    cellCoords[0] = 0;
-	  }
-      }
-  }
-
   RList
   GCellsShearing::getParticleNeighbours(const Particle& part) const
   {
@@ -398,40 +354,5 @@ namespace dynamo {
 	cellCoords[0] = 0;
       }
     return retval;
-  }
-
-  void 
-  GCellsShearing::getExtraLEParticleNeighbourhood(const Particle& part,
-						  const nbHoodFunc& func) const
-  {
-    size_t cell(partCellData[part.getID()]);
-    magnet::math::MortonNumber<3> cellCoords(cell);
-  
-#ifdef DYNAMO_DEBUG
-    if ((cellCoords[1] != 0) && (cellCoords[1] != dilatedCellMax[1]))
-      M_throw() << "Shouldn't call this function unless the particle is at a border in the y dimension";
-#endif 
-
-    //Move to the bottom of x
-    cellCoords[0] = 0;
-    //Get the correct y-side (its the opposite to the particles current side)
-    cellCoords[1] = (cellCoords[1] > 0) ? 0 : dilatedCellMax[1];  
-    ////Move te overlink across
-    cellCoords[2] = (cellCoords[2].getRealValue() + cellCount[2] - overlink) % cellCount[2];
-
-    for (size_t i(0); i < 2 * overlink + 1; ++i)
-      {
-	cellCoords[2] %= cellCount[2];
-
-	for (size_t j(0); j < cellCount[0]; ++j)
-	  {
-	    BOOST_FOREACH(const size_t& next, list[cellCoords.getMortonNum()])
-	      func(part, next);
-
-	    ++cellCoords[0];
-	  }
-	++cellCoords[2];
-	cellCoords[0] = 0;
-      }
   }
 }
