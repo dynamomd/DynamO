@@ -64,6 +64,7 @@ namespace dynamo {
     virtual void reinitialise();
 
     virtual RList getParticleNeighbours(const Particle&) const;
+    virtual RList getParticleNeighbours(const Vector&) const;
     virtual RList getParticleLocals(const Particle&) const;
 
     virtual void getParticleNeighbourhood(const Particle&, 
@@ -83,6 +84,8 @@ namespace dynamo {
     virtual double getMaxSupportedInteractionLength() const;
 
   protected:
+    RList getParticleNeighbours(const magnet::math::MortonNumber<3>&) const;
+
     size_t cellCount[3];
     magnet::math::DilatedInteger<3> dilatedCellMax[3];
     Vector cellDimension;

@@ -411,10 +411,8 @@ namespace dynamo {
   }
 
   RList
-  GCells::getParticleNeighbours(const Particle& part) const
+  GCells::getParticleNeighbours(const magnet::math::MortonNumber<3>& particle_cell_coords) const
   {
-    const magnet::math::MortonNumber<3> particle_cell_coords(partCellData[part.getID()]);
-
     magnet::math::MortonNumber<3> zero_coords;
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       zero_coords[iDim] = (particle_cell_coords[iDim].getRealValue() + cellCount[iDim] - overlink)
@@ -442,6 +440,18 @@ namespace dynamo {
       }
 
     return retval;
+  }
+
+  RList
+  GCells::getParticleNeighbours(const Particle& part) const
+  {
+    return getParticleNeighbours(partCellData[part.getID()]);
+  }
+
+  RList
+  GCells::getParticleNeighbours(const Vector& vec) const
+  {
+    return getParticleNeighbours(getCellID(vec));
   }
 
   RList

@@ -94,6 +94,7 @@ namespace dynamo {
     {}
 
     virtual RList getParticleNeighbours(const Particle&) const = 0;
+    virtual RList getParticleNeighbours(const Vector&) const = 0;
     virtual RList getParticleLocals(const Particle&) const = 0;
 
     virtual void getParticleNeighbourhood(const Particle&, 

@@ -287,7 +287,7 @@ namespace dynamo {
 #endif
   }
 
-  void 
+  void
   GCellsShearing::getParticleNeighbourhood(const Particle& part,
 					   const nbHoodFunc& func) const
   {
@@ -338,14 +338,23 @@ namespace dynamo {
   RList
   GCellsShearing::getParticleNeighbours(const Particle& part) const
   {
-    RList retval(GCells::getParticleNeighbours(part));
+    return getParticleNeighbours(magnet::math::MortonNumber<3>(partCellData[part.getID()]));
+  }
 
-    size_t cell(partCellData[part.getID()]);
-    magnet::math::MortonNumber<3> cellCoords(cell);
-    
+  RList
+  GCellsShearing::getParticleNeighbours(const Vector& vec) const
+  {
+    return getParticleNeighbours(magnet::math::MortonNumber<3>(getCellID(vec)));
+  }
+
+  RList
+  GCellsShearing::getParticleNeighbours(const magnet::math::MortonNumber<3>& cellCoords) const
+  {
+    RList retval(GCells::getParticleNeighbours(cellCoords));
+
     if ((cellCoords[1] == 0) || (cellCoords[1] == dilatedCellMax[1]))
       {
-	const std::vector<size_t>& extra(getAdditionalLEParticleNeighbourhood(part));
+	const std::vector<size_t>& extra(getAdditionalLEParticleNeighbourhood(cellCoords));
 	retval.getContainer().insert(retval.getContainer().end(), extra.begin(), extra.end());
       }
     return retval;
@@ -354,9 +363,12 @@ namespace dynamo {
   std::vector<size_t>
   GCellsShearing::getAdditionalLEParticleNeighbourhood(const Particle& part) const
   {
-    size_t cell(partCellData[part.getID()]);
-    magnet::math::MortonNumber<3> cellCoords(cell);
-  
+    return getAdditionalLEParticleNeighbourhood(magnet::math::MortonNumber<3>(partCellData[part.getID()]));
+  }
+
+  std::vector<size_t>
+  GCellsShearing::getAdditionalLEParticleNeighbourhood(magnet::math::MortonNumber<3> cellCoords) const
+  {  
 #ifdef DYNAMO_DEBUG
     if ((cellCoords[1] != 0) && (cellCoords[1] != dilatedCellMax[1]))
       M_throw() << "Shouldn't call this function unless the particle is at a border in the y dimension";
