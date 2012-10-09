@@ -15,61 +15,41 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <coil/RenderObj/RenderObj.hpp>
-
-extern const guint8 default_RObj_Icon[];
-extern const size_t default_RObj_Icon_size;
-
-extern const guint8 visible_on_Icon[];
-extern const size_t visible_on_Icon_size;
-extern const guint8 visible_off_Icon[];
-extern const size_t visible_off_Icon_size;
-
-extern const guint8 shadow_on_Icon[];
-extern const size_t shadow_on_Icon_size;
-extern const guint8 shadow_off_Icon[];
-extern const size_t shadow_off_Icon_size;
-
-extern const guint8 delete_Icon[];
-extern const size_t delete_Icon_size;
-
-extern const guint8 delete_off_Icon[];
-extern const size_t delete_off_Icon_size;
+#include <coil/images/images.hpp>
 
 namespace {
   Glib::RefPtr<Gdk::Pixbuf> 
   getVisibleIcon(bool enabled)
   {
     if (enabled) 
-      return Gdk::Pixbuf::create_from_inline(visible_on_Icon_size, visible_on_Icon);
+      return coil::images::visible_on_Icon();
     else
-      return Gdk::Pixbuf::create_from_inline(visible_off_Icon_size, visible_off_Icon);
+      return coil::images::visible_off_Icon();
   }
 
   Glib::RefPtr<Gdk::Pixbuf> 
   getShadowIcon(bool enabled)
   {
     if (enabled) 
-      return Gdk::Pixbuf::create_from_inline(shadow_on_Icon_size, shadow_on_Icon);
+      return coil::images::shadow_on_Icon();
     else
-      return Gdk::Pixbuf::create_from_inline(shadow_off_Icon_size, shadow_off_Icon);
+      return coil::images::shadow_off_Icon();
   }
 
   Glib::RefPtr<Gdk::Pixbuf> 
   getDeleteIcon(bool enabled)
   {
     if (enabled) 
-      return Gdk::Pixbuf::create_from_inline(delete_Icon_size, delete_Icon);
+      return coil::images::delete_Icon();
     else
-      return Gdk::Pixbuf::create_from_inline(delete_off_Icon_size, delete_off_Icon);
+      return coil::images::delete_off_Icon();
   }
 }
 
 namespace coil {
   Glib::RefPtr<Gdk::Pixbuf> 
   RenderObj::getIcon()
-  {
-    return Gdk::Pixbuf::create_from_inline(default_RObj_Icon_size, default_RObj_Icon);
-  }
+  { return coil::images::default_RObj_Icon(); }
 
   Gtk::TreeModel::iterator 
   RenderObj::addViewRows(RenderObjectsGtkTreeView& view, Gtk::TreeModel::iterator& iter)

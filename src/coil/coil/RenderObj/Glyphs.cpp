@@ -20,16 +20,12 @@
 #include <magnet/GL/objects/primitives/cylinder.hpp>
 #include <magnet/GL/objects/primitives/arrow.hpp>
 #include <magnet/GL/objects/primitives/cube.hpp>
-
-extern const guint8 Glyphs_Icon[];
-extern const size_t Glyphs_Icon_size;
+#include <coil/images/images.hpp>
 
 namespace coil {  
   Glib::RefPtr<Gdk::Pixbuf> 
   Glyphs::getIcon()
-  {
-    return Gdk::Pixbuf::create_from_inline(Glyphs_Icon_size, Glyphs_Icon);
-  }
+  { return coil::images::Glyphs_Icon(); }
 
   magnet::GL::element_type::Enum  
   Glyphs::getElementType()

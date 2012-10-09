@@ -55,8 +55,7 @@ project	: requirements
 exe coilDependencies : tests/buildreq.cpp : <coil-buildable>no:<define>BUILDFAIL ;
 
 lib coil
-      : [ glob-tree *.cpp : tests examples images programs ]
-        [ glob-tree *.svg *.ttf : tests examples coil programs ]
+      : [ glob-tree *.cpp : tests examples programs ]
       clwingtk.gladexml png
       glut GLU GL Xext X11 rt GLEW /magnet//magnet
       /opencl//opencl gtkmm 

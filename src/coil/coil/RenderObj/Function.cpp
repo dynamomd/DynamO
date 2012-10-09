@@ -20,17 +20,12 @@
 #include <coil/glprimatives/arrow.hpp>
 #include <magnet/string/formatcode.hpp>
 #include <magnet/string/line_number.hpp>
-
-
-extern const guint8 Function_Icon[];
-extern const size_t Function_Icon_size;
+#include <coil/images/images.hpp>
 
 namespace coil {
   Glib::RefPtr<Gdk::Pixbuf> 
   RFunction::getIcon()
-  {
-    return Gdk::Pixbuf::create_from_inline(Function_Icon_size, Function_Icon);
-  }
+  { return coil::images::Function_Icon(); }
 
 
   RFunction::RFunction(std::string name,

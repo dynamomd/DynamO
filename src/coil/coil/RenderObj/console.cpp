@@ -22,9 +22,6 @@
 #include <magnet/GL/objects/primitives/grid.hpp>
 #include <coil/glprimatives/arrow.hpp>
 
-extern const unsigned char _binary_coilfont_ttf_start[];
-extern const unsigned char _binary_coilfont_ttf_end[];
-
 namespace coil {
   void 
   Console::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)

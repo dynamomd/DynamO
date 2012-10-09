@@ -17,16 +17,12 @@
 
 #include <coil/RenderObj/DataSet.hpp>
 #include <coil/RenderObj/Glyphs.hpp>
-
-extern const guint8 DataSet_Icon[];
-extern const size_t DataSet_Icon_size;
+#include <coil/images/images.hpp>
 
 namespace coil {  
   Glib::RefPtr<Gdk::Pixbuf> 
   DataSet::getIcon()
-  {
-    return Gdk::Pixbuf::create_from_inline(DataSet_Icon_size, DataSet_Icon);
-  }
+  { return coil::images::DataSet_Icon(); }
 
   void 
   DataSetChild::request_delete()

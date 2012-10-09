@@ -23,16 +23,12 @@
 #include <magnet/GL/objects/cairo.hpp>
 #include <boost/lexical_cast.hpp>
 #include <fstream>
-
-extern const guint8 Light_Icon[];
-extern const size_t Light_Icon_size;
+#include <coil/images/images.hpp>
 
 namespace coil {
   Glib::RefPtr<Gdk::Pixbuf>
   RLight::getIcon()
-  {
-    return Gdk::Pixbuf::create_from_inline(Light_Icon_size, Light_Icon);
-  }
+  { return coil::images::Light_Icon(); }
 
   void 
   RLight::deinit()
