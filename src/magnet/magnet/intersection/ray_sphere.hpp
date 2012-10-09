@@ -17,6 +17,7 @@
 
 #pragma once
 #include <magnet/math/vector.hpp>
+#include <math.h>
 
 namespace magnet {
   namespace intersection {
@@ -52,11 +53,6 @@ namespace magnet {
       \param D The direction/velocity of the ray.
       \param d The diameter of the inverse sphere.
 
-      \tparam always_intersect If true, this will ensure that glancing
-      ray's never escape the enclosing sphere by returning the time
-      when the ray is nearest the sphere if the ray does not intersect
-      the sphere.
-      
       \return The time until the intersection, or HUGE_VAL if no intersection.
     */
     inline double ray_inv_sphere_bfc(const math::Vector& T,
@@ -65,19 +61,20 @@ namespace magnet {
     {
       double D2 = D.nrm2();      
       double TD = T | D;
-      double c = (T.nrm2() - r * r);
-      double arg = TD * TD - D2 * c;
+      double c = r * r - T.nrm2();
+      double arg = TD * TD + D2 * c;
 
       if (D2 == 0) return HUGE_VAL;
 
-      //Never allow a ray to escape a sphere interaction.
       if (arg >= 0)
-	return std::max(0.0, (std::sqrt(arg) - TD) / D2);
+	{
+	  double q = TD + copysign(std::sqrt(arg), TD);
+	  return std::max(0.0, std::max(- q / D2, c / q));
+	}
 	
-      //The ray never passes through the sphere, return the
-      //time when it is closest to the sphere surface
+      //The ray never passes through the sphere, return the time when
+      //it is closest to the sphere surface
       return std::max(0.0, - TD / D2);
     }
-
   }
 }
