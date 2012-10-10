@@ -42,14 +42,14 @@ namespace dynamo {
 
       virtual double getInternalEnergy(const Particle&, const Particle&) const;
 
-      //Function to return array of relevant IDs:
-      virtual void ID_array(const Particle&, const Particle&, Particle(&arr)[6]);
-
    protected:
       IPRIME20_HydrogenBond(dynamo::Simulation* tmp, C2Range* nR):
          ISingleCapture(tmp,nR) {}
 
       shared_ptr<Property> _wellDepth;
       shared_ptr<Property> _diameter; //TODO not sure if this supports different values for different pairs in the the 6 atom set
+
+      //Function to return array of relevant IDs:
+      virtual void ID_array(const Particle&, const Particle&, Particle&[]);
    };
 }

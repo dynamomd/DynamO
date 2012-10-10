@@ -1,4 +1,4 @@
-//TODO: make a methods that returns all 6 IDs in a consistent order.
+//TODO: make a methods that returns all 6 IDs in a consistent order, using a try statement.
 #include <dynamo/interactions/PRIME20_hydrogenbonds.hpp>
 #include <dynamo/BC/BC.hpp>
 
@@ -20,9 +20,9 @@
 
 namespace dynamo {
 
-   //################################################
-   //#                Initialisation                #
-   //################################################
+   //////////////////////////////////////////////////
+   //                Initialisation                //
+   //////////////////////////////////////////////////
 
    IPRIME20_HydrogenBond::IPRIME20_HydrogenBond(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
       ISingleCapture(tmp, NULL) { operator<<(XML); } //A temporary value!
@@ -39,8 +39,7 @@ namespace dynamo {
          intName = XML.getAttribute("Name");
          ISingleCapture::loadCaptureMap(XML);
       }
-      catch (boost::bad_lexical_cast &)
-         { M_throw() << "Failed a lexical cast in IPRIME20_HydrogenBond"; }
+      catch (boost::bad_lexical_cast &) { M_throw() << "Failed a lexical cast in IPRIME20_HydrogenBond"; }
    }
 
    void IPRIME20_HydrogenBond::initialise(size_t nID) {
@@ -48,9 +47,9 @@ namespace dynamo {
       ISingleCapture::initCaptureMap();
   }
 
-   //################################################
-   //#               Single-ID methods              #
-   //################################################
+   //////////////////////////////////////////////////
+   //               Single-ID methods              //
+   //////////////////////////////////////////////////
 
    Vector IPRIME20_HydrogenBond::getGlyphSize(size_t ID, size_t subID) const {
       double diam = _diameter->getProperty(ID);
@@ -68,9 +67,9 @@ namespace dynamo {
       return diam * diam * diam * M_PI / 6.0; 
    }
 
-   //##############################################
-   //#             Interaction methods            #
-   //##############################################
+   ////////////////////////////////////////////////
+   //             Interaction methods            //
+   ////////////////////////////////////////////////
 
    double IPRIME20_HydrogenBond::maxIntDist() const { return _diameter->getMaxValue() * _lambda->getMaxValue(); }
 
@@ -80,7 +79,7 @@ namespace dynamo {
       const Particle &CO, &NH, &CO_bond[2], &NH_bond[2];
 
       //Identify CO NH, and their bonded two neighbors
-      (<name of species type of temp1> == "CO") ? ( CO = temp1 && NH = temp2 ) : ( NH = temp1 && CO = temp2 );
+      (<temp1.type> == "CO") ? ( CO = temp1 && NH = temp2 ) : ( NH = temp1 && CO = temp2 );
       NH_bond[0] = <bonded neighbours of NH>[0];
       NH_bond[1] = <bonded neighbours of NH>[1];
       CO_bond[0] = <bonded neighbours of CO>[0];
@@ -97,8 +96,8 @@ namespace dynamo {
          captureTest *= Sim->dynamics->sphereOverlap(pairs[i], pairs[i+1], d * l);
 
 #ifdef DYNAMO_DEBUG
-         if (Sim->dynamics->sphereOverlap(p1, p2, d)){
-            derr << "Warning! Two particles might be overlapping" << "Overlap is " << Sim->dynamics->sphereOverlap(p1, p2, d) 
+         if (Sim->dynamics->sphereOverlap(pairs[i], pairs[i+1], d)){
+            derr << "Warning! Two particles might be overlapping" << "Overlap is " << Sim->dynamics->sphereOverlap(pairs[i], pairs[i+1], d) 
       / Sim->units.unitLength() << "\nd = " << d / Sim->units.unitLength() << std::endl;
          }
 #endif
@@ -108,81 +107,90 @@ namespace dynamo {
       return captureTest;
    }
 
-   //##############################
-   //#             WIP            #
-   //##############################
+   ////////////////////////////////
+   //             WIP            //
+   ////////////////////////////////
 
-   IntEvent ISquareWell::getEvent(const Particle &p1, const Particle &p2) const 
-   {
+   virtual void ID_array(const Particle &temp1, const Particle &temp2, Particle& IDs[6]){
+      //Writes the particles to the array in order: CO, CO's CH, CO's NH, NH, NH's CO, NH's CH.
+      Particle &CO, &NH, &CO_bond[2], &NH_bond[2];
+
+      //Identify CO and NH
+      (<temp1.type> == "CO") ? ( IDs[0] = temp1 && IDs[3] = temp2 ) : ( IDs[3] = temp1 && IDs[0] = temp2 );
+
+      //Identify CO's bonded neighs
+      ( <IDs[0].bondedneighs[0].type> == "CH" ) ? ( IDs[1] = IDs[0].bondedneighs[0] && IDs[2] = IDs[0].bondedneighs[1] ) : ( IDs[2] = IDs[0].bondedneighs[0] && IDs[1] = IDs[0].bondedneighs[1] )
+
+      //Identify NH's bonded neighs
+      ( <IDs[3].bondedneighs[0].type> == "CO" ) ? ( IDs[4] = IDs[3].bondedneighs[0] && IDs[5] = IDs[3].bondedneighs[1] ) : ( IDs[5] = IDs[3].bondedneighs[0] && IDs[4] = IDs[3].bondedneighs[1] )
+
+   }
+
+   IntEvent IPRIME20_HydrogenBond::getEvent(const Particle &temp1, const Particle &temp2) const {
+      Particle &CO, &NH, &CO_bond[2], &NH_bond[2];
+
+      //Identify CO NH, and their bonded two neighbors
+      (<temp1.type> == "CO") ? ( CO = temp1 && NH = temp2 ) : ( NH = temp1 && CO = temp2 );
+      NH_bond[0] = <bonded neighbours of NH>[0];
+      NH_bond[1] = <bonded neighbours of NH>[1];
+      CO_bond[0] = <bonded neighbours of CO>[0];
+      CO_bond[1] = <bonded neighbours of CO>[1];
+
+      //Interaction pairs are: CO & NH, CO & NH_bond[0], CO & NH_bond[0], NH & CO_bond[0], NH & CO_bond[1]
+      const Particle &interaction_pairs[] = {CO, NH, CO, NH_bond[0], CO, NH_bond[0], NH, CO_bond[0], NH, CO_bond[1]};
 #ifdef DYNAMO_DEBUG
-      if (!Sim->dynamics->isUpToDate(p1))
-         M_throw() << "Particle 1 is not up to date";
+      if (!Sim->dynamics->isUpToDate(CO))
+         M_throw() << "CO is not up to date";
 
-      if (!Sim->dynamics->isUpToDate(p2))
-         M_throw() << "Particle 2 is not up to date";
+      if (!Sim->dynamics->isUpToDate(NH))
+         M_throw() << "NH is not up to date";
 
       if (p1 == p2)
          M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
+
+      //TODO add a check that all 6 particles are of the correct type
 #endif 
 
-      double d = (_diameter->getProperty(p1.getID())
-      + _diameter->getProperty(p2.getID())) * 0.5;
-
-      double l = (_lambda->getProperty(p1.getID())
-      + _lambda->getProperty(p2.getID())) * 0.5;
-
+      double d,l;
       IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
 
-      if (isCaptured(p1, p2))
-         {
-   double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
-   if (dt != HUGE_VAL)
-     {
+      for (int i = 0; i < 10; i+=2){
+         d = (_diameter->getProperty(p1.getID()) + _diameter->getProperty(p2.getID())) * 0.5;
+         l = (_lambda->getProperty(p1.getID()) + _lambda->getProperty(p2.getID())) * 0.5;
+
+         if (isCaptured(p1, p2)) {
+            double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
+            if (dt != HUGE_VAL) {
 #ifdef DYNAMO_OverlapTesting
-   if (Sim->dynamics->sphereOverlap(p1, p2, d))
-     M_throw() << "Overlapping particles found"
-          << ", particle1 " << p1.getID()
-          << ", particle2 " << p2.getID()
-          << "\nOverlap = " 
-          << Sim->dynamics.getDynamics()
-       .sphereOverlap(p1, p2, d)
-       / Sim->units.unitLength();
-#endif       
-       retval = IntEvent(p1, p2, dt, CORE, *this);
-     }
-
-   dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, l * d);
-   if (retval.getdt() > dt)
-       retval = IntEvent(p1, p2, dt, WELL_OUT, *this);
-         }
-      else
-         {
-   double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, l * d);
-
-         if (dt != HUGE_VAL)
-   {
-#ifdef DYNAMO_OverlapTesting
-     if (Sim->dynamics->sphereOverlap(p1, p2, l * d))
-       {
-         if (Sim->dynamics->sphereOverlap(p1, p2, d))
-      M_throw() << "Overlapping cores (but not registerd as captured) particles found in square well" 
-           << "\nparticle1 " << p1.getID() << ", particle2 " 
-           << p2.getID() << "\nOverlap = " 
-           << Sim->dynamics->sphereOverlap(p1, p2, d)
-        / Sim->units.unitLength();
-         else
-      M_throw() << "Overlapping wells (but not registerd as captured) particles found" 
-           << "\nparticle1 " << p1.getID() << ", particle2 " 
-           << p2.getID() << "\nOverlap = " 
-           << Sim->dynamics->sphereOverlap(p1, p2, l * d)
-        / Sim->units.unitLength();
-
-       }
+            if (Sim->dynamics->sphereOverlap(p1, p2, d))
+               M_throw() << "Overlapping particles found" << ", particle1 " << p1.getID() << ", particle2 " << p2.getID()
+               << "\nOverlap = " << Sim->dynamics.getDynamics().sphereOverlap(p1, p2, d) / Sim->units.unitLength();
 #endif
-     retval = IntEvent(p1, p2, dt, WELL_IN, *this);
-   }
-         }
+               retval = IntEvent(p1, p2, dt, CORE, *this);
+            }
 
+            dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, l * d);
+            if (retval.getdt() > dt) retval = IntEvent(p1, p2, dt, WELL_OUT, *this);
+         } else {
+            double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, l * d);
+
+            if (dt != HUGE_VAL) {
+#ifdef DYNAMO_OverlapTesting
+               if (Sim->dynamics->sphereOverlap(p1, p2, l * d)) {
+                  if (Sim->dynamics->sphereOverlap(p1, p2, d))
+                     M_throw() << "Overlapping cores (but not registered as captured) particles found in square well" 
+                     << "\nparticle1 " << p1.getID() << ", particle2 " 
+                     << p2.getID() << "\nOverlap = " << Sim->dynamics->sphereOverlap(p1, p2, d) / Sim->units.unitLength();
+                  else
+                     M_throw() << "Overlapping wells (but not registered as captured) particles found" 
+                     << "\nparticle1 " << p1.getID() << ", particle2 " << p2.getID() << "\nOverlap = "
+                     << Sim->dynamics->sphereOverlap(p1, p2, l * d) / Sim->units.unitLength();
+               }
+#endif
+        retval = IntEvent(p1, p2, dt, WELL_IN, *this);
+            }
+         }
+      }
       return retval;
    }
 }
