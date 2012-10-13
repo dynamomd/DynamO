@@ -26,23 +26,16 @@ namespace dynamo {
   {
   public:
     template<class T1, class T2, class T3, class T4>
-    ISquareWell(dynamo::Simulation* tmp, T1 d, T2 l, 
-		T3 wd, T4 e, C2Range* nR, std::string name):
-      ISingleCapture(tmp,nR),
-      _diameter(Sim->_properties.getProperty
-		(d, Property::Units::Length())),
-      _lambda(Sim->_properties.getProperty
-	      (l, Property::Units::Dimensionless())),
-      _wellDepth(Sim->_properties.getProperty
-		 (wd, Property::Units::Energy())),
-      _e(Sim->_properties.getProperty
-	 (e, Property::Units::Dimensionless()))
-    {
-      intName = name;
-    }
+       ISquareWell(dynamo::Simulation* tmp, T1 d, T2 l, T3 wd, T4 e, C2Range* nR, std::string name):
+         ISingleCapture(tmp,nR),
+         _diameter(Sim->_properties.getProperty (d, Property::Units::Length())),
+         _lambda(Sim->_properties.getProperty (l, Property::Units::Dimensionless())),
+         _wellDepth(Sim->_properties.getProperty (wd, Property::Units::Energy())),
+         _e(Sim->_properties.getProperty (e, Property::Units::Dimensionless()))
+       { intName = name; }
 
     ISquareWell(const magnet::xml::Node&, dynamo::Simulation*);
-  
+
     void operator<<(const magnet::xml::Node&);
 
     virtual size_t glyphsPerParticle() const { return 1; }
@@ -60,9 +53,9 @@ namespace dynamo {
     virtual void initialise(size_t);
 
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
-  
+
     virtual void runEvent(Particle&, Particle&, const IntEvent&) const;
-  
+
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
     virtual double getInternalEnergy() const;

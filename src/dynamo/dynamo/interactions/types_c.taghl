@@ -1,0 +1,10 @@
+syn keyword CTagsStructure cMapKey
+syn keyword CTagsMember sequence _wellDepth CType intName _length noXmlLoad range alphabet IDs captureMap _lambda intID _e _unitEnergy ID_pairs _diameter dt ID _et _unitLength particle2 particle1 steps
+syn keyword CTagsEnumeratorName GLYPH_TYPE
+syn keyword CTagsEnumerationValue SPHERE_GLYPH LINE_GLYPH ARROW_GLYPH CUBE_GLYPH CYLINDER_GLYPH
+syn keyword CTagsFunction getSequence invalidate getRange getClass loadCaptureMap getLength ID_array delFromCaptureMap checkOverlaps rescaleLengths forgetXMLCaptureMap getExcludedVolume cMapKey IPRIME_Hbond getdt testAddToCaptureMap stringData runEvent incrementTime maxIntDist captureTest IThinThread IParallelCubes outputXML ILines getDefaultGlyphType ICapture getName getInteractionID getParticle2ID initialise ISingleCapture getGlyphPosition getCaptureEnergy Interaction areInvolved getID IDumbbells
+syn keyword CTagsFunction removeFromCaptureMap addToCaptureMap getType initCaptureMap getCMap_it setType IntEvent IHardSphere ISquareBond getDiameter IStepped IMultiCapture isInteraction ISquareWell getTotalCaptureCount getEvent getInternalEnergy getAlphabet clear outputCaptureMap hasParticle2 ISoftCore IPRIME_HydrogenBond scaleTime isCaptured getGlyphSize getParticle1ID addTime glyphsPerParticle IRoughHardSphere ISWSequence INull
+syn keyword CTagsType const_cmap_it captureMapType steppair cmap_it
+syn keyword CTagsClass ISquareBond GlyphRepresentation Interaction ILines IStepped IDumbbells ICapture ISingleCapture ISoftCore IThinThread IPRIME_HydrogenBond IHardSphere IParallelCubes ISquareWell IMultiCapture IRoughHardSphere ISWSequence IntEvent INull
+syn keyword CTagsNamespace dynamo magnet xml
+

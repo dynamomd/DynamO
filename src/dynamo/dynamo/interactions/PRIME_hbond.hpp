@@ -5,16 +5,18 @@
 #include <dynamo/simulation.hpp>
 
 namespace dynamo {
-   class IPRIME20_HydrogenBond: public ISingleCapture, public GlyphRepresentation
+   //                         v Classes that this class is derived from.
+   class IPRIME_HydrogenBond: public ISingleCapture, public GlyphRepresentation
    {
    public:
-      template<class T>
-      IPRIME20_HydrogenBond(dynamo::Simulation* tmp, T wd, C2Range* nR, std::string name):
+      template<class T> IPRIME_HydrogenBond(dynamo::Simulation* tmp, T wd, C2Range* nR, std::string name):
+
+         //'Initialiser list' of things to init immediately:
          ISingleCapture(tmp,nR),
          _wellDepth (Sim->_properties.getProperty (wd, Property::Units::Energy        ( ))),
       { intName = name; }
 
-      IPRIME20_HydrogenBond(const magnet::xml::Node&, dynamo::Simulation*);
+      IPRIME_HydrogenBond(const magnet::xml::Node&, dynamo::Simulation*);
 
       void operator<<(const magnet::xml::Node&);
 
@@ -43,13 +45,13 @@ namespace dynamo {
       virtual double getInternalEnergy(const Particle&, const Particle&) const;
 
    protected:
-      IPRIME20_HydrogenBond(dynamo::Simulation* tmp, C2Range* nR):
+      IPRIME_HydrogenBond(dynamo::Simulation* tmp, C2Range* nR):
          ISingleCapture(tmp,nR) {}
 
       shared_ptr<Property> _wellDepth;
       shared_ptr<Property> _diameter; //TODO not sure if this supports different values for different pairs in the the 6 atom set
 
-      //Function to return array of relevant IDs:
-      virtual void ID_array(const Particle&, const Particle&, Particle&[]);
+      //Arrays of references to particle objects with a known order.
+      particle& IDs[6], &ID_pairs[10];
    };
 }

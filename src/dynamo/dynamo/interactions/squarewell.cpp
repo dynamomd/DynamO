@@ -41,34 +41,26 @@ namespace dynamo {
     operator<<(XML);
   }
 
-  void 
-  ISquareWell::operator<<(const magnet::xml::Node& XML)
+  void ISquareWell::operator<<(const magnet::xml::Node& XML)
   {
     if (strcmp(XML.getAttribute("Type"),"SquareWell"))
       M_throw() << "Attempting to load SquareWell from non SquareWell entry";
-  
+
     Interaction::operator<<(XML);
-  
+
     try {
-      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
-					       Property::Units::Length());
-      _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
-					     Property::Units::Dimensionless());
-      _wellDepth = Sim->_properties.getProperty(XML.getAttribute("WellDepth"),
-						Property::Units::Energy());
+      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
+      _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"), Property::Units::Dimensionless());
+      _wellDepth = Sim->_properties.getProperty(XML.getAttribute("WellDepth"), Property::Units::Energy());
 
       if (XML.hasAttribute("Elasticity"))
-	_e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-					  Property::Units::Dimensionless());
+         _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
       else
-	_e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
+         _e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
       intName = XML.getAttribute("Name");
-      ISingleCapture::loadCaptureMap(XML);   
+      ISingleCapture::loadCaptureMap(XML);
     }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in ISquareWell";
-      }
+    catch (boost::bad_lexical_cast &) { M_throw() << "Failed a lexical cast in ISquareWell"; }
   }
 
   Vector
@@ -79,8 +71,7 @@ namespace dynamo {
   }
 
   Vector 
-  ISquareWell::getGlyphPosition(size_t ID, size_t subID) const
-  { 
+  ISquareWell::getGlyphPosition(size_t ID, size_t subID) const {
     Vector retval = Sim->particles[ID].getPosition();
     Sim->BCs->applyBC(retval);
     return retval;
@@ -105,9 +96,7 @@ namespace dynamo {
     ISingleCapture::initCaptureMap();
   }
 
-  bool 
-  ISquareWell::captureTest(const Particle& p1, const Particle& p2) const
-  {
+  bool ISquareWell::captureTest(const Particle& p1, const Particle& p2) const {
     if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
 
     double d = (_diameter->getProperty(p1.getID())
@@ -240,7 +229,7 @@ namespace dynamo {
 	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, wd, ld2));
 	
 	  if (retVal.getType() != BOUNCE)
-	    addToCaptureMap(p1, p2);      
+	    addToCaptureMap(p1, p2);
 	
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
 	  Sim->signalParticleUpdate(retVal);
@@ -285,17 +274,16 @@ namespace dynamo {
 		+ _lambda->getProperty(part2.getID())) * 0.5;
   
     double d2 = d * d;
-    double ld2 = d * l * d * l;
+    double ld2 = d2 * l * l;
 
-    if (isCaptured(part1, part2))
-      {
+    if (isCaptured(part1, part2)) {
 	if (r2 < d2)
 	  derr << "Possible captured overlap occured in diagnostics\n ID1=" << part1.getID() 
 	       << ", ID2=" << part2.getID() << "\nR_ij^2=" 
 	       << r2 / pow(Sim->units.unitLength(),2)
 	       << "\nd^2=" 
 	       << d2 / pow(Sim->units.unitLength(),2) << std::endl;
-      
+
 	if (r2 > ld2)
 	  derr << "Possible escaped captured pair in diagnostics\n ID1=" << part1.getID() 
 	       << ", ID2=" << part2.getID() << "\nR_ij^2=" 
@@ -304,20 +292,14 @@ namespace dynamo {
 	       << ld2 / pow(Sim->units.unitLength(),2) << std::endl;
       }
     else 
-      if (r2 < ld2)
-	{
+      if (r2 < ld2) {
 	  if (r2 < d2)
-	    derr << "Overlap error\n ID1=" << part1.getID() 
-		 << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-		 << r2 / pow(Sim->units.unitLength(),2)
-		 << "\n(d)^2=" 
-		 << d2 / pow(Sim->units.unitLength(),2) << std::endl;
+	    derr << "Overlap error\n ID1=" << part1.getID() << ", ID2=" << part2.getID() << "\nR_ij^2=" 
+		 << r2 / pow(Sim->units.unitLength(),2) << "\n(d)^2=" << d2 / pow(Sim->units.unitLength(),2) << std::endl;
 	  else
 	    derr << "Possible missed captured pair in diagnostics\n ID1=" << part1.getID() 
-		 << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-		 << r2 / pow(Sim->units.unitLength(),2)
-		 << "\n(lambda * d)^2=" 
-		 << ld2 / pow(Sim->units.unitLength(),2) << std::endl;
+		 << ", ID2=" << part2.getID() << "\nR_ij^2=" << r2 / pow(Sim->units.unitLength(),2)
+		 << "\n(lambda * d)^2=" << ld2 / pow(Sim->units.unitLength(),2) << std::endl;
 	}
   }
   
@@ -349,11 +331,8 @@ namespace dynamo {
     return -Energy; 
   }
 
-  double 
-  ISquareWell::getInternalEnergy(const Particle& p1, const Particle& p2) const
+  double ISquareWell::getInternalEnergy(const Particle& p1, const Particle& p2) const
   {
-    return - 0.5 * (_wellDepth->getProperty(p1.getID())
-		    +_wellDepth->getProperty(p2.getID()))
-      * isCaptured(p1, p2);
+    return - 0.5 * (_wellDepth->getProperty(p1.getID()) +_wellDepth->getProperty(p2.getID())) * isCaptured(p1, p2);
   }
 }
