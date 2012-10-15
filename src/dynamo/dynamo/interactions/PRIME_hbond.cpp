@@ -90,8 +90,8 @@ namespace dynamo {
 
       //Interaction pairs
       IDpairs[0] = IDs[0]; IDpairs[1] = IDs[3]; // CO and NH
-      IDpairs[3] = IDs[0]; IDpairs[4] = IDs[4]; // CO and NH's CO
-      IDpairs[5] = IDs[0]; IDpairs[5] = IDs[5]; // CO and NH's CH
+      IDpairs[2] = IDs[0]; IDpairs[3] = IDs[4]; // CO and NH's CO
+      IDpairs[4] = IDs[0]; IDpairs[5] = IDs[5]; // CO and NH's CH
       IDpairs[6] = IDs[3]; IDpairs[7] = IDs[1]; // NH and CO's CH
       IDpairs[8] = IDs[3]; IDpairs[9] = IDs[2]; // NH and CO's NH
 
