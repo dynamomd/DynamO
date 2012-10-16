@@ -119,6 +119,7 @@ captureTest	squarewell.cpp	/^  bool ISquareWell::captureTest(const Particle& p1,
 captureTest	stepped.cpp	/^  IStepped::captureTest(const Particle& p1, const Particle& p2) const$/;"	f	class:dynamo::IStepped
 captureTest	swsequence.cpp	/^  ISWSequence::captureTest(const Particle& p1, const Particle& p2) const$/;"	f	class:dynamo::ISWSequence
 captureTest	thinthread.hpp	/^    virtual bool captureTest(const Particle&, const Particle&) const { return false; }$/;"	f	class:dynamo::IThinThread
+checkOverlaps	PRIME_hbond.cpp	/^   void IPRIME_Hbond::checkOverlaps(const Particle& p1, const Particle& p2) const {$/;"	f	class:dynamo::IPRIME_Hbond
 checkOverlaps	dumbbells.cpp	/^  IDumbbells::checkOverlaps(const Particle& part1, const Particle& part2) const$/;"	f	class:dynamo::IDumbbells
 checkOverlaps	hardsphere.cpp	/^  IHardSphere::checkOverlaps(const Particle& part1, const Particle& part2) const$/;"	f	class:dynamo::IHardSphere
 checkOverlaps	lines.hpp	/^    virtual void checkOverlaps(const Particle&, const Particle&) const {}$/;"	f	class:dynamo::ILines
@@ -179,6 +180,7 @@ getDefaultGlyphType	glyphrepresentation.hpp	/^    virtual GLYPH_TYPE getDefaultG
 getDefaultGlyphType	lines.hpp	/^    virtual GLYPH_TYPE getDefaultGlyphType() const { return LINE_GLYPH; }$/;"	f	class:dynamo::ILines
 getDefaultGlyphType	rotatedparallelcubes.hpp	/^    virtual GLYPH_TYPE getDefaultGlyphType() const { return CUBE_GLYPH; }$/;"	f	class:dynamo::IParallelCubes
 getDiameter	dumbbells.hpp	/^    double getDiameter() const { return _diameter->getMaxValue(); }$/;"	f	class:dynamo::IDumbbells
+getEvent	PRIME_hbond.cpp	/^   IntEvent IPRIME_Hbond::getEvent(const Particle &p1, const Particle &p2) const {$/;"	f	class:dynamo::IPRIME_Hbond
 getEvent	dumbbells.cpp	/^  IDumbbells::getEvent(const Particle &p1,$/;"	f	class:dynamo::IDumbbells
 getEvent	hardsphere.cpp	/^  IHardSphere::getEvent(const Particle &p1, const Particle &p2) const $/;"	f	class:dynamo::IHardSphere
 getEvent	lines.cpp	/^  ILines::getEvent(const Particle &p1, const Particle &p2) const$/;"	f	class:dynamo::ILines
@@ -210,7 +212,7 @@ getGlyphPosition	lines.cpp	/^  Vector ILines::getGlyphPosition(size_t ID, size_t
 getGlyphPosition	rotatedparallelcubes.cpp	/^  Vector IParallelCubes::getGlyphPosition(size_t ID, size_t subID) const$/;"	f	class:dynamo::IParallelCubes
 getGlyphPosition	roughhardsphere.cpp	/^  IRoughHardSphere::getGlyphPosition(size_t ID, size_t subID) const$/;"	f	class:dynamo::IRoughHardSphere
 getGlyphPosition	softcore.cpp	/^  ISoftCore::getGlyphPosition(size_t ID, size_t subID) const$/;"	f	class:dynamo::ISoftCore
-getGlyphPosition	squarewell.cpp	/^  ISquareWell::getGlyphPosition(size_t ID, size_t subID) const$/;"	f	class:dynamo::ISquareWell
+getGlyphPosition	squarewell.cpp	/^  ISquareWell::getGlyphPosition(size_t ID, size_t subID) const {$/;"	f	class:dynamo::ISquareWell
 getGlyphPosition	stepped.cpp	/^  IStepped::getGlyphPosition(size_t ID, size_t subID) const$/;"	f	class:dynamo::IStepped
 getGlyphPosition	swsequence.cpp	/^  ISWSequence::getGlyphPosition(size_t ID, size_t subID) const$/;"	f	class:dynamo::ISWSequence
 getGlyphSize	PRIME_hbond.cpp	/^   Vector IPRIME_Hbond::getGlyphSize(size_t ID, size_t subID) const {$/;"	f	class:dynamo::IPRIME_Hbond
@@ -225,6 +227,8 @@ getGlyphSize	stepped.cpp	/^  IStepped::getGlyphSize(size_t ID, size_t subID) con
 getGlyphSize	swsequence.cpp	/^  ISWSequence::getGlyphSize(size_t ID, size_t subID) const$/;"	f	class:dynamo::ISWSequence
 getID	interaction.hpp	/^    inline const size_t& getID() const { return ID; }$/;"	f	class:dynamo::Interaction
 getInteractionID	intEvent.hpp	/^    inline const size_t& getInteractionID() const $/;"	f	class:dynamo::IntEvent
+getInternalEnergy	PRIME_hbond.cpp	/^   double IPRIME_Hbond::getInternalEnergy(const Particle& p1, const Particle& p2) const {$/;"	f	class:dynamo::IPRIME_Hbond
+getInternalEnergy	PRIME_hbond.cpp	/^   double ISquareWell::getInternalEnergy() const { $/;"	f	class:dynamo::ISquareWell
 getInternalEnergy	dumbbells.hpp	/^    virtual double getInternalEnergy() const { return 0; }$/;"	f	class:dynamo::IDumbbells
 getInternalEnergy	hardsphere.hpp	/^    virtual double getInternalEnergy() const { return 0.0; }$/;"	f	class:dynamo::IHardSphere
 getInternalEnergy	interaction.hpp	/^    virtual double getInternalEnergy(const Particle&, const Particle&) const { return 0; } $/;"	f	class:dynamo::Interaction
@@ -236,7 +240,7 @@ getInternalEnergy	softcore.cpp	/^  ISoftCore::getInternalEnergy() const$/;"	f	cl
 getInternalEnergy	softcore.cpp	/^  ISoftCore::getInternalEnergy(const Particle& p1, const Particle& p2) const$/;"	f	class:dynamo::ISoftCore
 getInternalEnergy	squarebond.hpp	/^    virtual double getInternalEnergy() const { return 0.0; }$/;"	f	class:dynamo::ISquareBond
 getInternalEnergy	squarewell.cpp	/^  ISquareWell::getInternalEnergy() const$/;"	f	class:dynamo::ISquareWell
-getInternalEnergy	squarewell.cpp	/^  ISquareWell::getInternalEnergy(const Particle& p1, const Particle& p2) const$/;"	f	class:dynamo::ISquareWell
+getInternalEnergy	squarewell.cpp	/^  double ISquareWell::getInternalEnergy(const Particle& p1, const Particle& p2) const$/;"	f	class:dynamo::ISquareWell
 getInternalEnergy	stepped.cpp	/^  IStepped::getInternalEnergy() const $/;"	f	class:dynamo::IStepped
 getInternalEnergy	stepped.cpp	/^  IStepped::getInternalEnergy(const Particle& p1, const Particle& p2) const$/;"	f	class:dynamo::IStepped
 getInternalEnergy	swsequence.cpp	/^  ISWSequence::getInternalEnergy() const $/;"	f	class:dynamo::ISWSequence
@@ -322,6 +326,7 @@ operator ==	intEvent.hpp	/^    inline bool operator== (const Particle &partx) co
 operator >	intEvent.hpp	/^    inline bool operator> (const IntEvent & C2) const $/;"	f	class:dynamo::IntEvent
 outputCaptureMap	captures.cpp	/^  IMultiCapture::outputCaptureMap(magnet::xml::XmlStream& XML) const $/;"	f	class:dynamo::IMultiCapture
 outputCaptureMap	captures.cpp	/^  ISingleCapture::outputCaptureMap(magnet::xml::XmlStream& XML) const $/;"	f	class:dynamo::ISingleCapture
+outputXML	PRIME_hbond.cpp	/^   void IPRIME_Hbond::outputXML(magnet::xml::XmlStream& XML) const {$/;"	f	class:dynamo::IPRIME_Hbond
 outputXML	dumbbells.cpp	/^  IDumbbells::outputXML(magnet::xml::XmlStream& XML) const$/;"	f	class:dynamo::IDumbbells
 outputXML	hardsphere.cpp	/^  IHardSphere::outputXML(magnet::xml::XmlStream& XML) const$/;"	f	class:dynamo::IHardSphere
 outputXML	lines.cpp	/^  ILines::outputXML(magnet::xml::XmlStream& XML) const$/;"	f	class:dynamo::ILines
@@ -339,7 +344,7 @@ particle2	intEvent.hpp	/^    size_t  particle2;$/;"	m	class:dynamo::IntEvent
 range	interaction.hpp	/^    shared_ptr<C2Range> range;$/;"	m	class:dynamo::Interaction
 removeFromCaptureMap	captures.hpp	/^    void removeFromCaptureMap(const Particle& p1, const Particle& p2) const$/;"	f	class:dynamo::ISingleCapture
 rescaleLengths	hardsphere.hpp	/^    virtual void rescaleLengths(double) {}$/;"	f	class:dynamo::IHardSphere
-runEvent	PRIME_hbond.cpp	/^  void ISquareWell::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const {$/;"	f	class:dynamo::ISquareWell
+runEvent	PRIME_hbond.cpp	/^   void ISquareWell::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const {$/;"	f	class:dynamo::ISquareWell
 runEvent	dumbbells.cpp	/^  IDumbbells::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const$/;"	f	class:dynamo::IDumbbells
 runEvent	hardsphere.cpp	/^  IHardSphere::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const$/;"	f	class:dynamo::IHardSphere
 runEvent	lines.cpp	/^  ILines::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const$/;"	f	class:dynamo::ILines

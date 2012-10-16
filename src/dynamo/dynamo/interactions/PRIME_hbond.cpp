@@ -1,4 +1,3 @@
-//TODO: make a methods that returns all 6 IDs in a consistent order, using a try statement.
 #include <dynamo/interactions/PRIME_hydrogenbonds.hpp>
 #include <dynamo/BC/BC.hpp>
 
@@ -213,7 +212,7 @@ namespace dynamo {
       << magnet::xml::attr("Name") << intName
       << *range;
       ISingleCapture::outputCaptureMap(XML);
-  }
+   }
 
    double IPRIME_Hbond::getInternalEnergy(const Particle& p1, const Particle& p2) const {
       return - 0.5 * (_wellDepth->getProperty(p1.getID()) +_wellDepth->getProperty(p2.getID())) * isCaptured(p1, p2);
@@ -254,7 +253,7 @@ namespace dynamo {
       }
    }
 
-   double ISquareWell::getInternalEnergy() const { 
+   double ISquareWell::getInternalEnergy() const {
       //TODO not sure how to edit this.
       //Once the capture maps are loaded just iterate through that determining energies
       double Energy = 0.0;
