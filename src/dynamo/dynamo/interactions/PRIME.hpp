@@ -54,5 +54,6 @@ namespace dynamo {
     virtual double getInternalEnergy(const Particle&, const Particle&) const;
 
   protected:
+    size_t startID, endID;
   };
 }

@@ -25,6 +25,8 @@
 #include <dynamo/species/species.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/ranges/1RRange.hpp>
+#include <dynamo/ranges/2RSingle.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/NparticleEventData.hpp>
@@ -33,6 +35,27 @@
 #include <magnet/xmlreader.hpp>
 #include <cmath>
 #include <iomanip>
+
+//This is a anonymous namespace, the contents of the anonymous
+//namespace will not be available outside of this file. This is used
+//to place all of the settings of the model at the top of this file.
+namespace {
+  const size_t NH = 0;
+  const size_t CH = 1; //Also known as C_\alpha
+  const size_t CO = 2; //Also known as C
+
+  //Values taken from
+  //http://onlinelibrary.wiley.com/doi/10.1002/prot.1100/full
+  const double diameters[] = {3.3, //NH
+			      3.7, //CH
+			      4.0};//CO
+  
+  //This is a list of the bond lengths in the backbone, from NH->CH,
+  //CH->CO, CO->NH.
+  const double bond_lengths[] = {1.46, 1.51, 1.33}; 
+
+  const double pseudobond_tolerance = 0.02;
+}
 
 namespace dynamo {
   IPRIME::IPRIME(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
@@ -43,26 +66,21 @@ namespace dynamo {
 
   void IPRIME::operator<<(const magnet::xml::Node& XML)
   {
-    M_throw() << "Not implemented";
+    if (strcmp(XML.getAttribute("Type"),"PRIME"))
+      M_throw() << "Attempting to load PRIME from non PRIME entry";
+    
 
-    //if (strcmp(XML.getAttribute("Type"),"PRIME"))
-    //  M_throw() << "Attempting to load PRIME from non PRIME entry";
-    //
-    //Interaction::operator<<(XML);
-    //
-    //try {
-    //  _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
-    //  _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"), Property::Units::Dimensionless());
-    //  _wellDepth = Sim->_properties.getProperty(XML.getAttribute("WellDepth"), Property::Units::Energy());
-    //
-    //  if (XML.hasAttribute("Elasticity"))
-    //     _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
-    //  else
-    //     _e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
-    //  intName = XML.getAttribute("Name");
-    //  ISingleCapture::loadCaptureMap(XML);
-    //}
-    //catch (boost::bad_lexical_cast &) { M_throw() << "Failed a lexical cast in IPRIME"; }
+    //We don't call this operator, as we custom load our Range (it must be a linear range)
+    //Interaction::operator<<(XML);    
+    try {
+      startID = XML.getAttribute("Start").as<unsigned long>();
+      endID = XML.getAttribute("End").as<unsigned long>() + 1;
+
+      range = shared_ptr<C2Range>(new C2RSingle(new RRange(startID, endID)));
+
+      intName = XML.getAttribute("Name");
+    }
+    catch (boost::bad_lexical_cast &) { M_throw() << "Failed a lexical cast in IPRIME"; }
   }
 
   Vector
@@ -323,17 +341,13 @@ namespace dynamo {
   void 
   IPRIME::outputXML(magnet::xml::XmlStream& XML) const
   {
-    M_throw() << "Not implemented";
-
-    //XML << magnet::xml::attr("Type") << "SquareWell"
-    //	<< magnet::xml::attr("Diameter") << _diameter->getName()
-    //	<< magnet::xml::attr("Elasticity") << _e->getName()
-    //	<< magnet::xml::attr("Lambda") << _lambda->getName()
-    //	<< magnet::xml::attr("WellDepth") << _wellDepth->getName()
-    //	<< magnet::xml::attr("Name") << intName
-    //	<< *range;
-    //
-    //ISingleCapture::outputCaptureMap(XML);  
+    XML << magnet::xml::attr("Type") << "PRIME"
+    	<< magnet::xml::attr("Name") << intName
+	<< magnet::xml::attr("Start") << startID
+	<< magnet::xml::attr("End") << endID
+      ;
+    
+    ISingleCapture::outputCaptureMap(XML);  
   }
 
   double 
