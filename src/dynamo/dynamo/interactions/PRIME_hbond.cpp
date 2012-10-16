@@ -101,15 +101,15 @@ namespace dynamo {
       if (&(*(Sim->getInteraction(temp1, temp2))) != this) return false;
 
       double d, l;
-      bool captureTest;
+      bool captured = true;
 
       //5 constraints to satisfy
-      for (int i = 0; i < 10; i+=2){
+      for (int i = 0; i < 10 && captured; i+=2){
          d = ( _diameter->getProperty(this->IDpairs[i].getID()) + _diameter->getProperty(this->IDpairs[i+1].getID()) ) * 0.5;
          l = ( _lambda->getProperty(this->IDpairs[i].getID()) + _lambda->getProperty(this->IDpairs[i+1].getID()) ) * 0.5;
 
          //Only captured if all  5 constraints are met hence ⋀
-         captureTest = captureTest && Sim->dynamics->sphereOverlap(this->IDpairs[i], this->IDpairs[i+1], d * l);
+         captured = captured && Sim->dynamics->sphereOverlap(this->IDpairs[i], this->IDpairs[i+1], d * l);
 
 #ifdef DYNAMO_DEBUG
          if (Sim->dynamics->sphereOverlap(this->IDpairs[i], this->IDpairs[i+1], d)){
@@ -118,7 +118,7 @@ namespace dynamo {
          }
 #endif
       }
-      return captureTest;
+      return captured;
    }
 
    IntEvent IPRIME_Hbond::getEvent(const Particle &p1, const Particle &p2) const {
