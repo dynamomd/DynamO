@@ -27,3 +27,4 @@
 #include <dynamo/interactions/rotatedparallelcubes.hpp>
 #include <dynamo/interactions/stepped.hpp>
 #include <dynamo/interactions/dumbbells.hpp>
+#include <dynamo/interactions/PRIME.hpp>

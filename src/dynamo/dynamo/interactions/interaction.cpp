@@ -70,6 +70,8 @@ namespace dynamo {
       return shared_ptr<Interaction>(new IRoughHardSphere(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"SquareWell"))
       return shared_ptr<Interaction>(new ISquareWell(XML, Sim));
+    else if (!std::strcmp(XML.getAttribute("Type"),"PRIME"))
+      return shared_ptr<Interaction>(new IPRIME(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"ThinThread"))
       return shared_ptr<Interaction>(new IThinThread(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"SquareWellSeq"))
