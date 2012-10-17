@@ -46,15 +46,36 @@ namespace {
 
   //Values taken from
   //http://onlinelibrary.wiley.com/doi/10.1002/prot.1100/full
+  //These are the basic bead diameters
   const double diameters[] = {3.3, //NH
 			      3.7, //CH
 			      4.0};//CO
   
+  //This is the scaling factor of the bead diameters if they are
+  //closer than four bonds on the same chain.
+  const double near_diameter_scale_factor = 0.75;
+
+  //This is the fluctuation of the bond distance allowed
+  const double pseudobond_tolerance = 0.02;
+
+  //This matrix specifies the bonding and pseudobonding of the
+  //backbone.
+  //
+  //These bonds/pseudobonds only occur between beads up to three
+  //backbone bonds away (e.g. the CH has a pseudo bond with the next
+  //CHs up/down the chain.
+  //
+  //If the entry is zero, there is no bond between these beads
+  const double bond_distances[] = {
+    //      NH,     CH,   CO
+    /*NH*/0.000, 1.460, 1.330,
+    /*CH*/1.460, 0.000, 0.000,
+    /*CO*/1.330, 0.000, 0.000
+  };
+
   //This is a list of the bond lengths in the backbone, from NH->CH,
   //CH->CO, CO->NH.
   const double bond_lengths[] = {1.46, 1.51, 1.33}; 
-
-  const double pseudobond_tolerance = 0.02;
 }
 
 namespace dynamo {
