@@ -58,6 +58,42 @@ namespace {
 }
 
 namespace dynamo {
+  size_t 
+  IPRIME::getType(const size_t particleID) const
+  {
+#ifdef DYNAMO_DEBUG
+    if ((particleID < startID) || (particleID > endID))
+      M_throw() << "Error, the supplied particle ID is out of range";
+#endif
+    //The types of the ID's are constants defined above.
+    //
+    //This implementation will need to be improved once we generalise
+    //to multiple backbones.
+    return (particleID - startID) % 3;
+  }
+
+  size_t 
+  IPRIME::getDistance(const size_t pID1, const size_t pID2) const
+  {
+#ifdef DYNAMO_DEBUG
+    if ((pID1 < startID) || (pID2 > endID))
+      M_throw() << "Error, the supplied particle ID 1 is out of range";
+
+    if ((pID2 < startID) || (pID2 > endID))
+      M_throw() << "Error, the supplied particle ID 2 is out of range";
+#endif
+
+    //Here, we must be careful to return only positive distances along
+    //the chain. Negative values would cause the unsigned size_t to
+    //roll over, plus it makes the algorithm easier to implement if
+    //this is always positive.
+    //
+    //This implementation will need to be improved once we generalise
+    //to multiple backbones.
+    return std::max(pID1, pID2) - std::min(pID1, pID2);
+  }
+
+
   IPRIME::IPRIME(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
     ISingleCapture(tmp, NULL) //A temporary value!
   {
@@ -85,10 +121,10 @@ namespace dynamo {
 
   Vector
   IPRIME::getGlyphSize(size_t ID, size_t subID) const 
-  { 
-    M_throw() << "Not implemented";
-    //double diam = _diameter->getProperty(ID);
-    //return Vector(diam, diam, diam); 
+  {
+    //Here we return the hard core diameter
+    double diam = diameters[getType(ID)];
+    return Vector(diam, diam, diam);
   }
 
   Vector 
@@ -102,24 +138,26 @@ namespace dynamo {
 
   double 
   IPRIME::getExcludedVolume(size_t ID) const 
-  { 
-    M_throw() << "Not implemented";
-//    double diam = _diameter->getProperty(ID);
-//    return diam * diam * diam * M_PI / 6.0; 
+  {
+    //This calculation only includes the volumes which are always
+    //excluded (i.e. the hard core)
+    double diam = diameters[getType(ID)];
+    return diam * diam * diam * M_PI / 6.0; 
   }
 
   double 
   IPRIME::maxIntDist() const 
   { 
-    M_throw() << "Not implemented";
-    //return _diameter->getMaxValue() * _lambda->getMaxValue(); 
+    //This function cannot be implemented until I figure out the bonds
+    //and square well distances
+    M_throw() << "More work needed";
   }
 
   void 
   IPRIME::initialise(size_t nID)
   {
     ID = nID;
-    ISingleCapture::initCaptureMap();
+    //ISingleCapture::initCaptureMap();
   }
 
   bool IPRIME::captureTest(const Particle& p1, const Particle& p2) const 

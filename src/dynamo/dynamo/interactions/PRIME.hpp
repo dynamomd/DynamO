@@ -54,6 +54,15 @@ namespace dynamo {
     virtual double getInternalEnergy(const Particle&, const Particle&) const;
 
   protected:
+    /*! \brief Returns the type of the bead on the backbone.
+     */
+    size_t getType(const size_t particleID) const;
+
+    /*! \brief Returns the unsigned distance along the backbone
+        between to beads
+     */
+    size_t getDistance(const size_t pID1, const size_t pID2) const;
+    
     size_t startID, endID;
   };
 }
