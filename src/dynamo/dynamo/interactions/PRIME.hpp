@@ -17,12 +17,12 @@
 
 #pragma once
 
-#include <dynamo/interactions/captures.hpp>
+#include <dynamo/interactions/interaction.hpp>
 #include <dynamo/interactions/glyphrepresentation.hpp>
 #include <dynamo/simulation.hpp>
 
 namespace dynamo {
-  class IPRIME: public ISingleCapture, public GlyphRepresentation
+  class IPRIME: public Interaction, public GlyphRepresentation
   {
   public:
     IPRIME(const magnet::xml::Node&, dynamo::Simulation*);
@@ -39,8 +39,6 @@ namespace dynamo {
 
     virtual void checkOverlaps(const Particle&, const Particle&) const;
 
-    virtual bool captureTest(const Particle&, const Particle&) const;
-
     virtual void initialise(size_t);
 
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
@@ -49,9 +47,10 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    virtual double getInternalEnergy() const;
+    virtual double getInternalEnergy() const { return 0; }
 
-    virtual double getInternalEnergy(const Particle&, const Particle&) const;
+    virtual double getInternalEnergy(const Particle&, const Particle&) const 
+    { return 0.0; }
 
   protected:
     /*! \brief Returns the type of the bead on the backbone.
@@ -62,6 +61,13 @@ namespace dynamo {
         between to beads
      */
     size_t getDistance(const size_t pID1, const size_t pID2) const;
+
+    /*! \brief Calculates the interaction parameters for the passed pair.
+      
+      \return This pair has the interaction diameter as the first
+      value and whether this diameter is a bond as the second value.
+     */
+    std::pair<double, bool> getInteractionParameters(const size_t pID1, const size_t pID2) const;
     
     size_t startID, endID;
   };
