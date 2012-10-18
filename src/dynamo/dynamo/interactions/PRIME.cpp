@@ -47,35 +47,47 @@ namespace {
   //Values taken from
   //http://onlinelibrary.wiley.com/doi/10.1002/prot.1100/full
   //These are the basic bead diameters
-  const double diameters[] = {3.3, //NH
-			      3.7, //CH
-			      4.0};//CO
+  const double _PRIME_diameters[] = {3.3, //NH
+				     3.7, //CH
+				     4.0};//CO
   
+  //This is the fluctuation of the bond distance allowed
+  const double _PRIME_bond_tolerance = 0.02;
+
+  //This is a list of the bond lengths in the backbone. These only
+  //apply to beads seperated by 1 backbone bond.
+  //
+  //We make this a symmetric tensor to simplify the lookups. The zero
+  //entries should never be used.
+  const double _PRIME_bond_lengths[] = 
+    /*        NH,    CH,    CO, */
+    {/*NH*/0.000, 1.460, 1.330,
+     /*CH*/1.460, 0.000, 1.510,
+     /*CO*/1.330, 1.510, 0.000}
+    ;
+
+  //This is a list of the pseudobond lengths in the backbone. These
+  //only apply to beads seperated by TWO backbone bonds.
+  //
+  //We make this a symmetric tensor to simplify the lookups. The zero
+  //entries should never be used.
+  const double _PRIME_pseudobond_lengths[] = 
+    /*       NH,   CH,   CO, */
+    {/*NH*/0.00, 2.41, 2.45,
+     /*CH*/2.41, 0.00, 2.45,
+     /*CO*/2.45, 2.45, 0.00}
+    ;
+
+  //The next two constants are for the interactions between beads
+  //separated by THREE backbone bonds.
+  //
+  //This is the special pseudobond length between the CH-CH groups. It
+  //is the only pseudobond at this distance.
+  const double _PRIME_CH_CH_pseudobond_length = 3.80;
+  //
   //This is the scaling factor of the bead diameters if they are
   //closer than four bonds on the same chain.
-  const double near_diameter_scale_factor = 0.75;
-
-  //This is the fluctuation of the bond distance allowed
-  const double pseudobond_tolerance = 0.02;
-
-  //This matrix specifies the bonding and pseudobonding of the
-  //backbone.
-  //
-  //These bonds/pseudobonds only occur between beads up to three
-  //backbone bonds away (e.g. the CH has a pseudo bond with the next
-  //CHs up/down the chain.
-  //
-  //If the entry is zero, there is no bond between these beads
-  const double bond_distances[] = {
-    //      NH,     CH,   CO
-    /*NH*/0.000, 1.460, 1.330,
-    /*CH*/1.460, 0.000, 0.000,
-    /*CO*/1.330, 0.000, 0.000
-  };
-
-  //This is a list of the bond lengths in the backbone, from NH->CH,
-  //CH->CO, CO->NH.
-  const double bond_lengths[] = {1.46, 1.51, 1.33}; 
+  const double _PRIME_near_diameter_scale_factor = 0.75;
 }
 
 namespace dynamo {
@@ -144,7 +156,7 @@ namespace dynamo {
   IPRIME::getGlyphSize(size_t ID, size_t subID) const 
   {
     //Here we return the hard core diameter
-    double diam = diameters[getType(ID)];
+    double diam = _PRIME_diameters[getType(ID)];
     return Vector(diam, diam, diam);
   }
 
@@ -162,7 +174,7 @@ namespace dynamo {
   {
     //This calculation only includes the volumes which are always
     //excluded (i.e. the hard core)
-    double diam = diameters[getType(ID)];
+    double diam = _PRIME_diameters[getType(ID)];
     return diam * diam * diam * M_PI / 6.0; 
   }
 
@@ -206,7 +218,7 @@ namespace dynamo {
 
   IntEvent
   IPRIME::getEvent(const Particle &p1, 
-			const Particle &p2) const 
+		   const Particle &p2) const 
   {
 #ifdef DYNAMO_DEBUG
     if (!Sim->dynamics->isUpToDate(p1))
@@ -218,6 +230,57 @@ namespace dynamo {
     if (p1 == p2)
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
+
+    size_t p1Type = getType(p1.getID());
+    size_t p2Type = getType(p2.getID());
+
+    //We need to discover what the interaction diameter is for the
+    //particles. At first, we assume its equal to the bead diameters
+    double diameter = 0.5 * (_PRIME_diameters[p1Type] + _PRIME_diameters[p2Type]);
+    bool bonded = false;
+
+    //This treats the special cases if they are 0,1,2, or three backbone
+    //bonds apart
+    switch (getDistance(p1.getID(), p2.getID()))
+      {
+      case 0:
+	M_throw() << "Invalid backbone distance of 0";
+      case 1:
+	{//Every type of this interaction is a bonded interaction
+	  diameter = _PRIME_bond_lengths[3 * p1Type + p2Type];
+	  bonded = true;
+	}
+	break;
+      case 2:
+	{//Every type of this interaction is a pseudobond interaction
+	  diameter = _PRIME_pseudobond_lengths[3 * p1Type + p2Type];
+	  bonded = true;
+	}
+	break;
+      case 3:
+	{
+	  //Check if this is the special pseudobond
+	  if ((p1Type == CH) && (p2Type == CH))
+	    {
+	      diameter = _PRIME_CH_CH_pseudobond_length;
+	      bonded = true;
+	    }
+	  else
+	    //Its a standard bead-bead interaction, but the diameters
+	    //are scaled by a factor
+	    diameter *= _PRIME_near_diameter_scale_factor;
+	}
+	break;
+      default:
+	//The diameter was correctly specified in the start as a
+	//bead-bead interaction.
+	break;
+      }
+
+    //Now that the diameters are known, and we know if they are bonded
+    //or not, we can do event detection. If it is bonded
+    //(bonded=true), the inner and outer interactions are at:
+    //diameter*(1+-_PRIME_bond_tolerance)
 
     M_throw() << "Not implemented";
 
