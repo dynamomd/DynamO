@@ -22,10 +22,10 @@
 #include <dynamo/simulation.hpp>
 
 namespace dynamo {
-  class IPRIME: public Interaction, public GlyphRepresentation
+  class IPRIME_BB: public Interaction, public GlyphRepresentation
   {
   public:
-    IPRIME(const magnet::xml::Node&, dynamo::Simulation*);
+    IPRIME_BB(const magnet::xml::Node&, dynamo::Simulation*);
 
     void operator<<(const magnet::xml::Node&);
 
@@ -63,12 +63,12 @@ namespace dynamo {
     size_t getDistance(const size_t pID1, const size_t pID2) const;
 
     /*! \brief Calculates the interaction parameters for the passed pair.
-      
+
       \return This pair has the interaction diameter as the first
       value and whether this diameter is a bond as the second value.
      */
     std::pair<double, bool> getInteractionParameters(const size_t pID1, const size_t pID2) const;
-    
+
     size_t startID, endID;
   };
 }

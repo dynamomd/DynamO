@@ -1,0 +1,597 @@
+<!-- DynamO input file contains the PRIME20 model of the sequence: AAAAAAAAAA. -->
+<!-- Created on 12:15:50 10/25/12 BST. -->
+<DynamOconfig version="1.5.0">
+  <Simulation>
+    <Scheduler Type="NeighbourList">
+      <Sorter Type="BoundedPQMinMax3"/>
+    </Scheduler>
+    <SimulationSize y="500.0" x="500.0" z="500.0"/>
+    <BC Type="PBC"/>
+    <Genus>
+      <Species Range="List" IntName="Unbond CO CH" Type="Point" Mass="1.000" Name="Alanine">
+        <ID val="30"/>
+        <ID val="31"/>
+        <ID val="32"/>
+        <ID val="33"/>
+        <ID val="34"/>
+        <ID val="35"/>
+        <ID val="36"/>
+        <ID val="37"/>
+        <ID val="38"/>
+        <ID val="39"/>
+      </Species>
+      <Species Range="List" IntName="Unbond CO CH" Type="Point" Mass="0.999" Name="Nitrogen+Hydrogen">
+        <ID val="0"/>
+        <ID val="3"/>
+        <ID val="6"/>
+        <ID val="9"/>
+        <ID val="12"/>
+        <ID val="15"/>
+        <ID val="18"/>
+        <ID val="21"/>
+        <ID val="24"/>
+        <ID val="27"/>
+      </Species>
+      <Species Range="List" IntName="Unbond CO CH" Type="Point" Mass="0.866" Name="Carbon+Hydrogen">
+        <ID val="1"/>
+        <ID val="4"/>
+        <ID val="7"/>
+        <ID val="10"/>
+        <ID val="13"/>
+        <ID val="16"/>
+        <ID val="19"/>
+        <ID val="22"/>
+        <ID val="25"/>
+        <ID val="28"/>
+      </Species>
+      <Species Range="List" IntName="Unbond CO CH" Type="Point" Mass="1.863" Name="Carbon+Oxygen">
+        <ID val="2"/>
+        <ID val="5"/>
+        <ID val="8"/>
+        <ID val="11"/>
+        <ID val="14"/>
+        <ID val="17"/>
+        <ID val="20"/>
+        <ID val="23"/>
+        <ID val="26"/>
+        <ID val="29"/>
+      </Species>
+    </Genus>
+    <Topology/>
+    <Interactions>
+      <Interaction Start="0" End="29" Type="PRIME_BB" Name="Backbone"/>
+      <Interaction Diameter="3.35" Name="Unbond CO A" Elasticity="1" Range="List" Type="HardSphere" Lambda="1.28358208955">
+        <RangePair ID2="5" ID1="30"/>
+        <RangePair ID2="8" ID1="30"/>
+        <RangePair ID2="11" ID1="30"/>
+        <RangePair ID2="14" ID1="30"/>
+        <RangePair ID2="17" ID1="30"/>
+        <RangePair ID2="20" ID1="30"/>
+        <RangePair ID2="23" ID1="30"/>
+        <RangePair ID2="26" ID1="30"/>
+        <RangePair ID2="29" ID1="30"/>
+        <RangePair ID2="8" ID1="31"/>
+        <RangePair ID2="11" ID1="31"/>
+        <RangePair ID2="14" ID1="31"/>
+        <RangePair ID2="17" ID1="31"/>
+        <RangePair ID2="20" ID1="31"/>
+        <RangePair ID2="23" ID1="31"/>
+        <RangePair ID2="26" ID1="31"/>
+        <RangePair ID2="29" ID1="31"/>
+        <RangePair ID2="2" ID1="32"/>
+        <RangePair ID2="11" ID1="32"/>
+        <RangePair ID2="14" ID1="32"/>
+        <RangePair ID2="17" ID1="32"/>
+        <RangePair ID2="20" ID1="32"/>
+        <RangePair ID2="23" ID1="32"/>
+        <RangePair ID2="26" ID1="32"/>
+        <RangePair ID2="29" ID1="32"/>
+        <RangePair ID2="2" ID1="33"/>
+        <RangePair ID2="5" ID1="33"/>
+        <RangePair ID2="14" ID1="33"/>
+        <RangePair ID2="17" ID1="33"/>
+        <RangePair ID2="20" ID1="33"/>
+        <RangePair ID2="23" ID1="33"/>
+        <RangePair ID2="26" ID1="33"/>
+        <RangePair ID2="29" ID1="33"/>
+        <RangePair ID2="2" ID1="34"/>
+        <RangePair ID2="5" ID1="34"/>
+        <RangePair ID2="8" ID1="34"/>
+        <RangePair ID2="17" ID1="34"/>
+        <RangePair ID2="20" ID1="34"/>
+        <RangePair ID2="23" ID1="34"/>
+        <RangePair ID2="26" ID1="34"/>
+        <RangePair ID2="29" ID1="34"/>
+        <RangePair ID2="2" ID1="35"/>
+        <RangePair ID2="5" ID1="35"/>
+        <RangePair ID2="8" ID1="35"/>
+        <RangePair ID2="11" ID1="35"/>
+        <RangePair ID2="20" ID1="35"/>
+        <RangePair ID2="23" ID1="35"/>
+        <RangePair ID2="26" ID1="35"/>
+        <RangePair ID2="29" ID1="35"/>
+        <RangePair ID2="2" ID1="36"/>
+        <RangePair ID2="5" ID1="36"/>
+        <RangePair ID2="8" ID1="36"/>
+        <RangePair ID2="11" ID1="36"/>
+        <RangePair ID2="14" ID1="36"/>
+        <RangePair ID2="23" ID1="36"/>
+        <RangePair ID2="26" ID1="36"/>
+        <RangePair ID2="29" ID1="36"/>
+        <RangePair ID2="2" ID1="37"/>
+        <RangePair ID2="5" ID1="37"/>
+        <RangePair ID2="8" ID1="37"/>
+        <RangePair ID2="11" ID1="37"/>
+        <RangePair ID2="14" ID1="37"/>
+        <RangePair ID2="17" ID1="37"/>
+        <RangePair ID2="26" ID1="37"/>
+        <RangePair ID2="29" ID1="37"/>
+        <RangePair ID2="2" ID1="38"/>
+        <RangePair ID2="5" ID1="38"/>
+        <RangePair ID2="8" ID1="38"/>
+        <RangePair ID2="11" ID1="38"/>
+        <RangePair ID2="14" ID1="38"/>
+        <RangePair ID2="17" ID1="38"/>
+        <RangePair ID2="20" ID1="38"/>
+        <RangePair ID2="29" ID1="38"/>
+        <RangePair ID2="2" ID1="39"/>
+        <RangePair ID2="5" ID1="39"/>
+        <RangePair ID2="8" ID1="39"/>
+        <RangePair ID2="11" ID1="39"/>
+        <RangePair ID2="14" ID1="39"/>
+        <RangePair ID2="17" ID1="39"/>
+        <RangePair ID2="20" ID1="39"/>
+        <RangePair ID2="23" ID1="39"/>
+      </Interaction>
+      <Interaction Diameter="2.7" Name="Unbond A A" Elasticity="1" Range="List" WellDepth="-0.084" Type="SquareWell" Lambda="1.62962962963">
+        <RangePair ID2="30" ID1="31"/>
+        <RangePair ID2="30" ID1="32"/>
+        <RangePair ID2="31" ID1="32"/>
+        <RangePair ID2="30" ID1="33"/>
+        <RangePair ID2="31" ID1="33"/>
+        <RangePair ID2="32" ID1="33"/>
+        <RangePair ID2="30" ID1="34"/>
+        <RangePair ID2="31" ID1="34"/>
+        <RangePair ID2="32" ID1="34"/>
+        <RangePair ID2="33" ID1="34"/>
+        <RangePair ID2="30" ID1="35"/>
+        <RangePair ID2="31" ID1="35"/>
+        <RangePair ID2="32" ID1="35"/>
+        <RangePair ID2="33" ID1="35"/>
+        <RangePair ID2="34" ID1="35"/>
+        <RangePair ID2="30" ID1="36"/>
+        <RangePair ID2="31" ID1="36"/>
+        <RangePair ID2="32" ID1="36"/>
+        <RangePair ID2="33" ID1="36"/>
+        <RangePair ID2="34" ID1="36"/>
+        <RangePair ID2="35" ID1="36"/>
+        <RangePair ID2="30" ID1="37"/>
+        <RangePair ID2="31" ID1="37"/>
+        <RangePair ID2="32" ID1="37"/>
+        <RangePair ID2="33" ID1="37"/>
+        <RangePair ID2="34" ID1="37"/>
+        <RangePair ID2="35" ID1="37"/>
+        <RangePair ID2="36" ID1="37"/>
+        <RangePair ID2="30" ID1="38"/>
+        <RangePair ID2="31" ID1="38"/>
+        <RangePair ID2="32" ID1="38"/>
+        <RangePair ID2="33" ID1="38"/>
+        <RangePair ID2="34" ID1="38"/>
+        <RangePair ID2="35" ID1="38"/>
+        <RangePair ID2="36" ID1="38"/>
+        <RangePair ID2="37" ID1="38"/>
+        <RangePair ID2="30" ID1="39"/>
+        <RangePair ID2="31" ID1="39"/>
+        <RangePair ID2="32" ID1="39"/>
+        <RangePair ID2="33" ID1="39"/>
+        <RangePair ID2="34" ID1="39"/>
+        <RangePair ID2="35" ID1="39"/>
+        <RangePair ID2="36" ID1="39"/>
+        <RangePair ID2="37" ID1="39"/>
+        <RangePair ID2="38" ID1="39"/>
+      </Interaction>
+      <Interaction Diameter="3.2" Name="Unbond CH A" Elasticity="1" Range="List" Type="HardSphere" Lambda="1.34375">
+        <RangePair ID2="4" ID1="30"/>
+        <RangePair ID2="7" ID1="30"/>
+        <RangePair ID2="10" ID1="30"/>
+        <RangePair ID2="13" ID1="30"/>
+        <RangePair ID2="16" ID1="30"/>
+        <RangePair ID2="19" ID1="30"/>
+        <RangePair ID2="22" ID1="30"/>
+        <RangePair ID2="25" ID1="30"/>
+        <RangePair ID2="28" ID1="30"/>
+        <RangePair ID2="1" ID1="31"/>
+        <RangePair ID2="7" ID1="31"/>
+        <RangePair ID2="10" ID1="31"/>
+        <RangePair ID2="13" ID1="31"/>
+        <RangePair ID2="16" ID1="31"/>
+        <RangePair ID2="19" ID1="31"/>
+        <RangePair ID2="22" ID1="31"/>
+        <RangePair ID2="25" ID1="31"/>
+        <RangePair ID2="28" ID1="31"/>
+        <RangePair ID2="1" ID1="32"/>
+        <RangePair ID2="4" ID1="32"/>
+        <RangePair ID2="10" ID1="32"/>
+        <RangePair ID2="13" ID1="32"/>
+        <RangePair ID2="16" ID1="32"/>
+        <RangePair ID2="19" ID1="32"/>
+        <RangePair ID2="22" ID1="32"/>
+        <RangePair ID2="25" ID1="32"/>
+        <RangePair ID2="28" ID1="32"/>
+        <RangePair ID2="1" ID1="33"/>
+        <RangePair ID2="4" ID1="33"/>
+        <RangePair ID2="7" ID1="33"/>
+        <RangePair ID2="13" ID1="33"/>
+        <RangePair ID2="16" ID1="33"/>
+        <RangePair ID2="19" ID1="33"/>
+        <RangePair ID2="22" ID1="33"/>
+        <RangePair ID2="25" ID1="33"/>
+        <RangePair ID2="28" ID1="33"/>
+        <RangePair ID2="1" ID1="34"/>
+        <RangePair ID2="4" ID1="34"/>
+        <RangePair ID2="7" ID1="34"/>
+        <RangePair ID2="10" ID1="34"/>
+        <RangePair ID2="16" ID1="34"/>
+        <RangePair ID2="19" ID1="34"/>
+        <RangePair ID2="22" ID1="34"/>
+        <RangePair ID2="25" ID1="34"/>
+        <RangePair ID2="28" ID1="34"/>
+        <RangePair ID2="1" ID1="35"/>
+        <RangePair ID2="4" ID1="35"/>
+        <RangePair ID2="7" ID1="35"/>
+        <RangePair ID2="10" ID1="35"/>
+        <RangePair ID2="13" ID1="35"/>
+        <RangePair ID2="19" ID1="35"/>
+        <RangePair ID2="22" ID1="35"/>
+        <RangePair ID2="25" ID1="35"/>
+        <RangePair ID2="28" ID1="35"/>
+        <RangePair ID2="1" ID1="36"/>
+        <RangePair ID2="4" ID1="36"/>
+        <RangePair ID2="7" ID1="36"/>
+        <RangePair ID2="10" ID1="36"/>
+        <RangePair ID2="13" ID1="36"/>
+        <RangePair ID2="16" ID1="36"/>
+        <RangePair ID2="22" ID1="36"/>
+        <RangePair ID2="25" ID1="36"/>
+        <RangePair ID2="28" ID1="36"/>
+        <RangePair ID2="1" ID1="37"/>
+        <RangePair ID2="4" ID1="37"/>
+        <RangePair ID2="7" ID1="37"/>
+        <RangePair ID2="10" ID1="37"/>
+        <RangePair ID2="13" ID1="37"/>
+        <RangePair ID2="16" ID1="37"/>
+        <RangePair ID2="19" ID1="37"/>
+        <RangePair ID2="25" ID1="37"/>
+        <RangePair ID2="28" ID1="37"/>
+        <RangePair ID2="1" ID1="38"/>
+        <RangePair ID2="4" ID1="38"/>
+        <RangePair ID2="7" ID1="38"/>
+        <RangePair ID2="10" ID1="38"/>
+        <RangePair ID2="13" ID1="38"/>
+        <RangePair ID2="16" ID1="38"/>
+        <RangePair ID2="19" ID1="38"/>
+        <RangePair ID2="22" ID1="38"/>
+        <RangePair ID2="28" ID1="38"/>
+        <RangePair ID2="1" ID1="39"/>
+        <RangePair ID2="4" ID1="39"/>
+        <RangePair ID2="7" ID1="39"/>
+        <RangePair ID2="10" ID1="39"/>
+        <RangePair ID2="13" ID1="39"/>
+        <RangePair ID2="16" ID1="39"/>
+        <RangePair ID2="19" ID1="39"/>
+        <RangePair ID2="22" ID1="39"/>
+        <RangePair ID2="25" ID1="39"/>
+      </Interaction>
+      <Interaction Diameter="3.0" Name="Unbond NH A" Elasticity="1" Range="List" Type="HardSphere" Lambda="1.43333333333">
+        <RangePair ID2="6" ID1="30"/>
+        <RangePair ID2="9" ID1="30"/>
+        <RangePair ID2="12" ID1="30"/>
+        <RangePair ID2="15" ID1="30"/>
+        <RangePair ID2="18" ID1="30"/>
+        <RangePair ID2="21" ID1="30"/>
+        <RangePair ID2="24" ID1="30"/>
+        <RangePair ID2="27" ID1="30"/>
+        <RangePair ID2="0" ID1="31"/>
+        <RangePair ID2="9" ID1="31"/>
+        <RangePair ID2="12" ID1="31"/>
+        <RangePair ID2="15" ID1="31"/>
+        <RangePair ID2="18" ID1="31"/>
+        <RangePair ID2="21" ID1="31"/>
+        <RangePair ID2="24" ID1="31"/>
+        <RangePair ID2="27" ID1="31"/>
+        <RangePair ID2="0" ID1="32"/>
+        <RangePair ID2="3" ID1="32"/>
+        <RangePair ID2="12" ID1="32"/>
+        <RangePair ID2="15" ID1="32"/>
+        <RangePair ID2="18" ID1="32"/>
+        <RangePair ID2="21" ID1="32"/>
+        <RangePair ID2="24" ID1="32"/>
+        <RangePair ID2="27" ID1="32"/>
+        <RangePair ID2="0" ID1="33"/>
+        <RangePair ID2="3" ID1="33"/>
+        <RangePair ID2="6" ID1="33"/>
+        <RangePair ID2="15" ID1="33"/>
+        <RangePair ID2="18" ID1="33"/>
+        <RangePair ID2="21" ID1="33"/>
+        <RangePair ID2="24" ID1="33"/>
+        <RangePair ID2="27" ID1="33"/>
+        <RangePair ID2="0" ID1="34"/>
+        <RangePair ID2="3" ID1="34"/>
+        <RangePair ID2="6" ID1="34"/>
+        <RangePair ID2="9" ID1="34"/>
+        <RangePair ID2="18" ID1="34"/>
+        <RangePair ID2="21" ID1="34"/>
+        <RangePair ID2="24" ID1="34"/>
+        <RangePair ID2="27" ID1="34"/>
+        <RangePair ID2="0" ID1="35"/>
+        <RangePair ID2="3" ID1="35"/>
+        <RangePair ID2="6" ID1="35"/>
+        <RangePair ID2="9" ID1="35"/>
+        <RangePair ID2="12" ID1="35"/>
+        <RangePair ID2="21" ID1="35"/>
+        <RangePair ID2="24" ID1="35"/>
+        <RangePair ID2="27" ID1="35"/>
+        <RangePair ID2="0" ID1="36"/>
+        <RangePair ID2="3" ID1="36"/>
+        <RangePair ID2="6" ID1="36"/>
+        <RangePair ID2="9" ID1="36"/>
+        <RangePair ID2="12" ID1="36"/>
+        <RangePair ID2="15" ID1="36"/>
+        <RangePair ID2="24" ID1="36"/>
+        <RangePair ID2="27" ID1="36"/>
+        <RangePair ID2="0" ID1="37"/>
+        <RangePair ID2="3" ID1="37"/>
+        <RangePair ID2="6" ID1="37"/>
+        <RangePair ID2="9" ID1="37"/>
+        <RangePair ID2="12" ID1="37"/>
+        <RangePair ID2="15" ID1="37"/>
+        <RangePair ID2="18" ID1="37"/>
+        <RangePair ID2="27" ID1="37"/>
+        <RangePair ID2="0" ID1="38"/>
+        <RangePair ID2="3" ID1="38"/>
+        <RangePair ID2="6" ID1="38"/>
+        <RangePair ID2="9" ID1="38"/>
+        <RangePair ID2="12" ID1="38"/>
+        <RangePair ID2="15" ID1="38"/>
+        <RangePair ID2="18" ID1="38"/>
+        <RangePair ID2="21" ID1="38"/>
+        <RangePair ID2="0" ID1="39"/>
+        <RangePair ID2="3" ID1="39"/>
+        <RangePair ID2="6" ID1="39"/>
+        <RangePair ID2="9" ID1="39"/>
+        <RangePair ID2="12" ID1="39"/>
+        <RangePair ID2="15" ID1="39"/>
+        <RangePair ID2="18" ID1="39"/>
+        <RangePair ID2="21" ID1="39"/>
+        <RangePair ID2="24" ID1="39"/>
+      </Interaction>
+      <Interaction Diameter="2.5125" Name="Unbond close CO A" Elasticity="1" Range="List" Type="HardSphere" Lambda="1.71144278607">
+        <RangePair ID2="2" ID1="31"/>
+        <RangePair ID2="5" ID1="32"/>
+        <RangePair ID2="8" ID1="33"/>
+        <RangePair ID2="11" ID1="34"/>
+        <RangePair ID2="14" ID1="35"/>
+        <RangePair ID2="17" ID1="36"/>
+        <RangePair ID2="20" ID1="37"/>
+        <RangePair ID2="23" ID1="38"/>
+        <RangePair ID2="26" ID1="39"/>
+      </Interaction>
+      <Interaction Diameter="2.25" Name="Unbond close NH A" Elasticity="1" Range="List" Type="HardSphere" Lambda="1.91111111111">
+        <RangePair ID2="3" ID1="30"/>
+        <RangePair ID2="6" ID1="31"/>
+        <RangePair ID2="9" ID1="32"/>
+        <RangePair ID2="12" ID1="33"/>
+        <RangePair ID2="15" ID1="34"/>
+        <RangePair ID2="18" ID1="35"/>
+        <RangePair ID2="21" ID1="36"/>
+        <RangePair ID2="24" ID1="37"/>
+        <RangePair ID2="27" ID1="38"/>
+      </Interaction>
+      <Interaction Diameter="1.600" Name="Bond CH A" Elasticity="1" Range="List" Type="SquareBond" Lambda="1.0450">
+        <RangePair ID2="1" ID1="30"/>
+        <RangePair ID2="4" ID1="31"/>
+        <RangePair ID2="7" ID1="32"/>
+        <RangePair ID2="10" ID1="33"/>
+        <RangePair ID2="13" ID1="34"/>
+        <RangePair ID2="16" ID1="35"/>
+        <RangePair ID2="19" ID1="36"/>
+        <RangePair ID2="22" ID1="37"/>
+        <RangePair ID2="25" ID1="38"/>
+        <RangePair ID2="28" ID1="39"/>
+      </Interaction>
+      <Interaction Diameter="2.49" Name="Pseudo CO A" Elasticity="1" Range="List" Type="SquareBond" Lambda="1.0450">
+        <RangePair ID2="2" ID1="30"/>
+        <RangePair ID2="5" ID1="31"/>
+        <RangePair ID2="8" ID1="32"/>
+        <RangePair ID2="11" ID1="33"/>
+        <RangePair ID2="14" ID1="34"/>
+        <RangePair ID2="17" ID1="35"/>
+        <RangePair ID2="20" ID1="36"/>
+        <RangePair ID2="23" ID1="37"/>
+        <RangePair ID2="26" ID1="38"/>
+        <RangePair ID2="29" ID1="39"/>
+      </Interaction>
+      <Interaction Diameter="2.44" Name="Pseudo NH A" Elasticity="1" Range="List" Type="SquareBond" Lambda="1.0450">
+        <RangePair ID2="0" ID1="30"/>
+        <RangePair ID2="3" ID1="31"/>
+        <RangePair ID2="6" ID1="32"/>
+        <RangePair ID2="9" ID1="33"/>
+        <RangePair ID2="12" ID1="34"/>
+        <RangePair ID2="15" ID1="35"/>
+        <RangePair ID2="18" ID1="36"/>
+        <RangePair ID2="21" ID1="37"/>
+        <RangePair ID2="24" ID1="38"/>
+        <RangePair ID2="27" ID1="39"/>
+      </Interaction>
+    </Interactions>
+    <Locals/>
+    <Globals>
+      <Global NeighbourhoodRange="5.000000000000e+00" Range="All" Type="Cells" Name="SchedulerNBList"/>
+    </Globals>
+    <SystemEvents/>
+    <Dynamics Type="Newtonian"/>
+  </Simulation>
+  <Properties/>
+  <ParticleData>
+    <Pt ID="0">
+      <P y="250.0" x="245.0" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="1">
+      <P y="250.0" x="246.46" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="2">
+      <P y="250.736230912" x="247.004794521" z="251.200526124"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="3">
+      <P y="250.0" x="248.8" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="4">
+      <P y="250.0" x="250.26" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="5">
+      <P y="250.736230912" x="250.804794521" z="251.200526124"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="6">
+      <P y="250.0" x="252.6" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="7">
+      <P y="250.0" x="254.06" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="8">
+      <P y="250.736230912" x="254.604794521" z="251.200526124"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="9">
+      <P y="250.0" x="256.4" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="10">
+      <P y="250.0" x="257.86" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="11">
+      <P y="250.736230912" x="258.404794521" z="251.200526124"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="12">
+      <P y="250.0" x="260.2" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="13">
+      <P y="250.0" x="261.66" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="14">
+      <P y="250.736230912" x="262.204794521" z="251.200526124"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="15">
+      <P y="250.0" x="264.0" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="16">
+      <P y="250.0" x="265.46" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="17">
+      <P y="250.736230912" x="266.004794521" z="251.200526124"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="18">
+      <P y="250.0" x="267.8" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="19">
+      <P y="250.0" x="269.26" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="20">
+      <P y="250.736230912" x="269.804794521" z="251.200526124"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="21">
+      <P y="250.0" x="271.6" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="22">
+      <P y="250.0" x="273.06" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="23">
+      <P y="250.736230912" x="273.604794521" z="251.200526124"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="24">
+      <P y="250.0" x="275.4" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="25">
+      <P y="250.0" x="276.86" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="26">
+      <P y="250.736230912" x="277.404794521" z="251.200526124"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="27">
+      <P y="250.0" x="279.2" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="28">
+      <P y="250.0" x="280.66" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="29">
+      <P y="250.736230912" x="281.204794521" z="251.200526124"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="30">
+      <P y="248.555096856" x="246.96617774" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="31">
+      <P y="248.555096856" x="250.76617774" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="32">
+      <P y="248.555096856" x="254.56617774" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="33">
+      <P y="248.555096856" x="258.36617774" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="34">
+      <P y="248.555096856" x="262.16617774" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="35">
+      <P y="248.555096856" x="265.96617774" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="36">
+      <P y="248.555096856" x="269.76617774" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="37">
+      <P y="248.555096856" x="273.56617774" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="38">
+      <P y="248.555096856" x="277.36617774" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+    <Pt ID="39">
+      <P y="248.555096856" x="281.16617774" z="250.0"/>
+      <V y="0.0" x="0.0" z="0.0"/>
+    </Pt>
+  </ParticleData>
+</DynamOconfig>

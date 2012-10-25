@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -15,9 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/interactions/PRIME.hpp>
+#include <dynamo/interactions/PRIME_BB.hpp>
 #include <dynamo/BC/BC.hpp>
-
 #include <dynamo/units/units.hpp>
 #include <dynamo/globals/global.hpp>
 #include <dynamo/particle.hpp>
@@ -36,7 +35,7 @@
 #include <cmath>
 #include <iomanip>
 
-//This is a anonymous namespace, the contents of the anonymous
+//This is an anonymous namespace, the contents of the anonymous
 //namespace will not be available outside of this file. This is used
 //to place all of the settings of the model at the top of this file.
 namespace {
@@ -47,10 +46,8 @@ namespace {
   //Values taken from
   //http://onlinelibrary.wiley.com/doi/10.1002/prot.1100/full
   //These are the basic bead diameters
-  const double _PRIME_diameters[] = {3.3, //NH
-				     3.7, //CH
-				     4.0};//CO
-  
+  const double _PRIME_diameters[] = {/*NH*/ 3.3, /*CH*/ 3.7, /*CO*/ 4.0};
+
   //This is the fluctuation of the bond distance allowed
   const double _PRIME_bond_tolerance = 0.02;
 
@@ -59,7 +56,7 @@ namespace {
   //
   //We make this a symmetric tensor to simplify the lookups. The zero
   //entries should never be used.
-  const double _PRIME_bond_lengths[] = 
+  const double _PRIME_bond_lengths[] =
     /*        NH,    CH,    CO, */
     {/*NH*/0.000, 1.460, 1.330,
      /*CH*/1.460, 0.000, 1.510,
@@ -71,7 +68,7 @@ namespace {
   //
   //We make this a symmetric tensor to simplify the lookups. The zero
   //entries should never be used.
-  const double _PRIME_pseudobond_lengths[] = 
+  const double _PRIME_pseudobond_lengths[] =
     /*       NH,   CH,   CO, */
     {/*NH*/0.00, 2.41, 2.45,
      /*CH*/2.41, 0.00, 2.45,
@@ -91,8 +88,8 @@ namespace {
 }
 
 namespace dynamo {
-  size_t 
-  IPRIME::getType(const size_t particleID) const
+  size_t
+  IPRIME_BB::getType(const size_t particleID) const
   {
 #ifdef DYNAMO_DEBUG
     if ((particleID < startID) || (particleID > endID))
@@ -105,8 +102,8 @@ namespace dynamo {
     return (particleID - startID) % 3;
   }
 
-  size_t 
-  IPRIME::getDistance(const size_t pID1, const size_t pID2) const
+  size_t
+  IPRIME_BB::getDistance(const size_t pID1, const size_t pID2) const
   {
 #ifdef DYNAMO_DEBUG
     if ((pID1 < startID) || (pID2 > endID))
@@ -127,20 +124,20 @@ namespace dynamo {
   }
 
 
-  IPRIME::IPRIME(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
+  IPRIME_BB::IPRIME_BB(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
     Interaction(tmp, NULL) //A temporary value!
   {
     operator<<(XML);
   }
 
-  void IPRIME::operator<<(const magnet::xml::Node& XML)
+  void IPRIME_BB::operator<<(const magnet::xml::Node& XML)
   {
-    if (strcmp(XML.getAttribute("Type"),"PRIME"))
-      M_throw() << "Attempting to load PRIME from non PRIME entry";
-    
+    if (strcmp(XML.getAttribute("Type"),"PRIME_BB"))
+      M_throw() << "Attempting to load PRIME_BB from non PRIME_BB entry";
+
 
     //We don't call this operator, as we custom load our Range (it must be a linear range)
-    //Interaction::operator<<(XML);    
+    //Interaction::operator<<(XML);
     try {
       startID = XML.getAttribute("Start").as<unsigned long>();
       endID = XML.getAttribute("End").as<unsigned long>() + 1;
@@ -149,19 +146,19 @@ namespace dynamo {
 
       intName = XML.getAttribute("Name");
     }
-    catch (boost::bad_lexical_cast &) { M_throw() << "Failed a lexical cast in IPRIME"; }
+    catch (boost::bad_lexical_cast &) { M_throw() << "Failed a lexical cast in IPRIME_BB"; }
   }
 
   Vector
-  IPRIME::getGlyphSize(size_t ID, size_t subID) const 
+  IPRIME_BB::getGlyphSize(size_t ID, size_t subID) const
   {
     //Here we return the hard core diameter
     double diam = _PRIME_diameters[getType(ID)];
     return Vector(diam, diam, diam);
   }
 
-  Vector 
-  IPRIME::getGlyphPosition(size_t ID, size_t subID) const 
+  Vector
+  IPRIME_BB::getGlyphPosition(size_t ID, size_t subID) const
   {
     Vector retval = Sim->particles[ID].getPosition();
     Sim->BCs->applyBC(retval);
@@ -169,17 +166,17 @@ namespace dynamo {
   }
 
 
-  double 
-  IPRIME::getExcludedVolume(size_t ID) const 
+  double
+  IPRIME_BB::getExcludedVolume(size_t ID) const
   {
     //This calculation only includes the volumes which are always
     //excluded (i.e. the hard core)
     double diam = _PRIME_diameters[getType(ID)];
-    return diam * diam * diam * M_PI / 6.0; 
+    return diam * diam * diam * M_PI / 6.0;
   }
 
-  double 
-  IPRIME::maxIntDist() const 
+  double
+  IPRIME_BB::maxIntDist() const
   {
     double maxdiam = 0;
     maxdiam = std::max(maxdiam, *std::max_element(_PRIME_diameters, _PRIME_diameters + 3));
@@ -189,14 +186,14 @@ namespace dynamo {
     return maxdiam;
   }
 
-  void 
-  IPRIME::initialise(size_t nID)
+  void
+  IPRIME_BB::initialise(size_t nID)
   {
     ID = nID;
   }
 
-  std::pair<double, bool> 
-  IPRIME::getInteractionParameters(const size_t pID1, const size_t pID2) const
+  std::pair<double, bool>
+  IPRIME_BB::getInteractionParameters(const size_t pID1, const size_t pID2) const
   {
     size_t p1Type = getType(pID1);
     size_t p2Type = getType(pID2);
@@ -211,37 +208,37 @@ namespace dynamo {
     switch (getDistance(pID1, pID2))
       {
       case 0:
-	M_throw() << "Invalid backbone distance of 0";
+        M_throw() << "Invalid backbone distance of 0";
       case 1:
-	{//Every type of this interaction is a bonded interaction
-	  diameter = _PRIME_bond_lengths[3 * p1Type + p2Type];
-	  bonded = true;
-	}
-	break;
+        {//Every type of this interaction is a bonded interaction
+          diameter = _PRIME_bond_lengths[3 * p1Type + p2Type];
+          bonded = true;
+        }
+        break;
       case 2:
-	{//Every type of this interaction is a pseudobond interaction
-	  diameter = _PRIME_pseudobond_lengths[3 * p1Type + p2Type];
-	  bonded = true;
-	}
-	break;
+        {//Every type of this interaction is a pseudobond interaction
+          diameter = _PRIME_pseudobond_lengths[3 * p1Type + p2Type];
+          bonded = true;
+        }
+        break;
       case 3:
-	{
-	  //Check if this is the special pseudobond
-	  if ((p1Type == CH) && (p2Type == CH))
-	    {
-	      diameter = _PRIME_CH_CH_pseudobond_length;
-	      bonded = true;
-	    }
-	  else
-	    //Its a standard bead-bead interaction, but the diameters
-	    //are scaled by a factor
-	    diameter *= _PRIME_near_diameter_scale_factor;
-	}
-	break;
+        {
+          //Check if this is the special pseudobond
+          if ((p1Type == CH) && (p2Type == CH))
+            {
+              diameter = _PRIME_CH_CH_pseudobond_length;
+              bonded = true;
+            }
+          else
+            //Its a standard bead-bead interaction, but the diameters
+            //are scaled by a factor
+            diameter *= _PRIME_near_diameter_scale_factor;
+        }
+        break;
       default:
-	//The diameter was correctly specified in the start as a
-	//bead-bead interaction.
-	break;
+        //The diameter was correctly specified in the start as a
+        //bead-bead interaction.
+        break;
       }
 
 #ifdef DYNAMO_DEBUG
@@ -253,18 +250,18 @@ namespace dynamo {
   }
 
   IntEvent
-  IPRIME::getEvent(const Particle &p1, const Particle &p2) const
+  IPRIME_BB::getEvent(const Particle &p1, const Particle &p2) const
   {
 #ifdef DYNAMO_DEBUG
     if (!Sim->dynamics->isUpToDate(p1))
       M_throw() << "Particle 1 is not up to date";
-  
+
     if (!Sim->dynamics->isUpToDate(p2))
       M_throw() << "Particle 2 is not up to date";
 
     if (p1 == p2)
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
-#endif 
+#endif
 
     //Calculate the interaction diameter and if the pair are bonded
     std::pair<double, bool> interaction_data = getInteractionParameters(p1.getID(), p2.getID());
@@ -280,26 +277,23 @@ namespace dynamo {
     IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
     if (bonded)
       {
-	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, diameter * (1.0 - _PRIME_bond_tolerance));
-	if (dt != HUGE_VAL)
-	  retval = IntEvent(p1, p2, dt, CORE, *this);
+        double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, diameter * (1.0 - _PRIME_bond_tolerance));
+        if (dt != HUGE_VAL) retval = IntEvent(p1, p2, dt, CORE, *this);
 
-	dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, diameter * (1.0 + _PRIME_bond_tolerance));
-	if (retval.getdt() > dt)
-	  retval = IntEvent(p1, p2, dt, BOUNCE, *this);
+        dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, diameter * (1.0 + _PRIME_bond_tolerance));
+        if (retval.getdt() > dt) retval = IntEvent(p1, p2, dt, BOUNCE, *this);
       }
     else
       {
-	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, diameter);
-	if (dt != HUGE_VAL)
-	  retval = IntEvent(p1, p2, dt, CORE, *this);
+        double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, diameter);
+        if (dt != HUGE_VAL) retval = IntEvent(p1, p2, dt, CORE, *this);
       }
 
     return retval;
   }
 
   void
-  IPRIME::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
+  IPRIME_BB::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
   {
     ++Sim->eventCount;
 
@@ -313,32 +307,32 @@ namespace dynamo {
     switch (iEvent.getType())
       {
       case CORE:
-	{ //This is either a core for a unbonded or a bonded pair. For
-	  //a unbonded pair, the interaction distance is the diameter:
-	  double coreD = diameter;
+        { //This is either a core for a unbonded or a bonded pair. For
+          //a unbonded pair, the interaction distance is the diameter:
+          double coreD = diameter;
 
-	  //For a bonded pair, we need to subtract the bond
-	  //fluctuation:
-	  if (bonded) coreD = diameter * (1.0 - _PRIME_bond_tolerance);
+          //For a bonded pair, we need to subtract the bond
+          //fluctuation:
+          if (bonded) coreD = diameter * (1.0 - _PRIME_bond_tolerance);
 
-	  //Finally, run the event
-	  EDat = Sim->dynamics->SmoothSpheresColl(iEvent, 1.0, coreD * coreD, iEvent.getType());
-	}
-	break;
+          //Finally, run the event
+          EDat = Sim->dynamics->SmoothSpheresColl(iEvent, 1.0, coreD * coreD, iEvent.getType());
+        }
+        break;
       case BOUNCE:
-	{ 
+        {
 #ifdef DYNAMO_DEBUG
-	  if (!bonded) M_throw() << "Only bonded particles can undergo a BOUNCE event";
+          if (!bonded) M_throw() << "Only bonded particles can undergo a BOUNCE event";
 #endif
-	  //As this is the outer bond event, we know its diameter to
-	  //be:
-	  double bounceD = diameter * (1.0 + _PRIME_bond_tolerance);
-	  EDat = Sim->dynamics->SmoothSpheresColl(iEvent, 1.0, bounceD * bounceD, iEvent.getType());
-	  break;
-	}
+          //As this is the outer bond event, we know its diameter to
+          //be:
+          double bounceD = diameter * (1.0 + _PRIME_bond_tolerance);
+          EDat = Sim->dynamics->SmoothSpheresColl(iEvent, 1.0, bounceD * bounceD, iEvent.getType());
+          break;
+        }
       default:
-	M_throw() << "Unknown collision type";
-      } 
+        M_throw() << "Unknown collision type";
+      }
 
     Sim->signalParticleUpdate(EDat);
     Sim->ptrScheduler->fullUpdate(p1, p2);
@@ -347,48 +341,48 @@ namespace dynamo {
   }
 
   void
-  IPRIME::checkOverlaps(const Particle& p1, const Particle& p2) const
+  IPRIME_BB::checkOverlaps(const Particle& p1, const Particle& p2) const
   {
-    Vector  rij = p1.getPosition() - p2.getPosition();
+    Vector rij = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(rij);
     double r2 = rij.nrm2();
-    
+
     //Calculate the interaction diameter and if the pair are bonded.
     std::pair<double, bool> interaction_data = getInteractionParameters(p1.getID(), p2.getID());
     double diameter = interaction_data.first;
     bool bonded = interaction_data.second;
-    
+
     if (bonded) {
+      //Inner and outer bond diameters²
       double id2 = diameter * diameter * (1.0 - _PRIME_bond_tolerance) * (1.0 - _PRIME_bond_tolerance);
       double od2 = diameter * diameter * (1.0 + _PRIME_bond_tolerance) * (1.0 + _PRIME_bond_tolerance);
 
       if (r2 < id2)
-	derr << "Possible inner bonded overlap occured in diagnostics\n ID1=" << p1.getID() 
-	     << ", ID2=" << p2.getID() << "\nR_ij^2=" 
-	     << r2 / pow(Sim->units.unitLength(),2)
-	     << "\nd^2=" 
-	     << id2 / pow(Sim->units.unitLength(),2) << std::endl;
-      
+        derr << "Possible inner bonded overlap occured in diagnostics\n ID1=" << p1.getID()
+             << ", ID2=" << p2.getID() << "\nR_ij^2="
+             << r2 / pow(Sim->units.unitLength(),2)
+             << "\nd^2="
+             << id2 / pow(Sim->units.unitLength(),2) << std::endl;
+
       if (r2 > od2)
-	derr << "Possible escaped bonded pair in diagnostics\n ID1=" << p1.getID() 
-	     << ", ID2=" << p2.getID() << "\nR_ij^2=" 
-	     << r2 / pow(Sim->units.unitLength(),2)
-	     << "\n(lambda * d)^2=" 
-	     << od2 / pow(Sim->units.unitLength(),2) << std::endl;
+        derr << "Possible escaped bonded pair in diagnostics\n ID1=" << p1.getID()
+             << ", ID2=" << p2.getID() << "\nR_ij^2="
+             << r2 / pow(Sim->units.unitLength(),2)
+             << "\n(lambda * d)^2="
+             << od2 / pow(Sim->units.unitLength(),2) << std::endl;
     }
-    else 
+    else
       if (r2 < (diameter * diameter))
-	derr << "Overlap error\n ID1=" << p1.getID() << ", ID2=" << p2.getID() << "\nR_ij^2=" 
-	     << r2 / pow(Sim->units.unitLength(),2) << "\n(d)^2=" << (diameter * diameter) / pow(Sim->units.unitLength(),2) << std::endl;
+        derr << "Overlap error\n ID1=" << p1.getID() << ", ID2=" << p2.getID() << "\nR_ij^2="
+             << r2 / pow(Sim->units.unitLength(),2) << "\n(d)^2=" << (diameter * diameter) / pow(Sim->units.unitLength(),2) << std::endl;
   }
-  
-  void 
-  IPRIME::outputXML(magnet::xml::XmlStream& XML) const
+
+  void
+  IPRIME_BB::outputXML(magnet::xml::XmlStream& XML) const
   {
-    XML << magnet::xml::attr("Type") << "PRIME"
-    	<< magnet::xml::attr("Name") << intName
-	<< magnet::xml::attr("Start") << startID
-	<< magnet::xml::attr("End") << endID
-      ;
+    XML << magnet::xml::attr("Type")  << "PRIME_BB"
+        << magnet::xml::attr("Name")  << intName
+        << magnet::xml::attr("Start") << startID
+        << magnet::xml::attr("End")   << endID;
   }
 }
