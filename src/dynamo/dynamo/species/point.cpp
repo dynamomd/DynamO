@@ -58,7 +58,6 @@ namespace dynamo {
   void
   SpPoint::initialise()
   { 
-    if (IntPtr == NULL)
-      M_throw() << "SpPoint missing a matching interaction";
+    Species::initialise();
   }
 }

@@ -3,12 +3,12 @@
 <DynamOconfig version="1.5.0">
   <Simulation>
     <Scheduler Type="NeighbourList">
-      <Sorter Type="BoundedPQMinMax3"/>
+      <Sorter Type="CBT"/>
     </Scheduler>
     <SimulationSize y="500.0" x="500.0" z="500.0"/>
     <BC Type="PBC"/>
     <Genus>
-      <Species Range="List" IntName="Unbond CO CH" Type="Point" Mass="1.000" Name="Alanine">
+      <Species Range="List" IntName="Unbond A A" Type="Point" Mass="1.000" Name="Alanine">
         <ID val="30"/>
         <ID val="31"/>
         <ID val="32"/>
@@ -20,7 +20,7 @@
         <ID val="38"/>
         <ID val="39"/>
       </Species>
-      <Species Range="List" IntName="Unbond CO CH" Type="Point" Mass="0.999" Name="Nitrogen+Hydrogen">
+      <Species Range="List" IntName="Backbone" Type="Point" Mass="0.999" Name="Nitrogen+Hydrogen">
         <ID val="0"/>
         <ID val="3"/>
         <ID val="6"/>
@@ -32,7 +32,7 @@
         <ID val="24"/>
         <ID val="27"/>
       </Species>
-      <Species Range="List" IntName="Unbond CO CH" Type="Point" Mass="0.866" Name="Carbon+Hydrogen">
+      <Species Range="List" IntName="Backbone" Type="Point" Mass="0.866" Name="Carbon+Hydrogen">
         <ID val="1"/>
         <ID val="4"/>
         <ID val="7"/>
@@ -44,7 +44,7 @@
         <ID val="25"/>
         <ID val="28"/>
       </Species>
-      <Species Range="List" IntName="Unbond CO CH" Type="Point" Mass="1.863" Name="Carbon+Oxygen">
+      <Species Range="List" IntName="Backbone" Type="Point" Mass="1.863" Name="Carbon+Oxygen">
         <ID val="2"/>
         <ID val="5"/>
         <ID val="8"/>
