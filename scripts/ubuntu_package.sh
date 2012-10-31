@@ -57,5 +57,5 @@ echo "override_dh_auto_test: " >> debian/rules
 cd $SRC_DIR
 debuild -us -uc -S
 cd $BUILD_DIR
-pbuilder-dist precise i386 build $PACKAGE_NAME"_"$VERSION-1.dsc || exit 1
-pbuilder-dist precise amd64 build $PACKAGE_NAME"_"$VERSION-1.dsc || exit 1
+pbuilder-dist precise i386 build $PACKAGE_NAME"_"$VERSION-1.dsc 
+pbuilder-dist precise amd64 build $PACKAGE_NAME"_"$VERSION-1.dsc
