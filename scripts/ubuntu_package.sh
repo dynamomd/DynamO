@@ -9,16 +9,24 @@ BUILDDEPENDS=", curl, libbz2-dev, make, g++"
 DEPENDS=", libbz2"
 URL="http://www.dynamomd.org"
 ARCHIVE_NAME=$PACKAGE_NAME-$VERSION.tar.gz
-BUILD_DIR=/tmp/dynamo-build/"$PACKAGE_NAME"-$VERSION
+BUILD_DIR=/tmp/dynamo-build
+SRC_DIR=$BUILD_DIR/"$PACKAGE_NAME"-$VERSION
 DISTRIBUTION=precise
+
+#This requries quite a bit of setting up, install the dependencies
+#sudo apt-get install pbuilder debootstrap devscripts
+
+#Then set up the distributions to build for
+#pbuilder-dist precise amd64 create
+#pbuilder-dist precise i386 create
 
 
 ###Download the sources and prepare the upstream package
 echo "Making the build dir ("$BUILD_DIR")"
 mkdir -p $BUILD_DIR || exit 1
 cd $BUILD_DIR
-git clone https://github.com/toastedcrumpets/DynamO.git $BUILD_DIR || exit 1
-cd $BUILD_DIR
+git clone https://github.com/toastedcrumpets/DynamO.git $SRC_DIR || exit 1
+cd $SRC_DIR
 rm -Rf .git
 ###Start building the package
 dh_make -e $DEBEMAIL --createorig -p $PACKAGE_NAME --multi -c gpl3 || exit 1
@@ -46,4 +54,8 @@ rm -f debian/README.source debian/README.Debian debian/*.ex debian/dynamo?doc* |
 echo "override_dh_auto_test: " >> debian/rules
 
 #Test building the package!
+cd $SRC_DIR
 debuild -us -uc -S
+cd $BUILD_DIR
+pbuilder-dist precise i386 build $PACKAGE_NAME"_"$VERSION-1.dsc || exit 1
+pbuilder-dist precise amd64 build $PACKAGE_NAME"_"$VERSION-1.dsc || exit 1
