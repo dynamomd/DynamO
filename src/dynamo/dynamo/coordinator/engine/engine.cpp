@@ -66,7 +66,7 @@ namespace dynamo {
     vm(nvm),
     configFormat(configFile),
     outputFormat(outputFile),
-    _SIGINT(FALSE),
+    _SIGINT(false),
     threads(tp)
   {}
 
