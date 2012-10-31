@@ -341,8 +341,14 @@ namespace dynamo {
     magnet::math::MortonNumber<3> coords(cellCount[0], cellCount[1], cellCount[2]);
     size_t sizeReq = coords.getMortonNum();
 
-    cells.resize(sizeReq); //Empty Cells created!
-    list.resize(sizeReq); //Empty Cells created!
+    try {
+      cells.resize(sizeReq); //Empty Cells created!
+      list.resize(sizeReq); //Empty Cells created!
+    } catch (std::bad_alloc& e)
+      {
+	M_throw() << "Ran out of memory while creating the neighbourlist. This system will use " 
+		  << sizeReq << " cells, which appears to be too many.";
+      }
 
     dout << "Vector Size <N>  " << sizeReq << std::endl;
   
