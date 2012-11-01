@@ -1,0 +1,16 @@
+Source: dynamo
+Section: science
+Priority: optional
+Maintainer: Marcus Bannerman <support@dynamomd.org>
+Build-Depends: debhelper (>= 8.0.0), curl, libbz2-dev, make, g++
+Standards-Version: 3.9.2
+Homepage: http://dynamomd.org
+Vcs-Git: git://github.com/toastedcrumpets/DynamO.git
+
+Package: dynamo
+Architecture: any
+Depends: libbz2
+Description: An event-driven molecular dynamics simulator 
+ DynamO is a modern event-driven molecular dynamics simulator with a
+ wide range of tools and models built in. It also includes a world
+ class visualisation package for particulate systems.

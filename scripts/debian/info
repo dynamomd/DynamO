@@ -1,0 +1,6 @@
+src/boost/libs/property_tree/examples/settings_non-existent.info
+src/boost/libs/property_tree/examples/settings_partially-existent.info
+src/boost/libs/property_tree/examples/settings_fully-existent.info
+src/boost/libs/property_tree/test/custom-build/settings_non-existent.info
+src/boost/libs/property_tree/test/custom-build/settings_partially-existent.info
+src/boost/libs/property_tree/test/custom-build/settings_fully-existent.info

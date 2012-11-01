@@ -26,11 +26,16 @@ clean:
 
 boost_dl:
 	echo "### Testing if the boost sources have been downloaded:"
-	if [ ! -d ./src/boost ]; then echo "### Boost sources are missing, downloading boost sources:"; curl -L -o $(BOOST_FILE) $(BOOST_DL) || wget $(BOOST_DL); echo "### Extracting boost sources"; tar xf $(BOOST_FILE) && rm $(BOOST_FILE) && mv $(BOOST_DIR) src/boost; else echo "### Boost sources already downloaded"; fi
-	if [ ! -d ./src/boost ]; then echo "### Failed to setup the boost sources"; fi
+	if [ ! -f ./$(BOOST_FILE) ]; then echo "### Boost sources are missing, downloading boost sources:"; curl -L -o $(BOOST_FILE) $(BOOST_DL) || wget $(BOOST_DL); fi
+	if [ ! -f ./$(BOOST_FILE) ]; then echo "### Failed to download the boost sources"; fi
+
+boost_untar: boost_dl
+	echo "### Testing if the boost sources have been extracted:"
+	if [ -f ./$(BOOST_FILE) && ! -d ./src/boost ]; then echo "### Extracting boost sources"; tar xf $(BOOST_FILE) && mv $(BOOST_DIR) src/boost; fi
+	if [ -f ./$(BOOST_FILE) && ! -d ./src/boost ]; then echo "### Failed to untar the boost sources"; fi
 
 #Make sure we've downloaded boost and built the bjam executable inside
-boost_bjam: boost_dl
+boost_bjam: boost_untar
 	echo "### Testing if the build system has been setup"
 	if [ ! -x $(BJAM) ]; then echo "### Setting up the build system"; cd src/boost; ./bootstrap.sh; else echo "### Build system setup"; fi
 
@@ -43,5 +48,5 @@ distclean:
 	rm -Rf build-dir src/boost lib/ include/ bin/dynarun bin/dynamod bin/dynahist_rw
 
 
-.PHONY: boost_dl boost_bjam all install distclean test docs
-.SILENT: boost_dl boost_bjam install all debug test docs clean distclean
+.PHONY: boost_untar boost_dl boost_bjam all install distclean test docs
+.SILENT: boost_untar boost_dl boost_bjam install all debug test docs clean distclean
