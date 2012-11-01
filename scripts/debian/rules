@@ -22,6 +22,3 @@ export DH_OPTIONS
 
 # Disable testing of the build
 override_dh_auto_test: 
-
-override_dh_install:
-	dh_install --sourcedir=debian/tmp
