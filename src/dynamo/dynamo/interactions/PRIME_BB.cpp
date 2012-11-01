@@ -399,6 +399,6 @@ namespace dynamo {
     XML << magnet::xml::attr("Type")  << "PRIME_BB"
         << magnet::xml::attr("Name")  << intName
         << magnet::xml::attr("Start") << startID
-        << magnet::xml::attr("End")   << endID;
+        << magnet::xml::attr("End")   << endID - 1;
   }
 }
