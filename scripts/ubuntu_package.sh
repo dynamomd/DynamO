@@ -1,5 +1,5 @@
 #!/bin/bash
-VERSION=1.4-rc1
+VERSION=1.4-rc3
 PACKAGE_REV=2
 PACKAGE_NAME=dynamo
 export DEBFULLNAME="Marcus Bannerman"
@@ -45,18 +45,18 @@ cd $SRC_DIR; tar -czf ../$PACKAGE_NAME"_"$VERSION.orig.tar.gz . || exit 1
 echo "Creating the source package"
 cd $SRC_DIR; debuild -S || exit 1
 
-echo "Do you wish to test the build on amd64 and i386?"
-select yn in "Yes" "No"; do
-    case $yn in
-        Yes ) cd $BUILD_DIR; pbuilder-dist precise i386 build $PACKAGE_NAME"_"$VERSION-$PACKAGE_REV.dsc || exit 1; cd $BUILD_DIR pbuilder-dist precise amd64 build $PACKAGE_NAME"_"$VERSION-$PACKAGE_REV.dsc || exit 1; break;;
-        No ) exit;;
-    esac
-done
-
-echo "Do you wish to upload the build?"
-select yn in "Yes" "No"; do
-    case $yn in
-        Yes ) cd $BUILD_DIR; dput ppa:dynamomd/ppa $PACKAGE_NAME"_"$VERSION-$PACKAGE_REV"_"source.changes; break;;
-        No ) exit;;
-    esac
-done
+#echo "Do you wish to test the build on amd64 and i386?"
+#select yn in "Yes" "No"; do
+#    case $yn in
+#        Yes ) cd $BUILD_DIR; pbuilder-dist precise i386 build $PACKAGE_NAME"_"$VERSION-$PACKAGE_REV.dsc || exit 1; cd $BUILD_DIR pbuilder-dist precise amd64 build $PACKAGE_NAME"_"$VERSION-$PACKAGE_REV.dsc || exit 1; break;;
+#        No ) exit;;
+#    esac
+#done
+#
+#echo "Do you wish to upload the build?"
+#select yn in "Yes" "No"; do
+#    case $yn in
+#        Yes ) cd $BUILD_DIR; dput ppa:dynamomd/ppa $PACKAGE_NAME"_"$VERSION-$PACKAGE_REV"_"source.changes; break;;
+#        No ) exit;;
+#    esac
+#done
