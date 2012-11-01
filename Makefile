@@ -27,12 +27,12 @@ clean:
 boost_dl:
 	echo "### Testing if the boost sources have been downloaded:"
 	if [ ! -f ./$(BOOST_FILE) ]; then echo "### Boost sources are missing, downloading boost sources:"; curl -L -o $(BOOST_FILE) $(BOOST_DL) || wget $(BOOST_DL); fi
-	if [ ! -f ./$(BOOST_FILE) ]; then echo "### Failed to download the boost sources"; fi
+	if [ ! -f ./$(BOOST_FILE) ]; then echo "### Failed to download the boost sources"; exit 1; fi
 
 boost_untar: boost_dl
 	echo "### Testing if the boost sources have been extracted:"
-	if [ -f ./$(BOOST_FILE) && ! -d ./src/boost ]; then echo "### Extracting boost sources"; tar xf $(BOOST_FILE) && mv $(BOOST_DIR) src/boost; fi
-	if [ -f ./$(BOOST_FILE) && ! -d ./src/boost ]; then echo "### Failed to untar the boost sources"; fi
+	if [ -f ./$(BOOST_FILE) ] && [ ! -d ./src/boost ]; then echo "### Extracting boost sources"; tar xf $(BOOST_FILE) && mv $(BOOST_DIR) src/boost; fi
+	if [ -f ./$(BOOST_FILE) ] && [ ! -d ./src/boost ]; then echo "### Failed to untar the boost sources"; exit 1; fi
 
 #Make sure we've downloaded boost and built the bjam executable inside
 boost_bjam: boost_untar
