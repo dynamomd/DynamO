@@ -1,6 +1,6 @@
 #!/bin/bash
-VERSION=1.4-rc4
-PACKAGE_REV=2
+VERSION=1.4-rc5
+PACKAGE_REV=1
 PACKAGE_NAME=dynamo
 export DEBFULLNAME="Marcus Bannerman"
 export DEBEMAIL="support@dynamomd.org"
