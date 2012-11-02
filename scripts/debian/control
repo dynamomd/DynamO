@@ -1,16 +1,51 @@
 Source: dynamo
-Section: science
+Section: contrib/science
 Priority: optional
 Maintainer: Marcus Bannerman <support@dynamomd.org>
-Build-Depends: debhelper (>= 8.0.0), libbz2-dev
+Build-Depends: debhelper (>= 8.0.0), 
+ libbz2-dev, 
+ libgtkmm-2.4-dev, 
+ freeglut3-dev, 
+ libglew1.6-dev, 
+ libavcodec-dev,
+ mesa-common-dev,
+ nvidia-common-dev
 Standards-Version: 3.9.2
 Homepage: http://dynamomd.org
 Vcs-Git: git://github.com/toastedcrumpets/DynamO.git
 
-Package: dynamo
+Package: dynamo-core
 Architecture: any
 Depends: ${misc:Depends}, libbz2
-Description: An event-driven molecular dynamics simulator 
+Description: An event-driven molecular dynamics simulator.
  DynamO is a modern event-driven molecular dynamics simulator with a
  wide range of tools and models built in. It also includes a world
  class visualisation package for particulate systems.
+ .
+ This contains the core simulation executables needed to run
+ simulations.
+
+Package: dynamo-visualisation
+Architecture: any
+Depends: ${misc:Depends}, 
+ libbz2, 
+ libgtkmm-2.4, 
+ freeglut3, 
+ libglew1.6, 
+ libavcodec,
+ nvidia-common | fglrx
+Description: An event-driven molecular dynamics simulator.
+ DynamO is a modern event-driven molecular dynamics simulator with a
+ wide range of tools and models built in. It also includes a world
+ class visualisation package for particulate systems.
+
+Package: dynamo-tools
+Architecture: all
+Depends: python-numpy
+Description: Data processing tools for DynamO, the event-driven molecular dynamics simulator.
+ DynamO is a modern event-driven molecular dynamics simulator with a
+ wide range of tools and models built in. It also includes a world
+ class visualisation package for particulate systems.
+ .
+ This package contains some data processing tools/scripts for
+ processing the output of dynamo simulations.
