@@ -26,11 +26,13 @@ exe bzip2test : tests/bzip2test.cpp bz2 ;
 
 SHELL "touch src/dynamo/tests/* " ;
 
+feature.feature coil-integration : yes no : symmetric ;
+
 project	: requirements
           #This creates a feature coil-integration, which can be set
           #on the command line or auto-detected using the passed target
 	  [ builddep.set-feature-on-build dynamo-bzip2 : bzip2test : "DynamO: bzip2 library" ]
-	  [ builddep.set-feature-on-build coil-integration : /coil//coilDependencies : "DynamO-Coil Integration" ]
+	  [ builddep.set-feature-on-build coil-support : /coil//coilDependencies : "DynamO-Coil Integration" ]
 	  [ builddep.combine-features dynamo-buildable : dynamo-bzip2 ]
 	: default-build release
 	: build-dir $(BUILD_DIR_PATH)
@@ -56,16 +58,23 @@ lib dynamo_core : [ glob-tree *.cpp : programs tests ]
 rule critical_dependencies ( )
 { return [ check-target-builds dynamoDependencies "DynamO dependencies" :  : <build>no ] ; }
 
-exe dynarun : programs/dynarun.cpp dynamo_core 
-    : <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
-exe dynahist_rw : programs/dynahist_rw.cpp dynamo_core 
-    : <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
-exe dynamod : programs/dynamod.cpp dynamo_core 
-    : <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
+exe dynarun : programs/dynarun.cpp dynamo_core/<coil-integration>no
+    : <dynamo-buildable>no:<build>no <tag>@tags.exe-naming <coil-integration>no ;
+
+exe dynavis : programs/dynarun.cpp dynamo_core/<coil-integration>yes
+    : <dynamo-buildable>no:<build>no
+      <coil-support>no:<build>no <tag>@tags.exe-naming <coil-integration>yes
+    ;
+
+exe dynahist_rw : programs/dynahist_rw.cpp dynamo_core/<coil-integration>no
+    : <coil-integration>no <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
+
+exe dynamod : programs/dynamod.cpp dynamo_core/<coil-integration>no
+    : <coil-integration>no <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 
 explicit dynamod dynahist_rw dynarun dynamo_core visualizer test ;
 
 install install-dynamo
-	: dynarun  dynahist_rw dynamod 
-	: <location>$(BIN_INSTALL_PATH) <dynamo-buildable>no:<build>no
+	: dynarun  dynahist_rw dynamod dynavis
+	: <location>$(BIN_INSTALL_PATH) <dynamo-buildable>no:<build>no <coil-support>yes:<source>dynavis
 	;

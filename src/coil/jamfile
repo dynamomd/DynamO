@@ -39,8 +39,6 @@ exe GLEWtest : tests/glewtest.cpp ;
 SHELL "touch src/coil/tests/* " ;
 
 project	: requirements
-          #This creates a feature coil-integration, which can be set
-          #on the command line or auto-detected using the passed target
 	  [ builddep.set-feature-on-build coil-cwiid : cwiidtest : "Coil: libCwiid Wii-mote support (Optional)" ]
 	  [ builddep.set-feature-on-build coil-GLUT : gluttest : "Coil: GLUT" ]
 	  [ builddep.set-feature-on-build coil-GLEW : GLEWtest : "Coil: GLEW (v1.6+)" ]
