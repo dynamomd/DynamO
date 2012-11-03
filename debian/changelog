@@ -1,5 +1,5 @@
-dynamo (1.4-rc5-1) precise; urgency=low
+dynamo (1.4.0) precise quantal raring; urgency=low
 
-  * Initial Release
+  * Initial release and port to the Ubuntu/Debian packaging.
 
  -- Marcus Bannerman (DynamO developer) <support@dynamomd.org>  Thu, 01 Nov 2012 10:53:15 +0000

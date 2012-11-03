@@ -1,5 +1,5 @@
 Source: dynamo
-Section: contrib/science
+Section: science
 Priority: optional
 Maintainer: Marcus Bannerman <support@dynamomd.org>
 Build-Depends: debhelper (>= 8.0.0), 
@@ -8,15 +8,15 @@ Build-Depends: debhelper (>= 8.0.0),
  freeglut3-dev, 
  libglew1.6-dev, 
  libavcodec-dev,
- mesa-common-dev,
- nvidia-common-dev
+ fglrx
 Standards-Version: 3.9.2
 Homepage: http://dynamomd.org
 Vcs-Git: git://github.com/toastedcrumpets/DynamO.git
 
 Package: dynamo-core
 Architecture: any
-Depends: ${misc:Depends}, libbz2
+Depends: ${misc:Depends}, 
+ libbz2-1.0
 Description: An event-driven molecular dynamics simulator.
  DynamO is a modern event-driven molecular dynamics simulator with a
  wide range of tools and models built in. It also includes a world
@@ -27,13 +27,13 @@ Description: An event-driven molecular dynamics simulator.
 
 Package: dynamo-visualisation
 Architecture: any
-Depends: ${misc:Depends}, 
- libbz2, 
- libgtkmm-2.4, 
- freeglut3, 
- libglew1.6, 
- libavcodec,
- nvidia-common | fglrx
+Depends: ${misc:Depends},
+ libbz2-1.0,
+ libgtkmm-2.4-dev,
+ freeglut3,
+ libglew1.6,
+ libavcodec53,
+ fglrx | nvidia-current
 Description: An event-driven molecular dynamics simulator.
  DynamO is a modern event-driven molecular dynamics simulator with a
  wide range of tools and models built in. It also includes a world

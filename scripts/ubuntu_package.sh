@@ -1,5 +1,5 @@
 #!/bin/bash
-VERSION=1.4-rc5
+VERSION=1.4.0
 PACKAGE_REV=1
 PACKAGE_NAME=dynamo
 export DEBFULLNAME="Marcus Bannerman"
