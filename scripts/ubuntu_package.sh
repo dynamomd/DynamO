@@ -34,10 +34,6 @@ else
     cd $SRC_DIR; make boost_dl || exit 1
 fi
 
-#Copy the package configuration across
-echo "Copying the package configuration across"
-cp -R $OldWD/debian $SRC_DIR/ || exit 1
-
 #Create the orig file
 echo "Creating a tar of the sources"
 cd $SRC_DIR; tar -czf ../$PACKAGE_NAME"_"$VERSION.orig.tar.gz . || exit 1
