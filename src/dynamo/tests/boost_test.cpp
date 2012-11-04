@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <bzlib.h>
+#include <boost/version.hpp>
 
 int main(int argc, char *argv[])
 {}

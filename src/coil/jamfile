@@ -52,16 +52,18 @@ project	: requirements
 
 exe coilDependencies : tests/buildreq.cpp : <coil-buildable>no:<define>BUILDFAIL ;
 
+lib boost_program_options : : ;
+
 lib coil
       : [ glob-tree *.cpp : tests examples programs ]
       clwingtk.gladexml png
       glut GLU GL Xext X11 rt GLEW /magnet//magnet
       /opencl//opencl gtkmm 
-      : <include>. <include>../boost <tag>@tags.lib-naming 
+      : <include>. <tag>@tags.lib-naming 
        <coil-cwiid>yes:<source>cwiid <magnet-FFMPEG>yes:<source>/magnet//libavcodec <coil-buildable>no:<build>no
       : : <define>GLVIEWER <include>. ;
 
-exe coilvol : programs/coilvol.cpp coil /boost/program_options/<link>static 
+exe coilvol : programs/coilvol.cpp coil boost_program_options 
             : <tag>@tags.exe-naming ;
 
 explicit test coil coilvol ;

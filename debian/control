@@ -3,7 +3,8 @@ Section: science
 Priority: optional
 Maintainer: Marcus Bannerman <support@dynamomd.org>
 Build-Depends: debhelper (>= 8.0.0), 
- libbz2-dev, 
+ libbz2-dev,
+ libboost-all-dev,
  libgtkmm-2.4-dev, 
  freeglut3-dev, 
  libglew1.6-dev, 
@@ -16,7 +17,7 @@ Vcs-Git: git://github.com/toastedcrumpets/DynamO.git
 Package: dynamo-core
 Architecture: any
 Depends: ${misc:Depends}, 
- libbz2-1.0
+ libboost-all-dev
 Description: An event-driven molecular dynamics simulator.
  DynamO is a modern event-driven molecular dynamics simulator with a
  wide range of tools and models built in. It also includes a world
@@ -28,7 +29,7 @@ Description: An event-driven molecular dynamics simulator.
 Package: dynamo-visualisation
 Architecture: any
 Depends: ${misc:Depends},
- libbz2-1.0,
+ libboost-all-dev,
  libgtkmm-2.4-dev,
  freeglut3,
  libglew1.6,

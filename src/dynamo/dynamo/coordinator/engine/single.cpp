@@ -15,9 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <signal.h>
 #include <dynamo/coordinator/coordinator.hpp>
 #include <dynamo/coordinator/engine/single.hpp>
+#include <signal.h>
+#include <stdio.h>
 
 namespace dynamo {
   ESingleSimulation::ESingleSimulation(const boost::program_options::variables_map& nVM, 
