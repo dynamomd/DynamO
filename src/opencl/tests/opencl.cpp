@@ -17,9 +17,9 @@
 
 #include "CL/cl.h"
 
-//#ifndef CL_VERSION_1_1
-//# error "OpenCL 1.1 is not supported by the OpenCL headers"
-//#endif
+#ifndef CL_VERSION_1_1
+# error "OpenCL 1.1 is not supported by the OpenCL headers"
+#endif
 
 int main(int argc, char *argv[])
 {

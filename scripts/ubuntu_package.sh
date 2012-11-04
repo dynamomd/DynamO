@@ -21,3 +21,5 @@ cd $SRC_DIR; tar -czf ../$PACKAGE_NAME"_"$VERSION.orig.tar.gz . || exit 1
 #Build the signed source package
 echo "Creating the source package"
 cd $SRC_DIR; debuild -S || exit 1
+
+cd $BUILD_DIR; sudo pbuilder --build dynamo_$VERSION.dsc

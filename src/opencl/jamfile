@@ -16,16 +16,10 @@
 
 lib OpenCL : : <link>shared ;
 
-alias opencl : OpenCL : : : <include>./ ;
-
-exe test : tests/opencl.cpp opencl ;
+exe test : tests/opencl.cpp OpenCL ;
 
 always test ;
 explicit test ;
-
-install install-headers
-      : [ glob CL/*.h CL/*.hpp ]
-      : <location>$(INCLUDE_INSTALL_PATH) <install-source-root>./ ;
 
 exe lsCL : programs/lscl.cpp OpenCL
     	 : <tag>@tags.exe-naming ;

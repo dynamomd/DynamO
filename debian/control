@@ -9,7 +9,8 @@ Build-Depends: debhelper (>= 8.0.0),
  freeglut3-dev, 
  libglew1.6-dev, 
  libavcodec-dev,
- fglrx
+ fglrx,
+ opencl-headers
 Standards-Version: 3.9.2
 Homepage: http://dynamomd.org
 Vcs-Git: git://github.com/toastedcrumpets/DynamO.git

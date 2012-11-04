@@ -42,7 +42,7 @@ project	: requirements
 	  [ builddep.set-feature-on-build coil-cwiid : cwiidtest : "Coil: libCwiid Wii-mote support (Optional)" ]
 	  [ builddep.set-feature-on-build coil-GLUT : gluttest : "Coil: GLUT" ]
 	  [ builddep.set-feature-on-build coil-GLEW : GLEWtest : "Coil: GLEW (v1.6+)" ]
-	  [ builddep.set-feature-on-build coil-OpenCL : /opencl//test : "Coil: OpenCL lib" ]
+	  [ builddep.set-feature-on-build coil-OpenCL : /opencl//test : "Coil: OpenCL libraries and headers" ]
 	  [ builddep.set-feature-on-build coil-Gtkmm : gtkmmtest : "Coil: Gtkmm" ]
 	  [ builddep.set-feature-on-build magnet-FFMPEG : /magnet//ffmpeg_test : "Magnet: libavcodec (video encoding support)" ]
 	  [ builddep.combine-features coil-buildable : coil-GLUT coil-GLEW coil-OpenCL coil-Gtkmm ]
@@ -58,7 +58,7 @@ lib coil
       : [ glob-tree *.cpp : tests examples programs ]
       clwingtk.gladexml png
       glut GLU GL Xext X11 rt GLEW /magnet//magnet
-      /opencl//opencl gtkmm 
+      /opencl//OpenCL gtkmm 
       : <include>. <tag>@tags.lib-naming 
        <coil-cwiid>yes:<source>cwiid <magnet-FFMPEG>yes:<source>/magnet//libavcodec <coil-buildable>no:<build>no
       : : <define>GLVIEWER <include>. ;
