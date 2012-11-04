@@ -19,13 +19,10 @@ Package: dynamo-core
 Architecture: any
 Depends: ${misc:Depends}, 
  libboost-all-dev
-Description: An event-driven molecular dynamics simulator.
+Description: The core simulator programs for DynamO, the event-driven molecular dynamics simulator.
  DynamO is a modern event-driven molecular dynamics simulator with a
  wide range of tools and models built in. It also includes a world
  class visualisation package for particulate systems.
- .
- This contains the core simulation executables needed to run
- simulations.
 
 Package: dynamo-visualisation
 Architecture: any
@@ -36,7 +33,7 @@ Depends: ${misc:Depends},
  libglew1.6,
  libavcodec53,
  fglrx | nvidia-current
-Description: An event-driven molecular dynamics simulator.
+Description: The visualisation program for DynamO, the event-driven molecular dynamics simulator.
  DynamO is a modern event-driven molecular dynamics simulator with a
  wide range of tools and models built in. It also includes a world
  class visualisation package for particulate systems.
@@ -48,6 +45,3 @@ Description: Data processing tools for DynamO, the event-driven molecular dynami
  DynamO is a modern event-driven molecular dynamics simulator with a
  wide range of tools and models built in. It also includes a world
  class visualisation package for particulate systems.
- .
- This package contains some data processing tools/scripts for
- processing the output of dynamo simulations.
