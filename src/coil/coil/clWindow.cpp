@@ -1145,8 +1145,8 @@ namespace coil {
 
 	_blurShader.attach();
 	_blurShader["colorTex"] = 0;
-	std::tr1::array<GLfloat, 2> invDim = {{1.0 / (tex.getWidth() / 4),
-					       1.0 / (tex.getHeight() / 4)}};
+	std::tr1::array<GLfloat, 2> invDim = {{1.0f / (tex.getWidth() / 4),
+					       1.0f / (tex.getHeight() / 4)}};
 	_blurShader["invDim"] = invDim;
 
 	for (size_t passes(0); passes < 1; ++passes)

@@ -17,7 +17,6 @@
 
 #include "Function.hpp"
 #include <iostream>
-#include <coil/glprimatives/arrow.hpp>
 #include <magnet/string/formatcode.hpp>
 #include <magnet/string/line_number.hpp>
 #include <coil/images/images.hpp>
@@ -206,13 +205,13 @@ namespace coil {
   {
     RTriangles::glRender(cam, mode);
 
-    //Draw the axis of the plotted function
-    if (_drawAxis && _visible)
-      {
-	coil::glprimatives::drawArrow(_origin, _origin + _axis1);
-	coil::glprimatives::drawArrow(_origin, _origin + _axis2);
-	coil::glprimatives::drawArrow(_origin, _origin + _axis3);
-      }
+//    //Draw the axis of the plotted function
+//    if (_drawAxis && _visible)
+//      {
+//	coil::glprimatives::drawArrow(_origin, _origin + _axis1);
+//	coil::glprimatives::drawArrow(_origin, _origin + _axis2);
+//	coil::glprimatives::drawArrow(_origin, _origin + _axis3);
+//      }
   }
 
 //  void 

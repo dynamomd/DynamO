@@ -154,7 +154,7 @@ namespace magnet {
 
       std::tr1::array<float,4> getValue(float x)
       {
-	std::tr1::array<float,4> retval = {{spline[0](x), spline[1](x), spline[2](x), spline[3](x)}};
+	std::tr1::array<float,4> retval = {{float(spline[0](x)), float(spline[1](x)), float(spline[2](x)), float(spline[3](x))}};
 	return retval;
       }
 

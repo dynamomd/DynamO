@@ -58,10 +58,10 @@ namespace magnet {
       GLMatrix(const math::Matrix& m)
       {
 	Base val =
-	  {{m(0,0),m(1,0),m(2,0),0,
-	    m(0,1),m(1,1),m(2,1),0,
-	    m(0,2),m(1,2),m(2,2),0,
-	    0,0,0,1}};
+	  {{GLfloat(m(0,0)), GLfloat(m(1,0)), GLfloat(m(2,0)), 0,
+	    GLfloat(m(0,1)), GLfloat(m(1,1)), GLfloat(m(2,1)), 0,
+	    GLfloat(m(0,2)), GLfloat(m(1,2)), GLfloat(m(2,2)), 0,
+	         0,      0,      0, 1}};
 	operator=(val);
       }
 

@@ -17,7 +17,6 @@
 
 #include <coil/RenderObj/Volume.hpp>
 #include <coil/RenderObj/Light.hpp>
-#include <coil/glprimatives/arrow.hpp>
 #include <coil/RenderObj/console.hpp>
 #include <magnet/GL/objects/primitives/cube.hpp>
 #include <magnet/gtk/numericEntry.hpp>

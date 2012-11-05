@@ -97,7 +97,7 @@ namespace coil {
     magnet::math::Vector getEyespacePosition(const magnet::GL::Camera& camera) const
     {
       magnet::math::Vector vec = getPosition();
-      std::tr1::array<GLfloat, 4> lightPos = {{vec[0], vec[1], vec[2], 1.0}};
+      std::tr1::array<GLfloat, 4> lightPos = {{GLfloat(vec[0]), GLfloat(vec[1]), GLfloat(vec[2]), 1.0f}};
       std::tr1::array<GLfloat, 4> lightPos_eyespace
 	= camera.getViewMatrix() * lightPos;
       return magnet::math::Vector(lightPos_eyespace[0], lightPos_eyespace[1], 
@@ -116,7 +116,7 @@ namespace coil {
     virtual std::tr1::array<GLfloat, 4> getCursorPosition(uint32_t objID)
     {
       magnet::math::Vector loc = getPosition();
-      std::tr1::array<GLfloat, 4> vec = {{loc[0], loc[1], loc[2], 1.0}};
+      std::tr1::array<GLfloat, 4> vec = {{GLfloat(loc[0]), GLfloat(loc[1]), GLfloat(loc[2]), 1.0f}};
       return vec;
     }
 

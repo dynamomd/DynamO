@@ -16,7 +16,6 @@
 */
 
 #include <coil/RenderObj/Light.hpp>
-#include <coil/glprimatives/arrow.hpp>
 #include <coil/RenderObj/console.hpp>
 #include <magnet/gtk/numericEntry.hpp>
 #include <magnet/clamp.hpp>
@@ -48,7 +47,7 @@ namespace coil {
     _sphereShader.build();
 
     magnet::math::Vector loc = getPosition();
-    GLfloat pos[3] = {loc[0], loc[1], loc[2]};
+    GLfloat pos[3] = {GLfloat(loc[0]), GLfloat(loc[1]), GLfloat(loc[2])};
     std::vector<GLfloat> position(pos, pos + 3);
     _glposition.init(position, 3);
 
@@ -86,7 +85,7 @@ namespace coil {
     if (mode & RenderObj::COLOR)
       {
 	magnet::math::Vector loc = getPosition();
-	GLfloat pos[3] = {loc[0], loc[1], loc[2]};
+	GLfloat pos[3] = {GLfloat(loc[0]), GLfloat(loc[1]), GLfloat(loc[2])};
 	std::vector<GLfloat> position(pos, pos + 3);
 	_glposition.init(position, 3);
 
@@ -277,7 +276,7 @@ namespace coil {
     using namespace magnet::GL;
 
     magnet::math::Vector loc = getPosition();
-    GLfloat pos[3] = {loc[0], loc[1], loc[2]};
+    GLfloat pos[3] = {GLfloat(loc[0]), GLfloat(loc[1]), GLfloat(loc[2])};
     std::vector<GLfloat> position(pos, pos + 3);
     _glposition.init(position, 3);
     
