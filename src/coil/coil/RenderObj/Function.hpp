@@ -139,8 +139,6 @@ FunctionPickKernel(__global uint * colors, uint offset)
 
     cl::Kernel _kernel;
     cl::Kernel _pickKernel;
-    cl::KernelFunctor _kernelFunc;
-    cl::KernelFunctor _pickFunc;
     std::string _kernelsrc;
 
     timespec startTime;

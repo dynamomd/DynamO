@@ -27,10 +27,6 @@ lib boost_filesystem : : <link>shared : : <source>boost_system ;
 lib boost_program_options  : : <link>shared : : <source>boost_system ;
 lib boost_iostreams  : : <link>shared : : <source>boost_system ;
 
-lib boost_filesystem : : <link>shared ;
-lib boost_program_options  : : <link>shared ;
-lib boost_iostreams  : : <link>shared ;
-
 exe boost_header_test : tests/boost_test.cpp ;
 exe boost_filesystem_test : tests/boost_test.cpp boost_filesystem ;
 exe boost_program_options_test : tests/boost_test.cpp boost_program_options ;
