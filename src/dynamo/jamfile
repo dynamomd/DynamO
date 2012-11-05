@@ -22,14 +22,11 @@ SHELL "touch src/dynamo/tests/* " ;
 
 feature.feature coil-integration : yes no : symmetric ;
 
-lib bz2 : : <link>shared ;
-lib boost_system ;
-lib boost_filesystem : : : : <source>boost_system ;
-lib boost_program_options  : : : : <source>boost_system ;
-lib boost_iostreams  : : : : <source>boost_system <source>bz2 ;
+lib boost_filesystem : : <link>shared ;
+lib boost_program_options  : : <link>shared ;
+lib boost_iostreams  : : <link>shared ;
 
 exe boost_header_test : tests/boost_test.cpp ;
-exe boost_system_test : tests/boost_test.cpp boost_system ;
 exe boost_filesystem_test : tests/boost_test.cpp boost_filesystem ;
 exe boost_program_options_test : tests/boost_test.cpp boost_program_options ;
 exe boost_iostreams_test : tests/boost_test.cpp boost_iostreams ;
@@ -41,9 +38,8 @@ project	: requirements
 	  [ builddep.set-feature-on-build dynamo-boost-iostreams : boost_iostreams_test : "DynamO: Boost iostreams library" ]
 	  [ builddep.set-feature-on-build dynamo-boost-program-options : boost_program_options_test : "DynamO: Boost program options library" ]
 	  [ builddep.set-feature-on-build dynamo-boost-filesystem : boost_filesystem_test : "DynamO: Boost filesystem library" ]
-	  [ builddep.set-feature-on-build dynamo-boost-system : boost_system_test : "DynamO: Boost system library" ]
 	  [ builddep.set-feature-on-build dynamo-boost-headers : boost_header_test : "DynamO: Boost headers" ]
-	  [ builddep.combine-features dynamo-buildable : dynamo-boost-headers dynamo-boost-system dynamo-boost-filesystem dynamo-boost-program-options dynamo-boost-iostreams ]
+	  [ builddep.combine-features dynamo-buildable : dynamo-boost-headers dynamo-boost-filesystem dynamo-boost-program-options dynamo-boost-iostreams ]
 	: default-build release
 	: build-dir $(BUILD_DIR_PATH)
 	;
