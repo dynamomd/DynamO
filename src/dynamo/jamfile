@@ -22,6 +22,11 @@ SHELL "touch src/dynamo/tests/* " ;
 
 feature.feature coil-integration : yes no : symmetric ;
 
+lib boost_system : : <link>shared ;
+lib boost_filesystem : : <link>shared : : <source>boost_system ;
+lib boost_program_options  : : <link>shared : : <source>boost_system ;
+lib boost_iostreams  : : <link>shared : : <source>boost_system ;
+
 lib boost_filesystem : : <link>shared ;
 lib boost_program_options  : : <link>shared ;
 lib boost_iostreams  : : <link>shared ;
