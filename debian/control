@@ -33,6 +33,7 @@ Depends: ${misc:Depends},
  libglew1.6,
  libavcodec53,
  fglrx | nvidia-current
+Recommends: libavcodec-extra-53
 Description: The visualisation program for DynamO, the event-driven molecular dynamics simulator.
  DynamO is a modern event-driven molecular dynamics simulator with a
  wide range of tools and models built in. It also includes a world
