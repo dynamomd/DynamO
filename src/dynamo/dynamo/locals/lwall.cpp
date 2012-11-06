@@ -86,6 +86,8 @@ namespace dynamo {
       magnet::xml::Node xBrowseNode = XML.getNode("Norm");
       localName = XML.getAttribute("Name");
       vNorm << xBrowseNode;
+      if (vNorm.nrm() == 0)
+	M_throw() << "The normal for the Local Wall named \"" << getName() << "\" has a length of 0. Cannot load";
       vNorm /= vNorm.nrm();
       xBrowseNode = XML.getNode("Origin");
       vPosition << xBrowseNode;
@@ -129,5 +131,42 @@ namespace dynamo {
 	   << vNorm[0] << "," << vNorm[1] << "," << vNorm[2] << "]"
 	   << std::endl;
   }
+
+
+#ifdef DYNAMO_visualizer
+
+  shared_ptr<coil::RenderObj>
+  LWall::getCoilRenderObj() const
+  {
+    if (!_renderObj)
+      {
+	//Find out what the directions orthagonal to the norm are 
+	Vector orth1;
+	for (size_t i(0); i < NDIM; ++i)
+	  {
+	    orth1 = Vector(0,0,0);
+	    orth1[i] = 1;
+	    orth1 = vNorm ^ orth1;
+	    if (orth1.nrm() != 0) { orth1 = orth1 / orth1.nrm(); break; }
+	  }
+
+	Vector orth2 = vNorm ^ orth1;
+	if (orth2.nrm() == 0) 
+	  M_throw() << "Cannot generate orthagonal vectors to plot LWall!";
+	orth2 /= orth2.nrm();
+
+	orth1 *= (orth1 | Sim->primaryCellSize);
+	orth2 *= (orth2 | Sim->primaryCellSize);
+
+	_renderObj.reset(new coil::RFunction(getName(), 10, vPosition - 0.5 * (orth1 + orth2), orth1, orth2, vNorm));
+      }
+  
+    return std::tr1::static_pointer_cast<coil::RenderObj>(_renderObj);
+  }
+
+  void 
+  LWall::updateRenderData() const
+  {}
+#endif
 }
 
