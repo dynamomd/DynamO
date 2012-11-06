@@ -1212,28 +1212,6 @@ namespace dynamo {
     return retVal; 
   }
 
-  ParticleEventData 
-  DynNewtonian::runSphereWallCollision(Particle& part, const Vector& origin, const double& e) const
-  {
-    updateParticle(part);
-
-    ParticleEventData retVal(part, *Sim->species[part], WALL);
-  
-    Vector rij =  origin - part.getPosition();
-
-    Sim->BCs->applyBC(rij);
-
-    rij /= rij.nrm();
-
-    part.getVelocity() -= (1+e) * (rij | part.getVelocity()) * rij;
-  
-    retVal.setDeltaKE(0.5 * Sim->species[retVal.getSpeciesID()]->getMass(part.getID())
-		      * (part.getVelocity().nrm2() 
-			 - retVal.getOldVel().nrm2()));
-  
-    return retVal; 
-  }
-
   std::pair<bool, double> 
   DynNewtonian::getLineLineCollision(const double length, const Particle& p1, const Particle& p2, double t_high) const
   {  

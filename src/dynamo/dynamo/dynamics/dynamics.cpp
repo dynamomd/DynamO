@@ -291,15 +291,6 @@ namespace dynamo {
     M_throw() << "Not Implemented";
   }
 
-  ParticleEventData 
-  Dynamics::runSphereWallCollision(Particle&, 
-				      const Vector &,
-				      const double&
-				      ) const
-  {
-    M_throw() << "Not Implemented";
-  }
-
   PairEventData 
   Dynamics::RoughSpheresColl(const IntEvent& event, 
 				const double& e, 

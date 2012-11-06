@@ -443,18 +443,6 @@ namespace dynamo {
 						       const double& e
 						       ) const;
 
-    /*! \brief Collides a particle with a containing spherical wall.
-     
-      \param part The particle that is colliding with the wall.
-      \param origin The origin of the sphere
-      \param e Elasticity of wall.
-      \return The data for the collision.
-     */
-    virtual ParticleEventData runSphereWallCollision(Particle& part, 
-						     const Vector & origin,
-						     const double& e
-						     ) const;
-
     /*! \brief Collides a particle with a wall.
      
       \param part The particle that is colliding with the wall.

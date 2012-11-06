@@ -68,5 +68,6 @@ namespace dynamo {
     shared_ptr<Property> _diameter;
     shared_ptr<Property> _e;
     bool render;
+    double sqrtT;
   };
 }
