@@ -81,7 +81,7 @@ namespace coil {
     _fpsLimitValue(25),
     _filterEnable(true),
     _stereoMode(false),
-    _ambientIntensity(0.05),
+    _ambientIntensity(0.0005),
     _snapshot_counter(0),
     _video_counter(0),
     _samples(1),
@@ -2457,7 +2457,7 @@ namespace coil {
     if (maxdim == 0) maxdim = 1.0;
 
     double oldScale = _camera.getRenderScale();
-    double newScale = 25.0 / maxdim;
+    double newScale = 40.0 / maxdim;
     magnet::math::Vector shift = centre - _cameraFocus;
     
     //Try to reset the camera, in-case its dissappeared to nan or inf.
