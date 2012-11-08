@@ -15,7 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Triangles.hpp"
-#include <coil/glprimatives/arrow.hpp>
 #include <iostream>
 #include <set>
 

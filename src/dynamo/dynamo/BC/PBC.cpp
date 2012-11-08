@@ -61,7 +61,7 @@ namespace dynamo {
   {}
 
   BCPeriodicExceptX::BCPeriodicExceptX(const dynamo::Simulation* tmp):
-    BoundaryCondition(tmp, "NoXPBC")
+    BCPeriodic(tmp, "NoXPBC")
   { Sim = tmp; }
 
   void 
@@ -113,7 +113,7 @@ namespace dynamo {
   }
 
   BCPeriodicXOnly::BCPeriodicXOnly(const dynamo::Simulation* tmp):
-    BoundaryCondition(tmp, "NoXPBC")
+    BCPeriodic(tmp, "NoXPBC")
   {
     Sim = tmp;
   }

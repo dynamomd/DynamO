@@ -17,10 +17,14 @@
 
 #pragma once
 #include <dynamo/locals/local.hpp>
+#include <dynamo/coilRenderObj.hpp>
 #include <dynamo/simulation.hpp>
+#ifdef DYNAMO_visualizer
+# include <coil/RenderObj/Function.hpp>
+#endif 
 
 namespace dynamo {
-  class LWall: public Local
+  class LWall: public Local, public CoilRenderObj
   {
   public:
     LWall(const magnet::xml::Node&, dynamo::Simulation*);
@@ -47,7 +51,16 @@ namespace dynamo {
 
     virtual void checkOverlaps(const Particle&) const;
 
+#ifdef DYNAMO_visualizer
+    virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const;
+    virtual void updateRenderData() const;
+#endif
+
   protected:
+#ifdef DYNAMO_visualizer
+    mutable shared_ptr<coil::RFunction> _renderObj;
+#endif
+
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
     Vector  vNorm;
@@ -55,5 +68,6 @@ namespace dynamo {
     shared_ptr<Property> _diameter;
     shared_ptr<Property> _e;
     bool render;
+    double sqrtT;
   };
 }

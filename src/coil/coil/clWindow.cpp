@@ -42,46 +42,12 @@
 # include <magnet/wiiheadtracking.hpp>
 #endif 
 
+#include <coil/images/images.hpp>
+
 //The glade xml file is "linked" into a binary file and stuffed in the
 //executable, these are the symbols to its data
 extern const char _binary_clwingtk_gladexml_start[];
 extern const char _binary_clwingtk_gladexml_end[];
-
-//All of the icons and images compiled into the exectuable
-extern const guint8 coilicon[];
-extern const size_t coilicon_size;
-
-extern const guint8 coilsplash[];
-extern const size_t coilsplash_size;
-
-extern const guint8 camplusx[];
-extern const size_t camplusx_size;
-extern const guint8 camplusy[];
-extern const size_t camplusy_size;
-extern const guint8 camplusz[];
-extern const size_t camplusz_size;
-extern const guint8 camnegx[];
-extern const size_t camnegx_size;
-extern const guint8 camnegy[];
-extern const size_t camnegy_size;
-extern const guint8 camnegz[];
-extern const size_t camnegz_size;
-
-extern const guint8 cammode_rotate_world[];
-extern const size_t cammode_rotate_world_size;
-extern const guint8 cammode_rotate_cursor[];
-extern const size_t cammode_rotate_cursor_size;
-extern const guint8 cammode_fps[];
-extern const size_t cammode_fps_size;
-
-extern const guint8 camrescale[];
-extern const size_t camrescale_size;
-
-extern const guint8 addLight_Icon[];
-extern const size_t addLight_Icon_size;
-
-extern const guint8 addFunction_Icon[];
-extern const size_t addFunction_Icon_size;
 
 namespace {
   void resizeGlutWindow(int width, int height)
@@ -115,7 +81,7 @@ namespace coil {
     _fpsLimitValue(25),
     _filterEnable(true),
     _stereoMode(false),
-    _ambientIntensity(0.05),
+    _ambientIntensity(0.0005),
     _snapshot_counter(0),
     _video_counter(0),
     _samples(1),
@@ -158,11 +124,11 @@ namespace coil {
   }
 
   namespace {
-    void setIcon(Glib::RefPtr<Gtk::Builder>& builder, std::string imgname, size_t iconsize, const guint8* iconstart)
+    void setIcon(Glib::RefPtr<Gtk::Builder>& builder, std::string imgname, Glib::RefPtr<Gdk::Pixbuf> img)
     { 
       Gtk::Image* icon; 
       builder->get_widget(imgname, icon); 
-      icon->set(Gdk::Pixbuf::create_from_inline(iconsize, iconstart)); 
+      icon->set(img); 
     }
   }
 
@@ -195,19 +161,17 @@ namespace coil {
     _refXml->get_widget("controlWindow", controlwindow);
   
     ////////Setup the window icon
-    controlwindow->set_icon(Gdk::Pixbuf::create_from_inline
-			    (coilicon_size, coilicon));
-
-    setIcon(_refXml, "CamPlusXimg", camplusx_size, camplusx);
-    setIcon(_refXml, "CamPlusYimg", camplusy_size, camplusy);
-    setIcon(_refXml, "CamPlusZimg", camplusz_size, camplusz);
-    setIcon(_refXml, "CamNegXimg", camnegx_size, camnegx);
-    setIcon(_refXml, "CamNegYimg", camnegy_size, camnegy);
-    setIcon(_refXml, "CamNegZimg", camnegz_size, camnegz);
-    setIcon(_refXml, "CamRescaleimg", camrescale_size, camrescale);
-    setIcon(_refXml, "aboutSplashImage", coilsplash_size, coilsplash);
-    setIcon(_refXml, "addLightImage", addLight_Icon_size, addLight_Icon);
-    setIcon(_refXml, "addFunctionImage", addFunction_Icon_size, addFunction_Icon);
+    controlwindow->set_icon(coil::images::coilicon());
+    setIcon(_refXml, "CamPlusXimg", coil::images::camplusx());
+    setIcon(_refXml, "CamPlusYimg", coil::images::camplusy());
+    setIcon(_refXml, "CamPlusZimg", coil::images::camplusz());
+    setIcon(_refXml, "CamNegXimg",  coil::images::camnegx());
+    setIcon(_refXml, "CamNegYimg",  coil::images::camnegy());
+    setIcon(_refXml, "CamNegZimg",  coil::images::camnegz());
+    setIcon(_refXml, "CamRescaleimg", coil::images::camrescale());
+    setIcon(_refXml, "aboutSplashImage", coil::images::coilsplash());
+    setIcon(_refXml, "addLightImage", coil::images::addLight_Icon());
+    setIcon(_refXml, "addFunctionImage", coil::images::addFunction_Icon());
 
     {
       Gtk::Button* button;
@@ -1181,8 +1145,8 @@ namespace coil {
 
 	_blurShader.attach();
 	_blurShader["colorTex"] = 0;
-	std::tr1::array<GLfloat, 2> invDim = {{1.0 / (tex.getWidth() / 4),
-					       1.0 / (tex.getHeight() / 4)}};
+	std::tr1::array<GLfloat, 2> invDim = {{1.0f / (tex.getWidth() / 4),
+					       1.0f / (tex.getHeight() / 4)}};
 	_blurShader["invDim"] = invDim;
 
 	for (size_t passes(0); passes < 1; ++passes)
@@ -2112,13 +2076,13 @@ namespace coil {
       switch (_cameraMode)
 	{
 	case ROTATE_CAMERA:
-	  icon->set(Gdk::Pixbuf::create_from_inline(cammode_fps_size, cammode_fps));
+	  icon->set(coil::images::cammode_fps());
 	  break;
 	case ROTATE_WORLD:
-	  icon->set(Gdk::Pixbuf::create_from_inline(cammode_rotate_world_size, cammode_rotate_world));
+	  icon->set(coil::images::cammode_rotate_world());
 	  break;
 	case ROTATE_POINT:
-	  icon->set(Gdk::Pixbuf::create_from_inline(cammode_rotate_cursor_size, cammode_rotate_cursor));
+	  icon->set(coil::images::cammode_rotate_cursor());
 	  break;
 	default:
 	  M_throw() << "Cannot find the appropriate icon for the camera mode";
@@ -2493,7 +2457,7 @@ namespace coil {
     if (maxdim == 0) maxdim = 1.0;
 
     double oldScale = _camera.getRenderScale();
-    double newScale = 25.0 / maxdim;
+    double newScale = 40.0 / maxdim;
     magnet::math::Vector shift = centre - _cameraFocus;
     
     //Try to reset the camera, in-case its dissappeared to nan or inf.

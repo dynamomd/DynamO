@@ -20,8 +20,8 @@ int main(int argc, char **argv)
   /* encode 3 seconds of video */
   for(int i=0; i<75; ++i) 
     {
-      for(int y=0; y < height; y++)
-	for(int x=0; x< width; x++)
+      for(size_t y = 0; y < height; y++)
+	for(size_t x = 0; x< width; x++)
 	  {
 	    rgb_buf[3*(x + width * y) + 0] = 10*i; //R
 	    rgb_buf[3*(x + width * y) + 1] = 51*i; //G

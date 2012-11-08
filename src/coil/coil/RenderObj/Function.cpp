@@ -17,20 +17,14 @@
 
 #include "Function.hpp"
 #include <iostream>
-#include <coil/glprimatives/arrow.hpp>
 #include <magnet/string/formatcode.hpp>
 #include <magnet/string/line_number.hpp>
-
-
-extern const guint8 Function_Icon[];
-extern const size_t Function_Icon_size;
+#include <coil/images/images.hpp>
 
 namespace coil {
   Glib::RefPtr<Gdk::Pixbuf> 
   RFunction::getIcon()
-  {
-    return Gdk::Pixbuf::create_from_inline(Function_Icon_size, Function_Icon);
-  }
+  { return coil::images::Function_Icon(); }
 
 
   RFunction::RFunction(std::string name,
@@ -150,14 +144,7 @@ namespace coil {
 		   context->getCLContext());
     _kernel = _program["FunctionRenderKernel"];
     _pickKernel = _program["FunctionPickKernel"];
-    const size_t workgroupSize = 256;
   
-    //N is a multiple of 16, so a workgroup size of 256 is always good
-    _kernelFunc = _kernel.bind(context->getCLCommandQueue(), cl::NDRange(_N * _N), 
-			       cl::NDRange(workgroupSize));
-
-    _pickFunc = _pickKernel.bind(context->getCLCommandQueue(), cl::NDRange(_N * _N), 
-				 cl::NDRange(workgroupSize));
   
     clock_gettime(CLOCK_MONOTONIC, &startTime);
     glFinish();
@@ -188,18 +175,25 @@ namespace coil {
       + 1e-9 * (float(currTime.tv_nsec) - float(startTime.tv_nsec));
 
     //Run Kernel
-    _kernelFunc((cl::Buffer)_posBuff.acquireCLObject(), 
-		(cl::Buffer)_colBuff.acquireCLObject(), 
-		(cl::Buffer)_normBuff.acquireCLObject(), 
-		tempo,
-		_functionOrigin,
-		_functionRange,
-		_cl_axis1,
-		_cl_axis2,
-		_cl_axis3,
-		_cl_origin,
-		_N, _A);
-  
+    magnet::GL::Context::ContextPtr context = magnet::GL::Context::getContext();
+    
+    //N is a multiple of 16, so a workgroup size of 256 is always good
+    const size_t workgroupSize = 256;
+    _kernel.setArg(0, (cl::Buffer)_posBuff.acquireCLObject());
+    _kernel.setArg(1, (cl::Buffer)_colBuff.acquireCLObject());
+    _kernel.setArg(2, (cl::Buffer)_normBuff.acquireCLObject());
+    _kernel.setArg(3, tempo);
+    _kernel.setArg(4, _functionOrigin);
+    _kernel.setArg(5, _functionRange);
+    _kernel.setArg(6, _cl_axis1);
+    _kernel.setArg(7, _cl_axis2);
+    _kernel.setArg(8, _cl_axis3);
+    _kernel.setArg(9, _cl_origin);
+    _kernel.setArg(10, _N);
+    _kernel.setArg(11, _A);
+    
+    context->getCLCommandQueue().enqueueNDRangeKernel(_kernel, cl::NDRange(0), cl::NDRange(_N * _N), cl::NDRange(workgroupSize));
+    
     //Release resources
     _posBuff.releaseCLObject();
     _colBuff.releaseCLObject();
@@ -211,13 +205,13 @@ namespace coil {
   {
     RTriangles::glRender(cam, mode);
 
-    //Draw the axis of the plotted function
-    if (_drawAxis && _visible)
-      {
-	coil::glprimatives::drawArrow(_origin, _origin + _axis1);
-	coil::glprimatives::drawArrow(_origin, _origin + _axis2);
-	coil::glprimatives::drawArrow(_origin, _origin + _axis3);
-      }
+//    //Draw the axis of the plotted function
+//    if (_drawAxis && _visible)
+//      {
+//	coil::glprimatives::drawArrow(_origin, _origin + _axis1);
+//	coil::glprimatives::drawArrow(_origin, _origin + _axis2);
+//	coil::glprimatives::drawArrow(_origin, _origin + _axis3);
+//      }
   }
 
 //  void 

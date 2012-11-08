@@ -69,7 +69,7 @@ namespace magnet {
 	if (!_codec) 
 	  {
 	    _h264 = false;
-	    std::cerr << "\nWARNING: Cannot open the H264 codec (try installing libx264), falling back to the MPEG2 codec.\n";
+	    std::cerr << "\nWARNING: Cannot open the H264 codec (try installing libx264 [ubuntu:libavcodec-extra-53]), falling back to the MPEG2 codec.\n";
 	    _codec = avcodec_find_encoder(CODEC_ID_MPEG2VIDEO);
 	    if (!_codec) 
 	      {

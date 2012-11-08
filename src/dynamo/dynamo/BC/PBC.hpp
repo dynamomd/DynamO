@@ -19,9 +19,11 @@
 #include <dynamo/BC/BC.hpp>
 
 namespace dynamo {
-  /*! \brief A simple rectangular periodic boundary condition.
-   * 
-   * See the BoundaryCondition base class for member descriptions.
+  /*! \brief A simple rectangular periodic boundary condition, also a
+      base class for all periodic systems to allow them to be easily
+      identified.
+    
+    See the BoundaryCondition base class for member descriptions.
    */
   class BCPeriodic: public BoundaryCondition
   {
@@ -36,15 +38,19 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
     virtual void operator<<(const magnet::xml::Node&);
+
+  protected:
+    BCPeriodic(const dynamo::Simulation* const SD, const char *aName):
+      BoundaryCondition(SD, aName) {}
   };
 
   /*! \brief This class ignores the x direction but is periodic in others.
-   *
-   * Used to check that a system bounded by walls in the x direction has
-   * no leaks as these are not rounded and would show up in animations
-   * or inspections.
+   
+    Used to check that a system bounded by walls in the x direction has
+    no leaks as these are not rounded and would show up in animations
+    or inspections.
    */
-  class BCPeriodicExceptX: public BoundaryCondition
+  class BCPeriodicExceptX: public BCPeriodic
   {
   public:
     BCPeriodicExceptX(const dynamo::Simulation*);
@@ -61,12 +67,12 @@ namespace dynamo {
 
   /*! \brief This class ignores all directions but is periodic in
     the x.
-    *
-    * Used to check that a system bounded by walls in the x direction has
-    * no leaks as these are not rounded and would show up in animations
-    * or inspections.
+    
+     Used to check that a system bounded by walls in the x direction has
+     no leaks as these are not rounded and would show up in animations
+     or inspections.
     */
-  class BCPeriodicXOnly: public BoundaryCondition
+  class BCPeriodicXOnly: public BCPeriodic
   {
   public:
     BCPeriodicXOnly(const dynamo::Simulation*);

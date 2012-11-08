@@ -17,7 +17,6 @@
 
 #include <coil/RenderObj/Volume.hpp>
 #include <coil/RenderObj/Light.hpp>
-#include <coil/glprimatives/arrow.hpp>
 #include <coil/RenderObj/console.hpp>
 #include <magnet/GL/objects/primitives/cube.hpp>
 #include <magnet/gtk/numericEntry.hpp>
@@ -25,15 +24,12 @@
 #include <boost/lexical_cast.hpp>
 #include <fstream>
 
-extern const guint8 Volume_Icon[];
-extern const size_t Volume_Icon_size;
+#include <coil/images/images.hpp>
 
 namespace coil {
   Glib::RefPtr<Gdk::Pixbuf> 
   RVolume::getIcon()
-  {
-    return Gdk::Pixbuf::create_from_inline(Volume_Icon_size, Volume_Icon);
-  }
+  { return coil::images::Volume_Icon(); }
 
   void 
   RVolume::deinit()

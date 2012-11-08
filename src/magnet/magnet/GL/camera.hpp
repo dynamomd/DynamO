@@ -499,7 +499,7 @@ namespace magnet {
        */
       std::tr1::array<GLfloat, 4> project(math::Vector invec) const
       {
-	std::tr1::array<GLfloat, 4> vec = {{invec[0], invec[1], invec[2], 1.0}};
+	std::tr1::array<GLfloat, 4> vec = {{GLfloat(invec[0]), GLfloat(invec[1]), GLfloat(invec[2]), 1.0f}};
 	vec = getProjectionMatrix() * (getViewMatrix() * vec);
 	
 	for (size_t i(0); i < 3; ++i)
@@ -516,9 +516,9 @@ namespace magnet {
       math::Vector unprojectToPosition(int windowx, int windowy, GLfloat depth) const
       {
 	//We need to calculate the ray from the camera
-	std::tr1::array<GLfloat, 4> n = {{(2.0 * windowx) / getWidth() - 1.0,
-					  1.0 - (2.0 * windowy) / getHeight(),
-					  depth, 1.0}};
+	std::tr1::array<GLfloat, 4> n = {{(2.0f * windowx) / getWidth() - 1.0f,
+					  1.0f - (2.0f * windowy) / getHeight(),
+					  depth, 1.0f}};
 	//Unproject from NDC to camera coords
 	std::tr1::array<GLfloat, 4> v = getProjectionMatrix().inverse() * n;
 	
@@ -537,9 +537,9 @@ namespace magnet {
       math::Vector unprojectToDirection(int windowx, int windowy) const
       {
 	//We need to calculate the ray from the camera
-	std::tr1::array<GLfloat, 4> n = {{(2.0 * windowx) / getWidth() - 1.0,
-					  1.0 - (2.0 * windowy) / getHeight(), 
-					  0.0, 1.0}};
+	std::tr1::array<GLfloat, 4> n = {{(2.0f * windowx) / getWidth() - 1.0f,
+					  1.0f - (2.0f * windowy) / getHeight(), 
+					  0.0f, 1.0f}};
 	//Unproject from NDC to camera coords
 	std::tr1::array<GLfloat, 4> v = getProjectionMatrix().inverse() * n;
 	

@@ -148,7 +148,7 @@ namespace magnet {
 	  { 
 	    if (test_assign(vec))
 	      {
-		std::tr1::array<GLfloat, 3> val = {{vec[0], vec[1], vec[2]}};
+		std::tr1::array<GLfloat, 3> val = {{GLfloat(vec[0]), GLfloat(vec[1]), GLfloat(vec[2])}};
 		uniform(3, 1, &(val[0]));
 	      }
 	  }

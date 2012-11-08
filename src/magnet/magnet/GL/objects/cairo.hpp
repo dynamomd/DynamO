@@ -311,7 +311,7 @@ void main()
 
 	  //Make sure the box doesn't overlap the sides. The left hand
 	  //side takes priority over the right
-	  double dimensions[2] = {_width, _height};
+	  double dimensions[2] = {double(_width), double(_height)};
 	  for (size_t i(0); i < 2; ++i)
 	    {
 	      //right/bottom edge

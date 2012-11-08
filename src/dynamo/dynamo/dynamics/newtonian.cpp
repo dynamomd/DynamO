@@ -826,7 +826,7 @@ namespace dynamo {
     for (size_t i(0); i < NDIM; ++i)
       if (vel[i] != 0)
 	{
-	  double tmp = (0.25 * Sim->primaryCellSize[i] - lMax) / fabs(vel[i]);
+	  double tmp = (0.5 * (0.5 * Sim->primaryCellSize[i] - lMax)) / fabs(vel[i]);
 	  
 	  if (tmp < retval)
 	    retval = tmp;
@@ -1200,28 +1200,6 @@ namespace dynamo {
     Sim->BCs->applyBC(rij);
 
     rij -= Vector((rij | vNorm) * vNorm);
-
-    rij /= rij.nrm();
-
-    part.getVelocity() -= (1+e) * (rij | part.getVelocity()) * rij;
-  
-    retVal.setDeltaKE(0.5 * Sim->species[retVal.getSpeciesID()]->getMass(part.getID())
-		      * (part.getVelocity().nrm2() 
-			 - retVal.getOldVel().nrm2()));
-  
-    return retVal; 
-  }
-
-  ParticleEventData 
-  DynNewtonian::runSphereWallCollision(Particle& part, const Vector& origin, const double& e) const
-  {
-    updateParticle(part);
-
-    ParticleEventData retVal(part, *Sim->species[part], WALL);
-  
-    Vector rij =  origin - part.getPosition();
-
-    Sim->BCs->applyBC(rij);
 
     rij /= rij.nrm();
 

@@ -15,9 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ##########################################################################
-#Location of the boost build root directory
-
-path-constant BOOST_ROOT : src/boost/tools/build/v2 ;
 path-constant BUILD_DIR_PATH : ./build-dir ;
 path-constant LIB_INSTALL_PATH : ./lib ;
 path-constant BIN_INSTALL_PATH : ./bin ;
@@ -66,11 +63,12 @@ project	: requirements
 
 use-project /dynamo : src/dynamo ;
 use-project /magnet : src/magnet ;
-use-project /boost : src/boost ;
 use-project /coil : src/coil ;
 use-project /opencl : src/opencl ;
 
-alias install : /dynamo//install-dynamo /coil//install-coil /magnet//install-magnet /opencl//install-headers ;
+alias install : /dynamo//install-dynamo  ;
+
+alias install-libraries : /coil//install-coil /magnet//install-magnet /opencl//install-headers ;
 
 alias test : /magnet//test ;
 

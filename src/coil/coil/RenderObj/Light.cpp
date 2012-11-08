@@ -16,23 +16,18 @@
 */
 
 #include <coil/RenderObj/Light.hpp>
-#include <coil/glprimatives/arrow.hpp>
 #include <coil/RenderObj/console.hpp>
 #include <magnet/gtk/numericEntry.hpp>
 #include <magnet/clamp.hpp>
 #include <magnet/GL/objects/cairo.hpp>
 #include <boost/lexical_cast.hpp>
 #include <fstream>
-
-extern const guint8 Light_Icon[];
-extern const size_t Light_Icon_size;
+#include <coil/images/images.hpp>
 
 namespace coil {
   Glib::RefPtr<Gdk::Pixbuf>
   RLight::getIcon()
-  {
-    return Gdk::Pixbuf::create_from_inline(Light_Icon_size, Light_Icon);
-  }
+  { return coil::images::Light_Icon(); }
 
   void 
   RLight::deinit()
@@ -52,7 +47,7 @@ namespace coil {
     _sphereShader.build();
 
     magnet::math::Vector loc = getPosition();
-    GLfloat pos[3] = {loc[0], loc[1], loc[2]};
+    GLfloat pos[3] = {GLfloat(loc[0]), GLfloat(loc[1]), GLfloat(loc[2])};
     std::vector<GLfloat> position(pos, pos + 3);
     _glposition.init(position, 3);
 
@@ -90,7 +85,7 @@ namespace coil {
     if (mode & RenderObj::COLOR)
       {
 	magnet::math::Vector loc = getPosition();
-	GLfloat pos[3] = {loc[0], loc[1], loc[2]};
+	GLfloat pos[3] = {GLfloat(loc[0]), GLfloat(loc[1]), GLfloat(loc[2])};
 	std::vector<GLfloat> position(pos, pos + 3);
 	_glposition.init(position, 3);
 
@@ -281,7 +276,7 @@ namespace coil {
     using namespace magnet::GL;
 
     magnet::math::Vector loc = getPosition();
-    GLfloat pos[3] = {loc[0], loc[1], loc[2]};
+    GLfloat pos[3] = {GLfloat(loc[0]), GLfloat(loc[1]), GLfloat(loc[2])};
     std::vector<GLfloat> position(pos, pos + 3);
     _glposition.init(position, 3);
     

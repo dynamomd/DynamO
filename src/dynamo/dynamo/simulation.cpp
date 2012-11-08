@@ -89,10 +89,8 @@ namespace dynamo
 
     std::sort(outputPlugins.begin(), outputPlugins.end(), OutputPluginSort());
   
-    if (std::tr1::dynamic_pointer_cast<BCPeriodic>(BCs)
-	|| std::tr1::dynamic_pointer_cast<BCPeriodicExceptX>(BCs)
-	|| std::tr1::dynamic_pointer_cast<BCPeriodicXOnly>(BCs)
-	|| std::tr1::dynamic_pointer_cast<BCLeesEdwards>(BCs))
+    /* Add the Periodic Boundary Condition sentinel (if required). */
+    if (std::tr1::dynamic_pointer_cast<BCPeriodic>(BCs))
       globals.push_back(shared_ptr<Global>(new GPBCSentinel(this, "PBCSentinel")));
 
     BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)
@@ -145,6 +143,22 @@ namespace dynamo
       
       BOOST_FOREACH(shared_ptr<Interaction>& ptr, interactions)
 	ptr->initialise(ID++);
+
+      if (std::tr1::dynamic_pointer_cast<BCPeriodic>(BCs))
+	{
+	  double max_interaction_dist = getLongestInteraction();
+	  //Check that each simulation length is greater than 2x the
+	  //maximum interaction distance, otherwise particles can
+	  //interact with two periodic images!
+	  for (size_t i(0); i < NDIM; ++i)
+	    if (primaryCellSize[i] <= (2.0 * max_interaction_dist))
+	      M_throw() << "When using periodic boundary conditions, the size of the "
+		"primary image must be at least 2x the maximum interaction "
+		"distance in all dimensions, otherwise one particle can interact "
+		"with multiple periodic images of another particle."
+			<< "\nprimaryCellSize[" << i << "] = "  << primaryCellSize[i]
+			<< "\nLongest interaction distance = "  << max_interaction_dist;
+	}
     }
 
     {
