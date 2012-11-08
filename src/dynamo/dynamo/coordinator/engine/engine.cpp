@@ -105,7 +105,7 @@ namespace dynamo {
 #endif
 
     if (vm.count("snapshot"))
-      Sim.systems.push_back(shared_ptr<System>(new SSnapshot(&Sim, vm["snapshot"].as<double>(), "SnapshotEvent")));
+      Sim.systems.push_back(shared_ptr<System>(new SSnapshot(&Sim, vm["snapshot"].as<double>(), "SnapshotEvent", !vm.count("unwrapped"))));
 
     if (vm.count("load-plugin"))
       {

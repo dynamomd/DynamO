@@ -29,9 +29,9 @@
 #endif
 
 namespace dynamo {
-  SSnapshot::SSnapshot(dynamo::Simulation* nSim, double nPeriod, std::string nName):
+  SSnapshot::SSnapshot(dynamo::Simulation* nSim, double nPeriod, std::string nName, bool applyBC):
     System(nSim),
-    _applyBC(false),
+    _applyBC(applyBC),
     _saveCounter(0)
 
   {
