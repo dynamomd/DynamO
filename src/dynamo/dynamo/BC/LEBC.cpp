@@ -24,7 +24,7 @@
 
 namespace dynamo {
   BCLeesEdwards::BCLeesEdwards(const dynamo::Simulation* tmp):
-    BoundaryCondition(tmp, "LEBC"),
+    BCPeriodic(tmp, "LEBC"),
     _dxd(0) ,
     _shearRate(1)
   {
@@ -34,7 +34,7 @@ namespace dynamo {
 
   BCLeesEdwards::BCLeesEdwards(const magnet::xml::Node& XML, 
 			       const dynamo::Simulation* tmp):
-    BoundaryCondition(tmp, "LEBC"),
+    BCPeriodic(tmp, "LEBC"),
     _dxd(0) 
   {
     Sim = tmp;

@@ -72,13 +72,12 @@ int main(int argc, char *argv[])
   catch (std::exception& cep)
     {
       fflush(stdout);
-      std::cerr << cep.what();
-      std::cerr << "\n" << "MAIN: Reached Main Error Loop"
+      std::cerr << "\n" << "MAIN: Exception caught in main(), details below:\n";
+      std::cerr << cep.what()
 #ifndef DYNAMO_DEBUG
-		<< "\nMAIN:If this error is vauge, try using the debugging executable"
+		<< "\nMAIN:Try using the debugging executable for more information on the error."
 #endif
-		<< "\n";
-
+	;
       return 1;
     }
 }
