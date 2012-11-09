@@ -63,74 +63,112 @@ namespace dynamo {
 
     virtual void initialise(size_t) = 0;
 
-    //! Calculate if an event is to occur between two particles.
+    /*! \brief Calculate if and when an event is to occur between two
+        particles.
+     */
     virtual IntEvent getEvent(const Particle &, 
 			      const Particle &) const = 0;
 
-    //! Run the dynamics of an event that is occuring now.
+    /*! \brief Run the dynamics of an event which is occuring now.
+     */
     virtual void runEvent(Particle&, Particle&, const IntEvent&) const = 0;
 
-    //! Return the maximum distance at which two particles may interact using this Interaction.
-    //!
-    //! This value is used in GNeighbourList's to make sure a certain GNeighbourList is suitable for detecting possible Interaction partner particles.
+    /*! \brief Return the maximum distance at which two particles may interact using this Interaction.
+    
+      This value is used in GNeighbourList's to make sure a certain
+      GNeighbourList is suitable for detecting possible Interaction
+      partner particles.
+    */
     virtual double maxIntDist() const = 0;  
 
-    //! Returns the internal energy "stored" in this interaction.
+    /*! \brief Returns the internal energy "stored" in this interaction.
+     */
     virtual double getInternalEnergy() const = 0; 
 
-    //! Returns the internal energy "stored" in this interaction by the
-    //! two passed particles.
+    /*! \brief Returns the internal energy "stored" in this
+     interaction by the two passed particles.
+    */
     virtual double getInternalEnergy(const Particle&, const Particle&) const { return 0; } 
 
-    //! Returns the excluded volume of a certain particle.
+    /*! \brief Returns the excluded volume of a certain particle.
+     */
     virtual double getExcludedVolume(size_t) const = 0;
 
-    //! Loads the parameters of the Interaction from an XML node in the configuration file.
+    /*! \brief Loads the parameters of the Interaction from an XML
+        node in the configuration file.
+     */
     virtual void operator<<(const magnet::xml::Node&);
   
-    //! A helper function that calls Interaction::outputXML to write out the parameters of this interaction to a config file.
+    /*! \brief A helper function that calls Interaction::outputXML to
+        write out the parameters of this interaction to a config file.
+     */
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Interaction&);
  
-    //! This static function will instantiate a new interaction of the correct type specified by the xml node passed. 
-    //!
-    //! This is the birth point for all Interactions loaded from a configuration file.
+    /*! \brief This static function will instantiate a new interaction
+        of the correct type specified by the xml node passed.
+    
+      This is the birth point for all Interactions loaded from a
+      configuration file.
+    */
     static shared_ptr<Interaction> getClass(const magnet::xml::Node&, dynamo::Simulation*);
 
-    //! Tests if this interaction is meant to be used between the two passed Particle -s.
+    /*! \brief Tests if this interaction is meant to be used between
+        the two passed Particle -s.
+     */
     bool isInteraction(const Particle &p1, const Particle &p2) const
     { return range->isInRange(p1,p2); }
   
-    //! Tests if this interaction may have been used for the passed interaction event (IntEvent).
+    /*! \brief Tests if this interaction may have been used for the
+        passed interaction event (IntEvent).
+     */
     bool isInteraction(const IntEvent &) const;
 
-    //! Tests if this interaction is suitable to describe the basic properties of an entire species.
+    /*! \brief Tests if this interaction is suitable to describe the
+        basic properties of an entire species.
+     */
     bool isInteraction(const Species &) const;
 
-    //! Returns the "name" of the interaction used in name-based look-ups.
+    /*! \brief Returns the "name" of the interaction used in
+        name-based look-ups.
+     */
     inline const std::string& getName() const { return intName; }
 
-    //! Returns the C2Range describing the pairs of particles this
-    //! Interaction can generate events for.
+    /*! \brief Returns the C2Range describing the pairs of particles
+     this Interaction can generate events for.
+    */
     shared_ptr<C2Range>& getRange();
 
-    //! Returns the C2Range describing the pairs of particles this
-    //! Interaction can generate events for.
+    /*! \brief Returns the C2Range describing the pairs of particles
+        this Interaction can generate events for.
+     */
     const shared_ptr<C2Range>& getRange() const;
 
-    //! Test if an invalid state has occurred between the two passed particles
-    virtual void checkOverlaps(const Particle&, const Particle&) const = 0;
+    /*! \brief Test if an invalid state has occurred between the two
+        passed particles.
+	
+	\param p1 The first particle of the pair to test.
+	\param p2 The second particle of the pair to test.
+	\param textoutput If true, there will be a text description of
+	any detected invalid states printed to cerr.
+	\return true if the pair is in an invalid state.
+    */
+    virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const = 0;
 
-    //! Return the ID number of the Interaction. Used for fast look-ups,
-    //! once a name-based look up has been completed.
+    /*! \brief Return the ID number of the Interaction. Used for fast
+     look-ups, once a name-based look up has been completed.
+    */
     inline const size_t& getID() const { return ID; }
 
   protected:
-    //! This constructor is only to be used when using virtual
-    //! inheritance, the bottom derived class must explicitly call the
-    //! other Interaction ctor.
+    /*! \brief This constructor is only to be used when using virtual
+     inheritance, the bottom derived class must explicitly call the
+     other Interaction constructor.
+    */
     Interaction() { M_throw() << "Default constructor called!"; }
 
-    //! Write out an XML tag that describes this Interaction and stores its Property -s.
+    /*! \brief Write out an XML tag that describes this Interaction
+        and stores its Property -s.
+     */
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
     shared_ptr<C2Range> range;

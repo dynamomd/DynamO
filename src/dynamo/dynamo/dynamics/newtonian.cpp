@@ -54,7 +54,7 @@ namespace dynamo {
 
   bool 
   DynNewtonian::cubeOverlap(const Particle& p1, const Particle& p2, 
-			  const double d) const
+			    const double d) const
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(r12);

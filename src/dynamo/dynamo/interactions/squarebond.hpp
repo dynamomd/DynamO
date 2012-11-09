@@ -61,6 +61,8 @@ namespace dynamo {
     
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
+    virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
+ 
     virtual double getInternalEnergy() const { return 0.0; }
 
   protected:

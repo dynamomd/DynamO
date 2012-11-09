@@ -100,6 +100,41 @@ namespace dynamo {
     return Sim->dynamics->sphereOverlap(p1, p2, l * d);
   }
 
+  bool
+  ISquareBond::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
+  {
+    double d = (_diameter->getProperty(p1.getID())
+		+ _diameter->getProperty(p2.getID())) * 0.5;
+    double l = (_lambda->getProperty(p1.getID())
+		+ _lambda->getProperty(p2.getID())) * 0.5;
+
+    if (!Sim->dynamics->sphereOverlap(p1, p2, d * l))
+      {
+	if (textoutput)
+	  derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+	       << " are bonded and cannot exceed a distance of " << l * d / Sim->units.unitLength()
+	       << " but they are at a distance of " 
+	       << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+	       << std::endl;
+	
+	return true;
+      }
+
+    if (Sim->dynamics->sphereOverlap(p1, p2, d))
+      {
+	if (textoutput)
+	  derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+	       << " are bonded with an inner hard core at " << d / Sim->units.unitLength()
+	       << " but they are at a distance of " 
+	       << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+	       << std::endl;
+
+	return true;
+      }
+
+    return false;
+  }
+
   void
   ISquareBond::checkOverlaps(const Particle& part1, const Particle& part2) const
   {

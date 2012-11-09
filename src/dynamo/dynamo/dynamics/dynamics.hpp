@@ -189,7 +189,7 @@ namespace dynamo {
       \return True if the spheres are overlapping.
      */
     virtual double sphereOverlap(const Particle& p1, const Particle& p2, 
-				 const double& d2) const = 0;
+				 const double& d) const = 0;
 
     /*! \brief Determines if and when two parallel cube will intersect.
      

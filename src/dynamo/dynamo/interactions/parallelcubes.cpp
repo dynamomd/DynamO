@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/interactions/rotatedparallelcubes.hpp>
+#include <dynamo/interactions/parallelcubes.hpp>
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/units/units.hpp>
@@ -162,21 +162,30 @@ namespace dynamo {
 	<< *range;
   }
 
-  void
-  IParallelCubes::checkOverlaps(const Particle& part1, const Particle& part2) const
-  {
-    Vector  rij = part1.getPosition() - part2.getPosition();  
-    Sim->BCs->applyBC(rij); 
 
-    double d = (_diameter->getProperty(part1.getID())
-		+ _diameter->getProperty(part2.getID())) * 0.5;
-  
-    if ((rij | rij) < d * d)
-      derr << "Possible overlap occured in diagnostics\n ID1=" << part1.getID() 
-	   << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-	   << (rij | rij) / pow(Sim->units.unitLength(), 2)
-	   << "\nd^2=" 
-	   << d * d / pow(Sim->units.unitLength(), 2) << std::endl;
+  bool
+  IParallelCubes::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
+  {
+    double d = (_diameter->getProperty(p1.getID())
+		 + _diameter->getProperty(p2.getID())) * 0.5;
+
+    if (Sim->dynamics->cubeOverlap(p1, p2, d))
+      {
+	Vector rij = p1.getPosition() - p2.getPosition();
+	Sim->BCs->applyBC(rij);
+	rij /= Sim->units.unitLength();
+
+	if (textoutput)
+	  derr << "Particle " << p1.getID() << " and Particle " << p2.getID()
+	       << " have a separation of " << rij.toString() 
+	       << " but they are cubes and cannot be closer than " << d / Sim->units.unitLength()
+	       << " in any dimension."
+	       << std::endl;
+
+	return true;
+      }
+
+    return false;
   }
 }
 

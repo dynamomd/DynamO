@@ -686,7 +686,7 @@ namespace dynamo
   
     for (iPtr1 = particles.begin(); iPtr1 != particles.end(); ++iPtr1)
       for (iPtr2 = iPtr1 + 1; iPtr2 != particles.end(); ++iPtr2)
-	getInteraction(*iPtr1, *iPtr2)->checkOverlaps(*iPtr1, *iPtr2);
+	getInteraction(*iPtr1, *iPtr2)->validateState(*iPtr1, *iPtr2);
 
     BOOST_FOREACH(const Particle& part, particles)
       BOOST_FOREACH(const shared_ptr<Local>& lcl, locals)

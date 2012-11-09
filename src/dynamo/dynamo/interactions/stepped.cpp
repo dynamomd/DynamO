@@ -342,27 +342,49 @@ namespace dynamo {
       } 
   }
 
-  void
-  IStepped::checkOverlaps(const Particle& part1, const Particle& part2) const
+  bool
+  IStepped::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    const_cmap_it capstat = getCMap_it(part1,part2);
-
-    int val = captureTest(part1,part2);
+    const_cmap_it capstat = getCMap_it(p1, p2);
+    int val = captureTest(p1, p2);
 
     if (capstat == captureMap.end())
       {
 	if (val != 0)
-	  derr << "Particle " << part1.getID() << " and Particle " << part2.getID()
-	       << "\nFailing as captureTest gives " << val
-	       << "\nAnd recorded value is NO CAPTURE";
+	  {
+	    double d = steps.front().first * _unitLength->getMaxValue();
+
+	    if (textoutput)
+	      derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+		   << " registered as being outside the steps, starting at " << d / Sim->units.unitLength()
+		   << " but they are at a distance of "
+		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		   << std::endl;
+
+	    return true;
+	  }
       }
     else
-      if (val != capstat->second)
-	derr << "Particle " << part1.getID() << " and Particle " << part2.getID()
-	     << "\nFailing as captureTest gives " << val
-	     << "\nAnd recorded value is " << capstat->second << std::endl;
+      if (capstat->second != val)
+	{
+	  if (textoutput)
+	    derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+		 << " registered as being inside step " << capstat->second 
+		 << " which has limits of [" << ((capstat->second < static_cast<int>(steps.size())) ? 
+						 steps[capstat->second].first * _unitLength->getMaxValue() : 0) 
+	      / Sim->units.unitLength()
+		 << ", " << steps[capstat->second-1].first * _unitLength->getMaxValue() / Sim->units.unitLength()
+		 << "] but they are at a distance of " 
+		 << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		 << " and this corresponds to step " << val
+		 << std::endl;
+	    
+	  return true;
+	}
+
+    return false;
   }
-  
+
   void 
   IStepped::outputXML(magnet::xml::XmlStream& XML) const
   {

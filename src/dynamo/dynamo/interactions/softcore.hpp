@@ -46,8 +46,6 @@ namespace dynamo {
 
     virtual double maxIntDist() const;
 
-    virtual void checkOverlaps(const Particle&, const Particle&) const;
-
     virtual bool captureTest(const Particle&, const Particle&) const;
 
     virtual void initialise(size_t);
@@ -61,6 +59,8 @@ namespace dynamo {
     virtual double getInternalEnergy() const;
 
     virtual double getInternalEnergy(const Particle&, const Particle&) const;
+
+    virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
 
   protected:
     shared_ptr<Property> _diameter;

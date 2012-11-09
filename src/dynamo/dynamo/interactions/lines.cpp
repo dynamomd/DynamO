@@ -206,5 +206,39 @@ namespace dynamo {
 
     return Sim->dynamics->sphereOverlap(p1, p2, l);
   }
-}
 
+  bool
+  ILines::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
+  {
+    double l = (_length->getProperty(p1.getID())
+		+ _length->getProperty(p2.getID())) * 0.5;
+
+    if (isCaptured(p1, p2))
+      {
+	if (!Sim->dynamics->sphereOverlap(p1, p2, l))
+	  {
+	    if (textoutput)
+	      derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+		   << " are registered as being closer than " << l / Sim->units.unitLength()
+		   << " but they are at a distance of " 
+		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		   << std::endl;
+
+	    return true;
+	  }
+      }
+    else
+      if (Sim->dynamics->sphereOverlap(p1, p2, l))
+	{
+	  if (textoutput)
+	    derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+		 << " are not registered as being closer than " << l / Sim->units.unitLength()
+		 << " but they are at a distance of " 
+		 << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		 << std::endl;
+	  return true;
+	}
+
+    return false;
+  }
+}

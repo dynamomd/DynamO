@@ -71,8 +71,6 @@ namespace dynamo {
 
     virtual double getInternalEnergy(const Particle&, const Particle&) const;
 
-    virtual void checkOverlaps(const Particle&, const Particle&) const;
-
     virtual bool captureTest(const Particle&, const Particle&) const;
 
     virtual void initialise(size_t);
@@ -86,6 +84,8 @@ namespace dynamo {
     std::vector<size_t>& getSequence() { return sequence; }
 
     std::vector<std::vector<double> >& getAlphabet() { return alphabet; }
+
+    virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
 
   protected:
     shared_ptr<Property> _diameter;
