@@ -225,23 +225,17 @@ main(int argc, char *argv[])
       sim.writeXMLfile(vm["out-config-file"].as<string>(), 
 		       !vm.count("unwrapped"), vm.count("round"));
     }
-  catch (std::exception &cep)
+  catch (std::exception& cep)
     {
-      std::cout << "\nReached Main Error Loop"
-		<< "\nOutputting results so far and shutting down"
-		<< "\nBad configuration written to config.error.xml"
-		<< cep.what();
+      fflush(stdout);
+      magnet::stream::FormattedOStream os(magnet::console::bold()
+					  + magnet::console::red_fg() 
+					  + "Main(): " + magnet::console::reset(), std::cerr);
+      os << cep.what() << std::endl;
+#ifndef DYNAMO_DEBUG
+      os << "\nTry using the debugging executable for more information on the error." << std::endl;
+#endif
       
-      try
-	{ sim.writeXMLfile("config.error.xml.bz2"); }
-      catch (std::exception &cep)
-	{
-	  std::cout << "\nFailed to output error config"
-		    << cep.what() << "\n";
-	}
-
-      std::cout << "\n";
-
       return 1;
     }
 

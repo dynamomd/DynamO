@@ -171,8 +171,8 @@ namespace dynamo {
       {
 	if (textoutput)
 	  derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
-	       << " are closer than " << d / Sim->units.unitLength()
-	       << " but there is a hard core at a distance of " 
+	       << " have entered the core at " << d / Sim->units.unitLength()
+	       << " and are at a distance of " 
 	       << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
 	       << std::endl;
 	return true;

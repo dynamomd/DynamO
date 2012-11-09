@@ -23,6 +23,7 @@
 */
 
 #include <dynamo/coordinator/coordinator.hpp>
+#include <magnet/stream/formattedostream.hpp>
 #include <magnet/arg_share.hpp>
 #include <boost/program_options.hpp>
 #include <iostream>
@@ -72,12 +73,13 @@ int main(int argc, char *argv[])
   catch (std::exception& cep)
     {
       fflush(stdout);
-      std::cerr << "\n" << "MAIN: Exception caught in main(), details below:\n";
-      std::cerr << cep.what()
+      magnet::stream::FormattedOStream os(magnet::console::bold()
+					  + magnet::console::red_fg() 
+					  + "Main(): " + magnet::console::reset(), std::cerr);
+      os << cep.what() << std::endl;
 #ifndef DYNAMO_DEBUG
-		<< "\nMAIN:Try using the debugging executable for more information on the error."
+      os << "\nTry using the debugging executable for more information on the error." << std::endl;
 #endif
-	;
       return 1;
     }
 }
