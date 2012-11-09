@@ -77,7 +77,7 @@ namespace dynamo {
 
   SNeighbourList::SNeighbourList(const magnet::xml::Node& XML, 
 				   dynamo::Simulation* const Sim):
-    Scheduler(Sim,"NeighbourListScheduler", NULL)
+    Scheduler(Sim,"NbListScheduler", NULL)
   { 
     dout << "Neighbour List Scheduler Algorithmn Loaded" << std::endl;
     operator<<(XML);

@@ -55,6 +55,22 @@ namespace dynamo {
   void
   Scheduler::initialise()
   {
+    //Now, the scheduler is used to test the state of the system.
+    dout << "Checking the simulation configuration for any errors" << std::endl;
+    size_t warnings(0);
+    for (size_t id1(0); id1 < Sim->particles.size(); ++id1)
+      {
+	std::auto_ptr<Range> ids(getParticleNeighbours(Sim->particles[id1]));
+	BOOST_FOREACH(const size_t id2, *ids)
+	  if (id2 > id1)
+	    if (Sim->getInteraction(Sim->particles[id1], Sim->particles[id2])
+		->validateState(Sim->particles[id1], Sim->particles[id2], (warnings < 101)))
+	      ++warnings;
+      }
+    
+    if (warnings > 100)
+      derr << "Over 100 warnings of invalid states, further output was suppressed (total of " << warnings << " warnings detected)" << std::endl;
+
     dout << "Building all events on collision " << Sim->eventCount << std::endl;
     rebuildList();
   }

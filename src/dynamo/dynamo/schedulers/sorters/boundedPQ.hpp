@@ -221,10 +221,10 @@ namespace dynamo {
 
       listWidth = nlists / scale;
       if (scale == HUGE_VAL)
-	M_throw() << "Scale factor is infinite (only zero time collisions or no collisions?)";
+	M_throw() << "The scale factor for the bounded priority queue is infinite. Cannot resolve this. May be caused by only having zero time collisions or no collisions at all.";
 
       if (scale <= 0.0)
-	M_throw() << "Scale factor is zero or negative (negative collisions?)";
+	M_throw() << "The scale factor for the bounded priority queue is zero. Cannot resolve this. May be caused by a large number of negative time events.";
 
       if (nlists == 0)
 	{

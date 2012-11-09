@@ -233,7 +233,7 @@ main(int argc, char *argv[])
 					  + "Main(): " + magnet::console::reset(), std::cerr);
       os << cep.what() << std::endl;
 #ifndef DYNAMO_DEBUG
-      os << "\nTry using the debugging executable for more information on the error." << std::endl;
+      os << "Try using the debugging executable for more information on the error." << std::endl;
 #endif
       
       return 1;
