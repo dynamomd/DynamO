@@ -312,6 +312,16 @@ namespace dynamo {
 	cellOffset[iDim] = -(cellLatticeWidth[iDim] - maxdiam) * lambda * 0.5;
       }
 
+    if (getMaxSupportedInteractionLength() < maxdiam)
+      M_throw() << "The system size is too small to support the range of interactions specified (i.e. the system is smaller than the interaction diameter of one particle).";
+
+    //Find the required size of the morton array
+    magnet::math::MortonNumber<3> coords(cellCount[0], cellCount[1], cellCount[2]);
+    size_t sizeReq = coords.getMortonNum();
+
+    cells.resize(sizeReq); //Empty Cells created!
+    list.resize(sizeReq); //Empty Cells created!
+
     dout << "Cells <x,y,z> " << cellCount[0] << ","
 	 << cellCount[1] << "," << cellCount[2]
 	 << "\nCell Offset "
@@ -332,19 +342,7 @@ namespace dynamo {
 	 << cellLatticeWidth[2] / Sim->units.unitLength()
 	 << "\nRequested supported length " << maxdiam / Sim->units.unitLength()
 	 << "\nSupported length           " << getMaxSupportedInteractionLength() / Sim->units.unitLength()
-	 << std::endl;
-
-    if (getMaxSupportedInteractionLength() < maxdiam)
-      M_throw() << "The system size is too small to support the range of interactions specified (i.e. the system is smaller than the interaction diameter of one particle).";
-
-    //Find the required size of the morton array
-    magnet::math::MortonNumber<3> coords(cellCount[0], cellCount[1], cellCount[2]);
-    size_t sizeReq = coords.getMortonNum();
-
-    cells.resize(sizeReq); //Empty Cells created!
-    list.resize(sizeReq); //Empty Cells created!
-
-    dout << "Vector Size <N>  " << sizeReq << std::endl;
+	 << "\nVector Size <N>  " << sizeReq << std::endl;
   
     //Add the particles section
     //Required so particles find the right owning cell
