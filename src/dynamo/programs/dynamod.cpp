@@ -227,7 +227,7 @@ main(int argc, char *argv[])
     }
   catch (std::exception& cep)
     {
-      fflush(stdout);
+      std::cout.flush();
       magnet::stream::FormattedOStream os(magnet::console::bold()
 					  + magnet::console::red_fg() 
 					  + "Main(): " + magnet::console::reset(), std::cerr);
