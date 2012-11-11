@@ -149,10 +149,6 @@ namespace dynamo {
       Ptr->eventUpdate(iEvent, EDat);
   }
 
-  bool 
-  LTriangleMesh::isInCell(const Vector & Origin, const Vector& CellDim) const
-  { return true; }
-
   void 
   LTriangleMesh::operator<<(const magnet::xml::Node& XML)
   {

@@ -73,12 +73,6 @@ namespace dynamo {
       Ptr->eventUpdate(iEvent, EDat);
   }
 
-  bool 
-  LCylinder::isInCell(const Vector & Origin, const Vector& CellDim) const
-  {
-    return true;
-  }
-
   void 
   LCylinder::operator<<(const magnet::xml::Node& XML)
   {

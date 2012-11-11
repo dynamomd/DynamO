@@ -822,12 +822,12 @@ namespace dynamo {
 	    elasticity =  vm["f1"].as<double>();
 
 	  Sim->locals.push_back
-	    (shared_ptr<Local>(new LWall(Sim, elasticity, 0, Vector(1,0,0),
-					 Vector(-Sim->primaryCellSize[0] / 2, 0, 0),
+	    (shared_ptr<Local>(new LWall(Sim, elasticity, particleDiam, Vector(1,0,0),
+					 Vector(-Sim->primaryCellSize[0] / 2 - 0.5 * particleDiam, 0, 0),
 					 "LowWall", new RAll(Sim))));
 	  Sim->locals.push_back
-	    (shared_ptr<Local>(new LWall(Sim, elasticity, 0, Vector(-1,0,0), 
-					 Vector(Sim->primaryCellSize[0] / 2, 0, 0),
+	    (shared_ptr<Local>(new LWall(Sim, elasticity, particleDiam, Vector(-1,0,0), 
+					 Vector(Sim->primaryCellSize[0] / 2 + 0.5 * particleDiam, 0, 0),
 					 "HighWall", new RAll(Sim))));
 
 	  Sim->interactions.push_back
@@ -2030,22 +2030,22 @@ namespace dynamo {
 	     (new IHardSphere(Sim, particleDiam, ParticleInelas, new C2RAll(), "Bulk")));
 
 	  Sim->locals.push_back(shared_ptr<Local>
-				(new LWall(Sim, PlateInelas, 0, Vector(0,0,1), 
-					   Vector(0, 0, -0.5 * Aspect),
+				(new LWall(Sim, PlateInelas, particleDiam, Vector(0,0,1), 
+					   Vector(0, 0, -0.5 * Aspect - 0.5 * particleDiam),
 					   "Plate2", new RAll(Sim))));
 
 	  Sim->locals.push_back(shared_ptr<Local>
-				(new LWall(Sim, PlateInelas, 0, Vector(0,0,-1), Vector(0, 0, +0.5 * Aspect),
+				(new LWall(Sim, PlateInelas, particleDiam, Vector(0,0,-1), Vector(0, 0, +0.5 * Aspect + 0.5 * particleDiam),
 					   "Plate3", new RAll(Sim))));
 	  
 	  Sim->locals.push_back(shared_ptr<Local>
-				(new LWall(Sim, PlateInelas, 0, Vector(0,+1,0), 
-					   Vector(0, -0.5 * Aspect, 0),
+				(new LWall(Sim, PlateInelas, particleDiam, Vector(0,+1,0), 
+					   Vector(0, -0.5 * Aspect - 0.5 * particleDiam, 0),
 					   "Plate4", new RAll(Sim))));
 
 	  Sim->locals.push_back(shared_ptr<Local>
-				(new LWall(Sim, PlateInelas, 0, Vector(0,-1,0), 
-					   Vector(0, +0.5 * Aspect, 0),
+				(new LWall(Sim, PlateInelas, particleDiam, Vector(0,-1,0), 
+					   Vector(0, +0.5 * Aspect + 0.5 * particleDiam, 0),
 					   "Plate5", new RAll(Sim))));
 
 	  Sim->addSpecies(shared_ptr<Species>
@@ -2302,8 +2302,8 @@ namespace dynamo {
 	  //initialised touching the wall and to insert the wall just
 	  //inside the primary image
 	  Sim->locals.push_back(shared_ptr<Local>
-				(new LWall(Sim, 1.0, 0, Vector(0,1,0), 
-					   Vector(0, - 0.9995 * 0.5 * Sim->primaryCellSize[1], 0),
+				(new LWall(Sim, 1.0, particleDiam, Vector(0,1,0), 
+					   Vector(0, - 0.5 * Sim->primaryCellSize[1] - 0.5 * particleDiam, 0),
 					   "GroundPlate", new RAll(Sim))));
 	
 	  unsigned long nParticles = 0;

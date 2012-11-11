@@ -97,12 +97,6 @@ namespace dynamo {
       Ptr->eventUpdate(iEvent, EDat);
   }
 
-  bool 
-  LOscillatingPlate::isInCell(const Vector & Origin, const Vector& CellDim) const
-  {
-    return true;
-  }
-
   void 
   LOscillatingPlate::operator<<(const magnet::xml::Node& XML)
   {

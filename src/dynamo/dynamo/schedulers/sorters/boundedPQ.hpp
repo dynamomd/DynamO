@@ -347,7 +347,7 @@ namespace dynamo {
 	: static_cast<int>(box); //You can use this as usual
     
       //This line makes negative time events possible without a segfault
-      if (i < currentIndex) i = currentIndex;
+      i = std::max(i, currentIndex);
 
       if (i > (nlists-1)) /* account for wrap */
 	{

@@ -67,17 +67,6 @@ namespace dynamo {
       Ptr->eventUpdate(iEvent, EDat);
   }
 
-  bool 
-  LWall::isInCell(const Vector & Origin, const Vector& CellDim) const
-  {
-    double max_int_dist = 0.5 * _diameter->getMaxValue();
-
-    Vector data(max_int_dist, max_int_dist, max_int_dist);
-
-    return magnet::overlap::cube_plane(Origin - 0.5 * data, CellDim + data, 
-				       vPosition, vNorm);
-  }
-
   void 
   LWall::operator<<(const magnet::xml::Node& XML)
   {
@@ -85,6 +74,10 @@ namespace dynamo {
   
     try {
       _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
+
+      if (_diameter->getMaxValue() == 0)
+	M_throw() << "Cannot have a wall with a diameter of zero";
+      
       _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
     
       sqrtT = 0;

@@ -75,12 +75,6 @@ namespace dynamo {
       Ptr->eventUpdate(iEvent, EDat);
   }
 
-  bool 
-  LRoughWall::isInCell(const Vector & Origin, const Vector& CellDim) const
-  {
-    return magnet::overlap::cube_plane(Origin, CellDim, vPosition, vNorm);
-  }
-
   void 
   LRoughWall::operator<<(const magnet::xml::Node& XML)
   {

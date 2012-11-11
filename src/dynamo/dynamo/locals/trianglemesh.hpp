@@ -47,8 +47,6 @@ namespace dynamo {
 
     virtual void runEvent(Particle&, const LocalEvent&) const;
   
-    virtual bool isInCell(const Vector &, const Vector &) const;
-
     virtual void operator<<(const magnet::xml::Node&);
 
     virtual void checkOverlaps(const Particle&) const;

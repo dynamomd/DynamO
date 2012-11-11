@@ -53,7 +53,7 @@ namespace dynamo {
 
     virtual void runEvent(Particle&, const LocalEvent&) const = 0;
   
-    virtual bool isInCell(const Vector &, const Vector &) const = 0;
+    virtual bool isInCell(const Vector &, const Vector &) const { return true; }
 
     virtual void initialise(size_t nID)  { ID = nID; }
 
