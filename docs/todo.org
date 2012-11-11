@@ -40,14 +40,14 @@
 ***** TODO DynamO: Allow replica exchanges in collisions.
 ***** TODO DynamO: Remove the unusual replica exchange modes and simplify to just one. Also put the up and down swap ratios in the data.
 ***** DONE DynamO: Find out why the replica exchange Cv can be negative, averaging error?
-**** TODO DynamO: Make compression work with polydisperse walls.
-**** TODO DynamO: Currently, if we have square well chains, all of the linked monomers also appear in the capture map! This will artificially increase the energy of the base configuration, we need to check that the capture interaction is the valid interaction for the pair tested.
+**** DONE DynamO: Make compression work with polydisperse walls.
+**** DONE DynamO: Currently, if we have square well chains, all of the linked monomers also appear in the capture map! This will artificially increase the energy of the base configuration, we need to check that the capture interaction is the valid interaction for the pair tested.
 **** TODO Coil: Make the volume render images locatable anywhere in space to allow conversions from datasets to volumes.
 **** TODO Coil: Visual Effects Improvement
 ***** TODO Coil: crepuscular rays.
 ***** TODO Coil: Make the viewing grid have a scalable box size.
 ***** TODO Coil: Reimplement shadow mapping.
-***** TODO Coil: Reimplement bloom.
+***** DONE Coil: Reimplement bloom.
 ***** TODO Coil: Reimplement DOF.
 ***** TODO Coil: Reimplement SSAO.
 **** TODO DynamO: Move the morton ordered container out to its own type, and generalise the neighbour list further.
@@ -65,6 +65,7 @@
 **** TODO DynamO: Make a test for an invalid state in locals, globals and interactions (for particle insertion).
 **** TODO DynamO: Auto detect the ensemble, users shouldn't have to specify it.
 **** TODO DynamO: Add the gravity version of the sphere-sphere-out test. Fix and check that the umbrella implementation is general.
+**** TODO DynamO: Double check that the stable algorithm is available for all interactions, starting with plane with gravity.
 **** TODO Coil: Code cleanups
 ***** TODO Coil: Replace freeglut with your own implementation to fix the whole debacle of GL context management and deleting resources. 
 ***** TODO Coil: Make a generic render object container class (which is a render object), sort out object deletion or just fully separate the GTK and render interfaces.

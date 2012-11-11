@@ -44,7 +44,9 @@ namespace dynamo {
 	     iPtr1 != Sim->particles.end(); iPtr1++)
 	  for (std::vector<Particle>::const_iterator iPtr2 = iPtr1+1;
 	       iPtr2 != Sim->particles.end(); iPtr2++)
-	    testAddToCaptureMap(*iPtr1, iPtr2->getID());
+	    //Check this interaction is the correct interaction for the pair
+	    if (Sim->getInteraction(*iPtr1, *iPtr2).get() == static_cast<const Interaction*>(this))
+	      testAddToCaptureMap(*iPtr1, iPtr2->getID());
       }
   }
 
