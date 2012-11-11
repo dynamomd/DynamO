@@ -2433,6 +2433,13 @@ namespace coil {
     _Gbuffer.attachTexture(depthTexture);
   }
   
+
+  void 
+  CLGLWindow::autoscaleView()
+  {
+    _glContext->queueTask(magnet::function::Task::makeTask(&CLGLWindow::rescaleCameraCallback, this));
+  }
+
   void 
   CLGLWindow::rescaleCameraCallback()
   {

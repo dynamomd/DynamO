@@ -91,6 +91,8 @@ namespace coil {
 
     boost::signals2::signal<void ()>& signal_data_update() { return _updateDataSignal; }
 
+    void autoscaleView();
+
   protected:
     CLGLWindow(const CLGLWindow&);
     boost::signals2::signal<void ()> _updateDataSignal;

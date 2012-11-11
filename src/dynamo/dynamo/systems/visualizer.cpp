@@ -72,6 +72,10 @@ namespace dynamo {
   
     _lastUpdate = boost::posix_time::microsec_clock::local_time();
 
+    /* Now request that the visualiser rescales to the best dimensions for the current system */
+    _window->autoscaleView();
+
+
     dout << "Visualizer initialised" << std::endl;
   }
 
