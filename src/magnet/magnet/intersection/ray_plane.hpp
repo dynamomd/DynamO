@@ -20,14 +20,15 @@
 
 namespace magnet {
   namespace intersection {
-    //! \brief A ray-plane intersection test.
-    //!
-    //! \tparam BACKFACE_CULLING Ignores ray plane intersections
-    //! where the ray enters the back of the plane.
-    //! \param T The origin of the ray relative to a point on the plane.
-    //! \param D The direction/velocity of the ray.
-    //! \param N The normal of the plane.
-    //! \return The time until the intersection, or HUGE_VAL if no intersection.
+    /*! \brief A ray-plane intersection test.
+    
+     \tparam BACKFACE_CULLING Ignores ray plane intersections
+     where the ray enters the back of the plane.
+     \param T The origin of the ray relative to a point on the plane.
+     \param D The direction/velocity of the ray.
+     \param N The normal of the plane.
+     \return The time until the intersection, or HUGE_VAL if no intersection.
+    */
     template<bool BACKFACE_CULLING>
     inline double ray_plane(const math::Vector& T,
 			    const math::Vector& D,
