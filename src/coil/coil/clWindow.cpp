@@ -779,30 +779,38 @@ namespace coil {
 
     ////////////Lighting shadow map creation////////////////////
     //This stage only needs to be performed once per frame
-    //    if (_shadowMapping)
-    //      {
-    //	_VSMShader.attach();
-    //
-    //	//Render each light's shadow map
-    //	_VSMShader["ProjectionMatrix"] = _light0.getProjectionMatrix();
-    //	_VSMShader["ViewMatrix"] = _light0.getViewMatrix();	  
-    //	_light0.shadowFBO().attach();
-    //	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //	
-    //	//Enter the render ticks for all objects
-    //	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
-    //	     iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-    //	  if ((*iPtr)->shadowCasting() && (*iPtr)->visible())
-    //	    (*iPtr)->glRender(_light0, RenderObj::SHADOW);
-    //	
-    //	_light0.shadowFBO().detach();
-    //	/////////////MIPMAPPED shadow maps don't seem to work
-    //	//_light0.shadowTex()->genMipmaps();
-    //	_light0.shadowTex()->bind(7);
-    //	
-    //	_VSMShader.detach();
-    //      }
     
+//    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
+//	   = _renderObjsTree._renderObjects.begin();
+//	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
+//      if ((*iPtr)->shadowCasting() && std::tr1::dynamic_pointer_cast<RLight>(*iPtr))
+//	{
+//	  std::tr1::shared_ptr<RLight> light = std::tr1::static_pointer_cast<RLight>(*iPtr);
+//	  if (light)
+//	    {
+//	      _VSMShader.attach();
+//	      //Render each light's shadow map
+//	      _VSMShader["ProjectionMatrix"] = light->getProjectionMatrix();
+//	      _VSMShader["ViewMatrix"] = light->getViewMatrix();	  
+//	      light->shadowFBO().attach();
+//	      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//
+//	      //Enter the render ticks for all objects
+//	      for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator jPtr 
+//		     = _renderObjsTree._renderObjects.begin();
+//		   jPtr != _renderObjsTree._renderObjects.end(); ++jPtr)
+//		if (iPtr != jPtr)
+//		  if ((*jPtr)->shadowCasting() && (*jPtr)->visible())
+//		    (*iPtr)->glRender(*light, RenderObj::SHADOW);
+//	
+//	      light->shadowFBO().detach();
+//	      /////////////MIPMAPPED shadow maps don't seem to work
+//	      //_light0.shadowTex()->genMipmaps();
+//	      light->shadowTex()->bind(7);
+//	
+//	      _VSMShader.detach();
+//	    }
+//	}
     ////////All of the camera movement and orientation has been
     ////////calculated with a certain fixed head position, now we
     ////////actually perform the rendering with adjustments for the 
