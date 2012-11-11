@@ -44,6 +44,7 @@ namespace dynamo {
     virtual double CubeCubeInRoot(const Particle& p1, const Particle& p2, double d) const { M_throw() << "Not Implemented"; }
     virtual bool cubeOverlap(const Particle& p1, const Particle& p2, const double d) const { M_throw() << "Not Implemented"; }
     virtual PairEventData parallelCubeColl(const IntEvent& event, const double& e, const double& d, const EEventType& eType = CORE) const;
+    virtual ParticleEventData runAndersenWallCollision(Particle&, const Vector &, const double& T, const double d) const;
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;
     double growthRate;

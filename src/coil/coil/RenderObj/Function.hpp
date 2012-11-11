@@ -134,6 +134,9 @@ FunctionPickKernel(__global uint * colors, uint offset)
 
     virtual bool deletable() { return true; }
 
+    virtual magnet::math::Vector getDimensions() const;
+    virtual magnet::math::Vector getCentre() const;
+
   protected:
     void clTick();
 

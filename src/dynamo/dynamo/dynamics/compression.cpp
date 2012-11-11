@@ -317,4 +317,37 @@ namespace dynamo {
 				 const double&, const double&,
 				 const EEventType&) const
   { M_throw() << "Not Implemented"; }
+
+
+  ParticleEventData 
+  DynCompression::runAndersenWallCollision(Particle& part, const Vector & vNorm, const double& sqrtT, const double d) const
+  {  
+    updateParticle(part);
+
+    if (hasOrientationData())
+      M_throw() << "Need to implement thermostating of the rotational degrees"
+	" of freedom";
+
+    //This gives a completely new random unit vector with a properly
+    //distributed Normal component. See Granular Simulation Book
+    ParticleEventData tmpDat(part, *Sim->species[part], WALL);
+ 
+    double mass = Sim->species[tmpDat.getSpeciesID()]->getMass(part.getID());
+
+    for (size_t iDim = 0; iDim < NDIM; iDim++)
+      part.getVelocity()[iDim] = Sim->normal_sampler() * sqrtT / std::sqrt(mass);
+  
+    part.getVelocity() 
+      //This first line adds a component in the direction of the normal
+      += vNorm * (sqrtT * sqrt(-2.0*log(1.0-Sim->uniform_sampler()) / mass)
+		  //This removes the original normal component
+		  -(part.getVelocity() | vNorm)
+		  //This adds on the velocity of the wall
+		  + d * growthRate)
+      ;
+
+    tmpDat.setDeltaKE(0.5 * mass * (part.getVelocity().nrm2() - tmpDat.getOldVel().nrm2()));
+  
+    return tmpDat; 
+  }
 }

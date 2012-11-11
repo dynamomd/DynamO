@@ -2443,48 +2443,54 @@ namespace coil {
   void 
   CLGLWindow::rescaleCameraCallback()
   {
-    double maxdim = 0;
-    magnet::math::Vector centre;
+    magnet::math::Vector min(HUGE_VAL,HUGE_VAL,HUGE_VAL);
+    magnet::math::Vector max(-HUGE_VAL, -HUGE_VAL, -HUGE_VAL);
+
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
 	   = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       {
 	magnet::math::Vector dims = (*iPtr)->getDimensions();
-	magnet::math::Vector current_centre = (*iPtr)->getCentre();
-	double largest_dim = std::max(dims[0], std::max(dims[1], dims[2]));
-
-	if (largest_dim > maxdim)
-	  {
-	    maxdim = largest_dim;
-	    centre = current_centre;
-	  }
+	magnet::math::Vector centre = (*iPtr)->getCentre();
+	
+	min = Vector(std::min(min[0], centre[0] - 0.5 * dims[0]),
+		     std::min(min[1], centre[1] - 0.5 * dims[1]),
+		     std::min(min[2], centre[2] - 0.5 * dims[2]));
+	
+	max = Vector(std::max(max[0], centre[0] + 0.5 * dims[0]),
+		     std::max(max[1], centre[1] + 0.5 * dims[1]),
+		     std::max(max[2], centre[2] + 0.5 * dims[2]));
       }
     
     //Catch the exceptional case where there is nothing rendered
-    if (maxdim == 0) maxdim = 1.0;
+
+    if (std::isinf(min[0]) || std::isinf(min[1]) || std::isinf(min[2])
+	|| std::isinf(max[0]) || std::isinf(max[1]) || std::isinf(max[2]))
+      return;
+
+    double maxdim = std::max(max[0] - min[0], std::max(max[1] - min[1], max[2] - min[2]));
 
     double oldScale = _camera.getRenderScale();
     double newScale = 40.0 / maxdim;
+    magnet::math::Vector centre = 0.5 * (min + max); 
     magnet::math::Vector shift = centre - _cameraFocus;
-    
+	
     //Try to reset the camera, in-case its dissappeared to nan or inf.
     _camera.setPosition(_camera.getPosition() * oldScale / newScale + shift);
     _camera.setRenderScale(newScale);
-
+	
     _cameraFocus = centre;
     _cameraMode = ROTATE_WORLD;
     _camera.setMode(magnet::GL::Camera::ROTATE_POINT);
-
-
     {
       Gtk::Entry* simunits;
       _refXml->get_widget("SimLengthUnits", simunits);
-      
+	  
       std::ostringstream os;
       os << _camera.getRenderScale();
       simunits->set_text(os.str());
     }
-
+	
     //Shift the lighting for the scene
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
 	   = _renderObjsTree._renderObjects.begin();

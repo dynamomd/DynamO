@@ -467,11 +467,12 @@ namespace dynamo {
       \param part Particle colliding the wall.
       \param sqrtT Square root of the Temperature of wall.
       \param vNorm Normal of the wall (\f$ vNorm \cdot v_1 \f$ must be negative).
+      \param d Interaction distance of the wall.
      */    
     virtual ParticleEventData runAndersenWallCollision(Particle& part, 
 						       const Vector & vNorm,
-						       const double& sqrtT
-						       ) const = 0;
+						       const double& sqrtT,
+						       const double d) const = 0;
   
     /*! \brief Performs a hard sphere collision between the two particles.
       

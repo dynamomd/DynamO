@@ -200,6 +200,20 @@ namespace coil {
     _normBuff.releaseCLObject();
   }
 
+  magnet::math::Vector 
+  RFunction::getDimensions() const
+  {
+    return Vector(std::max(_axis1[0], _axis2[0]),
+		  std::max(_axis1[1], _axis2[1]),
+		  std::max(_axis1[2], _axis2[2]));
+  }
+
+  magnet::math::Vector 
+  RFunction::getCentre() const
+  {
+    return _origin + 0.5 * (_axis1 + _axis2);
+  }
+
   void 
   RFunction::glRender(const magnet::GL::Camera& cam, RenderMode mode)
   {

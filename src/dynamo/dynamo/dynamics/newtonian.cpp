@@ -246,7 +246,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  DynNewtonian::runAndersenWallCollision(Particle& part, const Vector & vNorm, const double& sqrtT) const
+  DynNewtonian::runAndersenWallCollision(Particle& part, const Vector & vNorm, const double& sqrtT, const double) const
   {  
     updateParticle(part);
 

@@ -54,7 +54,7 @@ namespace dynamo {
 
     NEventData EDat;
     if (sqrtT > 0)
-      EDat = Sim->dynamics->runAndersenWallCollision(part, vNorm, sqrtT);
+      EDat = Sim->dynamics->runAndersenWallCollision(part, vNorm, sqrtT, _diameter->getProperty(part.getID()));
     else
       EDat = Sim->dynamics->runPlaneEvent(part, vNorm, _e->getProperty(part.getID()), _diameter->getProperty(part.getID()));
 
