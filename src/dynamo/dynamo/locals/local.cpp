@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/locals/lwall.hpp>
-#include <dynamo/locals/AndersenWall.hpp>
 #include <dynamo/locals/oscillatingplate.hpp>
 #include <dynamo/locals/lcylinder.hpp>
 #include <dynamo/locals/lroughwall.hpp>
@@ -59,8 +58,6 @@ namespace dynamo {
       return shared_ptr<Local>(new LRoughWall(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"TriangleMesh"))
       return shared_ptr<Local>(new LTriangleMesh(XML, Sim));
-    else if (!strcmp(XML.getAttribute("Type"),"AndersenWall"))
-      return shared_ptr<Local>(new LAndersenWall(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"OscillatingPlate"))
       return shared_ptr<Local>(new LOscillatingPlate(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"CylinderWall"))
