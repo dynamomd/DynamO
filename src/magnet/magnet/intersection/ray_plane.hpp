@@ -22,26 +22,27 @@ namespace magnet {
   namespace intersection {
     /*! \brief A ray-plane intersection test.
     
-     \tparam BACKFACE_CULLING Ignores ray plane intersections
-     where the ray enters the back of the plane.
      \param T The origin of the ray relative to a point on the plane.
      \param D The direction/velocity of the ray.
      \param N The normal of the plane.
+     \param d The interaction distance to the plane.
      \return The time until the intersection, or HUGE_VAL if no intersection.
     */
-    template<bool BACKFACE_CULLING>
     inline double ray_plane(const math::Vector& T,
 			    const math::Vector& D,
-			    const math::Vector& N)
+			    const math::Vector& N,
+			    const double d)
     {
-      double ND = (D | N);
+      double v = (D | N);
+      double r = (T | N);
+      if (//Particles must move to intersect
+	  (v == 0)
+	  //Particles must be moving towards each other to intersect
+	  || ((v < 0) && (r < 0))
+	  || ((v > 0) && (r > 0)))
+	return HUGE_VAL;
       
-      if (BACKFACE_CULLING)
-	{ if (ND >= 0) return HUGE_VAL; }
-      else
-	{ if (ND == 0) return HUGE_VAL; }
-
-      return  -(T | N) / ND;
+      return  std::max(- (r - d) / v, 0.0);
     }
   }
 }

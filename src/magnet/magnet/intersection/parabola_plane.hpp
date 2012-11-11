@@ -21,13 +21,13 @@
 namespace magnet {
   namespace intersection {
     /*! \brief A parabola-plane intersection test which ignores
-     * negative time intersections.
-     *
-     * \param T The origin of the ray relative to a point on the plane.
-     * \param D The direction/velocity of the ray.
-     * \param A The acceleration of the ray.
-     * \param N The normal of the plane.
-     * \return The time until the intersection, or HUGE_VAL if no intersection.
+      negative time intersections.
+     
+      \param T The origin of the ray relative to a point on the plane.
+      \param D The direction/velocity of the ray.
+      \param A The acceleration of the ray.
+      \param N The normal of the plane.
+      \return The time until the intersection, or HUGE_VAL if no intersection.
      */
     inline double parabola_plane_bfc(const math::Vector& T,
 				     const math::Vector& D,
@@ -35,7 +35,7 @@ namespace magnet {
 				     const math::Vector& N)
     {
       double adot = (N | A);
-      if (adot == 0) return ray_plane<true>(T, D, N);
+      if (adot == 0) return ray_plane(T, D, N, 0);
 
       double rdot = T | N;
       double vdot = D | N;

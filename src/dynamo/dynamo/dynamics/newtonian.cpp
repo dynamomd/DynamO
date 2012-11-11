@@ -157,12 +157,12 @@ namespace dynamo {
   double 
   DynNewtonian::getPlaneEvent(const Particle& part, const Vector& wallLoc, const Vector& wallNorm, double diameter) const
   {
-    Vector rij = part.getPosition() - (wallLoc + wallNorm * diameter),
+    Vector rij = part.getPosition() - wallLoc,
       vel = part.getVelocity();
 
     Sim->BCs->applyBC(rij, vel);
 
-    return magnet::intersection::ray_plane<true>(rij, vel, wallNorm);
+    return magnet::intersection::ray_plane(rij, vel, wallNorm, diameter);
   }
 
   std::pair<double, Dynamics::TriangleIntersectingPart>

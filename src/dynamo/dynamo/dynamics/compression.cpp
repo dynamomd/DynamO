@@ -61,12 +61,12 @@ namespace dynamo {
   double 
   DynCompression::getPlaneEvent(const Particle& part, const Vector & origin, const Vector & norm, double diameter) const
   {
-    Vector rij = part.getPosition() - (origin + norm * diameter * (1.0 + growthRate * Sim->systemTime)),
+    Vector rij = part.getPosition() - origin,
       vij = part.getVelocity() - norm * diameter * growthRate;
 
     Sim->BCs->applyBC(rij, vij);
 
-    return magnet::intersection::ray_plane<true>(rij, vij, norm);
+    return magnet::intersection::ray_plane(rij, vij, norm, diameter * (1.0 + growthRate * Sim->systemTime));
   }
 
   ParticleEventData 
