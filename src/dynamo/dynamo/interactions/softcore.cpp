@@ -127,20 +127,7 @@ namespace dynamo {
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 	if (dt != HUGE_VAL) 
-	  {
-#ifdef DYNAMO_OverlapTesting
-	if (Sim->dynamics->sphereOverlap(p1, p2, d))
-	  M_throw() << "Overlapping particles found"
-		    << ", particle1 " << p1.getID()
-		    << ", particle2 " << p2.getID()
-		    << "\nOverlap = " 
-		    << Sim->dynamics.getDynamics()
-	    .sphereOverlap(p1, p2, d)
-	    / Sim->units.unitLength();
-#endif
-	    
-	    return IntEvent(p1, p2, dt, WELL_IN, *this);
-	  }
+	  return IntEvent(p1, p2, dt, WELL_IN, *this);
       }
 
     return IntEvent(p1, p2, HUGE_VAL, NONE, *this);

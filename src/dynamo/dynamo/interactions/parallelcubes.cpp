@@ -100,9 +100,7 @@ namespace dynamo {
   
     if (!Sim->dynamics->isUpToDate(p2))
       M_throw() << "Particle 2 is not up to date";
-#endif
 
-#ifdef DYNAMO_DEBUG
     if (p1 == p2)
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
@@ -113,18 +111,7 @@ namespace dynamo {
     double dt = Sim->dynamics->CubeCubeInRoot(p1, p2, d);
 
     if (dt != HUGE_VAL)
-      {
-#ifdef DYNAMO_OverlapTesting
-	if (Sim->dynamics->cubeOverlap(p1, p2, d))
-	  M_throw() << "Overlapping particles found" 
-		    << ", particle1 " << p1.getID() << ", particle2 " 
-		    << p2.getID() << "\nOverlap = " 
-		    << Sim->dynamics->cubeOverlap(p1, p2, d)
-	    / Sim->units.unitLength();
-#endif
-
-	return IntEvent(p1, p2, dt, CORE, *this);
-      }
+      return IntEvent(p1, p2, dt, CORE, *this);
   
     return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
   }
