@@ -51,12 +51,11 @@ exe dynamoDependencies : tests/buildreq.cpp : <dynamo-buildable>no:<define>BUILD
 
 lib dynamo_core : [ glob-tree *.cpp : programs tests ]
       /magnet//magnet boost_filesystem boost_program_options boost_iostreams rt 
-    : <include>include <include>. <dynamo-buildable>no:<build>no
+    : <include>. <dynamo-buildable>no:<build>no
       <variant>debug:<define>DYNAMO_DEBUG <link>static
       <coil-integration>yes:<source>/coil//coil/<link>static
       <coil-integration>yes:<define>DYNAMO_visualizer
-    : : <include>include 
-    <variant>debug:<define>DYNAMO_DEBUG <threading>multi <link>static <include>.
+    : : <variant>debug:<define>DYNAMO_DEBUG <threading>multi <link>static <include>.
     ;
 
 #This rule tests for the dynamo dependencies and returns <build>no if
