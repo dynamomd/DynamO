@@ -68,7 +68,7 @@ use-project /opencl : src/opencl ;
 
 alias install : /dynamo//install-dynamo  ;
 
-alias install-libraries : /coil//install-coil /magnet//install-magnet /opencl//install-headers ;
+alias install-libraries : /coil//install-coil /magnet//install-magnet ;
 
 alias test : /magnet//test ;
 
