@@ -170,8 +170,8 @@ namespace dynamo {
     Vector g12(g);
     if (p2Dynamic) g12 = -g;
 
-    //return magnet::intersection::parabola_inv_sphere_bfc(r12, v12, a12, d);
-    M_throw() << "Function not implemented";
+    //Now test for a parabolic ray and sphere intersection
+    return magnet::intersection::parabola_invsphere_bfc(r12, v12, g12, d);
   }
 
   double
