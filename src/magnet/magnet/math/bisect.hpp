@@ -25,7 +25,7 @@ namespace magnet {
     }
 
     template<class Functor>
-    inline double bisect(const Functor& func, double t1, double t2, double rootthreshold, const size_t nIt = 500)
+    inline double bisect(const Functor& func, double t1, double t2, double rootthreshold, const size_t nIt = 5000)
     {
 #ifdef MAGNET_DEBUG
       if (comparesign(func(t1), func(t2)))

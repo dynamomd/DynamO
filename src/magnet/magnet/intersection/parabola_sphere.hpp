@@ -51,13 +51,11 @@ namespace magnet {
       //This is our lengthscale to which we bisect the roots
       const double rootthreshold = 1e-16 * r;
       
-      double DdotT = (D | T);
-
       detail::QuarticFunc f;
       f.coeffs[0] = 0.25 * G.nrm2();
       f.coeffs[1] = G | D;
       f.coeffs[2] = D.nrm2() + (G | T);
-      f.coeffs[3] = 2 * DdotT;
+      f.coeffs[3] = 2 * (D | T);
       f.coeffs[4] = T.nrm2()- r * r;
       
       //We calculate the roots of the cubic differential of F
@@ -108,14 +106,12 @@ namespace magnet {
       //This is our lengthscale to which we bisect the roots
       const double rootthreshold = 1e-16 * r;
       
-      double DdotT = (D | T);
-
       detail::QuarticFunc f;
-      f.coeffs[0] = -0.25 * G.nrm2();
-      f.coeffs[1] = -G | D;
-      f.coeffs[2] = -D.nrm2() + (G | T);
-      f.coeffs[3] = -2 * DdotT;
-      f.coeffs[4] = r * r - T.nrm2();
+      f.coeffs[0] = - (0.25 * G.nrm2());
+      f.coeffs[1] = - (G | D);
+      f.coeffs[2] = - (D.nrm2() + (G | T));
+      f.coeffs[3] = - (2 * (D | T));
+      f.coeffs[4] = - (T.nrm2() - r * r);
       
       //We calculate the roots of the cubic differential of F
       //\f$F=A t^4 + B t^3 + C t^2 + D t + E == 0\f$ taking the differential gives
@@ -147,15 +143,15 @@ namespace magnet {
       
       double t0 = std::max(0.0, tlast);
       
-      double te = std::pow(4 * r * r / G.nrm2(), 0.25);
+      double deltate = std::pow(4 * r * r / G.nrm2(), 0.25);
       
-      while (f(te) >= 0)
+      while (f(t0 + deltate) >= 0)
 	{
-	  t0 += te;
-	  te *= 2;
+	  t0 += deltate;
+	  deltate *= 2;
 	}
-      
-      return magnet::math::bisect(f, t0, te, rootthreshold);
+
+      return magnet::math::bisect(f, t0, t0+deltate, rootthreshold);
     }
   }
 }
