@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<DynamOconfig version="1.5.0">
+  <Simulation>
+    <Scheduler Type="NeighbourList">
+      <Sorter Type="CBT"/>
+    </Scheduler>
+    <SimulationSize x="51.5764409809654" y="51.5764409809654" z="51.5764409809654"/>
+    <BC Type="None"/>
+    <Genus>
+      <Species Name="FixedColliders" IntName="Bulk" Type="FixedCollider" Range="Ranged" Start="0" End="0"/>
+      <Species Mass="1.00000000000000e+00" Name="Bulk" IntName="Bulk" Type="Point" Range="Ranged" Start="1" End="5"/>
+      <Species Mass="10" Name="Bulk" IntName="Bulk" Type="Point" Range="Ranged" Start="6" End="6"/>
+    </Genus>
+    <Topology/>
+    <SystemEvents/>
+    <Globals>
+      <Global Type="Cells" Lambda="9.00000000000000e-01" Name="SchedulerNBList"/>
+    </Globals>
+    <Locals>
+    </Locals>
+    <Interactions>
+      <Interaction Type="SquareBond" Diameter="0.90000000000000002" Lambda="1.2222222222222223" Name="Bonds" Elasticity="1" Range="Chains" Start="0" End="6" Interval="7"/>
+      <Interaction Type="HardSphere" Diameter="1.00000000000000e+00" Elasticity="1.00000000000000e+00" Name="Bulk" Range="2All"/>
+    </Interactions>
+    <Dynamics Type="NewtonianGravity">
+    <g x="0" y="-1" z="0"/>
+    </Dynamics>
+  </Simulation>
+  <ParticleData N="1372" AttachedBinary="N">
+    <Pt ID="0">
+      <P x="0" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+    <Pt ID="1">
+      <P x="1" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+    <Pt ID="2">
+      <P x="2" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+    <Pt ID="3">
+      <P x="3" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+    <Pt ID="4">
+      <P x="4" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+    <Pt ID="5">
+      <P x="5" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+    <Pt ID="6">
+      <P x="6" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+  </ParticleData>
+</DynamOconfig>

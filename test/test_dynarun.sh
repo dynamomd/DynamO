@@ -697,6 +697,30 @@ function StaticSpheresTest {
 	tmp.xml.bz2 run.log
 }
 
+function SwingSpheresTest {
+    > run.log
+
+    ./dynarun -c 500000 swing.xml >> run.log 2>&1
+    
+    if [ -e output.xml.bz2 ]; then
+	if [ $(bzcat output.xml.bz2 \
+	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
+	    | gawk '{mft=0.0364120434226142; var=($1-mft)/mft; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
+	    echo "SwingSphereTest -: FAILED"
+	    exit 1
+	else
+	    echo "SwingSphereTest -: PASSED"
+	fi
+    else
+	echo "Error, no output.0.xml.bz2 in StaticSpheresTest"
+	exit 1
+    fi
+    
+#Cleanup
+    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
+	tmp.xml.bz2 run.log
+}
+
 echo "SCHEDULER AND SORTER TESTING"
 echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, CBT"
 cannon "Dumb" "CBT"
@@ -722,7 +746,8 @@ HardLinesTest
 #linescannon "NeighbourList" "BoundedPQ"
 echo "Testing static spheres in gravity, NeighbourLists and BoundedPQ's"
 StaticSpheresTest
-
+echo "Testing static and bonded spheres in gravity, NeighbourLists and BoundedPQ's"
+SwingSpheresTest
 echo "Testing *2D* stepped potential spheres, NeighbourLists and BoundedPQ's"
 twoDsteppedPotentialTest
 
