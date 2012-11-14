@@ -321,6 +321,7 @@ namespace magnet {
 	  case ROTATE_POINT:
 	    {
 	      double focus_distance = (getPosition() - _rotatePoint).nrm();
+	      _panrotation = 0;
 	      setPosition(_rotatePoint - focus_distance * axis);
 	      lookAt(_rotatePoint);
 	      break;
