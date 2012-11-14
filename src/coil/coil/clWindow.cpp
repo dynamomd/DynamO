@@ -772,7 +772,7 @@ namespace coil {
     float sideways = moveAmp * (keyStates[static_cast<size_t>('d')] - keyStates[static_cast<size_t>('a')]);
     float vertical =  moveAmp * (keyStates[static_cast<size_t>('q')] - keyStates[static_cast<size_t>('z')]);
     _camera.movement(0, 0, forward, sideways, vertical);
-    
+
     ////////////GUI UPDATES
     //We frequently ping the gui update
     guiUpdateCallback();

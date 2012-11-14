@@ -146,12 +146,12 @@ namespace magnet {
 	math::Vector rotationAxis = _up ^ directionInXZplane;
 	rotationAxis /= rotationAxis.nrm();
 
-	_tiltrotation = (180.0f / M_PI) * std::acos(std::min(directionInXZplane | directionNorm, 1.0));
+	_tiltrotation = (180.0f / M_PI) * std::acos(clamp(directionInXZplane | directionNorm, -1.0, 1.0));
 
 	if (((directionNorm ^ directionInXZplane) | rotationAxis) > 0)
 	  _tiltrotation = -_tiltrotation;
 
-	_panrotation = -(180.0f / M_PI) * std::acos(std::min(directionInXZplane | math::Vector(0,0,-1), 1.0));
+	_panrotation = -(180.0f / M_PI) * std::acos(clamp(directionInXZplane | math::Vector(0,0,-1), -1.0, 1.0));
 	
 	if (((math::Vector(0,0,-1) ^ directionInXZplane) | _up) < 0)
 	  _panrotation = -_panrotation;
