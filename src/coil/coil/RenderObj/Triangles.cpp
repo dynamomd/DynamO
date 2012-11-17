@@ -263,7 +263,7 @@ namespace coil {
 	std::vector<GLubyte> vertexColors;
 	vertexColors.reserve(N * 4);
       
-	for (cl_uint i(offset); i < N + offset; ++i)
+	for (size_t i(offset); i < N + offset; ++i)
 	  {
 	    vertexColors.push_back((i >>  0) & 0xFF);
 	    vertexColors.push_back((i >>  8) & 0xFF);

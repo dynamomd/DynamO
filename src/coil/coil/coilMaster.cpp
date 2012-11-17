@@ -319,18 +319,11 @@ namespace coil {
   {
     try {
       _coilQueue.drainQueue();
-
+      
       if (!isRunning()) 
 	renderThreadShutdownTasks();
-
-    } catch (cl::Error err)
-      {
-	std::cerr << "\nCoil caught an exception while performing its tasks\n"
-		  << "An OpenCL error occured," << err.what()
-		  << "\nError num of " << err.err() << "\n";
-	shutdownCoil();
-	renderThreadShutdownTasks();
-      } catch (std::exception& except)
+    }
+    catch (std::exception& except)
       {
 	std::cerr << "\nCoil caught an exception while performing its tasks\n"
 		  << except.what() << "\n";

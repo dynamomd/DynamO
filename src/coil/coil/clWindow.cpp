@@ -16,7 +16,7 @@
 */
 
 #include <coil/clWindow.hpp>
-#include <coil/RenderObj/Function.hpp>
+#include <coil/RenderObj/Surface.hpp>
 #include <coil/RenderObj/console.hpp>
 #include <coil/RenderObj/Volume.hpp>
 #include <coil/RenderObj/Light.hpp>
@@ -99,22 +99,18 @@ namespace coil {
   bool
   CLGLWindow::CallBackIdleFunc()
   {
-    try {
-      glutSetWindow(windowID);
-      CallBackDisplayFunc();
-    } catch (cl::Error err)
+    try 
       {
-	std::cerr << "\n Window render caught an OpenCL exception\n"
-		  << "An OpenCL error occured," << err.what()
-		  << "\nError num of " << err.err()
-		  << "\n As we're in a thread we can only exit(1)!";
-	std::exit(1);
-      } catch (std::exception& except)
+	glutSetWindow(windowID);
+	CallBackDisplayFunc();
+      }
+    catch (std::exception& except)
       {
 	std::cerr << "\n Window render caught a std::exception\n"
 		  << except.what();
 	std::exit(1);
-      }  catch (...)
+      }  
+    catch (...)
       {
 	std::cerr << "\nRender thread caught an unknown exception!\n";
 	std::exit(1);
@@ -2061,7 +2057,7 @@ namespace coil {
   void
   CLGLWindow::addFunctionCallback()
   {
-    std::tr1::shared_ptr<RFunction> function(new RFunction("Function"));
+    std::tr1::shared_ptr<RSurface> function(new RSurface("Function"));
     _renderObjsTree._renderObjects.push_back(function);
     _renderObjsTree._renderObjects.back()->init(_systemQueue);
     _renderObjsTree.buildRenderView();

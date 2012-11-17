@@ -17,8 +17,8 @@
 
 #pragma once
 
-#include <CL/cl.hpp>
 #include <cmath>
+#include <stdint.h>
 #include <magnet/clamp.hpp>
 #include <magnet/exception.hpp>
 
@@ -124,13 +124,13 @@ namespace magnet {
       color[3] = alpha;
     }
 
-    inline void HSVtoRGB(cl_uchar4& color, float h, float s = 1, float v = 1)
+    inline void HSVtoRGB(uint8_t color[4], float h, float s = 1, float v = 1)
     {
-      GLfloat floatcolor[4];
+      float floatcolor[4];
       HSVtoRGB(floatcolor, h, s, v);
 
       for (size_t i(0); i < 4; ++i)
-	color.s[i] = 255 * floatcolor[i];
+	color[i] = 255 * floatcolor[i];
     }
 
     inline std::string getOpenCLHSV()

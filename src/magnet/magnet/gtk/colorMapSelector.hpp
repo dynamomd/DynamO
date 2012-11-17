@@ -69,12 +69,12 @@ namespace magnet {
 	pack_start(_comboBox, false, false, 5);
       }
 
-      void map(cl_uchar4& color, float val)
+      void map(uint8_t color[4], float val)
       {
-	GLfloat floatcolor[4];
+	float floatcolor[4];
 	map(floatcolor, val);
 	for (size_t i(0); i < 4; ++i)
-	  color.s[i] = 255 * floatcolor[i];
+	  color[i] = 255 * floatcolor[i];
       }
 
       void map(float color[4], float val)
@@ -134,7 +134,7 @@ namespace magnet {
 	
 	for (size_t column(0); column < width; ++column)
 	  {
-	    map((cl_uchar4&)(pixels[4*column]), (float)(column)/ width);
+	    map(reinterpret_cast<uint8_t*>(pixels + 4 * column), (float)(column)/ width);
 	    for (size_t row(1); row < height; ++row)
 	      (int32_t&)(pixels[4*(column + width * row)]) = (int32_t&)(pixels[4*column]);
 	  }

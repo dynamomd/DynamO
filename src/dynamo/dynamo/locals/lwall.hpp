@@ -20,7 +20,7 @@
 #include <dynamo/coilRenderObj.hpp>
 #include <dynamo/simulation.hpp>
 #ifdef DYNAMO_visualizer
-# include <coil/RenderObj/Function.hpp>
+# include <coil/RenderObj/Surface.hpp>
 #endif 
 
 namespace dynamo {
@@ -56,7 +56,7 @@ namespace dynamo {
 
   protected:
 #ifdef DYNAMO_visualizer
-    mutable shared_ptr<coil::RFunction> _renderObj;
+    mutable shared_ptr<coil::RSurface> _renderObj;
 #endif
 
     virtual void outputXML(magnet::xml::XmlStream&) const;

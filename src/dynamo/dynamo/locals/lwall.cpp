@@ -168,7 +168,7 @@ namespace dynamo {
 	orth1 *= (orth1 | Sim->primaryCellSize);
 	orth2 *= (orth2 | Sim->primaryCellSize);
 
-	_renderObj.reset(new coil::RFunction(getName(), 10, vPosition - 0.5 * (orth1 + orth2), orth1, orth2, vNorm));
+	_renderObj.reset(new coil::RSurface(getName(), 10, vPosition - 0.5 * (orth1 + orth2), orth1, orth2, vNorm));
       }
   
     return std::tr1::static_pointer_cast<coil::RenderObj>(_renderObj);

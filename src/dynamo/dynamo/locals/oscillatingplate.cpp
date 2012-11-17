@@ -204,13 +204,9 @@ namespace dynamo {
 	axis1 *= Sim->primaryCellSize[1] * lengthRescale / axis1.nrm();
 	axis2 *= Sim->primaryCellSize[2] * lengthRescale / axis2.nrm();
 
-	_renderObj.reset(new coil::RFunction("Oscillating wall", 10, 
-					     rw0 - 0.5 * (axis1 + axis2), 
-					     axis1, axis2, axis3,
-					     0, 0, 1, 1, true, false,
-					     "f = A;",
-					     "normal = -(float4)(" + os.str() + ");"
-					     ));
+	_renderObj.reset(new coil::RSurface("Oscillating wall", 10, 
+					    rw0 - 0.5 * (axis1 + axis2), 
+					    axis1, axis2, axis3));
       }
   
     return std::tr1::static_pointer_cast<coil::RenderObj>(_renderObj);
@@ -219,11 +215,11 @@ namespace dynamo {
   void 
   LOscillatingPlate::updateRenderData() const
   {
-    const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
-
-    if (_renderObj)
-      _renderObj->setConstantA((delta * std::cos(omega0 * (Sim->systemTime + timeshift)) 
-				- (sigma + 0.5 * Sim->units.unitLength())) *  lengthRescale);
+//    const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
+//
+//    if (_renderObj)
+//      _renderObj->setConstantA((delta * std::cos(omega0 * (Sim->systemTime + timeshift)) 
+//				- (sigma + 0.5 * Sim->units.unitLength())) *  lengthRescale);
   }
 #endif
 }

@@ -16,14 +16,20 @@
 
 import ./jam/builddep ;
 
+project	: requirements
+	  [ builddep.set-feature-on-build magnet-OpenCL : /opencl//test : "Magnet: OpenCL libraries and headers (optional)" ]
+	: default-build release
+	: build-dir $(BUILD_DIR_PATH)
+	;
+
 alias libavcodec : : : : <define>MAGNET_FFMPEG_SUPPORT <linkflags>"`pkg-config libavcodec libavutil --libs`" <cflags>"`pkg-config libavcodec libavutil --cflags`" ; 
 exe ffmpeg_test : tests/ffmpeg_test.cpp libavcodec : <include>. ;
 
 lib dl : : <link>shared ;
 
-alias magnet : dl
+alias magnet : dl 
       : <include>.
-      : : <include>. <variant>debug:<define>MAGNET_DEBUG <variant>debug:<linkflags>-rdynamic <variant>fulldebug:<define>MAGNET_DEBUG <variant>fulldebug:<linkflags>-rdynamic
+      : : <include>. <variant>debug:<define>MAGNET_DEBUG <variant>debug:<linkflags>-rdynamic <variant>fulldebug:<define>MAGNET_DEBUG <variant>fulldebug:<linkflags>-rdynamic <magnet-OpenCL>yes:<source>/opencl//OpenCL <magnet-OpenCL>yes:<define>MAGNET_CLGL
       ;
 
 install install-magnet
