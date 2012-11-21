@@ -118,7 +118,9 @@ namespace dynamo {
   
     for (unsigned int i = 0; i < nSims; i++)
       {
+#ifdef DYNAMO_DEBUG
 	bool didWork = false;
+#endif
 	BOOST_FOREACH(shared_ptr<System>& sysPtr1, Simulations[i].systems)
 	  if (sysPtr1->getName() == "Thermostat")
 	    {
@@ -130,18 +132,16 @@ namespace dynamo {
 		 (Simulations[i].ensemble->getEnsembleVals()[2], 
 		  simData(i,Simulations[i].ensemble->getReducedEnsembleVals()[2])));
 	    
+#ifdef DYNAMO_DEBUG
 	      didWork = true;
+#endif
 	      break;
 	    }
       
 #ifdef DYNAMO_DEBUG
 	if (!didWork)
-	  {	 
-	    std::cout << "Could not find thermostat system event";
-	    exit(1);
-	  }
+	  M_throw() << "Could not find thermostat system event";
 #endif
-      
       }
   
     std::sort(temperatureList.begin(), temperatureList.end());  

@@ -34,9 +34,11 @@ namespace dynamo {
   
     static C2Range* getClass(const magnet::xml::Node&, const dynamo::Simulation*);
 
-    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const C2Range&);
-
-  protected:
+    inline friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML,
+						     const C2Range& range)
+    { range.outputXML(XML); return XML; }
+ 
+ protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const = 0;
   };
 }

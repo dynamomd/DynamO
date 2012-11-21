@@ -38,19 +38,6 @@ namespace dynamo {
 		<< ", Unknown type of Range encountered";
   }
 
-  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Range&g)
-  {
-    g.outputXML(XML);
-    return XML;
-  }
-
-  magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
-				     const C2Range& g)
-  {
-    g.outputXML(XML);
-    return XML;
-  }
-
   C2Range*
   C2Range::getClass(const magnet::xml::Node& XML, const dynamo::Simulation* Sim)
   {

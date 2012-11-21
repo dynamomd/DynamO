@@ -30,31 +30,33 @@ namespace dynamo {
 
   class Range
   {
-    class RangeIterator
+  public:
+
+    class iterator
     {
       friend class Range;
 
-      RangeIterator(unsigned long nPos, const Range* nRangePtr):
+      iterator(unsigned long nPos, const Range* nRangePtr):
 	pos(nPos), rangePtr(nRangePtr) {}
 
     public:
 
-      inline bool operator==(const RangeIterator& nIT) const
+      inline bool operator==(const iterator& nIT) const
       { return nIT.pos == pos; }
 
-      inline bool operator!=(const RangeIterator& nIT) const
+      inline bool operator!=(const iterator& nIT) const
       { return nIT.pos != pos; }
 
-      inline RangeIterator operator+(const unsigned long& i) const
-      { return RangeIterator(pos+i, rangePtr); }
+      inline iterator operator+(const unsigned long& i) const
+      { return iterator(pos+i, rangePtr); }
 
-      inline RangeIterator operator-(const unsigned long& i) const
-      { return RangeIterator(pos-i, rangePtr); }
+      inline iterator operator-(const unsigned long& i) const
+      { return iterator(pos-i, rangePtr); }
     
-      inline RangeIterator& operator++()
+      inline iterator& operator++()
       { ++pos; return *this; }
 
-      inline RangeIterator& operator++(int)
+      inline iterator& operator++(int)
       { ++pos; return *this; }
 
       inline size_t operator*() const
@@ -71,9 +73,7 @@ namespace dynamo {
       const Range* rangePtr;
     };
 
-  public:
-    typedef RangeIterator iterator;
-    typedef RangeIterator const_iterator;
+    typedef iterator const_iterator;
 
     virtual ~Range() {};
 
@@ -89,7 +89,9 @@ namespace dynamo {
 
     static Range* getClass(const magnet::xml::Node&, const dynamo::Simulation * Sim);
 
-    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Range&);
+    inline friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML,
+						     const Range& range)
+    { range.outputXML(XML); return XML; }
 
     iterator begin() const { return Range::iterator(0, this); }
     iterator end() const { return Range::iterator(size(), this); }
