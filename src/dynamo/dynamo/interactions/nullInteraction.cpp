@@ -23,7 +23,7 @@
 #include <cstring>
 
 namespace dynamo {
-  INull::INull(dynamo::Simulation* tmp, C2Range* nR, std::string name):
+  INull::INull(dynamo::Simulation* tmp, IDPairRange* nR, std::string name):
     Interaction(tmp, nR) { intName = name; }
 
   INull::INull(const magnet::xml::Node& XML, dynamo::Simulation* tmp):

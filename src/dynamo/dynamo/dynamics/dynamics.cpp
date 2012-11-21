@@ -355,10 +355,10 @@ namespace dynamo {
   }
 
   std::pair<Vector, Vector> 
-  Dynamics::getCOMPosVel(const Range& particles) const
+  Dynamics::getCOMPosVel(const IDRange& particles) const
   {
     if (particles.empty())
-      M_throw() << "Cannot calculate the COM position and velocity from an empty Range";
+      M_throw() << "Cannot calculate the COM position and velocity from an empty IDRange";
     
     Vector pos = Vector(0,0,0), 
       vel = Vector(0,0,0);

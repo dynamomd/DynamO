@@ -18,7 +18,7 @@
 #pragma once
 #include <dynamo/systems/system.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/ranges/1range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_real.hpp>
 

@@ -28,7 +28,7 @@ namespace dynamo {
 					 Vector nrw0, Vector nnhat,
 					 double nomega0, double nsigma, double ne,
 					 double ndelta, double nmass, std::string nname, 
-					 Range* nRange, double timeshift, bool nstrongPlate):
+					 IDRange* nRange, double timeshift, bool nstrongPlate):
     Local(nRange, nSim, "OscillatingPlate"),
     strongPlate(nstrongPlate),
     rw0(nrw0), nhat(nnhat), omega0(nomega0), sigma(nsigma), 
@@ -100,7 +100,7 @@ namespace dynamo {
   void 
   LOscillatingPlate::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<Range>(Range::getClass(XML,Sim));
+    range = shared_ptr<IDRange>(IDRange::getClass(XML,Sim));
   
     try {
       e = XML.getAttribute("Elasticity").as<double>();

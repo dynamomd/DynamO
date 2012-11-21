@@ -31,9 +31,9 @@ namespace dynamo {
     void initialise();
     const Vector& getGravityVector() const { return g; }
     virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const;
-    virtual double SphereSphereInRoot(const Range& p1, const Range& p2, double d) const;
+    virtual double SphereSphereInRoot(const IDRange& p1, const IDRange& p2, double d) const;
     virtual double SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const;
-    virtual double SphereSphereOutRoot(const Range& p1, const Range& p2, double d) const;
+    virtual double SphereSphereOutRoot(const IDRange& p1, const IDRange& p2, double d) const;
     virtual void streamParticle(Particle&, const double&) const;
     virtual double getSquareCellCollision2(const Particle&, const Vector &, const Vector &) const;
     virtual int getSquareCellCollision3(const Particle&, const Vector &, const Vector &) const;

@@ -16,19 +16,19 @@
 */
 
 #pragma once
-#include <dynamo/ranges/1range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 #include <dynamo/particle.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  class RSingle: public Range
+  class IDRangeSingle: public IDRange
   {
   public:
-    RSingle(const magnet::xml::Node& XML) 
+    IDRangeSingle(const magnet::xml::Node& XML) 
     { operator<<(XML); }
 
-    RSingle():ID(0) {}
+    IDRangeSingle():ID(0) {}
 
     virtual bool isInRange(const Particle &part) const
     { return part.getID() == ID; }
@@ -36,12 +36,12 @@ namespace dynamo {
     virtual void operator<<(const magnet::xml::Node& XML)
     {
       if (strcmp(XML.getAttribute("Range"),"Single"))
-	M_throw() << "Attempting to load RSingle from non single";
+	M_throw() << "Attempting to load IDRangeSingle from non single";
       try {
 	ID = XML.getAttribute("ID").as<size_t>();
       }
       catch (boost::bad_lexical_cast &)
-	{ M_throw() << "Failed a lexical cast in RSingle"; }
+	{ M_throw() << "Failed a lexical cast in IDRangeSingle"; }
     }
 
     virtual unsigned long size() const { return 1; };

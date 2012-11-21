@@ -120,17 +120,17 @@ namespace dynamo {
       
       Also works for bounce (it will collide receeding structures).
      
-      \param r1 The first structure defining Range.
-      \param r2 The second structure defining Range.
+      \param r1 The first structure defining IDRange.
+      \param r2 The second structure defining IDRange.
       \param d2 The square of the interaction distance.
       \param eType A way of setting the collision type from CORE to BOUNCE etc.
       \return The collision data.
      */  
-    virtual NEventData multibdyCollision(const Range& r1, const Range& r2,
+    virtual NEventData multibdyCollision(const IDRange& r1, const IDRange& r2,
 					 const double& d2,
 					 const EEventType& eType) const = 0;
 
-    virtual NEventData multibdyWellEvent(const Range&, const Range&, 
+    virtual NEventData multibdyWellEvent(const IDRange&, const IDRange&, 
 					 const double&, const double&, 
 					 EEventType&) const = 0;
 
@@ -156,7 +156,7 @@ namespace dynamo {
      
       \return Time of the next event, or HUGE_VAL if no event.
      */
-    virtual double SphereSphereInRoot(const Range& p1, const Range& p2, double d) const = 0;
+    virtual double SphereSphereInRoot(const IDRange& p1, const IDRange& p2, double d) const = 0;
 
     /*! \brief Determines if and when two spheres will stop intersecting.
      
@@ -180,7 +180,7 @@ namespace dynamo {
      
       \return Time of the next event, or HUGE_VAL if no event.
      */
-    virtual double SphereSphereOutRoot(const Range& p1, const Range& p2, double d) const = 0;  
+    virtual double SphereSphereOutRoot(const IDRange& p1, const IDRange& p2, double d) const = 0;  
 
     /*! \brief Determines if two spheres are overlapping
      
@@ -712,7 +712,7 @@ namespace dynamo {
        than 0.5 box lengths in periodic boundary conditions this
        function should work.
      */
-    std::pair<Vector, Vector> getCOMPosVel(const Range& particles) const;
+    std::pair<Vector, Vector> getCOMPosVel(const IDRange& particles) const;
 
   protected:
     friend class GCellsShearing;

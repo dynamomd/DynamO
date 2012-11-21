@@ -18,7 +18,7 @@
 #pragma once
 #include <dynamo/globals/global.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/ranges/1RList.hpp>
+#include <dynamo/ranges/IDRangeList.hpp>
 #include <boost/function.hpp>
 #include <magnet/function/delegate.hpp>
 #include <magnet/math/vector.hpp>
@@ -93,9 +93,9 @@ namespace dynamo {
       lambda(0.9)
     {}
 
-    virtual RList getParticleNeighbours(const Particle&) const = 0;
-    virtual RList getParticleNeighbours(const Vector&) const = 0;
-    virtual RList getParticleLocals(const Particle&) const = 0;
+    virtual IDRangeList getParticleNeighbours(const Particle&) const = 0;
+    virtual IDRangeList getParticleNeighbours(const Vector&) const = 0;
+    virtual IDRangeList getParticleLocals(const Particle&) const = 0;
 
     template<class T> size_t
     ConnectSigCellChangeNotify

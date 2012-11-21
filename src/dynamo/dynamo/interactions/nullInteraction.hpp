@@ -23,7 +23,7 @@ namespace dynamo {
   class INull: public Interaction
   {
   public:
-    INull(dynamo::Simulation*, C2Range*, std::string);
+    INull(dynamo::Simulation*, IDPairRange*, std::string);
 
     INull(const magnet::xml::Node&, dynamo::Simulation*);
 

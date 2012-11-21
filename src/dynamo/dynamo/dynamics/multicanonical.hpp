@@ -61,7 +61,7 @@ namespace dynamo {
     DynNewtonianMC(dynamo::Simulation* tmp, const magnet::xml::Node&);
 
     virtual PairEventData SphereWellEvent(const IntEvent&, const double&, const double&) const;
-    virtual NEventData multibdyWellEvent(const Range&, const Range&, const double&, const double&, EEventType&) const;
+    virtual NEventData multibdyWellEvent(const IDRange&, const IDRange&, const double&, const double&, EEventType&) const;
     virtual void initialise();
 
     /*! \brief Returns the \f$W(E)\f$ function.

@@ -60,7 +60,7 @@ namespace dynamo {
     size_t warnings(0);
     for (size_t id1(0); id1 < Sim->particles.size(); ++id1)
       {
-	std::auto_ptr<Range> ids(getParticleNeighbours(Sim->particles[id1]));
+	std::auto_ptr<IDRange> ids(getParticleNeighbours(Sim->particles[id1]));
 	BOOST_FOREACH(const size_t id2, *ids)
 	  if (id2 > id1)
 	    if (Sim->getInteraction(Sim->particles[id1], Sim->particles[id2])
@@ -104,7 +104,7 @@ namespace dynamo {
 	sorter->push(glob->getEvent(part), part.getID());
   
     //Add the local cell events
-    std::auto_ptr<Range> ids(getParticleLocals(part));
+    std::auto_ptr<IDRange> ids(getParticleLocals(part));
     
     BOOST_FOREACH(const size_t id2, *ids)
       addLocalEvent(part, id2);

@@ -35,9 +35,9 @@ namespace dynamo {
     DynNewtonian(dynamo::Simulation*);
 
     virtual double SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const;
-    virtual double SphereSphereInRoot(const Range& p1, const Range& p2, double d) const;
+    virtual double SphereSphereInRoot(const IDRange& p1, const IDRange& p2, double d) const;
     virtual double SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const;
-    virtual double SphereSphereOutRoot(const Range& p1, const Range& p2, double d) const;  
+    virtual double SphereSphereOutRoot(const IDRange& p1, const IDRange& p2, double d) const;  
     virtual double sphereOverlap(const Particle& p1, const Particle& p2, const double& d) const;
     virtual double CubeCubeInRoot(const Particle& p1, const Particle& p2, double d) const;
     virtual bool cubeOverlap(const Particle& p1, const Particle& p2, const double d) const;
@@ -58,8 +58,8 @@ namespace dynamo {
     virtual ParticleEventData runPlaneEvent(Particle&, const Vector &, double, double) const;
     virtual ParticleEventData runAndersenWallCollision(Particle&, const Vector &, const double& T, const double d) const;
     virtual ParticleEventData randomGaussianEvent(Particle&, const double&, const size_t) const;
-    virtual NEventData multibdyCollision(const Range&, const Range&, const double&, const EEventType&) const;
-    virtual NEventData multibdyWellEvent(const Range&, const Range&, const double&, const double&, EEventType&) const;
+    virtual NEventData multibdyCollision(const IDRange&, const IDRange&, const double&, const EEventType&) const;
+    virtual NEventData multibdyWellEvent(const IDRange&, const IDRange&, const double&, const double&, EEventType&) const;
     virtual PairEventData parallelCubeColl(const IntEvent& event, const double& e, const double& d, const EEventType& eType = CORE) const;
     virtual std::pair<bool, double> getLineLineCollision(const double length, const Particle& p1, const Particle& p2, double t_max) const;
     virtual PairEventData runLineLineCollision(const IntEvent& eevent, const double& elasticity, const double& length) const;

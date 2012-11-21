@@ -16,69 +16,63 @@
 */
 
 #pragma once
-#include <dynamo/ranges/1range.hpp>
+#include <dynamo/ranges/IDPairRange.hpp>
 #include <dynamo/particle.hpp>
-#include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
-#include <vector>
+#include <boost/unordered_set.hpp>
 
 namespace dynamo {
-  class RList: public Range
+  class IDPairRangeList:public IDPairRange
   {
+    typedef std::pair<unsigned long, unsigned long> Key;
+    typedef boost::unordered_set<Key> Container;
+
   public:
-    RList(const magnet::xml::Node& XML) 
+    IDPairRangeList(const magnet::xml::Node& XML) 
     { operator<<(XML); }
 
-    template<class T>
-    RList(const std::vector<T>& data):
-      IDs(data)
-    {}
+    IDPairRangeList() {}
 
-    RList() {}
-
-    virtual bool isInRange(const Particle &part) const
+    virtual bool isInRange(const Particle&p1, const Particle&p2) const
     {
-      BOOST_FOREACH(const unsigned long ID, IDs)
-	if (part.getID() == ID)
-	  return true;
-      return false;
+      return pairmap.find(Key(std::min(p1.getID(), p2.getID()), std::max(p1.getID(), p2.getID()))) != pairmap.end();
     }
 
-    //The data output classes
+    void addPair(unsigned long a, unsigned long b)
+    { pairmap.insert(Key(std::min(a,b), std::max(a,b))); }
+
+    const Container& getPairMap() const { return pairmap; }
+
     virtual void operator<<(const magnet::xml::Node& XML)
     {
       if (strcmp(XML.getAttribute("Range"),"List"))
-	M_throw() << "Attempting to load RList from non list";
-      try {
-    
-	for (magnet::xml::Node node = XML.fastGetNode("ID"); node.valid(); ++node)
-	  IDs.push_back(node.getAttribute("val").as<size_t>());
-      }
+	M_throw() << "Attempting to load a List from a non List";    
+  
+      try 
+	{
+	  for (magnet::xml::Node node = XML.fastGetNode("RangePair"); node.valid(); ++node)
+	    addPair(node.getAttribute("ID1").as<unsigned long>(), 
+		    node.getAttribute("ID2").as<unsigned long>());
+	}
       catch (boost::bad_lexical_cast &)
 	{
-	  M_throw() << "Failed a lexical cast in RList";
+	  M_throw() << "Failed a lexical cast in IDPairRangeList";
 	}
     }
 
-    std::vector<size_t>& getContainer() { return IDs; }
-    
-    virtual unsigned long size() const { return IDs.size(); }
-
-    virtual unsigned long operator[](unsigned long i) const { return IDs[i]; }
-
-    virtual unsigned long at(unsigned long i) const { return IDs.at(i); }
-
   protected:
-
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {
       XML << magnet::xml::attr("Range") << "List";
-      BOOST_FOREACH(unsigned long ID, IDs)
-	XML << magnet::xml::tag("ID") << magnet::xml::attr("val") << ID << magnet::xml::endtag("ID");
+      BOOST_FOREACH(const Key& key, pairmap)
+	XML << magnet::xml::tag("RangePair") 
+	    << magnet::xml::attr("ID1") << key.first
+	    << magnet::xml::attr("ID2") << key.second
+	    << magnet::xml::endtag("RangePair");
     }
 
-    std::vector<size_t> IDs;
+    Container pairmap;
   };
 }

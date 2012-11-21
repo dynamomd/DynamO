@@ -27,7 +27,7 @@ namespace dynamo {
   public:
     template<class T1, class T2, class T3, class T4>
     ISquareWell(dynamo::Simulation* tmp, T1 d, T2 l, 
-		T3 wd, T4 e, C2Range* nR, std::string name):
+		T3 wd, T4 e, IDPairRange* nR, std::string name):
       ISingleCapture(tmp,nR),
       _diameter(Sim->_properties.getProperty
 		(d, Property::Units::Length())),
@@ -70,7 +70,7 @@ namespace dynamo {
     virtual double getInternalEnergy(const Particle&, const Particle&) const;
 
   protected:
-    ISquareWell(dynamo::Simulation* tmp, C2Range* nR):
+    ISquareWell(dynamo::Simulation* tmp, IDPairRange* nR):
       ISingleCapture(tmp,nR) {}
 
     shared_ptr<Property> _diameter;

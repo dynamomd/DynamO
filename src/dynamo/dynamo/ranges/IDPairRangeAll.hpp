@@ -16,46 +16,33 @@
 */
 
 #pragma once
-#include <dynamo/ranges/1range.hpp>
-#include <dynamo/ranges/2range.hpp>
-#include <magnet/xmlwriter.hpp>
+#include <dynamo/ranges/IDPairRange.hpp>
 #include <magnet/xmlreader.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <cstring>
 
 namespace dynamo {
-  class C2RSingle:public C2Range
+  class IDPairRangeAll:public IDPairRange
   {
   public:
-    C2RSingle(Range* r1):range(r1) {}
-  
-    C2RSingle(const magnet::xml::Node& XML, const dynamo::Simulation* Sim)
+    IDPairRangeAll(const magnet::xml::Node& XML, const dynamo::Simulation*)
     { 
-      if (strcmp(XML.getAttribute("Range"),"2Single"))
-	M_throw() << "Attempting to load a 2Single from a non pair";
-  
-      range = shared_ptr<Range>(Range::getClass(XML.getNode("SingleRange"), Sim));
+      if (strcmp(XML.getAttribute("Range"),"2All"))
+	M_throw() << "Attempting to load a 2All from a non 2All";
     }
 
-    virtual bool isInRange(const Particle&p1, const Particle&p2) const
-    {
-      return (range->isInRange(p1) && range->isInRange(p2));
-    }
+    IDPairRangeAll() {}
 
     virtual void operator<<(const magnet::xml::Node&)
     {
-      M_throw() << "Due to problems with C2RSingle operator<< cannot work for this class";
+      M_throw() << "Due to problems with IDRangeAll IDPairRangeAll operator<< cannot work for this class";
     }
-  
-    const shared_ptr<Range>& getRange() const { return range; }
-
+      
+    virtual bool isInRange(const Particle&, const Particle&) const
+    { return true; }
+    
   protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const
-    {
-      XML << magnet::xml::attr("Range") << "2Single" 
-	  << magnet::xml::tag("SingleRange")
-	  << range
-	  << magnet::xml::endtag("SingleRange");
-    }
-
-    shared_ptr<Range> range;
+    { XML << magnet::xml::attr("Range") << "2All"; }
   };
 }

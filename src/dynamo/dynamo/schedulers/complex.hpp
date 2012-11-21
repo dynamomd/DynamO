@@ -32,9 +32,9 @@ namespace dynamo {
 
     virtual void operator<<(const magnet::xml::Node&);
 
-    virtual std::auto_ptr<Range> getParticleNeighbours(const Particle&) const  { M_throw() << "Unimplemented"; }
-    virtual std::auto_ptr<Range> getParticleNeighbours(const Vector&) const { M_throw() << "Unimplemented"; }
-    virtual std::auto_ptr<Range> getParticleLocals(const Particle&) const { M_throw() << "Unimplemented"; }
+    virtual std::auto_ptr<IDRange> getParticleNeighbours(const Particle&) const  { M_throw() << "Unimplemented"; }
+    virtual std::auto_ptr<IDRange> getParticleNeighbours(const Vector&) const { M_throw() << "Unimplemented"; }
+    virtual std::auto_ptr<IDRange> getParticleLocals(const Particle&) const { M_throw() << "Unimplemented"; }
     
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;

@@ -16,30 +16,44 @@
 */
 
 #pragma once
-#include <dynamo/ranges/2range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
+#include <dynamo/simulation.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  class C2RAll:public C2Range
+  class IDRangeNone: public IDRange
   {
   public:
-    C2RAll(const magnet::xml::Node& XML, const dynamo::Simulation*)
-    { 
-      if (strcmp(XML.getAttribute("Range"),"2All"))
-	M_throw() << "Attempting to load a 2All from a non 2All";
-    }
+    IDRangeNone() {}
 
-    C2RAll() {}
+    IDRangeNone(const magnet::xml::Node& XML)
+    { operator<<(XML); }
 
-    virtual void operator<<(const magnet::xml::Node&)
+    virtual bool isInRange(const Particle&) const
+    { return false; }
+
+    virtual void operator<<(const magnet::xml::Node& XML)
     {
-      M_throw() << "Due to problems with RAll C2RAll operator<< cannot work for this class";
+      if (strcmp(XML.getAttribute("Range"),"None"))
+	M_throw() << "Attempting to load IDRangeNone from non None type";
     }
-      
-    virtual bool isInRange(const Particle&, const Particle&) const
-    { return true; }
-    
+
+    virtual unsigned long size() const { return 0; }
+
+    virtual unsigned long operator[](unsigned long i) const  
+    {
+      M_throw() << "Nothing to access";
+    }
+
+    virtual unsigned long at(unsigned long i) const 
+    { 
+      M_throw() << "Nothing to access";
+    }
+
   protected:
+
     virtual void outputXML(magnet::xml::XmlStream& XML) const
-    { XML << magnet::xml::attr("Range") << "2All"; }
+    { XML << magnet::xml::attr("Range") << "All"; }
   };
 }

@@ -16,16 +16,16 @@
 */
 
 #pragma once
-#include <dynamo/ranges/2range.hpp>
+#include <dynamo/ranges/IDPairRange.hpp>
 #include <dynamo/particle.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  class C2RChainEnds:public C2Range
+  class IDPairRangeChainEnds:public IDPairRange
   {
   public:
-    C2RChainEnds(const magnet::xml::Node& XML, const dynamo::Simulation*):
+    IDPairRangeChainEnds(const magnet::xml::Node& XML, const dynamo::Simulation*):
       rangeStart(0),rangeEnd(0), interval(0) 
     { 
       if (strcmp(XML.getAttribute("Range"),"ChainEnds"))
@@ -45,7 +45,7 @@ namespace dynamo {
     }
 
 
-    C2RChainEnds(size_t r1, size_t r2, size_t l):
+    IDPairRangeChainEnds(size_t r1, size_t r2, size_t l):
       rangeStart(r1),rangeEnd(r2), interval(l) 
     {
       //Guarrantee that they are ordered
@@ -71,7 +71,7 @@ namespace dynamo {
 
     virtual void operator<<(const magnet::xml::Node&)
     {
-      M_throw() << "Due to problems with RAll C2RChainEnds operator<<"
+      M_throw() << "Due to problems with IDRangeAll IDPairRangeChainEnds operator<<"
 	" cannot work for this class";
     }
   

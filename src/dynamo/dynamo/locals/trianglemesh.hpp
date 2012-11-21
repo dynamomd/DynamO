@@ -33,7 +33,7 @@ namespace dynamo {
     LTriangleMesh(const magnet::xml::Node&, dynamo::Simulation*);
 
     template<class T1, class T2>
-    LTriangleMesh(dynamo::Simulation* nSim, T1 e, T2 d, std::string name, Range* nRange):
+    LTriangleMesh(dynamo::Simulation* nSim, T1 e, T2 d, std::string name, IDRange* nRange):
       Local(nRange, nSim, "LocalWall"),
       _e(Sim->_properties.getProperty
 	 (e, Property::Units::Dimensionless())),

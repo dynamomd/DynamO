@@ -20,9 +20,6 @@
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/units/units.hpp>
-#include <dynamo/ranges/1RAll.hpp>
-#include <dynamo/ranges/1RNone.hpp>
-#include <dynamo/ranges/2RSingle.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/BC/LEBC.hpp>
@@ -291,22 +288,22 @@ namespace dynamo {
 #endif
   }
 
-  RList
+  IDRangeList
   GCellsShearing::getParticleNeighbours(const Particle& part) const
   {
     return getParticleNeighbours(magnet::math::MortonNumber<3>(partCellData[part.getID()]));
   }
 
-  RList
+  IDRangeList
   GCellsShearing::getParticleNeighbours(const Vector& vec) const
   {
     return getParticleNeighbours(magnet::math::MortonNumber<3>(getCellID(vec)));
   }
 
-  RList
+  IDRangeList
   GCellsShearing::getParticleNeighbours(const magnet::math::MortonNumber<3>& cellCoords) const
   {
-    RList retval(GCells::getParticleNeighbours(cellCoords));
+    IDRangeList retval(GCells::getParticleNeighbours(cellCoords));
 
     if ((cellCoords[1] == 0) || (cellCoords[1] == dilatedCellMax[1]))
       {

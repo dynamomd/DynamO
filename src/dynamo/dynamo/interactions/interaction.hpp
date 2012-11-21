@@ -18,13 +18,13 @@
 #pragma once
 
 #include <dynamo/base.hpp>
-#include <dynamo/ranges/2range.hpp>
+#include <dynamo/ranges/IDPairRange.hpp>
 #include <string>
 
 namespace magnet { namespace xml { class Node; class XmlStream; } }
 
 namespace dynamo {
-  class Range;
+  class IDRange;
   class PairEventData;
   class IntEvent;
   class Species;
@@ -57,7 +57,7 @@ namespace dynamo {
   class Interaction: public dynamo::SimBase
   {
   public:
-    Interaction(dynamo::Simulation*, C2Range*);
+    Interaction(dynamo::Simulation*, IDPairRange*);
   
     virtual ~Interaction() {}
 
@@ -133,15 +133,15 @@ namespace dynamo {
      */
     inline const std::string& getName() const { return intName; }
 
-    /*! \brief Returns the C2Range describing the pairs of particles
+    /*! \brief Returns the IDPairRange describing the pairs of particles
      this Interaction can generate events for.
     */
-    shared_ptr<C2Range>& getRange();
+    shared_ptr<IDPairRange>& getRange();
 
-    /*! \brief Returns the C2Range describing the pairs of particles
+    /*! \brief Returns the IDPairRange describing the pairs of particles
         this Interaction can generate events for.
      */
-    const shared_ptr<C2Range>& getRange() const;
+    const shared_ptr<IDPairRange>& getRange() const;
 
     /*! \brief Test if an invalid state has occurred between the two
         passed particles.
@@ -171,7 +171,7 @@ namespace dynamo {
      */
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
-    shared_ptr<C2Range> range;
+    shared_ptr<IDPairRange> range;
 
     std::string intName;
     size_t ID;

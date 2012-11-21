@@ -66,7 +66,7 @@ namespace dynamo {
     eventCount(0),
     lastlNColl(0),
     setFrequency(100),
-    range(new RAll(Sim))
+    range(new IDRangeAll(Sim))
   {
     sysName = nName;
     type = GAUSSIAN;
@@ -152,7 +152,7 @@ namespace dynamo {
 	  setPoint = boost::lexical_cast<double>(XML.getAttribute("SetPoint"));
 	}
 
-      range = shared_ptr<Range>(Range::getClass(XML,Sim));
+      range = shared_ptr<IDRange>(IDRange::getClass(XML,Sim));
     }
     catch (boost::bad_lexical_cast &)
       {

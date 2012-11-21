@@ -20,51 +20,51 @@
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  Range* 
-  Range::getClass(const magnet::xml::Node& XML, const dynamo::Simulation * Sim)
+  IDRange* 
+  IDRange::getClass(const magnet::xml::Node& XML, const dynamo::Simulation * Sim)
   {
     if (!strcmp(XML.getAttribute("Range"),"All"))
-      return new RAll(XML, Sim);
+      return new IDRangeAll(XML, Sim);
     else if (!strcmp(XML.getAttribute("Range"),"None"))
-      return new RNone(XML);
+      return new IDRangeNone(XML);
     else if (!strcmp(XML.getAttribute("Range"),"Single"))
-      return new RSingle(XML);
+      return new IDRangeSingle(XML);
     else if (!strcmp(XML.getAttribute("Range"),"Ranged"))
-      return new RRange(XML);
+      return new IDRangeRange(XML);
     else if (!strcmp(XML.getAttribute("Range"),"List"))
-      return new RList(XML);
+      return new IDRangeList(XML);
     else 
       M_throw() << XML.getAttribute("Range")
-		<< ", Unknown type of Range encountered";
+		<< ", Unknown type of IDRange encountered";
   }
 
-  C2Range*
-  C2Range::getClass(const magnet::xml::Node& XML, const dynamo::Simulation* Sim)
+  IDPairRange*
+  IDPairRange::getClass(const magnet::xml::Node& XML, const dynamo::Simulation* Sim)
   {
     if (!strcmp(XML.getAttribute("Range"),"Pair"))
-      return new C2RPair(XML, Sim);
+      return new IDPairRangePair(XML, Sim);
     else if (!strcmp(XML.getAttribute("Range"),"List"))
-      return new C2RList(XML);
+      return new IDPairRangeList(XML);
     else if (!strcmp(XML.getAttribute("Range"),"2Single"))
-      return new C2RSingle(XML,Sim);
+      return new IDPairRangeSingle(XML,Sim);
     else if (!strcmp(XML.getAttribute("Range"),"RangeList"))
-      return new C2RRangeList(XML,Sim);
+      return new IDPairRangeRangeList(XML,Sim);
     else if (!strcmp(XML.getAttribute("Range"),"Chains"))
-      return new C2RChains(XML,Sim);              
+      return new IDPairRangeChains(XML,Sim);              
     else if (!strcmp(XML.getAttribute("Range"),"ChainGroups"))
-      return new C2RChainGroups(XML,Sim);
+      return new IDPairRangeChainGroups(XML,Sim);
     else if (!strcmp(XML.getAttribute("Range"),"ChainEnds"))
-      return new C2RChainEnds(XML,Sim);
+      return new IDPairRangeChainEnds(XML,Sim);
     else if (!strcmp(XML.getAttribute("Range"),"IntraChains"))
-      return new C2RIntraChains(XML,Sim);              
+      return new IDPairRangeIntraChains(XML,Sim);              
     else if (!strcmp(XML.getAttribute("Range"),"Rings"))
-      return new C2RRings(XML,Sim);
+      return new IDPairRangeRings(XML,Sim);
     else if (!strcmp(XML.getAttribute("Range"),"2All"))
-      return new C2RAll(XML,Sim);
+      return new IDPairRangeAll(XML,Sim);
     else if (!strcmp(XML.getAttribute("Range"),"2None"))
-      return new C2RNone(XML,Sim);
+      return new IDPairRangeNone(XML,Sim);
     else 
       M_throw() << XML.getAttribute("Range")
-		<< ", Unknown type of C2Range encountered";
+		<< ", Unknown type of IDPairRange encountered";
   }
 }

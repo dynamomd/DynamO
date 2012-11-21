@@ -24,7 +24,7 @@ namespace dynamo {
   public:
     LCylinder(const magnet::xml::Node&, dynamo::Simulation*);
     LCylinder(dynamo::Simulation*, double, Vector , Vector , double, 
-	       std::string, Range*, bool nrender = true);
+	       std::string, IDRange*, bool nrender = true);
 
     virtual ~LCylinder() {}
 

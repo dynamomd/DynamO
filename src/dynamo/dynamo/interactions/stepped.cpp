@@ -37,7 +37,7 @@
 
 namespace dynamo {
   IStepped::IStepped(dynamo::Simulation* tmp, 
-		     const std::vector<steppair>& vec, C2Range* nR,
+		     const std::vector<steppair>& vec, IDPairRange* nR,
 		     std::string name):
     IMultiCapture(tmp,nR),
     _unitLength(Sim->_properties.getProperty

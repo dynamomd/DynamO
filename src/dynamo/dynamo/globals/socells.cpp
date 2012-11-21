@@ -20,7 +20,7 @@
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/units/units.hpp>
-#include <dynamo/ranges/1RAll.hpp>
+#include <dynamo/ranges/IDRangeAll.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/BC/LEBC.hpp>

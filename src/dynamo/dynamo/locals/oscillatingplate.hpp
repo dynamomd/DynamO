@@ -29,7 +29,7 @@ namespace dynamo {
   public:
     LOscillatingPlate(const magnet::xml::Node&, dynamo::Simulation*);
     LOscillatingPlate(dynamo::Simulation*, Vector, Vector, double, 
-		       double, double, double, double, std::string, Range*, 
+		       double, double, double, double, std::string, IDRange*, 
 		       double timeshift = 0, bool nstrongPlate = false);
 
     virtual ~LOscillatingPlate() {}

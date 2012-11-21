@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/globals/cells.hpp>
-#include <dynamo/ranges/1range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 
 namespace dynamo {
   class GCellsShearing: public GCells
@@ -35,11 +35,11 @@ namespace dynamo {
 
     virtual void runEvent(Particle&, const double) const;
 
-    virtual RList getParticleNeighbours(const Particle&) const;
-    virtual RList getParticleNeighbours(const Vector&) const;
+    virtual IDRangeList getParticleNeighbours(const Particle&) const;
+    virtual IDRangeList getParticleNeighbours(const Vector&) const;
 
   protected:
-    RList getParticleNeighbours(const magnet::math::MortonNumber<3>&) const;
+    IDRangeList getParticleNeighbours(const magnet::math::MortonNumber<3>&) const;
     std::vector<size_t> getAdditionalLEParticleNeighbourhood(const Particle&) const;
     std::vector<size_t> getAdditionalLEParticleNeighbourhood(magnet::math::MortonNumber<3>) const;
 

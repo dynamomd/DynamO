@@ -18,7 +18,7 @@
 #pragma once
 
 #include <dynamo/base.hpp>
-#include <dynamo/ranges/1range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 #include <magnet/math/vector.hpp>
 #include <string>
 
@@ -43,7 +43,7 @@ namespace dynamo {
   public:
     Local(dynamo::Simulation*, const char *);
 
-    Local(Range*, dynamo::Simulation*, const char *);
+    Local(IDRange*, dynamo::Simulation*, const char *);
   
     virtual ~Local() {}
 
@@ -74,7 +74,7 @@ namespace dynamo {
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
-    shared_ptr<Range> range;  
+    shared_ptr<IDRange> range;  
     std::string localName;
     size_t ID;
   };

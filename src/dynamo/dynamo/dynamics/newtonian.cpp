@@ -71,7 +71,7 @@ namespace dynamo {
   }
 
   double
-  DynNewtonian::SphereSphereInRoot(const Range& p1, const Range& p2, double d) const
+  DynNewtonian::SphereSphereInRoot(const IDRange& p1, const IDRange& p2, double d) const
   {
     std::pair<Vector, Vector> r1data = getCOMPosVel(p1);
     std::pair<Vector, Vector> r2data = getCOMPosVel(p2);
@@ -91,7 +91,7 @@ namespace dynamo {
   }
 
   double
-  DynNewtonian::SphereSphereOutRoot(const Range& p1, const Range& p2, double d) const
+  DynNewtonian::SphereSphereOutRoot(const IDRange& p1, const IDRange& p2, double d) const
   {
     std::pair<Vector, Vector> r1data = getCOMPosVel(p1);
     std::pair<Vector, Vector> r2data = getCOMPosVel(p2);
@@ -520,7 +520,7 @@ namespace dynamo {
   }
 
   NEventData 
-  DynNewtonian::multibdyCollision(const Range& range1, const Range& range2, const double&, const EEventType& eType) const
+  DynNewtonian::multibdyCollision(const IDRange& range1, const IDRange& range2, const double&, const EEventType& eType) const
   {
     Vector COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
   
@@ -611,7 +611,7 @@ namespace dynamo {
   }
 
   NEventData 
-  DynNewtonian::multibdyWellEvent(const Range& range1, const Range& range2, const double&, const double& deltaKE, EEventType& eType) const
+  DynNewtonian::multibdyWellEvent(const IDRange& range1, const IDRange& range2, const double&, const double& deltaKE, EEventType& eType) const
   {
     Vector  COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
   

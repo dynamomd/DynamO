@@ -26,7 +26,7 @@ namespace dynamo {
   {
   public:
     template<class T1, class T2>
-    ISoftCore(dynamo::Simulation* tmp, T1 d, T2 wd, C2Range* nR, std::string name):
+    ISoftCore(dynamo::Simulation* tmp, T1 d, T2 wd, IDPairRange* nR, std::string name):
       ISingleCapture(tmp,nR),
       _diameter(Sim->_properties.getProperty
 		(d, Property::Units::Length())),

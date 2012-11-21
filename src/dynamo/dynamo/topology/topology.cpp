@@ -16,8 +16,8 @@
 */
 
 #include <dynamo/topology/topology.hpp>
-#include <dynamo/ranges/1range.hpp>
-#include <dynamo/ranges/1RAll.hpp>
+#include <dynamo/ranges/IDRange.hpp>
+#include <dynamo/ranges/IDRangeAll.hpp>
 #include <dynamo/particle.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/topology/include.hpp>
@@ -51,7 +51,7 @@ namespace dynamo {
       M_throw() << "Cannot load a Topology which has no molecules!";
 
     for (magnet::xml::Node node = XML.fastGetNode("Molecule"); node.valid(); ++node)
-      ranges.push_back(shared_ptr<Range>(Range::getClass(node, Sim)));
+      ranges.push_back(shared_ptr<IDRange>(IDRange::getClass(node, Sim)));
   }
 
   void
@@ -59,7 +59,7 @@ namespace dynamo {
   {
     XML << magnet::xml::attr("Name") << spName;
   
-    BOOST_FOREACH(const shared_ptr<Range>& plugPtr, ranges)
+    BOOST_FOREACH(const shared_ptr<IDRange>& plugPtr, ranges)
       XML << magnet::xml::tag("Molecule") << plugPtr
 	  << magnet::xml::endtag("Molecule");
   }

@@ -50,8 +50,8 @@ namespace dynamo
   class PairEventData;
   class ParticleEventData;
 
-  class Range;
-  class C2Range;
+  class IDRange;
+  class IDPairRange;
 
 
   //! \brief Holds the different phases of the simulation initialisation

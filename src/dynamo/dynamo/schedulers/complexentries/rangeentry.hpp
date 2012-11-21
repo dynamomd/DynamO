@@ -38,6 +38,6 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    shared_ptr<Range> _testrange;
+    shared_ptr<IDRange> _testrange;
   };
 }

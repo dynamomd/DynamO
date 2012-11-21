@@ -16,18 +16,18 @@
 */
 
 #pragma once
-#include <dynamo/ranges/1range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 #include <dynamo/particle.hpp>
 #include <magnet/exception.hpp>
 
 namespace dynamo {
-  class RRange: public Range
+  class IDRangeRange: public IDRange
   {
   public:
-    RRange(const magnet::xml::Node& XML) 
+    IDRangeRange(const magnet::xml::Node& XML) 
     { operator<<(XML); }
     
-    RRange(unsigned int s, unsigned int e):startID(s), endID(e) {}
+    IDRangeRange(unsigned int s, unsigned int e):startID(s), endID(e) {}
 
     virtual bool isInRange(const Particle& part) const
     { return (part.getID() >= startID) && (part.getID() < endID); }
@@ -35,14 +35,14 @@ namespace dynamo {
     virtual void operator<<(const magnet::xml::Node& XML)
     {
       if (strcmp(XML.getAttribute("Range"), "Ranged"))
-	M_throw() << "Attempting to load RRange from non range";
+	M_throw() << "Attempting to load IDRangeRange from non range";
       
       try {
 	startID = XML.getAttribute("Start").as<unsigned long>();
 	endID = XML.getAttribute("End").as<unsigned long>() + 1;
       }
       catch (boost::bad_lexical_cast &)
-	{ M_throw() << "Failed a lexical cast in RRange"; }
+	{ M_throw() << "Failed a lexical cast in IDRangeRange"; }
     }
   
     virtual unsigned long size() const { return endID - startID; };

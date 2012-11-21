@@ -16,17 +16,17 @@
 */
 
 #pragma once
-#include <dynamo/ranges/1range.hpp>
-#include <dynamo/ranges/2range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
+#include <dynamo/ranges/IDPairRange.hpp>
 #include <dynamo/particle.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  class C2RChainGroups:public C2Range
+  class IDPairRangeChainGroups:public IDPairRange
   {
   public:
-    C2RChainGroups(const magnet::xml::Node& XML, const dynamo::Simulation*):
+    IDPairRangeChainGroups(const magnet::xml::Node& XML, const dynamo::Simulation*):
       range1(0),range2(0), length(0) 
     { 
       if (strcmp(XML.getAttribute("Range"),"ChainGroups"))
@@ -42,7 +42,7 @@ namespace dynamo {
 	std::swap(range1, range2);
     }
 
-    C2RChainGroups(size_t r1, size_t r2, size_t l):
+    IDPairRangeChainGroups(size_t r1, size_t r2, size_t l):
       range1(r1),range2(r2), length(l) 
     {
       //Guarrantee that they are ordered
@@ -66,7 +66,7 @@ namespace dynamo {
     
     virtual void operator<<(const magnet::xml::Node&)
     {
-      M_throw() << "Due to problems with RAll C2RChainGroups operator<<"
+      M_throw() << "Due to problems with IDRangeAll IDPairRangeChainGroups operator<<"
 	" cannot work for this class";
     }
 

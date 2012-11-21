@@ -24,14 +24,14 @@
 #include <cstring>
 
 namespace dynamo {
-  Interaction::Interaction(dynamo::Simulation* tmp, C2Range* nR):
+  Interaction::Interaction(dynamo::Simulation* tmp, IDPairRange* nR):
     SimBase(tmp, "Interaction"),
     range(nR)
   {}
 
   void 
   Interaction::operator<<(const magnet::xml::Node& XML)
-  { range = shared_ptr<C2Range>(C2Range::getClass(XML,Sim)); }
+  { range = shared_ptr<IDPairRange>(IDPairRange::getClass(XML,Sim)); }
 
   bool 
   Interaction::isInteraction(const IntEvent &coll) const
@@ -53,11 +53,11 @@ namespace dynamo {
     return XML;
   }
 
-  shared_ptr<C2Range>& 
+  shared_ptr<IDPairRange>& 
   Interaction::getRange() 
   { return range; }
 
-  const shared_ptr<C2Range>& 
+  const shared_ptr<IDPairRange>& 
   Interaction::getRange() const
   { return range; }
 

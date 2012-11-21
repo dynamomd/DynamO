@@ -24,18 +24,18 @@ namespace dynamo {
   class Simulation;
   class Particle;
 
-  class C2Range
+  class IDPairRange
   {
   public:
-    virtual ~C2Range() {};
+    virtual ~IDPairRange() {};
  
     virtual bool isInRange(const Particle&, const Particle&) const =0;  
     virtual void operator<<(const magnet::xml::Node& XML) = 0;
   
-    static C2Range* getClass(const magnet::xml::Node&, const dynamo::Simulation*);
+    static IDPairRange* getClass(const magnet::xml::Node&, const dynamo::Simulation*);
 
     inline friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML,
-						     const C2Range& range)
+						     const IDPairRange& range)
     { range.outputXML(XML); return XML; }
  
  protected:

@@ -106,7 +106,7 @@ namespace dynamo {
 
 
   NEventData 
-  DynNewtonianMC::multibdyWellEvent(const Range& range1, const Range& range2, 
+  DynNewtonianMC::multibdyWellEvent(const IDRange& range1, const IDRange& range2, 
 				  const double&, const double& deltaKE, 
 				  EEventType& eType) const
   {

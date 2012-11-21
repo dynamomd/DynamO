@@ -28,15 +28,15 @@ namespace dynamo {
   class Simulation; 
   class Particle;
 
-  class Range
+  class IDRange
   {
   public:
 
     class iterator
     {
-      friend class Range;
+      friend class IDRange;
 
-      iterator(unsigned long nPos, const Range* nRangePtr):
+      iterator(unsigned long nPos, const IDRange* nRangePtr):
 	pos(nPos), rangePtr(nRangePtr) {}
 
     public:
@@ -70,12 +70,12 @@ namespace dynamo {
 
     private:
       size_t pos;
-      const Range* rangePtr;
+      const IDRange* rangePtr;
     };
 
     typedef iterator const_iterator;
 
-    virtual ~Range() {};
+    virtual ~IDRange() {};
 
     virtual bool isInRange(const Particle&) const = 0;
 
@@ -87,14 +87,14 @@ namespace dynamo {
 
     virtual unsigned long at(unsigned long) const = 0;
 
-    static Range* getClass(const magnet::xml::Node&, const dynamo::Simulation * Sim);
+    static IDRange* getClass(const magnet::xml::Node&, const dynamo::Simulation * Sim);
 
     inline friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML,
-						     const Range& range)
+						     const IDRange& range)
     { range.outputXML(XML); return XML; }
 
-    iterator begin() const { return Range::iterator(0, this); }
-    iterator end() const { return Range::iterator(size(), this); }
+    iterator begin() const { return IDRange::iterator(0, this); }
+    iterator end() const { return IDRange::iterator(size(), this); }
 
     inline bool empty() const { return begin() == end(); }
 

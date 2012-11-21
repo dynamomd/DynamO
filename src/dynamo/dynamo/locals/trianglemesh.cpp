@@ -152,7 +152,7 @@ namespace dynamo {
   void 
   LTriangleMesh::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<Range>(Range::getClass(XML,Sim));
+    range = shared_ptr<IDRange>(IDRange::getClass(XML,Sim));
   
     try {
       _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),

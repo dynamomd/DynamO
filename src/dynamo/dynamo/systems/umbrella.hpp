@@ -18,7 +18,7 @@
 #pragma once
 #include <dynamo/systems/system.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/ranges/1range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_real.hpp>
 
@@ -28,7 +28,7 @@ namespace dynamo {
   public:
     SysUmbrella(const magnet::xml::Node& XML, dynamo::Simulation*);
 
-    SysUmbrella(dynamo::Simulation*, double, double, double, std::string, Range*, Range*);
+    SysUmbrella(dynamo::Simulation*, double, double, double, std::string, IDRange*, IDRange*);
   
     virtual void runEvent() const;
 
@@ -48,7 +48,7 @@ namespace dynamo {
     mutable int ulevel;
     bool ulevelset;
 
-    shared_ptr<Range> range1;
-    shared_ptr<Range> range2;
+    shared_ptr<IDRange> range1;
+    shared_ptr<IDRange> range2;
   };
 }

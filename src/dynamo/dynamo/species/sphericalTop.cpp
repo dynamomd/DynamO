@@ -22,7 +22,7 @@
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  SpSphericalTop::SpSphericalTop(dynamo::Simulation* tmp, Range* nr, double nMass, 
+  SpSphericalTop::SpSphericalTop(dynamo::Simulation* tmp, IDRange* nr, double nMass, 
 				 std::string nName, unsigned int nID, double inertiaConst,
 				 std::string nIName):
     SpInertia(tmp, nr, nMass, nName, nID, nIName),

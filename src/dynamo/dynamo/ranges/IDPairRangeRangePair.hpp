@@ -16,22 +16,22 @@
 */
 
 #pragma once
-#include <dynamo/ranges/1range.hpp>
-#include <dynamo/ranges/2range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
+#include <dynamo/ranges/IDPairRange.hpp>
 
 namespace dynamo {
-  class C2RPair:public C2Range
+  class IDPairRangePair:public IDPairRange
   {
   public:
-    C2RPair(Range* r1, Range* r2 ):range1(r1), range2(r2) {}
+    IDPairRangePair(IDRange* r1, IDRange* r2 ):range1(r1), range2(r2) {}
 
-    C2RPair(const magnet::xml::Node& XML, const dynamo::Simulation* Sim)
+    IDPairRangePair(const magnet::xml::Node& XML, const dynamo::Simulation* Sim)
     { 
       if (strcmp(XML.getAttribute("Range"), "Pair"))
 	M_throw() << "Attempting to load a pair from a non pair";
   
-      range1 = shared_ptr<Range>(Range::getClass(XML.getNode("Range1"), Sim));
-      range2 = shared_ptr<Range>(Range::getClass(XML.getNode("Range2"), Sim));
+      range1 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range1"), Sim));
+      range2 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range2"), Sim));
     }
 
     virtual bool isInRange(const Particle&p1, const Particle&p2) const
@@ -44,7 +44,7 @@ namespace dynamo {
 
     virtual void operator<<(const magnet::xml::Node&)
     {
-      M_throw() << "Due to problems with RAll C2RPair operator<< cannot work for this class";
+      M_throw() << "Due to problems with IDRangeAll IDPairRangePair operator<< cannot work for this class";
     }
 
   protected:
@@ -60,7 +60,7 @@ namespace dynamo {
 	  << magnet::xml::endtag("Range2");
     }
 
-    shared_ptr<Range> range1;
-    shared_ptr<Range> range2;
+    shared_ptr<IDRange> range1;
+    shared_ptr<IDRange> range2;
   };
 }

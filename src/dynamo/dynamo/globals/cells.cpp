@@ -20,11 +20,11 @@
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/units/units.hpp>
-#include <dynamo/ranges/1RAll.hpp>
+#include <dynamo/ranges/IDRangeAll.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/BC/LEBC.hpp>
-#include <dynamo/ranges/1RList.hpp>
+#include <dynamo/ranges/IDRangeList.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cstdio>
@@ -75,7 +75,7 @@ namespace dynamo {
       globName = XML.getAttribute("Name");
 
       if (XML.hasAttribute("Range"))
-	range = shared_ptr<Range>(Range::getClass(XML, Sim));
+	range = shared_ptr<IDRange>(IDRange::getClass(XML, Sim));
     }
     catch(...)
       {
@@ -408,7 +408,7 @@ namespace dynamo {
     return retval;
   }
 
-  RList
+  IDRangeList
   GCells::getParticleNeighbours(const magnet::math::MortonNumber<3>& particle_cell_coords) const
   {
     magnet::math::MortonNumber<3> zero_coords;
@@ -416,7 +416,7 @@ namespace dynamo {
       zero_coords[iDim] = (particle_cell_coords[iDim].getRealValue() + cellCount[iDim] - overlink)
 	% cellCount[iDim];
     
-    RList retval;
+    IDRangeList retval;
     //This initial reserve greatly speeds up the later inserts
     retval.getContainer().reserve(32);
 
@@ -440,22 +440,22 @@ namespace dynamo {
     return retval;
   }
 
-  RList
+  IDRangeList
   GCells::getParticleNeighbours(const Particle& part) const
   {
     return getParticleNeighbours(partCellData[part.getID()]);
   }
 
-  RList
+  IDRangeList
   GCells::getParticleNeighbours(const Vector& vec) const
   {
     return getParticleNeighbours(getCellID(vec));
   }
 
-  RList
+  IDRangeList
   GCells::getParticleLocals(const Particle& part) const
   {
-    return RList(cells[partCellData[part.getID()]]);
+    return IDRangeList(cells[partCellData[part.getID()]]);
   }
 
   double 

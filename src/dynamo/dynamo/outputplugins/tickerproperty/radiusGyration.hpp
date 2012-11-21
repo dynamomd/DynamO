@@ -22,7 +22,7 @@
 #include <magnet/math/vector.hpp>
 #include <list>
 
-class Range;
+class IDRange;
 
 namespace dynamo {
   class TChain;
@@ -49,7 +49,7 @@ namespace dynamo {
       Vector  MassCentre;
     };
   
-    static molGyrationDat getGyrationEigenSystem(const shared_ptr<Range>&, const dynamo::Simulation*);
+    static molGyrationDat getGyrationEigenSystem(const shared_ptr<IDRange>&, const dynamo::Simulation*);
 
     static Vector  NematicOrderParameter(const std::list<Vector  >&);
 

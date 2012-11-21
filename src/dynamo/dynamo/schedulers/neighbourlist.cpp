@@ -26,7 +26,7 @@
 #include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/locals/localEvent.hpp>
-#include <dynamo/ranges/1RAll.hpp>
+#include <dynamo/ranges/IDRangeAll.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/bind.hpp>
 #include <boost/progress.hpp>
@@ -87,7 +87,7 @@ namespace dynamo {
     Scheduler(Sim,"NeighbourListScheduler", ns)
   { dout << "Neighbour List Scheduler Algorithmn Loaded" << std::endl; }
 
-  std::auto_ptr<Range>
+  std::auto_ptr<IDRange>
   SNeighbourList::getParticleNeighbours(const Particle& part) const
   {
 #ifdef DYNAMO_DEBUG
@@ -100,10 +100,10 @@ namespace dynamo {
 				 (Sim->globals[NBListID]
 				  .get()));
   
-    return std::auto_ptr<Range>(new RList(nblist.getParticleNeighbours(part)));
+    return std::auto_ptr<IDRange>(new IDRangeList(nblist.getParticleNeighbours(part)));
   }
 
-  std::auto_ptr<Range>
+  std::auto_ptr<IDRange>
   SNeighbourList::getParticleNeighbours(const Vector& vec) const
   {
 #ifdef DYNAMO_DEBUG
@@ -116,10 +116,10 @@ namespace dynamo {
 				 (Sim->globals[NBListID]
 				  .get()));
   
-    return std::auto_ptr<Range>(new RList(nblist.getParticleNeighbours(vec)));
+    return std::auto_ptr<IDRange>(new IDRangeList(nblist.getParticleNeighbours(vec)));
   }
     
-  std::auto_ptr<Range> 
+  std::auto_ptr<IDRange> 
   SNeighbourList::getParticleLocals(const Particle& part) const
   {
 #ifdef DYNAMO_DEBUG
@@ -132,6 +132,6 @@ namespace dynamo {
 				 (Sim->globals[NBListID]
 				  .get()));
 
-    return std::auto_ptr<Range>(new RList(nblist.getParticleLocals(part)));
+    return std::auto_ptr<IDRange>(new IDRangeList(nblist.getParticleLocals(part)));
   }
 }

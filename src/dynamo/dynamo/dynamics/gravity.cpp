@@ -113,7 +113,7 @@ namespace dynamo {
   }
 
   double
-  DynGravity::SphereSphereInRoot(const Range& p1, const Range& p2, double d) const
+  DynGravity::SphereSphereInRoot(const IDRange& p1, const IDRange& p2, double d) const
   {
     double accel1sum = 0;
     double mass1 = 0;
@@ -175,7 +175,7 @@ namespace dynamo {
   }
 
   double
-  DynGravity::SphereSphereOutRoot(const Range& p1, const Range& p2, double d) const
+  DynGravity::SphereSphereOutRoot(const IDRange& p1, const IDRange& p2, double d) const
   {
     double accel1sum = 0;
     double mass1 = 0;

@@ -705,7 +705,7 @@ function SwingSpheresTest {
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
 	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-	    | gawk '{mft=0.0364120434226142; var=($1-mft)/mft; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
+	    | gawk '{mft=0.00191272168715021; var=($1-mft)/mft; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
 	    echo "SwingSphereTest -: FAILED"
 	    exit 1
 	else

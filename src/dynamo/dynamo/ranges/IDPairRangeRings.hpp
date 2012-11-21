@@ -16,24 +16,24 @@
 */
 
 #pragma once
-#include <dynamo/ranges/1range.hpp>
-#include <dynamo/ranges/2range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
+#include <dynamo/ranges/IDPairRange.hpp>
 #include <dynamo/particle.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  class C2RRings:public C2Range
+  class IDPairRangeRings:public IDPairRange
   {
   public:
-    C2RRings(unsigned long r1, unsigned long r2, unsigned long r3):
+    IDPairRangeRings(unsigned long r1, unsigned long r2, unsigned long r3):
     range1(r1),range2(r2),interval(r3) 
     {
       if ((r2 - r1 + 1) % r3)
-	M_throw() << "Range of C2RRings does not split evenly into interval";
+	M_throw() << "Range of IDPairRangeRings does not split evenly into interval";
     }
 
-    C2RRings(const magnet::xml::Node& XML, const dynamo::Simulation*):
+    IDPairRangeRings(const magnet::xml::Node& XML, const dynamo::Simulation*):
     range1(0),range2(0), interval(0)
     { 
       if (strcmp(XML.getAttribute("Range"),"Rings"))
@@ -44,7 +44,7 @@ namespace dynamo {
       interval = XML.getAttribute("Interval").as<unsigned long>();
 
       if ((range2-range1 + 1) % interval)
-	M_throw() << "Range of C2RChains does not split evenly into interval";
+	M_throw() << "Range of IDPairRangeChains does not split evenly into interval";
     }
 
     virtual bool isInRange(const Particle&p1, const Particle&p2) const
@@ -82,7 +82,7 @@ namespace dynamo {
 
     void operator<<(const magnet::xml::Node&)
     {
-      M_throw() << "Due to problems with RAll C2RRings::operator<< cannot work for this class";
+      M_throw() << "Due to problems with IDRangeAll IDPairRangeRings::operator<< cannot work for this class";
     }
 
   protected:

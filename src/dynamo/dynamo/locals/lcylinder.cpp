@@ -26,7 +26,7 @@
 namespace dynamo {
   LCylinder::LCylinder(dynamo::Simulation* nSim, double ne, Vector  nnorm, 
 			 Vector  norigin, double nr, std::string nname, 
-			 Range* nRange, bool nrender):
+			 IDRange* nRange, bool nrender):
     Local(nRange, nSim, "CylinderWall"),
     vNorm(nnorm),
     vPosition(norigin),
@@ -76,7 +76,7 @@ namespace dynamo {
   void 
   LCylinder::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<Range>(Range::getClass(XML,Sim));
+    range = shared_ptr<IDRange>(IDRange::getClass(XML,Sim));
   
     try {
       e = XML.getAttribute("Elasticity").as<double>();

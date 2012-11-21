@@ -21,17 +21,17 @@
 #include <dynamo/locals/lroughwall.hpp>
 #include <dynamo/locals/trianglemesh.hpp>
 #include <dynamo/locals/localEvent.hpp>
-#include <dynamo/ranges/1RAll.hpp>
+#include <dynamo/ranges/IDRangeAll.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
   Local::Local(dynamo::Simulation* tmp, const char *name):
     SimBase(tmp,name),
-    range(new RAll(tmp))
+    range(new IDRangeAll(tmp))
   {}
 
-  Local::Local(Range* nR, dynamo::Simulation* tmp, const char *name):
+  Local::Local(IDRange* nR, dynamo::Simulation* tmp, const char *name):
     SimBase(tmp, name),
     range(nR)
   {}

@@ -28,7 +28,7 @@ namespace dynamo {
   public:
     GWaker(const magnet::xml::Node&, dynamo::Simulation*);
 
-    GWaker(dynamo::Simulation*, const std::string&, Range*, const double, const double,
+    GWaker(dynamo::Simulation*, const std::string&, IDRange*, const double, const double,
 	   std::string nblist);
   
     virtual ~GWaker() {}

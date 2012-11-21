@@ -16,63 +16,61 @@
 */
 
 #pragma once
-#include <dynamo/ranges/2range.hpp>
+#include <dynamo/ranges/IDPairRange.hpp>
+#include <dynamo/base.hpp>
 #include <dynamo/particle.hpp>
+#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
-#include <boost/unordered_set.hpp>
+#include <list>
 
 namespace dynamo {
-  class C2RList:public C2Range
+  class IDPairRangeRangeList:public IDPairRange, dynamo::SimBase_const
   {
-    typedef std::pair<unsigned long, unsigned long> Key;
-    typedef boost::unordered_set<Key> Container;
-
   public:
-    C2RList(const magnet::xml::Node& XML) 
+    IDPairRangeRangeList(const dynamo::Simulation* nSim):SimBase_const(nSim,"IDPairRangeRangeList") {}
+
+    IDPairRangeRangeList(const magnet::xml::Node& XML, const dynamo::Simulation* nSim):
+      SimBase_const(nSim, "IDPairRangeRangeList")
     { operator<<(XML); }
-
-    C2RList() {}
-
+    
     virtual bool isInRange(const Particle&p1, const Particle&p2) const
     {
-      return pairmap.find(Key(std::min(p1.getID(), p2.getID()), std::max(p1.getID(), p2.getID()))) != pairmap.end();
+      BOOST_FOREACH(const shared_ptr<IDPairRange>& rPtr, ranges)
+	if (rPtr->isInRange(p1,p2))
+	  return true;
+  
+      return false;
     }
-
-    void addPair(unsigned long a, unsigned long b)
-    { pairmap.insert(Key(std::min(a,b), std::max(a,b))); }
-
-    const Container& getPairMap() const { return pairmap; }
 
     virtual void operator<<(const magnet::xml::Node& XML)
     {
-      if (strcmp(XML.getAttribute("Range"),"List"))
+      if (strcmp(XML.getAttribute("Range"),"RangeList"))
 	M_throw() << "Attempting to load a List from a non List";    
   
       try 
 	{
-	  for (magnet::xml::Node node = XML.fastGetNode("RangePair"); node.valid(); ++node)
-	    addPair(node.getAttribute("ID1").as<unsigned long>(), 
-		    node.getAttribute("ID2").as<unsigned long>());
+	  for (magnet::xml::Node node = XML.fastGetNode("RangeListItem"); node.valid(); ++node)
+	    ranges.push_back(shared_ptr<IDPairRange>(IDPairRange::getClass(node, Sim)));
 	}
       catch (boost::bad_lexical_cast &)
 	{
-	  M_throw() << "Failed a lexical cast in C2RList";
+	  M_throw() << "Failed a lexical cast in IDPairRangeRangeList";
 	}
     }
 
+    void addRange(IDPairRange* nRange)
+    { ranges.push_back(shared_ptr<IDPairRange>(nRange)); }
+  
   protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {
-      XML << magnet::xml::attr("Range") << "List";
-      BOOST_FOREACH(const Key& key, pairmap)
-	XML << magnet::xml::tag("RangePair") 
-	    << magnet::xml::attr("ID1") << key.first
-	    << magnet::xml::attr("ID2") << key.second
-	    << magnet::xml::endtag("RangePair");
+      XML << magnet::xml::attr("Range") << "RangeList";
+
+      BOOST_FOREACH(const shared_ptr<IDPairRange>& rPtr, ranges)
+	XML << magnet::xml::tag("RangeListItem") << rPtr << magnet::xml::endtag("RangeListItem");
     }
 
-    Container pairmap;
+    std::list<shared_ptr<IDPairRange> > ranges;
   };
 }

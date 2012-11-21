@@ -31,7 +31,7 @@ namespace dynamo {
 
     template<class T1, class T2>
     LWall(dynamo::Simulation* nSim, T1 e, T2 d, Vector nnorm,
-	  Vector  norigin, std::string nname, Range* nRange):
+	  Vector  norigin, std::string nname, IDRange* nRange):
       Local(nRange, nSim, "LocalWall"),
       vNorm(nnorm),
       vPosition(norigin),

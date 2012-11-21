@@ -16,50 +16,61 @@
 */
 
 #pragma once
-#include <dynamo/ranges/2range.hpp>
+#include <dynamo/ranges/IDPairRange.hpp>
+#include <dynamo/particle.hpp>
+#include <magnet/xmlwriter.hpp>
+#include <magnet/xmlreader.hpp>
+#include <cstring>
 
 namespace dynamo {
-  class C2RChains:public C2Range
+  class IDPairRangeIntraChains:public IDPairRange
   {
   public:
-    C2RChains(unsigned long r1, unsigned long r2, unsigned long r3):
+    IDPairRangeIntraChains(unsigned long r1, unsigned long r2, unsigned long r3):
       range1(r1),range2(r2),interval(r3) 
     {
       if ((r2-r1 + 1) % r3)
-	M_throw() << "Range of C2RChains does not split evenly into interval";
+	M_throw() << "Range of IDPairRangeIntraChains does not split evenly into interval";
     }
-
-    C2RChains(const magnet::xml::Node& XML, const dynamo::Simulation*):
+    
+    IDPairRangeIntraChains(const magnet::xml::Node& XML, const dynamo::Simulation*):
       range1(0),range2(0), interval(0)
     { 
-      if (strcmp(XML.getAttribute("Range"),"Chains"))
+      if (strcmp(XML.getAttribute("Range"),"IntraChains"))
 	M_throw() << "Attempting to load a chains from a non chains";
-  
+      
       range1 = XML.getAttribute("Start").as<unsigned long>();
       range2 = XML.getAttribute("End").as<unsigned long>();
       interval = XML.getAttribute("Interval").as<unsigned long>();
+      
       if ((range2-range1 + 1) % interval)
-	M_throw() << "Range of C2RChains does not split evenly into interval";
-
+	M_throw() << "Range of IDPairRangeIntraChains does not split evenly into interval";
     }
 
     virtual bool isInRange(const Particle&p1, const Particle&p2) const
     {
-      size_t a = std::min(p1.getID(), p2.getID()), b = std::max(p1.getID(), p2.getID());
-      return (b - a == 1)
-	&& ((a >= range1) && (b <= range2))
-	&& (((a  - range1) / interval) == ((b  - range1) / interval));
+      //A version with no ? : operators at the expense of one more <=
+      //operator, seems fastest
+      return     
+	//Leave this till last as its expensive. Actually put it first as
+	//if you're in a system of chains the other statements are always
+	//true
+	(((p1.getID() - range1) / interval)
+	 == ((p2.getID() - range1) / interval)) 
+	//Test its within the range
+	&& (p2.getID() >= range1) && (p2.getID() <= range2) 
+	&& (p1.getID() >= range1) && (p1.getID() <= range2);
     }
 
     virtual void operator<<(const magnet::xml::Node&)
     {
-      M_throw() << "Due to problems with RAll C2RChains::operator<< cannot work for this class";
+      M_throw() << "Due to problems with IDRangeAll IDPairRangeIntraChains::operator<< cannot work for this class";
     }
-  
+
   protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {
-      XML << magnet::xml::attr("Range") << "Chains" 
+      XML << magnet::xml::attr("Range") << "IntraChains" 
 	  << magnet::xml::attr("Start")
 	  << range1
 	  << magnet::xml::attr("End")
@@ -67,7 +78,6 @@ namespace dynamo {
 	  << magnet::xml::attr("Interval")
 	  << interval;
     }
-
     unsigned long range1;
     unsigned long range2;
     unsigned long interval;

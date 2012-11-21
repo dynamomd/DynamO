@@ -29,7 +29,7 @@ namespace dynamo {
     typedef std::pair<double,double> steppair;
 
     IStepped(dynamo::Simulation*, const std::vector<steppair>&,
-	     C2Range*, std::string name);
+	     IDPairRange*, std::string name);
 
     IStepped(const magnet::xml::Node&, dynamo::Simulation*);
   

@@ -37,7 +37,7 @@ namespace dynamo {
   class ICapture: public Interaction
   {
   public:
-    ICapture(dynamo::Simulation* sim, C2Range* range): Interaction(sim, range), noXmlLoad(true) {}
+    ICapture(dynamo::Simulation* sim, IDPairRange* range): Interaction(sim, range), noXmlLoad(true) {}
 
     //! \brief Returns the number of particles that are captured in some way
     virtual size_t getTotalCaptureCount() const = 0;
@@ -95,7 +95,7 @@ namespace dynamo {
   class ISingleCapture: public ICapture
   {
   public:
-    ISingleCapture(dynamo::Simulation* sim, C2Range* range): ICapture(sim, range) {}
+    ISingleCapture(dynamo::Simulation* sim, IDPairRange* range): ICapture(sim, range) {}
 
     size_t getTotalCaptureCount() const { return captureMap.size(); }
   
@@ -163,7 +163,7 @@ namespace dynamo {
   class IMultiCapture: public ICapture
   {
   public:
-    IMultiCapture(dynamo::Simulation* sim, C2Range* range): ICapture(sim, range) {}
+    IMultiCapture(dynamo::Simulation* sim, IDPairRange* range): ICapture(sim, range) {}
 
     size_t getTotalCaptureCount() const { return captureMap.size(); }
   

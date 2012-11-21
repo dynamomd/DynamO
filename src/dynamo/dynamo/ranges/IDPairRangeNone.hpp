@@ -16,44 +16,28 @@
 */
 
 #pragma once
-#include <dynamo/ranges/1range.hpp>
-#include <dynamo/simulation.hpp>
-#include <magnet/xmlwriter.hpp>
-#include <magnet/xmlreader.hpp>
+#include <dynamo/ranges/IDPairRange.hpp>
 
 namespace dynamo {
-  class RNone: public Range
+  class IDPairRangeNone:public IDPairRange
   {
   public:
-    RNone() {}
+    IDPairRangeNone() {}
 
-    RNone(const magnet::xml::Node& XML)
-    { operator<<(XML); }
-
-    virtual bool isInRange(const Particle&) const
-    { return false; }
-
-    virtual void operator<<(const magnet::xml::Node& XML)
-    {
-      if (strcmp(XML.getAttribute("Range"),"None"))
-	M_throw() << "Attempting to load RNone from non None type";
-    }
-
-    virtual unsigned long size() const { return 0; }
-
-    virtual unsigned long operator[](unsigned long i) const  
-    {
-      M_throw() << "Nothing to access";
-    }
-
-    virtual unsigned long at(unsigned long i) const 
+    IDPairRangeNone(const magnet::xml::Node& XML, const dynamo::Simulation*)
     { 
-      M_throw() << "Nothing to access";
+      if (strcmp(XML.getAttribute("Range"),"2None"))
+	M_throw() << "Attempting to load a 2None from a non 2None";
     }
-
+    
+    virtual void operator<<(const magnet::xml::Node&)
+    { M_throw() << "Due to problems with IDRangeAll IDPairRangeNone operator<< cannot work for this class"; }
+  
+    virtual bool isInRange(const Particle&, const Particle&) const
+    { return false; }
+  
   protected:
-
     virtual void outputXML(magnet::xml::XmlStream& XML) const
-    { XML << magnet::xml::attr("Range") << "All"; }
+    { XML << magnet::xml::attr("Range") << "2None"; }
   };
 }

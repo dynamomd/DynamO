@@ -28,7 +28,7 @@
 namespace dynamo {
   LRoughWall::LRoughWall(dynamo::Simulation* nSim, double ne, double net, double nr, Vector  nnorm, 
 			 Vector  norigin, std::string nname, 
-			 Range* nRange, bool nrender):
+			 IDRange* nRange, bool nrender):
     Local(nRange, nSim, "LocalRoughWall"),
     vNorm(nnorm),
     vPosition(norigin),
@@ -78,7 +78,7 @@ namespace dynamo {
   void 
   LRoughWall::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<Range>(Range::getClass(XML,Sim));
+    range = shared_ptr<IDRange>(IDRange::getClass(XML,Sim));
   
     try {
       e = XML.getAttribute("Elasticity").as<double>();

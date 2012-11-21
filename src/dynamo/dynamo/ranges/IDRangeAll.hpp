@@ -17,20 +17,20 @@
 
 #pragma once
 
-#include <dynamo/ranges/1range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 #include <dynamo/simulation.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  class RAll: public Range, public dynamo::SimBase_const
+  class IDRangeAll: public IDRange, public dynamo::SimBase_const
   {
   public:
-    RAll(const dynamo::Simulation* SimDat):
-      SimBase_const(SimDat,"RAll"){}
+    IDRangeAll(const dynamo::Simulation* SimDat):
+      SimBase_const(SimDat,"IDRangeAll"){}
 
-    RAll(const magnet::xml::Node& XML, const dynamo::Simulation* SimDat):
-      SimBase_const(SimDat, "RAll")
+    IDRangeAll(const magnet::xml::Node& XML, const dynamo::Simulation* SimDat):
+      SimBase_const(SimDat, "IDRangeAll")
     { operator<<(XML); }
 
     virtual bool isInRange(const Particle&) const
@@ -39,7 +39,7 @@ namespace dynamo {
     void operator<<(const magnet::xml::Node& XML)
     {
       if (strcmp(XML.getAttribute("Range"),"All"))
-	M_throw() << "Attempting to load RAll from non All type";
+	M_throw() << "Attempting to load IDRangeAll from non All type";
     }
 
     virtual unsigned long size() const { return Sim->particles.size(); }

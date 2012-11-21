@@ -19,14 +19,14 @@
 #include <dynamo/globals/global.hpp>
 #include <dynamo/particle.hpp>
 #include <dynamo/globals/globEvent.hpp>
-#include <dynamo/ranges/1RAll.hpp>
+#include <dynamo/ranges/IDRangeAll.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  Global::Global(dynamo::Simulation* tmp, std::string name, Range* nR):
+  Global::Global(dynamo::Simulation* tmp, std::string name, IDRange* nR):
     SimBase(tmp, name),
-    range(nR ? nR : new RAll(tmp))
+    range(nR ? nR : new IDRangeAll(tmp))
   {}
 
   bool 

@@ -19,8 +19,8 @@
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/locals/local.hpp>
-#include <dynamo/ranges/1RAll.hpp>
-#include <dynamo/ranges/1RRange.hpp>
+#include <dynamo/ranges/IDRangeAll.hpp>
+#include <dynamo/ranges/IDRangeRange.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cmath> //for huge val
 
@@ -45,21 +45,21 @@ namespace dynamo {
 	<< magnet::xml::endtag("Sorter");
   }
 
-  std::auto_ptr<Range>
+  std::auto_ptr<IDRange>
   SDumb::getParticleNeighbours(const Particle&) const
   {
-    return std::auto_ptr<Range>(new RAll(Sim));
+    return std::auto_ptr<IDRange>(new IDRangeAll(Sim));
   }
 
-  std::auto_ptr<Range>
+  std::auto_ptr<IDRange>
   SDumb::getParticleNeighbours(const Vector&) const
   {
-    return std::auto_ptr<Range>(new RAll(Sim));
+    return std::auto_ptr<IDRange>(new IDRangeAll(Sim));
   }
 
-  std::auto_ptr<Range>
+  std::auto_ptr<IDRange>
   SDumb::getParticleLocals(const Particle&) const
   {
-    return std::auto_ptr<Range>(new RRange(0, Sim->locals.size()));
+    return std::auto_ptr<IDRange>(new IDRangeRange(0, Sim->locals.size()));
   }
 }
