@@ -1564,43 +1564,55 @@ namespace coil {
   void
   CLGLWindow::simupdateTick(double t)
   {
-    for (;;)
+    if (!isReady()) return;
+    
+    //A loop for framelocked rendering, this holds the simulation
+    //until the last data update has been rendered.
+    while (_simframelock && (_lastUpdateTime == getLastFrameTime()))
       {
 	//Jump out without an update if the window has been killed
 	if (!isReady()) return;
-
 	_systemQueue->drainQueue();
-
-	//Block the simulation if _simrun is false or if we're in frame lock
-	//and a new frame has not been drawn.
-	if (_simrun && (!_simframelock || (_lastUpdateTime != getLastFrameTime()))) break;
-      
-
-	//1ms delay to lower CPU usage while blocking, but not to affect framelocked render rates
+	
+	//1ms delay to lower CPU usage while blocking, but not to
+	//affect framelocked render rates
 	timespec sleeptime;
 	sleeptime.tv_sec = 0;
 	sleeptime.tv_nsec = 1000000;
 	nanosleep(&sleeptime, NULL);
       }
-    
-    //For the updates per second
+
+    //Update the simulation data.  Only update if the previous data
+    //set has been rendered, or we're about to pause the simulation
+    if ((_lastUpdateTime != getLastFrameTime()) || !_simrun)
+      {
+	magnet::thread::ScopedLock lock(_destroyLock);
+	if (!isReady()) return;
+	_updateDataSignal();
+	_newData = true;
+	
+	std::ostringstream os;
+	os << "t:" << t;        
+	setSimStatus1(os.str());
+	_lastUpdateTime = getLastFrameTime();
+      }
+
     ++_updateCounter;
 
-    //Only redraw if the screen has actually refreshed
-    if (_lastUpdateTime == getLastFrameTime()) return;
-    _lastUpdateTime = getLastFrameTime();
-
-    //Update the simulation data
-    {
-      magnet::thread::ScopedLock lock(_destroyLock);
-      if (!isReady()) return;
-      _updateDataSignal();
-      _newData = true;
-
-      std::ostringstream os;
-      os << "t:" << t;        
-      setSimStatus1(os.str());
-    }
+    //A loop for paused running, to hold the system at the current
+    //frame.
+    while (!_simrun)
+      {
+	//Jump out without an update if the window has been killed
+	if (!isReady()) return;
+	_systemQueue->drainQueue();
+	
+	//1ms delay to lower CPU usage while blocking
+	timespec sleeptime;
+	sleeptime.tv_sec = 0;
+	sleeptime.tv_nsec = 1000000;
+	nanosleep(&sleeptime, NULL);
+      }
   }
 
   void 
