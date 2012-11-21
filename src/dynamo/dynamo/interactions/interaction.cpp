@@ -31,7 +31,7 @@ namespace dynamo {
 
   void 
   Interaction::operator<<(const magnet::xml::Node& XML)
-  { range = shared_ptr<IDPairRange>(IDPairRange::getClass(XML,Sim)); }
+  { range = shared_ptr<IDPairRange>(IDPairRange::getClass(XML.getNode("IDPairRange"), Sim)); }
 
   bool 
   Interaction::isInteraction(const IntEvent &coll) const

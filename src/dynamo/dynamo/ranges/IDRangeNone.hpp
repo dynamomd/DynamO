@@ -28,32 +28,22 @@ namespace dynamo {
     IDRangeNone() {}
 
     IDRangeNone(const magnet::xml::Node& XML)
-    { operator<<(XML); }
+    {}
 
     virtual bool isInRange(const Particle&) const
     { return false; }
 
-    virtual void operator<<(const magnet::xml::Node& XML)
-    {
-      if (strcmp(XML.getAttribute("Range"),"None"))
-	M_throw() << "Attempting to load IDRangeNone from non None type";
-    }
-
     virtual unsigned long size() const { return 0; }
 
     virtual unsigned long operator[](unsigned long i) const  
-    {
-      M_throw() << "Nothing to access";
-    }
+    { M_throw() << "Nothing to access"; }
 
     virtual unsigned long at(unsigned long i) const 
-    { 
-      M_throw() << "Nothing to access";
-    }
+    { M_throw() << "Nothing to access"; }
 
   protected:
 
     virtual void outputXML(magnet::xml::XmlStream& XML) const
-    { XML << magnet::xml::attr("Range") << "All"; }
+    { XML << magnet::xml::attr("Type") << "None"; }
   };
 }

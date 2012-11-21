@@ -32,7 +32,17 @@ namespace dynamo {
 
     IDPairRangeRangeList(const magnet::xml::Node& XML, const dynamo::Simulation* nSim):
       SimBase_const(nSim, "IDPairRangeRangeList")
-    { operator<<(XML); }
+    {
+      try 
+	{
+	  for (magnet::xml::Node node = XML.fastGetNode("IDPairRange"); node.valid(); ++node)
+	    ranges.push_back(shared_ptr<IDPairRange>(IDPairRange::getClass(node, Sim)));
+	}
+      catch (boost::bad_lexical_cast &)
+	{
+	  M_throw() << "Failed a lexical cast in IDPairRangeRangeList";
+	}
+    }
     
     virtual bool isInRange(const Particle&p1, const Particle&p2) const
     {
@@ -43,32 +53,16 @@ namespace dynamo {
       return false;
     }
 
-    virtual void operator<<(const magnet::xml::Node& XML)
-    {
-      if (strcmp(XML.getAttribute("Range"),"RangeList"))
-	M_throw() << "Attempting to load a List from a non List";    
-  
-      try 
-	{
-	  for (magnet::xml::Node node = XML.fastGetNode("RangeListItem"); node.valid(); ++node)
-	    ranges.push_back(shared_ptr<IDPairRange>(IDPairRange::getClass(node, Sim)));
-	}
-      catch (boost::bad_lexical_cast &)
-	{
-	  M_throw() << "Failed a lexical cast in IDPairRangeRangeList";
-	}
-    }
-
     void addRange(IDPairRange* nRange)
     { ranges.push_back(shared_ptr<IDPairRange>(nRange)); }
   
   protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {
-      XML << magnet::xml::attr("Range") << "RangeList";
+      XML << magnet::xml::attr("Type") << "RangeList";
 
       BOOST_FOREACH(const shared_ptr<IDPairRange>& rPtr, ranges)
-	XML << magnet::xml::tag("RangeListItem") << rPtr << magnet::xml::endtag("RangeListItem");
+	XML << rPtr;
     }
 
     std::list<shared_ptr<IDPairRange> > ranges;

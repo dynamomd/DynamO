@@ -152,7 +152,7 @@ namespace dynamo {
 	  setPoint = boost::lexical_cast<double>(XML.getAttribute("SetPoint"));
 	}
 
-      range = shared_ptr<IDRange>(IDRange::getClass(XML,Sim));
+      range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"),Sim));
     }
     catch (boost::bad_lexical_cast &)
       {

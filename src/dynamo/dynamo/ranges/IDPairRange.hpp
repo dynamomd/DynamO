@@ -27,17 +27,14 @@ namespace dynamo {
   class IDPairRange
   {
   public:
-    virtual ~IDPairRange() {};
+    virtual ~IDPairRange() {}
  
-    virtual bool isInRange(const Particle&, const Particle&) const =0;  
-    virtual void operator<<(const magnet::xml::Node& XML) = 0;
-  
-    static IDPairRange* getClass(const magnet::xml::Node&, const dynamo::Simulation*);
+    virtual bool isInRange(const Particle&, const Particle&) const = 0;
 
-    inline friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML,
-						     const IDPairRange& range)
-    { range.outputXML(XML); return XML; }
- 
+    static IDPairRange* getClass(const magnet::xml::Node&, const dynamo::Simulation*);
+    
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML,
+					      const IDPairRange& range);
  protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const = 0;
   };

@@ -51,7 +51,7 @@ namespace dynamo {
       M_throw() << "Cannot load a Topology which has no molecules!";
 
     for (magnet::xml::Node node = XML.fastGetNode("Molecule"); node.valid(); ++node)
-      ranges.push_back(shared_ptr<IDRange>(IDRange::getClass(node, Sim)));
+      ranges.push_back(shared_ptr<IDRange>(IDRange::getClass(node.getNode("IDRange"), Sim)));
   }
 
   void

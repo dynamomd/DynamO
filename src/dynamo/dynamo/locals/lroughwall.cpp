@@ -78,7 +78,7 @@ namespace dynamo {
   void 
   LRoughWall::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<IDRange>(IDRange::getClass(XML,Sim));
+    range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"),Sim));
   
     try {
       e = XML.getAttribute("Elasticity").as<double>();

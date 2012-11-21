@@ -33,7 +33,7 @@ namespace dynamo {
   void 
   SpFixedCollider::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<IDRange>(IDRange::getClass(XML, Sim));
+    range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
   
     try {
       spName = XML.getAttribute("Name");

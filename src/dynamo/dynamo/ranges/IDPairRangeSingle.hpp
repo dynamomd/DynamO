@@ -29,10 +29,7 @@ namespace dynamo {
   
     IDPairRangeSingle(const magnet::xml::Node& XML, const dynamo::Simulation* Sim)
     { 
-      if (strcmp(XML.getAttribute("Range"),"2Single"))
-	M_throw() << "Attempting to load a 2Single from a non pair";
-  
-      range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("SingleRange"), Sim));
+      range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
     }
 
     virtual bool isInRange(const Particle&p1, const Particle&p2) const
@@ -40,20 +37,13 @@ namespace dynamo {
       return (range->isInRange(p1) && range->isInRange(p2));
     }
 
-    virtual void operator<<(const magnet::xml::Node&)
-    {
-      M_throw() << "Due to problems with IDPairRangeSingle operator<< cannot work for this class";
-    }
-  
     const shared_ptr<IDRange>& getRange() const { return range; }
 
   protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {
-      XML << magnet::xml::attr("Range") << "2Single" 
-	  << magnet::xml::tag("SingleRange")
-	  << range
-	  << magnet::xml::endtag("SingleRange");
+      XML << magnet::xml::attr("Type") << "Single" 
+	  << range;
     }
 
     shared_ptr<IDRange> range;

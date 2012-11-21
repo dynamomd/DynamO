@@ -70,7 +70,7 @@ namespace dynamo {
   void 
   LWall::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<IDRange>(IDRange::getClass(XML,Sim));
+    range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"),Sim));
   
     try {
       _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());

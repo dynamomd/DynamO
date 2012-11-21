@@ -37,10 +37,7 @@ namespace dynamo {
     { return true; }
 
     void operator<<(const magnet::xml::Node& XML)
-    {
-      if (strcmp(XML.getAttribute("Range"),"All"))
-	M_throw() << "Attempting to load IDRangeAll from non All type";
-    }
+    {}
 
     virtual unsigned long size() const { return Sim->particles.size(); }
 
@@ -58,6 +55,6 @@ namespace dynamo {
   protected:
 
     void outputXML(magnet::xml::XmlStream& XML) const
-    { XML << magnet::xml::attr("Range") << "All"; }
+    { XML << magnet::xml::attr("Type") << "All"; }
   };
 }

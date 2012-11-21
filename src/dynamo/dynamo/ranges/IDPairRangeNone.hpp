@@ -25,19 +25,13 @@ namespace dynamo {
     IDPairRangeNone() {}
 
     IDPairRangeNone(const magnet::xml::Node& XML, const dynamo::Simulation*)
-    { 
-      if (strcmp(XML.getAttribute("Range"),"2None"))
-	M_throw() << "Attempting to load a 2None from a non 2None";
-    }
+    {}
     
-    virtual void operator<<(const magnet::xml::Node&)
-    { M_throw() << "Due to problems with IDRangeAll IDPairRangeNone operator<< cannot work for this class"; }
-  
     virtual bool isInRange(const Particle&, const Particle&) const
     { return false; }
   
   protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const
-    { XML << magnet::xml::attr("Range") << "2None"; }
+    { XML << magnet::xml::attr("Type") << "None"; }
   };
 }

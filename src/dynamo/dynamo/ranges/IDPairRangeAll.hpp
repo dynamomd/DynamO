@@ -25,24 +25,15 @@ namespace dynamo {
   class IDPairRangeAll:public IDPairRange
   {
   public:
-    IDPairRangeAll(const magnet::xml::Node& XML, const dynamo::Simulation*)
-    { 
-      if (strcmp(XML.getAttribute("Range"),"2All"))
-	M_throw() << "Attempting to load a 2All from a non 2All";
-    }
-
     IDPairRangeAll() {}
 
-    virtual void operator<<(const magnet::xml::Node&)
-    {
-      M_throw() << "Due to problems with IDRangeAll IDPairRangeAll operator<< cannot work for this class";
-    }
-      
+    IDPairRangeAll(const magnet::xml::Node& XML, const dynamo::Simulation*) {}
+
     virtual bool isInRange(const Particle&, const Particle&) const
     { return true; }
     
   protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const
-    { XML << magnet::xml::attr("Range") << "2All"; }
+    { XML << magnet::xml::attr("Type") << "All"; }
   };
 }

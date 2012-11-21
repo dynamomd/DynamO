@@ -30,7 +30,7 @@ namespace dynamo {
   void 
   SpPoint::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<IDRange>(IDRange::getClass(XML,Sim));
+    range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
   
     try {
       _mass = Sim->_properties.getProperty(XML.getAttribute("Mass"),

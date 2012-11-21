@@ -79,8 +79,6 @@ namespace dynamo {
 
     virtual bool isInRange(const Particle&) const = 0;
 
-    virtual void operator<<(const magnet::xml::Node&) = 0;  
-
     virtual unsigned long size() const = 0;
 
     virtual unsigned long operator[](unsigned long) const = 0;
@@ -89,9 +87,8 @@ namespace dynamo {
 
     static IDRange* getClass(const magnet::xml::Node&, const dynamo::Simulation * Sim);
 
-    inline friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML,
-						     const IDRange& range)
-    { range.outputXML(XML); return XML; }
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML,
+					      const IDRange& range);
 
     iterator begin() const { return IDRange::iterator(0, this); }
     iterator end() const { return IDRange::iterator(size(), this); }

@@ -29,10 +29,6 @@ namespace dynamo {
     IDPairRangeChainGroups(const magnet::xml::Node& XML, const dynamo::Simulation*):
       range1(0),range2(0), length(0) 
     { 
-      if (strcmp(XML.getAttribute("Range"),"ChainGroups"))
-	M_throw() << "Attempting to load a ChainGroups from a "
-		  << XML.getAttribute("Range");
-  
       range1 = XML.getAttribute("Start1").as<size_t>();
       range2 = XML.getAttribute("Start2").as<size_t>();
       length = XML.getAttribute("Length").as<size_t>();
@@ -64,16 +60,10 @@ namespace dynamo {
 		    == ((p2.getID() - range2) % length)));	    
     }
     
-    virtual void operator<<(const magnet::xml::Node&)
-    {
-      M_throw() << "Due to problems with IDRangeAll IDPairRangeChainGroups operator<<"
-	" cannot work for this class";
-    }
-
   protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {
-      XML << magnet::xml::attr("Range") << "ChainGroups" 
+      XML << magnet::xml::attr("Type") << "ChainGroups" 
 	  << magnet::xml::attr("Start1")
 	  << range1
 	  << magnet::xml::attr("Start2")

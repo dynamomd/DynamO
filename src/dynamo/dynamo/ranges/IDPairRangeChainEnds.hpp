@@ -28,10 +28,6 @@ namespace dynamo {
     IDPairRangeChainEnds(const magnet::xml::Node& XML, const dynamo::Simulation*):
       rangeStart(0),rangeEnd(0), interval(0) 
     { 
-      if (strcmp(XML.getAttribute("Range"),"ChainEnds"))
-	M_throw() << "Attempting to load a ChainEnds from a "
-		  << XML.getAttribute("Range");
-      
       rangeStart = XML.getAttribute("Start").as<size_t>();
       rangeEnd = XML.getAttribute("End").as<size_t>();
       interval = XML.getAttribute("Interval").as<size_t>();
@@ -69,16 +65,10 @@ namespace dynamo {
 		&& (p2.getID() - p1.getID() == interval - 1));
     }
 
-    virtual void operator<<(const magnet::xml::Node&)
-    {
-      M_throw() << "Due to problems with IDRangeAll IDPairRangeChainEnds operator<<"
-	" cannot work for this class";
-    }
-  
   protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {
-      XML << magnet::xml::attr("Range") << "ChainEnds" 
+      XML << magnet::xml::attr("Type") << "ChainEnds" 
 	  << magnet::xml::attr("Start")
 	  << rangeStart
 	  << magnet::xml::attr("End")

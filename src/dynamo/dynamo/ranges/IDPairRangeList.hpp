@@ -47,12 +47,9 @@ namespace dynamo {
 
     virtual void operator<<(const magnet::xml::Node& XML)
     {
-      if (strcmp(XML.getAttribute("Range"),"List"))
-	M_throw() << "Attempting to load a List from a non List";    
-  
       try 
 	{
-	  for (magnet::xml::Node node = XML.fastGetNode("RangePair"); node.valid(); ++node)
+	  for (magnet::xml::Node node = XML.fastGetNode("IDPair"); node.valid(); ++node)
 	    addPair(node.getAttribute("ID1").as<unsigned long>(), 
 		    node.getAttribute("ID2").as<unsigned long>());
 	}
@@ -65,12 +62,12 @@ namespace dynamo {
   protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {
-      XML << magnet::xml::attr("Range") << "List";
+      XML << magnet::xml::attr("Type") << "List";
       BOOST_FOREACH(const Key& key, pairmap)
-	XML << magnet::xml::tag("RangePair") 
+	XML << magnet::xml::tag("IDPair")
 	    << magnet::xml::attr("ID1") << key.first
 	    << magnet::xml::attr("ID2") << key.second
-	    << magnet::xml::endtag("RangePair");
+	    << magnet::xml::endtag("Pair");
     }
 
     Container pairmap;

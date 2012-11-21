@@ -25,26 +25,20 @@ namespace dynamo {
   {
   public:
     IDRangeRange(const magnet::xml::Node& XML) 
-    { operator<<(XML); }
-    
-    IDRangeRange(unsigned int s, unsigned int e):startID(s), endID(e) {}
-
-    virtual bool isInRange(const Particle& part) const
-    { return (part.getID() >= startID) && (part.getID() < endID); }
-
-    virtual void operator<<(const magnet::xml::Node& XML)
-    {
-      if (strcmp(XML.getAttribute("Range"), "Ranged"))
-	M_throw() << "Attempting to load IDRangeRange from non range";
-      
+    { 
       try {
-	startID = XML.getAttribute("Start").as<unsigned long>();
-	endID = XML.getAttribute("End").as<unsigned long>() + 1;
+	startID = XML.getAttribute("Start").as<size_t>();
+	endID = XML.getAttribute("End").as<size_t>() + 1;
       }
       catch (boost::bad_lexical_cast &)
 	{ M_throw() << "Failed a lexical cast in IDRangeRange"; }
     }
-  
+    
+    IDRangeRange(size_t s, size_t e):startID(s), endID(e) {}
+
+    virtual bool isInRange(const Particle& part) const
+    { return (part.getID() >= startID) && (part.getID() < endID); }
+
     virtual unsigned long size() const { return endID - startID; };
 
     virtual unsigned long operator[](unsigned long i) const  
@@ -61,12 +55,12 @@ namespace dynamo {
   protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {
-      XML << magnet::xml::attr("Range") << "Ranged"
+      XML << magnet::xml::attr("Type") << "Ranged"
 	  << magnet::xml::attr("Start") << startID
 	  << magnet::xml::attr("End") << endID - 1;
     }
 
-    unsigned long startID;
-    unsigned long endID;
+    size_t startID;
+    size_t endID;
   };
 }

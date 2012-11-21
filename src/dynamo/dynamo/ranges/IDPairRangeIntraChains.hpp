@@ -36,9 +36,6 @@ namespace dynamo {
     IDPairRangeIntraChains(const magnet::xml::Node& XML, const dynamo::Simulation*):
       range1(0),range2(0), interval(0)
     { 
-      if (strcmp(XML.getAttribute("Range"),"IntraChains"))
-	M_throw() << "Attempting to load a chains from a non chains";
-      
       range1 = XML.getAttribute("Start").as<unsigned long>();
       range2 = XML.getAttribute("End").as<unsigned long>();
       interval = XML.getAttribute("Interval").as<unsigned long>();
@@ -62,15 +59,10 @@ namespace dynamo {
 	&& (p1.getID() >= range1) && (p1.getID() <= range2);
     }
 
-    virtual void operator<<(const magnet::xml::Node&)
-    {
-      M_throw() << "Due to problems with IDRangeAll IDPairRangeIntraChains::operator<< cannot work for this class";
-    }
-
   protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {
-      XML << magnet::xml::attr("Range") << "IntraChains" 
+      XML << magnet::xml::attr("Type") << "IntraChains" 
 	  << magnet::xml::attr("Start")
 	  << range1
 	  << magnet::xml::attr("End")
@@ -78,8 +70,8 @@ namespace dynamo {
 	  << magnet::xml::attr("Interval")
 	  << interval;
     }
-    unsigned long range1;
-    unsigned long range2;
-    unsigned long interval;
+    size_t range1;
+    size_t range2;
+    size_t interval;
   };
 }

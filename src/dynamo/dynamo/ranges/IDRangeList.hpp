@@ -29,7 +29,16 @@ namespace dynamo {
   {
   public:
     IDRangeList(const magnet::xml::Node& XML) 
-    { operator<<(XML); }
+    { 
+      try {
+	for (magnet::xml::Node node = XML.fastGetNode("ID"); node.valid(); ++node)
+	  IDs.push_back(node.getAttribute("val").as<size_t>());
+      }
+      catch (boost::bad_lexical_cast &)
+	{
+	  M_throw() << "Failed a lexical cast in IDRangeList";
+	}
+    }
 
     template<class T>
     IDRangeList(const std::vector<T>& data):
@@ -46,22 +55,6 @@ namespace dynamo {
       return false;
     }
 
-    //The data output classes
-    virtual void operator<<(const magnet::xml::Node& XML)
-    {
-      if (strcmp(XML.getAttribute("Range"),"List"))
-	M_throw() << "Attempting to load IDRangeList from non list";
-      try {
-    
-	for (magnet::xml::Node node = XML.fastGetNode("ID"); node.valid(); ++node)
-	  IDs.push_back(node.getAttribute("val").as<size_t>());
-      }
-      catch (boost::bad_lexical_cast &)
-	{
-	  M_throw() << "Failed a lexical cast in IDRangeList";
-	}
-    }
-
     std::vector<size_t>& getContainer() { return IDs; }
     
     virtual unsigned long size() const { return IDs.size(); }
@@ -74,7 +67,7 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {
-      XML << magnet::xml::attr("Range") << "List";
+      XML << magnet::xml::attr("Type") << "List";
       BOOST_FOREACH(unsigned long ID, IDs)
 	XML << magnet::xml::tag("ID") << magnet::xml::attr("val") << ID << magnet::xml::endtag("ID");
     }

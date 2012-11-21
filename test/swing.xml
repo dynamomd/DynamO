@@ -7,8 +7,12 @@
     <SimulationSize x="51.5764409809654" y="51.5764409809654" z="51.5764409809654"/>
     <BC Type="None"/>
     <Genus>
-      <Species Name="FixedColliders" IntName="Bulk" Type="FixedCollider" Range="Ranged" Start="0" End="0"/>
-      <Species Mass="M" Name="Bulk" IntName="Bulk" Type="Point" Range="Ranged" Start="1" End="10"/>
+      <Species Name="FixedColliders" IntName="Bulk" Type="FixedCollider">
+	<IDRange Type="Ranged" Start="0" End="0"/>
+      </Species>
+      <Species Mass="M" Name="Bulk" IntName="Bulk" Type="Point">
+	<IDRange Type="Ranged" Start="1" End="10"/>
+      </Species>
     </Genus>
     <Topology/>
     <SystemEvents/>
@@ -18,8 +22,12 @@
     <Locals>
     </Locals>
     <Interactions>
-      <Interaction Type="SquareBond" Diameter="D" Lambda="1.06" Name="Bonds" Elasticity="0.9" Range="Chains" Start="0" End="10" Interval="11"/>
-      <Interaction Type="HardSphere" Diameter="D" Elasticity="1.00000000000000e+00" Name="Bulk" Range="2All"/>
+      <Interaction Type="SquareBond" Diameter="D" Lambda="1.06" Name="Bonds" Elasticity="0.9">
+	<IDPairRange Type="Chains" Start="0" End="10" Interval="11"/>
+      </Interaction>
+      <Interaction Type="HardSphere" Diameter="D" Elasticity="1.00000000000000e+00" Name="Bulk" >
+	<IDPairRange Type="All"/>
+      </Interaction>
     </Interactions>
     <Dynamics Type="NewtonianGravity" tc="0.01">
       <g x="0" y="-1" z="0"/>

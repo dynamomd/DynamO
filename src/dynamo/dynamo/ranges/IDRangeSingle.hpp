@@ -26,23 +26,18 @@ namespace dynamo {
   {
   public:
     IDRangeSingle(const magnet::xml::Node& XML) 
-    { operator<<(XML); }
+    { 
+      try {
+	ID = XML.getAttribute("ID").as<size_t>();
+      }
+      catch (boost::bad_lexical_cast &)
+	{ M_throw() << "Failed a lexical cast in IDRangeSingle"; }    
+    }
 
     IDRangeSingle():ID(0) {}
 
     virtual bool isInRange(const Particle &part) const
     { return part.getID() == ID; }
-
-    virtual void operator<<(const magnet::xml::Node& XML)
-    {
-      if (strcmp(XML.getAttribute("Range"),"Single"))
-	M_throw() << "Attempting to load IDRangeSingle from non single";
-      try {
-	ID = XML.getAttribute("ID").as<size_t>();
-      }
-      catch (boost::bad_lexical_cast &)
-	{ M_throw() << "Failed a lexical cast in IDRangeSingle"; }
-    }
 
     virtual unsigned long size() const { return 1; };
 
@@ -52,7 +47,7 @@ namespace dynamo {
     virtual unsigned long at(unsigned long i) const 
     { 
       if (i != 0)
-	M_throw() << "Bad array access value in range.at()";
+	M_throw() << "Bad array access value";
     
       return ID;
     }
@@ -61,7 +56,7 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {
-      XML << magnet::xml::attr("Range") << "Single"
+      XML << magnet::xml::attr("Type") << "Single"
 	  << magnet::xml::attr("ID") << ID;
     }
 
