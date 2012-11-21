@@ -279,7 +279,7 @@ function umbrella_bailout {
 
 function umbrella {
 #Just tests the square shoulder interaction between two walls
-    bzcat umbrella.xml.bz2 | \
+    bzcat umbrella.xml | \
 	$Xml ed -u '//Simulation/Scheduler/@Type' -v "$1" \
 	| bzip2 > tmp.xml.bz2
     
@@ -294,7 +294,7 @@ function umbrella {
     bzcat config.out.xml.bz2 | \
 	$Xml sel -t -c '//ParticleData' > testresult.dat
 
-    bzcat umbrella.xml.bz2 | \
+    bzcat umbrella.xml | \
 	$Xml sel -t -c '//ParticleData' > correct.dat
     
     diff testresult.dat correct.dat &> /dev/null \
@@ -735,8 +735,8 @@ echo ""
 echo "SYSTEM EVENTS"
 echo "Testing the Andersen Thermostat, NeighbourLists and BoundedPQ's"
 ThermostatTest
-echo "Testing the square umbrella potential, NeighbourLists and BoundedPQ's"
-umbrella "NeighbourList"
+#echo "Testing the square umbrella potential, NeighbourLists and BoundedPQ's"
+#umbrella "NeighbourList"
 
 echo ""
 echo "LOCAL EVENTS"
