@@ -175,6 +175,7 @@ main(int argc, char *argv[])
 	  sim.ensemble.reset(new dynamo::EnsembleNVT(&sim));
 	}
 
+      sim.addOutputPlugin("Misc");
       sim.initialise();      
       
       //Here we modify the sim accordingly      

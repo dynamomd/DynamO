@@ -41,9 +41,6 @@ namespace dynamo {
 		<< XML.getAttribute("Type")
 		<< " entry";
 
-    if (dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()) == NULL)
-      M_throw() << "Multi-canonical simulations require an NVT ensemble";
-
     try 
       {     
 	if (XML.hasNode("PotentialDeformation"))
@@ -97,8 +94,9 @@ namespace dynamo {
   void DynNewtonianMC::initialise()
   {
     DynNewtonian::initialise();
-    
-    //Confirm that the energy output plugin is available
+
+    if (dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()) == NULL)
+      M_throw() << "Multi-canonical simulations require an NVT ensemble";
     
     if (!(Sim->getOutputPlugin<OPMisc>()))
       M_throw() << "Multicanonical dynamics requires the Misc plugin";
