@@ -385,112 +385,111 @@ namespace dynamo {
     while (((Simulations[0].systemTime / Simulations[0].units.unitTime()) < replicaEndTime)
 	   && (Simulations[0].eventCount < vm["events"].as<size_t>()))
       {
-	  if (_SIGINT)
-	    {
-	      //Clear the writes to screen
-	      std::cout.flush();
-	      std::cerr << "\n<S>hutdown, <D>ata or <P>eek at data output:";
+	if (_SIGINT)
+	  {
+	    //Clear the writes to screen
+	    std::cout.flush();
+	    std::cerr << "\n<S>hutdown, <D>ata or <P>eek at data output:";
 	      
-	      char c;
-	      //Clear the input buffer
-	      std::cin.clear();
-	      setvbuf(stdin, NULL, _IONBF, 0);
-	      c=getchar();
-	      setvbuf(stdin, NULL, _IOLBF, 0);
-	      switch (c)
+	    char c;
+	    //Clear the input buffer
+	    std::cin.clear();
+	    setvbuf(stdin, NULL, _IONBF, 0);
+	    c=getchar();
+	    setvbuf(stdin, NULL, _IOLBF, 0);
+	    switch (c)
+	      {
+	      case 's':
+	      case 'S':
 		{
-		case 's':
-		case 'S':
-		  {
-		    replicaEndTime = 0.0;
-		    for (unsigned int i = 0; i < nSims; i++)
-		      Simulations[i].simShutdown();
-		    continue;
-		    break;
-		  }
-		case 'p':
-		case 'P':
-		  {
-		    end_Time = boost::posix_time::second_clock::local_time();
+		  replicaEndTime = 0.0;
+		  for (unsigned int i = 0; i < nSims; i++)
+		    Simulations[i].simShutdown();
+		  continue;
+		  break;
+		}
+	      case 'p':
+	      case 'P':
+		{
+		  end_Time = boost::posix_time::second_clock::local_time();
 		  
-		    size_t i = 0;
-		    BOOST_FOREACH(replexPair p1, temperatureList)
-		      {
-			Simulations[p1.second.simID].endEventCount = vm["events"].as<size_t>();
-			Simulations[p1.second.simID].outputData((magnet::string::search_replace(std::string("peek.data.%ID.xml.bz2"), 
-												"%ID", boost::lexical_cast<std::string>(i++))));
-		      }
-		  
+		  size_t i = 0;
+		  BOOST_FOREACH(replexPair p1, temperatureList)
 		    {
-		      std::fstream replexof("replex.dat",std::ios::out | std::ios::trunc);
-		    
-		      BOOST_FOREACH(const replexPair& myPair, temperatureList)
-			replexof << myPair.second.realTemperature << " " 
-				 << myPair.second.swaps << " " 
-				 << (static_cast<double>(myPair.second.swaps) 
-				     / static_cast<double>(myPair.second.attempts))  << " "
-				 << myPair.second.upSims << " "
-				 << myPair.second.downSims
-				 << "\n";
-		    
-		      replexof.close();      
+		      Simulations[p1.second.simID].endEventCount = vm["events"].as<size_t>();
+		      Simulations[p1.second.simID].outputData((magnet::string::search_replace(std::string("peek.data.%ID.xml.bz2"), 
+											      "%ID", boost::lexical_cast<std::string>(i++))));
 		    }
 		  
-		    {      
-		      std::fstream replexof("replex.stats", std::ios::out | std::ios::trunc);
-		    
-		      replexof << "Number_of_replex_cycles " << replexSwapCalls
-			       << "\nTime_spent_replexing " <<  boost::posix_time::to_simple_string(end_Time - start_Time)
-			       << "\nReplex Rate " << static_cast<double>(replexSwapCalls) / static_cast<double>((end_Time - start_Time).total_seconds())
-			       << "\n";	
-		    
-		      replexof.close();
-		    }		  
-		    break;
-		  }
-		case 'd':
-		case 'D':
 		  {
-		    std::cout << "Replica Exchange, ReplexSwap No." << replexSwapCalls 
-			      << ", Round Trips " << round_trips
-			      << "\n        T   ID     NColl   A-Ratio     Swaps    UpSims     DownSims\n";
-
-		    BOOST_FOREACH(const replexPair& dat, temperatureList)
-		      {       
-			std::cout << std::setw(9)
-				  << Simulations[dat.second.simID].ensemble->getReducedEnsembleVals()[2] 
-				  << " " << std::setw(4)
-				  << dat.second.simID
-				  << " " << std::setw(8)
-				  << Simulations[dat.second.simID].eventCount/1000 << "k" 
-				  << " " << std::setw(9)
-				  << ( static_cast<double>(dat.second.swaps) / dat.second.attempts)
-				  << " " << std::setw(9)
-				  << dat.second.swaps 
-				  << " " << std::setw(9)
-				  << dat.second.upSims
-				  << " "
-				  << (SimDirection[dat.second.simID] > 0 ? "/\\" : "  ")
-				  << " " << std::setw(9)
-				  << dat.second.downSims
-				  << " "
-				  << (SimDirection[dat.second.simID] < 0 ? "\\/" : "  ")
-				  << "\n";
-		      }
-		    break;
+		    std::fstream replexof("replex.dat",std::ios::out | std::ios::trunc);
+		    
+		    BOOST_FOREACH(const replexPair& myPair, temperatureList)
+		      replexof << myPair.second.realTemperature << " " 
+			       << myPair.second.swaps << " " 
+			       << (static_cast<double>(myPair.second.swaps) 
+				   / static_cast<double>(myPair.second.attempts))  << " "
+			       << myPair.second.upSims << " "
+			       << myPair.second.downSims
+			       << "\n";
+		    
+		    replexof.close();      
 		  }
+		  
+		  {      
+		    std::fstream replexof("replex.stats", std::ios::out | std::ios::trunc);
+		    
+		    replexof << "Number_of_replex_cycles " << replexSwapCalls
+			     << "\nTime_spent_replexing " <<  boost::posix_time::to_simple_string(end_Time - start_Time)
+			     << "\nReplex Rate " << static_cast<double>(replexSwapCalls) / static_cast<double>((end_Time - start_Time).total_seconds())
+			     << "\n";	
+		    
+		    replexof.close();
+		  }		  
+		  break;
 		}
-	      
-	      _SIGINT = false;
-	      {
-		struct sigaction new_action;
-		new_action.sa_handler = Coordinator::signal_handler;
-		sigemptyset(&new_action.sa_mask);
-		new_action.sa_flags = 0;
-		sigaction(SIGINT, &new_action, NULL);
+	      case 'd':
+	      case 'D':
+		{
+		  std::cout << "Replica Exchange, ReplexSwap No." << replexSwapCalls 
+			    << ", Round Trips " << round_trips
+			    << "\n        T   ID     NColl   A-Ratio     Swaps    UpSims     DownSims\n";
+
+		  BOOST_FOREACH(const replexPair& dat, temperatureList)
+		    {       
+		      std::cout << std::setw(9)
+				<< Simulations[dat.second.simID].ensemble->getReducedEnsembleVals()[2] 
+				<< " " << std::setw(4)
+				<< dat.second.simID
+				<< " " << std::setw(8)
+				<< Simulations[dat.second.simID].eventCount/1000 << "k" 
+				<< " " << std::setw(9)
+				<< ( static_cast<double>(dat.second.swaps) / dat.second.attempts)
+				<< " " << std::setw(9)
+				<< dat.second.swaps 
+				<< " " << std::setw(9)
+				<< dat.second.upSims
+				<< " "
+				<< (SimDirection[dat.second.simID] > 0 ? "/\\" : "  ")
+				<< " " << std::setw(9)
+				<< dat.second.downSims
+				<< " "
+				<< (SimDirection[dat.second.simID] < 0 ? "\\/" : "  ")
+				<< "\n";
+		    }
+		  break;
+		}
 	      }
+	      
+	    _SIGINT = false;
+	    {
+	      struct sigaction new_action;
+	      new_action.sa_handler = Coordinator::signal_handler;
+	      sigemptyset(&new_action.sa_mask);
+	      new_action.sa_flags = 0;
+	      sigaction(SIGINT, &new_action, NULL);
 	    }
-	  
+	  }
 	  {
 	    //Run the simulations. We also generate all tasks at once
 	    //and submit them all at once to minimise lock contention.
