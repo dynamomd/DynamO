@@ -2490,7 +2490,7 @@ namespace coil {
     magnet::math::Vector shift = centre - _cameraFocus;
 	
     //Try to reset the camera, in-case its dissappeared to nan or inf.
-    _camera.setPosition((_camera.getPosition() + shift) * oldScale / newScale);
+    _camera.setPosition(_camera.getPosition() * oldScale / newScale + shift);
     _camera.setRenderScale(newScale);
 	
     _cameraFocus = centre;

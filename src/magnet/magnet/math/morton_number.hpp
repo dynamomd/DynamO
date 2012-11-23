@@ -16,9 +16,10 @@
 */
 #pragma once
 
+#include <magnet/math/dilated_int.hpp>
 #include <stdint.h>
 #include <limits>
-#include <magnet/math/dilated_int.hpp>
+#include <sstream>
 
 namespace magnet {
   namespace math {
@@ -62,7 +63,7 @@ namespace magnet {
       }
       
       //! \brief Returns the morton number stored in this class.
-      inline size_t getMortonNum()
+      inline size_t getMortonNum() const
       { 
 	size_t retval = _data[0].getDilatedValue();
 	for (size_t i(1); i < d; ++i)
@@ -96,6 +97,17 @@ namespace magnet {
 	  retval._data[i] = o._data[i] + _data[i];
 	
 	return retval;
+      }
+
+      inline std::string toString() const
+      {
+	std::ostringstream os;
+	os << getMortonNum() 
+	   << "<" << _data[0].getRealValue()
+	   << "," << _data[1].getRealValue() 
+	   << "," << _data[2].getRealValue() 
+	   << ">";
+	return os.str();
       }
 
     protected:
