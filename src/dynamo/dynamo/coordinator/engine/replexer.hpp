@@ -22,6 +22,7 @@
 
 #include <dynamo/coordinator/engine/engine.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <ctime>
 
 namespace dynamo {
   /*! \brief The Replica Exchange/Parallel Tempering Engine.
@@ -186,7 +187,9 @@ namespace dynamo {
     /*! \brief Total number of Simulation instances being run.
      */
     unsigned int nSims;
-  
+
+    timespec _startTime;
+
     /*! \brief Initialises this class ready for the replica exchange.
      */
     virtual void preSimInit();

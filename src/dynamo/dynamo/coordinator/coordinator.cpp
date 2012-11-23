@@ -41,7 +41,8 @@ namespace dynamo {
 	    default_action.sa_flags = SA_RESETHAND;
 	    sigaction(SIGINT, &default_action, NULL);
 	  }
-
+	  
+	  std::cout << "\nI"<< std::endl;
 	  Coordinator::get()._engine->sigint();
 	}
       }

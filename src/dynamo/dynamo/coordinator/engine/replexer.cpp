@@ -380,6 +380,7 @@ namespace dynamo {
 
   void EReplicaExchangeSimulation::runSimulation()
   {
+    clock_gettime(CLOCK_MONOTONIC, &_startTime);
     start_Time = boost::posix_time::second_clock::local_time();
 
     while (((Simulations[0].systemTime / Simulations[0].units.unitTime()) < replicaEndTime)
@@ -528,6 +529,33 @@ namespace dynamo {
 
 		//Reset the max collisions
 		Simulations[i].endEventCount = vm["events"].as<size_t>();
+	      }
+
+	    timespec endTime;
+	    clock_gettime(CLOCK_MONOTONIC, &endTime);
+	    
+	    double duration = double(endTime.tv_sec) - double(_startTime.tv_sec)
+	      + 1e-9 * (double(endTime.tv_nsec) - double(_startTime.tv_nsec));
+	    
+	    double fractionComplete = (Simulations[0].systemTime / Simulations[0].units.unitTime()) / replicaEndTime;
+	    double seconds_remaining_double = duration * (1/ fractionComplete - 1);
+	    size_t seconds_remaining = seconds_remaining_double;
+	    
+	    if (seconds_remaining_double < std::numeric_limits<size_t>::max())
+	      {
+		size_t ETA_hours = seconds_remaining / 3600;
+		size_t ETA_mins = (seconds_remaining / 60) % 60;
+		size_t ETA_secs = seconds_remaining % 60;
+		
+		std::cout << "\rReplica Exchange No." << replexSwapCalls << ", ETA ";
+		if (ETA_hours)
+		  std::cout << ETA_hours << "hr ";
+		
+		if (ETA_mins)
+		  std::cout << ETA_mins << "min ";
+		
+		std::cout << ETA_secs << "s        ";
+		std::cout.flush();
 	      }
 	  }
       }
