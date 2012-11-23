@@ -2469,15 +2469,13 @@ namespace coil {
 	magnet::math::Vector dims = (*iPtr)->getDimensions();
 	magnet::math::Vector centre = (*iPtr)->getCentre();
 	
-	min = Vector(std::min(min[0], centre[0] - 0.5 * dims[0]),
-		     std::min(min[1], centre[1] - 0.5 * dims[1]),
-		     std::min(min[2], centre[2] - 0.5 * dims[2]));
-	
-	max = Vector(std::max(max[0], centre[0] + 0.5 * dims[0]),
-		     std::max(max[1], centre[1] + 0.5 * dims[1]),
-		     std::max(max[2], centre[2] + 0.5 * dims[2]));
+	for (size_t i(0); i < 3; ++i)
+	  if (dims[i] != 0)
+	    {
+	      min[i] = std::min(min[i], centre[i] - 0.5 * dims[i]);
+	      max[i] = std::max(max[i], centre[i] + 0.5 * dims[i]);
+	    }
       }
-    
     //Catch the exceptional case where there is nothing rendered
 
     if (std::isinf(min[0]) || std::isinf(min[1]) || std::isinf(min[2])

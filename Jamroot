@@ -33,7 +33,7 @@ path-constant INCLUDE_INSTALL_PATH : ./include ;
 variant fulldebug : debug 
 	: <define>_GLIBCXX_DEBUG
 	<define>DYNAMO_DEBUG <define>DYNAMO_CollDebug
-	<define>DYNAMO_WallCollDebug <cxxflags>-fstack-protector-all
+	<cxxflags>-fstack-protector-all
 	;
 
 # The valgrind variant is useful for code analysis in tools like

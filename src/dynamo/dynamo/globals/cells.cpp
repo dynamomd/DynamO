@@ -31,6 +31,10 @@
 #include <set>
 #include <algorithm>
 
+namespace {
+  const bool verbose = false;
+}
+
 namespace dynamo {
   GCells::GCells(dynamo::Simulation* nSim, const std::string& name, size_t overlink):
     GNeighbourList(nSim, "CellNeighbourList"),
@@ -95,6 +99,23 @@ namespace dynamo {
     //Sim->dynamics->updateParticle(part);
     //is not required as we compensate for the delay using 
     //Sim->dynamics->getParticleDelay(part)
+
+    if (verbose)
+      {
+	Vector cellPos = calcPosition(partCellData[part.getID()], part);
+	Vector relpos = part.getPosition() - cellPos;
+	Sim->BCs->applyBC(relpos);
+	derr 
+	  << "Calculating event for particle " << part.getID() << " in Cell " << magnet::math::MortonNumber<3>(partCellData[part.getID()]).toString()
+	  << "\nParticle pos = " << part.getPosition().toString()
+	  << "\nCell pos = " << cellPos.toString()
+	  << "\nRelpos = " << relpos.toString()
+	  << "\nCell size = " << cellDimension.toString()
+	  << "\nTime = " << Sim->dynamics->getSquareCellCollision2(part, calcPosition(partCellData[part.getID()], part),
+								   cellDimension) - Sim->dynamics->getParticleDelay(part)
+	  << "\nDelay = " << Sim->dynamics->getParticleDelay(part)
+	  << std::endl;
+      }
   
     return GlobalEvent(part,
 		       Sim->dynamics->
@@ -208,25 +229,23 @@ namespace dynamo {
     BOOST_FOREACH(const nbHoodSlot& nbs, sigCellChangeNotify)
       nbs.second(part, oldCell);
   
-    //Debug section
-#ifdef DYNAMO_WallCollDebug
-    {
-      magnet::math::MortonNumber<3> newNBCellv(oldCell);
-      magnet::math::MortonNumber<3> endCellv(endCell);
+    if (verbose)
+      {
+	magnet::math::MortonNumber<3> newNBCellv(oldCell);
+	magnet::math::MortonNumber<3> endCellv(endCell);
     
-      dout << "CellEvent: t=" 
-	   << Sim->systemTime / Sim->units.unitTime()
-	   << " ID "
-	   << part.getID()
-	   << "  from <" 
-	   << newNBCellv[0].getRealValue() << "," << newNBCellv[1].getRealValue() 
-	   << "," << newNBCellv[2].getRealValue()
-	   << "> to <" 
-	   << endCellv[0].getRealValue() << "," << endCellv[1].getRealValue() 
-	   << "," << endCellv[2].getRealValue() << ">"
-	   << std::endl;
-    }
-#endif
+	derr << "CellEvent: t=" 
+	     << Sim->systemTime / Sim->units.unitTime()
+	     << " ID "
+	     << part.getID()
+	     << "  from <" 
+	     << newNBCellv[0].getRealValue() << "," << newNBCellv[1].getRealValue() 
+	     << "," << newNBCellv[2].getRealValue()
+	     << "> to <" 
+	     << endCellv[0].getRealValue() << "," << endCellv[1].getRealValue() 
+	     << "," << endCellv[2].getRealValue() << ">"
+	     << std::endl;
+      }
   }
 
   void 
@@ -243,7 +262,8 @@ namespace dynamo {
     reinitialise();
 
     dout << "Neighbourlist contains " << partCellData.size() 
-	 << " particle entries";
+	 << " particle entries"
+	 << std::endl;
   }
 
   void
@@ -354,16 +374,36 @@ namespace dynamo {
 	Particle& p = Sim->particles[id];
 	Sim->dynamics->updateParticle(p); 
 	addToCell(id);
-#ifdef DYNAMO_WallCollDebug
-	boost::unordered_map<size_t, size_t>::iterator it = partCellData.find(id);
-	magnet::math::MortonNumber<3> currentCell(it->second);
-	
-	dout << "Added particle ID=" << id << " to cell <"
-	     << currentCell[0].getRealValue() 
-	     << "," << currentCell[1].getRealValue()
-	     << "," << currentCell[2].getRealValue()
-	     << ">" << std::endl;
-#endif
+	if (verbose)
+	  {
+	    boost::unordered_map<size_t, size_t>::iterator it = partCellData.find(id);
+	    magnet::math::MortonNumber<3> currentCell(it->second);
+	    
+	    magnet::math::MortonNumber<3> estCell(getCellID(Sim->particles[ID].getPosition()));
+	  
+	    Vector wrapped_pos = p.getPosition();
+	    for (size_t n = 0; n < NDIM; ++n)
+	      {
+		wrapped_pos[n] -= Sim->primaryCellSize[n] *
+		  lrint(wrapped_pos[n] / Sim->primaryCellSize[n]);
+	      }
+	    Vector origin_pos = wrapped_pos + 0.5 * Sim->primaryCellSize - cellOffset;
+
+	    derr << "Added particle ID=" << p.getID() << " to cell <"
+		 << currentCell[0].getRealValue() 
+		 << "," << currentCell[1].getRealValue()
+		 << "," << currentCell[2].getRealValue()
+		 << ">"
+		 << "\nParticle is at this distance " << Vector(p.getPosition() - calcPosition(it->second, p)).toString() << " from the cell origin"
+		 << "\nParticle position  " << p.getPosition().toString()	
+		 << "\nParticle wrapped distance  " << wrapped_pos.toString()	
+		 << "\nParticle relative position  " << origin_pos.toString()
+		 << "\nParticle cell number  " << Vector(origin_pos[0] / cellLatticeWidth[0],
+							 origin_pos[1] / cellLatticeWidth[1],
+							 origin_pos[2] / cellLatticeWidth[2]
+							 ).toString()
+		 << std::endl;
+	  }
       }
 
     dout << "Cell loading " << float(partCellData.size()) / NCells 
@@ -398,9 +438,9 @@ namespace dynamo {
 
     for (size_t iDim = 0; iDim < NDIM; iDim++)
       {
-	int coord = std::floor((pos[iDim] + 0.5 * Sim->primaryCellSize[iDim] - cellOffset[iDim])
+	long coord = std::floor((pos[iDim] + 0.5 * Sim->primaryCellSize[iDim] - cellOffset[iDim])
 			       / cellLatticeWidth[iDim]);
-	coord %= cellCount[iDim];
+	coord %= long(cellCount[iDim]);
 	if (coord < 0) coord += cellCount[iDim];
 	retval[iDim] = coord;
       }
@@ -411,6 +451,13 @@ namespace dynamo {
   IDRangeList
   GCells::getParticleNeighbours(const magnet::math::MortonNumber<3>& particle_cell_coords) const
   {
+    if (verbose)
+      {
+	derr 
+	  << "Getting neighbours of cell " << particle_cell_coords.toString()
+	  << std::endl;
+      }
+
     magnet::math::MortonNumber<3> zero_coords;
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       zero_coords[iDim] = (particle_cell_coords[iDim].getRealValue() + cellCount[iDim] - overlink)
@@ -439,7 +486,7 @@ namespace dynamo {
 
     return retval;
   }
-
+  
   IDRangeList
   GCells::getParticleNeighbours(const Particle& part) const
   {
@@ -484,13 +531,7 @@ namespace dynamo {
   GCells::calcPosition(const magnet::math::MortonNumber<3>& coords, const Particle& part) const
   {
     //We always return the cell that is periodically nearest to the particle
-    Vector primaryCell;
-  
-    for (size_t i(0); i < NDIM; ++i)
-      primaryCell[i] = coords[i].getRealValue() * cellLatticeWidth[i]
-	- 0.5 * Sim->primaryCellSize[i] + cellOffset[i];
-
-  
+    Vector primaryCell = calcPosition(coords);
     Vector imageCell;
   
     for (size_t i = 0; i < NDIM; ++i)
