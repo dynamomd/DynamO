@@ -139,7 +139,7 @@ namespace dynamo {
 #endif
       const size_t cellID = it->second;
       //Erase the cell data
-      partCellData.quick_erase(it);
+      partCellData.erase(it);
 
       std::vector<std::vector<size_t> >::iterator listIt = list.begin() + cellID;
 #ifdef DYNAMO_DEBUG
