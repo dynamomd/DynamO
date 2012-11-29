@@ -27,10 +27,10 @@ lib boost_filesystem : : <link>shared : : <source>boost_system ;
 lib boost_program_options  : : <link>shared : : <source>boost_system ;
 lib boost_iostreams  : : <link>shared : : <source>boost_system ;
 
-exe boost_header_test : tests/boost_test.cpp ;
-exe boost_filesystem_test : tests/boost_test.cpp boost_filesystem ;
-exe boost_program_options_test : tests/boost_test.cpp boost_program_options ;
-exe boost_iostreams_test : tests/boost_test.cpp boost_iostreams ;
+obj boost_header_test : tests/boost_test.cpp ;
+obj boost_filesystem_test : tests/boost_test.cpp boost_filesystem ;
+obj boost_program_options_test : tests/boost_test.cpp boost_program_options ;
+obj boost_iostreams_test : tests/boost_test.cpp boost_iostreams ;
 
 project	: requirements
           #This creates a feature coil-integration, which can be set

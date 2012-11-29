@@ -19,7 +19,7 @@ import ../magnet/jam/tags ;
 import ../magnet/jam/builddep ;
 
 lib cwiid : : <link>shared : : <define>COIL_wiimote ;
-exe cwiidtest : tests/wiimote.cpp cwiid ;
+obj cwiidtest : tests/wiimote.cpp cwiid ;
 
 lib png : : <link>shared ;
 lib glut : : <link>shared ;
@@ -32,9 +32,9 @@ lib GLEW : : <link>shared ;
 alias gtkmm : : <use>png : : <linkflags>"`pkg-config gtkmm-2.4 --libs`" <cflags>"`pkg-config gtkmm-2.4 --cflags`" ;
 
 #Test executables for determining what is available in the build environment
-exe gluttest : tests/gluttest.cpp glut ;
-exe gtkmmtest : tests/gtkmmtest.cpp gtkmm ;
-exe GLEWtest : tests/glewtest.cpp ;
+obj gluttest : tests/gluttest.cpp glut ;
+obj gtkmmtest : tests/gtkmmtest.cpp gtkmm ;
+obj GLEWtest : tests/glewtest.cpp ;
 
 SHELL "touch src/coil/tests/* " ;
 

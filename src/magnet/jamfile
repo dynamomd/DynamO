@@ -23,7 +23,7 @@ project	: requirements
 	;
 
 alias libavcodec : : : : <define>MAGNET_FFMPEG_SUPPORT <linkflags>"`pkg-config libavcodec libavutil --libs`" <cflags>"`pkg-config libavcodec libavutil --cflags`" ; 
-exe ffmpeg_test : tests/ffmpeg_test.cpp libavcodec : <include>. ;
+obj ffmpeg_test : tests/ffmpeg_test.cpp libavcodec : <include>. ;
 
 lib dl : : <link>shared ;
 
