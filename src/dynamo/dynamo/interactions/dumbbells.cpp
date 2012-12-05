@@ -118,62 +118,98 @@ namespace dynamo {
 
     if (p1 == p2)
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
-#endif 
+#endif
   
+    const double frac1 = _fractionA->getProperty(p1.getID());
+    const double sep1 = _separation->getProperty(p1.getID());
+    const double l1 = std::max(frac1 * sep1 + 0.5 * _diamA->getProperty(p1.getID()), 
+			 (1 - frac1) * sep1 + 0.5 * _diamB->getProperty(p1.getID()));
+
+    const double frac2 = _fractionA->getProperty(p2.getID());
+    const double sep2 = _separation->getProperty(p2.getID());
+    const double l2 = std::max(frac2 * sep2 + 0.5 * _diamA->getProperty(p2.getID()), 
+			 (1 - frac2) * sep2 + 0.5 * _diamB->getProperty(p2.getID()));
+
+    if (isCaptured(p1, p2))
+      {
+	//Run this to determine when the spheres no longer intersect
+	double dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, l1 + l2);
+      
+	//std::pair<bool, double> colltime = Sim->dynamics->getLineLineCollision(l, p1, p2, dt);
+
+	//if (colltime.second == HUGE_VAL)
+	return IntEvent(p1, p2, dt, NBHOOD_OUT, *this);
+
+	//Something happens in the time interval
+
+	//if (colltime.first)
+	//  //Its a collision!
+	//  return IntEvent(p1, p2, colltime.second, CORE, *this);
+	//else
+	//  //Its a virtual event, we need to recalculate in a bit
+	//  return IntEvent(p1, p2, colltime.second, VIRTUAL, *this);
+      }
+    else 
+      {
+	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, l1 + l2);
+	if (dt != HUGE_VAL)
+	  return IntEvent(p1, p2, dt, NBHOOD_IN, *this);
+      }
+
     return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
   }
 
   void
   IDumbbells::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
   {
-    M_throw() << "Error, cannot run these events yet";
-//    PairEventData retval;
-//
-//    switch (iEvent.getType())
-//      {
-//      case CORE:
-//	{
-//	  ++Sim->eventCount;
-//	  //We have a line interaction! Run it
-//	  double e = (_e->getProperty(p1.getID())
-//		      + _e->getProperty(p2.getID())) * 0.5;
-//	  double l = (_length->getProperty(p1.getID())
-//		      + _length->getProperty(p2.getID())) * 0.5;
-//
-//	  retval = Sim->dynamics->runLineLineCollision(iEvent, e, l);
-//	  break;
-//	}
-//      case NBHOOD_IN:
-//	{
-//	  addToCaptureMap(p1, p2);
-//	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
-//	  iEvent.setType(VIRTUAL);
-//	  break;
-//	}
-//      case NBHOOD_OUT:
-//	{
-//	  removeFromCaptureMap(p1, p2);
-//	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
-//	  iEvent.setType(VIRTUAL);
-//	  break;
-//	}
-//      case VIRTUAL:
-//	{
-//	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
-//	  iEvent.setType(VIRTUAL);
-//	  break;
-//	}
-//      default:
-//	M_throw() << "Unknown collision type";
-//      }
-//    
-//    Sim->signalParticleUpdate(retval);
-//    
-//    Sim->ptrScheduler->fullUpdate(p1, p2);
-//    
-//    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, 
-//		  Sim->outputPlugins)
-//      Ptr->eventUpdate(iEvent, retval);
+    PairEventData retval;
+    
+    switch (iEvent.getType())
+      {
+      case CORE:
+	{
+	  M_throw() << "Error, cannot run these events yet";
+	  ++Sim->eventCount;
+	  ////We have a line interaction! Run it
+	  //double e = (_e->getProperty(p1.getID())
+	  //	      + _e->getProperty(p2.getID())) * 0.5;
+	  //double l = (_length->getProperty(p1.getID())
+	  //	      + _length->getProperty(p2.getID())) * 0.5;
+	  //
+	  //retval = Sim->dynamics->runLineLineCollision(iEvent, e, l);
+	  break;
+	}
+      case NBHOOD_IN:
+	{
+	  addToCaptureMap(p1, p2);
+	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
+	  iEvent.setType(VIRTUAL);
+	  break;
+	}
+      case NBHOOD_OUT:
+	{
+	  removeFromCaptureMap(p1, p2);
+	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
+	  iEvent.setType(VIRTUAL);
+	  break;
+	}
+      case VIRTUAL:
+	{
+	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
+	  iEvent.setType(VIRTUAL);
+	  break;
+	}
+      default:
+	M_throw() << "Unknown collision type";
+      }
+    
+    Sim->signalParticleUpdate(retval);
+    
+    Sim->ptrScheduler->fullUpdate(p1, p2);
+    
+    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, 
+		  Sim->outputPlugins)
+      Ptr->eventUpdate(iEvent, retval);
   }
    
   void 
@@ -195,12 +231,19 @@ namespace dynamo {
   IDumbbells::captureTest(const Particle& p1, const Particle& p2) const
   {
     return false;
-//    if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
-//
-//    double l = (_length->getProperty(p1.getID())
-//		+ _length->getProperty(p2.getID())) * 0.5;
-//
-//    return Sim->dynamics->sphereOverlap(p1, p2, l);
+    if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
+    
+    const double frac1 = _fractionA->getProperty(p1.getID());
+    const double sep1 = _separation->getProperty(p1.getID());
+    const double l1 = std::max(frac1 * sep1 + 0.5 * _diamA->getProperty(p1.getID()), 
+			 (1 - frac1) * sep1 + 0.5 * _diamB->getProperty(p1.getID()));
+
+    const double frac2 = _fractionA->getProperty(p2.getID());
+    const double sep2 = _separation->getProperty(p2.getID());
+    const double l2 = std::max(frac2 * sep2 + 0.5 * _diamA->getProperty(p2.getID()), 
+			 (1 - frac2) * sep2 + 0.5 * _diamB->getProperty(p2.getID()));
+
+    return Sim->dynamics->sphereOverlap(p1, p2, l1 + l2);
   }
 
   bool
