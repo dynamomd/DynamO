@@ -684,8 +684,11 @@ namespace dynamo {
 						    const double& r
 						    ) const;
 
+    const rotData& getRotData(const size_t& ID) const
+    { return orientationData[ID]; }
+
     const rotData& getRotData(const Particle& part) const
-    { return orientationData[part.getID()]; }
+    { return getRotData(part.getID()); }
   
     const std::vector<rotData>& getCompleteRotData() const
     { return orientationData; }

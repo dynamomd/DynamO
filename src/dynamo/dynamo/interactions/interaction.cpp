@@ -82,6 +82,8 @@ namespace dynamo {
       return shared_ptr<Interaction>(new INull(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"Lines"))
       return shared_ptr<Interaction>(new ILines(XML, Sim));
+    else if (!std::strcmp(XML.getAttribute("Type"),"Dumbbells"))
+      return shared_ptr<Interaction>(new IDumbbells(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"ParallelCubes"))
       return shared_ptr<Interaction>(new IParallelCubes(XML, Sim));
     else if (!std::strcmp(XML.getAttribute("Type"),"Stepped"))
