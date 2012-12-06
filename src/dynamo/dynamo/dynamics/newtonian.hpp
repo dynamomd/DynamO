@@ -1,7 +1,6 @@
 /*  dynamo:- Event driven molecular dynamics simulator 
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
-    Copyright (C) 2011  Sebastian Gonzalez
 
     This program is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -65,8 +64,6 @@ namespace dynamo {
     virtual PairEventData runLineLineCollision(const IntEvent& eevent, const double& elasticity, const double& length) const;
     virtual PairEventData RoughSpheresColl(const IntEvent& event, const double& e, const double& et, const double& d2, const EEventType& eType) const;
     virtual ParticleEventData runRoughWallCollision(Particle& part, const Vector & vNorm, const double& e, const double& et, const double& r) const;
-    virtual bool getOffCenterSphereOffCenterSphereCollision(const double length, const double diameter, const Particle& p1, const Particle& p2, const double) const;
-    virtual PairEventData runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, const double& elasticity, const double& length, const double& diameter) const;
 
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;

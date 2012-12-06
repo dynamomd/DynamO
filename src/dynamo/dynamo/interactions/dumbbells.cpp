@@ -59,12 +59,10 @@ namespace dynamo {
   Vector IDumbbells::getGlyphPosition(size_t ID, size_t subID) const
   {
     Vector retval = Sim->particles[ID].getPosition();
+    
     Sim->BCs->applyBC(retval);
 
-    double fracA = _fractionA->getProperty(ID);
-    double displacement = ((subID == 0) ? fracA : -(1-fracA)) * _separation->getProperty(ID);
-    
-    return retval + displacement * Sim->dynamics->getRotData(ID).orientation;
+    return retval + ((subID == 0) ? _LA->getProperty(ID) : -_LB->getProperty(ID)) * Sim->dynamics->getRotData(ID).orientation;
   }
 
 
@@ -79,13 +77,13 @@ namespace dynamo {
     try 
       {
 	_diamA = Sim->_properties.getProperty(XML.getAttribute("DiameterA"),
-					       Property::Units::Length());
+					      Property::Units::Length());
 	_diamB = Sim->_properties.getProperty(XML.getAttribute("DiameterB"),
-					       Property::Units::Length());
-	_separation = Sim->_properties.getProperty(XML.getAttribute("Separation"),
-						   Property::Units::Length());
-	_fractionA = Sim->_properties.getProperty(XML.getAttribute("Fraction"),
-						  Property::Units::Dimensionless());
+					      Property::Units::Length());
+	_LA = Sim->_properties.getProperty(XML.getAttribute("LA"),
+					   Property::Units::Length());
+	_LB = Sim->_properties.getProperty(XML.getAttribute("LB"),
+					   Property::Units::Length());
 	_e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
 					  Property::Units::Dimensionless());
 	intName = XML.getAttribute("Name");
@@ -100,9 +98,8 @@ namespace dynamo {
   double 
   IDumbbells::maxIntDist() const 
   { 
-    double l = 2 * std::max(_fractionA->getMaxValue() * _separation->getMaxValue() + _diamA->getMaxValue(), 
-			    (1-_fractionA->getMaxValue()) * _separation->getMaxValue() + _diamA->getMaxValue());
-
+    double l = 2 * std::max(_LA->getMaxValue() + _diamA->getMaxValue(), 
+			    _LB->getMaxValue() + _diamB->getMaxValue());
     return l; 
   }
 
@@ -120,15 +117,10 @@ namespace dynamo {
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif
   
-    const double frac1 = _fractionA->getProperty(p1.getID());
-    const double sep1 = _separation->getProperty(p1.getID());
-    const double l1 = std::max(frac1 * sep1 + 0.5 * _diamA->getProperty(p1.getID()), 
-			 (1 - frac1) * sep1 + 0.5 * _diamB->getProperty(p1.getID()));
-
-    const double frac2 = _fractionA->getProperty(p2.getID());
-    const double sep2 = _separation->getProperty(p2.getID());
-    const double l2 = std::max(frac2 * sep2 + 0.5 * _diamA->getProperty(p2.getID()), 
-			 (1 - frac2) * sep2 + 0.5 * _diamB->getProperty(p2.getID()));
+    const double l1 = std::max(_LA->getProperty(p1.getID()) + 0.5 * _diamA->getProperty(p1.getID()), 
+			       _LB->getProperty(p1.getID()) + 0.5 * _diamB->getProperty(p1.getID()));
+    const double l2 = std::max(_LA->getProperty(p2.getID()) + 0.5 * _diamA->getProperty(p2.getID()), 
+			       _LB->getProperty(p2.getID()) + 0.5 * _diamB->getProperty(p2.getID()));
 
     if (isCaptured(p1, p2))
       {
@@ -219,8 +211,8 @@ namespace dynamo {
 	<< magnet::xml::attr("Elasticity") << _e->getName()
 	<< magnet::xml::attr("DiameterA") << _diamA->getName()
 	<< magnet::xml::attr("DiameterB") << _diamB->getName()
-	<< magnet::xml::attr("Separation") << _separation->getName()
-	<< magnet::xml::attr("Fraction") << _fractionA->getName()
+	<< magnet::xml::attr("LA") << _LA->getName()
+	<< magnet::xml::attr("LB") << _LB->getName()
 	<< magnet::xml::attr("Name") << intName
 	<< *range;
 
@@ -233,15 +225,10 @@ namespace dynamo {
     return false;
     if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
     
-    const double frac1 = _fractionA->getProperty(p1.getID());
-    const double sep1 = _separation->getProperty(p1.getID());
-    const double l1 = std::max(frac1 * sep1 + 0.5 * _diamA->getProperty(p1.getID()), 
-			 (1 - frac1) * sep1 + 0.5 * _diamB->getProperty(p1.getID()));
-
-    const double frac2 = _fractionA->getProperty(p2.getID());
-    const double sep2 = _separation->getProperty(p2.getID());
-    const double l2 = std::max(frac2 * sep2 + 0.5 * _diamA->getProperty(p2.getID()), 
-			 (1 - frac2) * sep2 + 0.5 * _diamB->getProperty(p2.getID()));
+    const double l1 = std::max(_LA->getProperty(p1.getID()) + 0.5 * _diamA->getProperty(p1.getID()), 
+			       _LB->getProperty(p1.getID()) + 0.5 * _diamB->getProperty(p1.getID()));
+    const double l2 = std::max(_LA->getProperty(p2.getID()) + 0.5 * _diamA->getProperty(p2.getID()), 
+			       _LB->getProperty(p2.getID()) + 0.5 * _diamB->getProperty(p2.getID()));
 
     return Sim->dynamics->sphereOverlap(p1, p2, l1 + l2);
   }

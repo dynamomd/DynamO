@@ -54,8 +54,8 @@ namespace dynamo {
   protected:
     shared_ptr<Property> _diamA;
     shared_ptr<Property> _diamB;
-    shared_ptr<Property> _separation;
-    shared_ptr<Property> _fractionA;
+    shared_ptr<Property> _LA;
+    shared_ptr<Property> _LB;
     shared_ptr<Property> _e;
   };
 }
