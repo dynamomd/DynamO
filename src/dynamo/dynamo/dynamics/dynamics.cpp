@@ -79,22 +79,18 @@ namespace dynamo {
   Dynamics::runLineLineCollision(const IntEvent&,
 				    const double&, const double&) const
   { M_throw() << "Not implemented for this Dynamics."; }
-
+  
   std::pair<bool, double>
   Dynamics::getLineLineCollision(const double, 
 				    const Particle&, const Particle&,
 				    double) const
   { M_throw() << "Not implemented for this Dynamics."; }
 
-  PairEventData 
-  Dynamics::runOffCenterSphereOffCenterSphereCollision(const IntEvent&,
-							  const double&, const double&,const double&) const
-  { M_throw() << "Not implemented for this Dynamics."; }
-
-  bool
-  Dynamics::getOffCenterSphereOffCenterSphereCollision(const double, const double,  
-							  const Particle&, const Particle&,
-							  const double) const
+  std::pair<bool, double> 
+  Dynamics::getOffcentreSpheresCollision(const double offset1, const double diameter1, 
+					 const double offset2, const double diameter2,
+					 const Particle& p1, const Particle& p2,
+					 double t_max) const
   { M_throw() << "Not implemented for this Dynamics."; }
 
   double 

@@ -252,16 +252,31 @@ namespace dynamo {
 
     /*! \brief Tests if and when two lines will collide.
      
-      \param PD Some precalculated data on the lines.
       \param length The length of the lines, or interaction length.
       \param p1 First particle.
       \param p2 Second particle.
       \param t_max The maximum time to consider roots in.
-      \return Wether the event will occur or not.
+      \return Whether the event will occur or not and the time.
      */    
     virtual std::pair<bool, double> getLineLineCollision(const double length, 
 				      const Particle& p1, const Particle& p2,
 				      double t_max) const;
+
+    /*! \brief Tests if and when two offcentre spheres will collide.
+     
+      \param offset1 The distance along the director where the sphere of particle 1 being tested is.
+      \param offset2 The distance along the director where the sphere of particle 2 being tested is.
+      \param diameter1 The diameter of the sphere on particle 1 being tested.
+      \param diameter2 The diameter of the sphere on particle 2 being tested.
+      \param p1 First particle.
+      \param p2 Second particle.
+      \param t_max The maximum time to consider roots in.
+      \return Whether the event will occur or not and the time.
+     */    
+    virtual std::pair<bool, double> getOffcentreSpheresCollision(const double offset1, const double diameter1, 
+								 const double offset2, const double diameter2,
+								 const Particle& p1, const Particle& p2,
+								 double t_max) const;
 
     /*! \brief Tests if and when a point will collide with a pair of
       oscillating walls, which are parallel and facing inwards to a centre point
