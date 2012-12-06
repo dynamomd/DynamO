@@ -35,12 +35,9 @@ namespace dynamo {
   {
     if (!std::strcmp(XML.getAttribute("Type"), "Point"))
       return shared_ptr<Species>(new SpPoint(XML, tmp, nID));
-    else if (!std::strcmp(XML.getAttribute("Type"), "SphericalTop"))
+    else if ((!std::strcmp(XML.getAttribute("Type"), "SphericalTop"))
+	     || (!std::strcmp(XML.getAttribute("Type"), "Lines")))
       return shared_ptr<Species>(new SpSphericalTop(XML, tmp, nID));
-    else if (!std::strcmp(XML.getAttribute("Type"), "Lines"))
-      return shared_ptr<Species>(new SpLines(XML, tmp, nID));
-    else if (!std::strcmp(XML.getAttribute("Type"), "Dumbbells"))
-      return shared_ptr<Species>(new SpDumbbells(XML, tmp, nID));
     else if (!std::strcmp(XML.getAttribute("Type"), "FixedCollider"))
       return shared_ptr<Species>(new SpFixedCollider(XML, tmp, nID));
     else 

@@ -44,9 +44,6 @@ namespace dynamo {
   void 
   ISoftCore::operator<<(const magnet::xml::Node& XML)
   {
-    if (strcmp(XML.getAttribute("Type"),"SoftCore"))
-      M_throw() << "Attempting to load SoftCore from non SoftCore entry";
-  
     Interaction::operator<<(XML);
   
     try {

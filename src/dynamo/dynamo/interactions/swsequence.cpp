@@ -79,9 +79,6 @@ namespace dynamo {
   void 
   ISWSequence::operator<<(const magnet::xml::Node& XML)
   {
-    if (strcmp(XML.getAttribute("Type"),"SquareWellSeq"))
-      M_throw() << "Attempting to load SquareWell from non SquareWell entry";
-  
     Interaction::operator<<(XML);
 
     try { 

@@ -1088,10 +1088,10 @@ namespace dynamo {
 	  double inertiaMultiplicativeFactor = (vm.count("f2")) ? vm["f2"].as<double>() : 1.0;
 
 	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpLines(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0,
-				       std::sqrt(inertiaMultiplicativeFactor) * particleDiam,
-				       "Bulk")));
-
+			  (new SpSphericalTop(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0,
+					      inertiaMultiplicativeFactor * particleDiam * particleDiam / 12.0,
+					      "Bulk")));
+	  
 	  Sim->units.setUnitLength(particleDiam);
 
 	  unsigned long nParticles = 0;
@@ -1424,9 +1424,10 @@ namespace dynamo {
 	    (shared_ptr<Interaction>(new ILines(Sim, particleDiam, elasticity,
 						new IDPairRangeAll(), "Bulk")));
 
+	  
 	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpLines(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0,
-				       particleDiam, "Bulk")));
+			  (new SpSphericalTop(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0,
+					      particleDiam * particleDiam / 12.0, "Bulk")));
 
 	  Sim->units.setUnitLength(particleDiam);
 

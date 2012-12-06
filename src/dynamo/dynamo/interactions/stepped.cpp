@@ -64,9 +64,6 @@ namespace dynamo {
   void 
   IStepped::operator<<(const magnet::xml::Node& XML)
   {
-    if (strcmp(XML.getAttribute("Type"),"Stepped"))
-      M_throw() << "Attempting to load Stepped from non Stepped entry";
-  
     Interaction::operator<<(XML);
   
     try {

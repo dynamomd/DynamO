@@ -43,9 +43,6 @@ namespace dynamo {
   void 
   IThinThread::operator<<(const magnet::xml::Node& XML)
   {
-    if (strcmp(XML.getAttribute("Type"),"ThinThread"))
-      M_throw() << "Attempting to load ThinThread from non ThinThread entry";
-  
     Interaction::operator<<(XML);
   
     try {

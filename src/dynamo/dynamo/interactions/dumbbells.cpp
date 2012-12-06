@@ -69,9 +69,6 @@ namespace dynamo {
   void 
   IDumbbells::operator<<(const magnet::xml::Node& XML)
   { 
-    if (strcmp(XML.getAttribute("Type"),"Lines"))
-      M_throw() << "Attempting to load Lines from non Lines entry";
-  
     Interaction::operator<<(XML);
   
     try 

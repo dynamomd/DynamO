@@ -44,9 +44,6 @@ namespace dynamo {
   void 
   IHardSphere::operator<<(const magnet::xml::Node& XML)
   { 
-    if (strcmp(XML.getAttribute("Type"),"HardSphere"))
-      M_throw() << "Attempting to load Hardsphere from non hardsphere entry";
-  
     Interaction::operator<<(XML);
   
     try 

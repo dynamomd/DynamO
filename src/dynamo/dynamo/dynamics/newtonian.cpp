@@ -1258,6 +1258,43 @@ namespace dynamo {
     return magnet::math::frenkelRootSearch(fL, t_low, t_high, length * 1e-10);
   }
 
+  std::pair<bool, double> 
+  DynNewtonian::getOffcentreSpheresCollision(const double offset1, const double diameter1, const double offset2, const double diameter2, const Particle& p1, const Particle& p2, double t_max) const
+  {  
+#ifdef DYNAMO_DEBUG
+    if (!hasOrientationData())
+      M_throw() << "Cannot use this function without orientational data";
+
+    if (!isUpToDate(p1))
+      M_throw() << "Particle1 " << p1.getID() << " is not up to date";
+
+    if (!isUpToDate(p2))
+      M_throw() << "Particle2 " << p2.getID() << " is not up to date";
+#endif
+
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Vector v12 = p1.getVelocity() - p2.getVelocity();
+    Sim->BCs->applyBC(r12, v12);
+  
+    SFOffcentre_Spheres fL(r12, v12,
+			   orientationData[p1.getID()].angularVelocity,
+			   orientationData[p2.getID()].angularVelocity,
+			   orientationData[p1.getID()].orientation,
+			   orientationData[p2.getID()].orientation,
+			   offset1);
+    
+    double t_low = 0;
+    if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
+	 || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
+	&& Sim->systemTime == lastAbsoluteClock)
+      //Shift the lower bound up so we don't find the same root again
+      t_low += fabs(2.0 * fL.F_firstDeriv())
+	/ fL.F_secondDeriv_max();
+    
+    return magnet::math::frenkelRootSearch(fL, t_low, t_max, std::min(diameter1, diameter2) * 1e-10);
+  }
+
+
   PairEventData 
   DynNewtonian::runLineLineCollision(const IntEvent& eevent, const double& elasticity, const double& length) const
   {

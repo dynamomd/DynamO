@@ -60,10 +60,6 @@ namespace dynamo {
   void 
   IParallelCubes::operator<<(const magnet::xml::Node& XML)
   { 
-    if (strcmp(XML.getAttribute("Type"),"ParallelCubes"))
-      M_throw() << "Attempting to load ParallelCubes from " 
-		<< XML.getAttribute("Type") << " entry";
-  
     Interaction::operator<<(XML);
   
     try 

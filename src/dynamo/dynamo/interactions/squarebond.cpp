@@ -42,9 +42,6 @@ namespace dynamo {
   void 
   ISquareBond::operator<<(const magnet::xml::Node& XML)
   {
-    if (strcmp(XML.getAttribute("Type"),"SquareBond"))
-      M_throw() << "Attempting to load SquareBond from non SquareBond entry";
-  
     Interaction::operator<<(XML);
   
     try {

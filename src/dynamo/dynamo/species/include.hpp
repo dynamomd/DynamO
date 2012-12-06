@@ -18,5 +18,3 @@
 #include <dynamo/species/point.hpp>
 #include <dynamo/species/sphericalTop.hpp>
 #include <dynamo/species/fixedCollider.hpp>
-#include <dynamo/species/lines.hpp>
-#include <dynamo/species/dumbbell.hpp>

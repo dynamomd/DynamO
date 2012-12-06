@@ -44,9 +44,6 @@ namespace dynamo {
   void 
   ISquareWell::operator<<(const magnet::xml::Node& XML)
   {
-    if (strcmp(XML.getAttribute("Type"),"SquareWell"))
-      M_throw() << "Attempting to load SquareWell from non SquareWell entry";
-  
     Interaction::operator<<(XML);
   
     try {
