@@ -95,9 +95,9 @@ namespace dynamo {
   double 
   IDumbbells::maxIntDist() const 
   { 
-    double l = 2 * std::max(_LA->getMaxValue() + _diamA->getMaxValue(), 
-			    _LB->getMaxValue() + _diamB->getMaxValue());
-    return l; 
+    double l = std::max(2 * _LA->getMaxValue() + _diamA->getMaxValue(), 
+			2 * _LB->getMaxValue() + _diamB->getMaxValue());
+    return l;
   }
 
   IntEvent 

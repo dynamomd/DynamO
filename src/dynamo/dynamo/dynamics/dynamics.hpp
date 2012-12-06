@@ -276,7 +276,7 @@ namespace dynamo {
     virtual std::pair<bool, double> getOffcentreSpheresCollision(const double offset1, const double diameter1, 
 								 const double offset2, const double diameter2,
 								 const Particle& p1, const Particle& p2,
-								 double t_max) const;
+								 double t_max, double maxdist) const;
 
     /*! \brief Tests if and when a point will collide with a pair of
       oscillating walls, which are parallel and facing inwards to a centre point

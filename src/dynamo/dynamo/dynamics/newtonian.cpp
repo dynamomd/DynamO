@@ -1259,7 +1259,7 @@ namespace dynamo {
   }
 
   std::pair<bool, double> 
-  DynNewtonian::getOffcentreSpheresCollision(const double offset1, const double diameter1, const double offset2, const double diameter2, const Particle& p1, const Particle& p2, double t_max) const
+  DynNewtonian::getOffcentreSpheresCollision(const double offset1, const double diameter1, const double offset2, const double diameter2, const Particle& p1, const Particle& p2, double t_max, double maxdist) const
   {  
 #ifdef DYNAMO_DEBUG
     if (!hasOrientationData())
@@ -1279,9 +1279,10 @@ namespace dynamo {
     SFOffcentre_Spheres fL(r12, v12,
 			   orientationData[p1.getID()].angularVelocity,
 			   orientationData[p2.getID()].angularVelocity,
-			   orientationData[p1.getID()].orientation,
-			   orientationData[p2.getID()].orientation,
-			   offset1);
+			   orientationData[p1.getID()].orientation * offset1,
+			   orientationData[p2.getID()].orientation * offset2,
+			   diameter1, diameter2,
+			   100);
     
     double t_low = 0;
     if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)

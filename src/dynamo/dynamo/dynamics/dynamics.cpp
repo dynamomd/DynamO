@@ -90,7 +90,7 @@ namespace dynamo {
   Dynamics::getOffcentreSpheresCollision(const double offset1, const double diameter1, 
 					 const double offset2, const double diameter2,
 					 const Particle& p1, const Particle& p2,
-					 double t_max) const
+					 double t_max, double maxdist) const
   { M_throw() << "Not implemented for this Dynamics."; }
 
   double 
