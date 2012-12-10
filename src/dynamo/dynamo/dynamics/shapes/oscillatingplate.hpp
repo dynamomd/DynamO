@@ -105,7 +105,7 @@ namespace dynamo {
 	{
 	  rp -= nhat * ((loop++) * std::numeric_limits<double>::epsilon())
 	    * Sigma;
-	  Fval = F_zeroDeriv();
+	  Fval = eval<0>();
 	}
     }
 

@@ -74,7 +74,7 @@ namespace magnet {
 	  {
 	    double f0 = tempfL.template eval<0>(),
 	      f1 = tempfL.template eval<1>(),
-	      halff2 = 0.5 * tempfL.template eval<0>(),
+	      halff2 = 0.5 * tempfL.template eval<2>(),
 	      halff2max = 0.5 * tempfL.template max<2>();
 
 	    if (f0 > 0) halff2max = -halff2max;

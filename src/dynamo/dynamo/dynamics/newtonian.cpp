@@ -1075,8 +1075,8 @@ namespace dynamo {
     //Check the root is valid
     if (!fL.test_root())
       {
-	double f0 = fL.F_zeroDeriv(), f1 = fL.F_firstDeriv(),
-	  f2 = fL.F_secondDeriv_max();
+	double f0 = fL.eval<0>(), f1 = fL.eval<1>(),
+	  f2 = fL.max<2>();
 	fL.flipSigma();
       
 	derr <<"Particle " << part.getID()
@@ -1092,9 +1092,9 @@ namespace dynamo {
 	     << "\nRwall[0]-sigma = " << fL.wallPosition()[0] - sigma
 	     << "\nGood root " << fL.test_root()
 	     << "\nsigma + Del = " << sigma+delta
-	     << "\nf1(0)* = " << fL.F_zeroDeriv()
-	     << "\nf1'(0) =" << fL.F_firstDeriv()
-	     << "\nf1''(Max) =" << fL.F_secondDeriv_max()
+	     << "\nf1(0)* = " << fL.eval<0>()
+	     << "\nf1'(0) =" << fL.eval<1>()
+	     << "\nf1''(Max) =" << fL.max<2>()
 	     << "\nf2(0)* = " << f0
 	     << "\nf2'(0) =" << f1
 	     << "\nf2''(Max) =" << f2
@@ -1243,8 +1243,7 @@ namespace dynamo {
 	 || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
 	&& Sim->systemTime == lastAbsoluteClock)
       //Shift the lower bound up so we don't find the same root again
-      t_low += fabs(2.0 * fL.F_firstDeriv())
-	/ fL.F_secondDeriv_max();
+      t_low += fabs(2.0 * fL.eval<1>()) / fL.max<2>();
   
     //Find window delimited by discs
     std::pair<double,double> dtw = fL.discIntersectionWindow();
@@ -1290,7 +1289,7 @@ namespace dynamo {
 	&& Sim->systemTime == lastAbsoluteClock)
       //Shift the lower bound up so we don't find the same root again
       t_low += fabs(2.0 * fL.eval<1>())
-	/ fL.F_secondDeriv_max();
+	/ fL.max<2>();
     
     return magnet::math::frenkelRootSearch(fL, t_low, t_max, std::min(diameter1, diameter2) * 1e-10);
   }
