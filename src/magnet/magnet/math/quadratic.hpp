@@ -16,12 +16,84 @@
 */
 
 #pragma once
-
 #include <cmath>
+#include <complex>
 #include <magnet/exception.hpp>
 
 namespace magnet {
   namespace math {
+    class NoRoots : public std::exception {};
+
+    /*! \brief Solves a quadratic equation of the form
+        \f$a\,x^2+b\,x+c=0\f$ and returns the (possibly complex) roots.
+	
+	\throw NoRoots If \f$a=0\f$ and \f$b=0\f$ as this equation is
+	not a function of \f$x\f$.
+	
+	\sa quadraticEquation
+
+	\return The roots of the quadratic.
+     */
+    inline std::pair<std::complex<double>,std::complex<double> > 
+    quadraticEquationComplex(const double a, const double b, const double c)
+    {
+      if (a == 0)
+	{
+	  if (b == 0) throw NoRoots();
+	  double root = - c / b;
+	  return std::make_pair(std::complex<double>(root), 
+				std::complex<double>(root));
+	}
+      
+      double delta=(b * b - 4 * a * c);
+      double inv_2a = 1 / (2 * a);
+      double root = std::sqrt(std::abs(delta));
+      double real = -b * inv_2a;
+      double imag = root * inv_2a;
+
+      if (delta >= 0)
+	return std::make_pair(std::complex<double>(real - imag), 
+			      std::complex<double>(real + imag));
+      else
+	return std::make_pair(std::complex<double>(real, -imag), 
+			      std::complex<double>(real, imag));
+    }
+
+    /*! \brief Solves a quadratic equation of the form
+        \f$a\,x^2+b\,x+c=0\f$ for the real roots.
+
+	This implementation avoids a catastrophic cancellation of
+	errors. See the following link for more details:
+	http://en.wikipedia.org/wiki/Quadratic_equation#Floating_point_implementation
+	
+	It also handles the case when the polynomial being a linear
+	function (\f$a=0\f$).
+
+	\throw NoRoots If \f$a=0\f$ and \f$b=0\f$ (this equation is
+	not a function of \f$x\f$) or if the roots are complex.
+	
+	\sa quadraticEquationComplex
+
+	\return The roots of the quadratic.
+     */
+    inline std::pair<double, double>
+    quadraticEquation(const double a, const double b, const double c)
+    {
+      if (a == 0)
+	{
+	  if (b == 0) throw NoRoots();
+	  double root = - c / b;
+	  return std::make_pair(root, root);
+	}
+      
+      double discriminant = b * b - 4 * a * c;
+      if (discriminant < 0) throw NoRoots();
+      double arg = std::sqrt(discriminant);
+      double q = -0.5 * ( b + ((b < 0) ? -arg : arg));
+      
+      return std::make_pair(q / a, c / q);
+    }
+
     //Solve a quadratic of the form x^2 + B x + C == 0
     inline bool quadraticSolve(const double& B, const double& C,
 			       double& root1, double& root2)
@@ -40,7 +112,6 @@ namespace magnet {
 
       return true;
     }
-
 
     inline bool quadSolve(const double& C, const double& B, const double& A, 
 			  double& root1, double& root2)
