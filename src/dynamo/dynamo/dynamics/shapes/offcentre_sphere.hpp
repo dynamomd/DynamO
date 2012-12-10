@@ -18,18 +18,15 @@
 #pragma once
 #include <dynamo/particle.hpp>
 #include <dynamo/BC/BC.hpp>
-
 #include <dynamo/simulation.hpp>
-#include <dynamo/dynamics/shapes/shape.hpp>
 #include <magnet/math/matrix.hpp>
 
 namespace dynamo {
   /*! \brief The overlap function and its derivatives for offcentre
       spheres.
-      
-      
    */
-  class SFOffcentre_Spheres : public ShapeFunc {
+  class SFOffcentre_Spheres
+  {
   public:
     SFOffcentre_Spheres(const Vector& nr12, const Vector& nv12,
 			const Vector& nw1, const Vector& nw2,
@@ -58,40 +55,45 @@ namespace dynamo {
       r12 += v12 * dt;
     }
   
-    double F_zeroDeriv() const
-    { 
+    template<size_t deriv> 
+    double eval() const
+    {
       double colldiam = 0.5 * (_diameter1 + _diameter2);
-      const Vector rij = r12 + u1 - u2;
-      return (rij | rij) - colldiam * colldiam; 
-    }
-
-    double F_firstDeriv() const
-    {    
-      const Vector rij = r12 + u1 - u2;
-      const Vector vij = v12 + (w1 ^ u1) - (w2 ^ u2);
-      return 2 * (rij | vij);
-    }
-
-    double F_secondDeriv() const
-    {
-      const Vector rij = r12 + u1 - u2;
-      const Vector vij = v12 + (w1 ^ u1) - (w2 ^ u2);
-      const Vector aij = -w1.nrm2() * u1 + w2.nrm2() * u2;
-      return 2 * vij.nrm2() + 2 * (rij | aij);
-    }
-
-    double F_thirdDeriv() const
-    {
       const Vector rij = r12 + u1 - u2;
       const Vector vij = v12 + (w1 ^ u1) - (w2 ^ u2);
       const Vector aij = -w1.nrm2() * u1 + w2.nrm2() * u2;
       const Vector dotaij = -w1.nrm2() * (w1 ^ u1) + w2.nrm2() * (w2 ^ u2);
-      return 6 * (vij | aij) + 2 * (rij | dotaij);
-    }
 
-    double F_firstDeriv_max() const { return _f1max; }
-    double F_secondDeriv_max() const { return _f2max; }
-    double F_thirdDeriv_max() const { return _f3max; }
+      switch (deriv)
+	{
+	case 0:
+	  return (rij | rij) - colldiam * colldiam;
+	case 1:
+	  return 2 * (rij | vij);
+	case 2:
+	  return 2 * vij.nrm2() + 2 * (rij | aij);
+	case 3:
+	  return 6 * (vij | aij) + 2 * (rij | dotaij);
+	default:
+	  M_throw() << "Invalid access";
+	}
+    }
+    
+    template<size_t deriv> 
+    double max() const
+    {
+      switch (deriv)
+	{
+	case 1:
+	  return _f1max;
+	case 2:
+	  return _f2max;
+	case 3:
+	  return _f3max;
+	default:
+	  M_throw() << "Invalid access";
+	}
+    }
 
     const Vector& getu1() const { return u1; }
     const Vector& getu2() const { return u2; }

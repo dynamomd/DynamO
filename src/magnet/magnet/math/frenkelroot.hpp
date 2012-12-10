@@ -32,7 +32,7 @@ namespace magnet {
 					  const double& toleranceLengthScale)
     {
       double working_time = t_low;
-      double timescale = toleranceLengthScale / fL.F_firstDeriv_max();
+      double timescale = toleranceLengthScale / fL.template max<1>();
       bool fwdWorking = false;
 
       size_t w = 0;
@@ -72,10 +72,10 @@ namespace magnet {
 
 	  double deltaT;
 	  {
-	    double f0 = tempfL.F_zeroDeriv(),
-	      f1 = tempfL.F_firstDeriv(),
-	      halff2 = 0.5 * tempfL.F_secondDeriv(),
-	      halff2max = 0.5 * tempfL.F_secondDeriv_max();
+	    double f0 = tempfL.template eval<0>(),
+	      f1 = tempfL.template eval<1>(),
+	      halff2 = 0.5 * tempfL.template eval<0>(),
+	      halff2max = 0.5 * tempfL.template max<2>();
 
 	    if (f0 > 0) halff2max = -halff2max;
 
@@ -111,9 +111,7 @@ namespace magnet {
 
 	      tempfL.stream(deltaT);
 
-	      if (!quadSolve<ROOT_SMALLEST_EITHER>(tempfL.F_zeroDeriv(),
-									       tempfL.F_firstDeriv(),
-									       double(0.5 * tempfL.F_secondDeriv()), deltaT))
+	      if (!quadSolve<ROOT_SMALLEST_EITHER>(tempfL.template eval<0>(), tempfL.template eval<1>(), double(0.5 * tempfL.template eval<2>()), deltaT))
 		break;
 
 	      if(fabs(deltaT) <  timescale)
@@ -167,9 +165,8 @@ namespace magnet {
 	    T tempfL(fL);
 	    tempfL.stream(root.second);
 	    //Calculate the offset for the upper bound
-	    double Fdoubleprimemax = tempfL.F_secondDeriv_max();
-	    temp_high = root.second - (fabs(2.0 * tempfL.F_firstDeriv())
-				       / Fdoubleprimemax);
+	    double Fdoubleprimemax = tempfL.template max<2>();
+	    temp_high = root.second - (fabs(2.0 * tempfL.template eval<1>()) / Fdoubleprimemax);
 
 	    //Now check if the upper bound is below the lower bound.
 	    //If so, the current root is the earliest.
@@ -195,8 +192,7 @@ namespace magnet {
 	  if (tempfL.test_root()) return root;
 
 	  //The root was not valid, set the lower bound to the current root value
-	  t_low = root.second + ((2.0 * fabs(tempfL.F_firstDeriv()))
-				 / tempfL.F_secondDeriv_max());
+	  t_low = root.second + ((2.0 * fabs(tempfL.template eval<1>())) / tempfL.template max<2>());
 
 	  //Now invalidate the current root
 	  root.first = false;

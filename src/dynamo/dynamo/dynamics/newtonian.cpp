@@ -854,17 +854,17 @@ namespace dynamo {
       t_high = (Sigma + Delta - surfaceOffset) / surfaceVel;
     else
       t_high = -(Sigma + Delta + surfaceOffset) / surfaceVel;
-  
-
+    
+    
     SFOscillatingPlate fL(vel, nhat, pos, t, Delta, Omega, Sigma);
-  
+    
 #ifdef DYNAMO_DEBUG
     if (Sigma < 0) M_throw() << "Assuming a positive Sigma here";
 #endif
-
+    
     //A particle has penetrated the plate, probably due to some small numerical error
     //We can just adjust the seperation vector till the particle is on the surface of the plate
-    if (fL.F_zeroDeriv() > 0)
+    if (fL.eval<0>() > 0)
       {
 #ifdef DYNAMO_DEBUG
 	derr << "Particle is penetrating the \"upper\" plate"
@@ -872,24 +872,24 @@ namespace dynamo {
 	     << "\nThis is fine if it is a rare event." << std::endl;
 #endif
 	fL.fixFZeroSign(false);
-
+	
 #ifdef DYNAMO_DEBUG
 	//This is just incase the oscillating plate shape function is broken
-	if (fL.F_zeroDeriv() > 0)
-	  M_throw() << "Failed to adjust the plate position";
+	if (fL.eval<0>() > 0)
+      M_throw() << "Failed to adjust the plate position";
 #endif
       }
       
     double t_low1 = 0, t_low2 = 0;
     if (lastpart)
       {
-	if (-fL.F_zeroDeriv() < fL.F_zeroDerivFlip())
+	if (-fL.eval<0>() < fL.F_zeroDerivFlip())
 	  //Shift the lower bound up so we don't find the same root again
-	  t_low1 = fabs(2.0 * fL.F_firstDeriv())
-	    / fL.F_secondDeriv_max();
+	  t_low1 = fabs(2.0 * fL.eval<1>())
+	    / fL.max<2>();
 	else
-	  t_low2 = fabs(2.0 * fL.F_firstDeriv())
-	    / fL.F_secondDeriv_max();
+	  t_low2 = fabs(2.0 * fL.eval<1>())
+	    / fL.max<2>();
       }
 
 
@@ -901,7 +901,7 @@ namespace dynamo {
 
     fL.flipSigma();
 
-    if (fL.F_zeroDeriv() < 0)
+    if (fL.eval<0>() < 0)
       {
 #ifdef DYNAMO_DEBUG
 	derr << "Particle is penetrating the \"lower\" plate"
@@ -1016,7 +1016,7 @@ namespace dynamo {
 	    //This next line sets what the recoil velocity should be
 	    //We choose the velocity that gives elastic collisions!
 	    tmpt += fL.maxWallVel() * 0.002;
-	    tmpt /= fL.F_secondDeriv_max();
+	    tmpt /= fL.max<2>();
 	    if (tmpt < currRoot)
 	      {
 #ifdef DYNAMO_DEBUG
@@ -1289,7 +1289,7 @@ namespace dynamo {
 	 || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
 	&& Sim->systemTime == lastAbsoluteClock)
       //Shift the lower bound up so we don't find the same root again
-      t_low += fabs(2.0 * fL.F_firstDeriv())
+      t_low += fabs(2.0 * fL.eval<1>())
 	/ fL.F_secondDeriv_max();
     
     return magnet::math::frenkelRootSearch(fL, t_low, t_max, std::min(diameter1, diameter2) * 1e-10);
