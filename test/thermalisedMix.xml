@@ -16,12 +16,12 @@
     <BC Type="None"/>
     <Topology/>
     <Interactions>
-      <Interaction Type="HardSphere" Diameter="D" Elasticity="1" Name="ParticleInteraction">
+      <Interaction Type="HardSphere" Diameter="D" Elasticity="0.5" Name="ParticleInteraction">
         <IDPairRange Type="All"/>
       </Interaction>
     </Interactions>
     <Locals>
-      <Local Type="Wall" Name="GroundPlate" Elasticity="1" Diameter="D" >
+      <Local Type="Wall" Name="GroundPlate" Elasticity="1" Diameter="D" Temperature="0.1" >
         <IDRange Type="All"/>
         <Norm x="0" y="1" z="0"/>
         <Origin x="0" y="-8" z="0"/>
@@ -53,7 +53,7 @@
       </Global>
     </Globals>
     <SystemEvents/>
-    <Dynamics Type="NewtonianGravity">
+    <Dynamics Type="NewtonianGravity" tc="0.01">
       <g x="0" y="-1" z="0"/>
     </Dynamics>
   </Simulation>

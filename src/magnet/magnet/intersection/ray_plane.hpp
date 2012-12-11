@@ -20,12 +20,12 @@
 
 namespace magnet {
   namespace intersection {
-    /*! \brief A ray-plane intersection test.
+    /*! \brief A stable particle and thick plane intersection test.
     
-     \param T The origin of the ray relative to a point on the plane.
-     \param D The direction/velocity of the ray.
+     \param T The origin of the particle relative to a location on the plane.
+     \param D The direction/velocity of the particle.
      \param N The normal of the plane.
-     \param d The interaction distance to the plane.
+     \param d The interaction distance to the plane (the plane's thickness).
      \return The time until the intersection, or HUGE_VAL if no intersection.
     */
     inline double ray_plane(const math::Vector& T,

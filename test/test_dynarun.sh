@@ -691,6 +691,29 @@ function SwingSpheresTest {
 	tmp.xml.bz2 run.log
 }
 
+function BinaryThermalisedGranulate {
+    > run.log
+
+    ./dynarun -c 100000 -s 1 thermalisedMix.xml >> run.log 2>&1
+
+    if [ -e output.xml.bz2 ]; then
+	if [ $(bzcat output.xml.bz2 \
+	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
+	    | gawk '{mft=0.886472444087671; var=($1-mft)/mft; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
+	    echo "BinaryThermalisedGranulate -: FAILED"
+	    exit 1
+	else
+	    echo "BinaryThermalisedGranulate -: PASSED"
+	fi
+    else
+	echo "Error, no output.0.xml.bz2 in BinaryThermalisedGranulate"
+	exit 1
+    fi
+    
+#Cleanup
+    rm -Rf output.xml.bz2 config.out.xml.bz2 run.log
+}
+
 echo "SCHEDULER AND SORTER TESTING"
 echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, CBT"
 cannon "Dumb" "CBT"
@@ -742,6 +765,8 @@ echo ""
 echo "LOCAL EVENTS"
 echo "Testing local events (walls) and square wells"
 wallsw "NeighbourList"
+echo "Testing thermalised and normal walls in gravity with binary granulate implemented using properties"
+BinaryThermalisedGranulate
 
 echo ""
 echo "ENGINE TESTING"

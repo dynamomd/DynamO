@@ -223,12 +223,12 @@ namespace dynamo {
 			    const Vector& wallNorm,
 			    double diameter) const
   {
-    Vector rij = part.getPosition() - (wallLoc + wallNorm * diameter),
+    Vector rij = part.getPosition() - wallLoc,
       vij = part.getVelocity();
-
+    
     Sim->BCs->applyBC(rij, vij);
-
-    return magnet::intersection::parabola_plane_bfc(rij, vij, g * part.testState(Particle::DYNAMIC), wallNorm);
+    
+    return magnet::intersection::parabola_plane_bfc(rij, vij, g * part.testState(Particle::DYNAMIC), wallNorm, diameter);
   }
 
   double
@@ -608,25 +608,18 @@ namespace dynamo {
     N /= std::sqrt(nrm2);
   
     //First test for intersections with the triangle faces.
-    double t1 = magnet::intersection::parabola_triangle_bfc(T - N * dist, D, g, E1, E2);
-    
+    double t1 = magnet::intersection::parabola_triangle_bfc(T, D, g, E1, E2, dist);
+
+    M_throw() << "The next bit of code may be redundant now that the parabola triangle "
+      "code takes a distance arg.";
     if (t1 < 0)
       {
 	t1 = HUGE_VAL;
 	if ((D | N) > 0)
 	  if (magnet::overlap::point_prism(T - N * dist, E1, E2, N, dist)) t1 = 0;
       }
-
-    double t2 = magnet::intersection::parabola_triangle_bfc(T + N * dist, D, g, E2, E1);
-
-    if (t2 < 0)
-      {
-	t2 = HUGE_VAL;
-	if ((D | N) < 0)
-	  if (magnet::overlap::point_prism(T + N * dist, E2, E1, -N, dist)) t2 = 0;
-      }
   
-    RetType retval(std::min(t1, t2), T_FACE);
+    RetType retval(t1, T_FACE);
   
     //Early jump out, to make sure that if we have zero time
     //interactions for the triangle faces, we take them.

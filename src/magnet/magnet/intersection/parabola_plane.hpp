@@ -17,6 +17,7 @@
 
 #pragma once
 #include <magnet/intersection/ray_plane.hpp>
+#include <magnet/math/quadratic.hpp>
 
 namespace magnet {
   namespace intersection {
@@ -27,36 +28,58 @@ namespace magnet {
       \param D The direction/velocity of the ray.
       \param A The acceleration of the ray.
       \param N The normal of the plane.
+      \param d The thickness of the plane.
       \return The time until the intersection, or HUGE_VAL if no intersection.
      */
     inline double parabola_plane_bfc(const math::Vector& T,
 				     const math::Vector& D,
 				     const math::Vector& A,
-				     const math::Vector& N)
+				     math::Vector N,
+				     const double d)
     {
-      double adot = (N | A);
-      if (adot == 0) return ray_plane(T, D, N, 0);
+      //Check if this is actually a ray-plane test
+      double adot = A | N;
+      if (adot == 0) return ray_plane(T, D, N, d);
 
+      //Create the rest of the variables
       double rdot = T | N;
+      
+      //Ensure that the normal is pointing towards the particle
+      //position (so that (rdot < d) is a test if the particle is
+      //overlapped)
+      if (rdot < 0)
+	{ adot = -adot; rdot = -rdot; N = -N; }
+      
       double vdot = D | N;
-      double arg = vdot * vdot - 2 * rdot * adot;
-      
-      //Check if the particle curves away from the wall before it hits the wall
-      if (arg < 0) return HUGE_VAL;
 
-      //The particle will hit the wall
+      //Check for overlapped and approaching dynamics
+      if ((rdot < d) && (vdot < 0)) return 0;
 
-      double t = -(vdot + ((vdot<0) ? -1: 1) * std::sqrt(arg));
-      double x1 = t / adot;
-      double x2 = 2 * rdot / t;
-      
-      //If (adot > 0), the top of the arc of the particle passes
-      //through the plate, so we want the earliest root. 
-      //
-      //If (adot < 0), the top of the arc of the particle is outside
-      //the plate, then we want the earliest root
+      double arg = vdot * vdot - 2 * (rdot - d) * adot;
+      double minimum = - vdot / adot;
 
-      return (adot > 0) ? std::min(x1, x2) : std::max(x1, x2);
+      if (adot < 0)
+	{ //Particle will always hit the wall
+	  
+	  //If there are no real roots, the particle is arcing inside
+	  //the wall and there is a collision at the minimum
+	  if (arg < 0) return minimum;
+	  
+	  std::pair<double, double> roots
+	    = magnet::math::quadraticEquation(0.5 * adot, vdot, rdot - d);
+	  return std::max(roots.first, roots.second);
+	}
+      else
+	{ //Particle can curve away from the wall
+
+	  //Check if the particle misses the wall completely or we're
+	  //passed the minimum
+	  if ((arg < 0) || (minimum < 0)) return HUGE_VAL;
+	  
+	  std::pair<double, double> roots
+	    = magnet::math::quadraticEquation(0.5 * adot, vdot, rdot - d);
+	  return std::min(roots.first, roots.second);	  
+	}
     }
   }
 }
