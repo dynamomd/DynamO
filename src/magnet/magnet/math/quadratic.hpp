@@ -96,33 +96,18 @@ namespace magnet {
       
       return std::make_pair(q / a, c / q);
     }
-
-    inline bool quadSolve(const double& C, const double& B, const double& A, 
-			  double& root1, double& root2)
+    
+    inline bool 
+    quadSolve(const double& C, const double& B, const double& A, 
+	      double& root1, double& root2)
     {
-      // Contingency: if A = 0, not a quadratic = linear
-      if(A == 0)
-	{
-	  //If B is zero then we have a NaN
-	  if(B == 0) return false;
-      
-	  root1 = -1.0 * C / B;
-	  root2 = root1;
-	}
-
-      double discriminant = (B * B) - (4 * A * C);
-      
-      //Cannot do imaginary numbers, yet
-      if (discriminant < 0) return false;
-      
-      //This avoids a cancellation of errors. See
-      //http://en.wikipedia.org/wiki/Quadratic_equation#Floating_point_implementation
-      double t = -0.5 * ( B + ((B < 0) ? -1 : 1) * std::sqrt(discriminant));
-      
-      root1 = t / A;
-      root2 = C / t;
-
-      return true;
+      try {
+	std::pair<double, double> roots = quadraticEquation(A, B, C);
+	root1 = roots.first; root2 = roots.second;
+	return true;
+      }
+      catch (NoQuadraticRoots&)
+	{ return false; }
     }
   }
 }

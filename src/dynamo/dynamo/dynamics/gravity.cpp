@@ -429,20 +429,16 @@ namespace dynamo {
 	}
       else
 	{
-	  double roots[2];
-	  if (magnet::math::quadSolve((0.5 * Sim->primaryCellSize[i] - lMax),
-				      vel[i], 0.5 * g[i], roots[0], roots[1]))
-	    {
-	      if ((roots[0] > 0) && (roots[0] < retval)) retval = roots[0];
-	      if ((roots[1] > 0) && (roots[1] < retval)) retval = roots[1];
-	    }
-
-	  if (magnet::math::quadSolve(-(0.5 * Sim->primaryCellSize[i] - lMax),
-				      vel[i], 0.5 * g[i], roots[0], roots[1]))
-	    {
-	      if ((roots[0] > 0) && (roots[0] < retval)) retval = roots[0];
-	      if ((roots[1] > 0) && (roots[1] < retval)) retval = roots[1];
-	    }
+	  try {
+	    std::pair<double, double> roots = magnet::math::quadraticEquation(0.5 * g[i], vel[i], 0.5 * Sim->primaryCellSize[i] - lMax);
+	    if (roots.first > 0) retval = std::min(retval, roots.first);
+	    if (roots.second > 0) retval = std::min(retval, roots.second);
+	  } catch (magnet::math::NoQuadraticRoots&){}
+	  try {
+	    std::pair<double, double> roots = magnet::math::quadraticEquation(0.5 * g[i], vel[i], -(0.5 * Sim->primaryCellSize[i] - lMax));
+	    if (roots.first > 0) retval = std::min(retval, roots.first);
+	    if (roots.second > 0) retval = std::min(retval, roots.second);
+	  } catch (magnet::math::NoQuadraticRoots&){}
 	}
 
     return retval;
