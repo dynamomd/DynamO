@@ -912,7 +912,7 @@ namespace dynamo {
 
 #ifdef DYNAMO_DEBUG
 	//This is just incase the oscillating plate shape function is broken
-	if (fL.F_zeroDeriv() < 0)
+	if (fL.eval<0>() < 0)
 	  M_throw() << "Failed to adjust the plate position";
 #endif
       }
@@ -948,17 +948,17 @@ namespace dynamo {
 	      SFOscillatingPlate ftmp2(fL);
 	      ftmp.flipSigma();
 	    
-	      double fl01(ftmp.F_zeroDeriv());
+	      double fl01(ftmp.eval<0>());
 	      ftmp.stream(t_low1);
-	      double flt_low1(ftmp.F_zeroDeriv());
+	      double flt_low1(ftmp.eval<0>());
 	      ftmp.stream(t_high - t_low1);
-	      double flt_high1(ftmp.F_zeroDeriv());
+	      double flt_high1(ftmp.eval<0>());
 	    
-	      double fl02(ftmp2.F_zeroDeriv());
+	      double fl02(ftmp2.eval<0>());
 	      ftmp2.stream(t_low2);
-	      double flt_low2(ftmp2.F_zeroDeriv());
+	      double flt_low2(ftmp2.eval<0>());
 	      ftmp2.stream(t_high - t_low2);
-	      double flt_high2(ftmp2.F_zeroDeriv());
+	      double flt_high2(ftmp2.eval<0>());
 	    
 	      derr << "****Forcing collision"
 		   << "\nsystemTime = " << Sim->systemTime
@@ -983,8 +983,8 @@ namespace dynamo {
 		   << "\nf2(0)_1 = " << fl02
 		   << "\nf2(t_low2) = " << flt_low2
 		   << "\nf2(t_high) = " << flt_high2
-		   << "\nf'(0) =" << fL.F_firstDeriv()
-		   << "\nf''(Max) =" << fL.F_secondDeriv_max()
+		   << "\nf'(0) =" << fL.eval<1>()
+		   << "\nf''(Max) =" << fL.max<2>()
 		   << "\nf(x)=" << (pos | nhat)
 		   << "+" << (part.getVelocity() | nhat)
 		   << " * x - "
@@ -1065,7 +1065,7 @@ namespace dynamo {
     //	   fL.wallPosition()[0] << "\nRwall[0]+sigma = " <<
     //	   fL.wallPosition()[0] + sigma << "\nRwall[0]-sigma = " <<
     //	   fL.wallPosition()[0] - sigma << "\nsigma + Del = " <<
-    //	   sigma+delta << "\nf(0)* = " << fL.F_zeroDeriv() << "\nf'(0)
+    //	   sigma+delta << "\nf(0)* = " << fL.eval<0>() << "\nf'(0)
     //	   =" << fL.F_firstDeriv() << "\nf''(Max) =" <<
     //	   fL.F_secondDeriv_max(0) << "\nf(x)=" << pos[0] << "+" <<
     //	   part.getVelocity()[0] << " * x - " << delta << " * cos(("
