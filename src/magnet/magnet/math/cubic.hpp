@@ -66,7 +66,7 @@ namespace magnet {
 		}
 	      return 3;
 	    }
-	  catch (magnet::math::NoRoots&)
+	  catch (NoQuadraticRoots&)
 	    {}
 
 	  root1 = 0;
@@ -203,7 +203,7 @@ namespace magnet {
 	      root3 = roots.second;
 	      return 3;
 	    } 
-	  catch (magnet::math::NoRoots&)
+	  catch (NoQuadraticRoots&)
 	    {}
 
 	  //However, the multiply detects roots where there are none,

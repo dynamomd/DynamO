@@ -22,12 +22,15 @@
 
 namespace magnet {
   namespace math {
-    class NoRoots : public std::exception {};
+    /*! \brief An exception thrown when the quadratic equation has no
+        roots, or the roots are complex and real-only form is used. 
+    */
+    class NoQuadraticRoots : public std::exception {};
 
     /*! \brief Solves a quadratic equation of the form
         \f$a\,x^2+b\,x+c=0\f$ and returns the (possibly complex) roots.
 	
-	\throw NoRoots If \f$a=0\f$ and \f$b=0\f$ as this equation is
+	\throw NoQuadraticRoots If \f$a=0\f$ and \f$b=0\f$ as this equation is
 	not a function of \f$x\f$.
 	
 	\sa quadraticEquation
@@ -39,7 +42,7 @@ namespace magnet {
     {
       if (a == 0)
 	{
-	  if (b == 0) throw NoRoots();
+	  if (b == 0) throw NoQuadraticRoots();
 	  double root = - c / b;
 	  return std::make_pair(std::complex<double>(root), 
 				std::complex<double>(root));
@@ -69,7 +72,7 @@ namespace magnet {
 	It also handles the case when the polynomial being a linear
 	function (\f$a=0\f$).
 
-	\throw NoRoots If \f$a=0\f$ and \f$b=0\f$ (this equation is
+	\throw NoQuadraticRoots If \f$a=0\f$ and \f$b=0\f$ (this equation is
 	not a function of \f$x\f$) or if the roots are complex.
 	
 	\sa quadraticEquationComplex
@@ -81,13 +84,13 @@ namespace magnet {
     {
       if (a == 0)
 	{
-	  if (b == 0) throw NoRoots();
+	  if (b == 0) throw NoQuadraticRoots();
 	  double root = - c / b;
 	  return std::make_pair(root, root);
 	}
       
       double discriminant = b * b - 4 * a * c;
-      if (discriminant < 0) throw NoRoots();
+      if (discriminant < 0) throw NoQuadraticRoots();
       double arg = std::sqrt(discriminant);
       double q = -0.5 * ( b + ((b < 0) ? -arg : arg));
       
@@ -119,76 +122,6 @@ namespace magnet {
       root1 = t / A;
       root2 = C / t;
 
-      return true;
-    }
-
-    typedef enum {
-      ROOT_SMALLEST_EITHER   =   1,
-      ROOT_SMALLEST_POSITIVE =   2,
-      ROOT_SMALLEST_NEGATIVE =   4,
-      ROOT_LARGEST_EITHER    =   8,
-      ROOT_LARGEST_POSITIVE  =  16,
-      ROOT_LARGEST_NEGATIVE  =  32
-    } rootTypeEnum;
-
-    template<rootTypeEnum rootType>
-    inline bool quadSolve(const double& C, const double& B, const double& A, double& ans)
-    {
-      double root1(0), root2(0);
-
-      if (!quadSolve(C,B,A,root1,root2)) return false;
-
-      switch (rootType)
-	{
-	case ROOT_SMALLEST_EITHER:
-	  ans = (fabs(root1) < fabs(root2)) ? root1 : root2;
-	  break;
-	case ROOT_LARGEST_EITHER:
-	  ans = (fabs(root1) < fabs(root2)) ? root2 : root1;
-	case ROOT_LARGEST_NEGATIVE:
-	  if (root1 < 0 && root2 < 0)
-	    ans = ((root1 < root2) ? root1 : root2);
-	  else if (root1 < 0)
-	    ans = root1;
-	  else if (root2 < 0)
-	    ans = root2;
-	  else
-	    return false;
-	  break;
-	case ROOT_SMALLEST_NEGATIVE:
-	  if (root1 < 0 && root2 < 0)
-	    ans = ((root1 < root2) ? root2 : root1);
-	  else if (root1 < 0)
-	    ans = root1;
-	  else if (root2 < 0)
-	    ans = root2;
-	  else
-	    return false;
-	  break;
-	case ROOT_LARGEST_POSITIVE:
-	  if (root1 > 0 && root2 > 0)
-	    ans = ((root1 > root2) ? root1 : root2);
-	  else if (root1 > 0)
-	    ans = root1;
-	  else if (root2 > 0)
-	    ans = root2;
-	  else
-	    return false;
-	  break;
-	case ROOT_SMALLEST_POSITIVE:
-	  if (root1 > 0 && root2 > 0)
-	    ans = ((root1 > root2) ? root2 : root1);
-	  else if (root1 > 0)
-	    ans = root1;
-	  else if (root2 > 0)
-	    ans = root2;
-	  else
-	    return false;
-	  break;
-	default:
-	  M_throw() << "Unknown root selected";
-	  break;
-	}
       return true;
     }
   }
