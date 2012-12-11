@@ -30,6 +30,7 @@ namespace coil {
 		     size_t N, Vector origin, Vector axis1,
 		     Vector axis2, Vector axis3):
     RTriangles(name),
+    _N(N),
     _origin(origin),
     _axis1(axis1),
     _axis2(axis2),
