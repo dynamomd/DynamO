@@ -77,7 +77,6 @@ namespace dynamo {
     nblist.markAsUsedInScheduler();
 
     nblist.ConnectSigNewNeighbourNotify<Scheduler>(&Scheduler::addInteractionEvent, Sim->ptrScheduler.get());
-    nblist.ConnectSigNewLocalNotify<Scheduler>(&Scheduler::addLocalEvent, Sim->ptrScheduler.get());
   }
 
   void 

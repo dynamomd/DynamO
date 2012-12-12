@@ -37,9 +37,7 @@ namespace dynamo {
     overlaps with its neighbours. This means that if you cross from
     one cell into another, you enter the other cell some finite
     distance from the cells border. This helps remove "rattling"
-    events where particles rapidly pass between two cells. It also
-    helps prevent local event objects (like walls) falling numerically
-    outside all cells when the wall lies on the cell border.
+    events where particles rapidly pass between two cells.
 
     The second property is that the contents of each cell is stored as
     a std::vector. In theory, a linked list is far more memory
@@ -65,7 +63,6 @@ namespace dynamo {
 
     virtual IDRangeList getParticleNeighbours(const Particle&) const;
     virtual IDRangeList getParticleNeighbours(const Vector&) const;
-    virtual IDRangeList getParticleLocals(const Particle&) const;
     
     virtual void operator<<(const magnet::xml::Node&);
 
@@ -90,11 +87,8 @@ namespace dynamo {
     boost::signals2::scoped_connection _particleAdded;
     boost::signals2::scoped_connection _particleRemoved;
 
-    //! \brief The start of the list of particles in each cell.
+    //! \brief The list of particles in each cell.
     mutable std::vector<std::vector<size_t> > list;
-
-    //! \brief The local events in each cell.
-    mutable std::vector<std::vector<size_t> > cells;
 
     /*! \brief The cell for a given particle.
       
@@ -116,8 +110,6 @@ namespace dynamo {
 			       const Particle& part) const;
 
     Vector calcPosition(const magnet::math::MortonNumber<3>& coords) const;
-
-    void addLocalEvents();
 
     inline void addToCell(size_t ID)
     { addToCell(ID, getCellID(Sim->particles[ID].getPosition()).getMortonNum()); }

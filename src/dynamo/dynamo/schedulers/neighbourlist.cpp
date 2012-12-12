@@ -26,7 +26,7 @@
 #include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/locals/localEvent.hpp>
-#include <dynamo/ranges/IDRangeAll.hpp>
+#include <dynamo/ranges/IDRangeRange.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/bind.hpp>
 #include <boost/progress.hpp>
@@ -62,7 +62,6 @@ namespace dynamo {
 
     nblist->markAsUsedInScheduler();
     nblist->ConnectSigNewNeighbourNotify<Scheduler>(&Scheduler::addInteractionEvent, this);
-    nblist->ConnectSigNewLocalNotify<Scheduler>(&Scheduler::addLocalEvent, this);
     Scheduler::initialise();
   }
 
@@ -122,16 +121,6 @@ namespace dynamo {
   std::auto_ptr<IDRange> 
   SNeighbourList::getParticleLocals(const Particle& part) const
   {
-#ifdef DYNAMO_DEBUG
-    if (!std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->globals[NBListID]))
-      M_throw() << "Not a GNeighbourList!";
-#endif
-
-    //Grab a reference to the neighbour list
-    const GNeighbourList& nblist(*static_cast<const GNeighbourList*>
-				 (Sim->globals[NBListID]
-				  .get()));
-
-    return std::auto_ptr<IDRange>(new IDRangeList(nblist.getParticleLocals(part)));
+    return std::auto_ptr<IDRange>(new IDRangeRange(0, Sim->locals.size()));
   }
 }

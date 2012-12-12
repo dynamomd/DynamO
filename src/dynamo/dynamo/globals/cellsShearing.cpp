@@ -21,7 +21,6 @@
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
-#include <dynamo/locals/local.hpp>
 #include <dynamo/BC/LEBC.hpp>
 #include <magnet/xmlwriter.hpp>
 
@@ -255,11 +254,7 @@ namespace dynamo {
 	    ++newNBCell[dim2];
 	  }
       }
-	   
-    BOOST_FOREACH(const size_t& lID, cells[endCell.getMortonNum()])
-      BOOST_FOREACH(const nbHoodSlot& nbs, sigNewLocalNotify)
-        nbs.second(part, lID);
-  
+    
     //Push the next virtual event, this is the reason the scheduler
     //doesn't need a second callback
     Sim->ptrScheduler->pushEvent(part, getEvent(part));

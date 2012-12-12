@@ -22,7 +22,6 @@
 #include <dynamo/units/units.hpp>
 #include <dynamo/ranges/IDRangeAll.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
-#include <dynamo/locals/local.hpp>
 #include <dynamo/BC/LEBC.hpp>
 #include <dynamo/ranges/IDRangeList.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -215,11 +214,6 @@ namespace dynamo {
 	newNBCell[dim1] = saved_coord; 
 	++newNBCell[dim2];
       }
-
-    //Tell about the new locals
-    BOOST_FOREACH(const size_t& lID, cells[endCell])
-      BOOST_FOREACH(const nbHoodSlot& nbs, sigNewLocalNotify)
-        nbs.second(part, lID);
   
     //Push the next virtual event, this is the reason the scheduler
     //doesn't need a second callback
@@ -278,8 +272,6 @@ namespace dynamo {
 	      * (1.0 + 10 * std::numeric_limits<double>::epsilon()))
 	     * _oversizeCells / overlink);
 
-    addLocalEvents();
-
     BOOST_FOREACH(const initSlot& nbs, sigReInitNotify)
       nbs.second();
 
@@ -310,7 +302,6 @@ namespace dynamo {
   void
   GCells::addCells(double maxdiam)
   {
-    cells.clear();
     list.clear();
     partCellData.clear();
     NCells = 1;
@@ -339,7 +330,6 @@ namespace dynamo {
     magnet::math::MortonNumber<3> coords(cellCount[0], cellCount[1], cellCount[2]);
     size_t sizeReq = coords.getMortonNum();
 
-    cells.resize(sizeReq); //Empty Cells created!
     list.resize(sizeReq); //Empty Cells created!
 
     dout << "Cells <x,y,z> " << cellCount[0] << ","
@@ -410,25 +400,6 @@ namespace dynamo {
 	 << std::endl;
   }
 
-  void 
-  GCells::addLocalEvents()
-  {
-    for (size_t iDim = 0; iDim < cellCount[0]; ++iDim)
-      for (size_t jDim = 0; jDim < cellCount[1]; ++jDim)
-	for (size_t kDim = 0; kDim < cellCount[2]; ++kDim)
-	  {
-	    magnet::math::MortonNumber<3> coords(iDim, jDim, kDim);
-	    size_t id = coords.getMortonNum();
-	    cells[id].clear();
-	    Vector pos = calcPosition(coords);
-	  
-	    //We make the box slightly larger to ensure objects on the boundary are included
-	    BOOST_FOREACH(const shared_ptr<Local>& local, Sim->locals)
-	      if (local->isInCell(pos - 0.0001 * cellDimension, 1.0002 * cellDimension))
-		cells[id].push_back(local->getID());
-	  }
-  }
-
   magnet::math::MortonNumber<3>
   GCells::getCellID(Vector pos) const
   {
@@ -497,12 +468,6 @@ namespace dynamo {
   GCells::getParticleNeighbours(const Vector& vec) const
   {
     return getParticleNeighbours(getCellID(vec));
-  }
-
-  IDRangeList
-  GCells::getParticleLocals(const Particle& part) const
-  {
-    return IDRangeList(cells[partCellData[part.getID()]]);
   }
 
   double 
