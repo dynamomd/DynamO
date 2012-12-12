@@ -35,7 +35,11 @@ namespace coil {
     _axis1(axis1),
     _axis2(axis2),
     _axis3(axis3)
-  {}
+  {
+    //Ensure that the axis have the correct ordering (so the normals
+    //aren't messed up as we use CW/CCW vertex ordering).
+    if (((axis1 ^ axis2) | axis3) > 0) std::swap(_axis1, _axis2);
+  }
 
   void 
   RSurface::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
