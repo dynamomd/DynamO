@@ -45,7 +45,7 @@ namespace coil {
     {//Setup initial vertex positions
       std::vector<float> VertexPos(3 * _N * _N, 0.0);
       
-      Vector axis1step = _axis1 / _N, axis2step = _axis2 / _N;
+      Vector axis1step = _axis1 / (_N-1), axis2step = _axis2 / (_N-1);
 
       for (size_t i = 0; i < _N; ++i)
 	for (size_t j = 0; j < _N; ++j)
