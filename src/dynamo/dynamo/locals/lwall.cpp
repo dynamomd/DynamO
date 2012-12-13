@@ -137,7 +137,7 @@ namespace dynamo {
     if (r > 0)
       {
 	if (textoutput)
-	  dout << "Particle " << part.getID() << " is " << r / Sim->units.unitLength() << " far into the wall."
+	  derr << "Particle " << part.getID() << " is " << r / Sim->units.unitLength() << " far into the wall."
 	       << "\nWall Pos = " << Vector(vPosition / Sim->units.unitLength()).toString() 
 	       << ", Normal = " << vNorm.toString() << ", d = " << diam / Sim->units.unitLength()
 	       << std::endl;

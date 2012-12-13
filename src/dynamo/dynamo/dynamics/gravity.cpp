@@ -549,10 +549,14 @@ namespace dynamo {
     return time;
   }
 
-  void 
+  NEventData 
   DynGravity::enforceParabola(Particle& part) const
   {
     updateParticle(part);
+
+    const Species& species = *Sim->species[part];
+    NEventData retval(ParticleEventData(part, species, VIRTUAL));
+
     Vector pos(part.getPosition()), vel(part.getVelocity());
     Sim->BCs->applyBC(pos, vel);
 
@@ -575,6 +579,7 @@ namespace dynamo {
 #endif
 
     part.getVelocity()[dim] = 0;
+    return retval;
   }
 
   std::pair<double, Dynamics::TriangleIntersectingPart>

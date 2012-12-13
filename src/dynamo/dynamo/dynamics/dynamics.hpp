@@ -27,6 +27,7 @@ namespace dynamo {
   class Particle;
   class PairEventData;
   class ParticleEventData;
+  class NEventData;
   class IntEvent;
   class Event;
 
@@ -339,10 +340,7 @@ namespace dynamo {
       \param passed A bit to set if the parabola is already over.
       \return Time of the event.
      */    
-    virtual void enforceParabola(Particle&) const
-    { 
-      M_throw() << "This is not needed for this type of Dynamics";
-    }
+    virtual NEventData enforceParabola(Particle&) const;
 
     /*! \brief Runs a line line collision event
      

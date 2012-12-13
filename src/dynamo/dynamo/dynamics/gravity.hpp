@@ -40,7 +40,7 @@ namespace dynamo {
     virtual std::pair<bool,double> getPointPlateCollision(const Particle& np1, const Vector& nrw0, const Vector& nhat, const double& Delta, const double& Omega, const double& Sigma, const double& t, bool) const;
     virtual double getPBCSentinelTime(const Particle&, const double&) const;
     virtual double getParabolaSentinelTime(const Particle&) const;
-    virtual void enforceParabola(Particle&) const;
+    virtual NEventData enforceParabola(Particle&) const;
     virtual double getPlaneEvent(const Particle&, const Vector &, const Vector &, double) const;
     virtual double getCylinderWallCollision(const Particle&, const Vector &, const Vector &, const double&) const;
     virtual PairEventData SmoothSpheresColl(const IntEvent&, const double&, const double&, const EEventType& eType) const;

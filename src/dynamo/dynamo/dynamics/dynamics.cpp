@@ -18,7 +18,7 @@
 #include <dynamo/dynamics/include.hpp>
 #include <dynamo/species/inertia.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/2particleEventData.hpp>
+#include <dynamo/NparticleEventData.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/BC/LEBC.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -73,6 +73,12 @@ namespace dynamo {
 	dout << "System Rotational Energy " << sumEnergy
 	     << "\nRotational kT " << sumEnergy / Sim->N << std::endl;
       }
+  }
+
+  NEventData
+  Dynamics::enforceParabola(Particle&) const
+  {
+    M_throw() << "This is not needed for this type of Dynamics";
   }
 
   PairEventData 

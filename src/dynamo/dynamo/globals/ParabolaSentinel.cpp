@@ -82,9 +82,7 @@ namespace dynamo {
   
     Sim->stream(iEvent.getdt());
 
-    NEventData EDat(ParticleEventData(part, *Sim->species[part], VIRTUAL));
-
-    Sim->dynamics->enforceParabola(part);
+    NEventData EDat = Sim->dynamics->enforceParabola(part);
   
     Sim->signalParticleUpdate(EDat);
 
