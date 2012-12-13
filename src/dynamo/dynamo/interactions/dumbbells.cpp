@@ -114,17 +114,36 @@ namespace dynamo {
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif
   
-    const double l1 = std::max(_LA->getProperty(p1.getID()) + 0.5 * _diamA->getProperty(p1.getID()), 
-			       _LB->getProperty(p1.getID()) + 0.5 * _diamB->getProperty(p1.getID()));
-    const double l2 = std::max(_LA->getProperty(p2.getID()) + 0.5 * _diamA->getProperty(p2.getID()), 
-			       _LB->getProperty(p2.getID()) + 0.5 * _diamB->getProperty(p2.getID()));
+    const double lA1 = _LA->getProperty(p1.getID()),
+      lB1 = _LB->getProperty(p1.getID()),
+      diamA1 = _diamA->getProperty(p1.getID()),
+      diamB1 = _diamB->getProperty(p1.getID());
+
+    const double lA2 = _LA->getProperty(p2.getID()),
+      lB2 = _LB->getProperty(p2.getID()),
+      diamA2 = _diamA->getProperty(p2.getID()),
+      diamB2 = _diamB->getProperty(p2.getID());
+
+    const double l1 = std::max(lA1 + 0.5 * diamA1, lB1 + 0.5 * diamB1);
+    const double l2 = std::max(lA2 + 0.5 * diamA2, lB2 + 0.5 * diamB2);
+    const double max_dist = l1 + l2;
 
     if (isCaptured(p1, p2))
       {
 	//Run this to determine when the spheres no longer intersect
-	double dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, l1 + l2);
-      
-	//std::pair<bool, double> colltime = Sim->dynamics->getLineLineCollision(l, p1, p2, dt);
+	double dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, max_dist);
+
+	std::pair<bool, double> AA = Sim->dynamics->getOffcentreSpheresCollision(lA1, diamA1, lA2, diamA2,
+										 p1, p2, dt, max_dist);
+
+	std::pair<bool, double> AB = Sim->dynamics->getOffcentreSpheresCollision(lA1, diamA1, -lB2, diamB2,
+										 p1, p2, dt, max_dist);
+
+	std::pair<bool, double> BA = Sim->dynamics->getOffcentreSpheresCollision(-lB1, diamB1, lA2, diamA2,
+										 p1, p2, dt, max_dist);
+
+	std::pair<bool, double> BB = Sim->dynamics->getOffcentreSpheresCollision(-lB1, diamB1, -lB2, diamB2,
+										 p1, p2, dt, max_dist);
 
 	//if (colltime.second == HUGE_VAL)
 	return IntEvent(p1, p2, dt, NBHOOD_OUT, *this);
@@ -157,15 +176,13 @@ namespace dynamo {
       {
       case CORE:
 	{
-	  M_throw() << "Error, cannot run these events yet";
 	  ++Sim->eventCount;
-	  ////We have a line interaction! Run it
-	  //double e = (_e->getProperty(p1.getID())
-	  //	      + _e->getProperty(p2.getID())) * 0.5;
-	  //double l = (_length->getProperty(p1.getID())
-	  //	      + _length->getProperty(p2.getID())) * 0.5;
-	  //
-	  //retval = Sim->dynamics->runLineLineCollision(iEvent, e, l);
+	  Sim->dynamics->updateParticlePair(p1, p2);
+	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], CORE);
+	  p1.getVelocity() = -p1.getVelocity();
+	  p2.getVelocity() = -p2.getVelocity();
+	  Sim->dynamics->getRotData(p1).angularVelocity = -Sim->dynamics->getRotData(p1).angularVelocity;
+	  Sim->dynamics->getRotData(p2).angularVelocity = -Sim->dynamics->getRotData(p2).angularVelocity;
 	  break;
 	}
       case NBHOOD_IN:
