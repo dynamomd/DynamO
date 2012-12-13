@@ -230,9 +230,42 @@ namespace dynamo {
     return Sim->dynamics->sphereOverlap(p1, p2, l1 + l2);
   }
 
+  namespace {
+    inline double overlap(const Vector dist, double diam)
+    {
+      return std::sqrt(std::max(diam * diam - (dist | dist), 0.0));
+    }
+  }
+
   bool
   IDumbbells::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
+    const double lA1 = _LA->getProperty(p1.getID()),
+      lB1 = _LB->getProperty(p1.getID()),
+      diamA1 = _diamA->getProperty(p1.getID()),
+      diamB1 = _diamB->getProperty(p1.getID());
+    const Vector director1 = Sim->dynamics->getRotData(ID).orientation;
+
+    const double lA2 = _LA->getProperty(p2.getID()),
+      lB2 = _LB->getProperty(p2.getID()),
+      diamA2 = _diamA->getProperty(p2.getID()),
+      diamB2 = _diamB->getProperty(p2.getID());
+    const Vector director2 = Sim->dynamics->getRotData(ID).orientation;
+
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Sim->BCs->applyBC(r12);
+
+    if (overlap(r12 + director1 * lA1 - director2 * lA2, (diamA1 + diamA2) / 2)
+	|| overlap(r12 + director1 * lA1 + director2 * lB2, (diamA1 + diamB2) / 2)
+	|| overlap(r12 - director1 * lB1 - director2 * lA2, (diamB1 + diamA2) / 2)
+	|| overlap(r12 - director1 * lB1 + director2 * lB2, (diamB1 + diamB2) / 2))
+      {
+	if (textoutput)
+	  derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+	       << " dumbells are overlapping."
+	       << std::endl;
+	return true;
+      }
     return false;
   }
 }
