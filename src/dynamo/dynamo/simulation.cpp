@@ -693,8 +693,7 @@ namespace dynamo
 
     BOOST_FOREACH(const Particle& part, particles)
       BOOST_FOREACH(const shared_ptr<Local>& lcl, locals)
-      if (lcl->isInteraction(part))
-	lcl->checkOverlaps(part);
+      if (lcl->isInteraction(part)) lcl->validateState(part);
   }
 
   void

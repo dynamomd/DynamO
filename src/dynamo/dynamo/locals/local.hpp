@@ -53,8 +53,6 @@ namespace dynamo {
 
     virtual void runEvent(Particle&, const LocalEvent&) const = 0;
   
-    virtual bool isInCell(const Vector &, const Vector &) const { return true; }
-
     virtual void initialise(size_t nID)  { ID = nID; }
 
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Local&);
@@ -69,7 +67,14 @@ namespace dynamo {
 
     inline const size_t& getID() const { return ID; }
 
-    virtual void checkOverlaps(const Particle&) const  {}
+    /* \brief Test if a particle is in a valid state according to this
+       local.
+       
+       \param part The particle to be tested.
+       \param textoutput If textual output is required for the user.
+       \returns true if the particle is in an invalid state.
+     */
+    virtual bool validateState(const Particle& part, bool textoutput = true) const = 0;
 
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;

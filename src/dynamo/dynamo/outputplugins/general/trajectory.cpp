@@ -122,8 +122,16 @@ namespace dynamo {
 	    << "\n";
 
     BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
-      logfile << "    1PEvent p1 " << pData.getParticleID()
-	      << "\n";
+      {
+	const Particle& part = Sim->particles[pData.getParticleID()];
+	logfile << "    1PEvent p1 " << part.getID();
+	Vector delP = Sim->species[pData.getSpeciesID()]->getMass(part.getID()) * (part.getVelocity() - pData.getOldVel());
+	delP /= Sim->units.unitMomentum();
+	Vector pos = part.getPosition() / Sim->units.unitLength();
+	Vector oldv = pData.getOldVel() / Sim->units.unitVelocity();
+	Vector newv = part.getVelocity() / Sim->units.unitVelocity();
+	logfile << " delP1=" << delP.toString() << ", pos=" << pos.toString() << ", vel=" << newv.toString() << ", oldvel=" << oldv.toString() << "\n";
+      }
   
     BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
       {
@@ -149,18 +157,16 @@ namespace dynamo {
 
     BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
       {
-	logfile << "    1PEvent p1 " << pData.getParticleID()
-		<< " delP1 < ";
-
 	const Particle& part = Sim->particles[pData.getParticleID()];
+	logfile << "    1PEvent p1 " << part.getID();
 	Vector delP = Sim->species[pData.getSpeciesID()]->getMass(part.getID()) * (part.getVelocity() - pData.getOldVel());
-
-	for (size_t iDim(0); iDim < NDIM; ++iDim)
-	  logfile << delP[iDim] << " ";
-      
-	logfile << ">"
-		<< "\n";
+	delP /= Sim->units.unitMomentum();
+	Vector pos = part.getPosition() / Sim->units.unitLength();
+	Vector oldv = pData.getOldVel() / Sim->units.unitVelocity();
+	Vector newv = part.getVelocity() / Sim->units.unitVelocity();
+	logfile << " delP1=" << delP.toString() << ", pos=" << pos.toString() << ", vel=" << newv.toString() << ", oldvel=" << oldv.toString() << "\n";
       }
+
     BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
       {
 	logfile << "    2PEvent";
@@ -185,16 +191,14 @@ namespace dynamo {
 
     BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
       {
-	logfile << "    1PEvent " << pData.getType() 
-		<< " p1 " << pData.getParticleID()
-		<< " post-vel [";
-
-	for (size_t iDim(0); iDim < NDIM; ++iDim)
-	  logfile << std::setw(7) << std::scientific
-		  << Sim->particles[pData.getParticleID()].getVelocity()[iDim]
-	    / Sim->units.unitVelocity() << ",";
-      
-	logfile << "]\n";
+	const Particle& part = Sim->particles[pData.getParticleID()];
+	logfile << "    1PEvent p1 " << part.getID();
+	Vector delP = Sim->species[pData.getSpeciesID()]->getMass(part.getID()) * (part.getVelocity() - pData.getOldVel());
+	delP /= Sim->units.unitMomentum();
+	Vector pos = part.getPosition() / Sim->units.unitLength();	
+	Vector oldv = pData.getOldVel() / Sim->units.unitVelocity();
+	Vector newv = part.getVelocity() / Sim->units.unitVelocity();
+	logfile << " delP1=" << delP.toString() << ", pos=" << pos.toString() << ", vel=" << newv.toString() << ", oldvel=" << oldv.toString() << "\n";
       }
   
     BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)

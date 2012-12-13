@@ -17,7 +17,6 @@
 
 #include <dynamo/locals/lwall.hpp>
 #include <dynamo/locals/oscillatingplate.hpp>
-#include <dynamo/locals/lcylinder.hpp>
 #include <dynamo/locals/lroughwall.hpp>
 #include <dynamo/locals/trianglemesh.hpp>
 #include <dynamo/locals/localEvent.hpp>
@@ -60,8 +59,6 @@ namespace dynamo {
       return shared_ptr<Local>(new LTriangleMesh(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"OscillatingPlate"))
       return shared_ptr<Local>(new LOscillatingPlate(XML, Sim));
-    else if (!strcmp(XML.getAttribute("Type"),"CylinderWall"))
-      return shared_ptr<Local>(new LCylinder(XML, Sim));
     else 
       M_throw() << XML.getAttribute("Type")
 		<< ", Unknown type of Local Interaction encountered";

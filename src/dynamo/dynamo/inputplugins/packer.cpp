@@ -35,7 +35,6 @@
 #include <dynamo/ensemble.hpp>
 #include <dynamo/locals/lwall.hpp>
 #include <dynamo/locals/oscillatingplate.hpp>
-#include <dynamo/locals/lcylinder.hpp>
 #include <dynamo/systems/DSMCspheres.hpp>
 #include <dynamo/systems/RingDSMC.hpp>
 #include <dynamo/systems/rescale.hpp>
@@ -104,7 +103,7 @@ namespace dynamo {
        "\n18: (DEPRECATED) Monocomponent sheared hard spheres using Ring DSMC interactions"
        "\n19: Oscillating plates bounding a system"
        "\n20: Load a set of triangles and plate it with spheres"
-       "\n21: Pack a cylinder with spheres"
+       "\n21: (DEPRECATED) Pack a cylinder with spheres"
        "\n22: Infinite system with spheres falling onto a plate with gravity"
        "\n23: Funnel test for static spheres in gravity"
        "\n24: Random walk of an isolated MJ model polymer"
@@ -2158,93 +2157,7 @@ namespace dynamo {
 	}
       case 21:
 	{
-	  //Pack of hard spheres in a cylinder
-	  if (vm.count("help"))
-	    {
-	      std::cout<<
-		"Mode specific options:\n"
-		"  21: Pack a cylinder with spheres\n"
-		"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-		"       --f1 : Length over diameter of the cylinder\n";
-	      exit(1);
-	    }
-	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
-	  packptr->initialise();
-
-	  std::vector<Vector>
-	    latticeSites(packptr->placeObjects(Vector(0,0,0)));
-	
-
-	  double LoverD = 1;
-	  if (vm.count("f1"))
-	    LoverD = vm["f1"].as<double>();
-
-	  Sim->primaryCellSize = Vector(1,1,1);
-	
-	  double boxlimit;
-	  double cylRad = 0.5;
-	  if (LoverD < 1)
-	    {
-	      //D is unity
-	    
-	      //Check if the cylinder limits the sim box
-	      boxlimit = LoverD;
-	      if ((1.0 / std::sqrt(2.0)) < LoverD)
-		boxlimit = (1.0 / std::sqrt(2.0));
-
-	      Sim->primaryCellSize[0] = LoverD;
-	    }
-	  else
-	    {
-	      //L is unity
-	      Sim->primaryCellSize[1] = 1.0 / LoverD;
-	      Sim->primaryCellSize[2] = 1.0 / LoverD;
-
-	      boxlimit = 1.0;
-
-	      cylRad = 0.5 / LoverD;
-
-	      if ((1.0 / (LoverD * std::sqrt(2.0))) < 1.0)
-		boxlimit = (1.0 / (LoverD * std::sqrt(2.0)));
-	    }
-
-	  //Shrink the box a little more
-	  boxlimit *= 0.9;
-
-	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCPeriodicXOnly(Sim));
-	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
-
-	  double particleDiam 
-	    = pow(vm["density"].as<double>() / latticeSites.size(), double(1.0 / 3.0))
-	    * boxlimit;
-
-	  //Set up a standard simulation
-	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
-
-	  Sim->locals.push_back(shared_ptr<Local>
-				(new LCylinder(Sim, 1.0, Vector(1,0,0), 
-					       Vector(0,0,0), cylRad , "Cylinder", 
-					       new IDRangeAll(Sim), true)));
-
-
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, particleDiam, 1.0, new IDPairRangeAll(), "Bulk")));
-
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0,
-				       "Bulk")));
-
-	  Sim->units.setUnitLength(particleDiam);
-
-	  unsigned long nParticles = 0;
-	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particles.push_back(Particle(position * boxlimit, getRandVelVec() * Sim->units.unitVelocity(),
-						 nParticles++));
-	  break;
+	  M_throw() << "Option no longer supported";
 	}
       case 22:
 	{

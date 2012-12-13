@@ -68,6 +68,12 @@ namespace dynamo {
 	      ++warnings;
       }
     
+    BOOST_FOREACH(const Particle& part, Sim->particles)
+      BOOST_FOREACH(const shared_ptr<Local>& lcl, Sim->locals)
+      if (lcl->isInteraction(part))
+	if (lcl->validateState(part, (warnings < 101)))
+	  ++warnings;
+    
     if (warnings > 100)
       derr << "Over 100 warnings of invalid states, further output was suppressed (total of " << warnings << " warnings detected)" << std::endl;
 

@@ -49,7 +49,7 @@ namespace dynamo {
   
     virtual void operator<<(const magnet::xml::Node&);
 
-    virtual void checkOverlaps(const Particle&) const;
+    virtual bool validateState(const Particle& part, bool textoutput = true) const { return false; }
 
 #ifdef DYNAMO_visualizer
     virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const;

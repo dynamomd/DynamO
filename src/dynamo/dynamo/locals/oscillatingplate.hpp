@@ -48,6 +48,8 @@ namespace dynamo {
 
     const Vector& getCentre() const { return rw0; }
 
+    virtual bool validateState(const Particle& part, bool textoutput = true) const { return false; }
+
 #ifdef DYNAMO_visualizer
     virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const;
     virtual void updateRenderData() const;

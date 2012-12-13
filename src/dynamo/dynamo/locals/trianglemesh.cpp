@@ -244,11 +244,6 @@ namespace dynamo {
     XML << magnet::xml::endtag("Elements");
   }
 
-  void 
-  LTriangleMesh::checkOverlaps(const Particle& p1) const
-  {}
-
-
 #ifdef DYNAMO_visualizer
 
   shared_ptr<coil::RenderObj>

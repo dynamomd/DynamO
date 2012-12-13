@@ -34,7 +34,7 @@ namespace dynamo {
   
     virtual void operator<<(const magnet::xml::Node&);
 
-    virtual void checkOverlaps(const Particle&) const;
+    virtual bool validateState(const Particle& part, bool textoutput = true) const;
 
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;

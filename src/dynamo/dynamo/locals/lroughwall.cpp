@@ -94,9 +94,7 @@ namespace dynamo {
       vPosition *= Sim->units.unitLength();
     } 
     catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in LRoughWall";
-      }
+      {	M_throw() << "Failed a lexical cast in LRoughWall"; }
   }
 
   void 
@@ -117,21 +115,24 @@ namespace dynamo {
 	<< magnet::xml::endtag("Origin");
   }
 
-  void 
-  LRoughWall::checkOverlaps(const Particle& p1) const
+  bool 
+  LRoughWall::validateState(const Particle& part, bool textoutput) const
   {
-    Vector pos(p1.getPosition() - vPosition);
+    Vector pos(part.getPosition() - vPosition);
     Sim->BCs->applyBC(pos);
-
-    double r = (pos | vNorm);
-  
-    if (r < 0)
-      dout << "Possible overlap of " << r / Sim->units.unitLength() << " for particle " << p1.getID()
-	   << "\nWall Pos is [" 
-	   << vPosition[0] << "," << vPosition[1] << "," << vPosition[2] 
-	   << "] and Normal is [" 
-	   << vNorm[0] << "," << vNorm[1] << "," << vNorm[2] << "]"
-	   << std::endl;
+    
+    double overlap = r - std::abs(pos | vNorm);
+    
+    if (overlap > 0)
+      {
+	if (textoutput)
+	  dout << "Particle " << part.getID() << " is " << overlap / Sim->units.unitLength() << " far into the wall."
+	       << "\nWall Pos = " << Vector(vPosition / Sim->units.unitLength()).toString()
+	       << ", Normal = " << vNorm.toString() << ", r = " << r / Sim->units.unitLength()
+	       << std::endl;
+	return true;
+      }
+    return false;
   }
 }
 
