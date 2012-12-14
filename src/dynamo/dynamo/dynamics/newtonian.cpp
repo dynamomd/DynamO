@@ -1281,16 +1281,9 @@ namespace dynamo {
 			   orientationData[p1.getID()].orientation * offset1,
 			   orientationData[p2.getID()].orientation * offset2,
 			   diameter1, diameter2,
-			   100);
+			   maxdist);
     
     double t_low = 0;
-    if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
-	 || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
-	&& Sim->systemTime == lastAbsoluteClock)
-      //Shift the lower bound up so we don't find the same root again
-      t_low += fabs(2.0 * fL.eval<1>())
-	/ fL.max<2>();
-    
     return magnet::math::frenkelRootSearch(fL, t_low, t_max, std::min(diameter1, diameter2) * 1e-10);
   }
 

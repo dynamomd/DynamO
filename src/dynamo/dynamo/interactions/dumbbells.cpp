@@ -131,31 +131,40 @@ namespace dynamo {
     if (isCaptured(p1, p2))
       {
 	//Run this to determine when the spheres no longer intersect
-	double dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, max_dist);
-
-	std::pair<bool, double> AA = Sim->dynamics->getOffcentreSpheresCollision(lA1, diamA1, lA2, diamA2,
-										 p1, p2, dt, max_dist);
-
+	const double upper_limit = Sim->dynamics->SphereSphereOutRoot(p1, p2, max_dist);
+	
+	//Test the AA pairing
+	std::pair<bool, double> current = Sim->dynamics->getOffcentreSpheresCollision(lA1, diamA1, lA2, diamA2,
+										      p1, p2, upper_limit, max_dist);
+	//Test the BB pairing
 	std::pair<bool, double> AB = Sim->dynamics->getOffcentreSpheresCollision(lA1, diamA1, -lB2, diamB2,
-										 p1, p2, dt, max_dist);
+										 p1, p2, std::min(upper_limit, current.second), max_dist);
+	if (AB.second < current.second)
+	  current = AB;
 
 	std::pair<bool, double> BA = Sim->dynamics->getOffcentreSpheresCollision(-lB1, diamB1, lA2, diamA2,
-										 p1, p2, dt, max_dist);
+										 p1, p2, std::min(upper_limit, current.second), max_dist);
+
+	if (BA.second < current.second)
+	  current = BA;
 
 	std::pair<bool, double> BB = Sim->dynamics->getOffcentreSpheresCollision(-lB1, diamB1, -lB2, diamB2,
-										 p1, p2, dt, max_dist);
+										 p1, p2, std::min(upper_limit, current.second), max_dist);
 
-	//if (colltime.second == HUGE_VAL)
-	return IntEvent(p1, p2, dt, NBHOOD_OUT, *this);
+	if (BB.second < current.second)
+	  current = BB;
 
+	//Check if they miss each other
+	if (current.second == HUGE_VAL)
+	  return IntEvent(p1, p2, upper_limit, NBHOOD_OUT, *this);
+ 
 	//Something happens in the time interval
-
-	//if (colltime.first)
-	//  //Its a collision!
-	//  return IntEvent(p1, p2, colltime.second, CORE, *this);
-	//else
-	//  //Its a virtual event, we need to recalculate in a bit
-	//  return IntEvent(p1, p2, colltime.second, VIRTUAL, *this);
+	if (current.first)
+	  //Its a collision!
+	  return IntEvent(p1, p2, current.second, CORE, *this);
+	else
+	  //Its a virtual event, we need to recalculate in a bit
+	  return IntEvent(p1, p2, current.second, VIRTUAL, *this);
       }
     else 
       {
