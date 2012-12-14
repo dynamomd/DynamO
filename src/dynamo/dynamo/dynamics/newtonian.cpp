@@ -281,11 +281,9 @@ namespace dynamo {
     Vector  vel(part.getVelocity());
     Sim->BCs->applyBC(rpos, vel);
   
-#ifdef DYNAMO_DEBUG
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
-	M_throw() << "You have negative zero velocities, don't use them.";
-#endif 
+	vel[iDim] = 0;
 
     double retVal;
     if (vel[0] < 0)
@@ -317,12 +315,9 @@ namespace dynamo {
     int retVal(0);
     double time(HUGE_VAL);
   
-#ifdef DYNAMO_DEBUG
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
-	M_throw() << "You have negative zero velocities, dont use them."
-		  << "\nPlease think of the neighbour lists.";
-#endif
+	vel[iDim] = 0;
 
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       {
@@ -1283,8 +1278,7 @@ namespace dynamo {
 			   diameter1, diameter2,
 			   maxdist);
     
-    double t_low = 0;
-    return magnet::math::frenkelRootSearch(fL, t_low, t_max, std::min(diameter1, diameter2) * 1e-10);
+    return magnet::math::frenkelRootSearch(fL, 0, t_max, std::min(diameter1, diameter2) * 1e-10);
   }
 
 
