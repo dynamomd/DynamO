@@ -192,8 +192,6 @@ namespace dynamo {
 	  p2.getVelocity() = -p2.getVelocity();
 	  Sim->dynamics->getRotData(p1).angularVelocity = -Sim->dynamics->getRotData(p1).angularVelocity;
 	  Sim->dynamics->getRotData(p2).angularVelocity = -Sim->dynamics->getRotData(p2).angularVelocity;
-	  derr << "Checking for an invalid state at event " << Sim->eventCount << std::endl;
-	  validateState(p1, p2);
 	  break;
 	}
       case NBHOOD_IN:

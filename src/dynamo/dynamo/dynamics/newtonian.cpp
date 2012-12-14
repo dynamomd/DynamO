@@ -1278,13 +1278,17 @@ namespace dynamo {
 			  diameter1, diameter2,
 			  maxdist);
     
+    double f0 = f.eval<0>();
+    double f1 = f.eval<1>();
+
     //Stable EDMD algorithm, test and handle overlapped cases
-    if (f.eval<0>() < 0)
+    
+    //First treat overlapping or in contact particles which are approaching
+    if ((f0 <= 0) && (f1 < 0)) return std::pair<bool, double>(true, 0.0);
+    
+    //Now treat overlapping particles which are not approaching
+    if (f0 < 0)
       {
-	//Particles are already overlapping, check if they are
-	//approaching and return an instant event if they are
-	if (f.eval<1>() < 0) return std::pair<bool, double>(true, 0.0);
-	
 	//Not overlapping and they're moving away from each
 	//other. Determine when they reach their next maximum
 	//separation
@@ -1311,9 +1315,11 @@ namespace dynamo {
 	//use this as our lower bound
 	return magnet::math::frenkelRootSearch(f, derivroot.second, t_max, std::min(diameter1, diameter2) * 1e-10);
       }
-    
-    //Particles are not overlapped, so handle like normal
-    return magnet::math::frenkelRootSearch(f, 0, t_max, std::min(diameter1, diameter2) * 1e-10);
+
+    //If the particles are in contact, but not approaching, we need to
+    //skip this initial root
+    double t_min = (f0 == 0) ? 2.0 * std::abs(f.eval<1>()) / f.max<2>() : 0;
+    return magnet::math::frenkelRootSearch(f, t_min, t_max, std::min(diameter1, diameter2) * 1e-10);
   }
 
 
