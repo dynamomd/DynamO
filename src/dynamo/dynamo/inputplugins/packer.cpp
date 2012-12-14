@@ -109,6 +109,7 @@ namespace dynamo {
        "\n24: Random walk of an isolated MJ model polymer"
        "\n25: Funnel and cup simulation (with sleepy particles)"
        "\n26: Polydisperse (Gaussian) hard spheres in LEBC (shearing)"
+       "\n27: Crystal pack of snowmen molecules"
        );
 
     return retval;
@@ -3290,6 +3291,64 @@ namespace dynamo {
 	  Sim->setCOMVelocity();
 	  BOOST_FOREACH(Particle& part, Sim->particles)
 	    part.getVelocity()[0] += part.getPosition()[1] * shearRate;
+	  break;
+	}
+      case 27:
+	{
+	  if (vm.count("help"))
+	    {
+	      std::cout<<
+		"  27: Crystal pack of snowmen molecules\n"
+		"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
+		"       --f1 : Inelasticity [1.0]\n"
+		"       --f2 : Size ratio [1.0]\n"
+		"       --f3 : Mass ratio [1.0]\n";
+	      exit(1);
+	    }
+
+	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
+	  packptr->initialise();
+
+	  std::vector<Vector>
+	    latticeSites(packptr->placeObjects(Vector(0,0,0)));
+
+	  if (vm.count("rectangular-box"))
+	    Sim->primaryCellSize = getNormalisedCellDimensions();
+
+	  double simVol = 1.0;
+
+	  for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	    simVol *= Sim->primaryCellSize[iDim];
+
+	  double particleDiam = pow(simVol * vm["density"].as<double>()
+				    / latticeSites.size(), double(1.0 / 3.0));
+	  
+	  //Set up a standard simulation
+	  Sim->ptrScheduler 
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+
+	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
+
+	  const double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0 ;
+	  const double sizeratio = (vm.count("f2")) ? vm["f2"].as<double>() : 1.0 ;
+	  const double massratio = (vm.count("f3")) ? vm["f3"].as<double>() : 1.0 ;
+	  
+	  const double LA = (1 / (1 + massratio)) * 0.5 * (1 + sizeratio);
+	  const double LB = massratio * LA;
+	  const double I = particleDiam * particleDiam * 0.1 * (1 + massratio * sizeratio * sizeratio) + (1 + massratio * massratio * massratio) * LA * LA;
+
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IDumbbells(Sim, LA * particleDiam, LB * particleDiam, particleDiam, particleDiam * sizeratio, elasticity, new IDPairRangeAll(), "Bulk")));
+	  
+	  Sim->addSpecies(shared_ptr<Species>(new SpSphericalTop(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0, I, "Bulk")));
+
+	  Sim->units.setUnitLength(particleDiam);
+
+	  size_t nParticles = 0;
+	  Sim->particles.reserve(latticeSites.size());
+	  BOOST_FOREACH(const Vector& position, latticeSites)
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
+
+	  Sim->dynamics->initOrientations(std::sqrt(1/I));
 	  break;
 	}
       default:

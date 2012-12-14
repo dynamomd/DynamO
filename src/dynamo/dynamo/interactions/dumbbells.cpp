@@ -26,6 +26,7 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
+#include <dynamo/species/sphericalTop.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cmath>
@@ -187,11 +188,88 @@ namespace dynamo {
 	{
 	  ++Sim->eventCount;
 	  Sim->dynamics->updateParticlePair(p1, p2);
-	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], CORE);
-	  p1.getVelocity() = -p1.getVelocity();
-	  p2.getVelocity() = -p2.getVelocity();
-	  Sim->dynamics->getRotData(p1).angularVelocity = -Sim->dynamics->getRotData(p1).angularVelocity;
-	  Sim->dynamics->getRotData(p2).angularVelocity = -Sim->dynamics->getRotData(p2).angularVelocity;
+	  shared_ptr<SpSphericalTop> sp1 = std::tr1::dynamic_pointer_cast<SpSphericalTop>(Sim->species[p1]);
+	  shared_ptr<SpSphericalTop> sp2 = std::tr1::dynamic_pointer_cast<SpSphericalTop>(Sim->species[p2]);
+
+	  if (!sp1 || !sp2)
+	    M_throw() << "Could not find the intertia of one of the particles undergoing an interaction";
+
+	  retval = PairEventData(p1, p2, *sp1, *sp2, CORE);
+	  
+	  const double lA1 = _LA->getProperty(p1.getID()),
+	    lB1 = _LB->getProperty(p1.getID()),
+	    diamA1 = _diamA->getProperty(p1.getID()),
+	    diamB1 = _diamB->getProperty(p1.getID());
+	  
+	  const double lA2 = _LA->getProperty(p2.getID()),
+	    lB2 = _LB->getProperty(p2.getID()),
+	    diamA2 = _diamA->getProperty(p2.getID()),
+	    diamB2 = _diamB->getProperty(p2.getID());
+
+	  const Vector director1 = Sim->dynamics->getRotData(p1).orientation;
+	  const Vector director2 = Sim->dynamics->getRotData(p2).orientation;
+	  const Vector angvel1 = Sim->dynamics->getRotData(p1).angularVelocity;
+	  const Vector angvel2 = Sim->dynamics->getRotData(p2).angularVelocity;
+
+	  const double m1 = sp1->getMass(p1.getID());
+	  const double m2 = sp2->getMass(p2.getID());
+
+	  const double I1 = sp1->getScalarMomentOfInertia(p1.getID());
+	  const double I2 = sp2->getScalarMomentOfInertia(p2.getID());
+	  
+	  Vector r12 = p1.getPosition() - p2.getPosition();
+	  Vector v12 = p1.getVelocity() - p2.getVelocity();
+	  Sim->BCs->applyBC(r12, v12);
+
+	  //Determine the colliding pair, they should almost be in contact
+	  double AA_dist = std::abs(0.5 * (diamA1 + diamA2) - (r12 + director1 * lA1 - director2 * lA2).nrm());
+	  double AB_dist = std::abs(0.5 * (diamA1 + diamB2) - (r12 + director1 * lA1 + director2 * lB2).nrm());
+	  double BA_dist = std::abs(0.5 * (diamB1 + diamA2) - (r12 - director1 * lB1 - director2 * lA2).nrm());
+	  double BB_dist = std::abs(0.5 * (diamB1 + diamB2) - (r12 - director1 * lB1 + director2 * lB2).nrm());
+
+	  double l1 = lA1, l2 = lA2, d1 = diamA1, d2 = diamA2, min_dist = AA_dist;
+	  if (AB_dist < min_dist)
+	    {
+	      l1 = +lA1;
+	      l2 = -lB2;
+	      d1 = diamA1;
+	      d2 = diamB2;
+ 	      min_dist = AB_dist;
+	    }
+
+	  if (BA_dist < min_dist)
+	    {
+	      l1 = -lB1;
+	      l2 = +lA2;
+	      d1 = diamB1;
+	      d2 = diamA2;
+ 	      min_dist = BA_dist;
+	    }
+
+	  if (BB_dist < min_dist)
+	    {
+	      l1 = -lB1;
+	      l2 = -lB2;
+	      d1 = diamB1;
+	      d2 = diamB2;
+ 	      min_dist = BB_dist;
+	    }
+
+	  const Vector u1 = director1 * l1;
+	  const Vector u2 = director2 * l2;
+	  Vector nhat = r12 + u1 - u2;
+	  nhat /= nhat.nrm();
+	  const Vector r1 = u1 + nhat * 0.5 * d1;
+	  const Vector r2 = u2 - nhat * 0.5 * d2;
+	  const Vector vc12 = v12 + (angvel1 ^ r1) - (angvel2 ^ r2);
+	  
+	  double e = 0.5 * (_e->getProperty(p1.getID()) + _e->getProperty(p2.getID()));
+	  const double J = (1 + e) * (nhat | vc12) / ((1 / m1) + (1 / m2)+ (nhat | ((1 / I1) * ((u1 ^ nhat) ^ u1) + (1 / I2) * ((u2 ^ nhat) ^ u2))));
+	  
+	  p1.getVelocity() -= (J / m1) * nhat;
+	  p2.getVelocity() += (J / m2) * nhat;
+	  Sim->dynamics->getRotData(p1).angularVelocity -= (J / I1) * (r1 ^ nhat);
+	  Sim->dynamics->getRotData(p2).angularVelocity += (J / I2) * (r2 ^ nhat);
 	  break;
 	}
       case NBHOOD_IN:
