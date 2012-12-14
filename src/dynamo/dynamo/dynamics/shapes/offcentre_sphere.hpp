@@ -22,6 +22,29 @@
 #include <magnet/math/matrix.hpp>
 
 namespace dynamo {
+  template <class T, int derivative>
+  class SFDerivative
+  {
+  public:
+    SFDerivative(const T& sf): _shapeFunc(sf) {}
+
+    void stream(const double& dt)
+    { _shapeFunc.stream(dt); }
+
+    template<size_t d>
+    double eval() const
+    { return _shapeFunc.template eval<d+derivative>(); }
+
+    template<size_t d> 
+    double max() const
+    { return _shapeFunc.template max<d+derivative>(); }
+
+    bool test_root() const { return true; }
+    
+  protected:
+    T _shapeFunc;
+  };
+
   /*! \brief The overlap function and its derivatives for offcentre
       spheres.
    */
@@ -103,8 +126,7 @@ namespace dynamo {
     const Vector& getr12() const { return r12; }
     const Vector& getv12() const { return v12; }
   
-    virtual bool test_root() const
-    { return true; }
+    bool test_root() const { return true; }
 
   private:
     const Vector& w1;

@@ -114,7 +114,7 @@ namespace dynamo {
       return ((rp - wallPosition()) | nhat) + Sigma;
     }
 
-    virtual bool test_root() const
+    bool test_root() const
     {
       return (((vp | nhat) - velnHatWall()) 
 	      * ((rp | nhat) - wallnHatPosition())) > 0;

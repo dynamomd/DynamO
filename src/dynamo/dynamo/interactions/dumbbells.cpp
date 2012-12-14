@@ -192,6 +192,8 @@ namespace dynamo {
 	  p2.getVelocity() = -p2.getVelocity();
 	  Sim->dynamics->getRotData(p1).angularVelocity = -Sim->dynamics->getRotData(p1).angularVelocity;
 	  Sim->dynamics->getRotData(p2).angularVelocity = -Sim->dynamics->getRotData(p2).angularVelocity;
+	  derr << "Checking for an invalid state at event " << Sim->eventCount << std::endl;
+	  validateState(p1, p2);
 	  break;
 	}
       case NBHOOD_IN:
@@ -270,28 +272,52 @@ namespace dynamo {
       lB1 = _LB->getProperty(p1.getID()),
       diamA1 = _diamA->getProperty(p1.getID()),
       diamB1 = _diamB->getProperty(p1.getID());
-    const Vector director1 = Sim->dynamics->getRotData(ID).orientation;
+    const Vector director1 = Sim->dynamics->getRotData(p1).orientation;
 
     const double lA2 = _LA->getProperty(p2.getID()),
       lB2 = _LB->getProperty(p2.getID()),
       diamA2 = _diamA->getProperty(p2.getID()),
       diamB2 = _diamB->getProperty(p2.getID());
-    const Vector director2 = Sim->dynamics->getRotData(ID).orientation;
+    const Vector director2 = Sim->dynamics->getRotData(p2).orientation;
 
     Vector r12 = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(r12);
-
-    if (overlap(r12 + director1 * lA1 - director2 * lA2, (diamA1 + diamA2) / 2)
-	|| overlap(r12 + director1 * lA1 + director2 * lB2, (diamA1 + diamB2) / 2)
-	|| overlap(r12 - director1 * lB1 - director2 * lA2, (diamB1 + diamA2) / 2)
-	|| overlap(r12 - director1 * lB1 + director2 * lB2, (diamB1 + diamB2) / 2))
+    
+    bool has_error = false;
+    double error;
+    if ((error = overlap(r12 + director1 * lA1 - director2 * lA2, (diamA1 + diamA2) / 2)))
       {
 	if (textoutput)
-	  derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
-	       << " dumbells are overlapping."
+	  derr << "Particle " << p1.getID() << " sphere A and Particle " << p2.getID() 
+	       << " sphere A are overlapping by " << error/Sim->units.unitLength()
 	       << std::endl;
-	return true;
+	has_error = true;
       }
-    return false;
+    if ((error = overlap(r12 + director1 * lA1 + director2 * lB2, (diamA1 + diamB2) / 2)))
+      {
+	if (textoutput)
+	  derr << "Particle " << p1.getID() << " sphere A and Particle " << p2.getID() 
+	       << " sphere B are overlapping by " << error/Sim->units.unitLength()
+	       << std::endl;
+	has_error = true;
+      }
+    if ((error = overlap(r12 - director1 * lB1 - director2 * lA2, (diamB1 + diamA2) / 2)))
+      {
+	if (textoutput)
+	  derr << "Particle " << p1.getID() << " sphere B and Particle " << p2.getID() 
+	       << " sphere A are overlapping by " << error/Sim->units.unitLength()
+	       << std::endl;
+	has_error = true;
+      }
+    if ((error = overlap(r12 - director1 * lB1 + director2 * lB2, (diamB1 + diamB2) / 2)))
+      {
+	if (textoutput)
+	  derr << "Particle " << p1.getID() << " sphere B and Particle " << p2.getID() 
+	       << " sphere B are overlapping by " << error/Sim->units.unitLength()
+	       << std::endl;
+	has_error = true;
+      }
+      
+    return has_error;
   }
 }

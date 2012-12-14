@@ -116,7 +116,7 @@ namespace dynamo {
     const Vector& getr12() const { return r12; }
     const Vector& getv12() const { return v12; }
 
-    virtual bool test_root() const
+    bool test_root() const
     {
       std::pair<double,double> cp = getCollisionPoints();
     

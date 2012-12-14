@@ -1270,15 +1270,50 @@ namespace dynamo {
     Vector v12 = p1.getVelocity() - p2.getVelocity();
     Sim->BCs->applyBC(r12, v12);
   
-    SFOffcentre_Spheres fL(r12, v12,
-			   orientationData[p1.getID()].angularVelocity,
-			   orientationData[p2.getID()].angularVelocity,
-			   orientationData[p1.getID()].orientation * offset1,
-			   orientationData[p2.getID()].orientation * offset2,
-			   diameter1, diameter2,
-			   maxdist);
+    SFOffcentre_Spheres f(r12, v12,
+			  orientationData[p1.getID()].angularVelocity,
+			  orientationData[p2.getID()].angularVelocity,
+			  orientationData[p1.getID()].orientation * offset1,
+			  orientationData[p2.getID()].orientation * offset2,
+			  diameter1, diameter2,
+			  maxdist);
     
-    return magnet::math::frenkelRootSearch(fL, 0, t_max, std::min(diameter1, diameter2) * 1e-10);
+    //Stable EDMD algorithm, test and handle overlapped cases
+    if (f.eval<0>() < 0)
+      {
+	//Particles are already overlapping, check if they are
+	//approaching and return an instant event if they are
+	if (f.eval<1>() < 0) return std::pair<bool, double>(true, 0.0);
+	
+	//Not overlapping and they're moving away from each
+	//other. Determine when they reach their next maximum
+	//separation
+	SFDerivative<SFOffcentre_Spheres, 1> fprime(f);
+
+	std::pair<bool, double> derivroot = magnet::math::frenkelRootSearch(fprime, 0, t_max, std::min(diameter1, diameter2) * 1e-10);
+	//Check if they just keep retreating from each other
+	if (derivroot.second == HUGE_VAL) return std::pair<bool, double>(false, HUGE_VAL);
+
+	SFOffcentre_Spheres fprime_root(f);
+	fprime_root.stream(derivroot.second);
+
+	//Check if they're still overlapping at the time from the
+	//derivatives root finding. If derivroot.first is false, its a
+	//virtual event and we will have to finish searching for the
+	//turning point later. If derivroot.first is true, its a
+	//turning point while still in an invalid state, making it a
+	//real interaction.
+	if (fprime_root.eval<0>() < 0)
+	  return std::pair<bool, double>(derivroot.first, derivroot.second);
+
+	//Real or virtual, the derivroot contains a time before the
+	//next interaction which is outside the invalid state, we just
+	//use this as our lower bound
+	return magnet::math::frenkelRootSearch(f, derivroot.second, t_max, std::min(diameter1, diameter2) * 1e-10);
+      }
+    
+    //Particles are not overlapped, so handle like normal
+    return magnet::math::frenkelRootSearch(f, 0, t_max, std::min(diameter1, diameter2) * 1e-10);
   }
 
 
