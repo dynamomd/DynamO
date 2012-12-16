@@ -41,7 +41,7 @@ namespace dynamo {
   SpSphericalTop::outputXML(magnet::xml::XmlStream& XML, std::string type) const
   {
     XML << magnet::xml::attr("InertiaConstant") 
-	<< inertiaConstant / Sim->units.unitArea()
+	<< inertiaConstant / Sim->units.unitInertia()
 	<< magnet::xml::attr("Mass") << _mass->getName()
 	<< magnet::xml::attr("Name") << spName
 	<< magnet::xml::attr("IntName") << intName
@@ -56,7 +56,7 @@ namespace dynamo {
 
     try {
       inertiaConstant 
-	= XML.getAttribute("InertiaConstant").as<double>() * Sim->units.unitArea();
+	= XML.getAttribute("InertiaConstant").as<double>() * Sim->units.unitInertia();
     } 
     catch (boost::bad_lexical_cast &)
       {

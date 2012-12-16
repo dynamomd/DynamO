@@ -1349,11 +1349,11 @@ namespace dynamo {
     double KE2before = getParticleKineticEnergy(particle2);
 
     SFLines fL(retVal.rij, retVal.vijold,
-		  orientationData[particle1.getID()].angularVelocity,
-		  orientationData[particle2.getID()].angularVelocity,
-		  orientationData[particle1.getID()].orientation,
-		  orientationData[particle2.getID()].orientation,
-		  length);
+	       orientationData[particle1.getID()].angularVelocity,
+	       orientationData[particle2.getID()].angularVelocity,
+	       orientationData[particle1.getID()].orientation,
+	       orientationData[particle2.getID()].orientation,
+	       length);
 
     Vector uPerp = fL.getu1() ^ fL.getu2();
 

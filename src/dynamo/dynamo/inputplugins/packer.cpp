@@ -3320,8 +3320,8 @@ namespace dynamo {
 	  for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	    simVol *= Sim->primaryCellSize[iDim];
 
-	  double particleDiam = pow(simVol * vm["density"].as<double>()
-				    / latticeSites.size(), double(1.0 / 3.0));
+	  double sigmaA = pow(simVol * vm["density"].as<double>()
+			      / latticeSites.size(), double(1.0 / 3.0));
 	  
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
@@ -3329,20 +3329,21 @@ namespace dynamo {
 
 	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
-	  const double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0 ;
-	  const double sizeratio = (vm.count("f2")) ? vm["f2"].as<double>() : 1.0 ;
-	  const double massratio = (vm.count("f3")) ? vm["f3"].as<double>() : 1.0 ;
+	  const double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0;
+	  const double sizeratio = (vm.count("f2")) ? vm["f2"].as<double>() : 1.0;
+	  const double massratio = (vm.count("f3")) ? vm["f3"].as<double>() : sizeratio * sizeratio * sizeratio;
 	  
-	  const double LA = (1 / (1 + massratio)) * 0.5 * (1 + sizeratio);
+	  const double LA = (1 / (1 + massratio)) * 0.5 * sigmaA * (1 + sizeratio);
 	  const double LB = massratio * LA;
 	  const double mA = 1 / (1+massratio);
-	  const double I = mA * particleDiam * particleDiam * 0.1 * (1 + massratio * sizeratio * sizeratio) + mA *(1 + massratio * massratio * massratio) * LA * LA;
+	  const double I = mA * sigmaA * sigmaA * 0.1 * (1 + massratio * sizeratio * sizeratio) 
+	    + mA * (1 + massratio * massratio * massratio) * LA * LA;
 
-	  Sim->interactions.push_back(shared_ptr<Interaction>(new IDumbbells(Sim, LA * particleDiam, LB * particleDiam, particleDiam, particleDiam * sizeratio, elasticity, new IDPairRangeAll(), "Bulk")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IDumbbells(Sim, LA, LB, sigmaA, sigmaA * sizeratio, elasticity, new IDPairRangeAll(), "Bulk")));
 	  
 	  Sim->addSpecies(shared_ptr<Species>(new SpSphericalTop(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0, I, "Bulk")));
 
-	  Sim->units.setUnitLength(particleDiam);
+	  Sim->units.setUnitLength(sigmaA);
 
 	  size_t nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());

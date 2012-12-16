@@ -329,10 +329,11 @@ namespace dynamo {
     for (size_t i = 0; i < Sim->particles.size(); ++i)
       {
 	//Assign the new velocities
-	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  orientationData[i].orientation[iDim] = Sim->normal_sampler();
-      
-	orientationData[i].orientation /= orientationData[i].orientation.nrm();
+	orientationData[i].orientation = Vector(1,0,0);
+	//for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	//  orientationData[i].orientation[iDim] = Sim->normal_sampler();
+      	//
+	//orientationData[i].orientation /= orientationData[i].orientation.nrm();
       
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  angVelCrossing[iDim] = Sim->normal_sampler();
