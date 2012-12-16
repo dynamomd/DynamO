@@ -41,7 +41,7 @@ namespace dynamo {
     ParticleEventData particle2_;
     Vector  rij;
     Vector  vijold;
-    Vector  dP;
+    Vector  impulse;
     double rvdot;
 
     void setType(EEventType nType)

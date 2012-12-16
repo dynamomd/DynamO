@@ -199,8 +199,6 @@ namespace dynamo {
 
 	  if (!sp1 || !sp2)
 	    M_throw() << "Could not find the intertia of one of the particles undergoing an interaction";
-
-	  retval = PairEventData(p1, p2, *sp1, *sp2, CORE);
 	  
 	  const double lA1 = _LA->getProperty(p1.getID()),
 	    lB1 = _LB->getProperty(p1.getID()),
@@ -223,15 +221,14 @@ namespace dynamo {
 	  const double I1 = sp1->getScalarMomentOfInertia(p1.getID());
 	  const double I2 = sp2->getScalarMomentOfInertia(p2.getID());
 	  
-	  Vector r12 = p1.getPosition() - p2.getPosition();
-	  Vector v12 = p1.getVelocity() - p2.getVelocity();
-	  Sim->BCs->applyBC(r12, v12);
+	  retval = PairEventData(p1, p2, *sp1, *sp2, CORE);
+	  Sim->BCs->applyBC(retval.rij, retval.vijold);
 
 	  //Determine the colliding pair, they should almost be in contact
-	  double AA_dist = std::abs(0.5 * (diamA1 + diamA2) - (r12 + director1 * lA1 - director2 * lA2).nrm());
-	  double AB_dist = std::abs(0.5 * (diamA1 + diamB2) - (r12 + director1 * lA1 + director2 * lB2).nrm());
-	  double BA_dist = std::abs(0.5 * (diamB1 + diamA2) - (r12 - director1 * lB1 - director2 * lA2).nrm());
-	  double BB_dist = std::abs(0.5 * (diamB1 + diamB2) - (r12 - director1 * lB1 + director2 * lB2).nrm());
+	  double AA_dist = std::abs(0.5 * (diamA1 + diamA2) - (retval.rij + director1 * lA1 - director2 * lA2).nrm());
+	  double AB_dist = std::abs(0.5 * (diamA1 + diamB2) - (retval.rij + director1 * lA1 + director2 * lB2).nrm());
+	  double BA_dist = std::abs(0.5 * (diamB1 + diamA2) - (retval.rij - director1 * lB1 - director2 * lA2).nrm());
+	  double BB_dist = std::abs(0.5 * (diamB1 + diamB2) - (retval.rij - director1 * lB1 + director2 * lB2).nrm());
 
 	  double l1 = lA1, l2 = lA2, d1 = diamA1, d2 = diamA2, min_dist = AA_dist;
 	  if (AB_dist < min_dist)
@@ -263,19 +260,23 @@ namespace dynamo {
 
 	  const Vector u1 = director1 * l1;
 	  const Vector u2 = director2 * l2;
-	  Vector nhat = r12 + u1 - u2;
+	  Vector nhat = retval.rij + u1 - u2;
 	  nhat /= nhat.nrm();
 	  const Vector r1 = u1 + nhat * 0.5 * d1;
 	  const Vector r2 = u2 - nhat * 0.5 * d2;
-	  const Vector vc12 = v12 + (angvel1 ^ r1) - (angvel2 ^ r2);
+	  const Vector vc12 = retval.vijold + (angvel1 ^ r1) - (angvel2 ^ r2);
 	  
 	  double e = 0.5 * (_e->getProperty(p1.getID()) + _e->getProperty(p2.getID()));
 	  const double J = (1 + e) * (nhat | vc12) / ((1 / m1) + (1 / m2)+ (nhat | ((1 / I1) * ((u1 ^ nhat) ^ u1) + (1 / I2) * ((u2 ^ nhat) ^ u2))));
-	  
-	  p1.getVelocity() -= (J / m1) * nhat;
-	  p2.getVelocity() += (J / m2) * nhat;
-	  Sim->dynamics->getRotData(p1).angularVelocity -= (J / I1) * (r1 ^ nhat);
-	  Sim->dynamics->getRotData(p2).angularVelocity += (J / I2) * (r2 ^ nhat);
+
+	  retval.rvdot = (retval.rij | retval.vijold);
+	  retval.impulse = J * nhat;
+	  p1.getVelocity() -= retval.impulse / m1;
+	  p2.getVelocity() += retval.impulse / m2;
+	  Sim->dynamics->getRotData(p1).angularVelocity -= (r1 ^ retval.impulse) / I1;
+	  Sim->dynamics->getRotData(p2).angularVelocity += (r2 ^ retval.impulse) / I2;
+	  retval.particle1_.setDeltaKE(0.5 * m1 * (p1.getVelocity().nrm2() - retval.particle1_.getOldVel().nrm2()));
+	  retval.particle2_.setDeltaKE(0.5 * m2 * (p2.getVelocity().nrm2() - retval.particle2_.getOldVel().nrm2()));
 	  break;
 	}
       case NBHOOD_IN:

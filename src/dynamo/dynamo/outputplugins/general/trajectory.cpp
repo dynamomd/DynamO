@@ -100,7 +100,7 @@ namespace dynamo {
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       logfile << std::setw(7) 
 	      << ((eevent.getParticle1ID() < eevent.getParticle2ID())? -1 : 1) 
-	* pdat.dP[iDim] << " ";
+	* pdat.impulse[iDim] << " ";
 
     logfile << " >";
   

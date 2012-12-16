@@ -149,7 +149,7 @@ namespace dynamo {
       {
 	event.setType(BOUNCE);
 	retVal.setType(BOUNCE);
-	retVal.dP = retVal.rij * 2.0 * mu * retVal.rvdot / R2;
+	retVal.impulse = retVal.rij * 2.0 * mu * retVal.rvdot / R2;
       }
     else
       {
@@ -168,21 +168,21 @@ namespace dynamo {
 	retVal.particle2_.setDeltaU(-0.5 * deltaKE);	  
       
 	if (retVal.rvdot < 0)
-	  retVal.dP = retVal.rij 
+	  retVal.impulse = retVal.rij 
 	    * (2.0 * MCDeltaKE / (std::sqrt(sqrtArg) - retVal.rvdot));
 	else
-	  retVal.dP = retVal.rij 
+	  retVal.impulse = retVal.rij 
 	    * (-2.0 * MCDeltaKE / (retVal.rvdot + std::sqrt(sqrtArg)));
       }
   
 #ifdef DYNAMO_DEBUG
-    if (boost::math::isnan(retVal.dP[0]))
+    if (boost::math::isnan(retVal.impulse[0]))
       M_throw() << "A nan dp has ocurred";
 #endif
   
     //This function must edit particles so it overrides the const!
-    particle1.getVelocity() -= retVal.dP / p1Mass;
-    particle2.getVelocity() += retVal.dP / p2Mass;
+    particle1.getVelocity() -= retVal.impulse / p1Mass;
+    particle2.getVelocity() += retVal.impulse / p2Mass;
   
     retVal.particle1_.setDeltaKE(0.5 * p1Mass * (particle1.getVelocity().nrm2() 
 						 - retVal.particle1_.getOldVel().nrm2()));

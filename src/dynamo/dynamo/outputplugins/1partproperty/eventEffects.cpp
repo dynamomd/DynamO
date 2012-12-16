@@ -40,11 +40,11 @@ namespace dynamo {
   {
     newEvent(iEvent.getType(),getClassKey(iEvent),
 	     Pdat.particle1_.getDeltaKE(),
-	     -Pdat.dP);
+	     -Pdat.impulse);
 
     newEvent(iEvent.getType(),getClassKey(iEvent),
 	     Pdat.particle2_.getDeltaKE(),
-	     Pdat.dP);
+	     Pdat.impulse);
   }
 
   void 
@@ -65,11 +65,11 @@ namespace dynamo {
       {
 	newEvent(globEvent.getType(),getClassKey(globEvent),
 		 pData.particle1_.getDeltaKE(),
-		 -pData.dP);
+		 -pData.impulse);
       
 	newEvent(globEvent.getType(),getClassKey(globEvent),
 		 pData.particle2_.getDeltaKE(),
-		 pData.dP);
+		 pData.impulse);
       }
   }
 
@@ -91,11 +91,11 @@ namespace dynamo {
       {
 	newEvent(localEvent.getType(),getClassKey(localEvent),
 		 pData.particle1_.getDeltaKE(),
-		 -pData.dP);
+		 -pData.impulse);
       
 	newEvent(localEvent.getType(),getClassKey(localEvent),
 		 pData.particle2_.getDeltaKE(),
-		 pData.dP);
+		 pData.impulse);
       }
   }
 
@@ -117,11 +117,11 @@ namespace dynamo {
       {
 	newEvent(sysEvent.getType(),getClassKey(sysEvent),
 		 pData.particle1_.getDeltaKE(),
-		 -pData.dP);
+		 -pData.impulse);
       
 	newEvent(sysEvent.getType(),getClassKey(sysEvent),
 		 pData.particle2_.getDeltaKE(),
-		 pData.dP);
+		 pData.impulse);
       }
   }
 

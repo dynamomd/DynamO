@@ -200,7 +200,7 @@ namespace dynamo {
 	    //(in comparison to the other components). This means the
 	    //particle will just keep having an event, we sleep it
 	    //instead.
-	    if ((pdat.dP.nrm() / Sim->species[dp]->getMass(dp.getID())) 
+	    if ((pdat.impulse.nrm() / Sim->species[dp]->getMass(dp.getID())) 
 		< _sleepVelocity)
 	      {
 		stateChange[dp.getID()] = Vector(0,0,0);

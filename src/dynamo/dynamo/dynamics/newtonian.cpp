@@ -384,11 +384,11 @@ namespace dynamo {
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(p2.getID());
     double mu = p1Mass * p2Mass/(p1Mass+p2Mass);
 
-    retVal.dP = rij * ((1.0 + e) * mu * rvdot / rij.nrm2());  
+    retVal.impulse = rij * ((1.0 + e) * mu * rvdot / rij.nrm2());  
 
     //This function must edit particles so it overrides the const!
-    p1.getVelocity() -= retVal.dP / p1Mass;
-    p2.getVelocity() += retVal.dP / p2Mass;
+    p1.getVelocity() -= retVal.impulse / p1Mass;
+    p2.getVelocity() += retVal.impulse / p2Mass;
 
     retVal.particle1_.setDeltaKE(0.5 * p1Mass * (p1.getVelocity().nrm2() 
 						 - retVal.particle1_.getOldVel().nrm2()));
@@ -422,17 +422,17 @@ namespace dynamo {
     if ((p1Mass == 0) && (p2Mass != 0))
       //if (!particle1.testState(Particle::DYNAMIC) && particle2.testState(Particle::DYNAMIC))
       {
-	retVal.dP = p2Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());  
+	retVal.impulse = p2Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());  
 	//This function must edit particles so it overrides the const!
-	particle2.getVelocity() += retVal.dP / p2Mass;
+	particle2.getVelocity() += retVal.impulse / p2Mass;
       }
     else 
       if ((p1Mass != 0) && (p2Mass == 0))
 	//if (particle1.testState(Particle::DYNAMIC) && !particle2.testState(Particle::DYNAMIC))
 	{
-	  retVal.dP = p1Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());
+	  retVal.impulse = p1Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());
 	  //This function must edit particles so it overrides the const!
-	  particle1.getVelocity() -= retVal.dP / p1Mass;
+	  particle1.getVelocity() -= retVal.impulse / p1Mass;
 	}
       else
 	{
@@ -443,14 +443,14 @@ namespace dynamo {
 
 	  double mu = p1Mass * p2Mass / (p1Mass + p2Mass);
 
-	  retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
+	  retVal.impulse = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
 
 	  //This function must edit particles so it overrides the const!
-	  particle1.getVelocity() -= retVal.dP / p1Mass;
-	  particle2.getVelocity() += retVal.dP / p2Mass;
+	  particle1.getVelocity() -= retVal.impulse / p1Mass;
+	  particle2.getVelocity() += retVal.impulse / p2Mass;
 
 	  //If both particles have infinite mass we pretend no momentum was transferred
-	  retVal.dP *= !isInfInf;
+	  retVal.impulse *= !isInfInf;
 	}
 
     retVal.particle1_.setDeltaKE(0.5 * p1Mass * (particle1.getVelocity().nrm2()
@@ -499,11 +499,11 @@ namespace dynamo {
 
     retVal.rvdot = (retVal.rij | retVal.vijold);
 
-    retVal.dP = collvec * (1.0 + e) * mu * (collvec | retVal.vijold);  
+    retVal.impulse = collvec * (1.0 + e) * mu * (collvec | retVal.vijold);  
 
     //This function must edit particles so it overrides the const!
-    particle1.getVelocity() -= retVal.dP / p1Mass;
-    particle2.getVelocity() += retVal.dP / p2Mass;
+    particle1.getVelocity() -= retVal.impulse / p1Mass;
+    particle2.getVelocity() += retVal.impulse / p2Mass;
 
     retVal.particle1_.setDeltaKE(0.5 * p1Mass * (particle1.getVelocity().nrm2() 
 						 - retVal.particle1_.getOldVel().nrm2()));
@@ -745,13 +745,13 @@ namespace dynamo {
       {
 	event.setType(BOUNCE);
 	retVal.setType(BOUNCE);
-	retVal.dP = retVal.rij * 2.0 * mu * retVal.rvdot / R2;
+	retVal.impulse = retVal.rij * 2.0 * mu * retVal.rvdot / R2;
       }
     else if (deltaKE==0)
       {
 	event.setType(NON_EVENT);
 	retVal.setType(NON_EVENT);
-	retVal.dP = Vector(0,0,0);
+	retVal.impulse = Vector(0,0,0);
       }
     else
       {
@@ -770,21 +770,21 @@ namespace dynamo {
 	retVal.particle2_.setDeltaU(-0.5 * deltaKE);	  
       
 	if (retVal.rvdot < 0)
-	  retVal.dP = retVal.rij 
+	  retVal.impulse = retVal.rij 
 	    * (2.0 * deltaKE / (std::sqrt(sqrtArg) - retVal.rvdot));
 	else
-	  retVal.dP = retVal.rij 
+	  retVal.impulse = retVal.rij 
 	    * (-2.0 * deltaKE / (retVal.rvdot + std::sqrt(sqrtArg)));
       }
   
 #ifdef DYNAMO_DEBUG
-    if (boost::math::isnan(retVal.dP[0]))
+    if (boost::math::isnan(retVal.impulse[0]))
       M_throw() << "A nan dp has ocurred";
 #endif
   
     //This function must edit particles so it overrides the const!
-    particle1.getVelocity() -= retVal.dP / p1Mass;
-    particle2.getVelocity() += retVal.dP / p2Mass;
+    particle1.getVelocity() -= retVal.impulse / p1Mass;
+    particle2.getVelocity() += retVal.impulse / p2Mass;
   
     retVal.particle1_.setDeltaKE(0.5 * p1Mass
 				 * (particle1.getVelocity().nrm2() 
@@ -1369,18 +1369,18 @@ namespace dynamo {
     double mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID());
     double inertia = Sim->species[retVal.particle1_.getSpeciesID()]->getScalarMomentOfInertia(particle1.getID());
 
-    retVal.dP = uPerp
+    retVal.impulse = uPerp
       * (((vr | uPerp) * (1.0 + elasticity))
 	 / ((2.0 / mass) + ((cp.first * cp.first + cp.second * cp.second) / inertia)));
   
-    particle1.getVelocity() -= retVal.dP / mass;
-    particle2.getVelocity() += retVal.dP / mass;
+    particle1.getVelocity() -= retVal.impulse / mass;
+    particle2.getVelocity() += retVal.impulse / mass;
 
     orientationData[particle1.getID()].angularVelocity 
-      -= (cp.first / inertia) * (fL.getu1() ^ retVal.dP);
+      -= (cp.first / inertia) * (fL.getu1() ^ retVal.impulse);
 
     orientationData[particle2.getID()].angularVelocity 
-      += (cp.second / inertia) * (fL.getu2() ^ retVal.dP);
+      += (cp.second / inertia) * (fL.getu2() ^ retVal.impulse);
 
     retVal.particle1_.setDeltaKE(getParticleKineticEnergy(particle1) - KE1before);
     retVal.particle2_.setDeltaKE(getParticleKineticEnergy(particle2) - KE2before);
@@ -1428,7 +1428,7 @@ namespace dynamo {
     retVal.rvdot = (retVal.rij | retVal.vijold);
 
     //The normal impulse
-    retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());
+    retVal.impulse = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());
 
     Vector eijn = retVal.rij / retVal.rij.nrm();
 
@@ -1442,14 +1442,14 @@ namespace dynamo {
     double Jbar = Sim->species[retVal.particle1_.getSpeciesID()]->getScalarMomentOfInertia(particle1.getID()) 
       / (p1Mass * d2 * 0.25);
   
-    retVal.dP += (Jbar * (1-et) / (2*(Jbar + 1))) * gijt;
+    retVal.impulse += (Jbar * (1-et) / (2*(Jbar + 1))) * gijt;
 
     double KE1before = getParticleKineticEnergy(particle1);
     double KE2before = getParticleKineticEnergy(particle2);
 
     //This function must edit particles so it overrides the const!
-    particle1.getVelocity() -= retVal.dP / p1Mass;
-    particle2.getVelocity() += retVal.dP / p2Mass;
+    particle1.getVelocity() -= retVal.impulse / p1Mass;
+    particle2.getVelocity() += retVal.impulse / p2Mass;
 
     Vector angularVchange = (1-et) / (std::sqrt(d2) * (Jbar+1)) * (eijn ^ gijt);
  
