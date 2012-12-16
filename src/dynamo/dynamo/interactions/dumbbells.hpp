@@ -45,6 +45,7 @@ namespace dynamo {
     virtual size_t glyphsPerParticle() const { return 2; }
     virtual Vector getGlyphSize(size_t ID, size_t subID) const;
     virtual Vector getGlyphPosition(size_t ID, size_t subID) const;
+    virtual double getExcludedVolume(size_t ID) const;
 
     IDumbbells(const magnet::xml::Node&, dynamo::Simulation*);
 
@@ -55,8 +56,6 @@ namespace dynamo {
     virtual void initialise(size_t);
 
     virtual double maxIntDist() const;
-
-    virtual double getExcludedVolume(size_t) const { return 0; }
 
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
  

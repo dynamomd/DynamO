@@ -181,8 +181,8 @@ namespace dynamo {
 	  BOOST_FOREACH(const eventQEntry& dat, Min)
 	    if (!std::isinf(dat.data.getdt()))
 	      {
-		if (dat.data.getdt() < minVal) minVal = dat.data.getdt();
-		if (dat.data.getdt() > maxVal) maxVal = dat.data.getdt();
+		minVal = std::min(minVal, dat.data.getdt());
+		maxVal = std::max(maxVal, dat.data.getdt());
 		++counter;
 	      }
 	  
@@ -221,7 +221,7 @@ namespace dynamo {
 
       listWidth = nlists / scale;
       if (scale == HUGE_VAL)
-	M_throw() << "The scale factor for the bounded priority queue is infinite. Cannot resolve this. May be caused by only having zero time collisions or no collisions at all.";
+	M_throw() << "The scale factor for the bounded priority queue is infinite. Cannot resolve this. May be caused by only having zero time collisions.";
 
       if (scale <= 0.0)
 	M_throw() << "The scale factor for the bounded priority queue is zero. Cannot resolve this. May be caused by a large number of negative time events.";

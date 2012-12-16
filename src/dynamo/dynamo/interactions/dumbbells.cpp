@@ -59,13 +59,19 @@ namespace dynamo {
 
   Vector IDumbbells::getGlyphPosition(size_t ID, size_t subID) const
   {
-    Vector retval = Sim->particles[ID].getPosition();
+    Vector pos = Sim->particles[ID].getPosition();
     
-    Sim->BCs->applyBC(retval);
+    Sim->BCs->applyBC(pos);
 
-    return retval + ((subID == 0) ? _LA->getProperty(ID) : -_LB->getProperty(ID)) * Sim->dynamics->getRotData(ID).orientation;
+    return pos + ((subID == 0) ? _LA->getProperty(ID) : -_LB->getProperty(ID)) * Sim->dynamics->getRotData(ID).orientation;
   }
 
+  double IDumbbells::getExcludedVolume(size_t ID) const 
+  { 
+    double diamA = _diamA->getProperty(ID);
+    double diamB = _diamB->getProperty(ID);
+    return (diamA * diamA * diamA + diamB * diamB * diamB) * M_PI / 6.0; 
+  }
 
   void 
   IDumbbells::operator<<(const magnet::xml::Node& XML)
@@ -169,7 +175,7 @@ namespace dynamo {
       }
     else 
       {
-	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, l1 + l2);
+	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, max_dist);
 	if (dt != HUGE_VAL)
 	  return IntEvent(p1, p2, dt, NBHOOD_IN, *this);
       }
@@ -323,15 +329,23 @@ namespace dynamo {
   bool 
   IDumbbells::captureTest(const Particle& p1, const Particle& p2) const
   {
-    return false;
     if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
-    
-    const double l1 = std::max(_LA->getProperty(p1.getID()) + 0.5 * _diamA->getProperty(p1.getID()), 
-			       _LB->getProperty(p1.getID()) + 0.5 * _diamB->getProperty(p1.getID()));
-    const double l2 = std::max(_LA->getProperty(p2.getID()) + 0.5 * _diamA->getProperty(p2.getID()), 
-			       _LB->getProperty(p2.getID()) + 0.5 * _diamB->getProperty(p2.getID()));
 
-    return Sim->dynamics->sphereOverlap(p1, p2, l1 + l2);
+    const double lA1 = _LA->getProperty(p1.getID()),
+      lB1 = _LB->getProperty(p1.getID()),
+      diamA1 = _diamA->getProperty(p1.getID()),
+      diamB1 = _diamB->getProperty(p1.getID());
+
+    const double lA2 = _LA->getProperty(p2.getID()),
+      lB2 = _LB->getProperty(p2.getID()),
+      diamA2 = _diamA->getProperty(p2.getID()),
+      diamB2 = _diamB->getProperty(p2.getID());
+
+    const double l1 = std::max(lA1 + 0.5 * diamA1, lB1 + 0.5 * diamB1);
+    const double l2 = std::max(lA2 + 0.5 * diamA2, lB2 + 0.5 * diamB2);
+    const double max_dist = l1 + l2;
+    
+    return Sim->dynamics->sphereOverlap(p1, p2, max_dist);
   }
 
   namespace {

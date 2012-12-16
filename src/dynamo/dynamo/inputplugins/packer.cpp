@@ -3333,11 +3333,13 @@ namespace dynamo {
 	  const double sizeratio = (vm.count("f2")) ? vm["f2"].as<double>() : 1.0;
 	  const double massratio = (vm.count("f3")) ? vm["f3"].as<double>() : sizeratio * sizeratio * sizeratio;
 	  
-	  const double LA = (1 / (1 + massratio)) * 0.5 * sigmaA * (1 + sizeratio);
-	  const double LB = massratio * LA;
+	  const double sigmaB = sigmaA * sizeratio;
+	  const double LB = (sigmaA + sigmaB) * 0.5 / (1 + massratio);
+	  const double LA = massratio * LB;
 	  const double mA = 1 / (1+massratio);
-	  const double I = mA * sigmaA * sigmaA * 0.1 * (1 + massratio * sizeratio * sizeratio) 
-	    + mA * (1 + massratio * massratio * massratio) * LA * LA;
+	  const double mB = mA * massratio;
+	  const double I = (mA * sigmaA * sigmaA + mB * sigmaB * sigmaB) * 0.1
+	    + mA * LA * LA + mB * LB * LB;
 
 	  Sim->interactions.push_back(shared_ptr<Interaction>(new IDumbbells(Sim, LA, LB, sigmaA, sigmaA * sizeratio, elasticity, new IDPairRangeAll(), "Bulk")));
 	  
