@@ -3335,7 +3335,8 @@ namespace dynamo {
 	  
 	  const double LA = (1 / (1 + massratio)) * 0.5 * (1 + sizeratio);
 	  const double LB = massratio * LA;
-	  const double I = particleDiam * particleDiam * 0.1 * (1 + massratio * sizeratio * sizeratio) + (1 + massratio * massratio * massratio) * LA * LA;
+	  const double mA = 1 / (1+massratio);
+	  const double I = mA * particleDiam * particleDiam * 0.1 * (1 + massratio * sizeratio * sizeratio) + mA *(1 + massratio * massratio * massratio) * LA * LA;
 
 	  Sim->interactions.push_back(shared_ptr<Interaction>(new IDumbbells(Sim, LA * particleDiam, LB * particleDiam, particleDiam, particleDiam * sizeratio, elasticity, new IDPairRangeAll(), "Bulk")));
 	  
