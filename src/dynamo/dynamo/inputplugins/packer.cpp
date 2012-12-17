@@ -3302,7 +3302,7 @@ namespace dynamo {
 		"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
 		"       --f1 : Inelasticity [1.0]\n"
 		"       --f2 : Size ratio [1.0]\n"
-		"       --f3 : Mass ratio [1.0]\n";
+		"       --f3 : Mass ratio [size_ratio^3]\n";
 	      exit(1);
 	    }
 
