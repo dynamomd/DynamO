@@ -94,7 +94,7 @@ namespace coil {
 
     void generateFilteredData(std::vector<GLfloat>& scalardata,
 			      const std::tr1::shared_ptr<Attribute>& ptr,
-			      size_t mode);
+			      int mode);
 
     void setConstantAttribute(size_t attr);
 
