@@ -38,7 +38,5 @@ namespace dynamo {
     virtual void runEvent(Particle&, Particle&, const IntEvent&) const;
   
     virtual void outputXML(magnet::xml::XmlStream&) const;
-
-    virtual size_t validateState(bool textoutput = true, size_t max_reports = std::numeric_limits<size_t>::max()) const;
   };
 }

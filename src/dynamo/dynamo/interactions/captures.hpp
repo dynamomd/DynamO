@@ -104,6 +104,8 @@ namespace dynamo {
 
     virtual void clear() const { captureMap.clear(); }
 
+    virtual size_t validateState(bool textoutput = true, size_t max_reports = std::numeric_limits<size_t>::max()) const;
+
   protected:
 
     mutable std::tr1::unordered_set<cMapKey > captureMap;
@@ -171,6 +173,8 @@ namespace dynamo {
     { return captureMap.count(cMapKey(p1.getID(), p2.getID())); }
 
     virtual void clear() const { captureMap.clear(); }
+
+    virtual size_t validateState(bool textoutput = true, size_t max_reports = std::numeric_limits<size_t>::max()) const;
 
   protected:
   

@@ -144,7 +144,8 @@ namespace dynamo {
 	  const Particle& p1 = *iPtr;
 	  const Particle& p2 = *jPtr;
 	  
-	  if (range->isInRange(*iPtr, *jPtr))
+	  shared_ptr<Interaction> interaction_ptr = Sim->getInteraction(p1, p2);
+	  if (interaction_ptr.get() == static_cast<const Interaction*>(this))
 	    retval += validateState(*iPtr, *jPtr, retval < max_reports);
 	}
     

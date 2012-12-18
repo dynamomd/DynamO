@@ -444,40 +444,4 @@ namespace dynamo {
 
     return has_error;
   }
-
-  size_t
-  IDumbbells::validateState(bool textoutput, size_t max_reports) const
-  {
-    size_t retval(0);
-    BOOST_FOREACH(const cMapKey& IDs, captureMap)
-      {
-	const Particle& p1 = Sim->particles[IDs.first];
-	const Particle& p2 = Sim->particles[IDs.second];
-
-	const double lA1 = _LA->getProperty(p1.getID()),
-	  lB1 = _LB->getProperty(p1.getID()),
-	  diamA1 = _diamA->getProperty(p1.getID()),
-	  diamB1 = _diamB->getProperty(p1.getID());
-	const double lA2 = _LA->getProperty(p2.getID()),
-	  lB2 = _LB->getProperty(p2.getID()),
-	  diamA2 = _diamA->getProperty(p2.getID()),
-	  diamB2 = _diamB->getProperty(p2.getID());
-	const double l1 = std::max(lA1 + 0.5 * diamA1, lB1 + 0.5 * diamB1);
-	const double l2 = std::max(lA2 + 0.5 * diamA2, lB2 + 0.5 * diamB2);
-	const double max_dist = l1 + l2;
-
-	double distance = Sim->BCs->getDistance(p1, p2);
-
-	//Check the capture map is valid
-	if (distance > max_dist)
-	  if ((++retval < max_reports) && textoutput)
-	    derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
-		 << " are registered as being closer than " << max_dist / Sim->units.unitLength()
-		 << " but they're outside of this by " 
-		 << (distance - max_dist) / Sim->units.unitLength()
-		 << "\nTry deleting the CaptureMap of the \"" << intName << "\" Interaction to force a rebuild."
-		 << std::endl;
-      }
-    return retval;
-  }
 }

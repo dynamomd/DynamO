@@ -87,8 +87,6 @@ namespace dynamo {
 
     virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
 
-    virtual size_t validateState(bool textoutput = true, size_t max_reports = std::numeric_limits<size_t>::max()) const;
-
   protected:
     shared_ptr<Property> _diameter;
     shared_ptr<Property> _lambda;

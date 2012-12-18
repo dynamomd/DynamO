@@ -356,16 +356,6 @@ namespace dynamo {
     return false;
   }
 
-  size_t
-  IStepped::validateState(bool textoutput, size_t max_reports) const
-  {
-    size_t retval(0);
-    typedef std::pair<const dynamo::ICapture::cMapKey, int> mapdata;
-    BOOST_FOREACH(const mapdata& IDs, captureMap)
-      retval += validateState(Sim->particles[IDs.first.first], Sim->particles[IDs.first.second], retval < max_reports);
-    return retval;
-  }
-
   void 
   IStepped::outputXML(magnet::xml::XmlStream& XML) const
   {

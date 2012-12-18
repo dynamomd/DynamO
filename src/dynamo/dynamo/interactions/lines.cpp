@@ -238,26 +238,4 @@ namespace dynamo {
 
     return false;
   }
-
-  size_t
-  ILines::validateState(bool textoutput, size_t max_reports) const
-  {
-    size_t retval(0);
-    BOOST_FOREACH(const cMapKey& IDs, captureMap)
-      {
-	double l = (_length->getProperty(IDs.first) + _length->getProperty(IDs.second)) * 0.5;
-	const Particle& p1 = Sim->particles[IDs.first];
-	const Particle& p2 = Sim->particles[IDs.second];
-	double distance = (Sim->BCs->getDistance(p1, p2) - l) / Sim->units.unitLength();
-	if (distance > 0)
-	  if ((++retval < max_reports) && textoutput)
-	    derr << "Particle " << IDs.first << " and Particle " << IDs.second
-		 << " are registered as being within the maximum collision distance"
-		 << " of " << l / Sim->units.unitLength() << " but they're outside of this distance by "
-		 << distance
-		 << "\nTry deleting the CaptureMap of the \"" << intName << "\" Interaction to force a rebuild."
-		 << std::endl;
-      }
-    return retval;
-  }
 }

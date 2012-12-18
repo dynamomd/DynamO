@@ -252,26 +252,4 @@ namespace dynamo {
 
     return false;
   }
-
-  size_t
-  ISoftCore::validateState(bool textoutput, size_t max_reports) const
-  {
-    size_t retval(0);
-    BOOST_FOREACH(const cMapKey& IDs, captureMap)
-      {
-	const Particle& p1 = Sim->particles[IDs.first];
-	const Particle& p2 = Sim->particles[IDs.second];
-	double d = (_diameter->getProperty(p1.getID())
-		    + _diameter->getProperty(p2.getID())) * 0.5;
-	double distance = (Sim->BCs->getDistance(p1, p2) - d) / Sim->units.unitLength();
-	if (distance > 0)
-	  if ((++retval < max_reports) && textoutput)
-	    derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
-		 << " are registered as being inside the soft-core at  " << d / Sim->units.unitLength()
-		 << " but they are outside of this by "
-		 << distance
-		 << std::endl;
-      }
-    return retval;
-  }
 }

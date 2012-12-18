@@ -121,4 +121,50 @@ namespace dynamo {
   
     XML << magnet::xml::endtag("CaptureMap");
   }
+
+  size_t
+  ISingleCapture::validateState(bool textoutput, size_t max_reports) const
+  {
+    size_t retval(0);
+    BOOST_FOREACH(const cMapKey& IDs, captureMap)
+      {
+	const Particle& p1(Sim->particles[IDs.first]);
+	const Particle& p2(Sim->particles[IDs.second]);
+
+	shared_ptr<Interaction> interaction_ptr = Sim->getInteraction(p1, p2);
+	if (interaction_ptr.get() == static_cast<const Interaction*>(this))
+	  retval += interaction_ptr->validateState(p1, p2, retval < max_reports);
+	else
+	  derr << "Particle " << p1.getID() << " and Particle " << p2.getID()
+	       << " are in the capture map of the \"" << intName << "\" interaction, but this is not the corresponding interaction for that pair!"
+	       << " They are handled by the \"" << interaction_ptr->getName() << "\" Interaction"
+	       << std::endl;
+      }
+
+    return retval;
+  }
+  
+  size_t
+  IMultiCapture::validateState(bool textoutput, size_t max_reports) const
+  {
+    size_t retval(0);
+    typedef std::pair<const dynamo::ICapture::cMapKey, int> mapdata;
+    BOOST_FOREACH(const mapdata& IDs, captureMap)
+      {
+	const Particle& p1(Sim->particles[IDs.first.first]);
+	const Particle& p2(Sim->particles[IDs.first.second]);
+
+	shared_ptr<Interaction> interaction_ptr = Sim->getInteraction(p1, p2);
+	if (interaction_ptr.get() == static_cast<const Interaction*>(this))
+	  retval += interaction_ptr->validateState(p1, p2, retval < max_reports);
+	else
+	  derr << "Particle " << p1.getID() << " and Particle " << p2.getID()
+	       << " are in the capture map of the \"" << intName << "\" interaction, but this is not the corresponding interaction for that pair!"
+	       << " They are handled by the \"" << interaction_ptr->getName() << "\" Interaction"
+	       << std::endl;
+      }
+
+    return retval;
+  }
+
 }
