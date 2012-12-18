@@ -1,4 +1,4 @@
-dynamo (1.4.0) precise quantal raring; urgency=low
+dynamo (1.4.0precise1) precise; urgency=low
 
   * Initial release and port to the Ubuntu/Debian packaging.
 
