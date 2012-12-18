@@ -687,6 +687,9 @@ namespace dynamo
 
     std::vector<Particle>::const_iterator iPtr1, iPtr2;
   
+    BOOST_FOREACH(const shared_ptr<Interaction>& interaction_ptr, interactions)
+      interaction_ptr->validateState();
+
     for (iPtr1 = particles.begin(); iPtr1 != particles.end(); ++iPtr1)
       for (iPtr2 = iPtr1 + 1; iPtr2 != particles.end(); ++iPtr2)
 	getInteraction(*iPtr1, *iPtr2)->validateState(*iPtr1, *iPtr2);

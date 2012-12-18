@@ -132,37 +132,25 @@ namespace dynamo {
     return false;
   }
 
-  void
-  ISquareBond::checkOverlaps(const Particle& part1, const Particle& part2) const
+  size_t 
+  ISquareBond::validateState(bool textoutput, size_t max_reports) const
   {
-    Vector  rij = part1.getPosition() - part2.getPosition();
-    Sim->BCs->applyBC(rij);
-    double r2 = rij.nrm2();
-
-    double d = (_diameter->getProperty(part1.getID())
-		+ _diameter->getProperty(part2.getID())) * 0.5;
-    double d2 = d * d;
-    double l = (_lambda->getProperty(part1.getID())
-		+ _lambda->getProperty(part2.getID())) * 0.5;
-  
-    double ld2 = d * l * d * l;
-
-
-    if (r2 < d2)
-      derr << "Possible bonded overlap occured in diagnostics\n ID1=" << part1.getID() 
-	   << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-	   << r2 / pow(Sim->units.unitLength(),2)
-	   << "\nd^2=" 
-	   << d2 / pow(Sim->units.unitLength(),2) << std::endl;
-  
-    if (r2 > ld2)
-      derr << "Possible escaped bonded pair in diagnostics\n ID1=" << part1.getID() 
-	   << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-	   << r2 / pow(Sim->units.unitLength(),2)
-	   << "\n(lambda * d)^2=" 
-	   << ld2 / pow(Sim->units.unitLength(),2) << std::endl;
+    size_t retval(0);
+    for (std::vector<Particle>::const_iterator iPtr = Sim->particles.begin();
+	 iPtr != Sim->particles.end(); ++iPtr)
+      for (std::vector<Particle>::const_iterator jPtr = iPtr + 1;
+	   jPtr != Sim->particles.end(); ++jPtr)
+	{
+	  const Particle& p1 = *iPtr;
+	  const Particle& p2 = *jPtr;
+	  
+	  if (range->isInRange(*iPtr, *jPtr))
+	    retval += validateState(*iPtr, *jPtr, retval < max_reports);
+	}
+    
+    return retval;
   }
-
+  
   IntEvent 
   ISquareBond::getEvent(const Particle &p1, 
 			const Particle &p2) const 

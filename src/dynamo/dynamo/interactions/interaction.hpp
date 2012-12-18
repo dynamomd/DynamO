@@ -20,6 +20,7 @@
 #include <dynamo/base.hpp>
 #include <dynamo/ranges/IDPairRange.hpp>
 #include <string>
+#include <limits>
 
 namespace magnet { namespace xml { class Node; class XmlStream; } }
 
@@ -153,6 +154,15 @@ namespace dynamo {
 	\return true if the pair is in an invalid state.
     */
     virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const = 0;
+
+    /*! \brief Test if the internal state of the Interaction is valid.
+	
+	\param textoutput If true, there will be a text description of
+	any detected invalid states printed to cerr.
+	\param max_reports The maximum number of invalid state reports to write to cerr.
+	\return The total count of the invalid internal states.
+    */
+    virtual size_t validateState(bool textoutput = true, size_t max_reports = std::numeric_limits<size_t>::max()) const { return 0; }
 
     /*! \brief Return the ID number of the Interaction. Used for fast
      look-ups, once a name-based look up has been completed.

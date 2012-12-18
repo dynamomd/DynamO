@@ -58,6 +58,10 @@ namespace dynamo {
     //Now, the scheduler is used to test the state of the system.
     dout << "Checking the simulation configuration for any errors" << std::endl;
     size_t warnings(0);
+
+    BOOST_FOREACH(const shared_ptr<Interaction>& interaction_ptr, Sim->interactions)
+      warnings += interaction_ptr->validateState(warnings < 101, 101 - warnings);
+    
     for (size_t id1(0); id1 < Sim->particles.size(); ++id1)
       {
 	std::auto_ptr<IDRange> ids(getParticleNeighbours(Sim->particles[id1]));

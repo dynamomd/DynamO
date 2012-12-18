@@ -184,6 +184,40 @@ namespace dynamo {
       }
   }
 
+  void 
+  ISoftCore::outputXML(magnet::xml::XmlStream& XML) const
+  {
+    XML << magnet::xml::attr("Type") << "SoftCore"
+	<< magnet::xml::attr("Diameter") << _diameter->getName()
+	<< magnet::xml::attr("WellDepth") << _wellDepth->getName()
+	<< magnet::xml::attr("Name") << intName
+	<< *range;
+  
+    ISingleCapture::outputCaptureMap(XML);  
+  }
+
+  double 
+  ISoftCore::getInternalEnergy() const
+  { 
+    //Once the capture maps are loaded just iterate through that determining energies
+    double Energy = 0.0;
+    typedef std::pair<size_t, size_t> locpair;
+
+    BOOST_FOREACH(const locpair& IDs, captureMap)
+      Energy += 0.5 * (_wellDepth->getProperty(IDs.first)
+		       +_wellDepth->getProperty(IDs.second));
+  
+    return -Energy; 
+  }
+
+  double 
+  ISoftCore::getInternalEnergy(const Particle& p1, const Particle& p2) const
+  {
+    return - 0.5 * (_wellDepth->getProperty(p1.getID())
+		    +_wellDepth->getProperty(p2.getID()))
+      * isCaptured(p1, p2);
+  }
+
   bool
   ISoftCore::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
@@ -219,37 +253,25 @@ namespace dynamo {
     return false;
   }
 
-  void 
-  ISoftCore::outputXML(magnet::xml::XmlStream& XML) const
+  size_t
+  ISoftCore::validateState(bool textoutput, size_t max_reports) const
   {
-    XML << magnet::xml::attr("Type") << "SoftCore"
-	<< magnet::xml::attr("Diameter") << _diameter->getName()
-	<< magnet::xml::attr("WellDepth") << _wellDepth->getName()
-	<< magnet::xml::attr("Name") << intName
-	<< *range;
-  
-    ISingleCapture::outputCaptureMap(XML);  
-  }
-
-  double 
-  ISoftCore::getInternalEnergy() const
-  { 
-    //Once the capture maps are loaded just iterate through that determining energies
-    double Energy = 0.0;
-    typedef std::pair<size_t, size_t> locpair;
-
-    BOOST_FOREACH(const locpair& IDs, captureMap)
-      Energy += 0.5 * (_wellDepth->getProperty(IDs.first)
-		       +_wellDepth->getProperty(IDs.second));
-  
-    return -Energy; 
-  }
-
-  double 
-  ISoftCore::getInternalEnergy(const Particle& p1, const Particle& p2) const
-  {
-    return - 0.5 * (_wellDepth->getProperty(p1.getID())
-		    +_wellDepth->getProperty(p2.getID()))
-      * isCaptured(p1, p2);
+    size_t retval(0);
+    BOOST_FOREACH(const cMapKey& IDs, captureMap)
+      {
+	const Particle& p1 = Sim->particles[IDs.first];
+	const Particle& p2 = Sim->particles[IDs.second];
+	double d = (_diameter->getProperty(p1.getID())
+		    + _diameter->getProperty(p2.getID())) * 0.5;
+	double distance = (Sim->BCs->getDistance(p1, p2) - d) / Sim->units.unitLength();
+	if (distance > 0)
+	  if ((++retval < max_reports) && textoutput)
+	    derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+		 << " are registered as being inside the soft-core at  " << d / Sim->units.unitLength()
+		 << " but they are outside of this by "
+		 << distance
+		 << std::endl;
+      }
+    return retval;
   }
 }

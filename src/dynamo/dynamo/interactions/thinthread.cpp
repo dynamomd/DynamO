@@ -222,6 +222,15 @@ namespace dynamo {
 
     return false;
   }
+
+  size_t
+  IThinThread::validateState(bool textoutput, size_t max_reports) const
+  {
+    size_t retval(0);
+    BOOST_FOREACH(const cMapKey& IDs, captureMap)
+      retval += validateState(Sim->particles[IDs.first], Sim->particles[IDs.second], retval < max_reports);
+    return retval;
+  }
   
   void 
   IThinThread::outputXML(magnet::xml::XmlStream& XML) const
