@@ -1,6 +1,7 @@
 #!/bin/bash
-VERSION=1.4.0
-PACKAGE_REV=1
+
+VERSION=$(cd ../ && dpkg-parsechangelog | grep Version: | gawk '{print $2}')
+echo "Version = "$VERSION
 PACKAGE_NAME=dynamo
 export DEBFULLNAME="Marcus Bannerman"
 export DEBEMAIL="support@dynamomd.org"
