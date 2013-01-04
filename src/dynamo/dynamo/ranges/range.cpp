@@ -45,8 +45,6 @@ namespace dynamo {
       return new IDRangeAll(XML, Sim);
     else if (!strcmp(XML.getAttribute("Type"),"None"))
       return new IDRangeNone(XML);
-    else if (!strcmp(XML.getAttribute("Type"),"Single"))
-      return new IDRangeSingle(XML);
     else if (!strcmp(XML.getAttribute("Type"),"Ranged"))
       return new IDRangeRange(XML);
     else if (!strcmp(XML.getAttribute("Type"),"List"))
