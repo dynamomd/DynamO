@@ -20,6 +20,7 @@
 #include <dynamo/particle.hpp>
 #include <dynamo/globals/globEvent.hpp>
 #include <dynamo/ranges/IDRangeAll.hpp>
+#include <dynamo/BC/LEBC.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
@@ -44,12 +45,18 @@ namespace dynamo {
   shared_ptr<Global>
   Global::getClass(const magnet::xml::Node& XML, dynamo::Simulation* Sim)
   {
+
+
     if (!strcmp(XML.getAttribute("Type"),"Cells2")
 	|| !strcmp(XML.getAttribute("Type"),"Cells")
-	|| !strcmp(XML.getAttribute("Type"),"CellsMorton"))
-      return shared_ptr<Global>(new GCells(XML, Sim));
-    else if (!strcmp(XML.getAttribute("Type"),"ShearingCells"))
-      return shared_ptr<Global>(new GCellsShearing(XML, Sim));
+	|| !strcmp(XML.getAttribute("Type"),"CellsMorton")
+	|| !strcmp(XML.getAttribute("Type"),"ShearingCells"))
+      {
+	if (std::tr1::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
+	  return shared_ptr<Global>(new GCellsShearing(XML, Sim));
+	else
+	  return shared_ptr<Global>(new GCells(XML, Sim));
+      }
     else if (!strcmp(XML.getAttribute("Type"),"SOCells"))
       return shared_ptr<Global>(new GSOCells(XML, Sim));
     else if (!strcmp(XML.getAttribute("Type"),"Waker"))

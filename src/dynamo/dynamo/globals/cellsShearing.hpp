@@ -42,7 +42,5 @@ namespace dynamo {
     IDRangeList getParticleNeighbours(const magnet::math::MortonNumber<3>&) const;
     std::vector<size_t> getAdditionalLEParticleNeighbourhood(const Particle&) const;
     std::vector<size_t> getAdditionalLEParticleNeighbourhood(magnet::math::MortonNumber<3>) const;
-
-    virtual void outputXML(magnet::xml::XmlStream&) const;
   };
 }

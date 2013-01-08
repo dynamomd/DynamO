@@ -35,11 +35,9 @@ namespace dynamo {
 
   GCellsShearing::GCellsShearing(const magnet::xml::Node& XML, 
 				 dynamo::Simulation* ptrSim):
-    GCells(ptrSim, "Unknown")
+    GCells(ptrSim, "ShearingCells")
   {
     operator<<(XML);
-    name = "ShearingCells";
-
     dout << "Cells in shearing Loaded" << std::endl;
   }
 
@@ -56,10 +54,6 @@ namespace dynamo {
 
     reinitialise();
   }
-
-  void
-  GCellsShearing::outputXML(magnet::xml::XmlStream& XML) const
-  { GCells::outputXML(XML, "ShearingCells"); }
 
   GlobalEvent 
   GCellsShearing::getEvent(const Particle& part) const

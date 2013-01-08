@@ -100,7 +100,6 @@ namespace dynamo {
     GCells(const GCells&);
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
-    void outputXML(magnet::xml::XmlStream&, const std::string&) const;
 
     magnet::math::MortonNumber<3> getCellID(Vector) const;
 

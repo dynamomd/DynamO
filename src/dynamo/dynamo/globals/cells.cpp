@@ -280,24 +280,20 @@ namespace dynamo {
   }
 
   void
-  GCells::outputXML(magnet::xml::XmlStream& XML, const std::string& type) const
-  {
+  GCells::outputXML(magnet::xml::XmlStream& XML) const
+  { 
     XML << magnet::xml::tag("Global")
-	<< magnet::xml::attr("Type") << type
+	<< magnet::xml::attr("Type") << "Cells"
 	<< magnet::xml::attr("Name") << globName
 	<< magnet::xml::attr("NeighbourhoodRange") 
 	<< _maxInteractionRange / Sim->units.unitLength();
-
+    
     if (overlink > 1)   XML << magnet::xml::attr("OverLink") << overlink;
     if (_oversizeCells != 1.0) XML << magnet::xml::attr("Oversize") << _oversizeCells;
-  
+    
     XML << *range
 	<< magnet::xml::endtag("Global");
   }
-
-  void
-  GCells::outputXML(magnet::xml::XmlStream& XML) const
-  { outputXML(XML, "Cells"); }
 
   void
   GCells::addCells(double maxdiam)
