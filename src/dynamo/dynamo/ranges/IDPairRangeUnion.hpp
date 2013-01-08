@@ -25,22 +25,26 @@
 #include <list>
 
 namespace dynamo {
-  class IDPairRangeRangeList:public IDPairRange, dynamo::SimBase_const
+  class IDPairRangeUnion:public IDPairRange, dynamo::SimBase_const
   {
   public:
-    IDPairRangeRangeList(const dynamo::Simulation* nSim):SimBase_const(nSim,"IDPairRangeRangeList") {}
+    IDPairRangeUnion(const dynamo::Simulation* nSim):
+      SimBase_const(nSim, "IDPairRangeUnion") {}
 
-    IDPairRangeRangeList(const magnet::xml::Node& XML, const dynamo::Simulation* nSim):
-      SimBase_const(nSim, "IDPairRangeRangeList")
+    IDPairRangeUnion(const magnet::xml::Node& XML, const dynamo::Simulation* nSim):
+      SimBase_const(nSim, "IDPairRangeUnion")
     {
       try 
 	{
 	  for (magnet::xml::Node node = XML.fastGetNode("IDPairRange"); node.valid(); ++node)
-	    ranges.push_back(shared_ptr<IDPairRange>(IDPairRange::getClass(node, Sim)));
+	    {
+	      shared_ptr<IDPairRange> ptr(IDPairRange::getClass(node, Sim));
+	      ranges.push_back(ptr);
+	    }
 	}
       catch (boost::bad_lexical_cast &)
 	{
-	  M_throw() << "Failed a lexical cast in IDPairRangeRangeList";
+	  M_throw() << "Failed a lexical cast in IDPairRangeUnion";
 	}
     }
     
@@ -59,7 +63,7 @@ namespace dynamo {
   protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {
-      XML << magnet::xml::attr("Type") << "RangeList";
+      XML << magnet::xml::attr("Type") << "Union";
 
       BOOST_FOREACH(const shared_ptr<IDPairRange>& rPtr, ranges)
 	XML << rPtr;

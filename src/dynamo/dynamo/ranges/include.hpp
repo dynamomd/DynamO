@@ -22,7 +22,7 @@
 #include <dynamo/ranges/IDPairRangeIntraChains.hpp>
 #include <dynamo/ranges/IDPairRangeList.hpp>
 #include <dynamo/ranges/IDPairRangeNone.hpp>
-#include <dynamo/ranges/IDPairRangeRangeList.hpp>
+#include <dynamo/ranges/IDPairRangeUnion.hpp>
 #include <dynamo/ranges/IDPairRangeRangePair.hpp>
 #include <dynamo/ranges/IDPairRangeRings.hpp>
 #include <dynamo/ranges/IDPairRangeSingle.hpp>
@@ -31,3 +31,4 @@
 #include <dynamo/ranges/IDRangeList.hpp>
 #include <dynamo/ranges/IDRangeNone.hpp>
 #include <dynamo/ranges/IDRangeRange.hpp>
+#include <dynamo/ranges/IDRangeUnion.hpp>

@@ -49,6 +49,8 @@ namespace dynamo {
       return new IDRangeRange(XML);
     else if (!strcmp(XML.getAttribute("Type"),"List"))
       return new IDRangeList(XML);
+    else if (!strcmp(XML.getAttribute("Type"),"Union"))
+      return new IDRangeUnion(XML, Sim);
     else
       M_throw() << "Unknown type of IDRange encountered (" << XML.getAttribute("Type") << ")";
   }
@@ -62,8 +64,8 @@ namespace dynamo {
       return new IDPairRangeList(XML);
     else if (!strcmp(XML.getAttribute("Type"),"Single"))
       return new IDPairRangeSingle(XML,Sim);
-    else if (!strcmp(XML.getAttribute("Type"),"RangeList"))
-      return new IDPairRangeRangeList(XML,Sim);
+    else if (!strcmp(XML.getAttribute("Type"),"Union"))
+      return new IDPairRangeUnion(XML,Sim);
     else if (!strcmp(XML.getAttribute("Type"),"Chains"))
       return new IDPairRangeChains(XML,Sim);              
     else if (!strcmp(XML.getAttribute("Type"),"ChainGroups"))
