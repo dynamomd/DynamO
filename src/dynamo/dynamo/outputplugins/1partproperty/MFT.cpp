@@ -39,11 +39,11 @@ namespace dynamo {
   {
     try 
       {
-	if (XML.hasAttribute("binwidth"))
-	  binwidth = XML.getAttribute("binwidth").as<double>();
+	if (XML.hasAttribute("BinWidth"))
+	  binwidth = XML.getAttribute("BinWidth").as<double>();
 
-	if (XML.hasAttribute("length"))
-	  collisionHistoryLength = XML.getAttribute("length").as<size_t>();
+	if (XML.hasAttribute("Length"))
+	  collisionHistoryLength = XML.getAttribute("Length").as<size_t>();
       }
     catch (boost::bad_lexical_cast&)
       {
