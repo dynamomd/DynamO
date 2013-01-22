@@ -19,7 +19,6 @@
 #include <gtkmm.h>
 #include <magnet/math/vector.hpp>
 #include <magnet/static_assert.hpp>
-#include <magnet/GL/shader/render.hpp>
 #include <magnet/GL/shader/lightShader.hpp>
 #include <magnet/GL/shader/ambientLight.hpp>
 #include <magnet/GL/shader/luminance.hpp>
@@ -99,7 +98,6 @@ namespace coil {
     
     void setLabelText(Gtk::Label*, std::string);
 
-    magnet::GL::shader::RenderShader _renderShader;
     magnet::GL::shader::PointLightShader _pointLightShader;
     magnet::GL::shader::AmbientLightShader _ambientLightShader;
     magnet::GL::shader::VSMShader _VSMShader;

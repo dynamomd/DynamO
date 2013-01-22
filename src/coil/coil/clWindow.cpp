@@ -642,7 +642,6 @@ namespace coil {
     _lastUpdateTime = _lastFrameTime = _FPStime = glutGet(GLUT_ELAPSED_TIME);
     _frameRenderTime = 0;
 
-    _renderShader.build();
     _copyShader.build();
     _downsampleShader.build();
     _blurShader.build();
@@ -719,8 +718,6 @@ namespace coil {
     _filterTarget2.deinit();
     _blurTarget1.deinit();
     _blurTarget2.deinit();
-
-    _renderShader.deinit();
     _toneMapShader.deinit();
     _depthResolverShader.deinit();
     _pointLightShader.deinit();	
@@ -957,9 +954,6 @@ namespace coil {
     _glContext->setDepthTest(true);
     _glContext->setBlend(false);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    _renderShader.attach();
-    _renderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
-    _renderShader["ViewMatrix"] = _camera.getViewMatrix();
     
     //Enter the render ticks for all objects
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
@@ -968,7 +962,6 @@ namespace coil {
       if ((*iPtr)->visible()) 
 	(*iPtr)->glRender(camera, RenderObj::DEFAULT);
 
-    _renderShader.detach();
     _Gbuffer.detach();
     
     ///////////////////////Lighting pass////////////////////////

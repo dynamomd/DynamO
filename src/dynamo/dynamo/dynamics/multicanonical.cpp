@@ -69,7 +69,7 @@ namespace dynamo {
   void 
   DynNewtonianMC::outputXML(magnet::xml::XmlStream& XML) const
   {
-    boost::unordered_map<int, double> wout = _W;
+    std::tr1::unordered_map<int, double> wout = _W;
 
     XML << magnet::xml::attr("Type")
 	<< "NewtonianMC"

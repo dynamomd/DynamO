@@ -29,8 +29,20 @@ namespace coil {
   { deinit(); }
 
   void 
+  RTriangles::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
+  { 
+    RenderObj::init(systemQueue); 
+    initGTK(); 
+    _renderShader.build(); 
+  }
+
+  void 
   RTriangles::glRender(const magnet::GL::Camera& cam, RenderMode mode)
   {
+    _renderShader.attach();
+    _renderShader["ProjectionMatrix"] = cam.getProjectionMatrix();
+    _renderShader["ViewMatrix"] = cam.getViewMatrix();
+
     if (!_visible) return;
 
     _posBuff.getContext()->cleanupAttributeArrays();
@@ -58,6 +70,7 @@ namespace coil {
 	_specialElementBuff.drawElements(magnet::GL::element_type::POINTS);
 	break;
       }
+    _renderShader.detach();
   }
 
   void 
@@ -129,6 +142,7 @@ namespace coil {
     _normBuff.deinit();
     _elementBuff.deinit();
     _specialElementBuff.deinit();
+    _renderShader.deinit();
   }
 
   void 

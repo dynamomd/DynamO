@@ -20,8 +20,9 @@
 #include <dynamo/particle.hpp>
 #include <dynamo/interactions/interaction.hpp>
 #include <magnet/exception.hpp>
-#include <boost/tr1/unordered_set.hpp>
-#include <boost/tr1/unordered_map.hpp>
+#include <boost/functional/hash.hpp>
+#include <tr1/unordered_set>
+#include <tr1/unordered_map>
 #include <vector>
 
 namespace dynamo {
@@ -108,7 +109,7 @@ namespace dynamo {
 
   protected:
 
-    mutable std::tr1::unordered_set<cMapKey > captureMap;
+    mutable std::tr1::unordered_set<cMapKey, boost::hash<cMapKey> > captureMap;
 
     /*! \brief Test if two particles should be "captured".
     

@@ -21,13 +21,14 @@
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
-#include <boost/unordered_set.hpp>
+#include <boost/functional/hash.hpp>
+#include <tr1/unordered_set>
 
 namespace dynamo {
   class IDPairRangeList:public IDPairRange
   {
     typedef std::pair<unsigned long, unsigned long> Key;
-    typedef boost::unordered_set<Key> Container;
+    typedef std::tr1::unordered_set<Key, boost::hash<Key> > Container;
 
   public:
     IDPairRangeList(const magnet::xml::Node& XML) 

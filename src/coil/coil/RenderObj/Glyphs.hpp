@@ -19,6 +19,7 @@
 #include <coil/RenderObj/AttributeColorSelector.hpp>
 #include <coil/RenderObj/AttributeOrientationSelector.hpp>
 #include <magnet/GL/shader/sphere.hpp>
+#include <magnet/GL/shader/render.hpp>
 #include <magnet/GL/buffer.hpp>
 
 namespace coil {
@@ -86,6 +87,7 @@ namespace coil {
     float _scale;
     int _initGlyphType;
     magnet::GL::Context::ContextPtr _context;
+    magnet::GL::shader::RenderShader _renderShader;
     magnet::GL::shader::SphereShader _sphereShader;
     magnet::GL::shader::SphereVSMShader _sphereVSMShader;
  };

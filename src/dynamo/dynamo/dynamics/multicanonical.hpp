@@ -17,10 +17,11 @@
 
 #pragma once
 #include <dynamo/dynamics/newtonian.hpp>
-#include <boost/unordered_map.hpp>
+#include <tr1/unordered_map>
 
 namespace dynamo {
-  /*! \brief A Dynamics which implements Newtonian dynamics, but with a deformed energy landscape.
+  /*! \brief A Dynamics which implements Newtonian dynamics, but with
+    a deformed energy landscape.
     
     This Dynamics is designed for performing Multi-Canonical
     simulations. A descriptive paper on the technique is
@@ -74,7 +75,7 @@ namespace dynamo {
       where \f$ \Delta E\f$ is the energy step returned from
       getEnergyStep().
      */
-    inline const boost::unordered_map<int, double>& getMap() const { return _W; }
+    inline const std::tr1::unordered_map<int, double>& getMap() const { return _W; }
 
     /*! \brief Returns \f$ \Delta E\f$.
        \sa getMap()
@@ -85,7 +86,7 @@ namespace dynamo {
      */
     inline double W(double E) const 
     { 
-      boost::unordered_map<int, double>::const_iterator 
+      std::tr1::unordered_map<int, double>::const_iterator 
 	iPtr = _W.find(lrint(E / EnergyPotentialStep));
       if (iPtr != _W.end())
 	return iPtr->second;
@@ -96,7 +97,7 @@ namespace dynamo {
 
   protected:
     virtual void outputXML(magnet::xml::XmlStream& ) const;
-    boost::unordered_map<int, double> _W; 
+    std::tr1::unordered_map<int, double> _W; 
     double EnergyPotentialStep;
   };
 }

@@ -18,7 +18,6 @@
 #include <magnet/xmlreader.hpp>
 #include <magnet/exception.hpp>
 
-#include <boost/unordered_map.hpp>
 #include <boost/program_options.hpp>
 #include <boost/foreach.hpp>
 #include <boost/iostreams/device/file.hpp>
@@ -28,6 +27,7 @@
 #include <boost/iostreams/device/back_inserter.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/filesystem.hpp>
+#include <tr1/unordered_map>
 
 #include <fenv.h>
 #include <iostream>
@@ -123,7 +123,7 @@ struct SimulationData
       }
 
     std::cout << "W for file " << nfn;
-    for (boost::unordered_map<int, double>::iterator iPtr = _W.begin();
+    for (std::tr1::unordered_map<int, double>::iterator iPtr = _W.begin();
 	 iPtr != _W.end(); ++iPtr)
       std::cout << "\nE = " << iPtr->first * binWidth << ", W = " << iPtr->second;
     std::cout << std::endl;
@@ -169,7 +169,7 @@ struct SimulationData
   };
   std::vector<histogramEntry> data;
 
-  boost::unordered_map<int, double> _W;
+  std::tr1::unordered_map<int, double> _W;
 
 
   //Bottom and top contain the window of systems used for the calculation
@@ -238,7 +238,7 @@ struct SimulationData
 
   inline double W(double E) const 
   { 
-    boost::unordered_map<int, double>::const_iterator 
+    std::tr1::unordered_map<int, double>::const_iterator 
       iPtr = _W.find(lrint(E / binWidth));
     if (iPtr != _W.end())
       return -iPtr->second;

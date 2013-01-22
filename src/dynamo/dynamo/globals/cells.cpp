@@ -135,7 +135,7 @@ namespace dynamo {
     //expect the particle to be up to date.
     Sim->dynamics->updateParticle(part);
 
-    boost::unordered_map<size_t, size_t>::iterator it = partCellData.find(part.getID());
+    std::tr1::unordered_map<size_t, size_t>::iterator it = partCellData.find(part.getID());
 
     const size_t oldCell(it->second);
 
@@ -362,7 +362,7 @@ namespace dynamo {
 	addToCell(id);
 	if (verbose)
 	  {
-	    boost::unordered_map<size_t, size_t>::iterator it = partCellData.find(id);
+	    std::tr1::unordered_map<size_t, size_t>::iterator it = partCellData.find(id);
 	    magnet::math::MortonNumber<3> currentCell(it->second);
 	    
 	    magnet::math::MortonNumber<3> estCell(getCellID(Sim->particles[ID].getPosition()));

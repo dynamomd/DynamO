@@ -105,7 +105,7 @@ namespace coil {
       setGLElements(ElementData);
     }
   }
-  
+
   magnet::math::Vector 
   RSurface::getDimensions() const
   {
