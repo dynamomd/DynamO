@@ -22,6 +22,7 @@
 # include <dynamo/interactions/glyphrepresentation.hpp>
 # include <dynamo/dynamics/compression.hpp>
 # include <dynamo/schedulers/scheduler.hpp>
+# include <dynamo/BC/LEBC.hpp>
 #endif
 
 #include <magnet/xmlreader.hpp>
@@ -72,6 +73,10 @@ namespace dynamo {
     _renderData->addAttribute("Mass", coil::Attribute::EXTENSIVE, 1);
     _renderData->addAttribute("Event Count", coil::Attribute::EXTENSIVE, 1);
 
+    _renderData->setPeriodicVectors(Vector(Sim->primaryCellSize[0], 0, 0),
+				    Vector(0, Sim->primaryCellSize[1], 0),
+				    Vector(0, 0, Sim->primaryCellSize[2]));
+
     if (Sim->dynamics->hasOrientationData())
       {
 	_renderData->addAttribute("Orientation", coil::Attribute::EXTENSIVE | coil::Attribute::DEFAULT_GLYPH_ORIENTATION, 3);
@@ -113,7 +118,16 @@ namespace dynamo {
   {
     if (!_renderData)
       M_throw() << "Updating before the render object has been fetched";
-  
+    
+    shared_ptr<BCLeesEdwards> BC = std::tr1::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs);
+    if (BC)
+      {
+	_renderData->setPeriodicVectors(Vector(Sim->primaryCellSize[0], 0, 0),
+					Vector(BC->getBoundaryDisplacement(), Sim->primaryCellSize[1], 0),
+					Vector(0, 0, Sim->primaryCellSize[2]));
+      }
+
+
     ///////////////////////POSITION DATA UPDATE
     //Check if the system is compressing and adjust the radius scaling factor
     float rfactor = 1.0;

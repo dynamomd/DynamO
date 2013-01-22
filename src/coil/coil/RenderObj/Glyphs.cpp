@@ -44,7 +44,11 @@ namespace coil {
   Glyphs::glRender(const magnet::GL::Camera& cam, RenderMode mode) 
   {    
     _primitiveVertices.getContext()->resetInstanceTransform();
-
+    
+    int _ximages(_xperiodicimages->get_value_as_int());
+    int _yimages(_yperiodicimages->get_value_as_int());
+    int _zimages(_zperiodicimages->get_value_as_int());
+			  
     switch (_glyphType->get_active_row_number())
       {
       case SPHERE_GLYPH:
@@ -61,11 +65,19 @@ namespace coil {
 		{
 		  _sphereVSMShader.attach();
 		  _sphereVSMShader["ProjectionMatrix"] = cam.getProjectionMatrix();
-		  _sphereVSMShader["ViewMatrix"] = cam.getViewMatrix();
 		  _sphereVSMShader["global_scale"] = _scale;
 		  _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
 		  _colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 0);
-		  _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+		  for (int x(-_ximages); x <= _ximages; ++x)
+		    for (int y(-_yimages); y <= _yimages; ++y)
+		      for (int z(-_zimages); z <= _zimages; ++z)
+			{
+			  Vector displacement = x * _ds.getPeriodicVectorX() 
+			    + y * _ds.getPeriodicVectorY() 
+			    + z * _ds.getPeriodicVectorZ();
+			  _sphereVSMShader["ViewMatrix"] = cam.getViewMatrix() * magnet::GL::GLMatrix::translate(displacement);
+			  _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+			}
 		  _sphereVSMShader.detach();
 
 		}
@@ -73,11 +85,19 @@ namespace coil {
 		{
 		  _sphereShader.attach();
 		  _sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
-		  _sphereShader["ViewMatrix"] = cam.getViewMatrix();
 		  _sphereShader["global_scale"] = _scale;
 		  _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
 		  _colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 0);
-		  _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+		  for (int x(-_ximages); x <= _ximages; ++x)
+		    for (int y(-_yimages); y <= _yimages; ++y)
+		      for (int z(-_zimages); z <= _zimages; ++z)
+			{
+			  Vector displacement = x * _ds.getPeriodicVectorX() 
+			    + y * _ds.getPeriodicVectorY() 
+			    + z * _ds.getPeriodicVectorZ();
+			  _sphereShader["ViewMatrix"] = cam.getViewMatrix() * magnet::GL::GLMatrix::translate(displacement);
+			  _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+			}
 		  _sphereShader.detach();
 		}
 
@@ -99,7 +119,6 @@ namespace coil {
 
     _renderShader.attach();
     _renderShader["ProjectionMatrix"] = cam.getProjectionMatrix();
-    _renderShader["ViewMatrix"] = cam.getViewMatrix();
 
     _ds.getPositionBuffer().attachToAttribute(magnet::GL::Context::instanceOriginAttrIndex, 1);
     _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 1);
@@ -107,7 +126,16 @@ namespace coil {
     _colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 1);
     _primitiveVertices.attachToVertex();
     _primitiveNormals.attachToNormal();
-    _primitiveIndices.drawInstancedElements(getElementType(), _N);
+    for (int x(-_ximages); x <= _ximages; ++x)
+      for (int y(-_yimages); y <= _yimages; ++y)
+	for (int z(-_zimages); z <= _zimages; ++z)
+	  {
+	    Vector displacement = x * _ds.getPeriodicVectorX() 
+	      + y * _ds.getPeriodicVectorY() 
+	      + z * _ds.getPeriodicVectorZ();
+	    _renderShader["ViewMatrix"] = cam.getViewMatrix() * magnet::GL::GLMatrix::translate(displacement);
+	    _primitiveIndices.drawInstancedElements(getElementType(), _N);
+	  }
     _renderShader.detach();
   }
 
@@ -259,6 +287,48 @@ namespace coil {
       .connect(sigc::mem_fun(*this, &Glyphs::glyph_type_changed));
     _scaleFactor->signal_changed()
       .connect(sigc::mem_fun(*this, &Glyphs::guiUpdate));
+
+    //Periodic image rendering
+    separator = Gtk::manage(new Gtk::HSeparator); 
+    separator->show();
+    _gtkOptList->pack_start(*separator, false, false, 0);
+    
+    Gtk::HBox* periodicbox = Gtk::manage(new Gtk::HBox);
+    periodicbox->show();
+    _gtkOptList->pack_start(*periodicbox, false, false, 5);
+
+    {
+      Gtk::Label* label = Gtk::manage(new Gtk::Label("x")); label->show();
+      periodicbox->pack_start(*label, false, false, 5);
+    }
+    _xperiodicimages.reset(new Gtk::SpinButton(1, 0)); 
+    _xperiodicimages->show();
+    _xperiodicimages->set_numeric(true);
+    _xperiodicimages->set_increments(1,1);
+    _xperiodicimages->set_range(0, 10);
+    periodicbox->pack_start(*_xperiodicimages, false, false, 5);
+
+    {
+      Gtk::Label* label = Gtk::manage(new Gtk::Label("y")); label->show();
+      periodicbox->pack_start(*label, false, false, 5);
+    }
+    _yperiodicimages.reset(new Gtk::SpinButton(1, 0)); 
+    _yperiodicimages->show();
+    _yperiodicimages->set_numeric(true);
+    _yperiodicimages->set_increments(1,1);
+    _yperiodicimages->set_range(0, 10);
+    periodicbox->pack_start(*_yperiodicimages, false, false, 5);
+    
+    {
+      Gtk::Label* label = Gtk::manage(new Gtk::Label("z")); label->show();
+      periodicbox->pack_start(*label, false, false, 5);
+    }
+    _zperiodicimages.reset(new Gtk::SpinButton(1, 0)); 
+    _zperiodicimages->show();
+    _zperiodicimages->set_numeric(true);
+    _zperiodicimages->set_increments(1,1);
+    _zperiodicimages->set_range(0, 10);
+    periodicbox->pack_start(*_zperiodicimages, false, false, 5);
   }
 
   void 

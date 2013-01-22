@@ -77,7 +77,9 @@ namespace dynamo {
       getStreamVelocity(const Particle&)
      */
     Vector getPeculiarVelocity(const Particle& part) const;
-
+    
+    double getBoundaryDisplacement() const { return _dxd; }
+    
   protected:  
     /*! \brief The amount neighboring periodic images have slid against
         each other.
