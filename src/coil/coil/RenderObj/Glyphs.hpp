@@ -51,10 +51,21 @@ namespace coil {
     virtual Glib::RefPtr<Gdk::Pixbuf> getIcon();
 
     virtual uint32_t pickableObjectCount()
-    { return visible() ? _N : 0; }
+    { 
+      if (visible())
+	return _N * (2 * _xperiodicimages->get_value_as_int() + 1)
+	  * (2 * _yperiodicimages->get_value_as_int() + 1)
+	  * (2 * _zperiodicimages->get_value_as_int() + 1);
+	
+      return 0; 
+    }
 
     virtual void pickingRender(const magnet::GL::Camera& cam, 
 			       const uint32_t offset);
+
+    virtual std::tr1::array<GLfloat, 4> getCursorPosition(uint32_t objID);
+
+    virtual std::string getCursorText(uint32_t objID);
 
   protected:
     void glyph_type_changed();

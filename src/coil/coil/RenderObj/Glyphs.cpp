@@ -39,6 +39,15 @@ namespace coil {
       }
   }
 
+  std::tr1::array<GLfloat, 4> 
+  Glyphs::getCursorPosition(uint32_t objID)
+  {
+    return _ds.getCursorPosition(objID % _N);
+  }
+
+  std::string 
+  Glyphs::getCursorText(uint32_t objID)
+  { return _ds.getCursorText(objID % _N); }
 
   void 
   Glyphs::glRender(const magnet::GL::Camera& cam, RenderMode mode) 
@@ -511,6 +520,10 @@ namespace coil {
   {
     _primitiveVertices.getContext()->resetInstanceTransform();
 
+    int _ximages(_xperiodicimages->get_value_as_int());
+    int _yimages(_yperiodicimages->get_value_as_int());
+    int _zimages(_zperiodicimages->get_value_as_int());
+
     magnet::GL::Buffer<GLubyte> colorbuf;
     {//Send unique color id's to colorbuf
       std::vector<GLubyte> colors;
@@ -519,7 +532,7 @@ namespace coil {
 	*reinterpret_cast<uint32_t*>(&(colors[4 * i])) = offset + i;
       colorbuf.init(colors, 4);
     }
-
+    
     switch (_glyphType->get_active_row_number())
       {
       case SPHERE_GLYPH:
@@ -528,11 +541,21 @@ namespace coil {
 	    {
 	      _sphereShader.attach();
 	      _sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
-	      _sphereShader["ViewMatrix"] = cam.getViewMatrix();
 	      _sphereShader["global_scale"] = _scale;
 	      _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
 	      colorbuf.attachToColor();
-	      _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+
+	      for (int x(-_ximages); x <= _ximages; ++x)
+		for (int y(-_yimages); y <= _yimages; ++y)
+		  for (int z(-_zimages); z <= _zimages; ++z)
+		    {
+		      Vector displacement = x * _ds.getPeriodicVectorX() 
+			+ y * _ds.getPeriodicVectorY() 
+			+ z * _ds.getPeriodicVectorZ();
+		      _sphereShader["ViewMatrix"] = cam.getViewMatrix() * magnet::GL::GLMatrix::translate(displacement);
+		      _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+		    }
+
 	      _sphereShader.detach();
 	      return;
 	    }
@@ -550,14 +573,24 @@ namespace coil {
 
     _simpleRenderShader.attach();
     _simpleRenderShader["ProjectionMatrix"] = cam.getProjectionMatrix();
-    _simpleRenderShader["ViewMatrix"] = cam.getViewMatrix();
     _ds.getPositionBuffer().attachToAttribute(magnet::GL::Context::instanceOriginAttrIndex, 1);
     _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 1);
     _orientSel->bindAttribute(magnet::GL::Context::instanceOrientationAttrIndex, 1);
     colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 1, true);
     _primitiveVertices.attachToVertex();
     _primitiveNormals.attachToNormal();
-    _primitiveIndices.drawInstancedElements(getElementType(), _N);
+
+    for (int x(-_ximages); x <= _ximages; ++x)
+      for (int y(-_yimages); y <= _yimages; ++y)
+	for (int z(-_zimages); z <= _zimages; ++z)
+	  {
+	    Vector displacement = x * _ds.getPeriodicVectorX() 
+	      + y * _ds.getPeriodicVectorY() 
+	      + z * _ds.getPeriodicVectorZ();
+	    _simpleRenderShader["ViewMatrix"] = cam.getViewMatrix() * magnet::GL::GLMatrix::translate(displacement);
+	    _primitiveIndices.drawInstancedElements(getElementType(), _N);
+	  }
+
     _simpleRenderShader.detach();
   }
 }
