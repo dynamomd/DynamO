@@ -648,7 +648,6 @@ namespace coil {
     _pointLightShader.build();
     _ambientLightShader.build();
     _VSMShader.build();
-    _simpleRenderShader.build();
     _luminanceShader.build();
     _luminanceMipMapShader.build();
     _toneMapShader.build();
@@ -723,7 +722,6 @@ namespace coil {
     _pointLightShader.deinit();	
     _ambientLightShader.deinit();
     _VSMShader.deinit();
-    _simpleRenderShader.deinit();
     _downsampleShader.deinit();
     _blurShader.deinit();
     _copyShader.deinit();
@@ -1246,11 +1244,6 @@ namespace coil {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     lastFBO->attach();
-    _simpleRenderShader.attach();
-    _simpleRenderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
-    _simpleRenderShader["ViewMatrix"] = _camera.getViewMatrix();
-
-
     //Enter the interface draw for all objects
     _cairo_screen.clear();
 
@@ -1272,8 +1265,6 @@ namespace coil {
 
     _cairo_screen.syncCairoGL();
     _cairo_screen.glRender();
-    
-    _simpleRenderShader.detach();
     lastFBO->detach();
 
     _glContext->setBlend(false);
@@ -1920,10 +1911,6 @@ namespace coil {
   void
   CLGLWindow::performPicking(int x, int y)
   {
-    _simpleRenderShader.attach();
-    _simpleRenderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
-    _simpleRenderShader["ViewMatrix"] = _camera.getViewMatrix();
-
     _renderTarget.attach();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
@@ -1945,7 +1932,7 @@ namespace coil {
 	  }
       }
 
-    unsigned char pixel[4];  
+    unsigned char pixel[4];
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);  
     glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);    

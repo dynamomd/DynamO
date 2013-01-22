@@ -21,8 +21,7 @@
 namespace coil {
   RTriangles::RTriangles(std::string name):
     RenderObj(name),
-    _RenderMode(TRIANGLES),
-    _pickingRenderMode(false)
+    _RenderMode(TRIANGLES)
   {}
 
   RTriangles::~RTriangles()
@@ -39,20 +38,19 @@ namespace coil {
   void 
   RTriangles::glRender(const magnet::GL::Camera& cam, RenderMode mode)
   {
+    if (!_visible) return;
+
     _renderShader.attach();
     _renderShader["ProjectionMatrix"] = cam.getProjectionMatrix();
     _renderShader["ViewMatrix"] = cam.getViewMatrix();
 
-    if (!_visible) return;
-
     _posBuff.getContext()->cleanupAttributeArrays();
 
-    if (_pickingRenderMode)
+    if (mode == PICKING_PASS)
       _pickingColorBuff.attachToColor();
-
-    if (_colBuff.size() && !_pickingRenderMode)
+    else if (_colBuff.size())
       _colBuff.attachToColor();
-
+    
     if (_normBuff.size())
       _normBuff.attachToNormal();
   
@@ -288,8 +286,6 @@ namespace coil {
 	_pickingColorBuff.init(vertexColors, 4, magnet::GL::buffer_usage::STREAM_DRAW);
       }
 
-    _pickingRenderMode = true;
     RTriangles::glRender(cam, PICKING_PASS);
-    _pickingRenderMode = false;
   }
 }

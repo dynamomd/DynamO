@@ -122,6 +122,7 @@ namespace coil {
     _sphereShader.deinit();
     _sphereVSMShader.deinit();
     _renderShader.deinit();
+    _simpleRenderShader.deinit();
     _gtkOptList.reset();
     _scaleSel.reset(); 
     _colorSel.reset();
@@ -160,6 +161,7 @@ namespace coil {
     _raytraceable = _context->testExtension("GL_EXT_geometry_shader4");
 
     _renderShader.build();
+    _simpleRenderShader.build();
 
     if (_raytraceable) 
       {
@@ -476,6 +478,9 @@ namespace coil {
     
     if (!_primitiveVertices.size()) return;
 
+    _simpleRenderShader.attach();
+    _simpleRenderShader["ProjectionMatrix"] = cam.getProjectionMatrix();
+    _simpleRenderShader["ViewMatrix"] = cam.getViewMatrix();
     _ds.getPositionBuffer().attachToAttribute(magnet::GL::Context::instanceOriginAttrIndex, 1);
     _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 1);
     _orientSel->bindAttribute(magnet::GL::Context::instanceOrientationAttrIndex, 1);
@@ -483,5 +488,6 @@ namespace coil {
     _primitiveVertices.attachToVertex();
     _primitiveNormals.attachToNormal();
     _primitiveIndices.drawInstancedElements(getElementType(), _N);
+    _simpleRenderShader.detach();
   }
 }

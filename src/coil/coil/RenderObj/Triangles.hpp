@@ -65,8 +65,6 @@ namespace coil {
     magnet::GL::Buffer<GLfloat> _normBuff;
     magnet::GL::Buffer<GLuint> _elementBuff;
     magnet::GL::Buffer<GLuint> _specialElementBuff;
-
-    bool _pickingRenderMode;
     magnet::GL::Buffer<GLubyte> _pickingColorBuff;
 
     magnet::GL::shader::RenderShader _renderShader;

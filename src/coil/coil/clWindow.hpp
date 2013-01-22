@@ -28,7 +28,6 @@
 #include <magnet/GL/camera.hpp>
 #include <magnet/GL/multisampledFBO.hpp>
 #include <magnet/GL/shader/vsm.hpp>
-#include <magnet/GL/shader/simple_render.hpp>
 #include <magnet/GL/shader/copy.hpp>
 #include <magnet/GL/shader/downsampler.hpp>
 #include <magnet/GL/objects/cairo.hpp>
@@ -101,7 +100,6 @@ namespace coil {
     magnet::GL::shader::PointLightShader _pointLightShader;
     magnet::GL::shader::AmbientLightShader _ambientLightShader;
     magnet::GL::shader::VSMShader _VSMShader;
-    magnet::GL::shader::SimpleRenderShader _simpleRenderShader;
     magnet::GL::shader::LuminanceShader _luminanceShader;
     magnet::GL::shader::LuminanceMipMapShader _luminanceMipMapShader;
     magnet::GL::shader::ToneMapShader _toneMapShader;
