@@ -66,8 +66,8 @@ void main()
      */
     virtual Glib::RefPtr<Gdk::Pixbuf> getIcon();
 
-    virtual magnet::math::Vector getDimensions() const { return _dimensions; }
-    virtual magnet::math::Vector getCentre() const { return magnet::math::Vector(0,0,0); }
+    virtual magnet::math::Vector getMaxCoord() const { return +0.5 * _dimensions; }
+    virtual magnet::math::Vector getMinCoord() const { return -0.5 * _dimensions; }
 
   protected:
     void loadRawFileWorker(std::string filename, std::tr1::array<size_t, 3> dim, 

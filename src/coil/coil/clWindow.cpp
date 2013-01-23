@@ -2446,15 +2446,13 @@ namespace coil {
 	   = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       {
-	magnet::math::Vector dims = (*iPtr)->getDimensions();
-	magnet::math::Vector centre = (*iPtr)->getCentre();
+	magnet::math::Vector child_max = (*iPtr)->getMaxCoord();
+	magnet::math::Vector child_min = (*iPtr)->getMinCoord();
 	
-	for (size_t i(0); i < 3; ++i)
-	  if (dims[i] != 0)
-	    {
-	      min[i] = std::min(min[i], centre[i] - 0.5 * dims[i]);
-	      max[i] = std::max(max[i], centre[i] + 0.5 * dims[i]);
-	    }
+	for (size_t i(0); i < 3; ++i) {
+	  min[i] = std::min(min[i], child_min[i]);
+	  max[i] = std::max(max[i], child_max[i]);
+	}
       }
     //Catch the exceptional case where there is nothing rendered
 

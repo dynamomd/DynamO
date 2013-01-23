@@ -593,4 +593,46 @@ namespace coil {
 
     _simpleRenderShader.detach();
   }
+  
+  magnet::math::Vector 
+  Glyphs::getMaxCoord() const
+  {
+    int images[3] = {_xperiodicimages->get_value_as_int(),
+		     _yperiodicimages->get_value_as_int(),
+		     _zperiodicimages->get_value_as_int()};
+
+    std::vector<GLfloat> maxs = _ds.getPositionSelector()->getMax();
+    
+    for (size_t i(0); i < 3; ++i)
+      {
+	GLfloat maxmovement
+	  = std::max(std::max(std::abs(images[0] * _ds.getPeriodicVectorX()[i]),
+			      std::abs(images[1] * _ds.getPeriodicVectorY()[i])),
+		     std::abs(images[2] * _ds.getPeriodicVectorZ()[i]));
+	maxs[i] += maxmovement;
+      }
+
+    return magnet::math::Vector(maxs[0], maxs[1], maxs[2]);
+  }
+
+  magnet::math::Vector 
+  Glyphs::getMinCoord() const
+  {
+    int images[3] = {_xperiodicimages->get_value_as_int(),
+		     _yperiodicimages->get_value_as_int(),
+		     _zperiodicimages->get_value_as_int()};
+
+    std::vector<GLfloat> mins = _ds.getPositionSelector()->getMin();
+    
+    for (size_t i(0); i < 3; ++i)
+      {
+	GLfloat maxmovement
+	  = std::max(std::max(std::abs(images[0] * _ds.getPeriodicVectorX()[i]),
+			      std::abs(images[1] * _ds.getPeriodicVectorY()[i])),
+		     std::abs(images[2] * _ds.getPeriodicVectorZ()[i]));
+	mins[i] -= maxmovement;
+      }
+
+    return magnet::math::Vector(mins[0], mins[1], mins[2]);
+  }
 }

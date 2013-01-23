@@ -29,14 +29,12 @@ namespace coil {
 
     virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
 
-    virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode = DEFAULT);
-
     virtual Glib::RefPtr<Gdk::Pixbuf> getIcon();
 
     virtual bool deletable() { return true; }
 
-    virtual magnet::math::Vector getDimensions() const;
-    virtual magnet::math::Vector getCentre() const;
+    virtual magnet::math::Vector getMaxCoord() const;
+    virtual magnet::math::Vector getMinCoord() const;
 
   protected:
     void clTick() {}

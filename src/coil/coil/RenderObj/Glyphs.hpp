@@ -67,6 +67,9 @@ namespace coil {
 
     virtual std::string getCursorText(uint32_t objID);
 
+    virtual magnet::math::Vector getMaxCoord() const;
+    virtual magnet::math::Vector getMinCoord() const;
+
   protected:
     void glyph_type_changed();
     void guiUpdate();

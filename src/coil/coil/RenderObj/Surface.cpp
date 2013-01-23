@@ -107,22 +107,28 @@ namespace coil {
   }
 
   magnet::math::Vector 
-  RSurface::getDimensions() const
+  RSurface::getMaxCoord() const
   {
-    return Vector(std::max(_axis1[0], _axis2[0]),
-		  std::max(_axis1[1], _axis2[1]),
-		  std::max(_axis1[2], _axis2[2]));
+    magnet::math::Vector max = _origin;
+    for (size_t i(0); i< 3; ++i)
+      {
+	max[i] = std::max(_origin[i] + _axis1[i], max[i]);
+	max[i] = std::max(_origin[i] + _axis2[i], max[i]);
+      }
+
+    return max;
   }
 
   magnet::math::Vector 
-  RSurface::getCentre() const
+  RSurface::getMinCoord() const
   {
-    return _origin + 0.5 * (_axis1 + _axis2);
-  }
+    magnet::math::Vector min = _origin;
+    for (size_t i(0); i< 3; ++i)
+      {
+	min[i] = std::min(_origin[i] + _axis1[i], min[i]);
+	min[i] = std::min(_origin[i] + _axis2[i], min[i]);
+      }
 
-  void 
-  RSurface::glRender(const magnet::GL::Camera& cam, RenderMode mode)
-  {
-    RTriangles::glRender(cam, mode);
+    return min;
   }
 }
