@@ -36,7 +36,8 @@ namespace dynamo {
       vNorm(nnorm),
       vPosition(norigin),
       _diameter(Sim->_properties.getProperty(d, Property::Units::Length())),
-      _e(Sim->_properties.getProperty(e, Property::Units::Dimensionless()))
+      _e(Sim->_properties.getProperty(e, Property::Units::Dimensionless())),
+      sqrtT(0)
     { localName = nname; }
 
     virtual ~LWall() {}
