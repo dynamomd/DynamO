@@ -18,25 +18,11 @@ import ../magnet/jam/filetypes ;
 import ../magnet/jam/tags ;
 import ../magnet/jam/builddep ;
 
-lib cwiid : : <link>shared : : <define>COIL_wiimote ;
-obj cwiidtest : tests/wiimote.cpp cwiid ;
-
-lib png : : <link>shared ;
-lib glut : : <link>shared ;
-lib GLU  : : <link>shared ;
-lib GL   : : <link>shared ;
-lib Xext : : <link>shared ;
-lib X11  : : <link>shared ;
-lib rt   : : <link>shared ;
-lib GLEW : : <link>shared ;
-alias gtkmm : : <use>png : : <linkflags>"`pkg-config gtkmm-2.4 --libs`" <cflags>"`pkg-config gtkmm-2.4 --cflags`" ;
-
 #Test executables for determining what is available in the build environment
-obj gluttest : tests/gluttest.cpp glut ;
-obj gtkmmtest : tests/gtkmmtest.cpp gtkmm ;
+obj cwiidtest : tests/wiimote.cpp /system//cwiid ;
+obj gluttest : tests/gluttest.cpp /system//glut ;
+obj gtkmmtest : tests/gtkmmtest.cpp /system//gtkmm ;
 obj GLEWtest : tests/glewtest.cpp ;
-
-SHELL "touch src/coil/tests/* " ;
 
 project	: requirements
 	  [ builddep.set-feature-on-build coil-cwiid : cwiidtest : "Coil: libCwiid Wii-mote support (Optional)" ]
@@ -50,20 +36,16 @@ project	: requirements
 	;
 
 exe coilDependencies : tests/buildreq.cpp : <coil-buildable>no:<define>BUILDFAIL ;
-
-lib boost_system : : <link>shared ;
-lib boost_program_options  : : <link>shared : : <source>boost_system ;
+always coilDependencies ;
 
 lib coil
       : [ glob-tree *.cpp : tests examples programs ]
-      clwingtk.gladexml png
-      glut GLU GL Xext X11 rt GLEW /magnet//magnet
-      gtkmm
+      clwingtk.gladexml /system//png /system//glut /system//GLU /system//GL /system//Xext /system//X11 /system//rt /system//GLEW /system//gtkmm /magnet//magnet
       : <include>. <tag>@tags.lib-naming 
        <coil-cwiid>yes:<source>cwiid <magnet-FFMPEG>yes:<source>/magnet//libavcodec <coil-buildable>no:<build>no
       : : <define>GLVIEWER <include>. ;
 
-exe coilvol : programs/coilvol.cpp coil boost_program_options 
+exe coilvol : programs/coilvol.cpp coil /system//boost_program_options 
             : <tag>@tags.exe-naming ;
 
 explicit test coil coilvol ;

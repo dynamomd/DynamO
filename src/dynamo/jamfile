@@ -22,22 +22,13 @@ SHELL "touch src/dynamo/tests/* " ;
 
 feature.feature coil-integration : yes no : symmetric ;
 
-lib bz2 : : <link>shared ;
-lib z : : <link>shared ;
-
-lib boost_system : : <link>shared ;
-lib boost_filesystem : : <link>shared : : <source>boost_system ;
-lib boost_program_options  : : <link>shared : : <source>boost_system ;
-lib boost_iostreams  : : <link>shared : : <source>boost_system <source>bz2 <source>z ;
-
+#Dependency tests
 obj boost_header_test : tests/boost_test.cpp ;
-obj boost_filesystem_test : tests/boost_test.cpp boost_filesystem ;
-obj boost_program_options_test : tests/boost_test.cpp boost_program_options ;
-obj boost_iostreams_test : tests/boost_test.cpp boost_iostreams ;
+obj boost_filesystem_test : tests/boost_test.cpp /system//boost_filesystem ;
+obj boost_program_options_test : tests/boost_test.cpp /system//boost_program_options ;
+obj boost_iostreams_test : tests/boost_test.cpp /system//boost_iostreams ;
 
 project	: requirements
-          #This creates a feature coil-integration, which can be set
-          #on the command line or auto-detected using the passed target
 	  [ builddep.set-feature-on-build coil-support : /coil//coilDependencies : "DynamO-Coil Integration" ]
 	  [ builddep.set-feature-on-build dynamo-boost-iostreams : boost_iostreams_test : "DynamO: Boost iostreams library" ]
 	  [ builddep.set-feature-on-build dynamo-boost-program-options : boost_program_options_test : "DynamO: Boost program options library" ]
@@ -48,12 +39,10 @@ project	: requirements
 	: build-dir $(BUILD_DIR_PATH)
 	;
 
-lib rt : : <link>shared ;
-
 exe dynamoDependencies : tests/buildreq.cpp : <dynamo-buildable>no:<define>BUILDFAIL ;
 
 lib dynamo_core : [ glob-tree *.cpp : programs tests ]
-      /magnet//magnet boost_filesystem boost_program_options boost_iostreams rt 
+      /magnet//magnet /system//boost_filesystem /system//boost_program_options /system//boost_iostreams /system//rt 
     : <include>. <dynamo-buildable>no:<build>no
       <variant>debug:<define>DYNAMO_DEBUG <link>static
       <coil-integration>yes:<source>/coil//coil/<link>static
