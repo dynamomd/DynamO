@@ -29,12 +29,12 @@ obj boost_program_options_test : tests/boost_test.cpp /system//boost_program_opt
 obj boost_iostreams_test : tests/boost_test.cpp /system//boost_iostreams ;
 
 project	: requirements
-	  [ builddep.set-feature-on-build coil-support : /coil//coilDependencies : "DynamO-Coil Integration" ]
-	  [ builddep.set-feature-on-build dynamo-boost-iostreams : boost_iostreams_test : "DynamO: Boost iostreams library" ]
-	  [ builddep.set-feature-on-build dynamo-boost-program-options : boost_program_options_test : "DynamO: Boost program options library" ]
-	  [ builddep.set-feature-on-build dynamo-boost-filesystem : boost_filesystem_test : "DynamO: Boost filesystem library" ]
-	  [ builddep.set-feature-on-build dynamo-boost-headers : boost_header_test : "DynamO: Boost headers" ]
-	  [ builddep.combine-features dynamo-buildable : dynamo-boost-headers dynamo-boost-filesystem dynamo-boost-program-options dynamo-boost-iostreams ]
+	  [ builddep.set-feature-on-build coil-support : /coil//coilDependencies : "DynamO-Coil Integration Supported" : incidental ]
+	  [ builddep.set-feature-on-build dynamo-boost-iostreams : boost_iostreams_test : "DynamO: Boost iostreams library" : incidental ]
+	  [ builddep.set-feature-on-build dynamo-boost-program-options : boost_program_options_test : "DynamO: Boost program options library"  : incidental ]
+	  [ builddep.set-feature-on-build dynamo-boost-filesystem : boost_filesystem_test : "DynamO: Boost filesystem library" : incidental ]
+	  [ builddep.set-feature-on-build dynamo-boost-headers : boost_header_test : "DynamO: Boost headers"  : incidental ]
+	  [ builddep.combine-features dynamo-buildable : dynamo-boost-headers dynamo-boost-filesystem dynamo-boost-program-options dynamo-boost-iostreams : incidental ]
 	: default-build release
 	: build-dir $(BUILD_DIR_PATH)
 	;

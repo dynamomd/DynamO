@@ -21,7 +21,7 @@ alias libavcodec : : : : <define>MAGNET_FFMPEG_SUPPORT <linkflags>"`pkg-config l
 obj ffmpeg_test : tests/ffmpeg_test.cpp libavcodec : <include>. ;
 
 project	: requirements
-	  [ builddep.set-feature-on-build magnet-OpenCL : /opencl//test : "Magnet: OpenCL libraries and headers (optional)" ]
+	  [ builddep.set-feature-on-build magnet-OpenCL : /opencl//test : "Magnet: OpenCL libraries and headers (optional)" : symmetric ]
 	: default-build release
 	: build-dir $(BUILD_DIR_PATH)
 	;

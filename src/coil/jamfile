@@ -25,12 +25,12 @@ obj gtkmmtest : tests/gtkmmtest.cpp /system//gtkmm ;
 obj GLEWtest : tests/glewtest.cpp ;
 
 project	: requirements
-	  [ builddep.set-feature-on-build coil-cwiid : cwiidtest : "Coil: libCwiid Wii-mote support (Optional)" ]
-	  [ builddep.set-feature-on-build coil-GLUT : gluttest : "Coil: GLUT" ]
-	  [ builddep.set-feature-on-build coil-GLEW : GLEWtest : "Coil: GLEW (v1.6+)" ]
-	  [ builddep.set-feature-on-build coil-Gtkmm : gtkmmtest : "Coil: Gtkmm" ]
-	  [ builddep.set-feature-on-build magnet-FFMPEG : /magnet//ffmpeg_test : "Magnet: libavcodec (video encoding support)" ]
-	  [ builddep.combine-features coil-buildable : coil-GLUT coil-GLEW coil-Gtkmm ]
+	  [ builddep.set-feature-on-build coil-cwiid : cwiidtest : "Coil: libCwiid Wii-mote support (Optional)" : symmetric ]
+	  [ builddep.set-feature-on-build coil-GLUT : gluttest : "Coil: GLUT" : incidental ]
+	  [ builddep.set-feature-on-build coil-GLEW : GLEWtest : "Coil: GLEW (v1.6+)" : incidental ]
+	  [ builddep.set-feature-on-build coil-Gtkmm : gtkmmtest : "Coil: Gtkmm" : incidental ]
+	  [ builddep.set-feature-on-build magnet-FFMPEG : /magnet//ffmpeg_test : "Magnet: libavcodec (video encoding support)" : symmetric ]
+	  [ builddep.combine-features coil-buildable : coil-GLUT coil-GLEW coil-Gtkmm : incidental ]
 	: default-build release
 	: build-dir $(BUILD_DIR_PATH)
 	;
