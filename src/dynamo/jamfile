@@ -50,11 +50,6 @@ lib dynamo_core : [ glob-tree *.cpp : programs tests ]
     : : <variant>debug:<define>DYNAMO_DEBUG <threading>multi <link>static <include>.
     ;
 
-#This rule tests for the dynamo dependencies and returns <build>no if
-#they're not satisfied
-rule critical_dependencies ( )
-{ return [ check-target-builds dynamoDependencies "DynamO dependencies" :  : <build>no ] ; }
-
 exe dynarun : programs/dynarun.cpp dynamo_core/<coil-integration>no
     : <dynamo-buildable>no:<build>no <tag>@tags.exe-naming <coil-integration>no ;
 
