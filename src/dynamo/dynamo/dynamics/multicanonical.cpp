@@ -153,17 +153,6 @@ namespace dynamo {
       }
     else
       {
-	if (MCDeltaKE < 0)
-	  {
-	    event.setType(WELL_KEDOWN);
-	    retVal.setType(WELL_KEDOWN);
-	  }
-	else
-	  {
-	    event.setType(WELL_KEUP);
-	    retVal.setType(WELL_KEUP);	  
-	  }
-      
 	retVal.particle1_.setDeltaU(-0.5 * deltaKE);
 	retVal.particle2_.setDeltaU(-0.5 * deltaKE);	  
       

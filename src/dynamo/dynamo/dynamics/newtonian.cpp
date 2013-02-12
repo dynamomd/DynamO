@@ -668,12 +668,7 @@ namespace dynamo {
 	dP = rij * 2.0 * mu * rvdot / R2;
       }
     else
-      {
-	if (deltaKE < 0)
-	  eType = WELL_KEDOWN;
-	else
-	  eType = WELL_KEUP;
-	  
+      {	  
 	if (rvdot < 0)
 	  dP = rij 
 	    * (2.0 * deltaKE / (std::sqrt(sqrtArg) - rvdot));
@@ -748,24 +743,9 @@ namespace dynamo {
 	retVal.impulse = retVal.rij * 2.0 * mu * retVal.rvdot / R2;
       }
     else if (deltaKE==0)
-      {
-	event.setType(NON_EVENT);
-	retVal.setType(NON_EVENT);
-	retVal.impulse = Vector(0,0,0);
-      }
+      retVal.impulse = Vector(0,0,0);
     else
       {
-	if (deltaKE < 0)
-	  {
-	    event.setType(WELL_KEDOWN);
-	    retVal.setType(WELL_KEDOWN);
-	  }
-	else
-	  {
-	    event.setType(WELL_KEUP);
-	    retVal.setType(WELL_KEUP);	  
-	  }
-	  
 	retVal.particle1_.setDeltaU(-0.5 * deltaKE);
 	retVal.particle2_.setDeltaU(-0.5 * deltaKE);	  
       

@@ -220,24 +220,9 @@ namespace dynamo {
 	retVal.impulse = urij * (2.0 * mu * (retVal.rvdot - growthRate * sqrt(d2)));
       }
     else if (deltaKE==0)
-      {
-	event.setType(NON_EVENT);
-	retVal.setType(NON_EVENT);
-	retVal.impulse = Vector(0,0,0);
-      }
+      retVal.impulse = Vector(0,0,0);
     else
-      {
-	if (deltaKE < 0)
-	  {
-	    event.setType(WELL_KEDOWN);
-	    retVal.setType(WELL_KEDOWN);
-	  }
-	else
-	  {
-	    event.setType(WELL_KEUP);
-	    retVal.setType(WELL_KEUP);	  
-	  }
-	  
+      {	  
 	retVal.particle1_.setDeltaU(-0.5 * deltaKE);
 	retVal.particle2_.setDeltaU(-0.5 * deltaKE);	  
       

@@ -98,7 +98,7 @@ namespace dynamo {
 
 	dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, l * d);
 	if (retval.getdt() > dt)
-	  retval = IntEvent(p1, p2, dt, WELL_OUT, *this);
+	  retval = IntEvent(p1, p2, dt, STEP_OUT, *this);
       }
     else
       {
@@ -138,8 +138,8 @@ namespace dynamo {
 	  IntEvent event(iEvent);
 	  if (!isCaptured(p1, p2))
 	    {
-	      event.setType(WELL_IN);
-	      retVal.setType(WELL_IN);
+	      event.setType(STEP_IN);
+	      retVal.setType(STEP_IN);
 	      addToCaptureMap(p1, p2);
 	    }
 
@@ -152,7 +152,7 @@ namespace dynamo {
 
 	  break;
 	}
-      case WELL_OUT:
+      case STEP_OUT:
 	{
 	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, -wd, ld2));
 	

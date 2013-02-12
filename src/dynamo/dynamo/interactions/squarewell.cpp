@@ -155,14 +155,14 @@ namespace dynamo {
 
 	dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, l * d);
 	if (retval.getdt() > dt)
-	    retval = IntEvent(p1, p2, dt, WELL_OUT, *this);
+	    retval = IntEvent(p1, p2, dt, STEP_OUT, *this);
       }
     else
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, l * d);
 
       if (dt != HUGE_VAL)
-	retval = IntEvent(p1, p2, dt, WELL_IN, *this);
+	retval = IntEvent(p1, p2, dt, STEP_IN, *this);
       }
 
     return retval;
@@ -200,7 +200,7 @@ namespace dynamo {
 
 	  break;
 	}
-      case WELL_IN:
+      case STEP_IN:
 	{
 	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, wd, ld2));
 	
@@ -216,7 +216,7 @@ namespace dynamo {
 
 	  break;
 	}
-      case WELL_OUT:
+      case STEP_OUT:
 	{
 	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, -wd, ld2));
 	

@@ -101,17 +101,17 @@ namespace dynamo {
       {
 	kedown = true;
       
-	if (type == WELL_OUT)
+	if (type == STEP_OUT)
 	  newulevel = 1;
 	else
 	  newulevel = -1;
       }
-    else if (type == WELL_OUT)
+    else if (type == STEP_OUT)
       {
 	if (ulevel > 0) kedown = true;
 	newulevel = ulevel + 1; 
       }
-    else //if (type == WELL_IN)
+    else //if (type == STEP_IN)
       {
 	if (ulevel < 0) kedown = true;
 	newulevel = ulevel - 1;
@@ -192,7 +192,7 @@ namespace dynamo {
 	dt = Sim->dynamics->SphereSphereOutRoot(*range1, *range2, R_max);
 	
 	if (dt != HUGE_VAL)
-	  type = WELL_OUT;
+	  type = STEP_OUT;
       
 	return;
       }
@@ -222,7 +222,7 @@ namespace dynamo {
     
     if (dt != HUGE_VAL)
       {
-	type = WELL_IN;
+	type = STEP_IN;
 	return;
       }
 
@@ -230,7 +230,7 @@ namespace dynamo {
 
     if (dt != HUGE_VAL)
       {
-	type = WELL_OUT;
+	type = STEP_OUT;
 	return;
       }
   }

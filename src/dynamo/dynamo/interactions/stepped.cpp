@@ -211,7 +211,7 @@ namespace dynamo {
 
 	//Not captured, test for capture
 	if (dt != HUGE_VAL)
-	  retval = IntEvent(p1, p2, dt, WELL_IN, *this);
+	  retval = IntEvent(p1, p2, dt, STEP_IN, *this);
       }
     else
       {
@@ -224,14 +224,14 @@ namespace dynamo {
 	      (p1, p2, d);
 	    
 	    if (dt != HUGE_VAL)
-	      retval = IntEvent(p1, p2, dt, WELL_IN , *this);
+	      retval = IntEvent(p1, p2, dt, STEP_IN , *this);
 	  }
 
 	{//Now test for the outward step
 	  double d = steps[capstat->second-1].first * _unitLength->getMaxValue();
 	  double dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, d);
 	  if (retval.getdt() > dt)
-	      retval = IntEvent(p1, p2, dt, WELL_OUT, *this);
+	      retval = IntEvent(p1, p2, dt, STEP_OUT, *this);
 	}
       }
 
@@ -245,7 +245,7 @@ namespace dynamo {
 
     switch (iEvent.getType())
       {
-      case WELL_OUT:
+      case STEP_OUT:
 	{
 	  cmap_it capstat = getCMap_it(p1,p2);
 	
@@ -272,7 +272,7 @@ namespace dynamo {
 	    Ptr->eventUpdate(iEvent, retVal);
 	  break;
 	}
-      case WELL_IN:
+      case STEP_IN:
 	{
 	  cmap_it capstat = getCMap_it(p1, p2);
 	
