@@ -74,7 +74,6 @@ namespace dynamo {
     return retval;
   }
 
-
   double 
   ISquareWell::getExcludedVolume(size_t ID) const 
   { 
@@ -223,6 +222,7 @@ namespace dynamo {
       default:
 	M_throw() << "Unknown collision type";
       } 
+  }
  
   bool
   ISquareWell::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
@@ -310,4 +310,4 @@ namespace dynamo {
 		    +_wellDepth->getProperty(p2.getID()))
       * isCaptured(p1, p2);
   }
-} }
+}

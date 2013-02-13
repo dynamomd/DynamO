@@ -24,8 +24,8 @@
 #include <dynamo/species/species.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
-#include <dynamo/ranges/1RRange.hpp>
-#include <dynamo/ranges/2RSingle.hpp>
+#include <dynamo/ranges/IDRange.hpp>
+#include <dynamo/ranges/IDPairRange.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/NparticleEventData.hpp>
@@ -135,14 +135,13 @@ namespace dynamo {
     if (strcmp(XML.getAttribute("Type"),"PRIME_BB"))
       M_throw() << "Attempting to load PRIME_BB from non PRIME_BB entry";
 
-
     //We don't call this operator, as we custom load our Range (it must be a linear range)
     //Interaction::operator<<(XML);
     try {
       startID = XML.getAttribute("Start").as<unsigned long>();
       endID = XML.getAttribute("End").as<unsigned long>() + 1;
 
-      range = shared_ptr<C2Range>(new C2RSingle(new RRange(startID, endID)));
+      range = shared_ptr<IDRange>(new C2RSingle(new RRange(startID, endID)));
 
       intName = XML.getAttribute("Name");
     }

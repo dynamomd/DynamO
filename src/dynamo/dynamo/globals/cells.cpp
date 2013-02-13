@@ -348,34 +348,12 @@ namespace dynamo {
 	 << cellLatticeWidth[2] / Sim->units.unitLength()
 	 << "\nRequested supported length " << maxdiam / Sim->units.unitLength()
 	 << "\nSupported length           " << getMaxSupportedInteractionLength() / Sim->units.unitLength()
-<<<<<<< HEAD
-	 << std::endl;
-
-    if (getMaxSupportedInteractionLength() < maxdiam)
-      M_throw() << "The system size is too small to support the range of interactions specified (i.e. the system is smaller than the interaction diameter of one particle).";
-
-    //Find the required size of the morton array
-    magnet::math::MortonNumber<3> coords(cellCount[0], cellCount[1], cellCount[2]);
-    size_t sizeReq = coords.getMortonNum();
-
-    try {
-      cells.resize(sizeReq); //Empty Cells created!
-      list.resize(sizeReq); //Empty Cells created!
-    } catch (std::bad_alloc& e)
-      {
-	M_throw() << "Ran out of memory while creating the neighbourlist. This system will use " 
-		  << sizeReq << " cells, which appears to be too many.";
-      }
-
-    dout << "Vector Size <N>  " << sizeReq << std::endl;
-=======
 	 << "\nVector Size <N>  " << sizeReq << std::endl;
->>>>>>> upstream/master
-  
+
     //Add the particles section
     //Required so particles find the right owning cell
     Sim->dynamics->updateAllParticles();
-  
+
     ////Add all the particles 
     BOOST_FOREACH(const size_t& id, *range)
       {
