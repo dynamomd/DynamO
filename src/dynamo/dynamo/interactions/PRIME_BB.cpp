@@ -24,8 +24,8 @@
 #include <dynamo/species/species.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
-#include <dynamo/ranges/IDRange.hpp>
-#include <dynamo/ranges/IDPairRange.hpp>
+#include <dynamo/ranges/IDRangeRange.hpp>
+#include <dynamo/ranges/IDPairRangeSingle.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/NparticleEventData.hpp>
@@ -141,7 +141,7 @@ namespace dynamo {
       startID = XML.getAttribute("Start").as<unsigned long>();
       endID = XML.getAttribute("End").as<unsigned long>() + 1;
 
-      range = shared_ptr<IDRange>(new C2RSingle(new RRange(startID, endID)));
+      range = shared_ptr<IDPairRange>(new IDPairRangeSingle(new IDRangeRange(startID, endID)));
 
       intName = XML.getAttribute("Name");
     }
@@ -353,12 +353,8 @@ namespace dynamo {
   }
 
   bool 
-  IPRIME_BB::validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const
+  IPRIME_BB::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    Vector rij = p1.getPosition() - p2.getPosition();
-    Sim->BCs->applyBC(rij);
-    double r2 = rij.nrm2();
-
     //Calculate the interaction diameter and if the pair are bonded.
     std::pair<double, bool> interaction_data = getInteractionParameters(p1.getID(), p2.getID());
     double diameter = interaction_data.first;
