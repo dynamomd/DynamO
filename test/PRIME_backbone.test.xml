@@ -8,50 +8,58 @@
     <SimulationSize y="500.0" x="500.0" z="500.0"/>
     <BC Type="PBC"/>
     <Genus>
-      <Species Range="List" IntName="Backbone" Type="Point" Mass="0.999" Name="Nitrogen+Hydrogen">
-        <ID val="0"/>
-        <ID val="3"/>
-        <ID val="6"/>
-        <ID val="9"/>
-        <ID val="12"/>
-        <ID val="15"/>
-        <ID val="18"/>
-        <ID val="21"/>
-        <ID val="24"/>
-        <ID val="27"/>
+      <Species IntName="Backbone" Type="Point" Mass="0.999" Name="Nitrogen+Hydrogen">
+	<IDRange Type="List">
+	  <ID val="0"/>
+	  <ID val="3"/>
+	  <ID val="6"/>
+	  <ID val="9"/>
+	  <ID val="12"/>
+	  <ID val="15"/>
+	  <ID val="18"/>
+	  <ID val="21"/>
+	  <ID val="24"/>
+	  <ID val="27"/>
+	</IDRange>
       </Species>
-      <Species Range="List" IntName="Backbone" Type="Point" Mass="0.866" Name="Carbon+Hydrogen">
-        <ID val="1"/>
-        <ID val="4"/>
-        <ID val="7"/>
-        <ID val="10"/>
-        <ID val="13"/>
-        <ID val="16"/>
-        <ID val="19"/>
-        <ID val="22"/>
-        <ID val="25"/>
-        <ID val="28"/>
+      <Species IntName="Backbone" Type="Point" Mass="0.866" Name="Carbon+Hydrogen">
+	<IDRange Type="List">
+	  <ID val="1"/>
+	  <ID val="4"/>
+	  <ID val="7"/>
+	  <ID val="10"/>
+	  <ID val="13"/>
+	  <ID val="16"/>
+	  <ID val="19"/>
+	  <ID val="22"/>
+	  <ID val="25"/>
+	  <ID val="28"/>
+	</IDRange>
       </Species>
-      <Species Range="List" IntName="Backbone" Type="Point" Mass="1.863" Name="Carbon+Oxygen">
-        <ID val="2"/>
-        <ID val="5"/>
-        <ID val="8"/>
-        <ID val="11"/>
-        <ID val="14"/>
-        <ID val="17"/>
-        <ID val="20"/>
-        <ID val="23"/>
-        <ID val="26"/>
-        <ID val="29"/>
+      <Species IntName="Backbone" Type="Point" Mass="1.863" Name="Carbon+Oxygen">
+	<IDRange Type="List">
+	  <ID val="2"/>
+	  <ID val="5"/>
+	  <ID val="8"/>
+	  <ID val="11"/>
+	  <ID val="14"/>
+	  <ID val="17"/>
+	  <ID val="20"/>
+	  <ID val="23"/>
+	  <ID val="26"/>
+	  <ID val="29"/>
+	</IDRange>
       </Species>
     </Genus>
     <Topology/>
     <Interactions>
-      <Interaction Start="0" End="29" Type="PRIME_BB" Name="Backbone"/>
+      <Interaction Type="PRIME_BB" Name="Backbone" Start="0" End="29"/>
     </Interactions>
     <Locals/>
     <Globals>
-      <Global NeighbourhoodRange="5.000000000000e+00" Range="All" Type="Cells" Name="SchedulerNBList"/>
+      <Global NeighbourhoodRange="5.000000000000e+00" Type="Cells" Name="SchedulerNBList">
+	<IDRange Type="All"/>
+      </Global>
     </Globals>
     <SystemEvents/>
     <Dynamics Type="Newtonian"/>
