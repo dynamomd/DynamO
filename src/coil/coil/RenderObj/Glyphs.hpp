@@ -19,6 +19,8 @@
 #include <coil/RenderObj/AttributeColorSelector.hpp>
 #include <coil/RenderObj/AttributeOrientationSelector.hpp>
 #include <magnet/GL/shader/sphere.hpp>
+#include <magnet/GL/shader/simple_render.hpp>
+#include <magnet/GL/shader/render.hpp>
 #include <magnet/GL/buffer.hpp>
 
 namespace coil {
@@ -49,10 +51,24 @@ namespace coil {
     virtual Glib::RefPtr<Gdk::Pixbuf> getIcon();
 
     virtual uint32_t pickableObjectCount()
-    { return visible() ? _N : 0; }
+    { 
+      if (visible())
+	return _N * (2 * _xperiodicimages->get_value_as_int() + 1)
+	  * (2 * _yperiodicimages->get_value_as_int() + 1)
+	  * (2 * _zperiodicimages->get_value_as_int() + 1);
+	
+      return 0; 
+    }
 
     virtual void pickingRender(const magnet::GL::Camera& cam, 
 			       const uint32_t offset);
+
+    virtual std::tr1::array<GLfloat, 4> getCursorPosition(uint32_t objID);
+
+    virtual std::string getCursorText(uint32_t objID);
+
+    virtual magnet::math::Vector getMaxCoord() const;
+    virtual magnet::math::Vector getMinCoord() const;
 
   protected:
     void glyph_type_changed();
@@ -76,6 +92,9 @@ namespace coil {
     std::auto_ptr<Gtk::SpinButton> _glyphLOD;
     std::auto_ptr<Gtk::HBox> _glyphBox;
     std::auto_ptr<Gtk::CheckButton> _glyphRaytrace;
+    std::auto_ptr<Gtk::SpinButton> _xperiodicimages;
+    std::auto_ptr<Gtk::SpinButton> _yperiodicimages;
+    std::auto_ptr<Gtk::SpinButton> _zperiodicimages;
 
     std::auto_ptr<Gtk::HBox>  _scaleFactorBox;
     std::auto_ptr<Gtk::Label> _scaleLabel;
@@ -86,7 +105,9 @@ namespace coil {
     float _scale;
     int _initGlyphType;
     magnet::GL::Context::ContextPtr _context;
+    magnet::GL::shader::RenderShader _renderShader;
     magnet::GL::shader::SphereShader _sphereShader;
     magnet::GL::shader::SphereVSMShader _sphereVSMShader;
+    magnet::GL::shader::SimpleRenderShader _simpleRenderShader;
  };
 }

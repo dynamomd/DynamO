@@ -39,12 +39,25 @@ namespace coil {
       }
   }
 
+  std::tr1::array<GLfloat, 4> 
+  Glyphs::getCursorPosition(uint32_t objID)
+  {
+    return _ds.getCursorPosition(objID % _N);
+  }
+
+  std::string 
+  Glyphs::getCursorText(uint32_t objID)
+  { return _ds.getCursorText(objID % _N); }
 
   void 
   Glyphs::glRender(const magnet::GL::Camera& cam, RenderMode mode) 
   {    
     _primitiveVertices.getContext()->resetInstanceTransform();
-
+    
+    int _ximages(_xperiodicimages->get_value_as_int());
+    int _yimages(_yperiodicimages->get_value_as_int());
+    int _zimages(_zperiodicimages->get_value_as_int());
+			  
     switch (_glyphType->get_active_row_number())
       {
       case SPHERE_GLYPH:
@@ -61,11 +74,19 @@ namespace coil {
 		{
 		  _sphereVSMShader.attach();
 		  _sphereVSMShader["ProjectionMatrix"] = cam.getProjectionMatrix();
-		  _sphereVSMShader["ViewMatrix"] = cam.getViewMatrix();
 		  _sphereVSMShader["global_scale"] = _scale;
 		  _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
 		  _colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 0);
-		  _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+		  for (int x(-_ximages); x <= _ximages; ++x)
+		    for (int y(-_yimages); y <= _yimages; ++y)
+		      for (int z(-_zimages); z <= _zimages; ++z)
+			{
+			  Vector displacement = x * _ds.getPeriodicVectorX() 
+			    + y * _ds.getPeriodicVectorY() 
+			    + z * _ds.getPeriodicVectorZ();
+			  _sphereVSMShader["ViewMatrix"] = cam.getViewMatrix() * magnet::GL::GLMatrix::translate(displacement);
+			  _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+			}
 		  _sphereVSMShader.detach();
 
 		}
@@ -73,11 +94,19 @@ namespace coil {
 		{
 		  _sphereShader.attach();
 		  _sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
-		  _sphereShader["ViewMatrix"] = cam.getViewMatrix();
 		  _sphereShader["global_scale"] = _scale;
 		  _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
 		  _colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 0);
-		  _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+		  for (int x(-_ximages); x <= _ximages; ++x)
+		    for (int y(-_yimages); y <= _yimages; ++y)
+		      for (int z(-_zimages); z <= _zimages; ++z)
+			{
+			  Vector displacement = x * _ds.getPeriodicVectorX() 
+			    + y * _ds.getPeriodicVectorY() 
+			    + z * _ds.getPeriodicVectorZ();
+			  _sphereShader["ViewMatrix"] = cam.getViewMatrix() * magnet::GL::GLMatrix::translate(displacement);
+			  _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+			}
 		  _sphereShader.detach();
 		}
 
@@ -96,14 +125,27 @@ namespace coil {
       }
     
     if (!_primitiveVertices.size()) return;
-    
+
+    _renderShader.attach();
+    _renderShader["ProjectionMatrix"] = cam.getProjectionMatrix();
+
     _ds.getPositionBuffer().attachToAttribute(magnet::GL::Context::instanceOriginAttrIndex, 1);
     _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 1);
     _orientSel->bindAttribute(magnet::GL::Context::instanceOrientationAttrIndex, 1);
     _colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 1);
     _primitiveVertices.attachToVertex();
     _primitiveNormals.attachToNormal();
-    _primitiveIndices.drawInstancedElements(getElementType(), _N);
+    for (int x(-_ximages); x <= _ximages; ++x)
+      for (int y(-_yimages); y <= _yimages; ++y)
+	for (int z(-_zimages); z <= _zimages; ++z)
+	  {
+	    Vector displacement = x * _ds.getPeriodicVectorX() 
+	      + y * _ds.getPeriodicVectorY() 
+	      + z * _ds.getPeriodicVectorZ();
+	    _renderShader["ViewMatrix"] = cam.getViewMatrix() * magnet::GL::GLMatrix::translate(displacement);
+	    _primitiveIndices.drawInstancedElements(getElementType(), _N);
+	  }
+    _renderShader.detach();
   }
 
   void 
@@ -116,6 +158,8 @@ namespace coil {
     RenderObj::deinit();
     _sphereShader.deinit();
     _sphereVSMShader.deinit();
+    _renderShader.deinit();
+    _simpleRenderShader.deinit();
     _gtkOptList.reset();
     _scaleSel.reset(); 
     _colorSel.reset();
@@ -152,6 +196,9 @@ namespace coil {
     
     _context = magnet::GL::Context::getContext();
     _raytraceable = _context->testExtension("GL_EXT_geometry_shader4");
+
+    _renderShader.build();
+    _simpleRenderShader.build();
 
     if (_raytraceable) 
       {
@@ -249,6 +296,48 @@ namespace coil {
       .connect(sigc::mem_fun(*this, &Glyphs::glyph_type_changed));
     _scaleFactor->signal_changed()
       .connect(sigc::mem_fun(*this, &Glyphs::guiUpdate));
+
+    //Periodic image rendering
+    separator = Gtk::manage(new Gtk::HSeparator); 
+    separator->show();
+    _gtkOptList->pack_start(*separator, false, false, 0);
+    
+    Gtk::HBox* periodicbox = Gtk::manage(new Gtk::HBox);
+    periodicbox->show();
+    _gtkOptList->pack_start(*periodicbox, false, false, 5);
+
+    {
+      Gtk::Label* label = Gtk::manage(new Gtk::Label("x")); label->show();
+      periodicbox->pack_start(*label, false, false, 5);
+    }
+    _xperiodicimages.reset(new Gtk::SpinButton(1, 0)); 
+    _xperiodicimages->show();
+    _xperiodicimages->set_numeric(true);
+    _xperiodicimages->set_increments(1,1);
+    _xperiodicimages->set_range(0, 10);
+    periodicbox->pack_start(*_xperiodicimages, false, false, 5);
+
+    {
+      Gtk::Label* label = Gtk::manage(new Gtk::Label("y")); label->show();
+      periodicbox->pack_start(*label, false, false, 5);
+    }
+    _yperiodicimages.reset(new Gtk::SpinButton(1, 0)); 
+    _yperiodicimages->show();
+    _yperiodicimages->set_numeric(true);
+    _yperiodicimages->set_increments(1,1);
+    _yperiodicimages->set_range(0, 10);
+    periodicbox->pack_start(*_yperiodicimages, false, false, 5);
+    
+    {
+      Gtk::Label* label = Gtk::manage(new Gtk::Label("z")); label->show();
+      periodicbox->pack_start(*label, false, false, 5);
+    }
+    _zperiodicimages.reset(new Gtk::SpinButton(1, 0)); 
+    _zperiodicimages->show();
+    _zperiodicimages->set_numeric(true);
+    _zperiodicimages->set_increments(1,1);
+    _zperiodicimages->set_range(0, 10);
+    periodicbox->pack_start(*_zperiodicimages, false, false, 5);
   }
 
   void 
@@ -431,6 +520,10 @@ namespace coil {
   {
     _primitiveVertices.getContext()->resetInstanceTransform();
 
+    int _ximages(_xperiodicimages->get_value_as_int());
+    int _yimages(_yperiodicimages->get_value_as_int());
+    int _zimages(_zperiodicimages->get_value_as_int());
+
     magnet::GL::Buffer<GLubyte> colorbuf;
     {//Send unique color id's to colorbuf
       std::vector<GLubyte> colors;
@@ -439,7 +532,7 @@ namespace coil {
 	*reinterpret_cast<uint32_t*>(&(colors[4 * i])) = offset + i;
       colorbuf.init(colors, 4);
     }
-
+    
     switch (_glyphType->get_active_row_number())
       {
       case SPHERE_GLYPH:
@@ -448,11 +541,21 @@ namespace coil {
 	    {
 	      _sphereShader.attach();
 	      _sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
-	      _sphereShader["ViewMatrix"] = cam.getViewMatrix();
 	      _sphereShader["global_scale"] = _scale;
 	      _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
 	      colorbuf.attachToColor();
-	      _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+
+	      for (int x(-_ximages); x <= _ximages; ++x)
+		for (int y(-_yimages); y <= _yimages; ++y)
+		  for (int z(-_zimages); z <= _zimages; ++z)
+		    {
+		      Vector displacement = x * _ds.getPeriodicVectorX() 
+			+ y * _ds.getPeriodicVectorY() 
+			+ z * _ds.getPeriodicVectorZ();
+		      _sphereShader["ViewMatrix"] = cam.getViewMatrix() * magnet::GL::GLMatrix::translate(displacement);
+		      _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+		    }
+
 	      _sphereShader.detach();
 	      return;
 	    }
@@ -468,12 +571,68 @@ namespace coil {
     
     if (!_primitiveVertices.size()) return;
 
+    _simpleRenderShader.attach();
+    _simpleRenderShader["ProjectionMatrix"] = cam.getProjectionMatrix();
     _ds.getPositionBuffer().attachToAttribute(magnet::GL::Context::instanceOriginAttrIndex, 1);
     _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 1);
     _orientSel->bindAttribute(magnet::GL::Context::instanceOrientationAttrIndex, 1);
     colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, 1, true);
     _primitiveVertices.attachToVertex();
     _primitiveNormals.attachToNormal();
-    _primitiveIndices.drawInstancedElements(getElementType(), _N);
+
+    for (int x(-_ximages); x <= _ximages; ++x)
+      for (int y(-_yimages); y <= _yimages; ++y)
+	for (int z(-_zimages); z <= _zimages; ++z)
+	  {
+	    Vector displacement = x * _ds.getPeriodicVectorX() 
+	      + y * _ds.getPeriodicVectorY() 
+	      + z * _ds.getPeriodicVectorZ();
+	    _simpleRenderShader["ViewMatrix"] = cam.getViewMatrix() * magnet::GL::GLMatrix::translate(displacement);
+	    _primitiveIndices.drawInstancedElements(getElementType(), _N);
+	  }
+
+    _simpleRenderShader.detach();
+  }
+  
+  magnet::math::Vector 
+  Glyphs::getMaxCoord() const
+  {
+    int images[3] = {_xperiodicimages->get_value_as_int(),
+		     _yperiodicimages->get_value_as_int(),
+		     _zperiodicimages->get_value_as_int()};
+
+    std::vector<GLfloat> maxs = _ds.getPositionSelector()->getMax();
+    
+    for (size_t i(0); i < 3; ++i)
+      {
+	GLfloat maxmovement
+	  = std::max(std::max(std::abs(images[0] * _ds.getPeriodicVectorX()[i]),
+			      std::abs(images[1] * _ds.getPeriodicVectorY()[i])),
+		     std::abs(images[2] * _ds.getPeriodicVectorZ()[i]));
+	maxs[i] += maxmovement;
+      }
+
+    return magnet::math::Vector(maxs[0], maxs[1], maxs[2]);
+  }
+
+  magnet::math::Vector 
+  Glyphs::getMinCoord() const
+  {
+    int images[3] = {_xperiodicimages->get_value_as_int(),
+		     _yperiodicimages->get_value_as_int(),
+		     _zperiodicimages->get_value_as_int()};
+
+    std::vector<GLfloat> mins = _ds.getPositionSelector()->getMin();
+    
+    for (size_t i(0); i < 3; ++i)
+      {
+	GLfloat maxmovement
+	  = std::max(std::max(std::abs(images[0] * _ds.getPeriodicVectorX()[i]),
+			      std::abs(images[1] * _ds.getPeriodicVectorY()[i])),
+		     std::abs(images[2] * _ds.getPeriodicVectorZ()[i]));
+	mins[i] -= maxmovement;
+      }
+
+    return magnet::math::Vector(mins[0], mins[1], mins[2]);
   }
 }

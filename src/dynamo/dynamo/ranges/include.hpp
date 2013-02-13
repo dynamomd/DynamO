@@ -14,20 +14,21 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-#include <dynamo/ranges/1RAll.hpp>
-#include <dynamo/ranges/1RList.hpp>
-#include <dynamo/ranges/1RRange.hpp>
-#include <dynamo/ranges/1RSingle.hpp>
-#include <dynamo/ranges/1RNone.hpp>
-#include <dynamo/ranges/2RList.hpp>
-#include <dynamo/ranges/2RPair.hpp>
-#include <dynamo/ranges/2RRangeList.hpp>
-#include <dynamo/ranges/2RSingle.hpp>
-#include <dynamo/ranges/2RChains.hpp>
-#include <dynamo/ranges/2RChainGroups.hpp>
-#include <dynamo/ranges/2RIntraChains.hpp>
-#include <dynamo/ranges/2RRings.hpp>
-#include <dynamo/ranges/2RAll.hpp>
-#include <dynamo/ranges/2RNone.hpp>
-#include <dynamo/ranges/2RChainEnds.hpp>
+#include <dynamo/ranges/IDPairRangeAll.hpp>
+#include <dynamo/ranges/IDPairRangeChainEnds.hpp>
+#include <dynamo/ranges/IDPairRangeChainGroups.hpp>
+#include <dynamo/ranges/IDPairRangeChains.hpp>
+#include <dynamo/ranges/IDPairRange.hpp>
+#include <dynamo/ranges/IDPairRangeIntraChains.hpp>
+#include <dynamo/ranges/IDPairRangeList.hpp>
+#include <dynamo/ranges/IDPairRangeNone.hpp>
+#include <dynamo/ranges/IDPairRangeUnion.hpp>
+#include <dynamo/ranges/IDPairRangeRangePair.hpp>
+#include <dynamo/ranges/IDPairRangeRings.hpp>
+#include <dynamo/ranges/IDPairRangeSingle.hpp>
+#include <dynamo/ranges/IDRangeAll.hpp>
+#include <dynamo/ranges/IDRange.hpp>
+#include <dynamo/ranges/IDRangeList.hpp>
+#include <dynamo/ranges/IDRangeNone.hpp>
+#include <dynamo/ranges/IDRangeRange.hpp>
+#include <dynamo/ranges/IDRangeUnion.hpp>

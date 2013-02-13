@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/base.hpp>
-#include <dynamo/ranges/1range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 
 namespace magnet { namespace xml { class Node; } }
 namespace xml { class XmlStream; }
@@ -44,7 +44,7 @@ namespace dynamo {
      * \param range The range of particles for which this interaction is
      * valid (the default value of NULL indicates all particles are valid).
      */
-    Global(dynamo::Simulation* sim, std::string name, Range* range = NULL);
+    Global(dynamo::Simulation* sim, std::string name, IDRange* range = NULL);
   
     /*! \brief Returns true if the Global applies to the passed
      * particle.
@@ -99,7 +99,7 @@ namespace dynamo {
      */
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
-    shared_ptr<Range> range;  
+    shared_ptr<IDRange> range;  
     std::string globName;
     size_t ID;
   };

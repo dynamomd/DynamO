@@ -41,7 +41,7 @@ namespace dynamo {
 
     void output(magnet::xml::XmlStream &); 
 
-    double calcMSD(const Range& range) const;
+    double calcMSD(const IDRange& range) const;
 
     double calcStructMSD(const Topology&) const;
   

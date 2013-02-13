@@ -20,11 +20,7 @@
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/units/units.hpp>
-#include <dynamo/ranges/1RAll.hpp>
-#include <dynamo/ranges/1RNone.hpp>
-#include <dynamo/ranges/2RSingle.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
-#include <dynamo/locals/local.hpp>
 #include <dynamo/BC/LEBC.hpp>
 #include <magnet/xmlwriter.hpp>
 
@@ -39,11 +35,9 @@ namespace dynamo {
 
   GCellsShearing::GCellsShearing(const magnet::xml::Node& XML, 
 				 dynamo::Simulation* ptrSim):
-    GCells(ptrSim, "Unknown")
+    GCells(ptrSim, "ShearingCells")
   {
     operator<<(XML);
-    name = "ShearingCells";
-
     dout << "Cells in shearing Loaded" << std::endl;
   }
 
@@ -60,10 +54,6 @@ namespace dynamo {
 
     reinitialise();
   }
-
-  void
-  GCellsShearing::outputXML(magnet::xml::XmlStream& XML) const
-  { GCells::outputXML(XML, "ShearingCells"); }
 
   GlobalEvent 
   GCellsShearing::getEvent(const Particle& part) const
@@ -258,11 +248,7 @@ namespace dynamo {
 	    ++newNBCell[dim2];
 	  }
       }
-	   
-    BOOST_FOREACH(const size_t& lID, cells[endCell.getMortonNum()])
-      BOOST_FOREACH(const nbHoodSlot& nbs, sigNewLocalNotify)
-        nbs.second(part, lID);
-  
+    
     //Push the next virtual event, this is the reason the scheduler
     //doesn't need a second callback
     Sim->ptrScheduler->pushEvent(part, getEvent(part));
@@ -291,22 +277,22 @@ namespace dynamo {
 #endif
   }
 
-  RList
+  IDRangeList
   GCellsShearing::getParticleNeighbours(const Particle& part) const
   {
     return getParticleNeighbours(magnet::math::MortonNumber<3>(partCellData[part.getID()]));
   }
 
-  RList
+  IDRangeList
   GCellsShearing::getParticleNeighbours(const Vector& vec) const
   {
     return getParticleNeighbours(magnet::math::MortonNumber<3>(getCellID(vec)));
   }
 
-  RList
+  IDRangeList
   GCellsShearing::getParticleNeighbours(const magnet::math::MortonNumber<3>& cellCoords) const
   {
-    RList retval(GCells::getParticleNeighbours(cellCoords));
+    IDRangeList retval(GCells::getParticleNeighbours(cellCoords));
 
     if ((cellCoords[1] == 0) || (cellCoords[1] == dilatedCellMax[1]))
       {

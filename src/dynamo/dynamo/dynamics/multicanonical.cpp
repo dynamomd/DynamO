@@ -41,9 +41,6 @@ namespace dynamo {
 		<< XML.getAttribute("Type")
 		<< " entry";
 
-    if (dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()) == NULL)
-      M_throw() << "Multi-canonical simulations require an NVT ensemble";
-
     try 
       {     
 	if (XML.hasNode("PotentialDeformation"))
@@ -72,7 +69,7 @@ namespace dynamo {
   void 
   DynNewtonianMC::outputXML(magnet::xml::XmlStream& XML) const
   {
-    boost::unordered_map<int, double> wout = _W;
+    std::tr1::unordered_map<int, double> wout = _W;
 
     XML << magnet::xml::attr("Type")
 	<< "NewtonianMC"
@@ -97,8 +94,9 @@ namespace dynamo {
   void DynNewtonianMC::initialise()
   {
     DynNewtonian::initialise();
-    
-    //Confirm that the energy output plugin is available
+
+    if (dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()) == NULL)
+      M_throw() << "Multi-canonical simulations require an NVT ensemble";
     
     if (!(Sim->getOutputPlugin<OPMisc>()))
       M_throw() << "Multicanonical dynamics requires the Misc plugin";
@@ -106,7 +104,7 @@ namespace dynamo {
 
 
   NEventData 
-  DynNewtonianMC::multibdyWellEvent(const Range& range1, const Range& range2, 
+  DynNewtonianMC::multibdyWellEvent(const IDRange& range1, const IDRange& range2, 
 				  const double&, const double& deltaKE, 
 				  EEventType& eType) const
   {
@@ -151,7 +149,7 @@ namespace dynamo {
       {
 	event.setType(BOUNCE);
 	retVal.setType(BOUNCE);
-	retVal.dP = retVal.rij * 2.0 * mu * retVal.rvdot / R2;
+	retVal.impulse = retVal.rij * 2.0 * mu * retVal.rvdot / R2;
       }
     else
       {
@@ -170,21 +168,21 @@ namespace dynamo {
 	retVal.particle2_.setDeltaU(-0.5 * deltaKE);	  
       
 	if (retVal.rvdot < 0)
-	  retVal.dP = retVal.rij 
+	  retVal.impulse = retVal.rij 
 	    * (2.0 * MCDeltaKE / (std::sqrt(sqrtArg) - retVal.rvdot));
 	else
-	  retVal.dP = retVal.rij 
+	  retVal.impulse = retVal.rij 
 	    * (-2.0 * MCDeltaKE / (retVal.rvdot + std::sqrt(sqrtArg)));
       }
   
 #ifdef DYNAMO_DEBUG
-    if (boost::math::isnan(retVal.dP[0]))
+    if (boost::math::isnan(retVal.impulse[0]))
       M_throw() << "A nan dp has ocurred";
 #endif
   
     //This function must edit particles so it overrides the const!
-    particle1.getVelocity() -= retVal.dP / p1Mass;
-    particle2.getVelocity() += retVal.dP / p2Mass;
+    particle1.getVelocity() -= retVal.impulse / p1Mass;
+    particle2.getVelocity() += retVal.impulse / p2Mass;
   
     retVal.particle1_.setDeltaKE(0.5 * p1Mass * (particle1.getVelocity().nrm2() 
 						 - retVal.particle1_.getOldVel().nrm2()));

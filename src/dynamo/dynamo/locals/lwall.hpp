@@ -20,7 +20,7 @@
 #include <dynamo/coilRenderObj.hpp>
 #include <dynamo/simulation.hpp>
 #ifdef DYNAMO_visualizer
-# include <coil/RenderObj/Function.hpp>
+# include <coil/RenderObj/Surface.hpp>
 #endif 
 
 namespace dynamo {
@@ -31,12 +31,13 @@ namespace dynamo {
 
     template<class T1, class T2>
     LWall(dynamo::Simulation* nSim, T1 e, T2 d, Vector nnorm,
-	  Vector  norigin, std::string nname, Range* nRange):
+	  Vector  norigin, std::string nname, IDRange* nRange):
       Local(nRange, nSim, "LocalWall"),
       vNorm(nnorm),
       vPosition(norigin),
       _diameter(Sim->_properties.getProperty(d, Property::Units::Length())),
-      _e(Sim->_properties.getProperty(e, Property::Units::Dimensionless()))
+      _e(Sim->_properties.getProperty(e, Property::Units::Dimensionless())),
+      sqrtT(0)
     { localName = nname; }
 
     virtual ~LWall() {}
@@ -45,11 +46,9 @@ namespace dynamo {
 
     virtual void runEvent(Particle&, const LocalEvent&) const;
   
-    virtual bool isInCell(const Vector &, const Vector &) const;
-
     virtual void operator<<(const magnet::xml::Node&);
 
-    virtual void checkOverlaps(const Particle&) const;
+    virtual bool validateState(const Particle& part, bool textoutput = true) const;
 
 #ifdef DYNAMO_visualizer
     virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const;
@@ -58,7 +57,7 @@ namespace dynamo {
 
   protected:
 #ifdef DYNAMO_visualizer
-    mutable shared_ptr<coil::RFunction> _renderObj;
+    mutable shared_ptr<coil::RSurface> _renderObj;
 #endif
 
     virtual void outputXML(magnet::xml::XmlStream&) const;

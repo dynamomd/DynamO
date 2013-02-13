@@ -17,7 +17,7 @@
 
 #include <dynamo/outputplugins/tickerproperty/chaintorsion.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/ranges/1range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/topology/include.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
@@ -79,7 +79,7 @@ namespace dynamo {
       {
 	double sysGamma  = 0.0;
 	long count = 0;
-	BOOST_FOREACH(const shared_ptr<Range>& range,  dat.chainPtr->getMolecules())
+	BOOST_FOREACH(const shared_ptr<IDRange>& range,  dat.chainPtr->getMolecules())
 	  {
 	    if (range->size() < 3)//Need three for curv and torsion
 	      break;
@@ -96,7 +96,7 @@ namespace dynamo {
 	    std::vector<Vector> vec;
 
 	    //Calc first and second derivatives
-	    for (Range::iterator it = range->begin() + 1; it != range->end() - 1; it++)
+	    for (IDRange::iterator it = range->begin() + 1; it != range->end() - 1; it++)
 	      {
 		tmp = 0.5 * (Sim->particles[*(it+1)].getPosition()
 			     - Sim->particles[*(it-1)].getPosition());
@@ -134,13 +134,13 @@ namespace dynamo {
 
 		double minradius = HUGE_VAL;
 
-		for (Range::iterator it1 = range->begin(); 
+		for (IDRange::iterator it1 = range->begin(); 
 		     it1 != range->end(); it1++)
 		  //Check this particle is not the same, or adjacent
 		  if (*it1 != *(range->begin()+2+i)
 		      && *it1 != *(range->begin()+1+i)
 		      && *it1 != *(range->begin()+3+i))
-		    for (Range::iterator it2 = range->begin() + 1; 
+		    for (IDRange::iterator it2 = range->begin() + 1; 
 			 it2 != range->end() - 1; it2++)
 		      //Check this particle is not the same, or adjacent to the studied particle
 		      if (*it1 != *it2

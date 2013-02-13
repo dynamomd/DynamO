@@ -24,20 +24,27 @@ namespace magnet { namespace xml { class Node; } }
 
 namespace dynamo {
   /*! \brief The class used to convert in and out of simulation units.
-   *
-   * The derived classes of Units control the units that the simulation
-   * is performed in. All classes scale the system such that its largest
-   * box length is unity to allow an optimisation in the square
-   * BoundaryCondition.
-   *
-   * Another reason to set the units is to counteract the above scaling
-   * for debugging reasons. Changing the length means you can either
-   * preserve the unit time or the unit energy but not both. UShear and
-   * USquareWell preserve the time and energy respectively.
-   *
-   * This class has a particular design specification in that it is
-   * initialised on construction so that other classes may directly
-   * start conversions on the loading of configurations.
+   
+    This class tracks the units of the simulation and provides helper
+    functions to generate more complicated units from the elementary
+    mass/length scales.
+
+    The purpose of this class is to make it very easy to perform
+    simulations in a "computationally easy" set of units, but have the
+    simulator input and output in another set of units.
+
+    Examples of this are: 
+    - If the system size can be rescaled to a 1x1x1 box, applying
+    periodic boundary conditions becomes a simple rounding operation
+    (this feature has been removed from DynamO, as it greatly
+    complicates the code for very little speedup).
+    - In replica-exchange simulations, the configurations may all be
+    run at a reduced temperature so that the velocities do not have to
+    be rescaled during exchanges (not implemented yet in DynamO).
+    
+    This class has a particular design specification in that it must
+    be fully initialised on construction, so that other classes may
+    directly start conversions on the loading of configurations.
    */
   class Units
   {
@@ -89,6 +96,8 @@ namespace dynamo {
     /*! Helper function to generate the unit of momentum*/
     inline double unitMomentum() const
     { return unitMass() * unitVelocity();}
+    inline double unitInertia() const
+    { return unitArea() * unitMass(); }
 
     //Some dimensions of some properties
     /*! Helper function to generate the units of diffusion outputted by

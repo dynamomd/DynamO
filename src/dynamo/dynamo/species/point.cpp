@@ -16,8 +16,8 @@
 */
 
 #include <dynamo/species/include.hpp>
-#include <dynamo/ranges/1range.hpp>
-#include <dynamo/ranges/1RAll.hpp>
+#include <dynamo/ranges/IDRange.hpp>
+#include <dynamo/ranges/IDRangeAll.hpp>
 #include <dynamo/particle.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/units/units.hpp>
@@ -30,7 +30,7 @@ namespace dynamo {
   void 
   SpPoint::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<Range>(Range::getClass(XML,Sim));
+    range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
   
     try {
       _mass = Sim->_properties.getProperty(XML.getAttribute("Mass"),

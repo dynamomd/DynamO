@@ -27,8 +27,8 @@ namespace dynamo {
   void 
   SCERange::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<Range>(Range::getClass(XML, Sim));    
-    _testrange = shared_ptr<Range>(Range::getClass(XML.getNode("OtherParticles"), Sim));
+    range = shared_ptr<IDRange>(IDRange::getClass(XML, Sim));    
+    _testrange = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("OtherParticles"), Sim));
   }
 
   void 

@@ -17,7 +17,7 @@
 
 #include <dynamo/outputplugins/tickerproperty/radiusGyration.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/ranges/1range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/topology/include.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
@@ -92,7 +92,7 @@ namespace dynamo {
   }
 
   OPRGyration::molGyrationDat
-  OPRGyration::getGyrationEigenSystem(const shared_ptr<Range>& range, const dynamo::Simulation* Sim)
+  OPRGyration::getGyrationEigenSystem(const shared_ptr<IDRange>& range, const dynamo::Simulation* Sim)
   {
     //Determine the centre of mass. Watch for periodic images
     Vector  tmpVec;  
@@ -106,7 +106,7 @@ namespace dynamo {
     relVecs.push_back(Vector(0,0,0));
   
     //Walk along the chain
-    for (Range::iterator iPtr = range->begin()+1; iPtr != range->end(); iPtr++)
+    for (IDRange::iterator iPtr = range->begin()+1; iPtr != range->end(); iPtr++)
       {
 	Vector currRelPos = Sim->particles[*iPtr].getPosition() 
 	  - Sim->particles[*(iPtr - 1)].getPosition();
@@ -185,7 +185,7 @@ namespace dynamo {
       {
 	std::list<Vector  > molAxis;
 
-	BOOST_FOREACH(const shared_ptr<Range>& range,  dat.chainPtr->getMolecules())
+	BOOST_FOREACH(const shared_ptr<IDRange>& range,  dat.chainPtr->getMolecules())
 	  {
 	    molGyrationDat vals = getGyrationEigenSystem(range, Sim);	  
 	    //Take the largest eigenvector as the molecular axis
@@ -222,7 +222,7 @@ namespace dynamo {
 
 	std::list<Vector  > molAxis;
 
-	BOOST_FOREACH(const shared_ptr<Range>& range,  dat.chainPtr->getMolecules())
+	BOOST_FOREACH(const shared_ptr<IDRange>& range,  dat.chainPtr->getMolecules())
 	  molAxis.push_back(getGyrationEigenSystem(range, Sim).EigenVec[NDIM-1]);
 
 	Vector  EigenVal = NematicOrderParameter(molAxis);

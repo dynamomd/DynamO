@@ -22,6 +22,7 @@
 # include <dynamo/interactions/glyphrepresentation.hpp>
 # include <dynamo/dynamics/compression.hpp>
 # include <dynamo/schedulers/scheduler.hpp>
+# include <dynamo/BC/LEBC.hpp>
 #endif
 
 #include <magnet/xmlreader.hpp>
@@ -45,12 +46,9 @@ namespace dynamo {
   {
     if (!std::strcmp(XML.getAttribute("Type"), "Point"))
       return shared_ptr<Species>(new SpPoint(XML, tmp, nID));
-    else if (!std::strcmp(XML.getAttribute("Type"), "SphericalTop"))
+    else if ((!std::strcmp(XML.getAttribute("Type"), "SphericalTop"))
+	     || (!std::strcmp(XML.getAttribute("Type"), "Lines")))
       return shared_ptr<Species>(new SpSphericalTop(XML, tmp, nID));
-    else if (!std::strcmp(XML.getAttribute("Type"), "Lines"))
-      return shared_ptr<Species>(new SpLines(XML, tmp, nID));
-    else if (!std::strcmp(XML.getAttribute("Type"), "Dumbbells"))
-      return shared_ptr<Species>(new SpDumbbells(XML, tmp, nID));
     else if (!std::strcmp(XML.getAttribute("Type"), "FixedCollider"))
       return shared_ptr<Species>(new SpFixedCollider(XML, tmp, nID));
     else 
@@ -84,6 +82,10 @@ namespace dynamo {
     _renderData->addAttribute("Size", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_SCALING, 3);
     _renderData->addAttribute("Mass", coil::Attribute::EXTENSIVE, 1);
     _renderData->addAttribute("Event Count", coil::Attribute::EXTENSIVE, 1);
+
+    _renderData->setPeriodicVectors(Vector(Sim->primaryCellSize[0], 0, 0),
+				    Vector(0, Sim->primaryCellSize[1], 0),
+				    Vector(0, 0, Sim->primaryCellSize[2]));
 
     if (Sim->dynamics->hasOrientationData())
       {
@@ -126,7 +128,16 @@ namespace dynamo {
   {
     if (!_renderData)
       M_throw() << "Updating before the render object has been fetched";
-  
+    
+    shared_ptr<BCLeesEdwards> BC = std::tr1::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs);
+    if (BC)
+      {
+	_renderData->setPeriodicVectors(Vector(Sim->primaryCellSize[0], 0, 0),
+					Vector(BC->getBoundaryDisplacement(), Sim->primaryCellSize[1], 0),
+					Vector(0, 0, Sim->primaryCellSize[2]));
+      }
+
+
     ///////////////////////POSITION DATA UPDATE
     //Check if the system is compressing and adjust the radius scaling factor
     float rfactor = 1.0;

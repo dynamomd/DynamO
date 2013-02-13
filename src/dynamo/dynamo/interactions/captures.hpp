@@ -20,8 +20,9 @@
 #include <dynamo/particle.hpp>
 #include <dynamo/interactions/interaction.hpp>
 #include <magnet/exception.hpp>
-#include <boost/tr1/unordered_set.hpp>
-#include <boost/tr1/unordered_map.hpp>
+#include <boost/functional/hash.hpp>
+#include <tr1/unordered_set>
+#include <tr1/unordered_map>
 #include <vector>
 
 namespace dynamo {
@@ -37,7 +38,7 @@ namespace dynamo {
   class ICapture: public Interaction
   {
   public:
-    ICapture(dynamo::Simulation* sim, C2Range* range): Interaction(sim, range), noXmlLoad(true) {}
+    ICapture(dynamo::Simulation* sim, IDPairRange* range): Interaction(sim, range), noXmlLoad(true) {}
 
     //! \brief Returns the number of particles that are captured in some way
     virtual size_t getTotalCaptureCount() const = 0;
@@ -92,7 +93,7 @@ namespace dynamo {
   class ISingleCapture: public ICapture
   {
   public:
-    ISingleCapture(dynamo::Simulation* sim, C2Range* range): ICapture(sim, range) {}
+    ISingleCapture(dynamo::Simulation* sim, IDPairRange* range): ICapture(sim, range) {}
 
     size_t getTotalCaptureCount() const { return captureMap.size(); }
   
@@ -101,9 +102,11 @@ namespace dynamo {
 
     virtual void clear() const { captureMap.clear(); }
 
+    virtual size_t validateState(bool textoutput = true, size_t max_reports = std::numeric_limits<size_t>::max()) const;
+
   protected:
 
-    mutable std::tr1::unordered_set<cMapKey > captureMap;
+    mutable std::tr1::unordered_set<cMapKey, boost::hash<cMapKey> > captureMap;
 
     /*! \brief Test if two particles should be "captured".
     
@@ -160,7 +163,7 @@ namespace dynamo {
   class IMultiCapture: public ICapture
   {
   public:
-    IMultiCapture(dynamo::Simulation* sim, C2Range* range): ICapture(sim, range) {}
+    IMultiCapture(dynamo::Simulation* sim, IDPairRange* range): ICapture(sim, range) {}
 
     size_t getTotalCaptureCount() const { return captureMap.size(); }
   
@@ -168,6 +171,8 @@ namespace dynamo {
     { return captureMap.count(cMapKey(p1.getID(), p2.getID())); }
 
     virtual void clear() const { captureMap.clear(); }
+
+    virtual size_t validateState(bool textoutput = true, size_t max_reports = std::numeric_limits<size_t>::max()) const;
 
   protected:
   

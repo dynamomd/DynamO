@@ -26,7 +26,7 @@ namespace dynamo {
   {
   public:
     template<class T1, class T2, class T3>
-    IRoughHardSphere(dynamo::Simulation* tmp, T1 d, T2 e, T3 et, C2Range* nR,
+    IRoughHardSphere(dynamo::Simulation* tmp, T1 d, T2 e, T3 et, IDPairRange* nR,
 		     std::string name):
       Interaction(tmp, nR),
       _diameter(Sim->_properties.getProperty
@@ -59,7 +59,7 @@ namespace dynamo {
    
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    virtual void checkOverlaps(const Particle&, const Particle&) const;
+    virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
 
   protected:
     shared_ptr<Property> _diameter;

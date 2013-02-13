@@ -29,7 +29,7 @@ namespace dynamo {
     typedef std::pair<double,double> steppair;
 
     IStepped(dynamo::Simulation*, const std::vector<steppair>&,
-	     C2Range*, std::string name);
+	     IDPairRange*, std::string name);
 
     IStepped(const magnet::xml::Node&, dynamo::Simulation*);
   
@@ -42,8 +42,6 @@ namespace dynamo {
     virtual double getExcludedVolume(size_t) const;
 
     virtual double maxIntDist() const;
-
-    virtual void checkOverlaps(const Particle&, const Particle&) const;
 
     virtual int captureTest(const Particle&, const Particle&) const;
 
@@ -58,6 +56,8 @@ namespace dynamo {
     virtual double getInternalEnergy() const;
 
     virtual double getInternalEnergy(const Particle&, const Particle&) const;
+
+    virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
 
   protected:
     //!This class is used to track how the length scale changes in the system

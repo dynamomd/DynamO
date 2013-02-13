@@ -85,7 +85,7 @@ namespace dynamo {
     double p2Mass = Sim->species[PDat.particle2_.getSpeciesID()]->getMass(p2.getID());
     double mu = p1Mass * p2Mass / (p1Mass + p2Mass);
 
-    specialhist.addVal((PDat.dP.nrm2() / (2.0 * mu)) - (PDat.vijold | PDat.dP));
+    specialhist.addVal((PDat.impulse.nrm2() / (2.0 * mu)) - (PDat.vijold | PDat.impulse));
 
     collisionKE[mapkey(PDat.particle1_.getSpeciesID(), 
 		       PDat.particle2_.getSpeciesID(), 

@@ -19,6 +19,7 @@
 
 #include <gtkmm.h>
 #include <magnet/GL/buffer.hpp>
+#include <magnet/GL/shader/render.hpp>
 #include <coil/RenderObj/RenderObj.hpp>
 #include <tr1/array>
 #include <memory>
@@ -40,7 +41,7 @@ namespace coil {
 
     void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
     void showControls(Gtk::ScrolledWindow* win);
-    void deinit() { _gridVertices.deinit(); }
+    void deinit();
     void glRender(const magnet::GL::Camera& cam, RenderMode mode);
     
   private:
@@ -49,6 +50,7 @@ namespace coil {
 
     int _glutLastTime;
 
+    magnet::GL::shader::RenderShader _renderShader;
     magnet::GL::Buffer<GLfloat> _gridVertices;
 
     std::auto_ptr<Gtk::VBox> _optList; 

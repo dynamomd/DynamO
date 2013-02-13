@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/base.hpp>
-#include <dynamo/ranges/1range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 #include <dynamo/globals/neighbourList.hpp>
 
 namespace magnet { namespace xml { class Node; } }
@@ -56,6 +56,6 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
   
-    shared_ptr<Range> range;
+    shared_ptr<IDRange> range;
   };
 }

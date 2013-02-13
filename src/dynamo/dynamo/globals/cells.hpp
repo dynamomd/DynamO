@@ -19,7 +19,7 @@
 #include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/particle.hpp>
 #include <magnet/math/morton_number.hpp>
-#include <boost/unordered_map.hpp>
+#include <tr1/unordered_map>
 #include <vector>
 
 namespace dynamo {
@@ -37,9 +37,7 @@ namespace dynamo {
     overlaps with its neighbours. This means that if you cross from
     one cell into another, you enter the other cell some finite
     distance from the cells border. This helps remove "rattling"
-    events where particles rapidly pass between two cells. It also
-    helps prevent local event objects (like walls) falling numerically
-    outside all cells when the wall lies on the cell border.
+    events where particles rapidly pass between two cells.
 
     The second property is that the contents of each cell is stored as
     a std::vector. In theory, a linked list is far more memory
@@ -63,9 +61,8 @@ namespace dynamo {
 
     virtual void reinitialise();
 
-    virtual RList getParticleNeighbours(const Particle&) const;
-    virtual RList getParticleNeighbours(const Vector&) const;
-    virtual RList getParticleLocals(const Particle&) const;
+    virtual IDRangeList getParticleNeighbours(const Particle&) const;
+    virtual IDRangeList getParticleNeighbours(const Vector&) const;
     
     virtual void operator<<(const magnet::xml::Node&);
 
@@ -75,7 +72,7 @@ namespace dynamo {
     virtual double getMaxSupportedInteractionLength() const;
 
   protected:
-    RList getParticleNeighbours(const magnet::math::MortonNumber<3>&) const;
+    IDRangeList getParticleNeighbours(const magnet::math::MortonNumber<3>&) const;
 
     size_t cellCount[3];
     magnet::math::DilatedInteger<3> dilatedCellMax[3];
@@ -90,23 +87,19 @@ namespace dynamo {
     boost::signals2::scoped_connection _particleAdded;
     boost::signals2::scoped_connection _particleRemoved;
 
-    //! \brief The start of the list of particles in each cell.
+    //! \brief The list of particles in each cell.
     mutable std::vector<std::vector<size_t> > list;
-
-    //! \brief The local events in each cell.
-    mutable std::vector<std::vector<size_t> > cells;
 
     /*! \brief The cell for a given particle.
       
       This container is an unordered map, so we only store the linked
       list for the particles actually inserted into this neighborlist.
      */
-    mutable boost::unordered_map<size_t, size_t> partCellData;
+    mutable std::tr1::unordered_map<size_t, size_t> partCellData;
 
     GCells(const GCells&);
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
-    void outputXML(magnet::xml::XmlStream&, const std::string&) const;
 
     magnet::math::MortonNumber<3> getCellID(Vector) const;
 
@@ -116,8 +109,6 @@ namespace dynamo {
 			       const Particle& part) const;
 
     Vector calcPosition(const magnet::math::MortonNumber<3>& coords) const;
-
-    void addLocalEvents();
 
     inline void addToCell(size_t ID)
     { addToCell(ID, getCellID(Sim->particles[ID].getPosition()).getMortonNum()); }
@@ -131,7 +122,7 @@ namespace dynamo {
     inline void removeFromCell(size_t ID) const
     { removeFromCellwIt(ID, partCellData.find(ID)); }
 
-    inline void removeFromCellwIt(size_t ID, boost::unordered_map<size_t, size_t>::iterator it) const
+    inline void removeFromCellwIt(size_t ID, std::tr1::unordered_map<size_t, size_t>::iterator it) const
     {
 #ifdef DYNAMO_DEBUG
     if (it == partCellData.end())
@@ -139,7 +130,7 @@ namespace dynamo {
 #endif
       const size_t cellID = it->second;
       //Erase the cell data
-      partCellData.quick_erase(it);
+      partCellData.erase(it);
 
       std::vector<std::vector<size_t> >::iterator listIt = list.begin() + cellID;
 #ifdef DYNAMO_DEBUG

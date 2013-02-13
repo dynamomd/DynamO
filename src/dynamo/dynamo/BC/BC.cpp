@@ -16,6 +16,7 @@
 */
 
 #include <dynamo/BC/include.hpp>
+#include <dynamo/simulation.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -30,6 +31,14 @@ namespace dynamo {
   }
   
   namespace{typedef shared_ptr<BoundaryCondition> retptr;}
+
+  double 
+  BoundaryCondition::getDistance(const Particle& p1, const Particle& p2)
+  {
+    Vector rij = p1.getPosition() - p2.getPosition();
+    applyBC(rij);
+    return rij.nrm();
+  }
 
   retptr
   BoundaryCondition::getClass(const magnet::xml::Node& XML, dynamo::Simulation* tmp)

@@ -273,28 +273,30 @@ namespace coil {
   }
 
   magnet::math::Vector 
-  DataSet::getDimensions() const
+  DataSet::getMinCoord() const
   {
-    std::vector<GLfloat> mins = _positionSel->getMin();
-    std::vector<GLfloat> maxs = _positionSel->getMax();
-    
-    magnet::math::Vector retVal(0,0,0);
-    for (size_t i(0); (i < maxs.size()) && (i < mins.size()); ++i)
-      retVal[i] = maxs[i] - mins[i];
-    
-    return retVal;
+    magnet::math::Vector min(HUGE_VAL, HUGE_VAL, HUGE_VAL); 
+    for (std::vector<std::tr1::shared_ptr<DataSetChild> >::const_iterator 
+	   iPtr = _children.begin(); iPtr != _children.end(); ++iPtr)
+      {
+	magnet::math::Vector child_min = (*iPtr)->getMinCoord();
+	for (size_t i(0); i < 3; ++i)
+	  min[i] = std::min(min[i], child_min[i]);
+      }
+    return min;
   }
 
   magnet::math::Vector 
-  DataSet::getCentre() const
+  DataSet::getMaxCoord() const
   {
-    std::vector<GLfloat> mins = _positionSel->getMin();
-    std::vector<GLfloat> maxs = _positionSel->getMax();
-    
-    magnet::math::Vector retVal(0,0,0);
-    for (size_t i(0); (i < maxs.size()) && (i < mins.size()) && (i < 3); ++i)
-      retVal[i] = (maxs[i] + mins[i]) * 0.5;
-    
-    return retVal;
+    magnet::math::Vector max(-HUGE_VAL, -HUGE_VAL, -HUGE_VAL); 
+    for (std::vector<std::tr1::shared_ptr<DataSetChild> >::const_iterator 
+	   iPtr = _children.begin(); iPtr != _children.end(); ++iPtr)
+      {
+	magnet::math::Vector child_max = (*iPtr)->getMaxCoord();
+	for (size_t i(0); i < 3; ++i)
+	  max[i] = std::max(max[i], child_max[i]);
+      }
+    return max;
   }
 }

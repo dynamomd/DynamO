@@ -33,7 +33,7 @@ namespace dynamo {
   void 
   SCENBList::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<Range>(Range::getClass(XML, Sim));
+    range = shared_ptr<IDRange>(IDRange::getClass(XML, Sim));
   
     try 
       {
@@ -77,7 +77,6 @@ namespace dynamo {
     nblist.markAsUsedInScheduler();
 
     nblist.ConnectSigNewNeighbourNotify<Scheduler>(&Scheduler::addInteractionEvent, Sim->ptrScheduler.get());
-    nblist.ConnectSigNewLocalNotify<Scheduler>(&Scheduler::addLocalEvent, Sim->ptrScheduler.get());
   }
 
   void 

@@ -26,13 +26,13 @@ namespace dynamo {
   {
   public:
     template<class T1, class T2, class T3, class T4>
-       ISquareWell(dynamo::Simulation* tmp, T1 d, T2 l, T3 wd, T4 e, C2Range* nR, std::string name):
-         ISingleCapture(tmp,nR),
-         _diameter(Sim->_properties.getProperty (d, Property::Units::Length())),
-         _lambda(Sim->_properties.getProperty (l, Property::Units::Dimensionless())),
-         _wellDepth(Sim->_properties.getProperty (wd, Property::Units::Energy())),
-         _e(Sim->_properties.getProperty (e, Property::Units::Dimensionless()))
-       { intName = name; }
+    ISquareWell(dynamo::Simulation* tmp, T1 d, T2 l, T3 wd, T4 e, IDPairRange* nR, std::string name):
+      ISingleCapture(tmp,nR),
+      _diameter(Sim->_properties.getProperty (d, Property::Units::Length())),
+      _lambda(Sim->_properties.getProperty (l, Property::Units::Dimensionless())),
+      _wellDepth(Sim->_properties.getProperty (wd, Property::Units::Energy())),
+      _e(Sim->_properties.getProperty (e, Property::Units::Dimensionless()))
+    { intName = name; }
 
     ISquareWell(const magnet::xml::Node&, dynamo::Simulation*);
 
@@ -46,8 +46,6 @@ namespace dynamo {
 
     virtual double maxIntDist() const;
 
-    virtual void checkOverlaps(const Particle&, const Particle&) const;
-
     virtual bool captureTest(const Particle&, const Particle&) const;
 
     virtual void initialise(size_t);
@@ -60,10 +58,12 @@ namespace dynamo {
 
     virtual double getInternalEnergy() const;
 
+    virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
+
     virtual double getInternalEnergy(const Particle&, const Particle&) const;
 
   protected:
-    ISquareWell(dynamo::Simulation* tmp, C2Range* nR):
+    ISquareWell(dynamo::Simulation* tmp, IDPairRange* nR):
       ISingleCapture(tmp,nR) {}
 
     shared_ptr<Property> _diameter;

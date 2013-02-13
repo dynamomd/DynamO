@@ -8,17 +8,14 @@ Build-Depends: debhelper (>= 8.0.0),
  libgtkmm-2.4-dev, 
  freeglut3-dev, 
  libglew1.6-dev, 
- libavcodec-dev,
- fglrx,
- opencl-headers
+ libavcodec-dev
 Standards-Version: 3.9.2
 Homepage: http://dynamomd.org
 Vcs-Git: git://github.com/toastedcrumpets/DynamO.git
 
 Package: dynamo-core
 Architecture: any
-Depends: ${misc:Depends}, 
- libboost-all-dev
+Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: The core simulator programs for DynamO, the event-driven molecular dynamics simulator.
  DynamO is a modern event-driven molecular dynamics simulator with a
  wide range of tools and models built in. It also includes a world
@@ -26,13 +23,7 @@ Description: The core simulator programs for DynamO, the event-driven molecular 
 
 Package: dynamo-visualisation
 Architecture: any
-Depends: ${misc:Depends},
- libboost-all-dev,
- libgtkmm-2.4-dev,
- freeglut3,
- libglew1.6,
- libavcodec53,
- fglrx | nvidia-current
+Depends: ${misc:Depends}, ${shlibs:Depends}
 Recommends: libavcodec-extra-53
 Description: The visualisation program for DynamO, the event-driven molecular dynamics simulator.
  DynamO is a modern event-driven molecular dynamics simulator with a

@@ -1,4 +1,10 @@
-dynamo (1.4.0) precise quantal raring; urgency=low
+dynamo (1.4.1) quantal; urgency=low
+
+  * Interim update for version 1.4
+
+ -- Marcus Bannerman (DynamO developer) <support@dynamomd.org>  Thu, 25 Dec 2012 12:00:00 +0000
+
+dynamo (1.4.0quantal1) quantal; urgency=low
 
   * Initial release and port to the Ubuntu/Debian packaging.
 

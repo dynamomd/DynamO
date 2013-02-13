@@ -18,6 +18,7 @@
 #include <gtkmm.h>
 #include "RenderObj.hpp"
 #include <magnet/GL/buffer.hpp>
+#include <magnet/GL/shader/render.hpp>
 #include <vector>
 #include <memory>
 
@@ -30,7 +31,7 @@ namespace coil {
 
     virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode);
 
-    virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue) { RenderObj::init(systemQueue); initGTK(); }
+    virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
 
     void setGLColors(std::vector<GLubyte>& VertexColor);
     void setGLPositions(std::vector<float>& VertexPos);
@@ -64,10 +65,9 @@ namespace coil {
     magnet::GL::Buffer<GLfloat> _normBuff;
     magnet::GL::Buffer<GLuint> _elementBuff;
     magnet::GL::Buffer<GLuint> _specialElementBuff;
-
-    bool _pickingRenderMode;
     magnet::GL::Buffer<GLubyte> _pickingColorBuff;
 
+    magnet::GL::shader::RenderShader _renderShader;
   };
 }
 

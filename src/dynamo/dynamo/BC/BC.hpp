@@ -28,6 +28,7 @@ namespace dynamo
 {
   class IntEvent;
   class Simulation;
+  class Particle;
 
   /*! \brief The base class for the Boundary Conditions of the simulation.
    
@@ -100,6 +101,8 @@ namespace dynamo
 
     /*! \brief The class loader for boundary conditions. */
     static shared_ptr<BoundaryCondition> getClass(const magnet::xml::Node&, dynamo::Simulation*);
+
+    double getDistance(const Particle& p1, const Particle& p2);
 
   protected:
     /*! \brief The XML output for a BoundaryCondition class*/

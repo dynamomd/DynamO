@@ -18,7 +18,7 @@
 #pragma once
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/math/histogram.hpp>
-#include <boost/unordered_map.hpp>
+#include <tr1/unordered_map>
 
 namespace dynamo {
   class OPMisc;
@@ -44,7 +44,7 @@ namespace dynamo {
   
     void operator<<(const magnet::xml::Node&);
 
-    boost::unordered_map<int, double> getImprovedW() const;
+    std::tr1::unordered_map<int, double> getImprovedW() const;
     inline double getBinWidth() const { return intEnergyHist.getBinWidth(); }
   protected:
     void stream(double);

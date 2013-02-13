@@ -17,7 +17,7 @@
 
 #include <dynamo/outputplugins/tickerproperty/chainContactMap.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/ranges/1range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/topology/include.hpp>
 #include <dynamo/interactions/captures.hpp>
@@ -72,7 +72,7 @@ namespace dynamo {
   OPCContactMap::ticker()
   {
     BOOST_FOREACH(Cdata& dat,chains)
-      BOOST_FOREACH(const shared_ptr<Range>& range,  dat.chainPtr->getMolecules())
+      BOOST_FOREACH(const shared_ptr<IDRange>& range,  dat.chainPtr->getMolecules())
       {
 	dat.counter++;
 	for (unsigned long i = 0; i < dat.chainlength; i++)

@@ -113,7 +113,7 @@ namespace dynamo {
   }
 
   double
-  DynGravity::SphereSphereInRoot(const Range& p1, const Range& p2, double d) const
+  DynGravity::SphereSphereInRoot(const IDRange& p1, const IDRange& p2, double d) const
   {
     double accel1sum = 0;
     double mass1 = 0;
@@ -170,12 +170,12 @@ namespace dynamo {
     Vector g12(g);
     if (p2Dynamic) g12 = -g;
 
-    //return magnet::intersection::parabola_inv_sphere_bfc(r12, v12, a12, d);
-    M_throw() << "Function not implemented";
+    //Now test for a parabolic ray and sphere intersection
+    return magnet::intersection::parabola_invsphere_bfc(r12, v12, g12, d);
   }
 
   double
-  DynGravity::SphereSphereOutRoot(const Range& p1, const Range& p2, double d) const
+  DynGravity::SphereSphereOutRoot(const IDRange& p1, const IDRange& p2, double d) const
   {
     double accel1sum = 0;
     double mass1 = 0;
@@ -223,12 +223,12 @@ namespace dynamo {
 			    const Vector& wallNorm,
 			    double diameter) const
   {
-    Vector rij = part.getPosition() - (wallLoc + wallNorm * diameter),
+    Vector rij = part.getPosition() - wallLoc,
       vij = part.getVelocity();
-
+    
     Sim->BCs->applyBC(rij, vij);
-
-    return magnet::intersection::parabola_plane_bfc(rij, vij, g * part.testState(Particle::DYNAMIC), wallNorm);
+    
+    return magnet::intersection::parabola_plane_bfc(rij, vij, g * part.testState(Particle::DYNAMIC), wallNorm, diameter);
   }
 
   double
@@ -429,20 +429,16 @@ namespace dynamo {
 	}
       else
 	{
-	  double roots[2];
-	  if (magnet::math::quadSolve((0.5 * Sim->primaryCellSize[i] - lMax),
-				      vel[i], 0.5 * g[i], roots[0], roots[1]))
-	    {
-	      if ((roots[0] > 0) && (roots[0] < retval)) retval = roots[0];
-	      if ((roots[1] > 0) && (roots[1] < retval)) retval = roots[1];
-	    }
-
-	  if (magnet::math::quadSolve(-(0.5 * Sim->primaryCellSize[i] - lMax),
-				      vel[i], 0.5 * g[i], roots[0], roots[1]))
-	    {
-	      if ((roots[0] > 0) && (roots[0] < retval)) retval = roots[0];
-	      if ((roots[1] > 0) && (roots[1] < retval)) retval = roots[1];
-	    }
+	  try {
+	    std::pair<double, double> roots = magnet::math::quadraticEquation(0.5 * g[i], vel[i], 0.5 * Sim->primaryCellSize[i] - lMax);
+	    if (roots.first > 0) retval = std::min(retval, roots.first);
+	    if (roots.second > 0) retval = std::min(retval, roots.second);
+	  } catch (magnet::math::NoQuadraticRoots&){}
+	  try {
+	    std::pair<double, double> roots = magnet::math::quadraticEquation(0.5 * g[i], vel[i], -(0.5 * Sim->primaryCellSize[i] - lMax));
+	    if (roots.first > 0) retval = std::min(retval, roots.first);
+	    if (roots.second > 0) retval = std::min(retval, roots.second);
+	  } catch (magnet::math::NoQuadraticRoots&){}
 	}
 
     return retval;
@@ -553,10 +549,14 @@ namespace dynamo {
     return time;
   }
 
-  void 
+  NEventData 
   DynGravity::enforceParabola(Particle& part) const
   {
     updateParticle(part);
+
+    const Species& species = *Sim->species[part];
+    NEventData retval(ParticleEventData(part, species, VIRTUAL));
+
     Vector pos(part.getPosition()), vel(part.getVelocity());
     Sim->BCs->applyBC(pos, vel);
 
@@ -579,6 +579,7 @@ namespace dynamo {
 #endif
 
     part.getVelocity()[dim] = 0;
+    return retval;
   }
 
   std::pair<double, Dynamics::TriangleIntersectingPart>
@@ -612,25 +613,18 @@ namespace dynamo {
     N /= std::sqrt(nrm2);
   
     //First test for intersections with the triangle faces.
-    double t1 = magnet::intersection::parabola_triangle_bfc(T - N * dist, D, g, E1, E2);
-    
+    double t1 = magnet::intersection::parabola_triangle_bfc(T, D, g, E1, E2, dist);
+
+    M_throw() << "The next bit of code may be redundant now that the parabola triangle "
+      "code takes a distance arg.";
     if (t1 < 0)
       {
 	t1 = HUGE_VAL;
 	if ((D | N) > 0)
 	  if (magnet::overlap::point_prism(T - N * dist, E1, E2, N, dist)) t1 = 0;
       }
-
-    double t2 = magnet::intersection::parabola_triangle_bfc(T + N * dist, D, g, E2, E1);
-
-    if (t2 < 0)
-      {
-	t2 = HUGE_VAL;
-	if ((D | N) < 0)
-	  if (magnet::overlap::point_prism(T + N * dist, E2, E1, -N, dist)) t2 = 0;
-      }
   
-    RetType retval(std::min(t1, t2), T_FACE);
+    RetType retval(t1, T_FACE);
   
     //Early jump out, to make sure that if we have zero time
     //interactions for the triangle faces, we take them.

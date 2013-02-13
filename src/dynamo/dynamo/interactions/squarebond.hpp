@@ -25,7 +25,7 @@ namespace dynamo {
   {
   public:
     template<class T1, class T2, class T3>
-    ISquareBond(dynamo::Simulation* tmp, T1 d, T2 l, T3 e, C2Range* nR,
+    ISquareBond(dynamo::Simulation* tmp, T1 d, T2 l, T3 e, IDPairRange* nR,
 		std::string name):
       Interaction(tmp, nR),
       _diameter(Sim->_properties.getProperty
@@ -53,14 +53,16 @@ namespace dynamo {
 
     virtual bool captureTest(const Particle&, const Particle&) const;
 
-    virtual void checkOverlaps(const Particle&, const Particle&) const;
-
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
   
     virtual void runEvent(Particle&, Particle&, const IntEvent&) const;
     
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
+    virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
+
+    virtual size_t validateState(bool textoutput = true, size_t max_reports = std::numeric_limits<size_t>::max()) const;
+ 
     virtual double getInternalEnergy() const { return 0.0; }
 
   protected:

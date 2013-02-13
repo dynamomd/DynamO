@@ -17,7 +17,7 @@
 #pragma once
 
 #include <dynamo/base.hpp>
-#include <dynamo/ranges/1range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 #include <string>
 #include <list>
 
@@ -47,10 +47,10 @@ namespace dynamo {
   
     static shared_ptr<Topology> getClass(const magnet::xml::Node& ,dynamo::Simulation*, size_t);
 
-    inline void addMolecule(Range* ptr)
-    { ranges.push_back(shared_ptr<Range>(ptr)); }
+    inline void addMolecule(IDRange* ptr)
+    { ranges.push_back(shared_ptr<IDRange>(ptr)); }
 
-    inline const std::list<shared_ptr<Range> >& getMolecules() const
+    inline const std::list<shared_ptr<IDRange> >& getMolecules() const
     { return ranges; }
 
     inline size_t getMoleculeCount() const { return ranges.size(); }
@@ -60,7 +60,7 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
   
-    std::list<shared_ptr<Range> > ranges;
+    std::list<shared_ptr<IDRange> > ranges;
   
     std::string spName;
   

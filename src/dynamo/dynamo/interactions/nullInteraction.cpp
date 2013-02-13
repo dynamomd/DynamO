@@ -23,7 +23,7 @@
 #include <cstring>
 
 namespace dynamo {
-  INull::INull(dynamo::Simulation* tmp, C2Range* nR, std::string name):
+  INull::INull(dynamo::Simulation* tmp, IDPairRange* nR, std::string name):
     Interaction(tmp, nR) { intName = name; }
 
   INull::INull(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
@@ -39,10 +39,6 @@ namespace dynamo {
   void 
   INull::operator<<(const magnet::xml::Node& XML)
   { 
-    if (std::strcmp(XML.getAttribute("Type"),"Null"))
-      M_throw() << "Attempting to load NullInteraction from " 
-		<< XML.getAttribute("Type") <<" entry";
-  
     Interaction::operator<<(XML);
   
     try 

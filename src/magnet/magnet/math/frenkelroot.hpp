@@ -22,6 +22,10 @@
 
 namespace magnet {
   namespace math {
+    namespace detail {
+      
+      
+    }
     /*! \brief Shooting root finder using quadratic estimation.
   
       \param toleranceLengthScale should be 10^-10 the typical scale of
@@ -32,7 +36,7 @@ namespace magnet {
 					  const double& toleranceLengthScale)
     {
       double working_time = t_low;
-      double timescale = toleranceLengthScale / fL.F_firstDeriv_max();
+      double timescale = toleranceLengthScale / fL.template max<1>();
       bool fwdWorking = false;
 
       size_t w = 0;
@@ -72,31 +76,74 @@ namespace magnet {
 
 	  double deltaT;
 	  {
-	    double f0 = tempfL.F_zeroDeriv(),
-	      f1 = tempfL.F_firstDeriv(),
-	      halff2 = 0.5 * tempfL.F_secondDeriv(),
-	      halff2max = 0.5 * tempfL.F_secondDeriv_max();
+	    double f0 = tempfL.template eval<0>(),
+	      f1 = tempfL.template eval<1>(),
+	      halff2 = 0.5 * tempfL.template eval<2>(),
+	      halff2max = 0.5 * tempfL.template max<2>();
 
+	    //This guarantees that the worst-case approximation has
+	    //roots on either side of the current time.
 	    if (f0 > 0) halff2max = -halff2max;
+	    
+	    std::pair<double, double> worst_case_roots;
+	    try {
+	      worst_case_roots = quadraticEquation(halff2max, f1, f0);
+	    } catch (NoQuadraticRoots&)
+	      {
+		M_throw() << "When trying to improve the bounds using worst-case estimates, it was "
+		  "found that they could not be improved. This implies there is "
+		  "implementation error (zero max 2nd deriv?) in the passed function.";
+	      }
 
-	    {
-	      double boundEnhancer;
-	      // Enhance bound, no point continuing if the bounds are out of bounds
-	      if (fwdWorking)
-		{ if (!quadSolve<ROOT_SMALLEST_POSITIVE>(f0, f1, halff2max, boundEnhancer)) break; }
-	      else
-		if (!quadSolve<ROOT_SMALLEST_NEGATIVE>(f0, f1, halff2max, boundEnhancer)) break;
+	    //Sort the roots
+	    if (worst_case_roots.first > worst_case_roots.second) std::swap(worst_case_roots.first, worst_case_roots.second);
 
-	      (fwdWorking ? t_low : t_high) += boundEnhancer;
-
-	      if (fwdWorking)
-		{ if (!quadSolve<ROOT_SMALLEST_POSITIVE>(f0, f1, halff2, deltaT)) continue; }
-	      else
-		{ if (!quadSolve<ROOT_SMALLEST_NEGATIVE>(f0, f1, halff2, deltaT)) continue; }
-	    }
-
+#ifdef MAGNET_DEBUG
+	    if ((worst_case_roots.first > 0) || (worst_case_roots.second < 0))
+	      M_throw() << "The worst case estimates for the root of the function are not either "
+		"side of the current location. This implies there is an implementation "
+		"error or an untreated numerical edge case.";
+#endif
+	    //Improve the current boundary
+	    if (fwdWorking)
+	      t_low += worst_case_roots.second;
+	    else
+	      t_high += worst_case_roots.first;
+	    
+	    //Now perform the first step of the shooting
+	    std::pair<double, double> estimate_roots;
+	    try {
+	      estimate_roots = quadraticEquation(halff2, f1, f0);
+	    } catch (NoQuadraticRoots&)
+	      //If the shooting fails, restart from the other boundary
+	      { continue; }
+	    
+	    //Sort the roots
+	    if (estimate_roots.first > estimate_roots.second) std::swap(estimate_roots.first, estimate_roots.second);
+	    
+	    if (fwdWorking)
+	      {
+		//Check if there are no positive roots (restart from other boundary if so)
+		if (estimate_roots.second < 0) continue;
+		//Set deltaT to the smallest positive root.
+		if (estimate_roots.first > 0)
+		  deltaT = estimate_roots.first;
+		else
+		  deltaT = estimate_roots.second;
+	      }
+	    else
+	      {
+		//Check if there are no negative roots (restart from other boundary if so)
+		if (estimate_roots.first > 0) continue;
+		//Set deltaT to the smallest negative root.
+		if (estimate_roots.second > 0)
+		  deltaT = estimate_roots.first;
+		else
+		  deltaT = estimate_roots.second;
+	      }
 	  }
 
+	  //Check this first step is still within the other bound
 	  if (((working_time + deltaT) > t_high)
 	      || ((working_time + deltaT) < t_low))
 	    continue;
@@ -111,12 +158,17 @@ namespace magnet {
 
 	      tempfL.stream(deltaT);
 
-	      if (!quadSolve<ROOT_SMALLEST_EITHER>(tempfL.F_zeroDeriv(),
-									       tempfL.F_firstDeriv(),
-									       double(0.5 * tempfL.F_secondDeriv()), deltaT))
-		break;
+	      try {
+		std::pair<double, double> estimate_roots = quadraticEquation(0.5 * tempfL.template eval<2>(), tempfL.template eval<1>(), tempfL.template eval<0>());
+		if (std::abs(estimate_roots.first) < std::abs(estimate_roots.second))
+		  deltaT = estimate_roots.first;
+		else
+		  deltaT = estimate_roots.second;
+	      } catch (NoQuadraticRoots&)
+		//If the shooting fails, quit the loop
+		{ break; }
 
-	      if(fabs(deltaT) <  timescale)
+	      if (fabs(deltaT) <  timescale)
 		return std::pair<bool,double>(true, working_time + deltaT);
 	    }
 	}
@@ -167,9 +219,8 @@ namespace magnet {
 	    T tempfL(fL);
 	    tempfL.stream(root.second);
 	    //Calculate the offset for the upper bound
-	    double Fdoubleprimemax = tempfL.F_secondDeriv_max();
-	    temp_high = root.second - (fabs(2.0 * tempfL.F_firstDeriv())
-				       / Fdoubleprimemax);
+	    double Fdoubleprimemax = tempfL.template max<2>();
+	    temp_high = root.second - (fabs(2.0 * tempfL.template eval<1>()) / Fdoubleprimemax);
 
 	    //Now check if the upper bound is below the lower bound.
 	    //If so, the current root is the earliest.
@@ -195,8 +246,7 @@ namespace magnet {
 	  if (tempfL.test_root()) return root;
 
 	  //The root was not valid, set the lower bound to the current root value
-	  t_low = root.second + ((2.0 * fabs(tempfL.F_firstDeriv()))
-				 / tempfL.F_secondDeriv_max());
+	  t_low = root.second + ((2.0 * fabs(tempfL.template eval<1>())) / tempfL.template max<2>());
 
 	  //Now invalidate the current root
 	  root.first = false;

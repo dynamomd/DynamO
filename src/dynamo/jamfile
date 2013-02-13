@@ -22,47 +22,33 @@ SHELL "touch src/dynamo/tests/* " ;
 
 feature.feature coil-integration : yes no : symmetric ;
 
-lib boost_system : : <link>shared ;
-lib boost_filesystem : : <link>shared : : <source>boost_system ;
-lib boost_program_options  : : <link>shared : : <source>boost_system ;
-lib boost_iostreams  : : <link>shared : : <source>boost_system ;
-
-exe boost_header_test : tests/boost_test.cpp ;
-exe boost_filesystem_test : tests/boost_test.cpp boost_filesystem ;
-exe boost_program_options_test : tests/boost_test.cpp boost_program_options ;
-exe boost_iostreams_test : tests/boost_test.cpp boost_iostreams ;
+#Dependency tests
+obj boost_header_test : tests/boost_test.cpp ;
+obj boost_filesystem_test : tests/boost_test.cpp /system//boost_filesystem ;
+obj boost_program_options_test : tests/boost_test.cpp /system//boost_program_options ;
+obj boost_iostreams_test : tests/boost_test.cpp /system//boost_iostreams ;
 
 project	: requirements
-          #This creates a feature coil-integration, which can be set
-          #on the command line or auto-detected using the passed target
-	  [ builddep.set-feature-on-build coil-support : /coil//coilDependencies : "DynamO-Coil Integration" ]
-	  [ builddep.set-feature-on-build dynamo-boost-iostreams : boost_iostreams_test : "DynamO: Boost iostreams library" ]
-	  [ builddep.set-feature-on-build dynamo-boost-program-options : boost_program_options_test : "DynamO: Boost program options library" ]
-	  [ builddep.set-feature-on-build dynamo-boost-filesystem : boost_filesystem_test : "DynamO: Boost filesystem library" ]
-	  [ builddep.set-feature-on-build dynamo-boost-headers : boost_header_test : "DynamO: Boost headers" ]
-	  [ builddep.combine-features dynamo-buildable : dynamo-boost-headers dynamo-boost-filesystem dynamo-boost-program-options dynamo-boost-iostreams ]
+	  [ builddep.set-feature-on-build coil-support : /coil//coilDependencies : "DynamO-Coil Integration Supported" : incidental ]
+	  [ builddep.set-feature-on-build dynamo-boost-iostreams : boost_iostreams_test : "DynamO: Boost iostreams library" : incidental ]
+	  [ builddep.set-feature-on-build dynamo-boost-program-options : boost_program_options_test : "DynamO: Boost program options library"  : incidental ]
+	  [ builddep.set-feature-on-build dynamo-boost-filesystem : boost_filesystem_test : "DynamO: Boost filesystem library" : incidental ]
+	  [ builddep.set-feature-on-build dynamo-boost-headers : boost_header_test : "DynamO: Boost headers"  : incidental ]
+	  [ builddep.combine-features dynamo-buildable : dynamo-boost-headers dynamo-boost-filesystem dynamo-boost-program-options dynamo-boost-iostreams : incidental ]
 	: default-build release
 	: build-dir $(BUILD_DIR_PATH)
 	;
 
-lib rt : : <link>shared ;
-
 exe dynamoDependencies : tests/buildreq.cpp : <dynamo-buildable>no:<define>BUILDFAIL ;
 
 lib dynamo_core : [ glob-tree *.cpp : programs tests ]
-      /magnet//magnet boost_filesystem boost_program_options boost_iostreams rt 
-    : <include>include <include>. <dynamo-buildable>no:<build>no
+      /magnet//magnet /system//boost_filesystem /system//boost_program_options /system//boost_iostreams /system//rt 
+    : <include>. <dynamo-buildable>no:<build>no
       <variant>debug:<define>DYNAMO_DEBUG <link>static
       <coil-integration>yes:<source>/coil//coil/<link>static
       <coil-integration>yes:<define>DYNAMO_visualizer
-    : : <include>include 
-    <variant>debug:<define>DYNAMO_DEBUG <threading>multi <link>static <include>.
+    : : <variant>debug:<define>DYNAMO_DEBUG <threading>multi <link>static <include>.
     ;
-
-#This rule tests for the dynamo dependencies and returns <build>no if
-#they're not satisfied
-rule critical_dependencies ( )
-{ return [ check-target-builds dynamoDependencies "DynamO dependencies" :  : <build>no ] ; }
 
 exe dynarun : programs/dynarun.cpp dynamo_core/<coil-integration>no
     : <dynamo-buildable>no:<build>no <tag>@tags.exe-naming <coil-integration>no ;

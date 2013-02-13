@@ -26,9 +26,9 @@ namespace dynamo {
 
     SDumb(dynamo::Simulation* const, FEL*);
 
-    virtual std::auto_ptr<Range> getParticleNeighbours(const Particle&) const;
-    virtual std::auto_ptr<Range> getParticleNeighbours(const Vector&) const;
-    virtual std::auto_ptr<Range> getParticleLocals(const Particle&) const;
+    virtual std::auto_ptr<IDRange> getParticleNeighbours(const Particle&) const;
+    virtual std::auto_ptr<IDRange> getParticleNeighbours(const Vector&) const;
+    virtual std::auto_ptr<IDRange> getParticleLocals(const Particle&) const;
 
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;

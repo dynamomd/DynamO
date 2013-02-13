@@ -24,7 +24,7 @@
 #include <dynamo/interactions/softcore.hpp>
 #include <dynamo/interactions/nullInteraction.hpp>
 #include <dynamo/interactions/lines.hpp>
-#include <dynamo/interactions/rotatedparallelcubes.hpp>
-#include <dynamo/interactions/stepped.hpp>
 #include <dynamo/interactions/dumbbells.hpp>
 #include <dynamo/interactions/PRIME_BB.hpp>
+#include <dynamo/interactions/parallelcubes.hpp>
+#include <dynamo/interactions/stepped.hpp>

@@ -249,8 +249,8 @@ namespace coil {
     inline void setVisible(bool val = true) { _visible = val; }
     inline bool visible() const { return _visible; }
 
-    virtual magnet::math::Vector getDimensions() const { return magnet::math::Vector(0,0,0); }
-    virtual magnet::math::Vector getCentre() const { return magnet::math::Vector(0,0,0); }
+    virtual magnet::math::Vector getMinCoord() const { return magnet::math::Vector(HUGE_VAL, HUGE_VAL, HUGE_VAL); }
+    virtual magnet::math::Vector getMaxCoord() const { return magnet::math::Vector(-HUGE_VAL, -HUGE_VAL, -HUGE_VAL); }
 
     /*! \brief Sets the object's shadow casting.
 

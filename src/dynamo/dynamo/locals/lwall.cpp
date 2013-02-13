@@ -54,7 +54,7 @@ namespace dynamo {
 
     NEventData EDat;
     if (sqrtT > 0)
-      EDat = Sim->dynamics->runAndersenWallCollision(part, vNorm, sqrtT);
+      EDat = Sim->dynamics->runAndersenWallCollision(part, vNorm, sqrtT, _diameter->getProperty(part.getID()));
     else
       EDat = Sim->dynamics->runPlaneEvent(part, vNorm, _e->getProperty(part.getID()), _diameter->getProperty(part.getID()));
 
@@ -67,24 +67,17 @@ namespace dynamo {
       Ptr->eventUpdate(iEvent, EDat);
   }
 
-  bool 
-  LWall::isInCell(const Vector & Origin, const Vector& CellDim) const
-  {
-    double max_int_dist = 0.5 * _diameter->getMaxValue();
-
-    Vector data(max_int_dist, max_int_dist, max_int_dist);
-
-    return magnet::overlap::cube_plane(Origin - 0.5 * data, CellDim + data, 
-				       vPosition, vNorm);
-  }
-
   void 
   LWall::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<Range>(Range::getClass(XML,Sim));
+    range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"),Sim));
   
     try {
       _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
+
+      if (_diameter->getMaxValue() == 0)
+	M_throw() << "Cannot have a wall with a diameter of zero";
+      
       _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
     
       sqrtT = 0;
@@ -132,23 +125,26 @@ namespace dynamo {
 	<< magnet::xml::endtag("Origin");
   }
 
-  void 
-  LWall::checkOverlaps(const Particle& p1) const
+  bool 
+  LWall::validateState(const Particle& part, bool textoutput) const
   {
-    Vector pos(p1.getPosition() - vPosition);
+    Vector pos(part.getPosition() - vPosition);
     Sim->BCs->applyBC(pos);
-
-    double r = (pos | vNorm);
-  
-    if (r < 0)
-      dout << "Possible overlap of " << r / Sim->units.unitLength() << " for particle " << p1.getID()
-	   << "\nWall Pos is [" 
-	   << vPosition[0] << "," << vPosition[1] << "," << vPosition[2] 
-	   << "] and Normal is [" 
-	   << vNorm[0] << "," << vNorm[1] << "," << vNorm[2] << "]"
-	   << std::endl;
+    
+    double diam = 0.5 * _diameter->getProperty(part.getID());
+    double r = diam - std::abs(pos | vNorm);
+    
+    if (r > 0)
+      {
+	if (textoutput)
+	  derr << "Particle " << part.getID() << " is " << r / Sim->units.unitLength() << " far into the wall."
+	       << "\nWall Pos = " << Vector(vPosition / Sim->units.unitLength()).toString() 
+	       << ", Normal = " << vNorm.toString() << ", d = " << diam / Sim->units.unitLength()
+	       << std::endl;
+	return true;
+      }
+    return false;
   }
-
 
 #ifdef DYNAMO_visualizer
 
@@ -175,7 +171,7 @@ namespace dynamo {
 	orth1 *= (orth1 | Sim->primaryCellSize);
 	orth2 *= (orth2 | Sim->primaryCellSize);
 
-	_renderObj.reset(new coil::RFunction(getName(), 10, vPosition - 0.5 * (orth1 + orth2), orth1, orth2, vNorm));
+	_renderObj.reset(new coil::RSurface(getName(), 10, vPosition - 0.5 * (orth1 + orth2), orth1, orth2, vNorm));
       }
   
     return std::tr1::static_pointer_cast<coil::RenderObj>(_renderObj);

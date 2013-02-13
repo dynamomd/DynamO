@@ -100,7 +100,7 @@ namespace dynamo {
       {
 	Neighbours nbs;
 	
-	std::auto_ptr<Range> ids(Sim->ptrScheduler->getParticleNeighbours(part));
+	std::auto_ptr<IDRange> ids(Sim->ptrScheduler->getParticleNeighbours(part));
 	BOOST_FOREACH(const size_t& id1, *ids)
 	  nbs.addNeighbour(part, id1);
 	

@@ -181,8 +181,8 @@ namespace dynamo {
 	  BOOST_FOREACH(const eventQEntry& dat, Min)
 	    if (!std::isinf(dat.data.getdt()))
 	      {
-		if (dat.data.getdt() < minVal) minVal = dat.data.getdt();
-		if (dat.data.getdt() > maxVal) maxVal = dat.data.getdt();
+		minVal = std::min(minVal, dat.data.getdt());
+		maxVal = std::max(maxVal, dat.data.getdt());
 		++counter;
 	      }
 	  
@@ -221,10 +221,10 @@ namespace dynamo {
 
       listWidth = nlists / scale;
       if (scale == HUGE_VAL)
-	M_throw() << "Scale factor is infinite (only zero time collisions or no collisions?)";
+	M_throw() << "The scale factor for the bounded priority queue is infinite. Cannot resolve this. May be caused by only having zero time collisions.";
 
       if (scale <= 0.0)
-	M_throw() << "Scale factor is zero or negative (negative collisions?)";
+	M_throw() << "The scale factor for the bounded priority queue is zero. Cannot resolve this. May be caused by a large number of negative time events.";
 
       if (nlists == 0)
 	{
@@ -347,7 +347,7 @@ namespace dynamo {
 	: static_cast<int>(box); //You can use this as usual
     
       //This line makes negative time events possible without a segfault
-      if (i < currentIndex) i = currentIndex;
+      i = std::max(i, currentIndex);
 
       if (i > (nlists-1)) /* account for wrap */
 	{

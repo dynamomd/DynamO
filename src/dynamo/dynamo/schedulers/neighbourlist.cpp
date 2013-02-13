@@ -26,7 +26,7 @@
 #include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/locals/localEvent.hpp>
-#include <dynamo/ranges/1RAll.hpp>
+#include <dynamo/ranges/IDRangeRange.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/bind.hpp>
 #include <boost/progress.hpp>
@@ -62,7 +62,6 @@ namespace dynamo {
 
     nblist->markAsUsedInScheduler();
     nblist->ConnectSigNewNeighbourNotify<Scheduler>(&Scheduler::addInteractionEvent, this);
-    nblist->ConnectSigNewLocalNotify<Scheduler>(&Scheduler::addLocalEvent, this);
     Scheduler::initialise();
   }
 
@@ -77,7 +76,7 @@ namespace dynamo {
 
   SNeighbourList::SNeighbourList(const magnet::xml::Node& XML, 
 				   dynamo::Simulation* const Sim):
-    Scheduler(Sim,"NeighbourListScheduler", NULL)
+    Scheduler(Sim,"NbListScheduler", NULL)
   { 
     dout << "Neighbour List Scheduler Algorithmn Loaded" << std::endl;
     operator<<(XML);
@@ -87,7 +86,7 @@ namespace dynamo {
     Scheduler(Sim,"NeighbourListScheduler", ns)
   { dout << "Neighbour List Scheduler Algorithmn Loaded" << std::endl; }
 
-  std::auto_ptr<Range>
+  std::auto_ptr<IDRange>
   SNeighbourList::getParticleNeighbours(const Particle& part) const
   {
 #ifdef DYNAMO_DEBUG
@@ -100,10 +99,10 @@ namespace dynamo {
 				 (Sim->globals[NBListID]
 				  .get()));
   
-    return std::auto_ptr<Range>(new RList(nblist.getParticleNeighbours(part)));
+    return std::auto_ptr<IDRange>(new IDRangeList(nblist.getParticleNeighbours(part)));
   }
 
-  std::auto_ptr<Range>
+  std::auto_ptr<IDRange>
   SNeighbourList::getParticleNeighbours(const Vector& vec) const
   {
 #ifdef DYNAMO_DEBUG
@@ -116,22 +115,12 @@ namespace dynamo {
 				 (Sim->globals[NBListID]
 				  .get()));
   
-    return std::auto_ptr<Range>(new RList(nblist.getParticleNeighbours(vec)));
+    return std::auto_ptr<IDRange>(new IDRangeList(nblist.getParticleNeighbours(vec)));
   }
     
-  std::auto_ptr<Range> 
+  std::auto_ptr<IDRange> 
   SNeighbourList::getParticleLocals(const Particle& part) const
   {
-#ifdef DYNAMO_DEBUG
-    if (!std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->globals[NBListID]))
-      M_throw() << "Not a GNeighbourList!";
-#endif
-
-    //Grab a reference to the neighbour list
-    const GNeighbourList& nblist(*static_cast<const GNeighbourList*>
-				 (Sim->globals[NBListID]
-				  .get()));
-
-    return std::auto_ptr<Range>(new RList(nblist.getParticleLocals(part)));
+    return std::auto_ptr<IDRange>(new IDRangeRange(0, Sim->locals.size()));
   }
 }

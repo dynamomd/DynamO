@@ -50,8 +50,8 @@ namespace dynamo
   class PairEventData;
   class ParticleEventData;
 
-  class Range;
-  class C2Range;
+  class IDRange;
+  class IDPairRange;
 
 
   //! \brief Holds the different phases of the simulation initialisation
@@ -317,15 +317,10 @@ namespace dynamo
     /*! The property store, a list of properties the particles have. */
     PropertyStore _properties;
 
-    /*! \brief A vector of the ratio's of the simulation box/images sides.
-     
-      At least one ratio must be 1 as this is assumed when using the
-      ratio. i.e. it is normalised.
-     */
+    /*! \brief The size of the primary image/cell of the simulation. */
     Vector  primaryCellSize;
 
-    /*! \brief The random number generator of the system.
-     */
+    /*! \brief The random number generator of the system. */
     mutable baseRNG ranGenerator;
 
     mutable boost::variate_generator<dynamo::baseRNG&, boost::normal_distribution<double> > normal_sampler;

@@ -61,12 +61,12 @@ namespace dynamo {
   double 
   DynCompression::getPlaneEvent(const Particle& part, const Vector & origin, const Vector & norm, double diameter) const
   {
-    Vector rij = part.getPosition() - (origin + norm * diameter * (1.0 + growthRate * Sim->systemTime)),
+    Vector rij = part.getPosition() - origin,
       vij = part.getVelocity() - norm * diameter * growthRate;
 
     Sim->BCs->applyBC(rij, vij);
 
-    return magnet::intersection::ray_plane<true>(rij, vij, norm);
+    return magnet::intersection::ray_plane(rij, vij, norm, diameter * (1.0 + growthRate * Sim->systemTime));
   }
 
   ParticleEventData 
@@ -153,13 +153,13 @@ namespace dynamo {
     //Treat special cases if one particle has infinite mass
     if ((p1Mass == 0) && (p2Mass != 0))
       {
-	retVal.dP = p2Mass * retVal.rij * ((1.0 + e) * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
-	particle2.getVelocity() += retVal.dP / p2Mass;
+	retVal.impulse = p2Mass * retVal.rij * ((1.0 + e) * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
+	particle2.getVelocity() += retVal.impulse / p2Mass;
       }
     else if ((p2Mass == 0) && (p1Mass != 0))
       {
-	retVal.dP = p1Mass * retVal.rij * ((1.0 + e) * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
-	particle1.getVelocity() -= retVal.dP / p1Mass;
+	retVal.impulse = p1Mass * retVal.rij * ((1.0 + e) * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
+	particle1.getVelocity() -= retVal.impulse / p1Mass;
       }
     else
       {
@@ -168,13 +168,13 @@ namespace dynamo {
 	//If both particles have infinite mass we just collide them as identical masses
 	double mu = isInfInf ? 0.5 : p1Mass * p2Mass / (p1Mass + p2Mass);
 
-	retVal.dP = retVal.rij * ((1.0 + e) * mu * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
+	retVal.impulse = retVal.rij * ((1.0 + e) * mu * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
 
-	particle1.getVelocity() -= retVal.dP / (p1Mass + isInfInf);
-	particle2.getVelocity() += retVal.dP / (p2Mass + isInfInf);
+	particle1.getVelocity() -= retVal.impulse / (p1Mass + isInfInf);
+	particle2.getVelocity() += retVal.impulse / (p2Mass + isInfInf);
 
 	//If both particles have infinite mass we pretend no momentum was transferred
-	retVal.dP *= !isInfInf;
+	retVal.impulse *= !isInfInf;
       }
 
 
@@ -217,13 +217,13 @@ namespace dynamo {
 	event.setType(BOUNCE);
 	retVal.setType(BOUNCE);
 
-	retVal.dP = urij * (2.0 * mu * (retVal.rvdot - growthRate * sqrt(d2)));
+	retVal.impulse = urij * (2.0 * mu * (retVal.rvdot - growthRate * sqrt(d2)));
       }
     else if (deltaKE==0)
       {
 	event.setType(NON_EVENT);
 	retVal.setType(NON_EVENT);
-	retVal.dP = Vector(0,0,0);
+	retVal.impulse = Vector(0,0,0);
       }
     else
       {
@@ -242,10 +242,10 @@ namespace dynamo {
 	retVal.particle2_.setDeltaU(-0.5 * deltaKE);	  
       
 	if (retVal.rvdot < 0)
-	  retVal.dP = urij 
+	  retVal.impulse = urij 
 	    * (2.0 * deltaKE / (growthRate * sqrt(d2) + std::sqrt(sqrtArg) - retVal.rvdot ));
 	else
-	  retVal.dP = urij 
+	  retVal.impulse = urij 
 	    * (2.0 * deltaKE / (growthRate * sqrt(d2) - std::sqrt(sqrtArg) - retVal.rvdot ));
 	;
       }
@@ -253,7 +253,7 @@ namespace dynamo {
     retVal.rvdot *= retVal.rij.nrm();
   
 #ifdef DYNAMO_DEBUG
-    if (boost::math::isnan(retVal.dP[0]))
+    if (boost::math::isnan(retVal.impulse[0]))
       M_throw() << "A nan dp has ocurred"
 		<< "\ndeltaKE = " << deltaKE
 		<< "\ngrowthRate = " << growthRate
@@ -265,8 +265,8 @@ namespace dynamo {
 #endif
   
     //This function must edit particles so it overrides the const!
-    particle1.getVelocity() -= retVal.dP / p1Mass;
-    particle2.getVelocity() += retVal.dP / p2Mass;
+    particle1.getVelocity() -= retVal.impulse / p1Mass;
+    particle2.getVelocity() += retVal.impulse / p2Mass;
   
     retVal.particle1_.setDeltaKE(0.5 * p1Mass
 				 * (particle1.getVelocity().nrm2() 
@@ -317,4 +317,37 @@ namespace dynamo {
 				 const double&, const double&,
 				 const EEventType&) const
   { M_throw() << "Not Implemented"; }
+
+
+  ParticleEventData 
+  DynCompression::runAndersenWallCollision(Particle& part, const Vector & vNorm, const double& sqrtT, const double d) const
+  {  
+    updateParticle(part);
+
+    if (hasOrientationData())
+      M_throw() << "Need to implement thermostating of the rotational degrees"
+	" of freedom";
+
+    //This gives a completely new random unit vector with a properly
+    //distributed Normal component. See Granular Simulation Book
+    ParticleEventData tmpDat(part, *Sim->species[part], WALL);
+ 
+    double mass = Sim->species[tmpDat.getSpeciesID()]->getMass(part.getID());
+
+    for (size_t iDim = 0; iDim < NDIM; iDim++)
+      part.getVelocity()[iDim] = Sim->normal_sampler() * sqrtT / std::sqrt(mass);
+  
+    part.getVelocity() 
+      //This first line adds a component in the direction of the normal
+      += vNorm * (sqrtT * sqrt(-2.0*log(1.0-Sim->uniform_sampler()) / mass)
+		  //This removes the original normal component
+		  -(part.getVelocity() | vNorm)
+		  //This adds on the velocity of the wall
+		  + d * growthRate)
+      ;
+
+    tmpDat.setDeltaKE(0.5 * mass * (part.getVelocity().nrm2() - tmpDat.getOldVel().nrm2()));
+  
+    return tmpDat; 
+  }
 }

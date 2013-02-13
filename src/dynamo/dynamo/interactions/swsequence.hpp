@@ -29,7 +29,7 @@ namespace dynamo {
   public:
     template<class T1, class T2, class T3>
     ISWSequence(dynamo::Simulation* tmp, T1 d, T2 l, T3 e, 
-		std::vector<size_t> seq, C2Range* nR, std::string name):
+		std::vector<size_t> seq, IDPairRange* nR, std::string name):
       ISingleCapture(tmp,nR),
       _diameter(Sim->_properties.getProperty
 		(d, Property::Units::Length())),
@@ -71,8 +71,6 @@ namespace dynamo {
 
     virtual double getInternalEnergy(const Particle&, const Particle&) const;
 
-    virtual void checkOverlaps(const Particle&, const Particle&) const;
-
     virtual bool captureTest(const Particle&, const Particle&) const;
 
     virtual void initialise(size_t);
@@ -86,6 +84,8 @@ namespace dynamo {
     std::vector<size_t>& getSequence() { return sequence; }
 
     std::vector<std::vector<double> >& getAlphabet() { return alphabet; }
+
+    virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
 
   protected:
     shared_ptr<Property> _diameter;

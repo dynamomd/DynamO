@@ -26,7 +26,7 @@
 #include <dynamo/particle.hpp>
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/globals/globEvent.hpp>
-#include <dynamo/ranges/1RAll.hpp>
+#include <dynamo/ranges/IDRangeAll.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 

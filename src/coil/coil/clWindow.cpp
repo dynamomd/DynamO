@@ -16,7 +16,7 @@
 */
 
 #include <coil/clWindow.hpp>
-#include <coil/RenderObj/Function.hpp>
+#include <coil/RenderObj/Surface.hpp>
 #include <coil/RenderObj/console.hpp>
 #include <coil/RenderObj/Volume.hpp>
 #include <coil/RenderObj/Light.hpp>
@@ -99,22 +99,18 @@ namespace coil {
   bool
   CLGLWindow::CallBackIdleFunc()
   {
-    try {
-      glutSetWindow(windowID);
-      CallBackDisplayFunc();
-    } catch (cl::Error err)
+    try 
       {
-	std::cerr << "\n Window render caught an OpenCL exception\n"
-		  << "An OpenCL error occured," << err.what()
-		  << "\nError num of " << err.err()
-		  << "\n As we're in a thread we can only exit(1)!";
-	std::exit(1);
-      } catch (std::exception& except)
+	glutSetWindow(windowID);
+	CallBackDisplayFunc();
+      }
+    catch (std::exception& except)
       {
 	std::cerr << "\n Window render caught a std::exception\n"
 		  << except.what();
 	std::exit(1);
-      }  catch (...)
+      }  
+    catch (...)
       {
 	std::cerr << "\nRender thread caught an unknown exception!\n";
 	std::exit(1);
@@ -646,14 +642,12 @@ namespace coil {
     _lastUpdateTime = _lastFrameTime = _FPStime = glutGet(GLUT_ELAPSED_TIME);
     _frameRenderTime = 0;
 
-    _renderShader.build();
     _copyShader.build();
     _downsampleShader.build();
     _blurShader.build();
     _pointLightShader.build();
     _ambientLightShader.build();
     _VSMShader.build();
-    _simpleRenderShader.build();
     _luminanceShader.build();
     _luminanceMipMapShader.build();
     _toneMapShader.build();
@@ -723,14 +717,11 @@ namespace coil {
     _filterTarget2.deinit();
     _blurTarget1.deinit();
     _blurTarget2.deinit();
-
-    _renderShader.deinit();
     _toneMapShader.deinit();
     _depthResolverShader.deinit();
     _pointLightShader.deinit();	
     _ambientLightShader.deinit();
     _VSMShader.deinit();
-    _simpleRenderShader.deinit();
     _downsampleShader.deinit();
     _blurShader.deinit();
     _copyShader.deinit();
@@ -772,37 +763,45 @@ namespace coil {
     float sideways = moveAmp * (keyStates[static_cast<size_t>('d')] - keyStates[static_cast<size_t>('a')]);
     float vertical =  moveAmp * (keyStates[static_cast<size_t>('q')] - keyStates[static_cast<size_t>('z')]);
     _camera.movement(0, 0, forward, sideways, vertical);
-    
+
     ////////////GUI UPDATES
     //We frequently ping the gui update
     guiUpdateCallback();
 
     ////////////Lighting shadow map creation////////////////////
     //This stage only needs to be performed once per frame
-    //    if (_shadowMapping)
-    //      {
-    //	_VSMShader.attach();
-    //
-    //	//Render each light's shadow map
-    //	_VSMShader["ProjectionMatrix"] = _light0.getProjectionMatrix();
-    //	_VSMShader["ViewMatrix"] = _light0.getViewMatrix();	  
-    //	_light0.shadowFBO().attach();
-    //	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //	
-    //	//Enter the render ticks for all objects
-    //	for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjsTree._renderObjects.begin();
-    //	     iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-    //	  if ((*iPtr)->shadowCasting() && (*iPtr)->visible())
-    //	    (*iPtr)->glRender(_light0, RenderObj::SHADOW);
-    //	
-    //	_light0.shadowFBO().detach();
-    //	/////////////MIPMAPPED shadow maps don't seem to work
-    //	//_light0.shadowTex()->genMipmaps();
-    //	_light0.shadowTex()->bind(7);
-    //	
-    //	_VSMShader.detach();
-    //      }
     
+//    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
+//	   = _renderObjsTree._renderObjects.begin();
+//	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
+//      if ((*iPtr)->shadowCasting() && std::tr1::dynamic_pointer_cast<RLight>(*iPtr))
+//	{
+//	  std::tr1::shared_ptr<RLight> light = std::tr1::static_pointer_cast<RLight>(*iPtr);
+//	  if (light)
+//	    {
+//	      _VSMShader.attach();
+//	      //Render each light's shadow map
+//	      _VSMShader["ProjectionMatrix"] = light->getProjectionMatrix();
+//	      _VSMShader["ViewMatrix"] = light->getViewMatrix();	  
+//	      light->shadowFBO().attach();
+//	      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//
+//	      //Enter the render ticks for all objects
+//	      for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator jPtr 
+//		     = _renderObjsTree._renderObjects.begin();
+//		   jPtr != _renderObjsTree._renderObjects.end(); ++jPtr)
+//		if (iPtr != jPtr)
+//		  if ((*jPtr)->shadowCasting() && (*jPtr)->visible())
+//		    (*iPtr)->glRender(*light, RenderObj::SHADOW);
+//	
+//	      light->shadowFBO().detach();
+//	      /////////////MIPMAPPED shadow maps don't seem to work
+//	      //_light0.shadowTex()->genMipmaps();
+//	      light->shadowTex()->bind(7);
+//	
+//	      _VSMShader.detach();
+//	    }
+//	}
     ////////All of the camera movement and orientation has been
     ////////calculated with a certain fixed head position, now we
     ////////actually perform the rendering with adjustments for the 
@@ -953,9 +952,6 @@ namespace coil {
     _glContext->setDepthTest(true);
     _glContext->setBlend(false);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    _renderShader.attach();
-    _renderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
-    _renderShader["ViewMatrix"] = _camera.getViewMatrix();
     
     //Enter the render ticks for all objects
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
@@ -964,7 +960,6 @@ namespace coil {
       if ((*iPtr)->visible()) 
 	(*iPtr)->glRender(camera, RenderObj::DEFAULT);
 
-    _renderShader.detach();
     _Gbuffer.detach();
     
     ///////////////////////Lighting pass////////////////////////
@@ -1249,11 +1244,6 @@ namespace coil {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     lastFBO->attach();
-    _simpleRenderShader.attach();
-    _simpleRenderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
-    _simpleRenderShader["ViewMatrix"] = _camera.getViewMatrix();
-
-
     //Enter the interface draw for all objects
     _cairo_screen.clear();
 
@@ -1275,8 +1265,6 @@ namespace coil {
 
     _cairo_screen.syncCairoGL();
     _cairo_screen.glRender();
-    
-    _simpleRenderShader.detach();
     lastFBO->detach();
 
     _glContext->setBlend(false);
@@ -1560,43 +1548,55 @@ namespace coil {
   void
   CLGLWindow::simupdateTick(double t)
   {
-    for (;;)
+    if (!isReady()) return;
+    
+    //A loop for framelocked rendering, this holds the simulation
+    //until the last data update has been rendered.
+    while (_simframelock && (_lastUpdateTime == getLastFrameTime()))
       {
 	//Jump out without an update if the window has been killed
 	if (!isReady()) return;
-
 	_systemQueue->drainQueue();
-
-	//Block the simulation if _simrun is false or if we're in frame lock
-	//and a new frame has not been drawn.
-	if (_simrun && (!_simframelock || (_lastUpdateTime != getLastFrameTime()))) break;
-      
-
-	//1ms delay to lower CPU usage while blocking, but not to affect framelocked render rates
+	
+	//1ms delay to lower CPU usage while blocking, but not to
+	//affect framelocked render rates
 	timespec sleeptime;
 	sleeptime.tv_sec = 0;
 	sleeptime.tv_nsec = 1000000;
 	nanosleep(&sleeptime, NULL);
       }
-    
-    //For the updates per second
+
+    //Update the simulation data.  Only update if the previous data
+    //set has been rendered, or we're about to pause the simulation
+    if ((_lastUpdateTime != getLastFrameTime()) || !_simrun)
+      {
+	magnet::thread::ScopedLock lock(_destroyLock);
+	if (!isReady()) return;
+	_updateDataSignal();
+	_newData = true;
+	
+	std::ostringstream os;
+	os << "t:" << t;        
+	setSimStatus1(os.str());
+	_lastUpdateTime = getLastFrameTime();
+      }
+
     ++_updateCounter;
 
-    //Only redraw if the screen has actually refreshed
-    if (_lastUpdateTime == getLastFrameTime()) return;
-    _lastUpdateTime = getLastFrameTime();
-
-    //Update the simulation data
-    {
-      magnet::thread::ScopedLock lock(_destroyLock);
-      if (!isReady()) return;
-      _updateDataSignal();
-      _newData = true;
-
-      std::ostringstream os;
-      os << "t:" << t;        
-      setSimStatus1(os.str());
-    }
+    //A loop for paused running, to hold the system at the current
+    //frame.
+    while (!_simrun)
+      {
+	//Jump out without an update if the window has been killed
+	if (!isReady()) return;
+	_systemQueue->drainQueue();
+	
+	//1ms delay to lower CPU usage while blocking
+	timespec sleeptime;
+	sleeptime.tv_sec = 0;
+	sleeptime.tv_nsec = 1000000;
+	nanosleep(&sleeptime, NULL);
+      }
   }
 
   void 
@@ -1911,10 +1911,6 @@ namespace coil {
   void
   CLGLWindow::performPicking(int x, int y)
   {
-    _simpleRenderShader.attach();
-    _simpleRenderShader["ProjectionMatrix"] = _camera.getProjectionMatrix();
-    _simpleRenderShader["ViewMatrix"] = _camera.getViewMatrix();
-
     _renderTarget.attach();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
@@ -1936,7 +1932,7 @@ namespace coil {
 	  }
       }
 
-    unsigned char pixel[4];  
+    unsigned char pixel[4];
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);  
     glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);    
@@ -2053,7 +2049,7 @@ namespace coil {
   void
   CLGLWindow::addFunctionCallback()
   {
-    std::tr1::shared_ptr<RFunction> function(new RFunction("Function"));
+    std::tr1::shared_ptr<RSurface> function(new RSurface("Function"));
     _renderObjsTree._renderObjects.push_back(function);
     _renderObjsTree._renderObjects.back()->init(_systemQueue);
     _renderObjsTree.buildRenderView();
@@ -2433,51 +2429,60 @@ namespace coil {
     _Gbuffer.attachTexture(depthTexture);
   }
   
+
+  void 
+  CLGLWindow::autoscaleView()
+  {
+    _glContext->queueTask(magnet::function::Task::makeTask(&CLGLWindow::rescaleCameraCallback, this));
+  }
+
   void 
   CLGLWindow::rescaleCameraCallback()
   {
-    double maxdim = 0;
-    magnet::math::Vector centre;
+    magnet::math::Vector min(HUGE_VAL,HUGE_VAL,HUGE_VAL);
+    magnet::math::Vector max(-HUGE_VAL, -HUGE_VAL, -HUGE_VAL);
+
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
 	   = _renderObjsTree._renderObjects.begin();
 	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
       {
-	magnet::math::Vector dims = (*iPtr)->getDimensions();
-	magnet::math::Vector current_centre = (*iPtr)->getCentre();
-	double largest_dim = std::max(dims[0], std::max(dims[1], dims[2]));
-
-	if (largest_dim > maxdim)
-	  {
-	    maxdim = largest_dim;
-	    centre = current_centre;
-	  }
+	magnet::math::Vector child_max = (*iPtr)->getMaxCoord();
+	magnet::math::Vector child_min = (*iPtr)->getMinCoord();
+	
+	for (size_t i(0); i < 3; ++i) {
+	  min[i] = std::min(min[i], child_min[i]);
+	  max[i] = std::max(max[i], child_max[i]);
+	}
       }
-    
     //Catch the exceptional case where there is nothing rendered
-    if (maxdim == 0) maxdim = 1.0;
+
+    if (std::isinf(min[0]) || std::isinf(min[1]) || std::isinf(min[2])
+	|| std::isinf(max[0]) || std::isinf(max[1]) || std::isinf(max[2]))
+      return;
+
+    double maxdim = std::max(max[0] - min[0], std::max(max[1] - min[1], max[2] - min[2]));
 
     double oldScale = _camera.getRenderScale();
     double newScale = 40.0 / maxdim;
+    magnet::math::Vector centre = 0.5 * (min + max); 
     magnet::math::Vector shift = centre - _cameraFocus;
-    
+	
     //Try to reset the camera, in-case its dissappeared to nan or inf.
     _camera.setPosition(_camera.getPosition() * oldScale / newScale + shift);
     _camera.setRenderScale(newScale);
-
+	
     _cameraFocus = centre;
     _cameraMode = ROTATE_WORLD;
     _camera.setMode(magnet::GL::Camera::ROTATE_POINT);
-
-
     {
       Gtk::Entry* simunits;
       _refXml->get_widget("SimLengthUnits", simunits);
-      
+	  
       std::ostringstream os;
       os << _camera.getRenderScale();
       simunits->set_text(os.str());
     }
-
+	
     //Shift the lighting for the scene
     for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr 
 	   = _renderObjsTree._renderObjects.begin();

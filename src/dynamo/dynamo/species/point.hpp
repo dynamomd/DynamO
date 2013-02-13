@@ -31,7 +31,7 @@ namespace dynamo {
   {
   public:
     template<class T1>
-    SpPoint(dynamo::Simulation* sim, Range* r, T1 nmass, std::string nName,
+    SpPoint(dynamo::Simulation* sim, IDRange* r, T1 nmass, std::string nName,
 	    unsigned int ID, std::string nIName="Bulk"):
       Species(sim, "SpPoint", r, nmass, nName, ID, nIName)
     {}

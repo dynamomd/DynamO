@@ -35,17 +35,12 @@ namespace dynamo {
       hasThermostat = std::tr1::dynamic_pointer_cast<SysAndersen>(Sim.systems["Thermostat"]); 
     } catch (std::exception & err) {}
     
-    bool periodic = std::tr1::dynamic_pointer_cast<BCPeriodic>(Sim.BCs);
+    //bool periodic = std::tr1::dynamic_pointer_cast<BCPeriodic>(Sim.BCs);
     
-    if (periodic)
-      {
-	if (hasThermostat)
-	  return shared_ptr<Ensemble>(new EnsembleNVT(&Sim));
-	
-	
-	
-	return shared_ptr<Ensemble>(new EnsembleNVE(&Sim));
-      }
+    if (hasThermostat)
+      return shared_ptr<Ensemble>(new EnsembleNVT(&Sim));
+    
+    return shared_ptr<Ensemble>(new EnsembleNVE(&Sim));
     
     //Return the default unknown ensemble
     return shared_ptr<Ensemble>(new Ensemble(&Sim));

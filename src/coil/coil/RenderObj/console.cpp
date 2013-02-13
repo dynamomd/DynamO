@@ -30,6 +30,7 @@ namespace coil {
 
     _gridVertices.init(magnet::GL::objects::primitives::Grid::getVertices(10, 10), 3);
     initGTK();
+    _renderShader.build();
   }
 
   namespace{
@@ -52,6 +53,13 @@ namespace coil {
 	cairo.getContext()->line_to(0.5 + 0.5 * vec[0] / vec[3],
 				   0.5 - 0.5 * vec[1] / vec[3]);
       }
+  }
+
+  void
+  Console::deinit()
+  {
+    _gridVertices.deinit(); 
+    _renderShader.deinit();
   }
 
   void 
@@ -123,11 +131,9 @@ namespace coil {
 	using namespace magnet::GL;
 	const Context::ContextPtr& context = magnet::GL::Context::getContext();
 
-	GLMatrix old_model_view
-	  = context->getAttachedShader()["ViewMatrix"].as<GLMatrix>();
-
-	context->getAttachedShader()["ViewMatrix"] = camera.getViewPlaneMatrix();
-
+	_renderShader.attach();
+	_renderShader["ProjectionMatrix"] = camera.getProjectionMatrix();
+	_renderShader["ViewMatrix"] = camera.getViewPlaneMatrix();
 	context->color(1,1,1,1);
 	//Back face
 	context->setAttribute(Context::instanceOriginAttrIndex, 0, 0, -camera.getScreenPlaneWidth(), 0);
@@ -161,7 +167,7 @@ namespace coil {
 			      0.5 * camera.getScreenPlaneHeight(), 
 			      -0.5 * camera.getScreenPlaneWidth(), 0);
 	_gridVertices.drawArray(magnet::GL::element_type::LINES);
-	context->getAttachedShader()["ViewMatrix"] = old_model_view;
+	_renderShader.detach();
       }
   }
 

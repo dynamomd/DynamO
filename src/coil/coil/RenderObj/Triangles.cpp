@@ -21,26 +21,36 @@
 namespace coil {
   RTriangles::RTriangles(std::string name):
     RenderObj(name),
-    _RenderMode(TRIANGLES),
-    _pickingRenderMode(false)
+    _RenderMode(TRIANGLES)
   {}
 
   RTriangles::~RTriangles()
   { deinit(); }
 
   void 
+  RTriangles::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
+  { 
+    RenderObj::init(systemQueue); 
+    initGTK(); 
+    _renderShader.build(); 
+  }
+
+  void 
   RTriangles::glRender(const magnet::GL::Camera& cam, RenderMode mode)
   {
     if (!_visible) return;
 
+    _renderShader.attach();
+    _renderShader["ProjectionMatrix"] = cam.getProjectionMatrix();
+    _renderShader["ViewMatrix"] = cam.getViewMatrix();
+
     _posBuff.getContext()->cleanupAttributeArrays();
 
-    if (_pickingRenderMode)
+    if (mode == PICKING_PASS)
       _pickingColorBuff.attachToColor();
-
-    if (_colBuff.size() && !_pickingRenderMode)
+    else if (_colBuff.size())
       _colBuff.attachToColor();
-
+    
     if (_normBuff.size())
       _normBuff.attachToNormal();
   
@@ -58,6 +68,7 @@ namespace coil {
 	_specialElementBuff.drawElements(magnet::GL::element_type::POINTS);
 	break;
       }
+    _renderShader.detach();
   }
 
   void 
@@ -129,6 +140,7 @@ namespace coil {
     _normBuff.deinit();
     _elementBuff.deinit();
     _specialElementBuff.deinit();
+    _renderShader.deinit();
   }
 
   void 
@@ -263,7 +275,7 @@ namespace coil {
 	std::vector<GLubyte> vertexColors;
 	vertexColors.reserve(N * 4);
       
-	for (cl_uint i(offset); i < N + offset; ++i)
+	for (size_t i(offset); i < N + offset; ++i)
 	  {
 	    vertexColors.push_back((i >>  0) & 0xFF);
 	    vertexColors.push_back((i >>  8) & 0xFF);
@@ -274,8 +286,6 @@ namespace coil {
 	_pickingColorBuff.init(vertexColors, 4, magnet::GL::buffer_usage::STREAM_DRAW);
       }
 
-    _pickingRenderMode = true;
     RTriangles::glRender(cam, PICKING_PASS);
-    _pickingRenderMode = false;
   }
 }

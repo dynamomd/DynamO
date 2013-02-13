@@ -61,16 +61,12 @@ namespace coil {
     if (!_visible) return;
     
     cairo.getContext()->save();
-
     std::tr1::array<GLfloat, 4> pos =  camera.project(getPosition());
-
     Glib::RefPtr<Gdk::Pixbuf> icon = getIcon();
-  
     Gdk::Cairo::set_source_pixbuf(cairo.getContext(), getIcon(), 
 				  pos[0] - icon->get_width()/2,
 				  pos[1] - icon->get_height()/2);
     cairo.getContext()->paint();
-
     cairo.getContext()->restore();
   }
 

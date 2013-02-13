@@ -26,7 +26,7 @@ namespace dynamo {
   {
   public:
     template<class T1, class T2>
-    ILines(dynamo::Simulation* tmp, T1 l, T2 e, C2Range* nR, std::string name):
+    ILines(dynamo::Simulation* tmp, T1 l, T2 e, IDPairRange* nR, std::string name):
       ISingleCapture(tmp, nR),
       _length(Sim->_properties.getProperty
 	      (l, Property::Units::Length())),
@@ -59,7 +59,7 @@ namespace dynamo {
    
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    virtual void checkOverlaps(const Particle&, const Particle&) const {}
+    virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
  
     virtual bool captureTest(const Particle&, const Particle&) const;
 

@@ -20,8 +20,11 @@
 #include <GL/glew.h>
 #include <GL/glx.h>
 #include <GL/freeglut.h>
-#define __CL_ENABLE_EXCEPTIONS
-#include <CL/cl.hpp>
+
+#ifdef MAGNET_CLGL
+# define __CL_ENABLE_EXCEPTIONS
+# include <CL/cl.hpp>
+#endif
 
 #include <magnet/GL/detail/traits.hpp>
 #include <magnet/GL/detail/enums.hpp>
@@ -265,6 +268,7 @@ namespace magnet {
       }
       /**@}*/
 
+#ifdef MAGNET_CLGL
       /** @name The OpenCL-OpenGL interface. */
       /**@{*/
       //! \brief Fetch the OpenCL platform for this OpenGL context.
@@ -283,6 +287,7 @@ namespace magnet {
       inline const cl::CommandQueue& getCLCommandQueue() 
       { initCL(); return _clcommandQ; }
       /**@}*/
+#endif
 
       /*! \brief Returns the currently attached shader program.
        
@@ -423,6 +428,8 @@ namespace magnet {
           swapBuffers(). 
       */
       size_t _frameCounter;
+
+#ifdef MAGNET_CLGL
       //! \brief The OpenCL platform for this GL context.
       cl::Platform _clplatform;
       //! \brief The OpenCL context for this GL context.
@@ -433,6 +440,7 @@ namespace magnet {
       cl::CommandQueue _clcommandQ;
       //! \brief Flag set if the OpenCL state has been initialised.
       bool _clInitialised;
+#endif
 
       std::set<std::string> _extensions;
 
@@ -453,6 +461,7 @@ namespace magnet {
        */
       magnet::thread::TaskQueue _glTasks;
 
+#ifdef MAGNET_CLGL
       /*! \brief If a matching OpenCL context does not exist, it will
         create one from the current OpenGL context.
        */
@@ -562,6 +571,7 @@ namespace magnet {
 	
 	return true;
       }
+#endif
 
       static void DebugCallback(unsigned int source, unsigned int type,
 				unsigned int id, unsigned int severity,
@@ -692,8 +702,11 @@ namespace magnet {
 	_alphaTest(false),
 	_depthTest(false),
 	_cullFace(false),
-	_sampleShading(false),
+	_sampleShading(false)
+#ifdef MAGNET_CLGL
+	,
 	_clInitialised(false)
+#endif
       {}
 
       //! \brief The system-dependent handle to the GL context.

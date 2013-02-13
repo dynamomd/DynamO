@@ -159,14 +159,14 @@ namespace coil {
   void 
   AttributeSelector::generateFilteredData(std::vector<GLfloat>& scalardata,
 					  const std::tr1::shared_ptr<Attribute>& ptr,
-					  size_t mode)
+					  int mode)
   {
     //Update the data according to what was selected
     scalardata.resize(ptr->num_elements());
     const size_t components = ptr->components();
     const std::vector<GLfloat>& attrdata = *ptr;
       
-    if (mode == 1)
+    if (mode <= 1)
       //Magnitude calculation
       {
 	for (size_t i(0); i < scalardata.size(); ++i)

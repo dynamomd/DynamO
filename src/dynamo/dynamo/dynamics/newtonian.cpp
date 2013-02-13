@@ -27,7 +27,7 @@
 #include <dynamo/schedulers/sorters/event.hpp>
 #include <dynamo/dynamics/shapes/oscillatingplate.hpp>
 #include <dynamo/dynamics/shapes/lines.hpp>
-#include <dynamo/dynamics/shapes/dumbbells.hpp>
+#include <dynamo/dynamics/shapes/offcentre_sphere.hpp>
 #include <dynamo/units/units.hpp>
 #include <magnet/math/frenkelroot.hpp>
 #include <magnet/overlap/point_prism.hpp>
@@ -54,7 +54,7 @@ namespace dynamo {
 
   bool 
   DynNewtonian::cubeOverlap(const Particle& p1, const Particle& p2, 
-			  const double d) const
+			    const double d) const
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(r12);
@@ -71,7 +71,7 @@ namespace dynamo {
   }
 
   double
-  DynNewtonian::SphereSphereInRoot(const Range& p1, const Range& p2, double d) const
+  DynNewtonian::SphereSphereInRoot(const IDRange& p1, const IDRange& p2, double d) const
   {
     std::pair<Vector, Vector> r1data = getCOMPosVel(p1);
     std::pair<Vector, Vector> r2data = getCOMPosVel(p2);
@@ -91,7 +91,7 @@ namespace dynamo {
   }
 
   double
-  DynNewtonian::SphereSphereOutRoot(const Range& p1, const Range& p2, double d) const
+  DynNewtonian::SphereSphereOutRoot(const IDRange& p1, const IDRange& p2, double d) const
   {
     std::pair<Vector, Vector> r1data = getCOMPosVel(p1);
     std::pair<Vector, Vector> r2data = getCOMPosVel(p2);
@@ -157,12 +157,12 @@ namespace dynamo {
   double 
   DynNewtonian::getPlaneEvent(const Particle& part, const Vector& wallLoc, const Vector& wallNorm, double diameter) const
   {
-    Vector rij = part.getPosition() - (wallLoc + wallNorm * diameter),
+    Vector rij = part.getPosition() - wallLoc,
       vel = part.getVelocity();
 
     Sim->BCs->applyBC(rij, vel);
 
-    return magnet::intersection::ray_plane<true>(rij, vel, wallNorm);
+    return magnet::intersection::ray_plane(rij, vel, wallNorm, diameter);
   }
 
   std::pair<double, Dynamics::TriangleIntersectingPart>
@@ -246,7 +246,7 @@ namespace dynamo {
   }
 
   ParticleEventData 
-  DynNewtonian::runAndersenWallCollision(Particle& part, const Vector & vNorm, const double& sqrtT) const
+  DynNewtonian::runAndersenWallCollision(Particle& part, const Vector & vNorm, const double& sqrtT, const double) const
   {  
     updateParticle(part);
 
@@ -281,11 +281,9 @@ namespace dynamo {
     Vector  vel(part.getVelocity());
     Sim->BCs->applyBC(rpos, vel);
   
-#ifdef DYNAMO_DEBUG
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
-	M_throw() << "You have negative zero velocities, don't use them.";
-#endif 
+	vel[iDim] = 0;
 
     double retVal;
     if (vel[0] < 0)
@@ -317,12 +315,9 @@ namespace dynamo {
     int retVal(0);
     double time(HUGE_VAL);
   
-#ifdef DYNAMO_DEBUG
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       if ((vel[iDim] == 0) && (std::signbit(vel[iDim])))
-	M_throw() << "You have negative zero velocities, dont use them."
-		  << "\nPlease think of the neighbour lists.";
-#endif
+	vel[iDim] = 0;
 
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       {
@@ -389,11 +384,11 @@ namespace dynamo {
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(p2.getID());
     double mu = p1Mass * p2Mass/(p1Mass+p2Mass);
 
-    retVal.dP = rij * ((1.0 + e) * mu * rvdot / rij.nrm2());  
+    retVal.impulse = rij * ((1.0 + e) * mu * rvdot / rij.nrm2());  
 
     //This function must edit particles so it overrides the const!
-    p1.getVelocity() -= retVal.dP / p1Mass;
-    p2.getVelocity() += retVal.dP / p2Mass;
+    p1.getVelocity() -= retVal.impulse / p1Mass;
+    p2.getVelocity() += retVal.impulse / p2Mass;
 
     retVal.particle1_.setDeltaKE(0.5 * p1Mass * (p1.getVelocity().nrm2() 
 						 - retVal.particle1_.getOldVel().nrm2()));
@@ -427,17 +422,17 @@ namespace dynamo {
     if ((p1Mass == 0) && (p2Mass != 0))
       //if (!particle1.testState(Particle::DYNAMIC) && particle2.testState(Particle::DYNAMIC))
       {
-	retVal.dP = p2Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());  
+	retVal.impulse = p2Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());  
 	//This function must edit particles so it overrides the const!
-	particle2.getVelocity() += retVal.dP / p2Mass;
+	particle2.getVelocity() += retVal.impulse / p2Mass;
       }
     else 
       if ((p1Mass != 0) && (p2Mass == 0))
 	//if (particle1.testState(Particle::DYNAMIC) && !particle2.testState(Particle::DYNAMIC))
 	{
-	  retVal.dP = p1Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());
+	  retVal.impulse = p1Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());
 	  //This function must edit particles so it overrides the const!
-	  particle1.getVelocity() -= retVal.dP / p1Mass;
+	  particle1.getVelocity() -= retVal.impulse / p1Mass;
 	}
       else
 	{
@@ -448,14 +443,14 @@ namespace dynamo {
 
 	  double mu = p1Mass * p2Mass / (p1Mass + p2Mass);
 
-	  retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
+	  retVal.impulse = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
 
 	  //This function must edit particles so it overrides the const!
-	  particle1.getVelocity() -= retVal.dP / p1Mass;
-	  particle2.getVelocity() += retVal.dP / p2Mass;
+	  particle1.getVelocity() -= retVal.impulse / p1Mass;
+	  particle2.getVelocity() += retVal.impulse / p2Mass;
 
 	  //If both particles have infinite mass we pretend no momentum was transferred
-	  retVal.dP *= !isInfInf;
+	  retVal.impulse *= !isInfInf;
 	}
 
     retVal.particle1_.setDeltaKE(0.5 * p1Mass * (particle1.getVelocity().nrm2()
@@ -504,11 +499,11 @@ namespace dynamo {
 
     retVal.rvdot = (retVal.rij | retVal.vijold);
 
-    retVal.dP = collvec * (1.0 + e) * mu * (collvec | retVal.vijold);  
+    retVal.impulse = collvec * (1.0 + e) * mu * (collvec | retVal.vijold);  
 
     //This function must edit particles so it overrides the const!
-    particle1.getVelocity() -= retVal.dP / p1Mass;
-    particle2.getVelocity() += retVal.dP / p2Mass;
+    particle1.getVelocity() -= retVal.impulse / p1Mass;
+    particle2.getVelocity() += retVal.impulse / p2Mass;
 
     retVal.particle1_.setDeltaKE(0.5 * p1Mass * (particle1.getVelocity().nrm2() 
 						 - retVal.particle1_.getOldVel().nrm2()));
@@ -520,7 +515,7 @@ namespace dynamo {
   }
 
   NEventData 
-  DynNewtonian::multibdyCollision(const Range& range1, const Range& range2, const double&, const EEventType& eType) const
+  DynNewtonian::multibdyCollision(const IDRange& range1, const IDRange& range2, const double&, const EEventType& eType) const
   {
     Vector COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
   
@@ -611,7 +606,7 @@ namespace dynamo {
   }
 
   NEventData 
-  DynNewtonian::multibdyWellEvent(const Range& range1, const Range& range2, const double&, const double& deltaKE, EEventType& eType) const
+  DynNewtonian::multibdyWellEvent(const IDRange& range1, const IDRange& range2, const double&, const double& deltaKE, EEventType& eType) const
   {
     Vector  COMVel1(0,0,0), COMVel2(0,0,0), COMPos1(0,0,0), COMPos2(0,0,0);
   
@@ -750,13 +745,13 @@ namespace dynamo {
       {
 	event.setType(BOUNCE);
 	retVal.setType(BOUNCE);
-	retVal.dP = retVal.rij * 2.0 * mu * retVal.rvdot / R2;
+	retVal.impulse = retVal.rij * 2.0 * mu * retVal.rvdot / R2;
       }
     else if (deltaKE==0)
       {
 	event.setType(NON_EVENT);
 	retVal.setType(NON_EVENT);
-	retVal.dP = Vector(0,0,0);
+	retVal.impulse = Vector(0,0,0);
       }
     else
       {
@@ -775,21 +770,21 @@ namespace dynamo {
 	retVal.particle2_.setDeltaU(-0.5 * deltaKE);	  
       
 	if (retVal.rvdot < 0)
-	  retVal.dP = retVal.rij 
+	  retVal.impulse = retVal.rij 
 	    * (2.0 * deltaKE / (std::sqrt(sqrtArg) - retVal.rvdot));
 	else
-	  retVal.dP = retVal.rij 
+	  retVal.impulse = retVal.rij 
 	    * (-2.0 * deltaKE / (retVal.rvdot + std::sqrt(sqrtArg)));
       }
   
 #ifdef DYNAMO_DEBUG
-    if (boost::math::isnan(retVal.dP[0]))
+    if (boost::math::isnan(retVal.impulse[0]))
       M_throw() << "A nan dp has ocurred";
 #endif
   
     //This function must edit particles so it overrides the const!
-    particle1.getVelocity() -= retVal.dP / p1Mass;
-    particle2.getVelocity() += retVal.dP / p2Mass;
+    particle1.getVelocity() -= retVal.impulse / p1Mass;
+    particle2.getVelocity() += retVal.impulse / p2Mass;
   
     retVal.particle1_.setDeltaKE(0.5 * p1Mass
 				 * (particle1.getVelocity().nrm2() 
@@ -854,17 +849,17 @@ namespace dynamo {
       t_high = (Sigma + Delta - surfaceOffset) / surfaceVel;
     else
       t_high = -(Sigma + Delta + surfaceOffset) / surfaceVel;
-  
-
+    
+    
     SFOscillatingPlate fL(vel, nhat, pos, t, Delta, Omega, Sigma);
-  
+    
 #ifdef DYNAMO_DEBUG
     if (Sigma < 0) M_throw() << "Assuming a positive Sigma here";
 #endif
-
+    
     //A particle has penetrated the plate, probably due to some small numerical error
     //We can just adjust the seperation vector till the particle is on the surface of the plate
-    if (fL.F_zeroDeriv() > 0)
+    if (fL.eval<0>() > 0)
       {
 #ifdef DYNAMO_DEBUG
 	derr << "Particle is penetrating the \"upper\" plate"
@@ -872,24 +867,24 @@ namespace dynamo {
 	     << "\nThis is fine if it is a rare event." << std::endl;
 #endif
 	fL.fixFZeroSign(false);
-
+	
 #ifdef DYNAMO_DEBUG
 	//This is just incase the oscillating plate shape function is broken
-	if (fL.F_zeroDeriv() > 0)
-	  M_throw() << "Failed to adjust the plate position";
+	if (fL.eval<0>() > 0)
+      M_throw() << "Failed to adjust the plate position";
 #endif
       }
       
     double t_low1 = 0, t_low2 = 0;
     if (lastpart)
       {
-	if (-fL.F_zeroDeriv() < fL.F_zeroDerivFlip())
+	if (-fL.eval<0>() < fL.F_zeroDerivFlip())
 	  //Shift the lower bound up so we don't find the same root again
-	  t_low1 = fabs(2.0 * fL.F_firstDeriv())
-	    / fL.F_secondDeriv_max();
+	  t_low1 = fabs(2.0 * fL.eval<1>())
+	    / fL.max<2>();
 	else
-	  t_low2 = fabs(2.0 * fL.F_firstDeriv())
-	    / fL.F_secondDeriv_max();
+	  t_low2 = fabs(2.0 * fL.eval<1>())
+	    / fL.max<2>();
       }
 
 
@@ -901,7 +896,7 @@ namespace dynamo {
 
     fL.flipSigma();
 
-    if (fL.F_zeroDeriv() < 0)
+    if (fL.eval<0>() < 0)
       {
 #ifdef DYNAMO_DEBUG
 	derr << "Particle is penetrating the \"lower\" plate"
@@ -912,7 +907,7 @@ namespace dynamo {
 
 #ifdef DYNAMO_DEBUG
 	//This is just incase the oscillating plate shape function is broken
-	if (fL.F_zeroDeriv() < 0)
+	if (fL.eval<0>() < 0)
 	  M_throw() << "Failed to adjust the plate position";
 #endif
       }
@@ -948,17 +943,17 @@ namespace dynamo {
 	      SFOscillatingPlate ftmp2(fL);
 	      ftmp.flipSigma();
 	    
-	      double fl01(ftmp.F_zeroDeriv());
+	      double fl01(ftmp.eval<0>());
 	      ftmp.stream(t_low1);
-	      double flt_low1(ftmp.F_zeroDeriv());
+	      double flt_low1(ftmp.eval<0>());
 	      ftmp.stream(t_high - t_low1);
-	      double flt_high1(ftmp.F_zeroDeriv());
+	      double flt_high1(ftmp.eval<0>());
 	    
-	      double fl02(ftmp2.F_zeroDeriv());
+	      double fl02(ftmp2.eval<0>());
 	      ftmp2.stream(t_low2);
-	      double flt_low2(ftmp2.F_zeroDeriv());
+	      double flt_low2(ftmp2.eval<0>());
 	      ftmp2.stream(t_high - t_low2);
-	      double flt_high2(ftmp2.F_zeroDeriv());
+	      double flt_high2(ftmp2.eval<0>());
 	    
 	      derr << "****Forcing collision"
 		   << "\nsystemTime = " << Sim->systemTime
@@ -983,8 +978,8 @@ namespace dynamo {
 		   << "\nf2(0)_1 = " << fl02
 		   << "\nf2(t_low2) = " << flt_low2
 		   << "\nf2(t_high) = " << flt_high2
-		   << "\nf'(0) =" << fL.F_firstDeriv()
-		   << "\nf''(Max) =" << fL.F_secondDeriv_max()
+		   << "\nf'(0) =" << fL.eval<1>()
+		   << "\nf''(Max) =" << fL.max<2>()
 		   << "\nf(x)=" << (pos | nhat)
 		   << "+" << (part.getVelocity() | nhat)
 		   << " * x - "
@@ -1016,7 +1011,7 @@ namespace dynamo {
 	    //This next line sets what the recoil velocity should be
 	    //We choose the velocity that gives elastic collisions!
 	    tmpt += fL.maxWallVel() * 0.002;
-	    tmpt /= fL.F_secondDeriv_max();
+	    tmpt /= fL.max<2>();
 	    if (tmpt < currRoot)
 	      {
 #ifdef DYNAMO_DEBUG
@@ -1065,7 +1060,7 @@ namespace dynamo {
     //	   fL.wallPosition()[0] << "\nRwall[0]+sigma = " <<
     //	   fL.wallPosition()[0] + sigma << "\nRwall[0]-sigma = " <<
     //	   fL.wallPosition()[0] - sigma << "\nsigma + Del = " <<
-    //	   sigma+delta << "\nf(0)* = " << fL.F_zeroDeriv() << "\nf'(0)
+    //	   sigma+delta << "\nf(0)* = " << fL.eval<0>() << "\nf'(0)
     //	   =" << fL.F_firstDeriv() << "\nf''(Max) =" <<
     //	   fL.F_secondDeriv_max(0) << "\nf(x)=" << pos[0] << "+" <<
     //	   part.getVelocity()[0] << " * x - " << delta << " * cos(("
@@ -1075,8 +1070,8 @@ namespace dynamo {
     //Check the root is valid
     if (!fL.test_root())
       {
-	double f0 = fL.F_zeroDeriv(), f1 = fL.F_firstDeriv(),
-	  f2 = fL.F_secondDeriv_max();
+	double f0 = fL.eval<0>(), f1 = fL.eval<1>(),
+	  f2 = fL.max<2>();
 	fL.flipSigma();
       
 	derr <<"Particle " << part.getID()
@@ -1092,9 +1087,9 @@ namespace dynamo {
 	     << "\nRwall[0]-sigma = " << fL.wallPosition()[0] - sigma
 	     << "\nGood root " << fL.test_root()
 	     << "\nsigma + Del = " << sigma+delta
-	     << "\nf1(0)* = " << fL.F_zeroDeriv()
-	     << "\nf1'(0) =" << fL.F_firstDeriv()
-	     << "\nf1''(Max) =" << fL.F_secondDeriv_max()
+	     << "\nf1(0)* = " << fL.eval<0>()
+	     << "\nf1'(0) =" << fL.eval<1>()
+	     << "\nf1''(Max) =" << fL.max<2>()
 	     << "\nf2(0)* = " << f0
 	     << "\nf2'(0) =" << f1
 	     << "\nf2''(Max) =" << f2
@@ -1243,8 +1238,7 @@ namespace dynamo {
 	 || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
 	&& Sim->systemTime == lastAbsoluteClock)
       //Shift the lower bound up so we don't find the same root again
-      t_low += fabs(2.0 * fL.F_firstDeriv())
-	/ fL.F_secondDeriv_max();
+      t_low += fabs(2.0 * fL.eval<1>()) / fL.max<2>();
   
     //Find window delimited by discs
     std::pair<double,double> dtw = fL.discIntersectionWindow();
@@ -1257,6 +1251,77 @@ namespace dynamo {
   
     return magnet::math::frenkelRootSearch(fL, t_low, t_high, length * 1e-10);
   }
+
+  std::pair<bool, double> 
+  DynNewtonian::getOffcentreSpheresCollision(const double offset1, const double diameter1, const double offset2, const double diameter2, const Particle& p1, const Particle& p2, double t_max, double maxdist) const
+  {  
+#ifdef DYNAMO_DEBUG
+    if (!hasOrientationData())
+      M_throw() << "Cannot use this function without orientational data";
+
+    if (!isUpToDate(p1))
+      M_throw() << "Particle1 " << p1.getID() << " is not up to date";
+
+    if (!isUpToDate(p2))
+      M_throw() << "Particle2 " << p2.getID() << " is not up to date";
+#endif
+
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Vector v12 = p1.getVelocity() - p2.getVelocity();
+    Sim->BCs->applyBC(r12, v12);
+  
+    SFOffcentre_Spheres f(r12, v12,
+			  orientationData[p1.getID()].angularVelocity,
+			  orientationData[p2.getID()].angularVelocity,
+			  orientationData[p1.getID()].orientation * offset1,
+			  orientationData[p2.getID()].orientation * offset2,
+			  diameter1, diameter2,
+			  maxdist);
+    
+    double f0 = f.eval<0>();
+    double f1 = f.eval<1>();
+
+    //Stable EDMD algorithm, test and handle overlapped cases
+    
+    //First treat overlapping or in contact particles which are approaching
+    if ((f0 <= 0) && (f1 < 0)) return std::pair<bool, double>(true, 0.0);
+    
+    //Now treat overlapping particles which are not approaching
+    if (f0 < 0)
+      {
+	//Not overlapping and they're moving away from each
+	//other. Determine when they reach their next maximum
+	//separation
+	SFDerivative<SFOffcentre_Spheres, 1> fprime(f);
+
+	std::pair<bool, double> derivroot = magnet::math::frenkelRootSearch(fprime, 0, t_max, std::min(diameter1, diameter2) * 1e-10);
+	//Check if they just keep retreating from each other
+	if (derivroot.second == HUGE_VAL) return std::pair<bool, double>(false, HUGE_VAL);
+
+	SFOffcentre_Spheres fprime_root(f);
+	fprime_root.stream(derivroot.second);
+
+	//Check if they're still overlapping at the time from the
+	//derivatives root finding. If derivroot.first is false, its a
+	//virtual event and we will have to finish searching for the
+	//turning point later. If derivroot.first is true, its a
+	//turning point while still in an invalid state, making it a
+	//real interaction.
+	if (fprime_root.eval<0>() < 0)
+	  return std::pair<bool, double>(derivroot.first, derivroot.second);
+
+	//Real or virtual, the derivroot contains a time before the
+	//next interaction which is outside the invalid state, we just
+	//use this as our lower bound
+	return magnet::math::frenkelRootSearch(f, derivroot.second, t_max, std::min(diameter1, diameter2) * 1e-10);
+      }
+
+    //If the particles are in contact, but not approaching, we need to
+    //skip this initial root
+    double t_min = (f0 == 0) ? 2.0 * std::abs(f.eval<1>()) / f.max<2>() : 0;
+    return magnet::math::frenkelRootSearch(f, t_min, t_max, std::min(diameter1, diameter2) * 1e-10);
+  }
+
 
   PairEventData 
   DynNewtonian::runLineLineCollision(const IntEvent& eevent, const double& elasticity, const double& length) const
@@ -1284,11 +1349,11 @@ namespace dynamo {
     double KE2before = getParticleKineticEnergy(particle2);
 
     SFLines fL(retVal.rij, retVal.vijold,
-		  orientationData[particle1.getID()].angularVelocity,
-		  orientationData[particle2.getID()].angularVelocity,
-		  orientationData[particle1.getID()].orientation,
-		  orientationData[particle2.getID()].orientation,
-		  length);
+	       orientationData[particle1.getID()].angularVelocity,
+	       orientationData[particle2.getID()].angularVelocity,
+	       orientationData[particle1.getID()].orientation,
+	       orientationData[particle2.getID()].orientation,
+	       length);
 
     Vector uPerp = fL.getu1() ^ fL.getu2();
 
@@ -1304,18 +1369,18 @@ namespace dynamo {
     double mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID());
     double inertia = Sim->species[retVal.particle1_.getSpeciesID()]->getScalarMomentOfInertia(particle1.getID());
 
-    retVal.dP = uPerp
+    retVal.impulse = uPerp
       * (((vr | uPerp) * (1.0 + elasticity))
 	 / ((2.0 / mass) + ((cp.first * cp.first + cp.second * cp.second) / inertia)));
   
-    particle1.getVelocity() -= retVal.dP / mass;
-    particle2.getVelocity() += retVal.dP / mass;
+    particle1.getVelocity() -= retVal.impulse / mass;
+    particle2.getVelocity() += retVal.impulse / mass;
 
     orientationData[particle1.getID()].angularVelocity 
-      -= (cp.first / inertia) * (fL.getu1() ^ retVal.dP);
+      -= (cp.first / inertia) * (fL.getu1() ^ retVal.impulse);
 
     orientationData[particle2.getID()].angularVelocity 
-      += (cp.second / inertia) * (fL.getu2() ^ retVal.dP);
+      += (cp.second / inertia) * (fL.getu2() ^ retVal.impulse);
 
     retVal.particle1_.setDeltaKE(getParticleKineticEnergy(particle1) - KE1before);
     retVal.particle2_.setDeltaKE(getParticleKineticEnergy(particle2) - KE2before);
@@ -1335,264 +1400,6 @@ namespace dynamo {
 
     return std::sqrt(std::max(d * d - (r12 | r12), 0.0));
   }
-
-  //Here starts my code for offCenterSpheres :P
-  bool 
-  DynNewtonian::getOffCenterSphereOffCenterSphereCollision(const double length,  const double diameter, const Particle& p1, const Particle& p2, const double t_h_init) const
-  {  
-#ifdef DYNAMO_DEBUG
-    if (!hasOrientationData())
-      M_throw() << "Cannot use this function without orientational data";
-
-    if (!isUpToDate(p1))
-      M_throw() << "Particle1 " << p1.getID() << " is not up to date";
-
-    if (!isUpToDate(p2))
-      M_throw() << "Particle2 " << p2.getID() << " is not up to date";
-#endif
-
-    Vector r12 = p1.getPosition() - p2.getPosition();
-    Vector v12 = p1.getVelocity() - p2.getVelocity();
-    Sim->BCs->applyBC(r12, v12);
-
-    double t_low = 0.0;
-    double t_high = t_h_init;
-    double tolerance = 1e-16;
-  
-    SFDumbbells fL1(r12, v12,
-		       orientationData[p1.getID()].angularVelocity,
-		       orientationData[p2.getID()].angularVelocity,
-		       orientationData[p1.getID()].orientation,
-		       orientationData[p2.getID()].orientation,length,diameter);
-  
-    if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
-	 || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
-	&& Sim->systemTime == lastAbsoluteClock)
-      //Shift the lower bound up so we don't find the same root again
-      t_low += fabs(2.0 * fL1.F_firstDeriv())
-	/ fL1.F_secondDeriv_max();
-  
-    //I_cout()<<"Sphere intersection between "<<t_low <<" and "<< t_high; 
-    std::pair<bool,double> root1 = magnet::math::frenkelRootSearch(fL1, t_low, t_high,length*tolerance);
-
-
-    SFDumbbells fL2(r12, v12,
-		       orientationData[p1.getID()].angularVelocity,
-		       orientationData[p2.getID()].angularVelocity,
-		       -orientationData[p1.getID()].orientation,
-		       orientationData[p2.getID()].orientation,length,diameter);
-  
-    if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
-	 || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
-	&& Sim->systemTime == lastAbsoluteClock)
-      t_low += fabs(2.0 * fL2.F_firstDeriv())
-	/ fL2.F_secondDeriv_max();
-  
-    std::pair<bool,double> root2 = magnet::math::frenkelRootSearch(fL2, t_low, t_high,length*tolerance);
-
-    SFDumbbells fL3(r12, v12,
-		       orientationData[p1.getID()].angularVelocity,
-		       orientationData[p2.getID()].angularVelocity,
-		       orientationData[p1.getID()].orientation,
-		       -orientationData[p2.getID()].orientation,length,diameter);
-  
-    if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
-	 || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
-	&& Sim->systemTime == lastAbsoluteClock)
-      t_low += fabs(2.0 * fL3.F_firstDeriv())
-	/ fL3.F_secondDeriv_max();
-  
-    std::pair<bool,double> root3 = magnet::math::frenkelRootSearch(fL3, t_low, t_high,length*tolerance);
-
-    SFDumbbells fL4(r12, v12,
-		       orientationData[p1.getID()].angularVelocity,
-		       orientationData[p2.getID()].angularVelocity,
-		       -orientationData[p1.getID()].orientation,
-		       -orientationData[p2.getID()].orientation,length,diameter);
-  
-    if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
-	 || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
-	&& Sim->systemTime == lastAbsoluteClock)
-      t_low += fabs(2.0 * fL4.F_firstDeriv())
-	/ fL4.F_secondDeriv_max();
-  
-    std::pair<bool,double> root4 = magnet::math::frenkelRootSearch(fL4, t_low, t_high,length*tolerance);
-
-    double roots[4] = {root1.second, root2.second, root3.second, root4.second};  
-    //I_cout()<<roots[0]<< " "<< roots[1]<< " "<<roots[2]<< " "<<roots[3]<< " "; 
-    
-    return *std::min_element(roots, roots+4);
-  }
-  
-  PairEventData 
-  DynNewtonian::runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent, const double& elasticity, const double& length,const double& diameter) const
-  {
-#ifdef DYNAMO_DEBUG
-    if (!hasOrientationData())
-      M_throw() << "Cannot use this function without orientational data";
-#endif
-
-    Particle& particle1 = Sim->particles[eevent.getParticle1ID()];
-    Particle& particle2 = Sim->particles[eevent.getParticle2ID()];
-
-    updateParticlePair(particle1, particle2);  
-
-    PairEventData retVal(particle1, particle2,
-			 *Sim->species[particle1],
-			 *Sim->species[particle2],
-			 CORE);
-  
-    Sim->BCs->applyBC(retVal.rij, retVal.vijold);
-
-    retVal.rvdot = (retVal.rij | retVal.vijold);
-    dout << "Two sphere collision\n" << std::endl;
-    double KE1before = getParticleKineticEnergy(particle1);
-    double KE2before = getParticleKineticEnergy(particle2);
-    //We need to figure out which two orientations are colliding
-    std::pair<int,int> sign;
-    double min = HUGE_VAL;
-    double norm;
-    for (int i=0;i<2;i++)
-      {
-	for(int j=0;j<2;j++)
-	  {
-	    norm = (retVal.rij +  length * 0.5 * pow(-1,i) * orientationData[particle1.getID()].orientation 
-		    -  length * 0.5 * pow(-1,j) * orientationData[particle2.getID()].orientation ).nrm();
-	    dout << "norm " << norm << " dr " << norm - diameter << std::endl;
-	    if(norm < (diameter - 1e-10))
-	      {
-		M_throw()<<"`Shit man, we overlap " ;
-	      }
-	    if(norm < min && fabs(norm - diameter)< 10e-10)
-	      {
-		sign.first  = i;
-		sign.second = j;
-		min = norm;
-	      }
-	  }
-      }
-    dout << "i " << sign.first << " j " << sign.second << std::endl; 
-  
-    //Now the pair sign gives the right two particles
-    SFDumbbells fL(retVal.rij, retVal.vijold,
-		      orientationData[particle1.getID()].angularVelocity,
-		      orientationData[particle2.getID()].angularVelocity,
-		      pow(-1,sign.first) * orientationData[particle1.getID()].orientation,
-		      -pow(-1,sign.second) * orientationData[particle2.getID()].orientation,length,diameter);
-
-    // Now we have the particles in the moment of the collision
-    // then apply collision rules
-    Vector u1 = pow(-1,sign.first) * orientationData[particle1.getID()].orientation;
-    Vector u2 =  pow(-1,sign.second) * orientationData[particle2.getID()].orientation;
-
-    Vector rhat = retVal.rij + u1 * length / 2 - u2 * length / 2;
-    rhat /= rhat.nrm();
-    u1 /= u1.nrm();
-    u2 /= u2.nrm();
-
-    Vector velContac1 = particle1.getVelocity() 
-      + ((orientationData[particle1.getID()].angularVelocity) ^ (((u1 * length) + (rhat * diameter)) / 2));
-    Vector velContac2 = particle2.getVelocity() 
-      + ((orientationData[particle2.getID()].angularVelocity) ^ (((u2 * length) - (rhat * diameter)) / 2));
-  
-    Vector velContact = velContac1 - velContac2;
-    double mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID());
-    //van Zon's Formulas
-    //We need the inertia tensor in the lab frame
-    Matrix I1(1.0 / 5.0 * mass * diameter * diameter,0,0,
-	      0,1.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length,0,
-	      0,0, 1.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length);
-    Matrix I2(1.0 / 5.0 * mass * diameter * diameter,0,0,
-	      0,1.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length,0,
-	      0,0, 1.0 / 5.0 * mass * diameter * diameter + 1.0 / 2.0 * mass * length *length);
-    Vector n1 = (u1 * length / 2 + rhat * diameter / 2)^rhat;
-    Vector n2 = (u2 * length / 2 - rhat * diameter / 2)^rhat;
-
-    Vector a1 = (rhat - ((rhat|u1) * u1))/((rhat - ((rhat|u1) * u1)).nrm());
-    Vector b1 = a1 ^ u1;
-    Vector a2 = (rhat - ((rhat|u2) * u2))/((rhat - ((rhat|u2) * u2)).nrm());
-    Vector b2 = a2 ^ u2;
-    b1 /= b1.nrm();
-    b2 /= b2.nrm();
-
-    Vector nI1 = (n1 | u1) * u1 + (n1 | a1) * a1 + (n1 | b1) * b1;  
-    Vector nI2 = (n2 | u2) * u2 + (n2 | a2) * a2 + (n2 | b2) * b2;  
-  
-    double dE1 = nI1 | (Inverse(I1) * nI1);
-    double dE2 = nI2 | (Inverse(I2) * nI2);
-
-    double a   = 1/(2 * mass) + (dE1 + dE2)/2;
-    double b   = velContact | rhat;
-  
-    double S = b/a;
-  
-    Vector vr = retVal.vijold;
-    //  retVal.dP = normal * ((vr | normal) * (1.0 + elasticity))/a;
-    retVal.dP = rhat * S;
-    dout << "Momentum transfer " << S
-	 << "\ndv " << vr.nrm()
-	 << "\ndv at contact " << velContact.nrm()
-	 << std::endl;
- 
-    particle1.getVelocity() -= retVal.dP / (2 * mass);
-    particle2.getVelocity() += retVal.dP / (2 * mass);
- 
-
-    //Matrix coordinate transformation
-    Matrix W1;
-    W1.setRow(0,u1);
-    W1.setRow(1,a1);
-    W1.setRow(2,b1);
-    Matrix W2;
-    W2.setRow(0,u2);
-    W2.setRow(1,a2);
-    W2.setRow(2,b2);
-
-
-    //dout<<"Orientation1 " << (u1).nrm() << " Orientation2 " << (u2).nrm() << std::endl; 
-    //dout<<"Orientation1 " << (a1).nrm() << " Orientation2 " << (a2).nrm() << std::endl; 
-    //dout<<"Orientation1 " << (b1).nrm() << " Orientation2 " << (b2).nrm() << std::endl; 
-
-
-    //Rotational energy before
-    dout << "Energy before " <<  2 * KE1before +
-      (I1 * (W1 * orientationData[particle1.getID()].angularVelocity)) *  (W1 * orientationData[particle1.getID()].angularVelocity)/2  + 2 * KE2before +
-      (I2 * (W2 * orientationData[particle2.getID()].angularVelocity)) *  (W2 * orientationData[particle2.getID()].angularVelocity)/2 
-	 << std::endl;
-  
-
-    orientationData[particle1.getID()].angularVelocity 
-      -= S * ((Inverse(W1) * Inverse(I1) * W1) * n1);
-  
-    orientationData[particle2.getID()].angularVelocity 
-      += S * ((Inverse(W2) * Inverse(I2) * W2) * n2);
-
-    dout <<"Energy after  " << 2 * getParticleKineticEnergy(particle1) +
-      (I1 * (W1 * orientationData[particle1.getID()].angularVelocity)) *  (W1 * orientationData[particle1.getID()].angularVelocity)/2  + 2 * getParticleKineticEnergy(particle2) +
-      (I2 * (W2 * orientationData[particle2.getID()].angularVelocity)) *  (W2 * orientationData[particle2.getID()].angularVelocity)/2 
-	 << std::endl;
-    Vector velContac1b = particle1.getVelocity() 
-      + ((orientationData[particle1.getID()].angularVelocity) ^ (((u1 * length) + (rhat * diameter)) / 2));
-    Vector velContac2b = particle2.getVelocity() 
-      + ((orientationData[particle2.getID()].angularVelocity) ^ (((u2 * length) - (rhat * diameter)) / 2));
-  
-
-    Vector velContactb = velContac1b - velContac2b;
-    dout <<"Error in contact velocity " << 1 + (velContact | rhat)/(velContactb | rhat)
-	 << std::endl;
-
-    //Done with the collision; keeping track of energy
-    retVal.particle1_.setDeltaKE(getParticleKineticEnergy(particle1) - KE1before);
-    retVal.particle2_.setDeltaKE(getParticleKineticEnergy(particle2) - KE2before);
-    //I_cout()<<"delta energy  " << getParticleKineticEnergy(particle1) - KE1before ;
-    //I_cout()<<"delta energy  " <<  getParticleKineticEnergy(particle2) - KE2before;
-    lastCollParticle1 = particle1.getID();
-    lastCollParticle2 = particle2.getID();
-    lastAbsoluteClock = Sim->systemTime;
-
-    return retVal;
-  }
-  //Here ends offCenterSpheres
 
   PairEventData 
   DynNewtonian::RoughSpheresColl(const IntEvent& event, const double& e, const double& et, const double& d2, const EEventType& eType) const
@@ -1621,7 +1428,7 @@ namespace dynamo {
     retVal.rvdot = (retVal.rij | retVal.vijold);
 
     //The normal impulse
-    retVal.dP = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());
+    retVal.impulse = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());
 
     Vector eijn = retVal.rij / retVal.rij.nrm();
 
@@ -1635,14 +1442,14 @@ namespace dynamo {
     double Jbar = Sim->species[retVal.particle1_.getSpeciesID()]->getScalarMomentOfInertia(particle1.getID()) 
       / (p1Mass * d2 * 0.25);
   
-    retVal.dP += (Jbar * (1-et) / (2*(Jbar + 1))) * gijt;
+    retVal.impulse += (Jbar * (1-et) / (2*(Jbar + 1))) * gijt;
 
     double KE1before = getParticleKineticEnergy(particle1);
     double KE2before = getParticleKineticEnergy(particle2);
 
     //This function must edit particles so it overrides the const!
-    particle1.getVelocity() -= retVal.dP / p1Mass;
-    particle2.getVelocity() += retVal.dP / p2Mass;
+    particle1.getVelocity() -= retVal.impulse / p1Mass;
+    particle2.getVelocity() += retVal.impulse / p2Mass;
 
     Vector angularVchange = (1-et) / (std::sqrt(d2) * (Jbar+1)) * (eijn ^ gijt);
  

@@ -18,18 +18,17 @@
 #pragma once
 #include <dynamo/particle.hpp>
 #include <dynamo/BC/BC.hpp>
-
 #include <dynamo/simulation.hpp>
-#include <dynamo/dynamics/shapes/shape.hpp>
 #include <magnet/math/matrix.hpp>
 
 namespace dynamo {
-  class SFLines : public ShapeFunc {
+  class SFLines 
+  {
   public:
     SFLines(const Vector& nr12, const Vector& nv12,
-	       const Vector& nw1, const Vector& nw2, 
-	       const Vector& nu1, const Vector& nu2,
-	       const double& length):
+	    const Vector& nw1, const Vector& nw2, 
+	    const Vector& nu1, const Vector& nu2,
+	    const double& length):
       w1(nw1), w2(nw2), u1(nu1), u2(nu2),
       w12(nw1 - nw2), r12(nr12), v12(nv12),
       _length(length)
@@ -51,38 +50,47 @@ namespace dynamo {
       return std::make_pair(- (rijdotui - (rijdotuj * uidotuj)) / (1.0 - uidotuj*uidotuj),
 			    (rijdotuj - (rijdotui * uidotuj)) / (1.0 - uidotuj*uidotuj));
     }
-
-    double F_zeroDeriv() const
-    { return ((u1 ^ u2) | r12); }
-
-    double F_firstDeriv() const
-    {    
-      return ((u1 | r12) * (w12 | u2)) 
-	+ ((u2 | r12) * (w12 | u1)) 
-	- ((w12 | r12) * (u1 | u2)) 
-	+ (((u1 ^ u2) | v12));
-    }
-
-    double F_firstDeriv_max() const
-    { return _length * w12.nrm() + v12.nrm(); }
-
-    double F_secondDeriv() const
+    
+    template<size_t deriv> 
+    double eval() const
     {
-      return 2.0 
-	* (((u1 | v12) * (w12 | u2)) 
-	   + ((u2 | v12) * (w12 | u1))
-	   - ((u1 | u2) * (w12 | v12)))
-	- ((w12 | r12) * (w12 | (u1 ^ u2))) 
-	+ ((u1 | r12) * (u2 | (w1 ^ w2))) 
-	+ ((u2 | r12) * (u1 | (w1 ^ w2)))
-	+ ((w12 | u1) * (r12 | (w2 ^ u2)))
-	+ ((w12 | u2) * (r12 | (w1 ^ u1))); 
+      switch (deriv)
+	{
+	case 0:
+	  return ((u1 ^ u2) | r12);
+	case 1:
+	  return ((u1 | r12) * (w12 | u2)) 
+	    + ((u2 | r12) * (w12 | u1)) 
+	    - ((w12 | r12) * (u1 | u2)) 
+	    + (((u1 ^ u2) | v12));
+	case 2:
+	  return 2.0 
+	    * (((u1 | v12) * (w12 | u2)) 
+	       + ((u2 | v12) * (w12 | u1))
+	       - ((u1 | u2) * (w12 | v12)))
+	    - ((w12 | r12) * (w12 | (u1 ^ u2))) 
+	    + ((u1 | r12) * (u2 | (w1 ^ w2))) 
+	    + ((u2 | r12) * (u1 | (w1 ^ w2)))
+	    + ((w12 | u1) * (r12 | (w2 ^ u2)))
+	    + ((w12 | u2) * (r12 | (w1 ^ u1))); 
+	default:
+	  M_throw() << "Invalid access";
+	}
     }
-
-    double F_secondDeriv_max() const
+    
+    template<size_t deriv> 
+    double max() const
     {
-      return w12.nrm() 
-	* ((2 * v12.nrm()) + (_length * (w1.nrm() + w2.nrm())));
+      switch (deriv)
+	{
+	case 1:
+	  return _length * w12.nrm() + v12.nrm();
+	case 2:
+	  return w12.nrm() 
+	    * ((2 * v12.nrm()) + (_length * (w1.nrm() + w2.nrm())));
+	default:
+	  M_throw() << "Invalid access";
+	}
     }
 
     std::pair<double, double> discIntersectionWindow() const
@@ -108,7 +116,7 @@ namespace dynamo {
     const Vector& getr12() const { return r12; }
     const Vector& getv12() const { return v12; }
 
-    virtual bool test_root() const
+    bool test_root() const
     {
       std::pair<double,double> cp = getCollisionPoints();
     

@@ -18,7 +18,7 @@
 #include <dynamo/dynamics/include.hpp>
 #include <dynamo/species/inertia.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/2particleEventData.hpp>
+#include <dynamo/NparticleEventData.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/BC/LEBC.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -75,26 +75,28 @@ namespace dynamo {
       }
   }
 
+  NEventData
+  Dynamics::enforceParabola(Particle&) const
+  {
+    M_throw() << "This is not needed for this type of Dynamics";
+  }
+
   PairEventData 
   Dynamics::runLineLineCollision(const IntEvent&,
 				    const double&, const double&) const
   { M_throw() << "Not implemented for this Dynamics."; }
-
+  
   std::pair<bool, double>
   Dynamics::getLineLineCollision(const double, 
 				    const Particle&, const Particle&,
 				    double) const
   { M_throw() << "Not implemented for this Dynamics."; }
 
-  PairEventData 
-  Dynamics::runOffCenterSphereOffCenterSphereCollision(const IntEvent&,
-							  const double&, const double&,const double&) const
-  { M_throw() << "Not implemented for this Dynamics."; }
-
-  bool
-  Dynamics::getOffCenterSphereOffCenterSphereCollision(const double, const double,  
-							  const Particle&, const Particle&,
-							  const double) const
+  std::pair<bool, double> 
+  Dynamics::getOffcentreSpheresCollision(const double offset1, const double diameter1, 
+					 const double offset2, const double diameter2,
+					 const Particle& p1, const Particle& p2,
+					 double t_max, double maxdist) const
   { M_throw() << "Not implemented for this Dynamics."; }
 
   double 
@@ -327,10 +329,11 @@ namespace dynamo {
     for (size_t i = 0; i < Sim->particles.size(); ++i)
       {
 	//Assign the new velocities
-	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  orientationData[i].orientation[iDim] = Sim->normal_sampler();
-      
-	orientationData[i].orientation /= orientationData[i].orientation.nrm();
+	orientationData[i].orientation = Vector(1,0,0);
+	//for (size_t iDim = 0; iDim < NDIM; ++iDim)
+	//  orientationData[i].orientation[iDim] = Sim->normal_sampler();
+      	//
+	//orientationData[i].orientation /= orientationData[i].orientation.nrm();
       
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  angVelCrossing[iDim] = Sim->normal_sampler();
@@ -355,10 +358,10 @@ namespace dynamo {
   }
 
   std::pair<Vector, Vector> 
-  Dynamics::getCOMPosVel(const Range& particles) const
+  Dynamics::getCOMPosVel(const IDRange& particles) const
   {
     if (particles.empty())
-      M_throw() << "Cannot calculate the COM position and velocity from an empty Range";
+      M_throw() << "Cannot calculate the COM position and velocity from an empty IDRange";
     
     Vector pos = Vector(0,0,0), 
       vel = Vector(0,0,0);

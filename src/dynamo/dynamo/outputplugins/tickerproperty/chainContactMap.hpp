@@ -23,7 +23,7 @@
 
 namespace dynamo {
   class TChain;
-  class Range;
+  class IDRange;
 
   class OPCContactMap: public OPTicker
   {

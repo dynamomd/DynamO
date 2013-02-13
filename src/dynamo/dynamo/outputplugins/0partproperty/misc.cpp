@@ -93,13 +93,12 @@ namespace dynamo {
 	 << "\nDensity " << Sim->getNumberDensity()
       * Sim->units.unitVolume()
 	 << "\nPacking Fraction " << Sim->getPackingFraction()
-	 << "\nTemperature " << getCurrentkT() / Sim->units.unitEnergy() << std::endl;
-
-    dout << "No. of Species " << Sim->species.size()
+	 << "\nTemperature " << getCurrentkT() / Sim->units.unitEnergy()
+	 << "\nNo. of Species " << Sim->species.size()
 	 << "\nSimulation box length <x y z> < ";
     for (size_t iDim = 0; iDim < NDIM; iDim++)
       dout  << Sim->primaryCellSize[iDim] / Sim->units.unitLength() << " ";
-    dout << ">" << std::endl;
+    dout << ">\n";
 
     Matrix kineticP;
     Vector thermalConductivityFS(0,0,0);
@@ -165,7 +164,7 @@ namespace dynamo {
     dout << "Total momentum < ";
     for (size_t iDim = 0; iDim < NDIM; iDim++)
       dout  << _sysMomentum.current()[iDim] / Sim->units.unitMomentum() << " ";
-    dout << ">" << std::endl;
+    dout << ">\n";
 
     std::time(&tstartTime);
 

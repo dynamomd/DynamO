@@ -89,6 +89,13 @@ namespace coil {
 
     inline size_t size() const { return _N; }
 
+    void setPeriodicVectors(Vector x, Vector y, Vector z)
+    {
+      _periodicImageX = x; 
+      _periodicImageY = y; 
+      _periodicImageZ = z;
+    }
+
     /**@}*/
         
     virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode = DEFAULT)
@@ -183,16 +190,23 @@ namespace coil {
       M_throw() << "The selected object was not drawn by this RenderObj";
     }
 
-    virtual magnet::math::Vector getDimensions() const;
-    virtual magnet::math::Vector getCentre() const;
+    virtual magnet::math::Vector getMinCoord() const;
+    virtual magnet::math::Vector getMaxCoord() const;
 
     magnet::GL::Buffer<GLfloat>& getPositionBuffer();
+
+    std::tr1::shared_ptr<AttributeSelector>& 
+    getPositionSelector() { return _positionSel; }
 
     void addGlyphs();
         
     virtual std::string getCursorText(uint32_t objID);
 
     virtual std::tr1::array<GLfloat, 4> getCursorPosition(uint32_t objID);
+
+    Vector getPeriodicVectorX() const { return _periodicImageX; }
+    Vector getPeriodicVectorY() const { return _periodicImageY; }
+    Vector getPeriodicVectorZ() const { return _periodicImageZ; }
 
   protected:
     void deleteChildWorker(DataSetChild* child);
@@ -228,5 +242,9 @@ namespace coil {
     std::auto_ptr<ModelColumns> _attrcolumns;
     Glib::RefPtr<Gtk::TreeStore> _attrtreestore;
     std::auto_ptr<Gtk::TreeView> _attrview;
+
+    Vector _periodicImageX;
+    Vector _periodicImageY;
+    Vector _periodicImageZ;
   };
 }

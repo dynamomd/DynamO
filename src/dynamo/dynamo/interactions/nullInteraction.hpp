@@ -23,7 +23,7 @@ namespace dynamo {
   class INull: public Interaction
   {
   public:
-    INull(dynamo::Simulation*, C2Range*, std::string);
+    INull(dynamo::Simulation*, IDPairRange*, std::string);
 
     INull(const magnet::xml::Node&, dynamo::Simulation*);
 
@@ -43,9 +43,7 @@ namespace dynamo {
    
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    virtual void checkOverlaps(const Particle&, const Particle&) const {}
- 
-  protected:
+    virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const { return false; }
   };
 }
 

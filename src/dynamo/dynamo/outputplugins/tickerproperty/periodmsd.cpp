@@ -20,7 +20,7 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/outputplugins/0partproperty/msd.hpp>
-#include <dynamo/ranges/1RAll.hpp>
+#include <dynamo/ranges/IDRangeAll.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/math/ctime_pow.hpp>
 #include <magnet/xmlwriter.hpp>

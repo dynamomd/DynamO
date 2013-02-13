@@ -18,7 +18,7 @@
 #pragma once
 #include <dynamo/systems/system.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/ranges/1range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 
 namespace dynamo {
   class SysDSMCSpheres: public System
@@ -26,7 +26,7 @@ namespace dynamo {
   public:
     SysDSMCSpheres(const magnet::xml::Node& XML, dynamo::Simulation*);
 
-    SysDSMCSpheres(dynamo::Simulation*, double, double, double, double, std::string, Range*, Range*);
+    SysDSMCSpheres(dynamo::Simulation*, double, double, double, double, std::string, IDRange*, IDRange*);
   
     virtual void runEvent() const;
 
@@ -45,7 +45,7 @@ namespace dynamo {
     double e;
     double factor;
 
-    shared_ptr<Range> range1;
-    shared_ptr<Range> range2;
+    shared_ptr<IDRange> range1;
+    shared_ptr<IDRange> range2;
   };
 }

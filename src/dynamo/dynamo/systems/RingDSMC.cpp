@@ -48,7 +48,7 @@ namespace dynamo {
   }
 
   SysRingDSMC::SysRingDSMC(dynamo::Simulation* nSim, double nd, double ntstp, double nChi1, double nChi2,
-			 double ne, std::string nName, Range* r1):
+			 double ne, std::string nName, IDRange* r1):
     System(nSim),
     uniformRand(Sim->ranGenerator,boost::uniform_real<>(0,1)),
     tstep(ntstp),
@@ -298,7 +298,7 @@ namespace dynamo {
       diameter = XML.getAttribute("Diameter").as<double>() * Sim->units.unitLength();
       e = XML.getAttribute("Inelasticity").as<double>();
       d2 = diameter * diameter;
-      range1 = shared_ptr<Range>(Range::getClass(XML.getNode("Range1"), Sim));
+      range1 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range1"), Sim));
 
       if (XML.hasAttribute("MaxProbability12"))
 	maxprob12 = XML.getAttribute("MaxProbability12").as<double>();

@@ -20,11 +20,11 @@
 #include <dynamo/species/point.hpp>
 
 namespace dynamo {
-  /*! A thin class to just dynamically check that a species has inertia*/
+  /*! \brief A thin class to just dynamically check that a species has inertia*/
   class SpInertia: public SpPoint
   {
   public:
-    SpInertia(dynamo::Simulation* sim, Range* r, 
+    SpInertia(dynamo::Simulation* sim, IDRange* r, 
 	      double nMass, std::string nName,
 	      unsigned int ID, std::string nIName="Bulk"):
       SpPoint(sim, r, nMass, nName, ID, nIName)

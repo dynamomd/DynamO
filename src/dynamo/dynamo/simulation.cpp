@@ -282,6 +282,7 @@ namespace dynamo
     
     namespace io = boost::iostreams;
     
+    dout << "Reading the XML input file into memory" << std::endl;
     if (!boost::filesystem::exists(fileName))
       M_throw() << "Could not find the XML file named " << fileName
 		<< "\nPlease check the file exists.";
@@ -305,8 +306,10 @@ namespace dynamo
       io::copy(inputFile, io::back_inserter(doc.getStoredXMLData()));
     }
 
+    dout << "Parsing the raw XML" << std::endl;
     doc.parseData();
 
+    dout << "Loading tags from the XML" << std::endl;
     Node mainNode = doc.getNode("DynamOconfig");
 
     {
@@ -684,14 +687,16 @@ namespace dynamo
 
     std::vector<Particle>::const_iterator iPtr1, iPtr2;
   
+    BOOST_FOREACH(const shared_ptr<Interaction>& interaction_ptr, interactions)
+      interaction_ptr->validateState();
+
     for (iPtr1 = particles.begin(); iPtr1 != particles.end(); ++iPtr1)
       for (iPtr2 = iPtr1 + 1; iPtr2 != particles.end(); ++iPtr2)
-	getInteraction(*iPtr1, *iPtr2)->checkOverlaps(*iPtr1, *iPtr2);
+	getInteraction(*iPtr1, *iPtr2)->validateState(*iPtr1, *iPtr2);
 
     BOOST_FOREACH(const Particle& part, particles)
       BOOST_FOREACH(const shared_ptr<Local>& lcl, locals)
-      if (lcl->isInteraction(part))
-	lcl->checkOverlaps(part);
+      if (lcl->isInteraction(part)) lcl->validateState(part);
   }
 
   void

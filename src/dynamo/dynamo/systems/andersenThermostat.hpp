@@ -18,7 +18,7 @@
 #pragma once
 #include <dynamo/systems/system.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/ranges/1range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 
 namespace dynamo {
   class SysAndersen: public System
@@ -52,6 +52,6 @@ namespace dynamo {
 
     double getGhostt() const;
   
-    shared_ptr<Range> range;
+    shared_ptr<IDRange> range;
   };
 }

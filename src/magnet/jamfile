@@ -17,13 +17,17 @@
 import ./jam/builddep ;
 
 alias libavcodec : : : : <define>MAGNET_FFMPEG_SUPPORT <linkflags>"`pkg-config libavcodec libavutil --libs`" <cflags>"`pkg-config libavcodec libavutil --cflags`" ; 
-exe ffmpeg_test : tests/ffmpeg_test.cpp libavcodec : <include>. ;
 
-lib dl : : <link>shared ;
+obj ffmpeg_test : tests/ffmpeg_test.cpp libavcodec : <include>. ;
 
-alias magnet : dl
-      : <include>.
-      : : <include>. <variant>debug:<define>MAGNET_DEBUG <variant>debug:<linkflags>-rdynamic <variant>fulldebug:<define>MAGNET_DEBUG <variant>fulldebug:<linkflags>-rdynamic
+project	: requirements
+	  [ builddep.set-feature-on-build magnet-OpenCL : /opencl//test : "Magnet: OpenCL libraries and headers (optional)" : symmetric ]
+	: default-build release
+	: build-dir $(BUILD_DIR_PATH)
+	;
+
+alias magnet 
+      : /system//dl : : : <include>. <variant>debug:<define>MAGNET_DEBUG <variant>debug:<linkflags>-rdynamic <variant>fulldebug:<define>MAGNET_DEBUG <variant>fulldebug:<linkflags>-rdynamic <magnet-OpenCL>yes:<source>/opencl//OpenCL <magnet-OpenCL>yes:<define>MAGNET_CLGL
       ;
 
 install install-magnet
@@ -35,21 +39,21 @@ using testing ;
 
 #####################OPENCL
 #### Prefix Scan ####
-unit-test scan_test : tests/scan_test.cpp magnet /opencl//opencl ;
+unit-test scan_test : tests/scan_test.cpp magnet /opencl//OpenCL ;
 
 #### Radix Sort ####
-unit-test radixsort_NVIDIA_test : tests/radixsort_NVIDIA_test.cpp magnet /opencl//opencl scan_test ;
-unit-test radixsort_AMD_test : tests/radixsort_AMD_test.cpp magnet /opencl//opencl scan_test ;
+unit-test radixsort_NVIDIA_test : tests/radixsort_NVIDIA_test.cpp magnet /opencl//OpenCL scan_test ;
+unit-test radixsort_AMD_test : tests/radixsort_AMD_test.cpp magnet /opencl//OpenCL scan_test ;
 
 #### Bitonic Sort ####
-unit-test bitonicsort_test : tests/bitonicsort_test.cpp magnet /opencl//opencl ;
+unit-test bitonicsort_test : tests/bitonicsort_test.cpp magnet /opencl//OpenCL ;
 
 #### Heap Sort ####
-unit-test heapsort_test : tests/heapsort_test.cpp magnet /opencl//opencl ;
+unit-test heapsort_test : tests/heapsort_test.cpp magnet /opencl//OpenCL ;
 
-unit-test sorter_test : tests/sorter_test.cpp magnet /opencl//opencl ;
+unit-test sorter_test : tests/sorter_test.cpp magnet /opencl//OpenCL ;
 
-alias opencl-test : scan_test radixsort_NVIDIA_test radixsort_AMD_test bitonicsort_test heapsort_test /opencl//opencl sorter_test ;
+alias opencl-test : scan_test radixsort_NVIDIA_test radixsort_AMD_test bitonicsort_test heapsort_test /opencl//OpenCL sorter_test ;
 
 #################### THREAD ######################
 unit-test threadpool_test : tests/threadpool_test.cpp magnet
@@ -65,7 +69,7 @@ unit-test quartic-test : tests/quartic_test.cpp magnet ;
 
 unit-test vector-test : tests/vector_test.cpp magnet ;
 
-unit-test spline-test : tests/splinetest.cpp /opencl//opencl magnet ;
+unit-test spline-test : tests/splinetest.cpp /opencl//OpenCL magnet ;
 
 unit-test dilate-test : tests/dilate_test.cpp magnet ;
 

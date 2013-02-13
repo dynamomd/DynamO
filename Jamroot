@@ -20,6 +20,26 @@ path-constant LIB_INSTALL_PATH : ./lib ;
 path-constant BIN_INSTALL_PATH : ./bin ;
 path-constant INCLUDE_INSTALL_PATH : ./include ;
 
+#System libraries
+use-project /system : ./ ;
+lib cwiid : : <link>shared <name>cwiid : : <define>COIL_wiimote ;
+lib png   : : <link>shared <name>png> ;
+lib glut  : : <link>shared <name>glut ;
+lib GLU   : : <link>shared <name>GLU ;
+lib GL    : : <link>shared <name>GL ;
+lib Xext  : : <link>shared <name>Xext ;
+lib X11   : : <link>shared <name>X11 ;
+lib rt    : : <link>shared <name>rt ;
+lib GLEW  : : <link>shared <name>GLEW ;
+lib bz2   : : <link>shared <name>bz2 ;
+lib z     : : <link>shared <name>z ;
+lib dl    : : <link>shared <name>dl ;
+lib boost_system           ;
+lib boost_filesystem       : boost_system : <name>boost_filesystem ;
+lib boost_program_options  : boost_system : <name>boost_program_options ;
+lib boost_iostreams        : boost_system bz2 z : <name>boost_iostreams ;
+alias gtkmm : : <use>png : : <linkflags>"`pkg-config gtkmm-2.4 --libs`" <cflags>"`pkg-config gtkmm-2.4 --cflags`" ;
+
 ##########################################################################
 #Additional build variants
 #
@@ -33,8 +53,8 @@ path-constant INCLUDE_INSTALL_PATH : ./include ;
 variant fulldebug : debug 
 	: <define>_GLIBCXX_DEBUG
 	<define>DYNAMO_DEBUG <define>DYNAMO_CollDebug
-	<define>DYNAMO_WallCollDebug <cxxflags>-fstack-protector-all
-	<define>DYNAMO_OverlapTesting ;
+	<cxxflags>-fstack-protector-all
+	;
 
 # The valgrind variant is useful for code analysis in tools like
 # valgrind. It merely turns debug symbols on.
@@ -44,15 +64,7 @@ variant valgrind : <inlining>on <optimization>speed <debug-symbols>on <profiling
 #Main project definition
 project	: requirements
           <threading>multi
-	  #<toolset>clang:<cflags>-Wno-parentheses
-          #<toolset>clang:<cflags>-Wno-mismatched-tags
-          #<toolset>clang:<cflags>-Wno-ambiguous-member-template
 	  <variant>release:<define>NDEBUG
-	  ####Compile flags for testing ansi and pedantic
-	  <toolset>clang:<cflags>-Wno-overlength-strings
-	  <toolset>clang:<cflags>-Wno-mismatched-tags
-	  <toolset>clang:<cflags>-Wno-newline-eof
-	  <toolset>gcc:<cflags>-Wno-overlength-strings
 	  #<cflags>-ansi <cflags>-pedantic
 	: default-build release
 	: build-dir $(BUILD_DIR_PATH)
@@ -68,7 +80,7 @@ use-project /opencl : src/opencl ;
 
 alias install : /dynamo//install-dynamo  ;
 
-alias install-libraries : /coil//install-coil /magnet//install-magnet /opencl//install-headers ;
+alias install-libraries : /coil//install-coil /magnet//install-magnet ;
 
 alias test : /magnet//test ;
 

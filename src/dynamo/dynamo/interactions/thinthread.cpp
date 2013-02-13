@@ -43,9 +43,6 @@ namespace dynamo {
   void 
   IThinThread::operator<<(const magnet::xml::Node& XML)
   {
-    if (strcmp(XML.getAttribute("Type"),"ThinThread"))
-      M_throw() << "Attempting to load ThinThread from non ThinThread entry";
-  
     Interaction::operator<<(XML);
   
     try {
@@ -97,19 +94,7 @@ namespace dynamo {
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 	if (dt != HUGE_VAL)
-	  {
-#ifdef DYNAMO_OverlapTesting
-	    if (Sim->dynamics->sphereOverlap(p1, p2, d))
-	      M_throw() << "Overlapping particles found"
-			<< ", particle1 " << p1.getID()
-			<< ", particle2 " << p2.getID()
-			<< "\nOverlap = " 
-			<< Sim->dynamics.getDynamics()
-		.sphereOverlap(p1, p2, d)
-		/ Sim->units.unitLength();
-#endif	    
-	    retval = IntEvent(p1, p2, dt, CORE, *this);
-	  }
+	  retval = IntEvent(p1, p2, dt, CORE, *this);
 
 	dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, l * d);
 	if (retval.getdt() > dt)
@@ -120,17 +105,7 @@ namespace dynamo {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 
 	if (dt != HUGE_VAL)
-	  {
-#ifdef DYNAMO_OverlapTesting
-	    if (Sim->dynamics->sphereOverlap(p1, p2, d))
-	      M_throw() << "Overlapping cores (but not registerd as captured) particles found in ThinThread" 
-			<< "\nparticle1 " << p1.getID() << ", particle2 " 
-			<< p2.getID() << "\nOverlap = " 
-			<< Sim->dynamics->sphereOverlap(p1, p2, d)
-		/ Sim->units.unitLength();
-#endif
-	    retval = IntEvent(p1, p2, dt, CORE, *this);
-	  }
+	  retval = IntEvent(p1, p2, dt, CORE, *this);
       }
 
     return retval;
@@ -197,26 +172,57 @@ namespace dynamo {
       } 
   }
 
-  void
-  IThinThread::checkOverlaps(const Particle& part1, const Particle& part2) const
+  bool
+  IThinThread::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    Vector  rij = part1.getPosition() - part2.getPosition();
-    Sim->BCs->applyBC(rij);
-    double r2 = rij.nrm2();
+    double d = (_diameter->getProperty(p1.getID())
+		+ _diameter->getProperty(p2.getID())) * 0.5;
+    double l = (_lambda->getProperty(p1.getID())
+		+ _lambda->getProperty(p2.getID())) * 0.5;
 
-    double d = (_diameter->getProperty(part1.getID())
-		+ _diameter->getProperty(part2.getID())) * 0.5;
+    if (isCaptured(p1, p2))
+      {
+	if (!Sim->dynamics->sphereOverlap(p1, p2, l * d))
+	  {
+	    if (textoutput)
+	      derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+		   << " registered as being inside the well at " << l * d / Sim->units.unitLength()
+		   << " but they are at a distance of " 
+		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		   << std::endl;
+	    
+	    return true;
+	  }
 
-    double d2 = d * d;
+	if (Sim->dynamics->sphereOverlap(p1, p2, d))
+	  {
+	    if (textoutput)
+	      derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+		   << " are inside the well with an inner hard core at " << d / Sim->units.unitLength()
+		   << " but they are at a distance of " 
+		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		   << std::endl;
+	    
+	    return true;
+	  }
+      }
+    else
+      if (Sim->dynamics->sphereOverlap(p1, p2, d))
+	{
+	  if (textoutput)
+	    derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+		 << " have entered the core at " << d / Sim->units.unitLength()
+		 << " and are at a distance of "
+		 << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		 << " AND they've not entered the thin-thread well either."
+		 << std::endl;
+	  
+	  return true;
+	}
 
-    if (r2 < d2)
-      derr << "Overlap error\n ID1=" << part1.getID() 
-	   << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-	   << r2 / pow(Sim->units.unitLength(),2)
-	   << "\n(d)^2=" 
-	   << d2 / pow(Sim->units.unitLength(),2) << std::endl;
+    return false;
   }
-  
+
   void 
   IThinThread::outputXML(magnet::xml::XmlStream& XML) const
   {

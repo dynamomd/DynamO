@@ -33,7 +33,7 @@
 #endif
 
 namespace dynamo {
-  GWaker::GWaker(dynamo::Simulation* nSim, const std::string& name, Range* range, 
+  GWaker::GWaker(dynamo::Simulation* nSim, const std::string& name, IDRange* range, 
 		 const double wt,const double wv, std::string nblist):
     Global(nSim, "GWaker", range),
     _wakeTime(wt),
@@ -75,7 +75,7 @@ namespace dynamo {
   void 
   GWaker::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<Range>(Range::getClass(XML, Sim));
+    range = shared_ptr<IDRange>(IDRange::getClass(XML, Sim));
 
     try {
       globName = XML.getAttribute("Name");
@@ -133,7 +133,7 @@ namespace dynamo {
     _neighbors = 0;
 
     //Add the interaction events
-    std::auto_ptr<Range> ids(Sim->ptrScheduler->getParticleNeighbours(part));
+    std::auto_ptr<IDRange> ids(Sim->ptrScheduler->getParticleNeighbours(part));
     BOOST_FOREACH(const size_t& id1, *ids)
       nblistCallback(part, id1);
   

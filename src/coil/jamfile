@@ -18,52 +18,34 @@ import ../magnet/jam/filetypes ;
 import ../magnet/jam/tags ;
 import ../magnet/jam/builddep ;
 
-lib cwiid : : <link>shared : : <define>COIL_wiimote ;
-exe cwiidtest : tests/wiimote.cpp cwiid ;
-
-lib png : : <link>shared ;
-lib glut : : <link>shared ;
-lib GLU  : : <link>shared ;
-lib GL   : : <link>shared ;
-lib Xext : : <link>shared ;
-lib X11  : : <link>shared ;
-lib rt   : : <link>shared ;
-lib GLEW : : <link>shared ;
-alias gtkmm : : <use>png : : <linkflags>"`pkg-config gtkmm-2.4 --libs`" <cflags>"`pkg-config gtkmm-2.4 --cflags`" ;
-
 #Test executables for determining what is available in the build environment
-exe gluttest : tests/gluttest.cpp glut ;
-exe gtkmmtest : tests/gtkmmtest.cpp gtkmm ;
-exe GLEWtest : tests/glewtest.cpp ;
-
-SHELL "touch src/coil/tests/* " ;
+obj cwiidtest : tests/wiimote.cpp /system//cwiid ;
+obj gluttest : tests/gluttest.cpp /system//glut ;
+obj gtkmmtest : tests/gtkmmtest.cpp /system//gtkmm ;
+obj GLEWtest : tests/glewtest.cpp ;
 
 project	: requirements
-	  [ builddep.set-feature-on-build coil-cwiid : cwiidtest : "Coil: libCwiid Wii-mote support (Optional)" ]
-	  [ builddep.set-feature-on-build coil-GLUT : gluttest : "Coil: GLUT" ]
-	  [ builddep.set-feature-on-build coil-GLEW : GLEWtest : "Coil: GLEW (v1.6+)" ]
-	  [ builddep.set-feature-on-build coil-OpenCL : /opencl//test : "Coil: OpenCL libraries and headers" ]
-	  [ builddep.set-feature-on-build coil-Gtkmm : gtkmmtest : "Coil: Gtkmm" ]
-	  [ builddep.set-feature-on-build magnet-FFMPEG : /magnet//ffmpeg_test : "Magnet: libavcodec (video encoding support)" ]
-	  [ builddep.combine-features coil-buildable : coil-GLUT coil-GLEW coil-OpenCL coil-Gtkmm ]
+	  [ builddep.set-feature-on-build coil-cwiid : cwiidtest : "Coil: libCwiid Wii-mote support (Optional)" : symmetric ]
+	  [ builddep.set-feature-on-build coil-GLUT : gluttest : "Coil: GLUT" : incidental ]
+	  [ builddep.set-feature-on-build coil-GLEW : GLEWtest : "Coil: GLEW (v1.6+)" : incidental ]
+	  [ builddep.set-feature-on-build coil-Gtkmm : gtkmmtest : "Coil: Gtkmm" : incidental ]
+	  [ builddep.set-feature-on-build magnet-FFMPEG : /magnet//ffmpeg_test : "Magnet: libavcodec (video encoding support)" : symmetric ]
+	  [ builddep.combine-features coil-buildable : coil-GLUT coil-GLEW coil-Gtkmm : incidental ]
 	: default-build release
 	: build-dir $(BUILD_DIR_PATH)
 	;
 
 exe coilDependencies : tests/buildreq.cpp : <coil-buildable>no:<define>BUILDFAIL ;
-
-lib boost_program_options : : ;
+always coilDependencies ;
 
 lib coil
       : [ glob-tree *.cpp : tests examples programs ]
-      clwingtk.gladexml png
-      glut GLU GL Xext X11 rt GLEW /magnet//magnet
-      /opencl//OpenCL gtkmm 
+      clwingtk.gladexml /system//png /system//glut /system//GLU /system//GL /system//Xext /system//X11 /system//rt /system//GLEW /system//gtkmm /magnet//magnet
       : <include>. <tag>@tags.lib-naming 
        <coil-cwiid>yes:<source>cwiid <magnet-FFMPEG>yes:<source>/magnet//libavcodec <coil-buildable>no:<build>no
       : : <define>GLVIEWER <include>. ;
 
-exe coilvol : programs/coilvol.cpp coil boost_program_options 
+exe coilvol : programs/coilvol.cpp coil /system//boost_program_options 
             : <tag>@tags.exe-naming ;
 
 explicit test coil coilvol ;

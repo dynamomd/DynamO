@@ -18,13 +18,12 @@
 #pragma once
 #include <dynamo/particle.hpp>
 #include <dynamo/BC/BC.hpp>
-
 #include <dynamo/simulation.hpp>
-#include <dynamo/dynamics/shapes/shape.hpp>
 #include <limits>
 
 namespace dynamo {
-  class SFOscillatingPlate : public ShapeFunc {
+  class SFOscillatingPlate
+  {
   public:
     SFOscillatingPlate(const Vector& nvp, const Vector& nnhat,
 			  const Vector& nrp, 
@@ -32,8 +31,7 @@ namespace dynamo {
 			  const double& nOmega, const double& nSigma):
       vp(nvp), nhat(nnhat), rp(nrp),
       t(nt), Delta(nDelta), Omega(nOmega), Sigma(nSigma)
-    {    
-    }
+    {}
 
     void stream(const double& dt)
     {
@@ -67,51 +65,56 @@ namespace dynamo {
       return  nhat * velnHatWall();
     }
 
-    double F_zeroDeriv() const
+    template<size_t deriv> 
+    double eval() const
     {
-      return (rp | nhat) - ( Sigma + wallnHatPosition());
+      switch (deriv)
+	{
+	case 0:
+	  return (rp | nhat) - ( Sigma + wallnHatPosition());
+	case 1:
+	  return (vp | nhat) - velnHatWall();
+	case 2:
+	  return Delta * Omega * Omega * std::cos(Omega * t); 
+	default:
+	  M_throw() << "Invalid access";
+	}
+    }
+    
+    template<size_t deriv> 
+    double max() const
+    {
+      switch (deriv)
+	{
+	case 1:
+	  return std::fabs(vp | nhat) + Delta * Omega;
+	case 2:
+	  return Delta * Omega * Omega;
+	default:
+	  M_throw() << "Invalid access";
+	}
     }
 
     void fixFZeroSign(bool sign)
     {
       rp -= (rp | nhat) * nhat;
       rp += nhat * (wallnHatPosition() + Sigma);
-      double Fval = F_zeroDeriv();
+      double Fval = eval<0>();
       size_t loop(1);
       while (sign ? (Fval < 0) : (Fval > 0))
 	{
 	  rp -= nhat * ((loop++) * std::numeric_limits<double>::epsilon())
 	    * Sigma;
-	  Fval = F_zeroDeriv();
+	  Fval = eval<0>();
 	}
     }
 
     double F_zeroDerivFlip() const
-    { 
+    {
       return ((rp - wallPosition()) | nhat) + Sigma;
     }
 
-    double F_firstDeriv() const
-    {    
-      return (vp | nhat) - velnHatWall();
-    }
-
-    double F_firstDeriv_max() const
-    {
-      return std::fabs(vp | nhat) + Delta * Omega; 
-    }
-
-    double F_secondDeriv() const
-    {
-      return Delta * Omega * Omega * std::cos(Omega * t);
-    }
-
-    double F_secondDeriv_max() const
-    {
-      return Delta * Omega * Omega;
-    }
-
-    virtual bool test_root() const
+    bool test_root() const
     {
       return (((vp | nhat) - velnHatWall()) 
 	      * ((rp | nhat) - wallnHatPosition())) > 0;

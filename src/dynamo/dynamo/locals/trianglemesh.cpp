@@ -149,14 +149,10 @@ namespace dynamo {
       Ptr->eventUpdate(iEvent, EDat);
   }
 
-  bool 
-  LTriangleMesh::isInCell(const Vector & Origin, const Vector& CellDim) const
-  { return true; }
-
   void 
   LTriangleMesh::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<Range>(Range::getClass(XML,Sim));
+    range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
   
     try {
       _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
@@ -247,11 +243,6 @@ namespace dynamo {
 	  << elements.get<2>() << "\n";
     XML << magnet::xml::endtag("Elements");
   }
-
-  void 
-  LTriangleMesh::checkOverlaps(const Particle& p1) const
-  {}
-
 
 #ifdef DYNAMO_visualizer
 

@@ -20,7 +20,7 @@
 
 #include <dynamo/systems/system.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/ranges/1range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 #include <map>
 
 namespace dynamo {
@@ -29,7 +29,7 @@ namespace dynamo {
   public:
     SSleep(const magnet::xml::Node& XML, dynamo::Simulation*);
 
-    SSleep(dynamo::Simulation*, std::string, Range*, double);
+    SSleep(dynamo::Simulation*, std::string, IDRange*, double);
   
     virtual void runEvent() const;
 
@@ -46,7 +46,7 @@ namespace dynamo {
 
     bool sleepCondition(const Particle& part, const Vector& g, const Vector& vel = Vector(0,0,0));
 
-    shared_ptr<Range> _range;
+    shared_ptr<IDRange> _range;
     double _sleepDistance;
     double _sleepTime;
     double _sleepVelocity;

@@ -49,6 +49,6 @@ namespace dynamo {
 	 iPtr != Sim->particles.end(); ++iPtr)
       for (std::vector<Particle>::const_iterator jPtr = iPtr + 1;
 	   jPtr != Sim->particles.end(); ++jPtr)
-	Sim->getInteraction(*iPtr, *jPtr)->checkOverlaps(*iPtr, *jPtr);
+	Sim->getInteraction(*iPtr, *jPtr)->validateState(*iPtr, *jPtr);
   }
 }

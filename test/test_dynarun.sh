@@ -195,11 +195,11 @@ function SWpolymer_compressiontest {
     if [ $(echo "$density <= $compress_density" |bc) -eq 1 ]; then
     #If the density is lower than the compress_density, just directly make the big system
 	./dynamod $RANDOM_SEED -m 3 -T $T -r $T --i1 $Mode --b1 --s1 config.polymer.xml.bz2 -d $density -C $C -o config.tmp2.xml.bz2 &>> run.log
-	bzcat config.tmp2.xml.bz2 | xmlstarlet ed -u '//Interaction[1]/@End' -v $((N-1)) -u '//BC/@Type' -v "PBC" | bzip2 > config.tmp.xml.bz2
+	bzcat config.tmp2.xml.bz2 | xmlstarlet ed -u '//Interaction[1]/IDPairRange/@End' -v $((N-1)) -u '//BC/@Type' -v "PBC" | bzip2 > config.tmp.xml.bz2
     else
     #We have to compress as the density is too high
 	./dynamod $RANDOM_SEED -m 3 --i1 $Mode --b1 --s1 config.polymer.xml.bz2 -d $compress_density -C $C -o config.tmp2.xml.bz2 &>> run.log
-	bzcat config.tmp2.xml.bz2 | xmlstarlet ed -u '//Interaction[1]/@End' -v $((N-1)) -u '//BC/@Type' -v "PBC" | bzip2 > config.packed.xml.bz2
+	bzcat config.tmp2.xml.bz2 | xmlstarlet ed -u '//Interaction[1]/IDPairRange/@End' -v $((N-1)) -u '//BC/@Type' -v "PBC" | bzip2 > config.packed.xml.bz2
 	./dynarun $RANDOM_SEED config.packed.xml.bz2 --engine 3 --target-density $density -o config.compressed.xml.bz2 &>> run.log
 	./dynamod $RANDOM_SEED config.compressed.xml.bz2 -r $T -T $T -Z -o config.rescaled.xml.bz2 &>> run.log
 	cp config.rescaled.xml.bz2 config.tmp.xml.bz2
@@ -211,9 +211,10 @@ function SWpolymer_compressiontest {
     for start in $(seq 0 $Nc $((N-1))); do
 	cat config.tmp.xml | xmlstarlet ed \
             -s '//Structure' -t elem -n "Molecule" -v " " \
-            -s '//Molecule[last()]' -t attr -n "Range" -v "Ranged" \
-            -s '//Molecule[last()]' -t attr -n "Start" -v $start \
-            -s '//Molecule[last()]' -t attr -n "End" -v $((start+Nc-1)) \
+            -s '//Molecule[last()]' -t elem -n "IDRange" -v " " \
+            -s '//Molecule[last()]/IDRange' -t attr -n "Type" -v "Ranged" \
+            -s '//Molecule[last()]/IDRange' -t attr -n "Start" -v $start \
+            -s '//Molecule[last()]/IDRange' -t attr -n "End" -v $((start+Nc-1)) \
             > config.tmp2.xml
 	mv config.tmp2.xml config.tmp.xml
     done
@@ -245,12 +246,12 @@ function SWpolymer_compressiontest {
 
 function wallsw {
 #Just tests the square shoulder interaction between two walls
-    bzcat wallsw.xml.bz2 | \
+    cat wallsw.xml | \
 	$Xml ed -u '//Simulation/Scheduler/@Type' -v "$1" \
-	| bzip2 > tmp.xml.bz2
+	> tmp.xml
     #Any multiple of 5 will/should always give the original configuration
     #doing 9995 as this stops any 2 periodicity
-    ./dynarun -c 9995 $2 tmp.xml.bz2 &> run.log
+    ./dynarun -c 9995 $2 tmp.xml &> run.log
     
     ./dynamod --round config.out.xml.bz2 > /dev/null
     ./dynamod config.out.xml.bz2 > /dev/null
@@ -258,7 +259,7 @@ function wallsw {
     bzcat config.out.xml.bz2 | \
 	$Xml sel -t -c '//ParticleData' > testresult.dat
 
-    bzcat wallsw.xml.bz2 | \
+    cat wallsw.xml | \
 	$Xml sel -t -c '//ParticleData' > correct.dat
     
     diff testresult.dat correct.dat &> /dev/null \
@@ -278,7 +279,7 @@ function umbrella_bailout {
 
 function umbrella {
 #Just tests the square shoulder interaction between two walls
-    bzcat umbrella.xml.bz2 | \
+    bzcat umbrella.xml | \
 	$Xml ed -u '//Simulation/Scheduler/@Type' -v "$1" \
 	| bzip2 > tmp.xml.bz2
     
@@ -293,7 +294,7 @@ function umbrella {
     bzcat config.out.xml.bz2 | \
 	$Xml sel -t -c '//ParticleData' > testresult.dat
 
-    bzcat umbrella.xml.bz2 | \
+    bzcat umbrella.xml | \
 	$Xml sel -t -c '//ParticleData' > correct.dat
     
     diff testresult.dat correct.dat &> /dev/null \
@@ -308,17 +309,17 @@ function umbrella {
 
 function cannon {
     #collision cannon test
-    bzcat cannon.xml.bz2 | \
+    cat cannon.xml | \
 	$Xml ed -u '//Simulation/Scheduler/@Type' -v "$1" \
-	| bzip2 > tmp2.xml.bz2
+	> tmp2.xml
 
-    bzcat tmp2.xml.bz2 | \
+    cat tmp2.xml | \
 	$Xml ed -u '//Simulation/Scheduler/Sorter/@Type' -v "$2" \
-	| bzip2 > tmp.xml.bz2
+	> tmp.xml
     
-    rm tmp2.xml.bz2
+    rm tmp2.xml
     
-    ./dynarun -c 1000 tmp.xml.bz2 &> run.log
+    ./dynarun -c 1000 tmp.xml &> run.log
     
     if [ -e output.xml.bz2 ]; then
 	var=$(bzcat output.xml.bz2 | \
@@ -340,37 +341,6 @@ function cannon {
     rm -Rf config.end.xml.bz2 output.xml.bz2 tmp.xml.bz2 run.log
 }
 
-function linescannon {
-    #collision cannon test
-    bzcat config.lines-cannon.xml.bz2 | \
-	$Xml ed -u '//Simulation/Scheduler/@Type' -v "$1" \
-	| bzip2 > tmp2.xml.bz2
-
-    bzcat config.lines-cannon.xml.bz2 | \
-	$Xml ed -u '//Simulation/Scheduler/Sorter/@Type' -v "$2" \
-	| bzip2 > tmp.xml.bz2
-    
-    rm tmp2.xml.bz2
-    
-    ./dynarun -c 10 tmp.xml.bz2 &> run.log
-    
-    if [ -e output.xml.bz2 ]; then
-	if [ $(bzcat output.xml.bz2 \
-	    | $Xml sel -t -v '/OutputData/Misc/SimLength/@Time' \
-	    | gawk '{printf "%.0f",$1}') != "40" ]; then
-	    echo "$1 Lines Cannon -: FAILED"
-	    exit 1
-	else
-	    echo "$1 Lines Cannon -: PASSED"
-	fi
-    else
-	echo "Error, no output.0.xml.bz2 in $1 cannon test"
-	exit 1
-    fi
-    
-#Cleanup
-    rm -Rf config.end.xml.bz2 output.xml.bz2 tmp.xml.bz2 run.log
-}
 
 function ThermostatTest {
     #Testing the Andersen thermostat holds the right temperature
@@ -545,7 +515,7 @@ function IsolatedPolymerTest {
 function HeavySphereTest {
     > run.log
 
-    ./dynarun -c 100000 hvySpheres.xml.bz2 >> run.log 2>&1
+    ./dynarun -c 100000 hvySpheres.xml >> run.log 2>&1
     
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
@@ -569,7 +539,7 @@ function HeavySphereTest {
 function HeavySphereCompressionTest {
     > run.log
 
-    ./dynarun --engine 3 --target-pack-frac 0.1 hvySpheres.xml.bz2 >> run.log 2>&1
+    ./dynarun --engine 3 --target-pack-frac 0.1 hvySpheres.xml >> run.log 2>&1
     
     if [ -e output.xml.bz2 ]; then
 	echo "HeavySphereCompressionTest -: PASSED"
@@ -618,7 +588,7 @@ function GravityPlateTest {
 
     ./dynamod -s1 -m 22 -d 0.1  &> run.log
     ./dynarun -c 100000 config.out.xml.bz2 >> run.log 2>&1
-    MFT=3.53170571948864
+    MFT=3.3760286901892
 
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
@@ -676,7 +646,7 @@ function twoDsteppedPotentialTest {
 function StaticSpheresTest {
     > run.log
 
-    ./dynarun -c 500000 static-spheres.xml.bz2 >> run.log 2>&1
+    ./dynarun -c 500000 static-spheres.xml >> run.log 2>&1
     
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
@@ -695,6 +665,53 @@ function StaticSpheresTest {
 #Cleanup
     rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
 	tmp.xml.bz2 run.log
+}
+
+function SwingSpheresTest {
+    > run.log
+
+    ./dynarun -c 500000 swing.xml >> run.log 2>&1
+    
+    if [ -e output.xml.bz2 ]; then
+	if [ $(bzcat output.xml.bz2 \
+	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
+	    | gawk '{mft=0.00191272168715021; var=($1-mft)/mft; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
+	    echo "SwingSphereTest -: FAILED"
+	    exit 1
+	else
+	    echo "SwingSphereTest -: PASSED"
+	fi
+    else
+	echo "Error, no output.0.xml.bz2 in StaticSpheresTest"
+	exit 1
+    fi
+    
+#Cleanup
+    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
+	tmp.xml.bz2 run.log
+}
+
+function BinaryThermalisedGranulate {
+    > run.log
+
+    ./dynarun -c 100000 -s 1 thermalisedMix.xml >> run.log 2>&1
+
+    if [ -e output.xml.bz2 ]; then
+	if [ $(bzcat output.xml.bz2 \
+	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
+	    | gawk '{mft=0.354633475131049; var=($1-mft)/mft; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
+	    echo "BinaryThermalisedGranulate -: FAILED"
+	    exit 1
+	else
+	    echo "BinaryThermalisedGranulate -: PASSED"
+	fi
+    else
+	echo "Error, no output.0.xml.bz2 in BinaryThermalisedGranulate"
+	exit 1
+    fi
+    
+#Cleanup
+    rm -Rf output.xml.bz2 config.out.xml.bz2 run.log
 }
 
 echo "SCHEDULER AND SORTER TESTING"
@@ -719,10 +736,10 @@ echo "Testing infinitely heavy particles"
 HeavySphereTest
 echo "Testing Lines, NeighbourLists and BoundedPQ's"
 HardLinesTest
-#linescannon "NeighbourList" "BoundedPQ"
 echo "Testing static spheres in gravity, NeighbourLists and BoundedPQ's"
 StaticSpheresTest
-
+echo "Testing static and bonded spheres in gravity, NeighbourLists and BoundedPQ's"
+SwingSpheresTest
 echo "Testing *2D* stepped potential spheres, NeighbourLists and BoundedPQ's"
 twoDsteppedPotentialTest
 
@@ -748,6 +765,8 @@ echo ""
 echo "LOCAL EVENTS"
 echo "Testing local events (walls) and square wells"
 wallsw "NeighbourList"
+echo "Testing thermalised and normal walls in gravity with binary granulate implemented using properties"
+BinaryThermalisedGranulate
 
 echo ""
 echo "ENGINE TESTING"

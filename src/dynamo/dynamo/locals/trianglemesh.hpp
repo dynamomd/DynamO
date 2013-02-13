@@ -33,7 +33,7 @@ namespace dynamo {
     LTriangleMesh(const magnet::xml::Node&, dynamo::Simulation*);
 
     template<class T1, class T2>
-    LTriangleMesh(dynamo::Simulation* nSim, T1 e, T2 d, std::string name, Range* nRange):
+    LTriangleMesh(dynamo::Simulation* nSim, T1 e, T2 d, std::string name, IDRange* nRange):
       Local(nRange, nSim, "LocalWall"),
       _e(Sim->_properties.getProperty
 	 (e, Property::Units::Dimensionless())),
@@ -47,11 +47,9 @@ namespace dynamo {
 
     virtual void runEvent(Particle&, const LocalEvent&) const;
   
-    virtual bool isInCell(const Vector &, const Vector &) const;
-
     virtual void operator<<(const magnet::xml::Node&);
 
-    virtual void checkOverlaps(const Particle&) const;
+    virtual bool validateState(const Particle& part, bool textoutput = true) const { return false; }
 
 #ifdef DYNAMO_visualizer
     virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const;

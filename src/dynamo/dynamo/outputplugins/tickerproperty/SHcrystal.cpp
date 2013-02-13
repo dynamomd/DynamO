@@ -97,7 +97,7 @@ namespace dynamo {
   
     BOOST_FOREACH(const Particle& part, Sim->particles)
       {
-	std::auto_ptr<Range> ids(Sim->ptrScheduler->getParticleNeighbours(part));
+	std::auto_ptr<IDRange> ids(Sim->ptrScheduler->getParticleNeighbours(part));
 	BOOST_FOREACH(const size_t& id1, *ids)
 	  ssum(part, id1);
       

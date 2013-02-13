@@ -37,7 +37,7 @@ namespace magnet {
 	    
 	    root -= error / derivative;
 	  }
-      } 
+      }
     }
 
     //Solves quartics of the form x^4 + a x^3 + b x^2 + c x + d ==0

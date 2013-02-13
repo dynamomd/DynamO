@@ -46,7 +46,7 @@ namespace dynamo {
   }
 
   SysDSMCSpheres::SysDSMCSpheres(dynamo::Simulation* nSim, double nd, double ntstp, double nChi, 
-			       double ne, std::string nName, Range* r1, Range* r2):
+			       double ne, std::string nName, IDRange* r1, IDRange* r2):
     System(nSim),
     tstep(ntstp),
     chi(nChi),
@@ -210,8 +210,8 @@ namespace dynamo {
       diameter = XML.getAttribute("Diameter").as<double>() * Sim->units.unitLength();
       e = XML.getAttribute("Inelasticity").as<double>();
       d2 = diameter * diameter;
-      range1 = shared_ptr<Range>(Range::getClass(XML.getNode("Range1"), Sim));
-      range2 = shared_ptr<Range>(Range::getClass(XML.getNode("Range2"), Sim));
+      range1 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range1"), Sim));
+      range2 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range2"), Sim));
       if (XML.hasAttribute("MaxProbability"))
 	maxprob = XML.getAttribute("MaxProbability").as<double>();
     }

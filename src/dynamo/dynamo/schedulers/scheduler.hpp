@@ -21,7 +21,7 @@
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/globals/globEvent.hpp>
 #include <magnet/function/delegate.hpp>
-#include <dynamo/ranges/1RList.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 #include <memory>
 #include <vector>
 
@@ -102,9 +102,9 @@ namespace dynamo {
     
     void addLocalEvent(const Particle&, const size_t&) const;
 
-    virtual std::auto_ptr<Range> getParticleNeighbours(const Particle&) const = 0;
-    virtual std::auto_ptr<Range> getParticleNeighbours(const Vector&) const = 0;
-    virtual std::auto_ptr<Range> getParticleLocals(const Particle&) const = 0;
+    virtual std::auto_ptr<IDRange> getParticleNeighbours(const Particle&) const = 0;
+    virtual std::auto_ptr<IDRange> getParticleNeighbours(const Vector&) const = 0;
+    virtual std::auto_ptr<IDRange> getParticleLocals(const Particle&) const = 0;
     
     const std::vector<size_t>& getEventCounts() const { return eventCount; }
 

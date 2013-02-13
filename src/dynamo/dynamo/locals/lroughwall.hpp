@@ -24,7 +24,7 @@ namespace dynamo {
   public:
     LRoughWall(const magnet::xml::Node&, dynamo::Simulation*);
     LRoughWall(dynamo::Simulation*, double, double, double, Vector , Vector , 
-	       std::string, Range*, bool nrender = true);
+	       std::string, IDRange*, bool nrender = true);
 
     virtual ~LRoughWall() {}
 
@@ -32,11 +32,9 @@ namespace dynamo {
 
     virtual void runEvent(Particle&, const LocalEvent&) const;
   
-    virtual bool isInCell(const Vector &, const Vector &) const;
-
     virtual void operator<<(const magnet::xml::Node&);
 
-    virtual void checkOverlaps(const Particle&) const;
+    virtual bool validateState(const Particle& part, bool textoutput = true) const;
 
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;

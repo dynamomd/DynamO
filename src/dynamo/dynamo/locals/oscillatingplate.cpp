@@ -28,7 +28,7 @@ namespace dynamo {
 					 Vector nrw0, Vector nnhat,
 					 double nomega0, double nsigma, double ne,
 					 double ndelta, double nmass, std::string nname, 
-					 Range* nRange, double timeshift, bool nstrongPlate):
+					 IDRange* nRange, double timeshift, bool nstrongPlate):
     Local(nRange, nSim, "OscillatingPlate"),
     strongPlate(nstrongPlate),
     rw0(nrw0), nhat(nnhat), omega0(nomega0), sigma(nsigma), 
@@ -97,16 +97,10 @@ namespace dynamo {
       Ptr->eventUpdate(iEvent, EDat);
   }
 
-  bool 
-  LOscillatingPlate::isInCell(const Vector & Origin, const Vector& CellDim) const
-  {
-    return true;
-  }
-
   void 
   LOscillatingPlate::operator<<(const magnet::xml::Node& XML)
   {
-    range = shared_ptr<Range>(Range::getClass(XML,Sim));
+    range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"),Sim));
   
     try {
       e = XML.getAttribute("Elasticity").as<double>();
@@ -210,13 +204,9 @@ namespace dynamo {
 	axis1 *= Sim->primaryCellSize[1] * lengthRescale / axis1.nrm();
 	axis2 *= Sim->primaryCellSize[2] * lengthRescale / axis2.nrm();
 
-	_renderObj.reset(new coil::RFunction("Oscillating wall", 10, 
-					     rw0 - 0.5 * (axis1 + axis2), 
-					     axis1, axis2, axis3,
-					     0, 0, 1, 1, true, false,
-					     "f = A;",
-					     "normal = -(float4)(" + os.str() + ");"
-					     ));
+	_renderObj.reset(new coil::RSurface("Oscillating wall", 10, 
+					    rw0 - 0.5 * (axis1 + axis2), 
+					    axis1, axis2, axis3));
       }
   
     return std::tr1::static_pointer_cast<coil::RenderObj>(_renderObj);
@@ -225,11 +215,11 @@ namespace dynamo {
   void 
   LOscillatingPlate::updateRenderData() const
   {
-    const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
-
-    if (_renderObj)
-      _renderObj->setConstantA((delta * std::cos(omega0 * (Sim->systemTime + timeshift)) 
-				- (sigma + 0.5 * Sim->units.unitLength())) *  lengthRescale);
+//    const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
+//
+//    if (_renderObj)
+//      _renderObj->setConstantA((delta * std::cos(omega0 * (Sim->systemTime + timeshift)) 
+//				- (sigma + 0.5 * Sim->units.unitLength())) *  lengthRescale);
   }
 #endif
 }

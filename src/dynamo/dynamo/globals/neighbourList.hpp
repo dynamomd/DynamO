@@ -18,7 +18,7 @@
 #pragma once
 #include <dynamo/globals/global.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/ranges/1RList.hpp>
+#include <dynamo/ranges/IDRangeList.hpp>
 #include <boost/function.hpp>
 #include <magnet/function/delegate.hpp>
 #include <magnet/math/vector.hpp>
@@ -27,14 +27,14 @@
 
 namespace dynamo {
   /*! \brief A base class for Global events which implement a neighbour list.
-   * 
-   * This is the interface for neighbour lists, which are used to
-   * optimise the look up of \ref Local events and other particles in
-   * the neighbourhood of a given \ref Particle.
-   *
-   * This class also defines callback's that can be registered so that
-   * other parts of DynamO can be updated when a particle changes
-   * neighbours.
+    
+    This is the interface for neighbour lists, which are used to
+    optimise the look up of particles in the neighbourhood of a given
+    \ref Particle.
+   
+    This class also defines callback's that can be registered so that
+    other parts of DynamO can be updated when a particle changes
+    neighbours.
    */
   class GNeighbourList: public Global
   {
@@ -93,9 +93,8 @@ namespace dynamo {
       lambda(0.9)
     {}
 
-    virtual RList getParticleNeighbours(const Particle&) const = 0;
-    virtual RList getParticleNeighbours(const Vector&) const = 0;
-    virtual RList getParticleLocals(const Particle&) const = 0;
+    virtual IDRangeList getParticleNeighbours(const Particle&) const = 0;
+    virtual IDRangeList getParticleNeighbours(const Vector&) const = 0;
 
     template<class T> size_t
     ConnectSigCellChangeNotify
@@ -117,28 +116,6 @@ namespace dynamo {
 			nbHoodSlotEraser(id)), 
 	 sigCellChangeNotify.end());
     }
-
-    template<class T> size_t
-    ConnectSigNewLocalNotify
-    (void (T::*func)(const Particle&, const size_t&) const, const T* tp) const 
-    {    
-      sigNewLocalNotify.push_back
-	(nbHoodSlot(++sigNewLocalNotifyCount, 
-		    nbHoodFunc(tp, func)));
-    
-      return sigNewLocalNotifyCount; 
-    }
-
-    inline void
-    DisconnectSigNewLocalNotify(const size_t& id) const 
-    {    
-      sigNewLocalNotify.erase
-	(std::remove_if(sigNewLocalNotify.begin(),
-			sigNewLocalNotify.end(),
-			nbHoodSlotEraser(id)), 
-	 sigNewLocalNotify.end());
-    }
-
 
     template<class T> size_t
     ConnectSigNewNeighbourNotify
@@ -241,10 +218,6 @@ namespace dynamo {
     mutable size_t sigCellChangeNotifyCount;
     mutable std::vector<nbHoodSlot>
     sigCellChangeNotify;
-
-    mutable size_t sigNewLocalNotifyCount;
-    mutable std::vector<nbHoodSlot>
-    sigNewLocalNotify;
 
     mutable size_t sigNewNeighbourNotifyCount;
     mutable std::vector<nbHoodSlot>

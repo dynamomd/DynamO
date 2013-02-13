@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<DynamOconfig version="1.5.0" >
+  <Simulation>
+    <Trajectory Coll="0" nCollPrint="50000"/>
+    <Scheduler Type="Dumb">
+      <Sorter Type="CBT" />
+    </Scheduler>
+    <SimulationSize x="11" y="11" z="11"/>
+    <BC Type="PBC"/>
+    <Dynamics Type="Newtonian"/>
+    <Genus>
+      <Species Type="Point" Mass="1" Name="Bulk" IntName="Bulk">
+	<IDRange Type="All" />
+      </Species>
+    </Genus>
+    <Topology/>
+    <SystemEvents/>
+    <Globals>
+      <Global Type="Cells" Lambda="0.9" Name="SchedulerNBList"/>
+    </Globals>
+    <Interactions>
+      <Interaction Type="HardSphere" Diameter="1" Elasticity="1" Lambda="1.5" WellDepth="1" Name="Bulk">
+	<IDPairRange Type="All"/>
+	<CaptureMap Size="32">
+	</CaptureMap>
+      </Interaction>
+    </Interactions>
+  </Simulation>
+  <ParticleData>
+    <Pt ID="0">
+      <P x="0.1" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+    <Pt ID="1">
+      <P x="1.1" y="0" z="0"/>
+      <V x="1" y="0" z="0"/>
+    </Pt>
+    <Pt ID="2">
+      <P x="3.1" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+    <Pt ID="3">
+      <P x="5.1" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+    <Pt ID="4">
+      <P x="7.1" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+    <Pt ID="5">
+      <P x="9.1" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+  </ParticleData>
+</DynamOconfig>

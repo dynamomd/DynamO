@@ -54,8 +54,8 @@ namespace magnet
       throw() :
       _stackTrace(stackTrace)
     {
-      _message << "\nException thrown in " << funcname
-	       << " " << file << ":" << line << "]\n";
+      _message << "Exception thrown in [" << funcname
+	       << "] (" << file << ":" << line << ")\n";
     }
 
     /*! \brief Copy constructor.  

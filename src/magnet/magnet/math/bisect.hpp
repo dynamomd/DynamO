@@ -19,36 +19,34 @@
 
 namespace magnet {
   namespace math {
-    template<class Functor, class T = double>
-    struct Bisect: public Functor {
-      inline T bisectRoot(double t1, double t2, double rootthreshold, const size_t nIt = 500)
-      {
+    namespace {
+      inline bool comparesign(double a, double b)
+      { return (a < 0) == (b < 0); }
+    }
+
+    template<class Functor>
+    inline double bisect(const Functor& func, double t1, double t2, double rootthreshold, const size_t nIt = 5000)
+    {
 #ifdef MAGNET_DEBUG
-	if ((Functor::operator()(t1) < 0) == (Functor::operator()(t2) < 0))
-	  M_throw() << "No sign change in the interval!";
-	
-	if ((Functor::operator()(t1) < 0))
-	  M_throw() << "bisecting from negative to positive!";
+      if (comparesign(func(t1), func(t2)))
+	M_throw() << "No sign change in the interval!";
 #endif
+      bool negative_min = func(t1) < 0;
 
-	for(size_t i = 0; i < nIt; ++i)
-	  {
-	    T tm = 0.5 * (t1 + t2);
-	    T f = Functor::operator()(tm);
-	    if ((std::abs(f) < rootthreshold) && f > 0.0)
-	      {
-	        t1 = tm;
-	        break;
-	      }
+      for (size_t i(0); i < nIt; ++i)
+	{
+	  double tm = 0.5 * (t1 + t2);
+	  double f = func(tm);
 	    
-	    if (f < 0.0)
-	      t2 = tm;
-	    else 
-	      t1 = tm;
-	  }
+	  if (std::abs(f) < rootthreshold) return tm;
 
-	return t1;
-      }
-    };
+	  if ((f < 0.0) == negative_min)
+	    t1 = tm;
+	  else 
+	    t2 = tm;
+	}
+
+      return t1;
+    }
   }
 }

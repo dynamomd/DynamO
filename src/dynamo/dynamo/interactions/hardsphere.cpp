@@ -22,7 +22,7 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/BC/BC.hpp>
-#include <dynamo/ranges/1range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/dynamics/compression.hpp>
@@ -44,9 +44,6 @@ namespace dynamo {
   void 
   IHardSphere::operator<<(const magnet::xml::Node& XML)
   { 
-    if (strcmp(XML.getAttribute("Type"),"HardSphere"))
-      M_throw() << "Attempting to load Hardsphere from non hardsphere entry";
-  
     Interaction::operator<<(XML);
   
     try 
@@ -109,20 +106,7 @@ namespace dynamo {
     double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 
     if (dt != HUGE_VAL)
-      {
-#ifdef DYNAMO_OverlapTesting
-	if (Sim->dynamics->sphereOverlap(p1, p2, d))
-	  M_throw() << "Overlapping particles found"
-		    << ", particle1 " << p1.getID()
-		    << ", particle2 " << p2.getID()
-		    << "\nOverlap = " 
-		    << Sim->dynamics.getDynamics()
-	    .sphereOverlap(p1, p2, d)
-	    / Sim->units.unitLength();
-#endif
-
-	return IntEvent(p1, p2, dt, CORE, *this);
-      }
+      return IntEvent(p1, p2, dt, CORE, *this);
   
     return IntEvent(p1,p2,HUGE_VAL, NONE, *this);  
   }
@@ -161,22 +145,23 @@ namespace dynamo {
 	<< *range;
   }
 
-  void
-  IHardSphere::checkOverlaps(const Particle& part1, const Particle& part2) const
+  bool
+  IHardSphere::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    Vector  rij = part1.getPosition() - part2.getPosition();  
-    Sim->BCs->applyBC(rij); 
+    double d = (_diameter->getProperty(p1.getID())
+		 + _diameter->getProperty(p2.getID())) * 0.5;
+    
+    if (Sim->dynamics->sphereOverlap(p1, p2, d))
+      {
+	if (textoutput)
+	  derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+	       << " have entered the core at " << d / Sim->units.unitLength()
+	       << " and are at a distance of " 
+	       << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+	       << std::endl;
+	return true;
+      }
 
-    double d2 = (_diameter->getProperty(part1.getID())
-		 + _diameter->getProperty(part2.getID())) * 0.5;
-    d2 *= d2;
-  
-    if ((rij | rij) < d2)
-      derr << std::setprecision(std::numeric_limits<float>::digits10)
-	   << "Possible overlap occured in diagnostics\n ID1=" << part1.getID() 
-	   << ", ID2=" << part2.getID() << "\nR_ij^2=" 
-	   << (rij | rij) / pow(Sim->units.unitLength(),2)
-	   << "\nd^2=" 
-	   << d2 / pow(Sim->units.unitLength(),2) << std::endl;
+    return false;
   }
 }

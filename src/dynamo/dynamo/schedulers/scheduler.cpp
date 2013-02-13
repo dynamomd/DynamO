@@ -55,6 +55,32 @@ namespace dynamo {
   void
   Scheduler::initialise()
   {
+    //Now, the scheduler is used to test the state of the system.
+    dout << "Checking the simulation configuration for any errors" << std::endl;
+    size_t warnings(0);
+
+    BOOST_FOREACH(const shared_ptr<Interaction>& interaction_ptr, Sim->interactions)
+      warnings += interaction_ptr->validateState(warnings < 101, 101 - warnings);
+    
+    for (size_t id1(0); id1 < Sim->particles.size(); ++id1)
+      {
+	std::auto_ptr<IDRange> ids(getParticleNeighbours(Sim->particles[id1]));
+	BOOST_FOREACH(const size_t id2, *ids)
+	  if (id2 > id1)
+	    if (Sim->getInteraction(Sim->particles[id1], Sim->particles[id2])
+		->validateState(Sim->particles[id1], Sim->particles[id2], (warnings < 101)))
+	      ++warnings;
+      }
+    
+    BOOST_FOREACH(const Particle& part, Sim->particles)
+      BOOST_FOREACH(const shared_ptr<Local>& lcl, Sim->locals)
+      if (lcl->isInteraction(part))
+	if (lcl->validateState(part, (warnings < 101)))
+	  ++warnings;
+    
+    if (warnings > 100)
+      derr << "Over 100 warnings of invalid states, further output was suppressed (total of " << warnings << " warnings detected)" << std::endl;
+
     dout << "Building all events on collision " << Sim->eventCount << std::endl;
     rebuildList();
   }
@@ -88,7 +114,7 @@ namespace dynamo {
 	sorter->push(glob->getEvent(part), part.getID());
   
     //Add the local cell events
-    std::auto_ptr<Range> ids(getParticleLocals(part));
+    std::auto_ptr<IDRange> ids(getParticleLocals(part));
     
     BOOST_FOREACH(const size_t id2, *ids)
       addLocalEvent(part, id2);

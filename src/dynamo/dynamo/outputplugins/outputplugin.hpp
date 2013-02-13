@@ -29,7 +29,7 @@ namespace dynamo {
   class NEventData;
   class System;
   class LocalEvent;
-  class Range;
+  class IDRange;
 
   class OutputPlugin: public dynamo::SimBase_const
   {

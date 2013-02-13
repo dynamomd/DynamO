@@ -20,7 +20,7 @@
 #include <dynamo/locals/local.hpp>
 #include <dynamo/coilRenderObj.hpp>
 #ifdef DYNAMO_visualizer
-# include <coil/RenderObj/Function.hpp>
+# include <coil/RenderObj/Surface.hpp>
 #endif 
 
 namespace dynamo {
@@ -29,7 +29,7 @@ namespace dynamo {
   public:
     LOscillatingPlate(const magnet::xml::Node&, dynamo::Simulation*);
     LOscillatingPlate(dynamo::Simulation*, Vector, Vector, double, 
-		       double, double, double, double, std::string, Range*, 
+		       double, double, double, double, std::string, IDRange*, 
 		       double timeshift = 0, bool nstrongPlate = false);
 
     virtual ~LOscillatingPlate() {}
@@ -38,8 +38,6 @@ namespace dynamo {
 
     virtual void runEvent(Particle&, const LocalEvent&) const;
   
-    virtual bool isInCell(const Vector &, const Vector &) const;
-
     virtual void operator<<(const magnet::xml::Node&);
 
     Vector getPosition() const;
@@ -50,6 +48,8 @@ namespace dynamo {
 
     const Vector& getCentre() const { return rw0; }
 
+    virtual bool validateState(const Particle& part, bool textoutput = true) const { return false; }
+
 #ifdef DYNAMO_visualizer
     virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const;
     virtual void updateRenderData() const;
@@ -57,7 +57,7 @@ namespace dynamo {
 
   protected:
 #ifdef DYNAMO_visualizer
-    mutable shared_ptr<coil::RFunction> _renderObj;
+    mutable shared_ptr<coil::RSurface> _renderObj;
 #endif
 
     virtual void outputXML(magnet::xml::XmlStream&) const;

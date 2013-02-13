@@ -1,6 +1,6 @@
 /*  dynamo:- Event driven molecular dynamics simulator 
     http://www.dynamomd.org
-    Copyright (C) 2010  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+    Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
     This program is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -18,7 +18,6 @@
 #pragma once
 
 #include <dynamo/interactions/captures.hpp>
-#include <dynamo/interactions/interaction.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/interactions/glyphrepresentation.hpp>
 
@@ -26,14 +25,17 @@ namespace dynamo {
   class IDumbbells: public ISingleCapture, public GlyphRepresentation
   {
   public:
-    template<class T1, class T2, class T3>
-    IDumbbells(dynamo::Simulation* tmp, T1 l, T2 e, T3 d, C2Range* nR, 
-	       std::string name):
+    template<class T1, class T2, class T3, class T4, class T5>
+    IDumbbells(dynamo::Simulation* tmp, T1 LA, T2 LB, T3 diamA, T4 diamB, T5 e, IDPairRange* nR, std::string name):
       ISingleCapture(tmp, nR),
-      _length(Sim->_properties.getProperty
-	      (l, Property::Units::Length())),
-      _diameter(Sim->_properties.getProperty
-		(d, Property::Units::Length())),
+      _diamA(Sim->_properties.getProperty
+	     (diamA, Property::Units::Length())),
+      _diamB(Sim->_properties.getProperty
+	     (diamB, Property::Units::Length())),
+      _LA(Sim->_properties.getProperty
+	  (LA, Property::Units::Length())),
+      _LB(Sim->_properties.getProperty
+	  (LB, Property::Units::Length())),
       _e(Sim->_properties.getProperty
 	 (e, Property::Units::Dimensionless()))
     {
@@ -43,22 +45,17 @@ namespace dynamo {
     virtual size_t glyphsPerParticle() const { return 2; }
     virtual Vector getGlyphSize(size_t ID, size_t subID) const;
     virtual Vector getGlyphPosition(size_t ID, size_t subID) const;
+    virtual double getExcludedVolume(size_t ID) const;
 
     IDumbbells(const magnet::xml::Node&, dynamo::Simulation*);
 
     void operator<<(const magnet::xml::Node&);
-  
-    double getDiameter() const { return _diameter->getMaxValue(); }
 
-    double getLength() const { return _length->getMaxValue(); }
-  
     virtual double getInternalEnergy() const { return 0; }
 
     virtual void initialise(size_t);
 
     virtual double maxIntDist() const;
-
-    virtual double getExcludedVolume(size_t) const;
 
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
  
@@ -66,13 +63,15 @@ namespace dynamo {
    
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    virtual void checkOverlaps(const Particle&, const Particle&) const;
- 
     virtual bool captureTest(const Particle&, const Particle&) const;
 
+    virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
+
   protected:
-    shared_ptr<Property> _length;
-    shared_ptr<Property> _diameter;
+    shared_ptr<Property> _diamA;
+    shared_ptr<Property> _diamB;
+    shared_ptr<Property> _LA;
+    shared_ptr<Property> _LB;
     shared_ptr<Property> _e;
   };
 }

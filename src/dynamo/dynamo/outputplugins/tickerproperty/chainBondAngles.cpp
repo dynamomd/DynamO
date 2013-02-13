@@ -17,7 +17,7 @@
 
 #include <dynamo/outputplugins/tickerproperty/chainBondAngles.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/ranges/1range.hpp>
+#include <dynamo/ranges/IDRange.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/topology/include.hpp>
@@ -78,7 +78,7 @@ namespace dynamo {
   OPChainBondAngles::ticker()
   {
     BOOST_FOREACH(Cdata& dat,chains)
-      BOOST_FOREACH(const shared_ptr<Range>& range, 
+      BOOST_FOREACH(const shared_ptr<IDRange>& range, 
 		    Sim->topology[dat.chainID]->getMolecules())
       if (range->size() > 2)
 	{

@@ -120,7 +120,7 @@ namespace dynamo {
     weight = 0.0;
   }
 
-  boost::unordered_map<int, double>
+  std::tr1::unordered_map<int, double>
   OPIntEnergyHist::getImprovedW() const
   {
     if (!std::tr1::dynamic_pointer_cast<const DynNewtonianMC>(Sim->dynamics))
@@ -132,7 +132,7 @@ namespace dynamo {
       M_throw() << "Cannot improve the W potential when there is a mismatch between the"
 		<< " internal energy histogram and MC potential bin widths.";
 
-    boost::unordered_map<int, double> retval;
+    std::tr1::unordered_map<int, double> retval;
 
     typedef std::pair<const int, double> lv1pair;
     BOOST_FOREACH(const lv1pair &p1, intEnergyHist)

@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<DynamOconfig version="1.5.0">
+  <Simulation>
+    <Scheduler Type="NeighbourList">
+      <Sorter Type="CBT"/>
+    </Scheduler>
+    <SimulationSize x="51.5764409809654" y="51.5764409809654" z="51.5764409809654"/>
+    <BC Type="None"/>
+    <Genus>
+      <Species Name="FixedColliders" IntName="Bulk" Type="FixedCollider">
+	<IDRange Type="Ranged" Start="0" End="0"/>
+      </Species>
+      <Species Mass="M" Name="Bulk" IntName="Bulk" Type="Point">
+	<IDRange Type="Ranged" Start="1" End="10"/>
+      </Species>
+    </Genus>
+    <Topology/>
+    <SystemEvents/>
+    <Globals>
+      <Global Type="Cells" Lambda="9.00000000000000e-01" Name="SchedulerNBList"/>
+    </Globals>
+    <Locals>
+    </Locals>
+    <Interactions>
+      <Interaction Type="SquareBond" Diameter="D" Lambda="1.06" Name="Bonds" Elasticity="0.9">
+	<IDPairRange Type="Chains" Start="0" End="10" Interval="11"/>
+      </Interaction>
+      <Interaction Type="HardSphere" Diameter="D" Elasticity="1.00000000000000e+00" Name="Bulk" >
+	<IDPairRange Type="All"/>
+      </Interaction>
+    </Interactions>
+    <Dynamics Type="NewtonianGravity" tc="0.01">
+      <g x="0" y="-1" z="0"/>
+    </Dynamics>
+  </Simulation>
+  <Properties>
+    <Property Type="PerParticle" Name="D" Units="Length"/>
+    <Property Type="PerParticle" Name="M" Units="Mass"/>
+  </Properties>
+  <ParticleData N="1372" AttachedBinary="N">
+    <Pt ID="0" D="1" M="1">
+      <P x="0" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+    <Pt ID="1" D="1" M="1">
+      <P x="1.05" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+    <Pt ID="2" D="1" M="1">
+      <P x="2.1" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+    <Pt ID="3" D="1" M="1">
+      <P x="3.15" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+    <Pt ID="4" D="1" M="1">
+      <P x="4.2" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+    <Pt ID="5" D="1" M="1">
+      <P x="5.25" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+    <Pt ID="6" D="1" M="1">
+      <P x="6.3" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+    <Pt ID="7" D="1" M="1">
+      <P x="7.35" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+    <Pt ID="8" D="1" M="1">
+      <P x="8.4" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+    <Pt ID="9" D="1" M="1">
+      <P x="9.45" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+    <Pt ID="10" D="2" M="100">
+      <P x="10.5" y="0" z="0"/>
+      <V x="0" y="0" z="0"/>
+    </Pt>
+  </ParticleData>
+</DynamOconfig>

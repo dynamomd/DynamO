@@ -53,7 +53,7 @@ namespace dynamo {
   }
 
   SysUmbrella::SysUmbrella(dynamo::Simulation* nSim, double na, double nb, double ndelu, 
-			 std::string nName, Range* r1, Range* r2):
+			 std::string nName, IDRange* r1, IDRange* r2):
     System(nSim),
     a(na),
     b(nb),
@@ -277,8 +277,8 @@ namespace dynamo {
 	* Sim->units.unitLength();
 
       delU = XML.getAttribute("delU").as<double>() * Sim->units.unitEnergy();
-      range1 = shared_ptr<Range>(Range::getClass(XML.getNode("Range1"), Sim));
-      range2 = shared_ptr<Range>(Range::getClass(XML.getNode("Range2"), Sim));
+      range1 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range1"), Sim));
+      range2 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range2"), Sim));
     
       if (XML.hasAttribute("currentulevel"))
 	{

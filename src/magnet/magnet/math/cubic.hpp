@@ -52,8 +52,11 @@ namespace magnet {
 	{
 	  //no constant term, so divide by x and the result is a
 	  //quadratic, but we must include the trivial x = 0 root
-	  if (quadraticSolve(p,q, root1, root2))
+	  try 
 	    {
+	      std::pair<double, double> roots = quadraticEquation(1.0, p, q);
+	      root1 = roots.first;
+	      root2 = roots.second;
 	      root3 = 0;
 	      if (root1 < root2) std::swap(root1,root2);
 	      if (root2 < 0) 
@@ -63,11 +66,11 @@ namespace magnet {
 		}
 	      return 3;
 	    }
-	  else
-	    {
-	      root1 = 0;
-	      return 1;
-	    }
+	  catch (NoQuadraticRoots&)
+	    {}
+
+	  root1 = 0;
+	  return 1;
 	}
 
       if ((p == 0) && (q == 0))
@@ -193,9 +196,16 @@ namespace magnet {
 	  //The division one usually results in more accurate roots
 	  //when it finds them but fails to detect real roots more
 	  //often than the multiply.
-	  if (quadraticSolve(p + root1, -r/root1, root2, root3))
-	    return 3;
-	  //
+	  try 
+	    {
+	      std::pair<double, double> roots = quadraticEquation(1.0, p + root1, -r/root1);
+	      root2 = roots.first;
+	      root3 = roots.second;
+	      return 3;
+	    } 
+	  catch (NoQuadraticRoots&)
+	    {}
+
 	  //However, the multiply detects roots where there are none,
 	  //the division does not. So we must either accept missing
 	  //roots or extra roots, here we choose missing roots

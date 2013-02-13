@@ -20,7 +20,7 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/interactions/squarebond.hpp>
-#include <dynamo/ranges/2RList.hpp>
+#include <dynamo/ranges/IDPairRangeList.hpp>
 #include <dynamo/locals/oscillatingplate.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>

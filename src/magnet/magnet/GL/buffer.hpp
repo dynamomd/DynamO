@@ -39,9 +39,11 @@ namespace magnet {
     public:
       inline Buffer(): 
 	_size(0),
-	_components(0),
-	_cl_handle_init(false), 
+	_components(0)
+#ifdef MAGNET_CLGL
+	, _cl_handle_init(false), 
 	_cl_buffer_acquired(0)
+#endif
       {}
 
       inline ~Buffer() { deinit(); }
@@ -131,12 +133,14 @@ namespace magnet {
        */
       inline void deinit() 
       {
-#ifdef MAGNET_DEBUG
+#ifdef MAGNET_CLGL
+# ifdef MAGNET_DEBUG
 	if (_cl_buffer_acquired)
 	  M_throw() << "Deinitialising a buffer which is acquired by the OpenCL system!";
-#endif
+# endif
 	_cl_handle = ::cl::BufferGL();
 	_cl_handle_init = false;
+#endif
 	if (_size)
 	  glDeleteBuffersARB(1, &_buffer);
 	_context.reset();
@@ -252,6 +256,7 @@ namespace magnet {
 	_context->enableAttributeArray(attrnum);
       }
 
+#ifdef MAGNET_CLGL
       /*! \brief Returns an OpenCL representation of this GL buffer.
        
         This increments an internal counter, and every \ref
@@ -302,6 +307,7 @@ namespace magnet {
 	    _context->getCLCommandQueue().enqueueReleaseGLObjects(&buffers);
 	  }
       }
+#endif
       
     protected:
       /*! \brief Guard function to test if the buffer is initialised.
@@ -312,9 +318,11 @@ namespace magnet {
       size_t _components;
       GLuint _buffer;
       Context::ContextPtr _context;
+#ifdef MAGNET_CLGL
       ::cl::BufferGL _cl_handle;
       bool _cl_handle_init;
       size_t _cl_buffer_acquired;
+#endif
     };
   }
 }

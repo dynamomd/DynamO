@@ -21,7 +21,7 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/interactions/squarebond.hpp>
-#include <dynamo/ranges/2RList.hpp>
+#include <dynamo/ranges/IDPairRangeList.hpp>
 #include <dynamo/topology/chain.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -98,7 +98,7 @@ namespace dynamo {
   void
   OPStructureImaging::printImage()
   {
-    BOOST_FOREACH(const shared_ptr<Range>& prange, Sim->topology[id]->getMolecules())
+    BOOST_FOREACH(const shared_ptr<IDRange>& prange, Sim->topology[id]->getMolecules())
       {
 	std::vector<Vector  > atomDescription;
 

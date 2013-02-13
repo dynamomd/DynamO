@@ -37,7 +37,7 @@
 
 namespace dynamo {
   IStepped::IStepped(dynamo::Simulation* tmp, 
-		     const std::vector<steppair>& vec, C2Range* nR,
+		     const std::vector<steppair>& vec, IDPairRange* nR,
 		     std::string name):
     IMultiCapture(tmp,nR),
     _unitLength(Sim->_properties.getProperty
@@ -64,9 +64,6 @@ namespace dynamo {
   void 
   IStepped::operator<<(const magnet::xml::Node& XML)
   {
-    if (strcmp(XML.getAttribute("Type"),"Stepped"))
-      M_throw() << "Attempting to load Stepped from non Stepped entry";
-  
     Interaction::operator<<(XML);
   
     try {
@@ -214,20 +211,7 @@ namespace dynamo {
 
 	//Not captured, test for capture
 	if (dt != HUGE_VAL)
-	  {
-#ifdef DYNAMO_OverlapTesting
-	    //Check that there is no overlap 
-	    if (Sim->dynamics->sphereOverlap(p1, p2, d))
-	      M_throw() << "Overlapping particles found" 
-			<< ", particle1 " << p1.getID() 
-			<< ", particle2 " << p2.getID() 
-			<< "\nOverlap = " 
-			<< Sim->dynamics->sphereOverlap(p1, p2, d)
-		/ Sim->units.unitLength();
-#endif
-	  
-	    retval = IntEvent(p1, p2, dt, WELL_IN, *this);
-	  }
+	  retval = IntEvent(p1, p2, dt, WELL_IN, *this);
       }
     else
       {
@@ -239,21 +223,8 @@ namespace dynamo {
 	    double dt = Sim->dynamics->SphereSphereInRoot
 	      (p1, p2, d);
 	    
-	      if (dt != HUGE_VAL)
-		{
-#ifdef DYNAMO_OverlapTesting
-		  //Check that there is no overlap 
-		  if (Sim->dynamics->sphereOverlap(p1, p2, d*d))
-		    M_throw() << "Overlapping particles found" 
-			      << ", particle1 " << p1.getID() 
-			      << ", particle2 " 
-			      << p2.getID() << "\nOverlap = " 
-			      << Sim->dynamics->sphereOverlap(p1, p2, d*d)
-		      / Sim->units.unitLength();
-#endif
-	      
-		  retval = IntEvent(p1, p2, dt, WELL_IN , *this);
-		}
+	    if (dt != HUGE_VAL)
+	      retval = IntEvent(p1, p2, dt, WELL_IN , *this);
 	  }
 
 	{//Now test for the outward step
@@ -342,27 +313,49 @@ namespace dynamo {
       } 
   }
 
-  void
-  IStepped::checkOverlaps(const Particle& part1, const Particle& part2) const
+  bool
+  IStepped::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    const_cmap_it capstat = getCMap_it(part1,part2);
-
-    int val = captureTest(part1,part2);
+    const_cmap_it capstat = getCMap_it(p1, p2);
+    int val = captureTest(p1, p2);
 
     if (capstat == captureMap.end())
       {
 	if (val != 0)
-	  derr << "Particle " << part1.getID() << " and Particle " << part2.getID()
-	       << "\nFailing as captureTest gives " << val
-	       << "\nAnd recorded value is NO CAPTURE";
+	  {
+	    double d = steps.front().first * _unitLength->getMaxValue();
+
+	    if (textoutput)
+	      derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+		   << " registered as being outside the steps, starting at " << d / Sim->units.unitLength()
+		   << " but they are at a distance of "
+		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		   << std::endl;
+
+	    return true;
+	  }
       }
     else
-      if (val != capstat->second)
-	derr << "Particle " << part1.getID() << " and Particle " << part2.getID()
-	     << "\nFailing as captureTest gives " << val
-	     << "\nAnd recorded value is " << capstat->second << std::endl;
+      if (capstat->second != val)
+	{
+	  if (textoutput)
+	    derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+		 << " registered as being inside step " << capstat->second 
+		 << " which has limits of [" << ((capstat->second < static_cast<int>(steps.size())) ? 
+						 steps[capstat->second].first * _unitLength->getMaxValue() : 0) 
+	      / Sim->units.unitLength()
+		 << ", " << steps[capstat->second-1].first * _unitLength->getMaxValue() / Sim->units.unitLength()
+		 << "] but they are at a distance of " 
+		 << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		 << " and this corresponds to step " << val
+		 << std::endl;
+	    
+	  return true;
+	}
+
+    return false;
   }
-  
+
   void 
   IStepped::outputXML(magnet::xml::XmlStream& XML) const
   {

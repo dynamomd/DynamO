@@ -18,7 +18,7 @@
 #include <dynamo/schedulers/systemonly.hpp>
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/ranges/1RNone.hpp>
+#include <dynamo/ranges/IDRangeNone.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cmath> //for huge val
 
@@ -78,21 +78,21 @@ namespace dynamo {
 	<< magnet::xml::endtag("Sorter");
   }
 
-  std::auto_ptr<Range>
+  std::auto_ptr<IDRange>
   SSystemOnly::getParticleNeighbours(const Particle&) const
   {
-    return std::auto_ptr<Range>(new RNone());
+    return std::auto_ptr<IDRange>(new IDRangeNone());
   }
 
-  std::auto_ptr<Range>
+  std::auto_ptr<IDRange>
   SSystemOnly::getParticleNeighbours(const Vector&) const
   {
-    return std::auto_ptr<Range>(new RNone());
+    return std::auto_ptr<IDRange>(new IDRangeNone());
   }
 
-  std::auto_ptr<Range>
+  std::auto_ptr<IDRange>
   SSystemOnly::getParticleLocals(const Particle&) const
   {
-    return std::auto_ptr<Range>(new RNone());
+    return std::auto_ptr<IDRange>(new IDRangeNone());
   }
 }

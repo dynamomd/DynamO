@@ -1,7 +1,6 @@
 /*  dynamo:- Event driven molecular dynamics simulator 
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
-    Copyright (C) 2011  Sebastian Gonzalez <tsuresuregusa@gmail.com>
 
     This program is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -28,6 +27,7 @@ namespace dynamo {
   class Particle;
   class PairEventData;
   class ParticleEventData;
+  class NEventData;
   class IntEvent;
   class Event;
 
@@ -120,17 +120,17 @@ namespace dynamo {
       
       Also works for bounce (it will collide receeding structures).
      
-      \param r1 The first structure defining Range.
-      \param r2 The second structure defining Range.
+      \param r1 The first structure defining IDRange.
+      \param r2 The second structure defining IDRange.
       \param d2 The square of the interaction distance.
       \param eType A way of setting the collision type from CORE to BOUNCE etc.
       \return The collision data.
      */  
-    virtual NEventData multibdyCollision(const Range& r1, const Range& r2,
+    virtual NEventData multibdyCollision(const IDRange& r1, const IDRange& r2,
 					 const double& d2,
 					 const EEventType& eType) const = 0;
 
-    virtual NEventData multibdyWellEvent(const Range&, const Range&, 
+    virtual NEventData multibdyWellEvent(const IDRange&, const IDRange&, 
 					 const double&, const double&, 
 					 EEventType&) const = 0;
 
@@ -156,7 +156,7 @@ namespace dynamo {
      
       \return Time of the next event, or HUGE_VAL if no event.
      */
-    virtual double SphereSphereInRoot(const Range& p1, const Range& p2, double d) const = 0;
+    virtual double SphereSphereInRoot(const IDRange& p1, const IDRange& p2, double d) const = 0;
 
     /*! \brief Determines if and when two spheres will stop intersecting.
      
@@ -180,7 +180,7 @@ namespace dynamo {
      
       \return Time of the next event, or HUGE_VAL if no event.
      */
-    virtual double SphereSphereOutRoot(const Range& p1, const Range& p2, double d) const = 0;  
+    virtual double SphereSphereOutRoot(const IDRange& p1, const IDRange& p2, double d) const = 0;  
 
     /*! \brief Determines if two spheres are overlapping
      
@@ -189,7 +189,7 @@ namespace dynamo {
       \return True if the spheres are overlapping.
      */
     virtual double sphereOverlap(const Particle& p1, const Particle& p2, 
-				 const double& d2) const = 0;
+				 const double& d) const = 0;
 
     /*! \brief Determines if and when two parallel cube will intersect.
      
@@ -253,30 +253,31 @@ namespace dynamo {
 
     /*! \brief Tests if and when two lines will collide.
      
-      \param PD Some precalculated data on the lines.
       \param length The length of the lines, or interaction length.
       \param p1 First particle.
       \param p2 Second particle.
       \param t_max The maximum time to consider roots in.
-      \return Wether the event will occur or not.
+      \return Whether the event will occur or not and the time.
      */    
     virtual std::pair<bool, double> getLineLineCollision(const double length, 
 				      const Particle& p1, const Particle& p2,
 				      double t_max) const;
 
-    /*! \brief Tests if and when two off center spheres will collide.
+    /*! \brief Tests if and when two offcentre spheres will collide.
      
-      \param PD Some precalculated data on the spehres.
-      \param length The length of the lines, or interaction length.
+      \param offset1 The distance along the director where the sphere of particle 1 being tested is.
+      \param offset2 The distance along the director where the sphere of particle 2 being tested is.
+      \param diameter1 The diameter of the sphere on particle 1 being tested.
+      \param diameter2 The diameter of the sphere on particle 2 being tested.
       \param p1 First particle.
       \param p2 Second particle.
-      \param twindow Maximum time to check till.
-      \return Wether the event will occur or not.
+      \param t_max The maximum time to consider roots in.
+      \return Whether the event will occur or not and the time.
      */    
-
-    virtual bool getOffCenterSphereOffCenterSphereCollision(const double length, const double diameter,
-							    const Particle& p1, const Particle& p2,
-							    const double) const;
+    virtual std::pair<bool, double> getOffcentreSpheresCollision(const double offset1, const double diameter1, 
+								 const double offset2, const double diameter2,
+								 const Particle& p1, const Particle& p2,
+								 double t_max, double maxdist) const;
 
     /*! \brief Tests if and when a point will collide with a pair of
       oscillating walls, which are parallel and facing inwards to a centre point
@@ -339,10 +340,7 @@ namespace dynamo {
       \param passed A bit to set if the parabola is already over.
       \return Time of the event.
      */    
-    virtual void enforceParabola(Particle&) const
-    { 
-      M_throw() << "This is not needed for this type of Dynamics";
-    }
+    virtual NEventData enforceParabola(Particle&) const;
 
     /*! \brief Runs a line line collision event
      
@@ -353,15 +351,6 @@ namespace dynamo {
 					       const double& elasticity, 
 					       const double& length) const;
   
-    /*! \brief Runs a offCenterSphere offCenterSphere collision event
-     
-      \param eevent Description of the scheduled event
-      \return Collision data
-     */    
-    virtual PairEventData runOffCenterSphereOffCenterSphereCollision(const IntEvent& eevent,
-								     const double& elasticity, 
-								     const double& length, const double& diameter) const;
-
 
     /*! \brief Determines when the particle center will hit a wall.
      
@@ -467,11 +456,12 @@ namespace dynamo {
       \param part Particle colliding the wall.
       \param sqrtT Square root of the Temperature of wall.
       \param vNorm Normal of the wall (\f$ vNorm \cdot v_1 \f$ must be negative).
+      \param d Interaction distance of the wall.
      */    
     virtual ParticleEventData runAndersenWallCollision(Particle& part, 
 						       const Vector & vNorm,
-						       const double& sqrtT
-						       ) const = 0;
+						       const double& sqrtT,
+						       const double d) const = 0;
   
     /*! \brief Performs a hard sphere collision between the two particles.
       
@@ -683,8 +673,17 @@ namespace dynamo {
 						    const double& r
 						    ) const;
 
+    const rotData& getRotData(const size_t& ID) const
+    { return orientationData[ID]; }
+
+    rotData& getRotData(const size_t& ID)
+    { return orientationData[ID]; }
+
     const rotData& getRotData(const Particle& part) const
-    { return orientationData[part.getID()]; }
+    { return getRotData(part.getID()); }
+
+    rotData& getRotData(const Particle& part)
+    { return getRotData(part.getID()); }
   
     const std::vector<rotData>& getCompleteRotData() const
     { return orientationData; }
@@ -711,7 +710,7 @@ namespace dynamo {
        than 0.5 box lengths in periodic boundary conditions this
        function should work.
      */
-    std::pair<Vector, Vector> getCOMPosVel(const Range& particles) const;
+    std::pair<Vector, Vector> getCOMPosVel(const IDRange& particles) const;
 
   protected:
     friend class GCellsShearing;
