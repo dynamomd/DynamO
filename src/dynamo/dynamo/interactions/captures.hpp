@@ -44,7 +44,10 @@ namespace dynamo {
     virtual size_t getTotalCaptureCount() const = 0;
   
     //! \brief A test if two particles are captured
-    virtual bool isCaptured(const Particle&, const Particle&) const = 0;
+    inline bool isCaptured(const Particle& p1, const Particle& p2) const { return isCaptured(p1.getID(), p2.getID()); }
+
+    //! \brief A test if two particles are captured
+    virtual bool isCaptured(const size_t, const size_t) const = 0;
 
     //! \brief Returns the total internal energy stored in this Interaction.
     virtual double getInternalEnergy() const = 0;
@@ -76,6 +79,8 @@ namespace dynamo {
     {
       inline cMapKey() {}
     
+      //The ContactMap output plugin relies that the ID pair is sorted
+      //min,max
       inline cMapKey(const size_t& a, const size_t& b):
 	std::pair<size_t,size_t>(std::min(a, b), std::max(a, b))
       {
@@ -100,13 +105,17 @@ namespace dynamo {
 
     size_t getTotalCaptureCount() const { return captureMap.size(); }
   
-    virtual bool isCaptured(const Particle& p1, const Particle& p2) const
-    { return captureMap.count(cMapKey(p1.getID(), p2.getID())); }
+    inline bool isCaptured(const Particle& p1, const Particle& p2) const { return isCaptured(p1.getID(), p2.getID()); }
+
+    virtual bool isCaptured(const size_t p1, const size_t p2) const
+    { return captureMap.count(cMapKey(p1, p2)); }
 
     virtual void clear() const { captureMap.clear(); }
 
     virtual size_t validateState(bool textoutput = true, size_t max_reports = std::numeric_limits<size_t>::max()) const;
 
+    const std::tr1::unordered_set<cMapKey, boost::hash<cMapKey> >& getMap() const { return captureMap; }
+    
   protected:
 
     mutable std::tr1::unordered_set<cMapKey, boost::hash<cMapKey> > captureMap;
@@ -170,8 +179,10 @@ namespace dynamo {
 
     size_t getTotalCaptureCount() const { return captureMap.size(); }
   
-    virtual bool isCaptured(const Particle& p1, const Particle& p2) const
-    { return captureMap.count(cMapKey(p1.getID(), p2.getID())); }
+    inline bool isCaptured(const Particle& p1, const Particle& p2) const { return isCaptured(p1.getID(), p2.getID()); }
+
+    virtual bool isCaptured(const size_t p1, const size_t p2) const
+    { return captureMap.count(cMapKey(p1, p2)); }
 
     virtual void clear() const { captureMap.clear(); }
 

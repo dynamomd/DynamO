@@ -18,3 +18,4 @@
 #include <dynamo/outputplugins/general/replexTrace.hpp>
 #include <dynamo/outputplugins/general/colldistcheck.hpp>
 #include <dynamo/outputplugins/general/trajectory.hpp>
+#include <dynamo/outputplugins/general/contactmap.hpp>

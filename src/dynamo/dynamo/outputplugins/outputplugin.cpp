@@ -133,6 +133,8 @@ namespace dynamo {
       return testGeneratePlugin<OPCollMatrix>(Sim, XML);
     else if (!Name.compare("ContactMap"))
       return testGeneratePlugin<OPCContactMap>(Sim, XML);
+    else if (!Name.compare("Contactmap"))
+      return testGeneratePlugin<OPContactMap>(Sim, XML);
     else if (!Name.compare("OverlapTester"))
       return testGeneratePlugin<OPOverlapTest>(Sim, XML);
     else if (!Name.compare("CollDistCheck"))

@@ -27,7 +27,7 @@
 
 namespace dynamo {
   OPMisc::OPMisc(const dynamo::Simulation* tmp, const magnet::xml::Node&):
-    OutputPlugin(tmp,"Misc",0),
+    OutputPlugin(tmp,"Misc",0),//ContactMap must be after this
     _dualEvents(0),
     _singleEvents(0),
     _virtualEvents(0),
