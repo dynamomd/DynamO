@@ -352,8 +352,8 @@ namespace dynamo {
     }
   }
 
-  void
-  IPRIME_BB::checkOverlaps(const Particle& p1, const Particle& p2) const
+  bool 
+  IPRIME_BB::validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const
   {
     Vector rij = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(rij);
@@ -366,30 +366,45 @@ namespace dynamo {
 
     if (bonded) {
       //Inner and outer bond diameters²
-      double id2 = diameter * diameter * (1.0 - _PRIME_bond_tolerance) * (1.0 - _PRIME_bond_tolerance);
-      double od2 = diameter * diameter * (1.0 + _PRIME_bond_tolerance) * (1.0 + _PRIME_bond_tolerance);
+      double id = diameter * (1.0 - _PRIME_bond_tolerance);
+      double od = diameter * (1.0 + _PRIME_bond_tolerance);
 
-      if (r2 < id2)
-        derr << "Possible bonded pair overlapping inner core:\n ID1=" << p1.getID()
-             << "(" << getTypeName(getType(p1.getID())) << "), ID2=" << p2.getID() << "(" << getTypeName(getType(p2.getID())) << ")\nR_ij="
-             << std::sqrt(r2) / Sim->units.unitLength()
-             << " < D_{inner}="
-             << std::sqrt(id2) / Sim->units.unitLength() << std::endl;
-
-      if (r2 > od2)
-        derr << "Possible bonded pair overlapping outer core:\n ID1=" << p1.getID()
-             << "(" << getTypeName(getType(p1.getID())) << "), ID2=" << p2.getID() << "(" << getTypeName(getType(p2.getID())) << ")\nR_ij="
-             << std::sqrt(r2) / Sim->units.unitLength()
-             << " > D_{outer}="
-             << std::sqrt(od2) / Sim->units.unitLength() << std::endl;
+      if (Sim->dynamics->sphereOverlap(p1, p2, id))
+	{
+	  if (textoutput)
+	    derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+		 << " are inside the bond with an inner hard core at " << id / Sim->units.unitLength()
+		 << " but they are at a distance of " 
+		 << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		 << std::endl;
+	  return true;
+	}
+      
+      if (!Sim->dynamics->sphereOverlap(p1, p2, od))
+	{
+	  if (textoutput)
+	    derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+		 << " registered as being inside the bond with an upper limit of " << od / Sim->units.unitLength()
+		 << " but they are at a distance of " 
+		 << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		 << std::endl;
+	  
+	  return true;
+	}
     }
     else
-      if (r2 < (diameter * diameter))
-        derr << "Overlap error\n ID1=" << p1.getID()
-	     << "(" << getTypeName(getType(p1.getID())) << "), ID2=" << p2.getID() << "(" << getTypeName(getType(p2.getID())) << ")\nR_ij="
-             << std::sqrt(r2) / Sim->units.unitLength()
-	     << " < D=" << diameter / Sim->units.unitLength()
-	     << std::endl;
+      if (Sim->dynamics->sphereOverlap(p1, p2, diameter))
+	{
+	  if (textoutput)
+	    derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+		 << " are inside the hard core at " << diameter / Sim->units.unitLength()
+		 << " and are at a distance of " 
+		 << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		 << std::endl;
+	  return true;
+	}
+
+    return false;
   }
 
   void

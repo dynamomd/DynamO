@@ -37,8 +37,6 @@ namespace dynamo {
 
     virtual double maxIntDist() const;
 
-    virtual void checkOverlaps(const Particle&, const Particle&) const;
-
     virtual void initialise(size_t);
 
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
@@ -51,6 +49,8 @@ namespace dynamo {
 
     virtual double getInternalEnergy(const Particle&, const Particle&) const 
     { return 0.0; }
+
+    virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
 
   protected:
     /*! \brief Returns the type of the bead on the backbone.

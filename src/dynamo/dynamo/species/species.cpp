@@ -31,16 +31,6 @@
 namespace dynamo {
   Species::~Species() {}
 
-  void 
-  Species::initialise()
-  {
-    if (IntPtr == NULL)
-      M_throw() << "Species named \"" 
-		<< spName 
-		<< "\" missing a matching interaction, named \"" 
-		<< intName << "\"";
-  }
-
   shared_ptr<Species>
   Species::getClass(const magnet::xml::Node& XML, dynamo::Simulation* tmp, size_t nID)
   {

@@ -41,23 +41,31 @@ namespace dynamo {
     operator<<(XML);
   }
 
-  void ISquareWell::operator<<(const magnet::xml::Node& XML)
+  void 
+  ISquareWell::operator<<(const magnet::xml::Node& XML)
   {
     Interaction::operator<<(XML);
-
+  
     try {
-      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
-      _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"), Property::Units::Dimensionless());
-      _wellDepth = Sim->_properties.getProperty(XML.getAttribute("WellDepth"), Property::Units::Energy());
+      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					       Property::Units::Length());
+      _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
+					     Property::Units::Dimensionless());
+      _wellDepth = Sim->_properties.getProperty(XML.getAttribute("WellDepth"),
+						Property::Units::Energy());
 
       if (XML.hasAttribute("Elasticity"))
-         _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
+	_e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+					  Property::Units::Dimensionless());
       else
-         _e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
+	_e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
       intName = XML.getAttribute("Name");
-      ISingleCapture::loadCaptureMap(XML);
+      ISingleCapture::loadCaptureMap(XML);   
     }
-    catch (boost::bad_lexical_cast &) { M_throw() << "Failed a lexical cast in ISquareWell"; }
+    catch (boost::bad_lexical_cast &)
+      {
+	M_throw() << "Failed a lexical cast in ISquareWell";
+      }
   }
 
   Vector
@@ -68,11 +76,13 @@ namespace dynamo {
   }
 
   Vector 
-  ISquareWell::getGlyphPosition(size_t ID, size_t subID) const {
+  ISquareWell::getGlyphPosition(size_t ID, size_t subID) const
+  { 
     Vector retval = Sim->particles[ID].getPosition();
     Sim->BCs->applyBC(retval);
     return retval;
   }
+
 
   double 
   ISquareWell::getExcludedVolume(size_t ID) const 
@@ -92,7 +102,9 @@ namespace dynamo {
     ISingleCapture::initCaptureMap();
   }
 
-  bool ISquareWell::captureTest(const Particle& p1, const Particle& p2) const {
+  bool 
+  ISquareWell::captureTest(const Particle& p1, const Particle& p2) const
+  {
     if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
 
     double d = (_diameter->getProperty(p1.getID())
@@ -193,7 +205,7 @@ namespace dynamo {
 	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, wd, ld2));
 	
 	  if (retVal.getType() != BOUNCE)
-	    addToCaptureMap(p1, p2);
+	    addToCaptureMap(p1, p2);      
 	
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
 	  Sim->signalParticleUpdate(retVal);
@@ -223,7 +235,7 @@ namespace dynamo {
 	M_throw() << "Unknown collision type";
       } 
   }
- 
+
   bool
   ISquareWell::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {

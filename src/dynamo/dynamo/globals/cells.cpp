@@ -349,11 +349,11 @@ namespace dynamo {
 	 << "\nRequested supported length " << maxdiam / Sim->units.unitLength()
 	 << "\nSupported length           " << getMaxSupportedInteractionLength() / Sim->units.unitLength()
 	 << "\nVector Size <N>  " << sizeReq << std::endl;
-
+  
     //Add the particles section
     //Required so particles find the right owning cell
     Sim->dynamics->updateAllParticles();
-
+  
     ////Add all the particles 
     BOOST_FOREACH(const size_t& id, *range)
       {

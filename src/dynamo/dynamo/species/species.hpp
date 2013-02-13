@@ -50,7 +50,7 @@ namespace dynamo {
 
     virtual void operator<<(const magnet::xml::Node&) = 0;
 
-    virtual void initialise();
+    virtual void initialise() = 0;
 
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Species&);
   
