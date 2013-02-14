@@ -165,6 +165,7 @@ namespace dynamo {
 	<< magnet::xml::attr("version") << "1.2"
 	<< magnet::xml::tag("graph")
 	<< magnet::xml::attr("defaultedgetype") << "directed"
+	<< magnet::xml::attr("idtype") << "integer"
 	<< magnet::xml::tag("attributes")
 	<< magnet::xml::attr("class") << "node"
 	<< magnet::xml::tag("attribute")
@@ -178,26 +179,42 @@ namespace dynamo {
 	<< magnet::xml::attr("type") << "float"
 	<< magnet::xml::endtag("attribute")
 	<< magnet::xml::endtag("attributes")
-	<< magnet::xml::tag("nodes");
+	<< magnet::xml::tag("nodes")
+	<< magnet::xml::attr("count") << _collected_maps.size();
+      ;
 
     typedef std::pair<MapKey, MapData> MapDataType;
     BOOST_FOREACH(const MapDataType& entry, _collected_maps)
-      XML << magnet::xml::tag("node")
-	  << magnet::xml::attr("id") << entry.second._id
-	  << magnet::xml::tag("attvalues")
-	  << magnet::xml::tag("attvalue")
-	  << magnet::xml::attr("for") << "0"
-	  << magnet::xml::attr("value") << entry.second._energy / Sim->units.unitEnergy()
-	  << magnet::xml::endtag("attvalue")
-	  << magnet::xml::tag("attvalue")
-	  << magnet::xml::attr("for") << "1"
-	  << magnet::xml::attr("value") << entry.second._weight / _total_weight
-	  << magnet::xml::endtag("attvalue")
-	  << magnet::xml::endtag("attvalues")
-	  << magnet::xml::endtag("node");
+      {
+	XML << magnet::xml::tag("node")
+	    << magnet::xml::attr("id") << entry.second._id
+	    << magnet::xml::tag("attvalues")
+	    << magnet::xml::tag("attvalue")
+	    << magnet::xml::attr("for") << "0"
+	    << magnet::xml::attr("value") << entry.second._energy / Sim->units.unitEnergy()
+	    << magnet::xml::endtag("attvalue")
+	    << magnet::xml::tag("attvalue")
+	    << magnet::xml::attr("for") << "1"
+	    << magnet::xml::attr("value") << entry.second._weight / _total_weight
+	    << magnet::xml::endtag("attvalue")
+	    << magnet::xml::endtag("attvalues")
+	    << magnet::xml::tag("Contacts");
+	
+	typedef std::pair<size_t, size_t> IDPair;
+	BOOST_FOREACH(const IDPair& ids, entry.first)
+	  XML << magnet::xml::tag("Contact")
+	      << magnet::xml::attr("ID1") << ids.first
+	      << magnet::xml::attr("ID2") << ids.second
+	      << magnet::xml::endtag("Contact");
+	
+	  XML << magnet::xml::endtag("Contacts")
+	    << magnet::xml::endtag("node");
+      }
 
     XML << magnet::xml::endtag("nodes")
-	<< magnet::xml::tag("edges");
+	<< magnet::xml::tag("edges")
+      	<< magnet::xml::attr("count") << _map_links.size();
+
 
     typedef std::pair<const std::pair<size_t, size_t>, size_t> EdgeDataType;
     size_t edge_ids(0);
