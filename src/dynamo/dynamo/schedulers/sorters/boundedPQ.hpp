@@ -221,9 +221,7 @@ namespace dynamo {
 					  marking empty*/ 
 
       if (!quiet)
-	{
-	  dout << "Sorting all events, please wait..." << std::endl;
-	}
+	dout << "Sorting all events, please wait..." << std::endl;
 
       //Now insert all of the events!
       for (unsigned long i = 1; i <= N; i++)
@@ -231,9 +229,7 @@ namespace dynamo {
 
   
       if (!quiet)
-	{
-	  dout << "Finding first event..." << std::endl;
-	}
+	dout << "Finding first event..." << std::endl;
     
       //Find the next event and place it first so nextEventID() works
       orderNextEvent();
@@ -258,26 +254,6 @@ namespace dynamo {
       insertInEventQ(pID + 1);
     }
 
-    //  inline const T& operator[](const size_t& a) const 
-    //  {
-    //#ifdef DYNAMO_DEBUG 
-    //    if (Min.empty())
-    //      M_throw() << "Heap not yet sized";
-    //#endif
-    //    
-    //    return Min[a+1].data; 
-    //  }
-  
-    //  inline T& operator[](const size_t& a) 
-    //  {
-    //#ifdef DYNAMO_DEBUG 
-    //    if (Min.empty())
-    //      M_throw() << "Heap not yet sized";
-    //#endif
-    //
-    //    return Min[a+1].data; 
-    //  }
-
     inline void clearPEL(const size_t& ID) { Min[ID+1].data.clear(); }
     inline void popNextPELEvent(const size_t& ID) { Min[ID+1].data.pop(); }
     inline void popNextEvent() { Min[CBT[1]].data.pop(); }
@@ -294,8 +270,6 @@ namespace dynamo {
     inline unsigned long next_collCounter2() const { return Min[CBT[1]].data.top().collCounter2; }
     inline size_t next_p2() const { return Min[CBT[1]].data.top().p2; }
 
-    //inline T& next_Data() { return Min[CBT[1]].data; }
-    //inline const T& next_Data() const { return Min[CBT[1]].data; }
     inline double next_dt() const { return Min[CBT[1]].data.getdt() - pecTime; }
 
     inline void sort() { orderNextEvent(); }
