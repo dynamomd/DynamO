@@ -47,13 +47,8 @@ namespace dynamo {
     std::tr1::unordered_map<int, double> getImprovedW() const;
     inline double getBinWidth() const { return intEnergyHist.getBinWidth(); }
   protected:
-    void stream(double);
-
-    void ticker();
-
     magnet::math::HistogramWeighted<> intEnergyHist;
     shared_ptr<const OPMisc> _ptrOPMisc;
-    double weight;
     double binwidth;
 
   };

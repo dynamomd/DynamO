@@ -29,7 +29,6 @@ namespace dynamo {
   OPIntEnergyHist::OPIntEnergyHist(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):
     OutputPlugin(tmp,"InternalEnergyHistogram", 10),//Before OPEnergy
     intEnergyHist(1.0),
-    weight(0.0),
     binwidth(1.0)
   {
     operator<<(XML);
@@ -39,29 +38,25 @@ namespace dynamo {
   OPIntEnergyHist::eventUpdate(const IntEvent &event, 
 			    const PairEventData &) 
   {
-    stream(event.getdt());
-    ticker();
+    intEnergyHist.addVal(_ptrOPMisc->getConfigurationalU(), event.getdt());
   }
 
   void 
   OPIntEnergyHist::eventUpdate(const GlobalEvent &event, const NEventData&) 
   {
-    stream(event.getdt());
-    ticker();
+    intEnergyHist.addVal(_ptrOPMisc->getConfigurationalU(), event.getdt());
   }
 
   void 
   OPIntEnergyHist::eventUpdate(const LocalEvent &event, const NEventData&) 
   {
-    stream(event.getdt());
-    ticker();
+    intEnergyHist.addVal(_ptrOPMisc->getConfigurationalU(), event.getdt());
   }
 
   void 
   OPIntEnergyHist::eventUpdate(const System&, const NEventData&, const double& dt)
   {
-    stream(dt);
-    ticker();
+    intEnergyHist.addVal(_ptrOPMisc->getConfigurationalU(), dt);
   }
 
   void 
@@ -89,35 +84,7 @@ namespace dynamo {
   void 
   OPIntEnergyHist::changeSystem(OutputPlugin* EHist2)
   {
-    //Add the current data
-    intEnergyHist.addVal(_ptrOPMisc->getConfigurationalU(), weight);
-    //Same for the other histogram
-    static_cast<OPIntEnergyHist*>(EHist2)->intEnergyHist.addVal
-      (static_cast<OPIntEnergyHist*>(EHist2)->_ptrOPMisc->getConfigurationalU(), 
-       static_cast<OPIntEnergyHist*>(EHist2)->weight);
-
-    //Now swap over the data
     std::swap(Sim, static_cast<OPIntEnergyHist*>(EHist2)->Sim);
-
-    //NEVER SWAP THE PLUGIN POINTERS! they don't change
-    //std::swap(_ptrOPMisc, static_cast<OPIntEnergyHist*>(EHist2)->_ptrOPMisc);
-
-    //Reset the weighting
-    weight = 0.0;
-    static_cast<OPIntEnergyHist*>(EHist2)->weight = 0.0;
-  }
-
-  void 
-  OPIntEnergyHist::stream(double dt)
-  {
-    weight += dt;
-  }
-
-  void 
-  OPIntEnergyHist::ticker()
-  {
-    intEnergyHist.addVal(_ptrOPMisc->getConfigurationalU(), weight);
-    weight = 0.0;
   }
 
   std::tr1::unordered_map<int, double>
