@@ -109,30 +109,6 @@ namespace dynamo {
     inline const size_t& exceptionEvents() const { return exceptionCount; }
     inline const size_t& treeSize() const { return NP; }
 
-    inline std::vector<size_t> getEventCounts() const
-    {
-      std::vector<size_t> tmpVec;
-      tmpVec.resize(nlists - 1,0);
-
-      //Miss the binary tree
-      for (int i = 1; i < nlists - 1; ++i)
-	{
-	  int index = i + currentIndex;
-	  if (index > nlists -1)
-	    index -= nlists;
-	  size_t counter = 0;
-	  //Scroll through the list counting
-	  int nextID = linearLists[index];	
-	  while (nextID != -1)
-	    {
-	      ++counter;
-	      nextID = Min[nextID].next;
-	    }
-	  tmpVec[i] = counter;
-	}
-      return tmpVec;
-    }
-
     void resize(const size_t& a)
     {
       clear();
