@@ -67,7 +67,7 @@ namespace dynamo {
       }
     
     MapKey key(_current_map.begin(), _current_map.end());
-    _collected_maps.insert(std::pair<const MapKey, MapData>(key, MapData(Sim->getOutputPlugin<OPMisc>()->getConfigurationalU(), _next_map_id++)));
+    _collected_maps.insert(std::pair<const MapKey, MapData>(key, MapData(Sim->calcInternalEnergy(), _next_map_id++)));
   }
 
   void OPContactMap::stream(double dt) { _weight += dt; }
