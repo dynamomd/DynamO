@@ -160,45 +160,17 @@ namespace dynamo {
   {
     flush();
     XML << magnet::xml::tag("ContactMap")
-	<< magnet::xml::tag("gexf")
-	<< magnet::xml::attr("xmlns") << "http://www.gexf.net/1.2draft"
-	<< magnet::xml::attr("version") << "1.2"
-	<< magnet::xml::tag("graph")
-	<< magnet::xml::attr("defaultedgetype") << "directed"
-	<< magnet::xml::attr("idtype") << "integer"
-	<< magnet::xml::tag("attributes")
-	<< magnet::xml::attr("class") << "node"
-	<< magnet::xml::tag("attribute")
-	<< magnet::xml::attr("id") << "0"
-	<< magnet::xml::attr("title") << "energy"
-	<< magnet::xml::attr("type") << "float"
-	<< magnet::xml::endtag("attribute")
-	<< magnet::xml::tag("attribute")
-	<< magnet::xml::attr("id") << "1"
-	<< magnet::xml::attr("title") << "weight"
-	<< magnet::xml::attr("type") << "float"
-	<< magnet::xml::endtag("attribute")
-	<< magnet::xml::endtag("attributes")
-	<< magnet::xml::tag("nodes")
-	<< magnet::xml::attr("count") << _collected_maps.size();
+	<< magnet::xml::tag("Maps")
+      	<< magnet::xml::attr("Count") << _collected_maps.size();
       ;
 
     typedef std::pair<MapKey, MapData> MapDataType;
     BOOST_FOREACH(const MapDataType& entry, _collected_maps)
       {
-	XML << magnet::xml::tag("node")
-	    << magnet::xml::attr("id") << entry.second._id
-	    << magnet::xml::tag("attvalues")
-	    << magnet::xml::tag("attvalue")
-	    << magnet::xml::attr("for") << "0"
-	    << magnet::xml::attr("value") << entry.second._energy / Sim->units.unitEnergy()
-	    << magnet::xml::endtag("attvalue")
-	    << magnet::xml::tag("attvalue")
-	    << magnet::xml::attr("for") << "1"
-	    << magnet::xml::attr("value") << entry.second._weight / _total_weight
-	    << magnet::xml::endtag("attvalue")
-	    << magnet::xml::endtag("attvalues")
-	    << magnet::xml::tag("Contacts");
+	XML << magnet::xml::tag("Map")
+	    << magnet::xml::attr("ID") << entry.second._id
+	    << magnet::xml::attr("Energy") << entry.second._energy / Sim->units.unitEnergy()
+	    << magnet::xml::attr("Weight") << entry.second._weight / _total_weight;
 	
 	typedef std::pair<size_t, size_t> IDPair;
 	BOOST_FOREACH(const IDPair& ids, entry.first)
@@ -207,27 +179,23 @@ namespace dynamo {
 	      << magnet::xml::attr("ID2") << ids.second
 	      << magnet::xml::endtag("Contact");
 	
-	  XML << magnet::xml::endtag("Contacts")
-	    << magnet::xml::endtag("node");
+	XML << magnet::xml::endtag("Map");
       }
 
-    XML << magnet::xml::endtag("nodes")
-	<< magnet::xml::tag("edges")
-      	<< magnet::xml::attr("count") << _map_links.size();
+    XML << magnet::xml::endtag("Maps")
+	<< magnet::xml::tag("Links")
+      	<< magnet::xml::attr("Count") << _map_links.size();
 
 
     typedef std::pair<const std::pair<size_t, size_t>, size_t> EdgeDataType;
-    size_t edge_ids(0);
     BOOST_FOREACH(const EdgeDataType& entry, _map_links)
-      XML << magnet::xml::tag("edge")
-	  << magnet::xml::attr("id") << edge_ids++
-	  << magnet::xml::attr("source") << entry.first.first
-	  << magnet::xml::attr("target") << entry.first.second
-	  << magnet::xml::attr("weight") << entry.second
-	  << magnet::xml::endtag("edge");
+      XML << magnet::xml::tag("Link")
+	  << magnet::xml::attr("Source") << entry.first.first
+	  << magnet::xml::attr("Target") << entry.first.second
+	  << magnet::xml::attr("Occurances") << entry.second
+	  << magnet::xml::endtag("Link");
 
-    XML << magnet::xml::endtag("graph")
-	<< magnet::xml::endtag("gexf")
+    XML << magnet::xml::endtag("Links")
 	<< magnet::xml::endtag("ContactMap");
   }
 }
