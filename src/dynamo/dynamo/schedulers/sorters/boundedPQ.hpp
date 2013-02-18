@@ -100,14 +100,6 @@ namespace dynamo {
     { 
       dout << "Exception Events = " << exceptionCount << std::endl;
     }
-  
-    inline size_t size() const { return Min.size() - 1; }
-    inline bool empty() const { return Min.empty(); }
-
-    inline const int& NLists() const { return nlists; }
-    inline const double& scaleFactor() const { return scale; }
-    inline const size_t& exceptionEvents() const { return exceptionCount; }
-    inline const size_t& treeSize() const { return NP; }
 
     void resize(const size_t& a)
     {
@@ -258,12 +250,6 @@ namespace dynamo {
     inline void popNextPELEvent(const size_t& ID) { Min[ID+1].data.pop(); }
     inline void popNextEvent() { Min[CBT[1]].data.pop(); }
     inline bool nextPELEmpty() const { return Min[CBT[1]].data.empty(); }
-
-    inline Event copyNextEvent() const 
-    { Event retval(Min[CBT[1]].data.top());
-      retval.dt -= pecTime;
-      return retval; 
-    }
 
     inline size_t next_ID() const { return CBT[1] - 1; }
     inline EEventType next_type() const { return Min[CBT[1]].data.top().type; }

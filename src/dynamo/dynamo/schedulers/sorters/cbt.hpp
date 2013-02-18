@@ -41,16 +41,6 @@ namespace dynamo {
       FEL(SD, "CBT")
     {}
 
-    typedef std::vector<PELHeap>::iterator iterator;
-    typedef std::vector<PELHeap>::const_iterator const_iterator;
-
-    inline iterator begin() { return Min.begin(); }
-    inline const_iterator begin() const { return Min.begin(); }
-    inline iterator end() { return Min.end(); }
-    inline const_iterator end() const { return Min.end(); }
-    inline size_t size() const { return Min.size(); }
-    inline bool empty() const { return Min.empty(); }
-
     void resize(const size_t& a)
     {
       clear();
@@ -102,12 +92,6 @@ namespace dynamo {
     inline void popNextPELEvent(const size_t& ID) { Min[ID+1].pop(); }
     inline void popNextEvent() { Min[CBT[1]].pop(); }
     inline bool nextPELEmpty() const { return Min[CBT[1]].empty(); }
-
-    inline Event copyNextEvent() const 
-    { Event retval(Min[CBT[1]].top());
-      retval.dt -= pecTime;
-      return retval; 
-    }
 
     inline EEventType next_type() const { return Min[CBT[1]].top().type; }
     inline unsigned long next_collCounter2() const { return Min[CBT[1]].top().collCounter2; }

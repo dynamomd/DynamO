@@ -31,15 +31,13 @@ namespace dynamo {
       \ref Event s. These events are first pre-sorted using a Particle
       Event List before being sorted by these classes.
    */
-
+  
   class FEL: public dynamo::SimBase_const
   {
   public:
     FEL(const dynamo::Simulation* const& SD, const char *aName);
 
     virtual ~FEL() {}
-    virtual size_t size()                              const = 0;
-    virtual bool   empty()                             const = 0;
     virtual void   resize(const size_t&)                     = 0;
     virtual void   clear()                                   = 0;
     virtual void   init()                                    = 0;
@@ -64,9 +62,6 @@ namespace dynamo {
     virtual void   popNextPELEvent(const size_t&)            = 0;
     virtual void   popNextEvent()                            = 0;
     virtual bool nextPELEmpty() const                        = 0;
-
-    //! Fetch the next event in the list, 
-    virtual Event   copyNextEvent() const               = 0;
 
     static shared_ptr<FEL>
     getClass(const magnet::xml::Node&, const dynamo::Simulation*);
