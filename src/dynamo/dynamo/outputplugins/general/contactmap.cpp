@@ -74,7 +74,8 @@ namespace dynamo {
 
   void 
   OPContactMap::flush() 
-  { 
+  {
+    //Cannot create new maps here, as flush may happen when the output plugins are invalid
     MapKey key(_current_map.begin(), _current_map.end());
     MapData& data = _collected_maps[key];
     data._weight += _weight;
@@ -132,15 +133,25 @@ namespace dynamo {
   {
     OPContactMap& other_map = static_cast<OPContactMap&>(*otherplugin);
 
-    //First, flush both maps
+    //First, flush both maps, this handles the weights.
     flush();
     other_map.flush();
+        
+    MapKey key1(_current_map.begin(), _current_map.end());
+    MapKey key2(other_map._current_map.begin(), other_map._current_map.end());
+
+    //Check that this plugin has the map from the other in its collection
+    if (_collected_maps.find(key2) == _collected_maps.end())
+      _collected_maps.insert(std::make_pair(key2, MapData(other_map._collected_maps[key2]._energy, _next_map_id++)));
+    //And vice versa
+    if (other_map._collected_maps.find(key1) == other_map._collected_maps.end())
+      other_map._collected_maps.insert(std::make_pair(key1, MapData(_collected_maps[key1]._energy, other_map._next_map_id++)));
 
     //Now swap the current contact maps
     std::swap(_current_map, other_map._current_map);
 
     //Now swap over the sim pointers
-    std::swap(Sim, static_cast<OPContactMap*>(otherplugin)->Sim);
+    std::swap(Sim, other_map.Sim);
   }
 
   void 
