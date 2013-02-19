@@ -81,9 +81,7 @@ namespace dynamo {
       if (!(nUpdate % streamFreq))
 	{
 	  BOOST_FOREACH(PELHeap& pDat, Min)
-	    BOOST_FOREACH(Event& event, pDat)
-	    event.dt -= pecTime;
-	
+	    pDat.stream(pecTime);
 	  pecTime = 0.0;
 	}
     }
@@ -119,9 +117,7 @@ namespace dynamo {
     inline void rescaleTimes(const double& factor)
     {
       BOOST_FOREACH(PELHeap& pDat, Min)
-	BOOST_FOREACH(Event& event, pDat)
-        event.dt *= factor;
-
+	pDat.rescaleTimes(factor);
       pecTime *= factor;
     }
 
