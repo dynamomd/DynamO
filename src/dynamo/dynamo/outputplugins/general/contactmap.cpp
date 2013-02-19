@@ -203,7 +203,7 @@ namespace dynamo {
       XML << magnet::xml::tag("Link")
 	  << magnet::xml::attr("Source") << entry.first.first
 	  << magnet::xml::attr("Target") << entry.first.second
-	  << magnet::xml::attr("Occurances") << entry.second
+	  << magnet::xml::attr("Occurrences") << entry.second
 	  << magnet::xml::endtag("Link");
 
     XML << magnet::xml::endtag("Links")
