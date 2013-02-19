@@ -34,13 +34,14 @@ namespace magnet {
     template <typename T> class MinMaxHeap<T,1> {};
 #endif
 
-    //! \brief A fixed size MinMax heap implementation. 
-    //!
-    //! This type of
-    //! container is optimized for access to the minimum and maximum
-    //! elements of the heap.
-    //! \tparam T Stored type in the heap.
-    //! \tparam N Size of the heap.
+    /*! \brief A fixed size MinMax heap implementation. 
+    
+      This type of
+      container is optimized for access to the minimum and maximum
+      elements of the heap.
+      \tparam T Stored type in the heap.
+      \tparam N Size of the heap.
+    */
     template <typename T, std::size_t N>
     class MinMaxHeap
     {

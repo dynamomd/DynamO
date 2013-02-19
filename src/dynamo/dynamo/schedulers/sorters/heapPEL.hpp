@@ -70,12 +70,6 @@ namespace dynamo {
 	dat.dt -= ndt;
     }
 
-    inline void addTime(const double& ndt) throw()
-    {
-      BOOST_FOREACH(Event& dat, c)
-	dat.dt += ndt;
-    }
-
     inline void push(const Event& __x)
     {
       c.push_back(__x);

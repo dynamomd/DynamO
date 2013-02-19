@@ -66,9 +66,6 @@ namespace dynamo {
     inline void stream(const double& ndt) throw()
     { _event.dt -= ndt; }
 
-    inline void addTime(const double& ndt) throw()
-    { _event.dt += ndt; }
-
     inline void push(const Event& __x)
     { if (__x < _event) _event = __x; }
 
