@@ -21,10 +21,8 @@
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  //! There is a trick used here to speed up comparisons between
-  //! MinMaxHeaps.  The top element is set to HUGE_VAL, whenever the
-  //! queue is cleared, or pop'd empty. This means no conditional logic
-  //! is required to deal with the comparison of empty queues.
+  /*! \brief A PEL which only stores the next event for the particle.
+  */
   class PELSingleEvent
   {
     Event _event;
@@ -39,41 +37,43 @@ namespace dynamo {
     inline const Event& front() const { return _event; }
     inline const Event& top() const { return _event; }  
 
-    inline void pop() 
+    inline void pop()
     { 
       if (empty()) return;
-      
-      _event.type = RECALCULATE; //Force a recalculation for any further events
+      //Force a recalculation
+      _event.type = RECALCULATE; 
     }
 
-    inline void clear() { _event.dt = HUGE_VAL; _event.type = NONE; }
+    inline void clear() {
+      _event.dt = HUGE_VAL; 
+      _event.type = NONE; 
+    }
 
-    inline bool operator> (const PELSingleEvent& ip) const throw()
-    { 
+    inline bool operator> (const PELSingleEvent& ip) const { 
       return _event.dt > ip._event.dt; 
     }
 
-    inline bool operator< (const PELSingleEvent& ip) const throw()
-    { 
-      return _event.dt < ip._event.dt; 
+    inline bool operator< (const PELSingleEvent& ip) const { 
+      return ip > *this; 
     }
 
-    inline double getdt() const 
-    {
+    inline double getdt() const {
       return _event.dt;
     }
   
-    inline void stream(const double& ndt) throw()
-    { _event.dt -= ndt; }
+    inline void stream(const double& ndt) { 
+      _event.dt -= ndt; 
+    }
 
-    inline void push(const Event& __x)
-    { if (__x < _event) _event = __x; }
+    inline void push(const Event& __x) { 
+      _event = std::min(__x, _event); 
+    }
 
     inline void rescaleTimes(const double& scale) throw()
     { _event.dt *= scale; }
 
     inline void swap(PELSingleEvent& rhs)
-    { std::swap(_event, rhs._event); }  
+    { std::swap(_event, rhs._event); }
   };
 }
 
