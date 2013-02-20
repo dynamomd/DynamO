@@ -314,13 +314,21 @@ namespace dynamo {
       int e = linearLists[nlists];
       linearLists[nlists] = -1; /* mark empty; we will treat all entries and may re-add some */
 
+      size_t overflowEvents = 0;
       while(e!=-1)
 	{
-	  ++exceptionCount;
+	  ++overflowEvents;
 	  int eNext = Min[e].next; /* save next */
 	  insertInEventQ(e); /* try add to regular list now */
 	  e=eNext;
 	}
+
+      exceptionCount += overflowEvents;
+      
+      //Check if the overflow contained more than half the total
+      //events. If so, force a complete rebuild of the scheduler
+      if (overflowEvents > N/2)
+	  init();
     }
 
     inline void deleteFromEventQ(const int& e)

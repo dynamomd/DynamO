@@ -61,29 +61,22 @@ namespace dynamo {
   void 
   GCells::operator<<(const magnet::xml::Node& XML)
   {
-    try {
-      if (XML.hasAttribute("OverLink"))
-	overlink = XML.getAttribute("OverLink").as<size_t>();
-
-      if (XML.hasAttribute("NeighbourhoodRange"))
-	_maxInteractionRange = XML.getAttribute("NeighbourhoodRange").as<double>()
-	  * Sim->units.unitLength();
-
-      if (XML.hasAttribute("Oversize"))
-	_oversizeCells = XML.getAttribute("Oversize").as<double>();
-
-      if (_oversizeCells < 1.0)
-	M_throw() << "You must specify an Oversize greater than 1.0, otherwise your cells are too small!";
+    if (XML.hasAttribute("OverLink"))
+      overlink = XML.getAttribute("OverLink").as<size_t>();
     
-      globName = XML.getAttribute("Name");
+    if (XML.hasAttribute("NeighbourhoodRange"))
+      _maxInteractionRange = XML.getAttribute("NeighbourhoodRange").as<double>()
+	* Sim->units.unitLength();
 
-      if (XML.hasAttribute("Range"))
-	range = shared_ptr<IDRange>(IDRange::getClass(XML, Sim));
-    }
-    catch(...)
-      {
-	M_throw() << "Error loading GCells";
-      }
+    if (XML.hasAttribute("Oversize"))
+      _oversizeCells = XML.getAttribute("Oversize").as<double>();
+    
+    if (_oversizeCells < 1.0)
+      M_throw() << "You must specify an Oversize greater than 1.0, otherwise your cells are too small!";
+    
+    globName = XML.getAttribute("Name");
+    
+    range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
   }
 
   GlobalEvent 

@@ -239,7 +239,7 @@ namespace dynamo
       if (ptr->isInteraction(p1,p2))
 	return ptr;
   
-    M_throw() << "Could not find the interaction requested";
+    M_throw() << "Could not find an Interaction between particles " << p1.getID() << " and " << p2.getID() << ". All particle pairings must have a corresponding Interaction defined.";
   }
 
   const shared_ptr<Species>& 

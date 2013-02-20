@@ -16,7 +16,9 @@
     <Topology/>
     <SystemEvents/>
     <Globals>
-      <Global Type="Cells" Lambda="0.9" Name="SchedulerNBList"/>
+      <Global Type="Cells" Lambda="0.9" Name="SchedulerNBList">
+	<IDRange Type="All"/>
+      </Global>
     </Globals>
     <Interactions>
       <Interaction Type="HardSphere" Diameter="1" Elasticity="1" Lambda="1.5" WellDepth="1" Name="Bulk">

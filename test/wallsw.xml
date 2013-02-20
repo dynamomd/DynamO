@@ -15,7 +15,9 @@
     <Topology/>
     <SystemEvents/>
     <Globals>
-      <Global Type="Cells" Name="SchedulerNBList"/>
+      <Global Type="Cells" Name="SchedulerNBList">
+	<IDRange Type="All"/>
+      </Global>
     </Globals>
     <Locals>
       <Local Type="Wall" Name="LowWall" Elasticity="1.00000000000000e+00" Render="0" Diameter="1">
