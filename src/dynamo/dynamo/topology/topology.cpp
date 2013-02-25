@@ -68,10 +68,10 @@ namespace dynamo {
   shared_ptr<Topology>
   Topology::getClass(const magnet::xml::Node& XML, dynamo::Simulation* Sim, size_t ID)
   {
-    if (!strcmp(XML.getAttribute("Type"),"Chain"))
+    if (!XML.getAttribute("Type").getValue().compare("Chain"))
       return shared_ptr<Topology>(new TChain(XML, Sim, ID));
     else 
-      M_throw() << XML.getAttribute("Type")
+      M_throw() << XML.getAttribute("Type").getValue()
 		<< ", Unknown type of Topology encountered";
   }
 }

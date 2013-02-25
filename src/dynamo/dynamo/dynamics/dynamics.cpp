@@ -35,14 +35,14 @@ namespace dynamo {
   shared_ptr<Dynamics>
   Dynamics::getClass(const magnet::xml::Node& XML, dynamo::Simulation* tmp)
   {
-    if (!strcmp(XML.getAttribute("Type"),"Newtonian"))
+    if (!XML.getAttribute("Type").getValue().compare("Newtonian"))
       return shared_ptr<Dynamics>(new DynNewtonian(tmp));
-    if (!strcmp(XML.getAttribute("Type"),"NewtonianGravity"))
+    if (!XML.getAttribute("Type").getValue().compare("NewtonianGravity"))
       return shared_ptr<Dynamics>(new DynGravity(tmp, XML));
-    else if (!strcmp(XML.getAttribute("Type"),"NewtonianMC"))
+    else if (!XML.getAttribute("Type").getValue().compare("NewtonianMC"))
       return shared_ptr<Dynamics>(new DynNewtonianMC(tmp, XML));
     else
-      M_throw() << XML.getAttribute("Type")
+      M_throw() << XML.getAttribute("Type").getValue()
 		<< ", Unknown type of Dynamics encountered";
   }
 

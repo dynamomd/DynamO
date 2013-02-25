@@ -45,10 +45,6 @@ namespace dynamo {
     g(0, -1, 0),
     _tc(-HUGE_VAL)
   {
-    if (strcmp(XML.getAttribute("Type"), "NewtonianGravity"))
-      M_throw() << "Attempting to load gravity from "
-		<< XML.getAttribute("Type")
-		<< " entry";
     try 
       {
 	if (XML.hasAttribute("ElasticV"))

@@ -140,11 +140,7 @@ namespace dynamo {
   void 
   SysRescale::operator<<(const magnet::xml::Node& XML)
   {
-    if (strcmp(XML.getAttribute("Type"),"Rescale"))
-      M_throw() << "Attempting to load Rescale from " 
-		<< XML.getAttribute("Type") << " entry"; 
-  
-    try {
+   try {
       if (XML.hasAttribute("Freq"))
 	_frequency = XML.getAttribute("Freq").as<size_t>();
     

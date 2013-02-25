@@ -134,9 +134,6 @@ namespace dynamo {
   void 
   SysAndersen::operator<<(const magnet::xml::Node& XML)
   {
-    if (strcmp(XML.getAttribute("Type"),"Andersen"))
-      M_throw() << "Attempting to load Andersen from non Andersen entry"; 
-  
     try {
       meanFreeTime = XML.getAttribute("MFT").as<double>() * Sim->units.unitTime();
       Temp = XML.getAttribute("Temperature").as<double>() * Sim->units.unitEnergy();
@@ -149,7 +146,7 @@ namespace dynamo {
 	{
 	  tune = true;
 	  setFrequency = XML.getAttribute("SetFrequency").as<size_t>();
-	  setPoint = boost::lexical_cast<double>(XML.getAttribute("SetPoint"));
+	  setPoint = XML.getAttribute("SetPoint").as<double>();
 	}
 
       range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"),Sim));

@@ -286,10 +286,6 @@ namespace dynamo {
   void
   SysRingDSMC::operator<<(const magnet::xml::Node& XML)
   {
-    if (strcmp(XML.getAttribute("Type"),"RingDSMC"))
-      M_throw() << "Attempting to load RingDSMC from a " 
-		<< XML.getAttribute("Type") <<  " entry"; 
-  
     try {
       tstep = XML.getAttribute("tStep").as<double>() * Sim->units.unitTime();    
       chi12 = XML.getAttribute("Chi12").as<double>();

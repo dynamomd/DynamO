@@ -540,7 +540,7 @@ namespace magnet {
 	{
 	  char name[2] = "x";
 	  name[0] = 'x' + iDim; //Write the name
-	  if (!XML.getAttribute(name))
+	  if (!XML.getAttribute(name).valid())
 	    name[0] = '0'+iDim;
       
 	  try {

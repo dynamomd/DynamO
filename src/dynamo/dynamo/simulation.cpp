@@ -306,8 +306,14 @@ namespace dynamo
       io::copy(inputFile, io::back_inserter(doc.getStoredXMLData()));
     }
 
-    dout << "Parsing the raw XML" << std::endl;
-    doc.parseData();
+    dout << "Parsing the XML" << std::endl;
+    try {
+      doc.parseData();
+    } catch (std::exception& cep)
+      {
+	derr << "Failed to parse the XML" << std::endl;
+	throw;
+      }
 
     dout << "Loading tags from the XML" << std::endl;
     Node mainNode = doc.getNode("DynamOconfig");

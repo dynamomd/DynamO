@@ -128,16 +128,16 @@ namespace dynamo {
   shared_ptr<Scheduler>
   Scheduler::getClass(const magnet::xml::Node& XML, dynamo::Simulation* const Sim)
   {
-    if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
+    if (!XML.getAttribute("Type").getValue().compare("NeighbourList"))
       return shared_ptr<Scheduler>(new SNeighbourList(XML, Sim));
-    else if (!strcmp(XML.getAttribute("Type"),"Dumb"))
+    else if (!XML.getAttribute("Type").getValue().compare("Dumb"))
       return shared_ptr<Scheduler>(new SDumb(XML, Sim));
-    else if (!strcmp(XML.getAttribute("Type"),"SystemOnly"))
+    else if (!XML.getAttribute("Type").getValue().compare("SystemOnly"))
       return shared_ptr<Scheduler>(new SSystemOnly(XML, Sim));
-    else if (!strcmp(XML.getAttribute("Type"),"Complex"))
+    else if (!XML.getAttribute("Type").getValue().compare("Complex"))
       return shared_ptr<Scheduler>(new SComplex(XML, Sim));
     else 
-      M_throw() << XML.getAttribute("Type")
+      M_throw() << XML.getAttribute("Type").getValue()
 		<< ", Unknown type of Scheduler encountered";
   }
 

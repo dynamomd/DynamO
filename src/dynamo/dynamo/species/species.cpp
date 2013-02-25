@@ -34,15 +34,15 @@ namespace dynamo {
   shared_ptr<Species>
   Species::getClass(const magnet::xml::Node& XML, dynamo::Simulation* tmp, size_t nID)
   {
-    if (!std::strcmp(XML.getAttribute("Type"), "Point"))
+    if (!XML.getAttribute("Type").getValue().compare("Point"))
       return shared_ptr<Species>(new SpPoint(XML, tmp, nID));
-    else if ((!std::strcmp(XML.getAttribute("Type"), "SphericalTop"))
-	     || (!std::strcmp(XML.getAttribute("Type"), "Lines")))
+    else if (!XML.getAttribute("Type").getValue().compare("SphericalTop")
+	     || !XML.getAttribute("Type").getValue().compare("Lines"))
       return shared_ptr<Species>(new SpSphericalTop(XML, tmp, nID));
-    else if (!std::strcmp(XML.getAttribute("Type"), "FixedCollider"))
+    else if (!XML.getAttribute("Type").getValue().compare("FixedCollider"))
       return shared_ptr<Species>(new SpFixedCollider(XML, tmp, nID));
     else 
-      M_throw() << XML.getAttribute("Type")
+      M_throw() << XML.getAttribute("Type").getValue()
 		<< ", Unknown type of species encountered";
   }
 

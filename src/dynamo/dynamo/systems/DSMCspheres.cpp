@@ -200,9 +200,6 @@ namespace dynamo {
   void
   SysDSMCSpheres::operator<<(const magnet::xml::Node& XML)
   {
-    if (strcmp(XML.getAttribute("Type"),"DSMCSpheres"))
-      M_throw() << "Attempting to load DSMCSpheres from a " << XML.getAttribute("Type") <<  " entry"; 
-  
     try {
       tstep = XML.getAttribute("tStep").as<double>() * Sim->units.unitTime();
       chi = XML.getAttribute("Chi").as<double>();

@@ -262,10 +262,6 @@ namespace dynamo {
   void
   SysUmbrella::operator<<(const magnet::xml::Node& XML)
   {
-    if (strcmp(XML.getAttribute("Type"),"Umbrella"))
-      M_throw() << "Attempting to load Umbrella from a " 
-		<< XML.getAttribute("Type") <<  " entry"; 
-  
     try {
       sysName = XML.getAttribute("Name");
 

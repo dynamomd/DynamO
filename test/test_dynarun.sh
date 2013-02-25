@@ -729,7 +729,7 @@ echo "INTERACTIONS+Dynamod Systems"
 echo "Testing Hard Spheres, NeighbourLists and BoundedPQ's"
 HardSphereTest
 echo "Testing binary hard spheres, NeighbourLists and BoundedPQ's"
-BinarySphereTest "Cells2"
+BinarySphereTest "Cells"
 echo "Testing Square Wells, Thermostats, NeighbourLists and BoundedPQ's"
 SquareWellTest
 echo "Testing infinitely heavy particles"

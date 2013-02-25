@@ -76,10 +76,6 @@ namespace dynamo {
   void
   SSleep::operator<<(const magnet::xml::Node& XML)
   {
-    if (strcmp(XML.getAttribute("Type"), "Sleep"))
-      M_throw() << "Attempting to load Sleep from a " 
-		<< XML.getAttribute("Type") <<  " entry"; 
-  
     try {
       sysName = XML.getAttribute("Name");
     

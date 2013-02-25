@@ -41,46 +41,46 @@ namespace dynamo {
   IDRange* 
   IDRange::getClass(const magnet::xml::Node& XML, const dynamo::Simulation * Sim)
   {
-    if (!strcmp(XML.getAttribute("Type"),"All"))
+    if (!XML.getAttribute("Type").getValue().compare("All"))
       return new IDRangeAll(XML, Sim);
-    else if (!strcmp(XML.getAttribute("Type"),"None"))
+    else if (!XML.getAttribute("Type").getValue().compare("None"))
       return new IDRangeNone(XML);
-    else if (!strcmp(XML.getAttribute("Type"),"Ranged"))
+    else if (!XML.getAttribute("Type").getValue().compare("Ranged"))
       return new IDRangeRange(XML);
-    else if (!strcmp(XML.getAttribute("Type"),"List"))
+    else if (!XML.getAttribute("Type").getValue().compare("List"))
       return new IDRangeList(XML);
-    else if (!strcmp(XML.getAttribute("Type"),"Union"))
+    else if (!XML.getAttribute("Type").getValue().compare("Union"))
       return new IDRangeUnion(XML, Sim);
     else
-      M_throw() << "Unknown type of IDRange encountered (" << XML.getAttribute("Type") << ")";
+      M_throw() << "Unknown type of IDRange encountered (" << XML.getAttribute("Type").getValue() << ")";
   }
 
   IDPairRange*
   IDPairRange::getClass(const magnet::xml::Node& XML, const dynamo::Simulation* Sim)
   {
-    if (!strcmp(XML.getAttribute("Type"),"Pair"))
+    if (!XML.getAttribute("Type").getValue().compare("Pair"))
       return new IDPairRangePair(XML, Sim);
-    else if (!strcmp(XML.getAttribute("Type"),"List"))
+    else if (!XML.getAttribute("Type").getValue().compare("List"))
       return new IDPairRangeList(XML);
-    else if (!strcmp(XML.getAttribute("Type"),"Single"))
+    else if (!XML.getAttribute("Type").getValue().compare("Single"))
       return new IDPairRangeSingle(XML,Sim);
-    else if (!strcmp(XML.getAttribute("Type"),"Union"))
+    else if (!XML.getAttribute("Type").getValue().compare("Union"))
       return new IDPairRangeUnion(XML,Sim);
-    else if (!strcmp(XML.getAttribute("Type"),"Chains"))
+    else if (!XML.getAttribute("Type").getValue().compare("Chains"))
       return new IDPairRangeChains(XML,Sim);              
-    else if (!strcmp(XML.getAttribute("Type"),"ChainGroups"))
+    else if (!XML.getAttribute("Type").getValue().compare("ChainGroups"))
       return new IDPairRangeChainGroups(XML,Sim);
-    else if (!strcmp(XML.getAttribute("Type"),"ChainEnds"))
+    else if (!XML.getAttribute("Type").getValue().compare("ChainEnds"))
       return new IDPairRangeChainEnds(XML,Sim);
-    else if (!strcmp(XML.getAttribute("Type"),"IntraChains"))
+    else if (!XML.getAttribute("Type").getValue().compare("IntraChains"))
       return new IDPairRangeIntraChains(XML,Sim);              
-    else if (!strcmp(XML.getAttribute("Type"),"Rings"))
+    else if (!XML.getAttribute("Type").getValue().compare("Rings"))
       return new IDPairRangeRings(XML,Sim);
-    else if (!strcmp(XML.getAttribute("Type"),"All"))
+    else if (!XML.getAttribute("Type").getValue().compare("All"))
       return new IDPairRangeAll(XML,Sim);
-    else if (!strcmp(XML.getAttribute("Type"),"None"))
+    else if (!XML.getAttribute("Type").getValue().compare("None"))
       return new IDPairRangeNone(XML,Sim);
     else 
-      M_throw() << "Unknown type of IDPairRange encountered (" << XML.getAttribute("Type") << ")";
+      M_throw() << "Unknown type of IDPairRange encountered (" << XML.getAttribute("Type").getValue() << ")";
   }
 }

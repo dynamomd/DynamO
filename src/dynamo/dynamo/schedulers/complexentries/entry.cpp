@@ -27,13 +27,13 @@ namespace dynamo {
   SCEntry* 
   SCEntry::getClass(const magnet::xml::Node& XML, dynamo::Simulation* const Sim)
   {
-    if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
+    if (!XML.getAttribute("Type").getValue().compare("NeighbourList"))
       return new SCENBList(XML, Sim);
-    else if (!strcmp(XML.getAttribute("Type"),"ParticleRange"))
+    else if (!XML.getAttribute("Type").getValue().compare("ParticleRange"))
       return new SCERange(XML, Sim);
     else
       M_throw() << "Unknown type of ComplexSchedulerEntry "
-		<< XML.getAttribute("Type") << "`encountered";
+		<< XML.getAttribute("Type").getValue() << "`encountered";
   }
 
   magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const SCEntry& g)

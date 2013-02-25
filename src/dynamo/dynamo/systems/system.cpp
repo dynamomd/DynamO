@@ -67,20 +67,20 @@ namespace dynamo {
   shared_ptr<System>
   System::getClass(const magnet::xml::Node& XML, dynamo::Simulation* Sim)
   {
-    if (!strcmp(XML.getAttribute("Type"),"Andersen"))
+    if (!XML.getAttribute("Type").getValue().compare("Andersen"))
       return shared_ptr<System>(new SysAndersen(XML,Sim));
-    else if (!strcmp(XML.getAttribute("Type"), "DSMCSpheres"))
+    else if (!XML.getAttribute("Type").getValue().compare("DSMCSpheres"))
       return shared_ptr<System>(new SysDSMCSpheres(XML, Sim));
-    else if (!strcmp(XML.getAttribute("Type"), "Rescale"))
+    else if (!XML.getAttribute("Type").getValue().compare("Rescale"))
       return shared_ptr<System>(new SysRescale(XML, Sim));
-    else if (!strcmp(XML.getAttribute("Type"), "RingDSMC"))
+    else if (!XML.getAttribute("Type").getValue().compare("RingDSMC"))
       return shared_ptr<System>(new SysRingDSMC(XML, Sim));
-    else if (!strcmp(XML.getAttribute("Type"), "Umbrella"))
+    else if (!XML.getAttribute("Type").getValue().compare("Umbrella"))
       return shared_ptr<System>(new SysUmbrella(XML, Sim));
-    else if (!strcmp(XML.getAttribute("Type"), "Sleep"))
+    else if (!XML.getAttribute("Type").getValue().compare("Sleep"))
       return shared_ptr<System>(new SSleep(XML, Sim));
     else
-      M_throw() << XML.getAttribute("Type")
+      M_throw() << XML.getAttribute("Type").getValue()
 		<< ", Unknown type of System event encountered";
   }
 }

@@ -36,11 +36,6 @@ namespace dynamo {
     DynNewtonian(tmp),
     EnergyPotentialStep(1)
   {
-    if (strcmp(XML.getAttribute("Type"),"NewtonianMC"))
-      M_throw() << "Attempting to load NewtonianMC from " 
-		<< XML.getAttribute("Type")
-		<< " entry";
-
     try 
       {     
 	if (XML.hasNode("PotentialDeformation"))

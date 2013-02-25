@@ -37,10 +37,6 @@ namespace dynamo {
   
     try 
       {
-	if (strcmp(XML.getAttribute("Type"),"NeighbourList"))
-	  M_throw() << "Attempting to load NeighbourList from "
-		    << XML.getAttribute("Type") << " entry";
-  
 	name = XML.getAttribute("NBListName");
       }
     catch (boost::bad_lexical_cast &)
