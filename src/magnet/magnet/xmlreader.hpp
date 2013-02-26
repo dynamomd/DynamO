@@ -314,6 +314,11 @@ namespace magnet {
 	  {
 	    const char* error_loc_ptr = err.where<char>();
 
+	    //Find the line of the error
+	    size_t line_num = 1;
+	    for (const char* ptr = &_data[0]; ptr < error_loc_ptr; ++ptr)
+	      if (*ptr == '\n') 
+		++line_num;
 
 	    //Determine the start of the error line
 	    const char* error_line_start = error_loc_ptr;
@@ -326,7 +331,7 @@ namespace magnet {
 	    while ((*error_line_end != '\n') && (error_line_end != '\0'))
 	      ++error_line_end;	    
 
-	    M_throw() << "Parser error: " << err.what() << "\n"
+	    M_throw() << "Parser error at line " << line_num << ": " << err.what() << "\n"
 		      << std::string(error_line_start, error_line_end) << "\n"
 		      << std::string(error_loc_ptr - error_line_start, ' ') << "^";
 	  }
