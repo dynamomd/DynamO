@@ -119,9 +119,11 @@ main(int argc, char *argv[])
       po::store(po::command_line_parser(argc, argv).
 		options(allopts).positional(p).run(), vm);
       po::notify(vm);
+
+      if (vm.count("random-seed"))
+	sim.ranGenerator.seed(vm["random-seed"].as<unsigned int>());
       
-      if ((!vm.count("pack-mode")
-	   && (vm.count("help") || !vm.count("config-file"))))
+      if (!vm.count("pack-mode") && (vm.count("help") || !vm.count("config-file")))
 	{
 	  cout << "Usage : dynamod <OPTIONS>...[CONFIG FILE]\n"
 	       << " Either modifies a config file (if a file name is passed as an argument) OR generates a new config file depending on the packing mode (if --pack-mode/-m is used).\n" 
@@ -129,12 +131,15 @@ main(int argc, char *argv[])
 	  return 1;
 	}
 
-      if (vm.count("random-seed"))
-	sim.ranGenerator.seed(vm["random-seed"].as<unsigned int>());
+      if (vm.count("pack-mode") && vm.count("config-file"))
+	{
+	  cout << "You cannot specify a packing mode and pass a configuration file as an argument" << std::endl;
+	  return 1;	  
+	}
       
       ////////////////////////Simulation Initialisation!!!!!!!!!!!!!
       //Now load the config
-      if (!vm.count("config-file"))
+      if (vm.count("pack-mode"))
 	{
 	  dynamo::IPPacker plug(vm, &sim);
 	  plug.initialise();
