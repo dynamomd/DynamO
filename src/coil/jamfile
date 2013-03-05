@@ -18,7 +18,7 @@ import ../magnet/jam/filetypes ;
 import ../magnet/jam/tags ;
 import ../magnet/jam/builddep ;
 
-#Test executables for determining what is available in the build environment
+##### Test executables for determining what is available in the build environment
 obj cwiidtest : tests/wiimote.cpp /system//cwiid ;
 obj gluttest : tests/gluttest.cpp /system//glut ;
 obj gtkmmtest : tests/gtkmmtest.cpp /system//gtkmm ;
@@ -38,33 +38,20 @@ project	: requirements
 exe coilDependencies : tests/buildreq.cpp : <coil-buildable>no:<define>BUILDFAIL ;
 always coilDependencies ;
 
-lib coil
-      : [ glob-tree *.cpp : tests examples programs ]
+lib coil : [ glob-tree *.cpp : tests examples programs ]
       clwingtk.gladexml /system//png /system//glut /system//GLU /system//GL /system//Xext /system//X11 /system//rt /system//GLEW /system//gtkmm /magnet//magnet
-      : <include>. <tag>@tags.lib-naming 
-       <coil-cwiid>yes:<source>cwiid <magnet-FFMPEG>yes:<source>/magnet//libavcodec <coil-buildable>no:<build>no
+      : <include>. <tag>@tags.lib-naming <coil-cwiid>yes:<source>cwiid <magnet-FFMPEG>yes:<source>/system//libavcodec <coil-buildable>no:<build>no
       : : <define>GLVIEWER <include>. ;
 
-exe coilvol : programs/coilvol.cpp coil /system//boost_program_options 
-            : <tag>@tags.exe-naming ;
+exe coilvol : programs/coilvol.cpp coil /system//boost_program_options : <tag>@tags.exe-naming ;
 
 explicit test coil coilvol ;
 
-install install-exe
-	: coilvol/<link>static
-	: <location>$(BIN_INSTALL_PATH) <coil-buildable>no:<build>no
-	;
+install install-exe : coilvol/<link>static : <location>$(BIN_INSTALL_PATH) <coil-buildable>no:<build>no ;
 
-install install-libs
-	: coil
-	: <location>$(LIB_INSTALL_PATH) <coil-buildable>no:<build>no
-	;	
+install install-libs : coil : <location>$(LIB_INSTALL_PATH) <coil-buildable>no:<build>no ;	
 
-install install-headers
-	: [ glob coil/*.hpp coil/*/*.hpp coil/*/*/*.hpp ]
-	: <location>$(INCLUDE_INSTALL_PATH) <install-source-root>./ 
-	<coil-buildable>no:<build>no
-	;
+install install-headers : [ glob coil/*.hpp coil/*/*.hpp coil/*/*/*.hpp ] : <location>$(INCLUDE_INSTALL_PATH) <install-source-root>./ <coil-buildable>no:<build>no ;
 
 alias install-coil : install-exe install-libs install-headers ;
 
