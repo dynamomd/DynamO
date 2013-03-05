@@ -25,19 +25,28 @@ namespace magnet {
      */
     class Quaternion
     {
-      Vector _imaginary;
       double _real;
+      Vector _imaginary;
 
     public:
+      Quaternion(double r, double i, double j, double k):
+	_real(r),
+	_imaginary(i,j,k)
+      {}
+
       /*! \brief Create a quaternion from a rotation vector.
+	
+	The quaternion is a rotation that takes the vector (0,0,1)
+	into the vector passed as an argument.
        */
       Quaternion(const Vector& vec)
       {
-
+	Vector unrotated_director(0,0,1);
 	//Calculate the parameters of the rotation
-	Vector axis(0,0,1);
 	double vecnrm = vec.nrm();
-	double cosangle = (vec | axis) / vecnrm;
+	//get the cosine of the angle between the unrotated vector and
+	//this vector
+	double cosangle = (vec | unrotated_director) / vecnrm;
 
 	if ((vecnrm == 0) || (cosangle == 1))
 	  {
@@ -55,14 +64,35 @@ namespace magnet {
 	    return;
 	  }
 	
-	//Calculate the rotation axis and store in the quaternion
-	_imaginary = (vec ^ axis) / vecnrm;
+	//Calculate the rotation axis and store in the imaginary part
+	//of the quaternion
+	_imaginary = (vec ^ unrotated_director) / vecnrm;
+	//Store the angle in the real part
 	_real = cosangle;
 	normalise();
-
+	
+	//The current quaternion represents a rotation which is twice
+	//the required angle.
 	//Perform a half angle converison
-	_imaginary += 1;
-	normalise()
+	halfRotation();
+      }
+
+      /*! \brief Half the rotation of the current quaternion (assuming
+          it is already normalised).
+       */
+      void halfRotation() {
+	_real += 1;
+	normalise();
+      }
+      
+      double operator[](size_t i) const {
+	if (i == 0) return _real;
+	return _imaginary[i - 1];
+      }
+
+      double& operator[](size_t i) {
+	if (i == 0) return _real;
+	return _imaginary[i];
       }
 
       Vector imaginary() const { return _imaginary; }
@@ -78,8 +108,8 @@ namespace magnet {
       }
       
       void normalise() {
-	double nrm = nrm();
-	double inv_norm = 1.0 / (nrm + (nrm == 0));
+	double norm = nrm();
+	double inv_norm = 1.0 / (norm + (norm == 0));
 	_imaginary *= inv_norm; 
 	_real *= inv_norm;
       }
@@ -89,9 +119,28 @@ namespace magnet {
 	return vec + 2.0 * (((vec ^ _imaginary) + _real * vec) ^ _imaginary);
       }
 
-      Quaternion operator*(const Quaternion& q2) const {
-	return *this;
+      Quaternion operator*(const Quaternion& r) const {
+	const Quaternion& q(*this);
+	return Quaternion(r[0] * q[0] - r[1] * q[1] - r[2] * q[2] - r[3] * q[3],
+			  r[0] * q[1] + r[1] * q[0] - r[2] * q[3] + r[3] * q[2],
+			  r[0] * q[2] + r[1] * q[3] + r[2] * q[0] - r[3] * q[1],
+			  r[0] * q[3] - r[1] * q[2] + r[2] * q[1] + r[3] * q[0]);
       }
+
+      Quaternion conjugate() const {
+	return Quaternion(_real,
+			  - _imaginary[0], 
+			  - _imaginary[1], 
+			  - _imaginary[2]);
+      }
+
+      Quaternion inverse() const {
+	const double inv_nrm2 = 1.0 / nrm2();
+	return Quaternion(_real * inv_nrm2,
+			  - _imaginary[0] * inv_nrm2, 
+			  - _imaginary[1] * inv_nrm2, 
+			  - _imaginary[2] * inv_nrm2);
+      }      
     };
   }
 }
