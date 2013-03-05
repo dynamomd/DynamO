@@ -17,6 +17,7 @@
 
 #pragma once
 #include <coil/RenderObj/AttributeSelectors.hpp>
+#include <magnet/math/quaternion.hpp>
 
 namespace coil {
   class AttributeOrientationSelector : public AttributeSelector
@@ -65,52 +66,12 @@ namespace coil {
 	  
 	  for (size_t i(0); i < elements; ++i)
 	    {
-	      //First we use the vector and axis to calculate a
-	      //rotation twice as big as is needed. 
-	      Vector vec(attrdata[3 * i + 0], attrdata[3 * i + 1], attrdata[3 * i + 2]);	  
-	      Vector axis(0,0,1);
+	      //Convert to a quaternion
+	      magnet::math::Quaternion q(Vector(attrdata[3 * i + 0], attrdata[3 * i + 1], attrdata[3 * i + 2]));
 	      
-	      double vecnrm = vec.nrm();
-	      double cosangle = (vec | axis) / vecnrm;
-	      //Special case of no rotation or zero length vector
-	      if ((vecnrm == 0) || (cosangle == 1))
-		{
-		  glptr[4 * i + 0] = glptr[4 * i + 1] = glptr[4 * i + 2] = 0;
-		  glptr[4 * i + 3] = 1;
-		  continue;
-		}
-	      //Special case where vec and axis are opposites
-	      if (cosangle == -1)
-		{
-		  //Just rotate around the x axis by 180 degrees
-		  glptr[4 * i + 0] = 1;
-		  glptr[4 * i + 1] = glptr[4 * i + 2] = glptr[4 * i + 3] = 0;
-		  continue;
-		}
-	      
-	      //Calculate the rotation axis
-	      Vector rot_axis = (vec ^ axis) / vecnrm;
-	      for (size_t j(0); j < 3; ++j)
-		glptr[4 * i + j] = rot_axis[j];
-	      
-	      glptr[4 * i + 3] = cosangle;
-	      
-	      double sum = 0;
-	      for (size_t j(0); j < 4; ++j)
-		sum += glptr[4 * i + j] * glptr[4 * i + j];
-	      sum = std::sqrt(sum);
-	      for (size_t j(0); j < 4; ++j)
-		glptr[4 * i + j] /= sum;
-	      
-	      //As the rotation is twice as big as needed, we must do
-	      //a half angle conversion.
-	      glptr[4 * i + 3] += 1;
-	      sum = 0;
-	      for (size_t j(0); j < 4; ++j)
-		sum += glptr[4 * i + j] * glptr[4 * i + j];
-	      sum = std::sqrt(sum);
-	      for (size_t j(0); j < 4; ++j)
-		glptr[4 * i + j] /= sum;
+	      for (size_t j(0); j < 3; ++i)
+		glptr[4 * i + j] = q.imaginary()[j];
+	      glptr[4 * i + 3] = q.real();
 	    }
 	  
 	  _filteredData.unmap();

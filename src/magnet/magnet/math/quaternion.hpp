@@ -128,18 +128,12 @@ namespace magnet {
       }
 
       Quaternion conjugate() const {
-	return Quaternion(_real,
-			  - _imaginary[0], 
-			  - _imaginary[1], 
-			  - _imaginary[2]);
+	return Quaternion(_real, - _imaginary[0], - _imaginary[1], - _imaginary[2]);
       }
 
       Quaternion inverse() const {
 	const double inv_nrm2 = 1.0 / nrm2();
-	return Quaternion(_real * inv_nrm2,
-			  - _imaginary[0] * inv_nrm2, 
-			  - _imaginary[1] * inv_nrm2, 
-			  - _imaginary[2] * inv_nrm2);
+	return Quaternion(_real * inv_nrm2, - _imaginary[0] * inv_nrm2, - _imaginary[1] * inv_nrm2, - _imaginary[2] * inv_nrm2);
       }      
     };
   }

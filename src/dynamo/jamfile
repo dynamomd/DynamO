@@ -39,7 +39,7 @@ project	: requirements
 
 exe dynamoDependencies : tests/buildreq.cpp : <dynamo-buildable>no:<define>BUILDFAIL ;
 
-lib dynamo_core : [ glob-tree *.cpp : programs tests ]
+alias dynamo_core : [ glob-tree *.cpp : programs tests ]
       /magnet//magnet /system//boost_filesystem /system//boost_program_options /system//boost_iostreams /system//rt 
     : <include>. <dynamo-buildable>no:<build>no
       <variant>debug:<define>DYNAMO_DEBUG
@@ -48,15 +48,15 @@ lib dynamo_core : [ glob-tree *.cpp : programs tests ]
     : : <variant>debug:<define>DYNAMO_DEBUG <threading>multi <include>.
     ;
 
-exe dynarun : programs/dynarun.cpp dynamo_core/<coil-integration>no,<link>static
+exe dynarun : programs/dynarun.cpp dynamo_core/<coil-integration>no
     : <dynamo-buildable>no:<build>no <tag>@tags.exe-naming <coil-integration>no ;
 
-exe dynavis : programs/dynarun.cpp dynamo_core/<coil-integration>yes,<link>static
+exe dynavis : programs/dynarun.cpp dynamo_core/<coil-integration>yes
     : <dynamo-buildable>no:<build>no
       <coil-support>no:<build>no <tag>@tags.exe-naming <coil-integration>yes
     ;
 
-exe dynahist_rw : programs/dynahist_rw.cpp dynamo_core/<coil-integration>no,<link>static
+exe dynahist_rw : programs/dynahist_rw.cpp dynamo_core/<coil-integration>no
     : <coil-integration>no <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 
 exe dynamod : programs/dynamod.cpp dynamo_core/<coil-integration>no
