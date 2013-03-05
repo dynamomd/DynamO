@@ -41,11 +41,8 @@ exe dynamoDependencies : tests/buildreq.cpp : <dynamo-buildable>no:<define>BUILD
 
 alias dynamo_core : [ glob-tree *.cpp : programs tests ]
       /magnet//magnet /system//boost_filesystem /system//boost_program_options /system//boost_iostreams /system//rt 
-    : <include>. <dynamo-buildable>no:<build>no
-      <variant>debug:<define>DYNAMO_DEBUG
-      <coil-integration>yes:<source>/coil//coil/<link>static
-      <coil-integration>yes:<define>DYNAMO_visualizer
-    : : <variant>debug:<define>DYNAMO_DEBUG <threading>multi <include>.
+    : <coil-integration>yes:<source>/coil//coil/<link>static
+    : : <variant>debug:<define>DYNAMO_DEBUG <threading>multi <include>. <coil-integration>yes:<define>DYNAMO_visualizer <include>. <dynamo-buildable>no:<build>no
     ;
 
 exe dynarun : programs/dynarun.cpp dynamo_core/<coil-integration>no
