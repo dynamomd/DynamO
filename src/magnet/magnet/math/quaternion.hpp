@@ -34,12 +34,17 @@ namespace magnet {
 	_imaginary(i,j,k)
       {}
 
+      Quaternion(double real, Vector imaginary):
+	_real(real),
+	_imaginary(imaginary)
+      {}
+
       /*! \brief Create a quaternion from a rotation vector.
 	
 	The quaternion is a rotation that takes the vector (0,0,1)
 	into the vector passed as an argument.
        */
-      Quaternion(const Vector& vec)
+      static Quaternion fromOrientation(const Vector& vec)
       {
 	Vector unrotated_director(0,0,1);
 	//Calculate the parameters of the rotation
@@ -49,32 +54,40 @@ namespace magnet {
 	double cosangle = (vec | unrotated_director) / vecnrm;
 
 	if ((vecnrm == 0) || (cosangle == 1))
-	  {
-	    //Special case of no rotation or zero length vector
-	    _imaginary = Vector(0.0, 0.0, 0.0);
-	    _real = 1.0;
-	    return;
-	  }
+	  //Special case of no rotation
+	  return Quaternion(1,0,0,0);
 
 	if (cosangle == -1)
-	  {
-	    //Special case where vec and axis are opposites
-	    _imaginary = Vector(1.0, 0.0, 0.0);
-	    _real = 0.0;
-	    return;
-	  }
+	  //Special case where vec and axis are opposites
+	  return Quaternion(0,1,0,0);
 	
 	//Calculate the rotation axis and store in the imaginary part
 	//of the quaternion
-	_imaginary = (vec ^ unrotated_director) / vecnrm;
-	//Store the angle in the real part
-	_real = cosangle;
-	normalise();
+	Quaternion retval(cosangle, (vec ^ unrotated_director) / vecnrm);
+	retval.normalise();
 	
 	//The current quaternion represents a rotation which is twice
 	//the required angle.
 	//Perform a half angle converison
-	halfRotation();
+	retval.halfRotation();
+	return retval;
+      }
+
+      /*! \brief This calculates a quaternion from a rotation axis,
+          where the magnitude of the vector is the angle of rotation.
+       */
+      static Quaternion fromRotationAxis(const Vector& vec)
+      {
+	double angle = vec.nrm();
+
+	if (angle == 0)
+	  //Special case of no rotation
+	  return Quaternion(1,0,0,0);
+
+	double half_angle = angle * 0.5;
+	double sin_half_angle = std::sin(half_angle);
+	double cos_half_angle = std::cos(half_angle);
+	return Quaternion(cos_half_angle, vec * (sin_half_angle / angle));
       }
 
       /*! \brief Half the rotation of the current quaternion (assuming
