@@ -43,25 +43,18 @@ namespace dynamo {
   ISquareBond::operator<<(const magnet::xml::Node& XML)
   {
     Interaction::operator<<(XML);
-  
-    try {
-      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
-					       Property::Units::Length());
-      _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
-					     Property::Units::Dimensionless());
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					     Property::Units::Length());
+    _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
+					   Property::Units::Dimensionless());
 
-      if (XML.hasAttribute("Elasticity"))
-	_e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-					  Property::Units::Dimensionless());
-      else
-	_e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
+    if (XML.hasAttribute("Elasticity"))
+      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+					Property::Units::Dimensionless());
+    else
+      _e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
 
-      intName = XML.getAttribute("Name");
-    }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in CISquareWell";
-      }
+    intName = XML.getAttribute("Name");
   }
 
   double 

@@ -140,26 +140,15 @@ namespace dynamo {
   void 
   SysRescale::operator<<(const magnet::xml::Node& XML)
   {
-   try {
-      if (XML.hasAttribute("Freq"))
-	_frequency = XML.getAttribute("Freq").as<size_t>();
-    
-      if (XML.hasAttribute("kT"))
-	_kT = XML.getAttribute("kT").as<double>();
-    
-      _kT *= Sim->units.unitEnergy();
-
-      if (XML.hasAttribute("TimeStep"))
-	_timestep = XML.getAttribute("TimeStep").as<double>();
-
-      _timestep *= Sim->units.unitTime();
-
-      sysName = XML.getAttribute("Name");
-    }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in SysRescale";
-      }
+    if (XML.hasAttribute("Freq"))
+      _frequency = XML.getAttribute("Freq").as<size_t>();
+    if (XML.hasAttribute("kT"))
+      _kT = XML.getAttribute("kT").as<double>();
+    _kT *= Sim->units.unitEnergy();
+    if (XML.hasAttribute("TimeStep"))
+      _timestep = XML.getAttribute("TimeStep").as<double>();
+    _timestep *= Sim->units.unitTime();
+    sysName = XML.getAttribute("Name");
   }
 
   void 

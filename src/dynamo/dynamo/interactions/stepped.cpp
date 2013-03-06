@@ -66,25 +66,18 @@ namespace dynamo {
   {
     Interaction::operator<<(XML);
   
-    try {
-      intName = XML.getAttribute("Name");
-
-      if (!XML.hasNode("Step"))
-	M_throw() << "No steppings defined for stepped potential " 
-		  << intName;
-
-      for (magnet::xml::Node node = XML.fastGetNode("Step"); node.valid(); ++node)
-	steps.push_back(steppair(node.getAttribute("R").as<double>(),
-				 node.getAttribute("E").as<double>()));
+    intName = XML.getAttribute("Name");
     
-      std::sort(steps.rbegin(), steps.rend());
+    if (!XML.hasNode("Step"))
+      M_throw() << "No steppings defined for stepped potential " 
+		<< intName;
+    
+    for (magnet::xml::Node node = XML.fastGetNode("Step"); node.valid(); ++node)
+      steps.push_back(steppair(node.getAttribute("R").as<double>(),
+			       node.getAttribute("E").as<double>()));
+    std::sort(steps.rbegin(), steps.rend());
 
-      IMultiCapture::loadCaptureMap(XML);
-    }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in CIStepped";
-      }
+    IMultiCapture::loadCaptureMap(XML);
 
     if (steps.empty())
       M_throw() << "No steps defined in SteppedPotential Interaction with name " 

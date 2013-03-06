@@ -200,22 +200,16 @@ namespace dynamo {
   void
   SysDSMCSpheres::operator<<(const magnet::xml::Node& XML)
   {
-    try {
-      tstep = XML.getAttribute("tStep").as<double>() * Sim->units.unitTime();
-      chi = XML.getAttribute("Chi").as<double>();
-      sysName = XML.getAttribute("Name");
-      diameter = XML.getAttribute("Diameter").as<double>() * Sim->units.unitLength();
-      e = XML.getAttribute("Inelasticity").as<double>();
-      d2 = diameter * diameter;
-      range1 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range1"), Sim));
-      range2 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range2"), Sim));
-      if (XML.hasAttribute("MaxProbability"))
-	maxprob = XML.getAttribute("MaxProbability").as<double>();
-    }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in CGGlobal";
-      }
+    tstep = XML.getAttribute("tStep").as<double>() * Sim->units.unitTime();
+    chi = XML.getAttribute("Chi").as<double>();
+    sysName = XML.getAttribute("Name");
+    diameter = XML.getAttribute("Diameter").as<double>() * Sim->units.unitLength();
+    e = XML.getAttribute("Inelasticity").as<double>();
+    d2 = diameter * diameter;
+    range1 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range1"), Sim));
+    range2 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range2"), Sim));
+    if (XML.hasAttribute("MaxProbability"))
+      maxprob = XML.getAttribute("MaxProbability").as<double>();
   }
 
   void 

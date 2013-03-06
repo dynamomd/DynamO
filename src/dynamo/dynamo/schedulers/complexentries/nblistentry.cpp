@@ -34,15 +34,7 @@ namespace dynamo {
   SCENBList::operator<<(const magnet::xml::Node& XML)
   {
     range = shared_ptr<IDRange>(IDRange::getClass(XML, Sim));
-  
-    try 
-      {
-	name = XML.getAttribute("NBListName");
-      }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in SCENBList";
-      }
+    name = XML.getAttribute("NBListName");
   }
 
   void 

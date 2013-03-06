@@ -63,20 +63,12 @@ namespace dynamo {
   ILines::operator<<(const magnet::xml::Node& XML)
   { 
     Interaction::operator<<(XML);
-  
-    try 
-      {
-	_length = Sim->_properties.getProperty(XML.getAttribute("Length"),
-					       Property::Units::Length());
-	_e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-					  Property::Units::Dimensionless());
-	intName = XML.getAttribute("Name");
-	ISingleCapture::loadCaptureMap(XML);   
-      }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in CILines";
-      }
+    _length = Sim->_properties.getProperty(XML.getAttribute("Length"),
+					   Property::Units::Length());
+    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+				      Property::Units::Dimensionless());
+    intName = XML.getAttribute("Name");
+    ISingleCapture::loadCaptureMap(XML);   
   }
 
   double 

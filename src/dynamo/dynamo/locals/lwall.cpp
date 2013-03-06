@@ -71,37 +71,30 @@ namespace dynamo {
   LWall::operator<<(const magnet::xml::Node& XML)
   {
     range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"),Sim));
-  
-    try {
-      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
 
-      if (_diameter->getMaxValue() == 0)
-	M_throw() << "Cannot have a wall with a diameter of zero";
+    if (_diameter->getMaxValue() == 0)
+      M_throw() << "Cannot have a wall with a diameter of zero";
       
-      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
+    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
     
-      sqrtT = 0;
-      if (XML.hasAttribute("Temperature"))
-	sqrtT = sqrt(XML.getAttribute("Temperature").as<double>()
-		     * Sim->units.unitEnergy());
+    sqrtT = 0;
+    if (XML.hasAttribute("Temperature"))
+      sqrtT = sqrt(XML.getAttribute("Temperature").as<double>()
+		   * Sim->units.unitEnergy());
 
-      if (sqrtT < 0)
-	M_throw() << "Cannot use negative temperatures on a Wall";
+    if (sqrtT < 0)
+      M_throw() << "Cannot use negative temperatures on a Wall";
 
-      magnet::xml::Node xBrowseNode = XML.getNode("Norm");
-      localName = XML.getAttribute("Name");
-      vNorm << xBrowseNode;
-      if (vNorm.nrm() == 0)
-	M_throw() << "The normal for the Local Wall named \"" << getName() << "\" has a length of 0. Cannot load";
-      vNorm /= vNorm.nrm();
-      xBrowseNode = XML.getNode("Origin");
-      vPosition << xBrowseNode;
-      vPosition *= Sim->units.unitLength();
-    }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in LWall";
-      }
+    magnet::xml::Node xBrowseNode = XML.getNode("Norm");
+    localName = XML.getAttribute("Name");
+    vNorm << xBrowseNode;
+    if (vNorm.nrm() == 0)
+      M_throw() << "The normal for the Local Wall named \"" << getName() << "\" has a length of 0. Cannot load";
+    vNorm /= vNorm.nrm();
+    xBrowseNode = XML.getNode("Origin");
+    vPosition << xBrowseNode;
+    vPosition *= Sim->units.unitLength();
   }
 
   void 

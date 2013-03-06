@@ -255,9 +255,7 @@ namespace dynamo {
     inline Value getProperty(const std::string& name,
 			     const Property::Units& units)
     {
-      try { return getPropertyBase(name, units); }
-      catch (boost::bad_lexical_cast&)
-	{ M_throw() << "Could not find the property named by " << name; }
+      return getPropertyBase(name, units);
     }
 
     /*! \brief Request a handle to a property using an xml attribute
@@ -268,9 +266,7 @@ namespace dynamo {
     inline Value getProperty(const magnet::xml::Attribute& name,
 			     const Property::Units& units)
     {
-      try { return getPropertyBase(name.getValue(), units); }
-      catch (boost::bad_lexical_cast&)
-	{ M_throw() << "Could not find the property named by " << name.getPath(); }
+      return getPropertyBase(name.getValue(), units);
     }
 
     /*! \brief Request a handle to a property, but this specialization always
@@ -400,10 +396,12 @@ namespace dynamo {
 		      << ", but the requested property has units of " 
 		      << std::string(units);
 	  }
-      //Try name-is-the-value lookup, if this fails a
-      //boost::bad_lexical_cast& will be thrown and must be caught by
-      //the caller. 
-      return getProperty(boost::lexical_cast<double>(name), units);
+
+      //Try a name-is-the-value lookup
+      try {
+	return getProperty(boost::lexical_cast<double>(name), units);
+      } catch (boost::bad_lexical_cast&)
+	{ M_throw() << "Could not find the property with a name of \"" << name << "\" and units of " << std::string(units); }
     }
   };
 }

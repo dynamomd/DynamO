@@ -45,21 +45,13 @@ namespace dynamo {
   IHardSphere::operator<<(const magnet::xml::Node& XML)
   { 
     Interaction::operator<<(XML);
-  
-    try 
-      {
-	_diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
-						 Property::Units::Length());
-	_e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-					  Property::Units::Dimensionless());
-	intName = XML.getAttribute("Name");
-      }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in CIHardSphere";
-      }
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					     Property::Units::Length());
+    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+				      Property::Units::Dimensionless());
+    intName = XML.getAttribute("Name");
   }
-
+  
   Vector
   IHardSphere::getGlyphSize(size_t ID, size_t subID) const
   { 

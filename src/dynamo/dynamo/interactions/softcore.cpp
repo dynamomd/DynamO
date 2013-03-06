@@ -45,17 +45,12 @@ namespace dynamo {
   ISoftCore::operator<<(const magnet::xml::Node& XML)
   {
     Interaction::operator<<(XML);
-  
-    try {
-      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
-					       Property::Units::Length());
-      _wellDepth = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-						Property::Units::Energy());
-      intName = XML.getAttribute("Name");
-      ISingleCapture::loadCaptureMap(XML);   
-    }
-    catch (boost::bad_lexical_cast &)
-      { M_throw() << "Failed a lexical cast in CISoftCore"; }
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					     Property::Units::Length());
+    _wellDepth = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+					      Property::Units::Energy());
+    intName = XML.getAttribute("Name");
+    ISingleCapture::loadCaptureMap(XML);   
   }
 
   double 

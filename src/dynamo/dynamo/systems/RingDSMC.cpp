@@ -286,26 +286,20 @@ namespace dynamo {
   void
   SysRingDSMC::operator<<(const magnet::xml::Node& XML)
   {
-    try {
-      tstep = XML.getAttribute("tStep").as<double>() * Sim->units.unitTime();    
-      chi12 = XML.getAttribute("Chi12").as<double>();
-      chi13 = XML.getAttribute("Chi13").as<double>();
-      sysName = XML.getAttribute("Name");
-      diameter = XML.getAttribute("Diameter").as<double>() * Sim->units.unitLength();
-      e = XML.getAttribute("Inelasticity").as<double>();
-      d2 = diameter * diameter;
-      range1 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range1"), Sim));
+    tstep = XML.getAttribute("tStep").as<double>() * Sim->units.unitTime();    
+    chi12 = XML.getAttribute("Chi12").as<double>();
+    chi13 = XML.getAttribute("Chi13").as<double>();
+    sysName = XML.getAttribute("Name");
+    diameter = XML.getAttribute("Diameter").as<double>() * Sim->units.unitLength();
+    e = XML.getAttribute("Inelasticity").as<double>();
+    d2 = diameter * diameter;
+    range1 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range1"), Sim));
 
-      if (XML.hasAttribute("MaxProbability12"))
-	maxprob12 = XML.getAttribute("MaxProbability12").as<double>();
+    if (XML.hasAttribute("MaxProbability12"))
+      maxprob12 = XML.getAttribute("MaxProbability12").as<double>();
 	
-      if (XML.hasAttribute("MaxProbability13"))
-	maxprob13 = XML.getAttribute("MaxProbability13").as<double>();
-    }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in CGGlobal";
-      }
+    if (XML.hasAttribute("MaxProbability13"))
+      maxprob13 = XML.getAttribute("MaxProbability13").as<double>();
   }
 
   void 

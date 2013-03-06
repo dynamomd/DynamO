@@ -41,11 +41,7 @@ namespace dynamo {
   void 
   Topology::operator<<(const magnet::xml::Node& XML)
   {
-    try { spName = XML.getAttribute("Name"); } 
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in CTopology";
-      }
+    spName = XML.getAttribute("Name");
     
     if (!XML.hasNode("Molecule"))
       M_throw() << "Cannot load a Topology which has no molecules!";

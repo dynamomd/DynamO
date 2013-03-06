@@ -40,16 +40,8 @@ namespace dynamo {
   void 
   OPMSDCorrelator::operator<<(const magnet::xml::Node& XML)
   {
-    try 
-      {
-	if (XML.hasAttribute("Length"))
-	  length = XML.getAttribute("Length").as<size_t>();
-      }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in OPMSDCorrelator";
-      }    
-
+    if (XML.hasAttribute("Length"))
+      length = XML.getAttribute("Length").as<size_t>();
   }
 
   void 

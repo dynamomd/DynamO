@@ -76,16 +76,11 @@ namespace dynamo {
   void
   SSleep::operator<<(const magnet::xml::Node& XML)
   {
-    try {
-      sysName = XML.getAttribute("Name");
-    
-      _sleepVelocity = XML.getAttribute("SleepV").as<double>() * Sim->units.unitVelocity();
-      _sleepDistance = Sim->units.unitLength() * 0.01;
-      _sleepTime = Sim->units.unitTime() * 0.0001;
-      _range = shared_ptr<IDRange>(IDRange::getClass(XML, Sim));
-    }
-    catch (boost::bad_lexical_cast &)
-      { M_throw() << "Failed a lexical cast in SSleep"; }
+    sysName = XML.getAttribute("Name");
+    _sleepVelocity = XML.getAttribute("SleepV").as<double>() * Sim->units.unitVelocity();
+    _sleepDistance = Sim->units.unitLength() * 0.01;
+    _sleepTime = Sim->units.unitTime() * 0.0001;
+    _range = shared_ptr<IDRange>(IDRange::getClass(XML, Sim));
   }
 
   void 

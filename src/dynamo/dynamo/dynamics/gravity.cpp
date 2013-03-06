@@ -45,28 +45,20 @@ namespace dynamo {
     g(0, -1, 0),
     _tc(-HUGE_VAL)
   {
-    try 
+    if (XML.hasAttribute("ElasticV"))
+      elasticV = XML.getAttribute("ElasticV").as<double>()
+	* Sim->units.unitVelocity();
+    
+    if (XML.hasAttribute("tc"))
       {
-	if (XML.hasAttribute("ElasticV"))
-	  elasticV = XML.getAttribute("ElasticV").as<double>()
-	    * Sim->units.unitVelocity();
+	_tc = XML.getAttribute("tc").as<double>() * Sim->units.unitTime();
+	
+	if (_tc <= 0) 
+	  M_throw() << "tc must be positive! (tc = " 
+		    << _tc/ Sim->units.unitTime() << ")";
+      }    
+    g << XML.getNode("g");
 
-	if (XML.hasAttribute("tc"))
-	  {
-	    _tc = XML.getAttribute("tc").as<double>() * Sim->units.unitTime();
-
-	    if (_tc <= 0) 
-	      M_throw() << "tc must be positive! (tc = " 
-			<< _tc/ Sim->units.unitTime() << ")";
-	  }
-
-	g << XML.getNode("g");
-      }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in DynGravity";
-      }
-  
     g *= Sim->units.unitAcceleration();
   }
 

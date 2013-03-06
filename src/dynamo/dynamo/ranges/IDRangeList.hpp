@@ -30,14 +30,8 @@ namespace dynamo {
   public:
     IDRangeList(const magnet::xml::Node& XML) 
     { 
-      try {
-	for (magnet::xml::Node node = XML.fastGetNode("ID"); node.valid(); ++node)
-	  IDs.push_back(node.getAttribute("val").as<size_t>());
-      }
-      catch (boost::bad_lexical_cast &)
-	{
-	  M_throw() << "Failed a lexical cast in IDRangeList";
-	}
+      for (magnet::xml::Node node = XML.fastGetNode("ID"); node.valid(); ++node)
+	IDs.push_back(node.getAttribute("val").as<size_t>());
     }
 
     template<class T>

@@ -40,13 +40,7 @@ namespace dynamo {
   INull::operator<<(const magnet::xml::Node& XML)
   { 
     Interaction::operator<<(XML);
-  
-    try 
-      { intName = XML.getAttribute("Name"); }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in CINull";
-      }
+    intName = XML.getAttribute("Name");
   }
 
   IntEvent 

@@ -48,16 +48,9 @@ namespace dynamo {
 
     virtual void operator<<(const magnet::xml::Node& XML)
     {
-      try 
-	{
-	  for (magnet::xml::Node node = XML.fastGetNode("IDPair"); node.valid(); ++node)
-	    addPair(node.getAttribute("ID1").as<unsigned long>(), 
-		    node.getAttribute("ID2").as<unsigned long>());
-	}
-      catch (boost::bad_lexical_cast &)
-	{
-	  M_throw() << "Failed a lexical cast in IDPairRangeList";
-	}
+      for (magnet::xml::Node node = XML.fastGetNode("IDPair"); node.valid(); ++node)
+	addPair(node.getAttribute("ID1").as<unsigned long>(), 
+		node.getAttribute("ID2").as<unsigned long>());
     }
 
   protected:

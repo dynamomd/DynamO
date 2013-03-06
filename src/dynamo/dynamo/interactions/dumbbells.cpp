@@ -77,26 +77,18 @@ namespace dynamo {
   IDumbbells::operator<<(const magnet::xml::Node& XML)
   { 
     Interaction::operator<<(XML);
-  
-    try 
-      {
-	_diamA = Sim->_properties.getProperty(XML.getAttribute("DiameterA"),
-					      Property::Units::Length());
-	_diamB = Sim->_properties.getProperty(XML.getAttribute("DiameterB"),
-					      Property::Units::Length());
-	_LA = Sim->_properties.getProperty(XML.getAttribute("LA"),
-					   Property::Units::Length());
-	_LB = Sim->_properties.getProperty(XML.getAttribute("LB"),
-					   Property::Units::Length());
-	_e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-					  Property::Units::Dimensionless());
-	intName = XML.getAttribute("Name");
-	ISingleCapture::loadCaptureMap(XML);   
-      }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in CIDumbbells";
-      }
+    _diamA = Sim->_properties.getProperty(XML.getAttribute("DiameterA"),
+					  Property::Units::Length());
+    _diamB = Sim->_properties.getProperty(XML.getAttribute("DiameterB"),
+					  Property::Units::Length());
+    _LA = Sim->_properties.getProperty(XML.getAttribute("LA"),
+				       Property::Units::Length());
+    _LB = Sim->_properties.getProperty(XML.getAttribute("LB"),
+				       Property::Units::Length());
+    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+				      Property::Units::Dimensionless());
+    intName = XML.getAttribute("Name");
+    ISingleCapture::loadCaptureMap(XML);   
   }
 
   double 

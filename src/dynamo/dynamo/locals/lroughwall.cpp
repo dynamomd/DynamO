@@ -79,22 +79,15 @@ namespace dynamo {
   LRoughWall::operator<<(const magnet::xml::Node& XML)
   {
     range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"),Sim));
-  
-    try {
-      e = XML.getAttribute("Elasticity").as<double>();
-      et = XML.getAttribute("TangentialElasticity").as<double>();
-      r = XML.getAttribute("Radius").as<double>() * Sim->units.unitLength();
-      render = XML.getAttribute("Render").as<double>();
-      localName = XML.getAttribute("Name");
-
-      vNorm << XML.getNode("Norm");
-      vNorm /= vNorm.nrm();
-
-      vPosition << XML.getNode("Origin");
-      vPosition *= Sim->units.unitLength();
-    } 
-    catch (boost::bad_lexical_cast &)
-      {	M_throw() << "Failed a lexical cast in LRoughWall"; }
+    e = XML.getAttribute("Elasticity").as<double>();
+    et = XML.getAttribute("TangentialElasticity").as<double>();
+    r = XML.getAttribute("Radius").as<double>() * Sim->units.unitLength();
+    render = XML.getAttribute("Render").as<double>();
+    localName = XML.getAttribute("Name");
+    vNorm << XML.getNode("Norm");
+    vNorm /= vNorm.nrm();
+    vPosition << XML.getNode("Origin");
+    vPosition *= Sim->units.unitLength();
   }
 
   void 

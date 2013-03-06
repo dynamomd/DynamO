@@ -41,16 +41,8 @@ namespace dynamo {
   void 
   OPCollDistCheck::operator<<(const magnet::xml::Node& XML)
   {
-    try 
-      {
-	if (XML.hasAttribute("binwidth"))
-	  binwidth = XML.getAttribute("binwidth").as<double>();
-      }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in OPCorrelator";
-      }
-  
+    if (XML.hasAttribute("binwidth"))
+      binwidth = XML.getAttribute("binwidth").as<double>();
   }
 
   void 

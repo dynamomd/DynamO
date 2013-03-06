@@ -42,20 +42,13 @@ namespace dynamo {
   void 
   OPStructureImaging::operator<<(const magnet::xml::Node& XML)
   {
-    try 
-      {
-	if (!XML.hasAttribute("Structure"))
-	  M_throw() << "You must specify the name of the structure to monitor for StructureImaging";
-      
-	structureName = XML.getAttribute("Structure");
-
-	if (XML.hasAttribute("MaxImages"))
-	  imageCount = XML.getAttribute("MaxImages").as<size_t>();
-      }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in OPVACF";
-      }
+    if (!XML.hasAttribute("Structure"))
+      M_throw() << "You must specify the name of the structure to monitor for StructureImaging";
+    
+    structureName = XML.getAttribute("Structure");
+    
+    if (XML.hasAttribute("MaxImages"))
+      imageCount = XML.getAttribute("MaxImages").as<size_t>();
   }
 
 

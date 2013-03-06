@@ -1092,13 +1092,7 @@ namespace magnet {
 	      char name2[2] = "x";
 	      name2[0] = 'x'+jDim;
 
-	      try {
-		data(iDim,jDim) = XML.getNode(name).getAttribute(name2).as<double>();
-	      }
-	      catch (boost::bad_lexical_cast &)
-		{
-		  M_throw() << "Failed a lexical cast";
-		}
+	      data(iDim,jDim) = XML.getNode(name).getAttribute(name2).as<double>();
 	    }
 	}
 

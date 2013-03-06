@@ -262,29 +262,24 @@ namespace dynamo {
   void
   SysUmbrella::operator<<(const magnet::xml::Node& XML)
   {
-    try {
-      sysName = XML.getAttribute("Name");
+    sysName = XML.getAttribute("Name");
 
-      a = XML.getAttribute("a").as<double>()
-	* Sim->units.unitEnergy() 
-	/ Sim->units.unitArea();
+    a = XML.getAttribute("a").as<double>()
+      * Sim->units.unitEnergy() 
+      / Sim->units.unitArea();
 
-      b = XML.getAttribute("b").as<double>()
-	* Sim->units.unitLength();
+    b = XML.getAttribute("b").as<double>()
+      * Sim->units.unitLength();
 
-      delU = XML.getAttribute("delU").as<double>() * Sim->units.unitEnergy();
-      range1 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range1"), Sim));
-      range2 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range2"), Sim));
+    delU = XML.getAttribute("delU").as<double>() * Sim->units.unitEnergy();
+    range1 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range1"), Sim));
+    range2 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range2"), Sim));
     
-      if (XML.hasAttribute("currentulevel"))
-	{
-	  ulevel = XML.getAttribute("currentulevel").as<size_t>();
-	  ulevelset = true;
-	}
-    
-    }
-    catch (boost::bad_lexical_cast &)
-      { M_throw() << "Failed a lexical cast in SysUmbrella"; }
+    if (XML.hasAttribute("currentulevel"))
+      {
+	ulevel = XML.getAttribute("currentulevel").as<size_t>();
+	ulevelset = true;
+      }
   }
 
   void 

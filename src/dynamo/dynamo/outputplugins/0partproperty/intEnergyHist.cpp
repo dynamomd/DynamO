@@ -62,15 +62,8 @@ namespace dynamo {
   void 
   OPIntEnergyHist::operator<<(const magnet::xml::Node& XML)
   {  
-    try 
-      {
-	if (XML.hasAttribute("BinWidth"))
-	  binwidth = XML.getAttribute("BinWidth").as<double>();
-      }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in OPIntEnergyHist";
-      }  
+    if (XML.hasAttribute("BinWidth"))
+      binwidth = XML.getAttribute("BinWidth").as<double>();
   }
 
   void 

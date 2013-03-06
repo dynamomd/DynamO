@@ -26,12 +26,8 @@ namespace dynamo {
   public:
     IDRangeRange(const magnet::xml::Node& XML) 
     { 
-      try {
-	startID = XML.getAttribute("Start").as<size_t>();
-	endID = XML.getAttribute("End").as<size_t>() + 1;
-      }
-      catch (boost::bad_lexical_cast &)
-	{ M_throw() << "Failed a lexical cast in IDRangeRange"; }
+      startID = XML.getAttribute("Start").as<size_t>();
+      endID = XML.getAttribute("End").as<size_t>() + 1;
     }
     
     IDRangeRange(size_t s, size_t e):startID(s), endID(e) {}

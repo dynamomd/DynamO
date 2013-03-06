@@ -101,30 +101,19 @@ namespace dynamo {
   LOscillatingPlate::operator<<(const magnet::xml::Node& XML)
   {
     range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"),Sim));
-  
-    try {
-      e = XML.getAttribute("Elasticity").as<double>();
-      nhat << XML.getNode("Norm");
-      nhat /= nhat.nrm();
-
-      rw0 << XML.getNode("Origin");
-      rw0 *= Sim->units.unitLength();
-
-      if (XML.hasAttribute("StrongPlate"))
-	strongPlate = XML.getAttribute("StrongPlate").as<double>();
-
-      omega0 = XML.getAttribute("Omega0").as<double>() / Sim->units.unitTime();
-      sigma = XML.getAttribute("Sigma").as<double>() * Sim->units.unitLength();
-      delta = XML.getAttribute("Delta").as<double>() * Sim->units.unitLength();
-      mass = XML.getAttribute("Mass").as<double>()  * Sim->units.unitMass();
-      timeshift = XML.getAttribute("TimeShift").as<double>() * Sim->units.unitTime();
-
-      localName = XML.getAttribute("Name");
-    } 
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in LOscillatingPlate";
-      }
+    e = XML.getAttribute("Elasticity").as<double>();
+    nhat << XML.getNode("Norm");
+    nhat /= nhat.nrm();
+    rw0 << XML.getNode("Origin");
+    rw0 *= Sim->units.unitLength();
+    if (XML.hasAttribute("StrongPlate"))
+      strongPlate = XML.getAttribute("StrongPlate").as<double>();
+    omega0 = XML.getAttribute("Omega0").as<double>() / Sim->units.unitTime();
+    sigma = XML.getAttribute("Sigma").as<double>() * Sim->units.unitLength();
+    delta = XML.getAttribute("Delta").as<double>() * Sim->units.unitLength();
+    mass = XML.getAttribute("Mass").as<double>()  * Sim->units.unitMass();
+    timeshift = XML.getAttribute("TimeShift").as<double>() * Sim->units.unitTime();
+    localName = XML.getAttribute("Name");
   }
 
   void 

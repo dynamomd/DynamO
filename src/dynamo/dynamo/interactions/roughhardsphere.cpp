@@ -47,21 +47,13 @@ namespace dynamo {
   IRoughHardSphere::operator<<(const magnet::xml::Node& XML)
   { 
     Interaction::operator<<(XML);
-  
-    try 
-      {
-	_diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
-						 Property::Units::Length());
-	_e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-					  Property::Units::Dimensionless());
-	_et = Sim->_properties.getProperty(XML.getAttribute("TangentialElasticity"),
-					   Property::Units::Dimensionless());
-	intName = XML.getAttribute("Name");
-      }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in IRoughHardSphere";
-      }
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					     Property::Units::Length());
+    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+				      Property::Units::Dimensionless());
+    _et = Sim->_properties.getProperty(XML.getAttribute("TangentialElasticity"),
+				       Property::Units::Dimensionless());
+    intName = XML.getAttribute("Name");
   }
 
   double 

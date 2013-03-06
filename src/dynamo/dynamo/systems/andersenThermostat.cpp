@@ -134,27 +134,21 @@ namespace dynamo {
   void 
   SysAndersen::operator<<(const magnet::xml::Node& XML)
   {
-    try {
-      meanFreeTime = XML.getAttribute("MFT").as<double>() * Sim->units.unitTime();
-      Temp = XML.getAttribute("Temperature").as<double>() * Sim->units.unitEnergy();
-      sysName = XML.getAttribute("Name");
+    meanFreeTime = XML.getAttribute("MFT").as<double>() * Sim->units.unitTime();
+    Temp = XML.getAttribute("Temperature").as<double>() * Sim->units.unitEnergy();
+    sysName = XML.getAttribute("Name");
 
-      if (XML.hasAttribute("Dimensions"))
-	dimensions = XML.getAttribute("Dimensions").as<size_t>();
+    if (XML.hasAttribute("Dimensions"))
+      dimensions = XML.getAttribute("Dimensions").as<size_t>();
 
-      if (XML.hasAttribute("SetFrequency") && XML.hasAttribute("SetPoint"))
-	{
-	  tune = true;
-	  setFrequency = XML.getAttribute("SetFrequency").as<size_t>();
-	  setPoint = XML.getAttribute("SetPoint").as<double>();
-	}
-
-      range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"),Sim));
-    }
-    catch (boost::bad_lexical_cast &)
+    if (XML.hasAttribute("SetFrequency") && XML.hasAttribute("SetPoint"))
       {
-	M_throw() << "Failed a lexical cast in CGGlobal";
+	tune = true;
+	setFrequency = XML.getAttribute("SetFrequency").as<size_t>();
+	setPoint = XML.getAttribute("SetPoint").as<double>();
       }
+
+    range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"),Sim));
   }
 
   void 

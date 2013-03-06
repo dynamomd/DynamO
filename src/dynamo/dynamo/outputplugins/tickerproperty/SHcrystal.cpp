@@ -41,18 +41,11 @@ namespace dynamo {
   void 
   OPSHCrystal::operator<<(const magnet::xml::Node& XML)
   {
-    try
-      {
-	if (XML.hasAttribute("CutOffR"))
-	  rg = XML.getAttribute("CutOffR").as<double>();
+    if (XML.hasAttribute("CutOffR"))
+      rg = XML.getAttribute("CutOffR").as<double>();
 
-	if (XML.hasAttribute("MaxL"))
-	  maxl = XML.getAttribute("MaxL").as<size_t>();
-      }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in OPSHCrystal";
-      }
+    if (XML.hasAttribute("MaxL"))
+      maxl = XML.getAttribute("MaxL").as<size_t>();
 
     rg *= Sim->units.unitLength();
 

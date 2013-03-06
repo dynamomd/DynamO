@@ -153,71 +153,63 @@ namespace dynamo {
   LTriangleMesh::operator<<(const magnet::xml::Node& XML)
   {
     range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
-  
-    try {
-      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
-					       Property::Units::Length());
-      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-					Property::Units::Dimensionless());
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					     Property::Units::Length());
+    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+				      Property::Units::Dimensionless());
 
-      localName = XML.getAttribute("Name");
+    localName = XML.getAttribute("Name");
 
-      {//Load the vertex coordinates
-	std::istringstream is(XML.getNode("Vertices").getValue());
-	is.exceptions(std::ostringstream::badbit | std::ostringstream::failbit);
-	is.peek(); //Set the eof flag if needed
-	Vector tmp;
-	while (!is.eof())
-	  {
-	    is >> tmp[0];
-	    if (is.eof()) M_throw() << "The vertex coordinates is not a multiple of 3";
+    {//Load the vertex coordinates
+      std::istringstream is(XML.getNode("Vertices").getValue());
+      is.exceptions(std::ostringstream::badbit | std::ostringstream::failbit);
+      is.peek(); //Set the eof flag if needed
+      Vector tmp;
+      while (!is.eof())
+	{
+	  is >> tmp[0];
+	  if (is.eof()) M_throw() << "The vertex coordinates is not a multiple of 3";
 
-	    is >> tmp[1];
-	    if (is.eof()) M_throw() << "The vertex coordinates is not a multiple of 3";
+	  is >> tmp[1];
+	  if (is.eof()) M_throw() << "The vertex coordinates is not a multiple of 3";
 
-	    is >> tmp[2];	  
-	    _vertices.push_back(tmp * Sim->units.unitLength());
-	  }
-      }
-
-      {//Load the triangle elements
-	std::istringstream is(XML.getNode("Elements").getValue());
-	is.exceptions(std::ostringstream::badbit | std::ostringstream::failbit);
-	is.peek(); //Set the eof flag if needed
-
-	TriangleElements tmp;
-	while (!is.eof())
-	  {
-	    is >> tmp.get<0>();
-	    if (is.eof()) M_throw() << "The triangle elements are not a multiple of 3";
-	  
-	    is >> tmp.get<1>();;
-	    if (is.eof()) M_throw() << "The triangle elements are not a multiple of 3";
-
-	    is >> tmp.get<2>();;
-
-	    if ((tmp.get<0>() >= _vertices.size()) 
-		|| (tmp.get<1>() >= _vertices.size()) 
-		|| (tmp.get<2>() >= _vertices.size()))
-	      M_throw() << "Triangle " << _elements.size() << " has an out of range vertex ID";
-
-	    Vector normal
-	      = (_vertices[tmp.get<1>()] - _vertices[tmp.get<0>()])
-	      ^ (_vertices[tmp.get<2>()] - _vertices[tmp.get<1>()]);
-
-	    if (normal.nrm() == 0) 
-	      M_throw() << "Triangle " << _elements.size() << " has a zero normal!";
-
-
-	    _elements.push_back(tmp);
-	  }
-      }
-
+	  is >> tmp[2];	  
+	  _vertices.push_back(tmp * Sim->units.unitLength());
+	}
     }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in LTriangleMesh";
-      }
+
+    {//Load the triangle elements
+      std::istringstream is(XML.getNode("Elements").getValue());
+      is.exceptions(std::ostringstream::badbit | std::ostringstream::failbit);
+      is.peek(); //Set the eof flag if needed
+
+      TriangleElements tmp;
+      while (!is.eof())
+	{
+	  is >> tmp.get<0>();
+	  if (is.eof()) M_throw() << "The triangle elements are not a multiple of 3";
+	  
+	  is >> tmp.get<1>();;
+	  if (is.eof()) M_throw() << "The triangle elements are not a multiple of 3";
+
+	  is >> tmp.get<2>();;
+
+	  if ((tmp.get<0>() >= _vertices.size()) 
+	      || (tmp.get<1>() >= _vertices.size()) 
+	      || (tmp.get<2>() >= _vertices.size()))
+	    M_throw() << "Triangle " << _elements.size() << " has an out of range vertex ID";
+
+	  Vector normal
+	    = (_vertices[tmp.get<1>()] - _vertices[tmp.get<0>()])
+	    ^ (_vertices[tmp.get<2>()] - _vertices[tmp.get<1>()]);
+
+	  if (normal.nrm() == 0) 
+	    M_throw() << "Triangle " << _elements.size() << " has a zero normal!";
+
+
+	  _elements.push_back(tmp);
+	}
+    }
   }
 
   void 

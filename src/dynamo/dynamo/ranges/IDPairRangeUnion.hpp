@@ -34,17 +34,10 @@ namespace dynamo {
     IDPairRangeUnion(const magnet::xml::Node& XML, const dynamo::Simulation* nSim):
       SimBase_const(nSim, "IDPairRangeUnion")
     {
-      try 
+      for (magnet::xml::Node node = XML.fastGetNode("IDPairRange"); node.valid(); ++node)
 	{
-	  for (magnet::xml::Node node = XML.fastGetNode("IDPairRange"); node.valid(); ++node)
-	    {
-	      shared_ptr<IDPairRange> ptr(IDPairRange::getClass(node, Sim));
-	      ranges.push_back(ptr);
-	    }
-	}
-      catch (boost::bad_lexical_cast &)
-	{
-	  M_throw() << "Failed a lexical cast in IDPairRangeUnion";
+	  shared_ptr<IDPairRange> ptr(IDPairRange::getClass(node, Sim));
+	  ranges.push_back(ptr);
 	}
     }
     

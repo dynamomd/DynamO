@@ -81,59 +81,53 @@ namespace dynamo {
   {
     Interaction::operator<<(XML);
 
-    try { 
-      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
-					       Property::Units::Length());
-      _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
-					     Property::Units::Dimensionless());
-
-      if (XML.hasAttribute("Elasticity"))
-	_e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-					  Property::Units::Dimensionless());
-      else
-	_e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
-
-      intName = XML.getAttribute("Name");
-      ISingleCapture::loadCaptureMap(XML);
-
-      //Load the sequence
-      sequence.clear();
-      std::set<size_t> letters;
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					     Property::Units::Length());
+    _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
+					   Property::Units::Dimensionless());
     
-      for (magnet::xml::Node node = XML.getNode("Sequence").fastGetNode("Element");
-	   node.valid(); ++node)
-	{
-	  if (node.getAttribute("seqID").as<size_t>() != sequence.size())
-	    M_throw() << "Sequence of letters not in order, missing element " << sequence.size();
-
-	  size_t letter = node.getAttribute("Letter").as<size_t>();
-	  letters.insert(letter);
-	  sequence.push_back(letter);
-	}
-
-      //Initialise all the well depths to 1.0
-      alphabet.resize(letters.size());
-
-      BOOST_FOREACH(std::vector<double>& vec, alphabet)
-	vec.resize(letters.size(), 0.0);
-
-      for (magnet::xml::Node node = XML.getNode("Alphabet").fastGetNode("Word");
-	   node.valid(); ++node)
-	{
-	  alphabet
-	    .at(node.getAttribute("Letter1").as<size_t>())
-	    .at(node.getAttribute("Letter2").as<size_t>())
-	    = node.getAttribute("Depth").as<double>();
-
-	  alphabet
-	    .at(node.getAttribute("Letter2").as<size_t>())
-	    .at(node.getAttribute("Letter1").as<size_t>())
-	    = node.getAttribute("Depth").as<double>();
-	}
-    }
-    catch (boost::bad_lexical_cast &)
+    if (XML.hasAttribute("Elasticity"))
+      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+					Property::Units::Dimensionless());
+    else
+      _e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
+    
+    intName = XML.getAttribute("Name");
+    ISingleCapture::loadCaptureMap(XML);
+    
+    //Load the sequence
+    sequence.clear();
+    std::set<size_t> letters;
+    
+    for (magnet::xml::Node node = XML.getNode("Sequence").fastGetNode("Element");
+	 node.valid(); ++node)
       {
-	M_throw() << "Failed a lexical cast in CISWSequence";
+	if (node.getAttribute("seqID").as<size_t>() != sequence.size())
+	  M_throw() << "Sequence of letters not in order, missing element " << sequence.size();
+	
+	size_t letter = node.getAttribute("Letter").as<size_t>();
+	letters.insert(letter);
+	sequence.push_back(letter);
+      }
+    
+    //Initialise all the well depths to 1.0
+    alphabet.resize(letters.size());
+    
+    BOOST_FOREACH(std::vector<double>& vec, alphabet)
+      vec.resize(letters.size(), 0.0);
+    
+    for (magnet::xml::Node node = XML.getNode("Alphabet").fastGetNode("Word");
+	 node.valid(); ++node)
+      {
+	alphabet
+	  .at(node.getAttribute("Letter1").as<size_t>())
+	  .at(node.getAttribute("Letter2").as<size_t>())
+	  = node.getAttribute("Depth").as<double>();
+	
+	alphabet
+	  .at(node.getAttribute("Letter2").as<size_t>())
+	  .at(node.getAttribute("Letter1").as<size_t>())
+	  = node.getAttribute("Depth").as<double>();
       }
   }
 

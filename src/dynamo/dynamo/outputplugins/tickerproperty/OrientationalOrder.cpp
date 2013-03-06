@@ -39,15 +39,8 @@ namespace dynamo {
   void 
   OPOrientationalOrder::operator<<(const magnet::xml::Node& XML)
   {
-    try
-      {
-	if (XML.hasAttribute("CutOffR"))
-	  _rg = XML.getAttribute("CutOffR").as<double>();
-      }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in OPOrientationalOrder";
-      }
+    if (XML.hasAttribute("CutOffR"))
+      _rg = XML.getAttribute("CutOffR").as<double>();
 
     _rg *= Sim->units.unitLength();
 

@@ -30,16 +30,10 @@ namespace dynamo {
   public:
     IDRangeUnion(const magnet::xml::Node& XML, const dynamo::Simulation* Sim) 
     { 
-      try {
-	for (magnet::xml::Node node = XML.fastGetNode("IDRange"); node.valid(); ++node)
-	  {
-	    shared_ptr<IDRange> ptr(IDRange::getClass(node, Sim));
-	    ranges.push_back(ptr);
-	  }
-      }
-      catch (boost::bad_lexical_cast &)
+      for (magnet::xml::Node node = XML.fastGetNode("IDRange"); node.valid(); ++node)
 	{
-	  M_throw() << "Failed a lexical cast in IDRangeUnion";
+	  shared_ptr<IDRange> ptr(IDRange::getClass(node, Sim));
+	  ranges.push_back(ptr);
 	}
     }
 
