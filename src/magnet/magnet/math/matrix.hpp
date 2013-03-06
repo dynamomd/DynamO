@@ -128,7 +128,7 @@ namespace magnet {
 
       static inline Matrix identity() { return Matrix(1,0,0,0,1,0,0,0,1); }
 
-      static inline Matrix crossProduct(const Vector v) { return Matrix(0,-v[2],v[1], v[2],0,-v[0], v[1],v[0],0); }
+      static inline Matrix crossProduct(const Vector v) { return Matrix(0,-v[2],v[1], v[2],0,-v[0], -v[1],v[0],0); }
 
       // access to elements through parenthesis
       inline double& operator()(int i, int j) { return *(&xx+3*i+j); }
