@@ -136,20 +136,15 @@ namespace dynamo {
       {
 	orientationData.resize(Sim->N);
 	size_t i(0);
-	for (magnet::xml::Node node = XML.getNode("ParticleData").fastGetNode("Pt"); 
-	     node.valid(); ++node, ++i)
+	for (magnet::xml::Node node = XML.getNode("ParticleData").fastGetNode("Pt"); node.valid(); ++node, ++i)
 	  {
 	    orientationData[i].orientation << node.getNode("U");
 	    orientationData[i].angularVelocity << node.getNode("O");
       
-	    double oL = orientationData[i].orientation.nrm();
-      
-	    if (!(oL > 0.0))
-	      M_throw() << "Particle ID " << i 
-			<< " orientation vector is zero!";
-      
 	    //Makes the vector a unit vector
-	    orientationData[i].orientation /= oL;
+	    orientationData[i].orientation.normalise();
+	    if (orientationData[i].orientation.nrm() == 0)
+	      M_throw() << "Particle " << i << " has an invalid zero orientation quaternion";
 	  }
       }
   }
@@ -324,25 +319,20 @@ namespace dynamo {
 
     double factor = ToI * 0.5;
 
-    Vector angVelCrossing;
-
     for (size_t i = 0; i < Sim->particles.size(); ++i)
       {
 	//Assign the new velocities
-	orientationData[i].orientation = Vector(1,0,0);
-	//for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	//  orientationData[i].orientation[iDim] = Sim->normal_sampler();
-      	//
-	//orientationData[i].orientation /= orientationData[i].orientation.nrm();
+	orientationData[i].orientation = magnet::math::Quaternion::identity();
       
+	Vector angVelCrossing;
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	  angVelCrossing[iDim] = Sim->normal_sampler();
-      
-	orientationData[i].angularVelocity
-	  = orientationData[i].orientation ^ angVelCrossing;
-      
-	orientationData[i].angularVelocity *= Sim->normal_sampler() * factor 
-	  / orientationData[i].angularVelocity.nrm();
+	
+	//Ensure the initial angular velocity is perpendicular to the
+	//director
+	orientationData[i].angularVelocity = magnet::math::Quaternion::initialDirector() ^ angVelCrossing;
+	
+	orientationData[i].angularVelocity *= factor * Sim->normal_sampler() / orientationData[i].angularVelocity.nrm();
       }
   }
 

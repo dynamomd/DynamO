@@ -79,14 +79,14 @@ namespace magnet {
        */
       template<class A,int B,class C> 
       inline VectorExpression(const VectorExpression<A, B, C> &e)
-      { for (size_t i(0); i < 3; ++i) operator()(i) = e(i); }
+      { 
+	double newvals[3] = {e.template eval<0>(), e.template eval<1>(), e.template eval<2>()};
+	for (size_t i(0); i < 3; ++i) operator()(i) = newvals[i]; 
+      }
 
       // assign zero to all elements
       inline void zero() 
-      { 
-	for (size_t i(0); i < 3; ++i) 
-	  operator()(i) = 0;
-      }
+      { for (size_t i(0); i < 3; ++i) operator()(i) = 0; }
 
       inline double nrm2() const 
       { 
@@ -95,6 +95,7 @@ namespace magnet {
 	  sum += operator()(i) * operator()(i);
 	return sum; 
       }
+
       inline double nrm() const
       {
 	double biggest = maxElement();
@@ -542,14 +543,7 @@ namespace magnet {
 	  name[0] = 'x' + iDim; //Write the name
 	  if (!XML.getAttribute(name).valid())
 	    name[0] = '0'+iDim;
-      
-	  try {
-	    data[iDim] = XML.getAttribute(name).as<double>();
-	  }
-	  catch (boost::bad_lexical_cast &)
-	    {
-	      M_throw() << "Failed a lexical cast in CVector";
-	    }
+	  data[iDim] = XML.getAttribute(name).as<double>();
 	}
 
       return data;

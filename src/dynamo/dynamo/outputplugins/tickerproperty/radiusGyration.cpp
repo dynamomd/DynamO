@@ -21,6 +21,7 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/topology/include.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
+#include <magnet/math/matrix.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>

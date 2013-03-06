@@ -128,6 +128,8 @@ namespace magnet {
 
       static inline Matrix identity() { return Matrix(1,0,0,0,1,0,0,0,1); }
 
+      static inline Matrix crossProduct(const Vector v) { return Matrix(0,-v[2],v[1], v[2],0,-v[0], v[1],v[0],0); }
+
       // access to elements through parenthesis
       inline double& operator()(int i, int j) { return *(&xx+3*i+j); }
       inline const double& operator() (int i, int j) const { return *(&xx+3*i+j); }  
@@ -1010,29 +1012,19 @@ namespace magnet {
 				(M.yx*M.zy-M.yy*M.zx)*d, -(M.xx*M.zy-M.xy*M.zx)*d,  (M.xx*M.yy-M.xy*M.yx)*d);
     }
 
-    // rotation matrix built using the Rodrigues formula
+    /*! \brief Calculate a rotation matrix from a vector which encodes
+        a rotation axis and angle.
+
+	This is a right-handed expression, so all rotation axis are
+	expected to be right handed.
+     */
     inline MatrixExpression<> Rodrigues(const Vector &V) 
     {
       double theta = V.nrm();
-      if (theta != 0) {
-	double s(std::sin(theta)), c(std::cos(theta));
-	double inrm = 1/theta;
-	double wx = V(0)*inrm;
-	double wy = V(1)*inrm;
-	double wz = V(2)*inrm;
-	double oneminusc = 1-c;
-	double wxwy1mc = wx*wy*oneminusc;
-	double wxwz1mc = wx*wz*oneminusc;
-	double wywz1mc = wy*wz*oneminusc;
-	double wxs = wx*s;
-	double wys = wy*s;
-	double wzs = wz*s;
-	return MatrixExpression<>(c+wx*wx*oneminusc,wxwy1mc-wzs,      wxwz1mc+wys,
-				  wxwy1mc+wzs,      c+wy*wy*oneminusc,wywz1mc-wxs,
-				  wxwz1mc-wys,     wywz1mc+wxs, c+wz*wz*oneminusc);
-      } else {
-	return MatrixExpression<>(1,0,0,0,1,0,0,0,1);
-      }
+      if (theta == 0) return Matrix::identity();
+
+      Vector axis = V / theta;
+      return Matrix::identity() + std::sin(theta) * Matrix::crossProduct(axis) + (1-std::cos(theta)) * (Dyadic(axis,axis) - Matrix::identity());
     }
 
     // transpose of a matrix

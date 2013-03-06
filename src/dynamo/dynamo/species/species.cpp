@@ -79,7 +79,7 @@ namespace dynamo {
 
     if (Sim->dynamics->hasOrientationData())
       {
-	_renderData->addAttribute("Orientation", coil::Attribute::EXTENSIVE | coil::Attribute::DEFAULT_GLYPH_ORIENTATION, 3);
+	_renderData->addAttribute("Orientation", coil::Attribute::EXTENSIVE | coil::Attribute::DEFAULT_GLYPH_ORIENTATION, 4);
 	_renderData->addAttribute("Angular Velocity", coil::Attribute::EXTENSIVE, 3);
       }
 
@@ -180,10 +180,12 @@ namespace dynamo {
 	    for (size_t s(0); s < nsph; ++s)
 	      {
 		for (size_t i(0); i < NDIM; ++i)
-		  {
-		    orientationdata[3 * (nsph * glyphID + s) + i] = data[ID].orientation[i];
-		    angularvdata[3 * (nsph * glyphID + s) + i] = data[ID].angularVelocity[i] * Sim->units.unitTime();
-		  }
+		  angularvdata[3 * (nsph * glyphID + s) + i] = data[ID].angularVelocity[i] * Sim->units.unitTime();
+		
+		for (size_t i(0); i < NDIM; ++i)
+		  orientationdata[4 * (nsph * glyphID + s) + i] = data[ID].orientation.imaginary()[i];
+
+		orientationdata[4 * (nsph * glyphID + s) + 3] = data[ID].orientation.real();
 	      }
 	    ++glyphID;
 	  }

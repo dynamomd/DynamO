@@ -407,7 +407,7 @@ namespace coil {
     //Load the primitive data into the VBO's
     _primitiveVertices.init(getPrimitiveVertices(), 3, magnet::GL::buffer_usage::STATIC_DRAW);
     _primitiveNormals.init(getPrimitiveNormals(), 3, magnet::GL::buffer_usage::STATIC_DRAW);
-    _primitiveIndices.init(getPrimitiveIndicies(), 3, magnet::GL::buffer_usage::STATIC_DRAW);
+    _primitiveIndices.init(getPrimitiveIndicies(), (_glyphType->get_active_row_number() == LINE_GLYPH) ? 2 : 3, magnet::GL::buffer_usage::STATIC_DRAW);
   }
 
   std::vector<GLfloat> 

@@ -146,12 +146,18 @@ namespace dynamo {
   {
     particle.getPosition() += particle.getVelocity() * dt;
 
-    //The Vector copy is required to make sure that the cached
-    //orientation doesn't change during calculation
     if (hasOrientationData())
-      orientationData[particle.getID()].orientation 
-	= Rodrigues(orientationData[particle.getID()].angularVelocity * dt)
-	* Vector(orientationData[particle.getID()].orientation); 
+      {
+	orientationData[particle.getID()].orientation 
+	  =
+	  orientationData[particle.getID()].orientation
+	  *
+	  magnet::math::Quaternion::fromRotationAxis(orientationData[particle.getID()].angularVelocity * dt)
+	  ;
+	  
+
+	orientationData[particle.getID()].orientation.normalise();
+      }
   }
 
   double 
@@ -1208,11 +1214,11 @@ namespace dynamo {
     double t_low = 0.0;
   
     SFLines fL(r12, v12,
-		  orientationData[p1.getID()].angularVelocity,
-		  orientationData[p2.getID()].angularVelocity,
-		  orientationData[p1.getID()].orientation,
-		  orientationData[p2.getID()].orientation,
-		  length);
+	       orientationData[p1.getID()].angularVelocity,
+	       orientationData[p2.getID()].angularVelocity,
+	       orientationData[p1.getID()].orientation * magnet::math::Quaternion::initialDirector(),
+	       orientationData[p2.getID()].orientation * magnet::math::Quaternion::initialDirector(),
+	       length);
   
     if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
 	 || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
@@ -1253,8 +1259,8 @@ namespace dynamo {
     SFOffcentre_Spheres f(r12, v12,
 			  orientationData[p1.getID()].angularVelocity,
 			  orientationData[p2.getID()].angularVelocity,
-			  orientationData[p1.getID()].orientation * offset1,
-			  orientationData[p2.getID()].orientation * offset2,
+			  orientationData[p1.getID()].orientation * magnet::math::Quaternion::initialDirector() * offset1,
+			  orientationData[p2.getID()].orientation * magnet::math::Quaternion::initialDirector() * offset2,
 			  diameter1, diameter2,
 			  maxdist);
     
@@ -1331,8 +1337,8 @@ namespace dynamo {
     SFLines fL(retVal.rij, retVal.vijold,
 	       orientationData[particle1.getID()].angularVelocity,
 	       orientationData[particle2.getID()].angularVelocity,
-	       orientationData[particle1.getID()].orientation,
-	       orientationData[particle2.getID()].orientation,
+	       orientationData[particle1.getID()].orientation * magnet::math::Quaternion::initialDirector(),
+	       orientationData[particle2.getID()].orientation * magnet::math::Quaternion::initialDirector(),
 	       length);
 
     Vector uPerp = fL.getu1() ^ fL.getu2();

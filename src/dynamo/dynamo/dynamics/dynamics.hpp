@@ -20,7 +20,7 @@
 #include <dynamo/eventtypes.hpp>
 #include <dynamo/particle.hpp>
 #include <dynamo/simulation.hpp>
-#include <magnet/math/matrix.hpp>
+#include <magnet/math/quaternion.hpp>
 
 namespace xml { class XmlStream; }
 namespace dynamo {
@@ -60,8 +60,8 @@ namespace dynamo {
   public:  
     struct rotData
     {
-      Vector  orientation;
-      Vector  angularVelocity;
+      magnet::math::Quaternion orientation;
+      Vector angularVelocity;
     };
 
     Dynamics(dynamo::Simulation* tmp):

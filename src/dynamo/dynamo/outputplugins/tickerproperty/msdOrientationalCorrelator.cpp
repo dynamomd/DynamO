@@ -72,7 +72,7 @@ namespace dynamo {
 
     BOOST_FOREACH(const Particle& part, Sim->particles)
       {
-	historicalData[part.getID()].push_front(RUpair(part.getPosition(), initial_rdat[part.getID()].orientation));
+	historicalData[part.getID()].push_front(RUpair(part.getPosition(), initial_rdat[part.getID()].orientation * magnet::math::Quaternion::initialDirector()));
       }
   }
 
@@ -82,7 +82,7 @@ namespace dynamo {
     const std::vector<Dynamics::rotData>& current_rdat(Sim->dynamics->getCompleteRotData());
     BOOST_FOREACH(const Particle& part, Sim->particles)
       {
-	historicalData[part.getID()].push_front(RUpair(part.getPosition(), current_rdat[part.getID()].orientation));
+	historicalData[part.getID()].push_front(RUpair(part.getPosition(), current_rdat[part.getID()].orientation * magnet::math::Quaternion::initialDirector()));
       }
 
     if (notReady)

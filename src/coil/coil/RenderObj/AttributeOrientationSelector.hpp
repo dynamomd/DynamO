@@ -49,7 +49,7 @@ namespace coil {
 	}
       
       if (ptr->components() != 3)
-	M_throw() << "Cannot create orientation from anything other than a 3 component Attribute";
+	M_throw() << "Cannot create orientation from anything other than a 3 or 4 component Attribute";
 
 
       if ((_lastAttribute != ptr.get())
@@ -67,9 +67,10 @@ namespace coil {
 	  for (size_t i(0); i < elements; ++i)
 	    {
 	      //Convert to a quaternion
-	      magnet::math::Quaternion q(Vector(attrdata[3 * i + 0], attrdata[3 * i + 1], attrdata[3 * i + 2]));
+	      magnet::math::Quaternion q 
+		= magnet::math::Quaternion::fromOrientation(Vector(attrdata[3 * i + 0], attrdata[3 * i + 1], attrdata[3 * i + 2]));
 	      
-	      for (size_t j(0); j < 3; ++i)
+	      for (size_t j(0); j < 3; ++j)
 		glptr[4 * i + j] = q.imaginary()[j];
 	      glptr[4 * i + 3] = q.real();
 	    }

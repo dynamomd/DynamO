@@ -63,7 +63,7 @@ namespace dynamo {
     
     Sim->BCs->applyBC(pos);
 
-    return pos + ((subID == 0) ? _LA->getProperty(ID) : -_LB->getProperty(ID)) * Sim->dynamics->getRotData(ID).orientation;
+    return pos + ((subID == 0) ? _LA->getProperty(ID) : -_LB->getProperty(ID)) * (Sim->dynamics->getRotData(ID).orientation * magnet::math::Quaternion::initialDirector());
   }
 
   double IDumbbells::getExcludedVolume(size_t ID) const 
@@ -210,8 +210,8 @@ namespace dynamo {
 	    diamA2 = _diamA->getProperty(p2.getID()),
 	    diamB2 = _diamB->getProperty(p2.getID());
 
-	  const Vector director1 = Sim->dynamics->getRotData(p1).orientation;
-	  const Vector director2 = Sim->dynamics->getRotData(p2).orientation;
+	  const Vector director1 = Sim->dynamics->getRotData(p1).orientation * magnet::math::Quaternion::initialDirector();
+	  const Vector director2 = Sim->dynamics->getRotData(p2).orientation * magnet::math::Quaternion::initialDirector();
 	  const Vector angvel1 = Sim->dynamics->getRotData(p1).angularVelocity;
 	  const Vector angvel2 = Sim->dynamics->getRotData(p2).angularVelocity;
 
@@ -363,13 +363,13 @@ namespace dynamo {
       lB1 = _LB->getProperty(p1.getID()),
       diamA1 = _diamA->getProperty(p1.getID()),
       diamB1 = _diamB->getProperty(p1.getID());
-    const Vector director1 = Sim->dynamics->getRotData(p1).orientation;
+    const Vector director1 = Sim->dynamics->getRotData(p1).orientation * magnet::math::Quaternion::initialDirector();
 
     const double lA2 = _LA->getProperty(p2.getID()),
       lB2 = _LB->getProperty(p2.getID()),
       diamA2 = _diamA->getProperty(p2.getID()),
       diamB2 = _diamB->getProperty(p2.getID());
-    const Vector director2 = Sim->dynamics->getRotData(p2).orientation;
+    const Vector director2 = Sim->dynamics->getRotData(p2).orientation * magnet::math::Quaternion::initialDirector();
 
     const double l1 = std::max(lA1 + 0.5 * diamA1, lB1 + 0.5 * diamB1);
     const double l2 = std::max(lA2 + 0.5 * diamA2, lB2 + 0.5 * diamB2);
