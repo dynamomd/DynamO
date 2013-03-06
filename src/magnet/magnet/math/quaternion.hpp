@@ -181,6 +181,12 @@ namespace magnet {
 	const double inv_nrm2 = 1.0 / nrm2();
 	return Quaternion(_real * inv_nrm2, - _imaginary * inv_nrm2);
       }
+
+      std::string toString() const {
+	std::ostringstream os;
+	os << "[" << _real << "," << _imaginary.toString() << "]";
+	return os.str();
+      }
     };
 
     inline magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Quaternion & q)

@@ -148,14 +148,8 @@ namespace dynamo {
 
     if (hasOrientationData())
       {
-	orientationData[particle.getID()].orientation 
-	  =
-	  orientationData[particle.getID()].orientation
-	  *
-	  magnet::math::Quaternion::fromRotationAxis(orientationData[particle.getID()].angularVelocity * dt)
-	  ;
-	  
-
+	orientationData[particle.getID()].orientation = magnet::math::Quaternion::fromRotationAxis(orientationData[particle.getID()].angularVelocity * dt)
+	  * orientationData[particle.getID()].orientation ;
 	orientationData[particle.getID()].orientation.normalise();
       }
   }
