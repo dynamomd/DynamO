@@ -1253,9 +1253,9 @@ namespace dynamo {
     SFOffcentre_Spheres f(r12, v12,
 			  orientationData[p1.getID()].angularVelocity,
 			  orientationData[p2.getID()].angularVelocity,
-			  orientationData[p1.getID()].orientation,
-			  orientationData[p2.getID()].orientation,
-			  diameter1, diameter2, offset1, offset2, maxdist);
+			  orientationData[p1.getID()].orientation * Quaternion::initialDirector() * offset1,
+			  orientationData[p2.getID()].orientation * Quaternion::initialDirector() * offset2,
+			  diameter1, diameter2, maxdist);
     
     double f0 = f.eval<0>();
     double f1 = f.eval<1>();

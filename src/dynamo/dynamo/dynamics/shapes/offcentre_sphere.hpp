@@ -53,14 +53,13 @@ namespace dynamo {
   public:
     SFOffcentre_Spheres(const Vector& nr12, const Vector& nv12,
 			const Vector& nw1, const Vector& nw2,
-			const Quaternion& nq1, const Quaternion& nq2,
+			const Vector& nu1, const Vector& nu2,
 			const double diameter1, const double diameter2,
-			const double offset1, const double offset2,
 			const double maxdist):
-      w1(nw1), w2(nw2), q1(nq1), q2(nq2),
+      w1(nw1), w2(nw2), u1(nu1), u2(nu2),
       w12(nw1 - nw2), r12(nr12), v12(nv12),
-      _diameter1(diameter1), _diameter2(diameter2),
-      _offset1(offset1),_offset2(offset2)
+      _diameter1(diameter1),
+      _diameter2(diameter2)
     {
       double magw1 = w1.nrm(), magw2 = w2.nrm();
       double rijmax = u1.nrm() + u2.nrm() + maxdist;
@@ -74,13 +73,9 @@ namespace dynamo {
 
     void stream(const double& dt)
     {
-      q1 = Quaternion::fromRotationAxis(w1 * dt) * q1;
-      q1.normalise();
-      q2 = Quaternion::fromRotationAxis(w2 * dt) * q2;
-      q2.normalise();
+      u1 = Rodrigues(w1 * dt) * Vector(u1);
+      u2 = Rodrigues(w2 * dt) * Vector(u2);
       r12 += v12 * dt;
-      u1 = q1 * Quaternion::initialDirector();
-      u2 = q2 * Quaternion::initialDirector();
     }
   
     template<size_t deriv> 
@@ -136,8 +131,6 @@ namespace dynamo {
   private:
     const Vector& w1;
     const Vector& w2;
-    Quaternion q1;
-    Quaternion q2;
     Vector u1;
     Vector u2;
     Vector w12;
@@ -145,7 +138,6 @@ namespace dynamo {
     Vector v12;
 
     const double _diameter1, _diameter2;
-    const double _offset1, _offset2;
     double _f1max, _f2max, _f3max;
   };
 }
