@@ -148,7 +148,7 @@ namespace dynamo {
 
     if (hasOrientationData())
       {
-	orientationData[particle.getID()].orientation = magnet::math::Quaternion::fromRotationAxis(orientationData[particle.getID()].angularVelocity * dt)
+	orientationData[particle.getID()].orientation = Quaternion::fromRotationAxis(orientationData[particle.getID()].angularVelocity * dt)
 	  * orientationData[particle.getID()].orientation ;
 	orientationData[particle.getID()].orientation.normalise();
       }
@@ -1210,8 +1210,8 @@ namespace dynamo {
     SFLines fL(r12, v12,
 	       orientationData[p1.getID()].angularVelocity,
 	       orientationData[p2.getID()].angularVelocity,
-	       orientationData[p1.getID()].orientation * magnet::math::Quaternion::initialDirector(),
-	       orientationData[p2.getID()].orientation * magnet::math::Quaternion::initialDirector(),
+	       orientationData[p1.getID()].orientation,
+	       orientationData[p2.getID()].orientation,
 	       length);
   
     if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
@@ -1253,10 +1253,9 @@ namespace dynamo {
     SFOffcentre_Spheres f(r12, v12,
 			  orientationData[p1.getID()].angularVelocity,
 			  orientationData[p2.getID()].angularVelocity,
-			  orientationData[p1.getID()].orientation * magnet::math::Quaternion::initialDirector() * offset1,
-			  orientationData[p2.getID()].orientation * magnet::math::Quaternion::initialDirector() * offset2,
-			  diameter1, diameter2,
-			  maxdist);
+			  orientationData[p1.getID()].orientation,
+			  orientationData[p2.getID()].orientation,
+			  diameter1, diameter2, offset1, offset2, maxdist);
     
     double f0 = f.eval<0>();
     double f1 = f.eval<1>();
@@ -1331,8 +1330,8 @@ namespace dynamo {
     SFLines fL(retVal.rij, retVal.vijold,
 	       orientationData[particle1.getID()].angularVelocity,
 	       orientationData[particle2.getID()].angularVelocity,
-	       orientationData[particle1.getID()].orientation * magnet::math::Quaternion::initialDirector(),
-	       orientationData[particle2.getID()].orientation * magnet::math::Quaternion::initialDirector(),
+	       orientationData[particle1.getID()].orientation,
+	       orientationData[particle2.getID()].orientation,
 	       length);
 
     Vector uPerp = fL.getu1() ^ fL.getu2();

@@ -322,7 +322,7 @@ namespace dynamo {
     for (size_t i = 0; i < Sim->particles.size(); ++i)
       {
 	//Assign the new velocities
-	orientationData[i].orientation = magnet::math::Quaternion::identity();
+	orientationData[i].orientation = Quaternion::identity();
       
 	Vector angVelCrossing;
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -330,7 +330,7 @@ namespace dynamo {
 	
 	//Ensure the initial angular velocity is perpendicular to the
 	//director
-	orientationData[i].angularVelocity = magnet::math::Quaternion::initialDirector() ^ angVelCrossing;
+	orientationData[i].angularVelocity = Quaternion::initialDirector() ^ angVelCrossing;
 	
 	orientationData[i].angularVelocity *= factor * Sim->normal_sampler() / orientationData[i].angularVelocity.nrm();
       }

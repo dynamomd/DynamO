@@ -43,7 +43,7 @@ namespace dynamo {
 
     for (size_t ID = 0; ID < Sim->N; ++ID)
       {
-	initialConfiguration[ID] = RUpair(Sim->particles[ID].getPosition(), rdat[ID].orientation * magnet::math::Quaternion::initialDirector());
+	initialConfiguration[ID] = RUpair(Sim->particles[ID].getPosition(), rdat[ID].orientation * Quaternion::initialDirector());
       }
   }
 
@@ -103,7 +103,7 @@ namespace dynamo {
       {
 	displacement_term = part.getPosition() - initialConfiguration[part.getID()].first;
 	longitudinal_projection = (displacement_term | initialConfiguration[part.getID()].second);
-	cos_theta = (initialConfiguration[part.getID()].second | (latest_rdat[part.getID()].orientation * magnet::math::Quaternion::initialDirector()));
+	cos_theta = (initialConfiguration[part.getID()].second | (latest_rdat[part.getID()].orientation * Quaternion::initialDirector()));
 
 	acc_perp += (displacement_term - (longitudinal_projection * initialConfiguration[part.getID()].second)).nrm2();
 	acc_parallel += std::pow(longitudinal_projection, 2);

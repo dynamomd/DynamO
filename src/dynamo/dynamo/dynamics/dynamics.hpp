@@ -60,7 +60,7 @@ namespace dynamo {
   public:  
     struct rotData
     {
-      magnet::math::Quaternion orientation;
+      Quaternion orientation;
       Vector angularVelocity;
     };
 

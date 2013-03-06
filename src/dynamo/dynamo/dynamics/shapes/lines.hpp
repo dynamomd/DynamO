@@ -27,18 +27,25 @@ namespace dynamo {
   public:
     SFLines(const Vector& nr12, const Vector& nv12,
 	    const Vector& nw1, const Vector& nw2, 
-	    const Vector& nu1, const Vector& nu2,
+	    const Quaternion& nq1, const Quaternion& nq2,
 	    const double& length):
-      w1(nw1), w2(nw2), u1(nu1), u2(nu2),
+      w1(nw1), w2(nw2), q1(nq1), q2(nq2),
       w12(nw1 - nw2), r12(nr12), v12(nv12),
       _length(length)
-    {}
+    {
+      u1 = q1 * Quaternion::initialDirector();
+      u2 = q2 * Quaternion::initialDirector();
+    }
 
     void stream(const double& dt)
     {
-      u1 = Rodrigues(w1 * dt) * Vector(u1);
-      u2 = Rodrigues(w2 * dt) * Vector(u2);
+      q1 = Quaternion::fromRotationAxis(w1 * dt) * q1;
+      q1.normalise();
+      q2 = Quaternion::fromRotationAxis(w2 * dt) * q2;
+      q2.normalise();
       r12 += v12 * dt;
+      u1 = q1 * Quaternion::initialDirector();
+      u2 = q2 * Quaternion::initialDirector();
     }
   
     std::pair<double, double> getCollisionPoints() const
@@ -126,11 +133,12 @@ namespace dynamo {
   private:
     const Vector& w1;
     const Vector& w2;
-    Vector u1;
-    Vector u2;
+    Quaternion q1;
+    Quaternion q2;
     Vector w12;
     Vector r12;
     Vector v12;
+    Vector u1, u2;
 
     const double _length;
   };

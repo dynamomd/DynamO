@@ -204,3 +204,5 @@ namespace magnet {
 
   }
 }
+
+namespace dynamo { typedef ::magnet::math::Quaternion Quaternion; }
