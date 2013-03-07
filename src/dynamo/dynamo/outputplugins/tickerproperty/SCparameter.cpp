@@ -22,6 +22,7 @@
 #include <boost/math/special_functions/pow.hpp>  
 #include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <complex>
 #include <fstream>
 #include <cmath>
 #include <limits>

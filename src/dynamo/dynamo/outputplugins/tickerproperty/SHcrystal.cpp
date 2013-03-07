@@ -15,12 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <boost/math/special_functions/spherical_harmonic.hpp>
 #include <dynamo/outputplugins/tickerproperty/SHcrystal.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/BC/BC.hpp>
-#include <boost/math/special_functions/spherical_harmonic.hpp>
 #include <boost/foreach.hpp>
 #include <magnet/math/wigner3J.hpp>
 #include <magnet/xmlwriter.hpp>
