@@ -38,8 +38,8 @@ namespace dynamo {
   {
     //Convert to output units of time
     tickFreq /= Sim->units.unitTime();
-    //Stop zero tick times 
-    tickFreq += (tickFreq == 0);
+    //Stop zero tick times, replace them with a guess of 0.01
+    tickFreq += (tickFreq == 0) * 0.01;
 
     //We want to ensure we get at least one update before anything
     //occurs in the system.
