@@ -200,10 +200,10 @@ namespace magnet {
       double z=eval<2>();				\
       double biggest= std::max(std::max(std::abs(x), std::abs(y)), std::abs(z)); \
       if (biggest!=0)					\
-	return biggest*(double)(sqrt(SQR(x/biggest)	\
-				     +SQR(y/biggest)	\
-				     +SQR(z/biggest))); \
-      else						\
+	return biggest*(double)(std::sqrt(SQR(x/biggest)	\
+					  +SQR(y/biggest)	\
+					  +SQR(z/biggest)));	\
+      else							\
 	return 0;					\
     }
 

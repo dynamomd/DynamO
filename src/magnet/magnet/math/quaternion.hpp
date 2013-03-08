@@ -107,7 +107,7 @@ namespace magnet {
 	double sin_half_angle = std::sin(half_angle);
 	double cos_half_angle = std::cos(half_angle);
 
-	return Quaternion(cos_half_angle, -vec * (sin_half_angle / angle));
+	return Quaternion(cos_half_angle, vec * (sin_half_angle / angle));
       }
 
       /*! \brief Returns an identity quaternion.
@@ -154,19 +154,13 @@ namespace magnet {
 	_real *= inv_norm;
       }
 
-      /*! \brief Rotation of a vector */
+      /*! \brief Rotation of a vector (assuming the vector is already normalised) */
       Vector operator*(const Vector& vec) const {
-	Vector uv = _imaginary ^ vec;
-	Vector uuv = _imaginary ^ uv;
-	uv *= 2.0 * _real;
-	uuv *= 2.0;
-	
-	//return vec + uv + uuv;
-	return vec + 2.0 * (((vec ^ _imaginary) + _real * vec) ^ _imaginary);
+	return (((*this) * Quaternion(0,vec)) * ((*this).conjugate()))._imaginary;
       }
 
-      Quaternion operator*(const Quaternion& r) const {
-	const Quaternion& q(*this);
+      Quaternion operator*(const Quaternion& q) const {
+	const Quaternion& r(*this);
 	return Quaternion(r[0] * q[0] - r[1] * q[1] - r[2] * q[2] - r[3] * q[3],
 			  r[0] * q[1] + r[1] * q[0] + r[2] * q[3] - r[3] * q[2],
 			  r[0] * q[2] + r[2] * q[0] + r[3] * q[1] - r[1] * q[3],
