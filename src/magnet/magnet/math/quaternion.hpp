@@ -16,7 +16,7 @@
 */
 
 #pragma once
-#include <magnet/math/vector.hpp>
+#include <magnet/math/matrix.hpp>
 
 namespace magnet {
   namespace math {
@@ -43,41 +43,21 @@ namespace magnet {
 	_imaginary(imaginary)
       {}
 
-      /*! \brief Returns the unrotated director.
+      /*! \brief Returns the default unrotated director.
 	
 	When quaternions are used to store an orientation, they
 	actually encode a rotation from a reference director to the
-	encoded direction. This function returns the unit reference vector
-	used in the fromOrientation() function.
+	encoded direction. This function returns a default unit
+	reference vector.
        */
       static Vector initialDirector() { return Vector(0,0,1); }
 
-      /*! \brief Create a quaternion from a rotation vector.
-	
-	The quaternion is a rotation that takes the initialDirector()
-	vector into the vector passed as an argument. This cannot take
-	into account the additional rotation about the axis of the
-	vector.
+      /*! \brief Create a quaternion from the cosine of the rotation
+          angle and a rotation axis.
        */
-      static Quaternion fromOrientation(const Vector& vec)
+      static Quaternion fromCosAngleAxis(double cosangle, Vector axis)
       {
-	//Calculate the parameters of the rotation
-	double vecnrm = vec.nrm();
-	//get the cosine of the angle between the unrotated vector and
-	//this vector
-	double cosangle = (vec | initialDirector()) / vecnrm;
-
-	if ((vecnrm == 0) || (cosangle == 1))
-	  //Special case of no rotation
-	  return Quaternion(1,0,0,0);
-
-	if (cosangle == -1)
-	  //Special case where vec and axis are opposites
-	  return Quaternion(0,1,0,0);
-	
-	//Calculate the rotation axis and store in the imaginary part
-	//of the quaternion
-	Quaternion retval(cosangle, (vec ^ initialDirector()) / vecnrm);
+	Quaternion retval(cosangle, axis);
 	retval.normalise();
 	
 	//The current quaternion represents a rotation which is twice
@@ -86,28 +66,48 @@ namespace magnet {
 	retval.halfRotation();
 	return retval;
       }
+      
+      /*! \brief Create a quaternion from a rotation angle and a
+          rotation axis.
+       */
+      static Quaternion fromAngleAxis(double angle, Vector axis)
+      {
+	if (angle == 0) return identity();
+        double half_angle = 0.5 * angle;
+	return Quaternion(std::cos(half_angle), std::sin(half_angle) * axis);
+      }
+      
+
+      /*! \brief Create a quaternion from the shortest rotation
+          between two unit vectors.
+	
+	The quaternion is a rotation that takes the from vector into
+	the to vector using the shortest arc. This cannot calculate
+	the additional possible rotation about the axis of the vector.
+       */
+      static Quaternion fromToVector(Vector to, Vector from = initialDirector())
+      {
+	//get the cosine of the angle between the unrotated vector and
+	//this vector
+	double cosangle = (from | to);
+
+	//Special case of no rotation
+	if (cosangle >= 1) return identity();
+
+	//Special case where vec and axis are opposites
+	if (cosangle <= -1) return Quaternion(0,1,0,0);
+	
+	return fromCosAngleAxis(cosangle, from ^ to);
+      }
 
       /*! \brief This calculates a quaternion from a rotation axis,
           where the magnitude of the vector is the angle of rotation.
-	  
-	  This definition does not quite align with other examples on
-	  the web, this is because those definitions have an opposite
-	  handedness. This form is coherent with the Matrix Rodrigues
-	  function.
-       */
-      static Quaternion fromRotationAxis(const Vector& vec)
+      */
+      static Quaternion fromRotationAxis(Vector axis)
       {
-	double angle = vec.nrm();
-
-	if (angle == 0)
-	  //Special case of no rotation
-	  return Quaternion(1,0,0,0);
-
-	double half_angle = angle * 0.5;
-	double sin_half_angle = std::sin(half_angle);
-	double cos_half_angle = std::cos(half_angle);
-
-	return Quaternion(cos_half_angle, vec * (sin_half_angle / angle));
+	double angle = axis.nrm();
+	axis /= angle + (angle==0);
+	return fromAngleAxis(angle, axis);
       }
 
       /*! \brief Returns an identity quaternion.
@@ -180,6 +180,22 @@ namespace magnet {
 	std::ostringstream os;
 	os << "[" << _real << "," << _imaginary.toString() << "]";
 	return os.str();
+      }
+
+      Matrix toMatrix() const {
+	double xx = _imaginary[0] * _imaginary[0];
+	double xy = _imaginary[0] * _imaginary[1];
+	double xz = _imaginary[0] * _imaginary[2];
+	double xw = _imaginary[0] * _real;
+	double yy = _imaginary[1] * _imaginary[1];
+	double yz = _imaginary[1] * _imaginary[2];
+	double yw = _imaginary[1] * _real;
+	double zz = _imaginary[2] * _imaginary[2];
+	double zw = _imaginary[2] * _real;
+	
+	return Matrix(1 - 2 * ( yy + zz ), 2 * ( xy - zw ), 2 * ( xz + yw ),
+		      2 * ( xy + zw ), 1 - 2 * ( xx + zz ), 2 * ( yz - xw ),
+		      2 * ( xz - yw ), 2 * ( yz + xw ), 1 - 2 * ( xx + yy ));
       }
     };
 
