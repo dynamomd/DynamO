@@ -582,33 +582,40 @@ namespace coil {
   CLGLWindow::init()
   {
     magnet::thread::ScopedLock lock(_destroyLock);
-
+    
     if (_readyFlag) return;
-  
+
+    double light_distance = 50 / _camera.getRenderScale();
+    Vector look_at = Vector(0.0f, 0.0f, 0.0f);
+    Vector up = Vector(0,1,0);
+    
     {
-      std::tr1::shared_ptr<RLight> light(new RLight("Light 1",
-						    Vector(-25.0f,  25.0f, -25.0f) / _camera.getRenderScale(),//Position
-						    Vector(0.0f, 0.0f, 0.0f),//Lookat
-						    30.0, 10000.0f, magnet::math::Vector(0,1,0), _camera.getRenderScale()
-						    ));
+      std::tr1::shared_ptr<RLight> light(new RLight("Light 1", Vector(1, -1, 0) * light_distance, look_at, 30.0, 10000.0f, up, _camera.getRenderScale()));
       _renderObjsTree._renderObjects.push_back(light);
     }
 
     {
-      std::tr1::shared_ptr<RLight> light(new RLight("Light 2",
-						    Vector(25.0f,  25.0f, -25.0f) / _camera.getRenderScale(),//Position
-						    Vector(0.0f, 0.0f, 0.0f),//Lookat
-						    30.0, 10000.0f, magnet::math::Vector(0,1,0), _camera.getRenderScale()
-						    ));
+      std::tr1::shared_ptr<RLight> light(new RLight("Light 2", Vector(0, -1, 1) * light_distance, look_at, 30.0, 10000.0f, up, _camera.getRenderScale()));
       _renderObjsTree._renderObjects.push_back(light);
     }
 
     {
-      std::tr1::shared_ptr<RLight> light(new RLight("Light 3",
-						    Vector(0.0f,  25.0f, 25.0f) / _camera.getRenderScale(),//Position
-						    Vector(0.0f, 0.0f, 0.0f),//Lookat
-						    30.0, 10000.0f, magnet::math::Vector(0,1,0), _camera.getRenderScale()
-						    ));
+      std::tr1::shared_ptr<RLight> light(new RLight("Light 3", Vector(-std::sqrt(0.5), -1, -std::sqrt(0.5)) * light_distance, look_at, 30.0, 10000.0f, up, _camera.getRenderScale()));
+      _renderObjsTree._renderObjects.push_back(light);
+    }
+
+    {
+      std::tr1::shared_ptr<RLight> light(new RLight("Light 4", -Vector(1, -1, 0) * light_distance, look_at, 30.0, 10000.0f, up, _camera.getRenderScale()));
+      _renderObjsTree._renderObjects.push_back(light);
+    }
+
+    {
+      std::tr1::shared_ptr<RLight> light(new RLight("Light 5", -Vector(0, -1, 1) * light_distance, look_at, 30.0, 10000.0f, up, _camera.getRenderScale()));
+      _renderObjsTree._renderObjects.push_back(light);
+    }
+
+    {
+      std::tr1::shared_ptr<RLight> light(new RLight("Light 6", -Vector(-std::sqrt(0.5), -1, -std::sqrt(0.5)) * light_distance, look_at, 30.0, 10000.0f, up, _camera.getRenderScale()));
       _renderObjsTree._renderObjects.push_back(light);
     }
   
