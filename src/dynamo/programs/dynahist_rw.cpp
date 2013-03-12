@@ -569,8 +569,10 @@ main(int argc, char *argv[])
 	    << "under certain conditions. See the licence you obtained with\n"
 	    << "the code\n";
 
+#if !defined(__APPLE__)
   //This is so the program crashes out when floating point errors occur
   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);
+#endif
 
   try {
     namespace po = boost::program_options;
