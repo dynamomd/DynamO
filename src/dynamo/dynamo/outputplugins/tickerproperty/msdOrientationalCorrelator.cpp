@@ -111,8 +111,9 @@ namespace dynamo {
 	    stepped_data_parallel[step] += std::pow(longitudinal_projection, 2);
 	    stepped_data_perpendicular[step] += (displacement_term - (longitudinal_projection * historicalData[part.getID()][0].second)).nrm2();
 
-	    stepped_data_rotational_legendre1[step] += boost::math::legendre_p(1, cos_theta);
-	    stepped_data_rotational_legendre2[step] += boost::math::legendre_p(2, cos_theta);
+	    double clamp_cos_theta = std::max(std::min(1,cos_theta),-1);
+	    stepped_data_rotational_legendre1[step] += boost::math::legendre_p(1, clamp_cos_theta);
+	    stepped_data_rotational_legendre2[step] += boost::math::legendre_p(2, clamp_cos_theta);
 	  }
       }
   }

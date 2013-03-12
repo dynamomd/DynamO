@@ -107,8 +107,9 @@ namespace dynamo {
 
 	acc_perp += (displacement_term - (longitudinal_projection * initialConfiguration[part.getID()].second)).nrm2();
 	acc_parallel += std::pow(longitudinal_projection, 2);
-	acc_rotational_legendre1 += boost::math::legendre_p(1, cos_theta);
-	acc_rotational_legendre2 += boost::math::legendre_p(2, cos_theta);
+	double clamp_cos_theta = std::max(std::min(1,cos_theta),-1);
+	acc_rotational_legendre1 += boost::math::legendre_p(1, clamp_cos_theta);
+	acc_rotational_legendre2 += boost::math::legendre_p(2, clamp_cos_theta);
       }
 
     // In the N-dimensional case, the parallel component is 1-dimensonal and the perpendicular (N-1)
