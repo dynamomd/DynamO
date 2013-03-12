@@ -111,6 +111,17 @@ namespace magnet {
 	else
 	  return 0;
       }
+      
+      inline VectorExpression<> normal() const {
+	double norm=nrm();
+	double inv_nrm = 1.0 / (norm + (norm==0));
+	return Vector((*this)[0] * inv_nrm, (*this)[1] * inv_nrm, (*this)[2] * inv_nrm);
+      }
+
+      inline void normalise() {
+	*this = normal();
+      }
+
 
       inline double maxElement() const { return std::max(std::max(std::abs(_data[0]), std::abs(_data[1])), std::abs(_data[2])); }
 

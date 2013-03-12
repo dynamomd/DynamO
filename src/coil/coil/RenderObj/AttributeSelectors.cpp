@@ -26,6 +26,7 @@ namespace coil {
   {
     pack_start(_colorMapSelector, false, false, 5);
     pack_start(_autoScaling, false, false, 5);
+
     _autoScaling.set_active(true);
     _autoScaling.show();
     
@@ -34,8 +35,68 @@ namespace coil {
     _autoScaling.signal_toggled()
       .connect(sigc::mem_fun(*this, &AttributeColorSelector::colorMapChanged));
 
+    _selectorRow.pack_end(_colorButton,false, false, 5);
+    _colorButton.show();
+    _colorButton.signal_color_set().connect(sigc::mem_fun(*this, &AttributeColorSelector::colorButtonUsed));
+
     _componentSelect.signal_changed()
       .connect(sigc::mem_fun(this, &AttributeColorSelector::updateComponent));
+
+    //Change the handler for the single value boxes over to one which
+    //will update the color button.
+    for (size_t i(0); i < 4; ++i)
+      _scalarvalues[i].signal_changed()
+	.connect(sigc::mem_fun(*this, &AttributeColorSelector::colorValuesChanged));
+    colorValuesChanged();
+  }
+
+  void 
+  AttributeColorSelector::colorButtonUsed() {
+    Gdk::Color color = _colorButton.get_color();
+    _scalarvalues[0].set_text(boost::lexical_cast<std::string>(color.get_red()/65535.0));
+    _scalarvalues[1].set_text(boost::lexical_cast<std::string>(color.get_green()/65535.0));
+    _scalarvalues[2].set_text(boost::lexical_cast<std::string>(color.get_blue()/65535.0));
+  }
+  
+  void  
+  AttributeColorSelector::colorValuesChanged()
+  {
+    magnet::gtk::forceNumericEntry(_scalarvalues + 0);
+    magnet::gtk::forceNumericEntry(_scalarvalues + 1);
+    magnet::gtk::forceNumericEntry(_scalarvalues + 2);
+    magnet::gtk::forceNumericEntry(_scalarvalues + 3);
+    Gdk::Color color = _colorButton.get_color();
+
+    double colors[3] = {1,1,1};
+    for (size_t i(0); i < 3; ++i)
+      try {
+	colors[i] = boost::lexical_cast<double>(_scalarvalues[i].get_text());
+      } catch (...) {}
+
+    color.set_rgb_p(colors[0],colors[1], colors[2]);
+    _colorButton.set_color(color);
+  }
+  
+
+  void 
+  AttributeColorSelector::updateGui()
+  {
+    AttributeSelector::updateGui();
+
+    bool singlevalmode = singleValueMode();
+
+    _colorButton.set_visible(_components && singlevalmode);
+
+    for (size_t i(0); i < _components; ++i)
+      _scalarvalues[i].set_visible(false);
+      
+    if (!singleValueMode() && _enableDataFiltering)
+      {
+	//Default to coloring using the raw values
+	_componentSelect.set_active(1);
+      }
+    
+    updateComponent();
   }
 
   AttributeSelector::AttributeSelector(bool enableDataFiltering):
@@ -59,21 +120,24 @@ namespace coil {
     _selectorRow.pack_start(_comboBox, false, false, 5);
       
     _selectorRow.pack_start(_componentSelect, false, false, 5);
-      
-    _singleValueLabel.show();
-    _singleValueLabel.set_text("Value:");
-    _singleValueLabel.set_alignment(1.0, 0.5);
 
-    _selectorRow.pack_start(_singleValueLabel, true, true, 5);
-    for (size_t i(0); i < 4; ++i)
-      {
-	_selectorRow.pack_start(_scalarvalues[i], false, false, 0);
-	_scalarvalues[i].signal_changed()
-	  .connect(sigc::bind(&magnet::gtk::forceNumericEntry, _scalarvalues + i));
-	_scalarvalues[i].set_text("1.0");
-	_scalarvalues[i].set_max_length(0);
-	_scalarvalues[i].set_width_chars(5);	  
-      }
+
+    {
+      _singleValueLabel.show();
+      _singleValueLabel.set_text("Value:");
+      _singleValueLabel.set_alignment(1.0, 0.5);
+      
+      _selectorRow.pack_start(_singleValueLabel, true, true, 5);
+      for (size_t i(0); i < 4; ++i)
+	{
+	  _selectorRow.pack_start(_scalarvalues[i], false, false, 0);
+	  _scalarvalues[i].signal_changed()
+	    .connect(sigc::bind(&magnet::gtk::forceNumericEntry, _scalarvalues + i));
+	  _scalarvalues[i].set_text("1.0");
+	  _scalarvalues[i].set_max_length(0);
+	  _scalarvalues[i].set_width_chars(5);	  
+	}
+    }
 
     show();
 
@@ -252,7 +316,7 @@ namespace coil {
   {
     _singleValueLabel.set_visible(false);
     for (size_t i(0); i < 4; ++i)
-      _scalarvalues[i].hide();
+      _scalarvalues[i].set_visible(false);
 
     bool singlevalmode = singleValueMode();
 
@@ -260,7 +324,7 @@ namespace coil {
       {
 	_singleValueLabel.set_visible(true);
 	for (size_t i(0); i < _components; ++i)
-	  _scalarvalues[i].show();
+	  _scalarvalues[i].set_visible(true);
       }
 
     _componentSelect.clear_items();
@@ -287,8 +351,5 @@ namespace coil {
 	//Default to coloring using the raw values
 	_componentSelect.set_active(0);
       }
-
-    for (size_t i(0); i < _components; ++i)
-      _scalarvalues[i].set_sensitive(singlevalmode);
   }
 }
