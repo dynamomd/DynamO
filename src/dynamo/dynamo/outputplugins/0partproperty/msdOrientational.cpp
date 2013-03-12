@@ -107,7 +107,7 @@ namespace dynamo {
 
 	acc_perp += (displacement_term - (longitudinal_projection * initialConfiguration[part.getID()].second)).nrm2();
 	acc_parallel += std::pow(longitudinal_projection, 2);
-	double clamp_cos_theta = std::max(std::min(1,cos_theta),-1);
+	double clamp_cos_theta = std::max(std::min(1.0, cos_theta), -1.0);
 	acc_rotational_legendre1 += boost::math::legendre_p(1, clamp_cos_theta);
 	acc_rotational_legendre2 += boost::math::legendre_p(2, clamp_cos_theta);
       }
