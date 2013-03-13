@@ -19,6 +19,7 @@ path-constant BUILD_DIR_PATH : ./build-dir ;
 path-constant LIB_INSTALL_PATH : ./lib ;
 path-constant BIN_INSTALL_PATH : ./bin ;
 path-constant INCLUDE_INSTALL_PATH : ./include ;
+path-constant TOP : . ;
 
 ##### Project shortcuts
 ##### This makes the /system project a link to this file, so that all the system libraries may be accessed.
