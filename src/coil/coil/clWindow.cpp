@@ -46,7 +46,7 @@
 
 //The glade xml file is "linked" into a binary file and stuffed in the
 //executable, these are the symbols to its data
-const std::string clwingtk;
+extern const std::string clwingtk;
 
 namespace {
   void resizeGlutWindow(int width, int height)
@@ -133,7 +133,7 @@ namespace coil {
     _filterModelColumns.reset(new FilterModelColumnsType);
 
     try {
-      _refXml = Gtk::Builder::create_from_string(clwingtk);  
+      _refXml = Gtk::Builder::create_from_string(clwingtk);
     } catch (std::exception& err)
       {
 	M_throw() << "Failed to load the interface design into Gtk::Builder\n"

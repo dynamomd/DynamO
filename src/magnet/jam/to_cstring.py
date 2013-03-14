@@ -10,6 +10,7 @@ output = open(sys.argv[2], 'w+')
 file_name=os.path.basename(sys.argv[2])
 symbol_name=os.path.splitext(file_name)[0]
 output.write("#include <string>\n")
+output.write("extern const std::string "+symbol_name+";\n")
 output.write("const std::string "+symbol_name+" = ")
 for line in open(sys.argv[1], 'r'):
     #Escape any backslashes
