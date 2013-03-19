@@ -22,7 +22,7 @@ project	: requirements
 	  [ builddep.set-feature-on-build magnet-OpenCL : /opencl//test : "Magnet: OpenCL libraries and headers (optional)" : symmetric ]
 	: default-build release : build-dir $(BUILD_DIR_PATH) ;
 
-alias magnet : /system//dl : : : <include>. <variant>debug:<define>MAGNET_DEBUG <variant>debug:<linkflags>-rdynamic <variant>fulldebug:<define>MAGNET_DEBUG  <magnet-OpenCL>yes:<source>/opencl//OpenCL <magnet-OpenCL>yes:<define>MAGNET_CLGL ;
+alias magnet : /system//dl : : : <include>. <variant>debug:<define>MAGNET_DEBUG <toolset>gcc,<variant>debug:<linkflags>-rdynamic <variant>fulldebug:<define>MAGNET_DEBUG  <magnet-OpenCL>yes:<source>/opencl//OpenCL <magnet-OpenCL>yes:<define>MAGNET_CLGL ;
 
 install install-magnet : [ glob magnet/*.hpp magnet/*/*.hpp magnet/*/*/*.hpp magnet/*/*/*/*.hpp magnet/*/*/*/*/*.hpp ] : <location>$(INCLUDE_INSTALL_PATH) <install-source-root>./ ;
       
