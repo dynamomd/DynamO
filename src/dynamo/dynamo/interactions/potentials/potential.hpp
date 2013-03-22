@@ -58,6 +58,11 @@ namespace dynamo {
        if there is no hard core.
      */
     virtual double hard_core_diameter() const = 0; 
+
+    /*!\brief Return the diameter which should be used to render/draw
+       the particle as a sphere.
+     */
+    virtual double render_diameter() const = 0;
     
     /*!\brief Return how many steps of the potential have already been
       calculated and cached.
@@ -113,6 +118,14 @@ namespace dynamo {
       return 0;
     }
     
+    virtual double render_diameter() const {
+      double hard_core_d = hard_core_diameter();
+
+      if (hard_core_d != 0) return hard_core_d;
+      //If there is no hard core, just return the innermost step diameter
+      return _r_cache.back();
+    }
+
   protected:
     virtual void calculateNextStep() const {
       M_throw() << "Cannot calculate new steps for this potential!";

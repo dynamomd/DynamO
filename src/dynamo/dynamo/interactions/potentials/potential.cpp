@@ -16,6 +16,7 @@
 */
 
 #include <dynamo/interactions/potentials/potential.hpp>
+#include <dynamo/interactions/potentials/lennard_jones.hpp>
 #include <dynamo/simulation.hpp>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -26,6 +27,8 @@ namespace dynamo {
   {
     if (!XML.getAttribute("Type").getValue().compare("Stepped"))
       return shared_ptr<Potential>(new PotentialStepped(XML));
+    else if (!XML.getAttribute("Type").getValue().compare("LennardJones"))
+      return shared_ptr<Potential>(new PotentialLennardJones(XML));
     else 
       M_throw() << XML.getAttribute("Type").getValue()
 		<< ", Unknown type of Potential encountered";
@@ -68,6 +71,10 @@ namespace dynamo {
     for (magnet::xml::Node node = XML.fastGetNode("Step"); node.valid(); ++node)
       steps.push_back(std::pair<double, double>(node.getAttribute("R").as<double>(),
 						node.getAttribute("E").as<double>()));
+    
+    if (steps.empty())
+      M_throw() << "You cannot load a stepped potential with no steps.\nXML path: " << XML.getPath();
+    
     *this = PotentialStepped(steps);
   }
 }

@@ -68,10 +68,6 @@ namespace dynamo {
   
     intName = XML.getAttribute("Name");
     
-    if (!XML.hasNode("Step"))
-      M_throw() << "No steppings defined for stepped potential " 
-		<< intName;
-    
     _potential = Potential::getClass(XML.getNode("Potential"));
 
     IMultiCapture::loadCaptureMap(XML);
@@ -289,7 +285,6 @@ namespace dynamo {
 	
 	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
-	    
 	  break;
 	}
       default:
