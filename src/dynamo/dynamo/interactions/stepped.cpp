@@ -37,7 +37,7 @@
 
 namespace dynamo {
   IStepped::IStepped(dynamo::Simulation* tmp, 
-		     const std::vector<steppair>& vec, IDPairRange* nR,
+		     const std::vector<std::pair<double, double> >& steps, IDPairRange* nR,
 		     std::string name):
     IMultiCapture(tmp,nR),
     _unitLength(Sim->_properties.getProperty
@@ -46,7 +46,7 @@ namespace dynamo {
     _unitEnergy(Sim->_properties.getProperty
 		(Sim->units.unitEnergy(), 
 		 Property::Units::Energy())),
-    steps(vec)
+    _potential(new PotentialStepped(steps))
   { intName = name; }
 
   IStepped::IStepped(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
@@ -72,30 +72,23 @@ namespace dynamo {
       M_throw() << "No steppings defined for stepped potential " 
 		<< intName;
     
-    for (magnet::xml::Node node = XML.fastGetNode("Step"); node.valid(); ++node)
-      steps.push_back(steppair(node.getAttribute("R").as<double>(),
-			       node.getAttribute("E").as<double>()));
-    std::sort(steps.rbegin(), steps.rend());
+    _potential = Potential::getClass(XML.getNode("Potential"));
 
     IMultiCapture::loadCaptureMap(XML);
-
-    if (steps.empty())
-      M_throw() << "No steps defined in SteppedPotential Interaction with name " 
-		<< getName();
   }
 
   double 
   IStepped::getExcludedVolume(size_t ID) const 
   { 
     //Get the inner diameter
-    double diam = steps.back().first * _unitLength->getProperty(ID);
+    double diam = _potential->hard_core_diameter() * _unitLength->getProperty(ID);
     return (M_PI / 6) * diam * diam * diam; 
   }
 
   Vector
   IStepped::getGlyphSize(size_t ID, size_t subID) const
   { 
-    double diam = steps.back().first * _unitLength->getProperty(ID);
+    double diam = _potential->hard_core_diameter() * _unitLength->getProperty(ID);
     return Vector(diam, diam, diam);
   }
 
@@ -109,7 +102,7 @@ namespace dynamo {
 
   double 
   IStepped::maxIntDist() const 
-  { return steps.front().first * _unitLength->getMaxValue(); }
+  { return (*_potential)[0].first * _unitLength->getMaxValue(); }
 
   void 
   IStepped::initialise(size_t nID)
@@ -137,9 +130,9 @@ namespace dynamo {
     size_t retval = 0;
 
     //Check when it is less
-    for (size_t i(0); i < steps.size(); ++i)
+    for (size_t i(0); i < _potential->steps(); ++i)
       {
-	if (r > steps[i].first * _unitLength->getMaxValue()) 
+	if (r > (*_potential)[i].first * _unitLength->getMaxValue())
 	  break;
 	retval = i+1;
       }
@@ -156,7 +149,7 @@ namespace dynamo {
     typedef std::pair<const std::pair<size_t, size_t>, int> locpair;
 
     BOOST_FOREACH(const locpair& IDs, captureMap)
-      Energy += steps[IDs.second - 1].second 
+      Energy += (*_potential)[IDs.second - 1].second
       * 0.5 * (_unitEnergy->getProperty(IDs.first.first)
 	       + _unitEnergy->getProperty(IDs.first.second));
   
@@ -170,7 +163,7 @@ namespace dynamo {
     if (capstat == captureMap.end())
       return 0;
     else
-      return steps[capstat->second - 1].second
+      return (*_potential)[capstat->second - 1].second
 	* 0.5 * (_unitEnergy->getProperty(p1.getID())
 		 + _unitEnergy->getProperty(p2.getID()))
 	* isCaptured(p1, p2);
@@ -198,9 +191,8 @@ namespace dynamo {
 
     if (capstat == captureMap.end())
       {
-	double d = steps.front().first * _unitLength->getMaxValue();
-	double dt 
-	  = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
+	double d = (*_potential)[0].first * _unitLength->getMaxValue();
+	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 
 	//Not captured, test for capture
 	if (dt != HUGE_VAL)
@@ -210,18 +202,17 @@ namespace dynamo {
       {
 	//Within the potential, look for further capture or release
 	//First check if there is an inner step to interact with
-	if (capstat->second < static_cast<int>(steps.size()))
+	if (capstat->second < static_cast<int>((*_potential).steps()))
 	  {
-	    double d = steps[capstat->second].first * _unitLength->getMaxValue();
-	    double dt = Sim->dynamics->SphereSphereInRoot
-	      (p1, p2, d);
+	    double d = (*_potential)[capstat->second].first * _unitLength->getMaxValue();
+	    double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 	    
 	    if (dt != HUGE_VAL)
 	      retval = IntEvent(p1, p2, dt, STEP_IN , *this);
 	  }
 
 	{//Now test for the outward step
-	  double d = steps[capstat->second-1].first * _unitLength->getMaxValue();
+	  double d = (*_potential)[capstat->second - 1].first * _unitLength->getMaxValue();
 	  double dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, d);
 	  if (retval.getdt() > dt)
 	      retval = IntEvent(p1, p2, dt, STEP_OUT, *this);
@@ -242,11 +233,11 @@ namespace dynamo {
 	{
 	  cmap_it capstat = getCMap_it(p1,p2);
 	
-	  double d = steps[capstat->second-1].first * _unitLength->getMaxValue();
+	  double d = (*_potential)[capstat->second-1].first * _unitLength->getMaxValue();
 	  double d2 = d * d;
-	  double dE = steps[capstat->second-1].second;
+	  double dE = (*_potential)[capstat->second-1].second;
 	  if (capstat->second > 1)
-	    dE -= steps[capstat->second - 2].second;
+	    dE -= (*_potential)[capstat->second - 2].second;
 	  dE *= _unitEnergy->getMaxValue();
 
 	  PairEventData retVal(Sim->dynamics->SphereWellEvent
@@ -277,11 +268,11 @@ namespace dynamo {
 		: cMapKey(p2.getID(), p1.getID()),
 		0)).first;
 	
-	  double d = steps[capstat->second].first * _unitLength->getMaxValue();
+	  double d = (*_potential)[capstat->second].first * _unitLength->getMaxValue();
 	  double d2 = d * d;
-	  double dE = steps[capstat->second].second;
+	  double dE = (*_potential)[capstat->second].second;
 	  if (capstat->second > 0)
-	    dE -= steps[capstat->second - 1].second;
+	    dE -= (*_potential)[capstat->second - 1].second;
 	  dE *= _unitEnergy->getMaxValue();
 
 
@@ -316,7 +307,7 @@ namespace dynamo {
       {
 	if (val != 0)
 	  {
-	    double d = steps.front().first * _unitLength->getMaxValue();
+	    double d = (*_potential)[0].first * _unitLength->getMaxValue();
 
 	    if (textoutput)
 	      derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
@@ -334,10 +325,10 @@ namespace dynamo {
 	  if (textoutput)
 	    derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
 		 << " registered as being inside step " << capstat->second 
-		 << " which has limits of [" << ((capstat->second < static_cast<int>(steps.size())) ? 
-						 steps[capstat->second].first * _unitLength->getMaxValue() : 0) 
+		 << " which has limits of [" << ((capstat->second < static_cast<int>((*_potential).steps())) ? 
+						 (*_potential)[capstat->second].first * _unitLength->getMaxValue() : 0) 
 	      / Sim->units.unitLength()
-		 << ", " << steps[capstat->second-1].first * _unitLength->getMaxValue() / Sim->units.unitLength()
+		 << ", " << (*_potential)[capstat->second-1].first * _unitLength->getMaxValue() / Sim->units.unitLength()
 		 << "] but they are at a distance of " 
 		 << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
 		 << " and this corresponds to step " << val
@@ -355,13 +346,9 @@ namespace dynamo {
     XML << magnet::xml::attr("Type") << "Stepped"
 	<< magnet::xml::attr("Name") << intName
 	<< *range;
-
-    BOOST_FOREACH(const steppair& s, steps)
-      XML << magnet::xml::tag("Step")
-	  << magnet::xml::attr("R") << s.first 
-	  << magnet::xml::attr("E") << s.second
-	  << magnet::xml::endtag("Step");
   
+    XML << _potential;
+
     IMultiCapture::outputCaptureMap(XML);  
   }
 }

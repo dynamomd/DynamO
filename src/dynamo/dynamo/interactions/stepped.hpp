@@ -19,6 +19,7 @@
 
 #include <dynamo/interactions/captures.hpp>
 #include <dynamo/interactions/glyphrepresentation.hpp>
+#include <dynamo/interactions/potentials/potential.hpp>
 #include <dynamo/simulation.hpp>
 #include <vector>
 
@@ -26,9 +27,7 @@ namespace dynamo {
   class IStepped: public IMultiCapture, public GlyphRepresentation
   {
   public:
-    typedef std::pair<double,double> steppair;
-
-    IStepped(dynamo::Simulation*, const std::vector<steppair>&,
+    IStepped(dynamo::Simulation*, const std::vector<std::pair<double,double> >&,
 	     IDPairRange*, std::string name);
 
     IStepped(const magnet::xml::Node&, dynamo::Simulation*);
@@ -64,7 +63,6 @@ namespace dynamo {
     shared_ptr<Property> _unitLength;
     //!This class is used to track how the energy scale changes in the system
     shared_ptr<Property> _unitEnergy;
-
-    std::vector<steppair> steps;
+    shared_ptr<Potential> _potential;
   };
 }
