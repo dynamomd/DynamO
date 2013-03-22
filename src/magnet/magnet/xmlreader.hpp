@@ -141,8 +141,8 @@ namespace magnet {
 	Attribute attr(_node->first_attribute(name), _node);
 
 	if (!attr.valid())
-	  M_throw() << "XML error: Attribute does not exist."
-		    << name << (std::string("\nXML Path: ") + detail::getPath(_node) + "/@" + std::string(name));
+	  M_throw() << "XML error: Attribute \"" << name << "\" does not exist."
+		    << (std::string("\nXML Path: ") + detail::getPath(_node) + "/@" + std::string(name));
 
 	return attr; 
       }
@@ -156,7 +156,7 @@ namespace magnet {
 	Node child(fastGetNode(name));
 	
 	if (!child.valid())
-	  M_throw() << "XML error: Node does not exist."
+	  M_throw() << "XML error: Node \"" << name <<"\" does not exist."
 		    << (std::string("\nXML Path: ") + detail::getPath(_node) + "/" + std::string(name));
 	return child;
       }

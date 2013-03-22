@@ -44,8 +44,8 @@ namespace dynamo {
 #ifdef DYNAMO_DEBUG
       if (step_id >= steps()) M_throw() << "Out of range access";
 #endif 
-      while ((step_id >= _r_cache.size()) && (step_id >= _deltae_cache.size()))
-	calculateNextStep();
+      if ((step_id >= _r_cache.size()) || (step_id >= _deltae_cache.size()))
+	calculateToStep(step_id);
 
       return value_type(_r_cache[step_id], _deltae_cache[step_id]);
     }
@@ -84,7 +84,7 @@ namespace dynamo {
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Potential&);
     
   protected:
-    virtual void calculateNextStep() const = 0;
+    virtual void calculateToStep(size_t) const = 0;
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
     mutable std::vector<double> _r_cache;
@@ -127,7 +127,7 @@ namespace dynamo {
     }
 
   protected:
-    virtual void calculateNextStep() const {
+    virtual void calculateToStep(size_t) const {
       M_throw() << "Cannot calculate new steps for this potential!";
     }
 

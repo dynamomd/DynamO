@@ -46,8 +46,19 @@ namespace dynamo {
     }
     
   protected:
-    virtual void calculateNextStep() const;
+    double U(double) const;
+    double U_uncut(double) const;
+    double minimum() const;
+
+    virtual void calculateToStep(size_t) const;
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
+
+    double _deltaE;
+    double _cutoff;
+    double _sigma;
+    double _epsilon;
+    
+    int _mode;
   };
 }
