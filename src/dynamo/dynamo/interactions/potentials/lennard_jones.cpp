@@ -62,6 +62,12 @@ namespace dynamo {
     return _sigma * std::pow(2.0, 1.0/6.0);
   }
 
+  PotentialLennardJones::PotentialLennardJones(double sigma, double epsilon, double cutoff, UMode umode, RMode rmode, double attractivesteps):
+    _sigma(sigma), _epsilon(epsilon), _cutoff(cutoff), _attractiveSteps(attractivesteps), _U_mode(umode), _R_mode(rmode)
+  {
+    _r_cache.push_back(_cutoff);
+  }
+  
   void 
   PotentialLennardJones::operator<<(const magnet::xml::Node& XML) {
     _r_cache.clear();
@@ -157,7 +163,7 @@ namespace dynamo {
 	    //minimum step. The target energy is decreasing with i
 	    //from zero at and the step is bisected by the previous
 	    //step and the potential minimum.
-	    double target_U = - (i * deltaU);
+	    double target_U = - double(i) * deltaU;
 	    double maxR = _r_cache[i-1];
 	    double minR = minimum();
 	    
@@ -169,7 +175,7 @@ namespace dynamo {
 	    //interval which approaches 0.
 	    if (i > minimum_step)
 	      {
-		target_U = (i - 2 * minimum_step - 1) * deltaU;
+		target_U = (double(i) - 2 * double(minimum_step) - 1) * deltaU;
 		minR = std::min(_r_cache[i-1], minimum());
 		maxR = minR / 2;
 		while (U(maxR) < target_U) maxR /= 2;
@@ -216,7 +222,7 @@ namespace dynamo {
 	      const double sigma6 = std::pow(_sigma, 6);
 	      const double ri3 = std::pow(_r_cache[i], 3);
 	      const double riplus3 = std::pow(_r_cache[i+1], 3);
-	      newU = (4 * _epsilon * sigma6 / (ri3 - riplus3)) * (1/riplus3 - 1/ri3 - (sigma6/3) * ( 1/(riplus3*riplus3*riplus3) - 1/(ri3*ri3*ri3)));
+	      newU = (4 * _epsilon * sigma6 / (ri3 - riplus3)) * (1/ri3 - 1/riplus3 - (sigma6/3.0) * (1/(ri3*ri3*ri3) - 1/(riplus3*riplus3*riplus3))) - U_uncut(_cutoff);
 	    }
 	    break;
 	  default: M_throw() << "Unknown UMode";

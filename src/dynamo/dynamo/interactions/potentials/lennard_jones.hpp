@@ -27,6 +27,22 @@ namespace dynamo {
    */
   class PotentialLennardJones :public Potential {
   public:
+    /*! \brief An enum of the types of step energy algorithms available.*/
+    enum UMode {
+      MIDPOINT,
+      LEFT,
+      RIGHT,
+      VOLUME
+    };
+    
+    /*! \brief An enum of types of step positionining algorithms available.*/
+    enum RMode {
+      DELTAR,
+      DELTAU
+    };
+
+    PotentialLennardJones(double sigma, double epsilon, double cutoff, UMode umode, RMode rmode, double attractivesteps);
+
     PotentialLennardJones(const magnet::xml::Node& XML) {
       operator<<(XML);
     }
@@ -42,11 +58,12 @@ namespace dynamo {
     virtual double render_diameter() const {
       return _sigma;
     }
-    
-  protected:
+
     double U(double) const;
     double U_uncut(double) const;
     double minimum() const;
+    
+  protected:
 
     virtual void calculateToStep(size_t) const;
 
@@ -61,20 +78,6 @@ namespace dynamo {
       You may have a fractional number of steps in the potential.
      */
     double _attractiveSteps;
-
-    /*! \brief An enum of the types of step energy algorithms available.*/
-    enum UMode {
-      MIDPOINT,
-      LEFT,
-      RIGHT,
-      VOLUME
-    };
-    
-    /*! \brief An enum of types of step positionining algorithms available.*/
-    enum RMode {
-      DELTAR,
-      DELTAU
-    };
 
     //! \brief The active step energy algorithm.
     UMode _U_mode;

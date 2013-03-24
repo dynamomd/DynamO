@@ -53,15 +53,19 @@ exe dynavis : programs/dynarun.cpp dynamo_core/<coil-integration>yes
       <coil-support>no:<build>no <tag>@tags.exe-naming <coil-integration>yes
     ;
 
+exe dynapotential : programs/dynapotential.cpp dynamo_core/<coil-integration>no
+    : <dynamo-buildable>no:<build>no <tag>@tags.exe-naming <coil-integration>no
+    ;
+
 exe dynahist_rw : programs/dynahist_rw.cpp dynamo_core/<coil-integration>no
     : <coil-integration>no <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 
 exe dynamod : programs/dynamod.cpp dynamo_core/<coil-integration>no
     : <coil-integration>no <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 
-explicit dynamod dynahist_rw dynarun dynamo_core visualizer test ;
+explicit dynamod dynahist_rw dynarun dynapotential dynamo_core visualizer test ;
 
 install install-dynamo
-	: dynarun  dynahist_rw dynamod dynavis
+	: dynarun  dynahist_rw dynamod dynavis dynapotential
 	: <location>$(BIN_INSTALL_PATH) <dynamo-buildable>no:<build>no <coil-support>yes:<source>dynavis
 	;
