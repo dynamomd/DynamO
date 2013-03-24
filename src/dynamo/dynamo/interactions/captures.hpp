@@ -190,13 +190,13 @@ namespace dynamo {
 
   protected:
   
-    typedef std::tr1::unordered_map<cMapKey, int, boost::hash<cMapKey> > captureMapType;
+    typedef std::tr1::unordered_map<cMapKey, size_t, boost::hash<cMapKey> > captureMapType;
     typedef captureMapType::iterator cmap_it;
     typedef captureMapType::const_iterator const_cmap_it;
 
     mutable captureMapType captureMap;
 
-    virtual int captureTest(const Particle&, const Particle&) const = 0;
+    virtual size_t captureTest(const Particle&, const Particle&) const = 0;
 
     void loadCaptureMap(const magnet::xml::Node&);
 

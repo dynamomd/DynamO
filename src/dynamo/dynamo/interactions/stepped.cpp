@@ -112,7 +112,7 @@ namespace dynamo {
 	 << "\nMax load Factor " << captureMap.max_load_factor() << std::endl;
   }
 
-  int 
+  size_t 
   IStepped::captureTest(const Particle& p1, const Particle& p2) const
   {
     if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
@@ -142,7 +142,7 @@ namespace dynamo {
     //Once the capture maps are loaded just iterate through that determining energies
     double Energy = 0.0;
 
-    typedef std::pair<const std::pair<size_t, size_t>, int> locpair;
+    typedef std::pair<const std::pair<size_t, size_t>, size_t> locpair;
 
     BOOST_FOREACH(const locpair& IDs, captureMap)
       Energy += (*_potential)[IDs.second - 1].second
@@ -198,7 +198,7 @@ namespace dynamo {
       {
 	//Within the potential, look for further capture or release
 	//First check if there is an inner step to interact with
-	if (capstat->second < static_cast<int>((*_potential).steps()))
+	if (capstat->second < (*_potential).steps())
 	  {
 	    double d = (*_potential)[capstat->second].first * _unitLength->getMaxValue();
 	    double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
@@ -296,7 +296,7 @@ namespace dynamo {
   IStepped::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
     const_cmap_it capstat = getCMap_it(p1, p2);
-    int val = captureTest(p1, p2);
+    size_t val = captureTest(p1, p2);
 
     if (capstat == captureMap.end())
       {
@@ -318,16 +318,18 @@ namespace dynamo {
       if (capstat->second != val)
 	{
 	  if (textoutput)
-	    derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
-		 << " registered as being inside step " << capstat->second 
-		 << " which has limits of [" << ((capstat->second < static_cast<int>((*_potential).steps())) ? 
-						 (*_potential)[capstat->second].first * _unitLength->getMaxValue() : 0) 
-	      / Sim->units.unitLength()
-		 << ", " << (*_potential)[capstat->second-1].first * _unitLength->getMaxValue() / Sim->units.unitLength()
-		 << "] but they are at a distance of " 
-		 << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
-		 << " and this corresponds to step " << val
-		 << std::endl;
+	    {
+	      derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+		   << " registered as being inside step " << capstat->second 
+		   << " which has limits of [" << ((capstat->second < _potential->steps()) ? 
+						   (*_potential)[capstat->second].first * _unitLength->getMaxValue() : 0) 
+		/ Sim->units.unitLength()
+		   << ", " << (*_potential)[capstat->second-1].first * _unitLength->getMaxValue() / Sim->units.unitLength()
+		   << "] but they are at a distance of " 
+		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		   << " and this corresponds to step " << val
+		   << std::endl;
+	    }
 	    
 	  return true;
 	}

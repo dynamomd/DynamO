@@ -85,7 +85,7 @@ namespace dynamo {
   void 
   IMultiCapture::testAddToCaptureMap(const Particle& p1, const size_t& p2) const
   {
-    int capval = captureTest(p1, Sim->particles[p2]);
+    size_t capval = captureTest(p1, Sim->particles[p2]);
     if (capval) captureMap[cMapKey(p1.getID(), p2)] = capval; 
   }
 
@@ -110,7 +110,7 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("CaptureMap");
 
-    typedef std::pair<const cMapKey, int> locpair;
+    typedef std::pair<const cMapKey, size_t> locpair;
 
     BOOST_FOREACH(const locpair& IDs, captureMap)
       XML << magnet::xml::tag("Pair")
@@ -148,7 +148,7 @@ namespace dynamo {
   IMultiCapture::validateState(bool textoutput, size_t max_reports) const
   {
     size_t retval(0);
-    typedef std::pair<const dynamo::ICapture::cMapKey, int> mapdata;
+    typedef std::pair<const dynamo::ICapture::cMapKey, size_t> mapdata;
     BOOST_FOREACH(const mapdata& IDs, captureMap)
       {
 	const Particle& p1(Sim->particles[IDs.first.first]);

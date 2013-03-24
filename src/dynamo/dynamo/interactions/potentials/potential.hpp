@@ -44,8 +44,8 @@ namespace dynamo {
 #ifdef DYNAMO_DEBUG
       if (step_id >= steps()) M_throw() << "Out of range access";
 #endif 
-      if ((step_id >= _r_cache.size()) || (step_id >= _u_cache.size()))
-	calculateToStep(step_id);
+
+      if (step_id >= cached_steps()) calculateToStep(step_id);
 
       return value_type(_r_cache[step_id], _u_cache[step_id]);
     }

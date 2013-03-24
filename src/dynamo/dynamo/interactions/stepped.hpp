@@ -42,7 +42,7 @@ namespace dynamo {
 
     virtual double maxIntDist() const;
 
-    virtual int captureTest(const Particle&, const Particle&) const;
+    virtual size_t captureTest(const Particle&, const Particle&) const;
 
     virtual void initialise(size_t);
 
