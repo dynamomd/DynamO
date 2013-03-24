@@ -58,6 +58,8 @@ namespace dynamo {
 
     virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
 
+    virtual void outputData(magnet::xml::XmlStream&) const;
+
   protected:
     //!This class is used to track how the length scale changes in the system
     shared_ptr<Property> _unitLength;

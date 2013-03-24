@@ -31,9 +31,7 @@ namespace dynamo {
       operator<<(XML);
     }
       
-    virtual std::size_t steps() const {
-      return std::numeric_limits<size_t>::max();
-    }
+    virtual std::size_t steps() const;
 
     virtual void operator<<(const magnet::xml::Node&);
   
@@ -42,7 +40,7 @@ namespace dynamo {
     }
 
     virtual double render_diameter() const {
-      return 0;
+      return _sigma;
     }
     
   protected:
@@ -54,11 +52,33 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    double _deltaE;
-    double _cutoff;
     double _sigma;
     double _epsilon;
+    double _cutoff;
+
+    /*! \brief The number of steps in the attractive section of the potential.
+      
+      You may have a fractional number of steps in the potential.
+     */
+    double _attractiveSteps;
+
+    /*! \brief An enum of the types of step energy algorithms available.*/
+    enum UMode {
+      MIDPOINT,
+      LEFT,
+      RIGHT,
+      VOLUME
+    };
     
-    int _mode;
+    /*! \brief An enum of types of step positionining algorithms available.*/
+    enum RMode {
+      DELTAR,
+      DELTAU
+    };
+
+    //! \brief The active step energy algorithm.
+    UMode _U_mode;
+    //! \brief The active step position algorithm.
+    RMode _R_mode;
   };
 }

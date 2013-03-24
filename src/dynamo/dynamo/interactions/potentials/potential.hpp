@@ -44,10 +44,10 @@ namespace dynamo {
 #ifdef DYNAMO_DEBUG
       if (step_id >= steps()) M_throw() << "Out of range access";
 #endif 
-      if ((step_id >= _r_cache.size()) || (step_id >= _deltae_cache.size()))
+      if ((step_id >= _r_cache.size()) || (step_id >= _u_cache.size()))
 	calculateToStep(step_id);
 
-      return value_type(_r_cache[step_id], _deltae_cache[step_id]);
+      return value_type(_r_cache[step_id], _u_cache[step_id]);
     }
     
     /*!\brief Return the maximum number of steps in the potential.
@@ -68,7 +68,7 @@ namespace dynamo {
       calculated and cached.
     */
     std::size_t cached_steps() const {
-      return std::min(_r_cache.size(), _deltae_cache.size());
+      return std::min(_r_cache.size(), _u_cache.size());
     }
 
     static shared_ptr<Potential> getClass(const magnet::xml::Node&);
@@ -88,7 +88,7 @@ namespace dynamo {
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
     mutable std::vector<double> _r_cache;
-    mutable std::vector<double> _deltae_cache;
+    mutable std::vector<double> _u_cache;
   };
 
   /*! \brief A manually stepped potential.
@@ -111,8 +111,8 @@ namespace dynamo {
     virtual void operator<<(const magnet::xml::Node&);
   
     virtual double hard_core_diameter() const {
-      for (size_t i(0); i < _deltae_cache.size(); ++i)
-	if (std::isinf(_deltae_cache[i]))
+      for (size_t i(0); i < _u_cache.size(); ++i)
+	if (std::isinf(_u_cache[i]))
 	  return _r_cache[i];
       
       return 0;

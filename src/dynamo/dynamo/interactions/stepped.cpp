@@ -84,7 +84,7 @@ namespace dynamo {
   Vector
   IStepped::getGlyphSize(size_t ID, size_t subID) const
   { 
-    double diam = _potential->hard_core_diameter() * _unitLength->getProperty(ID);
+    double diam = _potential->render_diameter() * _unitLength->getProperty(ID);
     return Vector(diam, diam, diam);
   }
 
@@ -345,5 +345,25 @@ namespace dynamo {
     XML << _potential;
 
     IMultiCapture::outputCaptureMap(XML);  
+  }
+
+  void 
+  IStepped::outputData(magnet::xml::XmlStream& XML) const
+  {
+    using namespace magnet::xml;
+    XML << tag("Interaction")
+	<< attr("Name") << intName
+	<< attr("Type") << "Stepped"
+	<< tag("AccessedSteps");
+    
+    for (size_t i(0); i < _potential->cached_steps(); ++i)
+      XML << tag("Step") 
+	  << attr("R") << (*_potential)[i].first
+	  << attr("U") << (*_potential)[i].second
+	  << endtag("Step");
+    
+    XML << endtag("AccessedSteps")
+	<< endtag("Interaction");
+    
   }
 }

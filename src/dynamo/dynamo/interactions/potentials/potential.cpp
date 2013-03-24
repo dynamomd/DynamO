@@ -49,19 +49,18 @@ namespace dynamo {
     for (size_t i(0); i < steps.size(); ++i)
       {
 	_r_cache.push_back(steps[i].first);
-	_deltae_cache.push_back(steps[i].second);
+	_u_cache.push_back(steps[i].second);
       }
-  }    
+  }
 
   void 
   PotentialStepped::outputXML(magnet::xml::XmlStream& XML) const {
     XML << magnet::xml::attr("Type") << "Stepped";
 
-    double delta_E_sum(0);
     for (size_t id(0); id < steps(); ++id)
       XML << magnet::xml::tag("Step")
 	  << magnet::xml::attr("R") << _r_cache[id]
-	  << magnet::xml::attr("E") << (delta_E_sum += _deltae_cache[id])
+	  << magnet::xml::attr("E") << _u_cache[id]
 	  << magnet::xml::endtag("Step");
   }
 

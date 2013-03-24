@@ -169,6 +169,8 @@ namespace dynamo {
     */
     inline const size_t& getID() const { return ID; }
 
+    virtual void outputData(magnet::xml::XmlStream&) const {}
+
   protected:
     /*! \brief This constructor is only to be used when using virtual
      inheritance, the bottom derived class must explicitly call the

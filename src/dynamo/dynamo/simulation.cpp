@@ -725,10 +725,12 @@ namespace dynamo
     XML << std::setprecision(std::numeric_limits<double>::digits10)
 	<< magnet::xml::prolog() << magnet::xml::tag("OutputData");
   
-    //Output the data and delete the outputplugins
     BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)
       Ptr->output(XML);
   
+    BOOST_FOREACH(shared_ptr<Interaction> & Ptr, interactions)
+      Ptr->outputData(XML);
+
     XML << magnet::xml::endtag("OutputData");
 
     dout << "Output written to " << filename << std::endl;
