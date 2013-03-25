@@ -40,8 +40,8 @@ namespace dynamo {
     case LEFT: XML << attr("UMode") << "Left"; break;
     case RIGHT: XML << attr("UMode") << "Right"; break;
     case VOLUME: XML << attr("UMode") << "Volume"; break;
-    case SECONDVIRIAL: 
-      XML << attr("UMode") << "SecondVirial"
+    case VIRIAL: 
+      XML << attr("UMode") << "Virial"
 	  << attr("Temperature") << _kT
 	;
       break;
@@ -100,10 +100,10 @@ namespace dynamo {
     else if (!umode_string.compare("Left"))   _U_mode = LEFT;
     else if (!umode_string.compare("Right"))  _U_mode = RIGHT;
     else if (!umode_string.compare("Volume")) _U_mode = VOLUME;
-    else if (!umode_string.compare("SecondVirial")) 
+    else if (!umode_string.compare("Virial")) 
       {
 	_kT = XML.getAttribute("Temperature").as<double>();
-	_U_mode = SECONDVIRIAL;
+	_U_mode = VIRIAL;
       }
     else
       M_throw() << "Unknown LennardJones UMode (" << umode_string << ") at " << XML.getPath();
@@ -244,13 +244,13 @@ namespace dynamo {
 	      newU = (4 * _epsilon * sigma6 / (ri3 - riplus3)) * (1/ri3 - 1/riplus3 - (sigma6/3.0) * (1/(ri3*ri3*ri3) - 1/(riplus3*riplus3*riplus3))) - U_uncut(_cutoff);
 	    }
 	    break;
-	  case SECONDVIRIAL:
+	  case VIRIAL:
 	    {
 	      double r1 = _r_cache[i+1], r2 = _r_cache[i];
 
 	      //Numerically integrate for the B2 in the region [r1,r2]
 	      double B2(0);
-	      const size_t iterations = 1000;
+	      const size_t iterations = 100000;
 	      const double stepsize = (r2 - r1) / double(iterations);
 	      for (size_t i(0); i <= iterations; ++i)
 		B2 += B2func(r1 + i * stepsize);

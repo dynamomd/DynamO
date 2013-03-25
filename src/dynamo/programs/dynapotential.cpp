@@ -32,12 +32,6 @@
 */
 int main(int argc, char *argv[])
 {
-  //Output the program licence
-  std::cout << "dynapotential  Copyright (C) 2011  Marcus N Campbell Bannerman\n"
-	    << "This program comes with ABSOLUTELY NO WARRANTY.\n"
-	    << "This is free software, and you are welcome to redistribute it\n"
-	    << "under certain conditions. See the licence you obtained with\n"
-	    << "the code\n";
   try 
     {      
       namespace po = boost::program_options;
@@ -50,11 +44,13 @@ int main(int argc, char *argv[])
 	("cutoff", po::value<double>()->default_value(3), "The cutoff radius of the potential")
 	("attractive-steps", po::value<double>()->default_value(1), "The number of steps in the attractive part of the potential")
 	("steps", po::value<size_t>()->default_value(10), "The number of steps to output data for")
-	("volume", "Use the volume averaged energy algorithm")
-	("left", "Use the left energy algorithm")
-	("mid", "Use the midpoint energy algorithm")
-	("right", "Use the right energy algorithm")
-	("B2", "Use the B2 algorithm")
+	("deltar", "Use even stepping in r to place the steps")
+	("deltau", "Use even stepping in U to place the steps")
+	("volume", "Use the volume averaged energy algorithm for step energies")
+	("left", "Use the left energy algorithm for step energies")
+	("mid", "Use the midpoint energy algorithm for step energies")
+	("right", "Use the right energy algorithm for step energies")
+	("virial", "Use the virial algorithm for step energies")
 	("kT", po::value<double>()->default_value(1), "Set the temperature for the B2 algorithm")
 	;
 
@@ -64,30 +60,40 @@ int main(int argc, char *argv[])
     
       if (vm.count("help")) 
 	{
-	  M_throw() << "Usage : dynahist_rw <OPTION>...<data-file(s)>\n"
+	  std::cout << "dynapotential  Copyright (C) 2011  Marcus N Campbell Bannerman\n"
+		    << "This program comes with ABSOLUTELY NO WARRANTY.\n"
+		    << "This is free software, and you are welcome to redistribute it\n"
+		    << "under certain conditions. See the licence you obtained with\n"
+		    << "the code\n"
+		    << "Usage : dynahist_rw <OPTION>...<data-file(s)>\n"
 		    << "Determines the weighting functions for the histograms\n"
 		    << options << "\n";
+	  return 1;
 	}
       
       using namespace dynamo;
 
       std::cout.precision(15);
  
-      PotentialLennardJones::UMode U_mode;
-      PotentialLennardJones::RMode R_mode = PotentialLennardJones::DELTAU;
+      PotentialLennardJones::RMode R_mode;
+      if (vm.count("deltar")) R_mode = PotentialLennardJones::DELTAR;
+      else if (vm.count("deltau")) R_mode = PotentialLennardJones::DELTAU;
+      else
+	M_throw() << "Please specify which step placement algorithm to use";
 
+      PotentialLennardJones::UMode U_mode;
       if (vm.count("mid")) U_mode = PotentialLennardJones::MIDPOINT;
       else if (vm.count("left")) U_mode = PotentialLennardJones::LEFT;
       else if (vm.count("right")) U_mode = PotentialLennardJones::RIGHT;
       else if (vm.count("volume")) U_mode = PotentialLennardJones::VOLUME;
-      else if (vm.count("B2")) U_mode = PotentialLennardJones::SECONDVIRIAL;
+      else if (vm.count("virial")) U_mode = PotentialLennardJones::VIRIAL;
       else 
-	M_throw() << "Could not find which energy algorithm to use";
+	M_throw() << "Please specify which step energy algorithm to use";
 
-      PotentialLennardJones deltaU(1.0, 1.0, vm["cutoff"].as<double>(), U_mode, R_mode, vm["attractive-steps"].as<double>(), vm["kT"].as<double>());
+      PotentialLennardJones LJ(1.0, 1.0, vm["cutoff"].as<double>(), U_mode, R_mode, vm["attractive-steps"].as<double>(), vm["kT"].as<double>());
       
-      for (size_t i(0); i < vm["steps"].as<size_t>(); ++i)
-	std::cout << deltaU[i].first << " " << deltaU[i].second << "\n";
+      for (size_t i(0); i < std::min(LJ.steps(), vm["steps"].as<size_t>()); ++i)
+	std::cout << LJ[i].first << " " << LJ[i].second << "\n";
     }
   catch (std::exception& cep)
     {
@@ -101,4 +107,5 @@ int main(int argc, char *argv[])
 #endif
       return 1;
     }
+  return 0;
 }
