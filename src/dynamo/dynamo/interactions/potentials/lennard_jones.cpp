@@ -247,13 +247,13 @@ namespace dynamo {
 	    {
 	      double r1 = _r_cache[i+1], r2 = _r_cache[i];
 
-	      //Numerically integrate for the B2 in the region [r1,r2]
-	      double B2(0);
+	      //Numerically integrate for the B2 in the region [r1,r2] using the trapezium rule
 	      const size_t iterations = 100000;
-	      const double stepsize = (r2 - r1) / double(iterations);
-	      for (size_t i(0); i <= iterations; ++i)
-		B2 += B2func(r1 + i * stepsize);
-	      B2 *= stepsize;
+	      const double h= (r2 - r1) / double(iterations);
+	      double sum(0);
+	      for (size_t i(1); i < iterations; ++i)
+		sum += B2func(r1 + i * h);
+	      const double B2 = h * (B2func(r1) + B2func(r2)) / 2 + h * sum;
 	      
 	      newU = - _kT * std::log(1 - 3 * B2/(2 * PI * (r2 * r2 * r2 - r1 * r1 * r1)));
 	    }
