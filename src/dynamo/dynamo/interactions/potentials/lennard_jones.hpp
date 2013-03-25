@@ -32,7 +32,8 @@ namespace dynamo {
       MIDPOINT,
       LEFT,
       RIGHT,
-      VOLUME
+      VOLUME,
+      SECONDVIRIAL
     };
     
     /*! \brief An enum of types of step positionining algorithms available.*/
@@ -41,7 +42,7 @@ namespace dynamo {
       DELTAU
     };
 
-    PotentialLennardJones(double sigma, double epsilon, double cutoff, UMode umode, RMode rmode, double attractivesteps);
+    PotentialLennardJones(double sigma, double epsilon, double cutoff, UMode umode, RMode rmode, double attractivesteps, double kT=1);
 
     PotentialLennardJones(const magnet::xml::Node& XML) {
       operator<<(XML);
@@ -69,9 +70,12 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
+    double B2func(double) const;
+
     double _sigma;
     double _epsilon;
     double _cutoff;
+    double _kT;
 
     /*! \brief The number of steps in the attractive section of the potential.
       

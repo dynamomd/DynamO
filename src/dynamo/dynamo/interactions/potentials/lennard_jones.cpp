@@ -17,8 +17,13 @@
 
 #include <dynamo/interactions/potentials/lennard_jones.hpp>
 #include <dynamo/simulation.hpp>
+#include <boost/math/special_functions.hpp>
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
+
+namespace {
+  const double PI = std::atan(1)*4;
+}
 
 namespace dynamo {
   void 
@@ -35,6 +40,11 @@ namespace dynamo {
     case LEFT: XML << attr("UMode") << "Left"; break;
     case RIGHT: XML << attr("UMode") << "Right"; break;
     case VOLUME: XML << attr("UMode") << "Volume"; break;
+    case SECONDVIRIAL: 
+      XML << attr("UMode") << "SecondVirial"
+	  << attr("Temperature") << _kT
+	;
+      break;
     default:
       M_throw() << "Unknown UMode";
     }
@@ -62,8 +72,8 @@ namespace dynamo {
     return _sigma * std::pow(2.0, 1.0/6.0);
   }
 
-  PotentialLennardJones::PotentialLennardJones(double sigma, double epsilon, double cutoff, UMode umode, RMode rmode, double attractivesteps):
-    _sigma(sigma), _epsilon(epsilon), _cutoff(cutoff), _attractiveSteps(attractivesteps), _U_mode(umode), _R_mode(rmode)
+  PotentialLennardJones::PotentialLennardJones(double sigma, double epsilon, double cutoff, UMode umode, RMode rmode, double attractivesteps, double kT):
+    _sigma(sigma), _epsilon(epsilon), _cutoff(cutoff), _kT(kT), _attractiveSteps(attractivesteps), _U_mode(umode), _R_mode(rmode)
   {
     _r_cache.push_back(_cutoff);
   }
@@ -90,6 +100,11 @@ namespace dynamo {
     else if (!umode_string.compare("Left"))   _U_mode = LEFT;
     else if (!umode_string.compare("Right"))  _U_mode = RIGHT;
     else if (!umode_string.compare("Volume")) _U_mode = VOLUME;
+    else if (!umode_string.compare("SecondVirial")) 
+      {
+	_kT = XML.getAttribute("Temperature").as<double>();
+	_U_mode = SECONDVIRIAL;
+      }
     else
       M_throw() << "Unknown LennardJones UMode (" << umode_string << ") at " << XML.getPath();
 
@@ -120,6 +135,10 @@ namespace dynamo {
     }
   }
 
+  double
+  PotentialLennardJones::B2func(const double r) const {
+    return - 2 * PI * r * r * (std::exp(-U(r) / _kT) - 1);
+  }
 
   void 
   PotentialLennardJones::calculateToStep(const size_t step_id) const {
@@ -202,7 +221,7 @@ namespace dynamo {
       }
     default:
       M_throw() << "Unknown RMode";
-    }
+   } 
 
     for (size_t i(_u_cache.size()); i <= step_id; ++i) 
       {
@@ -223,6 +242,21 @@ namespace dynamo {
 	      const double ri3 = std::pow(_r_cache[i], 3);
 	      const double riplus3 = std::pow(_r_cache[i+1], 3);
 	      newU = (4 * _epsilon * sigma6 / (ri3 - riplus3)) * (1/ri3 - 1/riplus3 - (sigma6/3.0) * (1/(ri3*ri3*ri3) - 1/(riplus3*riplus3*riplus3))) - U_uncut(_cutoff);
+	    }
+	    break;
+	  case SECONDVIRIAL:
+	    {
+	      double r1 = _r_cache[i+1], r2 = _r_cache[i];
+
+	      //Numerically integrate for the B2 in the region [r1,r2]
+	      double B2(0);
+	      const size_t iterations = 1000;
+	      const double stepsize = (r2 - r1) / double(iterations);
+	      for (size_t i(0); i <= iterations; ++i)
+		B2 += B2func(r1 + i * stepsize);
+	      B2 *= stepsize;
+	      
+	      newU = - _kT * std::log(1 - 3 * B2/(2 * PI * (r2 * r2 * r2 - r1 * r1 * r1)));
 	    }
 	    break;
 	  default: M_throw() << "Unknown UMode";

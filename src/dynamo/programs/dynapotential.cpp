@@ -47,7 +47,15 @@ int main(int argc, char *argv[])
       
       options.add_options()
 	("help", "Produces this message")   
-	("approx", po::value<double>()->default_value(1), "The order of approximation")
+	("cutoff", po::value<double>()->default_value(3), "The cutoff radius of the potential")
+	("attractive-steps", po::value<double>()->default_value(1), "The number of steps in the attractive part of the potential")
+	("steps", po::value<size_t>()->default_value(10), "The number of steps to output data for")
+	("volume", "Use the volume averaged energy algorithm")
+	("left", "Use the left energy algorithm")
+	("mid", "Use the midpoint energy algorithm")
+	("right", "Use the right energy algorithm")
+	("B2", "Use the B2 algorithm")
+	("kT", po::value<double>()->default_value(1), "Set the temperature for the B2 algorithm")
 	;
 
       boost::program_options::store(po::command_line_parser(argc, argv).
@@ -64,10 +72,21 @@ int main(int argc, char *argv[])
       using namespace dynamo;
 
       std::cout.precision(15);
+ 
+      PotentialLennardJones::UMode U_mode;
+      PotentialLennardJones::RMode R_mode = PotentialLennardJones::DELTAU;
 
-      PotentialLennardJones deltaU(1.0, 1.0, 3.0, PotentialLennardJones::VOLUME, PotentialLennardJones::DELTAU, 5);
+      if (vm.count("mid")) U_mode = PotentialLennardJones::MIDPOINT;
+      else if (vm.count("left")) U_mode = PotentialLennardJones::LEFT;
+      else if (vm.count("right")) U_mode = PotentialLennardJones::RIGHT;
+      else if (vm.count("volume")) U_mode = PotentialLennardJones::VOLUME;
+      else if (vm.count("B2")) U_mode = PotentialLennardJones::SECONDVIRIAL;
+      else 
+	M_throw() << "Could not find which energy algorithm to use";
+
+      PotentialLennardJones deltaU(1.0, 1.0, vm["cutoff"].as<double>(), U_mode, R_mode, vm["attractive-steps"].as<double>(), vm["kT"].as<double>());
       
-      for (size_t i(0); i < 10; ++i)
+      for (size_t i(0); i < vm["steps"].as<size_t>(); ++i)
 	std::cout << deltaU[i].first << " " << deltaU[i].second << "\n";
     }
   catch (std::exception& cep)
