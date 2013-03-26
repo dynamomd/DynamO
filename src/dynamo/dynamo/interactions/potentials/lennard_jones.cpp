@@ -44,6 +44,7 @@ namespace dynamo {
 	  << attr("Temperature") << _kT
 	;
       break;
+    case MIDVOLUME: XML << attr("UMode") << "MidVolume"; break;
     default:
       M_throw() << "Unknown UMode";
     }
@@ -99,6 +100,7 @@ namespace dynamo {
     else if (!umode_string.compare("Left"))   _U_mode = LEFT;
     else if (!umode_string.compare("Right"))  _U_mode = RIGHT;
     else if (!umode_string.compare("Volume")) _U_mode = VOLUME;
+    else if (!umode_string.compare("MidVolume")) _U_mode = MIDVOLUME;
     else if (!umode_string.compare("Virial")) 
       {
 	_kT = XML.getAttribute("Temperature").as<double>();
@@ -225,28 +227,27 @@ namespace dynamo {
     for (size_t i(_u_cache.size()); i <= step_id; ++i) 
       {
 	double newU;
+	const double r1 = _r_cache[i+1], r2 = _r_cache[i];
 	switch (_U_mode) 
  	  {
 	  case MIDPOINT: 
-	    newU = U((_r_cache[i] + _r_cache[i+1]) * 0.5); 
+	    newU = U((r1 + r2) * 0.5); 
 	    break;
 	  case LEFT: 
-	    newU = U(_r_cache[i+1]); 
+	    newU = U(r1); 
 	    break;
 	  case RIGHT: 
-	    newU = U(_r_cache[i]); break;
+	    newU = U(r2); break;
 	  case VOLUME:
 	    {
 	      const double sigma6 = std::pow(_sigma, 6);
-	      const double ri3 = std::pow(_r_cache[i], 3);
-	      const double riplus3 = std::pow(_r_cache[i+1], 3);
+	      const double ri3 = std::pow(r2, 3);
+	      const double riplus3 = std::pow(r1, 3);
 	      newU = (4 * _epsilon * sigma6 / (ri3 - riplus3)) * (1/ri3 - 1/riplus3 - (sigma6/3.0) * (1/(ri3*ri3*ri3) - 1/(riplus3*riplus3*riplus3))) - U_uncut(_cutoff);
 	    }
 	    break;
 	  case VIRIAL:
 	    {
-	      double r1 = _r_cache[i+1], r2 = _r_cache[i];
-
 	      //Numerically integrate for the B2 in the region [r1,r2] using the trapezium rule
 	      const size_t iterations = 100000;
 	      const double h= (r2 - r1) / double(iterations);
@@ -258,6 +259,11 @@ namespace dynamo {
 	      newU = - _kT * std::log(1 - 3 * B2/(2 * PI * (r2 * r2 * r2 - r1 * r1 * r1)));
 	    }
 	    break;
+	  case MIDVOLUME:
+	    {
+	      newU = U(std::pow((r1*r1*r1 + r2*r2*r2)/2, 1.0/3.0)); 
+	      break;
+	    }
 	  default: M_throw() << "Unknown UMode";
 	  }
 	_u_cache.push_back(newU);

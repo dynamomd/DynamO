@@ -33,7 +33,8 @@ namespace dynamo {
       LEFT,
       RIGHT,
       VOLUME,
-      VIRIAL
+      VIRIAL,
+      MIDVOLUME
     };
     
     /*! \brief An enum of types of step positionining algorithms available.*/

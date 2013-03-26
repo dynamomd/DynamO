@@ -51,6 +51,7 @@ int main(int argc, char *argv[])
 	("mid", "Use the midpoint energy algorithm for step energies")
 	("right", "Use the right energy algorithm for step energies")
 	("virial", "Use the virial algorithm for step energies")
+	("midvolume", "Use the Middle Volume algorithm for step energies")
 	("kT", po::value<double>()->default_value(1), "Set the temperature for the B2 algorithm")
 	;
 
@@ -87,6 +88,7 @@ int main(int argc, char *argv[])
       else if (vm.count("right")) U_mode = PotentialLennardJones::RIGHT;
       else if (vm.count("volume")) U_mode = PotentialLennardJones::VOLUME;
       else if (vm.count("virial")) U_mode = PotentialLennardJones::VIRIAL;
+      else if (vm.count("midvolume")) U_mode = PotentialLennardJones::MIDVOLUME;
       else 
 	M_throw() << "Please specify which step energy algorithm to use";
 
