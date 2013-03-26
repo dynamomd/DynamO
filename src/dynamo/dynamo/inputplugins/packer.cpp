@@ -602,6 +602,8 @@ namespace dynamo {
 	      tmpPtr = new CUMirror(vm["f1"].as<double>(), tmpPtr);
 	    }
 
+	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCPeriodic(Sim));
+
 	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(tmpPtr));
 	  packptr->initialise();
 
