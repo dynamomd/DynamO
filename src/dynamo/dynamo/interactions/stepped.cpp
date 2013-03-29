@@ -315,25 +315,43 @@ namespace dynamo {
 	  }
       }
     else
-      if (capstat->second != val)
-	{
-	  if (textoutput)
-	    {
-	      derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
-		   << " registered as being inside step " << capstat->second 
-		   << " which has limits of [" << ((capstat->second < _potential->steps()) ? 
-						   (*_potential)[capstat->second].first * _unitLength->getMaxValue() : 0) 
-		/ Sim->units.unitLength()
-		   << ", " << (*_potential)[capstat->second-1].first * _unitLength->getMaxValue() / Sim->units.unitLength()
-		   << "] but they are at a distance of " 
-		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
-		   << " and this corresponds to step " << val
-		   << std::endl;
-	    }
+      {
+	if (capstat->second != val)
+	  {
+	    if (textoutput)
+	      {
+		derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+		     << " registered as being inside step " << capstat->second 
+		     << " which has limits of [" << ((capstat->second < _potential->steps()) ? 
+						     (*_potential)[capstat->second].first * _unitLength->getMaxValue() : 0) 
+		  / Sim->units.unitLength()
+		     << ", " << (*_potential)[capstat->second-1].first * _unitLength->getMaxValue() / Sim->units.unitLength()
+		     << "] but they are at a distance of " 
+		     << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		     << " and this corresponds to step " << val
+		     << std::endl;
+	      }
 	    
-	  return true;
-	}
-
+	    return true;
+	  }
+	else
+	  {
+	    if (std::isinf((*_potential)[capstat->second-1].second))
+	      {
+		if (textoutput)
+		  {
+		    derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+			 << " registered as being inside step " << capstat->second 
+			 << " which has limits of [" << ((capstat->second < _potential->steps()) ? 
+							 (*_potential)[capstat->second].first * _unitLength->getMaxValue() : 0) 
+		      / Sim->units.unitLength()
+			 << ", " << (*_potential)[capstat->second-1].first * _unitLength->getMaxValue() / Sim->units.unitLength()
+			 << "] and an infinite interaction energy" << std::endl;
+		  }
+		return true;
+	      }
+	  }
+      }
     return false;
   }
 
