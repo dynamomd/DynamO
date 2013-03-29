@@ -40,7 +40,8 @@ namespace dynamo {
     /*! \brief An enum of types of step positionining algorithms available.*/
     enum RMode {
       DELTAR,
-      DELTAU
+      DELTAU,
+      DELTAV
     };
 
     PotentialLennardJones(double sigma, double epsilon, double cutoff, UMode umode, RMode rmode, double attractivesteps, double kT=1);

@@ -52,6 +52,7 @@ namespace dynamo {
     switch (_R_mode) {
     case DELTAR: XML << attr("RMode") << "DeltaR"; break;
     case DELTAU: XML << attr("RMode") << "DeltaU"; break;
+    case DELTAV: XML << attr("RMode") << "DeltaV"; break;
     default:
       M_throw() << "Unknown RMode";
     }
@@ -112,6 +113,7 @@ namespace dynamo {
     const std::string rmode_string = XML.getAttribute("RMode").as<std::string>();
     if (!rmode_string.compare("DeltaR"))      _R_mode = DELTAR;
     else if (!rmode_string.compare("DeltaU")) _R_mode = DELTAU;
+    else if (!rmode_string.compare("DeltaV")) _R_mode = DELTAV;
     else
       M_throw() << "Unknown LennardJones RMode (" << rmode_string << ") at " << XML.getPath();
   }
@@ -126,11 +128,21 @@ namespace dynamo {
 	//Rounding down is performed by the conversion to size_t, but
 	//we should ensure that any step at r=zero is not
 	//included. Just check if the steps variable is a whole integer.
-	return size_t(steps) - (size_t(steps) == steps);
+	return size_t(steps) - (size_t(steps) == steps) + 1;
       }
     case DELTAU:
       //In energy stepping there are an infinite number of steps
       return std::numeric_limits<size_t>::max();
+    case DELTAV:
+      {
+	const double deltaV = 4 * PI * (std::pow(_cutoff,3) - std::pow(minimum(),3)) / ( 3 * _attractiveSteps);
+	double steps = 4 * PI * std::pow(_cutoff, 3) / (3 * deltaV);
+	//Rounding down is performed by the conversion to size_t, but
+	//we should ensure that any step at r=zero is not
+	//included. Just check if the steps variable is a whole
+	//integer.
+	return size_t(steps) - (size_t(steps) == steps) + 1;
+      }
     default:
       M_throw() << "Unknown RMode";
     }
@@ -147,9 +159,7 @@ namespace dynamo {
 
     //Find the step locations first. we always need one more cached
     //step position than energy, as we need to know the limits of a
-    //step to calculate its energy. If the positional stepping reaches
-    //the core, an additional r=0 step is added to simplify energy
-    //calculations.
+    //step to calculate its energy. 
     switch (_R_mode) {
     case DELTAR:
       {
@@ -160,8 +170,22 @@ namespace dynamo {
 	  M_throw() << "Requested step number " << step_id + 1 << " but there are only " << steps() << " steps in the potential";
 #endif
 
-	for (size_t i(_r_cache.size()); i <= step_id + 1; ++i)
+	for (size_t i(_r_cache.size()); i <= step_id; ++i)
 	  _r_cache.push_back(_cutoff - i * deltaR);
+	
+	//Make sure there is one extra step added, and that the zero
+	//is added if the end of the stepping is reached
+	if (_r_cache.size() == step_id + 1)
+	  {
+	    if ((step_id == steps() - 1) && (_r_cache.size() == steps()))
+	      _r_cache.push_back(0);
+	    else
+	      _r_cache.push_back(_cutoff - (step_id+1) * deltaR);
+	  }
+
+	for (size_t i(0); i < _r_cache.size(); ++i)
+	  std::cout << "R = " << _r_cache[i] << std::endl;
+
 	break;
       }
     case DELTAU:
@@ -218,8 +242,23 @@ namespace dynamo {
 
 	    _r_cache.push_back((maxR + minR) * 0.5);
 	  }
-	break;
       }
+      break;
+    case DELTAV:
+      for (size_t i(_r_cache.size()); i <= step_id; ++i)
+	_r_cache.push_back(std::pow(std::pow(_r_cache[i-1], 3)- (std::pow(_cutoff,3) - std::pow(minimum(),3)) / _attractiveSteps, 1.0/3.0));
+
+      //Make sure there is one extra step added, and that the zero
+      //is added if the end of the stepping is reached
+      if (_r_cache.size() == step_id + 1)
+	{
+	  if ((step_id == steps() - 1) && (_r_cache.size() == steps()))
+	    _r_cache.push_back(0);
+	  else
+	    _r_cache.push_back(std::pow(std::pow(_r_cache[step_id], 3)- (std::pow(_cutoff,3) - std::pow(minimum(),3)) / _attractiveSteps, 1.0/3.0));
+	}
+
+      break;
     default:
       M_throw() << "Unknown RMode";
    } 
@@ -244,6 +283,11 @@ namespace dynamo {
 	      const double ri3 = std::pow(r2, 3);
 	      const double riplus3 = std::pow(r1, 3);
 	      newU = (4 * _epsilon * sigma6 / (ri3 - riplus3)) * (1/ri3 - 1/riplus3 - (sigma6/3.0) * (1/(ri3*ri3*ri3) - 1/(riplus3*riplus3*riplus3))) - U_uncut(_cutoff);
+
+	      //Specially treat the case where r=0 is included in the
+	      //step. The singularity dominates and the step energy is
+	      //infinite.
+	      if (r1 == 0) newU = +std::numeric_limits<double>::infinity();
 	    }
 	    break;
 	  case VIRIAL:
@@ -254,7 +298,15 @@ namespace dynamo {
 	      double sum(0);
 	      for (size_t i(1); i < iterations; ++i)
 		sum += B2func(r1 + i * h);
-	      const double B2 = h * (B2func(r1) + B2func(r2)) / 2 + h * sum;
+
+
+	      double B2 = h * B2func(r2) / 2 + h * sum;
+
+	      //Specially treat the case where r=0 is included in the
+	      //step. It doesn't contribute to the virial provided the
+	      //temperature is finite, but the calculation has a
+	      //divide by zero in it so it must be avoided.
+	      if (r1 != 0) B2 += h * B2func(r1) / 2;
 	      
 	      newU = - _kT * std::log(1 - 3 * B2/(2 * PI * (r2 * r2 * r2 - r1 * r1 * r1)));
 	    }

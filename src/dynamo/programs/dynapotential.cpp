@@ -46,6 +46,7 @@ int main(int argc, char *argv[])
 	("steps", po::value<size_t>()->default_value(10), "The number of steps to output data for")
 	("deltar", "Use even stepping in r to place the steps")
 	("deltau", "Use even stepping in U to place the steps")
+	("deltav", "Use even stepping in volume to place the steps")
 	("volume", "Use the volume averaged energy algorithm for step energies")
 	("left", "Use the left energy algorithm for step energies")
 	("mid", "Use the midpoint energy algorithm for step energies")
@@ -79,6 +80,7 @@ int main(int argc, char *argv[])
       PotentialLennardJones::RMode R_mode;
       if (vm.count("deltar")) R_mode = PotentialLennardJones::DELTAR;
       else if (vm.count("deltau")) R_mode = PotentialLennardJones::DELTAU;
+      else if (vm.count("deltav")) R_mode = PotentialLennardJones::DELTAV;
       else
 	M_throw() << "Please specify which step placement algorithm to use";
 
