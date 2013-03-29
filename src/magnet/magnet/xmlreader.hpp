@@ -31,13 +31,18 @@ namespace magnet {
        */
       inline std::string getPath(rapidxml::xml_node<> *_node)
       {
-	std::vector<std::pair<std::string, size_t> > pathTree;
+	std::vector<std::pair<std::string, int> > pathTree;
 	while (_node != 0)
 	  {
-	    size_t index(0);
+	    //Determine what is the index of the current node.
+	    int index(0);
 	    if (_node->parent())
-	      { rapidxml::xml_node<>* sibling = _node->previous_sibling(_node->name(), _node->name_size());
+	      {
+		rapidxml::xml_node<>* sibling = _node->previous_sibling(_node->name(), _node->name_size());
 		while (sibling) { sibling = sibling->previous_sibling(); ++index; }
+		//Set the index to -1 if this is the only node with its name (it has no siblings)
+		if ((index == 0) && !(_node->next_sibling(_node->name(), _node->name_size())))
+		  index = -1;
 	      }
 	    
 	    pathTree.push_back(std::pair<std::string, size_t>(std::string(_node->name(),_node->name()+_node->name_size()), index));
@@ -46,17 +51,14 @@ namespace magnet {
 	
 	std::ostringstream os;
 	
-#ifdef __PATHCC__ 
-	os << "NO PATH FOR PATHSCALE COMPILER";
-#else
-	for (std::vector<std::pair<std::string, size_t> >::const_reverse_iterator 
+	for (std::vector<std::pair<std::string, int> >::const_reverse_iterator
 	       iPtr = pathTree.rbegin(); iPtr != pathTree.rend(); ++iPtr)
 	  {
-	    os << "/" << iPtr->first; 
-	    if (iPtr->second)
+	    os << "/" << iPtr->first;
+	    //Only output the index of the node if it has no siblings
+	    if (iPtr->second >= 0)
 	      os << "[" << iPtr->second << "]";
 	  }
-#endif	
 	return os.str();
       }
     }
@@ -69,10 +71,10 @@ namespace magnet {
       template<class T> inline T as() const 
       { 
 	try {
-	  return boost::lexical_cast<T>(getValue()); 
+	  return boost::lexical_cast<T>(getValue());
 	} catch (boost::bad_lexical_cast&)
 	  {
-	    M_throw() << "Failed to cast XML attribute to type, XMLPath: " << getPath();
+	    M_throw() << "Failed to cast XML attribute with value \"" << getValue() << "\" to type, XMLPath: " << getPath();
 	  }
       }
 
