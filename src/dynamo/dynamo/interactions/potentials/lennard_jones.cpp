@@ -304,7 +304,6 @@ namespace dynamo {
 	      for (size_t i(1); i < iterations; ++i)
 		sum += B2func(r1 + i * h);
 
-
 	      double B2 = h * B2func(r2) / 2 + h * sum;
 
 	      //Specially treat the case where r=0 is included in the
@@ -312,8 +311,15 @@ namespace dynamo {
 	      //temperature is finite, but the calculation has a
 	      //divide by zero in it so it must be avoided.
 	      if (r1 != 0) B2 += h * B2func(r1) / 2;
-	      
-	      newU = - _kT * std::log(1 - 3 * B2/(2 * PI * (r2 * r2 * r2 - r1 * r1 * r1)));
+
+	      double log_arg = 1 - 3 * B2/(2 * PI * (r2 * r2 * r2 - r1 * r1 * r1));
+	      newU = - _kT * std::log(log_arg);
+
+	      //Sometimes, the inner step is such a high energy, and
+	      //the numerical integration sucks, that precision errors
+	      //cause a negative log_arg, if this is the case the
+	      //potential energy is effectively infinity.
+	      if (log_arg <= 0) newU = std::numeric_limits<double>::infinity();
 	    }
 	    break;
 	  case MIDVOLUME:
