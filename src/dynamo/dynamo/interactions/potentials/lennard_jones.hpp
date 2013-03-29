@@ -72,7 +72,7 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    double B2func(double) const;
+    long double B2func(long double) const;
 
     double _sigma;
     double _epsilon;

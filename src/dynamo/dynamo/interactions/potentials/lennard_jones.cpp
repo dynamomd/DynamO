@@ -148,9 +148,9 @@ namespace dynamo {
     }
   }
 
-  double
-  PotentialLennardJones::B2func(const double r) const {
-    return - 2 * PI * r * r * (std::exp(-U(r) / _kT) - 1);
+  long double
+  PotentialLennardJones::B2func(const long double r) const {
+    return - r * r * (std::exp(-U(r) / _kT) - 1.0);
   }
 
   void 
@@ -182,10 +182,6 @@ namespace dynamo {
 	    else
 	      _r_cache.push_back(_cutoff - (step_id+1) * deltaR);
 	  }
-
-	for (size_t i(0); i < _r_cache.size(); ++i)
-	  std::cout << "R = " << _r_cache[i] << std::endl;
-
 	break;
       }
     case DELTAU:
@@ -297,28 +293,36 @@ namespace dynamo {
 	    break;
 	  case VIRIAL:
 	    {
-	      //Numerically integrate for the B2 in the region [r1,r2] using the trapezium rule
-	      const size_t iterations = 100000;
-	      const double h= (r2 - r1) / double(iterations);
-	      double sum(0);
-	      for (size_t i(1); i < iterations; ++i)
-		sum += B2func(r1 + i * h);
+	      //Numerically integrate for the B2 in the region [r1,r2]
+	      //using simpsons rule
 
-	      double B2 = h * B2func(r2) / 2 + h * sum;
+	      //Must be even
+	      const size_t iterations = 100000;
+	      const long double h= (r2 - r1) / (long double)(iterations);
+	      long double sum(0);
 
 	      //Specially treat the case where r=0 is included in the
 	      //step. It doesn't contribute to the virial provided the
 	      //temperature is finite, but the calculation has a
 	      //divide by zero in it so it must be avoided.
-	      if (r1 != 0) B2 += h * B2func(r1) / 2;
+	      if (r1 != 0) sum += B2func(r1);
 
-	      double log_arg = 1 - 3 * B2/(2 * PI * (r2 * r2 * r2 - r1 * r1 * r1));
+	      for (size_t i(1); i < iterations; ++i)
+		if (i % 2)
+		  sum += 4 * B2func(r1 + i * h);
+		else
+		  sum += 2 * B2func(r1 + i * h);
+	      
+	      sum += B2func(r2);
+
+	      long double B2 = h * sum / 3;
+
+	      long double log_arg = 1 - 3 * B2/ (r2 * r2 * r2 - r1 * r1 * r1);
 	      newU = - _kT * std::log(log_arg);
 
-	      //Sometimes, the inner step is such a high energy, and
-	      //the numerical integration sucks, that precision errors
-	      //cause a negative log_arg, if this is the case the
-	      //potential energy is effectively infinity.
+	      //Sometimes, precision errors in the log cause a
+	      //negative log_arg, if this is the case the potential
+	      //energy is effectively infinity.
 	      if (log_arg <= 0) newU = std::numeric_limits<double>::infinity();
 	    }
 	    break;
