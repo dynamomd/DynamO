@@ -148,11 +148,6 @@ namespace dynamo {
     }
   }
 
-  long double
-  PotentialLennardJones::B2func(const long double r) const {
-    return - r * r * (std::exp(-U(r) / _kT) - 1.0);
-  }
-
   void 
   PotentialLennardJones::calculateToStep(const size_t step_id) const {
     const double rmin = minimum();
@@ -298,8 +293,8 @@ namespace dynamo {
 
 	      //Must be even
 	      const size_t iterations = 100000;
-	      const long double h= (r2 - r1) / (long double)(iterations);
-	      long double sum(0);
+	      const double h= (r2 - r1) / (double)(iterations);
+	      double sum(0);
 
 	      //Specially treat the case where r=0 is included in the
 	      //step. It doesn't contribute to the virial provided the
@@ -315,9 +310,9 @@ namespace dynamo {
 	      
 	      sum += B2func(r2);
 
-	      long double B2 = h * sum / 3;
-
-	      long double log_arg = 1 - 3 * B2/ (r2 * r2 * r2 - r1 * r1 * r1);
+	      double integral = h * sum / 3;
+	      
+	      double log_arg = 3 * integral / (r2 * r2 * r2 - r1 * r1 * r1);
 	      newU = - _kT * std::log(log_arg);
 
 	      //Sometimes, precision errors in the log cause a
@@ -335,5 +330,10 @@ namespace dynamo {
 	  }
 	_u_cache.push_back(newU);
       }
+  }
+
+  double
+  PotentialLennardJones::B2func(const double r) const {
+    return r * r * std::exp(-U(r) / _kT);
   }
 }
