@@ -261,7 +261,7 @@ namespace dynamo {
       break;
     default:
       M_throw() << "Unknown RMode";
-   } 
+   }
 
     for (size_t i(_u_cache.size()); i <= step_id; ++i) 
       {
@@ -269,11 +269,16 @@ namespace dynamo {
 	const double r1 = _r_cache[i+1], r2 = _r_cache[i];
 	switch (_U_mode) 
  	  {
-	  case MIDPOINT: 
+	  case MIDPOINT:
 	    newU = U((r1 + r2) * 0.5); 
 	    break;
-	  case LEFT: 
-	    newU = U(r1); 
+	  case LEFT:
+	    //Specially treat the case where r=0 is included in the
+	    //step.
+	    if (r1 == 0)
+	      newU = std::numeric_limits<double>::infinity();
+	    else
+	      newU = U(r1);
 	    break;
 	  case RIGHT: 
 	    newU = U(r2); break;
@@ -287,7 +292,7 @@ namespace dynamo {
 	      //Specially treat the case where r=0 is included in the
 	      //step. The singularity dominates and the step energy is
 	      //infinite.
-	      if (r1 == 0) newU = +std::numeric_limits<double>::infinity();
+	      if (r1 == 0) newU = std::numeric_limits<double>::infinity();
 	    }
 	    break;
 	  case VIRIAL:
