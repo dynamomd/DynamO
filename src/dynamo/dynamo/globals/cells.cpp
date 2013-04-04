@@ -466,7 +466,7 @@ namespace dynamo {
 
     for (size_t i = 0; i < NDIM; ++i)
       {
-	double supported_length = cellLatticeWidth[i]
+	double supported_length = cellLatticeWidth[i] * overlink
 	  + lambda * (cellLatticeWidth[i] - cellDimension[i]);
 
 	//Test if, in this dimension, one neighbourhood of cells spans
