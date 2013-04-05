@@ -43,7 +43,8 @@ namespace dynamo {
     return XML;
   }
 
-  PotentialStepped::PotentialStepped(std::vector<std::pair<double, double> > steps)
+  PotentialStepped::PotentialStepped(std::vector<std::pair<double, double> > steps, bool direction):
+    _direction(direction)
   {
     std::sort(steps.rbegin(), steps.rend());
     for (size_t i(0); i < steps.size(); ++i)
@@ -57,6 +58,11 @@ namespace dynamo {
   PotentialStepped::outputXML(magnet::xml::XmlStream& XML) const {
     XML << magnet::xml::attr("Type") << "Stepped";
 
+    if (_direction)
+      XML << magnet::xml::attr("Direction") << "Right";
+    else
+      XML << magnet::xml::attr("Direction") << "Left";
+
     for (size_t id(0); id < steps(); ++id)
       XML << magnet::xml::tag("Step")
 	  << magnet::xml::attr("R") << _r_cache[id]
@@ -66,6 +72,14 @@ namespace dynamo {
 
   void 
   PotentialStepped::operator<<(const magnet::xml::Node& XML) {
+    if (XML.getAttribute("Direction").as<std::string>() == "Left")
+      _direction = false;
+    else if (XML.getAttribute("Direction").as<std::string>() == "Right")
+      _direction = true;
+    else
+      M_throw() << "Could not parse Direction, should be either \"Left\" or \"Right\"\nXML path:"
+		<< XML.getPath();
+
     std::vector<std::pair<double, double> > steps;
     for (magnet::xml::Node node = XML.fastGetNode("Step"); node.valid(); ++node)
       steps.push_back(std::pair<double, double>(node.getAttribute("R").as<double>(),
@@ -74,6 +88,6 @@ namespace dynamo {
     if (steps.empty())
       M_throw() << "You cannot load a stepped potential with no steps.\nXML path: " << XML.getPath();
     
-    *this = PotentialStepped(steps);
+    *this = PotentialStepped(steps, _direction);
   }
 }

@@ -126,7 +126,7 @@ namespace dynamo {
 	each discontinuity should be stored as its position (r) and
 	the energy to its right (r^+).
      */
-    virtual bool direction() const { return false;}
+    virtual bool direction() const = 0;
 
   protected:
     virtual void calculateToStep(size_t) const = 0;
@@ -147,7 +147,14 @@ namespace dynamo {
       operator<<(XML);
     }
     
-    PotentialStepped(std::vector<std::pair<double, double> >);
+    /*! \brief Construct a stepped potential from a list discontinuity
+        positions and energies.
+	
+	The first argument is a list of discontinuity positions and
+	energies. The second argument sets which side of the
+	discontinuity the energy is specified for.
+     */
+    PotentialStepped(std::vector<std::pair<double, double> > step_pos_energy, bool direction);
   
     virtual std::size_t steps() const {
       return _r_cache.size();
@@ -171,7 +178,12 @@ namespace dynamo {
       return _r_cache.back();
     }
 
+    virtual bool direction() const { return _direction; }
+
   protected:
+    bool _direction;
+    
+
     virtual void calculateToStep(size_t) const {
       M_throw() << "Cannot calculate new steps for this potential!";
     }

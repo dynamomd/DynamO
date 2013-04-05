@@ -27,8 +27,7 @@ namespace dynamo {
   class IStepped: public IMultiCapture, public GlyphRepresentation
   {
   public:
-    IStepped(dynamo::Simulation*, const std::vector<std::pair<double,double> >&,
-	     IDPairRange*, std::string name);
+    IStepped(dynamo::Simulation*, shared_ptr<Potential>, IDPairRange*, std::string);
 
     IStepped(const magnet::xml::Node&, dynamo::Simulation*);
   

@@ -36,8 +36,7 @@
 #include <iomanip>
 
 namespace dynamo {
-  IStepped::IStepped(dynamo::Simulation* tmp, 
-		     const std::vector<std::pair<double, double> >& steps, IDPairRange* nR,
+  IStepped::IStepped(dynamo::Simulation* tmp, shared_ptr<Potential> potential, IDPairRange* nR,
 		     std::string name):
     IMultiCapture(tmp,nR),
     _unitLength(Sim->_properties.getProperty
@@ -46,7 +45,7 @@ namespace dynamo {
     _unitEnergy(Sim->_properties.getProperty
 		(Sim->units.unitEnergy(), 
 		 Property::Units::Energy())),
-    _potential(new PotentialStepped(steps))
+    _potential(potential)
   { intName = name; }
 
   IStepped::IStepped(const magnet::xml::Node& XML, dynamo::Simulation* tmp):

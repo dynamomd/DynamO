@@ -65,6 +65,8 @@ namespace dynamo {
     double U(double) const;
     double U_uncut(double) const;
     double minimum() const;
+
+    virtual bool direction() const { return false; }
     
   protected:
 

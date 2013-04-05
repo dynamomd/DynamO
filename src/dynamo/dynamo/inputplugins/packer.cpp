@@ -26,6 +26,7 @@
 #include <dynamo/species/include.hpp>
 #include <dynamo/globals/include.hpp>
 #include <dynamo/interactions/include.hpp>
+#include <dynamo/interactions/potentials/potential.hpp>
 #include <dynamo/ranges/include.hpp>
 #include <dynamo/BC/include.hpp>
 #include <dynamo/dynamics/include.hpp>
@@ -1801,9 +1802,8 @@ namespace dynamo {
 	      oldr = p.first;
 	    }
 
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IStepped(Sim, diamvec, new IDPairRangeAll(), "Bulk")));
+	  shared_ptr<Potential> potential(new PotentialStepped(diamvec, false));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IStepped(Sim, potential, new IDPairRangeAll(), "Bulk")));
 
 	  Sim->addSpecies(shared_ptr<Species>
 			  (new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0,
