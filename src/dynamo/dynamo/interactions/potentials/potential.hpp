@@ -24,7 +24,14 @@ namespace magnet { namespace xml { class Node; class XmlStream; } }
 namespace dynamo {
   /*! \brief The base class for any stepped potential.
     
-    This class implements a cache, to allow fast lookup of previously
+    This class represents a general stepped potential. Each "step" is
+    represented by a pairing of distance and energy. Depending on the
+    nature of the potential, this energy may correspond to the left or
+    right of the discontinuity (see direction()). In short, if a
+    particle is on a step with an ID of zero, it has an interaction
+    energy of zero.
+
+    This class also implements a cache, to allow fast lookup of previously
     accessed steps, as some calculated potentials are expensive to
     compute.
    */
@@ -95,6 +102,9 @@ namespace dynamo {
       return retval;
     }
 
+    /*! \brief Return a pair with the min-max bounds of the potential
+        step ID given.
+     */
     std::pair<double, double> getStepBounds(size_t ID) const {
       if (direction())
 	return std::pair<double, double>((ID == 0) ? 0: operator[](ID-1).first, operator[](ID).first);

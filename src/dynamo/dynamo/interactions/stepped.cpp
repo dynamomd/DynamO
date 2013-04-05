@@ -121,6 +121,7 @@ namespace dynamo {
 
     Vector rij = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(rij);
+    
     return _potential->calculateStepID(rij.nrm() / length_scale);
   }
 
@@ -288,63 +289,25 @@ namespace dynamo {
   IStepped::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
     const_cmap_it capstat = getCMap_it(p1, p2);
-    size_t val = captureTest(p1, p2);
-
-    const double length_scale = 0.5 * (_unitLength->getProperty(p1.getID()) + _unitLength->getProperty(p2.getID()));
-
-    if (capstat == captureMap.end())
+    const size_t calculated_step_ID = captureTest(p1, p2);
+    const size_t stored_step_ID = (capstat == captureMap.end()) ? 0 : capstat->second;
+    const std::pair<double, double> stored_step_bounds = _potential->getStepBounds(stored_step_ID);
+    const std::pair<double, double> calculated_step_bounds = _potential->getStepBounds(calculated_step_ID);
+    
+    if (calculated_step_ID != stored_step_ID)
       {
-	if (val != 0)
+	if (textoutput)
 	  {
-	    double d = (*_potential)[0].first * length_scale;
-
-	    if (textoutput)
-	      derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
-		   << " registered as being outside the steps, starting at " << d / Sim->units.unitLength()
-		   << " but they are at a distance of "
-		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
-		   << std::endl;
-
-	    return true;
+	    derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+		 << " registered as being inside step " << stored_step_ID
+		 << " which has limits of [" << stored_step_bounds.first
+		 << ", " << stored_step_bounds.second << "] but they are at a distance of " 
+		 << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		 << " and this corresponds to step " << calculated_step_ID
+		 << " with bounds [" << calculated_step_bounds.first << ","
+		 << calculated_step_bounds.second << "]" << std::endl;
 	  }
-      }
-    else
-      {
-	if (capstat->second != val)
-	  {
-	    if (textoutput)
-	      {
-		derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
-		     << " registered as being inside step " << capstat->second 
-		     << " which has limits of [" << ((capstat->second < _potential->steps()) ? 
-						     (*_potential)[capstat->second].first * length_scale : 0) 
-		  / Sim->units.unitLength()
-		     << ", " << (*_potential)[capstat->second-1].first * length_scale / Sim->units.unitLength()
-		     << "] but they are at a distance of " 
-		     << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
-		     << " and this corresponds to step " << val
-		     << std::endl;
-	      }
-	    
-	    return true;
-	  }
-	else
-	  {
-	    if (std::isinf((*_potential)[capstat->second-1].second))
-	      {
-		if (textoutput)
-		  {
-		    derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
-			 << " registered as being inside step " << capstat->second 
-			 << " which has limits of [" << ((capstat->second < _potential->steps()) ? 
-							 (*_potential)[capstat->second].first * length_scale : 0) 
-		      / Sim->units.unitLength()
-			 << ", " << (*_potential)[capstat->second-1].first * length_scale / Sim->units.unitLength()
-			 << "] and an infinite interaction energy" << std::endl;
-		  }
-		return true;
-	      }
-	  }
+	return true;
       }
     return false;
   }
