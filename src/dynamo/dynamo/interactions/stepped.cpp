@@ -117,23 +117,11 @@ namespace dynamo {
   {
     if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
   
-    Vector  rij = p1.getPosition() - p2.getPosition();
+    const double length_scale = 0.5 * (_unitLength->getProperty(p1.getID()) + _unitLength->getProperty(p2.getID()));
+
+    Vector rij = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(rij);
-  
-    double r = rij.nrm();
-
-    //Uncaptured value
-    size_t retval = 0;
-
-    //Check when it is less
-    for (size_t i(0); i < _potential->steps(); ++i)
-      {
-	if (r > (*_potential)[i].first * _unitLength->getMaxValue())
-	  break;
-	retval = i+1;
-      }
-
-    return retval;
+    return _potential->calculateStepID(rij.nrm() / length_scale);
   }
 
   double 
@@ -156,13 +144,13 @@ namespace dynamo {
   IStepped::getInternalEnergy(const Particle& p1, const Particle& p2) const
   {
     const_cmap_it capstat = getCMap_it(p1,p2);
+
     if (capstat == captureMap.end())
       return 0;
-    else
-      return (*_potential)[capstat->second - 1].second
-	* 0.5 * (_unitEnergy->getProperty(p1.getID())
-		 + _unitEnergy->getProperty(p2.getID()))
-	* isCaptured(p1, p2);
+
+    const double energy_scale = 0.5 * (_unitEnergy->getProperty(p1.getID()) + _unitEnergy->getProperty(p2.getID()));
+    
+    return (*_potential)[capstat->second - 1].second * energy_scale;
   }
 
   IntEvent
@@ -185,9 +173,11 @@ namespace dynamo {
 
     IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
 
+    const double length_scale = 0.5 * (_unitLength->getProperty(p1.getID()) + _unitLength->getProperty(p2.getID()));
+
     if (capstat == captureMap.end())
       {
-	double d = (*_potential)[0].first * _unitLength->getMaxValue();
+	double d = (*_potential)[0].first * length_scale;
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 
 	//Not captured, test for capture
@@ -200,7 +190,7 @@ namespace dynamo {
 	//First check if there is an inner step to interact with
 	if (capstat->second < (*_potential).steps())
 	  {
-	    double d = (*_potential)[capstat->second].first * _unitLength->getMaxValue();
+	    double d = (*_potential)[capstat->second].first * length_scale;
 	    double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 	    
 	    if (dt != HUGE_VAL)
@@ -208,7 +198,7 @@ namespace dynamo {
 	  }
 
 	{//Now test for the outward step
-	  double d = (*_potential)[capstat->second - 1].first * _unitLength->getMaxValue();
+	  double d = (*_potential)[capstat->second - 1].first * length_scale;
 	  double dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, d);
 	  if (retval.getdt() > dt)
 	      retval = IntEvent(p1, p2, dt, STEP_OUT, *this);
@@ -223,18 +213,21 @@ namespace dynamo {
   {
     ++Sim->eventCount;
 
+    const double length_scale = 0.5 * (_unitLength->getProperty(p1.getID()) + _unitLength->getProperty(p2.getID()));
+    const double energy_scale = 0.5 * (_unitEnergy->getProperty(p1.getID()) + _unitEnergy->getProperty(p2.getID()));
+
     switch (iEvent.getType())
       {
       case STEP_OUT:
 	{
 	  cmap_it capstat = getCMap_it(p1,p2);
 	
-	  double d = (*_potential)[capstat->second-1].first * _unitLength->getMaxValue();
+	  double d = (*_potential)[capstat->second-1].first * length_scale;
 	  double d2 = d * d;
 	  double dE = (*_potential)[capstat->second-1].second;
 	  if (capstat->second > 1)
 	    dE -= (*_potential)[capstat->second - 2].second;
-	  dE *= _unitEnergy->getMaxValue();
+	  dE *= energy_scale;
 
 	  PairEventData retVal(Sim->dynamics->SphereWellEvent
 			       (iEvent, dE, d2));
@@ -264,13 +257,12 @@ namespace dynamo {
 		: cMapKey(p2.getID(), p1.getID()),
 		0)).first;
 	
-	  double d = (*_potential)[capstat->second].first * _unitLength->getMaxValue();
+	  double d = (*_potential)[capstat->second].first * length_scale;
 	  double d2 = d * d;
 	  double dE = (*_potential)[capstat->second].second;
 	  if (capstat->second > 0)
 	    dE -= (*_potential)[capstat->second - 1].second;
-	  dE *= _unitEnergy->getMaxValue();
-
+	  dE *= energy_scale;
 
 	  PairEventData retVal = Sim->dynamics->SphereWellEvent(iEvent, -dE, d2);
 	
@@ -298,11 +290,13 @@ namespace dynamo {
     const_cmap_it capstat = getCMap_it(p1, p2);
     size_t val = captureTest(p1, p2);
 
+    const double length_scale = 0.5 * (_unitLength->getProperty(p1.getID()) + _unitLength->getProperty(p2.getID()));
+
     if (capstat == captureMap.end())
       {
 	if (val != 0)
 	  {
-	    double d = (*_potential)[0].first * _unitLength->getMaxValue();
+	    double d = (*_potential)[0].first * length_scale;
 
 	    if (textoutput)
 	      derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
@@ -323,9 +317,9 @@ namespace dynamo {
 		derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
 		     << " registered as being inside step " << capstat->second 
 		     << " which has limits of [" << ((capstat->second < _potential->steps()) ? 
-						     (*_potential)[capstat->second].first * _unitLength->getMaxValue() : 0) 
+						     (*_potential)[capstat->second].first * length_scale : 0) 
 		  / Sim->units.unitLength()
-		     << ", " << (*_potential)[capstat->second-1].first * _unitLength->getMaxValue() / Sim->units.unitLength()
+		     << ", " << (*_potential)[capstat->second-1].first * length_scale / Sim->units.unitLength()
 		     << "] but they are at a distance of " 
 		     << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
 		     << " and this corresponds to step " << val
@@ -343,9 +337,9 @@ namespace dynamo {
 		    derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
 			 << " registered as being inside step " << capstat->second 
 			 << " which has limits of [" << ((capstat->second < _potential->steps()) ? 
-							 (*_potential)[capstat->second].first * _unitLength->getMaxValue() : 0) 
+							 (*_potential)[capstat->second].first * length_scale : 0) 
 		      / Sim->units.unitLength()
-			 << ", " << (*_potential)[capstat->second-1].first * _unitLength->getMaxValue() / Sim->units.unitLength()
+			 << ", " << (*_potential)[capstat->second-1].first * length_scale / Sim->units.unitLength()
 			 << "] and an infinite interaction energy" << std::endl;
 		  }
 		return true;

@@ -82,7 +82,42 @@ namespace dynamo {
         parameters of this Potential to a config file.
      */
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Potential&);
+
+    /*! \brief Determine which step in the potential the passed radius
+        corresponds to.
+    */
+    size_t calculateStepID(const double r) const {
+      size_t retval(0);
+      if (direction())
+	for (; (retval < steps()) && (r > operator[](retval).first); ++retval) {}
+      else
+	for (; (retval < steps()) && (r < operator[](retval).first); ++retval) {}
+      return retval;
+    }
+
+    std::pair<double, double> getStepBounds(size_t ID) const {
+      if (direction())
+	return std::pair<double, double>((ID == 0) ? 0: operator[](ID-1).first, operator[](ID).first);
+      else
+	return std::pair<double, double>(operator[](ID).first, ((ID == 0) ? HUGE_VAL : operator[](ID - 1).first));
+    }
     
+    /*! \brief Returns false if the discontinuity energies specify the
+	step energy to its left or true if it is the energy to its
+	right.
+	
+	If a potential limits to infinity at zero separation
+	(e.g. Lennard-Jones), then it is natural to start the stepping
+	ID's at the cut-off radius and have them increase as r
+	approaches zero. This implies that the way in which each step
+	is stored is through a discontinuity position (r) and the
+	value of the energy to its left (r^-). The reverse is true if
+	the potential is zero at r=0, and diverges as r increases,
+	each discontinuity should be stored as its position (r) and
+	the energy to its right (r^+).
+     */
+    virtual bool direction() const { return false;}
+
   protected:
     virtual void calculateToStep(size_t) const = 0;
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;

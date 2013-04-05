@@ -619,12 +619,12 @@ namespace coil {
     std::tr1::shared_ptr<RenderObj> consoleObj(new Console(textcolor)); 
     _renderObjsTree._renderObjects.push_back(consoleObj);
 
-    glutInitContextVersion(3, 3);
+    glutInitContextVersion(3, 2);
     glutInitContextProfile(GLUT_CORE_PROFILE);
 #ifdef MAGNET_DEBUG
     glutInitContextFlags(GLUT_DEBUG);
 #endif
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE | GLUT_ALPHA);
+    glutInitDisplayMode(GLUT_RGBA);
     glutInitWindowSize(800, 600);
     glutInitWindowPosition(0, 0);
 
