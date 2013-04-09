@@ -19,6 +19,7 @@
 #include <dynamo/systems/system.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/ranges/IDRange.hpp>
+#include <dynamo/interactions/potentials/potential.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_real.hpp>
 
@@ -27,8 +28,6 @@ namespace dynamo {
   {
   public:
     SysUmbrella(const magnet::xml::Node& XML, dynamo::Simulation*);
-
-    SysUmbrella(dynamo::Simulation*, double, double, double, std::string, IDRange*, IDRange*);
   
     virtual void runEvent() const;
 
@@ -43,11 +42,9 @@ namespace dynamo {
 
     void recalculateTime();
 
-    double a,b,delU;
-    int ulevelcenter;
-    mutable int ulevel;
-    bool ulevelset;
+    mutable std::size_t _stepID;
 
+    shared_ptr<Potential> _potential;
     shared_ptr<IDRange> range1;
     shared_ptr<IDRange> range2;
   };

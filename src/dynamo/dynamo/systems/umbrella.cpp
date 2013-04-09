@@ -40,31 +40,10 @@ namespace dynamo {
 
   SysUmbrella::SysUmbrella(const magnet::xml::Node& XML, dynamo::Simulation* tmp): 
     System(tmp),
-    a(1.0),
-    b(1.0),
-    delU(0.1),
-    ulevelcenter(0),
-    ulevel(-1),
-    ulevelset(false)
+    _stepID(std::numeric_limits<size_t>::max())
   {
     dt = HUGE_VAL;
     operator<<(XML);
-    type = UMBRELLA;
-  }
-
-  SysUmbrella::SysUmbrella(dynamo::Simulation* nSim, double na, double nb, double ndelu, 
-			 std::string nName, IDRange* r1, IDRange* r2):
-    System(nSim),
-    a(na),
-    b(nb),
-    delU(ndelu),
-    ulevelcenter(0),
-    ulevel(-1),
-    ulevelset(false),
-    range1(r1),
-    range2(r2)
-  {
-    sysName = nName;
     type = UMBRELLA;
   }
 
@@ -92,38 +71,19 @@ namespace dynamo {
   
     BOOST_FOREACH(const size_t& id, *range2)
       Sim->dynamics->updateParticle(Sim->particles[id]);
+
+    size_t new_step_ID;
+    if (type == STEP_OUT)
+      new_step_ID = _stepID - 1 + 2 * _potential->direction();
+    else if (type == STEP_IN)
+      new_step_ID = _stepID + 1 - 2 * _potential->direction();
+    else
+      M_throw() << "Unknown event type";
   
-    bool kedown(false); //Will kinetic energy go down?
-
-    int newulevel ;
-
-    if (ulevel == 0)
-      {
-	kedown = true;
-      
-	if (type == STEP_OUT)
-	  newulevel = 1;
-	else
-	  newulevel = -1;
-      }
-    else if (type == STEP_OUT)
-      {
-	if (ulevel > 0) kedown = true;
-	newulevel = ulevel + 1; 
-      }
-    else //if (type == STEP_IN)
-      {
-	if (ulevel < 0) kedown = true;
-	newulevel = ulevel - 1;
-      }
-    
     EEventType etype(NONE);
+    NEventData SDat(Sim->dynamics->multibdyWellEvent(*range1, *range2, 0.0, _potential->getEnergyChange(new_step_ID, _stepID), etype));
 
-    NEventData SDat(Sim->dynamics->multibdyWellEvent
-		    (*range1, *range2, 0.0, (kedown) ? -delU : delU, etype));
-
-    if (etype != BOUNCE)
-      ulevel = newulevel;
+    if (etype != BOUNCE) _stepID = new_step_ID;
 
     Sim->signalParticleUpdate(SDat);
   
@@ -140,32 +100,24 @@ namespace dynamo {
   {
     ID = nID;
 
-    BOOST_FOREACH(const size_t& id, *range1)
-      Sim->dynamics->updateParticle(Sim->particles[id]);
-  
-    BOOST_FOREACH(const size_t& id, *range2)
-      Sim->dynamics->updateParticle(Sim->particles[id]);
-  
-    ulevelcenter = int( - a * b * b / delU);
-    
-    std::pair<Vector, Vector> r1data = Sim->dynamics->getCOMPosVel(*range1);
-    std::pair<Vector, Vector> r2data = Sim->dynamics->getCOMPosVel(*range2);
-    Vector r12 = r1data.first - r2data.first;
-    Sim->BCs->applyBC(r12);
-
-    double r = r12.nrm();
-    
-    if (!ulevelset)
+    if (_stepID == std::numeric_limits<size_t>::max())
       {
-	ulevel = int(a * (r - b) * (r - b) / delU);
-	if (r < b) ulevel *= -1;
-	ulevelset = true;
+	BOOST_FOREACH(const size_t& id, *range1)
+	  Sim->dynamics->updateParticle(Sim->particles[id]);
+	
+	BOOST_FOREACH(const size_t& id, *range2)
+	  Sim->dynamics->updateParticle(Sim->particles[id]);
+	
+	std::pair<Vector, Vector> r1data = Sim->dynamics->getCOMPosVel(*range1);
+	std::pair<Vector, Vector> r2data = Sim->dynamics->getCOMPosVel(*range2);
+	Vector r12 = r1data.first - r2data.first;
+	Sim->BCs->applyBC(r12);
+	_stepID = _potential->calculateStepID(r12.nrm());
       }
   
     recalculateTime();
 
-    Sim->registerParticleUpdateFunc
-      (magnet::function::MakeDelegate(this, &SysUmbrella::particlesUpdated));
+    Sim->registerParticleUpdateFunc(magnet::function::MakeDelegate(this, &SysUmbrella::particlesUpdated));
   }
 
   void 
@@ -177,61 +129,30 @@ namespace dynamo {
     BOOST_FOREACH(const size_t& id, *range2)
       Sim->dynamics->updateParticle(Sim->particles[id]);
   
-    double R_max, R_min;
-
     dt = HUGE_VAL;
     type = NONE;
 
-    if (ulevel == ulevelcenter)
-      {
-	R_max = b - sqrt((ulevel * delU) / a);      
+    const std::pair<double, double> step_bounds = _potential->getStepBounds(_stepID);
     
-	if (b==0)//Allow a double width well if b==0
-	  R_max = b + sqrt((ulevel + 1 * delU) / a);
-      
-	dt = Sim->dynamics->SphereSphereOutRoot(*range1, *range2, R_max);
-	
-	if (dt != HUGE_VAL)
-	  type = STEP_OUT;
-      
-	return;
-      }
-  
-    if (ulevel == 0)
+    if (step_bounds.first != 0)
       {
-	//We're on the minimum
-
-	//We don't worry about the minimum crossing r=0, as this is
-	//caught by the above if statement
-      
-	R_max = b + sqrt((1 * delU) / a);
-	R_min = b - sqrt((1 * delU) / a);
+	const double new_dt = Sim->dynamics->SphereSphereInRoot(*range1, *range2, step_bounds.first);
+	if (new_dt < dt)
+	  {
+	    dt = new_dt;
+	    type = STEP_IN;
+	  }
       }
-    else if (ulevel < 0)
-      {
-	R_max = b - sqrt((-ulevel) * delU / a);
-	R_min = b - sqrt(((-ulevel) + 1) * delU / a);
-      }
-    else
-      {
-	R_min = b + sqrt((ulevel * delU) / a);
-	R_max = b + sqrt(((ulevel + 1) * delU) / a);
-      }
-
-    dt = Sim->dynamics->SphereSphereInRoot(*range1, *range2, R_min);
     
-    if (dt != HUGE_VAL)
+    if (!std::isinf(step_bounds.second))
       {
-	type = STEP_IN;
-	return;
-      }
+	const double new_dt = Sim->dynamics->SphereSphereOutRoot(*range1, *range2, step_bounds.second);
 
-    dt = Sim->dynamics->SphereSphereOutRoot(*range1, *range2, R_max);
-
-    if (dt != HUGE_VAL)
-      {
-	type = STEP_OUT;
-	return;
+	if (new_dt < dt)
+	  {
+	    dt = new_dt;
+	    type = STEP_OUT;	    
+	  }
       }
   }
 
@@ -263,23 +184,12 @@ namespace dynamo {
   SysUmbrella::operator<<(const magnet::xml::Node& XML)
   {
     sysName = XML.getAttribute("Name");
-
-    a = XML.getAttribute("a").as<double>()
-      * Sim->units.unitEnergy() 
-      / Sim->units.unitArea();
-
-    b = XML.getAttribute("b").as<double>()
-      * Sim->units.unitLength();
-
-    delU = XML.getAttribute("delU").as<double>() * Sim->units.unitEnergy();
     range1 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range1"), Sim));
     range2 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range2"), Sim));
-    
-    if (XML.hasAttribute("currentulevel"))
-      {
-	ulevel = XML.getAttribute("currentulevel").as<size_t>();
-	ulevelset = true;
-      }
+    _potential = Potential::getClass(XML.getNode("Potential"));
+
+    if (XML.hasAttribute("CurrentStep"))
+      _stepID = XML.getAttribute("CurrentStep").as<size_t>();
   }
 
   void 
@@ -287,12 +197,9 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("System")
 	<< magnet::xml::attr("Type") << "Umbrella"
-	<< magnet::xml::attr("a") << a * Sim->units.unitArea() 
-      / Sim->units.unitEnergy()
-	<< magnet::xml::attr("b") << b / Sim->units.unitLength()
-	<< magnet::xml::attr("delU") << delU / Sim->units.unitEnergy()
-	<< magnet::xml::attr("currentulevel") << ulevel
 	<< magnet::xml::attr("Name") << sysName
+	<< magnet::xml::attr("CurrentStep") << _stepID
+	<< _potential
 	<< magnet::xml::tag("Range1")
 	<< range1
 	<< magnet::xml::endtag("Range1")

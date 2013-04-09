@@ -220,10 +220,10 @@ namespace dynamo {
 	  break;
 	}
       default:
-	M_throw() << "Unknown collision type";
+	M_throw() << "Unknown event type";
       } 
 
-    PairEventData retVal = Sim->dynamics->SphereWellEvent(iEvent, -_potential->getEnergyChange(old_step_ID, new_step_ID) * energy_scale, diameter * diameter);
+    PairEventData retVal = Sim->dynamics->SphereWellEvent(iEvent, _potential->getEnergyChange(new_step_ID, old_step_ID) * energy_scale, diameter * diameter);
 
     //Check if the particles changed their step ID
     if (retVal.getType() != BOUNCE)

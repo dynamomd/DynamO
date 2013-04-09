@@ -122,23 +122,13 @@ namespace dynamo {
   
     for (unsigned int i = 0; i < nSims; i++)
       {
-#ifdef DYNAMO_DEBUG
-	bool didWork = false;
-#endif
 	shared_ptr<System>& sysPtr1 = Simulations[i].systems["Thermostat"];
 	if (dynamic_cast<SysAndersen*>(sysPtr1.get()) == NULL)
 	  M_throw() << "Found a System event called \"Thermostat\" but could not convert it to an Andersen Thermostat";
 
 	temperatureList.push_back
-	  (replexPair
-	   (Simulations[i].ensemble->getEnsembleVals()[2], 
-	    simData(i,Simulations[i].ensemble->getReducedEnsembleVals()[2])));
-	
-#ifdef DYNAMO_DEBUG
-	didWork = true;
-#endif
-	break;
-      }      
+	  (replexPair(Simulations[i].ensemble->getEnsembleVals()[2], simData(i,Simulations[i].ensemble->getReducedEnsembleVals()[2])));
+      }
   
     std::sort(temperatureList.begin(), temperatureList.end());  
   
