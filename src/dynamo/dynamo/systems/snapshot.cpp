@@ -29,11 +29,11 @@
 #endif
 
 namespace dynamo {
-  SSnapshot::SSnapshot(dynamo::Simulation* nSim, double nPeriod, std::string nName, bool applyBC):
+  SSnapshot::SSnapshot(dynamo::Simulation* nSim, double nPeriod, std::string nName, std::string format, bool applyBC):
     System(nSim),
     _applyBC(applyBC),
+    _format(format),
     _saveCounter(0)
-
   {
     if (nPeriod <= 0.0)
       nPeriod = 1.0;
@@ -59,7 +59,6 @@ namespace dynamo {
       M_throw() << "A NAN system event time has been found";
 #endif
     
-
     Sim->systemTime += locdt;
 
     Sim->ptrScheduler->stream(locdt);
@@ -75,10 +74,14 @@ namespace dynamo {
     BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(*this, NEventData(), locdt);
   
-    std::string filename = magnet::string::search_replace("Snapshot.%i.xml.bz2", "%i", boost::lexical_cast<std::string>(_saveCounter));
+    std::string filename = magnet::string::search_replace("Snapshot."+_format+".xml.bz2", "%COUNT", boost::lexical_cast<std::string>(_saveCounter));
+    filename = magnet::string::search_replace(filename, "%ID", boost::lexical_cast<std::string>(Sim->simID));
     Sim->writeXMLfile(filename, _applyBC);
     
-    filename = magnet::string::search_replace("Snapshot.output.%i.xml.bz2", "%i", boost::lexical_cast<std::string>(_saveCounter++));
+    dout << "Printing SNAPSHOT" << std::endl;
+    
+    filename = magnet::string::search_replace("Snapshot.output."+_format+".xml.bz2", "%COUNT", boost::lexical_cast<std::string>(_saveCounter++));
+    filename = magnet::string::search_replace(filename, "%ID", boost::lexical_cast<std::string>(Sim->simID));
     Sim->outputData(filename);
   }
 

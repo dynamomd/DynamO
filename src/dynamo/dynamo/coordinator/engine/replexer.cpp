@@ -21,6 +21,7 @@
 #include <dynamo/systems/andersenThermostat.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/systems/snapshot.hpp>
 #include <magnet/thread/threadpool.hpp>
 #include <magnet/string/searchreplace.hpp>
 #include <boost/random/uniform_int.hpp>
@@ -81,6 +82,9 @@ namespace dynamo {
 	setupSim(Simulations[i], 
 		 vm["config-file"].as<std::vector<std::string> >()[i]);
 
+	if (vm.count("snapshot"))
+	  Simulations[i].systems.push_back(shared_ptr<System>(new SSnapshot(&(Simulations[i]), vm["snapshot"].as<double>(), "SnapshotEvent", "ID%ID.%COUNT", !vm.count("unwrapped"))));
+
 	Simulations[i].initialise();
 
 	postSimInit(Simulations[i]);
@@ -121,28 +125,20 @@ namespace dynamo {
 #ifdef DYNAMO_DEBUG
 	bool didWork = false;
 #endif
-	BOOST_FOREACH(shared_ptr<System>& sysPtr1, Simulations[i].systems)
-	  if (sysPtr1->getName() == "Thermostat")
-	    {
-	      if (dynamic_cast<SysAndersen*>(sysPtr1.get()) == NULL)
-		M_throw() << "Could not upcast thermostat to Andersens";
-	    
-	      temperatureList.push_back
-		(replexPair
-		 (Simulations[i].ensemble->getEnsembleVals()[2], 
-		  simData(i,Simulations[i].ensemble->getReducedEnsembleVals()[2])));
-	    
+	shared_ptr<System>& sysPtr1 = Simulations[i].systems["Thermostat"];
+	if (dynamic_cast<SysAndersen*>(sysPtr1.get()) == NULL)
+	  M_throw() << "Found a System event called \"Thermostat\" but could not convert it to an Andersen Thermostat";
+
+	temperatureList.push_back
+	  (replexPair
+	   (Simulations[i].ensemble->getEnsembleVals()[2], 
+	    simData(i,Simulations[i].ensemble->getReducedEnsembleVals()[2])));
+	
 #ifdef DYNAMO_DEBUG
-	      didWork = true;
+	didWork = true;
 #endif
-	      break;
-	    }
-      
-#ifdef DYNAMO_DEBUG
-	if (!didWork)
-	  M_throw() << "Could not find thermostat system event";
-#endif
-      }
+	break;
+      }      
   
     std::sort(temperatureList.begin(), temperatureList.end());  
   
@@ -161,6 +157,16 @@ namespace dynamo {
 	    = std::sqrt(temperatureList.begin()->second.realTemperature
 			/ Simulations[i].ensemble->getReducedEnsembleVals()[2]); 
 	  Simulations[i].setTickerPeriod(vm["ticker-period"].as<double>() * tFactor);
+	}
+
+    if (vm.count("snapshot"))
+      for (size_t i = 0; i < nSims; ++i)
+	{
+	  double tFactor 
+	    = std::sqrt(temperatureList.begin()->second.realTemperature
+			/ Simulations[i].ensemble->getReducedEnsembleVals()[2]); 
+	  
+	  dynamic_cast<SSnapshot &>(*Simulations[i].systems["SnapshotEvent"]).setTickerPeriod(vm["snapshot"].as<double>() * tFactor);
 	}
   }
 
@@ -386,6 +392,15 @@ namespace dynamo {
     while (((Simulations[0].systemTime / Simulations[0].units.unitTime()) < replicaEndTime)
 	   && (Simulations[0].eventCount < vm["events"].as<size_t>()))
       {
+	if (_SIGTERM)
+	  {
+	    replicaEndTime = 0.0;
+	    for (unsigned int i = 0; i < nSims; i++)
+	      Simulations[i].simShutdown();
+	    _SIGTERM = false;
+	    continue;
+	  }
+
 	if (_SIGINT)
 	  {
 	    //Clear the writes to screen
@@ -398,6 +413,8 @@ namespace dynamo {
 	    setvbuf(stdin, NULL, _IONBF, 0);
 	    c=getchar();
 	    setvbuf(stdin, NULL, _IOLBF, 0);
+	    _SIGINT = false;
+
 	    switch (c)
 	      {
 	      case 's':
@@ -481,8 +498,6 @@ namespace dynamo {
 		  break;
 		}
 	      }
-	      
-	    _SIGINT = false;
 	    {
 	      struct sigaction new_action;
 	      new_action.sa_handler = Coordinator::signal_handler;

@@ -23,7 +23,7 @@ namespace dynamo {
   class SSnapshot: public System
   {
   public:
-    SSnapshot(dynamo::Simulation*, double, std::string, bool);
+    SSnapshot(dynamo::Simulation*, double, std::string, std::string, bool);
   
     virtual void runEvent() const;
 
@@ -43,6 +43,7 @@ namespace dynamo {
 
     double _period;
     bool _applyBC;
+    std::string _format;
     mutable size_t _saveCounter;
   };
 }

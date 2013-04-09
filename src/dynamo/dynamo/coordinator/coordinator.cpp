@@ -45,6 +45,10 @@ namespace dynamo {
 	  std::cout << "\nI"<< std::endl;
 	  Coordinator::get()._engine->sigint();
 	}
+      case SIGTERM:
+	{
+	  Coordinator::get()._engine->sigterm();
+	}
       }
   }
 
@@ -128,6 +132,10 @@ namespace dynamo {
       sigaction (SIGINT, NULL, &old_action);
       if (old_action.sa_handler != SIG_IGN)
 	sigaction (SIGINT, &new_action, NULL);
+
+      sigaction (SIGTERM, NULL, &old_action);
+      if (old_action.sa_handler != SIG_IGN)
+	sigaction (SIGTERM, &new_action, NULL);
     }
 
     if (vm.count("n-threads"))

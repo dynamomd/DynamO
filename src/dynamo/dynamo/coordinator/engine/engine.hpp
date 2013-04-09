@@ -110,6 +110,7 @@ namespace dynamo {
     static void getCommonOptions(boost::program_options::options_description& od);
   
     void sigint() { _SIGINT = true; }
+    void sigterm() { _SIGTERM = true; }
 
   protected:
     /*! \brief Code common to most engines pre simulation initialisation.
@@ -135,6 +136,7 @@ namespace dynamo {
     std::string configFormat;
     std::string outputFormat;
     bool _SIGINT;
+    bool _SIGTERM;
     magnet::thread::ThreadPool& threads;
   };
 }

@@ -21,7 +21,6 @@
 #include <dynamo/systems/tHalt.hpp>
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <dynamo/systems/visualizer.hpp>
-#include <dynamo/systems/snapshot.hpp>
 #include <limits>
 
 
@@ -63,6 +62,7 @@ namespace dynamo {
     configFormat(configFile),
     outputFormat(outputFile),
     _SIGINT(false),
+    _SIGTERM(false),
     threads(tp)
   {}
 
@@ -103,9 +103,6 @@ namespace dynamo {
 #ifdef DYNAMO_visualizer
     Sim.systems.push_back(shared_ptr<System>(new SVisualizer(&Sim, filename, Sim.lastRunMFT)));
 #endif
-
-    if (vm.count("snapshot"))
-      Sim.systems.push_back(shared_ptr<System>(new SSnapshot(&Sim, vm["snapshot"].as<double>(), "SnapshotEvent", !vm.count("unwrapped"))));
 
     if (vm.count("load-plugin"))
       {

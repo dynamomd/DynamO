@@ -17,6 +17,7 @@
 
 #include <dynamo/coordinator/coordinator.hpp>
 #include <dynamo/coordinator/engine/single.hpp>
+#include <dynamo/systems/snapshot.hpp>
 #include <signal.h>
 #include <stdio.h>
 
@@ -66,6 +67,8 @@ namespace dynamo {
 		sigaction(SIGINT, &new_action, NULL);
 	      }
 	    }
+	  if (_SIGTERM)
+	    simulation.simShutdown();
 	}
     }
     catch (std::exception& cep)
@@ -91,6 +94,9 @@ namespace dynamo {
       M_throw() << "You must only provide one input file in single mode";
 
     setupSim(simulation, vm["config-file"].as<std::vector<std::string> >()[0]);
+
+    if (vm.count("snapshot"))
+      simulation.systems.push_back(shared_ptr<System>(new SSnapshot(&simulation, vm["snapshot"].as<double>(), "SnapshotEvent", "%COUNT", !vm.count("unwrapped"))));
 
     simulation.initialise();
 
