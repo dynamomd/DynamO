@@ -381,7 +381,7 @@ namespace dynamo {
     pos /= totMass;
     vel /= totMass;
     
-    return std::make_pair(pos, vel);
+    return std::make_pair(pos + pos0, vel + vel0);
   }
 
 }

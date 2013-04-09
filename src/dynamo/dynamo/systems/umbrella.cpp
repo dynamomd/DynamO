@@ -184,8 +184,10 @@ namespace dynamo {
   SysUmbrella::operator<<(const magnet::xml::Node& XML)
   {
     sysName = XML.getAttribute("Name");
-    range1 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range1"), Sim));
-    range2 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range2"), Sim));
+    magnet::xml::Node rangeNode = XML.getNode("IDRange");
+    range1 = shared_ptr<IDRange>(IDRange::getClass(rangeNode, Sim));
+    ++rangeNode;
+    range2 = shared_ptr<IDRange>(IDRange::getClass(rangeNode, Sim));
     _potential = Potential::getClass(XML.getNode("Potential"));
 
     if (XML.hasAttribute("CurrentStep"))
@@ -200,12 +202,8 @@ namespace dynamo {
 	<< magnet::xml::attr("Name") << sysName
 	<< magnet::xml::attr("CurrentStep") << _stepID
 	<< _potential
-	<< magnet::xml::tag("Range1")
 	<< range1
-	<< magnet::xml::endtag("Range1")
-	<< magnet::xml::tag("Range2")
 	<< range2
-	<< magnet::xml::endtag("Range2")
 	<< magnet::xml::endtag("System");
   }
 }
