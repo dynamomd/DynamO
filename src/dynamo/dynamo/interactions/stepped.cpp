@@ -154,8 +154,7 @@ namespace dynamo {
   }
 
   IntEvent
-  IStepped::getEvent(const Particle &p1, 
-		     const Particle &p2) const
+  IStepped::getEvent(const Particle &p1, const Particle &p2) const
   {
   
 #ifdef DYNAMO_DEBUG
@@ -170,8 +169,8 @@ namespace dynamo {
 #endif 
 
     const_cmap_it capstat = getCMap_it(p1, p2);
-    const std::pair<double, double> step_bounds = _potential->getStepBounds((capstat == captureMap.end()) ? 0 : capstat->second);
-  
+    const size_t current_step_ID = (capstat == captureMap.end()) ? 0 : capstat->second;
+    const std::pair<double, double> step_bounds = _potential->getStepBounds(current_step_ID);
     const double length_scale = 0.5 * (_unitLength->getProperty(p1.getID()) + _unitLength->getProperty(p2.getID()));
 
     IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);

@@ -106,10 +106,23 @@ namespace dynamo {
         step ID given.
      */
     std::pair<double, double> getStepBounds(size_t ID) const {
+#ifdef DYNAMO_DEBUG
+      if (ID > steps()) M_throw() << "Out of range access";
+#endif 
+      double minR, maxR;
+
       if (direction())
-	return std::pair<double, double>((ID == 0) ? 0: operator[](ID-1).first, operator[](ID).first);
+	{ 
+	  minR = (ID == 0) ? 0 : operator[](ID - 1).first;
+	  maxR = (ID == steps()) ? HUGE_VAL : operator[](ID).first;
+	}
       else
-	return std::pair<double, double>(operator[](ID).first, ((ID == 0) ? HUGE_VAL : operator[](ID - 1).first));
+	{
+	  minR = (ID == steps()) ? 0 : operator[](ID).first;
+	  maxR = (ID == 0) ? HUGE_VAL : operator[](ID - 1).first;
+	}
+
+      return std::pair<double, double>(minR, maxR);
     }
 
     /*! \brief Calculate the potential energy difference changing from

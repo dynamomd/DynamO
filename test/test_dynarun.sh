@@ -625,7 +625,7 @@ function twoDsteppedPotentialTest {
     #Collection of data
     ./dynarun config.out.xml.bz2 -c 1000000 >> run.log 2>&1
 
-    MFT="0.0359243"
+    MFT="0.0419518"
 
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \
