@@ -47,5 +47,8 @@ namespace dynamo {
     shared_ptr<Potential> _potential;
     shared_ptr<IDRange> range1;
     shared_ptr<IDRange> range2;
+    
+    double _energyScale;
+    double _lengthScale;
   };
 }

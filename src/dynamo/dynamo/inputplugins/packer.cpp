@@ -1803,7 +1803,7 @@ namespace dynamo {
 	    }
 
 	  shared_ptr<Potential> potential(new PotentialStepped(diamvec, false));
-	  Sim->interactions.push_back(shared_ptr<Interaction>(new IStepped(Sim, potential, new IDPairRangeAll(), "Bulk")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IStepped(Sim, potential, new IDPairRangeAll(), "Bulk", 1.0, 1.0)));
 
 	  Sim->addSpecies(shared_ptr<Species>
 			  (new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0,

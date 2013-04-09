@@ -27,7 +27,15 @@ namespace dynamo {
   class IStepped: public IMultiCapture, public GlyphRepresentation
   {
   public:
-    IStepped(dynamo::Simulation*, shared_ptr<Potential>, IDPairRange*, std::string);
+    template<class T1, class T2>
+    IStepped(dynamo::Simulation* tmp, shared_ptr<Potential> potential, IDPairRange* nR, std::string name, T1 length, T2 energy):
+      IMultiCapture(tmp,nR),
+      _lengthScale(Sim->_properties.getProperty(length, Property::Units::Length())),
+      _energyScale(Sim->_properties.getProperty(energy, Property::Units::Energy())),
+      _potential(potential)
+    {
+      intName = name;
+    }
 
     IStepped(const magnet::xml::Node&, dynamo::Simulation*);
   
@@ -61,9 +69,10 @@ namespace dynamo {
 
   protected:
     //!This class is used to track how the length scale changes in the system
-    shared_ptr<Property> _unitLength;
+    shared_ptr<Property> _lengthScale;
     //!This class is used to track how the energy scale changes in the system
-    shared_ptr<Property> _unitEnergy;
+    shared_ptr<Property> _energyScale;
+
     shared_ptr<Potential> _potential;
   };
 }

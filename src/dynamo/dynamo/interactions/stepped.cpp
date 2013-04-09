@@ -35,26 +35,10 @@
 #include <iomanip>
 
 namespace dynamo {
-  IStepped::IStepped(dynamo::Simulation* tmp, shared_ptr<Potential> potential, IDPairRange* nR,
-		     std::string name):
-    IMultiCapture(tmp,nR),
-    _unitLength(Sim->_properties.getProperty
-		(Sim->units.unitLength(), 
-		 Property::Units::Length())),
-    _unitEnergy(Sim->_properties.getProperty
-		(Sim->units.unitEnergy(), 
-		 Property::Units::Energy())),
-    _potential(potential)
-  { intName = name; }
-
   IStepped::IStepped(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
-    IMultiCapture(tmp, NULL), //A temporary value!
-    _unitLength(Sim->_properties.getProperty
-		(Sim->units.unitLength(), 
-		 Property::Units::Length())),
-    _unitEnergy(Sim->_properties.getProperty
-		(Sim->units.unitEnergy(), 
-		 Property::Units::Energy()))
+    IMultiCapture(tmp, NULL),
+    _lengthScale(Sim->_properties.getProperty(Sim->units.unitLength(), Property::Units::Length())),
+    _energyScale(Sim->_properties.getProperty(Sim->units.unitEnergy(), Property::Units::Energy()))
   {
     operator<<(XML);
   }
@@ -68,6 +52,10 @@ namespace dynamo {
     
     _potential = Potential::getClass(XML.getNode("Potential"));
 
+    _lengthScale = Sim->_properties.getProperty(XML.getAttribute("LengthScale"), Property::Units::Length());
+
+    _energyScale = Sim->_properties.getProperty(XML.getAttribute("EnergyScale"), Property::Units::Energy());
+
     IMultiCapture::loadCaptureMap(XML);
   }
 
@@ -75,14 +63,14 @@ namespace dynamo {
   IStepped::getExcludedVolume(size_t ID) const 
   { 
     //Get the inner diameter
-    double diam = _potential->hard_core_diameter() * _unitLength->getProperty(ID);
+    double diam = _potential->hard_core_diameter() * _lengthScale->getProperty(ID);
     return (M_PI / 6) * diam * diam * diam; 
   }
 
   Vector
   IStepped::getGlyphSize(size_t ID, size_t subID) const
   { 
-    double diam = _potential->render_diameter() * _unitLength->getProperty(ID);
+    double diam = _potential->render_diameter() * _lengthScale->getProperty(ID);
     return Vector(diam, diam, diam);
   }
 
@@ -96,7 +84,7 @@ namespace dynamo {
 
   double 
   IStepped::maxIntDist() const 
-  { return _potential->max_distance() * _unitLength->getMaxValue(); }
+  { return _potential->max_distance() * _lengthScale->getMaxValue(); }
 
   void 
   IStepped::initialise(size_t nID)
@@ -115,7 +103,7 @@ namespace dynamo {
   {
     if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
   
-    const double length_scale = 0.5 * (_unitLength->getProperty(p1.getID()) + _unitLength->getProperty(p2.getID()));
+    const double length_scale = 0.5 * (_lengthScale->getProperty(p1.getID()) + _lengthScale->getProperty(p2.getID()));
 
     Vector rij = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(rij);
@@ -133,8 +121,8 @@ namespace dynamo {
 
     BOOST_FOREACH(const locpair& IDs, captureMap)
       Energy += (*_potential)[IDs.second - 1].second
-      * 0.5 * (_unitEnergy->getProperty(IDs.first.first)
-	       + _unitEnergy->getProperty(IDs.first.second));
+      * 0.5 * (_energyScale->getProperty(IDs.first.first)
+	       + _energyScale->getProperty(IDs.first.second));
   
     return Energy; 
   }
@@ -147,7 +135,7 @@ namespace dynamo {
     if (capstat == captureMap.end())
       return 0;
 
-    const double energy_scale = 0.5 * (_unitEnergy->getProperty(p1.getID()) + _unitEnergy->getProperty(p2.getID()));
+    const double energy_scale = 0.5 * (_energyScale->getProperty(p1.getID()) + _energyScale->getProperty(p2.getID()));
     
     return (*_potential)[capstat->second - 1].second * energy_scale;
   }
@@ -170,7 +158,7 @@ namespace dynamo {
     const_cmap_it capstat = getCMap_it(p1, p2);
     const size_t current_step_ID = (capstat == captureMap.end()) ? 0 : capstat->second;
     const std::pair<double, double> step_bounds = _potential->getStepBounds(current_step_ID);
-    const double length_scale = 0.5 * (_unitLength->getProperty(p1.getID()) + _unitLength->getProperty(p2.getID()));
+    const double length_scale = 0.5 * (_lengthScale->getProperty(p1.getID()) + _lengthScale->getProperty(p2.getID()));
 
     IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
     if (step_bounds.first != 0)
@@ -195,8 +183,8 @@ namespace dynamo {
   {
     ++Sim->eventCount;
 
-    const double length_scale = 0.5 * (_unitLength->getProperty(p1.getID()) + _unitLength->getProperty(p2.getID()));
-    const double energy_scale = 0.5 * (_unitEnergy->getProperty(p1.getID()) + _unitEnergy->getProperty(p2.getID()));
+    const double length_scale = 0.5 * (_lengthScale->getProperty(p1.getID()) + _lengthScale->getProperty(p2.getID()));
+    const double energy_scale = 0.5 * (_energyScale->getProperty(p1.getID()) + _energyScale->getProperty(p2.getID()));
 
     cmap_it capstat = getCMap_it(p1,p2);
     const size_t old_step_ID = (capstat == captureMap.end()) ? 0 : capstat->second;
@@ -283,6 +271,8 @@ namespace dynamo {
   {
     XML << magnet::xml::attr("Type") << "Stepped"
 	<< magnet::xml::attr("Name") << intName
+	<< magnet::xml::attr("LengthScale") << _lengthScale->getName()
+	<< magnet::xml::attr("EnergyScale") << _energyScale->getName()
 	<< *range;
   
     XML << _potential;

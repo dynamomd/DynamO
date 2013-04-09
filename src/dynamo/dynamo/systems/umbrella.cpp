@@ -81,7 +81,7 @@ namespace dynamo {
       M_throw() << "Unknown event type";
   
     EEventType etype(NONE);
-    NEventData SDat(Sim->dynamics->multibdyWellEvent(*range1, *range2, 0.0, _potential->getEnergyChange(new_step_ID, _stepID), etype));
+    NEventData SDat(Sim->dynamics->multibdyWellEvent(*range1, *range2, 0.0, _potential->getEnergyChange(new_step_ID, _stepID) * _energyScale, etype));
 
     if (etype != BOUNCE) _stepID = new_step_ID;
 
@@ -112,7 +112,7 @@ namespace dynamo {
 	std::pair<Vector, Vector> r2data = Sim->dynamics->getCOMPosVel(*range2);
 	Vector r12 = r1data.first - r2data.first;
 	Sim->BCs->applyBC(r12);
-	_stepID = _potential->calculateStepID(r12.nrm());
+	_stepID = _potential->calculateStepID(r12.nrm() / _lengthScale);
       }
   
     recalculateTime();
@@ -136,7 +136,7 @@ namespace dynamo {
     
     if (step_bounds.first != 0)
       {
-	const double new_dt = Sim->dynamics->SphereSphereInRoot(*range1, *range2, step_bounds.first);
+	const double new_dt = Sim->dynamics->SphereSphereInRoot(*range1, *range2, step_bounds.first * _lengthScale);
 	if (new_dt < dt)
 	  {
 	    dt = new_dt;
@@ -146,7 +146,7 @@ namespace dynamo {
     
     if (!std::isinf(step_bounds.second))
       {
-	const double new_dt = Sim->dynamics->SphereSphereOutRoot(*range1, *range2, step_bounds.second);
+	const double new_dt = Sim->dynamics->SphereSphereOutRoot(*range1, *range2, step_bounds.second * _lengthScale);
 
 	if (new_dt < dt)
 	  {
@@ -190,6 +190,9 @@ namespace dynamo {
     range2 = shared_ptr<IDRange>(IDRange::getClass(rangeNode, Sim));
     _potential = Potential::getClass(XML.getNode("Potential"));
 
+    _lengthScale = XML.getAttribute("LengthScale").as<double>() * Sim->units.unitLength();
+    _energyScale = XML.getAttribute("EnergyScale").as<double>() * Sim->units.unitEnergy();
+
     if (XML.hasAttribute("CurrentStep"))
       _stepID = XML.getAttribute("CurrentStep").as<size_t>();
   }
@@ -200,6 +203,8 @@ namespace dynamo {
     XML << magnet::xml::tag("System")
 	<< magnet::xml::attr("Type") << "Umbrella"
 	<< magnet::xml::attr("Name") << sysName
+	<< magnet::xml::attr("LengthScale") << _lengthScale / Sim->units.unitLength()
+	<< magnet::xml::attr("EnergyScale") << _energyScale / Sim->units.unitEnergy()
 	<< magnet::xml::attr("CurrentStep") << _stepID
 	<< _potential
 	<< range1
