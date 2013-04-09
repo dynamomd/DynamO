@@ -153,6 +153,11 @@ namespace dynamo {
      */
     virtual bool direction() const = 0;
 
+    /*! \brief Returns the maximum distance the potential can interact
+        at.
+     */
+    virtual double max_distance() const = 0;
+
   protected:
     virtual void calculateToStep(size_t) const = 0;
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
@@ -200,10 +205,12 @@ namespace dynamo {
 
       if (hard_core_d != 0) return hard_core_d;
       //If there is no hard core, just return the innermost step diameter
-      return _r_cache.back();
+      return _direction ? _r_cache.front() : _r_cache.back();
     }
 
     virtual bool direction() const { return _direction; }
+
+    virtual double max_distance() const { return (_direction ? _r_cache.back() : _r_cache.front()); }
 
   protected:
     bool _direction;

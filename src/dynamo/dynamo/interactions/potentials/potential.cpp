@@ -46,7 +46,11 @@ namespace dynamo {
   PotentialStepped::PotentialStepped(std::vector<std::pair<double, double> > steps, bool direction):
     _direction(direction)
   {
-    std::sort(steps.rbegin(), steps.rend());
+    if (direction)
+      std::sort(steps.begin(), steps.end());
+    else
+      std::sort(steps.rbegin(), steps.rend());
+
     for (size_t i(0); i < steps.size(); ++i)
       {
 	_r_cache.push_back(steps[i].first);

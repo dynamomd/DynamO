@@ -17,7 +17,6 @@
 
 #include <dynamo/interactions/stepped.hpp>
 #include <dynamo/BC/BC.hpp>
-
 #include <dynamo/units/units.hpp>
 #include <dynamo/globals/global.hpp>
 #include <dynamo/particle.hpp>
@@ -97,7 +96,7 @@ namespace dynamo {
 
   double 
   IStepped::maxIntDist() const 
-  { return (*_potential)[0].first * _unitLength->getMaxValue(); }
+  { return _potential->max_distance() * _unitLength->getMaxValue(); }
 
   void 
   IStepped::initialise(size_t nID)

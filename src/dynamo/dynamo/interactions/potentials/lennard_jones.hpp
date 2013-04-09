@@ -68,6 +68,8 @@ namespace dynamo {
 
     virtual bool direction() const { return false; }
     
+    virtual double max_distance() const { return _cutoff; }
+
   protected:
 
     virtual void calculateToStep(size_t) const;
