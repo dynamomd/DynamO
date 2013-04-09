@@ -111,6 +111,18 @@ namespace dynamo {
       else
 	return std::pair<double, double>(operator[](ID).first, ((ID == 0) ? HUGE_VAL : operator[](ID - 1).first));
     }
+
+    /*! \brief Calculate the potential energy difference changing from
+        orig_step_ID to new_step_ID two step ID's passed.
+
+	This is the energy cost the particle must "pay" to make the
+	transition.
+     */
+    double getEnergyChange(const size_t orig_step_ID, const size_t new_step_ID) const {
+      double orig_energy = (orig_step_ID == 0) ? 0 : operator[](orig_step_ID - 1).second;
+      double new_energy = (new_step_ID == 0) ? 0 : operator[](new_step_ID - 1).second;
+      return new_energy - orig_energy;
+    }
     
     /*! \brief Returns false if the discontinuity energies specify the
 	step energy to its left or true if it is the energy to its

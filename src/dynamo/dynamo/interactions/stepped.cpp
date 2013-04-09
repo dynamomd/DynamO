@@ -169,42 +169,26 @@ namespace dynamo {
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
 
-    const_cmap_it capstat = getCMap_it(p1,p2);
-
-    IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
-
+    const_cmap_it capstat = getCMap_it(p1, p2);
+    const std::pair<double, double> step_bounds = _potential->getStepBounds((capstat == captureMap.end()) ? 0 : capstat->second);
+  
     const double length_scale = 0.5 * (_unitLength->getProperty(p1.getID()) + _unitLength->getProperty(p2.getID()));
 
-    if (capstat == captureMap.end())
-      {
-	double d = (*_potential)[0].first * length_scale;
-	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
-
-	//Not captured, test for capture
+    IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
+    if (step_bounds.first != 0)
+      {//Test for the inner step capture
+	const double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, step_bounds.first * length_scale);
 	if (dt != HUGE_VAL)
 	  retval = IntEvent(p1, p2, dt, STEP_IN, *this);
       }
-    else
-      {
-	//Within the potential, look for further capture or release
-	//First check if there is an inner step to interact with
-	if (capstat->second < (*_potential).steps())
-	  {
-	    double d = (*_potential)[capstat->second].first * length_scale;
-	    double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
-	    
-	    if (dt != HUGE_VAL)
-	      retval = IntEvent(p1, p2, dt, STEP_IN , *this);
-	  }
 
-	{//Now test for the outward step
-	  double d = (*_potential)[capstat->second - 1].first * length_scale;
-	  double dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, d);
-	  if (retval.getdt() > dt)
-	      retval = IntEvent(p1, p2, dt, STEP_OUT, *this);
-	}
+    if (!std::isinf(step_bounds.second))
+      {//Test for the outer step capture
+	const double dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, step_bounds.second * length_scale);
+	if (retval.getdt() > dt)
+	  retval = IntEvent(p1, p2, dt, STEP_OUT, *this);
       }
-
+    
     return retval;
   }
 
@@ -216,72 +200,57 @@ namespace dynamo {
     const double length_scale = 0.5 * (_unitLength->getProperty(p1.getID()) + _unitLength->getProperty(p2.getID()));
     const double energy_scale = 0.5 * (_unitEnergy->getProperty(p1.getID()) + _unitEnergy->getProperty(p2.getID()));
 
+    cmap_it capstat = getCMap_it(p1,p2);
+    const size_t old_step_ID = (capstat == captureMap.end()) ? 0 : capstat->second;
+    const std::pair<double, double> step_bounds = _potential->getStepBounds(old_step_ID);
+
+    size_t new_step_ID;
+    double diameter;
     switch (iEvent.getType())
       {
       case STEP_OUT:
 	{
-	  cmap_it capstat = getCMap_it(p1,p2);
-	
-	  double d = (*_potential)[capstat->second-1].first * length_scale;
-	  double d2 = d * d;
-	  double dE = (*_potential)[capstat->second-1].second;
-	  if (capstat->second > 1)
-	    dE -= (*_potential)[capstat->second - 2].second;
-	  dE *= energy_scale;
-
-	  PairEventData retVal(Sim->dynamics->SphereWellEvent
-			       (iEvent, dE, d2));
-	
-	  if (retVal.getType() != BOUNCE)
-	    if (!(--capstat->second))
-	      //capstat is zero so delete
-	      captureMap.erase(capstat);
-
-	  Sim->signalParticleUpdate(retVal);
-
-	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	
-	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
-	    Ptr->eventUpdate(iEvent, retVal);
+	  new_step_ID = old_step_ID - 1 + 2 * _potential->direction();
+	  diameter = step_bounds.second * length_scale;
 	  break;
 	}
       case STEP_IN:
 	{
-	  cmap_it capstat = getCMap_it(p1, p2);
-	
-	  if (capstat == captureMap.end())
-	    capstat = captureMap.insert
-	      (captureMapType::value_type
-	       ((p1.getID() < p2.getID())
-		? cMapKey(p1.getID(), p2.getID())
-		: cMapKey(p2.getID(), p1.getID()),
-		0)).first;
-	
-	  double d = (*_potential)[capstat->second].first * length_scale;
-	  double d2 = d * d;
-	  double dE = (*_potential)[capstat->second].second;
-	  if (capstat->second > 0)
-	    dE -= (*_potential)[capstat->second - 1].second;
-	  dE *= energy_scale;
-
-	  PairEventData retVal = Sim->dynamics->SphereWellEvent(iEvent, -dE, d2);
-	
-	  if (retVal.getType() != BOUNCE)
-	    ++(capstat->second);
-	  else if (!capstat->second)
-	    captureMap.erase(capstat);
-	
-	  Sim->signalParticleUpdate(retVal);
-	
-	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	
-	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
-	    Ptr->eventUpdate(iEvent, retVal);
+	  new_step_ID = old_step_ID + 1 - 2 * _potential->direction();
+	  diameter = step_bounds.first * length_scale;
 	  break;
 	}
       default:
 	M_throw() << "Unknown collision type";
       } 
+
+    PairEventData retVal = Sim->dynamics->SphereWellEvent(iEvent, -_potential->getEnergyChange(old_step_ID, new_step_ID) * energy_scale, diameter * diameter);
+
+    //Check if the particles changed their step ID
+    if (retVal.getType() != BOUNCE)
+      {
+	if (new_step_ID == 0)
+	  {
+#ifdef DYNAMO_DEBUG
+	    if (capstat == captureMap.end())
+	      M_throw() << "Tried to erase a particle pairing which is not in the capture map!";
+#endif
+	    //The particles have left the capture map, so erase their entries
+	    captureMap.erase(capstat);
+	  }
+	else
+	  {
+	    //The particles have moved to another step, or entered the capture map
+	    captureMap[cMapKey(p1.getID(),p2.getID())] = new_step_ID;
+	  }
+      }
+    
+    Sim->signalParticleUpdate(retVal);
+    
+    Sim->ptrScheduler->fullUpdate(p1, p2);
+    
+    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+      Ptr->eventUpdate(iEvent, retVal);
   }
 
   bool
