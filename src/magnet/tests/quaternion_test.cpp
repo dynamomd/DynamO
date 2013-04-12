@@ -122,5 +122,22 @@ int main(int argc, char *argv[])
 	}
     }
 
+  std::cout << "GLSL rotation()" << std::endl;
+  for (size_t i(0); i < testcount; ++i)
+    {
+      Vector start = random_unit_vec();
+      Vector end = random_unit_vec();
+      Quaternion q = Quaternion::fromToVector(end, start);
+
+      Vector result = start + 2.0 * (q.imaginary() ^ ((q.imaginary() ^ start) + q.real() * start));
+      Vector err = end - result;
+
+      if ((std::abs(err[0]) > errlvl) || (std::abs(err[1]) > errlvl) || (std::abs(err[2]) > errlvl))
+	{
+	  std::cout << "test " << i << ": error " << err.toString() << std::endl;
+	  return EXIT_FAILURE;
+	}
+    }
+
   return EXIT_SUCCESS;
 }
