@@ -585,34 +585,25 @@ namespace coil {
     Vector up = Vector(0,1,0);
     
     {
-      std::tr1::shared_ptr<RLight> light(new RLight("Light 1", Vector(1, -1, 0) * light_distance, look_at, 30.0, 10000.0f, up, _camera.getRenderScale()));
+      std::tr1::shared_ptr<RLight> light(new RLight("Light 1", Vector(+1, +1, 0) * light_distance, look_at, 30.0, 10000.0f, up, _camera.getRenderScale()));
       _renderObjsTree._renderObjects.push_back(light);
     }
 
     {
-      std::tr1::shared_ptr<RLight> light(new RLight("Light 2", Vector(0, -1, 1) * light_distance, look_at, 30.0, 10000.0f, up, _camera.getRenderScale()));
+      std::tr1::shared_ptr<RLight> light(new RLight("Light 2", Vector(-1, +1, 0) * light_distance, look_at, 30.0, 10000.0f, up, _camera.getRenderScale()));
       _renderObjsTree._renderObjects.push_back(light);
     }
 
     {
-      std::tr1::shared_ptr<RLight> light(new RLight("Light 3", Vector(-std::sqrt(0.5), -1, -std::sqrt(0.5)) * light_distance, look_at, 30.0, 10000.0f, up, _camera.getRenderScale()));
+      std::tr1::shared_ptr<RLight> light(new RLight("Light 3", Vector(0, -1, -1) * light_distance, look_at, 30.0, 10000.0f, up, _camera.getRenderScale()));
       _renderObjsTree._renderObjects.push_back(light);
     }
 
     {
-      std::tr1::shared_ptr<RLight> light(new RLight("Light 4", -Vector(1, -1, 0) * light_distance, look_at, 30.0, 10000.0f, up, _camera.getRenderScale()));
+      std::tr1::shared_ptr<RLight> light(new RLight("Light 4", Vector(0, -1, +1) * light_distance, look_at, 30.0, 10000.0f, up, _camera.getRenderScale()));
       _renderObjsTree._renderObjects.push_back(light);
     }
 
-    {
-      std::tr1::shared_ptr<RLight> light(new RLight("Light 5", -Vector(0, -1, 1) * light_distance, look_at, 30.0, 10000.0f, up, _camera.getRenderScale()));
-      _renderObjsTree._renderObjects.push_back(light);
-    }
-
-    {
-      std::tr1::shared_ptr<RLight> light(new RLight("Light 6", -Vector(-std::sqrt(0.5), -1, -std::sqrt(0.5)) * light_distance, look_at, 30.0, 10000.0f, up, _camera.getRenderScale()));
-      _renderObjsTree._renderObjects.push_back(light);
-    }
   
     _consoleID = _renderObjsTree._renderObjects.size();
     std::tr1::array<GLfloat, 3> textcolor  = {{0.5, 0.5, 0.5}};
