@@ -197,7 +197,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
 
 	  double elasticity = 1.0;
 
@@ -263,7 +263,7 @@ namespace dynamo {
 
 	  //New scheduler and global
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
 	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList")));
 
 	  Sim->units.setUnitLength(particleDiam);
@@ -451,7 +451,7 @@ namespace dynamo {
 	  //Set up the system now
 
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
 	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  Sim->interactions.push_back
@@ -659,7 +659,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELBoundedPQ<>(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELBoundedPQ<>()));
 	  Sim->globals.push_back(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
 
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCLeesEdwards(Sim));
@@ -751,7 +751,7 @@ namespace dynamo {
 
 	  //Set up the system now
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
 	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  Sim->interactions.push_back
@@ -817,7 +817,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
 
 
 	  double elasticity = 1;
@@ -898,7 +898,7 @@ namespace dynamo {
 
 	  //Set up the system now
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
 
 	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
@@ -1001,7 +1001,7 @@ namespace dynamo {
 	  //Sim->ptrScheduler = new CSMultList(Sim);
 
 	  Sim->ptrScheduler
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
 
 	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList")));
 
@@ -1078,7 +1078,7 @@ namespace dynamo {
 	    }
 
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
 	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0;
@@ -1140,7 +1140,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new FELCBT(Sim)));
+	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new FELCBT()));
 
 	  //This is to stop interactions being used for these particles
 	  Sim->interactions.push_back
@@ -1233,7 +1233,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new FELCBT(Sim)));
+	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new FELCBT()));
 
 	  //This is to stop interactions being used for these particles
 	  Sim->interactions.push_back
@@ -1417,7 +1417,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
 
 	  Sim->globals.push_back(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
 
@@ -1511,7 +1511,7 @@ namespace dynamo {
 	    latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
 
 	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList")));
 
@@ -1607,7 +1607,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
 	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  if (vm.count("b1"))
@@ -1733,7 +1733,7 @@ namespace dynamo {
 
 	  //New scheduler and global
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
 
 	  {
 	    size_t overlink = 1;
@@ -1852,7 +1852,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new FELCBT(Sim)));
+	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new FELCBT()));
 
 	  //This is to stop interactions being used for these particles
 	  Sim->interactions.push_back
@@ -2026,7 +2026,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
 
 	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
@@ -2138,7 +2138,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
 
 	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
@@ -2194,7 +2194,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
 
 	  Sim->units.setUnitLength(particleDiam);
 
@@ -2275,7 +2275,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELCBT(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELCBT()));
 
 	  Sim->dynamics = shared_ptr<Dynamics>
 	    (new DynGravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0), elasticV * Sim->units.unitVelocity()));
@@ -2415,7 +2415,7 @@ namespace dynamo {
 	  //Set up the system now
 
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
 	  
 	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
@@ -2970,7 +2970,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELCBT(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELCBT()));
 
 	  Sim->dynamics = shared_ptr<Dynamics>
 	    (new DynGravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0),
@@ -3236,7 +3236,7 @@ namespace dynamo {
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELBoundedPQ<>(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELBoundedPQ<>()));
 	  Sim->globals.push_back(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
 
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCLeesEdwards(Sim));
@@ -3327,7 +3327,7 @@ namespace dynamo {
 	  
 	  //Set up a standard simulation
 	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter(Sim)));
+	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
 
 	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 

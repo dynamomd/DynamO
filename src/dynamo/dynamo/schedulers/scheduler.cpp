@@ -49,7 +49,7 @@ namespace dynamo {
   void 
   Scheduler::operator<<(const magnet::xml::Node& XML)
   {
-    sorter = FEL::getClass(XML.getNode("Sorter"), Sim);
+    sorter = FEL::getClass(XML.getNode("Sorter"));
   }
 
   void

@@ -91,14 +91,11 @@ namespace dynamo {
     size_t exceptionCount;
 
   public:  
-    FELBoundedPQ(const dynamo::Simulation* const& SD):
-      FEL(SD, "BoundedPQ"),
-      exceptionCount(0) 
-    {}
+    FELBoundedPQ():exceptionCount(0) {}
 
-    ~FELBoundedPQ() 
+    ~FELBoundedPQ()
     { 
-      dout << "Exception Events = " << exceptionCount << std::endl;
+      std::cout << "Exception Events = " << exceptionCount << std::endl;
     }
 
     void resize(const size_t& a)
@@ -113,9 +110,9 @@ namespace dynamo {
 
     void clear() 
     {
+      Min.clear();
       CBT.clear();
       Leaf.clear();
-      Min.clear();
       linearLists.clear();
       N = 0;
       NP = 0;
@@ -137,6 +134,8 @@ namespace dynamo {
 
     void init(bool quiet)
     {
+      NP = 0;
+      
       {
 	double minVal(0), maxVal(-HUGE_VAL);
 	size_t counter(0);
@@ -157,7 +156,7 @@ namespace dynamo {
 	  if (counter < 10)
 	    {
 	      //Something is peculiar about the system
-	      derr <<
+	      std::cerr <<
 		"The event queue doesn't have more than 10 VALID events in it"
 		"\nThis means the queue cannot be instrumented properly to"
 		"\ndetermine the optimal settings for the bounded queue, now"
@@ -170,7 +169,7 @@ namespace dynamo {
 	  else
 	    {
 	      if (maxVal < 0 ) 
-		derr << "WARNING! The event queue is filled with negative events!"  
+		std::cerr << "WARNING! The event queue is filled with negative events!"  
 		     << std::endl;;
 	      
 	      scale = counter / (maxVal - minVal);
@@ -196,24 +195,24 @@ namespace dynamo {
 
       if (nlists == 0)
 	{
-	  derr << "nlists = 0!\n"
-	       << "This is a BAD thing, unless NCells = NParticles and "
+	  std::cerr << "nlists = 0!\n"
+		    << "This is a BAD thing, unless NCells = NParticles and "
 	    "they're in a perfect crystal, if it happens again after the "
 	    "preliminary run its certainly a bug" << std::endl;
 	  nlists = 1000;
 	}
 
       if (!quiet)
-	dout << "Length of linear list = " << nlists
-	     << "Scale factor = " 
-	     << scale * Sim->units.unitTime() 
-	     << std::endl;
+	std::cout << "Length of linear list = " << nlists
+		  << "Scale factor = " << scale
+		  << std::endl;
 
+      linearLists.clear();
       linearLists.resize(nlists+1, -1); /*+1 for overflow, -1 for
 					  marking empty*/ 
 
       if (!quiet)
-	dout << "Sorting all events, please wait..." << std::endl;
+	std::cout << "Sorting all events, please wait..." << std::endl;
 
       //Now insert all of the events!
       for (unsigned long i = 1; i <= N; i++)
@@ -221,12 +220,12 @@ namespace dynamo {
 
   
       if (!quiet)
-	dout << "Finding first event..." << std::endl;
+	std::cout << "Finding first event..." << std::endl;
     
       //Find the next event and place it first so nextEventID() works
       orderNextEvent();
       if (!quiet)
-	dout << "Ready for simulation." << std::endl;
+	std::cout << "Ready for simulation." << std::endl;
     }
 
     inline void push(const Event& tmpVal, const size_t& pID)
@@ -328,7 +327,9 @@ namespace dynamo {
       //Check if the overflow contained more than half the total
       //events. If so, force a complete rebuild of the scheduler
       if (overflowEvents > N/2)
+	{
 	  init();
+	}
     }
 
     inline void deleteFromEventQ(const int& e)
@@ -414,7 +415,7 @@ namespace dynamo {
     {
       if (NP)
 	{
-	  int j = CBT[NP];	
+	  int j = CBT[NP];
 	  CBT [NP*2] = j;
 	  CBT [NP*2+1] = i;
 	  Leaf[j] = NP*2;
@@ -424,7 +425,7 @@ namespace dynamo {
 	}
       else
 	{
-	  CBT[1]=i; 
+	  CBT[1]=i;
 	  ++NP; 
 	}
     }

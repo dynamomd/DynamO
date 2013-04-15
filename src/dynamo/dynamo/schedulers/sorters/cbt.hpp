@@ -36,11 +36,7 @@ namespace dynamo {
 
     double pecTime;
 
-  public:  
-    FELCBT(const dynamo::Simulation* const& SD):
-      FEL(SD, "CBT")
-    {}
-
+  public:
     void resize(const size_t& a)
     {
       clear();
