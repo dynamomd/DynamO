@@ -44,7 +44,7 @@ namespace dynamo {
       dt(HUGE_VAL),
       collCounter2(std::numeric_limits<unsigned long>::max()),
       type(NONE),
-      p2(std::numeric_limits<size_t>::max())    
+      p2(std::numeric_limits<size_t>::max())
     {}
 
     inline Event(const double& ndt, const EEventType& nT, 

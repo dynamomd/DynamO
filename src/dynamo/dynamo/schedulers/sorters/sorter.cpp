@@ -21,33 +21,29 @@
 #include <magnet/xmlreader.hpp>
 
 namespace dynamo {
-  FEL::FEL(const dynamo::Simulation* const& SD, const char *aName):
-    SimBase_const(SD, aName)
-  {}
-
   shared_ptr<FEL>
-  FEL::getClass(const magnet::xml::Node& XML, const dynamo::Simulation* Sim)
+  FEL::getClass(const magnet::xml::Node& XML)
   {
     if (std::string(XML.getAttribute("Type")) == FELBoundedPQName<PELHeap>::name())
-      return shared_ptr<FEL>(new FELBoundedPQ<>(Sim));
+      return shared_ptr<FEL>(new FELBoundedPQ<>());
     if (std::string(XML.getAttribute("Type")) == FELBoundedPQName<PELSingleEvent>::name())
-      return shared_ptr<FEL>(new FELBoundedPQ<PELSingleEvent>(Sim));
+      return shared_ptr<FEL>(new FELBoundedPQ<PELSingleEvent>());
     if (std::string(XML.getAttribute("Type")) == FELBoundedPQName<PELMinMax<2> >::name())
-      return shared_ptr<FEL>(new FELBoundedPQ<PELMinMax<2> >(Sim));
+      return shared_ptr<FEL>(new FELBoundedPQ<PELMinMax<2> >());
     if (std::string(XML.getAttribute("Type")) == FELBoundedPQName<PELMinMax<3> >::name())
-      return shared_ptr<FEL>(new FELBoundedPQ<PELMinMax<3> >(Sim));
+      return shared_ptr<FEL>(new FELBoundedPQ<PELMinMax<3> >());
     if (std::string(XML.getAttribute("Type")) == FELBoundedPQName<PELMinMax<4> >::name())
-      return shared_ptr<FEL>(new FELBoundedPQ<PELMinMax<4> >(Sim));
+      return shared_ptr<FEL>(new FELBoundedPQ<PELMinMax<4> >());
     if (std::string(XML.getAttribute("Type")) == FELBoundedPQName<PELMinMax<5> >::name())
-      return shared_ptr<FEL>(new FELBoundedPQ<PELMinMax<5> >(Sim));
+      return shared_ptr<FEL>(new FELBoundedPQ<PELMinMax<5> >());
     if (std::string(XML.getAttribute("Type")) == FELBoundedPQName<PELMinMax<6> >::name())
-      return shared_ptr<FEL>(new FELBoundedPQ<PELMinMax<6> >(Sim));
+      return shared_ptr<FEL>(new FELBoundedPQ<PELMinMax<6> >());
     if (std::string(XML.getAttribute("Type")) == FELBoundedPQName<PELMinMax<7> >::name())
-      return shared_ptr<FEL>(new FELBoundedPQ<PELMinMax<7> >(Sim));
+      return shared_ptr<FEL>(new FELBoundedPQ<PELMinMax<7> >());
     if (std::string(XML.getAttribute("Type")) == FELBoundedPQName<PELMinMax<8> >::name())
-      return shared_ptr<FEL>(new FELBoundedPQ<PELMinMax<8> >(Sim));
+      return shared_ptr<FEL>(new FELBoundedPQ<PELMinMax<8> >());
     else if (std::string(XML.getAttribute("Type")) == std::string("CBT"))
-      return shared_ptr<FEL>(new FELCBT(Sim));
+      return shared_ptr<FEL>(new FELCBT());
     else 
       M_throw() << "Unknown type of Sorter encountered";
   }
