@@ -81,6 +81,8 @@ namespace magnet {
       /*! \brief Create a quaternion from the shortest rotation
           between two unit vectors.
 	
+	The two vectors passed as arguments must be normalised!
+
 	The quaternion is a rotation that takes the from vector into
 	the to vector using the shortest arc. This cannot calculate
 	the additional possible rotation about the axis of the vector.
