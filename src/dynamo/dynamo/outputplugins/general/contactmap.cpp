@@ -38,22 +38,6 @@ namespace dynamo {
     {
       return hash_combine(entry.first, entry.second);
     };
-
-    ::std::size_t
-    OPContactMapValueHash::operator()(const ICapture::value_type& entry) const
-    {
-      return hash_combine(entry.first.first, hash_combine(entry.first.second, entry.second));
-    };
-
-    ::std::size_t
-    OPContactMapHash::operator()(const std::vector<ICapture::value_type>& map) const
-    {
-      OPContactMapValueHash pairhash;
-      ::std::size_t hash(0);
-      BOOST_FOREACH(const ICapture::value_type& entry, map)
-	hash = hash_combine(hash, pairhash(entry));
-      return hash;
-    }
   }
 
   OPContactMap::OPContactMap(const dynamo::Simulation* t1, const magnet::xml::Node& XML):
@@ -63,106 +47,76 @@ namespace dynamo {
   void 
   OPContactMap::initialise() 
   {
-    _current_map.clear();
     _collected_maps.clear();
     _map_links.clear();
     _next_map_id = 0;
     _weight = 0;
     _total_weight = 0;
   
-    BOOST_FOREACH(const shared_ptr<Interaction>& interaction, Sim->interactions)
-      {
-	shared_ptr<ICapture> capture_interaction = std::tr1::dynamic_pointer_cast<ICapture>(interaction);
-	if (capture_interaction)
-	  _current_map.insert(capture_interaction->begin(), capture_interaction->end());
-      }
+    _interaction = std::tr1::dynamic_pointer_cast<ICapture>(Sim->interactions[_interaction_name]);
+
+    if (!_interaction)
+      M_throw() << "Could not cast \"" << _interaction_name << "\" to an ICapture type to build the contact map";
     
-    MapKey key(_current_map.begin(), _current_map.end());
-    _collected_maps.insert(std::pair<const MapKey, MapData>(key, MapData(Sim->calcInternalEnergy(), _next_map_id++)));
+    _current_map = _collected_maps.insert(CollectedMapType::value_type(*_interaction, MapData(Sim->calcInternalEnergy(), _next_map_id++))).first;
   }
 
   void OPContactMap::stream(double dt) { _weight += dt; }
 
   void 
-  OPContactMap::flush() 
+  OPContactMap::flush()
   {
     //Cannot create new maps here, as flush may happen when the output plugins are invalid
-    MapKey key(_current_map.begin(), _current_map.end());
-    MapData& data = _collected_maps[key];
+    MapData& data = _current_map->second;
     data._weight += _weight;
     _total_weight += _weight;
     _weight = 0;
-    //If you change anything here, you'll have to change the function
-    //below too:
-    //eventUpdate(const IntEvent &event, const PairEventData &data)
   }
 
-  void OPContactMap::operator<<(const magnet::xml::Node& XML) {}
+  void 
+  OPContactMap::operator<<(const magnet::xml::Node& XML) {
+    if (!XML.hasAttribute("Interaction"))
+      M_throw() << "You must specify an Interaction name for ContactMap tracking using the Interaction option";
+    
+    _interaction_name = XML.getAttribute("Interaction").as<std::string>();
+  }
 
   void 
   OPContactMap::eventUpdate(const IntEvent &event, const PairEventData &eventdata) 
   {
     stream(event.getdt());
 
-    if ((event.getType() == STEP_IN) || (event.getType() == STEP_OUT))
-      {
-	shared_ptr<ICapture> capture_interaction = std::tr1::dynamic_pointer_cast<ICapture>(Sim->interactions[event.getInteractionID()]);
-	if (capture_interaction)
-	  {
-	    //Cache the old map data, and flush the entry
-	    MapKey oldMapKey(_current_map.begin(), _current_map.end());
-	    MapData& olddata = _collected_maps[oldMapKey];
-	    olddata._weight += _weight;
-	    _total_weight += _weight;
-	    _weight = 0;
-	    size_t oldMapID(olddata._id);
-
-	    //Update the map
-	    ICapture::key_type key(event.getParticle1ID(), event.getParticle2ID());
-	    size_t captureState = capture_interaction->isCaptured(event.getParticle1ID(), event.getParticle2ID());
-	    if (captureState)
-	      _current_map[key] = captureState;
-	    else
-	      _current_map.erase(key);
-
-	    //Check if the new map is already in the list.  If the
-	    //current map is not, insert it, and initialise its ID
-	    MapKey newkey(_current_map.begin(), _current_map.end());
-	    std::tr1::unordered_map<MapKey, MapData,  detail::OPContactMapHash>::iterator _map_it
-	      = _collected_maps.find(newkey);
-	    if (_map_it == _collected_maps.end())
-	      _map_it = _collected_maps.insert(std::pair<const MapKey, MapData>(newkey, MapData(Sim->getOutputPlugin<OPMisc>()->getConfigurationalU(), _next_map_id++))).first;
-	    
-	    //Add the link	    
-	    ++(_map_links[std::make_pair(oldMapID, _map_it->second._id)]);
-	  }
-      }
+    if (event.getInteractionID() == _interaction->getID())
+      if ((event.getType() == STEP_IN) || (event.getType() == STEP_OUT))
+	mapChanged(true);
   }
 
+  void 
+  OPContactMap::mapChanged(bool addLink) {
+    flush();
+    size_t oldMapID(_current_map->second._id);
+    
+    //Try and find the current map in the collected maps
+    _current_map = _collected_maps.find(*_interaction);
+    if (_current_map == _collected_maps.end())
+      //Insert the new map
+      _current_map = _collected_maps.insert(CollectedMapType::value_type(*_interaction, MapData(Sim->getOutputPlugin<OPMisc>()->getConfigurationalU(), _next_map_id++))).first;
+    
+    //Add the link	    
+    if (addLink)
+      ++(_map_links[std::make_pair(oldMapID, _current_map->second._id)]);
+  }
   void 
   OPContactMap::changeSystem(OutputPlugin* otherplugin)
   {
     OPContactMap& other_map = static_cast<OPContactMap&>(*otherplugin);
 
-    //First, flush both maps, this handles the weights.
-    flush();
-    other_map.flush();
-        
-    MapKey key1(_current_map.begin(), _current_map.end());
-    MapKey key2(other_map._current_map.begin(), other_map._current_map.end());
-
-    //Check that this plugin has the map from the other in its collection
-    if (_collected_maps.find(key2) == _collected_maps.end())
-      _collected_maps.insert(std::make_pair(key2, MapData(other_map._collected_maps[key2]._energy, _next_map_id++)));
-    //And vice versa
-    if (other_map._collected_maps.find(key1) == other_map._collected_maps.end())
-      other_map._collected_maps.insert(std::make_pair(key1, MapData(_collected_maps[key1]._energy, other_map._next_map_id++)));
-
-    //Now swap the current contact maps
-    std::swap(_current_map, other_map._current_map);
-
-    //Now swap over the sim pointers
+    //Swap over the sim pointers
     std::swap(Sim, other_map.Sim);
+
+    //Now let each plugin know the map has changed
+    mapChanged(false);
+    other_map.mapChanged(false);
   }
 
   void 
@@ -184,10 +138,9 @@ namespace dynamo {
     XML << magnet::xml::tag("ContactMap")
 	<< magnet::xml::tag("Maps")
       	<< magnet::xml::attr("Count") << _collected_maps.size();
-      ;
-
-    typedef std::pair<MapKey, MapData> MapDataType;
-    BOOST_FOREACH(const MapDataType& entry, _collected_maps)
+    ;
+    
+    BOOST_FOREACH(const CollectedMapType::value_type& entry, _collected_maps)
       {
 	XML << magnet::xml::tag("Map")
 	    << magnet::xml::attr("ID") << entry.second._id
@@ -208,9 +161,7 @@ namespace dynamo {
 	<< magnet::xml::tag("Links")
       	<< magnet::xml::attr("Count") << _map_links.size();
 
-
-    typedef std::pair<const std::pair<size_t, size_t>, size_t> EdgeDataType;
-    BOOST_FOREACH(const EdgeDataType& entry, _map_links)
+    BOOST_FOREACH(const LinksMapType::value_type& entry, _map_links)
       XML << magnet::xml::tag("Link")
 	  << magnet::xml::attr("Source") << entry.first.first
 	  << magnet::xml::attr("Target") << entry.first.second

@@ -91,11 +91,6 @@ namespace dynamo {
   {
     ID = nID;
     ICapture::initCaptureMap();
-  
-    dout << "Buckets in captureMap " << ICapture::bucket_count()
-	 << "\nMax bucket count " << ICapture::max_bucket_count()
-	 << "\nload Factor " << ICapture::load_factor()
-	 << "\nMax load Factor " << ICapture::max_load_factor() << std::endl;
   }
 
   size_t 
@@ -128,7 +123,7 @@ namespace dynamo {
   double 
   IStepped::getInternalEnergy(const Particle& p1, const Particle& p2) const
   {
-    ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1.getID(), p2.getID()));
+    ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1, p2));
 
     if (capstat == ICapture::end())
       return 0;
@@ -153,7 +148,7 @@ namespace dynamo {
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
 
-    ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1.getID(), p2.getID()));
+    ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1, p2));
     const size_t current_step_ID = (capstat == ICapture::end()) ? 0 : capstat->second;
     const std::pair<double, double> step_bounds = _potential->getStepBounds(current_step_ID);
     const double length_scale = 0.5 * (_lengthScale->getProperty(p1.getID()) + _lengthScale->getProperty(p2.getID()));
@@ -184,7 +179,7 @@ namespace dynamo {
     const double length_scale = 0.5 * (_lengthScale->getProperty(p1.getID()) + _lengthScale->getProperty(p2.getID()));
     const double energy_scale = 0.5 * (_energyScale->getProperty(p1.getID()) + _energyScale->getProperty(p2.getID()));
 
-    ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1.getID(), p2.getID()));
+    ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1, p2));
     const size_t old_step_ID = (capstat == ICapture::end()) ? 0 : capstat->second;
     const std::pair<double, double> step_bounds = _potential->getStepBounds(old_step_ID);
 
@@ -209,25 +204,9 @@ namespace dynamo {
       } 
 
     PairEventData retVal = Sim->dynamics->SphereWellEvent(iEvent, _potential->getEnergyChange(new_step_ID, old_step_ID) * energy_scale, diameter * diameter);
-
     //Check if the particles changed their step ID
     if (retVal.getType() != BOUNCE)
-      {
-	if (new_step_ID == 0)
-	  {
-#ifdef DYNAMO_DEBUG
-	    if (capstat == captureMap.end())
-	      M_throw() << "Tried to erase a particle pairing which is not in the capture map!";
-#endif
-	    //The particles have left the capture map, so erase their entries
-	    ICapture::erase(capstat);
-	  }
-	else
-	  {
-	    //The particles have moved to another step, or entered the capture map
-	    ICapture::operator[](ICapture::key_type(p1.getID(),p2.getID())) = new_step_ID;
-	  }
-      }
+      ICapture::operator[](ICapture::key_type(p1, p2)) = new_step_ID;
     
     Sim->signalParticleUpdate(retVal);
     
@@ -240,7 +219,7 @@ namespace dynamo {
   bool
   IStepped::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1.getID(), p2.getID()));
+    ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1, p2));
     const size_t stored_step_ID = (capstat == ICapture::end()) ? 0 : capstat->second;
     const size_t calculated_step_ID = captureTest(p1, p2);
     const std::pair<double, double> stored_step_bounds = _potential->getStepBounds(stored_step_ID);
