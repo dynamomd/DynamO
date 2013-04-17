@@ -122,7 +122,7 @@ namespace dynamo {
   }
 
   void
-  ILines::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
+  ILines::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     PairEventData retval;
 
@@ -142,14 +142,14 @@ namespace dynamo {
 	}
       case NBHOOD_IN:
 	{
-	  addToCaptureMap(p1, p2);
+	  ICapture::add(p1, p2);
 	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
 	  iEvent.setType(VIRTUAL);
 	  break;
 	}
       case NBHOOD_OUT:
 	{
-	  removeFromCaptureMap(p1, p2);
+	  ICapture::remove(p1, p2);
 	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
 	  iEvent.setType(VIRTUAL);
 	  break;

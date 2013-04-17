@@ -104,7 +104,7 @@ namespace dynamo {
   }
 
   void
-  IThinThread::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
+  IThinThread::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
 
@@ -132,7 +132,7 @@ namespace dynamo {
 	    {
 	      event.setType(STEP_IN);
 	      retVal.setType(STEP_IN);
-	      addToCaptureMap(p1, p2);
+	      ICapture::add(p1, p2);
 	    }
 
 	  Sim->signalParticleUpdate(retVal);
@@ -149,7 +149,7 @@ namespace dynamo {
 	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, -wd, ld2));
 	
 	  if (retVal.getType() != BOUNCE)
-	    removeFromCaptureMap(p1, p2);      
+	    ICapture::remove(p1, p2);      
 
 	  Sim->signalParticleUpdate(retVal);
 

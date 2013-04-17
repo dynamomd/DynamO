@@ -50,7 +50,7 @@ namespace dynamo {
   }
 
   void
-  INull::runEvent(Particle&, Particle&, const IntEvent&) const
+  INull::runEvent(Particle&, Particle&, const IntEvent&)
   { 
     M_throw() << "Null event trying to run a collision!"; 
   }

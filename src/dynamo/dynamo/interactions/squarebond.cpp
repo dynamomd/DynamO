@@ -179,7 +179,7 @@ namespace dynamo {
   }
 
   void
-  ISquareBond::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
+  ISquareBond::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
 

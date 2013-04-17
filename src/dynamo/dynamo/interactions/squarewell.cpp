@@ -162,7 +162,7 @@ namespace dynamo {
   }
 
   void
-  ISquareWell::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
+  ISquareWell::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
 
@@ -198,7 +198,7 @@ namespace dynamo {
 	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, wd, ld2));
 	
 	  if (retVal.getType() != BOUNCE)
-	    addToCaptureMap(p1, p2);      
+	    ICapture::add(p1, p2);      
 	
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
 	  Sim->signalParticleUpdate(retVal);
@@ -214,7 +214,7 @@ namespace dynamo {
 	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, -wd, ld2));
 	
 	  if (retVal.getType() != BOUNCE)
-	    removeFromCaptureMap(p1, p2);      
+	    ICapture::remove(p1, p2);      
 
 	  Sim->signalParticleUpdate(retVal);
 
@@ -300,7 +300,7 @@ namespace dynamo {
     //Once the capture maps are loaded just iterate through that determining energies
     double Energy = 0.0;
 
-    BOOST_FOREACH(const ICapture::captureMapType::value_type& IDs, captureMap)
+    BOOST_FOREACH(const ICapture::value_type& IDs, *this)
       Energy += 0.5 * (_wellDepth->getProperty(IDs.first.first)
 		       +_wellDepth->getProperty(IDs.first.second));
   

@@ -105,7 +105,7 @@ namespace dynamo {
   }
 
   void
-  IParallelCubes::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
+  IParallelCubes::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
  

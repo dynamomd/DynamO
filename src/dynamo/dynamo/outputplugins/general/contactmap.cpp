@@ -74,7 +74,7 @@ namespace dynamo {
       {
 	shared_ptr<ICapture> capture_interaction = std::tr1::dynamic_pointer_cast<ICapture>(interaction);
 	if (capture_interaction)
-	  _current_map.insert(capture_interaction->getMap().begin(), capture_interaction->getMap().end());
+	  _current_map.insert(capture_interaction->begin(), capture_interaction->end());
       }
     
     MapKey key(_current_map.begin(), _current_map.end());

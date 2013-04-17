@@ -92,10 +92,10 @@ namespace dynamo {
     ID = nID;
     ICapture::initCaptureMap();
   
-    dout << "Buckets in captureMap " << captureMap.bucket_count()
-	 << "\nMax bucket count " << captureMap.max_bucket_count()
-	 << "\nload Factor " << captureMap.load_factor()
-	 << "\nMax load Factor " << captureMap.max_load_factor() << std::endl;
+    dout << "Buckets in captureMap " << ICapture::bucket_count()
+	 << "\nMax bucket count " << ICapture::max_bucket_count()
+	 << "\nload Factor " << ICapture::load_factor()
+	 << "\nMax load Factor " << ICapture::max_load_factor() << std::endl;
   }
 
   size_t 
@@ -117,9 +117,7 @@ namespace dynamo {
     //Once the capture maps are loaded just iterate through that determining energies
     double Energy = 0.0;
 
-    typedef std::pair<const std::pair<size_t, size_t>, size_t> locpair;
-
-    BOOST_FOREACH(const locpair& IDs, captureMap)
+    BOOST_FOREACH(const ICapture::value_type& IDs, *this)
       Energy += (*_potential)[IDs.second - 1].second
       * 0.5 * (_energyScale->getProperty(IDs.first.first)
 	       + _energyScale->getProperty(IDs.first.second));
@@ -130,9 +128,9 @@ namespace dynamo {
   double 
   IStepped::getInternalEnergy(const Particle& p1, const Particle& p2) const
   {
-    const_cmap_it capstat = getCMap_it(p1,p2);
+    ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1.getID(), p2.getID()));
 
-    if (capstat == captureMap.end())
+    if (capstat == ICapture::end())
       return 0;
 
     const double energy_scale = 0.5 * (_energyScale->getProperty(p1.getID()) + _energyScale->getProperty(p2.getID()));
@@ -155,8 +153,8 @@ namespace dynamo {
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
 
-    const_cmap_it capstat = getCMap_it(p1, p2);
-    const size_t current_step_ID = (capstat == captureMap.end()) ? 0 : capstat->second;
+    ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1.getID(), p2.getID()));
+    const size_t current_step_ID = (capstat == ICapture::end()) ? 0 : capstat->second;
     const std::pair<double, double> step_bounds = _potential->getStepBounds(current_step_ID);
     const double length_scale = 0.5 * (_lengthScale->getProperty(p1.getID()) + _lengthScale->getProperty(p2.getID()));
 
@@ -179,15 +177,15 @@ namespace dynamo {
   }
 
   void
-  IStepped::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
+  IStepped::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
 
     const double length_scale = 0.5 * (_lengthScale->getProperty(p1.getID()) + _lengthScale->getProperty(p2.getID()));
     const double energy_scale = 0.5 * (_energyScale->getProperty(p1.getID()) + _energyScale->getProperty(p2.getID()));
 
-    cmap_it capstat = getCMap_it(p1,p2);
-    const size_t old_step_ID = (capstat == captureMap.end()) ? 0 : capstat->second;
+    ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1.getID(), p2.getID()));
+    const size_t old_step_ID = (capstat == ICapture::end()) ? 0 : capstat->second;
     const std::pair<double, double> step_bounds = _potential->getStepBounds(old_step_ID);
 
     size_t new_step_ID;
@@ -222,12 +220,12 @@ namespace dynamo {
 	      M_throw() << "Tried to erase a particle pairing which is not in the capture map!";
 #endif
 	    //The particles have left the capture map, so erase their entries
-	    captureMap.erase(capstat);
+	    ICapture::erase(capstat);
 	  }
 	else
 	  {
 	    //The particles have moved to another step, or entered the capture map
-	    captureMap[cMapKey(p1.getID(),p2.getID())] = new_step_ID;
+	    ICapture::operator[](ICapture::key_type(p1.getID(),p2.getID())) = new_step_ID;
 	  }
       }
     
@@ -242,9 +240,9 @@ namespace dynamo {
   bool
   IStepped::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    const_cmap_it capstat = getCMap_it(p1, p2);
+    ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1.getID(), p2.getID()));
+    const size_t stored_step_ID = (capstat == ICapture::end()) ? 0 : capstat->second;
     const size_t calculated_step_ID = captureTest(p1, p2);
-    const size_t stored_step_ID = (capstat == captureMap.end()) ? 0 : capstat->second;
     const std::pair<double, double> stored_step_bounds = _potential->getStepBounds(stored_step_ID);
     const std::pair<double, double> calculated_step_bounds = _potential->getStepBounds(calculated_step_ID);
     

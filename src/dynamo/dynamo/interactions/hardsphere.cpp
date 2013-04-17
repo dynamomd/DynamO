@@ -104,7 +104,7 @@ namespace dynamo {
   }
 
   void
-  IHardSphere::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
+  IHardSphere::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
 

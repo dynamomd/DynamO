@@ -24,7 +24,6 @@
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-
   void 
   ICapture::initCaptureMap()
   {
@@ -44,10 +43,10 @@ namespace dynamo {
   }
 
   void 
-  ICapture::testAddToCaptureMap(const Particle& p1, const size_t& p2) const
+  ICapture::testAddToCaptureMap(const Particle& p1, const size_t& p2)
   {
     size_t capval = captureTest(p1, Sim->particles[p2]);
-    if (capval) captureMap[cMapKey(p1.getID(), p2)] = capval; 
+    if (capval) Map::operator[](Map::key_type(p1.getID(), p2)) = capval;
   }
 
   void 
@@ -58,10 +57,8 @@ namespace dynamo {
 	noXmlLoad = false;
 	clear();
 
-	for (magnet::xml::Node node = XML.getNode("CaptureMap").fastGetNode("Pair");
-	     node.valid(); ++node)
-	  captureMap[cMapKey(node.getAttribute("ID1").as<size_t>(),
-			     node.getAttribute("ID2").as<size_t>())]
+	for (magnet::xml::Node node = XML.getNode("CaptureMap").fastGetNode("Pair"); node.valid(); ++node)
+	  Map::operator[](Map::key_type(node.getAttribute("ID1").as<size_t>(), node.getAttribute("ID2").as<size_t>()))
 	    = node.getAttribute("val").as<size_t>();
       }
   }
@@ -71,9 +68,7 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("CaptureMap");
 
-    typedef std::pair<const cMapKey, size_t> locpair;
-
-    BOOST_FOREACH(const locpair& IDs, captureMap)
+    BOOST_FOREACH(const Map::value_type& IDs, *this)
       XML << magnet::xml::tag("Pair")
 	  << magnet::xml::attr("ID1") << IDs.first.first
 	  << magnet::xml::attr("ID2") << IDs.first.second
@@ -87,8 +82,7 @@ namespace dynamo {
   ICapture::validateState(bool textoutput, size_t max_reports) const
   {
     size_t retval(0);
-    typedef std::pair<const dynamo::ICapture::cMapKey, size_t> mapdata;
-    BOOST_FOREACH(const mapdata& IDs, captureMap)
+    BOOST_FOREACH(const Map::value_type& IDs, *this)
       {
 	const Particle& p1(Sim->particles[IDs.first.first]);
 	const Particle& p2(Sim->particles[IDs.first.second]);
