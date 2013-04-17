@@ -22,12 +22,12 @@
 #include <dynamo/interactions/glyphrepresentation.hpp>
 
 namespace dynamo {
-  class IDumbbells: public ISingleCapture, public GlyphRepresentation
+  class IDumbbells: public ICapture, public GlyphRepresentation
   {
   public:
     template<class T1, class T2, class T3, class T4, class T5>
     IDumbbells(dynamo::Simulation* tmp, T1 LA, T2 LB, T3 diamA, T4 diamB, T5 e, IDPairRange* nR, std::string name):
-      ISingleCapture(tmp, nR),
+      ICapture(tmp, nR),
       _diamA(Sim->_properties.getProperty
 	     (diamA, Property::Units::Length())),
       _diamB(Sim->_properties.getProperty
@@ -63,7 +63,7 @@ namespace dynamo {
    
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    virtual bool captureTest(const Particle&, const Particle&) const;
+    virtual size_t captureTest(const Particle&, const Particle&) const;
 
     virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
 

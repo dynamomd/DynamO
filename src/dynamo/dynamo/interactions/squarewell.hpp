@@ -22,13 +22,13 @@
 #include <dynamo/simulation.hpp>
 
 namespace dynamo {
-  class ISquareWell: public ISingleCapture, public GlyphRepresentation
+  class ISquareWell: public ICapture, public GlyphRepresentation
   {
   public:
     template<class T1, class T2, class T3, class T4>
     ISquareWell(dynamo::Simulation* tmp, T1 d, T2 l, 
 		T3 wd, T4 e, IDPairRange* nR, std::string name):
-      ISingleCapture(tmp,nR),
+      ICapture(tmp,nR),
       _diameter(Sim->_properties.getProperty
 		(d, Property::Units::Length())),
       _lambda(Sim->_properties.getProperty
@@ -53,7 +53,7 @@ namespace dynamo {
 
     virtual double maxIntDist() const;
 
-    virtual bool captureTest(const Particle&, const Particle&) const;
+    virtual size_t captureTest(const Particle&, const Particle&) const;
 
     virtual void initialise(size_t);
 
@@ -71,7 +71,7 @@ namespace dynamo {
 
   protected:
     ISquareWell(dynamo::Simulation* tmp, IDPairRange* nR):
-      ISingleCapture(tmp,nR) {}
+      ICapture(tmp,nR) {}
 
     shared_ptr<Property> _diameter;
     shared_ptr<Property> _lambda;

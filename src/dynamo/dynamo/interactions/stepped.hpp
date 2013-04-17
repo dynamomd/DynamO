@@ -24,12 +24,12 @@
 #include <vector>
 
 namespace dynamo {
-  class IStepped: public IMultiCapture, public GlyphRepresentation
+  class IStepped: public ICapture, public GlyphRepresentation
   {
   public:
     template<class T1, class T2>
     IStepped(dynamo::Simulation* tmp, shared_ptr<Potential> potential, IDPairRange* nR, std::string name, T1 length, T2 energy):
-      IMultiCapture(tmp,nR),
+      ICapture(tmp,nR),
       _lengthScale(Sim->_properties.getProperty(length, Property::Units::Length())),
       _energyScale(Sim->_properties.getProperty(energy, Property::Units::Energy())),
       _potential(potential)

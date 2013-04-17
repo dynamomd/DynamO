@@ -31,7 +31,7 @@ namespace dynamo {
 
     /*! \brief This capture test returns false as (initially) there are no bridges.
      */
-    virtual bool captureTest(const Particle&, const Particle&) const { return false; }
+    virtual size_t captureTest(const Particle&, const Particle&) const { return false; }
 
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
   

@@ -34,7 +34,7 @@
 
 namespace dynamo {
   IDumbbells::IDumbbells(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
-    ISingleCapture(tmp, NULL)
+    ICapture(tmp, NULL)
   {
     operator<<(XML);
   }
@@ -43,7 +43,7 @@ namespace dynamo {
   IDumbbells::initialise(size_t nID)
   {
     ID = nID; 
-    ISingleCapture::initCaptureMap();
+    ICapture::initCaptureMap();
 
    //Vector r = Sim->particles[0].getPosition();
    //double LA = _LA->getProperty(0);
@@ -106,7 +106,7 @@ namespace dynamo {
     _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
 				      Property::Units::Dimensionless());
     intName = XML.getAttribute("Name");
-    ISingleCapture::loadCaptureMap(XML);   
+    ICapture::loadCaptureMap(XML);   
   }
 
   double 
@@ -334,10 +334,10 @@ namespace dynamo {
 	<< magnet::xml::attr("Name") << intName
 	<< *range;
 
-    ISingleCapture::outputCaptureMap(XML);
+    ICapture::outputCaptureMap(XML);
   }
 
-  bool 
+  size_t
   IDumbbells::captureTest(const Particle& p1, const Particle& p2) const
   {
     if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
@@ -356,7 +356,7 @@ namespace dynamo {
     const double l2 = std::max(lA2 + 0.5 * diamA2, lB2 + 0.5 * diamB2);
     const double max_dist = l1 + l2;
     
-    return Sim->dynamics->sphereOverlap(p1, p2, max_dist);
+    return Sim->dynamics->sphereOverlap(p1, p2, max_dist) > 0;
   }
 
   namespace {

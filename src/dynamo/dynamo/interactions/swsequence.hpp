@@ -24,13 +24,13 @@
 #include <set>
 
 namespace dynamo {
-  class ISWSequence: public ISingleCapture, public GlyphRepresentation
+  class ISWSequence: public ICapture, public GlyphRepresentation
   {
   public:
     template<class T1, class T2, class T3>
     ISWSequence(dynamo::Simulation* tmp, T1 d, T2 l, T3 e, 
 		std::vector<size_t> seq, IDPairRange* nR, std::string name):
-      ISingleCapture(tmp,nR),
+      ICapture(tmp,nR),
       _diameter(Sim->_properties.getProperty
 		(d, Property::Units::Length())),
       _lambda(Sim->_properties.getProperty
@@ -71,7 +71,7 @@ namespace dynamo {
 
     virtual double getInternalEnergy(const Particle&, const Particle&) const;
 
-    virtual bool captureTest(const Particle&, const Particle&) const;
+    virtual size_t captureTest(const Particle&, const Particle&) const;
 
     virtual void initialise(size_t);
 

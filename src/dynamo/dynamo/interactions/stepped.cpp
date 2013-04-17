@@ -36,7 +36,7 @@
 
 namespace dynamo {
   IStepped::IStepped(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
-    IMultiCapture(tmp, NULL),
+    ICapture(tmp, NULL),
     _lengthScale(Sim->_properties.getProperty(Sim->units.unitLength(), Property::Units::Length())),
     _energyScale(Sim->_properties.getProperty(Sim->units.unitEnergy(), Property::Units::Energy()))
   {
@@ -56,7 +56,7 @@ namespace dynamo {
 
     _energyScale = Sim->_properties.getProperty(XML.getAttribute("EnergyScale"), Property::Units::Energy());
 
-    IMultiCapture::loadCaptureMap(XML);
+    ICapture::loadCaptureMap(XML);
   }
 
   double 
@@ -90,7 +90,7 @@ namespace dynamo {
   IStepped::initialise(size_t nID)
   {
     ID = nID;
-    IMultiCapture::initCaptureMap();
+    ICapture::initCaptureMap();
   
     dout << "Buckets in captureMap " << captureMap.bucket_count()
 	 << "\nMax bucket count " << captureMap.max_bucket_count()
@@ -277,7 +277,7 @@ namespace dynamo {
   
     XML << _potential;
 
-    IMultiCapture::outputCaptureMap(XML);  
+    ICapture::outputCaptureMap(XML);  
   }
 
   void 

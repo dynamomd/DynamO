@@ -56,7 +56,7 @@ namespace dynamo {
     else
       _e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
     intName = XML.getAttribute("Name");
-    ISingleCapture::loadCaptureMap(XML);   
+    ICapture::loadCaptureMap(XML);   
   }
 
   IntEvent
@@ -226,6 +226,6 @@ namespace dynamo {
 	<< magnet::xml::attr("Name") << intName
 	<< *range;
   
-    ISingleCapture::outputCaptureMap(XML);  
+    ICapture::outputCaptureMap(XML);  
   }
 }

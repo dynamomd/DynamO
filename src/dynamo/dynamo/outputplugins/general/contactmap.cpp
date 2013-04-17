@@ -23,28 +23,40 @@
 #include <magnet/xmlreader.hpp>
 #include <boost/foreach.hpp>
 
+namespace {
+  ::std::size_t
+  hash_combine(const ::std::size_t hash1, const ::std::size_t hash2)
+  {
+    return hash1 ^ (hash2 + 0x9e3779b9 + (hash1 << 6) + (hash1 >> 2));
+  };  
+}
+
 namespace dynamo {
   namespace detail {
     ::std::size_t
-    OPContactMapPairHash::operator()(const std::pair<size_t, size_t>& pair) const
+    OPContactMapPairHash::operator()(const std::pair<std::size_t, std::size_t>& entry) const
     {
-      return pair.first ^ (pair.second + 0x9e3779b9 + (pair.first << 6) + (pair.first >> 2));
+      return hash_combine(entry.first, entry.second);
     };
 
     ::std::size_t
-    OPContactMapHash::operator()(const std::vector<std::pair<size_t, size_t> >& map) const
+    OPContactMapValueHash::operator()(const ICapture::value_type& entry) const
     {
-      OPContactMapPairHash pairhash;
+      return hash_combine(entry.first.first, hash_combine(entry.first.second, entry.second));
+    };
+
+    ::std::size_t
+    OPContactMapHash::operator()(const std::vector<ICapture::value_type>& map) const
+    {
+      OPContactMapValueHash pairhash;
       ::std::size_t hash(0);
-      typedef ::std::pair< ::std::size_t, ::std::size_t> Entry;
-      BOOST_FOREACH(const Entry& entry, map)
-	hash = pairhash(std::make_pair(pairhash(std::make_pair(hash, entry.first)), entry.second));
+      BOOST_FOREACH(const ICapture::value_type& entry, map)
+	hash = hash_combine(hash, pairhash(entry));
       return hash;
     }
   }
 
-  OPContactMap::OPContactMap(const dynamo::Simulation* t1, 
-				   const magnet::xml::Node& XML):
+  OPContactMap::OPContactMap(const dynamo::Simulation* t1, const magnet::xml::Node& XML):
     OutputPlugin(t1,"ContactMap", 1) //This plugin should be updated and initialised after the misc plugin
   { operator<<(XML); }
 
@@ -60,8 +72,7 @@ namespace dynamo {
   
     BOOST_FOREACH(const shared_ptr<Interaction>& interaction, Sim->interactions)
       {
-	shared_ptr<ISingleCapture> capture_interaction = std::tr1::dynamic_pointer_cast<ISingleCapture>(interaction);
-	typedef std::pair<size_t, size_t> key;
+	shared_ptr<ICapture> capture_interaction = std::tr1::dynamic_pointer_cast<ICapture>(interaction);
 	if (capture_interaction)
 	  _current_map.insert(capture_interaction->getMap().begin(), capture_interaction->getMap().end());
       }
@@ -95,7 +106,7 @@ namespace dynamo {
 
     if ((event.getType() == STEP_IN) || (event.getType() == STEP_OUT))
       {
-	shared_ptr<ISingleCapture> capture_interaction = std::tr1::dynamic_pointer_cast<ISingleCapture>(Sim->interactions[event.getInteractionID()]);
+	shared_ptr<ICapture> capture_interaction = std::tr1::dynamic_pointer_cast<ICapture>(Sim->interactions[event.getInteractionID()]);
 	if (capture_interaction)
 	  {
 	    //Cache the old map data, and flush the entry
@@ -107,12 +118,12 @@ namespace dynamo {
 	    size_t oldMapID(olddata._id);
 
 	    //Update the map
-	    size_t minID = std::min(event.getParticle1ID(), event.getParticle2ID());
-	    size_t maxID = std::max(event.getParticle1ID(), event.getParticle2ID());
-	    if (capture_interaction->isCaptured(minID, maxID))
-	      _current_map.insert(std::make_pair(minID, maxID));
+	    ICapture::key_type key(event.getParticle1ID(), event.getParticle2ID());
+	    size_t captureState = capture_interaction->isCaptured(event.getParticle1ID(), event.getParticle2ID());
+	    if (captureState)
+	      _current_map[key] = captureState;
 	    else
-	      _current_map.erase(std::make_pair(minID, maxID));
+	      _current_map.erase(key);
 
 	    //Check if the new map is already in the list.  If the
 	    //current map is not, insert it, and initialise its ID
@@ -183,11 +194,11 @@ namespace dynamo {
 	    << magnet::xml::attr("Energy") << entry.second._energy / Sim->units.unitEnergy()
 	    << magnet::xml::attr("Weight") << entry.second._weight / _total_weight;
 	
-	typedef std::pair<size_t, size_t> IDPair;
-	BOOST_FOREACH(const IDPair& ids, entry.first)
+	BOOST_FOREACH(const ICapture::value_type& ids, entry.first)
 	  XML << magnet::xml::tag("Contact")
-	      << magnet::xml::attr("ID1") << ids.first
-	      << magnet::xml::attr("ID2") << ids.second
+	      << magnet::xml::attr("ID1") << ids.first.first
+	      << magnet::xml::attr("ID2") << ids.first.second
+	      << magnet::xml::attr("State") << ids.second
 	      << magnet::xml::endtag("Contact");
 	
 	XML << magnet::xml::endtag("Map");

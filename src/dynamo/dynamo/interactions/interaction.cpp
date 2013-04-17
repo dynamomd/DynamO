@@ -76,8 +76,6 @@ namespace dynamo {
       return shared_ptr<Interaction>(new ISWSequence(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("SquareBond"))
       return shared_ptr<Interaction>(new ISquareBond(XML, Sim));
-    else if (!XML.getAttribute("Type").getValue().compare("SoftCore"))
-      return shared_ptr<Interaction>(new ISoftCore(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("Null"))
       return shared_ptr<Interaction>(new INull(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("Lines"))

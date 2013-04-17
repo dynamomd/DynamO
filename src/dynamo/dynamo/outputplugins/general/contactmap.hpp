@@ -17,7 +17,8 @@
 
 #pragma once
 #include <dynamo/outputplugins/outputplugin.hpp>
-#include <set>
+#include <dynamo/interactions/captures.hpp>
+#include <map>
 #include <vector>
 #include <tr1/unordered_map>
 
@@ -25,12 +26,17 @@ namespace dynamo {
   namespace detail {
     struct OPContactMapHash
     {
-      ::std::size_t operator()(const std::vector<std::pair<size_t, size_t> >& map) const;
+      ::std::size_t operator()(const std::vector<ICapture::value_type>& map) const;
+    };
+
+    struct OPContactMapValueHash
+    {
+      ::std::size_t operator()(const ICapture::value_type& pair) const;
     };
 
     struct OPContactMapPairHash
     {
-      ::std::size_t operator()(const std::pair<size_t, size_t>& pair) const;
+      ::std::size_t operator()(const std::pair<std::size_t, std::size_t> & pair) const;
     };
   }
   class OPContactMap: public OutputPlugin
@@ -62,7 +68,7 @@ namespace dynamo {
     /*! \brief A sorted listing of all the captured pairs in the
      system
     */
-    std::set<std::pair<size_t, size_t> > _current_map;
+    std::map<ICapture::key_type, ICapture::mapped_type> _current_map;
     size_t _next_map_id;
 
     struct MapData
@@ -73,7 +79,7 @@ namespace dynamo {
       size_t _id;
     };
 
-    typedef std::vector<std::pair<size_t, size_t> > MapKey;
+    typedef std::vector<ICapture::value_type> MapKey;
     /*! \brief A hash table storing the histogram of the contact maps.
       
       The key of this map is a sorted list of the captured pairs in

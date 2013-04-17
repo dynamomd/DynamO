@@ -24,13 +24,6 @@
 #include <boost/foreach.hpp>
 
 namespace dynamo {
-  void 
-  ISingleCapture::testAddToCaptureMap(const Particle& p1, const size_t& p2) const
-  {
-    if (captureTest(p1, Sim->particles[p2]))
-      addToCaptureMap(p1, Sim->particles[p2]);
-  }   
-
 
   void 
   ICapture::initCaptureMap()
@@ -51,46 +44,14 @@ namespace dynamo {
   }
 
   void 
-  ISingleCapture::loadCaptureMap(const magnet::xml::Node& XML)
-  {
-    if (XML.hasNode("CaptureMap"))
-      {
-	noXmlLoad = false;
-	clear();
-
-	for (magnet::xml::Node node = XML.getNode("CaptureMap").fastGetNode("Pair");
-	     node.valid(); ++node)
-	  captureMap.insert(cMapKey(node.getAttribute("ID1").as<size_t>(),
-				    node.getAttribute("ID2").as<size_t>()));
-      }
-  }
-
-  void 
-  ISingleCapture::outputCaptureMap(magnet::xml::XmlStream& XML) const 
-  {
-    XML << magnet::xml::tag("CaptureMap");
-
-    BOOST_FOREACH(const cMapKey& IDs, captureMap)
-      XML << magnet::xml::tag("Pair")
-	  << magnet::xml::attr("ID1") << IDs.first
-	  << magnet::xml::attr("ID2") << IDs.second
-	  << magnet::xml::endtag("Pair");
-  
-    XML << magnet::xml::endtag("CaptureMap");
-  }
-
-  //////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////
-
-  void 
-  IMultiCapture::testAddToCaptureMap(const Particle& p1, const size_t& p2) const
+  ICapture::testAddToCaptureMap(const Particle& p1, const size_t& p2) const
   {
     size_t capval = captureTest(p1, Sim->particles[p2]);
     if (capval) captureMap[cMapKey(p1.getID(), p2)] = capval; 
   }
 
   void 
-  IMultiCapture::loadCaptureMap(const magnet::xml::Node& XML)
+  ICapture::loadCaptureMap(const magnet::xml::Node& XML)
   {
     if (XML.hasNode("CaptureMap"))
       {
@@ -106,7 +67,7 @@ namespace dynamo {
   }
 
   void 
-  IMultiCapture::outputCaptureMap(magnet::xml::XmlStream& XML) const 
+  ICapture::outputCaptureMap(magnet::xml::XmlStream& XML) const 
   {
     XML << magnet::xml::tag("CaptureMap");
 
@@ -123,29 +84,7 @@ namespace dynamo {
   }
 
   size_t
-  ISingleCapture::validateState(bool textoutput, size_t max_reports) const
-  {
-    size_t retval(0);
-    BOOST_FOREACH(const cMapKey& IDs, captureMap)
-      {
-	const Particle& p1(Sim->particles[IDs.first]);
-	const Particle& p2(Sim->particles[IDs.second]);
-
-	shared_ptr<Interaction> interaction_ptr = Sim->getInteraction(p1, p2);
-	if (interaction_ptr.get() == static_cast<const Interaction*>(this))
-	  retval += interaction_ptr->validateState(p1, p2, retval < max_reports);
-	else
-	  derr << "Particle " << p1.getID() << " and Particle " << p2.getID()
-	       << " are in the capture map of the \"" << intName << "\" interaction, but this is not the corresponding interaction for that pair!"
-	       << " They are handled by the \"" << interaction_ptr->getName() << "\" Interaction"
-	       << std::endl;
-      }
-
-    return retval;
-  }
-  
-  size_t
-  IMultiCapture::validateState(bool textoutput, size_t max_reports) const
+  ICapture::validateState(bool textoutput, size_t max_reports) const
   {
     size_t retval(0);
     typedef std::pair<const dynamo::ICapture::cMapKey, size_t> mapdata;

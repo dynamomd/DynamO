@@ -36,7 +36,7 @@
 
 namespace dynamo {
   ISquareWell::ISquareWell(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
-    ISingleCapture(tmp, NULL) //A temporary value!
+    ICapture(tmp, NULL) //A temporary value!
   {
     operator<<(XML);
   }
@@ -58,7 +58,7 @@ namespace dynamo {
     else
       _e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
     intName = XML.getAttribute("Name");
-    ISingleCapture::loadCaptureMap(XML);   
+    ICapture::loadCaptureMap(XML);   
   }
 
   Vector
@@ -92,10 +92,10 @@ namespace dynamo {
   ISquareWell::initialise(size_t nID)
   {
     ID = nID;
-    ISingleCapture::initCaptureMap();
+    ICapture::initCaptureMap();
   }
 
-  bool 
+  size_t
   ISquareWell::captureTest(const Particle& p1, const Particle& p2) const
   {
     if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
@@ -114,7 +114,7 @@ namespace dynamo {
 	   << "\nd = " << d / Sim->units.unitLength() << std::endl;
 #endif
  
-    return Sim->dynamics->sphereOverlap(p1, p2, l * d);
+    return Sim->dynamics->sphereOverlap(p1, p2, l * d) > 0;
   }
 
   IntEvent
@@ -291,7 +291,7 @@ namespace dynamo {
 	<< magnet::xml::attr("Name") << intName
 	<< *range;
   
-    ISingleCapture::outputCaptureMap(XML);  
+    ICapture::outputCaptureMap(XML);  
   }
 
   double 
@@ -299,11 +299,10 @@ namespace dynamo {
   { 
     //Once the capture maps are loaded just iterate through that determining energies
     double Energy = 0.0;
-    typedef std::pair<size_t, size_t> locpair;
 
-    BOOST_FOREACH(const locpair& IDs, captureMap)
-      Energy += 0.5 * (_wellDepth->getProperty(IDs.first)
-		       +_wellDepth->getProperty(IDs.second));
+    BOOST_FOREACH(const ICapture::captureMapType::value_type& IDs, captureMap)
+      Energy += 0.5 * (_wellDepth->getProperty(IDs.first.first)
+		       +_wellDepth->getProperty(IDs.first.second));
   
     return -Energy; 
   }

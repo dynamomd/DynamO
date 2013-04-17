@@ -87,7 +87,7 @@ namespace dynamo {
 	   << "\nd = " << d / Sim->units.unitLength() << std::endl;
 #endif
  
-    return Sim->dynamics->sphereOverlap(p1, p2, l * d);
+    return Sim->dynamics->sphereOverlap(p1, p2, l * d) > 0;
   }
 
   bool

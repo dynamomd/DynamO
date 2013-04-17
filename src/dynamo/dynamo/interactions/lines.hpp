@@ -22,12 +22,12 @@
 #include <dynamo/interactions/glyphrepresentation.hpp>
 
 namespace dynamo {
-  class ILines: public ISingleCapture, public GlyphRepresentation
+  class ILines: public ICapture, public GlyphRepresentation
   {
   public:
     template<class T1, class T2>
     ILines(dynamo::Simulation* tmp, T1 l, T2 e, IDPairRange* nR, std::string name):
-      ISingleCapture(tmp, nR),
+      ICapture(tmp, nR),
       _length(Sim->_properties.getProperty
 	      (l, Property::Units::Length())),
       _e(Sim->_properties.getProperty
@@ -61,7 +61,7 @@ namespace dynamo {
 
     virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
  
-    virtual bool captureTest(const Particle&, const Particle&) const;
+    virtual size_t captureTest(const Particle&, const Particle&) const;
 
   protected:
     shared_ptr<Property> _length;
