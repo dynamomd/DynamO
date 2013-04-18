@@ -70,7 +70,7 @@ namespace dynamo {
       size_t _id;
     };
 
-    typedef std::tr1::unordered_map<detail::CaptureMap, MapData,  detail::CaptureMapHash> CollectedMapType;
+    typedef std::tr1::unordered_map<detail::CaptureMapKey, MapData,  detail::CaptureMapKeyHash> CollectedMapType;
     typedef std::tr1::unordered_map<std::pair<size_t, size_t>, size_t, detail::OPContactMapPairHash> LinksMapType;
     /*! \brief A hash table storing the histogram of the contact maps.
       

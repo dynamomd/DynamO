@@ -120,6 +120,14 @@ namespace dynamo {
 	Container::const_iterator it = Container::find(key);
 	return (it == Container::end()) ? 0 : (it->second); 
       }
+    };
+
+    struct CaptureMapKey: public std::vector<CaptureMap::value_type>
+    {
+      typedef std::vector<CaptureMap::value_type> Container;
+      CaptureMapKey(const CaptureMap& map):
+	Container(map.begin(), map.end())
+      {}
 
       std::size_t hash() const {
 	std::size_t hash(0);
@@ -131,15 +139,14 @@ namespace dynamo {
 
     /*! \brief A functor to allow the storage of CaptureMapKey types
         in unordered containers. */
-    struct CaptureMapHash {
-      std::size_t operator() (const CaptureMap& map) const {
-	return map.hash();
-      }
+    struct CaptureMapKeyHash {
+      std::size_t operator() (const CaptureMapKey& map) const 
+      { return map.hash(); }
     };
   }
 
   /*! \brief A general interface for \ref Interaction classes with
-     states for the particle pairs.
+    states for the particle pairs.
    
     This class is a general interface to Interaction classes that
     allow particles to "capture" each other and store some state. The

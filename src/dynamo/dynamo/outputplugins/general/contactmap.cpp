@@ -106,6 +106,7 @@ namespace dynamo {
     if (addLink)
       ++(_map_links[std::make_pair(oldMapID, _current_map->second._id)]);
   }
+
   void 
   OPContactMap::changeSystem(OutputPlugin* otherplugin)
   {
