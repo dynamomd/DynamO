@@ -50,7 +50,7 @@ namespace dynamo {
     virtual PairEventData SmoothSpheresColl(const IntEvent&, const double&, const double&, const EEventType& eType) const;
     virtual bool DSMCSpheresTest(Particle&, Particle&, double&, const double&, Vector) const;
     virtual PairEventData DSMCSpheresRun(Particle&, Particle&, const double&, Vector) const;
-    virtual PairEventData SphereWellEvent(const IntEvent&, const double&, const double&) const;
+    virtual PairEventData SphereWellEvent(const IntEvent&, const double&, const double&, size_t) const;
     virtual double getPlaneEvent(const Particle&, const Vector &, const Vector &, double) const;
     virtual std::pair<double, Dynamics::TriangleIntersectingPart> getSphereTriangleEvent(const Particle& part, const Vector & A, const Vector & B, const Vector & C, const double dist) const;
     virtual double getCylinderWallCollision(const Particle&, const Vector &, const Vector &, const double&) const;

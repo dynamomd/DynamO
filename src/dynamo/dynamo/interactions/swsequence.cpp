@@ -288,20 +288,10 @@ namespace dynamo {
 	}
       case STEP_IN:
 	{
-	  PairEventData retVal(Sim->dynamics->SphereWellEvent
-			       (iEvent, alphabet
-				[sequence[p1.getID() % sequence.size()]]
-				[sequence[p2.getID() % sequence.size()]] 
-				* _unitEnergy->getMaxValue(), 
-				ld2));
-	
-	  if (retVal.getType() != BOUNCE)
-	    ICapture::add(p1, p2);      
-
+	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, alphabet[sequence[p1.getID() % sequence.size()]][sequence[p2.getID() % sequence.size()]] * _unitEnergy->getMaxValue(), ld2, 1));
+	  if (retVal.getType() != BOUNCE) ICapture::add(p1, p2);      
 	  Sim->signalParticleUpdate(retVal);
-
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	
 	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
 
@@ -309,23 +299,12 @@ namespace dynamo {
 	}
       case STEP_OUT:
 	{
-	  PairEventData retVal(Sim->dynamics->SphereWellEvent
-			       (iEvent, -alphabet
-				[sequence[p1.getID() % sequence.size()]]
-				[sequence[p2.getID() % sequence.size()]]
-				* _unitEnergy->getMaxValue(), 
-				ld2));
-	
-	  if (retVal.getType() != BOUNCE)
-	    ICapture::remove(p1, p2);
-	
+	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, -alphabet[sequence[p1.getID() % sequence.size()]][sequence[p2.getID() % sequence.size()]]	* _unitEnergy->getMaxValue(), ld2, 0));
+	  if (retVal.getType() != BOUNCE) ICapture::remove(p1, p2);
 	  Sim->signalParticleUpdate(retVal);
-
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	
 	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
-
 	  break;
 	}
       default:
@@ -336,11 +315,8 @@ namespace dynamo {
   bool
   ISWSequence::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    double d = (_diameter->getProperty(p1.getID())
-		+ _diameter->getProperty(p2.getID())) * 0.5;
-    double l = (_lambda->getProperty(p1.getID())
-		+ _lambda->getProperty(p2.getID())) * 0.5;
-
+    double d = (_diameter->getProperty(p1.getID()) + _diameter->getProperty(p2.getID())) * 0.5;
+    double l = (_lambda->getProperty(p1.getID()) + _lambda->getProperty(p2.getID())) * 0.5;
     if (isCaptured(p1, p2))
       {
 	if (!Sim->dynamics->sphereOverlap(p1, p2, l * d))
@@ -379,7 +355,6 @@ namespace dynamo {
 	  
 	  return true;
 	}
-
     return false;
   }
 }

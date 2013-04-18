@@ -203,15 +203,11 @@ namespace dynamo {
 	M_throw() << "Unknown event type";
       } 
 
-    PairEventData retVal = Sim->dynamics->SphereWellEvent(iEvent, _potential->getEnergyChange(new_step_ID, old_step_ID) * energy_scale, diameter * diameter);
+    PairEventData retVal = Sim->dynamics->SphereWellEvent(iEvent, _potential->getEnergyChange(new_step_ID, old_step_ID) * energy_scale, diameter * diameter, new_step_ID);
     //Check if the particles changed their step ID
-    if (retVal.getType() != BOUNCE)
-      ICapture::operator[](ICapture::key_type(p1, p2)) = new_step_ID;
-    
+    if (retVal.getType() != BOUNCE) ICapture::operator[](ICapture::key_type(p1, p2)) = new_step_ID;
     Sim->signalParticleUpdate(retVal);
-    
     Sim->ptrScheduler->fullUpdate(p1, p2);
-    
     BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, retVal);
   }

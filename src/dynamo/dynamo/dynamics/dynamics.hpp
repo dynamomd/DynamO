@@ -547,11 +547,13 @@ namespace dynamo {
       \param deltaKE The kinetic energy change of the particles if the
       well/shoulder is transitioned.
       \param d2 The square of the interaction distance.
+      \param newstate The new state of the particle pair.
       \return The event data.
      */  
     virtual PairEventData SphereWellEvent(const IntEvent& event, 
 					  const double& deltaKE, 
-					  const double& d2) const = 0;
+					  const double& d2,
+					  const size_t newstate) const = 0;
 
     /*! \brief Reassigns the velocity componets of a particle from a
       Gaussian.

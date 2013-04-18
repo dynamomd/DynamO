@@ -36,7 +36,7 @@ namespace dynamo {
     virtual double SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const;  
     virtual double sphereOverlap(const Particle& p1, const Particle& p2, const double& d) const;
     virtual PairEventData SmoothSpheresColl(const IntEvent&, const double&, const double&, const EEventType&) const;
-    virtual PairEventData SphereWellEvent(const IntEvent&, const double&, const double&) const;
+    virtual PairEventData SphereWellEvent(const IntEvent&, const double&, const double&, size_t) const;
     inline double getGrowthRate() const { return growthRate; }
     virtual double getPlaneEvent(const Particle&, const Vector &, const Vector &, double) const;
     virtual ParticleEventData runPlaneEvent(Particle&, const Vector &, double, double) const;

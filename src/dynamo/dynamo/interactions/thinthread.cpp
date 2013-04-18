@@ -126,7 +126,6 @@ namespace dynamo {
       case CORE:
 	{
 	  PairEventData retVal(Sim->dynamics->SmoothSpheresColl(iEvent, e, d2, CORE));
-
 	  IntEvent event(iEvent);
 	  if (!isCaptured(p1, p2))
 	    {
@@ -134,27 +133,18 @@ namespace dynamo {
 	      retVal.setType(STEP_IN);
 	      ICapture::add(p1, p2);
 	    }
-
 	  Sim->signalParticleUpdate(retVal);
-	
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	
 	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	    Ptr->eventUpdate(event, retVal);
-
 	  break;
 	}
       case STEP_OUT:
 	{
-	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, -wd, ld2));
-	
-	  if (retVal.getType() != BOUNCE)
-	    ICapture::remove(p1, p2);      
-
+	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, -wd, ld2, 0));
+	  if (retVal.getType() != BOUNCE) ICapture::remove(p1, p2);
 	  Sim->signalParticleUpdate(retVal);
-
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	
 	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
 	  break;

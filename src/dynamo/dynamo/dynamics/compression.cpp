@@ -190,7 +190,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  DynCompression::SphereWellEvent(const IntEvent& event, const double& deltaKE, const double& d2) const
+  DynCompression::SphereWellEvent(const IntEvent& event, const double& deltaKE, const double& d2, size_t) const
   {
     Particle& particle1 = Sim->particles[event.getParticle1ID()];
     Particle& particle2 = Sim->particles[event.getParticle2ID()];
