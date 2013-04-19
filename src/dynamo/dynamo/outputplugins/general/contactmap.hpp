@@ -49,6 +49,8 @@ namespace dynamo {
 
     virtual void changeSystem(OutputPlugin*);
 
+    void periodicOutput();
+
   private:
     void stream(double);
     void flush();

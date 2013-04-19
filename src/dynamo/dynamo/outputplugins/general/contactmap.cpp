@@ -132,10 +132,18 @@ namespace dynamo {
   OPContactMap::eventUpdate(const System&, const NEventData&, const double& dt)
   { stream(dt); }
 
+  void
+  OPContactMap::periodicOutput()
+  {
+    I_Pcout() << ", Maps " << _collected_maps.size() << ", links " << _map_links.size();
+  }
+
   void 
   OPContactMap::output(magnet::xml::XmlStream& XML)
   {
-    flush();
+    dout << "Writing out " << _collected_maps.size() << " Contact maps with "
+	 << _map_links.size() << " links" << std::endl;
+
     XML << magnet::xml::tag("ContactMap")
 	<< magnet::xml::tag("Maps")
       	<< magnet::xml::attr("Count") << _collected_maps.size();

@@ -132,7 +132,7 @@ namespace dynamo {
       std::size_t hash() const {
 	std::size_t hash(0);
 	BOOST_FOREACH(const Container::value_type& val, *this)
-	  hash = hash_combine(val.first.first, hash_combine(val.first.second, val.second));
+	  hash = hash_combine(hash, hash_combine(val.first.first, hash_combine(val.first.second, val.second)));
 	return hash;
       }
     };
