@@ -29,6 +29,7 @@ namespace magnet {
     template<class T1, class T2> class Task1;
     template<class T1, class T2, class T3> class Task2;
     template<class T1, class T2, class T3, class T4> class Task3;
+    template<class T1, class T2, class T3, class T4, class T5, class T6> class Task5;
     
     /*! \brief This interface class is used to extend Delegate's to
      * have bindable arguments.
@@ -213,6 +214,39 @@ namespace magnet {
 						    arg1, arg2, arg3); 
       }
 
+      /*! \brief Helper function to make a task from a const member function
+       * with 5 arguments.
+       * \param funcPtr A pointer to the member function to alias.
+       * \param classPtr A pointer to the class to call the member function on.
+       */
+      template<typename retT, typename classT, typename arg1T, typename arg2T, typename arg3T, typename arg4T, typename arg5T>
+      inline static Task*
+      makeTask(retT (classT::*funcPtr)(arg1T, arg2T, arg3T, arg4T, arg5T) const, const classT* classPtr, 
+	       typename detail::typeWrapper<arg1T>::Type arg1,
+	       typename detail::typeWrapper<arg2T>::Type arg2,
+	       typename detail::typeWrapper<arg3T>::Type arg3,
+	       typename detail::typeWrapper<arg4T>::Type arg4,	
+	       typename detail::typeWrapper<arg5T>::Type arg5)
+      { 
+	return new Task5<retT, arg1T, arg2T, arg3T, arg4T, arg5T>(magnet::function::MakeDelegate(classPtr, funcPtr), arg1, arg2, arg3, arg4, arg5); 
+      }
+
+      /*! \brief Helper function to make a task from a const member function
+       * with 5 arguments.
+       * \param funcPtr A pointer to the member function to alias.
+       * \param classPtr A pointer to the class to call the member function on.
+       */
+      template<typename retT, typename classT, typename arg1T, typename arg2T, typename arg3T, typename arg4T, typename arg5T>
+      inline static Task*
+      makeTask(retT (classT::*funcPtr)(arg1T, arg2T, arg3T, arg4T, arg5T), classT* classPtr, 
+	       typename detail::typeWrapper<arg1T>::Type arg1,
+	       typename detail::typeWrapper<arg2T>::Type arg2,
+	       typename detail::typeWrapper<arg3T>::Type arg3,
+	       typename detail::typeWrapper<arg4T>::Type arg4,	
+	       typename detail::typeWrapper<arg5T>::Type arg5)
+      { 
+	return new Task5<retT, arg1T, arg2T, arg3T, arg4T, arg5T>(magnet::function::MakeDelegate(classPtr, funcPtr), arg1, arg2, arg3, arg4, arg5); 
+      }
     };
     
     /*! \brief Implementation of a Task with 0 bound arguments.
@@ -300,6 +334,35 @@ namespace magnet {
       T1 _arg1;
       T2 _arg2;
       T3 _arg3;
+    };
+
+    /*! \brief Implementation of a Task with 3 bound arguments.
+     */
+    template<class T, class T1, class T2, class T3, class T4, class T5>
+    class Task5 : public Task
+    {
+      typedef function::Delegate5<T1, T2, T3, T4, T5, T> function;
+    public:
+      inline Task5(function delegate, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5): 
+	_delegate(delegate), 
+	_arg1(arg1),  
+	_arg2(arg2),
+	_arg3(arg3),
+	_arg4(arg4),
+	_arg5(arg5)
+      {}
+      
+      virtual void operator()() { _delegate(_arg1, _arg2, _arg3, _arg4, _arg5); }
+
+      virtual Task* Clone() { return new Task5<T, T1, T2, T3, T4, T5>(*this); }
+      
+    private:
+      function _delegate;
+      T1 _arg1;
+      T2 _arg2;
+      T3 _arg3;
+      T4 _arg4;
+      T5 _arg5;
     };
   }
 }
