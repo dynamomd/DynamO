@@ -68,7 +68,10 @@ namespace dynamo {
 	      }
 	    }
 	  if (_SIGTERM)
-	    simulation.simShutdown();
+	    {
+	      _SIGTERM=false;
+	      simulation.simShutdown();
+	    }
 	}
     }
     catch (std::exception& cep)

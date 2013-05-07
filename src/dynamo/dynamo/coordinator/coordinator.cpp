@@ -32,23 +32,21 @@ namespace dynamo {
       {
       case SIGINT:
 	{
-	  {
-	    //Disable this signal handler for any further SIGINT's, to
-	    //let people kill the program with a double ctrl-c.
-	    struct sigaction default_action;
-	    default_action.sa_handler = SIG_DFL;
-	    sigemptyset(&default_action.sa_mask);
-	    default_action.sa_flags = SA_RESETHAND;
+	  //Disable this signal handler for any further SIGINT's, to
+	  //let people kill the program with a double ctrl-c.
+	  struct sigaction default_action;
+	  default_action.sa_handler = SIG_DFL;
+	  sigemptyset(&default_action.sa_mask);
+	  default_action.sa_flags = SA_RESETHAND;
 	    sigaction(SIGINT, &default_action, NULL);
-	  }
-	  
-	  std::cout << "\nI"<< std::endl;
-	  Coordinator::get()._engine->sigint();
 	}
+	Coordinator::get()._engine->sigint();
+	std::cerr << "\nCaught SIGINT, notifying running simulation...\n";
+	break;
       case SIGTERM:
-	{
-	  Coordinator::get()._engine->sigterm();
-	}
+	std::cerr << "\nCaught SIGTERM, notifying running simulation...\n";
+	Coordinator::get()._engine->sigterm();
+	break;
       }
   }
 
