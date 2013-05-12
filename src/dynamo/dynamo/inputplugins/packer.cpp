@@ -111,6 +111,7 @@ namespace dynamo {
        "\n25: Funnel and cup simulation (with sleepy particles)"
        "\n26: Polydisperse (Gaussian) hard spheres in LEBC (shearing)"
        "\n27: Crystal pack of snowmen molecules"
+       "\n28: Rotating drum made out of particles."
        );
 
     return retval;
@@ -2246,20 +2247,16 @@ namespace dynamo {
 	    }
 
 	  double H = 10;
-	  if (vm.count("f1"))
-	    H = vm["f1"].as<double>();
+	  if (vm.count("f1")) H = vm["f1"].as<double>();
 
 	  double R = 7.5;
-	  if (vm.count("f2"))
-	    R = vm["f2"].as<double>();
+	  if (vm.count("f2")) R = vm["f2"].as<double>();
 	
 	  size_t rowskip = 3;
-	  if (vm.count("i1"))
-	    rowskip = vm["i1"].as<size_t>();	
+	  if (vm.count("i1")) rowskip = vm["i1"].as<size_t>();	
 
 	  double elasticity = 0.4;
-	  if (vm.count("f3"))
-	    elasticity = vm["f3"].as<double>();
+	  if (vm.count("f3")) elasticity = vm["f3"].as<double>();
 
 	  double Sv = 1.0; //Vertical spacing
 	  double Sr = 1.0; //Radial spacing
@@ -3355,6 +3352,76 @@ namespace dynamo {
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 
 	  Sim->dynamics->initOrientations(std::sqrt(1/I));
+	  break;
+	}
+      case 28:
+	{
+	  if (vm.count("help"))
+	    {
+	      std::cout<<
+		"Mode specific options:\n"
+		"  28: Rotating drum made out of particles.\n"
+		"       --i1 : Depth of the drum in particle diameters [5]\n"
+		"       --f1 : Radius of the drum in particle diameters [7.5]\n"
+		"       --f2 : Elasticity of the particles [0.4]\n";
+	      exit(1);
+	    }
+
+	  size_t depth = 5;
+	  if (vm.count("i1")) depth = vm["i1"].as<size_t>();
+
+	  double R = 7.5;
+	  if (vm.count("f1")) R = vm["f1"].as<double>();
+	  
+	  double elasticity = 0.4;
+	  if (vm.count("f2")) elasticity = vm["f2"].as<double>();
+
+	  double diameter = 1.0;
+	  const double elasticV = 1.0;
+
+	  Sim->primaryCellSize = Vector(2 * R + 1, 2 * R + 1, depth);
+	
+	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
+
+	  //Set up a standard simulation
+	  Sim->ptrScheduler = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELCBT()));
+	  
+	  Sim->dynamics = shared_ptr<Dynamics>(new DynGravity(Sim, Vector(0,-1,0), elasticV));
+
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, diameter, elasticity, new IDPairRangeAll(), "Bulk")));
+	
+	  ///Now build our funnel, so we know how many particles it takes
+	  std::vector<Vector> funnelSites;
+
+	  for (size_t circle(0); circle < depth; ++circle)
+	    {
+	      double r = R;
+	      size_t Nr = static_cast<size_t>(M_PI / std::asin(diameter / (2 * r)));
+	      double deltaPhi = 2 * M_PI / Nr;
+	    
+	      for (size_t radialstep(0); radialstep < Nr; ++radialstep)
+		funnelSites.push_back(Vector(r * std::sin(radialstep * deltaPhi), r * std::cos(radialstep * deltaPhi), circle * diameter));
+	    }
+
+	  //Build a list of the dynamic particles
+	  std::vector<Vector> dynamicSites;
+	  dynamicSites.push_back(Vector(0,0,0));
+
+	  Sim->addSpecies(shared_ptr<Species>(new SpFixedCollider(Sim, new IDRangeRange(0, funnelSites.size()), "FunnelParticles", 0, "Bulk")));
+	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeRange(funnelSites.size(), funnelSites.size() + dynamicSites.size()), 1.0, "Bulk", 0, "Bulk")));
+
+	  unsigned long nParticles = 0;
+	  Sim->particles.reserve(funnelSites.size() + dynamicSites.size());
+
+	  BOOST_FOREACH(const Vector & position, funnelSites)
+	    Sim->particles.push_back(Particle(position, Vector(0, 0, 0), nParticles++));
+
+	  BOOST_FOREACH(const Vector & position, dynamicSites)
+	    {
+	      Vector vel = getRandVelVec() * Sim->units.unitVelocity();
+	      if (vel[1] > 0) vel[1] = -vel[1];//So particles don't fly out of the hopper
+	      Sim->particles.push_back(Particle(position, vel, nParticles++));
+	    }
 	  break;
 	}
       default:
