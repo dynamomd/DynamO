@@ -47,32 +47,22 @@ main(int argc, char *argv[])
 
       allopts.add_options()
 	("help,h", "Produces this message OR if --pack-mode/-m is set, it lists the specific options available for that packer mode.")
-	("out-config-file,o", 
-	 po::value<string>()->default_value("config.out.xml.bz2"), 
-	 "Configuration output file.")
-	("random-seed,s", po::value<unsigned int>(),
-	 "Seed value for the random number generator.")
-	("rescale-T,r", po::value<double>(), 
-	 "Rescales the kinetic temperature of the input/generated config to this value.")
-	("thermostat,T", po::value<double>(),
-	 "Change the thermostat temperature (will add a thermostat and set the Ensemble to NVT if needed).")
+	("out-config-file,o", po::value<string>()->default_value("config.out.xml.bz2"), "Configuration output file.")
+	("random-seed,s", po::value<unsigned int>(), "Seed value for the random number generator.")
+	("rescale-T,r", po::value<double>(), "Rescales the kinetic temperature of the input/generated config to this value.")
+	("thermostat,T", po::value<double>(), "Change the thermostat temperature (will add a thermostat and set the Ensemble to NVT if needed).")
 	("zero-momentum,Z", "Zeros the total momentum of the input/generated config.")
 	("zero-com", "Zeros the centre of mass of the input/generated config.")
 	("zero-vel", po::value<size_t>(), "Sets the velocity in the [arg=0,1,or 2] dimension of each particle to zero.")
-	("set-com-vel", po::value<std::string>(), 
-	 "Sets the velocity of the COM of the system (format x,y,z no spaces).")
-	("mirror-system,M",po::value<unsigned int>(), 
-	 "Mirrors the particle co-ordinates and velocities. Argument is "
-	 "dimension to reverse/mirror.")
-	("round", "Output the XML config file with one less digit of accuracy to remove"
-	 "rounding errors (used in the test harness).")
+	("set-com-vel", po::value<std::string>(), "Sets the velocity of the COM of the system (format x,y,z no spaces).")
+	("mirror-system,M",po::value<unsigned int>(), "Mirrors the particle co-ordinates and velocities. Argument is dimension to reverse/mirror.")
+	("round", "Output the XML config file with one less digit of accuracy to remove rounding errors (used in the test harness).")
 	("unwrapped", "Don't apply the boundary conditions of the system when writing out the particle positions.")
 	("check", "Runs tests on the configuration to ensure the system is not in an invalid state.")
 	;
 
       loadopts.add_options()
-	("config-file", po::value<string>(), 
-	 "Config file to initialise from (Non packer mode).")
+	("config-file", po::value<string>(), "Config file to initialise from (Non packer mode).")
 	;
       
       

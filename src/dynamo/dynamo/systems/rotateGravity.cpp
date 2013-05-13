@@ -75,8 +75,6 @@ namespace dynamo {
     Vector newg = Rodrigues(_angularvel * _timestep * _rotationaxis) *  dynamics->getGravityVector();
     dynamics->setGravityVector(newg);
 
-    dout << "Rotating gravity to " << newg.toString() << std::endl;
-
     BOOST_FOREACH(const ParticleEventData& PDat, SDat.L1partChanges)
       Sim->ptrScheduler->fullUpdate(Sim->particles[PDat.getParticleID()]);
   
