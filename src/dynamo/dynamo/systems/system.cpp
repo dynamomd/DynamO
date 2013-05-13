@@ -18,6 +18,7 @@
 #include <dynamo/systems/system.hpp>
 #include <dynamo/systems/andersenThermostat.hpp>
 #include <dynamo/systems/rescale.hpp>
+#include <dynamo/systems/rotateGravity.hpp>
 #include <dynamo/systems/DSMCspheres.hpp>
 #include <dynamo/systems/RingDSMC.hpp>
 #include <dynamo/systems/umbrella.hpp>
@@ -79,6 +80,8 @@ namespace dynamo {
       return shared_ptr<System>(new SysUmbrella(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("Sleep"))
       return shared_ptr<System>(new SSleep(XML, Sim));
+    else if (!XML.getAttribute("Type").getValue().compare("RotateGravity"))
+      return shared_ptr<System>(new SysRotateGravity(XML, Sim));
     else
       M_throw() << XML.getAttribute("Type").getValue()
 		<< ", Unknown type of System event encountered";

@@ -42,6 +42,7 @@ namespace dynamo {
   F(RECALCULATE) /*!< Fake events that cause a particle to free stream*/ \
   F(RECALCULATE_PARABOLA) /*!< Fake event used to track when a particle goes through its parabola. Needed to keep the dynamics deterministic.*/ \
   F(VIRTUAL) /*< Passed to output plugins to let them know that this event is not a true event.*/ \
+  F(ROTATEGRAVITY) /*!< Event to rotate the gravity vector*/ \
   F(SLEEP) /*!< Event to transition a particle from dynamic to static*/ \
   F(RESLEEP) /*!< Event to zero a sleeping particles velocity after being hit*/ \
   F(WAKEUP) /*!< Event to transition a particle from static to dynamic*/ \

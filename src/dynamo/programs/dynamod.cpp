@@ -146,7 +146,8 @@ main(int argc, char *argv[])
 	  
 	  //We don't zero momentum and rescale for certain packer modes
 	  if ((vm["pack-mode"].as<size_t>() != 23)
-	      && (vm["pack-mode"].as<size_t>() != 25))
+	      && (vm["pack-mode"].as<size_t>() != 25)
+	      && (vm["pack-mode"].as<size_t>() != 28))
 	    {
 	      dynamo::InputPlugin(&sim, "Rescaler").zeroMomentum();
 	      dynamo::InputPlugin(&sim, "Rescaler").rescaleVels(1.0);

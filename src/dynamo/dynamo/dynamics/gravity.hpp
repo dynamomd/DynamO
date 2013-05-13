@@ -47,6 +47,7 @@ namespace dynamo {
     virtual std::pair<double, Dynamics::TriangleIntersectingPart>  getSphereTriangleEvent(const Particle& part, const Vector & A, const Vector & B, const Vector & C, const double dist) const;
     virtual ParticleEventData runPlaneEvent(Particle&, const Vector &, const double&, double) const;
 
+    void setGravityVector(Vector newg) {g = newg;}
   protected:
     double elasticV;
     Vector g;

@@ -23,20 +23,14 @@
 #include <boost/random/uniform_real.hpp>
 
 namespace dynamo {
-  /*! \brief A rescaling thermostat.
-   
-    This event "attempts" to thermostat the system by simply rescaling
-    the kinetic energy periodically. It does this by multiplying all
-    velocities (linear and angular) with a factor calculated like so
-    \f[ F = \sqrt{\frac{k_b\,T_{desired}}{k_b\,T_{current}}} \f] such
-    that the velocities after the event are related to the velocities
-    before by \f[ {\bf v}_{new} = F\, {\bf v}_{old} \f].
+  /*! \brief An event which periodically rotates the gravity vector
+      some amount, to approximate the system being rotated.
    */
-  class SysRescale: public System
+  class SysRotateGravity: public System
   {
   public:
-    SysRescale(const magnet::xml::Node& XML, dynamo::Simulation*);
-    SysRescale(dynamo::Simulation*, size_t frequency, std::string name, double kT = 1);
+    SysRotateGravity(const magnet::xml::Node& XML, dynamo::Simulation*);
+    SysRotateGravity(dynamo::Simulation*, std::string name, double timestep, double angularvel, Vector axis);
 
     virtual void runEvent() const;
 
@@ -44,20 +38,11 @@ namespace dynamo {
 
     virtual void operator<<(const magnet::xml::Node&);
 
-    void checker(const NEventData&);
-  
-    inline const long double& getScaleFactor() const {return scaleFactor; }
-
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    size_t _frequency;
-
-    double _kT, _timestep;
-
-    mutable long double scaleFactor;
-
-    mutable long double LastTime, RealTime;
-  
+    double _timestep;
+    double _angularvel;
+    Vector _rotationaxis;
   };
 }

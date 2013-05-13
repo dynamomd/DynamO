@@ -31,6 +31,7 @@
 #include <dynamo/BC/include.hpp>
 #include <dynamo/dynamics/include.hpp>
 #include <dynamo/systems/andersenThermostat.hpp>
+#include <dynamo/systems/rotateGravity.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/topology/include.hpp>
 #include <dynamo/ensemble.hpp>
@@ -3362,8 +3363,10 @@ namespace dynamo {
 		"Mode specific options:\n"
 		"  28: Rotating drum made out of particles.\n"
 		"       --i1 : Depth of the drum in particle diameters [5]\n"
-		"       --f1 : Radius of the drum in particle diameters [7.5]\n"
-		"       --f2 : Elasticity of the particles [0.4]\n";
+		"       --f1 : Radius of the drum in particle diameters (from centre to boundary particle centre) [7.5]\n"
+		"       --f2 : Elasticity of the particles [0.4]\n"
+		"       --f3 : Spacing of the particles in particle diameters [1.3]\n"
+		"       --f4 : Incline of the system in degrees [6]\n";
 	      exit(1);
 	    }
 
@@ -3376,36 +3379,57 @@ namespace dynamo {
 	  double elasticity = 0.4;
 	  if (vm.count("f2")) elasticity = vm["f2"].as<double>();
 
-	  double diameter = 1.0;
+	  double dynamicSpacing = 1.3;
+	  if (vm.count("f3")) dynamicSpacing = vm["f3"].as<double>();
+
+	  double incline = 6;
+	  if (vm.count("f4")) incline = vm["f4"].as<double>();
+
+	  incline *= M_PI /180.0;
+	  const double diameter = 1.0;
 	  const double elasticV = 1.0;
+	  const double g = 1.0;
+
+	  Sim->units.setUnitLength(diameter);
 
 	  Sim->primaryCellSize = Vector(2 * R + 1, 2 * R + 1, depth);
-	
+
 	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  //Set up a standard simulation
 	  Sim->ptrScheduler = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELCBT()));
 	  
-	  Sim->dynamics = shared_ptr<Dynamics>(new DynGravity(Sim, Vector(0,-1,0), elasticV));
+	  Sim->dynamics = shared_ptr<Dynamics>(new DynGravity(Sim, g * Vector(0, -cos(incline), sin(incline)), elasticV));
 
 	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, diameter, elasticity, new IDPairRangeAll(), "Bulk")));
 	
+	  double rotatetimestep = 0.1;
+	  double angularvel = 2 * M_PI / 100.0;
+	  Sim->systems.push_back(shared_ptr<System>(new SysRotateGravity(Sim, "Sleeper", rotatetimestep, angularvel, Vector(0,0,1))));
+
 	  ///Now build our funnel, so we know how many particles it takes
 	  std::vector<Vector> funnelSites;
 
 	  for (size_t circle(0); circle < depth; ++circle)
 	    {
-	      double r = R;
-	      size_t Nr = static_cast<size_t>(M_PI / std::asin(diameter / (2 * r)));
-	      double deltaPhi = 2 * M_PI / Nr;
+	      const size_t Nr = static_cast<size_t>(M_PI / std::asin(diameter / (2 * R)));
+	      const double deltaPhi = 2 * M_PI / Nr;
 	    
 	      for (size_t radialstep(0); radialstep < Nr; ++radialstep)
-		funnelSites.push_back(Vector(r * std::sin(radialstep * deltaPhi), r * std::cos(radialstep * deltaPhi), circle * diameter));
+		funnelSites.push_back(Vector(R * std::sin(radialstep * deltaPhi), R * std::cos(radialstep * deltaPhi), circle * diameter));
 	    }
 
 	  //Build a list of the dynamic particles
 	  std::vector<Vector> dynamicSites;
-	  dynamicSites.push_back(Vector(0,0,0));
+	  for (double circlePos(0); circlePos < depth * diameter; circlePos += dynamicSpacing * diameter)
+	    for (double circleR = R - dynamicSpacing * diameter; circleR > diameter; circleR -= dynamicSpacing * diameter)
+	    {
+	      const size_t Nr = static_cast<size_t>(M_PI / std::asin(diameter / (2 * circleR)));
+	      const double deltaPhi = 2 * M_PI / Nr;
+	    
+	      for (size_t radialstep(0); radialstep < Nr; ++radialstep)
+		dynamicSites.push_back(Vector(circleR * std::sin(radialstep * deltaPhi), circleR * std::cos(radialstep * deltaPhi), circlePos));
+	    }
 
 	  Sim->addSpecies(shared_ptr<Species>(new SpFixedCollider(Sim, new IDRangeRange(0, funnelSites.size()), "FunnelParticles", 0, "Bulk")));
 	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeRange(funnelSites.size(), funnelSites.size() + dynamicSites.size()), 1.0, "Bulk", 0, "Bulk")));
