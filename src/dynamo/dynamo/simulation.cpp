@@ -731,6 +731,9 @@ namespace dynamo
     BOOST_FOREACH(shared_ptr<Interaction> & Ptr, interactions)
       Ptr->outputData(XML);
 
+    BOOST_FOREACH(shared_ptr<Local> & Ptr, locals)
+      Ptr->outputData(XML);
+
     XML << magnet::xml::endtag("OutputData");
 
     dout << "Output written to " << filename << std::endl;
