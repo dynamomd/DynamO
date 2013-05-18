@@ -38,7 +38,7 @@ namespace coil {
       RenderObj(name),
       Camera(1,1,position, lookAtPoint, zNearDist, zFarDist, up, simLength),
       _intensity(100 / simLength),
-      _specularExponent(96),
+      _specularExponent(32),
       _specularFactor(1),
       _size(size / simLength)
     {
