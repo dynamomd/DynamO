@@ -66,10 +66,14 @@ namespace dynamo {
     inline double getConfigurationalU() const { return _internalE.current(); }
 
   protected:
-    void newEvent(const size_t&, const EEventType&, const classKey&);
-  
-    typedef std::pair<classKey, EEventType> EventKey;
-    std::map<EventKey, size_t> _counters;
+    typedef std::pair<classKey, EEventType> CounterKey;
+    struct CounterData
+    {
+      CounterData(): count(0), netimpulse(0,0,0) {}
+      size_t count;
+      Vector netimpulse;
+    };
+    std::map<CounterKey, CounterData> _counters;
 
     void stream(double dt);
     void eventUpdate(const NEventData&);

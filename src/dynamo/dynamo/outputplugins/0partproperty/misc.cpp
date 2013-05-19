@@ -181,9 +181,8 @@ namespace dynamo {
   {
     stream(eevent.getdt());
     eventUpdate(PDat);
-
-    newEvent(eevent.getParticle1ID(), eevent.getType(), getClassKey(eevent));
-    newEvent(eevent.getParticle2ID(), eevent.getType(), getClassKey(eevent));
+    CounterData& counterdata = _counters[CounterKey(getClassKey(eevent), eevent.getType())];
+    counterdata.count += 2;
   }
 
   void
@@ -191,15 +190,10 @@ namespace dynamo {
   {
     stream(eevent.getdt());
     eventUpdate(NDat);
-
+    CounterData& counterdata = _counters[CounterKey(getClassKey(eevent), eevent.getType())];
+    counterdata.count += NDat.L1partChanges.size() + NDat.L2partChanges.size();
     BOOST_FOREACH(const ParticleEventData& pData, NDat.L1partChanges)
-      newEvent(pData.getParticleID(), pData.getType(), getClassKey(eevent));
-
-    BOOST_FOREACH(const PairEventData& pData, NDat.L2partChanges)
-      {
-	newEvent(pData.particle1_.getParticleID(), pData.getType(), getClassKey(eevent));
-	newEvent(pData.particle2_.getParticleID(), pData.getType(), getClassKey(eevent));
-      }
+      counterdata.netimpulse += Sim->species[pData.getSpeciesID()]->getMass(pData.getParticleID()) * (Sim->particles[pData.getParticleID()].getVelocity() -  pData.getOldVel());
   }
 
   void
@@ -207,15 +201,10 @@ namespace dynamo {
   {
     stream(eevent.getdt());
     eventUpdate(NDat);
-
+    CounterData& counterdata = _counters[CounterKey(getClassKey(eevent), eevent.getType())];
+    counterdata.count += NDat.L1partChanges.size() + NDat.L2partChanges.size();
     BOOST_FOREACH(const ParticleEventData& pData, NDat.L1partChanges)
-      newEvent(pData.getParticleID(), pData.getType(), getClassKey(eevent));
-
-    BOOST_FOREACH(const PairEventData& pData, NDat.L2partChanges)
-      {
-	newEvent(pData.particle1_.getParticleID(), pData.getType(), getClassKey(eevent));
-	newEvent(pData.particle2_.getParticleID(), pData.getType(), getClassKey(eevent));
-      }
+      counterdata.netimpulse += Sim->species[pData.getSpeciesID()]->getMass(pData.getParticleID()) * (Sim->particles[pData.getParticleID()].getVelocity() -  pData.getOldVel());
   }
 
   void
@@ -223,15 +212,10 @@ namespace dynamo {
   {
     stream(dt);
     eventUpdate(NDat);
-
+    CounterData& counterdata = _counters[CounterKey(getClassKey(eevent), eevent.getType())];
+    counterdata.count += NDat.L1partChanges.size() + NDat.L2partChanges.size();
     BOOST_FOREACH(const ParticleEventData& pData, NDat.L1partChanges)
-      newEvent(pData.getParticleID(), pData.getType(), getClassKey(eevent));
-
-    BOOST_FOREACH(const PairEventData& pData, NDat.L2partChanges)
-      {
-	newEvent(pData.particle1_.getParticleID(), pData.getType(), getClassKey(eevent));
-	newEvent(pData.particle2_.getParticleID(), pData.getType(), getClassKey(eevent));
-      }
+      counterdata.netimpulse += Sim->species[pData.getSpeciesID()]->getMass(pData.getParticleID()) * (Sim->particles[pData.getParticleID()].getVelocity() -  pData.getOldVel());
   }
 
   void
@@ -374,14 +358,10 @@ namespace dynamo {
   }
 
   void
-  OPMisc::newEvent(const size_t& part, const EEventType& etype, const classKey& ck)
-  {
-    ++_counters[EventKey(ck, etype)];
-  }
-
-  void
   OPMisc::output(magnet::xml::XmlStream &XML)
   {
+    using namespace magnet::xml;
+
     std::time_t tendTime;
     time(&tendTime);
 
@@ -406,61 +386,61 @@ namespace dynamo {
     const Matrix P = (_kineticP.mean() + collisionalP / Sim->systemTime) 
       / V;
 
-    XML << magnet::xml::tag("Misc")
-	<< magnet::xml::tag("Density")
-	<< magnet::xml::attr("val")
+    XML << tag("Misc")
+	<< tag("Density")
+	<< attr("val")
 	<< Sim->getNumberDensity() * Sim->units.unitVolume()
-	<< magnet::xml::endtag("Density")
+	<< endtag("Density")
 
-	<< magnet::xml::tag("PackingFraction")
-	<< magnet::xml::attr("val") << Sim->getPackingFraction()
-	<< magnet::xml::endtag("PackingFraction")
+	<< tag("PackingFraction")
+	<< attr("val") << Sim->getPackingFraction()
+	<< endtag("PackingFraction")
 
-	<< magnet::xml::tag("SpeciesCount")
-	<< magnet::xml::attr("val") << Sim->species.size()
-	<< magnet::xml::endtag("SpeciesCount")
+	<< tag("SpeciesCount")
+	<< attr("val") << Sim->species.size()
+	<< endtag("SpeciesCount")
 
-	<< magnet::xml::tag("ParticleCount")
-	<< magnet::xml::attr("val") << Sim->N
-	<< magnet::xml::endtag("ParticleCount")
+	<< tag("ParticleCount")
+	<< attr("val") << Sim->N
+	<< endtag("ParticleCount")
 
-	<< magnet::xml::tag("SystemMomentum")
-	<< magnet::xml::tag("Current")
-	<< magnet::xml::attr("x") << _sysMomentum.current()[0] / Sim->units.unitMomentum()
-	<< magnet::xml::attr("y") << _sysMomentum.current()[1] / Sim->units.unitMomentum()
-	<< magnet::xml::attr("z") << _sysMomentum.current()[2] / Sim->units.unitMomentum()
-	<< magnet::xml::endtag("Current")
-	<< magnet::xml::tag("Average")
-	<< magnet::xml::attr("x") << _sysMomentum.mean()[0] / Sim->units.unitMomentum()
-	<< magnet::xml::attr("y") << _sysMomentum.mean()[1] / Sim->units.unitMomentum()
-	<< magnet::xml::attr("z") << _sysMomentum.mean()[2] / Sim->units.unitMomentum()
-	<< magnet::xml::endtag("Average")
-	<< magnet::xml::endtag("SystemMomentum")
+	<< tag("SystemMomentum")
+	<< tag("Current")
+	<< attr("x") << _sysMomentum.current()[0] / Sim->units.unitMomentum()
+	<< attr("y") << _sysMomentum.current()[1] / Sim->units.unitMomentum()
+	<< attr("z") << _sysMomentum.current()[2] / Sim->units.unitMomentum()
+	<< endtag("Current")
+	<< tag("Average")
+	<< attr("x") << _sysMomentum.mean()[0] / Sim->units.unitMomentum()
+	<< attr("y") << _sysMomentum.mean()[1] / Sim->units.unitMomentum()
+	<< attr("z") << _sysMomentum.mean()[2] / Sim->units.unitMomentum()
+	<< endtag("Average")
+	<< endtag("SystemMomentum")
 
-	<< magnet::xml::tag("Temperature")
-	<< magnet::xml::attr("Mean") << getMeankT() / Sim->units.unitEnergy()
-	<< magnet::xml::attr("MeanSqr") << getMeanSqrkT() / (Sim->units.unitEnergy() * Sim->units.unitEnergy())
-	<< magnet::xml::attr("Current") << getCurrentkT() / Sim->units.unitEnergy()
-	<< magnet::xml::attr("Min") << 2.0 * _KE.min() / (Sim->N * Sim->dynamics->getParticleDOF() * Sim->units.unitEnergy())
-	<< magnet::xml::attr("Max") << 2.0 * _KE.max() / (Sim->N * Sim->dynamics->getParticleDOF() * Sim->units.unitEnergy())
-	<< magnet::xml::endtag("Temperature")
+	<< tag("Temperature")
+	<< attr("Mean") << getMeankT() / Sim->units.unitEnergy()
+	<< attr("MeanSqr") << getMeanSqrkT() / (Sim->units.unitEnergy() * Sim->units.unitEnergy())
+	<< attr("Current") << getCurrentkT() / Sim->units.unitEnergy()
+	<< attr("Min") << 2.0 * _KE.min() / (Sim->N * Sim->dynamics->getParticleDOF() * Sim->units.unitEnergy())
+	<< attr("Max") << 2.0 * _KE.max() / (Sim->N * Sim->dynamics->getParticleDOF() * Sim->units.unitEnergy())
+	<< endtag("Temperature")
 
-	<< magnet::xml::tag("UConfigurational")
-	<< magnet::xml::attr("Mean") << getMeanUConfigurational() / Sim->units.unitEnergy()
-	<< magnet::xml::attr("MeanSqr") << getMeanSqrUConfigurational() / (Sim->units.unitEnergy() * Sim->units.unitEnergy())
-	<< magnet::xml::attr("Current") << _internalE.current() / Sim->units.unitEnergy()
-	<< magnet::xml::attr("Min") << _internalE.min() / Sim->units.unitEnergy()
-	<< magnet::xml::attr("Max") << _internalE.max() / Sim->units.unitEnergy()
-	<< magnet::xml::endtag("UConfigurational")
+	<< tag("UConfigurational")
+	<< attr("Mean") << getMeanUConfigurational() / Sim->units.unitEnergy()
+	<< attr("MeanSqr") << getMeanSqrUConfigurational() / (Sim->units.unitEnergy() * Sim->units.unitEnergy())
+	<< attr("Current") << _internalE.current() / Sim->units.unitEnergy()
+	<< attr("Min") << _internalE.min() / Sim->units.unitEnergy()
+	<< attr("Max") << _internalE.max() / Sim->units.unitEnergy()
+	<< endtag("UConfigurational")
 
-	<< magnet::xml::tag("ResidualHeatCapacity")
-	<< magnet::xml::attr("Value") 
+	<< tag("ResidualHeatCapacity")
+	<< attr("Value") 
 	<< (getMeanSqrUConfigurational() - getMeanUConfigurational() * getMeanUConfigurational())
       / (getMeankT() * getMeankT())
-	<< magnet::xml::endtag("ResidualHeatCapacity")
-	<< magnet::xml::tag("Pressure")
-	<< magnet::xml::attr("Avg") << P.tr() / (3.0 * Sim->units.unitPressure())
-	<< magnet::xml::tag("Tensor") << magnet::xml::chardata()
+	<< endtag("ResidualHeatCapacity")
+	<< tag("Pressure")
+	<< attr("Avg") << P.tr() / (3.0 * Sim->units.unitPressure())
+	<< tag("Tensor") << chardata()
       ;
     
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -470,8 +450,8 @@ namespace dynamo {
 	XML << "\n";
       }
     
-    XML << magnet::xml::endtag("Tensor")
-	<< magnet::xml::tag("InteractionContribution") << magnet::xml::chardata()
+    XML << endtag("Tensor")
+	<< tag("InteractionContribution") << chardata()
       ;
     
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -481,50 +461,53 @@ namespace dynamo {
 	XML << "\n";
       }
     
-    XML << magnet::xml::endtag("InteractionContribution")
-	<< magnet::xml::endtag("Pressure")
-	<< magnet::xml::tag("Duration")
-	<< magnet::xml::attr("Events") << Sim->eventCount
-	<< magnet::xml::attr("OneParticleEvents") << _singleEvents
-	<< magnet::xml::attr("TwoParticleEvents") << _dualEvents
-	<< magnet::xml::attr("VirtualEvents") << _virtualEvents
-	<< magnet::xml::attr("Time") << Sim->systemTime / Sim->units.unitTime()
-	<< magnet::xml::endtag("Duration")
-	<< magnet::xml::tag("EventCounters");
+    XML << endtag("InteractionContribution")
+	<< endtag("Pressure")
+	<< tag("Duration")
+	<< attr("Events") << Sim->eventCount
+	<< attr("OneParticleEvents") << _singleEvents
+	<< attr("TwoParticleEvents") << _dualEvents
+	<< attr("VirtualEvents") << _virtualEvents
+	<< attr("Time") << Sim->systemTime / Sim->units.unitTime()
+	<< endtag("Duration")
+	<< tag("EventCounters");
   
-    typedef std::pair<EventKey, size_t> mappair;
+    typedef std::pair<CounterKey, CounterData> mappair;
     BOOST_FOREACH(const mappair& mp1, _counters)
-      XML << magnet::xml::tag("Entry")
-	  << magnet::xml::attr("Type") << getClass(mp1.first.first)
-	  << magnet::xml::attr("Name") << getName(mp1.first.first, Sim)
-	  << magnet::xml::attr("Event") << mp1.first.second
-	  << magnet::xml::attr("Count") << mp1.second
-	  << magnet::xml::endtag("Entry");
+      XML << tag("Entry")
+	  << attr("Type") << getClass(mp1.first.first)
+	  << attr("Name") << getName(mp1.first.first, Sim)
+	  << attr("Event") << mp1.first.second
+	  << attr("Count") << mp1.second.count
+	  << tag("NetImpulse") 
+	  << mp1.second.netimpulse / Sim->units.unitMomentum()
+	  << endtag("NetImpulse") 
+	  << endtag("Entry");
   
-    XML << magnet::xml::endtag("EventCounters")
-	<< magnet::xml::tag("Timing")
-	<< magnet::xml::attr("Start") << sTime
-	<< magnet::xml::attr("End") << eTime
-	<< magnet::xml::attr("EventsPerSec") << getEventsPerSecond()
-	<< magnet::xml::attr("SimTimePerSec") << getSimTimePerSecond()
-	<< magnet::xml::endtag("Timing")
+    XML << endtag("EventCounters")
+	<< tag("Timing")
+	<< attr("Start") << sTime
+	<< attr("End") << eTime
+	<< attr("EventsPerSec") << getEventsPerSecond()
+	<< attr("SimTimePerSec") << getSimTimePerSecond()
+	<< endtag("Timing")
 
-	<< magnet::xml::tag("PrimaryImageSimulationSize")
+	<< tag("PrimaryImageSimulationSize")
 	<< Sim->primaryCellSize / Sim->units.unitLength()
-	<< magnet::xml::endtag("PrimaryImageSimulationSize")
-	<< magnet::xml::tag("totMeanFreeTime")
-	<< magnet::xml::attr("val")
+	<< endtag("PrimaryImageSimulationSize")
+	<< tag("totMeanFreeTime")
+	<< attr("val")
 	<< getMFT()
-	<< magnet::xml::endtag("totMeanFreeTime")
-	<< magnet::xml::tag("NegativeTimeEvents")
-	<< magnet::xml::attr("Count") << _reverseEvents
-	<< magnet::xml::endtag("NegativeTimeEvents")
-	<< magnet::xml::tag("Memusage")
-	<< magnet::xml::attr("MaxKiloBytes") << magnet::process_mem_usage()
-	<< magnet::xml::endtag("Memusage")
-	<< magnet::xml::tag("ThermalConductivity")
-	<< magnet::xml::tag("Correlator")
-	<< magnet::xml::chardata();
+	<< endtag("totMeanFreeTime")
+	<< tag("NegativeTimeEvents")
+	<< attr("Count") << _reverseEvents
+	<< endtag("NegativeTimeEvents")
+	<< tag("Memusage")
+	<< attr("MaxKiloBytes") << magnet::process_mem_usage()
+	<< endtag("Memusage")
+	<< tag("ThermalConductivity")
+	<< tag("Correlator")
+	<< chardata();
 
     {
       std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>::Data>
@@ -543,11 +526,11 @@ namespace dynamo {
 	    << data[i].value[2] * inv_units << "\n";
     }
 
-    XML << magnet::xml::endtag("Correlator")
-	<< magnet::xml::endtag("ThermalConductivity")
-	<< magnet::xml::tag("Viscosity")
-	<< magnet::xml::tag("Correlator")
-	<< magnet::xml::chardata();
+    XML << endtag("Correlator")
+	<< endtag("ThermalConductivity")
+	<< tag("Viscosity")
+	<< tag("Correlator")
+	<< chardata();
 
     {
       std::vector<magnet::math::LogarithmicTimeCorrelator<Matrix>::Data>
@@ -570,15 +553,15 @@ namespace dynamo {
 	}
     }
 
-    XML << magnet::xml::endtag("Correlator")
-	<< magnet::xml::endtag("Viscosity")
-	<< magnet::xml::tag("ThermalDiffusion");
+    XML << endtag("Correlator")
+	<< endtag("Viscosity")
+	<< tag("ThermalDiffusion");
 
     for (size_t i(0); i < Sim->species.size(); ++i)
       {
-	XML << magnet::xml::tag("Correlator")
-	    << magnet::xml::attr("Species") << Sim->species[i]->getName()
-	    << magnet::xml::chardata();
+	XML << tag("Correlator")
+	    << attr("Species") << Sim->species[i]->getName()
+	    << chardata();
 	
 	std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>::Data>
 	  data = _thermalDiffusion[i].getAveragedCorrelator();
@@ -597,19 +580,19 @@ namespace dynamo {
 	    XML << "\n";
 	  }
 	
-	XML << magnet::xml::endtag("Correlator");
+	XML << endtag("Correlator");
       }
 
-    XML << magnet::xml::endtag("ThermalDiffusion")
-	<< magnet::xml::tag("MutualDiffusion");
+    XML << endtag("ThermalDiffusion")
+	<< tag("MutualDiffusion");
 
     for (size_t i(0); i < Sim->species.size(); ++i)
       for (size_t j(i); j < Sim->species.size(); ++j)
       {
-	XML << magnet::xml::tag("Correlator")
-	    << magnet::xml::attr("Species1") << Sim->species[i]->getName()
-	    << magnet::xml::attr("Species2") << Sim->species[j]->getName()
-	    << magnet::xml::chardata();
+	XML << tag("Correlator")
+	    << attr("Species1") << Sim->species[i]->getName()
+	    << attr("Species2") << Sim->species[j]->getName()
+	    << chardata();
 	
 	std::vector<magnet::math::LogarithmicTimeCorrelator<Vector>::Data>
 	  data = _mutualDiffusion[i * Sim->species.size() + j].getAveragedCorrelator();
@@ -628,11 +611,11 @@ namespace dynamo {
 	    XML << "\n";
 	  }
 	
-	XML << magnet::xml::endtag("Correlator");
+	XML << endtag("Correlator");
       }
 
-    XML << magnet::xml::endtag("MutualDiffusion")
-	<< magnet::xml::endtag("Misc");
+    XML << endtag("MutualDiffusion")
+	<< endtag("Misc");
   }
 
   void
