@@ -107,12 +107,12 @@ void VertexEmit(in vec2 displacement)
 {
   //This oversizes the billboard to allow for correct ray tracing of
   //the particle
-  displacement *= 1.4;
+  displacement *= 1.1;
 
   ordinate = displacement;
 
   vec4 proj_position = ProjectionMatrix 
-    * (gl_in[0].gl_Position + vec4(radius[0] * displacement, 0.0, 0.0));
+    * (gl_in[0].gl_Position + vec4(radius[0] * displacement, radius[0], 0.0));
 
   gl_Position = proj_position;
   EmitVertex();
