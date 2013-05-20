@@ -1904,7 +1904,7 @@ namespace coil {
 	//If there are pickable objects and they are visible, then render them.
 	if (n_objects)
 	  {
-	    (*iPtr)->pickingRender(_camera, offset);
+	    (*iPtr)->glRender(_camera, RenderObj::PICKING, offset);
 	    offset += n_objects;
 	  }
       }

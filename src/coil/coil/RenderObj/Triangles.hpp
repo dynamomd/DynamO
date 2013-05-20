@@ -29,7 +29,7 @@ namespace coil {
     RTriangles(std::string name);
     ~RTriangles();
 
-    virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode);
+    virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode, const uint32_t offset);
 
     virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
 
@@ -41,8 +41,6 @@ namespace coil {
     virtual void deinit();
 
     virtual void showControls(Gtk::ScrolledWindow* win);
-
-    virtual void pickingRender(const magnet::GL::Camera& cam, const uint32_t offset);
 
     const magnet::GL::Context::ContextPtr& getContext() const { return _posBuff.getContext(); }
 
@@ -65,7 +63,6 @@ namespace coil {
     magnet::GL::Buffer<GLfloat> _normBuff;
     magnet::GL::Buffer<GLuint> _elementBuff;
     magnet::GL::Buffer<GLuint> _specialElementBuff;
-    magnet::GL::Buffer<GLubyte> _pickingColorBuff;
 
     magnet::GL::shader::RenderShader _renderShader;
   };

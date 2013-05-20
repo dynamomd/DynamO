@@ -69,10 +69,10 @@ namespace coil {
     /**@{*/
 
     /*! \brief Add an Attribute to the DataSet.
-     *
-     * \param name The name of the Attribute.
-     * \param type The type of the attribute.
-     * \param components The number of components per value of the attribute.
+     
+      \param name The name of the Attribute.
+      \param type The type of the attribute.
+      \param components The number of components per value of the attribute.
      */
     void addAttribute(std::string name, int type, size_t components);
 
@@ -98,17 +98,33 @@ namespace coil {
 
     /**@}*/
         
-    virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode = DEFAULT)
+    virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode, const uint32_t offset)
     {
-      for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
-	   iPtr != _children.end(); ++iPtr)
-	if ((*iPtr)->visible() && (!(mode & SHADOW) || (*iPtr)->shadowCasting()))
-	  (*iPtr)->glRender(cam, mode);
-      
-      for (iterator iPtr = begin(); iPtr != end(); ++iPtr)
-	iPtr->second->renderComplete();
-
-      rebuildGui();
+      if (mode == PICKING)
+	{
+	  uint32_t obj_offset = offset;
+	  
+	  for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator 
+		 iPtr = _children.begin(); iPtr != _children.end(); ++iPtr)
+	    {
+	      uint32_t objs = (*iPtr)->pickableObjectCount();
+	      if (objs) (*iPtr)->glRender(cam, RenderObj::PICKING, obj_offset);
+	      
+	      obj_offset += objs;
+	    }
+	}
+      else
+	{
+	  for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
+	       iPtr != _children.end(); ++iPtr)
+	    if ((*iPtr)->visible() && (!(mode & SHADOW) || (*iPtr)->shadowCasting()))
+	      (*iPtr)->glRender(cam, mode);
+	  
+	  for (iterator iPtr = begin(); iPtr != end(); ++iPtr)
+	    iPtr->second->renderComplete();
+	  
+	  rebuildGui();
+	}
     }
     
     virtual Gtk::TreeModel::iterator addViewRows(RenderObjectsGtkTreeView& view, Gtk::TreeModel::iterator& iter)
@@ -150,22 +166,6 @@ namespace coil {
 	sum += (*iPtr)->pickableObjectCount();
 
       return sum;
-    }
-
-    virtual void pickingRender(const magnet::GL::Camera& cam, 
-			       const uint32_t offset)
-    {
-      uint32_t obj_offset = offset;
-      
-      for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator 
-	     iPtr = _children.begin(); iPtr != _children.end(); ++iPtr)
-	{
-	  uint32_t objs = (*iPtr)->pickableObjectCount();
-	  if (objs)
-	    (*iPtr)->pickingRender(cam, obj_offset);
-
-	  obj_offset += objs;
-	}
     }
 
     virtual std::tr1::shared_ptr<RenderObj>

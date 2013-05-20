@@ -49,8 +49,7 @@ namespace coil {
     virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
     virtual void deinit();
 
-    virtual void glRender(const magnet::GL::Camera& cam, 
-			  RenderMode mode);
+    virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode, const uint32_t offset);
 
     virtual void interfaceRender(const magnet::GL::Camera& camera, magnet::GL::objects::CairoSurface& cairo);
 
@@ -107,9 +106,6 @@ namespace coil {
     virtual uint32_t pickableObjectCount()
     { return visible(); }
 
-    virtual void pickingRender(const magnet::GL::Camera& cam, 
-			       const uint32_t offset);
-    
     virtual std::string getCursorText(uint32_t objID)
     { return _name; }
 

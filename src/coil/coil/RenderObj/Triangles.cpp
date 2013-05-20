@@ -36,9 +36,30 @@ namespace coil {
   }
 
   void 
-  RTriangles::glRender(const magnet::GL::Camera& cam, RenderMode mode)
+  RTriangles::glRender(const magnet::GL::Camera& cam, RenderMode mode, const uint32_t offset)
   {
     if (!_visible) return;
+
+    magnet::GL::Buffer<GLubyte> _pickingColorBuff;
+    if (mode & RenderObj::PICKING)
+      {
+	size_t N = (_posBuff.size() / 3);
+	std::vector<GLubyte> vertexColors;
+	vertexColors.reserve(N * 4);
+	
+	for (size_t i(offset); i < N + offset; ++i)
+	  {
+	    vertexColors.push_back((i >>  0) & 0xFF);
+	    vertexColors.push_back((i >>  8) & 0xFF);
+	    vertexColors.push_back((i >> 16) & 0xFF);
+	    vertexColors.push_back((i >> 24) & 0xFF);
+	  }
+	
+	_pickingColorBuff.init(vertexColors, 4, magnet::GL::buffer_usage::STREAM_DRAW);
+	_pickingColorBuff.attachToColor();
+      }
+    else
+      _colBuff.attachToColor();
 
     _renderShader.attach();
     _renderShader["ProjectionMatrix"] = cam.getProjectionMatrix();
@@ -46,13 +67,7 @@ namespace coil {
 
     _posBuff.getContext()->cleanupAttributeArrays();
 
-    if (mode == PICKING_PASS)
-      _pickingColorBuff.attachToColor();
-    else if (_colBuff.size())
-      _colBuff.attachToColor();
-    
-    if (_normBuff.size())
-      _normBuff.attachToNormal();
+    if (_normBuff.size()) _normBuff.attachToNormal();
   
     _posBuff.attachToVertex();
   
@@ -68,6 +83,7 @@ namespace coil {
 	_specialElementBuff.drawElements(magnet::GL::element_type::POINTS);
 	break;
       }
+
     _renderShader.detach();
   }
 
@@ -263,29 +279,5 @@ namespace coil {
 	  }
       }
     _RenderMode = rm;
-  }
-
-  void 
-  RTriangles::pickingRender(const magnet::GL::Camera& cam, const uint32_t offset)
-  {
-    size_t N = (_posBuff.size() / 3);
-
-    if(_pickingColorBuff.size() !=  N * 4)
-      {
-	std::vector<GLubyte> vertexColors;
-	vertexColors.reserve(N * 4);
-      
-	for (size_t i(offset); i < N + offset; ++i)
-	  {
-	    vertexColors.push_back((i >>  0) & 0xFF);
-	    vertexColors.push_back((i >>  8) & 0xFF);
-	    vertexColors.push_back((i >> 16) & 0xFF);
-	    vertexColors.push_back((i >> 24) & 0xFF);
-	  }
-      
-	_pickingColorBuff.init(vertexColors, 4, magnet::GL::buffer_usage::STREAM_DRAW);
-      }
-
-    RTriangles::glRender(cam, PICKING_PASS);
   }
 }

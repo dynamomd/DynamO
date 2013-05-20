@@ -40,7 +40,7 @@ namespace coil {
 
     inline ~Glyphs() { deinit(); }
 
-    virtual void glRender(const magnet::GL::Camera&, RenderMode);
+    virtual void glRender(const magnet::GL::Camera&, RenderMode, const uint32_t);
     
     virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>&);
     
@@ -59,9 +59,6 @@ namespace coil {
 	
       return 0; 
     }
-
-    virtual void pickingRender(const magnet::GL::Camera& cam, 
-			       const uint32_t offset);
 
     virtual std::tr1::array<GLfloat, 4> getCursorPosition(uint32_t objID);
 

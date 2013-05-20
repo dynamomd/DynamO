@@ -43,20 +43,9 @@ namespace coil {
   {
   public:
     enum RenderMode {
-      COLOR = 1, //!< The object is to render its color information.
-      DEPTH = 2, //!< The object is to render its depth information.
-      SHADOW = 4, //!< This is a shadow calculation pass (typically
-		  //!depth only).
-      PICKING = 8, //!< This is an object picking pass
-      DEFAULT = COLOR | DEPTH, //!< By default, color and depth
-			       //!information should be rendered.
-      SHADOW_PASS = SHADOW | DEPTH, //!< Shadow passes only need depth
-				    //!information.
-      PICKING_PASS = COLOR | PICKING //!< In a picking pass, we only
-				     //!render flat shaded images
-				     //!using unique colors to
-				     //!identify objects selected by
-				     //!the user.
+      DEFAULT = 1 << 0, //!< The object is to render the standard data
+      SHADOW = 1 << 1, //!< This is a shadow pass (for lighting calculations).
+      PICKING = 1 << 2 //!< This is an object picking pass.
     };
 
     /*! \brief Default constructor which just sets the name of the
@@ -81,11 +70,33 @@ namespace coil {
     virtual void deinit() {}
     
     /*! \brief Called when the RenderObject must be drawn in the
-	OpenGL scene using deferred shading.
+      OpenGL scene.
+
+      Depending on the mode, different information will be rendered.
 	
-	\param cam The active camera for the render.
-     */
-    virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode)
+      The picking render determines the current object underneath the
+      cursor by drawing every object in a unique color and sampling
+      the pixel underneath the mouse. 
+	
+      An \ref offset value is passed into this function to allow the
+      render object to determine unique colors for its own objects. 
+	
+      As the colors of objects are specified in coil using 4 8-bit
+      values, we can directly convert a 32bit cl_uint type into a
+      cl_uchar4 object to generate a unique color from an object
+      ID. \ref offset represents the number of pickable objects that
+      will be rendered before pickingRender is called on this
+      object. Thus \ref offset is an offset to be applied to the
+      unique colors generated for this object.
+	
+      \param mode The mode of the rendering requested.
+
+      \param offset This number is the running sum of "pickable"
+      objects rendered so far.
+	
+      \param cam The active camera for the render.
+    */
+    virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode, const uint32_t offset = 0)
     {}
     
     /*! \brief Called when the RenderObject must be drawn in the
@@ -108,42 +119,6 @@ namespace coil {
      */
     virtual void interfaceRender(const magnet::GL::Camera& camera, 
 				 magnet::GL::objects::CairoSurface& cairo) {}
-
-
-    /*! \brief The render phase of the picking render.
-      
-      The picking render determines the current object underneath the
-      cursor by drawing every object in a unique color and sampling
-      the pixel underneath the mouse. 
-      
-      An \ref offset value is passed into this function to allow the
-      render object to determine unique colors for its own objects. If
-      the RenderObj represents 12 "pickable" objects it must increase
-      this offset value by 12 before returning.
-
-      As the colors of objects are specified in coil using 4 8-bit
-      values, we can directly convert a 32bit cl_uint type into a
-      cl_uchar4 object to generate a unique color from an object
-      ID. \ref offset represents the number of pickable objects that
-      will be rendered before pickingRender is called on this
-      object. Thus \ref offset is an offset to be applied to the
-      unique colors generated for this object.
-
-      Typically, this will just call \ref glRender() but with a unique
-      color buffer generated in \ref initPicking() . However, if the
-      object has special needs (like a custom shader), then extra
-      logic will need to be implemented here.
-
-      \param offset This number is the running sum of "pickable"
-      objects. This value should be increased by the number of unique
-      objects drawn in the \ref pickingRender() function before
-      initPicking returns.
-
-      \param cam The active camera for the render.
-     */
-    virtual void pickingRender(const magnet::GL::Camera& cam, 
-			       const uint32_t offset) 
-    {}
 
     /*! \brief The number of objects available for picking rendering.
       
