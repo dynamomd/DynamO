@@ -85,8 +85,13 @@ void main()
 uniform mat4 ProjectionMatrix;
 
 layout(points) in;
+)"\n#ifdef DRAWBILLBOARD\n"STRINGIFY(
+layout(line_strip) out;
+layout(max_vertices = 5) out;
+)"\n#else\n"STRINGIFY(
 layout(triangle_strip) out;
 layout(max_vertices = 4) out;
+)"\n#endif\n"STRINGIFY(
 
 in vec4 color[];
 in float radius[];
@@ -119,10 +124,18 @@ void main()
   vert_color = color[0];
   frag_radius = radius[0];
   sphere_center = gl_in[0].gl_Position.xyz;
+)"\n#ifdef DRAWBILLBOARD\n"STRINGIFY(
+  VertexEmit(vec2(-1.0, -1.0));
+  VertexEmit(vec2(-1.0, +1.0));
+  VertexEmit(vec2(+1.0, +1.0));
+  VertexEmit(vec2(+1.0, -1.0));
+  VertexEmit(vec2(-1.0, -1.0));
+)"\n#else\n"STRINGIFY(
   VertexEmit(vec2(-1.0, -1.0));
   VertexEmit(vec2(-1.0, +1.0));
   VertexEmit(vec2(+1.0, -1.0));
   VertexEmit(vec2(+1.0, +1.0));
+)"\n#endif\n"STRINGIFY(
   EndPrimitive();
 });
 	}
@@ -150,7 +163,9 @@ void main()
   float c = dot(sphere_center, sphere_center) - frag_radius * frag_radius;
   float arg = TD * TD - c;
       
+)"\n#ifndef DRAWBILLBOARD\n"STRINGIFY(
   if (arg < 0) discard;
+)"\n#endif\n"STRINGIFY(
   
   float t = - c / (TD - sqrt(arg));
 
@@ -158,8 +173,13 @@ void main()
   
   //Calculate the fragments depth
   vec4 pos = ProjectionMatrix * vec4(frag_position_eye, 1.0);
-  gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0; 
 
+)"\n#ifdef DRAWBILLBOARD\n"STRINGIFY(
+  color_out = vert_color;
+  normal_out = vec4(0.0);
+  gl_FragDepth = 0; 
+)"\n#else\n"STRINGIFY(
+  gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0; 
   //Write out the fragment's data
   position_out = vec4(frag_position_eye, 1.0);
   color_out = vert_color;
@@ -167,6 +187,7 @@ void main()
     normal_out = vec4(0.0);
   else
     normal_out = vec4(normalize(frag_position_eye - sphere_center), 1.0);
+)"\n#endif\n"STRINGIFY(
 });
 	}
       };

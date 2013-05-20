@@ -93,6 +93,8 @@ namespace coil {
     std::auto_ptr<Gtk::SpinButton> _yperiodicimages;
     std::auto_ptr<Gtk::SpinButton> _zperiodicimages;
 
+    std::auto_ptr<Gtk::CheckButton> _drawbillboards;
+
     std::auto_ptr<Gtk::HBox>  _scaleFactorBox;
     std::auto_ptr<Gtk::Label> _scaleLabel;
     std::auto_ptr<Gtk::Entry> _scaleFactor;

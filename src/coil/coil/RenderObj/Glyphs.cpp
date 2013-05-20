@@ -86,6 +86,11 @@ namespace coil {
 	    
 	    magnet::GL::shader::detail::Shader& shader = (mode == RenderObj::SHADOW) ? _sphereVSMShader : _sphereShader;
 
+	    if (_drawbillboards->get_active())
+	      shader.defines("DRAWBILLBOARD") = "True";
+	    else
+	      shader.defines("DRAWBILLBOARD") = "";
+	      
 	    shader.attach();
 	    shader["ProjectionMatrix"] = cam.getProjectionMatrix();
 	    shader["global_scale"] = _scale;
@@ -324,6 +329,19 @@ namespace coil {
     _zperiodicimages->set_increments(1,1);
     _zperiodicimages->set_range(0, 10);
     periodicbox->pack_start(*_zperiodicimages, false, false, 5);
+
+    {
+      Gtk::Label* label = Gtk::manage(new Gtk::Label("Developer options")); label->show();
+      _gtkOptList->pack_start(*label, false, false, 5);
+    }
+    {
+      _drawbillboards.reset(new Gtk::CheckButton("Draw billboard outlines"));
+      _drawbillboards->show();
+      _drawbillboards->set_active(false);
+      _drawbillboards->set_sensitive(true);
+      _gtkOptList->pack_start(*_drawbillboards, false, false, 5);
+    }
+
   }
 
   void 

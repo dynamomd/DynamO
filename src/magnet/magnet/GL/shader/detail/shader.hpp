@@ -251,12 +251,14 @@ namespace magnet {
 
 	  template<class T>
 	  inline void operator=(const T& val)
-	  { 
+	  {
 	    if (*this == val) return;
 	    _value = boost::lexical_cast<std::string>(val);
 	    _needsRecompilation = true;
 	  }
 
+	  bool empty() const { return _value.empty(); }
+	  
 	  operator std::string() const { return _value; }
 	};
 
@@ -634,11 +636,13 @@ namespace magnet {
 	  std::string genDefines()
 	  {
 	    std::ostringstream os;
-	    os << "#version 330\n";
+	    os << "#version 330\n"
+	      ;
 
 	    typedef std::tr1::unordered_map<std::string, ShaderDefineValue>::iterator it;
 	    for (it iPtr = _defineCache.begin(); iPtr != _defineCache.end(); ++iPtr)
-	      os << "#define " << iPtr->first << " " << std::string(iPtr->second) << "\n";
+	      if (!(iPtr->second.empty()))
+		os << "#define " << iPtr->first << " " << std::string(iPtr->second) << "\n";
 
 	    return os.str();
 	  }
