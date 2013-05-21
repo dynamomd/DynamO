@@ -59,7 +59,13 @@ namespace coil {
     int _zimages(_zperiodicimages->get_value_as_int());
 
     magnet::GL::Buffer<GLubyte> colorbuf;
-      
+
+    size_t instancing = 1;
+    if ((_raytraceable && _glyphRaytrace->get_active())
+	&& ((_glyphType->get_active_row_number() == CYLINDER_GLYPH)
+	    || (_glyphType->get_active_row_number() == SPHERE_GLYPH)))
+      instancing = 0;
+
     if (mode == RenderObj::PICKING)
       {//Send unique color id's to colorbuf
 	std::vector<GLubyte> colors;
@@ -67,14 +73,16 @@ namespace coil {
 	for (uint32_t i(0); i < _N; ++i)
 	  *reinterpret_cast<uint32_t*>(&(colors[4 * i])) = offset + i;
 	colorbuf.init(colors, 4);
-	colorbuf.attachToColor();
+	colorbuf.attachToAttribute(magnet::GL::Context::vertexColorAttrIndex, instancing, true);
       }
     else
-      _colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, 0);
+      _colorSel->bindAttribute(magnet::GL::Context::vertexColorAttrIndex, instancing);
     
-    _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, 0);
+    _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, instancing);
+    _orientSel->bindAttribute(magnet::GL::Context::instanceOrientationAttrIndex, instancing);
     switch (_glyphType->get_active_row_number())
       {
+      case CYLINDER_GLYPH:
       case SPHERE_GLYPH:
 	if (_raytraceable && _glyphRaytrace->get_active())
 	  {
@@ -84,7 +92,10 @@ namespace coil {
 		glMinSampleShadingARB(1.0);
 	      }
 	    
-	    magnet::GL::shader::detail::Shader& shader = (mode == RenderObj::SHADOW) ? _sphereVSMShader : _sphereShader;
+	    using namespace magnet::GL::shader::detail;
+	      Shader& shader = (_glyphType->get_active_row_number() == CYLINDER_GLYPH)
+		? ((mode == RenderObj::SHADOW) ? (Shader&)_cylinderVSMShader : (Shader&)_cylinderShader)
+		: ((mode == RenderObj::SHADOW) ? (Shader&)_sphereVSMShader : (Shader&)_sphereShader);
 
 	    if (_drawbillboards->get_active())
 	      shader.defines("DRAWBILLBOARD") = "True";
@@ -110,7 +121,6 @@ namespace coil {
 	  }
 	break;
       case ARROW_GLYPH:
-      case CYLINDER_GLYPH:
       case LINE_GLYPH:
       case CUBE_GLYPH:
       default:
@@ -125,7 +135,6 @@ namespace coil {
     shader.attach();
     shader["ProjectionMatrix"] = cam.getProjectionMatrix();
     _ds.getPositionBuffer().attachToAttribute(magnet::GL::Context::instanceOriginAttrIndex, 1);
-    _orientSel->bindAttribute(magnet::GL::Context::instanceOrientationAttrIndex, 1);
     _primitiveVertices.attachToVertex();
     _primitiveNormals.attachToNormal();
     for (int x(-_ximages); x <= _ximages; ++x)
@@ -149,6 +158,8 @@ namespace coil {
     RenderObj::deinit();
     _sphereShader.deinit();
     _sphereVSMShader.deinit();
+    _cylinderShader.deinit();
+    _cylinderVSMShader.deinit();
     _renderShader.deinit();
     _simpleRenderShader.deinit();
     _gtkOptList.reset();
@@ -195,7 +206,9 @@ namespace coil {
       {
 	_sphereShader.build();
 	_sphereVSMShader.build();
-      }	
+	_cylinderShader.build();
+	_cylinderVSMShader.build();
+      }
 
     {
       Gtk::Label* label = Gtk::manage(new Gtk::Label("Glyph Type")); label->show();
@@ -366,6 +379,12 @@ namespace coil {
 	break;
       case ARROW_GLYPH:
       case CYLINDER_GLYPH:
+	if (_raytraceable)
+	  {
+	    _glyphRaytrace->set_sensitive(true);
+	    _glyphRaytrace->set_active(true);
+	  }
+
 	_glyphLOD->get_adjustment()->configure(6.0, 6.0, 32.0, 1.0, 5.0, 0.0);
 	break;
       case LINE_GLYPH:
@@ -390,6 +409,7 @@ namespace coil {
 
     switch (_glyphType->get_active_row_number())
       {
+      case CYLINDER_GLYPH:
       case SPHERE_GLYPH:
 	_glyphLOD->set_sensitive(true);
 	if (_raytraceable)
@@ -397,7 +417,6 @@ namespace coil {
 	    _glyphLOD->set_sensitive(false);
 	break;
       case ARROW_GLYPH:
-      case CYLINDER_GLYPH:
       case LINE_GLYPH:
       case CUBE_GLYPH:
       default:

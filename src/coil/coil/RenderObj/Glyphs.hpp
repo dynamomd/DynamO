@@ -19,6 +19,7 @@
 #include <coil/RenderObj/AttributeColorSelector.hpp>
 #include <coil/RenderObj/AttributeOrientationSelector.hpp>
 #include <magnet/GL/shader/sphere.hpp>
+#include <magnet/GL/shader/cylinder.hpp>
 #include <magnet/GL/shader/simple_render.hpp>
 #include <magnet/GL/shader/render.hpp>
 #include <magnet/GL/buffer.hpp>
@@ -107,6 +108,8 @@ namespace coil {
     magnet::GL::shader::RenderShader _renderShader;
     magnet::GL::shader::SphereShader _sphereShader;
     magnet::GL::shader::SphereVSMShader _sphereVSMShader;
+    magnet::GL::shader::CylinderShader _cylinderShader;
+    magnet::GL::shader::CylinderVSMShader _cylinderVSMShader;
     magnet::GL::shader::SimpleRenderShader _simpleRenderShader;
  };
 }
