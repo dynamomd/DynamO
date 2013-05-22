@@ -84,7 +84,7 @@ void main()
   length = iScale.y * global_scale * 0.5;
   //Generate an axis, which is rotated by the view matrix so that I
   //have it in screen space
-  axis = (ViewMatrix * vec4(qrot(iOrientation, vec3(0,0,1)), 0.0)).xyz;
+  axis = normalize((ViewMatrix * vec4(qrot(iOrientation, vec3(0,0,1)), 0.0)).xyz);
   gl_Position = ViewMatrix * vec4(vPosition.xyz, 1.0);
 });
 	}
@@ -95,13 +95,8 @@ void main()
 uniform mat4 ProjectionMatrix;
 
 layout(points) in;
-)"\n#ifdef DRAWBILLBOARD\n"STRINGIFY(
-layout(line_strip) out;
-layout(max_vertices = 5) out;
-)"\n#else\n"STRINGIFY(
 layout(triangle_strip) out;
 layout(max_vertices = 4) out;
-)"\n#endif\n"STRINGIFY(
 
 in vec4 color[];
 in vec3 axis[];
@@ -110,47 +105,40 @@ in float length[];
 
 flat out vec4 vert_color;
 flat out vec3 frag_axis;
+flat out vec3 frag_center;
+smooth out vec3 frag_screen_pos;
 flat out float frag_radius;
 flat out float frag_length;
-flat out vec3 sphere_center;
-smooth out vec2 ordinate;
-
-vec2 screen_perp;
 
 //Function to emit a bilboard vertex with all the correct output given
 //the displacement
-void VertexEmit(in vec2 displacement)
+void VertexEmit(in vec2 displacement, in vec2 screen_perp, in vec2 screen_para)
 {
-  ordinate = displacement;
-  
-  vec4 proj_position = ProjectionMatrix 
-    * (gl_in[0].gl_Position + vec4(length[0] * displacement.x * axis[0], 0.0)
-       + vec4(radius[0] * displacement.y * screen_perp, 0.0, 0.0));
-  gl_Position = proj_position;
+  vec3 position = gl_in[0].gl_Position.xyz + length[0] * displacement.x * axis[0]
+    + vec3(displacement.y * screen_perp + displacement.x * screen_para, 0.0);
+  frag_screen_pos = position;
+  frag_axis = axis[0];
+  frag_radius = radius[0];
+  frag_length = length[0];
+  vert_color = color[0];
+  frag_center = gl_in[0].gl_Position.xyz;
+  gl_Position = ProjectionMatrix * vec4(position, gl_in[0].gl_Position.w);
   EmitVertex();
 }
 
 void main()
 {
   //Standard data for each fragment
-  vert_color = color[0];
-  frag_radius = radius[0];
-  frag_length = length[0];
-  frag_axis = axis[0];
-  sphere_center = gl_in[0].gl_Position.xyz;
-  screen_perp = normalize(vec2(axis[0].y, -axis[0].x));
-)"\n#ifdef DRAWBILLBOARD\n"STRINGIFY(
-  VertexEmit(vec2(-1.0, -1.0));
-  VertexEmit(vec2(-1.0, +1.0));
-  VertexEmit(vec2(+1.0, +1.0));
-  VertexEmit(vec2(+1.0, -1.0));
-  VertexEmit(vec2(-1.0, -1.0));
-)"\n#else\n"STRINGIFY(
-  VertexEmit(vec2(-1.0, -1.0));
-  VertexEmit(vec2(-1.0, +1.0));
-  VertexEmit(vec2(+1.0, -1.0));
-  VertexEmit(vec2(+1.0, +1.0));
-)"\n#endif\n"STRINGIFY(
+  float cosalpha = abs(dot(vec3(0.0,0.0,1.0), axis[0]));
+  float da = radius[0] * cosalpha;
+  float sinalpha = sqrt(1-cosalpha*cosalpha);
+  vec2 screen_para = normalize(axis[0].xy);
+  vec2 screen_perp = radius[0] * vec2(screen_para.y, -screen_para.x);
+  screen_para *= da;
+  VertexEmit(vec2(-1.0, -1.0), screen_perp, screen_para);
+  VertexEmit(vec2(-1.0, +1.0), screen_perp, screen_para);
+  VertexEmit(vec2(+1.0, -1.0), screen_perp, screen_para);
+  VertexEmit(vec2(+1.0, +1.0), screen_perp, screen_para);
   EndPrimitive();
 });
 	}
@@ -162,10 +150,10 @@ uniform mat4 ProjectionMatrix;
 
 flat in vec4 vert_color;
 flat in vec3 frag_axis;
+flat in vec3 frag_center;
+smooth in vec3 frag_screen_pos;
 flat in float frag_radius;
 flat in float frag_length;
-flat in vec3 sphere_center;
-smooth in vec2 ordinate;
 
 layout (location = 0) out vec4 color_out;
 layout (location = 1) out vec4 normal_out;
@@ -173,37 +161,30 @@ layout (location = 2) out vec4 position_out;
 
 void main()
 {
-  vec3 billboard_frag_pos = sphere_center + vec3(ordinate, 0.0) * frag_radius;
-  vec3 ray_direction = normalize(billboard_frag_pos);
-
-  float TD = dot(ray_direction, -sphere_center);
-  float c = dot(sphere_center, sphere_center) - frag_radius * frag_radius;
-  float arg = TD * TD - c;
-      
-)"\n#ifndef DRAWBILLBOARD\n"STRINGIFY(
-  if (arg < 0) discard;
-)"\n#endif\n"STRINGIFY(
-  
-  float t = - c / (TD - sqrt(arg));
-
-  vec3 frag_position_eye = ray_direction * t;
-  
-  //Calculate the fragments depth
-  vec4 pos = ProjectionMatrix * vec4(frag_position_eye, 1.0);
+  vec4 pos = ProjectionMatrix * vec4(frag_screen_pos, 1.0);
+  gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0;
 
 )"\n#ifdef DRAWBILLBOARD\n"STRINGIFY(
   color_out = vert_color;
   normal_out = vec4(0.0);
-  gl_FragDepth = 0; 
+  position_out = vec4(frag_screen_pos, 1.0);
 )"\n#else\n"STRINGIFY(
-  gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0; 
-  //Write out the fragment's data
-  position_out = vec4(frag_position_eye, 1.0);
+  vec3 ray_direction = normalize(frag_screen_pos);
+
+  vec3 rij = vec3(0,0,0) - frag_center.xyz;
+  rij -= dot(rij, frag_axis) * frag_axis;
+  vec3 vij = ray_direction; //Magnitude 1
+  vij -= dot(vij, frag_axis) * frag_axis;
+  
+  float TD = dot(rij, vij);
+  float c = dot(rij, rij) - frag_radius * frag_radius;
+  float arg = TD * TD - c;
+  
+  if (arg < 0) discard;
+
   color_out = vert_color;
-  if (unshaded)
-    normal_out = vec4(0.0);
-  else
-    normal_out = vec4(normalize(frag_position_eye - sphere_center), 1.0);
+  normal_out = vec4(0.0);
+  position_out = vec4(frag_screen_pos, 1.0);
 )"\n#endif\n"STRINGIFY(
 });
 	}
@@ -220,18 +201,18 @@ void main()
 uniform mat4 ProjectionMatrix;
 
 flat in float frag_radius;
-flat in vec3 sphere_center;
+flat in vec3 frag_center;
 smooth in vec2 ordinate;
 
 layout (location = 0) out vec4 color_out;
 
 void main()
 {
-  vec3 billboard_frag_pos = sphere_center + vec3(ordinate, 0.0) * frag_radius;
+  vec3 billboard_frag_pos = frag_center + vec3(ordinate, 0.0) * frag_radius;
   vec3 ray_direction = normalize(billboard_frag_pos);
 
-  float TD = dot(ray_direction, -sphere_center);
-  float c = dot(sphere_center, sphere_center) - frag_radius * frag_radius;
+  float TD = dot(ray_direction, -frag_center);
+  float c = dot(frag_center, frag_center) - frag_radius * frag_radius;
   float arg = TD * TD - c;
       
   if (arg < 0) discard;

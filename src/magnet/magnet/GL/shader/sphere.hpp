@@ -112,7 +112,7 @@ void VertexEmit(in vec2 displacement)
   ordinate = displacement;
 
   vec4 proj_position = ProjectionMatrix 
-    * (gl_in[0].gl_Position + vec4(radius[0] * displacement, radius[0], 0.0));
+    * (gl_in[0].gl_Position + vec4(radius[0] * displacement, 0.0, 0.0));
 
   gl_Position = proj_position;
   EmitVertex();
