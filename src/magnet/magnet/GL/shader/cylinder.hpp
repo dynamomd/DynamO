@@ -186,13 +186,13 @@ void main()
    float C = dot(rij_planar, rij_planar) - frag_radius * frag_radius;
    float argument = B * B - A * C;
    if (argument < 0.0) discard;
-   double t = - C / (B - sqrt(argument));
+   float t = - C / (B - sqrt(argument));
    vec3 hit = -t * vij;
    vec3 relative_hit = hit - frag_center;
-   double axial_displacement = dot(relative_hit, frag_axis);
+   float axial_displacement = dot(relative_hit, frag_axis);
    if (abs(axial_displacement) > frag_length) discard;
    //normal_out = vec4(0.0); 
-   normal_out = vec4(normalize(relative_hit),1.0);
+   normal_out = vec4(normalize(relative_hit - axial_displacement * frag_axis),1.0);
    color_out = vert_color;
    position_out = vec4(hit, 1.0);
    vec4 pos = ProjectionMatrix * vec4(hit, 1.0);
