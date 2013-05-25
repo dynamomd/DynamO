@@ -592,7 +592,7 @@ namespace dynamo {
     {
       //May as well take this opportunity to reset the streaming
       //Note: the Replexing coordinator RELIES on this behaviour!
-      BOOST_FOREACH(Particle& part, Sim->particles)
+      for (Particle& part : Sim->particles)
 	{
 	  streamParticle(part, part.getPecTime() + partPecTime);
 	  part.getPecTime() = 0;
@@ -651,7 +651,7 @@ namespace dynamo {
       //Keep the magnitude of the partPecTime boundedx
       if (++streamCount == streamFreq)
 	{
-	  BOOST_FOREACH(Particle& part, Sim->particles)
+	  for (Particle& part : Sim->particles)
 	    part.getPecTime() += partPecTime;
 
 	  partPecTime = 0;

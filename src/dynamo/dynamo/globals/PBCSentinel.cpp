@@ -81,9 +81,9 @@ namespace dynamo {
 
     NEventData EDat(ParticleEventData(part, *Sim->species[part], VIRTUAL));
 
-    Sim->signalParticleUpdate(EDat);
+    (*Sim->_sigParticleUpdate)(EDat);
 
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, EDat);
 
     Sim->ptrScheduler->fullUpdate(part);

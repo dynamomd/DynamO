@@ -69,7 +69,7 @@ namespace dynamo {
     inline const Units& getUnits() const { return _units; }
 
     //! Helper to write out derived classes
-    friend magnet::xml::XmlStream operator<<(magnet::xml::XmlStream& XML, const Property& prop)
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Property& prop)
     { prop.outputXML(XML); return XML; }
 
     /*! Write any XML attributes that store this Property's data on a
@@ -185,8 +185,7 @@ namespace dynamo {
     {
       double factor = std::pow(rescale, _units.getUnitsPower(dim));
       if (factor)
-	for (Iterator it = _values.begin(); it != _values.end(); ++it)
-	  *it *= factor;  
+	for (auto& value : _values) value *= factor;  
     }
 
     inline void outputParticleXMLData(magnet::xml::XmlStream& XML, const size_t pID) const
@@ -302,9 +301,8 @@ namespace dynamo {
     {
       XML << magnet::xml::tag("Properties");
 
-      for (const_iterator iPtr = propStore._namedProperties.begin(); 
-	   iPtr != propStore._namedProperties.end(); ++iPtr)
-	XML << (*(*iPtr));
+      for (const auto& property : propStore._namedProperties)
+	XML << property;
 
       XML << magnet::xml::endtag("Properties");
 
@@ -312,20 +310,17 @@ namespace dynamo {
     }
 
     /*! \brief Function to rescale the units of all Property-s.
-      
       \param dim The unit that is being rescaled [(L)ength, (T)ime, (M)ass].
       \param rescale The factor to rescale the unit by.
     */
     inline const void rescaleUnit(const Property::Units::Dimension dim, 
 				  const double rescale)
     {  
-      for (iterator iPtr = _numericProperties.begin(); 
-	   iPtr != _numericProperties.end(); ++iPtr)
-	(*iPtr)->rescaleUnit(dim, rescale);
+      for (auto& property :_numericProperties)
+	property->rescaleUnit(dim, rescale);
 
-      for (iterator iPtr = _namedProperties.begin(); 
-	   iPtr != _namedProperties.end(); ++iPtr)
-	(*iPtr)->rescaleUnit(dim, rescale);
+      for (auto& property : _namedProperties)
+	property->rescaleUnit(dim, rescale);
     }
 
     /*! \brief Write any XML attributes relevent to Property-s for a
@@ -336,9 +331,8 @@ namespace dynamo {
     */
     inline void outputParticleXMLData(magnet::xml::XmlStream& XML, size_t pID) const 
     {
-      for (const_iterator iPtr = _namedProperties.begin(); 
-	   iPtr != _namedProperties.end(); ++iPtr)
-	(*iPtr)->outputParticleXMLData(XML, pID);
+      for (const auto& property : _namedProperties)
+	property->outputParticleXMLData(XML, pID);
     }
 
     /*! \brief Method for pushing constructed properties into the
@@ -385,14 +379,13 @@ namespace dynamo {
     inline Value getPropertyBase(const std::string name, const Property::Units& units)
     {
       //Try name based lookup first
-      for (const_iterator iPtr = _namedProperties.begin(); 
-	   iPtr != _namedProperties.end(); ++iPtr)
-	if ((*iPtr)->getName() == name)
+      for (const auto& property : _namedProperties)
+	if (property->getName() == name)
 	  {
-	    if ((*iPtr)->getUnits() == units) return *iPtr;
+	    if (property->getUnits() == units) return property;
 	  
 	    M_throw() << "Property \"" << name << "\" found with units of " 
-		      << std::string((*iPtr)->getUnits())
+		      << std::string(property->getUnits())
 		      << ", but the requested property has units of " 
 		      << std::string(units);
 	  }

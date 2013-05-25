@@ -74,10 +74,10 @@ int main(int argc, char *argv[])
       
       coil::CoilRegister coil;
             
-      std::tr1::shared_ptr<coil::RVolume>
+      std::shared_ptr<coil::RVolume>
 	voldata(new coil::RVolume(vm["data-file"].as<std::string>()));
 
-      std::tr1::shared_ptr<coil::CLGLWindow>
+      std::shared_ptr<coil::CLGLWindow>
 	window(new coil::CLGLWindow("Coil Volume Renderer : ", 1.0));
 
       window->addRenderObj(voldata);

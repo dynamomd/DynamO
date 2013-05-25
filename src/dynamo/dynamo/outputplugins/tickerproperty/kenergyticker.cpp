@@ -18,7 +18,6 @@
 #include <dynamo/outputplugins/tickerproperty/kenergyticker.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
@@ -51,7 +50,7 @@ namespace dynamo {
       for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	localE[iDim][jDim] = 0.0;
 
-    BOOST_FOREACH(const Particle& part, Sim->particles)
+    for (const Particle& part : Sim->particles)
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	for (size_t jDim = 0; jDim < NDIM; ++jDim)
 	  localE[iDim][jDim] += part.getVelocity()[iDim] * part.getVelocity()[jDim]

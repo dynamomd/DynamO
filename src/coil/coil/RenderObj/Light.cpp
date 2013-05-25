@@ -38,7 +38,7 @@ namespace coil {
   }
   
   void 
-  RLight::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue) 
+  RLight::init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue) 
   {
     RenderObj::init(systemQueue);
     
@@ -61,7 +61,7 @@ namespace coil {
     if (!_visible) return;
     
     cairo.getContext()->save();
-    std::tr1::array<GLfloat, 4> pos =  camera.project(getPosition());
+    std::array<GLfloat, 4> pos =  camera.project(getPosition());
     Glib::RefPtr<Gdk::Pixbuf> icon = getIcon();
     Gdk::Cairo::set_source_pixbuf(cairo.getContext(), getIcon(), 
 				  pos[0] - icon->get_width()/2,

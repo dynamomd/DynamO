@@ -59,7 +59,7 @@ namespace dynamo {
   void 
   DynNewtonianMC::outputXML(magnet::xml::XmlStream& XML) const
   {
-    std::tr1::unordered_map<int, double> wout = _W;
+    std::unordered_map<int, double> wout = _W;
 
     XML << magnet::xml::attr("Type")
 	<< "NewtonianMC"
@@ -69,7 +69,7 @@ namespace dynamo {
 
     typedef std::pair<const int, double> locpair;
 
-    BOOST_FOREACH(const locpair& val, wout)
+    for (const locpair& val : wout)
       XML << magnet::xml::tag("W")
 	  << magnet::xml::attr("Energy")
 	  << val.first * EnergyPotentialStep * Sim->units.unitEnergy()

@@ -23,7 +23,6 @@
 #include <dynamo/systems/sysTicker.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
 
 namespace dynamo {
   OPMSDCorrelator::OPMSDCorrelator(const dynamo::Simulation* tmp, 
@@ -53,7 +52,7 @@ namespace dynamo {
 
     currCorrLength=1;
 
-    BOOST_FOREACH(const Particle& part, Sim->particles)
+    for (const Particle& part : Sim->particles)
       posHistory[part.getID()].push_front(part.getPosition());
 
     speciesData.resize(Sim->species.size(), 
@@ -66,7 +65,7 @@ namespace dynamo {
   void 
   OPMSDCorrelator::ticker()
   {
-    BOOST_FOREACH(const Particle& part, Sim->particles)
+    for (const Particle& part : Sim->particles)
       posHistory[part.getID()].push_front(part.getPosition());
   
     if (notReady)
@@ -85,19 +84,19 @@ namespace dynamo {
   {
     ++ticksTaken;
   
-    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->species)
-      BOOST_FOREACH(const size_t& ID, *sp->getRange())
+    for (const shared_ptr<Species>& sp : Sim->species)
+      for (const size_t& ID : *sp->getRange())
       for (size_t step(1); step < length; ++step)
 	speciesData[sp->getID()][step]
 	  += (posHistory[ID][step] - posHistory[ID][0]).nrm2();
   
-    BOOST_FOREACH(const shared_ptr<Topology>& topo, Sim->topology)
-      BOOST_FOREACH(const shared_ptr<IDRange>& range, topo->getMolecules())
+    for (const shared_ptr<Topology>& topo : Sim->topology)
+      for (const shared_ptr<IDRange>& range : topo->getMolecules())
       {
 	Vector  molCOM(0,0,0);
 	double molMass(0);
 
-	BOOST_FOREACH(const size_t& ID, *range)
+	for (const size_t& ID : *range)
 	  {
 	    double mass = Sim->species[Sim->particles[ID]]->getMass(ID);
 	    molCOM += posHistory[ID][0] * mass;
@@ -110,7 +109,7 @@ namespace dynamo {
 	  {
 	    Vector  molCOM2(0,0,0);
 	  
-	    BOOST_FOREACH(const size_t& ID, *range)
+	    for (const size_t& ID : *range)
 	      molCOM2 += posHistory[ID][step] 
 	      * Sim->species[Sim->particles[ID]]->getMass(ID);
 	  
@@ -131,7 +130,7 @@ namespace dynamo {
       (*Sim->systems["SystemTicker"]).getPeriod()
       / Sim->units.unitTime();
   
-    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->species)
+    for (const shared_ptr<Species>& sp : Sim->species)
       {
 	XML << magnet::xml::tag("Species")
 	    << magnet::xml::attr("Name")
@@ -152,8 +151,7 @@ namespace dynamo {
     XML << magnet::xml::endtag("Particles")
 	<< magnet::xml::tag("Topology");
   
-    BOOST_FOREACH(const shared_ptr<Topology>& topo, 
-		  Sim->topology)
+    for (const shared_ptr<Topology>& topo : Sim->topology)
       {
 	XML << magnet::xml::tag("Structure")
 	    << magnet::xml::attr("Name")

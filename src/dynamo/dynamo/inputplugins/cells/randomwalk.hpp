@@ -17,9 +17,7 @@
 
 #pragma once
 #include <dynamo/inputplugins/cells/cell.hpp>
-#include <boost/random/normal_distribution.hpp>
-#include <boost/random/variate_generator.hpp>
-#include <boost/random/mersenne_twister.hpp>
+#include <random>
 
 namespace dynamo {
   struct CURandWalk: public UCell
@@ -29,33 +27,30 @@ namespace dynamo {
       chainlength(CL),
       walklength(WL),
       diameter(D),
-      ranGenerator(static_cast<unsigned>(std::time(0)))
+      _rng(std::random_device()())
     {}
 
     long chainlength;
     double walklength;
     double diameter;
   
-    boost::mt19937 ranGenerator;
+    std::mt19937 _rng;
 
-    Vector getRandVelVec()
+    Vector getRandVec()
     {
       //See http://mathworld.wolfram.com/SpherePointPicking.html
-      boost::normal_distribution<double> normdist(0.0, (1.0 / sqrt(double(NDIM))));
-    
-      boost::variate_generator<dynamo::baseRNG&, boost::normal_distribution<double> >
-	normal_sampler(ranGenerator, normdist);
+      std::normal_distribution<> normdist(0.0, (1.0 / sqrt(double(NDIM))));
     
       Vector  tmpVec;
       for (size_t iDim = 0; iDim < NDIM; iDim++)
-	tmpVec[iDim] = normal_sampler();
+	tmpVec[iDim] = normdist(_rng);
     
       return tmpVec;
     }
 
-    virtual std::vector<Vector  > placeObjects(const Vector & centre)
+    virtual std::vector<Vector> placeObjects(const Vector & centre)
     {
-      std::vector<Vector  > localsites;
+      std::vector<Vector> localsites;
     
       Vector  start(0,0,0), tmp(0,0,0);
     
@@ -68,13 +63,13 @@ namespace dynamo {
 	      test = false;
 	    
 	      {
-		Vector tmp2(getRandVelVec());
+		Vector tmp2(getRandVec());
 		tmp2 /= tmp2.nrm();
 	      
 		tmp = start + tmp2 * walklength;
 	      }
 	    
-	      BOOST_FOREACH(const Vector & vec, localsites)
+	      for (const Vector & vec : localsites)
 		if ((vec - tmp).nrm() <= diameter)
 		  test = true;
 	    }
@@ -88,18 +83,18 @@ namespace dynamo {
       {
 	Vector offset(0,0,0);
       
-	BOOST_FOREACH(const Vector & vec, localsites)
+	for (const Vector & vec : localsites)
 	  offset += vec;
       
 	offset /= localsites.size();
       
 	// move to the centre and offset
-	BOOST_FOREACH(Vector & vec, localsites)
+	for (Vector & vec : localsites)
 	  vec -= offset + centre;
       }
 
-      std::vector<Vector  > retval;
-      BOOST_FOREACH(const Vector & vec, localsites)
+      std::vector<Vector> retval;
+      for (const Vector& vec : localsites)
 	{
 	  const std::vector<Vector>& newsites = uc->placeObjects(vec);
 	  retval.insert(retval.end(), newsites.begin(), newsites.end());

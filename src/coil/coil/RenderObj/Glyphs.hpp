@@ -43,7 +43,7 @@ namespace coil {
 
     virtual void glRender(const magnet::GL::Camera&, RenderMode, const uint32_t);
     
-    virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>&);
+    virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>&);
     
     virtual void deinit();
 
@@ -61,7 +61,7 @@ namespace coil {
       return 0; 
     }
 
-    virtual std::tr1::array<GLfloat, 4> getCursorPosition(uint32_t objID);
+    virtual std::array<GLfloat, 4> getCursorPosition(uint32_t objID);
 
     virtual std::string getCursorText(uint32_t objID);
 
@@ -82,23 +82,23 @@ namespace coil {
     magnet::GL::Buffer<GLfloat> _primitiveNormals;
     magnet::GL::Buffer<GLuint>  _primitiveIndices;
 
-    std::auto_ptr<Gtk::VBox> _gtkOptList;
-    std::auto_ptr<AttributeSelector> _scaleSel; 
-    std::auto_ptr<AttributeColorSelector> _colorSel;
-    std::auto_ptr<AttributeOrientationSelector> _orientSel;
-    std::auto_ptr<Gtk::ComboBoxText> _glyphType;
-    std::auto_ptr<Gtk::SpinButton> _glyphLOD;
-    std::auto_ptr<Gtk::HBox> _glyphBox;
-    std::auto_ptr<Gtk::CheckButton> _glyphRaytrace;
-    std::auto_ptr<Gtk::SpinButton> _xperiodicimages;
-    std::auto_ptr<Gtk::SpinButton> _yperiodicimages;
-    std::auto_ptr<Gtk::SpinButton> _zperiodicimages;
+    std::unique_ptr<Gtk::VBox> _gtkOptList;
+    std::unique_ptr<AttributeSelector> _scaleSel; 
+    std::unique_ptr<AttributeColorSelector> _colorSel;
+    std::unique_ptr<AttributeOrientationSelector> _orientSel;
+    std::unique_ptr<Gtk::ComboBoxText> _glyphType;
+    std::unique_ptr<Gtk::SpinButton> _glyphLOD;
+    std::unique_ptr<Gtk::HBox> _glyphBox;
+    std::unique_ptr<Gtk::CheckButton> _glyphRaytrace;
+    std::unique_ptr<Gtk::SpinButton> _xperiodicimages;
+    std::unique_ptr<Gtk::SpinButton> _yperiodicimages;
+    std::unique_ptr<Gtk::SpinButton> _zperiodicimages;
 
-    std::auto_ptr<Gtk::CheckButton> _drawbillboards;
+    std::unique_ptr<Gtk::CheckButton> _drawbillboards;
 
-    std::auto_ptr<Gtk::HBox>  _scaleFactorBox;
-    std::auto_ptr<Gtk::Label> _scaleLabel;
-    std::auto_ptr<Gtk::Entry> _scaleFactor;
+    std::unique_ptr<Gtk::HBox>  _scaleFactorBox;
+    std::unique_ptr<Gtk::Label> _scaleLabel;
+    std::unique_ptr<Gtk::Entry> _scaleFactor;
     
     bool _raytraceable;
     size_t _N;

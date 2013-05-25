@@ -21,7 +21,6 @@
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
 #include <vector>
 
 namespace dynamo {
@@ -43,7 +42,7 @@ namespace dynamo {
 
     virtual bool isInRange(const Particle &part) const
     {
-      BOOST_FOREACH(const unsigned long ID, IDs)
+      for (const unsigned long ID : IDs)
 	if (part.getID() == ID)
 	  return true;
       return false;
@@ -62,7 +61,7 @@ namespace dynamo {
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {
       XML << magnet::xml::attr("Type") << "List";
-      BOOST_FOREACH(unsigned long ID, IDs)
+      for (unsigned long ID : IDs)
 	XML << magnet::xml::tag("ID") << magnet::xml::attr("val") << ID << magnet::xml::endtag("ID");
     }
 

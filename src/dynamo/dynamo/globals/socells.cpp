@@ -144,12 +144,12 @@ namespace dynamo {
     //Run the collision and catch the data
     NEventData EDat(Sim->dynamics->runPlaneEvent(part, vNorm, 1.0, 0.0));
 
-    Sim->signalParticleUpdate(EDat);
+    (*Sim->_sigParticleUpdate)(EDat);
 
     //Now we're past the event update the scheduler and plugins
     Sim->ptrScheduler->fullUpdate(part);
   
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, EDat);
 
   }
@@ -169,7 +169,7 @@ namespace dynamo {
     for (size_t iDim(0); iDim < NDIM; ++iDim)
       cellDimension[iDim] = Sim->primaryCellSize[iDim] / cuberootN;
 
-    if (std::tr1::dynamic_pointer_cast<const DynGravity>(Sim->dynamics))
+    if (std::dynamic_pointer_cast<const DynGravity>(Sim->dynamics))
       dout << "Warning, in order for SingleOccupancyCells to work in gravity\n"
 	   << "You must add the ParabolaSentinel Global event." << std::endl;
 

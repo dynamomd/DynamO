@@ -112,7 +112,7 @@ namespace dynamo {
     //Once the capture maps are loaded just iterate through that determining energies
     double Energy = 0.0;
 
-    BOOST_FOREACH(const ICapture::value_type& IDs, *this)
+    for (const ICapture::value_type& IDs : *this)
       Energy += (*_potential)[IDs.second - 1].second
       * 0.5 * (_energyScale->getProperty(IDs.first.first)
 	       + _energyScale->getProperty(IDs.first.second));
@@ -206,9 +206,9 @@ namespace dynamo {
     PairEventData retVal = Sim->dynamics->SphereWellEvent(iEvent, _potential->getEnergyChange(new_step_ID, old_step_ID) * energy_scale, diameter * diameter, new_step_ID);
     //Check if the particles changed their step ID
     if (retVal.getType() != BOUNCE) ICapture::operator[](ICapture::key_type(p1, p2)) = new_step_ID;
-    Sim->signalParticleUpdate(retVal);
+    (*Sim->_sigParticleUpdate)(retVal);
     Sim->ptrScheduler->fullUpdate(p1, p2);
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, retVal);
   }
 

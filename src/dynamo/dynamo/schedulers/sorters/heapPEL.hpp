@@ -44,12 +44,12 @@ namespace dynamo {
     }
   
     inline void stream(const double& ndt) {
-      BOOST_FOREACH(Event& dat, c)
+      for (Event& dat : c)
 	dat.dt -= ndt;
     }
 
     inline void rescaleTimes(const double& scale) { 
-      BOOST_FOREACH(Event& dat, c)
+      for (Event& dat : c)
 	dat.dt *= scale;
     }
 

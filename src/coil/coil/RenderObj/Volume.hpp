@@ -25,7 +25,7 @@
 #include <magnet/GL/shader/volume.hpp>
 #include <magnet/GL/shader/detail/ssshader.hpp>
 #include <memory>
-#include <tr1/array>
+#include <array>
 
 namespace coil {
   class RVolume : public RenderObj
@@ -49,11 +49,11 @@ void main()
   public:
     RVolume(std::string name): RenderObj(name), _stepSizeVal(0.01), _dimensions(1,1,1) {}
   
-    virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
+    virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
     virtual void deinit();
     virtual void forwardRender(magnet::GL::FBO& fbo,
 			       const magnet::GL::Camera& cam,
-			       std::vector<std::tr1::shared_ptr<RLight> >& lights,
+			       std::vector<std::shared_ptr<RLight> >& lights,
 			       GLfloat ambient,
 			       RenderMode mode);
 
@@ -70,9 +70,9 @@ void main()
 
   protected:
     void loadRawFileWorker(std::string filename, 
-			   std::tr1::array<size_t, 3> dim, 
-			   std::tr1::array<size_t, 3> origin, 
-			   std::tr1::array<size_t, 3> window, 
+			   std::array<size_t, 3> dim, 
+			   std::array<size_t, 3> origin, 
+			   std::array<size_t, 3> window, 
 			   size_t bytes);
 
     void loadSphereTestPattern();
@@ -94,11 +94,11 @@ void main()
     magnet::GL::Texture1D _preintTransferFuncTexture;
 
     //GTK gui stuff
-    std::auto_ptr<Gtk::VBox> _optList;
-    std::auto_ptr<Gtk::Entry> _stepSize;
-    std::auto_ptr<Gtk::CheckButton> _ditherRay;
-    std::auto_ptr<Gtk::CheckButton> _filterData;
-    std::auto_ptr<magnet::gtk::TransferFunction> _transferFunction;
+    std::unique_ptr<Gtk::VBox> _optList;
+    std::unique_ptr<Gtk::Entry> _stepSize;
+    std::unique_ptr<Gtk::CheckButton> _ditherRay;
+    std::unique_ptr<Gtk::CheckButton> _filterData;
+    std::unique_ptr<magnet::gtk::TransferFunction> _transferFunction;
     GLfloat _stepSizeVal;
     Vector _dimensions;
   };

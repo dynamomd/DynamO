@@ -22,7 +22,6 @@
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
 #include <fstream>
 
 namespace dynamo {
@@ -80,10 +79,10 @@ namespace dynamo {
     std::swap(Sim, static_cast<OPIntEnergyHist*>(EHist2)->Sim);
   }
 
-  std::tr1::unordered_map<int, double>
+  std::unordered_map<int, double>
   OPIntEnergyHist::getImprovedW() const
   {
-    if (!std::tr1::dynamic_pointer_cast<const DynNewtonianMC>(Sim->dynamics))
+    if (!std::dynamic_pointer_cast<const DynNewtonianMC>(Sim->dynamics))
       M_throw() << "Cannot improve an non-Multicanonical Dynamics";
 
   const DynNewtonianMC& dynamics = static_cast<const DynNewtonianMC&>(*Sim->dynamics);
@@ -92,10 +91,10 @@ namespace dynamo {
       M_throw() << "Cannot improve the W potential when there is a mismatch between the"
 		<< " internal energy histogram and MC potential bin widths.";
 
-    std::tr1::unordered_map<int, double> retval;
+    std::unordered_map<int, double> retval;
 
     typedef std::pair<const int, double> lv1pair;
-    BOOST_FOREACH(const lv1pair &p1, intEnergyHist)
+    for (const lv1pair &p1 : intEnergyHist)
       {
 	double E = p1.first * intEnergyHist.getBinWidth();
 	
@@ -113,12 +112,12 @@ namespace dynamo {
     //Now center the energy warps about 0 to not cause funny changes in the tails.
     typedef std::pair<const int, double> locpair;
     double avg = 0;
-    BOOST_FOREACH(const locpair& p, retval)
+    for (const locpair& p : retval)
       avg += p.second;
 
     avg /= retval.size();
 
-    BOOST_FOREACH(locpair& p, retval)
+    for (locpair& p : retval)
       p.second -= avg;
 
     return retval;
@@ -131,13 +130,13 @@ namespace dynamo {
     XML << magnet::xml::tag("EnergyHist")
 	<< magnet::xml::attr("BinWidth") << binwidth;
 
-    if (std::tr1::dynamic_pointer_cast<const dynamo::EnsembleNVT>(Sim->ensemble))
+    if (std::dynamic_pointer_cast<const dynamo::EnsembleNVT>(Sim->ensemble))
       XML << magnet::xml::attr("T") 
 	  << static_cast<const dynamo::EnsembleNVT&>(*(Sim->ensemble)).getReducedEnsembleVals()[2];
   
     intEnergyHist.outputClearHistogram(XML, Sim->units.unitEnergy());
   
-    if (std::tr1::dynamic_pointer_cast<const DynNewtonianMC>(Sim->dynamics))
+    if (std::dynamic_pointer_cast<const DynNewtonianMC>(Sim->dynamics))
       {
 	dout << "Detected a Multi-canonical Dynamics, outputting w parameters" << std::endl;
 	const DynNewtonianMC& dynamics(static_cast<const DynNewtonianMC&>(*Sim->dynamics));
@@ -147,7 +146,7 @@ namespace dynamo {
 	    << dynamics.getEnergyStep() * Sim->units.unitEnergy();
 	
 	typedef std::pair<const int, double> locpair;
-	BOOST_FOREACH(const locpair& p1, dynamics.getMap())
+	for (const locpair& p1 : dynamics.getMap())
 	  XML << magnet::xml::tag("W")
 	      << magnet::xml::attr("Energy")
 	      << p1.first * dynamics.getEnergyStep() * Sim->units.unitEnergy()

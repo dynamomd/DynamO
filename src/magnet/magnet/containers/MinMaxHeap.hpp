@@ -22,7 +22,7 @@
 #pragma once
 
 #include <magnet/exception.hpp>
-#include <tr1/array>
+#include <array>
 
 namespace magnet {
   namespace containers {    
@@ -45,7 +45,7 @@ namespace magnet {
     template <typename T, std::size_t N>
     class MinMaxHeap
     {
-      typedef typename std::tr1::array<T, N> Container;
+      typedef typename std::array<T, N> Container;
       typedef typename Container::value_type Comparable;
       //! The heap array
       Container _array; 

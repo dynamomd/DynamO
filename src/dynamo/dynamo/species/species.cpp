@@ -27,6 +27,7 @@
 
 #include <magnet/xmlreader.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <cstring>
 
 namespace dynamo {
   Species::~Species() {}
@@ -87,7 +88,7 @@ namespace dynamo {
       size_t nsph = dynamic_cast<const GlyphRepresentation&>(*getIntPtr()).glyphsPerParticle();    
       std::vector<GLfloat>& mass = (*_renderData)["Mass"];
       size_t sphID(0);
-      BOOST_FOREACH(unsigned long ID, *range)
+      for (unsigned long ID : *range)
 	{
 	  for (size_t s(0); s < nsph; ++s)
 	    mass[nsph * sphID + s] = Sim->species[Sim->particles[ID]]->getMass(ID) / Sim->units.unitMass();
@@ -101,7 +102,7 @@ namespace dynamo {
       size_t nsph = dynamic_cast<const GlyphRepresentation&>(*getIntPtr()).glyphsPerParticle();    
       std::vector<GLfloat>& mass = (*_renderData)["ID"];
       size_t sphID(0);
-      BOOST_FOREACH(unsigned long ID, *range)
+      for (unsigned long ID : *range)
 	{
 	  for (size_t s(0); s < nsph; ++s)
 	    mass[nsph * sphID + s] = ID;
@@ -110,7 +111,7 @@ namespace dynamo {
       (*_renderData)["ID"].flagNewData();
     }
     
-    _renderData->getContext()->queueTask(magnet::function::Task::makeTask(&coil::DataSet::addGlyphs, _renderData.get()));
+    _renderData->getContext()->queueTask(std::bind(&coil::DataSet::addGlyphs, _renderData.get()));
   }
 
   void
@@ -119,7 +120,7 @@ namespace dynamo {
     if (!_renderData)
       M_throw() << "Updating before the render object has been fetched";
     
-    shared_ptr<BCLeesEdwards> BC = std::tr1::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs);
+    shared_ptr<BCLeesEdwards> BC = std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs);
     if (BC)
       {
 	_renderData->setPeriodicVectors(Vector(Sim->primaryCellSize[0], 0, 0),
@@ -131,7 +132,7 @@ namespace dynamo {
     ///////////////////////POSITION DATA UPDATE
     //Check if the system is compressing and adjust the radius scaling factor
     float rfactor = 1.0;
-    if (std::tr1::dynamic_pointer_cast<DynCompression>(Sim->dynamics))
+    if (std::dynamic_pointer_cast<DynCompression>(Sim->dynamics))
       rfactor *= (1 + static_cast<const DynCompression&>(*Sim->dynamics).getGrowthRate() * Sim->systemTime);
   
     const GlyphRepresentation& data
@@ -145,7 +146,7 @@ namespace dynamo {
     const std::vector<size_t>& simEventCounts = Sim->ptrScheduler->getEventCounts();
     
     size_t glyphID(0);
-    BOOST_FOREACH(unsigned long ID, *range)
+    for (unsigned long ID : *range)
       {
 	Vector vel = Sim->particles[ID].getVelocity() / Sim->units.unitVelocity();
 	for (size_t s(0); s < nsph; ++s)
@@ -175,7 +176,7 @@ namespace dynamo {
 	std::vector<GLfloat>& angularvdata = (*_renderData)["Angular Velocity"];
 	size_t glyphID(0);
 	const std::vector<Dynamics::rotData>& data = Sim->dynamics->getCompleteRotData();
-	BOOST_FOREACH(unsigned long ID, *range)
+	for (unsigned long ID : *range)
 	  {
 	    for (size_t s(0); s < nsph; ++s)
 	      {

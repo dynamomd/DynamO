@@ -21,13 +21,13 @@
 namespace dynamo {
   struct CUBCC: public UCell
   {
-    CUBCC(std::tr1::array<long, 3> ncells, Vector  ndimensions, UCell* nextCell):
+    CUBCC(std::array<long, 3> ncells, Vector  ndimensions, UCell* nextCell):
       UCell(nextCell),
       cells(ncells),
       dimensions(ndimensions)
     {}
 
-    std::tr1::array<long, 3> cells;
+    std::array<long, 3> cells;
     Vector  dimensions;
 
     virtual std::vector<Vector> placeObjects(const Vector & centre)
@@ -39,7 +39,7 @@ namespace dynamo {
 	cellWidth[iDim] = dimensions[iDim] / cells[iDim];
     
       Vector  position;
-      std::tr1::array<long, 3> iterVec = {{0,0,0}};
+      std::array<long, 3> iterVec = {{0,0,0}};
     
       while (iterVec[NDIM - 1] != cells[NDIM-1])
 	{      
@@ -47,7 +47,7 @@ namespace dynamo {
 	    position[iDim] = cellWidth[iDim] * (static_cast<double>(iterVec[iDim]) + 0.25) - 0.5 * dimensions[iDim] 
 	      + centre[iDim];
 	
-	  BOOST_FOREACH(const Vector & vec, uc->placeObjects(position))
+	  for (const Vector & vec : uc->placeObjects(position))
 	    retval.push_back(vec);
 	
 	  for (size_t iDim = 0; iDim < NDIM; iDim++)

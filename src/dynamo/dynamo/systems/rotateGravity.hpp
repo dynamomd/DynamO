@@ -19,8 +19,6 @@
 #include <dynamo/systems/system.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/ranges/IDRange.hpp>
-#include <boost/random/variate_generator.hpp>
-#include <boost/random/uniform_real.hpp>
 
 namespace dynamo {
   /*! \brief An event which periodically rotates the gravity vector

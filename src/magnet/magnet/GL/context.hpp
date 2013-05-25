@@ -33,8 +33,7 @@
 #include <magnet/thread/taskQueue.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/GL/matrix.hpp>
-#include <magnet/function/delegate.hpp>
-#include <tr1/memory>
+#include <memory>
 #include <set>
 #include <map>
 #include <iostream>
@@ -76,7 +75,7 @@ namespace magnet {
       /*!\brief The reference counting type to use for a holding a
          reference to a context.
        */
-      typedef std::tr1::shared_ptr<Context> ContextPtr;
+      typedef std::shared_ptr<Context> ContextPtr;
 
       /*! \brief Method to fetch the current OpenGL context.
        
@@ -148,10 +147,10 @@ namespace magnet {
 	if (idx == 0)
 	  M_throw() << "Cannot set the value of the 0th vertex attribute.";
 
-	std::tr1::array<GLfloat, 4> newval = {{x,y,z,w}};
+	std::array<GLfloat, 4> newval = {{x,y,z,w}};
 
 #ifdef MAGNET_DEBUG
-	std::tr1::array<GLfloat, 4> oldval;
+	std::array<GLfloat, 4> oldval;
 	glGetVertexAttribfv(idx, GL_CURRENT_VERTEX_ATTRIB, &oldval[0]);
 	detail::errorCheck();
 
@@ -312,13 +311,13 @@ namespace magnet {
        */
       inline void setViewport(GLint x, GLint y, GLsizei width, GLsizei height)
       {
-	std::tr1::array<GLint, 4> val = {{x, y, width, height}};
+	std::array<GLint, 4> val = {{x, y, width, height}};
 	setViewport(val);
       }
 
       /*! \brief Sets the viewport using the passed viewport state.
        */
-      inline void setViewport(const std::tr1::array<GLint, 4>& val)
+      inline void setViewport(const std::array<GLint, 4>& val)
       {
 	if (val == _viewPortState) return;
 
@@ -332,7 +331,7 @@ namespace magnet {
         The returned array contains, in order, the leftmost pixel, the
         lowest pixel, the width and the height of the viewport.
        */
-      inline const std::tr1::array<GLint, 4>& getViewport() const
+      inline const std::array<GLint, 4>& getViewport() const
       { return _viewPortState; }
 
       /*! \brief Swaps the front and back buffers.
@@ -357,7 +356,7 @@ namespace magnet {
         used when a simulation thread wishes to update some data used
         for rendering.
        */
-      inline void queueTask(function::Task* threadfunc)
+      inline void queueTask(std::function<void()> threadfunc)
       { _glTasks.queueTask(threadfunc); }
 
       /*! \brief The total number of \ref swapBuffers() calls.
@@ -452,7 +451,7 @@ namespace magnet {
 
       /*! \brief A cache of the current OpenGL viewport state.
        */
-      std::tr1::array<GLint, 4> _viewPortState;
+      std::array<GLint, 4> _viewPortState;
 
       /*! \brief A queue of tasks to complete in the GL thread.
 	
@@ -499,35 +498,33 @@ namespace magnet {
         cl::Platform::get(&platforms);
 	
 	//Now cycle through the platforms trying to get a context with a GPU
-	for (std::vector<cl::Platform>::const_iterator iPtr = platforms.begin();
-	     iPtr != platforms.end(); ++iPtr)
+	for (auto& platform : platforms)
 	  {
 	    std::cout << "GL-Context " << _context << ":   Trying OpenCL platform - " 
-		      << iPtr->getInfo<CL_PLATFORM_VENDOR>() 
-		      << " - " << iPtr->getInfo<CL_PLATFORM_NAME>()
-		      << " - " << iPtr->getInfo<CL_PLATFORM_VERSION>()
+		      << platform.getInfo<CL_PLATFORM_VENDOR>() 
+		      << " - " << platform.getInfo<CL_PLATFORM_NAME>()
+		      << " - " << platform.getInfo<CL_PLATFORM_VERSION>()
 		      << std::endl;	
 
 	    std::vector<cl::Device> devices;
 	    try {
-	      iPtr->getDevices(devType, &devices);
+	      platform.getDevices(devType, &devices);
 	    } catch (...)
 	      { continue; }
     
-	    for (std::vector<cl::Device>::const_iterator devPtr = devices.begin();
-		 devPtr != devices.end(); ++devPtr)
+	    for (auto& device : devices)
 	      {
 		std::cout << "GL-Context " << _context << ":     Trying  Device - " 
-			  << devPtr->getInfo<CL_DEVICE_NAME>() 
-			  << " - " << devPtr->getInfo<CL_DRIVER_VERSION>() 
+			  << device.getInfo<CL_DEVICE_NAME>() 
+			  << " - " << device.getInfo<CL_DRIVER_VERSION>() 
 			  << std::endl;	
-		if (!getCLGLContext(*iPtr, *devPtr)) continue;
+		if (!getCLGLContext(platform, device)) continue;
 
 		std::cout << "GL-Context " << _context << ": Success" << std::endl;
 		
 		//Success! now set the platform+device and return!
-		_clplatform = *iPtr;
-		_cldevice = *devPtr;
+		_clplatform = platform;
+		_cldevice = device;
 		return true;
 	      }
 	  }
@@ -671,10 +668,6 @@ namespace magnet {
 	  }
 #endif
 	///////Variable initialisation ///////////////////////////
-	_viewMatrix = GLMatrix::identity();
-	_projectionMatrix = GLMatrix::identity();
-	_viewMatrixCallback = &nullMatrixCallback;
-	_projectionMatrixCallback = &nullMatrixCallback;
 	_viewPortState = detail::glGet<GL_VIEWPORT>();
 
 	_vertexAttributeState.resize(detail::glGet<GL_MAX_VERTEX_ATTRIBS>());
@@ -726,19 +719,12 @@ namespace magnet {
 	}
 
 	bool active;
-	std::tr1::array<GLfloat, 4> current_value;
+	std::array<GLfloat, 4> current_value;
 	GLuint divisor;
       };
 
       /*! \brief The state of the vertex attributes */
       std::vector<VertexAttrState> _vertexAttributeState;
-
-      GLMatrix _viewMatrix;
-      GLMatrix _projectionMatrix;
-
-      static void nullMatrixCallback(const GLMatrix&) {}
-      function::Delegate1<const GLMatrix&> _viewMatrixCallback;
-      function::Delegate1<const GLMatrix&> _projectionMatrixCallback;
     };
   }
 }

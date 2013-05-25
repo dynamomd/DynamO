@@ -198,12 +198,12 @@ namespace dynamo {
     PairEventData EDat(Sim->dynamics->SmoothSpheresColl
 		       (iEvent, e, d2, iEvent.getType()));
 
-    Sim->signalParticleUpdate(EDat);
+    (*Sim->_sigParticleUpdate)(EDat);
     
     //Now we're past the event, update the scheduler and plugins
     Sim->ptrScheduler->fullUpdate(p1, p2);
   
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent,EDat);
   }
     
@@ -215,7 +215,7 @@ namespace dynamo {
 	<< magnet::xml::attr("Lambda") << _lambda->getName()
 	<< magnet::xml::attr("Name") << intName
 	<< magnet::xml::attr("Elasticity") << _e->getName()
-	<< *range;
+	<< range;
   }
 }
 

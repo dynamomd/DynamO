@@ -41,7 +41,7 @@ namespace coil {
 	  return;
 	}
       
-      std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];	  
+      std::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];	  
       if (ptr->components() == 4)
 	{
 	  ptr->bindAttribute(attrnum, false, divisor);

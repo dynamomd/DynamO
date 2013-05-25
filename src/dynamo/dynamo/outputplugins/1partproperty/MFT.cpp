@@ -23,7 +23,6 @@
 #include <dynamo/units/units.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
 
 namespace dynamo {
   OPMFT::OPMFT(const dynamo::Simulation* tmp, const magnet::xml::Node& XML):

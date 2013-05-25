@@ -31,7 +31,7 @@ namespace coil {
 
     virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode, const uint32_t offset);
 
-    virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
+    virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
 
     void setGLColors(std::vector<GLubyte>& VertexColor);
     void setGLPositions(std::vector<float>& VertexPos);
@@ -53,10 +53,10 @@ namespace coil {
     void initGTK();
     void guiUpdate();
   
-    std::auto_ptr<Gtk::VBox>        _gtkOptList;
-    std::auto_ptr<Gtk::RadioButton> _gtkLineRender;
-    std::auto_ptr<Gtk::RadioButton> _gtkPointRender;
-    std::auto_ptr<Gtk::RadioButton> _gtkTriangleRender;
+    std::unique_ptr<Gtk::VBox>        _gtkOptList;
+    std::unique_ptr<Gtk::RadioButton> _gtkLineRender;
+    std::unique_ptr<Gtk::RadioButton> _gtkPointRender;
+    std::unique_ptr<Gtk::RadioButton> _gtkTriangleRender;
 
     magnet::GL::Buffer<GLubyte> _colBuff;
     magnet::GL::Buffer<GLfloat> _posBuff;

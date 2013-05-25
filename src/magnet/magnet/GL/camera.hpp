@@ -498,9 +498,9 @@ namespace magnet {
 	\return An array containing the x and y pixel locations,
 	followed by the depth and w value.
        */
-      std::tr1::array<GLfloat, 4> project(math::Vector invec) const
+      std::array<GLfloat, 4> project(math::Vector invec) const
       {
-	std::tr1::array<GLfloat, 4> vec = {{GLfloat(invec[0]), GLfloat(invec[1]), GLfloat(invec[2]), 1.0f}};
+	std::array<GLfloat, 4> vec = {{GLfloat(invec[0]), GLfloat(invec[1]), GLfloat(invec[2]), 1.0f}};
 	vec = getProjectionMatrix() * (getViewMatrix() * vec);
 	
 	for (size_t i(0); i < 3; ++i)
@@ -517,17 +517,17 @@ namespace magnet {
       math::Vector unprojectToPosition(int windowx, int windowy, GLfloat depth) const
       {
 	//We need to calculate the ray from the camera
-	std::tr1::array<GLfloat, 4> n = {{(2.0f * windowx) / getWidth() - 1.0f,
+	std::array<GLfloat, 4> n = {{(2.0f * windowx) / getWidth() - 1.0f,
 					  1.0f - (2.0f * windowy) / getHeight(),
 					  depth, 1.0f}};
 	//Unproject from NDC to camera coords
-	std::tr1::array<GLfloat, 4> v = getProjectionMatrix().inverse() * n;
+	std::array<GLfloat, 4> v = getProjectionMatrix().inverse() * n;
 	
 	//Perform the w divide
 	for (size_t i(0); i < 4; ++i) v[i] /= v[3];
 	
 	//Unproject from camera to object space
-	std::tr1::array<GLfloat, 4> w = getViewMatrix().inverse() * v;
+	std::array<GLfloat, 4> w = getViewMatrix().inverse() * v;
 	
 	return magnet::math::Vector(w[0], w[1], w[2]);
       }
@@ -538,11 +538,11 @@ namespace magnet {
       math::Vector unprojectToDirection(int windowx, int windowy) const
       {
 	//We need to calculate the ray from the camera
-	std::tr1::array<GLfloat, 4> n = {{(2.0f * windowx) / getWidth() - 1.0f,
+	std::array<GLfloat, 4> n = {{(2.0f * windowx) / getWidth() - 1.0f,
 					  1.0f - (2.0f * windowy) / getHeight(), 
 					  0.0f, 1.0f}};
 	//Unproject from NDC to camera coords
-	std::tr1::array<GLfloat, 4> v = getProjectionMatrix().inverse() * n;
+	std::array<GLfloat, 4> v = getProjectionMatrix().inverse() * n;
 	
 	//Perform the w divide
 	for (size_t i(0); i < 4; ++i) v[i] /= v[3];
@@ -552,7 +552,7 @@ namespace magnet {
 	v[3] = 0;
 
 	//Unproject from camera to object space
-	std::tr1::array<GLfloat, 4> w = getViewMatrix().inverse() * v;
+	std::array<GLfloat, 4> w = getViewMatrix().inverse() * v;
 	
 	magnet::math::Vector vec(w[0], w[1], w[2]);
 	vec /= vec.nrm();

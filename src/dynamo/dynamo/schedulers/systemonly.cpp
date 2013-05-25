@@ -78,21 +78,21 @@ namespace dynamo {
 	<< magnet::xml::endtag("Sorter");
   }
 
-  std::auto_ptr<IDRange>
+  std::unique_ptr<IDRange>
   SSystemOnly::getParticleNeighbours(const Particle&) const
   {
-    return std::auto_ptr<IDRange>(new IDRangeNone());
+    return std::unique_ptr<IDRange>(new IDRangeNone());
   }
 
-  std::auto_ptr<IDRange>
+  std::unique_ptr<IDRange>
   SSystemOnly::getParticleNeighbours(const Vector&) const
   {
-    return std::auto_ptr<IDRange>(new IDRangeNone());
+    return std::unique_ptr<IDRange>(new IDRangeNone());
   }
 
-  std::auto_ptr<IDRange>
+  std::unique_ptr<IDRange>
   SSystemOnly::getParticleLocals(const Particle&) const
   {
-    return std::auto_ptr<IDRange>(new IDRangeNone());
+    return std::unique_ptr<IDRange>(new IDRangeNone());
   }
 }

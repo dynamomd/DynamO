@@ -19,7 +19,6 @@
 #include <dynamo/include.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
-#include <boost/foreach.hpp>
 #include <boost/math/special_functions/legendre.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <vector>
@@ -99,7 +98,7 @@ namespace dynamo {
 
     const std::vector<Dynamics::rotData>& latest_rdat(Sim->dynamics->getCompleteRotData());
 
-    BOOST_FOREACH(const Particle& part, Sim->particles)
+    for (const Particle& part : Sim->particles)
       {
 	displacement_term = part.getPosition() - initialConfiguration[part.getID()].first;
 	longitudinal_projection = (displacement_term | initialConfiguration[part.getID()].second);

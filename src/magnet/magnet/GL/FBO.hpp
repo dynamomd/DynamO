@@ -16,7 +16,7 @@
  */
 #pragma once
 #include <magnet/GL/texture.hpp>
-#include <tr1/memory>
+#include <memory>
 
 namespace magnet {
   namespace GL {   
@@ -140,7 +140,7 @@ namespace magnet {
 	//for the default framebuffer.
       }
 
-      inline void attachTexture(std::tr1::shared_ptr<Texture2D> tex, size_t i = 0)
+      inline void attachTexture(std::shared_ptr<Texture2D> tex, size_t i = 0)
       {
 	if (!_context)
 	  M_throw() << "Cannot attach textures to an uninitialised FBO";
@@ -200,7 +200,7 @@ namespace magnet {
       inline GLuint getFBO() { return _FBO; }
 
       /*! \brief Fetch the texture bound to the color buffer. */
-      inline std::tr1::shared_ptr<Texture2D>& getColorTexture(const size_t ID = 0)
+      inline std::shared_ptr<Texture2D>& getColorTexture(const size_t ID = 0)
       { 
 	if (ID >= _colorTextures.size())
 	  M_throw() << "Out of range";
@@ -212,7 +212,7 @@ namespace magnet {
       }
 
       /*! \brief Fetch the texture bound to the depth buffer. */
-      inline std::tr1::shared_ptr<Texture2D>& getDepthTexture()
+      inline std::shared_ptr<Texture2D>& getDepthTexture()
       { 
 	if (!_depthTexture) 
 	  M_throw() << "Cannot fetch the depth texture as the FBO has none bound";
@@ -226,9 +226,8 @@ namespace magnet {
 	//Find the first bound texture and return its dimensions
 	if (_depthTexture) return _depthTexture->getWidth();
 
-	for (std::vector<std::tr1::shared_ptr<Texture2D> >::iterator iPtr = _colorTextures.begin();
-	     iPtr != _colorTextures.end(); ++iPtr)
-	  if (*iPtr) return (*iPtr)->getWidth();
+	for (auto tex_ptr : _colorTextures)
+	  if (tex_ptr) return tex_ptr->getWidth();
 	
 	M_throw() << "Cannot query the width of a FBO without any bound textures";
       }
@@ -240,9 +239,8 @@ namespace magnet {
 	//Find the first bound texture and return its dimensions
 	if (_depthTexture) return _depthTexture->getHeight();
 
-	for (std::vector<std::tr1::shared_ptr<Texture2D> >::iterator iPtr = _colorTextures.begin();
-	     iPtr != _colorTextures.end(); ++iPtr)
-	  if (*iPtr) return (*iPtr)->getHeight();
+	for (auto tex_ptr : _colorTextures)
+	  if (tex_ptr) return tex_ptr->getHeight();
 	
 	M_throw() << "Cannot query the height of a FBO without any bound textures";
       }
@@ -366,8 +364,8 @@ namespace magnet {
       }      
 
       Context::ContextPtr _context;
-      std::vector<std::tr1::shared_ptr<Texture2D> > _colorTextures;
-      std::tr1::shared_ptr<Texture2D> _depthTexture;
+      std::vector<std::shared_ptr<Texture2D> > _colorTextures;
+      std::shared_ptr<Texture2D> _depthTexture;
       GLuint _FBO;
       bool _validated;
     };

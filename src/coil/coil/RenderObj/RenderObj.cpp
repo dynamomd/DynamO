@@ -153,12 +153,11 @@ namespace coil {
   }
 
   void 
-  RenderObjectsGtkTreeView::delete_obj(RenderObj* obj)
+  RenderObjectsGtkTreeView::delete_obj(RenderObj* obj_ptr)
   {
     //Start by searching the top level for the object to delete
-    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjects.begin();
-	 iPtr != _renderObjects.end(); ++iPtr)
-      if (obj == iPtr->get())
+    for (auto iPtr = _renderObjects.begin(); iPtr != _renderObjects.end(); ++iPtr)
+      if (obj_ptr == iPtr->get())
 	{
 	  //Found it
 	  if ((*iPtr)->deletable())
@@ -171,7 +170,7 @@ namespace coil {
 	}
     
     //Ok, just notify the object it is to be deleted.
-    obj->request_delete();
+    obj_ptr->request_delete();
   }
 
   void 
@@ -179,11 +178,10 @@ namespace coil {
   {
     _store->clear();
     
-    for (std::vector<std::tr1::shared_ptr<RenderObj> >::iterator iPtr = _renderObjects.begin();
-	 iPtr != _renderObjects.end(); ++iPtr)
+    for (auto& obj : _renderObjects)
       {
 	Gtk::TreeModel::iterator iter = _store->append();
-	(*iPtr)->addViewRows(*this, iter);
+	obj->addViewRows(*this, iter);
       }
   }
 }

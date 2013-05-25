@@ -204,8 +204,8 @@ namespace dynamo {
 	{
 	  ++Sim->eventCount;
 	  Sim->dynamics->updateParticlePair(p1, p2);
-	  shared_ptr<SpSphericalTop> sp1 = std::tr1::dynamic_pointer_cast<SpSphericalTop>(Sim->species[p1]);
-	  shared_ptr<SpSphericalTop> sp2 = std::tr1::dynamic_pointer_cast<SpSphericalTop>(Sim->species[p2]);
+	  shared_ptr<SpSphericalTop> sp1 = std::dynamic_pointer_cast<SpSphericalTop>(Sim->species[p1]);
+	  shared_ptr<SpSphericalTop> sp2 = std::dynamic_pointer_cast<SpSphericalTop>(Sim->species[p2]);
 
 	  if (!sp1 || !sp2)
 	    M_throw() << "Could not find the intertia of one of the particles undergoing an interaction";
@@ -313,12 +313,11 @@ namespace dynamo {
 	M_throw() << "Unknown collision type";
       }
     
-    Sim->signalParticleUpdate(retval);
+    (*Sim->_sigParticleUpdate)(retval);
     
     Sim->ptrScheduler->fullUpdate(p1, p2);
     
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, 
-		  Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, retval);
   }
    
@@ -332,7 +331,7 @@ namespace dynamo {
 	<< magnet::xml::attr("LA") << _LA->getName()
 	<< magnet::xml::attr("LB") << _LB->getName()
 	<< magnet::xml::attr("Name") << intName
-	<< *range;
+	<< range;
 
     ICapture::outputCaptureMap(XML);
   }

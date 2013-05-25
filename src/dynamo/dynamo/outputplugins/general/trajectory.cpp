@@ -121,7 +121,7 @@ namespace dynamo {
 	    << " dt " << eevent.getdt() / Sim->units.unitTime()
 	    << "\n";
 
-    BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
+    for (const ParticleEventData& pData : SDat.L1partChanges)
       {
 	const Particle& part = Sim->particles[pData.getParticleID()];
 	logfile << "    1PEvent p1 " << part.getID();
@@ -133,7 +133,7 @@ namespace dynamo {
 	logfile << " delP1=" << delP.toString() << ", pos=" << pos.toString() << ", vel=" << newv.toString() << ", oldvel=" << oldv.toString() << "\n";
       }
   
-    BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
+    for (const PairEventData& pData : SDat.L2partChanges)
       {
 	logfile << "    2PEvent";
 
@@ -155,7 +155,7 @@ namespace dynamo {
 	    << " dt " << eevent.getdt() / Sim->units.unitTime()
 	    << "\n";
 
-    BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
+    for (const ParticleEventData& pData : SDat.L1partChanges)
       {
 	const Particle& part = Sim->particles[pData.getParticleID()];
 	logfile << "    1PEvent p1 " << part.getID();
@@ -167,7 +167,7 @@ namespace dynamo {
 	logfile << " delP1=" << delP.toString() << ", pos=" << pos.toString() << ", vel=" << newv.toString() << ", oldvel=" << oldv.toString() << "\n";
       }
 
-    BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
+    for (const PairEventData& pData : SDat.L2partChanges)
       {
 	logfile << "    2PEvent";
       
@@ -189,7 +189,7 @@ namespace dynamo {
 	    << " dt " << dt / Sim->units.unitTime()
 	    << "\n";
 
-    BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
+    for (const ParticleEventData& pData : SDat.L1partChanges)
       {
 	const Particle& part = Sim->particles[pData.getParticleID()];
 	logfile << "    1PEvent p1 " << part.getID();
@@ -201,7 +201,7 @@ namespace dynamo {
 	logfile << " delP1=" << delP.toString() << ", pos=" << pos.toString() << ", vel=" << newv.toString() << ", oldvel=" << oldv.toString() << "\n";
       }
   
-    BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
+    for (const PairEventData& pData : SDat.L2partChanges)
       {
 	logfile << "    2PEvent";
       

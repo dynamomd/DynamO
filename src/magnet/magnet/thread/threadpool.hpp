@@ -25,37 +25,39 @@
 
 #include <magnet/thread/threadgroup.hpp>
 #include <magnet/thread/taskQueue.hpp>
+#include <mutex>
+#include <condition_variable>
 
 namespace magnet {
   namespace thread {
     /*! \brief A class providing a pool of worker threads that will
-     *   execute "tasks" pushed to it.
-     * 
-     * This class will also run in 0 thread mode, where the controlling
-     * process will execute the tasks when it enters the ThreadPool::wait() function.
-     *
+      execute "tasks" pushed to it.
+      
+      This class will also run in 0 thread mode, where the controlling
+      process will execute the tasks when it enters the
+      ThreadPool::wait() function.
      */
     class ThreadPool : public TaskQueue
     {	
     private:
       volatile bool _exception_flag;
       std::ostringstream _exception_data;
-  
+      
       ThreadPool (const ThreadPool&);
       ThreadPool& operator = (const ThreadPool&);
   
       /*! \brief This mutex is to control access to write that an exception has occurred.
        */
-      magnet::thread::Mutex _exception_mutex;
+      std::mutex _exception_mutex;
 
       /*! \brief Triggered every time a thread becomes available, to
-       * notify the mother thread stuck in the wait() function.
+        notify the mother thread stuck in the wait() function.
        */
-      magnet::thread::Condition _threadAvailable_condition;
+      std::condition_variable _threadAvailable_condition;
 
       /*! \brief Triggered to wake threads when jobs are added to the queue.
        */
-      magnet::thread::Condition _need_thread_mutex;
+      std::condition_variable _need_thread_mutex;
 
       magnet::thread::ThreadGroup _threads;
 
@@ -64,8 +66,8 @@ namespace magnet {
 
     public:  
       /*! \brief Default Constructor
-       *
-       * This initialises the pool to 0 threads
+       
+        This initialises the pool to 0 threads
        */
       inline ThreadPool():
 	_exception_flag(false),
@@ -74,11 +76,11 @@ namespace magnet {
       {}
       
       /*! \brief Set the number of threads in the pool
-       *
-       * This creates the specified amount of threads to populate the
-       * pool. When lowering the number of threads this pool kills ALL
-       * threads, but waits for all their current tasks to complete first,
-       * then repopulates the pool.
+       
+        This creates the specified amount of threads to populate the
+        pool. When lowering the number of threads this pool kills ALL
+        threads, but waits for all their current tasks to complete
+        first, then repopulates the pool.
        */
       inline void setThreadCount(size_t x)
       { 
@@ -94,43 +96,45 @@ namespace magnet {
 	
 	//Add the required number of threads
 	for (size_t i=_threads.size(); i < x; ++i)
-	  _threads.create_thread(function::Task::makeTask(&ThreadPool::beginThread, this));
+	  _threads.create_thread(std::function<void()>(std::bind(&ThreadPool::beginThread, this)));
       }
 
       /*! \brief The current number of threads in the pool */
       inline size_t getThreadCount() const { return _threads.size(); }
 
       //Actual queuer
-      inline void queueTask(function::Task* threadfunc)
+      inline void queueTask(std::function<void()>&& threadfunc)
       {
 	TaskQueue::queueTask(threadfunc);
 	_need_thread_mutex.notify_all();
       }
 
       //Actual queuer
-      inline void queueTasks(std::vector<function::Task*>& threadfuncs)
+      inline void queueTasks(std::vector<std::function<void()> >& threadfuncs)
       {
 	TaskQueue::queueTasks(threadfuncs);
 	_need_thread_mutex.notify_all();
       }
   
       /*! \brief Destructor
-       *
-       * Join all threads in the pool and wait until they are terminated.
+       
+        Join all threads in the pool and wait until they are
+        terminated.
        */
       inline ~ThreadPool() throw() { stop(); }
 
       /*! \brief Wait for all tasks to complete.
-       *
-       * If there are no threads in the pool then this function will
-       * actually make the waiting/mother process perform the tasks.
+       
+        If there are no threads in the pool then this function will
+        actually make the waiting/mother process perform the tasks.
        */
       inline void wait()
       {
 	if (_threads.size())
 	  {
-	    //We are in threaded mode! Wait until all tasks are gone and all threads are idling
-	    magnet::thread::ScopedLock lock1(_queue_mutex);      
+	    //We are in threaded mode! Wait until all tasks are gone
+	    //and all threads are idling
+	    std::unique_lock<std::mutex> lock1(_queue_mutex);      
 	    while (!_waitingFunctors.empty() 
 		   || (_idlingThreads != _threads.size()))
 	      _threadAvailable_condition.wait(lock1);
@@ -140,8 +144,7 @@ namespace magnet {
 	    //Non threaded mode
 	    while (!_waitingFunctors.empty())
 	      {
-		(*_waitingFunctors.front())();
-		delete _waitingFunctors.front();
+		_waitingFunctors.front()();
 		_waitingFunctors.pop();
 	      }
 	  }
@@ -160,7 +163,7 @@ namespace magnet {
       {
 	try
 	  {
-	    magnet::thread::ScopedLock lock1(_queue_mutex);
+	    std::unique_lock<std::mutex> lock1(_queue_mutex);
 	    
 	    while (!_stop_flag)
 	      {
@@ -175,25 +178,22 @@ namespace magnet {
 		    continue;
 		  }
 		
-		function::Task* func = _waitingFunctors.front();
+		std::function<void()> func = _waitingFunctors.front();
 		_waitingFunctors.pop();
 		
 		lock1.unlock();
 		
-		try { (*func)(); }
+		try { func(); }
 		catch(std::exception& cep)
-		  {		  
+		  {
 		    //Mark the main process to throw an exception as soon as possible
-		    magnet::thread::ScopedLock lock2(_exception_mutex);
+		    std::lock_guard<std::mutex> lock2(_exception_mutex);
 		    
 		    _exception_data << "\nTHREAD: Task threw an exception:-"
-				     << cep.what();
+				    << cep.what();
 		    
 		    _exception_flag = true;
 		  }
-		
-		delete func;
-		
 		lock1.lock();
 	      }
 	  }
@@ -213,7 +213,7 @@ namespace magnet {
 	// it is possible for a thread to miss notify_all and never
 	// terminate.
 	{
-	  magnet::thread::ScopedLock lock1(_queue_mutex);
+	  std::unique_lock<std::mutex> lock1(_queue_mutex);
 	  _stop_flag = true;       
 	}
 	

@@ -28,9 +28,7 @@
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/random/uniform_int.hpp>
 
 #ifdef DYNAMO_DEBUG 
 #include <boost/math/special_functions/fpclassify.hpp>
@@ -66,10 +64,10 @@ namespace dynamo {
 
     ++Sim->eventCount;
 
-    BOOST_FOREACH(const size_t& id, *range1)
+    for (const size_t& id : *range1)
       Sim->dynamics->updateParticle(Sim->particles[id]);
   
-    BOOST_FOREACH(const size_t& id, *range2)
+    for (const size_t& id : *range2)
       Sim->dynamics->updateParticle(Sim->particles[id]);
 
     size_t new_step_ID;
@@ -85,13 +83,13 @@ namespace dynamo {
 
     if (etype != BOUNCE) _stepID = new_step_ID;
 
-    Sim->signalParticleUpdate(SDat);
+    (*Sim->_sigParticleUpdate)(SDat);
   
     //Only 1ParticleEvents occur
-    BOOST_FOREACH(const ParticleEventData& PDat, SDat.L1partChanges)
+    for (const ParticleEventData& PDat : SDat.L1partChanges)
       Sim->ptrScheduler->fullUpdate(Sim->particles[PDat.getParticleID()]);
   
-    BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(*this, SDat, locdt); 
   }
 
@@ -102,10 +100,10 @@ namespace dynamo {
 
     if (_stepID == std::numeric_limits<size_t>::max())
       {
-	BOOST_FOREACH(const size_t& id, *range1)
+	for(const size_t& id : *range1)
 	  Sim->dynamics->updateParticle(Sim->particles[id]);
 	
-	BOOST_FOREACH(const size_t& id, *range2)
+	for(const size_t& id : *range2)
 	  Sim->dynamics->updateParticle(Sim->particles[id]);
 	
 	std::pair<Vector, Vector> r1data = Sim->dynamics->getCOMPosVel(*range1);
@@ -117,16 +115,16 @@ namespace dynamo {
   
     recalculateTime();
 
-    Sim->registerParticleUpdateFunc(magnet::function::MakeDelegate(this, &SysUmbrella::particlesUpdated));
+    (*Sim->_sigParticleUpdate).connect<SysUmbrella, &SysUmbrella::particlesUpdated>(this);
   }
 
   void 
   SysUmbrella::recalculateTime()
   {
-    BOOST_FOREACH(const size_t& id, *range1)
+    for (const size_t& id : *range1)
       Sim->dynamics->updateParticle(Sim->particles[id]);
   
-    BOOST_FOREACH(const size_t& id, *range2)
+    for (const size_t& id : *range2)
       Sim->dynamics->updateParticle(Sim->particles[id]);
   
     dt = HUGE_VAL;
@@ -159,7 +157,7 @@ namespace dynamo {
   void 
   SysUmbrella::particlesUpdated(const NEventData& PDat)
   {
-    BOOST_FOREACH(const ParticleEventData& pdat, PDat.L1partChanges)
+    for (const ParticleEventData& pdat : PDat.L1partChanges)
       if (range1->isInRange(Sim->particles[pdat.getParticleID()])
 	  || range2->isInRange(Sim->particles[pdat.getParticleID()]))
 	{
@@ -168,7 +166,7 @@ namespace dynamo {
 	  return;
 	}
 
-    BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
+    for (const PairEventData& pdat : PDat.L2partChanges)
       if (range1->isInRange(Sim->particles[pdat.particle1_.getParticleID()])
 	  || range2->isInRange(Sim->particles[pdat.particle1_.getParticleID()])
 	  || range1->isInRange(Sim->particles[pdat.particle2_.getParticleID()])

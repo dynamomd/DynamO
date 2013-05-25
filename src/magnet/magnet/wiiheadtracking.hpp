@@ -22,7 +22,7 @@
 #pragma once
 
 #include <magnet/exception.hpp>
-#include <magnet/thread/mutex.hpp>
+#include <mutex>
 #include <magnet/math/vector.hpp>
 #include <cwiid.h> /* cwiid wii remote library */
 #include <vector>
@@ -97,7 +97,7 @@ namespace magnet {
 
     inline math::Vector getHeadPosition()
     { 
-      magnet::thread::ScopedLock lock(_irdatalock);
+      thread::ScopedLock lock(_irdatalock);
       return eye_pos;
     }
 
@@ -113,7 +113,7 @@ namespace magnet {
 
     inline std::vector<IRData> getSortedIRData()
     { 
-      magnet::thread::ScopedLock lock(_irdatalock);
+      thread::ScopedLock lock(_irdatalock);
       return _irdata;
     }
 
@@ -130,7 +130,7 @@ namespace magnet {
 	  break;
 	case CWIID_MESG_IR:
 	  {
-	    magnet::thread::ScopedLock lock(TrackWiimote::getInstance()._irdatalock);
+	    thread::ScopedLock lock(TrackWiimote::getInstance()._irdatalock);
 
 	    std::vector<IRData>& ir_positions = TrackWiimote::getInstance()._irdata;
 	    ir_positions.clear();
@@ -222,6 +222,6 @@ namespace magnet {
 
     std::vector<IRData> _irdata;
 
-    magnet::thread::Mutex _irdatalock;
+    std::mutex _irdatalock;
   };
 }

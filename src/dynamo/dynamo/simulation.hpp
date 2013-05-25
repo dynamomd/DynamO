@@ -22,12 +22,7 @@
 #include <dynamo/property.hpp>
 #include <dynamo/units/units.hpp>
 #include <magnet/function/delegate.hpp>
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/variate_generator.hpp>
-#include <boost/random/uniform_01.hpp>
-#include <boost/foreach.hpp>
-#include <boost/signals2.hpp>
-#include <boost/random/normal_distribution.hpp>
+#include <random>
 #include <vector>
 
 namespace dynamo
@@ -65,7 +60,7 @@ namespace dynamo
       ERROR         = 4  /*!< The simulation has failed. */
     } ESimulationStatus;
   
-  typedef boost::mt19937 baseRNG;
+  typedef std::mt19937 baseRNG;
   
   /*! \brief Fundamental collection of the Simulation data.
    
@@ -79,9 +74,6 @@ namespace dynamo
   class Simulation : public dynamo::Base
   {
   protected:
-    typedef magnet::function::Delegate1
-    <const NEventData&, void> particleUpdateFunc;
-
     template <class T>
     struct Container: public std::vector<shared_ptr<T> >
     {
@@ -89,14 +81,14 @@ namespace dynamo
       using Base::operator[];
 
       shared_ptr<T>& operator[](const std::string name) {
-	BOOST_FOREACH(shared_ptr<T>& ptr, *this)
+	for (shared_ptr<T>& ptr : *this)
 	  if (ptr->getName() == name) return ptr;
 	
 	M_throw() << "Could not find the \"" << name << "\" object";
       }
 
       const shared_ptr<T>& operator[](const std::string name) const {
-	BOOST_FOREACH(const shared_ptr<T>& ptr, *this)
+	for (const shared_ptr<T>& ptr : *this)
 	  if (ptr->getName() == name) return ptr;
 	
 	M_throw() << "Could not find the \"" << name << "\" object";
@@ -187,10 +179,9 @@ namespace dynamo
     template<class T>
     shared_ptr<const T> getOutputPlugin() const
     {
-      BOOST_FOREACH(const shared_ptr<OutputPlugin>& plugin, 
-		    outputPlugins)
-	if (std::tr1::dynamic_pointer_cast<const T>(plugin))
-	  return std::tr1::static_pointer_cast<const T>(plugin);
+      for (const auto& plugin : outputPlugins)
+	if (std::dynamic_pointer_cast<const T>(plugin))
+	  return std::static_pointer_cast<const T>(plugin);
       
       return shared_ptr<const T>();
     }
@@ -200,10 +191,9 @@ namespace dynamo
     template<class T>
     shared_ptr<T> getOutputPlugin()
     {
-      BOOST_FOREACH(const shared_ptr<OutputPlugin>& plugin, 
-		    outputPlugins)
-	if (std::tr1::dynamic_pointer_cast<T>(plugin))
-	  return std::tr1::static_pointer_cast<T>(plugin);
+      for (const shared_ptr<OutputPlugin>& plugin : outputPlugins)
+	if (std::dynamic_pointer_cast<T>(plugin))
+	  return std::static_pointer_cast<T>(plugin);
 
       return shared_ptr<T>();
     }    
@@ -322,10 +312,7 @@ namespace dynamo
 
     /*! \brief The random number generator of the system. */
     mutable baseRNG ranGenerator;
-
-    mutable boost::variate_generator<dynamo::baseRNG&, boost::normal_distribution<double> > normal_sampler;
-    mutable boost::variate_generator<dynamo::baseRNG&, boost::uniform_01<double> > uniform_sampler;
-
+    
     /*! \brief The collection of OutputPlugin's operating on this system.
      */
     std::vector<shared_ptr<OutputPlugin> > outputPlugins; 
@@ -355,30 +342,20 @@ namespace dynamo
      */
     ESimulationStatus status;
 
-    Units units;
-
-    /*! \brief Register a callback for particle changes.*/
-    void registerParticleUpdateFunc(const particleUpdateFunc& func) const
-    { _particleUpdateNotify.push_back(func); }
-
-    /*! \brief Call all registered functions requiring a callback on
-        particle changes.
-    */
-    void signalParticleUpdate(const NEventData&) const;
+    Units units;    
 
     void replexerSwap(Simulation&);
     
-    boost::signals2::signal<void (size_t)>& particle_added_signal()
-    { return _particleAddedToSim; }
+    /*! \brief Signal on particle changes.
+      
+      This is used to allow System events to track when a particle is
+      being updated. We cannot allow other classes to use this yet, as
+      this is swapped during a replica exchange (along with the System
+      classes). This must be cleaned up.
+     */
+    mutable std::unique_ptr<magnet::Signal<void(const NEventData&)> > _sigParticleUpdate;
 
-    boost::signals2::signal<void (size_t)>& particle_removed_signal()
-    { return _particleRemovedFromSim; }
-
-  private:    
-    mutable std::vector<particleUpdateFunc> _particleUpdateNotify;
-    mutable boost::signals2::signal<void (size_t)> _particleAddedToSim;
-    mutable boost::signals2::signal<void (size_t)> _particleRemovedFromSim;
-
+  private:
     size_t _nextPrint;
   };
 

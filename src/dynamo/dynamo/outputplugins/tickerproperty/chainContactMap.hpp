@@ -18,7 +18,7 @@
 #pragma once
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <magnet/math/histogram.hpp>
-#include <boost/shared_array.hpp>
+#include <memory>
 #include <list>
 
 namespace dynamo {
@@ -47,7 +47,7 @@ namespace dynamo {
       Cdata(const TChain*, unsigned long);
 
       const TChain* chainPtr;
-      boost::shared_array<unsigned long> array;
+      std::unique_ptr<unsigned long[]> array;
       unsigned long counter;
       unsigned long chainlength;
     };

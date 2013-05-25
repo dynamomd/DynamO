@@ -24,7 +24,6 @@
 #include <dynamo/locals/oscillatingplate.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
 #include <fstream>
 
 namespace dynamo {
@@ -57,7 +56,7 @@ namespace dynamo {
 	M_throw() << "Could not find the PlateName specified. You said " << plateName;
       }
   
-    if (!std::tr1::dynamic_pointer_cast<LOscillatingPlate>(Sim->locals[plateID])) 
+    if (!std::dynamic_pointer_cast<LOscillatingPlate>(Sim->locals[plateID])) 
       M_throw() << "The PlateName'd local is not a LOscillatingPlate";
 
     if (logfile.is_open())
@@ -85,10 +84,10 @@ namespace dynamo {
 
     double EnergyChange(0);
 
-    BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
+    for (const ParticleEventData& pData : SDat.L1partChanges)
       EnergyChange += pData.getDeltaKE();  
   
-    BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
+    for (const PairEventData& pData : SDat.L2partChanges)
       EnergyChange += pData.particle1_.getDeltaKE() + pData.particle2_.getDeltaKE();
   
     localEnergyFlux[localEvent.getLocalID()].first += EnergyChange;
@@ -97,7 +96,7 @@ namespace dynamo {
 
     oldPlateEnergy = newPlateEnergy;
 
-    BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
+    for (const ParticleEventData& pData : SDat.L1partChanges)
       {
 	const Particle& p1 = Sim->particles[pData.getParticleID()];
 	const Species& sp1 = *Sim->species[pData.getSpeciesID()];
@@ -118,10 +117,10 @@ namespace dynamo {
   void 
   OPPlateMotion::ticker()
   {
-    BOOST_FOREACH(localEntry& entry, localEnergyLoss)
+    for (localEntry& entry : localEnergyLoss)
       entry.second.push_back(entry.first);
 
-    BOOST_FOREACH(localEntry& entry, localEnergyFlux)
+    for (localEntry& entry : localEnergyFlux)
       {
 	entry.second.push_back(entry.first);
 	entry.first = 0.0;
@@ -132,7 +131,7 @@ namespace dynamo {
     double partEnergy(0.0);
 
     double mass(0);
-    BOOST_FOREACH(const Particle& part, Sim->particles)
+    for (const Particle& part : Sim->particles)
       {
 	Vector pos(part.getPosition()), vel(part.getVelocity());
 	double pmass(Sim->species[part]->getMass(part.getID()));
@@ -201,7 +200,7 @@ namespace dynamo {
 	  size_t step(0);
 	  double deltat(getTickerTime() / Sim->units.unitTime());
 	  double sum = localEnergyLoss[ID].first;
-	  BOOST_FOREACH(const double& val, localEnergyLoss[ID].second)
+	  for (const double& val : localEnergyLoss[ID].second)
 	    {
 	      sum += val;
 	      of << deltat * (step++) << " " 
@@ -224,7 +223,7 @@ namespace dynamo {
 	  size_t step(0);
 	  double deltat(getTickerTime() / Sim->units.unitTime());
 	
-	  BOOST_FOREACH(const double& val, localEnergyFlux[ID].second)
+	  for (const double& val : localEnergyFlux[ID].second)
 	    of << deltat * (step++) << " " << val / (deltat * Sim->units.unitEnergy()) << "\n";
 	}
       }

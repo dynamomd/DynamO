@@ -16,7 +16,7 @@
 */
 #pragma once
 #include <magnet/GL/buffer.hpp>
-#include <tr1/array>
+#include <array>
 
 namespace magnet {
   namespace GL {

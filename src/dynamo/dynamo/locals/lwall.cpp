@@ -58,12 +58,12 @@ namespace dynamo {
     else
       EDat = Sim->dynamics->runPlaneEvent(part, vNorm, _e->getProperty(part.getID()), _diameter->getProperty(part.getID()));
 
-    Sim->signalParticleUpdate(EDat);
+    (*Sim->_sigParticleUpdate)(EDat);
 
     //Now we're past the event update the scheduler and plugins
     Sim->ptrScheduler->fullUpdate(part);
   
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, EDat);
   }
 
@@ -167,7 +167,7 @@ namespace dynamo {
 	_renderObj.reset(new coil::RSurface(getName(), 10, vPosition - 0.5 * (orth1 + orth2), orth1, orth2, vNorm));
       }
   
-    return std::tr1::static_pointer_cast<coil::RenderObj>(_renderObj);
+    return std::static_pointer_cast<coil::RenderObj>(_renderObj);
   }
 
   void 

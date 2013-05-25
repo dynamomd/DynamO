@@ -21,7 +21,6 @@
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
 #include <vector>
 
 namespace dynamo {
@@ -41,7 +40,7 @@ namespace dynamo {
 
     virtual bool isInRange(const Particle &part) const
     {
-      BOOST_FOREACH(const shared_ptr<IDRange>& r, ranges)
+      for (const shared_ptr<IDRange>& r : ranges)
 	if (r->isInRange(part)) return true;
 
       return false;
@@ -50,14 +49,14 @@ namespace dynamo {
     virtual unsigned long size() const 
     { 
       size_t size(0);
-      BOOST_FOREACH(const shared_ptr<IDRange>& r, ranges)
+      for (const shared_ptr<IDRange>& r : ranges)
 	size += r->size();
       return size;
     }
 
     virtual unsigned long operator[](unsigned long i) const 
     { 
-      BOOST_FOREACH(const shared_ptr<IDRange>& r, ranges)
+      for (const shared_ptr<IDRange>& r : ranges)
 	{
 	  if (i < r->size())
 	    return r->operator[](i);
@@ -76,7 +75,7 @@ namespace dynamo {
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {
       XML << magnet::xml::attr("Type") << "Union";
-      BOOST_FOREACH(const shared_ptr<IDRange>& r, ranges)
+      for (const shared_ptr<IDRange>& r : ranges)
 	XML << *r;
     }
 

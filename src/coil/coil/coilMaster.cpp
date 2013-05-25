@@ -23,13 +23,14 @@
 #include <GL/freeglut.h>
 #include <GL/freeglut_ext.h>
 #include <stdexcept>
+#include <functional>
 #include <cstdlib>
 #include <iostream>
 #include <unistd.h>
 
 namespace coil {
   CoilMaster* CoilRegister::_instance = NULL;
-  magnet::thread::Mutex CoilRegister::_mutex;
+  std::mutex CoilRegister::_mutex;
   size_t CoilRegister::_counter = 0;
 
   CoilMaster::CoilMaster():
@@ -49,7 +50,7 @@ namespace coil {
   void CoilMaster::bootRenderThread()
   {
     _runFlag = true;
-    _coilThread.startTask(magnet::function::Task::makeTask(&CoilMaster::coilThreadEntryPoint, this));
+    _coilThread = std::thread(std::bind(&CoilMaster::coilThreadEntryPoint, this));
   
     //Spinlock waiting for the boot thread to come up
     while (!_coilReadyFlag) { smallSleep(); }
@@ -246,7 +247,7 @@ namespace coil {
   void 
   CoilMaster::waitForShutdown()
   {
-    if (_coilThread.validTask()) _coilThread.join();
+    if (_coilThread.joinable()) _coilThread.join();
   }
 
   void CoilMaster::coilThreadEntryPoint()
@@ -294,7 +295,7 @@ namespace coil {
     
     //! \todo{There is a race condition here if a window is added as coil is shutting down}
     {
-      magnet::thread::ScopedLock lock(_coilLock);
+      std::lock_guard<std::mutex> lock(_coilLock);
       
       //Now we must get glut to destroy all the windows
       

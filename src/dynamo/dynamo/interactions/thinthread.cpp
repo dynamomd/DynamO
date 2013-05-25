@@ -133,9 +133,10 @@ namespace dynamo {
 	      retVal.setType(STEP_IN);
 	      ICapture::add(p1, p2);
 	    }
-	  Sim->signalParticleUpdate(retVal);
+	  
+	  (*Sim->_sigParticleUpdate)(retVal);
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
 	    Ptr->eventUpdate(event, retVal);
 	  break;
 	}
@@ -143,9 +144,9 @@ namespace dynamo {
 	{
 	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, -wd, ld2, 0));
 	  if (retVal.getType() != BOUNCE) ICapture::remove(p1, p2);
-	  Sim->signalParticleUpdate(retVal);
+	  (*Sim->_sigParticleUpdate)(retVal);
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
 	  break;
 	}

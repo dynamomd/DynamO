@@ -27,5 +27,4 @@
 #include <dynamo/inputplugins/cells/random.hpp>
 #include <dynamo/inputplugins/cells/linearRod.hpp>
 #include <dynamo/inputplugins/cells/binary.hpp>
-#include <dynamo/inputplugins/cells/cylinder.hpp>
 #include <dynamo/inputplugins/cells/triangleIntersection.hpp>

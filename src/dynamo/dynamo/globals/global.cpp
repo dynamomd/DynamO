@@ -49,7 +49,7 @@ namespace dynamo {
 
     if (!XML.getAttribute("Type").getValue().compare("Cells"))
       {
-	if (std::tr1::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
+	if (std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
 	  return shared_ptr<Global>(new GCellsShearing(XML, Sim));
 	else
 	  return shared_ptr<Global>(new GCells(XML, Sim));

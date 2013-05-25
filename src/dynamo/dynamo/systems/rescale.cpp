@@ -26,7 +26,6 @@
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <fstream>
@@ -93,8 +92,8 @@ namespace dynamo {
 
     NEventData SDat;
 
-    BOOST_FOREACH(const shared_ptr<Species>& species, Sim->species)
-      BOOST_FOREACH(const unsigned long& partID, *species->getRange())
+    for (const shared_ptr<Species>& species : Sim->species)
+      for (const unsigned long& partID : *species->getRange())
       SDat.L1partChanges.push_back(ParticleEventData(Sim->particles[partID], *species, RESCALE));
 
     Sim->dynamics->updateAllParticles();
@@ -106,16 +105,16 @@ namespace dynamo {
 
     scaleFactor += std::log(currentkT);
 
-    Sim->signalParticleUpdate(SDat);
+    (*Sim->_sigParticleUpdate)(SDat);
   
     //Only 1ParticleEvents occur
-    BOOST_FOREACH(const ParticleEventData& PDat, SDat.L1partChanges)
+    for (const ParticleEventData& PDat : SDat.L1partChanges)
       Sim->ptrScheduler->fullUpdate(Sim->particles[PDat.getParticleID()]);
   
-    BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(*this, SDat, locdt); 
 
-    BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
       Ptr->temperatureRescale(1.0/currentkT);
 
     dt = _timestep;
@@ -131,8 +130,7 @@ namespace dynamo {
     dt = _timestep;
 
     if (_frequency != std::numeric_limits<size_t>::max())
-      Sim->registerParticleUpdateFunc
-	(magnet::function::MakeDelegate(this, &SysRescale::checker));
+      (*Sim->_sigParticleUpdate).connect<SysRescale, &SysRescale::checker>(this);
   
     dout << "Velocity rescaler initialising" << std::endl;
   }

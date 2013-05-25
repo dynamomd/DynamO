@@ -19,8 +19,7 @@
 #include <dynamo/eventtypes.hpp>
 #include <dynamo/outputplugins/1partproperty/1partproperty.hpp>
 #include <magnet/math/histogram.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/tuple/tuple_comparison.hpp>
+#include <tuple>
 #include <vector>
 #include <map>
 
@@ -54,7 +53,7 @@ namespace dynamo {
       histogram(): magnet::math::Histogram<>(OPCollEnergyChange::KEBinWidth) {}
     };
 
-    typedef boost::tuple<size_t, size_t, EEventType> mapkey;
+    typedef std::tuple<size_t, size_t, EEventType> mapkey;
 
     std::map<mapkey, histogram> collisionKE;
 

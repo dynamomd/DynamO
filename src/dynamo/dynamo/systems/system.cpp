@@ -20,7 +20,6 @@
 #include <dynamo/systems/rescale.hpp>
 #include <dynamo/systems/rotateGravity.hpp>
 #include <dynamo/systems/DSMCspheres.hpp>
-#include <dynamo/systems/RingDSMC.hpp>
 #include <dynamo/systems/umbrella.hpp>
 #include <dynamo/systems/visualizer.hpp>
 #include <dynamo/systems/sleep.hpp>
@@ -30,6 +29,7 @@
 #include <dynamo/ranges/IDRangeAll.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
+#include <cstring>
 
 namespace dynamo {
   bool 
@@ -74,8 +74,6 @@ namespace dynamo {
       return shared_ptr<System>(new SysDSMCSpheres(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("Rescale"))
       return shared_ptr<System>(new SysRescale(XML, Sim));
-    else if (!XML.getAttribute("Type").getValue().compare("RingDSMC"))
-      return shared_ptr<System>(new SysRingDSMC(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("Umbrella"))
       return shared_ptr<System>(new SysUmbrella(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("Sleep"))

@@ -29,7 +29,6 @@
 #include <dynamo/include.hpp>
 #include <coil/clWindow.hpp>
 #include <coil/RenderObj/DataSet.hpp>
-#include <boost/foreach.hpp>
 #include <algorithm>
 
 namespace dynamo {
@@ -50,10 +49,10 @@ namespace dynamo {
     //Build a window, ready to display it
     _window.reset(new coil::CLGLWindow("Visualizer : " + nName, tickFreq, true));
   
-    BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->species)
+    for (const shared_ptr<Species>& spec : Sim->species)
       _window->addRenderObj(spec->createDataSet());
 
-    BOOST_FOREACH(shared_ptr<Local>& local, Sim->locals)
+    for (shared_ptr<Local>& local : Sim->locals)
       {
 	CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*local));
 
@@ -63,10 +62,10 @@ namespace dynamo {
 
     _coil.getInstance().addWindow(_window);
 
-    BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->species)
+    for (const shared_ptr<Species>& spec : Sim->species)
       {
 	spec->initDataSet();
-	_window->signal_data_update().connect(boost::bind(&Species::updateRenderData, spec.get()));
+	_window->_updateDataSignal.connect<Species, &Species::updateRenderData>(spec.get());
 	spec->updateRenderData();
       }
   
@@ -95,7 +94,7 @@ namespace dynamo {
     if (_window->dynamoParticleSync())
       Sim->dynamics->updateAllParticles();
 
-    BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(*this, NEventData(), dt);
   
     _window->simupdateTick(Sim->systemTime / Sim->units.unitTime());
@@ -110,8 +109,7 @@ namespace dynamo {
   { 
     ID = nID; 
 
-    Sim->registerParticleUpdateFunc
-      (magnet::function::MakeDelegate(this, &SVisualizer::particlesUpdated));
+    (*Sim->_sigParticleUpdate).connect<SVisualizer, &SVisualizer::particlesUpdated>(this);
   }
 
   void 

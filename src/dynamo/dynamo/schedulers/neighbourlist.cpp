@@ -48,7 +48,7 @@ namespace dynamo {
       }
   
     shared_ptr<GNeighbourList> nblist 
-      = std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->globals[NBListID]);
+      = std::dynamic_pointer_cast<GNeighbourList>(Sim->globals[NBListID]);
 
     if (!nblist)
       M_throw() << "The Global named SchedulerNBList is not a neighbour list!";
@@ -61,7 +61,7 @@ namespace dynamo {
 		<< Sim->getLongestInteraction() / Sim->units.unitLength();
 
     nblist->markAsUsedInScheduler();
-    nblist->ConnectSigNewNeighbourNotify<Scheduler>(&Scheduler::addInteractionEvent, this);
+    nblist->_sigNewNeighbour.connect<Scheduler, &Scheduler::addInteractionEvent>(this);
     Scheduler::initialise();
   }
 
@@ -86,11 +86,11 @@ namespace dynamo {
     Scheduler(Sim,"NeighbourListScheduler", ns)
   { dout << "Neighbour List Scheduler Algorithmn Loaded" << std::endl; }
 
-  std::auto_ptr<IDRange>
+  std::unique_ptr<IDRange>
   SNeighbourList::getParticleNeighbours(const Particle& part) const
   {
 #ifdef DYNAMO_DEBUG
-    if (!std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->globals[NBListID]))
+    if (!std::dynamic_pointer_cast<GNeighbourList>(Sim->globals[NBListID]))
       M_throw() << "Not a GNeighbourList!";
 #endif
 
@@ -99,14 +99,14 @@ namespace dynamo {
 				 (Sim->globals[NBListID]
 				  .get()));
   
-    return std::auto_ptr<IDRange>(new IDRangeList(nblist.getParticleNeighbours(part)));
+    return std::unique_ptr<IDRange>(new IDRangeList(nblist.getParticleNeighbours(part)));
   }
 
-  std::auto_ptr<IDRange>
+  std::unique_ptr<IDRange>
   SNeighbourList::getParticleNeighbours(const Vector& vec) const
   {
 #ifdef DYNAMO_DEBUG
-    if (!std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->globals[NBListID]))
+    if (!std::dynamic_pointer_cast<GNeighbourList>(Sim->globals[NBListID]))
       M_throw() << "Not a GNeighbourList!";
 #endif
 
@@ -115,12 +115,12 @@ namespace dynamo {
 				 (Sim->globals[NBListID]
 				  .get()));
   
-    return std::auto_ptr<IDRange>(new IDRangeList(nblist.getParticleNeighbours(vec)));
+    return std::unique_ptr<IDRange>(new IDRangeList(nblist.getParticleNeighbours(vec)));
   }
     
-  std::auto_ptr<IDRange> 
+  std::unique_ptr<IDRange> 
   SNeighbourList::getParticleLocals(const Particle& part) const
   {
-    return std::auto_ptr<IDRange>(new IDRangeRange(0, Sim->locals.size()));
+    return std::unique_ptr<IDRange>(new IDRangeRange(0, Sim->locals.size()));
   }
 }

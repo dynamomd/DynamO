@@ -20,8 +20,6 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/ranges/IDRange.hpp>
 #include <dynamo/interactions/potentials/potential.hpp>
-#include <boost/random/variate_generator.hpp>
-#include <boost/random/uniform_real.hpp>
 
 namespace dynamo {
   class SysUmbrella: public System

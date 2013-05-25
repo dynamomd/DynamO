@@ -319,12 +319,15 @@ namespace dynamo {
  
     double mass = Sim->species[tmpDat.getSpeciesID()]->getMass(part.getID());
 
+    std::normal_distribution<> normal_dist;
+    std::uniform_real_distribution<> uniform_dist;
+
     for (size_t iDim = 0; iDim < NDIM; iDim++)
-      part.getVelocity()[iDim] = Sim->normal_sampler() * sqrtT / std::sqrt(mass);
+      part.getVelocity()[iDim] = normal_dist(Sim->ranGenerator) * sqrtT / std::sqrt(mass);
   
-    part.getVelocity() 
+    part.getVelocity()
       //This first line adds a component in the direction of the normal
-      += vNorm * (sqrtT * sqrt(-2.0*log(1.0-Sim->uniform_sampler()) / mass)
+      += vNorm * (sqrtT * sqrt(-2.0*log(1.0 - uniform_dist(Sim->ranGenerator)) / mass)
 		  //This removes the original normal component
 		  -(part.getVelocity() | vNorm)
 		  //This adds on the velocity of the wall

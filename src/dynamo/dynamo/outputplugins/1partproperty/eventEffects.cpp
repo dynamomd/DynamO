@@ -21,7 +21,6 @@
 #include <dynamo/interactions/include.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
 
 namespace dynamo {
   OPEventEffects::OPEventEffects(const dynamo::Simulation* tmp, const magnet::xml::Node&):
@@ -50,7 +49,7 @@ namespace dynamo {
   void 
   OPEventEffects::eventUpdate(const GlobalEvent& globEvent, const NEventData& SDat)
   {
-    BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
+    for (const ParticleEventData& pData : SDat.L1partChanges)
       {
 	const Particle& p1 = Sim->particles[pData.getParticleID()];
 	const Species& sp1 = *Sim->species[pData.getSpeciesID()];
@@ -61,7 +60,7 @@ namespace dynamo {
 		 pData.getDeltaKE(), dP);
       }
   
-    BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
+    for (const PairEventData& pData : SDat.L2partChanges)
       {
 	newEvent(globEvent.getType(),getClassKey(globEvent),
 		 pData.particle1_.getDeltaKE(),
@@ -76,7 +75,7 @@ namespace dynamo {
   void 
   OPEventEffects::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
   {
-    BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
+    for (const ParticleEventData& pData : SDat.L1partChanges)
       {
 	const Particle& p1 = Sim->particles[pData.getParticleID()];
 	const Species& sp1 = *Sim->species[pData.getSpeciesID()];
@@ -87,7 +86,7 @@ namespace dynamo {
 		 pData.getDeltaKE(), dP);
       }
   
-    BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
+    for (const PairEventData& pData : SDat.L2partChanges)
       {
 	newEvent(localEvent.getType(),getClassKey(localEvent),
 		 pData.particle1_.getDeltaKE(),
@@ -102,7 +101,7 @@ namespace dynamo {
   void 
   OPEventEffects::eventUpdate(const System& sysEvent, const NEventData& SDat, const double&)
   {
-    BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
+    for (const ParticleEventData& pData : SDat.L1partChanges)
       {
 	const Particle& p1 = Sim->particles[pData.getParticleID()];
 	const Species& sp1 = *Sim->species[pData.getSpeciesID()];
@@ -113,7 +112,7 @@ namespace dynamo {
 		 pData.getDeltaKE(), dP);
       }
   
-    BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
+    for (const PairEventData& pData : SDat.L2partChanges)
       {
 	newEvent(sysEvent.getType(),getClassKey(sysEvent),
 		 pData.particle1_.getDeltaKE(),
@@ -142,7 +141,7 @@ namespace dynamo {
 
     typedef std::pair<const eventKey, counterData> locPair;  
   
-    BOOST_FOREACH(const locPair& ele, counters)
+    for (const locPair& ele : counters)
       {
 	XML << magnet::xml::tag("Count")
 	    << magnet::xml::attr("Name") << getName(ele.first.first, Sim)

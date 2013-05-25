@@ -20,7 +20,6 @@
 #include <dynamo/units/units.hpp>
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/simulation.hpp>
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <fstream>
@@ -89,18 +88,18 @@ namespace dynamo {
   {
     size_t count(0);
     ComplexNum sum(0,0);
-    BOOST_FOREACH(const Particle& part, Sim->particles)
+    for (const Particle& part : Sim->particles)
       {
 	Neighbours nbs;
 	
-	std::auto_ptr<IDRange> ids(Sim->ptrScheduler->getParticleNeighbours(part));
-	BOOST_FOREACH(const size_t& id1, *ids)
+	std::unique_ptr<IDRange> ids(Sim->ptrScheduler->getParticleNeighbours(part));
+	for (const size_t& id1 : *ids)
 	  nbs.addNeighbour(part, id1);
 	
 	if (nbs._neighbours.size() >= 6)
 	  {
 	    std::vector<MagVec> bonds;
-	    BOOST_FOREACH(const size_t& id2, nbs._neighbours)
+	    for (const size_t& id2 : nbs._neighbours)
 	      {
 		Vector bond = Sim->particles[id2].getPosition() - part.getPosition();
 		Sim->BCs->applyBC(bond);
@@ -112,7 +111,7 @@ namespace dynamo {
 	      bonds.erase(bonds.begin()+6, bonds.end());
 
 	    //Normalise the vectors.
-	    BOOST_FOREACH(MagVec& vec, bonds)
+	    for (MagVec& vec : bonds)
 	      {
 		vec /= vec.nrm();
 		
@@ -142,7 +141,7 @@ namespace dynamo {
     XML << magnet::xml::tag("OrientationalOrder")
 	<< magnet::xml::chardata();
     
-    BOOST_FOREACH(const ComplexNum& val, _history)
+    for (const ComplexNum& val : _history)
       XML << "\n" << val.real() << " " << val.imag();
     
     XML << magnet::xml::endtag("OrientationalOrder");

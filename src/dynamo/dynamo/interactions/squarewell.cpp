@@ -184,9 +184,9 @@ namespace dynamo {
       case CORE:
 	{
 	  PairEventData retVal(Sim->dynamics->SmoothSpheresColl(iEvent, e, d2, CORE));
-	  Sim->signalParticleUpdate(retVal);
+	  (*Sim->_sigParticleUpdate)(retVal);
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
 	  break;
 	}
@@ -195,8 +195,8 @@ namespace dynamo {
 	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, wd, ld2, 1));
 	  if (retVal.getType() != BOUNCE) ICapture::add(p1, p2);
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	  Sim->signalParticleUpdate(retVal);
-	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	  (*Sim->_sigParticleUpdate)(retVal);
+	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
 	  break;
 	}
@@ -204,9 +204,9 @@ namespace dynamo {
 	{
 	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, -wd, ld2, 0));
 	  if (retVal.getType() != BOUNCE) ICapture::remove(p1, p2);
-	  Sim->signalParticleUpdate(retVal);
+	  (*Sim->_sigParticleUpdate)(retVal);
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
 	  break;
 	}
@@ -286,7 +286,7 @@ namespace dynamo {
     //Once the capture maps are loaded just iterate through that determining energies
     double Energy = 0.0;
 
-    BOOST_FOREACH(const ICapture::value_type& IDs, *this)
+    for (const ICapture::value_type& IDs : *this)
       Energy += 0.5 * (_wellDepth->getProperty(IDs.first.first)
 		       +_wellDepth->getProperty(IDs.first.second));
   

@@ -32,7 +32,7 @@ namespace coil {
 	setConstantAttribute(attrnum);
       else
 	{
-	  std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
+	  std::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
 	  //We have an attribute, check the mode the ComboBox is in,
 	  //and determine if we have to do something with the data!
 

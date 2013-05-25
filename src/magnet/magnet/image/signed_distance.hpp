@@ -96,7 +96,7 @@ namespace magnet {
       }
       
     protected:
-      struct P: public std::tr1::array<int,2> 
+      struct P: public std::array<int,2> 
       { P() { (*this)[0] = (*this)[1] = -1; } };
 
       size_t _width, _height;

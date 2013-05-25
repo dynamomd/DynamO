@@ -125,12 +125,12 @@ namespace dynamo {
     PairEventData EDat
       (Sim->dynamics->RoughSpheresColl(iEvent, e, et, d2)); 
 
-    Sim->signalParticleUpdate(EDat);
+    (*Sim->_sigParticleUpdate)(EDat);
 
     //Now we're past the event, update the scheduler and plugins
     Sim->ptrScheduler->fullUpdate(p1, p2);
   
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent,EDat);
   }
    
@@ -142,7 +142,7 @@ namespace dynamo {
 	<< magnet::xml::attr("Elasticity") << _e->getName()
 	<< magnet::xml::attr("TangentialElasticity") << _et->getName()
 	<< magnet::xml::attr("Name") << intName
-	<< *range;
+	<< range;
   }
 
   bool

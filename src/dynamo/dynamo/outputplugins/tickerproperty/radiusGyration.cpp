@@ -24,7 +24,6 @@
 #include <magnet/math/matrix.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
 #include <vector>
 #include <fstream>
 #include <cmath>
@@ -55,8 +54,8 @@ namespace dynamo {
   void 
   OPRGyration::initialise()
   {
-    BOOST_FOREACH(const shared_ptr<Topology>& plugPtr, Sim->topology)
-      if (std::tr1::dynamic_pointer_cast<TChain>(plugPtr))
+    for (const shared_ptr<Topology>& plugPtr : Sim->topology)
+      if (std::dynamic_pointer_cast<TChain>(plugPtr))
 	chains.push_back(CTCdata(static_cast<const TChain*>(plugPtr.get()), 
 				 binwidth1 * Sim->units.unitArea(), binwidth2, binwidth3));
   }
@@ -122,13 +121,13 @@ namespace dynamo {
     Matrix inertiaTensor;
     inertiaTensor.zero();
 
-    BOOST_FOREACH(Vector & vec, relVecs)
+    for (Vector & vec : relVecs)
       {
 	vec -= retVal.MassCentre;
 	inertiaTensor += Dyadic(vec, vec);
       }
 
-    std::pair<std::tr1::array<Vector, 3>, std::tr1::array<double, 3> > result
+    std::pair<std::array<Vector, 3>, std::array<double, 3> > result
       = inertiaTensor.symmetric_eigen_decomposition();
 
     for (size_t i = 0; i < NDIM; i++)
@@ -151,7 +150,7 @@ namespace dynamo {
     Matrix Q;
     Q.zero();
 
-    BOOST_FOREACH(const Vector & vec, molAxis)
+    for (const Vector & vec : molAxis)
       for (size_t i = 0; i < NDIM; i++)
 	for (size_t j = i; j < NDIM; j++)
 	  Q(i,j) += (3.0 * vec[i] * vec[j]) - (i==j ? 1 : 0);
@@ -167,7 +166,7 @@ namespace dynamo {
       for (size_t j = i+1; j < NDIM; j++)
 	Q(j,i) = Q(i,j);
     
-    std::pair<std::tr1::array<Vector, 3>, std::tr1::array<double, 3> > result
+    std::pair<std::array<Vector, 3>, std::array<double, 3> > result
       = Q.symmetric_eigen_decomposition();
 
     return Vector(result.second[0], result.second[1], result.second[2]);
@@ -176,11 +175,11 @@ namespace dynamo {
   void 
   OPRGyration::ticker()
   {
-    BOOST_FOREACH(CTCdata& dat,chains)
+    for (CTCdata& dat : chains)
       {
 	std::list<Vector  > molAxis;
 
-	BOOST_FOREACH(const shared_ptr<IDRange>& range,  dat.chainPtr->getMolecules())
+	for (const shared_ptr<IDRange>& range : dat.chainPtr->getMolecules())
 	  {
 	    molGyrationDat vals = getGyrationEigenSystem(range, Sim);	  
 	    //Take the largest eigenvector as the molecular axis
@@ -203,7 +202,7 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("ChainGyration");
 
-    BOOST_FOREACH(CTCdata& dat, chains)
+    for (CTCdata& dat : chains)
       {
 	XML << magnet::xml::tag("Chain") << magnet::xml::attr("Name") 
 	    << dat.chainPtr->getName().c_str()
@@ -217,7 +216,7 @@ namespace dynamo {
 
 	std::list<Vector  > molAxis;
 
-	BOOST_FOREACH(const shared_ptr<IDRange>& range,  dat.chainPtr->getMolecules())
+	for (const shared_ptr<IDRange>& range : dat.chainPtr->getMolecules())
 	  molAxis.push_back(getGyrationEigenSystem(range, Sim).EigenVec[NDIM-1]);
 
 	Vector  EigenVal = NematicOrderParameter(molAxis);

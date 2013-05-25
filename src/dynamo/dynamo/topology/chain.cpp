@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/topology/chain.hpp>
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
@@ -26,7 +25,7 @@ namespace dynamo {
     Topology::operator<<(XML);
   
     size_t Clength = (*ranges.begin())->size();
-    BOOST_FOREACH(const shared_ptr<IDRange>& nRange, ranges)
+    for (const shared_ptr<IDRange>& nRange : ranges)
       if (nRange->size() != Clength)
 	M_throw() << "Size mismatch in loading one of the ranges in Chain topology \"" 
 		  << spName << "\"";

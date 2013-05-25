@@ -21,7 +21,6 @@
 #include <magnet/memUsage.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <dynamo/systems/tHalt.hpp>
-#include <boost/foreach.hpp>
 #include <sys/time.h>
 #include <ctime>
 
@@ -107,7 +106,7 @@ namespace dynamo {
     _speciesMasses.clear();
     _speciesMasses.resize(Sim->species.size());
 
-    BOOST_FOREACH(const Particle& part, Sim->particles)
+    for (const Particle& part : Sim->particles)
       {
 	const Species& sp = *(Sim->species[part]);
 	const double mass = sp.getMass(part.getID());
@@ -192,7 +191,7 @@ namespace dynamo {
     eventUpdate(NDat);
     CounterData& counterdata = _counters[CounterKey(getClassKey(eevent), eevent.getType())];
     counterdata.count += NDat.L1partChanges.size() + NDat.L2partChanges.size();
-    BOOST_FOREACH(const ParticleEventData& pData, NDat.L1partChanges)
+    for (const ParticleEventData& pData : NDat.L1partChanges)
       counterdata.netimpulse += Sim->species[pData.getSpeciesID()]->getMass(pData.getParticleID()) * (Sim->particles[pData.getParticleID()].getVelocity() -  pData.getOldVel());
   }
 
@@ -203,7 +202,7 @@ namespace dynamo {
     eventUpdate(NDat);
     CounterData& counterdata = _counters[CounterKey(getClassKey(eevent), eevent.getType())];
     counterdata.count += NDat.L1partChanges.size() + NDat.L2partChanges.size();
-    BOOST_FOREACH(const ParticleEventData& pData, NDat.L1partChanges)
+    for (const ParticleEventData& pData : NDat.L1partChanges)
       counterdata.netimpulse += Sim->species[pData.getSpeciesID()]->getMass(pData.getParticleID()) * (Sim->particles[pData.getParticleID()].getVelocity() -  pData.getOldVel());
   }
 
@@ -214,7 +213,7 @@ namespace dynamo {
     eventUpdate(NDat);
     CounterData& counterdata = _counters[CounterKey(getClassKey(eevent), eevent.getType())];
     counterdata.count += NDat.L1partChanges.size() + NDat.L2partChanges.size();
-    BOOST_FOREACH(const ParticleEventData& pData, NDat.L1partChanges)
+    for (const ParticleEventData& pData : NDat.L1partChanges)
       counterdata.netimpulse += Sim->species[pData.getSpeciesID()]->getMass(pData.getParticleID()) * (Sim->particles[pData.getParticleID()].getVelocity() -  pData.getOldVel());
   }
 
@@ -240,7 +239,7 @@ namespace dynamo {
   {
     Vector thermalDel(0,0,0);
 
-    BOOST_FOREACH(const ParticleEventData& PDat, NDat.L1partChanges)
+    for (const ParticleEventData& PDat : NDat.L1partChanges)
       {
 	const Particle& part = Sim->particles[PDat.getParticleID()];
 	const double p1E = Sim->dynamics->getParticleKineticEnergy(Sim->particles[PDat.getParticleID()]);
@@ -264,7 +263,7 @@ namespace dynamo {
 	  - PDat.getOldVel() * (p1E - PDat.getDeltaKE());
       }
 
-    BOOST_FOREACH(const PairEventData& PDat, NDat.L2partChanges)
+    for (const PairEventData& PDat : NDat.L2partChanges)
       {
 	_KE += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
 	_internalE += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
@@ -473,7 +472,7 @@ namespace dynamo {
 	<< tag("EventCounters");
   
     typedef std::pair<CounterKey, CounterData> mappair;
-    BOOST_FOREACH(const mappair& mp1, _counters)
+    for (const mappair& mp1 : _counters)
       XML << tag("Entry")
 	  << attr("Type") << getClass(mp1.first.first)
 	  << attr("Name") << getName(mp1.first.first, Sim)
@@ -635,8 +634,8 @@ namespace dynamo {
 
     //Calculate the ETA of the simulation, and take care with overflows and the like
     double _earliest_end_time = HUGE_VAL;
-    BOOST_FOREACH(const std::tr1::shared_ptr<System>& sysPtr, Sim->systems)
-      if (std::tr1::dynamic_pointer_cast<SystHalt>(sysPtr))
+    for (const auto& sysPtr : Sim->systems)
+      if (std::dynamic_pointer_cast<SystHalt>(sysPtr))
 	_earliest_end_time = std::min(_earliest_end_time, sysPtr->getdt());
 
     double time_seconds_remaining = _earliest_end_time 

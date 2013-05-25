@@ -24,7 +24,6 @@
 #include <dynamo/particle.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/tokenizer.hpp>
-#include <boost/foreach.hpp>
 
 namespace dynamo {
   OutputPlugin::OutputPlugin(const dynamo::Simulation* tmp, const char *aName, unsigned char order):

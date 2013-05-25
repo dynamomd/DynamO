@@ -25,7 +25,6 @@
 #include <dynamo/units/units.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
 
 namespace dynamo {
   double OPCollEnergyChange::KEBinWidth = 0.01;
@@ -122,14 +121,14 @@ namespace dynamo {
       }
 
     typedef std::pair<const mapkey, histogram> locpair;
-    BOOST_FOREACH(const locpair& pdat, collisionKE)
+    for (const locpair& pdat : collisionKE)
       {
 	XML << magnet::xml::tag("Energy_On_Collision")
-	    << magnet::xml::attr("Species") << Sim->species[pdat.first.get<0>()]->getName()
+	    << magnet::xml::attr("Species") << Sim->species[std::get<0>(pdat.first)]->getName()
 	    << magnet::xml::attr("EventPartnerSpecies")
-	    << Sim->species[pdat.first.get<1>()]->getName()
+	    << Sim->species[std::get<1>(pdat.first)]->getName()
 	    << magnet::xml::attr("EventType") 
-	    << pdat.first.get<2>();
+	    << std::get<2>(pdat.first);
       
 	pdat.second.outputHistogram(XML, 1.0 / Sim->units.unitEnergy());      
 

@@ -23,6 +23,7 @@
 #include <dynamo/ranges/IDRangeAll.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
+#include <cstring>
 
 namespace dynamo {
   Local::Local(dynamo::Simulation* tmp, const char *name):

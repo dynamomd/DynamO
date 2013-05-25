@@ -18,7 +18,6 @@
 #pragma once
 #include <magnet/containers/fuzzy_array.hpp>
 #include <magnet/xmlwriter.hpp>
-#include <boost/foreach.hpp>
 
 namespace magnet {
   namespace math {
@@ -53,14 +52,14 @@ namespace magnet {
 	    << magnet::xml::attr("BinWidth") << Container::getBinWidth() * scalex;
   
 	double avgSum = 0.0;
-	BOOST_FOREACH(const typename Container::value_type &p1, *this)
+	for (const typename Container::value_type &p1 : *this)
 	  avgSum += (static_cast<double>(p1.first) + 0.5 * shiftBin) * p1.second;
   
 	XML << magnet::xml::attr("AverageVal")
 	    << (avgSum * Container::getBinWidth() * scalex / sampleCount)
 	    << magnet::xml::chardata();
   
-	BOOST_FOREACH(const typename Container::value_type &p1, *this)
+	for (const typename Container::value_type &p1 : *this)
 	  XML << (p1.first + 0.5 * shiftBin) * Container::getBinWidth() * scalex << " " 
 	      << static_cast<double>(p1.second)
 	  /(Container::getBinWidth() * sampleCount * scalex) << "\n";
@@ -103,7 +102,7 @@ namespace magnet {
 	    << magnet::xml::attr("BinWidth") << Container::getBinWidth() * scalex;
   
 	double avgSum = 0.0;
-	BOOST_FOREACH(const Container::value_type &p1, *this)
+	for (const Container::value_type &p1 : *this)
 	  avgSum += static_cast<double>(p1.first + 0.5 * shiftBin) * p1.second;
   
 	XML << magnet::xml::attr("AverageVal")
@@ -111,7 +110,7 @@ namespace magnet {
 	    << magnet::xml::chardata();
   
 	//This gives mathmatically correct but not really pretty
-	BOOST_FOREACH(const Container::value_type &p1, *this)
+	for (const Container::value_type &p1 : *this)
 	  XML << (p1.first + 0.5 * shiftBin) * Container::getBinWidth() * scalex << " "
 	      << static_cast<double>(p1.second)
 	  / (Container::getBinWidth() * sampleCount * scalex) << "\n";
@@ -130,7 +129,7 @@ namespace magnet {
 	    << magnet::xml::attr("BinWidth") << Container::getBinWidth() * scalex;
   
 	double avgSum = 0.0;
-	BOOST_FOREACH(const Container::value_type &p1, *this)
+	for (const Container::value_type &p1 : *this)
 	  avgSum += static_cast<double>(p1.first + 0.5 * shiftBin)* p1.second;
   
 	XML << magnet::xml::attr("AverageVal")
@@ -138,7 +137,7 @@ namespace magnet {
 	    << magnet::xml::chardata();
     
 	//This one gives histograms usable by the reweight program
-	BOOST_FOREACH(const Container::value_type &p1, *this)
+	for (const Container::value_type &p1 : *this)
 	  XML << (p1.first + 0.5 * shiftBin) * Container::getBinWidth() * scalex << " " 
 	      << static_cast<double>(p1.second)
 	  / (Container::getBinWidth() * sampleCount * scalex) << "\n";

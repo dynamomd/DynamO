@@ -22,7 +22,6 @@
 #include <dynamo/particle.hpp>
 #include <dynamo/schedulers/include.hpp>
 #include <dynamo/schedulers/sorters/include.hpp>
-
 #include <dynamo/species/include.hpp>
 #include <dynamo/globals/include.hpp>
 #include <dynamo/interactions/include.hpp>
@@ -38,16 +37,13 @@
 #include <dynamo/locals/lwall.hpp>
 #include <dynamo/locals/oscillatingplate.hpp>
 #include <dynamo/systems/DSMCspheres.hpp>
-#include <dynamo/systems/RingDSMC.hpp>
 #include <dynamo/systems/rescale.hpp>
 #include <dynamo/systems/sleep.hpp>
 #include <magnet/math/matrix.hpp>
 #include <magnet/exception.hpp>
-#include <boost/random/lognormal_distribution.hpp>
-#include <boost/random/uniform_int.hpp>
 #include <boost/tokenizer.hpp>
-#include <boost/foreach.hpp>
 #include <cmath>
+#include <memory>
 
 namespace dynamo {
   typedef FELBoundedPQ<PELMinMax<3> > DefaultSorter;
@@ -101,7 +97,7 @@ namespace dynamo {
        "\n14: Packing of spheres and linear rods made from stiff polymers"
        "\n15: Monocomponent hard-parallel cubes"
        "\n16: Stepped Potential"
-       "\n17: Monocomponent hard spheres using Ring DSMC interactions"
+       "\n17: (DEPRECATED) Monocomponent hard spheres using Ring DSMC interactions"
        "\n18: (DEPRECATED) Monocomponent sheared hard spheres using Ring DSMC interactions"
        "\n19: Oscillating plates bounding a system"
        "\n20: Load a set of triangles and plate it with spheres"
@@ -151,7 +147,7 @@ namespace dynamo {
 	    }
 	  //Pack of hard spheres
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
+	  std::unique_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
 	  std::vector<Vector  >
@@ -173,7 +169,7 @@ namespace dynamo {
 
 	  if (vm.count("rectangular-box") && (vm.count("i1") && vm["i1"].as<size_t>() == 2))
 	    {
-	      std::tr1::array<long, 3> cells = getCells();
+	      std::array<long, 3> cells = getCells();
 	      if ((cells[0] == 1) || (cells[1] == 1) || (cells[2] == 1))
 		{
 		  derr << "Warning! Now assuming that you're trying to set up a 2D simulation!\n"
@@ -218,7 +214,7 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
+	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 
@@ -241,7 +237,7 @@ namespace dynamo {
 	    }
 	  //Pack of square well molecules
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<UCell> packptr(new CURandomise(standardPackingHelper(new UParticle())));
+	  std::unique_ptr<UCell> packptr(new CURandomise(standardPackingHelper(new UParticle())));
 	  packptr->initialise();
 
 	  std::vector<Vector  >
@@ -305,7 +301,7 @@ namespace dynamo {
 	      tokenizer speciesStrings(vm["s1"].as<std::string>(), boost::char_separator<char>(":"));
 	    
 	      double totMoleFrac = 0;
-	      BOOST_FOREACH(const std::string& species, speciesStrings)
+	      for (const std::string& species : speciesStrings)
 		{
 		  tokenizer speciesStringData(species, boost::char_separator<char>(","));
 		  tokenizer::iterator value_iter = speciesStringData.begin();
@@ -348,7 +344,7 @@ namespace dynamo {
 	      //Normalize the mole fraction and calculate the range
 	      const size_t N = latticeSites.size();
 	      size_t idStart = 0;
-	      BOOST_FOREACH(speciesData& dat, speciesList)
+	      for (speciesData& dat : speciesList)
 		{
 		  dat.molfraction /= totMoleFrac;
 		  dat.idStart = idStart;
@@ -399,7 +395,7 @@ namespace dynamo {
 	  unsigned long nParticles = 0;
 
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
+	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 	  break;
@@ -536,7 +532,7 @@ namespace dynamo {
 	  unsigned long nParticles = 0;
 
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
+	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 	  break;
@@ -585,16 +581,15 @@ namespace dynamo {
 
 	  {
 	    std::vector<Vector> positions;
-	    BOOST_FOREACH(const Particle& p, Sim->particles)
+	    for (const Particle& p : Sim->particles)
 	      positions.push_back(p.getPosition());
 	    tmpPtr = new UList(positions, diamScale, new UParticle());
 	  }
 
 	  //Delete any loaded capture maps
-	  BOOST_FOREACH(const shared_ptr<Interaction>& ptr, 
-			Sim->interactions)
-	    if (std::tr1::dynamic_pointer_cast<ICapture>(ptr))
-	      std::tr1::dynamic_pointer_cast<ICapture>(ptr)->forgetXMLCaptureMap();
+	  for(const shared_ptr<Interaction>& ptr : Sim->interactions)
+	    if (std::dynamic_pointer_cast<ICapture>(ptr))
+	      std::dynamic_pointer_cast<ICapture>(ptr)->forgetXMLCaptureMap();
 	  
 	  //Use the mirror unit cell if needed
 	  if (vm.count("f1") && (vm["f1"].as<double>() != 0))
@@ -606,8 +601,8 @@ namespace dynamo {
 	    }
 
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCPeriodic(Sim));
+	  std::unique_ptr<UCell> packptr(standardPackingHelper(tmpPtr));
 
-	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(tmpPtr));
 	  packptr->initialise();
 
 	  std::vector<Vector>
@@ -616,7 +611,7 @@ namespace dynamo {
 	  unsigned long nParticles = 0;
 	  Sim->particles.clear();
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
+	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back
 	    (Particle(position / diamScale, 
 		      getRandVelVec() * Sim->units.unitVelocity(),
@@ -635,7 +630,7 @@ namespace dynamo {
 	    }
 	  //FCC simple cubic pack of hard spheres with inelasticity and shearing
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
+	  std::unique_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
 	  std::vector<Vector  >
@@ -680,13 +675,13 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
+	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 
 	  //Insert a linear profile, zero momentum then add a vel gradient
 	  Sim->setCOMVelocity();
-	  BOOST_FOREACH(Particle& part, Sim->particles)
+	  for (Particle& part : Sim->particles)
 	    part.getVelocity()[0] += part.getPosition()[1] * shearRate;
 	  break;
 	}
@@ -781,7 +776,7 @@ namespace dynamo {
 	  unsigned long nParticles = 0;
 
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
+	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 	  break;
@@ -796,7 +791,7 @@ namespace dynamo {
 		"       --f1 : Elasticity of the particle and wall collisions [1]\n";
 	      exit(1);
 	    }
-	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle(), true));
+	  std::unique_ptr<UCell> packptr(standardPackingHelper(new UParticle(), true));
 	  packptr->initialise();
 
 	  std::vector<Vector  >
@@ -845,7 +840,7 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
+	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 	  break;
@@ -948,7 +943,7 @@ namespace dynamo {
 	  unsigned long nParticles = 0;
 
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
+	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 	  break;
@@ -968,7 +963,7 @@ namespace dynamo {
 	      exit(1);
 	    }
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<UCell> packptr
+	  std::unique_ptr<UCell> packptr
 	    (new CURandomise(standardPackingHelper(new UParticle())));
 
 	  packptr->initialise();
@@ -1040,7 +1035,7 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
+	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 		      nParticles++));
@@ -1060,9 +1055,7 @@ namespace dynamo {
 	    }
 	  //Pack of lines
 	  //Pack the system, determine the number of particles
-	  CURandom packroutine(vm["NCells"].as<unsigned long>(),
-			       Vector (1,1,1), Sim->uniform_sampler,
-			       new UParticle());
+	  CURandom packroutine(vm["NCells"].as<unsigned long>(), Vector (1,1,1), new UParticle());
 
 	  packroutine.initialise();
 
@@ -1101,7 +1094,7 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
+	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 
@@ -1121,7 +1114,7 @@ namespace dynamo {
 	    }
 	  //Pack of DSMC hard spheres
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
+	  std::unique_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
 	  std::vector<Vector  >
@@ -1177,7 +1170,7 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
+	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 		      nParticles++));
@@ -1203,7 +1196,7 @@ namespace dynamo {
 	      exit(1);
 	    }
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<UCell> packptr(new CURandomise(standardPackingHelper(new UParticle())));
+	  std::unique_ptr<UCell> packptr(new CURandomise(standardPackingHelper(new UParticle())));
 	  packptr->initialise();
 
 	  std::vector<Vector  >
@@ -1385,7 +1378,7 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
+	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 		      nParticles++));
@@ -1403,9 +1396,7 @@ namespace dynamo {
 	      exit(1);
 	    }
 	  //Pack the system, determine the number of particles
-	  CURandom packroutine(vm["NCells"].as<unsigned long>(),
-			       Vector (1,1,1), Sim->uniform_sampler,
-			       new UParticle());
+	  CURandom packroutine(vm["NCells"].as<unsigned long>(), Vector (1,1,1), new UParticle());
 
 	  packroutine.initialise();
 
@@ -1438,7 +1429,7 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
+	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 
@@ -1475,7 +1466,7 @@ namespace dynamo {
 	    chainlength = vm["i2"].as<size_t>();
 
 	  {
-	    boost::scoped_ptr<UCell> packptr
+	    std::unique_ptr<UCell> packptr
 	      (new CURandomise(standardPackingHelper(new UParticle())));
 
 	    packptr->initialise();
@@ -1501,7 +1492,7 @@ namespace dynamo {
 
 	  double particleDiamB = rodlength * particleDiam / chainlength;
 
-	  boost::scoped_ptr<UCell> packptr
+	  std::unique_ptr<UCell> packptr
 	    (standardPackingHelper
 	     (new CUBinary(nPartA, new UParticle(),
 			   new CUlinearRod(chainlength, 1.05 * particleDiamB,
@@ -1563,7 +1554,7 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
+	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 		      nParticles++));
@@ -1586,7 +1577,7 @@ namespace dynamo {
 	  if (!vm.count("i1") || vm["i1"].as<size_t>() != 2)
 	    M_throw() << "You should initialise cubes with simple cubic packing \"--i1 2\"";
 
-	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
+	  std::unique_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
 	  std::vector<Vector>
@@ -1627,7 +1618,7 @@ namespace dynamo {
 
 	  size_t nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
+	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back
 	    (Particle(position,
 		      Vector(Sim->units.unitVelocity(),
@@ -1636,36 +1627,30 @@ namespace dynamo {
 		      nParticles++));
 
 	  {
-	    boost::uniform_real<double> normdist(-0.5,0.5);
-	    boost::variate_generator<dynamo::baseRNG&, boost::uniform_real<double> >
-	      unisampler(Sim->ranGenerator, normdist);
-
-	    std::tr1::array<long, 3> tmp = getCells();
+	    std::uniform_real_distribution<> uniform_dist(-0.5,0.5);
+	    
+	    std::array<long, 3> tmp = getCells();
 
 	    Vector wobblespacing;
 
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
 	      wobblespacing[iDim] = (Sim->primaryCellSize[iDim] - particleDiam * tmp[iDim]) / tmp[iDim];
 
-	    BOOST_FOREACH(Particle& part, Sim->particles)
+	    for (Particle& part : Sim->particles)
 	      for (size_t iDim(0); iDim < NDIM; ++iDim)
-		part.getPosition()[iDim] += unisampler() * wobblespacing[iDim];
+		part.getPosition()[iDim] += uniform_dist(Sim->ranGenerator) * wobblespacing[iDim];
 	  }
 
 	  {
-	    boost::variate_generator
-	      <dynamo::baseRNG&, boost::uniform_int<unsigned int> >
-	      rangen(Sim->ranGenerator,
-		     boost::uniform_int<unsigned int>
-		     (0, nParticles - 1));
+	    std::uniform_int_distribution<size_t> uniform_dist(0, nParticles - 1);
 
-	    size_t ID(rangen());
+	    size_t ID(uniform_dist(Sim->ranGenerator));
 
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
 	      for (size_t i(0); i < nParticles / 2; ++i)
 		{
 		  while (Sim->particles[ID].getVelocity()[iDim] < 0)
-		    ID = rangen();
+		    ID = uniform_dist(Sim->ranGenerator);
 
 		  Sim->particles[ID].getVelocity()[iDim]
 		    = -Sim->units.unitVelocity();
@@ -1687,7 +1672,7 @@ namespace dynamo {
 	      exit(1);
 	    }
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
+	  std::unique_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
 	  std::vector<Vector  >
@@ -1707,7 +1692,7 @@ namespace dynamo {
 
 	  if (vm.count("rectangular-box") && (vm.count("i1") && vm["i1"].as<size_t>() == 2))
 	    {
-	      std::tr1::array<long, 3> cells = getCells();
+	      std::array<long, 3> cells = getCells();
 	      if ((cells[0] == 1) || (cells[1] == 1) || (cells[2] == 1))
 		{
 		  derr << "Warning! Now assuming that you're trying to set up a 2D simulation!\n"
@@ -1758,7 +1743,7 @@ namespace dynamo {
 		tokenizer;
 	    
 	      tokenizer steps(vm["s1"].as<std::string>(), boost::char_separator<char>(":"));
-	      BOOST_FOREACH(const std::string& step, steps)
+	      for (const std::string& step : steps)
 		{
 		  tokenizer stepData(step, boost::char_separator<char>(","));
 		  tokenizer::iterator value_iter = stepData.begin();
@@ -1795,7 +1780,7 @@ namespace dynamo {
 	
 	  dout << "Building stepped potential" << std::endl;
 	  double oldr = HUGE_VAL;
-	  BOOST_FOREACH(locpair& p, diamvec)
+	  for (locpair& p : diamvec)
 	    {
 	      dout << "Step r=" << p.first << ", E=" << p.second << std::endl;
 	      if (p.first > oldr)
@@ -1813,101 +1798,12 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
+	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 	  break;
 	}
       case 17:
-	{
-	  //Pack of Ring DSMC hard spheres
-	  if (vm.count("help"))
-	    {
-	      std::cout<<
-		"Mode specific options:\n"
-		"  17: Monocomponent hard spheres using Ring DSMC interactions\n"
-		"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-		"       --f1 : Sets the fraction of T(j,k) events [1/3rd] (do not use with b1/b2)\n"
-		"       --b1 : Sets chi12 to 1 [BMCSL]\n"
-		"       --b2 : Sets chi13 to 1 [BMCSL]\n";
-	      exit(1);
-	    }
-	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
-	  packptr->initialise();
-
-	  std::vector<Vector>
-	    latticeSites(packptr->placeObjects(Vector (0,0,0)));
-
-	  if (vm.count("rectangular-box"))
-	    Sim->primaryCellSize = getNormalisedCellDimensions();
-	
-	  double simVol = 1.0;
-
-	  for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	    simVol *= Sim->primaryCellSize[iDim];
-
-	  double particleDiam = pow(simVol * vm["density"].as<double>()
-				    / latticeSites.size(), double(1.0 / 3.0));
-
-	  Sim->units.setUnitLength(particleDiam);
-
-	  //Set up a standard simulation
-	  Sim->ptrScheduler 
-	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new FELCBT()));
-
-	  //This is to stop interactions being used for these particles
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>(new INull(Sim, new IDPairRangeAll(), "Catchall")));
-
-	  //This is to provide data on the particles
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, particleDiam, 1.0, new IDPairRangeAll(), "Bulk")));
-
-	  double packfrac = vm["density"].as<double>() * M_PI / 6.0;
-
-	  double chi12 = (1.0 - 0.5 * packfrac)
-	    / std::pow(1.0 - packfrac, 3);
-
-	  double chi13 = chi12;
-
-	  if (vm.count("b1"))
-	    chi12 = 1.0;
-
-	  if (vm.count("b2"))
-	    chi13 = 1.0;
-
-	  double tij = 1.0
-	    / (4.0 * std::sqrt(M_PI) * vm["density"].as<double>() * chi12);
-
-	  if (vm.count("f1"))
-	    {
-	      double frac = vm["f1"].as<double>();
-	      chi12 = 2.0*frac*chi12;
-	      chi13 = 2.0*(1.0-frac)*chi13;
-	    }
-
-
-	  //No thermostat added yet
-	  Sim->systems.push_back
-	    (shared_ptr<System>
-	     (new SysRingDSMC(Sim, particleDiam,
-			      2.0 * tij / latticeSites.size(), chi12, chi13, 1.0,
-			      "RingDSMC", new IDRangeAll(Sim))));
-
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0,
-				       "Bulk")));
-
-	  unsigned long nParticles = 0;
-	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
-	    Sim->particles.push_back
-	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
-		      nParticles++));
-	  break;
-	}
       case 18:
 	{
 	  M_throw() << "Option no longer supported";
@@ -2010,7 +1906,7 @@ namespace dynamo {
 		M_throw() << "Not a valid packing type (--i1)";
 	      }
 
-	  boost::scoped_ptr<UCell> packptr(sysPack);
+	  std::unique_ptr<UCell> packptr(sysPack);
 	  packptr->initialise();
 
 	  std::vector<Vector>
@@ -2103,7 +1999,7 @@ namespace dynamo {
 	    }
 
 	  //Pack the system, determine the number of particles
-	  size_t N = boost::scoped_ptr<UCell>(standardPackingHelper(new UParticle()))
+	  size_t N = std::unique_ptr<UCell>(standardPackingHelper(new UParticle()))
 	    ->placeObjects(Vector(0,0,0)).size();
 
 	  if (vm.count("rectangular-box"))
@@ -2129,7 +2025,7 @@ namespace dynamo {
 	  if (!vm.count("s1"))
 	    M_throw() << "No triangle file name specified";
 
-	  boost::scoped_ptr<UCell> 
+	  std::unique_ptr<UCell> 
 	    packptr(new CUTriangleIntersect(standardPackingHelper(new UParticle()),
 					    overlapDiameter, vm["s1"].as<std::string>()));
 
@@ -2154,7 +2050,7 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
+	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec()
 						 * Sim->units.unitVelocity(),
 						 nParticles++));
@@ -2176,7 +2072,7 @@ namespace dynamo {
 	      exit(1);
 	    }
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
+	  std::unique_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 	
 	  std::vector<Vector>
@@ -2227,7 +2123,7 @@ namespace dynamo {
 	
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
+	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back(Particle(0.999 * position, getRandVelVec() * Sim->units.unitVelocity(),
 						 nParticles++));
 	  break;
@@ -2341,10 +2237,10 @@ namespace dynamo {
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(funnelSites.size() + dynamicSites.size());
 
-	  BOOST_FOREACH(const Vector & position, funnelSites)
+	  for (const Vector & position : funnelSites)
 	    Sim->particles.push_back(Particle(position, Vector(0, 0, 0), nParticles++));
 
-	  BOOST_FOREACH(const Vector & position, dynamicSites)
+	  for (const Vector & position : dynamicSites)
 	    {
 	      Vector vel = getRandVelVec() * Sim->units.unitVelocity();
 	      if (vel[1] > 0) vel[1] = -vel[1];//So particles don't fly out of the hopper
@@ -2840,7 +2736,6 @@ namespace dynamo {
 	    std::string type_string;
 	    std::map<std::string, size_t> mapping; 
 	    std::map<std::string, size_t>::iterator it;
-	    std::pair<std::string, size_t> e1, e2;
 
 	    // translate letters to numbers
 	    for (size_t i=0; i<chainlength; ++i) {
@@ -2852,7 +2747,7 @@ namespace dynamo {
 	      }
 	      seq[i] = mapping[type_string];
 	    }
-	    BOOST_FOREACH(e1, mapping) {
+	    for (const auto& e1 : mapping) {
 	      std::cout << e1.first << "  " << e1.second << std::endl;
 	    }
 	    std::cout << "protein sequence:" << std::endl;
@@ -2875,8 +2770,8 @@ namespace dynamo {
 	    // set interaction matrix
 	    std::map<std::string, double>::iterator it_MJ;
 	    std::string pair;
-	    BOOST_FOREACH(e1, mapping) { 
-	      BOOST_FOREACH(e2, mapping) { 
+	    for (const auto& e1 : mapping) { 
+	      for (const auto& e2 : mapping) { 
 		pair = e1.first + e2.first;
 		it_MJ = MJinter.find(pair);
 		std::cout << e1.second << "  " 
@@ -2913,7 +2808,7 @@ namespace dynamo {
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCNone(Sim));
 
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
+	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 	  break;
@@ -3145,10 +3040,10 @@ namespace dynamo {
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(funnelSites.size() + dynamicSites.size());
 
-	  BOOST_FOREACH(const Vector & position, funnelSites)
+	  for (const Vector & position : funnelSites)
 	    Sim->particles.push_back(Particle(position, Vector(0, 0, 0), nParticles++));
 
-	  BOOST_FOREACH(const Vector & position, dynamicSites)
+	  for (const Vector & position : dynamicSites)
 	    {
 	      Vector vel = 0.001 * getRandVelVec() * Sim->units.unitVelocity();
 	      if (vel[1] > 0) vel[1] = -vel[1];//So particles don't fly out of the hopper
@@ -3184,7 +3079,7 @@ namespace dynamo {
 
 	  //FCC simple cubic pack of hard spheres with inelasticity and shearing
 	  //Pack the system, determine the number of particles
-	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
+	  std::unique_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
 	  std::vector<Vector  >
@@ -3203,7 +3098,7 @@ namespace dynamo {
 
 	  if (vm.count("rectangular-box") && (vm.count("i1") && vm["i1"].as<size_t>() == 2))
 	    {
-	      std::tr1::array<long, 3> cells = getCells();
+	      std::array<long, 3> cells = getCells();
 	      if ((cells[0] == 1) || (cells[1] == 1) || (cells[2] == 1))
 		{
 		  derr << "Warning! Now assuming that you're trying to set up a 2D simulation!\n"
@@ -3250,15 +3145,13 @@ namespace dynamo {
 	  Sim->_properties.push(D);
 	  Sim->_properties.push(M);
 
-	  typedef boost::normal_distribution<double> Distribution;
-	  boost::variate_generator<dynamo::baseRNG&, Distribution>
-	    logsampler(Sim->ranGenerator, Distribution(mean, variance));
+	  std::normal_distribution<> normal_dist(mean, variance);
 
 	  for (size_t i(0); i < latticeSites.size(); ++i)
 	    {
-	      double diameter = logsampler();
+	      double diameter = normal_dist(Sim->ranGenerator);
 	      for (size_t attempt(0); ((diameter <= 0) || (diameter > 1)) && (attempt < 100); ++attempt)
-		diameter = logsampler();
+		diameter = normal_dist(Sim->ranGenerator);
 
 	      if ((diameter <= 0) || (diameter > 1))
 		M_throw() << "After 100 attempts, not a single valid particle diameter could be generated."
@@ -3283,13 +3176,13 @@ namespace dynamo {
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector & position, latticeSites)
+	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back
 	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 
 	  //Insert a linear profile, zero momentum then add a vel gradient
 	  Sim->setCOMVelocity();
-	  BOOST_FOREACH(Particle& part, Sim->particles)
+	  for (Particle& part : Sim->particles)
 	    part.getVelocity()[0] += part.getPosition()[1] * shearRate;
 	  break;
 	}
@@ -3306,7 +3199,7 @@ namespace dynamo {
 	      exit(1);
 	    }
 
-	  boost::scoped_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
+	  std::unique_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
 	  std::vector<Vector>
@@ -3349,7 +3242,7 @@ namespace dynamo {
 
 	  size_t nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
-	  BOOST_FOREACH(const Vector& position, latticeSites)
+	  for (const Vector& position : latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 
 	  Sim->dynamics->initOrientations(std::sqrt(1/I));
@@ -3437,10 +3330,10 @@ namespace dynamo {
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(funnelSites.size() + dynamicSites.size());
 
-	  BOOST_FOREACH(const Vector & position, funnelSites)
+	  for (const Vector& position: funnelSites)
 	    Sim->particles.push_back(Particle(position, Vector(0, 0, 0), nParticles++));
 
-	  BOOST_FOREACH(const Vector & position, dynamicSites)
+	  for (const Vector & position : dynamicSites)
 	    {
 	      Vector vel = getRandVelVec() * Sim->units.unitVelocity();
 	      if (vel[1] > 0) vel[1] = -vel[1];//So particles don't fly out of the hopper
@@ -3458,7 +3351,7 @@ namespace dynamo {
   Vector
   IPPacker::getNormalisedCellDimensions()
   {
-    std::tr1::array<long, 3> cells = getCells();
+    std::array<long, 3> cells = getCells();
     size_t maxdim = 0;
 
     //Determine the biggest dimension
@@ -3515,11 +3408,11 @@ namespace dynamo {
     return sysPack;;
   }
 
-  std::tr1::array<long, 3>
+  std::array<long, 3>
   IPPacker::getCells()
   {
     long NCells = vm["NCells"].as<unsigned long>();
-    std::tr1::array<long, 3> cells = {{NCells, NCells, NCells}};
+    std::array<long, 3> cells = {{NCells, NCells, NCells}};
 
     if (vm.count("xcell"))
       cells[0] = vm["xcell"].as<unsigned long>();
@@ -3537,14 +3430,11 @@ namespace dynamo {
   IPPacker::getRandVelVec()
   {
     //See http://mathworld.wolfram.com/SpherePointPicking.html
-    boost::normal_distribution<double> normdist(0.0, (1.0 / sqrt(double(NDIM))));
-
-    boost::variate_generator<dynamo::baseRNG&, boost::normal_distribution<double> >
-      normal_sampler(Sim->ranGenerator, normdist);
+    std::normal_distribution<> normal_dist(0.0, (1.0 / sqrt(double(NDIM))));
 
     Vector  tmpVec;
     for (size_t iDim = 0; iDim < NDIM; iDim++)
-      tmpVec[iDim] = normal_sampler();
+      tmpVec[iDim] = normal_dist(Sim->ranGenerator);
 
     return tmpVec;
   }

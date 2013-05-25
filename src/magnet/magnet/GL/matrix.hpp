@@ -17,16 +17,16 @@
 
 #pragma once
 #include <magnet/math/matrix.hpp>
-#include <tr1/array>
+#include <array>
 
 namespace magnet {
   namespace GL {
     /*! \brief A 4x4 matrix class for projection/model view matrix
      * math.
      */
-    class GLMatrix : public std::tr1::array<GLfloat, 4 * 4>
+    class GLMatrix : public std::array<GLfloat, 4 * 4>
     {
-      typedef std::tr1::array<GLfloat, 4 * 4> Base;
+      typedef std::array<GLfloat, 4 * 4> Base;
     public:
       /*! \brief Default constructor.
        */
@@ -196,9 +196,9 @@ namespace magnet {
 
       /*! \brief Matrix multiplication operator.
        */       
-      inline std::tr1::array<GLfloat, 4> operator*(const std::tr1::array<GLfloat, 4>& vec) const
+      inline std::array<GLfloat, 4> operator*(const std::array<GLfloat, 4>& vec) const
       {
-	std::tr1::array<GLfloat, 4> retval = {{0,0,0,0}};
+	std::array<GLfloat, 4> retval = {{0,0,0,0}};
 	for (size_t i(0); i < 4; ++i)
 	  for (size_t j(0); j < 4; ++j)
 	    retval[i] += operator[](j * 4 + i) * vec[j];

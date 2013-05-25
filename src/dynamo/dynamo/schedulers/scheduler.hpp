@@ -102,9 +102,9 @@ namespace dynamo {
     
     void addLocalEvent(const Particle&, const size_t&) const;
 
-    virtual std::auto_ptr<IDRange> getParticleNeighbours(const Particle&) const = 0;
-    virtual std::auto_ptr<IDRange> getParticleNeighbours(const Vector&) const = 0;
-    virtual std::auto_ptr<IDRange> getParticleLocals(const Particle&) const = 0;
+    virtual std::unique_ptr<IDRange> getParticleNeighbours(const Particle&) const = 0;
+    virtual std::unique_ptr<IDRange> getParticleNeighbours(const Vector&) const = 0;
+    virtual std::unique_ptr<IDRange> getParticleLocals(const Particle&) const = 0;
     
     const std::vector<size_t>& getEventCounts() const { return eventCount; }
 

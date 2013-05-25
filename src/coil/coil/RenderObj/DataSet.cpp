@@ -29,11 +29,10 @@ namespace coil {
   { _ds.deleteChild(this); }
 
   void 
-  DataSet::deleteChildWorker(DataSetChild* child)
+  DataSet::deleteChildWorker(DataSetChild* childtodelete)
   {
-    for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
-	 iPtr != _children.end(); ++iPtr)
-      if (iPtr->get() == child)
+    for (auto iPtr = _children.begin(); iPtr != _children.end(); ++iPtr)
+      if (iPtr->get() == childtodelete)
 	{
 	  //Found the child to delete
 	  (*iPtr)->deinit();
@@ -47,7 +46,7 @@ namespace coil {
 	}
   }
 
-  std::tr1::array<GLfloat, 4> 
+  std::array<GLfloat, 4> 
   DataSetChild::getCursorPosition(uint32_t objID)
   {
     return _ds.getCursorPosition(objID); 
@@ -58,14 +57,12 @@ namespace coil {
   { return _ds.getCursorText(objID); }
 
   void 
-  DataSet::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
+  DataSet::init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
   {
     RenderObj::init(systemQueue); 
     initGtk(); 
     
-    for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
-	 iPtr != _children.end(); ++iPtr)
-      (*iPtr)->init(systemQueue);
+    for (auto& child : _children) child->init(systemQueue);
     
     //We don't initialise the attributes, as they're initialised on access
     _context = magnet::GL::Context::getContext();
@@ -150,7 +147,7 @@ namespace coil {
   {    
     if (!_context) M_throw() << "Cannot add glyphs before the Dataset is initialised";
    
-    std::tr1::shared_ptr<Glyphs> glyph(new Glyphs("Glyphs", *this, _defaultGlyphType));
+    std::shared_ptr<Glyphs> glyph(new Glyphs("Glyphs", *this, _defaultGlyphType));
     _children.push_back(glyph); 
     _children.back()->init(_systemQueue);
 
@@ -176,7 +173,7 @@ namespace coil {
 
     //If we're initialised, we should rebuild the view of attributes
     if (_context)
-      _context->queueTask(magnet::function::Task::makeTask(&DataSet::rebuildGui, this));
+      _context->queueTask(std::bind(&DataSet::rebuildGui, this));
   }
   
   void
@@ -227,9 +224,7 @@ namespace coil {
     _attrcolumns.reset();
     _attrview.reset();
     _attrtreestore.reset();
-    for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr 
-	   = _children.begin(); iPtr != _children.end(); ++iPtr)
-      (*iPtr)->deinit();
+    for (auto& child : _children) child->deinit();
 
     for (iterator iPtr = begin(); iPtr != end(); ++iPtr)
       iPtr->second->deinit();
@@ -263,12 +258,12 @@ namespace coil {
     return os.str();
   }
 
-  std::tr1::array<GLfloat, 4>
+  std::array<GLfloat, 4>
   DataSet::getCursorPosition(uint32_t objID)
   {
     std::vector<GLfloat> pos = _positionSel->getValue(objID);
     pos.resize(3, 0);
-    std::tr1::array<GLfloat, 4> vec = {{pos[0], pos[1], pos[2], 1.0}};
+    std::array<GLfloat, 4> vec = {{pos[0], pos[1], pos[2], 1.0}};
     return vec;
   }
 
@@ -276,10 +271,9 @@ namespace coil {
   DataSet::getMinCoord() const
   {
     magnet::math::Vector min(HUGE_VAL, HUGE_VAL, HUGE_VAL); 
-    for (std::vector<std::tr1::shared_ptr<DataSetChild> >::const_iterator 
-	   iPtr = _children.begin(); iPtr != _children.end(); ++iPtr)
+    for (const auto& child : _children)
       {
-	magnet::math::Vector child_min = (*iPtr)->getMinCoord();
+	magnet::math::Vector child_min = child->getMinCoord();
 	for (size_t i(0); i < 3; ++i)
 	  min[i] = std::min(min[i], child_min[i]);
       }
@@ -290,10 +284,9 @@ namespace coil {
   DataSet::getMaxCoord() const
   {
     magnet::math::Vector max(-HUGE_VAL, -HUGE_VAL, -HUGE_VAL); 
-    for (std::vector<std::tr1::shared_ptr<DataSetChild> >::const_iterator 
-	   iPtr = _children.begin(); iPtr != _children.end(); ++iPtr)
+    for (const auto& child : _children)
       {
-	magnet::math::Vector child_max = (*iPtr)->getMaxCoord();
+	magnet::math::Vector child_max = child->getMaxCoord();
 	for (size_t i(0); i < 3; ++i)
 	  max[i] = std::max(max[i], child_max[i]);
       }

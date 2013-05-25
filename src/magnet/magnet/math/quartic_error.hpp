@@ -19,14 +19,14 @@
 
 #include <cmath>
 #include <algorithm>
-#include <tr1/array>
+#include <array>
 
 namespace magnet {
   namespace math {
     inline double quarticError(const double& a, const double& b, const double& c, const double& d,
 			       const double roots[4], const size_t rootCount)
     {
-      std::tr1::array<double, 4> errors;
+      std::array<double, 4> errors;
 
       for (size_t root = 0; root < rootCount; ++ root)
 	{

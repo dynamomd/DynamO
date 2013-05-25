@@ -20,7 +20,7 @@
 #include <dynamo/interactions/captures.hpp>
 #include <map>
 #include <vector>
-#include <tr1/unordered_map>
+#include <unordered_map>
 
 namespace dynamo {
   namespace detail {
@@ -72,8 +72,8 @@ namespace dynamo {
       size_t _id;
     };
 
-    typedef std::tr1::unordered_map<detail::CaptureMapKey, MapData,  detail::CaptureMapKeyHash> CollectedMapType;
-    typedef std::tr1::unordered_map<std::pair<size_t, size_t>, size_t, detail::OPContactMapPairHash> LinksMapType;
+    typedef std::unordered_map<detail::CaptureMapKey, MapData,  detail::CaptureMapKeyHash> CollectedMapType;
+    typedef std::unordered_map<std::pair<size_t, size_t>, size_t, detail::OPContactMapPairHash> LinksMapType;
     /*! \brief A hash table storing the histogram of the contact maps.
       
       The key of this map is a sorted list of the captured pairs in
@@ -84,6 +84,6 @@ namespace dynamo {
     CollectedMapType::iterator _current_map;
     LinksMapType _map_links;
     std::string _interaction_name;
-    std::tr1::shared_ptr<ICapture> _interaction;
+    std::shared_ptr<ICapture> _interaction;
   };
 }

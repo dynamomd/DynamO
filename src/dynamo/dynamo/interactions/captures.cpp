@@ -21,7 +21,6 @@
 #include <dynamo/simulation.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
 
 namespace dynamo {
   void 
@@ -68,7 +67,7 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("CaptureMap");
 
-    BOOST_FOREACH(const Map::value_type& IDs, *this)
+    for (const Map::value_type& IDs : *this)
       XML << magnet::xml::tag("Pair")
 	  << magnet::xml::attr("ID1") << IDs.first.first
 	  << magnet::xml::attr("ID2") << IDs.first.second
@@ -82,7 +81,7 @@ namespace dynamo {
   ICapture::validateState(bool textoutput, size_t max_reports) const
   {
     size_t retval(0);
-    BOOST_FOREACH(const Map::value_type& IDs, *this)
+    for (const Map::value_type& IDs : *this)
       {
 	const Particle& p1(Sim->particles[IDs.first.first]);
 	const Particle& p2(Sim->particles[IDs.first.second]);

@@ -45,7 +45,7 @@ namespace magnet {
 	zx(g), zy(h), zz(i)
       {}
       
-      std::pair<std::tr1::array<Vector, 3>, std::tr1::array<double, 3> > 
+      std::pair<std::array<Vector, 3>, std::array<double, 3> > 
       symmetric_eigen_decomposition() const
       {
 #ifdef MAGNET_DEBUG
@@ -65,8 +65,8 @@ namespace magnet {
 	detail::tred2(V, d, e);
 	detail::tql2(V, d, e);
 
-	std::tr1::array<double, 3> eigenvals = {{d[0], d[1], d[2]}};
-	std::tr1::array<Vector, 3> eigenvecs 
+	std::array<double, 3> eigenvals = {{d[0], d[1], d[2]}};
+	std::array<Vector, 3> eigenvecs 
 	  = {{Vector(V[0][0], V[1][0], V[2][0]),
 	      Vector(V[0][1], V[1][1], V[2][1]),
 	      Vector(V[0][2], V[1][2], V[2][2])}};

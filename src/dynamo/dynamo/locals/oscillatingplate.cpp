@@ -85,7 +85,7 @@ namespace dynamo {
     lastsystemTime = Sim->systemTime;
     lastID = part.getID();
 
-    Sim->signalParticleUpdate(EDat);
+    (*Sim->_sigParticleUpdate)(EDat);
 
     //Now we're past the event update the scheduler and plugins
     //if (strongPlate) 
@@ -93,7 +93,7 @@ namespace dynamo {
     //else
     Sim->ptrScheduler->rebuildList();
 
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, EDat);
   }
 
@@ -198,7 +198,7 @@ namespace dynamo {
 					    axis1, axis2, axis3));
       }
   
-    return std::tr1::static_pointer_cast<coil::RenderObj>(_renderObj);
+    return std::static_pointer_cast<coil::RenderObj>(_renderObj);
   }
 
   void 

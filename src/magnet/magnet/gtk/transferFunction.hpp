@@ -23,7 +23,7 @@
 #include <gtkmm/drawingarea.h>
 #include <gdk/gdkkeysyms.h>
 #include <gtkmm/colorselection.h>
-#include <tr1/array>
+#include <array>
 
 namespace magnet {
   namespace gtk {
@@ -57,7 +57,7 @@ namespace magnet {
       }
 
     public:
-      TransferFunction(function::Delegate0<void> updated):
+      TransferFunction(Delegate<void()> updated):
 	_updatedCallback(updated),
 	_grid_line_width(1), _selectedNode(-1), _dragMode(false)
       {
@@ -313,7 +313,7 @@ namespace magnet {
 						- 0.5 * getPointSize(), 0);
 	      for (size_t i(1); i < 256; ++i)
 		{
-		  std::tr1::array<float,4> val = _transferFunction.getValue(i / 255.0);
+		  std::array<float,4> val = _transferFunction.getValue(i / 255.0);
 		  
 		  float color[4];
 		  magnet::color::HSVtoRGB(color, val[0], val[1], val[2], val[3]);
@@ -404,7 +404,7 @@ namespace magnet {
 	return true;
       }
 
-      function::Delegate0<void> _updatedCallback;
+      Delegate<void()> _updatedCallback;
       color::TransferFunction _transferFunction;
       std::vector<float> _histogram;
       double _grid_line_width;

@@ -19,7 +19,6 @@
 #include <dynamo/include.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
-#include <boost/foreach.hpp>
 
 namespace dynamo {
   OPOverlapTest::OPOverlapTest(const dynamo::Simulation* tmp, 

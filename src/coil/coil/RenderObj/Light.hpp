@@ -18,13 +18,12 @@
 
 #include <gtkmm.h>
 #include <coil/RenderObj/RenderObj.hpp>
-#include <magnet/gtk/transferFunction.hpp>
 #include <magnet/GL/texture.hpp>
 #include <magnet/GL/shader/sphere.hpp>
 #include <magnet/GL/buffer.hpp>
 #include <magnet/GL/camera.hpp>
 #include <memory>
-#include <tr1/array>
+#include <array>
 
 namespace coil {
   class RLight : public RenderObj, public magnet::GL::Camera
@@ -42,11 +41,11 @@ namespace coil {
       _specularFactor(1),
       _size(size / simLength)
     {
-      std::tr1::array<GLfloat, 3> tmp = {{1.0, 1.0, 1.0}};
+      std::array<GLfloat, 3> tmp = {{1.0, 1.0, 1.0}};
       _color = tmp;
     }
   
-    virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
+    virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
     virtual void deinit();
 
     virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode, const uint32_t offset);
@@ -63,10 +62,10 @@ namespace coil {
 
     virtual void dragCallback(Vector cursorPos, uint32_t objID);
 
-    const std::tr1::array<GLfloat, 3>& getColor() const { return _color; }
-    std::tr1::array<GLfloat, 3> getLightColor() const 
+    const std::array<GLfloat, 3>& getColor() const { return _color; }
+    std::array<GLfloat, 3> getLightColor() const 
     { 
-      std::tr1::array<GLfloat, 3> retval = {{_color[0] * _intensity,
+      std::array<GLfloat, 3> retval = {{_color[0] * _intensity,
 					     _color[1] * _intensity,
 					     _color[2] * _intensity}};
       return retval;
@@ -96,8 +95,8 @@ namespace coil {
     magnet::math::Vector getEyespacePosition(const magnet::GL::Camera& camera) const
     {
       magnet::math::Vector vec = getPosition();
-      std::tr1::array<GLfloat, 4> lightPos = {{GLfloat(vec[0]), GLfloat(vec[1]), GLfloat(vec[2]), 1.0f}};
-      std::tr1::array<GLfloat, 4> lightPos_eyespace
+      std::array<GLfloat, 4> lightPos = {{GLfloat(vec[0]), GLfloat(vec[1]), GLfloat(vec[2]), 1.0f}};
+      std::array<GLfloat, 4> lightPos_eyespace
 	= camera.getViewMatrix() * lightPos;
       return magnet::math::Vector(lightPos_eyespace[0], lightPos_eyespace[1], 
 				  lightPos_eyespace[2]);
@@ -109,10 +108,10 @@ namespace coil {
     virtual std::string getCursorText(uint32_t objID)
     { return _name; }
 
-    virtual std::tr1::array<GLfloat, 4> getCursorPosition(uint32_t objID)
+    virtual std::array<GLfloat, 4> getCursorPosition(uint32_t objID)
     {
       magnet::math::Vector loc = getPosition();
-      std::tr1::array<GLfloat, 4> vec = {{GLfloat(loc[0]), GLfloat(loc[1]), GLfloat(loc[2]), 1.0f}};
+      std::array<GLfloat, 4> vec = {{GLfloat(loc[0]), GLfloat(loc[1]), GLfloat(loc[2]), 1.0f}};
       return vec;
     }
 
@@ -127,19 +126,19 @@ namespace coil {
     virtual Glib::RefPtr<Gdk::Pixbuf> getIcon();
 
     //GTK gui stuff
-    std::auto_ptr<Gtk::VBox> _optList;
-    std::auto_ptr<Gtk::Entry> _intensityEntry;
-    std::auto_ptr<Gtk::ColorButton> _lightColor;
-    std::auto_ptr<Gtk::Entry> _specularExponentEntry;
-    std::auto_ptr<Gtk::Entry> _specularFactorEntry;
-    std::auto_ptr<Gtk::Entry> _positionXEntry;
-    std::auto_ptr<Gtk::Entry> _positionYEntry;
-    std::auto_ptr<Gtk::Entry> _positionZEntry;    
-    std::auto_ptr<Gtk::Entry> _sizeEntry;
+    std::unique_ptr<Gtk::VBox> _optList;
+    std::unique_ptr<Gtk::Entry> _intensityEntry;
+    std::unique_ptr<Gtk::ColorButton> _lightColor;
+    std::unique_ptr<Gtk::Entry> _specularExponentEntry;
+    std::unique_ptr<Gtk::Entry> _specularFactorEntry;
+    std::unique_ptr<Gtk::Entry> _positionXEntry;
+    std::unique_ptr<Gtk::Entry> _positionYEntry;
+    std::unique_ptr<Gtk::Entry> _positionZEntry;    
+    std::unique_ptr<Gtk::Entry> _sizeEntry;
 
     float _intensity, _specularExponent, _specularFactor;
     GLfloat _size;
-    std::tr1::array<GLfloat, 3> _color;
+    std::array<GLfloat, 3> _color;
 
     magnet::GL::shader::SphereShader _sphereShader;
     magnet::GL::Buffer<GLfloat> _glposition;

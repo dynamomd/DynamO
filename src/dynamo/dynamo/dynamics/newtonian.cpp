@@ -125,9 +125,10 @@ namespace dynamo {
     double mass = Sim->species[tmpDat.getSpeciesID()]->getMass(part.getID());
     double factor = sqrtT / std::sqrt(mass);
 
+    std::normal_distribution<> norm_dist;
     //Assign the new velocities
     for (size_t iDim = 0; iDim < dimensions; iDim++)
-      part.getVelocity()[iDim] = Sim->normal_sampler() * factor;
+      part.getVelocity()[iDim] = norm_dist(Sim->ranGenerator) * factor;
 
     tmpDat.setDeltaKE(0.5 * mass * (part.getVelocity().nrm2() - tmpDat.getOldVel().nrm2()));
   
@@ -259,13 +260,14 @@ namespace dynamo {
     ParticleEventData tmpDat(part, *Sim->species[part], WALL);
  
     double mass = Sim->species[tmpDat.getSpeciesID()]->getMass(part.getID());
-
+    std::normal_distribution<> norm_dist;
     for (size_t iDim = 0; iDim < NDIM; iDim++)
-      part.getVelocity()[iDim] = Sim->normal_sampler() * sqrtT / std::sqrt(mass);
+      part.getVelocity()[iDim] = norm_dist(Sim->ranGenerator) * sqrtT / std::sqrt(mass);
   
+    std::uniform_real_distribution<> uniform_dist;
     part.getVelocity() 
       //This first line adds a component in the direction of the normal
-      += vNorm * (sqrtT * sqrt(-2.0*log(1.0-Sim->uniform_sampler()) / mass)
+      += vNorm * (sqrtT * sqrt(-2.0*log(1.0-uniform_dist(Sim->ranGenerator)) / mass)
 		  //This removes the original normal component
 		  -(part.getVelocity() | vNorm));
 
@@ -359,7 +361,8 @@ namespace dynamo {
     if (prob > maxprob)
       maxprob = prob;
 
-    return prob > Sim->uniform_sampler() * maxprob;
+    std::uniform_real_distribution<> uniform_dist;
+    return prob > uniform_dist(Sim->ranGenerator) * maxprob;
   }
 
   PairEventData
@@ -521,7 +524,7 @@ namespace dynamo {
   
     double structmass1(0), structmass2(0);
   
-    BOOST_FOREACH(const size_t& ID, range1)
+    for (const size_t& ID : range1)
       {
 	updateParticle(Sim->particles[ID]);
       
@@ -538,7 +541,7 @@ namespace dynamo {
 	COMPos1 += pos * mass;
       }
   
-    BOOST_FOREACH(const size_t& ID, range2)
+    for (const size_t& ID : range2)
       {
 	updateParticle(Sim->particles[ID]);
 
@@ -571,7 +574,7 @@ namespace dynamo {
     Vector  dP = rij * ((1.0 + e) * mu * rvdot / rij.nrm2());
 
     NEventData retVal;
-    BOOST_FOREACH(const size_t& ID, range1)
+    for (const size_t& ID : range1)
       {
 	ParticleEventData tmpval(Sim->particles[ID],
 				 *Sim->species[Sim->particles[ID]],
@@ -586,7 +589,7 @@ namespace dynamo {
 	retVal.L1partChanges.push_back(tmpval);
       }
 
-    BOOST_FOREACH(const size_t& ID, range2)
+    for (const size_t& ID : range2)
       {
 	ParticleEventData tmpval
 	  (Sim->particles[ID],
@@ -612,7 +615,7 @@ namespace dynamo {
   
     double structmass1(0), structmass2(0);
   
-    BOOST_FOREACH(const size_t& ID, range1)
+    for (const size_t& ID : range1)
       {
 	updateParticle(Sim->particles[ID]);
 	double mass = Sim->species[Sim->particles[ID]]->getMass(ID);
@@ -629,7 +632,7 @@ namespace dynamo {
 	COMPos1 += pos * mass;
       }
   
-    BOOST_FOREACH(const size_t& ID, range2)
+    for (const size_t& ID : range2)
       {
 	updateParticle(Sim->particles[ID]);
 
@@ -678,7 +681,7 @@ namespace dynamo {
       }
   
     NEventData retVal;
-    BOOST_FOREACH(const size_t& ID, range1)
+    for (const size_t& ID : range1)
       {
 	ParticleEventData tmpval
 	  (Sim->particles[ID],
@@ -694,7 +697,7 @@ namespace dynamo {
 	retVal.L1partChanges.push_back(tmpval);
       }
 
-    BOOST_FOREACH(const size_t& ID, range2)
+    for (const size_t& ID : range2)
       {
 	ParticleEventData tmpval
 	  (Sim->particles[ID],

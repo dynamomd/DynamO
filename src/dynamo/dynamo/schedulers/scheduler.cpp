@@ -59,21 +59,21 @@ namespace dynamo {
     dout << "Checking the simulation configuration for any errors" << std::endl;
     size_t warnings(0);
 
-    BOOST_FOREACH(const shared_ptr<Interaction>& interaction_ptr, Sim->interactions)
+    for (const auto& interaction_ptr : Sim->interactions)
       warnings += interaction_ptr->validateState(warnings < 101, 101 - warnings);
     
     for (size_t id1(0); id1 < Sim->particles.size(); ++id1)
       {
-	std::auto_ptr<IDRange> ids(getParticleNeighbours(Sim->particles[id1]));
-	BOOST_FOREACH(const size_t id2, *ids)
+	std::unique_ptr<IDRange> ids(getParticleNeighbours(Sim->particles[id1]));
+	for (const size_t id2 : *ids)
 	  if (id2 > id1)
 	    if (Sim->getInteraction(Sim->particles[id1], Sim->particles[id2])
 		->validateState(Sim->particles[id1], Sim->particles[id2], (warnings < 101)))
 	      ++warnings;
       }
     
-    BOOST_FOREACH(const Particle& part, Sim->particles)
-      BOOST_FOREACH(const shared_ptr<Local>& lcl, Sim->locals)
+    for(const Particle& part : Sim->particles)
+      for (const shared_ptr<Local>& lcl : Sim->locals)
       if (lcl->isInteraction(part))
 	if (lcl->validateState(part, (warnings < 101)))
 	  ++warnings;
@@ -94,7 +94,7 @@ namespace dynamo {
     eventCount.clear();
     eventCount.resize(Sim->N+1, 0);
 
-    BOOST_FOREACH(Particle& part, Sim->particles)
+    for (Particle& part : Sim->particles)
       addEvents(part);
   
     sorter->init();
@@ -109,19 +109,19 @@ namespace dynamo {
     Sim->dynamics->updateParticle(part);
 
     //Add the global events
-    BOOST_FOREACH(const shared_ptr<Global>& glob, Sim->globals)
+    for (const shared_ptr<Global>& glob : Sim->globals)
       if (glob->isInteraction(part))
 	sorter->push(glob->getEvent(part), part.getID());
   
     //Add the local cell events
-    std::auto_ptr<IDRange> ids(getParticleLocals(part));
+    std::unique_ptr<IDRange> ids(getParticleLocals(part));
     
-    BOOST_FOREACH(const size_t id2, *ids)
+    for (const size_t id2 : *ids)
       addLocalEvent(part, id2);
 
     //Now add the interaction events
     ids = getParticleNeighbours(part);
-    BOOST_FOREACH(const size_t id2, *ids)
+    for (const size_t id2 : *ids)
       addInteractionEvent(part, id2);
   }
 
@@ -134,8 +134,6 @@ namespace dynamo {
       return shared_ptr<Scheduler>(new SDumb(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("SystemOnly"))
       return shared_ptr<Scheduler>(new SSystemOnly(XML, Sim));
-    else if (!XML.getAttribute("Type").getValue().compare("Complex"))
-      return shared_ptr<Scheduler>(new SComplex(XML, Sim));
     else 
       M_throw() << XML.getAttribute("Type").getValue()
 		<< ", Unknown type of Scheduler encountered";
@@ -153,7 +151,7 @@ namespace dynamo {
   {
     sorter->clearPEL(Sim->N);
 
-    BOOST_FOREACH(const shared_ptr<System>& sysptr, Sim->systems)
+    for(const auto& sysptr : Sim->systems)
       sorter->push(Event(sysptr->getdt(), SYSTEM, sysptr->getID(), 0), Sim->N);
 
     sorter->update(Sim->N);

@@ -588,7 +588,7 @@ function GravityPlateTest {
 
     ./dynamod -s1 -m 22 -d 0.1  &> run.log
     ./dynarun -c 100000 config.out.xml.bz2 >> run.log 2>&1
-    MFT=3.3760286901892
+    MFT=3.55501052762802
 
     if [ -e output.xml.bz2 ]; then
 	if [ $(bzcat output.xml.bz2 \

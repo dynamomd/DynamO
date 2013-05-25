@@ -19,7 +19,6 @@
 #include <dynamo/include.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
@@ -48,7 +47,7 @@ namespace dynamo {
   
     XML << magnet::xml::tag("MSD");
   
-    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->species)
+    for (const shared_ptr<Species>& sp : Sim->species)
       {
 	double MSD(calcMSD(*(sp->getRange())));
       
@@ -64,7 +63,7 @@ namespace dynamo {
       {
 	XML << magnet::xml::tag("Structures");
 
-	BOOST_FOREACH(const shared_ptr<Topology>& topo, Sim->topology)
+	for (const shared_ptr<Topology>& topo : Sim->topology)
 	  {
 	    double MSD(calcStructMSD(*topo));
 
@@ -87,7 +86,7 @@ namespace dynamo {
   {
     double acc = 0.0;
 
-    BOOST_FOREACH(const size_t ID, range)
+    for (const size_t ID : range)
       acc += (Sim->particles[ID].getPosition() - initPos[ID]).nrm2();
   
     return acc / (range.size() * Sim->units.unitArea());
@@ -100,11 +99,11 @@ namespace dynamo {
     Sim->dynamics->updateAllParticles();
 
     double acc = 0.0;
-    BOOST_FOREACH(const shared_ptr<IDRange>& molRange, Itop.getMolecules())
+    for (const shared_ptr<IDRange>& molRange : Itop.getMolecules())
       {
 	Vector  origPos(0,0,0), currPos(0,0,0);
 	double totmass = 0.0;
-	BOOST_FOREACH(const unsigned long& ID, *molRange)
+	for (const unsigned long& ID : *molRange)
 	  {
 	    double pmass = Sim->species[Sim->particles[ID]]->getMass(ID);
 

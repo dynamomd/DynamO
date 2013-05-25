@@ -45,21 +45,21 @@ namespace dynamo {
 	<< magnet::xml::endtag("Sorter");
   }
 
-  std::auto_ptr<IDRange>
+  std::unique_ptr<IDRange>
   SDumb::getParticleNeighbours(const Particle&) const
   {
-    return std::auto_ptr<IDRange>(new IDRangeAll(Sim));
+    return std::unique_ptr<IDRange>(new IDRangeAll(Sim));
   }
 
-  std::auto_ptr<IDRange>
+  std::unique_ptr<IDRange>
   SDumb::getParticleNeighbours(const Vector&) const
   {
-    return std::auto_ptr<IDRange>(new IDRangeAll(Sim));
+    return std::unique_ptr<IDRange>(new IDRangeAll(Sim));
   }
 
-  std::auto_ptr<IDRange>
+  std::unique_ptr<IDRange>
   SDumb::getParticleLocals(const Particle&) const
   {
-    return std::auto_ptr<IDRange>(new IDRangeRange(0, Sim->locals.size()));
+    return std::unique_ptr<IDRange>(new IDRangeRange(0, Sim->locals.size()));
   }
 }

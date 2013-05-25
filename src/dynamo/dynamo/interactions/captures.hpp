@@ -20,10 +20,6 @@
 #include <dynamo/particle.hpp>
 #include <dynamo/interactions/interaction.hpp>
 #include <magnet/exception.hpp>
-#include <boost/functional/hash.hpp>
-#include <tr1/unordered_set>
-#include <tr1/unordered_map>
-#include <boost/foreach.hpp>
 #include <map>
 
 namespace dynamo {
@@ -131,7 +127,7 @@ namespace dynamo {
 
       std::size_t hash() const {
 	std::size_t hash(0);
-	BOOST_FOREACH(const Container::value_type& val, *this)
+	for (const Container::value_type& val : *this)
 	  hash = hash_combine(hash, hash_combine(val.first.first, hash_combine(val.first.second, val.second)));
 	return hash;
       }

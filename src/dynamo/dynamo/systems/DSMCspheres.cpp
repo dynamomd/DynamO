@@ -28,8 +28,6 @@
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
-#include <boost/random/uniform_int.hpp>
 
 #ifdef DYNAMO_DEBUG 
 #include <boost/math/special_functions/fpclassify.hpp>
@@ -80,15 +78,10 @@ namespace dynamo {
 
     dt = tstep;
 
-    boost::variate_generator
-      <dynamo::baseRNG&, boost::uniform_int<size_t> >
-      id1sampler(Sim->ranGenerator, 
-		 boost::uniform_int<size_t>(0, range1->size() - 1));
-
-    boost::variate_generator
-      <dynamo::baseRNG&, boost::uniform_int<size_t> >
-      id2sampler(Sim->ranGenerator, 
-		 boost::uniform_int<size_t>(0, range2->size() - 1));
+    std::normal_distribution<> norm_sampler;
+    std::uniform_real_distribution<> uniform_sampler;
+    std::uniform_int_distribution<size_t> id1sampler(0, range1->size() - 1);
+    std::uniform_int_distribution<size_t> id2sampler(0, range2->size() - 1);
 
     double Event;
     double fracpart = std::modf(0.5 * maxprob * range1->size(),
@@ -96,20 +89,20 @@ namespace dynamo {
  
     size_t nmax = static_cast<size_t>(Event);
   
-    BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(*this, NEventData(), locdt);
 
-    if (Sim->uniform_sampler() < fracpart)
+    if (uniform_sampler(Sim->ranGenerator) < fracpart)
       ++nmax;
 
     for (size_t n = 0; n < nmax; ++n)
       {
-	Particle& p1(Sim->particles[*(range1->begin() + id1sampler())]);
+	Particle& p1(Sim->particles[*(range1->begin() + id1sampler(Sim->ranGenerator))]);
       
-	size_t p2id = *(range2->begin() + id2sampler());
+	size_t p2id = *(range2->begin() + id2sampler(Sim->ranGenerator));
       
 	while (p2id == p1.getID())
-	  p2id = *(range2->begin()+id2sampler());
+	  p2id = *(range2->begin()+id2sampler(Sim->ranGenerator));
       
 	Particle& p2(Sim->particles[p2id]);
       
@@ -117,7 +110,7 @@ namespace dynamo {
       
 	Vector rij;
 	for (size_t iDim(0); iDim < NDIM; ++iDim)
-	  rij[iDim] = Sim->normal_sampler();
+	  rij[iDim] = norm_sampler(Sim->ranGenerator);
       
 	rij *= diameter / rij.nrm();
       
@@ -129,11 +122,11 @@ namespace dynamo {
 	    const PairEventData
 	      SDat(Sim->dynamics->DSMCSpheresRun(p1, p2, e, rij));
 
-	    Sim->signalParticleUpdate(SDat);
+	    (*Sim->_sigParticleUpdate)(SDat);
   
 	    Sim->ptrScheduler->fullUpdate(p1, p2);
 	  
-	    BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+	    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
 	      Ptr->eventUpdate(*this, SDat, 0.0);
 	  }
       }
@@ -152,25 +145,19 @@ namespace dynamo {
   
     if (maxprob == 0.0)
       {
-	boost::variate_generator
-	  <dynamo::baseRNG&, boost::uniform_int<size_t> >
-	  id1sampler(Sim->ranGenerator, 
-		     boost::uniform_int<size_t>(0, range1->size() - 1));
-      
-	boost::variate_generator
-	  <dynamo::baseRNG&, boost::uniform_int<size_t> >
-	  id2sampler(Sim->ranGenerator, 
-		     boost::uniform_int<size_t>(0, range2->size() - 1));
-      
+	std::normal_distribution<> norm_sampler;
+	std::uniform_int_distribution<size_t> id1sampler(0, range1->size() - 1);
+	std::uniform_int_distribution<size_t> id2sampler(0, range2->size() - 1);
+
 	//Just do some quick testing to get an estimate
 	for (size_t n = 0; n < 1000; ++n)
 	  {
-	    Particle& p1(Sim->particles[*(range1->begin() + id1sampler())]);
+	    Particle& p1(Sim->particles[*(range1->begin() + id1sampler(Sim->ranGenerator))]);
 	  
-	    size_t p2id = *(range2->begin() + id2sampler());
+	    size_t p2id = *(range2->begin() + id2sampler(Sim->ranGenerator));
 	  
 	    while (p2id == p1.getID())
-	      p2id = *(range2->begin()+id2sampler());
+	      p2id = *(range2->begin()+id2sampler(Sim->ranGenerator));
 	  
 	    Particle& p2(Sim->particles[p2id]);
 	  
@@ -178,7 +165,7 @@ namespace dynamo {
 	  
 	    Vector rij;
 	    for (size_t iDim(0); iDim < NDIM; ++iDim)
-	      rij[iDim] = Sim->normal_sampler();
+	      rij[iDim] = norm_sampler(Sim->ranGenerator);
 	
 	    rij *= diameter / rij.nrm();
 	  

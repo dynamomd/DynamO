@@ -28,8 +28,8 @@ void updateRenderer();
 const size_t N = 10;
 //The current simulation time
 double t = 0;
-std::tr1::shared_ptr<coil::CLGLWindow> window;
-std::tr1::shared_ptr<coil::DataSet> data;
+std::shared_ptr<coil::CLGLWindow> window;
+std::shared_ptr<coil::DataSet> data;
 
 int main(int argc, char *argv[])
 {

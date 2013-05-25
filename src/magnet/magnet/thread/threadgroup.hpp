@@ -21,8 +21,7 @@
 #include <vector>
 
 #include <magnet/exception.hpp>
-#include <magnet/function/task.hpp>
-#include <magnet/thread/thread.hpp>
+#include <thread>
 
 namespace magnet {
   namespace thread {
@@ -31,35 +30,23 @@ namespace magnet {
     public:
       inline ThreadGroup() {}
 
-      inline ~ThreadGroup() 
-      {
-	for (std::vector<Thread*>::iterator iPtr = _threads.begin();
-	     iPtr != _threads.end(); ++iPtr)
-	  delete *iPtr;
-      }
+      inline ~ThreadGroup() { join_all(); }
 
-      inline void create_thread(function::Task* task)
-      {
-	_threads.push_back(new Thread(task));
-      }
+      template< class Function, class... Args >
+      inline void create_thread(Function&& f, Args&&... args)
+      { _threads.push_back(std::thread(f, args...)); }
 
       inline size_t size() const { return _threads.size(); }
       
       inline void join_all()
       {
-	for (std::vector<Thread*>::iterator iPtr = _threads.begin();
-	     iPtr != _threads.end(); ++iPtr)
-	  (*iPtr)->join();
-
-	for (std::vector<Thread*>::iterator iPtr = _threads.begin();
-	     iPtr != _threads.end(); ++iPtr)
-	  delete *iPtr;
-
-	_threads.clear();       
+	for (auto& thread : _threads) 
+	  if (thread.joinable()) thread.join();
+	_threads.clear();
       }
 
     protected:
-      std::vector<Thread*> _threads;
+      std::vector<std::thread> _threads;
 
       ThreadGroup(const ThreadGroup&);
       ThreadGroup& operator=(const ThreadGroup&);

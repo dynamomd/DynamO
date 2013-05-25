@@ -44,14 +44,14 @@ namespace dynamo {
       intName = name;
       std::set<size_t> letters;
     
-      BOOST_FOREACH(const size_t& id, seq)
+      for (const size_t& id : seq)
 	if (letters.find(id) == letters.end())
 	  //Count the letter
 	  letters.insert(id);
     
       alphabet.resize(letters.size());
     
-      BOOST_FOREACH(std::vector<double>& vec, alphabet)
+      for (std::vector<double>& vec : alphabet)
 	vec.resize(letters.size(), 0.0);
     }
 

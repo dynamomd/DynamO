@@ -62,12 +62,12 @@ namespace dynamo {
 	<< magnet::xml::attr("Interaction") << _interaction_name
 	<< magnet::xml::tag("Potential");
     
-    BOOST_FOREACH(const WType::value_type& entry, _W)
+    for (const WType::value_type& entry : _W)
       {
 	XML << magnet::xml::tag("Map")
 	    << magnet::xml::attr("W") << entry.second;
 
-	BOOST_FOREACH(const detail::CaptureMap::value_type& val, entry.first)
+	for (const detail::CaptureMap::value_type& val : entry.first)
 	  XML << magnet::xml::tag("Contact")
 	      << magnet::xml::attr("ID1") << val.first.first
 	      << magnet::xml::attr("ID2") << val.first.second
@@ -88,7 +88,7 @@ namespace dynamo {
     if (dynamic_cast<const dynamo::EnsembleNVT*>(Sim->ensemble.get()) == NULL)
       M_throw() << "Multi-canonical simulations require an NVT ensemble";
     
-    _interaction = std::tr1::dynamic_pointer_cast<ICapture>(Sim->interactions[_interaction_name]);
+    _interaction = std::dynamic_pointer_cast<ICapture>(Sim->interactions[_interaction_name]);
   }
 
 

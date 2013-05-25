@@ -19,7 +19,6 @@
 #include <dynamo/include.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
 
 namespace dynamo {
   OPCollDistCheck::OPCollDistCheck(const dynamo::Simulation* t1, 
@@ -69,7 +68,7 @@ namespace dynamo {
 	&& (distList.find(locPair) == distList.end()))
       distList[locPair] = magnet::math::Histogram<>(binwidth * Sim->units.unitLength());
   
-    BOOST_FOREACH(const PairEventData& dat, PDat.L2partChanges)
+    for (const PairEventData& dat : PDat.L2partChanges)
       distList[locPair].addVal(dat.rij.nrm());
   }
 
@@ -84,7 +83,7 @@ namespace dynamo {
 	&& (distList.find(locPair) == distList.end()))
       distList[locPair] = magnet::math::Histogram<>(binwidth * Sim->units.unitLength());
   
-    BOOST_FOREACH(const PairEventData& dat, PDat.L2partChanges)
+    for (const PairEventData& dat : PDat.L2partChanges)
       distList[locPair].addVal(dat.rij.nrm());
   }
   
@@ -98,7 +97,7 @@ namespace dynamo {
 	&& (distList.find(locPair) == distList.end()))
       distList[locPair] = magnet::math::Histogram<>(binwidth * Sim->units.unitLength());
   
-    BOOST_FOREACH(const PairEventData& dat, PDat.L2partChanges)
+    for (const PairEventData& dat : PDat.L2partChanges)
       distList[locPair].addVal(dat.rij.nrm());
   }
 
@@ -110,7 +109,7 @@ namespace dynamo {
     typedef std::pair<eventKey, magnet::math::Histogram<> >
       localPair;
   
-    BOOST_FOREACH(const localPair& p, distList)
+    for (const localPair& p : distList)
       {
 	XML << magnet::xml::tag("Distance") << magnet::xml::attr("Name") 
 	    << getName(p.first.first, Sim)

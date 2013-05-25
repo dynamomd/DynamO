@@ -19,15 +19,15 @@
 #include <magnet/stream/console_specials.hpp>
 #include <magnet/stream/formattedostream.hpp>
 #include <magnet/exception.hpp>
-#include <boost/functional/hash.hpp>
-#include <tr1/memory>
+#include <memory>
 #include <iostream>
 #include <iomanip>
 #include <limits>
+#include <functional>
 
 namespace dynamo
 {
-  using std::tr1::shared_ptr;
+  using std::shared_ptr;
 
   class Simulation;
 
@@ -92,7 +92,7 @@ namespace dynamo
      */
     std::string colorCode(std::string str)
     {
-      switch (boost::hash<std::string>()(str) % 9)
+      switch (std::hash<std::string>()(str) % 9)
 	{
 	case 0: return magnet::console::cyan_fg();
 	case 1: return magnet::console::purple_fg();

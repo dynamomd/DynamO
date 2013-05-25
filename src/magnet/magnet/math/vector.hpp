@@ -19,7 +19,7 @@
 
 #include <cmath>
 #include <algorithm>
-#include <tr1/array>
+#include <array>
 #include <stddef.h>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -72,7 +72,7 @@ namespace magnet {
       { operator()(0) = a; operator()(1) = b; operator()(2) = c; }
 
       template<class T>
-      inline VectorExpression(const std::tr1::array<T, 3>& vec)
+      inline VectorExpression(const std::array<T, 3>& vec)
       { for (size_t i(0); i < 3; ++i) operator()(i) = vec[i]; }
 
       /*! \brief Constuctor from a vector expression.

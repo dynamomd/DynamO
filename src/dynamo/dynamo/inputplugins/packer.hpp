@@ -19,8 +19,7 @@
 #include <dynamo/base.hpp>
 #include <magnet/math/vector.hpp>
 #include <boost/program_options.hpp>
-#include <boost/shared_ptr.hpp>
-#include <tr1/array>
+#include <array>
 
 using namespace std;
 using namespace boost;
@@ -39,7 +38,7 @@ namespace dynamo {
     static po::options_description getOptions();
 
   protected:
-    std::tr1::array<long, 3> getCells();
+    std::array<long, 3> getCells();
     Vector  getNormalisedCellDimensions();
     Vector  getRandVelVec();
     UCell* standardPackingHelper(UCell*, bool forceRectangular = false);

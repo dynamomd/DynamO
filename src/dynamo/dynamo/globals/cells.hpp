@@ -19,7 +19,7 @@
 #include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/particle.hpp>
 #include <magnet/math/morton_number.hpp>
-#include <tr1/unordered_map>
+#include <unordered_map>
 #include <vector>
 
 namespace dynamo {
@@ -84,9 +84,6 @@ namespace dynamo {
     size_t NCells;
     size_t overlink;
 
-    boost::signals2::scoped_connection _particleAdded;
-    boost::signals2::scoped_connection _particleRemoved;
-
     //! \brief The list of particles in each cell.
     mutable std::vector<std::vector<size_t> > list;
 
@@ -95,7 +92,7 @@ namespace dynamo {
       This container is an unordered map, so we only store the linked
       list for the particles actually inserted into this neighborlist.
      */
-    mutable std::tr1::unordered_map<size_t, size_t> partCellData;
+    mutable std::unordered_map<size_t, size_t> partCellData;
 
     GCells(const GCells&);
 
@@ -122,7 +119,7 @@ namespace dynamo {
     inline void removeFromCell(size_t ID) const
     { removeFromCellwIt(ID, partCellData.find(ID)); }
 
-    inline void removeFromCellwIt(size_t ID, std::tr1::unordered_map<size_t, size_t>::iterator it) const
+    inline void removeFromCellwIt(size_t ID, std::unordered_map<size_t, size_t>::iterator it) const
     {
 #ifdef DYNAMO_DEBUG
     if (it == partCellData.end())

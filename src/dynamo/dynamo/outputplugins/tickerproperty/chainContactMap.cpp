@@ -21,7 +21,6 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/topology/include.hpp>
 #include <dynamo/interactions/captures.hpp>
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <vector>
 
@@ -42,8 +41,8 @@ namespace dynamo {
   void 
   OPCContactMap::initialise()
   {
-    BOOST_FOREACH(const shared_ptr<Topology>& plugPtr, Sim->topology)
-      if (std::tr1::dynamic_pointer_cast<TChain>(plugPtr))
+    for (const shared_ptr<Topology>& plugPtr : Sim->topology)
+      if (std::dynamic_pointer_cast<TChain>(plugPtr))
 	chains.push_back(Cdata(static_cast<const TChain*>(plugPtr.get()), 
 			       plugPtr->getMolecules().front()->size()));
   }
@@ -53,7 +52,7 @@ namespace dynamo {
   {
     std::swap(Sim, static_cast<OPCContactMap*>(OPPlug)->Sim);
 
-    BOOST_FOREACH(Cdata& dat, chains)
+    for (Cdata& dat : chains)
       {
 	try {
 	  dat.chainPtr = &dynamic_cast<const TChain&>(*Sim->topology[dat.chainPtr->getName()]);
@@ -71,8 +70,8 @@ namespace dynamo {
   void 
   OPCContactMap::ticker()
   {
-    BOOST_FOREACH(Cdata& dat,chains)
-      BOOST_FOREACH(const shared_ptr<IDRange>& range,  dat.chainPtr->getMolecules())
+    for (Cdata& dat : chains)
+      for (const shared_ptr<IDRange>& range : dat.chainPtr->getMolecules())
       {
 	dat.counter++;
 	for (unsigned long i = 0; i < dat.chainlength; i++)
@@ -83,9 +82,9 @@ namespace dynamo {
 	      {
 		const Particle& part2 = Sim->particles[(*range)[j]];
 
-		BOOST_FOREACH(const shared_ptr<Interaction>& ptr, Sim->interactions)
+		for (const shared_ptr<Interaction>& ptr : Sim->interactions)
 		  if (ptr->isInteraction(part1,part2))
-		    if (std::tr1::dynamic_pointer_cast<ICapture>(ptr))
+		    if (std::dynamic_pointer_cast<ICapture>(ptr))
 		      if (dynamic_cast<const ICapture*>(ptr.get())->isCaptured(part1,part2))
 			dat.array[i * dat.chainlength + j]++;
 	      }
@@ -98,7 +97,7 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("ContactMap");
   
-    BOOST_FOREACH(Cdata& dat, chains)
+    for (Cdata& dat : chains)
       {
 	//Copying
       

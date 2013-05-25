@@ -21,7 +21,6 @@
 #include <dynamo/schedulers/sorters/heapPEL.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/simulation.hpp>
-#include <boost/static_assert.hpp>
 #include <magnet/exception.hpp>
 #include <string>
 #include <vector>
@@ -38,11 +37,7 @@ namespace dynamo {
 
   class PELSingleEvent;
 
-  template<class T>
-  struct FELBoundedPQName
-  {
-    BOOST_STATIC_ASSERT(sizeof(T) == 0);
-  };
+  template<class T> struct FELBoundedPQName;
 
   template<>
   struct FELBoundedPQName<PELHeap>
@@ -145,7 +140,7 @@ namespace dynamo {
 	  //We make a bounded queue of length N
 	  //With a date length of the mean time between events
 	  
-	  BOOST_FOREACH(const eventQEntry& dat, Min)
+	  for (const eventQEntry& dat : Min)
 	    if (!std::isinf(dat.data.getdt()))
 	      {
 		minVal = std::min(minVal, dat.data.getdt());
@@ -261,7 +256,7 @@ namespace dynamo {
 
     inline void rescaleTimes(const double& factor)
     {
-      BOOST_FOREACH(eventQEntry& dat, Min)
+      for (eventQEntry& dat : Min)
 	dat.data.rescaleTimes(factor);
 
       pecTime *= factor;
@@ -366,7 +361,7 @@ namespace dynamo {
 	      currentIndex=0;
 
 	      //Stream every event by the list width!
-	      BOOST_FOREACH(eventQEntry& dat, Min)
+	      for (eventQEntry& dat : Min)
 		dat.data.stream(listWidth);
 	      //update the peculiar time
 	      pecTime -= listWidth;

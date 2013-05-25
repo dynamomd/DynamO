@@ -26,7 +26,6 @@
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <fstream>
@@ -61,24 +60,24 @@ namespace dynamo {
 
     NEventData SDat;
 
-    BOOST_FOREACH(const shared_ptr<Species>& species, Sim->species)
-      BOOST_FOREACH(const unsigned long& partID, *species->getRange())
+    for (const shared_ptr<Species>& species : Sim->species)
+      for (const unsigned long& partID : *species->getRange())
       SDat.L1partChanges.push_back(ParticleEventData(Sim->particles[partID], *species, RECALCULATE));
 
     Sim->dynamics->updateAllParticles();
     
     
-    shared_ptr<DynGravity> dynamics = std::tr1::dynamic_pointer_cast<DynGravity>(Sim->dynamics);
+    shared_ptr<DynGravity> dynamics = std::dynamic_pointer_cast<DynGravity>(Sim->dynamics);
     if (!dynamics)
       M_throw() << "The RotateGravity system can only be used with the Gravity type dynamics";
 
     Vector newg = Rodrigues(_angularvel * _timestep * _rotationaxis) *  dynamics->getGravityVector();
     dynamics->setGravityVector(newg);
 
-    BOOST_FOREACH(const ParticleEventData& PDat, SDat.L1partChanges)
+    for (const ParticleEventData& PDat : SDat.L1partChanges)
       Sim->ptrScheduler->fullUpdate(Sim->particles[PDat.getParticleID()]);
   
-    BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(*this, SDat, locdt); 
 
     dt = _timestep;
@@ -90,7 +89,7 @@ namespace dynamo {
   {
     ID = nID;
     dt = _timestep;
-    shared_ptr<DynGravity> dynamics = std::tr1::dynamic_pointer_cast<DynGravity>(Sim->dynamics);
+    shared_ptr<DynGravity> dynamics = std::dynamic_pointer_cast<DynGravity>(Sim->dynamics);
     if (!dynamics)
       M_throw() << "The RotateGravity system can only be used with the Gravity type dynamics";
   }

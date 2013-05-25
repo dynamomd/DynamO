@@ -18,7 +18,6 @@
 #include <dynamo/outputplugins/tickerproperty/velprof.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/simulation.hpp>
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <fstream>
 
@@ -48,7 +47,7 @@ namespace dynamo {
   void 
   OPVelProfile::ticker()
   {
-    BOOST_FOREACH(const Particle& part, Sim->particles)
+    for (const Particle& part : Sim->particles)
       {
 	Vector  pos(part.getPosition());
 	Vector  vel(part.getVelocity());

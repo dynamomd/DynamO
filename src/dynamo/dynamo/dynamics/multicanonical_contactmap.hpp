@@ -18,7 +18,7 @@
 #pragma once
 #include <dynamo/dynamics/newtonian.hpp>
 #include <dynamo/interactions/captures.hpp>
-#include <tr1/unordered_map>
+#include <unordered_map>
 
 namespace dynamo {
   /*! \brief A Dynamics which implements Newtonian dynamics, but with
@@ -27,11 +27,11 @@ namespace dynamo {
    */
   class DynNewtonianMCCMap: public DynNewtonian
   {
-    typedef std::tr1::unordered_map<detail::CaptureMapKey, double,  detail::CaptureMapKeyHash> WType;
+    typedef std::unordered_map<detail::CaptureMapKey, double,  detail::CaptureMapKeyHash> WType;
     WType _W;
 
     std::string _interaction_name;
-    std::tr1::shared_ptr<ICapture> _interaction;
+    std::shared_ptr<ICapture> _interaction;
   public:
     DynNewtonianMCCMap(dynamo::Simulation* tmp, const magnet::xml::Node&);
 

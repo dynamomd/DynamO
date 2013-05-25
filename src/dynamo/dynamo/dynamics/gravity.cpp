@@ -105,7 +105,7 @@ namespace dynamo {
   {
     double accel1sum = 0;
     double mass1 = 0;
-    BOOST_FOREACH(const size_t ID, p1)
+    for (const size_t ID : p1)
       {
 	const Particle& part = Sim->particles[ID];       
 	double mass = Sim->species[part]->getMass(ID);
@@ -119,7 +119,7 @@ namespace dynamo {
     
     double accel2sum = 0;
     double mass2 = 0;
-    BOOST_FOREACH(const size_t ID, p2)
+    for (const size_t ID : p2)
       {
 	const Particle& part = Sim->particles[ID];       
 	double mass = Sim->species[part]->getMass(ID);
@@ -167,7 +167,7 @@ namespace dynamo {
   {
     double accel1sum = 0;
     double mass1 = 0;
-    BOOST_FOREACH(const size_t ID, p1)
+    for (const size_t ID : p1)
       {
 	const Particle& part = Sim->particles[ID];       
 	double mass = Sim->species[part]->getMass(ID);
@@ -181,7 +181,7 @@ namespace dynamo {
     
     double accel2sum = 0;
     double mass2 = 0;
-    BOOST_FOREACH(const size_t ID, p2)
+    for (const size_t ID : p2)
       {
 	const Particle& part = Sim->particles[ID];       
 	double mass = Sim->species[part]->getMass(ID);
@@ -450,8 +450,8 @@ namespace dynamo {
     //Now add the parabola sentinel if there are cell neighbor lists in
     //use.
     bool hasNBlist = false;
-    BOOST_FOREACH(shared_ptr<Global>& glob, Sim->globals)
-      if (std::tr1::dynamic_pointer_cast<GNeighbourList>(glob))
+    for (shared_ptr<Global>& glob : Sim->globals)
+      if (std::dynamic_pointer_cast<GNeighbourList>(glob))
 	{ hasNBlist = true; break; }
   
     if (hasNBlist)

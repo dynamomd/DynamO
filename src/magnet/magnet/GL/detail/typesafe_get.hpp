@@ -15,7 +15,7 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <tr1/array>
+#include <array>
 #include <magnet/GL/detail/error_check.hpp>
 
 namespace magnet {
@@ -37,7 +37,7 @@ namespace magnet {
       F(GL_MAX_COLOR_TEXTURE_SAMPLES, GLint, 1)		\
       F(GL_MAX_DEPTH_TEXTURE_SAMPLES, GLint, 1)
 
-      template<size_t width, class T> struct return_type { typedef std::tr1::array<T, width> Type; };
+      template<size_t width, class T> struct return_type { typedef std::array<T, width> Type; };
       template<class T> struct return_type<1, T> { typedef T Type; };
       
 #define GL_GET_TO_C_TYPE(GL_ENUM_VAL, C_TYPE, WIDTH)		\

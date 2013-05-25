@@ -106,8 +106,7 @@ namespace dynamo {
 
     if (vm.count("load-plugin"))
       {
-	BOOST_FOREACH(const std::string& tmpString, 
-		      vm["load-plugin"].as<std::vector<std::string> >())
+	for (const std::string& tmpString : vm["load-plugin"].as<std::vector<std::string> >())
 	  Sim.addOutputPlugin(tmpString);
       }
   

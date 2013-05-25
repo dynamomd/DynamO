@@ -19,7 +19,6 @@
 #include <dynamo/ranges/IDPairRange.hpp>
 #include <dynamo/base.hpp>
 #include <dynamo/particle.hpp>
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <list>
@@ -43,7 +42,7 @@ namespace dynamo {
     
     virtual bool isInRange(const Particle&p1, const Particle&p2) const
     {
-      BOOST_FOREACH(const shared_ptr<IDPairRange>& rPtr, ranges)
+      for (const shared_ptr<IDPairRange>& rPtr : ranges)
 	if (rPtr->isInRange(p1,p2))
 	  return true;
   
@@ -58,7 +57,7 @@ namespace dynamo {
     {
       XML << magnet::xml::attr("Type") << "Union";
 
-      BOOST_FOREACH(const shared_ptr<IDPairRange>& rPtr, ranges)
+      for (const shared_ptr<IDPairRange>& rPtr : ranges)
 	XML << rPtr;
     }
 

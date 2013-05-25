@@ -21,7 +21,6 @@
 #include <dynamo/dynamics/dynamics.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
 
 namespace dynamo {
   OPRadialDistribution::OPRadialDistribution(const dynamo::Simulation* tmp, 
@@ -125,10 +124,10 @@ namespace dynamo {
     
     ++sampleCount;
   
-    BOOST_FOREACH(const shared_ptr<Species>& sp1, Sim->species)
-      BOOST_FOREACH(const shared_ptr<Species>& sp2, Sim->species)
-      BOOST_FOREACH(const size_t& p1, *sp1->getRange())
-      BOOST_FOREACH(const size_t& p2, *sp2->getRange())
+    for (const shared_ptr<Species>& sp1 : Sim->species)
+      for (const shared_ptr<Species>& sp2 : Sim->species)
+      for (const size_t& p1 : *sp1->getRange())
+      for (const size_t& p2 : *sp2->getRange())
       {
 	Vector  rij = Sim->particles[p1].getPosition()
 	  - Sim->particles[p2].getPosition();
@@ -150,8 +149,8 @@ namespace dynamo {
 	<< sampleCount;
 
   
-    BOOST_FOREACH(const shared_ptr<Species>& sp1, Sim->species)
-      BOOST_FOREACH(const shared_ptr<Species>& sp2, Sim->species)
+    for (const shared_ptr<Species>& sp1 : Sim->species)
+      for (const shared_ptr<Species>& sp2 : Sim->species)
       {
 	double density = sp2->getCount() / Sim->getSimVolume();
 

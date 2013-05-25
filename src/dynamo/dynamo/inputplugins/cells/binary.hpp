@@ -29,7 +29,7 @@ namespace dynamo {
       countA(x)
     {}
 
-    boost::scoped_ptr<UCell> uc2;
+    std::unique_ptr<UCell> uc2;
     size_t count;
     const size_t countA;
   

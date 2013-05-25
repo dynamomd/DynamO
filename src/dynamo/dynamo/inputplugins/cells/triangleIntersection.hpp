@@ -17,9 +17,8 @@
 
 #pragma once
 #include <dynamo/inputplugins/cells/cell.hpp>
-#include <boost/foreach.hpp>
 #include <boost/progress.hpp>
-#include <tr1/array>
+#include <array>
 #include <string>
 #include <fstream>
 
@@ -28,7 +27,7 @@ namespace dynamo {
   {
     double _diameter, _diametersq;
     std::string _fileName;
-    typedef std::tr1::array<Vector, NDIM+1> triangle_type;
+    typedef std::array<Vector, NDIM+1> triangle_type;
     std::vector<triangle_type> _triangles;
 
     CUTriangleIntersect(UCell* nextCell, double diameter, std::string fileName):
@@ -59,7 +58,7 @@ namespace dynamo {
       std::cout << "\nCUTriangleIntersect :Loaded " << _triangles.size() << " triangles";
       std::cout.flush();
     
-      BOOST_FOREACH(triangle_type& triangle, _triangles)
+      for (triangle_type& triangle : _triangles)
 	{
 	  //std::cout << "\nCUTriangleIntersect :Loaded " << triangle[0] << " " << triangle[1] << " " << triangle[2] <<" triangle";
 	
@@ -83,9 +82,9 @@ namespace dynamo {
       boost::progress_display prog(initval.size());
 
 
-      BOOST_FOREACH(const Vector& sphere, initval)
+      for (const Vector& sphere : initval)
 	{
-	  BOOST_FOREACH(const triangle_type& triangle, _triangles)
+	  for (const triangle_type& triangle : _triangles)
 	    if (triangleIntersects(sphere, triangle))
 	      {
 		retval.push_back(sphere);

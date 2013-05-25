@@ -18,11 +18,12 @@
 
 #include <gtkmm.h>
 #include <coil/coilWindow.hpp>
-#include <magnet/thread/thread.hpp>
-#include <magnet/thread/mutex.hpp>
-#include <magnet/thread/taskQueue.hpp>
-#include <tr1/memory>
+#include <memory>
 #include <map>
+#include <mutex>
+#include <thread>
+#include <magnet/thread/taskQueue.hpp>
+#include <magnet/exception.hpp>
 
 namespace coil {
   class CoilMaster {
@@ -34,13 +35,13 @@ namespace coil {
     inline bool isRunning() { return _runFlag; }
 
     template<class T>
-    void addWindow(std::tr1::shared_ptr<T>& window)
+    void addWindow(std::shared_ptr<T>& window)
     {
-      std::tr1::shared_ptr<CoilWindow> win 
-	= std::tr1::static_pointer_cast<CoilWindow>(window);
+      std::shared_ptr<CoilWindow> win 
+	= std::static_pointer_cast<CoilWindow>(window);
       if (!isRunning()) M_throw() << "Coil is not running, cannot add a window";
 
-      _coilQueue.queueTask(magnet::function::Task::makeTask(&CoilMaster::addWindowFunc, this, win));
+      _coilQueue.queueTask(std::bind(&CoilMaster::addWindowFunc, this, win));
 
       //Spinlock waiting for the window to initialize
       while ((!window->isReady())) 
@@ -59,7 +60,7 @@ namespace coil {
     //main program while doing anything that requires a window to stay
     //alive. You should lock, then check isRunning() and abort the
     //action if it's not.
-    magnet::thread::Mutex _coilLock;
+    std::mutex _coilLock;
 
   private:
     friend class CoilRegister;
@@ -67,7 +68,7 @@ namespace coil {
     inline void 
     shutdownCoil() 
     { 
-      magnet::thread::ScopedLock lock(_coilLock);
+      std::lock_guard<std::mutex> lock(_coilLock);
       _runFlag = false; 
       _coilReadyFlag = false;
     }
@@ -87,12 +88,12 @@ namespace coil {
     volatile bool _runFlag; 
     volatile bool _coilReadyFlag;
 
-    magnet::thread::Thread _coilThread;
+    std::thread _coilThread;
     magnet::thread::TaskQueue _coilQueue;
 
     ///////////////////////////Glut GL render layer//////////////////////////
 
-    std::map<int, std::tr1::shared_ptr<CoilWindow> > _viewPorts;
+    std::map<int, std::shared_ptr<CoilWindow> > _viewPorts;
 
     static void CallBackDisplayFunc(); 
     static void CallBackCloseWindow();
@@ -108,16 +109,14 @@ namespace coil {
     static void CallBackVisibilityFunc(int visible);
     
     ///////////////////////////GTK window layer/////////////////////////////
-    inline void addWindowFunc(std::tr1::shared_ptr<CoilWindow> window)
+    inline void addWindowFunc(std::shared_ptr<CoilWindow> window)
     {
-      magnet::thread::ScopedLock lock(_coilLock);
+      std::lock_guard<std::mutex> lock(_coilLock);
       window->init();
       _viewPorts[window->GetWindowID()] = window;
     }
 
-
-
-    std::auto_ptr<Gtk::Main> _GTKit;
+    std::unique_ptr<Gtk::Main> _GTKit;
 
     bool glutIdleTimeout();
 
@@ -171,7 +170,7 @@ namespace coil {
     }
 
     static CoilMaster* _instance;
-    static magnet::thread::Mutex _mutex;
+    static std::mutex _mutex;
     static size_t _counter;
   };
 }

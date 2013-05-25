@@ -16,11 +16,11 @@
 */
 
 #pragma once
-#include <tr1/memory>
+#include <memory>
 
 namespace magnet { namespace xml { class Node; class XmlStream; } }
 namespace dynamo { 
-  using std::tr1::shared_ptr;
+  using std::shared_ptr;
   class Simulation;
   class Particle;
 

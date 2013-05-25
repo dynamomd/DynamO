@@ -21,7 +21,6 @@
 #include <dynamo/particle.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/units/units.hpp>
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cstring>

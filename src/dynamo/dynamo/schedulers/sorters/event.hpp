@@ -21,7 +21,6 @@
 #include <dynamo/globals/globEvent.hpp>
 #include <dynamo/locals/localEvent.hpp>
 #include <dynamo/globals/global.hpp>
-#include <boost/foreach.hpp>
 #include <algorithm>
 
 namespace dynamo {

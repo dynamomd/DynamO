@@ -39,7 +39,7 @@ namespace coil {
       }
   }
 
-  std::tr1::array<GLfloat, 4> 
+  std::array<GLfloat, 4> 
   Glyphs::getCursorPosition(uint32_t objID)
   {
     return _ds.getCursorPosition(objID % _N);
@@ -184,7 +184,7 @@ namespace coil {
   }
 
   void 
-  Glyphs::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
+  Glyphs::init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
   {
     RenderObj::init(systemQueue);            
     //Initialise the Gtk controls

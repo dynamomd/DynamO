@@ -18,11 +18,10 @@
 #pragma once
 #include <magnet/math/vector.hpp>
 #include <boost/circular_buffer.hpp>
-#include <boost/foreach.hpp>
 #include <vector>
 #include <utility>
 #include <exception>
-#include <tr1/tuple>
+#include <tuple>
 
 namespace magnet {
   namespace math {    
@@ -308,7 +307,7 @@ namespace magnet {
 	_impulse_sum.first += val1; 
 	_impulse_sum.second += val2;
 
-	BOOST_FOREACH(Correlator& correlator, _correlators)
+	for (Correlator& correlator : _correlators)
 	  correlator.addImpulse(val1, val2);
       }
 
@@ -324,7 +323,7 @@ namespace magnet {
       {
 	_freestream_values = std::pair<T,T>(val1, val2);
 
-	BOOST_FOREACH(Correlator& correlator, _correlators)
+	for (Correlator& correlator : _correlators)
 	  correlator.setFreeStreamValue(val1, val2);
       }
 
@@ -352,7 +351,7 @@ namespace magnet {
 	    new_correlator.setFreeStreamValue(_freestream_values.first, _freestream_values.second);
 	  }
 
-	BOOST_FOREACH(Correlator& correlator, _correlators)
+	for (Correlator& correlator : _correlators)
 	  correlator.freeStream(dt);
 
 	_freestream_sum.first += _freestream_values.first * dt;

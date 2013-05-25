@@ -21,21 +21,19 @@
 #endif
 
 #include <boost/pool/pool.hpp>
-#include <magnet/thread/mutex.hpp>
+#include <mutex>
 
 namespace magnet {
   /*! \brief Namespace for memory management classes.*/
   namespace memory {    
-    /*! \brief Namespace for memory management implementation
-     * details.
+    /*! \brief Namespace for memory management implementation details.
      */
     namespace detail {
       /*! \brief Singleton class to manage the memory pools.
-       *
-       * This class manages several boost memory pools. Any classes
-       * deriving from the \ref PoolAllocated class will use this
-       * class to access memory pools to allocate their memory.
-       * 
+	
+        This class manages several boost memory pools. Any classes
+        deriving from the \ref PoolAllocated class will use this class
+        to access memory pools to allocate their memory.
        */
       class PoolManager {
       public:
@@ -47,9 +45,9 @@ namespace magnet {
 	}
 	
 	/*! \brief Singleton pool lock access. */
-	inline static thread::Mutex& getLock()
+	inline static std::mutex& getLock()
 	{  
-	  static thread::Mutex poolLock;
+	  static std::mutex poolLock;
 	  return poolLock;
 	}
 	
@@ -65,7 +63,7 @@ namespace magnet {
 	}
 	
 	/*! \brief Release some allocated memory from a suitable
-	 * pool. 
+	  pool. 
 	 */
 	inline void releaseMemory(void* deletable, size_t size) 
 	{
@@ -101,25 +99,24 @@ namespace magnet {
     }
     
     /*! \brief Base class for derived classes which want to be
-     * allocated from a memory pool.
-     *
-     * Allocating objects from a memory pool is a way to speed up the
-     * construction and deletion of small objects. The allocated
-     * memory is not actually released but is instead cached for the
-     * next allocation. This is handled by the \ref
-     * detail::PoolManager.
+      allocated from a memory pool.
+     
+      Allocating objects from a memory pool is a way to speed up the
+      construction and deletion of small objects. The allocated memory
+      is not actually released but is instead cached for the next
+      allocation. This is handled by the \ref detail::PoolManager.
      */
     class PoolAllocated {
     public:
       /*! \brief Specialized new operator to use the memory pool for
-       * allocation. 
+        allocation.
        */
       inline static void* operator new(size_t size) {
 	return detail::PoolManager::getPool().allocateMemory(size);
       }
 
       /*! \brief Specialized delete operator to use the memory pool
-       * for deallocation. 
+	for deallocation. 
        */
       inline static void operator delete(void* deletable, size_t size) {
 	detail::PoolManager::getPool().releaseMemory(deletable, size);

@@ -21,13 +21,13 @@
 namespace dynamo {
   struct CUSC: public UCell
   {
-    CUSC(std::tr1::array<long, 3> ncells, Vector  ndimensions, UCell* nextCell):
+    CUSC(std::array<long, 3> ncells, Vector  ndimensions, UCell* nextCell):
       UCell(nextCell),
       cells(ncells),
       dimensions(ndimensions)
     {}
 
-    std::tr1::array<long, 3> cells;
+    std::array<long, 3> cells;
     Vector  dimensions;
 
     virtual std::vector<Vector  > placeObjects(const Vector & centre)
@@ -39,7 +39,7 @@ namespace dynamo {
 	cellWidth[iDim] = dimensions[iDim] / cells[iDim];
     
       Vector  position;
-      std::tr1::array<int, 3> iterVec;
+      std::array<int, 3> iterVec;
     
       for (iterVec[2] = 0; iterVec[2] < cells[2]; iterVec[2]++)
 	for (iterVec[1] = 0; iterVec[1] < cells[1]; iterVec[1]++)

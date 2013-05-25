@@ -18,11 +18,10 @@
 #pragma once
 #include <magnet/math/vector.hpp>
 #include <boost/circular_buffer.hpp>
-#include <boost/foreach.hpp>
 #include <vector>
 #include <utility>
 #include <exception>
-#include <tr1/tuple>
+#include <tuple>
 
 namespace magnet {
   namespace math {

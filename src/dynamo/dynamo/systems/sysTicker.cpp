@@ -66,13 +66,13 @@ namespace dynamo {
     //This is done here as most ticker properties require it
     Sim->dynamics->updateAllParticles();
 
-    BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
       {
-	shared_ptr<OPTicker> ptr = std::tr1::dynamic_pointer_cast<OPTicker>(Ptr);
+	shared_ptr<OPTicker> ptr = std::dynamic_pointer_cast<OPTicker>(Ptr);
 	if (ptr) ptr->ticker();
       }
 
-    BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(*this, NEventData(), locdt);
   }
 

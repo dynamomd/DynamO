@@ -34,7 +34,7 @@ namespace coil {
       { add(m_name); add(m_ptr); }
       
       Gtk::TreeModelColumn<Glib::ustring> m_name;
-      Gtk::TreeModelColumn<std::tr1::shared_ptr<Attribute> > m_ptr;
+      Gtk::TreeModelColumn<std::shared_ptr<Attribute> > m_ptr;
     };
 
     magnet::GL::Buffer<GLfloat>& getBuffer();
@@ -52,7 +52,7 @@ namespace coil {
       Gtk::TreeModel::iterator iter = _comboBox.get_active();
       if (!iter) return std::vector<GLfloat>();
 
-      std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
+      std::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
       if (!ptr) return std::vector<GLfloat>();
       
       std::vector<GLfloat> retval(ptr->components());
@@ -88,12 +88,12 @@ namespace coil {
     {
       Gtk::TreeModel::iterator iter = _comboBox.get_active();
       if (!iter) return true;
-      std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
+      std::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
       return !ptr;
     }
 
     void generateFilteredData(std::vector<GLfloat>& scalardata,
-			      const std::tr1::shared_ptr<Attribute>& ptr,
+			      const std::shared_ptr<Attribute>& ptr,
 			      int mode);
 
     void setConstantAttribute(size_t attr);

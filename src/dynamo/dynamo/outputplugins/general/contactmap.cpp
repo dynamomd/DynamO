@@ -53,7 +53,7 @@ namespace dynamo {
     _weight = 0;
     _total_weight = 0;
   
-    _interaction = std::tr1::dynamic_pointer_cast<ICapture>(Sim->interactions[_interaction_name]);
+    _interaction = std::dynamic_pointer_cast<ICapture>(Sim->interactions[_interaction_name]);
 
     if (!_interaction)
       M_throw() << "Could not cast \"" << _interaction_name << "\" to an ICapture type to build the contact map";
@@ -149,14 +149,14 @@ namespace dynamo {
       	<< magnet::xml::attr("Count") << _collected_maps.size();
     ;
     
-    BOOST_FOREACH(const CollectedMapType::value_type& entry, _collected_maps)
+    for (const CollectedMapType::value_type& entry : _collected_maps)
       {
 	XML << magnet::xml::tag("Map")
 	    << magnet::xml::attr("ID") << entry.second._id
 	    << magnet::xml::attr("Energy") << entry.second._energy / Sim->units.unitEnergy()
 	    << magnet::xml::attr("Weight") << entry.second._weight / _total_weight;
 	
-	BOOST_FOREACH(const ICapture::value_type& ids, entry.first)
+	for (const ICapture::value_type& ids : entry.first)
 	  XML << magnet::xml::tag("Contact")
 	      << magnet::xml::attr("ID1") << ids.first.first
 	      << magnet::xml::attr("ID2") << ids.first.second
@@ -170,7 +170,7 @@ namespace dynamo {
 	<< magnet::xml::tag("Links")
       	<< magnet::xml::attr("Count") << _map_links.size();
 
-    BOOST_FOREACH(const LinksMapType::value_type& entry, _map_links)
+    for (const LinksMapType::value_type& entry : _map_links)
       XML << magnet::xml::tag("Link")
 	  << magnet::xml::attr("Source") << entry.first.first
 	  << magnet::xml::attr("Target") << entry.first.second

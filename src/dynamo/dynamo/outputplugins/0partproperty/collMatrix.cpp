@@ -19,7 +19,6 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/interactions/include.hpp>
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
@@ -52,11 +51,11 @@ namespace dynamo {
   void 
   OPCollMatrix::eventUpdate(const GlobalEvent& globEvent, const NEventData& SDat)
   {
-    BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
+    for (const ParticleEventData& pData : SDat.L1partChanges)
       newEvent(pData.getParticleID(), pData.getType(), 
 	       getClassKey(globEvent));  
   
-    BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
+    for (const PairEventData& pData : SDat.L2partChanges)
       {
 	newEvent(pData.particle1_.getParticleID(), 
 		 pData.getType(), getClassKey(globEvent));
@@ -69,11 +68,11 @@ namespace dynamo {
   void 
   OPCollMatrix::eventUpdate(const LocalEvent& localEvent, const NEventData& SDat)
   {
-    BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
+    for (const ParticleEventData& pData : SDat.L1partChanges)
       newEvent(pData.getParticleID(), 
 	       pData.getType(), getClassKey(localEvent));  
   
-    BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
+    for (const PairEventData& pData : SDat.L2partChanges)
       {
 	newEvent(pData.particle1_.getParticleID(), 
 		 pData.getType(), getClassKey(localEvent));
@@ -86,10 +85,10 @@ namespace dynamo {
   void 
   OPCollMatrix::eventUpdate(const System& sysEvent, const NEventData& SDat, const double&)
   {
-    BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
+    for (const ParticleEventData& pData : SDat.L1partChanges)
       newEvent(pData.getParticleID(), pData.getType(), getClassKey(sysEvent));
   
-    BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
+    for (const PairEventData& pData : SDat.L2partChanges)
       {
 	newEvent(pData.particle1_.getParticleID(), 
 		 pData.getType(), getClassKey(sysEvent));
@@ -133,10 +132,10 @@ namespace dynamo {
     size_t initialsum(0);
   
     typedef std::pair<eventKey,size_t> npair;
-    BOOST_FOREACH(const npair& n, initialCounter)
+    for (const npair& n : initialCounter)
       initialsum += n.second;
   
-    BOOST_FOREACH(const locPair& ele, counters)
+    for (const locPair& ele : counters)
       {
 	XML << magnet::xml::tag("Count")
 	    << magnet::xml::attr("Event") << ele.first.first.second
@@ -162,7 +161,7 @@ namespace dynamo {
   
     typedef std::pair<eventKey, std::pair<size_t, double> > mappair;
   
-    BOOST_FOREACH(const mappair& mp1, totmap)
+    for (const mappair& mp1 : totmap)
       XML << magnet::xml::tag("TotCount")
 	  << magnet::xml::attr("Name") << getName(mp1.first.first, Sim)
 	  << magnet::xml::attr("Event") << mp1.first.second

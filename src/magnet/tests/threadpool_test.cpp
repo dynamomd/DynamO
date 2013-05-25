@@ -51,9 +51,9 @@ int main()
   int val3 = 2;
   int& val4 = val3;
   
-  pool.queueTask(magnet::function::Task::makeTask(&A::memberFunc, &Aclass));
-  pool.queueTask(magnet::function::Task::makeTask(&A::memberFunc2, &Aclass, 2));
-  pool.queueTask(magnet::function::Task::makeTask(&A::memberFunc3, &Aclass, val4, 4));
+  pool.queueTask(std::bind(&A::memberFunc, &Aclass));
+  pool.queueTask(std::bind(&A::memberFunc2, &Aclass, 2));
+  pool.queueTask(std::bind(&A::memberFunc3, &Aclass, val4, 4));
 
 
   for (size_t loop(0); loop < 1000; ++loop)
@@ -61,7 +61,7 @@ int main()
       //std::cerr << "Function 1\n";
       
       for (int i = 0; i < N; ++i)   
-	pool.queueTask(magnet::function::Task::makeTask(function1, i));
+	pool.queueTask(std::bind(function1, i));
       
       pool.wait();
       
@@ -78,7 +78,7 @@ int main()
       
       //std::cerr << "Function 2\n";
       for (int i = 0; i < N; ++i)    
-	pool.queueTask(magnet::function::Task::makeTask(function2, i));
+	pool.queueTask(std::bind(function2, i));
       
       pool.wait();
       

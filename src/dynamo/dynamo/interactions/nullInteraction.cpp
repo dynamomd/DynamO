@@ -60,7 +60,7 @@ namespace dynamo {
   {
     XML << magnet::xml::attr("Type") << "Null"
 	<< magnet::xml::attr("Name") << intName
-	<< *range;
+	<< range;
   }
 }
 

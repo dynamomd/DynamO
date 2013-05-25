@@ -94,7 +94,7 @@ namespace coil {
      * reinitialise the Attribute.
      */
     inline void flagNewData()
-    { _context->queueTask(magnet::function::Task::makeTask(&Attribute::initGLData, this)); }
+    { _context->queueTask(std::bind(&Attribute::initGLData, this)); }
 
     /*! \brief Test if the attribute is in use and should be
      * updated. 

@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/species/fixedCollider.hpp>
-#include <boost/foreach.hpp>
 #include <dynamo/simulation.hpp>
 #include <magnet/xmlreader.hpp>
 
@@ -26,7 +25,7 @@ namespace dynamo {
   {
     SpPoint::initialise();
 
-    BOOST_FOREACH(size_t ID, *range)
+    for (size_t ID : *range)
       Sim->particles[ID].clearState(Particle::DYNAMIC);
   }
 

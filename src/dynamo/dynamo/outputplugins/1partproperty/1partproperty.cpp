@@ -17,7 +17,6 @@
 
 #include <dynamo/outputplugins/1partproperty/1partproperty.hpp>
 #include <dynamo/include.hpp>
-#include <boost/foreach.hpp>
 
 namespace dynamo {
   OP1PP::OP1PP(const dynamo::Simulation* t1,const char *t2, unsigned char order):
@@ -37,10 +36,10 @@ namespace dynamo {
   {
     stream(event.getdt());
 
-    BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
+    for (const ParticleEventData& pData : SDat.L1partChanges)
       A1ParticleChange(pData);
   
-    BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
+    for (const PairEventData& pData : SDat.L2partChanges)
       A2ParticleChange(pData);
   }
 
@@ -49,10 +48,10 @@ namespace dynamo {
   {
     stream(event.getdt());
 
-    BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
+    for (const ParticleEventData& pData : SDat.L1partChanges)
       A1ParticleChange(pData);
   
-    BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
+    for (const PairEventData& pData : SDat.L2partChanges)
       A2ParticleChange(pData);
   }
 
@@ -61,10 +60,10 @@ namespace dynamo {
   {
     stream(dt);
 
-    BOOST_FOREACH(const ParticleEventData& pData, SDat.L1partChanges)
+    for (const ParticleEventData& pData : SDat.L1partChanges)
       A1ParticleChange(pData);
   
-    BOOST_FOREACH(const PairEventData& pData, SDat.L2partChanges)
+    for (const PairEventData& pData : SDat.L2partChanges)
       A2ParticleChange(pData);
   }
 

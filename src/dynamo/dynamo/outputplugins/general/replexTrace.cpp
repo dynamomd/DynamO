@@ -17,10 +17,9 @@
 
 #include "replexTrace.hpp"
 #include "../../include.hpp"
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <sstream>
-#include <tr1/array>
+#include <array>
 
 namespace dynamo {
   OPReplexTrace::OPReplexTrace(const dynamo::Simulation* t1, const magnet::xml::Node&):
@@ -49,7 +48,7 @@ namespace dynamo {
   void 
   OPReplexTrace::addPoint()
   {
-    const std::tr1::array<double,3>& 
+    const std::array<double,3>& 
       ensembleVals(Sim->ensemble->getReducedEnsembleVals());
 
     std::ostringstream op;
@@ -71,7 +70,7 @@ namespace dynamo {
     XML << magnet::xml::tag("ReplexTrace")
 	<< magnet::xml::chardata();
   
-    BOOST_FOREACH(const std::string& str, entries)
+    for (const std::string& str : entries)
       XML << str;
 
     XML << magnet::xml::endtag("ReplexTrace");

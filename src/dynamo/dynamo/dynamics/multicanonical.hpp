@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/dynamics/newtonian.hpp>
-#include <tr1/unordered_map>
+#include <unordered_map>
 
 namespace dynamo {
   /*! \brief A Dynamics which implements Newtonian dynamics, but with
@@ -75,7 +75,7 @@ namespace dynamo {
       where \f$ \Delta E\f$ is the energy step returned from
       getEnergyStep().
      */
-    inline const std::tr1::unordered_map<int, double>& getMap() const { return _W; }
+    inline const std::unordered_map<int, double>& getMap() const { return _W; }
 
     /*! \brief Returns \f$ \Delta E\f$.
        \sa getMap()
@@ -86,7 +86,7 @@ namespace dynamo {
      */
     inline double W(double E) const 
     { 
-      std::tr1::unordered_map<int, double>::const_iterator 
+      std::unordered_map<int, double>::const_iterator 
 	iPtr = _W.find(lrint(E / EnergyPotentialStep));
       if (iPtr != _W.end())
 	return iPtr->second;
@@ -97,7 +97,7 @@ namespace dynamo {
 
   protected:
     virtual void outputXML(magnet::xml::XmlStream& ) const;
-    std::tr1::unordered_map<int, double> _W; 
+    std::unordered_map<int, double> _W; 
     double EnergyPotentialStep;
   };
 }

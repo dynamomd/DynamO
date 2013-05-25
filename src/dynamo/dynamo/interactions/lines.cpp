@@ -164,12 +164,11 @@ namespace dynamo {
 	M_throw() << "Unknown collision type";
       }
     
-    Sim->signalParticleUpdate(retval);
+    (*Sim->_sigParticleUpdate)(retval);
     
     Sim->ptrScheduler->fullUpdate(p1, p2);
     
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, 
-		  Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, retval);
   }
    
@@ -180,7 +179,7 @@ namespace dynamo {
 	<< magnet::xml::attr("Length") << _length->getName()
 	<< magnet::xml::attr("Elasticity") << _e->getName()
 	<< magnet::xml::attr("Name") << intName
-	<< *range;
+	<< range;
 
     ICapture::outputCaptureMap(XML);
   }

@@ -128,7 +128,7 @@ namespace dynamo {
     //expect the particle to be up to date.
     Sim->dynamics->updateParticle(part);
 
-    std::tr1::unordered_map<size_t, size_t>::iterator it = partCellData.find(part.getID());
+    std::unordered_map<size_t, size_t>::iterator it = partCellData.find(part.getID());
 
     const size_t oldCell(it->second);
 
@@ -197,9 +197,8 @@ namespace dynamo {
 	  {
 	    newNBCell[dim1] %= cellCount[dim1];
 	    
-	    BOOST_FOREACH(const size_t& next, list[newNBCell.getMortonNum()])
-	      BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
-	        nbs.second(part, next);
+	    for (const size_t& next : list[newNBCell.getMortonNum()])
+	      _sigNewNeighbour(part, next);
 	  
 	    ++newNBCell[dim1];
 	  }
@@ -213,8 +212,7 @@ namespace dynamo {
     Sim->ptrScheduler->pushEvent(part, getEvent(part));
     Sim->ptrScheduler->sort(part);
 
-    BOOST_FOREACH(const nbHoodSlot& nbs, sigCellChangeNotify)
-      nbs.second(part, oldCell);
+    _sigCellChange(part, oldCell);
   
     if (verbose)
       {
@@ -239,12 +237,6 @@ namespace dynamo {
   GCells::initialise(size_t nID)
   {
     ID=nID;
-    typedef void (GCells::*CallBackType)(size_t);
-
-    _particleAdded = Sim->particle_added_signal()
-      .connect(boost::bind(CallBackType(&GCells::addToCell), this, _1));
-    _particleRemoved = Sim->particle_removed_signal()
-      .connect(boost::bind(CallBackType(&GCells::removeFromCell), this, _1));
 
     reinitialise();
 
@@ -265,8 +257,7 @@ namespace dynamo {
 	      * (1.0 + 10 * std::numeric_limits<double>::epsilon()))
 	     * _oversizeCells / overlink);
 
-    BOOST_FOREACH(const initSlot& nbs, sigReInitNotify)
-      nbs.second();
+    _sigReInitialise();
 
     if (isUsedInScheduler)
       Sim->ptrScheduler->initialise();
@@ -284,7 +275,7 @@ namespace dynamo {
     if (overlink > 1)   XML << magnet::xml::attr("OverLink") << overlink;
     if (_oversizeCells != 1.0) XML << magnet::xml::attr("Oversize") << _oversizeCells;
     
-    XML << *range
+    XML << range
 	<< magnet::xml::endtag("Global");
   }
 
@@ -348,14 +339,14 @@ namespace dynamo {
     Sim->dynamics->updateAllParticles();
   
     ////Add all the particles 
-    BOOST_FOREACH(const size_t& id, *range)
+    for (const size_t& id : *range)
       {
 	Particle& p = Sim->particles[id];
 	Sim->dynamics->updateParticle(p); 
 	addToCell(id);
 	if (verbose)
 	  {
-	    std::tr1::unordered_map<size_t, size_t>::iterator it = partCellData.find(id);
+	    std::unordered_map<size_t, size_t>::iterator it = partCellData.find(id);
 	    magnet::math::MortonNumber<3> currentCell(it->second);
 	    
 	    magnet::math::MortonNumber<3> estCell(getCellID(Sim->particles[ID].getPosition()));

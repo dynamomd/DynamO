@@ -28,7 +28,7 @@ namespace coil {
   { deinit(); }
 
   void 
-  RTriangles::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
+  RTriangles::init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
   { 
     RenderObj::init(systemQueue); 
     initGTK(); 

@@ -16,7 +16,7 @@
 */
 #pragma once
 #include <dynamo/base.hpp>
-#include <tr1/array>
+#include <array>
 
 namespace magnet { namespace xml { class Node; class XmlStream; } }
 
@@ -64,7 +64,7 @@ namespace dynamo {
 
      \sa getEnsembleVals
     */
-    virtual std::tr1::array<double,3> getReducedEnsembleVals() const { M_throw() << "Undefined Ensemble"; }
+    virtual std::array<double,3> getReducedEnsembleVals() const { M_throw() << "Undefined Ensemble"; }
     
     /*! \brief Swaps the underlying ensemble control values.
       
@@ -81,10 +81,10 @@ namespace dynamo {
     
       \sa getReducedEnsembleVals
     */
-    virtual const std::tr1::array<double,3>& getEnsembleVals() const { M_throw() << "Undefined Ensemble"; }
+    virtual const std::array<double,3>& getEnsembleVals() const { M_throw() << "Undefined Ensemble"; }
 
   protected:
-    std::tr1::array<double,3> EnsembleVals;
+    std::array<double,3> EnsembleVals;
   };
 
   /*! \brief An Ensemble where N (no. of particles), V (simulation volume),
@@ -98,9 +98,9 @@ namespace dynamo {
 
     virtual void initialise();
 
-    virtual std::tr1::array<double,3> getReducedEnsembleVals() const;
+    virtual std::array<double,3> getReducedEnsembleVals() const;
     
-    virtual const std::tr1::array<double,3>& getEnsembleVals() const { return EnsembleVals; }
+    virtual const std::array<double,3>& getEnsembleVals() const { return EnsembleVals; }
   };
 
   /*! \brief An Ensemble where N (no. of particles), V (simulation
@@ -117,11 +117,11 @@ namespace dynamo {
 
     virtual void initialise();
 
-    virtual std::tr1::array<double,3> getReducedEnsembleVals() const;
+    virtual std::array<double,3> getReducedEnsembleVals() const;
 
     virtual double exchangeProbability(const Ensemble&) const;
 
-    virtual const std::tr1::array<double,3>& getEnsembleVals() const { return EnsembleVals; }
+    virtual const std::array<double,3>& getEnsembleVals() const { return EnsembleVals; }
 
   protected:
     shared_ptr<System> thermostat;

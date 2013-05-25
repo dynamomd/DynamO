@@ -17,6 +17,7 @@
 
 #pragma once
 #include <vector>
+#include <cmath>
 #include <dynamo/base.hpp>
 
 namespace magnet { namespace xml { class Node; class XmlStream; } }

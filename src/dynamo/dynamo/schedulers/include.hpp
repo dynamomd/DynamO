@@ -18,4 +18,3 @@
 #include <dynamo/schedulers/neighbourlist.hpp>
 #include <dynamo/schedulers/dumbsched.hpp>
 #include <dynamo/schedulers/systemonly.hpp>
-#include <dynamo/schedulers/complex.hpp>

@@ -21,7 +21,6 @@
 #include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
 
 namespace dynamo {
   OPVelDist::OPVelDist(const dynamo::Simulation* tmp, 
@@ -59,8 +58,8 @@ namespace dynamo {
   void 
   OPVelDist::ticker()
   {
-    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->species)
-      BOOST_FOREACH(const size_t& ID, *sp->getRange())
+    for (const shared_ptr<Species>& sp : Sim->species)
+      for (const size_t& ID : *sp->getRange())
       for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	data[iDim][sp->getID()]
 	  .addVal(Sim->particles[ID].getVelocity()[iDim]);
