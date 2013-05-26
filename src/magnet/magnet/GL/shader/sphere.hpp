@@ -158,7 +158,11 @@ void main()
    float t = - C / (B - sqrt(argument));
    vec3 hit = t * vij;
    vec3 relative_hit = hit - frag_center;
-   normal_out = vec4(normalize(relative_hit),1.0);
+
+   if (unshaded)
+     normal_out = vec4(0.0);
+   else
+     normal_out = vec4(normalize(relative_hit),1.0);
    color_out = vert_color;
    position_out = vec4(hit, 1.0);
    vec4 pos = ProjectionMatrix * vec4(hit, 1.0);
