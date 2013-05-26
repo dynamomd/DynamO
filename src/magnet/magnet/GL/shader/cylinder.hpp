@@ -81,8 +81,8 @@ void main()
 {
   color = vColor;
   vec3 scale = iScale.xyz + vec3(equal(iScale.xyz, vec3(0.0,0.0,0.0)));
-  radius = scale.x * global_scale * 0.5;
-  length = scale.y * global_scale * 0.5;
+  radius = (scale.x + scale.y) * global_scale * 0.25;
+  length = scale.z * global_scale * 0.5;
   axis = normalize((ViewMatrix * vec4(qrot(iOrientation, vec3(0,0,1)), 0.0)).xyz);
   gl_Position = ViewMatrix * vec4(vPosition.xyz, 1.0);
 });
@@ -105,9 +105,7 @@ in float length[];
 flat out vec4 vert_color;
 flat out vec3 frag_axis;
 flat out vec3 frag_center;
-flat out vec2 frag_screen_perp;
-flat out vec2 frag_screen_para;
-smooth out vec2 frag_displacement;
+smooth out vec3 frag_pos;
 flat out float frag_radius;
 flat out float frag_length;
 
@@ -115,18 +113,16 @@ flat out float frag_length;
 //the displacement
 void VertexEmit(in vec2 displacement, in vec2 screen_perp, in vec2 screen_para)
 {
-  //The billboards need to be slightly larger to accommodate perspective changes.
+  //The billboards need to be slightly larger to accommodate perspective warping.
   const float overdraw = 1.2;
   displacement *= overdraw;
-  vec3 position = gl_in[0].gl_Position.xyz + length[0] * displacement.x * axis[0] + vec3(displacement.y * screen_perp + displacement.x * screen_para, 0.0);
   frag_axis = axis[0];
   frag_radius = radius[0];
   frag_length = length[0];
   vert_color = color[0];
   frag_center = gl_in[0].gl_Position.xyz;
-  frag_screen_perp = screen_perp;
-  frag_screen_para = screen_para;
-  frag_displacement = displacement;
+  vec3 position = gl_in[0].gl_Position.xyz + length[0] * displacement.x * axis[0] + vec3(displacement.y * screen_perp + displacement.x * screen_para, 0.0);
+  frag_pos = position;
   gl_Position = ProjectionMatrix * vec4(position, gl_in[0].gl_Position.w);
   EmitVertex();
 }
@@ -156,9 +152,7 @@ uniform mat4 ProjectionMatrix;
 flat in vec4 vert_color;
 flat in vec3 frag_axis;
 flat in vec3 frag_center;
-flat in vec2 frag_screen_perp;
-flat in vec2 frag_screen_para;
-smooth in vec2 frag_displacement;
+smooth in vec3 frag_pos;
 flat in float frag_radius;
 flat in float frag_length;
 layout (location = 0) out vec4 color_out;
@@ -167,18 +161,16 @@ layout (location = 2) out vec4 position_out;
 
 void main()
 {
-  vec3 fragment_position = frag_center + frag_length * frag_displacement.x * frag_axis + vec3(frag_displacement.y * frag_screen_perp + frag_displacement.x * frag_screen_para, 0.0);
-
 )"\n#ifdef DRAWBILLBOARD\n"STRINGIFY(
   color_out = vert_color;
   normal_out = vec4(0.0);
-  position_out = vec4(fragment_position, 1.0);
-  vec4 pos = ProjectionMatrix * vec4(fragment_position, 1.0);
+  position_out = vec4(frag_pos, 1.0);
+  vec4 pos = ProjectionMatrix * vec4(frag_pos, 1.0);
   gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0;
 )"\n#else\n"STRINGIFY(
-   vec3 rij = frag_center;
+   vec3 rij = -frag_center;
    vec3 rij_planar = rij - dot(rij, frag_axis) * frag_axis;
-   vec3 vij = normalize(-fragment_position);
+   vec3 vij = frag_pos;
    vec3 vij_planar = vij - dot(vij, frag_axis) * frag_axis;
 
    float A = dot(vij_planar, vij_planar);
@@ -187,11 +179,11 @@ void main()
    float argument = B * B - A * C;
    if (argument < 0.0) discard;
    float t = - C / (B - sqrt(argument));
-   vec3 hit = -t * vij;
+   vec3 hit = t * vij;
    vec3 relative_hit = hit - frag_center;
    float axial_displacement = dot(relative_hit, frag_axis);
    if (abs(axial_displacement) > frag_length) discard;
-   //normal_out = vec4(0.0); 
+
    normal_out = vec4(normalize(relative_hit - axial_displacement * frag_axis),1.0);
    color_out = vert_color;
    position_out = vec4(hit, 1.0);
