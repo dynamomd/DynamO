@@ -21,7 +21,6 @@
 #include <dynamo/include.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
 
 namespace {
   ::std::size_t
