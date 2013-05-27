@@ -121,7 +121,8 @@ void VertexEmit(in vec2 displacement, in vec2 screen_perp, in vec2 screen_para)
   frag_length = length[0];
   vert_color = color[0];
   frag_center = gl_in[0].gl_Position.xyz;
-  vec3 position = gl_in[0].gl_Position.xyz + length[0] * displacement.x * axis[0] + vec3(displacement.y * screen_perp + displacement.x * screen_para, 0.0);
+  vec3 position = gl_in[0].gl_Position.xyz + length[0] * displacement.x * axis[0];
+  position.xy += displacement.y * screen_perp + displacement.x * screen_para;
   frag_pos = position;
   gl_Position = ProjectionMatrix * vec4(position, gl_in[0].gl_Position.w);
   EmitVertex();
@@ -162,34 +163,35 @@ layout (location = 2) out vec4 position_out;
 void main()
 {
 )"\n#ifdef DRAWBILLBOARD\n"STRINGIFY(
-  color_out = vert_color;
   normal_out = vec4(0.0);
   position_out = vec4(frag_pos, 1.0);
   vec4 pos = ProjectionMatrix * vec4(frag_pos, 1.0);
-  gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0;
 )"\n#else\n"STRINGIFY(
-   vec3 rij = -frag_center;
-   vec3 rij_planar = rij - dot(rij, frag_axis) * frag_axis;
-   vec3 vij = frag_pos;
-   vec3 vij_planar = vij - dot(vij, frag_axis) * frag_axis;
+  vec3 rij = -frag_center;
+  vec3 rij_planar = rij - dot(rij, frag_axis) * frag_axis;
+  vec3 vij = frag_pos;
+  vec3 vij_planar = vij - dot(vij, frag_axis) * frag_axis;
 
-   float A = dot(vij_planar, vij_planar);
-   float B = dot(rij_planar, vij_planar);
-   float C = dot(rij_planar, rij_planar) - frag_radius * frag_radius;
-   float argument = B * B - A * C;
-   if (argument < 0.0) discard;
-   float t = - C / (B - sqrt(argument));
-   vec3 hit = t * vij;
-   vec3 relative_hit = hit - frag_center;
-   float axial_displacement = dot(relative_hit, frag_axis);
-   if (abs(axial_displacement) > frag_length) discard;
+  float A = dot(vij_planar, vij_planar);
+  float B = dot(rij_planar, vij_planar);
+  float C = dot(rij_planar, rij_planar) - frag_radius * frag_radius;
+  float argument = B * B - A * C;
+  if (argument < 0.0) discard;
+  float t = - C / (B - sqrt(argument));
+  vec3 hit = t * vij;
+  vec3 relative_hit = hit - frag_center;
+  float axial_displacement = dot(relative_hit, frag_axis);
+  if (abs(axial_displacement) > frag_length) discard;
 
-   normal_out = vec4(normalize(relative_hit - axial_displacement * frag_axis),1.0);
-   color_out = vert_color;
-   position_out = vec4(hit, 1.0);
-   vec4 pos = ProjectionMatrix * vec4(hit, 1.0);
-   gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0;
+  if (unshaded)
+    normal_out = vec4(0.0);
+  else
+    normal_out = vec4(normalize(relative_hit - axial_displacement * frag_axis),1.0);
+  position_out = vec4(hit, 1.0);
+  vec4 pos = ProjectionMatrix * vec4(hit, 1.0);
 )"\n#endif\n"STRINGIFY(
+  color_out = vert_color;
+  gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0;
 });
 	}
       };

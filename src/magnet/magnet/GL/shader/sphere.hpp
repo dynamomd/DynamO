@@ -141,33 +141,32 @@ layout (location = 2) out vec4 position_out;
 void main()
 {
 )"\n#ifdef DRAWBILLBOARD\n"STRINGIFY(
-  color_out = vert_color;
   normal_out = vec4(0.0);
   position_out = vec4(frag_pos, 1.0);
   vec4 pos = ProjectionMatrix * vec4(frag_pos, 1.0);
-  gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0;
 )"\n#else\n"STRINGIFY(
-   vec3 rij = -frag_center;
-   vec3 vij = frag_pos;
+  vec3 rij = -frag_center;
+  vec3 vij = frag_pos;
+  
+  float A = dot(vij, vij);
+  float B = dot(rij, vij);
+  float C = dot(rij, rij) - frag_radius * frag_radius;
+  float argument = B * B - A * C;
+  if (argument < 0.0) discard;
+  float t = - C / (B - sqrt(argument));
+  vec3 hit = t * vij;
+  position_out = vec4(hit, 1.0);
+  vec3 relative_hit = hit - frag_center;
+  
+  if (unshaded)
+    normal_out = vec4(0.0);
+  else
+    normal_out = vec4(normalize(relative_hit),1.0);
 
-   float A = dot(vij, vij);
-   float B = dot(rij, vij);
-   float C = dot(rij, rij) - frag_radius * frag_radius;
-   float argument = B * B - A * C;
-   if (argument < 0.0) discard;
-   float t = - C / (B - sqrt(argument));
-   vec3 hit = t * vij;
-   vec3 relative_hit = hit - frag_center;
-
-   if (unshaded)
-     normal_out = vec4(0.0);
-   else
-     normal_out = vec4(normalize(relative_hit),1.0);
-   color_out = vert_color;
-   position_out = vec4(hit, 1.0);
-   vec4 pos = ProjectionMatrix * vec4(hit, 1.0);
-   gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0;
+  vec4 pos = ProjectionMatrix * vec4(hit, 1.0);
 )"\n#endif\n"STRINGIFY(
+  gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0;
+  color_out = vert_color;
 });
 	}
       };
