@@ -15,11 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/outputplugins/0partproperty/intEnergyHist.hpp>
+#include <dynamo/outputplugins/intEnergyHist.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/dynamics/multicanonical.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/outputplugins/0partproperty/misc.hpp>
+#include <dynamo/outputplugins/misc.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <fstream>

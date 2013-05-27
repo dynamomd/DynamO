@@ -14,7 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <dynamo/outputplugins/general/trajectory.hpp>
+#include <dynamo/outputplugins/trajectory.hpp>
 
 #include <dynamo/units/units.hpp>
 #include <dynamo/globals/globEvent.hpp>

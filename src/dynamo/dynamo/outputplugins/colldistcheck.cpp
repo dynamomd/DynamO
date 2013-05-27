@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/outputplugins/general/colldistcheck.hpp>
+#include <dynamo/outputplugins/colldistcheck.hpp>
 #include <dynamo/include.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>

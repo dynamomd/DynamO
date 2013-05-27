@@ -15,8 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "replexTrace.hpp"
-#include "../../include.hpp"
+#include <dynamo/outputplugins/replexTrace.hpp>
+#include <dynamo/include.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <sstream>
 #include <array>

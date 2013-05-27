@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/outputplugins/1partproperty/eventEffects.hpp>
+#include <dynamo/outputplugins/eventEffects.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/interactions/include.hpp>

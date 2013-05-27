@@ -27,7 +27,7 @@
 #include <dynamo/topology/topology.hpp>
 #include <dynamo/globals/global.hpp>
 #include <dynamo/interactions/interaction.hpp>
-#include <dynamo/outputplugins/0partproperty/misc.hpp>
+#include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/globals/PBCSentinel.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/device/file.hpp>

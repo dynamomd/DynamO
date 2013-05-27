@@ -19,7 +19,7 @@
 #include <dynamo/systems/andersenThermostat.hpp>
 #include <dynamo/dynamics/compression.hpp>
 #include <dynamo/BC/PBC.hpp>
-#include <dynamo/outputplugins/0partproperty/misc.hpp>
+#include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/dynamics/multicanonical.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>

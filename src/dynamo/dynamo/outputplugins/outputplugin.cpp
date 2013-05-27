@@ -16,9 +16,9 @@
 */
 
 #include <dynamo/outputplugins/outputplugin.hpp>
-#include <dynamo/outputplugins/general/include.hpp>
-#include <dynamo/outputplugins/0partproperty/include.hpp>
-#include <dynamo/outputplugins/1partproperty/include.hpp>
+#include <dynamo/outputplugins/include.hpp>
+#include <dynamo/outputplugins/include.hpp>
+#include <dynamo/outputplugins/include.hpp>
 #include <dynamo/outputplugins/tickerproperty/include.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/particle.hpp>
@@ -144,10 +144,6 @@ namespace dynamo {
       return testGeneratePlugin<OPTrajectory>(Sim, XML);
     else if (!Name.compare("ChainBondLength"))
       return testGeneratePlugin<OPChainBondLength>(Sim, XML);
-    else if (!Name.compare("MFT"))
-      return testGeneratePlugin<OPMFT>(Sim, XML);
-    else if (!Name.compare("CollEnergyChange"))
-      return testGeneratePlugin<OPCollEnergyChange>(Sim, XML);
     else if (!Name.compare("VelDist"))
       return testGeneratePlugin<OPVelDist>(Sim, XML);
     else if (!Name.compare("VelProfile"))

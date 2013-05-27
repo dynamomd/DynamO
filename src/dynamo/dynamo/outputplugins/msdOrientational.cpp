@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dynamo/outputplugins/0partproperty/msdOrientational.hpp>
+#include <dynamo/outputplugins/msdOrientational.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/dynamics/dynamics.hpp>

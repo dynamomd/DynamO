@@ -19,7 +19,6 @@
 #include <dynamo/coordinator/engine/replexer.hpp>
 #include <dynamo/inputplugins/compression.hpp>
 #include <dynamo/systems/tHalt.hpp>
-#include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <dynamo/systems/visualizer.hpp>
 #include <limits>
 

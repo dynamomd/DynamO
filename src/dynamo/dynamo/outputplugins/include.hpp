@@ -15,28 +15,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-#include <dynamo/outputplugins/outputplugin.hpp>
-
-namespace dynamo {
-  class OP1PP: public OutputPlugin
-  {
-  public:
-    OP1PP(const dynamo::Simulation*, const char*, unsigned char order = 100);
-
-    virtual void eventUpdate(const IntEvent&, const PairEventData&);
-
-    virtual void eventUpdate(const GlobalEvent&, const NEventData&);
-
-    virtual void eventUpdate(const LocalEvent&, const NEventData&);
-
-    virtual void eventUpdate(const System&, const NEventData&, const double&);
-
-  private:
-    virtual void A2ParticleChange(const PairEventData&);
-
-    /* This class of plugins implement these functions */
-    virtual void A1ParticleChange(const ParticleEventData&) = 0;
-    virtual void stream(const double&) = 0;  
-  };
-}
+#include <dynamo/outputplugins/tickerproperty/include.hpp>
+#include <dynamo/outputplugins/collMatrix.hpp>
+#include <dynamo/outputplugins/eventtypetracking.hpp>
+#include <dynamo/outputplugins/msdOrientational.hpp>
+#include <dynamo/outputplugins/trajectory.hpp>
+#include <dynamo/outputplugins/colldistcheck.hpp>
+#include <dynamo/outputplugins/contactmap.hpp>
+#include <dynamo/outputplugins/misc.hpp>
+#include <dynamo/outputplugins/eventEffects.hpp>
+#include <dynamo/outputplugins/intEnergyHist.hpp>
+#include <dynamo/outputplugins/msd.hpp>
+#include <dynamo/outputplugins/replexTrace.hpp>

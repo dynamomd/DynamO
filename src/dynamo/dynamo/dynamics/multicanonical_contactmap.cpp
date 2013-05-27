@@ -25,7 +25,6 @@
 #include <dynamo/species/species.hpp>
 #include <dynamo/schedulers/sorters/event.hpp>
 #include <dynamo/dynamics/shapes/oscillatingplate.hpp>
-#include <dynamo/outputplugins/0partproperty/misc.hpp>
 #include <dynamo/units/units.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
