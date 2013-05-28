@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <magnet/math/vector.hpp>
 #include <magnet/exception.hpp>
+#include <GL/gl.h>
 
 namespace magnet {
   namespace GL {

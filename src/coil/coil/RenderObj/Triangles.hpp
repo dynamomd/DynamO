@@ -33,10 +33,10 @@ namespace coil {
 
     virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
 
-    void setGLColors(std::vector<GLubyte>& VertexColor);
-    void setGLPositions(std::vector<float>& VertexPos);
-    void setGLNormals(std::vector<float>& VertexNormals);
-    void setGLElements(std::vector<GLuint>& Elements);
+    void setGLColors(const std::vector<GLubyte>& VertexColor);
+    void setGLPositions(const std::vector<float>& VertexPos);
+    void setGLNormals(const std::vector<float>& VertexNormals);
+    void setGLElements(const std::vector<GLuint>& Elements);
 
     virtual void deinit();
 

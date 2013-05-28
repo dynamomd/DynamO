@@ -88,7 +88,7 @@ namespace coil {
   }
 
   void 
-  RTriangles::setGLColors(std::vector<GLubyte>& VertexColor)
+  RTriangles::setGLColors(const std::vector<GLubyte>& VertexColor)
   {
     if (!VertexColor.size())
       throw std::runtime_error("VertexColor.size() == 0!");
@@ -101,7 +101,7 @@ namespace coil {
   }
 
   void 
-  RTriangles::setGLPositions(std::vector<float>& VertexPos)
+  RTriangles::setGLPositions(const std::vector<float>& VertexPos)
   {
     if (!VertexPos.size())
       throw std::runtime_error("VertexPos.size() == 0!");
@@ -121,7 +121,7 @@ namespace coil {
   }
 
   void 
-  RTriangles::setGLNormals(std::vector<float>& VertexNormals)
+  RTriangles::setGLNormals(const std::vector<float>& VertexNormals)
   {
     if (!VertexNormals.size())
       throw std::runtime_error("VertexNormals.size() == 0!");
@@ -137,7 +137,7 @@ namespace coil {
   }
 
   void 
-  RTriangles::setGLElements(std::vector<GLuint>& Elements)
+  RTriangles::setGLElements(const std::vector<GLuint>& Elements)
   {
     if (!Elements.size())
       throw std::runtime_error("Elements.size() == 0!");

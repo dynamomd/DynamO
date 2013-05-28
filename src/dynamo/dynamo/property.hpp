@@ -50,6 +50,10 @@ namespace dynamo {
     inline virtual const double& getMaxValue() const
     { M_throw() << "Unimplemented"; }
 
+    //! Fetch the minimum value of this property
+    inline virtual const double& getMinValue() const
+    { M_throw() << "Unimplemented"; }
+
     /*! This is called whenever a unit is rescaled.
     
      This function must check the _units of the property and raise
@@ -110,6 +114,11 @@ namespace dynamo {
       returned as the max.
     */
     inline virtual const double& getMaxValue() const { return _val; }
+
+    /*! As this Property only stores a single value, it is always
+      returned as the min.
+    */
+    inline virtual const double& getMinValue() const { return _val; }
 
     //! \sa Property::rescaleUnit
     inline virtual const void rescaleUnit(const Units::Dimension dim, 
@@ -178,6 +187,9 @@ namespace dynamo {
   
     inline virtual const double& getMaxValue() const 
     { return *std::max_element(_values.begin(), _values.end()); }
+
+    inline virtual const double& getMinValue() const 
+    { return *std::min_element(_values.begin(), _values.end()); }
   
     //! \sa Property::rescaleUnit
     inline virtual const void rescaleUnit(const Units::Dimension dim, 

@@ -488,13 +488,6 @@ namespace magnet {
 			    << magnet::string::add_line_numbers(defines + _vertexShaderCode)
 			    << "\n";
 
-#ifdef MAGNET_DEBUG
-		std::cout << "Compiling following vertex shader\n"
-			  << magnet::string::add_line_numbers(defines + _vertexShaderCode)
-			  << "\nBuild log:\n"
-			  << getShaderBuildlog(_vertexShaderHandle);
-#endif
-
 		glAttachObjectARB(_programHandle,_vertexShaderHandle);
 		GL::detail::errorCheck();
 		glDeleteShader(_vertexShaderHandle);
@@ -531,12 +524,6 @@ namespace magnet {
 			    << "\n Source code:\n"
 			    << magnet::string::add_line_numbers(defines + _fragmentShaderCode)
 			    << "\n";
-#ifdef MAGNET_DEBUG
-		std::cout << "Compiling following fragment shader\n"
-			  << magnet::string::add_line_numbers(defines + _fragmentShaderCode)
-			  << "\nBuild log:\n"
-			  << getShaderBuildlog(_fragmentShaderHandle);
-#endif
 
 		glAttachObjectARB(_programHandle,_fragmentShaderHandle);
 		GL::detail::errorCheck();
@@ -568,13 +555,6 @@ namespace magnet {
 			    << "\n Source code:\n"
 			    << magnet::string::add_line_numbers(defines + _geometryShaderCode)
 			    << "\n";
-
-#ifdef MAGNET_DEBUG
-		std::cout << "Compiling following geometry shader\n"
-			  << magnet::string::add_line_numbers(defines + _geometryShaderCode)
-			  << "\nBuild log:\n"
-			  << getShaderBuildlog(_geometryShaderHandle);
-#endif
 
 		glAttachObjectARB(_programHandle, _geometryShaderHandle);
 		GL::detail::errorCheck();

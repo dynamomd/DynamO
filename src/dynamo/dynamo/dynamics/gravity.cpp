@@ -33,6 +33,7 @@
 #include <magnet/intersection/parabola_plane.hpp>
 #include <magnet/intersection/parabola_triangle.hpp>
 #include <magnet/intersection/parabola_rod.hpp>
+#include <magnet/intersection/parabola_cylinder.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
@@ -211,6 +212,11 @@ namespace dynamo {
 			    const Vector& wallNorm,
 			    double diameter) const
   {
+#ifdef DYNAMO_DEBUG
+    if (!isUpToDate(part))
+      M_throw() << "Particle is not up to date";
+#endif
+
     Vector rij = part.getPosition() - wallLoc,
       vij = part.getVelocity();
     
@@ -505,11 +511,21 @@ namespace dynamo {
 
   double 
   DynGravity::getCylinderWallCollision(const Particle& part, 
-					      const Vector& wallLoc, 
-					      const Vector& wallNorm,
-					      const double& radius) const
+				       const Vector& wallLoc, 
+				       const Vector& wallNorm,
+				       const double& diameter) const
   {
-    M_throw() << "Not implemented yet";
+#ifdef DYNAMO_DEBUG
+    if (!isUpToDate(part))
+      M_throw() << "Particle is not up to date";
+#endif
+
+    Vector rij = part.getPosition() - wallLoc,
+      vij = part.getVelocity();
+    
+    Sim->BCs->applyBC(rij, vij);
+    
+    return magnet::intersection::parabola_cylinder_bfc(rij, vij, g * part.testState(Particle::DYNAMIC), wallNorm, diameter);
   }
 
   double 

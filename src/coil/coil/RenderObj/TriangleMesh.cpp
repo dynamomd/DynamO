@@ -87,9 +87,15 @@ namespace coil {
 
       setGLNormals(VertexNormals);
     }
+
+    if (_colours.empty())
+      setGLColors(std::vector<GLubyte>((_vertices.size() / 3) * 4, 255));
+    else
+      setGLColors(_colours);
   
     //Reclaim some memory
     _vertices.clear();
     _elements.clear();
+    _colours.clear();
   }
 }

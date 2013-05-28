@@ -20,17 +20,18 @@
 
 namespace magnet {
   namespace intersection {
-    //! \brief A parabola-cylinder intersection test.
-    //!
-    //! This test ignores the back face of the cylinder, it is used to
-    //! detect when a ray will enter a cylinder.
-    //! 
-    //! \param T The origin of the ray relative to a point on the cylinder axis.
-    //! \param D The direction/velocity of the ray.
-    //! \param Aray The acceleration acting on the ray
-    //! \param A A normalized vector parallel to the axis of the cylinder.
-    //! \param r Radius of the cylinder.
-    //! \return The time until the intersection, or HUGE_VAL if no intersection.
+    /*! \brief A parabola-cylinder intersection test.
+    
+     This test ignores the back face of the cylinder, it is used to
+     detect when a ray will enter a cylinder.
+     
+     \param T The origin of the ray relative to a point on the cylinder axis.
+     \param D The direction/velocity of the ray.
+     \param Aray The acceleration acting on the ray
+     \param A A normalized vector parallel to the axis of the cylinder.
+     \param r Radius of the cylinder.
+     \return The time until the intersection, or HUGE_VAL if no intersection.
+    */
     inline double parabola_cylinder_bfc(math::Vector T, math::Vector D, math::Vector Aray, const math::Vector& A, const double r)
     {
       //Project off the axial component of the position, velocity and acceleration
