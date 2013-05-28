@@ -117,13 +117,12 @@ void VertexEmit(in vec2 displacement, in vec2 screen_perp, in vec2 screen_para)
 {
   //The billboards need to be slightly larger to accommodate perspective warping.
   const float overdraw = 1.2;
-  displacement *= overdraw;
   frag_axis = axis[0];
   frag_radius = radius[0];
   frag_length = length[0];
   vert_color = color[0];
   frag_center = gl_in[0].gl_Position.xyz;
-  vec3 position = gl_in[0].gl_Position.xyz + length[0] * displacement.x * axis[0];
+  vec3 position = gl_in[0].gl_Position.xyz + overdraw * length[0] * displacement.x * axis[0];
   position.xy += displacement.y * screen_perp + displacement.x * screen_para;
   frag_pos = position;
   gl_Position = ProjectionMatrix * vec4(position, gl_in[0].gl_Position.w);
