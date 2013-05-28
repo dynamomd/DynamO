@@ -193,8 +193,10 @@ namespace dynamo {
     diameter = XML.getAttribute("Diameter").as<double>() * Sim->units.unitLength();
     e = XML.getAttribute("Inelasticity").as<double>();
     d2 = diameter * diameter;
-    range1 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range1"), Sim));
-    range2 = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("Range2"), Sim));
+    magnet::xml::Node subRangeXML = XML.getNode("IDRange");
+    range1 = shared_ptr<IDRange>(IDRange::getClass(subRangeXML, Sim));
+    ++subRangeXML;
+    range2 = shared_ptr<IDRange>(IDRange::getClass(subRangeXML, Sim));
     if (XML.hasAttribute("MaxProbability"))
       maxprob = XML.getAttribute("MaxProbability").as<double>();
   }
@@ -210,12 +212,8 @@ namespace dynamo {
 	<< magnet::xml::attr("Inelasticity") << e
 	<< magnet::xml::attr("Name") << sysName
 	<< magnet::xml::attr("MaxProbability") << maxprob
-	<< magnet::xml::tag("Range1")
 	<< range1
-	<< magnet::xml::endtag("Range1")
-	<< magnet::xml::tag("Range2")
 	<< range2
-	<< magnet::xml::endtag("Range2")
 	<< magnet::xml::endtag("System");
   }
 }
