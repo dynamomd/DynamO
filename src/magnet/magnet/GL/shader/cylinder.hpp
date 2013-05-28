@@ -83,7 +83,9 @@ void main()
   vec3 scale = iScale.xyz + vec3(equal(iScale.xyz, vec3(0.0,0.0,0.0)));
   radius = (scale.x + scale.y) * global_scale * 0.25;
   length = scale.z * global_scale * 0.5;
-  axis = normalize((ViewMatrix * vec4(qrot(iOrientation, vec3(0,0,1)), 0.0)).xyz);
+  vec3 cyl_axis = normalize((ViewMatrix * vec4(qrot(iOrientation, vec3(0,0,1)), 0.0)).xyz);
+  if (cyl_axis.z < 0.0) cyl_axis = -cyl_axis;
+  axis = cyl_axis;
   gl_Position = ViewMatrix * vec4(vPosition.xyz, 1.0);
 });
 	}
@@ -165,7 +167,7 @@ void main()
 ) "\n#ifdef DRAWBILLBOARD\n" STRINGIFY(
   normal_out = vec4(0.0);
   position_out = vec4(frag_pos, 1.0);
-  vec4 pos = ProjectionMatrix * vec4(frag_pos, 1.0);
+  vec4 screen_pos = ProjectionMatrix * vec4(frag_pos, 1.0);
 ) "\n#else\n" STRINGIFY(
   vec3 rij = -frag_center;
   vec3 rij_planar = rij - dot(rij, frag_axis) * frag_axis;
@@ -181,17 +183,27 @@ void main()
   vec3 hit = t * vij;
   vec3 relative_hit = hit - frag_center;
   float axial_displacement = dot(relative_hit, frag_axis);
-  if (abs(axial_displacement) > frag_length) discard;
+  vec3 norm = normalize(relative_hit - axial_displacement * frag_axis);
+  if (axial_displacement < -frag_length) discard;
+  if (axial_displacement > frag_length)
+    {
+      hit += (-(axial_displacement - frag_length) / dot(vij,frag_axis)) * vij;
+      norm = frag_axis;
+      relative_hit = hit - frag_center;
+      
+      axial_displacement = dot(relative_hit, frag_axis);
+      vec3 radial_dist = relative_hit - axial_displacement * frag_axis;
+      if (dot(radial_dist,radial_dist) > frag_radius * frag_radius) discard;
+    }
 
-  if (unshaded)
-    normal_out = vec4(0.0);
-  else
-    normal_out = vec4(normalize(relative_hit - axial_displacement * frag_axis),1.0);
+  if (unshaded) norm = vec3(0.0);
+  
+  normal_out = vec4(norm,1.0);
   position_out = vec4(hit, 1.0);
-  vec4 pos = ProjectionMatrix * vec4(hit, 1.0);
+  vec4 screen_pos = ProjectionMatrix * vec4(hit, 1.0);
 ) "\n#endif\n" STRINGIFY(
   color_out = vert_color;
-  gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0;
+  gl_FragDepth = (screen_pos.z / screen_pos.w + 1.0) / 2.0;
 });
 	}
       };
