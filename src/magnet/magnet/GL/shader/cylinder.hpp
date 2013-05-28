@@ -162,11 +162,11 @@ layout (location = 2) out vec4 position_out;
 
 void main()
 {
-)"\n#ifdef DRAWBILLBOARD\n"STRINGIFY(
+) "\n#ifdef DRAWBILLBOARD\n" STRINGIFY(
   normal_out = vec4(0.0);
   position_out = vec4(frag_pos, 1.0);
   vec4 pos = ProjectionMatrix * vec4(frag_pos, 1.0);
-)"\n#else\n"STRINGIFY(
+) "\n#else\n" STRINGIFY(
   vec3 rij = -frag_center;
   vec3 rij_planar = rij - dot(rij, frag_axis) * frag_axis;
   vec3 vij = frag_pos;
@@ -189,7 +189,7 @@ void main()
     normal_out = vec4(normalize(relative_hit - axial_displacement * frag_axis),1.0);
   position_out = vec4(hit, 1.0);
   vec4 pos = ProjectionMatrix * vec4(hit, 1.0);
-)"\n#endif\n"STRINGIFY(
+) "\n#endif\n" STRINGIFY(
   color_out = vert_color;
   gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0;
 });
