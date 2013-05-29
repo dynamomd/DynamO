@@ -84,9 +84,12 @@ void main()
   radius = (scale.x + scale.y) * global_scale * 0.25;
   length = scale.z * global_scale * 0.5;
   vec3 cyl_axis = normalize((ViewMatrix * vec4(qrot(iOrientation, vec3(0,0,1)), 0.0)).xyz);
-  if (cyl_axis.z < 0.0) cyl_axis = -cyl_axis;
+  vec4 pos = ViewMatrix * vec4(vPosition.xyz, 1.0);
+
+  if (dot(pos.xyz, cyl_axis) > 0.0) cyl_axis = -cyl_axis;
+
   axis = cyl_axis;
-  gl_Position = ViewMatrix * vec4(vPosition.xyz, 1.0);
+  gl_Position = pos;
 });
 	}
 	
@@ -117,12 +120,13 @@ void VertexEmit(in vec2 displacement, in vec2 screen_perp, in vec2 screen_para)
 {
   //The billboards need to be slightly larger to accommodate perspective warping.
   const float overdraw = 1.2;
+  displacement *= overdraw;
   frag_axis = axis[0];
   frag_radius = radius[0];
   frag_length = length[0];
   vert_color = color[0];
   frag_center = gl_in[0].gl_Position.xyz;
-  vec3 position = gl_in[0].gl_Position.xyz + overdraw * length[0] * displacement.x * axis[0];
+  vec3 position = gl_in[0].gl_Position.xyz + length[0] * displacement.x * axis[0];
   position.xy += displacement.y * screen_perp + displacement.x * screen_para;
   frag_pos = position;
   gl_Position = ProjectionMatrix * vec4(position, gl_in[0].gl_Position.w);
@@ -178,21 +182,25 @@ void main()
   float C = dot(rij_planar, rij_planar) - frag_radius * frag_radius;
   float argument = B * B - A * C;
   if (argument < 0.0) discard;
-  float t = - C / (B - sqrt(argument));
+  float sqrtArg = sqrt(argument);
+  float t = - C / (B - sqrtArg);
   vec3 hit = t * vij;
   vec3 relative_hit = hit - frag_center;
   float axial_displacement = dot(relative_hit, frag_axis);
   vec3 norm = normalize(relative_hit - axial_displacement * frag_axis);
   if (axial_displacement < -frag_length) discard;
+
   if (axial_displacement > frag_length)
     {
-      hit += (-(axial_displacement - frag_length) / dot(vij,frag_axis)) * vij;
+      float deltat = -(axial_displacement - frag_length) / dot(vij, frag_axis);
+      if (deltat > 2.0 * sqrtArg / A) discard;
+      hit += deltat * vij;
       norm = frag_axis;
       relative_hit = hit - frag_center;
       
-      axial_displacement = dot(relative_hit, frag_axis);
-      vec3 radial_dist = relative_hit - axial_displacement * frag_axis;
-      if (dot(radial_dist,radial_dist) > frag_radius * frag_radius) discard;
+      //axial_displacement = dot(relative_hit, frag_axis);
+      //vec3 radial_dist = relative_hit - axial_displacement * frag_axis;
+      //if (dot(radial_dist,radial_dist) > frag_radius * frag_radius) discard;
     }
 
   if (unshaded) norm = vec3(0.0);
