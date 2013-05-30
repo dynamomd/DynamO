@@ -32,8 +32,9 @@ namespace coil {
 	SPHERE_GLYPH=0,
 	ARROW_GLYPH=1,
 	CYLINDER_GLYPH=2,
-	LINE_GLYPH=3,
-	CUBE_GLYPH=4
+	ROD_GLYPH=3,
+	LINE_GLYPH=4,
+	CUBE_GLYPH=5
       };
 
   public:

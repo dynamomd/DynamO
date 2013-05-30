@@ -182,25 +182,35 @@ void main()
   float C = dot(rij_planar, rij_planar) - frag_radius * frag_radius;
   float argument = B * B - A * C;
   if (argument < 0.0) discard;
-  float sqrtArg = sqrt(argument);
+  const float sqrtArg = sqrt(argument);
   float t = - C / (B - sqrtArg);
   vec3 hit = t * vij;
   vec3 relative_hit = hit - frag_center;
   float axial_displacement = dot(relative_hit, frag_axis);
   vec3 norm = normalize(relative_hit - axial_displacement * frag_axis);
-  if (axial_displacement < -frag_length) discard;
 
+  if (axial_displacement < -frag_length) discard;     
   if (axial_displacement > frag_length)
     {
+) "\n#ifdef ROD\n" STRINGIFY(
+      //The ends of the cylinder are closed (its a rod)
       float deltat = -(axial_displacement - frag_length) / dot(vij, frag_axis);
-      if (deltat > 2.0 * sqrtArg / A) discard;
       hit += deltat * vij;
       norm = frag_axis;
       relative_hit = hit - frag_center;
       
-      //axial_displacement = dot(relative_hit, frag_axis);
-      //vec3 radial_dist = relative_hit - axial_displacement * frag_axis;
-      //if (dot(radial_dist,radial_dist) > frag_radius * frag_radius) discard;
+      axial_displacement = dot(relative_hit, frag_axis);
+      vec3 radial_dist = relative_hit - axial_displacement * frag_axis;
+      if (dot(radial_dist,radial_dist) > frag_radius * frag_radius) discard;
+) "\n#else\n" STRINGIFY(
+      //The ends of the cylinder are open (its a cylinder)
+      hit += (2.0 * sqrtArg / A) * vij;
+      relative_hit = hit - frag_center;
+      relative_hit = hit - frag_center;
+      axial_displacement = dot(relative_hit, frag_axis);
+      if (abs(axial_displacement) > frag_radius) discard;
+      norm = -normalize(relative_hit - axial_displacement * frag_axis);
+) "\n#endif\n" STRINGIFY(
     }
 
   if (unshaded) norm = vec3(0.0);

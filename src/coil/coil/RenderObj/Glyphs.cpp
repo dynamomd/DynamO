@@ -63,6 +63,7 @@ namespace coil {
     size_t instancing = 1;
     if ((_raytraceable && _glyphRaytrace->get_active())
 	&& ((_glyphType->get_active_row_number() == CYLINDER_GLYPH)
+	    || (_glyphType->get_active_row_number() == ROD_GLYPH)
 	    || (_glyphType->get_active_row_number() == SPHERE_GLYPH)))
       instancing = 0;
 
@@ -80,51 +81,65 @@ namespace coil {
     
     _scaleSel->bindAttribute(magnet::GL::Context::instanceScaleAttrIndex, instancing);
     _orientSel->bindAttribute(magnet::GL::Context::instanceOrientationAttrIndex, instancing);
-    switch (_glyphType->get_active_row_number())
-      {
-      case CYLINDER_GLYPH:
-      case SPHERE_GLYPH:
-	if (_raytraceable && _glyphRaytrace->get_active())
-	  {
-	    if (_context->testExtension("GL_ARB_sample_shading"))
-	      {
-		_primitiveVertices.getContext()->setSampleShading(true);
-		glMinSampleShadingARB(1.0);
-	      }
-	    
-	    using namespace magnet::GL::shader::detail;
-	      Shader& shader = (_glyphType->get_active_row_number() == CYLINDER_GLYPH)
-		? ((mode == RenderObj::SHADOW) ? (Shader&)_cylinderVSMShader : (Shader&)_cylinderShader)
-		: ((mode == RenderObj::SHADOW) ? (Shader&)_sphereVSMShader : (Shader&)_sphereShader);
 
-	    if (_drawbillboards->get_active())
-	      shader.defines("DRAWBILLBOARD") = "True";
-	    else
-	      shader.defines("DRAWBILLBOARD") = "";
+    using namespace magnet::GL::shader::detail;
+    Shader* shader_ptr = nullptr;
+    if (_raytraceable && _glyphRaytrace->get_active())
+      {
+	switch (_glyphType->get_active_row_number())
+	  {
+	    //Select the shader needed for the ray traced object, then ray trace it if needed:
+	  case CYLINDER_GLYPH:
+	    shader_ptr = (mode == RenderObj::SHADOW) ? &_cylinderVSMShader : &_cylinderShader;
+	    shader_ptr->defines("ROD") = "";
+	  case ROD_GLYPH:
+	    if (shader_ptr == nullptr) 
+	      {
+		shader_ptr = (mode == RenderObj::SHADOW) ? &_cylinderVSMShader : &_cylinderShader;
+		shader_ptr->defines("ROD") = "true";
+	      }
+	  case SPHERE_GLYPH:
+	    {
+	      if (shader_ptr == nullptr)
+		shader_ptr = (mode == RenderObj::SHADOW) ? &_sphereVSMShader : &_sphereShader;
+	  
+	      Shader& shader = *shader_ptr;
+	  
+	      if (_context->testExtension("GL_ARB_sample_shading"))
+		{
+		  _primitiveVertices.getContext()->setSampleShading(true);
+		  glMinSampleShadingARB(1.0);
+		}
 	      
-	    shader.attach();
-	    shader["ProjectionMatrix"] = cam.getProjectionMatrix();
-	    shader["global_scale"] = _scale;
-	    for (int x(-_ximages); x <= _ximages; ++x)
-	      for (int y(-_yimages); y <= _yimages; ++y)
-		for (int z(-_zimages); z <= _zimages; ++z)
-		  {
-		    Vector displacement = x * _ds.getPeriodicVectorX() + y * _ds.getPeriodicVectorY() + z * _ds.getPeriodicVectorZ();
-		    shader["ViewMatrix"] = cam.getViewMatrix() * magnet::GL::GLMatrix::translate(displacement);
-		    _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
-		  }
-	    shader.detach();
-			  
-	    if (_context->testExtension("GL_ARB_sample_shading"))
-	      _primitiveVertices.getContext()->setSampleShading(false);
-	    return;
+	      if (_drawbillboards->get_active())
+		shader.defines("DRAWBILLBOARD") = "true";
+	      else
+		shader.defines("DRAWBILLBOARD") = "";
+	      
+	      shader.attach();
+	      shader["ProjectionMatrix"] = cam.getProjectionMatrix();
+	      shader["global_scale"] = _scale;
+	      for (int x(-_ximages); x <= _ximages; ++x)
+		for (int y(-_yimages); y <= _yimages; ++y)
+		  for (int z(-_zimages); z <= _zimages; ++z)
+		    {
+		      Vector displacement = x * _ds.getPeriodicVectorX() + y * _ds.getPeriodicVectorY() + z * _ds.getPeriodicVectorZ();
+		      shader["ViewMatrix"] = cam.getViewMatrix() * magnet::GL::GLMatrix::translate(displacement);
+		      _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+		    }
+	      shader.detach();
+	      
+	      if (_context->testExtension("GL_ARB_sample_shading"))
+		_primitiveVertices.getContext()->setSampleShading(false);
+	      return;
+	    }
+	    break;
+	  case ARROW_GLYPH:
+	  case LINE_GLYPH:
+	  case CUBE_GLYPH:
+	  default:
+	    break;
 	  }
-	break;
-      case ARROW_GLYPH:
-      case LINE_GLYPH:
-      case CUBE_GLYPH:
-      default:
-	break;
       }
     
     if (!_primitiveVertices.size()) return;
@@ -220,6 +235,7 @@ namespace coil {
       _glyphType->append_text("Sphere");      
       _glyphType->append_text("Arrow");
       _glyphType->append_text("Cylinder");
+      _glyphType->append_text("Rod");
       _glyphType->append_text("Line");
       _glyphType->append_text("Cube");
       _glyphType->set_active(_initGlyphType);
@@ -377,14 +393,14 @@ namespace coil {
 	  _glyphLOD->get_adjustment()->configure(1, 0.0, 4.0, 1.0, 1.0, 0.0);
 	}
 	break;
-      case ARROW_GLYPH:
       case CYLINDER_GLYPH:
+      case ROD_GLYPH:
 	if (_raytraceable)
 	  {
 	    _glyphRaytrace->set_sensitive(true);
 	    _glyphRaytrace->set_active(true);
 	  }
-
+      case ARROW_GLYPH:
 	_glyphLOD->get_adjustment()->configure(6.0, 6.0, 32.0, 1.0, 5.0, 0.0);
 	break;
       case LINE_GLYPH:
@@ -410,6 +426,7 @@ namespace coil {
     switch (_glyphType->get_active_row_number())
       {
       case CYLINDER_GLYPH:
+      case ROD_GLYPH:
       case SPHERE_GLYPH:
 	_glyphLOD->set_sensitive(true);
 	if (_raytraceable)
@@ -453,6 +470,7 @@ namespace coil {
 	vertices = magnet::GL::objects::primitives::Arrow::getVertices(LOD);
 	break;
       case CYLINDER_GLYPH:
+      case ROD_GLYPH:
 	vertices = magnet::GL::objects::primitives::Cylinder::getVertices(LOD);
 	break;
       case LINE_GLYPH:
@@ -490,6 +508,7 @@ namespace coil {
       case ARROW_GLYPH:
 	return magnet::GL::objects::primitives::Arrow::getNormals(LOD);
       case CYLINDER_GLYPH:
+      case ROD_GLYPH:
 	return magnet::GL::objects::primitives::Cylinder::getNormals(LOD);
       case LINE_GLYPH: 
 	{
@@ -523,6 +542,7 @@ namespace coil {
       case ARROW_GLYPH:
 	return magnet::GL::objects::primitives::Arrow::getIndices(LOD);
       case CYLINDER_GLYPH:
+      case ROD_GLYPH:
 	return magnet::GL::objects::primitives::Cylinder::getIndices(LOD);
       case LINE_GLYPH:
 	{
