@@ -18,6 +18,7 @@
 #include <coil/RenderObj/Glyphs.hpp>
 #include <magnet/GL/objects/primitives/sphere.hpp>
 #include <magnet/GL/objects/primitives/cylinder.hpp>
+#include <magnet/GL/objects/primitives/rod.hpp>
 #include <magnet/GL/objects/primitives/arrow.hpp>
 #include <magnet/GL/objects/primitives/cube.hpp>
 #include <coil/images/images.hpp>
@@ -470,8 +471,10 @@ namespace coil {
 	vertices = magnet::GL::objects::primitives::Arrow::getVertices(LOD);
 	break;
       case CYLINDER_GLYPH:
-      case ROD_GLYPH:
 	vertices = magnet::GL::objects::primitives::Cylinder::getVertices(LOD);
+	break;
+      case ROD_GLYPH:
+	vertices = magnet::GL::objects::primitives::Rod::getVertices(LOD);
 	break;
       case LINE_GLYPH:
 	vertices.clear();
@@ -508,8 +511,9 @@ namespace coil {
       case ARROW_GLYPH:
 	return magnet::GL::objects::primitives::Arrow::getNormals(LOD);
       case CYLINDER_GLYPH:
-      case ROD_GLYPH:
 	return magnet::GL::objects::primitives::Cylinder::getNormals(LOD);
+      case ROD_GLYPH:
+	return magnet::GL::objects::primitives::Rod::getNormals(LOD);
       case LINE_GLYPH: 
 	{
 	  //(Normals are 0's to stop them being shaded)
@@ -542,8 +546,9 @@ namespace coil {
       case ARROW_GLYPH:
 	return magnet::GL::objects::primitives::Arrow::getIndices(LOD);
       case CYLINDER_GLYPH:
-      case ROD_GLYPH:
 	return magnet::GL::objects::primitives::Cylinder::getIndices(LOD);
+      case ROD_GLYPH:
+	return magnet::GL::objects::primitives::Rod::getIndices(LOD);
       case LINE_GLYPH:
 	{
 	  std::vector<GLuint> indices;
