@@ -67,7 +67,7 @@ namespace dynamo {
   LCylinder::operator<<(const magnet::xml::Node& XML)
   {
     range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"),Sim));
-    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("ParticleDiameter"), Property::Units::Length());
     _cyl_radius = XML.getAttribute("CylinderRadius").as<double>() * Sim->units.unitLength();
     _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
     localName = XML.getAttribute("Name");
@@ -91,7 +91,7 @@ namespace dynamo {
     XML << magnet::xml::attr("Type") << "Cylinder" 
 	<< magnet::xml::attr("Name") << localName
 	<< magnet::xml::attr("Elasticity") << _e->getName()
-	<< magnet::xml::attr("Diameter") << _diameter->getName()
+	<< magnet::xml::attr("ParticleDiameter") << _diameter->getName()
 	<< magnet::xml::attr("CylinderRadius") << _cyl_radius / Sim->units.unitLength()
 	<< range
 	<< magnet::xml::tag("Axis")
@@ -116,8 +116,11 @@ namespace dynamo {
       {
 	if (textoutput)
 	  derr << "Particle " << part.getID() << " is " << r / Sim->units.unitLength() << " far into the cylindrical wall."
-	       << "\nWall Pos = " << Vector(vPosition / Sim->units.unitLength()).toString() 
-	       << ", Axis = " << vAxis.toString() << ", d = " << diam / Sim->units.unitLength()
+	       << "\nWall Position = " << Vector(vPosition / Sim->units.unitLength()).toString()
+	       << "\nWall Axis = " << vAxis.toString() << ", d = " << diam / Sim->units.unitLength()
+	       << "\nParticle Position = " << Vector(part.getPosition() / Sim->units.unitLength()).toString()
+	       << "\nSeparation Vector = " << Vector(pos / Sim->units.unitLength()).toString()
+	       << "\nSeparation Distance = " << pos.nrm() / Sim->units.unitLength()
 	       << std::endl;
 	return true;
       }

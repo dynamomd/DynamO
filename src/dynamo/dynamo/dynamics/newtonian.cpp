@@ -1147,23 +1147,8 @@ namespace dynamo {
   {
     Vector  rij = part.getPosition() - wallLoc,
       vel = part.getVelocity();
-
     Sim->BCs->applyBC(rij, vel);
-
-    rij -= Vector((rij | wallNorm) * wallNorm);
-
-    vel -= Vector((vel | wallNorm) * wallNorm);
-
-    double B = (vel | rij),
-      A = vel.nrm2(),
-      C = rij.nrm2() - radius * radius;
-
-    double t = (std::sqrt(B*B - A*C) - B) / A;
-
-    if (boost::math::isnan(t))
-      return HUGE_VAL;
-    else
-      return t;
+    return magnet::intersection::ray_cylinder_bfc(rij, vel, wallNorm, radius);
   }
 
   ParticleEventData 
