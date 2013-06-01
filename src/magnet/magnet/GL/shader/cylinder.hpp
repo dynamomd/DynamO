@@ -182,7 +182,7 @@ void main()
   float C = dot(rij_planar, rij_planar) - frag_radius * frag_radius;
   float argument = B * B - A * C;
   if (argument < 0.0) discard;
-  const float sqrtArg = sqrt(argument);
+  float sqrtArg = sqrt(argument);
   float t = - C / (B - sqrtArg);
   vec3 hit = t * vij;
   vec3 relative_hit = hit - frag_center;
