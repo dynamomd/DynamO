@@ -181,21 +181,16 @@ void main()
 	  return STRINGIFY(
 uniform mat4 ProjectionMatrix;
 
-flat in vec4 vert_color;
 flat in vec3 frag_center;
 flat in float frag_radius;
 smooth in vec3 frag_pos;
 
-layout (location = 0) out vec4 color_out;
-layout (location = 1) out vec4 normal_out;
-layout (location = 2) out vec4 position_out;
+layout (location = 0) out vec4 moments_out;
 
 void main()
 {
 ) "\n#ifdef DRAWBILLBOARD\n" STRINGIFY(
-  normal_out = vec4(0.0);
-  position_out = vec4(frag_pos, 1.0);
-  vec4 screen_pos = ProjectionMatrix * vec4(frag_pos, 1.0);
+  vec3 world_pos = frag_pos;
 ) "\n#else\n" STRINGIFY(
   vec3 rij = -frag_center;
   vec3 vij = frag_pos;
@@ -206,12 +201,12 @@ void main()
   float argument = B * B - A * C;
   if (argument < 0.0) discard;
   float t = - C / (B - sqrt(argument));
-  vec3 hit = t * vij;
-  position_out = vec4(hit, 1.0);  
-  vec4 screen_pos = ProjectionMatrix * vec4(hit, 1.0);
+  vec3 world_pos = t * vij;
 ) "\n#endif\n" STRINGIFY(
+  vec4 screen_pos = ProjectionMatrix * vec4(world_pos, 1.0);
   gl_FragDepth = (screen_pos.z / screen_pos.w + 1.0) / 2.0;
-  float depth = -hit.z;
+
+  float depth = -world_pos.z;
   float AM = ProjectionMatrix[2].z;
   float BM = ProjectionMatrix[3].z;
   float moment1 = 0.5 * (-AM * depth + BM) / depth + 0.5;
@@ -219,7 +214,7 @@ void main()
   float dx = dFdx(moment1);
   float dy = dFdy(moment1);
   moment2 += 0.25 * (dx * dx + dy * dy);
-  color_out = vec4(moment1, moment2, 0.0, 1.0);
+  moments_out = vec4(moment1, moment2, 0.0, 1.0);
 });
 	}
 

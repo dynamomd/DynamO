@@ -188,7 +188,7 @@ void main()
   vec3 pos0 = texelFetch(positionTex, ivec2(gl_FragCoord.xy), 0).xyz;
   vec4 ShadowCoord = shadowMatrix * vec4(pos0, 1.0);
   float ShadowCoordW = ShadowCoord.w;
-  ShadowCoord = ShadowCoord * (1.0 / ShadowCoord.w);
+  ShadowCoord = ShadowCoord / ShadowCoord.w;
 
   float shadow = chebyshevUpperBound(texture2D(shadowTex, ShadowCoord.xy).rg, ShadowCoord.z);
 
