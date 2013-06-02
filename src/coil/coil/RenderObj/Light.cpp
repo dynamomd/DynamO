@@ -74,6 +74,7 @@ namespace coil {
   RLight::glRender(const magnet::GL::Camera& cam, RenderMode mode, const uint32_t offset)
   {
     if (!_visible) return;
+    if (mode == RenderObj::SHADOW) return;
     
     using namespace magnet::GL;
 
@@ -83,7 +84,7 @@ namespace coil {
     _glposition.init(position, 3);
     _context->cleanupAttributeArrays();
 
-    if (mode & RenderObj::PICKING)
+    if (mode == RenderObj::PICKING)
       _context->setAttribute(Context::vertexColorAttrIndex, 
 			     (offset % 256) / 255.0, 
 			     ((offset / 256) % 256) / 255.0, 
@@ -106,7 +107,7 @@ namespace coil {
     _glposition.drawArray(magnet::GL::element_type::POINTS);
     _sphereShader.detach();
     
-    if ((mode & RenderObj::PICKING) && _context->testExtension("GL_ARB_sample_shading"))
+    if ((mode == RenderObj::PICKING) && _context->testExtension("GL_ARB_sample_shading"))
       _context->setSampleShading(false);
   }
 

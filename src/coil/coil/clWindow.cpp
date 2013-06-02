@@ -580,11 +580,11 @@ namespace coil {
     if (_readyFlag) return;
 
     double light_distance = 50 / _camera.getRenderScale();
-    Vector look_at = Vector(0.0f, 0.0f, 0.0f);
+    Vector look_at = Vector(0, 0, 0);
     Vector up = Vector(0,1,0);
     
     {
-      std::shared_ptr<RLight> light(new RLight("Light 1", Vector(+1, +1, 0) * light_distance, look_at, 30.0, 10000.0f, up, _camera.getRenderScale()));
+      std::shared_ptr<RLight> light(new RLight("Light 1", Vector(0, 1, 0) * light_distance, look_at, 30.0, 10000.0f, up, _camera.getRenderScale()));
       _renderObjsTree._renderObjects.push_back(light);
     }
   
@@ -622,6 +622,7 @@ namespace coil {
     _downsampleShader.build();
     _blurShader.build();
     _pointLightShader.build();
+    _shadowLightShader.build();
     _ambientLightShader.build();
     _VSMShader.build();
     _luminanceShader.build();
@@ -630,6 +631,33 @@ namespace coil {
     _depthResolverShader.build();
     
     _cairo_screen.init(600, 600);
+
+    {
+      //Build depth buffer
+      std::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
+      //We don't force GL_DEPTH_COMPONENT24 as it is likely you get
+      //the best precision anyway
+      depthTexture->init(1024, 1024, GL_DEPTH_COMPONENT);
+      //You must select GL_NEAREST for depth data, as GL_LINEAR
+      //converts the value to 8bit for interpolation (on NVidia).
+      depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+      
+      //Build color texture
+      std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
+      colorTexture->init(1024, 1024, GL_RG32F);
+      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+      _shadowbuffer.init();
+      _shadowbuffer.attachTexture(colorTexture, 0);
+      _shadowbuffer.attachTexture(depthTexture);
+    }
 
       //Now init the render objects  
     for (auto& obj: _renderObjsTree._renderObjects)
@@ -684,6 +712,7 @@ namespace coil {
     _hdrBuffer.deinit();
     _luminanceBuffer1.deinit();
     _luminanceBuffer2.deinit();
+    _shadowbuffer.deinit();
     _filterTarget1.deinit();
     _filterTarget2.deinit();
     _blurTarget1.deinit();
@@ -691,6 +720,7 @@ namespace coil {
     _toneMapShader.deinit();
     _depthResolverShader.deinit();
     _pointLightShader.deinit();	
+    _shadowLightShader.deinit();	
     _ambientLightShader.deinit();
     _VSMShader.deinit();
     _downsampleShader.deinit();
@@ -739,40 +769,6 @@ namespace coil {
     //We frequently ping the gui update
     guiUpdateCallback();
 
-    ////////////Lighting shadow map creation////////////////////
-    //This stage only needs to be performed once per frame
-    
-//    for (std::vector<std::shared_ptr<RenderObj> >::iterator iPtr 
-//	   = _renderObjsTree._renderObjects.begin();
-//	 iPtr != _renderObjsTree._renderObjects.end(); ++iPtr)
-//      if ((*iPtr)->shadowCasting() && std::dynamic_pointer_cast<RLight>(*iPtr))
-//	{
-//	  std::shared_ptr<RLight> light = std::static_pointer_cast<RLight>(*iPtr);
-//	  if (light)
-//	    {
-//	      _VSMShader.attach();
-//	      //Render each light's shadow map
-//	      _VSMShader["ProjectionMatrix"] = light->getProjectionMatrix();
-//	      _VSMShader["ViewMatrix"] = light->getViewMatrix();	  
-//	      light->shadowFBO().attach();
-//	      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//
-//	      //Enter the render ticks for all objects
-//	      for (std::vector<std::shared_ptr<RenderObj> >::iterator jPtr 
-//		     = _renderObjsTree._renderObjects.begin();
-//		   jPtr != _renderObjsTree._renderObjects.end(); ++jPtr)
-//		if (iPtr != jPtr)
-//		  if ((*jPtr)->shadowCasting() && (*jPtr)->visible())
-//		    (*iPtr)->glRender(*light, RenderObj::SHADOW);
-//	
-//	      light->shadowFBO().detach();
-//	      /////////////MIPMAPPED shadow maps don't seem to work
-//	      //_light0.shadowTex()->genMipmaps();
-//	      light->shadowTex()->bind(7);
-//	
-//	      _VSMShader.detach();
-//	    }
-//	}
     ////////All of the camera movement and orientation has been
     ////////calculated with a certain fixed head position, now we
     ////////actually perform the rendering with adjustments for the 
@@ -821,7 +817,7 @@ namespace coil {
 	    _copyShader.invoke(); 
 	    _copyShader.detach();
 	    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
+	    
 	    _camera.setEyeLocation(headPosition + eyeDisplacement);
 	    drawScene(_camera);
 	    _renderTarget.getColorTexture(0)->bind(0);
@@ -836,7 +832,7 @@ namespace coil {
 	    drawScene(_camera);
 	    _renderTarget.blitToScreen(_camera.getWidth() / 2, 
 				       _camera.getHeight(), 0, 0, GL_LINEAR);
-
+	    
 	    _camera.setEyeLocation(headPosition + eyeDisplacement);
 	    drawScene(_camera);
 	    _renderTarget.blitToScreen(_camera.getWidth() / 2, _camera.getHeight(),
@@ -847,7 +843,7 @@ namespace coil {
 	    drawScene(_camera);
 	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight()  /2,
 				       0, 0, GL_LINEAR);
-
+	    
 	    _camera.setEyeLocation(headPosition - eyeDisplacement);
 	    drawScene(_camera);
 	    _renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight() / 2,
@@ -963,7 +959,6 @@ namespace coil {
     _glContext->setDepthTest(false);
     glDepthMask(GL_FALSE);
 
-    
     _ambientLightShader.attach();
     _ambientLightShader["colorTex"] = 0;
     _ambientLightShader["samples"] = GLint(_samples);
@@ -971,25 +966,70 @@ namespace coil {
     _ambientLightShader.invoke();
     _ambientLightShader.detach();
 
+    std::vector<std::shared_ptr<RLight> > lights;
+
+    //Perform the shadow casting lights
+    for (auto& light_obj :_renderObjsTree._renderObjects)
+      {
+	std::shared_ptr<RLight> light = std::dynamic_pointer_cast<RLight>(light_obj);
+	if (!light || !(light->shadowCasting())) continue;
+
+	//Change from the hdr FBO 
+	_hdrBuffer.detach();
+	//Render each light's shadow map
+	_shadowbuffer.attach();
+	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+	_glContext->setDepthTest(true);
+	glDepthMask(GL_TRUE);
+	_glContext->setBlend(false);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	for (auto& obj :_renderObjsTree._renderObjects)
+	  if (obj->visible() && obj->shadowCasting())
+	    obj->glRender(*light, RenderObj::SHADOW);
+
+	_shadowbuffer.detach();
+	_shadowbuffer.getColorTexture(0)->bind(7);
+
+	//Change back to the hdr FBO
+	_hdrBuffer.attach();
+	_glContext->setDepthTest(false);
+	glDepthMask(GL_FALSE);
+	_glContext->setBlend(true);
+	_shadowLightShader.attach();
+	_shadowLightShader["colorTex"] = 0;
+	_shadowLightShader["normalTex"] = 1;
+	_shadowLightShader["positionTex"] = 2;
+	_shadowLightShader["shadowTex"] = 7;
+	_shadowLightShader["shadowMatrix"]
+	  = light->getShadowTextureMatrix() * _camera.getViewMatrix().inverse();
+	_shadowLightShader["samples"] = GLint(_samples);
+	_shadowLightShader["lightColor"] = light->getLightColor();
+	_shadowLightShader["lightSpecularExponent"] = light->getSpecularExponent();
+	_shadowLightShader["lightSpecularFactor"] = light->getSpecularFactor();
+	_shadowLightShader["lightPosition"] = light->getEyespacePosition(camera);
+	_shadowLightShader.invoke();
+	_shadowLightShader.detach();
+      }
+
+    //Perform the point/non-shadowing lights
     _pointLightShader.attach();
     _pointLightShader["colorTex"] = 0;
     _pointLightShader["normalTex"] = 1;
     _pointLightShader["positionTex"] = 2;
     _pointLightShader["samples"] = GLint(_samples);
-
-    std::vector<std::shared_ptr<RLight> > lights;
-    for (auto& obj :_renderObjsTree._renderObjects)
-      if (std::dynamic_pointer_cast<RLight>(obj))
-	{
-	  std::shared_ptr<RLight> light = std::static_pointer_cast<RLight>(obj);
-	  _pointLightShader["lightColor"] = light->getLightColor();
-	  _pointLightShader["lightSpecularExponent"] = light->getSpecularExponent();
-	  _pointLightShader["lightSpecularFactor"] = light->getSpecularFactor();
-	  _pointLightShader["lightPosition"] = light->getEyespacePosition(camera);
-	  _pointLightShader.invoke();
-	  lights.push_back(light);
-	}
-    
+    for (auto& light_obj :_renderObjsTree._renderObjects)
+      {
+	std::shared_ptr<RLight> light = std::dynamic_pointer_cast<RLight>(light_obj);
+	if (!light || light->shadowCasting()) continue;
+	lights.push_back(light);
+	_pointLightShader["lightColor"] = light->getLightColor();
+	_pointLightShader["lightSpecularExponent"] = light->getSpecularExponent();
+	_pointLightShader["lightSpecularFactor"] = light->getSpecularFactor();
+	_pointLightShader["lightPosition"] = light->getEyespacePosition(camera);
+	_pointLightShader.invoke();
+      }
     _pointLightShader.detach();
 
     _glContext->setBlend(true);

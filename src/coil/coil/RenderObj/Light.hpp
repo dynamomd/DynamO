@@ -43,6 +43,7 @@ namespace coil {
     {
       std::array<GLfloat, 3> tmp = {{1.0, 1.0, 1.0}};
       _color = tmp;
+      _shadowCasting = false;
     }
   
     virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);

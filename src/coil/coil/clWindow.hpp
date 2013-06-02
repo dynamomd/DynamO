@@ -96,6 +96,7 @@ namespace coil {
     void setLabelText(Gtk::Label*, std::string);
 
     magnet::GL::shader::PointLightShader _pointLightShader;
+    magnet::GL::shader::ShadowLightShader _shadowLightShader;
     magnet::GL::shader::AmbientLightShader _ambientLightShader;
     magnet::GL::shader::VSMShader _VSMShader;
     magnet::GL::shader::LuminanceShader _luminanceShader;
@@ -109,6 +110,7 @@ namespace coil {
     //Primary render target, or the render target for the left eye.
     magnet::GL::FBO _renderTarget;
     magnet::GL::FBO _Gbuffer;
+    magnet::GL::FBO _shadowbuffer;
     magnet::GL::FBO _hdrBuffer;
     magnet::GL::FBO _luminanceBuffer1;
     magnet::GL::FBO _luminanceBuffer2;
