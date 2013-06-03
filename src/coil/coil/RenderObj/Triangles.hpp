@@ -65,6 +65,7 @@ namespace coil {
     magnet::GL::Buffer<GLuint> _specialElementBuff;
 
     magnet::GL::shader::RenderShader _renderShader;
+    magnet::GL::shader::RenderVSMShader _renderVSMShader;
   };
 }
 

@@ -649,8 +649,8 @@ namespace coil {
       //Build color texture
       std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
       colorTexture->init(1024, 1024, GL_RG32F);//SIZE MUST BE THE SAME FOR THE LIGHTS
-      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
       colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 

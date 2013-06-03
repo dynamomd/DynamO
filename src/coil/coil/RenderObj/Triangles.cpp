@@ -33,6 +33,7 @@ namespace coil {
     RenderObj::init(systemQueue); 
     initGTK(); 
     _renderShader.build(); 
+    _renderVSMShader.build(); 
   }
 
   void 
@@ -61,14 +62,14 @@ namespace coil {
     else
       _colBuff.attachToColor();
 
-    _renderShader.attach();
-    _renderShader["ProjectionMatrix"] = cam.getProjectionMatrix();
-    _renderShader["ViewMatrix"] = cam.getViewMatrix();
+    using namespace magnet::GL::shader::detail;
+    Shader& shader = (mode == RenderObj::SHADOW) ? static_cast<Shader&>(_renderVSMShader) : static_cast<Shader&>(_renderShader);
+    shader.attach();
+    shader["ProjectionMatrix"] = cam.getProjectionMatrix();
+    shader["ViewMatrix"] = cam.getViewMatrix();
 
     _posBuff.getContext()->cleanupAttributeArrays();
-
     if (_normBuff.size()) _normBuff.attachToNormal();
-  
     _posBuff.attachToVertex();
   
     switch (_RenderMode)
@@ -83,8 +84,7 @@ namespace coil {
 	_specialElementBuff.drawElements(magnet::GL::element_type::POINTS);
 	break;
       }
-
-    _renderShader.detach();
+    shader.detach();
   }
 
   void 
@@ -157,6 +157,7 @@ namespace coil {
     _elementBuff.deinit();
     _specialElementBuff.deinit();
     _renderShader.deinit();
+    _renderVSMShader.deinit();
   }
 
   void 

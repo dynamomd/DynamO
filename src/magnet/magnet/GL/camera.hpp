@@ -80,7 +80,8 @@ namespace magnet {
 		    GLfloat zNearDist = 8.0f, 
 		    GLfloat zFarDist = 10000.0f,
 		    math::Vector up = math::Vector(0,1,0),
-		    GLfloat simLength = 25.0f):
+		    GLfloat simLength = 25.0f,
+		    math::Vector eye_location = math::Vector(0, 0, 70)):
 	_height(height),
 	_width(width),
 	_panrotation(180),
@@ -101,7 +102,7 @@ namespace magnet {
 
 
 	//We assume the user is around about 70cm from the screen
-	setEyeLocation(math::Vector(0, 0, 70));
+	setEyeLocation(eye_location);
 	setPosition(position);
 	lookAt(lookAtPoint);
       }
