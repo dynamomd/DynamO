@@ -28,6 +28,7 @@
 #include <dynamo/dynamics/compression.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/xmlwriter.hpp>
+#include <magnet/intersection/ray_sphere.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cmath>
 #include <iomanip>
@@ -39,7 +40,12 @@ namespace dynamo {
 
   void 
   IHardSphere::initialise(size_t nID)
-  { ID=nID; }
+  { 
+    ID=nID; 
+    overlap_counter = 0;
+    non_overlap_counter = 0;
+    overlap_time = 0;
+  }
 
   void 
   IHardSphere::operator<<(const magnet::xml::Node& XML)
@@ -120,12 +126,40 @@ namespace dynamo {
 
     (*Sim->_sigParticleUpdate)(EDat);
 
+    {//Checking for calculations
+      double d = (_diameter->getProperty(p1.getID())
+		  + _diameter->getProperty(p2.getID())) * 0.5;
+      if (Sim->dynamics->sphereOverlap(p1, p2, d))
+	{
+	  Vector r12 = p1.getPosition() - p2.getPosition();
+	  Vector v12 = p1.getVelocity() - p2.getVelocity();
+	  Sim->BCs->applyBC(r12, v12);
+	  ++overlap_counter;
+	  overlap_time += magnet::intersection::ray_inv_sphere_bfc(r12, v12, d);
+	}
+      else
+	++non_overlap_counter;
+    }
+
     //Now we're past the event, update the scheduler and plugins
     Sim->ptrScheduler->fullUpdate(p1, p2);
   
     for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent,EDat);
   }
+  
+  void 
+  IHardSphere::outputData(magnet::xml::XmlStream& XML) const
+  {
+    XML << magnet::xml::tag("HardSphereData")
+	<< magnet::xml::attr("Overlaps") << overlap_counter
+	<< magnet::xml::attr("NotOverlaps") << non_overlap_counter
+	<< magnet::xml::attr("OverlapTime") << overlap_time / Sim->units.unitTime()
+	<< magnet::xml::attr("OverlapFreq") << double(overlap_counter) / (double(non_overlap_counter)+overlap_counter)
+	<< magnet::xml::attr("AvgOverlapTime") << overlap_time / (Sim->units.unitTime() + overlap_counter)
+	<< magnet::xml::endtag("HardSphereData");
+  }
+
    
   void 
   IHardSphere::outputXML(magnet::xml::XmlStream& XML) const
