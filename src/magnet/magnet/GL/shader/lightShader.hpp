@@ -161,23 +161,31 @@ vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
   return decay_factor * lightColor * (specular + diffuse * diffuseColor);
 }
 
+float linstep(float min, float max, float v)
+{
+  return clamp((v - min) / (max - min), 0, 1);
+}
+
+float ReduceLightBleeding(float p_max, float Amount)  
+{  
+  // Remove the [0, Amount] tail and linearly rescale (Amount, 1].  
+  return linstep(Amount, 1, p_max);
+}
+
 float chebyshevUpperBound(in vec2 moments, in float distance)
 {
-  // Surface is fully lit. as the current fragment is before the light occluder
-  if (distance <= moments.x) return 1.0 ;
-  
-  //fragment
-  if (distance < 0) return 0.0;
+  // We use chebyshev's upperBound to check How likely this pixel is
+  // to be lit (p_max)
+  float variance = moments.y - (moments.x * moments.x);
+  variance = max(variance, 0.0000001);
 
-  // The fragment is either in shadow or penumbra. We now use chebyshev's upperBound to check
-  // How likely this pixel is to be lit (p_max)
-  float variance = moments.y - (moments.x*moments.x);
-  variance = max(variance,0.000002);
-  
   float d = distance - moments.x;
-  float p_max = variance / (variance + d*d);
-  
-  return p_max;
+  float p_max = variance / (variance + d * d);
+
+  //We linearly remap the probability so that a certain range is
+  //always completely in shadow
+  p_max = ReduceLightBleeding(p_max, 0.2);
+  return max(float(distance <= moments.x), p_max);
 }
 
 void main()

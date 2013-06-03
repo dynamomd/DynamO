@@ -84,9 +84,10 @@ namespace coil {
     _orientSel->bindAttribute(magnet::GL::Context::instanceOrientationAttrIndex, instancing);
 
     using namespace magnet::GL::shader::detail;
-    Shader* shader_ptr = nullptr;
+
     if (_raytraceable && _glyphRaytrace->get_active())
       {
+	Shader* shader_ptr = nullptr;
 	switch (_glyphType->get_active_row_number())
 	  {
 	    //Select the shader needed for the ray traced object, then ray trace it if needed:
@@ -145,8 +146,22 @@ namespace coil {
     
     if (!_primitiveVertices.size()) return;
 
-    magnet::GL::shader::detail::Shader& shader 
-      = (mode == RenderObj::PICKING) ? (magnet::GL::shader::detail::Shader&)_simpleRenderShader : (magnet::GL::shader::detail::Shader&)_renderShader;
+    Shader* shader_ptr = nullptr;
+    switch (mode)
+      {
+      case PICKING:
+	shader_ptr = &_simpleRenderShader;
+	break;
+      case SHADOW:
+	shader_ptr = &_renderVSMShader;	
+	break;
+      case DEFAULT:
+	shader_ptr = &_renderShader;
+	break;
+      default:
+	M_throw() << "Unknown render mode";
+      }
+    magnet::GL::shader::detail::Shader& shader = *shader_ptr;
     
     shader.attach();
     shader["ProjectionMatrix"] = cam.getProjectionMatrix();
@@ -177,6 +192,7 @@ namespace coil {
     _cylinderShader.deinit();
     _cylinderVSMShader.deinit();
     _renderShader.deinit();
+    _renderVSMShader.deinit();
     _simpleRenderShader.deinit();
     _gtkOptList.reset();
     _scaleSel.reset(); 
@@ -216,6 +232,7 @@ namespace coil {
     _raytraceable = _context->testExtension("GL_EXT_geometry_shader4");
 
     _renderShader.build();
+    _renderVSMShader.build();
     _simpleRenderShader.build();
 
     if (_raytraceable) 

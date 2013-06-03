@@ -107,6 +107,7 @@ namespace coil {
     int _initGlyphType;
     magnet::GL::Context::ContextPtr _context;
     magnet::GL::shader::RenderShader _renderShader;
+    magnet::GL::shader::RenderVSMShader _renderVSMShader;
     magnet::GL::shader::SphereShader _sphereShader;
     magnet::GL::shader::SphereVSMShader _sphereVSMShader;
     magnet::GL::shader::CylinderShader _cylinderShader;
