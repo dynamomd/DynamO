@@ -70,6 +70,7 @@ namespace dynamo {
     shared_ptr<Property> _e;
     
     size_t overlap_counter;
+    mutable size_t overlapped_test_counter;
     size_t non_overlap_counter;
     double overlap_time;
   };

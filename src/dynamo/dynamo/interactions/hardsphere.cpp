@@ -45,16 +45,15 @@ namespace dynamo {
     overlap_counter = 0;
     non_overlap_counter = 0;
     overlap_time = 0;
+    overlapped_test_counter = 0;
   }
 
   void 
   IHardSphere::operator<<(const magnet::xml::Node& XML)
   { 
     Interaction::operator<<(XML);
-    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
-					     Property::Units::Length());
-    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-				      Property::Units::Dimensionless());
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
+    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
     intName = XML.getAttribute("Name");
   }
   
@@ -100,6 +99,8 @@ namespace dynamo {
 
     double d = (_diameter->getProperty(p1.getID())
 		 + _diameter->getProperty(p2.getID())) * 0.5;
+
+    if (Sim->dynamics->sphereOverlap(p1, p2, d)) ++overlapped_test_counter;
 
     double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 
@@ -155,8 +156,9 @@ namespace dynamo {
 	<< magnet::xml::attr("Overlaps") << overlap_counter
 	<< magnet::xml::attr("NotOverlaps") << non_overlap_counter
 	<< magnet::xml::attr("OverlapTime") << overlap_time / Sim->units.unitTime()
-	<< magnet::xml::attr("OverlapFreq") << double(overlap_counter) / (double(non_overlap_counter)+overlap_counter)
-	<< magnet::xml::attr("AvgOverlapTime") << overlap_time / (Sim->units.unitTime() + overlap_counter)
+	<< magnet::xml::attr("OverlapFreq") << double(overlap_counter) / (double(non_overlap_counter)+double(overlap_counter))
+	<< magnet::xml::attr("AvgOverlapTime") << overlap_time / (Sim->units.unitTime() * overlap_counter)
+	<< magnet::xml::attr("OverlappedTests") << overlapped_test_counter
 	<< magnet::xml::endtag("HardSphereData");
   }
 
