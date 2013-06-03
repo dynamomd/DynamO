@@ -164,13 +164,15 @@ vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
 float chebyshevUpperBound(in vec2 moments, in float distance)
 {
   // Surface is fully lit. as the current fragment is before the light occluder
-  if (distance <= moments.x)
-    return 1.0 ;
+  if (distance <= moments.x) return 1.0 ;
   
+  //fragment
+  if (distance < 0) return 0.0;
+
   // The fragment is either in shadow or penumbra. We now use chebyshev's upperBound to check
   // How likely this pixel is to be lit (p_max)
   float variance = moments.y - (moments.x*moments.x);
-  variance = max(variance,0.00002);
+  variance = max(variance,0.0000002);
   
   float d = distance - moments.x;
   float p_max = variance / (variance + d*d);
@@ -189,8 +191,8 @@ void main()
   vec4 ShadowCoord = shadowMatrix * vec4(pos0, 1.0);
   float ShadowCoordW = ShadowCoord.w;
   ShadowCoord = ShadowCoord / ShadowCoord.w;
-
-  float shadow = chebyshevUpperBound(texture2D(shadowTex, ShadowCoord.xy).rg, ShadowCoord.z);
+  vec2 moments = texture2D(shadowTex, ShadowCoord.xy).rg;
+  float shadow = chebyshevUpperBound(moments, ShadowCoord.z);
 
   for (int sample_id = 0; sample_id < samples; sample_id++)
     {

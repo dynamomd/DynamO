@@ -637,7 +637,7 @@ namespace coil {
       std::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D);
       //We don't force GL_DEPTH_COMPONENT24 as it is likely you get
       //the best precision anyway
-      depthTexture->init(1024, 1024, GL_DEPTH_COMPONENT);
+      depthTexture->init(1024, 1024, GL_DEPTH_COMPONENT);//SIZE MUST BE THE SAME FOR THE LIGHTS
       //You must select GL_NEAREST for depth data, as GL_LINEAR
       //converts the value to 8bit for interpolation (on NVidia).
       depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -648,11 +648,11 @@ namespace coil {
       
       //Build color texture
       std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D);
-      colorTexture->init(1024, 1024, GL_RG32F);
+      colorTexture->init(1024, 1024, GL_RG32F);//SIZE MUST BE THE SAME FOR THE LIGHTS
       colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
       colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      colorTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+      colorTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
       _shadowbuffer.init();
       _shadowbuffer.attachTexture(colorTexture, 0);
@@ -792,6 +792,14 @@ namespace coil {
     if (!_stereoMode)
       {
 	_camera.setEyeLocation(headPosition);
+
+	//for (auto& light_obj :_renderObjsTree._renderObjects)
+	//  {
+	//    std::shared_ptr<RLight> light = std::dynamic_pointer_cast<RLight>(light_obj);
+	//    if (!light) continue;
+	//    drawScene(*light);
+	//    break;
+	//  }
 	drawScene(_camera);
 	_renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
 	_camera.setEyeLocation(oldHeadPosition);

@@ -35,7 +35,7 @@ namespace coil {
 	   magnet::math::Vector up = magnet::math::Vector(0,1,0),
 	   GLfloat simLength = 25.0f, GLfloat size = 1.0): 
       RenderObj(name),
-      Camera(1,1,position, lookAtPoint, zNearDist, zFarDist, up, simLength),
+      Camera(1024,1024,position, lookAtPoint, zNearDist, zFarDist, up, simLength),
       _intensity(100 / simLength),
       _specularExponent(32),
       _specularFactor(1),

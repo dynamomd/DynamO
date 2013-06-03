@@ -235,43 +235,72 @@ void main()
 	  return STRINGIFY(
 uniform mat4 ProjectionMatrix;
 
-flat in float frag_radius;
+flat in vec3 frag_axis;
 flat in vec3 frag_center;
-smooth in vec2 ordinate;
-
-layout (location = 0) out vec4 color_out;
+smooth in vec3 frag_pos;
+flat in float frag_radius;
+flat in float frag_length;
+layout (location = 0) out vec4 moments_out;
 
 void main()
 {
-  vec3 billboard_frag_pos = frag_center + vec3(ordinate, 0.0) * frag_radius;
-  vec3 ray_direction = normalize(billboard_frag_pos);
+) "\n#ifdef DRAWBILLBOARD\n" STRINGIFY(
+  vec3 position = frag_pos;
+) "\n#else\n" STRINGIFY(
+  vec3 rij = -frag_center;
+  vec3 rij_planar = rij - dot(rij, frag_axis) * frag_axis;
+  vec3 vij = frag_pos;
+  vec3 vij_planar = vij - dot(vij, frag_axis) * frag_axis;
 
-  float TD = dot(ray_direction, -frag_center);
-  float c = dot(frag_center, frag_center) - frag_radius * frag_radius;
-  float arg = TD * TD - c;
+  float A = dot(vij_planar, vij_planar);
+  float B = dot(rij_planar, vij_planar);
+  float C = dot(rij_planar, rij_planar) - frag_radius * frag_radius;
+  float argument = B * B - A * C;
+  if (argument < 0.0) discard;
+  float sqrtArg = sqrt(argument);
+  float t = - C / (B - sqrtArg);
+  vec3 hit = t * vij;
+  vec3 relative_hit = hit - frag_center;
+  float axial_displacement = dot(relative_hit, frag_axis);
+  if (axial_displacement < -frag_length) discard;     
+  if (axial_displacement > frag_length)
+    {
+) "\n#ifdef ROD\n" STRINGIFY(
+      //The ends of the cylinder are closed (its a rod)
+      float deltat = -(axial_displacement - frag_length) / dot(vij, frag_axis);
+      hit += deltat * vij;
+      relative_hit = hit - frag_center;
       
-  if (arg < 0) discard;
-  
-  float t = - c / (TD - sqrt(arg));
+      axial_displacement = dot(relative_hit, frag_axis);
+      vec3 radial_dist = relative_hit - axial_displacement * frag_axis;
+      if (dot(radial_dist,radial_dist) > frag_radius * frag_radius) discard;
+) "\n#else\n" STRINGIFY(
+      //The ends of the cylinder are open (its a cylinder)
+      hit += (2.0 * sqrtArg / A) * vij;
+      relative_hit = hit - frag_center;
+      relative_hit = hit - frag_center;
+      axial_displacement = dot(relative_hit, frag_axis);
+      if (abs(axial_displacement) > frag_radius) discard;
+) "\n#endif\n" STRINGIFY(
+    }
+  vec3 position = hit;
+) "\n#endif\n" STRINGIFY(
+  vec4 screen_pos = ProjectionMatrix * vec4(position, 1.0);
+  gl_FragDepth = (screen_pos.z / screen_pos.w + 1.0) / 2.0;
 
-  vec3 frag_position_eye = ray_direction * t;
-
-  //Calculate the fragments depth
-  vec4 pos = ProjectionMatrix * vec4(frag_position_eye, 1.0);
-  gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0;
-
-  float depth = -frag_position_eye.z;
-  float A = ProjectionMatrix[2].z;
-  float B = ProjectionMatrix[3].z;
-  float moment1 = 0.5 * (-A * depth + B) / depth + 0.5;
-  float moment2 = moment1 * moment1;
-
-  // Adjusting moments (this is sort of bias per pixel) using derivative
-  float dx = dFdx(moment1);
-  float dy = dFdy(moment1);
-  moment2 += 0.25 * (dx * dx + dy * dy);
-	
-  color_out = vec4(moment1, moment2, 0.0, 1.0);
+  {
+    float depth = -position.z;
+    float A = ProjectionMatrix[2].z;
+    float B = ProjectionMatrix[3].z;
+    float moment1 = 0.5 * (-A * depth + B) / depth + 0.5;
+    float moment2 = moment1 * moment1;
+    
+    // Adjusting moments (this is sort of bias per pixel) using derivative
+    float dx = dFdx(moment1);
+    float dy = dFdy(moment1);
+    moment2 += 0.25 * (dx * dx + dy * dy);
+    moments_out = vec4(moment1, moment2, 0.0, 1.0);
+  }
 });
 	}
 
