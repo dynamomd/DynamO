@@ -793,7 +793,7 @@ namespace dynamo
     catch (std::exception &cep)
       {
 	M_throw() << "Exception caught while executing event " 
-		  << eventCount << cep.what();
+		  << eventCount << "\n" << cep.what();
       }
 
     return (eventCount < endEventCount);
