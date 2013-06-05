@@ -63,15 +63,8 @@ namespace dynamo {
 
     virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
 
-    virtual void outputData(magnet::xml::XmlStream&) const;
-
   protected:
     shared_ptr<Property> _diameter;
     shared_ptr<Property> _e;
-    
-    size_t overlap_counter;
-    mutable size_t overlapped_test_counter;
-    size_t non_overlap_counter;
-    double overlap_time;
   };
 }
