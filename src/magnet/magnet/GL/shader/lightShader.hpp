@@ -121,13 +121,14 @@ layout (location = 0) out vec4 color_out;
 uniform sampler2DMS colorTex;
 uniform sampler2DMS normalTex;
 uniform sampler2DMS positionTex;
-uniform sampler2D shadowTex;
+uniform sampler2DMS shadowTex;
 uniform mat4 shadowMatrix;
 uniform vec3 lightPosition;
 uniform vec3 lightColor;
 uniform float lightSpecularExponent;
 uniform float lightSpecularFactor;
 uniform int samples;
+uniform int shadowsamples;
 
 vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
 {  
@@ -189,19 +190,25 @@ float chebyshevUpperBound(in vec2 moments, in float distance)
 }
 
 void main()
-{
-  //Now calculate the color from the samples
-  vec4 color_sum = vec4(0.0);
-  
-  float shadow_factor = 0;
+{  
   //check if the fragment is in shadow
   vec3 pos0 = texelFetch(positionTex, ivec2(gl_FragCoord.xy), 0).xyz;
   vec4 ShadowCoord = shadowMatrix * vec4(pos0, 1.0);
   float ShadowCoordW = ShadowCoord.w;
   ShadowCoord = ShadowCoord / ShadowCoord.w;
-  vec2 moments = texture2D(shadowTex, ShadowCoord.xy).rg;
-  float shadow = chebyshevUpperBound(moments, ShadowCoord.z);
 
+  ivec2 ShadowTextureSize = textureSize(shadowTex);
+  ivec2 ShadowTexelcoord = ivec2(ShadowTextureSize * ShadowCoord.xy);
+
+  vec2 moments = vec2(0.0,0.0);
+  for (int sample_id = 0; sample_id < shadowsamples; sample_id++)
+    moments += texelFetch(shadowTex, ShadowTexelcoord, sample_id).rg;  
+  moments *= 1.0 / float(shadowsamples);
+
+  float shadow = chebyshevUpperBound(moments, ShadowCoord.z);
+  
+  //Now calculate the color from the samples
+  vec4 color_sum = vec4(0.0);
   for (int sample_id = 0; sample_id < samples; sample_id++)
     {
       vec4 color = texelFetch(colorTex, ivec2(gl_FragCoord.xy), sample_id).rgba;

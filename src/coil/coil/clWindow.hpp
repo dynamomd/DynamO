@@ -290,5 +290,6 @@ namespace coil {
     CAM_MODE _cameraMode;
     std::unique_ptr<Gtk::ComboBoxText> _aasamples;
     std::unique_ptr<magnet::image::VideoEncoderFFMPEG> _encoder;
+    size_t _shadowSamples;
   };
 }
