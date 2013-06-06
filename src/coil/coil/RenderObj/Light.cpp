@@ -152,8 +152,44 @@ namespace coil {
 	_lightColor->set_size_request(60, -1);
 	_lightColor->signal_color_set().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
       }
-
       _optList->pack_start(*box, false, false); 
+    }
+
+    {
+      Gtk::HBox* box = manage(new Gtk::HBox);
+      box->show();
+      {
+	Gtk::Label* label = manage(new Gtk::Label("Max Variance", 0.95, 0.5));
+	box->pack_start(*label, true, true); 
+	label->show();
+      }
+      _maxvarianceEntry.reset(new Gtk::Entry);
+      box->pack_start(*_maxvarianceEntry, false, false);
+      _maxvarianceEntry->show(); 
+      _maxvarianceEntry->set_width_chars(7);
+      _maxvarianceEntry->set_text(boost::lexical_cast<std::string>(_maxvariance));
+      _maxvarianceEntry->signal_changed().connect(sigc::bind(&magnet::gtk::forceNumericEntry, _maxvarianceEntry.get()));
+      _maxvarianceEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
+      _optList->pack_start(*box, false, false);
+    }
+      
+    {
+      Gtk::HBox* box = manage(new Gtk::HBox);
+      box->show();
+      {
+	Gtk::Label* label = manage(new Gtk::Label("Bleed Reduction", 0.95, 0.5));
+	box->pack_start(*label, true, true); 
+	label->show();
+      }
+
+      _bleedreductionEntry.reset(new Gtk::Entry);
+      box->pack_start(*_bleedreductionEntry, false, false);
+      _bleedreductionEntry->show(); 
+      _bleedreductionEntry->set_width_chars(7);
+      _bleedreductionEntry->set_text(boost::lexical_cast<std::string>(_bleedreduction));
+      _bleedreductionEntry->signal_changed().connect(sigc::bind(&magnet::gtk::forceNumericEntry, _bleedreductionEntry.get()));
+      _bleedreductionEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
+      _optList->pack_start(*box, false, false);
     }
 
     { //Specular
@@ -298,7 +334,9 @@ namespace coil {
     try { _specularExponent = boost::lexical_cast<float>(_specularExponentEntry->get_text()); } catch (...) {}
     try { _specularFactor = boost::lexical_cast<float>(_specularFactorEntry->get_text()); } catch (...) {}
     try { _size = boost::lexical_cast<float>(_sizeEntry->get_text()); } catch (...) {}
-
+    try { _maxvariance = boost::lexical_cast<float>(_maxvarianceEntry->get_text()); } catch (...) {}
+    try { _bleedreduction = boost::lexical_cast<float>(_bleedreductionEntry->get_text()); } catch (...) {}
+      
     Gdk::Color color = _lightColor->get_color();
     _color[0] = GLfloat(color.get_red()) / G_MAXUSHORT;
     _color[1] = GLfloat(color.get_green()) / G_MAXUSHORT;

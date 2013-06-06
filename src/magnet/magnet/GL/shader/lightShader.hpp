@@ -127,6 +127,9 @@ uniform vec3 lightPosition;
 uniform vec3 lightColor;
 uniform float lightSpecularExponent;
 uniform float lightSpecularFactor;
+uniform float maxVariance;
+uniform float bleedReduction;
+
 uniform int samples;
 uniform int shadowsamples;
 
@@ -175,18 +178,20 @@ float ReduceLightBleeding(float p_max, float Amount)
 
 float chebyshevUpperBound(in vec2 moments, in float distance)
 {
+  if (distance <= moments.x) return 1.0;
+
   // We use chebyshev's upperBound to check How likely this pixel is
   // to be lit (p_max)
   float variance = moments.y - (moments.x * moments.x);
-  variance = max(variance, 0.0000001);
+  variance = max(variance, maxVariance);
 
   float d = distance - moments.x;
   float p_max = variance / (variance + d * d);
 
   //We linearly remap the probability so that a certain range is
   //always completely in shadow
-  p_max = ReduceLightBleeding(p_max, 0.2);
-  return max(float(distance <= moments.x), p_max);
+  p_max = ReduceLightBleeding(p_max, bleedReduction);
+  return p_max;
 }
 
 void main()

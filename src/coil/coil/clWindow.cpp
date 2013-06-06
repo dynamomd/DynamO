@@ -1022,6 +1022,8 @@ namespace coil {
 	_shadowLightShader["lightSpecularExponent"] = light->getSpecularExponent();
 	_shadowLightShader["lightSpecularFactor"] = light->getSpecularFactor();
 	_shadowLightShader["lightPosition"] = light->getEyespacePosition(camera);
+	_shadowLightShader["maxVariance"] = light->getMaxVariance();
+	_shadowLightShader["bleedReduction"] = light->getBleedReduction();
 	_shadowLightShader.invoke();
 	_shadowLightShader.detach();
       }

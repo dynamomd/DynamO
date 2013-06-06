@@ -39,6 +39,8 @@ namespace coil {
       _intensity(100 / simLength),
       _specularExponent(32),
       _specularFactor(1),
+      _maxvariance(0.000004),
+      _bleedreduction(0.2),
       _size(size / simLength)
     {
       std::array<GLfloat, 3> tmp = {{1.0, 1.0, 1.0}};
@@ -58,6 +60,8 @@ namespace coil {
     float getIntensity() const { return _intensity; }
     float getSpecularExponent() const { return _specularExponent; }
     float getSpecularFactor() const { return _specularFactor; }
+    float getMaxVariance() const { return _maxvariance; }
+    float getBleedReduction() const { return _bleedreduction; }    
 
     virtual bool deletable() { return true; }
 
@@ -137,7 +141,11 @@ namespace coil {
     std::unique_ptr<Gtk::Entry> _positionZEntry;    
     std::unique_ptr<Gtk::Entry> _sizeEntry;
 
+    std::unique_ptr<Gtk::Entry> _maxvarianceEntry;
+    std::unique_ptr<Gtk::Entry> _bleedreductionEntry;
+
     float _intensity, _specularExponent, _specularFactor;
+    float _maxvariance, _bleedreduction;
     GLfloat _size;
     std::array<GLfloat, 3> _color;
 
