@@ -39,17 +39,12 @@ namespace dynamo {
     virtual void   clear()                                   = 0;
     virtual void   init()                                    = 0;
     virtual void   rebuild()                                 = 0;
-    virtual void   stream(const double&)                       = 0;
-    virtual void   push(const Event&, const size_t&)       = 0;
+    virtual void   stream(const double&)                     = 0;
+    virtual void   push(const Event&, const size_t&)         = 0;
     virtual void   update(const size_t&)                     = 0;
-    virtual size_t next_ID()                           const = 0;
-    virtual double   next_dt()                           const = 0;
-    virtual EEventType next_type() const                     = 0;
-    virtual unsigned long next_collCounter2() const          = 0;
-    virtual size_t next_p2() const                           = 0;
-
+    virtual std::pair<size_t, Event> next() const            = 0;
     virtual void   sort()                                    = 0;
-    virtual void   rescaleTimes(const double&)                 = 0;
+    virtual void   rescaleTimes(const double&)               = 0;
     virtual void   clearPEL(const size_t&)                   = 0;
     virtual void   popNextPELEvent(const size_t&)            = 0;
     virtual void   popNextEvent()                            = 0;

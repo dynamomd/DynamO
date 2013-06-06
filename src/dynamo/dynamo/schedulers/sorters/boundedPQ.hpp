@@ -245,6 +245,13 @@ namespace dynamo {
     inline void popNextEvent() { Min[CBT[1]].data.pop(); }
     inline bool nextPELEmpty() const { return Min[CBT[1]].data.empty(); }
 
+    virtual std::pair<size_t, Event> next() const
+    {
+      Event nextevent = Min[CBT[1]].data.top();
+      nextevent.dt -= pecTime;
+      return std::pair<size_t, Event>(CBT[1] - 1, nextevent);
+    }
+
     inline size_t next_ID() const { return CBT[1] - 1; }
     inline EEventType next_type() const { return Min[CBT[1]].data.top().type; }
     inline unsigned long next_collCounter2() const { return Min[CBT[1]].data.top().collCounter2; }

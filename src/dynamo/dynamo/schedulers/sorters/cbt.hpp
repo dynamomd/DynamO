@@ -87,10 +87,6 @@ namespace dynamo {
     inline void popNextEvent() { Min[CBT[1]].pop(); }
     inline bool nextPELEmpty() const { return Min[CBT[1]].empty(); }
 
-    inline EEventType next_type() const { return Min[CBT[1]].top().type; }
-    inline unsigned long next_collCounter2() const { return Min[CBT[1]].top().collCounter2; }
-    inline size_t next_p2() const { return Min[CBT[1]].top().p2; }
-
     inline void push(const Event& tmpVal, const size_t& pID)
     {
       //Exit early
@@ -106,9 +102,12 @@ namespace dynamo {
 
     inline void update(const size_t& a) { UpdateCBT(a+1); }
 
-    inline double next_dt() const { return Min[CBT[1]].getdt() - pecTime; }
-
-    inline size_t next_ID() const { return CBT[1] - 1; }
+    virtual std::pair<size_t, Event> next() const
+    {
+      Event nextevent = Min[CBT[1]].top();
+      nextevent.dt -= pecTime;
+      return std::pair<size_t, Event>(CBT[1] - 1, nextevent);
+    }
 
     inline void rescaleTimes(const double& factor)
     {
