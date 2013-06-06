@@ -171,14 +171,13 @@ namespace dynamo {
     addToCell(part.getID(), endCell);
 
     //Get rid of the virtual event we're running, an updated event is
-    //pushed after all other events are added
+    //pushed after the callbacks are complete (the callbacks may also
+    //add events so this must be done first).
     Sim->ptrScheduler->popNextEvent();
-
 
     //Particle has just arrived into a new cell warn the scheduler about
     //its new neighbours so it can add them to the heap
     //Holds the displacement in each dimension, the unit is cells!
-
     //These are the two dimensions to walk in
     size_t dim1 = (cellDirection + 1) % 3,
       dim2 = (cellDirection + 2) % 3;
