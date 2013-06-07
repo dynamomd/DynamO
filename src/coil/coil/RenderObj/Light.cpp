@@ -342,6 +342,8 @@ namespace coil {
     _color[1] = GLfloat(color.get_green()) / G_MAXUSHORT;
     _color[2] = GLfloat(color.get_blue()) / G_MAXUSHORT;
 
+    lookAt(Vector(0,0,0));
+
     try {
       magnet::math::Vector vec;
       vec[0] = boost::lexical_cast<float>(_positionXEntry->get_text());
