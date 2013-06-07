@@ -39,7 +39,7 @@ namespace coil {
       _intensity(100 / simLength),
       _specularExponent(32),
       _specularFactor(1),
-      _maxvariance(0.000004),
+      _maxvariance(0.1),
       _bleedreduction(0.2),
       _size(size / simLength)
     {

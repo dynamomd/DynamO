@@ -26,7 +26,6 @@
 #include <magnet/GL/shader/depthResolver.hpp>
 #include <magnet/GL/camera.hpp>
 #include <magnet/GL/multisampledFBO.hpp>
-#include <magnet/GL/shader/vsm.hpp>
 #include <magnet/GL/shader/copy.hpp>
 #include <magnet/GL/shader/downsampler.hpp>
 #include <magnet/GL/objects/cairo.hpp>
@@ -98,7 +97,6 @@ namespace coil {
     magnet::GL::shader::PointLightShader _pointLightShader;
     magnet::GL::shader::ShadowLightShader _shadowLightShader;
     magnet::GL::shader::AmbientLightShader _ambientLightShader;
-    magnet::GL::shader::VSMShader _VSMShader;
     magnet::GL::shader::LuminanceShader _luminanceShader;
     magnet::GL::shader::LuminanceMipMapShader _luminanceMipMapShader;
     magnet::GL::shader::ToneMapShader _toneMapShader;
@@ -290,6 +288,5 @@ namespace coil {
     CAM_MODE _cameraMode;
     std::unique_ptr<Gtk::ComboBoxText> _aasamples;
     std::unique_ptr<magnet::image::VideoEncoderFFMPEG> _encoder;
-    size_t _shadowSamples;
   };
 }

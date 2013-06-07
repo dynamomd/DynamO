@@ -624,7 +624,6 @@ namespace coil {
     _pointLightShader.build();
     _shadowLightShader.build();
     _ambientLightShader.build();
-    _VSMShader.build();
     _luminanceShader.build();
     _luminanceMipMapShader.build();
     _toneMapShader.build();
@@ -634,11 +633,7 @@ namespace coil {
 
     {
       //Build depth buffer
-      int maxsamples = std::min(magnet::GL::detail::glGet<GL_MAX_COLOR_TEXTURE_SAMPLES>(),
-				magnet::GL::detail::glGet<GL_MAX_DEPTH_TEXTURE_SAMPLES>());
-
-      _shadowSamples = std::min(1, maxsamples);
-      std::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2DMultisampled(_shadowSamples));
+      std::shared_ptr<magnet::GL::Texture2D> depthTexture(new magnet::GL::Texture2D());
       //We don't force GL_DEPTH_COMPONENT24 as it is likely you get
       //the best precision anyway
       depthTexture->init(1024, 1024, GL_DEPTH_COMPONENT);//SIZE MUST BE THE SAME FOR THE LIGHTS
@@ -651,7 +646,7 @@ namespace coil {
       depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
       
       //Build color texture
-      std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2DMultisampled(_shadowSamples));
+      std::shared_ptr<magnet::GL::Texture2D> colorTexture(new magnet::GL::Texture2D());
       colorTexture->init(1024, 1024, GL_RG32F);//SIZE MUST BE THE SAME FOR THE LIGHTS
       colorTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       colorTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -726,7 +721,6 @@ namespace coil {
     _pointLightShader.deinit();	
     _shadowLightShader.deinit();	
     _ambientLightShader.deinit();
-    _VSMShader.deinit();
     _downsampleShader.deinit();
     _blurShader.deinit();
     _copyShader.deinit();
@@ -1017,7 +1011,6 @@ namespace coil {
 	_shadowLightShader["shadowMatrix"]
 	  = light->getShadowTextureMatrix() * _camera.getViewMatrix().inverse();
 	_shadowLightShader["samples"] = GLint(_samples);
-	_shadowLightShader["shadowsamples"] = GLint(_shadowSamples);
 	_shadowLightShader["lightColor"] = light->getLightColor();
 	_shadowLightShader["lightSpecularExponent"] = light->getSpecularExponent();
 	_shadowLightShader["lightSpecularFactor"] = light->getSpecularFactor();

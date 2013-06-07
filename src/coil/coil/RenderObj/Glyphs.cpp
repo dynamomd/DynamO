@@ -310,8 +310,7 @@ namespace coil {
     _gtkOptList->pack_start(*separator, false, false, 0);
 
     _colorSel.reset(new AttributeColorSelector);
-    _colorSel->buildEntries("Color Data Field:", _ds, 1, 4, 
-			    Attribute::INTENSIVE | Attribute::EXTENSIVE, 4);
+    _colorSel->buildEntries("Color Data Field:", _ds, 1, 4, Attribute::INTENSIVE | Attribute::EXTENSIVE, 4, Attribute::DEFAULT_GLYPH_COLOUR);
     _gtkOptList->pack_start(*_colorSel, false, false);
 
     separator = Gtk::manage(new Gtk::HSeparator); 
@@ -319,9 +318,7 @@ namespace coil {
     _gtkOptList->pack_start(*separator, false, false, 0);
 
     _orientSel.reset(new AttributeOrientationSelector);
-    _orientSel->buildEntries("Orientation Data Field:", _ds, 3, 4, 
-			     Attribute::INTENSIVE | Attribute::EXTENSIVE, 4,
-			     Attribute::DEFAULT_GLYPH_ORIENTATION);
+    _orientSel->buildEntries("Orientation Data Field:", _ds, 3, 4, Attribute::INTENSIVE | Attribute::EXTENSIVE, 4, Attribute::DEFAULT_GLYPH_ORIENTATION);
     _gtkOptList->pack_start(*_orientSel, false, false);
 
     glyph_type_changed();

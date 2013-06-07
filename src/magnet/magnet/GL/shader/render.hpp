@@ -107,10 +107,7 @@ layout (location = 0) out vec4 moments_out;
 
 void main()
 {
-  float depth = -position.z;
-  float AM = ProjectionMatrix[2].z;
-  float BM = ProjectionMatrix[3].z;
-  float moment1 = 0.5 * (-AM * depth + BM) / depth + 0.5;
+  float moment1 = length(position);
   float moment2 = moment1 * moment1;
   float dx = dFdx(moment1);
   float dy = dFdy(moment1);

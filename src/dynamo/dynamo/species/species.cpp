@@ -97,7 +97,7 @@ namespace dynamo {
       (*_renderData)["Mass"].flagNewData();
     }
 
-    _renderData->addAttribute("ID", coil::Attribute::INTENSIVE, 1);
+    _renderData->addAttribute("ID", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_COLOUR, 1);
     { 
       size_t nsph = dynamic_cast<const GlyphRepresentation&>(*getIntPtr()).glyphsPerParticle();    
       std::vector<GLfloat>& mass = (*_renderData)["ID"];

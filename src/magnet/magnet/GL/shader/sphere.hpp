@@ -206,10 +206,7 @@ void main()
   vec4 screen_pos = ProjectionMatrix * vec4(world_pos, 1.0);
   gl_FragDepth = (screen_pos.z / screen_pos.w + 1.0) / 2.0;
 
-  float depth = -world_pos.z;
-  float AM = ProjectionMatrix[2].z;
-  float BM = ProjectionMatrix[3].z;
-  float moment1 = 0.5 * (-AM * depth + BM) / depth + 0.5;
+  float moment1 = length(world_pos);
   float moment2 = moment1 * moment1;
   float dx = dFdx(moment1);
   float dy = dFdy(moment1);
