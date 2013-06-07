@@ -198,11 +198,9 @@ void main()
   //check if the first fragment is in shadow
   vec3 pos0 = texelFetch(positionTex, ivec2(gl_FragCoord.xy), 0).xyz;
   vec4 ShadowCoord = shadowMatrix * vec4(pos0, 1.0);
-  float ShadowCoordW = ShadowCoord.w;
-  ShadowCoord = ShadowCoord / ShadowCoord.w;
+  float shadow = float(ShadowCoord.z >= 0);
   float lightdistance = length(lightPosition - pos0);
-  float shadow = chebyshevUpperBound(texture(shadowTex, ShadowCoord.xy).rg, lightdistance);
-  
+  shadow *= chebyshevUpperBound(texture(shadowTex, ShadowCoord.xy / ShadowCoord.w).rg, lightdistance);
   //Now calculate the color from the samples
   vec4 color_sum = vec4(0.0);
   for (int sample_id = 0; sample_id < samples; sample_id++)

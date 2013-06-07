@@ -584,7 +584,7 @@ namespace coil {
     Vector up = Vector(0,1,0);
     
     {
-      std::shared_ptr<RLight> light(new RLight("Light 1", Vector(0, 1, 0) * light_distance, look_at, 30.0, 10000.0f, up, _camera.getRenderScale()));
+      std::shared_ptr<RLight> light(new RLight("Light 1", Vector(0, 1, 0) * light_distance, look_at, 8.0, 10000.0f, up, _camera.getRenderScale()));
       _renderObjsTree._renderObjects.push_back(light);
     }
   
@@ -996,6 +996,8 @@ namespace coil {
 	    obj->glRender(*light, RenderObj::SHADOW);
 
 	_shadowbuffer.detach();
+
+	//_shadowbuffer.getColorTexture(0)->genMipmaps();
 	_shadowbuffer.getColorTexture(0)->bind(7);
 
 	//Change back to the hdr FBO
