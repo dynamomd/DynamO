@@ -85,7 +85,7 @@ namespace dynamo {
     inline void clearPEL(const size_t& ID) { Min[ID+1].clear(); }
     inline void popNextPELEvent(const size_t& ID) { Min[ID+1].pop(); }
     inline void popNextEvent() { Min[CBT[1]].pop(); }
-    inline bool nextPELEmpty() const { return Min[CBT[1]].empty(); }
+    inline bool empty() const { return Min[CBT[1]].empty(); }
 
     inline void push(const Event& tmpVal, const size_t& pID)
     {

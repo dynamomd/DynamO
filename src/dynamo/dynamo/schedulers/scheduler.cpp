@@ -186,7 +186,7 @@ namespace dynamo {
     sorter->sort();
 
 #ifdef DYNAMO_DEBUG
-    if (sorter->nextPELEmpty())
+    if (sorter->empty())
       M_throw() << "Next particle list is empty but top of list!";
 #endif
 
@@ -270,7 +270,7 @@ namespace dynamo {
 	  IntEvent Event(Sim->getEvent(p1, p2));
 	
 #ifdef DYNAMO_DEBUG
-	  if (sorter->nextPELEmpty())
+	  if (sorter->empty())
 	    M_throw() << "The next PEL is empty, cannot perform the comparison to see if this event is out of sequence";
 #endif
 	  next_event = sorter->next();
@@ -431,11 +431,11 @@ namespace dynamo {
 	//Not valid, update the list
 	sorter->popNextEvent();
 	sorter->update(next_event.first);
-	sorter->sort();
-      
+	sorter->sort();      
 	next_event = sorter->next();
+
 #ifdef DYNAMO_DEBUG
-	if (sorter->nextPELEmpty())
+	if (sorter->empty())
 	  M_throw() << "Next particle list is empty but top of list!";
 #endif
       }

@@ -35,20 +35,20 @@ namespace dynamo {
   {
   public:
     virtual ~FEL() {}
-    virtual void   resize(const size_t&)                     = 0;
-    virtual void   clear()                                   = 0;
-    virtual void   init()                                    = 0;
-    virtual void   rebuild()                                 = 0;
-    virtual void   stream(const double&)                     = 0;
-    virtual void   push(const Event&, const size_t&)         = 0;
-    virtual void   update(const size_t&)                     = 0;
-    virtual std::pair<size_t, Event> next() const            = 0;
-    virtual void   sort()                                    = 0;
-    virtual void   rescaleTimes(const double&)               = 0;
-    virtual void   clearPEL(const size_t&)                   = 0;
-    virtual void   popNextPELEvent(const size_t&)            = 0;
-    virtual void   popNextEvent()                            = 0;
-    virtual bool nextPELEmpty() const                        = 0;
+    virtual void   resize(const size_t&) = 0;
+    virtual void   clear() = 0;
+    virtual void   init() = 0;
+    virtual bool   empty() const = 0;
+    virtual void   rebuild() = 0;
+    virtual void   stream(const double&) = 0;
+    virtual void   push(const Event&, const size_t&) = 0;
+    virtual void   update(const size_t&) = 0;
+    virtual std::pair<size_t, Event> next() const = 0;
+    virtual void   sort() = 0;
+    virtual void   rescaleTimes(const double&) = 0;
+    virtual void   clearPEL(const size_t&) = 0;
+    virtual void   popNextPELEvent(const size_t&) = 0;
+    virtual void   popNextEvent() = 0;
 
     static shared_ptr<FEL> getClass(const magnet::xml::Node&);
 

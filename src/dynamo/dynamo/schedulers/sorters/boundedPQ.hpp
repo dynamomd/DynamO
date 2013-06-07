@@ -243,7 +243,7 @@ namespace dynamo {
     inline void clearPEL(const size_t& ID) { Min[ID+1].data.clear(); }
     inline void popNextPELEvent(const size_t& ID) { Min[ID+1].data.pop(); }
     inline void popNextEvent() { Min[CBT[1]].data.pop(); }
-    inline bool nextPELEmpty() const { return Min[CBT[1]].data.empty(); }
+    virtual bool empty() const { return Min[CBT[1]].data.empty(); }
 
     virtual std::pair<size_t, Event> next() const
     {
