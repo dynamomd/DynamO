@@ -344,12 +344,10 @@ namespace coil {
 
     lookAt(Vector(0,0,0));
 
-    try {
-      magnet::math::Vector vec;
-      vec[0] = boost::lexical_cast<float>(_positionXEntry->get_text());
-      vec[1] = boost::lexical_cast<float>(_positionYEntry->get_text());
-      vec[2] = boost::lexical_cast<float>(_positionZEntry->get_text());
+    magnet::math::Vector vec = getPosition();
+    try { vec[0] = boost::lexical_cast<float>(_positionXEntry->get_text());} catch(...) {}
+    try { vec[1] = boost::lexical_cast<float>(_positionYEntry->get_text());} catch(...) {}
+    try { vec[2] = boost::lexical_cast<float>(_positionZEntry->get_text());} catch(...) {}
       magnet::GL::Camera::setPosition(vec);
-    } catch (...) {}
   }
 }

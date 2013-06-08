@@ -75,7 +75,7 @@ namespace coil {
     _snapshot(false),
     _record(false),
     _PNGFileFormat(true),
-    _fpsLimit(true),
+    _fpsLimit(false),
     _fpsLimitValue(25),
     _filterEnable(true),
     _stereoMode(false),
@@ -144,8 +144,7 @@ namespace coil {
       = Glib::signal_timeout().connect_seconds(sigc::mem_fun(this, &CLGLWindow::GTKTick), 1);
 
     //Timeout for render
-    _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 
-						    1000 / _fpsLimitValue, Glib::PRIORITY_DEFAULT_IDLE);
+    _renderTimeout = Glib::signal_timeout().connect(sigc::mem_fun(this, &CLGLWindow::CallBackIdleFunc), 10, Glib::PRIORITY_DEFAULT_IDLE);
 
     ////////Store the control window
     _refXml->get_widget("controlWindow", controlwindow);
