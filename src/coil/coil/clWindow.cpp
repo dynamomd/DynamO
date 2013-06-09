@@ -974,6 +974,7 @@ namespace coil {
     std::vector<std::shared_ptr<RLight> > lights;
 
     //Perform the shadow casting lights
+    glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     for (auto& light_obj :_renderObjsTree._renderObjects)
       {
 	std::shared_ptr<RLight> light = std::dynamic_pointer_cast<RLight>(light_obj);
@@ -983,7 +984,6 @@ namespace coil {
 	_hdrBuffer.detach();
 	//Render each light's shadow map
 	_shadowbuffer.attach();
-	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 	_glContext->setDepthTest(true);
 	glDepthMask(GL_TRUE);
 	_glContext->setBlend(false);
@@ -1243,8 +1243,6 @@ namespace coil {
     //////////////Interface draw////////////////////////
     //We need alpha blending for the overlays
     _glContext->setBlend(true);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     lastFBO->attach();
     //Enter the interface draw for all objects
     _cairo_screen.clear();
