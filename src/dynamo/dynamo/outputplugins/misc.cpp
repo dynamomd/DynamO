@@ -389,11 +389,8 @@ namespace dynamo {
 	 << std::endl;
 
     const double V = Sim->getSimVolume();
-
     const Matrix collP = collisionalP / (V * Sim->systemTime);
-    
-    const Matrix P = (_kineticP.mean() + collisionalP / Sim->systemTime) 
-      / V;
+    const Matrix P = (_kineticP.mean() / V) + collP;
 
     XML << tag("Misc")
 	<< tag("Density")
@@ -545,9 +542,7 @@ namespace dynamo {
       std::vector<magnet::math::LogarithmicTimeCorrelator<Matrix>::Data>
 	data = _viscosity.getAveragedCorrelator();
       
-      double inv_units = 1.0
-	/ (Sim->units.unitTime() * Sim->units.unitViscosity() * 2.0 * getMeankT()
-	   * V);
+      double inv_units = 1.0 / (Sim->units.unitTime() * Sim->units.unitViscosity() * 2.0 * getMeankT() * V);
 
       XML << "0 0 0 0 0 0 0 0 0 0 0\n";
       for (size_t i(0); i < data.size(); ++i)
@@ -557,7 +552,7 @@ namespace dynamo {
 	  
 	  for (size_t j(0); j < 3; ++j)
 	    for (size_t k(0); k < 3; ++k)
-	      XML << (data[i].value(j,k) - std::pow(data[i].time * P(j, k) * V, 2)) * inv_units << " ";
+	      XML << (data[i].value(j, k) - std::pow(data[i].time * P(j,k) * V, 2.0)) * inv_units << " ";
 	  XML << "\n";
 	}
     }
