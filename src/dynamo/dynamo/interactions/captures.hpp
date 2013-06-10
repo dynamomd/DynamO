@@ -167,9 +167,6 @@ namespace dynamo {
       return Map::operator[](Map::key_type(p1, p2));
     }
 
-    //! \brief Returns the total internal energy stored in this Interaction.
-    virtual double getInternalEnergy() const = 0;
-
     /*! \brief This function tells an uninitialised capture map to
         forget the data loaded from the xml file.
      */

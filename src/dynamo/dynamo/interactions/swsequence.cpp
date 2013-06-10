@@ -152,21 +152,15 @@ namespace dynamo {
     //Once the capture maps are loaded just iterate through that determining energies
     double Energy = 0.0;
     for (const ICapture::value_type& IDs : *this)
-      Energy += alphabet
-      [sequence[IDs.first.first % sequence.size()]]
-      [sequence[IDs.first.second % sequence.size()]] 
-      * 0.5 * (_unitEnergy->getProperty(IDs.first.first)
-	       +_unitEnergy->getProperty(IDs.first.second));
-  
-    return -Energy; 
+      Energy += getInternalEnergy(Sim->particles[IDs.first.first], Sim->particles[IDs.first.second]);
+    return Energy;
   }
 
   double 
   ISWSequence::getInternalEnergy(const Particle& p1, const Particle& p2) const
   {
     return -alphabet[sequence[p1.getID() % sequence.size()]][sequence[p2.getID() % sequence.size()]]
-      * 0.5 * (_unitEnergy->getProperty(p1.getID())
-	       +_unitEnergy->getProperty(p2.getID()))
+      * 0.5 * (_unitEnergy->getProperty(p1.getID()) + _unitEnergy->getProperty(p2.getID()))
       * isCaptured(p1, p2);
   }
 

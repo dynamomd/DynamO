@@ -86,18 +86,17 @@ namespace dynamo {
     _KE.init(Sim->dynamics->getSystemKineticEnergy());
     _internalE.init(Sim->calcInternalEnergy());
 
+
     dout << "Particle Count " << Sim->N
 	 << "\nSim Unit Length " << Sim->units.unitLength()
 	 << "\nSim Unit Time " << Sim->units.unitTime()
-	 << "\nDensity " << Sim->getNumberDensity()
-      * Sim->units.unitVolume()
+	 << "\nDensity " << Sim->getNumberDensity() * Sim->units.unitVolume()
 	 << "\nPacking Fraction " << Sim->getPackingFraction()
 	 << "\nTemperature " << getCurrentkT() / Sim->units.unitEnergy()
 	 << "\nNo. of Species " << Sim->species.size()
-	 << "\nSimulation box length <x y z> < ";
-    for (size_t iDim = 0; iDim < NDIM; iDim++)
-      dout  << Sim->primaryCellSize[iDim] / Sim->units.unitLength() << " ";
-    dout << ">\n";
+	 << "\nSimulation box length "
+	 << Vector(Sim->primaryCellSize / Sim->units.unitLength()).toString()
+	 << "\n";
 
     Matrix kineticP;
     Vector thermalConductivityFS(0,0,0);
@@ -106,19 +105,28 @@ namespace dynamo {
     _speciesMasses.clear();
     _speciesMasses.resize(Sim->species.size());
 
+    _internalEnergy.clear();
+    _internalEnergy.resize(Sim->N, 0);
+
+    for (auto ptr1 = Sim->particles.begin(); ptr1 != Sim->particles.end(); ++ptr1)
+      for (auto ptr2 = ptr1; ptr2 != Sim->particles.end(); ++ptr2)
+	{
+	  double energy = 0.5 * Sim->getInteraction(*ptr1, *ptr2)->getInternalEnergy(*ptr1, *ptr2);
+	  _internalEnergy[ptr1->getID()] += energy;
+	  _internalEnergy[ptr2->getID()] += energy;
+	}
+
     for (const Particle& part : Sim->particles)
       {
 	const Species& sp = *(Sim->species[part]);
 	const double mass = sp.getMass(part.getID());
-
 	kineticP += mass * Dyadic(part.getVelocity(), part.getVelocity());
 	_speciesMasses[sp.getID()] += mass;
 	_speciesMomenta[sp.getID()] += mass * part.getVelocity();
-	thermalConductivityFS 
-	  += part.getVelocity() * Sim->dynamics->getParticleKineticEnergy(part);
+	thermalConductivityFS += part.getVelocity() * (Sim->dynamics->getParticleKineticEnergy(part) + _internalEnergy[part.getID()]);
       }
 
-    Vector sysMomentum(0,0,0);
+    Vector sysMomentum(0, 0, 0);
     _systemMass = 0;
     for (size_t i(0); i < Sim->species.size(); ++i)
       {
@@ -241,32 +249,32 @@ namespace dynamo {
 
     for (const ParticleEventData& PDat : NDat.L1partChanges)
       {
+	_KE += PDat.getDeltaKE();
+	_internalE += PDat.getDeltaU();
+	//This must be updated before p1E is calculated
+	_internalEnergy[PDat.getParticleID()] += PDat.getDeltaU();
 	const Particle& part = Sim->particles[PDat.getParticleID()];
-	const double p1E = Sim->dynamics->getParticleKineticEnergy(Sim->particles[PDat.getParticleID()]);
+	const double p1E = Sim->dynamics->getParticleKineticEnergy(Sim->particles[PDat.getParticleID()]) + _internalEnergy[PDat.getParticleID()];
+	const double p1deltaE = PDat.getDeltaKE() + PDat.getDeltaU();
 	const Species& species = *Sim->species[PDat.getSpeciesID()];
 	double mass = species.getMass(part.getID());
 	Vector delP1 = mass * (part.getVelocity() - PDat.getOldVel());
 
         _singleEvents += (PDat.getType() != VIRTUAL);
 	_virtualEvents += (PDat.getType() == VIRTUAL);
-
-	_KE += PDat.getDeltaKE();
-	_internalE += PDat.getDeltaU();
 	
-	_kineticP += mass * (Dyadic(part.getVelocity(), part.getVelocity())
-			     - Dyadic(PDat.getOldVel(), PDat.getOldVel()));
-
+	_kineticP += mass * (Dyadic(part.getVelocity(), part.getVelocity()) - Dyadic(PDat.getOldVel(), PDat.getOldVel()));
 	_sysMomentum += delP1;
 	_speciesMomenta[species.getID()] += delP1;
-
-	thermalDel += part.getVelocity() * p1E
-	  - PDat.getOldVel() * (p1E - PDat.getDeltaKE());
+	thermalDel += part.getVelocity() * p1E - PDat.getOldVel() * (p1E - p1deltaE);
       }
 
     for (const PairEventData& PDat : NDat.L2partChanges)
       {
 	_KE += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
 	_internalE += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
+	_internalEnergy[PDat.particle1_.getParticleID()] += PDat.particle1_.getDeltaU();
+	_internalEnergy[PDat.particle2_.getParticleID()] += PDat.particle2_.getDeltaU();
 
 	_dualEvents += (PDat.getType() != VIRTUAL);
 	_virtualEvents += (PDat.getType() == VIRTUAL);
@@ -275,13 +283,14 @@ namespace dynamo {
 	const Particle& part2 = Sim->particles[PDat.particle2_.getParticleID()];
 	const Species& sp1 = *Sim->species[PDat.particle1_.getSpeciesID()];
 	const Species& sp2 = *Sim->species[PDat.particle2_.getSpeciesID()];
-	const double p1E = Sim->dynamics->getParticleKineticEnergy(part1);
-	const double p2E = Sim->dynamics->getParticleKineticEnergy(part2);
+	const double p1E = Sim->dynamics->getParticleKineticEnergy(part1) + _internalEnergy[PDat.particle1_.getParticleID()];
+	const double p1deltaE = PDat.particle1_.getDeltaKE() + PDat.particle1_.getDeltaU();
+	const double p2deltaE = PDat.particle2_.getDeltaKE() + PDat.particle2_.getDeltaU();
+	const double p2E = Sim->dynamics->getParticleKineticEnergy(part2) + _internalEnergy[PDat.particle2_.getParticleID()];
 	const double mass1 = sp1.getMass(part1.getID());
 	const double mass2 = sp2.getMass(part2.getID());
 
-	Vector delP = mass1 * (part1.getVelocity() - PDat.particle1_.getOldVel());
-
+	const Vector delP = mass1 * (part1.getVelocity() - PDat.particle1_.getOldVel());
 	collisionalP += magnet::math::Dyadic(PDat.rij, delP);
 
 	_kineticP
@@ -295,14 +304,15 @@ namespace dynamo {
 	_speciesMomenta[sp1.getID()] += delP;
 	_speciesMomenta[sp2.getID()] -= delP;
 
-	Vector thermalImpulse = PDat.rij * PDat.particle1_.getDeltaKE();
+	const Vector thermalImpulse = PDat.rij * p1deltaE;
+
 	_thermalConductivity.addImpulse(thermalImpulse);
+
 	for (size_t spid1(0); spid1 < Sim->species.size(); ++spid1)
 	  _thermalDiffusion[spid1].addImpulse(thermalImpulse, Vector(0,0,0));
 
 	thermalDel += part1.getVelocity() * p1E + part2.getVelocity() * p2E
-	  - PDat.particle1_.getOldVel() * (p1E - PDat.particle1_.getDeltaKE())
-	  - PDat.particle2_.getOldVel() * (p2E - PDat.particle2_.getDeltaKE());
+	  - PDat.particle1_.getOldVel() * (p1E - p1deltaE) - PDat.particle2_.getOldVel() * (p2E - p2deltaE);
       }
 
     _thermalConductivity.setFreeStreamValue

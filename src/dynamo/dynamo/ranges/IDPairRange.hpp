@@ -33,8 +33,7 @@ namespace dynamo {
 
     static IDPairRange* getClass(const magnet::xml::Node&, const dynamo::Simulation*);
     
-    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML,
-					      const IDPairRange& range);
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const IDPairRange& range);
  protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const = 0;
   };

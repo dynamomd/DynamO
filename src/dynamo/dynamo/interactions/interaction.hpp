@@ -84,7 +84,7 @@ namespace dynamo {
 
     /*! \brief Returns the internal energy "stored" in this interaction.
      */
-    virtual double getInternalEnergy() const = 0; 
+    virtual double getInternalEnergy() const { return 0; }
 
     /*! \brief Returns the internal energy "stored" in this
      interaction by the two passed particles.

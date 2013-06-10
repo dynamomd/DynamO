@@ -96,6 +96,8 @@ namespace dynamo {
     std::vector<magnet::math::LogarithmicTimeCorrelator<Vector> > _thermalDiffusion;
     std::vector<magnet::math::LogarithmicTimeCorrelator<Vector> > _mutualDiffusion;
 
+    std::vector<double> _internalEnergy;
+
     std::vector<double> _speciesMasses;
     std::vector<Vector> _speciesMomenta;
     double _systemMass;

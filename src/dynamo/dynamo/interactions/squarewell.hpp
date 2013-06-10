@@ -63,12 +63,10 @@ namespace dynamo {
   
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
+    virtual double getInternalEnergy(const Particle&, const Particle&) const;
     virtual double getInternalEnergy() const;
 
     virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
- 
-    virtual double getInternalEnergy(const Particle&, const Particle&) const;
-
   protected:
     ISquareWell(dynamo::Simulation* tmp, IDPairRange* nR):
       ICapture(tmp,nR) {}

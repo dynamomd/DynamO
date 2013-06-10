@@ -45,8 +45,6 @@ namespace dynamo {
     virtual Vector getGlyphSize(size_t ID, size_t subID) const;
     virtual Vector getGlyphPosition(size_t ID, size_t subID) const;
 
-    virtual double getInternalEnergy() const { return 0.0; }
-
     virtual void initialise(size_t);
 
     virtual double maxIntDist() const;

@@ -109,14 +109,9 @@ namespace dynamo {
   double 
   IStepped::getInternalEnergy() const 
   { 
-    //Once the capture maps are loaded just iterate through that determining energies
     double Energy = 0.0;
-
     for (const ICapture::value_type& IDs : *this)
-      Energy += (*_potential)[IDs.second - 1].second
-      * 0.5 * (_energyScale->getProperty(IDs.first.first)
-	       + _energyScale->getProperty(IDs.first.second));
-  
+      Energy += getInternalEnergy(Sim->particles[IDs.first.first], Sim->particles[IDs.first.second]);
     return Energy; 
   }
 
@@ -124,12 +119,8 @@ namespace dynamo {
   IStepped::getInternalEnergy(const Particle& p1, const Particle& p2) const
   {
     ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1, p2));
-
-    if (capstat == ICapture::end())
-      return 0;
-
+    if (capstat == ICapture::end()) return 0;
     const double energy_scale = 0.5 * (_energyScale->getProperty(p1.getID()) + _energyScale->getProperty(p2.getID()));
-    
     return (*_potential)[capstat->second - 1].second * energy_scale;
   }
 

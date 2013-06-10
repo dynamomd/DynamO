@@ -63,8 +63,6 @@ namespace dynamo {
 
     virtual size_t validateState(bool textoutput = true, size_t max_reports = std::numeric_limits<size_t>::max()) const;
  
-    virtual double getInternalEnergy() const { return 0.0; }
-
   protected:
 
     shared_ptr<Property> _diameter;

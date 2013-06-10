@@ -285,12 +285,9 @@ namespace dynamo {
   { 
     //Once the capture maps are loaded just iterate through that determining energies
     double Energy = 0.0;
-
     for (const ICapture::value_type& IDs : *this)
-      Energy += 0.5 * (_wellDepth->getProperty(IDs.first.first)
-		       +_wellDepth->getProperty(IDs.first.second));
-  
-    return -Energy; 
+      Energy += getInternalEnergy(Sim->particles[IDs.first.first], Sim->particles[IDs.first.second]);
+    return Energy; 
   }
 
   double 

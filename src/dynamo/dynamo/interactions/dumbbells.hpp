@@ -51,8 +51,6 @@ namespace dynamo {
 
     void operator<<(const magnet::xml::Node&);
 
-    virtual double getInternalEnergy() const { return 0; }
-
     virtual void initialise(size_t);
 
     virtual double maxIntDist() const;
