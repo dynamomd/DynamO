@@ -329,8 +329,9 @@ namespace dynamo {
 	 << cellLatticeWidth[1] / Sim->units.unitLength()
 	 << "," 
 	 << cellLatticeWidth[2] / Sim->units.unitLength()
-	 << "\nRequested supported length " << maxdiam / Sim->units.unitLength()
-	 << "\nSupported length           " << getMaxSupportedInteractionLength() / Sim->units.unitLength()
+	 << "\nRequested interaction range " << overlink * maxdiam / Sim->units.unitLength();
+    
+    dout << "\nSupported range             " << getMaxSupportedInteractionLength() / Sim->units.unitLength()
 	 << "\nVector Size <N>  " << sizeReq << std::endl;
   
     //Add the particles section
