@@ -974,7 +974,6 @@ namespace coil {
     std::vector<std::shared_ptr<RLight> > lights;
 
     //Perform the shadow casting lights
-    glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     for (auto& light_obj :_renderObjsTree._renderObjects)
       {
 	std::shared_ptr<RLight> light = std::dynamic_pointer_cast<RLight>(light_obj);
@@ -988,6 +987,7 @@ namespace coil {
 	glDepthMask(GL_TRUE);
 	_glContext->setBlend(false);
 
+	glClearColor(light->getZFar(), light->getZFar() *light->getZFar(), 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	for (auto& obj :_renderObjsTree._renderObjects)
