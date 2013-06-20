@@ -162,8 +162,6 @@ namespace dynamo {
       return testGeneratePlugin<OPSHCrystal>(Sim, XML);
     else if (!Name.compare("SCParameter"))
       return testGeneratePlugin<OPSCParameter>(Sim, XML);
-    else if (!Name.compare("PlateMotion"))
-      return testGeneratePlugin<OPPlateMotion>(Sim, XML);
     else if (!Name.compare("MSDOrientational"))
       return testGeneratePlugin<OPMSDOrientational>(Sim, XML);
     else if (!Name.compare("MSDOrientationalCorrelator"))

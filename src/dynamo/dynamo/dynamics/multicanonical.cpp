@@ -162,12 +162,6 @@ namespace dynamo {
     particle1.getVelocity() -= retVal.impulse / p1Mass;
     particle2.getVelocity() += retVal.impulse / p2Mass;
   
-    retVal.particle1_.setDeltaKE(0.5 * p1Mass * (particle1.getVelocity().nrm2() 
-						 - retVal.particle1_.getOldVel().nrm2()));
-  
-    retVal.particle2_.setDeltaKE(0.5 * p2Mass * (particle2.getVelocity().nrm2() 
-						 - retVal.particle2_.getOldVel().nrm2()));
-
     return retVal;
   }
 

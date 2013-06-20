@@ -289,10 +289,6 @@ namespace dynamo {
 	    M_throw() << "Bad event type!";
 	  }
 	  
-	EDat.setDeltaKE(0.5 * Sim->species[EDat.getSpeciesID()]->getMass(part.getID())
-			* (part.getVelocity().nrm2() 
-			   - EDat.getOldVel().nrm2()));
-
 	SDat.L1partChanges.push_back(EDat);
       }
 

@@ -285,8 +285,6 @@ namespace dynamo {
 	  p2.getVelocity() += retval.impulse / m2;
 	  Sim->dynamics->getRotData(p1).angularVelocity -= (r1 ^ retval.impulse) / I1;
 	  Sim->dynamics->getRotData(p2).angularVelocity += (r2 ^ retval.impulse) / I2;
-	  retval.particle1_.setDeltaKE(0.5 * m1 * (p1.getVelocity().nrm2() - retval.particle1_.getOldVel().nrm2()));
-	  retval.particle2_.setDeltaKE(0.5 * m2 * (p2.getVelocity().nrm2() - retval.particle2_.getOldVel().nrm2()));
 	  break;
 	}
       case NBHOOD_IN:

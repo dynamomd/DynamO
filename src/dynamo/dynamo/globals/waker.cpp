@@ -146,10 +146,6 @@ namespace dynamo {
     part.getVelocity() = newVel;
     part.setState(Particle::DYNAMIC);
       
-    EDat.setDeltaKE(0.5 * Sim->species[EDat.getSpeciesID()]->getMass(part.getID())
-		    * (part.getVelocity().nrm2() 
-		       - EDat.getOldVel().nrm2()));
-      
     (*Sim->_sigParticleUpdate)(EDat);
       
     for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)

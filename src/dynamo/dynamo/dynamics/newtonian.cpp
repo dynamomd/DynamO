@@ -130,8 +130,6 @@ namespace dynamo {
     for (size_t iDim = 0; iDim < dimensions; iDim++)
       part.getVelocity()[iDim] = norm_dist(Sim->ranGenerator) * factor;
 
-    tmpDat.setDeltaKE(0.5 * mass * (part.getVelocity().nrm2() - tmpDat.getOldVel().nrm2()));
-  
     return tmpDat;
   }
 
@@ -241,8 +239,6 @@ namespace dynamo {
   
     part.getVelocity() -= (1+e) * (vNorm | part.getVelocity()) * vNorm;
   
-    retVal.setDeltaKE(0.5 * Sim->species[retVal.getSpeciesID()]->getMass(part.getID())
-		      * (part.getVelocity().nrm2() - retVal.getOldVel().nrm2()));
     return retVal; 
   }
 
@@ -271,8 +267,6 @@ namespace dynamo {
 		  //This removes the original normal component
 		  -(part.getVelocity() | vNorm));
 
-    tmpDat.setDeltaKE(0.5 * mass * (part.getVelocity().nrm2() - tmpDat.getOldVel().nrm2()));
-  
     return tmpDat; 
   }
 
@@ -393,11 +387,6 @@ namespace dynamo {
     p1.getVelocity() -= retVal.impulse / p1Mass;
     p2.getVelocity() += retVal.impulse / p2Mass;
 
-    retVal.particle1_.setDeltaKE(0.5 * p1Mass * (p1.getVelocity().nrm2() 
-						 - retVal.particle1_.getOldVel().nrm2()));
-  
-    retVal.particle2_.setDeltaKE(0.5 * p2Mass * (p2.getVelocity().nrm2() 
-						 - retVal.particle2_.getOldVel().nrm2()));
     return retVal;
   }
 
@@ -456,12 +445,6 @@ namespace dynamo {
 	  retVal.impulse *= !isInfInf;
 	}
 
-    retVal.particle1_.setDeltaKE(0.5 * p1Mass * (particle1.getVelocity().nrm2()
-						 - retVal.particle1_.getOldVel().nrm2()));
-  
-    retVal.particle2_.setDeltaKE(0.5 * p2Mass * (particle2.getVelocity().nrm2() 
-						 - retVal.particle2_.getOldVel().nrm2()));
-
     lastCollParticle1 = particle1.getID();
     lastCollParticle2 = particle2.getID();
     lastAbsoluteClock = Sim->systemTime;
@@ -507,12 +490,6 @@ namespace dynamo {
     //This function must edit particles so it overrides the const!
     particle1.getVelocity() -= retVal.impulse / p1Mass;
     particle2.getVelocity() += retVal.impulse / p2Mass;
-
-    retVal.particle1_.setDeltaKE(0.5 * p1Mass * (particle1.getVelocity().nrm2() 
-						 - retVal.particle1_.getOldVel().nrm2()));
-  
-    retVal.particle2_.setDeltaKE(0.5 * p2Mass * (particle2.getVelocity().nrm2() 
-						 - retVal.particle2_.getOldVel().nrm2()));
 
     return retVal;
   }
@@ -581,11 +558,6 @@ namespace dynamo {
 				 eType);
 
 	Sim->particles[ID].getVelocity() -= dP / structmass1;
-      
-	tmpval.setDeltaKE(0.5 * Sim->species[tmpval.getSpeciesID()]->getMass(ID)
-			  * (Sim->particles[ID].getVelocity().nrm2() 
-			     - tmpval.getOldVel().nrm2()));
-      
 	retVal.L1partChanges.push_back(tmpval);
       }
 
@@ -597,11 +569,6 @@ namespace dynamo {
 	   eType);
 
 	Sim->particles[ID].getVelocity() += dP / structmass2;
-      
-	tmpval.setDeltaKE(0.5 * Sim->species[tmpval.getSpeciesID()]->getMass(ID)
-			  * (Sim->particles[ID].getVelocity().nrm2() 
-			     - tmpval.getOldVel().nrm2()));
-  
 	retVal.L1partChanges.push_back(tmpval);
       }
   
@@ -690,10 +657,6 @@ namespace dynamo {
 
 	Sim->particles[ID].getVelocity() -= dP / structmass1;
       
-	tmpval.setDeltaKE(0.5 * Sim->species[tmpval.getSpeciesID()]->getMass(ID)
-			  * (Sim->particles[ID].getVelocity().nrm2() 
-			     - tmpval.getOldVel().nrm2()));
-        
 	retVal.L1partChanges.push_back(tmpval);
       }
 
@@ -705,11 +668,6 @@ namespace dynamo {
 	   eType);
 
 	Sim->particles[ID].getVelocity() += dP / structmass2;
-      
-	tmpval.setDeltaKE(0.5 * Sim->species[tmpval.getSpeciesID()]->getMass(ID)
-			  * (Sim->particles[ID].getVelocity().nrm2() 
-			     - tmpval.getOldVel().nrm2()));
-      
 	retVal.L1partChanges.push_back(tmpval);
       }
   
@@ -769,9 +727,6 @@ namespace dynamo {
     particle1.getVelocity() -= retVal.impulse / p1Mass;
     particle2.getVelocity() += retVal.impulse / p2Mass;
   
-    retVal.particle1_.setDeltaKE(0.5 * p1Mass * (particle1.getVelocity().nrm2() - retVal.particle1_.getOldVel().nrm2()));
-    retVal.particle2_.setDeltaKE(0.5 * p2Mass * (particle2.getVelocity().nrm2() - retVal.particle2_.getOldVel().nrm2()));
-
     return retVal;
   }
 
@@ -1109,10 +1064,6 @@ namespace dynamo {
 
     part.getVelocity() -=  delP / pmass;
 
-    retVal.setDeltaKE(0.5 * pmass
-		      * (part.getVelocity().nrm2() 
-			 - retVal.getOldVel().nrm2()));
-  
     //Don't progress if you want to not change the plate data
     if (strongPlate) return retVal;
 
@@ -1162,10 +1113,6 @@ namespace dynamo {
     rij /= rij.nrm();
 
     part.getVelocity() -= (1+e) * (rij | part.getVelocity()) * rij;
-  
-    retVal.setDeltaKE(0.5 * Sim->species[retVal.getSpeciesID()]->getMass(part.getID())
-		      * (part.getVelocity().nrm2() 
-			 - retVal.getOldVel().nrm2()));
   
     return retVal; 
   }
@@ -1307,9 +1254,6 @@ namespace dynamo {
 
     retVal.rvdot = (retVal.rij | retVal.vijold);
 
-    double KE1before = getParticleKineticEnergy(particle1);
-    double KE2before = getParticleKineticEnergy(particle2);
-
     SFLines fL(retVal.rij, retVal.vijold,
 	       orientationData[particle1.getID()].angularVelocity,
 	       orientationData[particle2.getID()].angularVelocity,
@@ -1343,9 +1287,6 @@ namespace dynamo {
 
     orientationData[particle2.getID()].angularVelocity 
       += (cp.second / inertia) * (fL.getu2() ^ retVal.impulse);
-
-    retVal.particle1_.setDeltaKE(getParticleKineticEnergy(particle1) - KE1before);
-    retVal.particle2_.setDeltaKE(getParticleKineticEnergy(particle2) - KE2before);
 
     lastCollParticle1 = particle1.getID();
     lastCollParticle2 = particle2.getID();
@@ -1406,9 +1347,6 @@ namespace dynamo {
   
     retVal.impulse += (Jbar * (1-et) / (2*(Jbar + 1))) * gijt;
 
-    double KE1before = getParticleKineticEnergy(particle1);
-    double KE2before = getParticleKineticEnergy(particle2);
-
     //This function must edit particles so it overrides the const!
     particle1.getVelocity() -= retVal.impulse / p1Mass;
     particle2.getVelocity() += retVal.impulse / p2Mass;
@@ -1419,9 +1357,6 @@ namespace dynamo {
       += angularVchange;
     orientationData[particle2.getID()].angularVelocity 
       += angularVchange;
-
-    retVal.particle1_.setDeltaKE(getParticleKineticEnergy(particle1) - KE1before);
-    retVal.particle2_.setDeltaKE(getParticleKineticEnergy(particle2) - KE2before);
 
     return retVal;
   }
@@ -1437,8 +1372,6 @@ namespace dynamo {
     updateParticle(part);
 
     ParticleEventData retVal(part, *Sim->species[part], WALL);
-
-    double KE1before = getParticleKineticEnergy(part);
 
     double p1Mass = Sim->species[retVal.getSpeciesID()]->getMass(part.getID()); 
 
@@ -1458,7 +1391,6 @@ namespace dynamo {
     orientationData[part.getID()].angularVelocity
       += angularVchange;
 
-    retVal.setDeltaKE(getParticleKineticEnergy(part) - KE1before);
     return retVal; 
   }
 }

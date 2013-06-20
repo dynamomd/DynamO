@@ -37,13 +37,11 @@ namespace dynamo {
   void 
   OPEventEffects::eventUpdate(const IntEvent& iEvent, const PairEventData& Pdat)
   {
-    newEvent(iEvent.getType(),getClassKey(iEvent),
-	     Pdat.particle1_.getDeltaKE(),
-	     -Pdat.impulse);
+    const Particle& p1 = Sim->particles[Pdat.particle1_.getParticleID()];
+    const Particle& p2 = Sim->particles[Pdat.particle2_.getParticleID()];
 
-    newEvent(iEvent.getType(),getClassKey(iEvent),
-	     Pdat.particle2_.getDeltaKE(),
-	     Pdat.impulse);
+    newEvent(iEvent.getType(),getClassKey(iEvent), 0.5 * Sim->species[p1]->getMass(p1.getID()) * (p1.getVelocity().nrm2() - Pdat.particle1_.getOldVel().nrm2()), -Pdat.impulse);
+    newEvent(iEvent.getType(),getClassKey(iEvent), 0.5 * Sim->species[p2]->getMass(p2.getID()) * (p2.getVelocity().nrm2() - Pdat.particle2_.getOldVel().nrm2()), Pdat.impulse);
   }
 
   void 
@@ -53,21 +51,25 @@ namespace dynamo {
       {
 	const Particle& p1 = Sim->particles[pData.getParticleID()];
 	const Species& sp1 = *Sim->species[pData.getSpeciesID()];
-	
-	Vector dP = sp1.getMass(p1.getID()) * (p1.getVelocity() - pData.getOldVel());
+	const double m1 = sp1.getMass(p1.getID());
+	const Vector dP = m1 * (p1.getVelocity() - pData.getOldVel());
 
-	newEvent(globEvent.getType(),getClassKey(globEvent),
-		 pData.getDeltaKE(), dP);
+	newEvent(globEvent.getType(), getClassKey(globEvent), 0.5 * m1 * (p1.getVelocity().nrm2() - pData.getOldVel().nrm2()), dP);
       }
   
     for (const PairEventData& pData : SDat.L2partChanges)
       {
-	newEvent(globEvent.getType(),getClassKey(globEvent),
-		 pData.particle1_.getDeltaKE(),
+	const Particle& p1 = Sim->particles[pData.particle1_.getParticleID()];
+	const Particle& p2 = Sim->particles[pData.particle2_.getParticleID()];
+	const double m1 = Sim->species[p1]->getMass(p1.getID());
+	const double m2 = Sim->species[p2]->getMass(p2.getID());
+
+	newEvent(globEvent.getType(), getClassKey(globEvent),
+		 0.5 * m1 * (p1.getVelocity().nrm2() - pData.particle1_.getOldVel().nrm2()),
 		 -pData.impulse);
       
-	newEvent(globEvent.getType(),getClassKey(globEvent),
-		 pData.particle2_.getDeltaKE(),
+	newEvent(globEvent.getType(), getClassKey(globEvent),
+		 0.5 * m2 * (p2.getVelocity().nrm2() - pData.particle2_.getOldVel().nrm2()),
 		 pData.impulse);
       }
   }
@@ -78,22 +80,25 @@ namespace dynamo {
     for (const ParticleEventData& pData : SDat.L1partChanges)
       {
 	const Particle& p1 = Sim->particles[pData.getParticleID()];
-	const Species& sp1 = *Sim->species[pData.getSpeciesID()];
+	const double m1 = Sim->species[p1]->getMass(p1.getID());
+	const Vector dP = m1 * (p1.getVelocity() - pData.getOldVel());
 	
-	Vector dP = sp1.getMass(p1.getID()) * (p1.getVelocity() - pData.getOldVel());
-	
-	newEvent(localEvent.getType(),getClassKey(localEvent),
-		 pData.getDeltaKE(), dP);
+	newEvent(localEvent.getType(),getClassKey(localEvent), 0.5 * m1 * (p1.getVelocity().nrm2() - pData.getOldVel().nrm2()), dP);
       }
   
     for (const PairEventData& pData : SDat.L2partChanges)
       {
+	const Particle& p1 = Sim->particles[pData.particle1_.getParticleID()];
+	const Particle& p2 = Sim->particles[pData.particle2_.getParticleID()];
+	const double m1 = Sim->species[p1]->getMass(p1.getID());
+	const double m2 = Sim->species[p2]->getMass(p2.getID());
+
 	newEvent(localEvent.getType(),getClassKey(localEvent),
-		 pData.particle1_.getDeltaKE(),
+		 0.5 * m1 * (p1.getVelocity().nrm2() - pData.particle1_.getOldVel().nrm2()),
 		 -pData.impulse);
       
 	newEvent(localEvent.getType(),getClassKey(localEvent),
-		 pData.particle2_.getDeltaKE(),
+		 0.5 * m2 * (p2.getVelocity().nrm2() - pData.particle2_.getOldVel().nrm2()),
 		 pData.impulse);
       }
   }
@@ -104,22 +109,25 @@ namespace dynamo {
     for (const ParticleEventData& pData : SDat.L1partChanges)
       {
 	const Particle& p1 = Sim->particles[pData.getParticleID()];
-	const Species& sp1 = *Sim->species[pData.getSpeciesID()];
+	const double m1 = Sim->species[p1]->getMass(p1.getID());
+	const Vector dP = m1 * (p1.getVelocity() - pData.getOldVel());
 	
-	Vector dP = sp1.getMass(p1.getID()) * (p1.getVelocity() - pData.getOldVel());
-	
-	newEvent(sysEvent.getType(),getClassKey(sysEvent),
-		 pData.getDeltaKE(), dP);
+	newEvent(sysEvent.getType(),getClassKey(sysEvent), 0.5 * m1 * (p1.getVelocity().nrm2() - pData.getOldVel().nrm2()), dP);
       }
   
     for (const PairEventData& pData : SDat.L2partChanges)
       {
+	const Particle& p1 = Sim->particles[pData.particle1_.getParticleID()];
+	const Particle& p2 = Sim->particles[pData.particle2_.getParticleID()];
+	const double m1 = Sim->species[p1]->getMass(p1.getID());
+	const double m2 = Sim->species[p2]->getMass(p2.getID());
+
 	newEvent(sysEvent.getType(),getClassKey(sysEvent),
-		 pData.particle1_.getDeltaKE(),
+		 0.5 * m1 * (p1.getVelocity().nrm2() - pData.particle1_.getOldVel().nrm2()),
 		 -pData.impulse);
       
 	newEvent(sysEvent.getType(),getClassKey(sysEvent),
-		 pData.particle2_.getDeltaKE(),
+		 0.5 * m2 * (p2.getVelocity().nrm2() - pData.particle2_.getOldVel().nrm2()),
 		 pData.impulse);
       }
   }

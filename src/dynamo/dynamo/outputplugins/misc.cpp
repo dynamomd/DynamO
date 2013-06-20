@@ -249,15 +249,16 @@ namespace dynamo {
 
     for (const ParticleEventData& PDat : NDat.L1partChanges)
       {
-	_KE += PDat.getDeltaKE();
+	const Particle& part = Sim->particles[PDat.getParticleID()];
+	const Species& species = *Sim->species[part];
+	const double mass = species.getMass(part.getID());
+	const double deltaKE = 0.5 * mass *  (part.getVelocity().nrm2() - PDat.getOldVel().nrm2());
+	_KE += deltaKE;
 	_internalE += PDat.getDeltaU();
 	//This must be updated before p1E is calculated
 	_internalEnergy[PDat.getParticleID()] += PDat.getDeltaU();
-	const Particle& part = Sim->particles[PDat.getParticleID()];
-	const double p1E = Sim->dynamics->getParticleKineticEnergy(Sim->particles[PDat.getParticleID()]) + _internalEnergy[PDat.getParticleID()];
-	const double p1deltaE = PDat.getDeltaKE() + PDat.getDeltaU();
-	const Species& species = *Sim->species[PDat.getSpeciesID()];
-	double mass = species.getMass(part.getID());
+	const double p1E = Sim->dynamics->getParticleKineticEnergy(part) + _internalEnergy[PDat.getParticleID()];
+	const double p1deltaE = deltaKE + PDat.getDeltaU();
 	Vector delP1 = mass * (part.getVelocity() - PDat.getOldVel());
 
         _singleEvents += (PDat.getType() != VIRTUAL);
@@ -271,26 +272,27 @@ namespace dynamo {
 
     for (const PairEventData& PDat : NDat.L2partChanges)
       {
-	_KE += PDat.particle1_.getDeltaKE() + PDat.particle2_.getDeltaKE();
-	_internalE += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
-	_internalEnergy[PDat.particle1_.getParticleID()] += PDat.particle1_.getDeltaU();
-	_internalEnergy[PDat.particle2_.getParticleID()] += PDat.particle2_.getDeltaU();
-
-	_dualEvents += (PDat.getType() != VIRTUAL);
-	_virtualEvents += (PDat.getType() == VIRTUAL);
-
 	const Particle& part1 = Sim->particles[PDat.particle1_.getParticleID()];
 	const Particle& part2 = Sim->particles[PDat.particle2_.getParticleID()];
 	const Species& sp1 = *Sim->species[PDat.particle1_.getSpeciesID()];
 	const Species& sp2 = *Sim->species[PDat.particle2_.getSpeciesID()];
 	const double p1E = Sim->dynamics->getParticleKineticEnergy(part1) + _internalEnergy[PDat.particle1_.getParticleID()];
-	const double p1deltaE = PDat.particle1_.getDeltaKE() + PDat.particle1_.getDeltaU();
-	const double p2deltaE = PDat.particle2_.getDeltaKE() + PDat.particle2_.getDeltaU();
 	const double p2E = Sim->dynamics->getParticleKineticEnergy(part2) + _internalEnergy[PDat.particle2_.getParticleID()];
 	const double mass1 = sp1.getMass(part1.getID());
 	const double mass2 = sp2.getMass(part2.getID());
-
 	const Vector delP = mass1 * (part1.getVelocity() - PDat.particle1_.getOldVel());
+	const double deltaKE1 = 0.5 * mass1 * (part1.getVelocity().nrm2() - PDat.particle1_.getOldVel().nrm2());
+	const double deltaKE2 = 0.5 * mass2 * (part2.getVelocity().nrm2() - PDat.particle2_.getOldVel().nrm2());
+	const double p1deltaE = deltaKE1 + PDat.particle1_.getDeltaU();
+	const double p2deltaE = deltaKE2 + PDat.particle2_.getDeltaU();
+
+	_KE += deltaKE1 + deltaKE2;
+	_internalE += PDat.particle1_.getDeltaU() + PDat.particle2_.getDeltaU();
+	_internalEnergy[PDat.particle1_.getParticleID()] += PDat.particle1_.getDeltaU();
+	_internalEnergy[PDat.particle2_.getParticleID()] += PDat.particle2_.getDeltaU();
+	_dualEvents += (PDat.getType() != VIRTUAL);
+	_virtualEvents += (PDat.getType() == VIRTUAL);
+
 	collisionalP += magnet::math::Dyadic(PDat.rij, delP);
 
 	_kineticP
@@ -643,9 +645,7 @@ namespace dynamo {
       if (std::dynamic_pointer_cast<SystHalt>(sysPtr))
 	_earliest_end_time = std::min(_earliest_end_time, sysPtr->getdt());
 
-    double time_seconds_remaining = _earliest_end_time 
-      / (getSimTimePerSecond() * Sim->units.unitTime());
-
+    double time_seconds_remaining = _earliest_end_time / (getSimTimePerSecond() * Sim->units.unitTime());
     size_t seconds_remaining = time_seconds_remaining;
     
     if (time_seconds_remaining > std::numeric_limits<size_t>::max())
