@@ -242,17 +242,15 @@ namespace dynamo {
   shared_ptr<coil::RenderObj>
   LTriangleMesh::getCoilRenderObj() const
   {
-    const double lengthRescale = 1 / Sim->primaryCellSize.maxElement();
-
     if (!_renderObj)
       {
 	std::vector<float> verts;
 	verts.reserve(3 * _vertices.size());
 	for (const Vector& v : _vertices)
 	  {
-	    verts.push_back(v[0] * lengthRescale);
-	    verts.push_back(v[1] * lengthRescale);
-	    verts.push_back(v[2] * lengthRescale);
+	    verts.push_back(v[0]);
+	    verts.push_back(v[1]);
+	    verts.push_back(v[2]);
 	  }
 
 	std::vector<GLuint> elems;
