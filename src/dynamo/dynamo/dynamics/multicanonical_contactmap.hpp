@@ -27,8 +27,16 @@ namespace dynamo {
    */
   class DynNewtonianMCCMap: public DynNewtonian
   {
-    typedef std::unordered_map<detail::CaptureMapKey, double,  detail::CaptureMapKeyHash> WType;
-    WType _W;
+    struct WData{
+      WData(): _distance(0), _wval(0) {}
+      WData(size_t distance, double wval): _distance(distance), _wval(wval) {}
+      size_t _distance;
+      double _wval;
+    };
+
+    typedef std::vector<std::pair<detail::CaptureMapKey, WData> > WContainer;
+    
+    WContainer _W;
 
     std::string _interaction_name;
     std::shared_ptr<ICapture> _interaction;
@@ -40,11 +48,8 @@ namespace dynamo {
     virtual void initialise();
     virtual void swapSystem(Dynamics& oDynamics);
 
-    double W(const detail::CaptureMap& map) const
-    {
-      WType::const_iterator it = _W.find(map);
-      return (it == _W.end()) ? 0 : it->second;
-    }
+    double W(const detail::CaptureMap& map) const;
+
   protected:
     virtual void outputXML(magnet::xml::XmlStream& ) const;
   };

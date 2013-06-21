@@ -42,13 +42,13 @@ namespace dynamo {
 	     map_node.valid(); ++map_node)
 	  {
 	    double Wval = map_node.getAttribute("W").as<double>();
-	    
+	    size_t distance = map_node.getAttribute("Distance").as<size_t>();
+
 	    detail::CaptureMap map;
 	    for (magnet::xml::Node entry_node = map_node.fastGetNode("Contact"); entry_node.valid(); ++entry_node)
-	      map[detail::CaptureMap::key_type(entry_node.getAttribute("ID1").as<size_t>(), 
-					       entry_node.getAttribute("ID2").as<size_t>())]
+	      map[detail::CaptureMap::key_type(entry_node.getAttribute("ID1").as<size_t>(), entry_node.getAttribute("ID2").as<size_t>())]
 		= entry_node.getAttribute("State").as<size_t>();
-	    _W[map] = Wval;
+	    _W.push_back(std::make_pair(map, WData(distance, Wval)));
 	  }
       }
   }
@@ -61,12 +61,14 @@ namespace dynamo {
 	<< magnet::xml::attr("Interaction") << _interaction_name
 	<< magnet::xml::tag("Potential");
     
-    for (const WType::value_type& entry : _W)
+    for (const auto entry : _W)
       {
 	XML << magnet::xml::tag("Map")
-	    << magnet::xml::attr("W") << entry.second;
+	    << magnet::xml::attr("W") << entry.second._wval
+	    << magnet::xml::attr("Distance") << entry.second._distance
+	  ;
 
-	for (const detail::CaptureMap::value_type& val : entry.first)
+	for (const auto& val : entry.first)
 	  XML << magnet::xml::tag("Contact")
 	      << magnet::xml::attr("ID1") << val.first.first
 	      << magnet::xml::attr("ID2") << val.first.second
@@ -77,8 +79,6 @@ namespace dynamo {
     
     XML << magnet::xml::endtag("Potential");
   }
-
-
 
   void DynNewtonianMCCMap::initialise()
   {
@@ -178,4 +178,60 @@ namespace dynamo {
     DynNewtonianMCCMap& ol(static_cast<DynNewtonianMCCMap&>(oDynamics));
     std::swap(_W, ol._W);
   }
+
+  double 
+  DynNewtonianMCCMap::W(const detail::CaptureMap& map) const
+  {
+    /*Iterate over all tether maps, finding the distance between them
+      and looking if the tether applies.*/
+    size_t applicable_tethers = 0;
+    double accumilated_W = 0;
+
+    for (auto tethermap : _W)
+      {
+	auto il = tethermap.first.begin();
+	auto ir = map.begin();
+	
+	size_t distance = 0;
+	while (il != tethermap.first.end() && ir != map.end())
+	  {
+	    if (il->first < ir->first)
+	      {
+		++il;
+		++distance;
+	      }
+	    else if (ir->first < il->first)
+	      {
+		++ir;
+		++distance;
+	      }
+	    else
+	      {
+		++il;
+		++ir;
+	      }
+	  }
+
+	while (il != tethermap.first.end())
+	  {
+	    ++il;
+	    ++distance;
+	  }
+
+	while (ir != map.end())
+	  {
+	    ++ir;
+	    ++distance;
+	  }
+
+	if (distance <= tethermap.second._distance)
+	  {
+	    ++applicable_tethers;
+	    accumilated_W += tethermap.second._wval;
+	  }
+      }
+
+    return accumilated_W / (applicable_tethers + (applicable_tethers==0));
+  }
+
 }

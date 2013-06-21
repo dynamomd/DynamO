@@ -109,7 +109,7 @@ namespace dynamo {
     _internalEnergy.resize(Sim->N, 0);
 
     for (auto ptr1 = Sim->particles.begin(); ptr1 != Sim->particles.end(); ++ptr1)
-      for (auto ptr2 = ptr1; ptr2 != Sim->particles.end(); ++ptr2)
+      for (auto ptr2 = ptr1 + 1; ptr2 != Sim->particles.end(); ++ptr2)
 	{
 	  double energy = 0.5 * Sim->getInteraction(*ptr1, *ptr2)->getInternalEnergy(*ptr1, *ptr2);
 	  _internalEnergy[ptr1->getID()] += energy;
