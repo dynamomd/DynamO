@@ -438,8 +438,7 @@ namespace dynamo
 
     XML << std::scientific
       //This has a minus one due to the digit in front of the decimal
-      //An extra one is added if we're rounding
-	<< std::setprecision(std::numeric_limits<double>::digits10 - 1 - round)
+	<< std::setprecision(std::numeric_limits<double>::digits10 + 2 - 4 * round)
 	<< magnet::xml::prolog() << magnet::xml::tag("DynamOconfig")
 	<< magnet::xml::attr("version") << configFileVersion
 	<< magnet::xml::tag("Simulation");
@@ -713,7 +712,7 @@ namespace dynamo
     magnet::xml::XmlStream XML(coutputFile);
     XML.setFormatXML(true);
   
-    XML << std::setprecision(std::numeric_limits<double>::digits10)
+    XML << std::setprecision(std::numeric_limits<double>::digits10 + 2)
 	<< magnet::xml::prolog() << magnet::xml::tag("OutputData");
   
     //Output the data and delete the outputplugins

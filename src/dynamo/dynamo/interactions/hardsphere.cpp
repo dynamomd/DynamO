@@ -39,7 +39,13 @@ namespace dynamo {
 
   void 
   IHardSphere::initialise(size_t nID)
-  { ID=nID; }
+  { 
+    ID=nID; 
+    _complete_events = 0;
+    _post_event_overlap = 0;
+    _accum_overlap_magnitude = 0;
+    _overlapped_tests = 0;
+  }
 
   void 
   IHardSphere::operator<<(const magnet::xml::Node& XML)
@@ -50,6 +56,19 @@ namespace dynamo {
     intName = XML.getAttribute("Name");
   }
   
+  void 
+  IHardSphere::outputData(magnet::xml::XmlStream& XML) const
+  {
+    XML << magnet::xml::tag("HardSphereData")
+	<< magnet::xml::attr("Name") << getName()
+	<< magnet::xml::attr("PostEventOverlaps") << _post_event_overlap
+	<< magnet::xml::attr("AvgPostEventOverlapMagnitude") << _accum_overlap_magnitude / (_post_event_overlap *  Sim->units.unitLength())
+	<< magnet::xml::attr("Events") << _complete_events
+	<< magnet::xml::attr("OverlapFreq") << double(_post_event_overlap) / double(_complete_events)
+	<< magnet::xml::attr("OverlappedTests") << _overlapped_tests
+	<< magnet::xml::endtag("HardSphereData");
+  }
+
   Vector
   IHardSphere::getGlyphSize(size_t ID, size_t subID) const
   { 
@@ -95,6 +114,8 @@ namespace dynamo {
 
     double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 
+    if (Sim->dynamics->sphereOverlap(p1, p2, d)) ++_overlapped_tests;
+
     if (dt != HUGE_VAL)
       return IntEvent(p1, p2, dt, CORE, *this);
   
@@ -110,14 +131,23 @@ namespace dynamo {
 		 + _diameter->getProperty(p2.getID())) * 0.5;
     d2 *= d2;
 
-    double e = (_e->getProperty(p1.getID())
-		+ _e->getProperty(p2.getID())) * 0.5;
+    const double e = (_e->getProperty(p1.getID()) + _e->getProperty(p2.getID())) * 0.5;
 
-    PairEventData EDat
-      (Sim->dynamics->SmoothSpheresColl(iEvent, e, d2)); 
-
+    PairEventData EDat(Sim->dynamics->SmoothSpheresColl(iEvent, e, d2)); 
     (*Sim->_sigParticleUpdate)(EDat);
 
+    {
+      const double d = (_diameter->getProperty(p1.getID())
+		  + _diameter->getProperty(p2.getID())) * 0.5;
+      const double overlap = Sim->dynamics->sphereOverlap(p1, p2, d);
+      if (overlap)
+	{
+	  ++_post_event_overlap;
+	  _accum_overlap_magnitude += overlap;
+    }
+}
+    ++_complete_events;
+    
     //Now we're past the event, update the scheduler and plugins
     Sim->ptrScheduler->fullUpdate(p1, p2);
   

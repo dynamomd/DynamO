@@ -314,8 +314,7 @@ namespace dynamo {
 	  //dynamics must be updated first
 	  Sim->stream(Event.getdt());
 	
-	  Sim->interactions[Event.getInteractionID()]
-	    ->runEvent(p1,p2,Event);
+	  Sim->interactions[Event.getInteractionID()]->runEvent(p1,p2,Event);
 
 	  break;
 	}

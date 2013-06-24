@@ -648,7 +648,7 @@ namespace dynamo {
     {
       partPecTime += dt;
 
-      //Keep the magnitude of the partPecTime boundedx
+      //Keep the magnitude of the partPecTime bounded
       if (++streamCount == streamFreq)
 	{
 	  for (Particle& part : Sim->particles)
