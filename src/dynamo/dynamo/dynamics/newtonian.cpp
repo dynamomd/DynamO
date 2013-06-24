@@ -1301,7 +1301,7 @@ namespace dynamo {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(r12);
 
-    return std::sqrt(std::max(d * d - (r12 | r12), 0.0));
+    return std::max(d  - std::sqrt(r12 | r12), 0.0);
   }
 
   PairEventData 
