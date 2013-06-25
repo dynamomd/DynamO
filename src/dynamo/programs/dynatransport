@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 import os
-from lxml import etree
+import xml.etree.ElementTree as ET
 import sys
 import math
 
 #Function to load a (possibly compressed) xml file.
 def loadXMLFile(filename):
+    #Check if the file is compressed or not, and 
     if (os.path.splitext(filename)[1][1:].strip() == "bz2"):
         import bz2
         f = bz2.BZ2File(filename)
-        doc = etree.parse(f)
+        doc = ET.parse(f)
         f.close()
         return doc
     else:
@@ -80,17 +81,17 @@ def worker(columns, text, title):
     result = fitData(columns, parseToArray(text), title)
     print title,"=",result[0],result[1],result[2]
 
-for xmlelement in RootElement.xpath("//Viscosity/Correlator"):
+for xmlelement in RootElement.findall(".//Viscosity/Correlator"):
     worker([3, 4, 7], xmlelement.text, "L_{\\eta,\\eta}")
 
-for xmlelement in RootElement.xpath("//Viscosity/Correlator"):
+for xmlelement in RootElement.findall(".//Viscosity/Correlator"):
     worker([2,6,10], xmlelement.text, "L_{\\kappa,\\kappa}")
 
-for xmlelement in RootElement.xpath("//ThermalConductivity/Correlator"):
+for xmlelement in RootElement.findall(".//ThermalConductivity/Correlator"):
     worker([2, 3, 4], xmlelement.text, "L_{\\lambda,\\lambda}")
 
-for xmlelement in RootElement.xpath("//ThermalDiffusion/Correlator"):
+for xmlelement in RootElement.findall(".//ThermalDiffusion/Correlator"):
     worker([2, 3, 4], xmlelement.text, "L_{\\lambda,"+xmlelement.get("Species")+"}")
 
-for xmlelement in RootElement.xpath("//MutualDiffusion/Correlator"):
+for xmlelement in RootElement.findall(".//MutualDiffusion/Correlator"):
     worker([2, 3, 4], xmlelement.text, "L_{"+xmlelement.get("Species1")+","+xmlelement.get("Species2")+"}")
