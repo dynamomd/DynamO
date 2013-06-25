@@ -19,8 +19,6 @@ def loadXMLFile(filename):
 #Command line argument parsing
 from optparse import OptionParser
 parser = OptionParser()
-parser.add_option("-i", "--input", dest="datafile",
-                  help="Load the simulation data from FILE, also can be a position argument", metavar="FILE")
 parser.add_option("-c", "--cutoff-time", dest="cutofftime", type="float", default=1e300,
                   help="The TIME beyond which data from the correlators are discarded.", metavar="TIME", )
 parser.add_option("-s", "--start-time", dest="starttime",
@@ -30,21 +28,12 @@ parser.add_option("-s", "--start-time", dest="starttime",
 parser.add_option("-v", "--view-fit", action="store_true", default=False,
                   dest="plot", help="View the fits of the correlators")
 
-(options, args) = parser.parse_args()
+(options, datafiles) = parser.parse_args()
 
 #Sort out the data file option
-if options.datafile == None:
-    if len(args) != 1:
-        print "Need to supply an input file using either an -i FILE or just FILE"
-        sys.exit()
-    options.datafile=args[0]
-
-if not os.path.exists(options.datafile):
-    print "Could not find the passed datafile! ("+options.datafile+")"
+if len(datafiles) is 0:
+    print "Need to supply at least one input file!"
     sys.exit()
-
-XMLDoc = loadXMLFile(options.datafile)
-RootElement=XMLDoc.getroot()
 
 def parseToArray(text):
     data = []
@@ -77,21 +66,37 @@ def fitData(datacolumns, data, title):
         plt.show()
     return returnval
 
-def worker(columns, text, title):
-    result = fitData(columns, parseToArray(text), title)
+def worker(columns, dataarray, title):
+    result = fitData(columns, dataarray, title)
     print title,"=",result[0],result[1],result[2]
 
-for xmlelement in RootElement.findall(".//Viscosity/Correlator"):
-    worker([3, 4, 7], xmlelement.text, "L_{\\eta,\\eta}")
 
-for xmlelement in RootElement.findall(".//Viscosity/Correlator"):
-    worker([2,6,10], xmlelement.text, "L_{\\kappa,\\kappa}")
+viscosity_data = []
+thermalconductivity_data = []
+thermaldiffusion_data = {}
+mutualdiffusion_data = {}
+for filename in datafiles:
+    if not os.path.exists(filename):
+        print "Could not find the passed datafile! ("+options.datafile+")"
+        sys.exit()
 
-for xmlelement in RootElement.findall(".//ThermalConductivity/Correlator"):
-    worker([2, 3, 4], xmlelement.text, "L_{\\lambda,\\lambda}")
+    XMLDoc = loadXMLFile(filename)
+    RootElement=XMLDoc.getroot()
+    for xmlelement in RootElement.findall(".//Viscosity/Correlator"):
+        viscosity_data.extend(parseToArray(xmlelement.text))
+    for xmlelement in RootElement.findall(".//ThermalConductivity/Correlator"):
+        thermalconductivity_data.extend(parseToArray(xmlelement.text))
+    for xmlelement in RootElement.findall(".//ThermalDiffusion/Correlator"):
+        key = xmlelement.attrib["Species"]
+        thermaldiffusion_data.setdefault(key, []).extend(parseToArray(xmlelement.text))
+    for xmlelement in RootElement.findall(".//MutualDiffusion/Correlator"):
+        key=xmlelement.attrib["Species1"]+","+xmlelement.attrib["Species2"]
+        mutualdiffusion_data.setdefault(key, []).extend(parseToArray(xmlelement.text))
 
-for xmlelement in RootElement.findall(".//ThermalDiffusion/Correlator"):
-    worker([2, 3, 4], xmlelement.text, "L_{\\lambda,"+xmlelement.get("Species")+"}")
-
-for xmlelement in RootElement.findall(".//MutualDiffusion/Correlator"):
-    worker([2, 3, 4], xmlelement.text, "L_{"+xmlelement.get("Species1")+","+xmlelement.get("Species2")+"}")
+worker([3, 4, 7], viscosity_data, "Shear\\ viscosity\\ L_{\\eta,\\eta}")
+worker([2,6,10], viscosity_data, "Bulk\\ viscosity\\ L_{\\kappa,\\kappa}")
+worker([2, 3, 4], thermalconductivity_data, "Thermal\\ conductivity\\ L_{\\lambda,\\lambda}")
+for species, data in thermaldiffusion_data.items():
+    worker([2, 3, 4], data, "Thermal\\ diffusion\\ L_{\\lambda,"+species+"}")
+for key, data in mutualdiffusion_data.items():
+    worker([2, 3, 4], data, "Mutual\\ diffusion\\ L_{"+key+"}")
