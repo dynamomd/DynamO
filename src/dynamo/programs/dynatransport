@@ -53,15 +53,24 @@ def statistics(data):
     import math
     return [average / len(data),  math.sqrt((sqraverage / len(data)) - (average / len(data)) * (average / len(data))), averageoffset / len(data)]
 
+def avg(data):
+    return sum(data) / len(data)
+
+def stddev(data):
+    average = avg(data)
+    return avg([(item - average)**2 for item in data])
+
 def fitData(datacolumns, data, title):
     import numpy as np
+    import math
     xvalues = [line[0] for line in data]
-    returnval = statistics([np.polyfit(xvalues, [line[column] for line in data], 1) for column in datacolumns])
+    yvalues = [avg([line[column] for column in datacolumns]) for line in data]
+    yerrvalues = [math.sqrt(stddev([line[column] for column in datacolumns])) for line in data]
+    returnval = statistics([np.polyfit(xvalues, yvalues, 1)])
     if (options.plot):
         import matplotlib.pyplot as plt
         plt.title("$"+title+"="+str(returnval[0])+"\pm"+str(returnval[1])+"$")
-        for column in datacolumns:
-            plt.plot(xvalues, [line[column] for line in data], 'x')
+        plt.errorbar(xvalues, yvalues, yerr=yerrvalues, fmt='x')
         minx = min(xvalues)
         maxx = max(xvalues)
         plt.plot([minx, maxx], [minx*returnval[0] + returnval[2], maxx * returnval[0] + returnval[2]])
