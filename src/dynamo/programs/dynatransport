@@ -70,17 +70,18 @@ def fitData(datacolumns, data, title):
     fitdata = np.polyfit(xvalues, yvalues, 1, full=True)
     slope = fitdata[0][0]
     intercept = fitdata[0][1]
-    chi_squared=np.sum((np.polyval(fitdata[0],xvalues) - yvalues)**2)
-    
+    SSreg=stddev(np.polyval(fitdata[0],xvalues) - yvalues)
+    SStot=stddev(yvalues)
+    R2 = 1 - SSreg/SStot
     if (options.plot):
         import matplotlib.pyplot as plt
-        plt.title("$"+title+"="+str(slope)+"$ $\chi^2="+str(chi_squared)+"$")
+        plt.title("$"+title+"="+str(slope)+"$ $R^2="+str(R2)+"$")
         plt.errorbar(xvalues, yvalues, yerr=yerrvalues, fmt='x')
         minx = min(xvalues)
         maxx = max(xvalues)
         plt.plot([minx, maxx], [minx * slope + intercept, maxx * slope + intercept])
         plt.show()
-    return slope, intercept, chi_squared
+    return slope, intercept, R2
 
 def worker(columns, dataarray, title):
     result=fitData(columns, dataarray, title)
