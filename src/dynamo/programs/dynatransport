@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 import os
 import xml.etree.ElementTree as ET
-import sys
-import math
 
 #Function to load a (possibly compressed) xml file.
 def loadXMLFile(filename):
@@ -33,13 +31,14 @@ parser.add_option("-v", "--view-fit", action="store_true", default=False,
 #Sort out the data file option
 if len(datafiles) is 0:
     print "Need to supply at least one input file!"
+    import sys
     sys.exit()
 
 def parseToArray(text):
     data = []
     for line in text.strip().split("\n"):
         dataline = map(float, line.split())
-        if (len(dataline) > 1) and (dataline[0] > options.starttime) and (dataline[0] < options.cutofftime):
+        if (len(dataline) > 1) and (dataline[0] >= options.starttime) and (dataline[0] <= options.cutofftime):
             data.append(dataline)
     return data
 
@@ -51,6 +50,7 @@ def statistics(data):
         averageoffset += element[1]
         average += element[0]
         sqraverage += element[0] * element[0]
+    import math
     return [average / len(data),  math.sqrt((sqraverage / len(data)) - (average / len(data)) * (average / len(data))), averageoffset / len(data)]
 
 def fitData(datacolumns, data, title):
@@ -62,7 +62,9 @@ def fitData(datacolumns, data, title):
         plt.title("$"+title+"="+str(returnval[0])+"\pm"+str(returnval[1])+"$")
         for column in datacolumns:
             plt.plot(xvalues, [line[column] for line in data], 'x')
-        plt.plot([xvalues[0], xvalues[-1]], [xvalues[0]*returnval[0] + returnval[2], xvalues[-1]*returnval[0] + returnval[2]])
+        minx = min(xvalues)
+        maxx = max(xvalues)
+        plt.plot([minx, maxx], [minx*returnval[0] + returnval[2], maxx * returnval[0] + returnval[2]])
         plt.show()
     return returnval
 
@@ -77,7 +79,8 @@ thermaldiffusion_data = {}
 mutualdiffusion_data = {}
 for filename in datafiles:
     if not os.path.exists(filename):
-        print "Could not find the passed datafile! ("+options.datafile+")"
+        print "Could not find the passed datafile! ("+filename+")"
+        import sys
         sys.exit()
 
     XMLDoc = loadXMLFile(filename)
