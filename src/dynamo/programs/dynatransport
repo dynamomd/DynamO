@@ -63,23 +63,28 @@ def stddev(data):
 def fitData(datacolumns, data, title):
     import numpy as np
     import math
+    from itertools import izip
     xvalues = [line[0] for line in data]
     yvalues = [avg([line[column] for column in datacolumns]) for line in data]
     yerrvalues = [math.sqrt(stddev([line[column] for column in datacolumns])) for line in data]
-    returnval = statistics([np.polyfit(xvalues, yvalues, 1)])
+    fitdata = np.polyfit(xvalues, yvalues, 1, full=True)
+    slope = fitdata[0][0]
+    intercept = fitdata[0][1]
+    chi_squared=np.sum((np.polyval(fitdata[0],xvalues) - yvalues)**2)
+    
     if (options.plot):
         import matplotlib.pyplot as plt
-        plt.title("$"+title+"="+str(returnval[0])+"\pm"+str(returnval[1])+"$")
+        plt.title("$"+title+"="+str(slope)+"$ $\chi^2="+str(chi_squared)+"$")
         plt.errorbar(xvalues, yvalues, yerr=yerrvalues, fmt='x')
         minx = min(xvalues)
         maxx = max(xvalues)
-        plt.plot([minx, maxx], [minx*returnval[0] + returnval[2], maxx * returnval[0] + returnval[2]])
+        plt.plot([minx, maxx], [minx * slope + intercept, maxx * slope + intercept])
         plt.show()
-    return returnval
+    return slope, intercept, chi_squared
 
 def worker(columns, dataarray, title):
-    result = fitData(columns, dataarray, title)
-    print title,"=",result[0],result[1],result[2]
+    result=fitData(columns, dataarray, title)
+    print title,"=",result[0], result[2]
 
 
 viscosity_data = []
