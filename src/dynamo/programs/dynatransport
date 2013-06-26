@@ -44,7 +44,9 @@ def parseToArray(text):
     return data
 
 def avg(data):
-    return sum(data) / len(data)
+    if len(data) is 0:
+        raise ArithmeticError("Can only find the average of a list with non-zero length")
+    return sum(data) / (len(data))
 
 def stddev(data):
     average = avg(data)
@@ -61,7 +63,10 @@ def fitData(datacolumns, data, title):
     intercept = fitdata[0][1]
     SSreg=stddev(np.polyval(fitdata[0],xvalues) - yvalues)
     SStot=stddev(yvalues)
-    R2 = 1 - SSreg/SStot
+    if SSreg == 0.0 and SStot == 0.0:
+        R2 = 1.0
+    else:
+        R2 = 1.0 - SSreg/SStot
     if (options.plot):
         import matplotlib.pyplot as plt
         plt.title("$"+title+"="+str(slope)+"$ $R^2="+str(R2)+"$")
