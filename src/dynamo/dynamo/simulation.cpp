@@ -447,9 +447,10 @@ namespace dynamo
     if (getOutputPlugin<OPMisc>())
       {
 	double mft = getOutputPlugin<OPMisc>()->getMFT();
-	if (!std::isinf(mft))
-	  XML << magnet::xml::attr("lastMFT")
-	      << mft;
+	if (!std::isinf(mft) && !std::isnan(mft))
+	  XML << magnet::xml::attr("lastMFT") << mft;
+	else
+	  XML << magnet::xml::attr("lastMFT") << lastRunMFT;
       }
 
     XML << magnet::xml::tag("Scheduler")

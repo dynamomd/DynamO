@@ -67,15 +67,7 @@ def fitData(datacolumns, data, title):
         R2 = 1.0
     else:
         R2 = 1.0 - SSreg/SStot
-    if (options.plot):
-        import matplotlib.pyplot as plt
-        plt.title("$"+title+"="+str(slope)+"$ $R^2="+str(R2)+"$")
-        plt.errorbar(xvalues, yvalues, yerr=yerrvalues, fmt='x')
-        minx = min(xvalues)
-        maxx = max(xvalues)
-        plt.plot([minx, maxx], [minx * slope + intercept, maxx * slope + intercept])
-        plt.show()
-    return slope, intercept, R2
+    return slope, intercept, R2, xvalues, yvalues, yerrvalues
 
 shear_viscosity_data = []
 bulk_viscosity_data = []
@@ -117,11 +109,27 @@ for filename in datafiles:
 
 
 def output(title, correlator_data):
-    print title, avg([data[0] for data in correlator_data]), "+-", math.sqrt(stddev([data[0] for data in correlator_data])), "<R>^2=",avg([data[2] for data in correlator_data])
+    avgslope = avg([data[0] for data in correlator_data])
+    stddevslope = math.sqrt(stddev([data[0] for data in correlator_data]))
+    avgintercept = avg([data[1] for data in correlator_data])
+    avgR2 = avg([data[2] for data in correlator_data])
+    print title, avgslope, "+-", stddevslope, "<R>^2=", avgR2
+    #Plotting output
+    minx=1e300
+    maxx=0
+    if (options.plot):
+        import matplotlib.pyplot as plt
+        plt.title("$"+title+str(avgslope)+"$ $R^2="+str(avgR2)+"$")
+        for data in correlator_data:
+            minx = min(min(data[3]), minx)
+            maxx = max(max(data[3], maxx))
+            plt.errorbar(data[3], data[4], yerr=data[5], fmt='x')
+        plt.plot([minx, maxx], [minx * avgslope + avgintercept, maxx * avgslope + avgintercept])
+        plt.show()
 
-output("ShearViscosityL_{\\eta,\\eta}=",shear_viscosity_data)
-output("BulkViscosityL_{\\kappa,\\kappa}=",bulk_viscosity_data)
-output("ThermalConductivityL_{\\lambda,\\lambda}=",thermalconductivity_data)
+output("ShearViscosityL_{\\eta,\\eta}=", shear_viscosity_data)
+output("BulkViscosityL_{\\kappa,\\kappa}=", bulk_viscosity_data)
+output("ThermalConductivityL_{\\lambda,\\lambda}=", thermalconductivity_data)
 
 for species, data in thermaldiffusion_data.items():
     output("ThermalDiffusionL_{\\lambda,"+species+"}=",data)
