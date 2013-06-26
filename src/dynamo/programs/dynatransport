@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import math
 import xml.etree.ElementTree as ET
 
 #Function to load a (possibly compressed) xml file.
@@ -42,17 +43,6 @@ def parseToArray(text):
             data.append(dataline)
     return data
 
-def statistics(data):
-    average = 0
-    sqraverage = 0
-    averageoffset = 0
-    for element in data:
-        averageoffset += element[1]
-        average += element[0]
-        sqraverage += element[0] * element[0]
-    import math
-    return [average / len(data),  math.sqrt((sqraverage / len(data)) - (average / len(data)) * (average / len(data))), averageoffset / len(data)]
-
 def avg(data):
     return sum(data) / len(data)
 
@@ -62,7 +52,6 @@ def stddev(data):
 
 def fitData(datacolumns, data, title):
     import numpy as np
-    import math
     from itertools import izip
     xvalues = [line[0] for line in data]
     yvalues = [avg([line[column] for column in datacolumns]) for line in data]
@@ -83,12 +72,8 @@ def fitData(datacolumns, data, title):
         plt.show()
     return slope, intercept, R2
 
-def worker(columns, dataarray, title):
-    result=fitData(columns, dataarray, title)
-    print title,"=",result[0], result[2]
-
-
-viscosity_data = []
+shear_viscosity_data = []
+bulk_viscosity_data = []
 thermalconductivity_data = []
 thermaldiffusion_data = {}
 mutualdiffusion_data = {}
@@ -98,23 +83,43 @@ for filename in datafiles:
         import sys
         sys.exit()
 
+    #Load the xml file
     XMLDoc = loadXMLFile(filename)
     RootElement=XMLDoc.getroot()
+
+    #Parse all of the transport data (and draw the plots if requested)
+    title="Shear\\ viscosity\\ L_{\\eta,\\eta}"
     for xmlelement in RootElement.findall(".//Viscosity/Correlator"):
-        viscosity_data.extend(parseToArray(xmlelement.text))
+        shear_viscosity_data.extend([fitData([3, 4, 7], parseToArray(xmlelement.text), title)])
+
+    title="Bulk\\ viscosity\\ L_{\\kappa,\\kappa}"
+    for xmlelement in RootElement.findall(".//Viscosity/Correlator"):
+        bulk_viscosity_data.extend([fitData([2, 6, 10], parseToArray(xmlelement.text), title)])
+
+    title="Thermal\\ conductivity\\ L_{\\lambda,\\lambda}"
     for xmlelement in RootElement.findall(".//ThermalConductivity/Correlator"):
-        thermalconductivity_data.extend(parseToArray(xmlelement.text))
+        thermalconductivity_data.extend([fitData([2, 3, 4], parseToArray(xmlelement.text), title)])
+
     for xmlelement in RootElement.findall(".//ThermalDiffusion/Correlator"):
         key = xmlelement.attrib["Species"]
-        thermaldiffusion_data.setdefault(key, []).extend(parseToArray(xmlelement.text))
+        title="Thermal\\ diffusion\\ L_{\\lambda,"+key+"}"
+        thermaldiffusion_data.setdefault(key, []).extend([fitData([2, 3, 4], parseToArray(xmlelement.text), title)])
+
     for xmlelement in RootElement.findall(".//MutualDiffusion/Correlator"):
         key=xmlelement.attrib["Species1"]+","+xmlelement.attrib["Species2"]
-        mutualdiffusion_data.setdefault(key, []).extend(parseToArray(xmlelement.text))
+        title="Mutual\\ diffusion\\ L_{"+key+"}"
+        mutualdiffusion_data.setdefault(key, []).extend([fitData([2, 3, 4], parseToArray(xmlelement.text), title)])
 
-worker([3, 4, 7], viscosity_data, "Shear\\ viscosity\\ L_{\\eta,\\eta}")
-worker([2,6,10], viscosity_data, "Bulk\\ viscosity\\ L_{\\kappa,\\kappa}")
-worker([2, 3, 4], thermalconductivity_data, "Thermal\\ conductivity\\ L_{\\lambda,\\lambda}")
+
+def output(title, correlator_data):
+    print title, avg([data[0] for data in correlator_data]), "+-", math.sqrt(stddev([data[0] for data in correlator_data])), "<R>^2=",avg([data[2] for data in correlator_data])
+
+output("ShearViscosityL_{\\eta,\\eta}=",shear_viscosity_data)
+output("BulkViscosityL_{\\kappa,\\kappa}=",bulk_viscosity_data)
+output("ThermalConductivityL_{\\lambda,\\lambda}=",thermalconductivity_data)
+
 for species, data in thermaldiffusion_data.items():
-    worker([2, 3, 4], data, "Thermal\\ diffusion\\ L_{\\lambda,"+species+"}")
+    output("ThermalDiffusionL_{\\lambda,"+species+"}=",data)
+
 for key, data in mutualdiffusion_data.items():
-    worker([2, 3, 4], data, "Mutual\\ diffusion\\ L_{"+key+"}")
+    output("MutualDiffusionL_{"+key+"}=",data)
