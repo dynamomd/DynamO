@@ -21,6 +21,7 @@
 #include <dynamo/interactions/glyphrepresentation.hpp>
 #include <dynamo/interactions/potentials/potential.hpp>
 #include <dynamo/simulation.hpp>
+#include <dynamo/eventtypes.hpp>
 #include <vector>
 
 namespace dynamo {
@@ -74,5 +75,12 @@ namespace dynamo {
     shared_ptr<Property> _energyScale;
 
     shared_ptr<Potential> _potential;
+    
+    struct EdgeData {
+      EdgeData(): counter(0), rdotv_sum(0) {}
+      size_t counter;
+      double rdotv_sum;
+    };
+    std::map<std::pair<size_t, EEventType>, EdgeData> _edgedata;
   };
 }

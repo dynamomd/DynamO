@@ -59,14 +59,14 @@ namespace dynamo {
   void 
   IHardSphere::outputData(magnet::xml::XmlStream& XML) const
   {
-    XML << magnet::xml::tag("HardSphereData")
+    XML << magnet::xml::tag("Interaction")
 	<< magnet::xml::attr("Name") << getName()
 	<< magnet::xml::attr("PostEventOverlaps") << _post_event_overlap
 	<< magnet::xml::attr("AvgPostEventOverlapMagnitude") << _accum_overlap_magnitude / (_post_event_overlap *  Sim->units.unitLength())
 	<< magnet::xml::attr("Events") << _complete_events
 	<< magnet::xml::attr("OverlapFreq") << double(_post_event_overlap) / double(_complete_events)
 	<< magnet::xml::attr("OverlappedTests") << _overlapped_tests
-	<< magnet::xml::endtag("HardSphereData");
+	<< magnet::xml::endtag("Interaction");
   }
 
   Vector

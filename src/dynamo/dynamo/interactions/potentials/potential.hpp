@@ -24,21 +24,27 @@ namespace magnet { namespace xml { class Node; class XmlStream; } }
 
 namespace dynamo {
   /*! \brief The base class for any stepped potential.
-    
+
     This class represents a general stepped potential. Each "step" is
-    represented by a pairing of distance and energy. Depending on the
-    nature of the potential, this energy may correspond to the left or
-    right of the discontinuity (see direction()). In short, if a
-    particle is on a step with an ID of zero, it has an interaction
-    energy of zero.
+    represented by a pairing of distance and energy. The key thing to
+    note here is that the step ID corresponds to both a discontinuity
+    AND a segment/step of the potential. This leads to an ambiguity as
+    to which side of a discontinuity does the step ID correspond to
+    (or which edge does a step ID belong to).
+
+    Depending on the nature of the potential, the side a step ID
+    corresponds to may be either the left or right hand side of the
+    discontinuity. Please see direction() for more information, but
+    the quick rule is if a particle is on a step with an ID of zero,
+    it has an interaction energy of zero. This means that "particle"
+    potentials have zero energy at large distances, but "bonding" potentials have zero energy at zero distance.
 
     This class also implements a cache, to allow fast lookup of previously
     accessed steps, as some calculated potentials are expensive to
     compute.
    */
   class Potential {
-  public:
-    
+  public:    
     typedef std::pair<double, double> value_type;
 
     /*! \brief Accessor to give a value_type containing the
@@ -65,7 +71,7 @@ namespace dynamo {
     /*!\brief Return the hard core diameter of the potential, or zero
        if there is no hard core.
      */
-    virtual double hard_core_diameter() const = 0; 
+    virtual double hard_core_diameter() const = 0;
 
     /*!\brief Return the diameter which should be used to render/draw
        the particle as a sphere.
@@ -109,11 +115,11 @@ namespace dynamo {
     std::pair<double, double> getStepBounds(size_t ID) const {
 #ifdef DYNAMO_DEBUG
       if (ID > steps()) M_throw() << "Out of range access";
-#endif 
+#endif
       double minR, maxR;
 
       if (direction())
-	{ 
+	{
 	  minR = (ID == 0) ? 0 : operator[](ID - 1).first;
 	  maxR = (ID == steps()) ? HUGE_VAL : operator[](ID).first;
 	}
@@ -137,7 +143,57 @@ namespace dynamo {
       double new_energy = (new_step_ID == 0) ? 0 : operator[](new_step_ID - 1).second;
       return new_energy - orig_energy;
     }
-    
+
+    /*! \brief Calculates which is the next step in the direction of
+      increasing radius for the passed step ID.
+      
+      \param current_step The ID of the step which you wish to
+      calculate the outer step ID of.
+    */
+    inline size_t outer_step_ID(const size_t current_step) const 
+    { return current_step - 1 + 2 * direction(); }
+
+    /*! \brief Calculates which is the next step in the direction of
+      decreasing radius for the passed step ID.
+      
+      \param current_step The ID of the step which you wish to
+      calculate the inner step ID of.
+    */
+    inline size_t inner_step_ID(const size_t current_step) const
+    { return current_step + 1 - 2 * direction(); }
+
+    /*! \brief Calculates which is the step ID for the
+      edge/discontinuity in the direction of increasing radius for the
+      passed step ID.
+      
+      \param current_step The ID of the step which you wish to
+      calculate the outer step ID of.
+    */
+    inline size_t outer_edge_ID(const size_t current_step) const 
+    { 
+      if ((current_step == 0) && !direction())
+	M_throw() << "Cannot find the outer_edge ID of the zeroth step.";
+      return current_step + direction() - 1; 
+    }
+
+    /*! \brief Calculates which is the next step in the direction of
+      decreasing radius for the passed step ID.
+      
+      \param current_step The ID of the step which you wish to
+      calculate the inner step ID of.
+    */
+    inline size_t inner_edge_ID(const size_t current_step) const
+    { 
+      if ((current_step) == 0 && direction())
+	M_throw() << "Cannot find the inner_edge ID of the zeroth step.";
+      return current_step + !direction() - 1; 
+    }
+
+    /*! \brief Returns the maximum distance the potential can interact
+        at.
+     */
+    virtual double max_distance() const = 0;
+
     /*! \brief Returns false if the discontinuity energies specify the
 	step energy to its left or true if it is the energy to its
 	right.
@@ -153,11 +209,6 @@ namespace dynamo {
 	the energy to its right (r^+).
      */
     virtual bool direction() const = 0;
-
-    /*! \brief Returns the maximum distance the potential can interact
-        at.
-     */
-    virtual double max_distance() const = 0;
 
   protected:
     virtual void calculateToStep(size_t) const = 0;
@@ -209,14 +260,14 @@ namespace dynamo {
       return _direction ? _r_cache.front() : _r_cache.back();
     }
 
-    virtual bool direction() const { return _direction; }
 
     virtual double max_distance() const { return (_direction ? _r_cache.back() : _r_cache.front()); }
+
+    virtual bool direction() const { return _direction; }
 
   protected:
     bool _direction;
     
-
     virtual void calculateToStep(size_t) const {
       M_throw() << "Cannot calculate new steps for this potential!";
     }

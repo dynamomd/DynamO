@@ -66,9 +66,9 @@ namespace dynamo {
     double U_uncut(double) const;
     double minimum() const;
 
-    virtual bool direction() const { return false; }
-    
     virtual double max_distance() const { return _cutoff; }
+
+    virtual bool direction() const { return false; }    
 
   protected:
 

@@ -175,18 +175,21 @@ namespace dynamo {
     const std::pair<double, double> step_bounds = _potential->getStepBounds(old_step_ID);
 
     size_t new_step_ID;
+    size_t edge_ID;
     double diameter;
     switch (iEvent.getType())
       {
       case STEP_OUT:
 	{
-	  new_step_ID = old_step_ID - 1 + 2 * _potential->direction();
+	  new_step_ID = _potential->outer_step_ID(old_step_ID);
+	  edge_ID = _potential->outer_edge_ID(old_step_ID);
 	  diameter = step_bounds.second * length_scale;
 	  break;
 	}
       case STEP_IN:
 	{
-	  new_step_ID = old_step_ID + 1 - 2 * _potential->direction();
+	  new_step_ID = _potential->inner_step_ID(old_step_ID);
+	  edge_ID = _potential->inner_edge_ID(old_step_ID);
 	  diameter = step_bounds.first * length_scale;
 	  break;
 	}
@@ -195,6 +198,9 @@ namespace dynamo {
       } 
 
     PairEventData retVal = Sim->dynamics->SphereWellEvent(iEvent, _potential->getEnergyChange(new_step_ID, old_step_ID) * energy_scale, diameter * diameter, new_step_ID);
+    EdgeData& data = _edgedata[std::pair<size_t, EEventType>(edge_ID, retVal.getType())];
+    ++data.counter;
+    data.rdotv_sum += retVal.rvdot;
     //Check if the particles changed their step ID
     if (retVal.getType() != BOUNCE) ICapture::operator[](ICapture::key_type(p1, p2)) = new_step_ID;
     (*Sim->_sigParticleUpdate)(retVal);
@@ -251,13 +257,31 @@ namespace dynamo {
     XML << tag("Interaction")
 	<< attr("Name") << intName
 	<< attr("Type") << "Stepped"
-	<< tag("AccessedSteps");
+	<< tag("AccessedSteps")
+	<< attr("Direction") << (_potential->direction() ? "Outward" : "Inward")
+	<< attr("MaxDiameter") << _potential->max_distance()
+      ;
     
     for (size_t i(0); i < _potential->cached_steps(); ++i)
-      XML << tag("Step") 
-	  << attr("R") << (*_potential)[i].first
-	  << attr("U") << (*_potential)[i].second
-	  << endtag("Step");
+      {
+	double deltaU = (*_potential)[i].second;
+	if (i > 0)
+	  deltaU -= (*_potential)[i-1].second;
+	XML << tag("Step") 
+	    << attr("ID") << i
+	    << attr("R") << (*_potential)[i].first
+	    << attr("U") << (*_potential)[i].second
+	    << attr("DeltaU") << deltaU
+	  ;
+	for (const auto& data: _edgedata)
+	  if (data.first.first == i)
+	    XML << tag("Event")
+		<< attr("Type") << data.first.second
+		<< attr("Count") << data.second.counter
+		<< attr("RdotV") << data.second.rdotv_sum / (data.second.counter * Sim->units.unitVelocity() * Sim->units.unitLength())
+		<< endtag("Event");
+	XML << endtag("Step");
+      }
     
     XML << endtag("AccessedSteps")
 	<< endtag("Interaction");
