@@ -159,47 +159,19 @@ namespace magnet {
 	setPosition(oldEyePosition);
       }
 
-      inline void setPosition(math::Vector newposition)
-      {
-	_nearPlanePosition = newposition - (getInvViewRotationMatrix() * _eyeLocation / _simLength);
+      /*! \brief Get the rotation part of the getViewMatrix().
+       */
+      inline GLMatrix getViewRotationMatrix() const 
+      { 
+	return GLMatrix::rotate(_tiltrotation, math::Vector(1,0,0))
+	  * GLMatrix::rotate(_panrotation, _up);
       }
 
-      inline void setRotatePoint(math::Vector vec)
+      inline math::Matrix getInvViewRotationMatrix() const
       {
-	if (_rotatePoint == vec) return;
-	
-	math::Vector shift = vec - _rotatePoint;
-	_rotatePoint = vec;
-	
-	switch (_camMode)
-	  {
-	  case ROTATE_POINT:
-	    _nearPlanePosition += shift;
-	    lookAt(_rotatePoint);
-	    break;
-	  case ROTATE_CAMERA:
-	    break;
-	  default:
-	    M_throw() << "Unknown camera mode";
-	  }
+	return Rodrigues(- _up * (_panrotation * M_PI/180))
+	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
       }
-
-      /*! \brief Sets the eye location.
-       
-        \param eye The position of the viewers eye, relative to the
-        center of the near viewing plane (in cm).
-       */
-      inline void setEyeLocation(math::Vector eye)
-      { _eyeLocation = eye; }
-
-      /*! \brief Gets the eye location (in cm).
-       
-        The position of the viewers eye is relative to the center of
-        the near viewing plane (in cm).
-       */
-      inline const math::Vector getEyeLocation() const
-      { return _eyeLocation; }
-
 
       /*! \brief Converts some inputted motion (e.g., by the mouse or keyboard) into a
         motion of the camera.
@@ -299,6 +271,7 @@ namespace magnet {
 	  }
       }
 
+
       /*! \brief Tell the camera to align its view along an axis.
 	
 	This is useful when you want to reset the view
@@ -325,6 +298,47 @@ namespace magnet {
 	  }
       }
 
+      inline void setPosition(math::Vector newposition)
+      {
+	_nearPlanePosition = newposition - (getInvViewRotationMatrix() * _eyeLocation / _simLength);
+      }
+
+      inline void setRotatePoint(math::Vector vec)
+      {
+	if (_rotatePoint == vec) return;
+	
+	math::Vector shift = vec - _rotatePoint;
+	_rotatePoint = vec;
+	
+	switch (_camMode)
+	  {
+	  case ROTATE_POINT:
+	    _nearPlanePosition += shift;
+	    lookAt(_rotatePoint);
+	    break;
+	  case ROTATE_CAMERA:
+	    break;
+	  default:
+	    M_throw() << "Unknown camera mode";
+	  }
+      }
+
+      /*! \brief Sets the eye location.
+       
+        \param eye The position of the viewers eye, relative to the
+        center of the near viewing plane (in cm).
+       */
+      inline void setEyeLocation(math::Vector eye)
+      { _eyeLocation = eye; }
+
+      /*! \brief Gets the eye location (in cm).
+       
+        The position of the viewers eye is relative to the center of
+        the near viewing plane (in cm).
+       */
+      inline const math::Vector getEyeLocation() const
+      { return _eyeLocation; }
+
       /*! \brief Get the modelview matrix. */
       inline GLMatrix getViewMatrix() const 
       {
@@ -346,20 +360,6 @@ namespace magnet {
 	return getViewMatrix()
 	  * GLMatrix::translate(_nearPlanePosition)
 	  * getInvViewRotationMatrix();
-      }
-
-      /*! \brief Get the rotation part of the getViewMatrix().
-       */
-      inline GLMatrix getViewRotationMatrix() const 
-      { 
-	return GLMatrix::rotate(_tiltrotation, math::Vector(1,0,0))
-	  * GLMatrix::rotate(_panrotation, _up);
-      }
-
-      inline math::Matrix getInvViewRotationMatrix() const
-      {
-	return Rodrigues(- _up * (_panrotation * M_PI/180))
-	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
       }
 
       /*! \brief Get the projection matrix.
