@@ -100,7 +100,6 @@ namespace magnet {
 	if (_zNearDist > _zFarDist) 
 	  M_throw() << "zNearDist > _zFarDist!";
 
-
 	//We assume the user is around about 70cm from the screen
 	setEyeLocation(eye_location);
 	setPosition(position);
@@ -162,11 +161,7 @@ namespace magnet {
 
       inline void setPosition(math::Vector newposition)
       {
-	math::Matrix viewTransformation 
-	  = Rodrigues(- _up * (_panrotation * M_PI/180))
-	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
-	
-	_nearPlanePosition = newposition - (viewTransformation * _eyeLocation / _simLength);
+	_nearPlanePosition = newposition - (getInvViewRotationMatrix() * _eyeLocation / _simLength);
       }
 
       inline void setRotatePoint(math::Vector vec)
@@ -175,7 +170,7 @@ namespace magnet {
 	
 	math::Vector shift = vec - _rotatePoint;
 	_rotatePoint = vec;
-
+	
 	switch (_camMode)
 	  {
 	  case ROTATE_POINT:
@@ -187,7 +182,6 @@ namespace magnet {
 	  default:
 	    M_throw() << "Unknown camera mode";
 	  }
-
       }
 
       /*! \brief Sets the eye location.
@@ -206,6 +200,7 @@ namespace magnet {
       inline const math::Vector getEyeLocation() const
       { return _eyeLocation; }
 
+
       /*! \brief Converts some inputted motion (e.g., by the mouse or keyboard) into a
         motion of the camera.
 
@@ -221,9 +216,7 @@ namespace magnet {
 	upwards /= _simLength;
 
 	//Build a matrix to rotate from camera to world
-	math::Matrix Transformation = Rodrigues(-_up * (_panrotation * M_PI / 180.0))
-	  * Rodrigues(math::Vector(- _tiltrotation * M_PI / 180.0, 0, 0));
-	
+	math::Matrix Transformation = getInvViewRotationMatrix();
 	if (_camMode == ROTATE_POINT)
 	  {
 	    if (forwards)
@@ -247,7 +240,7 @@ namespace magnet {
 	    { 
 	      //Move the camera
 	      math::Vector newposition = getPosition() 
-		+ math::Vector(0, upwards, 0) 
+		+ math::Vector(0, upwards, 0)
 		+ Transformation * math::Vector(sideways, 0, -forwards);
 
 	      //This rotates the camera about the head/eye position of
@@ -337,11 +330,7 @@ namespace magnet {
       {
 	//Add in the movement of the eye and the movement of the
 	//camera
-	math::Matrix viewTransformation 
-	  = Rodrigues(- _up * (_panrotation * M_PI/180))
-	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
-	
-	math::Vector cameraLocation((viewTransformation * _eyeLocation / _simLength) + _nearPlanePosition);
+	math::Vector cameraLocation((getInvViewRotationMatrix() * _eyeLocation / _simLength) + _nearPlanePosition);
 
 	//Setup the view matrix
 	return getViewRotationMatrix()
@@ -356,8 +345,7 @@ namespace magnet {
       {
 	return getViewMatrix()
 	  * GLMatrix::translate(_nearPlanePosition)
-	  * GLMatrix::rotate(-_panrotation, _up)
-	  * GLMatrix::rotate(-_tiltrotation, math::Vector(1, 0, 0));
+	  * getInvViewRotationMatrix();
       }
 
       /*! \brief Get the rotation part of the getViewMatrix().
@@ -366,6 +354,12 @@ namespace magnet {
       { 
 	return GLMatrix::rotate(_tiltrotation, math::Vector(1,0,0))
 	  * GLMatrix::rotate(_panrotation, _up);
+      }
+
+      inline math::Matrix getInvViewRotationMatrix() const
+      {
+	return Rodrigues(- _up * (_panrotation * M_PI/180))
+	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
       }
 
       /*! \brief Get the projection matrix.
@@ -442,11 +436,7 @@ namespace magnet {
        */
       inline math::Vector getPosition() const 
       { 
-	math::Matrix viewTransformation 
-	  = Rodrigues(- _up * (_panrotation * M_PI/180))
-	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
-
-	return (viewTransformation * _eyeLocation / _simLength) + _nearPlanePosition;
+	return (getInvViewRotationMatrix() * _eyeLocation / _simLength) + _nearPlanePosition;
       }
 
       //! \brief Set the height and width of the screen in pixels.
@@ -460,19 +450,13 @@ namespace magnet {
       //! \brief Get the up direction of the camera.
       inline math::Vector getCameraUp() const 
       { 
-	math::Matrix viewTransformation 
-	  = Rodrigues(- _up * (_panrotation * M_PI/180))
-	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
-	return viewTransformation * math::Vector(0,1,0);
+	return getInvViewRotationMatrix() * math::Vector(0,1,0);
       } 
 
       //! \brief Get the direction the camera is pointing in
       inline math::Vector getCameraDirection() const
       { 
-	math::Matrix viewTransformation 
-	  = Rodrigues(- _up * (_panrotation * M_PI/180))
-	  * Rodrigues(math::Vector(-_tiltrotation * M_PI / 180.0, 0, 0));
-	return viewTransformation * math::Vector(0,0,-1);
+	return getInvViewRotationMatrix() * math::Vector(0,0,-1);
       } 
 
       //! \brief Get the height of the screen, in pixels.
