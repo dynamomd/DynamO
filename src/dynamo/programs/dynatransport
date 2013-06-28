@@ -52,7 +52,7 @@ def stddev(data):
     average = avg(data)
     return avg([(item - average)**2 for item in data])
 
-def fitData(datacolumns, data, title):
+def fitData(datacolumns, data, filename):
     import numpy as np
     from itertools import izip
     xvalues = [line[0] for line in data]
@@ -67,7 +67,7 @@ def fitData(datacolumns, data, title):
         R2 = 1.0
     else:
         R2 = 1.0 - SSreg/SStot
-    return slope, intercept, R2, xvalues, yvalues, yerrvalues
+    return slope, intercept, R2, xvalues, yvalues, yerrvalues, filename
 
 shear_viscosity_data = []
 bulk_viscosity_data = []
@@ -85,27 +85,22 @@ for filename in datafiles:
     RootElement=XMLDoc.getroot()
 
     #Parse all of the transport data (and draw the plots if requested)
-    title="Shear\\ viscosity\\ L_{\\eta,\\eta}"
     for xmlelement in RootElement.findall(".//Viscosity/Correlator"):
-        shear_viscosity_data.extend([fitData([3, 4, 7], parseToArray(xmlelement.text), title)])
+        shear_viscosity_data.extend([fitData([3, 4, 7], parseToArray(xmlelement.text), filename)])
 
-    title="Bulk\\ viscosity\\ L_{\\kappa,\\kappa}"
     for xmlelement in RootElement.findall(".//Viscosity/Correlator"):
-        bulk_viscosity_data.extend([fitData([2, 6, 10], parseToArray(xmlelement.text), title)])
+        bulk_viscosity_data.extend([fitData([2, 6, 10], parseToArray(xmlelement.text), filename)])
 
-    title="Thermal\\ conductivity\\ L_{\\lambda,\\lambda}"
     for xmlelement in RootElement.findall(".//ThermalConductivity/Correlator"):
-        thermalconductivity_data.extend([fitData([2, 3, 4], parseToArray(xmlelement.text), title)])
+        thermalconductivity_data.extend([fitData([2, 3, 4], parseToArray(xmlelement.text), filename)])
 
     for xmlelement in RootElement.findall(".//ThermalDiffusion/Correlator"):
         key = xmlelement.attrib["Species"]
-        title="Thermal\\ diffusion\\ L_{\\lambda,"+key+"}"
-        thermaldiffusion_data.setdefault(key, []).extend([fitData([2, 3, 4], parseToArray(xmlelement.text), title)])
+        thermaldiffusion_data.setdefault(key, []).extend([fitData([2, 3, 4], parseToArray(xmlelement.text), filename)])
 
     for xmlelement in RootElement.findall(".//MutualDiffusion/Correlator"):
         key=xmlelement.attrib["Species1"]+","+xmlelement.attrib["Species2"]
-        title="Mutual\\ diffusion\\ L_{"+key+"}"
-        mutualdiffusion_data.setdefault(key, []).extend([fitData([2, 3, 4], parseToArray(xmlelement.text), title)])
+        mutualdiffusion_data.setdefault(key, []).extend([fitData([2, 3, 4], parseToArray(xmlelement.text), filename)])
 
 
 def output(title, correlator_data):
@@ -123,8 +118,9 @@ def output(title, correlator_data):
         for data in correlator_data:
             minx = min(min(data[3]), minx)
             maxx = max(max(data[3], maxx))
-            plt.errorbar(data[3], data[4], yerr=data[5], fmt='x')
+            plt.errorbar(data[3], data[4], yerr=data[5], fmt='x', label=data[-1])
         plt.plot([minx, maxx], [minx * avgslope + avgintercept, maxx * avgslope + avgintercept])
+        plt.legend()
         plt.show()
 
 output("ShearViscosityL_{\\eta,\\eta}=", shear_viscosity_data)
