@@ -114,6 +114,10 @@ namespace magnet {
 
       inline void lookAt(math::Vector lookAtPoint)
       {
+	const math::Vector up(0,1,0);
+	const math::Vector forward(0,0,-1);
+	const math::Vector orth(1,0,0);
+
 	//Generate the direction from the near plane to the object
 	const math::Vector oldEyePosition = getPosition();
 	math::Vector directionNorm = lookAtPoint - oldEyePosition;
@@ -121,14 +125,7 @@ namespace magnet {
 	double directionLength = directionNorm.nrm();
 	if (directionLength == 0) return;
 	directionNorm /= directionLength;
-	
-	//_rotation = math::Quaternion::fromToVector(math::Vector(0,0,-1), directionNorm);
-	//setPosition(oldEyePosition);
-
-	const math::Vector up(0,1,0);
-	const math::Vector forward(0,0,-1);
-	const math::Vector orth(1,0,0);
-
+		
 	double upprojection = (directionNorm | up);
 
 	if ((upprojection == 1.0) || (upprojection == -1.0))
@@ -191,8 +188,10 @@ namespace magnet {
 	      math::Vector newposition = getPosition()
 		+ math::Vector(0, upwards, 0)
 		+ getInvViewRotationMatrix() * math::Vector(sideways, 0, -forwards);
-
-	      _rotation = math::Quaternion::fromAngleAxis(rotationY * M_PI / 180.0, math::Vector(1,0,0)) * _rotation * math::Quaternion::fromAngleAxis(rotationX * M_PI / 180.0, math::Vector(0,1,0));
+	      //Rotate the view
+	      _rotation = math::Quaternion::fromAngleAxis(rotationY * M_PI / 180.0, math::Vector(1,0,0)) 
+		* _rotation 
+		* math::Quaternion::fromAngleAxis(rotationX * M_PI / 180.0, math::Vector(0,1,0));
 	      setPosition(newposition);
 	      break;
 	    }
@@ -213,6 +212,7 @@ namespace magnet {
 	      rotationY += 10 * upwards;
 
 	      lookAt(_rotatePoint);
+
 	      math::Vector offset =  getPosition() - _rotatePoint;
 
 	      //We need to store the normal and restore it later.
