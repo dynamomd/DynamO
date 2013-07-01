@@ -89,6 +89,7 @@ namespace coil {
 
     void autoscaleView();
 
+    magnet::GL::Camera& getCamera() { return _camera; }
   protected:
     CLGLWindow(const CLGLWindow&);
     

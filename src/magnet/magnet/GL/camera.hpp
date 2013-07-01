@@ -91,6 +91,7 @@ namespace magnet {
 	_zNearDist(zNearDist),
 	_zFarDist(zFarDist),
 	_rotation(math::Quaternion::identity()),
+	_transformation(math::Quaternion::identity()),
 	_simLength(simLength),
 	_pixelPitch(0.05), //Measured from my screen
 	_camMode(ROTATE_POINT)
@@ -106,11 +107,9 @@ namespace magnet {
 	lookAt(lookAtPoint);
       }
 
-      inline void setRenderScale(double newscale)
-      { _simLength = newscale; }
+      inline void setRenderScale(double newscale) { _simLength = newscale; }
 
-      inline GLfloat getRenderScale() const
-      { return _simLength; }
+      inline GLfloat getRenderScale() const { return _simLength; }
 
       inline void lookAt(math::Vector lookAtPoint)
       {
@@ -146,22 +145,44 @@ namespace magnet {
 	if (((directionNorm ^ directionInXZplane) | rotationAxis) > 0)
 	  tiltrotation = -tiltrotation;
 	
-	panrotation = -std::acos(clamp(directionInXZplane | math::Vector(0,0,-1), -1.0, 1.0));
+	panrotation = -std::acos(clamp(directionInXZplane | forward, -1.0, 1.0));
 	
-	if (((math::Vector(0,0,-1) ^ directionInXZplane) | math::Vector(0,1,0)) < 0)
+	if (((forward ^ directionInXZplane) | up) < 0)
 	  panrotation = -panrotation;
 
-	_rotation = math::Quaternion::fromAngleAxis(tiltrotation, math::Vector(1,0,0))
-	  * math::Quaternion::fromAngleAxis(panrotation, math::Vector(0,1,0));
+	_rotation = math::Quaternion::fromAngleAxis(tiltrotation, orth)
+	  * math::Quaternion::fromAngleAxis(panrotation, up);
 	
 	setPosition(oldEyePosition);
       }
 
       /*! \brief Get the rotation part of the getViewMatrix().
        */
-      inline GLMatrix getViewRotationMatrix() const { return _rotation.toMatrix(); }
+      inline GLMatrix getViewRotationMatrix() const { return (_rotation * _transformation).toMatrix(); }
 
-      inline math::Matrix getInvViewRotationMatrix() const { return _rotation.inverse().toMatrix(); }
+      inline math::Matrix getInvViewRotationMatrix() const { return (_rotation * _transformation).inverse().toMatrix(); }
+
+      /*! \brief Get the modelview matrix. */
+      inline GLMatrix getViewMatrix() const 
+      {
+	//Add in the movement of the eye and the movement of the
+	//camera
+	math::Vector cameraLocation((getInvViewRotationMatrix() * _eyeLocation / _simLength) + _nearPlanePosition);
+	
+	//Setup the view matrix
+	return static_cast<GLMatrix>(_rotation.toMatrix()) * GLMatrix::translate(-cameraLocation) * static_cast<GLMatrix>(_transformation.toMatrix());
+      }
+
+      /*! \brief Generate a matrix that locates objects at the near
+          ViewPlane (for rendering 3D objects attached to the
+          screen). 
+      */
+      inline GLMatrix getViewPlaneMatrix() const
+      {
+	return getViewMatrix()
+	  * GLMatrix::translate(_nearPlanePosition)
+	  * getInvViewRotationMatrix();
+      }
 
       /*! \brief Converts some inputted motion (e.g., by the mouse or keyboard) into a
         motion of the camera.
@@ -307,29 +328,6 @@ namespace magnet {
       inline const math::Vector getEyeLocation() const
       { return _eyeLocation; }
 
-      /*! \brief Get the modelview matrix. */
-      inline GLMatrix getViewMatrix() const 
-      {
-	//Add in the movement of the eye and the movement of the
-	//camera
-	math::Vector cameraLocation((getInvViewRotationMatrix() * _eyeLocation / _simLength) + _nearPlanePosition);
-
-	//Setup the view matrix
-	return getViewRotationMatrix()
-	  * GLMatrix::translate(-cameraLocation);
-      }
-
-      /*! \brief Generate a matrix that locates objects at the near
-          ViewPlane (for rendering 3D objects attached to the
-          screen). 
-      */
-      inline GLMatrix getViewPlaneMatrix() const
-      {
-	return getViewMatrix()
-	  * GLMatrix::translate(_nearPlanePosition)
-	  * getInvViewRotationMatrix();
-      }
-
       /*! \brief Get the projection matrix.
        
         \param offset This is an offset in camera coordinates to apply
@@ -420,8 +418,7 @@ namespace magnet {
       { return getInvViewRotationMatrix() * math::Vector(0,1,0); } 
 
       //! \brief Get the direction the camera is pointing in
-      inline math::Vector getCameraDirection() const
-      { return getInvViewRotationMatrix() * math::Vector(0,0,-1); } 
+      inline math::Vector getCameraDirection() const { return getInvViewRotationMatrix() * math::Vector(0,0,-1); } 
 
       //! \brief Get the height of the screen, in pixels.
       inline const size_t& getHeight() const { return _height; }
@@ -467,8 +464,8 @@ namespace magnet {
       {
 	//We need to calculate the ray from the camera
 	std::array<GLfloat, 4> n = {{(2.0f * windowx) / getWidth() - 1.0f,
-					  1.0f - (2.0f * windowy) / getHeight(),
-					  depth, 1.0f}};
+				     1.0f - (2.0f * windowy) / getHeight(),
+				     depth, 1.0f}};
 	//Unproject from NDC to camera coords
 	std::array<GLfloat, 4> v = getProjectionMatrix().inverse() * n;
 	
@@ -508,6 +505,9 @@ namespace magnet {
 	return vec;
       }
 
+      void setTransformation(math::Quaternion newTransformation)
+      { _transformation = newTransformation; }
+
     protected:
       size_t _height, _width;
       math::Vector _nearPlanePosition;
@@ -523,6 +523,7 @@ namespace magnet {
       */
       math::Vector _eyeLocation;
       math::Quaternion _rotation;
+      math::Quaternion _transformation;
       
       //! \brief One simulation length in cm.
       double _simLength;

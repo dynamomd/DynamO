@@ -18,6 +18,7 @@
 #ifdef DYNAMO_visualizer
 
 #include <dynamo/systems/visualizer.hpp>
+#include <dynamo/dynamics/gravity.hpp>
 #include <dynamo/dynamics/compression.hpp>
 #include <dynamo/coilRenderObj.hpp>
 #include <dynamo/simulation.hpp>
@@ -97,6 +98,10 @@ namespace dynamo {
     for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(*this, NEventData(), dt);
   
+    std::shared_ptr<DynGravity> dynamics = std::dynamic_pointer_cast<DynGravity>(Sim->dynamics);
+    if (dynamics)
+      _window->getCamera().setTransformation(magnet::math::Quaternion::fromToVector(Vector(0,-1,0), dynamics->getGravityVector()));
+
     _window->simupdateTick(Sim->systemTime / Sim->units.unitTime());
 
     //Now that the update has been performed, set up the next "tick"
@@ -107,8 +112,7 @@ namespace dynamo {
   void 
   SVisualizer::initialise(size_t nID)
   { 
-    ID = nID; 
-
+    ID = nID;
     (*Sim->_sigParticleUpdate).connect<SVisualizer, &SVisualizer::particlesUpdated>(this);
   }
 
