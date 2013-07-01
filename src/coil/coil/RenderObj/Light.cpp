@@ -342,12 +342,23 @@ namespace coil {
     _color[1] = GLfloat(color.get_green()) / G_MAXUSHORT;
     _color[2] = GLfloat(color.get_blue()) / G_MAXUSHORT;
 
+    {magnet::math::Vector vec = getPosition();
+      if (std::isnan(vec[0]))
+	M_throw() << "isnan!" << vec.toString();
+    }
+
     lookAt(Vector(0,0,0));
 
     magnet::math::Vector vec = getPosition();
+    if (std::isnan(vec[0]))
+      M_throw() << "isnan!" << vec.toString();
     try { vec[0] = boost::lexical_cast<float>(_positionXEntry->get_text());} catch(...) {}
     try { vec[1] = boost::lexical_cast<float>(_positionYEntry->get_text());} catch(...) {}
     try { vec[2] = boost::lexical_cast<float>(_positionZEntry->get_text());} catch(...) {}
-      magnet::GL::Camera::setPosition(vec);
+    if (std::isnan(vec[0]))
+      M_throw() << "isnan now!" << vec.toString();
+    magnet::GL::Camera::setPosition(vec);
+    if (std::isnan(vec[0]))
+      M_throw() << "isnan now2!" << vec.toString();
   }
 }
