@@ -77,7 +77,7 @@ namespace magnet {
       //We need a default constructor as viewPorts may be created without GL being initialized
       inline Camera(size_t height = 600, 
 		    size_t width = 800,
-		    math::Vector position = math::Vector(6,4,5), 
+		    math::Vector position = math::Vector(0,0,5), 
 		    math::Vector lookAtPoint = math::Vector(0,0,0),
 		    GLfloat zNearDist = 8.0f, 
 		    GLfloat zFarDist = 10000.0f,
@@ -86,6 +86,7 @@ namespace magnet {
 		    math::Vector eye_location = math::Vector(0, 0, 70)):
 	_height(height),
 	_width(width),
+	_up(up.normal()),
 	_nearPlanePosition(0,0,0),
 	_rotatePoint(0,0,0),
 	_zNearDist(zNearDist),
@@ -96,8 +97,6 @@ namespace magnet {
 	_pixelPitch(0.05), //Measured from my screen
 	_camMode(ROTATE_POINT)
       {
-	up /= up.nrm();
-
 	if (_zNearDist > _zFarDist) 
 	  M_throw() << "zNearDist > _zFarDist!";
 
@@ -113,46 +112,34 @@ namespace magnet {
 
       inline void lookAt(math::Vector lookAtPoint)
       {
-	const math::Vector up(0,1,0);
-	const math::Vector forward(0,0,-1);
-	const math::Vector orth(1,0,0);
-
 	//Generate the direction from the near plane to the object
 	const math::Vector oldEyePosition = getPosition();
-	math::Vector directionNorm = lookAtPoint - oldEyePosition;
 	
-	double directionLength = directionNorm.nrm();
-	if (directionLength == 0) return;
-	directionNorm /= directionLength;
-		
-	double upprojection = (directionNorm | up);
+	//Create the vectors at, right, and up, which are the target
+	//rotated versions of (0,0,-1), (1,0,0), and (0,1,0)
+	//respectively.
+	math::Vector at = lookAtPoint - oldEyePosition;
+	at.normalise();
 
-	if ((upprojection == 1.0) || (upprojection == -1.0))
-	  {
-	    return;
-	  }
+	math::Vector right = at ^ _up;
+	right.normalise();
 
-	double panrotation, tiltrotation;
-	math::Vector directionInXZplane = directionNorm - upprojection * up;
-	
-	directionInXZplane /= directionInXZplane.nrm() + (directionInXZplane.nrm() == 0);
-	
-	math::Vector rotationAxis = up ^ directionInXZplane;
-	rotationAxis /= rotationAxis.nrm();
-	
-	tiltrotation = std::acos(clamp(directionInXZplane | directionNorm, -1.0, 1.0));
-	
-	if (((directionNorm ^ directionInXZplane) | rotationAxis) > 0)
-	  tiltrotation = -tiltrotation;
-	
-	panrotation = -std::acos(clamp(directionInXZplane | forward, -1.0, 1.0));
-	
-	if (((forward ^ directionInXZplane) | up) < 0)
-	  panrotation = -panrotation;
+	math::Vector up = right ^ at;
+	up.normalise();
 
-	_rotation = math::Quaternion::fromAngleAxis(tiltrotation, orth)
-	  * math::Quaternion::fromAngleAxis(panrotation, up);
-	
+	//We now need to find the rotation into this target
+	//set. Starting with rotating the at vector into position.
+	_rotation = math::Quaternion::fromToVector(at,math::Vector(0,0,-1));
+
+	//Figure out where the right vector now is, then rotate that
+	//into the correct position. This will not incorrectly "roll"
+	//the view as it is guaranteed that right is perpendicular to
+	//at, so up will be used as the rotation axis and will not
+	//move.
+	_rotation = math::Quaternion::fromToVector(right,_rotation * math::Vector(1,0,0)) * _rotation;
+	_rotation = _rotation.inverse();
+
+	//Finally, readjust the head position
 	setPosition(oldEyePosition);
       }
 
@@ -167,10 +154,12 @@ namespace magnet {
       {
 	//Add in the movement of the eye and the movement of the
 	//camera
-	math::Vector cameraLocation((getInvViewRotationMatrix() * _eyeLocation / _simLength) + _nearPlanePosition);
+	math::Vector cameraLocation = (getInvViewRotationMatrix() * _eyeLocation) / _simLength + _nearPlanePosition;
 	
 	//Setup the view matrix
-	return static_cast<GLMatrix>(_rotation.toMatrix()) * GLMatrix::translate(-cameraLocation) * static_cast<GLMatrix>(_transformation.toMatrix());
+	return static_cast<GLMatrix>(_rotation.toMatrix())
+	  * GLMatrix::translate(-cameraLocation)
+	  * static_cast<GLMatrix>(_transformation.toMatrix());
       }
 
       /*! \brief Generate a matrix that locates objects at the near
@@ -178,11 +167,7 @@ namespace magnet {
           screen). 
       */
       inline GLMatrix getViewPlaneMatrix() const
-      {
-	return getViewMatrix()
-	  * GLMatrix::translate(_nearPlanePosition)
-	  * getInvViewRotationMatrix();
-      }
+      { return getViewMatrix() * GLMatrix::translate(_nearPlanePosition) * getInvViewRotationMatrix(); }
 
       /*! \brief Converts some inputted motion (e.g., by the mouse or keyboard) into a
         motion of the camera.
@@ -340,7 +325,7 @@ namespace magnet {
 	the parameter is directly passed to that function.
        */
       inline GLMatrix getProjectionMatrix(GLfloat zoffset = 0) const 
-      { 
+      {
 	//We will move the camera to the location of the eye in sim
 	//space. So we must create a viewing frustrum which, in real
 	//space, cuts through the image on the screen. The trick is to
@@ -360,12 +345,11 @@ namespace magnet {
 	//
 	return GLMatrix::frustrum((-0.5f * getScreenPlaneWidth()  - _eyeLocation[0]) * _zNearDist / _eyeLocation[2],// left
 				  (+0.5f * getScreenPlaneWidth()  - _eyeLocation[0]) * _zNearDist / _eyeLocation[2],// right
-				  (-0.5f * getScreenPlaneHeight() - _eyeLocation[1]) * _zNearDist / _eyeLocation[2],// bottom 
+				  (-0.5f * getScreenPlaneHeight() - _eyeLocation[1]) * _zNearDist / _eyeLocation[2],// bottom
 				  (+0.5f * getScreenPlaneHeight() - _eyeLocation[1]) * _zNearDist / _eyeLocation[2],// top
 				  _zNearDist / _simLength,//Near distance
 				  _zFarDist / _simLength,//Far distance
-				  zoffset
-				  );
+				  zoffset);
       }
       
       /*! \brief Get the normal matrix.
@@ -400,17 +384,15 @@ namespace magnet {
         location (relative to the viewing plane/screen) onto the
         current position.
        */
-      inline math::Vector getPosition() const 
-      { 
-	return (getInvViewRotationMatrix() * _eyeLocation / _simLength) + _nearPlanePosition;
-      }
+      inline math::Vector getPosition() const
+      { return (getInvViewRotationMatrix() * _eyeLocation / _simLength) + _nearPlanePosition; }
 
       //! \brief Set the height and width of the screen in pixels.
       inline void setHeightWidth(size_t height, size_t width)
       { _height = height; _width = width; }
 
       //! \brief Get the aspect ratio of the screen
-      inline GLfloat getAspectRatio() const 
+      inline GLfloat getAspectRatio() const
       { return ((GLfloat)_width) / _height; }
 
       //! \brief Get the up direction of the camera.
@@ -418,7 +400,8 @@ namespace magnet {
       { return getInvViewRotationMatrix() * math::Vector(0,1,0); } 
 
       //! \brief Get the direction the camera is pointing in
-      inline math::Vector getCameraDirection() const { return getInvViewRotationMatrix() * math::Vector(0,0,-1); } 
+      inline math::Vector getCameraDirection() const 
+      { return getInvViewRotationMatrix() * math::Vector(0,0,-1); }
 
       //! \brief Get the height of the screen, in pixels.
       inline const size_t& getHeight() const { return _height; }
@@ -449,8 +432,7 @@ namespace magnet {
 	std::array<GLfloat, 4> vec = {{GLfloat(invec[0]), GLfloat(invec[1]), GLfloat(invec[2]), 1.0f}};
 	vec = getProjectionMatrix() * (getViewMatrix() * vec);
 	
-	for (size_t i(0); i < 3; ++i)
-	  vec[i] /= std::abs(vec[3]);
+	for (size_t i(0); i < 3; ++i) vec[i] /= std::abs(vec[3]);
 	
 	vec[0] = (0.5 + 0.5 * vec[0]) * getWidth();
 	vec[1] = (0.5 - 0.5 * vec[1]) * getHeight();
@@ -485,8 +467,8 @@ namespace magnet {
       {
 	//We need to calculate the ray from the camera
 	std::array<GLfloat, 4> n = {{(2.0f * windowx) / getWidth() - 1.0f,
-					  1.0f - (2.0f * windowy) / getHeight(), 
-					  0.0f, 1.0f}};
+				     1.0f - (2.0f * windowy) / getHeight(),
+				     0.0f, 1.0f}};
 	//Unproject from NDC to camera coords
 	std::array<GLfloat, 4> v = getProjectionMatrix().inverse() * n;
 	
@@ -510,6 +492,7 @@ namespace magnet {
 
     protected:
       size_t _height, _width;
+      math::Vector _up;
       math::Vector _nearPlanePosition;
       math::Vector _rotatePoint;
 
