@@ -92,7 +92,6 @@ namespace magnet {
 	_zNearDist(zNearDist),
 	_zFarDist(zFarDist),
 	_rotation(math::Quaternion::identity()),
-	_transformation(math::Quaternion::identity()),
 	_simLength(simLength),
 	_pixelPitch(0.05), //Measured from my screen
 	_camMode(ROTATE_POINT)
@@ -145,9 +144,9 @@ namespace magnet {
 
       /*! \brief Get the rotation part of the getViewMatrix().
        */
-      inline GLMatrix getViewRotationMatrix() const { return (_rotation * _transformation).toMatrix(); }
+      inline GLMatrix getViewRotationMatrix() const { return _rotation.toMatrix(); }
 
-      inline math::Matrix getInvViewRotationMatrix() const { return (_rotation * _transformation).inverse().toMatrix(); }
+      inline math::Matrix getInvViewRotationMatrix() const { return _rotation.inverse().toMatrix(); }
 
       /*! \brief Get the modelview matrix. */
       inline GLMatrix getViewMatrix() const 
@@ -157,9 +156,7 @@ namespace magnet {
 	math::Vector cameraLocation = (getInvViewRotationMatrix() * _eyeLocation) / _simLength + _nearPlanePosition;
 	
 	//Setup the view matrix
-	return static_cast<GLMatrix>(_rotation.toMatrix())
-	  * GLMatrix::translate(-cameraLocation)
-	  * static_cast<GLMatrix>(_transformation.toMatrix());
+	return static_cast<GLMatrix>(_rotation.toMatrix()) * GLMatrix::translate(-cameraLocation);
       }
 
       /*! \brief Generate a matrix that locates objects at the near
@@ -183,61 +180,46 @@ namespace magnet {
 	sideways /= _simLength;
 	upwards /= _simLength;
 
-	//Build a matrix to rotate from camera to world
-	//math::Matrix Transformation = getInvViewRotationMatrix();
+	math::Vector at = _rotation.inverse() * math::Vector(0,0,-1); at.normalise();
+	math::Vector up = _rotation.inverse() * math::Vector(0,1,0); up.normalise();
+	math::Vector right = at ^ up; right.normalise();
 
 	switch (_camMode)
 	  {
 	  case ROTATE_CAMERA:
 	    { 
 	      //Move the camera
-	      math::Vector newposition = getPosition()
-		+ math::Vector(0, upwards, 0)
-		+ getInvViewRotationMatrix() * math::Vector(sideways, 0, -forwards);
+	      math::Vector newpos = getPosition() + up * upwards + right * sideways + at * forwards;
 	      //Rotate the view
-	      _rotation = math::Quaternion::fromAngleAxis(rotationY * M_PI / 180.0, math::Vector(1,0,0)) 
-		* _rotation 
-		* math::Quaternion::fromAngleAxis(rotationX * M_PI / 180.0, math::Vector(0,1,0));
-	      setPosition(newposition);
+	      math::Vector direction = math::Quaternion::fromAngleAxis(rotationY / 180.0, right)
+		* math::Quaternion::fromAngleAxis(rotationX / 180.0, up)
+		* at;
+	      
+	      setPosition(newpos);
+	      lookAt(newpos + direction);
 	      break;
 	    }
 	  case ROTATE_POINT:
 	    {
-	      if (forwards)
-		{
-		  //Test if the forward motion will take the eyePosition passed the viewing point, if so, don't move.
-		  math::Vector focus = math::Vector(0,0,0);
-		  if (_camMode == ROTATE_POINT)
-		    focus = _rotatePoint;
-		  
-		  if (math::Vector(getPosition() - focus).nrm() > forwards)
-		    _nearPlanePosition += getInvViewRotationMatrix() * math::Vector(0, 0, -forwards);
-		}
-	      
+	      lookAt(_rotatePoint);
+	      if (math::Vector(getPosition() - _rotatePoint).nrm() > forwards)
+		_nearPlanePosition += forwards * at;
 	      rotationX -= 10 * sideways;
 	      rotationY += 10 * upwards;
-
-	      lookAt(_rotatePoint);
 
 	      math::Vector offset =  getPosition() - _rotatePoint;
 
 	      //We need to store the normal and restore it later.
 	      double offset_length = offset.nrm();
 
-	      offset = math::Rodrigues(- math::Vector(0,1,0) * (M_PI * rotationX / 180.0f)) * offset;
+	      offset = math::Quaternion::fromAngleAxis(-M_PI * rotationX / 180.0f, _up) * offset;
 
-	      math::Vector rotationAxis =  offset ^ getCameraUp();
-	      const double norm = rotationAxis.nrm();
-	      rotationAxis /= norm;
-#ifdef MAGNET_DEBUG
-	      if (norm == 0)
-		M_throw() << "Bad normal on a camera rotation axis";	
-#endif
-	      offset = math::Rodrigues(M_PI * (rotationY / 180.0f) * rotationAxis) * offset;
-	  
-	      offset *= offset_length / double(offset.nrm());
+	      math::Vector rotationAxis =  up ^ offset;
+	      rotationAxis.normalise();
+	      offset = math::Quaternion::fromAngleAxis(-M_PI * rotationY / 180.0f, rotationAxis) * offset;
+	      offset.normalise();
 	      
-	      setPosition(offset + _rotatePoint);
+	      setPosition(offset_length * offset + _rotatePoint);
 	      lookAt(_rotatePoint);
 	      break;
 	    }
@@ -482,13 +464,22 @@ namespace magnet {
 	//Unproject from camera to object space
 	std::array<GLfloat, 4> w = getViewMatrix().inverse() * v;
 	
-	magnet::math::Vector vec(w[0], w[1], w[2]);
+	math::Vector vec(w[0], w[1], w[2]);
 	vec /= vec.nrm();
 	return vec;
       }
 
-      void setTransformation(math::Quaternion newTransformation)
-      { _transformation = newTransformation; }
+      /*! \brief set the orientation (roll) of the camera by setting
+          its up direction.
+       */
+      void setUp(math::Vector newup, bool moveCamera)
+      {
+	newup.normalise();
+	if (moveCamera)
+	  setPosition(math::Quaternion::fromToVector(newup.normal(), _up) * getPosition());
+	_up = newup;
+	movement(0,0,0,0,0);
+      }
 
     protected:
       size_t _height, _width;
@@ -506,7 +497,6 @@ namespace magnet {
       */
       math::Vector _eyeLocation;
       math::Quaternion _rotation;
-      math::Quaternion _transformation;
       
       //! \brief One simulation length in cm.
       double _simLength;

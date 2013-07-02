@@ -28,6 +28,7 @@
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
+#include <magnet/math/quaternion.hpp>
 #include <fstream>
 
 namespace dynamo {
@@ -70,9 +71,10 @@ namespace dynamo {
     shared_ptr<DynGravity> dynamics = std::dynamic_pointer_cast<DynGravity>(Sim->dynamics);
     if (!dynamics)
       M_throw() << "The RotateGravity system can only be used with the Gravity type dynamics";
-
-    Vector newg = Rodrigues(_angularvel * _timestep * _rotationaxis) *  dynamics->getGravityVector();
-    dynamics->setGravityVector(newg);
+    
+    double g = dynamics->getGravityVector().nrm();
+    Vector newg = magnet::math::Quaternion::fromAngleAxis(_angularvel * _timestep, _rotationaxis) *  dynamics->getGravityVector();
+    dynamics->setGravityVector(newg.normal() * g);
 
     for (const ParticleEventData& PDat : SDat.L1partChanges)
       Sim->ptrScheduler->fullUpdate(Sim->particles[PDat.getParticleID()]);
