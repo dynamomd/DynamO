@@ -128,6 +128,14 @@ namespace dynamo {
   void
   SVisualizer::initDataSet() const
   {
+    for (auto& species : Sim->species)
+      {
+	std::vector<GLuint> ids;
+	ids.reserve(species->getRange()->size());
+	for (auto ID : *species->getRange())
+	  ids.push_back(ID);
+      }
+
     _particleData->addAttribute("Position", coil::Attribute::COORDINATE | coil::Attribute::DEFAULT_GLYPH_POSITION, 3);
     _particleData->addAttribute("Velocity", coil::Attribute::INTENSIVE, 3);
     _particleData->addAttribute("Size", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_SCALING, 3);
@@ -221,14 +229,10 @@ namespace dynamo {
 	  {
 	    for (size_t i(0); i < NDIM; ++i)
 	      {
-		angularvdata[3 * p.getID() + i] 
-		  = data[p.getID()].angularVelocity[i] * Sim->units.unitTime();
-		orientationdata[4 * p.getID() + i] 
-		  = data[p.getID()].orientation.imaginary()[i];
+		angularvdata[3 * p.getID() + i] = data[p.getID()].angularVelocity[i] * Sim->units.unitTime();
+		orientationdata[4 * p.getID() + i] = data[p.getID()].orientation.imaginary()[i];
 	      }
-
-	    orientationdata[4 * p.getID() + 3] 
-	      = data[p.getID()].orientation.real();
+	    orientationdata[4 * p.getID() + 3] = data[p.getID()].orientation.real();
 	  }
 	(*_particleData)["Angular Velocity"].flagNewData();
 	(*_particleData)["Orientation"].flagNewData();

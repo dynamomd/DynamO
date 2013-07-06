@@ -55,8 +55,8 @@ namespace coil {
   class DataSet: public RenderObj
   {
     std::map<std::string, std::shared_ptr<Attribute>> _attributes;
-    std::map<std::string, std::shared_ptr<magnet::GL::Buffer<GLuint>>> _cloud;
-    std::map<std::string, std::shared_ptr<magnet::GL::Buffer<GLuint>>> _links;
+    std::map<std::string, magnet::GL::Buffer<GLuint>> _points;
+    std::map<std::string, magnet::GL::Buffer<GLuint>> _links;
     
   public:
     DataSet(std::string name, size_t N, int defaultGlyphType = 0):
@@ -71,6 +71,8 @@ namespace coil {
 
     std::map<std::string, std::shared_ptr<Attribute> >& getAttributes() { return _attributes; }
     const std::map<std::string, std::shared_ptr<Attribute> >& getAttributes() const { return _attributes; }
+
+    void addPoints(std::string name, const std::vector<GLuint>&);
 
     /** @name The host code interface. */
     /**@{*/
@@ -156,7 +158,6 @@ namespace coil {
     }
 
     magnet::GL::Context::ContextPtr getContext() { return _context; }
-    
 
     virtual uint32_t pickableObjectCount()
     {
@@ -208,6 +209,8 @@ namespace coil {
 
   protected:
     void deleteChildWorker(DataSetChild* child);
+
+    void addPointsWorker(std::string name, std::vector<GLuint>);
 
     /*! \brief An iterator to this DataSet's row in the Render object
       treeview.

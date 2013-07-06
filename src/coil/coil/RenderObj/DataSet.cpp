@@ -216,6 +216,18 @@ namespace coil {
   }
 
   void
+  DataSet::addPoints(std::string name, const std::vector<GLuint>& data)
+  {
+    _context->queueTask(std::bind(&DataSet::addPointsWorker, this, name, data));
+  }
+
+  void
+  DataSet::addPointsWorker(std::string name, std::vector<GLuint> data)
+  {
+    _points[name].init(data, 1);
+  }
+
+  void
   DataSet::deinit()
   {
     _positionSel.reset();
