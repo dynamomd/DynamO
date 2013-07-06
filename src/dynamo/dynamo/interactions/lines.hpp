@@ -37,6 +37,7 @@ namespace dynamo {
     }
 
     virtual Vector getGlyphSize(size_t ID) const;
+
     virtual GLYPH_TYPE getDefaultGlyphType() const { return LINE_GLYPH; }
 
     ILines(const magnet::xml::Node&, dynamo::Simulation*);

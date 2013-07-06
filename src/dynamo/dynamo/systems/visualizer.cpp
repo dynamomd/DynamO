@@ -160,7 +160,8 @@ namespace dynamo {
 	std::vector<GLuint> ids;
 	ids.reserve(species->getRange()->size());
 	for (auto ID : *species->getRange()) ids.push_back(ID);
-	_particleData->addPoints(species->getName(), ids);
+	const GlyphRepresentation& data = dynamic_cast<const GlyphRepresentation&>(*species->getIntPtr());
+	_particleData->addPoints(species->getName(), ids, data.getDefaultGlyphType());
       }
   }
 

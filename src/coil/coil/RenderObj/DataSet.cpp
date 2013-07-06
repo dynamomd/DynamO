@@ -153,7 +153,7 @@ namespace coil {
   {    
     if (!_context) M_throw() << "Cannot add glyphs before the Dataset is initialised";
    
-    std::shared_ptr<Glyphs> glyph(new Glyphs("Glyphs", *this, _defaultGlyphType));
+    std::shared_ptr<Glyphs> glyph(new Glyphs(_comboPointSet->get_active_text(), *this));
     _children.push_back(glyph); 
     _children.back()->init(_systemQueue);
 
@@ -227,19 +227,31 @@ namespace coil {
   }
 
   void
-  DataSet::addPoints(std::string name, const std::vector<GLuint>& data)
+  DataSet::addPoints(std::string name, const std::vector<GLuint>& data, int datatype)
   {
-    _context->queueTask(std::bind(&DataSet::addPointsWorker, this, name, data));
+    _context->queueTask(std::bind(&DataSet::addPointsWorker, this, name, data, datatype));
   }
 
   void
-  DataSet::addPointsWorker(std::string name, std::vector<GLuint> data)
+  DataSet::addPointsWorker(std::string name, std::vector<GLuint> data, int datatype)
   {
     _pointSets[name].init(data, 1);
+    _pointSets[name].glyphType = datatype;
     _comboPointSet->remove_all();
     for (const auto& pointset: _pointSets)
       _comboPointSet->append(pointset.first);
     _comboPointSet->set_active(0);
+
+    std::shared_ptr<Glyphs> glyph(new Glyphs(name, *this));
+    _children.push_back(glyph); 
+    _children.back()->init(_systemQueue);
+    
+    if (_iter)
+      {
+	Gtk::TreeModel::iterator child_iter = _view->_store->append(_iter->children());
+	_children.back()->addViewRows(*_view, child_iter);
+	_view->_view->expand_to_path(_view->_store->get_path(child_iter));
+      }
   }
 
   void

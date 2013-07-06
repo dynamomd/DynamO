@@ -24,6 +24,13 @@
 #include <coil/images/images.hpp>
 
 namespace coil {  
+
+  Glyphs::Glyphs(std::string pointsName, DataSet& ds):
+    DataSetChild(pointsName, ds), _N(0), _scale(1), _pointsName(pointsName)
+  {
+    _initGlyphType = _ds.getPointSets()[_pointsName].glyphType;
+  }
+
   Glib::RefPtr<Gdk::Pixbuf> 
   Glyphs::getIcon()
   { return coil::images::Glyphs_Icon(); }
@@ -127,7 +134,8 @@ namespace coil {
 		    {
 		      Vector displacement = x * _ds.getPeriodicVectorX() + y * _ds.getPeriodicVectorY() + z * _ds.getPeriodicVectorZ();
 		      shader["ViewMatrix"] = cam.getViewMatrix() * magnet::GL::GLMatrix::translate(displacement);
-		      _ds.getPositionBuffer().drawArray(magnet::GL::element_type::POINTS);
+		      _ds.getPositionBuffer().attachToVertex();
+		      _ds.getPointSets()[_pointsName].drawElements(magnet::GL::element_type::POINTS);
 		    }
 	      shader.detach();
 	      

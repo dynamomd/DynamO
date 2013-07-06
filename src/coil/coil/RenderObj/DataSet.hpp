@@ -54,8 +54,13 @@ namespace coil {
    */
   class DataSet: public RenderObj
   {
+    struct PointSet : public magnet::GL::Buffer<GLuint>
+    {
+      int glyphType;
+    };
+
     std::map<std::string, std::shared_ptr<Attribute>> _attributes;
-    std::map<std::string, magnet::GL::Buffer<GLuint>> _pointSets;
+    std::map<std::string, PointSet> _pointSets;
     std::map<std::string, magnet::GL::Buffer<GLuint>> _linkSets;
     
   public:
@@ -72,7 +77,9 @@ namespace coil {
     std::map<std::string, std::shared_ptr<Attribute> >& getAttributes() { return _attributes; }
     const std::map<std::string, std::shared_ptr<Attribute> >& getAttributes() const { return _attributes; }
 
-    void addPoints(std::string name, const std::vector<GLuint>&);
+    std::map<std::string, PointSet>& getPointSets() { return _pointSets; }
+
+    void addPoints(std::string name, const std::vector<GLuint>&, int glyphtype);
 
     /** @name The host code interface. */
     /**@{*/
@@ -210,7 +217,7 @@ namespace coil {
   protected:
     void deleteChildWorker(DataSetChild* child);
 
-    void addPointsWorker(std::string name, std::vector<GLuint>);
+    void addPointsWorker(std::string name, std::vector<GLuint>, int glyphtype);
 
     /*! \brief An iterator to this DataSet's row in the Render object
       treeview.

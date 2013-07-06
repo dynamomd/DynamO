@@ -38,7 +38,7 @@ namespace coil {
       };
 
   public:
-    inline Glyphs(std::string name, DataSet& ds, int initGlyphType = 0): DataSetChild(name, ds), _N(0), _scale(1), _initGlyphType(initGlyphType) {}
+    Glyphs(std::string pointsName, DataSet& ds);
 
     inline ~Glyphs() { deinit(); }
 
@@ -105,6 +105,7 @@ namespace coil {
     size_t _N;
     float _scale;
     int _initGlyphType;
+    std::string _pointsName;
     magnet::GL::Context::ContextPtr _context;
     magnet::GL::shader::RenderShader _renderShader;
     magnet::GL::shader::RenderVSMShader _renderVSMShader;
