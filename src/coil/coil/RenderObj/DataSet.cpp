@@ -162,31 +162,30 @@ namespace coil {
   void 
   DataSet::addAttribute(std::string name, int type, size_t components)
   {
-    if (find(name) != end())
+    if (_attributes.find(name) != _attributes.end())
       M_throw() << "Trying to add an Attribute with a existing name, " << name;
 
     //Spinlock to force that the Data set is initialised before the attribute is created
     for (;;) if (_context) break;
     
-    mapped_type ptr(new Attribute(_N, type, components, _context));
-    insert(value_type(name, ptr));
+    std::shared_ptr<Attribute> ptr(new Attribute(_N, type, components, _context));
+    _attributes.insert(std::make_pair(name, ptr));
 
     //If we're initialised, we should rebuild the view of attributes
-    if (_context)
-      _context->queueTask(std::bind(&DataSet::rebuildGui, this));
+    if (_context) _context->queueTask(std::bind(&DataSet::rebuildGui, this));
   }
   
   void
   DataSet::rebuildGui()
   {
     _attrtreestore->clear();
-    for (iterator iPtr = begin(); iPtr != end(); ++iPtr)
+    for (const auto& attribute : _attributes)
       {
 	Gtk::TreeModel::iterator iter = _attrtreestore->append();
-	(*iter)[_attrcolumns->name] = iPtr->first;
-	(*iter)[_attrcolumns->components] = iPtr->second->components();
-	const std::vector<GLfloat>& mins = iPtr->second->minVals();
-	const std::vector<GLfloat>& maxs = iPtr->second->maxVals();
+	(*iter)[_attrcolumns->name] = attribute.first;
+	(*iter)[_attrcolumns->components] = attribute.second->components();
+	const std::vector<GLfloat>& mins = attribute.second->minVals();
+	const std::vector<GLfloat>& maxs = attribute.second->maxVals();
 	if (!mins.empty() && !maxs.empty())
 	  {
 	    std::ostringstream os;
@@ -225,10 +224,7 @@ namespace coil {
     _attrview.reset();
     _attrtreestore.reset();
     for (auto& child : _children) child->deinit();
-
-    for (iterator iPtr = begin(); iPtr != end(); ++iPtr)
-      iPtr->second->deinit();
-
+    for (auto& attribute :_attributes) attribute.second->deinit();
     _context.reset();
     RenderObj::deinit();
   }
@@ -243,16 +239,15 @@ namespace coil {
   DataSet::getCursorText(uint32_t objID)
   {
     std::ostringstream os;
-    for (const_iterator iPtr = begin(); iPtr != end();)
+    for (const auto& attribute : _attributes)
       {
-	size_t comps = iPtr->second->components();
-	os << iPtr->first << " <"; 
+	size_t comps = attribute.second->components();
+	os << attribute.first << " <"; 
 	
 	for (size_t i(0); i < comps-1; ++i)
-	  os << (*(iPtr->second))[objID * comps + i] << ", ";
-	os << (*(iPtr->second))[(objID + 1) * comps - 1] << ">";
-	if (++iPtr != end())
-	  os << "\n";
+	  os << (*(attribute.second))[objID * comps + i] << ", ";
+	os << (*(attribute.second))[(objID + 1) * comps - 1] << ">";
+	os << "\n";
       }
 
     return os.str();

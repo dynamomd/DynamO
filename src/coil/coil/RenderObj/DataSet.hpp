@@ -52,8 +52,10 @@ namespace coil {
    * instances forming a dataset, and any active filters/glyphs or any
    * other type derived from \ref DataSetChild.
    */
-  class DataSet: public RenderObj, public std::map<std::string, std::shared_ptr<Attribute> >
+  class DataSet: public RenderObj
   {
+    std::map<std::string, std::shared_ptr<Attribute> > _attributes;
+    
   public:
     DataSet(std::string name, size_t N, int defaultGlyphType = 0): 
       RenderObj(name), 
@@ -64,6 +66,9 @@ namespace coil {
     virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
 
     virtual void deinit();
+
+    std::map<std::string, std::shared_ptr<Attribute> >& getAttributes() { return _attributes; }
+    const std::map<std::string, std::shared_ptr<Attribute> >& getAttributes() const { return _attributes; }
 
     /** @name The host code interface. */
     /**@{*/
@@ -80,8 +85,8 @@ namespace coil {
      */
     inline Attribute& operator[](const std::string& name)
     {
-      iterator iPtr = find(name);
-      if (iPtr == end())
+      auto iPtr = _attributes.find(name);
+      if (iPtr == _attributes.end())
 	M_throw() << "No attribute named " << name << " in Data set";
       
       return *(iPtr->second);
@@ -117,7 +122,7 @@ namespace coil {
 	    if (child->visible() && (!(mode & SHADOW) || child->shadowCasting()))
 	      child->glRender(cam, mode);
 	  
-	  for (auto& data : *this)
+	  for (auto& data : _attributes)
 	    data.second->renderComplete();
 	  
 	  rebuildGui();

@@ -100,7 +100,7 @@ namespace dynamo {
   
     std::shared_ptr<DynGravity> dynamics = std::dynamic_pointer_cast<DynGravity>(Sim->dynamics);
     if (dynamics)
-      _window->getCamera().setUp(-dynamics->getGravityVector(), true);
+      _window->getCamera().setUp(-dynamics->getGravityVector(), false);
 
     _window->simupdateTick(Sim->systemTime / Sim->units.unitTime());
 

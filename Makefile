@@ -25,7 +25,7 @@ install: all
 	if [ -d ./include ]; then mkdir -p $(DESTDIR)/usr/include/; cp -R include/* $(DESTDIR)/usr/include/; fi
 
 distclean:
-	rm -Rf build-dir lib/ include/ bin/dynarun bin/dynamod bin/dynahist_rw
+	rm -Rf build-dir lib/ include/ bin/
 
 
 .PHONY: all install distclean test docs

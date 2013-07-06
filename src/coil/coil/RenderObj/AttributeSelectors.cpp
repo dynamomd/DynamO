@@ -161,22 +161,18 @@ namespace coil {
 	row[_modelColumns.m_name] = "Single Value";
       }
 
-    for (DataSet::iterator iPtr = ds.begin();
-	 iPtr != ds.end(); ++iPtr)
-      if (((iPtr->second->getType()) & typeMask)
-	  && (iPtr->second->components() >=  minComponents)
-	  && (iPtr->second->components() <=  maxComponents))
+    for (auto& data : ds.getAttributes())
+      if (((data.second->getType()) & typeMask) && (data.second->components() >=  minComponents) && (data.second->components() <=  maxComponents))
 	{
 	  Gtk::TreeModel::Row row = *(_model->append());
-	  row[_modelColumns.m_name] = iPtr->first;
-	  row[_modelColumns.m_ptr] = iPtr->second;
+	  row[_modelColumns.m_name] = data.first;
+	  row[_modelColumns.m_ptr] = data.second;
 	}
       
     typedef Gtk::TreeModel::Children::iterator iterator;
     iterator selected = _comboBox.get_model()->children().begin();
 
-    for (iterator iPtr = _comboBox.get_model()->children().begin();
-	 iPtr != _comboBox.get_model()->children().end(); ++iPtr)
+    for (auto iPtr = _comboBox.get_model()->children().begin(); iPtr != _comboBox.get_model()->children().end(); ++iPtr)
       {
 	std::shared_ptr<Attribute> attr_ptr = (*iPtr)[_modelColumns.m_ptr];
 	if ((attr_ptr) && (attr_ptr->getType() & defaultMask))
