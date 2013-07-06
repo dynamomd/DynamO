@@ -87,28 +87,34 @@ namespace coil {
     _gtkOptList.reset(new Gtk::VBox);
 
     {//The heading of the data set window
-      Gtk::HBox* box = Gtk::manage(new Gtk::HBox); box->show();
-      Gtk::Frame* frame = Gtk::manage(new Gtk::Frame("Data Set Statistics")); frame->show();
-      box->pack_start(*frame, true, true, 5);
+      Gtk::Frame* frame = Gtk::manage(new Gtk::Frame("Data Set Information")); frame->show();
+      _gtkOptList->pack_start(*frame, false, true, 5);
       Gtk::VBox* vbox = Gtk::manage(new Gtk::VBox); vbox->show();
       frame->add(*vbox);
 
-      {
-	Gtk::Label* label 
-	  = Gtk::manage(new Gtk::Label("Points: " 
-				       + boost::lexical_cast<std::string>(_N))); 
-	label->show();
-	vbox->pack_start(*label, false, false, 5);	
-      }
+      _infolabel.reset(new Gtk::Label("Points: " + boost::lexical_cast<std::string>(_N))); 
+      _infolabel->show();
+      vbox->pack_start(*_infolabel, false, true, 5);	
+    }
 
-      {
-	Gtk::Button* btn = Gtk::manage(new Gtk::Button("Add Glyph"));
-	btn->signal_clicked().connect(sigc::mem_fun(*this, &DataSet::addGlyphs));
-	btn->show();
-	box->pack_start(*btn, false, false, 5);
-      }
-      
+    //Glyph adding mechanism
+    {
+      Gtk::HBox* box = Gtk::manage(new Gtk::HBox); box->show();
       _gtkOptList->pack_start(*box, false, false, 5);
+
+      _comboPointSet.reset(new Gtk::ComboBoxText);_comboPointSet->show();
+      box->pack_start(*_comboPointSet, false, false, 5);
+
+      //Check the combo box is correct
+      _comboPointSet->remove_all();
+      for (const auto& pointset: _pointSets)
+	_comboPointSet->append(pointset.first);
+      _comboPointSet->set_active(0);
+
+      Gtk::Button* btn = Gtk::manage(new Gtk::Button("Add Glyph"));
+      btn->signal_clicked().connect(sigc::mem_fun(*this, &DataSet::addGlyphs));
+      btn->show();
+      box->pack_start(*btn, false, false, 5);
     }
     
     { 
@@ -179,6 +185,11 @@ namespace coil {
   DataSet::rebuildGui()
   {
     _attrtreestore->clear();
+
+    _infolabel->set_text("Points: " + boost::lexical_cast<std::string>(_N) 
+			 + " Point Sets: " +boost::lexical_cast<std::string>(_pointSets.size())
+			 + " Link Sets: " +boost::lexical_cast<std::string>(_linkSets.size())); 
+
     for (const auto& attribute : _attributes)
       {
 	Gtk::TreeModel::iterator iter = _attrtreestore->append();
@@ -224,7 +235,11 @@ namespace coil {
   void
   DataSet::addPointsWorker(std::string name, std::vector<GLuint> data)
   {
-    _points[name].init(data, 1);
+    _pointSets[name].init(data, 1);
+    _comboPointSet->remove_all();
+    for (const auto& pointset: _pointSets)
+      _comboPointSet->append(pointset.first);
+    _comboPointSet->set_active(0);
   }
 
   void

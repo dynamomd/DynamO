@@ -55,8 +55,8 @@ namespace coil {
   class DataSet: public RenderObj
   {
     std::map<std::string, std::shared_ptr<Attribute>> _attributes;
-    std::map<std::string, magnet::GL::Buffer<GLuint>> _points;
-    std::map<std::string, magnet::GL::Buffer<GLuint>> _links;
+    std::map<std::string, magnet::GL::Buffer<GLuint>> _pointSets;
+    std::map<std::string, magnet::GL::Buffer<GLuint>> _linkSets;
     
   public:
     DataSet(std::string name, size_t N, int defaultGlyphType = 0):
@@ -243,6 +243,8 @@ namespace coil {
     std::unique_ptr<ModelColumns> _attrcolumns;
     Glib::RefPtr<Gtk::TreeStore> _attrtreestore;
     std::unique_ptr<Gtk::TreeView> _attrview;
+    std::unique_ptr<Gtk::Label> _infolabel;
+    std::unique_ptr<Gtk::ComboBoxText> _comboPointSet;
 
     Vector _periodicImageX;
     Vector _periodicImageY;

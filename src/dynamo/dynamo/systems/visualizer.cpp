@@ -128,14 +128,6 @@ namespace dynamo {
   void
   SVisualizer::initDataSet() const
   {
-    for (auto& species : Sim->species)
-      {
-	std::vector<GLuint> ids;
-	ids.reserve(species->getRange()->size());
-	for (auto ID : *species->getRange())
-	  ids.push_back(ID);
-      }
-
     _particleData->addAttribute("Position", coil::Attribute::COORDINATE | coil::Attribute::DEFAULT_GLYPH_POSITION, 3);
     _particleData->addAttribute("Velocity", coil::Attribute::INTENSIVE, 3);
     _particleData->addAttribute("Size", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_SCALING, 3);
@@ -163,7 +155,13 @@ namespace dynamo {
     (*_particleData)["Mass"].flagNewData();
     (*_particleData)["ID"].flagNewData();
 
-    _particleData->getContext()->queueTask(std::bind(&coil::DataSet::addGlyphs, _particleData.get()));
+    for (auto& species : Sim->species)
+      {
+	std::vector<GLuint> ids;
+	ids.reserve(species->getRange()->size());
+	for (auto ID : *species->getRange()) ids.push_back(ID);
+	_particleData->addPoints(species->getName(), ids);
+      }
   }
 
   void
