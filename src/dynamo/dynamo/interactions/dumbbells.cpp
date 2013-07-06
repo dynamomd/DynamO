@@ -44,44 +44,16 @@ namespace dynamo {
   {
     ID = nID; 
     ICapture::initCaptureMap();
-
-   //Vector r = Sim->particles[0].getPosition();
-   //double LA = _LA->getProperty(0);
-   //double LB = _LB->getProperty(0);
-   //Quaternion q = Sim->dynamics->getRotData(ID).orientation;
-   //Vector v = q * Quaternion::initialDirector();
-   //
-   //M_throw() 
-   //  << "r " << r.toString() << "\n"
-   //  << "q " << q.toString() << "\n"
-   //  << "v " << v.toString() << "\n"
-   //  << "LA " << LA << "\n"
-   //  << "LB " << LB << "\n"
-   //  << " 1 " << getGlyphPosition(0,0).toString() << "\n"
-   //  << " 2 " << getGlyphPosition(0,1).toString() << "\n" 
-   //  << "  1 " << Vector(r-LA*v).toString() << "\n"
-   //  << "  2 " << Vector(r+LB*v).toString() << "\n"
-   // ;
   }
 
-  Vector IDumbbells::getGlyphSize(size_t ID, size_t subID) const
+  Vector IDumbbells::getGlyphSize(size_t ID) const
   { 
-    double l;
-    if (subID == 0)
-      l = _diamA->getProperty(ID);
-    else
-      l = _diamB->getProperty(ID);
-
+    double l = _diamA->getProperty(ID);
+    //if (subID == 0)
+    //  l = _diamA->getProperty(ID);
+    //else
+    //  l = _diamB->getProperty(ID);
     return Vector(l,l,l);
-  }
-
-  Vector IDumbbells::getGlyphPosition(size_t ID, size_t subID) const
-  {
-    Vector pos = Sim->particles[ID].getPosition();
-    
-    Sim->BCs->applyBC(pos);
-
-    return pos + ((subID == 0) ? _LA->getProperty(ID) : -_LB->getProperty(ID)) * (Sim->dynamics->getRotData(ID).orientation * Quaternion::initialDirector());
   }
 
   double IDumbbells::getExcludedVolume(size_t ID) const 

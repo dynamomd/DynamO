@@ -54,10 +54,12 @@ namespace coil {
    */
   class DataSet: public RenderObj
   {
-    std::map<std::string, std::shared_ptr<Attribute> > _attributes;
+    std::map<std::string, std::shared_ptr<Attribute>> _attributes;
+    std::map<std::string, std::shared_ptr<magnet::GL::Buffer<GLuint>>> _cloud;
+    std::map<std::string, std::shared_ptr<magnet::GL::Buffer<GLuint>>> _links;
     
   public:
-    DataSet(std::string name, size_t N, int defaultGlyphType = 0): 
+    DataSet(std::string name, size_t N, int defaultGlyphType = 0):
       RenderObj(name), 
       _N(N),
       _defaultGlyphType(defaultGlyphType)
@@ -153,8 +155,7 @@ namespace coil {
       _context->queueTask(std::bind(&DataSet::deleteChildWorker, this, child));
     }
 
-    magnet::GL::Context::ContextPtr getContext()
-    { return _context; }
+    magnet::GL::Context::ContextPtr getContext() { return _context; }
     
 
     virtual uint32_t pickableObjectCount()
@@ -193,8 +194,7 @@ namespace coil {
 
     magnet::GL::Buffer<GLfloat>& getPositionBuffer();
 
-    std::shared_ptr<AttributeSelector>& 
-    getPositionSelector() { return _positionSel; }
+    std::shared_ptr<AttributeSelector>& getPositionSelector() { return _positionSel; }
 
     void addGlyphs();
         

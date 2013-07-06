@@ -483,10 +483,7 @@ namespace dynamo {
 
 	      if (has1 && has0)
 		{
-		  Sim->interactions.push_back
-		    (shared_ptr<Interaction>
-		     (new ISWSequence(Sim, sigma * diamScale, lambda, 1.0,
-				      seq, new IDPairRangeAll(), "Bulk")));
+		  Sim->interactions.push_back(shared_ptr<Interaction>(new ISWSequence(Sim, sigma * diamScale, lambda, 1.0, seq, new IDPairRangeAll(), "Bulk")));
 		
 		  ISWSequence& interaction
 		    (dynamic_cast<ISWSequence&>(*Sim->interactions["Bulk"]));

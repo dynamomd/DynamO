@@ -23,7 +23,6 @@
 #include <string>
 
 namespace magnet { namespace xml { class Node; } }
-namespace coil { class DataSet; }
 namespace xml { class XmlStream; }
 
 namespace dynamo {
@@ -55,15 +54,6 @@ namespace dynamo {
     friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const Species&);
   
     static shared_ptr<Species> getClass(const magnet::xml::Node&, dynamo::Simulation*, size_t);
-
-#ifdef DYNAMO_visualizer
-    virtual shared_ptr<coil::DataSet> createDataSet() const;
-    virtual void initDataSet() const;
-    virtual void updateRenderData() const;
-  protected:
-
-    mutable shared_ptr<coil::DataSet> _renderData;
-#endif
 
   protected:
     template<class T1>

@@ -70,18 +70,10 @@ namespace dynamo {
   }
 
   Vector
-  IHardSphere::getGlyphSize(size_t ID, size_t subID) const
+  IHardSphere::getGlyphSize(size_t ID) const
   { 
     double diam = _diameter->getProperty(ID);
     return Vector(diam, diam, diam); 
-  }
-
-  Vector 
-  IHardSphere::getGlyphPosition(size_t ID, size_t subID) const
-  { 
-    Vector retval = Sim->particles[ID].getPosition();
-    Sim->BCs->applyBC(retval);
-    return retval;
   }
 
   double 

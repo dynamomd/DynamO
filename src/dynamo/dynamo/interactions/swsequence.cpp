@@ -132,18 +132,10 @@ namespace dynamo {
   }
 
   Vector
-  ISWSequence::getGlyphSize(size_t ID, size_t subID) const
+  ISWSequence::getGlyphSize(size_t ID) const
   { 
     double diam = _diameter->getProperty(ID);
     return Vector(diam, diam, diam); 
-  }
-
-  Vector 
-  ISWSequence::getGlyphPosition(size_t ID, size_t subID) const
-  { 
-    Vector retval = Sim->particles[ID].getPosition();
-    Sim->BCs->applyBC(retval);
-    return retval;
   }
 
   double 

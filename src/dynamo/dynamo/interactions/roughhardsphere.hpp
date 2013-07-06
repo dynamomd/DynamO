@@ -39,9 +39,7 @@ namespace dynamo {
 
     IRoughHardSphere(const magnet::xml::Node&, dynamo::Simulation*);
 
-    virtual size_t glyphsPerParticle() const { return 1; }
-    virtual Vector getGlyphSize(size_t ID, size_t subID) const;
-    virtual Vector getGlyphPosition(size_t ID, size_t subID) const;
+    virtual Vector getGlyphSize(size_t ID) const;
 
     void operator<<(const magnet::xml::Node&);
 

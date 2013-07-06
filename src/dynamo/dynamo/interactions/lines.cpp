@@ -45,19 +45,11 @@ namespace dynamo {
     ICapture::initCaptureMap();
   }
 
-  Vector ILines::getGlyphSize(size_t ID, size_t subID) const
+  Vector ILines::getGlyphSize(size_t ID) const
   {
     double l = _length->getProperty(ID);
     return Vector(l, l, l);
   }
-
-  Vector ILines::getGlyphPosition(size_t ID, size_t subID) const
-  {
-    Vector retval = Sim->particles[ID].getPosition();
-    Sim->BCs->applyBC(retval);
-    return retval;
-  }
-
 
   void 
   ILines::operator<<(const magnet::xml::Node& XML)
