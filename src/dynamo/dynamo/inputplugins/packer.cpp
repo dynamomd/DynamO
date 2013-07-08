@@ -3256,7 +3256,11 @@ namespace dynamo {
 		"       --f1 : Radius of the drum in particle diameters (from centre to boundary particle centre) [7.5]\n"
 		"       --f2 : Elasticity of the particles [0.4]\n"
 		"       --f3 : Spacing of the particles in particle diameters [1.3]\n"
-		"       --f4 : Incline of the system in degrees [6]\n";
+		"       --f4 : Incline of the system in degrees [6]\n"
+		"       --f5 : Rotations per unit time [0.1]\n"
+		"       --f6 : \"Steps\" per rotation [90]\n"
+		"       --f7 : Elastic velocity [1.0]\n"
+		;
 	      exit(1);
 	    }
 
@@ -3275,9 +3279,16 @@ namespace dynamo {
 	  double incline = 6;
 	  if (vm.count("f4")) incline = vm["f4"].as<double>();
 
-	  incline *= M_PI /180.0;
+	  double RPT = 0.1;
+	  if (vm.count("f5")) RPT = vm["f5"].as<double>();
+
+	  double steps_per_rotation = 90;
+	  if (vm.count("f6")) steps_per_rotation = vm["f6"].as<double>();
+
+	  double elasticV = 1.0;
+	  if (vm.count("f7")) elasticV = vm["f7"].as<double>();
+
 	  const double diameter = 1.0;
-	  const double elasticV = 1.0;
 	  const double g = 1.0;
 
 	  Sim->units.setUnitLength(diameter);
@@ -3289,13 +3300,12 @@ namespace dynamo {
 	  //Set up a standard simulation
 	  Sim->ptrScheduler = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELCBT()));
 	  
+	  incline *= M_PI /180.0;
 	  Sim->dynamics = shared_ptr<Dynamics>(new DynGravity(Sim, g * Vector(0, -cos(incline), sin(incline)), elasticV));
 
 	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, diameter, elasticity, new IDPairRangeAll(), "Bulk")));
 	
-	  double rotatetimestep = 0.1;
-	  double angularvel = 2 * M_PI / 100.0;
-	  Sim->systems.push_back(shared_ptr<System>(new SysRotateGravity(Sim, "Sleeper", rotatetimestep, angularvel, Vector(0,0,1))));
+	  Sim->systems.push_back(shared_ptr<System>(new SysRotateGravity(Sim, "GravityRotator", 1.0 / (RPT * steps_per_rotation), 2 * M_PI * RPT, Vector(0,0,1))));
 
 	  ///Now build our funnel, so we know how many particles it takes
 	  std::vector<Vector> funnelSites;
