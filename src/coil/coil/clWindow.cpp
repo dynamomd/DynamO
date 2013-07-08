@@ -79,7 +79,7 @@ namespace coil {
     _fpsLimitValue(25),
     _filterEnable(true),
     _stereoMode(false),
-    _ambientIntensity(0.00002),
+    _ambientIntensity(0.001),
     _snapshot_counter(0),
     _video_counter(0),
     _samples(1),
