@@ -177,6 +177,9 @@ namespace coil {
 
     sigc::connection _renderTimeout;
 
+    /*! \brief This camera must be a static member of the windows as
+        other threads might queue tasks around it.
+     */
     magnet::GL::Camera _camera;
     
     bool keyStates[256];

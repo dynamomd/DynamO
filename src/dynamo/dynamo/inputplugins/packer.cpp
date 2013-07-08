@@ -3258,7 +3258,7 @@ namespace dynamo {
 		"       --f3 : Spacing of the particles in particle diameters [1.3]\n"
 		"       --f4 : Incline of the system in degrees [6]\n"
 		"       --f5 : Rotations per unit time [0.1]\n"
-		"       --f6 : \"Steps\" per rotation [90]\n"
+		"       --f6 : \"Steps\" per rotation [180]\n"
 		"       --f7 : Elastic velocity [1.0]\n"
 		;
 	      exit(1);
@@ -3282,7 +3282,7 @@ namespace dynamo {
 	  double RPT = 0.1;
 	  if (vm.count("f5")) RPT = vm["f5"].as<double>();
 
-	  double steps_per_rotation = 90;
+	  double steps_per_rotation = 180;
 	  if (vm.count("f6")) steps_per_rotation = vm["f6"].as<double>();
 
 	  double elasticV = 1.0;
