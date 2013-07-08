@@ -36,6 +36,8 @@ namespace dynamo {
 
     virtual void operator<<(const magnet::xml::Node&);
 
+    Vector getAxis() const { return _rotationaxis; }
+
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
