@@ -52,7 +52,13 @@ namespace dynamo {
   { 
     Interaction::operator<<(XML);
     _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
-    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
+
+    if (XML.hasAttribute("Elasticity"))
+      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
+    
+    if (XML.hasAttribute("TangentialElasticity"))
+      _et = Sim->_properties.getProperty(XML.getAttribute("TangentialElasticity"), Property::Units::Dimensionless());
+      
     intName = XML.getAttribute("Name");
   }
   
@@ -119,25 +125,29 @@ namespace dynamo {
   {
     ++Sim->eventCount;
 
-    double d2 = (_diameter->getProperty(p1.getID())
-		 + _diameter->getProperty(p2.getID())) * 0.5;
-    d2 *= d2;
+    const double d = (_diameter->getProperty(p1.getID()) + _diameter->getProperty(p2.getID())) * 0.5;
+    double e = 1.0;
+    if (_e)
+      e = (_e->getProperty(p1.getID()) + _e->getProperty(p2.getID())) * 0.5;
+   
+    PairEventData EDat;
+    if (_et)
+      {
+	const double et = (_et->getProperty(p1.getID()) + _et->getProperty(p2.getID())) * 0.5;
+	EDat = Sim->dynamics->RoughSpheresColl(iEvent, e, et, d * d);
+      }
+    else
+      EDat = Sim->dynamics->SmoothSpheresColl(iEvent, e, d * d); 
 
-    const double e = (_e->getProperty(p1.getID()) + _e->getProperty(p2.getID())) * 0.5;
-
-    PairEventData EDat(Sim->dynamics->SmoothSpheresColl(iEvent, e, d2)); 
     (*Sim->_sigParticleUpdate)(EDat);
 
-    {
-      const double d = (_diameter->getProperty(p1.getID())
-		  + _diameter->getProperty(p2.getID())) * 0.5;
-      const double overlap = Sim->dynamics->sphereOverlap(p1, p2, d);
-      if (overlap)
-	{
-	  ++_post_event_overlap;
-	  _accum_overlap_magnitude += overlap;
-    }
-}
+    const double overlap = Sim->dynamics->sphereOverlap(p1, p2, d);
+    if (overlap)
+      {
+	++_post_event_overlap;
+	_accum_overlap_magnitude += overlap;
+      }
+
     ++_complete_events;
     
     //Now we're past the event, update the scheduler and plugins
@@ -151,17 +161,17 @@ namespace dynamo {
   IHardSphere::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Type") << "HardSphere"
-	<< magnet::xml::attr("Diameter") << _diameter->getName()
-	<< magnet::xml::attr("Elasticity") << _e->getName()
-	<< magnet::xml::attr("Name") << intName
+	<< magnet::xml::attr("Diameter") << _diameter->getName();
+    if (_e) XML << magnet::xml::attr("Elasticity") << _e->getName();
+    if (_et) XML << magnet::xml::attr("TangentialElasticity") << _et->getName();
+    XML << magnet::xml::attr("Name") << intName
 	<< range;
   }
 
   bool
   IHardSphere::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    double d = (_diameter->getProperty(p1.getID())
-		 + _diameter->getProperty(p2.getID())) * 0.5;
+    double d = (_diameter->getProperty(p1.getID()) + _diameter->getProperty(p2.getID())) * 0.5;
     
     if (Sim->dynamics->sphereOverlap(p1, p2, d))
       {

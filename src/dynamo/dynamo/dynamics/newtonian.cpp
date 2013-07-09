@@ -1307,10 +1307,8 @@ namespace dynamo {
   PairEventData 
   DynNewtonian::RoughSpheresColl(const IntEvent& event, const double& e, const double& et, const double& d2, const EEventType& eType) const
   {
-#ifdef DYNAMO_DEBUG
     if (!hasOrientationData())
-      M_throw() << "Cannot use this function without orientational data";
-#endif
+      M_throw() << "Cannot use tangential coefficients of inelasticity without orientational data/species";
 
     Particle& particle1 = Sim->particles[event.getParticle1ID()];
     Particle& particle2 = Sim->particles[event.getParticle2ID()];
