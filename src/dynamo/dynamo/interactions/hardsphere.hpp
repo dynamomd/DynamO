@@ -29,13 +29,13 @@ namespace dynamo {
     IHardSphere(dynamo::Simulation* tmp, T1 d, T2 e, IDPairRange* nR, 
 		std::string name):
       Interaction(tmp, nR),
-      _diameter(Sim->_properties.getProperty
-		(d, Property::Units::Length())),
-      _e(Sim->_properties.getProperty
-	 (e, Property::Units::Dimensionless()))
+      _diameter(Sim->_properties.getProperty(d, Property::Units::Length())),
+      _e(Sim->_properties.getProperty(e, Property::Units::Dimensionless()))
     {
       intName = name;
-    }
+      
+      shared_ptr<Property> _et;
+   }
 
     IHardSphere(const magnet::xml::Node&, dynamo::Simulation*);
 
