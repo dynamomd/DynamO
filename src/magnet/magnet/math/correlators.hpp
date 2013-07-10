@@ -17,10 +17,10 @@
 
 #pragma once
 #include <magnet/math/vector.hpp>
+#include <magnet/exception.hpp>
 #include <boost/circular_buffer.hpp>
 #include <vector>
 #include <utility>
-#include <exception>
 #include <tuple>
 
 namespace magnet {
@@ -176,8 +176,9 @@ namespace magnet {
 	Base(length),
 	_sample_time(sample_time)
       { 
-	if (sample_time <= 0)
-	  throw std::runtime_error("TimeCorrelator requires a positive, non-zero sample time");
+	if ((sample_time <= 0) || (length == 0))
+	  M_throw() << "TimeCorrelator requires a positive, non-zero sample time and a non-zero length, sample_time=" << sample_time
+		    << ", length=" << length;
 
 	clear(); 
       }
@@ -284,6 +285,10 @@ namespace magnet {
        */
       void resize(double sample_time, size_t length, size_t scaling = 2)
       {
+	if ((sample_time <= 0) || (length == 0))
+	  M_throw() << "LogarithmicTimeCorrelator requires a positive, non-zero sample time and a non-zero length, sample_time=" << sample_time
+		    << ", length=" << length;
+	
 	_sample_time = sample_time;
 	_length = length;
 	_scaling = scaling;

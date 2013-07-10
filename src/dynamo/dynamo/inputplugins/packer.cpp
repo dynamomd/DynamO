@@ -964,11 +964,8 @@ namespace dynamo {
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
 	  for (const Vector & position : latticeSites)
-	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
-						 nParticles++));
-
-	  const double length = 1;
-	  Sim->dynamics->initOrientations(std::sqrt(12.0/ (length * length)));
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
+	  Sim->dynamics->initOrientations();
 	  break;
 	}
       case 10:
@@ -1225,35 +1222,21 @@ namespace dynamo {
 	    }
 	  //Pack the system, determine the number of particles
 	  CURandom packroutine(vm["NCells"].as<unsigned long>(), Vector (1,1,1), new UParticle());
-
 	  packroutine.initialise();
-
 	  std::vector<Vector> latticeSites(packroutine.placeObjects(Vector (0,0,0)));
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCLeesEdwards(Sim));
-	  double particleDiam = pow(vm["density"].as<double>()
-				    / latticeSites.size(), double(1.0 / 3.0));
-
-	  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0 ;
-
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>(new ILines(Sim, particleDiam, elasticity,
-						new IDPairRangeAll(), "Bulk")));
-
-	  
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpSphericalTop(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0,
-					      particleDiam * particleDiam / 12.0, "Bulk")));
-
+	  double particleDiam = pow(vm["density"].as<double>() / latticeSites.size(), double(1.0 / 3.0));
+	  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0;
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new ILines(Sim, particleDiam, elasticity, new IDPairRangeAll(), "Bulk")));
+	  Sim->addSpecies(shared_ptr<Species>(new SpSphericalTop(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0, particleDiam * particleDiam / 12.0, "Bulk")));
 	  Sim->units.setUnitLength(particleDiam);
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
 	  for (const Vector & position : latticeSites)
-	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
-						 nParticles++));
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 
-	  const double length = 1;
-	  Sim->dynamics->initOrientations(std::sqrt(12.0/ (length * length)));
+	  Sim->dynamics->initOrientations();
 	  break;
 	}
       case 14:
@@ -2881,7 +2864,7 @@ namespace dynamo {
 	  for (const Vector& position : latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 
-	  Sim->dynamics->initOrientations(std::sqrt(1/I));
+	  Sim->dynamics->initOrientations();
 	  break;
 	}
       case 28:
@@ -2894,11 +2877,12 @@ namespace dynamo {
 		"       --i1 : Depth of the drum in particle diameters [5]\n"
 		"       --f1 : Radius of the drum in particle diameters (from centre to boundary particle centre) [7.5]\n"
 		"       --f2 : Elasticity of the particles [0.4]\n"
-		"       --f3 : Spacing of the particles in particle diameters [1.3]\n"
+		"       --f3 : Spacing of the particles in particle diameters [3]\n"
 		"       --f4 : Incline of the system in degrees [6]\n"
-		"       --f5 : Rotations per unit time [0.1]\n"
-		"       --f6 : \"Steps\" per rotation [180]\n"
-		"       --f7 : Elastic velocity [1.0]\n"
+		"       --f5 : Rotations per unit time [0.001]\n"
+		"       --f6 : \"Steps\" per rotation [360]\n"
+		"       --f7 : Elastic velocity [0.5]\n"
+		"       --f8 : Tangential restitution coefficient [disabled]\n"
 		;
 	      exit(1);
 	    }
@@ -2912,20 +2896,23 @@ namespace dynamo {
 	  double elasticity = 0.4;
 	  if (vm.count("f2")) elasticity = vm["f2"].as<double>();
 
-	  double dynamicSpacing = 1.3;
+	  double dynamicSpacing = 3;
 	  if (vm.count("f3")) dynamicSpacing = vm["f3"].as<double>();
 
 	  double incline = 6;
 	  if (vm.count("f4")) incline = vm["f4"].as<double>();
 
-	  double RPT = 0.1;
+	  double RPT = 0.001;
 	  if (vm.count("f5")) RPT = vm["f5"].as<double>();
 
-	  double steps_per_rotation = 180;
+	  double steps_per_rotation = 360;
 	  if (vm.count("f6")) steps_per_rotation = vm["f6"].as<double>();
 
-	  double elasticV = 1.0;
+	  double elasticV = 0.5;
 	  if (vm.count("f7")) elasticV = vm["f7"].as<double>();
+
+	  double et = 1.0;
+	  if (vm.count("f8")) et = vm["f8"].as<double>();
 
 	  const double diameter = 1.0;
 	  const double g = 1.0;
@@ -2939,10 +2926,13 @@ namespace dynamo {
 	  
 	  incline *= M_PI /180.0;
 	  Sim->dynamics = shared_ptr<Dynamics>(new DynGravity(Sim, g * Vector(0, -cos(incline), sin(incline)), elasticV));
+	  
+	  if (et == 1.0)
+	    Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, diameter, elasticity, new IDPairRangeAll(), "Bulk")));
+	  else
+	    Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, diameter, elasticity, et, new IDPairRangeAll(), "Bulk")));
 
-	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, diameter, elasticity, new IDPairRangeAll(), "Bulk")));
-	
-	  Sim->systems.push_back(shared_ptr<System>(new SysRotateGravity(Sim, "GravityRotator", 1.0 / (RPT * steps_per_rotation), 2 * M_PI * RPT, Vector(0,0,1))));
+	  Sim->systems.push_back(shared_ptr<System>(new SysRotateGravity(Sim, "GravityRotator", 1.0 / (RPT * steps_per_rotation), 2 * M_PI * RPT, Vector(0, 0, 1))));
 
 	  ///Now build our funnel, so we know how many particles it takes
 	  std::vector<Vector> funnelSites;
@@ -2960,16 +2950,20 @@ namespace dynamo {
 	  std::vector<Vector> dynamicSites;
 	  for (double circlePos(0); circlePos < depth * diameter; circlePos += dynamicSpacing * diameter)
 	    for (double circleR = R - dynamicSpacing * diameter; circleR > diameter; circleR -= dynamicSpacing * diameter)
-	    {
-	      const size_t Nr = static_cast<size_t>(M_PI / std::asin(diameter / (2 * circleR)));
-	      const double deltaPhi = 2 * M_PI / Nr;
-	    
-	      for (size_t radialstep(0); radialstep < Nr; ++radialstep)
-		dynamicSites.push_back(Vector(circleR * std::sin(radialstep * deltaPhi), circleR * std::cos(radialstep * deltaPhi), circlePos));
-	    }
+	      {
+		const size_t Nr = static_cast<size_t>(M_PI / std::asin(diameter / (2 * circleR)));
+		const double deltaPhi = 2 * M_PI / Nr;
+		
+		for (size_t radialstep(0); radialstep < Nr; ++radialstep)
+		  dynamicSites.push_back(Vector(circleR * std::sin(radialstep * deltaPhi), circleR * std::cos(radialstep * deltaPhi), circlePos));
+	      }
 
 	  Sim->addSpecies(shared_ptr<Species>(new SpFixedCollider(Sim, new IDRangeRange(0, funnelSites.size()), "FunnelParticles", 0, "Bulk")));
-	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeRange(funnelSites.size(), funnelSites.size() + dynamicSites.size()), 1.0, "Bulk", 0, "Bulk")));
+	  
+	  if (et==1.0)
+	    Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeRange(funnelSites.size(), funnelSites.size() + dynamicSites.size()), 1.0, "Bulk", 0, "Bulk")));
+	  else
+	    Sim->addSpecies(shared_ptr<Species>(new SpSphericalTop(Sim, new IDRangeRange(funnelSites.size(), funnelSites.size() + dynamicSites.size()), 1.0, "Bulk", 0, diameter * diameter / 10.0, "Bulk")));
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(funnelSites.size() + dynamicSites.size());
@@ -2983,6 +2977,9 @@ namespace dynamo {
 	      if (vel[1] > 0) vel[1] = -vel[1];//So particles don't fly out of the hopper
 	      Sim->particles.push_back(Particle(position, vel, nParticles++));
 	    }
+
+	  if (et != 1.0)
+	    Sim->dynamics->initOrientations(1);
 	  break;
 	}
       default:

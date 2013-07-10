@@ -86,7 +86,6 @@ namespace dynamo {
     _KE.init(Sim->dynamics->getSystemKineticEnergy());
     _internalE.init(Sim->calcInternalEnergy());
 
-
     dout << "Particle Count " << Sim->N
 	 << "\nSim Unit Length " << Sim->units.unitLength()
 	 << "\nSim Unit Time " << Sim->units.unitTime()
