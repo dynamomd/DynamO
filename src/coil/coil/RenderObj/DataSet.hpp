@@ -55,13 +55,14 @@ namespace coil {
   class DataSet: public RenderObj
   {
     struct PointSet : public magnet::GL::Buffer<GLuint>
-    {
-      int glyphType;
-    };
+    { int glyphType; };
+
+    struct LinkSet : public magnet::GL::Buffer<GLuint>
+    {};
 
     std::map<std::string, std::shared_ptr<Attribute>> _attributes;
     std::map<std::string, PointSet> _pointSets;
-    std::map<std::string, magnet::GL::Buffer<GLuint>> _linkSets;
+    std::map<std::string, LinkSet> _linkSets;
     
   public:
     DataSet(std::string name, size_t N, int defaultGlyphType = 0):
@@ -79,7 +80,9 @@ namespace coil {
 
     std::map<std::string, PointSet>& getPointSets() { return _pointSets; }
 
-    void addPoints(std::string name, const std::vector<GLuint>&, int glyphtype);
+    void addPointSet(std::string name, const std::vector<GLuint>&, int glyphtype);
+
+    void addLinkSet(std::string name, const std::vector<GLuint>&, int glyphtype);
 
     /** @name The host code interface. */
     /**@{*/
@@ -205,6 +208,7 @@ namespace coil {
     std::shared_ptr<AttributeSelector>& getPositionSelector() { return _positionSel; }
 
     void addGlyphs();
+    void addLinkGlyphs();
         
     virtual std::string getCursorText(uint32_t objID);
 
@@ -217,7 +221,8 @@ namespace coil {
   protected:
     void deleteChildWorker(DataSetChild* child);
 
-    void addPointsWorker(std::string name, std::vector<GLuint>, int glyphtype);
+    void addPointSetWorker(std::string name, std::vector<GLuint>, int glyphtype);
+    void addLinkSetWorker(std::string name, std::vector<GLuint>, int glyphtype);
 
     /*! \brief An iterator to this DataSet's row in the Render object
       treeview.
@@ -252,6 +257,7 @@ namespace coil {
     std::unique_ptr<Gtk::TreeView> _attrview;
     std::unique_ptr<Gtk::Label> _infolabel;
     std::unique_ptr<Gtk::ComboBoxText> _comboPointSet;
+    std::unique_ptr<Gtk::ComboBoxText> _comboLinkSet;
 
     Vector _periodicImageX;
     Vector _periodicImageY;

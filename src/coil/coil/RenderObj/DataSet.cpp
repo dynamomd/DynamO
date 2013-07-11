@@ -102,7 +102,7 @@ namespace coil {
       Gtk::HBox* box = Gtk::manage(new Gtk::HBox); box->show();
       _gtkOptList->pack_start(*box, false, false, 5);
 
-      _comboPointSet.reset(new Gtk::ComboBoxText);_comboPointSet->show();
+      _comboPointSet.reset(new Gtk::ComboBoxText); _comboPointSet->show();
       box->pack_start(*_comboPointSet, false, false, 5);
 
       //Check the combo box is correct
@@ -111,8 +111,21 @@ namespace coil {
 	_comboPointSet->append(pointset.first);
       _comboPointSet->set_active(0);
 
-      Gtk::Button* btn = Gtk::manage(new Gtk::Button("Add Glyph"));
+      Gtk::Button* btn = Gtk::manage(new Gtk::Button("Add Glyphs"));
       btn->signal_clicked().connect(sigc::mem_fun(*this, &DataSet::addGlyphs));
+      btn->show();
+      box->pack_start(*btn, false, false, 5);
+
+      _comboLinkSet.reset(new Gtk::ComboBoxText); _comboLinkSet->show();
+      box->pack_start(*_comboLinkSet, false, false, 5);
+      //Check the combo box is correct
+      _comboLinkSet->remove_all();
+      for (const auto& linkset: _linkSets)
+	_comboLinkSet->append(linkset.first);
+      _comboLinkSet->set_active(0);
+
+      btn = Gtk::manage(new Gtk::Button("Add Links"));
+      btn->signal_clicked().connect(sigc::mem_fun(*this, &DataSet::addLinkGlyphs));
       btn->show();
       box->pack_start(*btn, false, false, 5);
     }
@@ -163,6 +176,11 @@ namespace coil {
 	_children.back()->addViewRows(*_view, child_iter);
 	_view->_view->expand_to_path(_view->_store->get_path(child_iter));
       }
+  }
+
+  void 
+  DataSet::addLinkGlyphs()
+  {
   }
 
   void 
@@ -227,13 +245,13 @@ namespace coil {
   }
 
   void
-  DataSet::addPoints(std::string name, const std::vector<GLuint>& data, int datatype)
+  DataSet::addPointSet(std::string name, const std::vector<GLuint>& data, int datatype)
   {
-    _context->queueTask(std::bind(&DataSet::addPointsWorker, this, name, data, datatype));
+    _context->queueTask(std::bind(&DataSet::addPointSetWorker, this, name, data, datatype));
   }
 
   void
-  DataSet::addPointsWorker(std::string name, std::vector<GLuint> data, int datatype)
+  DataSet::addPointSetWorker(std::string name, std::vector<GLuint> data, int datatype)
   {
     _pointSets[name].init(data, 1);
     _pointSets[name].glyphType = datatype;

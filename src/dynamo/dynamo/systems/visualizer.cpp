@@ -97,8 +97,7 @@ namespace dynamo {
       Ptr->eventUpdate(*this, NEventData(), dt);
   
     std::shared_ptr<DynGravity> dynamics = std::dynamic_pointer_cast<DynGravity>(Sim->dynamics);
-    if (dynamics)
-      _window->getCamera().setUp(-dynamics->getGravityVector(), false);
+    if (dynamics) _window->getCamera().setUp(-dynamics->getGravityVector(), true);
 
     _window->simupdateTick(Sim->systemTime / Sim->units.unitTime());
 
@@ -136,8 +135,8 @@ namespace dynamo {
     _particleData->addAttribute("ID", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_COLOUR, 1);
 
     _particleData->setPeriodicVectors(Vector(Sim->primaryCellSize[0], 0, 0),
-				    Vector(0, Sim->primaryCellSize[1], 0),
-				    Vector(0, 0, Sim->primaryCellSize[2]));
+				      Vector(0, Sim->primaryCellSize[1], 0),
+				      Vector(0, 0, Sim->primaryCellSize[2]));
 
     if (Sim->dynamics->hasOrientationData())
       {
@@ -161,7 +160,7 @@ namespace dynamo {
 	ids.reserve(species->getRange()->size());
 	for (auto ID : *species->getRange()) ids.push_back(ID);
 	const GlyphRepresentation& data = dynamic_cast<const GlyphRepresentation&>(*species->getIntPtr());
-	_particleData->addPoints(species->getName(), ids, data.getDefaultGlyphType());
+	_particleData->addPointSet(species->getName(), ids, data.getDefaultGlyphType());
       }
   }
 
