@@ -471,12 +471,24 @@ namespace magnet {
 
       /*! \brief set the orientation (roll) of the camera by setting
           its up direction.
+	  
+	  \param newup The new up direction.  
+	  
+	  \param axis If set, this will cause a rotation of the camera
+	  position about the axis to compensates for the rotation of
+	  the camera. It will look like the system is rotating but the
+	  camera is remaining fixed. The axis must be 
        */
-      void setUp(math::Vector newup, bool moveCamera)
+      void setUp(math::Vector newup, math::Vector axis = math::Vector(0,0,0))
       {
 	newup.normalise();
-	if (moveCamera)
-	  setPosition(math::Quaternion::fromToVector(newup.normal(), _up) * getPosition());
+	if (axis.nrm2() != 0)
+	  {
+	    axis.normalise();
+	    math::Vector to = newup - axis * (axis | newup);
+	    math::Vector from = _up - axis * (axis | _up);
+	    setPosition(math::Quaternion::fromToVector(to.normal(), from.normal()) * getPosition());
+	  }
 	_up = newup;
 	movement(0,0,0,0,0);
       }

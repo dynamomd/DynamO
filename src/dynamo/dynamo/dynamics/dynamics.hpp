@@ -703,7 +703,7 @@ namespace dynamo {
       \param ToI The mean square gaussian angular velocity to
       assign. AKA k_B T / I
      */
-    void initOrientations(double ToI);
+    void initOrientations(double kbT = 1.0);
 
     /* \brief Method to safely calculate the Centre of Mass position
        and velocity of a group of particles.

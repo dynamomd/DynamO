@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/interactions/hardsphere.hpp>
-#include <dynamo/interactions/roughhardsphere.hpp>
 #include <dynamo/interactions/squarewell.hpp>
 #include <dynamo/interactions/thinthread.hpp>
 #include <dynamo/interactions/swsequence.hpp>

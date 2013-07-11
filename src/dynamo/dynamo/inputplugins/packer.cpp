@@ -121,6 +121,8 @@ namespace dynamo {
     Sim->dynamics = shared_ptr<Dynamics>(new DynNewtonian(Sim));
     //Set the default Boundary Conditions
     Sim->BCs = shared_ptr<BoundaryCondition>(new BCPeriodic(Sim));
+    //Setup a default scheduler
+    Sim->ptrScheduler = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
 
     std::string defaultOptionText = 
       " Options\n"
@@ -156,9 +158,6 @@ namespace dynamo {
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
 
-	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
-
-
 	  double simVol = 1.0;
 
 	  for (size_t iDim = 0; iDim < NDIM; ++iDim)
@@ -193,30 +192,18 @@ namespace dynamo {
 		}
 	    }
 
-	  //Set up a standard simulation
-	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
-
 	  double elasticity = 1.0;
-
 	  if (vm.count("f1"))
 	    elasticity =  vm["f1"].as<double>();
 
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, particleDiam, elasticity, new IDPairRangeAll(), "Bulk")));
-
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0,
-				       "Bulk")));
-	
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, elasticity, new IDPairRangeAll(), "Bulk")));
+	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0, "Bulk")));
 	  Sim->units.setUnitLength(particleDiam);
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
 	  for (const Vector & position : latticeSites)
-	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
-						 nParticles++));
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 
 	  if (vm.count("i2"))
 	    Sim->systems.push_back(shared_ptr<System>(new SysRescale(Sim, vm["i2"].as<size_t>(), "RescalerEvent")));
@@ -254,18 +241,8 @@ namespace dynamo {
 	  double particleDiam = pow(simVol * vm["density"].as<double>()
 				    / latticeSites.size(), double(1.0 / 3.0));
 
-	  //Set up a standard simulation
-	  //Just a square well system
-	  //old scheduler
-	  //Sim->ptrScheduler = new CSMultList(Sim);
-
-	  //New scheduler and global
-	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
-	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList")));
-
-	  Sim->units.setUnitLength(particleDiam);
 	  //Set the unit energy to 1 (assuming the unit of mass is 1);
+	  Sim->units.setUnitLength(particleDiam);
 	  Sim->units.setUnitTime(particleDiam); 
 
 	  if (!vm.count("s1"))
@@ -446,18 +423,7 @@ namespace dynamo {
 	  //Drop them in the middle of the sim
 	  std::vector<Vector> latticeSites(sysPack.placeObjects(Vector(0,0,0)));
 
-	  //Set up the system now
-
-	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
-	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
-
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new ISquareBond(Sim, sigmin * diamScale,
-			      sigmax / sigmin, 1.0,
-			      new IDPairRangeChains(0, latticeSites.size()-1, latticeSites.size()),
-			      "Bonds")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0, new IDPairRangeChains(0, latticeSites.size()-1, latticeSites.size()), "Bonds")));
 	
 	  if (vm.count("s1"))
 	    {
@@ -499,10 +465,7 @@ namespace dynamo {
 		   (new ISquareWell(Sim, sigma * diamScale,
 				    lambda, 1.0, 1.0, new IDPairRangeAll(), "Bulk")));
 	      else if (has1 && !has0)
-		Sim->interactions.push_back
-		  (shared_ptr<Interaction>
-		   (new IHardSphere(Sim, sigma * diamScale, 1.0,
-				    new IDPairRangeAll(), "Bulk")));
+		Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, sigma * diamScale, new IDPairRangeAll(), "Bulk")));
 	    }
 	  else
 	    Sim->interactions.push_back
@@ -651,22 +614,12 @@ namespace dynamo {
 	  if (vm.count("f1"))
 	    alpha = vm["f1"].as<double>();
 
-	  //Set up a standard simulation
-	  Sim->ptrScheduler
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELBoundedPQ<>()));
-	  Sim->globals.push_back(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
-
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCLeesEdwards(Sim));
 	  const double shearRate = 1;
 
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, particleDiam, alpha,
-			      new IDPairRangeAll(), "Bulk")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, alpha, new IDPairRangeAll(), "Bulk")));
 
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0,
-				       "Bulk")));
+	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0, "Bulk")));
 
 	  Sim->units.setUnitLength(particleDiam);
 
@@ -743,11 +696,6 @@ namespace dynamo {
 	  std::vector<Vector  > latticeSites
 	    (sysPack.placeObjects(Vector (0,0,0)));
 
-	  //Set up the system now
-	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
-	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
-
 	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0,
@@ -797,7 +745,6 @@ namespace dynamo {
 	  Sim->primaryCellSize = getNormalisedCellDimensions();
 	  //Cut off the x periodic boundaries
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCPeriodicExceptX(Sim));
-	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  double simVol = 1.0;
 
@@ -809,37 +756,20 @@ namespace dynamo {
 
 	  Sim->units.setUnitLength(particleDiam);
 
-	  //Set up a standard simulation
-	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
-
-
 	  double elasticity = 1;
 	  if (vm.count("f1"))
 	    elasticity =  vm["f1"].as<double>();
 
-	  Sim->locals.push_back
-	    (shared_ptr<Local>(new LWall(Sim, elasticity, particleDiam, Vector(1,0,0),
-					 Vector(-Sim->primaryCellSize[0] / 2 - 0.5 * particleDiam, 0, 0),
-					 "LowWall", new IDRangeAll(Sim))));
-	  Sim->locals.push_back
-	    (shared_ptr<Local>(new LWall(Sim, elasticity, particleDiam, Vector(-1,0,0), 
-					 Vector(Sim->primaryCellSize[0] / 2 + 0.5 * particleDiam, 0, 0),
-					 "HighWall", new IDRangeAll(Sim))));
+	  Sim->locals.push_back(shared_ptr<Local>(new LWall(Sim, elasticity, particleDiam, Vector(1,0,0), Vector(-Sim->primaryCellSize[0] / 2 - 0.5 * particleDiam, 0, 0), "LowWall", new IDRangeAll(Sim))));
+	  Sim->locals.push_back(shared_ptr<Local>(new LWall(Sim, elasticity, particleDiam, Vector(-1,0,0), Vector(Sim->primaryCellSize[0] / 2 + 0.5 * particleDiam, 0, 0), "HighWall", new IDRangeAll(Sim))));
 
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, particleDiam, elasticity,
-			      new IDPairRangeAll(), "Bulk")));
-
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0, "Bulk")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, elasticity, new IDPairRangeAll(), "Bulk")));
+	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0, "Bulk")));
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
 	  for (const Vector & position : latticeSites)
-	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
-						 nParticles++));
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 	  break;
 	}
       case 7:
@@ -890,12 +820,6 @@ namespace dynamo {
 	  std::vector<Vector  > latticeSites
 	    (sysPack.placeObjects(Vector (0,0,0)));
 
-	  //Set up the system now
-	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
-
-	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
-
 	  Sim->interactions.push_back
 	    (shared_ptr<Interaction>
 	     (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0,
@@ -909,30 +833,18 @@ namespace dynamo {
 	      Sim->units.setUnitLength(diamScale);
 	      //Set the unit energy to 1 (assuming the unit of mass is 1);
 	      Sim->units.setUnitTime(diamScale); 
-
-	      Sim->interactions.push_back
-		(shared_ptr<Interaction>
-		 (new ISquareWell(Sim, sigma * diamScale,
-				  lambda, 1.0, 1.0,
-				  new IDPairRangeAll(), "Bulk")));
+	      Sim->interactions.push_back(shared_ptr<Interaction>(new ISquareWell(Sim, sigma * diamScale, lambda, 1.0, 1.0, new IDPairRangeAll(), "Bulk")));
 	    }
 	  else
 	    {
 	      Sim->units.setUnitLength(diamScale);
-
-	      Sim->interactions.push_back
-		(shared_ptr<Interaction>
-		 (new IHardSphere(Sim, diamScale, 1.0,
-				  new IDPairRangeAll(), "Bulk")));
+	      Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, diamScale, new IDPairRangeAll(), "Bulk")));
 	    }
 
 
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0,
-				       "Bulk")));
+	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0, "Bulk")));
 
 	  Sim->topology.push_back(shared_ptr<Topology>(new TChain(Sim, 1, "Ring")));
-
 	  Sim->topology.back()->addMolecule(new IDRangeAll(Sim));
 
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCNone(Sim));
@@ -991,51 +903,24 @@ namespace dynamo {
 	  double particleDiam = pow(simVol * vm["density"].as<double>()
 				    / latticeSites.size(), double(1.0 / 3.0));
 
-	  //Set up a standard simulation
-	  //Sim->ptrScheduler = new CSMultList(Sim);
-
-	  Sim->ptrScheduler
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
-
-	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList")));
-
 	  if (Na > latticeSites.size())
 	    M_throw() << "Too many large particles for the selected packing";
 
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, particleDiam, 1.0,
-			      new IDPairRangeSingle(new IDRangeRange(0, Na)), "AAInt")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, new IDPairRangeSingle(new IDRangeRange(0, Na)), "AAInt")));
 
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam,
-			      1.0,
-			      new IDPairRangePair(new IDRangeRange(0, Na),
-					  new IDRangeRange(Na, latticeSites.size())),
-			      "ABInt")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam, new IDPairRangePair(new IDRangeRange(0, Na), new IDRangeRange(Na, latticeSites.size())), "ABInt")));
 
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, sizeRatio * particleDiam, 1.0,
-			      new IDPairRangeAll(), "BBInt")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, sizeRatio * particleDiam, new IDPairRangeAll(), "BBInt")));
 	     
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new IDRangeRange(0, Na), 1.0, "A", 0,
-				       "AAInt")));
-
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new IDRangeRange(Na, latticeSites.size()),
-				       massFrac, "B", 0, "BBInt")));
+	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeRange(0, Na), 1.0, "A", 0, "AAInt")));
+	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeRange(Na, latticeSites.size()), massFrac, "B", 0, "BBInt")));
 
 	  Sim->units.setUnitLength(particleDiam);
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
 	  for (const Vector & position : latticeSites)
-	    Sim->particles.push_back
-	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
-		      nParticles++));
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 	  break;
 	}
       case 9:
@@ -1059,44 +944,28 @@ namespace dynamo {
 	  std::vector<Vector  >
 	    latticeSites(packroutine.placeObjects(Vector (0,0,0)));
 
-	  double particleDiam = pow(vm["density"].as<double>()
-				    / latticeSites.size(), double(1.0 / 3.0));
+	  double particleDiam = pow(vm["density"].as<double>() / latticeSites.size(), double(1.0 / 3.0));
 
 	  //Set up a standard simulation
 	  //We pick a scheduler algorithm based on the density of the system
 	  if(vm["density"].as<double>() * 8.0 >= vm["NCells"].as<unsigned long>())
-	    {
-	      M_throw() << "Unable to simulate systems where box volume is <= (2L)^3";
-	    }
-
-	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
-	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
+	    M_throw() << "Unable to simulate systems where box volume is <= (2L)^3";
 
 	  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0;
 
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new ILines(Sim, particleDiam, elasticity,
-			 new IDPairRangeAll(), "Bulk")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new ILines(Sim, particleDiam, elasticity, new IDPairRangeAll(), "Bulk")));
 
 	  double inertiaMultiplicativeFactor = (vm.count("f2")) ? vm["f2"].as<double>() : 1.0;
 
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpSphericalTop(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0,
-					      inertiaMultiplicativeFactor * particleDiam * particleDiam / 12.0,
-					      "Bulk")));
+	  Sim->addSpecies(shared_ptr<Species>(new SpSphericalTop(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0, inertiaMultiplicativeFactor * particleDiam * particleDiam / 12.0, "Bulk")));
 	  
 	  Sim->units.setUnitLength(particleDiam);
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
 	  for (const Vector & position : latticeSites)
-	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
-						 nParticles++));
-
-	  const double length = 1;
-	  Sim->dynamics->initOrientations(std::sqrt(12.0/ (length * length)));
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
+	  Sim->dynamics->initOrientations();
 	  break;
 	}
       case 10:
@@ -1130,18 +999,11 @@ namespace dynamo {
 
 	  Sim->units.setUnitLength(particleDiam);
 
-	  //Set up a standard simulation
-	  Sim->ptrScheduler 
-	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new FELCBT()));
-
 	  //This is to stop interactions being used for these particles
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>(new INull(Sim, new IDPairRangeAll(), "Catchall")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new INull(Sim, new IDPairRangeAll(), "Catchall")));
 
 	  //This is to provide data on the particles
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, particleDiam, 1.0, new IDPairRangeAll(), "Bulk")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, new IDPairRangeAll(), "Bulk")));
 
 	  //double chi = 1.0 /
 	  //(4.0 * tij * vm["density"].as<double>() * std::sqrt(M_PI));
@@ -1223,13 +1085,8 @@ namespace dynamo {
 
 	  Sim->units.setUnitLength(particleDiam);
 
-	  //Set up a standard simulation
-	  Sim->ptrScheduler 
-	    = shared_ptr<SSystemOnly>(new SSystemOnly(Sim, new FELCBT()));
-
 	  //This is to stop interactions being used for these particles
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>(new INull(Sim, new IDPairRangeAll(), "Catchall")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new INull(Sim, new IDPairRangeAll(), "Catchall")));
 
 	  size_t nA = static_cast<size_t>(molFrac * latticeSites.size());
 
@@ -1331,54 +1188,25 @@ namespace dynamo {
 	       * sizeRatio * sizeRatio);
 
 	  //This is to provide data on the particles
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, particleDiam, 1.0,
-			      new IDPairRangeSingle(new IDRangeRange(0, nA)),
-			      "AAInt")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, new IDPairRangeSingle(new IDRangeRange(0, nA)), "AAInt")));
 
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, sizeRatio * particleDiam, 1.0,
-			      new IDPairRangeSingle(new IDRangeRange(nA, latticeSites.size())),
-			      "BBInt")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, sizeRatio * particleDiam, new IDPairRangeSingle(new IDRangeRange(nA, latticeSites.size())), "BBInt")));
 
-	  Sim->systems.push_back
-	    (shared_ptr<System>
-	     (new SysDSMCSpheres(Sim, particleDiam,
-				 tAA / (2.0 * nA), chiAA, 1.0,
-				 "AADSMC", new IDRangeRange(0, nA),
-				 new IDRangeRange(0, nA))));
+	  Sim->systems.push_back(shared_ptr<System>(new SysDSMCSpheres(Sim, particleDiam, tAA / (2.0 * nA), chiAA, 1.0, "AADSMC", new IDRangeRange(0, nA), new IDRangeRange(0, nA))));
 
-	  Sim->systems.push_back
-	    (shared_ptr<System>
-	     (new SysDSMCSpheres(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam,
-				 tAB / (2.0 * nA), chiAB, 1.0,
-				 "ABDSMC", new IDRangeRange(0, nA),
-				 new IDRangeRange(nA, latticeSites.size()))));
+	  Sim->systems.push_back(shared_ptr<System>(new SysDSMCSpheres(Sim, ((1.0 + sizeRatio) / 2.0) * particleDiam, tAB / (2.0 * nA), chiAB, 1.0, "ABDSMC", new IDRangeRange(0, nA), new IDRangeRange(nA, latticeSites.size()))));
 
-	  Sim->systems.push_back
-	    (shared_ptr<System>
-	     (new SysDSMCSpheres(Sim, sizeRatio * particleDiam,
-				 tBB / (2.0 * (latticeSites.size() - nA)), chiBB, 1.0,
-				 "BBDSMC", new IDRangeRange(nA, latticeSites.size()),
-				 new IDRangeRange(nA, latticeSites.size()))));
+	  Sim->systems.push_back(shared_ptr<System>(new SysDSMCSpheres(Sim, sizeRatio * particleDiam, tBB / (2.0 * (latticeSites.size() - nA)), chiBB, 1.0, "BBDSMC", new IDRangeRange(nA, latticeSites.size()), new IDRangeRange(nA, latticeSites.size()))));
 
 
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new IDRangeRange(0, nA), 1.0, "A", 0,
-				       "AAInt")));
+	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeRange(0, nA), 1.0, "A", 0, "AAInt")));
 
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new IDRangeRange(nA, latticeSites.size()),
-				       massFrac, "B", 0, "BBInt")));
+	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeRange(nA, latticeSites.size()), massFrac, "B", 0, "BBInt")));
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
 	  for (const Vector & position : latticeSites)
-	    Sim->particles.push_back
-	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
-		      nParticles++));
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 	  break;
 	}
       case 13:
@@ -1394,44 +1222,21 @@ namespace dynamo {
 	    }
 	  //Pack the system, determine the number of particles
 	  CURandom packroutine(vm["NCells"].as<unsigned long>(), Vector (1,1,1), new UParticle());
-
 	  packroutine.initialise();
-
-	  std::vector<Vector  >
-	    latticeSites(packroutine.placeObjects(Vector (0,0,0)));
-
+	  std::vector<Vector> latticeSites(packroutine.placeObjects(Vector (0,0,0)));
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCLeesEdwards(Sim));
-
-	  double particleDiam = pow(vm["density"].as<double>()
-				    / latticeSites.size(), double(1.0 / 3.0));
-
-	  //Set up a standard simulation
-	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
-
-	  Sim->globals.push_back(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
-
-	  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0 ;
-
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>(new ILines(Sim, particleDiam, elasticity,
-						new IDPairRangeAll(), "Bulk")));
-
-	  
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpSphericalTop(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0,
-					      particleDiam * particleDiam / 12.0, "Bulk")));
-
+	  double particleDiam = pow(vm["density"].as<double>() / latticeSites.size(), double(1.0 / 3.0));
+	  double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0;
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new ILines(Sim, particleDiam, elasticity, new IDPairRangeAll(), "Bulk")));
+	  Sim->addSpecies(shared_ptr<Species>(new SpSphericalTop(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0, particleDiam * particleDiam / 12.0, "Bulk")));
 	  Sim->units.setUnitLength(particleDiam);
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
 	  for (const Vector & position : latticeSites)
-	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
-						 nParticles++));
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 
-	  const double length = 1;
-	  Sim->dynamics->initOrientations(std::sqrt(12.0/ (length * length)));
+	  Sim->dynamics->initOrientations();
 	  break;
 	}
       case 14:
@@ -1500,61 +1305,25 @@ namespace dynamo {
 	  std::vector<Vector>
 	    latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
-	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, new IDPairRangeSingle(new IDRangeRange(0, nPartA)), "AAInt")));
 
-	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, (particleDiam + particleDiamB) / 2.0, new IDPairRangePair(new IDRangeRange(0, nPartA), new IDRangeRange(nPartA, latticeSites.size())), "ABInt")));
 
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, particleDiam, 1.0,
-			      new IDPairRangeSingle(new IDRangeRange(0, nPartA)),
-			      "AAInt")));
-
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, (particleDiam + particleDiamB) / 2.0,
-			      1.0,
-			      new IDPairRangePair
-			      (new IDRangeRange(0, nPartA),
-			       new IDRangeRange(nPartA, latticeSites.size())),
-			      "ABInt")));
-
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new ISquareBond(Sim, 0.9 * particleDiamB, 1.1 / 0.9, 1.0,
-			      new IDPairRangeChains(nPartA, latticeSites.size() - 1,
-					    chainlength), "Bonds")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new ISquareBond(Sim, 0.9 * particleDiamB, 1.1 / 0.9, 1.0, new IDPairRangeChains(nPartA, latticeSites.size() - 1, chainlength), "Bonds")));
 
 
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, (chainlength - 1) * particleDiamB, 1.0,
-			      new IDPairRangeChainEnds
-			      (nPartA, latticeSites.size() - 1,
-			       chainlength), "RodEnds")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, (chainlength - 1) * particleDiamB, new IDPairRangeChainEnds(nPartA, latticeSites.size() - 1, chainlength), "RodEnds")));
 
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, particleDiamB, 1.0,
-			      new IDPairRangeAll(), "BBInt")));
-	     
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new IDRangeRange(0, nPartA), 1.0, "A", 0,
-				       "AAInt")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiamB, new IDPairRangeAll(), "BBInt")));	     
+	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeRange(0, nPartA), 1.0, "A", 0, "AAInt")));
 
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new IDRangeRange(nPartA, latticeSites.size()),
-				       massFrac / chainlength, "B", 0, "BBInt")));
+	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeRange(nPartA, latticeSites.size()), massFrac / chainlength, "B", 0, "BBInt")));
 
 	  Sim->units.setUnitLength(particleDiam);
-
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
 	  for (const Vector & position : latticeSites)
-	    Sim->particles.push_back
-	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
-		      nParticles++));
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 	  break;
 	}
       case 15:
@@ -1596,32 +1365,19 @@ namespace dynamo {
 				    / latticeSites.size(), double(1.0 / 3.0));
 
 	  //Set up a standard simulation
-	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
-	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
-
 	  if (vm.count("b1"))
 	    Sim->globals.push_back(shared_ptr<Global>(new GSOCells(Sim,"SOCells")));
 
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IParallelCubes(Sim, particleDiam, 1.0, new IDPairRangeAll(), "Bulk")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IParallelCubes(Sim, particleDiam, 1.0, new IDPairRangeAll(), "Bulk")));
 
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new IDRangeAll(Sim), 1.0,
-				       "Bulk", 0, "Bulk")));
-
+	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeAll(Sim), 1.0,"Bulk", 0, "Bulk")));
 	  Sim->units.setUnitLength(particleDiam);
 
 	  size_t nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
 	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back
-	    (Particle(position,
-		      Vector(Sim->units.unitVelocity(),
-			     Sim->units.unitVelocity(),
-			     Sim->units.unitVelocity()),
-		      nParticles++));
+	    (Particle(position, Vector(Sim->units.unitVelocity(), Sim->units.unitVelocity(), Sim->units.unitVelocity()), nParticles++));
 
 	  {
 	    std::uniform_real_distribution<> uniform_dist(-0.5,0.5);
@@ -1664,7 +1420,6 @@ namespace dynamo {
 		"Mode specific options:\n"
 		"  16: Stepped Potential\n"
 		"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-		"       --i2 : Sets the level of overlinking in the cell lists [1]\n"
 		"       --s1 : Sets the form of the stepped potential, list in r1,E1:r2,E2\n";
 	      exit(1);
 	    }
@@ -1714,18 +1469,6 @@ namespace dynamo {
 		  Sim->primaryCellSize[dimension] = 4.0000001 * particleDiam;
 		}
 	    }
-
-	  //New scheduler and global
-	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
-
-	  {
-	    size_t overlink = 1;
-	    if (vm.count("i2"))
-	      overlink = vm["i2"].as<size_t>();
-
-	    Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim, "SchedulerNBList", overlink)));
-	  }
 
 	  Sim->units.setUnitLength(particleDiam);
 	  //Set the unit energy to 1 (assuming the unit of mass is 1);
@@ -1910,46 +1653,23 @@ namespace dynamo {
 	    latticeSites(packptr->placeObjects(particleCOM));
 
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCNone(Sim));
-	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  double simVol = 1.0;
-
 	  for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	    simVol *= Sim->primaryCellSize[iDim];
 
 	  double particleDiam = 1.0 / boxL;
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, ParticleInelas, new IDPairRangeAll(), "Bulk")));
 
-	  //Set up a standard simulation
-	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
+	  Sim->locals.push_back(shared_ptr<Local>(new LWall(Sim, PlateInelas, particleDiam, Vector(0,0,1), Vector(0, 0, -0.5 * Aspect - 0.5 * particleDiam),"Plate2", new IDRangeAll(Sim))));
 
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, particleDiam, ParticleInelas, new IDPairRangeAll(), "Bulk")));
-
-	  Sim->locals.push_back(shared_ptr<Local>
-				(new LWall(Sim, PlateInelas, particleDiam, Vector(0,0,1), 
-					   Vector(0, 0, -0.5 * Aspect - 0.5 * particleDiam),
-					   "Plate2", new IDRangeAll(Sim))));
-
-	  Sim->locals.push_back(shared_ptr<Local>
-				(new LWall(Sim, PlateInelas, particleDiam, Vector(0,0,-1), Vector(0, 0, +0.5 * Aspect + 0.5 * particleDiam),
-					   "Plate3", new IDRangeAll(Sim))));
+	  Sim->locals.push_back(shared_ptr<Local>(new LWall(Sim, PlateInelas, particleDiam, Vector(0,0,-1), Vector(0, 0, +0.5 * Aspect + 0.5 * particleDiam), "Plate3", new IDRangeAll(Sim))));
 	  
-	  Sim->locals.push_back(shared_ptr<Local>
-				(new LWall(Sim, PlateInelas, particleDiam, Vector(0,+1,0), 
-					   Vector(0, -0.5 * Aspect - 0.5 * particleDiam, 0),
-					   "Plate4", new IDRangeAll(Sim))));
+	  Sim->locals.push_back(shared_ptr<Local>(new LWall(Sim, PlateInelas, particleDiam, Vector(0,+1,0), Vector(0, -0.5 * Aspect - 0.5 * particleDiam, 0), "Plate4", new IDRangeAll(Sim))));
 
-	  Sim->locals.push_back(shared_ptr<Local>
-				(new LWall(Sim, PlateInelas, particleDiam, Vector(0,-1,0), 
-					   Vector(0, +0.5 * Aspect + 0.5 * particleDiam, 0),
-					   "Plate5", new IDRangeAll(Sim))));
+	  Sim->locals.push_back(shared_ptr<Local>(new LWall(Sim, PlateInelas, particleDiam, Vector(0,-1,0), Vector(0, +0.5 * Aspect + 0.5 * particleDiam, 0), "Plate5", new IDRangeAll(Sim))));
 
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new IDRangeAll(Sim), 1.0, 
-				       "Bulk", 0, "Bulk")));
-
+	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0, "Bulk")));
 	  Sim->units.setUnitLength(particleDiam);
 
 	  size_t maxPart;
@@ -1964,21 +1684,13 @@ namespace dynamo {
 	  std::sort(latticeSites.begin(), latticeSites.end(), mySortPredictate);
 
 	  for (size_t i(0); i < maxPart; ++i)
-	    Sim->particles.push_back
-	      (Particle(latticeSites[i], 
-			getRandVelVec() * Sim->units.unitVelocity(),
-			nParticles++));
+	    Sim->particles.push_back(Particle(latticeSites[i], getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 
 	  bool strongPlate = false;
 	  if (vm.count("b1"))
 	    strongPlate = true;
 
-	  Sim->locals.push_back
-	    (shared_ptr<Local>
-	     (new LOscillatingPlate(Sim, Vector(0,0,0), Vector(1,0,0), Omega0,
-				    0.5 * L / boxL, PlateInelas, Delta / boxL, 
-				    MassRatio * nParticles, "Plate1", 
-				    new IDRangeAll(Sim), 0.0, strongPlate)));
+	  Sim->locals.push_back(shared_ptr<Local>(new LOscillatingPlate(Sim, Vector(0,0,0), Vector(1,0,0), Omega0, 0.5 * L / boxL, PlateInelas, Delta / boxL, MassRatio * nParticles, "Plate1", new IDRangeAll(Sim), 0.0, strongPlate)));
 	  break;
 	}
       case 20:
@@ -1996,26 +1708,17 @@ namespace dynamo {
 	    }
 
 	  //Pack the system, determine the number of particles
-	  size_t N = std::unique_ptr<UCell>(standardPackingHelper(new UParticle()))
-	    ->placeObjects(Vector(0,0,0)).size();
+	  size_t N = std::unique_ptr<UCell>(standardPackingHelper(new UParticle()))->placeObjects(Vector(0,0,0)).size();
 
 	  if (vm.count("rectangular-box"))
-	    {
-	      Sim->primaryCellSize = getNormalisedCellDimensions();
-	      Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
-	    }
-	  else
-	    Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
+	    Sim->primaryCellSize = getNormalisedCellDimensions();
 
 	  double simVol = 1.0;
-
 	  for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	    simVol *= Sim->primaryCellSize[iDim];
 
 	  double particleDiam = pow(simVol * vm["density"].as<double>() / N, double(1.0 / 3.0));
-
 	  double overlapDiameter = particleDiam;
-
 	  if (vm.count("f1"))
 	    overlapDiameter *= vm["f1"].as<double>();
 
@@ -2031,26 +1734,15 @@ namespace dynamo {
 	  std::vector<Vector>
 	    latticeSites(packptr->placeObjects(Vector(0,0,0)));
 
-	  //Set up a standard simulation
-	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
-
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, particleDiam, 1.0, new IDPairRangeAll(), "Bulk")));
-
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0,
-				       "Bulk")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, new IDPairRangeAll(), "Bulk")));
+	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0, "Bulk")));
 
 	  Sim->units.setUnitLength(particleDiam);
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
 	  for (const Vector & position : latticeSites)
-	    Sim->particles.push_back(Particle(position, getRandVelVec()
-						 * Sim->units.unitVelocity(),
-						 nParticles++));
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 	  break;
 	}
       case 21:
@@ -2077,7 +1769,6 @@ namespace dynamo {
 
 	  Sim->primaryCellSize = getNormalisedCellDimensions();
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCNone(Sim));
-	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
 
 	  double simVol = 1.0;
 
@@ -2087,27 +1778,17 @@ namespace dynamo {
 	  double particleDiam = pow(simVol * vm["density"].as<double>()
 				    / latticeSites.size(), double(1.0 / 3.0));
 
-	  //Set up a standard simulation
-	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
-
 	  Sim->units.setUnitLength(particleDiam);
-
-	  Sim->dynamics = shared_ptr<Dynamics>
-	    (new DynGravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0)));
+	  Sim->dynamics = shared_ptr<Dynamics>(new DynGravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0)));
 
 	  double elasticity = 1.0;
 
 	  if (vm.count("f1"))
 	    elasticity =  vm["f1"].as<double>();
 
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, particleDiam, elasticity, new IDPairRangeAll(), "Bulk")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, elasticity, new IDPairRangeAll(), "Bulk")));
 	
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0,
-				       "Bulk")));
+	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0, "Bulk")));
 	
 	  //We actually shrink our lattice length scale by 0.999 and our
 	  //wall spacing by 0.9995 to prevent particles being
@@ -2161,19 +1842,10 @@ namespace dynamo {
 	  double particleDiam = std::min(1 / (2 * R + 1), 1 / (H + 1));
 
 	  Sim->units.setUnitLength(particleDiam);
-	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
-	
-
-	  //Set up a standard simulation
-	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELCBT()));
-
 	  Sim->dynamics = shared_ptr<Dynamics>
 	    (new DynGravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0), elasticV * Sim->units.unitVelocity()));
 
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, particleDiam, elasticity, new IDPairRangeAll(), "Bulk")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, elasticity, new IDPairRangeAll(), "Bulk")));
 	
 	  ///Now build our funnel, so we know how many particles it takes
 	  std::vector<Vector> funnelSites;
@@ -2303,18 +1975,7 @@ namespace dynamo {
 	  std::vector<Vector  > latticeSites(sysPack.placeObjects
 					     (Vector (0,0,0)));
 
-	  //Set up the system now
-
-	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
-	  
-	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
-
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0, 
-			      new IDPairRangeChains(0, latticeSites.size()-1, latticeSites.size()), "Bonds")));
-	
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new ISquareBond(Sim, sigmin * diamScale, sigmax / sigmin, 1.0, new IDPairRangeChains(0, latticeSites.size()-1, latticeSites.size()), "Bonds")));
 	
 	  {
 	    std::vector<size_t> seq;
@@ -2855,17 +2516,8 @@ namespace dynamo {
 	  double particleDiam = (2 * Rmax) / l;
 
 	  Sim->units.setUnitLength(particleDiam);
-	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
-	
 
-	  //Set up a standard simulation
-	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELCBT()));
-
-	  Sim->dynamics = shared_ptr<Dynamics>
-	    (new DynGravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0),
-				   elasticV * Sim->units.unitVelocity(),
-				   tc * Sim->units.unitTime()));
+	  Sim->dynamics = shared_ptr<Dynamics>(new DynGravity(Sim, Vector(0,-Sim->units.unitAcceleration(),0), elasticV * Sim->units.unitVelocity(), tc * Sim->units.unitTime()));
 
 	  ///Now build our funnel, so we know how many particles it takes
 	  std::vector<Vector> funnelSites;
@@ -3005,33 +2657,17 @@ namespace dynamo {
 	  //	  }
 	  //	}
 	
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, particleDiam * 2.0, elasticity,
-			      new IDPairRangeAll(), "Bulk")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam * 2.0, elasticity, new IDPairRangeAll(), "Bulk")));
 	
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpFixedCollider(Sim, new IDRangeRange(0, funnelSites.size()), "FunnelParticles", 
-					       0, "Bulk")));
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new IDRangeRange(funnelSites.size(), 
-						       funnelSites.size() + dynamicSites.size()), 
-				       1.0, "Bulk", 0, "Bulk")));
+	  Sim->addSpecies(shared_ptr<Species>(new SpFixedCollider(Sim, new IDRangeRange(0, funnelSites.size()), "FunnelParticles", 0, "Bulk")));
+	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeRange(funnelSites.size(), funnelSites.size() + dynamicSites.size()), 1.0, "Bulk", 0, "Bulk")));
 
 	  if (sleepV)
 	    {
-	      Sim->systems.push_back
-		(shared_ptr<System>(new SSleep(Sim, "Sleeper",
-					       new IDRangeRange(funnelSites.size(), funnelSites.size() + dynamicSites.size()),
-					       sleepV * Sim->units.unitVelocity())));
+	      Sim->systems.push_back(shared_ptr<System>(new SSleep(Sim, "Sleeper", new IDRangeRange(funnelSites.size(), funnelSites.size() + dynamicSites.size()), sleepV * Sim->units.unitVelocity())));
 	      
 	      if (wakeTime)
-		Sim->globals.push_back
-		  (shared_ptr<Global>(new GWaker(Sim, "Waker",
-						 new IDRangeRange(funnelSites.size(), funnelSites.size() + dynamicSites.size()),
-						 wakeTime * Sim->units.unitTime(),
-						 0.5 * sleepV * Sim->units.unitVelocity(),
-						 "SchedulerNBList")));
+		Sim->globals.push_back(shared_ptr<Global>(new GWaker(Sim, "Waker", new IDRangeRange(funnelSites.size(), funnelSites.size() + dynamicSites.size()), wakeTime * Sim->units.unitTime(), 0.5 * sleepV * Sim->units.unitVelocity(), "SchedulerNBList")));
 	    }
 
 	  unsigned long nParticles = 0;
@@ -3124,11 +2760,6 @@ namespace dynamo {
 	  if (vm.count("f1"))
 	    elasticity = vm["f1"].as<double>();
 
-	  //Set up a standard simulation
-	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELBoundedPQ<>()));
-	  Sim->globals.push_back(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
-
 	  Sim->BCs = shared_ptr<BoundaryCondition>(new BCLeesEdwards(Sim));
 	  const double shearRate(1);
 
@@ -3162,12 +2793,9 @@ namespace dynamo {
 	      M->getProperty(i) = mass;
 	    }
 	
-	  Sim->interactions.push_back
-	    (shared_ptr<Interaction>
-	     (new IHardSphere(Sim, "D", elasticity, new IDPairRangeAll(), "Bulk")));
+	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, "D", elasticity, new IDPairRangeAll(), "Bulk")));
 
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new IDRangeAll(Sim), "M", "Bulk", 0, "Bulk")));
+	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeAll(Sim), "M", "Bulk", 0, "Bulk")));
 
 	  Sim->units.setUnitLength(particleDiam);
 
@@ -3213,12 +2841,6 @@ namespace dynamo {
 	  double sigmaA = pow(simVol * vm["density"].as<double>()
 			      / latticeSites.size(), double(1.0 / 3.0));
 	  
-	  //Set up a standard simulation
-	  Sim->ptrScheduler 
-	    = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new DefaultSorter()));
-
-	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
-
 	  const double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0;
 	  const double sizeratio = (vm.count("f2")) ? vm["f2"].as<double>() : 1.0;
 	  const double massratio = (vm.count("f3")) ? vm["f3"].as<double>() : sizeratio * sizeratio * sizeratio;
@@ -3242,7 +2864,7 @@ namespace dynamo {
 	  for (const Vector& position : latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 
-	  Sim->dynamics->initOrientations(std::sqrt(1/I));
+	  Sim->dynamics->initOrientations();
 	  break;
 	}
       case 28:
@@ -3255,8 +2877,13 @@ namespace dynamo {
 		"       --i1 : Depth of the drum in particle diameters [5]\n"
 		"       --f1 : Radius of the drum in particle diameters (from centre to boundary particle centre) [7.5]\n"
 		"       --f2 : Elasticity of the particles [0.4]\n"
-		"       --f3 : Spacing of the particles in particle diameters [1.3]\n"
-		"       --f4 : Incline of the system in degrees [6]\n";
+		"       --f3 : Spacing of the particles in particle diameters [3]\n"
+		"       --f4 : Incline of the system in degrees [6]\n"
+		"       --f5 : Rotations per unit time [0.001]\n"
+		"       --f6 : \"Steps\" per rotation [360]\n"
+		"       --f7 : Elastic velocity [0.5]\n"
+		"       --f8 : Tangential restitution coefficient [disabled]\n"
+		;
 	      exit(1);
 	    }
 
@@ -3269,33 +2896,43 @@ namespace dynamo {
 	  double elasticity = 0.4;
 	  if (vm.count("f2")) elasticity = vm["f2"].as<double>();
 
-	  double dynamicSpacing = 1.3;
+	  double dynamicSpacing = 3;
 	  if (vm.count("f3")) dynamicSpacing = vm["f3"].as<double>();
 
 	  double incline = 6;
 	  if (vm.count("f4")) incline = vm["f4"].as<double>();
 
-	  incline *= M_PI /180.0;
+	  double RPT = 0.001;
+	  if (vm.count("f5")) RPT = vm["f5"].as<double>();
+
+	  double steps_per_rotation = 360;
+	  if (vm.count("f6")) steps_per_rotation = vm["f6"].as<double>();
+
+	  double elasticV = 0.5;
+	  if (vm.count("f7")) elasticV = vm["f7"].as<double>();
+
+	  double et = 1.0;
+	  if (vm.count("f8")) et = vm["f8"].as<double>();
+
 	  const double diameter = 1.0;
-	  const double elasticV = 1.0;
 	  const double g = 1.0;
 
 	  Sim->units.setUnitLength(diameter);
 
 	  Sim->primaryCellSize = Vector(2 * R + 1, 2 * R + 1, depth);
 
-	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
-
 	  //Set up a standard simulation
 	  Sim->ptrScheduler = shared_ptr<SNeighbourList>(new SNeighbourList(Sim, new FELCBT()));
 	  
+	  incline *= M_PI /180.0;
 	  Sim->dynamics = shared_ptr<Dynamics>(new DynGravity(Sim, g * Vector(0, -cos(incline), sin(incline)), elasticV));
+	  
+	  if (et == 1.0)
+	    Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, diameter, elasticity, new IDPairRangeAll(), "Bulk")));
+	  else
+	    Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, diameter, elasticity, et, new IDPairRangeAll(), "Bulk")));
 
-	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, diameter, elasticity, new IDPairRangeAll(), "Bulk")));
-	
-	  double rotatetimestep = 0.1;
-	  double angularvel = 2 * M_PI / 100.0;
-	  Sim->systems.push_back(shared_ptr<System>(new SysRotateGravity(Sim, "Sleeper", rotatetimestep, angularvel, Vector(0,0,1))));
+	  Sim->systems.push_back(shared_ptr<System>(new SysRotateGravity(Sim, "GravityRotator", 1.0 / (RPT * steps_per_rotation), 2 * M_PI * RPT, Vector(0, 0, 1))));
 
 	  ///Now build our funnel, so we know how many particles it takes
 	  std::vector<Vector> funnelSites;
@@ -3313,16 +2950,20 @@ namespace dynamo {
 	  std::vector<Vector> dynamicSites;
 	  for (double circlePos(0); circlePos < depth * diameter; circlePos += dynamicSpacing * diameter)
 	    for (double circleR = R - dynamicSpacing * diameter; circleR > diameter; circleR -= dynamicSpacing * diameter)
-	    {
-	      const size_t Nr = static_cast<size_t>(M_PI / std::asin(diameter / (2 * circleR)));
-	      const double deltaPhi = 2 * M_PI / Nr;
-	    
-	      for (size_t radialstep(0); radialstep < Nr; ++radialstep)
-		dynamicSites.push_back(Vector(circleR * std::sin(radialstep * deltaPhi), circleR * std::cos(radialstep * deltaPhi), circlePos));
-	    }
+	      {
+		const size_t Nr = static_cast<size_t>(M_PI / std::asin(diameter / (2 * circleR)));
+		const double deltaPhi = 2 * M_PI / Nr;
+		
+		for (size_t radialstep(0); radialstep < Nr; ++radialstep)
+		  dynamicSites.push_back(Vector(circleR * std::sin(radialstep * deltaPhi), circleR * std::cos(radialstep * deltaPhi), circlePos));
+	      }
 
 	  Sim->addSpecies(shared_ptr<Species>(new SpFixedCollider(Sim, new IDRangeRange(0, funnelSites.size()), "FunnelParticles", 0, "Bulk")));
-	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeRange(funnelSites.size(), funnelSites.size() + dynamicSites.size()), 1.0, "Bulk", 0, "Bulk")));
+	  
+	  if (et==1.0)
+	    Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeRange(funnelSites.size(), funnelSites.size() + dynamicSites.size()), 1.0, "Bulk", 0, "Bulk")));
+	  else
+	    Sim->addSpecies(shared_ptr<Species>(new SpSphericalTop(Sim, new IDRangeRange(funnelSites.size(), funnelSites.size() + dynamicSites.size()), 1.0, "Bulk", 0, diameter * diameter / 10.0, "Bulk")));
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(funnelSites.size() + dynamicSites.size());
@@ -3336,11 +2977,24 @@ namespace dynamo {
 	      if (vel[1] > 0) vel[1] = -vel[1];//So particles don't fly out of the hopper
 	      Sim->particles.push_back(Particle(position, vel, nParticles++));
 	    }
+
+	  if (et != 1.0)
+	    Sim->dynamics->initOrientations(1);
 	  break;
 	}
       default:
 	M_throw() << "Did not recognise the packer mode you wanted";
       }
+
+    //Add the cellular neighbourlist required by the default scheduler (if it is used)
+    if (std::dynamic_pointer_cast<SNeighbourList>(Sim->ptrScheduler))
+      {
+	if (std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
+	  Sim->globals.push_back(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
+	else
+	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
+      }
+
     Sim->N = Sim->particles.size();
     Sim->ensemble = dynamo::Ensemble::loadEnsemble(*Sim);
   }

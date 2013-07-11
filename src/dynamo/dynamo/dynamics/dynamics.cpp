@@ -202,8 +202,11 @@ namespace dynamo {
 	* Sim->species[part]->getMass(part.getID());
   
     if (hasOrientationData())
-      energy += orientationData[part.getID()].angularVelocity.nrm2()
-	* Sim->species[part]->getScalarMomentOfInertia(part.getID());
+      {
+	double I = Sim->species[part]->getScalarMomentOfInertia(part.getID());
+	if (!std::isinf(I))
+	  energy += I * orientationData[part.getID()].angularVelocity.nrm2();
+      }
 
     return 0.5 * energy;
   }
@@ -313,13 +316,13 @@ namespace dynamo {
   }
 
   void 
-  Dynamics::initOrientations(double ToI)
+  Dynamics::initOrientations(double kbT)
   {
     orientationData.resize(Sim->particles.size());
   
+    //std::sqrt(10.0/ (diameter * diameter))
+  
     dout << "Initialising the line orientations" << std::endl;
-
-    double factor = ToI * 0.5;
 
     std::normal_distribution<> norm_dist;
     
@@ -334,9 +337,15 @@ namespace dynamo {
 	
 	//Ensure the initial angular velocity is perpendicular to the
 	//director
-	orientationData[i].angularVelocity = Quaternion::initialDirector() ^ angVelCrossing;
+	double I = Sim->species[Sim->particles[i]]->getScalarMomentOfInertia(i);
 	
-	orientationData[i].angularVelocity *= factor * norm_dist(Sim->ranGenerator) / orientationData[i].angularVelocity.nrm();
+	if (std::isinf(I))
+	  orientationData[i].angularVelocity = Vector(0,0,0);
+	else
+	  {
+	    orientationData[i].angularVelocity = Quaternion::initialDirector() ^ angVelCrossing;
+	    orientationData[i].angularVelocity *= 0.5 * std::sqrt(kbT/I) * norm_dist(Sim->ranGenerator) / orientationData[i].angularVelocity.nrm();
+	  }
       }
   }
 

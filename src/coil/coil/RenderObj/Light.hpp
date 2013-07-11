@@ -36,7 +36,7 @@ namespace coil {
 	   GLfloat simLength = 25.0f, GLfloat size = 1.0): 
       RenderObj(name),
       Camera(1024,1024,position, lookAtPoint, zNearDist, zFarDist, up, simLength, magnet::math::Vector(0,0,20)),
-      _intensity(100 / simLength),
+      _intensity(25.0 / simLength),
       _specularExponent(32),
       _specularFactor(1),
       _maxvariance(0.1),

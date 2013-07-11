@@ -22,6 +22,7 @@
 #include <dynamo/systems/visualizer.hpp>
 #include <dynamo/dynamics/gravity.hpp>
 #include <dynamo/dynamics/compression.hpp>
+#include <dynamo/systems/rotateGravity.hpp>
 #include <dynamo/coilRenderObj.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/NparticleEventData.hpp>
@@ -96,8 +97,16 @@ namespace dynamo {
     for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(*this, NEventData(), dt);
   
-    std::shared_ptr<DynGravity> dynamics = std::dynamic_pointer_cast<DynGravity>(Sim->dynamics);
-    if (dynamics) _window->getCamera().setUp(-dynamics->getGravityVector(), true);
+    for (shared_ptr<System>& system : Sim->systems)
+      {
+	shared_ptr<SysRotateGravity> rgrav =  std::dynamic_pointer_cast<SysRotateGravity>(system);
+	if (!rgrav) continue;
+
+	std::shared_ptr<DynGravity> dynamics = std::dynamic_pointer_cast<DynGravity>(Sim->dynamics);
+	if (dynamics)
+	  _window->getGLContext()->queueTask(std::bind(&magnet::GL::Camera::setUp, &(_window->getCamera()), -dynamics->getGravityVector(), rgrav->getAxis()));
+	break;
+      }
 
     _window->simupdateTick(Sim->systemTime / Sim->units.unitTime());
 

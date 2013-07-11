@@ -86,6 +86,9 @@ main(int argc, char *argv[])
 	("f5", po::value<double>(), "double option five.")
 	("f6", po::value<double>(), "double option six.")
 	("f7", po::value<double>(), "double option seven.")
+	("f8", po::value<double>(), "double option eight.")
+	("f9", po::value<double>(), "double option nine.")
+	("f10", po::value<double>(), "double option ten.")
 	("NCells,C", po::value<unsigned long>()->default_value(7),
 	 "Default number of unit cells per dimension, used for crystal packing of particles.")
 	("xcell,x", po::value<unsigned long>(),

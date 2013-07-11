@@ -17,25 +17,26 @@
 
 #pragma once
 
-#include <dynamo/species/point.hpp>
+#include <dynamo/species/inertia.hpp>
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
-  class SpFixedCollider:public SpPoint
+  class SpFixedCollider: public SpInertia
   {
   public:  
-    SpFixedCollider(dynamo::Simulation* sim, IDRange* r, std::string nName, 
-		    unsigned int ID, std::string nIName="Bulk"):
-      SpPoint(sim, r, 0, nName, ID, nIName)
+    SpFixedCollider(dynamo::Simulation* sim, IDRange* r, std::string nName, unsigned int ID, std::string nIName="Bulk"):
+      SpInertia(sim, r, 0, nName, ID, nIName)
     { name = "SpFixedCollider"; }
   
     SpFixedCollider(const magnet::xml::Node& XML, dynamo::Simulation* nSim, unsigned int nID):
-      SpPoint(nSim, NULL, 0, "", nID,"")
+      SpInertia(nSim, NULL, 0, "", nID,"")
     { name = "SpFixedCollider"; operator<<(XML); }
   
     virtual void initialise();
 
     virtual void operator<<(const magnet::xml::Node& XML);
+
+    virtual double getScalarMomentOfInertia(size_t ID) const { return HUGE_VAL; }
 
   protected:
 

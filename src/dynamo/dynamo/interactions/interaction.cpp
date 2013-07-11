@@ -66,8 +66,6 @@ namespace dynamo {
   {
     if (!XML.getAttribute("Type").getValue().compare("HardSphere"))
       return shared_ptr<Interaction>(new IHardSphere(XML, Sim));
-    else if (!XML.getAttribute("Type").getValue().compare("RoughHardSphere"))
-      return shared_ptr<Interaction>(new IRoughHardSphere(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("SquareWell"))
       return shared_ptr<Interaction>(new ISquareWell(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("ThinThread"))

@@ -45,7 +45,7 @@ namespace dynamo {
 
     mutable shared_ptr<coil::CLGLWindow> _window;
     coil::CoilRegister _coil;
-
+    
     void initDataSet() const;
     void updateRenderData() const;
 

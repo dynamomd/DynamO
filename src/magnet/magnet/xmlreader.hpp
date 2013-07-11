@@ -74,7 +74,7 @@ namespace magnet {
 	  return boost::lexical_cast<T>(getValue());
 	} catch (boost::bad_lexical_cast&)
 	  {
-	    M_throw() << "Failed to cast XML attribute with value \"" << getValue() << "\" to type, XMLPath: " << getPath();
+	    M_throw() << "The value \"" << getValue() << "\" will not cast to the correct type. Please check the attribute at the following XMLPath: " << getPath();
 	  }
       }
 
