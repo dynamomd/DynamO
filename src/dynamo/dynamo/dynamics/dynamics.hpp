@@ -493,6 +493,7 @@ namespace dynamo {
     virtual PairEventData RoughSpheresColl(const IntEvent& event, 
 					   const double& e, 
 					   const double& et, 
+					   const double& d1, 
 					   const double& d2, 
 					   const EEventType& eType = CORE
 					   ) const;

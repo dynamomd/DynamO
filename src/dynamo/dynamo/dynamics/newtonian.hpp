@@ -63,7 +63,7 @@ namespace dynamo {
     virtual PairEventData parallelCubeColl(const IntEvent& event, const double& e, const double& d, const EEventType& eType = CORE) const;
     virtual std::pair<bool, double> getLineLineCollision(const double length, const Particle& p1, const Particle& p2, double t_max) const;
     virtual PairEventData runLineLineCollision(const IntEvent& eevent, const double& elasticity, const double& length) const;
-    virtual PairEventData RoughSpheresColl(const IntEvent& event, const double& e, const double& et, const double& d2, const EEventType& eType) const;
+    virtual PairEventData RoughSpheresColl(const IntEvent& event, const double& e, const double& et, const double& d1, const double& d2, const EEventType& eType) const;
     virtual ParticleEventData runRoughWallCollision(Particle& part, const Vector & vNorm, const double& e, const double& et, const double& r) const;
 
     virtual std::pair<bool, double> getOffcentreSpheresCollision(const double offset1, const double diameter1, const double offset2, const double diameter2, const Particle& p1, const Particle& p2, double t_max, double maxdist) const;

@@ -57,7 +57,7 @@ namespace dynamo {
     if (hasOrientationData())
       {
 	double sumEnergy(0.0);
-	for (const Particle& part : Sim->particles)  
+	for (const Particle& part : Sim->particles)
 	  sumEnergy += Sim->species[part]->getScalarMomentOfInertia(part.getID())
 	  * orientationData[part.getID()].angularVelocity.nrm2();
       
@@ -189,21 +189,20 @@ namespace dynamo {
   double 
   Dynamics::getParticleKineticEnergy(const Particle& part) const
   {
-    double energy(0);
-    if (std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
-      {
-	const BCLeesEdwards& bc = static_cast<const BCLeesEdwards&>(*Sim->BCs);
+    const double mass = Sim->species[part]->getMass(part.getID());
 
-	energy += bc.getPeculiarVelocity(part).nrm2()
-	  * Sim->species[part]->getMass(part.getID());
+    double energy(0);
+    if (!std::isinf(mass))
+      {
+	if (std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
+	  energy += static_cast<const BCLeesEdwards&>(*Sim->BCs).getPeculiarVelocity(part).nrm2() * mass;
+	else
+	  energy += part.getVelocity().nrm2() * mass;
       }
-    else
-      energy += part.getVelocity().nrm2()
-	* Sim->species[part]->getMass(part.getID());
-  
+
     if (hasOrientationData())
       {
-	double I = Sim->species[part]->getScalarMomentOfInertia(part.getID());
+	const double I = Sim->species[part]->getScalarMomentOfInertia(part.getID());
 	if (!std::isinf(I))
 	  energy += I * orientationData[part.getID()].angularVelocity.nrm2();
       }
@@ -230,21 +229,28 @@ namespace dynamo {
     if (std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
       {
 	const BCLeesEdwards& bc = static_cast<const BCLeesEdwards&>(*Sim->BCs);
-
 	for (Particle& part : Sim->particles)
-	  part.getVelocity() = Vector(bc.getPeculiarVelocity(part) * scalefactor
-				      + bc.getStreamVelocity(part));
+	  {
+	    const double mass = Sim->species[part]->getMass(part.getID());
+	    if (!std::isinf(mass))
+	      part.getVelocity() = Vector(bc.getPeculiarVelocity(part) * scalefactor + bc.getStreamVelocity(part));
+	  }
       }
     else
-      {
-	double scalefactor(sqrt(scale));
-      
-	for (Particle& part : Sim->particles)
-	  part.getVelocity() *= scalefactor;
-      }
+      for (Particle& part : Sim->particles)
+	{
+	  const double mass = Sim->species[part]->getMass(part.getID());
+	  if (!std::isinf(mass))
+	    part.getVelocity() *= scalefactor;
+	}
 
-    for (rotData& rdat : orientationData)
-      rdat.angularVelocity *= scalefactor;      
+    if (hasOrientationData())
+      for (Particle& part : Sim->particles)
+	{
+	  const double I = Sim->species[part]->getScalarMomentOfInertia(part.getID());
+	  if (!std::isinf(I))
+	    orientationData[part.getID()].angularVelocity *= scalefactor;
+	}
   }
 
   PairEventData 
@@ -294,12 +300,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  Dynamics::RoughSpheresColl(const IntEvent& event, 
-				const double& e, 
-				const double& et, 
-				const double& d2, 
-				const EEventType& eType
-				) const
+  Dynamics::RoughSpheresColl(const IntEvent& event, const double& e, const double& et, const double& d1, const double& d2, const EEventType& eType) const
   {
     M_throw() << "Not Implemented, you need rotational dynamics";
   }

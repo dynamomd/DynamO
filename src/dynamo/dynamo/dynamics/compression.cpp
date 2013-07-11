@@ -145,35 +145,23 @@ namespace dynamo {
     double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID()); 
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID()); 
     double r2 = retVal.rij.nrm2();
-  
     retVal.rvdot = (retVal.rij | retVal.vijold);
 
-    //Treat special cases if one particle has infinite mass
-    if ((p1Mass == 0) && (p2Mass != 0))
+    double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
+    bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
+    if (infinite_masses)
       {
-	retVal.impulse = p2Mass * retVal.rij * ((1.0 + e) * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
-	particle2.getVelocity() += retVal.impulse / p2Mass;
+	p1Mass = p2Mass = 1;
+	mu = 0.5;
       }
-    else if ((p2Mass == 0) && (p1Mass != 0))
-      {
-	retVal.impulse = p1Mass * retVal.rij * ((1.0 + e) * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
-	particle1.getVelocity() -= retVal.impulse / p1Mass;
-      }
-    else
-      {
-	bool isInfInf = ((p1Mass == 0.0) && (p2Mass == 0.0));
 
-	//If both particles have infinite mass we just collide them as identical masses
-	double mu = isInfInf ? 0.5 : p1Mass * p2Mass / (p1Mass + p2Mass);
-
-	retVal.impulse = retVal.rij * ((1.0 + e) * mu * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
-
-	particle1.getVelocity() -= retVal.impulse / (p1Mass + isInfInf);
-	particle2.getVelocity() += retVal.impulse / (p2Mass + isInfInf);
-
-	//If both particles have infinite mass we pretend no momentum was transferred
-	retVal.impulse *= !isInfInf;
-      }
+    retVal.impulse = retVal.rij * ((1.0 + e) * mu * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
+    
+    particle1.getVelocity() -= retVal.impulse / p1Mass;
+    particle2.getVelocity() += retVal.impulse / p2Mass;
+    
+    //If both particles have infinite mass we pretend no momentum was transferred
+    retVal.impulse *= !infinite_masses;
 
     return retVal;
   }
@@ -195,7 +183,15 @@ namespace dynamo {
     
     double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID());
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID());
-    double mu = p1Mass * p2Mass / (p1Mass + p2Mass);  
+
+    double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
+    bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
+    if (infinite_masses)
+      {
+	p1Mass = p2Mass = 1;
+	mu = 0.5;
+      }
+
     Vector  urij = retVal.rij / retVal.rij.nrm();
 
     retVal.rvdot = (urij | retVal.vijold);
@@ -238,9 +234,9 @@ namespace dynamo {
 	;
 #endif
   
-    //This function must edit particles so it overrides the const!
     particle1.getVelocity() -= retVal.impulse / p1Mass;
     particle2.getVelocity() += retVal.impulse / p2Mass;
+    retVal.impulse *= !infinite_masses;
   
     return retVal;
   }

@@ -119,6 +119,7 @@ namespace dynamo {
       {
 	const Species& sp = *(Sim->species[part]);
 	const double mass = sp.getMass(part.getID());
+	if (std::isinf(mass)) continue;
 	kineticP += mass * Dyadic(part.getVelocity(), part.getVelocity());
 	_speciesMasses[sp.getID()] += mass;
 	_speciesMomenta[sp.getID()] += mass * part.getVelocity();
@@ -152,11 +153,7 @@ namespace dynamo {
     for (size_t spid1(0); spid1 < Sim->species.size(); ++spid1)
       {
 	_thermalDiffusion[spid1].resize(correlator_dt, 10);
-	_thermalDiffusion[spid1]
-	  .setFreeStreamValue(thermalConductivityFS,
-			      _speciesMomenta[spid1]
-			      - (_speciesMasses[spid1] / _systemMass)
-			      * _sysMomentum.current());
+	_thermalDiffusion[spid1].setFreeStreamValue(thermalConductivityFS, _speciesMomenta[spid1] - (_speciesMasses[spid1] / _systemMass) * _sysMomentum.current());
 	
 	for (size_t spid2(spid1); spid2 < Sim->species.size(); ++spid2)
 	  {

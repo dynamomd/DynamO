@@ -125,16 +125,18 @@ namespace dynamo {
   {
     ++Sim->eventCount;
 
-    const double d = (_diameter->getProperty(p1.getID()) + _diameter->getProperty(p2.getID())) * 0.5;
+    const double d1 = _diameter->getProperty(p1.getID());
+    const double d2 = _diameter->getProperty(p2.getID());
+    const double d = 0.5 * (d1 + d2);
+
     double e = 1.0;
-    if (_e)
-      e = (_e->getProperty(p1.getID()) + _e->getProperty(p2.getID())) * 0.5;
+    if (_e) e = (_e->getProperty(p1.getID()) + _e->getProperty(p2.getID())) * 0.5;
    
     PairEventData EDat;
     if (_et)
       {
 	const double et = (_et->getProperty(p1.getID()) + _et->getProperty(p2.getID())) * 0.5;
-	EDat = Sim->dynamics->RoughSpheresColl(iEvent, e, et, d * d);
+	EDat = Sim->dynamics->RoughSpheresColl(iEvent, e, et, d1, d2);
       }
     else
       EDat = Sim->dynamics->SmoothSpheresColl(iEvent, e, d * d); 

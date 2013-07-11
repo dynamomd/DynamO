@@ -379,7 +379,7 @@ namespace dynamo {
 
     double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(p1.getID());
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(p2.getID());
-    double mu = p1Mass * p2Mass/(p1Mass+p2Mass);
+    double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
 
     retVal.impulse = rij * ((1.0 + e) * mu * rvdot / rij.nrm2());  
 
@@ -395,56 +395,34 @@ namespace dynamo {
   {
     Particle& particle1 = Sim->particles[event.getParticle1ID()];
     Particle& particle2 = Sim->particles[event.getParticle2ID()];
-
     updateParticlePair(particle1, particle2);  
+    PairEventData retVal(particle1, particle2, *Sim->species[particle1], *Sim->species[particle2], eType);
 
-    PairEventData retVal(particle1, particle2,
-			 *Sim->species[particle1],
-			 *Sim->species[particle2],
-			 eType);
-    
     Sim->BCs->applyBC(retVal.rij, retVal.vijold);
-  
+
     double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID()); 
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID());
  
-    retVal.rvdot = (retVal.rij | retVal.vijold);
+    retVal.rvdot = retVal.rij | retVal.vijold;
+
+    double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
 
     //Treat special cases if one particle has infinite mass
-    if ((p1Mass == 0) && (p2Mass != 0))
+    bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
+    if (infinite_masses)
       {
-	retVal.impulse = p2Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());  
-	particle2.getVelocity() += retVal.impulse / p2Mass;
+	p1Mass = p2Mass = 1;
+	mu = 0.5;
       }
-    else 
-      if ((p1Mass != 0) && (p2Mass == 0))
-	{
-	  retVal.impulse = p1Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());
-	  particle1.getVelocity() -= retVal.impulse / p1Mass;
-	}
-      else
-	{
-	  bool isInfInf = (p1Mass == 0) && (p2Mass == 0);
 
-	  //If both particles have infinite mass we just collide them as identical masses
-	  if (isInfInf) p1Mass = p2Mass = 1;
-
-	  double mu = p1Mass * p2Mass / (p1Mass + p2Mass);
-
-	  retVal.impulse = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
-
-	  //This function must edit particles so it overrides the const!
-	  particle1.getVelocity() -= retVal.impulse / p1Mass;
-	  particle2.getVelocity() += retVal.impulse / p2Mass;
-
-	  //If both particles have infinite mass we pretend no momentum was transferred
-	  retVal.impulse *= !isInfInf;
-	}
+    retVal.impulse = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
+    particle1.getVelocity() -= retVal.impulse / p1Mass;
+    particle2.getVelocity() += retVal.impulse / p2Mass;
+    retVal.impulse *= !infinite_masses;
 
     lastCollParticle1 = particle1.getID();
     lastCollParticle2 = particle2.getID();
     lastAbsoluteClock = Sim->systemTime;
-
     return retVal;
   }
 
@@ -470,7 +448,14 @@ namespace dynamo {
 
     double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID()); 
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID());
-    double mu = p1Mass * p2Mass/ (p1Mass + p2Mass);
+    double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
+
+    bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
+    if (infinite_masses)
+      {
+	p1Mass = p2Mass = 1;
+	mu = 0.5;
+      }
   
     Vector collvec(0,0,0);
 
@@ -486,6 +471,8 @@ namespace dynamo {
     //This function must edit particles so it overrides the const!
     particle1.getVelocity() -= retVal.impulse / p1Mass;
     particle2.getVelocity() += retVal.impulse / p2Mass;
+
+    retVal.impulse *= !infinite_masses;
 
     return retVal;
   }
@@ -689,7 +676,15 @@ namespace dynamo {
   
     double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID());
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID());
-    double mu = p1Mass * p2Mass / (p1Mass + p2Mass);  
+    double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
+
+    bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
+    if (infinite_masses)
+      {
+	p1Mass = p2Mass = 1;
+	mu = 0.5;
+      }
+
     double R2 = retVal.rij.nrm2();
     double sqrtArg = retVal.rvdot * retVal.rvdot + 2.0 * R2 * deltaKE / mu;
   
@@ -723,14 +718,14 @@ namespace dynamo {
     particle1.getVelocity() -= retVal.impulse / p1Mass;
     particle2.getVelocity() += retVal.impulse / p2Mass;
   
+    retVal.impulse *= !infinite_masses;
     return retVal;
   }
 
   void 
   DynNewtonian::outputXML(magnet::xml::XmlStream& XML) const
   {
-    XML << magnet::xml::attr("Type") 
-	<< "Newtonian";
+    XML << magnet::xml::attr("Type") << "Newtonian";
   }
 
   double 
@@ -1087,8 +1082,7 @@ namespace dynamo {
   double 
   DynNewtonian::getCylinderWallCollision(const Particle& part, const Vector& wallLoc, const Vector& wallNorm, const double& radius) const
   {
-    Vector  rij = part.getPosition() - wallLoc,
-      vel = part.getVelocity();
+    Vector rij = part.getPosition() - wallLoc, vel = part.getVelocity();
     Sim->BCs->applyBC(rij, vel);
     return magnet::intersection::ray_cylinder_bfc(rij, vel, wallNorm, radius);
   }
@@ -1097,19 +1091,12 @@ namespace dynamo {
   DynNewtonian::runCylinderWallCollision(Particle& part, const Vector& origin, const Vector& vNorm, const double& e) const
   {
     updateParticle(part);
-
     ParticleEventData retVal(part, *Sim->species[part], WALL);
-  
-    Vector rij =  origin - part.getPosition();
-
+    Vector rij = origin - part.getPosition();
     Sim->BCs->applyBC(rij);
-
     rij -= Vector((rij | vNorm) * vNorm);
-
     rij /= rij.nrm();
-
     part.getVelocity() -= (1+e) * (rij | part.getVelocity()) * rij;
-  
     return retVal; 
   }
 
@@ -1238,23 +1225,14 @@ namespace dynamo {
 
     Particle& particle1 = Sim->particles[eevent.getParticle1ID()];
     Particle& particle2 = Sim->particles[eevent.getParticle2ID()];
-
     updateParticlePair(particle1, particle2);  
-
-    PairEventData retVal(particle1, particle2,
-			 *Sim->species[particle1],
-			 *Sim->species[particle2],
-			 CORE);
-  
+    PairEventData retVal(particle1, particle2, *Sim->species[particle1], *Sim->species[particle2], CORE);
     Sim->BCs->applyBC(retVal.rij, retVal.vijold);
-
     retVal.rvdot = (retVal.rij | retVal.vijold);
 
     SFLines fL(retVal.rij, retVal.vijold,
-	       orientationData[particle1.getID()].angularVelocity,
-	       orientationData[particle2.getID()].angularVelocity,
-	       orientationData[particle1.getID()].orientation,
-	       orientationData[particle2.getID()].orientation,
+	       orientationData[particle1.getID()].angularVelocity, orientationData[particle2.getID()].angularVelocity,
+	       orientationData[particle1.getID()].orientation, orientationData[particle2.getID()].orientation,
 	       length);
 
     Vector uPerp = fL.getu1() ^ fL.getu2();
@@ -1301,7 +1279,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  DynNewtonian::RoughSpheresColl(const IntEvent& event, const double& e, const double& et, const double& d2, const EEventType& eType) const
+  DynNewtonian::RoughSpheresColl(const IntEvent& event, const double& e, const double& et, const double& d1, const double& d2, const EEventType& eType) const
   {
     if (!hasOrientationData())
       M_throw() << "Cannot use tangential coefficients of inelasticity without orientational data/species";
@@ -1310,11 +1288,7 @@ namespace dynamo {
     Particle& particle2 = Sim->particles[event.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);  
-
-    PairEventData retVal(particle1, particle2,
-			 *Sim->species[particle1],
-			 *Sim->species[particle2],
-			 eType);
+    PairEventData retVal(particle1, particle2, *Sim->species[particle1], *Sim->species[particle2], eType);
     
     Sim->BCs->applyBC(retVal.rij, retVal.vijold);
   
@@ -1323,65 +1297,32 @@ namespace dynamo {
 
     retVal.rvdot = (retVal.rij | retVal.vijold);
 
-    //Treat special cases if one particle has infinite mass
-    if ((p1Mass == 0) && (p2Mass != 0))
+    const Vector rijhat = retVal.rij / retVal.rij.nrm();
+    const Vector gij = retVal.vijold - ((0.5 * d1 * orientationData[particle1.getID()].angularVelocity + 0.5 * d2 * orientationData[particle2.getID()].angularVelocity) ^ rijhat);
+    const Vector rcrossgij = rijhat ^ gij;
+    const double rdotgij = rijhat | gij;
+
+    double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
+
+    double I = 2.0/5.0;
+    
+    bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
+    if (infinite_masses)
       {
-	retVal.impulse = p2Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());  
-	particle2.getVelocity() += retVal.impulse / p2Mass;
+	p1Mass = p2Mass = 1;
+	mu = 0.5;
       }
-    else 
-      if ((p1Mass != 0) && (p2Mass == 0))
-	{
-	  retVal.impulse = p1Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());
-	  particle1.getVelocity() -= retVal.impulse / p1Mass;
-	}
-      else
-	{
-	  bool isInfInf = (p1Mass == 0) && (p2Mass == 0);
+    
+    retVal.impulse = mu * ((1+e) * rijhat * rdotgij + ((et - 1) / (1 + 1.0 / I)) * (rijhat ^ (rcrossgij)));
+    particle1.getVelocity() -= retVal.impulse / p1Mass;
+    particle2.getVelocity() += retVal.impulse / p2Mass;
 
-	  //If both particles have infinite mass we just collide them as identical masses
-	  if (isInfInf) p1Mass = p2Mass = 1;
+    retVal.impulse *= !infinite_masses;
 
-	  double mu = p1Mass * p2Mass / (p1Mass + p2Mass);
-
-	  retVal.impulse = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
-
-	  //This function must edit particles so it overrides the const!
-	  particle1.getVelocity() -= retVal.impulse / p1Mass;
-	  particle2.getVelocity() += retVal.impulse / p2Mass;
-
-	  //If both particles have infinite mass we pretend no momentum was transferred
-	  retVal.impulse *= !isInfInf;
-	}
-
-    //The normal impulse
-//    retVal.impulse = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());
-//
-//    Vector eijn = retVal.rij / retVal.rij.nrm();
-//
-//    //Now the tangential impulse
-//    Vector gij = retVal.vijold - std::sqrt(d2) * 0.5 
-//      * ((orientationData[particle1.getID()].angularVelocity
-//	  + orientationData[particle2.getID()].angularVelocity) ^ eijn);
-//  
-//    Vector gijt = (eijn ^ gij) ^ eijn;
-//
-//    double Jbar = Sim->species[retVal.particle1_.getSpeciesID()]->getScalarMomentOfInertia(particle1.getID()) 
-//      / (p1Mass * d2 * 0.25);
-//  
-//    retVal.impulse += (Jbar * (1-et) / (2*(Jbar + 1))) * gijt;
-//
-//    //This function must edit particles so it overrides the const!
-//    particle1.getVelocity() -= retVal.impulse / p1Mass;
-//    particle2.getVelocity() += retVal.impulse / p2Mass;
-//
-//    Vector angularVchange = (1-et) / (std::sqrt(d2) * (Jbar+1)) * (eijn ^ gijt);
-// 
-//    orientationData[particle1.getID()].angularVelocity
-//      += angularVchange;
-//    orientationData[particle2.getID()].angularVelocity 
-//      += angularVchange;
-
+    Vector angularVchange = (mu * (1-et) / (1 + I)) * rcrossgij;
+ 
+    orientationData[particle1.getID()].angularVelocity += angularVchange / (p1Mass * d1 * 0.5);
+    orientationData[particle2.getID()].angularVelocity += angularVchange / (p2Mass * d2 * 0.5);
     return retVal;
   }
 

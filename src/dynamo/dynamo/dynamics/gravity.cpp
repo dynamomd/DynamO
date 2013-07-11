@@ -76,6 +76,13 @@ namespace dynamo {
     bool isDynamic = particle.testState(Particle::DYNAMIC);
     particle.getPosition() += dt * (particle.getVelocity() + 0.5 * dt * g * isDynamic);
     particle.getVelocity() += dt * g * isDynamic;
+
+    if (hasOrientationData())
+      {
+	orientationData[particle.getID()].orientation = Quaternion::fromRotationAxis(orientationData[particle.getID()].angularVelocity * dt)
+	  * orientationData[particle.getID()].orientation ;
+	orientationData[particle.getID()].orientation.normalise();
+      }
   }
 
   double
@@ -506,6 +513,47 @@ namespace dynamo {
       }
 
     return DynNewtonian::SmoothSpheresColl(event, e, d2, eType);
+  }
+
+  PairEventData 
+  DynGravity::RoughSpheresColl(const IntEvent& event, const double& ne, const double& et, const double& d1, const double& d2, const EEventType& eType) const
+  {
+    Particle& particle1 = Sim->particles[event.getParticle1ID()];
+    Particle& particle2 = Sim->particles[event.getParticle2ID()];
+
+    updateParticlePair(particle1, particle2);  
+
+    Vector rij = particle1.getPosition() - particle2.getPosition(),
+      vij = particle1.getVelocity() - particle2.getVelocity();
+
+    Sim->BCs->applyBC(rij, vij);
+
+    //Check if two particles are collapsing
+    //First, the elastic V calculation
+    double vnrm = std::fabs((rij | vij) / rij.nrm());
+    double e = ne;
+    if (vnrm < elasticV) e = 1.0;
+  
+    //Check if a particle is collapsing on a static particle
+    if (!particle1.testState(Particle::DYNAMIC) || !particle2.testState(Particle::DYNAMIC))
+      {
+	double gnrm = g.nrm();
+	if (gnrm > 0)
+	  if (std::fabs((vij | g) / gnrm) < elasticV) e = 1.0;  
+      }
+  
+    //Now the tc model;
+    if (_tc > 0)
+      {
+	if ((Sim->systemTime - _tcList[particle1.getID()] < _tc)
+	    || (Sim->systemTime - _tcList[particle2.getID()] < _tc))
+	  e = 1.0;
+      
+	_tcList[particle1.getID()] = Sim->systemTime;
+	_tcList[particle2.getID()] = Sim->systemTime;
+      }
+
+    return DynNewtonian::RoughSpheresColl(event, e, et, d1, d2, eType);
   }
 
 
