@@ -1,11 +1,14 @@
-DynamO:- A general event-driven particle simulator.
+DynamO:- A general event-driven particle simulator. Please see the
+website below for more information.
+
 http://www.dynamomd.org
 
 INSTALLATION
 ------------
 
-Please see a full tutorial on the DynamO website. A quick summary is
-       make
+Please see a full tutorial on the DynamO website. A quick summary is:
+
+     make
 
 And the executables will be installed into the bin directory. If you
 want to install the executables to /usr/bin, run
@@ -31,7 +34,7 @@ documentation will be available on the website.
 
 If you want the latest, up to date doxygen documentation, just run
 
-   doxygen
+     doxygen
 
 in the same directory as this README. This will generate HTML
 docmentation in the docs/html directory.
@@ -43,7 +46,7 @@ There is a test script in scripts/test_dynarun.sh.
 
 You can run some OpenCL and other tests by running
 
-    make test
+     make test
 
 TROUBLESHOOTING/CONTRIBUTING 
 ----------------------------
