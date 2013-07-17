@@ -27,9 +27,7 @@ namespace dynamo {
 				 std::string nIName):
     SpInertia(tmp, nr, nMass, nName, nID, nIName),
     inertiaConstant(inertiaConst)
-  {
-    spName = "SpSphericalTop";
-  }
+  {}
 
   SpSphericalTop::SpSphericalTop(const magnet::xml::Node& XML, dynamo::Simulation* Sim, 
 				 unsigned int nID):
