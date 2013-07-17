@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -85,10 +85,10 @@ namespace coil {
     _context->cleanupAttributeArrays();
 
     if (mode == RenderObj::PICKING)
-      _context->setAttribute(Context::vertexColorAttrIndex, 
-			     (offset % 256) / 255.0, 
-			     ((offset / 256) % 256) / 255.0, 
-			     (((offset / 256) / 256) % 256) / 255.0, 
+      _context->setAttribute(Context::vertexColorAttrIndex,
+			     (offset % 256) / 255.0,
+			     ((offset / 256) % 256) / 255.0,
+			     (((offset / 256) / 256) % 256) / 255.0,
 			     ((((offset / 256) / 256) / 256) % 256) / 255.0);
     else
       {
@@ -103,7 +103,7 @@ namespace coil {
     _sphereShader.attach();
     _sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
     _sphereShader["ViewMatrix"] = cam.getViewMatrix();
-    _sphereShader["global_scale"] = GLfloat(1.0);
+    _sphereShader["global_scale"] = _size;
     _glposition.drawArray(magnet::GL::element_type::POINTS);
     _sphereShader.detach();
     
@@ -318,6 +318,13 @@ namespace coil {
     _size = val;
   }
   
+  void
+  RLight::setIntensity(double val)
+  {
+    _intensityEntry->set_text(boost::lexical_cast<std::string>(val));
+    _intensity = val;
+  }
+
   void 
   RLight::setPosition(magnet::math::Vector newposition)
   {

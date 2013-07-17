@@ -2479,7 +2479,8 @@ namespace coil {
 	if (ptr)
 	  {
 	    ptr->setSize(ptr->getSize() * oldScale / newScale);
-	    ptr->setPosition(ptr->getPosition() * oldScale / newScale +shift);
+	    ptr->setIntensity(ptr->getIntensity() * (oldScale * oldScale) / (newScale * newScale));
+	    ptr->setPosition(ptr->getPosition() * oldScale / newScale + shift);
 	  }
       }
   }

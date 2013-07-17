@@ -29,14 +29,12 @@ namespace coil {
   class RLight : public RenderObj, public magnet::GL::Camera
   {
   public:
-    RLight(std::string name, magnet::math::Vector position, 
-	   magnet::math::Vector lookAtPoint,
-	   GLfloat zNearDist = 8.0f, GLfloat zFarDist = 10000.0f,
-	   magnet::math::Vector up = magnet::math::Vector(0,1,0),
-	   GLfloat simLength = 25.0f, GLfloat size = 1.0): 
+    RLight(std::string name, magnet::math::Vector position, magnet::math::Vector lookAtPoint,
+	   GLfloat zNearDist = 8.0f, GLfloat zFarDist = 10000.0f, magnet::math::Vector up = magnet::math::Vector(0,1,0),
+	   GLfloat simLength = 25.0f, GLfloat size = 1.0):
       RenderObj(name),
-      Camera(1024,1024,position, lookAtPoint, zNearDist, zFarDist, up, simLength, magnet::math::Vector(0,0,20)),
-      _intensity(25.0 / simLength),
+      Camera(1024, 1024, position, lookAtPoint, zNearDist, zFarDist, up, simLength, magnet::math::Vector(0,0,20)),
+      _intensity(1.0 / simLength),
       _specularExponent(32),
       _specularFactor(1),
       _maxvariance(0.1),
@@ -57,6 +55,7 @@ namespace coil {
 
     virtual void showControls(Gtk::ScrolledWindow* win);
 
+    void setIntensity(double);
     float getIntensity() const { return _intensity; }
     float getSpecularExponent() const { return _specularExponent; }
     float getSpecularFactor() const { return _specularFactor; }
@@ -121,7 +120,6 @@ namespace coil {
     }
 
     void setSize(double val);
-
     GLfloat getSize() const { return _size; }
 
   protected:
