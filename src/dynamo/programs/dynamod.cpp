@@ -50,7 +50,7 @@ main(int argc, char *argv[])
 	("out-config-file,o", po::value<string>()->default_value("config.out.xml.bz2"), "Configuration output file.")
 	("random-seed,s", po::value<unsigned int>(), "Seed value for the random number generator.")
 	("rescale-T,r", po::value<double>(), "Rescales the kinetic temperature of the input/generated config to this value.")
-	("thermostat,T", po::value<double>(), "Change the thermostat temperature (will add a thermostat and set the Ensemble to NVT if needed).")
+	("thermostat,T", po::value<double>(), "Change or add a thermostatt with the temperature provided. A temperature of zero will remove the thermostatt.")
 	("zero-momentum,Z", "Zeros the total momentum of the input/generated config.")
 	("zero-com", "Zeros the centre of mass of the input/generated config.")
 	("zero-vel", po::value<size_t>(), "Sets the velocity in the [arg=0,1,or 2] dimension of each particle to zero.")
@@ -154,26 +154,34 @@ main(int argc, char *argv[])
 
       if (vm.count("thermostat"))
 	{
-	  //Locate or create a "Thermostat" System interaction
-	  try {
-	    sim.systems["Thermostat"];
-	  } catch (...) {
-	    sim.systems.push_back(dynamo::shared_ptr<dynamo::System>
-				  (new dynamo::SysAndersen(&sim, 1.0, 1.0, "Thermostat")));
-	  }
 
-	  //Check it is a thermostat type, and set the temperature
-	  try {
-	    dynamo::SysAndersen& thermostat = dynamic_cast<dynamo::SysAndersen&>(*sim.systems["Thermostat"]);
-	    thermostat.setReducedTemperature(vm["thermostat"].as<double>());
-	  } catch (...) {
-	    M_throw() << "Could not upcast System event named \"Thermostat\" to SysAndersen";
-	  }
+	  if (vm["thermostat"].as<double>() == 0.0)
+	    {
+	      auto thermostat_base_ptr = sim.systems.find("Thermostat");
+	      if (thermostat_base_ptr == sim.systems.end())
+		M_throw() << "Could not locate thermostat to disable";
 
-	  //Install a NVT Ensemble
-	  sim.ensemble.reset(new dynamo::EnsembleNVT(&sim));
+	      if (!std::dynamic_pointer_cast<dynamo::SysAndersen>(*thermostat_base_ptr))
+		M_throw() << "Could not upcast System event named \"Thermostat\" to Thermostat type";
+
+	      sim.systems.erase(thermostat_base_ptr);
+	      sim.ensemble = dynamo::Ensemble::loadEnsemble(sim);
+	    }
+	  else
+	    {
+	      if (sim.systems.find("Thermostat") == sim.systems.end())
+		sim.systems.push_back(dynamo::shared_ptr<dynamo::System>(new dynamo::SysAndersen(&sim, 1.0, 1.0, "Thermostat")));
+
+	      auto thermostat_base_ptr = sim.systems.find("Thermostat");
+	      auto thermostat_ptr = std::dynamic_pointer_cast<dynamo::SysAndersen>(*thermostat_base_ptr);
+
+	      if (!thermostat_ptr)
+		M_throw() << "Could not upcast System event named \"Thermostat\" to SysAndersen";
+	      
+	      thermostat_ptr->setReducedTemperature(vm["thermostat"].as<double>());
+	      sim.ensemble = dynamo::Ensemble::loadEnsemble(sim);
+	    }
 	}
-
       sim.addOutputPlugin("Misc");
       sim.initialise();      
       

@@ -93,6 +93,18 @@ namespace dynamo
 	
 	M_throw() << "Could not find the \"" << name << "\" object";
       }
+
+      typename Base::iterator find(std::string name) {
+	for (auto ptr = Base::begin(); ptr != Base::end(); ++ptr)
+	  if ((*ptr)->getName() == name) return ptr;
+	return Base::end();
+      }
+
+      typename Base::const_iterator find(std::string name) const {
+	for (auto ptr = Base::begin(); ptr != Base::end(); ++ptr)
+	  if ((*ptr)->getName() == name) return ptr;
+	return Base::end();
+      }
     };
 
     /*! \brief A class which allows easy selection of Species.
