@@ -110,22 +110,12 @@ namespace dynamo {
 	XML << magnet::xml::tag(dat.chainPtr->getName().c_str())
 	    << magnet::xml::chardata();
 
-	//Have to draw the boxes so it renders correctly, hence the doubling up      
-	for (unsigned long i = 0; i < dat.chainlength; i++)
+	for (size_t i = 0; i < dat.chainlength; i++)
 	  {
-	    for (unsigned long j = 0; j < dat.chainlength; j++)
-	      XML << i - 0.5 << " " << j - 0.5 << " " << (((double) dat.array[i * dat.chainlength + j])/((double) dat.counter)) << "\n"
-		  << i - 0.5 << " " << j + 0.5 << " " << (((double) dat.array[i * dat.chainlength + j])/((double) dat.counter)) << "\n";
+	    for (size_t j = 0; j < dat.chainlength; ++j)
+	      XML << double(dat.array[i * dat.chainlength + j]) / double(dat.counter) << " ";
 	    XML << "\n";
-
-	    for (unsigned long j = 0; j < dat.chainlength; j++)
-	      XML << i + 0.5 << " " << j - 0.5 << " " << (((double) dat.array[i * dat.chainlength + j])/((double) dat.counter)) << "\n"
-		  << i + 0.5 << " " << j + 0.5 << " " << (((double) dat.array[i * dat.chainlength + j])/((double) dat.counter)) << "\n";
-	    XML << "\n";
-
 	  }
-      
-            
 	XML << magnet::xml::endtag(dat.chainPtr->getName().c_str());
       }
 
