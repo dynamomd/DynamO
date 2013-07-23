@@ -44,6 +44,8 @@ namespace dynamo {
 
     virtual Vector getGlyphSize(size_t ID) const;
 
+    virtual GLYPH_TYPE getDefaultGlyphType() const { return DUMBBELL_GLYPH; }
+
     virtual double getExcludedVolume(size_t ID) const;
 
     IDumbbells(const magnet::xml::Node&, dynamo::Simulation*);

@@ -48,12 +48,7 @@ namespace dynamo {
 
   Vector IDumbbells::getGlyphSize(size_t ID) const
   { 
-    double l = _diamA->getProperty(ID);
-    //if (subID == 0)
-    //  l = _diamA->getProperty(ID);
-    //else
-    //  l = _diamB->getProperty(ID);
-    return Vector(l,l,l);
+    return Vector(_diamA->getProperty(ID), _diamB->getProperty(ID), _LA->getProperty(ID));
   }
 
   double IDumbbells::getExcludedVolume(size_t ID) const 
@@ -67,16 +62,11 @@ namespace dynamo {
   IDumbbells::operator<<(const magnet::xml::Node& XML)
   { 
     Interaction::operator<<(XML);
-    _diamA = Sim->_properties.getProperty(XML.getAttribute("DiameterA"),
-					  Property::Units::Length());
-    _diamB = Sim->_properties.getProperty(XML.getAttribute("DiameterB"),
-					  Property::Units::Length());
-    _LA = Sim->_properties.getProperty(XML.getAttribute("LA"),
-				       Property::Units::Length());
-    _LB = Sim->_properties.getProperty(XML.getAttribute("LB"),
-				       Property::Units::Length());
-    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-				      Property::Units::Dimensionless());
+    _diamA = Sim->_properties.getProperty(XML.getAttribute("DiameterA"), Property::Units::Length());
+    _diamB = Sim->_properties.getProperty(XML.getAttribute("DiameterB"), Property::Units::Length());
+    _LA = Sim->_properties.getProperty(XML.getAttribute("LA"), Property::Units::Length());
+    _LB = Sim->_properties.getProperty(XML.getAttribute("LB"), Property::Units::Length());
+    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
     intName = XML.getAttribute("Name");
     ICapture::loadCaptureMap(XML);   
   }

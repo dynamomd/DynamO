@@ -36,7 +36,8 @@ namespace dynamo {
 	CYLINDER_GLYPH=2,
 	ROD_GLYPH=3,
 	LINE_GLYPH=4,
-	CUBE_GLYPH=5
+	CUBE_GLYPH=5,
+	DUMBBELL_GLYPH=6
       };
 
     /*! Returns the diameter of the one of the spheres used to represent

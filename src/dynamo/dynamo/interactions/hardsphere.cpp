@@ -77,9 +77,9 @@ namespace dynamo {
 
   Vector
   IHardSphere::getGlyphSize(size_t ID) const
-  { 
+  {
     double diam = _diameter->getProperty(ID);
-    return Vector(diam, diam, diam); 
+    return Vector(diam, diam, diam);
   }
 
   double 
