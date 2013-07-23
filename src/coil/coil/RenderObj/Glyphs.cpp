@@ -69,10 +69,7 @@ namespace coil {
     magnet::GL::Buffer<GLubyte> colorbuf;
 
     size_t instancing = 1;
-    if ((_raytraceable && _glyphRaytrace->get_active())
-	&& ((_glyphType->get_active_row_number() == CYLINDER_GLYPH)
-	    || (_glyphType->get_active_row_number() == ROD_GLYPH)
-	    || (_glyphType->get_active_row_number() == SPHERE_GLYPH)))
+    if ((_raytraceable && _glyphRaytrace->get_active()) && ((_glyphType->get_active_row_number() == CYLINDER_GLYPH) || (_glyphType->get_active_row_number() == ROD_GLYPH) || (_glyphType->get_active_row_number() == SPHERE_GLYPH) || (_glyphType->get_active_row_number() == DUMBBELL_GLYPH)))
       instancing = 0;
 
     if (mode == RenderObj::PICKING)
@@ -107,6 +104,7 @@ namespace coil {
 		shader_ptr = (mode == RenderObj::SHADOW) ? &_cylinderVSMShader : &_cylinderShader;
 		shader_ptr->defines("ROD") = "true";
 	      }
+	  case DUMBBELL_GLYPH:
 	  case SPHERE_GLYPH:
 	    {
 	      if (shader_ptr == nullptr)
@@ -120,11 +118,48 @@ namespace coil {
 		  glMinSampleShadingARB(1.0);
 		}
 	      
-	      if (_drawbillboards->get_active())
-		shader.defines("DRAWBILLBOARD") = "true";
-	      else
-		shader.defines("DRAWBILLBOARD") = "";
-	      
+	      GLuint VAO;
+	      magnet::GL::Buffer<GLfloat> transformBuffer;
+	      if (_glyphType->get_active_row_number() == DUMBBELL_GLYPH)
+		{
+		  //Collected variables are
+		  //vec4 gl_position = 4*4
+		  //vec4 g_color;
+		  //vec4 g_orientation;
+		  //float g_scale;
+		  //We generate two sets of data for each point.
+		  transformBuffer.init(2 * _N * sizeof(GLfloat) * (4 + 4 + 4 + 1), 1);
+
+		  glGenVertexArrays(1, &VAO);
+		  glBindVertexArray(VAO);
+
+		  glBindBuffer(GL_ARRAY_BUFFER, transformBuffer.getGLObject());
+		  glVertexAttribPointer(magnet::GL::Context::vertexPositionAttrIndex, 4, GL_FLOAT, GL_FALSE, 13 * sizeof(GLfloat), (GLvoid*)(0));
+		  glVertexAttribPointer(magnet::GL::Context::vertexColorAttrIndex, 4, GL_FLOAT, GL_FALSE, 13 * sizeof(GLfloat), (GLvoid*)(4 * sizeof(GLfloat)));
+		  glVertexAttribPointer(magnet::GL::Context::instanceOrientationAttrIndex, 4, GL_FLOAT, GL_FALSE, 13 * sizeof(GLfloat), (GLvoid*)(8 * sizeof(GLfloat)));
+		  glVertexAttribPointer(magnet::GL::Context::instanceScaleAttrIndex, 1, GL_FLOAT, GL_FALSE, 13 * sizeof(GLfloat), (GLvoid*)(12 * sizeof(GLfloat)));
+		  glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		  glEnableVertexAttribArray(magnet::GL::Context::vertexPositionAttrIndex);
+		  glEnableVertexAttribArray(magnet::GL::Context::vertexColorAttrIndex);
+		  glEnableVertexAttribArray(magnet::GL::Context::instanceOrientationAttrIndex);
+		  glEnableVertexAttribArray(magnet::GL::Context::instanceScaleAttrIndex);
+		  glBindVertexArray(0);
+
+		  glEnable(GL_RASTERIZER_DISCARD);
+		  glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, transformBuffer.getGLObject());
+
+		  _dumbbellShader.attach();
+		  glBeginTransformFeedback(GL_POINTS);
+		  _ds.getPositionBuffer().attachToVertex();
+		  _ds.getPointSets()[_pointsName].drawElements(magnet::GL::element_type::POINTS);
+		  glEndTransformFeedback();
+		  _dumbbellShader.detach();
+		  glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0);
+		  glDisable(GL_RASTERIZER_DISCARD);
+		}
+
+	      shader.defines("DRAWBILLBOARD") = _drawbillboards->get_active() ? "true" : "";
 	      shader.attach();
 	      shader["ProjectionMatrix"] = cam.getProjectionMatrix();
 	      shader["global_scale"] = _scale;
@@ -134,11 +169,23 @@ namespace coil {
 		    {
 		      Vector displacement = x * _ds.getPeriodicVectorX() + y * _ds.getPeriodicVectorY() + z * _ds.getPeriodicVectorZ();
 		      shader["ViewMatrix"] = cam.getViewMatrix() * magnet::GL::GLMatrix::translate(displacement);
-		      _ds.getPositionBuffer().attachToVertex();
-		      _ds.getPointSets()[_pointsName].drawElements(magnet::GL::element_type::POINTS);
+
+		      if (_glyphType->get_active_row_number() == DUMBBELL_GLYPH)
+			{
+			  glBindVertexArray(VAO);
+			  glDrawArrays(GL_POINTS, 0, 2 * _N);
+			  glBindVertexArray(0);
+			}
+		      else
+			{
+			  _ds.getPositionBuffer().attachToVertex();
+			  _ds.getPointSets()[_pointsName].drawElements(magnet::GL::element_type::POINTS);
+			}
 		    }
 	      shader.detach();
-	      
+
+	      glDeleteVertexArrays(1, &VAO);
+
 	      if (_context->testExtension("GL_ARB_sample_shading"))
 		_primitiveVertices.getContext()->setSampleShading(false);
 	      return;
@@ -148,7 +195,7 @@ namespace coil {
 	  case LINE_GLYPH:
 	  case CUBE_GLYPH:
 	  default:
-	    break;
+	    M_throw() << "Cannot raytrace these glyphs yet";
 	  }
       }
     
@@ -202,6 +249,7 @@ namespace coil {
     _renderShader.deinit();
     _renderVSMShader.deinit();
     _simpleRenderShader.deinit();
+    _dumbbellShader.deinit();
     _gtkOptList.reset();
     _scaleSel.reset(); 
     _colorSel.reset();
@@ -242,6 +290,7 @@ namespace coil {
     _renderShader.build();
     _renderVSMShader.build();
     _simpleRenderShader.build();
+    _dumbbellShader.build();
 
     if (_raytraceable) 
       {
@@ -264,6 +313,7 @@ namespace coil {
       _glyphType->append_text("Rod");
       _glyphType->append_text("Line");
       _glyphType->append_text("Cube");
+      _glyphType->append_text("Dumbbell");
       _glyphType->set_active(_initGlyphType);
 
       _glyphBox->pack_start(*_glyphType, false, false, 5);
@@ -353,6 +403,7 @@ namespace coil {
       Gtk::Label* label = Gtk::manage(new Gtk::Label("x")); label->show();
       periodicbox->pack_start(*label, false, false, 5);
     }
+
     _xperiodicimages.reset(new Gtk::SpinButton(1, 0)); 
     _xperiodicimages->show();
     _xperiodicimages->set_numeric(true);
@@ -364,6 +415,7 @@ namespace coil {
       Gtk::Label* label = Gtk::manage(new Gtk::Label("y")); label->show();
       periodicbox->pack_start(*label, false, false, 5);
     }
+
     _yperiodicimages.reset(new Gtk::SpinButton(1, 0)); 
     _yperiodicimages->show();
     _yperiodicimages->set_numeric(true);
@@ -406,7 +458,8 @@ namespace coil {
     switch (_glyphType->get_active_row_number())
       {
       case SPHERE_GLYPH:
-	{	  
+      case DUMBBELL_GLYPH:
+	{
 	  if (_raytraceable)
 	    {
 	      _glyphRaytrace->set_sensitive(true);
@@ -451,6 +504,7 @@ namespace coil {
       case CYLINDER_GLYPH:
       case ROD_GLYPH:
       case SPHERE_GLYPH:
+      case DUMBBELL_GLYPH:
 	_glyphLOD->set_sensitive(true);
 	if (_raytraceable)
 	  if (_glyphRaytrace->get_active())
@@ -484,6 +538,7 @@ namespace coil {
     switch (type)
       {
       case SPHERE_GLYPH:
+      case DUMBBELL_GLYPH:
 	{
 	  magnet::GL::objects::primitives::Sphere sph(magnet::GL::objects::primitives::Sphere::icosahedron, LOD);
 	  vertices = std::vector<GLfloat>(sph.getVertices(), sph.getVertices() + sph.getVertexCount() * 3);
@@ -526,6 +581,7 @@ namespace coil {
     switch (type)
       {
       case SPHERE_GLYPH:
+      case DUMBBELL_GLYPH:
 	{
 	  magnet::GL::objects::primitives::Sphere sph(magnet::GL::objects::primitives::Sphere::icosahedron, LOD);
 	  return std::vector<GLfloat>(sph.getVertices(), sph.getVertices() + sph.getVertexCount() * 3);
@@ -560,6 +616,7 @@ namespace coil {
     switch (type)
       {
       case SPHERE_GLYPH:
+      case DUMBBELL_GLYPH:
 	{
 	  magnet::GL::objects::primitives::Sphere 
 	    sph(magnet::GL::objects::primitives::Sphere::icosahedron, LOD);

@@ -277,8 +277,7 @@ namespace magnet {
 	  and the uniform values, so you may redundantly assign
 	  values to the shader uniforms without an additional OpenGL
 	  library call cost.
-	 
-	 
+	 	 
 	  There are several default bindings for attributes in the
 	  shader. These default bindings (indices from 0 to 6) may be
 	  used by your shader, but be warned that they are used by
@@ -292,7 +291,16 @@ namespace magnet {
 	  \li "iOrientation" = \ref Context::instanceOrientationAttrIndex
 	  \li "iScale" = \ref Context::instanceScaleAttrIndex
 	  \li "vTexCoord" = \ref Context::vertexTexCoordAttrIndex
-	 
+
+
+	  Shaders which inherit this class should override the
+	  initGeometryShaderSource(), initVertexShaderSource(), and
+	  initFragmentShaderSource() functions to specify what code
+	  should be used for these shaders if it is not specified by
+	  the user.
+	  
+	  Derived classes should place a list of transform feedback
+	  varyings into _tfVaryings if needed.
 	 */
 	class Shader 
 	{
@@ -568,13 +576,20 @@ namespace magnet {
 
 		for (size_t i(0); i < _tfVaryings.size(); ++i)
 		  _varyingcstrings[i] = _tfVaryings[i].c_str();
-
 		glTransformFeedbackVaryings(_programHandle, _varyingcstrings.size(), &_varyingcstrings[0], GL_INTERLEAVED_ATTRIBS);
 	      }
 
 	    //Bind the default shader variables to the indices
 	    //specified in the \ref Context class.
 	    glLinkProgramARB(_programHandle);
+
+	    GLint program_ok;
+	    glGetProgramiv(_programHandle, GL_LINK_STATUS, &program_ok);
+	    if (!program_ok)
+	      M_throw() << "Failed to link the shader, link log follows\n"
+			<< getShaderBuildlog(_programHandle);
+	    
+	    //Check for any other errors
 	    GL::detail::errorCheck();
 
 	    //Done, now the inheriting shader should grab the
