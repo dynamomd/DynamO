@@ -391,6 +391,11 @@ namespace magnet {
 #endif
       inline void setSampleShading(bool newstate) { testAndSetState(newstate, _sampleShading, GL_SAMPLE_SHADING); }
 
+      void bindDefaultVAO() {
+	glBindVertexArray(_dummyVAO);
+	detail::errorCheck();
+      }
+
     protected:
       inline void testAndSetState(const bool newstate, bool& oldstate, const GLenum cap)
       {

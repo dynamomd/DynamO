@@ -132,26 +132,25 @@ namespace coil {
 
 		  glGenVertexArrays(1, &VAO);
 		  glBindVertexArray(VAO);
-
 		  glBindBuffer(GL_ARRAY_BUFFER, transformBuffer.getGLObject());
 		  glVertexAttribPointer(magnet::GL::Context::vertexPositionAttrIndex, 4, GL_FLOAT, GL_FALSE, 13 * sizeof(GLfloat), (GLvoid*)(0));
 		  glVertexAttribPointer(magnet::GL::Context::vertexColorAttrIndex, 4, GL_FLOAT, GL_FALSE, 13 * sizeof(GLfloat), (GLvoid*)(4 * sizeof(GLfloat)));
 		  glVertexAttribPointer(magnet::GL::Context::instanceOrientationAttrIndex, 4, GL_FLOAT, GL_FALSE, 13 * sizeof(GLfloat), (GLvoid*)(8 * sizeof(GLfloat)));
 		  glVertexAttribPointer(magnet::GL::Context::instanceScaleAttrIndex, 1, GL_FLOAT, GL_FALSE, 13 * sizeof(GLfloat), (GLvoid*)(12 * sizeof(GLfloat)));
 		  glBindBuffer(GL_ARRAY_BUFFER, 0);
-
+		  
 		  glEnableVertexAttribArray(magnet::GL::Context::vertexPositionAttrIndex);
 		  glEnableVertexAttribArray(magnet::GL::Context::vertexColorAttrIndex);
 		  glEnableVertexAttribArray(magnet::GL::Context::instanceOrientationAttrIndex);
 		  glEnableVertexAttribArray(magnet::GL::Context::instanceScaleAttrIndex);
-		  glBindVertexArray(0);
+		  _context->bindDefaultVAO();
 
 		  glEnable(GL_RASTERIZER_DISCARD);
 		  glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, transformBuffer.getGLObject());
-
+		  
 		  _dumbbellShader.attach();
-		  glBeginTransformFeedback(GL_POINTS);
 		  _ds.getPositionBuffer().attachToVertex();
+		  glBeginTransformFeedback(GL_POINTS);
 		  _ds.getPointSets()[_pointsName].drawElements(magnet::GL::element_type::POINTS);
 		  glEndTransformFeedback();
 		  _dumbbellShader.detach();
@@ -171,11 +170,11 @@ namespace coil {
 		      shader["ViewMatrix"] = cam.getViewMatrix() * magnet::GL::GLMatrix::translate(displacement);
 
 		      if (_glyphType->get_active_row_number() == DUMBBELL_GLYPH)
-			{
-			  glBindVertexArray(VAO);
-			  glDrawArrays(GL_POINTS, 0, 2 * _N);
-			  glBindVertexArray(0);
-			}
+		      	{
+		      	  glBindVertexArray(VAO);
+		      	  glDrawArrays(GL_POINTS, 0, 2 * _N);
+			  _context->bindDefaultVAO();
+		      	}
 		      else
 			{
 			  _ds.getPositionBuffer().attachToVertex();
@@ -184,7 +183,8 @@ namespace coil {
 		    }
 	      shader.detach();
 
-	      glDeleteVertexArrays(1, &VAO);
+	      if (_glyphType->get_active_row_number() == DUMBBELL_GLYPH)
+		glDeleteVertexArrays(1, &VAO);
 
 	      if (_context->testExtension("GL_ARB_sample_shading"))
 		_primitiveVertices.getContext()->setSampleShading(false);
