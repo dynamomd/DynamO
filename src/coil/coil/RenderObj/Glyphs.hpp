@@ -19,11 +19,86 @@
 #include <coil/RenderObj/AttributeColorSelector.hpp>
 #include <coil/RenderObj/AttributeOrientationSelector.hpp>
 #include <magnet/GL/shader/sphere.hpp>
+#include <magnet/GL/shader/cylinder.hpp>
 #include <magnet/GL/shader/simple_render.hpp>
 #include <magnet/GL/shader/render.hpp>
 #include <magnet/GL/buffer.hpp>
 
+#define STRINGIFY(A) #A
+
 namespace coil {
+  /*! \brief A shader for transform feedback.  
+   */
+  class DumbbellShader: public magnet::GL::shader::detail::Shader
+  {
+  public:
+    DumbbellShader() {
+      _tfVaryings = {"gl_Position", "g_color", "g_orientation", "g_scale"};
+    }
+
+    virtual std::string initVertexShaderSource()
+    { 
+      return STRINGIFY(
+layout (location = 0) in vec4 vPosition;
+layout (location = 1) in vec4 vColor;
+layout (location = 4) in vec4 iOrientation;
+layout (location = 5) in vec4 iScale;
+
+out vec4 f_color;
+out vec3 f_director;
+out vec4 f_orientation;
+out vec4 f_scale;
+
+vec3 qrot(vec4 q, vec3 v)
+{ return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v); }
+
+//In this case, iScale we have (radius1, radius2, distance1, distance2)
+void main()
+{
+  gl_Position = vPosition;
+  f_color = vColor;
+  f_director = qrot(iOrientation, vec3(0.0, 0.0, 1.0));
+  f_orientation = iOrientation;
+  f_scale = iScale + vec4(equal(iScale, vec4(0.0))) * iScale.x;
+});
+    }
+
+    virtual std::string initGeometryShaderSource()
+    {
+      return STRINGIFY(
+layout(points) in;
+layout(points, max_vertices = 2) out;
+
+in vec4 f_color[];
+in vec3 f_director[];
+in vec4 f_orientation[];
+in vec4 f_scale[];
+
+//vec4 gl_position is also collected
+flat out vec4 g_color;
+flat out vec4 g_orientation;
+flat out float g_scale;
+
+void main()
+{  
+  g_color = f_color[0];
+  g_orientation = f_orientation[0];
+  g_scale = f_scale[0].x;
+  gl_Position = vec4(gl_in[0].gl_Position.xyz + f_scale[0].z * f_director[0], 0.0);
+  EmitVertex();
+  EndPrimitive();
+
+  g_color = f_color[0];
+  g_orientation = f_orientation[0];
+  g_scale = f_scale[0].y;
+  gl_Position = vec4(gl_in[0].gl_Position.xyz - f_scale[0].w * f_director[0], 0.0);
+  EmitVertex();
+  EndPrimitive();
+});
+	}
+
+  };
+
   class Glyphs : public DataSetChild
   {
     enum GLYPH_TYPE
@@ -31,18 +106,20 @@ namespace coil {
 	SPHERE_GLYPH=0,
 	ARROW_GLYPH=1,
 	CYLINDER_GLYPH=2,
-	LINE_GLYPH=3,
-	CUBE_GLYPH=4
+	ROD_GLYPH=3,
+	LINE_GLYPH=4,
+	CUBE_GLYPH=5,
+	DUMBBELL_GLYPH=6
       };
 
   public:
-    inline Glyphs(std::string name, DataSet& ds, int initGlyphType = 0): DataSetChild(name, ds), _N(0), _scale(1), _initGlyphType(initGlyphType) {}
+    Glyphs(std::string pointsName, DataSet& ds);
 
     inline ~Glyphs() { deinit(); }
 
-    virtual void glRender(const magnet::GL::Camera&, RenderMode);
+    virtual void glRender(const magnet::GL::Camera&, RenderMode, const uint32_t);
     
-    virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>&);
+    virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>&);
     
     virtual void deinit();
 
@@ -60,10 +137,7 @@ namespace coil {
       return 0; 
     }
 
-    virtual void pickingRender(const magnet::GL::Camera& cam, 
-			       const uint32_t offset);
-
-    virtual std::tr1::array<GLfloat, 4> getCursorPosition(uint32_t objID);
+    virtual std::array<GLfloat, 4> getCursorPosition(uint32_t objID);
 
     virtual std::string getCursorText(uint32_t objID);
 
@@ -84,30 +158,39 @@ namespace coil {
     magnet::GL::Buffer<GLfloat> _primitiveNormals;
     magnet::GL::Buffer<GLuint>  _primitiveIndices;
 
-    std::auto_ptr<Gtk::VBox> _gtkOptList;
-    std::auto_ptr<AttributeSelector> _scaleSel; 
-    std::auto_ptr<AttributeColorSelector> _colorSel;
-    std::auto_ptr<AttributeOrientationSelector> _orientSel;
-    std::auto_ptr<Gtk::ComboBoxText> _glyphType;
-    std::auto_ptr<Gtk::SpinButton> _glyphLOD;
-    std::auto_ptr<Gtk::HBox> _glyphBox;
-    std::auto_ptr<Gtk::CheckButton> _glyphRaytrace;
-    std::auto_ptr<Gtk::SpinButton> _xperiodicimages;
-    std::auto_ptr<Gtk::SpinButton> _yperiodicimages;
-    std::auto_ptr<Gtk::SpinButton> _zperiodicimages;
+    std::unique_ptr<Gtk::VBox> _gtkOptList;
+    std::unique_ptr<AttributeSelector> _scaleSel; 
+    std::unique_ptr<AttributeColorSelector> _colorSel;
+    std::unique_ptr<AttributeOrientationSelector> _orientSel;
+    std::unique_ptr<Gtk::ComboBoxText> _glyphType;
+    std::unique_ptr<Gtk::SpinButton> _glyphLOD;
+    std::unique_ptr<Gtk::HBox> _glyphBox;
+    std::unique_ptr<Gtk::CheckButton> _glyphRaytrace;
+    std::unique_ptr<Gtk::SpinButton> _xperiodicimages;
+    std::unique_ptr<Gtk::SpinButton> _yperiodicimages;
+    std::unique_ptr<Gtk::SpinButton> _zperiodicimages;
 
-    std::auto_ptr<Gtk::HBox>  _scaleFactorBox;
-    std::auto_ptr<Gtk::Label> _scaleLabel;
-    std::auto_ptr<Gtk::Entry> _scaleFactor;
+    std::unique_ptr<Gtk::CheckButton> _drawbillboards;
+
+    std::unique_ptr<Gtk::HBox>  _scaleFactorBox;
+    std::unique_ptr<Gtk::Label> _scaleLabel;
+    std::unique_ptr<Gtk::Entry> _scaleFactor;
     
     bool _raytraceable;
     size_t _N;
     float _scale;
     int _initGlyphType;
+    std::string _pointsName;
     magnet::GL::Context::ContextPtr _context;
     magnet::GL::shader::RenderShader _renderShader;
+    magnet::GL::shader::RenderVSMShader _renderVSMShader;
     magnet::GL::shader::SphereShader _sphereShader;
     magnet::GL::shader::SphereVSMShader _sphereVSMShader;
+    magnet::GL::shader::CylinderShader _cylinderShader;
+    magnet::GL::shader::CylinderVSMShader _cylinderVSMShader;
     magnet::GL::shader::SimpleRenderShader _simpleRenderShader;
+    DumbbellShader _dumbbellShader;
  };
 }
+
+#undef STRINGIFY

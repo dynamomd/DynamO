@@ -17,7 +17,7 @@
 
 #pragma once
 #include <vector>
-#include <boost/scoped_ptr.hpp>
+#include <memory>
 
 namespace dynamo {
   class UCell
@@ -29,9 +29,9 @@ namespace dynamo {
 
     virtual void initialise() { uc->initialise(); }
 
-    virtual std::vector<Vector  > placeObjects(const Vector & ) = 0;  
+    virtual std::vector<Vector> placeObjects(const Vector & ) = 0;  
   
-    boost::scoped_ptr<UCell> uc;
+    const std::unique_ptr<UCell> uc;
   };
 
   /*! \brief A simple terminator, used to place a particle at this
@@ -64,12 +64,12 @@ namespace dynamo {
       //Center the list of positions
       
       Vector center(0,0,0);
-      BOOST_FOREACH(const Vector& vec, _list)
+      for (const Vector& vec : _list)
 	center += vec;
       
       center /= _list.size();
 
-      BOOST_FOREACH(Vector& vec, _list)
+      for (Vector& vec : _list)
 	vec = scale * (vec - center);
     }
 
@@ -77,7 +77,7 @@ namespace dynamo {
     {
       std::vector<Vector> retval;
 
-      BOOST_FOREACH(const Vector& vec, _list)
+      for (const Vector& vec : _list)
 	{
 	  const std::vector<Vector>& newsites = uc->placeObjects(vec + center);
 	  retval.insert(retval.end(), newsites.begin(), newsites.end());

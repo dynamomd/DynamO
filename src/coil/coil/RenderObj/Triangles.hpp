@@ -29,20 +29,18 @@ namespace coil {
     RTriangles(std::string name);
     ~RTriangles();
 
-    virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode);
+    virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode, const uint32_t offset);
 
-    virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
+    virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
 
-    void setGLColors(std::vector<GLubyte>& VertexColor);
-    void setGLPositions(std::vector<float>& VertexPos);
-    void setGLNormals(std::vector<float>& VertexNormals);
-    void setGLElements(std::vector<GLuint>& Elements);
+    void setGLColors(const std::vector<GLubyte>& VertexColor);
+    void setGLPositions(const std::vector<float>& VertexPos);
+    void setGLNormals(const std::vector<float>& VertexNormals);
+    void setGLElements(const std::vector<GLuint>& Elements);
 
     virtual void deinit();
 
     virtual void showControls(Gtk::ScrolledWindow* win);
-
-    virtual void pickingRender(const magnet::GL::Camera& cam, const uint32_t offset);
 
     const magnet::GL::Context::ContextPtr& getContext() const { return _posBuff.getContext(); }
 
@@ -55,19 +53,19 @@ namespace coil {
     void initGTK();
     void guiUpdate();
   
-    std::auto_ptr<Gtk::VBox>        _gtkOptList;
-    std::auto_ptr<Gtk::RadioButton> _gtkLineRender;
-    std::auto_ptr<Gtk::RadioButton> _gtkPointRender;
-    std::auto_ptr<Gtk::RadioButton> _gtkTriangleRender;
+    std::unique_ptr<Gtk::VBox>        _gtkOptList;
+    std::unique_ptr<Gtk::RadioButton> _gtkLineRender;
+    std::unique_ptr<Gtk::RadioButton> _gtkPointRender;
+    std::unique_ptr<Gtk::RadioButton> _gtkTriangleRender;
 
     magnet::GL::Buffer<GLubyte> _colBuff;
     magnet::GL::Buffer<GLfloat> _posBuff;
     magnet::GL::Buffer<GLfloat> _normBuff;
     magnet::GL::Buffer<GLuint> _elementBuff;
     magnet::GL::Buffer<GLuint> _specialElementBuff;
-    magnet::GL::Buffer<GLubyte> _pickingColorBuff;
 
     magnet::GL::shader::RenderShader _renderShader;
+    magnet::GL::shader::RenderVSMShader _renderVSMShader;
   };
 }
 

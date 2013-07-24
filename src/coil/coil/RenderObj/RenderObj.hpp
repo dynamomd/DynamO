@@ -20,7 +20,7 @@
 #include <magnet/thread/taskQueue.hpp>
 #include <magnet/GL/camera.hpp>
 #include <magnet/GL/FBO.hpp>
-#include <tr1/memory>
+#include <memory>
 
 namespace Gtk { class ScrolledWindow; }
 
@@ -43,20 +43,9 @@ namespace coil {
   {
   public:
     enum RenderMode {
-      COLOR = 1, //!< The object is to render its color information.
-      DEPTH = 2, //!< The object is to render its depth information.
-      SHADOW = 4, //!< This is a shadow calculation pass (typically
-		  //!depth only).
-      PICKING = 8, //!< This is an object picking pass
-      DEFAULT = COLOR | DEPTH, //!< By default, color and depth
-			       //!information should be rendered.
-      SHADOW_PASS = SHADOW | DEPTH, //!< Shadow passes only need depth
-				    //!information.
-      PICKING_PASS = COLOR | PICKING //!< In a picking pass, we only
-				     //!render flat shaded images
-				     //!using unique colors to
-				     //!identify objects selected by
-				     //!the user.
+      DEFAULT = 1 << 0, //!< The object is to render the standard data
+      SHADOW = 1 << 1, //!< This is a shadow pass (for lighting calculations).
+      PICKING = 1 << 2 //!< This is an object picking pass.
     };
 
     /*! \brief Default constructor which just sets the name of the
@@ -72,7 +61,7 @@ namespace coil {
        data. This is to allow callbacks to the (simulation) thread
        when user-generated interface events occur.
      */
-    virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue) 
+    virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue) 
     { _systemQueue = systemQueue; }
 
     /*! \brief Release any OpenCL, OpenGL and GTK resources held by
@@ -81,11 +70,33 @@ namespace coil {
     virtual void deinit() {}
     
     /*! \brief Called when the RenderObject must be drawn in the
-	OpenGL scene using deferred shading.
+      OpenGL scene.
+
+      Depending on the mode, different information will be rendered.
 	
-	\param cam The active camera for the render.
-     */
-    virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode)
+      The picking render determines the current object underneath the
+      cursor by drawing every object in a unique color and sampling
+      the pixel underneath the mouse. 
+	
+      An \ref offset value is passed into this function to allow the
+      render object to determine unique colors for its own objects. 
+	
+      As the colors of objects are specified in coil using 4 8-bit
+      values, we can directly convert a 32bit cl_uint type into a
+      cl_uchar4 object to generate a unique color from an object
+      ID. \ref offset represents the number of pickable objects that
+      will be rendered before pickingRender is called on this
+      object. Thus \ref offset is an offset to be applied to the
+      unique colors generated for this object.
+	
+      \param mode The mode of the rendering requested.
+
+      \param offset This number is the running sum of "pickable"
+      objects rendered so far.
+	
+      \param cam The active camera for the render.
+    */
+    virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode, const uint32_t offset = 0)
     {}
     
     /*! \brief Called when the RenderObject must be drawn in the
@@ -98,7 +109,7 @@ namespace coil {
      */
     virtual void forwardRender(magnet::GL::FBO& fbo, 
 			       const magnet::GL::Camera& cam,
-			       std::vector<std::tr1::shared_ptr<RLight> >& lights,
+			       std::vector<std::shared_ptr<RLight> >& lights,
 			       GLfloat ambientLight,
 			       RenderMode mode) 
     {}
@@ -108,42 +119,6 @@ namespace coil {
      */
     virtual void interfaceRender(const magnet::GL::Camera& camera, 
 				 magnet::GL::objects::CairoSurface& cairo) {}
-
-
-    /*! \brief The render phase of the picking render.
-      
-      The picking render determines the current object underneath the
-      cursor by drawing every object in a unique color and sampling
-      the pixel underneath the mouse. 
-      
-      An \ref offset value is passed into this function to allow the
-      render object to determine unique colors for its own objects. If
-      the RenderObj represents 12 "pickable" objects it must increase
-      this offset value by 12 before returning.
-
-      As the colors of objects are specified in coil using 4 8-bit
-      values, we can directly convert a 32bit cl_uint type into a
-      cl_uchar4 object to generate a unique color from an object
-      ID. \ref offset represents the number of pickable objects that
-      will be rendered before pickingRender is called on this
-      object. Thus \ref offset is an offset to be applied to the
-      unique colors generated for this object.
-
-      Typically, this will just call \ref glRender() but with a unique
-      color buffer generated in \ref initPicking() . However, if the
-      object has special needs (like a custom shader), then extra
-      logic will need to be implemented here.
-
-      \param offset This number is the running sum of "pickable"
-      objects. This value should be increased by the number of unique
-      objects drawn in the \ref pickingRender() function before
-      initPicking returns.
-
-      \param cam The active camera for the render.
-     */
-    virtual void pickingRender(const magnet::GL::Camera& cam, 
-			       const uint32_t offset) 
-    {}
 
     /*! \brief The number of objects available for picking rendering.
       
@@ -164,8 +139,8 @@ namespace coil {
 	
 	\param my_ptr A shared pointer of *this object.
      */
-    virtual std::tr1::shared_ptr<RenderObj> 
-    getPickedObject(uint32_t& objID, const std::tr1::shared_ptr<RenderObj>& my_ptr)
+    virtual std::shared_ptr<RenderObj> 
+    getPickedObject(uint32_t& objID, const std::shared_ptr<RenderObj>& my_ptr)
     { return my_ptr; }
 
     
@@ -189,7 +164,7 @@ namespace coil {
 	
 	\sa pickingRender()
      */
-    virtual std::tr1::array<GLfloat, 4> getCursorPosition(uint32_t objID)
+    virtual std::array<GLfloat, 4> getCursorPosition(uint32_t objID)
     {
       M_throw() << "This object is not pickable";
     }
@@ -274,7 +249,7 @@ namespace coil {
 
     /*! \brief Returns the system queue.
      */    
-    std::tr1::shared_ptr<magnet::thread::TaskQueue> getQueue() { return _systemQueue; }
+    std::shared_ptr<magnet::thread::TaskQueue> getQueue() { return _systemQueue; }
 
     
     /*! \brief Called when the object should be deleted.
@@ -287,7 +262,7 @@ namespace coil {
     std::string _name;
     bool _visible;
     bool _shadowCasting;
-    std::tr1::shared_ptr<magnet::thread::TaskQueue> _systemQueue;
+    std::shared_ptr<magnet::thread::TaskQueue> _systemQueue;
   };
 
   class RenderObjectsGtkTreeView
@@ -310,11 +285,11 @@ namespace coil {
       Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf> > m_icon;
     };
     
-    std::auto_ptr<ModelColumns> _columns;
+    std::unique_ptr<ModelColumns> _columns;
     Glib::RefPtr<Gtk::TreeStore> _store;
     Gtk::TreeView* _view;
 
-    std::vector<std::tr1::shared_ptr<RenderObj> > _renderObjects;
+    std::vector<std::shared_ptr<RenderObj> > _renderObjects;
 
     void delete_obj(RenderObj*);
 

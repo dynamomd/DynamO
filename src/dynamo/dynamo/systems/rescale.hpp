@@ -19,18 +19,16 @@
 #include <dynamo/systems/system.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/ranges/IDRange.hpp>
-#include <boost/random/variate_generator.hpp>
-#include <boost/random/uniform_real.hpp>
 
 namespace dynamo {
   /*! \brief A rescaling thermostat.
-   *
-   * This event "attempts" to thermostat the system by simply rescaling
-   * the kinetic energy periodically. It does this by multiplying all
-   * velocities (linear and angular) with a factor calculated like so
-   * \f[ F = \sqrt{\frac{k_b\,T_{desired}}{k_b\,T_{current}}} \f] such
-   * that the velocities after the event are related to the velocities
-   * before by \f[ {\bf v}_{new} = F\, {\bf v}_{old} \f].
+   
+    This event "attempts" to thermostat the system by simply rescaling
+    the kinetic energy periodically. It does this by multiplying all
+    velocities (linear and angular) with a factor calculated like so
+    \f[ F = \sqrt{\frac{k_b\,T_{desired}}{k_b\,T_{current}}} \f] such
+    that the velocities after the event are related to the velocities
+    before by \f[ {\bf v}_{new} = F\, {\bf v}_{old} \f].
    */
   class SysRescale: public System
   {

@@ -401,7 +401,7 @@
                         <property name="tooltip_markup" translatable="yes">Limit the visualizers FPS, allowing multithreaded simulations more CPU time</property>
                         <property name="tooltip_text" translatable="yes">Limit the visualizers FPS, allowing multithreaded simulations more CPU time</property>
                         <property name="use_action_appearance">False</property>
-                        <property name="active">True</property>
+                        <property name="active">False</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>

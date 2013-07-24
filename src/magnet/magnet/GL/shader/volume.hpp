@@ -45,7 +45,7 @@ layout (location = 5) in vec4 iScale;
 smooth out vec3 frag_worldpos;
 
 vec3 qrot(vec4 q, vec3 v)
-{ return v + 2.0 * cross(cross(v,q.xyz) + q.w * v, q.xyz); } 
+{ return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v); } 
 
 void main()
 { 

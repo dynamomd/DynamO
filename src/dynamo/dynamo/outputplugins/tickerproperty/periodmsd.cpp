@@ -19,9 +19,8 @@
 #include <dynamo/include.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
-#include <dynamo/outputplugins/0partproperty/msd.hpp>
+#include <dynamo/outputplugins/msd.hpp>
 #include <dynamo/ranges/IDRangeAll.hpp>
-#include <boost/foreach.hpp>
 #include <magnet/math/ctime_pow.hpp>
 #include <magnet/xmlwriter.hpp>
 
@@ -40,7 +39,7 @@ namespace dynamo {
       M_throw() << "Periodic MSD plugin requires MSD plugin!";
 
     //Now cache a local list of the topology
-    BOOST_FOREACH(const shared_ptr<Topology>& topo, Sim->topology)
+    for (const shared_ptr<Topology>& topo : Sim->topology)
       {
 	localpair2 tmpPair;
 	tmpPair.first = topo.get();
@@ -55,10 +54,10 @@ namespace dynamo {
   void 
   OPPeriodicMSD::ticker()
   {
-    BOOST_FOREACH(localpair2& dat, structResults)
+    for (localpair2& dat : structResults)
       dat.second.push_back(std::make_pair(Sim->systemTime, ptrOPMSD->calcStructMSD(*dat.first)));
 
-    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->species)
+    for (const shared_ptr<Species>& sp : Sim->species)
       speciesData[sp->getID()].push_back(std::make_pair(Sim->systemTime, ptrOPMSD->calcMSD(*(sp->getRange()))));
   }
 
@@ -67,13 +66,13 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("PeriodicMSD");
   
-    BOOST_FOREACH(const shared_ptr<Species>& sp, Sim->species)
+    for (const shared_ptr<Species>& sp : Sim->species)
       {
 	XML << magnet::xml::tag("Species") 
 	    << magnet::xml::attr("Name") << sp->getName()
 	    << magnet::xml::chardata();
       
-	BOOST_FOREACH(const localpair& dat, speciesData[sp->getID()])
+	for (const localpair& dat : speciesData[sp->getID()])
 	  XML << dat.first / Sim->units.unitTime() << " " 
 	      << dat.second << "\n";
 
@@ -82,13 +81,13 @@ namespace dynamo {
   
     if (!structResults.empty())
       {
-	BOOST_FOREACH(localpair2& dat, structResults)
+	for (localpair2& dat : structResults)
 	  {
 	    XML << magnet::xml::tag("Structure")	  
 		<< magnet::xml::attr("Name") <<  dat.first->getName()
 		<< magnet::xml::chardata();
 	  
-	    BOOST_FOREACH(const localpair& myp, dat.second)
+	    for (const localpair& myp : dat.second)
 	      XML << myp.first / Sim->units.unitTime() << " " << myp.second << "\n";
 	  
 	    XML << magnet::xml::endtag("Structure");	

@@ -50,7 +50,7 @@ namespace dynamo {
     virtual PairEventData SmoothSpheresColl(const IntEvent&, const double&, const double&, const EEventType& eType) const;
     virtual bool DSMCSpheresTest(Particle&, Particle&, double&, const double&, Vector) const;
     virtual PairEventData DSMCSpheresRun(Particle&, Particle&, const double&, Vector) const;
-    virtual PairEventData SphereWellEvent(const IntEvent&, const double&, const double&) const;
+    virtual PairEventData SphereWellEvent(const IntEvent&, const double&, const double&, size_t) const;
     virtual double getPlaneEvent(const Particle&, const Vector &, const Vector &, double) const;
     virtual std::pair<double, Dynamics::TriangleIntersectingPart> getSphereTriangleEvent(const Particle& part, const Vector & A, const Vector & B, const Vector & C, const double dist) const;
     virtual double getCylinderWallCollision(const Particle&, const Vector &, const Vector &, const double&) const;
@@ -63,7 +63,7 @@ namespace dynamo {
     virtual PairEventData parallelCubeColl(const IntEvent& event, const double& e, const double& d, const EEventType& eType = CORE) const;
     virtual std::pair<bool, double> getLineLineCollision(const double length, const Particle& p1, const Particle& p2, double t_max) const;
     virtual PairEventData runLineLineCollision(const IntEvent& eevent, const double& elasticity, const double& length) const;
-    virtual PairEventData RoughSpheresColl(const IntEvent& event, const double& e, const double& et, const double& d2, const EEventType& eType) const;
+    virtual PairEventData RoughSpheresColl(const IntEvent& event, const double& e, const double& et, const double& d1, const double& d2, const EEventType& eType) const;
     virtual ParticleEventData runRoughWallCollision(Particle& part, const Vector & vNorm, const double& e, const double& et, const double& r) const;
 
     virtual std::pair<bool, double> getOffcentreSpheresCollision(const double offset1, const double diameter1, const double offset2, const double diameter2, const Particle& p1, const Particle& p2, double t_max, double maxdist) const;

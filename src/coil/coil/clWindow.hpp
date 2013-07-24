@@ -18,7 +18,6 @@
 
 #include <gtkmm.h>
 #include <magnet/math/vector.hpp>
-#include <magnet/static_assert.hpp>
 #include <magnet/GL/shader/lightShader.hpp>
 #include <magnet/GL/shader/ambientLight.hpp>
 #include <magnet/GL/shader/luminance.hpp>
@@ -27,14 +26,13 @@
 #include <magnet/GL/shader/depthResolver.hpp>
 #include <magnet/GL/camera.hpp>
 #include <magnet/GL/multisampledFBO.hpp>
-#include <magnet/GL/shader/vsm.hpp>
 #include <magnet/GL/shader/copy.hpp>
 #include <magnet/GL/shader/downsampler.hpp>
 #include <magnet/GL/objects/cairo.hpp>
+#include <magnet/function/delegate.hpp>
 #include <coil/filters/filter.hpp>
 #include <coil/RenderObj/RenderObj.hpp>
 #include <coil/coilMaster.hpp>
-#include <boost/signals2.hpp>
 #include <vector>
 #include <memory>
 
@@ -61,7 +59,7 @@ namespace coil {
     const std::string& getWindowTitle() const { return windowTitle; }
     void setWindowtitle(const std::string& newtitle);
   
-    void addRenderObj(const std::tr1::shared_ptr<RenderObj>& nObj)
+    void addRenderObj(const std::shared_ptr<RenderObj>& nObj)
     { _renderObjsTree._renderObjects.push_back(nObj); }
 
     inline volatile const int& getLastFrameTime() const { return _lastFrameTime; }
@@ -78,7 +76,7 @@ namespace coil {
     void setSimStatus1(std::string);
     void setSimStatus2(std::string);
 
-    std::tr1::shared_ptr<magnet::thread::TaskQueue>& getQueue() { return  _systemQueue; }
+    std::shared_ptr<magnet::thread::TaskQueue>& getQueue() { return  _systemQueue; }
 
     magnet::GL::Context::ContextPtr& getGLContext()
     {
@@ -87,19 +85,19 @@ namespace coil {
       return _glContext;
     }
 
-    boost::signals2::signal<void ()>& signal_data_update() { return _updateDataSignal; }
+    magnet::Signal<void()> _updateDataSignal;
 
     void autoscaleView();
 
+    magnet::GL::Camera& getCamera() { return _camera; }
   protected:
     CLGLWindow(const CLGLWindow&);
-    boost::signals2::signal<void ()> _updateDataSignal;
     
     void setLabelText(Gtk::Label*, std::string);
 
     magnet::GL::shader::PointLightShader _pointLightShader;
+    magnet::GL::shader::ShadowLightShader _shadowLightShader;
     magnet::GL::shader::AmbientLightShader _ambientLightShader;
-    magnet::GL::shader::VSMShader _VSMShader;
     magnet::GL::shader::LuminanceShader _luminanceShader;
     magnet::GL::shader::LuminanceMipMapShader _luminanceMipMapShader;
     magnet::GL::shader::ToneMapShader _toneMapShader;
@@ -111,6 +109,7 @@ namespace coil {
     //Primary render target, or the render target for the left eye.
     magnet::GL::FBO _renderTarget;
     magnet::GL::FBO _Gbuffer;
+    magnet::GL::FBO _shadowbuffer;
     magnet::GL::FBO _hdrBuffer;
     magnet::GL::FBO _luminanceBuffer1;
     magnet::GL::FBO _luminanceBuffer2;
@@ -127,7 +126,7 @@ namespace coil {
     //For object selection
     /*! \brief If valid, the render object which is currently
         selected. */
-    std::tr1::shared_ptr<RenderObj> _selectedObject;
+    std::shared_ptr<RenderObj> _selectedObject;
     /*! \brief If \ref _selectedObject is valid, this holds the id of
       the object within \ref _selectedObject which has been
       selected. */
@@ -145,13 +144,13 @@ namespace coil {
     void performPicking(int x, int y);
 
     //Task queue for the simulation thread
-    std::tr1::shared_ptr<magnet::thread::TaskQueue> _systemQueue;
+    std::shared_ptr<magnet::thread::TaskQueue> _systemQueue;
     double _updateIntervalValue;
     size_t _consoleID;
 
     magnet::GL::Context::ContextPtr _glContext;
 
-    magnet::thread::Mutex _destroyLock;
+    std::mutex _destroyLock;
 
     void CameraSetup();
 
@@ -178,6 +177,9 @@ namespace coil {
 
     sigc::connection _renderTimeout;
 
+    /*! \brief This camera must be a static member of the windows as
+        other threads might queue tasks around it.
+     */
     magnet::GL::Camera _camera;
     
     bool keyStates[256];
@@ -198,7 +200,7 @@ namespace coil {
     bool _filterEnable;
     bool _stereoMode;
     double _ambientIntensity;
-    std::tr1::array<GLfloat, 3> _backColor;
+    std::array<GLfloat, 3> _backColor;
     float _sceneKey;
 
     bool _bloomEnable;
@@ -228,7 +230,7 @@ namespace coil {
       Gtk::TreeModelColumn<void*> m_filter_ptr;
     };
 
-    std::auto_ptr<FilterModelColumnsType> _filterModelColumns;
+    std::unique_ptr<FilterModelColumnsType> _filterModelColumns;
 
     Glib::RefPtr<Gtk::ListStore> _filterStore;
     Gtk::TreeView* _filterView;
@@ -288,7 +290,7 @@ namespace coil {
     magnet::math::Vector _cameraFocus;
     enum CAM_MODE { ROTATE_WORLD, ROTATE_POINT, ROTATE_CAMERA};
     CAM_MODE _cameraMode;
-    std::auto_ptr<Gtk::ComboBoxText> _aasamples;
-    std::auto_ptr<magnet::image::VideoEncoderFFMPEG> _encoder;
+    std::unique_ptr<Gtk::ComboBoxText> _aasamples;
+    std::unique_ptr<magnet::image::VideoEncoderFFMPEG> _encoder;
   };
 }

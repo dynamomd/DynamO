@@ -24,7 +24,6 @@
 #include <dynamo/interactions/captures.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
 #include <vector>
 
 namespace dynamo {
@@ -47,23 +46,15 @@ namespace dynamo {
   void 
   OPChainBondAngles::operator<<(const magnet::xml::Node& XML)
   {
-    try 
-      {
-	if (XML.hasAttribute("binwidth"))
-	  binwidth = XML.getAttribute("binwidth").as<double>();
-      }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in OPChainBondAngles";
-      }
+    if (XML.hasAttribute("binwidth"))
+      binwidth = XML.getAttribute("binwidth").as<double>();
   }
 
   void 
   OPChainBondAngles::initialise()
   {
-    BOOST_FOREACH(const shared_ptr<Topology>& plugPtr, 
-		  Sim->topology)
-      if (std::tr1::dynamic_pointer_cast<TChain>(plugPtr))
+    for(const shared_ptr<Topology>& plugPtr : Sim->topology)
+      if (std::dynamic_pointer_cast<TChain>(plugPtr))
 	chains.push_back(Cdata(plugPtr->getID(), plugPtr->getMolecules().front()->size(),
 			       binwidth));
   }
@@ -77,9 +68,8 @@ namespace dynamo {
   void 
   OPChainBondAngles::ticker()
   {
-    BOOST_FOREACH(Cdata& dat,chains)
-      BOOST_FOREACH(const shared_ptr<IDRange>& range, 
-		    Sim->topology[dat.chainID]->getMolecules())
+    for (Cdata& dat : chains)
+      for (const shared_ptr<IDRange>& range : Sim->topology[dat.chainID]->getMolecules())
       if (range->size() > 2)
 	{
 	  //Walk the polymer
@@ -110,7 +100,7 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("BondAngleCorrelators");
   
-    BOOST_FOREACH(Cdata& dat, chains)
+    for (Cdata& dat : chains)
       {
 	XML << magnet::xml::tag("Chain")
 	    << magnet::xml::attr("Name") << Sim->topology[dat.chainID]->getName();

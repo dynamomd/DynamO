@@ -1,4 +1,4 @@
-/*  dynamo:- Event driven molecular dynamics simulator 
+/*  dynamo:- Event driven molecular dynamics simulator
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
 
@@ -38,7 +38,7 @@ namespace coil {
   }
   
   void 
-  RLight::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue) 
+  RLight::init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue) 
   {
     RenderObj::init(systemQueue);
     
@@ -61,7 +61,7 @@ namespace coil {
     if (!_visible) return;
     
     cairo.getContext()->save();
-    std::tr1::array<GLfloat, 4> pos =  camera.project(getPosition());
+    std::array<GLfloat, 4> pos =  camera.project(getPosition());
     Glib::RefPtr<Gdk::Pixbuf> icon = getIcon();
     Gdk::Cairo::set_source_pixbuf(cairo.getContext(), getIcon(), 
 				  pos[0] - icon->get_width()/2,
@@ -71,23 +71,27 @@ namespace coil {
   }
 
   void 
-  RLight::glRender(const magnet::GL::Camera& cam, 
-		   RenderMode mode)
+  RLight::glRender(const magnet::GL::Camera& cam, RenderMode mode, const uint32_t offset)
   {
     if (!_visible) return;
+    if (mode == RenderObj::SHADOW) return;
     
     using namespace magnet::GL;
 
-    if (mode & RenderObj::COLOR)
-      {
-	magnet::math::Vector loc = getPosition();
-	GLfloat pos[3] = {GLfloat(loc[0]), GLfloat(loc[1]), GLfloat(loc[2])};
-	std::vector<GLfloat> position(pos, pos + 3);
-	_glposition.init(position, 3);
+    magnet::math::Vector loc = getPosition();
+    GLfloat pos[3] = {GLfloat(loc[0]), GLfloat(loc[1]), GLfloat(loc[2])};
+    std::vector<GLfloat> position(pos, pos + 3);
+    _glposition.init(position, 3);
+    _context->cleanupAttributeArrays();
 
-	_context->cleanupAttributeArrays();
-	//Set the normals to zero so it is fully illuminated
-	_context->setAttribute(Context::instanceScaleAttrIndex, _size, _size, _size, 1);
+    if (mode == RenderObj::PICKING)
+      _context->setAttribute(Context::vertexColorAttrIndex,
+			     (offset % 256) / 255.0,
+			     ((offset / 256) % 256) / 255.0,
+			     (((offset / 256) / 256) % 256) / 255.0,
+			     ((((offset / 256) / 256) / 256) % 256) / 255.0);
+    else
+      {
 	_context->setAttribute(Context::vertexColorAttrIndex, _color[0], _color[1], _color[2], 1);
 	
 	if (_context->testExtension("GL_ARB_sample_shading"))
@@ -95,17 +99,16 @@ namespace coil {
 	    _context->setSampleShading(true);
 	    glMinSampleShadingARB(1.0);
 	  }
-
-	_sphereShader.attach();
-	_sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
-	_sphereShader["ViewMatrix"] = cam.getViewMatrix();
-	_sphereShader["global_scale"] = GLfloat(1.0);
-	_glposition.drawArray(magnet::GL::element_type::POINTS);
-	_sphereShader.detach();
-
-	if (_context->testExtension("GL_ARB_sample_shading"))
-	  _context->setSampleShading(false);
       }
+    _sphereShader.attach();
+    _sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
+    _sphereShader["ViewMatrix"] = cam.getViewMatrix();
+    _sphereShader["global_scale"] = _size;
+    _glposition.drawArray(magnet::GL::element_type::POINTS);
+    _sphereShader.detach();
+    
+    if ((mode == RenderObj::PICKING) && _context->testExtension("GL_ARB_sample_shading"))
+      _context->setSampleShading(false);
   }
 
   void
@@ -149,8 +152,44 @@ namespace coil {
 	_lightColor->set_size_request(60, -1);
 	_lightColor->signal_color_set().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
       }
-
       _optList->pack_start(*box, false, false); 
+    }
+
+    {
+      Gtk::HBox* box = manage(new Gtk::HBox);
+      box->show();
+      {
+	Gtk::Label* label = manage(new Gtk::Label("Max Variance", 0.95, 0.5));
+	box->pack_start(*label, true, true); 
+	label->show();
+      }
+      _maxvarianceEntry.reset(new Gtk::Entry);
+      box->pack_start(*_maxvarianceEntry, false, false);
+      _maxvarianceEntry->show(); 
+      _maxvarianceEntry->set_width_chars(7);
+      _maxvarianceEntry->set_text(boost::lexical_cast<std::string>(_maxvariance));
+      _maxvarianceEntry->signal_changed().connect(sigc::bind(&magnet::gtk::forceNumericEntry, _maxvarianceEntry.get()));
+      _maxvarianceEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
+      _optList->pack_start(*box, false, false);
+    }
+      
+    {
+      Gtk::HBox* box = manage(new Gtk::HBox);
+      box->show();
+      {
+	Gtk::Label* label = manage(new Gtk::Label("Bleed Reduction", 0.95, 0.5));
+	box->pack_start(*label, true, true); 
+	label->show();
+      }
+
+      _bleedreductionEntry.reset(new Gtk::Entry);
+      box->pack_start(*_bleedreductionEntry, false, false);
+      _bleedreductionEntry->show(); 
+      _bleedreductionEntry->set_width_chars(7);
+      _bleedreductionEntry->set_text(boost::lexical_cast<std::string>(_bleedreduction));
+      _bleedreductionEntry->signal_changed().connect(sigc::bind(&magnet::gtk::forceNumericEntry, _bleedreductionEntry.get()));
+      _bleedreductionEntry->signal_activate().connect(sigc::mem_fun(*this, &RLight::guiUpdate));
+      _optList->pack_start(*box, false, false);
     }
 
     { //Specular
@@ -264,36 +303,6 @@ namespace coil {
   }
 
   void 
-  RLight::pickingRender(const magnet::GL::Camera& cam, 
-			const uint32_t offset)
-  {
-    if (!_visible) return;
-    
-    using namespace magnet::GL;
-
-    magnet::math::Vector loc = getPosition();
-    GLfloat pos[3] = {GLfloat(loc[0]), GLfloat(loc[1]), GLfloat(loc[2])};
-    std::vector<GLfloat> position(pos, pos + 3);
-    _glposition.init(position, 3);
-    
-    _context->cleanupAttributeArrays();
-    _context->setAttribute(Context::instanceScaleAttrIndex, _size, _size, _size, 1);
-    
-    _context->setAttribute(Context::vertexColorAttrIndex, 
-			   (offset % 256) / 255.0, 
-			   ((offset / 256) % 256) / 255.0, 
-			   (((offset / 256) / 256) % 256) / 255.0, 
-			   ((((offset / 256) / 256) / 256) % 256) / 255.0);
-    
-    _sphereShader.attach();
-    _sphereShader["ProjectionMatrix"] = cam.getProjectionMatrix();
-    _sphereShader["ViewMatrix"] = cam.getViewMatrix();
-    _sphereShader["global_scale"] = GLfloat(1.0);
-    _glposition.drawArray(magnet::GL::element_type::POINTS);
-    _sphereShader.detach();
-  }
-
-  void 
   RLight::dragCallback(Vector cursorPos, uint32_t objID)
   {
     _positionXEntry->set_text(boost::lexical_cast<std::string>(cursorPos[0]));
@@ -309,6 +318,13 @@ namespace coil {
     _size = val;
   }
   
+  void
+  RLight::setIntensity(double val)
+  {
+    _intensityEntry->set_text(boost::lexical_cast<std::string>(val));
+    _intensity = val;
+  }
+
   void 
   RLight::setPosition(magnet::math::Vector newposition)
   {
@@ -325,18 +341,31 @@ namespace coil {
     try { _specularExponent = boost::lexical_cast<float>(_specularExponentEntry->get_text()); } catch (...) {}
     try { _specularFactor = boost::lexical_cast<float>(_specularFactorEntry->get_text()); } catch (...) {}
     try { _size = boost::lexical_cast<float>(_sizeEntry->get_text()); } catch (...) {}
-
+    try { _maxvariance = boost::lexical_cast<float>(_maxvarianceEntry->get_text()); } catch (...) {}
+    try { _bleedreduction = boost::lexical_cast<float>(_bleedreductionEntry->get_text()); } catch (...) {}
+      
     Gdk::Color color = _lightColor->get_color();
     _color[0] = GLfloat(color.get_red()) / G_MAXUSHORT;
     _color[1] = GLfloat(color.get_green()) / G_MAXUSHORT;
     _color[2] = GLfloat(color.get_blue()) / G_MAXUSHORT;
 
-    try {
-      magnet::math::Vector vec;
-      vec[0] = boost::lexical_cast<float>(_positionXEntry->get_text());
-      vec[1] = boost::lexical_cast<float>(_positionYEntry->get_text());
-      vec[2] = boost::lexical_cast<float>(_positionZEntry->get_text());
-      magnet::GL::Camera::setPosition(vec);
-    } catch (...) {}
+    {magnet::math::Vector vec = getPosition();
+      if (std::isnan(vec[0]))
+	M_throw() << "isnan!" << vec.toString();
+    }
+
+    lookAt(Vector(0,0,0));
+
+    magnet::math::Vector vec = getPosition();
+    if (std::isnan(vec[0]))
+      M_throw() << "isnan!" << vec.toString();
+    try { vec[0] = boost::lexical_cast<float>(_positionXEntry->get_text());} catch(...) {}
+    try { vec[1] = boost::lexical_cast<float>(_positionYEntry->get_text());} catch(...) {}
+    try { vec[2] = boost::lexical_cast<float>(_positionZEntry->get_text());} catch(...) {}
+    if (std::isnan(vec[0]))
+      M_throw() << "isnan now!" << vec.toString();
+    magnet::GL::Camera::setPosition(vec);
+    if (std::isnan(vec[0]))
+      M_throw() << "isnan now2!" << vec.toString();
   }
 }

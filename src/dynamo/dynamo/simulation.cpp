@@ -27,7 +27,7 @@
 #include <dynamo/topology/topology.hpp>
 #include <dynamo/globals/global.hpp>
 #include <dynamo/interactions/interaction.hpp>
-#include <dynamo/outputplugins/0partproperty/misc.hpp>
+#include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/globals/PBCSentinel.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/device/file.hpp>
@@ -53,13 +53,12 @@ namespace dynamo
     nextPrintEvent(0),
     N(0),
     primaryCellSize(1,1,1),
-    ranGenerator(static_cast<unsigned>(std::time(0))),
-    normal_sampler(ranGenerator, boost::normal_distribution<double>()),
-    uniform_sampler(ranGenerator, boost::uniform_01<double>()),
+    ranGenerator(std::random_device()()),
     lastRunMFT(0.0),
     simID(0),
     replexExchangeNumber(0),
-    status(START)
+    status(START),
+    _sigParticleUpdate(new magnet::Signal<void(const NEventData&)>)
   {}
 
   namespace {
@@ -90,24 +89,24 @@ namespace dynamo
     std::sort(outputPlugins.begin(), outputPlugins.end(), OutputPluginSort());
   
     /* Add the Periodic Boundary Condition sentinel (if required). */
-    if (std::tr1::dynamic_pointer_cast<BCPeriodic>(BCs))
+    if (std::dynamic_pointer_cast<BCPeriodic>(BCs))
       globals.push_back(shared_ptr<Global>(new GPBCSentinel(this, "PBCSentinel")));
 
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)
-      if (std::tr1::dynamic_pointer_cast<OPTicker>(Ptr))
+    for (shared_ptr<OutputPlugin>& Ptr : outputPlugins)
+      if (std::dynamic_pointer_cast<OPTicker>(Ptr))
 	{
 	  addSystemTicker();
 	  break;
 	}
 
-    BOOST_FOREACH(shared_ptr<Species>& ptr, species)
+    for (shared_ptr<Species>& ptr : species)
       ptr->initialise();
 
     unsigned int count = 0;
     //Now confirm that every species has only one species type!
-    BOOST_FOREACH(const Particle& part, particles)
+    for (const Particle& part : particles)
       {
-	BOOST_FOREACH(shared_ptr<Species>& ptr, species)
+	for (shared_ptr<Species>& ptr : species)
 	  if (ptr->isSpecies(part)) { count++; break; }
 	
 	if (count < 1)
@@ -122,7 +121,7 @@ namespace dynamo
     //than there are particles
     {
       unsigned long tot = 0;
-      BOOST_FOREACH(shared_ptr<Species>& ptr, species)
+      for (shared_ptr<Species>& ptr : species)
 	tot += ptr->getCount();
     
       if (tot < N)
@@ -141,10 +140,10 @@ namespace dynamo
     {
       size_t ID=0;
       
-      BOOST_FOREACH(shared_ptr<Interaction>& ptr, interactions)
+      for (shared_ptr<Interaction>& ptr : interactions)
 	ptr->initialise(ID++);
 
-      if (std::tr1::dynamic_pointer_cast<BCPeriodic>(BCs))
+      if (std::dynamic_pointer_cast<BCPeriodic>(BCs))
 	{
 	  double max_interaction_dist = getLongestInteraction();
 	  //Check that each simulation length is greater than 2x the
@@ -165,21 +164,21 @@ namespace dynamo
       size_t ID=0;
       //Must be initialised before globals. Neighbour lists are
       //implemented as globals and must initialise where locals are and their ID.
-      BOOST_FOREACH(shared_ptr<Local>& ptr, locals)
+      for (shared_ptr<Local>& ptr : locals)
 	ptr->initialise(ID++);
     }
 
     {
       size_t ID=0;
       
-      BOOST_FOREACH(shared_ptr<Global>& ptr, globals)
+      for (shared_ptr<Global>& ptr : globals)
 	ptr->initialise(ID++);
     }
 
     {
       size_t ID=0;
       
-      BOOST_FOREACH(shared_ptr<System>& ptr, systems)
+      for (shared_ptr<System>& ptr : systems)
 	ptr->initialise(ID++);
     }
 
@@ -192,7 +191,7 @@ namespace dynamo
       //Only initialise the scheduler if we're simulating
       ptrScheduler->initialise();
 
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)
+    for (shared_ptr<OutputPlugin> & Ptr : outputPlugins)
       Ptr->initialise();
 
     _nextPrint = eventCount + eventPrintInterval;
@@ -202,7 +201,7 @@ namespace dynamo
   IntEvent 
   Simulation::getEvent(const Particle& p1, const Particle& p2) const
   {
-    BOOST_FOREACH(const shared_ptr<Interaction>& ptr, interactions)
+    for (const shared_ptr<Interaction>& ptr : interactions)
       if (ptr->isInteraction(p1,p2))
 	return ptr->getEvent(p1,p2);
     
@@ -216,7 +215,7 @@ namespace dynamo
 
     dynamics->stream(dt);
 
-    BOOST_FOREACH(shared_ptr<System>& ptr, systems)
+    for (shared_ptr<System>& ptr : systems)
       ptr->stream(dt);
   }
 
@@ -225,7 +224,7 @@ namespace dynamo
   {
     double maxval = 0.0;
 
-    BOOST_FOREACH(const shared_ptr<Interaction>& ptr, interactions)
+    for (const shared_ptr<Interaction>& ptr : interactions)
       if (ptr->maxIntDist() > maxval)
 	maxval = ptr->maxIntDist();
 
@@ -235,17 +234,17 @@ namespace dynamo
   const shared_ptr<Interaction>&
   Simulation::getInteraction(const Particle& p1, const Particle& p2) const 
   {
-    BOOST_FOREACH(const shared_ptr<Interaction>& ptr, interactions)
+    for (const shared_ptr<Interaction>& ptr : interactions)
       if (ptr->isInteraction(p1,p2))
 	return ptr;
   
-    M_throw() << "Could not find the interaction requested";
+    M_throw() << "Could not find an Interaction between particles " << p1.getID() << " and " << p2.getID() << ". All particle pairings must have a corresponding Interaction defined.";
   }
 
   const shared_ptr<Species>& 
   Simulation::SpeciesContainer::operator[](const Particle& p1) const 
   {
-    BOOST_FOREACH(const shared_ptr<Species>& ptr, *this)
+    for (const shared_ptr<Species>& ptr : *this)
       if (ptr->isSpecies(p1)) return ptr;
     
     M_throw() << "Could not find the species corresponding to particle ID=" 
@@ -259,7 +258,7 @@ namespace dynamo
 
     species.push_back(sp);
 
-    BOOST_FOREACH(shared_ptr<Interaction>& intPtr, interactions)
+    for (shared_ptr<Interaction>& intPtr : interactions)
       if (intPtr->isInteraction(*sp))
 	{
 	  sp->setIntPtr(intPtr.get());
@@ -306,8 +305,14 @@ namespace dynamo
       io::copy(inputFile, io::back_inserter(doc.getStoredXMLData()));
     }
 
-    dout << "Parsing the raw XML" << std::endl;
-    doc.parseData();
+    dout << "Parsing the XML" << std::endl;
+    try {
+      doc.parseData();
+    } catch (std::exception& cep)
+      {
+	derr << "Failed to parse the XML" << std::endl;
+	throw;
+      }
 
     dout << "Loading tags from the XML" << std::endl;
     Node mainNode = doc.getNode("DynamOconfig");
@@ -360,8 +365,8 @@ namespace dynamo
       interactions.push_back(Interaction::getClass(node, this));
 
     //Link the species and interactions
-    BOOST_FOREACH(shared_ptr<Species>& sp , species)
-      BOOST_FOREACH(shared_ptr<Interaction>& intPtr, interactions)
+    for (shared_ptr<Species>& sp : species)
+      for (shared_ptr<Interaction>& intPtr : interactions)
       if (intPtr->isInteraction(*sp))
 	{
 	  sp->setIntPtr(intPtr.get());
@@ -433,8 +438,7 @@ namespace dynamo
 
     XML << std::scientific
       //This has a minus one due to the digit in front of the decimal
-      //An extra one is added if we're rounding
-	<< std::setprecision(std::numeric_limits<double>::digits10 - 1 - round)
+	<< std::setprecision(std::numeric_limits<double>::digits10 + 2 - 4 * round)
 	<< magnet::xml::prolog() << magnet::xml::tag("DynamOconfig")
 	<< magnet::xml::attr("version") << configFileVersion
 	<< magnet::xml::tag("Simulation");
@@ -443,66 +447,67 @@ namespace dynamo
     if (getOutputPlugin<OPMisc>())
       {
 	double mft = getOutputPlugin<OPMisc>()->getMFT();
-	if (!std::isinf(mft))
-	  XML << magnet::xml::attr("lastMFT")
-	      << mft;
+	if (!std::isinf(mft) && !std::isnan(mft))
+	  XML << magnet::xml::attr("lastMFT") << mft;
+	else
+	  XML << magnet::xml::attr("lastMFT") << lastRunMFT;
       }
 
     XML << magnet::xml::tag("Scheduler")
-	<< *ptrScheduler
+	<< ptrScheduler
 	<< magnet::xml::endtag("Scheduler")
 	<< magnet::xml::tag("SimulationSize")
 	<< primaryCellSize / units.unitLength()
 	<< magnet::xml::endtag("SimulationSize")
       	<< magnet::xml::tag("Genus");
   
-    BOOST_FOREACH(const shared_ptr<Species>& ptr, species)
-      XML << magnet::xml::tag("Species")
-	  << *ptr
+    for (const shared_ptr<Species>& ptr : species)
+      XML << magnet::xml::tag("Species") 
+	  << ptr
 	  << magnet::xml::endtag("Species");
   
     XML << magnet::xml::endtag("Genus")
       	<< magnet::xml::tag("BC")
-	<< *BCs
+	<< BCs
 	<< magnet::xml::endtag("BC")
 	<< magnet::xml::tag("Topology");
   
-    BOOST_FOREACH(const shared_ptr<Topology>& ptr, topology)
+    for (const shared_ptr<Topology>& ptr : topology)
       XML << magnet::xml::tag("Structure")
-	  << *ptr
+	  << ptr
 	  << magnet::xml::endtag("Structure");
     
     XML << magnet::xml::endtag("Topology")
 	<< magnet::xml::tag("Interactions");
   
-    BOOST_FOREACH(const shared_ptr<Interaction>& ptr, interactions)
+    for (const shared_ptr<Interaction>& ptr : interactions)
       XML << magnet::xml::tag("Interaction")
-	  << *ptr
+	  << ptr
 	  << magnet::xml::endtag("Interaction");
   
     XML << magnet::xml::endtag("Interactions")
 	<< magnet::xml::tag("Locals");
     
-    BOOST_FOREACH(const shared_ptr<Local>& ptr, locals)
+    for (const shared_ptr<Local>& ptr : locals)
       XML << magnet::xml::tag("Local")
-	  << *ptr
+	  << ptr
 	  << magnet::xml::endtag("Local");
     
     XML << magnet::xml::endtag("Locals")
       	<< magnet::xml::tag("Globals");
     
-    BOOST_FOREACH(const shared_ptr<Global>& ptr, globals)
-      XML << *ptr;
+    for (const shared_ptr<Global>& ptr : globals)
+      XML << ptr;
     
     XML << magnet::xml::endtag("Globals")
 	<< magnet::xml::tag("SystemEvents");
     
-    BOOST_FOREACH(const shared_ptr<System>& ptr, systems)
-      XML << *ptr;
+    for (const shared_ptr<System>& ptr : systems)
+      XML << ptr;
   
     XML << magnet::xml::endtag("SystemEvents")
       	<< magnet::xml::tag("Dynamics")
-	<< *dynamics
+	<< dynamics
 	<< magnet::xml::endtag("Dynamics")
 	<< magnet::xml::endtag("Simulation")
 	<< _properties;
@@ -525,14 +530,6 @@ namespace dynamo
   }
   
   void 
-  Simulation::signalParticleUpdate
-  (const NEventData& pdat) const
-  {
-    BOOST_FOREACH(const particleUpdateFunc& func, _particleUpdateNotify)
-      func(pdat);
-  }
-
-  void 
   Simulation::replexerSwap(Simulation& other)
   {
     //Get all particles up to date and zero the pecTimes
@@ -541,14 +538,14 @@ namespace dynamo
       
     std::swap(systemTime, other.systemTime);
     std::swap(eventCount, other.eventCount);
-    std::swap(_particleUpdateNotify, other._particleUpdateNotify);
-    
+    std::swap(_sigParticleUpdate, other._sigParticleUpdate);
+
     systems.swap(other.systems);
 
-    BOOST_FOREACH(shared_ptr<System>& aPtr, systems)
+    for (shared_ptr<System>& aPtr : systems)
       aPtr->changeSystem(this);
 
-    BOOST_FOREACH(shared_ptr<System>& aPtr, other.systems)
+    for (shared_ptr<System>& aPtr : other.systems)
       aPtr->changeSystem(&other);
 
     dynamics->swapSystem(*other.dynamics);
@@ -557,14 +554,14 @@ namespace dynamo
     double scale1(sqrt(other.ensemble->getEnsembleVals()[2]
 		       / ensemble->getEnsembleVals()[2]));
     
-    BOOST_FOREACH(Particle& part, particles)
+    for (Particle& part : particles)
       part.getVelocity() *= scale1;
     
     other.ptrScheduler->rescaleTimes(scale1);
     
     double scale2(1.0 / scale1);
 
-    BOOST_FOREACH(Particle& part, other.particles)
+    for (Particle& part : other.particles)
       part.getVelocity() *= scale2;
     
     ptrScheduler->rescaleTimes(scale2);
@@ -610,7 +607,7 @@ namespace dynamo
   {
     double intECurrent = 0.0;
 
-    BOOST_FOREACH(const shared_ptr<Interaction> & plugptr, interactions)
+    for (const shared_ptr<Interaction> & plugptr : interactions)
       intECurrent += plugptr->getInternalEnergy();
 
     return intECurrent;
@@ -624,7 +621,7 @@ namespace dynamo
     long double sumMass(0);
 
     //Determine the discrepancy VECTOR
-    BOOST_FOREACH(Particle & Part, particles)
+    for (Particle & Part : particles)
       {
 	Vector  pos(Part.getPosition()), vel(Part.getVelocity());
 	BCs->applyBC(pos,vel);
@@ -638,14 +635,14 @@ namespace dynamo
   
     sumMV += COMVelocity;
 
-    BOOST_FOREACH(Particle & Part, particles)
+    for (Particle & Part : particles)
       Part.getVelocity() =  Part.getVelocity() + sumMV;
   }
 
   void 
   Simulation::addSystemTicker()
   {
-    BOOST_FOREACH(shared_ptr<System>& ptr, systems)
+    for (shared_ptr<System>& ptr : systems)
       if (ptr->getName() == "SystemTicker")
 	M_throw() << "System Ticker already exists";
   
@@ -673,8 +670,8 @@ namespace dynamo
   {
     double volume = 0.0;
   
-    BOOST_FOREACH(const shared_ptr<Species>& sp, species)
-      BOOST_FOREACH(const size_t& ID, *(sp->getRange()))
+    for (const shared_ptr<Species>& sp : species)
+      for (const size_t& ID : *(sp->getRange()))
       volume += sp->getIntPtr()->getExcludedVolume(ID);
   
     return  volume / getSimVolume();
@@ -687,15 +684,15 @@ namespace dynamo
 
     std::vector<Particle>::const_iterator iPtr1, iPtr2;
   
-    BOOST_FOREACH(const shared_ptr<Interaction>& interaction_ptr, interactions)
+    for (const shared_ptr<Interaction>& interaction_ptr : interactions)
       interaction_ptr->validateState();
 
     for (iPtr1 = particles.begin(); iPtr1 != particles.end(); ++iPtr1)
       for (iPtr2 = iPtr1 + 1; iPtr2 != particles.end(); ++iPtr2)
 	getInteraction(*iPtr1, *iPtr2)->validateState(*iPtr1, *iPtr2);
 
-    BOOST_FOREACH(const Particle& part, particles)
-      BOOST_FOREACH(const shared_ptr<Local>& lcl, locals)
+    for (const Particle& part : particles)
+      for (const shared_ptr<Local>& lcl : locals)
       if (lcl->isInteraction(part)) lcl->validateState(part);
   }
 
@@ -716,13 +713,19 @@ namespace dynamo
     magnet::xml::XmlStream XML(coutputFile);
     XML.setFormatXML(true);
   
-    XML << std::setprecision(std::numeric_limits<double>::digits10)
+    XML << std::setprecision(std::numeric_limits<double>::digits10 + 2)
 	<< magnet::xml::prolog() << magnet::xml::tag("OutputData");
   
     //Output the data and delete the outputplugins
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)
+    for (shared_ptr<OutputPlugin> & Ptr : outputPlugins)
       Ptr->output(XML);
   
+    for (shared_ptr<Interaction> & Ptr : interactions)
+      Ptr->outputData(XML);
+
+    for (shared_ptr<Local> & Ptr : locals)
+      Ptr->outputData(XML);
+
     XML << magnet::xml::endtag("OutputData");
 
     dout << "Output written to " << filename << std::endl;
@@ -731,7 +734,7 @@ namespace dynamo
   void 
   Simulation::setTickerPeriod(double nP)
   {
-    shared_ptr<SysTicker> ptr = std::tr1::dynamic_pointer_cast<SysTicker>(systems["SystemTicker"]);
+    shared_ptr<SysTicker> ptr = std::dynamic_pointer_cast<SysTicker>(systems["SystemTicker"]);
     if (!ptr)
       M_throw() << "Could not find system ticker (maybe not required?)";
 
@@ -741,7 +744,7 @@ namespace dynamo
   void 
   Simulation::scaleTickerPeriod(double nP)
   {
-    shared_ptr<SysTicker> ptr = std::tr1::dynamic_pointer_cast<SysTicker>(systems["SystemTicker"]);
+    shared_ptr<SysTicker> ptr = std::dynamic_pointer_cast<SysTicker>(systems["SystemTicker"]);
     if (!ptr)
       M_throw() << "Could not find system ticker (maybe not required?)";
 
@@ -780,7 +783,7 @@ namespace dynamo
 	if ((eventCount >= _nextPrint) && !silentMode && outputPlugins.size())
 	  {
 	    //Print the screen data plugins
-	    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, outputPlugins)
+	    for (shared_ptr<OutputPlugin> & Ptr : outputPlugins)
 	      Ptr->periodicOutput();
 	    
 	    _nextPrint = eventCount + eventPrintInterval;
@@ -790,7 +793,7 @@ namespace dynamo
     catch (std::exception &cep)
       {
 	M_throw() << "Exception caught while executing event " 
-		  << eventCount << cep.what();
+		  << eventCount << "\n" << cep.what();
       }
 
     return (eventCount < endEventCount);

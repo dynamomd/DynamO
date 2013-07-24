@@ -20,14 +20,129 @@
 #include <dynamo/particle.hpp>
 #include <dynamo/interactions/interaction.hpp>
 #include <magnet/exception.hpp>
-#include <boost/functional/hash.hpp>
-#include <tr1/unordered_set>
-#include <tr1/unordered_map>
-#include <vector>
+#include <map>
 
 namespace dynamo {
+  namespace detail {
+    namespace {
+      ::std::size_t
+      hash_combine(const ::std::size_t hash1, const ::std::size_t hash2)
+      {
+	return hash1 ^ (hash2 + 0x9e3779b9 + (hash1 << 6) + (hash1 >> 2));
+      }
+    }
+
+    /*! \brief A key used to represent a pair of two particles.
+      
+      This key sorts the particle ID's into ascending order. This way
+      the keys can be compared and symmetric keys will compare equal.
+      \code assert(cMapKey(a,b) == cMapKey(b,a)); \endcode
+    */
+    struct PairKey: public std::pair<size_t, size_t>
+    {
+      inline PairKey() {}
+
+      inline PairKey(const Particle& p1, const Particle& p2):
+	std::pair<size_t,size_t>(std::min(p1.getID(), p2.getID()), std::max(p1.getID(), p2.getID()))
+      {
+#ifdef DYNAMO_DEBUG
+	if (first == second) M_throw() << "Particle ID's should not be equal!";
+#endif
+      }
+      
+      inline PairKey(const size_t a, size_t b):
+	std::pair<size_t,size_t>(std::min(a, b), std::max(a, b))
+      {
+#ifdef DYNAMO_DEBUG
+	if (first == second) M_throw() << "Particle ID's should not be equal!";
+#endif
+      }
+    };
+
+    /*!\brief This is a container that stores a single size_t
+       identified by a pair of particles.
+       
+       To efficiently store the state of all possible particle
+       pairings, a map is used and entries are only stored if the
+       state is non-zero. Although an unordered_map may be slightly
+       faster, a map is used to allow comparison of CaptureMaps and a
+       rapid hashing if CaptureMaps are to be used as an index of the
+       simulation state.
+       
+       To facilitate the storage only if non-zero behaviour, the array
+       access operator is overloaded to automatically return a size_t
+       0 for any entry which is missing. It also returns a proxy which
+       deletes entries when they are set to 0.
+    */
+    class CaptureMap: public std::map<PairKey, size_t>
+    {
+      typedef std::map<PairKey, size_t> Container;
+    public:
+      /*!\brief This proxy is used to double check if an assignment of
+         zero is done, and delete the entry if it is. */
+      struct EntryProxy {
+      public:
+	EntryProxy(Container& container, const PairKey& key):
+	  _container(container), _key(key) {}
+
+	operator const size_t() const {
+	  Container::const_iterator it = _container.find(_key);
+	  return (it == _container.end()) ? 0 : (it->second);
+	}
+	
+	EntryProxy& operator=(size_t newval) {
+	  if (newval == 0)
+	    _container.erase(_key);
+	  else
+	    _container[_key] = newval;
+
+	  return *this;
+	}
+	
+      private:
+	Container& _container;
+	const PairKey _key;
+      };
+      
+      /*! \brief This non-const array access operator uses EntryProxy
+          to check if any values assigned are zero so they may be deleted. */
+      EntryProxy operator[](const PairKey& key) {
+	return EntryProxy(*this, key); 
+      }
+
+      /*! \brief A simple const array access operator which returns 0
+          if the entry is missing. */
+      size_t operator[](const PairKey& key) const {
+	Container::const_iterator it = Container::find(key);
+	return (it == Container::end()) ? 0 : (it->second); 
+      }
+    };
+
+    struct CaptureMapKey: public std::vector<CaptureMap::value_type>
+    {
+      typedef std::vector<CaptureMap::value_type> Container;
+      CaptureMapKey(const CaptureMap& map):
+	Container(map.begin(), map.end())
+      {}
+
+      std::size_t hash() const {
+	std::size_t hash(0);
+	for (const Container::value_type& val : *this)
+	  hash = hash_combine(hash, hash_combine(val.first.first, hash_combine(val.first.second, val.second)));
+	return hash;
+      }
+    };
+
+    /*! \brief A functor to allow the storage of CaptureMapKey types
+        in unordered containers. */
+    struct CaptureMapKeyHash {
+      std::size_t operator() (const CaptureMapKey& map) const 
+      { return map.hash(); }
+    };
+  }
+
   /*! \brief A general interface for \ref Interaction classes with
-     states for the particle pairs.
+    states for the particle pairs.
    
     This class is a general interface to Interaction classes that
     allow particles to "capture" each other and store some state. The
@@ -35,187 +150,60 @@ namespace dynamo {
     \ref ISquareWell), or it might be used to track if the particles
     are within each others bounding sphere (e.g., \ref ILines).
   */
-  class ICapture: public Interaction
+  class ICapture: public Interaction, public detail::CaptureMap
   {
+    typedef detail::CaptureMap Map;
+
   public:
     ICapture(dynamo::Simulation* sim, IDPairRange* range): Interaction(sim, range), noXmlLoad(true) {}
 
-    //! \brief Returns the number of particles that are captured in some way
-    virtual size_t getTotalCaptureCount() const = 0;
-  
     //! \brief A test if two particles are captured
-    virtual bool isCaptured(const Particle&, const Particle&) const = 0;
+    size_t isCaptured(const Particle& p1, const Particle& p2) const {
+      return Map::operator[](Map::key_type(p1, p2));
+    }
 
-    //! \brief Returns the total internal energy stored in this Interaction.
-    virtual double getInternalEnergy() const = 0;
+    //! \brief A test if two particles are captured
+    size_t isCaptured(const size_t p1, const size_t p2) const {
+      return Map::operator[](Map::key_type(p1, p2));
+    }
 
     /*! \brief This function tells an uninitialised capture map to
         forget the data loaded from the xml file.
      */
     void forgetXMLCaptureMap() { noXmlLoad = true; }
 
-    //! \brief Add a pair of particles to the capture map.
-    virtual void addToCaptureMap(const Particle& p1, const Particle& p2) const = 0;
-
     void initCaptureMap();
 
-    virtual void clear() const = 0;
-    
-  protected:
+    virtual size_t captureTest(const Particle&, const Particle&) const = 0;
+
+  protected:  
     bool noXmlLoad;
 
-    virtual void testAddToCaptureMap(const Particle& p1, const size_t& p2) const = 0;
+    void loadCaptureMap(const magnet::xml::Node&);
 
-    /*! \brief A key used to represent two particles.
-     
-      This key sorts the particle ID's into ascending order. This way
-      the keys can be compared and symmetric keys will compare equal.
-      \code assert(cMapKey(a,b) == cMapKey(b,a)); \endcode
-     */
-    struct cMapKey: public std::pair<size_t,size_t>
-    {
-      inline cMapKey() {}
-    
-      inline cMapKey(const size_t& a, const size_t& b):
-	std::pair<size_t,size_t>(std::min(a, b), std::max(a, b))
-      {
-#ifdef DYNAMO_DEBUG
-	if (a == b) M_throw() << "Particle ID's should not be equal!";
-#endif
-      }
-    };
-  };
-
-  /*! \brief This base class is for Interaction classes which only
-    "capture" particle pairs in one state.
-   
-    There is only one state a pair of particles can be in, either
-    captured or not.  This can be contrasted with IMultiCapture where
-    a pair of particles may be in a range of captured states.
-   */
-  class ISingleCapture: public ICapture
-  {
-  public:
-    ISingleCapture(dynamo::Simulation* sim, IDPairRange* range): ICapture(sim, range) {}
-
-    size_t getTotalCaptureCount() const { return captureMap.size(); }
-  
-    virtual bool isCaptured(const Particle& p1, const Particle& p2) const
-    { return captureMap.count(cMapKey(p1.getID(), p2.getID())); }
-
-    virtual void clear() const { captureMap.clear(); }
+    void outputCaptureMap(magnet::xml::XmlStream&) const;
 
     virtual size_t validateState(bool textoutput = true, size_t max_reports = std::numeric_limits<size_t>::max()) const;
 
-  protected:
+    virtual void testAddToCaptureMap(const Particle& p1, const size_t& p2);
 
-    mutable std::tr1::unordered_set<cMapKey, boost::hash<cMapKey> > captureMap;
-
-    /*! \brief Test if two particles should be "captured".
-    
-      This function should provide a test of the particles current
-      position and velocity to determine if they're captured. Used in
-      rebuilding the captureMap.
-    */
-    virtual bool captureTest(const Particle&, const Particle&) const = 0;
-
-    /*! \brief Function to load the capture map. 
-     
-      Should be called by the derived classes
-      Interaction::operator<<(const magnet::xml::Node&) function.
-     */
-    void loadCaptureMap(const magnet::xml::Node&);
-
-    /*! \brief Function to write out the capture map. 
-     
-      Should be called by the derived classes Interaction::outputXML()
-      function.
-     */
-    void outputCaptureMap(magnet::xml::XmlStream&) const;
-
-    virtual void testAddToCaptureMap(const Particle& p1, const size_t& p2) const;
-
-    //! \brief Add a pair of particles to the capture map
-    void addToCaptureMap(const Particle& p1, const Particle& p2) const
-    {
+    //! \brief Add a pair of particles to the capture map.
+    void add(const Particle& p1, const Particle& p2) {
 #ifdef DYNAMO_DEBUG
-      if (captureMap.count(cMapKey(p1.getID(), p2.getID())))
-	M_throw() << "Insert found " << std::min(p1.getID(), p2.getID())
-		  << " and " << std::max(p1.getID(), p2.getID()) << " in the capture map";
+      if (Map::find(Map::key_type(p1.getID(), p2.getID())) != Map::end())
+	M_throw() << "Adding a particle while its already added!";
 #endif
-    
-      captureMap.insert(cMapKey(p1.getID(), p2.getID()));
+      Map::operator[](Map::key_type(p1.getID(), p2.getID())) = 1;
     }
   
     //! \brief Remove a pair of particles to the capture map.
-    void removeFromCaptureMap(const Particle& p1, const Particle& p2) const
+    void remove(const Particle& p1, const Particle& p2)
     {
 #ifdef DYNAMO_DEBUG
-      if (captureMap.find(cMapKey(p1.getID(), p2.getID())) == captureMap.end())
+      if (Map::find(Map::key_type(p1.getID(), p2.getID())) == Map::end())
 	M_throw() << "Deleting a particle while its already gone!";
 #endif
-
-      captureMap.erase(cMapKey(p1.getID(), p2.getID()));
+      Map::operator[](Map::key_type(p1.getID(), p2.getID())) = 0;
     } 
-
-  };
-
-  /*! \brief This base class is for Interaction classes which "capture"
-   * particle pairs in multiple states.
-   */
-  class IMultiCapture: public ICapture
-  {
-  public:
-    IMultiCapture(dynamo::Simulation* sim, IDPairRange* range): ICapture(sim, range) {}
-
-    size_t getTotalCaptureCount() const { return captureMap.size(); }
-  
-    virtual bool isCaptured(const Particle& p1, const Particle& p2) const
-    { return captureMap.count(cMapKey(p1.getID(), p2.getID())); }
-
-    virtual void clear() const { captureMap.clear(); }
-
-    virtual size_t validateState(bool textoutput = true, size_t max_reports = std::numeric_limits<size_t>::max()) const;
-
-  protected:
-  
-    typedef std::tr1::unordered_map<cMapKey, int, boost::hash<cMapKey> > captureMapType;
-    typedef captureMapType::iterator cmap_it;
-    typedef captureMapType::const_iterator const_cmap_it;
-
-    mutable captureMapType captureMap;
-
-    virtual int captureTest(const Particle&, const Particle&) const = 0;
-
-    void loadCaptureMap(const magnet::xml::Node&);
-
-    void outputCaptureMap(magnet::xml::XmlStream&) const;
-
-    inline cmap_it getCMap_it(const Particle& p1, const Particle& p2) const
-    { return captureMap.find(cMapKey(p1.getID(), p2.getID())); }
-
-    inline void addToCaptureMap(const Particle& p1, const Particle& p2) const
-    {
-#ifdef DYNAMO_DEBUG
-      if (captureMap.find(cMapKey(p1.getID(), p2.getID())) != captureMap.end())
-	M_throw() << "Adding a particle while its already added!";
-#endif
-    
-      captureMap[cMapKey(p1.getID(), p2.getID())] = 1;
-    }
-
-    //! \brief Add a pair of particles to the capture map
-    void addToCaptureMap(const Particle& p1, const size_t& p2) const;
-
-    virtual void testAddToCaptureMap(const Particle& p1, const size_t& p2) const;
-
-    inline void delFromCaptureMap(const Particle& p1, const Particle& p2) const
-    {
-#ifdef DYNAMO_DEBUG
-      if (captureMap.find(cMapKey(p1.getID(), p2.getID())) == captureMap.end())
-	M_throw() << "Deleting a particle while its already gone!";
-#endif 
-      captureMap.erase(cMapKey(p1.getID(), p2.getID()));
-    }
   };
 }

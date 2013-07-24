@@ -22,7 +22,6 @@
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/topology/include.hpp>
 #include <dynamo/interactions/captures.hpp>
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <vector>
 
@@ -40,9 +39,8 @@ namespace dynamo {
   void 
   OPChainBondLength::initialise()
   {
-    BOOST_FOREACH(const shared_ptr<Topology>& plugPtr, 
-		  Sim->topology)
-      if (std::tr1::dynamic_pointer_cast<TChain>(plugPtr))
+    for(const shared_ptr<Topology>& plugPtr : Sim->topology)
+      if (std::dynamic_pointer_cast<TChain>(plugPtr))
 	chains.push_back(Cdata(plugPtr->getID(), plugPtr->getMolecules().front()->size()));
   }
 
@@ -55,9 +53,8 @@ namespace dynamo {
   void 
   OPChainBondLength::ticker()
   {
-    BOOST_FOREACH(Cdata& dat, chains)
-      BOOST_FOREACH(const shared_ptr<IDRange>& range, 
-		    Sim->topology[dat.chainID]->getMolecules())
+    for (Cdata& dat : chains)
+      for (const shared_ptr<IDRange>& range : Sim->topology[dat.chainID]->getMolecules())
       if (range->size() > 2)
 	//Walk the polymer
 	for (size_t j = 0; j < range->size()-1; ++j)
@@ -71,7 +68,7 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("BondAngleLength");
   
-    BOOST_FOREACH(Cdata& dat, chains)
+    for (Cdata& dat : chains)
       {
 	XML << magnet::xml::tag("Chain")
 	    << magnet::xml::attr("Name") 

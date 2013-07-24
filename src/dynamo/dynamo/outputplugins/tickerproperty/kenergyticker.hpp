@@ -20,7 +20,7 @@
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <magnet/math/histogram.hpp>
 #include <magnet/math/vector.hpp>
-#include <tr1/array>
+#include <array>
 
 namespace dynamo {
   class OPKEnergyTicker: public OPTicker
@@ -28,8 +28,8 @@ namespace dynamo {
   public:
     OPKEnergyTicker(const dynamo::Simulation*, const magnet::xml::Node&);
 
-    typedef std::tr1::array<double, NDIM> col;
-    typedef std::tr1::array<col, NDIM> matrix;
+    typedef std::array<double, NDIM> col;
+    typedef std::array<col, NDIM> matrix;
 
     virtual void initialise();
 

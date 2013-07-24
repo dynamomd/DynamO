@@ -32,7 +32,7 @@ namespace coil {
 	setConstantAttribute(attrnum);
       else
 	{
-	  std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
+	  std::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
 	  //We have an attribute, check the mode the ComboBox is in,
 	  //and determine if we have to do something with the data!
 
@@ -89,18 +89,11 @@ namespace coil {
   protected:
     void colorMapChanged() { _lastColorMap = -2; }
 
-    inline virtual void updateGui()
-    {
-      AttributeSelector::updateGui();
+    void colorButtonUsed();
 
-      if (!singleValueMode() && _enableDataFiltering)
-	{
-	  //Default to coloring using the raw values
-	  _componentSelect.set_active(1);
-	}
+    void colorValuesChanged();
 
-      updateComponent();
-    }
+    virtual void updateGui();
 
     void updateComponent()
     {
@@ -118,6 +111,7 @@ namespace coil {
 
     magnet::gtk::ColorMapSelector _colorMapSelector;
     Gtk::CheckButton _autoScaling;
+    Gtk::ColorButton _colorButton;
     int _lastColorMap;
   };
 }

@@ -23,6 +23,7 @@
 #include <dynamo/systems/system.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
+namespace coil { class DataSet; }
 namespace dynamo {
   class SVisualizer: public System
   {
@@ -44,6 +45,11 @@ namespace dynamo {
 
     mutable shared_ptr<coil::CLGLWindow> _window;
     coil::CoilRegister _coil;
+    
+    void initDataSet() const;
+    void updateRenderData() const;
+
+    mutable shared_ptr<coil::DataSet> _particleData;
 
     mutable boost::posix_time::ptime _lastUpdate;
   };

@@ -1,0 +1,150 @@
+#!/usr/bin/env python
+#   dynamo:- Event driven molecular dynamics simulator 
+#   http://www.dynamomd.org
+#   Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
+#
+#   This program is free software: you can redistribute it and/or
+#   modify it under the terms of the GNU General Public License
+#   version 3 as published by the Free Software Foundation.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+import os
+import math
+import xml.etree.ElementTree as ET
+
+#Function to load a (possibly compressed) xml file.
+def loadXMLFile(filename):
+    #Check if the file is compressed or not, and 
+    if (os.path.splitext(filename)[1][1:].strip() == "bz2"):
+        import bz2
+        f = bz2.BZ2File(filename)
+        doc = ET.parse(f)
+        f.close()
+        return doc
+    else:
+        return etree.parse(filename)
+
+#Command line argument parsing
+from optparse import OptionParser
+parser = OptionParser()
+parser.add_option("-c", "--cutoff-time", dest="cutofftime", type="float", default=1e300,
+                  help="The TIME beyond which data from the correlators are discarded.", metavar="TIME", )
+parser.add_option("-s", "--start-time", dest="starttime",
+                  help="The amount of TIME to discard data at the start of the correlator.", 
+                  type="float", default=0, metavar="TIME")
+
+parser.add_option("-v", "--view-fit", action="store_true", default=False,
+                  dest="plot", help="View the fits of the correlators")
+
+(options, datafiles) = parser.parse_args()
+
+#Sort out the data file option
+if len(datafiles) is 0:
+    print "Need to supply at least one input file!"
+    import sys
+    sys.exit()
+
+def parseToArray(text):
+    data = []
+    for line in text.strip().split("\n"):
+        dataline = map(float, line.split())
+        if (len(dataline) > 1) and (dataline[0] >= options.starttime) and (dataline[0] <= options.cutofftime):
+            data.append(dataline)
+    return data
+
+def avg(data):
+    if len(data) is 0:
+        raise ArithmeticError("Can only find the average of a list with non-zero length")
+    return sum(data) / (len(data))
+
+def stddev(data):
+    average = avg(data)
+    return avg([(item - average)**2 for item in data])
+
+def fitData(datacolumns, data, filename):
+    import numpy as np
+    from itertools import izip
+    xvalues = [line[0] for line in data]
+    yvalues = [avg([line[column] for column in datacolumns]) for line in data]
+    yerrvalues = [math.sqrt(stddev([line[column] for column in datacolumns])) for line in data]
+    fitdata = np.polyfit(xvalues, yvalues, 1, full=True)
+    slope = fitdata[0][0]
+    intercept = fitdata[0][1]
+    SSreg=stddev(np.polyval(fitdata[0],xvalues) - yvalues)
+    SStot=stddev(yvalues)
+    if SSreg == 0.0 and SStot == 0.0:
+        R2 = 1.0
+    else:
+        R2 = 1.0 - SSreg/SStot
+    return slope, intercept, R2, xvalues, yvalues, yerrvalues, filename
+
+shear_viscosity_data = []
+bulk_viscosity_data = []
+thermalconductivity_data = []
+thermaldiffusion_data = {}
+mutualdiffusion_data = {}
+for filename in datafiles:
+    if not os.path.exists(filename):
+        print "Could not find the passed datafile! ("+filename+")"
+        import sys
+        sys.exit()
+
+    #Load the xml file
+    XMLDoc = loadXMLFile(filename)
+    RootElement=XMLDoc.getroot()
+
+    #Parse all of the transport data (and draw the plots if requested)
+    for xmlelement in RootElement.findall(".//Viscosity/Correlator"):
+        shear_viscosity_data.extend([fitData([3, 4, 7], parseToArray(xmlelement.text), filename)])
+
+    for xmlelement in RootElement.findall(".//Viscosity/Correlator"):
+        bulk_viscosity_data.extend([fitData([2, 6, 10], parseToArray(xmlelement.text), filename)])
+
+    for xmlelement in RootElement.findall(".//ThermalConductivity/Correlator"):
+        thermalconductivity_data.extend([fitData([2, 3, 4], parseToArray(xmlelement.text), filename)])
+
+    for xmlelement in RootElement.findall(".//ThermalDiffusion/Correlator"):
+        key = xmlelement.attrib["Species"]
+        thermaldiffusion_data.setdefault(key, []).extend([fitData([2, 3, 4], parseToArray(xmlelement.text), filename)])
+
+    for xmlelement in RootElement.findall(".//MutualDiffusion/Correlator"):
+        key=xmlelement.attrib["Species1"]+","+xmlelement.attrib["Species2"]
+        mutualdiffusion_data.setdefault(key, []).extend([fitData([2, 3, 4], parseToArray(xmlelement.text), filename)])
+
+
+def output(title, correlator_data):
+    avgslope = avg([data[0] for data in correlator_data])
+    stddevslope = math.sqrt(stddev([data[0] for data in correlator_data]))
+    avgintercept = avg([data[1] for data in correlator_data])
+    avgR2 = avg([data[2] for data in correlator_data])
+    print title, avgslope, "+-", stddevslope, "<R>^2=", avgR2
+    #Plotting output
+    minx=1e300
+    maxx=0
+    if (options.plot):
+        import matplotlib.pyplot as plt
+        plt.title("$"+title+str(avgslope)+"$ $R^2="+str(avgR2)+"$")
+        for data in correlator_data:
+            minx = min(min(data[3]), minx)
+            maxx = max(max(data[3], maxx))
+            plt.errorbar(data[3], data[4], yerr=data[5], fmt='x', label=data[-1])
+        plt.plot([minx, maxx], [minx * avgslope + avgintercept, maxx * avgslope + avgintercept])
+        plt.legend()
+        plt.show()
+
+output("ShearViscosityL_{\\eta,\\eta}=", shear_viscosity_data)
+output("BulkViscosityL_{\\kappa,\\kappa}=", bulk_viscosity_data)
+output("ThermalConductivityL_{\\lambda,\\lambda}=", thermalconductivity_data)
+
+for species, data in thermaldiffusion_data.items():
+    output("ThermalDiffusionL_{\\lambda,"+species+"}=",data)
+
+for key, data in mutualdiffusion_data.items():
+    output("MutualDiffusionL_{"+key+"}=",data)

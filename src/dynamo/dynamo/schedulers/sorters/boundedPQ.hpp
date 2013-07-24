@@ -21,7 +21,6 @@
 #include <dynamo/schedulers/sorters/heapPEL.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/simulation.hpp>
-#include <boost/static_assert.hpp>
 #include <magnet/exception.hpp>
 #include <string>
 #include <vector>
@@ -38,11 +37,7 @@ namespace dynamo {
 
   class PELSingleEvent;
 
-  template<class T>
-  struct FELBoundedPQName
-  {
-    BOOST_STATIC_ASSERT(sizeof(T) == 0);
-  };
+  template<class T> struct FELBoundedPQName;
 
   template<>
   struct FELBoundedPQName<PELHeap>
@@ -91,46 +86,11 @@ namespace dynamo {
     size_t exceptionCount;
 
   public:  
-    FELBoundedPQ(const dynamo::Simulation* const& SD):
-      FEL(SD, "BoundedPQ"),
-      exceptionCount(0) 
-    {}
+    FELBoundedPQ():exceptionCount(0) {}
 
-    ~FELBoundedPQ() 
+    ~FELBoundedPQ()
     { 
-      dout << "Exception Events = " << exceptionCount << std::endl;
-    }
-  
-    inline size_t size() const { return Min.size() - 1; }
-    inline bool empty() const { return Min.empty(); }
-
-    inline const int& NLists() const { return nlists; }
-    inline const double& scaleFactor() const { return scale; }
-    inline const size_t& exceptionEvents() const { return exceptionCount; }
-    inline const size_t& treeSize() const { return NP; }
-
-    inline std::vector<size_t> getEventCounts() const
-    {
-      std::vector<size_t> tmpVec;
-      tmpVec.resize(nlists - 1,0);
-
-      //Miss the binary tree
-      for (int i = 1; i < nlists - 1; ++i)
-	{
-	  int index = i + currentIndex;
-	  if (index > nlists -1)
-	    index -= nlists;
-	  size_t counter = 0;
-	  //Scroll through the list counting
-	  int nextID = linearLists[index];	
-	  while (nextID != -1)
-	    {
-	      ++counter;
-	      nextID = Min[nextID].next;
-	    }
-	  tmpVec[i] = counter;
-	}
-      return tmpVec;
+      std::cout << "Exception Events = " << exceptionCount << std::endl;
     }
 
     void resize(const size_t& a)
@@ -145,9 +105,9 @@ namespace dynamo {
 
     void clear() 
     {
+      Min.clear();
       CBT.clear();
       Leaf.clear();
-      Min.clear();
       linearLists.clear();
       N = 0;
       NP = 0;
@@ -169,6 +129,8 @@ namespace dynamo {
 
     void init(bool quiet)
     {
+      NP = 0;
+      
       {
 	double minVal(0), maxVal(-HUGE_VAL);
 	size_t counter(0);
@@ -178,7 +140,7 @@ namespace dynamo {
 	  //We make a bounded queue of length N
 	  //With a date length of the mean time between events
 	  
-	  BOOST_FOREACH(const eventQEntry& dat, Min)
+	  for (const eventQEntry& dat : Min)
 	    if (!std::isinf(dat.data.getdt()))
 	      {
 		minVal = std::min(minVal, dat.data.getdt());
@@ -189,7 +151,7 @@ namespace dynamo {
 	  if (counter < 10)
 	    {
 	      //Something is peculiar about the system
-	      derr <<
+	      std::cerr <<
 		"The event queue doesn't have more than 10 VALID events in it"
 		"\nThis means the queue cannot be instrumented properly to"
 		"\ndetermine the optimal settings for the bounded queue, now"
@@ -202,7 +164,7 @@ namespace dynamo {
 	  else
 	    {
 	      if (maxVal < 0 ) 
-		derr << "WARNING! The event queue is filled with negative events!"  
+		std::cerr << "WARNING! The event queue is filled with negative events!"  
 		     << std::endl;;
 	      
 	      scale = counter / (maxVal - minVal);
@@ -228,26 +190,24 @@ namespace dynamo {
 
       if (nlists == 0)
 	{
-	  derr << "nlists = 0!\n"
-	       << "This is a BAD thing, unless NCells = NParticles and "
+	  std::cerr << "nlists = 0!\n"
+		    << "This is a BAD thing, unless NCells = NParticles and "
 	    "they're in a perfect crystal, if it happens again after the "
 	    "preliminary run its certainly a bug" << std::endl;
 	  nlists = 1000;
 	}
 
       if (!quiet)
-	dout << "Length of linear list = " << nlists
-	     << "Scale factor = " 
-	     << scale * Sim->units.unitTime() 
-	     << std::endl;
+	std::cout << "Length of linear list = " << nlists
+		  << "Scale factor = " << scale
+		  << std::endl;
 
+      linearLists.clear();
       linearLists.resize(nlists+1, -1); /*+1 for overflow, -1 for
 					  marking empty*/ 
 
       if (!quiet)
-	{
-	  dout << "Sorting all events, please wait..." << std::endl;
-	}
+	std::cout << "Sorting all events, please wait..." << std::endl;
 
       //Now insert all of the events!
       for (unsigned long i = 1; i <= N; i++)
@@ -255,14 +215,12 @@ namespace dynamo {
 
   
       if (!quiet)
-	{
-	  dout << "Finding first event..." << std::endl;
-	}
+	std::cout << "Finding first event..." << std::endl;
     
       //Find the next event and place it first so nextEventID() works
       orderNextEvent();
       if (!quiet)
-	dout << "Ready for simulation." << std::endl;
+	std::cout << "Ready for simulation." << std::endl;
     }
 
     inline void push(const Event& tmpVal, const size_t& pID)
@@ -282,35 +240,16 @@ namespace dynamo {
       insertInEventQ(pID + 1);
     }
 
-    //  inline const T& operator[](const size_t& a) const 
-    //  {
-    //#ifdef DYNAMO_DEBUG 
-    //    if (Min.empty())
-    //      M_throw() << "Heap not yet sized";
-    //#endif
-    //    
-    //    return Min[a+1].data; 
-    //  }
-  
-    //  inline T& operator[](const size_t& a) 
-    //  {
-    //#ifdef DYNAMO_DEBUG 
-    //    if (Min.empty())
-    //      M_throw() << "Heap not yet sized";
-    //#endif
-    //
-    //    return Min[a+1].data; 
-    //  }
-
     inline void clearPEL(const size_t& ID) { Min[ID+1].data.clear(); }
     inline void popNextPELEvent(const size_t& ID) { Min[ID+1].data.pop(); }
     inline void popNextEvent() { Min[CBT[1]].data.pop(); }
-    inline bool nextPELEmpty() const { return Min[CBT[1]].data.empty(); }
+    virtual bool empty() const { return Min[CBT[1]].data.empty(); }
 
-    inline Event copyNextEvent() const 
-    { Event retval(Min[CBT[1]].data.top());
-      retval.dt -= pecTime;
-      return retval; 
+    virtual std::pair<size_t, Event> next() const
+    {
+      Event nextevent = Min[CBT[1]].data.top();
+      nextevent.dt -= pecTime;
+      return std::pair<size_t, Event>(CBT[1] - 1, nextevent);
     }
 
     inline size_t next_ID() const { return CBT[1] - 1; }
@@ -318,15 +257,13 @@ namespace dynamo {
     inline unsigned long next_collCounter2() const { return Min[CBT[1]].data.top().collCounter2; }
     inline size_t next_p2() const { return Min[CBT[1]].data.top().p2; }
 
-    //inline T& next_Data() { return Min[CBT[1]].data; }
-    //inline const T& next_Data() const { return Min[CBT[1]].data; }
     inline double next_dt() const { return Min[CBT[1]].data.getdt() - pecTime; }
 
     inline void sort() { orderNextEvent(); }
 
     inline void rescaleTimes(const double& factor)
     {
-      BOOST_FOREACH(eventQEntry& dat, Min)
+      for (eventQEntry& dat : Min)
 	dat.data.rescaleTimes(factor);
 
       pecTime *= factor;
@@ -378,12 +315,22 @@ namespace dynamo {
       int e = linearLists[nlists];
       linearLists[nlists] = -1; /* mark empty; we will treat all entries and may re-add some */
 
+      size_t overflowEvents = 0;
       while(e!=-1)
 	{
-	  ++exceptionCount;
+	  ++overflowEvents;
 	  int eNext = Min[e].next; /* save next */
 	  insertInEventQ(e); /* try add to regular list now */
 	  e=eNext;
+	}
+
+      exceptionCount += overflowEvents;
+      
+      //Check if the overflow contained more than half the total
+      //events. If so, force a complete rebuild of the scheduler
+      if (overflowEvents > N/2)
+	{
+	  init();
 	}
     }
 
@@ -421,7 +368,7 @@ namespace dynamo {
 	      currentIndex=0;
 
 	      //Stream every event by the list width!
-	      BOOST_FOREACH(eventQEntry& dat, Min)
+	      for (eventQEntry& dat : Min)
 		dat.data.stream(listWidth);
 	      //update the peculiar time
 	      pecTime -= listWidth;
@@ -470,7 +417,7 @@ namespace dynamo {
     {
       if (NP)
 	{
-	  int j = CBT[NP];	
+	  int j = CBT[NP];
 	  CBT [NP*2] = j;
 	  CBT [NP*2+1] = i;
 	  Leaf[j] = NP*2;
@@ -480,7 +427,7 @@ namespace dynamo {
 	}
       else
 	{
-	  CBT[1]=i; 
+	  CBT[1]=i;
 	  ++NP; 
 	}
     }

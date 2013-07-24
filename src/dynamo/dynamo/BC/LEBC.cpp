@@ -56,18 +56,13 @@ namespace dynamo {
   void 
   BCLeesEdwards::operator<<(const magnet::xml::Node& XML)
   { 
-    try 
-      {
-	if (XML.hasAttribute("DXD"))
-	  _dxd = XML.getAttribute("DXD").as<double>();
-	_dxd *= Sim->units.unitLength();
-      
-	if (XML.hasAttribute("Rate"))
-	  _shearRate = XML.getAttribute("Rate").as<double>();      
-	_shearRate /= Sim->units.unitTime();
-      }
-    catch (boost::bad_lexical_cast &)
-      { M_throw() << "Failed a lexical cast in LEBC"; }
+    if (XML.hasAttribute("DXD"))
+      _dxd = XML.getAttribute("DXD").as<double>();
+    _dxd *= Sim->units.unitLength();
+    
+    if (XML.hasAttribute("Rate"))
+      _shearRate = XML.getAttribute("Rate").as<double>();      
+    _shearRate /= Sim->units.unitTime();
   }
 
   void 

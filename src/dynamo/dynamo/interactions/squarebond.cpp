@@ -43,25 +43,18 @@ namespace dynamo {
   ISquareBond::operator<<(const magnet::xml::Node& XML)
   {
     Interaction::operator<<(XML);
-  
-    try {
-      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
-					       Property::Units::Length());
-      _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
-					     Property::Units::Dimensionless());
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					     Property::Units::Length());
+    _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
+					   Property::Units::Dimensionless());
 
-      if (XML.hasAttribute("Elasticity"))
-	_e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-					  Property::Units::Dimensionless());
-      else
-	_e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
+    if (XML.hasAttribute("Elasticity"))
+      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+					Property::Units::Dimensionless());
+    else
+      _e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
 
-      intName = XML.getAttribute("Name");
-    }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in CISquareWell";
-      }
+    intName = XML.getAttribute("Name");
   }
 
   double 
@@ -94,7 +87,7 @@ namespace dynamo {
 	   << "\nd = " << d / Sim->units.unitLength() << std::endl;
 #endif
  
-    return Sim->dynamics->sphereOverlap(p1, p2, l * d);
+    return Sim->dynamics->sphereOverlap(p1, p2, l * d) > 0;
   }
 
   bool
@@ -186,7 +179,7 @@ namespace dynamo {
   }
 
   void
-  ISquareBond::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
+  ISquareBond::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
 
@@ -205,12 +198,12 @@ namespace dynamo {
     PairEventData EDat(Sim->dynamics->SmoothSpheresColl
 		       (iEvent, e, d2, iEvent.getType()));
 
-    Sim->signalParticleUpdate(EDat);
+    (*Sim->_sigParticleUpdate)(EDat);
     
     //Now we're past the event, update the scheduler and plugins
     Sim->ptrScheduler->fullUpdate(p1, p2);
   
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent,EDat);
   }
     
@@ -222,7 +215,7 @@ namespace dynamo {
 	<< magnet::xml::attr("Lambda") << _lambda->getName()
 	<< magnet::xml::attr("Name") << intName
 	<< magnet::xml::attr("Elasticity") << _e->getName()
-	<< *range;
+	<< range;
   }
 }
 

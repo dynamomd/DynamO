@@ -36,7 +36,7 @@
 
 namespace dynamo {
   ISWSequence::ISWSequence(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
-    ISingleCapture(tmp, NULL), //A temporary value!
+    ICapture(tmp, NULL), //A temporary value!
     _unitEnergy(Sim->_properties.getProperty
 		(1.0, Property::Units::Energy()))
   { operator<<(XML); }
@@ -73,7 +73,7 @@ namespace dynamo {
     XML << magnet::xml::endtag("Alphabet");
 
   
-    ISingleCapture::outputCaptureMap(XML);  
+    ICapture::outputCaptureMap(XML);  
   }
 
   void 
@@ -81,75 +81,61 @@ namespace dynamo {
   {
     Interaction::operator<<(XML);
 
-    try { 
-      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
-					       Property::Units::Length());
-      _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
-					     Property::Units::Dimensionless());
-
-      if (XML.hasAttribute("Elasticity"))
-	_e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-					  Property::Units::Dimensionless());
-      else
-	_e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
-
-      intName = XML.getAttribute("Name");
-      ISingleCapture::loadCaptureMap(XML);
-
-      //Load the sequence
-      sequence.clear();
-      std::set<size_t> letters;
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					     Property::Units::Length());
+    _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
+					   Property::Units::Dimensionless());
     
-      for (magnet::xml::Node node = XML.getNode("Sequence").fastGetNode("Element");
-	   node.valid(); ++node)
-	{
-	  if (node.getAttribute("seqID").as<size_t>() != sequence.size())
-	    M_throw() << "Sequence of letters not in order, missing element " << sequence.size();
-
-	  size_t letter = node.getAttribute("Letter").as<size_t>();
-	  letters.insert(letter);
-	  sequence.push_back(letter);
-	}
-
-      //Initialise all the well depths to 1.0
-      alphabet.resize(letters.size());
-
-      BOOST_FOREACH(std::vector<double>& vec, alphabet)
-	vec.resize(letters.size(), 0.0);
-
-      for (magnet::xml::Node node = XML.getNode("Alphabet").fastGetNode("Word");
-	   node.valid(); ++node)
-	{
-	  alphabet
-	    .at(node.getAttribute("Letter1").as<size_t>())
-	    .at(node.getAttribute("Letter2").as<size_t>())
-	    = node.getAttribute("Depth").as<double>();
-
-	  alphabet
-	    .at(node.getAttribute("Letter2").as<size_t>())
-	    .at(node.getAttribute("Letter1").as<size_t>())
-	    = node.getAttribute("Depth").as<double>();
-	}
-    }
-    catch (boost::bad_lexical_cast &)
+    if (XML.hasAttribute("Elasticity"))
+      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+					Property::Units::Dimensionless());
+    else
+      _e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
+    
+    intName = XML.getAttribute("Name");
+    ICapture::loadCaptureMap(XML);
+    
+    //Load the sequence
+    sequence.clear();
+    std::set<size_t> letters;
+    
+    for (magnet::xml::Node node = XML.getNode("Sequence").fastGetNode("Element");
+	 node.valid(); ++node)
       {
-	M_throw() << "Failed a lexical cast in CISWSequence";
+	if (node.getAttribute("seqID").as<size_t>() != sequence.size())
+	  M_throw() << "Sequence of letters not in order, missing element " << sequence.size();
+	
+	size_t letter = node.getAttribute("Letter").as<size_t>();
+	letters.insert(letter);
+	sequence.push_back(letter);
+      }
+    
+    //Initialise all the well depths to 1.0
+    alphabet.resize(letters.size());
+    
+    for (std::vector<double>& vec : alphabet)
+      vec.resize(letters.size(), 0.0);
+    
+    for (magnet::xml::Node node = XML.getNode("Alphabet").fastGetNode("Word");
+	 node.valid(); ++node)
+      {
+	alphabet
+	  .at(node.getAttribute("Letter1").as<size_t>())
+	  .at(node.getAttribute("Letter2").as<size_t>())
+	  = node.getAttribute("Depth").as<double>();
+	
+	alphabet
+	  .at(node.getAttribute("Letter2").as<size_t>())
+	  .at(node.getAttribute("Letter1").as<size_t>())
+	  = node.getAttribute("Depth").as<double>();
       }
   }
 
   Vector
-  ISWSequence::getGlyphSize(size_t ID, size_t subID) const
+  ISWSequence::getGlyphSize(size_t ID) const
   { 
     double diam = _diameter->getProperty(ID);
     return Vector(diam, diam, diam); 
-  }
-
-  Vector 
-  ISWSequence::getGlyphPosition(size_t ID, size_t subID) const
-  { 
-    Vector retval = Sim->particles[ID].getPosition();
-    Sim->BCs->applyBC(retval);
-    return retval;
   }
 
   double 
@@ -157,24 +143,16 @@ namespace dynamo {
   { 
     //Once the capture maps are loaded just iterate through that determining energies
     double Energy = 0.0;
-    typedef std::pair<size_t, size_t> locpair;
-
-    BOOST_FOREACH(const locpair& IDs, captureMap)
-      Energy += alphabet
-      [sequence[IDs.first % sequence.size()]]
-      [sequence[IDs.second % sequence.size()]] 
-      * 0.5 * (_unitEnergy->getProperty(IDs.first)
-	       +_unitEnergy->getProperty(IDs.second));
-  
-    return -Energy; 
+    for (const ICapture::value_type& IDs : *this)
+      Energy += getInternalEnergy(Sim->particles[IDs.first.first], Sim->particles[IDs.first.second]);
+    return Energy;
   }
 
   double 
   ISWSequence::getInternalEnergy(const Particle& p1, const Particle& p2) const
   {
     return -alphabet[sequence[p1.getID() % sequence.size()]][sequence[p2.getID() % sequence.size()]]
-      * 0.5 * (_unitEnergy->getProperty(p1.getID())
-	       +_unitEnergy->getProperty(p2.getID()))
+      * 0.5 * (_unitEnergy->getProperty(p1.getID()) + _unitEnergy->getProperty(p2.getID()))
       * isCaptured(p1, p2);
   }
 
@@ -195,10 +173,10 @@ namespace dynamo {
   ISWSequence::initialise(size_t nID)
   {
     ID = nID;
-    ISingleCapture::initCaptureMap();
+    ICapture::initCaptureMap();
   }
 
-  bool 
+  size_t
   ISWSequence::captureTest(const Particle& p1, const Particle& p2) const
   {
     if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
@@ -208,7 +186,7 @@ namespace dynamo {
 
     double l = (_lambda->getProperty(p1.getID())
 		+ _lambda->getProperty(p2.getID())) * 0.5;
-  
+
 #ifdef DYNAMO_DEBUG
     if (Sim->dynamics->sphereOverlap(p1, p2, d))
       derr << "Warning! Two particles might be overlapping"
@@ -216,8 +194,12 @@ namespace dynamo {
 	/ Sim->units.unitLength()
 	   << "\nd = " << d / Sim->units.unitLength() << std::endl;
 #endif
+
+    /*Check if these molecules have no well interaction*/
+    const double pairenergy = alphabet[sequence[p1.getID() % sequence.size()]][sequence[p2.getID() % sequence.size()]] * _unitEnergy->getMaxValue();
+    if (pairenergy == 0) return 0;
  
-    return Sim->dynamics->sphereOverlap(p1, p2, l * d);
+    return Sim->dynamics->sphereOverlap(p1, p2, l * d) > 0;
   }
 
   IntEvent 
@@ -241,99 +223,93 @@ namespace dynamo {
     double l = (_lambda->getProperty(p1.getID())
 		+ _lambda->getProperty(p2.getID())) * 0.5;
 
-    IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
+    const double pairenergy = alphabet[sequence[p1.getID() % sequence.size()]][sequence[p2.getID() % sequence.size()]] * _unitEnergy->getMaxValue();
 
-    if (isCaptured(p1, p2))
+    /* Check if there is no well here at all, and just use a hard core interaction */
+    if (pairenergy == 0)
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
-	if (dt != HUGE_VAL) 
+	if (dt != HUGE_VAL)
+	  return IntEvent(p1, p2, dt, CORE, *this);
+	else
+	  return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
+      }
+	
+    if (isCaptured(p1, p2))
+      {
+	IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
+	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
+	if (dt != HUGE_VAL)
 	  retval = IntEvent(p1, p2, dt, CORE, *this);
       
 	dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, l * d);
 	if (retval.getdt() > dt)
-	  retval = IntEvent(p1, p2, dt, WELL_OUT, *this);
+	  retval = IntEvent(p1, p2, dt, STEP_OUT, *this);
+	return retval;
       }
     else
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, l * d);
 	if (dt != HUGE_VAL)
-	  retval = IntEvent(p1, p2, dt, WELL_IN, *this);
+	  return IntEvent(p1, p2, dt, STEP_IN, *this);
       }
-    return retval;
+    
+    return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
   }
 
   void
-  ISWSequence::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
+  ISWSequence::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {  
     ++Sim->eventCount;
 
-    double e = (_e->getProperty(p1.getID())
+    const double e = (_e->getProperty(p1.getID())
 		+ _e->getProperty(p2.getID())) * 0.5;
 
-    double d = (_diameter->getProperty(p1.getID())
+    const double d = (_diameter->getProperty(p1.getID())
 		+ _diameter->getProperty(p2.getID())) * 0.5;
 
-    double d2 = d * d;
-
-    double l = (_lambda->getProperty(p1.getID())
-		+ _lambda->getProperty(p2.getID())) * 0.5;
+    const double d2 = d * d;
+    
+    const double l = (_lambda->getProperty(p1.getID())
+		      + _lambda->getProperty(p2.getID())) * 0.5;
   
-    double ld2 = d * l * d * l;
+    const double ld2 = d * l * d * l;
 
+    const double pairenergy = alphabet[sequence[p1.getID() % sequence.size()]][sequence[p2.getID() % sequence.size()]] * _unitEnergy->getMaxValue();
+    
     switch (iEvent.getType())
       {
       case CORE:
 	{
 	  PairEventData retVal(Sim->dynamics->SmoothSpheresColl(iEvent, e, d2, CORE));
-	  Sim->signalParticleUpdate(retVal);
+	  (*Sim->_sigParticleUpdate)(retVal);
 	
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
 	
-	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
 
 	  break;
 	}
-      case WELL_IN:
+      case STEP_IN:
 	{
-	  PairEventData retVal(Sim->dynamics->SphereWellEvent
-			       (iEvent, alphabet
-				[sequence[p1.getID() % sequence.size()]]
-				[sequence[p2.getID() % sequence.size()]] 
-				* _unitEnergy->getMaxValue(), 
-				ld2));
-	
-	  if (retVal.getType() != BOUNCE)
-	    addToCaptureMap(p1, p2);      
-
-	  Sim->signalParticleUpdate(retVal);
-
+	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, pairenergy, ld2, 1));
+	  if (retVal.getType() != BOUNCE) ICapture::add(p1, p2);      
+	  (*Sim->_sigParticleUpdate)(retVal);
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	
-	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
 
 	  break;
 	}
-      case WELL_OUT:
+      case STEP_OUT:
 	{
-	  PairEventData retVal(Sim->dynamics->SphereWellEvent
-			       (iEvent, -alphabet
-				[sequence[p1.getID() % sequence.size()]]
-				[sequence[p2.getID() % sequence.size()]]
-				* _unitEnergy->getMaxValue(), 
-				ld2));
-	
-	  if (retVal.getType() != BOUNCE)
-	    removeFromCaptureMap(p1, p2);
-	
-	  Sim->signalParticleUpdate(retVal);
-
+	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, -pairenergy, ld2, 0));
+	  if (retVal.getType() != BOUNCE) ICapture::remove(p1, p2);
+	  (*Sim->_sigParticleUpdate)(retVal);
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	
-	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
-
 	  break;
 	}
       default:
@@ -344,10 +320,27 @@ namespace dynamo {
   bool
   ISWSequence::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    double d = (_diameter->getProperty(p1.getID())
-		+ _diameter->getProperty(p2.getID())) * 0.5;
-    double l = (_lambda->getProperty(p1.getID())
-		+ _lambda->getProperty(p2.getID())) * 0.5;
+    const double d = (_diameter->getProperty(p1.getID()) + _diameter->getProperty(p2.getID())) * 0.5;
+    const double l = (_lambda->getProperty(p1.getID()) + _lambda->getProperty(p2.getID())) * 0.5;
+    
+    const double pairenergy = alphabet[sequence[p1.getID() % sequence.size()]][sequence[p2.getID() % sequence.size()]] * _unitEnergy->getMaxValue();
+
+    /*Check if there is no well interaction between the pair*/
+    if (pairenergy == 0)
+      {
+	if (Sim->dynamics->sphereOverlap(p1, p2, d))
+	  {
+	    if (textoutput)
+	      derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
+		   << " have entered the core at " << d / Sim->units.unitLength()
+		   << " and are at a distance of " 
+		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
+		   << std::endl;
+	    return true;
+	  }
+	else
+	  return false;
+      }
 
     if (isCaptured(p1, p2))
       {
@@ -387,7 +380,6 @@ namespace dynamo {
 	  
 	  return true;
 	}
-
     return false;
   }
 }

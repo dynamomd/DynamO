@@ -19,7 +19,7 @@
 #include <dynamo/locals/local.hpp>
 #include <dynamo/coilRenderObj.hpp>
 #include <dynamo/simulation.hpp>
-#include <boost/tuple/tuple.hpp>
+#include <tuple>
 #include <vector>
 
 #ifdef DYNAMO_visualizer
@@ -65,7 +65,7 @@ namespace dynamo {
 
     std::vector<Vector> _vertices;
 
-    typedef boost::tuples::tuple<size_t, size_t, size_t> TriangleElements;
+    typedef std::tuple<size_t, size_t, size_t> TriangleElements;
     std::vector<TriangleElements> _elements;
 
     shared_ptr<Property> _e;

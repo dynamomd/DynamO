@@ -16,6 +16,7 @@
 */
 
 #include <dynamo/locals/lwall.hpp>
+#include <dynamo/locals/lcylinder.hpp>
 #include <dynamo/locals/oscillatingplate.hpp>
 #include <dynamo/locals/lroughwall.hpp>
 #include <dynamo/locals/trianglemesh.hpp>
@@ -23,6 +24,7 @@
 #include <dynamo/ranges/IDRangeAll.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
+#include <cstring>
 
 namespace dynamo {
   Local::Local(dynamo::Simulation* tmp, const char *name):
@@ -51,16 +53,18 @@ namespace dynamo {
   shared_ptr<Local> 
   Local::getClass(const magnet::xml::Node& XML, dynamo::Simulation* Sim)
   {
-    if (!strcmp(XML.getAttribute("Type"),"Wall"))
+    if (!XML.getAttribute("Type").getValue().compare("Wall"))
       return shared_ptr<Local>(new LWall(XML, Sim));
-    else if (!strcmp(XML.getAttribute("Type"),"RoughWall"))
+    else if (!XML.getAttribute("Type").getValue().compare("RoughWall"))
       return shared_ptr<Local>(new LRoughWall(XML, Sim));
-    else if (!strcmp(XML.getAttribute("Type"),"TriangleMesh"))
+    else if (!XML.getAttribute("Type").getValue().compare("TriangleMesh"))
       return shared_ptr<Local>(new LTriangleMesh(XML, Sim));
-    else if (!strcmp(XML.getAttribute("Type"),"OscillatingPlate"))
+    else if (!XML.getAttribute("Type").getValue().compare("OscillatingPlate"))
       return shared_ptr<Local>(new LOscillatingPlate(XML, Sim));
+    else if (!XML.getAttribute("Type").getValue().compare("Cylinder"))
+      return shared_ptr<Local>(new LCylinder(XML, Sim));
     else 
-      M_throw() << XML.getAttribute("Type")
+      M_throw() << XML.getAttribute("Type").getValue()
 		<< ", Unknown type of Local Interaction encountered";
   }
 }

@@ -22,7 +22,7 @@
 #include <magnet/exception.hpp>
 #include <magnet/color/HSV.hpp>
 #include <cmath>
-#include <tr1/array>
+#include <array>
 #include <stdint.h>
 
 namespace magnet {
@@ -152,9 +152,9 @@ namespace magnet {
 	addKnot(x, spline[0](x), spline[1](x), spline[2](x), spline[3](x));
       }
 
-      std::tr1::array<float,4> getValue(float x)
+      std::array<float,4> getValue(float x)
       {
-	std::tr1::array<float,4> retval = {{float(spline[0](x)), float(spline[1](x)), float(spline[2](x)), float(spline[3](x))}};
+	std::array<float,4> retval = {{float(spline[0](x)), float(spline[1](x)), float(spline[2](x)), float(spline[3](x))}};
 	return retval;
       }
 

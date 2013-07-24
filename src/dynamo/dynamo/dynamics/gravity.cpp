@@ -33,6 +33,7 @@
 #include <magnet/intersection/parabola_plane.hpp>
 #include <magnet/intersection/parabola_triangle.hpp>
 #include <magnet/intersection/parabola_rod.hpp>
+#include <magnet/intersection/parabola_cylinder.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
@@ -45,32 +46,20 @@ namespace dynamo {
     g(0, -1, 0),
     _tc(-HUGE_VAL)
   {
-    if (strcmp(XML.getAttribute("Type"), "NewtonianGravity"))
-      M_throw() << "Attempting to load gravity from "
-		<< XML.getAttribute("Type")
-		<< " entry";
-    try 
+    if (XML.hasAttribute("ElasticV"))
+      elasticV = XML.getAttribute("ElasticV").as<double>()
+	* Sim->units.unitVelocity();
+    
+    if (XML.hasAttribute("tc"))
       {
-	if (XML.hasAttribute("ElasticV"))
-	  elasticV = XML.getAttribute("ElasticV").as<double>()
-	    * Sim->units.unitVelocity();
+	_tc = XML.getAttribute("tc").as<double>() * Sim->units.unitTime();
+	
+	if (_tc <= 0) 
+	  M_throw() << "tc must be positive! (tc = " 
+		    << _tc/ Sim->units.unitTime() << ")";
+      }    
+    g << XML.getNode("g");
 
-	if (XML.hasAttribute("tc"))
-	  {
-	    _tc = XML.getAttribute("tc").as<double>() * Sim->units.unitTime();
-
-	    if (_tc <= 0) 
-	      M_throw() << "tc must be positive! (tc = " 
-			<< _tc/ Sim->units.unitTime() << ")";
-	  }
-
-	g << XML.getNode("g");
-      }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in DynGravity";
-      }
-  
     g *= Sim->units.unitAcceleration();
   }
 
@@ -87,6 +76,13 @@ namespace dynamo {
     bool isDynamic = particle.testState(Particle::DYNAMIC);
     particle.getPosition() += dt * (particle.getVelocity() + 0.5 * dt * g * isDynamic);
     particle.getVelocity() += dt * g * isDynamic;
+
+    if (hasOrientationData())
+      {
+	orientationData[particle.getID()].orientation = Quaternion::fromRotationAxis(orientationData[particle.getID()].angularVelocity * dt)
+	  * orientationData[particle.getID()].orientation ;
+	orientationData[particle.getID()].orientation.normalise();
+      }
   }
 
   double
@@ -117,7 +113,7 @@ namespace dynamo {
   {
     double accel1sum = 0;
     double mass1 = 0;
-    BOOST_FOREACH(const size_t ID, p1)
+    for (const size_t ID : p1)
       {
 	const Particle& part = Sim->particles[ID];       
 	double mass = Sim->species[part]->getMass(ID);
@@ -131,7 +127,7 @@ namespace dynamo {
     
     double accel2sum = 0;
     double mass2 = 0;
-    BOOST_FOREACH(const size_t ID, p2)
+    for (const size_t ID : p2)
       {
 	const Particle& part = Sim->particles[ID];       
 	double mass = Sim->species[part]->getMass(ID);
@@ -179,7 +175,7 @@ namespace dynamo {
   {
     double accel1sum = 0;
     double mass1 = 0;
-    BOOST_FOREACH(const size_t ID, p1)
+    for (const size_t ID : p1)
       {
 	const Particle& part = Sim->particles[ID];       
 	double mass = Sim->species[part]->getMass(ID);
@@ -193,7 +189,7 @@ namespace dynamo {
     
     double accel2sum = 0;
     double mass2 = 0;
-    BOOST_FOREACH(const size_t ID, p2)
+    for (const size_t ID : p2)
       {
 	const Particle& part = Sim->particles[ID];       
 	double mass = Sim->species[part]->getMass(ID);
@@ -223,6 +219,11 @@ namespace dynamo {
 			    const Vector& wallNorm,
 			    double diameter) const
   {
+#ifdef DYNAMO_DEBUG
+    if (!isUpToDate(part))
+      M_throw() << "Particle is not up to date";
+#endif
+
     Vector rij = part.getPosition() - wallLoc,
       vij = part.getVelocity();
     
@@ -433,12 +434,12 @@ namespace dynamo {
 	    std::pair<double, double> roots = magnet::math::quadraticEquation(0.5 * g[i], vel[i], 0.5 * Sim->primaryCellSize[i] - lMax);
 	    if (roots.first > 0) retval = std::min(retval, roots.first);
 	    if (roots.second > 0) retval = std::min(retval, roots.second);
-	  } catch (magnet::math::NoQuadraticRoots&){}
+	  } catch (magnet::math::NoQuadraticRoots&) {}
 	  try {
 	    std::pair<double, double> roots = magnet::math::quadraticEquation(0.5 * g[i], vel[i], -(0.5 * Sim->primaryCellSize[i] - lMax));
 	    if (roots.first > 0) retval = std::min(retval, roots.first);
 	    if (roots.second > 0) retval = std::min(retval, roots.second);
-	  } catch (magnet::math::NoQuadraticRoots&){}
+	  } catch (magnet::math::NoQuadraticRoots&) {}
 	}
 
     return retval;
@@ -462,8 +463,8 @@ namespace dynamo {
     //Now add the parabola sentinel if there are cell neighbor lists in
     //use.
     bool hasNBlist = false;
-    BOOST_FOREACH(shared_ptr<Global>& glob, Sim->globals)
-      if (std::tr1::dynamic_pointer_cast<GNeighbourList>(glob))
+    for (shared_ptr<Global>& glob : Sim->globals)
+      if (std::dynamic_pointer_cast<GNeighbourList>(glob))
 	{ hasNBlist = true; break; }
   
     if (hasNBlist)
@@ -514,14 +515,66 @@ namespace dynamo {
     return DynNewtonian::SmoothSpheresColl(event, e, d2, eType);
   }
 
+  PairEventData 
+  DynGravity::RoughSpheresColl(const IntEvent& event, const double& ne, const double& net, const double& d1, const double& d2, const EEventType& eType) const
+  {
+    Particle& particle1 = Sim->particles[event.getParticle1ID()];
+    Particle& particle2 = Sim->particles[event.getParticle2ID()];
+
+    updateParticlePair(particle1, particle2);  
+
+    Vector rij = particle1.getPosition() - particle2.getPosition(),
+      vij = particle1.getVelocity() - particle2.getVelocity();
+
+    Sim->BCs->applyBC(rij, vij);
+
+    //Check if two particles are collapsing
+    //First, the elastic V calculation
+    double vnrm = std::fabs((rij | vij) / rij.nrm());
+    double e = ne;
+    double et = net;
+    if (vnrm < elasticV) { e = 1.0; et = -1.0; }
+  
+    //Check if a particle is collapsing on a static particle
+    if (!particle1.testState(Particle::DYNAMIC) || !particle2.testState(Particle::DYNAMIC))
+      {
+	double gnrm = g.nrm();
+	if (gnrm > 0)
+	  if (std::fabs((vij | g) / gnrm) < elasticV) 
+	    {e = 1.0;  et = -1.0; }
+      }
+  
+    //Now the tc model;
+    if (_tc > 0)
+      {
+	if ((Sim->systemTime - _tcList[particle1.getID()] < _tc) || (Sim->systemTime - _tcList[particle2.getID()] < _tc))
+	  { e = 1.0; et = -1.0; }
+      
+	_tcList[particle1.getID()] = Sim->systemTime;
+	_tcList[particle2.getID()] = Sim->systemTime;
+      }
+
+    return DynNewtonian::RoughSpheresColl(event, e, et, d1, d2, eType);
+  }
+
 
   double 
   DynGravity::getCylinderWallCollision(const Particle& part, 
-					      const Vector& wallLoc, 
-					      const Vector& wallNorm,
-					      const double& radius) const
+				       const Vector& wallLoc, 
+				       const Vector& wallNorm,
+				       const double& diameter) const
   {
-    M_throw() << "Not implemented yet";
+#ifdef DYNAMO_DEBUG
+    if (!isUpToDate(part))
+      M_throw() << "Particle is not up to date";
+#endif
+
+    Vector rij = part.getPosition() - wallLoc,
+      vij = part.getVelocity();
+    
+    Sim->BCs->applyBC(rij, vij);
+    
+    return magnet::intersection::parabola_cylinder_bfc(rij, vij, g * part.testState(Particle::DYNAMIC), wallNorm, diameter);
   }
 
   double 

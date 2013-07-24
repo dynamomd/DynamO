@@ -34,7 +34,7 @@
 
 namespace dynamo {
   IDumbbells::IDumbbells(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
-    ISingleCapture(tmp, NULL)
+    ICapture(tmp, NULL)
   {
     operator<<(XML);
   }
@@ -43,27 +43,12 @@ namespace dynamo {
   IDumbbells::initialise(size_t nID)
   {
     ID = nID; 
-    ISingleCapture::initCaptureMap();
+    ICapture::initCaptureMap();
   }
 
-  Vector IDumbbells::getGlyphSize(size_t ID, size_t subID) const
+  Vector IDumbbells::getGlyphSize(size_t ID) const
   { 
-    double l;
-    if (subID == 0)
-      l = _diamA->getProperty(ID);
-    else
-      l = _diamB->getProperty(ID);
-
-    return Vector(l,l,l);
-  }
-
-  Vector IDumbbells::getGlyphPosition(size_t ID, size_t subID) const
-  {
-    Vector pos = Sim->particles[ID].getPosition();
-    
-    Sim->BCs->applyBC(pos);
-
-    return pos + ((subID == 0) ? _LA->getProperty(ID) : -_LB->getProperty(ID)) * Sim->dynamics->getRotData(ID).orientation;
+    return Vector(_diamA->getProperty(ID), _diamB->getProperty(ID), _LA->getProperty(ID));
   }
 
   double IDumbbells::getExcludedVolume(size_t ID) const 
@@ -77,26 +62,13 @@ namespace dynamo {
   IDumbbells::operator<<(const magnet::xml::Node& XML)
   { 
     Interaction::operator<<(XML);
-  
-    try 
-      {
-	_diamA = Sim->_properties.getProperty(XML.getAttribute("DiameterA"),
-					      Property::Units::Length());
-	_diamB = Sim->_properties.getProperty(XML.getAttribute("DiameterB"),
-					      Property::Units::Length());
-	_LA = Sim->_properties.getProperty(XML.getAttribute("LA"),
-					   Property::Units::Length());
-	_LB = Sim->_properties.getProperty(XML.getAttribute("LB"),
-					   Property::Units::Length());
-	_e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-					  Property::Units::Dimensionless());
-	intName = XML.getAttribute("Name");
-	ISingleCapture::loadCaptureMap(XML);   
-      }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in CIDumbbells";
-      }
+    _diamA = Sim->_properties.getProperty(XML.getAttribute("DiameterA"), Property::Units::Length());
+    _diamB = Sim->_properties.getProperty(XML.getAttribute("DiameterB"), Property::Units::Length());
+    _LA = Sim->_properties.getProperty(XML.getAttribute("LA"), Property::Units::Length());
+    _LB = Sim->_properties.getProperty(XML.getAttribute("LB"), Property::Units::Length());
+    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
+    intName = XML.getAttribute("Name");
+    ICapture::loadCaptureMap(XML);   
   }
 
   double 
@@ -184,7 +156,7 @@ namespace dynamo {
   }
 
   void
-  IDumbbells::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
+  IDumbbells::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     PairEventData retval;
     
@@ -194,8 +166,8 @@ namespace dynamo {
 	{
 	  ++Sim->eventCount;
 	  Sim->dynamics->updateParticlePair(p1, p2);
-	  shared_ptr<SpSphericalTop> sp1 = std::tr1::dynamic_pointer_cast<SpSphericalTop>(Sim->species[p1]);
-	  shared_ptr<SpSphericalTop> sp2 = std::tr1::dynamic_pointer_cast<SpSphericalTop>(Sim->species[p2]);
+	  shared_ptr<SpSphericalTop> sp1 = std::dynamic_pointer_cast<SpSphericalTop>(Sim->species[p1]);
+	  shared_ptr<SpSphericalTop> sp2 = std::dynamic_pointer_cast<SpSphericalTop>(Sim->species[p2]);
 
 	  if (!sp1 || !sp2)
 	    M_throw() << "Could not find the intertia of one of the particles undergoing an interaction";
@@ -210,8 +182,8 @@ namespace dynamo {
 	    diamA2 = _diamA->getProperty(p2.getID()),
 	    diamB2 = _diamB->getProperty(p2.getID());
 
-	  const Vector director1 = Sim->dynamics->getRotData(p1).orientation;
-	  const Vector director2 = Sim->dynamics->getRotData(p2).orientation;
+	  const Vector director1 = Sim->dynamics->getRotData(p1).orientation * Quaternion::initialDirector();
+	  const Vector director2 = Sim->dynamics->getRotData(p2).orientation * Quaternion::initialDirector();
 	  const Vector angvel1 = Sim->dynamics->getRotData(p1).angularVelocity;
 	  const Vector angvel2 = Sim->dynamics->getRotData(p2).angularVelocity;
 
@@ -275,20 +247,18 @@ namespace dynamo {
 	  p2.getVelocity() += retval.impulse / m2;
 	  Sim->dynamics->getRotData(p1).angularVelocity -= (r1 ^ retval.impulse) / I1;
 	  Sim->dynamics->getRotData(p2).angularVelocity += (r2 ^ retval.impulse) / I2;
-	  retval.particle1_.setDeltaKE(0.5 * m1 * (p1.getVelocity().nrm2() - retval.particle1_.getOldVel().nrm2()));
-	  retval.particle2_.setDeltaKE(0.5 * m2 * (p2.getVelocity().nrm2() - retval.particle2_.getOldVel().nrm2()));
 	  break;
 	}
       case NBHOOD_IN:
 	{
-	  addToCaptureMap(p1, p2);
+	  ICapture::add(p1, p2);
 	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
 	  iEvent.setType(VIRTUAL);
 	  break;
 	}
       case NBHOOD_OUT:
 	{
-	  removeFromCaptureMap(p1, p2);
+	  ICapture::remove(p1, p2);
 	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
 	  iEvent.setType(VIRTUAL);
 	  break;
@@ -303,12 +273,11 @@ namespace dynamo {
 	M_throw() << "Unknown collision type";
       }
     
-    Sim->signalParticleUpdate(retval);
+    (*Sim->_sigParticleUpdate)(retval);
     
     Sim->ptrScheduler->fullUpdate(p1, p2);
     
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, 
-		  Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, retval);
   }
    
@@ -322,12 +291,12 @@ namespace dynamo {
 	<< magnet::xml::attr("LA") << _LA->getName()
 	<< magnet::xml::attr("LB") << _LB->getName()
 	<< magnet::xml::attr("Name") << intName
-	<< *range;
+	<< range;
 
-    ISingleCapture::outputCaptureMap(XML);
+    ICapture::outputCaptureMap(XML);
   }
 
-  bool 
+  size_t
   IDumbbells::captureTest(const Particle& p1, const Particle& p2) const
   {
     if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
@@ -346,7 +315,7 @@ namespace dynamo {
     const double l2 = std::max(lA2 + 0.5 * diamA2, lB2 + 0.5 * diamB2);
     const double max_dist = l1 + l2;
     
-    return Sim->dynamics->sphereOverlap(p1, p2, max_dist);
+    return Sim->dynamics->sphereOverlap(p1, p2, max_dist) > 0;
   }
 
   namespace {
@@ -363,13 +332,13 @@ namespace dynamo {
       lB1 = _LB->getProperty(p1.getID()),
       diamA1 = _diamA->getProperty(p1.getID()),
       diamB1 = _diamB->getProperty(p1.getID());
-    const Vector director1 = Sim->dynamics->getRotData(p1).orientation;
+    const Vector director1 = Sim->dynamics->getRotData(p1).orientation * Quaternion::initialDirector();
 
     const double lA2 = _LA->getProperty(p2.getID()),
       lB2 = _LB->getProperty(p2.getID()),
       diamA2 = _diamA->getProperty(p2.getID()),
       diamB2 = _diamB->getProperty(p2.getID());
-    const Vector director2 = Sim->dynamics->getRotData(p2).orientation;
+    const Vector director2 = Sim->dynamics->getRotData(p2).orientation * Quaternion::initialDirector();
 
     const double l1 = std::max(lA1 + 0.5 * diamA1, lB1 + 0.5 * diamB1);
     const double l2 = std::max(lA2 + 0.5 * diamA2, lB2 + 0.5 * diamB2);

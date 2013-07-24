@@ -22,26 +22,28 @@
 
 #include <dynamo/coordinator/engine/engine.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <memory>
 #include <ctime>
 
 namespace dynamo {
   /*! \brief The Replica Exchange/Parallel Tempering Engine.
-   *
-   * This Engine is quite complex, it runs several simulations at
-   * different state points simultaneously. These are halted
-   * periodically and then the configurations of the particles positions
-   * are swapped along with a rescaling of the particles velocities.
-   *
-   * This class uses the ThreadPool to parallelise the running of the
-   * simulations.
+   
+    This Engine is quite complex, it runs several simulations at
+    different state points simultaneously. These are halted
+    periodically and then the configurations of the particles
+    positions are swapped along with a rescaling of the particles
+    velocities.
+   
+    This class uses the ThreadPool to parallelise the running of the
+    simulations.
    */
   class EReplicaExchangeSimulation: public Engine
   {
   public:
     /*! \brief The only constructor.
-     *
-     * \param vm The parsed command line options held by the Coordinator.
-     * \param tp The ThreadPool for this instance of dynarun.
+     
+      \param vm The parsed command line options held by the Coordinator.
+      \param tp The ThreadPool for this instance of dynarun.
      */
     EReplicaExchangeSimulation(const boost::program_options::variables_map& vm, 
 			       magnet::thread::ThreadPool& tp);
@@ -55,7 +57,7 @@ namespace dynamo {
     virtual void runSimulation();
 
     /*! \brief Perform multiple initialisations of Simulation's and
-     * initialise the replica exchange data.
+      initialise the replica exchange data.
      */
     virtual void initialisation();
   
@@ -68,13 +70,13 @@ namespace dynamo {
     static void getOptions(boost::program_options::options_description&);
 
     /*! \brief Output the data of the Simulation's and also output
-     * statistics on the replica exchange.
+      statistics on the replica exchange.
      */
     virtual void outputData();
   
     /*! \brief Output the Simulation's configurations.
-     *
-     * The simulations are outputted with some sequential numbering.
+     
+      The simulations are outputted with some sequential numbering.
      */
     virtual void outputConfigs();
 
@@ -93,10 +95,10 @@ namespace dynamo {
     } Replex_Mode_Type;
 
     /*! \brief A structure to hold replica exchange data on a single
-     * temperature point.
-     * 
-     * This holds the detail about a temperature and the current
-     * simulation id number occupying this temperature.
+      temperature point.
+      
+      This holds the detail about a temperature and the current
+      simulation id number occupying this temperature.
      */
     struct simData
     {
@@ -108,9 +110,9 @@ namespace dynamo {
       {}
 
       /*! \brief compares simData by their contained simulation ID's
-       *
-       * This is only used to compare two simulation points at the same
-       * temperature when sorting the boxes by temperature.
+       
+        This is only used to compare two simulation points at the same
+        temperature when sorting the boxes by temperature.
        */
       bool operator<(const simData& sdat) const
       {return simID < sdat.simID; }
@@ -135,7 +137,7 @@ namespace dynamo {
 
     /*! \brief The array of Simulations being run.
      */
-    boost::scoped_array<Simulation> Simulations;
+    std::unique_ptr<Simulation[]> Simulations;
   
     /*! \brief The system time to end the Simulations at
      */
@@ -149,25 +151,26 @@ namespace dynamo {
      */
     std::vector<replexPair> temperatureList;
   
-    /*! \brief Holds the current direction/which temperature extreme the
-     * simulation last visited.
+    /*! \brief Holds the current direction/which temperature extreme
+      the simulation last visited.
      */
     std::vector<int> SimDirection;
   
     /*! \brief Just a marker set once a Simulation is making a round
-     * trip in temperatures from high to low and vice versa.
+      trip in temperatures from high to low and vice versa.
      */
     std::vector<char> roundtrip;
   
     /*! \brief Total number of replica exchange phases attempted. 
-     *
-     * The number of replica exchanges attempted varies with some types
-     * of replica exhange moves.
+      
+      The number of replica exchanges attempted varies with some types
+      of replica exhange moves.
      */
     size_t replexSwapCalls;
   
-    /*! \brief The number of systems that have made it from the highest
-     * temperature to the coldest to the highest. And cold-hot-cold trips too.
+    /*! \brief The number of systems that have made it from the
+      highest temperature to the coldest to the highest. And
+      cold-hot-cold trips too.
      */
     size_t round_trips;
 
@@ -180,7 +183,7 @@ namespace dynamo {
     boost::posix_time::ptime end_Time;
 
     /*! \brief A variable used by the AlternatingSequence
-     * Replex_Mode_Type to indicate which set of pairs to swap.
+      Replex_Mode_Type to indicate which set of pairs to swap.
      */
     bool SeqSelect;
 
@@ -195,41 +198,41 @@ namespace dynamo {
     virtual void preSimInit();
 
     /*! \brief Sets up each simulation.
-     *
-     * Ensures the systems are in the right Ensemble, have a thermostat,
-     * etc.
+     
+      Ensures the systems are in the right Ensemble, have a
+      thermostat, etc.
      */
     virtual void setupSim(Simulation&, const std::string);
 
     //Replica Exchange attempt code
 
     /*! \brief Carry out a certain type of replica exchange phase.
-     *
-     * \param localMode The type of replica exchange phase to attempt.
+     
+      \param localMode The type of replica exchange phase to attempt.
      */
     void ReplexSwap(Replex_Mode_Type localMode);
 
     /*! \brief Output sequential configuration files, sorted in
-     * temperature, for each Simulation.
+      temperature, for each Simulation.
      */
     void ReplexConfigOutput(std::vector<std::string>&);
 
-    /*! \brief Output sequential data files, sorted in
-     * temperature, for each Simulation.
-     *
-     * The output for the Replica exchange moves is also printed here
+    /*! \brief Output sequential data files, sorted in temperature,
+      for each Simulation.
+     
+      The output for the Replica exchange moves is also printed here
      */
     void ReplexDataOutput(std::vector<std::string>&);
   
     /*! \brief After every replica exchange phase this function is
-     * called to update the replica exchange data collected.
+      called to update the replica exchange data collected.
      */
     void ReplexSwapTicker();
 
     /*! \brief Attempt a replica exchange move between two configurations.
-     *
-     * \param id1 First Simulation to attempt to exchange.
-     * \param id2 Second Simulation to attempt to exchange.
+     
+      \param id1 First Simulation to attempt to exchange.
+      \param id2 Second Simulation to attempt to exchange.
      */
     void AttemptSwap(const unsigned int id1, const unsigned int id2);
   };

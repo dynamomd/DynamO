@@ -19,7 +19,6 @@
 #include <magnet/exception.hpp>
 
 #include <boost/program_options.hpp>
-#include <boost/foreach.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/bzip2.hpp>
@@ -27,7 +26,7 @@
 #include <boost/iostreams/device/back_inserter.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/filesystem.hpp>
-#include <tr1/unordered_map>
+#include <unordered_map>
 
 #include <fenv.h>
 #include <iostream>
@@ -38,7 +37,7 @@
 #include <cmath>
 #include <iomanip>
 #include <iosfwd>
-#include <tr1/array>
+#include <array>
 
 using namespace std;
 using namespace boost;
@@ -123,7 +122,7 @@ struct SimulationData
       }
 
     std::cout << "W for file " << nfn;
-    for (std::tr1::unordered_map<int, double>::iterator iPtr = _W.begin();
+    for (std::unordered_map<int, double>::iterator iPtr = _W.begin();
 	 iPtr != _W.end(); ++iPtr)
       std::cout << "\nE = " << iPtr->first * binWidth << ", W = " << iPtr->second;
     std::cout << std::endl;
@@ -163,13 +162,13 @@ struct SimulationData
   //second axis is value of X with the final entry being the probability
   struct histogramEntry
   {
-    typedef std::tr1::array<long double, NGamma> Xtype;
+    typedef std::array<long double, NGamma> Xtype;
     Xtype X;
     long double Probability;
   };
   std::vector<histogramEntry> data;
 
-  std::tr1::unordered_map<int, double> _W;
+  std::unordered_map<int, double> _W;
 
 
   //Bottom and top contain the window of systems used for the calculation
@@ -181,7 +180,7 @@ struct SimulationData
     if (top == 0) top = SimulationDataData.size() - 1;
 
     for (size_t i(bottom); i <= top; ++i)
-      BOOST_FOREACH(const histogramEntry& simdat, SimulationDataData[i].data)
+      for (const histogramEntry& simdat : SimulationDataData[i].data)
 	{
 	  long double sum2 = 0.0;
 
@@ -238,7 +237,7 @@ struct SimulationData
 
   inline double W(double E) const 
   { 
-    std::tr1::unordered_map<int, double>::const_iterator 
+    std::unordered_map<int, double>::const_iterator 
       iPtr = _W.find(lrint(E / binWidth));
     if (iPtr != _W.end())
       return -iPtr->second;
@@ -315,7 +314,7 @@ solveWeightsPiecemeal()
 
   for (size_t pieceSize = startingPieceSize; pieceSize < stoppingPieceSize; pieceSize += 5)
     {
-      BOOST_FOREACH(SimulationData& simdat, SimulationDataData)
+      for (SimulationData& simdat : SimulationDataData)
 	simdat.refZ = false;
 
       //Set the first system as the reference point
@@ -339,7 +338,7 @@ solveWeightsPiecemeal()
 	}
     }
   
-  BOOST_FOREACH(SimulationData& simdat, SimulationDataData)
+  for (SimulationData& simdat : SimulationDataData)
     simdat.refZ = false;
 
   //Set the first system as the reference point
@@ -361,16 +360,16 @@ void calcDensityOfStates()
   std::cout << "Density of states\n";
 
   //Sum up the histogram entries for each value of X
-  BOOST_FOREACH(const SimulationData& dat, SimulationDataData)
-    BOOST_FOREACH(const SimulationData::histogramEntry& simdat, dat.data)
+  for (const SimulationData& dat : SimulationDataData)
+    for (const SimulationData::histogramEntry& simdat : dat.data)
     accumilator[simdat.X] += simdat.Probability;
 
   //For each X, calculate the density of states
-  BOOST_FOREACH(const densOStatesPair& dat, accumilator)
+  for (const densOStatesPair& dat : accumilator)
     {
       //First work out the divisor
       long double sum = 0.0;
-      BOOST_FOREACH(const SimulationData& dat2, SimulationDataData)
+      for (const SimulationData& dat2 : SimulationDataData)
 	{
 	  long double tmp = 0;
 
@@ -398,7 +397,7 @@ void outputDensityOfStates()
 
   of << std::setprecision(std::numeric_limits<long double>::digits10);
 
-  BOOST_FOREACH(const densOStatesPair& dat, densOStates)
+  for (const densOStatesPair& dat : densOStates)
     {
       for (size_t i(0); i < NGamma; ++i)
 	of << dat.first[i] << " " ;
@@ -417,7 +416,7 @@ void outputLogZ()
 
   of << std::setprecision(std::numeric_limits<long double>::digits10);
 
-  BOOST_FOREACH(const SimulationData& dat, SimulationDataData)
+  for (const SimulationData& dat : SimulationDataData)
     of << dat.gamma[0] << " " << dat.logZ << "\n";
 
   of.close();
@@ -429,7 +428,7 @@ void outputMoments()
   std::cout << "Calculating  moments\n";
   typedef std::pair<long double, long double> localpair;
   
-  BOOST_FOREACH(const SimulationData& dat, SimulationDataData)
+  for (const SimulationData& dat : SimulationDataData)
     {
       std::cout << "Writing " + (dat.fileName + std::string(".ReweightedEnergyHist"))
 		<< "\n";
@@ -441,7 +440,7 @@ void outputMoments()
       //Calc Z
       long double Z = 0.0;
 
-      BOOST_FOREACH(const densOStatesPair& dat2, densOStates)
+      for (const densOStatesPair& dat2 : densOStates)
 	{
 	  long double tmp(0);
 	  for (size_t i(0); i < NGamma; ++i)
@@ -454,7 +453,7 @@ void outputMoments()
       
       //Now calc the normalisation, or first moment
       long double Norm = 0.0;
-      BOOST_FOREACH(const densOStatesPair& dat2, densOStates)
+      for (const densOStatesPair& dat2 : densOStates)
 	{
 	  long double tmp(0);
 	  for (size_t i(0); i < NGamma; ++i)
@@ -463,7 +462,7 @@ void outputMoments()
 	  Norm += std::exp(std::log(dat2.second) + tmp - Z);
 	}
 
-      BOOST_FOREACH(const densOStatesPair& dat2, densOStates)
+      for (const densOStatesPair& dat2 : densOStates)
 	{
 	  long double tmp(0);
 
@@ -497,7 +496,7 @@ void outputMoments()
 
 	//Calc Z
 	long double Z = 0.0;
-	BOOST_FOREACH(const densOStatesPair& dat, densOStates)
+	for (const densOStatesPair& dat : densOStates)
 	  {
 	    //ERROR! Not generalised for multipe Histogram arguments!
 	    Z += exp (log(dat.second) + Beta * dat.first[0]);
@@ -510,7 +509,7 @@ void outputMoments()
 	long double Eavg = 0.0;
 	long double E2avg = 0.0;
 	
-	BOOST_FOREACH(const densOStatesPair& dat, densOStates)
+	for (const densOStatesPair& dat : densOStates)
 	  {
 	    //ERROR! Not generalised for multipe Histogram arguments!
 	    long double temp = exp(log(dat.second) + Beta * dat.first[0] - Z);
@@ -569,8 +568,10 @@ main(int argc, char *argv[])
 	    << "under certain conditions. See the licence you obtained with\n"
 	    << "the code\n";
 
+#if !defined(__APPLE__)
   //This is so the program crashes out when floating point errors occur
   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);
+#endif
 
   try {
     namespace po = boost::program_options;
@@ -604,10 +605,10 @@ main(int argc, char *argv[])
     NStepsPerStep = vm["NSteps"].as<size_t>();
 
     //Data load
-    BOOST_FOREACH(std::string fileName, vm["data-file"].as<std::vector<std::string> >())
+    for (std::string fileName : vm["data-file"].as<std::vector<std::string> >())
       SimulationDataData.push_back(SimulationData(fileName));
 
-    BOOST_FOREACH(const SimulationData& dat, SimulationDataData)
+    for (const SimulationData& dat : SimulationDataData)
       if (dat.binWidth != SimulationDataData.front().binWidth)
 	{
 	  std::cout << "Not all of the output files have the same bin width for the internal energy histograms!\n Aborting\n\n";
@@ -635,13 +636,13 @@ main(int argc, char *argv[])
 
     //Output ordered sims
     std::cout << "##################################################\n";
-    BOOST_FOREACH(const SimulationData& dat, SimulationDataData)
+    for (const SimulationData& dat : SimulationDataData)
       std::cout << dat.fileName << " NData = " << dat.data.size() << " gamma[0] = " << dat.gamma[0] << "\n";
 
     solveWeightsPiecemeal();
     
     std::cout << "##################################################\n";
-    BOOST_FOREACH(const SimulationData& dat, SimulationDataData)
+    for (const SimulationData& dat : SimulationDataData)
       std::cout << dat.fileName << " logZ = " << dat.logZ << "\n";
 
     //Now start the fun

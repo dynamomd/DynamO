@@ -17,7 +17,9 @@
     <Topology/>
     <SystemEvents/>
     <Globals>
-      <Global Type="Cells" Lambda="9.00000000000000e-01" Name="SchedulerNBList"/>
+      <Global Type="Cells" Lambda="9.00000000000000e-01" Name="SchedulerNBList">
+	<IDRange Type="All"/>
+      </Global>
     </Globals>
     <Locals>
     </Locals>

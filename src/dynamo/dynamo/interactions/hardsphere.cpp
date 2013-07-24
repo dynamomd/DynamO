@@ -39,40 +39,47 @@ namespace dynamo {
 
   void 
   IHardSphere::initialise(size_t nID)
-  { ID=nID; }
+  { 
+    ID=nID; 
+    _complete_events = 0;
+    _post_event_overlap = 0;
+    _accum_overlap_magnitude = 0;
+    _overlapped_tests = 0;
+  }
 
   void 
   IHardSphere::operator<<(const magnet::xml::Node& XML)
   { 
     Interaction::operator<<(XML);
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
+
+    if (XML.hasAttribute("Elasticity"))
+      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
+    
+    if (XML.hasAttribute("TangentialElasticity"))
+      _et = Sim->_properties.getProperty(XML.getAttribute("TangentialElasticity"), Property::Units::Dimensionless());
+      
+    intName = XML.getAttribute("Name");
+  }
   
-    try 
-      {
-	_diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
-						 Property::Units::Length());
-	_e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-					  Property::Units::Dimensionless());
-	intName = XML.getAttribute("Name");
-      }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in CIHardSphere";
-      }
+  void 
+  IHardSphere::outputData(magnet::xml::XmlStream& XML) const
+  {
+    XML << magnet::xml::tag("Interaction")
+	<< magnet::xml::attr("Name") << getName()
+	<< magnet::xml::attr("PostEventOverlaps") << _post_event_overlap
+	<< magnet::xml::attr("AvgPostEventOverlapMagnitude") << _accum_overlap_magnitude / (_post_event_overlap *  Sim->units.unitLength())
+	<< magnet::xml::attr("Events") << _complete_events
+	<< magnet::xml::attr("OverlapFreq") << double(_post_event_overlap) / double(_complete_events)
+	<< magnet::xml::attr("OverlappedTests") << _overlapped_tests
+	<< magnet::xml::endtag("Interaction");
   }
 
   Vector
-  IHardSphere::getGlyphSize(size_t ID, size_t subID) const
-  { 
+  IHardSphere::getGlyphSize(size_t ID) const
+  {
     double diam = _diameter->getProperty(ID);
-    return Vector(diam, diam, diam); 
-  }
-
-  Vector 
-  IHardSphere::getGlyphPosition(size_t ID, size_t subID) const
-  { 
-    Vector retval = Sim->particles[ID].getPosition();
-    Sim->BCs->applyBC(retval);
-    return retval;
+    return Vector(diam, diam, diam);
   }
 
   double 
@@ -105,6 +112,8 @@ namespace dynamo {
 
     double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 
+    if (Sim->dynamics->sphereOverlap(p1, p2, d)) ++_overlapped_tests;
+
     if (dt != HUGE_VAL)
       return IntEvent(p1, p2, dt, CORE, *this);
   
@@ -112,26 +121,41 @@ namespace dynamo {
   }
 
   void
-  IHardSphere::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
+  IHardSphere::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
 
-    double d2 = (_diameter->getProperty(p1.getID())
-		 + _diameter->getProperty(p2.getID())) * 0.5;
-    d2 *= d2;
+    const double d1 = _diameter->getProperty(p1.getID());
+    const double d2 = _diameter->getProperty(p2.getID());
+    const double d = 0.5 * (d1 + d2);
 
-    double e = (_e->getProperty(p1.getID())
-		+ _e->getProperty(p2.getID())) * 0.5;
+    double e = 1.0;
+    if (_e) e = (_e->getProperty(p1.getID()) + _e->getProperty(p2.getID())) * 0.5;
+   
+    PairEventData EDat;
+    if (_et)
+      {
+	const double et = (_et->getProperty(p1.getID()) + _et->getProperty(p2.getID())) * 0.5;
+	EDat = Sim->dynamics->RoughSpheresColl(iEvent, e, et, d1, d2);
+      }
+    else
+      EDat = Sim->dynamics->SmoothSpheresColl(iEvent, e, d * d); 
 
-    PairEventData EDat
-      (Sim->dynamics->SmoothSpheresColl(iEvent, e, d2)); 
+    (*Sim->_sigParticleUpdate)(EDat);
 
-    Sim->signalParticleUpdate(EDat);
+    const double overlap = Sim->dynamics->sphereOverlap(p1, p2, d);
+    if (overlap)
+      {
+	++_post_event_overlap;
+	_accum_overlap_magnitude += overlap;
+      }
 
+    ++_complete_events;
+    
     //Now we're past the event, update the scheduler and plugins
     Sim->ptrScheduler->fullUpdate(p1, p2);
   
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent,EDat);
   }
    
@@ -139,17 +163,17 @@ namespace dynamo {
   IHardSphere::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Type") << "HardSphere"
-	<< magnet::xml::attr("Diameter") << _diameter->getName()
-	<< magnet::xml::attr("Elasticity") << _e->getName()
-	<< magnet::xml::attr("Name") << intName
-	<< *range;
+	<< magnet::xml::attr("Diameter") << _diameter->getName();
+    if (_e) XML << magnet::xml::attr("Elasticity") << _e->getName();
+    if (_et) XML << magnet::xml::attr("TangentialElasticity") << _et->getName();
+    XML << magnet::xml::attr("Name") << intName
+	<< range;
   }
 
   bool
   IHardSphere::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    double d = (_diameter->getProperty(p1.getID())
-		 + _diameter->getProperty(p2.getID())) * 0.5;
+    double d = (_diameter->getProperty(p1.getID()) + _diameter->getProperty(p2.getID())) * 0.5;
     
     if (Sim->dynamics->sphereOverlap(p1, p2, d))
       {

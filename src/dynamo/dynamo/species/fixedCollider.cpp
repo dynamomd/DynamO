@@ -16,7 +16,6 @@
 */
 
 #include <dynamo/species/fixedCollider.hpp>
-#include <boost/foreach.hpp>
 #include <dynamo/simulation.hpp>
 #include <magnet/xmlreader.hpp>
 
@@ -26,7 +25,7 @@ namespace dynamo {
   {
     SpPoint::initialise();
 
-    BOOST_FOREACH(size_t ID, *range)
+    for (size_t ID : *range)
       Sim->particles[ID].clearState(Particle::DYNAMIC);
   }
 
@@ -34,15 +33,8 @@ namespace dynamo {
   SpFixedCollider::operator<<(const magnet::xml::Node& XML)
   {
     range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
-  
-    try {
-      spName = XML.getAttribute("Name");
-      intName = XML.getAttribute("IntName");
-    } 
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in SpFixedCollider";
-      }
+    spName = XML.getAttribute("Name");
+    intName = XML.getAttribute("IntName");
   }
 
   void 

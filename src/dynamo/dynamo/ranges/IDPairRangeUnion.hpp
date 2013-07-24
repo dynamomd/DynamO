@@ -19,7 +19,6 @@
 #include <dynamo/ranges/IDPairRange.hpp>
 #include <dynamo/base.hpp>
 #include <dynamo/particle.hpp>
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <list>
@@ -34,23 +33,16 @@ namespace dynamo {
     IDPairRangeUnion(const magnet::xml::Node& XML, const dynamo::Simulation* nSim):
       SimBase_const(nSim, "IDPairRangeUnion")
     {
-      try 
+      for (magnet::xml::Node node = XML.fastGetNode("IDPairRange"); node.valid(); ++node)
 	{
-	  for (magnet::xml::Node node = XML.fastGetNode("IDPairRange"); node.valid(); ++node)
-	    {
-	      shared_ptr<IDPairRange> ptr(IDPairRange::getClass(node, Sim));
-	      ranges.push_back(ptr);
-	    }
-	}
-      catch (boost::bad_lexical_cast &)
-	{
-	  M_throw() << "Failed a lexical cast in IDPairRangeUnion";
+	  shared_ptr<IDPairRange> ptr(IDPairRange::getClass(node, Sim));
+	  ranges.push_back(ptr);
 	}
     }
     
     virtual bool isInRange(const Particle&p1, const Particle&p2) const
     {
-      BOOST_FOREACH(const shared_ptr<IDPairRange>& rPtr, ranges)
+      for (const shared_ptr<IDPairRange>& rPtr : ranges)
 	if (rPtr->isInRange(p1,p2))
 	  return true;
   
@@ -65,7 +57,7 @@ namespace dynamo {
     {
       XML << magnet::xml::attr("Type") << "Union";
 
-      BOOST_FOREACH(const shared_ptr<IDPairRange>& rPtr, ranges)
+      for (const shared_ptr<IDPairRange>& rPtr : ranges)
 	XML << rPtr;
     }
 

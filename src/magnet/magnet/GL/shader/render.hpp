@@ -47,7 +47,7 @@ smooth out vec3 normal;
 smooth out vec3 position;
 
 vec3 qrot(vec4 q, vec3 v)
-{ return v + 2.0 * cross(cross(v,q.xyz) + q.w * v, q.xyz); } 
+{ return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v); } 
 
 void main()
 {
@@ -90,6 +90,29 @@ void main()
 
   normal_out = vec4(outnormal, 1.0);
   position_out = vec4(position, 1.0);
+});
+	}
+      };
+
+      class RenderVSMShader: public RenderShader
+      {
+      public:
+	virtual std::string initFragmentShaderSource()
+	{
+	  return STRINGIFY(
+uniform mat4 ProjectionMatrix;
+smooth in vec3 position;
+
+layout (location = 0) out vec4 moments_out;
+
+void main()
+{
+  float moment1 = length(position);
+  float moment2 = moment1 * moment1;
+  float dx = dFdx(moment1);
+  float dy = dFdy(moment1);
+  moment2 += 0.25 * (dx * dx + dy * dy);
+  moments_out = vec4(moment1, moment2, 0.0, 1.0);
 });
 	}
       };

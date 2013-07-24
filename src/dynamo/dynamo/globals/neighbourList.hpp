@@ -36,54 +36,8 @@ namespace dynamo {
     other parts of DynamO can be updated when a particle changes
     neighbours.
    */
-  class GNeighbourList: public Global
+  class GNeighbourList: public Global, magnet::Tracked
   {
-  public:
-    /*! \brief The type of function that can be registered for callbacks
-     * when new neighbours of a particle have appeared. 
-     */
-    typedef magnet::function::Delegate2
-    <const Particle&, const size_t&, void> nbHoodFunc;
-
-    /*! \brief The type of function that is called back when asking
-      for neighbors around a point.
-     */
-    typedef magnet::function::Delegate1
-    <const size_t&, void> nbHoodFunc2;
-  
-    /*! \brief The type of function that can be registered for callbacks
-     * when the neighbourlist is reinitialized.
-     */
-    typedef magnet::function::Delegate0<void> initFunc;  
-  protected:
-    typedef std::pair<size_t, nbHoodFunc> nbHoodSlot;
-
-    typedef std::pair<size_t, initFunc> initSlot;
-
-    struct nbHoodSlotEraser
-    {
-      nbHoodSlotEraser(const size_t& id_in): 
-	id(id_in)
-      {}
-
-      bool operator()(const nbHoodSlot& nbs) const
-      { return  nbs.first == id; } 
-
-      size_t id;
-    };
-
-    struct initSlotEraser
-    {
-      initSlotEraser(const size_t& id_in): 
-	id(id_in)
-      {}
-
-      bool operator()(const initSlot& nbs) const
-      { return  nbs.first == id; } 
-
-      size_t id;
-    };
-
   public:
     GNeighbourList(dynamo::Simulation* a, const char *b): 
       Global(a, b),
@@ -95,68 +49,6 @@ namespace dynamo {
 
     virtual IDRangeList getParticleNeighbours(const Particle&) const = 0;
     virtual IDRangeList getParticleNeighbours(const Vector&) const = 0;
-
-    template<class T> size_t
-    ConnectSigCellChangeNotify
-    (void (T::*func)(const Particle&, const size_t&)const , const T* tp) const 
-    {    
-      sigCellChangeNotify.push_back
-	(nbHoodSlot(++sigCellChangeNotifyCount, 
-		    nbHoodFunc(tp, func)));
-    
-      return sigCellChangeNotifyCount; 
-    }
-
-    inline void
-    DisconnectSigCellChangeNotify(const size_t& id) const 
-    {    
-      sigCellChangeNotify.erase
-	(std::remove_if(sigCellChangeNotify.begin(),
-			sigCellChangeNotify.end(),
-			nbHoodSlotEraser(id)), 
-	 sigCellChangeNotify.end());
-    }
-
-    template<class T> size_t
-    ConnectSigNewNeighbourNotify
-    (void (T::*func)(const Particle&, const size_t&) const, const T* tp) const 
-    {    
-      sigNewNeighbourNotify.push_back
-	(nbHoodSlot(++sigNewNeighbourNotifyCount, 
-		    nbHoodFunc(tp, func)));
-    
-      return sigNewNeighbourNotifyCount; 
-    }
-
-    inline void
-    DisconnectSigNewNeighbourNotify(const size_t& id) const 
-    {    
-      sigNewNeighbourNotify.erase
-	(std::remove_if(sigNewNeighbourNotify.begin(),
-			sigNewNeighbourNotify.end(),
-			nbHoodSlotEraser(id)), 
-	 sigNewNeighbourNotify.end());
-    }
-    
-    template<class T> size_t
-    ConnectSigReInitNotify(void (T::*func)(), T* tp) const 
-    {    
-      sigReInitNotify.push_back
-	(initSlot(++sigReInitNotifyCount, 
-		  getInitDelegate(func,tp)));
-    
-      return sigReInitNotifyCount; 
-    }
-
-    inline void
-    DisconnectSigReInitNotify(const size_t& id) const 
-    {    
-      sigReInitNotify.erase
-	(std::remove_if(sigReInitNotify.begin(),
-			sigReInitNotify.end(),
-			initSlotEraser(id)), 
-	 sigReInitNotify.end());
-    }
 
     /*! \brief This returns the maximum interaction length this
       neighbourlist supports.
@@ -205,6 +97,10 @@ namespace dynamo {
     double getMaxInteractionRange() const
     { return _maxInteractionRange; }
 
+    mutable magnet::Signal<void(const Particle&, const size_t&)> _sigNewNeighbour;
+    mutable magnet::Signal<void(const Particle&, const size_t&)> _sigCellChange;
+    mutable magnet::Signal<void()> _sigReInitialise;
+
   protected:
     bool _initialised;
     double _maxInteractionRange;
@@ -212,20 +108,6 @@ namespace dynamo {
     GNeighbourList(const GNeighbourList&);
 
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
-
-  
-    //Signals
-    mutable size_t sigCellChangeNotifyCount;
-    mutable std::vector<nbHoodSlot>
-    sigCellChangeNotify;
-
-    mutable size_t sigNewNeighbourNotifyCount;
-    mutable std::vector<nbHoodSlot>
-    sigNewNeighbourNotify;
-
-    mutable size_t sigReInitNotifyCount;
-    mutable std::vector<initSlot> 
-    sigReInitNotify;
 
     bool isUsedInScheduler;
     double lambda; 

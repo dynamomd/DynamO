@@ -28,32 +28,48 @@ namespace coil {
   { deinit(); }
 
   void 
-  RTriangles::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
+  RTriangles::init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
   { 
     RenderObj::init(systemQueue); 
     initGTK(); 
     _renderShader.build(); 
+    _renderVSMShader.build(); 
   }
 
   void 
-  RTriangles::glRender(const magnet::GL::Camera& cam, RenderMode mode)
+  RTriangles::glRender(const magnet::GL::Camera& cam, RenderMode mode, const uint32_t offset)
   {
     if (!_visible) return;
 
-    _renderShader.attach();
-    _renderShader["ProjectionMatrix"] = cam.getProjectionMatrix();
-    _renderShader["ViewMatrix"] = cam.getViewMatrix();
+    magnet::GL::Buffer<GLubyte> _pickingColorBuff;
+    if (mode & RenderObj::PICKING)
+      {
+	size_t N = (_posBuff.size() / 3);
+	std::vector<GLubyte> vertexColors;
+	vertexColors.reserve(N * 4);
+	
+	for (size_t i(offset); i < N + offset; ++i)
+	  {
+	    vertexColors.push_back((i >>  0) & 0xFF);
+	    vertexColors.push_back((i >>  8) & 0xFF);
+	    vertexColors.push_back((i >> 16) & 0xFF);
+	    vertexColors.push_back((i >> 24) & 0xFF);
+	  }
+	
+	_pickingColorBuff.init(vertexColors, 4, magnet::GL::buffer_usage::STREAM_DRAW);
+	_pickingColorBuff.attachToColor();
+      }
+    else
+      _colBuff.attachToColor();
+
+    using namespace magnet::GL::shader::detail;
+    Shader& shader = (mode == RenderObj::SHADOW) ? static_cast<Shader&>(_renderVSMShader) : static_cast<Shader&>(_renderShader);
+    shader.attach();
+    shader["ProjectionMatrix"] = cam.getProjectionMatrix();
+    shader["ViewMatrix"] = cam.getViewMatrix();
 
     _posBuff.getContext()->cleanupAttributeArrays();
-
-    if (mode == PICKING_PASS)
-      _pickingColorBuff.attachToColor();
-    else if (_colBuff.size())
-      _colBuff.attachToColor();
-    
-    if (_normBuff.size())
-      _normBuff.attachToNormal();
-  
+    if (_normBuff.size()) _normBuff.attachToNormal();
     _posBuff.attachToVertex();
   
     switch (_RenderMode)
@@ -68,11 +84,11 @@ namespace coil {
 	_specialElementBuff.drawElements(magnet::GL::element_type::POINTS);
 	break;
       }
-    _renderShader.detach();
+    shader.detach();
   }
 
   void 
-  RTriangles::setGLColors(std::vector<GLubyte>& VertexColor)
+  RTriangles::setGLColors(const std::vector<GLubyte>& VertexColor)
   {
     if (!VertexColor.size())
       throw std::runtime_error("VertexColor.size() == 0!");
@@ -85,7 +101,7 @@ namespace coil {
   }
 
   void 
-  RTriangles::setGLPositions(std::vector<float>& VertexPos)
+  RTriangles::setGLPositions(const std::vector<float>& VertexPos)
   {
     if (!VertexPos.size())
       throw std::runtime_error("VertexPos.size() == 0!");
@@ -105,7 +121,7 @@ namespace coil {
   }
 
   void 
-  RTriangles::setGLNormals(std::vector<float>& VertexNormals)
+  RTriangles::setGLNormals(const std::vector<float>& VertexNormals)
   {
     if (!VertexNormals.size())
       throw std::runtime_error("VertexNormals.size() == 0!");
@@ -121,7 +137,7 @@ namespace coil {
   }
 
   void 
-  RTriangles::setGLElements(std::vector<GLuint>& Elements)
+  RTriangles::setGLElements(const std::vector<GLuint>& Elements)
   {
     if (!Elements.size())
       throw std::runtime_error("Elements.size() == 0!");
@@ -141,6 +157,7 @@ namespace coil {
     _elementBuff.deinit();
     _specialElementBuff.deinit();
     _renderShader.deinit();
+    _renderVSMShader.deinit();
   }
 
   void 
@@ -263,29 +280,5 @@ namespace coil {
 	  }
       }
     _RenderMode = rm;
-  }
-
-  void 
-  RTriangles::pickingRender(const magnet::GL::Camera& cam, const uint32_t offset)
-  {
-    size_t N = (_posBuff.size() / 3);
-
-    if(_pickingColorBuff.size() !=  N * 4)
-      {
-	std::vector<GLubyte> vertexColors;
-	vertexColors.reserve(N * 4);
-      
-	for (size_t i(offset); i < N + offset; ++i)
-	  {
-	    vertexColors.push_back((i >>  0) & 0xFF);
-	    vertexColors.push_back((i >>  8) & 0xFF);
-	    vertexColors.push_back((i >> 16) & 0xFF);
-	    vertexColors.push_back((i >> 24) & 0xFF);
-	  }
-      
-	_pickingColorBuff.init(vertexColors, 4, magnet::GL::buffer_usage::STREAM_DRAW);
-      }
-
-    RTriangles::glRender(cam, PICKING_PASS);
   }
 }

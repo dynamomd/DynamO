@@ -18,11 +18,9 @@ import feature ;
 import ../magnet/jam/builddep ;
 import ../magnet/jam/tags ;
 
-SHELL "touch src/dynamo/tests/* " ;
-
 feature.feature coil-integration : yes no : symmetric ;
 
-#Dependency tests
+##### Dependency tests
 obj boost_header_test : tests/boost_test.cpp ;
 obj boost_filesystem_test : tests/boost_test.cpp /system//boost_filesystem ;
 obj boost_program_options_test : tests/boost_test.cpp /system//boost_program_options ;
@@ -41,13 +39,10 @@ project	: requirements
 
 exe dynamoDependencies : tests/buildreq.cpp : <dynamo-buildable>no:<define>BUILDFAIL ;
 
-lib dynamo_core : [ glob-tree *.cpp : programs tests ]
-      /magnet//magnet /system//boost_filesystem /system//boost_program_options /system//boost_iostreams /system//rt 
-    : <include>. <dynamo-buildable>no:<build>no
-      <variant>debug:<define>DYNAMO_DEBUG <link>static
-      <coil-integration>yes:<source>/coil//coil/<link>static
-      <coil-integration>yes:<define>DYNAMO_visualizer
-    : : <variant>debug:<define>DYNAMO_DEBUG <threading>multi <link>static <include>.
+alias dynamo_core : [ glob-tree *.cpp : programs tests ]
+      /magnet//magnet /system//boost_filesystem /system//boost_program_options /system//boost_iostreams
+    : <coil-integration>yes:<source>/coil//coil/<link>static
+    : : <variant>debug:<define>DYNAMO_DEBUG <threading>multi <include>. <coil-integration>yes:<define>DYNAMO_visualizer <include>. <dynamo-buildable>no:<build>no
     ;
 
 exe dynarun : programs/dynarun.cpp dynamo_core/<coil-integration>no
@@ -58,15 +53,19 @@ exe dynavis : programs/dynarun.cpp dynamo_core/<coil-integration>yes
       <coil-support>no:<build>no <tag>@tags.exe-naming <coil-integration>yes
     ;
 
+exe dynapotential : programs/dynapotential.cpp dynamo_core/<coil-integration>no
+    : <dynamo-buildable>no:<build>no <tag>@tags.exe-naming <coil-integration>no
+    ;
+
 exe dynahist_rw : programs/dynahist_rw.cpp dynamo_core/<coil-integration>no
     : <coil-integration>no <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 
 exe dynamod : programs/dynamod.cpp dynamo_core/<coil-integration>no
     : <coil-integration>no <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 
-explicit dynamod dynahist_rw dynarun dynamo_core visualizer test ;
+explicit dynamod dynahist_rw dynarun dynapotential dynamo_core visualizer test ;
 
 install install-dynamo
-	: dynarun  dynahist_rw dynamod dynavis
+	: dynarun dynahist_rw dynamod dynavis dynapotential programs/dynatransport programs/dynarmsd programs/dynamaprmsd
 	: <location>$(BIN_INSTALL_PATH) <dynamo-buildable>no:<build>no <coil-support>yes:<source>dynavis
 	;

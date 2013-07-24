@@ -19,7 +19,7 @@
 #include <dynamo/systems/andersenThermostat.hpp>
 #include <dynamo/dynamics/compression.hpp>
 #include <dynamo/BC/PBC.hpp>
-#include <dynamo/outputplugins/0partproperty/misc.hpp>
+#include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/dynamics/multicanonical.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
@@ -32,10 +32,11 @@ namespace dynamo {
     bool hasThermostat = false; 
 
     try {
-      hasThermostat = std::tr1::dynamic_pointer_cast<SysAndersen>(Sim.systems["Thermostat"]); 
+      std::shared_ptr<SysAndersen> thermoptr = std::dynamic_pointer_cast<SysAndersen>(Sim.systems["Thermostat"]);
+      hasThermostat = bool(thermoptr);
     } catch (std::exception & err) {}
     
-    //bool periodic = std::tr1::dynamic_pointer_cast<BCPeriodic>(Sim.BCs);
+    //bool periodic = std::dynamic_pointer_cast<BCPeriodic>(Sim.BCs);
     
     if (hasThermostat)
       return shared_ptr<Ensemble>(new EnsembleNVT(&Sim));
@@ -58,10 +59,10 @@ namespace dynamo {
 	     << "\nE=" << EnsembleVals[2] / Sim->units.unitEnergy() << std::endl;
   }
 
-  std::tr1::array<double,3> 
+  std::array<double,3> 
   EnsembleNVE::getReducedEnsembleVals() const
   {
-    std::tr1::array<double,3> retval;
+    std::array<double,3> retval;
     retval[0] = EnsembleVals[0];
     retval[1] = EnsembleVals[1] / Sim->units.unitVolume();
     retval[2] = EnsembleVals[2] / Sim->units.unitEnergy();
@@ -84,22 +85,22 @@ namespace dynamo {
       }
     
     //Only one kind of thermostat so far!
-    if (!std::tr1::dynamic_pointer_cast<SysAndersen>(thermostat))
+    if (!std::dynamic_pointer_cast<SysAndersen>(thermostat))
       {
 	M_throw() << "Could not upcast thermostat to Andersens";
       }    
     
-    EnsembleVals[2] = std::tr1::dynamic_pointer_cast<SysAndersen>(thermostat)->getTemperature();
+    EnsembleVals[2] = std::dynamic_pointer_cast<SysAndersen>(thermostat)->getTemperature();
     
     dout << "NVT Ensemble initialised\nN=" << EnsembleVals[0]
 	     << "\nV=" << EnsembleVals[1] / Sim->units.unitVolume()
 	     << "\nT=" << EnsembleVals[2] / Sim->units.unitEnergy() << std::endl;
   }
 
-  std::tr1::array<double,3> 
+  std::array<double,3> 
   EnsembleNVT::getReducedEnsembleVals() const
   {
-    std::tr1::array<double,3> retval;
+    std::array<double,3> retval;
     retval[0] = EnsembleVals[0];
     retval[1] = EnsembleVals[1] / Sim->units.unitVolume();
     retval[2] = EnsembleVals[2] / Sim->units.unitEnergy();
@@ -127,13 +128,13 @@ namespace dynamo {
     //This is -\Delta in the Sugita_Okamoto paper
     double factor = (E1 - E2) * (beta1 - beta2);
     
-    if (std::tr1::dynamic_pointer_cast<DynNewtonianMC>(Sim->dynamics))
+    if (std::dynamic_pointer_cast<DynNewtonianMC>(Sim->dynamics))
       {
 	factor += static_cast<const DynNewtonianMC&>(*Sim->dynamics).W(E1);
 	factor -= static_cast<const DynNewtonianMC&>(*Sim->dynamics).W(E2);
       }
 
-    if (std::tr1::dynamic_pointer_cast<DynNewtonianMC>(ensemble2.Sim->dynamics))
+    if (std::dynamic_pointer_cast<DynNewtonianMC>(ensemble2.Sim->dynamics))
       {
 	factor += static_cast<const DynNewtonianMC&>(*ensemble2.Sim->dynamics).W(E2);
 	factor -= static_cast<const DynNewtonianMC&>(*ensemble2.Sim->dynamics).W(E1);

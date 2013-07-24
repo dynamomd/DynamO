@@ -20,7 +20,7 @@
 #include <dynamo/eventtypes.hpp>
 #include <dynamo/particle.hpp>
 #include <dynamo/simulation.hpp>
-#include <magnet/math/matrix.hpp>
+#include <magnet/math/quaternion.hpp>
 
 namespace xml { class XmlStream; }
 namespace dynamo {
@@ -60,8 +60,8 @@ namespace dynamo {
   public:  
     struct rotData
     {
-      Vector  orientation;
-      Vector  angularVelocity;
+      Quaternion orientation;
+      Vector angularVelocity;
     };
 
     Dynamics(dynamo::Simulation* tmp):
@@ -493,6 +493,7 @@ namespace dynamo {
     virtual PairEventData RoughSpheresColl(const IntEvent& event, 
 					   const double& e, 
 					   const double& et, 
+					   const double& d1, 
 					   const double& d2, 
 					   const EEventType& eType = CORE
 					   ) const;
@@ -547,11 +548,13 @@ namespace dynamo {
       \param deltaKE The kinetic energy change of the particles if the
       well/shoulder is transitioned.
       \param d2 The square of the interaction distance.
+      \param newstate The new state of the particle pair.
       \return The event data.
      */  
     virtual PairEventData SphereWellEvent(const IntEvent& event, 
 					  const double& deltaKE, 
-					  const double& d2) const = 0;
+					  const double& d2,
+					  const size_t newstate) const = 0;
 
     /*! \brief Reassigns the velocity componets of a particle from a
       Gaussian.
@@ -590,7 +593,7 @@ namespace dynamo {
     {
       //May as well take this opportunity to reset the streaming
       //Note: the Replexing coordinator RELIES on this behaviour!
-      BOOST_FOREACH(Particle& part, Sim->particles)
+      for (Particle& part : Sim->particles)
 	{
 	  streamParticle(part, part.getPecTime() + partPecTime);
 	  part.getPecTime() = 0;
@@ -646,10 +649,10 @@ namespace dynamo {
     {
       partPecTime += dt;
 
-      //Keep the magnitude of the partPecTime boundedx
+      //Keep the magnitude of the partPecTime bounded
       if (++streamCount == streamFreq)
 	{
-	  BOOST_FOREACH(Particle& part, Sim->particles)
+	  for (Particle& part : Sim->particles)
 	    part.getPecTime() += partPecTime;
 
 	  partPecTime = 0;
@@ -701,7 +704,7 @@ namespace dynamo {
       \param ToI The mean square gaussian angular velocity to
       assign. AKA k_B T / I
      */
-    void initOrientations(double ToI);
+    void initOrientations(double kbT = 1.0);
 
     /* \brief Method to safely calculate the Centre of Mass position
        and velocity of a group of particles.

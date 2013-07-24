@@ -37,7 +37,7 @@ namespace dynamo {
     sysName = "GlobalCellsCompressionHack";
     type = NON_EVENT;
 
-    if (!std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->globals[cellID]))
+    if (!std::dynamic_pointer_cast<GNeighbourList>(Sim->globals[cellID]))
       M_throw() << "The ID passed to SysNBListCompressionFix isn't a GNeighbourList";
   }
 
@@ -46,7 +46,7 @@ namespace dynamo {
   {
     ID = nID;
 
-    if (!std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->globals[cellID]))
+    if (!std::dynamic_pointer_cast<GNeighbourList>(Sim->globals[cellID]))
       M_throw() << "Have the globals been shuffled? The cellID is no longer a GNeighbourList.";
   
     GNeighbourList& nblist(dynamic_cast<GNeighbourList&>(*Sim->globals[cellID]));
@@ -100,9 +100,9 @@ namespace dynamo {
 
     NEventData SDat;
 
-    Sim->signalParticleUpdate(SDat);
+    (*Sim->_sigParticleUpdate)(SDat);
     
-    BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(*this, SDat, locdt); 
   }
 

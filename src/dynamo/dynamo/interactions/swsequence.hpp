@@ -24,13 +24,13 @@
 #include <set>
 
 namespace dynamo {
-  class ISWSequence: public ISingleCapture, public GlyphRepresentation
+  class ISWSequence: public ICapture, public GlyphRepresentation
   {
   public:
     template<class T1, class T2, class T3>
     ISWSequence(dynamo::Simulation* tmp, T1 d, T2 l, T3 e, 
 		std::vector<size_t> seq, IDPairRange* nR, std::string name):
-      ISingleCapture(tmp,nR),
+      ICapture(tmp,nR),
       _diameter(Sim->_properties.getProperty
 		(d, Property::Units::Length())),
       _lambda(Sim->_properties.getProperty
@@ -44,14 +44,14 @@ namespace dynamo {
       intName = name;
       std::set<size_t> letters;
     
-      BOOST_FOREACH(const size_t& id, seq)
+      for (const size_t& id : seq)
 	if (letters.find(id) == letters.end())
 	  //Count the letter
 	  letters.insert(id);
     
       alphabet.resize(letters.size());
     
-      BOOST_FOREACH(std::vector<double>& vec, alphabet)
+      for (std::vector<double>& vec : alphabet)
 	vec.resize(letters.size(), 0.0);
     }
 
@@ -59,9 +59,7 @@ namespace dynamo {
   
     void operator<<(const magnet::xml::Node&);
 
-    virtual size_t glyphsPerParticle() const { return 1; }
-    virtual Vector getGlyphSize(size_t ID, size_t subID) const;
-    virtual Vector getGlyphPosition(size_t ID, size_t subID) const;
+    virtual Vector getGlyphSize(size_t ID) const;
 
     virtual double getExcludedVolume(size_t) const;
 
@@ -71,13 +69,13 @@ namespace dynamo {
 
     virtual double getInternalEnergy(const Particle&, const Particle&) const;
 
-    virtual bool captureTest(const Particle&, const Particle&) const;
+    virtual size_t captureTest(const Particle&, const Particle&) const;
 
     virtual void initialise(size_t);
 
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
   
-    virtual void runEvent(Particle&, Particle&, const IntEvent&) const;
+    virtual void runEvent(Particle&, Particle&, const IntEvent&);
   
     virtual void outputXML(magnet::xml::XmlStream&) const;
 

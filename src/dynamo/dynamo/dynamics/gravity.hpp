@@ -44,9 +44,11 @@ namespace dynamo {
     virtual double getPlaneEvent(const Particle&, const Vector &, const Vector &, double) const;
     virtual double getCylinderWallCollision(const Particle&, const Vector &, const Vector &, const double&) const;
     virtual PairEventData SmoothSpheresColl(const IntEvent&, const double&, const double&, const EEventType& eType) const;
+    virtual PairEventData RoughSpheresColl(const IntEvent& event, const double& e, const double& et, const double& d1, const double& d2, const EEventType& eType) const;
     virtual std::pair<double, Dynamics::TriangleIntersectingPart>  getSphereTriangleEvent(const Particle& part, const Vector & A, const Vector & B, const Vector & C, const double dist) const;
     virtual ParticleEventData runPlaneEvent(Particle&, const Vector &, const double&, double) const;
 
+    void setGravityVector(Vector newg) {g = newg;}
   protected:
     double elasticV;
     Vector g;

@@ -59,9 +59,9 @@ namespace dynamo {
 
     NEventData SDat;
 
-    Sim->signalParticleUpdate(SDat);
+    (*Sim->_sigParticleUpdate)(SDat);
     
-    BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(*this, SDat, locdt); 
   
     Sim->nextPrintEvent = Sim->endEventCount = Sim->eventCount;

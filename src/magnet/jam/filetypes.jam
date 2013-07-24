@@ -16,4 +16,3 @@
 
 import pixbuf ;
 import glade ;
-import ttf ;

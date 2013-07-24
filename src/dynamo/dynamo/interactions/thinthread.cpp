@@ -44,27 +44,19 @@ namespace dynamo {
   IThinThread::operator<<(const magnet::xml::Node& XML)
   {
     Interaction::operator<<(XML);
-  
-    try {
-      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
-					       Property::Units::Length());
-      _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
-					     Property::Units::Dimensionless());
-      _wellDepth = Sim->_properties.getProperty(XML.getAttribute("WellDepth"),
-						Property::Units::Energy());
-
-      if (XML.hasAttribute("Elasticity"))
-	_e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-					  Property::Units::Dimensionless());
-      else
-	_e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
-      intName = XML.getAttribute("Name");
-      ISingleCapture::loadCaptureMap(XML);   
-    }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in IThinThread";
-      }
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					     Property::Units::Length());
+    _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
+					   Property::Units::Dimensionless());
+    _wellDepth = Sim->_properties.getProperty(XML.getAttribute("WellDepth"),
+					      Property::Units::Energy());
+    if (XML.hasAttribute("Elasticity"))
+      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+					Property::Units::Dimensionless());
+    else
+      _e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
+    intName = XML.getAttribute("Name");
+    ICapture::loadCaptureMap(XML);   
   }
 
   IntEvent
@@ -98,7 +90,7 @@ namespace dynamo {
 
 	dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, l * d);
 	if (retval.getdt() > dt)
-	  retval = IntEvent(p1, p2, dt, WELL_OUT, *this);
+	  retval = IntEvent(p1, p2, dt, STEP_OUT, *this);
       }
     else
       {
@@ -112,7 +104,7 @@ namespace dynamo {
   }
 
   void
-  IThinThread::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
+  IThinThread::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
 
@@ -134,36 +126,27 @@ namespace dynamo {
       case CORE:
 	{
 	  PairEventData retVal(Sim->dynamics->SmoothSpheresColl(iEvent, e, d2, CORE));
-
 	  IntEvent event(iEvent);
 	  if (!isCaptured(p1, p2))
 	    {
-	      event.setType(WELL_IN);
-	      retVal.setType(WELL_IN);
-	      addToCaptureMap(p1, p2);
+	      event.setType(STEP_IN);
+	      retVal.setType(STEP_IN);
+	      ICapture::add(p1, p2);
 	    }
-
-	  Sim->signalParticleUpdate(retVal);
-	
+	  
+	  (*Sim->_sigParticleUpdate)(retVal);
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	
-	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
 	    Ptr->eventUpdate(event, retVal);
-
 	  break;
 	}
-      case WELL_OUT:
+      case STEP_OUT:
 	{
-	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, -wd, ld2));
-	
-	  if (retVal.getType() != BOUNCE)
-	    removeFromCaptureMap(p1, p2);      
-
-	  Sim->signalParticleUpdate(retVal);
-
+	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, -wd, ld2, 0));
+	  if (retVal.getType() != BOUNCE) ICapture::remove(p1, p2);
+	  (*Sim->_sigParticleUpdate)(retVal);
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	
-	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
 	  break;
 	}
@@ -234,6 +217,6 @@ namespace dynamo {
 	<< magnet::xml::attr("Name") << intName
 	<< *range;
   
-    ISingleCapture::outputCaptureMap(XML);  
+    ICapture::outputCaptureMap(XML);  
   }
 }

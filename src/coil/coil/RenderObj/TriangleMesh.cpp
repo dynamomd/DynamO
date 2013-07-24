@@ -20,7 +20,7 @@
 
 namespace coil {
   void 
-  RTriangleMesh::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
+  RTriangleMesh::init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
   {
     RTriangles::init(systemQueue);
 
@@ -87,9 +87,15 @@ namespace coil {
 
       setGLNormals(VertexNormals);
     }
+
+    if (_colours.empty())
+      setGLColors(std::vector<GLubyte>((_vertices.size() / 3) * 4, 255));
+    else
+      setGLColors(_colours);
   
     //Reclaim some memory
     _vertices.clear();
     _elements.clear();
+    _colours.clear();
   }
 }

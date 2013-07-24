@@ -67,7 +67,7 @@ namespace dynamo {
 		  << cxp.what();
       }
   
-    if (!std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->globals[_NBListID]))
+    if (!std::dynamic_pointer_cast<GNeighbourList>(Sim->globals[_NBListID]))
       M_throw() << "The Global named SchedulerNBList is not a neighbour list!";
 
   }
@@ -133,25 +133,22 @@ namespace dynamo {
     _neighbors = 0;
 
     //Add the interaction events
-    std::auto_ptr<IDRange> ids(Sim->ptrScheduler->getParticleNeighbours(part));
-    BOOST_FOREACH(const size_t& id1, *ids)
+    std::unique_ptr<IDRange> ids(Sim->ptrScheduler->getParticleNeighbours(part));
+    for (const size_t& id1 : *ids)
       nblistCallback(part, id1);
   
     ParticleEventData EDat(part, *Sim->species[part], iEvent.getType());
-      
-    Vector newVel(Sim->normal_sampler(),Sim->normal_sampler(),Sim->normal_sampler());
+    
+    std::normal_distribution<> norm_dist;
+    Vector newVel(norm_dist(Sim->ranGenerator), norm_dist(Sim->ranGenerator), norm_dist(Sim->ranGenerator));
     newVel *= _wakeVelocity / newVel.nrm();
       
     part.getVelocity() = newVel;
     part.setState(Particle::DYNAMIC);
       
-    EDat.setDeltaKE(0.5 * Sim->species[EDat.getSpeciesID()]->getMass(part.getID())
-		    * (part.getVelocity().nrm2() 
-		       - EDat.getOldVel().nrm2()));
+    (*Sim->_sigParticleUpdate)(EDat);
       
-    Sim->signalParticleUpdate(EDat);
-      
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, EDat);
 
     //Now we're past the event, update the scheduler and plugins

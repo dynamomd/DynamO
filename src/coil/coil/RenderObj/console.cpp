@@ -23,7 +23,7 @@
 
 namespace coil {
   void 
-  Console::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
+  Console::init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
   {
     RenderObj::init(systemQueue);
     _glutLastTime = glutGet(GLUT_ELAPSED_TIME);
@@ -38,7 +38,7 @@ namespace coil {
 		       magnet::GL::GLMatrix projViewMatrix, 
 		       float x, float y, float z)
       {
-	std::tr1::array<GLfloat, 4> vec = {{x,y,z,1.0}};
+	std::array<GLfloat, 4> vec = {{x,y,z,1.0}};
 	vec = projViewMatrix * vec;
 	cairo.getContext()->move_to(0.5 + 0.5 * vec[0] / vec[3],
 				   0.5 - 0.5 * vec[1] / vec[3]);
@@ -48,7 +48,7 @@ namespace coil {
 		       magnet::GL::GLMatrix projViewMatrix, 
 		       float x, float y, float z)
       {
-	std::tr1::array<GLfloat, 4> vec = {{x,y,z,1.0}};
+	std::array<GLfloat, 4> vec = {{x,y,z,1.0}};
 	vec = projViewMatrix * vec;
 	cairo.getContext()->line_to(0.5 + 0.5 * vec[0] / vec[3],
 				   0.5 - 0.5 * vec[1] / vec[3]);

@@ -55,7 +55,7 @@ namespace dynamo {
 
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
   
-    virtual void runEvent(Particle&, Particle&, const IntEvent&) const;
+    virtual void runEvent(Particle&, Particle&, const IntEvent&);
     
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
@@ -63,8 +63,6 @@ namespace dynamo {
 
     virtual size_t validateState(bool textoutput = true, size_t max_reports = std::numeric_limits<size_t>::max()) const;
  
-    virtual double getInternalEnergy() const { return 0.0; }
-
   protected:
 
     shared_ptr<Property> _diameter;

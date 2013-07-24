@@ -29,11 +29,10 @@ namespace coil {
   { _ds.deleteChild(this); }
 
   void 
-  DataSet::deleteChildWorker(DataSetChild* child)
+  DataSet::deleteChildWorker(DataSetChild* childtodelete)
   {
-    for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
-	 iPtr != _children.end(); ++iPtr)
-      if (iPtr->get() == child)
+    for (auto iPtr = _children.begin(); iPtr != _children.end(); ++iPtr)
+      if (iPtr->get() == childtodelete)
 	{
 	  //Found the child to delete
 	  (*iPtr)->deinit();
@@ -47,7 +46,7 @@ namespace coil {
 	}
   }
 
-  std::tr1::array<GLfloat, 4> 
+  std::array<GLfloat, 4> 
   DataSetChild::getCursorPosition(uint32_t objID)
   {
     return _ds.getCursorPosition(objID); 
@@ -58,14 +57,12 @@ namespace coil {
   { return _ds.getCursorText(objID); }
 
   void 
-  DataSet::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
+  DataSet::init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
   {
     RenderObj::init(systemQueue); 
     initGtk(); 
     
-    for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
-	 iPtr != _children.end(); ++iPtr)
-      (*iPtr)->init(systemQueue);
+    for (auto& child : _children) child->init(systemQueue);
     
     //We don't initialise the attributes, as they're initialised on access
     _context = magnet::GL::Context::getContext();
@@ -90,28 +87,47 @@ namespace coil {
     _gtkOptList.reset(new Gtk::VBox);
 
     {//The heading of the data set window
-      Gtk::HBox* box = Gtk::manage(new Gtk::HBox); box->show();
-      Gtk::Frame* frame = Gtk::manage(new Gtk::Frame("Data Set Statistics")); frame->show();
-      box->pack_start(*frame, true, true, 5);
+      Gtk::Frame* frame = Gtk::manage(new Gtk::Frame("Data Set Information")); frame->show();
+      _gtkOptList->pack_start(*frame, false, true, 5);
       Gtk::VBox* vbox = Gtk::manage(new Gtk::VBox); vbox->show();
       frame->add(*vbox);
 
-      {
-	Gtk::Label* label 
-	  = Gtk::manage(new Gtk::Label("Points: " 
-				       + boost::lexical_cast<std::string>(_N))); 
-	label->show();
-	vbox->pack_start(*label, false, false, 5);	
-      }
+      _infolabel.reset(new Gtk::Label("Points: " + boost::lexical_cast<std::string>(_N))); 
+      _infolabel->show();
+      vbox->pack_start(*_infolabel, false, true, 5);	
+    }
 
-      {
-	Gtk::Button* btn = Gtk::manage(new Gtk::Button("Add Glyph"));
-	btn->signal_clicked().connect(sigc::mem_fun(*this, &DataSet::addGlyphs));
-	btn->show();
-	box->pack_start(*btn, false, false, 5);
-      }
-      
+    //Glyph adding mechanism
+    {
+      Gtk::HBox* box = Gtk::manage(new Gtk::HBox); box->show();
       _gtkOptList->pack_start(*box, false, false, 5);
+
+      _comboPointSet.reset(new Gtk::ComboBoxText); _comboPointSet->show();
+      box->pack_start(*_comboPointSet, false, false, 5);
+
+      //Check the combo box is correct
+      _comboPointSet->remove_all();
+      for (const auto& pointset: _pointSets)
+	_comboPointSet->append(pointset.first);
+      _comboPointSet->set_active(0);
+
+      Gtk::Button* btn = Gtk::manage(new Gtk::Button("Add Glyphs"));
+      btn->signal_clicked().connect(sigc::mem_fun(*this, &DataSet::addGlyphs));
+      btn->show();
+      box->pack_start(*btn, false, false, 5);
+
+      _comboLinkSet.reset(new Gtk::ComboBoxText); _comboLinkSet->show();
+      box->pack_start(*_comboLinkSet, false, false, 5);
+      //Check the combo box is correct
+      _comboLinkSet->remove_all();
+      for (const auto& linkset: _linkSets)
+	_comboLinkSet->append(linkset.first);
+      _comboLinkSet->set_active(0);
+
+      btn = Gtk::manage(new Gtk::Button("Add Links"));
+      btn->signal_clicked().connect(sigc::mem_fun(*this, &DataSet::addLinkGlyphs));
+      btn->show();
+      box->pack_start(*btn, false, false, 5);
     }
     
     { 
@@ -150,7 +166,7 @@ namespace coil {
   {    
     if (!_context) M_throw() << "Cannot add glyphs before the Dataset is initialised";
    
-    std::tr1::shared_ptr<Glyphs> glyph(new Glyphs("Glyphs", *this, _defaultGlyphType));
+    std::shared_ptr<Glyphs> glyph(new Glyphs(_comboPointSet->get_active_text(), *this));
     _children.push_back(glyph); 
     _children.back()->init(_systemQueue);
 
@@ -163,33 +179,42 @@ namespace coil {
   }
 
   void 
+  DataSet::addLinkGlyphs()
+  {
+  }
+
+  void 
   DataSet::addAttribute(std::string name, int type, size_t components)
   {
-    if (find(name) != end())
+    if (_attributes.find(name) != _attributes.end())
       M_throw() << "Trying to add an Attribute with a existing name, " << name;
 
     //Spinlock to force that the Data set is initialised before the attribute is created
     for (;;) if (_context) break;
     
-    mapped_type ptr(new Attribute(_N, type, components, _context));
-    insert(value_type(name, ptr));
+    std::shared_ptr<Attribute> ptr(new Attribute(_N, type, components, _context));
+    _attributes.insert(std::make_pair(name, ptr));
 
     //If we're initialised, we should rebuild the view of attributes
-    if (_context)
-      _context->queueTask(magnet::function::Task::makeTask(&DataSet::rebuildGui, this));
+    if (_context) _context->queueTask(std::bind(&DataSet::rebuildGui, this));
   }
   
   void
   DataSet::rebuildGui()
   {
     _attrtreestore->clear();
-    for (iterator iPtr = begin(); iPtr != end(); ++iPtr)
+
+    _infolabel->set_text("Points: " + boost::lexical_cast<std::string>(_N) 
+			 + " Point Sets: " +boost::lexical_cast<std::string>(_pointSets.size())
+			 + " Link Sets: " +boost::lexical_cast<std::string>(_linkSets.size())); 
+
+    for (const auto& attribute : _attributes)
       {
 	Gtk::TreeModel::iterator iter = _attrtreestore->append();
-	(*iter)[_attrcolumns->name] = iPtr->first;
-	(*iter)[_attrcolumns->components] = iPtr->second->components();
-	const std::vector<GLfloat>& mins = iPtr->second->minVals();
-	const std::vector<GLfloat>& maxs = iPtr->second->maxVals();
+	(*iter)[_attrcolumns->name] = attribute.first;
+	(*iter)[_attrcolumns->components] = attribute.second->components();
+	const std::vector<GLfloat>& mins = attribute.second->minVals();
+	const std::vector<GLfloat>& maxs = attribute.second->maxVals();
 	if (!mins.empty() && !maxs.empty())
 	  {
 	    std::ostringstream os;
@@ -220,6 +245,34 @@ namespace coil {
   }
 
   void
+  DataSet::addPointSet(std::string name, const std::vector<GLuint>& data, int datatype)
+  {
+    _context->queueTask(std::bind(&DataSet::addPointSetWorker, this, name, data, datatype));
+  }
+
+  void
+  DataSet::addPointSetWorker(std::string name, std::vector<GLuint> data, int datatype)
+  {
+    _pointSets[name].init(data, 1);
+    _pointSets[name].glyphType = datatype;
+    _comboPointSet->remove_all();
+    for (const auto& pointset: _pointSets)
+      _comboPointSet->append(pointset.first);
+    _comboPointSet->set_active(0);
+
+    std::shared_ptr<Glyphs> glyph(new Glyphs(name, *this));
+    _children.push_back(glyph); 
+    _children.back()->init(_systemQueue);
+    
+    if (_iter)
+      {
+	Gtk::TreeModel::iterator child_iter = _view->_store->append(_iter->children());
+	_children.back()->addViewRows(*_view, child_iter);
+	_view->_view->expand_to_path(_view->_store->get_path(child_iter));
+      }
+  }
+
+  void
   DataSet::deinit()
   {
     _positionSel.reset();
@@ -227,13 +280,8 @@ namespace coil {
     _attrcolumns.reset();
     _attrview.reset();
     _attrtreestore.reset();
-    for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr 
-	   = _children.begin(); iPtr != _children.end(); ++iPtr)
-      (*iPtr)->deinit();
-
-    for (iterator iPtr = begin(); iPtr != end(); ++iPtr)
-      iPtr->second->deinit();
-
+    for (auto& child : _children) child->deinit();
+    for (auto& attribute :_attributes) attribute.second->deinit();
     _context.reset();
     RenderObj::deinit();
   }
@@ -248,27 +296,26 @@ namespace coil {
   DataSet::getCursorText(uint32_t objID)
   {
     std::ostringstream os;
-    for (const_iterator iPtr = begin(); iPtr != end();)
+    for (const auto& attribute : _attributes)
       {
-	size_t comps = iPtr->second->components();
-	os << iPtr->first << " <"; 
+	size_t comps = attribute.second->components();
+	os << attribute.first << " <"; 
 	
 	for (size_t i(0); i < comps-1; ++i)
-	  os << (*(iPtr->second))[objID * comps + i] << ", ";
-	os << (*(iPtr->second))[(objID + 1) * comps - 1] << ">";
-	if (++iPtr != end())
-	  os << "\n";
+	  os << (*(attribute.second))[objID * comps + i] << ", ";
+	os << (*(attribute.second))[(objID + 1) * comps - 1] << ">";
+	os << "\n";
       }
 
     return os.str();
   }
 
-  std::tr1::array<GLfloat, 4>
+  std::array<GLfloat, 4>
   DataSet::getCursorPosition(uint32_t objID)
   {
     std::vector<GLfloat> pos = _positionSel->getValue(objID);
     pos.resize(3, 0);
-    std::tr1::array<GLfloat, 4> vec = {{pos[0], pos[1], pos[2], 1.0}};
+    std::array<GLfloat, 4> vec = {{pos[0], pos[1], pos[2], 1.0}};
     return vec;
   }
 
@@ -276,10 +323,9 @@ namespace coil {
   DataSet::getMinCoord() const
   {
     magnet::math::Vector min(HUGE_VAL, HUGE_VAL, HUGE_VAL); 
-    for (std::vector<std::tr1::shared_ptr<DataSetChild> >::const_iterator 
-	   iPtr = _children.begin(); iPtr != _children.end(); ++iPtr)
+    for (const auto& child : _children)
       {
-	magnet::math::Vector child_min = (*iPtr)->getMinCoord();
+	magnet::math::Vector child_min = child->getMinCoord();
 	for (size_t i(0); i < 3; ++i)
 	  min[i] = std::min(min[i], child_min[i]);
       }
@@ -290,10 +336,9 @@ namespace coil {
   DataSet::getMaxCoord() const
   {
     magnet::math::Vector max(-HUGE_VAL, -HUGE_VAL, -HUGE_VAL); 
-    for (std::vector<std::tr1::shared_ptr<DataSetChild> >::const_iterator 
-	   iPtr = _children.begin(); iPtr != _children.end(); ++iPtr)
+    for (const auto& child : _children)
       {
-	magnet::math::Vector child_max = (*iPtr)->getMaxCoord();
+	magnet::math::Vector child_max = child->getMaxCoord();
 	for (size_t i(0); i < 3; ++i)
 	  max[i] = std::max(max[i], child_max[i]);
       }

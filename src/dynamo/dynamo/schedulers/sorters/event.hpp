@@ -21,7 +21,6 @@
 #include <dynamo/globals/globEvent.hpp>
 #include <dynamo/locals/localEvent.hpp>
 #include <dynamo/globals/global.hpp>
-#include <boost/foreach.hpp>
 #include <algorithm>
 
 namespace dynamo {
@@ -43,40 +42,42 @@ namespace dynamo {
     inline Event():
       dt(HUGE_VAL),
       collCounter2(std::numeric_limits<unsigned long>::max()),
-      type(NONE),
-      p2(std::numeric_limits<size_t>::max())    
-    {}
+      type(NONE)
+    {
+      extraID = std::numeric_limits<size_t>::max();
+    }
 
     inline Event(const double& ndt, const EEventType& nT, 
 		 const size_t& nID2, const unsigned long & nCC2) throw():
       dt(ndt),
       collCounter2(nCC2),
-      type(nT),
-      p2(nID2)
-    {}
+      type(nT)
+    {
+      extraID = nID2;
+    }
 
     inline Event(const IntEvent& coll, const unsigned long& nCC2) throw():
       dt(coll.getdt()),
       collCounter2(nCC2),
-      type(INTERACTION),
-      p2(coll.getParticle2ID())
+      type(INTERACTION)
     {
+      particle2ID = coll.getParticle2ID();
       if (coll.getType() == RECALCULATE) type = RECALCULATE;
     }
 
     inline Event(const GlobalEvent& coll) throw():
       dt(coll.getdt()),
-      type(GLOBAL),
-      p2(coll.getGlobalID())
+      type(GLOBAL)
     {
+      globalID = coll.getGlobalID();
       if (coll.getType() == RECALCULATE) type = RECALCULATE;
     }
 
     inline Event(const LocalEvent& coll) throw():
       dt(coll.getdt()),
-      type(LOCAL),
-      p2(coll.getLocalID())
+      type(LOCAL)
     {
+      localID = coll.getLocalID();
       if (coll.getType() == RECALCULATE) type = RECALCULATE;
     }
 
@@ -91,6 +92,12 @@ namespace dynamo {
     mutable double dt;
     unsigned long collCounter2;
     EEventType type;
-    size_t p2;  
+    union {
+      size_t particle2ID;
+      size_t localID;
+      size_t globalID;
+      size_t systemID;
+      size_t extraID;
+    };
   };
 }

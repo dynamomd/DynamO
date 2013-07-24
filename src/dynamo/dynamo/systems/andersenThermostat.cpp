@@ -26,9 +26,7 @@
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
-#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/random/uniform_int.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
@@ -102,24 +100,19 @@ namespace dynamo {
 
     dt = getGhostt();
 
-    unsigned int step = boost::variate_generator
-      <dynamo::baseRNG&, boost::uniform_int<unsigned int> >
-      (Sim->ranGenerator, 
-       boost::uniform_int<unsigned int>(0, range->size() - 1))();
+    size_t step = std::uniform_int_distribution<size_t>(0, range->size() - 1)(Sim->ranGenerator);
 
     Particle& part(Sim->particles[*(range->begin()+step)]);
 
     //Run the collision and catch the data
-    NEventData SDat(Sim->dynamics->randomGaussianEvent
-		    (part, sqrtTemp, dimensions));
+    NEventData SDat(Sim->dynamics->randomGaussianEvent(part, sqrtTemp, dimensions));
   
-    Sim->signalParticleUpdate(SDat);
+    (*Sim->_sigParticleUpdate)(SDat);
 
     Sim->ptrScheduler->fullUpdate(part);
   
-    BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(*this, SDat, locdt);
-
   }
 
   void 
@@ -134,30 +127,21 @@ namespace dynamo {
   void 
   SysAndersen::operator<<(const magnet::xml::Node& XML)
   {
-    if (strcmp(XML.getAttribute("Type"),"Andersen"))
-      M_throw() << "Attempting to load Andersen from non Andersen entry"; 
-  
-    try {
-      meanFreeTime = XML.getAttribute("MFT").as<double>() * Sim->units.unitTime();
-      Temp = XML.getAttribute("Temperature").as<double>() * Sim->units.unitEnergy();
-      sysName = XML.getAttribute("Name");
+    meanFreeTime = XML.getAttribute("MFT").as<double>() * Sim->units.unitTime();
+    Temp = XML.getAttribute("Temperature").as<double>() * Sim->units.unitEnergy();
+    sysName = XML.getAttribute("Name");
 
-      if (XML.hasAttribute("Dimensions"))
-	dimensions = XML.getAttribute("Dimensions").as<size_t>();
+    if (XML.hasAttribute("Dimensions"))
+      dimensions = XML.getAttribute("Dimensions").as<size_t>();
 
-      if (XML.hasAttribute("SetFrequency") && XML.hasAttribute("SetPoint"))
-	{
-	  tune = true;
-	  setFrequency = XML.getAttribute("SetFrequency").as<size_t>();
-	  setPoint = boost::lexical_cast<double>(XML.getAttribute("SetPoint"));
-	}
-
-      range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"),Sim));
-    }
-    catch (boost::bad_lexical_cast &)
+    if (XML.hasAttribute("SetFrequency") && XML.hasAttribute("SetPoint"))
       {
-	M_throw() << "Failed a lexical cast in CGGlobal";
+	tune = true;
+	setFrequency = XML.getAttribute("SetFrequency").as<size_t>();
+	setPoint = XML.getAttribute("SetPoint").as<double>();
       }
+
+    range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"),Sim));
   }
 
   void 
@@ -186,7 +170,7 @@ namespace dynamo {
   double 
   SysAndersen::getGhostt() const
   { 
-    return  - meanFreeTime * log(1 - Sim->uniform_sampler());
+    return  - meanFreeTime * std::log(1.0 - std::uniform_real_distribution<>()(Sim->ranGenerator));
   }
 
   double 

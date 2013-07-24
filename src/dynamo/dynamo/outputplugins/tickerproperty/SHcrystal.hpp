@@ -17,8 +17,8 @@
 
 #pragma once
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
-#include <boost/math/special_functions/spherical_harmonic.hpp>
 #include <vector>
+#include <complex>
 
 namespace dynamo {
   class Particle;

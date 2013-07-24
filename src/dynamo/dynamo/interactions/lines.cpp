@@ -33,7 +33,7 @@
 
 namespace dynamo {
   ILines::ILines(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
-    ISingleCapture(tmp, NULL)
+    ICapture(tmp, NULL)
   {
     operator<<(XML);
   }
@@ -42,41 +42,25 @@ namespace dynamo {
   ILines::initialise(size_t nID)
   {
     ID = nID; 
-    ISingleCapture::initCaptureMap();
+    ICapture::initCaptureMap();
   }
 
-  Vector ILines::getGlyphSize(size_t ID, size_t subID) const
+  Vector ILines::getGlyphSize(size_t ID) const
   {
     double l = _length->getProperty(ID);
     return Vector(l, l, l);
   }
 
-  Vector ILines::getGlyphPosition(size_t ID, size_t subID) const
-  {
-    Vector retval = Sim->particles[ID].getPosition();
-    Sim->BCs->applyBC(retval);
-    return retval;
-  }
-
-
   void 
   ILines::operator<<(const magnet::xml::Node& XML)
   { 
     Interaction::operator<<(XML);
-  
-    try 
-      {
-	_length = Sim->_properties.getProperty(XML.getAttribute("Length"),
-					       Property::Units::Length());
-	_e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-					  Property::Units::Dimensionless());
-	intName = XML.getAttribute("Name");
-	ISingleCapture::loadCaptureMap(XML);   
-      }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in CILines";
-      }
+    _length = Sim->_properties.getProperty(XML.getAttribute("Length"),
+					   Property::Units::Length());
+    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+				      Property::Units::Dimensionless());
+    intName = XML.getAttribute("Name");
+    ICapture::loadCaptureMap(XML);   
   }
 
   double 
@@ -130,7 +114,7 @@ namespace dynamo {
   }
 
   void
-  ILines::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
+  ILines::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     PairEventData retval;
 
@@ -150,14 +134,14 @@ namespace dynamo {
 	}
       case NBHOOD_IN:
 	{
-	  addToCaptureMap(p1, p2);
+	  ICapture::add(p1, p2);
 	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
 	  iEvent.setType(VIRTUAL);
 	  break;
 	}
       case NBHOOD_OUT:
 	{
-	  removeFromCaptureMap(p1, p2);
+	  ICapture::remove(p1, p2);
 	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
 	  iEvent.setType(VIRTUAL);
 	  break;
@@ -172,12 +156,11 @@ namespace dynamo {
 	M_throw() << "Unknown collision type";
       }
     
-    Sim->signalParticleUpdate(retval);
+    (*Sim->_sigParticleUpdate)(retval);
     
     Sim->ptrScheduler->fullUpdate(p1, p2);
     
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, 
-		  Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, retval);
   }
    
@@ -188,12 +171,12 @@ namespace dynamo {
 	<< magnet::xml::attr("Length") << _length->getName()
 	<< magnet::xml::attr("Elasticity") << _e->getName()
 	<< magnet::xml::attr("Name") << intName
-	<< *range;
+	<< range;
 
-    ISingleCapture::outputCaptureMap(XML);
+    ICapture::outputCaptureMap(XML);
   }
 
-  bool 
+  size_t
   ILines::captureTest(const Particle& p1, const Particle& p2) const
   {
     if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
@@ -201,7 +184,7 @@ namespace dynamo {
     double l = (_length->getProperty(p1.getID())
 		+ _length->getProperty(p2.getID())) * 0.5;
 
-    return Sim->dynamics->sphereOverlap(p1, p2, l);
+    return Sim->dynamics->sphereOverlap(p1, p2, l) > 0;
   }
 
   bool

@@ -22,12 +22,12 @@
 #include <dynamo/interactions/glyphrepresentation.hpp>
 
 namespace dynamo {
-  class ILines: public ISingleCapture, public GlyphRepresentation
+  class ILines: public ICapture, public GlyphRepresentation
   {
   public:
     template<class T1, class T2>
     ILines(dynamo::Simulation* tmp, T1 l, T2 e, IDPairRange* nR, std::string name):
-      ISingleCapture(tmp, nR),
+      ICapture(tmp, nR),
       _length(Sim->_properties.getProperty
 	      (l, Property::Units::Length())),
       _e(Sim->_properties.getProperty
@@ -36,16 +36,13 @@ namespace dynamo {
       intName = name;
     }
 
-    virtual size_t glyphsPerParticle() const { return 1; }
-    virtual Vector getGlyphSize(size_t ID, size_t subID) const;
-    virtual Vector getGlyphPosition(size_t ID, size_t subID) const;
+    virtual Vector getGlyphSize(size_t ID) const;
+
     virtual GLYPH_TYPE getDefaultGlyphType() const { return LINE_GLYPH; }
 
     ILines(const magnet::xml::Node&, dynamo::Simulation*);
 
     void operator<<(const magnet::xml::Node&);
-
-    virtual double getInternalEnergy() const { return 0; }
 
     virtual void initialise(size_t);
 
@@ -55,13 +52,13 @@ namespace dynamo {
 
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
  
-    virtual void runEvent(Particle&, Particle&, const IntEvent&) const;
+    virtual void runEvent(Particle&, Particle&, const IntEvent&);
    
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
     virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
  
-    virtual bool captureTest(const Particle&, const Particle&) const;
+    virtual size_t captureTest(const Particle&, const Particle&) const;
 
   protected:
     shared_ptr<Property> _length;

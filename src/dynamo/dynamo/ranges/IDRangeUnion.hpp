@@ -21,7 +21,6 @@
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
 #include <vector>
 
 namespace dynamo {
@@ -30,16 +29,10 @@ namespace dynamo {
   public:
     IDRangeUnion(const magnet::xml::Node& XML, const dynamo::Simulation* Sim) 
     { 
-      try {
-	for (magnet::xml::Node node = XML.fastGetNode("IDRange"); node.valid(); ++node)
-	  {
-	    shared_ptr<IDRange> ptr(IDRange::getClass(node, Sim));
-	    ranges.push_back(ptr);
-	  }
-      }
-      catch (boost::bad_lexical_cast &)
+      for (magnet::xml::Node node = XML.fastGetNode("IDRange"); node.valid(); ++node)
 	{
-	  M_throw() << "Failed a lexical cast in IDRangeUnion";
+	  shared_ptr<IDRange> ptr(IDRange::getClass(node, Sim));
+	  ranges.push_back(ptr);
 	}
     }
 
@@ -47,7 +40,7 @@ namespace dynamo {
 
     virtual bool isInRange(const Particle &part) const
     {
-      BOOST_FOREACH(const shared_ptr<IDRange>& r, ranges)
+      for (const shared_ptr<IDRange>& r : ranges)
 	if (r->isInRange(part)) return true;
 
       return false;
@@ -56,14 +49,14 @@ namespace dynamo {
     virtual unsigned long size() const 
     { 
       size_t size(0);
-      BOOST_FOREACH(const shared_ptr<IDRange>& r, ranges)
+      for (const shared_ptr<IDRange>& r : ranges)
 	size += r->size();
       return size;
     }
 
     virtual unsigned long operator[](unsigned long i) const 
     { 
-      BOOST_FOREACH(const shared_ptr<IDRange>& r, ranges)
+      for (const shared_ptr<IDRange>& r : ranges)
 	{
 	  if (i < r->size())
 	    return r->operator[](i);
@@ -82,7 +75,7 @@ namespace dynamo {
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {
       XML << magnet::xml::attr("Type") << "Union";
-      BOOST_FOREACH(const shared_ptr<IDRange>& r, ranges)
+      for (const shared_ptr<IDRange>& r : ranges)
 	XML << *r;
     }
 

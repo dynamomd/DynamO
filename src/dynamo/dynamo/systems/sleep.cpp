@@ -29,9 +29,7 @@
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/random/uniform_int.hpp>
 
 #ifdef DYNAMO_DEBUG 
 #include <boost/math/special_functions/fpclassify.hpp>
@@ -60,13 +58,12 @@ namespace dynamo {
   {
     ID = nID;
 
-    Sim->registerParticleUpdateFunc
-      (magnet::function::MakeDelegate(this, &SSleep::particlesUpdated));
+    (*Sim->_sigParticleUpdate).connect<SSleep, &SSleep::particlesUpdated>(this);
 
     recalculateTime();
 
     _lastData.resize(Sim->N);
-    BOOST_FOREACH(const Particle& part, Sim->particles)
+    for (const Particle& part : Sim->particles)
       {
 	_lastData[part.getID()].first = part.getPosition();
 	_lastData[part.getID()].second = - HUGE_VAL;
@@ -76,20 +73,11 @@ namespace dynamo {
   void
   SSleep::operator<<(const magnet::xml::Node& XML)
   {
-    if (strcmp(XML.getAttribute("Type"), "Sleep"))
-      M_throw() << "Attempting to load Sleep from a " 
-		<< XML.getAttribute("Type") <<  " entry"; 
-  
-    try {
-      sysName = XML.getAttribute("Name");
-    
-      _sleepVelocity = XML.getAttribute("SleepV").as<double>() * Sim->units.unitVelocity();
-      _sleepDistance = Sim->units.unitLength() * 0.01;
-      _sleepTime = Sim->units.unitTime() * 0.0001;
-      _range = shared_ptr<IDRange>(IDRange::getClass(XML, Sim));
-    }
-    catch (boost::bad_lexical_cast &)
-      { M_throw() << "Failed a lexical cast in SSleep"; }
+    sysName = XML.getAttribute("Name");
+    _sleepVelocity = XML.getAttribute("SleepV").as<double>() * Sim->units.unitVelocity();
+    _sleepDistance = Sim->units.unitLength() * 0.01;
+    _sleepTime = Sim->units.unitTime() * 0.0001;
+    _range = shared_ptr<IDRange>(IDRange::getClass(XML, Sim));
   }
 
   void 
@@ -128,7 +116,7 @@ namespace dynamo {
   void 
   SSleep::particlesUpdated(const NEventData& PDat)
   {
-    BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
+    for (const PairEventData& pdat : PDat.L2partChanges)
       {
 	const Particle& p1 = Sim->particles[pdat.particle1_.getParticleID()];
 	const Particle& p2 = Sim->particles[pdat.particle2_.getParticleID()];
@@ -214,7 +202,7 @@ namespace dynamo {
 	stateChange[sp.getID()] = Vector(1,1,1);	
       }
 
-    BOOST_FOREACH(const PairEventData& pdat, PDat.L2partChanges)
+    for (const PairEventData& pdat : PDat.L2partChanges)
       {
 	const size_t& p1 = pdat.particle1_.getParticleID();
 	_lastData[p1].first = Sim->particles[p1].getPosition();
@@ -255,7 +243,7 @@ namespace dynamo {
     NEventData SDat;
 
     typedef std::map<size_t, Vector>::value_type locPair;
-    BOOST_FOREACH(const locPair& p, stateChange)
+    for (const locPair& p : stateChange)
       {
 	Particle& part = Sim->particles[p.first];
 	Sim->dynamics->updateParticle(part);
@@ -301,22 +289,18 @@ namespace dynamo {
 	    M_throw() << "Bad event type!";
 	  }
 	  
-	EDat.setDeltaKE(0.5 * Sim->species[EDat.getSpeciesID()]->getMass(part.getID())
-			* (part.getVelocity().nrm2() 
-			   - EDat.getOldVel().nrm2()));
-
 	SDat.L1partChanges.push_back(EDat);
       }
 
     //Must clear the state before calling the signal, otherwise this
     //will erroneously schedule itself again
     stateChange.clear(); 
-    Sim->signalParticleUpdate(SDat);
+    (*Sim->_sigParticleUpdate)(SDat);
 
-    BOOST_FOREACH(const ParticleEventData& PDat, SDat.L1partChanges)
+    for (const ParticleEventData& PDat : SDat.L1partChanges)
       Sim->ptrScheduler->fullUpdate(Sim->particles[PDat.getParticleID()]);
     
-    BOOST_FOREACH(shared_ptr<OutputPlugin>& Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(*this, SDat, locdt); 
   }
 }

@@ -36,21 +36,7 @@ namespace dynamo {
 
     double pecTime;
 
-  public:  
-    FELCBT(const dynamo::Simulation* const& SD):
-      FEL(SD, "CBT")
-    {}
-
-    typedef std::vector<PELHeap>::iterator iterator;
-    typedef std::vector<PELHeap>::const_iterator const_iterator;
-
-    inline iterator begin() { return Min.begin(); }
-    inline const_iterator begin() const { return Min.begin(); }
-    inline iterator end() { return Min.end(); }
-    inline const_iterator end() const { return Min.end(); }
-    inline size_t size() const { return Min.size(); }
-    inline bool empty() const { return Min.empty(); }
-
+  public:
     void resize(const size_t& a)
     {
       clear();
@@ -90,10 +76,8 @@ namespace dynamo {
 
       if (!(nUpdate % streamFreq))
 	{
-	  BOOST_FOREACH(PELHeap& pDat, Min)
-	    BOOST_FOREACH(Event& event, pDat)
-	    event.dt -= pecTime;
-	
+	  for (PELHeap& pDat : Min)
+	    pDat.stream(pecTime);
 	  pecTime = 0.0;
 	}
     }
@@ -101,17 +85,7 @@ namespace dynamo {
     inline void clearPEL(const size_t& ID) { Min[ID+1].clear(); }
     inline void popNextPELEvent(const size_t& ID) { Min[ID+1].pop(); }
     inline void popNextEvent() { Min[CBT[1]].pop(); }
-    inline bool nextPELEmpty() const { return Min[CBT[1]].empty(); }
-
-    inline Event copyNextEvent() const 
-    { Event retval(Min[CBT[1]].top());
-      retval.dt -= pecTime;
-      return retval; 
-    }
-
-    inline EEventType next_type() const { return Min[CBT[1]].top().type; }
-    inline unsigned long next_collCounter2() const { return Min[CBT[1]].top().collCounter2; }
-    inline size_t next_p2() const { return Min[CBT[1]].top().p2; }
+    inline bool empty() const { return Min[CBT[1]].empty(); }
 
     inline void push(const Event& tmpVal, const size_t& pID)
     {
@@ -128,16 +102,17 @@ namespace dynamo {
 
     inline void update(const size_t& a) { UpdateCBT(a+1); }
 
-    inline double next_dt() const { return Min[CBT[1]].getdt() - pecTime; }
-
-    inline size_t next_ID() const { return CBT[1] - 1; }
+    virtual std::pair<size_t, Event> next() const
+    {
+      Event nextevent = Min[CBT[1]].top();
+      nextevent.dt -= pecTime;
+      return std::pair<size_t, Event>(CBT[1] - 1, nextevent);
+    }
 
     inline void rescaleTimes(const double& factor)
     {
-      BOOST_FOREACH(PELHeap& pDat, Min)
-	BOOST_FOREACH(Event& event, pDat)
-        event.dt *= factor;
-
+      for (PELHeap& pDat : Min)
+	pDat.rescaleTimes(factor);
       pecTime *= factor;
     }
 

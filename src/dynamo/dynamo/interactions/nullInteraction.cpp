@@ -40,13 +40,7 @@ namespace dynamo {
   INull::operator<<(const magnet::xml::Node& XML)
   { 
     Interaction::operator<<(XML);
-  
-    try 
-      { intName = XML.getAttribute("Name"); }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in CINull";
-      }
+    intName = XML.getAttribute("Name");
   }
 
   IntEvent 
@@ -56,7 +50,7 @@ namespace dynamo {
   }
 
   void
-  INull::runEvent(Particle&, Particle&, const IntEvent&) const
+  INull::runEvent(Particle&, Particle&, const IntEvent&)
   { 
     M_throw() << "Null event trying to run a collision!"; 
   }
@@ -66,7 +60,7 @@ namespace dynamo {
   {
     XML << magnet::xml::attr("Type") << "Null"
 	<< magnet::xml::attr("Name") << intName
-	<< *range;
+	<< range;
   }
 }
 

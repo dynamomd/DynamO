@@ -2,7 +2,7 @@
 <DynamOconfig version="1.5.0">
   <Simulation>
     <Scheduler Type="NeighbourList">
-      <Sorter Type="BoundedPQMinMax4"/>
+      <Sorter Type="CBT"/>
     </Scheduler>
     <SimulationSize x="51.5764409809654" y="51.5764409809654" z="51.5764409809654"/>
     <BC Type="None"/>
@@ -17,7 +17,9 @@
     <Topology/>
     <SystemEvents/>
     <Globals>
-      <Global Type="Cells" Lambda="9.00000000000000e-01" Name="SchedulerNBList"/>
+      <Global Type="Cells" Lambda="9.00000000000000e-01" Name="SchedulerNBList">
+	<IDRange Type="All"/>
+      </Global>
     </Globals>
     <Locals>
       <Local Type="Wall" Name="GroundPlate" Elasticity="1.00000000000000e+00" Render="0" Diameter="1.0">

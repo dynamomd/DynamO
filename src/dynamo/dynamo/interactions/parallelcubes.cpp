@@ -44,36 +44,21 @@ namespace dynamo {
     ID=nID; 
   }
 
-  Vector IParallelCubes::getGlyphSize(size_t ID, size_t subID) const
+  Vector IParallelCubes::getGlyphSize(size_t ID) const
   {
     double l = _diameter->getProperty(ID);
     return Vector(l, l, l);
-  }
-
-  Vector IParallelCubes::getGlyphPosition(size_t ID, size_t subID) const
-  {
-    Vector retval = Sim->particles[ID].getPosition();
-    Sim->BCs->applyBC(retval);
-    return retval;
   }
 
   void 
   IParallelCubes::operator<<(const magnet::xml::Node& XML)
   { 
     Interaction::operator<<(XML);
-  
-    try 
-      {
-	_diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
-						 Property::Units::Length());
-	_e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-					  Property::Units::Dimensionless());
-	intName = XML.getAttribute("Name");
-      }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in CIParallelCubes";
-      }
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					     Property::Units::Length());
+    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+				      Property::Units::Dimensionless());
+    intName = XML.getAttribute("Name");
   }
 
   double 
@@ -113,7 +98,7 @@ namespace dynamo {
   }
 
   void
-  IParallelCubes::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
+  IParallelCubes::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
  
@@ -126,12 +111,12 @@ namespace dynamo {
     PairEventData EDat
       (Sim->dynamics->parallelCubeColl(iEvent, e, d)); 
 
-    Sim->signalParticleUpdate(EDat);
+    (*Sim->_sigParticleUpdate)(EDat);
 
     //Now we're past the event, update the scheduler and plugins
     Sim->ptrScheduler->fullUpdate(p1, p2);
   
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent,EDat);
   }
    
@@ -142,7 +127,7 @@ namespace dynamo {
 	<< magnet::xml::attr("Diameter") << _diameter->getName()
 	<< magnet::xml::attr("Elasticity") << _e->getName()
 	<< magnet::xml::attr("Name") << intName
-	<< *range;
+	<< range;
   }
 
 

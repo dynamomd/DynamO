@@ -21,7 +21,7 @@
 #include <magnet/GL/buffer.hpp>
 #include <magnet/GL/shader/render.hpp>
 #include <coil/RenderObj/RenderObj.hpp>
-#include <tr1/array>
+#include <array>
 #include <memory>
 #include <sstream>
 #include <list>
@@ -33,13 +33,13 @@ namespace coil {
   public:
     struct end {};
     
-    inline Console(std::tr1::array<GLfloat, 3> color):
+    inline Console(std::array<GLfloat, 3> color):
       RenderObj("Console")
     {}
     
     void interfaceRender(const magnet::GL::Camera& cam, magnet::GL::objects::CairoSurface& cairo);
 
-    void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
+    void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
     void showControls(Gtk::ScrolledWindow* win);
     void deinit();
     void glRender(const magnet::GL::Camera& cam, RenderMode mode);
@@ -53,8 +53,8 @@ namespace coil {
     magnet::GL::shader::RenderShader _renderShader;
     magnet::GL::Buffer<GLfloat> _gridVertices;
 
-    std::auto_ptr<Gtk::VBox> _optList; 
-    std::auto_ptr<Gtk::CheckButton> _showGrid;
-    std::auto_ptr<Gtk::CheckButton> _showAxis;
+    std::unique_ptr<Gtk::VBox> _optList; 
+    std::unique_ptr<Gtk::CheckButton> _showGrid;
+    std::unique_ptr<Gtk::CheckButton> _showAxis;
   };
 }

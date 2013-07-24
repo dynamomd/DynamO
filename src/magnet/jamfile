@@ -16,23 +16,15 @@
 
 import ./jam/builddep ;
 
-alias libavcodec : : : : <define>MAGNET_FFMPEG_SUPPORT <linkflags>"`pkg-config libavcodec libavutil --libs`" <cflags>"`pkg-config libavcodec libavutil --cflags`" ; 
-
-obj ffmpeg_test : tests/ffmpeg_test.cpp libavcodec : <include>. ;
+obj ffmpeg_test : tests/ffmpeg_test.cpp /system//libavcodec : <include>. ;
 
 project	: requirements
 	  [ builddep.set-feature-on-build magnet-OpenCL : /opencl//test : "Magnet: OpenCL libraries and headers (optional)" : symmetric ]
-	: default-build release
-	: build-dir $(BUILD_DIR_PATH)
-	;
+	: default-build release : build-dir $(BUILD_DIR_PATH) ;
 
-alias magnet 
-      : /system//dl : : : <include>. <variant>debug:<define>MAGNET_DEBUG <variant>debug:<linkflags>-rdynamic <variant>fulldebug:<define>MAGNET_DEBUG <variant>fulldebug:<linkflags>-rdynamic <magnet-OpenCL>yes:<source>/opencl//OpenCL <magnet-OpenCL>yes:<define>MAGNET_CLGL
-      ;
+alias magnet : /system//dl : : : <include>. <variant>debug:<define>MAGNET_DEBUG <toolset>gcc,<variant>debug:<linkflags>-rdynamic <variant>fulldebug:<define>MAGNET_DEBUG  <magnet-OpenCL>yes:<source>/opencl//OpenCL <magnet-OpenCL>yes:<define>MAGNET_CLGL ;
 
-install install-magnet
-      : [ glob magnet/*.hpp magnet/*/*.hpp magnet/*/*/*.hpp magnet/*/*/*/*.hpp magnet/*/*/*/*/*.hpp ]
-      : <location>$(INCLUDE_INSTALL_PATH) <install-source-root>./ ;
+install install-magnet : [ glob magnet/*.hpp magnet/*/*.hpp magnet/*/*/*.hpp magnet/*/*/*/*.hpp magnet/*/*/*/*/*.hpp ] : <location>$(INCLUDE_INSTALL_PATH) <install-source-root>./ ;
       
 ##################### TESTS ######################
 using testing ;
@@ -53,7 +45,7 @@ unit-test heapsort_test : tests/heapsort_test.cpp magnet /opencl//OpenCL ;
 
 unit-test sorter_test : tests/sorter_test.cpp magnet /opencl//OpenCL ;
 
-alias opencl-test : scan_test radixsort_NVIDIA_test radixsort_AMD_test bitonicsort_test heapsort_test /opencl//OpenCL sorter_test ;
+alias opencl-test : scan_test radixsort_NVIDIA_test radixsort_AMD_test bitonicsort_test heapsort_test /opencl//OpenCL sorter_test : <magnet-OpenCL>no:<build>no ;
 
 #################### THREAD ######################
 unit-test threadpool_test : tests/threadpool_test.cpp magnet
@@ -73,7 +65,9 @@ unit-test spline-test : tests/splinetest.cpp /opencl//OpenCL magnet ;
 
 unit-test dilate-test : tests/dilate_test.cpp magnet ;
 
-alias math-test : dilate-test quartic-test cubic-test vector-test spline-test ;
+unit-test quaternion-test : tests/quaternion_test.cpp magnet : <cxxflags>-std=c++0x ;
+
+alias math-test : dilate-test quartic-test cubic-test vector-test spline-test quaternion-test ;
 
 ##################################################
 alias test : opencl-test thread-test math-test ;

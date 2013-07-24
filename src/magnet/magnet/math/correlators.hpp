@@ -17,12 +17,11 @@
 
 #pragma once
 #include <magnet/math/vector.hpp>
+#include <magnet/exception.hpp>
 #include <boost/circular_buffer.hpp>
-#include <boost/foreach.hpp>
 #include <vector>
 #include <utility>
-#include <exception>
-#include <tr1/tuple>
+#include <tuple>
 
 namespace magnet {
   namespace math {    
@@ -177,8 +176,9 @@ namespace magnet {
 	Base(length),
 	_sample_time(sample_time)
       { 
-	if (sample_time <= 0)
-	  throw std::runtime_error("TimeCorrelator requires a positive, non-zero sample time");
+	if ((sample_time <= 0) || (length == 0))
+	  M_throw() << "TimeCorrelator requires a positive, non-zero sample time and a non-zero length, sample_time=" << sample_time
+		    << ", length=" << length;
 
 	clear(); 
       }
@@ -285,6 +285,10 @@ namespace magnet {
        */
       void resize(double sample_time, size_t length, size_t scaling = 2)
       {
+	if ((sample_time <= 0) || (length == 0))
+	  M_throw() << "LogarithmicTimeCorrelator requires a positive, non-zero sample time and a non-zero length, sample_time=" << sample_time
+		    << ", length=" << length;
+	
 	_sample_time = sample_time;
 	_length = length;
 	_scaling = scaling;
@@ -308,7 +312,7 @@ namespace magnet {
 	_impulse_sum.first += val1; 
 	_impulse_sum.second += val2;
 
-	BOOST_FOREACH(Correlator& correlator, _correlators)
+	for (Correlator& correlator : _correlators)
 	  correlator.addImpulse(val1, val2);
       }
 
@@ -324,7 +328,7 @@ namespace magnet {
       {
 	_freestream_values = std::pair<T,T>(val1, val2);
 
-	BOOST_FOREACH(Correlator& correlator, _correlators)
+	for (Correlator& correlator : _correlators)
 	  correlator.setFreeStreamValue(val1, val2);
       }
 
@@ -352,7 +356,7 @@ namespace magnet {
 	    new_correlator.setFreeStreamValue(_freestream_values.first, _freestream_values.second);
 	  }
 
-	BOOST_FOREACH(Correlator& correlator, _correlators)
+	for (Correlator& correlator : _correlators)
 	  correlator.freeStream(dt);
 
 	_freestream_sum.first += _freestream_values.first * dt;

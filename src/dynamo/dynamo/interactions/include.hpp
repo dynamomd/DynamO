@@ -16,12 +16,10 @@
 */
 
 #include <dynamo/interactions/hardsphere.hpp>
-#include <dynamo/interactions/roughhardsphere.hpp>
 #include <dynamo/interactions/squarewell.hpp>
 #include <dynamo/interactions/thinthread.hpp>
 #include <dynamo/interactions/swsequence.hpp>
 #include <dynamo/interactions/squarebond.hpp>
-#include <dynamo/interactions/softcore.hpp>
 #include <dynamo/interactions/nullInteraction.hpp>
 #include <dynamo/interactions/lines.hpp>
 #include <dynamo/interactions/dumbbells.hpp>

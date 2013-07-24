@@ -47,32 +47,22 @@ main(int argc, char *argv[])
 
       allopts.add_options()
 	("help,h", "Produces this message OR if --pack-mode/-m is set, it lists the specific options available for that packer mode.")
-	("out-config-file,o", 
-	 po::value<string>()->default_value("config.out.xml.bz2"), 
-	 "Configuration output file.")
-	("random-seed,s", po::value<unsigned int>(),
-	 "Seed value for the random number generator.")
-	("rescale-T,r", po::value<double>(), 
-	 "Rescales the kinetic temperature of the input/generated config to this value.")
-	("thermostat,T", po::value<double>(),
-	 "Change the thermostat temperature (will add a thermostat and set the Ensemble to NVT if needed).")
+	("out-config-file,o", po::value<string>()->default_value("config.out.xml.bz2"), "Configuration output file.")
+	("random-seed,s", po::value<unsigned int>(), "Seed value for the random number generator.")
+	("rescale-T,r", po::value<double>(), "Rescales the kinetic temperature of the input/generated config to this value.")
+	("thermostat,T", po::value<double>(), "Change or add a thermostatt with the temperature provided. A temperature of zero will remove the thermostatt.")
 	("zero-momentum,Z", "Zeros the total momentum of the input/generated config.")
 	("zero-com", "Zeros the centre of mass of the input/generated config.")
 	("zero-vel", po::value<size_t>(), "Sets the velocity in the [arg=0,1,or 2] dimension of each particle to zero.")
-	("set-com-vel", po::value<std::string>(), 
-	 "Sets the velocity of the COM of the system (format x,y,z no spaces).")
-	("mirror-system,M",po::value<unsigned int>(), 
-	 "Mirrors the particle co-ordinates and velocities. Argument is "
-	 "dimension to reverse/mirror.")
-	("round", "Output the XML config file with one less digit of accuracy to remove"
-	 "rounding errors (used in the test harness).")
+	("set-com-vel", po::value<std::string>(), "Sets the velocity of the COM of the system (format x,y,z no spaces).")
+	("mirror-system,M",po::value<unsigned int>(), "Mirrors the particle co-ordinates and velocities. Argument is dimension to reverse/mirror.")
+	("round", "Output the XML config file with one less digit of accuracy to remove rounding errors (used in the test harness).")
 	("unwrapped", "Don't apply the boundary conditions of the system when writing out the particle positions.")
 	("check", "Runs tests on the configuration to ensure the system is not in an invalid state.")
 	;
 
       loadopts.add_options()
-	("config-file", po::value<string>(), 
-	 "Config file to initialise from (Non packer mode).")
+	("config-file", po::value<string>(), "Config file to initialise from (Non packer mode).")
 	;
       
       
@@ -96,6 +86,9 @@ main(int argc, char *argv[])
 	("f5", po::value<double>(), "double option five.")
 	("f6", po::value<double>(), "double option six.")
 	("f7", po::value<double>(), "double option seven.")
+	("f8", po::value<double>(), "double option eight.")
+	("f9", po::value<double>(), "double option nine.")
+	("f10", po::value<double>(), "double option ten.")
 	("NCells,C", po::value<unsigned long>()->default_value(7),
 	 "Default number of unit cells per dimension, used for crystal packing of particles.")
 	("xcell,x", po::value<unsigned long>(),
@@ -119,9 +112,11 @@ main(int argc, char *argv[])
       po::store(po::command_line_parser(argc, argv).
 		options(allopts).positional(p).run(), vm);
       po::notify(vm);
+
+      if (vm.count("random-seed"))
+	sim.ranGenerator.seed(vm["random-seed"].as<unsigned int>());
       
-      if ((!vm.count("pack-mode")
-	   && (vm.count("help") || !vm.count("config-file"))))
+      if (!vm.count("pack-mode") && (vm.count("help") || !vm.count("config-file")))
 	{
 	  cout << "Usage : dynamod <OPTIONS>...[CONFIG FILE]\n"
 	       << " Either modifies a config file (if a file name is passed as an argument) OR generates a new config file depending on the packing mode (if --pack-mode/-m is used).\n" 
@@ -129,19 +124,23 @@ main(int argc, char *argv[])
 	  return 1;
 	}
 
-      if (vm.count("random-seed"))
-	sim.ranGenerator.seed(vm["random-seed"].as<unsigned int>());
+      if (vm.count("pack-mode") && vm.count("config-file"))
+	{
+	  cout << "You cannot specify a packing mode and pass a configuration file as an argument" << std::endl;
+	  return 1;	  
+	}
       
       ////////////////////////Simulation Initialisation!!!!!!!!!!!!!
       //Now load the config
-      if (!vm.count("config-file"))
+      if (vm.count("pack-mode"))
 	{
 	  dynamo::IPPacker plug(vm, &sim);
 	  plug.initialise();
 	  
 	  //We don't zero momentum and rescale for certain packer modes
 	  if ((vm["pack-mode"].as<size_t>() != 23)
-	      && (vm["pack-mode"].as<size_t>() != 25))
+	      && (vm["pack-mode"].as<size_t>() != 25)
+	      && (vm["pack-mode"].as<size_t>() != 28))
 	    {
 	      dynamo::InputPlugin(&sim, "Rescaler").zeroMomentum();
 	      dynamo::InputPlugin(&sim, "Rescaler").rescaleVels(1.0);
@@ -155,26 +154,34 @@ main(int argc, char *argv[])
 
       if (vm.count("thermostat"))
 	{
-	  //Locate or create a "Thermostat" System interaction
-	  try {
-	    sim.systems["Thermostat"];
-	  } catch (...) {
-	    sim.systems.push_back(dynamo::shared_ptr<dynamo::System>
-				  (new dynamo::SysAndersen(&sim, 1.0, 1.0, "Thermostat")));
-	  }
 
-	  //Check it is a thermostat type, and set the temperature
-	  try {
-	    dynamo::SysAndersen& thermostat = dynamic_cast<dynamo::SysAndersen&>(*sim.systems["Thermostat"]);
-	    thermostat.setReducedTemperature(vm["thermostat"].as<double>());
-	  } catch (...) {
-	    M_throw() << "Could not upcast System event named \"Thermostat\" to SysAndersen";
-	  }
+	  if (vm["thermostat"].as<double>() == 0.0)
+	    {
+	      auto thermostat_base_ptr = sim.systems.find("Thermostat");
+	      if (thermostat_base_ptr == sim.systems.end())
+		M_throw() << "Could not locate thermostat to disable";
 
-	  //Install a NVT Ensemble
-	  sim.ensemble.reset(new dynamo::EnsembleNVT(&sim));
+	      if (!std::dynamic_pointer_cast<dynamo::SysAndersen>(*thermostat_base_ptr))
+		M_throw() << "Could not upcast System event named \"Thermostat\" to Thermostat type";
+
+	      sim.systems.erase(thermostat_base_ptr);
+	      sim.ensemble = dynamo::Ensemble::loadEnsemble(sim);
+	    }
+	  else
+	    {
+	      if (sim.systems.find("Thermostat") == sim.systems.end())
+		sim.systems.push_back(dynamo::shared_ptr<dynamo::System>(new dynamo::SysAndersen(&sim, 1.0, 1.0, "Thermostat")));
+
+	      auto thermostat_base_ptr = sim.systems.find("Thermostat");
+	      auto thermostat_ptr = std::dynamic_pointer_cast<dynamo::SysAndersen>(*thermostat_base_ptr);
+
+	      if (!thermostat_ptr)
+		M_throw() << "Could not upcast System event named \"Thermostat\" to SysAndersen";
+	      
+	      thermostat_ptr->setReducedTemperature(vm["thermostat"].as<double>());
+	      sim.ensemble = dynamo::Ensemble::loadEnsemble(sim);
+	    }
 	}
-
       sim.addOutputPlugin("Misc");
       sim.initialise();      
       

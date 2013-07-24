@@ -19,7 +19,7 @@
 
 #include <cmath>
 #include <algorithm>
-#include <tr1/array>
+#include <array>
 #include <stddef.h>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -72,21 +72,21 @@ namespace magnet {
       { operator()(0) = a; operator()(1) = b; operator()(2) = c; }
 
       template<class T>
-      inline VectorExpression(const std::tr1::array<T, 3>& vec)
+      inline VectorExpression(const std::array<T, 3>& vec)
       { for (size_t i(0); i < 3; ++i) operator()(i) = vec[i]; }
 
       /*! \brief Constuctor from a vector expression.
        */
       template<class A,int B,class C> 
       inline VectorExpression(const VectorExpression<A, B, C> &e)
-      { for (size_t i(0); i < 3; ++i) operator()(i) = e(i); }
+      { 
+	double newvals[3] = {e.template eval<0>(), e.template eval<1>(), e.template eval<2>()};
+	for (size_t i(0); i < 3; ++i) operator()(i) = newvals[i]; 
+      }
 
       // assign zero to all elements
       inline void zero() 
-      { 
-	for (size_t i(0); i < 3; ++i) 
-	  operator()(i) = 0;
-      }
+      { for (size_t i(0); i < 3; ++i) operator()(i) = 0; }
 
       inline double nrm2() const 
       { 
@@ -95,6 +95,7 @@ namespace magnet {
 	  sum += operator()(i) * operator()(i);
 	return sum; 
       }
+
       inline double nrm() const
       {
 	double biggest = maxElement();
@@ -110,6 +111,17 @@ namespace magnet {
 	else
 	  return 0;
       }
+      
+      inline VectorExpression<> normal() const {
+	double norm=nrm();
+	double inv_nrm = 1.0 / (norm + (norm==0));
+	return Vector((*this)[0] * inv_nrm, (*this)[1] * inv_nrm, (*this)[2] * inv_nrm);
+      }
+
+      inline void normalise() {
+	*this = normal();
+      }
+
 
       inline double maxElement() const { return std::max(std::max(std::abs(_data[0]), std::abs(_data[1])), std::abs(_data[2])); }
 
@@ -199,10 +211,10 @@ namespace magnet {
       double z=eval<2>();				\
       double biggest= std::max(std::max(std::abs(x), std::abs(y)), std::abs(z)); \
       if (biggest!=0)					\
-	return biggest*(double)(sqrt(SQR(x/biggest)	\
-				     +SQR(y/biggest)	\
-				     +SQR(z/biggest))); \
-      else						\
+	return biggest*(double)(std::sqrt(SQR(x/biggest)	\
+					  +SQR(y/biggest)	\
+					  +SQR(z/biggest)));	\
+      else							\
 	return 0;					\
     }
 
@@ -540,16 +552,9 @@ namespace magnet {
 	{
 	  char name[2] = "x";
 	  name[0] = 'x' + iDim; //Write the name
-	  if (!XML.getAttribute(name))
+	  if (!XML.getAttribute(name).valid())
 	    name[0] = '0'+iDim;
-      
-	  try {
-	    data[iDim] = XML.getAttribute(name).as<double>();
-	  }
-	  catch (boost::bad_lexical_cast &)
-	    {
-	      M_throw() << "Failed a lexical cast in CVector";
-	    }
+	  data[iDim] = XML.getAttribute(name).as<double>();
 	}
 
       return data;

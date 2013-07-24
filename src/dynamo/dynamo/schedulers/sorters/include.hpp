@@ -17,5 +17,5 @@
 
 #include <dynamo/schedulers/sorters/cbt.hpp>
 #include <dynamo/schedulers/sorters/boundedPQ.hpp>
-#include <dynamo/schedulers/sorters/MinMaxHeap.hpp>
-#include <dynamo/schedulers/sorters/SingleEvent.hpp>
+#include <dynamo/schedulers/sorters/MinMaxHeapPEL.hpp>
+#include <dynamo/schedulers/sorters/singleeventPEL.hpp>

@@ -80,8 +80,6 @@ namespace dynamo {
 
     part.getVelocity() -= (1+e) * (vNorm | vij) * vNorm;
   
-    retVal.setDeltaKE(0.5 * Sim->species[retVal.getSpeciesID()]->getMass(part.getID())
-		      * (part.getVelocity().nrm2() - retVal.getOldVel().nrm2()));
     return retVal; 
   }
 
@@ -147,50 +145,29 @@ namespace dynamo {
     double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID()); 
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID()); 
     double r2 = retVal.rij.nrm2();
-  
     retVal.rvdot = (retVal.rij | retVal.vijold);
 
-    //Treat special cases if one particle has infinite mass
-    if ((p1Mass == 0) && (p2Mass != 0))
+    double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
+    bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
+    if (infinite_masses)
       {
-	retVal.impulse = p2Mass * retVal.rij * ((1.0 + e) * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
-	particle2.getVelocity() += retVal.impulse / p2Mass;
-      }
-    else if ((p2Mass == 0) && (p1Mass != 0))
-      {
-	retVal.impulse = p1Mass * retVal.rij * ((1.0 + e) * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
-	particle1.getVelocity() -= retVal.impulse / p1Mass;
-      }
-    else
-      {
-	bool isInfInf = ((p1Mass == 0.0) && (p2Mass == 0.0));
-
-	//If both particles have infinite mass we just collide them as identical masses
-	double mu = isInfInf ? 0.5 : p1Mass * p2Mass / (p1Mass + p2Mass);
-
-	retVal.impulse = retVal.rij * ((1.0 + e) * mu * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
-
-	particle1.getVelocity() -= retVal.impulse / (p1Mass + isInfInf);
-	particle2.getVelocity() += retVal.impulse / (p2Mass + isInfInf);
-
-	//If both particles have infinite mass we pretend no momentum was transferred
-	retVal.impulse *= !isInfInf;
+	p1Mass = p2Mass = 1;
+	mu = 0.5;
       }
 
+    retVal.impulse = retVal.rij * ((1.0 + e) * mu * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
+    
+    particle1.getVelocity() -= retVal.impulse / p1Mass;
+    particle2.getVelocity() += retVal.impulse / p2Mass;
+    
+    //If both particles have infinite mass we pretend no momentum was transferred
+    retVal.impulse *= !infinite_masses;
 
-    retVal.particle1_.setDeltaKE(0.5 * p1Mass
-				 * (particle1.getVelocity().nrm2() 
-				    - retVal.particle1_.getOldVel().nrm2()));
-  
-    retVal.particle2_.setDeltaKE(0.5 * p2Mass
-				 * (particle2.getVelocity().nrm2()
-				    - retVal.particle2_.getOldVel().nrm2()));
-  
     return retVal;
   }
 
   PairEventData 
-  DynCompression::SphereWellEvent(const IntEvent& event, const double& deltaKE, const double& d2) const
+  DynCompression::SphereWellEvent(const IntEvent& event, const double& deltaKE, const double& d2, size_t) const
   {
     Particle& particle1 = Sim->particles[event.getParticle1ID()];
     Particle& particle2 = Sim->particles[event.getParticle2ID()];
@@ -206,7 +183,15 @@ namespace dynamo {
     
     double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID());
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID());
-    double mu = p1Mass * p2Mass / (p1Mass + p2Mass);  
+
+    double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
+    bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
+    if (infinite_masses)
+      {
+	p1Mass = p2Mass = 1;
+	mu = 0.5;
+      }
+
     Vector  urij = retVal.rij / retVal.rij.nrm();
 
     retVal.rvdot = (urij | retVal.vijold);
@@ -220,24 +205,9 @@ namespace dynamo {
 	retVal.impulse = urij * (2.0 * mu * (retVal.rvdot - growthRate * sqrt(d2)));
       }
     else if (deltaKE==0)
-      {
-	event.setType(NON_EVENT);
-	retVal.setType(NON_EVENT);
-	retVal.impulse = Vector(0,0,0);
-      }
+      retVal.impulse = Vector(0,0,0);
     else
-      {
-	if (deltaKE < 0)
-	  {
-	    event.setType(WELL_KEDOWN);
-	    retVal.setType(WELL_KEDOWN);
-	  }
-	else
-	  {
-	    event.setType(WELL_KEUP);
-	    retVal.setType(WELL_KEUP);	  
-	  }
-	  
+      {	  
 	retVal.particle1_.setDeltaU(-0.5 * deltaKE);
 	retVal.particle2_.setDeltaU(-0.5 * deltaKE);	  
       
@@ -264,17 +234,9 @@ namespace dynamo {
 	;
 #endif
   
-    //This function must edit particles so it overrides the const!
     particle1.getVelocity() -= retVal.impulse / p1Mass;
     particle2.getVelocity() += retVal.impulse / p2Mass;
-  
-    retVal.particle1_.setDeltaKE(0.5 * p1Mass
-				 * (particle1.getVelocity().nrm2() 
-				    - retVal.particle1_.getOldVel().nrm2()));
-  
-    retVal.particle2_.setDeltaKE(0.5 * p2Mass
-				 * (particle2.getVelocity().nrm2() 
-				    - retVal.particle2_.getOldVel().nrm2()));
+    retVal.impulse *= !infinite_masses;
   
     return retVal;
   }
@@ -334,20 +296,21 @@ namespace dynamo {
  
     double mass = Sim->species[tmpDat.getSpeciesID()]->getMass(part.getID());
 
+    std::normal_distribution<> normal_dist;
+    std::uniform_real_distribution<> uniform_dist;
+
     for (size_t iDim = 0; iDim < NDIM; iDim++)
-      part.getVelocity()[iDim] = Sim->normal_sampler() * sqrtT / std::sqrt(mass);
+      part.getVelocity()[iDim] = normal_dist(Sim->ranGenerator) * sqrtT / std::sqrt(mass);
   
-    part.getVelocity() 
+    part.getVelocity()
       //This first line adds a component in the direction of the normal
-      += vNorm * (sqrtT * sqrt(-2.0*log(1.0-Sim->uniform_sampler()) / mass)
+      += vNorm * (sqrtT * sqrt(-2.0*log(1.0 - uniform_dist(Sim->ranGenerator)) / mass)
 		  //This removes the original normal component
 		  -(part.getVelocity() | vNorm)
 		  //This adds on the velocity of the wall
 		  + d * growthRate)
       ;
 
-    tmpDat.setDeltaKE(0.5 * mass * (part.getVelocity().nrm2() - tmpDat.getOldVel().nrm2()));
-  
     return tmpDat; 
   }
 }

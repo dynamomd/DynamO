@@ -25,7 +25,7 @@
 #include <dynamo/species/species.hpp>
 #include <dynamo/schedulers/sorters/event.hpp>
 #include <dynamo/dynamics/shapes/oscillatingplate.hpp>
-#include <dynamo/outputplugins/0partproperty/misc.hpp>
+#include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/units/units.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -36,40 +36,30 @@ namespace dynamo {
     DynNewtonian(tmp),
     EnergyPotentialStep(1)
   {
-    if (strcmp(XML.getAttribute("Type"),"NewtonianMC"))
-      M_throw() << "Attempting to load NewtonianMC from " 
-		<< XML.getAttribute("Type")
-		<< " entry";
+    if (XML.hasNode("PotentialDeformation"))
+      {
+	EnergyPotentialStep 
+	  = XML.getNode("PotentialDeformation").getAttribute("EnergyStep").as<double>()
+	  / Sim->units.unitEnergy();
 
-    try 
-      {     
-	if (XML.hasNode("PotentialDeformation"))
+	for (magnet::xml::Node node = XML.getNode("PotentialDeformation").fastGetNode("W"); 
+	     node.valid(); ++node)
 	  {
-	    EnergyPotentialStep 
-	      = XML.getNode("PotentialDeformation").getAttribute("EnergyStep").as<double>()
-	      / Sim->units.unitEnergy();
-
-	    for (magnet::xml::Node node = XML.getNode("PotentialDeformation").fastGetNode("W"); 
-		 node.valid(); ++node)
-	      {
-		double energy = node.getAttribute("Energy").as<double>() / Sim->units.unitEnergy();	    
-		double Wval = node.getAttribute("Value").as<double>();
+	    double energy = node.getAttribute("Energy").as<double>() / Sim->units.unitEnergy();	    
+	    double Wval = node.getAttribute("Value").as<double>();
 		
-		//Here, the Wval needs to be multiplied by kT to turn it
-		//into an Energy, but the Ensemble is not yet initialised,
-		//we must do this conversion later, when we actually use the W val.
-		_W[lrint(energy / EnergyPotentialStep)] = Wval;
-	      }
+	    //Here, the Wval needs to be multiplied by kT to turn it
+	    //into an Energy, but the Ensemble is not yet initialised,
+	    //we must do this conversion later, when we actually use the W val.
+	    _W[lrint(energy / EnergyPotentialStep)] = Wval;
 	  }
       }
-    catch (boost::bad_lexical_cast &)
-      { M_throw() << "Failed a lexical cast in DynNewtonianMC"; }
   }
 
   void 
   DynNewtonianMC::outputXML(magnet::xml::XmlStream& XML) const
   {
-    std::tr1::unordered_map<int, double> wout = _W;
+    std::unordered_map<int, double> wout = _W;
 
     XML << magnet::xml::attr("Type")
 	<< "NewtonianMC"
@@ -79,7 +69,7 @@ namespace dynamo {
 
     typedef std::pair<const int, double> locpair;
 
-    BOOST_FOREACH(const locpair& val, wout)
+    for (const locpair& val : wout)
       XML << magnet::xml::tag("W")
 	  << magnet::xml::attr("Energy")
 	  << val.first * EnergyPotentialStep * Sim->units.unitEnergy()
@@ -112,8 +102,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  DynNewtonianMC::SphereWellEvent(const IntEvent& event, const double& deltaKE, 
-				const double &) const
+  DynNewtonianMC::SphereWellEvent(const IntEvent& event, const double& deltaKE, const double &, size_t) const
   {
     Particle& particle1 = Sim->particles[event.getParticle1ID()];
     Particle& particle2 = Sim->particles[event.getParticle2ID()];
@@ -153,17 +142,6 @@ namespace dynamo {
       }
     else
       {
-	if (MCDeltaKE < 0)
-	  {
-	    event.setType(WELL_KEDOWN);
-	    retVal.setType(WELL_KEDOWN);
-	  }
-	else
-	  {
-	    event.setType(WELL_KEUP);
-	    retVal.setType(WELL_KEUP);	  
-	  }
-      
 	retVal.particle1_.setDeltaU(-0.5 * deltaKE);
 	retVal.particle2_.setDeltaU(-0.5 * deltaKE);	  
       
@@ -184,12 +162,6 @@ namespace dynamo {
     particle1.getVelocity() -= retVal.impulse / p1Mass;
     particle2.getVelocity() += retVal.impulse / p2Mass;
   
-    retVal.particle1_.setDeltaKE(0.5 * p1Mass * (particle1.getVelocity().nrm2() 
-						 - retVal.particle1_.getOldVel().nrm2()));
-  
-    retVal.particle2_.setDeltaKE(0.5 * p2Mass * (particle2.getVelocity().nrm2() 
-						 - retVal.particle2_.getOldVel().nrm2()));
-
     return retVal;
   }
 

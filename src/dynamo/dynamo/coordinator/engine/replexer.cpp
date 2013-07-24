@@ -21,9 +21,9 @@
 #include <dynamo/systems/andersenThermostat.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
+#include <dynamo/systems/snapshot.hpp>
 #include <magnet/thread/threadpool.hpp>
 #include <magnet/string/searchreplace.hpp>
-#include <boost/random/uniform_int.hpp>
 #include <fstream>
 #include <limits>
 #include <signal.h>
@@ -81,6 +81,9 @@ namespace dynamo {
 	setupSim(Simulations[i], 
 		 vm["config-file"].as<std::vector<std::string> >()[i]);
 
+	if (vm.count("snapshot"))
+	  Simulations[i].systems.push_back(shared_ptr<System>(new SSnapshot(&(Simulations[i]), vm["snapshot"].as<double>(), "SnapshotEvent", "ID%ID.%COUNT", !vm.count("unwrapped"))));
+
 	Simulations[i].initialise();
 
 	postSimInit(Simulations[i]);
@@ -118,30 +121,12 @@ namespace dynamo {
   
     for (unsigned int i = 0; i < nSims; i++)
       {
-#ifdef DYNAMO_DEBUG
-	bool didWork = false;
-#endif
-	BOOST_FOREACH(shared_ptr<System>& sysPtr1, Simulations[i].systems)
-	  if (sysPtr1->getName() == "Thermostat")
-	    {
-	      if (dynamic_cast<SysAndersen*>(sysPtr1.get()) == NULL)
-		M_throw() << "Could not upcast thermostat to Andersens";
-	    
-	      temperatureList.push_back
-		(replexPair
-		 (Simulations[i].ensemble->getEnsembleVals()[2], 
-		  simData(i,Simulations[i].ensemble->getReducedEnsembleVals()[2])));
-	    
-#ifdef DYNAMO_DEBUG
-	      didWork = true;
-#endif
-	      break;
-	    }
-      
-#ifdef DYNAMO_DEBUG
-	if (!didWork)
-	  M_throw() << "Could not find thermostat system event";
-#endif
+	shared_ptr<System>& sysPtr1 = Simulations[i].systems["Thermostat"];
+	if (dynamic_cast<SysAndersen*>(sysPtr1.get()) == NULL)
+	  M_throw() << "Found a System event called \"Thermostat\" but could not convert it to an Andersen Thermostat";
+
+	temperatureList.push_back
+	  (replexPair(Simulations[i].ensemble->getEnsembleVals()[2], simData(i,Simulations[i].ensemble->getReducedEnsembleVals()[2])));
       }
   
     std::sort(temperatureList.begin(), temperatureList.end());  
@@ -161,6 +146,16 @@ namespace dynamo {
 	    = std::sqrt(temperatureList.begin()->second.realTemperature
 			/ Simulations[i].ensemble->getReducedEnsembleVals()[2]); 
 	  Simulations[i].setTickerPeriod(vm["ticker-period"].as<double>() * tFactor);
+	}
+
+    if (vm.count("snapshot"))
+      for (size_t i = 0; i < nSims; ++i)
+	{
+	  double tFactor 
+	    = std::sqrt(temperatureList.begin()->second.realTemperature
+			/ Simulations[i].ensemble->getReducedEnsembleVals()[2]); 
+	  
+	  dynamic_cast<SSnapshot &>(*Simulations[i].systems["SnapshotEvent"]).setTickerPeriod(vm["snapshot"].as<double>() * tFactor);
 	}
   }
 
@@ -221,10 +216,8 @@ namespace dynamo {
 	  else  
 	    {
 	      //Select a image to mess with
-	      boost::uniform_int<unsigned int> tmpDist(0, temperatureList.size()-2);
-	      size_t ID = boost::variate_generator<dynamo::baseRNG&,
-		boost::uniform_int<unsigned int> >
-		(Simulations[0].ranGenerator, tmpDist)();
+	      std::uniform_int_distribution<size_t> tmpDist(0, temperatureList.size()-2);
+	      size_t ID = tmpDist(Simulations[0].ranGenerator);
 	      AttemptSwap(ID, ID+1);
 	    }
 	}
@@ -239,17 +232,15 @@ namespace dynamo {
 	break;
       case RandomPairs:
 	{
-	  boost::variate_generator<dynamo::baseRNG&,
-	    boost::uniform_int<unsigned int> >
-	    rPID(Simulations[0].ranGenerator, boost::uniform_int<unsigned int>(0, temperatureList.size()-1));
-	
+	  std::uniform_int_distribution<size_t> tmpDist(0, temperatureList.size() - 1);
 	  size_t amount = temperatureList.size() * 5;
 	  for (size_t i = 0; i < amount; ++i)
 	    {
-	      size_t ID1(rPID()), ID2(rPID());
+	      size_t ID1(tmpDist(Simulations[0].ranGenerator)), 
+		ID2(tmpDist(Simulations[0].ranGenerator));
 
 	      while (ID2 == ID1)
-		ID2 = rPID();
+		ID2 = tmpDist(Simulations[0].ranGenerator);
 
 	      AttemptSwap(ID1,ID2);
 	    }
@@ -258,11 +249,8 @@ namespace dynamo {
 	break;
       case RandomSelection:
 	{
-	  boost::variate_generator<dynamo::baseRNG&,
-	    boost::uniform_int<> >
-	    rPID(Simulations[0].ranGenerator, boost::uniform_int<>(0, 1));
-	
-	  switch (rPID())
+	  std::uniform_int_distribution<size_t> tmpDist(0, 1);
+	  switch (tmpDist(Simulations[0].ranGenerator))
 	    {
 	    case 0:
 	      ReplexSwap(AlternatingSequence);
@@ -289,7 +277,7 @@ namespace dynamo {
       ++(Simulations[i].replexExchangeNumber);
 
     //Now update the histogramming
-    BOOST_FOREACH(replexPair& dat, temperatureList)
+    for (replexPair& dat : temperatureList)
       if (SimDirection[dat.second.simID])
 	{
 	  if (SimDirection[dat.second.simID] > 0)
@@ -327,10 +315,10 @@ namespace dynamo {
     temperatureList[sim1ID].second.attempts++;
     temperatureList[sim2ID].second.attempts++;
     
+    std::uniform_real_distribution<> uniform_dist;
     //No need to check sign, it will just accept the move anyway due to
     //the [0,1) limits of the random number generator
-    if (sim1.ensemble->exchangeProbability(*sim2.ensemble)
-	> boost::uniform_01<dynamo::baseRNG, double>(sim1.ranGenerator)())
+    if (sim1.ensemble->exchangeProbability(*sim2.ensemble) > uniform_dist(sim1.ranGenerator))
       {
 	sim1.replexerSwap(sim2);
 
@@ -348,7 +336,7 @@ namespace dynamo {
     {
       std::fstream replexof("replex.dat",std::ios::out | std::ios::trunc);
     
-      BOOST_FOREACH(const replexPair& myPair, temperatureList)
+      for (const replexPair& myPair : temperatureList)
 	replexof << myPair.second.realTemperature << " " 
 		 << myPair.second.swaps << " " 
 		 << (static_cast<double>(myPair.second.swaps) 
@@ -373,7 +361,7 @@ namespace dynamo {
   
     int i = 0;
   
-    BOOST_FOREACH(replexPair p1, temperatureList)
+    for (replexPair p1 : temperatureList)
       Simulations[p1.second.simID].outputData
       ((magnet::string::search_replace(outputFormat, "%ID", boost::lexical_cast<std::string>(i++))).c_str());
   }
@@ -386,6 +374,15 @@ namespace dynamo {
     while (((Simulations[0].systemTime / Simulations[0].units.unitTime()) < replicaEndTime)
 	   && (Simulations[0].eventCount < vm["events"].as<size_t>()))
       {
+	if (_SIGTERM)
+	  {
+	    replicaEndTime = 0.0;
+	    for (unsigned int i = 0; i < nSims; i++)
+	      Simulations[i].simShutdown();
+	    _SIGTERM = false;
+	    continue;
+	  }
+
 	if (_SIGINT)
 	  {
 	    //Clear the writes to screen
@@ -398,6 +395,8 @@ namespace dynamo {
 	    setvbuf(stdin, NULL, _IONBF, 0);
 	    c=getchar();
 	    setvbuf(stdin, NULL, _IOLBF, 0);
+	    _SIGINT = false;
+
 	    switch (c)
 	      {
 	      case 's':
@@ -415,7 +414,7 @@ namespace dynamo {
 		  end_Time = boost::posix_time::second_clock::local_time();
 		  
 		  size_t i = 0;
-		  BOOST_FOREACH(replexPair p1, temperatureList)
+		  for (replexPair p1 : temperatureList)
 		    {
 		      Simulations[p1.second.simID].endEventCount = vm["events"].as<size_t>();
 		      Simulations[p1.second.simID].outputData((magnet::string::search_replace(std::string("peek.data.%ID.xml.bz2"), 
@@ -425,7 +424,7 @@ namespace dynamo {
 		  {
 		    std::fstream replexof("replex.dat",std::ios::out | std::ios::trunc);
 		    
-		    BOOST_FOREACH(const replexPair& myPair, temperatureList)
+		    for (const replexPair& myPair : temperatureList)
 		      replexof << myPair.second.realTemperature << " " 
 			       << myPair.second.swaps << " " 
 			       << (static_cast<double>(myPair.second.swaps) 
@@ -456,7 +455,7 @@ namespace dynamo {
 			    << ", Round Trips " << round_trips
 			    << "\n        T   ID     NColl   A-Ratio     Swaps    UpSims     DownSims\n";
 
-		  BOOST_FOREACH(const replexPair& dat, temperatureList)
+		  for (const replexPair& dat : temperatureList)
 		    {       
 		      std::cout << std::setw(9)
 				<< Simulations[dat.second.simID].ensemble->getReducedEnsembleVals()[2] 
@@ -481,8 +480,6 @@ namespace dynamo {
 		  break;
 		}
 	      }
-	      
-	    _SIGINT = false;
 	    {
 	      struct sigaction new_action;
 	      new_action.sa_handler = Coordinator::signal_handler;
@@ -494,10 +491,11 @@ namespace dynamo {
 	  {
 	    //Run the simulations. We also generate all tasks at once
 	    //and submit them all at once to minimise lock contention.
-	    std::vector<magnet::function::Task*> tasks(nSims, NULL);
-	  
+	    std::vector<std::function<void()> > tasks;
+	    tasks.reserve(nSims);
+
 	    for (size_t i(0); i < nSims; ++i)
-	      tasks[i] = magnet::function::Task::makeTask(&Simulation::runSimulation, &static_cast<Simulation&>(Simulations[i]), true);
+	      tasks.push_back(std::bind(&Simulation::runSimulation, &static_cast<Simulation&>(Simulations[i]), true));
 
 	    threads.queueTasks(tasks);
 	    threads.wait();//This syncs the systems for the replica exchange
@@ -511,7 +509,7 @@ namespace dynamo {
 	    for (size_t i = nSims; i != 0;)
 	      {
 		//Reset the stop event
-		shared_ptr<SystHalt> tmpRef = std::tr1::dynamic_pointer_cast<SystHalt>
+		shared_ptr<SystHalt> tmpRef = std::dynamic_pointer_cast<SystHalt>
 		  (Simulations[--i].systems["ReplexHalt"]);
 		
 #ifdef DYNAMO_DEBUG
@@ -568,7 +566,7 @@ namespace dynamo {
     std::fstream TtoID("TtoID.dat",std::ios::out | std::ios::trunc);
   
     int i = 0;
-    BOOST_FOREACH(replexPair p1, temperatureList)
+    for (replexPair p1 : temperatureList)
       {
 	TtoID << p1.second.realTemperature << " " << i << "\n";
 	Simulations[p1.second.simID].endEventCount = vm["events"].as<size_t>();

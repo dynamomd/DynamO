@@ -25,27 +25,41 @@ namespace dynamo {
   class IHardSphere: public GlyphRepresentation, public Interaction
   {
   public:
-    template<class T1, class T2>
-    IHardSphere(dynamo::Simulation* tmp, T1 d, T2 e, IDPairRange* nR, 
-		std::string name):
+    template<class T1>
+    IHardSphere(dynamo::Simulation* tmp, T1 d, IDPairRange* nR, std::string name):
       Interaction(tmp, nR),
-      _diameter(Sim->_properties.getProperty
-		(d, Property::Units::Length())),
-      _e(Sim->_properties.getProperty
-	 (e, Property::Units::Dimensionless()))
-    {
-      intName = name;
+      _diameter(Sim->_properties.getProperty(d, Property::Units::Length()))
+    { intName = name; }
+
+    template<class T1>
+    IHardSphere(dynamo::Simulation* tmp, T1 d, double e, IDPairRange* nR, std::string name):
+      Interaction(tmp, nR),
+      _diameter(Sim->_properties.getProperty(d, Property::Units::Length()))
+    { 
+      intName = name; 
+      if (e!=1) _e = Sim->_properties.getProperty(e, Property::Units::Dimensionless());
     }
+
+    template<class T1, class T2>
+    IHardSphere(dynamo::Simulation* tmp, T1 d, T2 e, IDPairRange* nR, std::string name):
+      Interaction(tmp, nR),
+      _diameter(Sim->_properties.getProperty(d, Property::Units::Length())),
+      _e(Sim->_properties.getProperty(e, Property::Units::Dimensionless()))
+    { intName = name; }
+
+    template<class T1, class T2, class T3>
+    IHardSphere(dynamo::Simulation* tmp, T1 d, T2 e, T3 et, IDPairRange* nR, std::string name):
+      Interaction(tmp, nR),
+      _diameter(Sim->_properties.getProperty(d, Property::Units::Length())),
+      _e(Sim->_properties.getProperty(e, Property::Units::Dimensionless())),
+      _et(Sim->_properties.getProperty(et, Property::Units::Dimensionless()))
+    { intName = name; }
 
     IHardSphere(const magnet::xml::Node&, dynamo::Simulation*);
 
     void operator<<(const magnet::xml::Node&);
 
-    virtual size_t glyphsPerParticle() const { return 1; }
-    virtual Vector getGlyphSize(size_t ID, size_t subID) const;
-    virtual Vector getGlyphPosition(size_t ID, size_t subID) const;
-
-    virtual double getInternalEnergy() const { return 0.0; }
+    virtual Vector getGlyphSize(size_t ID) const;
 
     virtual void initialise(size_t);
 
@@ -57,14 +71,22 @@ namespace dynamo {
 
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
  
-    virtual void runEvent(Particle&, Particle&, const IntEvent&) const;
+    virtual void runEvent(Particle&, Particle&, const IntEvent&);
    
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
     virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
 
+    void outputData(magnet::xml::XmlStream& XML) const;
+
   protected:
     shared_ptr<Property> _diameter;
     shared_ptr<Property> _e;
+    shared_ptr<Property> _et;
+    
+    mutable size_t _complete_events;
+    mutable size_t _post_event_overlap;
+    mutable double _accum_overlap_magnitude;
+    mutable size_t _overlapped_tests;
   };
 }

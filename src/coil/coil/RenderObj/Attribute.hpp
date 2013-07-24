@@ -48,7 +48,8 @@ namespace coil {
       
       DEFAULT_GLYPH_POSITION = 1 << 3, //!< This flag marks that the attribute should be used as the initial position value for a glyph.
       DEFAULT_GLYPH_SCALING  = 1 << 4, //!< This flag marks that the attribute should be used as the initial scaling field for a glyph.
-      DEFAULT_GLYPH_ORIENTATION  = 1 << 5 //!< This flag marks that the attribute should be used as the initial orientation for a glyph
+      DEFAULT_GLYPH_ORIENTATION  = 1 << 5, //!< This flag marks that the attribute should be used as the initial orientation for a glyph.
+      DEFAULT_GLYPH_COLOUR  = 1 << 6 //!< This flag marks that the attribute should be used as the initial colouring for a glyph.
     };
 
     inline Attribute(size_t N, int type, size_t components, 
@@ -94,7 +95,7 @@ namespace coil {
      * reinitialise the Attribute.
      */
     inline void flagNewData()
-    { _context->queueTask(magnet::function::Task::makeTask(&Attribute::initGLData, this)); }
+    { _context->queueTask(std::bind(&Attribute::initGLData, this)); }
 
     /*! \brief Test if the attribute is in use and should be
      * updated. 

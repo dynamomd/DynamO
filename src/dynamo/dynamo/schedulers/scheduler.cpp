@@ -49,7 +49,7 @@ namespace dynamo {
   void 
   Scheduler::operator<<(const magnet::xml::Node& XML)
   {
-    sorter = FEL::getClass(XML.getNode("Sorter"), Sim);
+    sorter = FEL::getClass(XML.getNode("Sorter"));
   }
 
   void
@@ -59,21 +59,21 @@ namespace dynamo {
     dout << "Checking the simulation configuration for any errors" << std::endl;
     size_t warnings(0);
 
-    BOOST_FOREACH(const shared_ptr<Interaction>& interaction_ptr, Sim->interactions)
+    for (const auto& interaction_ptr : Sim->interactions)
       warnings += interaction_ptr->validateState(warnings < 101, 101 - warnings);
     
     for (size_t id1(0); id1 < Sim->particles.size(); ++id1)
       {
-	std::auto_ptr<IDRange> ids(getParticleNeighbours(Sim->particles[id1]));
-	BOOST_FOREACH(const size_t id2, *ids)
+	std::unique_ptr<IDRange> ids(getParticleNeighbours(Sim->particles[id1]));
+	for (const size_t id2 : *ids)
 	  if (id2 > id1)
 	    if (Sim->getInteraction(Sim->particles[id1], Sim->particles[id2])
 		->validateState(Sim->particles[id1], Sim->particles[id2], (warnings < 101)))
 	      ++warnings;
       }
     
-    BOOST_FOREACH(const Particle& part, Sim->particles)
-      BOOST_FOREACH(const shared_ptr<Local>& lcl, Sim->locals)
+    for(const Particle& part : Sim->particles)
+      for (const shared_ptr<Local>& lcl : Sim->locals)
       if (lcl->isInteraction(part))
 	if (lcl->validateState(part, (warnings < 101)))
 	  ++warnings;
@@ -94,7 +94,7 @@ namespace dynamo {
     eventCount.clear();
     eventCount.resize(Sim->N+1, 0);
 
-    BOOST_FOREACH(Particle& part, Sim->particles)
+    for (Particle& part : Sim->particles)
       addEvents(part);
   
     sorter->init();
@@ -109,35 +109,33 @@ namespace dynamo {
     Sim->dynamics->updateParticle(part);
 
     //Add the global events
-    BOOST_FOREACH(const shared_ptr<Global>& glob, Sim->globals)
+    for (const shared_ptr<Global>& glob : Sim->globals)
       if (glob->isInteraction(part))
 	sorter->push(glob->getEvent(part), part.getID());
   
     //Add the local cell events
-    std::auto_ptr<IDRange> ids(getParticleLocals(part));
+    std::unique_ptr<IDRange> ids(getParticleLocals(part));
     
-    BOOST_FOREACH(const size_t id2, *ids)
+    for (const size_t id2 : *ids)
       addLocalEvent(part, id2);
 
     //Now add the interaction events
     ids = getParticleNeighbours(part);
-    BOOST_FOREACH(const size_t id2, *ids)
+    for (const size_t id2 : *ids)
       addInteractionEvent(part, id2);
   }
 
   shared_ptr<Scheduler>
   Scheduler::getClass(const magnet::xml::Node& XML, dynamo::Simulation* const Sim)
   {
-    if (!strcmp(XML.getAttribute("Type"),"NeighbourList"))
+    if (!XML.getAttribute("Type").getValue().compare("NeighbourList"))
       return shared_ptr<Scheduler>(new SNeighbourList(XML, Sim));
-    else if (!strcmp(XML.getAttribute("Type"),"Dumb"))
+    else if (!XML.getAttribute("Type").getValue().compare("Dumb"))
       return shared_ptr<Scheduler>(new SDumb(XML, Sim));
-    else if (!strcmp(XML.getAttribute("Type"),"SystemOnly"))
+    else if (!XML.getAttribute("Type").getValue().compare("SystemOnly"))
       return shared_ptr<Scheduler>(new SSystemOnly(XML, Sim));
-    else if (!strcmp(XML.getAttribute("Type"),"Complex"))
-      return shared_ptr<Scheduler>(new SComplex(XML, Sim));
     else 
-      M_throw() << XML.getAttribute("Type")
+      M_throw() << XML.getAttribute("Type").getValue()
 		<< ", Unknown type of Scheduler encountered";
   }
 
@@ -153,18 +151,13 @@ namespace dynamo {
   {
     sorter->clearPEL(Sim->N);
 
-    BOOST_FOREACH(const shared_ptr<System>& sysptr, 
-		  Sim->systems)
+    for(const auto& sysptr : Sim->systems)
       sorter->push(Event(sysptr->getdt(), SYSTEM, sysptr->getID(), 0), Sim->N);
 
     sorter->update(Sim->N);
   }
 
-  void 
-  Scheduler::popNextEvent()
-  {
-    sorter->popNextPELEvent(sorter->next_ID());
-  }
+  void Scheduler::popNextEvent() { sorter->popNextEvent(); }
 
   void 
   Scheduler::pushEvent(const Particle& part,
@@ -193,29 +186,28 @@ namespace dynamo {
     sorter->sort();
 
 #ifdef DYNAMO_DEBUG
-    if (sorter->nextPELEmpty())
+    if (sorter->empty())
       M_throw() << "Next particle list is empty but top of list!";
 #endif
 
     lazyDeletionCleanup();
 
-    if (boost::math::isnan(sorter->next_dt()))
+    std::pair<size_t, Event> next_event = sorter->next();
+    if (boost::math::isnan(next_event.second.dt))
       M_throw() << "Next event time is NaN"
-		<< "\nTime to event "
-		<< sorter->next_dt()
 		<< "\nEvent Type = " 
-		<< sorter->next_type()
-		<< "\nOwner Particle = " << sorter->next_ID()
-		<< "\nID2 = " << sorter->next_p2();
+		<< next_event.second.type
+		<< "\nOwner Particle = " << next_event.first
+		<< "\n(Particle2ID/LocalID/GlobalID/SystemID) = " << next_event.second.extraID;
     
-    if (sorter->next_dt() == HUGE_VAL)
+    if (next_event.second.dt == HUGE_VAL)
       {
 	derr << "Next event time is Inf! (Queue has run out of events!)\n"
 	     << "Shutting simulation down..."
 	     << "\nEvent details, Type = " 
-	     << sorter->next_type()
-	     << "\nOwner Particle = " << sorter->next_ID()
-	     << "\nID2 = " << sorter->next_p2()
+	     << next_event.second.type
+	     << "\nOwner Particle = " << next_event.first
+	     << "\n(Particle2ID/LocalID/GlobalID/SystemID) = " << next_event.second.extraID
 	     << std::endl;
 	Sim->endEventCount = Sim->eventCount;
 	return;
@@ -260,31 +252,30 @@ namespace dynamo {
     */
     const size_t rejectionLimit = 10;
 
-    switch (sorter->next_type())
+    switch (next_event.second.type)
       {
       case INTERACTION:
 	{
-	  Particle& p1(Sim->particles[sorter->next_ID()]);
-	  Particle& p2(Sim->particles[sorter->next_p2()]);
+	  Particle& p1(Sim->particles[next_event.first]);
+	  Particle& p2(Sim->particles[next_event.second.particle2ID]);
 
 	  //Ready the next event in the FEL
 	  sorter->popNextEvent();
-	  sorter->update(sorter->next_ID());
-	  sorter->sort();	
+	  sorter->update(next_event.first);
+	  sorter->sort();
 	  lazyDeletionCleanup();
 
 	  //Now recalculate the FEL event
-	  Sim->dynamics->updateParticlePair(p1, p2);       
+	  Sim->dynamics->updateParticlePair(p1, p2);
 	  IntEvent Event(Sim->getEvent(p1, p2));
 	
 #ifdef DYNAMO_DEBUG
-	  if (sorter->nextPELEmpty())
+	  if (sorter->empty())
 	    M_throw() << "The next PEL is empty, cannot perform the comparison to see if this event is out of sequence";
 #endif
+	  next_event = sorter->next();
 
-	  if ((Event.getType() == NONE)
-	      || ((Event.getdt() > sorter->next_dt()) 
-		  && (++_interactionRejectionCounter < rejectionLimit)))
+	  if ((Event.getType() == NONE) || ((Event.getdt() > next_event.second.dt) && (++_interactionRejectionCounter < rejectionLimit)))
 	    {
 	      this->fullUpdate(p1, p2);
 	      return;
@@ -323,43 +314,37 @@ namespace dynamo {
 	  //dynamics must be updated first
 	  Sim->stream(Event.getdt());
 	
-	  Sim->interactions[Event.getInteractionID()]
-	    ->runEvent(p1,p2,Event);
+	  Sim->interactions[Event.getInteractionID()]->runEvent(p1,p2,Event);
 
 	  break;
 	}
       case GLOBAL:
 	{
 	  //We don't stream the system for globals as neighbour lists
-	  //optimise this (they dont need it).
-
-	  //We also don't recheck Global events! (Check, some events might rely on this behavior)
-	  Sim->globals[sorter->next_p2()]
-	    ->runEvent(Sim->particles[sorter->next_ID()], sorter->next_dt());       	
+	  //optimise this (they dont need it).  We also don't recheck
+	  //Global events! (Check, some events might rely on this
+	  //behavior)
+	  Sim->globals[next_event.second.globalID]->runEvent(Sim->particles[next_event.first], next_event.second.dt);
 	  break;	           
 	}
       case LOCAL:
 	{
-	  Particle& part(Sim->particles[sorter->next_ID()]);
-
-	  //Copy the FEL event
-	  size_t localID = sorter->next_p2();
+	  Particle& part(Sim->particles[next_event.first]);
+	  size_t localID = next_event.second.localID;
 
 	  //Ready the next event in the FEL
 	  sorter->popNextEvent();
-	  sorter->update(sorter->next_ID());
+	  sorter->update(next_event.first);
 	  sorter->sort();
 	  lazyDeletionCleanup();
 
 	  Sim->dynamics->updateParticle(part);
 	  LocalEvent iEvent(Sim->locals[localID]->getEvent(part));
 
-	  double next_dt = sorter->next_dt();
-
+	  next_event = sorter->next();
 	  //Check the recalculated event is valid and not later than
 	  //the next event in the queue
-	  if ((iEvent.getType() == NONE)
-	      || ((iEvent.getdt() > next_dt) && (++_localRejectionCounter < rejectionLimit)))
+	  if ((iEvent.getType() == NONE) || ((iEvent.getdt() > next_event.second.dt) && (++_localRejectionCounter < rejectionLimit)))
 	    {
 	      this->fullUpdate(part);
 	      return;
@@ -389,8 +374,7 @@ namespace dynamo {
 	}
       case SYSTEM:
 	{
-	  Sim->systems[sorter->next_p2()]
-	    ->runEvent();
+	  Sim->systems[next_event.second.systemID]->runEvent();
 	  //This saves the system events rebuilding themselves
 	  rebuildSystemEvents();
 	  break;
@@ -399,8 +383,7 @@ namespace dynamo {
 	{
 	  //This is a special event type which requires that the
 	  // events for this particle recalculated.
-	  size_t ID = sorter->next_ID();
-	  this->fullUpdate(Sim->particles[ID]);
+	  this->fullUpdate(Sim->particles[next_event.first]);
 	  break;
 	}
       case NONE:
@@ -410,7 +393,7 @@ namespace dynamo {
 	}
       default:
 	M_throw() << "Unhandled event type requested to be run\n"
-		  << "Type is " << sorter->next_type();
+		  << "Type is " << next_event.second.type;
       }
   }
 
@@ -441,17 +424,17 @@ namespace dynamo {
   void 
   Scheduler::lazyDeletionCleanup()
   {
-    while ((sorter->next_type() == INTERACTION)
-	   && (sorter->next_collCounter2()
-	       != eventCount[sorter->next_p2()]))
+    std::pair<size_t, Event> next_event = sorter->next();
+    while ((next_event.second.type == INTERACTION) && (next_event.second.collCounter2 != eventCount[next_event.second.particle2ID]))
       {
 	//Not valid, update the list
 	sorter->popNextEvent();
-	sorter->update(sorter->next_ID());
-	sorter->sort();
-      
+	sorter->update(next_event.first);
+	sorter->sort();      
+	next_event = sorter->next();
+
 #ifdef DYNAMO_DEBUG
-	if (sorter->nextPELEmpty())
+	if (sorter->empty())
 	  M_throw() << "Next particle list is empty but top of list!";
 #endif
       }

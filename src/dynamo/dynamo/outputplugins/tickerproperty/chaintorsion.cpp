@@ -22,7 +22,6 @@
 #include <dynamo/topology/include.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/BC/None.hpp>
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <vector>
 
@@ -34,12 +33,12 @@ namespace dynamo {
   void 
   OPCTorsion::initialise()
   {
-    BOOST_FOREACH(const shared_ptr<Topology>& plugPtr, Sim->topology)
-      if (std::tr1::dynamic_pointer_cast<TChain>(plugPtr))
+    for (const shared_ptr<Topology>& plugPtr : Sim->topology)
+      if (std::dynamic_pointer_cast<TChain>(plugPtr))
 	chains.push_back(CTCdata(static_cast<const TChain*>(plugPtr.get()), 
 				 0.005, 0.005, 0.01));
 
-    if (!std::tr1::dynamic_pointer_cast<BCNone>(Sim->BCs))
+    if (!std::dynamic_pointer_cast<BCNone>(Sim->BCs))
       M_throw() << "Can only use this plugin with Null BC's"
 		<< "\nPositions must be unwrapped";
   }
@@ -75,11 +74,11 @@ namespace dynamo {
   void 
   OPCTorsion::ticker()
   {
-    BOOST_FOREACH(CTCdata& dat,chains)
+    for (CTCdata& dat : chains)
       {
 	double sysGamma  = 0.0;
 	long count = 0;
-	BOOST_FOREACH(const shared_ptr<IDRange>& range,  dat.chainPtr->getMolecules())
+	for (const shared_ptr<IDRange>& range : dat.chainPtr->getMolecules())
 	  {
 	    if (range->size() < 3)//Need three for curv and torsion
 	      break;
@@ -188,7 +187,7 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("ChainTorsion");
   
-    BOOST_FOREACH(CTCdata& dat, chains)
+    for (CTCdata& dat : chains)
       {
 	XML << magnet::xml::tag(dat.chainPtr->getName().c_str())
 	    << magnet::xml::tag("MolecularHistogram");

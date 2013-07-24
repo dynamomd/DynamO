@@ -19,37 +19,42 @@
 
 #include <dynamo/interactions/captures.hpp>
 #include <dynamo/interactions/glyphrepresentation.hpp>
+#include <dynamo/interactions/potentials/potential.hpp>
 #include <dynamo/simulation.hpp>
+#include <dynamo/eventtypes.hpp>
 #include <vector>
 
 namespace dynamo {
-  class IStepped: public IMultiCapture, public GlyphRepresentation
+  class IStepped: public ICapture, public GlyphRepresentation
   {
   public:
-    typedef std::pair<double,double> steppair;
-
-    IStepped(dynamo::Simulation*, const std::vector<steppair>&,
-	     IDPairRange*, std::string name);
+    template<class T1, class T2>
+    IStepped(dynamo::Simulation* tmp, shared_ptr<Potential> potential, IDPairRange* nR, std::string name, T1 length, T2 energy):
+      ICapture(tmp,nR),
+      _lengthScale(Sim->_properties.getProperty(length, Property::Units::Length())),
+      _energyScale(Sim->_properties.getProperty(energy, Property::Units::Energy())),
+      _potential(potential)
+    {
+      intName = name;
+    }
 
     IStepped(const magnet::xml::Node&, dynamo::Simulation*);
   
     void operator<<(const magnet::xml::Node&);
 
-    virtual size_t glyphsPerParticle() const { return 1; }
-    virtual Vector getGlyphSize(size_t ID, size_t subID) const;
-    virtual Vector getGlyphPosition(size_t ID, size_t subID) const;
+    virtual Vector getGlyphSize(size_t ID) const;
 
     virtual double getExcludedVolume(size_t) const;
 
     virtual double maxIntDist() const;
 
-    virtual int captureTest(const Particle&, const Particle&) const;
+    virtual size_t captureTest(const Particle&, const Particle&) const;
 
     virtual void initialise(size_t);
 
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
   
-    virtual void runEvent(Particle&, Particle&, const IntEvent&) const;
+    virtual void runEvent(Particle&, Particle&, const IntEvent&);
   
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
@@ -59,12 +64,21 @@ namespace dynamo {
 
     virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
 
+    virtual void outputData(magnet::xml::XmlStream&) const;
+
   protected:
     //!This class is used to track how the length scale changes in the system
-    shared_ptr<Property> _unitLength;
+    shared_ptr<Property> _lengthScale;
     //!This class is used to track how the energy scale changes in the system
-    shared_ptr<Property> _unitEnergy;
+    shared_ptr<Property> _energyScale;
 
-    std::vector<steppair> steps;
+    shared_ptr<Potential> _potential;
+    
+    struct EdgeData {
+      EdgeData(): counter(0), rdotv_sum(0) {}
+      size_t counter;
+      double rdotv_sum;
+    };
+    std::map<std::pair<size_t, EEventType>, EdgeData> _edgedata;
   };
 }

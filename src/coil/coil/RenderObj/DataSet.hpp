@@ -23,7 +23,7 @@
 #include <magnet/gtk/colorMapSelector.hpp>
 #include <boost/lexical_cast.hpp>
 #include <vector>
-#include <tr1/memory>
+#include <memory>
 
 namespace coil {
   class DataSet;
@@ -39,7 +39,7 @@ namespace coil {
     /*! \brief Called when the object should be deleted. */
     virtual void request_delete();
 
-    virtual std::tr1::array<GLfloat, 4> getCursorPosition(uint32_t objID);
+    virtual std::array<GLfloat, 4> getCursorPosition(uint32_t objID);
 
     virtual std::string getCursorText(uint32_t objID);
 
@@ -52,27 +52,46 @@ namespace coil {
    * instances forming a dataset, and any active filters/glyphs or any
    * other type derived from \ref DataSetChild.
    */
-  class DataSet: public RenderObj, public std::map<std::string, std::tr1::shared_ptr<Attribute> >
+  class DataSet: public RenderObj
   {
+    struct PointSet : public magnet::GL::Buffer<GLuint>
+    { int glyphType; };
+
+    struct LinkSet : public magnet::GL::Buffer<GLuint>
+    {};
+
+    std::map<std::string, std::shared_ptr<Attribute>> _attributes;
+    std::map<std::string, PointSet> _pointSets;
+    std::map<std::string, LinkSet> _linkSets;
+    
   public:
-    DataSet(std::string name, size_t N, int defaultGlyphType = 0): 
+    DataSet(std::string name, size_t N, int defaultGlyphType = 0):
       RenderObj(name), 
       _N(N),
       _defaultGlyphType(defaultGlyphType)
     {}
     
-    virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
+    virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
 
     virtual void deinit();
+
+    std::map<std::string, std::shared_ptr<Attribute> >& getAttributes() { return _attributes; }
+    const std::map<std::string, std::shared_ptr<Attribute> >& getAttributes() const { return _attributes; }
+
+    std::map<std::string, PointSet>& getPointSets() { return _pointSets; }
+
+    void addPointSet(std::string name, const std::vector<GLuint>&, int glyphtype);
+
+    void addLinkSet(std::string name, const std::vector<GLuint>&, int glyphtype);
 
     /** @name The host code interface. */
     /**@{*/
 
     /*! \brief Add an Attribute to the DataSet.
-     *
-     * \param name The name of the Attribute.
-     * \param type The type of the attribute.
-     * \param components The number of components per value of the attribute.
+     
+      \param name The name of the Attribute.
+      \param type The type of the attribute.
+      \param components The number of components per value of the attribute.
      */
     void addAttribute(std::string name, int type, size_t components);
 
@@ -80,8 +99,8 @@ namespace coil {
      */
     inline Attribute& operator[](const std::string& name)
     {
-      iterator iPtr = find(name);
-      if (iPtr == end())
+      auto iPtr = _attributes.find(name);
+      if (iPtr == _attributes.end())
 	M_throw() << "No attribute named " << name << " in Data set";
       
       return *(iPtr->second);
@@ -98,17 +117,30 @@ namespace coil {
 
     /**@}*/
         
-    virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode = DEFAULT)
+    virtual void glRender(const magnet::GL::Camera& cam, RenderMode mode, const uint32_t offset)
     {
-      for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
-	   iPtr != _children.end(); ++iPtr)
-	if ((*iPtr)->visible() && (!(mode & SHADOW) || (*iPtr)->shadowCasting()))
-	  (*iPtr)->glRender(cam, mode);
-      
-      for (iterator iPtr = begin(); iPtr != end(); ++iPtr)
-	iPtr->second->renderComplete();
-
-      rebuildGui();
+      if (mode == PICKING)
+	{
+	  uint32_t obj_offset = offset;
+	  
+	  for (auto& child : _children)
+	    {
+	      uint32_t objs = child->pickableObjectCount();
+	      if (objs) child->glRender(cam, RenderObj::PICKING, obj_offset);
+	      obj_offset += objs;
+	    }
+	}
+      else
+	{
+	  for (auto& child : _children)
+	    if (child->visible() && (!(mode & SHADOW) || child->shadowCasting()))
+	      child->glRender(cam, mode);
+	  
+	  for (auto& data : _attributes)
+	    data.second->renderComplete();
+	  
+	  rebuildGui();
+	}
     }
     
     virtual Gtk::TreeModel::iterator addViewRows(RenderObjectsGtkTreeView& view, Gtk::TreeModel::iterator& iter)
@@ -118,11 +150,10 @@ namespace coil {
       _iter = iter;
       RenderObj::addViewRows(view, _iter);
 
-      for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
-	   iPtr != _children.end(); ++iPtr)
+      for (auto& child : _children)
 	{
 	  Gtk::TreeModel::iterator child_iter = view._store->append(_iter->children());
-	  (*iPtr)->addViewRows(view, child_iter);
+	  child->addViewRows(view, child_iter);
 	}
       return _iter;
     }
@@ -133,55 +164,34 @@ namespace coil {
 
     void deleteChild(DataSetChild* child)
     {
-      _context->queueTask(magnet::function::Task::makeTask(&DataSet::deleteChildWorker, this, child));
+      _context->queueTask(std::bind(&DataSet::deleteChildWorker, this, child));
     }
 
-    magnet::GL::Context::ContextPtr getContext()
-    { return _context; }
-    
+    magnet::GL::Context::ContextPtr getContext() { return _context; }
 
     virtual uint32_t pickableObjectCount()
     {
       if (!visible()) return 0;
 
       uint32_t sum = 0;
-      for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator iPtr = _children.begin();
-	   iPtr != _children.end(); ++iPtr)
-	sum += (*iPtr)->pickableObjectCount();
+      for (auto& child : _children) sum += child->pickableObjectCount();
 
       return sum;
     }
 
-    virtual void pickingRender(const magnet::GL::Camera& cam, 
-			       const uint32_t offset)
-    {
-      uint32_t obj_offset = offset;
-      
-      for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator 
-	     iPtr = _children.begin(); iPtr != _children.end(); ++iPtr)
-	{
-	  uint32_t objs = (*iPtr)->pickableObjectCount();
-	  if (objs)
-	    (*iPtr)->pickingRender(cam, obj_offset);
-
-	  obj_offset += objs;
-	}
-    }
-
-    virtual std::tr1::shared_ptr<RenderObj>
-    getPickedObject(uint32_t& objID, const std::tr1::shared_ptr<RenderObj>& my_ptr)
+    virtual std::shared_ptr<RenderObj>
+    getPickedObject(uint32_t& objID, const std::shared_ptr<RenderObj>& my_ptr)
     { 
       uint32_t obj_offset = 0;
 
-      for (std::vector<std::tr1::shared_ptr<DataSetChild> >::iterator 
-	     iPtr = _children.begin(); iPtr != _children.end(); ++iPtr)
+      for (auto& child : _children)
 	{
-	  const uint32_t n_objects = (*iPtr)->pickableObjectCount();
+	  const uint32_t n_objects = child->pickableObjectCount();
 	  
 	  if ((objID >= obj_offset) && (objID - obj_offset) < n_objects)
 	    {
 	      objID -= obj_offset;
-	      return (*iPtr)->getPickedObject(objID, *iPtr);
+	      return child->getPickedObject(objID, child);
 	    }
 
 	  obj_offset += n_objects;
@@ -195,14 +205,14 @@ namespace coil {
 
     magnet::GL::Buffer<GLfloat>& getPositionBuffer();
 
-    std::tr1::shared_ptr<AttributeSelector>& 
-    getPositionSelector() { return _positionSel; }
+    std::shared_ptr<AttributeSelector>& getPositionSelector() { return _positionSel; }
 
     void addGlyphs();
+    void addLinkGlyphs();
         
     virtual std::string getCursorText(uint32_t objID);
 
-    virtual std::tr1::array<GLfloat, 4> getCursorPosition(uint32_t objID);
+    virtual std::array<GLfloat, 4> getCursorPosition(uint32_t objID);
 
     Vector getPeriodicVectorX() const { return _periodicImageX; }
     Vector getPeriodicVectorY() const { return _periodicImageY; }
@@ -211,16 +221,19 @@ namespace coil {
   protected:
     void deleteChildWorker(DataSetChild* child);
 
+    void addPointSetWorker(std::string name, std::vector<GLuint>, int glyphtype);
+    void addLinkSetWorker(std::string name, std::vector<GLuint>, int glyphtype);
+
     /*! \brief An iterator to this DataSet's row in the Render object
       treeview.
      */
     Gtk::TreeModel::iterator _iter;
     RenderObjectsGtkTreeView* _view;
     magnet::GL::Context::ContextPtr _context;
-    std::auto_ptr<Gtk::VBox> _gtkOptList;
+    std::unique_ptr<Gtk::VBox> _gtkOptList;
     size_t _N;
-    std::vector<std::tr1::shared_ptr<DataSetChild> > _children;
-    std::tr1::shared_ptr<AttributeSelector> _positionSel;
+    std::vector<std::shared_ptr<DataSetChild> > _children;
+    std::shared_ptr<AttributeSelector> _positionSel;
 
     int _defaultGlyphType;
 
@@ -239,9 +252,12 @@ namespace coil {
       Gtk::TreeModelColumn<Attribute::AttributeType> type;
     };
     
-    std::auto_ptr<ModelColumns> _attrcolumns;
+    std::unique_ptr<ModelColumns> _attrcolumns;
     Glib::RefPtr<Gtk::TreeStore> _attrtreestore;
-    std::auto_ptr<Gtk::TreeView> _attrview;
+    std::unique_ptr<Gtk::TreeView> _attrview;
+    std::unique_ptr<Gtk::Label> _infolabel;
+    std::unique_ptr<Gtk::ComboBoxText> _comboPointSet;
+    std::unique_ptr<Gtk::ComboBoxText> _comboLinkSet;
 
     Vector _periodicImageX;
     Vector _periodicImageY;

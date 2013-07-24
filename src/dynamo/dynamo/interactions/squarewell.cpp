@@ -36,7 +36,7 @@
 
 namespace dynamo {
   ISquareWell::ISquareWell(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
-    ISingleCapture(tmp, NULL) //A temporary value!
+    ICapture(tmp, NULL) //A temporary value!
   {
     operator<<(XML);
   }
@@ -45,44 +45,28 @@ namespace dynamo {
   ISquareWell::operator<<(const magnet::xml::Node& XML)
   {
     Interaction::operator<<(XML);
-  
-    try {
-      _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
-					       Property::Units::Length());
-      _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
-					     Property::Units::Dimensionless());
-      _wellDepth = Sim->_properties.getProperty(XML.getAttribute("WellDepth"),
-						Property::Units::Energy());
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
+					     Property::Units::Length());
+    _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
+					   Property::Units::Dimensionless());
+    _wellDepth = Sim->_properties.getProperty(XML.getAttribute("WellDepth"),
+					      Property::Units::Energy());
 
-      if (XML.hasAttribute("Elasticity"))
-	_e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-					  Property::Units::Dimensionless());
-      else
-	_e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
-      intName = XML.getAttribute("Name");
-      ISingleCapture::loadCaptureMap(XML);   
-    }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in ISquareWell";
-      }
+    if (XML.hasAttribute("Elasticity"))
+      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
+					Property::Units::Dimensionless());
+    else
+      _e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
+    intName = XML.getAttribute("Name");
+    ICapture::loadCaptureMap(XML);   
   }
 
   Vector
-  ISquareWell::getGlyphSize(size_t ID, size_t subID) const 
+  ISquareWell::getGlyphSize(size_t ID) const 
   { 
     double diam = _diameter->getProperty(ID);
     return Vector(diam, diam, diam); 
   }
-
-  Vector 
-  ISquareWell::getGlyphPosition(size_t ID, size_t subID) const
-  { 
-    Vector retval = Sim->particles[ID].getPosition();
-    Sim->BCs->applyBC(retval);
-    return retval;
-  }
-
 
   double 
   ISquareWell::getExcludedVolume(size_t ID) const 
@@ -99,10 +83,10 @@ namespace dynamo {
   ISquareWell::initialise(size_t nID)
   {
     ID = nID;
-    ISingleCapture::initCaptureMap();
+    ICapture::initCaptureMap();
   }
 
-  bool 
+  size_t
   ISquareWell::captureTest(const Particle& p1, const Particle& p2) const
   {
     if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
@@ -121,7 +105,7 @@ namespace dynamo {
 	   << "\nd = " << d / Sim->units.unitLength() << std::endl;
 #endif
  
-    return Sim->dynamics->sphereOverlap(p1, p2, l * d);
+    return Sim->dynamics->sphereOverlap(p1, p2, l * d) > 0;
   }
 
   IntEvent
@@ -155,21 +139,21 @@ namespace dynamo {
 
 	dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, l * d);
 	if (retval.getdt() > dt)
-	    retval = IntEvent(p1, p2, dt, WELL_OUT, *this);
+	    retval = IntEvent(p1, p2, dt, STEP_OUT, *this);
       }
     else
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, l * d);
 
       if (dt != HUGE_VAL)
-	retval = IntEvent(p1, p2, dt, WELL_IN, *this);
+	retval = IntEvent(p1, p2, dt, STEP_IN, *this);
       }
 
     return retval;
   }
 
   void
-  ISquareWell::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
+  ISquareWell::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
 
@@ -191,43 +175,29 @@ namespace dynamo {
       case CORE:
 	{
 	  PairEventData retVal(Sim->dynamics->SmoothSpheresColl(iEvent, e, d2, CORE));
-	  Sim->signalParticleUpdate(retVal);
-	
+	  (*Sim->_sigParticleUpdate)(retVal);
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	
-	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
-
 	  break;
 	}
-      case WELL_IN:
+      case STEP_IN:
 	{
-	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, wd, ld2));
-	
-	  if (retVal.getType() != BOUNCE)
-	    addToCaptureMap(p1, p2);      
-	
+	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, wd, ld2, 1));
+	  if (retVal.getType() != BOUNCE) ICapture::add(p1, p2);
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	  Sim->signalParticleUpdate(retVal);
-	
-	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	  (*Sim->_sigParticleUpdate)(retVal);
+	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
-
-
 	  break;
 	}
-      case WELL_OUT:
+      case STEP_OUT:
 	{
-	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, -wd, ld2));
-	
-	  if (retVal.getType() != BOUNCE)
-	    removeFromCaptureMap(p1, p2);      
-
-	  Sim->signalParticleUpdate(retVal);
-
+	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, -wd, ld2, 0));
+	  if (retVal.getType() != BOUNCE) ICapture::remove(p1, p2);
+	  (*Sim->_sigParticleUpdate)(retVal);
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	
-	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
 	  break;
 	}
@@ -298,7 +268,7 @@ namespace dynamo {
 	<< magnet::xml::attr("Name") << intName
 	<< *range;
   
-    ISingleCapture::outputCaptureMap(XML);  
+    ICapture::outputCaptureMap(XML);  
   }
 
   double 
@@ -306,13 +276,9 @@ namespace dynamo {
   { 
     //Once the capture maps are loaded just iterate through that determining energies
     double Energy = 0.0;
-    typedef std::pair<size_t, size_t> locpair;
-
-    BOOST_FOREACH(const locpair& IDs, captureMap)
-      Energy += 0.5 * (_wellDepth->getProperty(IDs.first)
-		       +_wellDepth->getProperty(IDs.second));
-  
-    return -Energy; 
+    for (const ICapture::value_type& IDs : *this)
+      Energy += getInternalEnergy(Sim->particles[IDs.first.first], Sim->particles[IDs.first.second]);
+    return Energy; 
   }
 
   double 

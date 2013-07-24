@@ -15,13 +15,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <boost/math/special_functions/spherical_harmonic.hpp>
 #include <dynamo/outputplugins/tickerproperty/SHcrystal.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/BC/BC.hpp>
 #include <boost/math/special_functions/spherical_harmonic.hpp>
-#include <boost/foreach.hpp>
 #include <magnet/math/wigner3J.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -41,18 +41,11 @@ namespace dynamo {
   void 
   OPSHCrystal::operator<<(const magnet::xml::Node& XML)
   {
-    try
-      {
-	if (XML.hasAttribute("CutOffR"))
-	  rg = XML.getAttribute("CutOffR").as<double>();
+    if (XML.hasAttribute("CutOffR"))
+      rg = XML.getAttribute("CutOffR").as<double>();
 
-	if (XML.hasAttribute("MaxL"))
-	  maxl = XML.getAttribute("MaxL").as<size_t>();
-      }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in OPSHCrystal";
-      }
+    if (XML.hasAttribute("MaxL"))
+      maxl = XML.getAttribute("MaxL").as<size_t>();
 
     rg *= Sim->units.unitLength();
 
@@ -66,8 +59,8 @@ namespace dynamo {
   OPSHCrystal::initialise() 
   { 
     double smallestlength = HUGE_VAL;
-    BOOST_FOREACH(const shared_ptr<Global>& pGlob, Sim->globals)
-      if (std::tr1::dynamic_pointer_cast<GNeighbourList>(pGlob))
+    for (const shared_ptr<Global>& pGlob : Sim->globals)
+      if (std::dynamic_pointer_cast<GNeighbourList>(pGlob))
 	{
 	  const double l(static_cast<const GNeighbourList*>(pGlob.get())
 			 ->getMaxSupportedInteractionLength());
@@ -95,10 +88,10 @@ namespace dynamo {
   {
     sphericalsum ssum(Sim, rg, maxl);
   
-    BOOST_FOREACH(const Particle& part, Sim->particles)
+    for (const Particle& part : Sim->particles)
       {
-	std::auto_ptr<IDRange> ids(Sim->ptrScheduler->getParticleNeighbours(part));
-	BOOST_FOREACH(const size_t& id1, *ids)
+	std::unique_ptr<IDRange> ids(Sim->ptrScheduler->getParticleNeighbours(part));
+	for (const size_t& id1 : *ids)
 	  ssum(part, id1);
       
 	for (size_t l(0); l < maxl; ++l)

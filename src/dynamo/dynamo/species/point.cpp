@@ -21,7 +21,6 @@
 #include <dynamo/particle.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/units/units.hpp>
-#include <boost/foreach.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cstring>
@@ -31,17 +30,10 @@ namespace dynamo {
   SpPoint::operator<<(const magnet::xml::Node& XML)
   {
     range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
-  
-    try {
-      _mass = Sim->_properties.getProperty(XML.getAttribute("Mass"),
-					   Property::Units::Mass());
-      spName = XML.getAttribute("Name");
-      intName = XML.getAttribute("IntName");
-    } 
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in SpPoint";
-      }
+    _mass = Sim->_properties.getProperty(XML.getAttribute("Mass"),
+					 Property::Units::Mass());
+    spName = XML.getAttribute("Name");
+    intName = XML.getAttribute("IntName");
   }
 
   void 

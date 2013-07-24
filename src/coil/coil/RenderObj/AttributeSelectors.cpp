@@ -26,6 +26,7 @@ namespace coil {
   {
     pack_start(_colorMapSelector, false, false, 5);
     pack_start(_autoScaling, false, false, 5);
+
     _autoScaling.set_active(true);
     _autoScaling.show();
     
@@ -34,8 +35,68 @@ namespace coil {
     _autoScaling.signal_toggled()
       .connect(sigc::mem_fun(*this, &AttributeColorSelector::colorMapChanged));
 
+    _selectorRow.pack_end(_colorButton,false, false, 5);
+    _colorButton.show();
+    _colorButton.signal_color_set().connect(sigc::mem_fun(*this, &AttributeColorSelector::colorButtonUsed));
+
     _componentSelect.signal_changed()
       .connect(sigc::mem_fun(this, &AttributeColorSelector::updateComponent));
+
+    //Change the handler for the single value boxes over to one which
+    //will update the color button.
+    for (size_t i(0); i < 4; ++i)
+      _scalarvalues[i].signal_changed()
+	.connect(sigc::mem_fun(*this, &AttributeColorSelector::colorValuesChanged));
+    colorValuesChanged();
+  }
+
+  void 
+  AttributeColorSelector::colorButtonUsed() {
+    Gdk::Color color = _colorButton.get_color();
+    _scalarvalues[0].set_text(boost::lexical_cast<std::string>(color.get_red()/65535.0));
+    _scalarvalues[1].set_text(boost::lexical_cast<std::string>(color.get_green()/65535.0));
+    _scalarvalues[2].set_text(boost::lexical_cast<std::string>(color.get_blue()/65535.0));
+  }
+  
+  void  
+  AttributeColorSelector::colorValuesChanged()
+  {
+    magnet::gtk::forceNumericEntry(_scalarvalues + 0);
+    magnet::gtk::forceNumericEntry(_scalarvalues + 1);
+    magnet::gtk::forceNumericEntry(_scalarvalues + 2);
+    magnet::gtk::forceNumericEntry(_scalarvalues + 3);
+    Gdk::Color color = _colorButton.get_color();
+
+    double colors[3] = {1,1,1};
+    for (size_t i(0); i < 3; ++i)
+      try {
+	colors[i] = boost::lexical_cast<double>(_scalarvalues[i].get_text());
+      } catch (...) {}
+
+    color.set_rgb_p(colors[0],colors[1], colors[2]);
+    _colorButton.set_color(color);
+  }
+  
+
+  void 
+  AttributeColorSelector::updateGui()
+  {
+    AttributeSelector::updateGui();
+
+    bool singlevalmode = singleValueMode();
+
+    _colorButton.set_visible(_components && singlevalmode);
+
+    for (size_t i(0); i < _components; ++i)
+      _scalarvalues[i].set_visible(false);
+      
+    if (!singleValueMode() && _enableDataFiltering)
+      {
+	//Default to coloring using the raw values
+	_componentSelect.set_active(1);
+      }
+    
+    updateComponent();
   }
 
   AttributeSelector::AttributeSelector(bool enableDataFiltering):
@@ -59,21 +120,24 @@ namespace coil {
     _selectorRow.pack_start(_comboBox, false, false, 5);
       
     _selectorRow.pack_start(_componentSelect, false, false, 5);
-      
-    _singleValueLabel.show();
-    _singleValueLabel.set_text("Value:");
-    _singleValueLabel.set_alignment(1.0, 0.5);
 
-    _selectorRow.pack_start(_singleValueLabel, true, true, 5);
-    for (size_t i(0); i < 4; ++i)
-      {
-	_selectorRow.pack_start(_scalarvalues[i], false, false, 0);
-	_scalarvalues[i].signal_changed()
-	  .connect(sigc::bind(&magnet::gtk::forceNumericEntry, _scalarvalues + i));
-	_scalarvalues[i].set_text("1.0");
-	_scalarvalues[i].set_max_length(0);
-	_scalarvalues[i].set_width_chars(5);	  
-      }
+
+    {
+      _singleValueLabel.show();
+      _singleValueLabel.set_text("Value:");
+      _singleValueLabel.set_alignment(1.0, 0.5);
+      
+      _selectorRow.pack_start(_singleValueLabel, true, true, 5);
+      for (size_t i(0); i < 4; ++i)
+	{
+	  _selectorRow.pack_start(_scalarvalues[i], false, false, 0);
+	  _scalarvalues[i].signal_changed()
+	    .connect(sigc::bind(&magnet::gtk::forceNumericEntry, _scalarvalues + i));
+	  _scalarvalues[i].set_text("1.0");
+	  _scalarvalues[i].set_max_length(0);
+	  _scalarvalues[i].set_width_chars(5);	  
+	}
+    }
 
     show();
 
@@ -97,24 +161,20 @@ namespace coil {
 	row[_modelColumns.m_name] = "Single Value";
       }
 
-    for (DataSet::iterator iPtr = ds.begin();
-	 iPtr != ds.end(); ++iPtr)
-      if (((iPtr->second->getType()) & typeMask)
-	  && (iPtr->second->components() >=  minComponents)
-	  && (iPtr->second->components() <=  maxComponents))
+    for (auto& data : ds.getAttributes())
+      if (((data.second->getType()) & typeMask) && (data.second->components() >=  minComponents) && (data.second->components() <=  maxComponents))
 	{
 	  Gtk::TreeModel::Row row = *(_model->append());
-	  row[_modelColumns.m_name] = iPtr->first;
-	  row[_modelColumns.m_ptr] = iPtr->second;
+	  row[_modelColumns.m_name] = data.first;
+	  row[_modelColumns.m_ptr] = data.second;
 	}
       
     typedef Gtk::TreeModel::Children::iterator iterator;
     iterator selected = _comboBox.get_model()->children().begin();
 
-    for (iterator iPtr = _comboBox.get_model()->children().begin();
-	 iPtr != _comboBox.get_model()->children().end(); ++iPtr)
+    for (auto iPtr = _comboBox.get_model()->children().begin(); iPtr != _comboBox.get_model()->children().end(); ++iPtr)
       {
-	std::tr1::shared_ptr<Attribute> attr_ptr = (*iPtr)[_modelColumns.m_ptr];
+	std::shared_ptr<Attribute> attr_ptr = (*iPtr)[_modelColumns.m_ptr];
 	if ((attr_ptr) && (attr_ptr->getType() & defaultMask))
 	  {
 	    selected = iPtr;
@@ -132,7 +192,7 @@ namespace coil {
       M_throw() << "Cannot get the attribute buffer when in single value mode.";
 
     Gtk::TreeModel::iterator iter = _comboBox.get_active();
-    std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
+    std::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
  
     if ((!_componentSelect.get_visible())
 	|| (_componentSelect.get_active_row_number() == 0))
@@ -158,7 +218,7 @@ namespace coil {
 
   void 
   AttributeSelector::generateFilteredData(std::vector<GLfloat>& scalardata,
-					  const std::tr1::shared_ptr<Attribute>& ptr,
+					  const std::shared_ptr<Attribute>& ptr,
 					  int mode)
   {
     //Update the data according to what was selected
@@ -226,7 +286,7 @@ namespace coil {
     Gtk::TreeModel::iterator iter = _comboBox.get_active();
     if (!iter) return std::vector<GLfloat>();
     
-    std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
+    std::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
     if (!ptr) return std::vector<GLfloat>();
         
     return ptr->minVals();
@@ -241,7 +301,7 @@ namespace coil {
     Gtk::TreeModel::iterator iter = _comboBox.get_active();
     if (!iter) return std::vector<GLfloat>();
     
-    std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
+    std::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
     if (!ptr) return std::vector<GLfloat>();
         
     return ptr->maxVals();
@@ -252,7 +312,7 @@ namespace coil {
   {
     _singleValueLabel.set_visible(false);
     for (size_t i(0); i < 4; ++i)
-      _scalarvalues[i].hide();
+      _scalarvalues[i].set_visible(false);
 
     bool singlevalmode = singleValueMode();
 
@@ -260,7 +320,7 @@ namespace coil {
       {
 	_singleValueLabel.set_visible(true);
 	for (size_t i(0); i < _components; ++i)
-	  _scalarvalues[i].show();
+	  _scalarvalues[i].set_visible(true);
       }
 
     _componentSelect.clear_items();
@@ -271,7 +331,7 @@ namespace coil {
 	_componentSelect.set_visible(true);
 
 	Gtk::TreeModel::iterator iter = _comboBox.get_active();
-	std::tr1::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
+	std::shared_ptr<Attribute> ptr = (*iter)[_modelColumns.m_ptr];
 
 	_componentSelect.append_text("Raw Data");
 	_componentSelect.append_text("Magnitude");
@@ -287,8 +347,5 @@ namespace coil {
 	//Default to coloring using the raw values
 	_componentSelect.set_active(0);
       }
-
-    for (size_t i(0); i < _components; ++i)
-      _scalarvalues[i].set_sensitive(singlevalmode);
   }
 }

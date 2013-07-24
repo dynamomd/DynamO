@@ -46,7 +46,7 @@ namespace dynamo {
   {
     ID=nID;
 
-    if (!std::tr1::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
+    if (!std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
       derr << "You should not use the shearing neighbour list"
 	   << " in a system without Lees Edwards BC's" << std::endl;
 
@@ -132,12 +132,11 @@ namespace dynamo {
 	//of code
 	if (isUsedInScheduler)
 	  {
-	    BOOST_FOREACH(const size_t& id2, getParticleNeighbours(part))
+	    for (const size_t& id2 : getParticleNeighbours(part))
 	      {
 		Sim->ptrScheduler->addInteractionEvent(part, id2);
 
-		BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
-		  nbs.second(part, id2);
+		_sigNewNeighbour(part, id2);
 	      }
 	  }
       }
@@ -162,11 +161,10 @@ namespace dynamo {
 	//Check the extra LE neighbourhood strip
 	if (isUsedInScheduler)
 	  {
-	    BOOST_FOREACH(const size_t& id2, getAdditionalLEParticleNeighbourhood(part))
+	    for (const size_t& id2 : getAdditionalLEParticleNeighbourhood(part))
 	      {
 		Sim->ptrScheduler->addInteractionEvent(part, id2);
-		BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
-		  nbs.second(part, id2);
+		_sigNewNeighbour(part, id2);
 	      }
 	  }
       }
@@ -206,11 +204,8 @@ namespace dynamo {
 	    //We're at the boundary moving in the z direction, we must
 	    //add the new LE strips as neighbours	
 	    //We just check the entire Extra LE neighbourhood
-	    BOOST_FOREACH(const size_t& id2, getAdditionalLEParticleNeighbourhood(part))
-	      {
-		BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
-		  nbs.second(part, id2);
-	      }
+	    for (const size_t& id2 : getAdditionalLEParticleNeighbourhood(part))
+	      _sigNewNeighbour(part, id2);
 	  }
 
 	//Particle has just arrived into a new cell warn the scheduler about
@@ -237,9 +232,8 @@ namespace dynamo {
 	      {
 		newNBCell[dim1] %= cellCount[dim1];
   
-		BOOST_FOREACH(const size_t& next, list[newNBCell.getMortonNum()])
-		  BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
-		    nbs.second(part, next);
+		for (const size_t& next : list[newNBCell.getMortonNum()])
+		  _sigNewNeighbour(part, next);
 	  
 		++newNBCell[dim1];
 	      }
@@ -254,8 +248,7 @@ namespace dynamo {
     Sim->ptrScheduler->pushEvent(part, getEvent(part));
     Sim->ptrScheduler->sort(part);
 
-    BOOST_FOREACH(const nbHoodSlot& nbs, sigCellChangeNotify)
-      nbs.second(part, oldCell);
+    _sigCellChange(part, oldCell);
   
 #ifdef DYNAMO_WallCollDebug
     {

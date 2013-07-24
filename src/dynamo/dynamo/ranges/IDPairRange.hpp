@@ -16,11 +16,11 @@
 */
 
 #pragma once
-#include <tr1/memory>
+#include <memory>
 
 namespace magnet { namespace xml { class Node; class XmlStream; } }
 namespace dynamo { 
-  using std::tr1::shared_ptr;
+  using std::shared_ptr;
   class Simulation;
   class Particle;
 
@@ -33,8 +33,7 @@ namespace dynamo {
 
     static IDPairRange* getClass(const magnet::xml::Node&, const dynamo::Simulation*);
     
-    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML,
-					      const IDPairRange& range);
+    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const IDPairRange& range);
  protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const = 0;
   };

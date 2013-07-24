@@ -31,7 +31,6 @@
 #include <dynamo/systems/tHalt.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/globals/neighbourList.hpp>
-#include <boost/foreach.hpp>
 
 namespace dynamo {
 
@@ -67,14 +66,14 @@ namespace dynamo {
     //Required to finish off the compression dynamics
     Sim->dynamics->updateAllParticles();
 
-    if (std::tr1::dynamic_pointer_cast<SNeighbourList>(Sim->ptrScheduler))
+    if (std::dynamic_pointer_cast<SNeighbourList>(Sim->ptrScheduler))
       {
-	BOOST_FOREACH(shared_ptr<System>& ptr, Sim->systems)
-	  if (std::tr1::dynamic_pointer_cast<SysNBListCompressionFix>(ptr))
+	for (shared_ptr<System>& ptr : Sim->systems)
+	  if (std::dynamic_pointer_cast<SysNBListCompressionFix>(ptr))
 	    static_cast<SysNBListCompressionFix&>(*ptr).fixNBlistForOutput();
 
-	BOOST_FOREACH(shared_ptr<Global>& ptr, Sim->globals)
-	  if (std::tr1::dynamic_pointer_cast<GNeighbourList>(ptr))
+	for (shared_ptr<Global>& ptr : Sim->globals)
+	  if (std::dynamic_pointer_cast<GNeighbourList>(ptr))
 	    //Rebulid the collision scheduler without the overlapping cells!
 	    static_cast<GNeighbourList&>(*ptr).setCellOverlap(true);
       }
@@ -102,7 +101,7 @@ namespace dynamo {
   {
     for (size_t i(0); i < Sim->globals.size(); ++i)
       {      
-	if (std::tr1::dynamic_pointer_cast<GNeighbourList>(Sim->globals[i]))
+	if (std::dynamic_pointer_cast<GNeighbourList>(Sim->globals[i]))
 	  {
 	    //Rebulid the collision scheduler without the overlapping
 	    //cells, otherwise cells are always rebuilt as they overlap

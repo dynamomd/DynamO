@@ -31,7 +31,7 @@ namespace dynamo {
       particleID(part.getID()), 
       oldVelVec(part.getVelocity()),
       speciesID(sp.getID()), Type_(eType), 
-      deltaU(0.0), deltaKE(0.0)
+      deltaU(0.0)
     {}
 
     inline size_t getParticleID() const
@@ -55,12 +55,6 @@ namespace dynamo {
     inline void setDeltaU(const double& dU)
     { deltaU = dU; }
 
-    inline double getDeltaKE() const
-    { return deltaKE; }
-  
-    inline void setDeltaKE(const double& dKE)
-    { deltaKE = dKE; }
-
     inline EEventType getType() const
     { return Type_; }
   
@@ -70,6 +64,5 @@ namespace dynamo {
     size_t speciesID;
     EEventType Type_;
     double deltaU;
-    double deltaKE;
   };
 }

@@ -28,7 +28,7 @@ namespace magnet {
    */
   inline std::string strerror(const int errnum)
   {
-#if (_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && ! _GNU_SOURCE
+#if ((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && ! _GNU_SOURCE) || defined(__APPLE__)
     std::vector<char> buf(128);
 
     int val = strerror_r(errnum, &buf[0], buf.size());

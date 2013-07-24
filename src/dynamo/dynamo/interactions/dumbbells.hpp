@@ -22,12 +22,12 @@
 #include <dynamo/interactions/glyphrepresentation.hpp>
 
 namespace dynamo {
-  class IDumbbells: public ISingleCapture, public GlyphRepresentation
+  class IDumbbells: public ICapture, public GlyphRepresentation
   {
   public:
     template<class T1, class T2, class T3, class T4, class T5>
     IDumbbells(dynamo::Simulation* tmp, T1 LA, T2 LB, T3 diamA, T4 diamB, T5 e, IDPairRange* nR, std::string name):
-      ISingleCapture(tmp, nR),
+      ICapture(tmp, nR),
       _diamA(Sim->_properties.getProperty
 	     (diamA, Property::Units::Length())),
       _diamB(Sim->_properties.getProperty
@@ -42,16 +42,15 @@ namespace dynamo {
       intName = name;
     }
 
-    virtual size_t glyphsPerParticle() const { return 2; }
-    virtual Vector getGlyphSize(size_t ID, size_t subID) const;
-    virtual Vector getGlyphPosition(size_t ID, size_t subID) const;
+    virtual Vector getGlyphSize(size_t ID) const;
+
+    virtual GLYPH_TYPE getDefaultGlyphType() const { return DUMBBELL_GLYPH; }
+
     virtual double getExcludedVolume(size_t ID) const;
 
     IDumbbells(const magnet::xml::Node&, dynamo::Simulation*);
 
     void operator<<(const magnet::xml::Node&);
-
-    virtual double getInternalEnergy() const { return 0; }
 
     virtual void initialise(size_t);
 
@@ -59,11 +58,11 @@ namespace dynamo {
 
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
  
-    virtual void runEvent(Particle&, Particle&, const IntEvent&) const;
+    virtual void runEvent(Particle&, Particle&, const IntEvent&);
    
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    virtual bool captureTest(const Particle&, const Particle&) const;
+    virtual size_t captureTest(const Particle&, const Particle&) const;
 
     virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
 

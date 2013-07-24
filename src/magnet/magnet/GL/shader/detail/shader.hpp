@@ -21,8 +21,8 @@
 #include <magnet/string/formatcode.hpp>
 #include <magnet/string/line_number.hpp>
 #include <boost/any.hpp>
-#include <tr1/array>
-#include <tr1/unordered_map>
+#include <array>
+#include <unordered_map>
 #include <string>
 #include <cstring>
 
@@ -45,7 +45,7 @@ namespace magnet {
 	  type information ourselves. All standard uniform types
 	  passed to a shader can be reduced into either an array of
 	  GLfloat's or GLint's. This class reduces the data to a
-	  std::tr1::array of floats or ints and places the data in a
+	  std::array of floats or ints and places the data in a
 	  boost::any containter.
 	 
 	  This class is returned from \ref Shader::operator[]() calls
@@ -78,9 +78,9 @@ namespace magnet {
 
 	  /*! \brief Retrieve the current value of the uniform.
 	   
-	    This function can only return std::tr1::array types! All
+	    This function can only return std::array types! All
 	    values passed to the shader are converted to either
-	    std::tr1::array<GLfloat,X> or std::tr1::array<GLint,X>
+	    std::array<GLfloat,X> or std::array<GLint,X>
 	    (where X is the number of elements) before being passed to
 	    this class. So you must fetch them back in exactly this
 	    form.
@@ -98,28 +98,28 @@ namespace magnet {
 	  inline void operator=(const GLfloat& val)
 	  { if (test_assign(val)) uniform(1, 1, &val); }
 
-	  inline void operator=(const std::tr1::array<GLfloat, 1>& val)
+	  inline void operator=(const std::array<GLfloat, 1>& val)
 	  { if (test_assign(val)) uniform(1, 1, &(val[0])); }
 
-	  inline void operator=(const std::tr1::array<GLfloat, 2>& val)
+	  inline void operator=(const std::array<GLfloat, 2>& val)
 	  { if (test_assign(val)) uniform(2, 1,&(val[0])); }
 
-	  inline void operator=(const std::tr1::array<GLfloat, 3>& val)
+	  inline void operator=(const std::array<GLfloat, 3>& val)
 	  { if (test_assign(val)) uniform(3, 1,&(val[0])); }
 
-	  inline void operator=(const std::tr1::array<GLfloat, 4>& val)
+	  inline void operator=(const std::array<GLfloat, 4>& val)
 	  { if (test_assign(val)) uniform(4, 1,&(val[0])); }
 
-	  inline void operator=(const std::tr1::array<GLint, 1>& val)
+	  inline void operator=(const std::array<GLint, 1>& val)
 	  { if (test_assign(val)) uniform(1, 1,&(val[0])); }
 
-	  inline void operator=(const std::tr1::array<GLint, 2>& val)
+	  inline void operator=(const std::array<GLint, 2>& val)
 	  { if (test_assign(val)) uniform(2, 1,&(val[0])); }
 
-	  inline void operator=(const std::tr1::array<GLint, 3>& val)
+	  inline void operator=(const std::array<GLint, 3>& val)
 	  { if (test_assign(val)) uniform(3, 1,&(val[0])); }
 
-	  inline void operator=(const std::tr1::array<GLint, 4>& val)
+	  inline void operator=(const std::array<GLint, 4>& val)
 	  { if (test_assign(val)) uniform(4, 1,&(val[0])); }
 
 	  inline void operator=(const GLMatrix& val)
@@ -133,7 +133,7 @@ namespace magnet {
 	
 	  inline void operator=(const math::Matrix& mat)
 	  { 
-	    std::tr1::array<GLfloat, 9> val;
+	    std::array<GLfloat, 9> val;
 	    for (size_t i(0); i < 3 * 3; ++i)
 	      val[i] = mat(i);
 	  
@@ -148,7 +148,7 @@ namespace magnet {
 	  { 
 	    if (test_assign(vec))
 	      {
-		std::tr1::array<GLfloat, 3> val = {{GLfloat(vec[0]), GLfloat(vec[1]), GLfloat(vec[2])}};
+		std::array<GLfloat, 3> val = {{GLfloat(vec[0]), GLfloat(vec[1]), GLfloat(vec[2])}};
 		uniform(3, 1, &(val[0]));
 	      }
 	  }
@@ -234,7 +234,7 @@ namespace magnet {
 
 	  friend class Shader;
 
-	  bool checkForRecompilation()
+	  bool checkForRecompilation() 
 	  { 
 	    bool retval = _needsRecompilation;
 	    _needsRecompilation = false;
@@ -251,12 +251,14 @@ namespace magnet {
 
 	  template<class T>
 	  inline void operator=(const T& val)
-	  { 
+	  {
 	    if (*this == val) return;
 	    _value = boost::lexical_cast<std::string>(val);
 	    _needsRecompilation = true;
 	  }
 
+	  bool empty() const { return _value.empty(); }
+	  
 	  operator std::string() const { return _value; }
 	};
 
@@ -275,8 +277,7 @@ namespace magnet {
 	  and the uniform values, so you may redundantly assign
 	  values to the shader uniforms without an additional OpenGL
 	  library call cost.
-	 
-	 
+	 	 
 	  There are several default bindings for attributes in the
 	  shader. These default bindings (indices from 0 to 6) may be
 	  used by your shader, but be warned that they are used by
@@ -290,7 +291,16 @@ namespace magnet {
 	  \li "iOrientation" = \ref Context::instanceOrientationAttrIndex
 	  \li "iScale" = \ref Context::instanceScaleAttrIndex
 	  \li "vTexCoord" = \ref Context::vertexTexCoordAttrIndex
-	 
+
+
+	  Shaders which inherit this class should override the
+	  initGeometryShaderSource(), initVertexShaderSource(), and
+	  initFragmentShaderSource() functions to specify what code
+	  should be used for these shaders if it is not specified by
+	  the user.
+	  
+	  Derived classes should place a list of transform feedback
+	  varyings into _tfVaryings if needed.
 	 */
 	class Shader 
 	{
@@ -329,10 +339,10 @@ namespace magnet {
 	  {
 	    if (!_built) M_throw() << "Cannot attach a Shader which has not been built()";
 
-	    typedef std::tr1::unordered_map<std::string, ShaderDefineValue>::iterator it;
+	    typedef std::unordered_map<std::string, ShaderDefineValue>::iterator it;
 	    bool rebuild = false;
-	    for (it iPtr = _defineCache.begin(); iPtr != _defineCache.end(); ++iPtr)
-	      if (iPtr->second.checkForRecompilation())
+	    for (auto& define : _defineCache)
+	      if (define.second.checkForRecompilation())
 		rebuild = true;
 
 	    if (rebuild)
@@ -373,18 +383,18 @@ namespace magnet {
 	    //Assign a single integer uniform value
 	    A["intShaderVariable"] = 1;
 	    //Assign a vec3 uniform
-	    std::tr1::array<GLfloat,3> vec3val
+	    std::array<GLfloat,3> vec3val
 	    A["vec3ShaderVariable"] = vec3val; 
 	    \endcode
 	   
 	    You may also retrieve the value of uniforms:
 	    \code
-	    std::tr1::array<GLint, 1> value = A["ShaderVariable"].as<std::tr1::array<GLint, 1> >();
-	    std::tr1::array<GLfloat, 3> value = A["vec3ShaderVariable"].as<std::tr1::array<GLfloat, 3> >(); 
+	    std::array<GLint, 1> value = A["ShaderVariable"].as<std::array<GLint, 1> >();
+	    std::array<GLfloat, 3> value = A["vec3ShaderVariable"].as<std::array<GLfloat, 3> >(); 
 	    \endcode
 	   
 	    Due to the way the cached value is stored, ALL variable types
-	    must be returned using the above format (wrapped in a std::tr1::array).
+	    must be returned using the above format (wrapped in a std::array).
 	   
 	    \param uniformName The name of the uniform to assign a
 	    value to.
@@ -403,7 +413,7 @@ namespace magnet {
 	    //otherwise we always redetermine it in case a program
 	    //like gDebugger has changed it.
 #ifndef MAGNET_DEBUG
-	    std::tr1::unordered_map<std::string, ShaderUniformValue>::iterator it 
+	    std::unordered_map<std::string, ShaderUniformValue>::iterator it 
 	      = _uniformCache.find(uniformName);
 
 	    if (it != _uniformCache.end()) return it->second;
@@ -566,13 +576,20 @@ namespace magnet {
 
 		for (size_t i(0); i < _tfVaryings.size(); ++i)
 		  _varyingcstrings[i] = _tfVaryings[i].c_str();
-
 		glTransformFeedbackVaryings(_programHandle, _varyingcstrings.size(), &_varyingcstrings[0], GL_INTERLEAVED_ATTRIBS);
 	      }
 
 	    //Bind the default shader variables to the indices
 	    //specified in the \ref Context class.
 	    glLinkProgramARB(_programHandle);
+
+	    GLint program_ok;
+	    glGetProgramiv(_programHandle, GL_LINK_STATUS, &program_ok);
+	    if (!program_ok)
+	      M_throw() << "Failed to link the shader, link log follows\n"
+			<< getShaderBuildlog(_programHandle);
+	    
+	    //Check for any other errors
 	    GL::detail::errorCheck();
 
 	    //Done, now the inheriting shader should grab the
@@ -628,17 +645,19 @@ namespace magnet {
 	  //! \brief The transform feedback varyings of the shader
 	  std::vector<std::string> _tfVaryings;
 
-	  std::tr1::unordered_map<std::string, ShaderUniformValue> _uniformCache;
-	  std::tr1::unordered_map<std::string, ShaderDefineValue> _defineCache;
+	  std::unordered_map<std::string, ShaderUniformValue> _uniformCache;
+	  std::unordered_map<std::string, ShaderDefineValue> _defineCache;
 
 	  std::string genDefines()
 	  {
 	    std::ostringstream os;
-	    os << "#version 330\n";
+	    os << "#version 330\n"
+	      ;
 
-	    typedef std::tr1::unordered_map<std::string, ShaderDefineValue>::iterator it;
+	    typedef std::unordered_map<std::string, ShaderDefineValue>::iterator it;
 	    for (it iPtr = _defineCache.begin(); iPtr != _defineCache.end(); ++iPtr)
-	      os << "#define " << iPtr->first << " " << std::string(iPtr->second) << "\n";
+	      if (!(iPtr->second.empty()))
+		os << "#define " << iPtr->first << " " << std::string(iPtr->second) << "\n";
 
 	    return os.str();
 	  }

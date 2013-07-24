@@ -42,7 +42,7 @@ namespace coil {
   }
 
   void 
-  RSurface::init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
+  RSurface::init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue)
   {
     RTriangles::init(systemQueue);
 

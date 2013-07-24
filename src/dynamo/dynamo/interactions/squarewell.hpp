@@ -22,13 +22,13 @@
 #include <dynamo/simulation.hpp>
 
 namespace dynamo {
-  class ISquareWell: public ISingleCapture, public GlyphRepresentation
+  class ISquareWell: public ICapture, public GlyphRepresentation
   {
   public:
     template<class T1, class T2, class T3, class T4>
     ISquareWell(dynamo::Simulation* tmp, T1 d, T2 l, 
 		T3 wd, T4 e, IDPairRange* nR, std::string name):
-      ISingleCapture(tmp,nR),
+      ICapture(tmp,nR),
       _diameter(Sim->_properties.getProperty
 		(d, Property::Units::Length())),
       _lambda(Sim->_properties.getProperty
@@ -45,33 +45,29 @@ namespace dynamo {
   
     void operator<<(const magnet::xml::Node&);
 
-    virtual size_t glyphsPerParticle() const { return 1; }
-    virtual Vector getGlyphSize(size_t ID, size_t subID) const;
-    virtual Vector getGlyphPosition(size_t ID, size_t subID) const;
+    virtual Vector getGlyphSize(size_t ID) const;
 
     virtual double getExcludedVolume(size_t) const;
 
     virtual double maxIntDist() const;
 
-    virtual bool captureTest(const Particle&, const Particle&) const;
+    virtual size_t captureTest(const Particle&, const Particle&) const;
 
     virtual void initialise(size_t);
 
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
   
-    virtual void runEvent(Particle&, Particle&, const IntEvent&) const;
+    virtual void runEvent(Particle&, Particle&, const IntEvent&);
   
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
+    virtual double getInternalEnergy(const Particle&, const Particle&) const;
     virtual double getInternalEnergy() const;
 
     virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
- 
-    virtual double getInternalEnergy(const Particle&, const Particle&) const;
-
   protected:
     ISquareWell(dynamo::Simulation* tmp, IDPairRange* nR):
-      ISingleCapture(tmp,nR) {}
+      ICapture(tmp,nR) {}
 
     shared_ptr<Property> _diameter;
     shared_ptr<Property> _lambda;

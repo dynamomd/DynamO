@@ -20,15 +20,14 @@
 #include <dynamo/particle.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
 #include <boost/functional/hash.hpp>
-#include <tr1/unordered_set>
+#include <unordered_set>
 
 namespace dynamo {
   class IDPairRangeList:public IDPairRange
   {
     typedef std::pair<unsigned long, unsigned long> Key;
-    typedef std::tr1::unordered_set<Key, boost::hash<Key> > Container;
+    typedef std::unordered_set<Key, boost::hash<Key> > Container;
 
   public:
     IDPairRangeList(const magnet::xml::Node& XML) 
@@ -48,23 +47,16 @@ namespace dynamo {
 
     virtual void operator<<(const magnet::xml::Node& XML)
     {
-      try 
-	{
-	  for (magnet::xml::Node node = XML.fastGetNode("IDPair"); node.valid(); ++node)
-	    addPair(node.getAttribute("ID1").as<unsigned long>(), 
-		    node.getAttribute("ID2").as<unsigned long>());
-	}
-      catch (boost::bad_lexical_cast &)
-	{
-	  M_throw() << "Failed a lexical cast in IDPairRangeList";
-	}
+      for (magnet::xml::Node node = XML.fastGetNode("IDPair"); node.valid(); ++node)
+	addPair(node.getAttribute("ID1").as<unsigned long>(), 
+		node.getAttribute("ID2").as<unsigned long>());
     }
 
   protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {
       XML << magnet::xml::attr("Type") << "List";
-      BOOST_FOREACH(const Key& key, pairmap)
+      for (const Key& key : pairmap)
 	XML << magnet::xml::tag("IDPair")
 	    << magnet::xml::attr("ID1") << key.first
 	    << magnet::xml::attr("ID2") << key.second

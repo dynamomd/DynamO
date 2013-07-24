@@ -26,7 +26,6 @@
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/foreach.hpp>
 #include <fstream>
 
 namespace dynamo {
@@ -42,20 +41,13 @@ namespace dynamo {
   void 
   OPStructureImaging::operator<<(const magnet::xml::Node& XML)
   {
-    try 
-      {
-	if (!XML.hasAttribute("Structure"))
-	  M_throw() << "You must specify the name of the structure to monitor for StructureImaging";
-      
-	structureName = XML.getAttribute("Structure");
-
-	if (XML.hasAttribute("MaxImages"))
-	  imageCount = XML.getAttribute("MaxImages").as<size_t>();
-      }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in OPVACF";
-      }
+    if (!XML.hasAttribute("Structure"))
+      M_throw() << "You must specify the name of the structure to monitor for StructureImaging";
+    
+    structureName = XML.getAttribute("Structure");
+    
+    if (XML.hasAttribute("MaxImages"))
+      imageCount = XML.getAttribute("MaxImages").as<size_t>();
   }
 
 
@@ -68,7 +60,7 @@ namespace dynamo {
 
     id = Sim->topology.size();
   
-    BOOST_FOREACH(const shared_ptr<Topology>& ptr, Sim->topology)
+    for (const shared_ptr<Topology>& ptr : Sim->topology)
       if (boost::iequals(structureName, ptr->getName()))
 	id = ptr->getID();
   
@@ -98,7 +90,7 @@ namespace dynamo {
   void
   OPStructureImaging::printImage()
   {
-    BOOST_FOREACH(const shared_ptr<IDRange>& prange, Sim->topology[id]->getMolecules())
+    for (const shared_ptr<IDRange>& prange : Sim->topology[id]->getMolecules())
       {
 	std::vector<Vector  > atomDescription;
 
@@ -110,7 +102,7 @@ namespace dynamo {
 
 	Vector  sumrij(0,0,0);
       
-	BOOST_FOREACH(const size_t& pid, *prange)
+	for (const size_t& pid : *prange)
 	  {
 	    //This is all to make sure we walk along the structure
 	    const Particle& part(Sim->particles[pid]);
@@ -129,7 +121,7 @@ namespace dynamo {
       
 	masspos /= sysMass;
 
-	BOOST_FOREACH(Vector & rijpos, atomDescription)
+	for (Vector & rijpos : atomDescription)
 	  rijpos -= masspos;
 
 	//We use a trick to not copy the vector, just swap it over
@@ -144,13 +136,13 @@ namespace dynamo {
     XML << magnet::xml::tag("StructureImages")
 	<< magnet::xml::attr("version") << 2;
   
-    BOOST_FOREACH(const std::vector<Vector  >& vec, imagelist)
+    for (const std::vector<Vector  >& vec : imagelist)
       {
 	XML << magnet::xml::tag("Image");
 
 	size_t id(0);
 
-	BOOST_FOREACH(const Vector & vec2, vec)
+	for (const Vector & vec2 : vec)
 	  {
 	    XML << magnet::xml::tag("Atom")
 		<< magnet::xml::attr("ID")

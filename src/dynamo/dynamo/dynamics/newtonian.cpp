@@ -125,12 +125,11 @@ namespace dynamo {
     double mass = Sim->species[tmpDat.getSpeciesID()]->getMass(part.getID());
     double factor = sqrtT / std::sqrt(mass);
 
+    std::normal_distribution<> norm_dist;
     //Assign the new velocities
     for (size_t iDim = 0; iDim < dimensions; iDim++)
-      part.getVelocity()[iDim] = Sim->normal_sampler() * factor;
+      part.getVelocity()[iDim] = norm_dist(Sim->ranGenerator) * factor;
 
-    tmpDat.setDeltaKE(0.5 * mass * (part.getVelocity().nrm2() - tmpDat.getOldVel().nrm2()));
-  
     return tmpDat;
   }
 
@@ -146,12 +145,12 @@ namespace dynamo {
   {
     particle.getPosition() += particle.getVelocity() * dt;
 
-    //The Vector copy is required to make sure that the cached
-    //orientation doesn't change during calculation
     if (hasOrientationData())
-      orientationData[particle.getID()].orientation 
-	= Rodrigues(orientationData[particle.getID()].angularVelocity * dt)
-	* Vector(orientationData[particle.getID()].orientation); 
+      {
+	orientationData[particle.getID()].orientation = Quaternion::fromRotationAxis(orientationData[particle.getID()].angularVelocity * dt)
+	  * orientationData[particle.getID()].orientation ;
+	orientationData[particle.getID()].orientation.normalise();
+      }
   }
 
   double 
@@ -240,8 +239,6 @@ namespace dynamo {
   
     part.getVelocity() -= (1+e) * (vNorm | part.getVelocity()) * vNorm;
   
-    retVal.setDeltaKE(0.5 * Sim->species[retVal.getSpeciesID()]->getMass(part.getID())
-		      * (part.getVelocity().nrm2() - retVal.getOldVel().nrm2()));
     return retVal; 
   }
 
@@ -259,18 +256,17 @@ namespace dynamo {
     ParticleEventData tmpDat(part, *Sim->species[part], WALL);
  
     double mass = Sim->species[tmpDat.getSpeciesID()]->getMass(part.getID());
-
+    std::normal_distribution<> norm_dist;
     for (size_t iDim = 0; iDim < NDIM; iDim++)
-      part.getVelocity()[iDim] = Sim->normal_sampler() * sqrtT / std::sqrt(mass);
+      part.getVelocity()[iDim] = norm_dist(Sim->ranGenerator) * sqrtT / std::sqrt(mass);
   
+    std::uniform_real_distribution<> uniform_dist;
     part.getVelocity() 
       //This first line adds a component in the direction of the normal
-      += vNorm * (sqrtT * sqrt(-2.0*log(1.0-Sim->uniform_sampler()) / mass)
+      += vNorm * (sqrtT * sqrt(-2.0*log(1.0-uniform_dist(Sim->ranGenerator)) / mass)
 		  //This removes the original normal component
 		  -(part.getVelocity() | vNorm));
 
-    tmpDat.setDeltaKE(0.5 * mass * (part.getVelocity().nrm2() - tmpDat.getOldVel().nrm2()));
-  
     return tmpDat; 
   }
 
@@ -359,7 +355,8 @@ namespace dynamo {
     if (prob > maxprob)
       maxprob = prob;
 
-    return prob > Sim->uniform_sampler() * maxprob;
+    std::uniform_real_distribution<> uniform_dist;
+    return prob > uniform_dist(Sim->ranGenerator) * maxprob;
   }
 
   PairEventData
@@ -382,7 +379,7 @@ namespace dynamo {
 
     double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(p1.getID());
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(p2.getID());
-    double mu = p1Mass * p2Mass/(p1Mass+p2Mass);
+    double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
 
     retVal.impulse = rij * ((1.0 + e) * mu * rvdot / rij.nrm2());  
 
@@ -390,11 +387,6 @@ namespace dynamo {
     p1.getVelocity() -= retVal.impulse / p1Mass;
     p2.getVelocity() += retVal.impulse / p2Mass;
 
-    retVal.particle1_.setDeltaKE(0.5 * p1Mass * (p1.getVelocity().nrm2() 
-						 - retVal.particle1_.getOldVel().nrm2()));
-  
-    retVal.particle2_.setDeltaKE(0.5 * p2Mass * (p2.getVelocity().nrm2() 
-						 - retVal.particle2_.getOldVel().nrm2()));
     return retVal;
   }
 
@@ -403,66 +395,34 @@ namespace dynamo {
   {
     Particle& particle1 = Sim->particles[event.getParticle1ID()];
     Particle& particle2 = Sim->particles[event.getParticle2ID()];
-
     updateParticlePair(particle1, particle2);  
+    PairEventData retVal(particle1, particle2, *Sim->species[particle1], *Sim->species[particle2], eType);
 
-    PairEventData retVal(particle1, particle2,
-			 *Sim->species[particle1],
-			 *Sim->species[particle2],
-			 eType);
-    
     Sim->BCs->applyBC(retVal.rij, retVal.vijold);
-  
+
     double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID()); 
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID());
  
-    retVal.rvdot = (retVal.rij | retVal.vijold);
+    retVal.rvdot = retVal.rij | retVal.vijold;
+
+    double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
 
     //Treat special cases if one particle has infinite mass
-    if ((p1Mass == 0) && (p2Mass != 0))
-      //if (!particle1.testState(Particle::DYNAMIC) && particle2.testState(Particle::DYNAMIC))
+    bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
+    if (infinite_masses)
       {
-	retVal.impulse = p2Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());  
-	//This function must edit particles so it overrides the const!
-	particle2.getVelocity() += retVal.impulse / p2Mass;
+	p1Mass = p2Mass = 1;
+	mu = 0.5;
       }
-    else 
-      if ((p1Mass != 0) && (p2Mass == 0))
-	//if (particle1.testState(Particle::DYNAMIC) && !particle2.testState(Particle::DYNAMIC))
-	{
-	  retVal.impulse = p1Mass * retVal.rij * ((1.0 + e) * retVal.rvdot / retVal.rij.nrm2());
-	  //This function must edit particles so it overrides the const!
-	  particle1.getVelocity() -= retVal.impulse / p1Mass;
-	}
-      else
-	{
-	  bool isInfInf = (p1Mass == 0) && (p2Mass == 0);
 
-	  //If both particles have infinite mass we just collide them as identical masses
-	  if (isInfInf) p1Mass = p2Mass = 1;
-
-	  double mu = p1Mass * p2Mass / (p1Mass + p2Mass);
-
-	  retVal.impulse = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
-
-	  //This function must edit particles so it overrides the const!
-	  particle1.getVelocity() -= retVal.impulse / p1Mass;
-	  particle2.getVelocity() += retVal.impulse / p2Mass;
-
-	  //If both particles have infinite mass we pretend no momentum was transferred
-	  retVal.impulse *= !isInfInf;
-	}
-
-    retVal.particle1_.setDeltaKE(0.5 * p1Mass * (particle1.getVelocity().nrm2()
-						 - retVal.particle1_.getOldVel().nrm2()));
-  
-    retVal.particle2_.setDeltaKE(0.5 * p2Mass * (particle2.getVelocity().nrm2() 
-						 - retVal.particle2_.getOldVel().nrm2()));
+    retVal.impulse = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());  
+    particle1.getVelocity() -= retVal.impulse / p1Mass;
+    particle2.getVelocity() += retVal.impulse / p2Mass;
+    retVal.impulse *= !infinite_masses;
 
     lastCollParticle1 = particle1.getID();
     lastCollParticle2 = particle2.getID();
     lastAbsoluteClock = Sim->systemTime;
-
     return retVal;
   }
 
@@ -488,7 +448,14 @@ namespace dynamo {
 
     double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID()); 
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID());
-    double mu = p1Mass * p2Mass/ (p1Mass + p2Mass);
+    double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
+
+    bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
+    if (infinite_masses)
+      {
+	p1Mass = p2Mass = 1;
+	mu = 0.5;
+      }
   
     Vector collvec(0,0,0);
 
@@ -505,11 +472,7 @@ namespace dynamo {
     particle1.getVelocity() -= retVal.impulse / p1Mass;
     particle2.getVelocity() += retVal.impulse / p2Mass;
 
-    retVal.particle1_.setDeltaKE(0.5 * p1Mass * (particle1.getVelocity().nrm2() 
-						 - retVal.particle1_.getOldVel().nrm2()));
-  
-    retVal.particle2_.setDeltaKE(0.5 * p2Mass * (particle2.getVelocity().nrm2() 
-						 - retVal.particle2_.getOldVel().nrm2()));
+    retVal.impulse *= !infinite_masses;
 
     return retVal;
   }
@@ -521,7 +484,7 @@ namespace dynamo {
   
     double structmass1(0), structmass2(0);
   
-    BOOST_FOREACH(const size_t& ID, range1)
+    for (const size_t& ID : range1)
       {
 	updateParticle(Sim->particles[ID]);
       
@@ -538,7 +501,7 @@ namespace dynamo {
 	COMPos1 += pos * mass;
       }
   
-    BOOST_FOREACH(const size_t& ID, range2)
+    for (const size_t& ID : range2)
       {
 	updateParticle(Sim->particles[ID]);
 
@@ -571,22 +534,17 @@ namespace dynamo {
     Vector  dP = rij * ((1.0 + e) * mu * rvdot / rij.nrm2());
 
     NEventData retVal;
-    BOOST_FOREACH(const size_t& ID, range1)
+    for (const size_t& ID : range1)
       {
 	ParticleEventData tmpval(Sim->particles[ID],
 				 *Sim->species[Sim->particles[ID]],
 				 eType);
 
 	Sim->particles[ID].getVelocity() -= dP / structmass1;
-      
-	tmpval.setDeltaKE(0.5 * Sim->species[tmpval.getSpeciesID()]->getMass(ID)
-			  * (Sim->particles[ID].getVelocity().nrm2() 
-			     - tmpval.getOldVel().nrm2()));
-      
 	retVal.L1partChanges.push_back(tmpval);
       }
 
-    BOOST_FOREACH(const size_t& ID, range2)
+    for (const size_t& ID : range2)
       {
 	ParticleEventData tmpval
 	  (Sim->particles[ID],
@@ -594,11 +552,6 @@ namespace dynamo {
 	   eType);
 
 	Sim->particles[ID].getVelocity() += dP / structmass2;
-      
-	tmpval.setDeltaKE(0.5 * Sim->species[tmpval.getSpeciesID()]->getMass(ID)
-			  * (Sim->particles[ID].getVelocity().nrm2() 
-			     - tmpval.getOldVel().nrm2()));
-  
 	retVal.L1partChanges.push_back(tmpval);
       }
   
@@ -612,7 +565,7 @@ namespace dynamo {
   
     double structmass1(0), structmass2(0);
   
-    BOOST_FOREACH(const size_t& ID, range1)
+    for (const size_t& ID : range1)
       {
 	updateParticle(Sim->particles[ID]);
 	double mass = Sim->species[Sim->particles[ID]]->getMass(ID);
@@ -629,7 +582,7 @@ namespace dynamo {
 	COMPos1 += pos * mass;
       }
   
-    BOOST_FOREACH(const size_t& ID, range2)
+    for (const size_t& ID : range2)
       {
 	updateParticle(Sim->particles[ID]);
 
@@ -668,12 +621,7 @@ namespace dynamo {
 	dP = rij * 2.0 * mu * rvdot / R2;
       }
     else
-      {
-	if (deltaKE < 0)
-	  eType = WELL_KEDOWN;
-	else
-	  eType = WELL_KEUP;
-	  
+      {	  
 	if (rvdot < 0)
 	  dP = rij 
 	    * (2.0 * deltaKE / (std::sqrt(sqrtArg) - rvdot));
@@ -683,7 +631,7 @@ namespace dynamo {
       }
   
     NEventData retVal;
-    BOOST_FOREACH(const size_t& ID, range1)
+    for (const size_t& ID : range1)
       {
 	ParticleEventData tmpval
 	  (Sim->particles[ID],
@@ -692,14 +640,10 @@ namespace dynamo {
 
 	Sim->particles[ID].getVelocity() -= dP / structmass1;
       
-	tmpval.setDeltaKE(0.5 * Sim->species[tmpval.getSpeciesID()]->getMass(ID)
-			  * (Sim->particles[ID].getVelocity().nrm2() 
-			     - tmpval.getOldVel().nrm2()));
-        
 	retVal.L1partChanges.push_back(tmpval);
       }
 
-    BOOST_FOREACH(const size_t& ID, range2)
+    for (const size_t& ID : range2)
       {
 	ParticleEventData tmpval
 	  (Sim->particles[ID],
@@ -707,11 +651,6 @@ namespace dynamo {
 	   eType);
 
 	Sim->particles[ID].getVelocity() += dP / structmass2;
-      
-	tmpval.setDeltaKE(0.5 * Sim->species[tmpval.getSpeciesID()]->getMass(ID)
-			  * (Sim->particles[ID].getVelocity().nrm2() 
-			     - tmpval.getOldVel().nrm2()));
-      
 	retVal.L1partChanges.push_back(tmpval);
       }
   
@@ -719,7 +658,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  DynNewtonian::SphereWellEvent(const IntEvent& event, const double& deltaKE, const double &) const
+  DynNewtonian::SphereWellEvent(const IntEvent& event, const double& deltaKE, const double &, size_t) const
   {
     Particle& particle1 = Sim->particles[event.getParticle1ID()];
     Particle& particle2 = Sim->particles[event.getParticle2ID()];
@@ -737,7 +676,15 @@ namespace dynamo {
   
     double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID());
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID());
-    double mu = p1Mass * p2Mass / (p1Mass + p2Mass);  
+    double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
+
+    bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
+    if (infinite_masses)
+      {
+	p1Mass = p2Mass = 1;
+	mu = 0.5;
+      }
+
     double R2 = retVal.rij.nrm2();
     double sqrtArg = retVal.rvdot * retVal.rvdot + 2.0 * R2 * deltaKE / mu;
   
@@ -748,24 +695,9 @@ namespace dynamo {
 	retVal.impulse = retVal.rij * 2.0 * mu * retVal.rvdot / R2;
       }
     else if (deltaKE==0)
-      {
-	event.setType(NON_EVENT);
-	retVal.setType(NON_EVENT);
-	retVal.impulse = Vector(0,0,0);
-      }
+      retVal.impulse = Vector(0,0,0);
     else
       {
-	if (deltaKE < 0)
-	  {
-	    event.setType(WELL_KEDOWN);
-	    retVal.setType(WELL_KEDOWN);
-	  }
-	else
-	  {
-	    event.setType(WELL_KEUP);
-	    retVal.setType(WELL_KEUP);	  
-	  }
-	  
 	retVal.particle1_.setDeltaU(-0.5 * deltaKE);
 	retVal.particle2_.setDeltaU(-0.5 * deltaKE);	  
       
@@ -786,22 +718,14 @@ namespace dynamo {
     particle1.getVelocity() -= retVal.impulse / p1Mass;
     particle2.getVelocity() += retVal.impulse / p2Mass;
   
-    retVal.particle1_.setDeltaKE(0.5 * p1Mass
-				 * (particle1.getVelocity().nrm2() 
-				    - retVal.particle1_.getOldVel().nrm2()));
-  
-    retVal.particle2_.setDeltaKE(0.5 * p2Mass
-				 * (particle2.getVelocity().nrm2() 
-				    - retVal.particle2_.getOldVel().nrm2()));
-
+    retVal.impulse *= !infinite_masses;
     return retVal;
   }
 
   void 
   DynNewtonian::outputXML(magnet::xml::XmlStream& XML) const
   {
-    XML << magnet::xml::attr("Type") 
-	<< "Newtonian";
+    XML << magnet::xml::attr("Type") << "Newtonian";
   }
 
   double 
@@ -1131,10 +1055,6 @@ namespace dynamo {
 
     part.getVelocity() -=  delP / pmass;
 
-    retVal.setDeltaKE(0.5 * pmass
-		      * (part.getVelocity().nrm2() 
-			 - retVal.getOldVel().nrm2()));
-  
     //Don't progress if you want to not change the plate data
     if (strongPlate) return retVal;
 
@@ -1162,48 +1082,21 @@ namespace dynamo {
   double 
   DynNewtonian::getCylinderWallCollision(const Particle& part, const Vector& wallLoc, const Vector& wallNorm, const double& radius) const
   {
-    Vector  rij = part.getPosition() - wallLoc,
-      vel = part.getVelocity();
-
+    Vector rij = part.getPosition() - wallLoc, vel = part.getVelocity();
     Sim->BCs->applyBC(rij, vel);
-
-    rij -= Vector((rij | wallNorm) * wallNorm);
-
-    vel -= Vector((vel | wallNorm) * wallNorm);
-
-    double B = (vel | rij),
-      A = vel.nrm2(),
-      C = rij.nrm2() - radius * radius;
-
-    double t = (std::sqrt(B*B - A*C) - B) / A;
-
-    if (boost::math::isnan(t))
-      return HUGE_VAL;
-    else
-      return t;
+    return magnet::intersection::ray_cylinder_bfc(rij, vel, wallNorm, radius);
   }
 
   ParticleEventData 
   DynNewtonian::runCylinderWallCollision(Particle& part, const Vector& origin, const Vector& vNorm, const double& e) const
   {
     updateParticle(part);
-
     ParticleEventData retVal(part, *Sim->species[part], WALL);
-  
-    Vector rij =  origin - part.getPosition();
-
+    Vector rij = origin - part.getPosition();
     Sim->BCs->applyBC(rij);
-
     rij -= Vector((rij | vNorm) * vNorm);
-
     rij /= rij.nrm();
-
     part.getVelocity() -= (1+e) * (rij | part.getVelocity()) * rij;
-  
-    retVal.setDeltaKE(0.5 * Sim->species[retVal.getSpeciesID()]->getMass(part.getID())
-		      * (part.getVelocity().nrm2() 
-			 - retVal.getOldVel().nrm2()));
-  
     return retVal; 
   }
 
@@ -1228,11 +1121,11 @@ namespace dynamo {
     double t_low = 0.0;
   
     SFLines fL(r12, v12,
-		  orientationData[p1.getID()].angularVelocity,
-		  orientationData[p2.getID()].angularVelocity,
-		  orientationData[p1.getID()].orientation,
-		  orientationData[p2.getID()].orientation,
-		  length);
+	       orientationData[p1.getID()].angularVelocity,
+	       orientationData[p2.getID()].angularVelocity,
+	       orientationData[p1.getID()].orientation,
+	       orientationData[p2.getID()].orientation,
+	       length);
   
     if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
 	 || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
@@ -1273,10 +1166,9 @@ namespace dynamo {
     SFOffcentre_Spheres f(r12, v12,
 			  orientationData[p1.getID()].angularVelocity,
 			  orientationData[p2.getID()].angularVelocity,
-			  orientationData[p1.getID()].orientation * offset1,
-			  orientationData[p2.getID()].orientation * offset2,
-			  diameter1, diameter2,
-			  maxdist);
+			  orientationData[p1.getID()].orientation * Quaternion::initialDirector() * offset1,
+			  orientationData[p2.getID()].orientation * Quaternion::initialDirector() * offset2,
+			  diameter1, diameter2, maxdist);
     
     double f0 = f.eval<0>();
     double f1 = f.eval<1>();
@@ -1333,26 +1225,14 @@ namespace dynamo {
 
     Particle& particle1 = Sim->particles[eevent.getParticle1ID()];
     Particle& particle2 = Sim->particles[eevent.getParticle2ID()];
-
     updateParticlePair(particle1, particle2);  
-
-    PairEventData retVal(particle1, particle2,
-			 *Sim->species[particle1],
-			 *Sim->species[particle2],
-			 CORE);
-  
+    PairEventData retVal(particle1, particle2, *Sim->species[particle1], *Sim->species[particle2], CORE);
     Sim->BCs->applyBC(retVal.rij, retVal.vijold);
-
     retVal.rvdot = (retVal.rij | retVal.vijold);
 
-    double KE1before = getParticleKineticEnergy(particle1);
-    double KE2before = getParticleKineticEnergy(particle2);
-
     SFLines fL(retVal.rij, retVal.vijold,
-	       orientationData[particle1.getID()].angularVelocity,
-	       orientationData[particle2.getID()].angularVelocity,
-	       orientationData[particle1.getID()].orientation,
-	       orientationData[particle2.getID()].orientation,
+	       orientationData[particle1.getID()].angularVelocity, orientationData[particle2.getID()].angularVelocity,
+	       orientationData[particle1.getID()].orientation, orientationData[particle2.getID()].orientation,
 	       length);
 
     Vector uPerp = fL.getu1() ^ fL.getu2();
@@ -1382,9 +1262,6 @@ namespace dynamo {
     orientationData[particle2.getID()].angularVelocity 
       += (cp.second / inertia) * (fL.getu2() ^ retVal.impulse);
 
-    retVal.particle1_.setDeltaKE(getParticleKineticEnergy(particle1) - KE1before);
-    retVal.particle2_.setDeltaKE(getParticleKineticEnergy(particle2) - KE2before);
-
     lastCollParticle1 = particle1.getID();
     lastCollParticle2 = particle2.getID();
     lastAbsoluteClock = Sim->systemTime;
@@ -1398,69 +1275,54 @@ namespace dynamo {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(r12);
 
-    return std::sqrt(std::max(d * d - (r12 | r12), 0.0));
+    return std::max(d  - std::sqrt(r12 | r12), 0.0);
   }
 
   PairEventData 
-  DynNewtonian::RoughSpheresColl(const IntEvent& event, const double& e, const double& et, const double& d2, const EEventType& eType) const
+  DynNewtonian::RoughSpheresColl(const IntEvent& event, const double& e, const double& et, const double& d1, const double& d2, const EEventType& eType) const
   {
-#ifdef DYNAMO_DEBUG
     if (!hasOrientationData())
-      M_throw() << "Cannot use this function without orientational data";
-#endif
+      M_throw() << "Cannot use tangential coefficients of inelasticity without orientational data/species";
 
     Particle& particle1 = Sim->particles[event.getParticle1ID()];
     Particle& particle2 = Sim->particles[event.getParticle2ID()];
 
     updateParticlePair(particle1, particle2);  
-
-    PairEventData retVal(particle1, particle2,
-			 *Sim->species[particle1],
-			 *Sim->species[particle2],
-			 eType);
+    PairEventData retVal(particle1, particle2, *Sim->species[particle1], *Sim->species[particle2], eType);
     
     Sim->BCs->applyBC(retVal.rij, retVal.vijold);
   
-    double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID()); 
+    double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID());
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID());
-    double mu = p1Mass * p2Mass/(p1Mass+p2Mass);
-  
+
     retVal.rvdot = (retVal.rij | retVal.vijold);
 
-    //The normal impulse
-    retVal.impulse = retVal.rij * ((1.0 + e) * mu * retVal.rvdot / retVal.rij.nrm2());
+    const Vector rijhat = retVal.rij / retVal.rij.nrm();
+    const Vector gij = retVal.vijold - ((0.5 * d1 * orientationData[particle1.getID()].angularVelocity + 0.5 * d2 * orientationData[particle2.getID()].angularVelocity) ^ rijhat);
+    const Vector rcrossgij = rijhat ^ gij;
+    const double rdotgij = rijhat | gij;
 
-    Vector eijn = retVal.rij / retVal.rij.nrm();
+    double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
 
-    //Now the tangential impulse
-    Vector gij = retVal.vijold - std::sqrt(d2) * 0.5 
-      * ((orientationData[particle1.getID()].angularVelocity
-	  + orientationData[particle2.getID()].angularVelocity) ^ eijn);
-  
-    Vector gijt = (eijn ^ gij) ^ eijn;
-
-    double Jbar = Sim->species[retVal.particle1_.getSpeciesID()]->getScalarMomentOfInertia(particle1.getID()) 
-      / (p1Mass * d2 * 0.25);
-  
-    retVal.impulse += (Jbar * (1-et) / (2*(Jbar + 1))) * gijt;
-
-    double KE1before = getParticleKineticEnergy(particle1);
-    double KE2before = getParticleKineticEnergy(particle2);
-
-    //This function must edit particles so it overrides the const!
+    double I = 2.0/5.0;
+    
+    bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
+    if (infinite_masses)
+      {
+	p1Mass = p2Mass = 1;
+	mu = 0.5;
+      }
+    
+    retVal.impulse = mu * ((1+e) * rijhat * rdotgij + ((et - 1) / (1 + 1.0 / I)) * (rijhat ^ (rcrossgij)));
     particle1.getVelocity() -= retVal.impulse / p1Mass;
     particle2.getVelocity() += retVal.impulse / p2Mass;
 
-    Vector angularVchange = (1-et) / (std::sqrt(d2) * (Jbar+1)) * (eijn ^ gijt);
+    retVal.impulse *= !infinite_masses;
+
+    Vector angularVchange = (mu * (1-et) / (1 + I)) * rcrossgij;
  
-    orientationData[particle1.getID()].angularVelocity
-      += angularVchange;
-    orientationData[particle2.getID()].angularVelocity 
-      += angularVchange;
-
-    retVal.particle1_.setDeltaKE(getParticleKineticEnergy(particle1) - KE1before);
-    retVal.particle2_.setDeltaKE(getParticleKineticEnergy(particle2) - KE2before);
-
+    orientationData[particle1.getID()].angularVelocity += angularVchange / (p1Mass * d1 * 0.5);
+    orientationData[particle2.getID()].angularVelocity += angularVchange / (p2Mass * d2 * 0.5);
     return retVal;
   }
 
@@ -1475,8 +1337,6 @@ namespace dynamo {
     updateParticle(part);
 
     ParticleEventData retVal(part, *Sim->species[part], WALL);
-
-    double KE1before = getParticleKineticEnergy(part);
 
     double p1Mass = Sim->species[retVal.getSpeciesID()]->getMass(part.getID()); 
 
@@ -1496,7 +1356,6 @@ namespace dynamo {
     orientationData[part.getID()].angularVelocity
       += angularVchange;
 
-    retVal.setDeltaKE(getParticleKineticEnergy(part) - KE1before);
     return retVal; 
   }
 }

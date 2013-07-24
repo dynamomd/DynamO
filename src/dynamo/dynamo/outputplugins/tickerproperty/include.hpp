@@ -28,9 +28,7 @@
 #include <dynamo/outputplugins/tickerproperty/msdcorrelator.hpp>
 #include <dynamo/outputplugins/tickerproperty/kenergyticker.hpp>
 #include <dynamo/outputplugins/tickerproperty/structureImage.hpp>
-#include <dynamo/outputplugins/tickerproperty/boundedQstats.hpp>
 #include <dynamo/outputplugins/tickerproperty/SHcrystal.hpp>
 #include <dynamo/outputplugins/tickerproperty/SCparameter.hpp>
-#include <dynamo/outputplugins/tickerproperty/plateMotion.hpp>
 #include <dynamo/outputplugins/tickerproperty/msdOrientationalCorrelator.hpp>
 #include <dynamo/outputplugins/tickerproperty/OrientationalOrder.hpp>

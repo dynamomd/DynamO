@@ -27,9 +27,7 @@ namespace dynamo {
 				 std::string nIName):
     SpInertia(tmp, nr, nMass, nName, nID, nIName),
     inertiaConstant(inertiaConst)
-  {
-    spName = "SpSphericalTop";
-  }
+  {}
 
   SpSphericalTop::SpSphericalTop(const magnet::xml::Node& XML, dynamo::Simulation* Sim, 
 				 unsigned int nID):
@@ -53,14 +51,6 @@ namespace dynamo {
   SpSphericalTop::operator<<(const magnet::xml::Node& XML)
   {
     SpPoint::operator<<(XML);
-
-    try {
-      inertiaConstant 
-	= XML.getAttribute("InertiaConstant").as<double>() * Sim->units.unitInertia();
-    } 
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in CSSphericalTop";
-      }
+    inertiaConstant = XML.getAttribute("InertiaConstant").as<double>() * Sim->units.unitInertia();
   }
 }

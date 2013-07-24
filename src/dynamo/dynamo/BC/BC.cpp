@@ -43,19 +43,19 @@ namespace dynamo {
   retptr
   BoundaryCondition::getClass(const magnet::xml::Node& XML, dynamo::Simulation* tmp)
   {
-    if (!std::strcmp(XML.getAttribute("Type"),"None")
-	|| !std::strcmp(XML.getAttribute("Type"),"Null"))
+    if (!XML.getAttribute("Type").getValue().compare("None")
+	|| !XML.getAttribute("Type").getValue().compare("Null"))
       return retptr(new BCNone(tmp));
-    else if (!std::strcmp(XML.getAttribute("Type"),"PBC"))
+    else if (!XML.getAttribute("Type").getValue().compare("PBC"))
       return retptr(new BCPeriodic(tmp));
-    else if (!std::strcmp(XML.getAttribute("Type"),"NoXPBC"))
+    else if (!XML.getAttribute("Type").getValue().compare("NoXPBC"))
       return retptr(new BCPeriodicExceptX(tmp));
-    else if (!std::strcmp(XML.getAttribute("Type"),"OnlyXPBC"))
+    else if (!XML.getAttribute("Type").getValue().compare("OnlyXPBC"))
       return retptr(new BCPeriodicXOnly(tmp));
-    else if (!std::strcmp(XML.getAttribute("Type"),"LE"))
+    else if (!XML.getAttribute("Type").getValue().compare("LE"))
       return retptr(new BCLeesEdwards(XML,tmp));
     else 
-      M_throw() << XML.getAttribute("Type") 
+      M_throw() << XML.getAttribute("Type").getValue()
 		<< ", Unknown type of boundary encountered";
   }
 }

@@ -32,7 +32,8 @@ Description: The visualisation program for DynamO, the event-driven molecular dy
 
 Package: dynamo-tools
 Architecture: all
-Depends: python-numpy
+Depends: python-numpy,
+  python-matplotlib
 Description: Data processing tools for DynamO, the event-driven molecular dynamics simulator.
  DynamO is a modern event-driven molecular dynamics simulator with a
  wide range of tools and models built in. It also includes a world

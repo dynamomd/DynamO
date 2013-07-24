@@ -47,23 +47,20 @@ namespace dynamo {
   {
 
 
-    if (!strcmp(XML.getAttribute("Type"),"Cells2")
-	|| !strcmp(XML.getAttribute("Type"),"Cells")
-	|| !strcmp(XML.getAttribute("Type"),"CellsMorton")
-	|| !strcmp(XML.getAttribute("Type"),"ShearingCells"))
+    if (!XML.getAttribute("Type").getValue().compare("Cells"))
       {
-	if (std::tr1::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
+	if (std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
 	  return shared_ptr<Global>(new GCellsShearing(XML, Sim));
 	else
 	  return shared_ptr<Global>(new GCells(XML, Sim));
       }
-    else if (!strcmp(XML.getAttribute("Type"),"SOCells"))
+    else if (!XML.getAttribute("Type").getValue().compare("SOCells"))
       return shared_ptr<Global>(new GSOCells(XML, Sim));
-    else if (!strcmp(XML.getAttribute("Type"),"Waker"))
+    else if (!XML.getAttribute("Type").getValue().compare("Waker"))
       return shared_ptr<Global>(new GWaker(XML, Sim));
     else 
-      M_throw() << XML.getAttribute("Type")
-		<< ", Unknown type (" << XML.getAttribute("Type")
+      M_throw() << XML.getAttribute("Type").getValue()
+		<< ", Unknown type (" << XML.getAttribute("Type").getValue()
 		<< ") of Global Interaction encountered";
   }
 }

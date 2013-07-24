@@ -19,18 +19,9 @@ import type ;
 type.register GLADEXML : gladexml ;
 
 import generators ;
-generators.register-standard glade.objectify-glade : GLADEXML : OBJ ;
+generators.register-standard glade.objectify-glade : GLADEXML : CPP ;
 
 actions objectify-glade
 {
-  #Copy the file to a local location, so the symbol name is short
-  "cp" $(>) $(>:B)$(>:S)
-
-  #Now link the file into a binary with a fixed symbol name
-  "ld" -r -b binary -o $(<) $(>:B)$(>:S)
-
-  rm $(>:B)$(>:S)
-
-  #Finally, change the symbol properties
-  "objcopy" --rename-section .data=.rodata,alloc,load,readonly,data,contents  $(<) $(<) 
+  "./src/magnet/jam/to_cstring.py" $(>) $(<)
 }

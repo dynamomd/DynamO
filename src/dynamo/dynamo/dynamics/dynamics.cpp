@@ -23,7 +23,7 @@
 #include <dynamo/BC/LEBC.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
+#include <cstring>
 
 namespace dynamo {
   magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, const Dynamics& g)
@@ -35,14 +35,16 @@ namespace dynamo {
   shared_ptr<Dynamics>
   Dynamics::getClass(const magnet::xml::Node& XML, dynamo::Simulation* tmp)
   {
-    if (!strcmp(XML.getAttribute("Type"),"Newtonian"))
+    if (!XML.getAttribute("Type").getValue().compare("Newtonian"))
       return shared_ptr<Dynamics>(new DynNewtonian(tmp));
-    if (!strcmp(XML.getAttribute("Type"),"NewtonianGravity"))
+    if (!XML.getAttribute("Type").getValue().compare("NewtonianGravity"))
       return shared_ptr<Dynamics>(new DynGravity(tmp, XML));
-    else if (!strcmp(XML.getAttribute("Type"),"NewtonianMC"))
+    else if (!XML.getAttribute("Type").getValue().compare("NewtonianMC"))
       return shared_ptr<Dynamics>(new DynNewtonianMC(tmp, XML));
+    else if (!XML.getAttribute("Type").getValue().compare("NewtonianMCCMap"))
+      return shared_ptr<Dynamics>(new DynNewtonianMCCMap(tmp, XML));
     else
-      M_throw() << XML.getAttribute("Type")
+      M_throw() << XML.getAttribute("Type").getValue()
 		<< ", Unknown type of Dynamics encountered";
   }
 
@@ -55,14 +57,14 @@ namespace dynamo {
     if (hasOrientationData())
       {
 	double sumEnergy(0.0);
-	BOOST_FOREACH(const Particle& part, Sim->particles)  
+	for (const Particle& part : Sim->particles)
 	  sumEnergy += Sim->species[part]->getScalarMomentOfInertia(part.getID())
 	  * orientationData[part.getID()].angularVelocity.nrm2();
       
 	//Check if any of the species are overridden
 	bool hasInertia(false);
-	BOOST_FOREACH(const shared_ptr<Species>& spec, Sim->species)
-	  if (std::tr1::dynamic_pointer_cast<SpInertia>(spec))
+	for (const shared_ptr<Species>& spec : Sim->species)
+	  if (std::dynamic_pointer_cast<SpInertia>(spec))
 	    hasInertia = true;
 
 	if (!hasInertia)
@@ -136,20 +138,15 @@ namespace dynamo {
       {
 	orientationData.resize(Sim->N);
 	size_t i(0);
-	for (magnet::xml::Node node = XML.getNode("ParticleData").fastGetNode("Pt"); 
-	     node.valid(); ++node, ++i)
+	for (magnet::xml::Node node = XML.getNode("ParticleData").fastGetNode("Pt"); node.valid(); ++node, ++i)
 	  {
 	    orientationData[i].orientation << node.getNode("U");
 	    orientationData[i].angularVelocity << node.getNode("O");
       
-	    double oL = orientationData[i].orientation.nrm();
-      
-	    if (!(oL > 0.0))
-	      M_throw() << "Particle ID " << i 
-			<< " orientation vector is zero!";
-      
 	    //Makes the vector a unit vector
-	    orientationData[i].orientation /= oL;
+	    orientationData[i].orientation.normalise();
+	    if (orientationData[i].orientation.nrm() == 0)
+	      M_throw() << "Particle " << i << " has an invalid zero orientation quaternion";
 	  }
       }
   }
@@ -192,21 +189,23 @@ namespace dynamo {
   double 
   Dynamics::getParticleKineticEnergy(const Particle& part) const
   {
-    double energy(0);
-    if (std::tr1::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
-      {
-	const BCLeesEdwards& bc = static_cast<const BCLeesEdwards&>(*Sim->BCs);
+    const double mass = Sim->species[part]->getMass(part.getID());
 
-	energy += bc.getPeculiarVelocity(part).nrm2()
-	  * Sim->species[part]->getMass(part.getID());
+    double energy(0);
+    if (!std::isinf(mass))
+      {
+	if (std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
+	  energy += static_cast<const BCLeesEdwards&>(*Sim->BCs).getPeculiarVelocity(part).nrm2() * mass;
+	else
+	  energy += part.getVelocity().nrm2() * mass;
       }
-    else
-      energy += part.getVelocity().nrm2()
-	* Sim->species[part]->getMass(part.getID());
-  
+
     if (hasOrientationData())
-      energy += orientationData[part.getID()].angularVelocity.nrm2()
-	* Sim->species[part]->getScalarMomentOfInertia(part.getID());
+      {
+	const double I = Sim->species[part]->getScalarMomentOfInertia(part.getID());
+	if (!std::isinf(I))
+	  energy += I * orientationData[part.getID()].angularVelocity.nrm2();
+      }
 
     return 0.5 * energy;
   }
@@ -216,7 +215,7 @@ namespace dynamo {
   {
     double sumEnergy(0);
 
-    BOOST_FOREACH(const Particle& part, Sim->particles)
+    for (const Particle& part : Sim->particles)
       sumEnergy += getParticleKineticEnergy(part);
 
     return sumEnergy;
@@ -227,24 +226,31 @@ namespace dynamo {
   {
     double scalefactor(sqrt(scale));
 
-    if (std::tr1::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
+    if (std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
       {
 	const BCLeesEdwards& bc = static_cast<const BCLeesEdwards&>(*Sim->BCs);
-
-	BOOST_FOREACH(Particle& part, Sim->particles)
-	  part.getVelocity() = Vector(bc.getPeculiarVelocity(part) * scalefactor
-				      + bc.getStreamVelocity(part));
+	for (Particle& part : Sim->particles)
+	  {
+	    const double mass = Sim->species[part]->getMass(part.getID());
+	    if (!std::isinf(mass))
+	      part.getVelocity() = Vector(bc.getPeculiarVelocity(part) * scalefactor + bc.getStreamVelocity(part));
+	  }
       }
     else
-      {
-	double scalefactor(sqrt(scale));
-      
-	BOOST_FOREACH(Particle& part, Sim->particles)
-	  part.getVelocity() *= scalefactor;
-      }
+      for (Particle& part : Sim->particles)
+	{
+	  const double mass = Sim->species[part]->getMass(part.getID());
+	  if (!std::isinf(mass))
+	    part.getVelocity() *= scalefactor;
+	}
 
-    BOOST_FOREACH(rotData& rdat, orientationData)
-      rdat.angularVelocity *= scalefactor;      
+    if (hasOrientationData())
+      for (Particle& part : Sim->particles)
+	{
+	  const double I = Sim->species[part]->getScalarMomentOfInertia(part.getID());
+	  if (!std::isinf(I))
+	    orientationData[part.getID()].angularVelocity *= scalefactor;
+	}
   }
 
   PairEventData 
@@ -294,12 +300,7 @@ namespace dynamo {
   }
 
   PairEventData 
-  Dynamics::RoughSpheresColl(const IntEvent& event, 
-				const double& e, 
-				const double& et, 
-				const double& d2, 
-				const EEventType& eType
-				) const
+  Dynamics::RoughSpheresColl(const IntEvent& event, const double& e, const double& et, const double& d1, const double& d2, const EEventType& eType) const
   {
     M_throw() << "Not Implemented, you need rotational dynamics";
   }
@@ -316,33 +317,36 @@ namespace dynamo {
   }
 
   void 
-  Dynamics::initOrientations(double ToI)
+  Dynamics::initOrientations(double kbT)
   {
     orientationData.resize(Sim->particles.size());
   
+    //std::sqrt(10.0/ (diameter * diameter))
+  
     dout << "Initialising the line orientations" << std::endl;
 
-    double factor = ToI * 0.5;
-
-    Vector angVelCrossing;
-
+    std::normal_distribution<> norm_dist;
+    
     for (size_t i = 0; i < Sim->particles.size(); ++i)
       {
 	//Assign the new velocities
-	orientationData[i].orientation = Vector(1,0,0);
-	//for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	//  orientationData[i].orientation[iDim] = Sim->normal_sampler();
-      	//
-	//orientationData[i].orientation /= orientationData[i].orientation.nrm();
+	orientationData[i].orientation = Quaternion::identity();
       
+	Vector angVelCrossing;
 	for (size_t iDim = 0; iDim < NDIM; ++iDim)
-	  angVelCrossing[iDim] = Sim->normal_sampler();
-      
-	orientationData[i].angularVelocity
-	  = orientationData[i].orientation ^ angVelCrossing;
-      
-	orientationData[i].angularVelocity *= Sim->normal_sampler() * factor 
-	  / orientationData[i].angularVelocity.nrm();
+	  angVelCrossing[iDim] = norm_dist(Sim->ranGenerator);
+	
+	//Ensure the initial angular velocity is perpendicular to the
+	//director
+	double I = Sim->species[Sim->particles[i]]->getScalarMomentOfInertia(i);
+	
+	if (std::isinf(I))
+	  orientationData[i].angularVelocity = Vector(0,0,0);
+	else
+	  {
+	    orientationData[i].angularVelocity = Quaternion::initialDirector() ^ angVelCrossing;
+	    orientationData[i].angularVelocity *= 0.5 * std::sqrt(kbT/I) * norm_dist(Sim->ranGenerator) / orientationData[i].angularVelocity.nrm();
+	  }
       }
   }
 
@@ -371,7 +375,7 @@ namespace dynamo {
 
     double totMass = 0;
 
-    BOOST_FOREACH(size_t ID, particles)
+    for (size_t ID : particles)
       {
 	const Particle& part = Sim->particles[ID];
 	double mass = Sim->species[part]->getMass(ID);
@@ -391,7 +395,7 @@ namespace dynamo {
     pos /= totMass;
     vel /= totMass;
     
-    return std::make_pair(pos, vel);
+    return std::make_pair(pos + pos0, vel + vel0);
   }
 
 }

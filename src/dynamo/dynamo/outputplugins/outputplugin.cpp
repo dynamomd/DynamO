@@ -16,15 +16,14 @@
 */
 
 #include <dynamo/outputplugins/outputplugin.hpp>
-#include <dynamo/outputplugins/general/include.hpp>
-#include <dynamo/outputplugins/0partproperty/include.hpp>
-#include <dynamo/outputplugins/1partproperty/include.hpp>
+#include <dynamo/outputplugins/include.hpp>
+#include <dynamo/outputplugins/include.hpp>
+#include <dynamo/outputplugins/include.hpp>
 #include <dynamo/outputplugins/tickerproperty/include.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/particle.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/tokenizer.hpp>
-#include <boost/foreach.hpp>
 
 namespace dynamo {
   OutputPlugin::OutputPlugin(const dynamo::Simulation* tmp, const char *aName, unsigned char order):
@@ -133,6 +132,8 @@ namespace dynamo {
       return testGeneratePlugin<OPCollMatrix>(Sim, XML);
     else if (!Name.compare("ContactMap"))
       return testGeneratePlugin<OPCContactMap>(Sim, XML);
+    else if (!Name.compare("Contactmap"))
+      return testGeneratePlugin<OPContactMap>(Sim, XML);
     else if (!Name.compare("OverlapTester"))
       return testGeneratePlugin<OPOverlapTest>(Sim, XML);
     else if (!Name.compare("CollDistCheck"))
@@ -143,18 +144,12 @@ namespace dynamo {
       return testGeneratePlugin<OPTrajectory>(Sim, XML);
     else if (!Name.compare("ChainBondLength"))
       return testGeneratePlugin<OPChainBondLength>(Sim, XML);
-    else if (!Name.compare("MFT"))
-      return testGeneratePlugin<OPMFT>(Sim, XML);
-    else if (!Name.compare("CollEnergyChange"))
-      return testGeneratePlugin<OPCollEnergyChange>(Sim, XML);
     else if (!Name.compare("VelDist"))
       return testGeneratePlugin<OPVelDist>(Sim, XML);
     else if (!Name.compare("VelProfile"))
       return testGeneratePlugin<OPVelProfile>(Sim, XML);
     else if (!Name.compare("RadialDistribution"))
       return testGeneratePlugin<OPRadialDistribution>(Sim, XML);
-    else if (!Name.compare("BoundedPQStats"))
-      return testGeneratePlugin<OPBoundedQStats>(Sim, XML);
     else if (!Name.compare("MSDCorrelator"))
       return testGeneratePlugin<OPMSDCorrelator>(Sim, XML);
     else if (!Name.compare("KEnergyTicker"))
@@ -167,8 +162,6 @@ namespace dynamo {
       return testGeneratePlugin<OPSHCrystal>(Sim, XML);
     else if (!Name.compare("SCParameter"))
       return testGeneratePlugin<OPSCParameter>(Sim, XML);
-    else if (!Name.compare("PlateMotion"))
-      return testGeneratePlugin<OPPlateMotion>(Sim, XML);
     else if (!Name.compare("MSDOrientational"))
       return testGeneratePlugin<OPMSDOrientational>(Sim, XML);
     else if (!Name.compare("MSDOrientationalCorrelator"))

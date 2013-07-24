@@ -18,8 +18,8 @@
 #pragma once
 
 #include <queue>
-#include <magnet/thread/mutex.hpp>
-#include <magnet/function/task.hpp>
+#include <mutex>
+#include <functional>
 
 namespace magnet {
   namespace thread {
@@ -27,19 +27,18 @@ namespace magnet {
     {
     public:
       //Actual queuer
-      inline virtual void queueTask(function::Task* threadfunc)
+      inline virtual void queueTask(std::function<void()> threadfunc)
       {
-	thread::ScopedLock lock1(_queue_mutex);    
+	std::lock_guard<std::mutex> lock(_queue_mutex);
 	_waitingFunctors.push(threadfunc);
       }
 
-      inline virtual void queueTasks(std::vector<function::Task*>& threadfuncs)
+      inline virtual void queueTasks(std::vector<std::function<void()>>& threadfuncs)
       {
-	thread::ScopedLock lock1(_queue_mutex);
+	std::lock_guard<std::mutex> lock(_queue_mutex);    
 
-	for (std::vector<function::Task*>::const_iterator iPtr = threadfuncs.begin();
-	     iPtr != threadfuncs.end(); ++iPtr)
-	  _waitingFunctors.push(*iPtr);
+	for (const auto& func : threadfuncs)
+	  _waitingFunctors.push(func);
 
 	threadfuncs.clear();
       }
@@ -50,11 +49,10 @@ namespace magnet {
 
 	while (!_waitingFunctors.empty())
 	  {
-	    function::Task* task = _waitingFunctors.front();
+	    std::function<void()> task = _waitingFunctors.front();
 	    _waitingFunctors.pop();
 	    _queue_mutex.unlock();
-	    (*task)();
-	    delete task;
+	    task();
 	    _queue_mutex.lock();
 	  }
 	_queue_mutex.unlock();
@@ -62,19 +60,13 @@ namespace magnet {
 
       ~TaskQueue()
       {
-	thread::ScopedLock lock1(_queue_mutex);
-
-	//Just drain the queue
-	while (!_waitingFunctors.empty())
-	  {
-	    delete _waitingFunctors.front();
-	    _waitingFunctors.pop();
-	  }
+	std::lock_guard<std::mutex> lock(_queue_mutex);    
+	_waitingFunctors = std::queue<std::function<void()> >();
       }
 
     protected:
-      std::queue<function::Task*> _waitingFunctors;
-      thread::Mutex _queue_mutex;
+      std::queue<std::function<void()> > _waitingFunctors;
+      std::mutex _queue_mutex;
 
     };
   }

@@ -1,3 +1,15 @@
+dynamo (1.6.0) quantal; urgency=low
+
+  * Packaging for the latest version
+
+ -- Marcus Bannerman (DynamO developer) <support@dynamomd.org>  Thu, 11 Jul 2013 12:00:00 +0000
+
+dynamo (1.5.0) quantal; urgency=low
+
+  * Packaging for the latest version
+
+ -- Marcus Bannerman (DynamO developer) <support@dynamomd.org>  Wed, 13 Mar 2013 12:00:00 +0000
+
 dynamo (1.4.1) quantal; urgency=low
 
   * Interim update for version 1.4

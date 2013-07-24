@@ -26,89 +26,98 @@ namespace magnet {
   //!Namespace enclosing the XML tools included in magnet.
   namespace xml {
     namespace detail {
-      //! \brief Generates a string representation of the passed XML rapidxml node.
+      /*! \brief Generates a string representation of the passed XML
+          rapidxml node.
+       */
       inline std::string getPath(rapidxml::xml_node<> *_node)
       {
-	std::vector<std::pair<std::string, size_t> > pathTree;
+	std::vector<std::pair<std::string, int> > pathTree;
 	while (_node != 0)
 	  {
-	    size_t index(0);
+	    //Determine what is the index of the current node.
+	    int index(0);
 	    if (_node->parent())
-	      { rapidxml::xml_node<>* sibling = _node->previous_sibling(_node->name());
+	      {
+		rapidxml::xml_node<>* sibling = _node->previous_sibling(_node->name(), _node->name_size());
 		while (sibling) { sibling = sibling->previous_sibling(); ++index; }
+		//Set the index to -1 if this is the only node with its name (it has no siblings)
+		if ((index == 0) && !(_node->next_sibling(_node->name(), _node->name_size())))
+		  index = -1;
 	      }
 	    
-	    pathTree.push_back(std::pair<std::string, size_t>(_node->name(), index));
+	    pathTree.push_back(std::pair<std::string, size_t>(std::string(_node->name(),_node->name()+_node->name_size()), index));
 	    _node = _node->parent();
 	  }
 	
 	std::ostringstream os;
 	
-#ifdef __PATHCC__ 
-	os << "NO PATH FOR PATHSCALE COMPILER";
-#else
-	for (std::vector<std::pair<std::string, size_t> >::const_reverse_iterator 
+	for (std::vector<std::pair<std::string, int> >::const_reverse_iterator
 	       iPtr = pathTree.rbegin(); iPtr != pathTree.rend(); ++iPtr)
 	  {
-	    os << "/" << iPtr->first; 
-	    if (iPtr->second)
+	    os << "/" << iPtr->first;
+	    //Only output the index of the node if it has no siblings
+	    if (iPtr->second >= 0)
 	      os << "[" << iPtr->second << "]";
 	  }
-#endif	
 	return os.str();
       }
     }
 
-    //! \brief Represents an Attribute of an XML Document.
+    /*! \brief Represents an Attribute of an XML Document.
+     */
     class Attribute {
     public:
       //! \brief Converts the attributes value to a type.
       template<class T> inline T as() const 
       { 
-	if (!valid()) 
-	  M_throw() << (std::string("XML error: Missing attribute being converted\nXML Path: ")
-			+ detail::getPath(_parent) + "/INVALID");
 	try {
-	  return boost::lexical_cast<T>(_attr->value()); 
+	  return boost::lexical_cast<T>(getValue());
 	} catch (boost::bad_lexical_cast&)
 	  {
-	    M_throw() << "Failed to cast XML attribute to type, XMLPath: " << getPath();
+	    M_throw() << "The value \"" << getValue() << "\" will not cast to the correct type. Please check the attribute at the following XMLPath: " << getPath();
 	  }
       }
 
-      //! \brief Conversion operator returning the value of the attribute.
-      inline operator const char*() const 
-      { 
+      /*! \brief Returns the value of the attribute.
+       */
+      std::string getValue() const { 
 	if (!valid()) 
 	  M_throw() << (std::string("XML error: Missing attribute being converted\nXML Path: ")
 			+ detail::getPath(_parent) + "/INVALID");
-	return _attr->value(); 
+	
+	return std::string(_attr->value(), _attr->value() +_attr->value_size()); 
       }
 
-      //! \brief Returns the value of the attribute.
-      const char* getValue() const { return _attr->value(); }
+      /*! \brief A convenient method to access the attributes value.
+       */
+      operator std::string() const {
+	return getValue();
+      }
 
-      //! \brief Test if this Attribute is valid and has a value.
+      /*! \brief Test if this Attribute is valid and has a value.
+       */
       inline bool valid() const { return _attr != NULL; }
 
       /*! \brief Returns a string representation of this attributes
-       * XML location.
+        XML location.
        */
       inline std::string getPath() const
       {	
 	if (!valid()) 
 	  M_throw() << (std::string("XML error: Cannot get path of invalid attribute\nXML Path: ")
 			+ detail::getPath(_parent) + "/INVALID");
-	return detail::getPath(_parent) + std::string("/@") + std::string(_attr->name()); 
+	return detail::getPath(_parent) + std::string("/@") + std::string(_attr->name(), _attr->name() + _attr->name_size()); 
       }
 
     private:
       friend class Node;
 
-      //! \brief Hidden default constructor to stop its use.
+      /*! \brief Hidden default constructor to stop its use.
+       */
       Attribute();
 
-      //! \brief True Attribute constructor, used by the Node class.
+      /*! \brief True Attribute constructor, used by the Node class.
+       */
       inline Attribute(rapidxml::xml_attribute<>* attr,
 		       rapidxml::xml_node<>* parent):_attr(attr), _parent(parent) {}
       
@@ -116,13 +125,14 @@ namespace magnet {
       rapidxml::xml_node<> *_parent;
     };
 
-    //! \brief Represents a Node of an XML Document.
+    /*! \brief Represents a Node of an XML Document.
+     */
     class Node {
     public:
       /*! \brief Fetches the first Attribute with a given name. 
-       *
-       * Test if the Attribute is Attribute::valid() before using it.
-       * \param name The name of the attribute to return.
+       
+        Test if the Attribute is Attribute::valid() before using it.
+        \param name The name of the attribute to return.
        */
       template<class T> inline Attribute getAttribute(T name) const 
       { 
@@ -133,30 +143,30 @@ namespace magnet {
 	Attribute attr(_node->first_attribute(name), _node);
 
 	if (!attr.valid())
-	  M_throw() << "XML error: Attribute does not exist."
-		    << name << (std::string("\nXML Path: ") + detail::getPath(_node) + "/@" + std::string(name));
+	  M_throw() << "XML error: Attribute \"" << name << "\" does not exist."
+		    << (std::string("\nXML Path: ") + detail::getPath(_node) + "/@" + std::string(name));
 
 	return attr; 
       }
 
       /*! \brief Fetches the first Node with a given name.
-       *
-       * \param name The name of the Node to return.
+	
+        \param name The name of the Node to return.
        */
       template<class T> inline Node getNode(T name) const 
       { 
 	Node child(fastGetNode(name));
 	
 	if (!child.valid())
-	  M_throw() << "XML error: Node does not exist."
+	  M_throw() << "XML error: Node \"" << name <<"\" does not exist."
 		    << (std::string("\nXML Path: ") + detail::getPath(_node) + "/" + std::string(name));
 	return child;
       }
 
       /*! \brief Fetches the first Node with a given name without
-       * testing if its a valid node.
-       *
-       * \param name The name of the Node to return.
+        testing if its a valid node.
+	
+        \param name The name of the Node to return.
        */
       template<class T> inline Node fastGetNode(T name) const 
       { 
@@ -167,8 +177,8 @@ namespace magnet {
       }
 
       /*! \brief Tests if the Node has a named child Node.
-       *
-       * \param name The name of the child Node to test for.
+	
+        \param name The name of the child Node to test for.
        */
       template<class T> inline bool hasNode(T name) const 
       { 
@@ -180,8 +190,8 @@ namespace magnet {
       }
 
       /*! \brief Tests if the Node has a named child Node.
-       *
-       * \param name The name of the child Node to test for.
+       
+        \param name The name of the child Node to test for.
        */
       template<class T> inline bool hasAttribute(T name) const 
       { 
@@ -192,40 +202,44 @@ namespace magnet {
       }
 
       //! \brief Returns the value of the Node.
-      inline operator const char*() const { return getValue(); }
-
-      //! \brief Returns the value of the Node.
-      const char* getValue() const
+      std::string getValue() const 
       { 
 	if (!valid()) 
 	  M_throw() << (std::string("XML error: Cannot get the value of an invalid node\nXML Path: ")
 			+ detail::getPath(_parent) + "/INVALID");
-	return _node->value(); 
+
+	return std::string(_node->value(), _node->value() +_node->value_size()); 
       }
 
       //! \brief Test if the Node is valid.
       inline bool valid() const { return _node != NULL; }
 
       /*! \brief Replace this Node with the next Node in the parent
-       * Node with the same name.
+        Node with the same name.
        */
       inline void operator++()
       { 
 	if (!valid()) 
 	  M_throw() << (std::string("XML error: Cannot increment invalid node\nXML Path: ")
 			+ detail::getPath(_parent) + "/INVALID");
-	_node = _node->next_sibling(_node->name()); 
+	_node = _node->next_sibling(_node->name(), _node->name_size()); 
+      }
+
+      /*! \brief A convenient method to access the value of the node.
+       */
+      operator std::string() const {
+	return getValue();
       }
 
       /*! \brief Replace this Node with the previous Node in the
-       * parent Node with the same name.
+        parent Node with the same name.
        */
       inline void operator--() 
       { 
 	if (!valid()) 
 	  M_throw() << (std::string("XML error: Cannot decrement invalid node\nXML Path: ")
 			+ detail::getPath(_parent) + "/INVALID");
-	_node = _node->previous_sibling(_node->name()); 
+	_node = _node->previous_sibling(_node->name(), _node->name_size()); 
       }
 
       //! \brief Fetch the parent Node of this Node.
@@ -242,7 +256,7 @@ namespace magnet {
 		  rapidxml::xml_node<>* parent):_node(node), _parent(parent) {}
 
       /*! \brief Returns a string representation of the Node's
-       * location in the XML document.
+        location in the XML document.
        */
       inline std::string getPath() const 
       { 
@@ -277,31 +291,60 @@ namespace magnet {
 
 
     /*! \brief A class which represents a whole XML Document, including
-     * storage. 
-     *
-     * This class thinly wraps the rapidXML parser, providing a simple
-     * type-casting interface and automatic error handling, similar to
-     * Boost's property_tree. Unlike property_tree this class is
-     * space-efficient and does not copy the XML data.  This class
-     * must outlive any Node or Attribute generated from it.
-     *
-     * To parse a document, you must first load the document text into
-     * this class's _data parameter using \ref
-     * getStoredXMLData(). Then you call \ref parseData().
-     */
+      storage. 
+     
+      This class thinly wraps the rapidXML parser, providing a simple
+      type-casting interface and automatic error handling, similar to
+      Boost's property_tree. Unlike property_tree this class is
+      space-efficient and does not copy the XML data.  This class
+      must outlive any Node or Attribute generated from it.
+     
+      To parse a document, you must first load the document text into
+      this class's _data parameter using \ref
+      getStoredXMLData(). Then you call \ref parseData().
+    */
     class Document {
     public:
       /*! \brief Parse the stored XML data.
        */
       inline void parseData()
-      { _doc.parse<rapidxml::parse_trim_whitespace>(&_data[0]); }
+      { 
+	try {
+	  //Parse in non-destructive mode to allow verbose error reporting
+	  _doc.parse<rapidxml::parse_non_destructive | rapidxml::parse_validate_closing_tags | rapidxml::parse_trim_whitespace>(&_data[0]);
+	} catch (rapidxml::parse_error& err)
+	  {
+	    const char* error_loc_ptr = err.where<char>();
+
+	    //Find the line of the error
+	    size_t line_num = 1;
+	    for (const char* ptr = &_data[0]; ptr < error_loc_ptr; ++ptr)
+	      if (*ptr == '\n') 
+		++line_num;
+
+	    //Determine the start of the error line
+	    const char* error_line_start = error_loc_ptr;
+	    while ((*error_line_start != '\n') && (error_line_start != &_data[0]))
+	      --error_line_start;
+	    ++error_line_start;
+
+	    //Determine the end of the error line
+	    const char* error_line_end = error_loc_ptr;
+	    while ((*error_line_end != '\n') && (error_line_end != '\0'))
+	      ++error_line_end;	    
+
+	    M_throw() << "Parser error at line " << line_num << ": " << err.what() << "\n"
+		      << std::string(error_line_start, error_line_end) << "\n"
+		      << std::string(error_loc_ptr - error_line_start, ' ') << "^";
+	  }
+      }
       
       /*! \brief Return the first Node with a certain name in the
-       * Document.
-       * 
-       * Test if the Node is Node::valid before using it.
-       * \param name Name of the node to return.
-       */
+        Document.
+        
+        Test if the Node is Node::valid before using it.
+        \param name Name of the node to return.
+      */
       template<class T>
       inline Node getNode(T name) { return Node(_doc.first_node(name), &_doc); }
 

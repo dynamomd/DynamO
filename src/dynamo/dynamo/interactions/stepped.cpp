@@ -17,7 +17,6 @@
 
 #include <dynamo/interactions/stepped.hpp>
 #include <dynamo/BC/BC.hpp>
-
 #include <dynamo/units/units.hpp>
 #include <dynamo/globals/global.hpp>
 #include <dynamo/particle.hpp>
@@ -36,27 +35,10 @@
 #include <iomanip>
 
 namespace dynamo {
-  IStepped::IStepped(dynamo::Simulation* tmp, 
-		     const std::vector<steppair>& vec, IDPairRange* nR,
-		     std::string name):
-    IMultiCapture(tmp,nR),
-    _unitLength(Sim->_properties.getProperty
-		(Sim->units.unitLength(), 
-		 Property::Units::Length())),
-    _unitEnergy(Sim->_properties.getProperty
-		(Sim->units.unitEnergy(), 
-		 Property::Units::Energy())),
-    steps(vec)
-  { intName = name; }
-
   IStepped::IStepped(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
-    IMultiCapture(tmp, NULL), //A temporary value!
-    _unitLength(Sim->_properties.getProperty
-		(Sim->units.unitLength(), 
-		 Property::Units::Length())),
-    _unitEnergy(Sim->_properties.getProperty
-		(Sim->units.unitEnergy(), 
-		 Property::Units::Energy()))
+    ICapture(tmp, NULL),
+    _lengthScale(Sim->_properties.getProperty(Sim->units.unitLength(), Property::Units::Length())),
+    _energyScale(Sim->_properties.getProperty(Sim->units.unitEnergy(), Property::Units::Energy()))
   {
     operator<<(XML);
   }
@@ -66,126 +48,76 @@ namespace dynamo {
   {
     Interaction::operator<<(XML);
   
-    try {
-      intName = XML.getAttribute("Name");
-
-      if (!XML.hasNode("Step"))
-	M_throw() << "No steppings defined for stepped potential " 
-		  << intName;
-
-      for (magnet::xml::Node node = XML.fastGetNode("Step"); node.valid(); ++node)
-	steps.push_back(steppair(node.getAttribute("R").as<double>(),
-				 node.getAttribute("E").as<double>()));
+    intName = XML.getAttribute("Name");
     
-      std::sort(steps.rbegin(), steps.rend());
+    _potential = Potential::getClass(XML.getNode("Potential"));
 
-      IMultiCapture::loadCaptureMap(XML);
-    }
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in CIStepped";
-      }
+    _lengthScale = Sim->_properties.getProperty(XML.getAttribute("LengthScale"), Property::Units::Length());
 
-    if (steps.empty())
-      M_throw() << "No steps defined in SteppedPotential Interaction with name " 
-		<< getName();
+    _energyScale = Sim->_properties.getProperty(XML.getAttribute("EnergyScale"), Property::Units::Energy());
+
+    ICapture::loadCaptureMap(XML);
   }
 
   double 
   IStepped::getExcludedVolume(size_t ID) const 
   { 
     //Get the inner diameter
-    double diam = steps.back().first * _unitLength->getProperty(ID);
+    double diam = _potential->hard_core_diameter() * _lengthScale->getProperty(ID);
     return (M_PI / 6) * diam * diam * diam; 
   }
 
   Vector
-  IStepped::getGlyphSize(size_t ID, size_t subID) const
+  IStepped::getGlyphSize(size_t ID) const
   { 
-    double diam = steps.back().first * _unitLength->getProperty(ID);
+    double diam = _potential->render_diameter() * _lengthScale->getProperty(ID);
     return Vector(diam, diam, diam);
-  }
-
-  Vector 
-  IStepped::getGlyphPosition(size_t ID, size_t subID) const
-  { 
-    Vector retval = Sim->particles[ID].getPosition();
-    Sim->BCs->applyBC(retval);
-    return retval;
   }
 
   double 
   IStepped::maxIntDist() const 
-  { return steps.front().first * _unitLength->getMaxValue(); }
+  { return _potential->max_distance() * _lengthScale->getMaxValue(); }
 
   void 
   IStepped::initialise(size_t nID)
   {
     ID = nID;
-    IMultiCapture::initCaptureMap();
-  
-    dout << "Buckets in captureMap " << captureMap.bucket_count()
-	 << "\nMax bucket count " << captureMap.max_bucket_count()
-	 << "\nload Factor " << captureMap.load_factor()
-	 << "\nMax load Factor " << captureMap.max_load_factor() << std::endl;
+    ICapture::initCaptureMap();
   }
 
-  int 
+  size_t 
   IStepped::captureTest(const Particle& p1, const Particle& p2) const
   {
     if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
   
-    Vector  rij = p1.getPosition() - p2.getPosition();
+    const double length_scale = 0.5 * (_lengthScale->getProperty(p1.getID()) + _lengthScale->getProperty(p2.getID()));
+
+    Vector rij = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(rij);
-  
-    double r = rij.nrm();
-
-    //Uncaptured value
-    size_t retval = 0;
-
-    //Check when it is less
-    for (size_t i(0); i < steps.size(); ++i)
-      {
-	if (r > steps[i].first * _unitLength->getMaxValue()) 
-	  break;
-	retval = i+1;
-      }
-
-    return retval;
+    
+    return _potential->calculateStepID(rij.nrm() / length_scale);
   }
 
   double 
   IStepped::getInternalEnergy() const 
   { 
-    //Once the capture maps are loaded just iterate through that determining energies
     double Energy = 0.0;
-
-    typedef std::pair<const std::pair<size_t, size_t>, int> locpair;
-
-    BOOST_FOREACH(const locpair& IDs, captureMap)
-      Energy += steps[IDs.second - 1].second 
-      * 0.5 * (_unitEnergy->getProperty(IDs.first.first)
-	       + _unitEnergy->getProperty(IDs.first.second));
-  
+    for (const ICapture::value_type& IDs : *this)
+      Energy += getInternalEnergy(Sim->particles[IDs.first.first], Sim->particles[IDs.first.second]);
     return Energy; 
   }
 
   double 
   IStepped::getInternalEnergy(const Particle& p1, const Particle& p2) const
   {
-    const_cmap_it capstat = getCMap_it(p1,p2);
-    if (capstat == captureMap.end())
-      return 0;
-    else
-      return steps[capstat->second - 1].second
-	* 0.5 * (_unitEnergy->getProperty(p1.getID())
-		 + _unitEnergy->getProperty(p2.getID()))
-	* isCaptured(p1, p2);
+    ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1, p2));
+    if (capstat == ICapture::end()) return 0;
+    const double energy_scale = 0.5 * (_energyScale->getProperty(p1.getID()) + _energyScale->getProperty(p2.getID()));
+    return (*_potential)[capstat->second - 1].second * energy_scale;
   }
 
   IntEvent
-  IStepped::getEvent(const Particle &p1, 
-		     const Particle &p2) const
+  IStepped::getEvent(const Particle &p1, const Particle &p2) const
   {
   
 #ifdef DYNAMO_DEBUG
@@ -199,160 +131,100 @@ namespace dynamo {
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
 
-    const_cmap_it capstat = getCMap_it(p1,p2);
+    ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1, p2));
+    const size_t current_step_ID = (capstat == ICapture::end()) ? 0 : capstat->second;
+    const std::pair<double, double> step_bounds = _potential->getStepBounds(current_step_ID);
+    const double length_scale = 0.5 * (_lengthScale->getProperty(p1.getID()) + _lengthScale->getProperty(p2.getID()));
 
     IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
-
-    if (capstat == captureMap.end())
-      {
-	double d = steps.front().first * _unitLength->getMaxValue();
-	double dt 
-	  = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
-
-	//Not captured, test for capture
+    if (step_bounds.first != 0)
+      {//Test for the inner step capture
+	const double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, step_bounds.first * length_scale);
 	if (dt != HUGE_VAL)
-	  retval = IntEvent(p1, p2, dt, WELL_IN, *this);
-      }
-    else
-      {
-	//Within the potential, look for further capture or release
-	//First check if there is an inner step to interact with
-	if (capstat->second < static_cast<int>(steps.size()))
-	  {
-	    double d = steps[capstat->second].first * _unitLength->getMaxValue();
-	    double dt = Sim->dynamics->SphereSphereInRoot
-	      (p1, p2, d);
-	    
-	    if (dt != HUGE_VAL)
-	      retval = IntEvent(p1, p2, dt, WELL_IN , *this);
-	  }
-
-	{//Now test for the outward step
-	  double d = steps[capstat->second-1].first * _unitLength->getMaxValue();
-	  double dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, d);
-	  if (retval.getdt() > dt)
-	      retval = IntEvent(p1, p2, dt, WELL_OUT, *this);
-	}
+	  retval = IntEvent(p1, p2, dt, STEP_IN, *this);
       }
 
+    if (!std::isinf(step_bounds.second))
+      {//Test for the outer step capture
+	const double dt = Sim->dynamics->SphereSphereOutRoot(p1, p2, step_bounds.second * length_scale);
+	if (retval.getdt() > dt)
+	  retval = IntEvent(p1, p2, dt, STEP_OUT, *this);
+      }
+    
     return retval;
   }
 
   void
-  IStepped::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
+  IStepped::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
 
+    const double length_scale = 0.5 * (_lengthScale->getProperty(p1.getID()) + _lengthScale->getProperty(p2.getID()));
+    const double energy_scale = 0.5 * (_energyScale->getProperty(p1.getID()) + _energyScale->getProperty(p2.getID()));
+
+    ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1, p2));
+    const size_t old_step_ID = (capstat == ICapture::end()) ? 0 : capstat->second;
+    const std::pair<double, double> step_bounds = _potential->getStepBounds(old_step_ID);
+
+    size_t new_step_ID;
+    size_t edge_ID;
+    double diameter;
     switch (iEvent.getType())
       {
-      case WELL_OUT:
+      case STEP_OUT:
 	{
-	  cmap_it capstat = getCMap_it(p1,p2);
-	
-	  double d = steps[capstat->second-1].first * _unitLength->getMaxValue();
-	  double d2 = d * d;
-	  double dE = steps[capstat->second-1].second;
-	  if (capstat->second > 1)
-	    dE -= steps[capstat->second - 2].second;
-	  dE *= _unitEnergy->getMaxValue();
-
-	  PairEventData retVal(Sim->dynamics->SphereWellEvent
-			       (iEvent, dE, d2));
-	
-	  if (retVal.getType() != BOUNCE)
-	    if (!(--capstat->second))
-	      //capstat is zero so delete
-	      captureMap.erase(capstat);
-
-	  Sim->signalParticleUpdate(retVal);
-
-	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	
-	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
-	    Ptr->eventUpdate(iEvent, retVal);
+	  new_step_ID = _potential->outer_step_ID(old_step_ID);
+	  edge_ID = _potential->outer_edge_ID(old_step_ID);
+	  diameter = step_bounds.second * length_scale;
 	  break;
 	}
-      case WELL_IN:
+      case STEP_IN:
 	{
-	  cmap_it capstat = getCMap_it(p1, p2);
-	
-	  if (capstat == captureMap.end())
-	    capstat = captureMap.insert
-	      (captureMapType::value_type
-	       ((p1.getID() < p2.getID())
-		? cMapKey(p1.getID(), p2.getID())
-		: cMapKey(p2.getID(), p1.getID()),
-		0)).first;
-	
-	  double d = steps[capstat->second].first * _unitLength->getMaxValue();
-	  double d2 = d * d;
-	  double dE = steps[capstat->second].second;
-	  if (capstat->second > 0)
-	    dE -= steps[capstat->second - 1].second;
-	  dE *= _unitEnergy->getMaxValue();
-
-
-	  PairEventData retVal = Sim->dynamics->SphereWellEvent(iEvent, -dE, d2);
-	
-	  if (retVal.getType() != BOUNCE)
-	    ++(capstat->second);
-	  else if (!capstat->second)
-	    captureMap.erase(capstat);
-	
-	  Sim->signalParticleUpdate(retVal);
-	
-	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	
-	  BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
-	    Ptr->eventUpdate(iEvent, retVal);
-	    
+	  new_step_ID = _potential->inner_step_ID(old_step_ID);
+	  edge_ID = _potential->inner_edge_ID(old_step_ID);
+	  diameter = step_bounds.first * length_scale;
 	  break;
 	}
       default:
-	M_throw() << "Unknown collision type";
+	M_throw() << "Unknown event type";
       } 
+
+    PairEventData retVal = Sim->dynamics->SphereWellEvent(iEvent, _potential->getEnergyChange(new_step_ID, old_step_ID) * energy_scale, diameter * diameter, new_step_ID);
+    EdgeData& data = _edgedata[std::pair<size_t, EEventType>(edge_ID, retVal.getType())];
+    ++data.counter;
+    data.rdotv_sum += retVal.rvdot;
+    //Check if the particles changed their step ID
+    if (retVal.getType() != BOUNCE) ICapture::operator[](ICapture::key_type(p1, p2)) = new_step_ID;
+    (*Sim->_sigParticleUpdate)(retVal);
+    Sim->ptrScheduler->fullUpdate(p1, p2);
+    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
+      Ptr->eventUpdate(iEvent, retVal);
   }
 
   bool
   IStepped::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    const_cmap_it capstat = getCMap_it(p1, p2);
-    int val = captureTest(p1, p2);
-
-    if (capstat == captureMap.end())
+    ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1, p2));
+    const size_t stored_step_ID = (capstat == ICapture::end()) ? 0 : capstat->second;
+    const size_t calculated_step_ID = captureTest(p1, p2);
+    const std::pair<double, double> stored_step_bounds = _potential->getStepBounds(stored_step_ID);
+    const std::pair<double, double> calculated_step_bounds = _potential->getStepBounds(calculated_step_ID);
+    
+    if (calculated_step_ID != stored_step_ID)
       {
-	if (val != 0)
+	if (textoutput)
 	  {
-	    double d = steps.front().first * _unitLength->getMaxValue();
-
-	    if (textoutput)
-	      derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
-		   << " registered as being outside the steps, starting at " << d / Sim->units.unitLength()
-		   << " but they are at a distance of "
-		   << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
-		   << std::endl;
-
-	    return true;
-	  }
-      }
-    else
-      if (capstat->second != val)
-	{
-	  if (textoutput)
 	    derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
-		 << " registered as being inside step " << capstat->second 
-		 << " which has limits of [" << ((capstat->second < static_cast<int>(steps.size())) ? 
-						 steps[capstat->second].first * _unitLength->getMaxValue() : 0) 
-	      / Sim->units.unitLength()
-		 << ", " << steps[capstat->second-1].first * _unitLength->getMaxValue() / Sim->units.unitLength()
-		 << "] but they are at a distance of " 
+		 << " registered as being inside step " << stored_step_ID
+		 << " which has limits of [" << stored_step_bounds.first
+		 << ", " << stored_step_bounds.second << "] but they are at a distance of " 
 		 << Sim->BCs->getDistance(p1, p2) / Sim->units.unitLength()
-		 << " and this corresponds to step " << val
-		 << std::endl;
-	    
-	  return true;
-	}
-
+		 << " and this corresponds to step " << calculated_step_ID
+		 << " with bounds [" << calculated_step_bounds.first << ","
+		 << calculated_step_bounds.second << "]" << std::endl;
+	  }
+	return true;
+      }
     return false;
   }
 
@@ -361,14 +233,50 @@ namespace dynamo {
   {
     XML << magnet::xml::attr("Type") << "Stepped"
 	<< magnet::xml::attr("Name") << intName
+	<< magnet::xml::attr("LengthScale") << _lengthScale->getName()
+	<< magnet::xml::attr("EnergyScale") << _energyScale->getName()
 	<< *range;
-
-    BOOST_FOREACH(const steppair& s, steps)
-      XML << magnet::xml::tag("Step")
-	  << magnet::xml::attr("R") << s.first 
-	  << magnet::xml::attr("E") << s.second
-	  << magnet::xml::endtag("Step");
   
-    IMultiCapture::outputCaptureMap(XML);  
+    XML << _potential;
+
+    ICapture::outputCaptureMap(XML);  
+  }
+
+  void 
+  IStepped::outputData(magnet::xml::XmlStream& XML) const
+  {
+    using namespace magnet::xml;
+    XML << tag("Interaction")
+	<< attr("Name") << intName
+	<< attr("Type") << "Stepped"
+	<< tag("AccessedSteps")
+	<< attr("Direction") << (_potential->direction() ? "Outward" : "Inward")
+	<< attr("MaxDiameter") << _potential->max_distance()
+      ;
+    
+    for (size_t i(0); i < _potential->cached_steps(); ++i)
+      {
+	double deltaU = (*_potential)[i].second;
+	if (i > 0)
+	  deltaU -= (*_potential)[i-1].second;
+	XML << tag("Step") 
+	    << attr("ID") << i
+	    << attr("R") << (*_potential)[i].first
+	    << attr("U") << (*_potential)[i].second
+	    << attr("DeltaU") << deltaU
+	  ;
+	for (const auto& data: _edgedata)
+	  if (data.first.first == i)
+	    XML << tag("Event")
+		<< attr("Type") << data.first.second
+		<< attr("Count") << data.second.counter
+		<< attr("RdotV") << data.second.rdotv_sum / (data.second.counter * Sim->units.unitVelocity() * Sim->units.unitLength())
+		<< endtag("Event");
+	XML << endtag("Step");
+      }
+    
+    XML << endtag("AccessedSteps")
+	<< endtag("Interaction");
+    
   }
 }

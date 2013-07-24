@@ -39,14 +39,10 @@ namespace dynamo {
 
     IParallelCubes(const magnet::xml::Node&, dynamo::Simulation*);
 
-    virtual size_t glyphsPerParticle() const { return 1; }
-    virtual Vector getGlyphSize(size_t ID, size_t subID) const;
-    virtual Vector getGlyphPosition(size_t ID, size_t subID) const;
+    virtual Vector getGlyphSize(size_t ID) const;
     virtual GLYPH_TYPE getDefaultGlyphType() const { return CUBE_GLYPH; }
 
     void operator<<(const magnet::xml::Node&);
-
-    virtual double getInternalEnergy() const { return 0.0; }
 
     virtual void initialise(size_t);
 
@@ -56,7 +52,7 @@ namespace dynamo {
 
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
  
-    virtual void runEvent(Particle&, Particle&, const IntEvent&) const;
+    virtual void runEvent(Particle&, Particle&, const IntEvent&);
    
     virtual void outputXML(magnet::xml::XmlStream&) const;
 

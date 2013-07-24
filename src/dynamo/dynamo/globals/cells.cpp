@@ -61,29 +61,22 @@ namespace dynamo {
   void 
   GCells::operator<<(const magnet::xml::Node& XML)
   {
-    try {
-      if (XML.hasAttribute("OverLink"))
-	overlink = XML.getAttribute("OverLink").as<size_t>();
-
-      if (XML.hasAttribute("NeighbourhoodRange"))
-	_maxInteractionRange = XML.getAttribute("NeighbourhoodRange").as<double>()
-	  * Sim->units.unitLength();
-
-      if (XML.hasAttribute("Oversize"))
-	_oversizeCells = XML.getAttribute("Oversize").as<double>();
-
-      if (_oversizeCells < 1.0)
-	M_throw() << "You must specify an Oversize greater than 1.0, otherwise your cells are too small!";
+    if (XML.hasAttribute("OverLink"))
+      overlink = XML.getAttribute("OverLink").as<size_t>();
     
-      globName = XML.getAttribute("Name");
+    if (XML.hasAttribute("NeighbourhoodRange"))
+      _maxInteractionRange = XML.getAttribute("NeighbourhoodRange").as<double>()
+	* Sim->units.unitLength();
 
-      if (XML.hasAttribute("Range"))
-	range = shared_ptr<IDRange>(IDRange::getClass(XML, Sim));
-    }
-    catch(...)
-      {
-	M_throw() << "Error loading GCells";
-      }
+    if (XML.hasAttribute("Oversize"))
+      _oversizeCells = XML.getAttribute("Oversize").as<double>();
+    
+    if (_oversizeCells < 1.0)
+      M_throw() << "You must specify an Oversize greater than 1.0, otherwise your cells are too small!";
+    
+    globName = XML.getAttribute("Name");
+    
+    range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
   }
 
   GlobalEvent 
@@ -135,7 +128,7 @@ namespace dynamo {
     //expect the particle to be up to date.
     Sim->dynamics->updateParticle(part);
 
-    std::tr1::unordered_map<size_t, size_t>::iterator it = partCellData.find(part.getID());
+    std::unordered_map<size_t, size_t>::iterator it = partCellData.find(part.getID());
 
     const size_t oldCell(it->second);
 
@@ -178,14 +171,13 @@ namespace dynamo {
     addToCell(part.getID(), endCell);
 
     //Get rid of the virtual event we're running, an updated event is
-    //pushed after all other events are added
+    //pushed after the callbacks are complete (the callbacks may also
+    //add events so this must be done first).
     Sim->ptrScheduler->popNextEvent();
-
 
     //Particle has just arrived into a new cell warn the scheduler about
     //its new neighbours so it can add them to the heap
     //Holds the displacement in each dimension, the unit is cells!
-
     //These are the two dimensions to walk in
     size_t dim1 = (cellDirection + 1) % 3,
       dim2 = (cellDirection + 2) % 3;
@@ -204,9 +196,8 @@ namespace dynamo {
 	  {
 	    newNBCell[dim1] %= cellCount[dim1];
 	    
-	    BOOST_FOREACH(const size_t& next, list[newNBCell.getMortonNum()])
-	      BOOST_FOREACH(const nbHoodSlot& nbs, sigNewNeighbourNotify)
-	        nbs.second(part, next);
+	    for (const size_t& next : list[newNBCell.getMortonNum()])
+	      _sigNewNeighbour(part, next);
 	  
 	    ++newNBCell[dim1];
 	  }
@@ -220,8 +211,7 @@ namespace dynamo {
     Sim->ptrScheduler->pushEvent(part, getEvent(part));
     Sim->ptrScheduler->sort(part);
 
-    BOOST_FOREACH(const nbHoodSlot& nbs, sigCellChangeNotify)
-      nbs.second(part, oldCell);
+    _sigCellChange(part, oldCell);
   
     if (verbose)
       {
@@ -246,12 +236,6 @@ namespace dynamo {
   GCells::initialise(size_t nID)
   {
     ID=nID;
-    typedef void (GCells::*CallBackType)(size_t);
-
-    _particleAdded = Sim->particle_added_signal()
-      .connect(boost::bind(CallBackType(&GCells::addToCell), this, _1));
-    _particleRemoved = Sim->particle_removed_signal()
-      .connect(boost::bind(CallBackType(&GCells::removeFromCell), this, _1));
 
     reinitialise();
 
@@ -272,8 +256,7 @@ namespace dynamo {
 	      * (1.0 + 10 * std::numeric_limits<double>::epsilon()))
 	     * _oversizeCells / overlink);
 
-    BOOST_FOREACH(const initSlot& nbs, sigReInitNotify)
-      nbs.second();
+    _sigReInitialise();
 
     if (isUsedInScheduler)
       Sim->ptrScheduler->initialise();
@@ -291,7 +274,7 @@ namespace dynamo {
     if (overlink > 1)   XML << magnet::xml::attr("OverLink") << overlink;
     if (_oversizeCells != 1.0) XML << magnet::xml::attr("Oversize") << _oversizeCells;
     
-    XML << *range
+    XML << range
 	<< magnet::xml::endtag("Global");
   }
 
@@ -346,8 +329,9 @@ namespace dynamo {
 	 << cellLatticeWidth[1] / Sim->units.unitLength()
 	 << "," 
 	 << cellLatticeWidth[2] / Sim->units.unitLength()
-	 << "\nRequested supported length " << maxdiam / Sim->units.unitLength()
-	 << "\nSupported length           " << getMaxSupportedInteractionLength() / Sim->units.unitLength()
+	 << "\nRequested interaction range " << overlink * maxdiam / Sim->units.unitLength();
+    
+    dout << "\nSupported range             " << getMaxSupportedInteractionLength() / Sim->units.unitLength()
 	 << "\nVector Size <N>  " << sizeReq << std::endl;
   
     //Add the particles section
@@ -355,14 +339,14 @@ namespace dynamo {
     Sim->dynamics->updateAllParticles();
   
     ////Add all the particles 
-    BOOST_FOREACH(const size_t& id, *range)
+    for (const size_t& id : *range)
       {
 	Particle& p = Sim->particles[id];
 	Sim->dynamics->updateParticle(p); 
 	addToCell(id);
 	if (verbose)
 	  {
-	    std::tr1::unordered_map<size_t, size_t>::iterator it = partCellData.find(id);
+	    std::unordered_map<size_t, size_t>::iterator it = partCellData.find(id);
 	    magnet::math::MortonNumber<3> currentCell(it->second);
 	    
 	    magnet::math::MortonNumber<3> estCell(getCellID(Sim->particles[ID].getPosition()));
@@ -473,7 +457,7 @@ namespace dynamo {
 
     for (size_t i = 0; i < NDIM; ++i)
       {
-	double supported_length = cellLatticeWidth[i]
+	double supported_length = cellLatticeWidth[i] * overlink
 	  + lambda * (cellLatticeWidth[i] - cellDimension[i]);
 
 	//Test if, in this dimension, one neighbourhood of cells spans

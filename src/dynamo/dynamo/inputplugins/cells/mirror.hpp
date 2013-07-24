@@ -49,7 +49,7 @@ namespace dynamo {
 	{
 	  ++count1;
 	  //Mirror the unit cell now
-	  BOOST_FOREACH(Vector & vec, retval)
+	  for (Vector & vec : retval)
 	    {
 	      if (NDIM % 2)
 		//Odd dimensions, flip all for symmetry
@@ -61,7 +61,7 @@ namespace dynamo {
 	}
 
       //Adjust the centering of the unit cell
-      BOOST_FOREACH(Vector & vec, retval)
+      for (Vector & vec : retval)
 	vec += centre;
 
       return retval;    

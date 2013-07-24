@@ -19,7 +19,6 @@
 #include <dynamo/outputplugins/tickerproperty/ticker.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/systems/sysTicker.hpp>
-#include <boost/foreach.hpp>
 
 namespace dynamo {
   OPTicker::OPTicker(const dynamo::Simulation* t1,const char *t2):
@@ -30,7 +29,7 @@ namespace dynamo {
   OPTicker::getTickerTime() const
   {
     try {
-      return std::tr1::dynamic_pointer_cast<SysTicker>(Sim->systems["SystemTicker"])->getPeriod();
+      return std::dynamic_pointer_cast<SysTicker>(Sim->systems["SystemTicker"])->getPeriod();
     } catch (const std::bad_cast&)
       {
 	M_throw() << "Could not upcast the SystemTicker system event to SysTicker, have you named a system as SystemTicker?";

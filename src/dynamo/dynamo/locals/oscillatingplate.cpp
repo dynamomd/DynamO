@@ -85,7 +85,7 @@ namespace dynamo {
     lastsystemTime = Sim->systemTime;
     lastID = part.getID();
 
-    Sim->signalParticleUpdate(EDat);
+    (*Sim->_sigParticleUpdate)(EDat);
 
     //Now we're past the event update the scheduler and plugins
     //if (strongPlate) 
@@ -93,7 +93,7 @@ namespace dynamo {
     //else
     Sim->ptrScheduler->rebuildList();
 
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
+    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, EDat);
   }
 
@@ -101,30 +101,19 @@ namespace dynamo {
   LOscillatingPlate::operator<<(const magnet::xml::Node& XML)
   {
     range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"),Sim));
-  
-    try {
-      e = XML.getAttribute("Elasticity").as<double>();
-      nhat << XML.getNode("Norm");
-      nhat /= nhat.nrm();
-
-      rw0 << XML.getNode("Origin");
-      rw0 *= Sim->units.unitLength();
-
-      if (XML.hasAttribute("StrongPlate"))
-	strongPlate = XML.getAttribute("StrongPlate").as<double>();
-
-      omega0 = XML.getAttribute("Omega0").as<double>() / Sim->units.unitTime();
-      sigma = XML.getAttribute("Sigma").as<double>() * Sim->units.unitLength();
-      delta = XML.getAttribute("Delta").as<double>() * Sim->units.unitLength();
-      mass = XML.getAttribute("Mass").as<double>()  * Sim->units.unitMass();
-      timeshift = XML.getAttribute("TimeShift").as<double>() * Sim->units.unitTime();
-
-      localName = XML.getAttribute("Name");
-    } 
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in LOscillatingPlate";
-      }
+    e = XML.getAttribute("Elasticity").as<double>();
+    nhat << XML.getNode("Norm");
+    nhat /= nhat.nrm();
+    rw0 << XML.getNode("Origin");
+    rw0 *= Sim->units.unitLength();
+    if (XML.hasAttribute("StrongPlate"))
+      strongPlate = XML.getAttribute("StrongPlate").as<double>();
+    omega0 = XML.getAttribute("Omega0").as<double>() / Sim->units.unitTime();
+    sigma = XML.getAttribute("Sigma").as<double>() * Sim->units.unitLength();
+    delta = XML.getAttribute("Delta").as<double>() * Sim->units.unitLength();
+    mass = XML.getAttribute("Mass").as<double>()  * Sim->units.unitMass();
+    timeshift = XML.getAttribute("TimeShift").as<double>() * Sim->units.unitTime();
+    localName = XML.getAttribute("Name");
   }
 
   void 
@@ -209,7 +198,7 @@ namespace dynamo {
 					    axis1, axis2, axis3));
       }
   
-    return std::tr1::static_pointer_cast<coil::RenderObj>(_renderObj);
+    return std::static_pointer_cast<coil::RenderObj>(_renderObj);
   }
 
   void 

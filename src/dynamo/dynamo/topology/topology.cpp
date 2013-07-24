@@ -23,7 +23,8 @@
 #include <dynamo/topology/include.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/foreach.hpp>
+#include <cstring>
+
 
 namespace dynamo {
 
@@ -41,11 +42,7 @@ namespace dynamo {
   void 
   Topology::operator<<(const magnet::xml::Node& XML)
   {
-    try { spName = XML.getAttribute("Name"); } 
-    catch (boost::bad_lexical_cast &)
-      {
-	M_throw() << "Failed a lexical cast in CTopology";
-      }
+    spName = XML.getAttribute("Name");
     
     if (!XML.hasNode("Molecule"))
       M_throw() << "Cannot load a Topology which has no molecules!";
@@ -59,7 +56,7 @@ namespace dynamo {
   {
     XML << magnet::xml::attr("Name") << spName;
   
-    BOOST_FOREACH(const shared_ptr<IDRange>& plugPtr, ranges)
+    for (const shared_ptr<IDRange>& plugPtr : ranges)
       XML << magnet::xml::tag("Molecule") << plugPtr
 	  << magnet::xml::endtag("Molecule");
   }
@@ -68,10 +65,10 @@ namespace dynamo {
   shared_ptr<Topology>
   Topology::getClass(const magnet::xml::Node& XML, dynamo::Simulation* Sim, size_t ID)
   {
-    if (!strcmp(XML.getAttribute("Type"),"Chain"))
+    if (!XML.getAttribute("Type").getValue().compare("Chain"))
       return shared_ptr<Topology>(new TChain(XML, Sim, ID));
     else 
-      M_throw() << XML.getAttribute("Type")
+      M_throw() << XML.getAttribute("Type").getValue()
 		<< ", Unknown type of Topology encountered";
   }
 }

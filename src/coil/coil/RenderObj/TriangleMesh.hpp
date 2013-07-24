@@ -23,18 +23,21 @@ namespace coil {
   {
   public:
     RTriangleMesh(std::string name, 
-		  std::vector<GLfloat>& vertices,
-		  std::vector<GLuint>& elements):
+		  const std::vector<GLfloat>& vertices,
+		  const std::vector<GLuint>& elements,
+		  const std::vector<GLubyte>& colours = std::vector<GLubyte>()):
       RTriangles(name),
       _vertices(vertices),
-      _elements(elements)
+      _elements(elements),
+      _colours(colours)
     {}
 
-    virtual void init(const std::tr1::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
+    virtual void init(const std::shared_ptr<magnet::thread::TaskQueue>& systemQueue);
 
   protected:
     std::vector<GLfloat> _vertices;
     std::vector<GLuint> _elements;
+    std::vector<GLubyte> _colours;
   };
 }
 

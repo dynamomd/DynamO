@@ -72,7 +72,7 @@ namespace dynamo {
 
     /*! \brief Run the dynamics of an event which is occuring now.
      */
-    virtual void runEvent(Particle&, Particle&, const IntEvent&) const = 0;
+    virtual void runEvent(Particle&, Particle&, const IntEvent&) = 0;
 
     /*! \brief Return the maximum distance at which two particles may interact using this Interaction.
     
@@ -84,7 +84,7 @@ namespace dynamo {
 
     /*! \brief Returns the internal energy "stored" in this interaction.
      */
-    virtual double getInternalEnergy() const = 0; 
+    virtual double getInternalEnergy() const { return 0; }
 
     /*! \brief Returns the internal energy "stored" in this
      interaction by the two passed particles.
@@ -168,6 +168,8 @@ namespace dynamo {
      look-ups, once a name-based look up has been completed.
     */
     inline const size_t& getID() const { return ID; }
+
+    virtual void outputData(magnet::xml::XmlStream&) const {}
 
   protected:
     /*! \brief This constructor is only to be used when using virtual

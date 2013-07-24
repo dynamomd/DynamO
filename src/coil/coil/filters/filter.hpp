@@ -70,7 +70,6 @@ namespace coil
     template<> struct filterEnum<type> { static const size_t val = enumeration; };
     
     FILTER_FACTORY(ENUM_GEN_FUNC)
-
 #undef ENUM_GEN_FUNC
   }
 
