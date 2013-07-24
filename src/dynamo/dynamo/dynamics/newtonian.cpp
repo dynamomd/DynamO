@@ -25,11 +25,7 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/schedulers/sorters/event.hpp>
-#include <dynamo/dynamics/shapes/oscillatingplate.hpp>
-#include <dynamo/dynamics/shapes/lines.hpp>
-#include <dynamo/dynamics/shapes/offcentre_sphere.hpp>
 #include <dynamo/units/units.hpp>
-#include <magnet/math/frenkelroot.hpp>
 #include <magnet/overlap/point_prism.hpp>
 #include <magnet/overlap/point_cube.hpp>
 #include <magnet/intersection/ray_triangle.hpp>
@@ -37,6 +33,10 @@
 #include <magnet/intersection/ray_sphere.hpp>
 #include <magnet/intersection/ray_plane.hpp>
 #include <magnet/intersection/ray_cube.hpp>
+#include <magnet/intersection/line_line.hpp>
+#include <magnet/intersection/generic_algorithm.hpp>
+#include <magnet/intersection/overlapfuncs/oscillatingplate.hpp>
+#include <magnet/intersection/overlapfuncs/offcentre_sphere.hpp>
 #include <magnet/math/matrix.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
@@ -775,7 +775,7 @@ namespace dynamo {
       t_high = -(Sigma + Delta + surfaceOffset) / surfaceVel;
     
     
-    SFOscillatingPlate fL(vel, nhat, pos, t, Delta, Omega, Sigma);
+    magnet::intersection::overlapfuncs::OscillatingPlate fL(vel, nhat, pos, t, Delta, Omega, Sigma);
     
 #ifdef DYNAMO_DEBUG
     if (Sigma < 0) M_throw() << "Assuming a positive Sigma here";
@@ -863,8 +863,8 @@ namespace dynamo {
 	  {
 #ifdef DYNAMO_DEBUG
 	    {
-	      SFOscillatingPlate ftmp(fL);
-	      SFOscillatingPlate ftmp2(fL);
+	      magnet::intersection::overlapfuncs::OscillatingPlate ftmp(fL);
+	      magnet::intersection::overlapfuncs::OscillatingPlate ftmp2(fL);
 	      ftmp.flipSigma();
 	    
 	      double fl01(ftmp.eval<0>());
@@ -962,8 +962,7 @@ namespace dynamo {
 
     ParticleEventData retVal(part, *Sim->species[part], WALL);
 
-    SFOscillatingPlate fL(part.getVelocity(), nhat, part.getPosition(),
-			     t + Sim->systemTime, delta, omega0, sigma);
+    magnet::intersection::overlapfuncs::OscillatingPlate fL(part.getVelocity(), nhat, part.getPosition(), t + Sim->systemTime, delta, omega0, sigma);
 
     //Should force the particle to the plate surface
 
@@ -975,21 +974,6 @@ namespace dynamo {
     double mu = (pmass * mass) / (mass + pmass);
 
     Vector vwall(fL.wallVelocity());
-
-    //  derr << "Running event for part " << part.getID() <<
-    //	   "\nsystemTime = " << Sim->systemTime << "\nlNColl = " <<
-    //	   Sim->lNColl << "\nVel = " << part.getVelocity()[0] <<
-    //	   "\nPos = " << part.getPosition()[0] << "\nVwall[0] = " <<
-    //	   fL.wallVelocity()[0] << "\nRwall[0] = " <<
-    //	   fL.wallPosition()[0] << "\nRwall[0]+sigma = " <<
-    //	   fL.wallPosition()[0] + sigma << "\nRwall[0]-sigma = " <<
-    //	   fL.wallPosition()[0] - sigma << "\nsigma + Del = " <<
-    //	   sigma+delta << "\nf(0)* = " << fL.eval<0>() << "\nf'(0)
-    //	   =" << fL.F_firstDeriv() << "\nf''(Max) =" <<
-    //	   fL.F_secondDeriv_max(0) << "\nf(x)=" << pos[0] << "+" <<
-    //	   part.getVelocity()[0] << " * x - " << delta << " * cos(("
-    //	   << t << "+ x) * " << omega0 << ") - " << sigma << std::endl;
-
   
     //Check the root is valid
     if (!fL.test_root())
@@ -1029,18 +1013,10 @@ namespace dynamo {
 	return retVal;
       }
 
-    //static size_t elascount(0);
-
     double inelas = e;
-
     double rvdot = ((vel - vwall) | nhat);
     if (fabs(rvdot / fL.maxWallVel()) < 0.002)
       {
-	/*
-	  derr <<"<<!!!>>Particle " << part.getID() 
-	  << " gone elastic!\nratio is " << fabs(rvdot / vwall.nrm())
-	  << "\nCount is " << ++elascount << std::endl;
-	*/
 	inelas = 1.0;
 	if (fabs(rvdot / fL.maxWallVel()) < 0.001)
 	  {
@@ -1052,30 +1028,18 @@ namespace dynamo {
       }
 
     Vector delP =  nhat * mu * (1.0 + inelas) * rvdot;
-
-    part.getVelocity() -=  delP / pmass;
+    part.getVelocity() -= delP / pmass;
 
     //Don't progress if you want to not change the plate data
     if (strongPlate) return retVal;
 
     double numerator = -nhat | ((delP / mass) + vwall);
-
-    double reducedt = Sim->systemTime 
-      - 2.0 * M_PI * int(Sim->systemTime * omega0 / (2.0*M_PI)) / omega0;
-  
+    double reducedt = Sim->systemTime - 2.0 * M_PI * int(Sim->systemTime * omega0 / (2.0*M_PI)) / omega0;
     double denominator = omega0 * delta * std::cos(omega0 * (reducedt + t));
+    double newt = std::atan2(numerator, denominator)/ omega0 - Sim->systemTime;
   
-
-    double newt = std::atan2(numerator, denominator)/ omega0 
-      - Sim->systemTime;
-  
-    delta *= std::cos(omega0 * (Sim->systemTime + t)) 
-      / std::cos(omega0 * (Sim->systemTime + newt));
-  
-    t = newt;
-
-    t -= 2.0 * M_PI * int(t * omega0 / (2.0*M_PI)) / omega0;
-
+    delta *= std::cos(omega0 * (Sim->systemTime + t)) / std::cos(omega0 * (Sim->systemTime + newt));
+    t = newt - 2.0 * M_PI * int(t * omega0 / (2.0*M_PI)) / omega0;
     return retVal; 
   }
 
@@ -1101,7 +1065,7 @@ namespace dynamo {
   }
 
   std::pair<bool, double> 
-  DynNewtonian::getLineLineCollision(const double length, const Particle& p1, const Particle& p2, double t_high) const
+  DynNewtonian::getLineLineCollision(const double length, const Particle& p1, const Particle& p2, double t_max) const
   {  
 #ifdef DYNAMO_DEBUG
     if (!hasOrientationData())
@@ -1118,31 +1082,10 @@ namespace dynamo {
     Vector v12 = p1.getVelocity() - p2.getVelocity();
     Sim->BCs->applyBC(r12, v12);
 
-    double t_low = 0.0;
-  
-    SFLines fL(r12, v12,
-	       orientationData[p1.getID()].angularVelocity,
-	       orientationData[p2.getID()].angularVelocity,
-	       orientationData[p1.getID()].orientation,
-	       orientationData[p2.getID()].orientation,
-	       length);
-  
-    if (((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2)
-	 || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1))
-	&& Sim->systemTime == lastAbsoluteClock)
-      //Shift the lower bound up so we don't find the same root again
-      t_low += fabs(2.0 * fL.eval<1>()) / fL.max<2>();
-  
-    //Find window delimited by discs
-    std::pair<double,double> dtw = fL.discIntersectionWindow();
-  
-    if(dtw.first > t_low)
-      t_low = dtw.first;
-  
-    if(dtw.second < t_high)
-      t_high = dtw.second;
-  
-    return magnet::math::frenkelRootSearch(fL, t_low, t_high, length * 1e-10);
+    bool skip_first = ((p1.getID() == lastCollParticle1 && p2.getID() == lastCollParticle2) || (p1.getID() == lastCollParticle2 && p2.getID() == lastCollParticle1)) && Sim->systemTime == lastAbsoluteClock;
+    
+    return magnet::intersection::line_line(r12, v12, orientationData[p1.getID()].angularVelocity, orientationData[p2.getID()].angularVelocity,
+					   orientationData[p1.getID()].orientation, orientationData[p2.getID()].orientation, length, skip_first, t_max);
   }
 
   std::pair<bool, double> 
@@ -1163,55 +1106,9 @@ namespace dynamo {
     Vector v12 = p1.getVelocity() - p2.getVelocity();
     Sim->BCs->applyBC(r12, v12);
   
-    SFOffcentre_Spheres f(r12, v12,
-			  orientationData[p1.getID()].angularVelocity,
-			  orientationData[p2.getID()].angularVelocity,
-			  orientationData[p1.getID()].orientation * Quaternion::initialDirector() * offset1,
-			  orientationData[p2.getID()].orientation * Quaternion::initialDirector() * offset2,
-			  diameter1, diameter2, maxdist);
+    magnet::intersection::overlapfuncs::OffcentreSpheres f(r12, v12, orientationData[p1.getID()].angularVelocity, orientationData[p2.getID()].angularVelocity, orientationData[p1.getID()].orientation * Quaternion::initialDirector() * offset1, orientationData[p2.getID()].orientation * Quaternion::initialDirector() * offset2, diameter1, diameter2, maxdist);
     
-    double f0 = f.eval<0>();
-    double f1 = f.eval<1>();
-
-    //Stable EDMD algorithm, test and handle overlapped cases
-    
-    //First treat overlapping or in contact particles which are approaching
-    if ((f0 <= 0) && (f1 < 0)) return std::pair<bool, double>(true, 0.0);
-    
-    //Now treat overlapping particles which are not approaching
-    if (f0 < 0)
-      {
-	//Not overlapping and they're moving away from each
-	//other. Determine when they reach their next maximum
-	//separation
-	SFDerivative<SFOffcentre_Spheres, 1> fprime(f);
-
-	std::pair<bool, double> derivroot = magnet::math::frenkelRootSearch(fprime, 0, t_max, std::min(diameter1, diameter2) * 1e-10);
-	//Check if they just keep retreating from each other
-	if (derivroot.second == HUGE_VAL) return std::pair<bool, double>(false, HUGE_VAL);
-
-	SFOffcentre_Spheres fprime_root(f);
-	fprime_root.stream(derivroot.second);
-
-	//Check if they're still overlapping at the time from the
-	//derivatives root finding. If derivroot.first is false, its a
-	//virtual event and we will have to finish searching for the
-	//turning point later. If derivroot.first is true, its a
-	//turning point while still in an invalid state, making it a
-	//real interaction.
-	if (fprime_root.eval<0>() < 0)
-	  return std::pair<bool, double>(derivroot.first, derivroot.second);
-
-	//Real or virtual, the derivroot contains a time before the
-	//next interaction which is outside the invalid state, we just
-	//use this as our lower bound
-	return magnet::math::frenkelRootSearch(f, derivroot.second, t_max, std::min(diameter1, diameter2) * 1e-10);
-      }
-
-    //If the particles are in contact, but not approaching, we need to
-    //skip this initial root
-    double t_min = (f0 == 0) ? 2.0 * std::abs(f.eval<1>()) / f.max<2>() : 0;
-    return magnet::math::frenkelRootSearch(f, t_min, t_max, std::min(diameter1, diameter2) * 1e-10);
+    return magnet::intersection::generic_algorithm(f, t_max, std::min(diameter1, diameter2) * 1e-10);
   }
 
 
@@ -1230,37 +1127,29 @@ namespace dynamo {
     Sim->BCs->applyBC(retVal.rij, retVal.vijold);
     retVal.rvdot = (retVal.rij | retVal.vijold);
 
-    SFLines fL(retVal.rij, retVal.vijold,
-	       orientationData[particle1.getID()].angularVelocity, orientationData[particle2.getID()].angularVelocity,
-	       orientationData[particle1.getID()].orientation, orientationData[particle2.getID()].orientation,
-	       length);
+    magnet::intersection::overlapfuncs::Lines fL(retVal.rij, retVal.vijold,
+						 orientationData[particle1.getID()].angularVelocity, orientationData[particle2.getID()].angularVelocity,
+						 orientationData[particle1.getID()].orientation, orientationData[particle2.getID()].orientation,
+						 length);
 
     Vector uPerp = fL.getu1() ^ fL.getu2();
-
     uPerp /= uPerp.nrm();
 
     std::pair<double, double> cp = fL.getCollisionPoints();
 
     // \Delta {\bf v}_{imp}
-    Vector  vr = retVal.vijold
-      + (cp.first * fL.getw1() ^ fL.getu1()) 
-      - (cp.second * fL.getw2() ^ fL.getu2());
+    Vector vr = retVal.vijold + (cp.first * fL.getw1() ^ fL.getu1()) - (cp.second * fL.getw2() ^ fL.getu2());
   
-    double mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID());
-    double inertia = Sim->species[retVal.particle1_.getSpeciesID()]->getScalarMomentOfInertia(particle1.getID());
+    const double mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID());
+    const double inertia = Sim->species[retVal.particle1_.getSpeciesID()]->getScalarMomentOfInertia(particle1.getID());
 
-    retVal.impulse = uPerp
-      * (((vr | uPerp) * (1.0 + elasticity))
-	 / ((2.0 / mass) + ((cp.first * cp.first + cp.second * cp.second) / inertia)));
+    retVal.impulse = uPerp * (((vr | uPerp) * (1.0 + elasticity)) / ((2.0 / mass) + ((cp.first * cp.first + cp.second * cp.second) / inertia)));
   
     particle1.getVelocity() -= retVal.impulse / mass;
     particle2.getVelocity() += retVal.impulse / mass;
 
-    orientationData[particle1.getID()].angularVelocity 
-      -= (cp.first / inertia) * (fL.getu1() ^ retVal.impulse);
-
-    orientationData[particle2.getID()].angularVelocity 
-      += (cp.second / inertia) * (fL.getu2() ^ retVal.impulse);
+    orientationData[particle1.getID()].angularVelocity -= (cp.first / inertia) * (fL.getu1() ^ retVal.impulse);
+    orientationData[particle2.getID()].angularVelocity += (cp.second / inertia) * (fL.getu2() ^ retVal.impulse);
 
     lastCollParticle1 = particle1.getID();
     lastCollParticle2 = particle2.getID();
