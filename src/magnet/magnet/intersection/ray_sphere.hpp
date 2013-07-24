@@ -28,9 +28,7 @@ namespace magnet {
       \param r The radius of the sphere.
       \return The time until the intersection, or HUGE_VAL if no intersection.
     */
-    inline double ray_sphere_bfc(const math::Vector& T,
-				 const math::Vector& D,
-				 const double& r)
+    inline double ray_sphere(const math::Vector& T, const math::Vector& D, const double& r)
     {
       double TD = (T | D);
 
@@ -55,9 +53,7 @@ namespace magnet {
 
       \return The time until the intersection, or HUGE_VAL if no intersection.
     */
-    inline double ray_inv_sphere_bfc(const math::Vector& T,
-				     const math::Vector& D,
-				     const double& r)
+    inline double ray_inv_sphere(const math::Vector& T, const math::Vector& D, const double& r)
     {
       double D2 = D.nrm2();      
       double TD = T | D;

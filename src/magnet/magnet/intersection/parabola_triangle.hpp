@@ -34,16 +34,11 @@ namespace magnet {
       \param E2 The second edge vector of the triangle (V2-V0).
       \return The time until the intersection, or HUGE_VAL if no intersection.
     */
-    inline double parabola_triangle_bfc(math::Vector T, 
-					const math::Vector& D,
-					const math::Vector& A,
-					const math::Vector& E1, 
-					const math::Vector& E2,
-					const double d)
+    inline double parabola_triangle(math::Vector T, const math::Vector& D, const math::Vector& A, const math::Vector& E1, const math::Vector& E2, const double d)
     {
       M_throw() << "Needs reimplementing now that parabola plane takes a diameter";
       math::Vector N = E1 ^ (E2 - E1);
-      double t = magnet::intersection::parabola_plane_bfc(T, D, A, N, d);
+      double t = magnet::intersection::parabola_plane(T, D, A, N, d);
 
       if (t == HUGE_VAL) return HUGE_VAL;
 

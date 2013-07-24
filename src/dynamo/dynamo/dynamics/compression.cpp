@@ -55,7 +55,7 @@ namespace dynamo {
     
     if (arg < 0.0) return HUGE_VAL;
 
-    return  c / (sqrt(arg) - b);
+    return c / (sqrt(arg) - b);
   }
   
   double 

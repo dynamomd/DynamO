@@ -22,27 +22,23 @@ namespace magnet {
   namespace intersection {
     /*! \brief A stable particle and thick plane intersection test.
     
-     \param T The origin of the particle relative to a location on the plane.
-     \param D The direction/velocity of the particle.
-     \param N The normal of the plane.
-     \param d The interaction distance to the plane (the plane's thickness).
-     \return The time until the intersection, or HUGE_VAL if no intersection.
+      \param T The origin of the particle relative to a location on the plane.
+      \param D The direction/velocity of the particle.
+      \param N The normal of the plane.
+      \param d The interaction distance to the plane (the plane's thickness).
+      \return The time until the intersection, or HUGE_VAL if no intersection.
     */
-    inline double ray_plane(const math::Vector& T,
-			    const math::Vector& D,
-			    const math::Vector& N,
-			    const double d)
+    inline double ray_plane(const math::Vector& T, const math::Vector& D, const math::Vector& N, const double d)
     {
       double v = (D | N);
       double r = (T | N);
       if (//Particles must move to intersect
 	  (v == 0)
 	  //Particles must be moving towards each other to intersect
-	  || ((v < 0) && (r < 0))
-	  || ((v > 0) && (r > 0)))
+	  || ((v < 0) && (r < 0)) || ((v > 0) && (r > 0)))
 	return HUGE_VAL;
       
-      return  std::max(- (r - d) / v, 0.0);
+      return std::max(-(r - d) / v, 0.0);
     }
   }
 }

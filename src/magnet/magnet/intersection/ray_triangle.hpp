@@ -20,35 +20,33 @@
 
 namespace magnet {
   namespace intersection {
-    //! \brief A ray-triangle intersection test.
-    //!
-    //! The method used is described in "Fast, minimum storage
-    //! ray-triangle intersection", by Tomas Möller and Ben Trumbore.
-    //!
-    //! Here we make the assumption that all positions are relative to
-    //! the first vertex. Thus we only need to pass the two edge
-    //! vectors of the triangle.
-    //!
-    //! For backface culling, we use counter-clockwise ordering of the
-    //! vertices.
-    //!
-    //! \tparam BACKFACE_CULLING Ignores ray triangle intersections
-    //! where the ray enters the back face of the triangle.
-    //! \tparam DIAGONAL_TEST Enables one of the checks used to make
-    //! sure the intersection point is within the triangle. This
-    //! should only be turned off to implement other ray-shape
-    //! intersection tests (\sa ray_quadrilateral).
-    //!
-    //! \param T The origin of the ray relative to the first vertex.
-    //! \param D The direction/velocity of the ray.
-    //! \param E1 The first edge vector of the triangle (V1-V0).
-    //! \param E2 The second edge vector of the triangle (V2-V0).
-    //! \return The time until the intersection, or HUGE_VAL if no intersection.
+    /*! \brief A ray-triangle intersection test.
+    
+     The method used is described in "Fast, minimum storage
+     ray-triangle intersection", by Tomas Möller and Ben Trumbore.
+    
+     Here we make the assumption that all positions are relative to
+     the first vertex. Thus we only need to pass the two edge
+     vectors of the triangle.
+    
+     For backface culling, we use counter-clockwise ordering of the
+     vertices.
+    
+     \tparam BACKFACE_CULLING Ignores ray triangle intersections
+     where the ray enters the back face of the triangle.
+     \tparam DIAGONAL_TEST Enables one of the checks used to make
+     sure the intersection point is within the triangle. This
+     should only be turned off to implement other ray-shape
+     intersection tests (\sa ray_quadrilateral).
+    
+     \param T The origin of the ray relative to the first vertex.
+     \param D The direction/velocity of the ray.
+     \param E1 The first edge vector of the triangle (V1-V0).
+     \param E2 The second edge vector of the triangle (V2-V0).
+     \return The time until the intersection, or HUGE_VAL if no intersection.
+    */
     template<bool BACKFACE_CULLING, bool DIAGONAL_TEST>
-    inline double ray_triangle(const math::Vector& T, 
-			       const math::Vector& D,
-			       const math::Vector& E1, 
-			       const math::Vector& E2)
+    inline double ray_triangle(const math::Vector& T, const math::Vector& D, const math::Vector& E1, const math::Vector& E2)
     {
       math::Vector P = D ^ E2;
       double det = E1 | P;

@@ -19,12 +19,10 @@
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/NparticleEventData.hpp>
-
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/schedulers/sorters/event.hpp>
-#include <dynamo/dynamics/shapes/oscillatingplate.hpp>
 #include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/globals/ParabolaSentinel.hpp>
 #include <dynamo/units/units.hpp>
@@ -105,7 +103,7 @@ namespace dynamo {
     if (p2Dynamic) g12 = -g;
 
     //Now test for a parabolic ray and sphere intersection
-    return magnet::intersection::parabola_sphere_bfc(r12, v12, g12, d);
+    return magnet::intersection::parabola_sphere(r12, v12, g12, d);
   }
 
   double
@@ -145,7 +143,7 @@ namespace dynamo {
     Vector v12 = r1data.second - r2data.second;
     Vector a12 = g * (accel1sum - accel2sum);
     Sim->BCs->applyBC(r12, v12);
-    return magnet::intersection::parabola_sphere_bfc(r12, v12, a12, d);
+    return magnet::intersection::parabola_sphere(r12, v12, a12, d);
   }
   
   double
@@ -167,7 +165,7 @@ namespace dynamo {
     if (p2Dynamic) g12 = -g;
 
     //Now test for a parabolic ray and sphere intersection
-    return magnet::intersection::parabola_invsphere_bfc(r12, v12, g12, d);
+    return magnet::intersection::parabola_invsphere(r12, v12, g12, d);
   }
 
   double
@@ -209,7 +207,7 @@ namespace dynamo {
 
     M_throw() << "Not implemented yet";
     //Vector a12 = g * (accel1sum - accel2sum);
-    //return magnet::intersection::parabola_inv_sphere_bfc(r12, v12, a12, d);
+    //return magnet::intersection::parabola_inv_sphere(r12, v12, a12, d);
   }
 
 
@@ -229,7 +227,7 @@ namespace dynamo {
     
     Sim->BCs->applyBC(rij, vij);
     
-    return magnet::intersection::parabola_plane_bfc(rij, vij, g * part.testState(Particle::DYNAMIC), wallNorm, diameter);
+    return magnet::intersection::parabola_plane(rij, vij, g * part.testState(Particle::DYNAMIC), wallNorm, diameter);
   }
 
   double
@@ -574,7 +572,7 @@ namespace dynamo {
     
     Sim->BCs->applyBC(rij, vij);
     
-    return magnet::intersection::parabola_cylinder_bfc(rij, vij, g * part.testState(Particle::DYNAMIC), wallNorm, diameter);
+    return magnet::intersection::parabola_cylinder(rij, vij, g * part.testState(Particle::DYNAMIC), wallNorm, diameter);
   }
 
   double 
@@ -666,7 +664,7 @@ namespace dynamo {
     N /= std::sqrt(nrm2);
   
     //First test for intersections with the triangle faces.
-    double t1 = magnet::intersection::parabola_triangle_bfc(T, D, g, E1, E2, dist);
+    double t1 = magnet::intersection::parabola_triangle(T, D, g, E1, E2, dist);
 
     M_throw() << "The next bit of code may be redundant now that the parabola triangle "
       "code takes a distance arg.";
@@ -684,19 +682,19 @@ namespace dynamo {
     if (retval.first == 0) return retval;
   
     //Now test for intersections with the triangle corners
-    double t = magnet::intersection::parabola_sphere_bfc(T, D, g, dist);
+    double t = magnet::intersection::parabola_sphere(T, D, g, dist);
     if (t < retval.first) retval = RetType(t, T_A_CORNER);
-    t = magnet::intersection::parabola_sphere_bfc(T - E1, D, g, dist);
+    t = magnet::intersection::parabola_sphere(T - E1, D, g, dist);
     if (t < retval.first) retval = RetType(t, T_B_CORNER);
-    t = magnet::intersection::parabola_sphere_bfc(T - E2, D, g, dist);
+    t = magnet::intersection::parabola_sphere(T - E2, D, g, dist);
     if (t < retval.first) retval = RetType(t, T_C_CORNER);
 
     //Now for the edge collision detection
-    t = magnet::intersection::parabola_rod_bfc(T, D, g, B - A, dist);
+    t = magnet::intersection::parabola_rod(T, D, g, B - A, dist);
     if (t < retval.first) retval = RetType(t, T_AB_EDGE);
-    t = magnet::intersection::parabola_rod_bfc(T, D, g, C - A, dist);
+    t = magnet::intersection::parabola_rod(T, D, g, C - A, dist);
     if (t < retval.first) retval = RetType(t, T_AC_EDGE);
-    t = magnet::intersection::parabola_rod_bfc(T - E2, D, g, B - C, dist);
+    t = magnet::intersection::parabola_rod(T - E2, D, g, B - C, dist);
     if (t < retval.first) retval = RetType(t, T_BC_EDGE);
 
     if (retval.first < 0) retval.first = 0;

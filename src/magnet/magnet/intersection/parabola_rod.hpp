@@ -36,17 +36,11 @@ namespace magnet {
       \param r Radius of the rod.
       \return The time until the intersection, or HUGE_VAL if no intersection.
     */
-    inline double parabola_rod_bfc(math::Vector T, 
-				   math::Vector D,
-				   math::Vector Aray,
-				   const math::Vector& A,
-				   const double r)
+    inline double parabola_rod(math::Vector T, math::Vector D, math::Vector Aray, const math::Vector& A, const double r)
     {
-      double t = parabola_cylinder_bfc(T, D, Aray, A / A.nrm(), r);
+      double t = parabola_cylinder(T, D, Aray, A / A.nrm(), r);
       double Tproj = ((T + t * D + 0.5 * t * t * Aray) | A);
-      
       if ((Tproj < 0) || (Tproj > A.nrm2())) return HUGE_VAL;
-
       return t;
     }
   }

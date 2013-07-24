@@ -49,7 +49,7 @@ namespace dynamo {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
     Sim->BCs->applyBC(r12, v12);
-    return magnet::intersection::ray_AAcube_bfc(r12, v12, 2 * Vector(d, d, d));
+    return magnet::intersection::ray_AAcube(r12, v12, 2 * Vector(d, d, d));
   }
 
   bool 
@@ -67,7 +67,7 @@ namespace dynamo {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
     Sim->BCs->applyBC(r12, v12);
-    return magnet::intersection::ray_sphere_bfc(r12, v12, d);
+    return magnet::intersection::ray_sphere(r12, v12, d);
   }
 
   double
@@ -78,7 +78,7 @@ namespace dynamo {
     Vector r12 = r1data.first - r2data.first;
     Vector v12 = r1data.second - r2data.second;
     Sim->BCs->applyBC(r12, v12);
-    return magnet::intersection::ray_sphere_bfc(r12, v12, d);
+    return magnet::intersection::ray_sphere(r12, v12, d);
   }
   
   double
@@ -87,7 +87,7 @@ namespace dynamo {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
     Sim->BCs->applyBC(r12, v12);
-    return magnet::intersection::ray_inv_sphere_bfc(r12, v12, d);
+    return magnet::intersection::ray_inv_sphere(r12, v12, d);
   }
 
   double
@@ -98,7 +98,7 @@ namespace dynamo {
     Vector r12 = r1data.first - r2data.first;
     Vector v12 = r1data.second - r2data.second;
     Sim->BCs->applyBC(r12, v12);
-    return magnet::intersection::ray_inv_sphere_bfc(r12, v12, d);
+    return magnet::intersection::ray_inv_sphere(r12, v12, d);
   }
 
   ParticleEventData 
@@ -134,10 +134,7 @@ namespace dynamo {
   }
 
   DynNewtonian::DynNewtonian(dynamo::Simulation* tmp):
-    Dynamics(tmp),
-    lastAbsoluteClock(-1),
-    lastCollParticle1(0),
-    lastCollParticle2(0)  
+    Dynamics(tmp), lastAbsoluteClock(-1), lastCollParticle1(0), lastCollParticle2(0)  
   {}
 
   void
@@ -156,9 +153,7 @@ namespace dynamo {
   double 
   DynNewtonian::getPlaneEvent(const Particle& part, const Vector& wallLoc, const Vector& wallNorm, double diameter) const
   {
-    Vector rij = part.getPosition() - wallLoc,
-      vel = part.getVelocity();
-
+    Vector rij = part.getPosition() - wallLoc, vel = part.getVelocity();
     Sim->BCs->applyBC(rij, vel);
 
     return magnet::intersection::ray_plane(rij, vel, wallNorm, diameter);
@@ -210,19 +205,19 @@ namespace dynamo {
     if (retval.first == 0) return retval;
   
     //Now test for intersections with the triangle corners
-    double t = magnet::intersection::ray_sphere_bfc(T, D, dist);
+    double t = magnet::intersection::ray_sphere(T, D, dist);
     if (t < retval.first) retval = RetType(t, T_A_CORNER);
-    t = magnet::intersection::ray_sphere_bfc(T - E1, D, dist);
+    t = magnet::intersection::ray_sphere(T - E1, D, dist);
     if (t < retval.first) retval = RetType(t, T_B_CORNER);
-    t = magnet::intersection::ray_sphere_bfc(T - E2, D, dist);
+    t = magnet::intersection::ray_sphere(T - E2, D, dist);
     if (t < retval.first) retval = RetType(t, T_C_CORNER);
 
     //Now for the edge collision detection
-    t = magnet::intersection::ray_rod_bfc(T, D, B - A, dist);
+    t = magnet::intersection::ray_rod(T, D, B - A, dist);
     if (t < retval.first) retval = RetType(t, T_AB_EDGE);
-    t = magnet::intersection::ray_rod_bfc(T, D, C - A, dist);
+    t = magnet::intersection::ray_rod(T, D, C - A, dist);
     if (t < retval.first) retval = RetType(t, T_AC_EDGE);
-    t = magnet::intersection::ray_rod_bfc(T - E2, D, B - C, dist);
+    t = magnet::intersection::ray_rod(T - E2, D, B - C, dist);
     if (t < retval.first) retval = RetType(t, T_BC_EDGE);
 
     if (retval.first < 0) retval.first = 0;
@@ -303,9 +298,8 @@ namespace dynamo {
   int
   DynNewtonian::getSquareCellCollision3(const Particle& part, const Vector & origin, const Vector & width) const
   {
-    Vector  rpos(part.getPosition() - origin);
-    Vector  vel(part.getVelocity());
-
+    Vector rpos(part.getPosition() - origin);
+    Vector vel(part.getVelocity());
     Sim->BCs->applyBC(rpos, vel);
 
     int retVal(0);
@@ -317,9 +311,7 @@ namespace dynamo {
 
     for (size_t iDim = 0; iDim < NDIM; ++iDim)
       {
-	double tmpdt = ((vel[iDim] < 0) 
-			? -rpos[iDim]/vel[iDim] 
-			: (width[iDim]-rpos[iDim]) / vel[iDim]);
+	double tmpdt = ((vel[iDim] < 0) ? -rpos[iDim]/vel[iDim] : (width[iDim]-rpos[iDim]) / vel[iDim]);
 
 	if (tmpdt < time)
 	  {
@@ -328,8 +320,7 @@ namespace dynamo {
 	  }
       }
 
-    if (((retVal < 0) && (vel[abs(retVal)-1] > 0))
-	|| ((retVal > 0) && (vel[abs(retVal)-1] < 0)))
+    if (((retVal < 0) && (vel[abs(retVal)-1] > 0)) || ((retVal > 0) && (vel[abs(retVal)-1] < 0)))
       M_throw() << "Found an error! retVal " << retVal
 		<< " vel is " << vel[abs(retVal)-1];
 
@@ -665,10 +656,7 @@ namespace dynamo {
 
     updateParticlePair(particle1, particle2);  
 
-    PairEventData retVal(particle1, particle2,
-			 *Sim->species[particle1],
-			 *Sim->species[particle2],
-			 event.getType());
+    PairEventData retVal(particle1, particle2, *Sim->species[particle1], *Sim->species[particle2], event.getType());
     
     Sim->BCs->applyBC(retVal.rij,retVal.vijold);
   
@@ -1048,7 +1036,7 @@ namespace dynamo {
   {
     Vector rij = part.getPosition() - wallLoc, vel = part.getVelocity();
     Sim->BCs->applyBC(rij, vel);
-    return magnet::intersection::ray_cylinder_bfc(rij, vel, wallNorm, radius);
+    return magnet::intersection::ray_cylinder(rij, vel, wallNorm, radius);
   }
 
   ParticleEventData 
