@@ -346,7 +346,7 @@ namespace coil {
     _scaleSel.reset(new AttributeSelector(magnet::GL::Context::instanceScaleAttrIndex));
 
     _scaleSel->buildEntries("Scale Data Field:", _ds, 1, 4,
-			    Attribute::INTENSIVE | Attribute::EXTENSIVE, 3,
+			    Attribute::INTENSIVE | Attribute::EXTENSIVE, 4,
 			    Attribute::DEFAULT_GLYPH_SCALING);
     _gtkOptList->pack_start(*_scaleSel, false, false);
 

@@ -36,7 +36,7 @@ namespace dynamo {
       intName = name;
     }
 
-    virtual Vector getGlyphSize(size_t ID) const;
+    virtual std::array<double, 4> getGlyphSize(size_t ID) const;
 
     virtual GLYPH_TYPE getDefaultGlyphType() const { return LINE_GLYPH; }
 

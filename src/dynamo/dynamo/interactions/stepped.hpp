@@ -42,7 +42,7 @@ namespace dynamo {
   
     void operator<<(const magnet::xml::Node&);
 
-    virtual Vector getGlyphSize(size_t ID) const;
+    virtual std::array<double, 4> getGlyphSize(size_t ID) const;
 
     virtual double getExcludedVolume(size_t) const;
 

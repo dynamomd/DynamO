@@ -67,8 +67,7 @@ namespace dynamo {
     /*! \brief Calculate if and when an event is to occur between two
         particles.
      */
-    virtual IntEvent getEvent(const Particle &, 
-			      const Particle &) const = 0;
+    virtual IntEvent getEvent(const Particle &, const Particle &) const = 0;
 
     /*! \brief Run the dynamics of an event which is occuring now.
      */

@@ -138,7 +138,7 @@ namespace dynamo {
   {
     _particleData->addAttribute("Position", coil::Attribute::COORDINATE | coil::Attribute::DEFAULT_GLYPH_POSITION, 3);
     _particleData->addAttribute("Velocity", coil::Attribute::INTENSIVE, 3);
-    _particleData->addAttribute("Size", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_SCALING, 3);
+    _particleData->addAttribute("Size", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_SCALING, 4);
     _particleData->addAttribute("Mass", coil::Attribute::EXTENSIVE, 1);
     _particleData->addAttribute("Event Count", coil::Attribute::EXTENSIVE, 1);
     _particleData->addAttribute("ID", coil::Attribute::INTENSIVE | coil::Attribute::DEFAULT_GLYPH_COLOUR, 1);
@@ -221,9 +221,9 @@ namespace dynamo {
 	const GlyphRepresentation& data = dynamic_cast<const GlyphRepresentation&>(*species->getIntPtr());
 	for (auto ID : *species->getRange())
 	  {
-	    Vector psize = rfactor * data.getGlyphSize(ID);
-	    for (size_t i(0); i < NDIM; ++i)
-	      sizes[3 * ID + i] = psize[i];
+	    const auto& psize = data.getGlyphSize(ID);
+	    for (size_t i(0); i < 4; ++i)
+	      sizes[4 * ID + i] = rfactor * psize[i];
 	  }
       }
 

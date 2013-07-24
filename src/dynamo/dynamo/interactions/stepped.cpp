@@ -67,11 +67,10 @@ namespace dynamo {
     return (M_PI / 6) * diam * diam * diam; 
   }
 
-  Vector
+  std::array<double, 4>
   IStepped::getGlyphSize(size_t ID) const
   { 
-    double diam = _potential->render_diameter() * _lengthScale->getProperty(ID);
-    return Vector(diam, diam, diam);
+    return {{_potential->render_diameter() * _lengthScale->getProperty(ID), 0, 0, 0}};
   }
 
   double 

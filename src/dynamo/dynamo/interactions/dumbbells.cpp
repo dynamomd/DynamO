@@ -46,9 +46,9 @@ namespace dynamo {
     ICapture::initCaptureMap();
   }
 
-  Vector IDumbbells::getGlyphSize(size_t ID) const
+  std::array<double, 4> IDumbbells::getGlyphSize(size_t ID) const
   { 
-    return Vector(_diamA->getProperty(ID), _diamB->getProperty(ID), _LA->getProperty(ID));
+    return {{_diamA->getProperty(ID), _diamB->getProperty(ID), _LA->getProperty(ID), _LB->getProperty(ID)}};
   }
 
   double IDumbbells::getExcludedVolume(size_t ID) const 

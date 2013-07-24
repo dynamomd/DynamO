@@ -44,10 +44,9 @@ namespace dynamo {
     ID=nID; 
   }
 
-  Vector IParallelCubes::getGlyphSize(size_t ID) const
+  std::array<double, 4> IParallelCubes::getGlyphSize(size_t ID) const
   {
-    double l = _diameter->getProperty(ID);
-    return Vector(l, l, l);
+    return {{_diameter->getProperty(ID), 0, 0, 0}};
   }
 
   void 

@@ -45,10 +45,9 @@ namespace dynamo {
     ICapture::initCaptureMap();
   }
 
-  Vector ILines::getGlyphSize(size_t ID) const
+  std::array<double, 4> ILines::getGlyphSize(size_t ID) const
   {
-    double l = _length->getProperty(ID);
-    return Vector(l, l, l);
+    return {{_length->getProperty(ID), 0, 0, 0}};
   }
 
   void 

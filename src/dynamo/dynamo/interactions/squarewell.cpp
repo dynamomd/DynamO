@@ -61,11 +61,10 @@ namespace dynamo {
     ICapture::loadCaptureMap(XML);   
   }
 
-  Vector
+  std::array<double, 4>
   ISquareWell::getGlyphSize(size_t ID) const 
   { 
-    double diam = _diameter->getProperty(ID);
-    return Vector(diam, diam, diam); 
+    return {{_diameter->getProperty(ID), 0, 0, 0}};
   }
 
   double 
