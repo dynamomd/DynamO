@@ -23,6 +23,7 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
+#include <magnet/intersection/ray_sphere.hpp>
 #include <magnet/intersection/ray_plane.hpp>
 #include <magnet/xmlwriter.hpp>
 
@@ -37,25 +38,17 @@ namespace dynamo {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
     Sim->BCs->applyBC(r12, v12);
-    double rvdot = r12 | v12;
-    double r2 = r12 | r12;
-    double v2 = v12 | v12;
-    double d2 = d * d;
-    
-    double b = rvdot - d2 
-      * (growthRate * growthRate * Sim->systemTime + growthRate);
-  
-    if (b >= 0.0) return HUGE_VAL;
 
+    return magnet::intersection::ray_growing_sphere<>(r12, v12, d, growthRate, Sim->systemTime);
+  }
 
-    double a = v2 - growthRate * growthRate * d2;
-    double c = r2 - d2 * (1.0 + growthRate * Sim->systemTime 
-			  * (2.0 + growthRate * Sim->systemTime));
-    double arg = (b * b) - a * c;
-    
-    if (arg < 0.0) return HUGE_VAL;
-
-    return c / (sqrt(arg) - b);
+  double
+  DynCompression::SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const
+  {
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Vector v12 = p1.getVelocity() - p2.getVelocity();
+    Sim->BCs->applyBC(r12, v12);
+    return magnet::intersection::ray_growing_sphere<true>(r12, v12, d, growthRate, Sim->systemTime);
   }
   
   double 
@@ -63,7 +56,6 @@ namespace dynamo {
   {
     Vector rij = part.getPosition() - origin,
       vij = part.getVelocity() - norm * diameter * growthRate;
-
     Sim->BCs->applyBC(rij, vij);
 
     return magnet::intersection::ray_plane(rij, vij, norm, diameter * (1.0 + growthRate * Sim->systemTime));
@@ -81,37 +73,6 @@ namespace dynamo {
     part.getVelocity() -= (1+e) * (vNorm | vij) * vNorm;
   
     return retVal; 
-  }
-
-  double 
-  DynCompression::SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const
-  {
-    Vector r12 = p1.getPosition() - p2.getPosition();
-    Vector v12 = p1.getVelocity() - p2.getVelocity();
-    Sim->BCs->applyBC(r12, v12);
-    double rvdot = r12 | v12;
-    double r2 = r12 | r12;
-    double v2 = v12 | v12;
-    double d2 = d * d;
-
-    double a = v2 - growthRate * growthRate * d2;
-    double b = rvdot - d2 * (growthRate * growthRate 
-				 * Sim->systemTime + growthRate);
-    double c = d2 * (1.0 + growthRate * Sim->systemTime 
-		     * (2.0 + growthRate * Sim->systemTime)) - r2;
-
-    double arg = (b * b) + a * c;
-  
-    if (arg > 0.0)
-      if (a > 0.0)
-	{
-	  if (b < 0)
-	    return (sqrt(arg) - b) / a;
-	  
-	  return c / (sqrt(arg) + b);
-	}
-    
-    return HUGE_VAL;
   }
 
   double
