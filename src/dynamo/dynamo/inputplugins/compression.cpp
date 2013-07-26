@@ -49,13 +49,10 @@ namespace dynamo {
 
     //Required to reset the dynamics
     Sim->dynamics->updateAllParticles();
-
-    oldLio = Sim->dynamics;
-
+    oldLio = Sim->dynamics;    
     dout << "Loading compression dynamics" << std::endl;
-    Sim->dynamics 
-      = shared_ptr<dynamo::Dynamics>
-      (new DynCompression(Sim, growthRate / Sim->units.unitTime()));
+    Sim->dynamics = shared_ptr<dynamo::Dynamics>(new DynCompression(Sim, growthRate / Sim->units.unitTime()));
+    Sim->dynamics->cloneState(*oldLio);
   }
 
   void
@@ -93,6 +90,7 @@ namespace dynamo {
     Sim->_properties.rescaleUnit(Property::Units::L, rescale_factor);
     Sim->_properties.rescaleUnit(Property::Units::T, rescale_factor);
 
+    oldLio->cloneState(*Sim->dynamics);
     Sim->dynamics = oldLio;
   }
 

@@ -17,20 +17,145 @@
 
 #pragma once
 #include <magnet/math/vector.hpp>
-#include <magnet/intersection/overlapfuncs/lines.hpp>
+#include <magnet/math/quaternion.hpp>
 #include <magnet/math/frenkelroot.hpp>
-
 
 namespace magnet {
   namespace intersection {
+    namespace detail {
+      /*! \brief The overlap function for two infinitely thin rods,
+          used in the line_line function. */
+      class LinesOverlapFunc
+      {
+      public:
+	LinesOverlapFunc(const math::Vector& nr12, const math::Vector& nv12,
+			 const math::Vector& nw1, const math::Vector& nw2, 
+			 const math::Quaternion& nq1, const math::Quaternion& nq2,
+			 const double& length):
+	  w1(nw1), w2(nw2), q1(nq1), q2(nq2),
+	  w12(nw1 - nw2), r12(nr12), v12(nv12),
+	  _length(length)
+	{
+	  u1 = q1 * math::Quaternion::initialDirector();
+	  u2 = q2 * math::Quaternion::initialDirector();
+	}
+
+	void stream(const double& dt)
+	{
+	  q1 = math::Quaternion::fromRotationAxis(w1 * dt) * q1;
+	  q1.normalise();
+	  q2 = math::Quaternion::fromRotationAxis(w2 * dt) * q2;
+	  q2.normalise();
+	  r12 += v12 * dt;
+	  u1 = q1 * math::Quaternion::initialDirector();
+	  u2 = q2 * math::Quaternion::initialDirector();
+	}
+  
+	std::pair<double, double> getCollisionPoints() const
+	{
+	  double rijdotui = (r12 | u1);
+	  double rijdotuj = (r12 | u2);
+	  double uidotuj = (u1 | u2);
+
+	  return std::make_pair(- (rijdotui - (rijdotuj * uidotuj)) / (1.0 - uidotuj*uidotuj),
+				(rijdotuj - (rijdotui * uidotuj)) / (1.0 - uidotuj*uidotuj));
+	}
+    
+	template<size_t deriv> 
+	double eval() const
+	{
+	  switch (deriv)
+	    {
+	    case 0:
+	      return ((u1 ^ u2) | r12);
+	    case 1:
+	      return ((u1 | r12) * (w12 | u2)) 
+		+ ((u2 | r12) * (w12 | u1)) 
+		- ((w12 | r12) * (u1 | u2)) 
+		+ (((u1 ^ u2) | v12));
+	    case 2:
+	      return 2.0 
+		* (((u1 | v12) * (w12 | u2)) 
+		   + ((u2 | v12) * (w12 | u1))
+		   - ((u1 | u2) * (w12 | v12)))
+		- ((w12 | r12) * (w12 | (u1 ^ u2))) 
+		+ ((u1 | r12) * (u2 | (w1 ^ w2))) 
+		+ ((u2 | r12) * (u1 | (w1 ^ w2)))
+		+ ((w12 | u1) * (r12 | (w2 ^ u2)))
+		+ ((w12 | u2) * (r12 | (w1 ^ u1))); 
+	    default:
+	      M_throw() << "Invalid access";
+	    }
+	}
+    
+	template<size_t deriv> 
+	double max() const
+	{
+	  switch (deriv)
+	    {
+	    case 1:
+	      return _length * w12.nrm() + v12.nrm();
+	    case 2:
+	      return w12.nrm() 
+		* ((2 * v12.nrm()) + (_length * (w1.nrm() + w2.nrm())));
+	    default:
+	      M_throw() << "Invalid access";
+	    }
+	}
+
+	std::pair<double, double> discIntersectionWindow() const
+	{
+	  math::Vector  Ahat = w1 / w1.nrm();
+	  double dotproduct = (w1 | w2) / (w2.nrm() * w1.nrm());
+	  double signChangeTerm = (_length / 2.0) * sqrt(1.0 - pow(dotproduct, 2.0));
+    
+	  std::pair<double,double> 
+	    retVal(((-1.0 * (r12 | Ahat)) - signChangeTerm) / (v12 | Ahat),
+		   ((-1.0 * (r12 | Ahat)) + signChangeTerm) / (v12 | Ahat));
+  
+	  if(retVal.second < retVal.first) std::swap(retVal.first, retVal.second);
+
+	  return retVal;
+	}
+
+	const math::Vector& getu1() const { return u1; }
+	const math::Vector& getu2() const { return u2; }
+	const math::Vector& getw1() const { return w1; }
+	const math::Vector& getw2() const { return w2; }
+	const math::Vector& getw12() const { return w12; }
+	const math::Vector& getr12() const { return r12; }
+	const math::Vector& getv12() const { return v12; }
+
+	bool test_root() const
+	{
+	  std::pair<double,double> cp = getCollisionPoints();
+    
+	  return (fabs(cp.first) < _length / 2.0 && fabs(cp.second) < _length / 2.0);
+	}
+  
+      private:
+	const math::Vector& w1;
+	const math::Vector& w2;
+	math::Quaternion q1;
+	math::Quaternion q2;
+	math::Vector w12;
+	math::Vector r12;
+	math::Vector v12;
+	math::Vector u1, u2;
+
+	const double _length;
+      };
+    }
+
     /*! \brief A line-line intersection test.
      */
-    inline std::pair<bool, double> line_line(const math::Vector& rij, const math::Vector& vij,
-					     const math::Vector& angvi, const math::Vector& angvj,
-					     const math::Quaternion& orientationi, const math::Quaternion& orientationj,
-					     const double& length, bool skip_zero, double t_max)
+    inline std::pair<bool, double> 
+    line_line(const math::Vector& rij, const math::Vector& vij,
+	      const math::Vector& angvi, const math::Vector& angvj,
+	      const math::Quaternion& orientationi, const math::Quaternion& orientationj,
+	      const double& length, bool skip_zero, double t_max)
     {
-      overlapfuncs::Lines fL(rij, vij, angvi, angvj, orientationi, orientationj, length);
+      detail::LinesOverlapFunc fL(rij, vij, angvi, angvj, orientationi, orientationj, length);
       
       //Shift the lower bound up so we don't find the same root again
       double t_min = skip_zero ? fabs(2.0 * fL.eval<1>()) / fL.max<2>() : 0;

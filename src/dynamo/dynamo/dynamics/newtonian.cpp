@@ -20,7 +20,6 @@
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/NparticleEventData.hpp>
-
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
@@ -34,9 +33,8 @@
 #include <magnet/intersection/ray_plane.hpp>
 #include <magnet/intersection/ray_cube.hpp>
 #include <magnet/intersection/line_line.hpp>
-#include <magnet/intersection/generic_algorithm.hpp>
+#include <magnet/intersection/offcentre_spheres.hpp>
 #include <magnet/intersection/overlapfuncs/oscillatingplate.hpp>
-#include <magnet/intersection/overlapfuncs/offcentre_sphere.hpp>
 #include <magnet/math/matrix.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
@@ -1094,9 +1092,10 @@ namespace dynamo {
     Vector v12 = p1.getVelocity() - p2.getVelocity();
     Sim->BCs->applyBC(r12, v12);
   
-    magnet::intersection::overlapfuncs::OffcentreSpheres f(r12, v12, orientationData[p1.getID()].angularVelocity, orientationData[p2.getID()].angularVelocity, orientationData[p1.getID()].orientation * Quaternion::initialDirector() * offset1, orientationData[p2.getID()].orientation * Quaternion::initialDirector() * offset2, diameter1, diameter2, maxdist);
-    
-    return magnet::intersection::generic_algorithm(f, t_max, std::min(diameter1, diameter2) * 1e-10);
+    return magnet::intersection::offcentre_spheres(r12, v12, orientationData[p1.getID()].angularVelocity, orientationData[p2.getID()].angularVelocity, 
+						   orientationData[p1.getID()].orientation * Quaternion::initialDirector() * offset1, 
+						   orientationData[p2.getID()].orientation * Quaternion::initialDirector() * offset2,
+						   diameter1, diameter2, maxdist, t_max);
   }
 
 
@@ -1115,10 +1114,7 @@ namespace dynamo {
     Sim->BCs->applyBC(retVal.rij, retVal.vijold);
     retVal.rvdot = (retVal.rij | retVal.vijold);
 
-    magnet::intersection::overlapfuncs::Lines fL(retVal.rij, retVal.vijold,
-						 orientationData[particle1.getID()].angularVelocity, orientationData[particle2.getID()].angularVelocity,
-						 orientationData[particle1.getID()].orientation, orientationData[particle2.getID()].orientation,
-						 length);
+    magnet::intersection::detail::LinesOverlapFunc fL(retVal.rij, retVal.vijold, orientationData[particle1.getID()].angularVelocity, orientationData[particle2.getID()].angularVelocity, orientationData[particle1.getID()].orientation, orientationData[particle2.getID()].orientation, length);
 
     Vector uPerp = fL.getu1() ^ fL.getu2();
     uPerp /= uPerp.nrm();

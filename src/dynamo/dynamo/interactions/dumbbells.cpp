@@ -18,6 +18,7 @@
 #include <dynamo/interactions/dumbbells.hpp>
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/dynamics/compression.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/2particleEventData.hpp>
@@ -113,22 +114,16 @@ namespace dynamo {
 	const double upper_limit = Sim->dynamics->SphereSphereOutRoot(p1, p2, max_dist);
 	
 	//Test the AA pairing
-	std::pair<bool, double> current = Sim->dynamics->getOffcentreSpheresCollision(lA1, diamA1, lA2, diamA2,
-										      p1, p2, upper_limit, max_dist);
+	std::pair<bool, double> current = Sim->dynamics->getOffcentreSpheresCollision(lA1, diamA1, lA2, diamA2, p1, p2, upper_limit, max_dist);
 	//Test the BB pairing
-	std::pair<bool, double> AB = Sim->dynamics->getOffcentreSpheresCollision(lA1, diamA1, -lB2, diamB2,
-										 p1, p2, std::min(upper_limit, current.second), max_dist);
-	if (AB.second < current.second)
-	  current = AB;
+	std::pair<bool, double> AB = Sim->dynamics->getOffcentreSpheresCollision(lA1, diamA1, -lB2, diamB2, p1, p2, std::min(upper_limit, current.second), max_dist);
+	if (AB.second < current.second) current = AB;
 
-	std::pair<bool, double> BA = Sim->dynamics->getOffcentreSpheresCollision(-lB1, diamB1, lA2, diamA2,
-										 p1, p2, std::min(upper_limit, current.second), max_dist);
+	std::pair<bool, double> BA = Sim->dynamics->getOffcentreSpheresCollision(-lB1, diamB1, lA2, diamA2, p1, p2, std::min(upper_limit, current.second), max_dist);
 
-	if (BA.second < current.second)
-	  current = BA;
+	if (BA.second < current.second) current = BA;
 
-	std::pair<bool, double> BB = Sim->dynamics->getOffcentreSpheresCollision(-lB1, diamB1, -lB2, diamB2,
-										 p1, p2, std::min(upper_limit, current.second), max_dist);
+	std::pair<bool, double> BB = Sim->dynamics->getOffcentreSpheresCollision(-lB1, diamB1, -lB2, diamB2, p1, p2, std::min(upper_limit, current.second), max_dist);
 
 	if (BB.second < current.second)
 	  current = BB;
@@ -236,7 +231,11 @@ namespace dynamo {
 	  nhat /= nhat.nrm();
 	  const Vector r1 = u1 + nhat * 0.5 * d1;
 	  const Vector r2 = u2 - nhat * 0.5 * d2;
-	  const Vector vc12 = retval.vijold + (angvel1 ^ r1) - (angvel2 ^ r2);
+	  
+	  Vector vc12 = retval.vijold + (angvel1 ^ r1) - (angvel2 ^ r2);
+
+	  if (std::dynamic_pointer_cast<DynCompression>(Sim->dynamics))
+	    vc12 -= nhat * std::static_pointer_cast<DynCompression>(Sim->dynamics)->getGrowthRate() * (d1 + d2) * 0.5;
 	  
 	  double e = 0.5 * (_e->getProperty(p1.getID()) + _e->getProperty(p2.getID()));
 	  const double J = (1 + e) * (nhat | vc12) / ((1 / m1) + (1 / m2)+ (nhat | ((1 / I1) * ((u1 ^ nhat) ^ u1) + (1 / I2) * ((u2 ^ nhat) ^ u2))));
@@ -332,6 +331,7 @@ namespace dynamo {
       lB1 = _LB->getProperty(p1.getID()),
       diamA1 = _diamA->getProperty(p1.getID()),
       diamB1 = _diamB->getProperty(p1.getID());
+
     const Vector director1 = Sim->dynamics->getRotData(p1).orientation * Quaternion::initialDirector();
 
     const double lA2 = _LA->getProperty(p2.getID()),
@@ -344,30 +344,33 @@ namespace dynamo {
     const double l2 = std::max(lA2 + 0.5 * diamA2, lB2 + 0.5 * diamB2);
     const double max_dist = l1 + l2;
 
+    double growthfactor = 1;
+    if (std::dynamic_pointer_cast<DynCompression>(Sim->dynamics))
+      growthfactor = (1 + std::static_pointer_cast<DynCompression>(Sim->dynamics)->getGrowthRate() * Sim->systemTime);
+
     Vector r12 = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(r12);
     
     bool has_error = false;
     double error;
-
     double distance = Sim->BCs->getDistance(p1, p2);
 
     if (isCaptured(p1, p2))
       {
 	//Check the capture map is valid
-	if (distance > max_dist)
+	if (distance > growthfactor * max_dist)
 	  {	    
 	    if (textoutput)
 	      derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
-		   << " are registered as being closer than " << max_dist / Sim->units.unitLength()
+		   << " are registered as being closer than " << growthfactor * max_dist / Sim->units.unitLength()
 		   << " but they're outside of this by " 
-		   << (distance - max_dist) / Sim->units.unitLength()
+		   << (distance - growthfactor * max_dist) / Sim->units.unitLength()
 		   << std::endl;
 	    has_error = true;
 	  }
 
 	//Check if any of the spheres are overlapping
-	if ((error = overlap(r12 + director1 * lA1 - director2 * lA2, (diamA1 + diamA2) / 2)))
+	if ((error = overlap(r12 + director1 * lA1 - director2 * lA2, growthfactor * (diamA1 + diamA2) / 2)))
 	  {
 	    if (textoutput)
 	      derr << "Particle " << p1.getID() << " sphere A and Particle " << p2.getID() 
@@ -375,7 +378,7 @@ namespace dynamo {
 		   << std::endl;
 	    has_error = true;
 	  }
-	if ((error = overlap(r12 + director1 * lA1 + director2 * lB2, (diamA1 + diamB2) / 2)))
+	if ((error = overlap(r12 + director1 * lA1 + director2 * lB2, growthfactor * (diamA1 + diamB2) / 2)))
 	  {
 	    if (textoutput)
 	      derr << "Particle " << p1.getID() << " sphere A and Particle " << p2.getID() 
@@ -383,7 +386,7 @@ namespace dynamo {
 		   << std::endl;
 	    has_error = true;
 	  }
-	if ((error = overlap(r12 - director1 * lB1 - director2 * lA2, (diamB1 + diamA2) / 2)))
+	if ((error = overlap(r12 - director1 * lB1 - director2 * lA2, growthfactor * (diamB1 + diamA2) / 2)))
 	  {
 	    if (textoutput)
 	      derr << "Particle " << p1.getID() << " sphere B and Particle " << p2.getID() 
@@ -391,7 +394,7 @@ namespace dynamo {
 		   << std::endl;
 	    has_error = true;
 	  }
-	if ((error = overlap(r12 - director1 * lB1 + director2 * lB2, (diamB1 + diamB2) / 2)))
+	if ((error = overlap(r12 - director1 * lB1 + director2 * lB2, growthfactor * (diamB1 + diamB2) / 2)))
 	  {
 	    if (textoutput)
 	      derr << "Particle " << p1.getID() << " sphere B and Particle " << p2.getID() 
@@ -400,13 +403,13 @@ namespace dynamo {
 	    has_error = true;
 	  }
       }
-    else if (distance < max_dist)
+    else if (distance < growthfactor * max_dist)
       {
 	if (textoutput)
 	  derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
-	       << " are closer than " << max_dist / Sim->units.unitLength()
+	       << " are closer than " << growthfactor * max_dist / Sim->units.unitLength()
 	       << " but they've not been registered as captured, despite being at a distance of " 
-	       << (distance - max_dist) / Sim->units.unitLength()
+	       << (distance - growthfactor * max_dist) / Sim->units.unitLength()
 	       << std::endl;
 	has_error = true;
       }
