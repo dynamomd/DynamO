@@ -66,11 +66,17 @@ namespace dynamo {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
     Sim->BCs->applyBC(r12, v12);
-    return magnet::intersection::offcentre_growing_spheres(r12, v12, orientationData[p1.getID()].angularVelocity,
-							   orientationData[p2.getID()].angularVelocity,
-							   orientationData[p1.getID()].orientation * Quaternion::initialDirector() * offset1,
-							   orientationData[p2.getID()].orientation * Quaternion::initialDirector() * offset2,
-							   diameter1, diameter2, maxdist, t_max, Sim->systemTime, growthRate);
+    
+    const double limit_time_window = 1 / growthRate;
+
+    std::pair<bool, double> retval = magnet::intersection::offcentre_growing_spheres(r12, v12, orientationData[p1.getID()].angularVelocity, orientationData[p2.getID()].angularVelocity, orientationData[p1.getID()].orientation * Quaternion::initialDirector() * offset1, orientationData[p2.getID()].orientation * Quaternion::initialDirector() * offset2, diameter1, diameter2, maxdist, std::min(limit_time_window, t_max), Sim->systemTime, growthRate);
+    
+    //Check if there's no collision reported but we've limited the interval
+    if ((retval.second == HUGE_VAL) && (t_max > limit_time_window))
+      return std::pair<bool, double>(false, limit_time_window);
+    
+    //Otherwise return what was calculated
+    return retval;
   }
   
   double 

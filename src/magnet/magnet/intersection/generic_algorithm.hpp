@@ -48,6 +48,7 @@ namespace magnet {
     {
       double f0 = f.template eval<0>();
       double f1 = f.template eval<1>();
+
       //First treat overlapping or in contact particles which are approaching
       if ((f0 <= 0) && (f1 < 0)) return std::pair<bool, double>(true, 0.0);
     
@@ -60,20 +61,18 @@ namespace magnet {
 	  detail::OFDerivative<T> fprime(f);
 
 	  std::pair<bool, double> derivroot = math::frenkelRootSearch(fprime, 0, t_max, err);
-	  //Check if they just keep retreating from each other
+
+	  //Check if they just keep retreating from each other, which means that they never interact
 	  if (derivroot.second == HUGE_VAL) return std::pair<bool, double>(false, HUGE_VAL);
 
-	  T fprime_root(f);
-	  fprime_root.stream(derivroot.second);
+	  //Check if the time returned is not overlapping
+	  T froot(f);
+	  froot.stream(derivroot.second);
 
-	  //Check if they're still overlapping at the time from the
-	  //derivatives root finding. If derivroot.first is false, its a
-	  //virtual event and we will have to finish searching for the
-	  //turning point later. If derivroot.first is true, its a
-	  //turning point while still in an invalid state, making it a
-	  //real interaction.
-	  if (fprime_root.template eval<0>() < 0)
-	    return std::pair<bool, double>(derivroot.first, derivroot.second);
+	  //If they are still overlapping at this time, it doesn't
+	  //matter if derivroot is a virtual (recalculate) event or
+	  //an actual turning point. We can just return it
+	  if (froot.template eval<0>() < 0) return derivroot;
 
 	  //Real or virtual, the derivroot contains a time before the
 	  //next interaction which is outside the invalid state, we just

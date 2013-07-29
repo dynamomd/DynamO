@@ -202,6 +202,10 @@ namespace magnet {
 		      const math::Vector& relativeposi, const math::Vector& relativeposj,
 		      const double diameteri, const double diameterj, double maxdist, double t_max)
     {
+#ifdef MAGNET_DEBUG
+      if (std::isinf(t_max)) M_throw() << "Cannot perform root search in infinite intervals";
+#endif
+
       detail::OffcentreSpheresOverlapFunction f(rij, vij, angvi, angvj, relativeposi, relativeposj, diameteri, diameterj, maxdist);
       return magnet::intersection::generic_algorithm(f, t_max, std::min(diameteri, diameterj) * 1e-10);
     }
@@ -213,6 +217,10 @@ namespace magnet {
 			      const math::Vector& relativeposi, const math::Vector& relativeposj,
 			      const double diameteri, const double diameterj, double maxdist, double t_max, double t, double invgamma)
     {
+#ifdef MAGNET_DEBUG
+      if (std::isinf(t_max)) M_throw() << "Cannot perform root search in infinite interval";
+#endif
+
       detail::OffcentreGrowingSpheresOverlapFunction f(rij, vij, angvi, angvj, relativeposi, relativeposj, diameteri, diameterj, maxdist, t, invgamma, t_max);
       return magnet::intersection::generic_algorithm(f, t_max, std::min(diameteri, diameterj) * 1e-10);
     }

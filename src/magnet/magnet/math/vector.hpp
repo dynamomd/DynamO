@@ -23,6 +23,8 @@
 #include <stddef.h>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
+#include <limits>
+#include <iomanip>
 
 const size_t NDIM(3);
 
@@ -183,6 +185,7 @@ namespace magnet {
       std::string toString() const
       {
 	std::ostringstream os;
+	os << std::setprecision(std::numeric_limits<double>::digits10 + 2);
 	os << "<" << _data[0] << "," << _data[1] << "," << _data[2] << ">";
 	return os.str();
       }
