@@ -197,7 +197,6 @@ namespace dynamo {
 	  double BB_dist = std::abs(0.5 * (diamB1 + diamB2) * growthfactor - (retval.rij + growthfactor * (-director1 * lB1 + director2 * lB2)).nrm());
 
 	  double l1 = lA1, l2 = lA2, d1 = diamA1, d2 = diamA2, min_dist = AA_dist;
-	  derr << "Collision AA" << std::endl;
 	  if (AB_dist < min_dist)
 	    {
 	      l1 = +lA1;
@@ -205,7 +204,6 @@ namespace dynamo {
 	      d1 = diamA1;
 	      d2 = diamB2;
  	      min_dist = AB_dist;
-	      derr << "Collision AB" << std::endl;
 	    }
 
 	  if (BA_dist < min_dist)
@@ -215,7 +213,6 @@ namespace dynamo {
 	      d1 = diamB1;
 	      d2 = diamA2;
  	      min_dist = BA_dist;
-	      derr << "Collision BA" << std::endl;
 	    }
 
 	  if (BB_dist < min_dist)
@@ -225,7 +222,6 @@ namespace dynamo {
 	      d1 = diamB1;
 	      d2 = diamB2;
  	      min_dist = BB_dist;
-	      derr << "Collision BB" << std::endl;
 	    }
 
 	  const Vector u1 = director1 * l1 * growthfactor;
@@ -240,40 +236,12 @@ namespace dynamo {
 	  double e = 0.5 * (_e->getProperty(p1.getID()) + _e->getProperty(p2.getID()));
 	  const double J = (1 + e) * (nhat | vc12) / ((1 / m1) + (1 / m2)+ (nhat | ((1 / I1) * ((u1 ^ nhat) ^ u1) + (1 / I2) * ((u2 ^ nhat) ^ u2))));
 
-	  derr << "Collision " << p1.getID() << " " << p2.getID() << std::endl;
-	  derr << " vc12=" << vc12.toString() << " vc12|nhat=" << (vc12 | nhat) << std::endl;
-	  
-	  {
-	    auto f = magnet::intersection::detail::OffcentreGrowingSpheresOverlapFunction(p1.getPosition() - p2.getPosition(), 
-											  p1.getVelocity() - p2.getVelocity(), 
-											  Sim->dynamics->getRotData(p1).angularVelocity,
-											  Sim->dynamics->getRotData(p2).angularVelocity, 
-											  Sim->dynamics->getRotData(p1).orientation * Quaternion::initialDirector() * l1,
-											  Sim->dynamics->getRotData(p1).orientation * Quaternion::initialDirector() * l2, d1, d2, 2.0, 10, Sim->systemTime, growthrate);
-	    derr << " \\dot{f}=" << f.eval<1>() << std::endl;
-	  }
-
 	  retval.rvdot = (retval.rij | retval.vijold);
 	  retval.impulse = J * nhat;
 	  p1.getVelocity() -= retval.impulse / m1;
 	  p2.getVelocity() += retval.impulse / m2;
 	  Sim->dynamics->getRotData(p1).angularVelocity -= (r1 ^ retval.impulse) / I1;
 	  Sim->dynamics->getRotData(p2).angularVelocity += (r2 ^ retval.impulse) / I2;
-
-	  vc12 = p1.getVelocity() - p2.getVelocity() + (Sim->dynamics->getRotData(p1).angularVelocity ^ r1) - (Sim->dynamics->getRotData(p2).angularVelocity ^ r2)  + growthrate * (director1 * l1 - director2 * l2 - nhat * (d1 + d2) * 0.5);
-
-	  derr << " vc12'=" << vc12.toString() << " vc12'|nhat=" << (vc12 | nhat) << std::endl;
-
-	  {
-	    auto f = magnet::intersection::detail::OffcentreGrowingSpheresOverlapFunction(p1.getPosition() - p2.getPosition(), 
-											  p1.getVelocity() - p2.getVelocity(), 
-											  Sim->dynamics->getRotData(p1).angularVelocity,
-											  Sim->dynamics->getRotData(p2).angularVelocity, 
-											  Sim->dynamics->getRotData(p1).orientation * Quaternion::initialDirector() * l1,
-											  Sim->dynamics->getRotData(p2).orientation * Quaternion::initialDirector() * l2, d1, d2, 2.0, 10, Sim->systemTime, growthrate);
-	    derr << " \\dot{f}'=" << f.eval<1>() << std::endl;
-	  }
-
 	  break;
 	}
       case NBHOOD_IN:
@@ -355,26 +323,25 @@ namespace dynamo {
   bool
   IDumbbells::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    const double lA1 = _LA->getProperty(p1.getID()),
-      lB1 = _LB->getProperty(p1.getID()),
-      diamA1 = _diamA->getProperty(p1.getID()),
-      diamB1 = _diamB->getProperty(p1.getID());
+    double growthfactor = 1;
+    if (std::dynamic_pointer_cast<DynCompression>(Sim->dynamics))
+      growthfactor = (1 + std::static_pointer_cast<DynCompression>(Sim->dynamics)->getGrowthRate() * Sim->systemTime);
 
+    const double lA1 = growthfactor * _LA->getProperty(p1.getID()),
+      lB1 = growthfactor * _LB->getProperty(p1.getID()),
+      diamA1 = growthfactor * _diamA->getProperty(p1.getID()),
+      diamB1 = growthfactor * _diamB->getProperty(p1.getID());
     const Vector director1 = Sim->dynamics->getRotData(p1).orientation * Quaternion::initialDirector();
 
-    const double lA2 = _LA->getProperty(p2.getID()),
-      lB2 = _LB->getProperty(p2.getID()),
-      diamA2 = _diamA->getProperty(p2.getID()),
-      diamB2 = _diamB->getProperty(p2.getID());
+    const double lA2 = growthfactor * _LA->getProperty(p2.getID()),
+      lB2 = growthfactor * _LB->getProperty(p2.getID()),
+      diamA2 = growthfactor * _diamA->getProperty(p2.getID()),
+      diamB2 = growthfactor * _diamB->getProperty(p2.getID());
     const Vector director2 = Sim->dynamics->getRotData(p2).orientation * Quaternion::initialDirector();
 
     const double l1 = std::max(lA1 + 0.5 * diamA1, lB1 + 0.5 * diamB1);
     const double l2 = std::max(lA2 + 0.5 * diamA2, lB2 + 0.5 * diamB2);
     const double max_dist = l1 + l2;
-
-    double growthfactor = 1;
-    if (std::dynamic_pointer_cast<DynCompression>(Sim->dynamics))
-      growthfactor = (1 + std::static_pointer_cast<DynCompression>(Sim->dynamics)->getGrowthRate() * Sim->systemTime);
 
     Vector r12 = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(r12);
@@ -386,19 +353,19 @@ namespace dynamo {
     if (isCaptured(p1, p2))
       {
 	//Check the capture map is valid
-	if (distance > growthfactor * max_dist)
+	if (distance > max_dist)
 	  {	    
 	    if (textoutput)
 	      derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
-		   << " are registered as being closer than " << growthfactor * max_dist / Sim->units.unitLength()
+		   << " are registered as being closer than " << max_dist / Sim->units.unitLength()
 		   << " but they're outside of this by " 
-		   << (distance - growthfactor * max_dist) / Sim->units.unitLength()
+		   << (distance - max_dist) / Sim->units.unitLength()
 		   << std::endl;
 	    has_error = true;
 	  }
 
 	//Check if any of the spheres are overlapping
-	if ((error = overlap(r12 + director1 * lA1 - director2 * lA2, growthfactor * (diamA1 + diamA2) / 2)))
+	if ((error = overlap(r12 + director1 * lA1 - director2 * lA2, (diamA1 + diamA2) / 2)))
 	  {
 	    if (textoutput)
 	      derr << "Particle " << p1.getID() << " sphere A and Particle " << p2.getID() 
@@ -406,7 +373,7 @@ namespace dynamo {
 		   << std::endl;
 	    has_error = true;
 	  }
-	if ((error = overlap(r12 + director1 * lA1 + director2 * lB2, growthfactor * (diamA1 + diamB2) / 2)))
+	if ((error = overlap(r12 + director1 * lA1 + director2 * lB2, (diamA1 + diamB2) / 2)))
 	  {
 	    if (textoutput)
 	      derr << "Particle " << p1.getID() << " sphere A and Particle " << p2.getID() 
@@ -414,7 +381,7 @@ namespace dynamo {
 		   << std::endl;
 	    has_error = true;
 	  }
-	if ((error = overlap(r12 - director1 * lB1 - director2 * lA2, growthfactor * (diamB1 + diamA2) / 2)))
+	if ((error = overlap(r12 - director1 * lB1 - director2 * lA2, (diamB1 + diamA2) / 2)))
 	  {
 	    if (textoutput)
 	      derr << "Particle " << p1.getID() << " sphere B and Particle " << p2.getID() 
@@ -422,7 +389,7 @@ namespace dynamo {
 		   << std::endl;
 	    has_error = true;
 	  }
-	if ((error = overlap(r12 - director1 * lB1 + director2 * lB2, growthfactor * (diamB1 + diamB2) / 2)))
+	if ((error = overlap(r12 - director1 * lB1 + director2 * lB2, (diamB1 + diamB2) / 2)))
 	  {
 	    if (textoutput)
 	      derr << "Particle " << p1.getID() << " sphere B and Particle " << p2.getID() 
@@ -431,13 +398,13 @@ namespace dynamo {
 	    has_error = true;
 	  }
       }
-    else if (distance < growthfactor * max_dist)
+    else if (distance < max_dist)
       {
 	if (textoutput)
 	  derr << "Particle " << p1.getID() << " and Particle " << p2.getID() 
-	       << " are closer than " << growthfactor * max_dist / Sim->units.unitLength()
+	       << " are closer than " << max_dist / Sim->units.unitLength()
 	       << " but they've not been registered as captured, despite being at a distance of " 
-	       << (distance - growthfactor * max_dist) / Sim->units.unitLength()
+	       << (distance - max_dist) / Sim->units.unitLength()
 	       << std::endl;
 	has_error = true;
       }
