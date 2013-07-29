@@ -193,8 +193,8 @@ namespace dynamo {
 	  //Determine the colliding pair, they should almost be in contact
 	  double AA_dist = std::abs(0.5 * (diamA1 + diamA2) * growthfactor - (retval.rij + growthfactor * (director1 * lA1 - director2 * lA2)).nrm());
 	  double AB_dist = std::abs(0.5 * (diamA1 + diamB2) * growthfactor - (retval.rij + growthfactor * (director1 * lA1 + director2 * lB2)).nrm());
-	  double BA_dist = std::abs(0.5 * (diamB1 + diamA2) * growthfactor - (retval.rij - growthfactor * (director1 * lB1 - director2 * lA2)).nrm());
-	  double BB_dist = std::abs(0.5 * (diamB1 + diamB2) * growthfactor - (retval.rij - growthfactor * (director1 * lB1 + director2 * lB2)).nrm());
+	  double BA_dist = std::abs(0.5 * (diamB1 + diamA2) * growthfactor - (retval.rij + growthfactor * (-director1 * lB1 - director2 * lA2)).nrm());
+	  double BB_dist = std::abs(0.5 * (diamB1 + diamB2) * growthfactor - (retval.rij + growthfactor * (-director1 * lB1 + director2 * lB2)).nrm());
 
 	  double l1 = lA1, l2 = lA2, d1 = diamA1, d2 = diamA2, min_dist = AA_dist;
 	  derr << "Collision AA" << std::endl;
