@@ -30,14 +30,14 @@ namespace magnet {
     */
     inline double ray_plane(const math::Vector& T, const math::Vector& D, const math::Vector& N, const double d)
     {
-      double v = (D | N);
       double r = (T | N);
-      if (//Particles must move to intersect
-	  (v == 0)
-	  //Particles must be moving towards each other to intersect
-	  || ((v < 0) && (r < 0)) || ((v > 0) && (r > 0)))
-	return HUGE_VAL;
+      double v = (D | N);
+
+      if (r < 0) { r = -r; v = -v; }
       
+      //Objects must move towards each other to intersect
+      if (v >= 0) return HUGE_VAL;
+
       return std::max(-(r - d) / v, 0.0);
     }
   }
