@@ -46,7 +46,7 @@ namespace dynamo {
     virtual PairEventData SphereWellEvent(const IntEvent&, const double&, const double&, size_t) const;
     virtual NEventData multibdyWellEvent(const IDRange&, const IDRange&, const double&, const double&, EEventType&) const;
     virtual void initialise();
-    virtual void swapSystem(Dynamics& oDynamics);
+    virtual void replicaExchange(Dynamics& oDynamics);
 
     double W(const detail::CaptureMap& map) const;
 

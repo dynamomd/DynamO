@@ -110,7 +110,7 @@ namespace dynamo {
     PairEventData EDat
       (Sim->dynamics->parallelCubeColl(iEvent, e, d)); 
 
-    (*Sim->_sigParticleUpdate)(EDat);
+    Sim->_sigParticleUpdate(EDat);
 
     //Now we're past the event, update the scheduler and plugins
     Sim->ptrScheduler->fullUpdate(p1, p2);

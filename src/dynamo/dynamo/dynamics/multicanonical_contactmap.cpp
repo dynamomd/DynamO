@@ -166,7 +166,7 @@ namespace dynamo {
   }
 
   void 
-  DynNewtonianMCCMap::swapSystem(Dynamics& oDynamics)
+  DynNewtonianMCCMap::replicaExchange(Dynamics& oDynamics)
   {
 #ifdef DYNAMO_DEBUG
     if (dynamic_cast<const DynNewtonianMCCMap*>(&oDynamics) == NULL)

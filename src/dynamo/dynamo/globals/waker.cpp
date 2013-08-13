@@ -146,7 +146,7 @@ namespace dynamo {
     part.getVelocity() = newVel;
     part.setState(Particle::DYNAMIC);
       
-    (*Sim->_sigParticleUpdate)(EDat);
+    Sim->_sigParticleUpdate(EDat);
       
     for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, EDat);

@@ -82,7 +82,7 @@ namespace dynamo {
 		 vm["config-file"].as<std::vector<std::string> >()[i]);
 
 	if (vm.count("snapshot"))
-	  Simulations[i].systems.push_back(shared_ptr<System>(new SSnapshot(&(Simulations[i]), vm["snapshot"].as<double>(), "SnapshotEvent", "ID%ID.%COUNT", !vm.count("unwrapped"))));
+	  Simulations[i].systems.push_back(shared_ptr<System>(new SysSnapshot(&(Simulations[i]), vm["snapshot"].as<double>(), "SnapshotEvent", "ID%ID.%COUNT", !vm.count("unwrapped"))));
 
 	Simulations[i].initialise();
 
@@ -155,7 +155,7 @@ namespace dynamo {
 	    = std::sqrt(temperatureList.begin()->second.realTemperature
 			/ Simulations[i].ensemble->getReducedEnsembleVals()[2]); 
 	  
-	  dynamic_cast<SSnapshot &>(*Simulations[i].systems["SnapshotEvent"]).setTickerPeriod(vm["snapshot"].as<double>() * tFactor);
+	  dynamic_cast<SysSnapshot &>(*Simulations[i].systems["SnapshotEvent"]).setTickerPeriod(vm["snapshot"].as<double>() * tFactor);
 	}
   }
 

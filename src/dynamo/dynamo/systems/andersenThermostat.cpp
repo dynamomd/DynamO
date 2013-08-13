@@ -107,7 +107,7 @@ namespace dynamo {
     //Run the collision and catch the data
     NEventData SDat(Sim->dynamics->randomGaussianEvent(part, sqrtTemp, dimensions));
   
-    (*Sim->_sigParticleUpdate)(SDat);
+    Sim->_sigParticleUpdate(SDat);
 
     Sim->ptrScheduler->fullUpdate(part);
   

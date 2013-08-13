@@ -79,7 +79,7 @@ namespace dynamo {
      
       \param oDynamics the Dynamics of the other system in the exchange move.
      */
-    virtual void swapSystem(Dynamics& oDynamics) {}
+    virtual void replicaExchange(Dynamics& oDynamics) {}
 
     /*! \brief Parses the XML data to see if it can load XML particle
       data or if it needs to decode the binary data. Then loads the

@@ -57,8 +57,7 @@ namespace dynamo
     lastRunMFT(0.0),
     simID(0),
     replexExchangeNumber(0),
-    status(START),
-    _sigParticleUpdate(new magnet::Signal<void(const NEventData&)>)
+    status(START)
   {}
 
   namespace {
@@ -281,7 +280,7 @@ namespace dynamo
     
     namespace io = boost::iostreams;
     
-    dout << "Reading the XML input file into memory" << std::endl;
+    dout << "Reading the XML input file, " << fileName << ", into memory" << std::endl;
     if (!boost::filesystem::exists(fileName))
       M_throw() << "Could not find the XML file named " << fileName
 		<< "\nPlease check the file exists.";
@@ -538,34 +537,23 @@ namespace dynamo
       
     std::swap(systemTime, other.systemTime);
     std::swap(eventCount, other.eventCount);
-    std::swap(_sigParticleUpdate, other._sigParticleUpdate);
+    
+    for (size_t i(0); i < systems.size(); ++i)
+      systems[i]->replicaExchange(*other.systems[i]);
 
-    systems.swap(other.systems);
-
-    for (shared_ptr<System>& aPtr : systems)
-      aPtr->changeSystem(this);
-
-    for (shared_ptr<System>& aPtr : other.systems)
-      aPtr->changeSystem(&other);
-
-    dynamics->swapSystem(*other.dynamics);
+    dynamics->replicaExchange(*other.dynamics);
 
     //Rescale the velocities 
-    double scale1(sqrt(other.ensemble->getEnsembleVals()[2]
-		       / ensemble->getEnsembleVals()[2]));
-    
+    double scale1(sqrt(other.ensemble->getEnsembleVals()[2] / ensemble->getEnsembleVals()[2]));
     for (Particle& part : particles)
       part.getVelocity() *= scale1;
-    
     other.ptrScheduler->rescaleTimes(scale1);
     
     double scale2(1.0 / scale1);
-
     for (Particle& part : other.particles)
       part.getVelocity() *= scale2;
-    
     ptrScheduler->rescaleTimes(scale2);
-    
+
     ptrScheduler->rebuildSystemEvents();
     other.ptrScheduler->rebuildSystemEvents();    
 
@@ -575,28 +563,17 @@ namespace dynamo
       std::cerr << "Error, could not swap output plugin lists as they are not equal in size";
 #endif
 
-    outputPlugins.swap(other.outputPlugins);      
-    
-    {
-      std::vector<shared_ptr<OutputPlugin> >::iterator iPtr1 = outputPlugins.begin(), 
-	iPtr2 = other.outputPlugins.begin();
-      
-      while (iPtr1 != outputPlugins.end())
-	{
+    outputPlugins.swap(other.outputPlugins);    
+    for (size_t i(0); i < outputPlugins.size(); ++i)
+      {
 #ifdef DYNAMO_DEBUG
-	  if (typeid(*(*iPtr1)) != typeid(*(*iPtr2)))
+	if (typeid(*(*outputPlugins[i])) != typeid(*(*other.outputPlugins[i])))
 	    M_throw() << "Output plugin mismatch while replexing! lists not sorted the same perhaps?";
 #endif
-	  
-	  (*iPtr1)->changeSystem(iPtr2->get());
-	  
-	  (*iPtr1)->temperatureRescale(scale1 * scale1);
-	  (*iPtr2)->temperatureRescale(scale2 * scale2);
-	  
-	  ++iPtr1; 
-	  ++iPtr2;
-	}
-    }
+	outputPlugins[i]->changeSystem(other.outputPlugins[i].get());
+	outputPlugins[i]->temperatureRescale(scale1 * scale1);
+	other.outputPlugins[i]->temperatureRescale(scale2 * scale2);
+      }
 
     //This is swapped last as things need it for calcs
     ensemble->swap(*other.ensemble);

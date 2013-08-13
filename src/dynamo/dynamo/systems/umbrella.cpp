@@ -83,7 +83,7 @@ namespace dynamo {
 
     if (etype != BOUNCE) _stepID = new_step_ID;
 
-    (*Sim->_sigParticleUpdate)(SDat);
+    Sim->_sigParticleUpdate(SDat);
   
     //Only 1ParticleEvents occur
     for (const ParticleEventData& PDat : SDat.L1partChanges)
@@ -115,7 +115,7 @@ namespace dynamo {
   
     recalculateTime();
 
-    (*Sim->_sigParticleUpdate).connect<SysUmbrella, &SysUmbrella::particlesUpdated>(this);
+    Sim->_sigParticleUpdate.connect<SysUmbrella, &SysUmbrella::particlesUpdated>(this);
   }
 
   void 

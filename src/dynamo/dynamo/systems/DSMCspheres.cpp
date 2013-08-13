@@ -122,7 +122,7 @@ namespace dynamo {
 	    const PairEventData
 	      SDat(Sim->dynamics->DSMCSpheresRun(p1, p2, e, rij));
 
-	    (*Sim->_sigParticleUpdate)(SDat);
+	    Sim->_sigParticleUpdate(SDat);
   
 	    Sim->ptrScheduler->fullUpdate(p1, p2);
 	  

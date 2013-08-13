@@ -84,7 +84,7 @@ namespace dynamo {
 
     NEventData EDat = Sim->dynamics->enforceParabola(part);
   
-    (*Sim->_sigParticleUpdate)(EDat);
+    Sim->_sigParticleUpdate(EDat);
 
     for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, EDat);

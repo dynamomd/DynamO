@@ -115,14 +115,14 @@ namespace dynamo {
     _lastUpdate = boost::posix_time::microsec_clock::local_time();
   }
 
-  void 
+  void
   SVisualizer::initialise(size_t nID)
   { 
     ID = nID;
-    (*Sim->_sigParticleUpdate).connect<SVisualizer, &SVisualizer::particlesUpdated>(this);
+    Sim->_sigParticleUpdate.connect<SVisualizer, &SVisualizer::particlesUpdated>(this);
   }
 
-  void 
+  void
   SVisualizer::particlesUpdated(const NEventData&)
   {
     if ((boost::posix_time::microsec_clock::local_time() - _lastUpdate) 

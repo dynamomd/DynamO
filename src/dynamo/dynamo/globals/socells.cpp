@@ -144,7 +144,7 @@ namespace dynamo {
     //Run the collision and catch the data
     NEventData EDat(Sim->dynamics->runPlaneEvent(part, vNorm, 1.0, 0.0));
 
-    (*Sim->_sigParticleUpdate)(EDat);
+    Sim->_sigParticleUpdate(EDat);
 
     //Now we're past the event update the scheduler and plugins
     Sim->ptrScheduler->fullUpdate(part);

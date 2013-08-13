@@ -140,7 +140,7 @@ namespace dynamo {
     else
       EDat = Sim->dynamics->SmoothSpheresColl(iEvent, e, d * d); 
 
-    (*Sim->_sigParticleUpdate)(EDat);
+    Sim->_sigParticleUpdate(EDat);
 
     const double overlap = Sim->dynamics->sphereOverlap(p1, p2, d);
     if (overlap)

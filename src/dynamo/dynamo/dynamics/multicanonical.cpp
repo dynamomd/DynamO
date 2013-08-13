@@ -164,12 +164,11 @@ namespace dynamo {
     return retVal;
   }
 
-  void 
-  DynNewtonianMC::swapSystem(Dynamics& oDynamics)
+  void DynNewtonianMC::replicaExchange(Dynamics& oDynamics)
   {
 #ifdef DYNAMO_DEBUG
     if (dynamic_cast<const DynNewtonianMC*>(&oDynamics) == NULL)
-      M_throw() << "Trying to swap Dynamicss with different derived types!";
+      M_throw() << "Trying to swap Dynamics with different derived types!";
 #endif
 
     DynNewtonianMC& ol(static_cast<DynNewtonianMC&>(oDynamics));

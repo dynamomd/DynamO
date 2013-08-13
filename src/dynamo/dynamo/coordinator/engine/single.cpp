@@ -99,7 +99,7 @@ namespace dynamo {
     setupSim(simulation, vm["config-file"].as<std::vector<std::string> >()[0]);
 
     if (vm.count("snapshot"))
-      simulation.systems.push_back(shared_ptr<System>(new SSnapshot(&simulation, vm["snapshot"].as<double>(), "SnapshotEvent", "%COUNT", !vm.count("unwrapped"))));
+      simulation.systems.push_back(shared_ptr<System>(new SysSnapshot(&simulation, vm["snapshot"].as<double>(), "SnapshotEvent", "%COUNT", !vm.count("unwrapped"))));
 
     simulation.initialise();
 

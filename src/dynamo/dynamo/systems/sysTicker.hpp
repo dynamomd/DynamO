@@ -37,6 +37,13 @@ namespace dynamo {
     void setTickerPeriod(const double&);
 
     const double& getPeriod() const { return period; }
+
+    virtual void replicaExchange(System& os) { 
+      SysTicker& s = static_cast<SysTicker&>(os);
+      std::swap(dt, s.dt);
+      std::swap(period, s.period);
+    }
+
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const {}
 

@@ -58,9 +58,11 @@ namespace dynamo {
 
     EEventType getType() const { return type; }
 
-    virtual void changeSystem(dynamo::Simulation* ptr) { Sim = ptr; }
-
     inline const size_t& getID() const { return ID; }
+
+    virtual void replicaExchange(System& s) { 
+      M_throw() << "Not replica exchange safe";
+    }
 
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;

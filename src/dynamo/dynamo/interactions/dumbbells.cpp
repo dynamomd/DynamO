@@ -268,7 +268,7 @@ namespace dynamo {
 	M_throw() << "Unknown collision type";
       }
     
-    (*Sim->_sigParticleUpdate)(retval);
+    Sim->_sigParticleUpdate(retval);
     
     Sim->ptrScheduler->fullUpdate(p1, p2);
     

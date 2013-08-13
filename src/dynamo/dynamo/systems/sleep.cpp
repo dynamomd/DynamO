@@ -58,7 +58,7 @@ namespace dynamo {
   {
     ID = nID;
 
-    (*Sim->_sigParticleUpdate).connect<SSleep, &SSleep::particlesUpdated>(this);
+    Sim->_sigParticleUpdate.connect<SSleep, &SSleep::particlesUpdated>(this);
 
     recalculateTime();
 
@@ -295,7 +295,7 @@ namespace dynamo {
     //Must clear the state before calling the signal, otherwise this
     //will erroneously schedule itself again
     stateChange.clear(); 
-    (*Sim->_sigParticleUpdate)(SDat);
+    Sim->_sigParticleUpdate(SDat);
 
     for (const ParticleEventData& PDat : SDat.L1partChanges)
       Sim->ptrScheduler->fullUpdate(Sim->particles[PDat.getParticleID()]);

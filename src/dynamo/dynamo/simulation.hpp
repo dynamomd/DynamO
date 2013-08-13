@@ -365,7 +365,7 @@ namespace dynamo
       this is swapped during a replica exchange (along with the System
       classes). This must be cleaned up.
      */
-    mutable std::unique_ptr<magnet::Signal<void(const NEventData&)> > _sigParticleUpdate;
+    magnet::Signal<void(const NEventData&)> _sigParticleUpdate;
 
   private:
     size_t _nextPrint;

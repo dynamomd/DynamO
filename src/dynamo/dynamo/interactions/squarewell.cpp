@@ -174,7 +174,7 @@ namespace dynamo {
       case CORE:
 	{
 	  PairEventData retVal(Sim->dynamics->SmoothSpheresColl(iEvent, e, d2, CORE));
-	  (*Sim->_sigParticleUpdate)(retVal);
+	  Sim->_sigParticleUpdate(retVal);
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
 	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
@@ -185,7 +185,7 @@ namespace dynamo {
 	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, wd, ld2, 1));
 	  if (retVal.getType() != BOUNCE) ICapture::add(p1, p2);
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	  (*Sim->_sigParticleUpdate)(retVal);
+	  Sim->_sigParticleUpdate(retVal);
 	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
 	  break;
@@ -194,7 +194,7 @@ namespace dynamo {
 	{
 	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, -wd, ld2, 0));
 	  if (retVal.getType() != BOUNCE) ICapture::remove(p1, p2);
-	  (*Sim->_sigParticleUpdate)(retVal);
+	  Sim->_sigParticleUpdate(retVal);
 	  Sim->ptrScheduler->fullUpdate(p1, p2);
 	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
 	    Ptr->eventUpdate(iEvent, retVal);
