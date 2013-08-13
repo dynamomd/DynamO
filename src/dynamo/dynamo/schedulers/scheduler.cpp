@@ -371,7 +371,10 @@ namespace dynamo {
 	}
       case SYSTEM:
 	{
-	  if (!std::isfinite(next_event.second.dt))
+	  //System events can use the value -HUGE_VAL to request
+	  //immediate processing, therefore, only NaN and +HUGE_VAL
+	  //values are invalid
+	  if (std::isnan(next_event.second.dt) || (next_event.second.dt == HUGE_VAL))
 	    M_throw() << "Next event time is not finite!"
 		      << "\ndt = " << next_event.second.dt
 		      << "\nEvent Type = " << next_event.second.type
