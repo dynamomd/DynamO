@@ -92,6 +92,14 @@ namespace magnet {
     template<bool inverse = false>
     inline double ray_growing_sphere(const math::Vector& R, const math::Vector& V, const double& r, const double inv_gamma, const double t_curr)
     {
+      if (inv_gamma == 0)
+	{
+	  if (inverse) 
+	    return ray_inv_sphere(R, V, r);
+	  else
+	    return ray_sphere(R, V, r);
+	}
+
       const double fsign = (1 - 2 * inverse);
       const double a = fsign * ((V | V) - inv_gamma * inv_gamma * r * r);
       const double b = fsign * 2 * ((R | V) - r * r * inv_gamma * (1 + t_curr * inv_gamma));

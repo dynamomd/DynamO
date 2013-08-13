@@ -567,7 +567,7 @@ namespace dynamo
     for (size_t i(0); i < outputPlugins.size(); ++i)
       {
 #ifdef DYNAMO_DEBUG
-	if (typeid(*(*outputPlugins[i])) != typeid(*(*other.outputPlugins[i])))
+	if (typeid(*outputPlugins[i]) != typeid(*other.outputPlugins[i]))
 	    M_throw() << "Output plugin mismatch while replexing! lists not sorted the same perhaps?";
 #endif
 	outputPlugins[i]->changeSystem(other.outputPlugins[i].get());

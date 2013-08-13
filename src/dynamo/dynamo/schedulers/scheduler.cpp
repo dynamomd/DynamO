@@ -274,32 +274,20 @@ namespace dynamo {
 	  //Reset the rejection watchdog, we will run an interaction event now
 	  _interactionRejectionCounter = 0;
 		
-#ifdef DYNAMO_DEBUG
 	  if (!std::isfinite(next_event.second.dt))
 	    M_throw() << "Next event time is not finite!"
 		      << "\ndt = " << next_event.second.dt
 		      << "\nEvent Type = " << next_event.second.type
 		      << "\nParticle 1 ID = " << next_event.first
-		      << "\nParticle 2 ID = " << next_event.second.p2
+		      << "\nParticle 2 ID = " << next_event.second.particle2ID
 		      << "\nInteraction = " << Sim->getInteraction(p1, p2)->getName()
 	      ;
 
+#ifdef DYNAMO_DEBUG
 	  if (Event.getdt() < 0)
 	    derr << "Warning! Negative time event" << Event.getdt() << std::endl;
-
-	  << Event.stringData(Sim);
 #endif
 	
-	  //Debug section
-#ifdef DYNAMO_CollDebug
-	  dout << "Interaction at t=" << (Event.getdt() + Sim->systemTime) / Sim->units.unitTime()
-	       << "  ID1 " << ((p2.getID() < p2.getID()) ? p1.getID() : p2.getID())
-	       << "  ID2 " << ((p2.getID() < p2.getID()) ? p2.getID() : p1.getID())
-	       << "  dt " << Event.getdt()
-	       << "  Type " << Event.getType() 
-	       << std::endl;
-#endif
-
 	  Sim->systemTime += Event.getdt();
 	
 	  stream(Event.getdt());
