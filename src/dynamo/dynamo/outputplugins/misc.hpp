@@ -50,7 +50,7 @@ namespace dynamo {
   
     double getMFT() const;
   
-    void changeSystem(OutputPlugin*);
+    void replicaExchange(OutputPlugin&);
 
     double getEventsPerSecond() const;
     double getSimTimePerSecond() const;

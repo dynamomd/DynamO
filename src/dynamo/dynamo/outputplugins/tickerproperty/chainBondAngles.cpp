@@ -59,10 +59,10 @@ namespace dynamo {
 			       binwidth));
   }
 
-  void 
-  OPChainBondAngles::changeSystem(OutputPlugin* OPPlug)
+  void
+  OPChainBondAngles::replicaExchange(OutputPlugin& OPPlug)
   {
-    std::swap(Sim, static_cast<OPChainBondAngles*>(OPPlug)->Sim);
+    std::swap(Sim, static_cast<OPChainBondAngles&>(OPPlug).Sim);
   }
 
   void 

@@ -48,9 +48,9 @@ namespace dynamo {
   }
 
   void 
-  OPCContactMap::changeSystem(OutputPlugin* OPPlug)
+  OPCContactMap::replicaExchange(OutputPlugin& OPPlug)
   {
-    std::swap(Sim, static_cast<OPCContactMap*>(OPPlug)->Sim);
+    std::swap(Sim, static_cast<OPCContactMap&>(OPPlug).Sim);
 
     for (Cdata& dat : chains)
       {

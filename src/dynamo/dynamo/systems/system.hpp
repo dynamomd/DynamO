@@ -61,7 +61,7 @@ namespace dynamo {
     inline const size_t& getID() const { return ID; }
 
     virtual void replicaExchange(System& s) { 
-      M_throw() << "Not replica exchange safe";
+      M_throw() << "The System \"" << getName() << "\"Not replica exchange safe";
     }
 
   protected:

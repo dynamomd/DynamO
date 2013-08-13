@@ -540,9 +540,9 @@ namespace dynamo
     
     for (size_t i(0); i < systems.size(); ++i)
       systems[i]->replicaExchange(*other.systems[i]);
-
+    
     dynamics->replicaExchange(*other.dynamics);
-
+    
     //Rescale the velocities 
     double scale1(sqrt(other.ensemble->getEnsembleVals()[2] / ensemble->getEnsembleVals()[2]));
     for (Particle& part : particles)
@@ -563,18 +563,17 @@ namespace dynamo
       std::cerr << "Error, could not swap output plugin lists as they are not equal in size";
 #endif
 
-    outputPlugins.swap(other.outputPlugins);    
     for (size_t i(0); i < outputPlugins.size(); ++i)
       {
 #ifdef DYNAMO_DEBUG
 	if (typeid(*outputPlugins[i]) != typeid(*other.outputPlugins[i]))
-	    M_throw() << "Output plugin mismatch while replexing! lists not sorted the same perhaps?";
+	  M_throw() << "Output plugin mismatch while replexing! lists not sorted the same perhaps?";
 #endif
-	outputPlugins[i]->changeSystem(other.outputPlugins[i].get());
+	outputPlugins[i]->replicaExchange(*other.outputPlugins[i]);
 	outputPlugins[i]->temperatureRescale(scale1 * scale1);
 	other.outputPlugins[i]->temperatureRescale(scale2 * scale2);
       }
-
+    
     //This is swapped last as things need it for calcs
     ensemble->swap(*other.ensemble);
   }

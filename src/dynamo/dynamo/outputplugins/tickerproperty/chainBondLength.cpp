@@ -45,9 +45,9 @@ namespace dynamo {
   }
 
   void 
-  OPChainBondLength::changeSystem(OutputPlugin* OPPlug)
+  OPChainBondLength::replicaExchange(OutputPlugin& OPPlug)
   {
-    std::swap(Sim, static_cast<OPChainBondLength*>(OPPlug)->Sim);
+    std::swap(Sim, static_cast<OPChainBondLength&>(OPPlug).Sim);
   }
 
   void 

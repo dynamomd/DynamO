@@ -61,8 +61,7 @@ namespace dynamo {
     inline bool operator>(const OutputPlugin& OP) const
     { return updateOrder > OP.updateOrder; }
   
-    virtual void changeSystem(OutputPlugin*) 
-    { M_throw() << "This plugin hasn't been prepared for changes of system\n Plugin " <<  name; }
+    virtual void replicaExchange(OutputPlugin&) = 0;
   
     virtual void temperatureRescale(const double&) {}
   

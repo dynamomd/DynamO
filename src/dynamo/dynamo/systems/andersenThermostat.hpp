@@ -39,11 +39,12 @@ namespace dynamo {
     void setTemperature(double nT) { Temp = nT; sqrtTemp = std::sqrt(Temp); }
     void setReducedTemperature(double nT);
 
-    virtual void replicaExchange(SysAndersen& os) { 
+    virtual void replicaExchange(System& os) { 
       SysAndersen& s = static_cast<SysAndersen&>(os);
       std::swap(dt, s.dt);
       std::swap(meanFreeTime, s.meanFreeTime);
-      std::swap(Temp, s.sqrtTemp);
+      std::swap(Temp, s.Temp);
+      std::swap(sqrtTemp, s.sqrtTemp);
       std::swap(tune, s.tune);
       std::swap(dimensions, s.dimensions);
       std::swap(setPoint, s.setPoint);

@@ -107,12 +107,13 @@ namespace dynamo {
   }
 
   void 
-  OPContactMap::changeSystem(OutputPlugin* otherplugin)
+  OPContactMap::replicaExchange(OutputPlugin& otherplugin)
   {
-    OPContactMap& other_map = static_cast<OPContactMap&>(*otherplugin);
+    OPContactMap& other_map = static_cast<OPContactMap&>(otherplugin);
 
     //Swap over the sim pointers
     std::swap(Sim, other_map.Sim);
+    std::swap(_interaction, other_map._interaction);
 
     //Now let each plugin know the map has changed
     mapChanged(false);

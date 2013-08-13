@@ -34,13 +34,12 @@ namespace dynamo {
   {}
 
   void
-  OPMisc::changeSystem(OutputPlugin* misc2)
+  OPMisc::replicaExchange(OutputPlugin& misc2)
   {
-    OPMisc& op = static_cast<OPMisc&>(*misc2);
+    OPMisc& op = static_cast<OPMisc&>(misc2);
     _KE.swapCurrentValues(op._KE);
     _internalE.swapCurrentValues(op._internalE);
     _kineticP.swapCurrentValues(op._kineticP);
-
     std::swap(Sim, op.Sim);
   }
 
