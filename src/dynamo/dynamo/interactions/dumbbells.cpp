@@ -52,10 +52,20 @@ namespace dynamo {
   }
 
   double IDumbbells::getExcludedVolume(size_t ID) const 
-  { 
+  {
     double diamA = _diamA->getProperty(ID);
     double diamB = _diamB->getProperty(ID);
-    return (diamA * diamA * diamA + diamB * diamB * diamB) * M_PI / 6.0; 
+    double LA = _LA->getProperty(ID);
+    double LB = _LB->getProperty(ID);
+    double Volume = (diamA * diamA * diamA + diamB * diamB * diamB) * M_PI / 6.0;
+
+    //If the spheres are overlapping, subtract the volume of the lense they form from the volume of the spheres
+    double d = LA + LB;
+    double r = diamA;
+    double R = diamB;
+    if (d < (diamA + diamB) / 2)
+      Volume -= M_PI * (R + r - d) * (R + r - d) * (d * d + 2 * d * r -  3 * r * r + 2 * d * R + 6 * r * R - 3 * R * R) / (12 * d);
+    return Volume;
   }
 
   void 
