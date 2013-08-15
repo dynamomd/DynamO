@@ -24,10 +24,6 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <magnet/string/searchreplace.hpp>
 
-#ifdef DYNAMO_DEBUG 
-#include <boost/math/special_functions/fpclassify.hpp>
-#endif
-
 namespace dynamo {
   SysSnapshot::SysSnapshot(dynamo::Simulation* nSim, double nPeriod, std::string nName, std::string format, bool applyBC):
     System(nSim),
@@ -55,7 +51,7 @@ namespace dynamo {
     double locdt = dt;
   
 #ifdef DYNAMO_DEBUG 
-    if (boost::math::isnan(dt))
+    if (std::isnan(dt))
       M_throw() << "A NAN system event time has been found";
 #endif
     

@@ -17,7 +17,6 @@
 
 #pragma once
 #include <dynamo/inputplugins/cells/cell.hpp>
-#include <boost/progress.hpp>
 #include <array>
 #include <string>
 #include <fstream>
@@ -79,9 +78,6 @@ namespace dynamo {
       std::cout << "\nCUTriangleIntersect :Checking spheres\n";
       std::cout.flush();
     
-      boost::progress_display prog(initval.size());
-
-
       for (const Vector& sphere : initval)
 	{
 	  for (const triangle_type& triangle : _triangles)
@@ -90,7 +86,6 @@ namespace dynamo {
 		retval.push_back(sphere);
 		break;
 	      }
-	  ++prog;
 	}
     
       return retval;

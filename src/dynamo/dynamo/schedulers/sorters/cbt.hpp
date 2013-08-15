@@ -19,7 +19,6 @@
 #include <dynamo/schedulers/sorters/event.hpp>
 #include <dynamo/schedulers/sorters/heapPEL.hpp>
 #include <dynamo/schedulers/sorters/sorter.hpp>
-#include <boost/math/special_functions/fpclassify.hpp>
 #include <magnet/exception.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <vector>
@@ -91,7 +90,7 @@ namespace dynamo {
     {
       //Exit early
 #ifdef DYNAMO_DEBUG
-      if (boost::math::isnan(tmpVal.dt))
+      if (std::isnan(tmpVal.dt))
 	M_throw() << "NaN value pushed into the sorter! Should be Inf I guess?";
 #endif
 

@@ -26,7 +26,6 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
-#include <boost/lexical_cast.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <sstream>
 #include <cmath>

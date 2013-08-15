@@ -21,7 +21,6 @@
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
-#include <boost/math/special_functions/fpclassify.hpp>
 #include <magnet/intersection/ray_sphere.hpp>
 #include <magnet/intersection/ray_plane.hpp>
 #include <magnet/intersection/offcentre_spheres.hpp>
@@ -184,7 +183,7 @@ namespace dynamo {
     retVal.rvdot *= retVal.rij.nrm();
   
 #ifdef DYNAMO_DEBUG
-    if (boost::math::isnan(retVal.impulse[0]))
+    if (std::isnan(retVal.impulse[0]))
       M_throw() << "A nan dp has ocurred"
 		<< "\ndeltaKE = " << deltaKE
 		<< "\ngrowthRate = " << growthRate

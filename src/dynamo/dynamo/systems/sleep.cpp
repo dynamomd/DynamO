@@ -29,11 +29,6 @@
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/lexical_cast.hpp>
-
-#ifdef DYNAMO_DEBUG 
-#include <boost/math/special_functions/fpclassify.hpp>
-#endif
 
 namespace dynamo {
   SSleep::SSleep(const magnet::xml::Node& XML, dynamo::Simulation* tmp): 
@@ -228,7 +223,7 @@ namespace dynamo {
     dt = HUGE_VAL;
     
 #ifdef DYNAMO_DEBUG 
-    if (boost::math::isnan(locdt))
+    if (std::isnan(locdt))
       M_throw() << "A NAN system event time has been found";
 #endif
   

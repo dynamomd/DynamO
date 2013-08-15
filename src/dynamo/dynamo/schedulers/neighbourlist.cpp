@@ -28,8 +28,6 @@
 #include <dynamo/locals/localEvent.hpp>
 #include <dynamo/ranges/IDRangeRange.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/bind.hpp>
-#include <boost/progress.hpp>
 #include <cmath>
 
 namespace dynamo {

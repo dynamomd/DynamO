@@ -29,10 +29,6 @@
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 
-#ifdef DYNAMO_DEBUG 
-#include <boost/math/special_functions/fpclassify.hpp>
-#endif
-
 namespace dynamo {
   SysDSMCSpheres::SysDSMCSpheres(const magnet::xml::Node& XML, dynamo::Simulation* tmp): 
     System(tmp),
@@ -65,7 +61,7 @@ namespace dynamo {
     double locdt = dt;
   
 #ifdef DYNAMO_DEBUG 
-    if (boost::math::isnan(locdt))
+    if (std::isnan(locdt))
       M_throw() << "A NAN system event time has been found";
 #endif
     

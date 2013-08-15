@@ -27,14 +27,9 @@
 #include <dynamo/dynamics/gravity.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/particle.hpp>
-#include <boost/static_assert.hpp>
 #include <boost/math/special_functions/pow.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-
-#ifdef DYNAMO_DEBUG 
-#include <boost/math/special_functions/fpclassify.hpp>
-#endif
 
 namespace dynamo {
   GSOCells::GSOCells(dynamo::Simulation* nSim, const std::string& name):
@@ -118,7 +113,7 @@ namespace dynamo {
     GlobalEvent iEvent(getEvent(part));
 
 #ifdef DYNAMO_DEBUG 
-    if (boost::math::isnan(iEvent.getdt()))
+    if (std::isnan(iEvent.getdt()))
       M_throw() << "A NAN Interaction collision time has been found"
 		<< iEvent.stringData(Sim);
   

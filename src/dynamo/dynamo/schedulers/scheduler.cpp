@@ -25,15 +25,12 @@
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/units/units.hpp>
-
 #ifdef DYNAMO_DEBUG
 #include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #endif
-
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/math/special_functions/fpclassify.hpp>
 
 namespace dynamo {
   Scheduler::Scheduler(dynamo::Simulation* const tmp, const char * aName,

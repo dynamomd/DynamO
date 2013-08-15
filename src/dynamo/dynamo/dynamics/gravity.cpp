@@ -34,7 +34,6 @@
 #include <magnet/intersection/parabola_cylinder.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/math/special_functions/fpclassify.hpp>
 #include <algorithm>
 
 namespace dynamo {

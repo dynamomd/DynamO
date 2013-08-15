@@ -37,7 +37,6 @@
 #include <magnet/intersection/overlapfuncs/oscillatingplate.hpp>
 #include <magnet/math/matrix.hpp>
 #include <magnet/xmlwriter.hpp>
-#include <boost/math/special_functions/fpclassify.hpp>
 
 namespace dynamo {
   double
@@ -696,7 +695,7 @@ namespace dynamo {
       }
   
 #ifdef DYNAMO_DEBUG
-    if (boost::math::isnan(retVal.impulse[0]))
+    if (std::isnan(retVal.impulse[0]))
       M_throw() << "A nan dp has ocurred";
 #endif
   

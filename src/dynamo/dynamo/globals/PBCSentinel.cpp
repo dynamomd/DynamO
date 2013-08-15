@@ -24,10 +24,6 @@
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/xmlreader.hpp>
 
-#ifdef DYNAMO_DEBUG 
-#include <boost/math/special_functions/fpclassify.hpp>
-#endif
-
 namespace dynamo {
   GPBCSentinel::GPBCSentinel(dynamo::Simulation* nSim, const std::string& name):
     Global(nSim, "PBCSentinel"),
