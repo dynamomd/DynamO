@@ -18,7 +18,6 @@
 #include <dynamo/outputplugins/tickerproperty/radialdist.hpp>
 #include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/include.hpp>
-#include <dynamo/dynamics/dynamics.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 

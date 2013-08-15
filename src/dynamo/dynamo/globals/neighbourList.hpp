@@ -19,7 +19,6 @@
 #include <dynamo/globals/global.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/ranges/IDRangeList.hpp>
-#include <boost/function.hpp>
 #include <magnet/function/delegate.hpp>
 #include <magnet/math/vector.hpp>
 #include <memory>
