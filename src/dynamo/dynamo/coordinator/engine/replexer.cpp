@@ -75,7 +75,6 @@ namespace dynamo {
   EReplicaExchangeSimulation::initialisation()
   {
     preSimInit();
-
     for (unsigned int i = 0; i < nSims; i++)
       {
 	setupSim(Simulations[i], 
@@ -351,9 +350,10 @@ namespace dynamo {
     {      
       std::fstream replexof("replex.stats", std::ios::out | std::ios::trunc);
     
+      
       replexof << "Number_of_replex_cycles " << replexSwapCalls
-	       << "\nTime_spent_replexing " <<  boost::posix_time::to_simple_string(end_Time - start_Time)
-	       << "\nReplex Rate " << static_cast<double>(replexSwapCalls) / static_cast<double>((end_Time - start_Time).total_seconds())
+	       << "\nTime_spent_replexing " <<  std::chrono::duration<double>(_end_time - _start_time).count() << "s"
+	       << "\nReplex Rate " << static_cast<double>(replexSwapCalls) / std::chrono::duration<double>(_end_time - _start_time).count()
 	       << "\n";	
     
       replexof.close();
@@ -368,8 +368,7 @@ namespace dynamo {
 
   void EReplicaExchangeSimulation::runSimulation()
   {
-    clock_gettime(CLOCK_MONOTONIC, &_startTime);
-    start_Time = boost::posix_time::second_clock::local_time();
+    _start_time = std::chrono::system_clock::now();
 
     while (((Simulations[0].systemTime / Simulations[0].units.unitTime()) < replicaEndTime)
 	   && (Simulations[0].eventCount < vm["events"].as<size_t>()))
@@ -411,7 +410,7 @@ namespace dynamo {
 	      case 'p':
 	      case 'P':
 		{
-		  end_Time = boost::posix_time::second_clock::local_time();
+		  _end_time = std::chrono::system_clock::now();
 		  
 		  size_t i = 0;
 		  for (replexPair p1 : temperatureList)
@@ -440,8 +439,8 @@ namespace dynamo {
 		    std::fstream replexof("replex.stats", std::ios::out | std::ios::trunc);
 		    
 		    replexof << "Number_of_replex_cycles " << replexSwapCalls
-			     << "\nTime_spent_replexing " <<  boost::posix_time::to_simple_string(end_Time - start_Time)
-			     << "\nReplex Rate " << static_cast<double>(replexSwapCalls) / static_cast<double>((end_Time - start_Time).total_seconds())
+			     << "\nTime_spent_replexing " <<  std::chrono::duration<double>(_end_time - _start_time).count() << "s"
+			     << "\nReplex Rate " << static_cast<double>(replexSwapCalls) / std::chrono::duration<double>(_end_time - _start_time).count()
 			     << "\n";	
 		    
 		    replexof.close();
@@ -557,7 +556,7 @@ namespace dynamo {
 	      }
 	  }
       }
-    end_Time = boost::posix_time::second_clock::local_time();
+  _end_time = std::chrono::system_clock::now();
   }
 
   void 

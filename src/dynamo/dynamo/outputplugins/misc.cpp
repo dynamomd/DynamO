@@ -21,7 +21,6 @@
 #include <magnet/memUsage.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <dynamo/systems/tHalt.hpp>
-#include <sys/time.h>
 #include <ctime>
 
 namespace dynamo {
@@ -168,14 +167,7 @@ namespace dynamo {
       dout  << _sysMomentum.current()[iDim] / Sim->units.unitMomentum() << " ";
     dout << ">\n";
 
-    std::time(&tstartTime);
-
-    clock_gettime(CLOCK_MONOTONIC, &acc_tstartTime);
-
-    std::string sTime(std::ctime(&tstartTime));
-    sTime[sTime.size()-1] = ' ';
-
-    dout << "Started on " << sTime << std::endl;
+    _starttime = std::chrono::system_clock::now();
   }
 
   void
@@ -334,33 +326,22 @@ namespace dynamo {
   OPMisc::getMFT() const
   {
     return Sim->systemTime * static_cast<double>(Sim->N)
-      /(Sim->units.unitTime()
-	* ((2.0 * static_cast<double>(_dualEvents))
-	   + static_cast<double>(_singleEvents)));
+      /(Sim->units.unitTime() * ((2.0 * static_cast<double>(_dualEvents)) + static_cast<double>(_singleEvents)));
   }
 
   double 
-  OPMisc::getEventsPerSecond() const
-  {
-    timespec acc_tendTime;
-    clock_gettime(CLOCK_MONOTONIC, &acc_tendTime);
-    
-    double duration = double(acc_tendTime.tv_sec) - double(acc_tstartTime.tv_sec)
-      + 1e-9 * (double(acc_tendTime.tv_nsec) - double(acc_tstartTime.tv_nsec));
-
-    return Sim->eventCount / duration;
+  OPMisc::getDuration() const {
+    return std::chrono::duration<double>(std::chrono::system_clock::now() - _starttime).count();
+  }
+  
+  double 
+  OPMisc::getEventsPerSecond() const {
+    return Sim->eventCount / getDuration();
   }
 
   double 
-  OPMisc::getSimTimePerSecond() const
-  {
-    timespec acc_tendTime;
-    clock_gettime(CLOCK_MONOTONIC, &acc_tendTime);
-    
-    double duration = double(acc_tendTime.tv_sec) - double(acc_tstartTime.tv_sec)
-      + 1e-9 * (double(acc_tendTime.tv_nsec) - double(acc_tstartTime.tv_nsec));
-
-    return Sim->systemTime / (duration * Sim->units.unitTime());
+  OPMisc::getSimTimePerSecond() const {
+    return Sim->systemTime / (getDuration() * Sim->units.unitTime());
   }
 
   void
@@ -368,19 +349,7 @@ namespace dynamo {
   {
     using namespace magnet::xml;
 
-    std::time_t tendTime;
-    time(&tendTime);
-
-    std::string sTime(std::ctime(&tstartTime));
-    //A hack to remove the newline character at the end
-    sTime[sTime.size()-1] = ' ';
-
-    std::string eTime(std::ctime(&tendTime));
-    //A hack to remove the newline character at the end
-    eTime[eTime.size()-1] = ' ';
-
-    dout << "Ended on " << eTime
-	 << "\nTotal Collisions Executed " << Sim->eventCount
+    dout << "\nTotal Collisions Executed " << Sim->eventCount
 	 << "\nAvg Events/s " << getEventsPerSecond()
 	 << "\nSim time per second " << getSimTimePerSecond()
 	 << std::endl;
@@ -390,6 +359,14 @@ namespace dynamo {
     const Matrix P = (_kineticP.mean() / V) + collP;
 
     XML << tag("Misc")
+
+	<< tag("Timing")
+	<< attr("RuntimeSeconds") <<  getDuration()
+	<< attr("RuntimeHours") <<  getDuration() / 3600
+	<< attr("EventsPerSec") << getEventsPerSecond()
+	<< attr("SimTimePerSec") << getSimTimePerSecond()
+	<< endtag("Timing")
+
 	<< tag("Density")
 	<< attr("val")
 	<< Sim->getNumberDensity() * Sim->units.unitVolume()
@@ -466,6 +443,7 @@ namespace dynamo {
     
     XML << endtag("InteractionContribution")
 	<< endtag("Pressure")
+
 	<< tag("Duration")
 	<< attr("Events") << Sim->eventCount
 	<< attr("OneParticleEvents") << _singleEvents
@@ -473,6 +451,7 @@ namespace dynamo {
 	<< attr("VirtualEvents") << _virtualEvents
 	<< attr("Time") << Sim->systemTime / Sim->units.unitTime()
 	<< endtag("Duration")
+
 	<< tag("EventCounters");
   
     typedef std::pair<CounterKey, CounterData> mappair;
@@ -488,26 +467,24 @@ namespace dynamo {
 	  << endtag("Entry");
   
     XML << endtag("EventCounters")
-	<< tag("Timing")
-	<< attr("Start") << sTime
-	<< attr("End") << eTime
-	<< attr("EventsPerSec") << getEventsPerSecond()
-	<< attr("SimTimePerSec") << getSimTimePerSecond()
-	<< endtag("Timing")
 
 	<< tag("PrimaryImageSimulationSize")
 	<< Sim->primaryCellSize / Sim->units.unitLength()
 	<< endtag("PrimaryImageSimulationSize")
+
 	<< tag("totMeanFreeTime")
 	<< attr("val")
 	<< getMFT()
 	<< endtag("totMeanFreeTime")
+
 	<< tag("NegativeTimeEvents")
 	<< attr("Count") << _reverseEvents
 	<< endtag("NegativeTimeEvents")
+
 	<< tag("Memusage")
 	<< attr("MaxKiloBytes") << magnet::process_mem_usage()
 	<< endtag("Memusage")
+
 	<< tag("ThermalConductivity")
 	<< tag("Correlator")
 	<< chardata();
@@ -622,17 +599,8 @@ namespace dynamo {
   void
   OPMisc::periodicOutput()
   {
-    time_t rawtime;
-    time(&rawtime);
-
-    tm timeInfo;
-    localtime_r (&rawtime, &timeInfo);
-
-    char dateString[12] = "";
-    strftime(dateString, 12, "%a %H:%M", &timeInfo);
-
-    //Output the date
-    I_Pcout() << dateString;
+    //std::time_t nowtime_t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    //I_Pcout() << std::put_time(std::localtime(&nowtime_t), "%a %H:%M");
 
     //Calculate the ETA of the simulation, and take care with overflows and the like
     double _earliest_end_time = HUGE_VAL;
@@ -657,17 +625,22 @@ namespace dynamo {
   
     if (seconds_remaining != std::numeric_limits<size_t>::max())
       {
-	size_t ETA_hours = seconds_remaining / 3600;
+	size_t ETA_days = seconds_remaining / (3600 * 24);
+	size_t ETA_hours = (seconds_remaining / 3600) % 24;
 	size_t ETA_mins = (seconds_remaining / 60) % 60;
 	size_t ETA_secs = seconds_remaining % 60;
 
-	I_Pcout() << ", ETA ";
+	I_Pcout() << "ETA ";
+	if (ETA_days)
+	  I_Pcout() << ETA_days << "d ";
+
 	if (ETA_hours)
 	  I_Pcout() << ETA_hours << "hr ";
 	  
-	if (ETA_mins)
+	if (ETA_mins && !ETA_days)
 	  I_Pcout() << ETA_mins << "min ";
 
+	if (!ETA_hours)
 	I_Pcout() << ETA_secs << "s";
       }
 
