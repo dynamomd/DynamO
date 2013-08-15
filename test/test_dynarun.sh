@@ -714,74 +714,74 @@ function BinaryThermalisedGranulate {
     rm -Rf output.xml.bz2 config.out.xml.bz2 run.log
 }
 
-#echo "SCHEDULER AND SORTER TESTING"
-#echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, CBT"
-#cannon "Dumb" "CBT"
-#echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, boundedPQ"
-#cannon "Dumb" "BoundedPQ"
-#echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, CBT"
-#cannon "NeighbourList" "CBT"
-#echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, boundedPQ"
-#cannon "NeighbourList" "BoundedPQ"
-#
-#echo ""
-#echo "INTERACTIONS+Dynamod Systems"
-#echo "Testing Hard Spheres, NeighbourLists and BoundedPQ's"
-#HardSphereTest
-#echo "Testing binary hard spheres, NeighbourLists and BoundedPQ's"
-#BinarySphereTest "Cells"
-#echo "Testing Square Wells, Thermostats, NeighbourLists and BoundedPQ's"
-#SquareWellTest
-#echo "Testing infinitely heavy particles"
-#HeavySphereTest
-#echo "Testing Lines, NeighbourLists and BoundedPQ's"
-#HardLinesTest
-#echo "Testing static spheres in gravity, NeighbourLists and BoundedPQ's"
-#StaticSpheresTest
-#echo "Testing static and bonded spheres in gravity, NeighbourLists and BoundedPQ's"
-#SwingSpheresTest
-#echo "Testing *2D* stepped potential spheres, NeighbourLists and BoundedPQ's"
-#twoDsteppedPotentialTest
-#
-#echo ""
-#echo "GLOBALS"
-#echo "Testing shearing boundary conditions with inelastic particles"
-#ShearingTest
-#echo "Testing infinite systems with neighbour lists and a 50mer polymer"
-#IsolatedPolymerTest
-#echo "Testing infinite systems with neighbour lists and gravity!"
-#GravityPlateTest
-##echo "Testing binary spheres and the ListAndCell neighbourlist"
-##BinarySphereTest "ListAndCell"
-#
-#echo ""
-#echo "SYSTEM EVENTS"
-#echo "Testing the Andersen Thermostat, NeighbourLists and BoundedPQ's"
-#ThermostatTest
-##echo "Testing the square umbrella potential, NeighbourLists and BoundedPQ's"
-##umbrella "NeighbourList"
-#
-#echo ""
-#echo "LOCAL EVENTS"
-#echo "Testing local events (walls) and square wells"
-#wallsw "NeighbourList"
-#echo "Testing thermalised and normal walls in gravity with binary granulate implemented using properties"
-#BinaryThermalisedGranulate
-#
-#echo ""
-#echo "ENGINE TESTING"
-#echo "COMPRESSION"
-#echo "Testing local events (walls) and square wells with a " \
-#    "Null compression"
-#wallsw "NeighbourList" "--engine 3 --growth-rate 0.0"
-#echo "Testing compression of hard spheres"
-#HS_compressiontest "NeighbourList"
-#echo "Testing compression in the prescence of infinitely heavy particles"
-#HeavySphereCompressionTest
-#echo "Testing compression of polymers (very sensitive to errors in the algorithm)"
-#Ring_compressiontest
-#echo "Packing of a square well polymer into a larger system, and compressing the system"
-#SWpolymer_compressiontest
+echo "SCHEDULER AND SORTER TESTING"
+echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, CBT"
+cannon "Dumb" "CBT"
+echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, boundedPQ"
+cannon "Dumb" "BoundedPQ"
+echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, CBT"
+cannon "NeighbourList" "CBT"
+echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, boundedPQ"
+cannon "NeighbourList" "BoundedPQ"
+
+echo ""
+echo "INTERACTIONS+Dynamod Systems"
+echo "Testing Hard Spheres, NeighbourLists and BoundedPQ's"
+HardSphereTest
+echo "Testing binary hard spheres, NeighbourLists and BoundedPQ's"
+BinarySphereTest "Cells"
+echo "Testing Square Wells, Thermostats, NeighbourLists and BoundedPQ's"
+SquareWellTest
+echo "Testing infinitely heavy particles"
+HeavySphereTest
+echo "Testing Lines, NeighbourLists and BoundedPQ's"
+HardLinesTest
+echo "Testing static spheres in gravity, NeighbourLists and BoundedPQ's"
+StaticSpheresTest
+echo "Testing static and bonded spheres in gravity, NeighbourLists and BoundedPQ's"
+SwingSpheresTest
+echo "Testing *2D* stepped potential spheres, NeighbourLists and BoundedPQ's"
+twoDsteppedPotentialTest
+
+echo ""
+echo "GLOBALS"
+echo "Testing shearing boundary conditions with inelastic particles"
+ShearingTest
+echo "Testing infinite systems with neighbour lists and a 50mer polymer"
+IsolatedPolymerTest
+echo "Testing infinite systems with neighbour lists and gravity!"
+GravityPlateTest
+#echo "Testing binary spheres and the ListAndCell neighbourlist"
+#BinarySphereTest "ListAndCell"
+
+echo ""
+echo "SYSTEM EVENTS"
+echo "Testing the Andersen Thermostat, NeighbourLists and BoundedPQ's"
+ThermostatTest
+#echo "Testing the square umbrella potential, NeighbourLists and BoundedPQ's"
+#umbrella "NeighbourList"
+
+echo ""
+echo "LOCAL EVENTS"
+echo "Testing local events (walls) and square wells"
+wallsw "NeighbourList"
+echo "Testing thermalised and normal walls in gravity with binary granulate implemented using properties"
+BinaryThermalisedGranulate
+
+echo ""
+echo "ENGINE TESTING"
+echo "COMPRESSION"
+echo "Testing local events (walls) and square wells with a " \
+    "Null compression"
+wallsw "NeighbourList" "--engine 3 --growth-rate 0.0"
+echo "Testing compression of hard spheres"
+HS_compressiontest "NeighbourList"
+echo "Testing compression in the prescence of infinitely heavy particles"
+HeavySphereCompressionTest
+echo "Testing compression of polymers (very sensitive to errors in the algorithm)"
+Ring_compressiontest
+echo "Packing of a square well polymer into a larger system, and compressing the system"
+SWpolymer_compressiontest
 
 echo "REPLICA EXCHANGE"
 echo "Testing replica exchange of hard spheres"
