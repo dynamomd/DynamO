@@ -399,55 +399,43 @@ namespace dynamo {
     return retval;
   }
 
-  IDRangeList
-  GCells::getParticleNeighbours(const magnet::math::MortonNumber<3>& particle_cell_coords) const
+  void
+  GCells::getParticleNeighbours(const magnet::math::MortonNumber<3>& particle_cell_coords, std::vector<size_t>& retlist) const
   {
     if (verbose)
-      {
-	derr 
-	  << "Getting neighbours of cell " << particle_cell_coords.toString()
-	  << std::endl;
-      }
+      derr << "Getting neighbours of cell " << particle_cell_coords.toString() << std::endl;
 
-    magnet::math::MortonNumber<3> zero_coords;
+    size_t zero_coords[3];
     for (size_t iDim(0); iDim < NDIM; ++iDim)
-      zero_coords[iDim] = (particle_cell_coords[iDim].getRealValue() + cellCount[iDim] - overlink)
-	% cellCount[iDim];
+      zero_coords[iDim] = (particle_cell_coords[iDim].getRealValue() + cellCount[iDim] - overlink) % cellCount[iDim];
     
-    IDRangeList retval;
-    //This initial reserve greatly speeds up the later inserts
-    retval.getContainer().reserve(32);
-
-    magnet::math::MortonNumber<3> coords(zero_coords);
-    for (size_t x(0); x < 2 * overlink + 1; ++x)
+    const size_t nb_range = 2 * overlink + 1;
+    magnet::math::MortonNumber<3> coords;
+    for (size_t x(0); x < nb_range; ++x)
       {
-	coords[0] = (zero_coords[0].getRealValue() + x) % cellCount[0];
-	for (size_t y(0); y < 2 * overlink + 1; ++y)
+	coords[0] = (zero_coords[0] + x) % cellCount[0];
+	for (size_t y(0); y < nb_range; ++y)
 	  {
-	    coords[1] = (zero_coords[1].getRealValue() + y) % cellCount[1];
-	    for (size_t z(0); z < 2 * overlink + 1; ++z)
+	    coords[1] = (zero_coords[1] + y) % cellCount[1];
+	    for (size_t z(0); z < nb_range; ++z)
 	      {
-		coords[2] = (zero_coords[2].getRealValue() + z) % cellCount[2];
+		coords[2] = (zero_coords[2] + z) % cellCount[2];
 
-		const std::vector<size_t>&  nlist = list[coords.getMortonNum()];
-		retval.getContainer().insert(retval.getContainer().end(), nlist.begin(), nlist.end());
+		const std::vector<size_t>& nlist = list[coords.getMortonNum()];
+		retlist.insert(retlist.end(), nlist.begin(), nlist.end());
 	      }
 	  }
       }
-
-    return retval;
   }
   
-  IDRangeList
-  GCells::getParticleNeighbours(const Particle& part) const
-  {
-    return getParticleNeighbours(partCellData[part.getID()]);
+  void
+  GCells::getParticleNeighbours(const Particle& part, std::vector<size_t>& retlist) const {
+    getParticleNeighbours(partCellData[part.getID()], retlist);
   }
 
-  IDRangeList
-  GCells::getParticleNeighbours(const Vector& vec) const
-  {
-    return getParticleNeighbours(getCellID(vec));
+  void
+  GCells::getParticleNeighbours(const Vector& vec, std::vector<size_t>& retlist) const {
+    return getParticleNeighbours(getCellID(vec), retlist);
   }
 
   double 

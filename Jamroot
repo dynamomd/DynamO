@@ -51,7 +51,7 @@ alias libavcodec : : : : <define>MAGNET_FFMPEG_SUPPORT <linkflags>"`pkg-config l
 
 ##### Additional build variants
 ##### The valgrind variant is useful for code analysis in tools like valgrind. It adds debug symbols while keeping optimisation.
-variant valgrind : <inlining>on <optimization>speed <debug-symbols>on <profiling>off ;
+variant valgrind : <inlining>on <optimization>speed <debug-symbols>on <profiling>off <cflags>-fno-omit-frame-pointer ;
 
 ##### Main project definition
 project	: requirements <threading>multi <variant>release:<define>NDEBUG 

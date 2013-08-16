@@ -61,8 +61,8 @@ namespace dynamo {
 
     virtual void reinitialise();
 
-    virtual IDRangeList getParticleNeighbours(const Particle&) const;
-    virtual IDRangeList getParticleNeighbours(const Vector&) const;
+    virtual void getParticleNeighbours(const Particle&, std::vector<size_t>&) const;
+    virtual void getParticleNeighbours(const Vector&, std::vector<size_t>&) const;
     
     virtual void operator<<(const magnet::xml::Node&);
 
@@ -72,7 +72,7 @@ namespace dynamo {
     virtual double getMaxSupportedInteractionLength() const;
 
   protected:
-    IDRangeList getParticleNeighbours(const magnet::math::MortonNumber<3>&) const;
+    void getParticleNeighbours(const magnet::math::MortonNumber<3>&, std::vector<size_t>&) const;
 
     size_t cellCount[3];
     magnet::math::DilatedInteger<3> dilatedCellMax[3];

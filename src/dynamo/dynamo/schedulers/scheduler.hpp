@@ -110,11 +110,11 @@ namespace dynamo {
 
   protected:
     /*! \brief Performs the lazy deletion algorithm to find the next
-     * valid event in the queue.
-     *
-     * This is the lazy deletion scheme for interaction events. Any
-     * event whose event counter mismatches the particles current event
-     * counter is out of date and should be deleted.
+      valid event in the queue.
+     
+      This is the lazy deletion scheme for interaction events. Any
+      event whose event counter mismatches the particles current event
+      counter is out of date and should be deleted.
      */
     void lazyDeletionCleanup();
 
