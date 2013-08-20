@@ -132,9 +132,6 @@ namespace dynamo {
 
   void IPRIME_BB::operator<<(const magnet::xml::Node& XML)
   {
-    if (strcmp(XML.getAttribute("Type"),"PRIME_BB"))
-      M_throw() << "Attempting to load PRIME_BB from non PRIME_BB entry";
-
     //We don't call this operator, as we custom load our Range (it must be a linear range)
     //Interaction::operator<<(XML);
     try {
@@ -148,22 +145,11 @@ namespace dynamo {
     catch (boost::bad_lexical_cast &) { M_throw() << "Failed a lexical cast in IPRIME_BB"; }
   }
 
-  Vector
-  IPRIME_BB::getGlyphSize(size_t ID, size_t subID) const
+  std::array<double, 4> 
+  IPRIME_BB::getGlyphSize(size_t ID) const
   {
-    //Here we return the hard core diameter
-    double diam = _PRIME_diameters[getType(ID)];
-    return Vector(diam, diam, diam);
+    return {{_PRIME_diameters[getType(ID)], 0, 0, 0}};
   }
-
-  Vector
-  IPRIME_BB::getGlyphPosition(size_t ID, size_t subID) const
-  {
-    Vector retval = Sim->particles[ID].getPosition();
-    Sim->BCs->applyBC(retval);
-    return retval;
-  }
-
 
   double
   IPRIME_BB::getExcludedVolume(size_t ID) const
@@ -292,7 +278,7 @@ namespace dynamo {
   }
 
   void
-  IPRIME_BB::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent) const
+  IPRIME_BB::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
 
@@ -333,10 +319,10 @@ namespace dynamo {
         M_throw() << "Unknown collision type";
       }
 
-    Sim->signalParticleUpdate(EDat);
-    Sim->ptrScheduler->fullUpdate(p1, p2);
-    BOOST_FOREACH(shared_ptr<OutputPlugin> & Ptr, Sim->outputPlugins)
-      Ptr->eventUpdate(iEvent, EDat);
+    Sim->_sigParticleUpdate(EDat);
+    Sim->ptrScheduler->fullUpdate(p1, p2);  
+    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
+      Ptr->eventUpdate(iEvent,EDat);
   }
 
   namespace{

@@ -29,9 +29,7 @@ namespace dynamo {
 
     void operator<<(const magnet::xml::Node&);
 
-    virtual size_t glyphsPerParticle() const { return 1; }
-    virtual Vector getGlyphSize(size_t ID, size_t subID) const;
-    virtual Vector getGlyphPosition(size_t ID, size_t subID) const;
+    virtual std::array<double, 4> getGlyphSize(size_t ID) const;
 
     virtual double getExcludedVolume(size_t) const;
 
@@ -41,7 +39,7 @@ namespace dynamo {
 
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
 
-    virtual void runEvent(Particle&, Particle&, const IntEvent&) const;
+    virtual void runEvent(Particle&, Particle&, const IntEvent&);
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
