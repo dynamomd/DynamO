@@ -75,11 +75,10 @@ namespace dynamo {
 	<< magnet::xml::endtag("Interaction");
   }
 
-  Vector
+  std::array<double, 4>
   IHardSphere::getGlyphSize(size_t ID) const
   {
-    double diam = _diameter->getProperty(ID);
-    return Vector(diam, diam, diam);
+    return {{_diameter->getProperty(ID), 0, 0, 0}};
   }
 
   double 
@@ -141,7 +140,7 @@ namespace dynamo {
     else
       EDat = Sim->dynamics->SmoothSpheresColl(iEvent, e, d * d); 
 
-    (*Sim->_sigParticleUpdate)(EDat);
+    Sim->_sigParticleUpdate(EDat);
 
     const double overlap = Sim->dynamics->sphereOverlap(p1, p2, d);
     if (overlap)

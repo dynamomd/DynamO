@@ -21,9 +21,8 @@
 #pragma once
 
 #include <dynamo/coordinator/engine/engine.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <chrono>
 #include <memory>
-#include <ctime>
 
 namespace dynamo {
   /*! \brief The Replica Exchange/Parallel Tempering Engine.
@@ -176,11 +175,11 @@ namespace dynamo {
 
     /*! \brief The start time of the simulations.
      */
-    boost::posix_time::ptime start_Time;
+    std::chrono::system_clock::time_point _start_time;
 
     /*! \brief The end time of the simulations.
      */
-    boost::posix_time::ptime end_Time;
+    std::chrono::system_clock::time_point _end_time;
 
     /*! \brief A variable used by the AlternatingSequence
       Replex_Mode_Type to indicate which set of pairs to swap.

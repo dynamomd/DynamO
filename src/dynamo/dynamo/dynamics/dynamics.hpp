@@ -79,7 +79,7 @@ namespace dynamo {
      
       \param oDynamics the Dynamics of the other system in the exchange move.
      */
-    virtual void swapSystem(Dynamics& oDynamics) {}
+    virtual void replicaExchange(Dynamics& oDynamics) {}
 
     /*! \brief Parses the XML data to see if it can load XML particle
       data or if it needs to decode the binary data. Then loads the
@@ -715,6 +715,14 @@ namespace dynamo {
      */
     std::pair<Vector, Vector> getCOMPosVel(const IDRange& particles) const;
 
+    void cloneState(Dynamics& dynamicsdata)
+    {
+      partPecTime = dynamicsdata.partPecTime;
+      streamCount = dynamicsdata.streamCount;
+      streamFreq = dynamicsdata.streamFreq;
+      orientationData = dynamicsdata.orientationData;
+    }
+
   protected:
     friend class GCellsShearing;
 
@@ -727,7 +735,6 @@ namespace dynamo {
     inline void advanceUpdateParticle(Particle& part, double& dt) const
     {
       streamParticle(part, dt + partPecTime + part.getPecTime());
-
       part.getPecTime() = - dt - partPecTime;
     }
   

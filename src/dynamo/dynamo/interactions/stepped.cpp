@@ -67,11 +67,10 @@ namespace dynamo {
     return (M_PI / 6) * diam * diam * diam; 
   }
 
-  Vector
+  std::array<double, 4>
   IStepped::getGlyphSize(size_t ID) const
   { 
-    double diam = _potential->render_diameter() * _lengthScale->getProperty(ID);
-    return Vector(diam, diam, diam);
+    return {{_potential->render_diameter() * _lengthScale->getProperty(ID), 0, 0, 0}};
   }
 
   double 
@@ -195,7 +194,7 @@ namespace dynamo {
     data.rdotv_sum += retVal.rvdot;
     //Check if the particles changed their step ID
     if (retVal.getType() != BOUNCE) ICapture::operator[](ICapture::key_type(p1, p2)) = new_step_ID;
-    (*Sim->_sigParticleUpdate)(retVal);
+    Sim->_sigParticleUpdate(retVal);
     Sim->ptrScheduler->fullUpdate(p1, p2);
     for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, retVal);

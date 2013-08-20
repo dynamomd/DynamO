@@ -339,7 +339,6 @@ namespace magnet {
 	  {
 	    if (!_built) M_throw() << "Cannot attach a Shader which has not been built()";
 
-	    typedef std::unordered_map<std::string, ShaderDefineValue>::iterator it;
 	    bool rebuild = false;
 	    for (auto& define : _defineCache)
 	      if (define.second.checkForRecompilation())

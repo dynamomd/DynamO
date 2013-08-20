@@ -21,8 +21,8 @@
 #include <magnet/math/matrix.hpp>
 #include <magnet/math/timeaveragedproperty.hpp>
 #include <magnet/math/correlators.hpp>
+#include <chrono>
 #include <map>
-#include <ctime>
 
 namespace dynamo {
   using namespace EventTypeTracking;
@@ -50,8 +50,9 @@ namespace dynamo {
   
     double getMFT() const;
   
-    void changeSystem(OutputPlugin*);
+    void replicaExchange(OutputPlugin&);
 
+    double getDuration() const;
     double getEventsPerSecond() const;
     double getSimTimePerSecond() const;
 
@@ -78,8 +79,7 @@ namespace dynamo {
     void stream(double dt);
     void eventUpdate(const NEventData&);
 
-    std::time_t tstartTime;
-    timespec acc_tstartTime;
+    std::chrono::system_clock::time_point _starttime;
 
     unsigned long _dualEvents;  
     unsigned long _singleEvents;

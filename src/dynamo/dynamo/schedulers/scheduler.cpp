@@ -25,15 +25,12 @@
 #include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/units/units.hpp>
-
 #ifdef DYNAMO_DEBUG
 #include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #endif
-
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/math/special_functions/fpclassify.hpp>
 
 namespace dynamo {
   Scheduler::Scheduler(dynamo::Simulation* const tmp, const char * aName,
@@ -193,25 +190,6 @@ namespace dynamo {
     lazyDeletionCleanup();
 
     std::pair<size_t, Event> next_event = sorter->next();
-    if (boost::math::isnan(next_event.second.dt))
-      M_throw() << "Next event time is NaN"
-		<< "\nEvent Type = " 
-		<< next_event.second.type
-		<< "\nOwner Particle = " << next_event.first
-		<< "\n(Particle2ID/LocalID/GlobalID/SystemID) = " << next_event.second.extraID;
-    
-    if (next_event.second.dt == HUGE_VAL)
-      {
-	derr << "Next event time is Inf! (Queue has run out of events!)\n"
-	     << "Shutting simulation down..."
-	     << "\nEvent details, Type = " 
-	     << next_event.second.type
-	     << "\nOwner Particle = " << next_event.first
-	     << "\n(Particle2ID/LocalID/GlobalID/SystemID) = " << next_event.second.extraID
-	     << std::endl;
-	Sim->endEventCount = Sim->eventCount;
-	return;
-      }
 
     ////////////////////////////////////////////////////////////////////
     // We can't perform such strict testing as commented out
@@ -259,6 +237,15 @@ namespace dynamo {
 	  Particle& p1(Sim->particles[next_event.first]);
 	  Particle& p2(Sim->particles[next_event.second.particle2ID]);
 
+	  if (!std::isfinite(next_event.second.dt))
+	    M_throw() << "Next event time is not finite!"
+		      << "\ndt = " << next_event.second.dt
+		      << "\nEvent Type = " << next_event.second.type
+		      << "\nParticle 1 ID = " << next_event.first
+		      << "\nParticle 2 ID = " << next_event.second.particle2ID
+		      << "\nInteraction = " << Sim->getInteraction(p1, p2)->getName()
+	      ;
+
 	  //Ready the next event in the FEL
 	  sorter->popNextEvent();
 	  sorter->update(next_event.first);
@@ -284,29 +271,20 @@ namespace dynamo {
 	  //Reset the rejection watchdog, we will run an interaction event now
 	  _interactionRejectionCounter = 0;
 		
+	  if (!std::isfinite(next_event.second.dt))
+	    M_throw() << "Next event time is not finite!"
+		      << "\ndt = " << next_event.second.dt
+		      << "\nEvent Type = " << next_event.second.type
+		      << "\nParticle 1 ID = " << next_event.first
+		      << "\nParticle 2 ID = " << next_event.second.particle2ID
+		      << "\nInteraction = " << Sim->getInteraction(p1, p2)->getName()
+	      ;
+
 #ifdef DYNAMO_DEBUG
 	  if (Event.getdt() < 0)
-	    derr << "Negative time " << Event.getdt() << std::endl;
-
-	  if (boost::math::isnan(Event.getdt()))
-	    M_throw() << "A NAN Interaction collision time has been found"
-		      << Event.stringData(Sim);
-	
-	  if (Event.getdt() == HUGE_VAL)
-	    M_throw() << "An infinite Interaction (not marked as NONE) collision time has been found\n"
-		      << Event.stringData(Sim);
+	    derr << "Warning! Negative time event" << Event.getdt() << std::endl;
 #endif
 	
-	  //Debug section
-#ifdef DYNAMO_CollDebug
-	  dout << "Interaction at t=" << (Event.getdt() + Sim->systemTime) / Sim->units.unitTime()
-	       << "  ID1 " << ((p2.getID() < p2.getID()) ? p1.getID() : p2.getID())
-	       << "  ID2 " << ((p2.getID() < p2.getID()) ? p2.getID() : p1.getID())
-	       << "  dt " << Event.getdt()
-	       << "  Type " << Event.getType() 
-	       << std::endl;
-#endif
-
 	  Sim->systemTime += Event.getdt();
 	
 	  stream(Event.getdt());
@@ -320,6 +298,14 @@ namespace dynamo {
 	}
       case GLOBAL:
 	{
+	  if (!std::isfinite(next_event.second.dt))
+	    M_throw() << "Next event time is not finite!"
+		      << "\ndt = " << next_event.second.dt
+		      << "\nEvent Type = " << next_event.second.type
+		      << "\nParticle ID = " << next_event.first
+		      << "\nGlobal (ID=" << next_event.second.globalID << ")= " << Sim->globals[next_event.second.globalID]->getName()
+	      ;
+
 	  //We don't stream the system for globals as neighbour lists
 	  //optimise this (they dont need it).  We also don't recheck
 	  //Global events! (Check, some events might rely on this
@@ -331,6 +317,14 @@ namespace dynamo {
 	{
 	  Particle& part(Sim->particles[next_event.first]);
 	  size_t localID = next_event.second.localID;
+
+	  if (!std::isfinite(next_event.second.dt))
+	    M_throw() << "Next event time is not finite!"
+		      << "\ndt = " << next_event.second.dt
+		      << "\nEvent Type = " << next_event.second.type
+		      << "\nParticle ID = " << next_event.first
+		      << "\nGlobal (ID=" << next_event.second.localID << ")= " << Sim->locals[next_event.second.localID]->getName()
+	      ;
 
 	  //Ready the next event in the FEL
 	  sorter->popNextEvent();
@@ -353,13 +347,13 @@ namespace dynamo {
 	  _localRejectionCounter = 0;
 
 #ifdef DYNAMO_DEBUG 
-	  if (boost::math::isnan(iEvent.getdt()))
-	    M_throw() << "A NAN Global collision time has been found\n"
-		      << iEvent.stringData(Sim);
-	
-	  if (iEvent.getdt() == HUGE_VAL)
-	    M_throw() << "An infinite (not marked as NONE) Global collision time has been found\n"
-		      << iEvent.stringData(Sim);
+	  if (!std::isfinite(next_event.second.dt))
+	    M_throw() << "Recalculated event time is not finite!"
+		      << "\ndt = " << next_event.second.dt
+		      << "\nEvent Type = " << next_event.second.type
+		      << "\nParticle ID = " << next_event.first
+		      << "\nGlobal (ID=" << next_event.second.localID << ")= " << Sim->locals[next_event.second.localID]->getName()
+	      ;
 #endif
 	
 	  Sim->systemTime += iEvent.getdt();
@@ -374,6 +368,16 @@ namespace dynamo {
 	}
       case SYSTEM:
 	{
+	  //System events can use the value -HUGE_VAL to request
+	  //immediate processing, therefore, only NaN and +HUGE_VAL
+	  //values are invalid
+	  if (std::isnan(next_event.second.dt) || (next_event.second.dt == HUGE_VAL))
+	    M_throw() << "Next event time is not finite!"
+		      << "\ndt = " << next_event.second.dt
+		      << "\nEvent Type = " << next_event.second.type
+		      << "\nParticle ID = " << next_event.first
+		      << "\nSystem (ID=" << next_event.second.systemID << ")= " << Sim->systems[next_event.second.systemID]->getName()
+	      ;
 	  Sim->systems[next_event.second.systemID]->runEvent();
 	  //This saves the system events rebuilding themselves
 	  rebuildSystemEvents();

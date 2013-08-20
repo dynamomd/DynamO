@@ -93,7 +93,7 @@ namespace dynamo {
       return 0;
     }
 
-    virtual void swapSystem(Dynamics& oDynamics);
+    virtual void replicaExchange(Dynamics& oDynamics);
 
   protected:
     virtual void outputXML(magnet::xml::XmlStream& ) const;

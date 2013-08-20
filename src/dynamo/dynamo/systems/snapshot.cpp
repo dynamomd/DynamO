@@ -24,12 +24,8 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <magnet/string/searchreplace.hpp>
 
-#ifdef DYNAMO_DEBUG 
-#include <boost/math/special_functions/fpclassify.hpp>
-#endif
-
 namespace dynamo {
-  SSnapshot::SSnapshot(dynamo::Simulation* nSim, double nPeriod, std::string nName, std::string format, bool applyBC):
+  SysSnapshot::SysSnapshot(dynamo::Simulation* nSim, double nPeriod, std::string nName, std::string format, bool applyBC):
     System(nSim),
     _applyBC(applyBC),
     _format(format),
@@ -50,12 +46,12 @@ namespace dynamo {
   }
 
   void
-  SSnapshot::runEvent() const
+  SysSnapshot::runEvent() const
   {
     double locdt = dt;
   
 #ifdef DYNAMO_DEBUG 
-    if (boost::math::isnan(dt))
+    if (std::isnan(dt))
       M_throw() << "A NAN system event time has been found";
 #endif
     
@@ -86,23 +82,23 @@ namespace dynamo {
   }
 
   void 
-  SSnapshot::initialise(size_t nID)
+  SysSnapshot::initialise(size_t nID)
   { ID = nID; }
 
   void 
-  SSnapshot::setdt(double ndt)
+  SysSnapshot::setdt(double ndt)
   { 
     dt = ndt * Sim->units.unitTime(); 
   }
 
   void 
-  SSnapshot::increasedt(double ndt)
+  SysSnapshot::increasedt(double ndt)
   { 
     dt += ndt * Sim->units.unitTime(); 
   }
 
   void 
-  SSnapshot::setTickerPeriod(const double& nP)
+  SysSnapshot::setTickerPeriod(const double& nP)
   { 
     dout << "Setting system ticker period to " 
 	 << nP / Sim->units.unitTime() << std::endl;

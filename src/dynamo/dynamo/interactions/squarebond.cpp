@@ -198,7 +198,7 @@ namespace dynamo {
     PairEventData EDat(Sim->dynamics->SmoothSpheresColl
 		       (iEvent, e, d2, iEvent.getType()));
 
-    (*Sim->_sigParticleUpdate)(EDat);
+    Sim->_sigParticleUpdate(EDat);
     
     //Now we're past the event, update the scheduler and plugins
     Sim->ptrScheduler->fullUpdate(p1, p2);

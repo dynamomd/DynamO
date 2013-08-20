@@ -28,8 +28,6 @@
 #include <dynamo/locals/localEvent.hpp>
 #include <dynamo/ranges/IDRangeRange.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/bind.hpp>
-#include <boost/progress.hpp>
 #include <cmath>
 
 namespace dynamo {
@@ -99,7 +97,9 @@ namespace dynamo {
 				 (Sim->globals[NBListID]
 				  .get()));
   
-    return std::unique_ptr<IDRange>(new IDRangeList(nblist.getParticleNeighbours(part)));
+    IDRangeList* range_ptr = new IDRangeList();
+    nblist.getParticleNeighbours(part, range_ptr->getContainer());
+    return std::unique_ptr<IDRange>(range_ptr);
   }
 
   std::unique_ptr<IDRange>
@@ -115,12 +115,13 @@ namespace dynamo {
 				 (Sim->globals[NBListID]
 				  .get()));
   
-    return std::unique_ptr<IDRange>(new IDRangeList(nblist.getParticleNeighbours(vec)));
+    IDRangeList* range_ptr = new IDRangeList();
+    nblist.getParticleNeighbours(vec, range_ptr->getContainer());
+    return std::unique_ptr<IDRange>(range_ptr);
   }
     
   std::unique_ptr<IDRange> 
-  SNeighbourList::getParticleLocals(const Particle& part) const
-  {
+  SNeighbourList::getParticleLocals(const Particle& part) const {
     return std::unique_ptr<IDRange>(new IDRangeRange(0, Sim->locals.size()));
   }
 }

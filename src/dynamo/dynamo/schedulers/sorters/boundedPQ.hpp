@@ -27,10 +27,6 @@
 #include <cmath>
 #include <iostream>
 
-#ifdef DYNAMO_DEBUG 
-#include <boost/math/special_functions/fpclassify.hpp>
-#endif
-
 namespace dynamo {
   template<size_t Size>
   class PELMinMax;
@@ -226,7 +222,7 @@ namespace dynamo {
     inline void push(const Event& tmpVal, const size_t& pID)
     {
 #ifdef DYNAMO_DEBUG
-      if (boost::math::isnan(tmpVal.dt))
+      if (std::isnan(tmpVal.dt))
 	M_throw() << "NaN value pushed into the sorter! Should be Inf I guess?";
 #endif 
 

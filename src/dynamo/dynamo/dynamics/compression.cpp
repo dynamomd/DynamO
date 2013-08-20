@@ -18,18 +18,17 @@
 #include <dynamo/dynamics/compression.hpp>
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/2particleEventData.hpp>
-
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
-#include <boost/math/special_functions/fpclassify.hpp>
+#include <magnet/intersection/ray_sphere.hpp>
 #include <magnet/intersection/ray_plane.hpp>
+#include <magnet/intersection/offcentre_spheres.hpp>
 #include <magnet/xmlwriter.hpp>
 
 namespace dynamo {
   DynCompression::DynCompression(dynamo::Simulation* tmp, double GR):
-    DynNewtonian(tmp),
-    growthRate(GR) {}
+    DynNewtonian(tmp), growthRate(GR) {}
 
   double 
   DynCompression::SphereSphereInRoot(const Particle& p1, const Particle& p2, double d) const
@@ -37,35 +36,53 @@ namespace dynamo {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Vector v12 = p1.getVelocity() - p2.getVelocity();
     Sim->BCs->applyBC(r12, v12);
-    double rvdot = r12 | v12;
-    double r2 = r12 | r12;
-    double v2 = v12 | v12;
-    double d2 = d * d;
+    return magnet::intersection::ray_growing_sphere<>(r12, v12, d, growthRate, Sim->systemTime);
+  }
+
+  double
+  DynCompression::SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const
+  {
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Vector v12 = p1.getVelocity() - p2.getVelocity();
+    Sim->BCs->applyBC(r12, v12);
+    return magnet::intersection::ray_growing_sphere<true>(r12, v12, d, growthRate, Sim->systemTime);
+  }
+
+  std::pair<bool, double> 
+  DynCompression::getOffcentreSpheresCollision(const double offset1, const double diameter1, const double offset2, const double diameter2, const Particle& p1, const Particle& p2, double t_max, double maxdist) const
+  {  
+#ifdef DYNAMO_DEBUG
+    if (!hasOrientationData())
+      M_throw() << "Cannot use this function without orientational data";
+
+    if (!isUpToDate(p1))
+      M_throw() << "Particle1 " << p1.getID() << " is not up to date";
+
+    if (!isUpToDate(p2))
+      M_throw() << "Particle2 " << p2.getID() << " is not up to date";
+#endif
+
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Vector v12 = p1.getVelocity() - p2.getVelocity();
+    Sim->BCs->applyBC(r12, v12);
     
-    double b = rvdot - d2 
-      * (growthRate * growthRate * Sim->systemTime + growthRate);
-  
-    if (b >= 0.0) return HUGE_VAL;
+    const double limit_time_window = 1 / growthRate;
 
-
-    double a = v2 - growthRate * growthRate * d2;
-    double c = r2 - d2 * (1.0 + growthRate * Sim->systemTime 
-			  * (2.0 + growthRate * Sim->systemTime));
-    double arg = (b * b) - a * c;
+    std::pair<bool, double> retval = magnet::intersection::offcentre_growing_spheres(r12, v12, orientationData[p1.getID()].angularVelocity, orientationData[p2.getID()].angularVelocity, orientationData[p1.getID()].orientation * Quaternion::initialDirector() * offset1, orientationData[p2.getID()].orientation * Quaternion::initialDirector() * offset2, diameter1, diameter2, maxdist, std::min(limit_time_window, t_max), Sim->systemTime, growthRate);
     
-    if (arg < 0.0) return HUGE_VAL;
-
-    return  c / (sqrt(arg) - b);
+    //Check if there's no collision reported but we've limited the interval
+    if ((retval.second == HUGE_VAL) && (t_max > limit_time_window))
+      return std::pair<bool, double>(false, limit_time_window);
+    
+    //Otherwise return what was calculated
+    return retval;
   }
   
   double 
   DynCompression::getPlaneEvent(const Particle& part, const Vector & origin, const Vector & norm, double diameter) const
   {
-    Vector rij = part.getPosition() - origin,
-      vij = part.getVelocity() - norm * diameter * growthRate;
-
+    Vector rij = part.getPosition() - origin, vij = part.getVelocity() - norm * diameter * growthRate;
     Sim->BCs->applyBC(rij, vij);
-
     return magnet::intersection::ray_plane(rij, vij, norm, diameter * (1.0 + growthRate * Sim->systemTime));
   }
 
@@ -73,45 +90,10 @@ namespace dynamo {
   DynCompression::runPlaneEvent(Particle& part, const Vector& vNorm, const double e, const double diameter) const
   {
     updateParticle(part);
-
     ParticleEventData retVal(part, *Sim->species[part], WALL);
-  
     Vector vij = part.getVelocity() - vNorm * diameter * growthRate;
-
     part.getVelocity() -= (1+e) * (vNorm | vij) * vNorm;
-  
     return retVal; 
-  }
-
-  double 
-  DynCompression::SphereSphereOutRoot(const Particle& p1, const Particle& p2, double d) const
-  {
-    Vector r12 = p1.getPosition() - p2.getPosition();
-    Vector v12 = p1.getVelocity() - p2.getVelocity();
-    Sim->BCs->applyBC(r12, v12);
-    double rvdot = r12 | v12;
-    double r2 = r12 | r12;
-    double v2 = v12 | v12;
-    double d2 = d * d;
-
-    double a = v2 - growthRate * growthRate * d2;
-    double b = rvdot - d2 * (growthRate * growthRate 
-				 * Sim->systemTime + growthRate);
-    double c = d2 * (1.0 + growthRate * Sim->systemTime 
-		     * (2.0 + growthRate * Sim->systemTime)) - r2;
-
-    double arg = (b * b) + a * c;
-  
-    if (arg > 0.0)
-      if (a > 0.0)
-	{
-	  if (b < 0)
-	    return (sqrt(arg) - b) / a;
-	  
-	  return c / (sqrt(arg) + b);
-	}
-    
-    return HUGE_VAL;
   }
 
   double
@@ -120,9 +102,7 @@ namespace dynamo {
   {
     Vector r12 = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(r12);
-
-    double currd2 = d * d * (1 + 2.0 * Sim->systemTime * growthRate 
-			     + pow(Sim->systemTime * growthRate, 2));
+    double currd2 = std::pow(d * (1 + Sim->systemTime * growthRate), 2);
     return std::sqrt(std::max(currd2 - (r12 | r12), 0.0));
   }
 
@@ -132,21 +112,13 @@ namespace dynamo {
   {
     Particle& particle1 = Sim->particles[event.getParticle1ID()];
     Particle& particle2 = Sim->particles[event.getParticle2ID()];
-
     updateParticlePair(particle1, particle2);  
-
-    PairEventData retVal(particle1, particle2,
-			 *Sim->species[particle1],
-			 *Sim->species[particle2],
-			 eType);
-
+    PairEventData retVal(particle1, particle2, *Sim->species[particle1], *Sim->species[particle2], eType);
     Sim->BCs->applyBC(retVal.rij, retVal.vijold);
-    
     double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID()); 
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID()); 
     double r2 = retVal.rij.nrm2();
     retVal.rvdot = (retVal.rij | retVal.vijold);
-
     double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
     bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
     if (infinite_masses)
@@ -156,10 +128,8 @@ namespace dynamo {
       }
 
     retVal.impulse = retVal.rij * ((1.0 + e) * mu * (retVal.rvdot - growthRate * sqrt(d2 * r2)) / retVal.rij.nrm2());  
-    
     particle1.getVelocity() -= retVal.impulse / p1Mass;
     particle2.getVelocity() += retVal.impulse / p2Mass;
-    
     //If both particles have infinite mass we pretend no momentum was transferred
     retVal.impulse *= !infinite_masses;
 
@@ -171,19 +141,11 @@ namespace dynamo {
   {
     Particle& particle1 = Sim->particles[event.getParticle1ID()];
     Particle& particle2 = Sim->particles[event.getParticle2ID()];
-
     updateParticlePair(particle1, particle2);  
-  
-    PairEventData retVal(particle1, particle2,
-			 *Sim->species[particle1],
-			 *Sim->species[particle2],
-			 event.getType());
-    
+    PairEventData retVal(particle1, particle2, *Sim->species[particle1], *Sim->species[particle2], event.getType());
     Sim->BCs->applyBC(retVal.rij, retVal.vijold);
-    
     double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID());
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID());
-
     double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
     bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
     if (infinite_masses)
@@ -193,9 +155,7 @@ namespace dynamo {
       }
 
     Vector  urij = retVal.rij / retVal.rij.nrm();
-
     retVal.rvdot = (urij | retVal.vijold);
-
     double sqrtArg = std::pow(retVal.rvdot - growthRate * sqrt(d2), 2)  + (2.0 * deltaKE / mu);
     if ((deltaKE < 0) && (sqrtArg < 0))
       {
@@ -223,7 +183,7 @@ namespace dynamo {
     retVal.rvdot *= retVal.rij.nrm();
   
 #ifdef DYNAMO_DEBUG
-    if (boost::math::isnan(retVal.impulse[0]))
+    if (std::isnan(retVal.impulse[0]))
       M_throw() << "A nan dp has ocurred"
 		<< "\ndeltaKE = " << deltaKE
 		<< "\ngrowthRate = " << growthRate

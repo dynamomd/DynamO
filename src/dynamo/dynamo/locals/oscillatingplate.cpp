@@ -85,7 +85,7 @@ namespace dynamo {
     lastsystemTime = Sim->systemTime;
     lastID = part.getID();
 
-    (*Sim->_sigParticleUpdate)(EDat);
+    Sim->_sigParticleUpdate(EDat);
 
     //Now we're past the event update the scheduler and plugins
     //if (strongPlate) 

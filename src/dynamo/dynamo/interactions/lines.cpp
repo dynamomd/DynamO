@@ -45,10 +45,9 @@ namespace dynamo {
     ICapture::initCaptureMap();
   }
 
-  Vector ILines::getGlyphSize(size_t ID) const
+  std::array<double, 4> ILines::getGlyphSize(size_t ID) const
   {
-    double l = _length->getProperty(ID);
-    return Vector(l, l, l);
+    return {{_length->getProperty(ID), 0, 0, 0}};
   }
 
   void 
@@ -156,7 +155,7 @@ namespace dynamo {
 	M_throw() << "Unknown collision type";
       }
     
-    (*Sim->_sigParticleUpdate)(retval);
+    Sim->_sigParticleUpdate(retval);
     
     Sim->ptrScheduler->fullUpdate(p1, p2);
     

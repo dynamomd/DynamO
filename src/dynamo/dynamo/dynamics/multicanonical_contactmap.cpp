@@ -19,16 +19,13 @@
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/2particleEventData.hpp>
 #include <dynamo/NparticleEventData.hpp>
-
 #include <dynamo/BC/BC.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/schedulers/sorters/event.hpp>
-#include <dynamo/dynamics/shapes/oscillatingplate.hpp>
 #include <dynamo/units/units.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/math/special_functions/fpclassify.hpp>
 
 namespace dynamo {
   DynNewtonianMCCMap::DynNewtonianMCCMap(dynamo::Simulation* tmp, const magnet::xml::Node& XML):
@@ -156,7 +153,7 @@ namespace dynamo {
       }
   
 #ifdef DYNAMO_DEBUG
-    if (boost::math::isnan(retVal.impulse[0]))
+    if (std::isnan(retVal.impulse[0]))
       M_throw() << "A nan dp has ocurred";
 #endif
   
@@ -168,7 +165,7 @@ namespace dynamo {
   }
 
   void 
-  DynNewtonianMCCMap::swapSystem(Dynamics& oDynamics)
+  DynNewtonianMCCMap::replicaExchange(Dynamics& oDynamics)
   {
 #ifdef DYNAMO_DEBUG
     if (dynamic_cast<const DynNewtonianMCCMap*>(&oDynamics) == NULL)

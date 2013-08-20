@@ -105,7 +105,7 @@ namespace dynamo {
 
     scaleFactor += std::log(currentkT);
 
-    (*Sim->_sigParticleUpdate)(SDat);
+    Sim->_sigParticleUpdate(SDat);
   
     //Only 1ParticleEvents occur
     for (const ParticleEventData& PDat : SDat.L1partChanges)
@@ -130,7 +130,7 @@ namespace dynamo {
     dt = _timestep;
 
     if (_frequency != std::numeric_limits<size_t>::max())
-      (*Sim->_sigParticleUpdate).connect<SysRescale, &SysRescale::checker>(this);
+      Sim->_sigParticleUpdate.connect<SysRescale, &SysRescale::checker>(this);
   
     dout << "Velocity rescaler initialising" << std::endl;
   }

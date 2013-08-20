@@ -26,7 +26,6 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
-#include <boost/lexical_cast.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <sstream>
 #include <cmath>
@@ -44,10 +43,9 @@ namespace dynamo {
     ID=nID; 
   }
 
-  Vector IParallelCubes::getGlyphSize(size_t ID) const
+  std::array<double, 4> IParallelCubes::getGlyphSize(size_t ID) const
   {
-    double l = _diameter->getProperty(ID);
-    return Vector(l, l, l);
+    return {{_diameter->getProperty(ID), 0, 0, 0}};
   }
 
   void 
@@ -111,7 +109,7 @@ namespace dynamo {
     PairEventData EDat
       (Sim->dynamics->parallelCubeColl(iEvent, e, d)); 
 
-    (*Sim->_sigParticleUpdate)(EDat);
+    Sim->_sigParticleUpdate(EDat);
 
     //Now we're past the event, update the scheduler and plugins
     Sim->ptrScheduler->fullUpdate(p1, p2);

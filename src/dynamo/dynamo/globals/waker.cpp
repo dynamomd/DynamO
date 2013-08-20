@@ -28,10 +28,6 @@
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/xmlreader.hpp>
 
-#ifdef DYNAMO_DEBUG 
-#include <boost/math/special_functions/fpclassify.hpp>
-#endif
-
 namespace dynamo {
   GWaker::GWaker(dynamo::Simulation* nSim, const std::string& name, IDRange* range, 
 		 const double wt,const double wv, std::string nblist):
@@ -110,7 +106,7 @@ namespace dynamo {
     //track the motion of the system in Globals
   
 #ifdef DYNAMO_DEBUG 
-    if (boost::math::isnan(iEvent.getdt()))
+    if (std::isnan(iEvent.getdt()))
       M_throw() << "A NAN Interaction collision time has been found"
 		<< iEvent.stringData(Sim);
   
@@ -146,7 +142,7 @@ namespace dynamo {
     part.getVelocity() = newVel;
     part.setState(Particle::DYNAMIC);
       
-    (*Sim->_sigParticleUpdate)(EDat);
+    Sim->_sigParticleUpdate(EDat);
       
     for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, EDat);

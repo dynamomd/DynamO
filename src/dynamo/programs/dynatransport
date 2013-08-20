@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #   dynamo:- Event driven molecular dynamics simulator 
 #   http://www.dynamomd.org
 #   Copyright (C) 2009  Marcus N Campbell Bannerman <m.bannerman@gmail.com>

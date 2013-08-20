@@ -44,17 +44,17 @@ namespace dynamo {
   }
 
   void 
-  OPCTorsion::changeSystem(OutputPlugin* plug)
+  OPCTorsion::replicaExchange(OutputPlugin& plug)
   {
-    std::swap(Sim, static_cast<OPCTorsion*>(plug)->Sim);
+    std::swap(Sim, static_cast<OPCTorsion&>(plug).Sim);
   
 #ifdef DYNAMO_DEBUG
-    if (chains.size() != static_cast<OPCTorsion*>(plug)->chains.size())
+    if (chains.size() != static_cast<OPCTorsion&>(plug).chains.size())
       M_throw() << "CTorsion chain data size mismatch in replex exchange";
 #endif
 
     std::list<CTCdata>::iterator iPtr1 = chains.begin(), 
-      iPtr2 = static_cast<OPCTorsion*>(plug)->chains.begin();
+      iPtr2 = static_cast<OPCTorsion&>(plug).chains.begin();
 
     while(iPtr1 != chains.end())
       {

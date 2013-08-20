@@ -31,11 +31,7 @@ namespace magnet {
       \param d The thickness of the plane.
       \return The time until the intersection, or HUGE_VAL if no intersection.
      */
-    inline double parabola_plane_bfc(const math::Vector& T,
-				     const math::Vector& D,
-				     const math::Vector& A,
-				     math::Vector N,
-				     const double d)
+    inline double parabola_plane(const math::Vector& T, const math::Vector& D, const math::Vector& A, math::Vector N, const double d)
     {
       //Check if this is actually a ray-plane test
       double adot = A | N;

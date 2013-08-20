@@ -20,25 +20,23 @@
 
 namespace magnet {
   namespace intersection {
-    //! \brief A ray-quadrangle intersection test.
-    //!
-    //! The method used here is described in "An Efficient
-    //! Ray-Quadrilateral Intersection Test", by Ares Lagae and Philip
-    //! Dutré.
-    //!
-    //! \tparam BACKFACE_CULLING Ignores ray plane intersections
-    //! where the ray enters the back of the plane.
-    //! \param T The origin of the ray relative to a point on the plane.
-    //! \param D The direction/velocity of the ray.
-    //! \param N The normal of the plane.
-    //! \param E1 An edge of the quadrangle (V1 - V0);
-    //! \param E2 Another edge of the quadrangle (V2 - V0);
-    //! \return The time until the intersection, or HUGE_VAL if no intersection.
+    /*! \brief A ray-quadrangle intersection test.
+    
+      The method used here is described in "An Efficient
+      Ray-Quadrilateral Intersection Test", by Ares Lagae and Philip
+      Dutré.
+      
+      \tparam BACKFACE_CULLING Ignores ray plane intersections
+      where the ray enters the back of the plane.
+      \param T The origin of the ray relative to a point on the plane.
+      \param D The direction/velocity of the ray.
+      \param N The normal of the plane.
+      \param E1 An edge of the quadrangle (V1 - V0);
+      \param E2 Another edge of the quadrangle (V2 - V0);
+      \return The time until the intersection, or HUGE_VAL if no intersection.
+    */
     template<bool BACKFACE_CULLING>
-    inline double ray_quadrilateral(const math::Vector& T,
-				    const math::Vector& D,
-				    const math::Vector& E1,
-				    const math::Vector& E2)
+    inline double ray_quadrilateral(const math::Vector& T, const math::Vector& D, const math::Vector& E1, const math::Vector& E2)
     {
       //Do a test against the triangle of this quad, without the
       //diagonal test!

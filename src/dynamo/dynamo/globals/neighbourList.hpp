@@ -19,7 +19,6 @@
 #include <dynamo/globals/global.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/ranges/IDRangeList.hpp>
-#include <boost/function.hpp>
 #include <magnet/function/delegate.hpp>
 #include <magnet/math/vector.hpp>
 #include <memory>
@@ -47,8 +46,8 @@ namespace dynamo {
       lambda(0.9)
     {}
 
-    virtual IDRangeList getParticleNeighbours(const Particle&) const = 0;
-    virtual IDRangeList getParticleNeighbours(const Vector&) const = 0;
+    virtual void getParticleNeighbours(const Particle&, std::vector<size_t>&) const = 0;
+    virtual void getParticleNeighbours(const Vector&, std::vector<size_t>&) const = 0;
 
     /*! \brief This returns the maximum interaction length this
       neighbourlist supports.

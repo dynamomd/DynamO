@@ -43,6 +43,9 @@ namespace dynamo {
   
     virtual void periodicOutput() {}
 
+    virtual void replicaExchange(OutputPlugin&)
+    { M_throw() << "This plugin hasn't been prepared for changes of system\n Plugin " <<  name; }
+
   protected:
 
     double getTickerTime() const;

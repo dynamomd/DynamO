@@ -37,7 +37,8 @@ namespace dynamo {
   
     void eventUpdate(const System&, const NEventData&, const double&);
 
-    virtual void changeSystem(OutputPlugin*) {}
+    virtual void replicaExchange(OutputPlugin&)
+    { M_throw() << "This plugin hasn't been prepared for changes of system\n Plugin " <<  name; }
 
     virtual void initialise();
 

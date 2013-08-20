@@ -28,11 +28,6 @@
 #include <dynamo/outputplugins/outputplugin.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/lexical_cast.hpp>
-
-#ifdef DYNAMO_DEBUG 
-#include <boost/math/special_functions/fpclassify.hpp>
-#endif
 
 namespace dynamo {
 
@@ -51,7 +46,7 @@ namespace dynamo {
     double locdt = dt;
   
 #ifdef DYNAMO_DEBUG 
-    if (boost::math::isnan(locdt))
+    if (std::isnan(locdt))
       M_throw() << "A NAN system event time has been found";
 #endif
   
@@ -83,7 +78,7 @@ namespace dynamo {
 
     if (etype != BOUNCE) _stepID = new_step_ID;
 
-    (*Sim->_sigParticleUpdate)(SDat);
+    Sim->_sigParticleUpdate(SDat);
   
     //Only 1ParticleEvents occur
     for (const ParticleEventData& PDat : SDat.L1partChanges)
@@ -115,7 +110,7 @@ namespace dynamo {
   
     recalculateTime();
 
-    (*Sim->_sigParticleUpdate).connect<SysUmbrella, &SysUmbrella::particlesUpdated>(this);
+    Sim->_sigParticleUpdate.connect<SysUmbrella, &SysUmbrella::particlesUpdated>(this);
   }
 
   void 

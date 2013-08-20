@@ -61,14 +61,14 @@ namespace dynamo {
   }
 
   void 
-  OPRGyration::changeSystem(OutputPlugin* plug)
+  OPRGyration::replicaExchange(OutputPlugin& plug)
   {
-    std::swap(Sim, static_cast<OPRGyration*>(plug)->Sim);
+    std::swap(Sim, static_cast<OPRGyration&>(plug).Sim);
 
-    std::list<CTCdata>::iterator iPtr1 = chains.begin(), iPtr2 = static_cast<OPRGyration*>(plug)->chains.begin();
+    std::list<CTCdata>::iterator iPtr1 = chains.begin(), iPtr2 = static_cast<OPRGyration&>(plug).chains.begin();
 
 #ifdef DYNAMO_DEBUG
-    if (chains.size() != static_cast<OPRGyration*>(plug)->chains.size())
+    if (chains.size() != static_cast<OPRGyration&>(plug).chains.size())
       M_throw() << "Size mismatch when exchanging!";
 #endif
 

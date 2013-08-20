@@ -20,7 +20,6 @@
 #include <dynamo/outputplugins/eventtypetracking.hpp>
 #include <dynamo/outputplugins/msdOrientational.hpp>
 #include <dynamo/outputplugins/trajectory.hpp>
-#include <dynamo/outputplugins/colldistcheck.hpp>
 #include <dynamo/outputplugins/contactmap.hpp>
 #include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/outputplugins/eventEffects.hpp>

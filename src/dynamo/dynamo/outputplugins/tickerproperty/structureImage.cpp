@@ -72,9 +72,9 @@ namespace dynamo {
   }
 
   void 
-  OPStructureImaging::changeSystem(OutputPlugin* nplug) 
+  OPStructureImaging::replicaExchange(OutputPlugin& nplug) 
   {
-    std::swap(Sim, static_cast<OPStructureImaging*>(nplug)->Sim);
+    std::swap(Sim, static_cast<OPStructureImaging&>(nplug).Sim);
   }
 
   void 

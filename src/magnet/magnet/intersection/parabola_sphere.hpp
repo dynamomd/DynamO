@@ -43,10 +43,7 @@ namespace magnet {
       \param r The radius of the sphere.
       \return The time until the intersection, or HUGE_VAL if no intersection.
     */
-    inline double parabola_sphere_bfc(const math::Vector& T,
-				      const math::Vector& D,
-				      const math::Vector& G,
-				      const double& r)
+    inline double parabola_sphere(const math::Vector& T, const math::Vector& D, const math::Vector& G, const double& r)
     {
       //This is our lengthscale to which we bisect the roots
       const double rootthreshold = 1e-16 * r;
@@ -98,10 +95,7 @@ namespace magnet {
       \param r The radius of the sphere.
       \return The time until the intersection, or HUGE_VAL if no intersection.
     */
-    inline double parabola_invsphere_bfc(const math::Vector& T,
-					 const math::Vector& D,
-					 const math::Vector& G,
-					 const double& r)
+    inline double parabola_invsphere(const math::Vector& T, const math::Vector& D, const math::Vector& G, const double& r)
     {
       //This is our lengthscale to which we bisect the roots
       const double rootthreshold = 1e-16 * r;

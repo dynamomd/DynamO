@@ -47,7 +47,7 @@ namespace dynamo {
 
     virtual void operator<<(const magnet::xml::Node&);
 
-    virtual void changeSystem(OutputPlugin*);
+    virtual void replicaExchange(OutputPlugin&);
 
     void periodicOutput();
 

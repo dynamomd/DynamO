@@ -136,8 +136,6 @@ namespace dynamo {
       return testGeneratePlugin<OPContactMap>(Sim, XML);
     else if (!Name.compare("OverlapTester"))
       return testGeneratePlugin<OPOverlapTest>(Sim, XML);
-    else if (!Name.compare("CollDistCheck"))
-      return testGeneratePlugin<OPCollDistCheck>(Sim, XML);
     else if (!Name.compare("ChainBondAngles"))
       return testGeneratePlugin<OPChainBondAngles>(Sim, XML);
     else if (!Name.compare("Trajectory"))

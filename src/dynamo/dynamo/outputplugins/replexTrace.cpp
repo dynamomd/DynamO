@@ -27,22 +27,15 @@ namespace dynamo {
   {}
 
   void 
-  OPReplexTrace::changeSystem(OutputPlugin* OPP)
+  OPReplexTrace::replicaExchange(OutputPlugin& OPP)
   {
-#ifdef DYNAMO_DEBUG
-    if (dynamic_cast<OPReplexTrace*>(OPP) == NULL)
-      M_throw() << "Not the correct plugin to change System with";
-#endif
-
+    auto other = static_cast<OPReplexTrace&>(OPP);
     addPoint();
-    static_cast<OPReplexTrace*>(OPP)->addPoint();
-
-    std::swap(Sim, static_cast<OPReplexTrace*>(OPP)->Sim);
-  
-    addPoint(); 
-    static_cast<OPReplexTrace*>(OPP)->addPoint();
-
-    std::swap(entries, static_cast<OPReplexTrace*>(OPP)->entries);
+    other.addPoint();
+    std::swap(Sim, other.Sim);
+    addPoint();
+    other.addPoint();
+    std::swap(entries, other.entries);
   }
 
   void 

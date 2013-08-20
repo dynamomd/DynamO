@@ -39,7 +39,7 @@ namespace dynamo {
 
     IParallelCubes(const magnet::xml::Node&, dynamo::Simulation*);
 
-    virtual Vector getGlyphSize(size_t ID) const;
+    virtual std::array<double, 4> getGlyphSize(size_t ID) const;
     virtual GLYPH_TYPE getDefaultGlyphType() const { return CUBE_GLYPH; }
 
     void operator<<(const magnet::xml::Node&);

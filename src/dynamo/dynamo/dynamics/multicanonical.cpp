@@ -24,12 +24,10 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/species/species.hpp>
 #include <dynamo/schedulers/sorters/event.hpp>
-#include <dynamo/dynamics/shapes/oscillatingplate.hpp>
 #include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/units/units.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <boost/math/special_functions/fpclassify.hpp>
 
 namespace dynamo {
   DynNewtonianMC::DynNewtonianMC(dynamo::Simulation* tmp, const magnet::xml::Node& XML):
@@ -154,7 +152,7 @@ namespace dynamo {
       }
   
 #ifdef DYNAMO_DEBUG
-    if (boost::math::isnan(retVal.impulse[0]))
+    if (std::isnan(retVal.impulse[0]))
       M_throw() << "A nan dp has ocurred";
 #endif
   
@@ -165,12 +163,11 @@ namespace dynamo {
     return retVal;
   }
 
-  void 
-  DynNewtonianMC::swapSystem(Dynamics& oDynamics)
+  void DynNewtonianMC::replicaExchange(Dynamics& oDynamics)
   {
 #ifdef DYNAMO_DEBUG
     if (dynamic_cast<const DynNewtonianMC*>(&oDynamics) == NULL)
-      M_throw() << "Trying to swap Dynamicss with different derived types!";
+      M_throw() << "Trying to swap Dynamics with different derived types!";
 #endif
 
     DynNewtonianMC& ol(static_cast<DynNewtonianMC&>(oDynamics));

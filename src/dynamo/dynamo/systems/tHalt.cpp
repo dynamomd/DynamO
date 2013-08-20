@@ -22,10 +22,6 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
 
-#ifdef DYNAMO_DEBUG 
-#include <boost/math/special_functions/fpclassify.hpp>
-#endif
-
 namespace dynamo {
   SystHalt::SystHalt(dynamo::Simulation* nSim, double ndt, std::string nName):
     System(nSim)
@@ -46,7 +42,7 @@ namespace dynamo {
     double locdt = dt;
   
 #ifdef DYNAMO_DEBUG 
-    if (boost::math::isnan(dt))
+    if (std::isnan(dt))
       M_throw() << "A NAN system event time has been found";
 #endif
     
@@ -59,7 +55,7 @@ namespace dynamo {
 
     NEventData SDat;
 
-    (*Sim->_sigParticleUpdate)(SDat);
+    Sim->_sigParticleUpdate(SDat);
     
     for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(*this, SDat, locdt); 

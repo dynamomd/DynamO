@@ -24,10 +24,6 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <magnet/xmlreader.hpp>
 
-#ifdef DYNAMO_DEBUG 
-#include <boost/math/special_functions/fpclassify.hpp>
-#endif
-
 namespace dynamo {
 
   GParabolaSentinel::GParabolaSentinel(dynamo::Simulation* nSim, const std::string& name):
@@ -71,7 +67,7 @@ namespace dynamo {
       }
 
 #ifdef DYNAMO_DEBUG 
-    if (boost::math::isnan(iEvent.getdt()))
+    if (std::isnan(iEvent.getdt()))
       M_throw() << "A NAN Interaction collision time has been found when recalculating this global"
 		<< iEvent.stringData(Sim);
 #endif
@@ -84,7 +80,7 @@ namespace dynamo {
 
     NEventData EDat = Sim->dynamics->enforceParabola(part);
   
-    (*Sim->_sigParticleUpdate)(EDat);
+    Sim->_sigParticleUpdate(EDat);
 
     for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(iEvent, EDat);

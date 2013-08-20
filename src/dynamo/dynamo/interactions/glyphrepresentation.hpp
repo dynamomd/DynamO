@@ -17,7 +17,7 @@
 
 #pragma once
 #include <dynamo/interactions/interaction.hpp>
-#include <magnet/math/vector.hpp>
+#include <array>
 
 namespace dynamo {
   /*! \brief This class is inherited by Interaction -s that can be
@@ -48,7 +48,8 @@ namespace dynamo {
       \param subID The index of one of the spheres used to render the
       particle. This must be in the range [0, spheresPerParticle()-1].
     */
-    virtual Vector getGlyphSize(size_t ID) const = 0;
+    virtual std::array<double, 4> getGlyphSize(size_t ID) const = 0;
+
 
     /*! Returns the location of the one of the spheres used to
       represent a particle.

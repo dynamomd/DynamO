@@ -21,8 +21,8 @@
 namespace magnet {
   namespace intersection {
     /*! \brief A ray->Axis-Aligned-Cube intersection test with back
-        face culling.
-
+      face culling.
+      
       This test works by determining when the ray entered the axis
       aligned "range" of each cubes face. Then it is tested if the
       entries are all before the exits, if true the ray intersects the
@@ -35,9 +35,7 @@ namespace magnet {
       \param C The dimensions of the cube.
       \return The time until the intersection, or HUGE_VAL if no intersection.
     */
-    inline double ray_AAcube_bfc(const math::Vector& T,
-				 const math::Vector& D,
-				 math::Vector C)
+    inline double ray_AAcube(const math::Vector& T, const math::Vector& D, math::Vector C)
     {
       //We need the cube half lengths
       C *= 0.5;

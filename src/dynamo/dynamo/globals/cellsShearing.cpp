@@ -132,10 +132,11 @@ namespace dynamo {
 	//of code
 	if (isUsedInScheduler)
 	  {
-	    for (const size_t& id2 : getParticleNeighbours(part))
+	    std::vector<size_t> neighbours;
+	    getParticleNeighbours(part, neighbours);
+	    for (const size_t& id2 : neighbours)
 	      {
 		Sim->ptrScheduler->addInteractionEvent(part, id2);
-
 		_sigNewNeighbour(part, id2);
 	      }
 	  }
@@ -161,7 +162,9 @@ namespace dynamo {
 	//Check the extra LE neighbourhood strip
 	if (isUsedInScheduler)
 	  {
-	    for (const size_t& id2 : getAdditionalLEParticleNeighbourhood(part))
+	    std::vector<size_t> nbs;
+	    getAdditionalLEParticleNeighbourhood(part, nbs);
+	    for (const size_t& id2 : nbs)
 	      {
 		Sim->ptrScheduler->addInteractionEvent(part, id2);
 		_sigNewNeighbour(part, id2);
@@ -204,8 +207,9 @@ namespace dynamo {
 	    //We're at the boundary moving in the z direction, we must
 	    //add the new LE strips as neighbours	
 	    //We just check the entire Extra LE neighbourhood
-	    for (const size_t& id2 : getAdditionalLEParticleNeighbourhood(part))
-	      _sigNewNeighbour(part, id2);
+	    std::vector<size_t> nbs;
+	    getAdditionalLEParticleNeighbourhood(part, nbs);
+	    for (const size_t& id2 : nbs) _sigNewNeighbour(part, id2);
 	  }
 
 	//Particle has just arrived into a new cell warn the scheduler about
@@ -270,54 +274,45 @@ namespace dynamo {
 #endif
   }
 
-  IDRangeList
-  GCellsShearing::getParticleNeighbours(const Particle& part) const
-  {
-    return getParticleNeighbours(magnet::math::MortonNumber<3>(partCellData[part.getID()]));
+  void
+  GCellsShearing::getParticleNeighbours(const Particle& part, std::vector<size_t>& retlist) const {
+    getParticleNeighbours(magnet::math::MortonNumber<3>(partCellData[part.getID()]), retlist);
   }
 
-  IDRangeList
-  GCellsShearing::getParticleNeighbours(const Vector& vec) const
-  {
-    return getParticleNeighbours(magnet::math::MortonNumber<3>(getCellID(vec)));
+  void
+  GCellsShearing::getParticleNeighbours(const Vector& vec, std::vector<size_t>& retlist) const {
+    getParticleNeighbours(magnet::math::MortonNumber<3>(getCellID(vec)), retlist);
   }
 
-  IDRangeList
-  GCellsShearing::getParticleNeighbours(const magnet::math::MortonNumber<3>& cellCoords) const
+  void
+  GCellsShearing::getParticleNeighbours(const magnet::math::MortonNumber<3>& cellCoords, std::vector<size_t>& retlist) const
   {
-    IDRangeList retval(GCells::getParticleNeighbours(cellCoords));
+    GCells::getParticleNeighbours(cellCoords, retlist);
 
     if ((cellCoords[1] == 0) || (cellCoords[1] == dilatedCellMax[1]))
-      {
-	const std::vector<size_t>& extra(getAdditionalLEParticleNeighbourhood(cellCoords));
-	retval.getContainer().insert(retval.getContainer().end(), extra.begin(), extra.end());
-      }
-    return retval;
+      getAdditionalLEParticleNeighbourhood(cellCoords, retlist);
   }
   
-  std::vector<size_t>
-  GCellsShearing::getAdditionalLEParticleNeighbourhood(const Particle& part) const
-  {
-    return getAdditionalLEParticleNeighbourhood(magnet::math::MortonNumber<3>(partCellData[part.getID()]));
+  void
+  GCellsShearing::getAdditionalLEParticleNeighbourhood(const Particle& part, std::vector<size_t>& retlist) const {
+    return getAdditionalLEParticleNeighbourhood(magnet::math::MortonNumber<3>(partCellData[part.getID()]), retlist);
   }
 
-  std::vector<size_t>
-  GCellsShearing::getAdditionalLEParticleNeighbourhood(magnet::math::MortonNumber<3> cellCoords) const
+  void
+  GCellsShearing::getAdditionalLEParticleNeighbourhood(magnet::math::MortonNumber<3> cellCoords, std::vector<size_t>& retlist) const
   {  
 #ifdef DYNAMO_DEBUG
     if ((cellCoords[1] != 0) && (cellCoords[1] != dilatedCellMax[1]))
       M_throw() << "Shouldn't call this function unless the particle is at a border in the y dimension";
-#endif 
+#endif
 
     //Move to the bottom of x
     cellCoords[0] = 0;
     //Get the correct y-side (its the opposite to the particles current side)
-    cellCoords[1] = (cellCoords[1] > 0) ? 0 : dilatedCellMax[1];  
+    cellCoords[1] = (cellCoords[1] > 0) ? 0 : dilatedCellMax[1];
     ////Move te overlink across
     cellCoords[2] = (cellCoords[2].getRealValue() + cellCount[2] - overlink) % cellCount[2];
 
-    std::vector<size_t> retval;
-    retval.reserve(32);
     for (size_t i(0); i < 2 * overlink + 1; ++i)
       {
 	cellCoords[2] %= cellCount[2];
@@ -325,13 +320,11 @@ namespace dynamo {
 	for (size_t j(0); j < cellCount[0]; ++j)
 	  {
 	    const std::vector<size_t>& nbs(list[cellCoords.getMortonNum()]);
-	    retval.insert(retval.end(), nbs.begin(), nbs.end());
-
+	    retlist.insert(retlist.end(), nbs.begin(), nbs.end());
 	    ++cellCoords[0];
 	  }
 	++cellCoords[2];
 	cellCoords[0] = 0;
       }
-    return retval;
   }
 }

@@ -22,10 +22,6 @@
 
 namespace magnet {
   namespace math {
-    namespace detail {
-      
-      
-    }
     /*! \brief Shooting root finder using quadratic estimation.
   
       \param toleranceLengthScale should be 10^-10 the typical scale of
@@ -46,7 +42,7 @@ namespace magnet {
 	  //Always try again from the other side
 	  fwdWorking = !fwdWorking;
 
-	  if(++w > 1000)
+	  if(++w > 100)
 	    {
 #ifdef MAGNET_DEBUG
 	      std::cerr << "\nThe Frenkel rootfinder is converging too slowly."
@@ -148,8 +144,8 @@ namespace magnet {
 	      || ((working_time + deltaT) < t_low))
 	    continue;
 
-	  // Give it 10,000 iterations before we try shrinking the windows again
-	  for(size_t i(10000); i != 0; --i)
+	  // Give it 100 iterations before we try shrinking the windows again
+	  for(size_t i(100); i != 0; --i)
 	    {
 	      working_time += deltaT;
 
@@ -208,11 +204,11 @@ namespace magnet {
       while(t_high > t_low)
 	{
 	  root = quadRootHunter<T>(fL, t_low, t_high, toleranceLengthScale);
-	  //M_throw() << "We return " << root.first;
-	  //If no root was found, return the lower bound on the root
+	  //If no root was found, it might have only established a
+	  //lower bound, return this lower bound.
 	  if (root.first == false) return root;
 
-	  //We found a root, now check for earlier roots
+	  //We found a root, now check for earlier roots in the same interval
 	  double temp_high = t_high;
 	  do {
 	    //Start a search, stream the function to the root
@@ -229,17 +225,23 @@ namespace magnet {
 	    //Search for a root in the new interval
 	    std::pair<bool,double> temp_root = quadRootHunter<T>(fL, t_low, temp_high, toleranceLengthScale);
 
-	    //If there is no root, then the current root is fine
-	    if (!temp_root.first)
-	      break;
+	    //If there is no root found in the interval, then the current root is fine
+	    if ((!temp_root.first) && (temp_root.second == HUGE_VAL)) break;
 	
-	    //Otherwise, use the new root as the earliest one so far
-	    root = temp_root;
+	    //If we have been unable to establish if there is a root
+	    //in the interval, we can use the returned time as a lower
+	    //bound to come back to later
+	    if (!temp_root.first) return temp_root;
 
+	    //Otherwise, the new root is valid, go around and check
+	    //for a root in the remaining interval again.
+	    root = temp_root;
 	  } while(temp_high > t_low);
 
-	  // At this point $root contains earliest valid root guess.
-	  // Check root validity.
+	  //At this point "root" contains earliest valid root guess.
+	  //We now check if this root is acceptable, if not we'll have
+	  //to go around again. Fortunately all roots are acceptable
+	  //for most algorithms.
 	  T tempfL(fL);
 	  tempfL.stream(root.second);
 
@@ -247,8 +249,8 @@ namespace magnet {
 
 	  //The root was not valid, set the lower bound to the current root value
 	  t_low = root.second + ((2.0 * fabs(tempfL.template eval<1>())) / tempfL.template max<2>());
-
-	  //Now invalidate the current root
+	  //and invalidate the current root, resetting the root
+	  //finding but with a new lower bound.
 	  root.first = false;
 	  root.second = HUGE_VAL;
 	}

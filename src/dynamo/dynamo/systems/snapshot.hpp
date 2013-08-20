@@ -20,10 +20,10 @@
 
 namespace dynamo {
   //! \brief A System Event which periodically saves the state of the system.
-  class SSnapshot: public System
+  class SysSnapshot: public System
   {
   public:
-    SSnapshot(dynamo::Simulation*, double, std::string, std::string, bool);
+    SysSnapshot(dynamo::Simulation*, double, std::string, std::string, bool);
   
     virtual void runEvent() const;
 
@@ -38,6 +38,16 @@ namespace dynamo {
     void setTickerPeriod(const double&);
 
     const double& getPeriod() const { return _period; }
+    
+    virtual void replicaExchange(System& os) { 
+      SysSnapshot& s = static_cast<SysSnapshot&>(os);
+      std::swap(dt, s.dt);
+      std::swap(_period, s._period);
+      std::swap(_applyBC, s._applyBC);
+      std::swap(_format, s._format);
+      std::swap(_saveCounter, s._saveCounter);
+    }
+
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const {}
 

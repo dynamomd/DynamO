@@ -18,6 +18,7 @@
 #include <dynamo/interactions/dumbbells.hpp>
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/dynamics/compression.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/2particleEventData.hpp>
@@ -29,8 +30,7 @@
 #include <dynamo/species/sphericalTop.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
-#include <cmath>
-#include <iomanip>
+#include <magnet/intersection/offcentre_spheres.hpp>
 
 namespace dynamo {
   IDumbbells::IDumbbells(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
@@ -46,16 +46,26 @@ namespace dynamo {
     ICapture::initCaptureMap();
   }
 
-  Vector IDumbbells::getGlyphSize(size_t ID) const
+  std::array<double, 4> IDumbbells::getGlyphSize(size_t ID) const
   { 
-    return Vector(_diamA->getProperty(ID), _diamB->getProperty(ID), _LA->getProperty(ID));
+    return {{_diamA->getProperty(ID), _diamB->getProperty(ID), _LA->getProperty(ID), _LB->getProperty(ID)}};
   }
 
   double IDumbbells::getExcludedVolume(size_t ID) const 
-  { 
+  {
     double diamA = _diamA->getProperty(ID);
     double diamB = _diamB->getProperty(ID);
-    return (diamA * diamA * diamA + diamB * diamB * diamB) * M_PI / 6.0; 
+    double LA = _LA->getProperty(ID);
+    double LB = _LB->getProperty(ID);
+    double Volume = (diamA * diamA * diamA + diamB * diamB * diamB) * M_PI / 6.0;
+
+    //If the spheres are overlapping, subtract the volume of the lense they form from the volume of the spheres
+    double d = LA + LB;
+    double r = diamA;
+    double R = diamB;
+    if (d < (diamA + diamB) / 2)
+      Volume -= M_PI * (R + r - d) * (R + r - d) * (d * d + 2 * d * r -  3 * r * r + 2 * d * R + 6 * r * R - 3 * R * R) / (12 * d);
+    return Volume;
   }
 
   void 
@@ -111,43 +121,31 @@ namespace dynamo {
       {
 	//Run this to determine when the spheres no longer intersect
 	const double upper_limit = Sim->dynamics->SphereSphereOutRoot(p1, p2, max_dist);
-	
-	//Test the AA pairing
-	std::pair<bool, double> current = Sim->dynamics->getOffcentreSpheresCollision(lA1, diamA1, lA2, diamA2,
-										      p1, p2, upper_limit, max_dist);
-	//Test the BB pairing
-	std::pair<bool, double> AB = Sim->dynamics->getOffcentreSpheresCollision(lA1, diamA1, -lB2, diamB2,
-										 p1, p2, std::min(upper_limit, current.second), max_dist);
-	if (AB.second < current.second)
-	  current = AB;
+	//Test all pairings, selecting 
+	std::pair<bool, double> current = Sim->dynamics->getOffcentreSpheresCollision(lA1, diamA1, lA2, diamA2, p1, p2, upper_limit, max_dist);
 
-	std::pair<bool, double> BA = Sim->dynamics->getOffcentreSpheresCollision(-lB1, diamB1, lA2, diamA2,
-										 p1, p2, std::min(upper_limit, current.second), max_dist);
+	std::pair<bool, double> AB = Sim->dynamics->getOffcentreSpheresCollision(lA1, diamA1, -lB2, diamB2, p1, p2, std::min(upper_limit, current.second), max_dist);
+	if (AB.second < current.second) current = AB;
 
-	if (BA.second < current.second)
-	  current = BA;
+	std::pair<bool, double> BA = Sim->dynamics->getOffcentreSpheresCollision(-lB1, diamB1, lA2, diamA2, p1, p2, std::min(upper_limit, current.second), max_dist);
+	if (BA.second < current.second) current = BA;
 
-	std::pair<bool, double> BB = Sim->dynamics->getOffcentreSpheresCollision(-lB1, diamB1, -lB2, diamB2,
-										 p1, p2, std::min(upper_limit, current.second), max_dist);
-
-	if (BB.second < current.second)
-	  current = BB;
+	std::pair<bool, double> BB = Sim->dynamics->getOffcentreSpheresCollision(-lB1, diamB1, -lB2, diamB2, p1, p2, std::min(upper_limit, current.second), max_dist);
+	if (BB.second < current.second) current = BB;
 
 	//Check if they miss each other
-	if (current.second == HUGE_VAL)
-	  return IntEvent(p1, p2, upper_limit, NBHOOD_OUT, *this);
- 
+	if (current.second == HUGE_VAL) return IntEvent(p1, p2, upper_limit, NBHOOD_OUT, *this);
+	
 	//Something happens in the time interval
-	if (current.first)
-	  //Its a collision!
+	if (current.first) //Its a collision!
 	  return IntEvent(p1, p2, current.second, CORE, *this);
-	else
-	  //Its a virtual event, we need to recalculate in a bit
+	else //Its a virtual event, we need to recalculate in a bit
 	  return IntEvent(p1, p2, current.second, VIRTUAL, *this);
       }
     else 
       {
 	double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, max_dist);
+
 	if (dt != HUGE_VAL)
 	  return IntEvent(p1, p2, dt, NBHOOD_IN, *this);
       }
@@ -159,7 +157,7 @@ namespace dynamo {
   IDumbbells::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     PairEventData retval;
-    
+
     switch (iEvent.getType())
       {
       case CORE:
@@ -196,11 +194,17 @@ namespace dynamo {
 	  retval = PairEventData(p1, p2, *sp1, *sp2, CORE);
 	  Sim->BCs->applyBC(retval.rij, retval.vijold);
 
+	  double growthrate = 0;
+	  if (std::dynamic_pointer_cast<DynCompression>(Sim->dynamics))
+	    growthrate = std::static_pointer_cast<DynCompression>(Sim->dynamics)->getGrowthRate();
+	  
+	  const double growthfactor = 1 + growthrate * Sim->systemTime;
+
 	  //Determine the colliding pair, they should almost be in contact
-	  double AA_dist = std::abs(0.5 * (diamA1 + diamA2) - (retval.rij + director1 * lA1 - director2 * lA2).nrm());
-	  double AB_dist = std::abs(0.5 * (diamA1 + diamB2) - (retval.rij + director1 * lA1 + director2 * lB2).nrm());
-	  double BA_dist = std::abs(0.5 * (diamB1 + diamA2) - (retval.rij - director1 * lB1 - director2 * lA2).nrm());
-	  double BB_dist = std::abs(0.5 * (diamB1 + diamB2) - (retval.rij - director1 * lB1 + director2 * lB2).nrm());
+	  double AA_dist = std::abs(0.5 * (diamA1 + diamA2) * growthfactor - (retval.rij + growthfactor * (director1 * lA1 - director2 * lA2)).nrm());
+	  double AB_dist = std::abs(0.5 * (diamA1 + diamB2) * growthfactor - (retval.rij + growthfactor * (director1 * lA1 + director2 * lB2)).nrm());
+	  double BA_dist = std::abs(0.5 * (diamB1 + diamA2) * growthfactor - (retval.rij + growthfactor * (-director1 * lB1 - director2 * lA2)).nrm());
+	  double BB_dist = std::abs(0.5 * (diamB1 + diamB2) * growthfactor - (retval.rij + growthfactor * (-director1 * lB1 + director2 * lB2)).nrm());
 
 	  double l1 = lA1, l2 = lA2, d1 = diamA1, d2 = diamA2, min_dist = AA_dist;
 	  if (AB_dist < min_dist)
@@ -230,13 +234,14 @@ namespace dynamo {
  	      min_dist = BB_dist;
 	    }
 
-	  const Vector u1 = director1 * l1;
-	  const Vector u2 = director2 * l2;
+	  const Vector u1 = director1 * l1 * growthfactor;
+	  const Vector u2 = director2 * l2 * growthfactor;
 	  Vector nhat = retval.rij + u1 - u2;
 	  nhat /= nhat.nrm();
-	  const Vector r1 = u1 + nhat * 0.5 * d1;
-	  const Vector r2 = u2 - nhat * 0.5 * d2;
-	  const Vector vc12 = retval.vijold + (angvel1 ^ r1) - (angvel2 ^ r2);
+	  const Vector r1 = u1 - nhat * 0.5 * d1 * growthfactor;
+	  const Vector r2 = u2 + nhat * 0.5 * d2 * growthfactor;
+	  
+	  Vector vc12 = retval.vijold + (angvel1 ^ r1) - (angvel2 ^ r2) + growthrate * (director1 * l1 - director2 * l2 - nhat * (d1 + d2) * 0.5);
 	  
 	  double e = 0.5 * (_e->getProperty(p1.getID()) + _e->getProperty(p2.getID()));
 	  const double J = (1 + e) * (nhat | vc12) / ((1 / m1) + (1 / m2)+ (nhat | ((1 / I1) * ((u1 ^ nhat) ^ u1) + (1 / I2) * ((u2 ^ nhat) ^ u2))));
@@ -273,7 +278,7 @@ namespace dynamo {
 	M_throw() << "Unknown collision type";
       }
     
-    (*Sim->_sigParticleUpdate)(retval);
+    Sim->_sigParticleUpdate(retval);
     
     Sim->ptrScheduler->fullUpdate(p1, p2);
     
@@ -328,16 +333,20 @@ namespace dynamo {
   bool
   IDumbbells::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    const double lA1 = _LA->getProperty(p1.getID()),
-      lB1 = _LB->getProperty(p1.getID()),
-      diamA1 = _diamA->getProperty(p1.getID()),
-      diamB1 = _diamB->getProperty(p1.getID());
+    double growthfactor = 1;
+    if (std::dynamic_pointer_cast<DynCompression>(Sim->dynamics))
+      growthfactor = (1 + std::static_pointer_cast<DynCompression>(Sim->dynamics)->getGrowthRate() * Sim->systemTime);
+
+    const double lA1 = growthfactor * _LA->getProperty(p1.getID()),
+      lB1 = growthfactor * _LB->getProperty(p1.getID()),
+      diamA1 = growthfactor * _diamA->getProperty(p1.getID()),
+      diamB1 = growthfactor * _diamB->getProperty(p1.getID());
     const Vector director1 = Sim->dynamics->getRotData(p1).orientation * Quaternion::initialDirector();
 
-    const double lA2 = _LA->getProperty(p2.getID()),
-      lB2 = _LB->getProperty(p2.getID()),
-      diamA2 = _diamA->getProperty(p2.getID()),
-      diamB2 = _diamB->getProperty(p2.getID());
+    const double lA2 = growthfactor * _LA->getProperty(p2.getID()),
+      lB2 = growthfactor * _LB->getProperty(p2.getID()),
+      diamA2 = growthfactor * _diamA->getProperty(p2.getID()),
+      diamB2 = growthfactor * _diamB->getProperty(p2.getID());
     const Vector director2 = Sim->dynamics->getRotData(p2).orientation * Quaternion::initialDirector();
 
     const double l1 = std::max(lA1 + 0.5 * diamA1, lB1 + 0.5 * diamB1);
@@ -349,7 +358,6 @@ namespace dynamo {
     
     bool has_error = false;
     double error;
-
     double distance = Sim->BCs->getDistance(p1, p2);
 
     if (isCaptured(p1, p2))

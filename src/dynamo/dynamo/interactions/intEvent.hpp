@@ -80,42 +80,18 @@ namespace dynamo {
       CType = NONE; 
     }
 
-    inline bool operator< (const IntEvent & C2) const 
-    { return dt < C2.dt;}
-  
-    inline bool operator> (const IntEvent & C2) const 
-    { return dt > C2.dt;}
-
+    inline bool operator< (const IntEvent & C2) const { return dt < C2.dt;}
+    inline bool operator> (const IntEvent & C2) const { return dt > C2.dt;}
     inline void incrementTime(const double deltat) {dt -= deltat; }
-  
     inline void addTime(const double deltat) {dt += deltat; }
-  
     inline const size_t& getParticle1ID() const { return particle1; }
-  
     inline const size_t& getParticle2ID() const { return particle2; }
-  
     inline bool hasParticle2() const { return particle2 != std::numeric_limits<size_t>::max(); }
-
     inline const double& getdt() const { return dt; }
-
-    inline EEventType getType() const
-    { return CType; }
-  
-    friend magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream&, const IntEvent&);
-
-    std::string stringData(const dynamo::Simulation*) const;
-  
-    inline void setType(EEventType a) const
-    { 
-      //A bit of nastiness required by SquareWells
-      CType = a;
-    }
-  
-    inline void scaleTime(const double& scale)
-    { dt *= scale; }
-
-    inline const size_t& getInteractionID() const 
-    { return intID; }
+    inline EEventType getType() const { return CType; }
+    inline void setType(EEventType a) const { CType = a; }
+    inline void scaleTime(const double& scale) { dt *= scale; }
+    inline const size_t& getInteractionID() const { return intID; }
 
   private:
     size_t  particle1;
