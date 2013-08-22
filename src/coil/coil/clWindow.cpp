@@ -583,7 +583,7 @@ namespace coil {
     Vector up = Vector(0,1,0);
     
     {
-      std::shared_ptr<RLight> light(new RLight("Light 1", Vector(0, 1, 0) * light_distance, look_at, 8.0, 10000.0f, up, _camera.getRenderScale()));
+      std::shared_ptr<RLight> light(new RLight("Light", Vector(0, 1, 0) * light_distance, look_at, 8.0, 10000.0f, up, _camera.getRenderScale()));
       _renderObjsTree._renderObjects.push_back(light);
     }
   
@@ -2030,11 +2030,8 @@ namespace coil {
   void
   CLGLWindow::addLightCallback()
   {
-    std::shared_ptr<RLight> light(new RLight("Light",
-						  Vector(0, 0, 0),
-						  Vector(0, -1, 0),//Lookat
-						  75.0f//Beam angle
-						  ));
+    std::shared_ptr<RLight> light(new RLight("Light", Vector(0, 1, 0) * light_distance, look_at, 8.0, 10000.0f, up, _camera.getRenderScale()));
+
     _renderObjsTree._renderObjects.push_back(light);
     _renderObjsTree._renderObjects.back()->init(_systemQueue);
     _renderObjsTree.buildRenderView();

@@ -679,7 +679,7 @@ namespace dynamo {
 	retVal.setType(BOUNCE);
 	retVal.impulse = retVal.rij * 2.0 * mu * retVal.rvdot / R2;
       }
-    else if (deltaKE==0)
+    else if (deltaKE == 0)
       retVal.impulse = Vector(0,0,0);
     else
       {
@@ -687,11 +687,9 @@ namespace dynamo {
 	retVal.particle2_.setDeltaU(-0.5 * deltaKE);	  
       
 	if (retVal.rvdot < 0)
-	  retVal.impulse = retVal.rij 
-	    * (2.0 * deltaKE / (std::sqrt(sqrtArg) - retVal.rvdot));
+	  retVal.impulse = retVal.rij * (-2.0 * deltaKE / (retVal.rvdot - std::sqrt(sqrtArg)));
 	else
-	  retVal.impulse = retVal.rij 
-	    * (-2.0 * deltaKE / (retVal.rvdot + std::sqrt(sqrtArg)));
+	  retVal.impulse = retVal.rij * (-2.0 * deltaKE / (retVal.rvdot + std::sqrt(sqrtArg)));
       }
   
 #ifdef DYNAMO_DEBUG
