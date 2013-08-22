@@ -87,8 +87,7 @@ namespace dynamo {
     for (const shared_ptr<Species>& sp : Sim->species)
       for (const size_t& ID : *sp->getRange())
       for (size_t step(1); step < length; ++step)
-	speciesData[sp->getID()][step]
-	  += (posHistory[ID][step] - posHistory[ID][0]).nrm2();
+	speciesData[sp->getID()][step] += (posHistory[ID][step] - posHistory[ID][0]).nrm2();
   
     for (const shared_ptr<Topology>& topo : Sim->topology)
       for (const shared_ptr<IDRange>& range : topo->getMolecules())

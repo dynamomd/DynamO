@@ -101,7 +101,7 @@ namespace dynamo {
 
     for (const Particle& part : Sim->particles)
       {
-	for (size_t step(1); step < length; ++step)
+	for (size_t step(0); step < length; ++step)
 	  {
 	    displacement_term = historicalData[part.getID()][step].first - historicalData[part.getID()][0].first;
 	    longitudinal_projection = (displacement_term | historicalData[part.getID()][0].second);
