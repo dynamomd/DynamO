@@ -150,6 +150,8 @@ namespace dynamo {
       return testGeneratePlugin<OPRadialDistribution>(Sim, XML);
     else if (!Name.compare("MSDCorrelator"))
       return testGeneratePlugin<OPMSDCorrelator>(Sim, XML);
+    else if (!Name.compare("VACF"))
+      return testGeneratePlugin<OPVACF>(Sim, XML);
     else if (!Name.compare("KEnergyTicker"))
       return testGeneratePlugin<OPKEnergyTicker>(Sim, XML);
     else if (!Name.compare("StructureImage"))

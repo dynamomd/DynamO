@@ -22,8 +22,6 @@
 #include <vector>
 
 namespace dynamo {
-  class OPMSD;
-
   class OPMSDCorrelator: public OPTicker
   {
   public:

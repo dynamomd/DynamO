@@ -25,8 +25,8 @@
 
 namespace magnet {
   namespace math {    
-    /*! \brief A class for taking the Einstein correlation of a series of
-      values.
+    /*! \brief A class for taking the Einstein correlation of a series
+      of values.
 
       We often want to collect functions in the following form
       \f[f_{1,2}(j)=\left\langle \left[W^{(1)}_{i} \cdot

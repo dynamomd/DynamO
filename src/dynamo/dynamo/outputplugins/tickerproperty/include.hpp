@@ -32,3 +32,4 @@
 #include <dynamo/outputplugins/tickerproperty/SCparameter.hpp>
 #include <dynamo/outputplugins/tickerproperty/msdOrientationalCorrelator.hpp>
 #include <dynamo/outputplugins/tickerproperty/OrientationalOrder.hpp>
+#include <dynamo/outputplugins/tickerproperty/vacf.hpp>
