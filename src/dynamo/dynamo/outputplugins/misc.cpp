@@ -641,10 +641,11 @@ namespace dynamo {
 	  I_Pcout() << ETA_mins << "min ";
 
 	if (!ETA_hours)
-	I_Pcout() << ETA_secs << "s";
+	  I_Pcout() << ETA_secs << "s";
+	I_Pcout() << ", ";
       }
 
-    I_Pcout() << ", Events " << (Sim->eventCount+1)/1000 << "k, t "
+    I_Pcout() << "Events " << (Sim->eventCount+1)/1000 << "k, t "
 	      << Sim->systemTime/Sim->units.unitTime() 
 	      << ", <MFT> " <<  getMFT()
 	      << ", T " << getCurrentkT() / Sim->units.unitEnergy()
