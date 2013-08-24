@@ -25,7 +25,7 @@
 #include <dynamo/species/include.hpp>
 #include <dynamo/globals/include.hpp>
 #include <dynamo/interactions/include.hpp>
-#include <dynamo/interactions/potentials/potential.hpp>
+#include <dynamo/interactions/potentials/lennard_jones.hpp>
 #include <dynamo/ranges/include.hpp>
 #include <dynamo/BC/include.hpp>
 #include <dynamo/dynamics/include.hpp>
@@ -1418,29 +1418,30 @@ namespace dynamo {
 	    {
 	      std::cout<<
 		"Mode specific options:\n"
-		"  16: Stepped Potential\n"
+		"  16: Stepped Potential, default is a Lennard-Jones potential by Chapela et al.\n"
 		"       --i1 : Picks the packing routine to use [0] (0:FCC,1:BCC,2:SC)\n"
-		"       --s1 : Sets the form of the stepped potential, list in r1,E1:r2,E2\n";
+		"       --i2 : Set the potential type [Manual] (0: Manual, 1:Lennard-Jones)\n"
+		"       --i3 : Step placement algorithm [Energetic] (0:Radial, 1:Energetic, 2: Volumetric)\n"
+		"       --i4 : Step energy algorithm [Volumetric] (0:Mid-point, 1:Left, 2:Right, 3:Volume, 4:Virial, 5:MidVolume)\n"
+		"       --f1 : Order of approximation (Nsteps) [5.8]\n"
+		"       --f2 : Cut-off [3]\n"
+		"       --s1 : Manual entry of the potential (e.g., r1,E1:r2,E2) [default, Chapela et al potential 6]\n";
 	      exit(1);
 	    }
+    
 	  //Pack the system, determine the number of particles
 	  std::unique_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
-
-	  std::vector<Vector  >
-	    latticeSites(packptr->placeObjects(Vector (0,0,0)));
+	  std::vector<Vector> latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
 	  if (vm.count("rectangular-box"))
 	    Sim->primaryCellSize = getNormalisedCellDimensions();
 
 	  double simVol = 1.0;
-
 	  for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	    simVol *= Sim->primaryCellSize[iDim];
 
-	  double particleDiam = pow(simVol * vm["density"].as<double>()
-				    / latticeSites.size(), double(1.0 / 3.0));
-
+	  double particleDiam = pow(simVol * vm["density"].as<double>() / latticeSites.size(), double(1.0 / 3.0));
 
 	  if (vm.count("rectangular-box") && (vm.count("i1") && vm["i1"].as<size_t>() == 2))
 	    {
@@ -1471,76 +1472,107 @@ namespace dynamo {
 	    }
 
 	  Sim->units.setUnitLength(particleDiam);
-	  //Set the unit energy to 1 (assuming the unit of mass is 1);
 	  Sim->units.setUnitTime(particleDiam); 
+	  
+	  int potential_mode = 0;
+	  if (vm.count("i2")) potential_mode = vm["i2"].as<size_t>();
 
-	  typedef std::pair<double,double> locpair;
-	  std::vector<locpair> diamvec;
+	  int placement_mode = PotentialLennardJones::DELTAU;
+	  if (vm.count("i3")) placement_mode = vm["i3"].as<size_t>();
+	  
+	  int energy_mode = PotentialLennardJones::VOLUME;
+	  if (vm.count("i4")) energy_mode = vm["i4"].as<size_t>();
 
-	  if (vm.count("s1"))
+	  double Nsteps = 5.8;
+	  if (vm.count("f1")) Nsteps = vm["f1"].as<double>();
+
+	  double cutoff = 3;
+	  if (vm.count("f2")) cutoff = vm["f2"].as<double>();
+	  
+
+	  shared_ptr<Potential> potential;
+	  switch (potential_mode)
 	    {
-	      typedef boost::tokenizer<boost::char_separator<char> >
-		tokenizer;
+	    case 0: //Manual entry of the potential
+	      {
+		typedef std::pair<double,double> locpair;
+		std::vector<locpair> diamvec;
+		
+		if (vm.count("s1"))
+		  {
+		    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+		    tokenizer steps(vm["s1"].as<std::string>(), boost::char_separator<char>(":"));
+		    for (const std::string& step : steps)
+		      {
+			tokenizer stepData(step, boost::char_separator<char>(","));
+			tokenizer::iterator value_iter = stepData.begin();
+			locpair data;
+			try {
+			  data.first = boost::lexical_cast<double>(*value_iter);
+			  if (++value_iter == stepData.end())
+			    throw std::runtime_error("No comma");
+			  data.second = boost::lexical_cast<double>(*(value_iter));
+			  diamvec.push_back(data);
+			    
+			  if (++value_iter != stepData.end())
+			    throw std::runtime_error("Too many comma's");
+			} catch (std::exception& except)
+			  {
+			    M_throw() << "Malformed step data, \"" << step << "\"\n" << except.what();
+			  }
+		      }
+		  }
+		else
+		  {
+		    diamvec.push_back(locpair(2.30, -0.06));
+		    diamvec.push_back(locpair(1.75, -0.22));
+		    diamvec.push_back(locpair(1.45, -0.55));
+		    diamvec.push_back(locpair(1.25, -0.98));
+		    diamvec.push_back(locpair(1.05, -0.47));
+		    diamvec.push_back(locpair(1.00,  0.76));
+		    diamvec.push_back(locpair(0.95,  3.81));
+		    diamvec.push_back(locpair(0.90, 10.95));
+		    diamvec.push_back(locpair(0.85, 27.55));
+		    diamvec.push_back(locpair(0.80, 66.74));
+		    diamvec.push_back(locpair(0.75, 1e300));
+		  }
+
+		dout << "Building stepped potential" << std::endl;
+		double oldr = HUGE_VAL;
+		for (locpair& p : diamvec)
+		  {
+		    dout << "Step r=" << p.first << ", E=" << p.second << std::endl;
+		    if (p.first > oldr)
+		      M_throw() << "Steps must be in descending order! r=" << p.first
+				<< " is greater than old r=" << oldr;
+		    oldr = p.first;
+		  }
+
+		potential.reset(new PotentialStepped(diamvec, false));
+	      }
+	      break;
+	    case 1:  //Lennard-Jones potential
+	      {
+		double kT = 1;
+		if (energy_mode == PotentialLennardJones::VIRIAL)
+		  {
+		    if (!vm.count("thermostat"))
+		      M_throw() << "When using virial step placement, you must specify a thermostat temperature using the --thermostat,-T option.";
+
+		    kT = vm["thermostat"].as<double>();
+		  }
+		
+		potential.reset(new PotentialLennardJones(1.0, 1.0, cutoff, energy_mode, placement_mode, Nsteps, kT));
+	      }
+	      break;
+	    }
 	    
-	      tokenizer steps(vm["s1"].as<std::string>(), boost::char_separator<char>(":"));
-	      for (const std::string& step : steps)
-		{
-		  tokenizer stepData(step, boost::char_separator<char>(","));
-		  tokenizer::iterator value_iter = stepData.begin();
-		  locpair data;
-		  try {
-		    data.first = boost::lexical_cast<double>(*value_iter);
-		    if (++value_iter == stepData.end())
-		      throw std::runtime_error("No comma");
-		    data.second = boost::lexical_cast<double>(*(value_iter));
-		    diamvec.push_back(data);
-
-		    if (++value_iter != stepData.end())
-		      throw std::runtime_error("Too many comma's");
-		  } catch (std::exception& except)
-		    {
-		      M_throw() << "Malformed step data, \"" << step << "\"\n" << except.what();
-		    }
-		}
-	    }
-	  else
-	    {
-	      diamvec.push_back(locpair(2.30, -0.06));
-	      diamvec.push_back(locpair(1.75, -0.22));
-	      diamvec.push_back(locpair(1.45, -0.55));
-	      diamvec.push_back(locpair(1.25, -0.98));
-	      diamvec.push_back(locpair(1.05, -0.47));
-	      diamvec.push_back(locpair(1.00,  0.76));
-	      diamvec.push_back(locpair(0.95,  3.81));
-	      diamvec.push_back(locpair(0.90, 10.95));
-	      diamvec.push_back(locpair(0.85, 27.55));
-	      diamvec.push_back(locpair(0.80, 66.74));
-	      diamvec.push_back(locpair(0.75, 1e300));
-	    }
-	
-	  dout << "Building stepped potential" << std::endl;
-	  double oldr = HUGE_VAL;
-	  for (locpair& p : diamvec)
-	    {
-	      dout << "Step r=" << p.first << ", E=" << p.second << std::endl;
-	      if (p.first > oldr)
-		M_throw() << "Steps must be in descending order! r=" << p.first
-			  << " is greater than old r=" << oldr;
-	      oldr = p.first;
-	    }
-
-	  shared_ptr<Potential> potential(new PotentialStepped(diamvec, false));
 	  Sim->interactions.push_back(shared_ptr<Interaction>(new IStepped(Sim, potential, new IDPairRangeAll(), "Bulk", particleDiam, 1.0)));
-
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0,
-				       "Bulk")));
-
+	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0, "Bulk")));
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
 	  for (const Vector & position : latticeSites)
-	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
-						 nParticles++));
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 	  break;
 	}
       case 17:

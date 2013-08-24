@@ -29,22 +29,22 @@ namespace dynamo {
   public:
     /*! \brief An enum of the types of step energy algorithms available.*/
     enum UMode {
-      MIDPOINT,
-      LEFT,
-      RIGHT,
-      VOLUME,
-      VIRIAL,
-      MIDVOLUME
+      MIDPOINT = 0,
+      LEFT = 1,
+      RIGHT = 2,
+      VOLUME = 3,
+      VIRIAL = 4,
+      MIDVOLUME = 5
     };
     
     /*! \brief An enum of types of step positionining algorithms available.*/
     enum RMode {
-      DELTAR,
-      DELTAU,
-      DELTAV
+      DELTAR = 0,
+      DELTAU = 1,
+      DELTAV = 2
     };
 
-    PotentialLennardJones(double sigma, double epsilon, double cutoff, UMode umode, RMode rmode, double attractivesteps, double kT=1);
+    PotentialLennardJones(double sigma, double epsilon, double cutoff, int umode, int rmode, double attractivesteps, double kT=1);
 
     PotentialLennardJones(const magnet::xml::Node& XML) {
       operator<<(XML);
@@ -90,8 +90,8 @@ namespace dynamo {
     double _attractiveSteps;
 
     //! \brief The active step energy algorithm.
-    UMode _U_mode;
+    int _U_mode;
     //! \brief The active step position algorithm.
-    RMode _R_mode;
+    int _R_mode;
   };
 }

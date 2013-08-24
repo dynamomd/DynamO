@@ -73,7 +73,7 @@ namespace dynamo {
     return _sigma * std::pow(2.0, 1.0/6.0);
   }
 
-  PotentialLennardJones::PotentialLennardJones(double sigma, double epsilon, double cutoff, UMode umode, RMode rmode, double attractivesteps, double kT):
+  PotentialLennardJones::PotentialLennardJones(double sigma, double epsilon, double cutoff, int umode, int rmode, double attractivesteps, double kT):
     _sigma(sigma), _epsilon(epsilon), _cutoff(cutoff), _kT(kT), _attractiveSteps(attractivesteps), _U_mode(umode), _R_mode(rmode)
   {
     _r_cache.push_back(_cutoff);
