@@ -410,8 +410,6 @@ void outputDensityOfStates()
 
 void outputLogZ()
 {
-  typedef std::pair<long double, long double> localpair;
-  
   std::fstream of("logZ.out",  ios::trunc | ios::out);
 
   of << std::setprecision(std::numeric_limits<long double>::digits10);
@@ -426,7 +424,6 @@ void outputMoments()
 {
   std::cout << "##################################################\n";
   std::cout << "Calculating  moments\n";
-  typedef std::pair<long double, long double> localpair;
   
   for (const SimulationData& dat : SimulationDataData)
     {
