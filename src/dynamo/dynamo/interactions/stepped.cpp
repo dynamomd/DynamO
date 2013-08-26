@@ -343,12 +343,18 @@ namespace dynamo {
 	      {
 		const double R = grdata[i].first / Sim->units.unitLength();
 		XML << R << " " << grdata[i].second << "\n";
-		const size_t step_ID = _potential->calculateStepID(R);
-		double U = 0;
-		if (step_ID > 0) U = (*_potential)[step_ID - 1].second;
-		double yrval = grdata[i].second * std::exp(U * Sim->units.unitEnergy() / kT);
-		if (!std::isnan(yrval))
-		  yrdata.push_back(std::pair<double, double>(R, yrval));
+
+		if (grdata[i].second == 0)
+		  yrdata.push_back(std::pair<double, double>(R, 0));
+		else
+		  {
+		    const size_t step_ID = _potential->calculateStepID(R);
+		    double U = 0;
+		    if (step_ID > 0) U = (*_potential)[step_ID - 1].second;
+		    double yrval = grdata[i].second * std::exp(U * Sim->units.unitEnergy() / kT);
+		    if (!std::isnan(yrval))
+		      yrdata.push_back(std::pair<double, double>(R, yrval));
+		  }
 	      }
 	    else
 	      {
