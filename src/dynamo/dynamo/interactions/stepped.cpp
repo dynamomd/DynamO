@@ -28,6 +28,7 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/NparticleEventData.hpp>
 #include <dynamo/outputplugins/outputplugin.hpp>
+#include <dynamo/outputplugins/tickerproperty/radialdist.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <boost/math/special_functions/pow.hpp>
@@ -244,6 +245,12 @@ namespace dynamo {
   void 
   IStepped::outputData(magnet::xml::XmlStream& XML) const
   {
+    //This code might not be consistent with units, as the potential
+    //is stored in configuration units, not simulation. Also, this
+    //code might not be correct if the potential changes direction
+    //(id's increase outwards).
+
+
     using namespace magnet::xml;
     XML << tag("Interaction")
 	<< attr("Name") << intName
@@ -256,7 +263,8 @@ namespace dynamo {
     double kT(0);
     {
       std::shared_ptr<EnsembleNVT> ensemble = std::dynamic_pointer_cast<EnsembleNVT>(Sim->ensemble);
-      kT = ensemble->getEnsembleVals()[2];
+      if (ensemble)
+	kT = ensemble->getEnsembleVals()[2];
     }
 
     for (size_t i(0); i < _potential->cached_steps(); ++i)
@@ -290,14 +298,14 @@ namespace dynamo {
 		    {
 		    case EEventType::STEP_OUT:
 		      if (deltaU < 0)
-			XML << attr("gr") << gr;
-		      else
 			XML << attr("gr") << gr * std::exp(std::abs(deltaU) / kT);
+		      else
+			XML << attr("gr") << gr;
 		      break;
 		    case EEventType::STEP_IN:
 		      if (deltaU > 0)
 			XML << attr("gr") << gr * std::exp(std::abs(deltaU) / kT);
-		      else
+		      else	
 			XML << attr("gr") << gr;
 		      break;
 		    case EEventType::BOUNCE:
@@ -306,7 +314,6 @@ namespace dynamo {
 		    default:
 		      break;
 		    }
-		  
 		}
 
 	      XML << endtag("Event");
@@ -314,6 +321,72 @@ namespace dynamo {
 	XML << endtag("Step");
       }
     
+    shared_ptr<OPRadialDistribution> raddist = Sim->getOutputPlugin<OPRadialDistribution>();
+    if (raddist && kT)
+      {
+	XML << tag("gr") << chardata();
+	const double grBinWidth = raddist->getBinWidth();
+	std::vector<std::pair<double, double> > grdata = raddist->getgrdata(0, 0);
+	std::vector<std::pair<double, double> > yrdata;
+	
+	for (size_t i = 1; i < grdata.size(); ++i)
+	  {
+	    int potential_step = -1;
+	    for (size_t stepID(0); stepID < _potential->cached_steps(); ++stepID)
+	      {
+		const double R = (*_potential)[stepID].first * Sim->units.unitLength();
+		const size_t istep = static_cast<size_t>(R / grBinWidth + 0.5);
+		if (i == istep) { potential_step = stepID; break; }
+	      }
+	    
+	    if (potential_step == -1)
+	      {
+		const double R = grdata[i].first / Sim->units.unitLength();
+		XML << R << " " << grdata[i].second << "\n";
+		const size_t step_ID = _potential->calculateStepID(R);
+		double U = 0;
+		if (step_ID > 0) U = (*_potential)[step_ID - 1].second;
+		double yrval = grdata[i].second * std::exp(U * Sim->units.unitEnergy() / kT);
+		if (!std::isnan(yrval))
+		  yrdata.push_back(std::pair<double, double>(R, yrval));
+	      }
+	    else
+	      {
+		for (EEventType etype: {EEventType:STEP_OUT, EEventType:BOUNCE, EEventType:STEP_IN})
+		  for (const auto& data: _edgedata)
+		    if ((data.first.first == potential_step) && (data.first.second == etype))
+		      {
+			const double R = (*_potential)[potential_step].first;
+			double deltaU = (*_potential)[potential_step].second;
+			if (potential_step > 0) deltaU -= (*_potential)[potential_step-1].second;
+			
+			double gr = 2 * (Sim->getSimVolume() / (4 * R * R * std::sqrt(M_PI * kT) * Sim->N * Sim->N)) * (data.second.counter / Sim->systemTime);
+			switch (data.first.second)
+			  {
+			  case EEventType::STEP_OUT:
+			    if (deltaU < 0)
+			      gr *= std::exp(std::abs(deltaU) / kT);
+			    break;
+			  case EEventType::STEP_IN:
+			    if (deltaU > 0)
+			      gr *= std::exp(std::abs(deltaU) / kT);
+			    break;
+			  case EEventType::BOUNCE:
+			    gr *= -(std::exp(-std::abs(deltaU) / kT) / (std::exp(-std::abs(deltaU) / kT) - 1));
+			    break;
+			  default: break;
+			  }
+			XML << R << " " << gr << " *\n";
+		      }
+	      }
+	  }
+	XML << endtag("gr")
+	    << tag("yr")
+	    << chardata();
+	for (auto entry : yrdata) XML << entry.first << " " << entry.second << "\n";
+	XML << endtag("yr");
+      }
+
     XML << endtag("AccessedSteps")
 	<< endtag("Interaction");
     

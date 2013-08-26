@@ -122,6 +122,26 @@ namespace dynamo {
 	    }
   }
 
+  std::vector<std::pair<double, double> > 
+  OPRadialDistribution::getgrdata(size_t species1ID, size_t species2ID) const
+  {
+    std::vector<std::pair<double, double> > retval;
+    const double density = (Sim->species[species2ID]->getCount() - (species1ID == species2ID)) / Sim->getSimVolume();
+    const size_t originsTaken = sampleCount * Sim->species[species2ID]->getCount();
+    
+    //Skip the zero bin
+    retval.reserve(length);
+    for (size_t i = 0; i < length; ++i)
+      {
+	const double radius = binWidth * i;
+	const double volshell =  M_PI * (4.0 * binWidth * radius * radius + binWidth * binWidth * binWidth / 3.0);
+	const double GR = static_cast<double>(data[species1ID][species2ID][i]) / (density * originsTaken * volshell);
+	retval.push_back(std::pair<double, double>(radius, GR));
+      }
+
+    return retval;
+  }
+
   void
   OPRadialDistribution::output(magnet::xml::XmlStream& XML)
   {

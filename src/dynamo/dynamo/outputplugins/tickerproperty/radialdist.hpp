@@ -38,6 +38,8 @@ namespace dynamo {
 
     void operator<<(const magnet::xml::Node&);
 
+    std::vector<std::pair<double, double> > getgrdata(size_t species1ID, size_t species2ID) const;
+    double getBinWidth() const { return binWidth; }
   protected:
     double binWidth;
     size_t length;
