@@ -252,25 +252,65 @@ namespace dynamo {
 	<< attr("Direction") << (_potential->direction() ? "Outward" : "Inward")
 	<< attr("MaxDiameter") << _potential->max_distance()
       ;
-    
+
+    double kT(0);
+    {
+      std::shared_ptr<EnsembleNVT> ensemble = std::dynamic_pointer_cast<EnsembleNVT>(Sim->ensemble);
+      kT = ensemble->getEnsembleVals()[2];
+    }
+
     for (size_t i(0); i < _potential->cached_steps(); ++i)
       {
 	double deltaU = (*_potential)[i].second;
-	if (i > 0)
-	  deltaU -= (*_potential)[i-1].second;
+	if (i > 0) deltaU -= (*_potential)[i-1].second;
+	
+	const double R = (*_potential)[i].first;
+
 	XML << tag("Step") 
 	    << attr("ID") << i
-	    << attr("R") << (*_potential)[i].first
+	    << attr("R") << R
 	    << attr("U") << (*_potential)[i].second
 	    << attr("DeltaU") << deltaU
 	  ;
+
 	for (const auto& data: _edgedata)
 	  if (data.first.first == i)
-	    XML << tag("Event")
-		<< attr("Type") << data.first.second
-		<< attr("Count") << data.second.counter
-		<< attr("RdotV") << data.second.rdotv_sum / (data.second.counter * Sim->units.unitVelocity() * Sim->units.unitLength())
-		<< endtag("Event");
+	    {
+
+	      XML << tag("Event")
+		  << attr("Type") << data.first.second
+		  << attr("Count") << data.second.counter
+		  << attr("RdotV") << data.second.rdotv_sum / (data.second.counter * Sim->units.unitVelocity() * Sim->units.unitLength());
+	      
+	      if (kT)
+		{
+		  double gr = 2 * (Sim->getSimVolume() / (4 * R * R * std::sqrt(M_PI * kT) * Sim->N * Sim->N)) * (data.second.counter / Sim->systemTime);
+		  
+		  switch (data.first.second)
+		    {
+		    case EEventType::STEP_OUT:
+		      if (deltaU < 0)
+			XML << attr("gr") << gr;
+		      else
+			XML << attr("gr") << gr * std::exp(std::abs(deltaU) / kT);
+		      break;
+		    case EEventType::STEP_IN:
+		      if (deltaU > 0)
+			XML << attr("gr") << gr * std::exp(std::abs(deltaU) / kT);
+		      else
+			XML << attr("gr") << gr;
+		      break;
+		    case EEventType::BOUNCE:
+		      XML << attr("gr") << - gr * (std::exp(-std::abs(deltaU) / kT) / (std::exp(-std::abs(deltaU) / kT) - 1));
+		      break;
+		    default:
+		      break;
+		    }
+		  
+		}
+
+	      XML << endtag("Event");
+	    }
 	XML << endtag("Step");
       }
     
