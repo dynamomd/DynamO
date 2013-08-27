@@ -29,7 +29,13 @@ namespace dynamo {
   public:
     virtual ~IDPairRange() {}
  
+    /*! \brief Test if the pair of particles are represented in this
+      Range. */
     virtual bool isInRange(const Particle&, const Particle&) const = 0;
+
+    /*! \brief Test if this one particle is within the Range, with any
+      other particle. */
+    virtual bool isInRange(const Particle&) const = 0;
 
     static IDPairRange* getClass(const magnet::xml::Node&, const dynamo::Simulation*);
     

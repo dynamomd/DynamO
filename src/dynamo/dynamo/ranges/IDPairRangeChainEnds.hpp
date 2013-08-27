@@ -65,6 +65,13 @@ namespace dynamo {
 		&& (p2.getID() - p1.getID() == interval - 1));
     }
 
+    virtual bool isInRange(const Particle&p1) const
+    {
+      return (p1.getID() <= rangeEnd) && (p1.getID() >= rangeStart)//Check if the particle is in the range
+	&& (!((p1.getID() - rangeStart) % interval) //is it the start?
+	    || !((p1.getID() - rangeStart + 1) % interval)); //Or the end?
+    }
+
   protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {

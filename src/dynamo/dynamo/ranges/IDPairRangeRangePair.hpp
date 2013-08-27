@@ -41,6 +41,9 @@ namespace dynamo {
       return false;
     }
 
+    virtual bool isInRange(const Particle&p1) const
+    { return range1->isInRange(p1) || range2->isInRange(p1); }
+
   protected:
 
     virtual void outputXML(magnet::xml::XmlStream& XML) const

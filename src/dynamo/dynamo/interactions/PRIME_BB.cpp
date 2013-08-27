@@ -93,7 +93,7 @@ namespace dynamo {
   {
 #ifdef DYNAMO_DEBUG
     if ((particleID < startID) || (particleID > endID))
-      M_throw() << "Error, the supplied particle ID is out of range";
+      M_throw() << "Error, the supplied particle ID (" << particleID << " is out of range ["<< startID << "," << endID << "]";
 #endif
     //The types of the ID's are constants defined above.
     //
@@ -107,10 +107,10 @@ namespace dynamo {
   {
 #ifdef DYNAMO_DEBUG
     if ((pID1 < startID) || (pID2 > endID))
-      M_throw() << "Error, the supplied particle ID 1 is out of range";
+      M_throw() << "Error, the supplied particle ID1 (" << pID1 << " is out of range ["<< startID << "," << endID << "]";
 
     if ((pID2 < startID) || (pID2 > endID))
-      M_throw() << "Error, the supplied particle ID 2 is out of range";
+      M_throw() << "Error, the supplied particle ID2 (" << pID2 << " is out of range ["<< startID << "," << endID << "]";
 #endif
 
     //Here, we must be careful to return only positive distances along

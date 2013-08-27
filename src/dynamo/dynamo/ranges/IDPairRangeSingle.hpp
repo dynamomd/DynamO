@@ -28,14 +28,13 @@ namespace dynamo {
     IDPairRangeSingle(IDRange* r1):range(r1) {}
   
     IDPairRangeSingle(const magnet::xml::Node& XML, const dynamo::Simulation* Sim)
-    { 
-      range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
-    }
+    { range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim)); }
 
     virtual bool isInRange(const Particle&p1, const Particle&p2) const
-    {
-      return (range->isInRange(p1) && range->isInRange(p2));
-    }
+    { return range->isInRange(p1) && range->isInRange(p2); }
+
+    virtual bool isInRange(const Particle&p1) const
+    { return range->isInRange(p1); }
 
     const shared_ptr<IDRange>& getRange() const { return range; }
 

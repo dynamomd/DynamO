@@ -16,7 +16,6 @@
 */
 #include <dynamo/ranges/IDPairRangeAll.hpp>
 #include <dynamo/ranges/IDPairRangeChainEnds.hpp>
-#include <dynamo/ranges/IDPairRangeChainGroups.hpp>
 #include <dynamo/ranges/IDPairRangeChains.hpp>
 #include <dynamo/ranges/IDPairRange.hpp>
 #include <dynamo/ranges/IDPairRangeIntraChains.hpp>

@@ -17,6 +17,7 @@
 
 #pragma once
 #include <dynamo/ranges/IDPairRange.hpp>
+#include <dynamo/particle.hpp>
 
 namespace dynamo {
   class IDPairRangeChains:public IDPairRange
@@ -43,11 +44,14 @@ namespace dynamo {
     virtual bool isInRange(const Particle&p1, const Particle&p2) const
     {
       size_t a = std::min(p1.getID(), p2.getID()), b = std::max(p1.getID(), p2.getID());
-      return (b - a == 1)
-	&& ((a >= range1) && (b <= range2))
-	&& (((a  - range1) / interval) == ((b  - range1) / interval));
+      
+      return (b - a == 1) //Check the particles are next to each other
+	&& ((a >= range1) && (b <= range2)) //and within the overall range
+	&& (((a  - range1) / interval) == ((b  - range1) / interval)); //and belong to the same segment
     }
   
+    virtual bool isInRange(const Particle& p1) const { return (p1.getID() >= range1) && (p1.getID() <= range2); }
+
   protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {

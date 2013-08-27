@@ -24,11 +24,10 @@ namespace dynamo {
   public:
     IDPairRangeNone() {}
 
-    IDPairRangeNone(const magnet::xml::Node& XML, const dynamo::Simulation*)
-    {}
+    IDPairRangeNone(const magnet::xml::Node& XML, const dynamo::Simulation*) {}
     
-    virtual bool isInRange(const Particle&, const Particle&) const
-    { return false; }
+    virtual bool isInRange(const Particle&, const Particle&) const { return false; }
+    virtual bool isInRange(const Particle&) const { return false; }
   
   protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const

@@ -40,6 +40,16 @@ namespace dynamo {
       return pairmap.find(Key(std::min(p1.getID(), p2.getID()), std::max(p1.getID(), p2.getID()))) != pairmap.end();
     }
 
+    virtual bool isInRange(const Particle&p1) const
+    {
+      //Look for the key by hand!
+      for (const auto& element : pairmap)
+	if ((element.first == p1.getID()) || (element.second == p1.getID()))
+	  return true;
+
+      return false;
+    }
+
     void addPair(unsigned long a, unsigned long b)
     { pairmap.insert(Key(std::min(a,b), std::max(a,b))); }
 

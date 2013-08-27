@@ -43,9 +43,14 @@ namespace dynamo {
     virtual bool isInRange(const Particle&p1, const Particle&p2) const
     {
       for (const shared_ptr<IDPairRange>& rPtr : ranges)
-	if (rPtr->isInRange(p1,p2))
-	  return true;
-  
+	if (rPtr->isInRange(p1, p2)) return true;
+      return false;
+    }
+
+    virtual bool isInRange(const Particle&p1) const
+    {
+      for (const shared_ptr<IDPairRange>& rPtr : ranges)
+	if (rPtr->isInRange(p1)) return true;
       return false;
     }
 

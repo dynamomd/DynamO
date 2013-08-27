@@ -134,6 +134,19 @@ namespace dynamo
 		  << "\nN = " << N;
     }
 
+    //Now check that the representative interaction for each Species,
+    //includes interactions for all of the particles in the Species.
+    for (shared_ptr<Species>& speciesptr : species)
+      for (const auto& id : *speciesptr->getRange())
+	if (!speciesptr->getIntPtr()->getRange()->isInRange(particles[id]))
+	  {
+	    derr << "WARNING! The representative Interaction \"" 
+		 << speciesptr->getIntPtr()->getName() << "\" for Species \""
+		 << speciesptr->getName() << "\" does not include any interactions for at least Particle ID " << id << ". This *may* cause problems!\nTo avoid this warning/problems, choose a representative Interaction which does include all particles in a Species." 
+		 << std::endl;
+	    break;
+	  }
+
     dynamics->initialise();
 
     {

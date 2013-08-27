@@ -77,6 +77,9 @@ namespace dynamo {
       return false;
     }
 
+    virtual bool isInRange(const Particle&p1) const
+    { return (p1.getID() >= range1) && (p1.getID() <= range2); }
+
   protected:
     virtual void outputXML(magnet::xml::XmlStream& XML) const
     {

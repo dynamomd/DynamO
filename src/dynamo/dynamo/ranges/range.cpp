@@ -67,9 +67,7 @@ namespace dynamo {
     else if (!XML.getAttribute("Type").getValue().compare("Union"))
       return new IDPairRangeUnion(XML,Sim);
     else if (!XML.getAttribute("Type").getValue().compare("Chains"))
-      return new IDPairRangeChains(XML,Sim);              
-    else if (!XML.getAttribute("Type").getValue().compare("ChainGroups"))
-      return new IDPairRangeChainGroups(XML,Sim);
+      return new IDPairRangeChains(XML,Sim);
     else if (!XML.getAttribute("Type").getValue().compare("ChainEnds"))
       return new IDPairRangeChainEnds(XML,Sim);
     else if (!XML.getAttribute("Type").getValue().compare("IntraChains"))
