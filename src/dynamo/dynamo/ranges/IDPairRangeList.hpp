@@ -70,7 +70,7 @@ namespace dynamo {
 	XML << magnet::xml::tag("IDPair")
 	    << magnet::xml::attr("ID1") << key.first
 	    << magnet::xml::attr("ID2") << key.second
-	    << magnet::xml::endtag("Pair");
+	    << magnet::xml::endtag("IDPair");
     }
 
     Container pairmap;

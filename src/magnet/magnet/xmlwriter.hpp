@@ -21,6 +21,7 @@
 #include <stack>
 #include <string>
 #include <sstream>
+#include <magnet/exception.hpp>
 
 namespace magnet {
   namespace xml {
@@ -209,7 +210,11 @@ namespace magnet {
 	  brk = tag.empty() || tag == tags.top();
 	  tags.pop();
 	}
-      }    
+
+	//Check if we ran out of tags
+	if (tags.empty() && !brk)
+	  M_throw() << "Could not find tag \"" << tag << "\" to close!";
+      }
     };
   
     /*! \brief Stream manipulator causing the XmlStream to output the
