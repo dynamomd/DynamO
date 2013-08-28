@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 					  + "Main(): " + magnet::console::reset(), std::cerr);
       os << cep.what() << std::endl;
 #ifndef DYNAMO_DEBUG
-      os << "Try using the debugging executable for more information on the error." << std::endl;
+      os << "For a stack trace please run the debugging executables." << std::endl;
 #endif
       return 1;
     }

@@ -27,24 +27,23 @@ namespace dynamo {
     IDRangeRange(const magnet::xml::Node& XML) 
     { 
       startID = XML.getAttribute("Start").as<size_t>();
-      endID = XML.getAttribute("End").as<size_t>() + 1;
+      endID = XML.getAttribute("End").as<size_t>();
     }
     
     IDRangeRange(size_t s, size_t e):startID(s), endID(e) {}
 
     virtual bool isInRange(const Particle& part) const
-    { return (part.getID() >= startID) && (part.getID() < endID); }
+    { return (part.getID() >= startID) && (part.getID() <= endID); }
 
-    virtual unsigned long size() const { return endID - startID; };
+    virtual unsigned long size() const { return endID - startID + 1; };
 
     virtual unsigned long operator[](unsigned long i) const  
     { return startID + i; }
 
     virtual unsigned long at(unsigned long i) const 
     { 
-      if (i >= endID - startID)
+      if (i >= size())
 	M_throw() << "Bad array access value in range.at()";
-    
       return startID + i;
     }
 
@@ -53,7 +52,7 @@ namespace dynamo {
     {
       XML << magnet::xml::attr("Type") << "Ranged"
 	  << magnet::xml::attr("Start") << startID
-	  << magnet::xml::attr("End") << endID - 1;
+	  << magnet::xml::attr("End") << endID;
     }
 
     size_t startID;

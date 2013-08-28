@@ -140,11 +140,20 @@ namespace dynamo
       for (const auto& id : *speciesptr->getRange())
 	if (!speciesptr->getIntPtr()->getRange()->isInRange(particles[id]))
 	  {
-	    derr << "WARNING! The representative Interaction \"" 
-		 << speciesptr->getIntPtr()->getName() << "\" for Species \""
-		 << speciesptr->getName() << "\" does not include any interactions for at least Particle ID " << id << ". This *may* cause problems!\nTo avoid this warning/problems, choose a representative Interaction which does include all particles in a Species." 
-		 << std::endl;
-	    break;
+	    //A bad choice for the representative interaction has been
+	    //given. Find out if we can suggest a correct choice.
+	    std::string possiblechoices;
+	    for (const auto& interactionptr : interactions)
+	      if (interactionptr->getRange()->isInRange(particles[id]))
+		possiblechoices += std::string("\"")+interactionptr->getName()+std::string("\" ");
+	    
+	    M_throw() << "The representative Interaction \"" 
+		      << speciesptr->getIntPtr()->getName() << "\" for Species \""
+		      << speciesptr->getName() 
+		      << "\" does not include any interactions for at least Particle ID " << id 
+		      << ". This is needed for packing fraction calculations, visualisation, and other routines.\nTo avoid this error, choose a representative Interaction which includes all particles in a Species."
+		      << "\n Possible valid Interactions are: " << (possiblechoices.empty() ? std::string("NONE") : possiblechoices)
+	      ;
 	  }
 
     dynamics->initialise();

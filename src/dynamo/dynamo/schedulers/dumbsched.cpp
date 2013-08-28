@@ -60,6 +60,6 @@ namespace dynamo {
   std::unique_ptr<IDRange>
   SDumb::getParticleLocals(const Particle&) const
   {
-    return std::unique_ptr<IDRange>(new IDRangeRange(0, Sim->locals.size()));
+    return std::unique_ptr<IDRange>(new IDRangeRange(0, Sim->locals.size() - 1));
   }
 }

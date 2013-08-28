@@ -122,6 +122,6 @@ namespace dynamo {
     
   std::unique_ptr<IDRange> 
   SNeighbourList::getParticleLocals(const Particle& part) const {
-    return std::unique_ptr<IDRange>(new IDRangeRange(0, Sim->locals.size()));
+    return std::unique_ptr<IDRange>(new IDRangeRange(0, Sim->locals.size() - 1));
   }
 }
