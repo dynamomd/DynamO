@@ -1,0 +1,34 @@
+#!/usr/bin/env python2
+import glob
+import math
+import os
+import xml.etree.ElementTree as ET
+import subprocess
+ 
+#A helpful function to load compressed or uncompressed XML files
+def loadXMLFile(filename):
+    #Check if the file is compressed or not, and 
+    if (os.path.splitext(filename)[1][1:].strip() == "bz2"):
+        import bz2
+        f = bz2.BZ2File(filename)
+        doc = ET.parse(f)
+        f.close()
+        return doc
+    else:
+        return etree.parse(filename)
+
+import sys
+if len(sys.argv) != 2:
+    print "dynamo2xyz config-file"
+    print " This program converts a dynamo configuration file to xyz format and prints it on the screen. To save this conversion, just redirect it to a file"
+    print " For example,   ./dynamo2xyz config.out.xml.bz2 > config.xyz"
+    exit(1);
+
+XMLDoc=loadXMLFile(sys.argv[1])
+RootElement=XMLDoc.getroot()
+for particleNode in RootElement.findall('.//Pt'):
+    posNode = particleNode.find('P')
+    velNode = particleNode.find('V')
+    print particleNode.attrib['ID'], #Note the trailing comma!
+    print posNode.attrib['x'], posNode.attrib['y'], posNode.attrib['z'], #Note the trailing comma!
+    print velNode.attrib['x'], velNode.attrib['y'], velNode.attrib['z'] #No comma, to print a newline

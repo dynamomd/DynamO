@@ -66,6 +66,6 @@ exe dynamod : programs/dynamod.cpp dynamo_core/<coil-integration>no
 explicit dynamod dynahist_rw dynarun dynapotential dynamo_core visualizer test ;
 
 install install-dynamo
-	: dynarun dynahist_rw dynamod dynavis dynapotential programs/dynatransport programs/dynarmsd programs/dynamaprmsd
+	: dynarun dynahist_rw dynamod dynavis dynapotential programs/dynatransport programs/dynarmsd programs/dynamaprmsd  programs/dynamo2xyz
 	: <location>$(BIN_INSTALL_PATH) <dynamo-buildable>no:<build>no <coil-support>yes:<source>dynavis
 	;
