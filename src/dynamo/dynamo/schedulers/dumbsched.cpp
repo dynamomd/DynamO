@@ -28,13 +28,13 @@ namespace dynamo {
   SDumb::SDumb(const magnet::xml::Node& XML, dynamo::Simulation* const Sim):
     Scheduler(Sim,"DumbScheduler", NULL)
   { 
-    dout << "Dumb Scheduler Algorithmn" << std::endl;
+    dout << "Dumb Scheduler Algorithm" << std::endl;
     operator<<(XML);
   }
 
   SDumb::SDumb(dynamo::Simulation* const Sim, FEL* ns):
     Scheduler(Sim,"DumbScheduler", ns)
-  { dout << "Dumb Scheduler Algorithmn" << std::endl; }
+  { dout << "Dumb Scheduler Algorithm" << std::endl; }
 
   void 
   SDumb::outputXML(magnet::xml::XmlStream& XML) const

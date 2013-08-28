@@ -76,13 +76,13 @@ namespace dynamo {
 				   dynamo::Simulation* const Sim):
     Scheduler(Sim,"NbListScheduler", NULL)
   { 
-    dout << "Neighbour List Scheduler Algorithmn Loaded" << std::endl;
+    dout << "Neighbour List Scheduler Algorithm Loaded" << std::endl;
     operator<<(XML);
   }
 
   SNeighbourList::SNeighbourList(dynamo::Simulation* const Sim, FEL* ns):
     Scheduler(Sim,"NeighbourListScheduler", ns)
-  { dout << "Neighbour List Scheduler Algorithmn Loaded" << std::endl; }
+  { dout << "Neighbour List Scheduler Algorithm Loaded" << std::endl; }
 
   std::unique_ptr<IDRange>
   SNeighbourList::getParticleNeighbours(const Particle& part) const

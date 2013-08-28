@@ -27,13 +27,13 @@ namespace dynamo {
 			     dynamo::Simulation* const Sim):
     Scheduler(Sim,"SystemOnlyScheduler", NULL)
   { 
-    dout << "System Events Only Scheduler Algorithmn" << std::endl;
+    dout << "System Events Only Scheduler Algorithm" << std::endl;
     operator<<(XML);
   }
 
   SSystemOnly::SSystemOnly(dynamo::Simulation* const Sim, FEL* ns):
     Scheduler(Sim,"SystemOnlyScheduler", ns)
-  { dout << "System Events Only Scheduler Algorithmn" << std::endl; }
+  { dout << "System Events Only Scheduler Algorithm" << std::endl; }
 
   void
   SSystemOnly::initialise()

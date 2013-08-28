@@ -136,7 +136,7 @@ namespace dynamo {
     //Interaction::operator<<(XML);
     try {
       startID = XML.getAttribute("Start").as<unsigned long>();
-      endID = XML.getAttribute("End").as<unsigned long>() + 1;
+      endID = XML.getAttribute("End").as<unsigned long>();
 
       range = shared_ptr<IDPairRange>(new IDPairRangeSingle(new IDRangeRange(startID, endID)));
 
@@ -395,6 +395,6 @@ namespace dynamo {
     XML << magnet::xml::attr("Type")  << "PRIME_BB"
         << magnet::xml::attr("Name")  << intName
         << magnet::xml::attr("Start") << startID
-        << magnet::xml::attr("End")   << endID - 1;
+        << magnet::xml::attr("End")   << endID;
   }
 }
