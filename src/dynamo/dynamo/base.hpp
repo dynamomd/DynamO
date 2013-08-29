@@ -44,20 +44,22 @@ namespace dynamo
      
       \param aName The name of the class.
      */
-    Base(const std::string aName):
-      dout(colorCode(aName) 
-	   + aName + ": " + magnet::console::reset(), std::cout),
-      derr(magnet::console::bold()
-	   + magnet::console::red_fg() 
-	   + aName + ": " + magnet::console::reset(), std::cerr),
-      name(aName)
+    Base(const std::string name):
+      dout(std::cout), derr(std::cerr)
     {
+      setOutputPrefix(name);
       //Reasonable precision for output
       dout << std::setprecision(std::numeric_limits<float>::digits10);
       derr << std::setprecision(std::numeric_limits<float>::digits10);
     }
-    
+
   protected:
+    void setOutputPrefix(const std::string& prefix)
+    {
+      dout.setPrefix(colorCode(prefix) + prefix + ": " + magnet::console::reset());
+      derr.setPrefix(magnet::console::bold() + magnet::console::red_fg() + prefix + ": " + magnet::console::reset());
+    }
+
     /*! \brief A std::cout style output stream. 
      
       This member is meant as a replacement to std::cout, as it
@@ -79,9 +81,6 @@ namespace dynamo
     */
     Base() { M_throw() << "Calling the default constructor!"; }
 
-    /*! \brief A pointer to a const definition of the class name. */
-    std::string name;
-    
   private:
     /*! \brief Generate a random console text-color command based off
       a string.

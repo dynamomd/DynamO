@@ -44,7 +44,7 @@ namespace dynamo {
     virtual void periodicOutput() {}
 
     virtual void replicaExchange(OutputPlugin&)
-    { M_throw() << "This plugin hasn't been prepared for changes of system\n Plugin " <<  name; }
+    { M_throw() << "This System type hasn't been prepared for changes of system"; }
 
   protected:
 

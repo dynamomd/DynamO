@@ -42,7 +42,7 @@ namespace dynamo {
   void 
   IDumbbells::initialise(size_t nID)
   {
-    ID = nID; 
+    Interaction::initialise(nID);
     ICapture::initCaptureMap();
   }
 

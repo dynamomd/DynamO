@@ -40,7 +40,7 @@ namespace dynamo {
   void 
   IHardSphere::initialise(size_t nID)
   { 
-    ID=nID; 
+    Interaction::initialise(nID);
     _complete_events = 0;
     _post_event_overlap = 0;
     _accum_overlap_magnitude = 0;

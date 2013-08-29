@@ -62,7 +62,10 @@ namespace dynamo {
   
     virtual ~Interaction() {}
 
-    virtual void initialise(size_t) = 0;
+    virtual void initialise(size_t id) {
+      ID = id;
+      setOutputPrefix(std::string("Interaction[")+intName+std::string("]"));
+    }
 
     /*! \brief Calculate if and when an event is to occur between two
         particles.

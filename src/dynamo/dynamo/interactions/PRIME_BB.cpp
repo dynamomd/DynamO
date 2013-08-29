@@ -171,12 +171,6 @@ namespace dynamo {
     return maxdiam;
   }
 
-  void
-  IPRIME_BB::initialise(size_t nID)
-  {
-    ID = nID;
-  }
-
   std::pair<double, bool>
   IPRIME_BB::getInteractionParameters(const size_t pID1, const size_t pID2) const
   {

@@ -66,10 +66,6 @@ namespace dynamo {
   { return _diameter->getMaxValue()
       * _lambda->getMaxValue(); }
 
-  void 
-  ISquareBond::initialise(size_t nID)
-  { ID = nID; }
-
   bool 
   ISquareBond::captureTest(const Particle& p1, const Particle& p2) const
   {

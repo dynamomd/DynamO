@@ -35,8 +35,6 @@ namespace dynamo {
 
     virtual double maxIntDist() const;
 
-    virtual void initialise(size_t);
-
     virtual IntEvent getEvent(const Particle&, const Particle&) const;
 
     virtual void runEvent(Particle&, Particle&, const IntEvent&);

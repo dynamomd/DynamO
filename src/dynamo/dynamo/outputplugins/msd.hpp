@@ -46,7 +46,7 @@ namespace dynamo {
     double calcStructMSD(const Topology&) const;
 
     virtual void replicaExchange(OutputPlugin&)
-    { M_throw() << "This plugin hasn't been prepared for changes of system\n Plugin " <<  name; }
+    { M_throw() << "This plugin hasn't been prepared for changes of system"; }
   
   protected:
   

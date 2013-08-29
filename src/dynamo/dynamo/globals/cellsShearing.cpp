@@ -29,7 +29,7 @@ namespace dynamo {
 				 const std::string& globalname):
     GCells(nSim, globalname)
   {
-    name = "ShearingCells";
+    setOutputPrefix("ShearingCells");
     dout << "Shearing Cells Loaded" << std::endl;
   }
 

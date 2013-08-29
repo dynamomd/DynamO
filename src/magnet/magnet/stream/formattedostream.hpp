@@ -101,6 +101,8 @@ namespace magnet
 	  str("");
 	  return 0;
         }
+	
+	void setPrefix(const std::string& prefix) { _prefix = prefix; }
       };
 
       FormatingStreamBuf _buffer;
@@ -115,8 +117,8 @@ namespace magnet
         \param ostream The underlying output stream or final destination of the formatted output.
         \param prefix The string to replace all newline characters with.
        */
-      inline FormattedOStream(const std::string & prefix = "",
-			      std::ostream& ostream = std::cout,
+      inline FormattedOStream(std::ostream& ostream = std::cout,
+			      const std::string & prefix = "",
 			      const size_t linelength = 80):
 	std::ostream(&_buffer),
 	_buffer(prefix, ostream, linelength)
@@ -132,6 +134,8 @@ namespace magnet
 	std::ostream(&_buffer),
 	_buffer(os._buffer)
       {}
+      
+      void setPrefix(const std::string& prefix) { _buffer.setPrefix(prefix); }
     };
   }
 }

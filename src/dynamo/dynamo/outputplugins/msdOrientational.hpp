@@ -50,7 +50,7 @@ namespace dynamo {
     typedef std::pair<Vector,Vector> RUpair;
 
     virtual void replicaExchange(OutputPlugin&)
-    { M_throw() << "This plugin hasn't been prepared for changes of system\n Plugin " <<  name; }
+    { M_throw() << "This output plugin hasn't been prepared for changes of system"; }
 
   protected:
 

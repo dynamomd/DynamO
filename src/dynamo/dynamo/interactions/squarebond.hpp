@@ -49,8 +49,6 @@ namespace dynamo {
 
     virtual double getCaptureEnergy() const;
 
-    virtual void initialise(size_t);
-
     virtual bool captureTest(const Particle&, const Particle&) const;
 
     virtual IntEvent getEvent(const Particle&, const Particle&) const;

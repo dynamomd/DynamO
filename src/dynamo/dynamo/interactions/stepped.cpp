@@ -81,7 +81,7 @@ namespace dynamo {
   void 
   IStepped::initialise(size_t nID)
   {
-    ID = nID;
+    Interaction::initialise(nID);
     ICapture::initCaptureMap();
   }
 

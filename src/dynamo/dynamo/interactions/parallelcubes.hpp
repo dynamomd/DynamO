@@ -44,8 +44,6 @@ namespace dynamo {
 
     void operator<<(const magnet::xml::Node&);
 
-    virtual void initialise(size_t);
-
     virtual double maxIntDist() const;
 
     virtual double getExcludedVolume(size_t) const;

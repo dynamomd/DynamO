@@ -70,8 +70,7 @@ namespace dynamo {
     }
     catch (std::exception& excep)
       {
-	M_throw() << "Error while parsing " << name << "options\n"
-		  << excep.what();
+	M_throw() << "Error while parsing output plugin options\n" << excep.what();
       }
   }
 

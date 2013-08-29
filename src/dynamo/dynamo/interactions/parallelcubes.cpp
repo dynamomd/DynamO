@@ -37,12 +37,6 @@ namespace dynamo {
     Interaction(tmp,NULL)
   { operator<<(XML); }
 
-  void 
-  IParallelCubes::initialise(size_t nID)
-  { 
-    ID=nID; 
-  }
-
   std::array<double, 4> IParallelCubes::getGlyphSize(size_t ID) const
   {
     return {{_diameter->getProperty(ID), 0, 0, 0}};

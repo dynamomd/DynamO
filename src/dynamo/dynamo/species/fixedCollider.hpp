@@ -26,11 +26,11 @@ namespace dynamo {
   public:  
     SpFixedCollider(dynamo::Simulation* sim, IDRange* r, std::string nName, unsigned int ID, std::string nIName="Bulk"):
       SpInertia(sim, r, HUGE_VAL, nName, ID, nIName)
-    { name = "SpFixedCollider"; }
+    { setOutputPrefix("SpFixedCollider"); }
   
     SpFixedCollider(const magnet::xml::Node& XML, dynamo::Simulation* nSim, unsigned int nID):
       SpInertia(nSim, NULL, HUGE_VAL, "", nID,"")
-    { name = "SpFixedCollider"; operator<<(XML); }
+    { setOutputPrefix("SpFixedCollider"); operator<<(XML); }
   
     virtual void initialise();
 

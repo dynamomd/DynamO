@@ -171,7 +171,7 @@ namespace dynamo {
   void 
   ISWSequence::initialise(size_t nID)
   {
-    ID = nID;
+    Interaction::initialise(nID);
     ICapture::initCaptureMap();
   }
 
