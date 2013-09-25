@@ -64,10 +64,6 @@ namespace magnet {
       //! \brief Destructor.
       inline ~XmlStream()
       {
-	if (stateTagName == state) {
-	  s << "/>";
-	  state = stateNone;
-	}
 	while (tags.size())
 	  endTag(tags.top());
       }
@@ -98,9 +94,6 @@ namespace magnet {
 	  break;
 	case Controller::Attribute:
 	  switch (state) {
-	  case stateTagName:
-	    tags.push(tagName.str());
-	    break;
 	  case stateAttribute:
 	    s << '\"';
 	  default:
@@ -125,8 +118,6 @@ namespace magnet {
        */
       template<class T>
       XmlStream& operator<<(const T& value) {
-	if (stateTagName == state)
-	  tagName << value;
 	s << value;
 	return *this;
       }
@@ -137,8 +128,6 @@ namespace magnet {
        */
       template<class T>
       XmlStream& operator<<(const std::shared_ptr<T>& value) {
-	if (stateTagName == state)
-	  tagName << value;
 	return (*this) << (*value);
       }
 
@@ -157,7 +146,6 @@ namespace magnet {
 	  stateNone, 
 	  stateTag, 
 	  stateAttribute, 
-	  stateTagName, 
 	  stateCharData
 	}	state_type;
     
@@ -174,14 +162,10 @@ namespace magnet {
       //! \brief Closes the current tag.
       inline void closeTagStart(bool self_closed = false)
       {
-	if (stateTagName == state)
-	  tags.push(tagName.str());
-      
 	// note: absence of 'break's is not an error
 	switch (state) {
 	case stateAttribute:
 	  s << '\"';
-	case stateTagName:
 	case stateTag:
 	  if (self_closed)
 	    s << '/';
