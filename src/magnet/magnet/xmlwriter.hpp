@@ -29,11 +29,6 @@ namespace magnet {
      */
     class XmlStream {
     public:
-      //! \brief Major XML version constant.
-      static const int versionMajor = 1;
-      //! \brief Minor XML version constant.
-      static const int versionMinor = 0;
-    
       //! \brief Internal type used to modify the state of the XML stream.
       struct Controller {
 	typedef enum {
@@ -42,79 +37,62 @@ namespace magnet {
 	  TagEnd, 
 	  Attribute, 
 	  CharData
-	}	ControllerType;
-      
+	} ControllerType;
 	ControllerType _type;
-	std::string str;
+	std::string _str;
       
-	inline Controller(const Controller& c) : _type(c._type), str(c.str) {}
 	inline Controller(const ControllerType type) : _type(type){}
-	inline Controller(const ControllerType type, const std::string& _str):
-	  _type(type), str(_str) {}
+	inline Controller(const ControllerType type, const std::string& str):
+	  _type(type), _str(str) {}
       };
     
-      //! \brief Constructs an XmlStream from a std::ostream object.
       inline XmlStream(std::ostream& _s):
 	state(stateNone), s(_s), prologWritten(false), FormatXML(false) {}
     
-      //! \brief Copy constructor.
       inline XmlStream(const XmlStream &XML):
 	state(XML.state), s(XML.s), prologWritten(XML.prologWritten), FormatXML(XML.FormatXML) {}
     
-      //! \brief Destructor.
-      inline ~XmlStream()
-      {
-	while (tags.size())
-	  endTag(tags.top());
-      }
+      inline ~XmlStream() { while (tags.size()) endTag(tags.top()); }
 
-    
-      /*! \brief Main insertion operator which changes the state of the
-       * XmlStream.
+      /*! \brief Main insertion operator which changes the state of
+        the XmlStream.
        */
       inline XmlStream& operator<<(const Controller& controller)
       {
 	switch (controller._type) {
 	case Controller::Prolog:
-	  if (!prologWritten && stateNone == state) {
-	    s << "<?xml version=\"" << versionMajor << '.' << versionMinor << "\"?>\n";
-	    prologWritten = true;
-	  }
+	  if (prologWritten) M_throw() << "XML prolog already written.";
+	  if (state != stateNone) M_throw() << "Incorrect state to write XML prolog.";
+	  s << "<?xml version=\"1.0\"?>\n";
+	  prologWritten = true;
 	  break;
 	case Controller::Tag:
 	  closeTagStart();
-	  for (size_t i(0); i < tags.size(); ++i)
-	    s << "  ";
-	  s << '<' << controller.str;
-	  tags.push(controller.str);
+	  for (size_t i(0); i < tags.size(); ++i) s << "  ";
+	  s << '<' << controller._str;
+	  tags.push(controller._str);
 	  state = stateTag;
 	  break;
 	case Controller::TagEnd:
-	  endTag(controller.str);
+	  endTag(controller._str);
 	  break;
 	case Controller::Attribute:
-	  switch (state) {
-	  case stateAttribute:
-	    s << '\"';
-	  default:
-	    break;
-	  }
-      
-	  if (stateNone != state) {
-	    s << ' ' << controller.str << "=\"";
+	  if (state == stateAttribute) s << '\"'; //Close open attribute
+	  if (state != stateNone) {
+	    s << ' ' << controller._str << "=\"";
 	    state = stateAttribute;
 	  }
-	  break;//Controller::whatAttribute
+	  break;
 	case Controller::CharData:
 	  closeTagStart();
 	  state = stateNone;
-	  break;//Controller::whatCharData
+	  break;
 	}
 	return	*this;
       }
 
       /*! \brief Default insertion operator, just delegates the passed
-       * object to the underlying std::stream.
+	object to the underlying std::stream.
        */
       template<class T>
       XmlStream& operator<<(const T& value) {
@@ -122,10 +100,7 @@ namespace magnet {
 	return *this;
       }
 
-      /*! \brief Specialisation for pointers.
-	
-	Calls the output operator on the dereferenced object
-       */
+      /*! \brief Specialisation for pointers. */
       template<class T>
       XmlStream& operator<<(const std::shared_ptr<T>& value) {
 	return (*this) << (*value);
@@ -135,7 +110,7 @@ namespace magnet {
       inline std::ostream& getUnderlyingStream() { return s; }
 
       /*! \brief Enables or disables automatic formatting of the
-       * outputted XML.
+        outputted XML.
        */
       inline void setFormatXML(const bool& tf) { FormatXML = tf; }
     
@@ -167,8 +142,7 @@ namespace magnet {
 	case stateAttribute:
 	  s << '\"';
 	case stateTag:
-	  if (self_closed)
-	    s << '/';
+	  if (self_closed) s << '/';
 	  s << '>' << '\n';
 	default:
 	  break;
@@ -181,7 +155,7 @@ namespace magnet {
 	bool brk = false;
     
 	while (tags.size() > 0 && !brk) {
-	  if (stateNone == state)
+	  if (state == stateNone)
 	    {
 	      for (size_t i(1); i < tags.size(); ++i)
 		s << "  ";
@@ -202,7 +176,7 @@ namespace magnet {
     };
   
     /*! \brief Stream manipulator causing the XmlStream to output the
-     * XML prolog.
+      XML prolog.
      */
     inline const XmlStream::Controller prolog() { return
 	XmlStream::Controller(XmlStream::Controller::Prolog); }
@@ -214,29 +188,29 @@ namespace magnet {
     }
   
     /*! \brief Stream manipulator to close an XML tag in the XmlStream.
-     *
-     * This will close all XML tags until it closes one tag with the
-     * passed name.
+     
+      This will close all XML tags until it closes one tag with the
+      passed name.
      */
     inline const XmlStream::Controller endtag(const std::string& tag_name) {
       return XmlStream::Controller(XmlStream::Controller::TagEnd, tag_name);
     }
   
     /*! \brief Stream manipulator to add an attribute with the passed
-     * name to the XmlStream.
-     *
-     * This manipulates the stream state such that the next passed value
-     * is used as the value of the attribute.
+      name to the XmlStream.
+     
+      This manipulates the stream state such that the next passed value
+      is used as the value of the attribute.
      */
     inline const XmlStream::Controller attr(const std::string& attr_name) {
       return XmlStream::Controller(XmlStream::Controller::Attribute, attr_name);
     }
   
     /*! \brief Stream manipulator to switch the stream state to output
-     * all further inserted values to the contents of the current XML
-     * tag.
-     *
-     * This mode is ended by the next \ref endtag stream modifier.
+      all further inserted values to the contents of the current XML
+      tag.
+     
+      This mode is ended by the next \ref endtag stream modifier.
      */
     inline const XmlStream::Controller chardata() {
       return XmlStream::Controller(XmlStream::Controller::CharData);
