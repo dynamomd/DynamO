@@ -442,112 +442,100 @@ namespace dynamo
   
     coutputFile.push(io::file_sink(fileName));
   
-    magnet::xml::XmlStream XML(coutputFile);
+    namespace xml = magnet::xml;
+    xml::XmlStream XML(coutputFile);
     XML.setFormatXML(true);
 
     dynamics->updateAllParticles();
 
     //Rescale the properties to the configuration file units
-    _properties.rescaleUnit(Property::Units::L, 
-			    1.0 / units.unitLength());
-
-    _properties.rescaleUnit(Property::Units::T, 
-			    1.0 / units.unitTime());
-
-    _properties.rescaleUnit(Property::Units::M, 
-			    1.0 / units.unitMass());
-
-    XML << std::scientific
-      //This has a minus one due to the digit in front of the decimal
-	<< std::setprecision(std::numeric_limits<double>::digits10 + 2 - 4 * round)
-	<< magnet::xml::prolog() << magnet::xml::tag("DynamOconfig")
-	<< magnet::xml::attr("version") << configFileVersion
-	<< magnet::xml::tag("Simulation");
+    _properties.rescaleUnit(Property::Units::L, 1.0 / units.unitLength());
+    _properties.rescaleUnit(Property::Units::T, 1.0 / units.unitTime());
+    _properties.rescaleUnit(Property::Units::M, 1.0 / units.unitMass());
+    
+    XML << std::setprecision(std::numeric_limits<double>::digits10 + 2 - 4 * round)
+	<< xml::prolog()
+	<< xml::tag("DynamOconfig")
+	<< xml::attr("version") << configFileVersion
+	<< xml::tag("Simulation");
     
     //Allow this block to fail if need be
     if (getOutputPlugin<OPMisc>())
       {
 	double mft = getOutputPlugin<OPMisc>()->getMFT();
 	if (!std::isinf(mft) && !std::isnan(mft))
-	  XML << magnet::xml::attr("lastMFT") << mft;
+	  XML << xml::attr("lastMFT") << mft;
 	else
-	  XML << magnet::xml::attr("lastMFT") << lastRunMFT;
+	  XML << xml::attr("lastMFT") << lastRunMFT;
       }
 
-    XML << magnet::xml::tag("Scheduler")
+    XML << xml::tag("Scheduler")
 	<< ptrScheduler
-	<< magnet::xml::endtag("Scheduler")
-	<< magnet::xml::tag("SimulationSize")
+	<< xml::endtag("Scheduler")
+	<< xml::tag("SimulationSize")
 	<< primaryCellSize / units.unitLength()
-	<< magnet::xml::endtag("SimulationSize")
-      	<< magnet::xml::tag("Genus");
+	<< xml::endtag("SimulationSize")
+      	<< xml::tag("Genus");
   
     for (const shared_ptr<Species>& ptr : species)
-      XML << magnet::xml::tag("Species") 
+      XML << xml::tag("Species") 
 	  << ptr
-	  << magnet::xml::endtag("Species");
+	  << xml::endtag("Species");
   
-    XML << magnet::xml::endtag("Genus")
-      	<< magnet::xml::tag("BC")
+    XML << xml::endtag("Genus")
+      	<< xml::tag("BC")
 	<< BCs
-	<< magnet::xml::endtag("BC")
-	<< magnet::xml::tag("Topology");
+	<< xml::endtag("BC")
+	<< xml::tag("Topology");
   
     for (const shared_ptr<Topology>& ptr : topology)
-      XML << magnet::xml::tag("Structure")
+      XML << xml::tag("Structure")
 	  << ptr
-	  << magnet::xml::endtag("Structure");
+	  << xml::endtag("Structure");
     
-    XML << magnet::xml::endtag("Topology")
-	<< magnet::xml::tag("Interactions");
+    XML << xml::endtag("Topology")
+	<< xml::tag("Interactions");
   
     for (const shared_ptr<Interaction>& ptr : interactions)
-      XML << magnet::xml::tag("Interaction")
+      XML << xml::tag("Interaction")
 	  << ptr
-	  << magnet::xml::endtag("Interaction");
+	  << xml::endtag("Interaction");
   
-    XML << magnet::xml::endtag("Interactions")
-	<< magnet::xml::tag("Locals");
+    XML << xml::endtag("Interactions")
+	<< xml::tag("Locals");
     
     for (const shared_ptr<Local>& ptr : locals)
-      XML << magnet::xml::tag("Local")
+      XML << xml::tag("Local")
 	  << ptr
-	  << magnet::xml::endtag("Local");
+	  << xml::endtag("Local");
     
-    XML << magnet::xml::endtag("Locals")
-      	<< magnet::xml::tag("Globals");
+    XML << xml::endtag("Locals")
+      	<< xml::tag("Globals");
     
-    for (const shared_ptr<Global>& ptr : globals)
-      XML << ptr;
+    for (const shared_ptr<Global>& ptr : globals) XML << ptr;
     
-    XML << magnet::xml::endtag("Globals")
-	<< magnet::xml::tag("SystemEvents");
+    XML << xml::endtag("Globals")
+	<< xml::tag("SystemEvents");
     
-    for (const shared_ptr<System>& ptr : systems)
-      XML << ptr;
+    for (const shared_ptr<System>& ptr : systems) XML << ptr;
   
-    XML << magnet::xml::endtag("SystemEvents")
-      	<< magnet::xml::tag("Dynamics")
+    XML << xml::endtag("SystemEvents")
+      	<< xml::tag("Dynamics")
 	<< dynamics
-	<< magnet::xml::endtag("Dynamics")
-	<< magnet::xml::endtag("Simulation")
+	<< xml::endtag("Dynamics")
+	<< xml::endtag("Simulation")
 	<< _properties;
 
     dynamics->outputParticleXMLData(XML, applyBC);
 
-    XML << magnet::xml::endtag("DynamOconfig");
+    XML << xml::endtag("DynamOconfig");
 
     dout << "Config written to " << fileName << std::endl;
 
     //Rescale the properties back to the simulation units
-    _properties.rescaleUnit(Property::Units::L, 
-			    units.unitLength());
-
-    _properties.rescaleUnit(Property::Units::T, 
-			    units.unitTime());
-
-    _properties.rescaleUnit(Property::Units::M, 
-			    units.unitMass());
+    _properties.rescaleUnit(Property::Units::L, units.unitLength());
+    _properties.rescaleUnit(Property::Units::T, units.unitTime());
+    _properties.rescaleUnit(Property::Units::M, units.unitMass());
   }
   
   void 
@@ -707,12 +695,13 @@ namespace dynamo
       coutputFile.push(io::bzip2_compressor());
   
     coutputFile.push(io::file_sink(filename));
-  
-    magnet::xml::XmlStream XML(coutputFile);
+    
+    namespace xml = magnet::xml;
+    xml::XmlStream XML(coutputFile);
     XML.setFormatXML(true);
-  
+    
     XML << std::setprecision(std::numeric_limits<double>::digits10 + 2)
-	<< magnet::xml::prolog() << magnet::xml::tag("OutputData");
+	<< xml::prolog() << xml::tag("OutputData");
   
     //Output the data and delete the outputplugins
     for (shared_ptr<OutputPlugin> & Ptr : outputPlugins)
@@ -724,7 +713,7 @@ namespace dynamo
     for (shared_ptr<Local> & Ptr : locals)
       Ptr->outputData(XML);
 
-    XML << magnet::xml::endtag("OutputData");
+    XML << xml::endtag("OutputData");
 
     dout << "Output written to " << filename << std::endl;
   }
