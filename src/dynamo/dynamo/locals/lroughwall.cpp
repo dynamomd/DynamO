@@ -46,6 +46,15 @@ namespace dynamo {
     operator<<(XML);
   }
 
+  void 
+  LRoughWall::initialise(size_t nID)
+  {
+    Local::initialise(nID);
+    if (!Sim->dynamics->hasOrientationData())
+      M_throw() << "Local'" << getName() 
+		<< "': To use a rough wall, you must have orientation data for the particles in your configuration file";
+  }
+  
   LocalEvent 
   LRoughWall::getEvent(const Particle& part) const
   {
@@ -63,8 +72,7 @@ namespace dynamo {
     ++Sim->eventCount;
 
     //Run the collision and catch the data
-    NEventData EDat(Sim->dynamics->runRoughWallCollision
-		    (part, vNorm, e, et, r));
+    NEventData EDat(Sim->dynamics->runRoughWallCollision(part, vNorm, e, et, r));
 
     Sim->_sigParticleUpdate(EDat);
 

@@ -45,6 +45,10 @@ namespace dynamo {
     _post_event_overlap = 0;
     _accum_overlap_magnitude = 0;
     _overlapped_tests = 0;
+
+    if (_et && !Sim->dynamics->hasOrientationData())
+      M_throw() << "Interaction'" << getName() 
+		<< "': To use a tangential coefficient of restitution, you must have orientation data for the particles in your configuration file.";
   }
 
   void 
