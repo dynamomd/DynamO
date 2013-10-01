@@ -24,6 +24,7 @@ namespace dynamo {
   {
   public:
     SysSnapshot(dynamo::Simulation*, double, std::string, std::string, bool);
+    SysSnapshot(dynamo::Simulation*, size_t, std::string, std::string, bool);
   
     virtual void runEvent() const;
 
@@ -34,8 +35,6 @@ namespace dynamo {
     void setdt(double);
 
     void increasedt(double);
-
-    void setTickerPeriod(const double&);
 
     const double& getPeriod() const { return _period; }
     
@@ -48,12 +47,17 @@ namespace dynamo {
       std::swap(_saveCounter, s._saveCounter);
     }
 
+    void setTickerPeriod(const double&);
+
   protected:
+    void eventCallback(const NEventData&);
     virtual void outputXML(magnet::xml::XmlStream&) const {}
 
     double _period;
     bool _applyBC;
     std::string _format;
     mutable size_t _saveCounter;
+    size_t _eventPeriod;
+    size_t _lastEventCount;
   };
 }

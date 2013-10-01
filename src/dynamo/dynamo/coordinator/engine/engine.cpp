@@ -48,6 +48,8 @@ namespace dynamo {
       ("unwrapped", "Don't apply the boundary conditions of the system when writing out the particle positions.")
       ("snapshot", boost::program_options::value<double>(),
        "Sets the system time inbetween saving snapshots of the system.")
+      ("snapshot-events", boost::program_options::value<size_t>(),
+       "Sets the event count inbetween saving snapshots of the system.")
       ;
   
     opts.add(simopts);

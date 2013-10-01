@@ -38,20 +38,51 @@ namespace dynamo {
 
     dt = nPeriod;
     _period = nPeriod;
-
+    _eventPeriod = 0;
     sysName = nName;
 
-    dout << "Snapshot set for a peroid of " 
-	 << _period / Sim->units.unitTime() << std::endl;
+    dout << "Snapshot set for a period of " << _period / Sim->units.unitTime() << std::endl;
+  }
+
+  SysSnapshot::SysSnapshot(dynamo::Simulation* nSim, size_t nPeriod, std::string nName, std::string format, bool applyBC):
+    System(nSim),
+    _applyBC(applyBC),
+    _format(format),
+    _saveCounter(0)
+  {
+    _period = 0;
+    dt = HUGE_VAL;
+    _eventPeriod = nPeriod;
+    sysName = nName;
+
+    dout << "Snapshot set for a period of " << nPeriod << " events" << std::endl;
+  }
+
+  void
+  SysSnapshot::eventCallback(const NEventData&)
+  {
+    if ((Sim->eventCount -_lastEventCount) >= _eventPeriod)
+      {
+	_lastEventCount = Sim->eventCount;
+	dt = -HUGE_VAL;
+	Sim->ptrScheduler->rebuildSystemEvents();
+      }
   }
 
   void
   SysSnapshot::runEvent() const
   {
     double locdt = dt;
-  
+    if (_eventPeriod) 
+      {
+	locdt = 0;
+	dt = HUGE_VAL;
+      }
+    else
+      dt += _period;
+
 #ifdef DYNAMO_DEBUG 
-    if (std::isnan(dt))
+    if (std::isnan(locdt))
       M_throw() << "A NAN system event time has been found";
 #endif
     
@@ -61,9 +92,7 @@ namespace dynamo {
   
     //dynamics must be updated first
     Sim->stream(locdt);
-  
-    dt += _period;
-  
+    
     //This is done here as most ticker properties require it
     Sim->dynamics->updateAllParticles();
 
@@ -83,8 +112,13 @@ namespace dynamo {
 
   void 
   SysSnapshot::initialise(size_t nID)
-  { ID = nID; }
-
+  { 
+    ID = nID;
+    _lastEventCount = Sim->eventCount;
+    if (_eventPeriod)
+      Sim->_sigParticleUpdate.connect<SysSnapshot, &SysSnapshot::eventCallback>(this);
+  }
+  
   void 
   SysSnapshot::setdt(double ndt)
   { 

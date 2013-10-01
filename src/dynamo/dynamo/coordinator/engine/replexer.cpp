@@ -83,6 +83,9 @@ namespace dynamo {
 	if (vm.count("snapshot"))
 	  Simulations[i].systems.push_back(shared_ptr<System>(new SysSnapshot(&(Simulations[i]), vm["snapshot"].as<double>(), "SnapshotEvent", "ID%ID.%COUNT", !vm.count("unwrapped"))));
 
+	if (vm.count("snapshot-events"))
+	  Simulations[i].systems.push_back(shared_ptr<System>(new SysSnapshot(&(Simulations[i]), vm["snapshot-events"].as<size_t>(), "SnapshotEventTimer", "%COUNTe", !vm.count("unwrapped"))));
+
 	Simulations[i].initialise();
 
 	postSimInit(Simulations[i]);
@@ -150,11 +153,9 @@ namespace dynamo {
     if (vm.count("snapshot"))
       for (size_t i = 0; i < nSims; ++i)
 	{
-	  double tFactor 
-	    = std::sqrt(temperatureList.begin()->second.realTemperature
-			/ Simulations[i].ensemble->getReducedEnsembleVals()[2]); 
+	  double tFactor = std::sqrt(temperatureList.begin()->second.realTemperature / Simulations[i].ensemble->getReducedEnsembleVals()[2]); 
 	  
-	  dynamic_cast<SysSnapshot &>(*Simulations[i].systems["SnapshotEvent"]).setTickerPeriod(vm["snapshot"].as<double>() * tFactor);
+	  dynamic_cast<SysSnapshot &>(*Simulations[i].systems["SnapshotTimer"]).setTickerPeriod(vm["snapshot"].as<double>() * tFactor);
 	}
   }
 
