@@ -6,7 +6,8 @@ http://www.dynamomd.org
 INSTALLATION
 ------------
 
-Please see a full tutorial on the DynamO website. A quick summary is:
+Please see tutorial 1 on the DynamO website for a full description on
+how to build DynamO. A quick summary is:
 
      make
 
@@ -15,16 +16,18 @@ want to install the executables to /usr/bin, run
 
      make install
 
-Please pay attention to the output of the make command, as this scans
+Please pay attention to the output of the make commands, as this scans
 for required dependencies and will warn you if it is unable to build
-DynamO!
+DynamO! You may need to log in as root for the "make install" command
+to work.
 
 SOURCE CODE
 -----------
 
-All of the source code is in the src/ directory. For more information
-on the source code please see the src/README file. Also take a look at
-the doxygen documentation (next section of this README).
+All of the source code is inside the src/ directory. For more
+information on the source code please see the src/README file. Also
+take a look at the doxygen documentation (next section of this
+README).
 
 DOCUMENTATION
 -------------
@@ -32,7 +35,8 @@ DOCUMENTATION
 Some resources are in the docs/ directory; however, the bulk of the
 documentation will be available on the website.
 
-If you want the latest, up to date doxygen documentation, just run
+If you want the latest, up-to-date code doxygen documentation, just
+run
 
      doxygen
 
@@ -42,9 +46,12 @@ docmentation in the docs/html directory.
 TESTING
 -------
 
-There is a test script in scripts/test_dynarun.sh.
+There is a test script in test/test_dynarun.sh which will run through
+some sample simulations and halt if the results are wrong or if the
+simulation fails.
 
-You can run some OpenCL and other tests by running
+You can also run some unit tests on the math libraries and OpenCL code
+by running
 
      make test
 
