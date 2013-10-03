@@ -165,7 +165,7 @@ namespace dynamo {
     dout << "Total momentum < ";
     for (size_t iDim = 0; iDim < NDIM; iDim++)
       dout  << _sysMomentum.current()[iDim] / Sim->units.unitMomentum() << " ";
-    dout << ">\n";
+    dout << ">" << std::endl;
 
     _starttime = std::chrono::system_clock::now();
   }
