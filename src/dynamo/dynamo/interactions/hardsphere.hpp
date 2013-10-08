@@ -20,6 +20,7 @@
 #include <dynamo/interactions/interaction.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/interactions/glyphrepresentation.hpp>
+#include <magnet/math/histogram.hpp>
 
 namespace dynamo {
   class IHardSphere: public GlyphRepresentation, public Interaction
@@ -83,6 +84,8 @@ namespace dynamo {
     shared_ptr<Property> _diameter;
     shared_ptr<Property> _e;
     shared_ptr<Property> _et;
+
+    magnet::math::Histogram<> _histogram;
     
     mutable size_t _complete_events;
     mutable size_t _post_event_overlap;

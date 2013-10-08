@@ -46,6 +46,8 @@ namespace dynamo {
     _accum_overlap_magnitude = 0;
     _overlapped_tests = 0;
 
+    _histogram = magnet::math::Histogram<>(1e-16);
+
     if (_et && !Sim->dynamics->hasOrientationData())
       M_throw() << "Interaction'" << getName() 
 		<< "': To use a tangential coefficient of restitution, you must have orientation data for the particles in your configuration file.";
@@ -66,7 +68,7 @@ namespace dynamo {
     intName = XML.getAttribute("Name");
   }
   
-  void 
+  void
   IHardSphere::outputData(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::tag("Interaction")
@@ -75,8 +77,10 @@ namespace dynamo {
 	<< magnet::xml::attr("AvgPostEventOverlapMagnitude") << _accum_overlap_magnitude / (_post_event_overlap *  Sim->units.unitLength())
 	<< magnet::xml::attr("Events") << _complete_events
 	<< magnet::xml::attr("OverlapFreq") << double(_post_event_overlap) / double(_complete_events)
-	<< magnet::xml::attr("OverlappedTests") << _overlapped_tests
-	<< magnet::xml::endtag("Interaction");
+	<< magnet::xml::attr("OverlappedTests") << _overlapped_tests;
+
+    _histogram.outputHistogram(XML, 1 / Sim->units.unitLength());
+    XML << magnet::xml::endtag("Interaction");
   }
 
   std::array<double, 4>
@@ -147,12 +151,17 @@ namespace dynamo {
     Sim->_sigParticleUpdate(EDat);
 
     const double overlap = Sim->dynamics->sphereOverlap(p1, p2, d);
+
+    Vector r12 = p1.getPosition() - p2.getPosition();
+    Sim->BCs->applyBC(r12);
+    
+    _histogram.addVal(1.0 - std::sqrt(r12 | r12));
+
     if (overlap)
       {
 	++_post_event_overlap;
 	_accum_overlap_magnitude += overlap;
       }
-
     ++_complete_events;
     
     //Now we're past the event, update the scheduler and plugins

@@ -72,7 +72,7 @@ namespace dynamo {
     _sleepVelocity = XML.getAttribute("SleepV").as<double>() * Sim->units.unitVelocity();
     _sleepDistance = Sim->units.unitLength() * 0.01;
     _sleepTime = Sim->units.unitTime() * 0.0001;
-    _range = shared_ptr<IDRange>(IDRange::getClass(XML, Sim));
+    _range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
   }
 
   void 
