@@ -27,6 +27,10 @@
    src/magnet/test/quartic_original.cpp. The code has been refactored
    to change its coding style. Any changes to the function are listed
    below.
+
+   Oct 2013: Following an email from Florian Bruckner, The special
+   case of ((p == 0) && (q == 0)) has been modified to return 1 or 0
+   roots instead of 3. 
 */
 
 namespace magnet {
