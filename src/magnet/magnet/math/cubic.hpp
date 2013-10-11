@@ -21,6 +21,14 @@
 #include <limits>
 #include <magnet/math/quadratic.hpp>
 
+/* 
+   This work is heavily derived from the public domain work of Don
+   Herbison-Evans. The original code is available in
+   src/magnet/test/quartic_original.cpp. The code has been refactored
+   to change its coding style. Any changes to the function are listed
+   below.
+*/
+
 namespace magnet {
   namespace math {
     namespace detail {
@@ -77,8 +85,9 @@ namespace magnet {
 	{
 	  //Special case
 	  //Equation is x^3 == -r
-	  root1 = root2 = root3 = std::pow(-r, 1.0 / 3.0);
-	  return 3;
+	  if (r > 0) return 0;
+	  root1 = std::pow(-r, 1.0 / 3.0);
+	  return 1;
 	}
 
       if ((p > maxSqrt) || (p < -maxSqrt))

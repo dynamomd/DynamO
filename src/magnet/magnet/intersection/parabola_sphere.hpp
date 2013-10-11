@@ -53,7 +53,7 @@ namespace magnet {
       f.coeffs[1] = G | D;
       f.coeffs[2] = D.nrm2() + (G | T);
       f.coeffs[3] = 2 * (D | T);
-      f.coeffs[4] = T.nrm2()- r * r;
+      f.coeffs[4] = T.nrm2() - r * r;
       
       //We calculate the roots of the cubic differential of F
       //\f$F=A t^4 + B t^3 + C t^2 + D t + E == 0\f$ taking the differential gives
@@ -65,11 +65,14 @@ namespace magnet {
 						  f.coeffs[3] * 1 / (4 * f.coeffs[0]),
 						  roots[0], roots[1], roots[2]);
       
+      if (rootCount == 0)
+	M_throw() << "Unhandled case! Designer does not think this case was possible.";
+
       //Sort the roots in ascending order
       std::sort(roots, roots + rootCount);
       if ((roots[0] > 0) && (f(roots[0]) < 0))
 	{
-	  if (f(0) <= 0) 
+	  if (f(0) <= 0)
 	    return 0;
 	  else
 	    return magnet::math::bisect(f, 0, roots[0], rootthreshold);

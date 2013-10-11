@@ -21,12 +21,20 @@
 #include <algorithm>
 #include <array>
 
+/* 
+   This work is heavily derived from the public domain work of Don
+   Herbison-Evans. The original code is available in
+   src/magnet/test/quartic_original.cpp. The code has been refactored
+   to change its coding style. Any changes to the function are listed
+   below.
+*/
+
 namespace magnet {
   namespace math {
     inline double quarticError(const double& a, const double& b, const double& c, const double& d,
 			       const double roots[4], const size_t rootCount)
     {
-      std::array<double, 4> errors;
+      std::array<double, 4> errors = {0, 0, 0, 0};
 
       for (size_t root = 0; root < rootCount; ++ root)
 	{

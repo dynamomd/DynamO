@@ -19,6 +19,14 @@
 
 #include <magnet/math/cubic.hpp>
 
+/* 
+   This work is heavily derived from the public domain work of Don
+   Herbison-Evans. The original code is available in
+   src/magnet/test/quartic_original.cpp. The code has been refactored
+   to change its coding style. Any changes to the function are listed
+   below.
+*/
+
 namespace magnet {
   namespace math {
     inline size_t 

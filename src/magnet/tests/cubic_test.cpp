@@ -8,8 +8,6 @@ int main()
 {
   const bool debugInfo = false;
   size_t errors = 0;
-
-
   setcns();
 
   //Test for triple roots
@@ -20,6 +18,7 @@ int main()
   std::cout << "\n\n/////////////////////Triple Root check/////////////////////////";
 
   size_t counter = 0;
+  size_t olderrors = 0;
   for (size_t root1 = 0; root1 < nroots; ++root1)
     for (size_t root2 = root1; root2 < nroots; ++root2)
       for (size_t root3 = root2; root3 < nroots; ++root3)
@@ -96,9 +95,10 @@ int main()
 	      }
 	}
 
-  std::cout << "\nTested " << counter << " triple roots"
+  std::cout << "\nTested " << counter << " triple roots with " << errors - olderrors << " errors"
 	    << "\n\n/////////////////////Single Root check/////////////////////////";
   counter = 0;
+  olderrors = errors;
 
   //One real root and one pair of imaginary roots
   for (size_t root1 = 0; root1 < nroots; ++root1)
@@ -175,8 +175,42 @@ int main()
 	    }
 	}
 
-  std::cout << "\nTested " << counter << " single roots";
-  std::cout << "\nFound " << errors << " errors\n";
+
+  std::cout << "\nTested " << counter << " single roots with " << errors - olderrors << " errors"
+	    << "\n\n/////////////////////Zero Root check/////////////////////////";
+  counter = 0;
+  olderrors = errors;
+
+  //All imaginary roots
+  for (size_t r = 0; r < nroots; ++r)
+    {
+      ++counter;
+      double a = 0, b=0, c = rootvals[r];
+      if (c <= 0) continue;
+      
+      std::vector<double> roots(3);
+      size_t rootcount = magnet::math::cubicSolve(a, b, c, roots[0], roots[1], roots[2]);
+      if (rootcount != 0)
+	{
+	  ++errors;
+	  if (!debugInfo) continue;
+	  std::cout << "\n\n### Root Count Failed"
+		    << "\nAlgorithm found " << rootcount << ", roots = ";
+	  for (size_t i = 0; i < rootcount; ++i)
+	    std::cout << roots[i] << ",";
+	  
+	  double rts[4];
+	  int nroots = cubic(a,b,c,rts);
+	  
+	  std::cout << "\nOriginal found  " << nroots << ", roots = ";
+	  for (int i = 0; i < nroots; ++i)
+	    std::cout << roots[i] << ",";
+	}
+    }
+
+  std::cout << "\nTested " << counter << " zero roots with " << errors - olderrors << " errors"
+	    << "\n\n\nFound " << errors << " total errors\n";
+
 
   return (errors < 37) ? 0 : 1;
 }
