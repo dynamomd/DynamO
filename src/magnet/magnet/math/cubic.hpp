@@ -30,7 +30,8 @@
 
    Oct 2013: Following an email from Florian Bruckner, The special
    case of ((p == 0) && (q == 0)) has been modified to return 1 or 0
-   roots instead of 3. 
+   roots instead of 3, and the std::cbrt function is used instead of
+   pow.
 */
 
 namespace magnet {
@@ -90,7 +91,7 @@ namespace magnet {
 	  //Special case
 	  //Equation is x^3 == -r
 	  if (r > 0) return 0;
-	  root1 = std::pow(-r, 1.0 / 3.0);
+	  root1 = std::cbrt(-r);
 	  return 1;
 	}
 
@@ -120,7 +121,7 @@ namespace magnet {
 	{
 	  //Another special case
 	  //Equation is x^3 == -r
-	  root1 = -std::pow(r, 1.0 / 3.0);
+	  root1 = -std::cbrt(r);
 	  return 1;
 	}
 
@@ -192,9 +193,9 @@ namespace magnet {
 	  //(i.e. (uo3sq4 * uo3) == v * v)
 	  double w = std::sqrt(j);
 	  if (v < 0)
-	    root1 = std::pow(0.5*(w-v), 1.0/3.0) - (uo3) * std::pow(2.0 / (w-v), 1.0/3.0) - p / 3.0;
+	    root1 = std::cbrt(0.5*(w-v)) - (uo3) * std::cbrt(2.0 / (w-v)) - p / 3.0;
 	  else
-	    root1 = uo3 * std::pow(2.0 / (w+v), 1.0/3.0) - std::pow(0.5*(w+v), 1.0/3.0) - p / 3.0;
+	    root1 = uo3 * std::cbrt(2.0 / (w+v)) - std::cbrt(0.5*(w+v)) - p / 3.0;
 
 	  //We now polish the root up before we use it in other calculations
 	  detail::cubicNewtonRootPolish(p, q, r, root1, 15);
@@ -231,7 +232,7 @@ namespace magnet {
   
       if (uo3 >= 0)
 	{//Multiple root detected	  
-	  root1 = root2 = root3 = std::pow(v, 1.0 / 3.0) - p / 3.0;
+	  root1 = root2 = root3 = std::cbrt(v) - p / 3.0;
 	  return 3;
 	}
 
