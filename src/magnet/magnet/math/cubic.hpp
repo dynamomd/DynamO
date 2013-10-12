@@ -40,7 +40,7 @@ namespace magnet {
       inline void cubicNewtonRootPolish(const double& p, const double& q, const double& r,
 					double& root, size_t iterations)
       {
-	for (size_t it = 0; it < iterations; ++it)
+	for (size_t it = 0; it < 100000; ++it)
 	  {
 	    double error = ((root + p)*root + q) * root + r;
 	    double derivative = (3.0 * root + 2 * p) * root + q;

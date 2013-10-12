@@ -55,7 +55,7 @@ alias thread-test : threadpool_test ;
 
 #################### MATH ########################
 
-unit-test cubic-test : tests/cubic_test.cpp magnet ;
+unit-test cubic-test : tests/cubic_test.cpp magnet /system//boost_unit_test_framework ;
 
 unit-test quartic-test : tests/quartic_test.cpp magnet ;
 

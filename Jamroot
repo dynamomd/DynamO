@@ -46,6 +46,7 @@ lib boost_system : : <name>boost_system ;
 lib boost_filesystem : boost_system : <name>boost_filesystem ;
 lib boost_program_options : boost_system : <name>boost_program_options ;
 lib boost_iostreams : boost_system bz2 z : <name>boost_iostreams ;
+lib boost_unit_test_framework : boost_system : <name>boost_unit_test_framework ;
 alias gtkmm : png : : : <linkflags>"`pkg-config gtkmm-2.4 --libs`" <cflags>"`pkg-config gtkmm-2.4 --cflags`" ;
 alias libavcodec : : : : <define>MAGNET_FFMPEG_SUPPORT <linkflags>"`pkg-config libavcodec libavutil --libs`" <cflags>"`pkg-config libavcodec libavutil --cflags`" ;
 
