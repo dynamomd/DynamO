@@ -69,3 +69,8 @@ install install-dynamo
 	: dynarun dynahist_rw dynamod dynavis dynapotential programs/dynatransport programs/dynarmsd programs/dynamaprmsd  programs/dynamo2xyz
 	: <location>$(BIN_INSTALL_PATH) <dynamo-buildable>no:<build>no <coil-support>yes:<source>dynavis
 	;
+
+##################### TESTS ######################
+using testing ;
+unit-test hardsphere_test : tests/hardsphere_test.cpp dynamo_core/<coil-integration>no : <coil-integration>no <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
+alias test : hardsphere_test ;

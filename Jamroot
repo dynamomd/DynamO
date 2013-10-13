@@ -63,7 +63,7 @@ project	: requirements <threading>multi <variant>release:<define>NDEBUG
 ##### Targets
 alias install : /dynamo//install-dynamo  ;
 alias install-libraries : /coil//install-coil /magnet//install-magnet ;
-alias test : /magnet//test ;
+alias test : /magnet//test /dynamo//test ;
 alias lsCL : /opencl//install-lsCL ;
 alias coilparticletest : /coil//coilparticletest ;
 

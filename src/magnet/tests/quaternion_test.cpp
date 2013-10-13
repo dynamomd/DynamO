@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE Vector_test
+#define BOOST_TEST_MODULE Quaternion_test
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 #include <magnet/math/quaternion.hpp>

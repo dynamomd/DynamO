@@ -111,8 +111,7 @@ main(int argc, char *argv[])
       p.add("config-file", 1);
       
       po::variables_map vm;
-      po::store(po::command_line_parser(argc, argv).
-		options(allopts).positional(p).run(), vm);
+      po::store(po::command_line_parser(argc, argv).options(allopts).positional(p).run(), vm);
       po::notify(vm);
 
       if (vm.count("random-seed"))
@@ -185,28 +184,23 @@ main(int argc, char *argv[])
 	    }
 	}
       sim.addOutputPlugin("Misc");
-      sim.initialise();      
+      sim.initialise();
       
-      //Here we modify the sim accordingly      
-
+      //Here we modify the sim accordingly
       if (vm.count("zero-momentum"))
-	dynamo::InputPlugin(&sim, "MomentumZeroer")
-	  .zeroMomentum();	
+	dynamo::InputPlugin(&sim, "MomentumZeroer").zeroMomentum();	
 
       if (vm.count("check"))
 	sim.checkSystem();
 
       if (vm.count("zero-com"))
-	dynamo::InputPlugin(&sim, "CentreOfMassZeroer")
-	  .zeroCentreOfMass();	
+	dynamo::InputPlugin(&sim, "CentreOfMassZeroer").zeroCentreOfMass();	
 
       if (vm.count("rescale-T"))
-	dynamo::InputPlugin(&sim, "Rescaler")
-	  .rescaleVels(vm["rescale-T"].as<double>());
+	dynamo::InputPlugin(&sim, "Rescaler").rescaleVels(vm["rescale-T"].as<double>());
 
       if (vm.count("mirror-system"))
-	dynamo::InputPlugin(&sim, "Mirrorer").
-	  mirrorDirection(vm["mirror-system"].as<unsigned int>());
+	dynamo::InputPlugin(&sim, "Mirrorer").mirrorDirection(vm["mirror-system"].as<unsigned int>());
 
       if (vm.count("set-com-vel"))
 	{
@@ -224,16 +218,13 @@ main(int argc, char *argv[])
 	  if (details_iter == tokens.end()) M_throw() << "set-com-vel requires 3 components";
 	  vel[2] = boost::lexical_cast<double>(*(details_iter));
 	  
-	  dynamo::InputPlugin(&sim, "velSetter")
-	    .setCOMVelocity(vel);
+	  dynamo::InputPlugin(&sim, "velSetter").setCOMVelocity(vel);
 	}
 
       if (vm.count("zero-vel"))
-	dynamo::InputPlugin(&sim, "Vel-Component-Zeroer")
-	  .zeroVelComp(vm["zero-vel"].as<size_t>());
+	dynamo::InputPlugin(&sim, "Vel-Component-Zeroer").zeroVelComp(vm["zero-vel"].as<size_t>());
 
-      sim.writeXMLfile(vm["out-config-file"].as<string>(), 
-		       !vm.count("unwrapped"), vm.count("round"));
+      sim.writeXMLfile(vm["out-config-file"].as<string>(), !vm.count("unwrapped"), vm.count("round"));
     }
   catch (std::exception& cep)
     {
