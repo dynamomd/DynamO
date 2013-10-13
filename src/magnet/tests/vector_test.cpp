@@ -1,19 +1,28 @@
+#define BOOST_TEST_MODULE Vector_test
+#define BOOST_TEST_DYN_LINK
+#include <boost/test/unit_test.hpp>
 #include <magnet/math/vector.hpp>
-#include <iostream>
 #include <cmath>
 
 bool err(double val, double expected)
 {
-  return std::abs(val / expected - 1) > 0.0001;
+  return std::abs(val / expected - 1) < 0.0001;
 }
 
-int main()
+BOOST_AUTO_TEST_CASE( vector_addition )
 {
-  magnet::math::Vector A(0,0,0);
+  magnet::math::Vector A(1,2,3);
+  magnet::math::Vector B(4,5,6);
+
+  magnet::math::Vector C = A+B;
+  BOOST_CHECK_EQUAL(C[0], 5);
+  BOOST_CHECK_EQUAL(C[1], 7);
+  BOOST_CHECK_EQUAL(C[2], 9);
+}
+
+BOOST_AUTO_TEST_CASE( vector_norm )
+{
   magnet::math::Vector B(1,1,1);
 
-  if (err((A+B).nrm(), std::sqrt(3)))
-    { std::cout << "(A+B).nrm() is wrong"; return 1; }
-
-  return 0;
+  BOOST_CHECK(err(B.nrm(), std::sqrt(3)));
 }

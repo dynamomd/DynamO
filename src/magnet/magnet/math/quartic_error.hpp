@@ -34,7 +34,7 @@ namespace magnet {
     inline double quarticError(const double& a, const double& b, const double& c, const double& d,
 			       const double roots[4], const size_t rootCount)
     {
-      std::array<double, 4> errors = {0, 0, 0, 0};
+      std::array<double, 4> errors = {{0, 0, 0, 0}};
 
       for (size_t root = 0; root < rootCount; ++ root)
 	{
