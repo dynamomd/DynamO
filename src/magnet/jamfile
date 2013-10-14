@@ -58,9 +58,9 @@ alias thread-test : threadpool_test ;
 unit-test cubic-quartic-test : tests/cubic_quartic_test.cpp magnet /system//boost_unit_test_framework ;
 unit-test vector-test : tests/vector_test.cpp magnet /system//boost_unit_test_framework ;
 unit-test quaternion-test : tests/quaternion_test.cpp magnet /system//boost_unit_test_framework ;
+unit-test dilate-test : tests/dilate_test.cpp magnet /system//boost_unit_test_framework ;
 
 unit-test spline-test : tests/splinetest.cpp /opencl//OpenCL magnet ;
-unit-test dilate-test : tests/dilate_test.cpp magnet ;
 alias math-test : dilate-test cubic-quartic-test vector-test spline-test quaternion-test ;
 
 ##################################################

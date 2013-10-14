@@ -54,7 +54,7 @@ namespace dynamo {
     _window.reset(new coil::CLGLWindow("Visualizer : " + nName, tickFreq, true));
 
     //Add all of the objects to be rendered
-    _particleData.reset(new coil::DataSet("Particles", Sim->N, GlyphRepresentation::SPHERE_GLYPH));
+    _particleData.reset(new coil::DataSet("Particles", Sim->N(), GlyphRepresentation::SPHERE_GLYPH));
     _window->addRenderObj(_particleData);
 
     for (shared_ptr<Local>& local : Sim->locals)
