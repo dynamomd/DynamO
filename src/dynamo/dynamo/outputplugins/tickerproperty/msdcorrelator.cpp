@@ -46,19 +46,14 @@ namespace dynamo {
   OPMSDCorrelator::initialise()
   {
     dout << "The length of the MSD correlator is " << length << std::endl;
-
-    posHistory.resize(Sim->N, boost::circular_buffer<Vector>(length));
-
+    posHistory.resize(Sim->N(), boost::circular_buffer<Vector>(length));
     currCorrLength=1;
 
     for (const Particle& part : Sim->particles)
       posHistory[part.getID()].push_front(part.getPosition());
 
-    speciesData.resize(Sim->species.size(), 
-		       std::vector<double>(length, 0.0));
-
-    structData.resize(Sim->topology.size(), 
-		      std::vector<double>(length, 0.0));
+    speciesData.resize(Sim->species.size(), std::vector<double>(length, 0.0));
+    structData.resize(Sim->topology.size(), std::vector<double>(length, 0.0));
   }
 
   void 

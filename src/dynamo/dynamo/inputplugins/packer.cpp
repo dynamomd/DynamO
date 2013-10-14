@@ -3023,7 +3023,6 @@ namespace dynamo {
 	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
       }
 
-    Sim->N = Sim->particles.size();
     Sim->ensemble = dynamo::Ensemble::loadEnsemble(*Sim);
   }
 

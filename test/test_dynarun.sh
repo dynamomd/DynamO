@@ -370,32 +370,6 @@ function ThermostatTest {
 	tmp.xml.bz2 run.log
 }
 
-function HardSphereTest {
-    > run.log
-
-    ./dynamod -s 1 -m 0 &> run.log    
-    ./dynarun -c 500000 config.out.xml.bz2 >> run.log 2>&1
-    ./dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
-    
-    if [ -e output.xml.bz2 ]; then
-	if [ $(bzcat output.xml.bz2 \
-	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-	    | gawk '{printf "%.3f",$1}') != "0.130" ]; then
-	    echo "HardSphereTest -: FAILED"
-	    exit 1
-	else
-	    echo "HardSphereTest -: PASSED"
-	fi
-    else
-	echo "Error, no output.0.xml.bz2 in Hard Sphere test"
-	exit 1
-    fi
-    
-#Cleanup
-    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
-	tmp.xml.bz2 run.log
-}
-
 function SquareWellTest {
     > run.log
 
@@ -726,8 +700,6 @@ cannon "NeighbourList" "BoundedPQ"
 
 echo ""
 echo "INTERACTIONS+Dynamod Systems"
-echo "Testing Hard Spheres, NeighbourLists and BoundedPQ's"
-HardSphereTest
 echo "Testing binary hard spheres, NeighbourLists and BoundedPQ's"
 BinarySphereTest "Cells"
 echo "Testing Square Wells, Thermostats, NeighbourLists and BoundedPQ's"

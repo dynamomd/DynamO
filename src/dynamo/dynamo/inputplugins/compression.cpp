@@ -139,7 +139,7 @@ namespace dynamo {
     dout << "Limiting maximum density to " << targetrho << std::endl;
   
     double molVol = (Sim->getPackingFraction() * Sim->getSimVolume())
-      / (Sim->N * Sim->units.unitVolume());
+      / (Sim->N() * Sim->units.unitVolume());
 
     dout << "Corresponding packing fraction for that density is "
 	 << molVol * targetrho << std::endl;

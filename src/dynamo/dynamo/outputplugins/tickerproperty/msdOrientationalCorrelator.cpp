@@ -48,7 +48,7 @@ namespace dynamo {
   {
     dout << "The length of the MSD orientational correlator is " << length << std::endl;
 
-    historicalData.resize(Sim->N, boost::circular_buffer<RUpair>(length));
+    historicalData.resize(Sim->N(), boost::circular_buffer<RUpair>(length));
 
     stepped_data_parallel.resize(length, double(0.0));
     stepped_data_perpendicular.resize(length, double(0.0));
@@ -132,7 +132,7 @@ namespace dynamo {
     for (size_t step(0); step < length; ++step)
       {
 	XML << dt * step << "\t"
-	    << stepped_data_parallel[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N) * Sim->units.unitArea())
+	    << stepped_data_parallel[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N()) * Sim->units.unitArea())
 	    << "\n";
       }
 
@@ -145,7 +145,7 @@ namespace dynamo {
     for (size_t step(0); step < length; ++step)
       {
 	XML << dt * step << "\t"
-	    << stepped_data_perpendicular[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N) * Sim->units.unitArea())
+	    << stepped_data_perpendicular[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N()) * Sim->units.unitArea())
 	    << "\n";
       }
 
@@ -161,7 +161,7 @@ namespace dynamo {
     for (size_t step(0); step < length; ++step)
       {
 	XML << dt * step << "\t"
-	    << stepped_data_rotational_legendre1[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N))
+	    << stepped_data_rotational_legendre1[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N()))
 	    << "\n";
       }
 
@@ -174,7 +174,7 @@ namespace dynamo {
     for (size_t step(0); step < length; ++step)
       {
 	XML << dt * step << "\t"
-	    << stepped_data_rotational_legendre2[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N))
+	    << stepped_data_rotational_legendre2[step] / (static_cast<double>(ticksTaken) * static_cast<double>(Sim->N()))
 	    << "\n";
       }
 

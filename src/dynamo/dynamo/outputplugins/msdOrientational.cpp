@@ -36,11 +36,11 @@ namespace dynamo {
   OPMSDOrientational::initialise()
   {
     initialConfiguration.clear();
-    initialConfiguration.resize(Sim->N);
+    initialConfiguration.resize(Sim->N());
 
     const std::vector<Dynamics::rotData>& rdat(Sim->dynamics->getCompleteRotData());
 
-    for (size_t ID = 0; ID < Sim->N; ++ID)
+    for (size_t ID = 0; ID < Sim->N(); ++ID)
       {
 	initialConfiguration[ID] = RUpair(Sim->particles[ID].getPosition(), rdat[ID].orientation * Quaternion::initialDirector());
       }

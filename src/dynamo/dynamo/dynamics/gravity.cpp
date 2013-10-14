@@ -454,7 +454,7 @@ namespace dynamo {
   void
   DynGravity::initialise()
   {
-    if (_tc > 0) _tcList.resize(Sim->N, -HUGE_VAL);
+    if (_tc > 0) _tcList.resize(Sim->N(), -HUGE_VAL);
     DynNewtonian::initialise();
 
     //Now add the parabola sentinel if there are cell neighbor lists in

@@ -51,7 +51,6 @@ namespace dynamo
     endEventCount(100000),
     eventPrintInterval(50000),
     nextPrintEvent(0),
-    N(0),
     primaryCellSize(1,1,1),
     ranGenerator(std::random_device()()),
     lastRunMFT(0.0),
@@ -77,11 +76,26 @@ namespace dynamo
   }
 
   void
+  Simulation::reset()
+  {
+    if (status <= INITIALISED)
+      M_throw() << "Cannot reinitialise an un-initialised simulation";
+    status = CONFIG_LOADED;
+    
+    outputPlugins.clear();
+    dynamics->updateAllParticles();
+    systemTime = 0.0;
+    eventCount = 0;
+    nextPrintEvent = 0;
+    lastRunMFT = 0.0;
+  }
+
+  void
   Simulation::initialise()
   {
     if (status != CONFIG_LOADED)
       M_throw() << "Sim initialised at wrong time";
-
+    
     //This sorting must be done according to the derived plugins sort
     //operators.
 
@@ -123,15 +137,15 @@ namespace dynamo
       for (shared_ptr<Species>& ptr : species)
 	tot += ptr->getCount();
     
-      if (tot < N)
+      if (tot < N())
 	M_throw() << "The particle count according to the species definition is too low\n"
-		  << "discrepancy = " << tot - N
-		  << "\nN = " << N;
+		  << "discrepancy = " << tot - N()
+		  << "\nN = " << N();
     
-      if (tot > N)
+      if (tot > N())
 	M_throw() << "The particle count according to the species definition is too high\n"
-		  << "discrepancy = " << tot - N
-		  << "\nN = " << N;
+		  << "discrepancy = " << tot - N()
+		  << "\nN = " << N();
     }
 
     //Now check that the representative interaction for each Species,
@@ -648,7 +662,7 @@ namespace dynamo
   double
   Simulation::getNumberDensity() const
   {
-    return N / getSimVolume();
+    return N() / getSimVolume();
   }
 
   double 

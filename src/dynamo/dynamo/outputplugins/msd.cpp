@@ -33,9 +33,9 @@ namespace dynamo {
   OPMSD::initialise()
   {
     initPos.clear();
-    initPos.resize(Sim->N);
+    initPos.resize(Sim->N());
   
-    for (size_t ID = 0; ID < Sim->N; ++ID)
+    for (size_t ID = 0; ID < Sim->N(); ++ID)
       initPos[ID] = Sim->particles[ID].getPosition();
   }
 

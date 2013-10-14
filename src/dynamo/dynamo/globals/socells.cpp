@@ -154,11 +154,11 @@ namespace dynamo {
   {
     ID=nID;
   
-    cuberootN = (unsigned long)(std::pow(Sim->N, 1.0/3.0) + 0.5);
+    cuberootN = (unsigned long)(std::pow(Sim->N(), 1.0/3.0) + 0.5);
   
-    if (boost::math::pow<3>(cuberootN) != Sim->N)
+    if (boost::math::pow<3>(cuberootN) != Sim->N())
       M_throw() << "Cannot use single occupancy cells without a integer cube root of N"
-		<< "\nN = " << Sim->N
+		<< "\nN = " << Sim->N()
 		<< "\nN^(1/3) = " << cuberootN;
 
     for (size_t iDim(0); iDim < NDIM; ++iDim)

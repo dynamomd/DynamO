@@ -114,7 +114,7 @@ namespace dynamo {
   SysAndersen::initialise(size_t nID)
   {
     ID = nID;
-    meanFreeTime /= Sim->N;
+    meanFreeTime /= Sim->N();
     dt = getGhostt();
     sqrtTemp = sqrt(Temp);
   }
@@ -146,7 +146,7 @@ namespace dynamo {
 	<< magnet::xml::attr("Type") << "Andersen"
 	<< magnet::xml::attr("Name") << sysName
 	<< magnet::xml::attr("MFT") << meanFreeTime
-      * Sim->N
+      * Sim->N()
       / Sim->units.unitTime()
 	<< magnet::xml::attr("Temperature") << Temp 
       / Sim->units.unitEnergy();

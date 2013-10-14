@@ -118,7 +118,7 @@ namespace dynamo {
     temperatureList.clear();
 
     for (unsigned int i = 1; i < nSims; i++)
-      if (Simulations[0].N != Simulations[i].N)
+      if (Simulations[0].N() != Simulations[i].N())
 	M_throw() << "Every replica configuration file must have the same number of particles!";
   
     for (unsigned int i = 0; i < nSims; i++)

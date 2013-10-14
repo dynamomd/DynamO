@@ -87,9 +87,9 @@ namespace dynamo {
   {
     sorter->clear();
     //The plus one is because system events are stored in the last heap;
-    sorter->resize(Sim->N+1);
+    sorter->resize(Sim->N()+1);
     eventCount.clear();
-    eventCount.resize(Sim->N+1, 0);
+    eventCount.resize(Sim->N()+1, 0);
 
     for (Particle& part : Sim->particles)
       addEvents(part);
@@ -146,12 +146,12 @@ namespace dynamo {
   void 
   Scheduler::rebuildSystemEvents() const
   {
-    sorter->clearPEL(Sim->N);
+    sorter->clearPEL(Sim->N());
 
     for(const auto& sysptr : Sim->systems)
-      sorter->push(Event(sysptr->getdt(), SYSTEM, sysptr->getID(), 0), Sim->N);
+      sorter->push(Event(sysptr->getdt(), SYSTEM, sysptr->getID(), 0), Sim->N());
 
-    sorter->update(Sim->N);
+    sorter->update(Sim->N());
   }
 
   void Scheduler::popNextEvent() { sorter->popNextEvent(); }

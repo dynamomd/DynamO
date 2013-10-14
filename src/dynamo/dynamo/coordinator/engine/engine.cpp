@@ -82,6 +82,7 @@ namespace dynamo {
   void 
   Engine::setupSim(Simulation& Sim, const std::string filename)
   {
+    Sim.ranGenerator.seed(std::random_device()());
     if (vm.count("random-seed"))
       Sim.ranGenerator.seed(vm["random-seed"].as<unsigned int>());
   

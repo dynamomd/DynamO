@@ -57,7 +57,7 @@ namespace dynamo {
 
     recalculateTime();
 
-    _lastData.resize(Sim->N);
+    _lastData.resize(Sim->N());
     for (const Particle& part : Sim->particles)
       {
 	_lastData[part.getID()].first = part.getPosition();

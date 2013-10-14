@@ -51,21 +51,21 @@ namespace dynamo {
   double 
   OPMisc::getMeankT() const
   {
-    return 2.0 * _KE.mean() / (Sim->N * Sim->dynamics->getParticleDOF());
+    return 2.0 * _KE.mean() / (Sim->N() * Sim->dynamics->getParticleDOF());
   }
 
   double 
   OPMisc::getMeanSqrkT() const
   {
     return 4.0 * _KE.meanSqr()
-      / (Sim->N * Sim->N * Sim->dynamics->getParticleDOF()
+      / (Sim->N() * Sim->N() * Sim->dynamics->getParticleDOF()
 	 * Sim->dynamics->getParticleDOF());
   }
 
   double 
   OPMisc::getCurrentkT() const
   {
-    return 2.0 * _KE.current() / (Sim->N * Sim->dynamics->getParticleDOF());
+    return 2.0 * _KE.current() / (Sim->N() * Sim->dynamics->getParticleDOF());
   }
 
   double 
@@ -84,7 +84,7 @@ namespace dynamo {
     _KE.init(Sim->dynamics->getSystemKineticEnergy());
     _internalE.init(Sim->calcInternalEnergy());
 
-    dout << "Particle Count " << Sim->N
+    dout << "Particle Count " << Sim->N()
 	 << "\nSim Unit Length " << Sim->units.unitLength()
 	 << "\nSim Unit Time " << Sim->units.unitTime()
 	 << "\nDensity " << Sim->getNumberDensity() * Sim->units.unitVolume()
@@ -103,7 +103,7 @@ namespace dynamo {
     _speciesMasses.resize(Sim->species.size());
 
     _internalEnergy.clear();
-    _internalEnergy.resize(Sim->N, 0);
+    _internalEnergy.resize(Sim->N(), 0);
 
     for (auto ptr1 = Sim->particles.begin(); ptr1 != Sim->particles.end(); ++ptr1)
       for (auto ptr2 = ptr1 + 1; ptr2 != Sim->particles.end(); ++ptr2)
@@ -325,7 +325,7 @@ namespace dynamo {
   double
   OPMisc::getMFT() const
   {
-    return Sim->systemTime * static_cast<double>(Sim->N)
+    return Sim->systemTime * static_cast<double>(Sim->N())
       /(Sim->units.unitTime() * ((2.0 * static_cast<double>(_dualEvents)) + static_cast<double>(_singleEvents)));
   }
 
@@ -381,7 +381,7 @@ namespace dynamo {
 	<< endtag("SpeciesCount")
 
 	<< tag("ParticleCount")
-	<< attr("val") << Sim->N
+	<< attr("val") << Sim->N()
 	<< endtag("ParticleCount")
 
 	<< tag("SystemMomentum")
@@ -401,8 +401,8 @@ namespace dynamo {
 	<< attr("Mean") << getMeankT() / Sim->units.unitEnergy()
 	<< attr("MeanSqr") << getMeanSqrkT() / (Sim->units.unitEnergy() * Sim->units.unitEnergy())
 	<< attr("Current") << getCurrentkT() / Sim->units.unitEnergy()
-	<< attr("Min") << 2.0 * _KE.min() / (Sim->N * Sim->dynamics->getParticleDOF() * Sim->units.unitEnergy())
-	<< attr("Max") << 2.0 * _KE.max() / (Sim->N * Sim->dynamics->getParticleDOF() * Sim->units.unitEnergy())
+	<< attr("Min") << 2.0 * _KE.min() / (Sim->N() * Sim->dynamics->getParticleDOF() * Sim->units.unitEnergy())
+	<< attr("Max") << 2.0 * _KE.max() / (Sim->N() * Sim->dynamics->getParticleDOF() * Sim->units.unitEnergy())
 	<< endtag("Temperature")
 
 	<< tag("UConfigurational")
@@ -649,6 +649,6 @@ namespace dynamo {
 	      << Sim->systemTime/Sim->units.unitTime() 
 	      << ", <MFT> " <<  getMFT()
 	      << ", T " << getCurrentkT() / Sim->units.unitEnergy()
-	      << ", U " << _internalE.current() / (Sim->units.unitEnergy() * Sim->N);
+	      << ", U " << _internalE.current() / (Sim->units.unitEnergy() * Sim->N());
   }
 }

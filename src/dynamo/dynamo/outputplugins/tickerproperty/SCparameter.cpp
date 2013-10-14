@@ -43,9 +43,9 @@ namespace dynamo {
       if (Sim->primaryCellSize[iDim] != 1.0) 
 	M_throw() << "Cannot use this parameter in a non-cubic box";
   
-    maxWaveNumber = lrint(std::pow(Sim->N, 1.0/3.0));
+    maxWaveNumber = lrint(std::pow(Sim->N(), 1.0/3.0));
 
-    if (boost::math::pow<3>(maxWaveNumber) != Sim->N)
+    if (boost::math::pow<3>(maxWaveNumber) != Sim->N())
       M_throw() << "Failed, N does not have an integer cube root!";
 
     dout << "Max wavelength is "
@@ -87,16 +87,16 @@ namespace dynamo {
   {
     XML << magnet::xml::tag("SCParameter")
 	<< magnet::xml::attr("SCWaveNumber") 
-	<< lrint(std::pow(Sim->N, 1.0/3.0))
+	<< lrint(std::pow(Sim->N(), 1.0/3.0))
 	<< magnet::xml::attr("SCWaveNumberVal") 
-	<< runningsum[lrint(std::pow(Sim->N, 1.0/3.0))] 
-      / (static_cast<double>(count) * Sim->N) 
+	<< runningsum[lrint(std::pow(Sim->N(), 1.0/3.0))] 
+      / (static_cast<double>(count) * Sim->N()) 
 	<< magnet::xml::chardata();
   
     for (size_t k(0); k <= maxWaveNumber; ++k)
       {
 	XML << k * Sim->units.unitLength() << " "
-	    << runningsum[k] / (static_cast<double>(count) * Sim->N) 
+	    << runningsum[k] / (static_cast<double>(count) * Sim->N()) 
 	    << "\n";
       }
 

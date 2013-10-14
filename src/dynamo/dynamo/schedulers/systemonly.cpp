@@ -44,9 +44,9 @@ namespace dynamo {
       M_throw() << "A SystemOnlyScheduler used when there are no system events?";
   
     sorter->clear();
-    sorter->resize(Sim->N+1);
+    sorter->resize(Sim->N()+1);
     eventCount.clear();
-    eventCount.resize(Sim->N+1, 0);  
+    eventCount.resize(Sim->N()+1, 0);  
     sorter->init();
     rebuildSystemEvents();
   }
@@ -61,9 +61,9 @@ namespace dynamo {
       M_throw() << "A SystemOnlyScheduler used when there are no system events?";
   
     sorter->clear();
-    sorter->resize(Sim->N+1);
+    sorter->resize(Sim->N()+1);
     eventCount.clear();
-    eventCount.resize(Sim->N+1, 0);  
+    eventCount.resize(Sim->N()+1, 0);  
     sorter->rebuild();
     rebuildSystemEvents();
 #endif

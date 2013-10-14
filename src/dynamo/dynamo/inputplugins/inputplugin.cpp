@@ -51,9 +51,9 @@ namespace dynamo {
   {
     dout << "Setting COM Velocity" << std::endl;
   
-    if (Sim->N <= 1)
+    if (Sim->N() <= 1)
       derr << "Refusing to set momentum for a " 
-	   << Sim->N << " particle system" << std::endl;
+	   << Sim->N() << " particle system" << std::endl;
     else
       Sim->setCOMVelocity(vel);  
   }
@@ -64,9 +64,9 @@ namespace dynamo {
   {
     dout << "Zeroing Momentum" << std::endl;
   
-    if (Sim->N <= 1)
+    if (Sim->N() <= 1)
       derr << "Refusing to zero momentum for a " 
-	   << Sim->N << " particle system" << std::endl;
+	   << Sim->N() << " particle system" << std::endl;
     else
       Sim->setCOMVelocity();
   }

@@ -292,7 +292,7 @@ namespace dynamo {
 	      
 	      if (kT)
 		{
-		  double gr = 2 * (Sim->getSimVolume() / (4 * R * R * std::sqrt(M_PI * kT) * Sim->N * Sim->N)) * (data.second.counter / Sim->systemTime);
+		  double gr = 2 * (Sim->getSimVolume() / (4 * R * R * std::sqrt(M_PI * kT) * Sim->N() * Sim->N())) * (data.second.counter / Sim->systemTime);
 		  
 		  switch (data.first.second)
 		    {
@@ -366,7 +366,7 @@ namespace dynamo {
 			double deltaU = (*_potential)[potential_step].second;
 			if (potential_step > 0) deltaU -= (*_potential)[potential_step-1].second;
 			
-			double gr = 2 * (Sim->getSimVolume() / (4 * R * R * std::sqrt(M_PI * kT) * Sim->N * Sim->N)) * (data.second.counter / Sim->systemTime);
+			double gr = 2 * (Sim->getSimVolume() / (4 * R * R * std::sqrt(M_PI * kT) * Sim->N() * Sim->N())) * (data.second.counter / Sim->systemTime);
 			switch (data.first.second)
 			  {
 			  case EEventType::STEP_OUT:

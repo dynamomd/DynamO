@@ -47,7 +47,7 @@ namespace dynamo {
   {
     dout << "The length of the VACF correlator is " << length << std::endl;
 
-    velHistory.resize(Sim->N, boost::circular_buffer<Vector>(length));
+    velHistory.resize(Sim->N(), boost::circular_buffer<Vector>(length));
 
     currCorrLength=1;
 

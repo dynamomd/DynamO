@@ -52,7 +52,7 @@ namespace dynamo {
   void 
   Dynamics::initialise()
   {
-    streamFreq = 10 * Sim->N;
+    streamFreq = 10 * Sim->N();
     
     if (hasOrientationData())
       {
@@ -73,7 +73,7 @@ namespace dynamo {
 	sumEnergy *= 0.5 / Sim->units.unitEnergy();
   
 	dout << "System Rotational Energy " << sumEnergy
-	     << "\nRotational kT " << sumEnergy / Sim->N << std::endl;
+	     << "\nRotational kT " << sumEnergy / Sim->N() << std::endl;
       }
   }
 
@@ -130,13 +130,11 @@ namespace dynamo {
 	   << "This can result in incorrect capture map loads etc.\n"
 	   << "Erase any capture maps in the configuration file so they are regenerated." << std::endl;
 
-    Sim->N = Sim->particles.size();
-
-    dout << "Particle count " << Sim->N << std::endl;
+    dout << "Particle count " << Sim->N() << std::endl;
 
     if (XML.getNode("ParticleData").hasAttribute("OrientationData"))
       {
-	orientationData.resize(Sim->N);
+	orientationData.resize(Sim->N());
 	size_t i(0);
 	for (magnet::xml::Node node = XML.getNode("ParticleData").fastGetNode("Pt"); node.valid(); ++node, ++i)
 	  {
@@ -159,7 +157,7 @@ namespace dynamo {
     if (hasOrientationData())
       XML << magnet::xml::attr("OrientationData") << "Y";
 
-    for (size_t i = 0; i < Sim->N; ++i)
+    for (size_t i = 0; i < Sim->N(); ++i)
       {
 	Particle tmp(Sim->particles[i]);
 	if (applyBC) 

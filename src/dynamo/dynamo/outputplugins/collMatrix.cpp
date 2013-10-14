@@ -31,7 +31,7 @@ namespace dynamo {
   void 
   OPCollMatrix::initialise()
   {
-    lastEvent.resize(Sim->N, lastEventData(Sim->systemTime, eventKey(classKey(0, NONE), NONE)));
+    lastEvent.resize(Sim->N(), lastEventData(Sim->systemTime, eventKey(classKey(0, NONE), NONE)));
   }
 
   OPCollMatrix::~OPCollMatrix()

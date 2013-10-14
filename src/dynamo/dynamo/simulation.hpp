@@ -128,6 +128,15 @@ namespace dynamo
       this function to call them all and in the right order.
      */
     void initialise();
+
+    /*! \brief Resets the simulation so that it appears to just have
+        been loaded from the configuration file.
+
+	This is used when a simulation object is used to run both an
+	equilibration run and one or more production runs. Between
+	runs you will want to reset the state of the simulation.
+    */
+    void reset();
     
     SpeciesContainer species;
     void addSpecies(shared_ptr<Species>);
@@ -308,7 +317,7 @@ namespace dynamo
     size_t nextPrintEvent;
 
     /*! \brief Number of Particle's in the system. */
-    size_t N;
+    size_t N() const { return particles.size(); }
     
     /*! \brief The Particle's of the system. */
     std::vector<Particle> particles;  

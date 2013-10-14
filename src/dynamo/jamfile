@@ -72,5 +72,5 @@ install install-dynamo
 
 ##################### TESTS ######################
 using testing ;
-unit-test hardsphere_test : tests/hardsphere_test.cpp dynamo_core/<coil-integration>no : <coil-integration>no <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
+unit-test hardsphere_test : tests/hardsphere_test.cpp dynamo_core/<coil-integration>no /system//boost_unit_test_framework : <coil-integration>no <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 alias test : hardsphere_test ;

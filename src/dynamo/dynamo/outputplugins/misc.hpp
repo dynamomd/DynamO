@@ -62,6 +62,9 @@ namespace dynamo {
     double getMeanSqrkT() const;
     double getCurrentkT() const;
 
+    Vector getMeanMomentum() const { return _sysMomentum.mean(); }
+    Vector getCurrentMomentum() const { return _sysMomentum.current(); }
+
     double getMeanUConfigurational() const;
     double getMeanSqrUConfigurational() const;
     inline double getConfigurationalU() const { return _internalE.current(); }
