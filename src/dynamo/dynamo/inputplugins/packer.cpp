@@ -1006,30 +1006,18 @@ namespace dynamo {
 	  //(4.0 * tij * vm["density"].as<double>() * std::sqrt(M_PI));
 
 	  double packfrac = vm["density"].as<double>() * M_PI / 6.0;
-
-	  double chi = (1.0 - 0.5 * packfrac)
-	    / std::pow(1.0 - packfrac, 3);
-
-	  double tij = 1.0
-	    / (4.0 * std::sqrt(M_PI) * vm["density"].as<double>() * chi);
+	  double chi = (1.0 - 0.5 * packfrac) / std::pow(1.0 - packfrac, 3);
+	  double tij = 1.0 / (4.0 * std::sqrt(M_PI) * vm["density"].as<double>() * chi);
 
 	  //No thermostat added yet
-	  Sim->systems.push_back
-	    (shared_ptr<System>
-	     (new SysDSMCSpheres(Sim, particleDiam,
-				 2.0 * tij / latticeSites.size(), chi, 1.0,
-				 "Thermostat", new IDRangeAll(Sim), new IDRangeAll(Sim))));
+	  Sim->systems.push_back(shared_ptr<System>(new SysDSMCSpheres(Sim, particleDiam, 2.0 * tij / latticeSites.size(), chi, 1.0, "Thermostat", new IDRangeAll(Sim), new IDRangeAll(Sim))));
 
-	  Sim->addSpecies(shared_ptr<Species>
-			  (new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0,
-				       "Bulk")));
+	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0, "Bulk")));
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
 	  for (const Vector & position : latticeSites)
-	    Sim->particles.push_back
-	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(),
-		      nParticles++));
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 	  break;
 	}
       case 11:

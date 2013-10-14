@@ -65,6 +65,8 @@ namespace dynamo {
     Vector getMeanMomentum() const { return _sysMomentum.mean(); }
     Vector getCurrentMomentum() const { return _sysMomentum.current(); }
 
+    double getTotalEnergy() const { return _internalE.current() + _KE.current(); }
+
     double getMeanUConfigurational() const;
     double getMeanSqrUConfigurational() const;
     inline double getConfigurationalU() const { return _internalE.current(); }

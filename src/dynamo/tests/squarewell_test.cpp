@@ -13,13 +13,13 @@
 #include <dynamo/schedulers/include.hpp>
 #include <dynamo/schedulers/sorters/include.hpp>
 #include <dynamo/inputplugins/include.hpp>
-#include <dynamo/interactions/hardsphere.hpp>
+#include <dynamo/interactions/squarewell.hpp>
+#include <dynamo/systems/andersenThermostat.hpp>
 #include <dynamo/outputplugins/misc.hpp>
 #include <random>
 
 std::mt19937 RNG;
 typedef dynamo::FELBoundedPQ<dynamo::PELMinMax<3> > DefaultSorter;
-dynamo::Simulation Sim;
 
 dynamo::Vector getRandVelVec()
 {
@@ -33,13 +33,15 @@ dynamo::Vector getRandVelVec()
   return tmpVec;
 }
 
-BOOST_AUTO_TEST_CASE( Initialisation )
+void init(dynamo::Simulation& Sim)
 {
   RNG.seed(std::random_device()());
   Sim.ranGenerator.seed(std::random_device()());
 
   const double density = 0.5;
   const double elasticity = 1.0;
+  const double lambda = 1.5;
+  const double welldepth = 1.0;
 
   Sim.dynamics = dynamo::shared_ptr<dynamo::Dynamics>(new dynamo::DynNewtonian(&Sim));
   Sim.BCs = dynamo::shared_ptr<dynamo::BoundaryCondition>(new dynamo::BCPeriodic(&Sim));
@@ -55,18 +57,19 @@ BOOST_AUTO_TEST_CASE( Initialisation )
     simVol *= Sim.primaryCellSize[iDim];
 
   double particleDiam = std::cbrt(simVol * density / latticeSites.size());
-  Sim.interactions.push_back(dynamo::shared_ptr<dynamo::Interaction>(new dynamo::IHardSphere(&Sim, particleDiam, elasticity, new dynamo::IDPairRangeAll(), "Bulk")));
+
+  Sim.interactions.push_back(dynamo::shared_ptr<dynamo::Interaction>(new dynamo::ISquareWell(&Sim, particleDiam, lambda, welldepth, elasticity, new dynamo::IDPairRangeAll(), "Bulk")));
   Sim.addSpecies(dynamo::shared_ptr<dynamo::Species>(new dynamo::SpPoint(&Sim, new dynamo::IDRangeAll(&Sim), 1.0, "Bulk", 0, "Bulk")));
   Sim.units.setUnitLength(particleDiam);
+  Sim.units.setUnitTime(particleDiam); 
 
   unsigned long nParticles = 0;
   Sim.particles.reserve(latticeSites.size());
   for (const dynamo::Vector & position : latticeSites)
     Sim.particles.push_back(dynamo::Particle(position, getRandVelVec() * Sim.units.unitVelocity(), nParticles++));
 
-  //Add the cellular neighbourlist required by the default scheduler (if it is used)
   Sim.globals.push_back(dynamo::shared_ptr<dynamo::Global>(new dynamo::GCells(&Sim,"SchedulerNBList")));
-  
+
   Sim.ensemble = dynamo::Ensemble::loadEnsemble(Sim);
 
   dynamo::InputPlugin(&Sim, "Rescaler").zeroMomentum();
@@ -75,13 +78,48 @@ BOOST_AUTO_TEST_CASE( Initialisation )
   BOOST_CHECK_EQUAL(Sim.N(), 1372);
   BOOST_CHECK_CLOSE(Sim.getNumberDensity() * Sim.units.unitVolume(), 0.5, 0.000000001);
   BOOST_CHECK_CLOSE(Sim.getPackingFraction(), Sim.getNumberDensity() * Sim.units.unitVolume() * M_PI / 6.0, 0.000000001);
-  
 }
 
-BOOST_AUTO_TEST_CASE( Simulation )
+BOOST_AUTO_TEST_CASE( NVE_Simulation )
 {
+  dynamo::Simulation Sim;
+  init(Sim);
+
   Sim.status = dynamo::CONFIG_LOADED;
   Sim.endEventCount = 100000;
+  Sim.addOutputPlugin("Misc");
+  Sim.initialise();
+  const double totalEinit = Sim.getOutputPlugin<dynamo::OPMisc>()->getTotalEnergy();
+  while (Sim.runSimulationStep()) {}
+  const double totalEequil = Sim.getOutputPlugin<dynamo::OPMisc>()->getTotalEnergy();
+  BOOST_CHECK_CLOSE(totalEinit, totalEequil, 0.000000001);
+
+  Sim.endEventCount += 100000;
+  Sim.reset();
+  Sim.addOutputPlugin("Misc");
+  Sim.initialise();
+  const double totalEprerun = Sim.getOutputPlugin<dynamo::OPMisc>()->getTotalEnergy();
+  BOOST_CHECK_CLOSE(totalEequil, totalEprerun, 0.000000001);
+  while (Sim.runSimulationStep()) {}
+  const double totalEfinal = Sim.getOutputPlugin<dynamo::OPMisc>()->getTotalEnergy();
+  BOOST_CHECK_CLOSE(totalEprerun, totalEfinal, 0.000000001);
+  
+  //Check that the momentum is around 0
+  dynamo::Vector momentum = Sim.getOutputPlugin<dynamo::OPMisc>()->getCurrentMomentum();
+  BOOST_CHECK_SMALL(momentum.nrm() / Sim.units.unitMomentum(), 0.0000000001);
+}
+
+BOOST_AUTO_TEST_CASE( NVT_Simulation )
+{
+  dynamo::Simulation Sim;
+  init(Sim);
+
+  Sim.systems.push_back(dynamo::shared_ptr<dynamo::System>(new dynamo::SysAndersen(&Sim, 0.036 / Sim.N(), 1.0 * Sim.units.unitEnergy(), "Thermostat")));
+  Sim.ensemble = dynamo::Ensemble::loadEnsemble(Sim);
+
+  Sim.status = dynamo::CONFIG_LOADED;
+  Sim.eventPrintInterval = 50000;
+  Sim.endEventCount = 300000;
   Sim.addOutputPlugin("Misc");
   Sim.initialise();
   while (Sim.runSimulationStep()) {}
@@ -90,17 +128,14 @@ BOOST_AUTO_TEST_CASE( Simulation )
   Sim.endEventCount = 100000;
   Sim.addOutputPlugin("Misc");
   Sim.initialise();
+
   while (Sim.runSimulationStep()) {}
-  
+
   //Check the mean free time is roughly what is expected
   double MFT = Sim.getOutputPlugin<dynamo::OPMisc>()->getMFT();
-  BOOST_CHECK_CLOSE(MFT, 0.130191, 1);
+  BOOST_CHECK_CLOSE(MFT, 0.0368185, 5);
 
   //Check the temperature is constant at 1
   double Temperature = Sim.getOutputPlugin<dynamo::OPMisc>()->getCurrentkT() / Sim.units.unitEnergy();
-  BOOST_CHECK_CLOSE(Temperature, 1.0, 0.000000001);
-
-  //Check that the momentum is around 0
-  dynamo::Vector momentum = Sim.getOutputPlugin<dynamo::OPMisc>()->getCurrentMomentum();
-  BOOST_CHECK_SMALL(momentum.nrm() / Sim.units.unitMomentum(), 0.0000000001);
+  BOOST_CHECK_CLOSE(Temperature, 1.0, 5);
 }

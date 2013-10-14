@@ -48,10 +48,9 @@ namespace dynamo {
     type = GAUSSIAN;
   }
 
-  SysAndersen::SysAndersen(dynamo::Simulation* nSim, double mft, double t, 
-		       std::string nName):
+  SysAndersen::SysAndersen(dynamo::Simulation* nSim, double mft, double t, std::string nName):
     System(nSim),
-    meanFreeTime(mft),
+    meanFreeTime(mft / nSim->N()),
     Temp(t),
     tune(true),
     dimensions(NDIM),
@@ -73,9 +72,7 @@ namespace dynamo {
 
     if (tune && (eventCount > setFrequency))
       {
-	meanFreeTime *= static_cast<double>(eventCount)
-	  / ((Sim->eventCount - lastlNColl) * setPoint);
-
+	meanFreeTime *= static_cast<double>(eventCount) / ((Sim->eventCount - lastlNColl) * setPoint);
 	lastlNColl = Sim->eventCount;
 	eventCount = 0;
       }
@@ -114,15 +111,16 @@ namespace dynamo {
   SysAndersen::initialise(size_t nID)
   {
     ID = nID;
-    meanFreeTime /= Sim->N();
     dt = getGhostt();
     sqrtTemp = sqrt(Temp);
+    eventCount = 0;
+    lastlNColl = 0;
   }
 
   void 
   SysAndersen::operator<<(const magnet::xml::Node& XML)
   {
-    meanFreeTime = XML.getAttribute("MFT").as<double>() * Sim->units.unitTime();
+    meanFreeTime = XML.getAttribute("MFT").as<double>() * Sim->units.unitTime() / Sim->N();
     Temp = XML.getAttribute("Temperature").as<double>() * Sim->units.unitEnergy();
     sysName = XML.getAttribute("Name");
 
@@ -145,7 +143,7 @@ namespace dynamo {
     XML << magnet::xml::tag("System")
 	<< magnet::xml::attr("Type") << "Andersen"
 	<< magnet::xml::attr("Name") << sysName
-	<< magnet::xml::attr("MFT") << meanFreeTime
+	<< magnet::xml::attr("MFT") << meanFreeTime * Sim->N()
       * Sim->N()
       / Sim->units.unitTime()
 	<< magnet::xml::attr("Temperature") << Temp 

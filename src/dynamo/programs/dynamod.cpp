@@ -155,7 +155,6 @@ main(int argc, char *argv[])
 
       if (vm.count("thermostat"))
 	{
-
 	  if (vm["thermostat"].as<double>() == 0.0)
 	    {
 	      auto thermostat_base_ptr = sim.systems.find("Thermostat");
@@ -171,7 +170,8 @@ main(int argc, char *argv[])
 	  else
 	    {
 	      if (sim.systems.find("Thermostat") == sim.systems.end())
-		sim.systems.push_back(dynamo::shared_ptr<dynamo::System>(new dynamo::SysAndersen(&sim, 1.0, 1.0, "Thermostat")));
+		//Should use reduced temperature here, but we set it later anyway
+		sim.systems.push_back(dynamo::shared_ptr<dynamo::System>(new dynamo::SysAndersen(&sim, 1.0 / sim.N(), 1.0, "Thermostat")));
 
 	      auto thermostat_base_ptr = sim.systems.find("Thermostat");
 	      auto thermostat_ptr = std::dynamic_pointer_cast<dynamo::SysAndersen>(*thermostat_base_ptr);

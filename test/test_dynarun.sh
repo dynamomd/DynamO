@@ -370,38 +370,6 @@ function ThermostatTest {
 	tmp.xml.bz2 run.log
 }
 
-function SquareWellTest {
-    > run.log
-
-    ./dynamod -s1 -m 1 -T 1 &> run.log    
-    ./dynarun -c 3000000 config.out.xml.bz2 >> run.log 2>&1
-    ./dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
-    
-    MFT="0.036"
-
-    if [ -e output.xml.bz2 ]; then
-	if [ $(bzcat output.xml.bz2 \
-	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-	    | gawk '{var=($1-'$MFT')/'$MFT'; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
-	    echo "SquareWellTest -: FAILED, Measured MFT =" $(bzcat output.xml.bz2 \
-		| $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val') \
-		", expected MFT =" $MFT
-	    exit 1
-	else
-	    echo "SquareWellTest -: PASSED, Measured MFT =" $(bzcat output.xml.bz2 \
-		| $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val') \
-		", expected MFT =" $MFT
-	fi
-    else
-	echo "Error, no output.0.xml.bz2 in Square Well test"
-	exit 1
-    fi
-    
-#Cleanup
-    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
-	tmp.xml.bz2 run.log
-}
-
 function BinarySphereTest {
     > run.log
 
@@ -702,8 +670,6 @@ echo ""
 echo "INTERACTIONS+Dynamod Systems"
 echo "Testing binary hard spheres, NeighbourLists and BoundedPQ's"
 BinarySphereTest "Cells"
-echo "Testing Square Wells, Thermostats, NeighbourLists and BoundedPQ's"
-SquareWellTest
 echo "Testing infinitely heavy particles"
 HeavySphereTest
 echo "Testing Lines, NeighbourLists and BoundedPQ's"

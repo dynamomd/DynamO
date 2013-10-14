@@ -28,7 +28,8 @@ namespace dynamo {
   {
     //If not loaded or invalidated
     if (noXmlLoad)
-      {      
+      { 
+	noXmlLoad = false;
 	clear();
 
 	for (std::vector<Particle>::const_iterator iPtr1 = Sim->particles.begin();

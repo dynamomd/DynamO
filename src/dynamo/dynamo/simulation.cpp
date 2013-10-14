@@ -378,14 +378,13 @@ namespace dynamo
 
     { 
       size_t i(0);
-      for (magnet::xml::Node node = simNode.getNode("Genus").fastGetNode("Species");
-	   node.valid(); ++node, ++i)
+      for (magnet::xml::Node node = simNode.getNode("Genus").fastGetNode("Species"); node.valid(); ++node, ++i)
 	species.push_back(Species::getClass(node, this, i));
     }
     
     BCs = BoundaryCondition::getClass(simNode.getNode("BC"), this);
-
     dynamics = Dynamics::getClass(simNode.getNode("Dynamics"), this);
+    dynamics->loadParticleXMLData(mainNode);
 
     if (simNode.hasNode("Topology"))
       {
@@ -402,11 +401,11 @@ namespace dynamo
     //Link the species and interactions
     for (shared_ptr<Species>& sp : species)
       for (shared_ptr<Interaction>& intPtr : interactions)
-      if (intPtr->isInteraction(*sp))
-	{
-	  sp->setIntPtr(intPtr.get());
-	  break;
-	}
+	if (intPtr->isInteraction(*sp))
+	  {
+	    sp->setIntPtr(intPtr.get());
+	    break;
+	  }
 
     if (simNode.hasNode("Locals"))
       for (magnet::xml::Node node = simNode.getNode("Locals").fastGetNode("Local"); 
@@ -419,25 +418,18 @@ namespace dynamo
 	globals.push_back(Global::getClass(node, this));
 
     if (simNode.hasNode("SystemEvents"))
-      for (magnet::xml::Node node = simNode.getNode("SystemEvents").fastGetNode("System"); 
-	   node.valid(); ++node)
+      for (magnet::xml::Node node = simNode.getNode("SystemEvents").fastGetNode("System"); node.valid(); ++node)
 	systems.push_back(System::getClass(node, this));
 
     ptrScheduler = Scheduler::getClass(simNode.getNode("Scheduler"), this);
-
-    dynamics->loadParticleXMLData(mainNode);
   
     //Fixes or conversions once system is loaded
     lastRunMFT *= units.unitTime();
+
     //Scale the loaded properties to the simulation units
-    _properties.rescaleUnit(Property::Units::L, 
-			    units.unitLength());
-
-    _properties.rescaleUnit(Property::Units::T, 
-			    units.unitTime());
-
-    _properties.rescaleUnit(Property::Units::M, 
-			    units.unitMass());
+    _properties.rescaleUnit(Property::Units::L, units.unitLength());
+    _properties.rescaleUnit(Property::Units::T, units.unitTime());
+    _properties.rescaleUnit(Property::Units::M, units.unitMass());
 
     ensemble = dynamo::Ensemble::loadEnsemble(*this);
   }
