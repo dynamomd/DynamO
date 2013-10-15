@@ -148,28 +148,25 @@ namespace dynamo
 		  << "\nN = " << N();
     }
 
-    //Now check that the representative interaction for each Species,
-    //includes interactions for all of the particles in the Species.
-    for (shared_ptr<Species>& speciesptr : species)
-      for (const auto& id : *speciesptr->getRange())
-	if (!speciesptr->getIntPtr()->getRange()->isInRange(particles[id]))
+    //Check that each particle has a representative interaction
+    for (const Particle& particle : particles)
+      try {
+	getInteraction(particle, particle);
+      } catch (...)
+	{
+	  M_throw() << "The particle (ID=" << particle.getID()
+		    << ") does not have a self Interaction defined. Self Interactions are not used for the dynamics of the system, but are used to draw/visualise the particles, as well as calculate the excluded volume and other properties. Please add a self-Interaction";
+	}
+    
+    for (size_t ID1 = 0; ID1 < N(); ++ID1)
+      for (size_t ID2 = ID1; ID2 < N(); ++ID2)
+	try {
+	  getInteraction(particles[ID1], particles[ID2]);
+	} catch (...)
 	  {
-	    //A bad choice for the representative interaction has been
-	    //given. Find out if we can suggest a correct choice.
-	    std::string possiblechoices;
-	    for (const auto& interactionptr : interactions)
-	      if (interactionptr->getRange()->isInRange(particles[id]))
-		possiblechoices += std::string("\"")+interactionptr->getName()+std::string("\" ");
-	    
-	    M_throw() << "The representative Interaction \"" 
-		      << speciesptr->getIntPtr()->getName() << "\" for Species \""
-		      << speciesptr->getName() 
-		      << "\" does not include any interactions for at least Particle ID " << id 
-		      << ". This is needed for packing fraction calculations, visualisation, and other routines.\nTo avoid this error, choose a representative Interaction which includes all particles in a Species."
-		      << "\n Possible valid Interactions are: " << (possiblechoices.empty() ? std::string("NONE") : possiblechoices)
-	      ;
+	    M_throw() << "There is no Interaction defined between particle ID=" << ID1 << " and particle ID=" << ID2 << ". Each particle pairing must have an Interaction defined";
 	  }
-
+    
     dynamics->initialise();
 
     {
@@ -205,14 +202,12 @@ namespace dynamo
 
     {
       size_t ID=0;
-      
       for (shared_ptr<Global>& ptr : globals)
 	ptr->initialise(ID++);
     }
 
     {
-      size_t ID=0;
-      
+      size_t ID=0;  
       for (shared_ptr<System>& ptr : systems)
 	ptr->initialise(ID++);
     }
@@ -290,18 +285,8 @@ namespace dynamo
   {
     if (status >= INITIALISED)
       M_throw() << "Cannot add species after simulation initialisation";
-
+    
     species.push_back(sp);
-
-    for (shared_ptr<Interaction>& intPtr : interactions)
-      if (intPtr->isInteraction(*sp))
-	{
-	  sp->setIntPtr(intPtr.get());
-	  return;
-	}
-
-    M_throw() << "Could not find the interaction for the species \"" 
-	      << sp->getName() << "\"";
   }
 
 
@@ -397,15 +382,6 @@ namespace dynamo
     for (magnet::xml::Node node = simNode.getNode("Interactions").fastGetNode("Interaction");
 	 node.valid(); ++node)
       interactions.push_back(Interaction::getClass(node, this));
-
-    //Link the species and interactions
-    for (shared_ptr<Species>& sp : species)
-      for (shared_ptr<Interaction>& intPtr : interactions)
-	if (intPtr->isInteraction(*sp))
-	  {
-	    sp->setIntPtr(intPtr.get());
-	    break;
-	  }
 
     if (simNode.hasNode("Locals"))
       for (magnet::xml::Node node = simNode.getNode("Locals").fastGetNode("Local"); 
@@ -662,11 +638,10 @@ namespace dynamo
   {
     double volume = 0.0;
   
-    for (const shared_ptr<Species>& sp : species)
-      for (const size_t& ID : *(sp->getRange()))
-      volume += sp->getIntPtr()->getExcludedVolume(ID);
+    for (const Particle& particle : particles)
+      volume += getInteraction(particle, particle)->getExcludedVolume(particle.getID());
   
-    return  volume / getSimVolume();
+    return volume / getSimVolume();
   }
 
   void

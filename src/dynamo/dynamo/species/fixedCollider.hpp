@@ -24,12 +24,12 @@ namespace dynamo {
   class SpFixedCollider: public SpInertia
   {
   public:  
-    SpFixedCollider(dynamo::Simulation* sim, IDRange* r, std::string nName, unsigned int ID, std::string nIName="Bulk"):
-      SpInertia(sim, r, HUGE_VAL, nName, ID, nIName)
+    SpFixedCollider(dynamo::Simulation* sim, IDRange* r, std::string nName, unsigned int ID):
+      SpInertia(sim, r, HUGE_VAL, nName, ID)
     { setOutputPrefix("SpFixedCollider"); }
   
     SpFixedCollider(const magnet::xml::Node& XML, dynamo::Simulation* nSim, unsigned int nID):
-      SpInertia(nSim, NULL, HUGE_VAL, "", nID,"")
+      SpInertia(nSim, NULL, HUGE_VAL, "", nID)
     { setOutputPrefix("SpFixedCollider"); operator<<(XML); }
   
     virtual void initialise();

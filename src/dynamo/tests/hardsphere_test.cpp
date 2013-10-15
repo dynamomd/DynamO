@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE( Initialisation )
 
   double particleDiam = std::cbrt(simVol * density / latticeSites.size());
   Sim.interactions.push_back(dynamo::shared_ptr<dynamo::Interaction>(new dynamo::IHardSphere(&Sim, particleDiam, elasticity, new dynamo::IDPairRangeAll(), "Bulk")));
-  Sim.addSpecies(dynamo::shared_ptr<dynamo::Species>(new dynamo::SpPoint(&Sim, new dynamo::IDRangeAll(&Sim), 1.0, "Bulk", 0, "Bulk")));
+  Sim.addSpecies(dynamo::shared_ptr<dynamo::Species>(new dynamo::SpPoint(&Sim, new dynamo::IDRangeAll(&Sim), 1.0, "Bulk", 0)));
   Sim.units.setUnitLength(particleDiam);
 
   unsigned long nParticles = 0;

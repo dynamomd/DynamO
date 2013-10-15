@@ -59,7 +59,7 @@ void init(dynamo::Simulation& Sim)
   double particleDiam = std::cbrt(simVol * density / latticeSites.size());
 
   Sim.interactions.push_back(dynamo::shared_ptr<dynamo::Interaction>(new dynamo::ISquareWell(&Sim, particleDiam, lambda, welldepth, elasticity, new dynamo::IDPairRangeAll(), "Bulk")));
-  Sim.addSpecies(dynamo::shared_ptr<dynamo::Species>(new dynamo::SpPoint(&Sim, new dynamo::IDRangeAll(&Sim), 1.0, "Bulk", 0, "Bulk")));
+  Sim.addSpecies(dynamo::shared_ptr<dynamo::Species>(new dynamo::SpPoint(&Sim, new dynamo::IDRangeAll(&Sim), 1.0, "Bulk", 0)));
   Sim.units.setUnitLength(particleDiam);
   Sim.units.setUnitTime(particleDiam); 
 

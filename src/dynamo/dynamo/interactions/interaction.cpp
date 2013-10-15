@@ -40,12 +40,6 @@ namespace dynamo {
 			 Sim->particles[coll.getParticle2ID()]); 
   }
 
-  bool 
-  Interaction::isInteraction(const Species &speci) const
-  {
-    return !(intName.compare(speci.getIntName()));
-  }
-
   magnet::xml::XmlStream& operator<<(magnet::xml::XmlStream& XML, 
 				     const Interaction& g)
   {

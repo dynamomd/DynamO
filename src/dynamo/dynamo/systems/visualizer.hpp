@@ -52,6 +52,8 @@ namespace dynamo {
     mutable shared_ptr<coil::DataSet> _particleData;
 
     mutable boost::posix_time::ptime _lastUpdate;
+    
+    mutable std::vector<std::vector<GLuint> > _interactionIDs;
   };
 }
 #endif

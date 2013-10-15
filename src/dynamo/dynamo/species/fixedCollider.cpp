@@ -34,16 +34,13 @@ namespace dynamo {
   {
     range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
     spName = XML.getAttribute("Name");
-    intName = XML.getAttribute("IntName");
   }
 
   void 
   SpFixedCollider::outputXML(magnet::xml::XmlStream& XML) const
   {
     XML << magnet::xml::attr("Name") << spName
-	<< magnet::xml::attr("IntName") << intName
 	<< magnet::xml::attr("Type") << "FixedCollider";
-  
     XML << *range;
   }
 }

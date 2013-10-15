@@ -126,11 +126,6 @@ namespace dynamo {
      */
     bool isInteraction(const IntEvent &) const;
 
-    /*! \brief Tests if this interaction is suitable to describe the
-        basic properties of an entire species.
-     */
-    bool isInteraction(const Species &) const;
-
     /*! \brief Returns the "name" of the interaction used in
         name-based look-ups.
      */

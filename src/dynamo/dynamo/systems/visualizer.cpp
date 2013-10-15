@@ -46,36 +46,14 @@ namespace dynamo {
 
     //We want to ensure we get at least one update before anything
     //occurs in the system.
-    dt = -HUGE_VAL;
-  
+    dt = -HUGE_VAL;  
     sysName = "Visualizer";
 
     //Build a window, ready to display it
-    _window.reset(new coil::CLGLWindow("Visualizer : " + nName, tickFreq, true));
+    _window.reset(new coil::CLGLWindow("DynamO Visualizer", tickFreq, true));
 
-    //Add all of the objects to be rendered
-    _particleData.reset(new coil::DataSet("Particles", Sim->N(), GlyphRepresentation::SPHERE_GLYPH));
-    _window->addRenderObj(_particleData);
-
-    for (shared_ptr<Local>& local : Sim->locals)
-      {
-	CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*local));
-	if (obj != NULL) _window->addRenderObj(obj->getCoilRenderObj());
-      }
-
-    //Initialise coil
-    _coil.getInstance().addWindow(_window);
-
-    //Now initialise the data sets
-    initDataSet();
-    _window->_updateDataSignal.connect<SVisualizer, &SVisualizer::updateRenderData>(this);
-    updateRenderData();
-
-    _lastUpdate = boost::posix_time::microsec_clock::local_time();
-    /* Now request that the visualiser rescales to the best dimensions for the current system */
-    _window->autoscaleView();
-
-    dout << "Visualizer initialised" << std::endl;
+    //Cannot continue setting up the coil visualiser yet, as the other
+    //dynamo classes have not been initialised.
   }
 
   void
@@ -119,6 +97,31 @@ namespace dynamo {
   SVisualizer::initialise(size_t nID)
   { 
     ID = nID;
+
+    //Add all of the objects to be rendered
+    _particleData.reset(new coil::DataSet("Particles", Sim->N(), GlyphRepresentation::SPHERE_GLYPH));
+    _window->addRenderObj(_particleData);
+
+    for (shared_ptr<Local>& local : Sim->locals)
+      {
+	CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*local));
+	if (obj != NULL) _window->addRenderObj(obj->getCoilRenderObj());
+      }
+
+    //Initialise coil
+    _coil.getInstance().addWindow(_window);
+
+    //Now initialise the data sets
+    initDataSet();
+    _window->_updateDataSignal.connect<SVisualizer, &SVisualizer::updateRenderData>(this);
+    updateRenderData();
+
+    _lastUpdate = boost::posix_time::microsec_clock::local_time();
+    /* Now request that the visualiser rescales to the best dimensions for the current system */
+    _window->autoscaleView();
+
+    dout << "Visualizer initialised" << std::endl;
+
     Sim->_sigParticleUpdate.connect<SVisualizer, &SVisualizer::particlesUpdated>(this);
   }
 
@@ -162,15 +165,33 @@ namespace dynamo {
       }
     (*_particleData)["Mass"].flagNewData();
     (*_particleData)["ID"].flagNewData();
+    
+    //Check through every interaction, collecting the IDs of particles represented by that interaction
+    _interactionIDs.clear();
+    _interactionIDs.resize(Sim->interactions.size());
 
-    for (auto& species : Sim->species)
-      {
-	std::vector<GLuint> ids;
-	ids.reserve(species->getRange()->size());
-	for (auto ID : *species->getRange()) ids.push_back(ID);
-	const GlyphRepresentation& data = dynamic_cast<const GlyphRepresentation&>(*species->getIntPtr());
-	_particleData->addPointSet(species->getName(), ids, data.getDefaultGlyphType());
-      }
+    //Calculate the set of particle ID's to be drawn by each Interaction
+    for (const Particle& particle : Sim->particles)
+      _interactionIDs[Sim->getInteraction(particle, particle)->getID()].push_back(particle.getID());
+
+    //Add each Interaction to be drawn, if it does represent some particles
+    for (auto& interaction : Sim->interactions)
+      if (!_interactionIDs[interaction->getID()].empty())
+	_particleData->addPointSet(interaction->getName(), _interactionIDs[interaction->getID()], dynamic_cast<const GlyphRepresentation&>(*interaction).getDefaultGlyphType());
+    
+    //Update the size information once (only Compression dynamics needs to update it again)
+    std::vector<GLfloat>& sizes = (*_particleData)["Size"];
+    for (auto& interaction : Sim->interactions)
+      if (!_interactionIDs[interaction->getID()].empty())
+	{
+	  const GlyphRepresentation& data = dynamic_cast<const GlyphRepresentation&>(*interaction);
+	  for (size_t ID : _interactionIDs[interaction->getID()])
+	    {
+	      const auto& psize = data.getGlyphSize(ID);
+	      for (size_t i(0); i < 4; ++i) sizes[4 * ID + i] = psize[i];
+	    }
+	}
+    (*_particleData)["Size"].flagNewData();
   }
 
   void
@@ -182,15 +203,14 @@ namespace dynamo {
     shared_ptr<BCLeesEdwards> BC = std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs);
     if (BC)
       _particleData->setPeriodicVectors(Vector(Sim->primaryCellSize[0], 0, 0),
-				      Vector(BC->getBoundaryDisplacement(), Sim->primaryCellSize[1], 0),
-				      Vector(0, 0, Sim->primaryCellSize[2]));
+					Vector(BC->getBoundaryDisplacement(), Sim->primaryCellSize[1], 0),
+					Vector(0, 0, Sim->primaryCellSize[2]));
 
 
     ///////////////////////POSITION DATA UPDATE
     //Check if the system is compressing and adjust the radius scaling factor
     std::vector<GLfloat>& posdata = (*_particleData)["Position"];
     std::vector<GLfloat>& veldata = (*_particleData)["Velocity"];
-    std::vector<GLfloat>& sizes = (*_particleData)["Size"];
     std::vector<GLfloat>& eventCounts = (*_particleData)["Event Count"];
     const std::vector<size_t>& simEventCounts = Sim->ptrScheduler->getEventCounts();
     
@@ -211,20 +231,22 @@ namespace dynamo {
 	  eventCounts[p.getID()] = simEventCounts[p.getID()];
       }
 
-    float rfactor = 1.0;
     if (std::dynamic_pointer_cast<DynCompression>(Sim->dynamics))
-      rfactor *= (1 + static_cast<const DynCompression&>(*Sim->dynamics).getGrowthRate() * Sim->systemTime);
-    rfactor /= Sim->units.unitLength();
-
-    for (auto& species : Sim->species)
       {
-	const GlyphRepresentation& data = dynamic_cast<const GlyphRepresentation&>(*species->getIntPtr());
-	for (auto ID : *species->getRange())
-	  {
-	    const auto& psize = data.getGlyphSize(ID);
-	    for (size_t i(0); i < 4; ++i)
-	      sizes[4 * ID + i] = rfactor * psize[i];
-	  }
+	std::vector<GLfloat>& sizes = (*_particleData)["Size"];
+	const double rfactor = (1 + static_cast<const DynCompression&>(*Sim->dynamics).getGrowthRate() * Sim->systemTime) / Sim->units.unitLength();
+	for (auto& interaction : Sim->interactions)
+	  if (!_interactionIDs[interaction->getID()].empty())
+	    {
+	      const GlyphRepresentation& data = dynamic_cast<const GlyphRepresentation&>(*interaction);
+	      for (size_t ID : _interactionIDs[interaction->getID()])
+		{
+		  const auto& psize = data.getGlyphSize(ID);
+		  for (size_t i(0); i < 4; ++i)
+		    sizes[4 * ID + i] = rfactor * psize[i];
+		}
+	    }
+	(*_particleData)["Size"].flagNewData();
       }
 
     if (Sim->dynamics->hasOrientationData())
@@ -247,7 +269,6 @@ namespace dynamo {
 
     (*_particleData)["Position"].flagNewData();
     (*_particleData)["Velocity"].flagNewData();
-    (*_particleData)["Size"].flagNewData();
     (*_particleData)["Event Count"].flagNewData();
   }
 }

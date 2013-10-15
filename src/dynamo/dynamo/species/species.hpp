@@ -36,15 +36,11 @@ namespace dynamo {
     virtual ~Species();
 
     inline bool isSpecies(const Particle& p1) const { return range->isInRange(p1); }  
-
     inline const double& getMass(size_t ID) const { return _mass->getProperty(ID); }
     inline unsigned long getCount() const { return range->size(); }
     inline unsigned int getID() const { return ID; }
     inline const std::string& getName() const { return spName; }
-    inline const std::string& getIntName() const { return intName; }
     inline const shared_ptr<IDRange>& getRange() const { return range; }
-    inline const Interaction* getIntPtr() const { return IntPtr; }
-    inline void setIntPtr(Interaction* nPtr) { IntPtr = nPtr; }
     virtual double getScalarMomentOfInertia(size_t ID) const = 0;
 
     virtual void operator<<(const magnet::xml::Node&) = 0;
@@ -57,15 +53,11 @@ namespace dynamo {
 
   protected:
     template<class T1>
-    Species(dynamo::Simulation* tmp, std::string name, 
-	    IDRange* nr, T1 mass, std::string nName, 
-	    unsigned int nID, std::string nIName):
+    Species(dynamo::Simulation* tmp, std::string name, IDRange* nr, T1 mass, std::string nName, unsigned int nID):
       SimBase(tmp, name),
       _mass(Sim->_properties.getProperty(mass, Property::Units::Mass())),
       range(nr),
       spName(nName),
-      intName(nIName),
-      IntPtr(NULL),
       ID(nID)
     {}
 
@@ -74,8 +66,6 @@ namespace dynamo {
     shared_ptr<Property> _mass;
     shared_ptr<IDRange> range;
     std::string spName;
-    std::string intName;
-    Interaction* IntPtr;
     unsigned int ID;
   };
 

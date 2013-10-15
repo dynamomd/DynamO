@@ -23,9 +23,8 @@
 
 namespace dynamo {
   SpSphericalTop::SpSphericalTop(dynamo::Simulation* tmp, IDRange* nr, double nMass, 
-				 std::string nName, unsigned int nID, double inertiaConst,
-				 std::string nIName):
-    SpInertia(tmp, nr, nMass, nName, nID, nIName),
+				 std::string nName, unsigned int nID, double inertiaConst):
+    SpInertia(tmp, nr, nMass, nName, nID),
     inertiaConstant(inertiaConst)
   {}
 
@@ -42,7 +41,6 @@ namespace dynamo {
 	<< inertiaConstant / Sim->units.unitInertia()
 	<< magnet::xml::attr("Mass") << _mass->getName()
 	<< magnet::xml::attr("Name") << spName
-	<< magnet::xml::attr("IntName") << intName
 	<< magnet::xml::attr("Type") << type
 	<< range;
   }

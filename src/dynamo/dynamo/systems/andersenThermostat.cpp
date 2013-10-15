@@ -143,9 +143,7 @@ namespace dynamo {
     XML << magnet::xml::tag("System")
 	<< magnet::xml::attr("Type") << "Andersen"
 	<< magnet::xml::attr("Name") << sysName
-	<< magnet::xml::attr("MFT") << meanFreeTime * Sim->N()
-      * Sim->N()
-      / Sim->units.unitTime()
+	<< magnet::xml::attr("MFT") << meanFreeTime * Sim->N() / Sim->units.unitTime()
 	<< magnet::xml::attr("Temperature") << Temp 
       / Sim->units.unitEnergy();
   

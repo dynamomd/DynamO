@@ -30,10 +30,8 @@ namespace dynamo {
   SpPoint::operator<<(const magnet::xml::Node& XML)
   {
     range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
-    _mass = Sim->_properties.getProperty(XML.getAttribute("Mass"),
-					 Property::Units::Mass());
+    _mass = Sim->_properties.getProperty(XML.getAttribute("Mass"), Property::Units::Mass());
     spName = XML.getAttribute("Name");
-    intName = XML.getAttribute("IntName");
   }
 
   void 
@@ -42,15 +40,7 @@ namespace dynamo {
     XML << magnet::xml::attr("Mass") 
 	<< _mass->getName()
 	<< magnet::xml::attr("Name") << spName
-	<< magnet::xml::attr("IntName") << intName
 	<< magnet::xml::attr("Type") << "Point"
 	<< *range;
-  }
-
-  void
-  SpPoint::initialise()
-  { 
-    if (IntPtr == NULL)
-      M_throw() << "SpPoint missing a matching interaction";
   }
 }
