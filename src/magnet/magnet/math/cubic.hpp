@@ -20,6 +20,7 @@
 #include <cmath>
 #include <limits>
 #include <magnet/math/quadratic.hpp>
+#include <magnet/math/bisect.hpp>
 
 /* 
    This work is heavily derived from the public domain work of Don
@@ -37,17 +38,34 @@
 namespace magnet {
   namespace math {
     namespace detail {
+      
+      /*! \brief Uses a quadratic scheme to polish up a root,
+          switching to a bisection scheme if it manages to bracket the
+          root.
+       */
       inline void cubicNewtonRootPolish(const double& p, const double& q, const double& r,
-					double& root, size_t iterations)
+					double& root)
       {
-	for (size_t it = 0; it < iterations; ++it)
+	//Stored for comparison later
+	double error = ((root + p)*root + q) * root + r;
+	const size_t maxiterations = 2;
+	for (size_t it = 0; (it < maxiterations) && (error != 0); ++it)
 	  {
-	    double error = ((root + p)*root + q) * root + r;
-	    double derivative = (3.0 * root + 2 * p) * root + q;
+	    double deriv = (3 * root + 2 * p) * root + q;
+	    double dderiv = 6 * root + 2 * p;
 	    
-	    if ((error == 0) || derivative == 0) return;
-	    
-	    root -= error / derivative;
+	    //Try to use a quadratic scheme to improve the root
+	    std::pair<double, double> roots;
+	    try {
+	      roots = quadraticEquation(0.5 * dderiv, deriv, error);	    
+	      root += (std::abs(roots.first) < std::abs(roots.second)) ? roots.first : roots.second;
+	    } catch (NoQuadraticRoots&) { 
+	      //Switch to a linear scheme if the quadratic fails
+	      if (deriv == 0) return;
+	      root -= error / deriv;
+	    }
+
+	    error = ((root + p)*root + q) * root + r;
 	  }
       }
     }
@@ -55,11 +73,9 @@ namespace magnet {
     //Please read  http://linus.it.uts.edu.au/~don/pubs/solving.html
     //For solving cubics like x^3 + p * x^2 + q * x + r == 0
     inline size_t 
-    cubicSolve(const double& p, const double& q, const double& r, 
-	       double& root1, double& root2, double& root3)
+    cubicSolve(const double& p, const double& q, const double& r, double& root1, double& root2, double& root3)
     {
-      static const double maxSqrt 
-	= std::sqrt(std::numeric_limits<double>::max());
+      static const double maxSqrt = std::sqrt(std::numeric_limits<double>::max());
 
       if (r == 0)
 	{
@@ -198,7 +214,7 @@ namespace magnet {
 	    root1 = uo3 * std::cbrt(2.0 / (w+v)) - std::cbrt(0.5*(w+v)) - p / 3.0;
 
 	  //We now polish the root up before we use it in other calculations
-	  detail::cubicNewtonRootPolish(p, q, r, root1, 15);
+	  detail::cubicNewtonRootPolish(p, q, r, root1);
 	 
 	  //We double check that there are no more roots by using a
 	  //quadratic formula on the factored problem, this helps when
@@ -265,9 +281,9 @@ namespace magnet {
       root2 = s * (-cosk + rt3sink) - p / 3.0;
       root3 = s * (-cosk - rt3sink) - p / 3.0;
 
-      detail::cubicNewtonRootPolish(p, q, r, root1, 15);
-      detail::cubicNewtonRootPolish(p, q, r, root2, 15);
-      detail::cubicNewtonRootPolish(p, q, r, root3, 15);
+      detail::cubicNewtonRootPolish(p, q, r, root1);
+      detail::cubicNewtonRootPolish(p, q, r, root2);
+      detail::cubicNewtonRootPolish(p, q, r, root3);
 
       return 3;
     }
