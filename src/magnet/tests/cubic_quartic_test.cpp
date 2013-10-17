@@ -4,7 +4,7 @@
 #include <magnet/math/quartic.hpp>
 #include <complex>
 
-double cubic_rootvals[] = {1e8, -1e6, -1e3, -100, -1, 0, 1, +100, 1e3, 1e6, 1e8 };
+double cubic_rootvals[] = {-1e7, -1e6, -1e3, -100, -1, 0, 1, +100, 1e3, 1e6, 1e7 };
 
 BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES( cubic_triple_roots, 0)
 BOOST_AUTO_TEST_CASE( cubic_triple_roots )
@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE( cubic_triple_roots )
 	    }
 }
 
-BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES( cubic_single_roots, 16 )
+BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES( cubic_single_roots, 0 )
 BOOST_AUTO_TEST_CASE( cubic_single_roots )
 {
   for (double root1 : cubic_rootvals)
