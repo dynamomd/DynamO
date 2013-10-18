@@ -18,11 +18,10 @@
 #pragma once
 
 #include <dynamo/interactions/captures.hpp>
-#include <dynamo/interactions/glyphrepresentation.hpp>
 #include <dynamo/simulation.hpp>
 
 namespace dynamo {
-  class ISquareWell: public ICapture, public GlyphRepresentation
+  class ISquareWell: public ICapture
   {
   public:
     template<class T1, class T2, class T3, class T4>

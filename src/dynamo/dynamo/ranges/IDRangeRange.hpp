@@ -28,6 +28,8 @@ namespace dynamo {
     { 
       startID = XML.getAttribute("Start").as<size_t>();
       endID = XML.getAttribute("End").as<size_t>();
+      if (startID > endID)
+	M_throw() << "The IDRange, of type \"Ranged\", has a Start ID greater then the End ID:\nXML path:" << XML.getPath();
     }
     
     IDRangeRange(size_t s, size_t e):startID(s), endID(e) {}

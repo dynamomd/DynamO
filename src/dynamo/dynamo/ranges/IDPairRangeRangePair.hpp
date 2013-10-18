@@ -34,12 +34,7 @@ namespace dynamo {
     }
 
     virtual bool isInRange(const Particle&p1, const Particle&p2) const
-    {
-      if ((range1->isInRange(p1) && range2->isInRange(p2))
-	  || (range1->isInRange(p2) && range2->isInRange(p1)))
-	return true;
-      return false;
-    }
+    { return (range1->isInRange(p1) && range2->isInRange(p2)) || (range1->isInRange(p2) && range2->isInRange(p1)); }
 
     virtual bool isInRange(const Particle&p1) const
     { return range1->isInRange(p1) || range2->isInRange(p1); }

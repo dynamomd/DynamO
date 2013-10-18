@@ -111,14 +111,18 @@ namespace magnet {
       inline T* map()
       {
 	bind(buffer_targets::ARRAY);
-	return static_cast<T*>(glMapBuffer(buffer_targets::ARRAY, GL_READ_WRITE));
+	GLvoid* ptr = glMapBuffer(buffer_targets::ARRAY, GL_READ_WRITE);
+	if (ptr == NULL) M_throw() << "Failed to map buffer, NULL returned";
+	return static_cast<T*>(ptr);
       }
 
       //! \brief Map a buffer onto the host device memory space
       inline const T* map() const
       {
 	bind(buffer_targets::ARRAY);
-	return static_cast<const T*>(glMapBuffer(buffer_targets::ARRAY, GL_READ_ONLY));
+	GLvoid* ptr = glMapBuffer(buffer_targets::ARRAY, GL_READ_ONLY);
+	if (ptr == NULL) M_throw() << "Failed to map buffer, NULL returned";
+	return static_cast<const T*>(ptr);
       }
 
       //! \brief Releases a previous \ref map() call.

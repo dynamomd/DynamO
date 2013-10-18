@@ -18,11 +18,10 @@
 #pragma once
 
 #include <dynamo/interactions/interaction.hpp>
-#include <dynamo/interactions/glyphrepresentation.hpp>
 #include <dynamo/simulation.hpp>
 
 namespace dynamo {
-  class IPRIME_BB: public Interaction, public GlyphRepresentation
+  class IPRIME_BB: public Interaction
   {
   public:
     IPRIME_BB(const magnet::xml::Node&, dynamo::Simulation*);

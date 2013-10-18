@@ -19,10 +19,9 @@
 
 #include <dynamo/interactions/captures.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/interactions/glyphrepresentation.hpp>
 
 namespace dynamo {
-  class ILines: public ICapture, public GlyphRepresentation
+  class ILines: public ICapture
   {
   public:
     template<class T1, class T2>

@@ -17,12 +17,11 @@
 
 #pragma once
 #include <dynamo/interactions/interaction.hpp>
-#include <dynamo/interactions/glyphrepresentation.hpp>
 #include <dynamo/simulation.hpp>
 #include <magnet/math/matrix.hpp>
 
 namespace dynamo {
-  class IParallelCubes: public Interaction, public GlyphRepresentation
+  class IParallelCubes: public Interaction
   {
   public:
     template<class T1, class T2>

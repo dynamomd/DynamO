@@ -18,14 +18,13 @@
 #pragma once
 
 #include <dynamo/interactions/captures.hpp>
-#include <dynamo/interactions/glyphrepresentation.hpp>
 #include <dynamo/interactions/potentials/potential.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/eventtypes.hpp>
 #include <vector>
 
 namespace dynamo {
-  class IStepped: public ICapture, public GlyphRepresentation
+  class IStepped: public ICapture
   {
   public:
     template<class T1, class T2>

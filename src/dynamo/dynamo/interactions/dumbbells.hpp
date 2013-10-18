@@ -19,10 +19,9 @@
 
 #include <dynamo/interactions/captures.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/interactions/glyphrepresentation.hpp>
 
 namespace dynamo {
-  class IDumbbells: public ICapture, public GlyphRepresentation
+  class IDumbbells: public ICapture
   {
   public:
     template<class T1, class T2, class T3, class T4, class T5>

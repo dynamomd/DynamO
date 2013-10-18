@@ -71,8 +71,10 @@ namespace coil {
 	      //Now convert to HSV or whatever
 	      _filteredData.init(4 * scalardata.size(), 4);
 	      GLfloat* data_ptr = _filteredData.map();
+	      
 	      for (size_t i(0); i < scalardata.size(); ++i)
 		_colorMapSelector.map(data_ptr + 4 * i, scalardata[i]);
+
 	      
 	      _filteredData.unmap();
 	      

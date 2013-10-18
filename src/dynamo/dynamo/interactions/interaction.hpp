@@ -21,6 +21,7 @@
 #include <dynamo/ranges/IDPairRange.hpp>
 #include <string>
 #include <limits>
+#include <array>
 
 namespace magnet { namespace xml { class Node; class XmlStream; } }
 
@@ -167,6 +168,43 @@ namespace dynamo {
     inline const size_t& getID() const { return ID; }
 
     virtual void outputData(magnet::xml::XmlStream&) const {}
+
+    enum GLYPH_TYPE
+      {
+	SPHERE_GLYPH=0,
+	ARROW_GLYPH=1,
+	CYLINDER_GLYPH=2,
+	ROD_GLYPH=3,
+	LINE_GLYPH=4,
+	CUBE_GLYPH=5,
+	DUMBBELL_GLYPH=6
+      };
+
+    /*! Returns the diameter of the one of the spheres used to represent
+      a particle.
+      
+      \param ID The id of the particle to fetch the diameter for.
+      
+      \param subID The index of one of the spheres used to render the
+      particle. This must be in the range [0, spheresPerParticle()-1].
+    */
+    virtual std::array<double, 4> getGlyphSize(size_t ID) const
+    {
+      M_throw() << "Cannot determine the glyph size of particle " << ID 
+		<< " using the Interaction \"" << getName() << "\"."
+		<< "To visualise this system, please make sure the self-Interactions of each particle are drawable.";
+    }
+
+
+    /*! Returns the location of the one of the spheres used to
+      represent a particle.
+      
+      \param ID The id of the particle to fetch the location for.
+      
+      \param subID The index of one of the spheres used to render the
+      particle. This must be in the range [0, spheresPerParticle()-1].
+    */
+    virtual GLYPH_TYPE getDefaultGlyphType() const { return SPHERE_GLYPH; }
 
   protected:
     /*! \brief This constructor is only to be used when using virtual

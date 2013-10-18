@@ -16,8 +16,6 @@
 */
 
 #ifdef DYNAMO_visualizer
-
-#include <dynamo/interactions/glyphrepresentation.hpp>
 #include <dynamo/BC/LEBC.hpp>
 #include <dynamo/systems/visualizer.hpp>
 #include <dynamo/dynamics/gravity.hpp>
@@ -99,7 +97,7 @@ namespace dynamo {
     ID = nID;
 
     //Add all of the objects to be rendered
-    _particleData.reset(new coil::DataSet("Particles", Sim->N(), GlyphRepresentation::SPHERE_GLYPH));
+    _particleData.reset(new coil::DataSet("Particles", Sim->N()));
     _window->addRenderObj(_particleData);
 
     for (shared_ptr<Local>& local : Sim->locals)
@@ -163,6 +161,7 @@ namespace dynamo {
 	IDs[p.getID()] = p.getID();
 	masses[p.getID()] = Sim->species[p]->getMass(p.getID()) / Sim->units.unitMass();
       }
+
     (*_particleData)["Mass"].flagNewData();
     (*_particleData)["ID"].flagNewData();
     
@@ -174,24 +173,27 @@ namespace dynamo {
     for (const Particle& particle : Sim->particles)
       _interactionIDs[Sim->getInteraction(particle, particle)->getID()].push_back(particle.getID());
 
-    //Add each Interaction to be drawn, if it does represent some particles
-    for (auto& interaction : Sim->interactions)
-      if (!_interactionIDs[interaction->getID()].empty())
-	_particleData->addPointSet(interaction->getName(), _interactionIDs[interaction->getID()], dynamic_cast<const GlyphRepresentation&>(*interaction).getDefaultGlyphType());
-    
     //Update the size information once (only Compression dynamics needs to update it again)
     std::vector<GLfloat>& sizes = (*_particleData)["Size"];
     for (auto& interaction : Sim->interactions)
       if (!_interactionIDs[interaction->getID()].empty())
-	{
-	  const GlyphRepresentation& data = dynamic_cast<const GlyphRepresentation&>(*interaction);
-	  for (size_t ID : _interactionIDs[interaction->getID()])
-	    {
-	      const auto& psize = data.getGlyphSize(ID);
-	      for (size_t i(0); i < 4; ++i) sizes[4 * ID + i] = psize[i];
-	    }
-	}
+    	{
+    	  dout << "Rendering Interaction \"" << interaction->getName() << "\" with " 
+    	       << _interactionIDs[interaction->getID()].size() << " particles" << std::endl;
+	  
+    	  for (size_t ID : _interactionIDs[interaction->getID()])
+    	    {
+    	      const auto& psize = interaction->getGlyphSize(ID);
+    	      for (size_t i(0); i < 4; ++i) 
+    		sizes[4 * ID + i] = psize[i];
+    	    }
+    	}
     (*_particleData)["Size"].flagNewData();
+
+    //Add each Interaction to be drawn, if it does represent some particles
+    for (auto& interaction : Sim->interactions)
+      if (!_interactionIDs[interaction->getID()].empty())
+	_particleData->addPointSet(interaction->getName(), _interactionIDs[interaction->getID()], interaction->getDefaultGlyphType());
   }
 
   void
@@ -202,9 +204,7 @@ namespace dynamo {
     
     shared_ptr<BCLeesEdwards> BC = std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs);
     if (BC)
-      _particleData->setPeriodicVectors(Vector(Sim->primaryCellSize[0], 0, 0),
-					Vector(BC->getBoundaryDisplacement(), Sim->primaryCellSize[1], 0),
-					Vector(0, 0, Sim->primaryCellSize[2]));
+      _particleData->setPeriodicVectors(Vector(Sim->primaryCellSize[0], 0, 0), Vector(BC->getBoundaryDisplacement(), Sim->primaryCellSize[1], 0), Vector(0, 0, Sim->primaryCellSize[2]));
 
 
     ///////////////////////POSITION DATA UPDATE
@@ -227,7 +227,7 @@ namespace dynamo {
 	  }
 
 	eventCounts[p.getID()] = 0;
-	if (!simEventCounts.empty()) 
+	if (!simEventCounts.empty())
 	  eventCounts[p.getID()] = simEventCounts[p.getID()];
       }
 
@@ -238,10 +238,9 @@ namespace dynamo {
 	for (auto& interaction : Sim->interactions)
 	  if (!_interactionIDs[interaction->getID()].empty())
 	    {
-	      const GlyphRepresentation& data = dynamic_cast<const GlyphRepresentation&>(*interaction);
 	      for (size_t ID : _interactionIDs[interaction->getID()])
 		{
-		  const auto& psize = data.getGlyphSize(ID);
+		  const auto& psize = interaction->getGlyphSize(ID);
 		  for (size_t i(0); i < 4; ++i)
 		    sizes[4 * ID + i] = rfactor * psize[i];
 		}

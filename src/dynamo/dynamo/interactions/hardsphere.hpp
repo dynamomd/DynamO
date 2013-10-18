@@ -19,11 +19,10 @@
 
 #include <dynamo/interactions/interaction.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/interactions/glyphrepresentation.hpp>
 #include <magnet/math/histogram.hpp>
 
 namespace dynamo {
-  class IHardSphere: public GlyphRepresentation, public Interaction
+  class IHardSphere: public Interaction
   {
   public:
     template<class T1>

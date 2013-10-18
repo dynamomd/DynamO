@@ -19,12 +19,11 @@
 
 #include <dynamo/interactions/captures.hpp>
 #include <dynamo/simulation.hpp>
-#include <dynamo/interactions/glyphrepresentation.hpp>
 #include <vector>
 #include <set>
 
 namespace dynamo {
-  class ISWSequence: public ICapture, public GlyphRepresentation
+  class ISWSequence: public ICapture
   {
   public:
     template<class T1, class T2, class T3>
