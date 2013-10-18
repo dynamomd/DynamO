@@ -343,6 +343,10 @@ namespace dynamo {
   OPMisc::getSimTimePerSecond() const {
     return Sim->systemTime / (getDuration() * Sim->units.unitTime());
   }
+  
+  Matrix 
+  OPMisc::getPressureTensor() const
+  { return ((collisionalP / Sim->systemTime) + _kineticP.mean()) / Sim->getSimVolume(); }
 
   void
   OPMisc::output(magnet::xml::XmlStream &XML)

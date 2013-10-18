@@ -74,7 +74,7 @@ namespace dynamo {
       
 	for (const localpair& dat : speciesData[sp->getID()])
 	  XML << dat.first / Sim->units.unitTime() << " " 
-	      << dat.second << "\n";
+	      << dat.second / Sim->units.unitArea() << "\n";
 
 	XML << magnet::xml::tag("Species");
       }
@@ -88,7 +88,7 @@ namespace dynamo {
 		<< magnet::xml::chardata();
 	  
 	    for (const localpair& myp : dat.second)
-	      XML << myp.first / Sim->units.unitTime() << " " << myp.second << "\n";
+	      XML << myp.first / Sim->units.unitTime() << " " << myp.second / Sim->units.unitArea() << "\n";
 	  
 	    XML << magnet::xml::endtag("Structure");	
 	  }

@@ -15,6 +15,7 @@
 #include <dynamo/inputplugins/include.hpp>
 #include <dynamo/interactions/hardsphere.hpp>
 #include <dynamo/outputplugins/misc.hpp>
+#include <dynamo/outputplugins/msd.hpp>
 #include <random>
 
 std::mt19937 RNG;
@@ -85,21 +86,35 @@ BOOST_AUTO_TEST_CASE( Simulation )
 
   Sim.reset();
   Sim.endEventCount = 100000;
-  Sim.addOutputPlugin("Misc");
+  Sim.addOutputPlugin("Misc"); 
+  Sim.addOutputPlugin("MSD");
   Sim.initialise();
   while (Sim.runSimulationStep()) {}
   
+
+  //Taken from Lue 2005 DOI:10.1063/1.1834498
+  const double expectedMFT = 0.13031;
+  const double expectedD = 0.247;
+
+  //Grab the output plugins
+  dynamo::OPMisc& opMisc = *Sim.getOutputPlugin<dynamo::OPMisc>();
+  dynamo::OPMSD& opMSD = *Sim.getOutputPlugin<dynamo::OPMSD>();
+
   //Check the mean free time is roughly what is expected
-  double MFT = Sim.getOutputPlugin<dynamo::OPMisc>()->getMFT();
-  BOOST_CHECK_CLOSE(MFT, 0.130191, 1);
+  double MFT = opMisc.getMFT();
+  BOOST_CHECK_CLOSE(MFT, expectedMFT, 1);
+
+  //Check the diffusion coefficient as well
+  double D = opMSD.calcD(*Sim.species[0]->getRange()) / Sim.units.unitDiffusion();
+  BOOST_CHECK_CLOSE(D, expectedD, 6);
 
   //Check the temperature is constant at 1
-  double Temperature = Sim.getOutputPlugin<dynamo::OPMisc>()->getCurrentkT() / Sim.units.unitEnergy();
+  double Temperature = opMisc.getCurrentkT() / Sim.units.unitEnergy();
   BOOST_CHECK_CLOSE(Temperature, 1.0, 0.000000001);
 
   //Check that the momentum is around 0
   dynamo::Vector momentum = Sim.getOutputPlugin<dynamo::OPMisc>()->getCurrentMomentum();
   BOOST_CHECK_SMALL(momentum.nrm() / Sim.units.unitMomentum(), 0.0000000001);
   
-  BOOST_CHECK_MESSAGE(Sim.checkSystem() <= 2, "There are more than two invalid states in the final configuration");
+  BOOST_CHECK_MESSAGE(Sim.checkSystem() <= 1, "There are more than two invalid states in the final configuration");
 }

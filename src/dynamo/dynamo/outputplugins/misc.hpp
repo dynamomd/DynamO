@@ -71,6 +71,8 @@ namespace dynamo {
     double getMeanSqrUConfigurational() const;
     inline double getConfigurationalU() const { return _internalE.current(); }
 
+    Matrix getPressureTensor() const;
+
   protected:
     typedef std::pair<classKey, EEventType> CounterKey;
     struct CounterData

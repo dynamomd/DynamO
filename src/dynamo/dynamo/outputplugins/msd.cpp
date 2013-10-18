@@ -49,7 +49,7 @@ namespace dynamo {
   
     for (const shared_ptr<Species>& sp : Sim->species)
       {
-	double MSD(calcMSD(*(sp->getRange())));
+	double MSD = calcMSD(*sp->getRange()) / Sim->units.unitArea();
       
 	XML << magnet::xml::tag("Species")
 	    << magnet::xml::attr("Name") << sp->getName()
@@ -65,7 +65,7 @@ namespace dynamo {
 
 	for (const shared_ptr<Topology>& topo : Sim->topology)
 	  {
-	    double MSD(calcStructMSD(*topo));
+	    double MSD = calcStructMSD(*topo) / Sim->units.unitArea();
 
 	    XML << magnet::xml::tag("Structure")
 		<< magnet::xml::attr("Name") << topo->getName()
@@ -89,7 +89,13 @@ namespace dynamo {
     for (const size_t ID : range)
       acc += (Sim->particles[ID].getPosition() - initPos[ID]).nrm2();
   
-    return acc / (range.size() * Sim->units.unitArea());
+    return acc / range.size();
+  }
+
+  double 
+  OPMSD::calcD(const IDRange& range) const
+  {
+    return calcMSD(range) / (2 * NDIM * Sim->systemTime);
   }
 
   double
@@ -118,7 +124,7 @@ namespace dynamo {
 	acc += (currPos - origPos).nrm2();
       }
 
-    acc /= Itop.getMoleculeCount() * Sim->units.unitArea();
+    acc /= Itop.getMoleculeCount();
   
     return acc;
   }
