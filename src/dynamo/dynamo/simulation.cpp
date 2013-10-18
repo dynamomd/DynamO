@@ -644,23 +644,27 @@ namespace dynamo
     return volume / getSimVolume();
   }
 
-  void
+  size_t
   Simulation::checkSystem()
   {
     dynamics->updateAllParticles();
 
+    size_t errors = 0;
     std::vector<Particle>::const_iterator iPtr1, iPtr2;
   
     for (const shared_ptr<Interaction>& interaction_ptr : interactions)
-      interaction_ptr->validateState();
+      errors += interaction_ptr->validateState();
 
     for (iPtr1 = particles.begin(); iPtr1 != particles.end(); ++iPtr1)
       for (iPtr2 = iPtr1 + 1; iPtr2 != particles.end(); ++iPtr2)
-	getInteraction(*iPtr1, *iPtr2)->validateState(*iPtr1, *iPtr2);
+	errors += getInteraction(*iPtr1, *iPtr2)->validateState(*iPtr1, *iPtr2);
 
     for (const Particle& part : particles)
       for (const shared_ptr<Local>& lcl : locals)
-      if (lcl->isInteraction(part)) lcl->validateState(part);
+	if (lcl->isInteraction(part))
+	  errors += lcl->validateState(part);
+    
+    return errors;
   }
 
   void

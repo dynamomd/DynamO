@@ -205,7 +205,14 @@ namespace dynamo
      */  
     void setCOMVelocity(const Vector COMVelocity = Vector(0,0,0));
 
-    void checkSystem();
+    /*! \brief Validate the system state, returning a count of the possible errors/overlaps.
+
+      This may return some particles which are numerically just in an
+      overlapped state, but this error state is a minor precision
+      error. Therefore, there may be around 2 errors which are just
+      minor precision errors and can be discounted.
+    */
+    size_t checkSystem();
 
     void addSystemTicker();
     

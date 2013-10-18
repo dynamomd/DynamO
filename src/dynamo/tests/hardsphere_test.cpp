@@ -100,4 +100,6 @@ BOOST_AUTO_TEST_CASE( Simulation )
   //Check that the momentum is around 0
   dynamo::Vector momentum = Sim.getOutputPlugin<dynamo::OPMisc>()->getCurrentMomentum();
   BOOST_CHECK_SMALL(momentum.nrm() / Sim.units.unitMomentum(), 0.0000000001);
+  
+  BOOST_CHECK_MESSAGE(Sim.checkSystem() <= 2, "There are more than two invalid states in the final configuration");
 }

@@ -105,6 +105,8 @@ BOOST_AUTO_TEST_CASE( NVE_Simulation )
   //Check that the momentum is around 0
   dynamo::Vector momentum = Sim.getOutputPlugin<dynamo::OPMisc>()->getCurrentMomentum();
   BOOST_CHECK_SMALL(momentum.nrm() / Sim.units.unitMomentum(), 0.0000000001);
+
+  BOOST_CHECK_MESSAGE(Sim.checkSystem() <= 2, "There are more than two invalid states in the final configuration");
 }
 
 BOOST_AUTO_TEST_CASE( NVT_Simulation )
@@ -136,4 +138,6 @@ BOOST_AUTO_TEST_CASE( NVT_Simulation )
   //Check the temperature is constant at 1
   double Temperature = Sim.getOutputPlugin<dynamo::OPMisc>()->getCurrentkT() / Sim.units.unitEnergy();
   BOOST_CHECK_CLOSE(Temperature, 1.0, 5);
+
+  BOOST_CHECK_MESSAGE(Sim.checkSystem() <= 2, "There are more than two invalid states in the final configuration");
 }
