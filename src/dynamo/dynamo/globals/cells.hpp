@@ -82,7 +82,7 @@ namespace dynamo {
     Vector cellLatticeWidth;
     Vector cellOffset;
 
-    bool _inConfig = true;
+    bool _inConfig;
     double _oversizeCells;
     size_t NCells;
     size_t overlink;
