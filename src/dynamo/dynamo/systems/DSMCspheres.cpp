@@ -71,25 +71,24 @@ namespace dynamo {
   
     //dynamics must be updated first
     Sim->stream(locdt);
-
     dt = tstep;
 
     std::normal_distribution<> norm_sampler;
     std::uniform_real_distribution<> uniform_sampler;
     std::uniform_int_distribution<size_t> id1sampler(0, range1->size() - 1);
     std::uniform_int_distribution<size_t> id2sampler(0, range2->size() - 1);
-
-    double Event;
-    double fracpart = std::modf(0.5 * maxprob * range1->size(),
-				&Event);
- 
-    size_t nmax = static_cast<size_t>(Event);
-  
+    
+    //Update all output plugins to the current time, we'll pass them
+    //each collision as though its a separate event (to prevent
+    //accumilating the changes).
     for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(*this, NEventData(), locdt);
 
-    if (uniform_sampler(Sim->ranGenerator) < fracpart)
-      ++nmax;
+    //Find the likely maximum number of interacting pairs. The
+    //addition of the random variable is a neat way to randomly pick
+    //an extra pair to, on average, pick the correct number of
+    //fractional pairs (thanks Severin!)
+    const size_t nmax = static_cast<size_t>(0.5 * maxprob * range1->size() + uniform_sampler(Sim->ranGenerator));
 
     for (size_t n = 0; n < nmax; ++n)
       {
@@ -97,6 +96,7 @@ namespace dynamo {
       
 	size_t p2id = *(range2->begin() + id2sampler(Sim->ranGenerator));
       
+	//Find another particle which is not p1
 	while (p2id == p1.getID())
 	  p2id = *(range2->begin()+id2sampler(Sim->ranGenerator));
       
@@ -108,20 +108,15 @@ namespace dynamo {
 	for (size_t iDim(0); iDim < NDIM; ++iDim)
 	  rij[iDim] = norm_sampler(Sim->ranGenerator);
       
+	//This is the extra diameter term missing from the "factor" variable
 	rij *= diameter / rij.nrm();
       
-	if (Sim->dynamics->DSMCSpheresTest
-	    (p1, p2, maxprob, factor, rij))
+	if (Sim->dynamics->DSMCSpheresTest(p1, p2, maxprob, factor, rij))
 	  {
 	    ++Sim->eventCount;
-	 
-	    const PairEventData
-	      SDat(Sim->dynamics->DSMCSpheresRun(p1, p2, e, rij));
-
+	    const PairEventData SDat(Sim->dynamics->DSMCSpheresRun(p1, p2, e, rij));
 	    Sim->_sigParticleUpdate(SDat);
-  
 	    Sim->ptrScheduler->fullUpdate(p1, p2);
-	  
 	    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
 	      Ptr->eventUpdate(*this, SDat, 0.0);
 	  }
@@ -135,9 +130,11 @@ namespace dynamo {
     ID = nID;
     dt = tstep;
 
-    factor = 4.0 * range2->size()
-      * diameter * M_PI * chi * tstep 
-      / Sim->getSimVolume();
+    //An extra factor of diameter is missing here, which is used to
+    //give the vector rij below and in runEvent the "correct"
+    //magnitude. This is incase applyBC in the dynamics (and any
+    //other function) expects realistic rij values.
+    factor = 4.0 * range2->size() * diameter * M_PI * chi * tstep / Sim->getSimVolume();
   
     if (maxprob == 0.0)
       {
