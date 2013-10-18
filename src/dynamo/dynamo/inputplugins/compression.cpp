@@ -17,12 +17,10 @@
 
 #include <dynamo/inputplugins/compression.hpp>
 #include <dynamo/particle.hpp>
-
 #include <dynamo/interactions/squarebond.hpp>
 #include <dynamo/interactions/squarewell.hpp>
 #include <dynamo/interactions/hardsphere.hpp>
 #include <dynamo/ranges/include.hpp>
-#include <dynamo/dynamics/dynamics.hpp>
 #include <dynamo/dynamics/compression.hpp>
 #include <dynamo/units/units.hpp>
 #include <dynamo/simulation.hpp>
@@ -108,11 +106,7 @@ namespace dynamo {
 	    static_cast<GNeighbourList&>(*Sim->globals[i]).setCellOverlap(false);
 	    
 	    //Add the system watcher
-	    Sim->systems.push_back
-	      (shared_ptr<System>
-	       (new SysNBListCompressionFix(Sim, growthRate 
-					   / Sim->units.unitTime(),
-					   i)));
+	    Sim->systems.push_back(shared_ptr<System>(new SysNBListCompressionFix(Sim, growthRate / Sim->units.unitTime(), i)));
 	  }
       }
   }

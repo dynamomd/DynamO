@@ -2984,15 +2984,6 @@ namespace dynamo {
 	M_throw() << "Did not recognise the packer mode you wanted";
       }
 
-    //Add the cellular neighbourlist required by the default scheduler (if it is used)
-    if (std::dynamic_pointer_cast<SNeighbourList>(Sim->ptrScheduler))
-      {
-	if (std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
-	  Sim->globals.push_back(shared_ptr<Global>(new GCellsShearing(Sim,"SchedulerNBList")));
-	else
-	  Sim->globals.push_back(shared_ptr<Global>(new GCells(Sim,"SchedulerNBList")));
-      }
-
     Sim->ensemble = dynamo::Ensemble::loadEnsemble(*Sim);
   }
 

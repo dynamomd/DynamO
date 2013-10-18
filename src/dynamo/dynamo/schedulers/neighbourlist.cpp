@@ -18,15 +18,16 @@
 #include <dynamo/schedulers/neighbourlist.hpp>
 #include <dynamo/interactions/intEvent.hpp>
 #include <dynamo/particle.hpp>
-#include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/dynamics/compression.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/systems/system.hpp>
-#include <dynamo/globals/global.hpp>
-#include <dynamo/globals/globEvent.hpp>
-#include <dynamo/globals/neighbourList.hpp>
+#include <dynamo/globals/cells.hpp>
+#include <dynamo/globals/cellsShearing.hpp>
+#include <dynamo/systems/nblistCompressionFix.hpp>
 #include <dynamo/locals/local.hpp>
 #include <dynamo/locals/localEvent.hpp>
 #include <dynamo/ranges/IDRangeRange.hpp>
+#include <dynamo/BC/include.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cmath>
 
@@ -34,19 +35,40 @@ namespace dynamo {
   void
   SNeighbourList::initialise()
   {
+    //First, try to detect a neighbour list
     try {
       NBListID = Sim->globals["SchedulerNBList"]->getID();
     }
     catch(std::exception& cxp)
       {
-	M_throw() << "Failed while finding the neighbour list global.\n"
-		  << "You must have a neighbour list enabled for this\n"
-		  << "scheduler called SchedulerNBList.\n"
-		  << cxp.what();
+	//There is no global cellular list available. Add the appropriate neighbourlist.
+	shared_ptr<GCells> scheduler;
+	if (std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
+	  scheduler = shared_ptr<GCells>(new GCellsShearing(Sim, "SchedulerNBList"));
+	else
+	  scheduler = shared_ptr<GCells>(new GCells(Sim,"SchedulerNBList"));
+	Sim->globals.push_back(scheduler);
+	scheduler->setConfigOutput(false);
+	scheduler->initialise(Sim->globals.size() - 1);
+
+	NBListID = Sim->globals.back()->getID();
+
+	//Check if this is a compressing system, if so, add the appropriate hack!
+	shared_ptr<DynCompression> compressiondynamics = std::dynamic_pointer_cast<DynCompression>(Sim->dynamics);
+	if (compressiondynamics)
+	  {
+	    //Rebulid the collision scheduler without the overlapping
+	    //cells, otherwise cells are always rebuilt as they overlap
+	    //such that the maximum supported interaction distance is
+	    //equal to the current maximum interaction distance.
+	    scheduler->setCellOverlap(false);
+	    Sim->systems.push_back(shared_ptr<System>(new SysNBListCompressionFix(Sim, compressiondynamics->getGrowthRate(), NBListID)));
+	    Sim->systems.back()->initialise(Sim->systems.size() - 1);
+	  }
+
       }
-  
-    shared_ptr<GNeighbourList> nblist 
-      = std::dynamic_pointer_cast<GNeighbourList>(Sim->globals[NBListID]);
+    
+    shared_ptr<GNeighbourList> nblist = std::dynamic_pointer_cast<GNeighbourList>(Sim->globals[NBListID]);
 
     if (!nblist)
       M_throw() << "The Global named SchedulerNBList is not a neighbour list!";

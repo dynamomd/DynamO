@@ -64,9 +64,6 @@ BOOST_AUTO_TEST_CASE( Initialisation )
   for (const dynamo::Vector & position : latticeSites)
     Sim.particles.push_back(dynamo::Particle(position, getRandVelVec() * Sim.units.unitVelocity(), nParticles++));
 
-  //Add the cellular neighbourlist required by the default scheduler (if it is used)
-  Sim.globals.push_back(dynamo::shared_ptr<dynamo::Global>(new dynamo::GCells(&Sim,"SchedulerNBList")));
-  
   Sim.ensemble = dynamo::Ensemble::loadEnsemble(Sim);
 
   dynamo::InputPlugin(&Sim, "Rescaler").zeroMomentum();

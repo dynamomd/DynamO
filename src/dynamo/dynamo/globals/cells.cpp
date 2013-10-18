@@ -35,12 +35,12 @@ namespace {
 }
 
 namespace dynamo {
-  GCells::GCells(dynamo::Simulation* nSim, const std::string& name, size_t overlink):
+  GCells::GCells(dynamo::Simulation* nSim, const std::string& name):
     GNeighbourList(nSim, "CellNeighbourList"),
     cellDimension(1,1,1),
     _oversizeCells(1.0),
     NCells(0),
-    overlink(overlink)
+    overlink(1)
   {
     globName = name;
     dout << "Cells Loaded" << std::endl;
@@ -65,8 +65,7 @@ namespace dynamo {
       overlink = XML.getAttribute("OverLink").as<size_t>();
     
     if (XML.hasAttribute("NeighbourhoodRange"))
-      _maxInteractionRange = XML.getAttribute("NeighbourhoodRange").as<double>()
-	* Sim->units.unitLength();
+      _maxInteractionRange = XML.getAttribute("NeighbourhoodRange").as<double>() * Sim->units.unitLength();
 
     if (XML.hasAttribute("Oversize"))
       _oversizeCells = XML.getAttribute("Oversize").as<double>();
@@ -252,9 +251,7 @@ namespace dynamo {
     dout << "Reinitialising on collision " << Sim->eventCount << std::endl;
 
     //Create the cells
-    addCells((_maxInteractionRange 
-	      * (1.0 + 10 * std::numeric_limits<double>::epsilon()))
-	     * _oversizeCells / overlink);
+    addCells(_maxInteractionRange * (1.0 + 10 * std::numeric_limits<double>::epsilon()) * _oversizeCells / overlink);
 
     _sigReInitialise();
 
@@ -265,6 +262,7 @@ namespace dynamo {
   void
   GCells::outputXML(magnet::xml::XmlStream& XML) const
   { 
+    if (!_inConfig) return;
     XML << magnet::xml::tag("Global")
 	<< magnet::xml::attr("Type") << "Cells"
 	<< magnet::xml::attr("Name") << globName
@@ -302,9 +300,6 @@ namespace dynamo {
 	cellOffset[iDim] = -(cellLatticeWidth[iDim] - maxdiam) * lambda * 0.5;
       }
 
-    if (getMaxSupportedInteractionLength() < maxdiam)
-      M_throw() << "The system size is too small to support the range of interactions specified (i.e. the system is smaller than the interaction diameter of one particle).";
-
     //Find the required size of the morton array
     magnet::math::MortonNumber<3> coords(cellCount[0], cellCount[1], cellCount[2]);
     size_t sizeReq = coords.getMortonNum();
@@ -333,6 +328,9 @@ namespace dynamo {
     
     dout << "\nSupported range             " << getMaxSupportedInteractionLength() / Sim->units.unitLength()
 	 << "\nVector Size <N>  " << sizeReq << std::endl;
+
+    if (getMaxSupportedInteractionLength() < maxdiam)
+      M_throw() << "The system size is too small to support the range of interactions specified (i.e. the system is smaller than the interaction diameter of one particle).";
   
     //Add the particles section
     //Required so particles find the right owning cell

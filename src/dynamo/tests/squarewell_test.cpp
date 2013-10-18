@@ -68,8 +68,6 @@ void init(dynamo::Simulation& Sim)
   for (const dynamo::Vector & position : latticeSites)
     Sim.particles.push_back(dynamo::Particle(position, getRandVelVec() * Sim.units.unitVelocity(), nParticles++));
 
-  Sim.globals.push_back(dynamo::shared_ptr<dynamo::Global>(new dynamo::GCells(&Sim,"SchedulerNBList")));
-
   Sim.ensemble = dynamo::Ensemble::loadEnsemble(Sim);
 
   dynamo::InputPlugin(&Sim, "Rescaler").zeroMomentum();

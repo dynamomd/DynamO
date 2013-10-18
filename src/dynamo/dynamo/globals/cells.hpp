@@ -49,7 +49,7 @@ namespace dynamo {
   {
   public:
     GCells(const magnet::xml::Node&, dynamo::Simulation*);
-    GCells(Simulation*, const std::string&, size_t overlink = 1);
+    GCells(Simulation*, const std::string&);
 
     virtual ~GCells() {}
 
@@ -71,6 +71,8 @@ namespace dynamo {
 
     virtual double getMaxSupportedInteractionLength() const;
 
+    void setConfigOutput(bool val) { _inConfig = val; }
+
   protected:
     void getParticleNeighbours(const magnet::math::MortonNumber<3>&, std::vector<size_t>&) const;
 
@@ -80,6 +82,7 @@ namespace dynamo {
     Vector cellLatticeWidth;
     Vector cellOffset;
 
+    bool _inConfig = true;
     double _oversizeCells;
     size_t NCells;
     size_t overlink;
