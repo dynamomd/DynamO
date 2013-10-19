@@ -8,11 +8,10 @@
 #include <dynamo/inputplugins/cells/include.hpp>
 #include <dynamo/species/point.hpp>
 #include <dynamo/dynamics/newtonian.hpp>
-#include <dynamo/globals/cells.hpp>
-#include <dynamo/globals/cellsShearing.hpp>
 #include <dynamo/schedulers/include.hpp>
 #include <dynamo/schedulers/sorters/include.hpp>
 #include <dynamo/inputplugins/include.hpp>
+#include <dynamo/inputplugins/compression.hpp>
 #include <dynamo/interactions/hardsphere.hpp>
 #include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/outputplugins/msd.hpp>
@@ -20,7 +19,6 @@
 
 std::mt19937 RNG;
 typedef dynamo::FELBoundedPQ<dynamo::PELMinMax<3> > DefaultSorter;
-dynamo::Simulation Sim;
 
 dynamo::Vector getRandVelVec()
 {
@@ -34,12 +32,11 @@ dynamo::Vector getRandVelVec()
   return tmpVec;
 }
 
-BOOST_AUTO_TEST_CASE( Initialisation )
+void init(dynamo::Simulation& Sim, const double density)
 {
   RNG.seed(std::random_device()());
   Sim.ranGenerator.seed(std::random_device()());
 
-  const double density = 0.5;
   const double elasticity = 1.0;
 
   Sim.dynamics = dynamo::shared_ptr<dynamo::Dynamics>(new dynamo::DynNewtonian(&Sim));
@@ -71,13 +68,15 @@ BOOST_AUTO_TEST_CASE( Initialisation )
   dynamo::InputPlugin(&Sim, "Rescaler").rescaleVels(1.0);
 
   BOOST_CHECK_EQUAL(Sim.N(), 1372);
-  BOOST_CHECK_CLOSE(Sim.getNumberDensity() * Sim.units.unitVolume(), 0.5, 0.000000001);
+  BOOST_CHECK_CLOSE(Sim.getNumberDensity() * Sim.units.unitVolume(), density, 0.000000001);
   BOOST_CHECK_CLOSE(Sim.getPackingFraction(), Sim.getNumberDensity() * Sim.units.unitVolume() * M_PI / 6.0, 0.000000001);
-  
 }
 
-BOOST_AUTO_TEST_CASE( Simulation )
+BOOST_AUTO_TEST_CASE( Equilibrium_Simulation )
 {
+  dynamo::Simulation Sim;
+  init(Sim, 0.5);
+
   Sim.status = dynamo::CONFIG_LOADED;
   Sim.endEventCount = 100000;
   Sim.addOutputPlugin("Misc");
@@ -117,4 +116,33 @@ BOOST_AUTO_TEST_CASE( Simulation )
   BOOST_CHECK_SMALL(momentum.nrm() / Sim.units.unitMomentum(), 0.0000000001);
   
   BOOST_CHECK_MESSAGE(Sim.checkSystem() <= 1, "There are more than two invalid states in the final configuration");
+}
+
+BOOST_AUTO_TEST_CASE( Compression_Simulation )
+{
+  dynamo::Simulation Sim;
+  init(Sim, 0.1);
+
+  const double growthRate = 1;
+  const double targetDensity = 0.9;
+  Sim.status = dynamo::CONFIG_LOADED;
+  Sim.endEventCount = 1000000;
+  Sim.addOutputPlugin("Misc");
+
+  dynamo::shared_ptr<dynamo::IPCompression> compressPlug(new dynamo::IPCompression(&Sim, growthRate));
+  compressPlug->MakeGrowth();
+  
+  compressPlug->limitDensity(targetDensity);
+  
+  //Not needed in this system
+  //compressPlug->CellSchedulerHack();
+
+  Sim.initialise();
+  while (Sim.runSimulationStep()) {}
+  compressPlug->RestoreSystem();
+
+  BOOST_CHECK_CLOSE(Sim.getNumberDensity() * Sim.units.unitVolume(), targetDensity, 0.000000001);
+  BOOST_CHECK_CLOSE(Sim.getPackingFraction(), Sim.getNumberDensity() * Sim.units.unitVolume() * M_PI / 6.0, 0.000000001);
+
+  BOOST_CHECK_MESSAGE(Sim.checkSystem() <= 1, "After compression, there are more than one invalid states in the final configuration");
 }

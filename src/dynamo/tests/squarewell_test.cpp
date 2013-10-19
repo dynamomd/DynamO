@@ -8,8 +8,6 @@
 #include <dynamo/inputplugins/cells/include.hpp>
 #include <dynamo/species/point.hpp>
 #include <dynamo/dynamics/newtonian.hpp>
-#include <dynamo/globals/cells.hpp>
-#include <dynamo/globals/cellsShearing.hpp>
 #include <dynamo/schedulers/include.hpp>
 #include <dynamo/schedulers/sorters/include.hpp>
 #include <dynamo/inputplugins/include.hpp>

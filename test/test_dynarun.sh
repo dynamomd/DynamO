@@ -113,44 +113,6 @@ function HS_replex_test {
 	output.*.xml.bz2 *.dat replex.stats
 }
 
-function HS_compressiontest { 
-    #Compresses some N=256, rho=0.5 hard spheres in a fcc, which
-    #should compress into a maximum packed FCC crystal quite rapidly
-    ./dynamod -m0 -d0.5 -C 4 &> run.log
-
-    #Set the scheduler
-    bzcat config.out.xml.bz2 | \
-	$Xml ed -u '//Simulation/Scheduler/@Type' -v "$1" \
-	| bzip2 > tmp.xml.bz2
-
-    #Run the simulation
-    ./dynarun -c 100000 --engine 3 --growth-rate 100.0 $2 tmp.xml.bz2 &> run2.log
-    cat run2.log >> run.log
-    rm run2.log
-    ./dynarun -c 1 config.out.xml.bz2 &> run2.log
-    cat run2.log >> run.log
-    rm run2.log
-
-    #The 0.xxx is the fractional error, this will fail if the density
-    #is higher than the max pack frac, and fail if its fractionally
-    #more than 0.xxxx under max pack frac
-    pass=$(echo "0.0001 > (-("$(bzcat output.xml.bz2 | $Xml sel -t -v \
-	'/OutputData/Misc/Density/@val')"/sqrt(2) - 1))" | bc -l)
-    
-    if [ $pass != 1 ]; then
-	echo "$1 HS compression -: FAILED"
-	exit 1 
-    else
-	echo "$1 compression -: PASSED"
-    fi
-    
-    
-    #Cleanup 
-    rm -Rf config.out.xml.bz2 \
-	output.xml.bz2 tmp.xml.bz2 run.log \
-	testresult.dat correct.dat
-    }
-
 function wallsw_bailout { 
     echo "$1 WallSW -: FAILED"
     exit 1 
@@ -306,41 +268,6 @@ function umbrella {
     rm -Rf config.out.xml.bz2 output.xml.bz2 tmp.xml.bz2 run.log \
 	testresult.dat correct.dat
 }
-
-function cannon {
-    #collision cannon test
-    cat cannon.xml | \
-	$Xml ed -u '//Simulation/Scheduler/@Type' -v "$1" \
-	> tmp2.xml
-
-    cat tmp2.xml | \
-	$Xml ed -u '//Simulation/Scheduler/Sorter/@Type' -v "$2" \
-	> tmp.xml
-    
-    rm tmp2.xml
-    
-    ./dynarun -c 1000 tmp.xml &> run.log
-    
-    if [ -e output.xml.bz2 ]; then
-	var=$(bzcat output.xml.bz2 | \
-	    $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-	    | gawk '{print int($1 * 10000000000)/10000000000.0}')
-
-	if [ $var != "3" ]; then
-	    echo "$1 Cannon -: FAILED  " $var
-	    exit 1
-	else
-	    echo "$1 Cannon -: PASSED"
-	fi
-    else
-	echo "Error, no output.0.xml.bz2 in $1 cannon test"
-	exit 1
-    fi
-    
-#Cleanup
-    rm -Rf config.end.xml.bz2 output.xml.bz2 tmp.xml.bz2 run.log
-}
-
 
 function ThermostatTest {
     #Testing the Andersen thermostat holds the right temperature
@@ -656,17 +583,6 @@ function BinaryThermalisedGranulate {
     rm -Rf output.xml.bz2 config.out.xml.bz2 run.log
 }
 
-echo "SCHEDULER AND SORTER TESTING"
-echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, CBT"
-cannon "Dumb" "CBT"
-echo "Testing basic system, zero + infinite time events, hard spheres, PBC, Dumb Scheduler, boundedPQ"
-cannon "Dumb" "BoundedPQ"
-echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, CBT"
-cannon "NeighbourList" "CBT"
-echo "Testing basic system, zero + infinite time events, hard sphere, PBC, Neighbour lists + scheduler, globals, boundedPQ"
-cannon "NeighbourList" "BoundedPQ"
-
-echo ""
 echo "INTERACTIONS+Dynamod Systems"
 echo "Testing binary hard spheres, NeighbourLists and BoundedPQ's"
 BinarySphereTest "Cells"
@@ -713,8 +629,6 @@ echo "COMPRESSION"
 echo "Testing local events (walls) and square wells with a " \
     "Null compression"
 wallsw "NeighbourList" "--engine 3 --growth-rate 0.0"
-echo "Testing compression of hard spheres"
-HS_compressiontest "NeighbourList"
 echo "Testing compression in the prescence of infinitely heavy particles"
 HeavySphereCompressionTest
 echo "Testing compression of polymers (very sensitive to errors in the algorithm)"
