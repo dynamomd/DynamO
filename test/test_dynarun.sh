@@ -353,36 +353,6 @@ function IsolatedPolymerTest {
 	tmp.xml.bz2 run.log
 }
 
-function HardLinesTest {
-    > run.log
-
-    dens=0.1
-    ./dynamod -s1 -m 9 -C 1000 -d $dens  &> run.log
-    ./dynarun -c 100000 config.out.xml.bz2 >> run.log 2>&1
-
-    if [ -e output.xml.bz2 ]; then
-	if [ $(bzcat output.xml.bz2 \
-	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-	    | gawk '{mft=1.0/(1.237662399*'$dens'); var=($1-mft)/mft; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
-	    echo "Hard Lines -: FAILED"
-	    gawk 'BEGIN {mft=1.0/(1.237662399*'$dens'); print "MFT is supposed to be ",mft}'
-	    bzcat output.xml.bz2 \
-		| $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-		| gawk '{print "MFT is " $0}'
-	    exit 1
-	else
-	    echo "Hard Lines -: PASSED"
-	fi
-    else
-	echo "Error, no output.0.xml.bz2 in HardLinesTest"
-	exit 1
-    fi
-    
-#Cleanup
-    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
-	tmp.xml.bz2 run.log
-}
-
 function GravityPlateTest {
     > run.log
 
@@ -517,8 +487,6 @@ function BinaryThermalisedGranulate {
 echo "INTERACTIONS+Dynamod Systems"
 echo "Testing binary hard spheres, NeighbourLists and BoundedPQ's"
 BinarySphereTest "Cells"
-echo "Testing Lines, NeighbourLists and BoundedPQ's"
-HardLinesTest
 echo "Testing static spheres in gravity, NeighbourLists and BoundedPQ's"
 StaticSpheresTest
 #######THIS TEST IS GOOD, BUT A RECENT PATCH CHANGED THE cubic root finder, altering the result##### PLEASE RECALIBRATE
