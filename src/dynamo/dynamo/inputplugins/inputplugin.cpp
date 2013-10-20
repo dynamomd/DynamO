@@ -38,8 +38,7 @@ namespace dynamo {
   {
     dout << "WARNING Rescaling kT to " << val << std::endl;
   
-    double currentkT(Sim->dynamics->getkT()
-		     / Sim->units.unitEnergy());
+    double currentkT(Sim->dynamics->getkT() / Sim->units.unitEnergy());
 
     dout << "Current kT " << currentkT << std::endl;
 

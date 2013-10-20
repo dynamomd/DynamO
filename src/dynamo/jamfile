@@ -79,4 +79,6 @@ unit-test hardsphere_test : tests/hardsphere_test.cpp dynamo_core/<coil-integrat
 
 unit-test squarewell_test : tests/squarewell_test.cpp dynamo_core/<coil-integration>no /system//boost_unit_test_framework : <coil-integration>no <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 
-alias test : scheduler_sorter_test hardsphere_test squarewell_test ;
+unit-test infmass_spheres_test : tests/infmass_spheres_test.cpp dynamo_core/<coil-integration>no /system//boost_unit_test_framework : <coil-integration>no <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
+
+alias test : scheduler_sorter_test hardsphere_test squarewell_test infmass_spheres_test ;

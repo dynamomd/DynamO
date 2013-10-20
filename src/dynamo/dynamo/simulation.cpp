@@ -413,7 +413,7 @@ namespace dynamo
   void
   Simulation::writeXMLfile(std::string fileName, bool applyBC, bool round)
   {
-    if (status < INITIALISED || status == ERROR)
+    if (status < CONFIG_LOADED || status == ERROR)
       M_throw() << "Cannot write out configuration in this state";
   
     namespace io = boost::iostreams;
@@ -591,20 +591,24 @@ namespace dynamo
     //Determine the discrepancy VECTOR
     for (Particle & Part : particles)
       {
+	double mass = species[Part]->getMass(Part.getID());
+	if (std::isinf(mass)) continue;
 	Vector  pos(Part.getPosition()), vel(Part.getVelocity());
 	BCs->applyBC(pos,vel);
-	double mass = species[Part]->getMass(Part.getID());
-	//Note we sum the negatives!
-	sumMV -= vel * mass;
+	sumMV += vel * mass;
 	sumMass += mass;
       }
   
     sumMV /= sumMass;
   
-    sumMV += COMVelocity;
+    Vector change = COMVelocity - sumMV;
 
     for (Particle & Part : particles)
-      Part.getVelocity() =  Part.getVelocity() + sumMV;
+      {
+	double mass = species[Part]->getMass(Part.getID());
+	if (std::isinf(mass)) continue;
+	Part.getVelocity() =  Part.getVelocity() + change;
+      }
   }
 
   void 

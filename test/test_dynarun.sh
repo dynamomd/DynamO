@@ -269,34 +269,6 @@ function umbrella {
 	testresult.dat correct.dat
 }
 
-function ThermostatTest {
-    #Testing the Andersen thermostat holds the right temperature
-    > run.log
-
-    ./dynamod -m 0 -r 0.1 -T 1.0 -o tmp.xml.bz2 &> run.log    
-    ./dynarun -c 100000 tmp.xml.bz2 >> run.log 2>&1
-    ./dynarun -c 100000 config.out.xml.bz2 >> run.log 2>&1
-    ./dynarun -c 500000 config.out.xml.bz2 >> run.log 2>&1
-    
-    if [ -e output.xml.bz2 ]; then
-	if [ $(bzcat output.xml.bz2 \
-	    | $Xml sel -t -v '/OutputData/Misc/Temperature/@Mean' \
-	    | gawk '{printf "%.1f",$1}') != "1.0" ]; then
-	    echo "Thermostat -: FAILED"
-	    exit 1
-	else
-	    echo "Thermostat -: PASSED"
-	fi
-    else
-	echo "Error, no output.0.xml.bz2 in $1 cannon test"
-	exit 1
-    fi
-    
-#Cleanup
-    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
-	tmp.xml.bz2 run.log
-}
-
 function BinarySphereTest {
     > run.log
 
@@ -373,47 +345,6 @@ function IsolatedPolymerTest {
 	fi
     else
 	echo "Error, no output.0.xml.bz2 in IsolatedPolymer test"
-	exit 1
-    fi
-    
-#Cleanup
-    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
-	tmp.xml.bz2 run.log
-}
-
-function HeavySphereTest {
-    > run.log
-
-    ./dynarun -c 100000 hvySpheres.xml >> run.log 2>&1
-    
-    if [ -e output.xml.bz2 ]; then
-	if [ $(bzcat output.xml.bz2 \
-	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-	    | gawk '{var=($1-5.74807417926229)/5.74807417926229; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
-	    echo "HeavySphereTest -: FAILED"
-	    exit 1
-	else
-	    echo "HeavySphereTest -: PASSED"
-	fi
-    else
-	echo "Error, no output.0.xml.bz2 in HeavySphereTest"
-	exit 1
-    fi
-    
-#Cleanup
-    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
-	tmp.xml.bz2 run.log
-}
-
-function HeavySphereCompressionTest {
-    > run.log
-
-    ./dynarun --engine 3 --target-pack-frac 0.1 hvySpheres.xml >> run.log 2>&1
-    
-    if [ -e output.xml.bz2 ]; then
-	echo "HeavySphereCompressionTest -: PASSED"
-    else
-	echo "Error, no output.0.xml.bz2 in HeavySphereCompressionTest"
 	exit 1
     fi
     
@@ -586,8 +517,6 @@ function BinaryThermalisedGranulate {
 echo "INTERACTIONS+Dynamod Systems"
 echo "Testing binary hard spheres, NeighbourLists and BoundedPQ's"
 BinarySphereTest "Cells"
-echo "Testing infinitely heavy particles"
-HeavySphereTest
 echo "Testing Lines, NeighbourLists and BoundedPQ's"
 HardLinesTest
 echo "Testing static spheres in gravity, NeighbourLists and BoundedPQ's"
@@ -611,8 +540,6 @@ GravityPlateTest
 
 echo ""
 echo "SYSTEM EVENTS"
-echo "Testing the Andersen Thermostat, NeighbourLists and BoundedPQ's"
-ThermostatTest
 #echo "Testing the square umbrella potential, NeighbourLists and BoundedPQ's"
 #umbrella "NeighbourList"
 
@@ -629,8 +556,6 @@ echo "COMPRESSION"
 echo "Testing local events (walls) and square wells with a " \
     "Null compression"
 wallsw "NeighbourList" "--engine 3 --growth-rate 0.0"
-echo "Testing compression in the prescence of infinitely heavy particles"
-HeavySphereCompressionTest
 echo "Testing compression of polymers (very sensitive to errors in the algorithm)"
 Ring_compressiontest
 echo "Packing of a square well polymer into a larger system, and compressing the system"
