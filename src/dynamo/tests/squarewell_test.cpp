@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE Hardsphere_test
+#define BOOST_TEST_MODULE SquareWell_test
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
@@ -11,6 +11,7 @@
 #include <dynamo/schedulers/include.hpp>
 #include <dynamo/schedulers/sorters/include.hpp>
 #include <dynamo/inputplugins/include.hpp>
+#include <dynamo/inputplugins/compression.hpp>
 #include <dynamo/interactions/squarewell.hpp>
 #include <dynamo/systems/andersenThermostat.hpp>
 #include <dynamo/outputplugins/misc.hpp>
@@ -31,12 +32,11 @@ dynamo::Vector getRandVelVec()
   return tmpVec;
 }
 
-void init(dynamo::Simulation& Sim)
+void init(dynamo::Simulation& Sim, double density = 0.5)
 {
   RNG.seed(std::random_device()());
   Sim.ranGenerator.seed(std::random_device()());
 
-  const double density = 0.5;
   const double elasticity = 1.0;
   const double lambda = 1.5;
   const double welldepth = 1.0;
@@ -72,7 +72,7 @@ void init(dynamo::Simulation& Sim)
   dynamo::InputPlugin(&Sim, "Rescaler").rescaleVels(1.0);
 
   BOOST_CHECK_EQUAL(Sim.N(), 1372);
-  BOOST_CHECK_CLOSE(Sim.getNumberDensity() * Sim.units.unitVolume(), 0.5, 0.000000001);
+  BOOST_CHECK_CLOSE(Sim.getNumberDensity() * Sim.units.unitVolume(), density, 0.000000001);
   BOOST_CHECK_CLOSE(Sim.getPackingFraction(), Sim.getNumberDensity() * Sim.units.unitVolume() * M_PI / 6.0, 0.000000001);
 }
 
@@ -138,4 +138,32 @@ BOOST_AUTO_TEST_CASE( NVT_Simulation )
   BOOST_CHECK_CLOSE(Temperature, 1.0, 5);
 
   BOOST_CHECK_MESSAGE(Sim.checkSystem() <= 2, "There are more than two invalid states in the final configuration");
+}
+
+BOOST_AUTO_TEST_CASE( Compression_Simulation )
+{
+  dynamo::Simulation Sim;
+  init(Sim, 0.1);
+  Sim.ensemble = dynamo::Ensemble::loadEnsemble(Sim);
+
+  const double growthRate = 1;
+  const double targetDensity = 0.9;
+  Sim.status = dynamo::CONFIG_LOADED;
+  Sim.endEventCount = 1000000;
+  Sim.addOutputPlugin("Misc");
+
+  dynamo::shared_ptr<dynamo::IPCompression> compressPlug(new dynamo::IPCompression(&Sim, growthRate));
+  compressPlug->MakeGrowth();
+  
+  compressPlug->limitDensity(targetDensity);
+
+  Sim.initialise();
+  while (Sim.runSimulationStep()) {}
+
+  while (Sim.runSimulationStep()) {}
+  compressPlug->RestoreSystem();
+
+  BOOST_CHECK_CLOSE(Sim.getNumberDensity() * Sim.units.unitVolume(), targetDensity, 0.000000001);
+  BOOST_CHECK_CLOSE(Sim.getPackingFraction(), Sim.getNumberDensity() * Sim.units.unitVolume() * M_PI / 6.0, 0.000000001);
+  BOOST_CHECK_MESSAGE(Sim.checkSystem() <= 1, "After compression, there are more than one invalid states in the final configuration");
 }
