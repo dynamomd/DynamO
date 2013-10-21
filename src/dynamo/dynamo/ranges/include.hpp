@@ -25,6 +25,7 @@
 #include <dynamo/ranges/IDPairRangeRangePair.hpp>
 #include <dynamo/ranges/IDPairRangeRings.hpp>
 #include <dynamo/ranges/IDPairRangeSingle.hpp>
+#include <dynamo/ranges/IDPairRangeSelf.hpp>
 #include <dynamo/ranges/IDRangeAll.hpp>
 #include <dynamo/ranges/IDRange.hpp>
 #include <dynamo/ranges/IDRangeList.hpp>
