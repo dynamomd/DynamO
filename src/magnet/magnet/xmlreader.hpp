@@ -109,6 +109,8 @@ namespace magnet {
 	return detail::getPath(_parent) + std::string("/@") + std::string(_attr->name(), _attr->name() + _attr->name_size()); 
       }
 
+      inline std::string getName() const { return std::string(_attr->name(), _attr->name() + _attr->name_size()); }
+
     private:
       friend class Node;
 
@@ -252,8 +254,7 @@ namespace magnet {
       }
 
       //! \brief Constructor to build a Node from rapidxml::xml_node data.
-      inline Node(rapidxml::xml_node<>* node,
-		  rapidxml::xml_node<>* parent):_node(node), _parent(parent) {}
+      inline Node(rapidxml::xml_node<>* node, rapidxml::xml_node<>* parent):_node(node), _parent(parent) {}
 
       /*! \brief Returns a string representation of the Node's
         location in the XML document.
@@ -266,6 +267,9 @@ namespace magnet {
 
 	return detail::getPath(_node); 
       }
+
+      inline std::string getName() const { return std::string(_node->name(), _node->name() + _node->name_size()); }
+
    private:
       rapidxml::xml_node<> *_node;
       rapidxml::xml_node<> *_parent;

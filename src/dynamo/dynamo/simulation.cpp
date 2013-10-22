@@ -38,6 +38,7 @@
 #include <boost/iostreams/copy.hpp>
 #include <dynamo/BC/BC.hpp>
 #include <iomanip>
+#include <set>
 
 //! The configuration file version, a version mismatch prevents an XML file load.
 static const std::string configFileVersion("1.5.0");
@@ -289,6 +290,18 @@ namespace dynamo
     species.push_back(sp);
   }
 
+  void checkNodeNameAttribute(magnet::xml::Node node)
+  {
+    //Check for unique names
+    std::set<std::string> names;
+    for (; node.valid(); ++node)
+      {
+	std::string currentname = node.getAttribute("Name").as<std::string>();
+	if (names.find(currentname) != names.end())
+	  M_throw() << node.getName() << " at path :" << node.getPath() << "\n Does not have a unique name (Name=\"" << currentname << "\")";
+	names.insert(currentname);
+      }
+  }
 
   void
   Simulation::loadXMLfile(std::string fileName)
@@ -361,7 +374,8 @@ namespace dynamo
     primaryCellSize << simNode.getNode("SimulationSize");
     primaryCellSize /= units.unitLength();
 
-    { 
+    {
+      checkNodeNameAttribute(simNode.getNode("Genus").fastGetNode("Species"));
       size_t i(0);
       for (magnet::xml::Node node = simNode.getNode("Genus").fastGetNode("Species"); node.valid(); ++node, ++i)
 	species.push_back(Species::getClass(node, this, i));
@@ -373,29 +387,36 @@ namespace dynamo
 
     if (simNode.hasNode("Topology"))
       {
+	checkNodeNameAttribute(simNode.getNode("Topology").fastGetNode("Structure"));
 	size_t i(0);
-	for (magnet::xml::Node node = simNode.getNode("Topology").fastGetNode("Structure");
-	     node.valid(); ++node, ++i)
+	for (magnet::xml::Node node = simNode.getNode("Topology").fastGetNode("Structure"); node.valid(); ++node, ++i)
 	  topology.push_back(Topology::getClass(node, this, i));
       }
-
-    for (magnet::xml::Node node = simNode.getNode("Interactions").fastGetNode("Interaction");
-	 node.valid(); ++node)
+    
+    checkNodeNameAttribute(simNode.getNode("Interactions").fastGetNode("Interaction"));
+    for (magnet::xml::Node node = simNode.getNode("Interactions").fastGetNode("Interaction"); node.valid(); ++node)
       interactions.push_back(Interaction::getClass(node, this));
 
     if (simNode.hasNode("Locals"))
-      for (magnet::xml::Node node = simNode.getNode("Locals").fastGetNode("Local"); 
-	   node.valid(); ++node)
-	locals.push_back(Local::getClass(node, this));
+      {
+	checkNodeNameAttribute(simNode.getNode("Locals").fastGetNode("Local"));
+	for (magnet::xml::Node node = simNode.getNode("Locals").fastGetNode("Local"); node.valid(); ++node)
+	  locals.push_back(Local::getClass(node, this));
+      }
 
     if (simNode.hasNode("Globals"))
-      for (magnet::xml::Node node = simNode.getNode("Globals").fastGetNode("Global"); 
-	   node.valid(); ++node)
-	globals.push_back(Global::getClass(node, this));
+      {
+	checkNodeNameAttribute(simNode.getNode("Globals").fastGetNode("Global"));
+	for (magnet::xml::Node node = simNode.getNode("Globals").fastGetNode("Global"); node.valid(); ++node)
+	  globals.push_back(Global::getClass(node, this));
+      }
 
     if (simNode.hasNode("SystemEvents"))
-      for (magnet::xml::Node node = simNode.getNode("SystemEvents").fastGetNode("System"); node.valid(); ++node)
-	systems.push_back(System::getClass(node, this));
+      {
+	checkNodeNameAttribute(simNode.getNode("SystemEvents").fastGetNode("System"));
+	for (magnet::xml::Node node = simNode.getNode("SystemEvents").fastGetNode("System"); node.valid(); ++node)
+	  systems.push_back(System::getClass(node, this));
+      }
 
     ptrScheduler = Scheduler::getClass(simNode.getNode("Scheduler"), this);
   
