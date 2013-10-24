@@ -580,13 +580,10 @@ namespace dynamo {
 	  std::unique_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
-	  std::vector<Vector  >
-	    latticeSites(packptr->placeObjects(Vector (0,0,0)));
+	  std::vector<Vector> latticeSites(packptr->placeObjects(Vector (0,0,0)));
 
 	  if (vm.count("rectangular-box"))
-	    {
-	      Sim->primaryCellSize = getNormalisedCellDimensions();
-	    }
+	    Sim->primaryCellSize = getNormalisedCellDimensions();
 
 	  double simVol = 1.0;
 
@@ -605,16 +602,13 @@ namespace dynamo {
 	  const double shearRate = 1;
 
 	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiam, alpha, new IDPairRangeAll(), "Bulk")));
-
 	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeAll(Sim), 1.0, "Bulk", 0)));
-
 	  Sim->units.setUnitLength(particleDiam);
 
 	  unsigned long nParticles = 0;
 	  Sim->particles.reserve(latticeSites.size());
 	  for (const Vector & position : latticeSites)
-	    Sim->particles.push_back
-	    (Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
+	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 
 	  //Insert a linear profile, zero momentum then add a vel gradient
 	  Sim->setCOMVelocity();

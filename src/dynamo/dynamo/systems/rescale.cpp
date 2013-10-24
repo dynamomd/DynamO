@@ -99,6 +99,11 @@ namespace dynamo {
     Sim->dynamics->updateAllParticles();
     Sim->dynamics->rescaleSystemKineticEnergy(_kT / currentkT);
 
+    //We must set the centre of mass velocity back to zero (assuming
+    //this is the target velocity), otherwise it will drift with the
+    //rescaling process
+    Sim->setCOMVelocity();
+
     RealTime += (Sim->systemTime - LastTime) / std::exp(0.5 * scaleFactor);
     
     LastTime = Sim->systemTime;
@@ -118,7 +123,9 @@ namespace dynamo {
       Ptr->temperatureRescale(1.0/currentkT);
 
     dt = _timestep;
-  
+    
+    
+
     Sim->ptrScheduler->rebuildList();
   }
 
