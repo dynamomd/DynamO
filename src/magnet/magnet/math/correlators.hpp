@@ -205,9 +205,12 @@ namespace magnet {
       /*! \brief Integrate the free streaming contributions to
           \f$W^{(1)}\f$ and \f$W^{(2)}\f$, and create new samples as
           needed.
+	  
+	  \return The number of correlator passes carried out.
       */
-      void freeStream(double dt)
+      size_t freeStream(double dt)
       {
+	size_t loops(0);
 	while ((_current_time + dt) >= _sample_time)
 	  {
 	    const double deltat = _sample_time - _current_time;
@@ -218,11 +221,13 @@ namespace magnet {
 	    _W_sums.first = _W_sums.second = T();
 	    _current_time = 0;
 	    dt -= deltat;
+	    ++loops;
 	  }
 
 	_W_sums.first += _freestream_values.first * dt;
 	_W_sums.second += _freestream_values.second * dt;
 	_current_time += dt;
+	return loops;
       }
 
       /*! \brief Remove all collected data so far, but keep the
@@ -335,7 +340,8 @@ namespace magnet {
       /*! \brief See \ref TimeCorrelator::freeStream(). */
       void freeStream(const double dt)
       {
-	//Check if we need to add a new correlator
+	//Check if we need to add a new correlators as we've accessed
+	//longer time scales
 	while ((_current_time + dt) >= _sample_time)
 	  {
 	    //Add a new correlator
@@ -356,8 +362,17 @@ namespace magnet {
 	    new_correlator.setFreeStreamValue(_freestream_values.first, _freestream_values.second);
 	  }
 
-	for (Correlator& correlator : _correlators)
-	  correlator.freeStream(dt);
+	//Free stream the correlators
+	for (auto correlator_ptr = _correlators.begin(); correlator_ptr != _correlators.end(); ++correlator_ptr )
+	  {
+	    const size_t loopcount = correlator_ptr->freeStream(dt);
+
+	    //Check that no correlator is doing too much work per
+	    //freestream and needs to be discarded (e.g. the system
+	    //mean free time is increasing, causing the correlators to
+	    //bottleneck the calculations).
+	    if (loopcount > 5) correlator_ptr = _correlators.erase(correlator_ptr);
+	  }
 
 	_freestream_sum.first += _freestream_values.first * dt;
 	_freestream_sum.second += _freestream_values.second * dt;
