@@ -606,15 +606,14 @@ namespace dynamo
   Simulation::setCOMVelocity(const Vector COMVelocity)
   {  
     Vector sumMV(0,0,0);
- 
     long double sumMass(0);
 
-    //Determine the discrepancy VECTOR
+    //Determine the momentum discrepancy vector
     for (Particle & Part : particles)
       {
-	double mass = species[Part]->getMass(Part.getID());
+	const double mass = species[Part]->getMass(Part.getID());
 	if (std::isinf(mass)) continue;
-	Vector  pos(Part.getPosition()), vel(Part.getVelocity());
+	Vector pos(Part.getPosition()), vel(Part.getVelocity());
 	BCs->applyBC(pos,vel);
 	sumMV += vel * mass;
 	sumMass += mass;
@@ -623,7 +622,6 @@ namespace dynamo
     sumMV /= sumMass;
   
     Vector change = COMVelocity - sumMV;
-
     for (Particle & Part : particles)
       {
 	double mass = species[Part]->getMass(Part.getID());

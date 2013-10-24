@@ -41,8 +41,7 @@ namespace dynamo {
 
     virtual void eventUpdate(const LocalEvent&, const NEventData&);
   
-    virtual void eventUpdate(const System&, const NEventData&, 
-			     const double&);
+    virtual void eventUpdate(const System&, const NEventData&, const double&);
   
     void output(magnet::xml::XmlStream &); 
   
@@ -88,9 +87,9 @@ namespace dynamo {
 
     std::chrono::system_clock::time_point _starttime;
 
-    unsigned long _dualEvents;  
+    unsigned long _dualEvents;
     unsigned long _singleEvents;
-    unsigned long _virtualEvents;    
+    unsigned long _virtualEvents;
     size_t _reverseEvents;
 
     magnet::math::TimeAveragedProperty<double> _KE;
