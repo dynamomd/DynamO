@@ -49,7 +49,7 @@ namespace magnet {
       double vdot = D | N;
 
       //Check for overlapped and approaching dynamics
-      if ((rdot < d) && (vdot < 0)) return 0;
+      if ((rdot <= d) && (vdot < 0)) return 0;
 
       double arg = vdot * vdot - 2 * (rdot - d) * adot;
       double minimum = - vdot / adot;
