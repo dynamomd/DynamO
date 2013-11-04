@@ -91,14 +91,13 @@ namespace dynamo {
 	 << " To " << _kT / Sim->units.unitEnergy() <<  std::endl;
 
     NEventData SDat;
-
     for (const shared_ptr<Species>& species : Sim->species)
       for (const unsigned long& partID : *species->getRange())
-      SDat.L1partChanges.push_back(ParticleEventData(Sim->particles[partID], *species, RESCALE));
-
+	SDat.L1partChanges.push_back(ParticleEventData(Sim->particles[partID], *species, RESCALE));
+    
     Sim->dynamics->updateAllParticles();
     Sim->dynamics->rescaleSystemKineticEnergy(_kT / currentkT);
-
+    
     //We must set the centre of mass velocity back to zero (assuming
     //this is the target velocity), otherwise it will drift with the
     //rescaling process
@@ -107,7 +106,7 @@ namespace dynamo {
     RealTime += (Sim->systemTime - LastTime) / std::exp(0.5 * scaleFactor);
     
     LastTime = Sim->systemTime;
-
+    
     scaleFactor += std::log(currentkT);
 
     Sim->_sigParticleUpdate(SDat);
@@ -119,12 +118,7 @@ namespace dynamo {
     for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
       Ptr->eventUpdate(*this, SDat, locdt); 
 
-    for (shared_ptr<OutputPlugin>& Ptr : Sim->outputPlugins)
-      Ptr->temperatureRescale(1.0/currentkT);
-
     dt = _timestep;
-    
-    
 
     Sim->ptrScheduler->rebuildList();
   }
