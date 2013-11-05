@@ -41,7 +41,7 @@ namespace dynamo {
       M_throw() << "Particle is not up to date";
 #endif
 
-    double colldist = 0.5 * _diameter->getProperty(part.getID()) + _cyl_radius;
+    double colldist = 0.5 * _diameter->getProperty(part) + _cyl_radius;
     
     return LocalEvent(part, Sim->dynamics->getCylinderWallCollision(part, vPosition, vAxis, colldist), WALL, *this);
   }
@@ -53,7 +53,7 @@ namespace dynamo {
 
     //Run the collision and catch the data
 
-    NEventData EDat = Sim->dynamics->runCylinderWallCollision(part, vPosition, vAxis, _e->getProperty(part.getID()));
+    NEventData EDat = Sim->dynamics->runCylinderWallCollision(part, vPosition, vAxis, _e->getProperty(part));
     Sim->_sigParticleUpdate(EDat);
 
     //Now we're past the event update the scheduler and plugins
@@ -108,7 +108,7 @@ namespace dynamo {
     Vector pos(part.getPosition() - vPosition);
     Sim->BCs->applyBC(pos);
     
-    double diam = 0.5 * _diameter->getProperty(part.getID()) + _cyl_radius;
+    double diam = 0.5 * _diameter->getProperty(part) + _cyl_radius;
     pos -= (pos | vAxis) * vAxis;
     double r = diam - pos.nrm();
     

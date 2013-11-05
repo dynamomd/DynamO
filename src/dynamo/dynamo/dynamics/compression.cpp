@@ -90,7 +90,7 @@ namespace dynamo {
   DynCompression::runPlaneEvent(Particle& part, const Vector& vNorm, const double e, const double diameter) const
   {
     updateParticle(part);
-    ParticleEventData retVal(part, *Sim->species[part], WALL);
+    ParticleEventData retVal(part, *Sim->species(part), WALL);
     Vector vij = part.getVelocity() - vNorm * diameter * growthRate;
     part.getVelocity() -= (1+e) * (vNorm | vij) * vNorm;
     return retVal; 
@@ -113,10 +113,10 @@ namespace dynamo {
     Particle& particle1 = Sim->particles[event.getParticle1ID()];
     Particle& particle2 = Sim->particles[event.getParticle2ID()];
     updateParticlePair(particle1, particle2);  
-    PairEventData retVal(particle1, particle2, *Sim->species[particle1], *Sim->species[particle2], eType);
+    PairEventData retVal(particle1, particle2, *Sim->species(particle1), *Sim->species(particle2), eType);
     Sim->BCs->applyBC(retVal.rij, retVal.vijold);
-    double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID()); 
-    double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID()); 
+    double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1); 
+    double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2); 
     double r2 = retVal.rij.nrm2();
     retVal.rvdot = (retVal.rij | retVal.vijold);
     double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
@@ -142,7 +142,7 @@ namespace dynamo {
     Particle& particle1 = Sim->particles[event.getParticle1ID()];
     Particle& particle2 = Sim->particles[event.getParticle2ID()];
     updateParticlePair(particle1, particle2);  
-    PairEventData retVal(particle1, particle2, *Sim->species[particle1], *Sim->species[particle2], event.getType());
+    PairEventData retVal(particle1, particle2, *Sim->species(particle1), *Sim->species(particle2), event.getType());
     Sim->BCs->applyBC(retVal.rij, retVal.vijold);
     double p1Mass = Sim->species[retVal.particle1_.getSpeciesID()]->getMass(particle1.getID());
     double p2Mass = Sim->species[retVal.particle2_.getSpeciesID()]->getMass(particle2.getID());
@@ -252,7 +252,7 @@ namespace dynamo {
 
     //This gives a completely new random unit vector with a properly
     //distributed Normal component. See Granular Simulation Book
-    ParticleEventData tmpDat(part, *Sim->species[part], WALL);
+    ParticleEventData tmpDat(part, *Sim->species(part), WALL);
  
     double mass = Sim->species[tmpDat.getSpeciesID()]->getMass(part.getID());
 

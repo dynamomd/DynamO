@@ -44,15 +44,11 @@ namespace dynamo {
   IThinThread::operator<<(const magnet::xml::Node& XML)
   {
     Interaction::operator<<(XML);
-    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
-					     Property::Units::Length());
-    _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
-					   Property::Units::Dimensionless());
-    _wellDepth = Sim->_properties.getProperty(XML.getAttribute("WellDepth"),
-					      Property::Units::Energy());
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
+    _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"), Property::Units::Dimensionless());
+    _wellDepth = Sim->_properties.getProperty(XML.getAttribute("WellDepth"), Property::Units::Energy());
     if (XML.hasAttribute("Elasticity"))
-      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-					Property::Units::Dimensionless());
+      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
     else
       _e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
     intName = XML.getAttribute("Name");
@@ -74,11 +70,8 @@ namespace dynamo {
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
 
-    double d = (_diameter->getProperty(p1.getID())
-		+ _diameter->getProperty(p2.getID())) * 0.5;
-
-    double l = (_lambda->getProperty(p1.getID())
-		+ _lambda->getProperty(p2.getID())) * 0.5;
+    const double d = _diameter->getProperty(p1, p2);
+    const double l = _lambda->getProperty(p1, p2);
 
     IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
 
@@ -108,19 +101,15 @@ namespace dynamo {
   {
     ++Sim->eventCount;
 
-    double d = (_diameter->getProperty(p1.getID())
-		+ _diameter->getProperty(p2.getID())) * 0.5;
-    double d2 = d * d;
+    const double d = _diameter->getProperty(p1, p2);
+    const double d2 = d * d;
 
-    double e = (_e->getProperty(p1.getID())
-		+ _e->getProperty(p2.getID())) * 0.5;
+    const double e = _e->getProperty(p1, p2);
 
-    double l = (_lambda->getProperty(p1.getID())
-		+ _lambda->getProperty(p2.getID())) * 0.5;
-    double ld2 = d * l * d * l;
+    const double l = _lambda->getProperty(p1, p2);
+    const double ld2 = d * l * d * l;
 
-    double wd = (_wellDepth->getProperty(p1.getID())
-		 + _wellDepth->getProperty(p2.getID())) * 0.5;
+    const double wd = _wellDepth->getProperty(p1, p2);
 
     PairEventData retVal;
     switch (iEvent.getType())
@@ -151,10 +140,8 @@ namespace dynamo {
   bool
   IThinThread::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    double d = (_diameter->getProperty(p1.getID())
-		+ _diameter->getProperty(p2.getID())) * 0.5;
-    double l = (_lambda->getProperty(p1.getID())
-		+ _lambda->getProperty(p2.getID())) * 0.5;
+    const double d = _diameter->getProperty(p1, p2);
+    const double l = _lambda->getProperty(p1, p2);
 
     if (isCaptured(p1, p2))
       {

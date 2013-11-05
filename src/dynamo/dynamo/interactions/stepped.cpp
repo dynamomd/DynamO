@@ -90,7 +90,7 @@ namespace dynamo {
   {
     if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
   
-    const double length_scale = 0.5 * (_lengthScale->getProperty(p1.getID()) + _lengthScale->getProperty(p2.getID()));
+    const double length_scale = _lengthScale->getProperty(p1, p2);
 
     Vector rij = p1.getPosition() - p2.getPosition();
     Sim->BCs->applyBC(rij);
@@ -112,7 +112,7 @@ namespace dynamo {
   {
     ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1, p2));
     if (capstat == ICapture::end()) return 0;
-    const double energy_scale = 0.5 * (_energyScale->getProperty(p1.getID()) + _energyScale->getProperty(p2.getID()));
+    const double energy_scale = _energyScale->getProperty(p1, p2);
     return (*_potential)[capstat->second - 1].second * energy_scale;
   }
 
@@ -134,7 +134,7 @@ namespace dynamo {
     ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1, p2));
     const size_t current_step_ID = (capstat == ICapture::end()) ? 0 : capstat->second;
     const std::pair<double, double> step_bounds = _potential->getStepBounds(current_step_ID);
-    const double length_scale = 0.5 * (_lengthScale->getProperty(p1.getID()) + _lengthScale->getProperty(p2.getID()));
+    const double length_scale = _lengthScale->getProperty(p1, p2);
 
     IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
     if (step_bounds.first != 0)
@@ -159,8 +159,8 @@ namespace dynamo {
   {
     ++Sim->eventCount;
 
-    const double length_scale = 0.5 * (_lengthScale->getProperty(p1.getID()) + _lengthScale->getProperty(p2.getID()));
-    const double energy_scale = 0.5 * (_energyScale->getProperty(p1.getID()) + _energyScale->getProperty(p2.getID()));
+    const double length_scale = _lengthScale->getProperty(p1, p2);
+    const double energy_scale = _energyScale->getProperty(p1, p2);
 
     ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1, p2));
     const size_t old_step_ID = (capstat == ICapture::end()) ? 0 : capstat->second;

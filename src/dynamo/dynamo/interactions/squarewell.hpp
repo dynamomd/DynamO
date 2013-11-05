@@ -28,17 +28,11 @@ namespace dynamo {
     ISquareWell(dynamo::Simulation* tmp, T1 d, T2 l, 
 		T3 wd, T4 e, IDPairRange* nR, std::string name):
       ICapture(tmp,nR),
-      _diameter(Sim->_properties.getProperty
-		(d, Property::Units::Length())),
-      _lambda(Sim->_properties.getProperty
-	      (l, Property::Units::Dimensionless())),
-      _wellDepth(Sim->_properties.getProperty
-		 (wd, Property::Units::Energy())),
-      _e(Sim->_properties.getProperty
-	 (e, Property::Units::Dimensionless()))
-    {
-      intName = name;
-    }
+      _diameter(Sim->_properties.getProperty(d, Property::Units::Length())),
+      _lambda(Sim->_properties.getProperty(l, Property::Units::Dimensionless())),
+      _wellDepth(Sim->_properties.getProperty(wd, Property::Units::Energy())),
+      _e(Sim->_properties.getProperty(e, Property::Units::Dimensionless()))
+    { intName = name; }
 
     ISquareWell(const magnet::xml::Node&, dynamo::Simulation*);
   

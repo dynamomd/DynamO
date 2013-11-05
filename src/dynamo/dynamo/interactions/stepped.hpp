@@ -33,9 +33,7 @@ namespace dynamo {
       _lengthScale(Sim->_properties.getProperty(length, Property::Units::Length())),
       _energyScale(Sim->_properties.getProperty(energy, Property::Units::Energy())),
       _potential(potential)
-    {
-      intName = name;
-    }
+    { intName = name; }
 
     IStepped(const magnet::xml::Node&, dynamo::Simulation*);
   

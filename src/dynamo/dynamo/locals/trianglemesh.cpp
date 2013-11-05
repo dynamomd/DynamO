@@ -39,7 +39,7 @@ namespace dynamo {
 #endif
 
     size_t triangleid = 0; //The id of the triangle for which the event is for
-    double diam = 0.5 * _diameter->getProperty(part.getID());
+    double diam = 0.5 * _diameter->getProperty(part);
 
     std::pair<double, size_t> tmin(HUGE_VAL, 0); //Default to no collision
 
@@ -139,7 +139,7 @@ namespace dynamo {
 	M_throw() << "Unhandled triangle sphere intersection type encountered";
       }
 
-    NEventData EDat(Sim->dynamics->runPlaneEvent(part, normal, _e->getProperty(part.getID()), 0.0));
+    NEventData EDat(Sim->dynamics->runPlaneEvent(part, normal, _e->getProperty(part), 0.0));
 
     Sim->_sigParticleUpdate(EDat);
 
@@ -154,10 +154,8 @@ namespace dynamo {
   LTriangleMesh::operator<<(const magnet::xml::Node& XML)
   {
     range = shared_ptr<IDRange>(IDRange::getClass(XML.getNode("IDRange"), Sim));
-    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
-					     Property::Units::Length());
-    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-				      Property::Units::Dimensionless());
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
+    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
 
     localName = XML.getAttribute("Name");
 

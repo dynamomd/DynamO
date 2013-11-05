@@ -22,6 +22,7 @@
 namespace magnet { namespace xml { class Node; class XmlStream; } }
 
 namespace dynamo {
+  typedef size_t ParticleID;
   //! \brief The fundamental data structure for a Particle.
   //!
   //! This class holds only the very fundamental information on a
@@ -93,7 +94,9 @@ namespace dynamo {
     //! \brief ID accessor function.
     //! This ID is a unique value for each Particle in the Simulation
     //! and so it can also be used as a reference to a particle.
-    inline const unsigned long &getID() const { return _ID; };
+    inline const unsigned long &getID() const { return _ID; }
+
+    operator ParticleID() const { return _ID; }
 
     //! \brief Const peculiar time accessor function.
     //! This value is used in the "delayed states" or "Time warp" algorithm.
@@ -124,7 +127,7 @@ namespace dynamo {
   private:
     Vector _pos;
     Vector _vel;
-    unsigned long _ID;
+    ParticleID _ID;
     double _peculiarTime;
     int _state;
   };

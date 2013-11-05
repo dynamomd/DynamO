@@ -54,17 +54,13 @@ namespace dynamo {
   ILines::operator<<(const magnet::xml::Node& XML)
   { 
     Interaction::operator<<(XML);
-    _length = Sim->_properties.getProperty(XML.getAttribute("Length"),
-					   Property::Units::Length());
-    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-				      Property::Units::Dimensionless());
+    _length = Sim->_properties.getProperty(XML.getAttribute("Length"), Property::Units::Length());
+    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
     intName = XML.getAttribute("Name");
     ICapture::loadCaptureMap(XML);   
   }
 
-  double 
-  ILines::maxIntDist() const 
-  { return _length->getMaxValue(); }
+  double ILines::maxIntDist() const { return _length->getMaxValue(); }
 
   IntEvent 
   ILines::getEvent(const Particle &p1, const Particle &p2) const
@@ -80,9 +76,7 @@ namespace dynamo {
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
   
-    double l = (_length->getProperty(p1.getID())
-		+ _length->getProperty(p2.getID())) * 0.5;
-
+    const double l = _length->getProperty(p1, p2);
     if (isCaptured(p1, p2))
       {
 	//Run this to determine when the spheres no longer intersect
@@ -123,31 +117,28 @@ namespace dynamo {
 	{
 	  ++Sim->eventCount;
 	  //We have a line interaction! Run it
-	  double e = (_e->getProperty(p1.getID())
-		      + _e->getProperty(p2.getID())) * 0.5;
-	  double l = (_length->getProperty(p1.getID())
-		      + _length->getProperty(p2.getID())) * 0.5;
-
+	  const double e = _e->getProperty(p1, p2);
+	  const double l = _length->getProperty(p1, p2);
 	  retval = Sim->dynamics->runLineLineCollision(iEvent, e, l);
 	  break;
 	}
       case NBHOOD_IN:
 	{
 	  ICapture::add(p1, p2);
-	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
+	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
 	  iEvent.setType(VIRTUAL);
 	  break;
 	}
       case NBHOOD_OUT:
 	{
 	  ICapture::remove(p1, p2);
-	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
+	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
 	  iEvent.setType(VIRTUAL);
 	  break;
 	}
       case VIRTUAL:
 	{
-	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
+	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
 	  iEvent.setType(VIRTUAL);
 	  break;
 	}
@@ -175,17 +166,14 @@ namespace dynamo {
   {
     if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
 
-    double l = (_length->getProperty(p1.getID())
-		+ _length->getProperty(p2.getID())) * 0.5;
-
+    const double l = _length->getProperty(p1, p2);
     return Sim->dynamics->sphereOverlap(p1, p2, l) > 0;
   }
 
   bool
   ILines::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    double l = (_length->getProperty(p1.getID())
-		+ _length->getProperty(p2.getID())) * 0.5;
+    const double l = _length->getProperty(p1, p2);
 
     if (isCaptured(p1, p2))
       {

@@ -273,7 +273,7 @@ namespace dynamo
   }
 
   const shared_ptr<Species>& 
-  Simulation::SpeciesContainer::operator[](const Particle& p1) const 
+  Simulation::SpeciesContainer::operator()(const Particle& p1) const 
   {
     for (const shared_ptr<Species>& ptr : *this)
       if (ptr->isSpecies(p1)) return ptr;
@@ -611,7 +611,7 @@ namespace dynamo
     //Determine the momentum discrepancy vector
     for (Particle & Part : particles)
       {
-	const double mass = species[Part]->getMass(Part.getID());
+	const double mass = species(Part)->getMass(Part.getID());
 	if (std::isinf(mass)) continue;
 	Vector pos(Part.getPosition()), vel(Part.getVelocity());
 	BCs->applyBC(pos,vel);
@@ -624,7 +624,7 @@ namespace dynamo
     Vector change = COMVelocity - sumMV;
     for (Particle & Part : particles)
       {
-	double mass = species[Part]->getMass(Part.getID());
+	double mass = species(Part)->getMass(Part.getID());
 	if (std::isinf(mass)) continue;
 	Part.getVelocity() =  Part.getVelocity() + change;
       }

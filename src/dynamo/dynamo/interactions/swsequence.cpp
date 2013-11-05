@@ -37,8 +37,7 @@
 namespace dynamo {
   ISWSequence::ISWSequence(const magnet::xml::Node& XML, dynamo::Simulation* tmp):
     ICapture(tmp, NULL), //A temporary value!
-    _unitEnergy(Sim->_properties.getProperty
-		(1.0, Property::Units::Energy()))
+    _unitEnergy(Sim->_properties.getProperty(1.0, Property::Units::Energy()))
   { operator<<(XML); }
 
   void 
@@ -81,14 +80,11 @@ namespace dynamo {
   {
     Interaction::operator<<(XML);
 
-    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
-					     Property::Units::Length());
-    _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
-					   Property::Units::Dimensionless());
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
+    _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"), Property::Units::Dimensionless());
     
     if (XML.hasAttribute("Elasticity"))
-      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-					Property::Units::Dimensionless());
+      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
     else
       _e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
     
@@ -151,8 +147,7 @@ namespace dynamo {
   ISWSequence::getInternalEnergy(const Particle& p1, const Particle& p2) const
   {
     return -alphabet[sequence[p1.getID() % sequence.size()]][sequence[p2.getID() % sequence.size()]]
-      * 0.5 * (_unitEnergy->getProperty(p1.getID()) + _unitEnergy->getProperty(p2.getID()))
-      * isCaptured(p1, p2);
+      * _unitEnergy->getProperty(p1, p2) * isCaptured(p1, p2);
   }
 
 
@@ -180,11 +175,8 @@ namespace dynamo {
   {
     if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
 
-    double d = (_diameter->getProperty(p1.getID())
-		+ _diameter->getProperty(p2.getID())) * 0.5;
-
-    double l = (_lambda->getProperty(p1.getID())
-		+ _lambda->getProperty(p2.getID())) * 0.5;
+    const double d = _diameter->getProperty(p1, p2);
+    const double l = _lambda->getProperty(p1, p2);
 
 #ifdef DYNAMO_DEBUG
     if (Sim->dynamics->sphereOverlap(p1, p2, d))
@@ -216,12 +208,8 @@ namespace dynamo {
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
 
-    double d = (_diameter->getProperty(p1.getID())
-		+ _diameter->getProperty(p2.getID())) * 0.5;
-
-    double l = (_lambda->getProperty(p1.getID())
-		+ _lambda->getProperty(p2.getID())) * 0.5;
-
+    const double d = _diameter->getProperty(p1, p2);
+    const double l = _lambda->getProperty(p1, p2);
     const double pairenergy = alphabet[sequence[p1.getID() % sequence.size()]][sequence[p2.getID() % sequence.size()]] * _unitEnergy->getMaxValue();
 
     /* Check if there is no well here at all, and just use a hard core interaction */
@@ -261,19 +249,11 @@ namespace dynamo {
   {  
     ++Sim->eventCount;
 
-    const double e = (_e->getProperty(p1.getID())
-		+ _e->getProperty(p2.getID())) * 0.5;
-
-    const double d = (_diameter->getProperty(p1.getID())
-		+ _diameter->getProperty(p2.getID())) * 0.5;
-
+    const double e = _e->getProperty(p1, p2);
+    const double d = _diameter->getProperty(p1, p2);
     const double d2 = d * d;
-    
-    const double l = (_lambda->getProperty(p1.getID())
-		      + _lambda->getProperty(p2.getID())) * 0.5;
-  
+    const double l = _lambda->getProperty(p1, p2);
     const double ld2 = d * l * d * l;
-
     const double pairenergy = alphabet[sequence[p1.getID() % sequence.size()]][sequence[p2.getID() % sequence.size()]] * _unitEnergy->getMaxValue();
     
     PairEventData retVal;
@@ -305,8 +285,8 @@ namespace dynamo {
   bool
   ISWSequence::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    const double d = (_diameter->getProperty(p1.getID()) + _diameter->getProperty(p2.getID())) * 0.5;
-    const double l = (_lambda->getProperty(p1.getID()) + _lambda->getProperty(p2.getID())) * 0.5;
+    const double d = _diameter->getProperty(p1, p2);
+    const double l = _lambda->getProperty(p1, p2);
     
     const double pairenergy = alphabet[sequence[p1.getID() % sequence.size()]][sequence[p2.getID() % sequence.size()]] * _unitEnergy->getMaxValue();
 

@@ -103,15 +103,13 @@ namespace dynamo {
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif
   
-    const double lA1 = _LA->getProperty(p1.getID()),
-      lB1 = _LB->getProperty(p1.getID()),
-      diamA1 = _diamA->getProperty(p1.getID()),
-      diamB1 = _diamB->getProperty(p1.getID());
+    const double lA1 = _LA->getProperty(p1),
+      lB1 = _LB->getProperty(p1),
+      diamA1 = _diamA->getProperty(p1),
+      diamB1 = _diamB->getProperty(p1);
 
-    const double lA2 = _LA->getProperty(p2.getID()),
-      lB2 = _LB->getProperty(p2.getID()),
-      diamA2 = _diamA->getProperty(p2.getID()),
-      diamB2 = _diamB->getProperty(p2.getID());
+    const double lA2 = _LA->getProperty(p2), lB2 = _LB->getProperty(p2),
+      diamA2 = _diamA->getProperty(p2), diamB2 = _diamB->getProperty(p2);
 
     const double l1 = std::max(lA1 + 0.5 * diamA1, lB1 + 0.5 * diamB1);
     const double l2 = std::max(lA2 + 0.5 * diamA2, lB2 + 0.5 * diamB2);
@@ -164,21 +162,21 @@ namespace dynamo {
 	{
 	  ++Sim->eventCount;
 	  Sim->dynamics->updateParticlePair(p1, p2);
-	  shared_ptr<SpSphericalTop> sp1 = std::dynamic_pointer_cast<SpSphericalTop>(Sim->species[p1]);
-	  shared_ptr<SpSphericalTop> sp2 = std::dynamic_pointer_cast<SpSphericalTop>(Sim->species[p2]);
+	  shared_ptr<SpSphericalTop> sp1 = std::dynamic_pointer_cast<SpSphericalTop>(Sim->species(p1));
+	  shared_ptr<SpSphericalTop> sp2 = std::dynamic_pointer_cast<SpSphericalTop>(Sim->species(p2));
 
 	  if (!sp1 || !sp2)
 	    M_throw() << "Could not find the intertia of one of the particles undergoing an interaction";
 	  
-	  const double lA1 = _LA->getProperty(p1.getID()),
-	    lB1 = _LB->getProperty(p1.getID()),
-	    diamA1 = _diamA->getProperty(p1.getID()),
-	    diamB1 = _diamB->getProperty(p1.getID());
+	  const double lA1 = _LA->getProperty(p1),
+	    lB1 = _LB->getProperty(p1),
+	    diamA1 = _diamA->getProperty(p1),
+	    diamB1 = _diamB->getProperty(p1);
 	  
-	  const double lA2 = _LA->getProperty(p2.getID()),
-	    lB2 = _LB->getProperty(p2.getID()),
-	    diamA2 = _diamA->getProperty(p2.getID()),
-	    diamB2 = _diamB->getProperty(p2.getID());
+	  const double lA2 = _LA->getProperty(p2),
+	    lB2 = _LB->getProperty(p2),
+	    diamA2 = _diamA->getProperty(p2),
+	    diamB2 = _diamB->getProperty(p2);
 
 	  const Vector director1 = Sim->dynamics->getRotData(p1).orientation * Quaternion::initialDirector();
 	  const Vector director2 = Sim->dynamics->getRotData(p2).orientation * Quaternion::initialDirector();
@@ -243,7 +241,7 @@ namespace dynamo {
 	  
 	  Vector vc12 = retval.vijold + (angvel1 ^ r1) - (angvel2 ^ r2) + growthrate * (director1 * l1 - director2 * l2 - nhat * (d1 + d2) * 0.5);
 	  
-	  double e = 0.5 * (_e->getProperty(p1.getID()) + _e->getProperty(p2.getID()));
+	  const double e = _e->getProperty(p1, p2);
 	  const double J = (1 + e) * (nhat | vc12) / ((1 / m1) + (1 / m2)+ (nhat | ((1 / I1) * ((u1 ^ nhat) ^ u1) + (1 / I2) * ((u2 ^ nhat) ^ u2))));
 
 	  retval.rvdot = (retval.rij | retval.vijold);
@@ -257,20 +255,20 @@ namespace dynamo {
       case NBHOOD_IN:
 	{
 	  ICapture::add(p1, p2);
-	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
+	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
 	  iEvent.setType(VIRTUAL);
 	  break;
 	}
       case NBHOOD_OUT:
 	{
 	  ICapture::remove(p1, p2);
-	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
+	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
 	  iEvent.setType(VIRTUAL);
 	  break;
 	}
       case VIRTUAL:
 	{
-	  retval = PairEventData(p1, p2, *Sim->species[p1], *Sim->species[p2], VIRTUAL);
+	  retval = PairEventData(p1, p2, *Sim->species(p1), *Sim->species(p2), VIRTUAL);
 	  iEvent.setType(VIRTUAL);
 	  break;
 	}
@@ -301,15 +299,15 @@ namespace dynamo {
   {
     if (&(*(Sim->getInteraction(p1, p2))) != this) return false;
 
-    const double lA1 = _LA->getProperty(p1.getID()),
-      lB1 = _LB->getProperty(p1.getID()),
-      diamA1 = _diamA->getProperty(p1.getID()),
-      diamB1 = _diamB->getProperty(p1.getID());
+    const double lA1 = _LA->getProperty(p1),
+      lB1 = _LB->getProperty(p1),
+      diamA1 = _diamA->getProperty(p1),
+      diamB1 = _diamB->getProperty(p1);
 
-    const double lA2 = _LA->getProperty(p2.getID()),
-      lB2 = _LB->getProperty(p2.getID()),
-      diamA2 = _diamA->getProperty(p2.getID()),
-      diamB2 = _diamB->getProperty(p2.getID());
+    const double lA2 = _LA->getProperty(p2),
+      lB2 = _LB->getProperty(p2),
+      diamA2 = _diamA->getProperty(p2),
+      diamB2 = _diamB->getProperty(p2);
 
     const double l1 = std::max(lA1 + 0.5 * diamA1, lB1 + 0.5 * diamB1);
     const double l2 = std::max(lA2 + 0.5 * diamA2, lB2 + 0.5 * diamB2);
@@ -332,16 +330,16 @@ namespace dynamo {
     if (std::dynamic_pointer_cast<DynCompression>(Sim->dynamics))
       growthfactor = (1 + std::static_pointer_cast<DynCompression>(Sim->dynamics)->getGrowthRate() * Sim->systemTime);
 
-    const double lA1 = growthfactor * _LA->getProperty(p1.getID()),
-      lB1 = growthfactor * _LB->getProperty(p1.getID()),
-      diamA1 = growthfactor * _diamA->getProperty(p1.getID()),
-      diamB1 = growthfactor * _diamB->getProperty(p1.getID());
+    const double lA1 = growthfactor * _LA->getProperty(p1),
+      lB1 = growthfactor * _LB->getProperty(p1),
+      diamA1 = growthfactor * _diamA->getProperty(p1),
+      diamB1 = growthfactor * _diamB->getProperty(p1);
     const Vector director1 = Sim->dynamics->getRotData(p1).orientation * Quaternion::initialDirector();
 
-    const double lA2 = growthfactor * _LA->getProperty(p2.getID()),
-      lB2 = growthfactor * _LB->getProperty(p2.getID()),
-      diamA2 = growthfactor * _diamA->getProperty(p2.getID()),
-      diamB2 = growthfactor * _diamB->getProperty(p2.getID());
+    const double lA2 = growthfactor * _LA->getProperty(p2),
+      lB2 = growthfactor * _LB->getProperty(p2),
+      diamA2 = growthfactor * _diamA->getProperty(p2),
+      diamB2 = growthfactor * _diamB->getProperty(p2);
     const Vector director2 = Sim->dynamics->getRotData(p2).orientation * Quaternion::initialDirector();
 
     const double l1 = std::max(lA1 + 0.5 * diamA1, lB1 + 0.5 * diamB1);

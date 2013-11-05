@@ -40,7 +40,7 @@ namespace dynamo {
       M_throw() << "Particle is not up to date";
 #endif
 
-    double colldist = 0.5 * _diameter->getProperty(part.getID());
+    double colldist = 0.5 * _diameter->getProperty(part);
 
     return LocalEvent(part, Sim->dynamics->getPlaneEvent(part, vPosition, vNorm, colldist), WALL, *this);
   }
@@ -54,9 +54,9 @@ namespace dynamo {
 
     NEventData EDat;
     if (sqrtT > 0)
-      EDat = Sim->dynamics->runAndersenWallCollision(part, vNorm, sqrtT, _diameter->getProperty(part.getID()));
+      EDat = Sim->dynamics->runAndersenWallCollision(part, vNorm, sqrtT, _diameter->getProperty(part));
     else
-      EDat = Sim->dynamics->runPlaneEvent(part, vNorm, _e->getProperty(part.getID()), _diameter->getProperty(part.getID()));
+      EDat = Sim->dynamics->runPlaneEvent(part, vNorm, _e->getProperty(part), _diameter->getProperty(part));
 
     Sim->_sigParticleUpdate(EDat);
 
@@ -124,7 +124,7 @@ namespace dynamo {
     Vector pos(part.getPosition() - vPosition);
     Sim->BCs->applyBC(pos);
     
-    double diam = 0.5 * _diameter->getProperty(part.getID());
+    double diam = 0.5 * _diameter->getProperty(part);
     double r = diam - std::abs(pos | vNorm);
     
     if (r > 0)

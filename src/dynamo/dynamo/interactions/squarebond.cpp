@@ -43,14 +43,11 @@ namespace dynamo {
   ISquareBond::operator<<(const magnet::xml::Node& XML)
   {
     Interaction::operator<<(XML);
-    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
-					     Property::Units::Length());
-    _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"),
-					   Property::Units::Dimensionless());
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
+    _lambda = Sim->_properties.getProperty(XML.getAttribute("Lambda"), Property::Units::Dimensionless());
 
     if (XML.hasAttribute("Elasticity"))
-      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-					Property::Units::Dimensionless());
+      _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
     else
       _e = Sim->_properties.getProperty(1.0, Property::Units::Dimensionless());
 
@@ -69,11 +66,8 @@ namespace dynamo {
   bool 
   ISquareBond::captureTest(const Particle& p1, const Particle& p2) const
   {
-    double d = (_diameter->getProperty(p1.getID())
-		+ _diameter->getProperty(p2.getID())) * 0.5;
-
-    double l = (_lambda->getProperty(p1.getID())
-		+ _lambda->getProperty(p2.getID())) * 0.5;
+    const double d = _diameter->getProperty(p1, p2);
+    const double l = _lambda->getProperty(p1, p2);
   
 #ifdef DYNAMO_DEBUG
     if (Sim->dynamics->sphereOverlap(p1, p2, d))
@@ -89,10 +83,8 @@ namespace dynamo {
   bool
   ISquareBond::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    double d = (_diameter->getProperty(p1.getID())
-		+ _diameter->getProperty(p2.getID())) * 0.5;
-    double l = (_lambda->getProperty(p1.getID())
-		+ _lambda->getProperty(p2.getID())) * 0.5;
+    const double d = _diameter->getProperty(p1, p2);
+    const double l = _lambda->getProperty(p1, p2);
 
     if (!Sim->dynamics->sphereOverlap(p1, p2, d * l))
       {
@@ -156,10 +148,8 @@ namespace dynamo {
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
 
-    double d = (_diameter->getProperty(p1.getID())
-		+ _diameter->getProperty(p2.getID())) * 0.5;
-    double l = (_lambda->getProperty(p1.getID())
-		+ _lambda->getProperty(p2.getID())) * 0.5;
+    const double d = _diameter->getProperty(p1, p2);
+    const double l = _lambda->getProperty(p1, p2);
 
     IntEvent retval(p1, p2, HUGE_VAL, NONE, *this);
 
@@ -184,9 +174,9 @@ namespace dynamo {
       M_throw() << "Unknown type found";
 #endif
 
-    const double d = (_diameter->getProperty(p1.getID()) + _diameter->getProperty(p2.getID())) * 0.5;
+    const double d = _diameter->getProperty(p1, p2);
     const double d2 = d * d;
-    const double e = (_e->getProperty(p1.getID()) + _e->getProperty(p2.getID())) * 0.5;
+    const double e = _e->getProperty(p1, p2);
     return Sim->dynamics->SmoothSpheresColl(iEvent, e, d2, iEvent.getType());
   }
     

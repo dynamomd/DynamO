@@ -114,10 +114,8 @@ namespace dynamo {
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
 
-    double d = (_diameter->getProperty(p1.getID())
-		 + _diameter->getProperty(p2.getID())) * 0.5;
-
-    double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
+    const double d = _diameter->getProperty(p1, p2);
+    const double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
 
     if (Sim->dynamics->sphereOverlap(p1, p2, d)) ++_overlapped_tests;
 
@@ -132,17 +130,17 @@ namespace dynamo {
   {
     ++Sim->eventCount;
 
-    const double d1 = _diameter->getProperty(p1.getID());
-    const double d2 = _diameter->getProperty(p2.getID());
-    const double d = 0.5 * (d1 + d2);
+    const double d1 = _diameter->getProperty(p1);
+    const double d2 = _diameter->getProperty(p2);
+    const double d = _diameter->getProperty(p1, p2);
 
     double e = 1.0;
-    if (_e) e = (_e->getProperty(p1.getID()) + _e->getProperty(p2.getID())) * 0.5;
+    if (_e) e = _e->getProperty(p1, p2);
    
     PairEventData EDat;
     if (_et)
       {
-	const double et = (_et->getProperty(p1.getID()) + _et->getProperty(p2.getID())) * 0.5;
+	const double et = _et->getProperty(p1, p2);
 	EDat = Sim->dynamics->RoughSpheresColl(iEvent, e, et, d1, d2);
       }
     else
@@ -179,8 +177,7 @@ namespace dynamo {
   bool
   IHardSphere::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    double d = (_diameter->getProperty(p1.getID()) + _diameter->getProperty(p2.getID())) * 0.5;
-    
+    const double d = _diameter->getProperty(p1, p2);
     if (Sim->dynamics->sphereOverlap(p1, p2, d))
       {
 	if (textoutput)

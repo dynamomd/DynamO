@@ -27,16 +27,11 @@ namespace dynamo {
     template<class T1, class T2, class T3, class T4, class T5>
     IDumbbells(dynamo::Simulation* tmp, T1 LA, T2 LB, T3 diamA, T4 diamB, T5 e, IDPairRange* nR, std::string name):
       ICapture(tmp, nR),
-      _diamA(Sim->_properties.getProperty
-	     (diamA, Property::Units::Length())),
-      _diamB(Sim->_properties.getProperty
-	     (diamB, Property::Units::Length())),
-      _LA(Sim->_properties.getProperty
-	  (LA, Property::Units::Length())),
-      _LB(Sim->_properties.getProperty
-	  (LB, Property::Units::Length())),
-      _e(Sim->_properties.getProperty
-	 (e, Property::Units::Dimensionless()))
+      _diamA(Sim->_properties.getProperty(diamA, Property::Units::Length())),
+      _diamB(Sim->_properties.getProperty(diamB, Property::Units::Length())),
+      _LA(Sim->_properties.getProperty(LA, Property::Units::Length())),
+      _LB(Sim->_properties.getProperty(LB, Property::Units::Length())),
+      _e(Sim->_properties.getProperty(e, Property::Units::Dimensionless()))
     {
       intName = name;
     }

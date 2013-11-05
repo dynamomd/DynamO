@@ -111,10 +111,7 @@ namespace dynamo
     */
     struct SpeciesContainer: public Container<Species>
     {
-      typedef Container<Species> Base;
-      using Base::operator[];
-
-      const shared_ptr<Species>& operator[](const Particle& p1) const;
+      const shared_ptr<Species>& operator()(const Particle&) const;
     };
 
   public:

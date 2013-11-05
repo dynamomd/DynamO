@@ -159,7 +159,7 @@ namespace dynamo {
     for (const Particle& p : Sim->particles)
       {
 	IDs[p.getID()] = p.getID();
-	masses[p.getID()] = Sim->species[p]->getMass(p.getID()) / Sim->units.unitMass();
+	masses[p.getID()] = Sim->species(p)->getMass(p.getID()) / Sim->units.unitMass();
       }
 
     (*_particleData)["Mass"].flagNewData();

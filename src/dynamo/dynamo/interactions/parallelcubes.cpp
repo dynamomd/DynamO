@@ -46,10 +46,8 @@ namespace dynamo {
   IParallelCubes::operator<<(const magnet::xml::Node& XML)
   { 
     Interaction::operator<<(XML);
-    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"),
-					     Property::Units::Length());
-    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"),
-				      Property::Units::Dimensionless());
+    _diameter = Sim->_properties.getProperty(XML.getAttribute("Diameter"), Property::Units::Length());
+    _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
     intName = XML.getAttribute("Name");
   }
 
@@ -78,10 +76,7 @@ namespace dynamo {
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
 
-    double d = (_diameter->getProperty(p1.getID())
-		+ _diameter->getProperty(p2.getID())) * 0.5;
-
-    double dt = Sim->dynamics->CubeCubeInRoot(p1, p2, d);
+    const double dt = Sim->dynamics->CubeCubeInRoot(p1, p2, _diameter->getProperty(p1, p2));
 
     if (dt != HUGE_VAL)
       return IntEvent(p1, p2, dt, CORE, *this);
@@ -93,11 +88,7 @@ namespace dynamo {
   IParallelCubes::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
- 
-    double e = (_e->getProperty(p1.getID()) + _e->getProperty(p2.getID())) * 0.5;
-    double d = (_diameter->getProperty(p1.getID()) + _diameter->getProperty(p2.getID())) * 0.5;
-   
-    return Sim->dynamics->parallelCubeColl(iEvent, e, d);
+    return Sim->dynamics->parallelCubeColl(iEvent, _e->getProperty(p1, p2), _diameter->getProperty(p1, p2));
   }
    
   void 
@@ -114,8 +105,7 @@ namespace dynamo {
   bool
   IParallelCubes::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    double d = (_diameter->getProperty(p1.getID())
-		 + _diameter->getProperty(p2.getID())) * 0.5;
+    const double d = _diameter->getProperty(p1, p2);
 
     if (Sim->dynamics->cubeOverlap(p1, p2, d))
       {

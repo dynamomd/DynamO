@@ -27,13 +27,9 @@ namespace dynamo {
     template<class T1, class T2>
     ILines(dynamo::Simulation* tmp, T1 l, T2 e, IDPairRange* nR, std::string name):
       ICapture(tmp, nR),
-      _length(Sim->_properties.getProperty
-	      (l, Property::Units::Length())),
-      _e(Sim->_properties.getProperty
-	 (e, Property::Units::Dimensionless()))
-    {
-      intName = name;
-    }
+      _length(Sim->_properties.getProperty(l, Property::Units::Length())),
+      _e(Sim->_properties.getProperty(e, Property::Units::Dimensionless()))
+    { intName = name; }
 
     virtual std::array<double, 4> getGlyphSize(size_t ID) const;
 
