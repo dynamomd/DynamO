@@ -103,7 +103,7 @@ namespace dynamo {
     return retval;
   }
 
-  void
+  PairEventData
   IThinThread::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
@@ -121,38 +121,31 @@ namespace dynamo {
 
     double wd = (_wellDepth->getProperty(p1.getID())
 		 + _wellDepth->getProperty(p2.getID())) * 0.5;
+
+    PairEventData retVal;
     switch (iEvent.getType())
       {
       case CORE:
 	{
-	  PairEventData retVal(Sim->dynamics->SmoothSpheresColl(iEvent, e, d2, CORE));
-	  IntEvent event(iEvent);
+	  retVal = Sim->dynamics->SmoothSpheresColl(iEvent, e, d2, CORE);
 	  if (!isCaptured(p1, p2))
 	    {
-	      event.setType(STEP_IN);
 	      retVal.setType(STEP_IN);
 	      ICapture::add(p1, p2);
 	    }
-	  
-	  Sim->_sigParticleUpdate(retVal);
-	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
-	    Ptr->eventUpdate(event, retVal);
 	  break;
 	}
       case STEP_OUT:
 	{
-	  PairEventData retVal(Sim->dynamics->SphereWellEvent(iEvent, -wd, ld2, 0));
+	  retVal = Sim->dynamics->SphereWellEvent(iEvent, -wd, ld2, 0);
 	  if (retVal.getType() != BOUNCE) ICapture::remove(p1, p2);
-	  Sim->_sigParticleUpdate(retVal);
-	  Sim->ptrScheduler->fullUpdate(p1, p2);
-	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
-	    Ptr->eventUpdate(iEvent, retVal);
 	  break;
 	}
       default:
 	M_throw() << "Unknown collision type";
       } 
+
+    return retVal;
   }
 
   bool

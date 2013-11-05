@@ -23,8 +23,10 @@
 #include <dynamo/locals/local.hpp>
 #include <dynamo/systems/system.hpp>
 #include <dynamo/dynamics/dynamics.hpp>
+#include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/simulation.hpp>
 #include <dynamo/units/units.hpp>
+#include <dynamo/NparticleEventData.hpp>
 #ifdef DYNAMO_DEBUG
 #include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/NparticleEventData.hpp>
@@ -252,23 +254,35 @@ namespace dynamo {
 	  sorter->sort();
 	  lazyDeletionCleanup();
 
-	  //Now recalculate the FEL event
+	  //Now recalculate the current FEL event (to check if
+	  //accumilation of numerical errors have caused the order of
+	  //events to change). This also gives us more information on
+	  //the event.
 	  Sim->dynamics->updateParticlePair(p1, p2);
 	  IntEvent Event(Sim->getEvent(p1, p2));
 	
+	  //Now check if the recalculated event is still the first
+	  //event in the FEL. If not, force a recalculation of this
+	  //particles events and return (so another event can be run).
 #ifdef DYNAMO_DEBUG
 	  if (sorter->empty())
 	    M_throw() << "The next PEL is empty, cannot perform the comparison to see if this event is out of sequence";
 #endif
 	  next_event = sorter->next();
 
+	  //Here we see if the next FEL event is earlier than the one
+	  //about to be processed, we also count the amount of
+	  //rejections we perform (its a watchdog), as (in some minor
+	  //edge cases) we can enter loops due to tiny precision
+	  //differences in event times.
 	  if ((Event.getType() == NONE) || ((Event.getdt() > next_event.second.dt) && (++_interactionRejectionCounter < rejectionLimit)))
 	    {
 	      this->fullUpdate(p1, p2);
 	      return;
 	    }
 
-	  //Reset the rejection watchdog, we will run an interaction event now
+	  //Reset the rejection watchdog counter as we are about to
+	  //run an interaction event now
 	  _interactionRejectionCounter = 0;
 		
 	  if (!std::isfinite(next_event.second.dt))
@@ -277,23 +291,31 @@ namespace dynamo {
 		      << "\nEvent Type = " << next_event.second.type
 		      << "\nParticle 1 ID = " << next_event.first
 		      << "\nParticle 2 ID = " << next_event.second.particle2ID
-		      << "\nInteraction = " << Sim->getInteraction(p1, p2)->getName()
-	      ;
+		      << "\nInteraction = " << Sim->getInteraction(p1, p2)->getName();
 
 #ifdef DYNAMO_DEBUG
 	  if (Event.getdt() < 0)
 	    derr << "Warning! Negative time event" << Event.getdt() << std::endl;
+	  
+	  if (p1.getID() == p2.getID())
+	    M_throw() << "Somehow processing a self Interaction!"
+		      << "\ndt = " << next_event.second.dt
+		      << "\nEvent Type = " << next_event.second.type
+		      << "\nParticle 1 ID = " << next_event.first
+		      << "\nParticle 2 ID = " << next_event.second.particle2ID
+		      << "\nInteraction = " << Sim->getInteraction(p1, p2)->getName();
 #endif
-	
+
+	  //Move the simulation forward to the time of the event
 	  Sim->systemTime += Event.getdt();
-	
 	  stream(Event.getdt());
-	
 	  //dynamics must be updated first
 	  Sim->stream(Event.getdt());
-	
-	  Sim->interactions[Event.getInteractionID()]->runEvent(p1,p2,Event);
-
+	  PairEventData eventdata = Sim->interactions[Event.getInteractionID()]->runEvent(p1, p2, Event);
+	  Sim->_sigParticleUpdate(eventdata);
+	  Sim->ptrScheduler->fullUpdate(p1, p2);
+	  for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
+	    Ptr->eventUpdate(Event, eventdata);
 	  break;
 	}
       case GLOBAL:

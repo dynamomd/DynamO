@@ -174,7 +174,7 @@ namespace dynamo {
     return retval;
   }
 
-  void
+  PairEventData
   ISquareBond::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
@@ -187,12 +187,7 @@ namespace dynamo {
     const double d = (_diameter->getProperty(p1.getID()) + _diameter->getProperty(p2.getID())) * 0.5;
     const double d2 = d * d;
     const double e = (_e->getProperty(p1.getID()) + _e->getProperty(p2.getID())) * 0.5;
-    PairEventData EDat(Sim->dynamics->SmoothSpheresColl(iEvent, e, d2, iEvent.getType()));
-
-    Sim->_sigParticleUpdate(EDat);
-    Sim->ptrScheduler->fullUpdate(p1, p2);
-    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(iEvent,EDat);
+    return Sim->dynamics->SmoothSpheresColl(iEvent, e, d2, iEvent.getType());
   }
     
   void 

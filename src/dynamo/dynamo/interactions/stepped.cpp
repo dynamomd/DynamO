@@ -154,7 +154,7 @@ namespace dynamo {
     return retval;
   }
 
-  void
+  PairEventData
   IStepped::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
@@ -195,10 +195,7 @@ namespace dynamo {
     data.rdotv_sum += retVal.rvdot;
     //Check if the particles changed their step ID
     if (retVal.getType() != BOUNCE) ICapture::operator[](ICapture::key_type(p1, p2)) = new_step_ID;
-    Sim->_sigParticleUpdate(retVal);
-    Sim->ptrScheduler->fullUpdate(p1, p2);
-    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(iEvent, retVal);
+    return retVal;
   }
 
   bool

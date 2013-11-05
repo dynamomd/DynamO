@@ -75,7 +75,7 @@ namespace dynamo {
 
     /*! \brief Run the dynamics of an event which is occuring now.
      */
-    virtual void runEvent(Particle&, Particle&, const IntEvent&) = 0;
+    virtual PairEventData runEvent(Particle&, Particle&, const IntEvent&) = 0;
 
     /*! \brief Return the maximum distance at which two particles may interact using this Interaction.
     

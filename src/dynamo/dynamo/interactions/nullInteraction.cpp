@@ -49,7 +49,7 @@ namespace dynamo {
     return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
   }
 
-  void
+  PairEventData
   INull::runEvent(Particle&, Particle&, const IntEvent&)
   { 
     M_throw() << "Null event trying to run a collision!"; 

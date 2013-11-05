@@ -271,7 +271,7 @@ namespace dynamo {
     return retval;
   }
 
-  void
+  PairEventData
   IPRIME_BB::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
@@ -313,10 +313,7 @@ namespace dynamo {
         M_throw() << "Unknown collision type";
       }
 
-    Sim->_sigParticleUpdate(EDat);
-    Sim->ptrScheduler->fullUpdate(p1, p2);  
-    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(iEvent,EDat);
+    return EDat;
   }
 
   namespace{

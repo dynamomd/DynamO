@@ -112,7 +112,7 @@ namespace dynamo {
     return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
   }
 
-  void
+  PairEventData
   ILines::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     PairEventData retval;
@@ -154,13 +154,8 @@ namespace dynamo {
       default:
 	M_throw() << "Unknown collision type";
       }
-    
-    Sim->_sigParticleUpdate(retval);
-    
-    Sim->ptrScheduler->fullUpdate(p1, p2);
-    
-    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(iEvent, retval);
+
+    return retval;
   }
    
   void 

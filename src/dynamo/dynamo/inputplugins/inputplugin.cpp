@@ -18,7 +18,6 @@
 #include <dynamo/inputplugins/inputplugin.hpp>
 #include <dynamo/particle.hpp>
 #include <dynamo/schedulers/include.hpp>
-
 #include <dynamo/species/species.hpp>
 #include <dynamo/interactions/include.hpp>
 #include <dynamo/ranges/include.hpp>

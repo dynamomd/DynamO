@@ -127,7 +127,7 @@ namespace dynamo {
     return IntEvent(p1,p2,HUGE_VAL, NONE, *this);  
   }
 
-  void
+  PairEventData
   IHardSphere::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
@@ -148,8 +148,6 @@ namespace dynamo {
     else
       EDat = Sim->dynamics->SmoothSpheresColl(iEvent, e, d * d); 
 
-    Sim->_sigParticleUpdate(EDat);
-
     const double overlap = Sim->dynamics->sphereOverlap(p1, p2, d);
 
     Vector r12 = p1.getPosition() - p2.getPosition();
@@ -164,11 +162,7 @@ namespace dynamo {
       }
     ++_complete_events;
     
-    //Now we're past the event, update the scheduler and plugins
-    Sim->ptrScheduler->fullUpdate(p1, p2);
-  
-    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(iEvent,EDat);
+    return EDat;
   }
    
   void 

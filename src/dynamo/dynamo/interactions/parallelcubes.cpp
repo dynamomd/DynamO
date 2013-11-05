@@ -89,27 +89,15 @@ namespace dynamo {
     return IntEvent(p1, p2, HUGE_VAL, NONE, *this);
   }
 
-  void
+  PairEventData
   IParallelCubes::runEvent(Particle& p1, Particle& p2, const IntEvent& iEvent)
   {
     ++Sim->eventCount;
  
-    double e = (_e->getProperty(p1.getID())
-		+ _e->getProperty(p2.getID())) * 0.5;
-    double d = (_diameter->getProperty(p1.getID())
-		+ _diameter->getProperty(p2.getID())) * 0.5;
+    double e = (_e->getProperty(p1.getID()) + _e->getProperty(p2.getID())) * 0.5;
+    double d = (_diameter->getProperty(p1.getID()) + _diameter->getProperty(p2.getID())) * 0.5;
    
-    //Run the collision and catch the data
-    PairEventData EDat
-      (Sim->dynamics->parallelCubeColl(iEvent, e, d)); 
-
-    Sim->_sigParticleUpdate(EDat);
-
-    //Now we're past the event, update the scheduler and plugins
-    Sim->ptrScheduler->fullUpdate(p1, p2);
-  
-    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
-      Ptr->eventUpdate(iEvent,EDat);
+    return Sim->dynamics->parallelCubeColl(iEvent, e, d);
   }
    
   void 
