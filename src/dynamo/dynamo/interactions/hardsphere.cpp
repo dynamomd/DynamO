@@ -41,12 +41,6 @@ namespace dynamo {
   IHardSphere::initialise(size_t nID)
   { 
     Interaction::initialise(nID);
-    _complete_events = 0;
-    _post_event_overlap = 0;
-    _accum_overlap_magnitude = 0;
-    _overlapped_tests = 0;
-
-    _histogram = magnet::math::Histogram<>(1e-16);
 
     if (_et && !Sim->dynamics->hasOrientationData())
       M_throw() << "Interaction'" << getName() 
@@ -70,24 +64,11 @@ namespace dynamo {
   
   void
   IHardSphere::outputData(magnet::xml::XmlStream& XML) const
-  {
-    XML << magnet::xml::tag("Interaction")
-	<< magnet::xml::attr("Name") << getName()
-	<< magnet::xml::attr("PostEventOverlaps") << _post_event_overlap
-	<< magnet::xml::attr("AvgPostEventOverlapMagnitude") << _accum_overlap_magnitude / (_post_event_overlap *  Sim->units.unitLength())
-	<< magnet::xml::attr("Events") << _complete_events
-	<< magnet::xml::attr("OverlapFreq") << double(_post_event_overlap) / double(_complete_events)
-	<< magnet::xml::attr("OverlappedTests") << _overlapped_tests;
-
-    _histogram.outputHistogram(XML, 1 / Sim->units.unitLength());
-    XML << magnet::xml::endtag("Interaction");
-  }
+  {}
 
   std::array<double, 4>
   IHardSphere::getGlyphSize(size_t ID) const
-  {
-    return {{_diameter->getProperty(ID), 0, 0, 0}};
-  }
+  { return {{_diameter->getProperty(ID), 0, 0, 0}}; }
 
   double 
   IHardSphere::maxIntDist() const 
@@ -96,7 +77,7 @@ namespace dynamo {
   double 
   IHardSphere::getExcludedVolume(size_t ID) const 
   { 
-    double diam = _diameter->getProperty(ID);
+    const double diam = _diameter->getProperty(ID);
     return diam * diam * diam * M_PI / 6.0; 
   }
 
@@ -116,8 +97,6 @@ namespace dynamo {
 
     const double d = _diameter->getProperty(p1, p2);
     const double dt = Sim->dynamics->SphereSphereInRoot(p1, p2, d);
-
-    if (Sim->dynamics->sphereOverlap(p1, p2, d)) ++_overlapped_tests;
 
     if (dt != HUGE_VAL)
       return IntEvent(p1, p2, dt, CORE, *this);
@@ -145,20 +124,6 @@ namespace dynamo {
       }
     else
       EDat = Sim->dynamics->SmoothSpheresColl(iEvent, e, d * d); 
-
-    const double overlap = Sim->dynamics->sphereOverlap(p1, p2, d);
-
-    Vector r12 = p1.getPosition() - p2.getPosition();
-    Sim->BCs->applyBC(r12);
-    
-    _histogram.addVal(1.0 - std::sqrt(r12 | r12));
-
-    if (overlap)
-      {
-	++_post_event_overlap;
-	_accum_overlap_magnitude += overlap;
-      }
-    ++_complete_events;
     
     return EDat;
   }

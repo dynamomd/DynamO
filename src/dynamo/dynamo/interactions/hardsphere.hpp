@@ -83,12 +83,5 @@ namespace dynamo {
     shared_ptr<Property> _diameter;
     shared_ptr<Property> _e;
     shared_ptr<Property> _et;
-
-    magnet::math::Histogram<> _histogram;
-    
-    mutable size_t _complete_events;
-    mutable size_t _post_event_overlap;
-    mutable double _accum_overlap_magnitude;
-    mutable size_t _overlapped_tests;
   };
 }
