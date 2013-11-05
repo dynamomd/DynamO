@@ -96,31 +96,21 @@ BOOST_AUTO_TEST_CASE( Equilibrium_Simulation )
   BOOST_CHECK_SMALL(momentum.nrm() / Sim.units.unitMomentum(), 0.0000000001);
 }
 
-//BOOST_AUTO_TEST_CASE( Compression_Simulation )
-//{
-//  dynamo::Simulation Sim;
-//  init(Sim, 0.1);
-//
-//  const double growthRate = 1;
-//  const double targetDensity = 0.9;
-//  Sim.status = dynamo::CONFIG_LOADED;
-//  Sim.endEventCount = 1000000;
-//  Sim.addOutputPlugin("Misc");
-//
-//  dynamo::shared_ptr<dynamo::IPCompression> compressPlug(new dynamo::IPCompression(&Sim, growthRate));
-//  compressPlug->MakeGrowth();
-//  
-//  compressPlug->limitDensity(targetDensity);
-//  
-//  //Not needed in this system
-//  //compressPlug->CellSchedulerHack();
-//
-//  Sim.initialise();
-//  while (Sim.runSimulationStep()) {}
-//  compressPlug->RestoreSystem();
-//
-//  BOOST_CHECK_CLOSE(Sim.getNumberDensity() * Sim.units.unitVolume(), targetDensity, 0.000000001);
-//  BOOST_CHECK_CLOSE(Sim.getPackingFraction(), Sim.getNumberDensity() * Sim.units.unitVolume() * M_PI / 6.0, 0.000000001);
-//
-//  BOOST_CHECK_MESSAGE(Sim.checkSystem() <= 1, "After compression, there are more than one invalid states in the final configuration");
-//}
+BOOST_AUTO_TEST_CASE( Load_Save_config )
+{
+  try {
+    const double density = 0.1;
+    dynamo::Simulation startSim;
+    init(startSim, density);
+    startSim.status = dynamo::CONFIG_LOADED;
+    startSim.initialise();
+    
+    startSim.writeXMLfile("lines.xml");
+    dynamo::Simulation inSim;
+    inSim.loadXMLfile("lines.xml");
+  } catch (std::exception& cep) {
+    std::cout << cep.what() << std::endl;
+    throw;
+  }
+}
+
