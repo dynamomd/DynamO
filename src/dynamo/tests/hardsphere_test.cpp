@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( Equilibrium_Simulation )
   while (Sim.runSimulationStep()) {}
 
   Sim.reset();
-  Sim.endEventCount = 100000;
+  Sim.endEventCount = 400000;
   Sim.addOutputPlugin("Misc"); 
   Sim.addOutputPlugin("MSD");
   Sim.initialise();
