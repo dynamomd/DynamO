@@ -40,8 +40,6 @@ void runTest()
   Sim.particles.push_back(dynamo::Particle(dynamo::Vector{9.1,0,0}, dynamo::Vector{0,0,0}, Sim.particles.size()));
 
   Sim.ensemble = dynamo::Ensemble::loadEnsemble(Sim);
-
-  Sim.status = dynamo::CONFIG_LOADED;
   Sim.endEventCount = 1000;
   Sim.addOutputPlugin("Misc");
   Sim.initialise();

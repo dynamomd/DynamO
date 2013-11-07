@@ -77,7 +77,6 @@ BOOST_AUTO_TEST_CASE( Equilibrium_Simulation )
   dynamo::Simulation Sim;
   init(Sim, density);
   
-  Sim.status = dynamo::CONFIG_LOADED;
   Sim.endEventCount = 100000;
   Sim.addOutputPlugin("Misc");
   Sim.initialise();
@@ -102,7 +101,6 @@ BOOST_AUTO_TEST_CASE( Load_Save_config )
     const double density = 0.1;
     dynamo::Simulation startSim;
     init(startSim, density);
-    startSim.status = dynamo::CONFIG_LOADED;
     startSim.initialise();
     
     startSim.writeXMLfile("lines.xml");

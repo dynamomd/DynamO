@@ -150,7 +150,6 @@ main(int argc, char *argv[])
       else
 	sim.loadXMLfile(vm["config-file"].as<string>());
 
-      sim.status = dynamo::CONFIG_LOADED;
       sim.endEventCount = 0;
 
       if (vm.count("thermostat"))

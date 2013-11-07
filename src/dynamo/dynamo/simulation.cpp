@@ -79,10 +79,9 @@ namespace dynamo
   void
   Simulation::reset()
   {
-    if (status <= INITIALISED)
+    if (status != INITIALISED)
       M_throw() << "Cannot reinitialise an un-initialised simulation";
-    status = CONFIG_LOADED;
-    
+    status = START;
     outputPlugins.clear();
     dynamics->updateAllParticles();
     systemTime = 0.0;
@@ -94,25 +93,9 @@ namespace dynamo
   void
   Simulation::initialise()
   {
-    if (status != CONFIG_LOADED)
+    if (status != START)
       M_throw() << "Sim initialised at wrong time";
     
-    //This sorting must be done according to the derived plugins sort
-    //operators.
-
-    std::sort(outputPlugins.begin(), outputPlugins.end(), OutputPluginSort());
-  
-    /* Add the Periodic Boundary Condition sentinel (if required). */
-    if (std::dynamic_pointer_cast<BCPeriodic>(BCs))
-      globals.push_back(shared_ptr<Global>(new GPBCSentinel(this, "PBCSentinel")));
-
-    for (shared_ptr<OutputPlugin>& Ptr : outputPlugins)
-      if (std::dynamic_pointer_cast<OPTicker>(Ptr))
-	{
-	  addSystemTicker();
-	  break;
-	}
-
     for (shared_ptr<Species>& ptr : species)
       ptr->initialise();
 
@@ -149,6 +132,8 @@ namespace dynamo
 		  << "\nN = " << N();
     }
 
+    status = SPECIES_INIT;
+
     //Check that each particle has a representative interaction
     for (const Particle& particle : particles)
       try {
@@ -158,7 +143,11 @@ namespace dynamo
 	  M_throw() << "The particle (ID=" << particle.getID()
 		    << ") does not have a self Interaction defined. Self Interactions are not used for the dynamics of the system, but are used to draw/visualise the particles, as well as calculate the excluded volume and other properties. Please add a self-Interaction";
 	}
-    
+
+    dynamics->initialise();
+
+    status = DYNAMICS_INIT;
+
     for (size_t ID1 = 0; ID1 < N(); ++ID1)
       for (size_t ID2 = ID1; ID2 < N(); ++ID2)
 	try {
@@ -168,31 +157,31 @@ namespace dynamo
 	    M_throw() << "There is no Interaction defined between particle ID=" << ID1 << " and particle ID=" << ID2 << ". Each particle pairing must have an Interaction defined";
 	  }
     
-    dynamics->initialise();
-
     {
       size_t ID=0;
       
       for (shared_ptr<Interaction>& ptr : interactions)
 	ptr->initialise(ID++);
-
-      if (std::dynamic_pointer_cast<BCPeriodic>(BCs))
-	{
-	  double max_interaction_dist = getLongestInteraction();
-	  //Check that each simulation length is greater than 2x the
-	  //maximum interaction distance, otherwise particles can
-	  //interact with two periodic images!
-	  for (size_t i(0); i < NDIM; ++i)
-	    if (primaryCellSize[i] <= (2.0 * max_interaction_dist))
-	      M_throw() << "When using periodic boundary conditions, the size of the "
-		"primary image must be at least 2x the maximum interaction "
-		"distance in all dimensions, otherwise one particle can interact "
-		"with multiple periodic images of another particle."
-			<< "\nprimaryCellSize[" << i << "] = "  << primaryCellSize[i]
-			<< "\nLongest interaction distance = "  << max_interaction_dist;
-	}
     }
+    
+    if (std::dynamic_pointer_cast<BCPeriodic>(BCs))
+      {
+	double max_interaction_dist = getLongestInteraction();
+	//Check that each simulation length is greater than 2x the
+	//maximum interaction distance, otherwise particles can
+	//interact with two periodic images!
+	for (size_t i(0); i < NDIM; ++i)
+	  if (primaryCellSize[i] <= (2.0 * max_interaction_dist))
+	    M_throw() << "When using periodic boundary conditions, the size of the "
+	      "primary image must be at least 2x the maximum interaction "
+	      "distance in all dimensions, otherwise one particle can interact "
+	      "with multiple periodic images of another particle."
+		      << "\nprimaryCellSize[" << i << "] = "  << primaryCellSize[i]
+		      << "\nLongest interaction distance = "  << max_interaction_dist;
+      }
 
+    status = INTERACTION_INIT;
+	
     {
       size_t ID=0;
       //Must be initialised before globals. Neighbour lists are
@@ -201,19 +190,38 @@ namespace dynamo
 	ptr->initialise(ID++);
     }
 
+    status = LOCAL_INIT;
+
+    /* Add the Periodic Boundary Condition sentinel (if required). */
+    if (std::dynamic_pointer_cast<BCPeriodic>(BCs))
+      globals.push_back(shared_ptr<Global>(new GPBCSentinel(this, "PBCSentinel")));
+
     {
       size_t ID=0;
       for (shared_ptr<Global>& ptr : globals)
 	ptr->initialise(ID++);
     }
 
+    status = GLOBAL_INIT;
+
+    //Search to check if a ticker System is needed
+    for (shared_ptr<OutputPlugin>& Ptr : outputPlugins)
+      if (std::dynamic_pointer_cast<OPTicker>(Ptr))
+	{
+	  addSystemTicker();
+	  break;
+	}
     {
       size_t ID=0;  
       for (shared_ptr<System>& ptr : systems)
 	ptr->initialise(ID++);
     }
 
+    status = SYSTEM_INIT;
+
     ensemble->initialise();
+
+    status = ENSEMBLE_INIT;
 
     if (ptrScheduler == NULL)
       M_throw() << "The scheduler has not been set!";      
@@ -222,8 +230,16 @@ namespace dynamo
       //Only initialise the scheduler if we're simulating
       ptrScheduler->initialise();
 
+    status = SCHEDULER_INIT;
+
+    //This sorting must be done according to the derived plugins sort
+    //operators.
+    std::sort(outputPlugins.begin(), outputPlugins.end(), OutputPluginSort());
+
     for (shared_ptr<OutputPlugin> & Ptr : outputPlugins)
       Ptr->initialise();
+
+    status = OUTPUTPLUGIN_INIT;
 
     _nextPrint = eventCount + eventPrintInterval;
     status = INITIALISED;
@@ -434,9 +450,6 @@ namespace dynamo
   void
   Simulation::writeXMLfile(std::string fileName, bool applyBC, bool round)
   {
-    if (status < CONFIG_LOADED || status == ERROR)
-      M_throw() << "Cannot write out configuration in this state";
-  
     namespace io = boost::iostreams;
     io::filtering_ostream coutputFile;
 
@@ -693,7 +706,7 @@ namespace dynamo
   void
   Simulation::outputData(std::string filename)
   {
-    if (status < INITIALISED || status == ERROR)
+    if (status < INITIALISED)
       M_throw() << "Cannot output data when not initialised!";
 
     namespace io = boost::iostreams;
@@ -765,10 +778,8 @@ namespace dynamo
   bool
   Simulation::runSimulationStep(bool silentMode)
   {
-    if (status != INITIALISED && status != PRODUCTION)
+    if (status < INITIALISED)
       M_throw() << "Bad state for runSimulation()";
-
-    status = PRODUCTION;
 
     try
       {

@@ -81,7 +81,6 @@ BOOST_AUTO_TEST_CASE( NVE_Simulation )
   dynamo::Simulation Sim;
   init(Sim);
 
-  Sim.status = dynamo::CONFIG_LOADED;
   Sim.endEventCount = 100000;
   Sim.addOutputPlugin("Misc");
   Sim.initialise();
@@ -115,7 +114,6 @@ BOOST_AUTO_TEST_CASE( NVT_Simulation )
   Sim.systems.push_back(dynamo::shared_ptr<dynamo::System>(new dynamo::SysAndersen(&Sim, 0.036 / Sim.N(), 1.0 * Sim.units.unitEnergy(), "Thermostat")));
   Sim.ensemble = dynamo::Ensemble::loadEnsemble(Sim);
 
-  Sim.status = dynamo::CONFIG_LOADED;
   Sim.eventPrintInterval = 50000;
   Sim.endEventCount = 300000;
   Sim.addOutputPlugin("Misc");
@@ -148,7 +146,6 @@ BOOST_AUTO_TEST_CASE( Compression_Simulation )
 
   const double growthRate = 1;
   const double targetDensity = 0.9;
-  Sim.status = dynamo::CONFIG_LOADED;
   Sim.endEventCount = 1000000;
   Sim.addOutputPlugin("Misc");
 

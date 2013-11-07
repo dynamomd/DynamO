@@ -81,7 +81,6 @@ BOOST_AUTO_TEST_CASE( Equilibrium_Simulation )
   dynamo::Simulation Sim;
   init(Sim, 0.5);
 
-  Sim.status = dynamo::CONFIG_LOADED;
   Sim.endEventCount = 100000;
   Sim.addOutputPlugin("Misc");
   Sim.initialise();
@@ -103,7 +102,6 @@ BOOST_AUTO_TEST_CASE( Compression_Simulation )
 
   const double growthRate = 0.1;
   const double targetDensity = 0.9;
-  Sim.status = dynamo::CONFIG_LOADED;
   Sim.endEventCount = 1000000;
   Sim.addOutputPlugin("Misc");
 

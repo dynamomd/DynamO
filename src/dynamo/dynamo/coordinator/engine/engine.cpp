@@ -90,7 +90,6 @@ namespace dynamo {
     //Now load the config
     Sim.loadXMLfile(filename.c_str());
     
-    Sim.status = CONFIG_LOADED;
     Sim.endEventCount = vm["events"].as<size_t>();
   
     if (vm["events"].as<size_t>() 

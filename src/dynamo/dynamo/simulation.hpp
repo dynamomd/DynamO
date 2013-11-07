@@ -52,12 +52,17 @@ namespace dynamo
   //! \brief Holds the different phases of the simulation initialisation
   typedef enum 
     {
-      START         = 0, /*!< The first phase of the simulation. */
-      CONFIG_LOADED = 1, /*!< After the configuration has been loaded. */
-      INITIALISED   = 2, /*!< Once the classes have been initialised and
-			   the simulation is ready to begin. */
-      PRODUCTION    = 3, /*!< The simulation has already begun. */
-      ERROR         = 4  /*!< The simulation has failed. */
+      START,
+      SPECIES_INIT,
+      DYNAMICS_INIT,
+      INTERACTION_INIT,
+      LOCAL_INIT,
+      GLOBAL_INIT,
+      SYSTEM_INIT,
+      ENSEMBLE_INIT,
+      SCHEDULER_INIT,
+      OUTPUTPLUGIN_INIT,
+      INITIALISED
     } ESimulationStatus;
   
   typedef std::mt19937 baseRNG;
