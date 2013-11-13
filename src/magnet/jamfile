@@ -48,10 +48,9 @@ unit-test sorter_test : tests/sorter_test.cpp magnet /opencl//OpenCL ;
 alias opencl-test : scan_test radixsort_NVIDIA_test radixsort_AMD_test bitonicsort_test heapsort_test /opencl//OpenCL sorter_test : <magnet-OpenCL>no:<build>no ;
 
 #################### THREAD ######################
-unit-test threadpool_test : tests/threadpool_test.cpp magnet
-	  		  : <threading>multi ;
+unit-test threadpool_test : tests/threadpool_test.cpp magnet : <threading>multi : <linkflags>"-Wl,--no-as-needed" ;
 
-alias thread-test : threadpool_test ;
+alias thread-test : threadpool_test :  ;
 
 #################### MATH ########################
 
