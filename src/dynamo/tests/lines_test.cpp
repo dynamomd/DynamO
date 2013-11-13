@@ -73,42 +73,37 @@ void init(dynamo::Simulation& Sim, const double density)
 
 BOOST_AUTO_TEST_CASE( Equilibrium_Simulation )
 {
-  const double density = 0.1;
-  dynamo::Simulation Sim;
-  init(Sim, density);
-  
-  Sim.endEventCount = 100000;
-  Sim.addOutputPlugin("Misc");
-  Sim.initialise();
-  while (Sim.runSimulationStep()) {}
-
-  const double expectedMFT = 1.0 / (1.237662399 * density);
-
-  //Grab the output plugins
-  dynamo::OPMisc& opMisc = *Sim.getOutputPlugin<dynamo::OPMisc>();
-  //Check the mean free time is roughly what is expected
-  double MFT = opMisc.getMFT() / Sim.units.unitTime();
-  BOOST_CHECK_CLOSE(MFT, expectedMFT, 2);
-
-  //Check that the momentum is still around 0
-  dynamo::Vector momentum = Sim.getOutputPlugin<dynamo::OPMisc>()->getCurrentMomentum();
-  BOOST_CHECK_SMALL(momentum.nrm() / Sim.units.unitMomentum(), 0.0000000001);
-}
-
-BOOST_AUTO_TEST_CASE( Load_Save_config )
-{
   try {
     const double density = 0.1;
-    dynamo::Simulation startSim;
-    init(startSim, density);
-    startSim.initialise();
-    
-    startSim.writeXMLfile("lines.xml");
-    dynamo::Simulation inSim;
-    inSim.loadXMLfile("lines.xml");
+    //Create the sim and test save/loading
+    {
+      dynamo::Simulation Sim;
+      init(Sim, density);
+      Sim.initialise();
+      Sim.writeXMLfile("lines.xml");
+    }
+
+    dynamo::Simulation Sim;
+    Sim.loadXMLfile("lines.xml");
+
+    Sim.endEventCount = 100000;
+    Sim.addOutputPlugin("Misc");
+    Sim.initialise();
+    while (Sim.runSimulationStep()) {}
+
+    const double expectedMFT = 1.0 / (1.237662399 * density);
+
+    //Grab the output plugins
+    dynamo::OPMisc& opMisc = *Sim.getOutputPlugin<dynamo::OPMisc>();
+    //Check the mean free time is roughly what is expected
+    double MFT = opMisc.getMFT() / Sim.units.unitTime();
+    BOOST_CHECK_CLOSE(MFT, expectedMFT, 2);
+
+    //Check that the momentum is still around 0
+    dynamo::Vector momentum = Sim.getOutputPlugin<dynamo::OPMisc>()->getCurrentMomentum();
+    BOOST_CHECK_SMALL(momentum.nrm() / Sim.units.unitMomentum(), 0.0000000001);
   } catch (std::exception& cep) {
     std::cout << cep.what() << std::endl;
     throw;
   }
 }
-

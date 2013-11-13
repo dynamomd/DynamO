@@ -78,8 +78,15 @@ void init(dynamo::Simulation& Sim, double density = 0.5)
 
 BOOST_AUTO_TEST_CASE( NVE_Simulation )
 {
+  {
+    dynamo::Simulation Sim;
+    init(Sim);
+    Sim.initialise();
+    Sim.writeXMLfile("SWNVE.xml");
+  }
+
   dynamo::Simulation Sim;
-  init(Sim);
+  Sim.loadXMLfile("SWNVE.xml");
 
   Sim.endEventCount = 100000;
   Sim.addOutputPlugin("Misc");

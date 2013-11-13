@@ -78,8 +78,15 @@ void init(dynamo::Simulation& Sim, const double density)
 
 BOOST_AUTO_TEST_CASE( Equilibrium_Simulation )
 {
+  {
+    dynamo::Simulation Sim;
+    init(Sim, 0.5);
+    Sim.initialise();
+    Sim.writeXMLfile("infmass.xml");
+  }
+
   dynamo::Simulation Sim;
-  init(Sim, 0.5);
+  Sim.loadXMLfile("infmass.xml");
 
   Sim.endEventCount = 100000;
   Sim.addOutputPlugin("Misc");
