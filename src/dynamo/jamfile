@@ -79,10 +79,12 @@ unit-test scheduler_sorter_test : tests/scheduler_sorter_test.cpp dynamo_core/<c
 
 unit-test hardsphere_test : tests/hardsphere_test.cpp dynamo_core/<coil-integration>no /system//boost_unit_test_framework : <coil-integration>no <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 
+unit-test binaryhardsphere_test : tests/binaryhardsphere_test.cpp dynamo_core/<coil-integration>no /system//boost_unit_test_framework : <coil-integration>no <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
+
 unit-test squarewell_test : tests/squarewell_test.cpp dynamo_core/<coil-integration>no /system//boost_unit_test_framework : <coil-integration>no <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 
 unit-test infmass_spheres_test : tests/infmass_spheres_test.cpp dynamo_core/<coil-integration>no /system//boost_unit_test_framework : <coil-integration>no <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 
 unit-test lines_test : tests/lines_test.cpp dynamo_core/<coil-integration>no /system//boost_unit_test_framework : <coil-integration>no <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 
-alias test : scheduler_sorter_test hardsphere_test squarewell_test infmass_spheres_test lines_test ;
+alias test : scheduler_sorter_test hardsphere_test binaryhardsphere_test squarewell_test infmass_spheres_test lines_test ;

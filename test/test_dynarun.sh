@@ -269,36 +269,6 @@ function umbrella {
 	testresult.dat correct.dat
 }
 
-function BinarySphereTest {
-    > run.log
-
-    ./dynamod -s1 -m 8 --f3 0.05 -d 1.4 -C 10 --f1 0.5 &> run.log
-    bzcat config.out.xml.bz2 \
-	| $Xml ed -u "//Globals/Global[@Name='SchedulerNBList']/@Type" \
-	-v "$1" | bzip2 > tmp.xml.bz2
-
-    ./dynarun -c 1000000 tmp.xml.bz2 >> run.log 2>&1
-    ./dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
-    
-    if [ -e output.xml.bz2 ]; then
-	if [ $(bzcat output.xml.bz2 \
-	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-	    | gawk '{var=($1-0.0098213311089127)/0.0098213311089127; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
-	    echo "BinarySphereTest -: FAILED"
-	    exit 1
-	else
-	    echo "BinarySphereTest -: PASSED"
-	fi
-    else
-	echo "Error, no output.0.xml.bz2 in Binary Sphere Test"
-	exit 1
-    fi
-    
-#Cleanup
-    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
-	tmp.xml.bz2 run.log
-}
-
 function ShearingTest {
     > run.log
 
@@ -485,8 +455,6 @@ function BinaryThermalisedGranulate {
 }
 
 echo "INTERACTIONS+Dynamod Systems"
-echo "Testing binary hard spheres, NeighbourLists and BoundedPQ's"
-BinarySphereTest "Cells"
 echo "Testing static spheres in gravity, NeighbourLists and BoundedPQ's"
 StaticSpheresTest
 #######THIS TEST IS GOOD, BUT A RECENT PATCH CHANGED THE cubic root finder, altering the result##### PLEASE RECALIBRATE
