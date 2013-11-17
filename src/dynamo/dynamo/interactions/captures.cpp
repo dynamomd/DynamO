@@ -27,9 +27,9 @@ namespace dynamo {
   ICapture::initCaptureMap()
   {
     //If not loaded or invalidated
-    if (noXmlLoad)
+    if (_mapUninitialised)
       { 
-	noXmlLoad = false;
+	_mapUninitialised = false;
 	clear();
 
 	for (std::vector<Particle>::const_iterator iPtr1 = Sim->particles.begin();
@@ -54,7 +54,7 @@ namespace dynamo {
   {
     if (XML.hasNode("CaptureMap"))
       {
-	noXmlLoad = false;
+	_mapUninitialised = false;
 	clear();
 
 	for (magnet::xml::Node node = XML.getNode("CaptureMap").fastGetNode("Pair"); node.valid(); ++node)
@@ -66,6 +66,7 @@ namespace dynamo {
   void 
   ICapture::outputCaptureMap(magnet::xml::XmlStream& XML) const 
   {
+    if (_mapUninitialised) return;
     XML << magnet::xml::tag("CaptureMap");
 
     for (const Map::value_type& IDs : *this)

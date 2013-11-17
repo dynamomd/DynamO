@@ -155,7 +155,7 @@ namespace dynamo {
     typedef detail::CaptureMap Map;
 
   public:
-    ICapture(dynamo::Simulation* sim, IDPairRange* range): Interaction(sim, range), noXmlLoad(true) {}
+    ICapture(dynamo::Simulation* sim, IDPairRange* range): Interaction(sim, range), _mapUninitialised(true) {}
 
     //! \brief A test if two particles are captured
     size_t isCaptured(const Particle& p1, const Particle& p2) const {
@@ -170,14 +170,14 @@ namespace dynamo {
     /*! \brief This function tells an uninitialised capture map to
         forget the data loaded from the xml file.
      */
-    void forgetXMLCaptureMap() { noXmlLoad = true; }
+    void forgetMap() { _mapUninitialised = true; }
 
     void initCaptureMap();
 
     virtual size_t captureTest(const Particle&, const Particle&) const = 0;
 
   protected:  
-    bool noXmlLoad;
+    bool _mapUninitialised;
 
     void loadCaptureMap(const magnet::xml::Node&);
 

@@ -77,7 +77,6 @@ BOOST_AUTO_TEST_CASE( Equilibrium_Simulation )
   {
     dynamo::Simulation Sim;
     init(Sim, 0.5);
-    Sim.initialise();
     Sim.writeXMLfile("HSequil.xml");
   }
 

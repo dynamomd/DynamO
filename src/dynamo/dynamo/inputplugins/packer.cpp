@@ -536,7 +536,7 @@ namespace dynamo {
 	  //Delete any loaded capture maps
 	  for(const shared_ptr<Interaction>& ptr : Sim->interactions)
 	    if (std::dynamic_pointer_cast<ICapture>(ptr))
-	      std::dynamic_pointer_cast<ICapture>(ptr)->forgetXMLCaptureMap();
+	      std::dynamic_pointer_cast<ICapture>(ptr)->forgetMap();
 	  
 	  //Use the mirror unit cell if needed
 	  if (vm.count("f1") && (vm["f1"].as<double>() != 0))

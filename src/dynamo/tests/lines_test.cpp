@@ -79,7 +79,6 @@ BOOST_AUTO_TEST_CASE( Equilibrium_Simulation )
     {
       dynamo::Simulation Sim;
       init(Sim, density);
-      Sim.initialise();
       Sim.writeXMLfile("lines.xml");
     }
 

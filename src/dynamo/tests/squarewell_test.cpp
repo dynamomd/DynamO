@@ -81,7 +81,6 @@ BOOST_AUTO_TEST_CASE( NVE_Simulation )
   {
     dynamo::Simulation Sim;
     init(Sim);
-    Sim.initialise();
     Sim.writeXMLfile("SWNVE.xml");
   }
 
