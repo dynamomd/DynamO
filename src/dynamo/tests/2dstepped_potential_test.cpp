@@ -73,12 +73,12 @@ void init(dynamo::Simulation& Sim, const double density)
   for (const dynamo::Vector & position : latticeSites)
     Sim.particles.push_back(dynamo::Particle(position, getRandVelVec() * Sim.units.unitVelocity(), nParticles++));
 
-  dynamo::InputPlugin(&Sim, "Rescaler").zeroMomentum();
-  dynamo::InputPlugin(&Sim, "Rescaler").rescaleVels(1.0);
-  
   for (auto& particle : Sim.particles)
     particle.getVelocity()[2] = 0;
 
+  dynamo::InputPlugin(&Sim, "Rescaler").zeroMomentum();
+  dynamo::InputPlugin(&Sim, "Rescaler").rescaleVels(2.0 / 3.0);
+    
   Sim.ensemble = dynamo::Ensemble::loadEnsemble(Sim);
 
   BOOST_CHECK_EQUAL(Sim.N(), 128 * 128);
