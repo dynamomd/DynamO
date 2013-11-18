@@ -127,7 +127,7 @@ namespace dynamo {
   SVisualizer::particlesUpdated(const NEventData&)
   {
     if ((boost::posix_time::microsec_clock::local_time() - _lastUpdate) 
-	> boost::posix_time::milliseconds(500))
+	> boost::posix_time::milliseconds(100))
       {
 	dt = -HUGE_VAL;
 	Sim->ptrScheduler->rebuildSystemEvents();
