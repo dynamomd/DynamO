@@ -50,6 +50,7 @@ namespace dynamo {
     System(tmp),
     _frequency(frequency),
     _kT(kT),
+    _timestep(HUGE_VAL),
     scaleFactor(0),
     LastTime(0),
     RealTime(0)
@@ -147,6 +148,7 @@ namespace dynamo {
     if (XML.hasAttribute("TimeStep"))
       _timestep = XML.getAttribute("TimeStep").as<double>();
     _timestep *= Sim->units.unitTime();
+
     sysName = XML.getAttribute("Name");
   }
 

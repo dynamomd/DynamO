@@ -205,8 +205,9 @@ namespace dynamo {
 	  for (const Vector & position : latticeSites)
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 
+	  const double kT = 1.0 * Sim->units.unitEnergy();
 	  if (vm.count("i2"))
-	    Sim->systems.push_back(shared_ptr<System>(new SysRescale(Sim, vm["i2"].as<size_t>(), "RescalerEvent")));
+	    Sim->systems.push_back(shared_ptr<System>(new SysRescale(Sim, vm["i2"].as<size_t>(), "RescalerEvent", kT)));
 
 	  break;
 	}
