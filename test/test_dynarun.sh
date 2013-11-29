@@ -353,30 +353,6 @@ function GravityPlateTest {
 	tmp.xml.bz2 run.log
 }
 
-function StaticSpheresTest {
-    > run.log
-
-    ./dynarun -c 500000 static-spheres.xml >> run.log 2>&1
-    
-    if [ -e output.xml.bz2 ]; then
-	if [ $(bzcat output.xml.bz2 \
-	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-	    | gawk '{mft=7.81945252098576; var=($1-mft)/mft; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
-	    echo "StaticSpheresTest -: FAILED"
-	    exit 1
-	else
-	    echo "StaticSpheresTest -: PASSED"
-	fi
-    else
-	echo "Error, no output.0.xml.bz2 in StaticSpheresTest"
-	exit 1
-    fi
-    
-#Cleanup
-    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
-	tmp.xml.bz2 run.log
-}
-
 function SwingSpheresTest {
     > run.log
 
@@ -424,9 +400,6 @@ function BinaryThermalisedGranulate {
     rm -Rf output.xml.bz2 config.out.xml.bz2 run.log
 }
 
-echo "INTERACTIONS+Dynamod Systems"
-echo "Testing static spheres in gravity, NeighbourLists and BoundedPQ's"
-StaticSpheresTest
 #######THIS TEST IS GOOD, BUT A RECENT PATCH CHANGED THE cubic root finder, altering the result##### PLEASE RECALIBRATE
 #echo "Testing static and bonded spheres in gravity, NeighbourLists and BoundedPQ's"
 #SwingSpheresTest
