@@ -143,11 +143,9 @@ namespace coil {
   {
     std::vector<GLubyte> voldata(4 * width * height * depth);
     
-//    size_t maxdim = std::max(width, std::max(height, depth));
-//
-//    _dimensions = Vector(double(width) / maxdim, 
-//			 double(height) / maxdim, 
-//			 double(depth) / maxdim);
+    size_t maxdim = std::max(width, std::max(height, depth));
+
+    _dimensions = Vector(double(width) / maxdim, double(height) / maxdim, double(depth) / maxdim);
 
     std::vector<float>& histogram = _transferFunction->getHistogram();
     histogram = std::vector<float>(256, 0);
@@ -224,8 +222,8 @@ namespace coil {
 	depthTexture->init(fbo.getWidth(), fbo.getHeight(), GL_DEPTH_COMPONENT);
 	depthTexture->parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	depthTexture->parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	//depthTexture->parameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//depthTexture->parameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	depthTexture->parameter(GL_TEXTURE_COMPARE_MODE, GL_NONE);
 	_currentDepthFBO.init();
 	_currentDepthFBO.attachTexture(depthTexture);
