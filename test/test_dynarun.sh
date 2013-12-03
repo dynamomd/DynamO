@@ -269,34 +269,6 @@ function umbrella {
 	testresult.dat correct.dat
 }
 
-function IsolatedPolymerTest {
-    > run.log
-
-    ./dynamod -s1 -m 2 --i1 50  &> run.log
-    ./dynarun -s2 -c 1000000 config.out.xml.bz2 >> run.log 2>&1
-    ./dynarun -s3 -c 1000000 config.out.xml.bz2 >> run.log 2>&1
-    
-    MFT=0.0240657157464771
-    if [ -e output.xml.bz2 ]; then
-	if [ $(bzcat output.xml.bz2 \
-	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-	    | gawk '{var=($1-'$MFT')/'$MFT'; print ((var < 0.08) && (var > -0.08))}') != "1" ]; then
-	    echo "IsolatedPolymerTest -: FAILED MFT_expected=" $MFT " MFT_measured=" $(bzcat output.xml.bz2 \
-	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val')
-	    exit 1
-	else
-	    echo "IsolatedPolymerTest -: PASSED"
-	fi
-    else
-	echo "Error, no output.0.xml.bz2 in IsolatedPolymer test"
-	exit 1
-    fi
-    
-#Cleanup
-    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
-	tmp.xml.bz2 run.log
-}
-
 function GravityPlateTest {
     > run.log
 
@@ -380,8 +352,6 @@ function BinaryThermalisedGranulate {
 
 echo ""
 echo "GLOBALS"
-echo "Testing infinite systems with neighbour lists and a 50mer polymer"
-IsolatedPolymerTest
 echo "Testing infinite systems with neighbour lists and gravity!"
 GravityPlateTest
 
