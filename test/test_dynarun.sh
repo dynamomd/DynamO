@@ -269,32 +269,6 @@ function umbrella {
 	testresult.dat correct.dat
 }
 
-function ShearingTest {
-    > run.log
-
-    ./dynamod -s1 -m 4 --f1 0.9 &> run.log    
-    ./dynarun -c 500000 config.out.xml.bz2 >> run.log 2>&1
-    ./dynarun -c 1000000 config.out.xml.bz2 >> run.log 2>&1
-    
-    if [ -e output.xml.bz2 ]; then
-	if [ $(bzcat output.xml.bz2 \
-	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-	    | gawk '{var=($1-0.113195634)/0.113195634; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
-	    echo "ShearingTest -: FAILED"
-	    exit 1
-	else
-	    echo "ShearingTest -: PASSED"
-	fi
-    else
-	echo "Error, no output.0.xml.bz2 in Shearing test"
-	exit 1
-    fi
-    
-#Cleanup
-    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
-	tmp.xml.bz2 run.log
-}
-
 function IsolatedPolymerTest {
     > run.log
 
@@ -406,8 +380,6 @@ function BinaryThermalisedGranulate {
 
 echo ""
 echo "GLOBALS"
-echo "Testing shearing boundary conditions with inelastic particles"
-ShearingTest
 echo "Testing infinite systems with neighbour lists and a 50mer polymer"
 IsolatedPolymerTest
 echo "Testing infinite systems with neighbour lists and gravity!"
