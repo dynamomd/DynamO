@@ -85,6 +85,7 @@ BOOST_AUTO_TEST_CASE( Equilibrium_Simulation )
     dynamo::Simulation Sim;
     Sim.loadXMLfile("lines.xml");
 
+    Sim.eventPrintInterval = 10000;
     Sim.endEventCount = 100000;
     Sim.addOutputPlugin("Misc");
     Sim.initialise();

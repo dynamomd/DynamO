@@ -94,7 +94,7 @@ namespace dynamo {
     //! \brief ID accessor function.
     //! This ID is a unique value for each Particle in the Simulation
     //! and so it can also be used as a reference to a particle.
-    inline const unsigned long &getID() const { return _ID; }
+    inline const ParticleID& getID() const { return _ID; }
 
     operator ParticleID() const { return _ID; }
 

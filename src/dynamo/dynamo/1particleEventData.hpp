@@ -30,7 +30,7 @@ namespace dynamo {
 		      EEventType eType):
       particleID(part.getID()), 
       oldVelVec(part.getVelocity()),
-      speciesID(sp.getID()), Type_(eType), 
+      speciesID(sp.getID()), Type_(eType),
       deltaU(0.0)
     {}
 
