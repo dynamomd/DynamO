@@ -66,6 +66,7 @@ alias install-libraries : /coil//install-coil /magnet//install-magnet ;
 alias test : /magnet//test /dynamo//test ;
 alias lsCL : /opencl//install-lsCL ;
 alias coilparticletest : /coil//coilparticletest ;
+alias coiltools : /coil//install-exe ;
 
 ##### Perform only the install by default
 explicit install-libraries test coilparticletest lsCL ;
