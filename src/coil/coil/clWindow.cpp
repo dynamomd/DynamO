@@ -789,17 +789,8 @@ namespace coil {
     if (!_stereoMode)
       {
 	_camera.setEyeLocation(headPosition);
-
-	//for (auto& light_obj :_renderObjsTree._renderObjects)
-	//  {
-	//    std::shared_ptr<RLight> light = std::dynamic_pointer_cast<RLight>(light_obj);
-	//    if (!light) continue;
-	//    drawScene(*light);
-	//    break;
-	//  }
 	drawScene(_camera);
 	_renderTarget.blitToScreen(_camera.getWidth(), _camera.getHeight());
-	_camera.setEyeLocation(oldHeadPosition);
       }
     else
       {
@@ -813,23 +804,31 @@ namespace coil {
 	switch(mode)
 	  {
 	  case 0: //Analygraph Red-Cyan
+	    //Do the right eye
 	    _camera.setEyeLocation(headPosition - eyeDisplacement);
 	    drawScene(_camera);
+
+	    glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);	
+	    _glContext->setDepthTest(false);
 	    _renderTarget.getColorTexture(0)->bind(0);
 	    _copyShader.attach();
 	    _copyShader["u_Texture0"] = 0;
-	    glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
 	    _copyShader.invoke(); 
 	    _copyShader.detach();
+
+	    ////Do the left eye
 	    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	    
 	    _camera.setEyeLocation(headPosition + eyeDisplacement);
 	    drawScene(_camera);
+
+	    glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
+	    _glContext->setDepthTest(false);
 	    _renderTarget.getColorTexture(0)->bind(0);
 	    _copyShader.attach();
-	    glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_FALSE);
+	    _copyShader["u_Texture0"] = 0;
 	    _copyShader.invoke(); 
 	    _copyShader.detach();
+
 	    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	    break;
 	  case 1:
@@ -857,9 +856,9 @@ namespace coil {
 	  default:
 	    M_throw() << "Unknown stereo render mode";
 	  }
-	//Reset the eye position
-	_camera.setEyeLocation(oldHeadPosition);
       }
+    //Reset the eye position
+    _camera.setEyeLocation(oldHeadPosition);
 
     getGLContext()->swapBuffers();
     glFinish();
