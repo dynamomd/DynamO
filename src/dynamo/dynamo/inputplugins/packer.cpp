@@ -1285,7 +1285,7 @@ namespace dynamo {
 	  Sim->interactions.push_back(shared_ptr<Interaction>(new IHardSphere(Sim, particleDiamB, new IDPairRangeAll(), "BBInt")));	     
 	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeRange(0, nPartA - 1), 1.0, "A", 0)));
 
-	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeRange(nPartA - 1, latticeSites.size()), massFrac / chainlength, "B", 0)));
+	  Sim->addSpecies(shared_ptr<Species>(new SpPoint(Sim, new IDRangeRange(nPartA, latticeSites.size() - 1), massFrac / chainlength, "B", 0)));
 
 	  Sim->units.setUnitLength(particleDiam);
 	  unsigned long nParticles = 0;

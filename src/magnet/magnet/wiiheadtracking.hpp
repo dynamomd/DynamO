@@ -97,7 +97,7 @@ namespace magnet {
 
     inline math::Vector getHeadPosition()
     { 
-      thread::ScopedLock lock(_irdatalock);
+      std::lock_guard<std::mutex> lock(_irdatalock);
       return eye_pos;
     }
 
@@ -113,7 +113,7 @@ namespace magnet {
 
     inline std::vector<IRData> getSortedIRData()
     { 
-      thread::ScopedLock lock(_irdatalock);
+      std::lock_guard<std::mutex> lock(_irdatalock);
       return _irdata;
     }
 
@@ -130,7 +130,7 @@ namespace magnet {
 	  break;
 	case CWIID_MESG_IR:
 	  {
-	    thread::ScopedLock lock(TrackWiimote::getInstance()._irdatalock);
+	    std::lock_guard<std::mutex> lock(TrackWiimote::getInstance()._irdatalock);
 
 	    std::vector<IRData>& ir_positions = TrackWiimote::getInstance()._irdata;
 	    ir_positions.clear();
