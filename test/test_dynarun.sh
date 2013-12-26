@@ -269,36 +269,6 @@ function umbrella {
 	testresult.dat correct.dat
 }
 
-function GravityPlateTest {
-    > run.log
-
-    ./dynamod -s1 -m 22 -d 0.1  &> run.log
-    ./dynarun -c 100000 config.out.xml.bz2 >> run.log 2>&1
-    MFT=3.55501052762802
-
-    if [ -e output.xml.bz2 ]; then
-	if [ $(bzcat output.xml.bz2 \
-	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-	    | gawk '{mft='$MFT'; var=($1 - mft) / mft; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
-	    echo "Gravity Plate -: FAILED"
-	    gawk 'BEGIN {mft='$MFT'; print "MFT is supposed to be ",mft}'
-	    bzcat output.xml.bz2 \
-		| $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-		| gawk '{print "MFT is " $0}'
-	    exit 1
-	else
-	    echo "Gravity Plate -: PASSED"
-	fi
-    else
-	echo "Error, no output.0.xml.bz2 in Gravity Plate"
-	exit 1
-    fi
-    
-#Cleanup
-    rm -Rf config.end.xml.bz2 config.out.xml.bz2 output.xml.bz2 \
-	tmp.xml.bz2 run.log
-}
-
 function SwingSpheresTest {
     > run.log
 
@@ -349,11 +319,6 @@ function BinaryThermalisedGranulate {
 #######THIS TEST IS GOOD, BUT A RECENT PATCH CHANGED THE cubic root finder, altering the result##### PLEASE RECALIBRATE
 #echo "Testing static and bonded spheres in gravity, NeighbourLists and BoundedPQ's"
 #SwingSpheresTest
-
-echo ""
-echo "GLOBALS"
-echo "Testing infinite systems with neighbour lists and gravity!"
-GravityPlateTest
 
 echo ""
 echo "SYSTEM EVENTS"
