@@ -82,7 +82,7 @@ namespace magnet {
 		    GLfloat zNearDist = 8.0f, 
 		    GLfloat zFarDist = 10000.0f,
 		    math::Vector up = math::Vector(0,1,0),
-		    GLfloat simLength = 25.0f,
+		    GLfloat simLength = 3.0f,
 		    math::Vector eye_location = math::Vector(0, 0, 70)):
 	_height(height),
 	_width(width),

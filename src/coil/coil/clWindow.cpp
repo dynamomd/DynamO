@@ -2447,7 +2447,7 @@ namespace coil {
     double maxdim = std::max(max[0] - min[0], std::max(max[1] - min[1], max[2] - min[2]));
 
     double oldScale = _camera.getRenderScale();
-    double newScale = 40.0 / maxdim;
+    double newScale = 10.0 / maxdim;
     magnet::math::Vector centre = 0.5 * (min + max); 
     magnet::math::Vector shift = centre - _cameraFocus;
 	
