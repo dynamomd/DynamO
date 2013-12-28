@@ -11,15 +11,21 @@ how to build DynamO. A quick summary is:
 
      make
 
-And the executables will be installed into the bin directory. If you
-want to install the executables to /usr/bin, run
+And the executables will be installed into the bin subdirectory of the
+dynamo source code. If you want to install the executables to
+/usr/bin, run
 
-     make install
+     sudo make install
 
 Please pay attention to the output of the make commands, as this scans
 for required dependencies and will warn you if it is unable to build
-DynamO! You may need to log in as root for the "make install" command
-to work.
+DynamO!
+
+DOCUMENTATION
+-------------
+ 
+All of the documentation is available on-line here,
+http://dynamomd.org/index.php/documentation
 
 SOURCE CODE
 -----------
@@ -29,29 +35,10 @@ information on the source code please see the src/README file. Also
 take a look at the doxygen documentation (next section of this
 README).
 
-DOCUMENTATION
--------------
- 
-Some resources are in the docs/ directory; however, the bulk of the
-documentation will be available on the website.
-
-If you want the latest, up-to-date code doxygen documentation, just
-run
-
-     doxygen
-
-in the same directory as this README. This will generate HTML
-docmentation in the docs/html directory.
-
 TESTING
 -------
 
-There is a test script in test/test_dynarun.sh which will run through
-some sample simulations and halt if the results are wrong or if the
-simulation fails.
-
-You can also run some unit tests on the math libraries and OpenCL code
-by running
+You can run a large range of tests and test systems by running
 
      make test
 

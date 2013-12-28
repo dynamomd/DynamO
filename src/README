@@ -14,12 +14,12 @@ dynamo/
 magnet/
 
  Magnet is a header-only library, filled with useful and generic C++
- functions and classes.
- DynamO uses the magnet library for stuff like sorting and
- input/output in XML.
+ functions and classes.  DynamO uses the magnet library for stuff like
+ sorting, collision detection, and input/output in XML.
  
 coil/
+
  Coil is a visualization library. It uses OpenCL and OpenGL to perform
- fast real-time renderings of simulations.
- In DynamO, the coil library provides the GUI.
+ fast real-time renderings of simulations.  In DynamO, the coil
+ library provides the visualizer.
 
