@@ -113,10 +113,6 @@ function HS_replex_test {
 	output.*.xml.bz2 *.dat replex.stats
 }
 
-function wallsw_bailout { 
-    echo "$1 WallSW -: FAILED"
-    exit 1 
-}
 
 
 function Ring_compressiontest { 
@@ -206,34 +202,6 @@ function SWpolymer_compressiontest {
     fi
 }
 
-function wallsw {
-#Just tests the square shoulder interaction between two walls
-    cat wallsw.xml | \
-	$Xml ed -u '//Simulation/Scheduler/@Type' -v "$1" \
-	> tmp.xml
-    #Any multiple of 5 will/should always give the original configuration
-    #doing 9995 as this stops any 2 periodicity
-    ./dynarun -c 9995 $2 tmp.xml &> run.log
-    
-    ./dynamod --round config.out.xml.bz2 > /dev/null
-    ./dynamod config.out.xml.bz2 > /dev/null
-
-    bzcat config.out.xml.bz2 | \
-	$Xml sel -t -c '//ParticleData' > testresult.dat
-
-    cat wallsw.xml | \
-	$Xml sel -t -c '//ParticleData' > correct.dat
-    
-    diff testresult.dat correct.dat &> /dev/null \
-	|| wallsw_bailout $1
-    
-    echo "$1 WallSW -: PASSED"
-
-    #Cleanup
-    rm -Rf config.out.xml.bz2 output.xml.bz2 tmp.xml.bz2 run.log \
-	testresult.dat correct.dat
-}
-
 function umbrella_bailout { 
     echo "$1 Umbrella -: FAILED"
     exit 1 
@@ -299,17 +267,12 @@ echo "SYSTEM EVENTS"
 
 echo ""
 echo "LOCAL EVENTS"
-echo "Testing local events (walls) and square wells"
-wallsw "NeighbourList"
 echo "Testing thermalised and normal walls in gravity with binary granulate implemented using properties"
 BinaryThermalisedGranulate
 
 echo ""
 echo "ENGINE TESTING"
 echo "COMPRESSION"
-echo "Testing local events (walls) and square wells with a " \
-    "Null compression"
-wallsw "NeighbourList" "--engine 3 --growth-rate 0.0"
 echo "Testing compression of polymers (very sensitive to errors in the algorithm)"
 Ring_compressiontest
 echo "Packing of a square well polymer into a larger system, and compressing the system"

@@ -99,4 +99,6 @@ unit-test polymer_test : tests/polymer_test.cpp dynamo_core/<coil-integration>no
 
 unit-test swingspheres_test : tests/swingspheres_test.cpp dynamo_core/<coil-integration>no /system//boost_unit_test_framework : <coil-integration>no <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 
-alias test : scheduler_sorter_test hardsphere_test polymer_test shearing_test binaryhardsphere_test squarewell_test 2dstepped_potential_test infmass_spheres_test lines_test static_spheres_test gravityplate_test swingspheres_test ;
+unit-test squarewellwall_test : tests/squarewellwall_test.cpp dynamo_core/<coil-integration>no /system//boost_unit_test_framework : <coil-integration>no <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
+
+alias test : scheduler_sorter_test hardsphere_test polymer_test shearing_test binaryhardsphere_test squarewell_test 2dstepped_potential_test infmass_spheres_test lines_test static_spheres_test squarewellwall_test gravityplate_test swingspheres_test ;
