@@ -90,5 +90,6 @@ unit-test gravityplate_test : tests/gravityplate_test.cpp test_dependencies ;
 unit-test polymer_test : tests/polymer_test.cpp test_dependencies ;
 unit-test swingspheres_test : tests/swingspheres_test.cpp test_dependencies ;
 unit-test squarewellwall_test : tests/squarewellwall_test.cpp test_dependencies ;
+unit-test thermalisedwalls_test : tests/thermalisedwalls_test.cpp test_dependencies ;
 
-alias test : scheduler_sorter_test hardsphere_test polymer_test shearing_test binaryhardsphere_test squarewell_test 2dstepped_potential_test infmass_spheres_test lines_test static_spheres_test squarewellwall_test gravityplate_test swingspheres_test : <dynamo-buildable>no:<build>no ;
+alias test : scheduler_sorter_test hardsphere_test polymer_test shearing_test binaryhardsphere_test squarewell_test 2dstepped_potential_test infmass_spheres_test lines_test static_spheres_test squarewellwall_test gravityplate_test swingspheres_test thermalisedwalls_test : <dynamo-buildable>no:<build>no ;

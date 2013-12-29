@@ -53,8 +53,8 @@ namespace dynamo {
     //Run the collision and catch the data
 
     NEventData EDat;
-    if (sqrtT > 0)
-      EDat = Sim->dynamics->runAndersenWallCollision(part, vNorm, sqrtT, _diameter->getProperty(part));
+    if (_sqrtT > 0)
+      EDat = Sim->dynamics->runAndersenWallCollision(part, vNorm, _sqrtT, _diameter->getProperty(part));
     else
       EDat = Sim->dynamics->runPlaneEvent(part, vNorm, _e->getProperty(part), _diameter->getProperty(part));
 
@@ -78,12 +78,12 @@ namespace dynamo {
       
     _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
     
-    sqrtT = 0;
+    _sqrtT = 0;
     if (XML.hasAttribute("Temperature"))
-      sqrtT = sqrt(XML.getAttribute("Temperature").as<double>()
+      _sqrtT = sqrt(XML.getAttribute("Temperature").as<double>()
 		   * Sim->units.unitEnergy());
 
-    if (sqrtT < 0)
+    if (_sqrtT < 0)
       M_throw() << "Cannot use negative temperatures on a Wall";
 
     magnet::xml::Node xBrowseNode = XML.getNode("Norm");
@@ -105,8 +105,8 @@ namespace dynamo {
 	<< magnet::xml::attr("Elasticity") << _e->getName()
 	<< magnet::xml::attr("Diameter") << _diameter->getName();
     
-    if (sqrtT > 0)
-      XML << magnet::xml::attr("Temperature") << sqrtT * sqrtT
+    if (_sqrtT > 0)
+      XML << magnet::xml::attr("Temperature") << _sqrtT * _sqrtT
 	/ Sim->units.unitEnergy();
 
     XML << range

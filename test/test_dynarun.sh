@@ -237,38 +237,10 @@ function umbrella {
 	testresult.dat correct.dat
 }
 
-function BinaryThermalisedGranulate {
-    > run.log
-
-    ./dynarun -c 100000 -s 1 thermalisedMix.xml >> run.log 2>&1
-
-    if [ -e output.xml.bz2 ]; then
-	if [ $(bzcat output.xml.bz2 \
-	    | $Xml sel -t -v '/OutputData/Misc/totMeanFreeTime/@val' \
-	    | gawk '{mft=0.354633475131049; var=($1-mft)/mft; print ((var < 0.02) && (var > -0.02))}') != "1" ]; then
-	    echo "BinaryThermalisedGranulate -: FAILED"
-	    exit 1
-	else
-	    echo "BinaryThermalisedGranulate -: PASSED"
-	fi
-    else
-	echo "Error, no output.0.xml.bz2 in BinaryThermalisedGranulate"
-	exit 1
-    fi
-    
-#Cleanup
-    rm -Rf output.xml.bz2 config.out.xml.bz2 run.log
-}
-
 echo ""
 echo "SYSTEM EVENTS"
 #echo "Testing the square umbrella potential, NeighbourLists and BoundedPQ's"
 #umbrella "NeighbourList"
-
-echo ""
-echo "LOCAL EVENTS"
-echo "Testing thermalised and normal walls in gravity with binary granulate implemented using properties"
-BinaryThermalisedGranulate
 
 echo ""
 echo "ENGINE TESTING"

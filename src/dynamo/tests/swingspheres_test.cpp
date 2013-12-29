@@ -48,7 +48,6 @@ void init(dynamo::Simulation& Sim)
   Sim.ptrScheduler = dynamo::shared_ptr<dynamo::SNeighbourList>(new dynamo::SNeighbourList(&Sim, new dynamo::FELCBT()));
 
   dynamo::shared_ptr<dynamo::ParticleProperty> D(new dynamo::ParticleProperty(N, dynamo::Property::Units::Length(), "D", 1.0));
-
   dynamo::shared_ptr<dynamo::ParticleProperty> M(new dynamo::ParticleProperty(N, dynamo::Property::Units::Mass(), "M", 1.0));
   Sim._properties.push(D);
   Sim._properties.push(M);
