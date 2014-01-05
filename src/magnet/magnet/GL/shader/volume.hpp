@@ -137,6 +137,12 @@ vec3 calcLighting(vec3 position, vec3 normal, vec3 diffuseColor)
   return returnval;
 }
 
+  //Start the sampling by initialising the ray variables. We take the
+  //first sample ready to integrate to the next sample
+vec4 grabSample(vec3 position)
+{
+  return texture(DataTexture, (position - volumeMin) * invVolumeDimensions);
+}
 
 void main()
 {
@@ -175,7 +181,7 @@ void main()
   float starting_offset = tnear; 
 
   if (DitherRay != 0)
-    starting_offset += StepSize * fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453);
+    starting_offset += StepSize * abs(fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453));
 
   vec3 rayPos = RayOrigin + rayDirection * starting_offset;
   
@@ -184,7 +190,7 @@ void main()
   
   //Start the sampling by initialising the ray variables. We take the
   //first sample ready to integrate to the next sample
-  vec4 first_sample = texture(DataTexture, (rayPos + 1.0) * 0.5);
+  vec4 first_sample = grabSample(rayPos);
 
   float lastsamplea = first_sample.a;
   vec4 lastTransfer = texture(IntTransferTexture, lastsamplea);
@@ -201,7 +207,7 @@ void main()
        length -= StepSize, rayPos += rayDirection)
     {
       //Grab the volume sample
-      vec4 sample = texture(DataTexture, (rayPos - volumeMin) * invVolumeDimensions);
+      vec4 sample = grabSample(rayPos);
       float delta = sample.a - lastsamplea;
       vec4 transfer = texture(IntTransferTexture, sample.a);
       float deltaT = transfer.a - lastTransfer.a;
