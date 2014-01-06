@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-lib OpenCL : : <link>shared : : <define>CL_USE_DEPRECATED_OPENCL_1_1_APIS ;
+lib OpenCL : : <link>shared : : <define>CL_USE_DEPRECATED_OPENCL_1_1_APIS <include>include/ ;
 
 exe test : tests/opencl.cpp OpenCL ;
 
