@@ -36,13 +36,14 @@ namespace magnet {
 	{ return STRINGIFY(
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
+uniform vec3 RayOrigin;
 
 layout (location = 0) in vec4 vPosition;
 layout (location = 3) in vec4 iOrigin;
 layout (location = 4) in vec4 iOrientation;
 layout (location = 5) in vec4 iScale;
 
-smooth out vec3 frag_worldpos;
+smooth out vec3 frag_rayDirection;
 
 vec3 qrot(vec4 q, vec3 v)
 { return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v); } 
@@ -51,7 +52,7 @@ void main()
 { 
   vec3 scale = iScale.xyz + vec3(equal(iScale.xyz, vec3(0.0))) * iScale.x;
   vec4 worldpos = vec4(qrot(iOrientation, vPosition.xyz * scale) + iOrigin.xyz, 1.0);
-  frag_worldpos = worldpos.xyz;
+  frag_rayDirection = worldpos.xyz - RayOrigin;
   vec4 vVertex = ViewMatrix * worldpos;
   gl_Position = ProjectionMatrix * vVertex; 
 }); 
@@ -73,7 +74,7 @@ uniform int DitherRay;
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
 
-smooth in vec3 frag_worldpos;
+smooth in vec3 frag_rayDirection;
 
 layout (location = 0) out vec4 color_out;
 
@@ -147,8 +148,7 @@ vec4 grabSample(vec3 position)
 void main()
 {
   //Calculate the ray direction using viewport information
-  vec3 rayDirection = frag_worldpos - RayOrigin;
-  rayDirection = normalize(rayDirection);
+  vec3 rayDirection = normalize(frag_rayDirection);
   
   //Cube ray intersection test
   vec3 invR = 1.0 / rayDirection;
@@ -181,7 +181,7 @@ void main()
   float starting_offset = tnear; 
 
   if (DitherRay != 0)
-    starting_offset += StepSize * abs(fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453));
+    starting_offset += StepSize * fract(sin(dot(gl_FragCoord.xy, vec2(12.9898,78.233))) * 43758.5453);
 
   vec3 rayPos = RayOrigin + rayDirection * starting_offset;
   
