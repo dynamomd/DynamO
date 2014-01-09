@@ -578,7 +578,7 @@ namespace coil {
 
     if (_readyFlag) return;
 
-    double light_distance = 50 / _camera.getRenderScale();
+    double light_distance = 3;
     Vector look_at = Vector(0, 0, 0);
     Vector up = Vector(0,1,0);
     
