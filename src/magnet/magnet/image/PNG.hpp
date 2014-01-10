@@ -23,6 +23,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <memory>
 
 // PNG
 #define PNG_SKIP_SETJMP_CHECK
@@ -141,8 +142,7 @@ namespace magnet {
       }
 
       size_t bytesPerRow = png_get_rowbytes(png, pngInfo);
-      png_bytep* pngRows = new png_bytep[height];
-      png_bytep pngData = 0;
+      std::vector<png_bytep> pngRows(height);
 
       image.resize(height * width * components);
 
@@ -157,18 +157,14 @@ namespace magnet {
       // set up error handling the hard way
       if(setjmp(png_jmpbuf(png))) {
 	png_destroy_read_struct(&png, &pngInfo, &pngEndInfo);
-	delete[] pngData;
-	delete[] pngRows;
 	throw std::runtime_error("libpng: failed to read image");
       }
 
-      png_read_image(png, pngRows);
+      png_read_image(png, &pngRows[0]);
       png_read_end(png, pngEndInfo);
 
       // all went well, we can clean up now
       png_destroy_read_struct(&png, &pngInfo, &pngEndInfo);
-      delete[] pngData;
-      delete[] pngRows;
     }
 
     /*! \brief Writes a PNG file using the pixel data in the passed
@@ -265,7 +261,7 @@ namespace magnet {
       png_write_info(png, pngInfo);
 
       size_t bytesPerRow = png_get_rowbytes(png, pngInfo);
-      png_bytep* pngRows = new png_bytep[height];
+      std::vector<png_bytep> pngRows(height);
 
       if(image.size() != (height * bytesPerRow)) 
 	{
@@ -293,16 +289,14 @@ namespace magnet {
       // set up error handling the hard way
       if(setjmp(png_jmpbuf(png))) {
 	png_destroy_write_struct(&png, &pngInfo);
-	delete[] pngRows;
 	throw std::runtime_error("libpng: failed to write image");
       }
 
-      png_write_image(png, pngRows);
+      png_write_image(png, &pngRows[0]);
       png_write_end(png, NULL);
 
       // all went well, we can clean up now
       png_destroy_write_struct(&png, &pngInfo);
-      delete[] pngRows;
     }
   }
 }

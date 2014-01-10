@@ -222,8 +222,21 @@ namespace magnet {
   
 	    int *faces_old = (int*)malloc (3*n_faces*sizeof(int)); 
 	    faces_old = (int*)memcpy((void*)faces_old, (void*)faces, 3*n_faces*sizeof(int)); 
-	    vertices = (float*)realloc ((void*)vertices, 3*n_vertices_new*sizeof(float)); 
-	    faces = (int*)realloc ((void*)faces, 3*n_faces_new*sizeof(int)); 
+	    float* new_vertices = (float*)realloc ((void*)vertices, 3*n_vertices_new*sizeof(float));
+	    if (new_vertices == NULL)
+	      M_throw() << "Realloc error, possibly ran out of memory?";
+	    else
+	      {
+		vertices = new_vertices;
+	      }
+	    int* new_faces = (int*)realloc ((void*)faces, 3*n_faces_new*sizeof(int)); 
+	    if (new_faces == NULL)
+	      M_throw() << "Realloc error, possibly ran out of memory?";
+	    else
+	      {
+		faces = new_faces;
+	      }
+
 	    n_faces_new = 0; 
   
 	    for (i=0; i<n_faces; i++) 
