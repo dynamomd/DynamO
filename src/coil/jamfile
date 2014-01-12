@@ -39,7 +39,7 @@ exe coilDependencies : tests/buildreq.cpp : <coil-buildable>no:<define>BUILDFAIL
 always coilDependencies ;
 
 alias coil : [ glob-tree *.cpp : tests examples programs ]
-      clwingtk.gladexml /system//png /system//glut /system//GLU /system//GL /system//Xext /system//X11 /system//GLEW /system//gtkmm /magnet//magnet
+      clwingtk.gladexml /system//png /system//glut /system//GLU /system//GL /system//Xext /system//X11 /system//GLEW /system//gtkmm /magnet//magnet /system//boost_filesystem
       : <include>. <tag>@tags.lib-naming <coil-cwiid>yes:<source>/system//cwiid <magnet-FFMPEG>yes:<source>/system//libavcodec <coil-buildable>no:<build>no
       : : <define>GLVIEWER <include>. ;
 
