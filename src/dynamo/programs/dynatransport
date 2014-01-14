@@ -29,7 +29,7 @@ def loadXMLFile(filename):
         f.close()
         return doc
     else:
-        return etree.parse(filename)
+        return ET.parse(filename)
 
 #Command line argument parsing
 from optparse import OptionParser
