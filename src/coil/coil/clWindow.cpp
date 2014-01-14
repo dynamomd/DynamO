@@ -29,6 +29,8 @@
 #include <magnet/image/bitmap.hpp>
 #include <magnet/gtk/numericEntry.hpp>
 #include <gtkmm/volumebutton.h>
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
 #include <boost/lexical_cast.hpp>
 #include <locale>
 #include <cmath>
@@ -288,6 +290,14 @@ namespace coil {
       Gtk::Button* btn;
       _refXml->get_widget("SimSnapshot", btn);
       btn->signal_clicked().connect(sigc::mem_fun(this, &CLGLWindow::snapshotCallback));    
+    }
+
+    {
+      namespace fs = boost::filesystem;
+      Gtk::FileChooserButton* fileChooser;
+      _refXml->get_widget("snapshotDirectory", fileChooser);
+      std::string path = fs::canonical(boost::filesystem::current_path()).string();
+      fileChooser->set_filename(path);
     }
 
     {///////Recording button
