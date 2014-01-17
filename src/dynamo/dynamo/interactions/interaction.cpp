@@ -74,6 +74,8 @@ namespace dynamo {
       return shared_ptr<Interaction>(new INull(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("Lines"))
       return shared_ptr<Interaction>(new ILines(XML, Sim));
+    else if (!XML.getAttribute("Type").getValue().compare("DSMC"))
+      return shared_ptr<Interaction>(new IDSMC(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("Dumbbells"))
       return shared_ptr<Interaction>(new IDumbbells(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("ParallelCubes"))

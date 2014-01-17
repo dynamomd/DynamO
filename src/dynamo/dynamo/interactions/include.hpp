@@ -22,6 +22,7 @@
 #include <dynamo/interactions/squarebond.hpp>
 #include <dynamo/interactions/nullInteraction.hpp>
 #include <dynamo/interactions/lines.hpp>
+#include <dynamo/interactions/DSMC.hpp>
 #include <dynamo/interactions/dumbbells.hpp>
 #include <dynamo/interactions/PRIME_BB.hpp>
 #include <dynamo/interactions/parallelcubes.hpp>
