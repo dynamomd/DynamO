@@ -94,7 +94,5 @@ BOOST_AUTO_TEST_CASE( Equilibrium_Simulation )
   double MFT = opMisc.getMFT();
   BOOST_CHECK_CLOSE(MFT, expectedMFT, 1);
 
-  //Check that the momentum is around 0
-  dynamo::Vector momentum = Sim.getOutputPlugin<dynamo::OPMisc>()->getCurrentMomentum();
   BOOST_CHECK_MESSAGE(Sim.checkSystem() <= 2, "There are more than three invalid states in the final configuration");
 }

@@ -31,6 +31,7 @@ use-project /opencl : src/opencl ;
 
 ##### Targets representing all of the system libraries
 lib cwiid : : <link>shared <name>cwiid : : <define>COIL_wiimote ;
+lib judy  : : <link>shared <name>Judy ;
 lib png   : : <link>shared <name>png ;
 lib glut  : : <link>shared <name>glut ;
 lib GLU   : : <link>shared <name>GLU ;

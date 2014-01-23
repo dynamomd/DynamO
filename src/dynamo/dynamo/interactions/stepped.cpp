@@ -110,10 +110,10 @@ namespace dynamo {
   double 
   IStepped::getInternalEnergy(const Particle& p1, const Particle& p2) const
   {
-    ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1, p2));
-    if (capstat == ICapture::end()) return 0;
+    size_t capstat = ICapture::operator[](ICapture::key_type(p1, p2));
+    if (capstat == 0) return 0;
     const double energy_scale = _energyScale->getProperty(p1, p2);
-    return (*_potential)[capstat->second - 1].second * energy_scale;
+    return (*_potential)[capstat - 1].second * energy_scale;
   }
 
   IntEvent
@@ -131,8 +131,7 @@ namespace dynamo {
       M_throw() << "You shouldn't pass p1==p2 events to the interactions!";
 #endif 
 
-    ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1, p2));
-    const size_t current_step_ID = (capstat == ICapture::end()) ? 0 : capstat->second;
+    const size_t current_step_ID = ICapture::operator[](ICapture::key_type(p1, p2));
     const std::pair<double, double> step_bounds = _potential->getStepBounds(current_step_ID);
     const double length_scale = _lengthScale->getProperty(p1, p2);
 
@@ -162,8 +161,7 @@ namespace dynamo {
     const double length_scale = _lengthScale->getProperty(p1, p2);
     const double energy_scale = _energyScale->getProperty(p1, p2);
 
-    ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1, p2));
-    const size_t old_step_ID = (capstat == ICapture::end()) ? 0 : capstat->second;
+    const size_t old_step_ID = ICapture::operator[](ICapture::key_type(p1, p2));
     const std::pair<double, double> step_bounds = _potential->getStepBounds(old_step_ID);
 
     size_t new_step_ID;
@@ -201,8 +199,7 @@ namespace dynamo {
   bool
   IStepped::validateState(const Particle& p1, const Particle& p2, bool textoutput) const
   {
-    ICapture::const_iterator capstat = ICapture::find(ICapture::key_type(p1, p2));
-    const size_t stored_step_ID = (capstat == ICapture::end()) ? 0 : capstat->second;
+    const size_t stored_step_ID = ICapture::operator[](ICapture::key_type(p1, p2));
     const size_t calculated_step_ID = captureTest(p1, p2);
     const std::pair<double, double> stored_step_bounds = _potential->getStepBounds(stored_step_ID);
     const std::pair<double, double> calculated_step_bounds = _potential->getStepBounds(calculated_step_ID);

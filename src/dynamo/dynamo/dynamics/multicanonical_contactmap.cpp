@@ -189,12 +189,12 @@ namespace dynamo {
 	size_t distance = 0;
 	while (il != tethermap.first.end() && ir != map.end())
 	  {
-	    if (il->first < ir->first)
+	    if ((*il).first < (*ir).first)
 	      {
 		++il;
 		++distance;
 	      }
-	    else if (ir->first < il->first)
+	    else if ((*ir).first < (*il).first)
 	      {
 		++ir;
 		++distance;
