@@ -150,6 +150,9 @@ namespace dynamo
     dynamics->initialise();
 
     status = DYNAMICS_INIT;
+
+    dout << "Initialising Scheduler Neighbourlist" << std::endl;
+    ptrScheduler->initialiseNBlist();
     
     dout << "Initialising Interactions" << std::endl;
     {

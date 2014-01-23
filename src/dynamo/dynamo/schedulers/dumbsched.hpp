@@ -26,6 +26,8 @@ namespace dynamo {
 
     SDumb(dynamo::Simulation* const, FEL*);
 
+    virtual void initialiseNBlist() {}
+
     virtual std::unique_ptr<IDRange> getParticleNeighbours(const Particle&) const;
     virtual std::unique_ptr<IDRange> getParticleNeighbours(const Vector&) const;
     virtual std::unique_ptr<IDRange> getParticleLocals(const Particle&) const;

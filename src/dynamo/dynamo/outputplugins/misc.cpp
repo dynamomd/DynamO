@@ -106,12 +106,14 @@ namespace dynamo {
     _internalEnergy.clear();
     _internalEnergy.resize(Sim->N(), 0);
 
-    for (auto ptr1 = Sim->particles.begin(); ptr1 != Sim->particles.end(); ++ptr1)
+    for (const auto& p1 : Sim->particles)
       {
-	std::unique_ptr<IDRange> ids(Sim->ptrScheduler->getParticleLocals(*ptr1));
+	std::unique_ptr<IDRange> ids(Sim->ptrScheduler->getParticleNeighbours(p1));
 	for (size_t ID2 : *ids)
-	  _internalEnergy[ptr1->getID()] += Sim->getInteraction(*ptr1, Sim->particles[ID2])->getInternalEnergy(*ptr1, Sim->particles[ID2]);
+	  if (ID2 != p1.getID())
+	    _internalEnergy[p1.getID()] += 0.5 * Sim->getInteraction(p1, Sim->particles[ID2])->getInternalEnergy(p1, Sim->particles[ID2]);
       }
+
     for (const Particle& part : Sim->particles)
       {
 	const Species& sp = *(Sim->species(part));

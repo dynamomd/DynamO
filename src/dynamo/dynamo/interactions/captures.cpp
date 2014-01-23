@@ -32,13 +32,16 @@ namespace dynamo {
 	_mapUninitialised = false;
 	clear();
 
-	for (std::vector<Particle>::const_iterator iPtr1 = Sim->particles.begin();
-	     iPtr1 != Sim->particles.end(); iPtr1++)
-	  for (std::vector<Particle>::const_iterator iPtr2 = iPtr1+1;
-	       iPtr2 != Sim->particles.end(); iPtr2++)
-	    //Check this interaction is the correct interaction for the pair
-	    if (Sim->getInteraction(*iPtr1, *iPtr2).get() == static_cast<const Interaction*>(this))
-	      testAddToCaptureMap(*iPtr1, iPtr2->getID());
+	for (const auto& p1 : Sim->particles)
+	  {
+	    std::unique_ptr<IDRange> ids(Sim->ptrScheduler->getParticleNeighbours(p1));
+	    for (size_t ID2 : *ids)
+	      if (ID2 != p1.getID())
+		{
+		  if (Sim->getInteraction(p1, Sim->particles[ID2]).get() == static_cast<const Interaction*>(this))
+		    testAddToCaptureMap(p1, Sim->particles[ID2]);
+		}
+	  }
       }
   }
 

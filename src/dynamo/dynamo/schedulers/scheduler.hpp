@@ -39,6 +39,7 @@ namespace dynamo {
     virtual ~Scheduler() = 0;
 
     virtual void initialise();
+    virtual void initialiseNBlist() = 0;
 
     void rebuildList();
   

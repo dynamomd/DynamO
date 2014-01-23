@@ -29,6 +29,7 @@ namespace dynamo {
     virtual void rebuildList();
 
     virtual void initialise();
+    virtual void initialiseNBlist() {}
 
     virtual std::unique_ptr<IDRange> getParticleNeighbours(const Particle&) const;
     virtual std::unique_ptr<IDRange> getParticleNeighbours(const Vector&) const;

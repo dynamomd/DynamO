@@ -32,49 +32,55 @@
 #include <cmath>
 
 namespace dynamo {
-  void
-  SNeighbourList::initialise()
-  {
+  void 
+  SNeighbourList::initialiseNBlist() {
     //First, try to detect a neighbour list
-    try {
-      NBListID = Sim->globals["SchedulerNBList"]->getID();
-    }
-    catch(std::exception& cxp)
+    NBListID = std::numeric_limits<size_t>::max();
+    for (size_t ID = 0; ID < Sim->globals.size(); ++ID)
+      if (Sim->globals[ID]->getName() == "SchedulerNBList")
+	NBListID = ID;
+
+    if (NBListID == std::numeric_limits<size_t>::max())
       {
-	//There is no global cellular list available. Add the appropriate neighbourlist.
-	shared_ptr<GCells> scheduler;
+	//There is no global cellular list available. Add an
+	//appropriate neighbourlist.
+	shared_ptr<GCells> nblist;
 	if (std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
-	  scheduler = shared_ptr<GCells>(new GCellsShearing(Sim, "SchedulerNBList"));
+	  nblist = shared_ptr<GCells>(new GCellsShearing(Sim, "SchedulerNBList"));
 	else
-	  scheduler = shared_ptr<GCells>(new GCells(Sim,"SchedulerNBList"));
-	Sim->globals.push_back(scheduler);
-	scheduler->setConfigOutput(false);
-	scheduler->initialise(Sim->globals.size() - 1);
+	  nblist = shared_ptr<GCells>(new GCells(Sim,"SchedulerNBList"));
+	Sim->globals.push_back(nblist);
+	nblist->setConfigOutput(false);
+	NBListID = Sim->globals.size() - 1;
 
-	NBListID = Sim->globals.back()->getID();
-
-	//Check if this is a compressing system, if so, add the appropriate hack!
+	//Check if this is a compressing system, if so, add the
+	//fix to resize the cells when required.
 	shared_ptr<DynCompression> compressiondynamics = std::dynamic_pointer_cast<DynCompression>(Sim->dynamics);
 	if (compressiondynamics)
 	  {
-	    //Rebulid the collision scheduler without the overlapping
+	    //Rebuild the collision scheduler without the overlapping
 	    //cells, otherwise cells are always rebuilt as they overlap
 	    //such that the maximum supported interaction distance is
 	    //equal to the current maximum interaction distance.
-	    scheduler->setCellOverlap(false);
+	    nblist->setCellOverlap(false);
 	    Sim->systems.push_back(shared_ptr<System>(new SysNBListCompressionFix(Sim, compressiondynamics->getGrowthRate(), NBListID)));
-	    Sim->systems.back()->initialise(Sim->systems.size() - 1);
 	  }
-
       }
-    
+    //Initialise the global list early (it will be reinitialised later
+    //as well)
+    Sim->globals[NBListID]->initialise(NBListID);
+  }
+
+  
+  void
+  SNeighbourList::initialise()
+  {    
     shared_ptr<GNeighbourList> nblist = std::dynamic_pointer_cast<GNeighbourList>(Sim->globals[NBListID]);
 
     if (!nblist)
       M_throw() << "The Global named SchedulerNBList is not a neighbour list!";
 
-    if (nblist->getMaxSupportedInteractionLength() 
-	< Sim->getLongestInteraction())
+    if (nblist->getMaxSupportedInteractionLength() < Sim->getLongestInteraction())
       M_throw() << "Neighbourlist supports too small interaction distances! Supported distance is " 
 		<< nblist->getMaxSupportedInteractionLength() / Sim->units.unitLength() 
 		<< " but the longest interaction distance is " 
@@ -115,10 +121,7 @@ namespace dynamo {
 #endif
 
     //Grab a reference to the neighbour list
-    const GNeighbourList& nblist(*static_cast<const GNeighbourList*>
-				 (Sim->globals[NBListID]
-				  .get()));
-  
+    const GNeighbourList& nblist(*static_cast<const GNeighbourList*>(Sim->globals[NBListID].get()));
     IDRangeList* range_ptr = new IDRangeList();
     nblist.getParticleNeighbours(part, range_ptr->getContainer());
     return std::unique_ptr<IDRange>(range_ptr);
