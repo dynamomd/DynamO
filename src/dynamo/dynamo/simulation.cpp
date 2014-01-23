@@ -694,7 +694,7 @@ namespace dynamo
   
     for (const shared_ptr<Interaction>& interaction_ptr : interactions)
       {
-	dout << "Checking Interaction \"" << interaction_ptr->getName() << std::endl;
+	dout << "Checking Interaction \"" << interaction_ptr->getName() << "\"" << std::endl;
 	errors += interaction_ptr->validateState();
       }
 

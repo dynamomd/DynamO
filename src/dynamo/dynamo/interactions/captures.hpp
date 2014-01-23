@@ -20,9 +20,8 @@
 #include <dynamo/particle.hpp>
 #include <dynamo/interactions/interaction.hpp>
 #include <magnet/exception.hpp>
+#include <magnet/containers/judy.hpp>
 #include <map>
-
-#include <Judy.h>
 
 namespace dynamo {
   namespace detail {
@@ -34,121 +33,13 @@ namespace dynamo {
       }
     }
 
-    /*!\brief This is a container that stores a single size_t
-       identified by a pair of particles.
-       
-       To efficiently store the state of all possible particle
-       pairings, a map is used and entries are only stored if the
-       state is non-zero. Although an unordered_map may be slightly
-       faster, a map is used to allow comparison of CaptureMaps and a
-       rapid hashing if CaptureMaps are to be used as an index of the
-       simulation state.
-       
-       To facilitate the storage only if non-zero behaviour, the array
-       access operator is overloaded to automatically return a size_t
-       0 for any entry which is missing. It also returns a proxy which
-       deletes entries when they are set to 0.
-    */
-class CaptureMap
-{
-public:
-  typedef std::pair<size_t, size_t> key_type;
-  typedef Word_t mapped_type;
-  typedef std::pair<key_type, mapped_type> value_type;
-
-  class const_iterator : public std::iterator<std::input_iterator_tag, value_type> {
-  public:
-    const_iterator(const CaptureMap& container, size_t idx):_container(container), _idx(idx)  {}
-    const_iterator& operator++() { ++_idx; return *this; }
-    value_type operator*() const { return _container[_idx]; }
-    bool operator!=(const const_iterator& o) const { return !(*this == o); }
-    bool operator==(const const_iterator& o) const { return _idx == o._idx;}
-
-  private:
-    const CaptureMap& _container;
-    size_t _idx;
-  };
-
-  const_iterator begin() const { return const_iterator(*this, 0); }
-  const_iterator end() const { return const_iterator(*this, size()); }
-
-private:
-  static const size_t half_shift = sizeof(Word_t) * 4;
-  static const size_t mask = (size_t(1) << half_shift) - 1;
-      
-  Pvoid_t _array = (Pvoid_t) NULL;
-  size_t _count = 0;
-      
-  static inline Word_t keyToID(key_type key) {
-    return Word_t((std::min(key.first, key.second) << half_shift) | std::max(key.first, key.second)); 
-  }
-  
-  static inline key_type IDtoKey(Word_t key) {
-    return key_type((size_t(key) >> half_shift) & mask,  size_t(key) & mask);
-  }
-
-public:
-
-  ~CaptureMap() { clear(); }
-
-  void clear() { JudyLFreeArray(&_array, NULL); }
-  /*!\brief This proxy is used to double check if an assignment of
-    zero is done, and delete the entry if it is. */
-  struct EntryProxy {
-  public:
-    EntryProxy(CaptureMap& container, const key_type& key):
-      _container(container), _ID(keyToID(key)) {}
-
-    operator const mapped_type() const {
-      mapped_type* PValue = NULL;
-      PValue = (mapped_type*)JudyLGet(_container._array, _ID, NULL);
-      return (PValue == NULL) ? 0 : *PValue;
-    }
-	
-    EntryProxy& operator=(mapped_type newval) {
-      if (newval == 0)
-	_container._count -= JudyLDel(&(_container._array), _ID, NULL);
-      else
-	{
-	  mapped_type& Value = *(mapped_type*)JudyLIns(&(_container._array), _ID, NULL);
-	  if (Value == 0) ++_container._count;
-	  Value = newval;
-	}
-      return *this;
-    }
-	
-  private:
-    CaptureMap& _container;
-    const Word_t _ID;
-  };
-
-  size_t size() const { return _count; }
-  
-  value_type operator[](const size_t i) const {
-    Word_t ID;
-    mapped_type val = *(mapped_type*)JudyLByCount(_array, i+1, &ID, NULL);
-    return value_type(IDtoKey(ID), val);
-  }
-      
-  /*! \brief This non-const array access operator uses EntryProxy
-    to check if any values assigned are zero so they may be deleted. */
-  EntryProxy operator[](const key_type& key) {
-    return EntryProxy(*this, key); 
-  }
-
-  mapped_type operator[](const key_type& key) const {
-    mapped_type* PValue = NULL;
-    PValue = (mapped_type*)JudyLGet(_array, keyToID(key), NULL);
-    return (PValue == NULL) ? 0 : *PValue;
-  }
-};
+    typedef magnet::containers::JudyPairMap CaptureMap;
 
     struct CaptureMapKey: public std::vector<CaptureMap::value_type>
     {
       typedef std::vector<CaptureMap::value_type> Container;
       CaptureMapKey(const CaptureMap& map):
-       Container(map.begin(), map.end())
-      {}
+       Container(map.begin(), map.end()) {}
 
       std::size_t hash() const {
 	std::size_t hash(0);
