@@ -99,6 +99,7 @@ namespace dynamo
     for (shared_ptr<Species>& ptr : species)
       ptr->initialise();
 
+    dout << "Validating Species definitions" << std::endl;
     unsigned int count = 0;
     //Now confirm that every species has only one species type!
     for (const Particle& part : particles)
@@ -134,6 +135,7 @@ namespace dynamo
 
     status = SPECIES_INIT;
 
+    dout << "Validating self-Interaction definitions" << std::endl;
     //Check that each particle has a representative interaction
     for (const Particle& particle : particles)
       try {
@@ -144,19 +146,12 @@ namespace dynamo
 		    << ") does not have a self Interaction defined. Self Interactions are not used for the dynamics of the system, but are used to draw/visualise the particles, as well as calculate the excluded volume and other properties. Please add a self-Interaction";
 	}
 
+    dout << "Initialising the Dynamics" << std::endl;
     dynamics->initialise();
 
     status = DYNAMICS_INIT;
-
-    for (size_t ID1 = 0; ID1 < N(); ++ID1)
-      for (size_t ID2 = ID1; ID2 < N(); ++ID2)
-	try {
-	  getInteraction(particles[ID1], particles[ID2]);
-	} catch (...)
-	  {
-	    M_throw() << "There is no Interaction defined between particle ID=" << ID1 << " and particle ID=" << ID2 << ". Each particle pairing must have an Interaction defined";
-	  }
     
+    dout << "Initialising Interactions" << std::endl;
     {
       size_t ID=0;
       
@@ -182,6 +177,7 @@ namespace dynamo
 
     status = INTERACTION_INIT;
 	
+    dout << "Initialising Locals" << std::endl;
     {
       size_t ID=0;
       //Must be initialised before globals. Neighbour lists are
@@ -192,6 +188,7 @@ namespace dynamo
 
     status = LOCAL_INIT;
 
+    dout << "Initialising Globals" << std::endl;
     /* Add the Periodic Boundary Condition sentinel (if required). */
     if (std::dynamic_pointer_cast<BCPeriodic>(BCs))
       globals.push_back(shared_ptr<Global>(new GPBCSentinel(this, "PBCSentinel")));
@@ -204,6 +201,7 @@ namespace dynamo
 
     status = GLOBAL_INIT;
 
+    dout << "Initialising Systems" << std::endl;
     //Search to check if a ticker System is needed
     for (shared_ptr<OutputPlugin>& Ptr : outputPlugins)
       if (std::dynamic_pointer_cast<OPTicker>(Ptr))
@@ -211,6 +209,7 @@ namespace dynamo
 	  addSystemTicker();
 	  break;
 	}
+
     {
       size_t ID=0;  
       for (shared_ptr<System>& ptr : systems)
@@ -226,12 +225,14 @@ namespace dynamo
     if (ptrScheduler == NULL)
       M_throw() << "The scheduler has not been set!";      
 
+    dout << "Initialising Scheduler" << std::endl;
     if (endEventCount) 
       //Only initialise the scheduler if we're simulating
       ptrScheduler->initialise();
 
     status = SCHEDULER_INIT;
 
+    dout << "Initialising OutputPlugins" << std::endl;
     //This sorting must be done according to the derived plugins sort
     //operators.
     std::sort(outputPlugins.begin(), outputPlugins.end(), OutputPluginSort());
@@ -689,8 +690,12 @@ namespace dynamo
     std::vector<Particle>::const_iterator iPtr1, iPtr2;
   
     for (const shared_ptr<Interaction>& interaction_ptr : interactions)
-      errors += interaction_ptr->validateState();
+      {
+	dout << "Checking Interaction \"" << interaction_ptr->getName() << std::endl;
+	errors += interaction_ptr->validateState();
+      }
 
+    dout << "Testing all particle pairs for invalid states" << std::endl;
     for (iPtr1 = particles.begin(); iPtr1 != particles.end(); ++iPtr1)
       for (iPtr2 = iPtr1 + 1; iPtr2 != particles.end(); ++iPtr2)
 	errors += getInteraction(*iPtr1, *iPtr2)->validateState(*iPtr1, *iPtr2);

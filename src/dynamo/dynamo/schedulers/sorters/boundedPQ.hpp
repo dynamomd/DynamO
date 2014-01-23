@@ -202,21 +202,13 @@ namespace dynamo {
       linearLists.resize(nlists+1, -1); /*+1 for overflow, -1 for
 					  marking empty*/ 
 
-      if (!quiet)
-	std::cout << "Sorting all events, please wait..." << std::endl;
-
       //Now insert all of the events!
       for (unsigned long i = 1; i <= N; i++)
 	insertInEventQ(i);
 
   
-      if (!quiet)
-	std::cout << "Finding first event..." << std::endl;
-    
       //Find the next event and place it first so nextEventID() works
       orderNextEvent();
-      if (!quiet)
-	std::cout << "Ready for simulation." << std::endl;
     }
 
     inline void push(const Event& tmpVal, const size_t& pID)

@@ -18,6 +18,7 @@
 #include <dynamo/outputplugins/misc.hpp>
 #include <dynamo/include.hpp>
 #include <dynamo/simulation.hpp>
+#include <dynamo/schedulers/scheduler.hpp>
 #include <magnet/memUsage.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <dynamo/systems/tHalt.hpp>
@@ -93,10 +94,10 @@ namespace dynamo {
 	 << "\nNo. of Species " << Sim->species.size()
 	 << "\nSimulation box length "
 	 << Vector(Sim->primaryCellSize / Sim->units.unitLength()).toString()
-	 << "\n";
+	 << std::endl;
 
     Matrix kineticP;
-    Vector thermalConductivityFS(0,0,0);
+    Vector thermalConductivityFS(0, 0, 0);
     _speciesMomenta.clear();
     _speciesMomenta.resize(Sim->species.size());
     _speciesMasses.clear();
@@ -106,13 +107,11 @@ namespace dynamo {
     _internalEnergy.resize(Sim->N(), 0);
 
     for (auto ptr1 = Sim->particles.begin(); ptr1 != Sim->particles.end(); ++ptr1)
-      for (auto ptr2 = ptr1 + 1; ptr2 != Sim->particles.end(); ++ptr2)
-	{
-	  double energy = 0.5 * Sim->getInteraction(*ptr1, *ptr2)->getInternalEnergy(*ptr1, *ptr2);
-	  _internalEnergy[ptr1->getID()] += energy;
-	  _internalEnergy[ptr2->getID()] += energy;
-	}
-
+      {
+	std::unique_ptr<IDRange> ids(Sim->ptrScheduler->getParticleLocals(*ptr1));
+	for (size_t ID2 : *ids)
+	  _internalEnergy[ptr1->getID()] += Sim->getInteraction(*ptr1, Sim->particles[ID2])->getInternalEnergy(*ptr1, Sim->particles[ID2]);
+      }
     for (const Particle& part : Sim->particles)
       {
 	const Species& sp = *(Sim->species(part));

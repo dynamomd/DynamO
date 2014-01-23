@@ -59,7 +59,10 @@ namespace dynamo {
     size_t warnings(0);
 
     for (const auto& interaction_ptr : Sim->interactions)
-      warnings += interaction_ptr->validateState(warnings < 101, 101 - warnings);
+      {
+	dout << "Checking Interaction \"" << interaction_ptr->getName() << "\" for invalid states" << std::endl;
+	warnings += interaction_ptr->validateState(warnings < 101, 101 - warnings);
+      }
     
     for (size_t id1(0); id1 < Sim->particles.size(); ++id1)
       {
