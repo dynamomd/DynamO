@@ -34,7 +34,8 @@ project	: requirements
 	 [ builddep.set-feature-on-build dynamo-boost-filesystem : boost_filesystem_test : "DynamO: Boost filesystem library" : incidental ]
 	 [ builddep.set-feature-on-build dynamo-boost-headers : boost_header_test : "DynamO: Boost headers" : incidental ]
 	 [ builddep.set-feature-on-build dynamo-bz2-library : libbz2_library_test : "DynamO: libbz2 library" : incidental ]
-	 [ builddep.combine-features dynamo-buildable : dynamo-boost-headers dynamo-boost-filesystem dynamo-boost-program-options dynamo-boost-iostreams dynamo-bz2-library : incidental ]
+	 [ builddep.set-feature-on-build dynamo-judy-library : /magnet//judy-test : "DynamO: Judy array library (libJudy)" : incidental ]
+	 [ builddep.combine-features dynamo-buildable : dynamo-boost-headers dynamo-boost-filesystem dynamo-boost-program-options dynamo-boost-iostreams dynamo-bz2-library dynamo-judy-library : incidental ]
 	: default-build release
 	: build-dir $(BUILD_DIR_PATH)
 	;
