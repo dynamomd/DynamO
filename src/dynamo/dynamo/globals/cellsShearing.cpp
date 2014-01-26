@@ -65,13 +65,7 @@ namespace dynamo {
 
     //We do not inherit GCells get Event as the calcPosition thing done
     //for infinite systems is breaking it for shearing for some reason.
-    return GlobalEvent(part,
-		       Sim->dynamics->
-		       getSquareCellCollision2
-		       (part, calcPosition(partCellData[part.getID()]), 
-			cellDimension)
-		       - Sim->dynamics->getParticleDelay(part),
-		       CELL, *this);
+    return GlobalEvent(part, Sim->dynamics->getSquareCellCollision2(part, calcPosition(_cellData.getCellID(part.getID())), cellDimension) - Sim->dynamics->getParticleDelay(part), CELL, *this);
   }
 
   void 
@@ -79,13 +73,12 @@ namespace dynamo {
   {
     Sim->dynamics->updateParticle(part);
 
-    size_t oldCell(partCellData[part.getID()]);
+    size_t oldCell(_cellData.getCellID(part.getID()));
     magnet::math::MortonNumber<3> oldCellCoords(oldCell);
     Vector oldCellPosition(calcPosition(oldCellCoords));
 
     //Determine the cell transition direction, its saved
-    int cellDirectionInt(Sim->dynamics->
-			 getSquareCellCollision3(part, oldCellPosition, cellDimension));
+    int cellDirectionInt(Sim->dynamics->getSquareCellCollision3(part, oldCellPosition, cellDimension));
   
     size_t cellDirection = abs(cellDirectionInt) - 1;
 
@@ -120,8 +113,7 @@ namespace dynamo {
       
 	endCell[0] = getCellID(tmpPos)[0];
 
-	removeFromCell(part.getID());
-	addToCell(part.getID(), endCell.getMortonNum());
+	_cellData.moveTo(oldCell, endCell.getMortonNum(), part.getID());
       
 	//Get rid of the virtual event that is next, update is delayed till
 	//after all events are added
@@ -152,8 +144,7 @@ namespace dynamo {
 	  endCell[cellDirection] = (endCell[cellDirection].getRealValue() 
 				    + cellCount[cellDirection] - 1) % cellCount[cellDirection];
 
-	removeFromCell(part.getID());
-	addToCell(part.getID(), endCell.getMortonNum());
+	_cellData.moveTo(oldCell, endCell.getMortonNum(), part.getID());
       
 	//Get rid of the virtual event that is next, update is delayed till
 	//after all events are added
@@ -193,8 +184,7 @@ namespace dynamo {
 					+ cellCount[cellDirection] - overlink) % cellCount[cellDirection];
 	  }
     
-	removeFromCell(part.getID());
-	addToCell(part.getID(), endCell.getMortonNum());
+	_cellData.moveTo(oldCell, endCell.getMortonNum(), part.getID());
 
 	//Get rid of the virtual event we're running, an updated event is
 	//pushed after all other events are added
@@ -236,7 +226,7 @@ namespace dynamo {
 	      {
 		newNBCell[dim1] %= cellCount[dim1];
   
-		for (const size_t& next : list[newNBCell.getMortonNum()])
+		for (const size_t& next : _cellData.getCellContents(newNBCell.getMortonNum()))
 		  _sigNewNeighbour(part, next);
 	  
 		++newNBCell[dim1];
@@ -276,7 +266,7 @@ namespace dynamo {
 
   void
   GCellsShearing::getParticleNeighbours(const Particle& part, std::vector<size_t>& retlist) const {
-    getParticleNeighbours(magnet::math::MortonNumber<3>(partCellData[part.getID()]), retlist);
+    getParticleNeighbours(magnet::math::MortonNumber<3>(_cellData.getCellID(part.getID())), retlist);
   }
 
   void
@@ -288,14 +278,13 @@ namespace dynamo {
   GCellsShearing::getParticleNeighbours(const magnet::math::MortonNumber<3>& cellCoords, std::vector<size_t>& retlist) const
   {
     GCells::getParticleNeighbours(cellCoords, retlist);
-
     if ((cellCoords[1] == 0) || (cellCoords[1] == dilatedCellMax[1]))
       getAdditionalLEParticleNeighbourhood(cellCoords, retlist);
   }
   
   void
   GCellsShearing::getAdditionalLEParticleNeighbourhood(const Particle& part, std::vector<size_t>& retlist) const {
-    return getAdditionalLEParticleNeighbourhood(magnet::math::MortonNumber<3>(partCellData[part.getID()]), retlist);
+    return getAdditionalLEParticleNeighbourhood(magnet::math::MortonNumber<3>(_cellData.getCellID(part.getID())), retlist);
   }
 
   void
@@ -319,8 +308,8 @@ namespace dynamo {
 
 	for (size_t j(0); j < cellCount[0]; ++j)
 	  {
-	    const std::vector<size_t>& nbs(list[cellCoords.getMortonNum()]);
-	    retlist.insert(retlist.end(), nbs.begin(), nbs.end());
+	    const auto neighbours = _cellData.getCellContents(cellCoords.getMortonNum());
+	    retlist.insert(retlist.end(), neighbours.begin(), neighbours.end());
 	    ++cellCoords[0];
 	  }
 	++cellCoords[2];

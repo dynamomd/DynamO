@@ -21,8 +21,68 @@
 #include <magnet/math/morton_number.hpp>
 #include <unordered_map>
 #include <vector>
+#include <set>
+#include <magnet/containers/judy.hpp>
+#include <magnet/containers/vector_set.hpp>
+#include <magnet/containers/multimaps.hpp>
 
 namespace dynamo {
+  namespace detail {
+    using namespace magnet::containers;
+    /*! \brief A container for storing the cell contents (and which
+        particle is in which cell).
+     */
+    class CellParticleList {
+      //Possible choices for data structures
+      typedef Vector_Multimap<VectorSet<size_t> > CellList;
+      //typedef SetCellList<JudySet<uint64_t> > CellList;
+      //typedef VectorSetCellList<JudySet<size_t> > CellList;
+
+
+      CellList _cellcontents;
+      typedef JudyMap<size_t, size_t> Map;
+      //typedef std::unordered_map<size_t, size_t> Map;
+      Map _particleCell;
+     
+    public:
+      void add(size_t cell, size_t particle) {
+	_cellcontents.insert(cell, particle);
+	_particleCell[particle] = cell;
+      }
+      
+      void remove(size_t cell, size_t particle) {
+	_cellcontents.erase(cell, particle);
+	_particleCell.erase(particle);
+      }
+
+      void moveTo(size_t oldcell, size_t newcell, size_t particle) {
+	_cellcontents.erase(oldcell, particle);
+	_cellcontents.insert(newcell, particle);
+	_particleCell[particle] = newcell;
+      }
+
+      CellList::RangeType getCellContents(const size_t cellID) {
+	return _cellcontents.getKeyContents(cellID);
+      }
+
+      size_t getCellID(const size_t particle) const {
+#ifdef MAGNET_DEBUG
+	if (_particleCell.find(particle) == _particleCell.end())
+	  M_throw() << "Could not find the cell for particle " << particle << " during cell look-up";
+#endif
+	return _particleCell.find(particle)->second;
+      }
+
+      void resize(size_t cellcount, size_t N) { 
+	_cellcontents.resize(cellcount); 
+      }
+
+      size_t size() const { return _particleCell.size(); }
+      void clear() { _particleCell.clear(); _cellcontents.clear(); }
+    private:
+    };
+  }
+
   /*! \brief A regular cell neighbour list implementation.
     
     This neighbour list is the main neighbour list implemenetation for
@@ -87,15 +147,7 @@ namespace dynamo {
     size_t NCells;
     size_t overlink;
 
-    //! \brief The list of particles in each cell.
-    mutable std::vector<std::vector<size_t> > list;
-
-    /*! \brief The cell for a given particle.
-      
-      This container is an unordered map, so we only store the linked
-      list for the particles actually inserted into this neighborlist.
-     */
-    mutable std::unordered_map<size_t, size_t> partCellData;
+    mutable detail::CellParticleList _cellData;
 
     GCells(const GCells&);
 
@@ -105,48 +157,7 @@ namespace dynamo {
 
     void addCells(double);
 
-    inline Vector calcPosition(const magnet::math::MortonNumber<3>& coords,
-			       const Particle& part) const;
-
+    inline Vector calcPosition(const magnet::math::MortonNumber<3>& coords, const Particle& part) const;
     Vector calcPosition(const magnet::math::MortonNumber<3>& coords) const;
-
-    inline void addToCell(size_t ID)
-    { addToCell(ID, getCellID(Sim->particles[ID].getPosition()).getMortonNum()); }
-
-    inline void addToCell(size_t ID, size_t cellID) const
-    {
-      list[cellID].push_back(ID);
-      partCellData[ID] = cellID;
-    }
-  
-    inline void removeFromCell(size_t ID) const
-    { removeFromCellwIt(ID, partCellData.find(ID)); }
-
-    inline void removeFromCellwIt(size_t ID, std::unordered_map<size_t, size_t>::iterator it) const
-    {
-#ifdef DYNAMO_DEBUG
-    if (it == partCellData.end())
-      M_throw() << "Could not find the particle's cell data";
-#endif
-      const size_t cellID = it->second;
-      //Erase the cell data
-      partCellData.erase(it);
-
-      std::vector<std::vector<size_t> >::iterator listIt = list.begin() + cellID;
-#ifdef DYNAMO_DEBUG
-    if (listIt == list.end())
-      M_throw() << "Could not find the particle's cell data";
-#endif
-
-      std::vector<size_t>::iterator pit = std::find(listIt->begin(), listIt->end(), ID);      
-
-#ifdef DYNAMO_DEBUG
-      if (pit == listIt->end())
-	M_throw() << "Removing a particle (ID=" << ID << ") which is not in a cell";
-#endif
-
-      *pit = listIt->back();
-      listIt->pop_back();
-    }
   };
 }

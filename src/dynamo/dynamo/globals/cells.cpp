@@ -95,29 +95,21 @@ namespace dynamo {
 
     if (verbose)
       {
-	Vector cellPos = calcPosition(partCellData[part.getID()], part);
+	Vector cellPos = calcPosition(_cellData.getCellID(part.getID()), part);
 	Vector relpos = part.getPosition() - cellPos;
 	Sim->BCs->applyBC(relpos);
 	derr 
-	  << "Calculating event for particle " << part.getID() << " in Cell " << magnet::math::MortonNumber<3>(partCellData[part.getID()]).toString()
+	  << "Calculating event for particle " << part.getID() << " in Cell " << magnet::math::MortonNumber<3>(_cellData.getCellID(part.getID())).toString()
 	  << "\nParticle pos = " << part.getPosition().toString()
 	  << "\nCell pos = " << cellPos.toString()
 	  << "\nRelpos = " << relpos.toString()
 	  << "\nCell size = " << cellDimension.toString()
-	  << "\nTime = " << Sim->dynamics->getSquareCellCollision2(part, calcPosition(partCellData[part.getID()], part),
-								   cellDimension) - Sim->dynamics->getParticleDelay(part)
+	  << "\nTime = " << Sim->dynamics->getSquareCellCollision2(part, calcPosition(_cellData.getCellID(part.getID()), part), cellDimension) - Sim->dynamics->getParticleDelay(part)
 	  << "\nDelay = " << Sim->dynamics->getParticleDelay(part)
 	  << std::endl;
       }
   
-    return GlobalEvent(part,
-		       Sim->dynamics->
-		       getSquareCellCollision2
-		       (part, 
-			calcPosition(partCellData[part.getID()], part), 
-			cellDimension)
-		       -Sim->dynamics->getParticleDelay(part),
-		       CELL, *this);
+    return GlobalEvent(part, Sim->dynamics->getSquareCellCollision2(part, calcPosition(_cellData.getCellID(part.getID()), part), cellDimension) - Sim->dynamics->getParticleDelay(part), CELL, *this);
 
   }
 
@@ -129,17 +121,12 @@ namespace dynamo {
     //expect the particle to be up to date.
     Sim->dynamics->updateParticle(part);
 
-    std::unordered_map<size_t, size_t>::iterator it = partCellData.find(part.getID());
-
-    const size_t oldCell(it->second);
+    const size_t oldCell = _cellData.getCellID(part.getID());
 
     size_t endCell;
 
     //Determine the cell transition direction, its saved
-    int cellDirectionInt(Sim->dynamics->
-			 getSquareCellCollision3
-			 (part, calcPosition(oldCell, part), cellDimension));
-  
+    int cellDirectionInt(Sim->dynamics->getSquareCellCollision3(part, calcPosition(oldCell, part), cellDimension));
     size_t cellDirection = abs(cellDirectionInt) - 1;
 
     //The coordinates of the new center cell in the neighbourhood of the
@@ -168,8 +155,7 @@ namespace dynamo {
       endCell = dendCell.getMortonNum();
     }
 
-    removeFromCellwIt(part.getID(), it);
-    addToCell(part.getID(), endCell);
+    _cellData.moveTo(oldCell, endCell, part.getID());
 
     //Get rid of the virtual event we're running, an updated event is
     //pushed after the callbacks are complete (the callbacks may also
@@ -197,9 +183,8 @@ namespace dynamo {
 	  {
 	    newNBCell[dim1] %= cellCount[dim1];
 	    
-	    for (const size_t& next : list[newNBCell.getMortonNum()])
+	    for (const size_t& next : _cellData.getCellContents(newNBCell.getMortonNum()))
 	      _sigNewNeighbour(part, next);
-	  
 	    ++newNBCell[dim1];
 	  }
 
@@ -235,14 +220,9 @@ namespace dynamo {
 
   void 
   GCells::initialise(size_t nID)
-  {
+  { 
     ID=nID;
-
     reinitialise();
-
-    dout << "Neighbourlist contains " << partCellData.size() 
-	 << " particle entries"
-	 << std::endl;
   }
 
   void
@@ -281,14 +261,12 @@ namespace dynamo {
   void
   GCells::addCells(double maxdiam)
   {
-    list.clear();
-    partCellData.clear();
+    _cellData.clear();
     NCells = 1;
 
     for (size_t iDim = 0; iDim < NDIM; iDim++)
       {
-	cellCount[iDim] = int(Sim->primaryCellSize[iDim] 
-			      / (maxdiam * (1.0 + 10 * std::numeric_limits<double>::epsilon())));
+	cellCount[iDim] = int(Sim->primaryCellSize[iDim] / (maxdiam * (1.0 + 10 * std::numeric_limits<double>::epsilon())));
       
 	if (cellCount[iDim] < 2 * overlink + 1)
 	  cellCount[iDim] = 2 * overlink + 1;
@@ -297,8 +275,7 @@ namespace dynamo {
       
 	dilatedCellMax[iDim] = cellCount[iDim] - 1;
 	cellLatticeWidth[iDim] = Sim->primaryCellSize[iDim] / cellCount[iDim];
-	cellDimension[iDim] = cellLatticeWidth[iDim] + (cellLatticeWidth[iDim] - maxdiam) 
-	  * lambda;
+	cellDimension[iDim] = cellLatticeWidth[iDim] + (cellLatticeWidth[iDim] - maxdiam) * lambda;
 	cellOffset[iDim] = -(cellLatticeWidth[iDim] - maxdiam) * lambda * 0.5;
       }
 
@@ -306,7 +283,7 @@ namespace dynamo {
     magnet::math::MortonNumber<3> coords(cellCount[0], cellCount[1], cellCount[2]);
     size_t sizeReq = coords.getMortonNum();
 
-    list.resize(sizeReq); //Empty Cells created!
+    _cellData.resize(sizeReq, Sim->particles.size()); //Empty Cells created!
 
     dout << "Cells <x,y,z> " << cellCount[0] << ","
 	 << cellCount[1] << "," << cellCount[2]
@@ -339,24 +316,22 @@ namespace dynamo {
     Sim->dynamics->updateAllParticles();
   
     ////Add all the particles 
-    for (const size_t& id : *range)
+    for (const size_t& pid : *range)
       {
-	Particle& p = Sim->particles[id];
+	Particle& p = Sim->particles[pid];
 	Sim->dynamics->updateParticle(p); 
-	addToCell(id);
+	_cellData.add(getCellID(p.getPosition()).getMortonNum(), pid);
+
 	if (verbose)
 	  {
-	    std::unordered_map<size_t, size_t>::iterator it = partCellData.find(id);
-	    magnet::math::MortonNumber<3> currentCell(it->second);
+	    size_t cellID = _cellData.getCellID(pid);
+	    magnet::math::MortonNumber<3> currentCell(cellID);
 	    
-	    magnet::math::MortonNumber<3> estCell(getCellID(Sim->particles[ID].getPosition()));
+	    magnet::math::MortonNumber<3> estCell(getCellID(p.getPosition()));
 	  
 	    Vector wrapped_pos = p.getPosition();
 	    for (size_t n = 0; n < NDIM; ++n)
-	      {
-		wrapped_pos[n] -= Sim->primaryCellSize[n] *
-		  lrint(wrapped_pos[n] / Sim->primaryCellSize[n]);
-	      }
+	      wrapped_pos[n] -= Sim->primaryCellSize[n] * lrint(wrapped_pos[n] / Sim->primaryCellSize[n]);
 	    Vector origin_pos = wrapped_pos + 0.5 * Sim->primaryCellSize - cellOffset;
 
 	    derr << "Added particle ID=" << p.getID() << " to cell <"
@@ -364,20 +339,16 @@ namespace dynamo {
 		 << "," << currentCell[1].getRealValue()
 		 << "," << currentCell[2].getRealValue()
 		 << ">"
-		 << "\nParticle is at this distance " << Vector(p.getPosition() - calcPosition(it->second, p)).toString() << " from the cell origin"
+		 << "\nParticle is at this distance " << Vector(p.getPosition() - calcPosition(cellID, p)).toString() << " from the cell origin"
 		 << "\nParticle position  " << p.getPosition().toString()	
 		 << "\nParticle wrapped distance  " << wrapped_pos.toString()	
 		 << "\nParticle relative position  " << origin_pos.toString()
-		 << "\nParticle cell number  " << Vector(origin_pos[0] / cellLatticeWidth[0],
-							 origin_pos[1] / cellLatticeWidth[1],
-							 origin_pos[2] / cellLatticeWidth[2]
-							 ).toString()
+		 << "\nParticle cell number  " << Vector(origin_pos[0] / cellLatticeWidth[0], origin_pos[1] / cellLatticeWidth[1], origin_pos[2] / cellLatticeWidth[2]).toString()
 		 << std::endl;
 	  }
       }
 
-    dout << "Cell loading " << float(partCellData.size()) / NCells 
-	 << std::endl;
+    dout << "Cell loading " << float(_cellData.size()) / NCells << std::endl;
   }
 
   magnet::math::MortonNumber<3>
@@ -421,8 +392,8 @@ namespace dynamo {
 	      {
 		coords[2] = (zero_coords[2] + z) % cellCount[2];
 
-		const std::vector<size_t>& nlist = list[coords.getMortonNum()];
-		retlist.insert(retlist.end(), nlist.begin(), nlist.end());
+		const auto neighbours = _cellData.getCellContents(coords.getMortonNum());
+		retlist.insert(retlist.end(), neighbours.begin(), neighbours.end());
 	      }
 	  }
       }
@@ -430,7 +401,7 @@ namespace dynamo {
   
   void
   GCells::getParticleNeighbours(const Particle& part, std::vector<size_t>& retlist) const {
-    getParticleNeighbours(partCellData[part.getID()], retlist);
+    getParticleNeighbours(_cellData.getCellID(part.getID()), retlist);
   }
 
   void
