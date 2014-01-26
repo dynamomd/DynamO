@@ -40,7 +40,7 @@ namespace magnet {
       void erase(size_t particle) {
 	typename std::vector<T>::iterator pit = find(particle);
 #ifdef DYNAMO_DEBUG
-	if (pit == end())
+	if (pit == std::vector<T>::end())
 	  M_throw() << "Removing a particle " << particle << " which is not in this cell";
 #endif
 	//Base::erase(pit); 
