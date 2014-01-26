@@ -34,13 +34,13 @@ namespace magnet {
       public:
 	ConstJudyIterator(const Container& container, value_type value):
 	  _container(container), _value(value) {}
-	ConstJudyIterator& operator++() { return *this = _container.findNext(_value); }
-	ConstJudyIterator& operator--() { return *this = _container.findPrev(_value); }
+	ConstJudyIterator& operator++() { return *this = _container.next(*this); }
+	ConstJudyIterator& operator--() { return *this = _container.prev(*this); }
 	const value_type& operator*() const { return _value; }
 	value_type const * operator->() const { return &_value; }
 	bool operator!=(const ConstJudyIterator& o) const { return !(*this == o); }
 	bool operator==(const ConstJudyIterator& o) const { return (&_container == &o._container) && (_value == o._value); }
-      private:
+      protected:
 	//Private as we can't allow iterator assignment as we have a
 	//reference to the container
 	ConstJudyIterator& operator=(const ConstJudyIterator& o) {
@@ -76,49 +76,65 @@ namespace magnet {
     public:
       typedef detail::ConstJudyIterator<JudySet, value_type> const_iterator;
 
-      const_iterator find(key_type key) const { 
+      const_iterator find(const key_type& key) const { 
 	if (Judy1Test(_array, key, NULL))
 	  return const_iterator(*this, key);
 	else
 	  return end();
       }
-      const_iterator findFirst(key_type key) const {
+
+      const_iterator lower_bound(key_type key) const {
 	if (Judy1First(_array, &key, NULL) != 0)
 	  return const_iterator(*this, key);
 	else 
 	  return end();
       }
 
-      const_iterator findNext(key_type key) const {
+      const_iterator upper_bound(key_type key) const { return next(key); }
+
+      const_iterator next(const const_iterator& it) const {
+	key_type key = *it;
 	if (Judy1Next(_array, &key, NULL) != 0)
 	  return const_iterator(*this, key);
 	else 
 	  return end();
       }
 
-      const_iterator findPrev(key_type key) const {
+      const_iterator prev(const const_iterator& it) const {
+	key_type key = *it;
 	if (Judy1Prev(_array, &key, NULL) != 0)
 	  return const_iterator(*this, key);
 	else
 	  return end();
       }
 
+      std::pair<const_iterator, const_iterator> equal_range(const key_type& key) const {
+	const_iterator it1 = find(key);
+	if (it1 == end()) 
+	  return std::pair<const_iterator, const_iterator>(end(), end());
+	const_iterator it2 = it1;
+	return std::pair<const_iterator, const_iterator>(it1, ++it2);
+      }
+
       const_iterator findNth(const size_t i) {
 	key_type key;
-	Judy1ByCount(_array, i+1, &key, NULL);
-	return const_iterator(*this, key);
+	if (Judy1ByCount(_array, i+1, &key, NULL))
+	  return const_iterator(*this, key);
+	else
+	  return end();
       }
       
-      const_iterator begin() const { return findFirst(0); }
+      const_iterator begin() const { return lower_bound(0); }
       const_iterator end() const { return const_iterator(*this, endIndex); }
       
     public:
       ~JudySet() { clear(); }
       void clear() { Judy1FreeArray(&_array, NULL); _count = 0; }
-      inline size_t size() const { return _count; }
-      inline void insert(const key_type key) { _count += Judy1Set(&_array, key, NULL); }
-      inline void erase(const key_type key) { _count -= Judy1Unset(&_array, key, NULL); }
-      inline bool count(const key_type key) { return find(key) != end(); }
+      size_t size() const { return _count; }
+      bool empty() const { return _count == 0; }
+      void insert(const key_type key) { _count += Judy1Set(&_array, key, NULL); }
+      void erase(const key_type key) { _count -= Judy1Unset(&_array, key, NULL); }
+      bool count(const key_type key) { return find(key) != end(); }
     };
 
     /*! \brief A Judy array map which between types which are the size
@@ -152,7 +168,7 @@ namespace magnet {
 	  return end();
       }
 
-      const_iterator findFirst(key_type idx) const {
+      const_iterator lower_bound(key_type idx) const {
 	mapped_type* ptr = (mapped_type*)JudyLFirst(_array, (Word_t*)&idx, NULL);
 	if (ptr != NULL)
 	  return const_iterator(*this, value_type(idx, *ptr));
@@ -160,8 +176,12 @@ namespace magnet {
 	  return end();
       }
 
-      const_iterator findNext(value_type val) const { return findNext(val.first); }
-      const_iterator findNext(key_type idx) const {
+      const_iterator upper_bound(key_type idx) const {
+	return next(idx);
+      }
+
+      const_iterator next(const const_iterator& it) const { return next(it->first); }
+      const_iterator next(key_type idx) const {
 	mapped_type* ptr = (mapped_type*)JudyLNext(_array, (Word_t*)&idx, NULL);
 	if (ptr != NULL)
 	  return const_iterator(*this, value_type(idx, *ptr));
@@ -169,8 +189,8 @@ namespace magnet {
 	  return end();
       }
 
-      const_iterator findPrev(value_type val) const { return findNext(val.first); }
-      const_iterator findPrev(key_type idx) const {
+      const_iterator prev(const const_iterator& it) const { return prev(it->first); }
+      const_iterator prev(key_type idx) const {
 	mapped_type* ptr = (mapped_type*)JudyLPrev(_array, (Word_t*)&idx, NULL);
 	if (ptr != NULL)
 	  return const_iterator(*this, value_type(idx, *ptr));
@@ -178,20 +198,29 @@ namespace magnet {
 	  return end();
       }
 
-      inline void insert(const value_type value) {
+      void insert(const value_type value) {
 	(*this)[value.first] = value.second;
       }
 
-      inline void erase(const key_type key) {
+      void erase(const key_type key) {
 	_count -= JudyLDel(&_array, key, NULL);
       }
 
-      const_iterator begin() const { return findFirst(0); }
+      const_iterator begin() const { return lower_bound(0); }
       const_iterator end() const { return const_iterator(*this, value_type(endIndex, 0)); }
+
+      std::pair<const_iterator, const_iterator> equal_range(const key_type& key) const {
+	const_iterator it1 = find(key);
+	if (it1 == end())
+	  return std::pair<const_iterator, const_iterator>(end(), end());
+	const_iterator it2 = it1;
+	return std::pair<const_iterator, const_iterator>(it1, ++it2);
+      }
 
       ~JudyMap() { clear(); }
       void clear() { JudyLFreeArray(&_array, NULL); _count = 0; }
       size_t size() const { return _count; }
+      size_t empty() const { return _count == 0; }
       bool count(key_type key) const { return find(key) != end(); }
 
       const_iterator findNth(const size_t i) const {
@@ -222,7 +251,7 @@ namespace magnet {
 
       /*! \brief This non-const array access operator uses EntryProxy
 	to check if any values assigned are zero so they may be deleted. */
-      inline EntryProxy operator[](key_type key) {
+      EntryProxy operator[](key_type key) {
 	return EntryProxy(*this, key); 
       }
 

@@ -77,6 +77,8 @@ BOOST_AUTO_TEST_CASE( Judy_map )
 
   //Test empty containers
   BOOST_CHECK(test.begin() == test.end());
+  BOOST_CHECK(test.empty());
+  BOOST_CHECK(test.size() == 0);
 
   //Test inserts
   for (size_t i(0); i < N; ++i)
@@ -126,5 +128,6 @@ BOOST_AUTO_TEST_CASE( Judy_map )
   //Test clearing
   test.clear();
   BOOST_CHECK(test.size() == 0);
+  BOOST_CHECK(test.empty());
   BOOST_CHECK(test.begin() == test.end());
 }
