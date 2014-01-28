@@ -123,8 +123,8 @@ namespace dynamo {
 
     virtual void reinitialise();
 
-    virtual void getParticleNeighbours(const Particle&, std::vector<size_t>&) const;
-    virtual void getParticleNeighbours(const Vector&, std::vector<size_t>&) const;
+    void getParticleNeighbours(const Particle&, std::vector<size_t>&) const;
+    void getParticleNeighbours(const Vector&, std::vector<size_t>&) const;
     
     virtual void operator<<(const magnet::xml::Node&);
 
@@ -136,7 +136,7 @@ namespace dynamo {
     void setConfigOutput(bool val) { _inConfig = val; }
 
   protected:
-    void getParticleNeighbours(const magnet::math::MortonNumber<3>&, std::vector<size_t>&) const;
+    virtual void getParticleNeighbours(const magnet::math::MortonNumber<3>&, std::vector<size_t>&) const;
 
     size_t cellCount[3];
     magnet::math::DilatedInteger<3> dilatedCellMax[3];

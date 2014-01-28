@@ -73,24 +73,25 @@ namespace dynamo {
   {
     Sim->dynamics->updateParticle(part);
 
+    //Get rid of the virtual event that is next, update is delayed
+    //till after all events are added
+    Sim->ptrScheduler->popNextEvent();
+
     size_t oldCell(_cellData.getCellID(part.getID()));
     magnet::math::MortonNumber<3> oldCellCoords(oldCell);
     Vector oldCellPosition(calcPosition(oldCellCoords));
 
     //Determine the cell transition direction, its saved
     int cellDirectionInt(Sim->dynamics->getSquareCellCollision3(part, oldCellPosition, cellDimension));
-  
     size_t cellDirection = abs(cellDirectionInt) - 1;
 
     magnet::math::MortonNumber<3> endCell = oldCellCoords; //The ID of the cell the particle enters
 
-    if ((cellDirection == 1) &&
-	(oldCellCoords[1] == ((cellDirectionInt < 0) ? 0 : (cellCount[1] - 1))))
+    if ((cellDirection == 1) && (oldCellCoords[1] == ((cellDirectionInt < 0) ? 0 : (cellCount[1] - 1))))
       {
 	//We're wrapping in the y direction, we have to compute
 	//which cell its entering
-	endCell[1] = (endCell[1].getRealValue() + cellCount[1] 
-		      + ((cellDirectionInt < 0) ?  -1 : 1)) % cellCount[1];
+	endCell[1] = (endCell[1].getRealValue() + cellCount[1] + ((cellDirectionInt < 0) ?  -1 : 1)) % cellCount[1];
 
 	//Remove the old x contribution
 	//Calculate the final x value
@@ -115,17 +116,13 @@ namespace dynamo {
 
 	_cellData.moveTo(oldCell, endCell.getMortonNum(), part.getID());
       
-	//Get rid of the virtual event that is next, update is delayed till
-	//after all events are added
-	Sim->ptrScheduler->popNextEvent();
-
 	//Check the entire neighbourhood, could check just the new
 	//neighbours and the extra LE neighbourhood strip but its a lot
 	//of code
 	if (isUsedInScheduler)
 	  {
 	    std::vector<size_t> neighbours;
-	    getParticleNeighbours(part, neighbours);
+	    GCells::getParticleNeighbours(part, neighbours);
 	    for (const size_t& id2 : neighbours)
 	      {
 		Sim->ptrScheduler->addInteractionEvent(part, id2);
@@ -133,23 +130,13 @@ namespace dynamo {
 	      }
 	  }
       }
-    else if ((cellDirection == 1) &&
-	     (oldCellCoords[1] == ((cellDirectionInt < 0) ? 1 : (cellCount[1] - 2))))
+    else if ((cellDirection == 1) && (oldCellCoords[1] == ((cellDirectionInt < 0) ? 1 : (cellCount[1] - 2))))
       {
 	//We're entering the boundary of the y direction
 	//Calculate the end cell, no boundary wrap check required
-	if (cellDirectionInt > 0)
-	  endCell[cellDirection] = (endCell[cellDirection].getRealValue() + 1) % cellCount[cellDirection];
-	else
-	  endCell[cellDirection] = (endCell[cellDirection].getRealValue() 
-				    + cellCount[cellDirection] - 1) % cellCount[cellDirection];
-
+	endCell[cellDirection] = (endCell[cellDirection].getRealValue() + cellCount[cellDirection] + ((cellDirectionInt > 0) ? 1 : -1)) % cellCount[cellDirection];
 	_cellData.moveTo(oldCell, endCell.getMortonNum(), part.getID());
-      
-	//Get rid of the virtual event that is next, update is delayed till
-	//after all events are added
-	Sim->ptrScheduler->popNextEvent();
-      
+            
 	//Check the extra LE neighbourhood strip
 	if (isUsedInScheduler)
 	  {
@@ -168,31 +155,19 @@ namespace dynamo {
 	//The coordinates of the new center cell in the neighbourhood of the
 	//particle
 	magnet::math::MortonNumber<3> newNBCell(oldCell);
-	if (cellDirectionInt > 0)
-	  {
-	    endCell[cellDirection] = (endCell[cellDirection].getRealValue() + 1) % cellCount[cellDirection];
-	    newNBCell[cellDirection] = (endCell[cellDirection].getRealValue() + overlink) % cellCount[cellDirection];
-	  }
-	else
-	  {
-	    //We use the trick of adding cellCount to convert the
-	    //subtraction to an addition, to prevent errors in the modulus
-	    //of underflowing unsigned integers.
-	    endCell[cellDirection] = (endCell[cellDirection].getRealValue() 
-				      + cellCount[cellDirection] - 1) % cellCount[cellDirection];
-	    newNBCell[cellDirection] = (endCell[cellDirection].getRealValue() 
-					+ cellCount[cellDirection] - overlink) % cellCount[cellDirection];
-	  }
+	{
+	  int step = (cellDirectionInt > 0) ? 1 : -1;
+	  //We use the trick of adding cellCount to convert
+	  //subtractions into an addition (as the number is modulo
+	  //cellCount), to prevent errors in the modulus of
+	  //underflowing unsigned integers.
+	  endCell[cellDirection] = (endCell[cellDirection].getRealValue() + cellCount[cellDirection] + step) % cellCount[cellDirection];
+	  newNBCell[cellDirection] = (endCell[cellDirection].getRealValue() + cellCount[cellDirection] + step * overlink) % cellCount[cellDirection];
+	}
     
 	_cellData.moveTo(oldCell, endCell.getMortonNum(), part.getID());
 
-	//Get rid of the virtual event we're running, an updated event is
-	//pushed after all other events are added
-	Sim->ptrScheduler->popNextEvent();
-
-
-	if ((cellDirection == 2) &&
-	    ((oldCellCoords[1] == 0) || (oldCellCoords[1] == cellCount[1] -1)))
+	if ((cellDirection == 2) && ((oldCellCoords[1] == 0) || (oldCellCoords[1] == cellCount[1] -1)))
 	  {
 	    //We're at the boundary moving in the z direction, we must
 	    //add the new LE strips as neighbours	
@@ -207,8 +182,7 @@ namespace dynamo {
 	//Holds the displacement in each dimension, the unit is cells!
 
 	//These are the two dimensions to walk in
-	size_t dim1 = (cellDirection + 1) % 3,
-	  dim2 = (cellDirection + 2) % 3;
+	size_t dim1 = (cellDirection + 1) % 3, dim2 = (cellDirection + 2) % 3;
 
 	newNBCell[dim1] += cellCount[dim1] - overlink;
 	newNBCell[dim2] += cellCount[dim2] - overlink;
@@ -243,35 +217,6 @@ namespace dynamo {
     Sim->ptrScheduler->sort(part);
 
     _sigCellChange(part, oldCell);
-  
-#ifdef DYNAMO_WallCollDebug
-    {
-      magnet::math::MortonNumber<3> newNBCellv(oldCell);
-      magnet::math::MortonNumber<3> endCellv(endCell);
-    
-      dout << "CellEvent: sysdt " 
-	   << Sim->systemTime / Sim->units.unitTime()
-	   << " ID "
-	   << part.getID()
-	   << "  from <" 
-	   << newNBCellv[0].getRealValue() << "," << newNBCellv[1].getRealValue() 
-	   << "," << newNBCellv[2].getRealValue()
-	   << "> to <" 
-	   << endCellv[0].getRealValue() << "," << endCellv[1].getRealValue()
-	   << "," << endCellv[2].getRealValue() << ">"
-	   << std::endl;
-    }
-#endif
-  }
-
-  void
-  GCellsShearing::getParticleNeighbours(const Particle& part, std::vector<size_t>& retlist) const {
-    getParticleNeighbours(magnet::math::MortonNumber<3>(_cellData.getCellID(part.getID())), retlist);
-  }
-
-  void
-  GCellsShearing::getParticleNeighbours(const Vector& vec, std::vector<size_t>& retlist) const {
-    getParticleNeighbours(magnet::math::MortonNumber<3>(getCellID(vec)), retlist);
   }
 
   void

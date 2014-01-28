@@ -121,53 +121,38 @@ namespace dynamo {
     //expect the particle to be up to date.
     Sim->dynamics->updateParticle(part);
 
-    const size_t oldCell = _cellData.getCellID(part.getID());
-
-    size_t endCell;
-
-    //Determine the cell transition direction, its saved
-    int cellDirectionInt(Sim->dynamics->getSquareCellCollision3(part, calcPosition(oldCell, part), cellDimension));
-    size_t cellDirection = abs(cellDirectionInt) - 1;
-
-    //The coordinates of the new center cell in the neighbourhood of the
-    //particle
-    magnet::math::MortonNumber<3> newNBCell(oldCell);
-
-    {
-      //The position of the cell the particle will end up in
-      magnet::math::MortonNumber<3> dendCell(newNBCell);
-    
-      if (cellDirectionInt > 0)
-	{
-	  dendCell[cellDirection] = (dendCell[cellDirection].getRealValue() + 1) % cellCount[cellDirection];
-	  newNBCell[cellDirection] = (dendCell[cellDirection].getRealValue() + overlink) % cellCount[cellDirection];
-	}
-      else
-	{
-	  //We use the trick of adding cellCount to convert the
-	  //subtraction to an addition, to prevent errors in the modulus
-	  //of underflowing unsigned integers.
-	  dendCell[cellDirection] = (dendCell[cellDirection].getRealValue() 
-				     + cellCount[cellDirection] - 1) % cellCount[cellDirection];
-	  newNBCell[cellDirection] = (dendCell[cellDirection].getRealValue() 
-				      + cellCount[cellDirection] - overlink) % cellCount[cellDirection];
-	}
-      endCell = dendCell.getMortonNum();
-    }
-
-    _cellData.moveTo(oldCell, endCell, part.getID());
-
     //Get rid of the virtual event we're running, an updated event is
     //pushed after the callbacks are complete (the callbacks may also
     //add events so this must be done first).
     Sim->ptrScheduler->popNextEvent();
 
+    const size_t oldCell = _cellData.getCellID(part.getID());
+    magnet::math::MortonNumber<3> endCell(oldCell);
+    //Determine the cell transition direction
+    int cellDirectionInt(Sim->dynamics->getSquareCellCollision3(part, calcPosition(oldCell, part), cellDimension));
+    size_t cellDirection = abs(cellDirectionInt) - 1;
+
+    //The coordinates of the new center cell in the neighbourhood of the
+    //particle
+    magnet::math::MortonNumber<3> newNBCell(endCell);
+
+    {
+      int step = (cellDirectionInt > 0) ? 1 : -1;
+      //We use the trick of adding cellCount to convert
+      //subtractions into an addition (as the number is modulo
+      //cellCount), to prevent errors in the modulus of
+      //underflowing unsigned integers.
+      endCell[cellDirection] = (endCell[cellDirection].getRealValue() + cellCount[cellDirection] + step) % cellCount[cellDirection];
+      newNBCell[cellDirection] = (endCell[cellDirection].getRealValue() + cellCount[cellDirection] + step * overlink) % cellCount[cellDirection];
+    }
+
+    _cellData.moveTo(oldCell, endCell.getMortonNum(), part.getID());
+
     //Particle has just arrived into a new cell warn the scheduler about
     //its new neighbours so it can add them to the heap
     //Holds the displacement in each dimension, the unit is cells!
     //These are the two dimensions to walk in
-    size_t dim1 = (cellDirection + 1) % 3,
-      dim2 = (cellDirection + 2) % 3;
+    size_t dim1 = (cellDirection + 1) % 3, dim2 = (cellDirection + 2) % 3;
 
     newNBCell[dim1] += cellCount[dim1] - overlink;
     newNBCell[dim2] += cellCount[dim2] - overlink;
@@ -202,7 +187,6 @@ namespace dynamo {
     if (verbose)
       {
 	magnet::math::MortonNumber<3> newNBCellv(oldCell);
-	magnet::math::MortonNumber<3> endCellv(endCell);
     
 	derr << "CellEvent: t=" 
 	     << Sim->systemTime / Sim->units.unitTime()
@@ -212,8 +196,8 @@ namespace dynamo {
 	     << newNBCellv[0].getRealValue() << "," << newNBCellv[1].getRealValue() 
 	     << "," << newNBCellv[2].getRealValue()
 	     << "> to <" 
-	     << endCellv[0].getRealValue() << "," << endCellv[1].getRealValue() 
-	     << "," << endCellv[2].getRealValue() << ">"
+	     << endCell[0].getRealValue() << "," << endCell[1].getRealValue() 
+	     << "," << endCell[2].getRealValue() << ">"
 	     << std::endl;
       }
   }
