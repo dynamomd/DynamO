@@ -77,22 +77,18 @@ namespace dynamo {
     //till after all events are added
     Sim->ptrScheduler->popNextEvent();
 
-    size_t oldCell(_cellData.getCellID(part.getID()));
-    magnet::math::MortonNumber<3> oldCellCoords(oldCell);
-    Vector oldCellPosition(calcPosition(oldCellCoords));
+    const size_t oldCellIndex(_cellData.getCellID(part.getID()));
+    const auto oldCellCoord = _ordering.toCoord(oldCellIndex);
+    const Vector oldCellPosition(calcPosition(oldCellCoord));
+    const int cellDirectionInt(Sim->dynamics->getSquareCellCollision3(part, oldCellPosition, cellDimension));
+    const size_t cellDirection = abs(cellDirectionInt) - 1;
 
-    //Determine the cell transition direction, its saved
-    int cellDirectionInt(Sim->dynamics->getSquareCellCollision3(part, oldCellPosition, cellDimension));
-    size_t cellDirection = abs(cellDirectionInt) - 1;
+    auto newCellCoord = oldCellCoord;
+    newCellCoord[cellDirection] += _ordering.getDimensions()[cellDirection] + ((cellDirectionInt > 0) ? 1 : -1);
+    newCellCoord[cellDirection] %= _ordering.getDimensions()[cellDirection];
 
-    magnet::math::MortonNumber<3> endCell = oldCellCoords; //The ID of the cell the particle enters
-
-    if ((cellDirection == 1) && (oldCellCoords[1] == ((cellDirectionInt < 0) ? 0 : (cellCount[1] - 1))))
+    if ((cellDirection == 1) && (oldCellCoord[1] == ((cellDirectionInt < 0) ? 0 : (cellCount[1] - 1))))
       {
-	//We're wrapping in the y direction, we have to compute
-	//which cell its entering
-	endCell[1] = (endCell[1].getRealValue() + cellCount[1] + ((cellDirectionInt < 0) ?  -1 : 1)) % cellCount[1];
-
 	//Remove the old x contribution
 	//Calculate the final x value
 	//Time till transition, assumes the particle is up to date
@@ -112,9 +108,9 @@ namespace dynamo {
 	//add it to the endCellID
 	Sim->BCs->applyBC(tmpPos, dt);
       
-	endCell[0] = getCellID(tmpPos)[0];
+	newCellCoord[0] = getCellCoords(tmpPos)[0];
 
-	_cellData.moveTo(oldCell, endCell.getMortonNum(), part.getID());
+	_cellData.moveTo(oldCellIndex, _ordering.toIndex(newCellCoord), part.getID());
       
 	//Check the entire neighbourhood, could check just the new
 	//neighbours and the extra LE neighbourhood strip but its a lot
@@ -130,12 +126,11 @@ namespace dynamo {
 	      }
 	  }
       }
-    else if ((cellDirection == 1) && (oldCellCoords[1] == ((cellDirectionInt < 0) ? 1 : (cellCount[1] - 2))))
+    else if ((cellDirection == 1) && (oldCellCoord[1] == ((cellDirectionInt < 0) ? 1 : (cellCount[1] - 2))))
       {
 	//We're entering the boundary of the y direction
 	//Calculate the end cell, no boundary wrap check required
-	endCell[cellDirection] = (endCell[cellDirection].getRealValue() + cellCount[cellDirection] + ((cellDirectionInt > 0) ? 1 : -1)) % cellCount[cellDirection];
-	_cellData.moveTo(oldCell, endCell.getMortonNum(), part.getID());
+	_cellData.moveTo(oldCellIndex, _ordering.toIndex(newCellCoord), part.getID());
             
 	//Check the extra LE neighbourhood strip
 	if (isUsedInScheduler)
@@ -151,23 +146,13 @@ namespace dynamo {
       }
     else
       {
-	//Here we follow the same procedure (except one more if statement) as the original cell list for new neighbours
-	//The coordinates of the new center cell in the neighbourhood of the
-	//particle
-	magnet::math::MortonNumber<3> newNBCell(oldCell);
-	{
-	  int step = (cellDirectionInt > 0) ? 1 : -1;
-	  //We use the trick of adding cellCount to convert
-	  //subtractions into an addition (as the number is modulo
-	  //cellCount), to prevent errors in the modulus of
-	  //underflowing unsigned integers.
-	  endCell[cellDirection] = (endCell[cellDirection].getRealValue() + cellCount[cellDirection] + step) % cellCount[cellDirection];
-	  newNBCell[cellDirection] = (endCell[cellDirection].getRealValue() + cellCount[cellDirection] + step * overlink) % cellCount[cellDirection];
-	}
-    
-	_cellData.moveTo(oldCell, endCell.getMortonNum(), part.getID());
+	_cellData.moveTo(oldCellIndex, _ordering.toIndex(newCellCoord), part.getID());
 
-	if ((cellDirection == 2) && ((oldCellCoords[1] == 0) || (oldCellCoords[1] == cellCount[1] -1)))
+	auto newNBCellCoord = newCellCoord;
+	newNBCellCoord[cellDirection] += _ordering.getDimensions()[cellDirection] + ((cellDirectionInt > 0) ? 1 : -1);
+	newNBCellCoord[cellDirection] %= _ordering.getDimensions()[cellDirection];
+
+	if ((cellDirection == 2) && ((oldCellCoord[1] == 0) || (oldCellCoord[1] == cellCount[1] - 1)))
 	  {
 	    //We're at the boundary moving in the z direction, we must
 	    //add the new LE strips as neighbours	
@@ -182,33 +167,12 @@ namespace dynamo {
 	//Holds the displacement in each dimension, the unit is cells!
 
 	//These are the two dimensions to walk in
-	size_t dim1 = (cellDirection + 1) % 3, dim2 = (cellDirection + 2) % 3;
-
-	newNBCell[dim1] += cellCount[dim1] - overlink;
-	newNBCell[dim2] += cellCount[dim2] - overlink;
-  
-	size_t walkLength = 2 * overlink + 1;
-
-	const magnet::math::DilatedInteger<3> saved_coord(newNBCell[dim1]);
-
-	//We now have the lowest cell coord, or corner of the cells to update
-	for (size_t iDim(0); iDim < walkLength; ++iDim)
-	  {
-	    newNBCell[dim2] %= cellCount[dim2];
-
-	    for (size_t jDim(0); jDim < walkLength; ++jDim)
-	      {
-		newNBCell[dim1] %= cellCount[dim1];
-  
-		for (const size_t& next : _cellData.getCellContents(newNBCell.getMortonNum()))
-		  _sigNewNeighbour(part, next);
-	  
-		++newNBCell[dim1];
-	      }
-
-	    newNBCell[dim1] = saved_coord; 
-	    ++newNBCell[dim2];
-	  }
+	std::array<size_t, 3> steps = {{overlink, overlink, overlink}};
+	steps[cellDirection] = 0;
+	
+	for (auto cellIndex : _ordering.getSurroundingIndices(newNBCellCoord, steps))
+	  for (const size_t& next : _cellData.getCellContents(cellIndex))
+	    _sigNewNeighbour(part, next);
       }
     
     //Push the next virtual event, this is the reason the scheduler
@@ -216,49 +180,36 @@ namespace dynamo {
     Sim->ptrScheduler->pushEvent(part, getEvent(part));
     Sim->ptrScheduler->sort(part);
 
-    _sigCellChange(part, oldCell);
+    _sigCellChange(part, oldCellIndex);
   }
 
   void
-  GCellsShearing::getParticleNeighbours(const magnet::math::MortonNumber<3>& cellCoords, std::vector<size_t>& retlist) const
+  GCellsShearing::getParticleNeighbours(const std::array<size_t, 3>& cellCoords, std::vector<size_t>& retlist) const
   {
     GCells::getParticleNeighbours(cellCoords, retlist);
-    if ((cellCoords[1] == 0) || (cellCoords[1] == dilatedCellMax[1]))
+    if ((cellCoords[1] == 0) || (cellCoords[1] == (cellCount[1] - 1)))
       getAdditionalLEParticleNeighbourhood(cellCoords, retlist);
   }
   
   void
   GCellsShearing::getAdditionalLEParticleNeighbourhood(const Particle& part, std::vector<size_t>& retlist) const {
-    return getAdditionalLEParticleNeighbourhood(magnet::math::MortonNumber<3>(_cellData.getCellID(part.getID())), retlist);
+    return getAdditionalLEParticleNeighbourhood(_ordering.toCoord(_cellData.getCellID(part.getID())), retlist);
   }
 
   void
-  GCellsShearing::getAdditionalLEParticleNeighbourhood(magnet::math::MortonNumber<3> cellCoords, std::vector<size_t>& retlist) const
+  GCellsShearing::getAdditionalLEParticleNeighbourhood(std::array<size_t, 3> cellCoords, std::vector<size_t>& retlist) const
   {  
 #ifdef DYNAMO_DEBUG
-    if ((cellCoords[1] != 0) && (cellCoords[1] != dilatedCellMax[1]))
+    if ((cellCoords[1] != 0) && (cellCoords[1] != (cellCount[iDim] - 1)))
       M_throw() << "Shouldn't call this function unless the particle is at a border in the y dimension";
 #endif
-
-    //Move to the bottom of x
-    cellCoords[0] = 0;
-    //Get the correct y-side (its the opposite to the particles current side)
-    cellCoords[1] = (cellCoords[1] > 0) ? 0 : dilatedCellMax[1];
-    ////Move te overlink across
-    cellCoords[2] = (cellCoords[2].getRealValue() + cellCount[2] - overlink) % cellCount[2];
-
-    for (size_t i(0); i < 2 * overlink + 1; ++i)
+    std::array<size_t, 3> start = {{0, (cellCoords[1] > 0) ? 0 : _ordering.getDimensions()[1] - 1, cellCoords[2]}};
+    std::array<size_t, 3> steps = {{cellCount[0], 0, overlink}};
+    //These are the two dimensions to walk in
+    for (auto cellIndex : _ordering.getSurroundingIndices(start, steps))
       {
-	cellCoords[2] %= cellCount[2];
-
-	for (size_t j(0); j < cellCount[0]; ++j)
-	  {
-	    const auto neighbours = _cellData.getCellContents(cellCoords.getMortonNum());
-	    retlist.insert(retlist.end(), neighbours.begin(), neighbours.end());
-	    ++cellCoords[0];
-	  }
-	++cellCoords[2];
-	cellCoords[0] = 0;
+	const auto neighbours = _cellData.getCellContents(cellIndex);
+	retlist.insert(retlist.end(), neighbours.begin(), neighbours.end());
       }
   }
 }

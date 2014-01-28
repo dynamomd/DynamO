@@ -36,8 +36,8 @@ namespace dynamo {
     virtual void runEvent(Particle&, const double) const;
 
   protected:
-    void getParticleNeighbours(const magnet::math::MortonNumber<3>&, std::vector<size_t>&) const;
+    void getParticleNeighbours(const std::array<size_t, 3>&, std::vector<size_t>&) const;
     void getAdditionalLEParticleNeighbourhood(const Particle&, std::vector<size_t>&) const;
-    void getAdditionalLEParticleNeighbourhood(magnet::math::MortonNumber<3>, std::vector<size_t>&) const;
+    void getAdditionalLEParticleNeighbourhood(std::array<size_t, 3>, std::vector<size_t>&) const;
   };
 }

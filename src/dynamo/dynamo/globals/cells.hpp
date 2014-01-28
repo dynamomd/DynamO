@@ -25,6 +25,7 @@
 #include <magnet/containers/judy.hpp>
 #include <magnet/containers/vector_set.hpp>
 #include <magnet/containers/multimaps.hpp>
+#include <magnet/containers/ordering.hpp>
 
 namespace dynamo {
   namespace detail {
@@ -136,10 +137,12 @@ namespace dynamo {
     void setConfigOutput(bool val) { _inConfig = val; }
 
   protected:
-    virtual void getParticleNeighbours(const magnet::math::MortonNumber<3>&, std::vector<size_t>&) const;
+    virtual void getParticleNeighbours(const std::array<size_t, 3>&, std::vector<size_t>&) const;
 
-    size_t cellCount[3];
-    magnet::math::DilatedInteger<3> dilatedCellMax[3];
+    typedef magnet::containers::MortonOrdering<3> Ordering;
+    Ordering _ordering;
+
+    std::array<size_t, 3> cellCount;
     Vector cellDimension;
     Vector cellLatticeWidth;
     Vector cellOffset;
@@ -156,11 +159,13 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream&) const;
 
-    magnet::math::MortonNumber<3> getCellID(Vector) const;
+    std::array<size_t, 3> getCellCoords(Vector) const;
 
     void addCells(double);
 
-    inline Vector calcPosition(const magnet::math::MortonNumber<3>& coords, const Particle& part) const;
-    Vector calcPosition(const magnet::math::MortonNumber<3>& coords) const;
+    Vector calcPosition(const size_t cellIndex, const Particle& part) const { return calcPosition(_ordering.toCoord(cellIndex), part);}
+    Vector calcPosition(const std::array<size_t, 3>& coords, const Particle& part) const ;
+    Vector calcPosition(const size_t cellIndex) const { return calcPosition(_ordering.toCoord(cellIndex));}
+    Vector calcPosition(const std::array<size_t, 3>& coords) const;
   };
 }

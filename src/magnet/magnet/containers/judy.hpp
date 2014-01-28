@@ -39,7 +39,12 @@ namespace magnet {
 	const value_type& operator*() const { return _value; }
 	value_type const * operator->() const { return &_value; }
 	bool operator!=(const ConstJudyIterator& o) const { return !(*this == o); }
-	bool operator==(const ConstJudyIterator& o) const { return (&_container == &o._container) && (_value == o._value); }
+	bool operator==(const ConstJudyIterator& o) const { 
+#ifdef MAGNET_DEBUG
+	  if (&_container != &o._container) M_throw() << "Cannot compare iterators from different containers";
+#endif
+	  return _value == o._value; 
+	}
       protected:
 	//Private as we can't allow iterator assignment as we have a
 	//reference to the container
