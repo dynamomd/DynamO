@@ -28,20 +28,23 @@
 
 namespace dynamo {
   namespace detail {
-    using namespace magnet::containers;
     /*! \brief A container for storing the cell contents (and which
         particle is in which cell).
+	
+	\tparam CellList A type which gives a multimap-style container
+	mapping from cell ids to particle ids. Examples include
+	SetCellList<JudySet<uint64_t>>, and
+	VectorSetCellList<JudySet<size_t>> although
+	Vector_Multimap<VectorSet<size_t>> appears to be the most
+	performant.
+
+	\tparam Map A map container which links particle IDs to cell
+	IDs. Examples include std::unordered_map<size_t, size_t> but
+	JudyMap<size_t, size_t> appears to be the best.
      */
+    template<typename CellList, typename Map>
     class CellParticleList {
-      //Possible choices for data structures
-      typedef Vector_Multimap<VectorSet<size_t> > CellList;
-      //typedef SetCellList<JudySet<uint64_t> > CellList;
-      //typedef VectorSetCellList<JudySet<size_t> > CellList;
-
-
       CellList _cellcontents;
-      typedef JudyMap<size_t, size_t> Map;
-      //typedef std::unordered_map<size_t, size_t> Map;
       Map _particleCell;
      
     public:
@@ -61,7 +64,7 @@ namespace dynamo {
 	_particleCell[particle] = newcell;
       }
 
-      CellList::RangeType getCellContents(const size_t cellID) {
+      typename CellList::RangeType getCellContents(const size_t cellID) {
 	return _cellcontents.getKeyContents(cellID);
       }
 
@@ -79,7 +82,6 @@ namespace dynamo {
 
       size_t size() const { return _particleCell.size(); }
       void clear() { _particleCell.clear(); _cellcontents.clear(); }
-    private:
     };
   }
 
@@ -147,7 +149,8 @@ namespace dynamo {
     size_t NCells;
     size_t overlink;
 
-    mutable detail::CellParticleList _cellData;
+    mutable detail::CellParticleList<magnet::containers::Vector_Multimap<magnet::containers::VectorSet<size_t>>, 
+				     magnet::containers::JudyMap<size_t, size_t>> _cellData;
 
     GCells(const GCells&);
 

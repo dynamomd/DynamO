@@ -360,8 +360,7 @@ namespace dynamo {
 
     for (size_t iDim = 0; iDim < NDIM; iDim++)
       {
-	long coord = std::floor((pos[iDim] + 0.5 * Sim->primaryCellSize[iDim] - cellOffset[iDim])
-			       / cellLatticeWidth[iDim]);
+	long coord = std::floor((pos[iDim] - cellOffset[iDim]) / cellLatticeWidth[iDim] + 0.5 * cellCount[iDim]);
 	coord %= long(cellCount[iDim]);
 	if (coord < 0) coord += cellCount[iDim];
 	retval[iDim] = coord;
