@@ -21,3 +21,4 @@
 #include <dynamo/globals/ParabolaSentinel.hpp>
 #include <dynamo/globals/socells.hpp>
 #include <dynamo/globals/waker.hpp>
+#include <dynamo/globals/volumetric_potential.hpp>

@@ -58,6 +58,8 @@ namespace dynamo {
       return shared_ptr<Global>(new GSOCells(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("Waker"))
       return shared_ptr<Global>(new GWaker(XML, Sim));
+    else if (!XML.getAttribute("Type").getValue().compare("VolumetricPotential"))
+      return shared_ptr<Global>(new GVolumetricPotential(XML, Sim));
     else 
       M_throw() << XML.getAttribute("Type").getValue()
 		<< ", Unknown type (" << XML.getAttribute("Type").getValue()

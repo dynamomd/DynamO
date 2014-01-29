@@ -66,7 +66,7 @@ namespace dynamo {
 
     /*! \brief Initializes the Global event.
      */
-    virtual void initialise(size_t) = 0;
+    virtual void initialise(size_t nID)  { ID=nID; }
 
     /*! \brief Helper function for saving an XML representation of this
      * class.

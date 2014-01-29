@@ -45,8 +45,7 @@ namespace dynamo {
   void 
   GPBCSentinel::initialise(size_t nID)
   {
-    ID=nID;
-  
+    Global::initialise(nID);
     maxintdist = Sim->getLongestInteraction();
   }
 

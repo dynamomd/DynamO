@@ -152,7 +152,7 @@ namespace dynamo {
   void 
   GSOCells::initialise(size_t nID)
   {
-    ID=nID;
+    Global::initialise(nID);
   
     cuberootN = (unsigned long)(std::pow(Sim->N(), 1.0/3.0) + 0.5);
   

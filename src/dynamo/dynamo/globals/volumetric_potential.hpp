@@ -17,23 +17,30 @@
 
 #pragma once
 #include <dynamo/globals/global.hpp>
+#include <dynamo/particle.hpp>
+#include <magnet/containers/ordering.hpp>
+#include <unordered_map>
 #include <vector>
 
 namespace dynamo {
-  class GParabolaSentinel: public Global
+  /*! \brief An implementation of volumetric potentials.
+   */
+  class GVolumetricPotential: public Global
   {
   public:
-    GParabolaSentinel(dynamo::Simulation*, const std::string&);
-  
-    virtual ~GParabolaSentinel() {}
-
+  public:
+    GVolumetricPotential(const magnet::xml::Node& XML, dynamo::Simulation* ptrSim):
+      Global(ptrSim, "VolumetricPotential")
+    { operator<<(XML); }
+    
     virtual GlobalEvent getEvent(const Particle &) const;
 
-    virtual void runEvent(Particle&, const double) const;
+    virtual void runEvent(Particle& p, const double dt) const;
 
-    virtual void operator<<(const magnet::xml::Node&) {}
+    virtual void initialise(size_t id) { Global::initialise(id); }
 
+    virtual void operator<<(const magnet::xml::Node&);
   protected:
-    virtual void outputXML(magnet::xml::XmlStream&) const {}
+    virtual void outputXML(magnet::xml::XmlStream&) const;
   };
 }

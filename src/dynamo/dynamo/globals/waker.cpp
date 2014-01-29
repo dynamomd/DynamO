@@ -51,7 +51,7 @@ namespace dynamo {
   void 
   GWaker::initialise(size_t nID)
   {
-    ID=nID;
+    Global::initialise(nID);
 
     try {
       _NBListID = Sim->globals[_nblistName]->getID();

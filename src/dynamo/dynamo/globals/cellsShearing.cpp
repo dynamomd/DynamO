@@ -44,7 +44,7 @@ namespace dynamo {
   void 
   GCellsShearing::initialise(size_t nID)
   {
-    ID=nID;
+    Global::initialise(nID);
 
     if (!std::dynamic_pointer_cast<BCLeesEdwards>(Sim->BCs))
       derr << "You should not use the shearing neighbour list"

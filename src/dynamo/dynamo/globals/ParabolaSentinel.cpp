@@ -33,12 +33,6 @@ namespace dynamo {
     dout << "ParabolaSentinel Loaded" << std::endl;
   }
 
-  void 
-  GParabolaSentinel::initialise(size_t nID)
-  {
-    ID=nID;
-  }
-
   GlobalEvent 
   GParabolaSentinel::getEvent(const Particle& part) const
   {

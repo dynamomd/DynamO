@@ -138,7 +138,7 @@ namespace dynamo {
   void 
   GCells::initialise(size_t nID)
   { 
-    ID=nID;
+    Global::initialise(nID);
     reinitialise();
   }
 
