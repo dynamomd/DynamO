@@ -18,14 +18,12 @@
 #pragma once
 #include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/particle.hpp>
-#include <magnet/math/morton_number.hpp>
-#include <unordered_map>
-#include <vector>
-#include <set>
 #include <magnet/containers/judy.hpp>
 #include <magnet/containers/vector_set.hpp>
 #include <magnet/containers/multimaps.hpp>
 #include <magnet/containers/ordering.hpp>
+#include <unordered_map>
+#include <vector>
 
 namespace dynamo {
   namespace detail {
@@ -142,14 +140,12 @@ namespace dynamo {
     typedef magnet::containers::MortonOrdering<3> Ordering;
     Ordering _ordering;
 
-    std::array<size_t, 3> cellCount;
     Vector cellDimension;
     Vector cellLatticeWidth;
     Vector cellOffset;
 
     bool _inConfig;
     double _oversizeCells;
-    size_t NCells;
     size_t overlink;
 
     mutable detail::CellParticleList<magnet::containers::Vector_Multimap<magnet::containers::VectorSet<size_t>>, 

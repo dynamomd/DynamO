@@ -87,7 +87,7 @@ namespace dynamo {
     newCellCoord[cellDirection] += _ordering.getDimensions()[cellDirection] + ((cellDirectionInt > 0) ? 1 : -1);
     newCellCoord[cellDirection] %= _ordering.getDimensions()[cellDirection];
 
-    if ((cellDirection == 1) && (oldCellCoord[1] == ((cellDirectionInt < 0) ? 0 : (cellCount[1] - 1))))
+    if ((cellDirection == 1) && (oldCellCoord[1] == ((cellDirectionInt < 0) ? 0 : (_ordering.getDimensions()[1] - 1))))
       {
 	//Remove the old x contribution
 	//Calculate the final x value
@@ -115,33 +115,24 @@ namespace dynamo {
 	//Check the entire neighbourhood, could check just the new
 	//neighbours and the extra LE neighbourhood strip but its a lot
 	//of code
-	if (isUsedInScheduler)
-	  {
-	    std::vector<size_t> neighbours;
-	    GCells::getParticleNeighbours(part, neighbours);
-	    for (const size_t& id2 : neighbours)
-	      {
-		Sim->ptrScheduler->addInteractionEvent(part, id2);
-		_sigNewNeighbour(part, id2);
-	      }
-	  }
+	std::vector<size_t> neighbours;
+	GCells::getParticleNeighbours(part, neighbours);
+	for (const size_t& id2 : neighbours)
+	  _sigNewNeighbour(part, id2);
       }
-    else if ((cellDirection == 1) && (oldCellCoord[1] == ((cellDirectionInt < 0) ? 1 : (cellCount[1] - 2))))
+    else if ((cellDirection == 1) && (oldCellCoord[1] == ((cellDirectionInt < 0) ? 1 : (_ordering.getDimensions()[1] - 2))))
       {
 	//We're entering the boundary of the y direction
 	//Calculate the end cell, no boundary wrap check required
 	_cellData.moveTo(oldCellIndex, _ordering.toIndex(newCellCoord), part.getID());
             
 	//Check the extra LE neighbourhood strip
-	if (isUsedInScheduler)
+	std::vector<size_t> nbs;
+	getAdditionalLEParticleNeighbourhood(part, nbs);
+	for (const size_t& id2 : nbs)
 	  {
-	    std::vector<size_t> nbs;
-	    getAdditionalLEParticleNeighbourhood(part, nbs);
-	    for (const size_t& id2 : nbs)
-	      {
-		Sim->ptrScheduler->addInteractionEvent(part, id2);
-		_sigNewNeighbour(part, id2);
-	      }
+	    Sim->ptrScheduler->addInteractionEvent(part, id2);
+	    _sigNewNeighbour(part, id2);
 	  }
       }
     else
@@ -152,7 +143,7 @@ namespace dynamo {
 	newNBCellCoord[cellDirection] += _ordering.getDimensions()[cellDirection] + ((cellDirectionInt > 0) ? 1 : -1);
 	newNBCellCoord[cellDirection] %= _ordering.getDimensions()[cellDirection];
 
-	if ((cellDirection == 2) && ((oldCellCoord[1] == 0) || (oldCellCoord[1] == cellCount[1] - 1)))
+	if ((cellDirection == 2) && ((oldCellCoord[1] == 0) || (oldCellCoord[1] == _ordering.getDimensions()[1] - 1)))
 	  {
 	    //We're at the boundary moving in the z direction, we must
 	    //add the new LE strips as neighbours	
@@ -187,7 +178,7 @@ namespace dynamo {
   GCellsShearing::getParticleNeighbours(const std::array<size_t, 3>& cellCoords, std::vector<size_t>& retlist) const
   {
     GCells::getParticleNeighbours(cellCoords, retlist);
-    if ((cellCoords[1] == 0) || (cellCoords[1] == (cellCount[1] - 1)))
+    if ((cellCoords[1] == 0) || (cellCoords[1] == (_ordering.getDimensions()[1] - 1)))
       getAdditionalLEParticleNeighbourhood(cellCoords, retlist);
   }
   
@@ -200,11 +191,11 @@ namespace dynamo {
   GCellsShearing::getAdditionalLEParticleNeighbourhood(std::array<size_t, 3> cellCoords, std::vector<size_t>& retlist) const
   {  
 #ifdef DYNAMO_DEBUG
-    if ((cellCoords[1] != 0) && (cellCoords[1] != (cellCount[iDim] - 1)))
+    if ((cellCoords[1] != 0) && (cellCoords[1] != (_ordering.getDimensions()[1] - 1)))
       M_throw() << "Shouldn't call this function unless the particle is at a border in the y dimension";
 #endif
     std::array<size_t, 3> start = {{0, (cellCoords[1] > 0) ? 0 : _ordering.getDimensions()[1] - 1, cellCoords[2]}};
-    std::array<size_t, 3> steps = {{cellCount[0], 0, overlink}};
+    std::array<size_t, 3> steps = {{_ordering.getDimensions()[0], 0, overlink}};
     //These are the two dimensions to walk in
     for (auto cellIndex : _ordering.getSurroundingIndices(start, steps))
       {

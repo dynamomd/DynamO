@@ -36,7 +36,6 @@ namespace dynamo {
     cellDimension(1,1,1),
     _inConfig(true),
     _oversizeCells(1.0),
-    NCells(0),
     overlink(1)
   {
     globName = name;
@@ -48,7 +47,6 @@ namespace dynamo {
     cellDimension(1,1,1),
     _inConfig(true),
     _oversizeCells(1.0),
-    NCells(0),
     overlink(1)
   {
     operator<<(XML);
@@ -84,11 +82,9 @@ namespace dynamo {
       M_throw() << "Particle is not up to date";
 #endif
 
-    //This 
-    //Sim->dynamics->updateParticle(part);
-    //is not required as we compensate for the delay using 
+    //Sim->dynamics->updateParticle(part); is not required as we
+    //compensate for the delay using
     //Sim->dynamics->getParticleDelay(part)
-
     return GlobalEvent(part, Sim->dynamics->getSquareCellCollision2(part, calcPosition(_cellData.getCellID(part.getID()), part), cellDimension) - Sim->dynamics->getParticleDelay(part), CELL, *this);
 
   }
@@ -113,24 +109,22 @@ namespace dynamo {
     const int cellDirectionInt(Sim->dynamics->getSquareCellCollision3(part, calcPosition(oldCellIndex, part), cellDimension));
     const size_t cellDirection = abs(cellDirectionInt) - 1;
 
+    //Calculate which cell the particle ends up in
     auto newCellCoord = oldCellCoord;
     newCellCoord[cellDirection] += _ordering.getDimensions()[cellDirection] + ((cellDirectionInt > 0) ? 1 : -1);
     newCellCoord[cellDirection] %= _ordering.getDimensions()[cellDirection];
-    auto newNBCellCoord = newCellCoord;
-    newNBCellCoord[cellDirection] += _ordering.getDimensions()[cellDirection] + ((cellDirectionInt > 0) ? 1 : -1);
-    newNBCellCoord[cellDirection] %= _ordering.getDimensions()[cellDirection];
 
     _cellData.moveTo(oldCellIndex, _ordering.toIndex(newCellCoord), part.getID());
 
-    //Particle has just arrived into a new cell warn the scheduler about
-    //its new neighbours so it can add them to the heap
-    //Holds the displacement in each dimension, the unit is cells!
-    //These are the two dimensions to walk in
-
-    std::array<size_t, 3> steps = {{overlink, overlink, overlink}};
+    //Particle has just arrived into a new cell, check the new
+    //neighbours for particles
+    auto newCenterNBCellCoord = newCellCoord;
+    newCenterNBCellCoord[cellDirection] += _ordering.getDimensions()[cellDirection] + ((cellDirectionInt > 0) ? 1 : -1);
+    newCenterNBCellCoord[cellDirection] %= _ordering.getDimensions()[cellDirection];
+    std::array<size_t, 3> steps{{overlink, overlink, overlink}};
     steps[cellDirection] = 0;
 
-    for (auto cellIndex : _ordering.getSurroundingIndices(newNBCellCoord, steps))
+    for (auto cellIndex : _ordering.getSurroundingIndices(newCenterNBCellCoord, steps))
       for (const size_t& next : _cellData.getCellContents(cellIndex))
 	_sigNewNeighbour(part, next);
   
@@ -185,17 +179,14 @@ namespace dynamo {
   GCells::addCells(double maxdiam)
   {
     _cellData.clear();
-    NCells = 1;
-
+    
+    std::array<size_t, 3> cellCount;
     for (size_t iDim = 0; iDim < NDIM; iDim++)
       {
 	cellCount[iDim] = int(Sim->primaryCellSize[iDim] / (maxdiam * (1.0 + 10 * std::numeric_limits<double>::epsilon())));
       
 	if (cellCount[iDim] < 2 * overlink + 1)
 	  cellCount[iDim] = 2 * overlink + 1;
-	
-	NCells *= cellCount[iDim];
-      
 	cellLatticeWidth[iDim] = Sim->primaryCellSize[iDim] / cellCount[iDim];
 	cellDimension[iDim] = cellLatticeWidth[iDim] + (cellLatticeWidth[iDim] - maxdiam) * lambda;
 	cellOffset[iDim] = -(cellLatticeWidth[iDim] - maxdiam) * lambda * 0.5;
@@ -205,8 +196,8 @@ namespace dynamo {
     _ordering = Ordering(cellCount);
     _cellData.resize(_ordering.length(), Sim->particles.size()); //Empty Cells created!
 
-    dout << "Cells <x,y,z> " << cellCount[0] << ","
-	 << cellCount[1] << "," << cellCount[2]
+    dout << "Cells <x,y,z> " << _ordering.getDimensions()[0] << ","
+	 << _ordering.getDimensions()[1] << "," << _ordering.getDimensions()[2]
 	 << "\nCell Offset "
 	 << cellOffset[0] / Sim->units.unitLength() << ","
 	 << cellOffset[1] / Sim->units.unitLength() << ","
@@ -223,27 +214,21 @@ namespace dynamo {
 	 << cellLatticeWidth[1] / Sim->units.unitLength()
 	 << "," 
 	 << cellLatticeWidth[2] / Sim->units.unitLength()
-	 << "\nRequested interaction range " << overlink * maxdiam / Sim->units.unitLength();
-    
-    dout << "\nSupported range             " << getMaxSupportedInteractionLength() / Sim->units.unitLength()
+	 << "\nRequested interaction range " << overlink * maxdiam / Sim->units.unitLength()
+	 << "\nSupported range " << getMaxSupportedInteractionLength() / Sim->units.unitLength()
 	 << std::endl;
 
     if (getMaxSupportedInteractionLength() < maxdiam)
       M_throw() << "The system size is too small to support the range of interactions specified (i.e. the system is smaller than the interaction diameter of one particle).";
   
-    //Add the particles section
+    ////Add all the particles 
     //Required so particles find the right owning cell
     Sim->dynamics->updateAllParticles();
-  
-    ////Add all the particles 
     for (const size_t& pid : *range)
       {
 	Particle& p = Sim->particles[pid];
-	Sim->dynamics->updateParticle(p); 
 	_cellData.add(_ordering.toIndex(getCellCoords(p.getPosition())), pid);
       }
-
-    dout << "Cell loading " << float(_cellData.size()) / NCells << std::endl;
   }
 
   std::array<size_t, 3>
@@ -255,9 +240,9 @@ namespace dynamo {
 
     for (size_t iDim = 0; iDim < NDIM; iDim++)
       {
-	long coord = std::floor((pos[iDim] - cellOffset[iDim]) / cellLatticeWidth[iDim] + 0.5 * cellCount[iDim]);
-	coord %= long(cellCount[iDim]);
-	if (coord < 0) coord += cellCount[iDim];
+	long coord = std::floor((pos[iDim] - cellOffset[iDim]) / cellLatticeWidth[iDim] + 0.5 * _ordering.getDimensions()[iDim]);
+	coord %= long(_ordering.getDimensions()[iDim]);
+	if (coord < 0) coord += _ordering.getDimensions()[iDim];
 	retval[iDim] = coord;
       }
 
@@ -267,16 +252,9 @@ namespace dynamo {
   void
   GCells::getParticleNeighbours(const std::array<size_t, 3>& particle_cell_coords, std::vector<size_t>& retlist) const
   {
-    std::array<size_t, 3> zero_coords;
-    for (size_t iDim(0); iDim < NDIM; ++iDim)
-      zero_coords[iDim] = (particle_cell_coords[iDim] + cellCount[iDim] - overlink) % cellCount[iDim];
-
-    const size_t nb_range = 2 * overlink + 1;
-    auto indexRange = _ordering.getIndices(zero_coords, {{nb_range, nb_range, nb_range}});
-
-    for (size_t index : indexRange)
+    for (auto cellIndex : _ordering.getSurroundingIndices(particle_cell_coords, std::array<size_t, 3>{{overlink, overlink, overlink}}))
       {
-	const auto neighbours = _cellData.getCellContents(index);
+	const auto& neighbours = _cellData.getCellContents(cellIndex);
 	retlist.insert(retlist.end(), neighbours.begin(), neighbours.end());
       }
   }
@@ -304,7 +282,7 @@ namespace dynamo {
 	//Test if, in this dimension, one neighbourhood of cells spans
 	//the system. If so, the maximum interaction supported is the
 	//system width.
-	if (cellCount[i] == 2 * overlink + 1)
+	if (_ordering.getDimensions()[i] == 2 * overlink + 1)
 	  supported_length = Sim->primaryCellSize[i];
 
 	retval = std::min(retval, supported_length);
