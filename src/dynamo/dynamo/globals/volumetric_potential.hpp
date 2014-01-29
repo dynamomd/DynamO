@@ -18,14 +18,19 @@
 #pragma once
 #include <dynamo/globals/global.hpp>
 #include <dynamo/particle.hpp>
+#include <dynamo/coilRenderObj.hpp>
 #include <magnet/containers/ordering.hpp>
+#ifdef DYNAMO_visualizer
+# include <coil/RenderObj/Volume.hpp>
+#endif 
 #include <unordered_map>
 #include <vector>
+#include <array>
 
 namespace dynamo {
   /*! \brief An implementation of volumetric potentials.
    */
-  class GVolumetricPotential: public Global
+  class GVolumetricPotential: public Global, public CoilRenderObj
   {
   public:
   public:
@@ -40,7 +45,24 @@ namespace dynamo {
     virtual void initialise(size_t id) { Global::initialise(id); }
 
     virtual void operator<<(const magnet::xml::Node&);
+
+#ifdef DYNAMO_visualizer
+    virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const;
+    virtual void initRenderData(magnet::GL::Context::ContextPtr) const;
+    virtual void updateRenderData() const;
+#endif
+
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;
+
+#ifdef DYNAMO_visualizer
+    mutable shared_ptr<coil::RVolume> _renderObj;
+#endif
+
+    typedef magnet::containers::RowMajorOrdering<3> Ordering;
+    Ordering _ordering;
+    std::string _fileName;
+    size_t _sampleBytes;
+    std::vector<unsigned char> _volumeData;
   };
 }

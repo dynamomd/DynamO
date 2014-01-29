@@ -93,7 +93,7 @@ namespace dynamo {
 
   void
   SVisualizer::initialise(size_t nID)
-  { 
+  {
     ID = nID;
 
     //Add all of the objects to be rendered
@@ -103,14 +103,41 @@ namespace dynamo {
     for (shared_ptr<Local>& local : Sim->locals)
       {
 	CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*local));
-	if (obj != NULL) _window->addRenderObj(obj->getCoilRenderObj());
+	if (obj != NULL) {
+	  _window->addRenderObj(obj->getCoilRenderObj());
+	  _window->_updateDataSignal.connect<CoilRenderObj, &CoilRenderObj::updateRenderData>(obj);
+	}
+      }
+    
+    for (shared_ptr<Global>& global : Sim->globals)
+      {
+	CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*global));
+	if (obj != NULL) {
+	  _window->addRenderObj(obj->getCoilRenderObj());
+	  _window->_updateDataSignal.connect<CoilRenderObj, &CoilRenderObj::updateRenderData>(obj);
+	}
       }
 
     //Initialise coil
     _coil.getInstance().addWindow(_window);
 
-    //Now initialise the data sets
+    //Now initialise data
     initDataSet();
+
+    for (shared_ptr<Local>& local : Sim->locals)
+      {
+	CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*local));
+	if (obj != NULL) 
+	  obj->initRenderData(_window->getGLContext());
+      }
+    
+    for (shared_ptr<Global>& global : Sim->globals)
+      {
+	CoilRenderObj* obj = dynamic_cast<CoilRenderObj*>(&(*global));
+	if (obj != NULL) 
+	  obj->initRenderData(_window->getGLContext());
+      }
+
     _window->_updateDataSignal.connect<SVisualizer, &SVisualizer::updateRenderData>(this);
     updateRenderData();
 

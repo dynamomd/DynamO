@@ -198,6 +198,7 @@ namespace dynamo {
 
     dout << "Cells <x,y,z> " << _ordering.getDimensions()[0] << ","
 	 << _ordering.getDimensions()[1] << "," << _ordering.getDimensions()[2]
+	 << "\nCell containers = " << _ordering.length()
 	 << "\nCell Offset "
 	 << cellOffset[0] / Sim->units.unitLength() << ","
 	 << cellOffset[1] / Sim->units.unitLength() << ","

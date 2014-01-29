@@ -59,7 +59,7 @@ void main()
 
     virtual void showControls(Gtk::ScrolledWindow* win);
 
-    void loadRawFile(std::string filename, size_t width, size_t height, size_t depth, size_t origin_x, size_t origin_y, size_t origin_z, size_t window_x, size_t window_y, size_t window_z, size_t bytes);
+    void loadRawFile(std::string filename, std::array<size_t, 3> dimensions, size_t bytes);
 
     /*! \brief Return the icon used for the object in the render view.
      */
@@ -68,16 +68,10 @@ void main()
     virtual magnet::math::Vector getMaxCoord() const { return +0.5 * _dimensions; }
     virtual magnet::math::Vector getMinCoord() const { return -0.5 * _dimensions; }
 
+    void loadData(const std::vector<GLubyte>& inbuffer, std::array<size_t, 3> dim, Vector scale);
+
   protected:
-    void loadRawFileWorker(std::string filename, 
-			   std::array<size_t, 3> dim, 
-			   std::array<size_t, 3> origin, 
-			   std::array<size_t, 3> window, 
-			   size_t bytes);
-
     void loadSphereTestPattern();
-
-    void loadData(const std::vector<GLubyte>& inbuffer, size_t width, size_t height, size_t depth);
 
     void initGTK();
     void guiUpdate();

@@ -76,17 +76,7 @@ namespace coil {
   }
 
   void 
-  RVolume::loadRawFile(std::string filename, size_t width, size_t height, size_t depth, size_t origin_x, size_t origin_y, size_t origin_z, size_t window_x, size_t window_y, size_t window_z, size_t bytes)
-  {
-    std::array<size_t, 3> dim = {{width, height, depth}};
-    std::array<size_t, 3> origin = {{origin_x, origin_y, origin_z}};
-    std::array<size_t, 3> window = {{window_x, window_y, window_z}};
-
-    _currentDepthFBO.getContext().queueTask(std::bind(&RVolume::loadRawFileWorker, this, filename, dim, origin, window, bytes));
-  }
-
-  void 
-  RVolume::loadRawFileWorker(std::string filename, std::array<size_t,3> dim, std::array<size_t, 3> origin, std::array<size_t, 3> window, size_t bytes)
+  RVolume::loadRawFile(std::string filename, std::array<size_t, 3> dim, size_t bytes)
   {
     std::ifstream file(filename.c_str(), std::ifstream::binary);
     std::vector<uint8_t> filebuffer(dim[0] * dim[1] * dim[2] * bytes);
@@ -96,14 +86,16 @@ namespace coil {
     //Debug loading of data
     //loadSphereTestPattern();
 
-    std::vector<GLubyte> outbuffer(window[0] * window[1] * window[2]);
-    for (size_t x(0); x < window[0]; ++x)
-      for (size_t y(0); y < window[1]; ++y)
-	for (size_t z(0); z < window[2]; ++z)
-	  outbuffer[x + (y + z* window[1]) * window[0]] 
-	    = filebuffer[(x + origin[0]  + (y + origin[1] + (z + origin[2]) * dim[1]) * dim[0]) * bytes];
+    std::vector<GLubyte> outbuffer(dim[0] * dim[1] * dim[2]);
+    for (size_t x(0); x < dim[0]; ++x)
+      for (size_t y(0); y < dim[1]; ++y)
+	for (size_t z(0); z < dim[2]; ++z)
+	  outbuffer[x + (y + z* dim[1]) * dim[0]] = filebuffer[(x + (y + z * dim[1]) * dim[0]) * bytes];
 
-    loadData(outbuffer, window[0], window[1], window[2]);
+    //size_t maxdim = std::max(dim[0], std::max(dim[1], dim[2]));
+    //_dimensions = Vector(double(dim[0]) / maxdim, double(dim[1]) / maxdim, double(dim[2]) / maxdim);
+
+    loadData(outbuffer, dim, Vector(1,1,1));
   }
 
   void
@@ -117,13 +109,9 @@ namespace coil {
     for (size_t z(0); z < size; ++z)
       for (size_t y(0); y < size; ++y)
         for (size_t x(0); x < size; ++x)
-          inbuffer[x + size * (y + size * z)] 
-	    = std::sqrt(std::pow(x - size / 2.0, 2)
-			 + std::pow(y - size / 2.0, 2) 
-			 + std::pow(z - size / 2.0, 2))
-	    ;
+          inbuffer[x + size * (y + size * z)] = std::sqrt(std::pow(x - size / 2.0, 2) + std::pow(y - size / 2.0, 2) + std::pow(z - size / 2.0, 2));
     
-    loadData(inbuffer, size, size, size);
+    loadData(inbuffer, std::array<size_t, 3>{{size, size, size}}, Vector(1,1,1));
   }
 
   namespace {
@@ -139,16 +127,17 @@ namespace coil {
 
   
   void
-  RVolume::loadData(const std::vector<GLubyte>& inbuffer, size_t width, size_t height, size_t depth)
+  RVolume::loadData(const std::vector<GLubyte>& inbuffer, std::array<size_t, 3> dim, Vector dimensions)
   {
-    std::vector<GLubyte> voldata(4 * width * height * depth);
+    _dimensions = dimensions;
+    std::vector<GLubyte> voldata(4 * dim[0] * dim[1] * dim[2]);
     
-    size_t maxdim = std::max(width, std::max(height, depth));
-
-    _dimensions = Vector(double(width) / maxdim, double(height) / maxdim, double(depth) / maxdim);
-
     std::vector<float>& histogram = _transferFunction->getHistogram();
     histogram = std::vector<float>(256, 0);
+
+    size_t width = dim[0];
+    size_t height = dim[1];
+    size_t depth = dim[2];
 
     for (int z(0); z < int(depth); ++z)
       for (int y(0); y < int(height); ++y)

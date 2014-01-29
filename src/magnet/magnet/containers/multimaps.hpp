@@ -46,6 +46,9 @@ namespace magnet {
 
       typedef magnet::containers::IteratorPairRange<const_iterator> RangeType;
       RangeType getKeyContents(const size_t key) const {
+#ifdef MAGNET_DEBUG
+	if (key >= _data.size()) M_throw() << "Access out of range (key="<<key << ", size=" << _data.size();
+#endif
 	return RangeType(_data[key].begin(), _data[key].end());
       }
 

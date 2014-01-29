@@ -137,7 +137,7 @@ namespace dynamo {
   protected:
     virtual void getParticleNeighbours(const std::array<size_t, 3>&, std::vector<size_t>&) const;
 
-    typedef magnet::containers::MortonOrdering<3> Ordering;
+    typedef magnet::containers::RowMajorOrdering<3> Ordering;
     Ordering _ordering;
 
     Vector cellDimension;

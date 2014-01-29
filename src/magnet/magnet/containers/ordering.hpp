@@ -93,10 +93,10 @@ namespace magnet {
 
 	/*! \brief How many unique coordinates exist in the system. */
 	size_t size() const {
-	  size_t length = 1;
-	  for (size_t i(0); i < NDim; ++i)    
-	    length *= _dimensions[i];
-	  return length;
+	  size_t val = 1;
+	  for (size_t i(0); i < NDim; ++i)
+	    val *= _dimensions[i];
+	  return val;
 	}
 
 	const ArrayType& getDimensions() const { return _dimensions; }
@@ -150,9 +150,11 @@ namespace magnet {
       template<typename... Args> RowMajorOrdering(Args... args): Base(std::forward<Args>(args)...) {}
 
       size_t toIndex(const ArrayType& loc) const  {
-	size_t index = loc[NDim - 1];
-	for (size_t i(1); i < NDim; ++i)
-	  index = index * Base::_dimensions[NDim - i - 1] + (loc[NDim - i - 1] % Base::_dimensions[NDim - i - 1]);
+	size_t index = 0;
+	for (size_t i(0); i < NDim; ++i)
+	  {
+	    index = index * Base::_dimensions[NDim - 1 - i] + (loc[NDim - i - 1] % Base::_dimensions[NDim - 1 - i]);
+	  }
 	return index;
       }
 

@@ -19,6 +19,7 @@
 
 #ifdef DYNAMO_visualizer
 # include <coil/RenderObj/RenderObj.hpp>
+# include <magnet/GL/context.hpp>
 # include <dynamo/base.hpp>
 #endif
 
@@ -27,6 +28,7 @@ namespace dynamo {
   {
 #ifdef DYNAMO_visualizer
     virtual shared_ptr<coil::RenderObj> getCoilRenderObj() const = 0;
+    virtual void initRenderData(magnet::GL::Context::ContextPtr) const {}
     virtual void updateRenderData() const = 0;
 #endif
   };

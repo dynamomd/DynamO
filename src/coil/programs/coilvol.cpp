@@ -38,12 +38,6 @@ int main(int argc, char *argv[])
 	("x-elements,x", po::value<size_t>(), "Number of x volume elements")
 	("y-elements,y", po::value<size_t>(), "Number of y volume elements")
 	("z-elements,z", po::value<size_t>(), "Number of z volume elements")
-	("x-window", po::value<size_t>(), "Window of x volume elements")
-	("y-window", po::value<size_t>(), "Window of y volume elements")
-	("z-window", po::value<size_t>(), "Window of z volume elements")
-	("x-origin", po::value<size_t>()->default_value(0), "Origin of x volume elements")
-	("y-origin", po::value<size_t>()->default_value(0), "Origin of y volume elements")
-	("z-origin", po::value<size_t>()->default_value(0), "Origin of z volume elements")
 	("data-size", po::value<size_t>()->default_value(1), 
 	 "Size of each volume element (in bytes).")
 	;
@@ -73,30 +67,15 @@ int main(int argc, char *argv[])
       magnet::ArgShare::getInstance().setArgs(argc, argv);
       
       coil::CoilRegister coil;
-            
-      std::shared_ptr<coil::RVolume>
-	voldata(new coil::RVolume(vm["data-file"].as<std::string>()));
-
-      std::shared_ptr<coil::CLGLWindow>
-	window(new coil::CLGLWindow("Coil Volume Renderer : ", 1.0));
+      std::shared_ptr<coil::RVolume> voldata(new coil::RVolume(vm["data-file"].as<std::string>()));
+      std::shared_ptr<coil::CLGLWindow> window(new coil::CLGLWindow("Coil Volume Renderer : ", 1.0));
 
       window->addRenderObj(voldata);
-      
       coil.getInstance().addWindow(window);
 
       size_t datasize[3] = {vm["x-elements"].as<size_t>(), vm["y-elements"].as<size_t>(), vm["z-elements"].as<size_t>()};
-      size_t origin[3] = {vm["x-origin"].as<size_t>(), vm["y-origin"].as<size_t>(), vm["z-origin"].as<size_t>()};
-      size_t datawindow[3] = {datasize[0] - origin[0], datasize[1] - origin[1], datasize[2] - origin[2]};
-
-      if (vm.count("x-window")) datawindow[0] = vm["x-window"].as<size_t>();
-      if (vm.count("y-window")) datawindow[1] = vm["y-window"].as<size_t>();
-      if (vm.count("z-window")) datawindow[2] = vm["z-window"].as<size_t>();
-
-      voldata->loadRawFile(vm["data-file"].as<std::string>(),
-			   datasize[0], datasize[1], datasize[2],
-			   origin[0], origin[1], origin[2],
-			   datawindow[0], datawindow[1], datawindow[2], 
-			   vm["data-size"].as<size_t>());
+      
+      window->getGLContext()->queueTask(std::bind(&coil::RVolume::loadRawFile, voldata.get(), vm["data-file"].as<std::string>(), std::array<size_t, 3>{{datasize[0], datasize[1], datasize[2]}}, vm["data-size"].as<size_t>()));
       
       while (true) { window->simupdateTick(0); }
     }

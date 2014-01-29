@@ -182,7 +182,7 @@ main(int argc, char *argv[])
 	      sim.ensemble = dynamo::Ensemble::loadEnsemble(sim);
 	    }
 	}
-      sim.addOutputPlugin("Misc");
+
       sim.initialise();
       
       //Here we modify the sim accordingly
