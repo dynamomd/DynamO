@@ -65,7 +65,7 @@ namespace dynamo {
 
     //We do not inherit GCells get Event as the calcPosition thing done
     //for infinite systems is breaking it for shearing for some reason.
-    return GlobalEvent(part, Sim->dynamics->getSquareCellCollision2(part, calcPosition(_cellData.getCellID(part.getID())), cellDimension) - Sim->dynamics->getParticleDelay(part), CELL, *this);
+    return GlobalEvent(part, Sim->dynamics->getSquareCellCollision2(part, calcPosition(_cellData.getCellID(part.getID())), _cellDimension) - Sim->dynamics->getParticleDelay(part), CELL, *this);
   }
 
   void 
@@ -80,7 +80,7 @@ namespace dynamo {
     const size_t oldCellIndex(_cellData.getCellID(part.getID()));
     const auto oldCellCoord = _ordering.toCoord(oldCellIndex);
     const Vector oldCellPosition(calcPosition(oldCellCoord));
-    const int cellDirectionInt(Sim->dynamics->getSquareCellCollision3(part, oldCellPosition, cellDimension));
+    const int cellDirectionInt(Sim->dynamics->getSquareCellCollision3(part, oldCellPosition, _cellDimension));
     const size_t cellDirection = abs(cellDirectionInt) - 1;
 
     auto newCellCoord = oldCellCoord;
@@ -92,7 +92,7 @@ namespace dynamo {
 	//Remove the old x contribution
 	//Calculate the final x value
 	//Time till transition, assumes the particle is up to date
-	double dt = Sim->dynamics->getSquareCellCollision2(part, oldCellPosition, cellDimension);
+	double dt = Sim->dynamics->getSquareCellCollision2(part, oldCellPosition, _cellDimension);
      
 	//Predict the position of the particle in the x dimension
 	Sim->dynamics->advanceUpdateParticle(part, dt);
@@ -102,7 +102,7 @@ namespace dynamo {
 
 	//Adding this extra half cell ensures we get into the next
 	//simulation image, to calculate the position of the new cell
-	tmpPos[1] += ((cellDirectionInt < 0) ? -0.5 : 0.5) * cellDimension[1];
+	tmpPos[1] += ((cellDirectionInt < 0) ? -0.5 : 0.5) * _cellDimension[1];
 
 	//Determine the x position (in cell coords) of the particle and
 	//add it to the endCellID

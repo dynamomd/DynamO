@@ -381,15 +381,18 @@ namespace coil {
     
     _stepSizeVal = boost::lexical_cast<double>(val);
 
-    if (_filterData->get_active())
+    if (_data.isValid())
       {
-	_data.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	_data.parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	if (_filterData->get_active())
+	  {
+	    _data.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	    _data.parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	  }
+	else
+	  {
+	    _data.parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	    _data.parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	  }
       }
-    else
-      {
-	_data.parameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	_data.parameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      }    
   }
 }

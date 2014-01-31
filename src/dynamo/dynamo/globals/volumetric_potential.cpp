@@ -23,6 +23,7 @@
 #include <dynamo/ranges/IDRangeAll.hpp>
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/BC/LEBC.hpp>
+#include <dynamo/outputplugins/outputplugin.hpp>
 #include <dynamo/ranges/IDRangeList.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
@@ -33,14 +34,67 @@
 #include <algorithm>
 
 namespace dynamo {
-  GlobalEvent 
-  GVolumetricPotential::getEvent(const Particle &p) const {
-    return GlobalEvent(p, HUGE_VAL, CELL, *this);
+  void 
+  GVolumetricPotential::initialise(size_t id) {
+    Global::initialise(id);
+    GNeighbourList::reinitialise();      
+
+    for (size_t iDim = 0; iDim < NDIM; iDim++)
+      _cellLatticeWidth[iDim] = Sim->primaryCellSize[iDim] / _ordering.getDimensions()[iDim];
+    _cellDimension = _cellLatticeWidth;
+    _cellOffset = Vector(0,0,0);
+
+    buildCells();
   }
+
   
   void 
-  GVolumetricPotential::runEvent(Particle& p, const double dt) const {
-    M_throw() << "Not implemented!";
+  GVolumetricPotential::runEvent(Particle& part, const double dt) const {
+    //Despite the system not being streamed this must be done.  This is
+    //because the scheduler and all interactions, locals and systems
+    //expect the particle to be up to date.
+    Sim->dynamics->updateParticle(part);
+
+    const size_t oldCellIndex = _cellData.getCellID(part.getID());
+    const int cellDirectionInt(Sim->dynamics->getSquareCellCollision3(part, calcPosition(oldCellIndex, part), _cellDimension));
+    const size_t cellDirection = abs(cellDirectionInt) - 1;
+
+    GlobalEvent iEvent(getEvent(part));
+
+#ifdef DYNAMO_DEBUG 
+    if (std::isnan(iEvent.getdt()))
+      M_throw() << "A NAN Interaction collision time has been found when recalculating this global"
+		<< iEvent.stringData(Sim);
+#endif
+
+    Sim->systemTime += iEvent.getdt();
+    Sim->ptrScheduler->stream(iEvent.getdt());  
+    Sim->stream(iEvent.getdt());
+
+    Vector vNorm(0,0,0);
+    vNorm[cellDirection] = (cellDirectionInt > 0) ? -1 : 1;
+
+    Vector pos(part.getPosition()), vel(part.getVelocity());
+    Sim->BCs->applyBC(pos, vel);
+    
+    //Run the collision and catch the data
+    NEventData EDat(Sim->dynamics->runPlaneEvent(part, vNorm, 1.0, 0.0));
+
+    if (false)
+      {
+	//Calculate which cell the particle ends up in
+	const auto oldCellCoord = _ordering.toCoord(oldCellIndex);
+	auto newCellCoord = oldCellCoord;
+	newCellCoord[cellDirection] += _ordering.getDimensions()[cellDirection] + ((cellDirectionInt > 0) ? 1 : -1);
+	newCellCoord[cellDirection] %= _ordering.getDimensions()[cellDirection];
+	//_cellData.moveTo(oldCellIndex, _ordering.toIndex(newCellCoord), part.getID());
+      }
+    
+    //Now we're past the event update the scheduler and plugins
+    Sim->_sigParticleUpdate(EDat);
+    Sim->ptrScheduler->fullUpdate(part);  
+    for (shared_ptr<OutputPlugin> & Ptr : Sim->outputPlugins)
+      Ptr->eventUpdate(iEvent, EDat);
   }
 
   void 

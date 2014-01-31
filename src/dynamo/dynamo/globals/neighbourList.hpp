@@ -42,7 +42,6 @@ namespace dynamo {
       Global(a, b),
       _initialised(false),
       _maxInteractionRange(0),
-      isUsedInScheduler(false),
       lambda(0.9)
     {}
 
@@ -67,8 +66,6 @@ namespace dynamo {
       _initialised = true;
     }
     
-    void markAsUsedInScheduler() { isUsedInScheduler = true; }
-
     void setCellOverlap(bool overlap) 
     {
       if (overlap)
@@ -107,8 +104,6 @@ namespace dynamo {
     GNeighbourList(const GNeighbourList&);
 
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
-
-    bool isUsedInScheduler;
     double lambda; 
   };
 }

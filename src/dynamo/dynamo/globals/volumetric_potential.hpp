@@ -16,7 +16,7 @@
 */
 
 #pragma once
-#include <dynamo/globals/global.hpp>
+#include <dynamo/globals/cells.hpp>
 #include <dynamo/particle.hpp>
 #include <dynamo/coilRenderObj.hpp>
 #include <magnet/containers/ordering.hpp>
@@ -30,19 +30,17 @@
 namespace dynamo {
   /*! \brief An implementation of volumetric potentials.
    */
-  class GVolumetricPotential: public Global, public CoilRenderObj
+  class GVolumetricPotential: public GCells, public CoilRenderObj
   {
   public:
   public:
     GVolumetricPotential(const magnet::xml::Node& XML, dynamo::Simulation* ptrSim):
-      Global(ptrSim, "VolumetricPotential")
+      GCells(ptrSim, "VolumetricPotential")
     { operator<<(XML); }
     
-    virtual GlobalEvent getEvent(const Particle &) const;
-
     virtual void runEvent(Particle& p, const double dt) const;
 
-    virtual void initialise(size_t id) { Global::initialise(id); }
+    virtual void initialise(size_t id);
 
     virtual void operator<<(const magnet::xml::Node&);
 
@@ -59,8 +57,6 @@ namespace dynamo {
     mutable shared_ptr<coil::RVolume> _renderObj;
 #endif
 
-    typedef magnet::containers::RowMajorOrdering<3> Ordering;
-    Ordering _ordering;
     std::string _fileName;
     size_t _sampleBytes;
     std::vector<unsigned char> _volumeData;

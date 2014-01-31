@@ -19,7 +19,7 @@
 #include <dynamo/schedulers/scheduler.hpp>
 
 namespace dynamo {
-  class SNeighbourList: public Scheduler, magnet::Tracked
+  class SNeighbourList: public Scheduler, public magnet::Tracked
   {
   public:
     SNeighbourList(const magnet::xml::Node&, dynamo::Simulation* const);

@@ -128,7 +128,7 @@ namespace dynamo {
     virtual void operator<<(const magnet::xml::Node&);
 
     Vector getCellDimensions() const 
-    { return cellDimension; }
+    { return _cellDimension; }
 
     virtual double getMaxSupportedInteractionLength() const;
 
@@ -140,9 +140,9 @@ namespace dynamo {
     typedef magnet::containers::RowMajorOrdering<3> Ordering;
     Ordering _ordering;
 
-    Vector cellDimension;
-    Vector cellLatticeWidth;
-    Vector cellOffset;
+    Vector _cellDimension;
+    Vector _cellLatticeWidth;
+    Vector _cellOffset;
 
     bool _inConfig;
     double _oversizeCells;
@@ -158,6 +158,7 @@ namespace dynamo {
     std::array<size_t, 3> getCellCoords(Vector) const;
 
     void addCells(double);
+    void buildCells();
 
     Vector calcPosition(const size_t cellIndex, const Particle& part) const { return calcPosition(_ordering.toCoord(cellIndex), part);}
     Vector calcPosition(const std::array<size_t, 3>& coords, const Particle& part) const ;

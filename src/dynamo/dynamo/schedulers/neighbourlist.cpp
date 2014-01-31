@@ -86,8 +86,8 @@ namespace dynamo {
 		<< " but the longest interaction distance is " 
 		<< Sim->getLongestInteraction() / Sim->units.unitLength();
 
-    nblist->markAsUsedInScheduler();
     nblist->_sigNewNeighbour.connect<Scheduler, &Scheduler::addInteractionEvent>(this);
+    nblist->_sigReInitialise.connect<SNeighbourList, &SNeighbourList::initialise>(this);
     Scheduler::initialise();
   }
 

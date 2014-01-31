@@ -21,6 +21,7 @@
 #pragma once
 
 #include <Judy.h>
+#include <magnet/exception.hpp>
 
 namespace magnet {
   namespace containers {
