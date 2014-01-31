@@ -71,24 +71,33 @@ namespace dynamo {
     Sim->ptrScheduler->stream(iEvent.getdt());  
     Sim->stream(iEvent.getdt());
 
+    //Calculate which cell the particle might end up in
+    const auto oldCellCoord = _ordering.toCoord(oldCellIndex);
+    auto newCellCoord = oldCellCoord;
+    newCellCoord[cellDirection] += _ordering.getDimensions()[cellDirection] + ((cellDirectionInt > 0) ? 1 : -1);
+    newCellCoord[cellDirection] %= _ordering.getDimensions()[cellDirection];
+    const size_t newCellIndex = _ordering.toIndex(newCellCoord);
+
+
     Vector vNorm(0,0,0);
     vNorm[cellDirection] = (cellDirectionInt > 0) ? -1 : 1;
 
+    NEventData EDat;
+
+    //Run the collision and catch the data
+    Sim->dynamics->updateParticle(part);    
     Vector pos(part.getPosition()), vel(part.getVelocity());
     Sim->BCs->applyBC(pos, vel);
-    
-    //Run the collision and catch the data
-    NEventData EDat(Sim->dynamics->runPlaneEvent(part, vNorm, 1.0, 0.0));
-
-    if (false)
+    double potEnergyChange = 0.5 * (double(_volumeData[newCellIndex]) - double(_volumeData[oldCellIndex]));
+    double arg =  vel[cellDirection] * vel[cellDirection] - 2 * potEnergyChange / Sim->species(part)->getMass(part);
+    if (arg > 0)
       {
-	//Calculate which cell the particle ends up in
-	const auto oldCellCoord = _ordering.toCoord(oldCellIndex);
-	auto newCellCoord = oldCellCoord;
-	newCellCoord[cellDirection] += _ordering.getDimensions()[cellDirection] + ((cellDirectionInt > 0) ? 1 : -1);
-	newCellCoord[cellDirection] %= _ordering.getDimensions()[cellDirection];
-	//_cellData.moveTo(oldCellIndex, _ordering.toIndex(newCellCoord), part.getID());
+	EDat = ParticleEventData(part, *Sim->species(part), WALL);
+	part.getVelocity()[cellDirection] *= std::sqrt(arg) / std::abs(part.getVelocity()[cellDirection]);
+	_cellData.moveTo(oldCellIndex, newCellIndex, part.getID());
       }
+    else
+      EDat = Sim->dynamics->runPlaneEvent(part, vNorm, 1.0, 0.0);
     
     //Now we're past the event update the scheduler and plugins
     Sim->_sigParticleUpdate(EDat);
