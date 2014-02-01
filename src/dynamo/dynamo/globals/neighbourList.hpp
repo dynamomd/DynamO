@@ -41,8 +41,7 @@ namespace dynamo {
     GNeighbourList(dynamo::Simulation* a, const char *b): 
       Global(a, b),
       _initialised(false),
-      _maxInteractionRange(0),
-      lambda(0.9)
+      _maxInteractionRange(0)
     {}
 
     virtual void getParticleNeighbours(const Particle&, std::vector<size_t>&) const = 0;
@@ -66,14 +65,6 @@ namespace dynamo {
       _initialised = true;
     }
     
-    void setCellOverlap(bool overlap) 
-    {
-      if (overlap)
-	lambda = 0.9; 
-      else
-	lambda = 0.001;
-    }
-
     /*! \brief Set the minimum range this neighbourlist is to support.
       
       This is the minimum as neighbourlists usually must support a
@@ -104,7 +95,6 @@ namespace dynamo {
     GNeighbourList(const GNeighbourList&);
 
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
-    double lambda; 
   };
 }
 

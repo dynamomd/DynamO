@@ -62,7 +62,6 @@ namespace dynamo {
 	    //cells, otherwise cells are always rebuilt as they overlap
 	    //such that the maximum supported interaction distance is
 	    //equal to the current maximum interaction distance.
-	    nblist->setCellOverlap(false);
 	    Sim->systems.push_back(shared_ptr<System>(new SysNBListCompressionFix(Sim, compressiondynamics->getGrowthRate(), NBListID)));
 	  }
       }

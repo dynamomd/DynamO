@@ -24,6 +24,7 @@
 #include <dynamo/schedulers/scheduler.hpp>
 #include <dynamo/BC/LEBC.hpp>
 #include <dynamo/ranges/IDRangeList.hpp>
+#include <dynamo/dynamics/compression.hpp>
 #include <magnet/xmlwriter.hpp>
 #include <magnet/xmlreader.hpp>
 #include <cstdio>
@@ -173,6 +174,10 @@ namespace dynamo {
 
   void GCells::addCells(double maxdiam)
   {
+    double overlap = 0.9;
+    if (std::dynamic_pointer_cast<DynCompression>(Sim->dynamics))
+      overlap = 0.001;
+    
     std::array<size_t, 3> cellCount;
     for (size_t iDim = 0; iDim < NDIM; iDim++)
       {
@@ -181,8 +186,8 @@ namespace dynamo {
 	if (cellCount[iDim] < 2 * overlink + 1)
 	  cellCount[iDim] = 2 * overlink + 1;
 	_cellLatticeWidth[iDim] = Sim->primaryCellSize[iDim] / cellCount[iDim];
-	_cellDimension[iDim] = _cellLatticeWidth[iDim] + (_cellLatticeWidth[iDim] - maxdiam) * lambda;
-	_cellOffset[iDim] = -(_cellLatticeWidth[iDim] - maxdiam) * lambda * 0.5;
+	_cellDimension[iDim] = _cellLatticeWidth[iDim] + (_cellLatticeWidth[iDim] - maxdiam) * overlap;
+	_cellOffset[iDim] = -(_cellLatticeWidth[iDim] - maxdiam) * overlap * 0.5;
       }
     _ordering = Ordering(cellCount);
 
@@ -270,21 +275,16 @@ namespace dynamo {
   GCells::getMaxSupportedInteractionLength() const
   {
     double retval(HUGE_VAL);
-
     for (size_t i = 0; i < NDIM; ++i)
       {
-	double supported_length = _cellLatticeWidth[i] * overlink
-	  + lambda * (_cellLatticeWidth[i] - _cellDimension[i]);
-
+	double supported_length = (1 + overlink) * _cellLatticeWidth[i] - _cellDimension[i];
 	//Test if, in this dimension, one neighbourhood of cells spans
 	//the system. If so, the maximum interaction supported is the
 	//system width.
 	if (_ordering.getDimensions()[i] == 2 * overlink + 1)
 	  supported_length = Sim->primaryCellSize[i];
-
 	retval = std::min(retval, supported_length);
       }
-
     return retval;
   }
 
