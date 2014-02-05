@@ -136,9 +136,9 @@ namespace magnet {
 	return _imaginary[i - 1];
       }
 
-      Vector imaginary() const { return _imaginary; }      
+      const Vector& imaginary() const { return _imaginary; }      
       Vector& imaginary() { return _imaginary; }      
-      double real() const { return _real; }
+      const double& real() const { return _real; }
       double& real() { return _real; }
 
       double nrm2() const {
@@ -158,7 +158,10 @@ namespace magnet {
 
       /*! \brief Rotation of a vector (assuming the vector is already normalised) */
       Vector operator*(const Vector& vec) const {
-	return (((*this) * Quaternion(0,vec)) * ((*this).conjugate()))._imaginary;
+	Vector img = imaginary();
+	return vec + 2.0 * (img ^ ((img ^ vec) + real() * vec));
+	//Equivalent but slower
+	//return (((*this) * Quaternion(0,vec)) * ((*this).conjugate()))._imaginary;
       }
 
       Quaternion operator*(const Quaternion& q) const {

@@ -22,7 +22,7 @@
 namespace magnet { namespace xml { class Node; class XmlStream; } }
 
 namespace dynamo {
-  typedef size_t ParticleID;
+  typedef uint32_t ParticleID;
   //! \brief The fundamental data structure for a Particle.
   //!
   //! This class holds only the very fundamental information on a
@@ -55,16 +55,13 @@ namespace dynamo {
     inline Particle (const Vector  &position, 
 		     const Vector  &velocity,
 		     const unsigned long& nID):
-      _pos(position), _vel(velocity), 
-      _ID(nID), _peculiarTime(0.0),
-      _state(DEFAULT)
+      _pos(position), _peculiarTime(0.0), _vel(velocity), 
+      _ID(nID), _state(DEFAULT)
     {}
   
     //! \brief Constructor to build a particle from an XML node.
     Particle(const magnet::xml::Node& XML, unsigned long nID):
-      _ID(nID),
-      _peculiarTime(0.0),
-      _state(DEFAULT)
+      _peculiarTime(0.0), _ID(nID), _state(DEFAULT)
     {
       if (XML.hasAttribute("Static")) clearState(DYNAMIC);
     
@@ -94,7 +91,7 @@ namespace dynamo {
     //! \brief ID accessor function.
     //! This ID is a unique value for each Particle in the Simulation
     //! and so it can also be used as a reference to a particle.
-    inline const ParticleID& getID() const { return _ID; }
+    inline ParticleID getID() const { return _ID; }
 
     operator ParticleID() const { return _ID; }
 
@@ -126,9 +123,9 @@ namespace dynamo {
 
   private:
     Vector _pos;
-    Vector _vel;
-    ParticleID _ID;
     double _peculiarTime;
-    int _state;
+    Vector _vel;
+    uint32_t _ID;
+    uint32_t _state;
   };
 }
