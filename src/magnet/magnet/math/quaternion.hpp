@@ -25,22 +25,17 @@ namespace magnet {
      */
     class Quaternion
     {
-      double _real;
       Vector _imaginary;
+      double _real;
 
     public:
-      Quaternion():
-	_real(1), _imaginary(0,0,0)
-      {}
+      Quaternion(): _imaginary(0,0,0), _real(1) {}
 
       Quaternion(double r, double i, double j, double k):
-	_real(r),
-	_imaginary(i,j,k)
-      {}
+	_imaginary(i,j,k), _real(r) {}
 
       Quaternion(double real, Vector imaginary):
-	_real(real),
-	_imaginary(imaginary)
+	_imaginary(imaginary), _real(real)
       {}
 
       /*! \brief Returns the default unrotated director.
