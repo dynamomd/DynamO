@@ -28,13 +28,13 @@ obj boost_iostreams_test : tests/boost_test.cpp /system//boost_iostreams ;
 exe libbz2_library_test : tests/buildreq.cpp /system//bz2 ;
 
 project	: requirements
-	 [ builddep.set-feature-on-build coil-support : /coil//coilDependencies : "DynamO-Coil Integration Supported" : incidental ]
+	 [ builddep.set-feature-on-build coil-support : /coil//coilDependencies : "DynamO-Coil Integration Supported" : symmetric ]
 	 [ builddep.set-feature-on-build dynamo-boost-iostreams : boost_iostreams_test : "DynamO: Boost iostreams library" : incidental ]
 	 [ builddep.set-feature-on-build dynamo-boost-program-options : boost_program_options_test : "DynamO: Boost program options library" : incidental ]
 	 [ builddep.set-feature-on-build dynamo-boost-filesystem : boost_filesystem_test : "DynamO: Boost filesystem library" : incidental ]
 	 [ builddep.set-feature-on-build dynamo-boost-headers : boost_header_test : "DynamO: Boost headers" : incidental ]
 	 [ builddep.set-feature-on-build dynamo-bz2-library : libbz2_library_test : "DynamO: libbz2 library" : incidental ]
-	 [ builddep.set-feature-on-build dynamo-judy-library : /magnet//judy-test : "DynamO: Judy array library (libJudy)" : incidental ]
+	 [ builddep.set-feature-on-build dynamo-judy-library : /magnet//judy-test : "DynamO: Judy array library (libJudy) (optional, gives faster stepped interactions)" : symmetric ]
 	 [ builddep.combine-features dynamo-buildable : dynamo-boost-headers dynamo-boost-filesystem dynamo-boost-program-options dynamo-boost-iostreams dynamo-bz2-library : incidental ]
 	: default-build release
 	: build-dir $(BUILD_DIR_PATH)
