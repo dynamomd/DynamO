@@ -70,25 +70,18 @@ namespace dynamo {
   {
     //Shift the x distance due to the Lee's Edwards conditions
     pos[0] -= rint(pos[1] / Sim->primaryCellSize[1]) * _dxd;
-  
+
     for (size_t n = 0; n < NDIM; ++n)
-      pos[n] -= Sim->primaryCellSize[n] *
-	lrint(pos[n] / Sim->primaryCellSize[n]);    
+      pos[n] = std::remainder(pos[n], Sim->primaryCellSize[n]);
   }
 
   void 
-  BCLeesEdwards::applyBC(Vector  &pos, Vector &vel) const 
+  BCLeesEdwards::applyBC(Vector& pos, Vector& vel) const 
   {
-    //Shift the x distance due to the Lee's Edwards conditions
-    pos[0] -= rint(pos[1] / Sim->primaryCellSize[1]) * _dxd;
-  
     //Adjust the velocity due to the box shift
-    vel[0] -= rint(pos[1] / Sim->primaryCellSize[1]) 
-      * _shearRate * Sim->primaryCellSize[1];
-  
-    for (size_t n = 0; n < NDIM; ++n)
-      pos[n] -= Sim->primaryCellSize[n] *
-	lrint(pos[n] / Sim->primaryCellSize[n]);    
+    vel[0] -= rint(pos[1] / Sim->primaryCellSize[1]) * _shearRate * Sim->primaryCellSize[1];
+
+    applyBC(pos);
   }
 
   void 
@@ -100,8 +93,7 @@ namespace dynamo {
     posVec[0] -= rint(posVec[1] / Sim->primaryCellSize[1]) * localdxd;
   
     for (size_t n = 0; n < NDIM; ++n)
-      posVec[n] -= Sim->primaryCellSize[n] *
-	lrint(posVec[n] / Sim->primaryCellSize[n]);    
+      posVec[n] = std::remainder(posVec[n], Sim->primaryCellSize[n]);
   }
 
   void 
