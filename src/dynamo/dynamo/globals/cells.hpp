@@ -18,7 +18,9 @@
 #pragma once
 #include <dynamo/globals/neighbourList.hpp>
 #include <dynamo/particle.hpp>
-#include <magnet/containers/judy.hpp>
+#ifdef DYNAMO_JUDY
+# include <magnet/containers/judy.hpp>
+#endif
 #include <magnet/containers/vector_set.hpp>
 #include <magnet/containers/multimaps.hpp>
 #include <magnet/containers/ordering.hpp>
@@ -148,9 +150,13 @@ namespace dynamo {
     double _oversizeCells;
     size_t overlink;
 
+#ifdef DYNAMO_JUDY
     mutable detail::CellParticleList<magnet::containers::Vector_Multimap<magnet::containers::VectorSet<size_t>>, 
 				     magnet::containers::JudyMap<size_t, size_t>> _cellData;
-
+#else
+    mutable detail::CellParticleList<magnet::containers::Vector_Multimap<magnet::containers::VectorSet<size_t>>, 
+				     std::unordered_map<size_t, size_t> > _cellData;
+#endif
     GCells(const GCells&);
 
     virtual void outputXML(magnet::xml::XmlStream&) const;

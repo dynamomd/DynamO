@@ -35,7 +35,7 @@ project	: requirements
 	 [ builddep.set-feature-on-build dynamo-boost-headers : boost_header_test : "DynamO: Boost headers" : incidental ]
 	 [ builddep.set-feature-on-build dynamo-bz2-library : libbz2_library_test : "DynamO: libbz2 library" : incidental ]
 	 [ builddep.set-feature-on-build dynamo-judy-library : /magnet//judy-test : "DynamO: Judy array library (libJudy)" : incidental ]
-	 [ builddep.combine-features dynamo-buildable : dynamo-boost-headers dynamo-boost-filesystem dynamo-boost-program-options dynamo-boost-iostreams dynamo-bz2-library dynamo-judy-library : incidental ]
+	 [ builddep.combine-features dynamo-buildable : dynamo-boost-headers dynamo-boost-filesystem dynamo-boost-program-options dynamo-boost-iostreams dynamo-bz2-library : incidental ]
 	: default-build release
 	: build-dir $(BUILD_DIR_PATH)
 	;
@@ -43,9 +43,9 @@ project	: requirements
 exe dynamoDependencies : tests/buildreq.cpp : <dynamo-buildable>no:<define>BUILDFAIL ;
 
 alias dynamo_core : [ glob-tree *.cpp : programs tests ]
-      /magnet//magnet /system//boost_filesystem /system//boost_program_options /system//boost_iostreams /system//judy
-    : <coil-integration>yes:<source>/coil//coil/<link>static
-    : : <variant>debug:<define>DYNAMO_DEBUG <threading>multi <include>. <coil-integration>yes:<define>DYNAMO_visualizer <include>. <dynamo-buildable>no:<build>no
+      /magnet//magnet /system//boost_filesystem /system//boost_program_options /system//boost_iostreams 
+    : <coil-integration>yes:<source>/coil//coil/<link>static <dynamo-judy-library>yes:<source>/system//judy <dynamo-judy-library>yes:<define>DYNAMO_JUDY
+    : : <variant>debug:<define>DYNAMO_DEBUG <threading>multi <include>. <coil-integration>yes:<define>DYNAMO_visualizer <include>. <dynamo-buildable>no:<build>no <dynamo-judy-library>yes:<define>DYNAMO_JUDY
     ;
 
 exe dynarun : programs/dynarun.cpp dynamo_core/<coil-integration>no

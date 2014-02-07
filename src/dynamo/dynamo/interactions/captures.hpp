@@ -20,20 +20,15 @@
 #include <dynamo/particle.hpp>
 #include <dynamo/interactions/interaction.hpp>
 #include <magnet/exception.hpp>
-#include <magnet/containers/judy.hpp>
+#ifdef DYNAMO_JUDY
+# include <magnet/containers/judy.hpp>
+#else
+# include <unordered_map>
+#endif
 #include <map>
 
-namespace dynamo {
-  namespace detail {
-    namespace {
-      ::std::size_t
-      hash_combine(const ::std::size_t hash1, const ::std::size_t hash2)
-      {
-	return hash1 ^ (hash2 + 0x9e3779b9 + (hash1 << 6) + (hash1 >> 2));
-      }
-    }
-    
-    static_assert(sizeof(size_t) == 8, "DynamO now requires 64bit systems as it uses Judy arrays for capture maps");
+namespace dynamo { 
+  namespace detail { 
     /*! \brief A key used to represent a pair of two particles.
       
       This key sorts the particle ID's into ascending order. This way
@@ -57,7 +52,30 @@ namespace dynamo {
 	uint64_t _key;
       };
     };
+  } 
+}
 
+namespace std
+{
+  template<>
+  struct hash<dynamo::detail::PairKey>
+  {
+    typedef dynamo::detail::PairKey argument_type;
+    typedef std::size_t value_type;
+    value_type operator()(argument_type const& s) const { return s._key; }
+  };
+}
+
+namespace dynamo {
+  namespace detail {
+    namespace {
+      ::std::size_t
+      hash_combine(const ::std::size_t hash1, const ::std::size_t hash2)
+      {
+	return hash1 ^ (hash2 + 0x9e3779b9 + (hash1 << 6) + (hash1 >> 2));
+      }
+    }
+    
     /*!\brief This is a container that stores a single size_t
       identified by a pair of particles.
        
@@ -73,9 +91,15 @@ namespace dynamo {
       0 for any entry which is missing. It also returns a proxy which
       deletes entries when they are set to 0.
     */
-    class CaptureMap: public magnet::containers::JudyMap<PairKey, size_t>
+
+#ifdef DYNAMO_JUDY
+    typedef magnet::containers::JudyMap<PairKey, size_t> CaptureMapContainer;
+#else
+    typedef std::unordered_map<PairKey, size_t> CaptureMapContainer;
+#endif
+    class CaptureMap: public CaptureMapContainer
     {
-      typedef magnet::containers::JudyMap<PairKey, size_t> Container;
+      typedef CaptureMapContainer Container;
     public:
       /*!\brief This proxy is used to double check if an assignment of
 	zero is done, and delete the entry if it is. */
@@ -138,6 +162,9 @@ namespace dynamo {
       { return map.hash(); }
     };
   }
+}
+
+namespace dynamo {
 
   /*! \brief A general interface for \ref Interaction classes with
     states for the particle pairs.
