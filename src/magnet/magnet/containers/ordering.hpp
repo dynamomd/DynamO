@@ -184,7 +184,7 @@ namespace magnet {
     class MortonOrdering : public detail::OrderingBase<NDim, MortonOrdering<NDim> > {
       typedef typename detail::OrderingBase<NDim, MortonOrdering<NDim> > Base;
     public:
-      using typename Base::ArrayType;
+      typedef typename Base::ArrayType ArrayType;
 
       MortonOrdering(const ArrayType& dimensions): Base(dimensions) { }
 
