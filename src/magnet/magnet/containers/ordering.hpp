@@ -143,7 +143,7 @@ namespace magnet {
     class RowMajorOrdering : public detail::OrderingBase<NDim, RowMajorOrdering<NDim> > {
       typedef typename detail::OrderingBase<NDim, RowMajorOrdering<NDim> > Base;
     public:
-      using typename Base::ArrayType;
+      typedef typename Base::ArrayType ArrayType;
 
       RowMajorOrdering(const ArrayType& dimensions): Base(dimensions) { }
 
