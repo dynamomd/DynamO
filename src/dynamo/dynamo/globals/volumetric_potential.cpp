@@ -127,28 +127,31 @@ namespace dynamo {
     _fileName = XML.getAttribute("RawFile");
     _sampleBytes = XML.getAttribute("SampleBytes").as<size_t>();
     auto XMLdim = XML.getNode("Dimensions");
-    _ordering = Ordering(std::array<size_t, 3>{{XMLdim.getAttribute("x").as<size_t>(), XMLdim.getAttribute("y").as<size_t>(), XMLdim.getAttribute("z").as<size_t>()}});
+    
+    Ordering fileOrdering(std::array<size_t, 3>{{XMLdim.getAttribute("x").as<size_t>(), XMLdim.getAttribute("y").as<size_t>(), XMLdim.getAttribute("z").as<size_t>()}});
 
+    _ordering = Ordering(std::array<size_t, 3>{{20, 20, 20}});
+    
 
     //Load the file data in
-    std::vector<unsigned char> fileData(_ordering.size() * _sampleBytes);
+    std::vector<unsigned char> fileData(fileOrdering.size() * _sampleBytes);
     dout << "Opening " << _fileName << std::endl;
     std::ifstream file(_fileName.c_str(), std::ifstream::binary);
 
     if (!file.good())
       M_throw() << "Failed open the file " << _fileName;
 
-    dout << "Loading " << _ordering.size() * _sampleBytes << " bytes" <<  std::endl;
-    file.read(reinterpret_cast<char*>(fileData.data()), _ordering.size() * _sampleBytes);
+    dout << "Loading " << fileOrdering.size() * _sampleBytes << " bytes" <<  std::endl;
+    file.read(reinterpret_cast<char*>(fileData.data()), fileOrdering.size() * _sampleBytes);
     
     if (!file)
-      M_throw() << "Failed reading volumetric data (read " << file.gcount() << " bytes of an expected " << _ordering.size() * _sampleBytes << "  from " << _fileName << ")";
+      M_throw() << "Failed reading volumetric data (read " << file.gcount() << " bytes of an expected " << fileOrdering.size() * _sampleBytes << "  from " << _fileName << ")";
     file.close();
 
     //Just pull the most significant byte in for now
     _volumeData.resize(_ordering.size());
     for (auto index : _ordering)
-      _volumeData[index] = fileData[index * _sampleBytes];
+      _volumeData[index] = fileData[fileOrdering.toIndex(_ordering.toCoord(index)) * _sampleBytes];
   }
 
 #ifdef DYNAMO_visualizer

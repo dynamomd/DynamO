@@ -130,6 +130,15 @@ namespace coil {
   RVolume::loadData(const std::vector<GLubyte>& inbuffer, std::array<size_t, 3> dim, Vector dimensions)
   {
     _dimensions = dimensions;
+    
+    //Figure out what the minimum step size is to capture all detail
+    //of the model (nyquist sampling rate)
+    _stepSizeVal = HUGE_VAL;
+    for (size_t i(0); i < 3; ++i)
+      _stepSizeVal = std::min(_stepSizeVal, GLfloat(0.5 * dimensions[i] / dim[i]));
+    if (_stepSize)
+      _stepSize->set_text(boost::lexical_cast<std::string>(_stepSizeVal));
+
     std::vector<GLubyte> voldata(4 * dim[0] * dim[1] * dim[2]);
     
     std::vector<float>& histogram = _transferFunction->getHistogram();
@@ -333,7 +342,8 @@ namespace coil {
       Gtk::Label* label = manage(new Gtk::Label("Raytrace Step Size"));
       box->pack_start(*label, false, false); label->show();
       box->pack_end(*_stepSize, false, false);
-      _stepSize->show(); _stepSize->set_text("0.01");      
+      _stepSize->show(); 
+      _stepSize->set_text(boost::lexical_cast<std::string>(_stepSizeVal));
       _optList->add(*box); box->show();
     }
 
