@@ -20,11 +20,8 @@
 #include <coil/RenderObj/console.hpp>
 #include <coil/RenderObj/Volume.hpp>
 #include <coil/RenderObj/Light.hpp>
-
 #include <magnet/GL/context.hpp>
-
 #include <magnet/image/videoEncoderFFMPEG.hpp>
-
 #include <magnet/image/PNG.hpp>
 #include <magnet/image/bitmap.hpp>
 #include <magnet/gtk/numericEntry.hpp>
@@ -737,7 +734,9 @@ namespace coil {
     _luminanceMipMapShader.deinit();
 
     _cairo_screen.deinit();
+#ifdef MAGNET_FFMPEG_SUPPORT
     _encoder.reset();
+#endif
     ///////////////////Finally, unregister with COIL
     CoilRegister::getCoilInstance().unregisterWindow(this);
   }

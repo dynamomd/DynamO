@@ -130,7 +130,7 @@ namespace dynamo {
     
     Ordering fileOrdering(std::array<size_t, 3>{{XMLdim.getAttribute("x").as<size_t>(), XMLdim.getAttribute("y").as<size_t>(), XMLdim.getAttribute("z").as<size_t>()}});
 
-    _ordering = Ordering(std::array<size_t, 3>{{20, 20, 20}});
+    _ordering = Ordering(std::array<size_t, 3>{{64, 64, 64}});
     
 
     //Load the file data in

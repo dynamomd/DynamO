@@ -291,6 +291,8 @@ namespace coil {
     enum CAM_MODE { ROTATE_WORLD, ROTATE_POINT, ROTATE_CAMERA};
     CAM_MODE _cameraMode;
     std::unique_ptr<Gtk::ComboBoxText> _aasamples;
+#ifdef MAGNET_FFMPEG_SUPPORT
     std::unique_ptr<magnet::image::VideoEncoderFFMPEG> _encoder;
+#endif
   };
 }
