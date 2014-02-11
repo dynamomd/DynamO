@@ -293,8 +293,7 @@ namespace coil {
       namespace fs = boost::filesystem;
       Gtk::FileChooserButton* fileChooser;
       _refXml->get_widget("snapshotDirectory", fileChooser);
-      std::string path = fs::canonical(boost::filesystem::current_path()).string();
-      fileChooser->set_filename(path);
+      fileChooser->set_filename(".");
     }
 
     {///////Recording button
