@@ -114,11 +114,26 @@ namespace dynamo {
 	<< magnet::xml::attr("RawFile") << _fileName
 	<< magnet::xml::attr("SampleBytes") << _sampleBytes
 	<< magnet::xml::tag("Dimensions")
-	<< magnet::xml::attr("x") << _ordering.getDimensions()[0]
-	<< magnet::xml::attr("y") << _ordering.getDimensions()[1]
-	<< magnet::xml::attr("z") << _ordering.getDimensions()[2]
-	<< magnet::xml::endtag("Dimensions")
-	<< magnet::xml::endtag("Global");
+	<< magnet::xml::attr("x") << _imageDimensions[0]
+	<< magnet::xml::attr("y") << _imageDimensions[1]
+	<< magnet::xml::attr("z") << _imageDimensions[2]
+	<< magnet::xml::endtag("Dimensions");
+    
+    if (_offset != std::array<size_t, 3>{{0,0,0}})
+      XML << magnet::xml::tag("Offset")
+	  << magnet::xml::attr("x") << _offset[0]
+	  << magnet::xml::attr("y") << _offset[1]
+	  << magnet::xml::attr("z") << _offset[2]
+	  << magnet::xml::endtag("Offset");      
+
+    if (_ordering.getDimensions() != _imageDimensions)
+      XML << magnet::xml::tag("SampleDimensions")
+	  << magnet::xml::attr("x") << _ordering.getDimensions()[0]
+	  << magnet::xml::attr("y") << _ordering.getDimensions()[1]
+	  << magnet::xml::attr("z") << _ordering.getDimensions()[2]
+	  << magnet::xml::endtag("SampleDimensions");
+    
+    XML << magnet::xml::endtag("Global");
   }
   
   void 
@@ -126,32 +141,60 @@ namespace dynamo {
     globName = XML.getAttribute("Name");
     _fileName = XML.getAttribute("RawFile");
     _sampleBytes = XML.getAttribute("SampleBytes").as<size_t>();
+
+
+    //Load the dimensions of the data set (and its subset of data if
+    //only processing a smaller section)
     auto XMLdim = XML.getNode("Dimensions");
+    _imageDimensions = std::array<size_t, 3>{{XMLdim.getAttribute("x").as<size_t>(), XMLdim.getAttribute("y").as<size_t>(), XMLdim.getAttribute("z").as<size_t>()}};
     
-    Ordering fileOrdering(std::array<size_t, 3>{{XMLdim.getAttribute("x").as<size_t>(), XMLdim.getAttribute("y").as<size_t>(), XMLdim.getAttribute("z").as<size_t>()}});
+    _offset = std::array<size_t, 3>{{0, 0, 0}};
+    if (XML.hasNode("Offset"))
+      {
+	auto XMLdim = XML.getNode("Offset");
+	_offset = std::array<size_t, 3>{{XMLdim.getAttribute("x").as<size_t>(), XMLdim.getAttribute("y").as<size_t>(), XMLdim.getAttribute("z").as<size_t>()}};
+      }
 
-    _ordering = Ordering(std::array<size_t, 3>{{64, 64, 64}});
-    
+    std::array<size_t, 3> sampleDimensions = _imageDimensions;
+    if (XML.hasNode("SampleDimensions"))
+      {
+	auto XMLdim = XML.getNode("SampleDimensions");
+	sampleDimensions = std::array<size_t, 3>{{XMLdim.getAttribute("x").as<size_t>(), XMLdim.getAttribute("y").as<size_t>(), XMLdim.getAttribute("z").as<size_t>()}};
+      }
 
-    //Load the file data in
+    Ordering fileOrdering(_imageDimensions);
     std::vector<unsigned char> fileData(fileOrdering.size() * _sampleBytes);
     dout << "Opening " << _fileName << std::endl;
     std::ifstream file(_fileName.c_str(), std::ifstream::binary);
 
     if (!file.good())
       M_throw() << "Failed open the file " << _fileName;
-
-    dout << "Loading " << fileOrdering.size() * _sampleBytes << " bytes" <<  std::endl;
+    dout << "Reading " << fileOrdering.size() * _sampleBytes << " bytes of data into memory" <<  std::endl;
     file.read(reinterpret_cast<char*>(fileData.data()), fileOrdering.size() * _sampleBytes);
     
     if (!file)
       M_throw() << "Failed reading volumetric data (read " << file.gcount() << " bytes of an expected " << fileOrdering.size() * _sampleBytes << "  from " << _fileName << ")";
     file.close();
 
-    //Just pull the most significant byte in for now
+    _ordering = Ordering(sampleDimensions);
     _volumeData.resize(_ordering.size());
-    for (auto index : _ordering)
-      _volumeData[index] = fileData[fileOrdering.toIndex(_ordering.toCoord(index)) * _sampleBytes];
+
+    dout << "Resampling " << _ordering.size() << " bytes of data from the file into the simulation" <<  std::endl;
+    if (_sampleBytes == 1)
+      {
+	if (sampleDimensions == _imageDimensions)
+	  std::swap(_volumeData, fileData);
+	else
+	  for (size_t z = 0; z < sampleDimensions[2]; ++z)
+	    for (size_t y = 0; y < sampleDimensions[1]; ++y)
+	      {
+		size_t startindex = fileOrdering.toIndex(std::array<size_t, 3>{{_offset[0], y + _offset[1], z + _offset[2]}});
+		std::copy(fileData.begin() + startindex, fileData.begin() + startindex + sampleDimensions[0], _volumeData.begin() + _ordering.toIndex(std::array<size_t, 3>{{0, y, z}}));
+	      }
+      }
+    else
+      M_throw() << "Do not have an optimised loader for resampling data yet";
+    dout << "Loading complete" <<  std::endl;
   }
 
 #ifdef DYNAMO_visualizer

@@ -60,5 +60,7 @@ namespace dynamo {
     std::string _fileName;
     size_t _sampleBytes;
     std::vector<unsigned char> _volumeData;
+    std::array<size_t, 3> _imageDimensions;
+    std::array<size_t, 3> _offset;
   };
 }
