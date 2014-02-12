@@ -19,7 +19,6 @@
 #include <dynamo/coordinator/engine/replexer.hpp>
 #include <dynamo/inputplugins/compression.hpp>
 #include <dynamo/systems/tHalt.hpp>
-#include <dynamo/systems/visualizer.hpp>
 #include <limits>
 
 
@@ -101,9 +100,6 @@ namespace dynamo {
     if (vm.count("sim-end-time") && (dynamic_cast<const EReplicaExchangeSimulation*>(this) == NULL))
       Sim.systems.push_back(shared_ptr<System>(new SystHalt(&Sim, vm["sim-end-time"].as<double>(), "SystemStopEvent")));
 
-#ifdef DYNAMO_visualizer
-    Sim.systems.push_back(shared_ptr<System>(new SVisualizer(&Sim, filename, Sim.lastRunMFT)));
-#endif
 
     if (vm.count("load-plugin"))
       {

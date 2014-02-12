@@ -18,6 +18,7 @@
 #include <dynamo/coordinator/coordinator.hpp>
 #include <dynamo/coordinator/engine/single.hpp>
 #include <dynamo/systems/snapshot.hpp>
+#include <dynamo/systems/visualizer.hpp>
 #include <signal.h>
 #include <stdio.h>
 
@@ -97,6 +98,10 @@ namespace dynamo {
       M_throw() << "You must only provide one input file in single mode";
 
     setupSim(simulation, vm["config-file"].as<std::vector<std::string> >()[0]);
+
+#ifdef DYNAMO_visualizer
+    simulation.systems.push_back(shared_ptr<System>(new SVisualizer(&simulation, vm["config-file"].as<std::vector<std::string> >()[0], simulation.lastRunMFT)));
+#endif
 
     if (vm.count("snapshot"))
       simulation.systems.push_back(shared_ptr<System>(new SysSnapshot(&simulation, vm["snapshot"].as<double>(), "SnapshotTimer", "%COUNT", !vm.count("unwrapped"))));
