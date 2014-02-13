@@ -66,10 +66,13 @@ exe dynahist_rw : programs/dynahist_rw.cpp dynamo_core/<coil-integration>no
 exe dynamod : programs/dynamod.cpp dynamo_core/<coil-integration>no
     : <coil-integration>no <dynamo-buildable>no:<build>no <tag>@tags.exe-naming ;
 
-explicit dynamod dynahist_rw dynarun dynapotential dynamo_core visualizer test ;
+exe dynacollide : programs/dynamod.cpp dynamo_core/<coil-integration>yes
+    : <coil-integration>yes <dynamo-buildable>no:<build>no <tag>@tags.exe-naming <coil-support>no:<build>no ;
+
+explicit dynamod dynahist_rw dynarun dynapotential dynamo_core visualizer dynacollide test ;
 
 install install-dynamo
-	: dynarun dynahist_rw dynamod dynavis dynapotential programs/dynatransport programs/dynarmsd programs/dynamaprmsd programs/dynamo2xyz
+	: dynarun dynahist_rw dynamod dynavis dynacollide dynapotential programs/dynatransport programs/dynarmsd programs/dynamaprmsd programs/dynamo2xyz
 	: <location>$(BIN_INSTALL_PATH) <dynamo-buildable>no:<build>no <coil-support>yes:<source>dynavis
 	;
 
