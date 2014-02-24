@@ -23,90 +23,59 @@ Vector random_unit_vec() {
 const size_t testcount = 1000;
 const double errlvl = 1e-8;
 
+std::pair<double, double> ray_wall(const Vector& relPos, const Vector& relVel, 
+				   const Vector& normal, const double dist)
+{
+  using namespace std;
+  //Objects must move towards each other to intersect
+  const double r = (relPos | normal);
+  const double v = (relVel | normal);
+  const double val1 = max(-(r - dist) / v, 0.0);
+  const double val2 = max(-(r + dist) / v, 0.0);
+  return pair<double, double>(min(val1, val2), max(val1, val2));
+}
+
 
 BOOST_AUTO_TEST_CASE( TimeToEvent_Test )
 {
+  const Vector V[] = {random_vec(), random_vec(), random_vec()};
+  const Vector M = (V[0] + V[1] + V[2]) / 3;
+  Vector Vrel[3];
+  double Vdist[3];
+  for (size_t i(0); i<3; ++i) {
+    Vrel[i] = V[i] - M;
+    Vdist[i] = Vrel[i].nrm();
+    Vrel[i] /= Vdist[i];
+  }
+
+  Vector N = Vrel[0] ^ Vrel[1];
+  N /= N.nrm();
+
   RNG.seed();
-  
-  for (size_t i(0); i < testcount; ++i)
-    {
-      //Generate a wall somewhere
-      Vector n = random_unit_vec();
-      Vector wallpos = random_vec();
-      //Generate a particle somewhere
-      Vector velocity = random_vec();
-      Vector position = random_vec();
-      double diam = std::abs(normal_dist(RNG));
-      //Place it in contact with the wall
-      position -= n * (position | n);
-      position += diam * n + wallpos;
-      if ((velocity | n) > 0)
-	velocity = -velocity;
+  auto out = ray_wall(Vector(1.5141, 0, 0), Vector(-0.92378417, 0, 0), Vector(-1, 0, 0), 0.5);
+  std::cout << "rootpair = " << out.first << ", " << out.second << std::endl;
 
-      //Now generate the position at some time away from the wall
-      double deltat = std::abs(normal_dist(RNG));
-      position += -deltat * velocity;
-
-      //Test the collision is detected
-      double calc_deltat = magnet::intersection::ray_plane(position - wallpos, velocity, n, diam);
-      BOOST_CHECK_CLOSE(deltat, calc_deltat, errlvl);
-    }
-}
-
-BOOST_AUTO_TEST_CASE( Overlapped_Approaching_Test )
-{
-  RNG.seed();
-  
-  for (size_t i(0); i < testcount; ++i)
-    {
-      //Generate a wall somewhere
-      Vector n = random_unit_vec();
-      Vector wallpos = random_vec();
-      //Generate a particle somewhere
-      Vector velocity = random_vec();
-      Vector position = random_vec();
-      double diam = std::abs(normal_dist(RNG));
-      //Place it in contact with the wall
-      position -= n * (position | n);
-      position += diam * n + wallpos;
-      if ((velocity | n) > 0)
-	velocity = -velocity;
-
-      //Now generate the position 10% into the wall
-      double deltat = 0.1 * diam / (- velocity | n);
-      position += deltat * velocity;
-
-      //Test the collision is detected as immediate
-      double calc_deltat = magnet::intersection::ray_plane(position - wallpos, velocity, n, diam);
-      BOOST_CHECK_EQUAL(calc_deltat, 0);
-    }
-}
-
-BOOST_AUTO_TEST_CASE( Overlapped_Receeding_Test )
-{
-  RNG.seed();
-  
-  for (size_t i(0); i < testcount; ++i)
-    {
-      //Generate a wall somewhere
-      Vector n = random_unit_vec();
-      Vector wallpos = random_vec();
-      //Generate a particle somewhere
-      Vector velocity = random_vec();
-      Vector position = random_vec();
-      double diam = std::abs(normal_dist(RNG));
-      //Place it in contact with the wall
-      position -= n * (position | n);
-      position += diam * n + wallpos;
-      if ((velocity | n) > 0)
-	velocity = -velocity;
-
-      //Now generate the position into the wall (but exiting the wall)
-      double deltat = 1.01 * diam / (- velocity | n);
-      position += deltat * velocity;
-
-      //Test the collision is never detected
-      double calc_deltat = magnet::intersection::ray_plane(position - wallpos, velocity, n, diam);
-      BOOST_CHECK_EQUAL(calc_deltat, HUGE_VAL);
-    }
+//  for (size_t i(0); i < testcount; ++i)
+//    {
+//      //Generate a wall somewhere
+//      Vector n = random_unit_vec();
+//      Vector wallpos = random_vec();
+//      //Generate a particle somewhere
+//      Vector velocity = random_vec();
+//      Vector position = random_vec();
+//      double diam = std::abs(normal_dist(RNG));
+//      //Place it in contact with the wall
+//      position -= n * (position | n);
+//      position += diam * n + wallpos;
+//      if ((velocity | n) > 0)
+//	velocity = -velocity;
+//
+//      //Now generate the position at some time away from the wall
+//      double deltat = std::abs(normal_dist(RNG));
+//      position += -deltat * velocity;
+//
+//      //Test the collision is detected
+//      double calc_deltat = magnet::intersection::ray_plane(position - wallpos, velocity, n, diam);
+//      BOOST_CHECK_CLOSE(deltat, calc_deltat, errlvl);
+//    }
 }
