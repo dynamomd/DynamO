@@ -59,9 +59,14 @@ unit-test vector-test : tests/vector_test.cpp magnet /system//boost_unit_test_fr
 unit-test quaternion-test : tests/quaternion_test.cpp magnet /system//boost_unit_test_framework ;
 unit-test dilate-test : tests/dilate_test.cpp magnet /system//boost_unit_test_framework ;
 unit-test spline-test : tests/splinetest.cpp /opencl//OpenCL magnet ;
-unit-test judy-test : tests/judy_test.cpp magnet /system//judy /system//boost_unit_test_framework : <cflags>-g ;
+unit-test judy-test : tests/judy_test.cpp magnet /system//judy /system//boost_unit_test_framework ;
 alias math-test : dilate-test cubic-quartic-test vector-test spline-test quaternion-test ;
 
+################### INTERSECTION/OVERLAP #######################
+
+unit-test plane-test : tests/plane_intersection.cpp magnet /system//boost_unit_test_framework ;
+alias intersection-test : plane-test ;
+
 ##################################################
-alias test : opencl-test thread-test math-test judy-test ;
+alias test : opencl-test thread-test math-test judy-test intersection-test ;
 ##################################################
