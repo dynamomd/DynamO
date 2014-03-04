@@ -25,17 +25,17 @@ namespace magnet {
       \tparam inverse If true, the time the ray escapes the cylinder is returned.
       \param R The origin of the ray relative to a point on the cylinder axis.
       \param V The direction/velocity of the ray.
-      \param A A normalized vector parallel to the axis of the cylinder.
+      \param n A normalized vector parallel to the axis of the cylinder.
       \param sig Radius of the cylinder.
             
       \return The time until the intersection, or HUGE_VAL if no intersection.
     */
     template<bool inverse = false>
-    inline double ray_cylinder(math::Vector R, math::Vector V, const math::Vector& A, const double sig)
+    inline double ray_cylinder(math::Vector R, math::Vector V, const math::Vector& n, const double sig)
     {
       //Project off the axial component of the position and velocity
-      R -= math::Vector((R | A) * A);
-      V -= math::Vector((V | A) * A);
+      R -= math::Vector((R | n) * n);
+      V -= math::Vector((V | n) * n);
       return ray_sphere<inverse>(R, V, sig);
     }
   }
