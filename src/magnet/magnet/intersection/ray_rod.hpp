@@ -68,7 +68,7 @@ namespace magnet {
     */
     inline double ray_inv_rod(math::Vector T, math::Vector D, const math::Vector& A, const double r)
     {
-      double t = ray_inv_cylinder(T, D, A / A.nrm(), r);
+      double t = ray_cylinder<true>(T, D, A / A.nrm(), r);
 
       M_throw() << "Confirm that this function is correct";
 
