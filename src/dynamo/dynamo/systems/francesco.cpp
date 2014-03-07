@@ -91,6 +91,9 @@ namespace dynamo {
     for (size_t ID2 : *ids)
       {
 	auto& p2 = Sim->particles[ID2];
+	Vector rij = part.getPosition() - p2.getPosition();
+	Sim->BCs->applyBC(rij);
+	if (rij.nrm2() > _R * _R) continue;
 	Sim->dynamics->updateParticle(p2);
 	avgV += p2.getVelocity().normal();
 	++n;
@@ -119,6 +122,9 @@ namespace dynamo {
     sqrtTemp = sqrt(Temp);
     eventCount = 0;
     lastlNColl = 0;
+    
+    if (_R > Sim->ptrScheduler->getNeighbourhoodDistance())
+      M_throw() << "The neighbourhood is too small for the R set in the Francesco System.";
   }
 
   void 
@@ -127,6 +133,8 @@ namespace dynamo {
     meanFreeTime = XML.getAttribute("MFT").as<double>() * Sim->units.unitTime() / Sim->N();
     Temp = XML.getAttribute("Temperature").as<double>() * Sim->units.unitEnergy();
     sysName = XML.getAttribute("Name");
+
+    _R = XML.getAttribute("R").as<double>() * Sim->units.unitLength();
 
     if (XML.hasAttribute("Dimensions"))
       dimensions = XML.getAttribute("Dimensions").as<size_t>();
@@ -142,6 +150,7 @@ namespace dynamo {
 	<< magnet::xml::attr("Name") << sysName
 	<< magnet::xml::attr("MFT") << meanFreeTime * Sim->N() / Sim->units.unitTime()
 	<< magnet::xml::attr("Temperature") << Temp 
+	<< magnet::xml::attr("R") << _R / Sim->units.unitLength() 
       / Sim->units.unitEnergy();
   
     if (dimensions != NDIM)

@@ -43,6 +43,7 @@ namespace dynamo {
     virtual void outputXML(magnet::xml::XmlStream&) const;
     double meanFreeTime;
     double Temp, sqrtTemp;
+    double _R;
     size_t dimensions;
     size_t eventCount;
     size_t lastlNColl;

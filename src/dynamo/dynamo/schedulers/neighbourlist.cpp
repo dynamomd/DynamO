@@ -110,6 +110,16 @@ namespace dynamo {
   SNeighbourList::SNeighbourList(dynamo::Simulation* const Sim, FEL* ns):
     Scheduler(Sim,"NeighbourListScheduler", ns)
   { dout << "Neighbour List Scheduler Algorithm Loaded" << std::endl; }
+  
+  double 
+  SNeighbourList::getNeighbourhoodDistance() const {
+#ifdef DYNAMO_DEBUG
+    if (!std::dynamic_pointer_cast<GNeighbourList>(Sim->globals[NBListID]))
+      M_throw() << "Not a GNeighbourList!";
+#endif
+
+    return static_cast<const GNeighbourList*>(Sim->globals[NBListID].get())->getMaxSupportedInteractionLength();
+  }
 
   std::unique_ptr<IDRange>
   SNeighbourList::getParticleNeighbours(const Particle& part) const
