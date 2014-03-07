@@ -20,6 +20,7 @@
 #include <dynamo/simulation.hpp>
 #include <dynamo/ranges/IDRange.hpp>
 #include <dynamo/interactions/potentials/potential.hpp>
+#include <map>
 
 namespace dynamo {
   class SysUmbrella: public System
@@ -27,11 +28,13 @@ namespace dynamo {
   public:
     SysUmbrella(const magnet::xml::Node& XML, dynamo::Simulation*);
   
-    virtual void runEvent() const;
+    virtual void runEvent();
 
     virtual void initialise(size_t);
 
     virtual void operator<<(const magnet::xml::Node&);
+
+    virtual void outputData(magnet::xml::XmlStream&) const;
 
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;
@@ -40,13 +43,13 @@ namespace dynamo {
 
     void recalculateTime();
 
-    mutable std::size_t _stepID;
-
+    std::size_t _stepID;
     shared_ptr<Potential> _potential;
     shared_ptr<IDRange> range1;
-    shared_ptr<IDRange> range2;
-    
+    shared_ptr<IDRange> range2;    
     double _energyScale;
     double _lengthScale;
+    std::map<size_t, double> _histogram;
+    long double _lastSystemTime;
   };
 }

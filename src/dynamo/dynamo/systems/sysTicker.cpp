@@ -40,7 +40,7 @@ namespace dynamo {
   }
 
   void
-  SysTicker::runEvent() const
+  SysTicker::runEvent()
   {
     double locdt = dt;
   

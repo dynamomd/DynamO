@@ -65,7 +65,7 @@ namespace dynamo {
   }
 
   void 
-  SysAndersen::runEvent() const
+  SysAndersen::runEvent()
   {
     ++Sim->eventCount;
     ++eventCount;

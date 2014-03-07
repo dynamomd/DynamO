@@ -24,7 +24,7 @@ namespace dynamo {
   public:
     SysTicker(dynamo::Simulation*, double, std::string);
   
-    virtual void runEvent() const;
+    virtual void runEvent();
 
     virtual void initialise(size_t);
 

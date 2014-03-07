@@ -742,6 +742,9 @@ namespace dynamo
     for (shared_ptr<Local> & Ptr : locals)
       Ptr->outputData(XML);
 
+    for (shared_ptr<System> & Ptr : systems)
+      Ptr->outputData(XML);
+
     XML << xml::endtag("OutputData");
 
     dout << "Output written to " << filename << std::endl;

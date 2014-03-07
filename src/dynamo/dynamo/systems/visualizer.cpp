@@ -55,7 +55,7 @@ namespace dynamo {
   }
 
   void
-  SVisualizer::runEvent() const
+  SVisualizer::runEvent()
   {
     //Dont rewind in time, the -HUGE_VAL time is only used to ensure
     //the event takes place before any event, including negative time events.
@@ -162,7 +162,7 @@ namespace dynamo {
   }
 
   void
-  SVisualizer::initDataSet() const
+  SVisualizer::initDataSet()
   {
     _particleData->addAttribute("Position", coil::Attribute::COORDINATE | coil::Attribute::DEFAULT_GLYPH_POSITION, 3);
     _particleData->addAttribute("Velocity", coil::Attribute::INTENSIVE, 3);
@@ -224,7 +224,7 @@ namespace dynamo {
   }
 
   void
-  SVisualizer::updateRenderData() const
+  SVisualizer::updateRenderData()
   {
     if (!_particleData)
       M_throw() << "Updating before the render object has been fetched";

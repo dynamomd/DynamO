@@ -66,7 +66,7 @@ namespace dynamo {
   }
 
   void
-  SysNBListCompressionFix::runEvent() const
+  SysNBListCompressionFix::runEvent()
   {
     double locdt = dt;
   

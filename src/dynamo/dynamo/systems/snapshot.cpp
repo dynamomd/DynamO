@@ -70,7 +70,7 @@ namespace dynamo {
   }
 
   void
-  SysSnapshot::runEvent() const
+  SysSnapshot::runEvent()
   {
     double locdt = dt;
     if (_eventPeriod) 

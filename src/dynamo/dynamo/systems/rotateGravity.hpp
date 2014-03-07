@@ -30,7 +30,7 @@ namespace dynamo {
     SysRotateGravity(const magnet::xml::Node& XML, dynamo::Simulation*);
     SysRotateGravity(dynamo::Simulation*, std::string name, double timestep, double angularvel, Vector axis);
 
-    virtual void runEvent() const;
+    virtual void runEvent();
 
     virtual void initialise(size_t);
 

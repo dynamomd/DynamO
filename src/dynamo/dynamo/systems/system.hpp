@@ -34,7 +34,7 @@ namespace dynamo {
 
     inline void stream(const double& ndt) { dt -= ndt; }
 
-    virtual void runEvent() const = 0;
+    virtual void runEvent() = 0;
 
     virtual void initialise(size_t) = 0;
 
@@ -64,11 +64,13 @@ namespace dynamo {
       M_throw() << "The System \"" << getName() << "\"Not replica exchange safe";
     }
 
+    virtual void outputData(magnet::xml::XmlStream&) const {}
+
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const = 0;
 
     std::string sysName;  
-    mutable double dt;
+    double dt;
     EEventType type;
     size_t ID;
   };

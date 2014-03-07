@@ -72,7 +72,7 @@ namespace dynamo {
   }
 
   void 
-  SysRescale::runEvent() const
+  SysRescale::runEvent()
   {
     double locdt = dt;
 

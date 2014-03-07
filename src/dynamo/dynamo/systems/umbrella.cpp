@@ -41,7 +41,7 @@ namespace dynamo {
   }
 
   void 
-  SysUmbrella::runEvent() const
+  SysUmbrella::runEvent()
   {
     double locdt = dt;
   
@@ -64,6 +64,9 @@ namespace dynamo {
   
     for (const size_t& id : *range2)
       Sim->dynamics->updateParticle(Sim->particles[id]);
+
+    _histogram[_stepID] += Sim->systemTime - _lastSystemTime;
+    _lastSystemTime = Sim->systemTime;
 
     size_t new_step_ID;
     if (type == STEP_OUT)
@@ -111,6 +114,7 @@ namespace dynamo {
     recalculateTime();
 
     Sim->_sigParticleUpdate.connect<SysUmbrella, &SysUmbrella::particlesUpdated>(this);
+    _lastSystemTime = Sim->systemTime;
   }
 
   void 
@@ -203,5 +207,30 @@ namespace dynamo {
 	<< range1
 	<< range2
 	<< magnet::xml::endtag("System");
+  }
+
+
+  void 
+  SysUmbrella::outputData(magnet::xml::XmlStream& XML) const
+  {
+    using namespace magnet::xml;
+    XML << tag("System")
+	<< attr("Name") << sysName
+	<< attr("Type") << "Umbrella";
+    for (const auto& entry: _histogram)
+      {
+	const std::pair<double, double> step_bounds 
+	  = _potential->getStepBounds(entry.first);
+	
+	XML << tag("Entry")
+	    << attr("ID") << entry.first
+	    << attr("Rmin") << step_bounds.first
+	    << attr("Rmax") << step_bounds.second
+	    << attr("Energy") << (*_potential)[entry.first - 1].second
+	    << attr("Time") << entry.second / Sim->units.unitTime()
+	    << endtag("Entry");
+      }
+	
+    XML << endtag("System");
   }
 }

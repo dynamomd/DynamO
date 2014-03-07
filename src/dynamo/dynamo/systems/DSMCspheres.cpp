@@ -56,7 +56,7 @@ namespace dynamo {
   }
 
   void 
-  SysDSMCSpheres::runEvent() const
+  SysDSMCSpheres::runEvent()
   {
     double locdt = dt;
   

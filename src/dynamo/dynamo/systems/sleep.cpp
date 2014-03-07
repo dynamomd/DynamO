@@ -216,7 +216,7 @@ namespace dynamo {
   }
 
   void 
-  SSleep::runEvent() const
+  SSleep::runEvent()
   {
     double locdt = 0;
 

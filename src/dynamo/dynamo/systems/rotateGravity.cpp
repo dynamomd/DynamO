@@ -50,7 +50,7 @@ namespace dynamo {
   }
 
   void 
-  SysRotateGravity::runEvent() const
+  SysRotateGravity::runEvent()
   {
     double locdt = dt;
     Sim->systemTime += locdt;

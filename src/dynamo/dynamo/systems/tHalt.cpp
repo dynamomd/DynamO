@@ -37,7 +37,7 @@ namespace dynamo {
   }
 
   void
-  SystHalt::runEvent() const
+  SystHalt::runEvent()
   {
     double locdt = dt;
   

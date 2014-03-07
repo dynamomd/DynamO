@@ -28,7 +28,7 @@ namespace dynamo {
 
     SysAndersen(dynamo::Simulation*, double, double, std::string);
   
-    virtual void runEvent() const;
+    virtual void runEvent();
 
     virtual void initialise(size_t);
 
@@ -55,13 +55,13 @@ namespace dynamo {
   
   protected:
     virtual void outputXML(magnet::xml::XmlStream&) const;
-    mutable double meanFreeTime;
+    double meanFreeTime;
     double Temp, sqrtTemp;
     bool tune;
     size_t dimensions;
     double setPoint;
-    mutable size_t eventCount;
-    mutable size_t lastlNColl;
+    size_t eventCount;
+    size_t lastlNColl;
     size_t setFrequency;
 
     double getGhostt() const;

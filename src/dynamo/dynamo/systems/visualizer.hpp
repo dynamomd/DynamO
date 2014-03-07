@@ -30,7 +30,7 @@ namespace dynamo {
   public:
     SVisualizer(dynamo::Simulation*, std::string, double);
   
-    virtual void runEvent() const;
+    virtual void runEvent();
 
     virtual void initialise(size_t);
 
@@ -43,17 +43,15 @@ namespace dynamo {
 
     virtual void outputXML(magnet::xml::XmlStream&) const {}
 
-    mutable shared_ptr<coil::CLGLWindow> _window;
+    shared_ptr<coil::CLGLWindow> _window;
     coil::CoilRegister _coil;
     
-    void initDataSet() const;
-    void updateRenderData() const;
+    void initDataSet();
+    void updateRenderData();
 
-    mutable shared_ptr<coil::DataSet> _particleData;
-
-    mutable boost::posix_time::ptime _lastUpdate;
-    
-    mutable std::vector<std::vector<GLuint> > _interactionIDs;
+    shared_ptr<coil::DataSet> _particleData;
+    boost::posix_time::ptime _lastUpdate;
+    std::vector<std::vector<GLuint> > _interactionIDs;
   };
 }
 #endif

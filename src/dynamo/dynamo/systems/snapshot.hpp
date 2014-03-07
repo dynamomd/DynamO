@@ -26,7 +26,7 @@ namespace dynamo {
     SysSnapshot(dynamo::Simulation*, double, std::string, std::string, bool);
     SysSnapshot(dynamo::Simulation*, size_t, std::string, std::string, bool);
   
-    virtual void runEvent() const;
+    virtual void runEvent();
 
     virtual void initialise(size_t);
 
@@ -56,7 +56,7 @@ namespace dynamo {
     double _period;
     bool _applyBC;
     std::string _format;
-    mutable size_t _saveCounter;
+    size_t _saveCounter;
     size_t _eventPeriod;
     size_t _lastEventCount;
   };
