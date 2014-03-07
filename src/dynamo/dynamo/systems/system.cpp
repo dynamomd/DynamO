@@ -17,6 +17,7 @@
 
 #include <dynamo/systems/system.hpp>
 #include <dynamo/systems/andersenThermostat.hpp>
+#include <dynamo/systems/francesco.hpp>
 #include <dynamo/systems/rescale.hpp>
 #include <dynamo/systems/rotateGravity.hpp>
 #include <dynamo/systems/DSMCspheres.hpp>
@@ -70,6 +71,8 @@ namespace dynamo {
   {
     if (!XML.getAttribute("Type").getValue().compare("Andersen"))
       return shared_ptr<System>(new SysAndersen(XML,Sim));
+    if (!XML.getAttribute("Type").getValue().compare("Francesco"))
+      return shared_ptr<System>(new SysFrancesco(XML,Sim));
     else if (!XML.getAttribute("Type").getValue().compare("DSMCSpheres"))
       return shared_ptr<System>(new SysDSMCSpheres(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("Rescale"))
