@@ -36,9 +36,9 @@ namespace magnet {
       const double f1 = 2 * (R | V);
       const double f2 = 2 * V.nrm2();
       if (inverse)
-	return detail::secondOrderNegative(-f0, -f1, -f2);
+	return detail::secondOrder(-f0, -f1, -f2);
       else
-	return detail::secondOrderPositive(f0, f1, f2);
+	return detail::secondOrder(f0, f1, f2);
     }
 
     /*! \brief A ray-sphere intersection test where the sphere

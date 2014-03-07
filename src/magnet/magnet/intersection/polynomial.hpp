@@ -28,14 +28,14 @@ namespace magnet {
       
       inline double secondOrderPositive(const double f0, const double f1, const double f2)
       {
-	double arg = f1 * f1 - 2 * f2 * f0;
+	const double arg = f1 * f1 - 2 * f2 * f0;
 	if ((f1 >= 0) || arg <= 0) return HUGE_VAL;
 	return std::max(0.0, 2 * f0 / (-f1 + std::sqrt(arg)));
       }
 
       inline double secondOrderNegative(const double f0, const double f1, const double f2)
       {
-	double arg = f1 * f1 - 2 * f2 * f0;
+	const double arg = f1 * f1 - 2 * f2 * f0;
 	if (arg <= 0) return std::max(0.0, -f1 / f2);
 	if (f1 > 0)
 	  return std::max(0.0, (-f1 - std::sqrt(arg)) / f2);
