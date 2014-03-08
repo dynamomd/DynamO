@@ -65,7 +65,7 @@ namespace magnet {
       if ((a == 0) && (c== 0))
 	{//We have a biquadratic
 	  double quadRoot1,quadRoot2;
-	  if (quadSolve(d,b,1, quadRoot1, quadRoot2))
+	  if (quadraticSolve(d,b,1, quadRoot1, quadRoot2))
 	    {
 	      if (quadRoot1 < quadRoot2) std::swap(quadRoot1,quadRoot2);
 	  

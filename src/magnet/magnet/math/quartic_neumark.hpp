@@ -154,8 +154,8 @@ namespace magnet {
 	      if (gg <  -gmax)
 		gg = -gmax;
 
-	      size_t n1 = quadSolve(hh,gg, 1.0,v1[0],v1[1]);
-	      size_t n2 = quadSolve(h,g,1.0,v2[0],v2[1]);
+	      size_t n1 = quadraticSolve(hh,gg, 1.0,v1[0],v1[1]);
+	      size_t n2 = quadraticSolve(h,g,1.0,v2[0],v2[1]);
 	      nQuarticRoots[j3] = 2*n1 + 2*n2;
 	      qrts[0][j3] = v1[0];
 	      qrts[1][j3] = v1[1];

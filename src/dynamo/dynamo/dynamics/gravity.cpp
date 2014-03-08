@@ -164,7 +164,7 @@ namespace dynamo {
     if (p2Dynamic) g12 = -g;
 
     //Now test for a parabolic ray and sphere intersection
-    return magnet::intersection::parabola_invsphere(r12, v12, g12, d);
+    return magnet::intersection::parabola_sphere<true>(r12, v12, g12, d);
   }
 
   double

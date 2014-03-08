@@ -76,8 +76,8 @@ namespace magnet {
 	      e1invk = e1/k;
 	      g = (y + e2 + e1invk)*0.5;
 	      h = (y + e2 - e1invk)*0.5 ;
-	      bool n1 = quadSolve( g, -k, 1.0, v1[0], v1[1]);
-	      bool n2 = quadSolve( h, k, 1.0, v2[0], v2[1]);
+	      bool n1 = quadraticSolve( g, -k, 1.0, v1[0], v1[1]);
+	      bool n2 = quadraticSolve( h, k, 1.0, v2[0], v2[1]);
 	      qrts[0][j3] = v1[0] - ainv4;
 	      qrts[1][j3] = v1[1] - ainv4;
 	      qrts[n1*2][j3] = v2[0] - ainv4;

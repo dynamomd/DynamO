@@ -144,8 +144,8 @@ namespace magnet {
 		     || ((f > 0.0)&&(y > 0.0)) )
 		  hh = d/h;
 
-	      bool n1 = quadSolve(hh,gg,1.0,v1[0],v1[1]);
-	      bool n2 = quadSolve(h,g,1.0,v2[0],v2[1]);
+	      bool n1 = quadraticSolve(hh,gg,1.0,v1[0],v1[1]);
+	      bool n2 = quadraticSolve(h,g,1.0,v2[0],v2[1]);
 	      n4[j3] = n1*2+n2*2;
 	      qrts[0][j3] = v1[0];
 	      qrts[1][j3] = v1[1];

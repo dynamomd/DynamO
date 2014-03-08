@@ -16,8 +16,7 @@
 */
 
 #pragma once
-#include <magnet/math/cubic.hpp>
-#include <magnet/math/bisect.hpp>
+#include <magnet/intersection/polynomial.hpp>
 #include <magnet/math/vector.hpp>
 
 namespace magnet {
@@ -39,116 +38,22 @@ namespace magnet {
       
       \param T The origin of the ray relative to the sphere center.
       \param D The direction/velocity of the ray.
-      \param G The acceleration of the ray.
+      \param A The acceleration of the ray.
       \param r The radius of the sphere.
       \return The time until the intersection, or HUGE_VAL if no intersection.
     */
-    inline double parabola_sphere(const math::Vector& T, const math::Vector& D, const math::Vector& G, const double& r)
+    template<bool inverse = false>
+    inline double parabola_sphere(const math::Vector& R, const math::Vector& V, const math::Vector& A, const double& r)
     {
-      //This is our lengthscale to which we bisect the roots
-      const double rootthreshold = 1e-16 * r;
-      
-      detail::QuarticFunc f;
-      f.coeffs[0] = 0.25 * G.nrm2();
-      f.coeffs[1] = G | D;
-      f.coeffs[2] = D.nrm2() + (G | T);
-      f.coeffs[3] = 2 * (D | T);
-      f.coeffs[4] = T.nrm2() - r * r;
-      
-      //We calculate the roots of the cubic differential of F
-      //\f$F=A t^4 + B t^3 + C t^2 + D t + E == 0\f$ taking the differential gives
-      //\f$F=4 A t^3 + 3 B t^2 + 2C t + D == 0\f$ and normalizing the cubic term gives
-      //\f$F=t^3 + \frac{3 B}{4 A} t^2 + \frac{2C}{4 A} t + \frac{D}{4 A} == 0\f$
-      double roots[3];
-      size_t rootCount = magnet::math::cubicSolve(f.coeffs[1] * 3 / (4 * f.coeffs[0]),
-						  f.coeffs[2] * 2 / (4 * f.coeffs[0]),
-						  f.coeffs[3] * 1 / (4 * f.coeffs[0]),
-						  roots[0], roots[1], roots[2]);
-      
-      if (rootCount == 0)
-	M_throw() << "Unhandled case! Designer does not think this case was possible.";
-
-      //Sort the roots in ascending order
-      std::sort(roots, roots + rootCount);
-      if ((roots[0] > 0) && (f(roots[0]) < 0))
-	{
-	  if (f(0) <= 0)
-	    return 0;
-	  else
-	    return magnet::math::bisect(f, 0, roots[0], rootthreshold);
-	}
-
-      if ((rootCount == 3) && (roots[2] > 0) && (f(roots[2]) < 0))
-	{
-	  double tmin = std::max(0.0, roots[1]);
-	  if (f(tmin) <= 0)
-	    return tmin;
-	  else
-	    return magnet::math::bisect(f, tmin, roots[2], rootthreshold);
-	}
-      return HUGE_VAL;
-    }
-
-    /*! \brief A parabolic(ray) inverse-sphere intersection test with
-        backface culling.
-      
-      \param T The origin of the ray relative to the inverse-sphere center.
-      \param D The direction/velocity of the ray.
-      \param G The acceleration of the ray.
-      \param r The radius of the sphere.
-      \return The time until the intersection, or HUGE_VAL if no intersection.
-    */
-    inline double parabola_invsphere(const math::Vector& T, const math::Vector& D, const math::Vector& G, const double& r)
-    {
-      //This is our lengthscale to which we bisect the roots
-      const double rootthreshold = 1e-16 * r;
-      
-      detail::QuarticFunc f;
-      f.coeffs[0] = - (0.25 * G.nrm2());
-      f.coeffs[1] = - (G | D);
-      f.coeffs[2] = - (D.nrm2() + (G | T));
-      f.coeffs[3] = - (2 * (D | T));
-      f.coeffs[4] = - (T.nrm2() - r * r);
-      
-      //We calculate the roots of the cubic differential of F
-      //\f$F=A t^4 + B t^3 + C t^2 + D t + E == 0\f$ taking the differential gives
-      //\f$F=4 A t^3 + 3 B t^2 + 2C t + D == 0\f$ and normalizing the cubic term gives
-      //\f$F=t^3 + \frac{3 B}{4 A} t^2 + \frac{2C}{4 A} t + \frac{D}{4 A} == 0\f$
-      double roots[3];
-      size_t rootCount = magnet::math::cubicSolve(f.coeffs[1] * 3 / (4 * f.coeffs[0]),
-						  f.coeffs[2] * 2 / (4 * f.coeffs[0]),
-						  f.coeffs[3] * 1 / (4 * f.coeffs[0]),
-						  roots[0], roots[1], roots[2]);
-      
-      //Sort the roots in ascending order
-      std::sort(roots, roots + rootCount);
-
-      if ((rootCount == 3) && (roots[1] > 0) && (f(roots[1]) < 0))
-	{
-	  double tmin = std::max(0.0, roots[0]);
-	  if (f(tmin) <= 0)
-	    return tmin;
-	  else
-	    return magnet::math::bisect(f, tmin, roots[1], rootthreshold);
-	}
-      
-      double tlast = roots[rootCount - 1];
-      
-      if (f(tlast) <= 0) return std::max(0.0, tlast);
-
-      if ((tlast < 0) && (f(0) <= 0)) return 0;
-      
-      double t0 = std::max(0.0, tlast);
-      
-      double deltate = std::pow(4 * r * r / G.nrm2(), 0.25);
-      
-      while (f(t0 + deltate) >= 0)
-	{
-	  t0 += deltate;
-	  deltate *= 2;
-	}
-
-      return magnet::math::bisect(f, t0, t0+deltate, rootthreshold);
+      const double f0 = R.nrm2() - r * r;
+      const double f1 = 2 * (V | R);
+      const double f2 = 2 * (V.nrm2() + (A | R));
+      const double f3 = 6 * (A | V);
+      const double f4 = 6 * A.nrm2();
+      if (inverse)
+	return detail::fourthOrder(-f0, -f1, -f2, -f3, -f4, r * r);
+      else
+	return detail::fourthOrder(+f0, +f1, +f2, +f3, +f4, r * r);
     }
   }
 }
