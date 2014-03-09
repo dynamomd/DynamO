@@ -21,19 +21,6 @@
 
 namespace magnet {
   namespace intersection {
-    namespace detail {
-      struct QuarticFunc
-      {
-      public:
-	inline double operator()(double t) const
-	{
-	  return (((coeffs[0] * t + coeffs[1]) * t + coeffs[2]) * t + coeffs[3]) * t + coeffs[4];
-	}
-	
-	double coeffs[5];
-      };
-    }
-
     /*! \brief A parabolic(ray)-sphere intersection test with backface culling.
       
       \param T The origin of the ray relative to the sphere center.
