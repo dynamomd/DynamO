@@ -127,7 +127,7 @@ namespace magnet {
       
 	  double deltate = std::pow(- 24 * f0char / f4, 0.25);
       
-	  while (f(t0 + deltate) > 0)
+	  while (f(t0 + deltate) >= 0)
 	    {
 	      t0 += deltate;
 	      deltate *= 2;
