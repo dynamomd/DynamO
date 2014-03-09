@@ -135,18 +135,6 @@ namespace magnet {
 	  return magnet::math::bisect(f, t0, t0+deltate, rootthreshold);
 	}
       }
-
-      /* class F { template<size_t deriv> double eval(double deltat); template<size_t deriv, bool decreasing> nextRoot(double deltat); } */
-
-      //template<class F>
-      //inline double stableAlgorithm(const F& f)
-      //{
-      //	if (f.eval<0>(0) > 0) return f.template nextRoot<0, true>(0);
-      //  if (f.eval<1>(0) < 0) return 0;
-      //	const double tderiv = f.template nextRoot<1, true>(0);
-      //	if (tderiv == HUGE_VAL) return HUGE_VAL;
-      //	if (f.eval<0>(tderiv) > 0) return f.template nextRoot<0, true>(tderiv);
-      //}
     }
   }
 }

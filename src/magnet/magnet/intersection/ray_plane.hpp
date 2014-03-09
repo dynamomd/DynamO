@@ -17,28 +17,23 @@
 
 #pragma once
 #include <magnet/math/vector.hpp>
+#include <magnet/intersection/polynomial.hpp>
 
 namespace magnet {
   namespace intersection {
     /*! \brief A stable particle and thick plane intersection test.
     
-      \param T The origin of the particle relative to a location on the plane.
-      \param D The direction/velocity of the particle.
+      \param R The origin of the particle relative to a location on the plane.
+      \param V The direction/velocity of the particle.
       \param N The normal of the plane.
       \param d The interaction distance to the plane (the plane's thickness).
       \return The time until the intersection, or HUGE_VAL if no intersection.
     */
-    inline double ray_plane(const math::Vector& T, const math::Vector& D, const math::Vector& N, const double d)
+    inline double ray_plane(const math::Vector& R, const math::Vector& V, math::Vector N, const double d)
     {
-      double r = (T | N);
-      double v = (D | N);
-
-      if (r < 0) { r = -r; v = -v; }
-      
-      //Objects must move towards each other to intersect
-      if (v >= 0) return HUGE_VAL;
-
-      return std::max(-(r - d) / v, 0.0);
+      double r = R | N;
+      if (r < 0) { r = -r; N = -N; }
+      return detail::firstOrder(r - d, V | N);
     }
   }
 }

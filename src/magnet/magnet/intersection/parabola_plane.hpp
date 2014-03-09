@@ -31,51 +31,14 @@ namespace magnet {
       \param d The thickness of the plane.
       \return The time until the intersection, or HUGE_VAL if no intersection.
      */
-    inline double parabola_plane(const math::Vector& T, const math::Vector& D, const math::Vector& A, math::Vector N, const double d)
+    inline double parabola_plane(const math::Vector& R, const math::Vector& V, const math::Vector& A, math::Vector N, const double d)
     {
-      //Check if this is actually a ray-plane test
-      double adot = A | N;
-      if (adot == 0) return ray_plane(T, D, N, d);
-
-      //Create the rest of the variables
-      double rdot = T | N;
-      
-      //Ensure that the normal is pointing towards the particle
-      //position (so that (rdot < d) is a test if the particle is
-      //overlapped)
-      if (rdot < 0)
-	{ adot = -adot; rdot = -rdot; N = -N; }
-      
-      double vdot = D | N;
-
-      //Check for overlapped and approaching dynamics
-      if ((rdot <= d) && (vdot < 0)) return 0;
-
-      double arg = vdot * vdot - 2 * (rdot - d) * adot;
-      double minimum = - vdot / adot;
-
-      if (adot < 0)
-	{ //Particle will always hit the wall
-	  
-	  //If there are no real roots, the particle is arcing inside
-	  //the wall and there is a collision at the minimum
-	  if (arg < 0) return minimum;
-	  
-	  std::pair<double, double> roots
-	    = magnet::math::quadraticEquation(0.5 * adot, vdot, rdot - d);
-	  return std::max(roots.first, roots.second);
-	}
-      else
-	{ //Particle can curve away from the wall
-
-	  //Check if the particle misses the wall completely or we're
-	  //passed the minimum
-	  if ((arg < 0) || (minimum < 0)) return HUGE_VAL;
-	  
-	  std::pair<double, double> roots
-	    = magnet::math::quadraticEquation(0.5 * adot, vdot, rdot - d);
-	  return std::min(roots.first, roots.second);	  
-	}
+      double rdotn = N | R;
+      if (rdotn < 0) {
+	N = -N;
+	rdotn = -rdotn;
+      }
+      return detail::secondOrder(rdotn - d, V | N, A | N);
     }
   }
 }
