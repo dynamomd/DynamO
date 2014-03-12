@@ -24,16 +24,13 @@ namespace magnet {
       /*! \brief A class which takes the derivative of an overlap
 	function.
        */
-      template <class T, int derivative = 1> class OFDerivative
+      template <class Base, int derivative = 1> class OFDerivative: public Base
       {
       public:
-	OFDerivative(const T& sf): _shapeFunc(sf) {}
-	void stream(const double& dt) { _shapeFunc.stream(dt); }
-	template<size_t d> double eval() const { return _shapeFunc.template eval<d+derivative>(); }
-	template<size_t d> double max() const { return _shapeFunc.template max<d+derivative>(); }
-	bool test_root() const { return true; }	
-      protected:
-	T _shapeFunc;
+	OFDerivative(const Base& b):Base(b) {}
+	template<size_t d> double eval() const { return Base::template eval<d+derivative>(); }
+	template<size_t d> double max() const { return Base::template max<d+derivative>(); }
+	bool test_root() const { return true; }
       };
     }
 
