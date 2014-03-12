@@ -38,7 +38,8 @@ namespace magnet {
 	N = -N;
 	rdotn = -rdotn;
       }
-      return detail::secondOrder(rdotn - d, V | N, A | N);
+      detail::PolynomialFunction<2> f(rdotn - d, V | N, A | N);
+      return detail::nextEvent(f);
     }
   }
 }

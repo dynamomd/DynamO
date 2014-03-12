@@ -33,7 +33,8 @@ namespace magnet {
     {
       double r = R | N;
       if (r < 0) { r = -r; N = -N; }
-      return detail::firstOrder(r - d, V | N);
+      detail::PolynomialFunction<1> f(r - d, V | N);
+      return detail::nextEvent(f);
     }
   }
 }

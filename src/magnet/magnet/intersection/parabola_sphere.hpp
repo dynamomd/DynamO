@@ -32,14 +32,8 @@ namespace magnet {
     template<bool inverse = false>
     inline double parabola_sphere(const math::Vector& R, const math::Vector& V, const math::Vector& A, const double& r)
     {
-      detail::PolynomialFunction<4> f;
-      f[0] = R.nrm2() - r * r;
-      f[1] = 2 * (V | R);
-      f[2] = 2 * (V.nrm2() + (A | R));
-      f[3] = 6 * (A | V);
-      f[4] = 6 * A.nrm2();
-      if (inverse)
-	f.flipSign();
+      detail::PolynomialFunction<4> f{R.nrm2() - r * r, 2 * (V | R), 2 * (V.nrm2() + (A | R)), 6 * (A | V), 6 * A.nrm2()};
+      if (inverse) f.flipSign();
       return detail::nextEvent(f, r * r);
     }
   }

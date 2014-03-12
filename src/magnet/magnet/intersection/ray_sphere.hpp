@@ -32,13 +32,9 @@ namespace magnet {
     template<bool inverse = false>
     inline double ray_sphere(const math::Vector& R, const math::Vector& V, const double& sig)
     {
-      const double f0 = R.nrm2() - sig * sig;
-      const double f1 = 2 * (R | V);
-      const double f2 = 2 * V.nrm2();
-      if (inverse)
-	return detail::secondOrder(-f0, -f1, -f2);
-      else
-	return detail::secondOrder(f0, f1, f2);
+      detail::PolynomialFunction<2> f(R.nrm2() - sig * sig, 2 * (R | V), 2 * V.nrm2());
+      if (inverse) f.flipSign();
+      return detail::nextEvent(f);
     }
 
     /*! \brief A ray-sphere intersection test where the sphere
@@ -61,14 +57,10 @@ namespace magnet {
     inline double ray_growing_sphere(const math::Vector& R, const math::Vector& V, const double& sig, const double inv_gamma, const double t_curr)
     {
       const double currentDiam = sig * (1 + inv_gamma * t_curr);
-      const double f0 = R.nrm2() - currentDiam * currentDiam;
-      const double f1 = 2 * (R | V) - 2 * inv_gamma * sig * currentDiam;
-      const double f2 = 2 * (V.nrm2() - sig * sig * inv_gamma * inv_gamma);
+      detail::PolynomialFunction<2> f(R.nrm2() - currentDiam * currentDiam, 2 * (R | V) - 2 * inv_gamma * sig * currentDiam, 2 * (V.nrm2() - sig * sig * inv_gamma * inv_gamma));
       /*We cannot determine the sign of f2 at compile time*/
-      if (inverse)
-	return detail::secondOrder(-f0, -f1, -f2);
-      else
-	return detail::secondOrder(f0, f1, f2);
+      if (inverse) f.flipSign();
+      return detail::nextEvent(f);
     }
   }
 }
