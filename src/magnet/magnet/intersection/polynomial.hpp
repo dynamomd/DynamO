@@ -26,7 +26,7 @@ namespace magnet {
       struct PolynomialFunction: public std::array<double, Order + 1>
       {
 	template <typename... T> 
-	PolynomialFunction(T... ts) : std::array<double, Order + 1>{{ts...}} {} 
+	PolynomialFunction(T... ts) : std::array<double, Order + 1>({{ts...}}) {} 
 
 	void timeShift(double dt) {
 	  std::array<double, Order + 1> newCoeffs;
