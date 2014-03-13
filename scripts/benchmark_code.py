@@ -22,7 +22,7 @@ current_date = datetime.today()
 def add(executable, benchmark, timing, minVal=None, maxVal=None, dev=None):
     data = {
         'commitid': commitID,
-        'branch': 'default',
+        'branch': 'master',
         'project': 'DynamO',
         'executable': executable,
         'benchmark': benchmark,
@@ -64,8 +64,11 @@ if __name__ == "__main__":
                     timings=[]
                     for i in range(Ntests):
                         start=float(time.time())
-                        os.system(os.path.join(root, testname)+" > /dev/null 2>&1")
+                        if os.system(os.path.join(root, testname)+" > run.log 2>&1") != 0:
+                            continue
                         timings.append(float(time.time()) - start)
+                    if len(timings) == 0:
+                        continue
                     avg=sum(timings)/len(timings)
                     minval=min(timings)
                     maxval=max(timings)
