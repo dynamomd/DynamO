@@ -2847,18 +2847,18 @@ namespace dynamo {
 		  derr << "Warning! Now assuming that you're trying to set up a 2D simulation!\n"
 		    "I'm going to temporarily calculate the density by the 2D definition!" << std::endl;
 		
-		  size_t dimension;
 		  if (cells[0] == 1)
 		    unusedDimension = 0;
-		  if (cells[1] == 1)
+		  else if (cells[1] == 1)
 		    unusedDimension = 1;
-		  if (cells[2] == 1)
+		  else if (cells[2] == 1)
 		    unusedDimension = 2;
+		  else M_throw() << "Continuity error!";
 
 		  sigmaA = std::sqrt(simVol * vm["density"].as<double>() / (Sim->primaryCellSize[unusedDimension] * latticeSites.size()));
 		
 		  dout << "I'm changing what looks like the unused box dimension (" 
-		       << dimension << ") to the smallest value allowed by the neighbourlist implementation (slightly more than 4 particle diameters)" << std::endl;
+		       << unusedDimension << ") to the smallest value allowed by the neighbourlist implementation (slightly more than 4 particle diameters)" << std::endl;
 		  Sim->primaryCellSize[unusedDimension] = 10.0000001 * std::max(sigmaA, sigmaA * sizeratio);
 		  twoD = true;
 		}

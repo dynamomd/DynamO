@@ -69,7 +69,7 @@ namespace dynamo {
   }
 
   void 
-  GCellsShearing::runEvent(Particle& part, const double) const
+  GCellsShearing::runEvent(Particle& part, const double)
   {
     Sim->dynamics->updateParticle(part);
 

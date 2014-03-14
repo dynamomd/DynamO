@@ -44,7 +44,7 @@ namespace dynamo {
   }
 
   void 
-  GParabolaSentinel::runEvent(Particle& part, const double) const
+  GParabolaSentinel::runEvent(Particle& part, const double)
   {
     Sim->dynamics->updateParticle(part);
 

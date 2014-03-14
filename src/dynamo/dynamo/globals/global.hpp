@@ -62,7 +62,7 @@ namespace dynamo {
      * \param dt The time the scheduler thinks this particles Global
      * event will occur in.
      */
-    virtual void runEvent(Particle& p, const double dt) const = 0;
+    virtual void runEvent(Particle& p, const double dt) = 0;
 
     /*! \brief Initializes the Global event.
      */

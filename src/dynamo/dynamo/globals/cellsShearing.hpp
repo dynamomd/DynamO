@@ -33,7 +33,7 @@ namespace dynamo {
   
     virtual GlobalEvent getEvent(const Particle &) const;
 
-    virtual void runEvent(Particle&, const double) const;
+    virtual void runEvent(Particle&, const double);
 
   protected:
     void getParticleNeighbours(const std::array<size_t, 3>&, std::vector<size_t>&) const;

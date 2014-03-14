@@ -44,7 +44,7 @@ namespace dynamo {
 
     virtual GlobalEvent getEvent(const Particle &) const;
 
-    virtual void runEvent(Particle&, const double) const;
+    virtual void runEvent(Particle&, const double);
 
     virtual void initialise(size_t);
 

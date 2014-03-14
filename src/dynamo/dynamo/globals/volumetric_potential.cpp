@@ -49,7 +49,7 @@ namespace dynamo {
 
   
   void 
-  GVolumetricPotential::runEvent(Particle& part, const double dt) const {
+  GVolumetricPotential::runEvent(Particle& part, const double dt)  {
     //Despite the system not being streamed this must be done.  This is
     //because the scheduler and all interactions, locals and systems
     //expect the particle to be up to date.

@@ -38,7 +38,7 @@ namespace dynamo {
       GCells(ptrSim, "VolumetricPotential")
     { operator<<(XML); }
     
-    virtual void runEvent(Particle& p, const double dt) const;
+    virtual void runEvent(Particle& p, const double dt);
 
     virtual void initialise(size_t id);
 

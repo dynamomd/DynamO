@@ -64,7 +64,7 @@ namespace dynamo {
   }
 
   void 
-  GPBCSentinel::runEvent(Particle& part, const double dt) const
+  GPBCSentinel::runEvent(Particle& part, const double dt)
   {
     GlobalEvent iEvent(part, dt, VIRTUAL, *this);
 

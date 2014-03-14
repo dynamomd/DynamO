@@ -65,7 +65,7 @@ namespace dynamo {
 	_particleCell[particle] = newcell;
       }
 
-      typename CellList::RangeType getCellContents(const size_t cellID) {
+      typename CellList::RangeType getCellContents(const size_t cellID) const {
 	return _cellcontents.getKeyContents(cellID);
       }
 
@@ -118,7 +118,7 @@ namespace dynamo {
 
     virtual GlobalEvent getEvent(const Particle &) const;
 
-    virtual void runEvent(Particle&, const double) const;
+    virtual void runEvent(Particle&, const double);
 
     virtual void initialise(size_t);
 
@@ -151,11 +151,11 @@ namespace dynamo {
     size_t overlink;
 
 #ifdef DYNAMO_JUDY
-    mutable detail::CellParticleList<magnet::containers::Vector_Multimap<magnet::containers::VectorSet<size_t>>, 
-				     magnet::containers::JudyMap<size_t, size_t>> _cellData;
+    detail::CellParticleList<magnet::containers::Vector_Multimap<magnet::containers::VectorSet<size_t>>, 
+			     magnet::containers::JudyMap<size_t, size_t>> _cellData;
 #else
-    mutable detail::CellParticleList<magnet::containers::Vector_Multimap<magnet::containers::VectorSet<size_t>>, 
-				     std::unordered_map<size_t, size_t> > _cellData;
+    detail::CellParticleList<magnet::containers::Vector_Multimap<magnet::containers::VectorSet<size_t>>, 
+			     std::unordered_map<size_t, size_t> > _cellData;
 #endif
     GCells(const GCells&);
 

@@ -89,7 +89,7 @@ namespace dynamo {
   }
 
   void
-  GSOCells::runEvent(Particle& part, const double) const
+  GSOCells::runEvent(Particle& part, const double)
   {
     Sim->dynamics->updateParticle(part);
 

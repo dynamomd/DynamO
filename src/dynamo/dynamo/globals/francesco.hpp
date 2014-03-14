@@ -1,7 +1,6 @@
 /*  dynamo:- Event driven molecular dynamics simulator 
     http://www.dynamomd.org
     Copyright (C) 2011  Marcus N Campbell Bannerman <m.bannerman@gmail.com>
-    Copyright (C) 2011  Sebastian Gonzalez <tsuresuregusa@gmail.com>
 
     This program is free software: you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -17,21 +16,29 @@
 */
 
 #pragma once
-
 #include <dynamo/globals/global.hpp>
 #include <vector>
-#include <map>
 
 namespace dynamo {
-  class GWaker: public Global
+  /*! \brief A Global event which helps prevent wrap around problems
+   * with neighbor lists in periodic systems.
+   *
+   * If a particle has a clear path from one end of the simulation to
+   * the other and PBC are applied, the cellular neighbor lists can
+   * enter an infinite loop. The particle keeps travelling around and
+   * around the simulation, without actually moving forward in time
+   * because it doesn't actually hit anything.
+   *
+   * This Global attempts to break this infinite loop by making
+   * particles have a virtual event when they travel half a simulation
+   * box length.
+   */
+  class GFrancesco: public Global
   {
   public:
-    GWaker(const magnet::xml::Node&, dynamo::Simulation*);
-
-    GWaker(dynamo::Simulation*, const std::string&, IDRange*, const double, const double,
-	   std::string nblist);
+    GFrancesco(const magnet::xml::Node&, dynamo::Simulation*);
   
-    virtual ~GWaker() {}
+    virtual ~GFrancesco() {}
 
     virtual GlobalEvent getEvent(const Particle &) const;
 
@@ -42,17 +49,11 @@ namespace dynamo {
     virtual void operator<<(const magnet::xml::Node&);
 
   protected:
-    void particlesUpdated(const NEventData&);
-
-    void nblistCallback(const Particle& part, const size_t& oid) const;
-
-    mutable size_t _neighbors;
-
     virtual void outputXML(magnet::xml::XmlStream&) const;
-    double _wakeTime;
-    double _wakeVelocity;
+    void particlesUpdated(const NEventData& PDat);
 
-    std::string _nblistName;
-    size_t _NBListID;  
+    std::vector<double> _eventTimes;
+    double _T;
+    double _MFT;
   };
 }

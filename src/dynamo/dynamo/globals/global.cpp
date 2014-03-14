@@ -56,6 +56,8 @@ namespace dynamo {
       }
     else if (!XML.getAttribute("Type").getValue().compare("SOCells"))
       return shared_ptr<Global>(new GSOCells(XML, Sim));
+    else if (!XML.getAttribute("Type").getValue().compare("Francesco"))
+      return shared_ptr<Global>(new GFrancesco(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("Waker"))
       return shared_ptr<Global>(new GWaker(XML, Sim));
     else if (!XML.getAttribute("Type").getValue().compare("VolumetricPotential"))
