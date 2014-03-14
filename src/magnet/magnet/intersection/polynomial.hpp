@@ -32,6 +32,7 @@ namespace magnet {
 	  std::array<double, Order + 1> newCoeffs;
 	  for (size_t i(0); i < Order + 1; ++i)
 	    newCoeffs[i] = eval(dt, i);
+	  *this = newCoeffs;
 	}
 
 	double eval(double dt, size_t derivative = 0) const {
