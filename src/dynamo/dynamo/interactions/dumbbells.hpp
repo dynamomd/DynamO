@@ -31,7 +31,8 @@ namespace dynamo {
       _diamB(Sim->_properties.getProperty(diamB, Property::Units::Length())),
       _LA(Sim->_properties.getProperty(LA, Property::Units::Length())),
       _LB(Sim->_properties.getProperty(LB, Property::Units::Length())),
-      _e(Sim->_properties.getProperty(e, Property::Units::Dimensionless()))
+      _e(Sim->_properties.getProperty(e, Property::Units::Dimensionless())),
+      _unusedDimension(std::numeric_limits<size_t>::max())
     {
       intName = name;
     }
@@ -60,11 +61,14 @@ namespace dynamo {
 
     virtual bool validateState(const Particle& p1, const Particle& p2, bool textoutput = true) const;
 
+    void setUnusedDimension(size_t v) { _unusedDimension = v; }
+
   protected:
     shared_ptr<Property> _diamA;
     shared_ptr<Property> _diamB;
     shared_ptr<Property> _LA;
     shared_ptr<Property> _LB;
     shared_ptr<Property> _e;
+    size_t _unusedDimension;
   };
 }

@@ -2817,6 +2817,10 @@ namespace dynamo {
 	      exit(1);
 	    }
 
+	  const double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0;
+	  const double sizeratio = (vm.count("f2")) ? vm["f2"].as<double>() : 1.0;
+	  const double massratio = (vm.count("f3")) ? vm["f3"].as<double>() : sizeratio * sizeratio * sizeratio;
+
 	  std::unique_ptr<UCell> packptr(standardPackingHelper(new UParticle()));
 	  packptr->initialise();
 
@@ -2831,20 +2835,41 @@ namespace dynamo {
 	  for (size_t iDim = 0; iDim < NDIM; ++iDim)
 	    simVol *= Sim->primaryCellSize[iDim];
 
-	  double sigmaA = pow(simVol * vm["density"].as<double>()
-			      / latticeSites.size(), double(1.0 / 3.0));
-	  
-	  const double elasticity = (vm.count("f1")) ? vm["f1"].as<double>() : 1.0;
-	  const double sizeratio = (vm.count("f2")) ? vm["f2"].as<double>() : 1.0;
-	  const double massratio = (vm.count("f3")) ? vm["f3"].as<double>() : sizeratio * sizeratio * sizeratio;
-	  
+	  double sigmaA = pow(simVol * vm["density"].as<double>() / latticeSites.size(), double(1.0 / 3.0));
+
+	  bool twoD = false;
+	  size_t unusedDimension = 0;
+	  if (vm.count("rectangular-box") && (vm.count("i1") && vm["i1"].as<size_t>() == 2))
+	    {
+	      std::array<long, 3> cells = getCells();
+	      if ((cells[0] == 1) || (cells[1] == 1) || (cells[2] == 1))
+		{
+		  derr << "Warning! Now assuming that you're trying to set up a 2D simulation!\n"
+		    "I'm going to temporarily calculate the density by the 2D definition!" << std::endl;
+		
+		  size_t dimension;
+		  if (cells[0] == 1)
+		    unusedDimension = 0;
+		  if (cells[1] == 1)
+		    unusedDimension = 1;
+		  if (cells[2] == 1)
+		    unusedDimension = 2;
+
+		  sigmaA = std::sqrt(simVol * vm["density"].as<double>() / (Sim->primaryCellSize[unusedDimension] * latticeSites.size()));
+		
+		  dout << "I'm changing what looks like the unused box dimension (" 
+		       << dimension << ") to the smallest value allowed by the neighbourlist implementation (slightly more than 4 particle diameters)" << std::endl;
+		  Sim->primaryCellSize[unusedDimension] = 10.0000001 * std::max(sigmaA, sigmaA * sizeratio);
+		  twoD = true;
+		}
+	    }
+
 	  const double sigmaB = sigmaA * sizeratio;
 	  const double LB = (sigmaA + sigmaB) * 0.5 / (1 + massratio);
 	  const double LA = massratio * LB;
 	  const double mA = 1 / (1+massratio);
 	  const double mB = mA * massratio;
-	  const double I = (mA * sigmaA * sigmaA + mB * sigmaB * sigmaB) * 0.1
-	    + mA * LA * LA + mB * LB * LB;
+	  const double I = (mA * sigmaA * sigmaA + mB * sigmaB * sigmaB) * 0.1 + mA * LA * LA + mB * LB * LB;
 
 	  Sim->interactions.push_back(shared_ptr<Interaction>(new IDumbbells(Sim, LA, LB, sigmaA, sigmaA * sizeratio, elasticity, new IDPairRangeAll(), "Bulk")));
 	  
@@ -2858,6 +2883,21 @@ namespace dynamo {
 	    Sim->particles.push_back(Particle(position, getRandVelVec() * Sim->units.unitVelocity(), nParticles++));
 
 	  Sim->dynamics->initOrientations();
+	  if (twoD) {
+	    Vector rotationAxis(0,0,0);
+	    rotationAxis[unusedDimension] = 1;
+	    std::normal_distribution<> dist(0, 1);
+	    for (size_t i(0); i < Sim->particles.size(); ++i)
+	      {
+		auto& data = Sim->dynamics->getRotData(i);
+		Vector orientation(0,0,0);
+		orientation[(unusedDimension + 1) % 3] = dist(Sim->ranGenerator);
+		orientation[(unusedDimension + 2) % 3] = dist(Sim->ranGenerator);
+		data.orientation = magnet::math::Quaternion::fromToVector(orientation.normal());
+		data.angularVelocity = rotationAxis * dist(Sim->ranGenerator);
+	      }
+	    static_pointer_cast<IDumbbells>(Sim->interactions["Bulk"])->setUnusedDimension(unusedDimension);
+	  }
 	  break;
 	}
       case 28:

@@ -78,6 +78,8 @@ namespace dynamo {
     _LB = Sim->_properties.getProperty(XML.getAttribute("LB"), Property::Units::Length());
     _e = Sim->_properties.getProperty(XML.getAttribute("Elasticity"), Property::Units::Dimensionless());
     intName = XML.getAttribute("Name");
+    if (XML.hasAttribute("UnusedDimension"))
+      _unusedDimension = XML.getAttribute("UnusedDimension").as<size_t>();
     ICapture::loadCaptureMap(XML);   
   }
 
@@ -246,10 +248,22 @@ namespace dynamo {
 
 	  retval.rvdot = (retval.rij | retval.vijold);
 	  retval.impulse = J * nhat;
+
 	  p1.getVelocity() -= retval.impulse / m1;
 	  p2.getVelocity() += retval.impulse / m2;
 	  Sim->dynamics->getRotData(p1).angularVelocity -= (r1 ^ retval.impulse) / I1;
 	  Sim->dynamics->getRotData(p2).angularVelocity += (r2 ^ retval.impulse) / I2;
+
+	  
+	  if (_unusedDimension != std::numeric_limits<size_t>::max())
+	    {
+	      p1.getVelocity()[_unusedDimension] = 0;
+	      p2.getVelocity()[_unusedDimension] = 0;
+	      Sim->dynamics->getRotData(p1).angularVelocity[(_unusedDimension + 1) % 3] = 0;
+	      Sim->dynamics->getRotData(p1).angularVelocity[(_unusedDimension + 2) % 3] = 0;
+	      Sim->dynamics->getRotData(p2).angularVelocity[(_unusedDimension + 1) % 3] = 0;
+	      Sim->dynamics->getRotData(p2).angularVelocity[(_unusedDimension + 2) % 3] = 0;
+	    }
 	  break;
 	}
       case NBHOOD_IN:
@@ -288,9 +302,11 @@ namespace dynamo {
 	<< magnet::xml::attr("DiameterB") << _diamB->getName()
 	<< magnet::xml::attr("LA") << _LA->getName()
 	<< magnet::xml::attr("LB") << _LB->getName()
-	<< magnet::xml::attr("Name") << intName
-	<< range;
-
+	<< magnet::xml::attr("Name") << intName;
+    
+    if (_unusedDimension != std::numeric_limits<size_t>::max())
+      XML << magnet::xml::attr("UnusedDimension") << _unusedDimension;
+      XML << range;
     ICapture::outputCaptureMap(XML);
   }
 
