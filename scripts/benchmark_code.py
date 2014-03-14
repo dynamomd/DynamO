@@ -6,20 +6,22 @@
 import urllib
 import urllib2
 from datetime import datetime
+import subprocess
+import threading
 import commands
 import time
 import os
 import sys
 import math
 
-# You need to enter the real URL and have the server running
+#Settings for the script
 CODESPEED_URL = 'http://localhost:8000/'
-Ntests=3
-testPath="build-dir"
+TestTimeout=60 #Seconds before a test run is terminated (assumed stuck)
+#Global vars
 commitID = commands.getoutput('git rev-parse HEAD')
 current_date = datetime.today()
-# Mandatory fields
 
+#Helper statistics functions
 def avg(vallist):
     return sum(vallist) / len(vallist)
 
@@ -27,17 +29,39 @@ def stddev(vallist):
     avgval=avg(vallist)
     return math.sqrt(sum(val * val - avgval * avgval for val in vallist) / len(vallist))
 
+#Class to run external command repeatedly until at least 2 seconds
+#have passed (for good statistics) with timing and timeout!
+class RunCmd(threading.Thread):
+    def __init__(self, cmd, timeout):
+        threading.Thread.__init__(self)
+        self.cmd = cmd 
+        self.timeout = timeout
+        self.times = []
+
+    def run(self):
+        runtimestart = time.time()
+        while time.time() - runtimestart < 2:
+            starttime = time.time()
+            self.p = subprocess.Popen(self.cmd)
+            self.p.wait()
+            deltat = time.time() - starttime
+            if self.p.returncode == 0:
+                self.times.append(deltat)
+
+    def run_the_process(self):
+        self.start()
+        self.join(self.timeout)
+        
+        if self.is_alive():
+            self.p.kill()
+            self.join()
+
+        return self.times;
+
 def RunAndAddData(benchmarkname, executable):
     print "Running",benchmarkname,
     sys.stdout.flush()
-    timings=[]
-    for i in range(3):
-        print i,
-        sys.stdout.flush()
-        start=float(time.time())
-        if os.system(executable+" > run.log 2>&1") != 0:
-            continue
-        timings.append(float(time.time()) - start)
+    timings=RunCmd([executable], TestTimeout).run_the_process()
     if not timings:
         return
     print "Done!"
