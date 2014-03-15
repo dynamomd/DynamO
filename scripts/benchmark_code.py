@@ -15,8 +15,9 @@ import sys
 import math
 
 #Settings for the script
-CODESPEED_URL = 'http://localhost:8000/'
+CODESPEED_URL = 'http://speed.dynamomd.org/'
 TestTimeout=60 #Seconds before a test run is terminated (assumed stuck)
+environment="Xeon"
 #Global vars
 commitID = commands.getoutput('git rev-parse HEAD')
 current_date = datetime.today()
@@ -71,7 +72,7 @@ def RunAndAddData(benchmarkname, executable):
         'project': 'DynamO',
         'executable': 'default',
         'benchmark': benchmarkname,
-        'environment': "i7 Laptop",
+        'environment': environment,
         'result_value': avg(timings),
         'min': min(timings),
         'max': max(timings),
