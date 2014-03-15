@@ -90,7 +90,7 @@ namespace magnet {
       }
 
       const_iterator lower_bound(key_type key) const {
-	if (Judy1First(_array, &key, NULL) != 0)
+	if (Judy1First(_array, reinterpret_cast<Word_t*>(&key), NULL) != 0)
 	  return const_iterator(*this, key);
 	else 
 	  return end();
@@ -100,7 +100,7 @@ namespace magnet {
 
       const_iterator next(const const_iterator& it) const {
 	key_type key = *it;
-	if (Judy1Next(_array, &key, NULL) != 0)
+	if (Judy1Next(_array, reinterpret_cast<Word_t*>(&key), NULL) != 0)
 	  return const_iterator(*this, key);
 	else 
 	  return end();
@@ -108,7 +108,7 @@ namespace magnet {
 
       const_iterator prev(const const_iterator& it) const {
 	key_type key = *it;
-	if (Judy1Prev(_array, &key, NULL) != 0)
+	if (Judy1Prev(_array, reinterpret_cast<Word_t*>(&key), NULL) != 0)
 	  return const_iterator(*this, key);
 	else
 	  return end();
@@ -124,7 +124,7 @@ namespace magnet {
 
       const_iterator findNth(const size_t i) {
 	key_type key;
-	if (Judy1ByCount(_array, i+1, &key, NULL))
+	if (Judy1ByCount(_array, i+1, reinterpret_cast<Word_t*>(&key), NULL))
 	  return const_iterator(*this, key);
 	else
 	  return end();
@@ -175,7 +175,7 @@ namespace magnet {
       }
 
       const_iterator lower_bound(key_type idx) const {
-	mapped_type* ptr = (mapped_type*)JudyLFirst(_array, (Word_t*)&idx, NULL);
+	mapped_type* ptr = (mapped_type*)JudyLFirst(_array, reinterpret_cast<Word_t*>(&idx), NULL);
 	if (ptr != NULL)
 	  return const_iterator(*this, value_type(idx, *ptr));
 	else
@@ -188,7 +188,7 @@ namespace magnet {
 
       const_iterator next(const const_iterator& it) const { return next(it->first); }
       const_iterator next(key_type idx) const {
-	mapped_type* ptr = (mapped_type*)JudyLNext(_array, (Word_t*)&idx, NULL);
+	mapped_type* ptr = (mapped_type*)JudyLNext(_array, reinterpret_cast<Word_t*>(&idx), NULL);
 	if (ptr != NULL)
 	  return const_iterator(*this, value_type(idx, *ptr));
 	else
@@ -197,7 +197,7 @@ namespace magnet {
 
       const_iterator prev(const const_iterator& it) const { return prev(it->first); }
       const_iterator prev(key_type idx) const {
-	mapped_type* ptr = (mapped_type*)JudyLPrev(_array, (Word_t*)&idx, NULL);
+	mapped_type* ptr = (mapped_type*)JudyLPrev(_array, reinterpret_cast<Word_t*>(&idx), NULL);
 	if (ptr != NULL)
 	  return const_iterator(*this, value_type(idx, *ptr));
 	else
@@ -231,7 +231,7 @@ namespace magnet {
 
       const_iterator findNth(const size_t i) const {
 	key_type index;
-	mapped_type* PValue = (mapped_type*)JudyLByCount(_array, i+1, &index, NULL);
+	mapped_type* PValue = (mapped_type*)JudyLByCount(_array, i+1, reinterpret_cast<Word_t*>(&index), NULL);
 	if (PValue != NULL)
 	  return const_iterator(*this, value_type(index, *PValue));
 	else
