@@ -71,13 +71,15 @@ namespace magnet {
     class JudySet
     {
     public:
+      JudySet(): _array((Pvoid_t) NULL), _count(0) {}
+
       typedef KeyType key_type;
       typedef key_type value_type;
       static_assert(sizeof(KeyType) == sizeof(Word_t), "Must use a machine word as KeyType");
 
     private:
-      Pvoid_t _array = (Pvoid_t) NULL;
-      size_t _count = 0;
+      Pvoid_t _array;
+      size_t _count;
 
     public:
       typedef detail::ConstJudyIterator<JudySet, value_type> const_iterator;
@@ -159,9 +161,10 @@ namespace magnet {
       typedef MappedType mapped_type;
       typedef std::pair<key_type, mapped_type> value_type;
 
+      JudyMap(): _array((Pvoid_t) NULL), _count(0) {}
     private:
-      Pvoid_t _array = (Pvoid_t) NULL;
-      size_t _count = 0;
+      Pvoid_t _array;
+      size_t _count;
 
     public:
       typedef detail::ConstJudyIterator<JudyMap, value_type> const_iterator;
