@@ -47,6 +47,10 @@ namespace magnet {
 	  for (size_t i(0); i < Order + 1; ++i)
 	    (*this)[i] = -(*this)[i];
 	}
+
+	double nextEvent() {
+	  return nextEvent(*this);
+	}
       };
       
       template<size_t Order>
