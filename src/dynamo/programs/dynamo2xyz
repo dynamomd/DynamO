@@ -15,7 +15,7 @@ def loadXMLFile(filename):
         f.close()
         return doc
     else:
-        return etree.parse(filename)
+        return ET.parse(filename)
 
 import sys
 if len(sys.argv) == 1:
