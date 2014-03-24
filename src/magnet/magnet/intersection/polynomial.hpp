@@ -30,9 +30,13 @@ namespace magnet {
 
 	void timeShift(double dt) {
 	  std::array<double, Order + 1> newCoeffs;
-	  for (size_t i(0); i < Order + 1; ++i)
+	  for (size_t i(0); i <= Order; ++i)
 	    newCoeffs[i] = eval(dt, i);
 	  *this = newCoeffs;
+	}
+
+	inline double operator()(double dt = 0) const {
+	  return eval(dt, 0);
 	}
 
 	double eval(double dt, size_t derivative = 0) const {
@@ -44,15 +48,42 @@ namespace magnet {
 	}
 	
 	void flipSign() {
-	  for (size_t i(0); i < Order + 1; ++i)
+	  for (size_t i(0); i <= Order; ++i)
 	    (*this)[i] = -(*this)[i];
 	}
 
-	double nextEvent() {
+	double nextEvent() const {
 	  return nextEvent(*this);
 	}
+
+	double order() const { return Order; }
       };
-      
+
+      namespace {
+	constexpr size_t ctime_max(size_t a, size_t b) { return (b>a) ? b : a; }
+      }
+
+      /*! \brief Return an overlap function for calculating when we
+          must transfer from overlapped dynamics of A into overlapped
+          dynamics of B.
+       */
+      template<size_t OA, size_t OB>
+      PolynomialFunction<ctime_max(OA, OB)> 
+      interfaceLine(const PolynomialFunction<OA>& fA, const PolynomialFunction<OB>& fB)
+      {
+	PolynomialFunction<ctime_max(OA, OB)> f;
+	for (size_t i(0); i <= ctime_max(OA, OB); ++i)
+	  {
+	    f[i] = 0;
+	    if (i <= OA)
+	      f[i] += fB[i];
+	    if (i <= OB)
+	      f[i] -= fA[i];
+	  }
+	return f;
+      }
+
+
       template<size_t Order>
       PolynomialFunction<Order-1> lowerOrder(const PolynomialFunction<Order>& f) {
 	PolynomialFunction<Order-1> retval;
