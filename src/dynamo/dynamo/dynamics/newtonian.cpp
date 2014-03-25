@@ -395,7 +395,8 @@ namespace dynamo {
 
     double mu = 1.0 / ((1.0 / p1Mass) + (1.0 / p2Mass));
 
-    //Treat special cases if one particle has infinite mass
+    //If both particles have infinite mass, we need to modify the
+    //masses (and mu) to allow collisions.
     bool infinite_masses = (p1Mass == HUGE_VAL) && (p2Mass == HUGE_VAL);
     if (infinite_masses)
       {
